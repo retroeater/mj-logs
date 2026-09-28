@@ -32,7 +32,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   型ごとのページはdocs/notes/static-generation.md「ページの一覧」、仕組みは同「現行の仕組み」
 - **型Cの選手選択リストに退会済みの選手が出ないのは正しい挙動**（#168）
 - Google Charts依存の6ページは、まだブラウザから`google.visualization.Query`で直接スプレッドシートを叩く旧方式（#7）
-- 選手のプロフィール画像は龍龍(ron2.jp)など外部ドメインを含む複数サービスに依存し、リンク切れしやすい
+- 選手のプロフィール画像はX(pbs.twimg.com)など外部ドメインを含む複数サービスに依存し、リンク切れしやすい（龍龍〈ron2.jp〉は2026-09-28に廃止）
 
 ### メンテナンス用スクリプト（scripts/）
 - `scripts/`は`.assetsignore`で公開対象外。スクリプトごとの説明・実行時期・使い方はdocs/notes/static-generation.md「メンテナンス用スクリプトの詳細」
