@@ -62,6 +62,7 @@ CLAUDE.md「ブランチ運用」の「作業ブランチも削除する」は�
 - `docs.google.com`（スプレッドシートの読み込み。再生成に必須）
 - `*.googleusercontent.com`（CSV エクスポートのリダイレクト先。フィルタ検知 #432 に要る）
 - `www.ma-jan.or.jp`、`ron2.jp`、`x.com`、`pbs.twimg.com`、`www.youtube.com`、`img.youtube.com`、`ryoei.pro`、`thumbnail.image.rakuten.co.jp`
+- `*.cloudflare.com`（2026-09-28。公式ドキュメント `developers.cloudflare.com` と公式ブログ `blog.cloudflare.com` を読むため。CW-11 で両方 200 を確認）
 
 未追加: `openapi.rakuten.co.jp`（books は凍結中）。再生成は `jpml_titles` で確かめた（MD-15）。鍵の要るスクリプトはクラウドでは動かない（次節）。
 
