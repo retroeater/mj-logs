@@ -10,12 +10,13 @@
 
 過去の履歴は `docs/notes/handover-archive-2026.md`。
 
-最終更新: 2026-09-26
+最終更新: 2026-09-27
 
+- **`/live`・`/title` の生成を3層のスプレッドシート（【2】自動変換後・【3】手動補正）から読むように切り替えた**（#438）。
+  掲載（Y/N）と補正の入力先は【3】だけ。旧シートの「連盟ch」「放送対局」は読まない（`docs/notes/live-channel-write.md`）
 - **スマホのチャットから作業ログとガイド文書を読めるようにした**（public の `retroeater/mj-logs`、#440。読み方は3章「チャット側のアクセス手段」）
 - **`/titles` 統合（#435）は中止**（情報量過多で見つけにくくなるため）。`/title`・`/live` は別ページのまま開発継続。
   検討中の成果は `/live` の掲載範囲拡大（#437、親 #346）に引き継いだ（`docs/notes/live-page-design.md`「3-5」）
-- **最強戦（`saikyo/`）を一般公開した**（#348・#319 クローズ、`docs/notes/saikyo-page-design.md`）。残件は #350・#425・#382・#383・#428・#410・#412
 
 ---
 
@@ -87,7 +88,7 @@ Google Charts依存（#7の対象）・静的なページ の4つ。**件数の�
 
 ### データの流れ
 
-選手データや成績はすべて**Googleスプレッドシート**にある（生成スクリプトが読むのは6冊。ほかに連盟員名簿の1冊を `check_meibo.py`・`sync_birthday_calendar.py` が読む）。
+選手データや成績はすべて**Googleスプレッドシート**にある（生成スクリプトが読むのは7冊。ほかに連盟員名簿の1冊を `check_meibo.py`・`sync_birthday_calendar.py` が読む）。
 
 - ビルド時生成のページ … `scripts/generate_<ページ名>.py` がビルド時に取得してHTMLに焼き込む（型ごとの仕組みは `docs/notes/static-generation.md`「現行の仕組み」）。`wayhome_episodes`は出力が`wayhome/`配下38枚、`saikyo_pages`は`saikyo/`配下、`title_pages`は`title/`配下、`live_pages`は`live/`配下と`_redirects`の生成部分・`data/live_*.json`になる（`scripts/regenerate.py`の`OUTPUT_OVERRIDES`）
 - Google Charts依存の6ページ … 訪問者がページを開くたびにブラウザが `docs.google.com` へクエリを投げる
@@ -235,6 +236,7 @@ worktree 内で `python3 scripts/regenerate.py <ページ名>` を実行する�
 |---|---|---|
 | #130 | AIボット制御の再設定 | 旧トグルは廃止済み。Training は **Disallow**（Block は混在クローラーも遮断する）。**2026-09-24** に検索用クローラーが弾かれていないか再確認してクローズ |
 | #269 | Search Console の月次取得 | **2026-10-01** の初回の定期実行（`fetch-gsc.yml`）を確かめてクローズ |
+| #390 | 道場部ゲストの読み取りの `max_tokens` を thinking 込みで上げた修正（2026-09-26）は、修正後のコードでまだ読み取っていない | 10月分の告知画像を初めて読む定期実行（`sync-dojo-calendar.yml`、結果は #426）が成功するかを確かめる |
 | #97 | 書籍ページ開発凍結中の楽天データ保存期限 | **2026-12-22**（最後に取得した2026-09-22の3か月後）までに再取得するか削除する（`docs/notes/books-freeze.md`「楽天の期限」） |
 
 GitHub Issues（Open）に全件あるが、着手可能な主なものは以下。
@@ -294,7 +296,7 @@ GitHub Issues（Open）に全件あるが、着手可能な主なものは以下
 | `docs/notes/title-pages.md` | タイトル戦の新構成（`title/`、#222） |
 | `docs/notes/live-page-design.md` | 放送対局ページ（`live/`、#346）。掲載範囲の拡大は「3-5」（#437） |
 | `docs/notes/birthday-calendar.md` | 誕生日カレンダーの同期（#379） |
-| `docs/notes/live-channel-write.md` | 「連盟ch」への書き込み用サービスアカウントの設定手順（#438） |
+| `docs/notes/live-channel-write.md` | /live の3層（【1】【2】【3】）の書き込み・毎日の取り込み・平野さんの入力の手順（#438） |
 | `docs/notes/books-freeze.md` | **書籍ページの開発凍結（2026-09-22、#97）。決定・凍結時点の状態・楽天データの期限・再開手順** |
 | `docs/notes/books-calendar.md` | 書籍の発売日のカレンダー同期の仕組み（#97、凍結時点の記録） |
 | `docs/notes/books-covers.md` | 書籍の書影（楽天ブックス書籍検索API）の仕組みと規約（#97、凍結時点の記録） |
