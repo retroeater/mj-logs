@@ -249,7 +249,7 @@ handover.md 5章から移した。ページの一覧は下の「ページの一�
 
 ### ページの一覧
 
-HTMLは26ページ + 書籍の一覧と個別ページ（`books/`、#97、noindex・メニュー未掲載。**2026-09-22 開発凍結、`docs/notes/books-freeze.md`**） + 「帰り道」エピソード個別ページ38枚（`wayhome/`、#162） + 最強戦のトップと年度ページ（`saikyo/`、#319/#355、2026-09-21 に公開） + タイトル戦の新構成（`title/`、#222、未公開） + 放送対局ページ（`live/`、#346、noindex・メニュー未掲載。正式公開は #362）。大きく4系統に分かれる。
+HTMLは26ページ + 書籍の一覧と個別ページ（`books/`、#97、noindex・メニュー未掲載。**2026-09-22 開発凍結、`docs/notes/books-freeze.md`**） + 「帰り道」エピソード個別ページ38枚（`wayhome/`、#162） + 最強戦のトップと年度ページ（`saikyo/`、#319/#355、2026-09-21 に公開） + タイトル戦の新構成（`title/`、#222、2026-09-28 に公開、#413） + 放送対局ページ（`live/`、#346、noindex・メニュー未掲載。正式公開は #362）。大きく4系統に分かれる。
 
 | 系統 | ページ数 | 状態 |
 |---|---|---|
@@ -262,7 +262,7 @@ HTMLは26ページ + 書籍の一覧と個別ページ（`books/`、#97、noinde
 | ビルド時生成（独自: 全画面ヒーロー+横スクロールカード列） | 1 | `video_wayhome.html`。`render_content()`+専用JS`video_wayhome.js`。新サイトのパイロット（`docs/notes/video-wayhome.md`） |
 | ビルド時生成（サブディレクトリ、ヒーロー構成のエピソード個別ページ） | 38 | `wayhome/<動画ID>.html`。`scripts/generate_wayhome_episodes.py`（`docs/notes/video-wayhome.md`） |
 | ビルド時生成（サブディレクトリ、最強戦のトップと年度ページ） | トップ1＋年度数 | `saikyo/index.html`・`saikyo/<年度>.html`。`scripts/generate_saikyo_pages.py`。2026-09-21 に一般公開し、navbar・`sitemap-saikyo.xml`・`llms.txt` に載る（#319・#348、`docs/notes/saikyo-page-design.md`） |
-| ビルド時生成（サブディレクトリ、タイトル戦の新構成） | 入口1＋大会数＋期数 | `title/index.html`・`title/<slug>/index.html`・`title/<slug>/<期>.html`。`scripts/generate_title_pages.py`。noindex・メニュー未掲載（#222、`docs/notes/title-pages.md`） |
+| ビルド時生成（サブディレクトリ、タイトル戦の新構成） | 入口1＋大会数＋期数 | `title/index.html`・`title/<slug>/index.html`・`title/<slug>/<期>.html`。`scripts/generate_title_pages.py`。navbar の「連盟 > タイトル」から入口へ（#413、`docs/notes/title-pages.md`） |
 | ビルド時生成（サブディレクトリ、放送対局ページ） | 691（2026-09-18） | `live/index.html`・`live/<タイトル戦>/index.html` 以下。`scripts/generate_live_pages.py`。noindex・メニュー未掲載、正式公開は #362（`docs/notes/live-page-design.md`） |
 | ビルド時生成（サブディレクトリ、書籍の一覧と個別ページ） | 一覧1＋190 | `books/index.html`・`books/<ISBN13>.html`。`scripts/generate_books_pages.py`。noindex・メニュー未掲載、`sitemap-books.xml` は `sitemap.xml` から未参照。**2026-09-22 開発凍結（自動生成・自動取得を停止、本番はそのまま残す）。詳細は `docs/notes/books-freeze.md`** |
 | Google Charts依存 | **6** | ブラウザから直接スプレッドシートを読む。#7の対象。型B3・ランキング系A3 |
@@ -281,6 +281,7 @@ HTMLは26ページ + 書籍の一覧と個別ページ（`books/`、#97、noinde
 - `wayhome_episodes`だけは出力が単一ページではなく`wayhome/`配下38枚になる（#162）
 - `saikyo_pages`（`scripts/generate_saikyo_pages.py`）も出力が単一ページではなく、`saikyo/`配下の年度ページと、`sitemap-saikyo.xml`（年度ページのみ）になる（#319、`regenerate.py`の`OUTPUT_OVERRIDES`は`"saikyo/"`）。表を持たず`render_content()`と`assets/saikyo.js`を使う。設計は`docs/notes/saikyo-page-design.md`
 - `title_pages`（`scripts/generate_title_pages.py`）は`title/`配下の入口・大会ページ・期ページと、`sitemap-title.xml`を書き出す（#222、`OUTPUT_OVERRIDES`は`"title/"`）。`sitemap-title.xml`は公開まで`sitemap.xml`から参照しない。仕組みは`docs/notes/title-pages.md`
+- **複数のスクリプトが使う定数・関数（シートのクエリ・列の定義など）を変えるときは、その名前を import・参照している所を `git grep` ですべて洗い出し、マージの前に `python3 scripts/regenerate.py all` で全ページを再生成して差分を確かめる。** ほかのスクリプトが借りて列の位置で読んでいると、そちらのページが黙ってずれる
 
 ### シートのフィルタの検知（#432）
 
@@ -409,6 +410,7 @@ GitHub Actions (`.github/workflows/regenerate-page.yml`) が、`scripts/generate
   schedule は28〜31日 21:00 UTC に起動し、JST で1日の回だけ本体が動く（毎月1日 06:00 JST。2026-09-21 に有効にした）。
   `--plan` を付けるとAPIを呼ばずに期間と出力先だけ出せる
 - `assets-check.yml` は Cloudflare へのアクセスを要しない検査専用
+- **待機は上限15分。** ワークフロー・check-run・ビルド・デプロイなど外部の状態を、sleep を挟んで繰り返し確かめる「待機」は、始めてから15分で打ち切る（until ループなど上限の無い待機は使わない）。打ち切ったらその時点の状態をログに書き、確かめられなかったことを「未確認の項目」に回して先へ進む。テスト・生成・取得など、自分のコマンドが処理を進めている「実行」はこの上限の対象ではない（進み具合が出力に出るようにする）
 
 ### style.css の共通クラス
 
