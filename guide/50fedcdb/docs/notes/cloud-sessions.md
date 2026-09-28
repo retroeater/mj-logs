@@ -61,7 +61,11 @@ CLAUDE.md「ブランチ運用」の「作業ブランチも削除する」は�
 
 - `docs.google.com`（スプレッドシートの読み込み。再生成に必須）
 - `*.googleusercontent.com`（CSV エクスポートのリダイレクト先。フィルタ検知 #432 に要る）
-- `www.ma-jan.or.jp`、`ron2.jp`、`x.com`、`pbs.twimg.com`、`www.youtube.com`、`img.youtube.com`、`ryoei.pro`、`thumbnail.image.rakuten.co.jp`
+- `www.ma-jan.or.jp`、`x.com`、`pbs.twimg.com`、`www.youtube.com`、`img.youtube.com`、`ryoei.pro`、`thumbnail.image.rakuten.co.jp`
+  （`ron2.jp` は 2026-09-28 に外した。龍龍への依存の廃止で、生成・検査が接続しなくなったため）
+- `*.cloudflare.com`（2026-09-28。公式ドキュメント `developers.cloudflare.com` と公式ブログ `blog.cloudflare.com` を読むため。CW-11 で両方 200 を確認）
+- `*.workers.dev`（2026-09-28。本番の Worker と作業ブランチのプレビューの確認用。CW-14 で両方 200 を確認。URL はログに書かない）
+- `calendar.google.com`（2026-09-28。放送対局の予定表の公開カレンダーを読むため、#448）
 
 未追加: `openapi.rakuten.co.jp`（books は凍結中）。再生成は `jpml_titles` で確かめた（MD-15）。鍵の要るスクリプトはクラウドでは動かない（次節）。
 
@@ -76,7 +80,7 @@ CLAUDE.md「ブランチ運用」の「作業ブランチも削除する」は�
 （仕組みは docs/notes/cloudflare.md「work/ ブランチのプレビュー」）。URL は check-run「Workers Builds: mj」の出力にある。
 
 - **プレビューの URL は非公開の URL として扱い、ログ・issue・コミットに書かない。ターミナルの最終報告にだけ書く**（CLAUDE.md「作業ログ」節）
-- セッションからはプレビューに接続できないことがある（MD-17 では拒否された）。そのときは表示を確かめていないことを「未確認の項目」に書く
+- セッションからはプレビューに接続できないことがある（MD-17 では拒否された。2026-09-28 に `*.workers.dev` を許可してからは接続できる）。そのときは表示を確かめていないことを「未確認の項目」に書く
 
 ## 作業ログ
 
