@@ -32,7 +32,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   型ごとのページはdocs/notes/static-generation.md「ページの一覧」、仕組みは同「現行の仕組み」
 - **型Cの選手選択リストに退会済みの選手が出ないのは正しい挙動**（#168）
 - Google Charts依存の6ページは、まだブラウザから`google.visualization.Query`で直接スプレッドシートを叩く旧方式（#7）
-- 選手のプロフィール画像は龍龍(ron2.jp)など外部ドメインを含む複数サービスに依存し、リンク切れしやすい
+- 選手のプロフィール画像はX(pbs.twimg.com)など外部ドメインを含む複数サービスに依存し、リンク切れしやすい（龍龍〈ron2.jp〉は2026-09-28に廃止）
 
 ### メンテナンス用スクリプト（scripts/）
 - `scripts/`は`.assetsignore`で公開対象外。スクリプトごとの説明・実行時期・使い方はdocs/notes/static-generation.md「メンテナンス用スクリプトの詳細」
@@ -59,6 +59,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   公開してよいか確認し、公開しないものは追加する（#133）
 - タスクはGitHub Issuesで管理
 - ビルド・lint の自動化コマンドはなし。HTML/JSの変更はブラウザで直接確認する
+- 外部の状態を待つ待機は上限15分。共有の定数・関数を変えるときは参照を洗い出し全ページを再生成する（docs/notes/static-generation.md「ワークフローを手動実行するとき」「生成スクリプトの構成」）
 - テストは`scripts/tests/`（unittest、標準ライブラリのみ）。実行は`python3 -m unittest discover -s scripts/tests`。週次の`check-meibo.yml`も実行する
 
 ### 禁止事項（理由は参照先）
