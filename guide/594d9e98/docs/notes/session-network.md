@@ -123,13 +123,12 @@ Python かどうかでは決まらない。`requests` の既定 User-Agent で�
 - **`urllib` で `ryoei.pro` を取得するときは User-Agent を必ず指定する。** 指定しないと、本番は正常なのに
   「落ちている」「未反映」と誤判定する。`requests` と curl は既定のままでよい
 - **リンク切れ検査の系統をローカルで走らせるときは特に注意する**
-  （`check_image_links.py` / `check_ron2_images.py` / `collect_ron2_images.py`、
-  ワークフローは `check-image-links.yml` / `check-ron2-images.yml`）。
-  3本とも `urllib` で User-Agent をブラウザ風に設定済みだが、手元で `urllib` を直接使って
+  （`check_image_links.py`、ワークフローは `check-image-links.yml`）。
+  `urllib` で User-Agent をブラウザ風に設定済みだが、手元で `urllib` を直接使って
   書いた検証コードや新しく足したスクリプトは既定の User-Agent になる。
   403 に `server: cloudflare` と `error code: 1010` が付いていたら、
   リンク切れではなくこの判定を疑う
-- 現在の検査対象（`jpml_pros.html` の画像）は `ron2.jp`・`pbs.twimg.com` などの
+- 現在の検査対象（`jpml_pros.html` の画像）は `pbs.twimg.com` などの
   外部ホストで、`ryoei.pro` は含まない。外部ホストが同様の判定をするかは未確認
 
 ## シートの行番号を取る手順
