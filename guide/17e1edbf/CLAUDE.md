@@ -69,6 +69,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - assets/vendor 配下に `sourceMappingURL` コメントを残さない（`.map`を同梱しないため404になる、#99）。更新時はファイルのパスを変える（ブラウザに30日キャッシュが残る、#92）
 - sitemap の lastmod を手で書き換えない（`scripts/update_sitemap_lastmod.py --from-git`が導出する。docs/notes/sitemap-lastmod.md、#265）
 - `git stash` を使わない（「ブランチ運用」）
+- 未コミットの変更がある作業ツリーで、`git checkout HEAD -- .`・`git reset --hard`・`git clean` などまとめて消すコマンドを使わない
+  （docs/notes/branch-operations.md「未コミットの変更を戻すとき」）
 
 ## ブランチ運用
 
