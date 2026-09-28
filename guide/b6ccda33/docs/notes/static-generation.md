@@ -381,7 +381,7 @@ GitHub Actions (`.github/workflows/regenerate-page.yml`) が、`scripts/generate
 | `regenerate-page.yml` | 生成スクリプト・対応する`.js`・`scripts/lib/**`の変更のpushと、毎週月曜05:37 JST（`all`）。ページを再生成してコミットする（詳細は上の「regenerate-page.yml」） |
 | `check-image-links.yml` | 毎週月曜03:00 JST。画像のリンク切れ（最強戦の選手写真を含む）を確かめ、常設issueに書き出す |
 | `check-saikyo-unregistered.yml` | 毎週月曜06:50 JST。最強戦の出場者で「プロ」「連盟プロ以外」から引けない人を常設issueに書く（#431、`docs/notes/saikyo-page-design.md`「8. 出場者の登録漏れの検知」） |
-| `assets-check.yml` | pushのたび。`.assetsignore`の漏れ（#133）と CLAUDE.md・handover.md のサイズを検知する |
+| `assets-check.yml` | pushのたび。`.assetsignore`の漏れ（#133）と CLAUDE.md・handover.md のサイズを検知し、配信の上限との比（`check_asset_limits.py`、#387）を出す |
 | `sitemap-lastmod.yml` | HTMLを含むpush。sitemapのlastmodをgitの最終コミット日にそろえてコミットする（#265、`docs/notes/sitemap-lastmod.md`） |
 | `check-leagues-dropped.yml` | 手動実行のみ。型Cで選択リストから漏れている選手を検知する（#168） |
 | `cleanup-logs.yml` | 毎週月曜06:23 JST。7日を過ぎた作業ログを片付け、条件外のものを #357 に通知する |
@@ -444,6 +444,7 @@ GitHub Actions (`.github/workflows/regenerate-page.yml`) が、`scripts/generate
 - `delete_merged_branches.py` — マージ済み（`origin/cloudflare` の祖先）で先頭が24時間より前の `work/*` を削除し、ブランチ名と先頭の SHA を出力する（`delete-merged-branches.yml`から毎日、`--dry-run`で一覧のみ。完全な履歴のクローンが要る）
 - `check_meibo.py` — 連盟員名簿データ（`lib/meibo.py`）と「プロ」シートの在籍者を登録名で突き合わせ、名簿のみ・プロのみを一覧にする（#370、`check-meibo.yml`から週1、生成は止めない）。テストは CLAUDE.md「判断・作業の原則」
 - `regenerate.py` — ページ再生成の共通入口。`scripts/generate_<ページ名>.py`が存在するページを「生成対象」とみなす。`--list`で対象ページ一覧、`all`で全ページ再生成、ページ名指定で単体再生成、`--changed`で変更ファイルから対象判定（`regenerate-page.yml`が使用）
+- `check_asset_limits.py` — 配信ファイル数・最大のファイル・`_redirects`（静的・動的）・`_headers`のルール数を Cloudflare の上限（Workers Free）との比で表にし、80% 以上で警告、100% 超でエラー終了する（#387）。`regenerate.py`の最後と`assets-check.yml`から呼ばれ、Actions ではジョブのサマリにも出す
 - `apply_page_meta.py` — 全ページの`<title>`・meta description・OGPタグを一括書き換え（#5）。`--dry`でプレビューのみ
 - `check_leagues_dropped.py` — 型C（`houou_leagues` / `ouka_leagues`）で、リーグの実データがあるのに選手選択リストから漏れている選手を検知（#168、手動実行）。**出力は警告ではなく参考情報。退会者が並ぶのは正常で、在籍中の選手が現れたときだけ「プロ」シートの入力漏れを疑う。**`generate_*_leagues.py` から定数と `period_of()` / `fill_front_half()` をimportし、集計は `lib/leagues.py` を生成時と同じ引数で呼ぶ。生成側で `build_player_series()` の引数を変えたときはこちらも直すこと。`.github/workflows/check-leagues-dropped.yml` からworkflow_dispatchで実行でき、結果を実行サマリと指定issueへのコメントに出す
 - `build_ogp_image.py` — OGP画像 `img/ogp.png`（1200×630、背景#ffffff、「ryoei.pro」の文字のみ）を生成（#78、手動実行）。Pillowが必要。全ページ共通の1枚で、`lib/page.py` / `generate_jpml_pros.py` のテンプレートと静的ページに `og:image` として入っている。生成したPNGもコミットする（生成環境のフォント差で再生成のたびに差分が出るのを避けるため）。`--check`でコミット済みのPNGと一致するか確認できる。`--text` と `--out` で任意の文字列・出力先の1枚も作れる（#343）。和文は `~/.local/share/fonts/NotoSansJP-Bold.otf`（`OGP_FONT`で差し替え可、無ければ失敗）を使い、横幅1040pxに収まるまで文字を小さくする。段を重ねるときは `--text` を繰り返し、`--scale`（1段目に対する比）・`--color`・`--max-size`・`--tracking`・`--line-gap` で調整する。背景は `--bg`（既定#ffffff）。最強戦の年度ページのコマンドは `docs/notes/saikyo-page-design.md`（`<年度>-black.png`、#343）にあり、年度が増えたときはこれを1回実行して生成したPNGをコミットする。**引数なしの `--check` は、コミット時と環境のフォントが違うと、スクリプトを変える前から一致しない**（2026-09-16 の Codespace では FONT_CANDIDATES のうち DejaVuSans が使われ、変更前のスクリプトでも一致しなかった）。スクリプトを変えたときの回帰確認は、変更前後のスクリプトの `render()` の出力同士を比べる（CHAT-0916-SY-07/08）

@@ -416,10 +416,12 @@ title/descriptionの出し分けは新サイト（#296）で解く（#79も同�
 | `/img/*` | 1年・immutable |
 | `/favicon.ico` `/apple-touch-icon.png` | 1日（#174でimmutableから緩和） |
 | `/assets/vendor/*` | 30日 |
-| HTML・ルート直下の `.css` / `.js` | 既定のまま（毎回再検証） |
+| HTML・ルート直下の `.css` / `.js` | 既定のまま（毎回再検証）。200 の応答も `public, max-age=0, must-revalidate`（2026-09-28 実測、#258） |
 
 ファイル名にハッシュを持たないため、HTMLとルート直下の
 スクリプトには意図的にTTLを付けていない。
+**HTML には ETag も Last-Modified も付かない**ため、再検証しても 304 にならず毎回全体を再取得する（`.css` / `.js` は ETag があり 304 になる。原因は #449）。
+Email Address Obfuscation は 2026-09-11 に Off と記録したが（#120）2026-09-28 にオンになっていたので Off に戻した（平野さんの申告）。本番の Worker の workers.dev でも HTML に ETag が無く、ETag とは無関係（#449）。
 
 **`assets/vendor` 配下を更新した場合、ブラウザには最大30日
 キャッシュが残る。** Cloudflareのキャッシュパージでは消えない。
@@ -520,8 +522,13 @@ Workers & Pages → `mj` → Settings → Builds:
   check-runs を引くと、ドキュメントのみの `c4083c4` / `8466d08` には
   GitHub Actions の `check` だけが付き `Workers Builds: mj` が無い。
   **設定値そのものは見られなくても、結果は check-runs から観測できる。**
-  逆に言えば、`docs/**` のみの push で `Workers Builds` が現れたら
+  逆に言えば、push の範囲全体が `docs/**` のみなのに `Workers Builds` が現れたら
   設定が外れた合図になる。
+- **判定は push 全体のファイルで行われる**（公式: https://developers.cloudflare.com/workers/ci-cd/builds/build-watch-paths/ 「For each path in a push event」。
+  0ファイル、または 3000 ファイル以上か 20 コミット以上の push は判定を飛ばして必ずビルド）。
+  ログだけのコミットが先頭でも、同じ push に docs 以外の変更が入るとビルドされる。よくあるのは、
+  作業ブランチに cloudflare を取り込む・マージ済みの作業ブランチを cloudflare から作り直して push する・
+  cloudflare へ他セッションの成果物ごとマージする、の3つ（2026-09-28 の実測。新しいブランチへの docs だけの push はビルドされなかった）
 - **本番のHTMLは取得して確認できるが、ブラウザでの見え方は確認できない。**
   `curl https://ryoei.pro/<パス>` で配信中のHTMLに変更が入ったかは見られる。
   レイアウト・CSSの効き・JSの動作は見られず、反映後の目視確認は平野さんの作業のまま変わらない
@@ -546,7 +553,7 @@ Workers & Pages → `mj` → Settings → Builds:
 - ログイン不要で誰でも開ける。`x-robots-tag: noindex` が付く。ブランチを削除した後も開ける
 - この URL は非公開として扱い、作業ログには書かず、ターミナルへの最終報告にだけ書く（CLAUDE.md「作業ログ」節、ログの書き方は `docs/logs/_template.md`）
 - **先頭が docs/ だけのコミットの push ではビルドが走らないことがある**（TH-03 の f7d74e4・TH-04 の 7e601b3 をログのコミットと一緒に push し、check-run が付かなかった）。
-  Build watch paths の `docs/**` 除外（#171）が先頭のコミットで判定されている、という推定（未検証、#363）。確実に見たいときは、コードのコミットをログのコミットより先に単独で push する
+  公式の説明（上の「判定は push 全体のファイルで行われる」）とは食い違い、理由は分かっていない（ビルドがまとめられた可能性。下の「check-run が queued のまま・見当たらない場合」、#363）。確実に見たいときは、コードのコミットをログのコミットより先に単独で push する
 
 ### check-run が queued のまま・見当たらない場合（2026-09-13）
 

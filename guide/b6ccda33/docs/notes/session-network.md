@@ -128,7 +128,7 @@ Python かどうかでは決まらない。`requests` の既定 User-Agent で�
   書いた検証コードや新しく足したスクリプトは既定の User-Agent になる。
   403 に `server: cloudflare` と `error code: 1010` が付いていたら、
   リンク切れではなくこの判定を疑う
-- 現在の検査対象（`jpml_pros.html` の画像）は `ron2.jp`・`pbs.twimg.com` などの
+- 現在の検査対象（`jpml_pros.html` の画像）は `pbs.twimg.com` などの
   外部ホストで、`ryoei.pro` は含まない。外部ホストが同様の判定をするかは未確認
 
 ## シートの行番号を取る手順
