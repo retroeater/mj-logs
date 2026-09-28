@@ -134,6 +134,8 @@ Sheets APIの呼び出し回数（サービスアカウントの書き込み上�
 5. **ページの再生成**（#438）: 1〜4 が成功したら、`regenerate-page.yml` を呼んで `live_pages`・`title_pages`（/live・title/）を作り直し、
    **変更があるときだけ** `cloudflare` へコミットする（本番に出る）。【3】の直しは、ここで翌朝のページに出る。
    1〜4 のどれかが失敗した日は作り直さない（ページは前の日のまま）。取り込みから再生成まで、合わせて数分で終わる
+6. **連盟の予定表の取り込み**（#448、ジョブ `yotei`）: 1〜4 が成功したら、連盟の予定表を別のスプレッドシート（予定表のスプレッドシート）の
+   【1】【2】【3】へ取り込む。/live の3層には書かない。仕組みは `docs/notes/yotei-sheet.md`
 
 失敗したときは GitHub からメールが届く。実行の画面（https://github.com/retroeater/mj/actions/workflows/update-live-channel.yml ）の
 サマリに理由が出る。規則を直して意図して候補が減った・一度に多く足すときは、手動実行で `allow_shrink`・`allow_many` を付けて通す。
