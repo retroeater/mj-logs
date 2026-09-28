@@ -10,12 +10,13 @@
 
 過去の履歴は `docs/notes/handover-archive-2026.md`。
 
-最終更新: 2026-09-22
+最終更新: 2026-09-27
 
+- **`/live`・`/title` の生成を3層のスプレッドシート（【2】自動変換後・【3】手動補正）から読むように切り替えた**（#438）。
+  掲載（Y/N）と補正の入力先は【3】だけ。旧シートの「連盟ch」「放送対局」は読まない（`docs/notes/live-channel-write.md`）
+- **スマホのチャットから作業ログとガイド文書を読めるようにした**（public の `retroeater/mj-logs`、#440。読み方は3章「チャット側のアクセス手段」）
 - **`/titles` 統合（#435）は中止**（情報量過多で見つけにくくなるため）。`/title`・`/live` は別ページのまま開発継続。
   検討中の成果は `/live` の掲載範囲拡大（#437、親 #346）に引き継いだ（`docs/notes/live-page-design.md`「3-5」）
-- **最強戦（`saikyo/`）を一般公開した**（#348・#319 クローズ、`docs/notes/saikyo-page-design.md`）。残件は #350・#425・#382・#383・#428・#410・#412
-- タイトル戦（`title/`）は本番に入った（未公開・noindex）。次は #356 → 公開の判断（5章の #222）。後で進めるもの: #408・#409・#232・#397・#374
 
 ---
 
@@ -28,11 +29,14 @@ CLAUDE.md の該当節（「ブランチ運用」「Chat-Ref」「CLAUDE.md / ha
 複数セッションが並行しており、会話の途中でも両ファイルは更新される（#313）。
 
 issueの状況（Open/Closedの別、本文・コメント）はGitHubのIssues一覧ページで
-確認する。Claude Codeのセッションは `gh issue list` / `gh issue view` を使う。
-チャット側（claude.ai）はClaude for Chrome経由でGitHubのIssues一覧・個別
-issueページを直接読める（2026-09-13確認、#210）。
-**チャット側はブラウザを使う前と指示文を書く前に `docs/notes/chat-side-operations.md` を読む**
-（ブラウザ操作の回数・代わりの手段・ファイルの読み方・指示文を書くときの注意）。
+確認する。Claude Codeのセッションは `gh issue list` / `gh issue view`（クラウドセッションは GitHub MCP）を使う。
+**チャット側（claude.ai）は、作業ログとガイド文書を public の `retroeater/mj-logs` で読む。**
+入口は平野さんが送る「ログ（公開）」の行で、ガイド文書はそのログの末尾のリンク（`guide/<SHA>/`）から読む。
+新しい会話の始めは、前回の最後の「ログ（公開）」の行を送ってもらう。
+issue は private のままなので、チャット側が要る issue の状態は Claude Code に確かめさせてログに書かせる。
+PC では Claude for Chrome で GitHub の issue・ファイルを直接読むこともできる（#210）。
+**チャット側は指示文を書く前とブラウザを使う前に `docs/notes/chat-side-operations.md` を読む**
+（ログの読み方・ブラウザ操作の回数・代わりの手段・指示文を書くときの注意）。写し方は `docs/notes/cloud-sessions.md`「作業ログ」。
 **チャット側が Claude Code への指示文を書くときは `docs/instruction-template.md` を使う**（#294）。
 
 会話が長くなると1回あたりのコストが上がるため、
@@ -61,7 +65,7 @@ GitHub Pages からの移行の相談に始まり、Cloudflare への移行の�
 
 | 項目 | 内容 |
 |---|---|
-| リポジトリ | `retroeater/mj`。**private**（2026-09-13〜、#211）。チャット側からはブラウザ経由でのみ読める（3章「チャット側のアクセス手段」） |
+| リポジトリ | `retroeater/mj`。**private**（2026-09-13〜、#211）。チャット側は作業ログとガイド文書を public の `retroeater/mj-logs` で読む（3章「チャット側のアクセス手段」） |
 | 本番 | Cloudflare Workers（静的アセット配信）。`cloudflare` ブランチ |
 | ドメイン | `ryoei.pro` / `www.ryoei.pro`。DNS・レジストラともCloudflare |
 | 旧環境 | GitHub Pages。**2026-09-21 に無効化済み**（#84）。`gh-pages` ブランチは履歴として残す |
@@ -84,7 +88,7 @@ Google Charts依存（#7の対象）・静的なページ の4つ。**件数の�
 
 ### データの流れ
 
-選手データや成績はすべて**Googleスプレッドシート**にある（生成スクリプトが読むのは6冊。ほかに連盟員名簿の1冊を `check_meibo.py`・`sync_birthday_calendar.py` が読む）。
+選手データや成績はすべて**Googleスプレッドシート**にある（生成スクリプトが読むのは7冊。ほかに連盟員名簿の1冊を `check_meibo.py`・`sync_birthday_calendar.py` が読む）。
 
 - ビルド時生成のページ … `scripts/generate_<ページ名>.py` がビルド時に取得してHTMLに焼き込む（型ごとの仕組みは `docs/notes/static-generation.md`「現行の仕組み」）。`wayhome_episodes`は出力が`wayhome/`配下38枚、`saikyo_pages`は`saikyo/`配下、`title_pages`は`title/`配下、`live_pages`は`live/`配下と`_redirects`の生成部分・`data/live_*.json`になる（`scripts/regenerate.py`の`OUTPUT_OVERRIDES`）
 - Google Charts依存の6ページ … 訪問者がページを開くたびにブラウザが `docs.google.com` へクエリを投げる
@@ -118,8 +122,9 @@ Claude Codeは Codespace のターミナルで動いている（`/workspaces/mj`
 **Rebuild 後は `post-create.sh` が Claude Code を自動で入れる**（#212）。`.devcontainer/` を変えたときの反映手順と、
 codespace を作り直す前の確認は `docs/notes/session-network.md`「Rebuild と Claude Code」。
 
-**チャット側のアクセス手段（2026-09-13、#211）。**
-リポジトリは private のため、チャット側はブラウザ（Claude for Chrome）経由でのみ読める。
+**チャット側のアクセス手段（2026-09-26、#211・#440）。**
+リポジトリは private のため、チャット側は作業ログとガイド文書を、`sync-logs.yml` が写す public の `retroeater/mj-logs` で読む
+（入口は0章。PC では Claude for Chrome で mj も読める）。
 読み方・読めないときの代わりの手段・コミット履歴の独立検証は `docs/notes/chat-side-operations.md`。
 **コミットの到達確認・差分・マージ判定は、Claude Code 側が `git` / `gh` で行い、結果をチャットに報告する。**
 
@@ -231,6 +236,7 @@ worktree 内で `python3 scripts/regenerate.py <ページ名>` を実行する�
 |---|---|---|
 | #130 | AIボット制御の再設定 | 旧トグルは廃止済み。Training は **Disallow**（Block は混在クローラーも遮断する）。**2026-09-24** に検索用クローラーが弾かれていないか再確認してクローズ |
 | #269 | Search Console の月次取得 | **2026-10-01** の初回の定期実行（`fetch-gsc.yml`）を確かめてクローズ |
+| #390 | 道場部ゲストの読み取りの `max_tokens` を thinking 込みで上げた修正（2026-09-26）は、修正後のコードでまだ読み取っていない | 10月分の告知画像を初めて読む定期実行（`sync-dojo-calendar.yml`、結果は #426）が成功するかを確かめる |
 | #97 | 書籍ページ開発凍結中の楽天データ保存期限 | **2026-12-22**（最後に取得した2026-09-22の3か月後）までに再取得するか削除する（`docs/notes/books-freeze.md`「楽天の期限」） |
 
 GitHub Issues（Open）に全件あるが、着手可能な主なものは以下。
@@ -276,7 +282,7 @@ GitHub Issues（Open）に全件あるが、着手可能な主なものは以下
 | `docs/review-followup-instructions.md` | 2026-09-11 の包括レビューの指摘の出どころ（完了済み） |
 | `docs/notes/cloudflare.md` | Cloudflare の設定・配信（`_headers`・`_redirects`・`wrangler dev`）・本番反映と確認範囲 |
 | `docs/notes/session-network.md` | セッションから外部に届くか、gh の認証、Rebuild、シートの行番号、作業ファイルの置き場所 |
-| `docs/notes/chat-side-operations.md` | チャット側がブラウザを使う前と、指示文を書く前 |
+| `docs/notes/chat-side-operations.md` | チャット側が指示文を書く前と、ブラウザを使う前（ログの読み方もここ） |
 | `docs/notes/branch-operations.md` | ブランチの削除・ワークフローの変更・作業ログの寿命（入口の規則は CLAUDE.md） |
 | `docs/notes/static-generation.md` | ページの一覧・生成スクリプト・ページ側のJS・ワークフローの一覧・メンテナンス用スクリプト、#7 の残り |
 | `docs/notes/sitemap-lastmod.md` | sitemap の lastmod（#265） |
@@ -290,7 +296,7 @@ GitHub Issues（Open）に全件あるが、着手可能な主なものは以下
 | `docs/notes/title-pages.md` | タイトル戦の新構成（`title/`、#222） |
 | `docs/notes/live-page-design.md` | 放送対局ページ（`live/`、#346）。掲載範囲の拡大は「3-5」（#437） |
 | `docs/notes/birthday-calendar.md` | 誕生日カレンダーの同期（#379） |
-| `docs/notes/live-channel-write.md` | 「連盟ch」への書き込み用サービスアカウントの設定手順（#438） |
+| `docs/notes/live-channel-write.md` | /live の3層（【1】【2】【3】）の書き込み・毎日の取り込み・平野さんの入力の手順（#438） |
 | `docs/notes/books-freeze.md` | **書籍ページの開発凍結（2026-09-22、#97）。決定・凍結時点の状態・楽天データの期限・再開手順** |
 | `docs/notes/books-calendar.md` | 書籍の発売日のカレンダー同期の仕組み（#97、凍結時点の記録） |
 | `docs/notes/books-covers.md` | 書籍の書影（楽天ブックス書籍検索API）の仕組みと規約（#97、凍結時点の記録） |

@@ -150,8 +150,8 @@ gid は `https://docs.google.com/spreadsheets/d/<SPREADSHEET_ID>/htmlview` の H
 
 - **後の指示で使うスクリプト・中間データは scratchpad（`/tmp` 以下）に置かない。** Codespace の再起動で消える。
   CHAT-0916-LV-06 で、LV-03〜05 で使ったスクリプトと中間データ（`/tmp` 以下の scratchpad）が全部消え、
-  トランスクリプトからコマンドを再構成して復旧した（`scripts/live_seed/README.md`「トランスクリプトからの再構成」）
+  トランスクリプトからコマンドを再構成して復旧した（`scripts/live_seed/README.md`「トランスクリプトからの再構成」。`scripts/live_seed/` は削除済み、最後の版は 93379806）
 - `/workspaces/` 以下（リポジトリ外）に置く。/live では `/workspaces/live-seed/`（貼り付け用の TSV）と `/workspaces/live-work/` を使った
 - 作業ログの`## 経過`に、成果物を作ったスクリプトの置き場所を書く
-- 指示の完了時に、リポジトリへ保存する（例: `scripts/live_seed/`。`scripts/` は `.assetsignore` で配信から外れている）か、使い捨てであることをログに書く
+- 指示の完了時に、リポジトリへ保存する（`scripts/` の下。`scripts/` は `.assetsignore` で配信から外れている）か、使い捨てであることをログに書く
 - scratchpad は、その指示の中だけで使う一時ファイル（スクリーンショット、比較用の生成物の退避など）に使う
