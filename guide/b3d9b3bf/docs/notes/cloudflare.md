@@ -104,8 +104,8 @@ apex へ直接投げても同じ 400 になることを確認済みで、www リ
   Cloudflare側でcharset込みの`Content-Type: text/plain; charset=utf-8`が
   組み立てられるため、`llms.txt`と違い`_headers`での明示は不要（#175で
   本番確認済み。文字化けの疑いはなかった）
-- AI学習用クローラー（GPTBot/ClaudeBot等）はブロック、検索エンジンとAIの検索・回答は許可
-  （詳細・経緯は下記「AIクローラーの扱い」参照。本対応は#130で管理）
+- AI学習用クローラー（GPTBot/ClaudeBot等）は学習を拒否（Training = `Disallow`）、検索エンジンとAIの検索・回答は許可
+  （詳細は下記「AIクローラーの扱い」参照。移行は#130で行い 2026-09-28 にクローズ）
 - Tiered Cache は**効果がない**（Workersの静的アセットにはオリジンサーバーがないため）
 - **Web Analytics のビーコンは `/cdn-cgi/rum` への POST。**
   HTTPメソッドやパスで遮断するルールを書くときは `/cdn-cgi/` を
@@ -181,32 +181,7 @@ www → apex の Redirect Rule に到達する前に失敗する。
 Redirect Rules は Workers より前に評価されるため、
 レコードを残したままで正しく308が返る。
 
-#### AIクローラーの扱い（2026-09-13時点）
-
-**現在の設定は下の「AIクローラーの扱い（2026-09-21時点。現在の設定）」。この節は 2026-09-13 までの経緯**
-（末尾の「robots.txt の実測」の段落は今も有効）。
-
-Cloudflare の「Block AI bots」一括トグルは **2026-09-15 に廃止**され、
-挙動ベースの制御（Search / Agent / Training）へ移行する。
-
-9月15日以降、複数の目的を持つクローラーは宣言されたすべての挙動で評価され、
-最も厳しいルールが適用される。Googlebot / Applebot / Bingbot は検索と
-AI機能を単一のユーザーエージェントでクロールするため、
-「AI学習をブロック」という設定に巻き込まれる。
-
-2026-09-11、期限前の対応として
-`Mixed purpose crawlers will continue to be allowed.` を選択した。
-
-**学習用クローラーをブロックしてもAI検索・回答での露出は減らない。**
-学習クロールは引用も参照トラフィックも生まないため。
-混在クローラーを許可しても、学習利用を拒否する目的は損なわれない。
-
-本対応は#130で管理する。旧トグルは2026-09-15に廃止され、新コントロール
-（Configure AI bot policies）に置き換わる（ダッシュボードで確認済み）。
-新コントロールは2026-07-01から設定可能なため、9/15を待つ必要はない。
-**9/13に新コントロール側でSearch/Agent=Allow・Training=Blockを設定済み。**
-設定前後でrobots.txtの管理セクション34行は完全一致し、旧トグルが同じ
-出力を出しているため判定は9/15以降。クローズ条件は#130に記載済み。
+#### robots.txt の取得
 
 **robots.txt の実測は Claude Code のセッションから `curl` でできる（2026-09-21 に確認）。**
 `curl -sS https://ryoei.pro/robots.txt` で普通に取得できる（CHAT-0921-GC-15・GC-17。
@@ -222,9 +197,10 @@ PowerShell 5.1 の既定が UTF-16LE のため、日本語部分が文字化け�
     curl.exe -s -o robots-YYYYMMDD.txt https://ryoei.pro/robots.txt
     Get-Content robots-YYYYMMDD.txt -Encoding UTF8
 
-#### AIクローラーの扱い（2026-09-21時点。現在の設定）
+#### AIクローラーの扱い（現在の設定）
 
-出典はいずれも #130 のコメント（2026-09-21、CHAT-0921-GC-15・GC-17・GC-20・GC-21）。
+出典はいずれも #130 のコメント（2026-09-21・2026-09-28）。2026-09-13 までの経緯は `docs/notes/handover-archive-2026.md`「AIクローラーの扱い（2026-09-13時点）」。
+ダッシュボードの値は平野さんの画面の確認によるもので、セッションからは検証できない。
 
 - **旧トグル `Block AI bots` は廃止済み**（Security → Settings → Bot traffic の一覧に行が無い）
 - **現在の設定（Configure AI bot policies）**: Search = Allow (do not block)、Agent = Allow (do not block)、
@@ -239,10 +215,14 @@ PowerShell 5.1 の既定が UTF-16LE のため、日本語部分が文字化け�
 - **2026-09-21 に一度 `Block` にして、同じ日に `Disallow` へ戻した。** 2026-09-13 に「Training = Block」と決めたときの
   `Block`（旧トグル＋混在クローラーのオプトアウト）と、2026-09-15 以降の `Block` の意味が違っていたため
 - **`Disallow` でも `Block` でも、robots.txt の付け足しは同じ内容で出る**（142行、うち管理セクション103行、
-  `Content-Signal: search=yes,ai-train=no,use=reference`、`Disallow: /` が32件）。
+  `Content-Signal: search=yes,ai-train=no,use=reference`、`Disallow: /` が32件。2026-09-28 は31件）。
   **設定の違いは robots.txt では見分けられない。** CHAT-0921-GC-15 の時点で付け足しが無かった理由は分かっていない
 - `Baiduspider`・`PetalBot` が Cloudflare の管理リストで `Disallow` されている。**許容する**（2026-09-21、平野さんの判断）
 - `Content-Signal` に **`ai-input` の宣言は無い**（`search` / `ai-train` / `use` の3つだけ）
+- **検索用クローラーが弾かれていないことを確認した（2026-09-28、#130 のクローズ条件4・5）。** GSC のクロールの統計情報に 403 の行は無く、
+  4XX の例は 9/21 が最後。Security Events の「Googlebot」を名乗るブロックは、Google Cloud（AS396982）から `.env` を探るスキャンを
+  Managed rules が止めたもので、本物の Googlebot（AS15169）ではない。**UA だけで判断せず ASN と Service を見る**
+- AI Labyrinth は 2026-09-25 のスクショではオフに見えた（未検証）。使うかは #447 で再検討する。**ボット系の設定は1つずつ変える**
 
 ##### #304 の (8) で 403 が見つかったとき
 
@@ -253,7 +233,7 @@ PowerShell 5.1 の既定が UTF-16LE のため、日本語部分が文字化け�
    その**一番上の行**が Configure AI bot policies。2026-09-21、平野さんのスクショによる）。
    **`Block` になっていたら `Disallow` に戻す**
 2. robots.txt を取って、検索用クローラー（Googlebot / Bingbot / Applebot）が `Disallow` されていないことを確かめる
-   （`curl -sS https://ryoei.pro/robots.txt`。上の「robots.txt の実測」のとおりセッションから取れる）
+   （`curl -sS https://ryoei.pro/robots.txt`。上の「robots.txt の取得」のとおりセッションから取れる）
 3. **AI Crawl Control の Overview** で、Google / Microsoft / Apple の「許可」と「失敗」の数を見る
    （AI Crawl Control は**左メニューの項目**。2026-09-21、平野さんのスクショによる。
    失敗の内訳が 403 か 404 かは画面からは分からない）

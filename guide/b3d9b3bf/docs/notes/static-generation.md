@@ -380,7 +380,6 @@ GitHub Actions (`.github/workflows/regenerate-page.yml`) が、`scripts/generate
 |---|---|
 | `regenerate-page.yml` | 生成スクリプト・対応する`.js`・`scripts/lib/**`の変更のpushと、毎週月曜05:37 JST（`all`）。ページを再生成してコミットする（詳細は上の「regenerate-page.yml」） |
 | `check-image-links.yml` | 毎週月曜03:00 JST。画像のリンク切れ（最強戦の選手写真を含む）を確かめ、常設issueに書き出す |
-| `check-ron2-images.yml` | 毎週月曜04:00 JST。龍龍の画像とサイトの表示が一致するか確かめる |
 | `check-saikyo-unregistered.yml` | 毎週月曜06:50 JST。最強戦の出場者で「プロ」「連盟プロ以外」から引けない人を常設issueに書く（#431、`docs/notes/saikyo-page-design.md`「8. 出場者の登録漏れの検知」） |
 | `assets-check.yml` | pushのたび。`.assetsignore`の漏れ（#133）と CLAUDE.md・handover.md のサイズを検知する |
 | `sitemap-lastmod.yml` | HTMLを含むpush。sitemapのlastmodをgitの最終コミット日にそろえてコミットする（#265、`docs/notes/sitemap-lastmod.md`） |
@@ -406,7 +405,6 @@ GitHub Actions (`.github/workflows/regenerate-page.yml`) が、`scripts/generate
 - `delete-merged-branches.yml`（`scripts/delete_merged_branches.py`）: 手動実行は dry_run が既定。毎日の実行は `SCHEDULE_ENABLED`（現在 `'false'`）が `'false'` なら dry-run
 - `check-meibo.yml`（`scripts/check_meibo.py`）: 手動実行は dry_run が既定。不一致があっても生成は止めない
 - `sync-birthday-calendar.yml`（`scripts/sync_birthday_calendar.py`）: 週次の schedule はコメントアウト中。既定は差分を出すだけで、apply を選んだときだけ書き込む（`docs/notes/birthday-calendar.md`）
-- `check-ron2-images.yml`（`scripts/check_ron2_images.py`）: checkout の ref は `cloudflare` が直書きで、どのブランチを指定して dispatch しても cloudflare の内容で走る。844人分を1秒間隔で取りに行くため、**週次実行（月曜04:00 JST）の直後に手動実行すると龍龍側に届かないことがある。**2026-09-21、週次実行の約4時間半後に実行したところ1件目から `URLError` が続き、連続20件で中断して failure になった（照合できた選手は0人。原因は龍龍側の事情のため確認できていない）。途中で落ちると「結果をissueに反映」まで進まず、常設issue（#424 の「龍龍画像の同期確認」）は本文も状態も変わらない。修正の確認だけなら、選手1人分を直接問い合わせるほうが相手の負担が小さい（CHAT-0921-RN-03）
 - `fetch-gsc.yml`（`scripts/fetch_gsc.py`、#269）: checkout と push 先は実行ブランチ。手動実行の既定はコミットしない（取得するだけ）。
   schedule は28〜31日 21:00 UTC に起動し、JST で1日の回だけ本体が動く（毎月1日 06:00 JST。2026-09-21 に有効にした）。
   `--plan` を付けるとAPIを呼ばずに期間と出力先だけ出せる
@@ -441,8 +439,6 @@ GitHub Actions (`.github/workflows/regenerate-page.yml`) が、`scripts/generate
 依存は、特記の無いものは標準ライブラリのみ（実行例: `python3 scripts/check_image_links.py --json result.json`）。
 
 - `check_image_links.py` — `jpml_pros.html` 内の画像URL全件にHEADリクエストを送りリンク切れを検知（毎週月曜03:00 JST）
-- `check_ron2_images.py` — 龍龍(ron2.jp)側の現在の画像と `jpml_pros.html` に埋め込み済みの画像が一致しているか確認（毎週月曜04:00 JST）
-- `collect_ron2_images.py` — 龍龍から全選手の150x150画像URLを収集しCSV出力（スプレッドシート更新用、手動実行）
 - `collect_saikyo_images.py` — 最強戦の選手写真（「プロ」J列・「連盟プロ以外」X画像URL、#384）で取得できなくなった画像URLを見つけ、Xハンドルから現在のURLを解決してCSV出力（#333、手動実行＋`check-image-links.yml`から週1で`--json`実行、ヘッドレスChromiumが必要）。生成時に全件は解決しない。使い方と理由は`docs/notes/saikyo-page-design.md`「選手写真の更新」
 - `cleanup_logs.py` — `docs/logs/`の作業ログのうち、7日を過ぎて片付けてよいものを削除し、条件外のものを一覧にする（`cleanup-logs.yml`から週1で実行、`--dry-run`で一覧のみ）。条件は`docs/notes/branch-operations.md`「作業ログの寿命」
 - `delete_merged_branches.py` — マージ済み（`origin/cloudflare` の祖先）で先頭が24時間より前の `work/*` を削除し、ブランチ名と先頭の SHA を出力する（`delete-merged-branches.yml`から毎日、`--dry-run`で一覧のみ。完全な履歴のクローンが要る）
