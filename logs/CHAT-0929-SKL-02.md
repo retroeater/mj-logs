@@ -50,18 +50,92 @@ SKL-01 の判断待ちに対する平野さんの決定（すべて Code の案�
 
 - Chat-Ref 確認: `git log --all --grep="CHAT-0929-SKL-02"` 0 件
 - ブランチ: 既存の work/SKL（ローカル＝origin/work/SKL＝85e660ca）。origin/cloudflare が進んでおり祖先でないため、このログの push の後に `git merge origin/cloudflare` で取り込む（cloud-sessions.md「作業ブランチの用意」）
+- ログ push（664ceb8d）の後、`git merge --no-edit origin/cloudflare` → 衝突なし（取り込んだのは他セッションの scripts・docs・workflows）
+
+### 手順1: 複写とライセンス
+
+- ライセンス: mattpocock/skills は MIT（Copyright (c) 2026 Matt Pocock）、cloudflare/skills は Apache-2.0（NOTICE ファイル無し）。どちらも複写・改変・再配布を許す → 続行
+- 取得時の sha（`~/.claude/plugins/installed_plugins.json` の `gitCommitSha`）: mattpocock-skills 1.2.3 = c55ee46073ed923f86ce59a5eb3b6d895095d1b7、cloudflare 1.0.0 = b052c32bab7dd493513260228a36c88294f343f1
+- `.claude/skills/` へ複写: grill-me・grilling・grill-with-docs・domain-modeling（ADR-FORMAT.md・CONTEXT-FORMAT.md を含む）・writing-for-agents（SKILL-MECHANICS.md を含む）・cloudflare（references/ 以下289ファイル、1.8MB）。
+  各ディレクトリに取得元の LICENSE を置き、`agents/openai.yaml`（別ツール向けの設定。SKILL.md から参照されない）は除いた。cloudflare の `mcp.json`・`plugin.json` は skill のディレクトリの外にあり複写していない
+- 他 skill の参照: grill-me は「Skill ツールで `grilling`」、grill-with-docs は「`grilling` と `domain-modeling`」を呼ぶだけ。接頭辞なしなので複写後の名前でそのまま通る（`mattpocock-skills:` の記述は無し）。
+  cloudflare の SKILL.md は `wrangler`・`workers-best-practices` などの別 skill と `../nextjs-on-cloudflare/SKILL.md` を挙げるが、複写していない（SKILL.md 自身が「別 skill は任意、無ければ公式ドキュメント」とする。リンク1つは切れる）
+- 複写の後、このセッションの skill 一覧に `cloudflare`・`domain-modeling`・`grilling`・`writing-for-agents` が接頭辞なしで出た（次の手番で反映）
+
+### 手順2: plugin を外す
+
+- `claude plugin uninstall mattpocock-skills@claude-plugins-official --scope project`・`cloudflare@...` → 成功。`claude plugin marketplace remove claude-plugins-official` → 成功
+- uninstall は `.claude/settings.json` に空の `enabledPlugins: {}`・`extraKnownMarketplaces: {}` を残したため、キーごと除いた。`permissions.allow` の2行は残した
+- `claude plugins list` →「No plugins installed」
+
+### 手順3: hooks の有効化と再試験
+
+- `.claude/hooks/mj-git-guard.py` を SKL-01 ログ「手順3」から入れ、ログのコードブロックと同じ内容であることを diff で確認。`.claude/settings.json` に `hooks.PreToolUse`（matcher `Bash`）を追加
+- hook はこのセッションでもすぐ効いた。再試験の入力をヒアドキュメントでコマンド文字列に書いたところ、hook が `git push origin gh-pages` の行を判定して deny し、試験自体が止められた（文字列解析の限界の実例。skills.md に記載）。入力をファイルに書いて Python から渡す形に変えた
+- 再試験（SKL-01 と同じ14件）: 結果はすべて SKL-01 と一致
+
+| コマンド | 判定 |
+|---|---|
+| `git push -u origin work/SKL` | 通過 |
+| `git push origin work/SKL:cloudflare` | ask |
+| `git push origin HEAD:refs/heads/cloudflare` | ask |
+| `git push`（work/SKL 上） | 通過 |
+| `git push origin claude/foo` | ask |
+| `git push origin gh-pages` | deny |
+| `git fetch origin && git reset --hard origin/x` | deny |
+| `git -C /x clean -fd` | deny |
+| `git stash` | deny |
+| `git branch -D work/old` | deny |
+| `git branch -d work/old` | 通過 |
+| `git checkout -b work/x origin/cloudflare` | 通過 |
+| `git checkout .` | deny |
+| `git status; git log --oneline` | 通過 |
+
+- SKL-01 の案の docstring に誤りがあった: 「現在ブランチが cloudflare のときの引数なし push」を deny と書いていたが、コードでは押し先が cloudflare と判定されて ask になる。
+  コードは変えず docstring だけ実際の動作に合わせ（`checkout .` の deny も書き足し）、変更後に14件を再試験して結果が同じことを確認した
+- `.claude/skills/git-guardrails-claude-code/` を削除
+
+### 手順4〜5: skills.md・CLAUDE.md
+
+- docs/notes/skills.md を書き直し: 入れている skill と呼び出し名・出典/ライセンス/sha・更新方法・plugin と MCP を使わない理由・hook の判定一覧と試験結果と限界・置き場所と永続性・コンテキストの負荷
+- CLAUDE.md「構成」の末尾（既存の文書ポインタ「手書きHTMLを新規に追加する前に…」の次）に1行:
+  「skill（`.claude/skills/`、plugin は使わない）と git の hook（`.claude/hooks/`）の導入・入れ直しはdocs/notes/skills.md」。
+  指示の文言「skill・plugin の導入と入れ直し」から、plugin を使わない決定に合わせて hook を足す形に変えた。サイズ 25,966 → 26,107 バイト（警告域 30,720 未満）
+- コミット a96b3082
+
+### 手順6: 許可ルールが無視される件の記録
+
+- cloud-sessions.md「始め方」の該当箇所が参照するのは #298。GitHub MCP の `add_issue_comment` で書けたので、cloud-sessions.md は変えていない
+- https://github.com/retroeater/mj/issues/298#issuecomment-5887320413
+
+### 手順7: 検証
+
+- 空の HOME（scratchpad/freshhome2）で:
+  - `claude plugins list` →「No plugins installed」。起動後も `claude plugin marketplace list` →「No marketplaces configured」
+  - `claude -p` で skill 名を列挙させると `cloudflare`・`domain-modeling`・`grilling`・`writing-for-agents` の4本（接頭辞なし）。grill-me・grill-with-docs はディレクトリの存在で確認
+  - `claude -p --allowedTools Bash` に `git stash list` を実行させると「PreToolUse:Bash hook error: git stash は使わない（CLAUDE.md 禁止事項）」で止まった。
+    同じ起動で「this workspace has not been trusted ... Ignoring 2 permissions.allow entries」も出ており、未信頼でも hook は効く
+- assets-check（a96b3082、check-run 109340689205）: success。注釈は Actions の Node.js 20 非推奨の warning と ubuntu-latest 移行の notice の2件で、SKL-01 と同じくワークフロー自身の警告（公開対象の漏れ・文書サイズ）は無し
+
+### マージ
+
+- 完了条件を確認: `.claude/skills/` に6本・`.claude/settings.json` に plugin/marketplace の設定なし・MCP の設定なし、hook 有効で再試験一致、skills.md と CLAUDE.md（1行）更新、assets-check 成功
+- このログの push の後、再 fetch と `git merge-base --is-ancestor origin/cloudflare HEAD` を確かめて `git push origin work/SKL:cloudflare` を行う（hook の ask が出る想定）
 
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/SKL
-- ログ: https://github.com/retroeater/mj/blob/work/SKL/docs/logs/CHAT-0929-SKL-02.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-0929-SKL-02.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/SKL
-- 確認用URL: なし
-- マージ: 未
-- issue: なし
+- 確認用URL: なし（サイトの表示は変えていない）
+- マージ: 済（指示文の事前許可に基づき、cloudflare を work/SKL の最後のコミットへ fast-forward）
+- issue: #298（コメントのみ）
 - 判断が必要なこと: なし
-- 未確認の項目: なし
+- 未確認の項目:
+  - 実際の新しいクラウドセッション（対話側）で、hook が効き skill が一覧に出るか（`claude -p` の空 HOME 試験とこのセッションの途中反映では確認済み）
+  - 人が `/grill-me`・`/grill-with-docs` を打って呼べるか（モデル側の一覧に出ない skill のため、このセッションからは試せない）
+  - hook の ask が対話の画面でどう出るか（マージの push で出る想定）
 - エラー: なし
 
 <!-- guide-links -->
@@ -73,3 +147,4 @@ SKL-01 の判断待ちに対する平野さんの決定（すべて Code の案�
 - docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/652cb9cd/docs/handover.md
 - docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/652cb9cd/docs/notes/chat-side-operations.md
 - docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/652cb9cd/docs/notes/cloudflare.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/1b8b8292.md
