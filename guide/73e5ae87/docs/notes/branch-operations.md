@@ -16,6 +16,8 @@ CLAUDE.md「ブランチ運用」「Chat-Ref」「作業ログ」から、特定
 - **`git -C /workspaces/mj fetch origin` のうえ、`origin/cloudflare` を明示して worktree を作り、その中で作業する**
   （`/workspaces/mj` の HEAD は遅れていることがあるため、指示文に書かれていなくても常に行う）:
   `git -C /workspaces/mj worktree add /workspaces/mj-<識別子> -b work/<識別子> origin/cloudflare`
+- ブランチの作成・切り替え・進める操作は、`cd`・`;`・`|`・`&&` を付けない単独のコマンドで実行する（場所は `git -C <パス>` で指定する）。
+  既存のブランチを付け替える `checkout -B`・`branch -f`・`reset --hard` は使わず、進めるときは `git merge --ff-only origin/cloudflare` を使う（#298）
 - 分岐元が `cloudflare` であることを `git merge-base --is-ancestor origin/cloudflare HEAD` で確認する（work/0913-hv）
 - `/workspaces/mj` 自身では `git checkout` / `git switch` を行わない。常に他セッションが使用中とみなす。
   pull してよいのは下の「`/workspaces/mj` を pull するとき」の3条件をすべて満たすときだけ
@@ -26,13 +28,14 @@ CLAUDE.md「ブランチ運用」「Chat-Ref」「作業ログ」から、特定
 
 ## Chat-Ref の着手前の確認
 
-### セッション識別子（`XX`）の重複
+### セッション識別子（`XXX`）の重複
 
 そのセッションの最初の指示で、次の2つを見る。1件でもあれば着手せず、見つかった Chat-Ref とブランチを報告する。
-使用中の識別子の一覧が要るときも同じ2つで集める（一覧ファイルは作らない。実態とずれるため）。
+使用中の識別子の一覧が要るときも同じ2つで集める。`XXX` は確かめる識別子に置き換える（既存の2文字なども同じ形で引ける）。
+使用済みの一覧は `sync-logs.yml` が実行のたびに全ブランチの履歴から集め直し、mj-logs の `chat-ids/` に写す（チャット側向け、#474。仕組みは docs/notes/cloud-sessions.md「作業ログ」）。受け手側はこの一覧でなく上の2つで確かめる。
 
-- 全ブランチのコミット: `git log --all -E --grep 'CHAT-[0-9]{4}-XX-' --oneline`
-- 全ブランチの `docs/logs/`: `git log --all --diff-filter=A --format= --name-only -- 'docs/logs/CHAT-*-XX-*.md'`
+- 全ブランチのコミット: `git log --all -E --grep 'CHAT-[0-9]{4}-XXX-' --oneline`
+- 全ブランチの `docs/logs/`: `git log --all --diff-filter=A --format= --name-only -- 'docs/logs/CHAT-*-XXX-*.md'`
   （マージ後に削除されたログも履歴に残るため、履歴で見る）
 
 チャット側も mj-logs で確かめるが、写るのは #440 以降に push されたログだけなので、受け手側のこの確認は省かない。
