@@ -32,7 +32,7 @@ CLAUDE.md「ブランチ運用」「Chat-Ref」「作業ログ」から、特定
 
 そのセッションの最初の指示で、次の2つを見る。1件でもあれば着手せず、見つかった Chat-Ref とブランチを報告する。
 使用中の識別子の一覧が要るときも同じ2つで集める。`XXX` は確かめる識別子に置き換える（既存の2文字なども同じ形で引ける）。
-使用済みの一覧を履歴から集め直して mj-logs に写す仕組みは #474 で作る（まだ無い）。
+使用済みの一覧は `sync-logs.yml` が実行のたびに全ブランチの履歴から集め直し、mj-logs の `chat-ids/` に写す（チャット側向け、#474。仕組みは docs/notes/cloud-sessions.md「作業ログ」）。受け手側はこの一覧でなく上の2つで確かめる。
 
 - 全ブランチのコミット: `git log --all -E --grep 'CHAT-[0-9]{4}-XXX-' --oneline`
 - 全ブランチの `docs/logs/`: `git log --all --diff-filter=A --format= --name-only -- 'docs/logs/CHAT-*-XXX-*.md'`
@@ -71,7 +71,10 @@ CLAUDE.md「ブランチ運用」「Chat-Ref」「作業ログ」から、特定
   作成時点のもので古くなりうるため、根拠にしない（#206）
 - `/workspaces/mj`のHEADとローカル`cloudflare`は遅れていることがある。`git branch -d`が通ったか・
   警告（"not yet merged to HEAD"等）が出たか・「not fully merged」で拒否されたかを判定の根拠にせず、
-  先頭が`origin/cloudflare`の祖先と確認したうえで`-D`で削除する（#313、2026-09-14）
+  先頭が`origin/cloudflare`の祖先と確認する（#313、2026-09-14）
+- **ローカルの削除は、マージ済みと確認したブランチに限り`git branch -d`で行う。** `-D`は使わない（`.claude/hooks/mj-git-guard.py`が deny する、docs/notes/skills.md）。
+  `-d`は現在のHEADに対するマージ済みで判定するため、HEADが`origin/cloudflare`を含む別のブランチに移ってから消す。
+  HEADを動かしても拒否される・未マージのブランチを消す必要が出たときは、hookを外さず、平野さんがGitHubの画面で消す
 - 祖先でなかった場合も「未マージ」と即断しない。同じ内容が別SHAで`cloudflare`に入っていないかを、
   件名・差分の突き合わせで確認してから判定する
 - 未マージのブランチは削除しない。内容（コミット数・変更ファイル・関連issue番号）を記録して平野さんの判断を仰ぐ

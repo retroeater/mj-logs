@@ -352,30 +352,26 @@ index fff8e4b5..669f5142 100644
 
 ## 報告
 
-- 状態: 判断待ち（hook の変更はコードの変更のため、マージは平野さんの判断）
+- 状態: 完了（CHAT-0930-HKG-02 でマージした）
 - ブランチ: work/0930-hkg-01
-- ログ: https://github.com/retroeater/mj/blob/work/0930-hkg-01/docs/logs/CHAT-0930-HKG-01.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-0930-HKG-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/0930-hkg-01
 - 確認用URL: なし（表示に影響しない。CLAUDE.md を含むので Workers Builds は1回走る）
-- マージ: 未（平野さんの判断待ち）
+- マージ: 済（fbaf8826。CHAT-0930-HKG-02 で origin/cloudflare を取り込んでからマージ）
 - issue: なし
-- 判断が必要なこと:
-  - マージの可否。差分・試験の表・容量判定は `## 経過` の「手順3」「手順4」「差分」
-  - allow の対象から `docs/logs/_template.md` を外した（ガイド文書のため）。指示の「docs/logs/ 配下」より狭い。広げるなら `LOGS_GUIDE` の判定を消す
-  - 指示の3条件に加え、コマンドの形を絞った（`git fetch`・`git merge-base`・`tail`/`head` 以外との連結、`cd`・`-C`・`$` などを含むと ask）。hook の allow はコマンド全体を確認なしで通すため。ほかの形を通したい場合は判断を
-  - 締める側の提案（実装していない）: 今の判定は、cloudflare をチェックアウトした状態の `git push origin HEAD` を ask にしない（押し先を refspec の文字列 `HEAD` で判定し、cloudflare と見なさない）。セッションは cloudflare をチェックアウトしない決まりなので実害は小さい
+- 判断が必要なこと: なし（平野さんの決定: `_template.md` を外すこと・コマンドの形を絞ることはこのまま。`git push origin HEAD` を締める提案は見送り）
 - 未確認の項目:
-  - hook が allow を返したときの実機の挙動（承認の問い合わせが出ずに通るか、auto モードの分類器を越えるか）。試験は hook に JSON を渡す形だけで、このセッションでは cloudflare へ push していない。マージ後、最初のログのみのマージで確かめる必要がある
+  - hook が allow を返したときの実機の挙動は CHAT-0930-HKG-02 で確かめる
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj dc536d83）: https://github.com/retroeater/mj-logs/tree/main/guide/dc536d83
+ガイド文書（この版を写した時点の最新、mj 4d8bcb08）: https://github.com/retroeater/mj-logs/tree/main/guide/4d8bcb08
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/dc536d83/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/dc536d83/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/dc536d83/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/dc536d83/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/dc536d83/docs/notes/cloudflare.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/4d8bcb08/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/4d8bcb08/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/4d8bcb08/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/4d8bcb08/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/4d8bcb08/docs/notes/cloudflare.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/fbb55c8c.md
