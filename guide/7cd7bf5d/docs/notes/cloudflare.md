@@ -116,7 +116,7 @@ apex へ直接投げても同じ 400 になることを確認済みで、www リ
   Block / Log とは別物。確認するにはルールセット名をクリックして
   Deploy managed ruleset の画面まで入り、Ruleset action を見る（#76）
 
-#### Speed 設定の現状（2026-09-11 時点）
+#### Speed 設定の現状（2026-09-11 時点。Early Hints は 2026-09-29 に更新）
 
 Speed → Recommendations（Site Recommendations）の一覧と、それぞれの判断。
 
@@ -134,7 +134,7 @@ Speed → Recommendations（Site Recommendations）の一覧と、それぞれ�
 | 0-RTT Connection Resumption | **有効化(2026-09-11)** | GET/HEAD にしか適用されない。状態を変えるエンドポイントが1つもない静的サイトのため、リプレイの実害がない |
 | Always use HTTPS | **有効化(2026-09-11)** | 下記参照 |
 | TLS 1.3 | 有効 | 既定 |
-| Early Hints | **有効化(2026-09-11)** | ただしトグルだけでは何も起きない。下記参照 |
+| Early Hints | **無効（2026-09-29 に Off に戻した）** | 応答に `Link:` が無く、103 も出ていなかった（2026-09-28 の実測）。下記参照（#129） |
 
 **「Enable all settings」ボタンは押さないこと。** Polish が一括で有効になり、
 #71 と #9 の判断が覆る。個別に切り替える。
@@ -144,14 +144,12 @@ Speed → Recommendations（Site Recommendations）の一覧と、それぞれ�
 一度 HTTPS で訪問済みのブラウザだけ。初回訪問者が `http://` で叩いた場合、
 リダイレクトされずに HTTP のまま配信される状態だった。2026-09-11 に解消。
 
-**Early Hints はトグルを入れただけでは動かない。** Cloudflare の実装は
+**Early Hints は 2026-09-29 に Off に戻した（#129）。** Cloudflare の実装は
 レスポンスの `Link: ...; rel=preload` / `rel=preconnect` ヘッダをキャッシュして
-103 で先出しする仕組みで、HTML 内の `<link>` タグは見ない（Pages には
-`<link>` からの自動生成があるが、Workers 静的アセットで同じ挙動をするかは未確認）。
-`_headers` に `Link:` 行を足す必要がある。設計は別issueで扱う（#129）。
-Speed → Content Optimization の **Smart Hints**（クローズドベータ）が
-Early Hints の対象を自動選択する機能で、#129 の代替になりうる。
-#129 着手前に申し込む方針。
+103 で先出しする仕組みで、HTML 内の `<link>` タグは見ない。2026-09-11 に有効化したが、
+2026-09-28 の実測（`/`・`/jpml_pros.html`・`/title/` を各2回）で `Link:` は自動で付かず、103 も返らなかった。
+`_headers` に `Link:` を書く設計はせずに終えた。Smart Hints（クローズドベータ）は申し込んでいない
+（2026-09-29 の画面は「Sign up」のまま。平野さんのスクリーンショットによる）。
 
 #### DNS・メール・通知の設定（2026-09-11）
 
@@ -239,6 +237,27 @@ PowerShell 5.1 の既定が UTF-16LE のため、日本語部分が文字化け�
    失敗の内訳が 403 か 404 かは画面からは分からない）
 4. 結果を #304 のその月の「YYYY-MM 実施」のコメントに書く
 5. **Training が `Disallow` のままなのに 403 が出ている場合は、原因が別にある。** issue を起票して追う
+
+#### Rate limiting rules（2026-09-29 に導入、#124）
+
+平野さんが 2026-09-29 にダッシュボード（Security rules → Create rule → Rate limiting rules）で入れた。値は平野さんの申告で、セッションからは検証できない。
+
+| 項目 | 値 |
+|---|---|
+| Rule name | `Throttle rapid HTML fetches (#124)` |
+| 条件式 | `(ends_with(http.request.uri.path, ".html") or ends_with(http.request.uri.path, "/")) and not cf.client.bot and not starts_with(http.request.uri.path, "/cdn-cgi/")` |
+| 数える単位（characteristics） | IP |
+| 閾値 | 60 requests / 1 minute |
+| アクション | Managed Challenge |
+| Execution order / Status | First / Active |
+| 本数 | 入れる前は0本、入れた後は 1/2（Pro の上限は2本） |
+
+- 検証済みボット（`cf.client.bot`）を外すのは、検索エンジンのクローラを数えないため。`/cdn-cgi/` は Web Analytics のビーコン（#110 と同じ注意）
+- Pro の制約: **Log のアクションは使えない**（Enterprise のみ）ため、高めの閾値の Managed Challenge で当たった相手を Security Events で見てから閾値を下げる。**チャレンジ系は Duration を選べず**、上限を超えたリクエストだけにかかる。数える単位は IP のみ、期間は1分まで。
+  調べた経緯と公式ドキュメントの URL は #124 のコメントと https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-0928-CX-05.md
+- 2026-10-02 に Security Events（Service「Rate limiting rules」）を見て、閾値を 30 に下げるかを決める（#124）
+- 戻すときは Security rules の一覧でトグルを Off
+- workers.dev・プレビューはゾーンを通らないので対象外
 
 ### 公開期間の露出評価（#299、2026-09-14）
 
@@ -371,7 +390,7 @@ Workers静的アセットにはオリジンサーバーが存在しないため�
 | Cloudflare Fonts | 不採用 | #93 で Google Fonts を廃止しシステムフォントに統一済み。最適化する外部フォントが存在しない |
 | Automatic Platform Optimization for WordPress | 対象外 | WordPress サイトではない。ダッシュボードにも「The WordPress plugin was not detected on ryoei.pro」と表示される |
 | Shared Dictionary Compression | 見送り | Passthrough はオリジンが辞書圧縮を処理する前提。Workers 静的アセットは対応しないため Off のまま |
-| Smart Hints | 保留 | クローズドベータ。Early Hints の対象を Cloudflare が自動選択する機能で、#129 の代替になりうる。#129 着手前に申し込む |
+| Smart Hints | 見送り | クローズドベータ。Early Hints の対象を Cloudflare が自動選択する機能。申し込まないまま Early Hints を Off に戻し、#129 を閉じた（2026-09-29） |
 | Mantis（Google のAIセキュリティ用ハーネス） | 却下 | パイプラインの中核が「サンドボックスでクラッシュを再現 → パッチが再現を止めることで検証」のため、実行体を持たない静的サイトでは空回りする。Worker スクリプトなし・フォーム0・認証なし・DBなしで、自前コードは約6,200行（JS 3,237行 + Python 2,966行）。加えて Docker + gVisor と専用の隔離VMが前提で、`gh` 認証済みの Codespace で回すのは「本番に触れる環境で実行するな」という README の要件に反する。Google 自身も「公式サポート製品ではない」「本番利用を意図しない」と明記。再評価は新サイト（#101/#21）でサーバーサイド（#28/#29/#30）が入ってから |
 
 **すでに対応済みだったもの**
@@ -539,7 +558,7 @@ Workers & Pages → `mj` → Settings → Builds:
   `Emulation.setDeviceMetricsOverride` を `mobile: true` にして測ると、内容が画面より広いページ（jpml_pros の 934px 固定の表）では、
   レイアウトビューポート（`innerWidth`）が内容の幅まで広がる。固定ナビも同じ幅になってメニューボタンが画面外に出て、
   横送りでは `scrollX` が動かないため `left: 0` の sticky も効かない。iPhone の Safari の実機ではこうならなかった
-  （`mobile: false` にすると実機と同じ振る舞いになる。比較は docs/logs/CHAT-0919-HG-06.md「手順2」）。
+  （`mobile: false` にすると実機と同じ振る舞いになる。比較は https://github.com/retroeater/mj/blob/4be965e22e7e64c4ba0db6400a943ffcd17a99f2/docs/logs/CHAT-0919-HG-06.md 「手順2」）。
   内容が画面幅に収まるページ、ナビの高さ、要素の大きさには差が出ない。
   **スマホ幅の異常をエミュレーションだけで見つけたら、起票の前に平野さんの実機で確かめる**
 
