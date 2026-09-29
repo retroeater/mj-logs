@@ -40,6 +40,35 @@ CLAUDE.md の変更と、このログが cloudflare に入っていること。�
 
 - 識別子: CHAT-0930-HKG-03 のコミットは無い。HKG は同じセッションの HKG-01・02 だけで使用
 
+### 手順1: CLAUDE.md
+
+「作業ログ」の該当行を次のようにした（e402453a）:
+
+```diff
+-- ログは作業ブランチにだけpushし（ログ先行・節目のpushを含む）、`cloudflare`へは指示の最後のマージ1回で成果物と一緒に入れる
++- ログは作業ブランチにだけpushし（ログ先行・節目のpushを含む）、`cloudflare`へは指示の最後のマージ1回で成果物と一緒に入れる。
++  マージの結果（Actions・check-run等）を書く docs/logs のみの追いのpushは可（hookは確認なしで通す）
+```
+
+容量判定（`assets-check.yml` の「ガイド文書のサイズを確認」の run をそのまま実行）:
+
+```
+CLAUDE.md: 26495 bytes (警告域 30720 / 上限 32768)
+docs/handover.md: 21187 bytes (警告域 26624 / 上限 28672)
+docs/notes/chat-side-operations.md: 17196 bytes (警告域 26624 / 上限 28672)
+exit=0
+```
+
+CLAUDE.md は 26361 → 26495 bytes（+134）。警告なし。
+
+### 手順2 (a): CLAUDE.md の変更のマージ
+
+- 最初の判定の時点で cloudflare が進んでいた（他セッションの `docs/logs/CHAT-0929-ZK-10.md` の更新）。`git merge --no-edit origin/cloudflare` で取り込んだ（衝突なし）
+- 取り込み後の差分（`git diff --name-status origin/cloudflare HEAD`）: `M CLAUDE.md`・`A docs/logs/CHAT-0930-HKG-03.md`
+- 実行するのと同じコマンドを hook に JSON（`{"tool_input":{"command":"git fetch -q origin && git merge-base --is-ancestor origin/cloudflare HEAD && git push origin work/0930-hkg-03:cloudflare 2>&1 | tail -1"},"cwd":"/home/user/mj"}`）で与えた判定:
+  `{"hookSpecificOutput": {"hookEventName": "PreToolUse", "permissionDecision": "ask", "permissionDecisionReason": "cloudflare への push＝本番反映。マージの基準（CLAUDE.md「ブランチ運用」）を満たすか人が確認する"}}`（期待どおり ask）
+
+
 ## 報告
 
 - 状態: 対応中
