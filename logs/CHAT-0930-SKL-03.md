@@ -46,27 +46,44 @@ SKL-02 の報告で「未確認」だった2項目が平野さんの実操作で
 - ブランチ: `git checkout -b work/SKM origin/cloudflare`（73177fed）
 - 指示文と実物の食い違い: work/SKL の最後のコミットは 73e5ae87 ではなく c6b2f4b8（73e5ae87 の後に SKL-02 のログ追記を push・マージした）。
   origin/work/SKL の先頭 c6b2f4b8 が origin/cloudflare の祖先であることを確かめた（削除の条件は満たす）
+- 手順1（skills.md）: 「未確認」の語は SKL-02 の書き直しで既に無かった。「置き場所と永続性」に、実機で確認した2点
+  （`/grill-me` が再導入なしで起動し内部で grilling が動いた／hook の ask が承認の問い合わせとして出て承認した。2026-09-29、Code タブ、環境 Claude-iPhone）を確認済みとして足した
+- 手順2（handover.md）: SKL の記述は無かったため足した。3節に「skill と hook」（3行）、7節の表に skills.md の行、最終更新に1行
+  （最終更新は3項目のまま。2026-09-28 の3項目のうち古い1項目「3文書を整理して縮めた」を外した）。サイズ 20,726 → 21,187 バイト（警告域 26,624 未満）
+- 手順3（work/SKL の削除）:
+  - 判定: `origin/work/SKL` 先頭 c6b2f4b8b24c0129f8b655e2e44b4329a645e3f2 は origin/cloudflare の祖先（マージ済み）。件名: docs: note how the merge push passed the ask hook
+  - ローカル: `git branch -d work/SKL` → 「Deleted branch work/SKL (was c6b2f4b8)」。branch-operations.md の手順は `-D` だが、hook が `branch -D` を deny するため
+    `-d` を使った（HEAD の work/SKM が cloudflare を含むので通る）
+  - リモート: `git push origin --delete work/SKL` → 「unexpected disconnect while reading sideband packet / the remote end hung up」で失敗。
+    cloud-sessions.md「ブランチの削除」のとおり、セッションの git プロキシが削除を拒否する。`git ls-remote` でリモートの work/SKL は残っている
+  - `delete-merged-branches.yml`（毎日 22:53 UTC）が「先頭が24時間より前」で削除する。c6b2f4b8 のコミット時刻は 2026-09-29T09:30:46Z なので、
+    対象になるのは 2026-09-30 09:30 UTC より後の最初の実行（2026-09-30 22:53 UTC）。今は削除できない。手動実行しても24時間の条件で対象にならない
+- 手順4: work/SKM の push（c0d56050）で assets-check（check-run 109508738738）は success。注釈は Node.js 20 非推奨の warning と ubuntu-latest 移行の notice のみで、ワークフロー自身の警告なし
 
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了（リモートの work/SKL の削除だけ、定期実行に残る）
 - ブランチ: work/SKM
-- ログ: https://github.com/retroeater/mj/blob/work/SKM/docs/logs/CHAT-0930-SKL-03.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-0930-SKL-03.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/SKM
-- 確認用URL: なし
-- マージ: 未
+- 確認用URL: なし（docs のみ）
+- マージ: 済（`git push origin work/SKM:cloudflare`）
 - issue: なし
-- 判断が必要なこと: なし
-- 未確認の項目: なし
-- エラー: なし
+- 判断が必要なこと:
+  - リモートの work/SKL は 2026-09-30 22:53 UTC の `delete-merged-branches.yml` が削除する。それまで待つか、平野さんが GitHub 画面で先に消すか（先頭 c6b2f4b8 はマージ済み）。完了条件の「リモートに無い」はこの時点で満たされる
+  - 指示文の「最後のコミット 73e5ae87」は実物と違い、最後は c6b2f4b8（73e5ae87 の後にログの追記を push した）。どちらも cloudflare に含まれる
+- 未確認の項目:
+  - 2026-09-30 22:53 UTC の実行後にリモートの work/SKL が消えたか（`git ls-remote --heads origin work/SKL` で確かめられる）
+  - マージの push で hook の ask が出たか（セッション側には表示が返らないため、こちらからは確かめられない。SKL-02 で平野さんが画面での承認を確認済み）
+- エラー: `git push origin --delete work/SKL` が失敗（「unexpected disconnect while reading sideband packet」）。cloud-sessions.md「ブランチの削除」に記載の既知の挙動で、コマンドの再試行はしていない
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 73177fed）: https://github.com/retroeater/mj-logs/tree/main/guide/73177fed
+ガイド文書（この版を写した時点の最新、mj 6e549e42）: https://github.com/retroeater/mj-logs/tree/main/guide/6e549e42
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/73177fed/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/73177fed/docs/handover.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/73177fed/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/73177fed/docs/notes/cloudflare.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6e549e42/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6e549e42/docs/handover.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6e549e42/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6e549e42/docs/notes/cloudflare.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/9349427a.md
