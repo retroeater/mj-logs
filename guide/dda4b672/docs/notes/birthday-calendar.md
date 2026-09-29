@@ -1,7 +1,7 @@
 # 誕生日カレンダーの同期（#379）
 
 名簿の誕生日を「誕生日」Google カレンダーへ、GitHub Actions から Google Calendar API で同期する。
-方式の比較は `docs/logs/CHAT-0919-BD-01.md`、実装の経緯は `docs/logs/CHAT-0919-BD-03.md`。
+方式の比較は https://github.com/retroeater/mj/blob/4be965e22e7e64c4ba0db6400a943ffcd17a99f2/docs/logs/CHAT-0919-BD-01.md 、実装の経緯は https://github.com/retroeater/mj/blob/4be965e22e7e64c4ba0db6400a943ffcd17a99f2/docs/logs/CHAT-0919-BD-03.md 。
 
 ## 仕組み
 
