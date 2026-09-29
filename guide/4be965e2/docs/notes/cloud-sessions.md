@@ -84,7 +84,7 @@ CLAUDE.md「ブランチ運用」の「作業ブランチも削除する」は�
 
 ## 作業ログ
 
-- push したログは `sync-logs.yml` が public の mj-logs に写す（`work/**` への push でも写る）。書かない情報は CLAUDE.md「作業ログ」節
+- push したログは `sync-logs.yml` が public の mj-logs に写す。`work/**` への push では、コミットのメッセージに `[sync-logs]` のある push（着手と、完了・判断待ち・中断の最後の push）だけ写り、途中の節目の push はジョブが skip する（#298）。目印の付け方と書かない情報は CLAUDE.md「作業ログ」節
 - **ガイド文書も mj-logs に写る。** cloudflare への push でガイド文書（`scripts/sync_guides.py` の `ALLOWED_PATTERNS`: CLAUDE.md・
   docs/handover.md・docs/instruction-template.md・docs/logs/_template.md・docs/notes/ 直下の .md）が変わると、
   `guide/<mj の短い SHA>/` へパスを保って写す（新しい順に10個を残す。最新は `guide/HISTORY` の最後の行）。
