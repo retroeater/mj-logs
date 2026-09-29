@@ -71,12 +71,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 **チャット側の指示文がこの節と食い違う（`cloudflare`上での直接作業など古い前提を含む）ときは、指示文には従わずこの節に従うこと**（#205）。
 
 - **`cloudflare`: 統合・デプロイ専用。セッションはここへ直接pushしない。**（`cloudflare`へのマージ＝本番反映。「構成」）
-- **`work/<識別子>`: セッションの作業ブランチ。** 識別子は指示文のChat-Refから取る（`CHAT-0913-QM-02`なら`work/0913-qm`）。
+- **`work/<識別子>`: セッションの作業ブランチ。** 識別子は指示文のChat-Refから取る（`CHAT-0913-QMX-02`なら`work/0913-qmx`）。
   指示文にブランチの指定が無くても切る。複数issueを1ブランチで扱ってよいが、作業に関係しない独立した変更
   （ルール追記・ドキュメントのみの修正等）は別ブランチに分ける
 - **作業ディレクトリの分離（必須）:** `/workspaces/mj`は全セッションが共有しており、作業ツリーは分離されない。
   **`origin/cloudflare`を明示してworktreeを作り、その中で作業する。`/workspaces/mj`自身では`git checkout`/`git switch`を行わない。
-  `git stash`を使わない。作業完了後はworktreeとブランチを片付ける。** 手順（worktreeの作り方・分岐元の確認・pullの3条件・
+  `git stash`を使わない。作業完了後はworktreeとブランチを片付ける。** 手順（worktreeの作り方・ブランチ操作は単独のコマンドで`-B`を使わない・分岐元の確認・pullの3条件・
   身に覚えのない未コミット変更・部分ステージ・片付け）はdocs/notes/branch-operations.md「作業ディレクトリの分離（Codespace）」
 - **クラウドセッション（Claude Code on the web）には`/workspaces/mj`・worktree・`gh`が無い。読み替えはdocs/notes/cloud-sessions.md**
 - **`cloudflare`へのマージはセッション自身の判断で行わない。** 作業完了を報告し、平野さんが判断する。基準:
@@ -99,7 +99,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Chat-Ref
 
-チャット（claude.ai）で作った指示文には、到達を追うための識別子 Chat-Ref（`CHAT-MMDD-XX-nn`: 発行日・チャットセッション識別子・連番）が付く。
+チャット（claude.ai）で作った指示文には、到達を追うための識別子 Chat-Ref（`CHAT-MMDD-XXX-nn`: 発行日・チャットセッション識別子・連番）が付く。
+新しい識別子は英大文字3文字（`[A-Z]{3}`）。既存の識別子（2文字、`A`・`DOC`・`K7`・`W2` など）は有効なままで、重ねない（#474）。
 着手前の確認のコマンドと項目はdocs/notes/branch-operations.md「Chat-Ref の着手前の確認」。
 
 受け取る側（Claude Code）:
@@ -108,8 +109,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   （同じ指示文が再度貼られることがあり、追記は冪等でないため）。issue操作のみの作業は対象issueの既存コメントも確認する
   - 止まった作業を再開するときも同じ確認による。コミットが1件も無ければ同じChat-Refのまま貼り直してよい。
     1件でもあれば新しい番号にし、前のログの`## 報告`を「状態: 中断 / 続き: <新しいChat-Ref>」で仕上げる
-- **そのセッションの最初の指示（通常は`01`。撤回で欠番になった場合は`02`以降）を受け取ったら、着手前に`XX`が他のセッションで
-  使われていないか、全ブランチのコミットと`docs/logs/`の履歴で確認すること**。`XX`は日付をまたいで使い続けるため、`MMDD`が違っても重複させない。
+- **そのセッションの最初の指示（通常は`01`。撤回で欠番になった場合は`02`以降）を受け取ったら、着手前に`XXX`が他のセッションで
+  使われていないか、全ブランチのコミットと`docs/logs/`の履歴で確認すること**。`XXX`は日付をまたいで使い続けるため、`MMDD`が違っても重複させない。
   1件でもあれば着手せず、見つかったChat-Refとブランチを報告する。チャット側も mj-logs で確かめるが、見える範囲が狭いため受け手側のこの確認は省かない
 - **指示文に実装が含まれる場合は、着手前に0章ゲート（対象issue・文書サイズ・他セッションの作業・未マージブランチとの重なり、#265・#336）を確認し、
   食い違いや重なりがあれば着手せず報告して止まること**
@@ -121,13 +122,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   `Claude-Session`は有無にかかわらず付ける。**モデル名は例を写さず、そのセッションで実際に動作しているもの**）:
 
   ```
-  Chat-Ref: CHAT-MMDD-XX-nn
+  Chat-Ref: CHAT-MMDD-XXX-nn
   Co-Authored-By: <モデル名> <noreply@anthropic.com>
   Claude-Session: https://claude.ai/code/session_<ID>
   ```
 - **コミットを伴わない指示（issueの起票・編集のみ、確認のみ）では、関係するissueのコメント末尾に`Chat-Ref:`行を書くこと。**
-- **Chat-Ref付きの指示への報告は、最後の行に`Chat-Ref: CHAT-MMDD-XX-nn`を、その直前の行に公開ログの URL（「作業ログ」節）を書く**（複数の指示に答える場合は全て書く）
-- 到達確認は`git log --all --grep="CHAT-MMDD-XX-nn" --oneline`。チャット側は mj-logs のログで読み、issue の状態は Claude Code に確かめさせる
+- **Chat-Ref付きの指示への報告は、最後の行に`Chat-Ref: CHAT-MMDD-XXX-nn`を、その直前の行に公開ログの URL（「作業ログ」節）を書く**（複数の指示に答える場合は全て書く）
+- 到達確認は`git log --all --grep="CHAT-MMDD-XXX-nn" --oneline`。チャット側は mj-logs のログで読み、issue の状態は Claude Code に確かめさせる
   （独立に検証する場合はdocs/notes/chat-side-operations.md「コミット履歴を独立に検証するとき」）
 - 撤回されたChat-Refの番号は欠番とし、再利用しない
 
@@ -161,7 +162,7 @@ push したログとガイド文書は public の`retroeater/mj-logs`に写る�
 
 ## issueの着手ルール
 - **issueに着手したら、コードを触る前にそのissueへ「着手中」のコメントを残すこと**（並行するセッションから着手状況を知る唯一の手段）。
-  セッションのURL（`Claude-Session` と同じ）を含める。取得できない場合（デスクトップアプリ等）は Chat-Ref の `XX` で代替してよい
+  セッションのURL（`Claude-Session` と同じ）を含める。取得できない場合（デスクトップアプリ等）は Chat-Ref の `XXX` で代替してよい
 - **着手する前に、そのissueに他セッションの着手中コメントが無いか確認すること。** あれば着手せず、ユーザーに確認する（#157）
 - **issueを新規作成する前に、同じ主題のissueが既に無いか、クローズ済みも含めて検索すること**
   （`gh issue list --state all --search "<キーワード>"`）
