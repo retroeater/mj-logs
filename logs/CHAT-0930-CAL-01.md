@@ -180,10 +180,10 @@
 
 - 状態: 判断待ち
 - ブランチ: work/0930-cal
-- ログ: https://github.com/retroeater/mj/blob/work/0930-cal/docs/logs/CHAT-0930-CAL-01.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-0930-CAL-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/0930-cal
 - 確認用URL: なし（docs のみ）
-- マージ: 未（docs/logs のみの変更。完了報告のうえ cloudflare へ入れてよいとの指示に従い、この push の後に入れる）
+- マージ: 済（58251ca4、fast-forward。docs/logs のみのため Workers Builds は走らない。この行の更新も同じく fast-forward で入れる）
 - issue: #448・#450・#453（読んだだけ。変更なし）
 - 手順3の結論: **同期は /live の【3】・予定表の【2】【3】を見出しの名前で読む（`lib/sheets.py` の `fetch_records()`）。「掲載」の右に「冒頭」が入ってもずれない。** 「冒頭」列はすでにシートにあり（Apps Script は実行済みと見られる。前提の「実行待ち」と違う）、この状態で同期の読み込みと `build_desired()` が通ることを書き込まずに確かめた
 - 前提と実物の食い違い:
