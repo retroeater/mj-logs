@@ -389,7 +389,7 @@ GitHub Actions (`.github/workflows/regenerate-page.yml`) が、`scripts/generate
 | `check-meibo.yml` | 毎週月曜05:07 JST。連盟員名簿と「プロ」シートの在籍者の不一致を常設issueに書く（#370） |
 | `sync-birthday-calendar.yml` | 毎週月曜05:17 JST。名簿の誕生日をGoogleカレンダーへ同期する（#379、`docs/notes/birthday-calendar.md`） |
 | `fetch-gsc.yml` | 毎月1日06:00 JST。Search Console の検索パフォーマンスを `docs/gsc/` に取り出し、robots.txt の差分を #304 に知らせる（#269） |
-| `sync-dojo-calendar.yml` | 毎日07:12 JST。道場部ゲストの告知画像を読み、カレンダーへの追加分と新規ゲスト・当月誕生日を #426 に知らせる。書き込みは手動実行のときだけ（#390、`docs/notes/dojo-guest-calendar.md`） |
+| `sync-dojo-calendar.yml` | 毎日07:12 JST。道場部ゲストの告知画像を読み、カレンダーへの追加分と新規ゲスト・当月誕生日を #426 に知らせる（同期が失敗したときもその旨を知らせる、#472）。書き込みは手動実行のときだけ（#390、`docs/notes/dojo-guest-calendar.md`） |
 | `sync-books-calendar.yml` | **2026-09-22 開発凍結にともない無効化（`gh workflow disable`）。** 元は毎週月曜05:27 JSTに「書籍」タブの発売日をGoogleカレンダーへ同期していた（#97、`docs/notes/books-calendar.md`・`docs/notes/books-freeze.md`） |
 | `sync-logs.yml` | `docs/logs/**` を含む push（cloudflare は毎回、`work/**` はコミットのメッセージに`[sync-logs]`のある push だけ。無い push はジョブが skip、#298）。実行の時点の mj と mj-logs を突き合わせ、写っていない・古い作業ログを public の `retroeater/mj-logs` の `logs/` へ写し、cloudflare で削除されたログを消す（#440。書き込みはシークレット `MJ_LOGS_TOKEN`）。concurrency で取り消された実行の分は次の実行で追いつく（`scripts/sync_logs.py`、#454） |
 | `delete-merged-branches.yml` | 毎日07:53 JST と手動。マージ済みで先頭が24時間より前の `work/*` を削除する（#440、`scripts/delete_merged_branches.py`） |
@@ -442,6 +442,9 @@ GitHub Actions (`.github/workflows/regenerate-page.yml`) が、`scripts/generate
 
 `scripts/`は公開対象外（`.assetsignore` でCloudflareへの配信から除外）。多くは GitHub Actions から定期実行され、結果をissueに書き出す。
 依存は、特記の無いものは標準ライブラリのみ（実行例: `python3 scripts/check_image_links.py --json result.json`）。
+外部からの読み取り（`lib/sheets.py` のスプレッドシート〈gviz〉、`lib/dojo_guest.py` の連盟サイト、YouTube Data API の取得）は、タイムアウト・接続の失敗を `lib/net_retry.py` で2回まで繰り返す（5秒・15秒おき、HTTP の応答は繰り返さない）。
+フィルタの検知の CSV の取得（`lib/sheets.py` の `_get`）は、失敗しても警告で生成を続けるため繰り返さない（CSV だけが長く落ちた日に再生成が延びないように）。
+Google の API（`lib/gcal.py`・`lib/sheets_write.py`・`sync_birthday_calendar.py`）には接続10秒・読み取り60秒のタイムアウトを渡し、読み取り（GET）だけ同じく繰り返す。書き込みは、届いたかが分からず重複しうるため繰り返さない（#472）。
 
 - `check_image_links.py` — `jpml_pros.html` 内の画像URL全件にHEADリクエストを送りリンク切れを検知（毎週月曜03:00 JST）
 - `collect_saikyo_images.py` — 最強戦の選手写真（「プロ」J列・「連盟プロ以外」X画像URL、#384）で取得できなくなった画像URLを見つけ、Xハンドルから現在のURLを解決してCSV出力（#333、手動実行＋`check-image-links.yml`から週1で`--json`実行、ヘッドレスChromiumが必要）。生成時に全件は解決しない。使い方と理由は`docs/notes/saikyo-page-design.md`「選手写真の更新」
