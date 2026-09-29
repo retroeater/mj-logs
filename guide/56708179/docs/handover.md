@@ -3,44 +3,33 @@
 新しい会話でこのプロジェクトを再開するときに、最初に読む文書。
 **このファイルを読めば、それまでの経緯を知らなくても作業を再開できる**ことを目的にしている。
 
-**この文書は現状・ルール・次にやることだけを書く。** 完了した作業の実装記録は
-`docs/notes/`、issue単位の経緯は GitHub Issues に置く。
+**この文書は現状・ルール・次にやることだけを書く。** 実装記録は `docs/notes/`、issue単位の経緯は GitHub Issues、過去の履歴は
+`docs/notes/handover-archive-2026.md`。容量の上限と退避方法は CLAUDE.md「CLAUDE.md / handover.md の更新ルール」。
 
-**容量の上限と、超えそうなときの退避方法**は CLAUDE.md「CLAUDE.md / handover.md の更新ルール」。
+最終更新: 2026-09-28
 
-過去の履歴は `docs/notes/handover-archive-2026.md`。
-
-最終更新: 2026-09-27
-
+- **3文書（CLAUDE.md・handover.md・chat-side-operations.md）を整理して縮めた**（#297。Chrome の読み方は `docs/notes/chrome-reading.md` へ）
 - **`/live`・`/title` の生成を3層のスプレッドシート（【2】自動変換後・【3】手動補正）から読むように切り替えた**（#438）。
   掲載（Y/N）と補正の入力先は【3】だけ。旧シートの「連盟ch」「放送対局」は読まない（`docs/notes/live-channel-write.md`）
-- **スマホのチャットから作業ログとガイド文書を読めるようにした**（public の `retroeater/mj-logs`、#440。読み方は3章「チャット側のアクセス手段」）
-- **`/titles` 統合（#435）は中止**（情報量過多で見つけにくくなるため）。`/title`・`/live` は別ページのまま開発継続。
-  検討中の成果は `/live` の掲載範囲拡大（#437、親 #346）に引き継いだ（`docs/notes/live-page-design.md`「3-5」）
+- **スマホのチャットから作業ログとガイド文書を読めるようにした**（public の `retroeater/mj-logs`、#440。読み方は0章）
 
 ---
 
 ## 0. 新しい会話の始め方
 
-会話開始時に読むのは `docs/handover.md` のみ。
-平野さんが毎回定型文を貼る前提にしない。
+会話開始時に読むのは `docs/handover.md` のみ（平野さんが毎回定型文を貼る前提にしない）。
 **ただし、マージ・ブランチ操作・ルール追記を行う（チャット側は指示する）前と、会話が長くなったときは、
-CLAUDE.md の該当節（「ブランチ運用」「Chat-Ref」「CLAUDE.md / handover.md の更新ルール」）も読み直すこと。**
-複数セッションが並行しており、会話の途中でも両ファイルは更新される（#313）。
+CLAUDE.md の該当節（「ブランチ運用」「Chat-Ref」「CLAUDE.md / handover.md の更新ルール」）も読み直すこと**（並行セッションが会話の途中でも更新する、#313）。
 
-issueの状況（Open/Closedの別、本文・コメント）はGitHubのIssues一覧ページで
-確認する。Claude Codeのセッションは `gh issue list` / `gh issue view`（クラウドセッションは GitHub MCP）を使う。
-**チャット側（claude.ai）は、作業ログとガイド文書を public の `retroeater/mj-logs` で読む。**
+**チャット側（claude.ai）の読み方: mj は private（#211）のため、作業ログとガイド文書は `sync-logs.yml` が写す public の `retroeater/mj-logs` で読む。**
 入口は平野さんが送る「ログ（公開）」の行で、ガイド文書はそのログの末尾のリンク（`guide/<SHA>/`）から読む。
-新しい会話の始めは、前回の最後の「ログ（公開）」の行を送ってもらう。
-issue は private のままなので、チャット側が要る issue の状態は Claude Code に確かめさせてログに書かせる。
-PC では Claude for Chrome で GitHub の issue・ファイルを直接読むこともできる（#210）。
-**チャット側は指示文を書く前とブラウザを使う前に `docs/notes/chat-side-operations.md` を読む**
-（ログの読み方・ブラウザ操作の回数・代わりの手段・指示文を書くときの注意）。写し方は `docs/notes/cloud-sessions.md`「作業ログ」。
-**チャット側が Claude Code への指示文を書くときは `docs/instruction-template.md` を使う**（#294）。
+新しい会話の始めは、前回の最後の「ログ（公開）」の行を送ってもらう。写し方は `docs/notes/cloud-sessions.md`「作業ログ」。
 
-会話が長くなると1回あたりのコストが上がるため、
-**大きな作業の区切りごとに新しい会話を始める**とよい。
+issue の状況（Open/Closed・本文・コメント）は、Claude Code は `gh issue list` / `gh issue view`（クラウドセッションは GitHub MCP）で見る。
+チャット側は Claude Code に確かめさせてログに書かせる（PC では Claude for Chrome で直接読んでもよい、`docs/notes/chrome-reading.md`）。
+**チャット側は指示文を書く前に `docs/notes/chat-side-operations.md` を読み、指示文は `docs/instruction-template.md` で書く**（#294）。
+
+**大きな作業の区切りごとに新しい会話を始める**とよい（長い会話は1回あたりのコストが上がる）。
 
 ---
 
@@ -65,7 +54,7 @@ GitHub Pages からの移行の相談に始まり、Cloudflare への移行の�
 
 | 項目 | 内容 |
 |---|---|
-| リポジトリ | `retroeater/mj`。**private**（2026-09-13〜、#211）。チャット側は作業ログとガイド文書を public の `retroeater/mj-logs` で読む（3章「チャット側のアクセス手段」） |
+| リポジトリ | `retroeater/mj`。**private**（#211。チャット側の読み方は0章） |
 | 本番 | Cloudflare Workers（静的アセット配信）。`cloudflare` ブランチ |
 | ドメイン | `ryoei.pro` / `www.ryoei.pro`。DNS・レジストラともCloudflare |
 | 旧環境 | GitHub Pages。**2026-09-21 に無効化済み**（#84）。`gh-pages` ブランチは履歴として残す |
@@ -78,6 +67,9 @@ GitHub Pages からの移行の相談に始まり、Cloudflare への移行の�
 `html_handling: "none"`（#89）のため、`_redirects` 先頭の `/  /index.html  200` を消すとトップページが404になる。
 canonical は付けない（#113）。例外は `wayhome/` の38枚で、URL変種を持たないため canonical を持つ（#162）。`_headers` はセキュリティヘッダ5件とキャッシュ制御（#92）を持つ。
 設定値と経緯は `docs/notes/cloudflare.md`「配信設定: html_handling・_redirects・canonical・_headers」
+
+**本番反映（旧「4-x」）**: Workers Builds が `cloudflare` への push を検知して反映する（`chore: regenerate ...` も即座に。ゲートは #170。規則は CLAUDE.md「構成」「判断・作業の原則」）。
+設定値・APIトークン・check-runs での確認範囲は `docs/notes/cloudflare.md`「本番反映（デプロイ）の仕組み」、セッションからの到達は `docs/notes/session-network.md`（#328）。
 
 ### ページ構成
 
@@ -97,7 +89,7 @@ Google Charts依存（#7の対象）・静的なページ の4つ。**件数の�
 
 **スプレッドシートを直しただけでは、ビルド時生成のページには反映されない。** 即時に反映したいときは
 `regenerate-page.yml` を`workflow_dispatch`で手動実行する（`target_page`にページ名、または`all`）。
-週次（毎週月曜05:37 JST、#103）で`all`が走る。
+週次（毎週月曜05:37 JST、#103）で`all`が走る。セッション内でも `python3 scripts/regenerate.py <ページ名>` で生成できる。
 
 ### 自動化
 
@@ -112,47 +104,17 @@ Google Charts依存（#7の対象）・静的なページ の4つ。**件数の�
 
 | 場所 | 担当する作業 |
 |---|---|
-| **Claudeとのチャット** | 設計の相談、調査、原因の切り分け、実装案の作成 |
-| **Claude Code**（Codespace内） | ファイルの編集、`gh` コマンドでのissue操作、コミット・push |
+| **Claudeとのチャット** | 設計の相談、調査、原因の切り分け、実装案・指示文の作成（`docs/notes/chat-side-operations.md`） |
+| **Claude Code** | ファイルの編集、issue操作、コミット・push。コミットの到達確認・差分・マージ判定も行い、結果をログで報告する |
 
-Claude Codeは Codespace のターミナルで動いている（`/workspaces/mj` で `claude`）。
-`gh` が認証済みのため、issueの開閉やラベル操作がそのまま通る。
-クラウドセッション（Claude Code on the web）でも動く（`gh` の代わりに GitHub MCP を使う。docs/notes/cloud-sessions.md）。
+Claude Code の実行環境は Codespace（`/workspaces/mj` で `claude`、`gh` 認証済み）かクラウドセッション（`docs/notes/cloud-sessions.md`）。
+Rebuild・gh の認証は `docs/notes/session-network.md`「Rebuild と Claude Code」「gh の認証」。
 
-**Rebuild 後は `post-create.sh` が Claude Code を自動で入れる**（#212）。`.devcontainer/` を変えたときの反映手順と、
-codespace を作り直す前の確認は `docs/notes/session-network.md`「Rebuild と Claude Code」。
+### Chat-Ref と並行作業
 
-**チャット側のアクセス手段（2026-09-26、#211・#440）。**
-リポジトリは private のため、チャット側は作業ログとガイド文書を、`sync-logs.yml` が写す public の `retroeater/mj-logs` で読む
-（入口は0章。PC では Claude for Chrome で mj も読める）。
-読み方・読めないときの代わりの手段・コミット履歴の独立検証は `docs/notes/chat-side-operations.md`。
-**コミットの到達確認・差分・マージ判定は、Claude Code 側が `git` / `gh` で行い、結果をチャットに報告する。**
-
-**gh は `GH_TOKEN`（Codespaces のユーザーシークレット）で認証済み。** `gh auth status` の Active account が `(GH_TOKEN)` なら正常。
-詳細と失効時の対処は `docs/notes/session-network.md`「gh の認証」。
-
-### チャット側から渡された指示と Chat-Ref（2026-09-13）
-
-チャット側（claude.ai）で作った指示文には `Chat-Ref`（形式 `CHAT-MMDD-XX-nn`）が付く。
-トレーラの入れ方・重複確認・報告の書き方などのルールは CLAUDE.md「Chat-Ref」節が正。
-チャット側の運用（識別子の確認、完了報告の受け方、「申送り」）は `docs/notes/chat-side-operations.md`。
-
-### 複数セッションの並行作業（2026-09-12〜13）
-
-作業ツリーは全セッションで共有される。ルールは CLAUDE.md「ブランチ運用」が正（決まるまでの経緯は `docs/notes/handover-archive-2026.md`）。
-
-### 重要な約束事
-
-**Claudeが作成した下書き（Claude Codeに貼る文面など）には、必ず見出しを付ける。**
-
-```
-## 📋 Claude Codeへ貼る文面（Claudeが作成した下書き）
-```
-
-これは、後から会話を読み返したときに
-**平野さんの発言とClaudeの下書きが区別できなくなる**問題への対策。
-
-指示文を書くときの注意（ブランチ名・マージ・SHAの書き方などのルールを含む）は `docs/notes/chat-side-operations.md`「指示文を書くときの注意」。
+チャット側の指示文には `Chat-Ref`（`CHAT-MMDD-XX-nn`）が付く。受け手側の規則は CLAUDE.md「Chat-Ref」、並行作業の規則は同「ブランチ運用」が正
+（決まるまでの経緯は `docs/notes/handover-archive-2026.md`）。チャット側の運用（識別子の確認、完了報告の受け方、「申送り」、指示文の書き方）は
+`docs/notes/chat-side-operations.md`。
 
 ### タスク管理
 
@@ -165,12 +127,10 @@ codespace を作り直す前の確認は `docs/notes/session-network.md`「Rebui
 - 優先順位は Projects ボード（`ryoei.pro enhancements`）の並びで表す
 - 完了分もcloseした状態で残している（判断の経緯を後から追えるように）
 - **issueに着手したら、コードを触る前に「着手中」のコメントを残す（#157）。** ルールの本文は `CLAUDE.md`「issueの着手ルール」節
-- issueの状況確認はGitHub Issuesを直接見る（0章。エクスポートファイルは廃止、#210）
-- 2026-09-13〜14 のレビューで起票した #219〜#289: `gh issue list --state all --search "CHAT-0913-SP-01"` / `"CHAT-0913-RV-01"`（判断は `docs/notes/decisions-2026-09-13-review.md`）
+- issueの状況の見方は0章（エクスポートファイルは廃止、#210）
 - **新サイト全体の親 issue は #296（sub-issue 21件）。** #101 はトップページの
   作り直しに限る。新サイト送りにするときの手順は #296 の本文
   「新サイト送りにするとき・やめるとき」
-- 平野さんの過去のタスクリストから移管した29件: `gh issue list --state all --search "過去のタスクリストからの移管"`
 - ユーザ登録（サーバ側のアカウント）が前提の機能は #394（保留）に blocked by で依存させる
 - 月次の手作業（AI言及・Core Web Vitals・デバイス比率・robots.txt差分・Cloudflare の設定と記録の照合）は
   #304 に集約し、実施ごとにコメントを残す
@@ -187,7 +147,8 @@ codespace を作り直す前の確認は `docs/notes/session-network.md`「Rebui
 具体的には、次のような判断をしてきた。
 
 - 構造化データ（#13）は現行サイトでは見送り、新サイトで対応
-- SNSシェアボタン（#82）も新サイトの選手個別ページに置く
+- 新サイトの選手個別ページの共有ボタンは #82 のまま（新サイト送り）。現行サイトは live/・saikyo/・wayhome/・title/ に共通の共有ボタンを置いた
+  （#409。部品は `scripts/lib/share.py`・`assets/share.js`・`style.css`。books/ は凍結中で旧実装のまま）
 - Astroへの移行（#20/#21）は新サイト構築時に判断。現行サイトの残作業はPythonで進める
 
 **新サイトの第一弾は index.html（#101）。** 他ページと構造が独立し依存が最も少ないため（Astro の試作対象も index.html に変え、#20 はクローズ）。
@@ -217,17 +178,6 @@ CSPでは `script-src` にのみ必要で、送信先は自ドメインの `/cdn
 
 ---
 
-## 4-x. 本番反映（デプロイ）の仕組み（#169の後始末、2026-09-12）
-
-**本番反映の仕組み**（Workers Builds が `cloudflare` への push を検知する。`chore: regenerate ...` も即座に反映される。ゲートは #170）と、
-**到達できないこと・目視申告値を根拠に「存在しない」「確定」と結論づけない原則**（#169・#312）は CLAUDE.md「構成」「方針」が正。
-
-詳細（ダッシュボードの設定値・APIトークン・check-runs での確認範囲）は `docs/notes/cloudflare.md`「本番反映（デプロイ）の仕組み」、
-セッションからの到達の実測は `docs/notes/session-network.md`（#328）、経緯は `docs/notes/handover-archive-2026.md`。
-
-**`scripts/regenerate.py` はセッション内で実行できる**（2026-09-14 実測）。
-worktree 内で `python3 scripts/regenerate.py <ページ名>` を実行する。
-
 ## 5. 次にやること
 
 **期限付き・確認待ちタスク**
@@ -252,7 +202,7 @@ GitHub Issues（Open）に全件あるが、着手可能な主なものは以下
 | #180 | `select#selectbox` のラベル・選択と同時の遷移 | ランキング3ページ分は #141 の移行で対応する |
 | #408 | タイトル戦の対局日を確定させる | 日付列の仮の値を実際の対局日に直す。書式と未確定の2期は `docs/notes/title-pages.md`「日付列の書式」 |
 | **#222** | タイトル戦の新構成（`title/`） | 公開は #413（#356 は 2026-09-28 に解決）。知見は `docs/notes/title-pages.md` |
-| #370 | 連盟員名簿の属性（誕生日・段位など） | `check-meibo.yml`（週次）まで済み。**未確認: 予約実行の初回（2026-09-21 05:07 JST）で dry-run が外れて成功するか。** 使い道は #405・#286・#379（済） |
+| #370 | 連盟員名簿の属性（誕生日・段位など） | `check-meibo.yml`（週次、予約実行も issue を書く設定で成功している）まで済み。使い道は #405・#286・#379（済） |
 | — | 現行サイトで小さく作れる6件 | **チャット側の提案で、平野さんは未了承**: #389 → #388 → #377 → #366 → #371 → #378。未決: #365・#367 のデータを誰がいつ入力するか |
 
 ### #7 の進め方（検討済み）
@@ -266,9 +216,7 @@ GitHub Issues（Open）に全件あるが、着手可能な主なものは以下
 
 ## 7. 関連文書
 
-完了済み作業の実装記録・調査結果は `docs/notes/` にある。handover には結論と参照先だけを残す。
-
-`docs/notes/` 以下は下の一覧が正（`ls docs/notes/` にあって載っていないものは、開く場面を1行で足す）。
+完了済み作業の実装記録・調査結果は `docs/notes/` にある（handover には結論と参照先だけ）。`docs/notes/` 以下は下の一覧が正（`ls docs/notes/` にあって載っていないものは、開く場面を1行で足す）。
 
 | ファイル | 開く場面 |
 |---|---|
@@ -277,10 +225,10 @@ GitHub Issues（Open）に全件あるが、着手可能な主なものは以下
 | `docs/astro-migration-study.md` | 新サイトのスタック（#21）の判断 |
 | `docs/lighthouse-baseline.md` | パフォーマンスの改善前後の比較（ページ別スコアの基準値） |
 | `docs/gsc/` | Search Console の数値（#142） |
-| `docs/review-followup-instructions.md` | 2026-09-11 の包括レビューの指摘の出どころ（完了済み） |
 | `docs/notes/cloudflare.md` | Cloudflare の設定・配信（`_headers`・`_redirects`・`wrangler dev`）・本番反映と確認範囲 |
 | `docs/notes/session-network.md` | セッションから外部に届くか、gh の認証、Rebuild、シートの行番号、作業ファイルの置き場所 |
-| `docs/notes/chat-side-operations.md` | チャット側が指示文を書く前と、ブラウザを使う前（ログの読み方もここ） |
+| `docs/notes/chat-side-operations.md` | チャット側が指示文を書く前（ログの読み方もここ） |
+| `docs/notes/chrome-reading.md` | チャット側が PC で Claude for Chrome を使い mj を直接読む前 |
 | `docs/notes/branch-operations.md` | ブランチの削除・ワークフローの変更・作業ログの寿命（入口の規則は CLAUDE.md） |
 | `docs/notes/static-generation.md` | ページの一覧・生成スクリプト・ページ側のJS・ワークフローの一覧・メンテナンス用スクリプト、#7 の残り |
 | `docs/notes/sitemap-lastmod.md` | sitemap の lastmod（#265） |
@@ -294,6 +242,7 @@ GitHub Issues（Open）に全件あるが、着手可能な主なものは以下
 | `docs/notes/title-pages.md` | タイトル戦の新構成（`title/`、#222） |
 | `docs/notes/live-page-design.md` | 放送対局ページ（`live/`、#346）。掲載範囲の拡大は「3-5」（#437） |
 | `docs/notes/birthday-calendar.md` | 誕生日カレンダーの同期（#379） |
+| `docs/notes/yotei-sheet.md` | 連盟の予定表の取り込みと放送対局の公開カレンダーへの同期（#448） |
 | `docs/notes/live-channel-write.md` | /live の3層（【1】【2】【3】）の書き込み・毎日の取り込み・平野さんの入力の手順（#438） |
 | `docs/notes/books-freeze.md` | **書籍ページの開発凍結（2026-09-22、#97）。決定・凍結時点の状態・楽天データの期限・再開手順** |
 | `docs/notes/books-calendar.md` | 書籍の発売日のカレンダー同期の仕組み（#97、凍結時点の記録） |

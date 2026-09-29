@@ -1,7 +1,51 @@
 # ブランチ運用の場面ごとの手順
 
-CLAUDE.md「ブランチ運用」「作業ログ」から、特定の場面でしか使わない手順を移した（#297、CHAT-0919-LW-04）。
-入口の規則（いつこの文書を読むか）は CLAUDE.md に残している。
+CLAUDE.md「ブランチ運用」「Chat-Ref」「作業ログ」から、特定の場面でしか使わない手順を移した（#297、CHAT-0919-LW-04・CHAT-0928-DC-01）。
+入口の規則（いつこの文書を読むか）は CLAUDE.md に残している。クラウドセッションでの読み替えは `docs/notes/cloud-sessions.md`。
+
+## 起動時に読み込んだ CLAUDE.md が古くないか確かめる（Codespace）
+
+**会話の開始時に `git -C /workspaces/mj fetch origin` し、`/workspaces/mj` の HEAD が `origin/cloudflare` より遅れていたら、
+起動時に読み込まれた CLAUDE.md は古い版とみなし、規則は `git show origin/cloudflare:CLAUDE.md` で読む。**
+`/workspaces/mj` を pull しても読み込み済みの内容は変わらないため、読み直しは要る。
+
+## 作業ディレクトリの分離（Codespace）
+
+`/workspaces/mj` は全セッションが共有しており、ブランチを分けても作業ツリーは分離されない（#198）。
+
+- **`git -C /workspaces/mj fetch origin` のうえ、`origin/cloudflare` を明示して worktree を作り、その中で作業する**
+  （`/workspaces/mj` の HEAD は遅れていることがあるため、指示文に書かれていなくても常に行う）:
+  `git -C /workspaces/mj worktree add /workspaces/mj-<識別子> -b work/<識別子> origin/cloudflare`
+- 分岐元が `cloudflare` であることを `git merge-base --is-ancestor origin/cloudflare HEAD` で確認する（work/0913-hv）
+- `/workspaces/mj` 自身では `git checkout` / `git switch` を行わない。常に他セッションが使用中とみなす。
+  pull してよいのは下の「`/workspaces/mj` を pull するとき」の3条件をすべて満たすときだけ
+- 身に覚えのない未コミット変更を見つけたら、捨てる前に `git diff` で中身を確認し、他セッションの作業でないか疑う
+- コミットを分割するときは `git add -p`、または `git diff` で切り出したハンクを `git apply --cached` で部分ステージする
+  （`git stash` は共有パスの他セッションの未コミット編集を無言で消しうる、#198）
+- 作業完了後は `git worktree remove` で片付け、作業ブランチも（下の「ブランチを削除するとき」の手順で）削除する
+
+## Chat-Ref の着手前の確認
+
+### セッション識別子（`XX`）の重複
+
+そのセッションの最初の指示で、次の2つを見る。1件でもあれば着手せず、見つかった Chat-Ref とブランチを報告する。
+使用中の識別子の一覧が要るときも同じ2つで集める（一覧ファイルは作らない。実態とずれるため）。
+
+- 全ブランチのコミット: `git log --all -E --grep 'CHAT-[0-9]{4}-XX-' --oneline`
+- 全ブランチの `docs/logs/`: `git log --all --diff-filter=A --format= --name-only -- 'docs/logs/CHAT-*-XX-*.md'`
+  （マージ後に削除されたログも履歴に残るため、履歴で見る）
+
+チャット側も mj-logs で確かめるが、写るのは #440 以降に push されたログだけなので、受け手側のこの確認は省かない。
+
+### 0章ゲート（指示文に実装が含まれるとき）
+
+着手前に次を確認し、食い違いや重なりがあれば着手せず報告して止まる。
+
+- 対象 issue の本文とコメントを読み、指示文の範囲と食い違いが無いか
+- `docs/handover.md` と CLAUDE.md のサイズが警告域（CLAUDE.md「CLAUDE.md / handover.md の更新ルール」）に近くないか
+- `origin/cloudflare` の直近のコミットと、触る予定の issue の最近の更新を見て、他セッションの作業と重なっていないか（#265）
+- 触る予定のファイルを、未マージの work/ ブランチが変更していないか（`git branch -r --no-merged origin/cloudflare`
+  で列挙し、各ブランチとの `git diff --stat origin/cloudflare...<branch> -- <ファイル>` で確認）（#336）
 
 ## `/workspaces/mj` を pull するとき（CHAT-0915-NT-04）
 
@@ -12,7 +56,7 @@ CLAUDE.md「ブランチ運用」「作業ログ」から、特定の場面で�
 2. `git -C /workspaces/mj status --porcelain` が空であること
 3. HEAD が `origin/cloudflare` の祖先であること
 
-1つでも満たさなければ触らず、状態を報告する（未コミット変更の扱いは CLAUDE.md「ブランチ運用」）。
+1つでも満たさなければ触らず、状態を報告する（未コミット変更の扱いは上の「作業ディレクトリの分離」）。
 **`--ff-only` 以外の pull（merge・rebase を伴うもの）・merge・reset はしない。**
 
 - 理由: 放っておくと起動時の CLAUDE.md が遅れる。切り替え・未コミット変更の破壊（WH-22）は3条件で防げる
@@ -52,9 +96,11 @@ CLAUDE.md「ブランチ運用」「作業ログ」から、特定の場面で�
   生成物をコミットしなければ衝突は起きないが、プレビューが本番と同じ中身になり確認に使えない（CHAT-0918-SX-09 で実際にそうなった）。
   そのため cloudflare の自動再生成と同じファイルを両側で変えることになり、`origin/cloudflare` の取り込みで衝突しうる
   （SX-10 で `saikyo/` の12ファイル。SX-11・SX-15 の取り込みは衝突なし、#384・#406）
-  - 衝突した生成物は cloudflare 側を採って解消し（`git checkout --theirs -- <ファイル>` → `git add`）、再生成で上書きする。
-    再生成の後、採った側の中身が残っていない（全ファイルが今回の生成物になっている）ことを確かめる
-  - 生成物以外（スクリプト・CSS・サイトマップ等）が衝突したら、解消せずに止まって報告する
+  - 衝突した生成物は、どちらの版も選ばず、取り込んだ後のスクリプトで生成し直して解く（決まりは CLAUDE.md「ブランチ運用」）。
+    衝突の印を消すには cloudflare 側を採ってから（`git checkout --theirs -- <ファイル>` → `git add`）再生成で上書きする。
+    再生成の後、採った側の中身が残っていない（全ファイルが今回の生成物になっている）ことと、双方の変更（自分の変更と、cloudflare 側で入ったシートの変更など）が残っていることを確かめ、ログに書く
+    （CHAT-0924-TQ-18・TQ-26・TQ-27 で `title/` の生成物だけが衝突し、この形で解いた）
+  - 生成物以外（スクリプト・CSS・手で編集するサイトマップ等）が衝突したら、解消せずに止まって報告する。サイトマップは、生成スクリプトが書き出すもの（`sitemap-title.xml` など）は生成物として生成し直し、手で編集するもの（サイトマップインデックスの `sitemap.xml` など）が衝突したら止まる
   - 手元（Codespace）の生成は、画像の到達確認の結果が GitHub Actions と違うことがある（SX-11〜SX-14 で `_200x200` が1件だけ Codespace から 404、#380）。
     作業に関係しない生成物の差分はコミットに含めない
 - **マージ後の自動再生成は、変えた箇所より広く出る。** `scripts/lib/` や生成スクリプトを変えてマージすると、
@@ -73,7 +119,7 @@ CLAUDE.md「ブランチ運用」「作業ログ」から、特定の場面で�
 
 - 戻す前に `git status --short` で未コミットの変更を見て、残したいもの（ログ等）は先にコミットする
 - 別のコミットの中身を確かめたいだけなら、作業ツリーに展開せず `git show <コミット>:<パス>` や `git diff <A> <B> -- <パス>` で読む
-- 退避に `git stash` は使わない（CLAUDE.md「禁止事項」）
+- 退避に `git stash` は使わない（CLAUDE.md「禁止事項」、上の「作業ディレクトリの分離」）
 
 ## 作業ログの寿命（cleanup-logs.yml）
 
@@ -88,7 +134,7 @@ CLAUDE.md「ブランチ運用」「作業ログ」から、特定の場面で�
 
 - **過去のログの誤りは、元の記述を書き換えずに、該当箇所の直後に「訂正（<Chat-Ref>）」の段落を足す。**
   字下げした箇条で、正しい事実と根拠（どのログ・issue か）を書く。同じ誤りが他の箇所にもあれば、そこには訂正の段落への案内を1行置く
-  （前例: CHAT-0919-HG-01.md の「横断のまとめ」a の直下の HG-04 の訂正〈`0174702c`〉、c の直下の HG-06 の訂正〈HG-07 で追加、`7f62893e`〉）
+  （前例: https://github.com/retroeater/mj/blob/4be965e22e7e64c4ba0db6400a943ffcd17a99f2/docs/logs/CHAT-0919-HG-01.md の「横断のまとめ」a の直下の HG-04 の訂正〈`0174702c`〉、c の直下の HG-06 の訂正〈HG-07 で追加、`7f62893e`〉）
 - **ログを SHA 指定の permalink で参照するときは、そのログへの訂正をすべて含む最新の版の SHA で固定する。**
   ログは cleanup-logs.yml で消えうるので、パスではなく permalink にするが、古い版を指すと訂正が読めない
   （HG-06 で訂正前の `a7146487` の版を指定し、HG-07 で `7f62893e` に差し替えた）。
