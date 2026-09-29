@@ -12,8 +12,10 @@ Codespace の代わりにクラウドセッションで作業するときの、C
   （書き方は `docs/instruction-template.md`）。`claude/...` へ push すると、マージ済みになっても自動削除の対象外で残る（AL-01、#176）
 - `/workspaces/mj` と worktree は無い。セッションごとにクローンが別なので、worktree を作らずクローンの中で直接ブランチを切る。
   CLAUDE.md「ブランチ運用」の `/workspaces/mj` の pull・worktree の片付けは当てはまらない
-- **auto モードでは、権限の確認の画面が出ないことを `.claude/settings.json` の許可ルールが効いた証拠にしない**（auto モード自身の判定でも出ず、区別できない）。
-  判定の方法を決めるまで「効いた」と記録しない（#298）
+- **クラウドのセッションでは、リポジトリの `.claude/settings.json` の許可ルールは auto モードの分類器の拒否を防がない**
+  （読み込まれないのか適用されないのかは未確定。ZK-01 で `Bash(git checkout -b work/*)` にそのまま当たる単独のコマンドが拒否された、2026-09-29、#298）。
+  確認の画面が出ないことも、ルールが効いた証拠にしない（auto モード自身の判定でも出ず、区別できない）。
+  ルールは、クラウド以外で動かすときに効く可能性があり害も無いため残す
 
 ## 作業ブランチの用意
 
@@ -22,6 +24,8 @@ Codespace の代わりにクラウドセッションで作業するときの、C
 **既存のブランチを付け替える `git checkout -B`・`git branch -f`・`git reset --hard` は使わない。**
 **ブランチの作成・切り替え・進める操作は、`cd`・`;`・`|`・`&&` を付けない単独のコマンドで、クローンの中から `git -C` も付けずに実行する**
 （読むだけのコマンドとつなぐと全体が破壊的な操作として判定され、拒否されることがある。許可ルール `Bash(git checkout -b work/*)` の形にも合わせる。#298）。
+
+分類器に拒否されたら、コマンドの全文と理由をログの `## 報告` の「エラー」に書く（#298）。
 
 ローカルに `work/<識別子>` があるか（`git rev-parse --verify --quiet work/<識別子>`）を先に見る。
 
@@ -106,6 +110,8 @@ CLAUDE.md「ブランチ運用」の「作業ブランチも削除する」は�
   docs/handover.md・docs/instruction-template.md・docs/logs/_template.md・docs/notes/ 直下の .md）が変わると、
   `guide/<mj の短い SHA>/` へパスを保って写す（新しい順に10個を残す。最新は `guide/HISTORY` の最後の行）。
   チャット側の取得の道具が一度読んだ URL をキャッシュから返すため、変わるたびに URL を変える。
+- **使用済みの Chat-Ref 識別子の一覧も写る。** `sync-logs.yml` の実行のたびに `scripts/chat_ids.py` が全ブランチの `Chat-Ref:` トレーラと `docs/logs/` の履歴から集め、
+  最新の版と違えば `chat-ids/<mj の短い SHA>.md` に書く（10個を残す。最新は `chat-ids/HISTORY` の最後の行、#474）。写したログの末尾からリンクする
   mj-logs に写したログの末尾には、その時点で最新のフォルダと CLAUDE.md・handover.md・chat-side-operations.md・cloudflare.md へのリンクが付く（mj の元のログは変えない）。
   ガイド文書に書かない情報はログと同じ。写す一覧は `python3 scripts/sync_guides.py --dest <任意> copy --base HEAD --after HEAD --list`
 - **`## 報告` を書き換えるときは、ファイルの中で最後に出てくる `## 報告` を対象にする。** `## 指示` に貼った指示文の中にも
