@@ -28,13 +28,14 @@ CLAUDE.md「ブランチ運用」「Chat-Ref」「作業ログ」から、特定
 
 ## Chat-Ref の着手前の確認
 
-### セッション識別子（`XX`）の重複
+### セッション識別子（`XXX`）の重複
 
 そのセッションの最初の指示で、次の2つを見る。1件でもあれば着手せず、見つかった Chat-Ref とブランチを報告する。
-使用中の識別子の一覧が要るときも同じ2つで集める（一覧ファイルは作らない。実態とずれるため）。
+使用中の識別子の一覧が要るときも同じ2つで集める。`XXX` は確かめる識別子に置き換える（既存の2文字なども同じ形で引ける）。
+使用済みの一覧は `sync-logs.yml` が実行のたびに全ブランチの履歴から集め直し、mj-logs の `chat-ids/` に写す（チャット側向け、#474。仕組みは docs/notes/cloud-sessions.md「作業ログ」）。受け手側はこの一覧でなく上の2つで確かめる。
 
-- 全ブランチのコミット: `git log --all -E --grep 'CHAT-[0-9]{4}-XX-' --oneline`
-- 全ブランチの `docs/logs/`: `git log --all --diff-filter=A --format= --name-only -- 'docs/logs/CHAT-*-XX-*.md'`
+- 全ブランチのコミット: `git log --all -E --grep 'CHAT-[0-9]{4}-XXX-' --oneline`
+- 全ブランチの `docs/logs/`: `git log --all --diff-filter=A --format= --name-only -- 'docs/logs/CHAT-*-XXX-*.md'`
   （マージ後に削除されたログも履歴に残るため、履歴で見る）
 
 チャット側も mj-logs で確かめるが、写るのは #440 以降に push されたログだけなので、受け手側のこの確認は省かない。

@@ -27,8 +27,11 @@
 ルールの本文と書くときの注意は `docs/notes/chat-side-operations.md`「指示文を書くときの注意」。
 
 ```
-Chat-Ref: CHAT-MMDD-XX-nn
-共通手順: CLAUDE.md「Chat-Ref」「ブランチ運用」「作業ログ」節のとおり（識別子確認 → origin/cloudflare から worktree → ログ先行push → 最終報告の最後の行に Chat-Ref）
+Chat-Ref: CHAT-MMDD-XXX-nn
+共通手順: CLAUDE.md「Chat-Ref」「ブランチ運用」「作業ログ」節のとおり（識別子確認 → origin/cloudflare を起点に work/<識別子>〈クラウドセッションでは worktree を使わず docs/notes/cloud-sessions.md の読み替えに従う〉 → ログ先行push → 最終報告の Chat-Ref の行の直前に「ログ（公開）」の行、最後の行に Chat-Ref）。平野さんは、この指示のための作業ブランチ work/<識別子> の作成と push を許可している（セッションに割り当てられた claude/… のブランチは使わない）。
+
+0. 着手前に、このログの「指示」欄の末尾が、この指示文の末尾（最後の行）と一致しているか確認し、一致しなければ作業せず報告する。
+（0章のこの一文は必ず入れる。途中切れの確認のため。docs/notes/chat-side-operations.md「指示文の書き方・渡し方」）
 
 ## 目的
 （何のために何を変えるか。1〜2行）
@@ -52,7 +55,7 @@ Chat-Ref: CHAT-MMDD-XX-nn
 - マージ可否とその基準（次のどちらか）:
   - ドキュメントのみの変更なので、完了報告のうえ cloudflare へマージしてよい
   - 平野さんの判断で、確認（〜）が済んだら cloudflare へマージしてよい ／ マージせず報告する
-- ターミナルへの最終報告の最後の行に Chat-Ref: CHAT-MMDD-XX-nn を書く
+- ターミナルへの最終報告の Chat-Ref の行の直前に ログ（公開）: https://github.com/retroeater/mj-logs/blob/main/logs/CHAT-MMDD-XXX-nn.md を書き、最後の行に Chat-Ref: CHAT-MMDD-XXX-nn を書く
 
-この指示文は「Chat-Ref: CHAT-MMDD-XX-nn を書く」の行で終わる。途中で切れていたら止まって報告すること。
+不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 ```

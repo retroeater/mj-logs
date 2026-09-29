@@ -36,10 +36,10 @@ CLAUDE.md「作業ログ」節が正。ここには**書く時点で読めば足
 
 ```
 完了
-https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-MMDD-XX-nn.md
-ブランチ: work/MMDD-xx（マージ後に削除済み）
-ログ（公開）: https://github.com/retroeater/mj-logs/blob/main/logs/CHAT-MMDD-XX-nn.md
-Chat-Ref: CHAT-MMDD-XX-nn
+https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-MMDD-XXX-nn.md
+ブランチ: work/MMDD-xxx（マージ後に削除済み）
+ログ（公開）: https://github.com/retroeater/mj-logs/blob/main/logs/CHAT-MMDD-XXX-nn.md
+Chat-Ref: CHAT-MMDD-XXX-nn
 ```
 
 プレビューで確認する作業では、「ブランチ:」の行の次に `確認用: <プレビューの URL>` の行を足す（ログには書かない）。
@@ -47,11 +47,11 @@ Chat-Ref: CHAT-MMDD-XX-nn
 ## ひな形
 
 ```markdown
-# CHAT-MMDD-XX-nn
+# CHAT-MMDD-XXX-nn
 
 - 着手日時: YYYY-MM-DD
 - 対象issue: #NNN（複数可。無ければ「なし」）
-- ブランチ: work/MMDD-xx
+- ブランチ: work/MMDD-xxx
 - 着手時HEAD: <SHA>
 
 ## 指示
