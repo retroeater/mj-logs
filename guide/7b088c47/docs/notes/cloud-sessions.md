@@ -110,7 +110,9 @@ CLAUDE.md「ブランチ運用」の「作業ブランチも削除する」は�
   docs/handover.md・docs/instruction-template.md・docs/logs/_template.md・docs/notes/ 直下の .md）が変わると、
   `guide/<mj の短い SHA>/` へパスを保って写す（新しい順に10個を残す。最新は `guide/HISTORY` の最後の行）。
   チャット側の取得の道具が一度読んだ URL をキャッシュから返すため、変わるたびに URL を変える。
-  mj-logs に写したログの末尾には、その時点で最新のフォルダと CLAUDE.md・handover.md・chat-side-operations.md・cloudflare.md へのリンクが付く（mj の元のログは変えない）。
+- **使用済みの Chat-Ref 識別子の一覧も写る。** `sync-logs.yml` の実行のたびに `scripts/chat_ids.py` が全ブランチの `Chat-Ref:` トレーラと `docs/logs/` の履歴から集め、
+  最新の版と違えば `chat-ids/<mj の短い SHA>.md` に書く（10個を残す。最新は `chat-ids/HISTORY` の最後の行、#474）。写したログの末尾からリンクする
+  mj-logs に写したログの末尾には、その時点で最新のフォルダと CLAUDE.md・handover.md・instruction-template.md・chat-side-operations.md・cloudflare.md へのリンクが付く（mj の元のログは変えない）。
   ガイド文書に書かない情報はログと同じ。写す一覧は `python3 scripts/sync_guides.py --dest <任意> copy --base HEAD --after HEAD --list`
 - **`## 報告` を書き換えるときは、ファイルの中で最後に出てくる `## 報告` を対象にする。** `## 指示` に貼った指示文の中にも
   `## 報告` が出てくることがあり、最初の一致を使うと指示文の途中から後ろを消す（MD-14 のログで起きた。MD-15 で直した）
