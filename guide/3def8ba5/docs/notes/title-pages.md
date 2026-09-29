@@ -17,7 +17,10 @@
   - `title/search.json`（全ページの検索のデータ、#364）
 - `render_content()` 方式。画像の読み込み失敗は `assets/title.js` が `data-fallback`（アバター）へ差し替える
 - CSS は `style.css` の「タイトル戦(title/、#222)」節。クラスは `.mj-title*` と `body:has(.mj-title)` に閉じる
-- 当面は `<meta name="robots" content="noindex">`。navbar・`llms.txt`・`sitemap.xml` には載せない
+- 公開（#413、2026-09-28）: noindex を外し、`sitemap.xml` から `sitemap-title.xml` を参照する。navbar の「連盟 > タイトル」は `/title/` へ差し替えた（旧 `jpml_titles.html` はページとして残す。/live の公開手順〈#362〉と同じ形）。`llms.txt` に入口を載せ、旧表は「タイトル（表）」として残す
+  - canonical を出す（サイトの既定〈#113、出さない〉の例外。`saikyo/` と同じ形）。入口・大会ページ・期ページとも、スラッシュ付きの正規の URL（`https://ryoei.pro/title/`・`/title/<slug>/`・`/title/<slug>/<期>.html`）で、og:url と同じ値（`page_meta()`）
+  - `jpml_titles.html` から `title/` へのリンクは置かない。旧表の廃止は流入などを確かめてから（#441）
+  - `/title/<slug>`（末尾スラッシュなし）は 404 のまま。扱いは #455（#449 の `html_handling` の結論とあわせて決める）
 - 写真カードの処理は `generate_saikyo_pages.py` と重複している（共通化は #222 の未決定）
 - 入口（#358・#364、2026-09-18）: タイトルホルダーを決勝日（日付列）の降順に並べ、カード全体を大会ページへのリンクにする。カードは写真そのもので、
   上端に大会名を帯（色は下の「帯と回戦ラベルの色」）で、下端に選手名を透明になるグラデーションに白文字と影で重ねる（#364。#358 の「大会名の帯と写真を縦に並べる」形はやめた）。
