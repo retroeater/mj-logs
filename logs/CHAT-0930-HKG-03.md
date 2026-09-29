@@ -67,29 +67,47 @@ CLAUDE.md は 26361 → 26495 bytes（+134）。警告なし。
 - 取り込み後の差分（`git diff --name-status origin/cloudflare HEAD`）: `M CLAUDE.md`・`A docs/logs/CHAT-0930-HKG-03.md`
 - 実行するのと同じコマンドを hook に JSON（`{"tool_input":{"command":"git fetch -q origin && git merge-base --is-ancestor origin/cloudflare HEAD && git push origin work/0930-hkg-03:cloudflare 2>&1 | tail -1"},"cwd":"/home/user/mj"}`）で与えた判定:
   `{"hookSpecificOutput": {"hookEventName": "PreToolUse", "permissionDecision": "ask", "permissionDecisionReason": "cloudflare への push＝本番反映。マージの基準（CLAUDE.md「ブランチ運用」）を満たすか人が確認する"}}`（期待どおり ask）
+- 判定をログに書いたコミットの後、push の直前（03:06:51 JST）にも同じ判定を取り直し、ask だった
+- 実行: 2026-09-30 03:07 JST（18:07 UTC。直前 03:06:51・直後 03:07:28 JST）
+- 出力: `   2e616754..68837a87  work/0930-hkg-03 -> cloudflare`（成功。セッション側には確認の表示は返らない）
+- 68837a87 の結果: Actions は 公開対象を検査する（assets-check）success・作業ログを mj-logs へ写す（sync-logs）success。
+  check-run は「Workers Builds: mj」success・check success・sync success（CLAUDE.md を含むので Workers Builds が走った。表示は変わらない）。
+  68837a87 の後に cloudflare へのコミット（regenerate 等）は無い
+
+### 手順2 (b): このログの追いの push
+
+- (a) の後、origin/cloudflare との差分は無かった（cloudflare は進んでいない）。このログの追記だけが差分になる（`M docs/logs/CHAT-0930-HKG-03.md`）
+- 判定: JSON は (a) と同じ（コマンドも同じ）。`{"hookSpecificOutput": {"hookEventName": "PreToolUse", "permissionDecision": "allow", "permissionDecisionReason": "docs/logs のみの fast-forward（CLAUDE.md「ブランチ運用」）"}}`（期待どおり allow。この行を足した後のコミットでも push の直前に取り直す）
+- 実行時刻: 次のとおり。push の後にはこのログを変えない（変えると3回目の push になる）ため、時刻は push 直前に取った値。
+  push は直後の同じ手番で行う。正確な時刻は cloudflare の Actions の実行（公開対象を検査する・作業ログを mj-logs へ写す）の created_at でも確かめられる
+  - push 直前の時刻: 2026-09-30 03:08 JST（18:08 UTC）
 
 
 ## 報告
 
-- 状態: 対応中
+- 状態: 完了
 - ブランチ: work/0930-hkg-03
-- ログ: https://github.com/retroeater/mj/blob/work/0930-hkg-03/docs/logs/CHAT-0930-HKG-03.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-0930-HKG-03.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/0930-hkg-03
-- 確認用URL: なし
-- マージ: 未
+- 確認用URL: なし（表示に影響しない）
+- マージ: 済（(a) 68837a87 = CLAUDE.md の変更とこのログの前半。(b) = このログの追いの push）
 - issue: なし
 - 判断が必要なこと: なし
-- 未確認の項目: なし
+- 未確認の項目:
+  - 確認ダイアログが出たか（平野さんが画面で確かめる）。hook の判定は (a) ask・(b) allow
+    - (a) 2026-09-30 03:07 JST（18:07 UTC）: ask のはず
+    - (b) 2026-09-30 03:08 JST（18:08 UTC） ごろ: allow のはず（ダイアログが出ないはず）
+  - (b) の後の Actions の結果（push の後にこのログへは書けない。docs/logs のみなので Workers Builds は走らない）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 4d8bcb08）: https://github.com/retroeater/mj-logs/tree/main/guide/4d8bcb08
+ガイド文書（この版を写した時点の最新、mj 68837a87）: https://github.com/retroeater/mj-logs/tree/main/guide/68837a87
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/4d8bcb08/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/4d8bcb08/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/4d8bcb08/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/4d8bcb08/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/4d8bcb08/docs/notes/cloudflare.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/68837a87/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/68837a87/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/68837a87/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/68837a87/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/68837a87/docs/notes/cloudflare.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/fbb55c8c.md
