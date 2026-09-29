@@ -112,7 +112,7 @@ Rebuild・gh の認証は `docs/notes/session-network.md`「Rebuild と Claude C
 
 ### Chat-Ref と並行作業
 
-チャット側の指示文には `Chat-Ref`（`CHAT-MMDD-XX-nn`）が付く。受け手側の規則は CLAUDE.md「Chat-Ref」、並行作業の規則は同「ブランチ運用」が正
+チャット側の指示文には `Chat-Ref`（`CHAT-MMDD-XXX-nn`）が付く。受け手側の規則は CLAUDE.md「Chat-Ref」、並行作業の規則は同「ブランチ運用」が正
 （決まるまでの経緯は `docs/notes/handover-archive-2026.md`）。チャット側の運用（識別子の確認、完了報告の受け方、「申送り」、指示文の書き方）は
 `docs/notes/chat-side-operations.md`。
 
