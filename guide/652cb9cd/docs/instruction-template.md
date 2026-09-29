@@ -5,7 +5,7 @@
 - 作業ブランチ名は具体名を書かず「『ブランチ運用』の規則どおり」とする
 - 既存の作業ブランチを続けて使う指示は、「Chat-Ref」の次に「作業ブランチ: origin/cloudflare を起点に切った既存の work/<識別子> を続けて使う（〜のため）。着手時と作業中に origin/cloudflare が進んでいたら merge で取り込んでよい（push 済みなので rebase しない）」の1行を入れる。取り込みの可否を書かないと、祖先確認だけで中断する
 - クラウドセッション（Claude Code on the web）で実行する指示は、`/workspaces/mj` と worktree が無いため「作業ブランチ」の行を次のどちらかにする（読み替えは docs/notes/cloud-sessions.md）。判定の向きが2つで逆なので、式をそのまま書く
-  - 新しく作る: 「作業ブランチ: クラウドセッションで実行する。work/<識別子> を使う。リモートに無ければ origin/cloudflare から作る。リモートにあってマージ済み（`git merge-base --is-ancestor origin/work/<識別子> origin/cloudflare` が真）なら `git checkout -B work/<識別子> origin/cloudflare` で作り直す。マージ済みでなければ止まる」
+  - 新しく作る: 「作業ブランチ: クラウドセッションで実行する。work/<識別子> を使う。リモートに無ければ origin/cloudflare から作る。リモートにあってマージ済み（`git merge-base --is-ancestor origin/work/<識別子> origin/cloudflare` が真）なら origin/cloudflare から作る（`checkout -B` は使わない。ローカルにあるときを含め手順は docs/notes/cloud-sessions.md「作業ブランチの用意」）。マージ済みでなければ止まる」
   - 未マージの作業を続ける: 「作業ブランチ: クラウドセッションで実行する。未マージの work/<識別子> を続けて使う（〜のため）。`git checkout -b work/<識別子> origin/work/<識別子>` のうえ、`git merge-base --is-ancestor origin/cloudflare HEAD` が偽なら merge で取り込んでよい（rebase しない）。リモートに無ければ止まる」
 - SHA を固定して書かない。土台や比較対象は「その時点の `origin/cloudflare`」と書く
 - 定型部分は2行目の「共通手順」1行にまとめ、個々の手順を文章で書き直さない（写し間違いと途中切れを減らすため。2026-09-17）
@@ -27,8 +27,8 @@
 ルールの本文と書くときの注意は `docs/notes/chat-side-operations.md`「指示文を書くときの注意」。
 
 ```
-Chat-Ref: CHAT-MMDD-XX-nn
-共通手順: CLAUDE.md「Chat-Ref」「ブランチ運用」「作業ログ」節のとおり（識別子確認 → origin/cloudflare から worktree → ログ先行push → 最終報告の最後の行に Chat-Ref）
+Chat-Ref: CHAT-MMDD-XXX-nn
+共通手順: CLAUDE.md「Chat-Ref」「ブランチ運用」「作業ログ」節のとおり（識別子確認 → origin/cloudflare を起点に work/<識別子>〈クラウドセッションでは worktree を使わず docs/notes/cloud-sessions.md の読み替えに従う〉 → ログ先行push → 最終報告の Chat-Ref の行の直前に「ログ（公開）」の行、最後の行に Chat-Ref）。平野さんは、この指示のための作業ブランチ work/<識別子> の作成と push を許可している（セッションに割り当てられた claude/… のブランチは使わない）。
 
 ## 目的
 （何のために何を変えるか。1〜2行）
@@ -52,7 +52,7 @@ Chat-Ref: CHAT-MMDD-XX-nn
 - マージ可否とその基準（次のどちらか）:
   - ドキュメントのみの変更なので、完了報告のうえ cloudflare へマージしてよい
   - 平野さんの判断で、確認（〜）が済んだら cloudflare へマージしてよい ／ マージせず報告する
-- ターミナルへの最終報告の最後の行に Chat-Ref: CHAT-MMDD-XX-nn を書く
+- ターミナルへの最終報告の Chat-Ref の行の直前に ログ（公開）: https://github.com/retroeater/mj-logs/blob/main/logs/CHAT-MMDD-XXX-nn.md を書き、最後の行に Chat-Ref: CHAT-MMDD-XXX-nn を書く
 
-この指示文は「Chat-Ref: CHAT-MMDD-XX-nn を書く」の行で終わる。途中で切れていたら止まって報告すること。
+不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 ```
