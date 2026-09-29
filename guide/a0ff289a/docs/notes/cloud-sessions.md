@@ -12,15 +12,26 @@ Codespace の代わりにクラウドセッションで作業するときの、C
   （書き方は `docs/instruction-template.md`）。`claude/...` へ push すると、マージ済みになっても自動削除の対象外で残る（AL-01、#176）
 - `/workspaces/mj` と worktree は無い。セッションごとにクローンが別なので、worktree を作らずクローンの中で直接ブランチを切る。
   CLAUDE.md「ブランチ運用」の `/workspaces/mj` の pull・worktree の片付けは当てはまらない
+- **auto モードでは、権限の確認の画面が出ないことを `.claude/settings.json` の許可ルールが効いた証拠にしない**（auto モード自身の判定でも出ず、区別できない）。
+  判定の方法を決めるまで「効いた」と記録しない（#298）
 
 ## 作業ブランチの用意
 
 最初に `git fetch origin` と `git fetch --unshallow origin` を行う（下の「浅いクローン」）。
 
-- **リモートに無い**: `git checkout -b work/<識別子> origin/cloudflare`
-- **リモートにあってマージ済み**（`git merge-base --is-ancestor origin/work/<識別子> origin/cloudflare` が真）:
-  `git checkout -B work/<識別子> origin/cloudflare` で作り直す
-- **未マージの作業を続ける**: `git checkout -b work/<識別子> origin/work/<識別子>` のうえ、
+**既存のブランチを付け替える `git checkout -B`・`git branch -f`・`git reset --hard` は使わない。**
+**ブランチの作成・切り替え・進める操作は、`cd`・`;`・`|`・`&&` を付けない単独のコマンドで、クローンの中から `git -C` も付けずに実行する**
+（読むだけのコマンドとつなぐと全体が破壊的な操作として判定され、拒否されることがある。許可ルール `Bash(git checkout -b work/*)` の形にも合わせる。#298）。
+
+ローカルに `work/<識別子>` があるか（`git rev-parse --verify --quiet work/<識別子>`）を先に見る。
+
+- **ローカルにあり `origin/cloudflare` の祖先**（`git merge-base --is-ancestor work/<識別子> origin/cloudflare` が真）:
+  `git checkout work/<識別子>` のうえ `git merge --ff-only origin/cloudflare` で進める
+- **ローカルにあり祖先でない**: 捨てずに止まって報告する
+- **ローカルに無く、リモートにも無い**: `git checkout -b work/<識別子> origin/cloudflare`
+- **ローカルに無く、リモートにあってマージ済み**（`git merge-base --is-ancestor origin/work/<識別子> origin/cloudflare` が真）:
+  同じく `git checkout -b work/<識別子> origin/cloudflare`（リモートは cloudflare の祖先なので、push は fast-forward になる）
+- **ローカルに無く、リモートにあり未マージの作業を続ける**: `git checkout -b work/<識別子> origin/work/<識別子>` のうえ、
   **`git merge-base --is-ancestor origin/cloudflare HEAD`**（cloudflare が作業ブランチの祖先）を確かめる。
   偽なら `git merge origin/cloudflare` で取り込む（push 済みなので rebase しない）。上のマージ済みの判定と向きが逆なので取り違えない
 - 指示文がどれにも当てはまらない状態（例: 新しく作るはずが未マージのものがある）なら止まって報告する
@@ -36,7 +47,9 @@ Chat-Ref の確認・`git branch --merged` が誤る。**これらの判定の�
 
 - issue: `issue_read`（本文・コメント）、`search_issues`・`list_issues`（検索。クローズ済みも見る）、`add_issue_comment`、`issue_write`。
   本文は引数の文字列で渡す（`--body-file` の代わり。シェルを通らないので展開の心配は無い）
-- check-run・コミット: `get_commit`、`get_check_run`、`actions_list`・`actions_get`
+- check-run・コミット: `get_commit`、`get_check_run`、`actions_list`・`actions_get`。**コミットの check-run の一覧を引く MCP ツールは無い。**
+  環境変数のトークンで `curl -sS -H "Authorization: Bearer $GITHUB_TOKEN" https://api.github.com/repos/retroeater/mj/commits/<SHA>/check-runs` を引く
+  （名前・状態・成否・ID と `.output.summary`。SH-02・SH-03 で実測。トークンの値は出力しない）
 - ワークフローの起動: `actions_run_trigger`（method `run_workflow`、ref は既定ブランチ `cloudflare`）。
   **入力はすべて文字列で渡す**（`{"dry_run": "true"}`）。起動できるのは既定ブランチにあるワークフローだけ（docs/notes/branch-operations.md「ワークフローを変更したとき」）
 - ジョブのログ（`get_job_logs`）は**ジョブの完了後に読む**。実行中は HTTP 404 になる
@@ -81,6 +94,8 @@ CLAUDE.md「ブランチ運用」の「作業ブランチも削除する」は�
 
 - **プレビューの URL は非公開の URL として扱い、ログ・issue・コミットに書かない。ターミナルの最終報告にだけ書く**（CLAUDE.md「作業ログ」節）
 - セッションからはプレビューに接続できないことがある（MD-17 では拒否された。2026-09-28 に `*.workers.dev` を許可してからは接続できる）。そのときは表示を確かめていないことを「未確認の項目」に書く
+- **Workers Builds の check-run が、報告が止まったまま `in_progress` で残ることがある**（SH-02 の 048b4d9 は数時間 `in_progress`、SH-03 の 3def8ba は1つが残り別の1つが success）。
+  同じコミットに別の「Workers Builds: mj」があればそちらの成否を見る。無ければ、プレビューの別名 URL や本番が新しい版を返すか（生成物・`assets/` のファイルを取得して手元と比べる）で確かめる
 
 ## 作業ログ
 

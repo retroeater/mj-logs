@@ -5,7 +5,7 @@
 「動画 > 放送対局」（`video_live.html`）を、帰り道（`wayhome/`）・最強戦（`saikyo/`）と
 同系統の構成で `/live` 以下に作り直す。**`video_live.html` は変更せず、/live 以下に新しく作る**（CHAT-0916-LV-01）。
 
-調査・検証の詳細は作業ログにある（`docs/logs/CHAT-0916-LV-01.md`〜`CHAT-0916-LV-05.md`）。
+調査・検証の詳細は作業ログにある（https://github.com/retroeater/mj/blob/4be965e22e7e64c4ba0db6400a943ffcd17a99f2/docs/logs/CHAT-0916-LV-01.md 〜 https://github.com/retroeater/mj/blob/4be965e22e7e64c4ba0db6400a943ffcd17a99f2/docs/logs/CHAT-0916-LV-05.md ）。
 このメモは決まったことだけをまとめる。各項目の末尾の括弧は、決めたときの Chat-Ref
 （LV-01 は CHAT-0916-LV-01、LP-04 は CHAT-0919-LP-04、SX-09 は CHAT-0918-SX-09 の略。「判断」は平野さんの判断、「案」はログの案を判断で採用したもの）。
 
@@ -132,7 +132,7 @@
 
 ### 1-6. 初期データ
 
-- 平野さんが TSV を手で貼る（判断 LV-05）。作成手順・件数・貼り付け手順は `docs/logs/CHAT-0916-LV-05.md`
+- 平野さんが TSV を手で貼る（判断 LV-05）。作成手順・件数・貼り付け手順は https://github.com/retroeater/mj/blob/4be965e22e7e64c4ba0db6400a943ffcd17a99f2/docs/logs/CHAT-0916-LV-05.md
 - 「放送対局」3,115行（Y 1,861、N 1,254）: 下記 2-1 の掲載範囲の回戦ごとの動画 2,654本と、卓・日単位の動画 461本
   - 現行「対局」タブにある動画は `Y`（`対局` タブで表示 N の2行を除く）。無い動画は `N`
   - 対局者は「対局」タブの値。**別名の登録名変更の9名は、概要欄にある当時の名前を入れる**（判断 LV-04）

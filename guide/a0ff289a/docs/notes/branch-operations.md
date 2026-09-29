@@ -16,6 +16,8 @@ CLAUDE.md「ブランチ運用」「Chat-Ref」「作業ログ」から、特定
 - **`git -C /workspaces/mj fetch origin` のうえ、`origin/cloudflare` を明示して worktree を作り、その中で作業する**
   （`/workspaces/mj` の HEAD は遅れていることがあるため、指示文に書かれていなくても常に行う）:
   `git -C /workspaces/mj worktree add /workspaces/mj-<識別子> -b work/<識別子> origin/cloudflare`
+- ブランチの作成・切り替え・進める操作は、`cd`・`;`・`|`・`&&` を付けない単独のコマンドで実行する（場所は `git -C <パス>` で指定する）。
+  既存のブランチを付け替える `checkout -B`・`branch -f`・`reset --hard` は使わず、進めるときは `git merge --ff-only origin/cloudflare` を使う（#298）
 - 分岐元が `cloudflare` であることを `git merge-base --is-ancestor origin/cloudflare HEAD` で確認する（work/0913-hv）
 - `/workspaces/mj` 自身では `git checkout` / `git switch` を行わない。常に他セッションが使用中とみなす。
   pull してよいのは下の「`/workspaces/mj` を pull するとき」の3条件をすべて満たすときだけ
@@ -134,7 +136,7 @@ CLAUDE.md「ブランチ運用」「Chat-Ref」「作業ログ」から、特定
 
 - **過去のログの誤りは、元の記述を書き換えずに、該当箇所の直後に「訂正（<Chat-Ref>）」の段落を足す。**
   字下げした箇条で、正しい事実と根拠（どのログ・issue か）を書く。同じ誤りが他の箇所にもあれば、そこには訂正の段落への案内を1行置く
-  （前例: CHAT-0919-HG-01.md の「横断のまとめ」a の直下の HG-04 の訂正〈`0174702c`〉、c の直下の HG-06 の訂正〈HG-07 で追加、`7f62893e`〉）
+  （前例: https://github.com/retroeater/mj/blob/4be965e22e7e64c4ba0db6400a943ffcd17a99f2/docs/logs/CHAT-0919-HG-01.md の「横断のまとめ」a の直下の HG-04 の訂正〈`0174702c`〉、c の直下の HG-06 の訂正〈HG-07 で追加、`7f62893e`〉）
 - **ログを SHA 指定の permalink で参照するときは、そのログへの訂正をすべて含む最新の版の SHA で固定する。**
   ログは cleanup-logs.yml で消えうるので、パスではなく permalink にするが、古い版を指すと訂正が読めない
   （HG-06 で訂正前の `a7146487` の版を指定し、HG-07 で `7f62893e` に差し替えた）。
