@@ -76,7 +76,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   （ルール追記・ドキュメントのみの修正等）は別ブランチに分ける
 - **作業ディレクトリの分離（必須）:** `/workspaces/mj`は全セッションが共有しており、作業ツリーは分離されない。
   **`origin/cloudflare`を明示してworktreeを作り、その中で作業する。`/workspaces/mj`自身では`git checkout`/`git switch`を行わない。
-  `git stash`を使わない。作業完了後はworktreeとブランチを片付ける。** 手順（worktreeの作り方・分岐元の確認・pullの3条件・
+  `git stash`を使わない。作業完了後はworktreeとブランチを片付ける。** 手順（worktreeの作り方・ブランチ操作は単独のコマンドで`-B`を使わない・分岐元の確認・pullの3条件・
   身に覚えのない未コミット変更・部分ステージ・片付け）はdocs/notes/branch-operations.md「作業ディレクトリの分離（Codespace）」
 - **クラウドセッション（Claude Code on the web）には`/workspaces/mj`・worktree・`gh`が無い。読み替えはdocs/notes/cloud-sessions.md**
 - **`cloudflare`へのマージはセッション自身の判断で行わない。** 作業完了を報告し、平野さんが判断する。基準:

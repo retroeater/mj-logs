@@ -151,6 +151,22 @@ Speed → Recommendations（Site Recommendations）の一覧と、それぞれ�
 `_headers` に `Link:` を書く設計はせずに終えた。Smart Hints（クローズドベータ）は申し込んでいない
 （2026-09-29 の画面は「Sign up」のまま。平野さんのスクリーンショットによる）。
 
+#### Synthetic monitoring の定期実行（2026-09-29、#125）
+
+Lighthouse の定期実行は、Observatory ではなく **Speed → Synthetic monitoring（Beta）の Browser tests** にある（2026-09-29 の画面。平野さんのスクリーンショットによる）。
+URL は **`https://` を付けない形**（例 `ryoei.pro/houou_results.html`）で入れる。付けると「Invalid URL」になる。
+
+| URL | 最初のスコア（2026-09-29） |
+|---|---|
+| `ryoei.pro/title/` | 100 |
+| `ryoei.pro/live/` | 99 |
+| `ryoei.pro/` | 98 |
+| `ryoei.pro/jpml_pros.html` | 88 |
+| `ryoei.pro/houou_results.html` | 61（#7・#111 の型B の移行の前後を比べる基準） |
+
+- 5本とも Region Tokyo（asia-northeast1）・Repeats Daily。**Pro の定期実行の枠（5本）を使い切っている**ので、対象を足すには1本外す
+- 結果の通知は無い見込み（未確認）。月次の #304 (11) で見る
+
 #### DNS・メール・通知の設定（2026-09-11）
 
 DNS レコードは元々3件だった（Search Console の所有権確認 TXT、
@@ -564,7 +580,7 @@ Workers & Pages → `mj` → Settings → Builds:
 
 ### work/ ブランチのプレビュー（2026-09-18、CHAT-0918-TH-07・TH-08）
 
-非本番ブランチへの push でも Workers Builds がプレビューを作る（#38 で有効化、#114 で `*.workers.dev` に noindex）。本番（`cloudflare`）には影響しない想定だが、ビルド回数の上限等は未確認（#363）。
+非本番ブランチへの push でも Workers Builds がプレビューを作る（#38 で有効化、#114 で `*.workers.dev` に noindex）。本番（`cloudflare`）への影響とビルド回数は、今のままでよいと決めた（2026-09-29、#363）。材料は下の「ビルド時間の見積もり」。
 
 - check-run「Workers Builds: mj」の出力（`gh api repos/retroeater/mj/commits/<SHA>/check-runs` の `.output.summary`）に次の2つが出る
   - `Preview URL: https://<バージョンIDの先頭8桁>-mj.<アカウントのサブドメイン>.workers.dev`（そのバージョン固定。サブドメインの実際の値はこの check-run の出力で確かめる）
@@ -572,7 +588,15 @@ Workers & Pages → `mj` → Settings → Builds:
 - ログイン不要で誰でも開ける。`x-robots-tag: noindex` が付く。ブランチを削除した後も開ける
 - この URL は非公開として扱い、作業ログには書かず、ターミナルへの最終報告にだけ書く（CLAUDE.md「作業ログ」節、ログの書き方は `docs/logs/_template.md`）
 - **先頭が docs/ だけのコミットの push ではビルドが走らないことがある**（TH-03 の f7d74e4・TH-04 の 7e601b3 をログのコミットと一緒に push し、check-run が付かなかった）。
-  公式の説明（上の「判定は push 全体のファイルで行われる」）とは食い違い、理由は分かっていない（ビルドがまとめられた可能性。下の「check-run が queued のまま・見当たらない場合」、#363）。確実に見たいときは、コードのコミットをログのコミットより先に単独で push する
+  公式の説明（上の「判定は push 全体のファイルで行われる」）とは食い違い、理由は分かっていない（ビルドがまとめられた可能性。下の「check-run が queued のまま・見当たらない場合」）。この観察は追わないと決めた（2026-09-28、#363）。確実に見たいときは、コードのコミットをログのコミットより先に単独で push する
+
+#### ビルド時間の見積もり（2026-09-29、#363）
+
+- Workers Builds のプランは Free: **ビルド時間 月3,000分・同時に走るビルド1本**（公式の Limits & pricing）。同時1本なので、プレビューのビルド中は本番のビルドが待つ
+- 本番のビルド1回は **33 秒**（cloudflare `b5e28a0`、初期化 10 秒・clone 4 秒・install 0.2 秒・deploy 約 18 秒。平野さんのスクリーンショットによる）。Build history の総数は 1,175 回（2026-09-29 時点）
+- 2026-09-28〜29 の24時間のビルドは63回（プレビュー46・本番17。GitHub のイベント記録から数えたもので少なめの可能性あり）。すべて33秒なら1日35分ほど、**月1,000〜1,100分**の見込みで、枠の3分の1程度。枠の数え方に準備の時間が入るかは未確認（33秒は準備を含む）
+- 上限を超えたときの動きは公式のページに書かれていない。ビルドが大きく増えたら（毎日の再生成を増やすなど）見直す
+- `Cloning` の段階の「error occurred while fetching repository」で数秒で落ちるプレビューのビルドがある（2026-09-29、`work/0928-cx` の `668fdc0`）。ビルド時間の上限とは関係ない。ブランチを作り直した直後に古いコミットを取りにいった可能性（推測）
 
 ### check-run が queued のまま・見当たらない場合（2026-09-13）
 

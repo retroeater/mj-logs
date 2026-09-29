@@ -249,7 +249,7 @@ handover.md 5章から移した。ページの一覧は下の「ページの一�
 
 ### ページの一覧
 
-HTMLは26ページ + 書籍の一覧と個別ページ（`books/`、#97、noindex・メニュー未掲載。**2026-09-22 開発凍結、`docs/notes/books-freeze.md`**） + 「帰り道」エピソード個別ページ38枚（`wayhome/`、#162） + 最強戦のトップと年度ページ（`saikyo/`、#319/#355、2026-09-21 に公開） + タイトル戦の新構成（`title/`、#222、2026-09-28 に公開、#413） + 放送対局ページ（`live/`、#346、noindex・メニュー未掲載。正式公開は #362）。大きく4系統に分かれる。
+HTMLは26ページ + 書籍の一覧と個別ページ（`books/`、#97、noindex・メニュー未掲載。**2026-09-22 開発凍結、`docs/notes/books-freeze.md`**） + 「帰り道」エピソード個別ページ39枚（`wayhome/`、#162） + 最強戦のトップと年度ページ（`saikyo/`、#319/#355、2026-09-21 に公開） + タイトル戦の新構成（`title/`、#222、2026-09-28 に公開、#413） + 放送対局ページ（`live/`、#346、noindex・メニュー未掲載。正式公開は #362）。大きく4系統に分かれる。
 
 | 系統 | ページ数 | 状態 |
 |---|---|---|
@@ -260,7 +260,7 @@ HTMLは26ページ + 書籍の一覧と個別ページ（`books/`、#97、noinde
 | ビルド時生成（型D・静的SVG） | 1 | `resource_efficiency.html`。表を持たないため`render_content()`を使う。外部JS・外部ドメインへの依存が一切ない（#7/#128、完了） |
 | ビルド時生成（型C・積み上げ棒+折れ線） | 2 | `houou_leagues.html` / `ouka_leagues.html`。積み上げ棒と既定選手の折れ線は静的SVG、`?name=`時の折れ線差し替えのみ`leagues.js`が担う（#7/#127、完了） |
 | ビルド時生成（独自: 全画面ヒーロー+横スクロールカード列） | 1 | `video_wayhome.html`。`render_content()`+専用JS`video_wayhome.js`。新サイトのパイロット（`docs/notes/video-wayhome.md`） |
-| ビルド時生成（サブディレクトリ、ヒーロー構成のエピソード個別ページ） | 38 | `wayhome/<動画ID>.html`。`scripts/generate_wayhome_episodes.py`（`docs/notes/video-wayhome.md`） |
+| ビルド時生成（サブディレクトリ、ヒーロー構成のエピソード個別ページ） | 39 | `wayhome/<動画ID>.html`。`scripts/generate_wayhome_episodes.py`（`docs/notes/video-wayhome.md`） |
 | ビルド時生成（サブディレクトリ、最強戦のトップと年度ページ） | トップ1＋年度数 | `saikyo/index.html`・`saikyo/<年度>.html`。`scripts/generate_saikyo_pages.py`。2026-09-21 に一般公開し、navbar・`sitemap-saikyo.xml`・`llms.txt` に載る（#319・#348、`docs/notes/saikyo-page-design.md`） |
 | ビルド時生成（サブディレクトリ、タイトル戦の新構成） | 入口1＋大会数＋期数 | `title/index.html`・`title/<slug>/index.html`・`title/<slug>/<期>.html`。`scripts/generate_title_pages.py`。navbar の「連盟 > タイトル」から入口へ（#413、`docs/notes/title-pages.md`） |
 | ビルド時生成（サブディレクトリ、放送対局ページ） | 691（2026-09-18） | `live/index.html`・`live/<タイトル戦>/index.html` 以下。`scripts/generate_live_pages.py`。noindex・メニュー未掲載、正式公開は #362（`docs/notes/live-page-design.md`） |
@@ -272,15 +272,15 @@ HTMLは26ページ + 書籍の一覧と個別ページ（`books/`、#97、noinde
 
 - `jpml_pros.html`は独自の`scripts/generate_jpml_pros.py`のまま。型A/A'の10ページは`scripts/lib/page.py`（HTMLテンプレート・行組み立て・画像セル・エスケープの共通処理）を使い、各`scripts/generate_<ページ名>.py`は「設定(`PageMeta`/`TableConfig`) + 行組み立て関数」だけを持つ（#7の共通化）。型C・型D・`video_wayhome.html`・`wayhome/`のエピソード個別ページは表を持たないため`lib/page.py`の`render_content()`を使う。いずれも`scripts/lib/sheets.py`経由でスプレッドシートのgvizエンドポイント（`google.visualization.Query`と同じSELECT構文）を叩く
 - `lib/page.py`はサブディレクトリのページ（`wayhome/`配下）向けに`asset_prefix`引数を持つ（既定は空文字、#162）。head内のアセット参照（`style.css`・`assets/vendor/*`・`favicon.ico`・`navbar.js`・`table.js`）にこの接頭辞を付ける。`wayhome/`配下のページは`"../"`を渡す。あわせて`PageMeta`に`og_image`/`og_image_width`/`og_image_height`/`og_image_alt`/`canonical`を持たせ、ページごとに差し替えられるようにした（既定はそれぞれ`img/ogp.png`・1200×630・`"ryoei.pro"`・`None`=canonicalなし。#113の判断どおり）。サブディレクトリを増やす場合はこの仕組みを再利用できる
-- **ページ別のOGP画像は`img/ogp/<区分>/`以下に置く（#339）。** 全ページ共通の`img/ogp.png`は動かさない。「帰り道」は一覧ページの`img/ogp/wayhome/index-<最新話の公開日>.jpg`1枚だけで、`scripts/build_wayhome_ogp.py`が書き出す。名前は`lib/wayhome.py`の`list_og_image_name()`で決め（immutable配信のため中身が変わるときは名前を変える、`docs/notes/ogp.md`）、参照は`resolve_list_og_image()`を通す。今の最新話の画像が未生成なら共通の`img/ogp.png`に戻るためページ生成は止まらない。**個別38ページの`og:image`はYouTubeのサムネイル（`resolve_hero_thumb()`、幅・高さはAPIの実寸）をそのまま使う。** 一度はページ別に焼いた画像を使ったが、サムネイルにシリーズ名・大会名・選手名が焼き込まれており、Xのカードでは`og:title`も画像に重なるため二重になる。2026-09-16に取りやめた。最強戦の年度ページは`img/ogp/saikyo/<年度>-black.png`（「麻雀最強戦」「<年度>」の二段組の16枚、`scripts/build_ogp_image.py --text`が書き出す。接尾辞は`generate_saikyo_pages.py`の`OGP_DESIGN`、意匠を変えたら名前も変える、`docs/notes/ogp.md`）で、参照は`og_image_for()`を通し、画像が無い年度は共通の`img/ogp.png`に戻る（#343）。**配色は共通の#212529・#ffffffの例外で、背景#000000、文字は最強戦のテーマカラー#EA5505（公式ポスターから採取）の単色（背景は白地・黒縁などのサンプルから平野さんが黒地・縁なしを選んだ、CHAT-0916-SY-07）。** 直感的に最強戦と分かるための色で、ロゴ・炎・質感は使わない。フォントは手元で最も太いゴシック体のNoto Sans JP Bold（Blackは無い）。1段目を幅1040pxいっぱい（212px）、2段目をその0.55倍、字間-3%、段の間隔は1段目の0.08倍（CHAT-0916-SY-04）
+- **ページ別のOGP画像は`img/ogp/<区分>/`以下に置く（#339）。** 全ページ共通の`img/ogp.png`は動かさない。「帰り道」は一覧ページの`img/ogp/wayhome/index-<最新話の公開日>.jpg`1枚だけで、`scripts/build_wayhome_ogp.py`が書き出す。名前は`lib/wayhome.py`の`list_og_image_name()`で決め（immutable配信のため中身が変わるときは名前を変える、`docs/notes/ogp.md`）、参照は`resolve_list_og_image()`を通す。今の最新話の画像が未生成なら共通の`img/ogp.png`に戻るためページ生成は止まらない。**個別39ページの`og:image`はYouTubeのサムネイル（`resolve_hero_thumb()`、幅・高さはAPIの実寸）をそのまま使う。** 一度はページ別に焼いた画像を使ったが、サムネイルにシリーズ名・大会名・選手名が焼き込まれており、Xのカードでは`og:title`も画像に重なるため二重になる。2026-09-16に取りやめた。最強戦の年度ページは`img/ogp/saikyo/<年度>-black.png`（「麻雀最強戦」「<年度>」の二段組の16枚、`scripts/build_ogp_image.py --text`が書き出す。接尾辞は`generate_saikyo_pages.py`の`OGP_DESIGN`、意匠を変えたら名前も変える、`docs/notes/ogp.md`）で、参照は`og_image_for()`を通し、画像が無い年度は共通の`img/ogp.png`に戻る（#343）。**配色は共通の#212529・#ffffffの例外で、背景#000000、文字は最強戦のテーマカラー#EA5505（公式ポスターから採取）の単色（背景は白地・黒縁などのサンプルから平野さんが黒地・縁なしを選んだ、CHAT-0916-SY-07）。** 直感的に最強戦と分かるための色で、ロゴ・炎・質感は使わない。フォントは手元で最も太いゴシック体のNoto Sans JP Bold（Blackは無い）。1段目を幅1040pxいっぱい（212px）、2段目をその0.55倍、字間-3%、段の間隔は1段目の0.08倍（CHAT-0916-SY-04）
 - `PageMeta`は`og_title`（既定`None`＝`<title>`と同じ）を持つ。SNSのカード見出しだけを短くしたいページで指定する。「帰り道」の個別ページは`<title>`にシリーズの正式名を残したまま、og:titleを「<大会名> <選手名> | 帰り道 | ryoei.pro」にしている（#339。短縮形は`lib/wayhome.py`の`SERIES_SHORT`）
-- `wayhome/`のエピソード個別ページは`?name=`等のURL変種を持たないため、#113（canonicalなしの判断）の理由が当てはまらない例外として`<link rel="canonical">`を持つ（38ページのみ）。他27ページはcanonical無しのまま
+- `wayhome/`のエピソード個別ページは`?name=`等のURL変種を持たないため、#113（canonicalなしの判断）の理由が当てはまらない例外として`<link rel="canonical">`を持つ（39ページ）。他27ページはcanonical無しのまま
 - `lib/page.py`はh1直後・`#searchBoxes`手前にページ固有のHTMLを差し込む`content_before`スロット（#102第1段で追加）を持つが、現在どのページも使っていない。ページ固有HTMLをh1直後に差し込む汎用スロットとして残している
 - `jpml_pros`のYouTubeアイコンだけはシートではなくYouTube Data API（channels.list）から取り、`data/youtube_channels.json`を経由する（#3。キーはActions secret `YOUTUBE_API_KEY`）。
   取得は週次`all`と`target_page`空/`all`の手動実行時のみ。失敗しても既存JSONでアイコンは維持され、ジョブだけ失敗扱いになる
-- `wayhome_episodes`だけは出力が単一ページではなく`wayhome/`配下38枚になる（#162）
+- `wayhome_episodes`だけは出力が単一ページではなく`wayhome/`配下39枚になる（#162）
 - `saikyo_pages`（`scripts/generate_saikyo_pages.py`）も出力が単一ページではなく、`saikyo/`配下の年度ページと、`sitemap-saikyo.xml`（年度ページのみ）になる（#319、`regenerate.py`の`OUTPUT_OVERRIDES`は`"saikyo/"`）。表を持たず`render_content()`と`assets/saikyo.js`を使う。設計は`docs/notes/saikyo-page-design.md`
-- `title_pages`（`scripts/generate_title_pages.py`）は`title/`配下の入口・大会ページ・期ページと、`sitemap-title.xml`を書き出す（#222、`OUTPUT_OVERRIDES`は`"title/"`）。`sitemap-title.xml`は公開まで`sitemap.xml`から参照しない。仕組みは`docs/notes/title-pages.md`
+- `title_pages`（`scripts/generate_title_pages.py`）は`title/`配下の入口・大会ページ・期ページと、`sitemap-title.xml`を書き出す（#222、`OUTPUT_OVERRIDES`は`"title/"`）。`sitemap-title.xml`は公開（#413、2026-09-28）から`sitemap.xml`が参照する。仕組みは`docs/notes/title-pages.md`
 - **複数のスクリプトが使う定数・関数（シートのクエリ・列の定義など）を変えるときは、その名前を import・参照している所を `git grep` ですべて洗い出し、マージの前に `python3 scripts/regenerate.py all` で全ページを再生成して差分を確かめる。** ほかのスクリプトが借りて列の位置で読んでいると、そちらのページが黙ってずれる
 
 ### シートのフィルタの検知（#432）
@@ -362,7 +362,7 @@ title/ では「タイトル戦」タブの大会の改名が「タイトル」�
 
 ### サイトマップ
 
-`sitemap.xml`（インデックス）が`sitemap-pages.xml`（25ページ、旧sitemap.xml。27ページのうち`404.html`〈noindex〉と`saikyo_mens.html`〈年1回の単発企画〉を意図的に除外）と`sitemap-wayhome.xml`（wayhome/38ページ、`generate_wayhome_episodes.py`が生成）と`sitemap-saikyo.xml`（saikyo/配下、`generate_saikyo_pages.py`が生成、#319）を束ねる方式（#162）。`robots.txt`のSitemap行は`sitemap.xml`のまま変更していない。lastmodは生成・非生成を区別せずgitの最終コミット日（JST）で、`scripts/update_sitemap_lastmod.py --from-git`が導出する。HTMLを含むpushでは`sitemap-lastmod.yml`、再生成では`regenerate-page.yml`が呼ぶ（#265）。手で書き換えない（`docs/notes/sitemap-lastmod.md`）
+`sitemap.xml`（インデックス）が`sitemap-pages.xml`（25ページ、旧sitemap.xml。27ページのうち`404.html`〈noindex〉と`saikyo_mens.html`〈年1回の単発企画〉を意図的に除外）と`sitemap-wayhome.xml`（wayhome/39ページ、`generate_wayhome_episodes.py`が生成）と`sitemap-saikyo.xml`（saikyo/配下、`generate_saikyo_pages.py`が生成、#319）と`sitemap-title.xml`（title/配下、`generate_title_pages.py`が生成、#413）を束ねる方式（#162）。`robots.txt`のSitemap行は`sitemap.xml`のまま変更していない。lastmodは生成・非生成を区別せずgitの最終コミット日（JST）で、`scripts/update_sitemap_lastmod.py --from-git`が導出する。HTMLを含むpushでは`sitemap-lastmod.yml`、再生成では`regenerate-page.yml`が呼ぶ（#265）。手で書き換えない（`docs/notes/sitemap-lastmod.md`）
 
 ### ページ側のJS（jpml_pros.js / table.js / video_wayhome.js / leagues.js）
 
@@ -389,9 +389,9 @@ GitHub Actions (`.github/workflows/regenerate-page.yml`) が、`scripts/generate
 | `check-meibo.yml` | 毎週月曜05:07 JST。連盟員名簿と「プロ」シートの在籍者の不一致を常設issueに書く（#370） |
 | `sync-birthday-calendar.yml` | 毎週月曜05:17 JST。名簿の誕生日をGoogleカレンダーへ同期する（#379、`docs/notes/birthday-calendar.md`） |
 | `fetch-gsc.yml` | 毎月1日06:00 JST。Search Console の検索パフォーマンスを `docs/gsc/` に取り出し、robots.txt の差分を #304 に知らせる（#269） |
-| `sync-dojo-calendar.yml` | 毎日07:12 JST。道場部ゲストの告知画像を読み、カレンダーへの追加分と新規ゲスト・当月誕生日を #426 に知らせる。書き込みは手動実行のときだけ（#390、`docs/notes/dojo-guest-calendar.md`） |
+| `sync-dojo-calendar.yml` | 毎日07:12 JST。道場部ゲストの告知画像を読み、カレンダーへの追加分と新規ゲスト・当月誕生日を #426 に知らせる（同期が失敗したときもその旨を知らせる、#472）。書き込みは手動実行のときだけ（#390、`docs/notes/dojo-guest-calendar.md`） |
 | `sync-books-calendar.yml` | **2026-09-22 開発凍結にともない無効化（`gh workflow disable`）。** 元は毎週月曜05:27 JSTに「書籍」タブの発売日をGoogleカレンダーへ同期していた（#97、`docs/notes/books-calendar.md`・`docs/notes/books-freeze.md`） |
-| `sync-logs.yml` | `docs/logs/**` を含む push（cloudflare は毎回、`work/**` はコミットのメッセージに`[sync-logs]`のある push だけ。無い push はジョブが skip、#298）。その push で追加・更新された作業ログを public の `retroeater/mj-logs` の `logs/` へ写し、cloudflare で削除されたログを消す（#440。書き込みはシークレット `MJ_LOGS_TOKEN`） |
+| `sync-logs.yml` | `docs/logs/**` を含む push（cloudflare は毎回、`work/**` はコミットのメッセージに`[sync-logs]`のある push だけ。無い push はジョブが skip、#298）。実行の時点の mj と mj-logs を突き合わせ、写っていない・古い作業ログを public の `retroeater/mj-logs` の `logs/` へ写し、cloudflare で削除されたログを消す（#440。書き込みはシークレット `MJ_LOGS_TOKEN`）。concurrency で取り消された実行の分は次の実行で追いつく（`scripts/sync_logs.py`、#454） |
 | `delete-merged-branches.yml` | 毎日07:53 JST と手動。マージ済みで先頭が24時間より前の `work/*` を削除する（#440、`scripts/delete_merged_branches.py`） |
 
 ### ワークフローを手動実行するとき
@@ -425,11 +425,14 @@ GitHub Actions (`.github/workflows/regenerate-page.yml`) が、`scripts/generate
   扱われ、従来どおりアイコンが出る（＝既定。付け忘れは現状維持に倒れる）。
   生成物は `lib/page.py` が `_render_search_boxes()` の結果から自動で出す
   （`render_content()` を使うページだけ `has_search_boxes=False` を明示）。
-  現在の対象は8ページ（`404` / `jpml_links` / `resource_dictionary` /
+  現在の対象は1521ページ（2026-09-29、`git grep -l 'data-search="off"' -- '*.html'`）。
+  トップ階層の8ページ（`404` / `jpml_links` / `resource_dictionary` /
   `resource_efficiency` / `rh_links` / `rh_results` / `rh_results_detail` /
-  `video_wayhome`）。うち生成物4ページ（`resource_efficiency` / `rh_results` /
-  `rh_results_detail` / `video_wayhome`）は`has_search_boxes=False`の明示で
-  自動的に出る。`video_wayhome`は虫眼鏡アイコンで開閉する`#searchBoxes`を
+  `video_wayhome`）と、`title/`・`live/`・`saikyo/`・`books/`・`wayhome/` の全ページ。
+  トップ階層の生成物4ページ（`resource_efficiency` / `rh_results` /
+  `rh_results_detail` / `video_wayhome`）とサブディレクトリの生成物は
+  `has_search_boxes=False`の明示で自動的に出る（サブディレクトリの系統は
+  絞り込み欄を本文の`.mj-filterbar`に持つか、検索欄を持たない）。`video_wayhome`は虫眼鏡アイコンで開閉する`#searchBoxes`を
   navbar直下の常時表示フィルタバー（`.mj-filterbar`）に置き換えたため対象に
   加わった（#189）。
   残り4ページ（手書きHTML: `404` / `jpml_links` / `resource_dictionary` /
@@ -439,6 +442,9 @@ GitHub Actions (`.github/workflows/regenerate-page.yml`) が、`scripts/generate
 
 `scripts/`は公開対象外（`.assetsignore` でCloudflareへの配信から除外）。多くは GitHub Actions から定期実行され、結果をissueに書き出す。
 依存は、特記の無いものは標準ライブラリのみ（実行例: `python3 scripts/check_image_links.py --json result.json`）。
+外部からの読み取り（`lib/sheets.py` のスプレッドシート〈gviz〉、`lib/dojo_guest.py` の連盟サイト、YouTube Data API の取得）は、タイムアウト・接続の失敗を `lib/net_retry.py` で2回まで繰り返す（5秒・15秒おき、HTTP の応答は繰り返さない）。
+フィルタの検知の CSV の取得（`lib/sheets.py` の `_get`）は、失敗しても警告で生成を続けるため繰り返さない（CSV だけが長く落ちた日に再生成が延びないように）。
+Google の API（`lib/gcal.py`・`lib/sheets_write.py`・`sync_birthday_calendar.py`）には接続10秒・読み取り60秒のタイムアウトを渡し、読み取り（GET）だけ同じく繰り返す。書き込みは、届いたかが分からず重複しうるため繰り返さない（#472）。
 
 - `check_image_links.py` — `jpml_pros.html` 内の画像URL全件にHEADリクエストを送りリンク切れを検知（毎週月曜03:00 JST）
 - `collect_saikyo_images.py` — 最強戦の選手写真（「プロ」J列・「連盟プロ以外」X画像URL、#384）で取得できなくなった画像URLを見つけ、Xハンドルから現在のURLを解決してCSV出力（#333、手動実行＋`check-image-links.yml`から週1で`--json`実行、ヘッドレスChromiumが必要）。生成時に全件は解決しない。使い方と理由は`docs/notes/saikyo-page-design.md`「選手写真の更新」
