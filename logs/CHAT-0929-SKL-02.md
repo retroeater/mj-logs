@@ -135,16 +135,17 @@ SKL-01 の判断待ちに対する平野さんの決定（すべて Code の案�
 - 未確認の項目:
   - 実際の新しいクラウドセッション（対話側）で、hook が効き skill が一覧に出るか（`claude -p` の空 HOME 試験とこのセッションの途中反映では確認済み）
   - 人が `/grill-me`・`/grill-with-docs` を打って呼べるか（モデル側の一覧に出ない skill のため、このセッションからは試せない）
-  - hook の ask が対話の画面でどう出るか（マージの push で出る想定）
+  - hook の ask が対話の画面でどう出るか。マージの push（`git push origin work/SKL:cloudflare`、b7a9acc6..73e5ae87）は通り、セッション側には確認の表示もエラーも返らなかった。
+    ask が平野さんの画面に出て承認されたのか、auto モードが自動で通したのかは、こちらから区別できない
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 652cb9cd）: https://github.com/retroeater/mj-logs/tree/main/guide/652cb9cd
+ガイド文書（この版を写した時点の最新、mj 73e5ae87）: https://github.com/retroeater/mj-logs/tree/main/guide/73e5ae87
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/652cb9cd/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/652cb9cd/docs/handover.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/652cb9cd/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/652cb9cd/docs/notes/cloudflare.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/73e5ae87/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/73e5ae87/docs/handover.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/73e5ae87/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/73e5ae87/docs/notes/cloudflare.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/1b8b8292.md
