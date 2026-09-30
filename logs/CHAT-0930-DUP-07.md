@@ -50,18 +50,56 @@
 - 2026-09-30 Chat-Ref の重複確認（`git log --all --grep`・`docs/logs/` の履歴）: DUP-07 のコミットなし。
   `origin/work/0930-dup-07` は無いため `git checkout -b work/0930-dup-07 origin/cloudflare` で作成。
 
+- 0章: ログの「指示」欄の末尾は指示文の最後の行と一致。DUP-04 の `## 報告` は「状態: 完了」。#232 は open、他セッションの着手中コメントなし
+  （DUP-04 の着手中コメントは同じセッションのもので、grill の結果のコメントで解除済み）。着手中コメントを付けた（issuecomment-5913222553）。
+  未マージのブランチは `origin/work/0930-dup-07`（このログ）だけ。DUP-06 のブランチは未マージの一覧に無い（cloudflare にマージ済み）
+- 読んだもの: docs/decisions/title.md の DUP-04 の節、#232 のコメント（issuecomment-5913008748）、docs/notes/ogp.md・title-pages.md・chat-side-operations.md「見た目の決め方」、
+  `build_ogp_image.py`、`generate_saikyo_pages.py` の `og_image_for()`、`lib/page.py` の `PageMeta`・`render_content()`、比較ページの前例（TQ-14 の `title/_broadcast_compare.html`）。
+  決定と実物の食い違いは無い
+- 入口の実物（生成済みの `title/index.html`）: 20大会に1人ずつ（**1位が2名の大会は今は無い**、DUP-04 の未確認を解消）。写真の無い人は達人戦 森山茂和の1人（`avatar.svg`）。
+  **同じ人が2大会のホルダーになっている例が3組**（白鳥翔: 鸞和戦・鳳凰戦、紺野真太郎: JPML WRCリーグ・麻雀グランプリMAX、御崎千結: 女流プロ麻雀日本シリーズ・プロクイーン）
+- フォント: セッションに Noto Sans JP Bold が無かったため `raw.githubusercontent.com/notofonts/noto-cjk`（SubsetOTF/JP/NotoSansJP-Bold.otf）から `~/.local/share/fonts/` に取得。
+  `github.com/.../raw/` はセッションのプロキシで 403（リポジトリのアクセスが無い）、`cdn.jsdelivr.net` は許可ドメイン外。
+  取得したフォントで最強戦 2026 の画像（`saikyo-page-design.md` のコマンド）を作り直し、コミット済みの `img/ogp/saikyo/2026-black.png` と画素が一致することを確かめた
+- 試作:
+  - 鳳凰戦: `python3 scripts/build_ogp_image.py --text 鳳凰戦 --color '#ffffff' --bg '#000000' --max-size 400 --tracking -0.03 --out img/ogp/title/houou-black.png`
+    （最強戦と同じ大きさ・字間で色だけ白。1200×630、31,153 バイト＝30KB）
+  - 入口の2案: 使い捨てのスクリプト `scripts/dup07_title_ogp_compare.py`（入口の並びを `title/index.html` から読み、写真を取得して並べ、比較ページを書き出す）。
+    黒地、写真の区切り8px（帰り道の一覧と同じ）、正方形の写真を行ごとに中央寄せ。名前は Q14 の形に案の印を足した仮の名前
+    - 案A 写真のある全員: 18人、7列×3行（1マス164px、7・7・4）、`img/ogp/title/index-all-abc3493f.png`（1200×630、610,323 バイト＝596KB）
+    - 案B 新しい順の8人: 4列×2行（1マス294px）、`img/ogp/title/index-8-3c4a2ddb.png`（1200×630、719,895 バイト＝703KB）
+  - 並び（入口と同じ決勝日の降順）: 1. 十段戦 岡本和也 2. 新人王戦 山本涼介 3. 桜蕾戦 夏目一花 4. 若獅子戦 安東郁敬 5. JPML WRCリーグ 紺野真太郎
+    6. JPML WRC-Rリーグ 小川尚哉 7. 小島武夫杯帝王戦 阿久津翔太 8. 昇龍戦 山脇千文美（案B はここまで）9. 紅龍戦 伊達朱里紗 10. 麻雀マスターズ 渡辺太
+    11. 鸞和戦 白鳥翔 12. 女流プロ麻雀日本シリーズ 御崎千結 13. 麻雀グランプリMAX 紺野真太郎 14. 鳳凰戦 白鳥翔 15. 女流桜花 清水香織 16. 麻雀日本シリーズ 三浦智博
+    17. プロクイーン 御崎千結 18. リーチ麻雀世界選手権 内川幸太郎
+  - **写真の取得の失敗: 1件。王位戦 石川正明の X の画像（`title/index.html` にある URL）が 404。** 入口の生成の後に X 側で画像が変わったと見られる。
+    試作では写真の無い人と同じく外した（Q12 に合わせた扱い）。ほかの17件の URL（重複を除く）は取得できた。ネットワークの許可の問題ではない
+    （urllib の既定の User-Agent では 403 だったため、`generate_title_pages.py` と同じ `Mozilla/5.0` を付けた）
+  - 比較ページ: `title/_ogp_compare.html`（noindex、どこからもリンクしない、sitemap に載せない）。ラジオボタンで入口の2案を切り替え、それぞれ
+    原寸の縮小・X のカードに近い幅（500px）・LINE の切り抜きに近い形（中央の正方形 120px）を並べる。鳳凰戦の画像も同じ3つの形で下に置く
+- 検証: `python3 -m unittest discover -s scripts/tests` 474件 OK、`check_asset_limits.py` はすべて OK（配信ファイル数 1,646）。
+  title/ の生成物（og:image を含む）は変えていない（差分は新規の5ファイルだけ）。ローカルの Chromium で幅1280・390の表示と切り替えを確かめた
+- push（781a292f）: check-run「check」success、「Workers Builds: mj」success。プレビューの別名 URL で、比較ページと3枚の画像が 200、
+  画像は手元とバイト一致、比較ページに noindex あり、`title/houou/42.html` の og:image は共通の `img/ogp.png` のまま
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/0930-dup-07
 - ログ: https://github.com/retroeater/mj/blob/work/0930-dup-07/docs/logs/CHAT-0930-DUP-07.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/0930-dup-07
-- 確認用URL: なし
-- マージ: 未
-- issue: #232
-- 判断が必要なこと: なし
-- 未確認の項目: なし
-- エラー: なし
+- 確認用URL: プレビューあり（URL は最終報告）。比較ページ `title/_ogp_compare.html`
+- マージ: 未（指示のとおり判断待ち）
+- issue: #232（着手中のコメントのみ）
+- 判断が必要なこと:
+  - Q11 入口の人数と並べ方: 案A 写真のある全員（18人、7列×3行、1マス164px）／案B 新しい順の8人（4列×2行、1マス294px）。比較ページで見比べる
+  - 案A では同じ人が2回出る（白鳥翔・紺野真太郎・御崎千結）。そのままにするか、1回にまとめるか
+  - 画像の形式: Q14 の `.png` のままだと写真の画像は 596KB・703KB。帰り道の一覧と同じ JPEG（品質88）にすれば数分の1になる見込み（試していない）。形式を JPEG にしてよいか
+  - 写真に文字が焼き込まれた人がいる（若獅子戦・昇龍戦の優勝ボードの写真）。X の写真をそのまま使うので、このまま受け入れるか
+- 未確認の項目:
+  - X・LINE の投稿画面での見え方（本番に出していない。次の「見本」の指示で行う）
+  - 王位戦 石川正明の写真が 404 の件で、本番の入口のカードがどう見えているか（代替アバターに切り替わる作り〈`data-fallback`〉だが、ブラウザでは見ていない）。次の毎日の再生成で新しい URL に直るかも見ていない
+- エラー: なし（王位戦の写真の 404 は上のとおり、試作では外した）
 
 <!-- guide-links -->
 ---
