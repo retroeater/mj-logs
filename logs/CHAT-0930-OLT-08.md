@@ -76,27 +76,44 @@ OLT-07 で見つかったリポジトリ側の残り2つを直して公開し、
 - テスト 448件 OK、配信上限 OK（配信ファイル 1,642、`_redirects` 静的 36）、ガイド文書のサイズ（CLAUDE.md 26,162・handover.md 22,430・chat-side-operations.md 18,094）OK
 - マージの条件（生成物の差分0）を満たす
 
+### 4. マージと本番
+
+- 再 fetch で `origin/cloudflare` が動いていないこと、`git merge-base --is-ancestor origin/cloudflare HEAD` が真であること、差分が対象の4ファイル（`docs/logs/CHAT-0930-OLT-08.md`・`docs/notes/title-pages.md`・`scripts/generate_jpml_pros.py`・`scripts/tests/test_jpml_pros.py`）だけであることを確かめて `git push origin work/0930-olt-08:cloudflare`（**ce5031e6..d5970d8c**）
+- d5970d8c の check-run: 「Workers Builds: mj」success、`check`・`sync`・`regenerate` success。Actions: 「ページの再生成」run 36681276660 success、**再生成のコミットなし**（生成物の差分0）、「公開対象を検査する」success
+- 本番 https://ryoei.pro（curl、リダイレクトは追わない）: `/jpml_pros.html` 200（リポジトリの版とバイト単位で一致、`./title/?q=` のリンク 296件）、`/jpml_titles.html` 301 → `/title/`、`/title/?name=瀧澤光太郎` 200
+
+### 5. issue
+
+- **#473**: 本文を更新（題を「(旧)タブ4つと【3】の控えのタブ2つを削除する（2026-10-13）」に。「対象の旧表のタブ（ブック `1h4-D…`）」の節に「(旧)タイトル」を足し、title/ 用のブック `10g_X…` の「タイトル」と取り違えない注意、参照は「プロ」V 列だけで V はクリア済み〈OLT-07・OLT-08〉であること、削除の前に見ること〈V が空のまま〉・後にすること〈title-pages.md の注記、V の見出しの扱い〉を書いた）。コメントで経緯（issuecomment-5905953336）。「状況:」ラベルは元から無い
+- **#484**: 結果と #473 へ移したことをコメント（issuecomment-5905954696。誤字を1つ直した）して閉じた（completed）。「状況:」ラベルは元から無い
+- docs/handover.md: #484 の行を削除、#473 の行を「(旧)タブ4つ（旧表の「(旧)タイトル」を含む）と…」に、#222 の行の残件を「#485 旧表の廃止（#441）の残り」に直した（22,237 バイト）。docs/ のみの変更なのでログと一緒に追いの push で入れる
+- 平野さんのカレンダーの #473 の予定は、指示のとおりチャット側で直してあるため触っていない
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/0930-olt-08
-- ログ: https://github.com/retroeater/mj/blob/work/0930-olt-08/docs/logs/CHAT-0930-OLT-08.md
+- 状態: 完了
+- ブランチ: work/0930-olt-08（マージ済み。削除は delete-merged-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-0930-OLT-08.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/0930-olt-08
-- 確認用URL: なし
-- マージ: 未
-- issue: #484・#473
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 確認用URL: なし（本番に反映済み。生成物の差分0）
+- マージ: 済（ce5031e6..d5970d8c。handover.md とこのログは docs のみの追いの push）
+- issue: #484（クローズ）、#473（本文・題を更新、コメント）。関連 #441・#485
+- 判断が必要なこと:
+  - 2026-10-13 に #473 で、ブック `1h4-D…` の「(旧)タイトル」を含む旧タブを削除する（平野さん。title/ 用のブック `10g_X…` の「タイトル」は消さない）
+  - 削除の後に、「プロ」V 列の見出し「決勝 進出」を消すか残すか（`generate_jpml_pros.py` は V を読まない。#473 の本文に書いた）
+- 未確認の項目:
+  - 本番のブラウザでの見え方（生成物の差分0のため、HTML の一致で確かめた）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj d5970d8c）: https://github.com/retroeater/mj-logs/tree/main/guide/d5970d8c
+ガイド文書（この版を写した時点の最新、mj ae4d7104）: https://github.com/retroeater/mj-logs/tree/main/guide/ae4d7104
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d5970d8c/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d5970d8c/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d5970d8c/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d5970d8c/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d5970d8c/docs/notes/cloudflare.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ae4d7104/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ae4d7104/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ae4d7104/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ae4d7104/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ae4d7104/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/ae4d7104/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/ad723967.md

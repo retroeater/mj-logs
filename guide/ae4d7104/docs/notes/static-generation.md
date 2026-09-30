@@ -249,13 +249,13 @@ handover.md 5章から移した。ページの一覧は下の「ページの一�
 
 ### ページの一覧
 
-HTMLは26ページ + 書籍の一覧と個別ページ（`books/`、#97、noindex・メニュー未掲載。**2026-09-22 開発凍結、`docs/notes/books-freeze.md`**） + 「帰り道」エピソード個別ページ39枚（`wayhome/`、#162） + 最強戦のトップと年度ページ（`saikyo/`、#319/#355、2026-09-21 に公開） + タイトル戦の新構成（`title/`、#222、2026-09-28 に公開、#413） + 放送対局ページ（`live/`、#346、noindex・メニュー未掲載。正式公開は #362）。大きく4系統に分かれる。
+HTMLは25ページ + 書籍の一覧と個別ページ（`books/`、#97、noindex・メニュー未掲載。**2026-09-22 開発凍結、`docs/notes/books-freeze.md`**） + 「帰り道」エピソード個別ページ39枚（`wayhome/`、#162） + 最強戦のトップと年度ページ（`saikyo/`、#319/#355、2026-09-21 に公開） + タイトル戦の新構成（`title/`、#222、2026-09-28 に公開、#413） + 放送対局ページ（`live/`、#346、noindex・メニュー未掲載。正式公開は #362）。大きく4系統に分かれる。
 
 | 系統 | ページ数 | 状態 |
 |---|---|---|
 | `index.html` | 1 | Webサイトテンプレート（iPortfolio）由来。`index.css` と11個のvendorライブラリを使う |
 | ビルド時生成（型A・15列） | 1 | `jpml_pros.html`。独自の`generate_jpml_pros.py`のまま |
-| ビルド時生成（型A・2列/3列） | 8 | `jpml_titles.html` / `jpml_test.html` / `resource_logs.html` / `video_live.html` / `video_en.html` / `rh_paifu.html` / `saikyo_mens.html` / `video_mtsuku.html`(3列)。`scripts/lib/page.py` + 共有JS `table.js` を使う（#7） |
+| ビルド時生成（型A・2列/3列） | 7 | `jpml_test.html` / `resource_logs.html` / `video_live.html` / `video_en.html` / `rh_paifu.html` / `saikyo_mens.html` / `video_mtsuku.html`(3列)。`scripts/lib/page.py` + 共有JS `table.js` を使う（#7）。旧表 `jpml_titles.html` は廃止し `/title/` へ 301（#441） |
 | ビルド時生成（型A'・多列テキスト） | 2 | `rh_results.html` / `rh_results_detail.html`。画像列を持たないため`.mj-table-auto`を使う（#7、完了） |
 | ビルド時生成（型D・静的SVG） | 1 | `resource_efficiency.html`。表を持たないため`render_content()`を使う。外部JS・外部ドメインへの依存が一切ない（#7/#128、完了） |
 | ビルド時生成（型C・積み上げ棒+折れ線） | 2 | `houou_leagues.html` / `ouka_leagues.html`。積み上げ棒と既定選手の折れ線は静的SVG、`?name=`時の折れ線差し替えのみ`leagues.js`が担う（#7/#127、完了） |
@@ -270,7 +270,7 @@ HTMLは26ページ + 書籍の一覧と個別ページ（`books/`、#97、noinde
 
 ### 生成スクリプトの構成（lib/page.py）
 
-- `jpml_pros.html`は独自の`scripts/generate_jpml_pros.py`のまま。型A/A'の10ページは`scripts/lib/page.py`（HTMLテンプレート・行組み立て・画像セル・エスケープの共通処理）を使い、各`scripts/generate_<ページ名>.py`は「設定(`PageMeta`/`TableConfig`) + 行組み立て関数」だけを持つ（#7の共通化）。型C・型D・`video_wayhome.html`・`wayhome/`のエピソード個別ページは表を持たないため`lib/page.py`の`render_content()`を使う。いずれも`scripts/lib/sheets.py`経由でスプレッドシートのgvizエンドポイント（`google.visualization.Query`と同じSELECT構文）を叩く
+- `jpml_pros.html`は独自の`scripts/generate_jpml_pros.py`のまま。型A/A'の9ページは`scripts/lib/page.py`（HTMLテンプレート・行組み立て・画像セル・エスケープの共通処理）を使い、各`scripts/generate_<ページ名>.py`は「設定(`PageMeta`/`TableConfig`) + 行組み立て関数」だけを持つ（#7の共通化）。型C・型D・`video_wayhome.html`・`wayhome/`のエピソード個別ページは表を持たないため`lib/page.py`の`render_content()`を使う。いずれも`scripts/lib/sheets.py`経由でスプレッドシートのgvizエンドポイント（`google.visualization.Query`と同じSELECT構文）を叩く
 - `lib/page.py`はサブディレクトリのページ（`wayhome/`配下）向けに`asset_prefix`引数を持つ（既定は空文字、#162）。head内のアセット参照（`style.css`・`assets/vendor/*`・`favicon.ico`・`navbar.js`・`table.js`）にこの接頭辞を付ける。`wayhome/`配下のページは`"../"`を渡す。あわせて`PageMeta`に`og_image`/`og_image_width`/`og_image_height`/`og_image_alt`/`canonical`を持たせ、ページごとに差し替えられるようにした（既定はそれぞれ`img/ogp.png`・1200×630・`"ryoei.pro"`・`None`=canonicalなし。#113の判断どおり）。サブディレクトリを増やす場合はこの仕組みを再利用できる
 - **ページ別のOGP画像は`img/ogp/<区分>/`以下に置く（#339）。** 全ページ共通の`img/ogp.png`は動かさない。「帰り道」は一覧ページの`img/ogp/wayhome/index-<最新話の公開日>.jpg`1枚だけで、`scripts/build_wayhome_ogp.py`が書き出す。名前は`lib/wayhome.py`の`list_og_image_name()`で決め（immutable配信のため中身が変わるときは名前を変える、`docs/notes/ogp.md`）、参照は`resolve_list_og_image()`を通す。今の最新話の画像が未生成なら共通の`img/ogp.png`に戻るためページ生成は止まらない。**個別39ページの`og:image`はYouTubeのサムネイル（`resolve_hero_thumb()`、幅・高さはAPIの実寸）をそのまま使う。** 一度はページ別に焼いた画像を使ったが、サムネイルにシリーズ名・大会名・選手名が焼き込まれており、Xのカードでは`og:title`も画像に重なるため二重になる。2026-09-16に取りやめた。最強戦の年度ページは`img/ogp/saikyo/<年度>-black.png`（「麻雀最強戦」「<年度>」の二段組の16枚、`scripts/build_ogp_image.py --text`が書き出す。接尾辞は`generate_saikyo_pages.py`の`OGP_DESIGN`、意匠を変えたら名前も変える、`docs/notes/ogp.md`）で、参照は`og_image_for()`を通し、画像が無い年度は共通の`img/ogp.png`に戻る（#343）。**配色は共通の#212529・#ffffffの例外で、背景#000000、文字は最強戦のテーマカラー#EA5505（公式ポスターから採取）の単色（背景は白地・黒縁などのサンプルから平野さんが黒地・縁なしを選んだ、CHAT-0916-SY-07）。** 直感的に最強戦と分かるための色で、ロゴ・炎・質感は使わない。フォントは手元で最も太いゴシック体のNoto Sans JP Bold（Blackは無い）。1段目を幅1040pxいっぱい（212px）、2段目をその0.55倍、字間-3%、段の間隔は1段目の0.08倍（CHAT-0916-SY-04）
 - `PageMeta`は`og_title`（既定`None`＝`<title>`と同じ）を持つ。SNSのカード見出しだけを短くしたいページで指定する。「帰り道」の個別ページは`<title>`にシリーズの正式名を残したまま、og:titleを「<大会名> <選手名> | 帰り道 | ryoei.pro」にしている（#339。短縮形は`lib/wayhome.py`の`SERIES_SHORT`）
