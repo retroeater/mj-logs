@@ -6,9 +6,9 @@
 **この文書は現状・ルール・次にやることだけを書く。** 実装記録は `docs/notes/`、issue単位の経緯は GitHub Issues、過去の履歴は
 `docs/notes/handover-archive-2026.md`。容量の上限と退避方法は CLAUDE.md「CLAUDE.md / handover.md の更新ルール」。
 
-最終更新: 2026-09-28
+最終更新: 2026-09-30
 
-- **3文書（CLAUDE.md・handover.md・chat-side-operations.md）を整理して縮めた**（#297。Chrome の読み方は `docs/notes/chrome-reading.md` へ）
+- **skill を `.claude/skills/` に複写して置き、git の hook（`.claude/hooks/mj-git-guard.py`）を有効にした**（plugin と MCP は使わない。`docs/notes/skills.md`）
 - **`/live`・`/title` の生成を3層のスプレッドシート（【2】自動変換後・【3】手動補正）から読むように切り替えた**（#438）。
   掲載（Y/N）と補正の入力先は【3】だけ。旧シートの「連盟ch」「放送対局」は読まない（`docs/notes/live-channel-write.md`）
 - **スマホのチャットから作業ログとガイド文書を読めるようにした**（public の `retroeater/mj-logs`、#440。読み方は0章）
@@ -115,6 +115,11 @@ Rebuild・gh の認証は `docs/notes/session-network.md`「Rebuild と Claude C
 チャット側の指示文には `Chat-Ref`（`CHAT-MMDD-XXX-nn`）が付く。受け手側の規則は CLAUDE.md「Chat-Ref」、並行作業の規則は同「ブランチ運用」が正
 （決まるまでの経緯は `docs/notes/handover-archive-2026.md`）。チャット側の運用（識別子の確認、完了報告の受け方、「申送り」、指示文の書き方）は
 `docs/notes/chat-side-operations.md`。
+
+### skill と hook
+
+skill は `.claude/skills/`（`/grill-me`・`/grill-with-docs` など）、git の危険な操作を止める hook は `.claude/hooks/mj-git-guard.py` に置く。
+cloudflare への push と `claude/*` への push は確認（ask）が出る。入れ方・更新・判定一覧は `docs/notes/skills.md`。
 
 ### タスク管理
 
@@ -229,6 +234,7 @@ GitHub Issues（Open）に全件あるが、着手可能な主なものは以下
 | `docs/notes/session-network.md` | セッションから外部に届くか、gh の認証、Rebuild、シートの行番号、作業ファイルの置き場所 |
 | `docs/notes/chat-side-operations.md` | チャット側が指示文を書く前（ログの読み方もここ） |
 | `docs/notes/chrome-reading.md` | チャット側が PC で Claude for Chrome を使い mj を直接読む前 |
+| `docs/notes/skills.md` | skill の追加・更新、git の hook の判定を変える・確かめる前 |
 | `docs/notes/branch-operations.md` | ブランチの削除・ワークフローの変更・作業ログの寿命（入口の規則は CLAUDE.md） |
 | `docs/notes/static-generation.md` | ページの一覧・生成スクリプト・ページ側のJS・ワークフローの一覧・メンテナンス用スクリプト、#7 の残り |
 | `docs/notes/sitemap-lastmod.md` | sitemap の lastmod（#265） |
