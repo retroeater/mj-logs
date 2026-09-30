@@ -66,27 +66,60 @@ OLT-02・OLT-03 で作った旧表の廃止（案 c2）を公開し、残り作�
 - テスト OK、配信上限 OK（配信ファイル 1,642、`_redirects` 静的 36）
 - マージ前に `regenerate.py all`: rc=0、生成物の差分0
 
+### 2. マージと本番
+
+- 再 fetch で `origin/cloudflare` が b86243fc に進んでいたため、もう一度 `git merge origin/cloudflare`（cal-full の予定表 #479・HKG-06 のログ。衝突なし、テスト OK）してから、
+  `git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめて `git push origin work/0930-olt-02:cloudflare`（**b86243fc..cee87c76**）
+- cee87c76 の check-run: 「Workers Builds: mj」success、`check`・`regenerate`・`sync` success。Actions: 「ページの再生成」run 36667477218 success、「サイトマップのlastmodを同期」success、「公開対象を検査する」success（「作業ログを mj-logs へ写す」の1本は cancelled、もう1本は success）
+- 生成し直しのコミット **c4f1c2f9**（chore: regenerate … via GitHub Actions）: 差分は `sitemap-pages.xml` の `jpml_pros.html` の lastmod 2026-09-29 → 2026-09-30 の1行だけ。**ページの差分0**、シートの変化による差分も無し。
+  lastmod は `jpml_pros.html` がこのマージで変わったため（`update_sitemap_lastmod.py --from-git` が導出）。c4f1c2f9 の Workers Builds も success
+- 本番 https://ryoei.pro （curl、リダイレクトは追わない）:
+
+| パス | 応答 |
+|---|---|
+| `/jpml_titles.html` | 301 → `/title/` |
+| `/jpml_titles.html?name=瀧澤光太郎` | 301 → `/title/?name=瀧澤光太郎` |
+| `/title/?name=瀧澤光太郎` | 200 |
+| `/jpml_pros.html` | 200。`./title/?q=` のリンク 296件、`jpml_titles` 0件。リポジトリの版とバイト単位で一致 |
+| `/assets/title.js` | 200。`?name=` を読む版（`LEGACY_QUERY_PARAM` あり） |
+| `/llms.txt`・`/sitemap-pages.xml` | `jpml_titles` 0件 |
+
+ブラウザでの見え方は確かめていない（プレビューで平野さんが確認済み）。
+
+### 3. issue
+
+- 重複の検索（「旧タイトルシート V列」「jpml_titles 転送 name」）: 同じ主題の issue は無し
+- (A) **#484** 旧「タイトル」シートと「プロ」シートの V 列（旧の決勝の件数）の扱いを決める。ラベル「分野: データ」「対象: jpml_titles」「対象: jpml_pros」（シートの扱いの issue #470・#467 などに合わせた）
+- (B) **#485** 旧表 jpml_titles.html の転送と title/ の ?name= の受け取りを終える。ラベル「分野: 整理・保守」「対象: jpml_titles」（#441 と同じ）。基準は「未定（平野さんが決める）」
+- 作成の1回目は GitHub API が 500 を返した。作られていないことを一覧で確かめて1回だけ作り直した（重複なし）。#441 のコメントも同じく 500 → 確認 → 再投稿
+- #441: 結果をコメント（issuecomment-5903868305）して閉じた（completed）。「状況:」ラベルは元から無い
+- docs/handover.md: #441 の行を #484・#485 の2行に置き換え、#222 の行の「#441 旧表の廃止」を「#484・#485 旧表の廃止（#441）の残り」にした（22,584 バイト、警告域 26KB 未満）。docs/ のみの変更なのでマージしてよい範囲（CLAUDE.md「ブランチ運用」のドキュメントのみの変更）。ログと一緒にマージする
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/0930-olt-02
-- ログ: https://github.com/retroeater/mj/blob/work/0930-olt-02/docs/logs/CHAT-0930-OLT-05.md
+- 状態: 完了
+- ブランチ: work/0930-olt-02（マージ済み。削除は delete-merged-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-0930-OLT-05.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/0930-olt-02
-- 確認用URL: なし
-- マージ: 未
-- issue: #441
-- 判断が必要なこと: なし
-- 未確認の項目: なし
-- エラー: なし
+- 確認用URL: なし（本番に反映済み）
+- マージ: 済（b86243fc..cee87c76。自動の再生成 c4f1c2f9。handover.md とこのログは docs のみの追いの push）
+- issue: #441（クローズ）、#484（新規: 旧「タイトル」シートと「プロ」V列）、#485（新規: 転送と ?name= の受け取りを終える）
+- 判断が必要なこと:
+  - #484: 旧「タイトル」シートと「プロ」V列を残すか消すか
+  - #485: 「十分に減った」の基準
+- 未確認の項目:
+  - 本番のブラウザでの見え方（curl で HTML・応答を確認。プレビューでは平野さんが確認済み）
+- エラー:
+  - GitHub API（MCP）で issue の作成と #441 のコメントが1回ずつ HTTP 500。作られていないことを確かめてから1回だけやり直し、どちらも成功（重複なし）
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj b86243fc）: https://github.com/retroeater/mj-logs/tree/main/guide/b86243fc
+ガイド文書（この版を写した時点の最新、mj b9b7e174）: https://github.com/retroeater/mj-logs/tree/main/guide/b9b7e174
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b86243fc/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b86243fc/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b86243fc/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b86243fc/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b86243fc/docs/notes/cloudflare.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b9b7e174/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b9b7e174/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b9b7e174/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b9b7e174/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b9b7e174/docs/notes/cloudflare.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/ad723967.md

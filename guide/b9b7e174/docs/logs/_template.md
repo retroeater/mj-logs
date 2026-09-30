@@ -38,9 +38,12 @@ CLAUDE.md「作業ログ」節が正。ここには**書く時点で読めば足
 完了
 https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-MMDD-XXX-nn.md
 ブランチ: work/MMDD-xxx（マージ後に削除済み）
-ログ（公開）: https://github.com/retroeater/mj-logs/blob/main/logs/CHAT-MMDD-XXX-nn.md
+ログ（公開）: https://github.com/retroeater/mj-logs/blob/main/logs/CHAT-MMDD-XXX-nn.md?v=<SHA>
 Chat-Ref: CHAT-MMDD-XXX-nn
 ```
+
+「ログ（公開）」の `<SHA>` は、最後に push した（ログを含む）mj のコミットの短い SHA（`git log -1 --format=%h`）。
+mj-logs は `?v=` を無視して同じ内容を返すが、URL が版ごとに変わるので、チャット側が前に読んだ古い版を受け取らない。
 
 プレビューで確認する作業では、「ブランチ:」の行の次に `確認用: <プレビューの URL>` の行を足す（ログには書かない）。
 
