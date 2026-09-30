@@ -112,27 +112,67 @@ SPLIT_VS = re.compile(rf"\s*(?:vs|ｖｓ|VS|ＶＳ)\s*|(?<={KANA_KANJI})[svSV](?
 
 マージの条件（生成物の差分が6本の分かれ方とそれに伴う表示だけ）: 差分0で満たす。
 
+### 2. マージと【2】への反映
+
+- マージ: 再 fetch のうえ `git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめ、`git push origin work/0930-olt-06:cloudflare`（**b9b7e174..83cc10c8**）
+- 手動実行の前に docs/notes/static-generation.md「ワークフローを手動実行するとき」を読んだ（`update-live-channel.yml` に固有の注意は無い。待機は15分まで）
+- `update-live-channel.yml` を cloudflare で手動実行（入力は `apply: true` だけ、ほかは既定の false）: **run 36669606696、結論 failure**
+  - ジョブ `update`: success（層1の取り込みのコミット 64c349ab「chore: fetch live channel raw data」、【2】の書き直し）
+  - ジョブ `regenerate`: success、**コミットなし**（/live・title/ は変わらない。手順1 の模擬の差分0と同じ）
+  - **ジョブ `yotei`: failure**。`scripts/write_yotei_sheet.py` が予定表のスプレッドシートの「【1】元データ」に書くところで HTTP 400
+    「Range ('【1】元データ'!A1001) exceeds grid limits. Max rows: 1000, max columns: 26」（`lib/sheets_write.py` の `clear_and_write`）
+  - この失敗はこの指示の変更（`live_extract.py` の区切り）とは別の箇所で、**マージの前から起きている**: 別セッションが 04:09 UTC に cloudflare c4f1c2f9（この指示のマージ前）で手動実行した run 36667588317 も、同じステップで failure（`regenerate` は skipped）。
+    9b877ae0「import the whole schedule and mirror it in layer 3 (#479)」で予定表を全件取り込むようになり、【1】のタブの行数（1000行）を超えたものと見られる（確かめていない）
+- **止まる条件「ワークフローが失敗した」に当たるため、ここで止めた**（戻していない。手順3 の #475 へのコメントは出していない）
+
+シートの【2】（run の後に読んだ。14,103行。1行増えたのは今日の新しい動画 `FR6ofeo3-4E`）:
+
+| 動画ID | 対局者 | 確認 | 理由 |
+|---|---|---|---|
+| `ff8_G1P7dm0` | …宮内こずえ、逢川恵夢、二階堂瑠美、二階堂亜樹、佐月麻理子 | 空 | 空 |
+| `6Sem9jKnkVU` | 覚野陽生、猿渡輝也、高橋尚也、ケネス徳田 | 空 | 空 |
+| `SGlbTPLSs7Q` | 覚野陽生、猿渡輝也、高橋尚也、ケネス徳田 | 空 | 空 |
+
+- 「理由」に `逢川恵夢s…`・`覚野陽生v…` を含む行: 0。未登録の名前: **57名 → 55名**
+- 手順1 の模擬の表と比べて違うのは2行（`e7b5VESYUq0` の公開日時・長さ・配信開始日時、`-64q_LPrvOw` の配信開始日時）だけで、今日の層1の取り込み（ライブの配信後の値）による
+
+### 3. 【3】で消すセル（依頼しない）
+
+決定は「【2】が直った後、【3】の対局者の補正2本を消す」だが、**消すと B卓の4名が落ちるため、消す依頼はしない**（手順1 の表）。前提（新しい【2】の対局者が今の補正と同じになる）が実物と違った。
+
+- `6Sem9jKnkVU`（【3】3188行目、掲載 Y）: 補正「覚野陽生、猿渡輝也、高橋尚也、ケネス徳田、三浦智博、勝又健志、早川健太、本田朋広」は B卓の4名を含むので、そのまま残すのがよい
+- `SGlbTPLSs7Q`（【3】1950行目、掲載 N）: 補正の誤記「覚野陽生v猿渡輝也、…」は、消すと B卓の4名が落ちる。直すなら「覚野陽生、猿渡輝也、高橋尚也、ケネス徳田、三浦智博、勝又健志、早川健太、本田朋広」に書き換える（掲載 N なので表示には出ない）
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/0930-olt-06
+- 状態: 判断待ち（止まる条件「ワークフローが失敗した」。失敗は予定表のジョブ `yotei` で、この指示の変更とは別の箇所）
+- ブランチ: work/0930-olt-06（マージ済み。削除は delete-merged-branches.yml に任せる）
 - ログ: https://github.com/retroeater/mj/blob/work/0930-olt-06/docs/logs/CHAT-0930-OLT-06.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/0930-olt-06
-- 確認用URL: なし
-- マージ: 未
-- issue: #446、#475
-- 判断が必要なこと: なし
-- 未確認の項目: なし
-- エラー: なし
+- 確認用URL: なし（生成物の差分0）
+- マージ: 済（b9b7e174..83cc10c8）。このログは work/0930-olt-06 にだけ push した（cloudflare へは入れていない）
+- issue: #446（状況をコメント）、#475（コメントしていない）
+- 判断が必要なこと:
+  - `update-live-channel.yml` のジョブ `yotei` の失敗（予定表の「【1】元データ」が1000行の上限を超える。#479 の全件取り込みの後から。マージ前の run 36667588317 でも同じ）への対応。予定表の担当（#479）で直すか
+  - 【3】のセル（前提と違ったため、消す依頼はしない）:
+    - `6Sem9jKnkVU`（3188行目・対局者・「覚野陽生、猿渡輝也、高橋尚也、ケネス徳田、三浦智博、勝又健志、早川健太、本田朋広」）: B卓の4名を含むので残すのがよい
+    - `SGlbTPLSs7Q`（1950行目・対局者・「覚野陽生v猿渡輝也、高橋尚也、ケネス徳田、三浦智博、勝又健志、早川健太、本田朋広」）: 消さず、「覚野陽生、猿渡輝也、…」に書き換えるか（掲載 N）
+  - この指示の残り（#475 へのコメント、ログの cloudflare へのマージ）を続けてよいか
+- 未確認の項目:
+  - #475 の次の毎朝の実行で「逢川恵夢s二階堂瑠美」「覚野陽生v猿渡輝也」が消えた名前として出るか（今回の apply の実行で【2】は書き直した。#475 へのコメントはこの run では出ていない見込み。確かめていない）
+  - 予定表の失敗の原因が 9b877ae0 の全件取り込みかどうか
+- エラー:
+  - run 36669606696 のジョブ `yotei`: `SheetsWriteError: PUT …/values/'【1】元データ'!A1001 が失敗しました: 400 Range ('【1】元データ'!A1001) exceeds grid limits. Max rows: 1000, max columns: 26`
+  - ジョブのログを curl で取りに行くと、セッションのプロキシが拒否（CONNECT 403）。GitHub MCP の `get_job_logs` で読んだ
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 83cc10c8）: https://github.com/retroeater/mj-logs/tree/main/guide/83cc10c8
+ガイド文書（この版を写した時点の最新、mj e8e763b3）: https://github.com/retroeater/mj-logs/tree/main/guide/e8e763b3
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/83cc10c8/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/83cc10c8/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/83cc10c8/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/83cc10c8/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/83cc10c8/docs/notes/cloudflare.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e8e763b3/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e8e763b3/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e8e763b3/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e8e763b3/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e8e763b3/docs/notes/cloudflare.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/ad723967.md
