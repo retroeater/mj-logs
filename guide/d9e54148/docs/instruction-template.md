@@ -27,8 +27,14 @@
 ルールの本文と書くときの注意は `docs/notes/chat-side-operations.md`「指示文を書くときの注意」。
 
 ```
+【Claude作成】Claude Code 向け指示：（題。何をするかを1行で）
+（題の行は必ず入れる。平野さんの発言と区別するため。docs/notes/chat-side-operations.md「指示文を書くときの注意」冒頭）
 Chat-Ref: CHAT-MMDD-XXX-nn
 共通手順: CLAUDE.md「Chat-Ref」「ブランチ運用」「作業ログ」節のとおり（識別子確認 → origin/cloudflare を起点に work/<識別子>〈クラウドセッションでは worktree を使わず docs/notes/cloud-sessions.md の読み替えに従う〉 → ログ先行push → 最終報告の Chat-Ref の行の直前に「ログ（公開）」の行、最後の行に Chat-Ref）。平野さんは、この指示のための作業ブランチ work/<識別子> の作成と push を許可している（セッションに割り当てられた claude/… のブランチは使わない）。
+
+0. 着手前に、このログの「指示」欄の末尾が、この指示文の末尾（最後の行）と一致しているか確認し、一致しなければ作業せず報告する。
+（0章のこの一文は必ず入れる。途中切れの確認のため。docs/notes/chat-side-operations.md「指示文の書き方・渡し方」）
+（続きの指示で前の指示の結果が要るときだけ、0章に「<Chat-Ref> のログの `## 報告` を読み、完了していなければ止まる。」を足す。docs/notes/chat-side-operations.md「指示文の書き方・渡し方」）
 
 ## 目的
 （何のために何を変えるか。1〜2行）
@@ -41,6 +47,7 @@ Chat-Ref: CHAT-MMDD-XXX-nn
 
 ## 手順
 1. （前提は「〜を確かめ、食い違えば止まる」の形で書く）
+   （運用ルールの変更を含む指示では、手順1を「同じ論点の open issue を検索し（クローズ済みも含めて確認）、あれば止まって報告する」に固定する。この文書の注意書き）
 2.
 3. （3項目程度まで）
 
