@@ -65,18 +65,34 @@ DUP-02 の変更（同じ日の完全版が無料・限定の両方あれば無�
 - CLAUDE.md の検証（ガイド文書のサイズ）: CLAUDE.md 26,481・handover.md 22,898・chat-side-operations.md 20,473 バイト。いずれも警告域未満
 - 決定を `docs/decisions/title.md` に足した（先に今の内容を読んだ。末尾は DUP-02・DUP-03 の節）
 
+### 2. マージと本番
+
+- push の直前に再fetchし、`git merge-base --is-ancestor origin/cloudflare HEAD` が真であることを確かめて `git push origin work/0930-dup-02:cloudflare`（2e1b8f0d..78e67ff7）
+- 78e67ff7 の check-run: 「Workers Builds: mj」success（13:17:34Z）、「regenerate」success、「check」success、「sync」success。Actions の「ページの再生成」「サイトマップのlastmodを同期」「公開対象を検査する」「作業ログを mj-logs へ写す」も success
+- 自動の再生成: cloudflare にコミットは増えなかった（`git log 78e67ff7..origin/cloudflare` が空）。マージの条件の外の差分（シートの変化による他の title/ のページの変化）は無い
+- 本番（curl、13:17:47Z）: `title/judan/43.html` の決勝ライブは3本（初日 限定 `xDw5CYnCJ4I` → 2日目 `dxmDlj61m1c` → 最終日 `5RHZTOEAVIE`）、`title/teiou/3.html` は1本（`bVeavoP15PU`）。2ページともリポジトリの版とバイト単位で一致。ビルドの完了の直後の数十秒は旧版が返っていた（反映待ち）
+
+### 3. 記録
+
+- #487 に結果をコメントして閉じた（completed。「状況:」ラベルは元から無し）
+- DUP-02 のログの最後の `## 報告` の「状態」「ログ」「マージ」を結果に合わせて直した
+- 決定は `docs/decisions/title.md` に追記済み（1. の節）
+- ブランチの片付け: クラウドセッションではリモートのブランチの削除が拒否されるため（docs/notes/cloud-sessions.md「ブランチの削除」）、`work/0930-dup-02`・`work/0930-dup-03` のリモートは `delete-merged-branches.yml` に任せる。ローカルは最後の push の後に HEAD を `origin/cloudflare` へ移して `git branch -d` で消す（結果はターミナルの報告のみ。ログには削除直前の先頭 SHA を下に書く）
+  - `work/0930-dup-02`: 先頭はこのログの最後の push のコミット（`origin/cloudflare` の祖先。マージ済み）
+  - `work/0930-dup-03`: 5616d23f（`origin/cloudflare` の祖先。マージ済み）
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/0930-dup-02
-- ログ: https://github.com/retroeater/mj/blob/work/0930-dup-02/docs/logs/CHAT-0930-DUP-05.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/0930-dup-02
-- 確認用URL: 未
-- マージ: 未
-- issue: #487
+- 状態: 完了
+- ブランチ: work/0930-dup-02（cloudflare へマージ済み。リモートの削除は delete-merged-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-0930-DUP-05.md
+- 比較URL: https://github.com/retroeater/mj/compare/2e1b8f0d...78e67ff7
+- 確認用URL: なし（本番で確かめた: `title/judan/43.html` 3本、`title/teiou/3.html` 1本）
+- マージ: 済（78e67ff7。生成物の差分は `title/judan/43.html`・`title/teiou/3.html` の2ページだけで、マージの条件を満たした）
+- issue: #487（コメントして閉じた）
 - 判断が必要なこと: なし
-- 未確認の項目: なし
-- エラー: なし
+- 未確認の項目: ブラウザでの見え方（本番の HTML がリポジトリの版と一致することまでを確かめた）
+- エラー: なし（`docs/decisions/title.md` の末尾の衝突は docs の追記どうしで、両方を残して解いた）
 
 <!-- guide-links -->
 ---

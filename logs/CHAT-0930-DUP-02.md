@@ -122,12 +122,12 @@ title/ の期ページの「決勝ライブ」で、同じ内容の完全版が�
 
 ## 報告
 
-- 状態: 判断待ち（プレビューまで。cloudflare へは入れていない）
+- 状態: 完了（CHAT-0930-DUP-05 で cloudflare へマージし本番を確認、#487 は閉じた。経過は DUP-05 のログ）
 - ブランチ: work/0930-dup-02
-- ログ: https://github.com/retroeater/mj/blob/work/0930-dup-02/docs/logs/CHAT-0930-DUP-02.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-0930-DUP-02.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/0930-dup-02
 - 確認用URL: プレビューあり（URL は最終報告）。確認したページ: `title/judan/43.html`（3本: 初日〈限定〉→ 2日目〈無料〉→ 最終日〈無料〉）・`title/teiou/3.html`（1本、無料）
-- マージ: 未（平野さんの判断待ち）
+- マージ: 済（CHAT-0930-DUP-05、78e67ff7）
 - issue: #487（起票、着手中のコメントあり。open のまま）
 - 判断が必要なこと:
   - マージの可否。変わる生成物は2ページだけ（十段戦 第43期 5本→3本、帝王戦 第3期 2本→1本）
@@ -142,12 +142,12 @@ title/ の期ページの「決勝ライブ」で、同じ内容の完全版が�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 54c2563e）: https://github.com/retroeater/mj-logs/tree/main/guide/54c2563e
+ガイド文書（この版を写した時点の最新、mj 78e67ff7）: https://github.com/retroeater/mj-logs/tree/main/guide/78e67ff7
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/54c2563e/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/54c2563e/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/54c2563e/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/54c2563e/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/54c2563e/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/54c2563e/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/78e67ff7/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/78e67ff7/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/78e67ff7/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/78e67ff7/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/78e67ff7/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/78e67ff7/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b7f138e5.md
