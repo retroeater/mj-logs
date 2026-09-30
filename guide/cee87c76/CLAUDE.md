@@ -20,7 +20,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **本番反映は Cloudflare Workers Builds（ダッシュボードのGit連携）が `cloudflare` への push を検知して行う**（`chore: regenerate ...` も含む。
   Actionsにデプロイのジョブは無い、#169）。設定はダッシュボード側にありコードから追えない（docs/notes/cloudflare.md「本番反映（デプロイ）の仕組み」）
 - Bootstrap 5.3.8 をローカル配信（assets/vendor）。CDNは使わない
-- ページ本体（例: `jpml_titles.html`）とロジック（同名の `.js`）は分ける。ページ末尾で navbar.js を読み込んで共通ナビを描画する
+- ページ本体（例: `jpml_pros.html`）とロジック（同名の `.js`）は分ける。ページ末尾で navbar.js を読み込んで共通ナビを描画する
 - **手書きHTMLを新規に追加する前に**docs/notes/static-generation.md「navbar.js と検索欄」を読む（hrefはルート相対〈#162〉、`data-search="off"`〈#163〉）
 - skill（`.claude/skills/`、plugin は使わない）と git の hook（`.claude/hooks/`）の導入・入れ直しはdocs/notes/skills.md
 
@@ -80,17 +80,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   `git stash`を使わない。作業完了後はworktreeとブランチを片付ける。** 手順（worktreeの作り方・ブランチ操作は単独のコマンドで`-B`を使わない・分岐元の確認・pullの3条件・
   身に覚えのない未コミット変更・部分ステージ・片付け）はdocs/notes/branch-operations.md「作業ディレクトリの分離（Codespace）」
 - **クラウドセッション（Claude Code on the web）には`/workspaces/mj`・worktree・`gh`が無い。読み替えはdocs/notes/cloud-sessions.md**
-- **`cloudflare`へのマージはセッション自身の判断で行わない。** 作業完了を報告し、平野さんが判断する。基準:
+- **成果物の`cloudflare`へのマージは、指示文に「マージ: 承認済み（チャットで）」があるときだけ行う。** 無ければ完了を報告し、判断待ちで止まる。
+  承認は処理中に求めない（hook は確認を出さない）。
   - ドキュメントのみの変更（CLAUDE.md、docs/配下、README等）は、完了を報告したうえでセッションがマージしてよい
-  - サイトの表示・生成物に影響する変更（HTML/CSS/JS、`generate_*.py`、データ取得まわり等）と判断に迷う変更は、平野さんが本番または生成結果を確認したのちにマージする
-    - **例外（事前のマージ許可）:** 指示文に「平野さんの判断で、確認が済んだら cloudflare へマージしてよい」と明記され、
-      指示文にある確認がすべて通った場合はマージしてよい（この節の規定なので #205 には当たらない）。
-      確認が1つでも通らない・前提が崩れた（指示文の想定と実物が違う等）ときは、マージせずに報告する
+  - 承認済みでも、指示文の確認が1つでも通らない・止まる条件に当たった・前提が崩れた（指示文の想定と実物が違う等）ときは、マージせずに報告する
   - `docs/`配下のみの変更では Workers Builds が走らず check-run も出ない（#171）。`docs/`外のドキュメントを含むpushではデプロイが1回走る（表示は変わらない）
 - **マージの手順:** worktree内で`git push origin <作業ブランチ>:cloudflare`とし、cloudflareはチェックアウトしない。
   **push直前に必ず再fetchし、`git merge-base --is-ancestor origin/cloudflare HEAD`で push 先が自分のHEADの祖先であることを確認すること。**
-  他セッションのfetchで`origin/cloudflare`が進むため、取り込み時点を前提にすると他セッションのコミットを巻き戻す。
-  hook（mj-git-guard）はこのpushを、docs/logs のみ（`_template.md`を除く）の fast-forward なら確認なしで通し、それ以外は ask にする（docs/notes/skills.md）
+  他セッションのfetchで`origin/cloudflare`が進むため、取り込み時点を前提にすると他セッションのコミットを巻き戻す
 - **`.github/workflows/`を追加・変更する作業では、着手時にdocs/notes/branch-operations.md「ワークフローを変更したとき」を読む。
   マージの前に作業ブランチで手動実行して結果を確かめ、実行できないときは報告して判断を仰ぐこと**
 - 長期間マージされないブランチは、定期的に`cloudflare`を取り込んで乖離を小さく保つ
@@ -152,10 +149,12 @@ push したログとガイド文書は public の`retroeater/mj-logs`に写る�
   `work/`ではこの目印のあるpushだけがmj-logsへ写る。途中の節目のpushには付けない（#298）
 - 構成（ヘッダ・`## 指示`〈貼られた指示文をそのまま〉・`## 経過`〈詳細はすべてここ〉・`## 報告`）と各項目の書き方は`docs/logs/_template.md`（コピーして使う）。
   **`## 報告`はログの末尾に必ず置き、作業の最後に更新してpushする。** チャット側はこの節だけを読んで判断するため、**10項目を省かず、該当が無ければ「なし」と書く**
-- ログは作業ブランチにだけpushし（ログ先行・節目のpushを含む）、`cloudflare`へは指示の最後のマージ1回で成果物と一緒に入れる
+- ログは作業ブランチにだけpushし（ログ先行・節目のpushを含む）、`cloudflare`へは指示の最後のマージ1回で成果物と一緒に入れる。
+  マージの結果（Actions・check-run等）を書く docs/logs のみの追いのpushは可
 - 後の指示で使うスクリプト・中間データの置き場所は docs/notes/session-network.md「作業ファイルの置き場所」（scratchpad は再起動で消える）
 - **ターミナルへ返す最終報告は、状態・ログのURL・ブランチ・（あれば）確認用・ログ（公開）・Chat-Ref の行だけにする。**
   形は`docs/logs/_template.md`「ターミナルへ返す最終報告」。**URL の直後に文字を続けない**（続く文字まで URL とみなされ404になる）。
+  **「ログ（公開）」の URL の末尾には`?v=<最後に push したログを含む mj のコミットの短い SHA>`を付ける**（チャット側は一度読んだ URL で古い版を受け取るため、版ごとに URL を変える）
   判断が必要なこと・エラーを含め、詳細はログの`## 報告`に書き、ターミナルには出さない
 - **例外として、次の2つはログに届かないためターミナルに内容を書く:** 作業途中で平野さんに質問して止まるとき／pushに失敗したとき
 - ログの寿命: `cleanup-logs.yml`が週次で片付ける（削除の条件はdocs/notes/branch-operations.md「作業ログの寿命」）
