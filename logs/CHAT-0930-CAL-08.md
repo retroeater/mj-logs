@@ -98,7 +98,7 @@
 
 ## 報告
 
-- 状態: 判断待ち（マージは平野さんの判断）
+- 状態: 判断待ち → 続き: CHAT-0930-CAL-11
 - ブランチ: work/0930-cal-full
 - ログ: https://github.com/retroeater/mj/blob/work/0930-cal-full/docs/logs/CHAT-0930-CAL-08.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/0930-cal-full
@@ -125,11 +125,11 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj d9e54148）: https://github.com/retroeater/mj-logs/tree/main/guide/d9e54148
+ガイド文書（この版を写した時点の最新、mj 0057ebeb）: https://github.com/retroeater/mj-logs/tree/main/guide/0057ebeb
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d9e54148/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d9e54148/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d9e54148/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d9e54148/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d9e54148/docs/notes/cloudflare.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/fbb55c8c.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/0057ebeb/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/0057ebeb/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/0057ebeb/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/0057ebeb/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/0057ebeb/docs/notes/cloudflare.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/ad723967.md
