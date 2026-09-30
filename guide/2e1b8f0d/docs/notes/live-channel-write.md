@@ -73,7 +73,7 @@ GitHub Actions から Google Sheets API で3層のタブ（下記）へ直接書
 ### 6. 書き込みの実装・手動実行での確認（実装: CHAT-0922-UT-12、書き込み先の付け替え: 2026-09-27）
 
 - 表の組み立ては `scripts/lib/live_candidate.py`（層1の1動画→【2】の1行、UT-09の規則の移植）
-- 書き込みは `scripts/lib/sheets_write.py`（Sheets API v4、`values.clear`→`values.update`でタブ全体を置き換え。1,000行ずつ送る）。
+- 書き込みは `scripts/lib/sheets_write.py`（Sheets API v4、`values.clear`→`values.update`でタブ全体を置き換え。1,000行ずつ送る）。**書く範囲がシートのグリッド（新しいシートは1,000行×26列）を超えるときは、書く前に`appendDimension`で行・列を足す**（足りない分＋行500・列2。超えなければ足さない。`clear_and_write`・`append_rows`・`update_cells`のすべて、`WRITABLE`の6タブ共通。CHAT-0930-CAL-15）。
   認証は ADC（`google-github-actions/auth`、`LIVE_SHEETS_SA_KEY` を読む手順だけが鍵を扱う。
   `docs/notes/birthday-calendar.md` と同じ形）
 - 実行本体は【1】が `scripts/write_live_layer1.py`、【2】が `scripts/write_live_channel_candidate.py`。
@@ -121,7 +121,7 @@ Sheets APIの呼び出し回数（サービスアカウントの書き込み上�
    - 足した4項目（`LATE_KEYS`）は、足す前に保存した行には無い。`--mode verify` は、保存済みの行に無い足した項目を比べない
      （比べると全ライブが一度に「値が変わった」になり、上限で止まる）。配信予定・配信中の枠の取り直し（`--mode new`）では比べるので、
      それらの枠は次の実行で足した項目の入った行が追記される（2026-09-28 時点で41本）。放送済みの古い行は、ほかの項目が変わったときだけ足した項目が入る。
-     過去分をまとめて埋めるときは、`--mode verify --allow-many-changes` とは別の手段が要る（#448）
+     過去分をまとめて埋めるのは `--mode backfill`（手動実行の入力 `backfill`、1回だけ。docs/notes/yotei-sheet.md「層1の取り直し」、#450）
 2. **【1】**（`scripts/write_live_layer1.py`）: 層1の動画ごとの最新の行（取得不可の行を含む）を、公開日時の降順で
    【1】へ全件書き写す。値は加工しない。列は 動画ID・種別・限定・公開範囲・公開日時・配信開始日時・長さ・タイトル・取得日時・状態・配信終了日時・配信予定開始日時・配信予定終了日時・配信状態・概要欄（足す前に保存した行の足した列は空欄）。
    **今のタブより行数が減るなら、書かずに失敗する。**

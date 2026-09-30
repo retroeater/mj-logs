@@ -11,6 +11,8 @@
 | ファイル | 分野 |
 |---|---|
 | [broadcast-calendar.md](broadcast-calendar.md) | 放送対局の公開カレンダー「mj_放送対局」・連盟の予定表の取り込み（#448 系） |
+| [seo-bing.md](seo-bing.md) | SEO・Bing（Bing Webmaster Tools・title・h1・description、#126・#486・#5 系） |
+| [title.md](title.md) | タイトル戦（title/、「タイトル」タブのデータ・公開後の残件、#222 系） |
 
 ## 書き方
 
@@ -34,4 +36,8 @@
 - ほかの分野（/live・title/・運用など）にも広げる。ただし分野のファイルは、その分野で次に決定が出たときに作る（今まとめては作らない）
 - `docs/notes/decisions-2026-09-13-review.md` は今は動かさない
 - 分野の単位は、当面「放送対局カレンダー・予定表」の1ファイルのままとする
-- CLAUDE.md と docs/notes/chat-side-operations.md への追記は、work/0930-hkg-04 のマージの後に別の指示で行う
+- CLAUDE.md と docs/notes/chat-side-operations.md への追記は、work/0930-hkg-04 のマージの後に別の指示で行う → 済: 2026-09-30（CHAT-0930-CAL-17）
+
+### 2026-09-30（CHAT-0930-CAL-17）
+
+- CLAUDE.md「作業ログ」節と docs/notes/chat-side-operations.md「平野さんの判断とマージの許可」に、決定の記録の書く時機と読み方を足した
