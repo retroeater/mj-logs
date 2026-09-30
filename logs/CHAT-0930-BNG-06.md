@@ -51,29 +51,39 @@ BNG-01〜05（#126 のクローズ、#486 の起票と決定、#5 の再オー�
 ## 経過
 
 - 着手前確認: 同じ Chat-Ref のコミット無し。BNG-05 は「マージ: 済」、`origin/work/0930-bng` は `origin/cloudflare` の祖先。`git merge --ff-only origin/cloudflare` で 465b0617 へ進めた。指示欄の末尾は指示文の最後の行と一致。
+- 容量（追記前、バイト。上限 CLAUDE.md 32KB〈警告 30KB〉・handover.md 28KB〈警告 26KB〉・chat-side-operations.md 28KB〈警告 26KB〉）: CLAUDE.md 26,481、handover.md 22,237、chat-side-operations.md 18,928。どれも警告域の手前で、archive への移しは不要だった（`docs/notes/archive/` は無く、既存の退避先は `docs/notes/handover-archive-2026.md`）。
+- 手順1: `docs/decisions/seo-bing.md` に BNG-02・03・04 の決定と BNG-06 の決定を足した（BNG-01 は読むだけの指示で決定が無い）。BNG-02 の「再送信・手動送信をしない」は BNG-03 で取り下げになったため、README の書き方どおり「→ 取り下げ」を付けた。BNG-04 の「差の結論」は平野さんの決定ではなく調べた結論なので、その旨を行頭に書いた。`docs/handover.md`「次にやること」の着手可能な表に #486 の行が無かったため、#7 の行群の #9 の前に1行足した（順序 #283 → #486 → #7、title の長さは #5）。
+- 手順2: `docs/instruction-template.md` の注意書きに (a)「変更は docs のみ」の範囲に `docs/decisions/` を含めて書く、を1行足した（同じ趣旨の記述は無かった）。
+  - **(b) は足していない（ルールとの食い違い）**: (b)「issue 番号が食い違えば止まらず『前提との食い違い』として経過と報告に書く」は、CLAUDE.md「Chat-Ref」節の「前提と実物が食い違ったら、指示に合わせて手を入れず、中断して報告する」と逆向き。どちらが正かは平野さんの判断が要るため、CLAUDE.md の側を優先し（「指示文の記述同士が食い違ったときは…前提・ルールの側を優先」）、(b) は判断待ちにした。なお `instruction-template.md` は冒頭で「受け手側のルールは CLAUDE.md が正で、ここには複製しない」としており、(b) は受け手側の規則なので、足すなら CLAUDE.md 側になる。BNG-04 での扱い（#5 へのコメントを見送り、他の手順を進めて報告）は、CLAUDE.md の「中断して報告」とも完全には一致していない。
+- 手順3: `docs/notes/chat-side-operations.md`「書く前に実物で確かめる」で、(a) は既存の「会話の記憶…から事実を断定して書かない」の項目を拡張（issue 番号・ページ数も記憶から書かない、ログにあるものだけ使い無いものは「（要確認）」）。(b) は「仮説を確かめるとき…」の次に1項目足した（平野さんの安価な手作業を記録・文書の指示より先に頼む）。**出典は Chat-Ref ではなく issue 番号（#486・#126）にした**: CLAUDE.md「CLAUDE.md / handover.md の更新ルール」の「この3文書には出典としてのChat-Refを書かない」が chat-side-operations.md に当たるため、指示の「Chat-Ref を添える」よりルールを優先した。`instruction-template.md` は3文書に当たらないため Chat-Ref を添えた。
+- 手順4: #486 にコメント「## 申送り（CHAT-0930-BNG-06）」（https://github.com/retroeater/mj/issues/486#issuecomment-5906855101 ）: 10 月末ごろの見直し（古い指摘が消えたか、平野さんの画面）、案2件（#304 の月次と同じ周期で Bing の Recommendations を見る、次の見直しでも記録が無ければ Crawler Hints を Off にし cloudflare.md も更新）。#304 の本文は変えていない。
+- 検査: `python3 scripts/check_asset_limits.py` は警告・超過なし。テストは OK。`git diff --name-only origin/cloudflare` は docs/ 配下の5ファイルのみ。
+- 容量（追記後）: CLAUDE.md 26,481（変更なし）、handover.md 22,463（+226、警告域まで 4,161）、chat-side-operations.md 19,410（+482、警告域まで 7,214）。
 
 ## 報告
 
-- 状態: 中断（着手直後）
+- 状態: 完了（手順2 (b) は判断待ちで足していない）
 - ブランチ: work/0930-bng
 - ログ: https://github.com/retroeater/mj/blob/work/0930-bng/docs/logs/CHAT-0930-BNG-06.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/0930-bng
-- 確認用URL: なし
-- マージ: 未
-- issue: #486
-- 判断が必要なこと: なし
-- 未確認の項目: 手順1〜4すべて
+- 確認用URL: なし（docs のみ）
+- マージ: 済（cloudflare へ fast-forward。docs/ のみ）
+- issue: #486（コメント1件）
+- 判断が必要なこと:
+  - 手順2 (b)（issue 番号の食い違いは止まらず記録する）は、CLAUDE.md「Chat-Ref」節の「前提と実物が食い違ったら…中断して報告する」と逆向きのため足していない。入れるなら CLAUDE.md の当該項目に例外として書く（instruction-template.md は受け手側のルールを複製しない方針）。どこまでを「止まらず記録」にするか（参照の番号違いだけか）を平野さんが決める
+  - chat-side-operations.md の出典は、CLAUDE.md の「3文書に Chat-Ref を書かない」に従い issue 番号にした（指示は Chat-Ref）
+- 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 465b0617）: https://github.com/retroeater/mj-logs/tree/main/guide/465b0617
+ガイド文書（この版を写した時点の最新、mj 9fd7d3a9）: https://github.com/retroeater/mj-logs/tree/main/guide/9fd7d3a9
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/465b0617/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/465b0617/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/465b0617/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/465b0617/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/465b0617/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/465b0617/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9fd7d3a9/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9fd7d3a9/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9fd7d3a9/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9fd7d3a9/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9fd7d3a9/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9fd7d3a9/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/ad723967.md
