@@ -70,7 +70,7 @@ CAL-04 で「カレンダー」の埋め込みに足した「mj_放送対局」�
 
 ## 報告
 
-- 状態: 判断待ち（平野さんのプレビュー確認を待つ）
+- 状態: 判断待ち → 続き: CHAT-0930-CAL-10
 - ブランチ: work/0930-cal
 - ログ: https://github.com/retroeater/mj/blob/work/0930-cal/docs/logs/CHAT-0930-CAL-06.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/0930-cal
@@ -94,4 +94,4 @@ CAL-04 で「カレンダー」の埋め込みに足した「mj_放送対局」�
 - docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d9e54148/docs/instruction-template.md
 - docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d9e54148/docs/notes/chat-side-operations.md
 - docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d9e54148/docs/notes/cloudflare.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/fbb55c8c.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/23c98011.md
