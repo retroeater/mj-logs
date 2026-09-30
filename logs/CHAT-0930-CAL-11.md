@@ -11,7 +11,7 @@
 
 0. 着手前に、このログの「指示」欄の末尾が、この指示文の末尾（最後の行）と一致しているか確認し、一致しなければ作業せず報告する。CHAT-0930-CAL-08 のログの `## 報告
 
-- 状態: 中断（判断待ち。手順3の書き込みありの実行が【1】のグリッド上限〈1,000行〉で失敗。マージ済みのまま止めた）
+- 状態: 中断 → 続き: CHAT-0930-CAL-15（判断待ちだった。手順3の書き込みありの実行が【1】のグリッド上限〈1,000行〉で失敗。マージ済みのまま止めた）
 - ブランチ: work/0930-cal-full（b86243fc まで cloudflare へマージ済み）
 - ログ: https://github.com/retroeater/mj/blob/work/0930-cal-full/docs/logs/CHAT-0930-CAL-11.md
 - 比較URL: https://github.com/retroeater/mj/compare/4a68713e...b86243fc
@@ -34,11 +34,11 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj b9b7e174）: https://github.com/retroeater/mj-logs/tree/main/guide/b9b7e174
+ガイド文書（この版を写した時点の最新、mj ae4d7104）: https://github.com/retroeater/mj-logs/tree/main/guide/ae4d7104
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b9b7e174/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b9b7e174/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b9b7e174/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b9b7e174/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b9b7e174/docs/notes/cloudflare.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ae4d7104/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ae4d7104/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ae4d7104/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ae4d7104/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ae4d7104/docs/notes/cloudflare.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/ad723967.md
