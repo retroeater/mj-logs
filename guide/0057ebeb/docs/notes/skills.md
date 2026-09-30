@@ -67,16 +67,26 @@ Bash のコマンド文字列を `&&`・`||`・`;`・`|`・改行で区切り、
 | 判定 | 対象 |
 |---|---|
 | deny（実行させない） | `reset --hard`・`clean`・`stash`・`branch -D`（`--delete --force` を含む）・`checkout .`・`gh-pages` への push |
-| ask（人に確認する） | cloudflare への push（`<作業ブランチ>:cloudflare`、cloudflare 上での押し先を省いた `git push` など。マージは正規の操作なので止めない）・`claude/*` への push（cloud-sessions.md「始め方」） |
+| ask（人に確認する） | cloudflare への push（`<作業ブランチ>:cloudflare`、cloudflare 上での押し先を省いた `git push` など。マージは正規の操作なので止めない）のうち allow に当たらないもの・`claude/*` への push（cloud-sessions.md「始め方」） |
+| allow（確認なしで通す） | cloudflare への push のうち、docs/logs のみの fast-forward（下の条件） |
 | 通過 | 上以外（`work/*` への push・ログ先行 push・`branch -d`・`checkout -b` など） |
+
+allow の条件（`logs_only_push`。1つでも外れるか判定できなければ ask。allow はコマンド全体を通すため形を絞る）:
+
+- コマンドは `git push`（1回）と `git fetch [-q] [--prune] [origin]`・`git merge-base`・`tail -N`/`head -N` だけ。`2>&1` 以外のリダイレクト・`$`・`cd`・`-C` などを含まない
+- push は `origin` 宛て、refspec は1つ（`<src>:cloudflare`・`<src>:refs/heads/cloudflare`、src は名前だけ）か省略（`@{push}` が origin/cloudflare）。force 系・`+`・削除は外れる
+- src が手元の origin/cloudflare から fast-forward。origin/cloudflare から src までの途中のどのコミットからの差分も、`docs/logs/` の追加・変更だけ（削除・リネーム・`docs/logs/_template.md` は外れる）。
+  hook は fetch しない。origin/cloudflare が古くても本物の cloudflare はその途中にあるので、巻き戻しは ask になる
 
 試験した入力と結果（2026-09-29）:
 
 | コマンド | 判定 |
 |---|---|
 | `git push -u origin work/SKL` | 通過 |
-| `git push origin work/SKL:cloudflare` | ask |
+| `git push origin work/SKL:cloudflare`（`.claude/` の変更を含む） | ask |
 | `git push origin HEAD:refs/heads/cloudflare` | ask |
+| `git push origin work/x:cloudflare`（docs/logs のみ・ff、2026-09-29） | allow |
+| 同（docs/handover.md・コード・`_template.md`・削除・リネームを含む／非 ff／`--force`） | ask |
 | `git push`（work/SKL 上） | 通過 |
 | `git push origin claude/foo` | ask |
 | `git push origin gh-pages` | deny |
