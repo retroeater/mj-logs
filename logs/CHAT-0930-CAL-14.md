@@ -44,6 +44,31 @@ CAL-13 で作った決定の記録（`docs/decisions/`）と、それを mj-logs
 - 識別子: `git log --all --grep=CHAT-0930-CAL-14` は0件。ローカルの `work/0930-cal-dec` は origin/work/0930-cal-dec（12f3deac、26ac378c を含む）と同じ
 - 手順0: 指示欄の末尾は指示文の最後の行と一致。CAL-13 の `## 報告` は「判断待ち（マージは平野さんの判断）」だったので「判断待ち → 続き: CHAT-0930-CAL-14」に直した（このコミットに含める）
 
+### 手順1: README の追記
+
+- `docs/decisions/README.md`「書く時機」に2行を足した:
+  - ほかの分野（/live・title/・運用など）も対象にし、分野のファイルはその分野で次に決定が出たときに作る
+  - この仕組みそのものの決定は「この仕組みの決定」の節に書く
+- 末尾に「この仕組みの決定」の節を新しく作り、`### 2026-09-30（CHAT-0930-CAL-14）` の下に指示文の「決定」4項目を書いた
+  - 置き場所・書き方・書く時機は README の案どおり
+  - ほかの分野へ広げる（ファイルは次の決定のときに作る）
+  - `decisions-2026-09-13-review.md` は動かさない
+  - 分野の単位は1ファイルのまま
+  - CLAUDE.md・chat-side-operations.md への追記は後の指示で行う
+
+### 手順2: マージ
+
+- origin/cloudflare が祖先でなかったので `git merge origin/cloudflare` を実行した。衝突はなかった
+- テストと `python3 scripts/check_asset_limits.py` はすべて OK
+- origin/cloudflare との差分は次の8ファイルだけで、想定外の差分は無い:
+  - `.github/workflows/sync-logs.yml`
+  - `docs/decisions/README.md`・`broadcast-calendar.md`
+  - ログ2本（CAL-13・CAL-14）
+  - `docs/notes/cloud-sessions.md`
+  - `scripts/sync_guides.py`・`scripts/tests/test_sync_guides.py`
+- work/0930-hkg-04（PR #483 で cloudflare へマージ済み）との重なりを確かめた:
+  - hkg-04 が触った7ファイル（CAL-13 の分岐点との比較）と、上の8ファイルに重なりは無い
+
 ## 報告
 
 - 状態: 作業中
@@ -51,7 +76,7 @@ CAL-13 で作った決定の記録（`docs/decisions/`）と、それを mj-logs
 - ログ: https://github.com/retroeater/mj/blob/work/0930-cal-dec/docs/logs/CHAT-0930-CAL-14.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/0930-cal-dec
 - 確認用URL: なし
-- マージ: 未
+- マージ: 済（下の手順2）
 - issue: なし
 - 判断が必要なこと: なし
 - 未確認の項目: なし
@@ -60,12 +85,12 @@ CAL-13 で作った決定の記録（`docs/decisions/`）と、それを mj-logs
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj ce5031e6）: https://github.com/retroeater/mj-logs/tree/main/guide/ce5031e6
+ガイド文書（この版を写した時点の最新、mj 7253ae41）: https://github.com/retroeater/mj-logs/tree/main/guide/7253ae41
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce5031e6/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce5031e6/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce5031e6/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce5031e6/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce5031e6/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce5031e6/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/7253ae41/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/7253ae41/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/7253ae41/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/7253ae41/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/7253ae41/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/7253ae41/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/ad723967.md

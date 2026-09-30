@@ -54,6 +54,86 @@ hook は試験の前にもう効いているので、試験・文書・記録を
 - 識別子: CHAT-0930-HKG-08 のコミットは無い。HKG は同じセッションの HKG-01〜06 だけで使用（HKG-07 は欠番。コミットなし）
 - origin/cloudflare（ce5031e6）の `.claude/` は 7448e108 から変わっていない
 
+### 手順1: 試験
+
+- 対象: origin/cloudflare の `.claude/hooks/mj-git-guard.py`（7448e108 の版。作業ツリーのものとバイト単位で同じ）
+- 方法: hook に `{"tool_input":{"command":...},"cwd":...}` を標準入力で渡す。押し先を省いた push は現在ブランチで判定されるので、`work/x` と `cloudflare` をそれぞれチェックアウトした使い捨てのリポジトリ（scratchpad）を cwd にして回した。「pass」は出力なし
+- 結果: 39件すべて期待どおり
+
+| ケース | コマンド | 現在ブランチ | 期待 | 結果 | 理由文 |
+|---|---|---|---|---|---|
+| 通常のマージの形 | `git fetch -q origin && git merge-base --is-ancestor origin/cloudflare HEAD && git push origin work/x:cloudflare 2>&1 \| tail -1` | work/x | pass | pass | （出力なし） |
+| HEAD:refs/heads/cloudflare | `git push origin HEAD:refs/heads/cloudflare` | work/x | pass | pass | （出力なし） |
+| work/* への push | `git push origin work/x` | work/x | pass | pass | （出力なし） |
+| work/* への push（-u） | `git push -u origin work/x` | work/x | pass | pass | （出力なし） |
+| 押し先を省いた push（work 上） | `git push` | work/x | pass | pass | （出力なし） |
+| work/* を消す（--delete） | `git push origin --delete work/old` | work/x | pass | pass | （出力なし） |
+| work/* を消す（:work/old） | `git push origin :work/old` | work/x | pass | pass | （出力なし） |
+| work/* への --force | `git push --force origin work/x` | work/x | pass | pass | （出力なし） |
+| work/* への -f（押し先省略、work 上） | `git push -f origin` | work/x | pass | pass | （出力なし） |
+| claude/* への push | `git push origin claude/foo` | work/x | pass | pass | （出力なし） |
+| cloudflare へ --force | `git push --force origin work/x:cloudflare` | work/x | deny | deny | cloudflare へ force push しない（本番の履歴を書き換える） |
+| cloudflare へ -f | `git push -f origin work/x:cloudflare` | work/x | deny | deny | cloudflare へ force push しない（本番の履歴を書き換える） |
+| cloudflare へ -fu（まとめ書き） | `git push -fu origin work/x:cloudflare` | work/x | deny | deny | cloudflare へ force push しない（本番の履歴を書き換える） |
+| cloudflare へ --force-with-lease | `git push --force-with-lease origin work/x:cloudflare` | work/x | deny | deny | cloudflare へ force push しない（本番の履歴を書き換える） |
+| cloudflare へ --force-with-lease=cloudflare:abc | `git push --force-with-lease=cloudflare:abc origin work/x:cloudflare` | work/x | deny | deny | cloudflare へ force push しない（本番の履歴を書き換える） |
+| cloudflare へ --force-if-includes | `git push --force-if-includes origin work/x:cloudflare` | work/x | deny | deny | cloudflare へ force push しない（本番の履歴を書き換える） |
+| cloudflare へ +refspec | `git push origin +work/x:cloudflare` | work/x | deny | deny | cloudflare へ force push しない（本番の履歴を書き換える） |
+| cloudflare へ +refspec（refs/heads 付き） | `git push origin +HEAD:refs/heads/cloudflare` | work/x | deny | deny | cloudflare へ force push しない（本番の履歴を書き換える） |
+| cloudflare 上で git push -f origin | `git push -f origin` | cloudflare | deny | deny | cloudflare へ force push しない（本番の履歴を書き換える） |
+| cloudflare 上で git push --force | `git push --force` | cloudflare | deny | deny | cloudflare へ force push しない（本番の履歴を書き換える） |
+| cloudflare を消す（--delete） | `git push origin --delete cloudflare` | work/x | deny | deny | cloudflare を消す push はしない |
+| cloudflare を消す（-d） | `git push -d origin cloudflare` | work/x | deny | deny | cloudflare を消す push はしない |
+| cloudflare を消す（:cloudflare） | `git push origin :cloudflare` | work/x | deny | deny | cloudflare を消す push はしない |
+| cloudflare を消す（:refs/heads/cloudflare） | `git push origin :refs/heads/cloudflare` | work/x | deny | deny | cloudflare を消す push はしない |
+| push --mirror | `git push --mirror origin` | work/x | deny | deny | push --mirror・--prune は使わない（リモートのブランチを消しうる） |
+| push --prune | `git push --prune origin refs/heads/*:refs/heads/*` | work/x | deny | deny | push --mirror・--prune は使わない（リモートのブランチを消しうる） |
+| 既存: reset --hard | `git reset --hard origin/cloudflare` | work/x | deny | deny | git reset --hard は使わない（CLAUDE.md 禁止事項） |
+| 既存: clean | `git -C /x clean -fd` | work/x | deny | deny | git clean は使わない（CLAUDE.md 禁止事項） |
+| 既存: stash | `git stash` | work/x | deny | deny | git stash は使わない（CLAUDE.md 禁止事項） |
+| 既存: branch -D | `git branch -D work/old` | work/x | deny | deny | git branch -D は使わない。削除前に branch-operations.md「ブランチを削除するとき」 |
+| 既存: branch --delete --force | `git branch --delete --force work/old` | work/x | deny | deny | git branch -D は使わない。削除前に branch-operations.md「ブランチを削除するとき」 |
+| 既存: checkout . | `git checkout .` | work/x | deny | deny | 作業ツリーをまとめて戻さない（branch-operations.md「未コミットの変更を戻すとき」） |
+| 既存: gh-pages への push | `git push origin gh-pages` | work/x | deny | deny | gh-pages に触らない（handover.md） |
+| 既存: gh-pages への push（refspec 付き） | `git push origin HEAD:refs/heads/gh-pages` | work/x | deny | deny | gh-pages に触らない（handover.md） |
+| 連結の中の deny（&& と force） | `git fetch origin && git push --force origin work/x:cloudflare` | work/x | deny | deny | cloudflare へ force push しない（本番の履歴を書き換える） |
+| 連結の中の deny（; と既存） | `git push origin work/x:cloudflare; git stash` | work/x | deny | deny | git stash は使わない（CLAUDE.md 禁止事項） |
+| 連結の中の deny（| と --delete） | `git status \| git push origin --delete cloudflare` | work/x | deny | deny | cloudflare を消す push はしない |
+| 通過の例: branch -d | `git branch -d work/old` | work/x | pass | pass | （出力なし） |
+| 通過の例: checkout -b | `git checkout -b work/y origin/cloudflare` | work/x | pass | pass | （出力なし） |
+
+- 直前の版（0704d6ee）で同じ試験を回すと、加わった deny の16件と、それを含む連結の2件（`&&` と force、`|` と `--delete`）の計18件が pass になり、ほかの21件は同じ結果だった。試験が今回の変更を捉えていることと、既存の deny 6種・通過の判定が変わっていないことの確認
+
+### 手順2: 文書（2492b9ce）
+
+- docs/notes/skills.md「git の hook（mj-git-guard）」:
+  - deny の表に3行を足した（cloudflare への force push・cloudflare を消す push・`push --mirror`／`--prune`。理由文は hook のとおり）
+  - 「それ以外は通す」の例を、cloudflare への通常の push と work/*・claude/* への push（force・削除を含む）にした
+  - 試験の表をこの指示の39件（まとめて12行）に置き換えた
+  - 「セッションは hook を書き換えられない」の項目を、「hook の変更は、セッションからは書き換えも cloudflare へのマージも分類器が拒否する。平野さんが手でコミットし、PR（Create a merge commit）でマージする。セッションは試験と文書まで」に直した
+- docs/notes/chat-side-operations.md「平野さんの判断とマージの許可」: 「マージ:」の行の項目の直後に1項目を足した。
+  内容は「`.claude/` の hook・settings を変える指示は平野さんの手作業を前提に組む（GitHub の画面で作業ブランチにコミットし、「Create a new branch」が選ばれているかを確かめてもらう。外れると cloudflare に直接入る。PR でマージ）。Code は試験と文書まで、「マージ:」は「判断待ちで止まる」」
+- 文書は Edit で直した。Bash のヒアドキュメントで渡すと、文書の中の git コマンドの文字列を hook がコマンドとして判定するため（HKG-05 で起きた）
+
+容量判定（`assets-check.yml` の「ガイド文書のサイズを確認」の run をそのまま実行。手元のスクリプトがワークフローと同じことも確かめた）:
+
+```
+CLAUDE.md: 26162 bytes (警告域 30720 / 上限 32768)
+docs/handover.md: 22430 bytes (警告域 26624 / 上限 28672)
+docs/notes/chat-side-operations.md: 18642 bytes (警告域 26624 / 上限 28672)
+exit=0
+```
+
+chat-side-operations.md は 18094 → 18642 bytes（+548）。警告なし。
+
+### 手順3: #176 への記録
+
+- コメント: https://github.com/retroeater/mj/issues/176#issuecomment-5905931877
+- 書式は #176 の「スコープ変更」節の「日付 / Chat-Ref / 該当コミット / 破られたルール / 実害の有無と内容 / どうやって気づいたか」に、経緯・試験・再発防止を足した
+
+### 手順4: マージ
+
+
 ## 報告
 
 - 状態: 対応中
@@ -70,11 +150,12 @@ hook は試験の前にもう効いているので、試験・文書・記録を
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj ce5031e6）: https://github.com/retroeater/mj-logs/tree/main/guide/ce5031e6
+ガイド文書（この版を写した時点の最新、mj 7253ae41）: https://github.com/retroeater/mj-logs/tree/main/guide/7253ae41
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce5031e6/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce5031e6/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce5031e6/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce5031e6/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce5031e6/docs/notes/cloudflare.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/7253ae41/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/7253ae41/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/7253ae41/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/7253ae41/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/7253ae41/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/7253ae41/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/ad723967.md

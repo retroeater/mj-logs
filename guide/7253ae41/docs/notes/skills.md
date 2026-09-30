@@ -64,40 +64,41 @@ skill を追加するときも同じ手順。追加すると description が毎�
 `.claude/settings.json` の `hooks.PreToolUse`（matcher `Bash`）が `.claude/hooks/mj-git-guard.py` を呼ぶ。
 Bash のコマンド文字列を `&&`・`||`・`;`・`|`・改行で区切り、`git` で始まる部分を判定する。
 
-| 判定 | 対象 |
+判定は deny（実行させない）だけで、確認（ask）は出さない（2026-09-30。マージの承認は指示文の「マージ:」の行で事前に行う、CLAUDE.md「ブランチ運用」）。
+
+| deny の対象 | 理由文 |
 |---|---|
-| deny（実行させない） | `reset --hard`・`clean`・`stash`・`branch -D`（`--delete --force` を含む）・`checkout .`・`gh-pages` への push |
-| ask（人に確認する） | cloudflare への push（`<作業ブランチ>:cloudflare`、cloudflare 上での押し先を省いた `git push` など。マージは正規の操作なので止めない）のうち allow に当たらないもの・`claude/*` への push（cloud-sessions.md「始め方」） |
-| allow（確認なしで通す） | cloudflare への push のうち、docs/logs のみの fast-forward（下の条件） |
-| 通過 | 上以外（`work/*` への push・ログ先行 push・`branch -d`・`checkout -b` など） |
+| `reset --hard` | git reset --hard は使わない（CLAUDE.md 禁止事項） |
+| `clean` | git clean は使わない（CLAUDE.md 禁止事項） |
+| `stash` | git stash は使わない（CLAUDE.md 禁止事項） |
+| `branch -D`（`--delete --force` を含む） | git branch -D は使わない。削除前に branch-operations.md「ブランチを削除するとき」 |
+| `checkout .` | 作業ツリーをまとめて戻さない（branch-operations.md「未コミットの変更を戻すとき」） |
+| `gh-pages` への push（refspec が無ければ現在ブランチ） | gh-pages に触らない（handover.md） |
+| cloudflare への force push（`--force`・`-f`〈`-fu` 等のまとめ書きを含む〉・`--force-with-lease`・`--force-if-includes`・`+refspec`。refspec が無ければ現在ブランチ） | cloudflare へ force push しない（本番の履歴を書き換える） |
+| cloudflare を消す push（`--delete`・`-d`・`:cloudflare`） | cloudflare を消す push はしない |
+| `push --mirror`・`push --prune` | push --mirror・--prune は使わない（リモートのブランチを消しうる） |
 
-allow の条件（`logs_only_push`。1つでも外れるか判定できなければ ask。allow はコマンド全体を通すため形を絞る）:
+それ以外（cloudflare への通常の push、`claude/*`・`work/*` への push〈force・削除を含む〉、`branch -d`、`checkout -b` など）は出力なしで通す。
 
-- コマンドは `git push`（1回）と `git fetch [-q] [--prune] [origin]`・`git merge-base`・`tail -N`/`head -N` だけ。`2>&1` 以外のリダイレクト・`$`・`cd`・`-C` などを含まない
-- push は `origin` 宛て、refspec は1つ（`<src>:cloudflare`・`<src>:refs/heads/cloudflare`、src は名前だけ）か省略（`@{push}` が origin/cloudflare）。force 系・`+`・削除は外れる
-- src が手元の origin/cloudflare から fast-forward。origin/cloudflare から src までの途中のどのコミットからの差分も、`docs/logs/` の追加・変更だけ（削除・リネーム・`docs/logs/_template.md` は外れる）。
-  hook は fetch しない。origin/cloudflare が古くても本物の cloudflare はその途中にあるので、巻き戻しは ask になる
-
-試験した入力と結果（2026-09-29）:
+試験した入力と結果（2026-09-30、39件）:
 
 | コマンド | 判定 |
 |---|---|
-| `git push -u origin work/SKL` | 通過 |
-| `git push origin work/SKL:cloudflare`（`.claude/` の変更を含む） | ask |
-| `git push origin HEAD:refs/heads/cloudflare` | ask |
-| `git push origin work/x:cloudflare`（docs/logs のみ・ff、2026-09-29） | allow |
-| 同（docs/handover.md・コード・`_template.md`・削除・リネームを含む／非 ff／`--force`） | ask |
-| `git push`（work/SKL 上） | 通過 |
-| `git push origin claude/foo` | ask |
-| `git push origin gh-pages` | deny |
-| `git fetch origin && git reset --hard origin/x` | deny |
-| `git -C /x clean -fd` | deny |
-| `git stash` | deny |
-| `git branch -D work/old` | deny |
-| `git branch -d work/old` | 通過 |
-| `git checkout -b work/x origin/cloudflare` | 通過 |
-| `git checkout .` | deny |
-| `git status; git log --oneline` | 通過 |
+| `git fetch -q origin && git merge-base --is-ancestor origin/cloudflare HEAD && git push origin work/x:cloudflare 2>&1 \| tail -1`・`git push origin HEAD:refs/heads/cloudflare` | 通過 |
+| `git push origin work/x`・`git push -u origin work/x`・`git push`（work 上） | 通過 |
+| `git push origin --delete work/old`・`git push origin :work/old` | 通過 |
+| `git push --force origin work/x`・`git push -f origin`（work 上） | 通過 |
+| `git push origin claude/foo` | 通過 |
+| `git push --force`・`-f`・`-fu`・`--force-with-lease`（`=...` 付きを含む）・`--force-if-includes` の `origin work/x:cloudflare`、`git push origin +work/x:cloudflare`・`+HEAD:refs/heads/cloudflare` | deny（force） |
+| `git push -f origin`・`git push --force`（cloudflare 上） | deny（force） |
+| `git push origin --delete cloudflare`・`git push -d origin cloudflare`・`git push origin :cloudflare`・`:refs/heads/cloudflare` | deny（削除） |
+| `git push --mirror origin`・`git push --prune origin ...` | deny（mirror・prune） |
+| `git reset --hard ...`・`git -C /x clean -fd`・`git stash`・`git branch -D`／`--delete --force`・`git checkout .`・`git push origin gh-pages`／`HEAD:refs/heads/gh-pages` | deny（既存6種、理由文は変わらない） |
+| `git fetch origin && git push --force origin work/x:cloudflare`・`git push origin work/x:cloudflare; git stash`・`git status \| git push origin --delete cloudflare` | deny（連結の中） |
+| `git branch -d work/old`・`git checkout -b work/y origin/cloudflare` | 通過 |
+
+- **hook の変更は、セッションからは書き換えも cloudflare へのマージも auto モードの分類器が `[Self-Modification]` として拒否する**（2026-09-30）。
+  平野さんが手でコミットし、PR（Create a merge commit）でマージする。セッションは試験と文書まで
 
 限界（文字列の解析であり、事故の防止であって強制ではない）:
 
@@ -121,8 +122,6 @@ allow の条件（`logs_only_push`。1つでも外れるか判定できなけれ
   hook は `git stash list` を deny した（ワークスペース未信頼の状態。`permissions.allow` は無視されたが hook は効いた）
 - **実機で確認済み（2026-09-29、平野さんのスマホの Code タブ、環境 Claude-iPhone）:** 新しいクラウドセッションで `/grill-me` を打つと起動し、
   内部で `grilling` が実行された。skill はリポジトリ内の複写なので、再導入なしに効く
-- **hook の ask も実機で確認済み（同日、同環境）:** SKL-02 のマージの push（cloudflare 宛）で、ask が平野さんの画面に承認の問い合わせとして出て、
-  承認して通った。auto モードで素通りにはならない（セッション側には確認の表示が返らないので、こちらからは区別できなかった）
 - 同じセッションの途中で `.claude/skills/` や `.claude/settings.json` を変えると、次の手番から反映された（skill 一覧・hook とも）
 - `.claude/` は `.assetsignore` にあり配信されない。`.claude/` の変更を含む push では `assets-check.yml` が走る（`paths: '**'`）
 
