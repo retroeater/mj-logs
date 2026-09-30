@@ -109,7 +109,7 @@ OLT-01 の時点の `work/0930-cal`（`_redirects`）はマージ済みで一覧
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち → 続き: CHAT-0930-OLT-03（平野さんが かしのなぎ 0→1 を新しい数え方で進めると決定、2026-09-30）
 - ブランチ: work/0930-olt-02
 - ログ: https://github.com/retroeater/mj/blob/work/0930-olt-02/docs/logs/CHAT-0930-OLT-02.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/0930-olt-02
@@ -126,11 +126,11 @@ OLT-01 の時点の `work/0930-cal`（`_redirects`）はマージ済みで一覧
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 20c50cec）: https://github.com/retroeater/mj-logs/tree/main/guide/20c50cec
+ガイド文書（この版を写した時点の最新、mj 71e77c16）: https://github.com/retroeater/mj-logs/tree/main/guide/71e77c16
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/20c50cec/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/20c50cec/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/20c50cec/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/20c50cec/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/20c50cec/docs/notes/cloudflare.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/71e77c16/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/71e77c16/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/71e77c16/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/71e77c16/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/71e77c16/docs/notes/cloudflare.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/23c98011.md

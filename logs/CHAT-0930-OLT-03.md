@@ -49,6 +49,79 @@
 
 - Chat-Ref `CHAT-0930-OLT-03` のコミットは無し。`work/0930-olt-02` はローカル・リモートとも 9c6055dd（同じ）で、このセッションのクローンに既にチェックアウト済み
 - 「指示」欄の末尾は指示文の最後の行と一致。OLT-02 の `## 報告` は「状態: 判断待ち」
+- #441 に着手中コメント（issuecomment-5902953436）
+- `origin/cloudflare`（a7ffc243）は HEAD の祖先でなかったため `git merge origin/cloudflare` で取り込んだ（ZK-16・ZK-17 のログと Apps Script、#482。衝突なし）
+- OLT-02 のログの `## 報告` の状態を「判断待ち → 続き: CHAT-0930-OLT-03（…）」に直した
+
+### 0. 未マージのブランチ
+
+| ブランチ | 触れているファイル（この指示の対象に関係しそうなもの） | 重なり |
+|---|---|---|
+| `origin/work/0930-cal-450` | なし | なし |
+| `origin/work/0930-cal-full` | `scripts/tests/test_live_calendar.py`・`test_sheets_write.py`・`test_write_yotei_sheet.py`・`test_yotei.py` | なし（この指示はそれらを変えない） |
+
+### 1. title/ の `?name=`（コミット d73e62fb）
+
+`assets/title.js`: `q` が無ければ `name` を検索の初期値にする（`LEGACY_QUERY_PARAM = 'name'`）。`q` があれば `q` が優先。
+
+確かめ方: リポジトリを `python3 -m http.server` で配信し、Playwright（Chromium、ヘッドレス）で `/title/index.html` を開いて1.5秒後の状態を読んだ。
+
+| URL | 検索欄 | 結果 | 本来の内容 |
+|---|---|---|---|
+| `?name=瀧澤光太郎`（title/ にいる） | 瀧澤光太郎 | 1名（瀧澤光太郎、期の一覧が開いた状態、1期） | 隠れる |
+| `?name=鈴木大介`（title/ にいない） | 鈴木大介 | 0名、「該当する選手はいません」 | 隠れる |
+| `?q=梅本翔`（今までどおり） | 梅本翔 | 1名（開いた状態、1期） | 隠れる |
+| `?q=梅本翔&name=瀧澤光太郎` | 梅本翔（`q` 優先） | 1名 | 隠れる |
+| クエリなし | 空 | 出ない | 出る |
+
+修正前の `title.js`（origin/cloudflare の版をルートで差し替え）で `?name=瀧澤光太郎` を開くと、検索欄は空・結果は出ない（修正前は効かないことを確認）。
+`title.js` は `_headers` で長期キャッシュの対象外。
+
+### 2. 旧表の廃止（コミット b6dacbed）
+
+削除: `jpml_titles.html`・`scripts/generate_jpml_titles.py`。`_redirects` の `/saikyo_results.html  /saikyo/  301` の次に `/jpml_titles.html  /title/  301` を足した（手書きの区間。`# live: generated` の区間と `/title/<slug>` の区間には触れていない）。
+
+参照の片付け:
+
+| 対象 | 変更 |
+|---|---|
+| `regenerate.py` の対象 | `generate_*.py` から自動で決まるため、スクリプトの削除で外れた（`--list` から `jpml_titles` が消えた）。ファイル自体は変更なし |
+| `.github/workflows/` | `jpml_titles` の参照は元から無い。変更なし |
+| `generate_jpml_test.py`・`generate_title_pages.py` の import | OLT-02 で外し済み（fc0a9d03） |
+| `apply_page_meta.py` | `jpml_titles.html` の項目を消した |
+| `sitemap-pages.xml` | `jpml_titles.html` の `<url>` を消した（lastmod は触っていない） |
+| `llms.txt` | 「タイトル（表）」の行を消した |
+| `style.css`・`table.js` のコメント | `style.css` は例示から外した（2か所）。`table.js` は統合の経緯の記述なので「jpml_titles.js(旧表、#441 で廃止)」とした |
+| そのほかのスクリプトのコメント | `lib/page.py` の `og_url` の例を `jpml_test.html` に、`update_sitemap_lastmod.py` の例（3か所）を `jpml_pros.html` に、`generate_resource_logs.py`・`generate_video_live.py`・`generate_saikyo_mens.py` の「jpml_titles と同じく」を外した |
+| docs/notes/static-generation.md「ページの一覧」 | 26ページ → 25ページ、型A・2列/3列 8 → 7、旧表は `/title/` へ 301 と注記。「生成スクリプトの構成」の「型A/A'の10ページ」→ 9 |
+| docs/notes/title-pages.md | 公開（#413）の項の「旧表はページとして残す」「旧表の廃止は流入などを確かめてから」を、廃止と 301・`?name=`・「決勝進出」の数え方に置き換えた |
+| docs/handover.md | #441 の行を「旧表は廃止し `/title/` へ 301。残り: 旧『タイトル』シートと『プロ』V列の扱い」に置き換えた（マージ後の状態で書いた） |
+
+`git grep jpml_titles` の残り（docs/logs・docs/gsc を除く）と残す理由:
+
+| 場所 | 理由 |
+|---|---|
+| `CLAUDE.md`「構成」の「ページ本体（例: `jpml_titles.html`）とロジック（同名の `.js`）は分ける」 | 規約の例示。指示の片付けの対象に無く、CLAUDE.md の変更は別の判断のため残した（**判断が必要なこと**に書く） |
+| `assets/title.js` のコメント | 今回足した、`?name=` を読む理由 |
+| `scripts/generate_jpml_test.py` の docstring | `load_photos()` の移動元の記録 |
+| `scripts/tests/test_jpml_pros.py` | リンクに `jpml_titles` が残らないことの検査 |
+| `scripts/lib/page.py` の docstring 冒頭 | 共通化の経緯（4本から集約した）の記述 |
+| `table.js` のコメント | 同上（廃止を注記） |
+| docs/notes/static-generation.md の #7 の完了記録（3か所） | 完了済み作業の記録 |
+| docs/astro-migration-study.md・docs/new-site-design.md・docs/lighthouse-baseline.md・docs/notes/{handover-archive-2026,decisions-2026-09-13-review,saikyo-page-design,site-findings,cloud-sessions,cloudflare}.md・docs/review-followup-instructions.md | 当時の調査・記録・実測（cloudflare.md は prefetch の確認コマンドの例） |
+| docs/handover.md の #222 の行の「#441 旧表の廃止」 | #441 がまだ open のため |
+
+### 3. 検証
+
+- `python3 scripts/regenerate.py all`: rc=0。**生成物の差分は0**（`jpml_pros.html`・`jpml_test.html`・`title/` を含め、コミット済みの版と同じ）。シートの変化による差分も無し
+  - `jpml_pros.html`: `./title/?q=` のリンク 296 件（OLT-02 と同じ）、`jpml_titles` 0 件、かしのなぎ 1回
+  - 旧表が無くなったので `regenerate.py all` は `jpml_titles` を作らない
+- テスト: 433件 OK（`python3 -m unittest discover -s scripts/tests`）
+- 配信上限（`check_asset_limits`）: 配信ファイル 1,642（旧表の分 1 減）、`_redirects` 静的 36（1 増）、ほか OK
+- ガイド文書のサイズ: CLAUDE.md 26,745 バイト（警告域 30KB 未満）、handover.md 22,314（26KB 未満）、chat-side-operations.md 17,373
+- `python3 -m py_compile scripts/*.py scripts/lib/*.py` OK、`generate_jpml_titles` を import する箇所は無い
+
+注意（マージ後）: `scripts/lib/page.py`（コメントのみ）を変えたため、cloudflare への push で `regenerate-page.yml` の `--changed` が全ページを作り直す。出力は上のとおり変わらない見込み。
 
 ## 報告
 
