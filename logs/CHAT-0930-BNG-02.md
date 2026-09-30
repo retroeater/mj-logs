@@ -52,28 +52,36 @@ BNG-01 の洗い出しで、Crawler Hints を On にした記録が #126 のコ�
 
 - 着手前確認: 同じ Chat-Ref のコミット無し。BNG-01 のログの `## 報告` の状態は「判断待ち」。ローカルの work/0930-bng は origin/work/0930-bng（3de2dec1）と一致。`origin/cloudflare`（64c349ab）が祖先でなかったため `git merge origin/cloudflare` で取り込んだ（衝突なし）。
 - 指示欄の末尾は指示文の最後の行と一致。
+- 手順1: `docs/notes/cloudflare.md`「Speed 設定の現状」の節の末尾（Smart Hints の記述の直後、「Synthetic monitoring」の節の前）に Crawler Hints: On（2026-09-28、申告）・#126・#156 待ちを2行で追加。同趣旨の既存記述は無かった（`Crawler Hints` の語はこの文書に無し）。ボット系の節は「AIクローラーの扱い」「Rate limiting rules」で、キャッシュ・IndexNow の話題は Speed 設定側が近いため、そちらにした。
+- 手順2: `docs/handover.md`「次にやること」の #126 の行を、依存（#156）・未実施の完了条件・10/12 までサイトマップ再送信と URL 手動送信をしない、に書き換え（置き換え。追記型にしていない）。handover.md は 22,851 バイト（警告 26KB 未満）。
+- 手順3: #126 にコメント（https://github.com/retroeater/mj/issues/126#issuecomment-5904166851 ）。見出し「## 2026-09-30 の整理（CHAT-0930-BNG-02）」。要約: (a) 9/12 の完了条件2件（Bing と GSC の22URLの突き合わせ・`?name=` 付き URL の登録）は未実施で 10/12 にまとめて見る、(b) 10/12 まで Crawler Hints の効果を切り分けるため Bing Webmaster Tools でのサイトマップ再送信・URL 手動送信はしない（平野さんの決定）、(c) 10/12 に見る項目: `/title/` の URL 検査〈未登録なら案 c〉・サイトマップの検出数〈9/12 は 25、現在は4本〉・`?name=` 付き URL の登録・Crawler Hints が On のまま・突き合わせ、(d) 現状の記録は平野さんの画面確認の後に別途コメント。
+- BNG-01 のログの `## 報告` の2組目（空のテンプレート項目）を削除。1組目は変更なし。
+- 検査: `python3 scripts/check_asset_limits.py` は全項目 OK。`python3 -m unittest discover -s scripts/tests` は 446 件 OK。`git diff --stat origin/cloudflare` の docs/ 以外の変更は無し。
+- 気づいたこと: 取り込んだ `origin/cloudflare` には `jpml_titles.html` の削除（#441）が含まれる（BNG-01 の時点では未マージだった）。#126 の 10/12 の確認事項には影響しないが、Bing に旧 URL が登録されていれば 301 の影響を受ける（Bing 側の状況は未確認）。
 
 ## 報告
 
-- 状態: 中断（着手直後）
+- 状態: 完了（マージの結果は下）
 - ブランチ: work/0930-bng
 - ログ: https://github.com/retroeater/mj/blob/work/0930-bng/docs/logs/CHAT-0930-BNG-02.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/0930-bng
-- 確認用URL: なし
-- マージ: 未
-- issue: #126
-- 判断が必要なこと: なし
-- 未確認の項目: 手順1〜3すべて
+- 確認用URL: なし（docs のみ）
+- マージ: 済（abf2a3e6 を cloudflare へ fast-forward。docs/ のみの変更で Workers Builds は走らない見込み〈#171〉）
+- issue: #126（コメント1件: https://github.com/retroeater/mj/issues/126#issuecomment-5904166851 ）
+- 判断が必要なこと: なし。10/12 ごろの確認と、平野さんの画面確認の結果を #126 に書く別の指示が次
+- 未確認の項目:
+  - Crawler Hints が On であること・Bing Webmaster Tools の現状は平野さんの申告で、この環境からは確認できない
+  - マージ後の check-run（docs のみのため出ない見込み）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 83cc10c8）: https://github.com/retroeater/mj-logs/tree/main/guide/83cc10c8
+ガイド文書（この版を写した時点の最新、mj e8e763b3）: https://github.com/retroeater/mj-logs/tree/main/guide/e8e763b3
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/83cc10c8/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/83cc10c8/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/83cc10c8/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/83cc10c8/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/83cc10c8/docs/notes/cloudflare.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e8e763b3/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e8e763b3/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e8e763b3/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e8e763b3/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e8e763b3/docs/notes/cloudflare.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/ad723967.md

@@ -201,24 +201,15 @@ Bing 関連の課題をまとめて片付けるため、まず #126 の中身と
   - GitHub の検索 API は0件を返して使えなかったため、手元でのキーワード検索（482 issue・1487 コメント）に切り替えた。取得は 2026-09-30 時点。それ以降のコメントは含まない
   - `msn` に一致する issue は無い（存在しないことの確認まで）
 - エラー: `search_issues` がキーワード検索で0件を返し（`Bing` でも）、`Copilot`・`MSN` は HTTP 403（レート制限）。上のとおり REST の一覧で代替した
-- ブランチ: work/0930-bng
-- ログ: https://github.com/retroeater/mj/blob/work/0930-bng/docs/logs/CHAT-0930-BNG-01.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/0930-bng
-- 確認用URL: なし
-- マージ: 未（平野さんの判断待ち）
-- issue: なし
-- 判断が必要なこと: なし
-- 未確認の項目: 手順1〜3すべて
-- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 0057ebeb）: https://github.com/retroeater/mj-logs/tree/main/guide/0057ebeb
+ガイド文書（この版を写した時点の最新、mj e8e763b3）: https://github.com/retroeater/mj-logs/tree/main/guide/e8e763b3
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/0057ebeb/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/0057ebeb/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/0057ebeb/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/0057ebeb/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/0057ebeb/docs/notes/cloudflare.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e8e763b3/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e8e763b3/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e8e763b3/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e8e763b3/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e8e763b3/docs/notes/cloudflare.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/ad723967.md
