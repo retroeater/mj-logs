@@ -132,7 +132,7 @@
 
 ## 報告
 
-- 状態: 判断待ち（実装の指示を待つ）
+- 状態: 判断待ち → 続き: CHAT-0930-CAL-05
 - ブランチ: work/0930-cal
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-0930-CAL-03.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/0930-cal
@@ -162,11 +162,11 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 68837a87）: https://github.com/retroeater/mj-logs/tree/main/guide/68837a87
+ガイド文書（この版を写した時点の最新、mj 73cc1506）: https://github.com/retroeater/mj-logs/tree/main/guide/73cc1506
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/68837a87/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/68837a87/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/68837a87/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/68837a87/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/68837a87/docs/notes/cloudflare.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/73cc1506/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/73cc1506/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/73cc1506/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/73cc1506/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/73cc1506/docs/notes/cloudflare.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/fbb55c8c.md
