@@ -60,18 +60,50 @@ grill などで決まったことは、今は各ログと issue のコメント�
   - ほかの未マージのブランチ（work/0930-bng・cal-450・cal-full・olt-02）は、`sync_guides.py`・`sync-logs.yml`・テスト・CLAUDE.md・chat-side-operations.md・docs/decisions を触らない
 - **ここで止まり、平野さんに確認する**（実装には未着手）
 
+- 平野さんの回答（重なりの扱い）: **2（CLAUDE.md・chat-side-operations.md には触らず、docs/decisions と写しの仕組みだけ先に作る。2文書への追記は HKG-04 のマージ後に別の指示で）**
+
+### 手順2: 実装（26ac378c）
+
+- `docs/decisions/README.md`: 分野の一覧（今は1分野）・書き方（`## YYYY-MM-DD（Chat-Ref）` の見出し、1項目1行、grill は「（grill Qn）」、置き換えは前の決定を消さずに「→ 置き換え: …」、実装がまだのものは「未マージ」）・書く時機（Code が指示の完了時に足す）・公開の基準（mj-logs は public）
+- `docs/decisions/broadcast-calendar.md`: 2026-09-30 の CAL-01・03・05・06・07・08・10・12 の決定を日付順（Chat-Ref 順）に写した。CAL-02（取り下げ）・CAL-04（指示文に決定の節は導線の1件で CAL-03 と同じ）・CAL-09・CAL-11（どちらもコミットが無く、存在しない）は項目なし。CHAT-0929-ZK 系は含めない
+  - 置き換えの印: CAL-03 の `READ_UNTIL` を延ばす → CAL-08（全期間で不要）、CAL-03 の決定3（機械は【3】に追記だけ）→ CAL-08 で一部置き換え、CAL-03 の決定7（消えた行は残す）→ CAL-08
+  - 指示文が例に挙げた「過去の行に掲載を付けたい → 取り下げ」は、元になる決定がログにも issue にも見つからなかったので書いていない（CAL-12 の決定「過去の行には掲載 Y/N を付けない」だけを書いた）
+  - CAL-12 の grill Q1〜Q11 は平野さんが1問ずつ答えたもの。CAL-12 はまとめの確認と #450・#453 へのコメントがまだ（ログの状態は作業中）
+- `scripts/sync_guides.py`: `ALLOWED_PATTERNS` に `^docs/decisions/[^/]+\.md$`、`LINKED_DOCS`（ログの末尾のリンク）に `docs/decisions/README.md` を足した
+- `.github/workflows/sync-logs.yml`: push の対象パスに `docs/decisions/**` を足した（docs/decisions だけを変えた cloudflare の push でも写す）
+- `scripts/tests/test_sync_guides.py`: docs/decisions の2ファイルが写る・下のフォルダや .md 以外は写らないことを足した。`python3 -m unittest discover -s scripts/tests`: OK
+- `docs/notes/cloud-sessions.md`: 写すガイド文書とログの末尾のリンクの一覧に docs/decisions を足した
+- **CLAUDE.md と docs/notes/chat-side-operations.md には触れていない**（平野さんの回答 2）
+- `docs/` は `.assetsignore` で配信しない（docs/decisions も配信されない）。`scripts/check_asset_limits.py` は OK。CLAUDE.md・handover.md・chat-side-operations.md の大きさは変えていない
+- 既存の `docs/notes/decisions-2026-09-13-review.md`（2026-09-13〜14 のレビューの統合時の判断、2.7KB）がある。今回の docs/decisions とは別に置いたまま
+
+### 手順3: 確かめ
+
+- 写しは cloudflare の push でしか動かない（`sync-logs.yml` は push だけで `workflow_dispatch` が無く、guide の写しは `REF_NAME = cloudflare` のときだけ）。作業ブランチでは試せない
+- 手元で写される一覧を組み立てた（`python3 scripts/sync_guides.py --dest <任意> copy --after HEAD --list`）: 32件で、**`docs/decisions/README.md`・`docs/decisions/broadcast-calendar.md` が含まれる**
+- ログの末尾に付くリンク（`footer()`）を組み立てた: 「- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/<SHA>/docs/decisions/README.md」の行が、cloudflare.md の次に入る。README から broadcast-calendar.md へは相対リンクで辿れる
+
 ## 報告
 
-- 状態: 判断待ち（手順1で止まった。未マージの work/0930-hkg-04 と CLAUDE.md・chat-side-operations.md が重なる）
+- 状態: 判断待ち（マージは平野さんの判断）
 - ブランチ: work/0930-cal-dec
 - ログ: https://github.com/retroeater/mj/blob/work/0930-cal-dec/docs/logs/CHAT-0930-CAL-13.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/0930-cal-dec
-- 確認用URL: なし
-- マージ: 未
+- 確認用URL: なし（docs と scripts・ワークフローだけ。サイトの表示は変えていない）
+- マージ: 未（未承認）
 - issue: なし
 - 判断が必要なこと:
-  - work/0930-hkg-04（HKG-04・HKG-05、判断待ち）との重なりをどうするか: (1) HKG-04 のマージを待ってから進める / (2) CLAUDE.md・chat-side-operations.md には触らず、docs/decisions の2ファイルと写しの仕組み（sync_guides.py・sync-logs.yml・テスト）だけ先に作り、2文書への追記は HKG-04 のマージ後に別の指示で行う / (3) 重なりを承知で進める
-- 未確認の項目: なし
+  - 置き場所・書き方・書く時機の案（`docs/decisions/README.md` のとおり）でよいか:
+    - 置き場所: `docs/decisions/<分野>.md`＋一覧の `README.md`。mj-logs の `guide/<SHA>/docs/decisions/` に写り、ログの末尾のリンク「docs/decisions/README.md」から読める
+    - 書き方: 日付と Chat-Ref の見出しで古い順、1項目1行、grill は「（grill Qn）」、置き換えは前を消さずに印、未実装は「未マージ」
+    - 書く時機: Code が指示の完了時（最後の push）に、その指示の決定と作業中の回答を足す
+  - **ワークフロー（`sync-logs.yml`）を変えたが、マージ前に作業ブランチで手動実行できない**（`workflow_dispatch` が無く、写しは cloudflare の push でだけ動く）。CLAUDE.md「ブランチ運用」により判断を仰ぐ。マージした後の最初の cloudflare の push（このマージそのもの）で、mj-logs の新しい `guide/<SHA>/` に docs/decisions が入り、ログの末尾にリンクが付くことを確かめる案
+  - CLAUDE.md（Code が完了時に決定を書き足す）と chat-side-operations.md（チャット側はログの末尾のリンクから決定を読む）への追記は、work/0930-hkg-04 のマージ後に別の指示で行う（平野さんの回答 2）。それまでは「書く時機」は README の中にだけある
+  - ほかの分野へ広げるか（/live・title/・運用〈ブランチ・ログ・Chat-Ref〉など）。広げるなら、既存の `docs/notes/decisions-2026-09-13-review.md` を docs/decisions に移すかも決める
+  - 分野の単位（今は「放送対局カレンダー・予定表」で1ファイル。#448 系が増えたら #450 などで分けるか）
+  - CAL-12（#450・#453）の grill のまとめの確認と、#450・#453 へのコメントがまだ（CAL-12 は判断待ち）
+- 未確認の項目:
+  - mj-logs への実際の写しと、ログの末尾のリンク（マージ後の cloudflare の push で確かめる）
 - エラー: なし
 
 <!-- guide-links -->
@@ -84,4 +116,5 @@ grill などで決まったことは、今は各ログと issue のコメント�
 - docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/0057ebeb/docs/instruction-template.md
 - docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/0057ebeb/docs/notes/chat-side-operations.md
 - docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/0057ebeb/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/0057ebeb/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/ad723967.md
