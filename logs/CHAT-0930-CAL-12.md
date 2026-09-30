@@ -40,38 +40,49 @@
 
 完了条件
 
-* ログの「## 報告」を CLAUDE.md「作業ログ」節のとおりに書いて push する。決まったことを「決定」として一覧にし、未決で残ったものは「判断が必要なこと」に書く。
-* 変更はこのログ（docs/logs のみ）なので、完了報告のうえ cloudflare へ入れてよい。
-* ターミナルへの最終報告の Chat-Ref の行の直前に ログ（公開）: https://github.com/retroeater/mj-logs/blob/main/logs/CHAT-0930-CAL-12.md を書き、最後の行に Chat-Ref: CHAT-0930-CAL-12 を書く
+* ログの「### 手順3: 記録
 
-不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
-
-## 経過
-
-- 識別子: `git log --all --grep=CHAT-0930-CAL-12` は0件。`work/0930-cal-450` はローカル・リモートとも無いので `git checkout -b work/0930-cal-450 origin/cloudflare`（71e77c16）
-- 手順0: 指示欄の末尾は指示文の最後の行と一致
+- 平野さん「まとめのとおりでよい。#450・#453 にコメントして完了して」を受けて記録した
+  - このブランチへの切り替えは、自動モードの権限判定で一度止められた。平野さんが許可して再開した
+- #450: https://github.com/retroeater/mj/issues/450#issuecomment-5904859474
+- #453: https://github.com/retroeater/mj/issues/453#issuecomment-5904860248
+- 起票はしていない。どの決定も #450 の実装の指示で扱える
 
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了（判断待ち: #450 の実装の指示を待つ）
 - ブランチ: work/0930-cal-450
 - ログ: https://github.com/retroeater/mj/blob/work/0930-cal-450/docs/logs/CHAT-0930-CAL-12.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/0930-cal-450
 - 確認用URL: なし
-- マージ: 未
-- issue: #450・#453
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- マージ: 済（docs/logs のみ。下のコミットを cloudflare へ）
+- issue: #450・#453（コメントした。どちらも open のまま）
+- 決定:
+  - 情報源: 過去の予定と枠ができた後の予定は YouTube から作る。予定表から作るのは枠の無い未来の予定だけ。範囲は 2015-08-03 から
+  - 完全版の枠はすべて規則で載せ、除外（N）だけを手で持つ
+    - 置き場所: /live の3層のスプレッドシートの「カレンダーの除外」タブ（動画ID・参考:題名・理由）
+  - 最初の除外は4件（テスト放送2・1分未満の断片2）
+  - 同じ日・同じ題名・同じ種類の版が2本以上なら、それぞれ別の予定にする
+  - 予定表由来と枠由来の同一視は今の条件のまま（`EVENTS` に大会名を足す）。予定表由来の予定は翌日に自動で消す
+  - 過去の予定の終了時刻:
+    - 層1を取り直して `actualEndTime` を埋める（ライブ 4,091本を1回だけ追記）
+    - 返らない枠は開始＋長さで代える
+  - 件名・説明欄は今と同じ形にする。非公開・削除になったら過去分も消す
+  - 初回の作成は1回で全部。上限に当たったら翌朝に続きから作り、何件目で当たったか・時刻・エラーを記録する
+- 判断が必要なこと:
+  - #450 の実装の指示（層1の取り直しの手段、`live_calendar.plan()` の範囲の変更、除外タブの読み込み）
+  - 除外タブは平野さんが作る
+- 未確認の項目: Calendar API の上限の公式の値（公式の資料がセッションのプロキシで読めない）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 71e77c16）: https://github.com/retroeater/mj-logs/tree/main/guide/71e77c16
+ガイド文書（この版を写した時点の最新、mj e8e763b3）: https://github.com/retroeater/mj-logs/tree/main/guide/e8e763b3
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/71e77c16/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/71e77c16/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/71e77c16/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/71e77c16/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/71e77c16/docs/notes/cloudflare.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/23c98011.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e8e763b3/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e8e763b3/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e8e763b3/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e8e763b3/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e8e763b3/docs/notes/cloudflare.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/ad723967.md
