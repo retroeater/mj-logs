@@ -70,17 +70,39 @@
 
 (a) ○・読み込み3つ ○・(c) 0 ○・(d) 0 ○・記録のタブ ○・(b) 見込みと同じ ○・旧コードの追記 0 ○ → すべて満たした。テスト 427件 OK（cloudflare を取り込んだ後）
 
+### 手順3: マージと手動実行
+
+- push の直前に再 fetch し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真であることを確かめて `git push origin work/0930-cal-479:cloudflare`: **220d0860..d9e54148**（fast-forward、衝突なし）。
+  入ったのは同期のコード・テスト・ワークフロー・Apps Script・`docs/notes/yotei-sheet.md`・ログ。未マージの `work/0930-cal`（CAL-04）とは `docs/notes/yotei-sheet.md` が重なる（別の箇所）
+- cloudflare で `update-live-channel.yml` を apply・yotei_apply・calendar_apply をすべて外して起動: run 36651217625（head d9e54148）→ **success**（update success・yotei success・regenerate skipped）
+  - 予定表の取り込み: 【3】312行 → 足す行 **0**。知らせる変化: 掲載 Y の予定が消えた 0件 / 日付・件名が変わった 0件 / 足す行 0件（「--dry-run のため書き込みません」）
+  - 知らせの段: 「【3】に関わる変化が無いため知らせません」（#481 へのコメント無し）
+  - カレンダー（書き込みなし）: 今の予定 138件 → 載せる 151件（枠 27・予定表 124）、**作る 8・直す 1・消す 0**・そのまま 137
+    - 作る8件は予定表の仮の予定で、09-30 に追記され掲載 Y が付いた8行: 12-03・12-04・12-18・12-24 の第8期JPML WRC-R（ベスト16AB卓・ベスト16CD卓・ベスト8AB卓・決勝）と、2027-03-12・03-13・03-19・03-29 の第1期JPMLリーグ(仮)（ベスト16AB卓・ベスト16CD卓・ベスト8AB卓・決勝）
+    - 直す1件: `video:9oVz1C776xY` 2026麻雀日本シリーズ 第8節（10-10）の説明欄（【解説】が増えた。層1・/live の【3】による）
+    - 今の予定が 138件なのは、今朝の同期（run 43）で WRC-R の改名前の4件を消した後の数（142 − 4）
+- #479 に結果をコメントした（#479 は開けたまま）
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/0930-cal-479
-- ログ: https://github.com/retroeater/mj/blob/work/0930-cal-479/docs/logs/CHAT-0930-CAL-07.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/0930-cal-479
-- 確認用URL: なし
-- マージ: 未
-- issue: #479
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 状態: 完了（次の毎朝の実行の確認待ち）
+- ブランチ: work/0930-cal-479（cloudflare へマージ済み）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-0930-CAL-07.md
+- 比較URL: https://github.com/retroeater/mj/compare/220d0860...d9e54148
+- 確認用URL: なし（サイトの表示・生成物は変えていない）
+- マージ: 済（d9e54148、fast-forward。マージの条件をすべて満たした）
+- issue: #479（結果をコメント、開けたまま）、#481（常設。コメントは無し）
+- 判断が必要なこと:
+  - 次の毎朝の実行（schedule、02:43 JST の予定。最近は 06:30〜07:40 JST に動く）で確かめること:
+    - ジョブ yotei が success。【3】に足す行（予定表が変わっていなければ 0。足したら #481 にコメントが付く）
+    - #481 の知らせ: 変化が無ければコメントは無い。あれば「消えた」「日付・件名が変わった」「足した行」の一覧
+    - カレンダー: **作る 8**（WRC-R 4件・第1期JPMLリーグ(仮) 4件）・直す 1前後（日本シリーズ第8節の説明欄と、放送翌朝の実際の時刻の直し）・**消す 0**
+  - 確かめたら #479 をクローズしてよいか
+  - 第1期JPMLリーグ(仮) は `yotei.EVENTS` に大会の語が無く大会なし扱い（開始の仮置きは全体の中央値 14:00）。YouTube の枠が出ても「同じ日・同じ大会」での置き換えが効かない（【2】の「完全版の動画ID」の結び付けも大会が要る）。大会名が決まったら EVENTS に足すか
+- 未確認の項目:
+  - シートは Sheets API ではなく gviz の生の値で読んだ（鍵が無いため）。手動実行では Sheets API での読み込み（`write_yotei_sheet.py`）が通ったので、同じ読み方で問題は無い
+  - 変化の知らせを実際に #481 にコメントする道と、カレンダーへの書き込み（apply）は、次の毎朝の実行まで実行で確かめていない
+  - 未マージの `work/0930-cal`（CAL-04）を後からマージしたとき `docs/notes/yotei-sheet.md` が衝突しないか
 - エラー: なし
 
 <!-- guide-links -->
