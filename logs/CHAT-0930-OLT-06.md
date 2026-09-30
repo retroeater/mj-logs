@@ -54,6 +54,63 @@ YouTube の概要欄で「vs」の「v」や「s」が抜けた誤記（例: 逢
 - Chat-Ref `CHAT-0930-OLT-06` のコミットは無し。`work/0930-olt-06` はローカル・リモートとも無し → `git checkout -b work/0930-olt-06 origin/cloudflare`
 - 「指示」欄の末尾は指示文の最後の行と一致。OLT-04 の `## 報告` は「状態: 完了」
 - 未マージのブランチ（`work/0930-bng`・`work/0930-cal-450`・`work/0930-cal-dec`・`work/0930-cal-full`）はどれも `live_extract.py` とそのテストに触れていない
+- #446 に着手中コメント（issuecomment-5904078173）
+
+### 1. 規則とテスト・模擬（コミット 71a5166d）
+
+規則（`scripts/lib/live_extract.py`）:
+
+```python
+KANA_KANJI = r"[぀-ヿ一-鿿々]"
+SPLIT_VS = re.compile(rf"\s*(?:vs|ｖｓ|VS|ＶＳ)\s*|(?<={KANA_KANJI})[svSV](?={KANA_KANJI})")
+```
+
+- 全角の ｖ・ｓ: vs 行は NFKC で正規化してから区切るため、全角は半角になって同じ規則に当たる。別に書く必要は無い
+- 大文字 S・V: 【1】の全14,102本の概要欄（全行）で、漢字・かなに挟まれた大文字の S・V は0件（小文字は v 4件・s 2件で、すべて vs 行の上の6本）。
+  入れても今のデータに影響は無く、既存の区切りが「VS」も受けるのに合わせて入れた
+- `docs/notes/live-channel-write.md` の層2の規則の説明に1行足した
+
+テスト（`scripts/tests/test_live_extract.py`）:
+
+- 6本の4パターンが2人に分かれる（`test_vs_with_a_missing_letter_splits_between_kana_kanji`）
+- 分けない例: `HIRO柴田`（英字が名前の端）、`Daina Chiba`（英字どうし）、`藤崎智s`（後ろが漢字・かなでない）（`test_letters_not_between_kana_kanji_are_kept`）
+- 修正前のコード（HEAD を別の場所に展開して同じテストを実行）では、分かれるテストの4パターンが FAIL。修正後は全446件 OK
+
+【2】の模擬（層1の `data/live_channel_raw.jsonl` から、直す前と後のコードで【2】の表を全件作って比べた。「別名」などの名前の辞書はシートから読んだ）:
+
+- 直す前の表と今のシートの【2】は、最終確認日を除いて全14,102行で一致（模擬の前提の確認）
+- **変わる動画は3本、変わる列は対局者・確認・理由だけ**
+
+| 動画ID | 対局者（前 → 後） | 確認・理由 |
+|---|---|---|
+| `ff8_G1P7dm0` | …宮内こずえ、逢川恵夢s二階堂瑠美、二階堂亜樹、佐月麻理子 → …宮内こずえ、**逢川恵夢、二階堂瑠美**、二階堂亜樹、佐月麻理子 | Y・未登録の名前 → 空・空 |
+| `6Sem9jKnkVU` | 覚野陽生v猿渡輝也、高橋尚也、ケネス徳田 → **覚野陽生、猿渡輝也**、高橋尚也、ケネス徳田 | 同上 |
+| `SGlbTPLSs7Q` | 同上 | 同上 |
+
+- 残りの3本（`WeTjFR4EBtg`・`FBThlykRgWA`・`qjNFjwKtMQU`）は放送対局候補でなく（タイトル戦が空）、【2】の対局者は直す前も後も空欄。
+  抜き出しの関数（`extract_players_and_staff`）に概要欄を渡すと、3本とも2人に分かれる（天野ヨシアキ、葉山唯一、麻生知花、木本大介 / 佐々木寿人、阿久津翔太、柴田吉和、渡邉浩史郎）
+- 6本以外の動画は変わらない
+
+**【3】の対局者の補正との比較（前提と違う）:**
+
+| 動画ID | 【3】の行（読んだ時点） | 【3】の対局者の補正（今） | 新しい【2】の対局者 |
+|---|---|---|---|
+| `6Sem9jKnkVU` | 3188（掲載 Y、卓「A、B」、まとめ単位「ベスト16A、ベスト16B」） | 覚野陽生、猿渡輝也、高橋尚也、ケネス徳田、三浦智博、勝又健志、早川健太、本田朋広（8名） | 覚野陽生、猿渡輝也、高橋尚也、ケネス徳田（4名） |
+| `SGlbTPLSs7Q` | 1950（掲載 N、卓「A、B」） | 覚野陽生v猿渡輝也、高橋尚也、ケネス徳田、三浦智博、勝又健志、早川健太、本田朋広（7名、誤記入り） | 同上（4名） |
+
+**2本とも同じにならない。** この2本は A卓・B卓の2卓をまとめた動画で、【3】の補正は B卓の4名（三浦智博、勝又健志、早川健太、本田朋広）を足している。
+【2】は卓の見出しの付いた vs 行のうち最初の卓（A卓）だけを読むため、B卓の4名は【2】に出ない。
+補正を消すと B卓の4名が落ちるので、**消す依頼はしない**（手順3・報告を参照）。行番号は `fetch_records` が返した順（見出しの次を2行目）から数えた。
+
+/live・title/ の模擬（シートの【2】を読んだうえで上の3本の対局者・確認・理由だけを新しい値に差し替え、今の【3】と合わせて生成。シートには書かない）:
+
+- 差し替えずに同じ手順で生成すると、今の生成物と差分0（模擬の手順の確認）
+- 差し替えて生成しても **差分0**（/live・title/・`_redirects`・data/ とも）。公開しなかった【3】の行・警告も同じ
+  - 理由: `6Sem9jKnkVU` は【3】の対局者の補正が優先、`SGlbTPLSs7Q` は掲載 N、`ff8_G1P7dm0` は【3】の掲載が空欄で、どれも表示に【2】の対局者が出ない
+- 放送対局の公開カレンダー（`live_calendar.build_desired()`、書き込まない）: 直す前と後のコードで予定151件がすべて同じ
+- テスト 446件 OK、配信上限 OK、ガイド文書のサイズ（CLAUDE.md 26,162・handover.md 22,584・chat-side-operations.md 18,094）OK
+
+マージの条件（生成物の差分が6本の分かれ方とそれに伴う表示だけ）: 差分0で満たす。
 
 ## 報告
 
@@ -71,11 +128,11 @@ YouTube の概要欄で「vs」の「v」や「s」が抜けた誤記（例: 逢
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj b9b7e174）: https://github.com/retroeater/mj-logs/tree/main/guide/b9b7e174
+ガイド文書（この版を写した時点の最新、mj 83cc10c8）: https://github.com/retroeater/mj-logs/tree/main/guide/83cc10c8
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b9b7e174/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b9b7e174/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b9b7e174/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b9b7e174/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b9b7e174/docs/notes/cloudflare.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/83cc10c8/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/83cc10c8/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/83cc10c8/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/83cc10c8/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/83cc10c8/docs/notes/cloudflare.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/ad723967.md
