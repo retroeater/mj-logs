@@ -40,17 +40,50 @@ HKG-05 で、hook の変更を含む cloudflare への push は、auto モード
 
 - 識別子: CHAT-0930-HKG-06 のコミットは無い。HKG は同じセッションの HKG-01〜05 だけで使用
 
+### 手順1: マージの確認
+
+- `git fetch` のあと、origin/work/0930-hkg-04 の先端 d2d43a76（HKG-05 の最後のコミット「docs: stop CHAT-0930-HKG-05 after merge push was denied」）は origin/cloudflare の祖先（`git merge-base --is-ancestor` が真）
+- マージのコミット: `780337ea9d16be6927a49dca0434ff966e4069c8`「Merge pull request #483 from retroeater/work/0930-hkg-04」
+  - 作者 retroeater、コミッタ GitHub、2026-09-30 13:03:06 +0900
+  - 親1: bc8ccfb6（当時の cloudflare、「docs: CHAT-0930-OLT-04 のマージの結果を書く」）、親2: d2d43a76（work/0930-hkg-04 の先端）
+- origin/cloudflare の `.claude/hooks/mj-git-guard.py` は平野さんのコミット 0704d6ee の版と差分なし（ask 無し・deny 6種。中身は HKG-05 の手順1で確認済み）
+- 着手時、origin/cloudflare の先端は 780337ea（マージの後のコミットは無い）
+
+### 手順2: マージの結果
+
+780337ea に対する結果（すべて success）:
+
+| 種類 | 名前 | 結果 | 完了（UTC） |
+|---|---|---|---|
+| Actions（push, cloudflare） | 公開対象を検査する（assets-check） | success（run 36667137829） | 2026-09-30T04:03 台 |
+| Actions（push, cloudflare） | 作業ログを mj-logs へ写す（sync-logs） | success（run 36667137972） | 2026-09-30T04:03 台 |
+| check-run | Workers Builds: mj | success | 2026-09-30T04:03:47Z |
+| check-run | sync | success | 2026-09-30T04:03:29Z |
+| check-run | check | success | 2026-09-30T04:03:22Z |
+
+- regenerate-page は走っていない。780337ea の後に cloudflare へ入ったコミットは無い（`git log 780337ea..origin/cloudflare` が空）
+
+### 手順3: 新しい hook の実機確認
+
+- このセッションの作業ツリーの hook は origin/cloudflare と同じ版（work/0930-hkg-06 は 780337ea から切った）
+- push 直前の差分（`git diff --name-status origin/cloudflare HEAD`）: `A docs/logs/CHAT-0930-HKG-06.md` だけ
+- 使うコマンドを hook に JSON（`{"tool_input":{"command":"git fetch -q origin && git merge-base --is-ancestor origin/cloudflare HEAD && git push origin work/0930-hkg-06:cloudflare 2>&1 | tail -1"},"cwd":"/home/user/mj"}`）で与えた判定: **出力なし**（確認なしで通る。期待どおり。13:04 JST）
+- この報告を書いたコミットの後にも同じ判定を取り直し、出力なしを確かめてから push する。push は 2026-09-30 13:05 JST ごろ（push の後にはこのログを変えない）
+
+
 ## 報告
 
-- 状態: 対応中
+- 状態: 完了
 - ブランチ: work/0930-hkg-06
-- ログ: https://github.com/retroeater/mj/blob/work/0930-hkg-06/docs/logs/CHAT-0930-HKG-06.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-0930-HKG-06.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/0930-hkg-06
-- 確認用URL: なし
-- マージ: 未
+- 確認用URL: なし（表示に影響しない）
+- マージ: 済（HKG-04・05 の成果物は PR #483 のマージ 780337ea。このログは docs/logs のみの push で入れる）
 - issue: なし
 - 判断が必要なこと: なし
-- 未確認の項目: なし
+- 未確認の項目:
+  - このログの cloudflare への push（13:05 JST ごろ）で確認ダイアログが出なかったか（平野さんが画面で確かめる。hook の判定は出力なし）
+  - このログの push の後の Actions の結果（push の後にはログを変えないため。docs/logs のみなので Workers Builds は走らない）
 - エラー: なし
 
 <!-- guide-links -->
