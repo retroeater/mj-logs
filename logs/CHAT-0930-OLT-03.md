@@ -123,18 +123,42 @@
 
 注意（マージ後）: `scripts/lib/page.py`（コメントのみ）を変えたため、cloudflare への push で `regenerate-page.yml` の `--changed` が全ページを作り直す。出力は上のとおり変わらない見込み。
 
+### 4. プレビュー（push 5f94ca3b）
+
+- check-run（5f94ca3b）: 「Workers Builds: mj」success、`check`（assets-check）success、`sync` success。ビルドは push から数分で完了（15分以内）
+- curl（リダイレクトは追わない。URL はターミナルの最終報告にだけ書く）:
+
+| パス | 応答 |
+|---|---|
+| `/jpml_titles.html` | 301 → `/title/` |
+| `/jpml_titles.html?name=瀧澤光太郎` | 301 → `/title/?name=瀧澤光太郎`（追うと最後は 200） |
+| `/title/?name=瀧澤光太郎` | 200 |
+| `/title/?q=かしのなぎ`（`jpml_pros.html` の「決勝 1回」のリンク先） | 200 |
+| `/jpml_pros.html` | 200。`./title/?q=` のリンク 296 件、`jpml_titles` 0 件 |
+| `/assets/title.js` | 200。`?name=` を読む版 |
+| `/llms.txt` | 200。`jpml_titles` 0 件 |
+
+- プレビューを Playwright で開く確認は、セッションのプロキシの証明書をブラウザが受け付けず（`ERR_CERT_AUTHORITY_INVALID`）できなかった。TLS の検証は外していない。
+  `?name=` の見え方は手順1のローカル配信での確認に拠る
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/0930-olt-02
 - ログ: https://github.com/retroeater/mj/blob/work/0930-olt-02/docs/logs/CHAT-0930-OLT-03.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/0930-olt-02
-- 確認用URL: 未
-- マージ: 未
-- issue: #441
-- 判断が必要なこと: なし
-- 未確認の項目: なし
-- エラー: なし
+- 確認用URL: プレビューあり（URL は最終報告）。見るページ: `jpml_pros.html`（「決勝進出」の列）、`/title/?name=瀧澤光太郎`、`/jpml_titles.html?name=瀧澤光太郎`（転送）
+- マージ: 未（平野さんがプレビューで確かめてから）
+- issue: #441（経過をコメント。閉じない）
+- 判断が必要なこと:
+  - プレビューを見て、cloudflare へマージしてよいか
+  - `CLAUDE.md`「構成」の例示「ページ本体（例: `jpml_titles.html`）とロジック（同名の `.js`）」が無いページを指すようになる。別のページ（例: `jpml_pros.html` と `jpml_pros.js`）に直すか（この指示の片付けの対象に無いため変えていない）
+  - マージ後: 旧「タイトル」シートと「プロ」V列の扱い（handover.md の #441 の行に残り作業として書いた）
+- 未確認の項目:
+  - プレビューをブラウザで開いたときの `?name=` の見え方（プロキシの証明書のため Playwright で開けず。ローカル配信では確認済み）
+  - 本番（ryoei.pro）での 301（マージ前のため）
+- エラー:
+  - プレビューを Playwright で開くと `net::ERR_CERT_AUTHORITY_INVALID`（セッションのプロキシの証明書）。curl では確認できた
 
 <!-- guide-links -->
 ---
