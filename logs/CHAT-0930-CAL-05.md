@@ -119,7 +119,7 @@
 
 ## 報告
 
-- 状態: 判断待ち（平野さんの Apps Script の実行と確認の後、別の指示でマージ）
+- 状態: 判断待ち → 続き: CHAT-0930-CAL-07
 - ブランチ: work/0930-cal-479
 - ログ: https://github.com/retroeater/mj/blob/work/0930-cal-479/docs/logs/CHAT-0930-CAL-05.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/0930-cal-479
