@@ -20,7 +20,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **本番反映は Cloudflare Workers Builds（ダッシュボードのGit連携）が `cloudflare` への push を検知して行う**（`chore: regenerate ...` も含む。
   Actionsにデプロイのジョブは無い、#169）。設定はダッシュボード側にありコードから追えない（docs/notes/cloudflare.md「本番反映（デプロイ）の仕組み」）
 - Bootstrap 5.3.8 をローカル配信（assets/vendor）。CDNは使わない
-- ページ本体（例: `jpml_titles.html`）とロジック（同名の `.js`）は分ける。ページ末尾で navbar.js を読み込んで共通ナビを描画する
+- ページ本体（例: `jpml_pros.html`）とロジック（同名の `.js`）は分ける。ページ末尾で navbar.js を読み込んで共通ナビを描画する
 - **手書きHTMLを新規に追加する前に**docs/notes/static-generation.md「navbar.js と検索欄」を読む（hrefはルート相対〈#162〉、`data-search="off"`〈#163〉）
 - skill（`.claude/skills/`、plugin は使わない）と git の hook（`.claude/hooks/`）の導入・入れ直しはdocs/notes/skills.md
 
@@ -157,6 +157,8 @@ push したログとガイド文書は public の`retroeater/mj-logs`に写る�
   **「ログ（公開）」の URL の末尾には`?v=<最後に push したログを含む mj のコミットの短い SHA>`を付ける**（チャット側は一度読んだ URL で古い版を受け取るため、版ごとに URL を変える）
   判断が必要なこと・エラーを含め、詳細はログの`## 報告`に書き、ターミナルには出さない
 - **例外として、次の2つはログに届かないためターミナルに内容を書く:** 作業途中で平野さんに質問して止まるとき／pushに失敗したとき
+- **指示の完了時（完了・判断待ち・中断の最後の push）に、その指示の「決定」節と作業中の平野さんの回答（grill を含む）を
+  `docs/decisions/<分野>.md` に足す**（ログと同じコミットでよい）。書き方・分野の作り方は`docs/decisions/README.md`
 - ログの寿命: `cleanup-logs.yml`が週次で片付ける（削除の条件はdocs/notes/branch-operations.md「作業ログの寿命」）
   - **#357 の通知を見たら、残った論点をissueか`docs/notes/`へ移してからログの`## 報告`を直す**（次回の実行で削除される）か、手で削除する
   - マージせずにブランチごと削除するとログも失われる。マージ→論点の移動→削除の順を守る

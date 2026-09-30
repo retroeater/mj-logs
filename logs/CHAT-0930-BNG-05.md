@@ -47,29 +47,33 @@ BNG-04 で「タイトルの長さ・共通の末尾の検討」の受け皿に�
 ## 経過
 
 - 着手前確認: 同じ Chat-Ref のコミット無し。BNG-04 は「マージ: 済」、`origin/work/0930-bng` は `origin/cloudflare` の祖先。`git merge --ff-only origin/cloudflare` で 08174106 へ進めた。指示欄の末尾は指示文の最後の行と一致。
+- 手順1（#5 の状態）: 標題「他ページへのSEO展開」。Closed（completed、2026-09-09）。ラベル `分野: SEO/AIO`・`対象: 全ページ`（`状況:` ラベルは無し）。本文: jpml_pros.html にだけ入れた h1・meta description を他ページへ展開し、重複した title を解消する。コメント1件（2026-09-09）: 26ページの title・description を整備、書式「ページ名 | カテゴリ | ryoei.pro」、重複解消、index.html は「R」→「ryoei.pro」、適用は `scripts/apply_page_meta.py`、h1・caption・label は新サイト前提で見送り。元の完了条件（title・description の展開と重複の解消）は満たされている。title の整備の続きなので、新 issue より再オープンが明らかに不適切とは言えない → 再オープンした。
+- 手順2: #5 を再オープン（本文は変えていない。ラベルは `状況:` が無いため変更なし）。コメント「## 再オープン（2026-09-30、CHAT-0930-BNG-05）」（https://github.com/retroeater/mj/issues/5#issuecomment-5906337605 ）: 理由、論点（50〜60 文字は目標にしない、9 文字の `/` に共通の末尾を付けるか、h1 との統一は #283）、23 URL の title と文字数（9〜32）と Bing の 14 ページの印（✓ 12 件＋対象外2件: `saikyo_results.html` 301・`jpml_logs.html` 404 のまま）、`jpml_titles.html` 廃止済みの注記、関連（#486・#283・#142）。投稿後、「残りの3件」を「✓ 12 件以外の2件」に直した（数え誤り）。
+- 手順3: #486 に1行のコメント（https://github.com/retroeater/mj/issues/486#issuecomment-5906337987 ）。#142 にはコメントしていない。
+- 決定の記録（CLAUDE.md「作業ログ」節の新しい規則）: `docs/decisions/seo-bing.md` を作り、この指示の決定（#5 を再オープンして受け皿にする）を書いた。`docs/decisions/README.md` の分野の一覧に1行足した。BNG-01〜04 の決定は、この規則ができる前の指示のため遡って書いていない。
 
 ## 報告
 
-- 状態: 中断（着手直後）
+- 状態: 完了
 - ブランチ: work/0930-bng
 - ログ: https://github.com/retroeater/mj/blob/work/0930-bng/docs/logs/CHAT-0930-BNG-05.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/0930-bng
-- 確認用URL: なし
-- マージ: 未
-- issue: #5
-- 判断が必要なこと: なし
-- 未確認の項目: 手順1〜3すべて
+- 確認用URL: なし（docs のみ）
+- マージ: 済（cloudflare へ fast-forward。docs/ のみ）
+- issue: #5（再オープン、コメント1件）、#486（コメント1件）
+- 判断が必要なこと: 指示の「変更は docs/logs のみ」と、CLAUDE.md「作業ログ」節の「完了時に決定を `docs/decisions/<分野>.md` に足す」が食い違った。ルールの側を優先し、`docs/decisions/seo-bing.md`（新規）と `docs/decisions/README.md`（一覧に1行）も変えてマージした（docs/ 配下のみ）。BNG-01〜04 の決定（#126 の結論、#486 の決定など）を `docs/decisions/seo-bing.md` に遡って足すかは任意（今回は BNG-05 の決定のみ）
+- 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 9a820f24）: https://github.com/retroeater/mj-logs/tree/main/guide/9a820f24
+ガイド文書（この版を写した時点の最新、mj b02a8fb9）: https://github.com/retroeater/mj-logs/tree/main/guide/b02a8fb9
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a820f24/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a820f24/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a820f24/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a820f24/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a820f24/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a820f24/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b02a8fb9/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b02a8fb9/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b02a8fb9/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b02a8fb9/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b02a8fb9/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b02a8fb9/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/ad723967.md
