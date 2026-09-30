@@ -75,18 +75,47 @@
 - 手順3 記録: `docs/decisions/title.md` に DUP-07・DUP-08 の節を追記し、DUP-04 の Q6・Q7・Q10・Q14 の行に「→ 置き換え」、Q11・Q12・Q15・Q16 の行に「→ 取り下げ」を付けた（前の決定は消さない、decisions/README.md）。
   DUP-07 の節は DUP-07 のブランチにだけあったもので、ログと一緒にここで入れた。`docs/handover.md` の「5. 次にやること」(2) と #232 の行を直した（23,382 バイト）
 
+- #232 に試作の結果・決定・次の手順をコメント（issuecomment-5914614838）
+- マージ: `git merge-base --is-ancestor origin/cloudflare HEAD` を確かめて `git push origin work/0930-dup-08:cloudflare`（cd188304..064fa714、fast-forward）。
+  差分は docs 4件（decisions/title.md・handover.md・DUP-07/08 のログ）、画像2枚、`generate_title_pages.py`、テスト1件、`title/index.html`、`title/houou/` 43件
+- 064fa714 の check-run: check（2件）success、sync success・skipped、**regenerate success**（15:41:37 UTC）。自動の再生成が 7eb4b687
+  「chore: regenerate title/ via GitHub Actions」を push（`sitemap-title.xml` の lastmod 44件を 2026-10-01 に。変わった44ページの分で想定どおり）
+- **本番のビルド: 待つ上限（15分、マージ 15:40 UTC 頃 → 15:56 UTC）までに「Workers Builds: mj」の check-run は 064fa714 にも 7eb4b687 にも出なかった。**
+  15:56 UTC の時点で本番の `title/`・`title/houou/`・`title/houou/42.html` の og:image はまだ `https://ryoei.pro/img/ogp.png`（反映前）。
+  ビルドが走っていないとは断定しない（check-run の報告が遅れる・出ないことがある、cloud-sessions.md）
+- **CDN の 404 のキャッシュ**: 15:41〜15:55 UTC の確認で `https://ryoei.pro/img/ogp/title/houou-black.png` を curl した（デプロイ前のため 404）。
+  15:56 UTC には `cf-cache-status: HIT`・`cache-control: public, max-age=31536000, immutable` の 404 が返った。こちらの curl が CDN（このセッションの接続先のエッジ）に 404 を載せたと見られる。
+  デプロイ後にこの 404 が残るかは確かめていない（cloudflare.md「404 の応答にも同じ Cache-Control が付く」）。`index-black.png` にはデプロイ前にアクセスしていない
+- 王位戦 石川正明の写真: 本番の `title/` の入口のカードは今も `https://pbs.twimg.com/profile_images/2085904962534748161/Aka72ESy_400x400.jpg`（DUP-07 と同じ URL）で、**404**（直していない）
+- ブランチの片付け: work/0930-dup-07（先頭 0a6eccdef209304ce9758b4c578a0dcd3a191ae7、未マージ。試作のコミット 781a292f を含む）
+  - リモートの削除 `git push origin --delete work/0930-dup-07` は `send-pack: unexpected disconnect while reading sideband packet` で失敗（`git ls-remote` で残っていることを確認）。cloud-sessions.md「ブランチの削除」のとおりプロキシが削除を拒否したと見られる
+  - ローカルの削除 `git branch -D work/0930-dup-07` は hook（mj-git-guard）が拒否（未マージのため -D は使わない、branch-operations.md「ブランチを削除するとき」）
+  - 止まる条件（削除の拒否）に当たるため、別の手段は試していない。work/0930-dup-08 はマージ済みで、`delete-merged-branches.yml` に任せる
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/0930-dup-08
-- ログ: https://github.com/retroeater/mj/blob/work/0930-dup-08/docs/logs/CHAT-0930-DUP-08.md
+- 状態: 判断待ち（マージ済み。本番への反映は15分の上限までに確かめられず、work/0930-dup-07 の削除が拒否された）
+- ブランチ: work/0930-dup-08（マージ済み。削除は delete-merged-branches.yml に任せる）。work/0930-dup-07 は削除できずに残っている（先頭 0a6eccde）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-0930-DUP-08.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/0930-dup-08
-- 確認用URL: なし
-- マージ: 未
-- issue: #232
-- 判断が必要なこと: なし
-- 未確認の項目: なし
-- エラー: なし
+- 確認用URL: なし（本番。X・LINE で確かめる URL は下）
+- マージ: 済（cd188304..064fa714。自動の再生成 7eb4b687 が続いた）
+- issue: #232（コメントのみ。open のまま）
+- 判断が必要なこと:
+  - X・LINE の投稿画面で確かめる URL（本番に反映されてから。X は `?x=<未使用の数字>` を付けて貼る、ogp.md）:
+    入口 https://ryoei.pro/title/
+    鳳凰戦の大会ページ https://ryoei.pro/title/houou/
+    鳳凰戦の期ページ https://ryoei.pro/title/houou/42.html
+    その結果で Q3（og:title を短くするか）を決める
+  - `houou-black.png` の 404 が CDN にキャッシュされた件: デプロイ後も 404 が返るなら、名前を変えて（例: 意匠の接尾辞を変える）出し直すか。確かめる手順は本番の反映後に `curl -sI https://ryoei.pro/img/ogp/title/houou-black.png`
+  - work/0930-dup-07 の削除: セッションからは消せない（プロキシ・hook）。平野さんが GitHub の画面で消すか。試作の中身は DUP-07 のログのとおりで、残す必要は無い
+- 未確認の項目:
+  - 本番のビルドと反映（15:56 UTC の時点で本番の og:image は3ページとも旧 `img/ogp.png`、Workers Builds の check-run は未表示）
+  - 本番で `img/ogp/title/index-black.png`・`houou-black.png` が 200 になるか
+  - X・LINE での見え方
+- エラー:
+  - `git push origin --delete work/0930-dup-07`: `send-pack: unexpected disconnect while reading sideband packet` / `fatal: the remote end hung up unexpectedly`
+  - `git branch -D work/0930-dup-07`: hook が拒否（「git branch -D は使わない。削除前に branch-operations.md「ブランチを削除するとき」」）
 
 <!-- guide-links -->
 ---
