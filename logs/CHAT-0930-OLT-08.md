@@ -49,6 +49,32 @@ OLT-07 で見つかったリポジトリ側の残り2つを直して公開し、
 
 - Chat-Ref `CHAT-0930-OLT-08` のコミットは無し。`work/0930-olt-08` はローカル・リモートとも無し → `git checkout -b work/0930-olt-08 origin/cloudflare`
 - 「指示」欄の末尾は指示文の最後の行と一致。#484・#473 とも open
+- #484 に着手中コメント（issuecomment-5905878486）。ほかのセッションの着手中コメントなし
+
+### 1. シートの確認（読み取りのみ。決定と一致）
+
+- 「プロ」（`1h4-D…` のブック、xlsx の書き出し）: V1 の見出しは「決勝\\n進出」のまま。**V2:V1100 に値・数式とも 0**（前回は値のあるセル 421・数式 1,099）
+- ブック `1h4-D…` のタブ: リーグ・プロ・対局・鳳凰・桜花・JWRC・最強戦・鳳凰Ampai・桜花Ampai・**(旧)タイトル**。「タイトル」は無い
+- 【3】手動補正（`fetch_records`）: 1950行目 `SGlbTPLSs7Q`（掲載 N）の対局者は「覚野陽生、猿渡輝也、高橋尚也、ケネス徳田、三浦智博、勝又健志、早川健太、本田朋広」（直した値）。3188行目 `6Sem9jKnkVU` は変わらず同じ値
+
+### 2. コードと docs
+
+- `scripts/generate_jpml_pros.py`（49eba2ef）: `QUERY` から V を外した（24列 → 23列。`...T,U,W,X,AA,AB`）。`build_row_html()` の受け取りから `_unused_finals` を外した。理由のコメントを1行足した
+- `scripts/tests/test_jpml_pros.py`: 足した2件
+  - `test_skips_v`: `QUERY` に V が無い
+  - `test_columns_are_mapped_by_position`: `QUERY` の列名で値を置き、最強 出場（U）→ `./saikyo/?q=`、放送 対局（W）→ `./video_live.html?name=`、鳳凰 43後（P）→ AA のリンク、桜花 21期（S）→ AB のリンク、決勝は title/ の回数、が出ることを確かめる
+  - 修正前後の確認: `QUERY` に V を戻して受け取りだけ新しくしたコピーで実行すると、この2件を含め4件が失敗する（列がずれると気付ける）
+- `docs/notes/title-pages.md`（39df8e4c）:
+  - 「プロ」シートの行: 「旧「タイトル」シートは新旧の一致検査にだけ使う」→「旧スプレッドシートの旧「タイトル」タブ（「(旧)タイトル」）はどこからも読まない（新旧の一致検査は #441 で外した。削除は #473）」
+  - 名前の照合の行: 「変換しないのは新旧の一致検査と、名前が「-」の行」→「変換しないのは名前が「-」の行」
+  - 警告の行: 「新旧の一致検査の不一致（全行で照合）、」を削った
+
+### 3. 検証（マージの条件: 生成物の差分0）
+
+- `python3 scripts/generate_jpml_pros.py`: `jpml_pros.html` は**差分0**（V を読まなくなっても出力は変わらない）
+- `python3 scripts/regenerate.py all`: rc=0。**全ページの差分0**（シートの変化による差分も無し）
+- テスト 448件 OK、配信上限 OK（配信ファイル 1,642、`_redirects` 静的 36）、ガイド文書のサイズ（CLAUDE.md 26,162・handover.md 22,430・chat-side-operations.md 18,094）OK
+- マージの条件（生成物の差分0）を満たす
 
 ## 報告
 
@@ -66,11 +92,11 @@ OLT-07 で見つかったリポジトリ側の残り2つを直して公開し、
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj ce5031e6）: https://github.com/retroeater/mj-logs/tree/main/guide/ce5031e6
+ガイド文書（この版を写した時点の最新、mj d5970d8c）: https://github.com/retroeater/mj-logs/tree/main/guide/d5970d8c
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce5031e6/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce5031e6/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce5031e6/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce5031e6/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce5031e6/docs/notes/cloudflare.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d5970d8c/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d5970d8c/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d5970d8c/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d5970d8c/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d5970d8c/docs/notes/cloudflare.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/ad723967.md
