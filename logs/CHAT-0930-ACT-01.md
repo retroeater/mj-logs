@@ -50,18 +50,39 @@
   `work/0930-act` はローカル・リモートとも無し → `origin/cloudflare`（a7ffc243）から作成
 - 0. 「指示」欄の末尾は「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」で、指示文の最後の行と一致
 
+- 1 (a) `update-live-channel.yml` を読んだ。ジョブ yotei の環境変数 `APPLY` は `needs.update.outputs.apply == 'true' || inputs.yotei_apply == true` で、
+  `yotei_apply` はここに合成される。指示文の「ログに yotei_apply が見えなかった」はこの定義どおりで、入力が無いわけではない。
+  `write_yotei_sheet.py` は【3】の見出しの検査・同じ予定IDの検査を dry-run の分岐より前に行うため、dry-run でも失敗する（試運転の失敗通知の原因と一致）。
+  表は docs/notes/yotei-sheet.md「手動実行」に置き、既存の `yotei_apply`・`calendar_apply` の箇条は表に統合した
+- 1 (b) `write_live_channel_candidate.py` の `write()`: 書き込む前の【2】のタブの「理由」列と新しい表を比べる。
+  比べる相手は「最後に apply で書いた【2】」で、前日の数・前回コメントした数のどちらでもない。apply なしはタブを書かず相手を更新しない。
+  実行ログで確認: run 36633848229（schedule、9/29 21:31 UTC）が 173→177 を書きコメント、run 36648255283（手動 apply、9/30 00:01 UTC）が
+  そのタブ 177 と新しい表 57 を比べた。間のスクリプトの変更は 78a7fab（【2】の読み違いを直す）。
+  9/29 17:14 UTC の apply なしの実行（run 36603506444）は 173名。「57名が 9/29 に出ていた」実行は見つけていない。#475 にコメント
+- 1 (c) 検索で #217・#305（いずれも not_planned で #308 に統合）と open の #308 を確認。起票せず #308 にコメント（google-github-actions/auth@v2 が新たな対象、
+  ワークフロー16本の使用箇所）。auth の Node 24 版と期限（github.blog）は、プロキシが github.blog を拒否し、トークンが他リポジトリを読めず未確認。
+  ジョブのログの取得は curl ではログの置き場（別ホスト）が拒否されたため GitHub MCP の get_job_logs を使った
+- 2 chat-side-operations.md: 「作業ログの読み方」の「新しい会話の始め」の項に、リンクが拒まれたら URL を送ってもらう（chat-ids を含む）を統合。
+  「ほかのセッションへの共有」に Actions の失敗通知の引き継ぎを1項。17,373 → 17,979 バイト（警告域 26KB 未満）。重複する既存の記述は無かった
+- 2 instruction-template.md: 指示文の注意は chat-side-operations.md ではなく雛形側の箇条にあるため、「待つ上限」の次に1項
+- 3 `python3 scripts/check_asset_limits.py` 判定すべて OK、テスト 432件 OK。変更は docs/ の3ファイルとこのログだけ（956c4d0）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/0930-act
-- ログ: https://github.com/retroeater/mj/blob/work/0930-act/docs/logs/CHAT-0930-ACT-01.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-0930-ACT-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/0930-act
-- 確認用URL: なし
-- マージ: 未
-- issue: なし
-- 判断が必要なこと: なし
-- 未確認の項目: なし
-- エラー: なし
+- 確認用URL: なし（docs のみ）
+- マージ: 済（fast-forward。文書 956c4d0 とこのログのコミットをそのまま cloudflare へ push）
+- issue: #475（差分の比べる相手をコメント）、#308（Node.js 20 の注記をコメント。既存のため起票せず。#217・#305 は #308 に統合済み）
+- 判断が必要なこと:
+  - #475「57名が 9/29 にすでに出ていた」: 9/29 の cloudflare の実行では 173名で、57名の出た実行は見つけていない。57名への減少は 78a7fab（読み違いの直し）によるものと考えられる。チャット側の記憶と違うなら、どの実行で見たかを確かめる
+- 未確認の項目:
+  - google-github-actions/auth の Node 24 対応の版と、Node.js 20 打ち切りの期限（github.blog と他リポジトリを読めなかった）
+  - actions/cache@v4（sync-dojo-calendar）が警告の対象か
+- エラー:
+  - curl によるジョブのログ・github.blog の取得がプロキシで拒否（CONNECT 403）。ログは GitHub MCP の get_job_logs で読んだ
 
 <!-- guide-links -->
 ---
