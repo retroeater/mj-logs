@@ -49,17 +49,39 @@ CAL-04 で「カレンダー」の埋め込みに足した「mj_放送対局」�
 - 前提の「CAL-08 は別セッション」は実物と違う: CAL-08 はこのセッションで行い、判断待ちで止めてある（work/0930-cal-full、未マージ）。触るファイルは重ならない
 - 手順0: 指示欄の末尾は指示文の最後の行と一致。CAL-04 の `## 報告` は「判断待ち（平野さんのプレビュー確認を待つ）」だったので「判断待ち → 続き: CHAT-0930-CAL-06」に直した（このコミットに含める）
 
+### 手順1: 色の変更（022c5b0f）
+
+- `_redirects` の `/resource_calendar.html` の行で、`color=%238E24AA`（1か所）を `color=%233F51B5` に変えた。ほかは変えていない（`git diff --stat`: `_redirects` 1行）
+- 復号した `src`・`color` の組（7本・7本）:
+  1. 日本の祝日 `#616161`
+  2. 【一般公開】予定表（`c_4c3960f0…`）**`#3F51B5`**
+  3. mj_Mリーグ `#118745`
+  4. mj_竹書房 `#FA9E05`
+  5. mj_道場部ゲスト `#FF0066`
+  6. mj_誕生日 `#e4c441`
+  7. mj_放送対局（`c_aed30ad3…`）**`#3F51B5`**
+- 2本目と7本目の色が同じ（`#3F51B5`）。2本目は前提どおり `#3F51B5` だった
+
+### 手順2: 検査とプレビュー
+
+- `python3 scripts/check_asset_limits.py`: `_redirects` 静的 35・動的 2 ほかすべて OK。`python3 -m unittest discover -s scripts/tests`: OK
+- push（022c5b0f）→ check-run「Workers Builds: mj」success。プレビューの `/resource_calendar.html` は 301 で `calendar.google.com` へ飛び、転送先の `color` 7本のうち2本目・7本目がともに `#3F51B5` であることをセッションから確かめた（URL は最終報告にだけ書く）
+- #480 にコメント: 色を `#3F51B5` に変えたこと
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち（平野さんのプレビュー確認を待つ）
 - ブランチ: work/0930-cal
 - ログ: https://github.com/retroeater/mj/blob/work/0930-cal/docs/logs/CHAT-0930-CAL-06.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/0930-cal
-- 確認用URL: なし
-- マージ: 未
-- issue: #480
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 確認用URL: プレビューあり（URL は最終報告）。見るページは `/resource_calendar.html`。check-run「Workers Builds: mj」は 022c5b0f で success
+- マージ: 未（cloudflare へは入れない）
+- issue: #480（コメント）
+- 判断が必要なこと:
+  - プレビューで「カレンダー」を開き、「mj_放送対局」が【一般公開】予定表と同じ色で見分けられるか（予定表は終日、放送対局は時刻あり）を見て、マージしてよいか
+  - CAL-04 の案のうち、表示名（「mj_放送対局」のまま）・説明文（Google 側に置くか）・並び順（末尾7本目）は決まっていない（CAL-04 のログの `## 報告`）
+- 未確認の項目:
+  - ブラウザでの見え方（色・区別のつき方）。セッションから確かめたのは転送先の色の値まで
 - エラー: なし
 
 <!-- guide-links -->
