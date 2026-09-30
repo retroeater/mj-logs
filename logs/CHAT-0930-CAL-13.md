@@ -48,16 +48,29 @@ grill などで決まったことは、今は各ログと issue のコメント�
 - 手順0: 指示欄の末尾は指示文の最後の行と一致
 - 注: 直前の CHAT-0930-CAL-12（work/0930-cal-450）は、grill の Q1〜Q11 まで平野さんが答えたが、まとめの確認と手順3（#450・#453 へのコメント）がまだで、ログの `## 報告` は「作業中」のまま
 
+### 手順1: 確かめ
+
+- mj-logs へ写すワークフロー: `.github/workflows/sync-logs.yml`（push の対象パス: `docs/logs/**`・`CLAUDE.md`・`docs/handover.md`・`docs/instruction-template.md`・`docs/notes/**`）。
+  ガイド文書の一式は `scripts/sync_guides.py` の `ALLOWED_PATTERNS`（CLAUDE.md・docs/handover.md・docs/instruction-template.md・docs/logs/_template.md・docs/notes/ 直下の .md）で、cloudflare の push で `guide/<SHA>/` へ写す。
+  ログの末尾の「ガイド文書」のリンクは同じファイルの `footer()`／`LINKED_DOCS`（CLAUDE.md・handover.md・instruction-template.md・chat-side-operations.md・cloudflare.md）。テストは `scripts/tests/test_sync_guides.py`
+- 決定の書き残し方の既存の決まり: CLAUDE.md・docs/notes/chat-side-operations.md・docs/instruction-template.md に「決定の記録」「docs/decisions」に当たるものは無い（grep）。決定は指示文の「決定」節とログ・issue のコメントに書く運用
+- 同じ目的の issue: 無い（Open・Closed、最新 #482 までの title と本文に「決定の記録」「decisions」に当たるもの無し）
+- **同じファイルを触る未マージのブランチ: `origin/work/0930-hkg-04`**（CHAT-0930-HKG-04・HKG-05、状態「判断待ち（cloudflare へのマージの push が分類器に拒否された）」）が **`CLAUDE.md`・`docs/notes/chat-side-operations.md`・`docs/instruction-template.md`** を変えている（マージの承認の書き方・hook の ask の廃止）。
+  この指示の手順2は CLAUDE.md と chat-side-operations.md に足すので、止まる条件「同じファイルを触る未マージのブランチがある」に当たる
+  - ほかの未マージのブランチ（work/0930-bng・cal-450・cal-full・olt-02）は、`sync_guides.py`・`sync-logs.yml`・テスト・CLAUDE.md・chat-side-operations.md・docs/decisions を触らない
+- **ここで止まり、平野さんに確認する**（実装には未着手）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち（手順1で止まった。未マージの work/0930-hkg-04 と CLAUDE.md・chat-side-operations.md が重なる）
 - ブランチ: work/0930-cal-dec
 - ログ: https://github.com/retroeater/mj/blob/work/0930-cal-dec/docs/logs/CHAT-0930-CAL-13.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/0930-cal-dec
 - 確認用URL: なし
 - マージ: 未
 - issue: なし
-- 判断が必要なこと: なし
+- 判断が必要なこと:
+  - work/0930-hkg-04（HKG-04・HKG-05、判断待ち）との重なりをどうするか: (1) HKG-04 のマージを待ってから進める / (2) CLAUDE.md・chat-side-operations.md には触らず、docs/decisions の2ファイルと写しの仕組み（sync_guides.py・sync-logs.yml・テスト）だけ先に作り、2文書への追記は HKG-04 のマージ後に別の指示で行う / (3) 重なりを承知で進める
 - 未確認の項目: なし
 - エラー: なし
 
