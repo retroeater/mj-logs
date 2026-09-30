@@ -87,28 +87,57 @@
 - マージの条件の判定: 差分は3期の日付と、その日付から決まる並び（入口・検索の順）だけで、決定とシートの変化で説明できる。「日付の表示」の解釈が入口の並びまで含むと判断してマージする（**判断が必要なことに書く**）
 - テスト 454件 OK、配信上限 OK（配信ファイル 1,642、`_redirects` 静的 36）
 
+### 3. マージと本番
+
+- 再 fetch で `origin/cloudflare` が動いていないこと（祖先）を確かめ、差分がログと title/ の5ファイルだけであることを確かめて `git push origin work/0930-olt-11:cloudflare`（**9fd7d3a9..a9daa34c**）
+- a9daa34c の check-run: 「Workers Builds: mj」success、`check`・`sync` success。「公開対象を検査する」success、「サイトマップのlastmodを同期」success（コミット 9b4bc116 `chore: sync sitemap lastmod with git history`。`sitemap-title.xml` の4URL〈入口と3期〉の lastmod だけ）。`regenerate-page.yml` は走らない（生成スクリプトを変えていないため。title/ は生成物をこのブランチで入れた）
+- 本番 https://ryoei.pro（curl）: `/title/ourai/8.html` のパンくず「第8期（2024年11月1日）」、`/title/jwrc-r/7.html`「第7期（2026年7月25日）」、`/title/judan/41.html`「第41期（2024年9月28日）」。`/title/` は 200 で、タイトルホルダーの並びは JPML WRC-Rリーグ（6番目）が小島武夫杯帝王戦（7番目）より前
+
+### 4. issue と記録
+
+- **#470**: 結果をコメント（issuecomment-5910728855）して閉じた（completed）。「状況:」ラベルは元から無い
+- **#471**: 結果をコメント（issuecomment-5910731057）して閉じた（completed）。行番号がずれていること（3,273 → 3,110行）も書いた
+- **#222**: 残件の移り先の一覧と、本文の古い記述の訂正（旧表の廃止、新旧の一致検査の廃止、#441 → #485、シートの修正候補の済み）をコメント（issuecomment-5910734981）して閉じた。本文は書き換えていない（コメントで訂正）。sub-issue #470・#471 は閉じてある
+- `docs/decisions/title.md`: この指示の「決定」を追記（先に今の内容を読んだ。OLT-10 の「第23期の4行は新人王戦なら順位は不明」を、4行の削除で置き換えた）
+- `docs/handover.md`: #222 の行を削除、#232 の行を新設、#408 の行を「#232 の後。`YYYY-XX-XX` の大半は決勝ライブが無く【2】【3】から直せない」に直した（22,520 バイト）。#470・#471 の行は元から無かった（#222 の行の中の記述だった）
+
+## #232 を /grill-me で詰める論点の候補
+
+OLT-09 のログの9つ（範囲・画像の中身・意匠・生成の仕組み・名前のつけ方・og:title・進め方・スコープ・#165 との分け方）に、今回分かったことで次を足す:
+
+10. **入口の画像は「現在のタイトルホルダー」の並びが日付で変わる**: 入口の内容（並び）は決勝日の降順で、日付を直すと入れ替わる（今回の WRC-R 第7期 と帝王戦）。入口の OGP を「最新の優勝者」などデータに依存する内容にするなら、日付の修正のたびに画像を作り直す。文字だけ（「タイトル戦」）なら影響しない
+11. **画像に日付・年を載せるかは #408 に依存**: 期ページの日付は 228期が「YYYY年」のままで、桜蕾戦などのように後から直る。日付や年を画像に焼き込むなら、値が変わったとき名前（ファイル名）も変える必要がある（immutable）。載せないか、確定している期だけにする案
+12. **表示する大会の変化への追随**: 大会が「表示する」に変わる（發王戦・麻雀最強戦など。今は非表示）と、大会ページと期ページが増える。画像も一緒に増える作りにするか、無い大会は共通の `img/ogp.png` に戻すか（最強戦の `og_image_for()` と同じ）
+13. **1位が2名の期・「-」の行の見せ方**: 画像に優勝者の名前を入れるなら、第26期王位戦の同時優勝（1位2名、確定）と、名前が「-」の期（失格・不明）の書き方を決める必要がある
+14. **画像の生成のタイミング**: title/ の期ページは新しい期が入ると増える。画像を手で作るなら、新しい期ごとに作業が要る（帰り道の自動生成 #340 の前例）。自動にするなら、生成の Actions でフォント（Noto Sans JP Bold）が使えるか、フォント差で差分が出ないか（`build_ogp_image.py` は PNG をコミットして差分を避けている）
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/0930-olt-11
-- ログ: https://github.com/retroeater/mj/blob/work/0930-olt-11/docs/logs/CHAT-0930-OLT-11.md
+- 状態: 完了
+- ブランチ: work/0930-olt-11（マージ済み。削除は delete-merged-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-0930-OLT-11.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/0930-olt-11
-- 確認用URL: なし
-- マージ: 未
-- issue: #470・#471・#222
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 確認用URL: なし（本番に反映済み）
+- マージ: 済（9fd7d3a9..a9daa34c。sitemap の lastmod は自動の同期 9b4bc116。docs は追いの push）
+- issue: #470・#471・#222（すべてクローズ。#222 は本文をコメントで訂正）
+- 判断が必要なこと:
+  - 次は #232（先に /grill-me）。論点は OLT-09 のログの9つ＋上の10〜14（入口の並びの日付依存、日付・年を画像に載せるか〈#408 との依存〉、表示する大会の変化への追随、1位2名・「-」の見せ方、画像の生成のタイミング）
+  - マージの条件の解釈: 指示の条件「差分が3期の日付の表示（と sitemap の lastmod）だけ」に対し、差分には入口のタイトルホルダーの並びと `title/search.json` の選手の並びの入れ替えも含まれた。どちらも3期の日付（WRC-R 第7期 2026-07-25）から決まる並びで、決定とシートの変化で説明できるため、条件を満たすと解釈してマージした。想定と違うなら戻す（2枚のカードの順と search.json の並びだけの差分）
+  - シートの総行数が 3,273 → 3,110（163行減）。平野さんが發王戦の4行のほかにも行を削除・整理したと見られる。表示する大会の中身（期 363・選手 581・決勝メンバー行数 1,487・ほかの期ページ）は変わらない。減った行の中身は調べていない。意図した整理なら対応不要
+- 未確認の項目:
+  - 本番のブラウザでの見え方（HTML の日付と入口のカードの順を curl で確かめた）
+  - シートの163行減の中身（表示しない大会の行と見られるが、行の内訳は確かめていない）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 9fd7d3a9）: https://github.com/retroeater/mj-logs/tree/main/guide/9fd7d3a9
+ガイド文書（この版を写した時点の最新、mj 675fa13e）: https://github.com/retroeater/mj-logs/tree/main/guide/675fa13e
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9fd7d3a9/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9fd7d3a9/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9fd7d3a9/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9fd7d3a9/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9fd7d3a9/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9fd7d3a9/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/675fa13e/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/675fa13e/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/675fa13e/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/675fa13e/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/675fa13e/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/675fa13e/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/ad723967.md
