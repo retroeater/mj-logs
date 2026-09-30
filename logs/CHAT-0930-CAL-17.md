@@ -37,48 +37,28 @@ CAL-13・CAL-14 で作った決定の記録（`docs/decisions/`）の書く時�
 
 完了条件
 
-* ログの「## 報告」を CLAUDE.md「作業ログ」節のとおりに書いて push する。
-* ターミナルへの最終報告の Chat-Ref の行の直前に ログ（公開）: https://github.com/retroeater/mj-logs/blob/main/logs/CHAT-0930-CAL-17.md を書き、最後の行に Chat-Ref: CHAT-0930-CAL-17 を書く
+* ログの「### 手順3: マージ・写しの確かめ
 
-不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
-
-## 経過
-
-- 識別子: `git log --all --grep=CHAT-0930-CAL-17` は0件。origin/work/0930-cal-dec（ae4d7104）は origin/cloudflare の祖先（マージ済み）。ローカルに work/0930-cal-dec があり cloudflare の祖先なので、docs/notes/cloud-sessions.md「作業ブランチの用意」のとおり `git merge --ff-only origin/cloudflare` で進めた（97d0b4f5）
-- 手順0: 指示欄の末尾は指示文の最後の行と一致
-
-### 手順1: 確かめ
-
-- `git branch -r --no-merged origin/cloudflare` の各ブランチについて、分岐点からの差分に CLAUDE.md・docs/notes/chat-side-operations.md があるか見た: **どのブランチにも無い**
-- 2文書に `docs/decisions` の記述は無かった（grep で0件）
-
-### 手順2: 追記
-
-- CLAUDE.md「作業ログ」節（「ログの寿命」の前）に2行足した。内容:
-  - 指示の完了時（完了・判断待ち・中断の最後の push）に、「決定」節と作業中の平野さんの回答（grill を含む）を `docs/decisions/<分野>.md` に足す
-  - 書き方は `docs/decisions/README.md`
-- docs/notes/chat-side-operations.md「平野さんの判断とマージの許可」に2行足した。内容:
-  - 平野さんの決定は、ログの末尾のリンク「docs/decisions/README.md」から分野のファイルを読んで確かめる
-  - 指示文の「決定」節はそれと食い違わないように書く（置き換えるときはその旨を書く）
-- 大きさ（`assets-check.yml` と同じ `wc -c`）:
-  - CLAUDE.md: 26,162 → **26,481** バイト（警告域 30,720・上限 32,768）
-  - chat-side-operations.md: 18,642 → **18,928** バイト（警告域 26,624・上限 28,672）
-  - どちらも警告域の手前。`python3 scripts/check_asset_limits.py` は OK
-- `docs/decisions/README.md`「この仕組みの決定」:
-  - 「CLAUDE.md と…別の指示で行う」の行の末尾に「→ 済: 2026-09-30（CHAT-0930-CAL-17）」を付けた
-  - `### 2026-09-30（CHAT-0930-CAL-17）` を足し、追記を済ませたことを1行で書いた
+- origin/cloudflare との差分は4ファイルだけ（CLAUDE.md・docs/notes/chat-side-operations.md・docs/decisions/README.md・このログ）
+- 再 fetch し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真なのを確かめて `git push origin work/0930-cal-dec:cloudflare` を実行した: **97d0b4f5..9a820f24**（fast-forward、衝突なし）
+- 9a820f24 の cloudflare の実行:
+  - 「作業ログを mj-logs へ写す」（run 36682295856）: success
+  - 「公開対象を検査する」（run 36682295888）: success
+- mj-logs の `logs/CHAT-0930-CAL-17.md` の末尾のリンクは `guide/9a820f24/` を指している
+  - `guide/9a820f24/CLAUDE.md`: raw で 200。追記の行（`docs/decisions/<分野>.md` に足す）があった
+  - `guide/9a820f24/docs/notes/chat-side-operations.md`: raw で 200。追記の行（ログの末尾のリンク「docs/decisions/README.md」から…）があった
 
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/0930-cal-dec
-- ログ: https://github.com/retroeater/mj/blob/work/0930-cal-dec/docs/logs/CHAT-0930-CAL-17.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/0930-cal-dec
-- 確認用URL: なし
-- マージ: 未
+- 状態: 完了
+- ブランチ: work/0930-cal-dec（cloudflare へマージ済み）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-0930-CAL-17.md
+- 比較URL: https://github.com/retroeater/mj/compare/97d0b4f5...9a820f24
+- 確認用URL: なし（ドキュメントのみ）
+- マージ: 済（9a820f24、fast-forward）
 - issue: なし
 - 判断が必要なこと: なし
-- 未確認の項目: なし
+- 未確認の項目: mj-logs の github.com の blob ページでの見え方（セッションのプロキシで読めない。raw では 200 で、中身も確かめた）
 - エラー: なし
 
 <!-- guide-links -->
