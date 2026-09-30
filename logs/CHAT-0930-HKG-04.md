@@ -60,18 +60,60 @@ hook と文書の変更が cloudflare に入り、このログが追いの push 
 
 - 識別子: CHAT-0930-HKG-04 のコミットは無い。HKG は同じセッションの HKG-01〜03 だけで使用
 
+### 手順1: 現状
+
+hook（`.claude/hooks/mj-git-guard.py`、着手時 a7ffc243）の判定の一覧。コマンドを `&&`・`||`・`;`・`|`・改行で区切り、`git` で始まる部分ごとに見る:
+
+| 判定 | 場合 | 理由文 |
+|---|---|---|
+| deny | `git reset --hard` | git reset --hard は使わない（CLAUDE.md 禁止事項） |
+| deny | `git clean` | git clean は使わない（CLAUDE.md 禁止事項） |
+| deny | `git stash` | git stash は使わない（CLAUDE.md 禁止事項） |
+| deny | `git branch -D`・`git branch --delete --force` | git branch -D は使わない。削除前に branch-operations.md「ブランチを削除するとき」 |
+| deny | `git checkout ... .`（最後の引数が `.`） | 作業ツリーをまとめて戻さない（branch-operations.md「未コミットの変更を戻すとき」） |
+| deny | `gh-pages` への push（refspec が無ければ現在ブランチ） | gh-pages に触らない（handover.md） |
+| ask | cloudflare への push（同上）。ただし docs/logs のみの fast-forward（`logs_only_push`）は allow | cloudflare への push＝本番反映。マージの基準（CLAUDE.md「ブランチ運用」）を満たすか人が確認する |
+| ask | `claude/` で始まるブランチへの push | claude/* へは push しない（cloud-sessions.md「始め方」） |
+
+- ask は cloudflare と claude/* への push の2つだけ。ほかに ask は無い
+- settings: `.claude/settings.json` だけ（`settings.local.json` は無い）。`permissions` は `allow` の2行（`Bash(git checkout -b work/*)`・`Bash(git switch -c work/*)`）だけで、`ask`・`deny` の規則は無い。`hooks` は PreToolUse（matcher `Bash`）で mj-git-guard を呼ぶ1件だけ
+- `.claude/agents/Explore.md`・`.claude/skills/*/SKILL.md` に `hooks:`・`allowed-tools:` の設定は無い
+- 止まる条件（cloudflare・claude/* 以外の ask、settings の確認の規則）には当たらない
+- 文書の現状:
+  - CLAUDE.md「ブランチ運用」: 「`cloudflare`へのマージはセッション自身の判断で行わない」の節（ドキュメントのみはセッションがマージしてよい・表示や生成物に影響する変更は平野さんの確認後・指示文に明記された事前のマージ許可の例外）。「マージの手順」の末尾に hook の ask/allow の説明
+  - CLAUDE.md「作業ログ」: 追いの push の行に「hookは確認なしで通す」
+  - docs/instruction-template.md: ひな形に「作業ブランチ」の行は無く（実際の指示文は Chat-Ref の行に続けて書いている）、「決定」の欄にマージの事前許可の1行、「完了条件」にマージ可否の項目がある
+  - docs/notes/chat-side-operations.md「平野さんの判断とマージの許可」: 事前許可の書き方の項目がある
+  - docs/notes/skills.md「git の hook（mj-git-guard）」: 判定の表・allow の条件・試験の表
+
+### 手順2: hook の変更（拒否されて止まった）
+
+- hook の書き換え（ask の2分岐・`logs_only_push` 一式・`ASK_PROTECTED` を消し、deny だけを残す）を、python の小さなスクリプト（`<<'EOF'` のヒアドキュメント）で行おうとした。
+  このコマンドが auto モードの分類器に拒否された。理由は `[Self-Modification]`。コマンドは実行前に拒否されたので、hook のファイルは変わっていないはず
+- 続けて、作業ツリーの状態を見る `git status --short; git diff --stat` も同じ理由で拒否された（拒否された結果を別の手段で追っているとみなされたとみられる）
+- 分類器の指示に従い、Edit など別のツールや別の書き方で同じ変更を試していない。手順3〜5（試験・文書・マージ）は、hook の変更が前提なので行っていない
+- 文書だけを先に変えることもしていない（hook と食い違う記述になるため）
+
+
 ## 報告
 
-- 状態: 対応中
+- 状態: 判断待ち（hook の変更が auto モードの分類器に拒否された）
 - ブランチ: work/0930-hkg-04
 - ログ: https://github.com/retroeater/mj/blob/work/0930-hkg-04/docs/logs/CHAT-0930-HKG-04.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/0930-hkg-04
 - 確認用URL: なし
-- マージ: 未
+- マージ: 未（hook・文書とも変えていない）
 - issue: なし
-- 判断が必要なこと: なし
-- 未確認の項目: なし
-- エラー: なし
+- 判断が必要なこと:
+  - hook の ask を消す変更の進め方。セッションは、自分に確認をかける仕組み（hook）を自分で外す操作とみなされて拒否された。案:
+    - 平野さんが手で変える（Codespace・GitHub の画面などで `.claude/hooks/mj-git-guard.py` から ask の2分岐と `logs_only_push` 一式を消す）。そのあと文書の変更・試験・マージを別の指示で行う
+    - 平野さんがセッションの許可設定（Bash の許可ルール）を足してから、同じ指示をやり直す
+  - どちらでも、文書の変更（CLAUDE.md・instruction-template.md・chat-side-operations.md・skills.md）は hook の変更と同じマージに入れる
+- 未確認の項目:
+  - 作業ツリーに変更が残っていないこと（確かめるコマンドも拒否された。書き換えのコマンドは実行前に拒否されたので、変わっていないはず）
+- エラー:
+  - 分類器の拒否（理由 `[Self-Modification]`）: python のヒアドキュメントで `.claude/hooks/mj-git-guard.py` を書き換えるコマンド
+  - 同じ理由の拒否: `git status --short; git diff --stat`
 
 <!-- guide-links -->
 ---
@@ -83,4 +125,4 @@ hook と文書の変更が cloudflare に入り、このログが追いの push 
 - docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/71e77c16/docs/instruction-template.md
 - docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/71e77c16/docs/notes/chat-side-operations.md
 - docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/71e77c16/docs/notes/cloudflare.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/23c98011.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/819958f7.md
