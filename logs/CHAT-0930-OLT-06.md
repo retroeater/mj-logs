@@ -145,12 +145,12 @@ SPLIT_VS = re.compile(rf"\s*(?:vs|ｖｓ|VS|ＶＳ)\s*|(?<={KANA_KANJI})[svSV](?
 
 ## 報告
 
-- 状態: 判断待ち（止まる条件「ワークフローが失敗した」。失敗は予定表のジョブ `yotei` で、この指示の変更とは別の箇所）
+- 状態: 完了（判断待ちで止めた後、CHAT-0930-OLT-07 で平野さんの決定を受けて片付けた。止まった理由は予定表のジョブ `yotei` の失敗で、この指示の変更とは別の箇所）
 - ブランチ: work/0930-olt-06（マージ済み。削除は delete-merged-branches.yml に任せる）
-- ログ: https://github.com/retroeater/mj/blob/work/0930-olt-06/docs/logs/CHAT-0930-OLT-06.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-0930-OLT-06.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/0930-olt-06
 - 確認用URL: なし（生成物の差分0）
-- マージ: 済（b9b7e174..83cc10c8）。このログは work/0930-olt-06 にだけ push した（cloudflare へは入れていない）
+- マージ: 済（b9b7e174..83cc10c8）。このログは CHAT-0930-OLT-07 で work/0930-olt-07 経由で cloudflare へ入れた
 - issue: #446（状況をコメント）、#475（この run 36669606696 が自動で「57名 → 55名、消えた名前: 覚野陽生v猿渡輝也(2行)、逢川恵夢s二階堂瑠美(1行)」とコメント済み。こちらからはコメントしていない）
 - 判断が必要なこと:
   - `update-live-channel.yml` のジョブ `yotei` の失敗（予定表の「【1】元データ」が1000行の上限を超える。#479 の全件取り込みの後から。マージ前の run 36667588317 でも同じ）への対応。予定表の担当（#479）で直すか
@@ -163,6 +163,10 @@ SPLIT_VS = re.compile(rf"\s*(?:vs|ｖｓ|VS|ＶＳ)\s*|(?<={KANA_KANJI})[svSV](?
 - エラー:
   - run 36669606696 のジョブ `yotei`: `SheetsWriteError: PUT …/values/'【1】元データ'!A1001 が失敗しました: 400 Range ('【1】元データ'!A1001) exceeds grid limits. Max rows: 1000, max columns: 26`
   - ジョブのログを curl で取りに行くと、セッションのプロキシが拒否（CONNECT 403）。GitHub MCP の `get_job_logs` で読んだ
+- 決定（2026-09-30、平野さん。CHAT-0930-OLT-07 で受けた）:
+  - ログを cloudflare へ入れてよい
+  - 【3】: `6Sem9jKnkVU` の対局者の補正は残す。`SGlbTPLSs7Q` は平野さんが誤記を直す（「覚野陽生v猿渡輝也、…」→「覚野陽生、猿渡輝也、…」）
+  - `yotei` の失敗は予定表（#479）の担当へ回す
 
 <!-- guide-links -->
 ---
