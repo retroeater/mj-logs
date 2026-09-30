@@ -49,6 +49,22 @@ DUP-02 の変更（同じ日の完全版が無料・限定の両方あれば無�
 - Chat-Ref の確認: `CHAT-0930-DUP-05` のコミット・ログなし
 - ブランチ: `work/0930-dup-02` はローカルにあり、`origin/work/0930-dup-02` と同じ（eed74099）。指示文の `git checkout -b` はローカルに既にあるため使えず、docs/notes/cloud-sessions.md「作業ブランチの用意」の「ローカルにあり、リモートと一致」に従って `git checkout work/0930-dup-02` とした
 
+### 0. 着手前の確認
+
+- ログの「指示」欄の末尾は指示文の最後の行と一致
+- DUP-02 のログの `## 報告` の状態: 「判断待ち（プレビューまで。cloudflare へは入れていない）」
+- #487: open、ラベルなし。コメントは DUP-02 の着手中（このセッション、session_01HYCYuV9gScGDdV7TbXxdag）の1件だけで、ほかのセッションの着手中コメントは無い
+
+### 1. 取り込みと再確認
+
+- `origin/cloudflare` は docs のみ進んでいた（DUP-03・CAL-18 のログと決定の記録）。`git merge origin/cloudflare` で `docs/decisions/title.md` の末尾が衝突（DUP-02 と DUP-03 がどちらも末尾に節を足したため。DUP-03 のログで予告したもの）。生成物・スクリプトではなく docs の追記どうしなので、両方の節を残して解いた（DUP-02 → DUP-03 の順）
+- テスト: `python3 -m unittest discover -s scripts/tests` 474件 OK
+- 生成: `python3 scripts/regenerate.py title_pages`。作業ツリーに差分なし（コミット済みの生成物と一致）。警告0件。放送 146期 / 619本
+- `origin/cloudflare` との差分（`git diff --stat origin/cloudflare HEAD`）: 生成物は `title/judan/43.html`・`title/teiou/3.html` の2ページだけ。ほかは `scripts/generate_title_pages.py`・テスト・docs（ログ2本・決定の記録）。**マージの条件を満たす**
+- 配信上限（`check_asset_limits.py`）: すべて OK（配信ファイル数 1,642 / 20,000 など）
+- CLAUDE.md の検証（ガイド文書のサイズ）: CLAUDE.md 26,481・handover.md 22,898・chat-side-operations.md 20,473 バイト。いずれも警告域未満
+- 決定を `docs/decisions/title.md` に足した（先に今の内容を読んだ。末尾は DUP-02・DUP-03 の節）
+
 ## 報告
 
 - 状態: 作業中
@@ -65,12 +81,12 @@ DUP-02 の変更（同じ日の完全版が無料・限定の両方あれば無�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 2e1b8f0d）: https://github.com/retroeater/mj-logs/tree/main/guide/2e1b8f0d
+ガイド文書（この版を写した時点の最新、mj 78e67ff7）: https://github.com/retroeater/mj-logs/tree/main/guide/78e67ff7
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/2e1b8f0d/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/2e1b8f0d/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/2e1b8f0d/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/2e1b8f0d/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/2e1b8f0d/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/2e1b8f0d/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/78e67ff7/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/78e67ff7/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/78e67ff7/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/78e67ff7/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/78e67ff7/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/78e67ff7/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b7f138e5.md
