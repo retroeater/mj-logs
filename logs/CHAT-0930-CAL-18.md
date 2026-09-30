@@ -51,6 +51,29 @@ CAL-16 の実装を本番に入れ、CAL-16 の報告の順番の案（除外タ
 - 識別子: `git log --all --grep=CHAT-0930-CAL-18` は0件。ローカルの `work/0930-cal-450` は origin/work/0930-cal-450（77033776）と同じ（未コミットの変更なし）
 - 手順0: 指示欄の末尾は指示文の最後の行と一致。CAL-16 の `## 報告` は「判断待ち（…マージは未承認）」だったので「判断待ち → 続き: CHAT-0930-CAL-18」に直した（このコミットに含める）
 
+### 手順1: タブ名の変更と除外タブの確かめ
+
+- `git merge origin/cloudflare` を実行した。衝突は無く、入ったのはログ等
+- タブ名の変更（cc0ebc7d）: 「カレンダーの除外」を「【4】カレンダー非掲載」に置き換えた。変えた所:
+  - `scripts/lib/live_layer3.py`: 定数 `EXCLUDE_SHEET_NAME` と `fetch_calendar_exclusions()` の docstring
+  - `scripts/lib/live_calendar.py`: 冒頭の docstring、`build_desired()` の docstring、`delete_reason()` が返す理由の文字列
+  - `scripts/tests/test_live_calendar.py`: `delete_reason` の期待値
+  - `scripts/tests/test_sync_live_calendar.py`: 冒頭の docstring
+  - `docs/notes/yotei-sheet.md`: 2か所。「カレンダーの除外」から改名したことを添えた
+  - `sync_live_calendar.py` とワークフローは定数 `live_layer3.EXCLUDE_SHEET_NAME` を読むので、変えていない
+  - テストは全件 OK
+- `docs/decisions/broadcast-calendar.md` の CAL-12 Q11 の行は、書き方どおり消さずに、完了時に置き換えの印を付ける
+- /live の3層のスプレッドシートの「【4】カレンダー非掲載」を `fetch_calendar_exclusions()` で読んだ:
+  - 見出し（動画ID・参考:題名・理由）で読めた
+  - 4行の動画ID は oc5eK9LEXu0・p4G1enKcSTw・2UQGDePTDl0・0PuFUIz_dk0 で、**CAL-16 の表と同じ**
+  - 理由: テスト放送 2・1分未満の断片（15秒・51秒）2
+- 書き込みなしの見込み: run 36711052871（work/0930-cal-450、cc0ebc7d、入力はすべて外した）。update・yotei success
+  - 出力「「【4】カレンダー非掲載」: 4本」
+  - 載せる予定 2,649（枠 2,525・予定表 124）
+  - 放送済みの枠 2,507（2015年 2・2022年 409 と、除外の分だけ減った）
+  - **作る 2,503**・直す 0・消す 0・そのまま 146
+  - **除外が4件効いている**。予定表の【3】は 1,132行で、入れる・削除・足すとも 0
+
 ## 報告
 
 - 状態: 作業中
@@ -67,12 +90,12 @@ CAL-16 の実装を本番に入れ、CAL-16 の報告の順番の案（除外タ
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 9fd7d3a9）: https://github.com/retroeater/mj-logs/tree/main/guide/9fd7d3a9
+ガイド文書（この版を写した時点の最新、mj 4bd68b4b）: https://github.com/retroeater/mj-logs/tree/main/guide/4bd68b4b
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9fd7d3a9/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9fd7d3a9/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9fd7d3a9/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9fd7d3a9/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9fd7d3a9/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9fd7d3a9/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/4bd68b4b/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/4bd68b4b/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/4bd68b4b/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/4bd68b4b/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/4bd68b4b/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/4bd68b4b/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/ad723967.md
