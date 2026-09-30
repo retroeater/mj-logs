@@ -53,6 +53,28 @@
 - 2026-09-30 Chat-Ref の重複確認（`git log --all --grep`・`docs/logs/` の履歴）: DUP-08 のコミットなし。
   `origin/work/0930-dup-08` は無いため `git checkout -b work/0930-dup-08 origin/cloudflare` で作成。
 
+- 0章: ログの「指示」欄の末尾は指示文の最後の行と一致。DUP-07 の `## 報告` は「状態: 判断待ち」。#232 は open、コメント8件で着手中は DUP-04・DUP-07（このセッション）のものだけ。
+  未マージのブランチは `origin/work/0930-dup-07`（除外対象）と `origin/work/0930-dup-08`（このログ）だけ
+- 手順1: DUP-07 のログを `origin/work/0930-dup-07` から取り込み、最後の `## 報告` の「状態」「ブランチ」「ログ」「マージ」を直し、経過に平野さんの判断を1項目足した（試作のファイルは取り込まない）。
+  **work/0930-dup-07 の削除は最後に回した**: cloud-sessions.md「ブランチの削除」のとおりセッションの git プロキシは削除を拒否する見込みで、止まる条件（削除の拒否）に当たると実装・本番の確認まで止まるため。片付けとして最後に1回だけ試す
+- 手順2 実装:
+  - `generate_title_pages.py`: `OGP_DIR`（`img/ogp/title`）・`OGP_URL_BASE`・`OGP_DESIGN = "black"`・`OGP_INDEX_SLUG = "index"`・`OGP_INDEX_ALT = "タイトル戦"` と `og_image_for(slug, alt)`（最強戦と同じ作り。画像が無ければ空で共通の `img/ogp.png`）を足し、
+    `page_meta()` に `og_image` の引数を足した。入口は `og_image_for("index", "タイトル戦")`、大会ページと期ページは `og_image_for(t.slug, t.name)`
+  - 画像2枚: `python3 scripts/build_ogp_image.py --text <文言> --color '#ffffff' --bg '#000000' --max-size 400 --tracking -0.03 --out img/ogp/title/<名前>.png`
+    - `img/ogp/title/houou-black.png`（「鳳凰戦」、1200×630、31,153 バイト。DUP-07 のものとバイト一致）
+    - `img/ogp/title/index-black.png`（「タイトル戦」、1200×630、26,232 バイト）
+    - フォントは DUP-07 と同じく `raw.githubusercontent.com/notofonts/noto-cjk` の NotoSansJP-Bold.otf（このセッションに DUP-07 のときの取得が残っていた）
+  - テスト `scripts/tests/test_title_ogp.py`（5件）: 画像のある大会・入口の URL と alt、画像の無い大会は既定の `img/ogp.png`、置いた画像の名前が実在の大会か入口に当たること。
+    変更前のコードには `og_image_for()` が無いため、変更前では通らない。全体 479件 OK
+  - 生成し直し（`python3 scripts/regenerate.py title_pages`、警告0件）: 配信の上限はすべて OK（配信ファイル数 1,644）
+  - **生成物の差分（マージの条件と照合、条件を満たす）**: 44ファイル・各2行の置き換えだけ
+    - og:image: `https://ryoei.pro/img/ogp.png` → `.../img/ogp/title/houou-black.png`（鳳凰戦の大会ページ1＋期ページ42＝43ファイル）、`.../index-black.png`（`title/index.html`）
+    - og:image:alt: `ryoei.pro` → `鳳凰戦`（43）、`タイトル戦`（1）
+    - og:image の幅・高さは変わらない（1200×630 のまま）。ほかの大会・sitemap・search.json は変化なし。新しい画像は2枚だけ
+  - 実装のコミット 231fc942
+- 手順3 記録: `docs/decisions/title.md` に DUP-07・DUP-08 の節を追記し、DUP-04 の Q6・Q7・Q10・Q14 の行に「→ 置き換え」、Q11・Q12・Q15・Q16 の行に「→ 取り下げ」を付けた（前の決定は消さない、decisions/README.md）。
+  DUP-07 の節は DUP-07 のブランチにだけあったもので、ログと一緒にここで入れた。`docs/handover.md` の「5. 次にやること」(2) と #232 の行を直した（23,382 バイト）
+
 ## 報告
 
 - 状態: 作業中
@@ -69,12 +91,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj df6e67aa）: https://github.com/retroeater/mj-logs/tree/main/guide/df6e67aa
+ガイド文書（この版を写した時点の最新、mj 064fa714）: https://github.com/retroeater/mj-logs/tree/main/guide/064fa714
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/df6e67aa/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/df6e67aa/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/df6e67aa/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/df6e67aa/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/df6e67aa/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/df6e67aa/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/064fa714/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/064fa714/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/064fa714/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/064fa714/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/064fa714/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/064fa714/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/fa231411.md
