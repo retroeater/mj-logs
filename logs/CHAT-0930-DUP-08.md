@@ -1,0 +1,80 @@
+# CHAT-0930-DUP-08
+
+- 着手日時: 2026-09-30
+- 対象issue: #232
+- ブランチ: work/0930-dup-08
+- 着手時HEAD: cd188304
+
+## 指示
+
+【Claude作成】Claude Code 向け指示：#232 の見本（鳳凰戦の大会ページと、入口の「タイトル戦」の画像）を本番に出し、試作のブランチを片付ける Chat-Ref: CHAT-0930-DUP-08 マージ: 承認済み（チャットで、2026-09-30。grill Q4「1つを本番に出して X・LINE で確かめてから広げる」に基づく）。条件: 生成物の差分が、鳳凰戦の大会ページ・鳳凰戦の期ページ・title/index.html の og:image（と、それに伴う og:image の幅・高さなどのメタ）だけであること、新しい画像が2枚だけであること。 共通手順: CLAUDE.md「Chat-Ref」「ブランチ運用」「作業ログ」節のとおり（識別子確認 → origin/cloudflare を起点に work/<識別子>〈クラウドセッションでは worktree を使わず docs/notes/cloud-sessions.md の読み替えに従う〉 → ログ先行push → 最終報告の Chat-Ref の行の直前に「ログ（公開）」の行、最後の行に Chat-Ref）。平野さんは、この指示のための作業ブランチ work/0930-dup-08 の作成と push、cloudflare へのマージ、work/0930-dup-07 の削除を許可している（セッションに割り当てられた claude/… のブランチは使わない）。 作業ブランチ: クラウドセッションで実行する。work/0930-dup-08 を使う。リモートに無ければ origin/cloudflare から作る。リモートにあってマージ済み（`git merge-base --is-ancestor origin/work/0930-dup-08 origin/cloudflare` が真）なら origin/cloudflare から作る（`checkout -B` は使わない。ローカルにあるときを含め手順は docs/notes/cloud-sessions.md「作業ブランチの用意」）。マージ済みでなければ止まる。
+
+0. 着手前に、このログの「指示」欄の末尾が、この指示文の末尾（最後の行）と一致しているか確認し、一致しなければ作業せず報告する。CHAT-0930-DUP-07 のログの `## 報告` を読み、判断待ちでなければ止まる。#232 が open で、DUP-07 以外のセッションの着手中コメントが無いことを確かめる。`git branch -r --no-merged origin/cloudflare` で未マージのブランチを一覧にし、title/・OGP・`build_ogp_image.py` に触れているもの（DUP-07 を除く）を書く。
+
+目的
+#232 の試作（DUP-07）を見た平野さんの判断で、入口の画像を文字だけにする。鳳凰戦の大会ページと入口の画像を本番に出し、平野さんが X・LINE の投稿画面で見え方を確かめられるようにする（その結果で Q3 を決める）。
+決定（2026-09-30、平野さん）
+
+* 入口の画像は文字だけにし、写真は使わない（肖像権が気になるため）。文言は「タイトル戦」。grill の Q6（現在のタイトルホルダーを載せる）・Q7（写真を並べる）は取り消す。
+* 画像の形式は PNG のまま。
+* 見本は grill Q4 のとおり1つ（鳳凰戦）を本番に出して確かめる。
+
+前提（チャット側。平野さんの決定ではない）
+
+* 入口の画像は大会ページ（Q8・Q9）と同じ作りにする: 黒地・白字、`build_ogp_image.py` を手で実行して PNG をコミット。名前は Q9 の形に合わせて `img/ogp/title/index-black.png`。
+* 入口が文字だけになったので、Q11（人数と並べ方）・Q12（写真の無い人）・Q14（ハッシュつきの名前）・Q15（1位が2名）・Q16（並びが変わったときの警告）は不要になる。決定の記録ではそう書く（Q2・Q5・Q8・Q9・Q10 の「見出しは og:title の帯」は Q10 の前提が写真だったので不要、Q13 は「手で実行してコミット」のまま）。
+* 鳳凰戦の大会ページの画像は、DUP-07 と同じコマンド（`--text 鳳凰戦 --color '#ffffff' --bg '#000000' --max-size 400 --tracking -0.03`、`img/ogp/title/houou-black.png`）で作り直す。入口の画像も同じ引数で文字だけ替える。フォントの取得は DUP-07 のログのとおり。
+* DUP-07 の試作（比較ページ・入口の写真の画像2枚・使い捨てスクリプト）は本番に入れない。DUP-07 のログだけ cloudflare に入れ、work/0930-dup-07 は削除する。
+* og:image を大会ごとに差し替える作りは、最強戦の `og_image_for()` と `lib/page.py` の `PageMeta` に倣う。画像の無い大会は共通の `img/ogp.png` のまま（Q9）。
+
+手順
+
+1. 試作の片付け: DUP-07 のログ（docs/logs/CHAT-0930-DUP-07.md）を「状態」が結果の分かる形（試作は採用せず、DUP-08 で入口を文字だけに変更）になるよう、ログの書き換えの規則に従って直し、ログだけを cloudflare に入れる。work/0930-dup-07 のリモートとローカルを削除する。
+2. 実装: 2枚の画像を作り、title/ の生成で、鳳凰戦の大会ページと期ページは `img/ogp/title/houou-black.png`、入口は `img/ogp/title/index-black.png`、ほかは共通の `img/ogp.png` を og:image にする（ほかの大会の画像が後から足せる作りに）。テストを足し、テスト・配信上限・CLAUDE.md の検証を通す。生成し直して差分をマージの条件と照らし、種類に分けて書く。
+3. 記録と本番: この指示の「決定」と前提の Q の整理を docs/decisions/title.md に追記し、#232 に試作の結果・決定・次の手順（平野さんが X・LINE で確かめて Q3 を決める → 本実装）をコメントし、docs/handover.md の #232 の行を直す（どれも先に今の内容を読む）。条件を満たせば cloudflare へ入れる。本番のビルドと自動の再生成を確かめ（待つ上限15分。超えたらその時点の状態を書き「未確認の項目」へ）、本番の `title/`・`title/houou/`・鳳凰戦の期ページ1つの og:image を curl で確かめる。あわせて、入口のカードの王位戦 石川正明の写真（DUP-07 で 404）が今どの URL で、本番で 200 か 404 かを確かめて書く（直さない）。
+
+止まる条件
+
+* DUP-07 が判断待ちでない。#232 に DUP-07 以外のセッションの着手中コメントがある。未マージのブランチ（DUP-07 を除く）が title/・OGP・`build_ogp_image.py` に触れている。
+* 生成物の差分がマージの条件を満たさない（判断待ちで止める）。テスト・配信上限・検証が通らない。
+* 本番のビルドが失敗した（戻さずに状態を書いて止まる）。
+* ブランチの作成・削除や cloudflare への push が権限判定で拒否された（別の手段を試さずに止まる）。
+
+完了条件
+
+* ログの「## 報告」を CLAUDE.md「作業ログ」節のとおりに書いて push する。報告に、平野さんが X・LINE の投稿画面で確かめる URL（入口・鳳凰戦の大会ページ・鳳凰戦の期ページ1つ）を書く。
+* マージは冒頭の「マージ:」の行のとおり。作業ブランチを片付ける（片付けはほかの検証の成否に条件づけない）。
+* ターミナルへの最終報告の Chat-Ref の行の直前に ログ（公開）: https://github.com/retroeater/mj-logs/blob/main/logs/CHAT-0930-DUP-08.md?v=<SHA>（CLAUDE.md「作業ログ」節）を書き、最後の行に Chat-Ref: CHAT-0930-DUP-08 を書く
+
+不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
+
+## 経過
+
+- 2026-09-30 Chat-Ref の重複確認（`git log --all --grep`・`docs/logs/` の履歴）: DUP-08 のコミットなし。
+  `origin/work/0930-dup-08` は無いため `git checkout -b work/0930-dup-08 origin/cloudflare` で作成。
+
+## 報告
+
+- 状態: 作業中
+- ブランチ: work/0930-dup-08
+- ログ: https://github.com/retroeater/mj/blob/work/0930-dup-08/docs/logs/CHAT-0930-DUP-08.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/0930-dup-08
+- 確認用URL: なし
+- マージ: 未
+- issue: #232
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
+
+<!-- guide-links -->
+---
+
+ガイド文書（この版を写した時点の最新、mj df6e67aa）: https://github.com/retroeater/mj-logs/tree/main/guide/df6e67aa
+
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/df6e67aa/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/df6e67aa/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/df6e67aa/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/df6e67aa/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/df6e67aa/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/df6e67aa/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/fa231411.md
