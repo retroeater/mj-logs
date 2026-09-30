@@ -6,9 +6,9 @@
 **この文書は現状・ルール・次にやることだけを書く。** 実装記録は `docs/notes/`、issue単位の経緯は GitHub Issues、過去の履歴は
 `docs/notes/handover-archive-2026.md`。容量の上限と退避方法は CLAUDE.md「CLAUDE.md / handover.md の更新ルール」。
 
-最終更新: 2026-09-28
+最終更新: 2026-09-30
 
-- **3文書（CLAUDE.md・handover.md・chat-side-operations.md）を整理して縮めた**（#297。Chrome の読み方は `docs/notes/chrome-reading.md` へ）
+- **skill を `.claude/skills/` に複写して置き、git の hook（`.claude/hooks/mj-git-guard.py`）を有効にした**（plugin と MCP は使わない。`docs/notes/skills.md`）
 - **`/live`・`/title` の生成を3層のスプレッドシート（【2】自動変換後・【3】手動補正）から読むように切り替えた**（#438）。
   掲載（Y/N）と補正の入力先は【3】だけ。旧シートの「連盟ch」「放送対局」は読まない（`docs/notes/live-channel-write.md`）
 - **スマホのチャットから作業ログとガイド文書を読めるようにした**（public の `retroeater/mj-logs`、#440。読み方は0章）
@@ -116,6 +116,11 @@ Rebuild・gh の認証は `docs/notes/session-network.md`「Rebuild と Claude C
 （決まるまでの経緯は `docs/notes/handover-archive-2026.md`）。チャット側の運用（識別子の確認、完了報告の受け方、「申送り」、指示文の書き方）は
 `docs/notes/chat-side-operations.md`。
 
+### skill と hook
+
+skill は `.claude/skills/`（`/grill-me`・`/grill-with-docs` など）、git の危険な操作を止める hook は `.claude/hooks/mj-git-guard.py` に置く。
+cloudflare への push と `claude/*` への push は確認（ask）が出る。入れ方・更新・判定一覧は `docs/notes/skills.md`。
+
 ### タスク管理
 
 **GitHub Issues + Projects** で管理している。
@@ -186,6 +191,9 @@ CSPでは `script-src` にのみ必要で、送信先は自ドメインの `/cdn
 |---|---|---|
 | #269 | Search Console の月次取得 | **2026-10-01** の初回の定期実行（`fetch-gsc.yml`）を確かめてクローズ |
 | #390 | 道場部ゲストの読み取りの `max_tokens` を thinking 込みで上げた修正（2026-09-26）は、修正後のコードでまだ読み取っていない | 10月分の告知画像を初めて読む定期実行（`sync-dojo-calendar.yml`、結果は #426）が成功するかを確かめる |
+| #441 | `jpml_titles.html` の廃止 | **2026-10-01** の GSC の取得（#269）の後に廃止の方式を決める。判断材料は #441 のコメント（2026-09-30） |
+| #126 | Bing で `title/` の登録を確認 | **2026-10-12 ごろ**（カレンダー登録済み）。手順は #126 のコメント（2026-09-28） |
+| #473 | (旧)タブ3つと【3】の控えのタブ2つの削除（平野さん） | **2026-10-13**（カレンダー登録済み）。削除の前後にすることは #473 の本文 |
 | #97 | 書籍ページ開発凍結中の楽天データ保存期限 | **2026-12-22**（最後に取得した2026-09-22の3か月後）までに再取得するか削除する（`docs/notes/books-freeze.md`「楽天の期限」） |
 
 GitHub Issues（Open）に全件あるが、着手可能な主なものは以下。
@@ -201,7 +209,9 @@ GitHub Issues（Open）に全件あるが、着手可能な主なものは以下
 | #186 | アクセシビリティの実機での通し確認 | 静的レビュー（#178〜#185）の残り。チェックリストは `docs/notes/a11y-manual-check.md`。**Lighthouse のスコアを到達点として扱わない**（根拠は #186） |
 | #180 | `select#selectbox` のラベル・選択と同時の遷移 | ランキング3ページ分は #141 の移行で対応する |
 | #408 | タイトル戦の対局日を確定させる | 日付列の仮の値を実際の対局日に直す。書式と未確定の2期は `docs/notes/title-pages.md`「日付列の書式」 |
-| **#222** | タイトル戦の新構成（`title/`） | 2026-09-28 に公開済み（#413 クローズ）。公開後の残件: #408 対局日・#452 載らなくなった決勝動画8本・#232 OGP 画像の出し分け・#441 旧表の廃止（10-01 の GSC 取得の後）。知見は `docs/notes/title-pages.md` |
+| **#222** | タイトル戦の新構成（`title/`） | 2026-09-28 に公開済み（#413 クローズ）。公開後の残件: #408 対局日・#470・#471（「タイトル」タブのデータ）・#232 OGP 画像の出し分け・#441 旧表の廃止。#222 自体を閉じるかは未決。知見は `docs/notes/title-pages.md` |
+| #446 | /live の【2】の規則の改善 | ステージの並び・対局日・読み違いは済み（【3】の補正は 7,834 → 1,392）。未決 U1〜U4（ライブの無い組の対局日 217件・紅龍戦のステージの並び・件数の少ない列・「プレイヤー解説：」）は #446 のコメント（2026-09-30） |
+| #475 | /live の未登録の名前（57名） | 平野さんが「別名」「連盟プロ以外」に登録する。毎日の取り込みが増減の日だけコメントする |
 | #370 | 連盟員名簿の属性（誕生日・段位など） | `check-meibo.yml`（週次、予約実行も issue を書く設定で成功している）まで済み。使い道は #405・#286・#379（済） |
 | — | 現行サイトで小さく作れる6件 | **チャット側の提案で、平野さんは未了承**: #389 → #388 → #377 → #366 → #371 → #378。未決: #365・#367 のデータを誰がいつ入力するか |
 
@@ -229,6 +239,7 @@ GitHub Issues（Open）に全件あるが、着手可能な主なものは以下
 | `docs/notes/session-network.md` | セッションから外部に届くか、gh の認証、Rebuild、シートの行番号、作業ファイルの置き場所 |
 | `docs/notes/chat-side-operations.md` | チャット側が指示文を書く前（ログの読み方もここ） |
 | `docs/notes/chrome-reading.md` | チャット側が PC で Claude for Chrome を使い mj を直接読む前 |
+| `docs/notes/skills.md` | skill の追加・更新、git の hook の判定を変える・確かめる前 |
 | `docs/notes/branch-operations.md` | ブランチの削除・ワークフローの変更・作業ログの寿命（入口の規則は CLAUDE.md） |
 | `docs/notes/static-generation.md` | ページの一覧・生成スクリプト・ページ側のJS・ワークフローの一覧・メンテナンス用スクリプト、#7 の残り |
 | `docs/notes/sitemap-lastmod.md` | sitemap の lastmod（#265） |

@@ -41,6 +41,8 @@ Chat-Ref: CHAT-MMDD-XXX-nn
 
 ### 決定（YYYY-MM-DD、平野さん）
 - （チャットで平野さんが明示したことだけ。現状維持を含め、明示が無ければ下の「前提」へ）
+- （マージを伴う指示では、平野さんの事前の許可を1行書く。例: 「手順○が見込みどおりなら、平野さんの判断として cloudflare へ入れてよい。変更の中身（〜）は承知している。push が権限判定で拒否されたら、別の手段を試さずに止まる」。
+  書かないと、セッションの権限判定が cloudflare への push を拒否して止まることがある）
 
 ### 前提（チャット側。平野さんの決定ではない）
 - （チャット側の提案、書き場所・文面の案、背景。実物に合わせて変えてよいものはここに書く）
@@ -53,13 +55,14 @@ Chat-Ref: CHAT-MMDD-XXX-nn
 
 ## 止まる条件
 - （前提が食い違う、同じ論点の issue がある、他セッションの着手中コメントがある 等）
+- （マージを伴う指示では）cloudflare への push が権限判定で拒否された（別の手段を試さずに止まる）
 
 ## 完了条件
 - ログの「## 報告」を CLAUDE.md「作業ログ」節のとおりに書いて push する
 - マージ可否とその基準（次のどちらか）:
   - ドキュメントのみの変更なので、完了報告のうえ cloudflare へマージしてよい
   - 平野さんの判断で、確認（〜）が済んだら cloudflare へマージしてよい ／ マージせず報告する
-- ターミナルへの最終報告の Chat-Ref の行の直前に ログ（公開）: https://github.com/retroeater/mj-logs/blob/main/logs/CHAT-MMDD-XXX-nn.md を書き、最後の行に Chat-Ref: CHAT-MMDD-XXX-nn を書く
+- ターミナルへの最終報告の Chat-Ref の行の直前に ログ（公開）: https://github.com/retroeater/mj-logs/blob/main/logs/CHAT-MMDD-XXX-nn.md?v=<SHA>（CLAUDE.md「作業ログ」節）を書き、最後の行に Chat-Ref: CHAT-MMDD-XXX-nn を書く
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 ```

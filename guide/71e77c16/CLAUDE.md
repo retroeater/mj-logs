@@ -89,7 +89,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   - `docs/`配下のみの変更では Workers Builds が走らず check-run も出ない（#171）。`docs/`外のドキュメントを含むpushではデプロイが1回走る（表示は変わらない）
 - **マージの手順:** worktree内で`git push origin <作業ブランチ>:cloudflare`とし、cloudflareはチェックアウトしない。
   **push直前に必ず再fetchし、`git merge-base --is-ancestor origin/cloudflare HEAD`で push 先が自分のHEADの祖先であることを確認すること。**
-  他セッションのfetchで`origin/cloudflare`が進むため、取り込み時点を前提にすると他セッションのコミットを巻き戻す
+  他セッションのfetchで`origin/cloudflare`が進むため、取り込み時点を前提にすると他セッションのコミットを巻き戻す。
+  hook（mj-git-guard）はこのpushを、docs/logs のみ（`_template.md`を除く）の fast-forward なら確認なしで通し、それ以外は ask にする（docs/notes/skills.md）
 - **`.github/workflows/`を追加・変更する作業では、着手時にdocs/notes/branch-operations.md「ワークフローを変更したとき」を読む。
   マージの前に作業ブランチで手動実行して結果を確かめ、実行できないときは報告して判断を仰ぐこと**
 - 長期間マージされないブランチは、定期的に`cloudflare`を取り込んで乖離を小さく保つ
@@ -151,10 +152,12 @@ push したログとガイド文書は public の`retroeater/mj-logs`に写る�
   `work/`ではこの目印のあるpushだけがmj-logsへ写る。途中の節目のpushには付けない（#298）
 - 構成（ヘッダ・`## 指示`〈貼られた指示文をそのまま〉・`## 経過`〈詳細はすべてここ〉・`## 報告`）と各項目の書き方は`docs/logs/_template.md`（コピーして使う）。
   **`## 報告`はログの末尾に必ず置き、作業の最後に更新してpushする。** チャット側はこの節だけを読んで判断するため、**10項目を省かず、該当が無ければ「なし」と書く**
-- ログは作業ブランチにコミットし、`cloudflare`へのマージ時に成果物と一緒に入れる
+- ログは作業ブランチにだけpushし（ログ先行・節目のpushを含む）、`cloudflare`へは指示の最後のマージ1回で成果物と一緒に入れる。
+  マージの結果（Actions・check-run等）を書く docs/logs のみの追いのpushは可（hookは確認なしで通す）
 - 後の指示で使うスクリプト・中間データの置き場所は docs/notes/session-network.md「作業ファイルの置き場所」（scratchpad は再起動で消える）
 - **ターミナルへ返す最終報告は、状態・ログのURL・ブランチ・（あれば）確認用・ログ（公開）・Chat-Ref の行だけにする。**
   形は`docs/logs/_template.md`「ターミナルへ返す最終報告」。**URL の直後に文字を続けない**（続く文字まで URL とみなされ404になる）。
+  **「ログ（公開）」の URL の末尾には`?v=<最後に push したログを含む mj のコミットの短い SHA>`を付ける**（チャット側は一度読んだ URL で古い版を受け取るため、版ごとに URL を変える）
   判断が必要なこと・エラーを含め、詳細はログの`## 報告`に書き、ターミナルには出さない
 - **例外として、次の2つはログに届かないためターミナルに内容を書く:** 作業途中で平野さんに質問して止まるとき／pushに失敗したとき
 - ログの寿命: `cleanup-logs.yml`が週次で片付ける（削除の条件はdocs/notes/branch-operations.md「作業ログの寿命」）
