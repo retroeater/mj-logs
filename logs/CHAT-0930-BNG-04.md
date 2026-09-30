@@ -59,30 +59,53 @@ Bing Recommendations の対象 URL（2026-09-30、平野さんが CSV で取得�
 
 ## 経過
 
-- 着手前確認: 同じ Chat-Ref のコミット無し。BNG-03 は「マージ: 済」、`origin/work/0930-bng` は `origin/cloudflare` の祖先。`git merge --ff-only origin/cloudflare` で 0fadc73a へ進めた。指示欄の末尾は指示文の最後の行と一致。
+- 着手前確認: 同じ Chat-Ref のコミット無し。BNG-03 は「マージ: 済」、`origin/work/0930-bng` は `origin/cloudflare` の祖先。`git merge --ff-only origin/cloudflare` で 0fadc73a へ進めた。指示欄の末尾は指示文の最後の行と一致。#486 にコメントは無く、他セッションの「着手中」も無い。
+- **前提との食い違い**: 決定の「タイトルの長さは #5（title 整備）に含める」の #5 は **Closed**（「他ページへのSEO展開」）。受け皿が開いていないため、#5 へのコメントはせず、#486 の決定のコメントに「未解決」として書いた。#5 の再オープン／#142（Open）／新 issue のどれにするかは平野さんの判断待ち。
+- **指示の #150 は無関係**: #150 は「Mつくの概要列幅(暫定40%)の妥当性を検討する」（Closed）。`index.html` に帰り道サムネイル・/live の埋め込みは無く、JS が挿入する img も無いため、#150 ほか該当 issue へのコメントはしていない。
+- 手順1:
+  - #486 の本文「決めること」の6項目の末尾に「→ 決定済み（コメント参照）」を付けた（本文の他は変えていない。REST の PATCH で本文を置き換え）。
+  - #486 にコメント「## 決定（2026-09-30、CHAT-0930-BNG-04）」（https://github.com/retroeater/mj/issues/486#issuecomment-5906091881 ）: 決定5点、Bing の対象 URL の4つの一覧、未解決（#5 が Closed）。
+  - #283 に1行のコメント（https://github.com/retroeater/mj/issues/283#issuecomment-5906092317 ）: h1 の無い 11 ページへの h1 追加はこの issue と一緒、順序は #283 → #486 → #7。
+- 手順2（読むだけ）:
+  - 方法: 静的 HTML、`index.html` の全版の h1 と img（`git log -- index.html` の各版を走査）、`git log -S`、ヘッドレス Chromium（`/opt/pw-browsers/chromium-1194`、`--dump-dom --virtual-time-budget=8000`、`python3 -m http.server` でローカル配信）で JS 実行後の DOM、本番を bingbot の UA で `curl`。ヘッドレスでは Google Charts（外部）が読めず表は描かれない。
+  - `/` の h1: 現在1個（静的・描画後とも）。2023-09-18〜2026-09-13（ef1b2746、#185/#166）はサイドバーの `<h1 class="text-light"><a href="index.html">Ryoei Hirano</a></h1>` と本文の2個。→ (a) 古い HTML。
+  - `/` の alt: `alt` 属性の無い img は 2022-04 以降の全版で0。現在 `alt=""` が9個（プロフィール2・Portfolio のサムネイル7）。描画後も同じ9個で、JS の挿入は無い（`index.js` に img の生成なし、`assets/*.js` で img を作るのは `title.js`・`saikyo.js` で index では読まない）。空 alt を持つページは他に `video_wayhome.html`（1個）だけで、そちらは指摘されていない。→ (d) 空 alt を「無し」と数えていると推定（確定できない）。
+  - h1 無し4件: 4ファイルとも `git log -S'<h1'` で0件（一度も h1 が無い）。描画後も0。→ 実態どおり。
+  - description 無し2件: `ouka_results.html`・`ouka_ranking.html` とも 2026-09-09 の acb1621c（#5・#12）から `<head>` の7行目にある。描画後・本番（bingbot UA）もあり。平野さんの画面の最終クロール 9/15 より前に入っているため (a) では素直に説明できない。同じコミットで入った `houou_*` は指摘されていないので、分析のスナップショットが 9/9 より前の取得と推定（確かめられない）。
+  - (c): `_redirects` に `houou_*`・`ouka_*` の規則は無く、クエリ付きは同じファイル。ヘッドレスで `?sheet=桜花`・`?sheet=鳳凰`・`?name=滝沢和典` も h1 0・description あり。
+- 手順3: #486 にコメント「## Bing の指摘との差の理由（CHAT-0930-BNG-04）」（https://github.com/retroeater/mj/issues/486#issuecomment-5906096533 ）。何も直していない。
+- 変更は docs/logs のみ。
 
 ## 報告
 
-- 状態: 中断（着手直後）
+- 状態: 完了（#5 の扱いは判断待ち）
 - ブランチ: work/0930-bng
 - ログ: https://github.com/retroeater/mj/blob/work/0930-bng/docs/logs/CHAT-0930-BNG-04.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/0930-bng
-- 確認用URL: なし
-- マージ: 未
-- issue: #486
-- 判断が必要なこと: なし
-- 未確認の項目: 手順1〜3すべて
+- 確認用URL: なし（docs/logs のみ）
+- マージ: 済（cloudflare へ fast-forward。docs/logs のみ）
+- issue: #486（本文の「決めること」に決定済みの印、コメント2件）、#283（コメント1件）。#5・#150 にはコメントしていない（下記）
+- 判断が必要なこと:
+  - **#5 が Closed**。決定の「タイトルの長さ・共通の末尾の検討を #5 に含める」の受け皿として、#5 を再オープンするか、#142（Open、title 整備の効果測定）か新しい issue に置くか
+  - 手順3の表の要点:
+    - h1 複数（`/`）: 2026-09-13 まで h1 が2個あった。(a) 古い HTML。直す必要なし
+    - alt 無し（`/`）: `alt` 属性の無い img は無く、`alt=""` が9個。JS の挿入ではない。(d) 空 alt を数えていると推定。直すなら `index.html` の Portfolio のサムネイル7個に alt を付ける（任意）
+    - description 無し（`ouka_results`・`ouka_ranking?sheet=桜花`）: 9/9 から description あり、本番にもある。(a) の可能性が高いが、平野さんの画面の最終クロール 9/15 と食い違う。直す必要なし。次の Recommendations で消えるか見る
+    - h1 無し4件: 実態どおり（一度も h1 が無い）。#283 と一緒に h1 を足す（決定どおり）
+- 未確認の項目:
+  - Bing の Recommendations の分析がいつの取得に基づくか（description 無しの食い違いの理由）。Bing が空 `alt=""` を「無し」と数えるか。どちらも Bing の画面・仕様で、ここからは確かめられない
+  - ヘッドレスでは Google Charts が読めず、型B の表の描画後の DOM は見ていない（h1・description・img の判定には影響しない見込み）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj ae4d7104）: https://github.com/retroeater/mj-logs/tree/main/guide/ae4d7104
+ガイド文書（この版を写した時点の最新、mj 9a820f24）: https://github.com/retroeater/mj-logs/tree/main/guide/9a820f24
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ae4d7104/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ae4d7104/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ae4d7104/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ae4d7104/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ae4d7104/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/ae4d7104/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a820f24/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a820f24/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a820f24/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a820f24/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a820f24/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a820f24/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/ad723967.md
