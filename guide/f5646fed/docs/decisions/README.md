@@ -11,6 +11,8 @@
 | ファイル | 分野 |
 |---|---|
 | [broadcast-calendar.md](broadcast-calendar.md) | 放送対局の公開カレンダー「mj_放送対局」・連盟の予定表の取り込み（#448 系） |
+| [seo-bing.md](seo-bing.md) | SEO・Bing（Bing Webmaster Tools・title・h1・description、#126・#486・#5 系） |
+| [title.md](title.md) | タイトル戦（title/、「タイトル」タブのデータ・公開後の残件、#222 系） |
 
 ## 書き方
 
