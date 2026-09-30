@@ -120,21 +120,26 @@ SK-44 のコミットは cloudflare の祖先（マージ済み）。どちら�
 - origin/cloudflare（f5646fed まで。DUP-02・DUP-04・DUP-05 のマージを含む）を取り込んだ。`docs/decisions/title.md` の末尾が DUP-05・DUP-04 の節と衝突したため、
   両方を残して解いた（DUP-05・DUP-04 の節の後に DUP-06 の節）。ほかに衝突なし
 - 取り込み後にテスト（OK）と `regenerate.py all`（エラー0）をやり直し、作業ツリーに差分なし。`git diff origin/cloudflare HEAD` はドキュメント4件と `scripts/lib/page.py` だけで、生成物は含まない
+- 直前に再fetchし `git merge-base --is-ancestor origin/cloudflare HEAD` が真であることを確かめて `git push origin work/0930-dup-06:cloudflare`（f5646fed..df6e67aa、fast-forward）
+- df6e67aa の check-run: check 2件・regenerate・sync 2件がすべて success。regenerate の後に `chore: regenerate` のコミットは cloudflare に出ておらず、生成物が変わらないことと合う。
+  取得した時点では「Workers Builds: mj」の check-run は一覧に無かった（出ないのか遅れているのかはここからは判断できない）。表示の変わる変更は含まない
+- 作業ブランチ `work/0930-dup-06` はマージ済み。削除は `delete-merged-branches.yml` に任せる（docs/notes/cloud-sessions.md「ブランチの削除」）
 
 ## 報告
 
 - 状態: 完了（ラベル「対象: jpml_titles」の削除だけ判断待ち）
-- ブランチ: work/0930-dup-06
+- ブランチ: work/0930-dup-06（マージ済み。削除は delete-merged-branches.yml に任せる）
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-0930-DUP-06.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/0930-dup-06
 - 確認用URL: なし（生成物は変わらない。変更はドキュメントと `scripts/`〈公開対象外〉のコメントだけ）
-- マージ: 済（cloudflare へ fast-forward。SHA は経過の末尾）
+- マージ: 済（df6e67aa。cloudflare へ fast-forward）
 - issue: コメント24件（#485・#235・#362・#159・#420・#277・#374・#95・#139・#227・#224・#279・#238・#247・#248・#255・#256・#260・#283・#411・#415・#416・#417・#461。ID は経過の「2.」）。
   ラベル「対象: jpml_titles」を #420・#277・#374 から外した。起票・クローズなし
 - 判断が必要なこと:
   - ラベル「対象: jpml_titles」を消すか。外した後も #485（open。旧表の URL の転送を扱い、ラベルが実態に合う）と closed の #484・#441・#147・#20 に付いている。
     前提の「付いている issue が無くなったら消す」に当たらないため消していない。消すなら #485 から外すかどうかも合わせて決める
 - 未確認の項目:
+  - df6e67aa の「Workers Builds: mj」の check-run（取得時点で一覧に無かった。表示の変わる変更は含まない）
   - Speed Brain の今の設定（2026-09-30 は prefetch の要求に 200 が返り、2026-09-11 の 503 と違う。ダッシュボードはこの環境から見えない）
 - エラー: 最初のブランチ作成（`git checkout -b work/0930-dup-06 origin/cloudflare`）が分類器に拒否された（`[Modify Shared Resources]`）。平野さんの承認後に同じコマンドで成功
 
