@@ -74,27 +74,31 @@ Bash のコマンド文字列を `&&`・`||`・`;`・`|`・改行で区切り、
 | `branch -D`（`--delete --force` を含む） | git branch -D は使わない。削除前に branch-operations.md「ブランチを削除するとき」 |
 | `checkout .` | 作業ツリーをまとめて戻さない（branch-operations.md「未コミットの変更を戻すとき」） |
 | `gh-pages` への push（refspec が無ければ現在ブランチ） | gh-pages に触らない（handover.md） |
+| cloudflare への force push（`--force`・`-f`〈`-fu` 等のまとめ書きを含む〉・`--force-with-lease`・`--force-if-includes`・`+refspec`。refspec が無ければ現在ブランチ） | cloudflare へ force push しない（本番の履歴を書き換える） |
+| cloudflare を消す push（`--delete`・`-d`・`:cloudflare`） | cloudflare を消す push はしない |
+| `push --mirror`・`push --prune` | push --mirror・--prune は使わない（リモートのブランチを消しうる） |
 
-それ以外（cloudflare・`claude/*`・`work/*` への push、`branch -d`、`checkout -b` など）は出力なしで通す。
+それ以外（cloudflare への通常の push、`claude/*`・`work/*` への push〈force・削除を含む〉、`branch -d`、`checkout -b` など）は出力なしで通す。
 
-試験した入力と結果（2026-09-30）:
+試験した入力と結果（2026-09-30、39件）:
 
 | コマンド | 判定 |
 |---|---|
-| `git push origin work/x:cloudflare`（コード込み・docs/logs のみとも） | 通過 |
-| `git push --force origin work/x:cloudflare` | 通過 |
+| `git fetch -q origin && git merge-base --is-ancestor origin/cloudflare HEAD && git push origin work/x:cloudflare 2>&1 \| tail -1`・`git push origin HEAD:refs/heads/cloudflare` | 通過 |
+| `git push origin work/x`・`git push -u origin work/x`・`git push`（work 上） | 通過 |
+| `git push origin --delete work/old`・`git push origin :work/old` | 通過 |
+| `git push --force origin work/x`・`git push -f origin`（work 上） | 通過 |
 | `git push origin claude/foo` | 通過 |
-| `git push -u origin work/x` | 通過 |
-| `git push origin gh-pages`・`git push origin HEAD:refs/heads/gh-pages` | deny |
-| `git reset --hard origin/cloudflare` | deny |
-| `git -C /x clean -fd` | deny |
-| `git stash` | deny |
-| `git branch -D work/old`・`git branch --delete --force work/old` | deny |
-| `git checkout .` | deny |
-| `git fetch origin && git reset --hard origin/x`・`git push origin work/x:cloudflare; git stash` | deny |
-| `git branch -d work/old`・`git checkout -b work/x origin/cloudflare` | 通過 |
+| `git push --force`・`-f`・`-fu`・`--force-with-lease`（`=...` 付きを含む）・`--force-if-includes` の `origin work/x:cloudflare`、`git push origin +work/x:cloudflare`・`+HEAD:refs/heads/cloudflare` | deny（force） |
+| `git push -f origin`・`git push --force`（cloudflare 上） | deny（force） |
+| `git push origin --delete cloudflare`・`git push -d origin cloudflare`・`git push origin :cloudflare`・`:refs/heads/cloudflare` | deny（削除） |
+| `git push --mirror origin`・`git push --prune origin ...` | deny（mirror・prune） |
+| `git reset --hard ...`・`git -C /x clean -fd`・`git stash`・`git branch -D`／`--delete --force`・`git checkout .`・`git push origin gh-pages`／`HEAD:refs/heads/gh-pages` | deny（既存6種、理由文は変わらない） |
+| `git fetch origin && git push --force origin work/x:cloudflare`・`git push origin work/x:cloudflare; git stash`・`git status \| git push origin --delete cloudflare` | deny（連結の中） |
+| `git branch -d work/old`・`git checkout -b work/y origin/cloudflare` | 通過 |
 
-- **セッションは hook を書き換えられない。** auto モードの分類器が `[Self-Modification]` として拒否する（2026-09-30）。変えるときは平野さんが手でコミットする
+- **hook の変更は、セッションからは書き換えも cloudflare へのマージも auto モードの分類器が `[Self-Modification]` として拒否する**（2026-09-30）。
+  平野さんが手でコミットし、PR（Create a merge commit）でマージする。セッションは試験と文書まで
 
 限界（文字列の解析であり、事故の防止であって強制ではない）:
 

@@ -19,8 +19,8 @@
 ## 経過
 
 - 識別子: `git log --all --grep=CHAT-0930-CAL-15` は0件。最初の実行は、ブランチ作成が分類器に拒否されて中断（コマンド: `git checkout -b work/0930-cal-grid origin/cloudflare`、理由: Modify Shared Resources）。平野さんの許可を受けて再開し、ブランチを作成
-- 手順4の先行確認: `regenerate` は `needs: update`、`if: update.outputs.run == 'true' && update.outputs.apply == 'true'`。`yotei` には依存しない
 - 手順0: CAL-11 の `## 報告` は「中断（判断待ち）」だった（最新のログは未マージの origin/work/0930-cal-full にあり、ログ用の3コミットだけ差があったので merge して取り込んだ）。状態を「中断 → 続き: CHAT-0930-CAL-15」に直した
+- 手順2: origin/cloudflare（0fadc73a）を取り込み（衝突なし）、全件のテスト OK。差分は手順1のコード・テスト・`docs/notes/live-channel-write.md` の1行・ログ2本だけ
 - 手順1: `scripts/lib/sheets_write.py` に `_ensure_grid` を足し、`clear_and_write`（全面の書き直し）・`append_rows`（used＝values.get の行数＋追記行数）・`update_cells`（最大の行・列）の書く前に呼ぶ。
   グリッドはシートのプロパティ（`gridProperties.rowCount/columnCount`）から読み、超えるときだけ `appendDimension`（足りない分＋行 `GRID_MARGIN_ROWS`=500・列 `GRID_MARGIN_COLUMNS`=2）。超えないなら読み取り1回のみ。`delete_rows` は縮めるだけなので変えない
   - 変わる所: `WRITABLE` の6タブ（予定表の【1】【2】【3】、3層の【1】【2】【3】）すべてで、書き込みの前にシートのプロパティの読み取り（GET）が1回増える。グリッドを超える書き込みでだけ行・列が増える（これまでは失敗していた）。`append_rows` は values.get も1回増える。/live の3層は今のグリッドが足りていれば挙動は変わらない
@@ -43,11 +43,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj ae4d7104）: https://github.com/retroeater/mj-logs/tree/main/guide/ae4d7104
+ガイド文書（この版を写した時点の最新、mj 9a820f24）: https://github.com/retroeater/mj-logs/tree/main/guide/9a820f24
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ae4d7104/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ae4d7104/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ae4d7104/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ae4d7104/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ae4d7104/docs/notes/cloudflare.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a820f24/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a820f24/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a820f24/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a820f24/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a820f24/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a820f24/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/ad723967.md
