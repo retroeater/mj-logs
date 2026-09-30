@@ -151,6 +151,9 @@ Speed → Recommendations（Site Recommendations）の一覧と、それぞれ�
 `_headers` に `Link:` を書く設計はせずに終えた。Smart Hints（クローズドベータ）は申し込んでいない
 （2026-09-29 の画面は「Sign up」のまま。平野さんのスクリーンショットによる）。
 
+**Crawler Hints: On**（2026-09-28〜、平野さんの申告でセッションからは検証できない）。IndexNow への自動通知の試行。
+Bing 側に IndexNow の送信の記録は無く、効果は確認できていない（#126、2026-09-30）。On のままにする。自前の送信（キーのファイル＋Actions）は行わない。
+
 #### Synthetic monitoring の定期実行（2026-09-29、#125）
 
 Lighthouse の定期実行は、Observatory ではなく **Speed → Synthetic monitoring（Beta）の Browser tests** にある（2026-09-29 の画面。平野さんのスクリーンショットによる）。

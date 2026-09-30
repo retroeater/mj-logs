@@ -17,9 +17,10 @@
   - `title/search.json`（全ページの検索のデータ、#364）
 - `render_content()` 方式。画像の読み込み失敗は `assets/title.js` が `data-fallback`（アバター）へ差し替える
 - CSS は `style.css` の「タイトル戦(title/、#222)」節。クラスは `.mj-title*` と `body:has(.mj-title)` に閉じる
-- 公開（#413、2026-09-28）: noindex を外し、`sitemap.xml` から `sitemap-title.xml` を参照する。navbar の「連盟 > タイトル」は `/title/` へ差し替えた（旧 `jpml_titles.html` はページとして残す。/live の公開手順〈#362〉と同じ形）。`llms.txt` に入口を載せ、旧表は「タイトル（表）」として残す
+- 公開（#413、2026-09-28）: noindex を外し、`sitemap.xml` から `sitemap-title.xml` を参照する。navbar の「連盟 > タイトル」は `/title/` へ差し替えた。`llms.txt` に入口を載せた
   - canonical を出す（サイトの既定〈#113、出さない〉の例外。`saikyo/` と同じ形）。入口・大会ページ・期ページとも、スラッシュ付きの正規の URL（`https://ryoei.pro/title/`・`/title/<slug>/`・`/title/<slug>/<期>.html`）で、og:url と同じ値（`page_meta()`）
-  - `jpml_titles.html` から `title/` へのリンクは置かない。旧表の廃止は流入などを確かめてから（#441）
+  - 旧表 `jpml_titles.html` は廃止し、`_redirects` で `/title/` へ 301（#441）。`?name=<選手名>` はそのまま付き、`assets/title.js` が `q` の無いときの検索の初期値に使う。
+    `jpml_pros.html` の「決勝進出」は `generate_title_pages.final_counts()`（title/ に載る決勝の回数）で数え、`/title/?q=<名前>` へリンクする
   - `/title/<slug>`（末尾スラッシュなし）は `/title/<slug>/` へ 301（#455。下の「URL の解決」）
 - 写真カードの処理は `generate_saikyo_pages.py` と重複している（共通化は #222 の未決定）
 - 入口（#358・#364、2026-09-18）: タイトルホルダーを決勝日（日付列）の降順に並べ、カード全体を大会ページへのリンクにする。カードは写真そのもので、

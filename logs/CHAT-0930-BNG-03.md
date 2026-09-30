@@ -1,7 +1,7 @@
 # CHAT-0930-BNG-03
 
 - 着手日時: 2026-09-30
-- 対象issue: #126、#156（コメント）、新 issue（起票予定）
+- 対象issue: #126（クローズ）、#156（コメント）、#486（新規起票）
 - ブランチ: work/0930-bng
 - 着手時HEAD: 0128fa1e
 
@@ -77,30 +77,40 @@ BNG-02 の直後に平野さんが Bing Webmaster Tools と Cloudflare の画面
 
 ## 経過
 
-- 着手前確認: 同じ Chat-Ref のコミット無し。BNG-02 のログの `## 報告` は「マージ: 済」、`origin/work/0930-bng` は `origin/cloudflare` の祖先（マージ済み）。ローカルの work/0930-bng を `git merge --ff-only origin/cloudflare` で 0128fa1e へ進めた。
-- 指示欄の末尾は指示文の最後の行と一致。
+- 着手前確認: 同じ Chat-Ref のコミット無し。BNG-02 のログの `## 報告` は「マージ: 済」、`origin/work/0930-bng` は `origin/cloudflare` の祖先（マージ済み）。ローカルの work/0930-bng を `git merge --ff-only origin/cloudflare` で 0128fa1e へ進めた。指示欄の末尾は指示文の最後の行と一致。
+- #126 に他セッションの「着手中」コメントは無い（コメント5件とも平野さんの記録か Claude の記録）。
+- 手順3の重複検索: 検索 API が使えないため、REST で issue 484件（PR 除く）を取得し、タイトルと本文で `Recommendations|h1|description|alt|Bing` を確認。Bing の Recommendations を扱う issue は無い。h1・description を含む open は #283（h1 と title の文言の統一）と #160（新サイトの情報設計、h1 は新サイト前提）で、論点が異なる（文言の統一・新サイトの設計）ため起票し、本文で関連に挙げた。#50・#52・#53・#158 は Closed。
+- 手順3の照合（読むだけ）: `sitemap-pages.xml` は今は **23 URL**（指示の24は #441 で `jpml_titles.html` が外れる前の数）。`<title>` の文字数・description の有無と文字数・h1 の個数・alt の無い `<img>` を HTML から数えた（`sitemap-wayhome.xml`・`sitemap-saikyo.xml`・`sitemap-title.xml` も同様）。結果は #486 の本文の表。
+  - h1 無し: 11ページ（`jpml_links`・`houou_ranking/leagues/results`・`ouka_ranking/leagues/results`・`wrc_ranking/results`・`resource_dictionary`・`rh_links`）。h1 複数: 0。description 無し: sitemap の URL では0（`404.html` だけ無い）。alt 無しの img: 0。title は全ページ 9〜32 文字（推奨 50〜60 より短い）。description の最短は `jpml_links.html` の 29 文字。
+  - Bing の「description 無し 2」「h1 複数 1」「alt 無し 1」は sitemap の URL では再現しない（対象 URL の CSV が無いため、Bing が見ている別 URL の可能性）。
+  - 旧 URL: `/jpml_logs.html` は本番で 404（`curl` で確認）、`/saikyo_results.html` は 301 → `/saikyo/`。Bing の一覧に残っている。
+- 起票: #486「Bing Webmaster Tools の Recommendations（h1・description・タイトル・コンテンツ量・alt）に対応する」（ラベル `分野: SEO/AIO`・`対象: 全ページ`）。何も直していない。
+- #126: 結論のコメント（https://github.com/retroeater/mj/issues/126#issuecomment-5905175268 ）。要約: `/title/` は Bing に登録済み（発見 9/28・クロール 9/29）、サイトマップ検出 464、`?name=` 付き URL は Bing でも個別に登録、IndexNow の記録は無く Crawler Hints の効果は確認できず、Crawler Hints は On のまま、案 c は行わない、10/12 の確認は不要（カレンダーは削除済み）、BNG-02 の再送信・手動送信をしない決定は解除、9/12 の完了条件（22URLの突き合わせ）は URL 検査で `/title/` 登録済みを確認したことをもって完了と読み替え。`状況: 待ち` ラベルを外して completed でクローズ。値は平野さんの申告で、ここからは検証できない。
+- #156: コメント1件（https://github.com/retroeater/mj/issues/156#issuecomment-5905175827 ）。#126 はクローズ、Crawler Hints の効果判定の共有先は無くなった、この issue は単独で続ける。
+- 文書: `docs/handover.md`「次にやること」の #126 の行を削除。`docs/notes/cloudflare.md`「Speed 設定の現状」末尾の Crawler Hints の2行を、On のまま・Bing 側に送信の記録が無く効果は未確認・案 c は行わない、に置き換え。
+- 検査: `python3 scripts/check_asset_limits.py` は警告・超過なし。`python3 -m unittest discover -s scripts/tests` は 446 件 OK。`git diff --name-only origin/cloudflare` に docs/ 以外は無し。
 
 ## 報告
 
-- 状態: 中断（着手直後）
+- 状態: 完了
 - ブランチ: work/0930-bng
 - ログ: https://github.com/retroeater/mj/blob/work/0930-bng/docs/logs/CHAT-0930-BNG-03.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/0930-bng
-- 確認用URL: なし
-- マージ: 未
-- issue: #126
-- 判断が必要なこと: なし
-- 未確認の項目: 手順1〜4すべて
-- エラー: なし
+- 確認用URL: なし（docs のみ）
+- マージ: 済（cloudflare へ fast-forward。docs/ のみで Workers Builds は走らない見込み〈#171〉）
+- issue: #126（結論のコメントとクローズ。`状況: 待ち` を外した）、#156（コメント1件）、#486（新規起票。何も直していない）
+- 判断が必要なこと: #486 の「決めること」（タイトルを 50〜60 文字に伸ばすか、h1 の無い 11 ページに h1 を足すか〈#283・#160・#7 との順序〉、短い description を伸ばすか、`404.html` に description を足すか、`/jpml_logs.html`〈本番 404〉を 301 にするか、Bing の CSV で h1 無し・description 無し・h1 複数・alt 無しの対象 URL を取るか）。手順3の表の要点: h1 無しは11ページ（`jpml_links`・`houou_ranking/leagues/results`・`ouka_ranking/leagues/results`・`wrc_ranking/results`・`resource_dictionary`・`rh_links`）、description 無しは sitemap の URL では無し（`404.html` のみ）、alt 無しの img は無し。指示の「24 URL」は現在 23 URL（#441 の後）
+- 未確認の項目: Bing・Cloudflare の画面の内容はすべて平野さんの申告でここからは検証できない。Bing の「description 無し 2」「h1 複数 1」「alt 無し 1」の対象 URL（CSV 未取得）。JS 描画後の h1・本文（HTML の静的な内容のみ照合）
+- エラー: 一度、auto モードの分類器が Bash に判定なしのエラーを返した（読み取りの grep。同じ操作を Grep ツールに替えて続行）。検索 API が使えず REST で代替（BNG-01 と同じ）
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj e8e763b3）: https://github.com/retroeater/mj-logs/tree/main/guide/e8e763b3
+ガイド文書（この版を写した時点の最新、mj ce5031e6）: https://github.com/retroeater/mj-logs/tree/main/guide/ce5031e6
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e8e763b3/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e8e763b3/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e8e763b3/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e8e763b3/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e8e763b3/docs/notes/cloudflare.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce5031e6/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce5031e6/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce5031e6/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce5031e6/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce5031e6/docs/notes/cloudflare.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/ad723967.md
