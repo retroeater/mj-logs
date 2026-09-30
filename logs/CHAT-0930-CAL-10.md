@@ -46,27 +46,43 @@
 - 識別子: `git log --all --grep=CHAT-0930-CAL-10` は0件。ローカルの `work/0930-cal` は origin/work/0930-cal（8f1587b6、022c5b0f を含む）と同じ。origin/cloudflare が祖先でなかったので `git merge origin/cloudflare`（衝突なし、入ったのは docs/logs の1ファイル）→ 49e40937
 - 手順0: 指示欄の末尾は指示文の最後の行と一致。CAL-06 の `## 報告` は「判断待ち（…）」だったので「判断待ち → 続き: CHAT-0930-CAL-10」に直した（このコミットに含める）
 
+### 手順1: マージ
+
+- テスト（`python3 -m unittest discover -s scripts/tests`）OK。`python3 scripts/check_asset_limits.py` はすべて OK
+- origin/cloudflare との差分: `_redirects` 1行（7本目の `src`・`color`）・`docs/notes/yotei-sheet.md` 1行（CAL-04 の導線の1行）・ログ3ファイル（CAL-04・CAL-06・CAL-10）だけ。想定外の差分なし
+- push の直前に再 fetch し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真であることを確かめて `git push origin work/0930-cal:cloudflare`: **e3ffef44..c2e75c3f**（fast-forward、衝突なし）
+
+### 手順2: 本番の確かめ
+
+- c2e75c3f の check-run「Workers Builds: mj」: success
+- 本番 https://ryoei.pro/resource_calendar.html → **301**、転送先のホストは `calendar.google.com`。`src`・`color` の組（7本・7本）: 1 祝日 `#616161` / 2 【一般公開】予定表 `#3F51B5` / 3 mj_Mリーグ `#118745` / 4 mj_竹書房 `#FA9E05` / 5 mj_道場部ゲスト `#FF0066` / 6 mj_誕生日 `#e4c441` / 7 mj_放送対局 `#3F51B5`。**CAL-06 のログの組と同じ**
+
+### 手順3: #480
+
+- 結果をコメントしてクローズ（completed）: https://github.com/retroeater/mj/issues/480#issuecomment-5902639328 。「状況:」ラベルは付いていない
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/0930-cal
-- ログ: https://github.com/retroeater/mj/blob/work/0930-cal/docs/logs/CHAT-0930-CAL-10.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/0930-cal
-- 確認用URL: なし
-- マージ: 未
-- issue: #480
+- 状態: 完了
+- ブランチ: work/0930-cal（cloudflare へマージ済み）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-0930-CAL-10.md
+- 比較URL: https://github.com/retroeater/mj/compare/e3ffef44...c2e75c3f
+- 確認用URL: なし（本番で確かめた）
+- マージ: 済（c2e75c3f、fast-forward）
+- issue: #480（クローズ）
 - 判断が必要なこと: なし
-- 未確認の項目: なし
+- 未確認の項目:
+  - 本番のブラウザでの見え方（確かめたのは 301 の転送先の値まで。見え方はプレビューで平野さんが確認済みとの指示文の申告）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj d9e54148）: https://github.com/retroeater/mj-logs/tree/main/guide/d9e54148
+ガイド文書（この版を写した時点の最新、mj 20c50cec）: https://github.com/retroeater/mj-logs/tree/main/guide/20c50cec
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d9e54148/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d9e54148/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d9e54148/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d9e54148/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d9e54148/docs/notes/cloudflare.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/20c50cec/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/20c50cec/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/20c50cec/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/20c50cec/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/20c50cec/docs/notes/cloudflare.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/23c98011.md
