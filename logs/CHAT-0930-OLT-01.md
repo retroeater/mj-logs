@@ -208,10 +208,10 @@ GSC に出た旧表の `?name=` の13名のうち、`鈴木大介` だけが tit
 
 - 状態: 完了
 - ブランチ: work/0930-olt-01
-- ログ: https://github.com/retroeater/mj/blob/work/0930-olt-01/docs/logs/CHAT-0930-OLT-01.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-0930-OLT-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/0930-olt-01
 - 確認用URL: なし
-- マージ: 未（この後マージする）
+- マージ: 済（cloudflare へ fast-forward 01a0e502..8f12c1e6。変更はこのログのみ。docs/ 配下のみのため Workers Builds は走らない。この追記は docs/logs のみの追いの push）
 - issue: #441（結果をコメント。閉じない）、#269（閉じない）
 - 判断が必要なこと:
   - 経過「3. 廃止の方式の候補」の論点1〜6（残すか廃止か、301 か 404 か、`?name=` の受け皿、`jpml_pros.html` の421リンク、スクリプトの依存と旧シート、時期）
