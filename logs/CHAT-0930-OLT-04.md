@@ -123,11 +123,11 @@
 
 - 状態: 完了
 - ブランチ: work/0930-olt-04
-- ログ: https://github.com/retroeater/mj/blob/work/0930-olt-04/docs/logs/CHAT-0930-OLT-04.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-0930-OLT-04.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/0930-olt-04
 - 確認用URL: なし
-- マージ: 未（この後マージする）
-- issue: #475（結果をコメント）
+- マージ: 済（cloudflare へ fast-forward 0057ebeb..cc710a15。変更はこのログのみ。この追記は docs/logs のみの追いの push）
+- issue: #475（結果をコメント issuecomment-5903409313）
 - 判断が必要なこと:
   - 直し方: 案A（`ff8_G1P7dm0` の【3】の対局者を直す。#475 には残り続ける）か、案B（#446 項目8 に「漢字・かなに挟まれた s・v 1文字」も区切る規則を足す。同じ形の6件がまとめて直る）か、両方か
   - `SGlbTPLSs7Q` の【3】の対局者の補正に入っている誤記「覚野陽生v猿渡輝也」を直すか
