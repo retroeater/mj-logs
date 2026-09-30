@@ -54,18 +54,73 @@
 
 - Chat-Ref `CHAT-0930-OLT-02` のコミットは無し。`work/0930-olt-02` はローカル・リモートとも無し → `git checkout -b work/0930-olt-02 origin/cloudflare`
 - 「指示」欄の末尾は指示文の最後の行と一致。OLT-01 の `## 報告` は「状態: 完了」
+- #441 に着手中コメント（issuecomment-5902778728）
+
+### 0. 未マージのブランチ（10:5x JST ごろ）
+
+| ブランチ | 触れているファイル | この指示の対象との重なり |
+|---|---|---|
+| `origin/work/0929-zk` | `scripts/lib/live_layer3.py`・`scripts/tests/test_live_layer3.py` | なし（`generate_title_pages.py` は `live_layer3` を使うが、このブランチはそのファイルを変えない） |
+| `origin/work/0930-cal-full` | `scripts/fetch_yotei.py`・`scripts/lib/{sheets_write,yotei}.py`・`scripts/write_yotei_sheet.py`・テスト | なし |
+
+OLT-01 の時点の `work/0930-cal`（`_redirects`）はマージ済みで一覧に無い（origin/cloudflare a9ff8862）。
+
+### 基準の生成（修正前のコード）
+
+修正前に `python3 scripts/regenerate.py all` を実行: rc=0、**差分0**（シートは cloudflare の生成物から変わっていない）。
+したがって以下の差分はすべてこの指示の変更によるもの。
+
+### 1. 「決勝 n回」の数え直し
+
+旧シート（旧「タイトル」シート、スプレッドシート 1h4-D…）を読む箇所の洗い出し:
+
+| 箇所 | 読むもの | 扱い |
+|---|---|---|
+| `generate_jpml_titles.py` `QUERY`（`SELECT A,B,D,E,F WHERE G = "Y"`） | 旧表の中身 | 手順3で消す予定（未着手） |
+| `generate_title_pages.py` `check_old_sheet()`・`OLD_TITLES_QUERY` | 新旧の一致検査 | **外した**（`import generate_jpml_titles` も） |
+| `generate_jpml_pros.py` の「プロ」V列（`number_of_finals`） | 旧シートの件数（シート側の式と見られる。式はこの環境から見えない） | **読まない**ようにした（列は QUERY に残し `_unused_finals` で受ける） |
+
+実装（コミット fc0a9d03）:
+
+- `generate_title_pages.final_counts()` を新設: 「タイトル」「タイトル戦」「別名」タブを読み、`load_periods()`（期ページと同じ）で表示する大会の表示=Y の行を集め、「別名」で変換した名前ごとに数える（名前「-」は除く）。検索データ（`build_search_data` の `by_name`）と同じ数え方
+- `generate_jpml_pros.py`: 回数は `final_counts()` から、リンクは `./title/?q=<名前>`（`./saikyo/?q=` と同じ形）、0回は空欄（リンクなし）
+- `generate_jpml_test.py`: `load_photos()` を `generate_jpml_titles.py` から移した（中身は同じ）
+- テスト: `test_jpml_pros.py` に回数とリンクのテストを足した。428件 OK
+- 生成し直して、`jpml_test.html`・`title/` は**差分0**（`generate_title_pages` の警告は旧シートとの一致検査の6件が消えて0件）
+
+生成し直した `jpml_pros.html`（選手 1,099名）:
+
+| 項目 | 人数 |
+|---|---|
+| 回数がある選手 | 421 → 296 |
+| 回数が変わった | 269 |
+| 減った | 268（うち 0 になった 126） |
+| **増えた** | **1** |
+
+- 0 になった 126名は OLT-01 の126名と一致（例: 蒼井ゆりか 1→0、青嶋宏樹 2→0、東幸一郎 8→0）
+- 減った例（0 以外）: 荒正義 37→33、安東裕允 15→1、吾妻さおり 8→6、蒼山秀佑 5→3
+- **増えた 1名: かしのなぎ 0→1**（第11期桜蕾戦 4位）
+
+増えた理由: 旧シートの第11期桜蕾戦 4位は「**樫野凪**」、title/ は「別名」タブの変換で「**かしのなぎ**」（「プロ」の今の登録名）として数える。
+「プロ」V列は今の登録名で旧シートを数えるため 0 だった。title/ の期ページ（/title/ourai/11.html）には「4位 かしのなぎ」で載っており、検索（`?q=かしのなぎ`）でも1件出る。
+つまり**新しい数え方のほうが title/ の表示と一致しており、旧の 0 は別名を辿らないための数え漏れ**と見られる。
+
+**止まる条件「回数が増える選手が出た」に当たるため、ここで止めた。** 手順2（title.js の `?name=`）・手順3（旧表の削除・`_redirects`・参照の片付け・全ページの再生成・プレビュー）は未着手。
 
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/0930-olt-02
 - ログ: https://github.com/retroeater/mj/blob/work/0930-olt-02/docs/logs/CHAT-0930-OLT-02.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/0930-olt-02
-- 確認用URL: 未
-- マージ: 未
-- issue: #441
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 確認用URL: なし（手順3まで進めていないため、プレビューの確認はしていない。push で Workers Builds のプレビューは作られる）
+- マージ: 未（この指示ではマージしない）
+- issue: #441（経過をコメント）
+- 判断が必要なこと:
+  - 「決勝 n回」が増える選手が1名（かしのなぎ 0→1）。旧シートでは旧名「樫野凪」で記録され、title/ は「別名」で今の名前に寄せて数えるため。title/ の表示と一致する新しい数え方で進めてよいか（進めてよければ、手順2・3を続ける指示が要る）
+- 未確認の項目:
+  - 「プロ」V列の式の中身（旧シートを今の登録名で数えていると推定。この環境からシートの式は見えない）
+  - 手順2・3（未着手）
 - エラー: なし
 
 <!-- guide-links -->
