@@ -53,17 +53,70 @@ DUP-08 の見本（鳳凰戦・入口）を平野さんが本番の X・LINE で
 - 2026-09-30 Chat-Ref の重複確認（`git log --all --grep`・`docs/logs/` の履歴）: DUP-09 のコミットなし。
   `origin/work/0930-dup-09` は無いため `git checkout -b work/0930-dup-09 origin/cloudflare` で作成。
 
+- 0章: ログの「指示」欄の末尾は指示文の最後の行と一致。DUP-08 のログを読んだ。#232 は open、着手中コメントはこのセッションのもの（DUP-04・07）だけ。着手中コメントを付けた（issuecomment-5921871729）。
+  未マージのブランチは `origin/work/0930-dup-09`（このログ）だけ。`origin/work/0930-dup-07` は手元の追跡用の参照が古いだけで、`git ls-remote` ではリモートに無い（平野さんの削除どおり）
+- 手順1: decisions/title.md の DUP-04・07・08 の節と `og_image_for()`・`page_meta()` を読んだ。決定と実物の食い違いは無い。`twitter:title` は出していない（`lib/page.py` に無い）
+- 手順2 実装（d1d426eb）:
+  - `page_meta()` に `og_label` を足し、og:title を `<og_label> | 日本プロ麻雀連盟 | ryoei.pro` にする（`PageMeta.og_title`）。入口は「タイトル戦」（`OGP_INDEX_ALT`）、大会ページは大会名、期ページは期の名前（`Period.title`＝`expected_title()`）。`<title>` は変えない
+  - 残りの19大会の画像を DUP-08 と同じ引数で作った（文言は大会ページの og:title から読んだ大会名）。大きさは下の表。フォントは DUP-07・08 と同じ
+  - テスト `test_title_ogp.py` に6件（全大会に画像があること、og:title の入口・大会・期の3つの形、「第n回」・西暦の数え方、og_label が無いとき）を足した。全体 485件 OK。変更前のコードでは `og_label` が無く通らない
+  - 生成し直し（`regenerate.py title_pages`、警告0件）、配信の上限はすべて OK（配信ファイル数 1,663）
+  - **生成物の差分（種類ごと）**: 385ファイル
+    - og:title: 384ページ（全ページ＝入口1・大会20・期363）
+    - og:image と og:image:alt: 340ページ（鳳凰戦の44ページ〈DUP-08 で差し替え済み〉と入口を除く全ページ。幅・高さは変わらない）
+    - **ほかの差分: 王位戦 石川正明の写真の URL** `https://pbs.twimg.com/profile_images/2085904962534748161/Aka72ESy_400x400.jpg`（404）→ `https://pbs.twimg.com/profile_images/2105299306643333120/pAfu5snD_400x400.jpg`（200）。
+      `title/index.html`・`title/oui/index.html`・`title/oui/26.html`・`title/oui/50.html`・`title/teiou/2.html` の写真と `title/search.json`（6ファイル）。
+      平野さんの【プロ】シートの更新が、今回の生成し直しで入ったもの（`origin/cloudflare` の `title/index.html` はまだ古い URL。毎日の自動の再生成より前）
+  - **止まる条件「生成物に og:image・og:title 以外の差分が出た」に当たるため、手順3（確認ページとプレビューの確認）の前で止めた。** 実装と生成物はブランチに push した（プレビューは Workers Builds が自動で作るが、確認ページは作っていない）
+- 画像の大きさ（1200×630、PNG）:
+
+| slug | 大会名 | バイト |
+|---|---|---:|
+| index | タイトル戦 | 26,232 |
+| houou | 鳳凰戦 | 31,153 |
+| gpmax | 麻雀グランプリMAX | 23,409 |
+| joryu-nihon-series | 女流プロ麻雀日本シリーズ | 21,810 |
+| judan | 十段戦 | 28,147 |
+| jwrc | JPML WRCリーグ | 19,420 |
+| jwrc-r | JPML WRC-Rリーグ | 18,216 |
+| kouryu | 紅龍戦 | 30,029 |
+| masters | 麻雀マスターズ | 22,594 |
+| nihon-series | 麻雀日本シリーズ | 21,400 |
+| oui | 王位戦 | 23,375 |
+| ouka | 女流桜花 | 32,935 |
+| ourai | 桜蕾戦 | 31,812 |
+| pro-queen | プロクイーン | 16,772 |
+| ranwa | 鸞和戦 | 36,148 |
+| shinjinou | 新人王戦 | 26,400 |
+| shouryu | 昇龍戦 | 24,697 |
+| tatsujin | 達人戦 | 30,086 |
+| teiou | 小島武夫杯帝王戦 | 22,339 |
+| wakajishi | 若獅子戦 | 24,196 |
+| wrc | リーチ麻雀世界選手権 | 21,664 |
+
+- 「第n期」に当てはまらない大会（実物の数え方のまま）: リーチ麻雀世界選手権（第n回、4期）、麻雀日本シリーズ（西暦、2015〜2025）、女流プロ麻雀日本シリーズ（西暦、2016〜2026）
+- 新しい画像の本番の URL は開いていない（プレビューも開いていない）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち（止まる条件「og 以外の差分」に当たり、確認ページの前で止めた）
 - ブランチ: work/0930-dup-09
 - ログ: https://github.com/retroeater/mj/blob/work/0930-dup-09/docs/logs/CHAT-0930-DUP-09.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/0930-dup-09
-- 確認用URL: なし
-- マージ: 未
-- issue: #232
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 確認用URL: なし（確認ページは作っていない。push でプレビュー自体は作られる）
+- マージ: 未（判断待ち）
+- issue: #232（着手中のコメントのみ）
+- 判断が必要なこと:
+  - og 以外の差分として、王位戦 石川正明の写真の URL の差し替え（6ファイル、【プロ】シートの更新の取り込み、新しい URL は 200）が入った。この差分を含めたまま進めてよいか（毎日の自動の再生成でも同じ差分が cloudflare に入る見込み）。よければ、次の指示で確認ページを作ってプレビューまで進める
+  - og:title の新旧の例:
+    入口 「タイトル戦 現在のタイトルホルダー・歴代優勝者 | 日本プロ麻雀連盟 | ryoei.pro」→「タイトル戦 | 日本プロ麻雀連盟 | ryoei.pro」
+    大会 「鳳凰戦 歴代優勝者（第1期〜第42期） | 日本プロ麻雀連盟 | ryoei.pro」→「鳳凰戦 | 日本プロ麻雀連盟 | ryoei.pro」
+    期 「第41期鳳凰戦 決勝結果 | 日本プロ麻雀連盟 | ryoei.pro」→「第41期鳳凰戦 | 日本プロ麻雀連盟 | ryoei.pro」
+    第n回 「第3回リーチ麻雀世界選手権 決勝結果 | …」→「第3回リーチ麻雀世界選手権 | 日本プロ麻雀連盟 | ryoei.pro」
+    西暦 「麻雀日本シリーズ2025 決勝結果 | …」→「麻雀日本シリーズ2025 | 日本プロ麻雀連盟 | ryoei.pro」
+  - 長い大会名の画像は字が小さい（女流プロ麻雀日本シリーズで字の高さ約85px）。確認ページで見て決める
+- 未確認の項目:
+  - 全大会の画像のプレビューでの見え方（確認ページを作っていない）
 - エラー: なし
 
 <!-- guide-links -->
@@ -77,4 +130,4 @@ DUP-08 の見本（鳳凰戦・入口）を平野さんが本番の X・LINE で
 - docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/064fa714/docs/notes/chat-side-operations.md
 - docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/064fa714/docs/notes/cloudflare.md
 - docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/064fa714/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/fa231411.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/14245a4d.md
