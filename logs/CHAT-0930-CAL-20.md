@@ -52,6 +52,35 @@ CAL-18 の報告のとおり、/live の【3】に行が無い古い枠では、
   - CAL-19 のログの状態を「中断 → 続き: CHAT-0930-CAL-20」に直した（このコミットに含める）
   - CAL-09 のログは cloudflare にあり、状態は「完了」
 
+### 手順1: 確かめ
+
+- `git merge origin/cloudflare` を実行した（衝突なし）
+- 同じファイル（`live_calendar.py`・`sync_live_calendar.py`・`live_layer3.py`・`sheets.py`・`yotei-sheet.md`）を触る未マージのブランチ: 無い
+- 公開 iCal（10:4x JST）の予定は 2,649件。件名の【…】を数えた:
+  - 「【麻雀】」: **6件**（2015年 1・2020年 5）。例: 2015-08-08「【麻雀】インターネット麻雀日本選手権2015 決勝戦」
+  - 「【無料放送】」: **158件**（2020年 1・2021年 4・2022年 7・2023年 33・2024年 42・2025年 44・2026年 27）
+  - どちらかを含む: **164件**
+  - ほかの【…】: 「【Free broadcast】」3件だけ。決定の対象外なので外さない
+
+### 手順2: 実装（04554414）
+
+- `scripts/lib/live_calendar.py`:
+  - 定数 `MEMBERS_MARK` を `TITLE_MARKS = ("【メンバー限定】", "【麻雀】", "【無料放送】")` に置き換えた
+  - `clean_title()` はこの印を順に外し、NFKC と `~…~` の置き換えをし、前後の空白を落とす
+  - `MEMBERS_MARK` を使っていたのは `clean_title()` だけ。`clean_title()` を使うのは `summary_of()` だけで、/live の【3】に行が無い枠の件名になる
+- `scripts/lib/live_layer3.py`: `fetch_calendar_exclusions()` はタブが無いときに None を返していた。これをやめ、`fetch_records()` の `ValueError`（タブが無い・見出しが違う）をそのまま上げるようにした
+- `scripts/sync_live_calendar.py`: `read_exclusions()` を足した
+  - 読めないときは「除外のタブ「【4】カレンダー非掲載」が読めないため、カレンダーに書かずに止めます: <理由>」で `sys.exit` し、ステップを失敗させる
+  - 行が0件なら空の集合（除外なし）で進む
+  - 呼び出しは `main()` だけ
+- `scripts/lib/sheets.py`: CAL-16 で足した `MissingSheetError` は使う所が無くなったので外した。タブが無いときの例外は元の `ValueError` に戻した。ほかの呼び出し側の動きは変わらない
+- テスト:
+  - `test_clean_title`: 【無料放送】【麻雀】を外す。【テスト放送】【Free broadcast】は残す
+  - `ExclusionsTest`: タブが無い→止まる、見出しが不正→止まる、0件→除外なし、動画ID の読み取り（4本）
+  - 全 480件 OK
+  - **修正前のコードで、足した・直したテストが失敗すること（FAIL 1・ERROR 4）を確かめた**
+- 資料: `docs/notes/yotei-sheet.md` の件名の規則と除外タブの記述を直した
+
 ## 報告
 
 - 状態: 作業中
@@ -68,12 +97,12 @@ CAL-18 の報告のとおり、/live の【3】に行が無い古い枠では、
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 6e3ec02a）: https://github.com/retroeater/mj-logs/tree/main/guide/6e3ec02a
+ガイド文書（この版を写した時点の最新、mj 7c3ded67）: https://github.com/retroeater/mj-logs/tree/main/guide/7c3ded67
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6e3ec02a/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6e3ec02a/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6e3ec02a/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6e3ec02a/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6e3ec02a/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6e3ec02a/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/7c3ded67/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/7c3ded67/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/7c3ded67/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/7c3ded67/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/7c3ded67/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/7c3ded67/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/14245a4d.md
