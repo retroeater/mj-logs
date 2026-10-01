@@ -32,40 +32,102 @@ CAL-21 の報告で残った件名の印のうち2つについて、平野さん
 - 手順3まで終えたら、判断待ちで止まる。
 
 ## 完了条件
-- ログの「## 報告」を CLAUDE.md「作業ログ」節のとおりに書いて push し、ログと決定の記録を cloudflare へ入れる。「判断が必要なこと」に、手順1・2から見た「（1/2）（2/2）」と「[SANMA]」の扱いの案（残す・外す・言い換える）を書く。
-- ターミナルへの最終報告の Chat-Ref の行の直前に ログ（公開）: https://github.com/retroeater/mj-logs/blob/main/logs/CHAT-0930-CAL-22.md を書き、最後の行に Chat-Ref: CHAT-0930-CAL-22 を書く
+- ログの「### 手順1: 麻雀格闘倶楽部プロNo.1決定戦
 
-不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
+予定表の【1】（全期間）を gviz で読み、件名を NFKC で正規化したうえで「麻雀格闘倶楽部」と「No1」「No.1」の両方を含む予定を拾った。【3】の件名・掲載も並べた。
 
-## 経過
+| 日付 | 予定表の件名（【1】そのまま） | 予定ID の先頭8文字 | 【3】の掲載 |
+|---|---|---|---|
+| 2024-12-29 | 第7回麻雀格闘倶楽部プロNo1決定戦（1/2） | _8d9lcgr | 空欄 |
+| 2024-12-30 | 第7回麻雀格闘倶楽部プロNo1決定戦（2/2） | _8d9lcgr | 空欄 |
+| 2025-12-29 | 第8回麻雀格闘倶楽部プロNo1決定戦（1/2） | 22q3g4vc | 空欄 |
+| 2025-12-30 | 第8回麻雀格闘倶楽部プロNo1決定戦（2/2） | 6r4c4nqu | 空欄 |
+| 2026-12-29 | 第9回麻雀格闘倶楽部プロNo1決定戦（1/2） | _8d9lcgr | Y |
+| 2026-12-30 | 第9回麻雀格闘倶楽部プロNo1決定戦（2/2） | _8d9lcgr | Y |
 
-- 識別子: `git log --all --grep=CHAT-0930-CAL-22` は0件
-  - origin/work/1001-cal-title は origin/cloudflare の祖先（マージ済み）
-  - ローカルの work/1001-cal-title も祖先なので、`git merge --ff-only origin/cloudflare` で進めた（8efeb156）
-- 手順0: 指示欄の末尾は指示文の最後の行と一致
+- 予定ID の先頭8文字が同じ「_8d9lcgr」の行が4つある。予定表の繰り返しの予定（元の予定ID＋日付）の形で、全体の予定IDは別
+- **予定表にある3回（第7・8・9回）とも、2日に分けて「（1/2）」「（2/2）」が付いている。** 予定表は 2024-12-01 からなので、第6回以前は無い
+- 【3】の件名も【1】と同じ
+
+YouTube の層1の同じ大会の枠（ライブ、すべて公開版。限定版は無い）と、カレンダーの今の件名:
+
+| 日付 | 動画ID | 原題 | カレンダーの件名 |
+|---|---|---|---|
+| 2020-12-29 | prDtKKcpsCE | 麻雀格闘倶楽部 第３回プロNo.1決定戦~予選~ | 麻雀格闘倶楽部 第3回プロNo.1決定戦 予選 |
+| 2020-12-30 | JJahNiFHCCU | 麻雀格闘倶楽部 第３回プロNo.1決定戦~準決勝・決勝~ | 麻雀格闘倶楽部 第3回プロNo.1決定戦 準決勝・決勝 |
+| 2021-12-29 | EHhNzRJLSWY | 麻雀格闘倶楽部 第４回プロNo.1決定戦~予選~ | 麻雀格闘倶楽部 第4回プロNo.1決定戦 予選 |
+| 2021-12-30 | 6mpompiMh7o | 麻雀格闘倶楽部 第４回プロNo.1決定戦~二次予選・準決勝・決勝~ | 麻雀格闘倶楽部 第4回プロNo.1決定戦 二次予選・準決勝・決勝 |
+| 2022-12-29 | 6icQZiUkwTg | 麻雀格闘倶楽部 第５回プロNo.1決定戦~予選~ | 麻雀格闘倶楽部 第5回プロNo.1決定戦 予選 |
+| 2022-12-30 | 6QvM4l47tsI | 麻雀格闘倶楽部 第５回プロNo.1決定戦~二次予選・準決勝・決勝~ | 麻雀格闘倶楽部 第5回プロNo.1決定戦 二次予選・準決勝・決勝 |
+| 2023-12-29 | 12CoLCHP7UU | 麻雀格闘倶楽部 第６回プロNo.1決定戦~予選~【無料放送】 | 麻雀格闘倶楽部 第6回プロNo.1決定戦 予選 |
+| 2023-12-30 | Vdjvi1Zalas | 麻雀格闘倶楽部 第６回プロNo.1決定戦~二次予選・準決勝・決勝~【無料放送】 | 麻雀格闘倶楽部 第6回プロNo.1決定戦 二次予選・準決勝・決勝 |
+| 2024-12-29 | QcvBKlQynMQ | 麻雀格闘倶楽部 第７回プロNo.1決定戦~予選~【無料放送】 | 麻雀格闘倶楽部 第7回プロNo.1決定戦 予選 |
+| 2024-12-30 | tyNKw8PbizI | 麻雀格闘倶楽部 第７回プロNo.1決定戦~二次予選・準決勝・決勝~【無料放送】 | 麻雀格闘倶楽部 第7回プロNo.1決定戦 二次予選・準決勝・決勝 |
+| 2025-12-29 | t1XpQsWJuVc | 麻雀格闘倶楽部プロNo.1決定戦2025~予選~【無料放送】 | 麻雀格闘倶楽部プロNo.1決定戦2025 予選 |
+| 2025-12-30 | -0vtHJmBBfI | 麻雀格闘倶楽部プロNo.1決定戦2025~二次予選・準決勝・決勝~【無料放送】 | 麻雀格闘倶楽部プロNo.1決定戦2025 二次予選・準決勝・決勝 |
+
+- YouTube の原題は毎年「~予選~」（1日目）と「~二次予選・準決勝・決勝~」（2日目。第3回だけ「~準決勝・決勝~」）で、「（1/2）」のような日数の印は無い
+- 置き換わり方: カレンダーでは、YouTube の枠があれば枠の件名（上の表の右列）だけが載る。予定表由来の仮の予定は、過去の分は出ない
+- 今カレンダーにある予定表由来の仮の予定は、第9回の2件（2026-12-29「第9回麻雀格闘倶楽部プロNo1決定戦（1/2）」・12-30「（2/2）」）だけ
+  - 今は大会名「麻雀格闘倶楽部プロNo.1決定戦」（CAL-16 で足した）で同じ日・同じ大会の枠と結び付く
+  - YouTube の枠ができた日（例年は直前）から、枠の件名（「〜予選」「〜二次予選・準決勝・決勝」）に置き換わり、「（1/2）」「（2/2）」はカレンダーから消える
+  - つまり「（1/2）」「（2/2）」がカレンダーに出るのは、枠ができるまでの仮の予定の間だけ
+
+### 手順2: [SANMA]（WORLD RIICHI Online Team League）
+
+層1のライブ（同じシリーズ。英語の配信と日本語の配信が同じ日に別の枠であり、カレンダーでも別の予定になっている）:
+
+| 日付（JST） | 動画ID | 原題 | カレンダーの件名 | 部 |
+|---|---|---|---|---|
+| 2024-11-10 | wyPTXmvKlOU | WORLD RIICHI Online Team League~semi-final・final~【Free broadcast】 | WORLD RIICHI Online Team League semi-final・final | 四人（英語） |
+| 2024-11-10 | fhiDwro18M0 | WORLD RIICHI Online Team League~準決勝・決勝~【無料放送】 | WORLD RIICHI Online Team League 準決勝・決勝 | 四人（日本語） |
+| 2025-04-19 | **jXnwXtnX6sY** | **WORLD RIICHI Online Team League [SANMA]~semi-final・final~【Free broadcast】** | **WORLD RIICHI Online Team League [SANMA] semi-final・final** | 三人（英語） |
+| 2025-04-19 | VPiFsF7HTNM | WORLD RIICHI Online Team League三人麻雀~準決勝・決勝~【無料放送】 | WORLD RIICHI Online Team League三人麻雀 準決勝・決勝 | 三人（日本語） |
+| 2025-11-08 | WYRKJ3TwCNw | WORLD RIICHI Online Team League2025~準決勝・決勝~【無料放送】 | WORLD RIICHI Online Team League2025 準決勝・決勝 | 四人（日本語） |
+| 2026-04-19 | ocs94e6yzaY | WORLD RIICHI Online Team League2026 三人麻雀~準決勝・決勝~【無料放送】 | WORLD RIICHI Online Team League2026 三人麻雀 準決勝・決勝 | 三人（日本語） |
+
+- 「[SANMA]」は YouTube の原題そのもの（英語の配信の題名）。三人麻雀の部の英語の配信で、日本語の配信の「三人麻雀」に当たる
+- 三人と四人の区別:
+  - 日本語の配信は「三人麻雀」の有無で区別できている
+  - 英語の配信は、**「[SANMA]」を外すと 2024-11-10（四人）と 2025-04-19（三人）の件名が同じ「WORLD RIICHI Online Team League semi-final・final」になり、件名では区別できなくなる**（年も入っていない）
+- 参考: 2022-08-13 の World Riichi e-Championship 2022 は 51秒の断片（0PuFUIz_dk0）を除外して、本放送（24DDt1Hh2kA）だけが載っている
+
+### 手順3: 決定の記録
+
+- `docs/decisions/broadcast-calendar.md` に、この指示の決定（「(仮)」は残す、「（1/2）（2/2）」と「[SANMA]」は調べてから決める）を足した
 
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1001-cal-title
-- ログ: https://github.com/retroeater/mj/blob/work/1001-cal-title/docs/logs/CHAT-0930-CAL-22.md
+- 状態: 判断待ち（読むだけの調べと決定の記録まで。コード・シート・カレンダーは変えていない）
+- ブランチ: work/1001-cal-title（ログと決定の記録を cloudflare へ入れる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-0930-CAL-22.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1001-cal-title
 - 確認用URL: なし
-- マージ: 未
+- マージ: 済（docs/logs・docs/decisions のみ）
 - issue: なし
-- 判断が必要なこと: なし
+- 判断が必要なこと:
+  - **「（1/2）」「（2/2）」: 残す案**
+    - 予定表では第7・8・9回の3回とも、2日に分けて付いている（毎年の書き方）
+    - カレンダーに出るのは予定表由来の仮の予定の間だけ（今は第9回の2件）。YouTube の枠ができると、枠の件名（「〜予選」「〜二次予選・準決勝・決勝」）に置き換わって消える
+    - 2日のどちらかを示す情報でもあるので、外すと12-29と12-30の仮の予定が同じ件名になる
+    - 言い換える（「1日目」「2日目」）なら、外す印ではなく置き換えの規則を足すことになる
+  - **「[SANMA]」: 残す案**
+    - YouTube の原題（英語の配信）そのもの
+    - 外すと、英語の配信の四人の部（2024-11-10）と三人の部（2025-04-19）の件名が同じになり、区別できなくなる
+    - 「三人麻雀」に言い換えると日本語の配信とそろうが、原題から離れる。英語の配信の件名は英語のまま（semi-final・final）なので、言い換えるなら件名全体の言語がそろわなくなる
+  - 参考: WORLD RIICHI Online Team League は、英語の配信と日本語の配信が同じ日に別の予定として並ぶ（2024-11-10・2025-04-19）。CAL-12 の決定（完全版の枠は全部載せる）どおりだが、片方だけにするなら「【4】カレンダー非掲載」に英語の配信の動画ID（wyPTXmvKlOU・jXnwXtnX6sY）を足せばよい
 - 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj a9af0a1d）: https://github.com/retroeater/mj-logs/tree/main/guide/a9af0a1d
+ガイド文書（この版を写した時点の最新、mj 8d31613b）: https://github.com/retroeater/mj-logs/tree/main/guide/8d31613b
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a9af0a1d/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a9af0a1d/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a9af0a1d/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a9af0a1d/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a9af0a1d/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a9af0a1d/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/8d31613b/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/8d31613b/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/8d31613b/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8d31613b/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8d31613b/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8d31613b/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/14245a4d.md
