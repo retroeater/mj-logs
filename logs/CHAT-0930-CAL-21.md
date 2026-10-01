@@ -39,72 +39,64 @@ CAL-20 の報告で残った「【Free broadcast】」（3件）を、「【無�
 
 完了条件
 
-* ログの「## 報告」を CLAUDE.md「作業ログ」節のとおりに書いて push する。「判断が必要なこと」に、手順2の候補のうち、件名から外すかどうか平野さんの判断が要りそうなもの（件数と例）を挙げる。決定は CLAUDE.md のとおり `docs/decisions/broadcast-calendar.md` に足す。
-* ターミナルへの最終報告の Chat-Ref の行の直前に ログ（公開）: https://github.com/retroeater/mj-logs/blob/main/logs/CHAT-0930-CAL-21.md を書き、最後の行に Chat-Ref: CHAT-0930-CAL-21 を書く
+* ログの「### 手順3: 見込み（書き込みなし）
 
-不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
+- run 36815806058（work/1001-cal-title、8112fbb8、入力はすべて外した）。update・yotei success
+- 「【4】カレンダー非掲載」: 4本。今の予定 2,649件・載せる予定 2,649件
+- **作る 0・直す 3・消す 0**・そのまま 2,646
+- 直す3件は、すべて件名から【Free broadcast】が外れるもの:
+  - `video:lIxITe_DabQ` WRC Online Festival 2020
+  - `video:wyPTXmvKlOU` WORLD RIICHI Online Team League semi-final・final
+  - `video:jXnwXtnX6sY` WORLD RIICHI Online Team League [SANMA] semi-final・final
+- 放送翌朝の時刻の直しは、この時点では無かった
 
-## 経過
+### 手順4: マージと書き込み
 
-- 識別子: `git log --all --grep=CHAT-0930-CAL-21` は0件
-  - origin/work/1001-cal-title は origin/cloudflare の祖先（マージ済み）
-  - ローカルの work/1001-cal-title も祖先なので、docs/notes/cloud-sessions.md「作業ブランチの用意」のとおり `git merge --ff-only origin/cloudflare` で進めた（c97e4a85）
-- 手順0: 指示欄の末尾は指示文の最後の行と一致
-
-### 手順1: 実装
-
-- `scripts/lib/live_calendar.py` の `TITLE_MARKS` に「【Free broadcast】」を足した
-  - `TITLE_MARKS` を使うのは `clean_title()` だけ。`clean_title()` を使うのは `summary_of()` だけ
-- テスト: `test_clean_title` の【Free broadcast】の期待値を「外す」に変えた（CAL-20 では残すことを確かめていた）。全 480件 OK
-- 資料: `docs/notes/yotei-sheet.md` の件名の規則に【Free broadcast】を足した
-- `yotei.MARKS`（【メンバー限定】【無料放送】）は、予定表と枠の同じ日・同じ題名のまとめに使う別の一覧なので変えていない
-
-### 手順2: 印の候補の棚卸し（読むだけ）
-
-今のコード（手順1の後）で、載せる予定を手元で組み立てた。2,649件（枠 2,525・予定表 124、除外4本の後）の件名を数えた。
-
-- (a) 【】以外の括弧（〔〕［］[]《》〈〉＜＞<>（）()「」『』）で、2件以上に現れるもの:
-  - 「(仮)」**4件**。予定表由来で、例: 2027-03-12 第1期JPMLリーグ(仮)ベスト16AB卓 / 03-13 同CD卓 / 03-19 同ベスト8AB卓
-  - ほかに、1件だけのものとして「（1/2）」「（2/2）」がある（予定表由来の 2026-12-29・12-30 第9回麻雀格闘倶楽部プロNo1決定戦）
-  - 【】は残っていない（【Free broadcast】は手順1で外れる）
-- (b) 定型の語:
-  - 「特別」8件（大会名の一部）。例: インターネット麻雀日本選手権2023 Vtuber特別予選 / 2024開幕式特別記念大会 / 世界麻雀TOKYO2025プロ代表決定戦&中国籍特別予選
-  - 「スペシャル」6件（番組名の一部）。例: こずえの部屋で迎春8時間スペシャル2021〜2026
-  - 「特番」1件。予定表由来で、2027-01-01 お正月特番
-  - 生放送・LIVE・Live・ライブ・配信・無料・限定・アーカイブ・再放送・速報・見逃し・SP: **なし**
-- (c) 末尾の区切り（｜ | ／ /）の後ろで、2件以上に現れるもの: **なし**
-  - 「/」で引っかかったのは「（1/2）」「（2/2）」の中の「/」だけで、区切りではない
-- (d) ハッシュタグ: **なし**
-- (e) 記号:
-  - 「・」32件（「準決勝・決勝」などの並べ）
-  - 「!」5件（例: パチスロ麻雀格闘倶楽部 真を打とう!・目指せ第二の日吉辰哉!第1回日本プロ麻雀連盟実況オーディション）
-  - 「×」2件（天鳳×Vtuber杯チーム対抗戦2022・WRPM × 日本プロ麻雀4団体 パートナーシップ締結調印式）
-  - ★☆■◆♪・絵文字: なし
-  - どれも題名の一部で、印ではない
-- (f) 前後の空白・連続する空白・全角空白・全角英数: **なし**（`clean_title()` の NFKC と `strip()` で整っている）
+- 差分は手順1の3ファイル（`live_calendar.py`・`test_live_calendar.py`・`yotei-sheet.md`）とこのログだけ。テストは OK
+- push した: **c97e4a85..8112fbb8**（13:38 JST）
+- 実行中の実行が無いことを確かめ、cloudflare で calendar_apply だけを付けて起動した: run 36816068768。update・yotei success
+  - **「書き込みました: 作る 0・直す 3・消す 0」**
+  - 直す3件は見込みと同じ。「作成は止まっていません」。エラーの行なし
+- 公開 iCal: 予定 2,649件
+  - 【Free broadcast】を含む件名 **0**
+  - 【 を含む件名も 0
+  - 直した3件の今の件名:
+    - 2020-08-30「WRC Online Festival 2020」
+    - 2024-11-10「WORLD RIICHI Online Team League semi-final・final」
+    - 2025-04-19「WORLD RIICHI Online Team League [SANMA] semi-final・final」
+- 決定の記録: `docs/decisions/broadcast-calendar.md` にこの指示の決定を足した
 
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1001-cal-title
-- ログ: https://github.com/retroeater/mj/blob/work/1001-cal-title/docs/logs/CHAT-0930-CAL-21.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1001-cal-title
-- 確認用URL: なし
-- マージ: 未
-- issue: #450
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 状態: 完了
+- ブランチ: work/1001-cal-title（cloudflare へマージ済み）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-0930-CAL-21.md
+- 比較URL: https://github.com/retroeater/mj/compare/c97e4a85...8112fbb8
+- 確認用URL: なし（カレンダーは公開 iCal で確かめた）
+- マージ: 済（8112fbb8、fast-forward）
+- issue: なし（#450 はクローズ済み。今回はコメントしていない）
+- 判断が必要なこと（手順2の候補。この指示では外していない）:
+  - 「(仮)」4件: 予定表由来の仮の予定。2027-03-12・03-13・03-19・03-29 の第1期JPMLリーグ(仮)…
+    - 予定表の件名そのもので、正式な大会名が決まれば予定表の側で変わる見込み（#488）
+    - カレンダーの件名から外すか
+  - 「（1/2）」「（2/2）」各1件: 予定表由来の 2026-12-29・12-30 第9回麻雀格闘倶楽部プロNo1決定戦
+    - 2日に分かれた大会の何日目かを表すので、残す案
+    - YouTube の枠ができれば枠の件名（「〜予選」「〜準決勝・決勝」）に置き換わる
+  - 「[SANMA]」1件: WORLD RIICHI Online Team League [SANMA]。三人麻雀の部の区別なので、残す案
+  - 定型の語（特別 8・スペシャル 6・特番 1）と記号（・ 32・! 5・× 2）は、どれも大会名・番組名の一部で、外す対象ではないと考える
+  - ハッシュタグ・区切りの後ろの定型・前後の空白・全角英数: なし
+- 未確認の項目: Google カレンダーの画面での見え方（確かめたのは公開 iCal の中身まで）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 8112fbb8）: https://github.com/retroeater/mj-logs/tree/main/guide/8112fbb8
+ガイド文書（この版を写した時点の最新、mj 97d8926a）: https://github.com/retroeater/mj-logs/tree/main/guide/97d8926a
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/8112fbb8/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/8112fbb8/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/8112fbb8/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8112fbb8/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8112fbb8/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8112fbb8/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/97d8926a/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/97d8926a/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/97d8926a/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/97d8926a/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/97d8926a/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/97d8926a/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/14245a4d.md
