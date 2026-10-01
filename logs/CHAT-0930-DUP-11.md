@@ -58,17 +58,30 @@
   `docs/notes/ogp.md` の実例に title/ を足し、「デプロイ直後の CDN」に、デプロイ前に新しい画像の本番の URL を開かない注意（DUP-08 の 404 のキャッシュ）を足した。
   `docs/notes/static-generation.md` の OGP の行に title/ の1文と参照。`docs/decisions/title.md` に DUP-11 の決定。`docs/handover.md` は #232 の行を消し、「次の会話の順番」と「最終更新」を直した（22,506 バイト）
 
+- 手順3 マージ: `git merge-base --is-ancestor origin/cloudflare HEAD` を確かめて `git push origin work/0930-dup-09:cloudflare`（e3f62b2f..34256c97、02:05 UTC）
+- 本番: 34256c97 の check-run は Workers Builds: mj success、regenerate success（自動の再生成 9c030922 が `sitemap-title.xml` の lastmod 336件を更新）、check・sync success。
+  02:06 UTC に本番の HTML が新しくなったことを確かめた（og:title / og:image）:
+  - `/title/`: 「タイトル戦 | 日本プロ麻雀連盟 | ryoei.pro」 / `img/ogp/title/index-black.png`
+  - `/title/houou/`: 「鳳凰戦 | …」 / `houou-black.png`
+  - `/title/joryu-nihon-series/`（長い名前）: 「女流プロ麻雀日本シリーズ | …」 / `joryu-nihon-series-black.png`
+  - `/title/wrc/3.html`（第n回）: 「第3回リーチ麻雀世界選手権 | …」 / `wrc-black.png`
+  - `/title/nihon-series/2025.html`（西暦）: 「麻雀日本シリーズ2025 | …」 / `nihon-series-black.png`
+  - そのあとで画像21枚を取得: すべて 200、手元とバイト一致。DUP-08 でキャッシュされた `houou-black.png` の 404 も 200（`cf-cache-status: HIT`）に変わっていた
+- #232 に結果をコメント（issuecomment-5923289619）して閉じた（completed）。「状況:」ラベルは元から無い
+- 片付け: work/0930-dup-09 はマージ済みで、削除は `delete-merged-branches.yml` に任せる（cloud-sessions.md「ブランチの削除」）
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/0930-dup-09
-- ログ: https://github.com/retroeater/mj/blob/work/0930-dup-09/docs/logs/CHAT-0930-DUP-11.md
+- 状態: 完了
+- ブランチ: work/0930-dup-09（マージ済み。削除は delete-merged-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-0930-DUP-11.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/0930-dup-09
-- 確認用URL: なし
-- マージ: 未
-- issue: #232
+- 確認用URL: なし（本番に反映済み）
+- マージ: 済（e3f62b2f..34256c97。自動の再生成 9c030922 が続いた。このログは docs のみの追いの push）
+- issue: #232（クローズ）
 - 判断が必要なこと: なし
-- 未確認の項目: なし
+- 未確認の項目:
+  - ブラウザ・X・LINE での本番の見え方（HTML と画像は curl で確かめた。見本の2枚は平野さんが DUP-09 の前に確認済み）
 - エラー: なし
 
 <!-- guide-links -->
