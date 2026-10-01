@@ -48,28 +48,53 @@
 
 - 2026-10-01 Chat-Ref の重複確認: DUP-12 のコミットなし。`origin/work/0930-dup-12` は無いため `git checkout -b work/0930-dup-12 origin/cloudflare` で作成
 
+- 0章: ログの「指示」欄の末尾は指示文の最後の行と一致。DUP-11 の `## 報告` は「状態: 完了」、マージ 34256c97 は `origin/cloudflare` の祖先。
+  未マージのブランチ（`git fetch --prune` 後）は `origin/work/0930-dup-12`（このログ）だけ
+- 手順1 調べた結果:
+  - **navbar の定義は `navbar.js` の1か所だけ**（34行目 `<a class="dropdown-item" href="/title/">タイトル</a>`、「連盟」の下）。各ページは `<script src="…navbar.js">` で読み込み、ブラウザで描く。
+    生成スクリプト・生成物・手書きのページに navbar の文言は入っていない。外部（シート・Apps Script・ワークフロー）からも入らない
+  - トップ（`index.html`）は navbar.js を使わない独自のナビ（Home・About・Portfolio・Resume・Database）で、title/ への項目は無い
+  - 直すもの: `navbar.js` の項目名、`docs/notes/title-pages.md` の「navbar の「連盟 > タイトル」は `/title/` へ差し替えた」（項目名の記述に、2026-10-01 に「タイトル戦」へ改めたことを足した）
+  - 直さないもの（別の意味）: 「タイトル」タブ・旧「タイトル」シート（`generate_title_pages.py`・`generate_jpml_pros.py`・テスト・docs の多数）、
+    `rh_results_detail.html` の表の見出し「タイトル」（動画のタイトルの列）、`style.css`・`assets/saikyo.js` のコメント（英語タイトル・ページのタイトル）、`live_layer3.py` の層2の「タイトル」列、「タイトルホルダー」
+  - title/ を指すほかの表記はすでに「タイトル戦」: title/ のパンくず（全ページ）、入口の見出し・プルダウン「すべてのタイトル戦」・検索欄の案内、og:title、`llms.txt` の「[タイトル戦](https://ryoei.pro/title/)」
+  - 迷うもの: なし
+- 手順2 実装（c4bb4814）: `navbar.js` を「タイトル戦」に、`docs/notes/title-pages.md` を直し、テスト `scripts/tests/test_navbar.py`（navbar.js の `/title/` の項目名が「タイトル戦」1つだけ）を足した。
+  変更前の navbar.js では項目名が「タイトル」で、このテストは通らない。全体のテスト OK
+  - 全ページの生成し直し（`regenerate.py all`、凍結中の books は対象外の作り）: **生成物の差分0**（navbar は生成物に入らないため）。配信の上限はすべて OK（配信ファイル数 1,663）
+- 手順3 プレビュー（c4bb4814 の Workers Builds success、版ごとのプレビュー URL）。Chromium（Playwright）で「連盟」のメニューを開いて測った:
+  - 幅 360px（ハンバーガーを開いた状態）: `/title/`・`/jpml_pros.html`・`/houou_leagues.html` とも項目名「タイトル戦」。項目の高さは隣の「プロ」と同じ（`/title/` 44px、`/houou_leagues.html` 32px）で折り返し無し。項目の右端 347px で幅 360px に収まる
+  - 幅 1280px: メニューの幅 160px の中に「タイトル戦」が1行で収まる（`/title/` で画面を取得して確かめた）
+  - `/jpml_pros.html` は幅 360px でページ全体が横にはみ出す（scrollWidth 747〜934px）が、**本番（旧 navbar）でも 934px** で、表によるもの（navbar の変更とは関係しない）
+  - 画面の取得はセッションの scratchpad にだけある（ログには添えていない）
+- `navbar.js` は `_headers` で個別のキャッシュ指定が無く、ファイル名にも版が無い。マージ後、ブラウザに古い navbar.js が残っている間は「タイトル」のまま見えることがある
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/0930-dup-12
 - ログ: https://github.com/retroeater/mj/blob/work/0930-dup-12/docs/logs/CHAT-0930-DUP-12.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/0930-dup-12
-- 確認用URL: なし
-- マージ: 未
+- 確認用URL: プレビューあり（URL は最終報告）。`/title/`・`/jpml_pros.html` などで「連盟」のメニューを開く（トップの index.html は navbar.js を使わない）
+- マージ: 未（判断待ち）
 - issue: なし
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 判断が必要なこと:
+  - プレビューで見え方を確かめ、マージしてよいか（変更は `navbar.js` の1語・テスト1件・docs。生成物の差分なし）
+  - 迷うもの: なし（直さないものは経過のとおり、いずれも別の意味の「タイトル」）
+- 未確認の項目:
+  - iPhone など実機での見え方（Chromium の幅 360px で測った）
+  - マージ後、ブラウザのキャッシュに旧 navbar.js が残る期間（キャッシュ指定なし）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 34256c97）: https://github.com/retroeater/mj-logs/tree/main/guide/34256c97
+ガイド文書（この版を写した時点の最新、mj c97e4a85）: https://github.com/retroeater/mj-logs/tree/main/guide/c97e4a85
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/34256c97/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/34256c97/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/34256c97/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/34256c97/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/34256c97/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/34256c97/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c97e4a85/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c97e4a85/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c97e4a85/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c97e4a85/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c97e4a85/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c97e4a85/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/14245a4d.md
