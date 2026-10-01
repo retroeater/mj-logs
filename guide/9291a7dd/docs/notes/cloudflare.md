@@ -60,10 +60,13 @@ Workers 静的アセット配信にはオリジンサーバーが存在しない
 Speed Brain の場合、有効化すると `Speculation-Rules` ヘッダは正常に付与される。
 しかし実際の prefetch リクエストは全件拒否される。
 
-    curl -sI -H "sec-purpose: prefetch" https://ryoei.pro/jpml_titles.html | head -1
+    curl -sI -H "sec-purpose: prefetch" https://ryoei.pro/jpml_pros.html | head -1
 
     HTTP/2 503
     cf-speculation-refused: prefetch refused: disabled for worker requests
+
+結果は 2026-09-11 に当時の `/jpml_titles.html`（#441 で廃止）で実測したもの。2026-09-30 に上のコマンドを実行すると
+`HTTP/2 200`（`cf-speculation-refused` なし）だった。Speed Brain の今の設定はこの環境からは確かめられない。
 
 ヘッダの有無だけを見ると「機能している」と誤判定する。
 今後 Cloudflare の新機能を検討するときは、同じ落とし穴に注意すること。
