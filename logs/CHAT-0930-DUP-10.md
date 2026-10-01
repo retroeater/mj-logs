@@ -47,28 +47,44 @@ DUP-09 で止まった手順3（全大会の画像の確認ページとプレビ
 - 2026-10-01 Chat-Ref の重複確認（`git log --all --grep`・`docs/logs/` の履歴）: DUP-10 のコミットなし。
   ローカルの `work/0930-dup-09` は `origin/work/0930-dup-09` と一致（2562e9d8）のため、そのまま使う。`origin/cloudflare` は祖先でない（取り込みは手順1で行う）
 
+- 0章: ログの「指示」欄の末尾は指示文の最後の行と一致。DUP-09 の `## 報告` は「状態: 判断待ち」。#232 のコメントは10件で、着手中はこのセッションのもの（DUP-04・07・09）だけ
+- 手順1 取り込み: `git merge origin/cloudflare`（3a9c339c、衝突なし。取り込んだ側の docs/ 以外の変更は `scripts/apps_script/add_layer3_reference_columns.gs` だけで title/ に関係しない）。
+  `regenerate.py title_pages` で生成し直し（警告0件）、**DUP-09 の生成物から増減なし**（作業ツリーの差分0）。
+  cloudflare に対する生成物の差分は DUP-09 と同じ: og:title 384ページ、og:image と og:image:alt 340ページ、
+  王位戦 石川正明の写真の URL 6ファイル（`title/index.html`・`title/oui/index.html`・`title/oui/26.html`・`title/oui/50.html`・`title/teiou/2.html`・`title/search.json`。【プロ】シートの更新によるもの。cloudflare にはまだ入っていない）。
+  テスト 485件 OK、配信の上限はすべて OK（配信ファイル数 1,663）
+- 手順2 確認ページ: 使い捨てのスクリプト `scripts/dup10_title_ogp_check.py` で `title/_ogp_check.html` を書き出した（noindex、どこからもリンクしない、sitemap に載せない）。
+  入口と全大会の21枚を並べ、画像ごとに大会名・ファイル名・KB・ページの URL・新しい og:title を添える（og:title・og:image は生成済みのページから読む）。
+  ローカルの Chromium で表示し、21枚とも読み込めることを確かめた
+- push（1fc712d2）: 「Workers Builds: mj」success、check success。プレビュー（版ごとの URL）で確認ページが 200・noindex あり、画像21枚は手元とバイト一致、
+  `title/houou/41.html` の og:title は「第41期鳳凰戦 | 日本プロ麻雀連盟 | ryoei.pro」、og:image は `houou-black.png`。本番の画像の URL は開いていない
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/0930-dup-09
 - ログ: https://github.com/retroeater/mj/blob/work/0930-dup-09/docs/logs/CHAT-0930-DUP-10.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/0930-dup-09
-- 確認用URL: なし
-- マージ: 未
-- issue: #232
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 確認用URL: プレビューあり（URL は最終報告）。確認ページ `title/_ogp_check.html`
+- マージ: 未（判断待ち。マージのときに `title/_ogp_check.html` と `scripts/dup10_title_ogp_check.py` を消す）
+- issue: #232（コメントなし）
+- 判断が必要なこと:
+  - 確認ページで21枚の画像と og:title を確かめ、このままマージしてよいか。長い大会名（女流プロ麻雀日本シリーズ・リーチ麻雀世界選手権・小島武夫杯帝王戦・JPML WRC-Rリーグなど）は字が小さい
+  - og:title の新旧の例は DUP-09 のログの報告のとおり（入口・大会・期・第n回・西暦）
+  - マージのときに要る文書の更新（`docs/notes/ogp.md`・`title-pages.md`・`static-generation.md` に、title/ の画像の置き場所・作り方・og:title の形を書く。handover の #232 の行）は、マージの指示で行う
+- 未確認の項目:
+  - 本番での見え方（マージ前）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 6e3ec02a）: https://github.com/retroeater/mj-logs/tree/main/guide/6e3ec02a
+ガイド文書（この版を写した時点の最新、mj e22bfd18）: https://github.com/retroeater/mj-logs/tree/main/guide/e22bfd18
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6e3ec02a/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6e3ec02a/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6e3ec02a/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6e3ec02a/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6e3ec02a/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6e3ec02a/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e22bfd18/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e22bfd18/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e22bfd18/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e22bfd18/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e22bfd18/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e22bfd18/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/14245a4d.md
