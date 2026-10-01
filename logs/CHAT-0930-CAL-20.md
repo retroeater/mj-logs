@@ -1,15 +1,15 @@
-# CHAT-0930-CAL-19
+# CHAT-0930-CAL-20
 
-- 着手日時: 2026-10-01 08:57（JST）
-- 対象issue: #450
+- 着手日時: 2026-10-01 10:44（JST）
+- 対象issue: #450（クローズ済み）
 - ブランチ: work/1001-cal-title
-- 着手時HEAD: 5fc5a5c2（origin/cloudflare から作った）
+- 着手時HEAD: 14245a4d（origin/work/1001-cal-title と同じ）
 
 ## 指示
 
-【Claude作成】Claude Code 向け指示：カレンダーの件名から「【麻雀】」「【無料放送】」を外し、除外タブが無いときは同期を止めるように直して、cloudflare へ入れ、過去の予定の件名を書き込みありで直す Chat-Ref: CHAT-0930-CAL-19 共通手順: CLAUDE.md「Chat-Ref」「ブランチ運用」「作業ログ」節のとおり（識別子確認 → origin/cloudflare を起点に work/<識別子>〈クラウドセッションでは worktree を使わず docs/notes/cloud-sessions.md の読み替えに従う〉 → ログ先行push → 最終報告の Chat-Ref の行の直前に「ログ（公開）」の行、最後の行に Chat-Ref）。平野さんは、この指示のための作業ブランチの作成と push、cloudflare へのマージ、書き込みありのワークフローの手動実行（下の手順のもの）を許可している（セッションに割り当てられた claude/… のブランチは使わない）。 作業ブランチ: クラウドセッションで実行する。work/1001-cal-title を使う。リモートに無ければ origin/cloudflare から作る。リモートにあってマージ済みなら origin/cloudflare から作る（手順は docs/notes/cloud-sessions.md「作業ブランチの用意」）。マージ済みでなければ止まる マージ: 承認済み（チャットで、2026-09-30。work/1001-cal-title を cloudflare へ。手順3の見込みが止まる条件に当たらない限り、確認を求めずにマージと書き込みありの実行まで進めてよい）
+【Claude作成】Claude Code 向け指示：カレンダーの件名から「【麻雀】」「【無料放送】」を外し、除外タブが無いときは同期を止めるように直して、cloudflare へ入れ、過去の予定の件名を書き込みありで直す Chat-Ref: CHAT-0930-CAL-20 共通手順: CLAUDE.md「Chat-Ref」「ブランチ運用」「作業ログ」節のとおり（識別子確認 → origin/cloudflare を起点に work/<識別子>〈クラウドセッションでは worktree を使わず docs/notes/cloud-sessions.md の読み替えに従う〉 → ログ先行push → 最終報告の Chat-Ref の行の直前に「ログ（公開）」の行、最後の行に Chat-Ref）。平野さんは、この指示のための作業ブランチの作成と push、cloudflare へのマージ、書き込みありのワークフローの手動実行（下の手順のもの）を許可している（セッションに割り当てられた claude/… のブランチは使わない）。 作業ブランチ: クラウドセッションで実行する。未マージの work/1001-cal-title を続けて使う（CHAT-0930-CAL-19 のログのコミットだけがあるため）。`git checkout -b work/1001-cal-title origin/work/1001-cal-title` のうえ、`git merge-base --is-ancestor origin/cloudflare HEAD` が偽なら merge で取り込んでよい（rebase しない）。リモートに無ければ origin/cloudflare から作る マージ: 承認済み（チャットで、2026-09-30。work/1001-cal-title を cloudflare へ。手順3の見込みが止まる条件に当たらない限り、確認を求めずにマージと書き込みありの実行まで進めてよい）
 
-0. 着手前に、このログの「指示」欄の末尾が、この指示文の末尾（最後の行）と一致しているか確認し、一致しなければ作業せず報告する。CHAT-0930-CAL-09（明朝の確認）のログがあり、状態が完了か判断待ちであることを確かめる。無い、または作業中なら止まる（CAL-09 の確認と、この指示の件名の直しが同じ朝の実行に重ならないようにするため）。
+0. 着手前に、このログの「指示」欄の末尾が、この指示文の末尾（最後の行）と一致しているか確認し、一致しなければ作業せず報告する。CHAT-0930-CAL-19 は、CAL-09 より先に貼られて止まった同じ内容の指示（ログのコミットがあるため番号を変えた）。CAL-19 のログの状態を「中断 → 続き: CHAT-0930-CAL-20」と直す。CHAT-0930-CAL-09（明朝の確認）のログがあり、状態が完了か判断待ちであることを確かめる。無い、または作業中なら止まる（CAL-09 の確認と、この指示の件名の直しが同じ朝の実行に重ならないようにするため）。
 
 目的
 CAL-18 の報告のとおり、/live の【3】に行が無い古い枠では、YouTube の題名の「【麻雀】」などが件名に残る。これを外す。あわせて、除外タブ（「【4】カレンダー非掲載」）の名前が変わるなどして読めないとき、除外が黙って効かなくなるのを防ぐ。
@@ -41,39 +41,28 @@ CAL-18 の報告のとおり、/live の【3】に行が無い古い枠では、
 完了条件
 
 * ログの「## 報告」を CLAUDE.md「作業ログ」節のとおりに書いて push する。決定は CLAUDE.md のとおり `docs/decisions/broadcast-calendar.md` に足す（CAL-12 の「無ければ除外なし」に置き換えの印を付ける）。
-* ターミナルへの最終報告の Chat-Ref の行の直前に ログ（公開）: https://github.com/retroeater/mj-logs/blob/main/logs/CHAT-0930-CAL-19.md を書き、最後の行に Chat-Ref: CHAT-0930-CAL-19 を書く
+* ターミナルへの最終報告の Chat-Ref の行の直前に ログ（公開）: https://github.com/retroeater/mj-logs/blob/main/logs/CHAT-0930-CAL-20.md を書き、最後の行に Chat-Ref: CHAT-0930-CAL-20 を書く
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
 ## 経過
 
-- 識別子: `git log --all --grep=CHAT-0930-CAL-19` は0件。`work/1001-cal-title` はローカル・リモートとも無いので、`git checkout -b work/1001-cal-title origin/cloudflare`（5fc5a5c2）
+- 識別子: `git log --all --grep=CHAT-0930-CAL-20` は0件。ローカルの `work/1001-cal-title` は origin/work/1001-cal-title（14245a4d）と同じ
 - 手順0: 指示欄の末尾は指示文の最後の行と一致
-- 手順0: **CHAT-0930-CAL-09 のログが無い**
-  - 全リモートブランチの `docs/logs/CHAT-0930-CAL-09.md`: 無い
-  - `git log --all --grep=CHAT-0930-CAL-09`: 0件（2026-10-01 08:57 JST に fetch した後）
-  - 止まる条件「CAL-09 のログが無い」に当たるので、手順1以降（確かめ・実装・見込み・マージ・書き込み）は行わず止めた
-- 参考（読むだけ）: 今朝の毎朝の実行は run 36780007636（schedule、cloudflare）で、success
-  - 06:31〜06:37 JST に動いた
-  - 層1のコミット 5fc5a5c2 がある
-  - カレンダーの結果（作る・直す・消す）は、CAL-09 の確認の範囲なので読んでいない
+  - CAL-19 のログの状態を「中断 → 続き: CHAT-0930-CAL-20」に直した（このコミットに含める）
+  - CAL-09 のログは cloudflare にあり、状態は「完了」
 
 ## 報告
 
-- 状態: 中断 → 続き: CHAT-0930-CAL-20
-- ブランチ: work/1001-cal-title（このログだけ）
-- ログ: https://github.com/retroeater/mj/blob/work/1001-cal-title/docs/logs/CHAT-0930-CAL-19.md
+- 状態: 作業中
+- ブランチ: work/1001-cal-title
+- ログ: https://github.com/retroeater/mj/blob/work/1001-cal-title/docs/logs/CHAT-0930-CAL-20.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1001-cal-title
 - 確認用URL: なし
-- マージ: 未（作業していない）
-- issue: #450（コメントしていない）
-- 判断が必要なこと:
-  - CAL-09（明朝の確認）の指示がまだ実行されていない（どのブランチにもログもコミットも無い）
-    - CAL-09 を先に実行してから、この指示を同じ Chat-Ref のまま貼り直すか決めてほしい
-    - この指示のコミットはこのログだけ。CLAUDE.md の再開の規則では、コミットが1件でもあれば新しい番号にする
-  - 今朝の毎朝の実行（run 36780007636）は success で終わっている。件名の直しを CAL-09 の後に回しても、毎朝の実行とは重ならない
-  - 今は 08:57 JST で、05:30〜08:30 の帯は過ぎている
-- 未確認の項目: 今朝の毎朝の実行のカレンダーの結果（CAL-09 の範囲）
+- マージ: 未
+- issue: #450
+- 判断が必要なこと: なし
+- 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
