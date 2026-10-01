@@ -71,12 +71,12 @@
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 完了（平野さんがプレビューで確かめ、CHAT-0930-DUP-13 で cloudflare へマージした）
 - ブランチ: work/0930-dup-12
-- ログ: https://github.com/retroeater/mj/blob/work/0930-dup-12/docs/logs/CHAT-0930-DUP-12.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-0930-DUP-12.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/0930-dup-12
 - 確認用URL: プレビューあり（URL は最終報告）。`/title/`・`/jpml_pros.html` などで「連盟」のメニューを開く（トップの index.html は navbar.js を使わない）
-- マージ: 未（判断待ち）
+- マージ: 済（CHAT-0930-DUP-13 で。SHA は DUP-13 のログ）
 - issue: なし
 - 判断が必要なこと:
   - プレビューで見え方を確かめ、マージしてよいか（変更は `navbar.js` の1語・テスト1件・docs。生成物の差分なし）
@@ -89,12 +89,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj c97e4a85）: https://github.com/retroeater/mj-logs/tree/main/guide/c97e4a85
+ガイド文書（この版を写した時点の最新、mj a9af0a1d）: https://github.com/retroeater/mj-logs/tree/main/guide/a9af0a1d
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c97e4a85/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c97e4a85/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c97e4a85/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c97e4a85/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c97e4a85/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c97e4a85/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a9af0a1d/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a9af0a1d/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a9af0a1d/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a9af0a1d/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a9af0a1d/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a9af0a1d/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/14245a4d.md
