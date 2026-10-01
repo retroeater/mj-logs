@@ -40,69 +40,56 @@ CAL-18 の報告のとおり、/live の【3】に行が無い古い枠では、
 
 完了条件
 
-* ログの「## 報告」を CLAUDE.md「作業ログ」節のとおりに書いて push する。決定は CLAUDE.md のとおり `docs/decisions/broadcast-calendar.md` に足す（CAL-12 の「無ければ除外なし」に置き換えの印を付ける）。
-* ターミナルへの最終報告の Chat-Ref の行の直前に ログ（公開）: https://github.com/retroeater/mj-logs/blob/main/logs/CHAT-0930-CAL-20.md を書き、最後の行に Chat-Ref: CHAT-0930-CAL-20 を書く
+* ログの「### 手順3: 見込み（書き込みなし）
 
-不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
+- run 36802695152（work/1001-cal-title、04554414、入力はすべて外した）。update・yotei success
+- 「【4】カレンダー非掲載」: 4本
+- 今の予定は 2,649件。載せる予定も 2,649件（枠 2,525・予定表 124）
+- **作る 0・直す 164・消す 0**・そのまま 2,485
+- 直す164行は、すべて「→」の前（今の件名）に【麻雀】か【無料放送】がある。どちらも無い行は 0
+- 手順1の 164件と同じ
 
-## 経過
+### 手順4: マージと書き込み
 
-- 識別子: `git log --all --grep=CHAT-0930-CAL-20` は0件。ローカルの `work/1001-cal-title` は origin/work/1001-cal-title（14245a4d）と同じ
-- 手順0: 指示欄の末尾は指示文の最後の行と一致
-  - CAL-19 のログの状態を「中断 → 続き: CHAT-0930-CAL-20」に直した（このコミットに含める）
-  - CAL-09 のログは cloudflare にあり、状態は「完了」
-
-### 手順1: 確かめ
-
-- `git merge origin/cloudflare` を実行した（衝突なし）
-- 同じファイル（`live_calendar.py`・`sync_live_calendar.py`・`live_layer3.py`・`sheets.py`・`yotei-sheet.md`）を触る未マージのブランチ: 無い
-- 公開 iCal（10:4x JST）の予定は 2,649件。件名の【…】を数えた:
-  - 「【麻雀】」: **6件**（2015年 1・2020年 5）。例: 2015-08-08「【麻雀】インターネット麻雀日本選手権2015 決勝戦」
-  - 「【無料放送】」: **158件**（2020年 1・2021年 4・2022年 7・2023年 33・2024年 42・2025年 44・2026年 27）
-  - どちらかを含む: **164件**
-  - ほかの【…】: 「【Free broadcast】」3件だけ。決定の対象外なので外さない
-
-### 手順2: 実装（04554414）
-
-- `scripts/lib/live_calendar.py`:
-  - 定数 `MEMBERS_MARK` を `TITLE_MARKS = ("【メンバー限定】", "【麻雀】", "【無料放送】")` に置き換えた
-  - `clean_title()` はこの印を順に外し、NFKC と `~…~` の置き換えをし、前後の空白を落とす
-  - `MEMBERS_MARK` を使っていたのは `clean_title()` だけ。`clean_title()` を使うのは `summary_of()` だけで、/live の【3】に行が無い枠の件名になる
-- `scripts/lib/live_layer3.py`: `fetch_calendar_exclusions()` はタブが無いときに None を返していた。これをやめ、`fetch_records()` の `ValueError`（タブが無い・見出しが違う）をそのまま上げるようにした
-- `scripts/sync_live_calendar.py`: `read_exclusions()` を足した
-  - 読めないときは「除外のタブ「【4】カレンダー非掲載」が読めないため、カレンダーに書かずに止めます: <理由>」で `sys.exit` し、ステップを失敗させる
-  - 行が0件なら空の集合（除外なし）で進む
-  - 呼び出しは `main()` だけ
-- `scripts/lib/sheets.py`: CAL-16 で足した `MissingSheetError` は使う所が無くなったので外した。タブが無いときの例外は元の `ValueError` に戻した。ほかの呼び出し側の動きは変わらない
-- テスト:
-  - `test_clean_title`: 【無料放送】【麻雀】を外す。【テスト放送】【Free broadcast】は残す
-  - `ExclusionsTest`: タブが無い→止まる、見出しが不正→止まる、0件→除外なし、動画ID の読み取り（4本）
-  - 全 480件 OK
-  - **修正前のコードで、足した・直したテストが失敗すること（FAIL 1・ERROR 4）を確かめた**
-- 資料: `docs/notes/yotei-sheet.md` の件名の規則と除外タブの記述を直した
+- 差分は手順2のもの（コード4本・テスト2本・`yotei-sheet.md`）とログ（CAL-19・CAL-20）だけ。テスト・`check_asset_limits.py` は OK
+- 再 fetch し `merge-base --is-ancestor` が真なのを確かめて push した: **e22bfd18..7c3ded67**（10:50 JST、毎朝の時間帯の外）
+- 実行中の実行が無いことを確かめ、cloudflare で calendar_apply だけを付けて起動した: run 36802997153。update・yotei success
+  - **「書き込みました: 作る 0・直す 164・消す 0」**
+  - 「作成は止まっていません」。エラーの行なし
+  - 見込みと同じ
+- 公開 iCal: 予定 2,649件
+  - 【麻雀】を含む件名 **0**・【無料放送】を含む件名 **0**
+  - 残る【…】は【Free broadcast】3件だけ
+  - 2015-08-08 は「インターネット麻雀日本選手権2015 決勝戦」
+  - 10-09 は「女流勉強会 part73」、10-11 は「2026開幕式特別記念大会」
+- #450 に結果をコメントした（5923158911。#450 はクローズ済みのまま）
+- 決定の記録: `docs/decisions/broadcast-calendar.md` にこの指示の決定を足した。CAL-12 Q11 の行に置き換えの印を付けた
 
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1001-cal-title
-- ログ: https://github.com/retroeater/mj/blob/work/1001-cal-title/docs/logs/CHAT-0930-CAL-20.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1001-cal-title
-- 確認用URL: なし
-- マージ: 未
-- issue: #450
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 状態: 完了
+- ブランチ: work/1001-cal-title（cloudflare へマージ済み）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-0930-CAL-20.md
+- 比較URL: https://github.com/retroeater/mj/compare/e22bfd18...7c3ded67
+- 確認用URL: なし（カレンダーは公開 iCal で確かめた）
+- マージ: 済（7c3ded67、fast-forward）
+- issue: #450（結果をコメント。クローズ済みのまま）
+- 判断が必要なこと:
+  - 件名に「【Free broadcast】」が3件残る（英語の無料放送の印）。外すなら `TITLE_MARKS` に足すだけ。今回の決定の対象外なので残した
+  - 明朝の毎朝の実行の見込み: 作る 0（新しい枠があればその分）・直す 数件・消す 0。件名の差は今日の実行で直したので出ない
+  - 除外のタブの名前を変えたり消したりすると、毎朝のカレンダーの同期が失敗して止まる。失敗の通知が届いたら、タブ名「【4】カレンダー非掲載」と見出し（動画ID・参考:題名・理由）を確かめてほしい
+- 未確認の項目: Google カレンダーの画面での見え方（確かめたのは公開 iCal の中身まで）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 7c3ded67）: https://github.com/retroeater/mj-logs/tree/main/guide/7c3ded67
+ガイド文書（この版を写した時点の最新、mj e3f62b2f）: https://github.com/retroeater/mj-logs/tree/main/guide/e3f62b2f
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/7c3ded67/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/7c3ded67/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/7c3ded67/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/7c3ded67/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/7c3ded67/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/7c3ded67/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e3f62b2f/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e3f62b2f/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e3f62b2f/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e3f62b2f/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e3f62b2f/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e3f62b2f/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/14245a4d.md
