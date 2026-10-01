@@ -48,6 +48,16 @@
 
 - 2026-10-01 Chat-Ref の重複確認: DUP-11 のコミットなし。ローカルの `work/0930-dup-09` は `origin/work/0930-dup-09` と一致（8b3f7311）。`origin/cloudflare` は祖先でない（手順1で取り込む）
 
+- 0章: ログの「指示」欄の末尾は指示文の最後の行と一致。DUP-10 の `## 報告` は「状態: 判断待ち」。#232 にほかのセッションの着手中コメントなし
+- 手順1: `git merge origin/cloudflare`（909fefc3）。衝突は `docs/decisions/title.md` だけ（DUP-09・DUP-10 の追記と CHAT-0929-ZK-19 の追記）で、両方を日付の順に残した。
+  生成物の衝突は無かった。確認ページ `title/_ogp_check.html` と `scripts/dup10_title_ogp_check.py` を消した（コミット「chore: remove the temporary title/ OGP check page」）。
+  `regenerate.py title_pages` で生成し直し（警告0件）、作業ツリーの差分なし。テスト 485件 OK、配信の上限はすべて OK
+- **cloudflare に対する差分（マージの条件と照合、満たす）**: og:title 384ページ、og:image と og:image:alt 340ページだけ。新しい画像19枚（`img/ogp/title/`）、`generate_title_pages.py`、`test_title_ogp.py`、docs。
+  DUP-10 にあった王位戦 石川正明の写真の URL の6ファイルは、cloudflare の毎日の再生成（fb37c836）に先に入っていたため差分から消えた（シートの変化によるもの）
+- 手順2 文書（9c96b8ec）: `docs/notes/title-pages.md`「ページと生成」に OGP の項（置き場所と名前・og:title の形・作り方とフォント・新しい大会を足すときの手順とテスト）、
+  `docs/notes/ogp.md` の実例に title/ を足し、「デプロイ直後の CDN」に、デプロイ前に新しい画像の本番の URL を開かない注意（DUP-08 の 404 のキャッシュ）を足した。
+  `docs/notes/static-generation.md` の OGP の行に title/ の1文と参照。`docs/decisions/title.md` に DUP-11 の決定。`docs/handover.md` は #232 の行を消し、「次の会話の順番」と「最終更新」を直した（22,506 バイト）
+
 ## 報告
 
 - 状態: 作業中
@@ -64,12 +74,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj e3f62b2f）: https://github.com/retroeater/mj-logs/tree/main/guide/e3f62b2f
+ガイド文書（この版を写した時点の最新、mj 34256c97）: https://github.com/retroeater/mj-logs/tree/main/guide/34256c97
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e3f62b2f/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e3f62b2f/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e3f62b2f/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e3f62b2f/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e3f62b2f/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e3f62b2f/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/34256c97/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/34256c97/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/34256c97/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/34256c97/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/34256c97/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/34256c97/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/14245a4d.md
