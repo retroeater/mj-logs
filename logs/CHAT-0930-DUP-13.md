@@ -48,28 +48,41 @@ navbar の「タイトル戦」を公開する。
 - 2026-10-01 Chat-Ref の重複確認: DUP-13 のコミットなし。ローカルの `work/0930-dup-12` は `origin/work/0930-dup-12` と一致（015bbf02）。`origin/cloudflare` は祖先でない（手順1で取り込む）。
   DUP-12 の `## 報告` は「状態: 判断待ち」
 
+- 手順1: `git merge origin/cloudflare`（72483d16）。衝突は `docs/decisions/title.md` だけ（DUP-12 の追記と CHAT-0929-ZK-20・ZK-21 の追記）で、両方を日付の順に残した。
+  `regenerate.py all`（凍結中の books は対象外の作り）で生成し直し、**生成物の差分0**。テスト OK、配信の上限はすべて OK（配信ファイル数 1,663）
+- 手順2 記録（a9af0a1d）: README の索引で選び、navbar の決定は `docs/decisions/title.md`（DUP-13 の節）、jpml_pros.html のはみ出しの決定は索引に当てはまる分野が無いため
+  `docs/decisions/pros.md`（プロ一覧）を作って書き、README の一覧に1行足した。DUP-12 のログの最後の `## 報告` の「状態」「ログ」「マージ」を直した
+- マージの条件の照合: cloudflare に対する差分は `navbar.js`（項目名の1行）・`scripts/tests/test_navbar.py`・docs（decisions 3件・logs 2件・`docs/notes/title-pages.md`）だけ。条件を満たす
+- 手順3 マージ: `git merge-base --is-ancestor origin/cloudflare HEAD` を確かめて `git push origin work/0930-dup-12:cloudflare`（97d8926a..a9af0a1d、05:12 UTC）
+- 本番: a9af0a1d の check-run は Workers Builds: mj success、regenerate・check・sync success（自動の再生成のコミットは出なかった）。
+  05:13 UTC に本番の `https://ryoei.pro/navbar.js` を取得し、`href="/title/">タイトル戦</a>` を確かめた。
+  応答のヘッダは `cache-control: public, max-age=0, must-revalidate`、`etag` あり、`cf-cache-status: HIT`。
+  **ブラウザは毎回 ETag で確かめに来る指定のため、前提にあった「しばらく古い表記が見える」心配は小さい**（`_headers` に navbar.js の指定は無く、これは既定の値）
+- 片付け: work/0930-dup-12 はマージ済みで、削除は `delete-merged-branches.yml` に任せる（cloud-sessions.md「ブランチの削除」）
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/0930-dup-12
-- ログ: https://github.com/retroeater/mj/blob/work/0930-dup-12/docs/logs/CHAT-0930-DUP-13.md
+- 状態: 完了
+- ブランチ: work/0930-dup-12（マージ済み。削除は delete-merged-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-0930-DUP-13.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/0930-dup-12
-- 確認用URL: なし
-- マージ: 未
+- 確認用URL: なし（本番に反映済み）
+- マージ: 済（97d8926a..a9af0a1d。このログは docs のみの追いの push）
 - issue: なし
 - 判断が必要なこと: なし
-- 未確認の項目: なし
+- 未確認の項目:
+  - ブラウザでの本番の見え方（navbar.js の中身とヘッダは curl で確かめた）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 97d8926a）: https://github.com/retroeater/mj-logs/tree/main/guide/97d8926a
+ガイド文書（この版を写した時点の最新、mj a9af0a1d）: https://github.com/retroeater/mj-logs/tree/main/guide/a9af0a1d
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/97d8926a/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/97d8926a/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/97d8926a/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/97d8926a/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/97d8926a/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/97d8926a/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a9af0a1d/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a9af0a1d/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a9af0a1d/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a9af0a1d/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a9af0a1d/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a9af0a1d/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/14245a4d.md
