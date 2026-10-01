@@ -86,7 +86,7 @@ CLAUDE.md「ブランチ運用」の「作業ブランチも削除する」は�
 - `*.workers.dev`（2026-09-28。本番の Worker と作業ブランチのプレビューの確認用。CW-14 で両方 200 を確認。URL はログに書かない）
 - `calendar.google.com`（2026-09-28。放送対局の予定表の公開カレンダーを読むため、#448）
 
-未追加: `openapi.rakuten.co.jp`（books は凍結中）。再生成は `jpml_titles` で確かめた（MD-15）。鍵の要るスクリプトはクラウドでは動かない（次節）。
+未追加: `openapi.rakuten.co.jp`（books は凍結中）。再生成は `jpml_titles` で確かめた（MD-15。旧表は #441 で廃止し、今は `regenerate.py` の対象に無い）。鍵の要るスクリプトはクラウドでは動かない（次節）。
 
 ## 鍵
 
