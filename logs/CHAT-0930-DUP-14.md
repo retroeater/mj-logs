@@ -50,28 +50,56 @@ DUP のチャット（2026-09-30〜10-01、CHAT-0930-DUP-01〜13）の振り返�
 
 - 2026-10-01 Chat-Ref の重複確認: DUP-14 のコミットなし。`origin/work/0930-dup-14` は無いため `git checkout -b work/0930-dup-14 origin/cloudflare` で作成
 
+- 0章: ログの「指示」欄の末尾は指示文の最後の行と一致。未マージのブランチ（`git fetch --prune` 後）は `origin/work/0930-dup-14`（このログ）だけで、対象の文書に触れるものは無い
+- 手順1: 容量（着手時）chat-side-operations.md 20,976・cloud-sessions.md 12,837・handover.md 22,506・CLAUDE.md 26,481 バイト（上限まで余裕あり）。
+  issue の状態（2026-10-01、GitHub MCP で読んだ）:
+  - #269 open: `fetch-gsc.yml` の初回の定期実行が 10/1 00:13 UTC に取得を push 済み（14664e85、`docs/gsc/2026-10-01/`）。issue はまだ開いている（中身を確かめてクローズする段）
+  - #473 open: 2026-10-13 に平野さんが6タブを削除。直前に git grep をやり直し、「プロ」V 列が空のままかを確かめる
+  - #408 open: コメント0件。`YYYY-XX-XX` 937行・`YYYY-MM-XX` 40行（9/19 時点）と世界選手権 第1・2回の年が未着手
+  - #475 open: 未登録 55名（9/30 の bot コメント）
+  - #446 open: 未決 U1〜U4 が残る。最新コメントで、同じ run のジョブ `yotei` の失敗（【1】の1000行の上限、別の原因）で判断待ち（handover の「未対応の注意」と同じ）
+  - #485 open: 10/1 の取得は廃止直前の基準値、11/1 の取得（10-02〜10-29）で 11/2 に旧表 URL への着地を見る。基準は未定
+  - #487 closed（9/30）
+  - チャット側の見立ての順番と実物の食い違いは無い。#269 は「確かめてクローズ」の段で、取得が届いていることを足した
+- 手順2 書いた場所（c8ed2680）:
+  - 教訓A: `docs/notes/chat-side-operations.md`「作業ログの読み方」の、末尾のリンクが拒まれたときの項目を広げた（読めないときは指示文の前に URL か読める最新の「ログ（公開）」の行を頼む。読めないまま書くと出し直しになる）。新しい項目は作らず、既存の項目に足した
+  - 教訓B（Code 側）: `docs/notes/cloud-sessions.md`「作業ブランチの用意」の分類器の行（別の手段を試さずに止まる。許可の返答が貼られたら同じコマンドを1回だけ実行し直す）
+  - 教訓B（チャット側）: `docs/notes/chat-side-operations.md`「Claude Code とのやり取り」に1項目（返答の文言と、別の手段で回避させないこと）
+  - 3文書には出典の Chat-Ref を書かず、日付で書いた（CLAUDE.md の更新ルール）
+  - `docs/handover.md`: 「最終更新」の2行（#232・navbar の「タイトル戦」・#487、jpml_titles の前提の洗い直し）、「次の会話の順番」（下の報告）、期限付きの表の #269・#485 の行
+  - 決定の記録: `docs/decisions/operations.md`（既にあった運用の分野）に DUP-14 の節を追記した。
+    **途中で `cat >` で既存の operations.md を上書きし、README の索引に重複の行を足してしまった。`git show HEAD:` の元の内容に DUP-14 の節を足して戻し、README は HEAD の版に戻した（コミット前に直した。差分は DUP-14 の節の追記だけ）**
+  - 容量（後）: chat-side-operations.md 21,860・cloud-sessions.md 13,349・handover.md 23,048・CLAUDE.md 26,481 バイト（警告域より下）
+
+- 手順3 マージ: `git merge-base --is-ancestor origin/cloudflare HEAD` を確かめて `git push origin work/0930-dup-14:cloudflare`（ca63f92f..6d7c238d、docs のみ）
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/0930-dup-14
-- ログ: https://github.com/retroeater/mj/blob/work/0930-dup-14/docs/logs/CHAT-0930-DUP-14.md
+- 状態: 完了
+- ブランチ: work/0930-dup-14（マージ済み。削除は delete-merged-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-0930-DUP-14.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/0930-dup-14
 - 確認用URL: なし
-- マージ: 未
-- issue: なし
+- マージ: 済（ca63f92f..6d7c238d、docs のみ。このログは追いの push）
+- issue: なし（#269・#473・#408・#475・#446・#485・#487 は読んだだけ）
+- 書いた場所:
+  - 教訓A: `docs/notes/chat-side-operations.md`「作業ログの読み方」
+  - 教訓B: `docs/notes/cloud-sessions.md`「作業ブランチの用意」（Code 側）、`docs/notes/chat-side-operations.md`「Claude Code とのやり取り」（チャット側）
+  - 決定: `docs/decisions/operations.md`
+  - handover: 「最終更新」「5. 次にやること」（順番と、期限付きの表の #269・#485）
+- handover の次の会話の順番: (1) #269（10/1 の取得は届いている。中身を確かめてクローズ）→ 10/13 #473 (2) #408 (3) #475 の未登録55名・#446 の U1〜U4 (4) #485（11/2 に旧表 URL の着地を見る）。次のチャットは新しい識別子で始める（DUP は使い切った）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
-- エラー: なし
+- エラー: なし（operations.md の上書きはコミット前に戻した。経過のとおり）
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj ca63f92f）: https://github.com/retroeater/mj-logs/tree/main/guide/ca63f92f
+ガイド文書（この版を写した時点の最新、mj 8d4c4d9d）: https://github.com/retroeater/mj-logs/tree/main/guide/8d4c4d9d
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ca63f92f/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ca63f92f/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ca63f92f/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ca63f92f/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ca63f92f/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/ca63f92f/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/8d4c4d9d/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/8d4c4d9d/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/8d4c4d9d/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8d4c4d9d/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8d4c4d9d/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8d4c4d9d/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/14245a4d.md

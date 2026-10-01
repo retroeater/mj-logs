@@ -9,7 +9,7 @@ OGP 画像・og:title を作る／変えるときに読む。#339（「帰り道
   （本文は `docs/notes/static-generation.md`「メンテナンス用スクリプトの詳細」の `build_wayhome_ogp.py` の行と、
   `docs/notes/static-generation.md`「生成スクリプトの構成（lib/page.py）」）
 - `img/ogp.png` を `img/ogp/` へ移すかは、新サイト（#296）で判断する
-- 現在の実例: `img/ogp/wayhome/index-<最新話の公開日>.jpg`（`docs/notes/video-wayhome.md`）、`img/ogp/saikyo/<年度>-<意匠>.png`（`docs/notes/saikyo-page-design.md`、#343）
+- 現在の実例: `img/ogp/wayhome/index-<最新話の公開日>.jpg`（`docs/notes/video-wayhome.md`）、`img/ogp/saikyo/<年度>-<意匠>.png`（`docs/notes/saikyo-page-design.md`、#343）、`img/ogp/title/<slug>-black.png`（`docs/notes/title-pages.md`、#232）
 
 ## 中身を差し替える画像はファイル名を変える
 
@@ -45,6 +45,8 @@ OGP 画像・og:title を作る／変えるときに読む。#339（「帰り道
 - Workers Builds の成功から1〜2分は、古い画像や削除済みのファイルが返ることがある
   （`/img/*` は `_headers` で `immutable`。CHAT-0916-OG-09 のログに実測がある）
 - その間に X が取得すると、古い結果がキャッシュに残りうる。画像を差し替えたら数分おいてから、番号を変えて確認する
+- **新しい画像の本番の URL は、本番の HTML の og:image が新しくなった（デプロイが済んだ）ことを確かめてから開く。**
+  デプロイ前に開くと 404 が `cf-cache-status: HIT`・`immutable` で CDN に載る（#232 の DUP-08 で、確認の curl が `img/ogp/title/houou-black.png` の 404 を載せた）。確かめはプレビューの URL で行う
 
 ## タイトルの決め方（帰り道の実例）
 
