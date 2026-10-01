@@ -51,6 +51,38 @@ CAL-20 の報告で残った「【Free broadcast】」（3件）を、「【無�
   - ローカルの work/1001-cal-title も祖先なので、docs/notes/cloud-sessions.md「作業ブランチの用意」のとおり `git merge --ff-only origin/cloudflare` で進めた（c97e4a85）
 - 手順0: 指示欄の末尾は指示文の最後の行と一致
 
+### 手順1: 実装
+
+- `scripts/lib/live_calendar.py` の `TITLE_MARKS` に「【Free broadcast】」を足した
+  - `TITLE_MARKS` を使うのは `clean_title()` だけ。`clean_title()` を使うのは `summary_of()` だけ
+- テスト: `test_clean_title` の【Free broadcast】の期待値を「外す」に変えた（CAL-20 では残すことを確かめていた）。全 480件 OK
+- 資料: `docs/notes/yotei-sheet.md` の件名の規則に【Free broadcast】を足した
+- `yotei.MARKS`（【メンバー限定】【無料放送】）は、予定表と枠の同じ日・同じ題名のまとめに使う別の一覧なので変えていない
+
+### 手順2: 印の候補の棚卸し（読むだけ）
+
+今のコード（手順1の後）で、載せる予定を手元で組み立てた。2,649件（枠 2,525・予定表 124、除外4本の後）の件名を数えた。
+
+- (a) 【】以外の括弧（〔〕［］[]《》〈〉＜＞<>（）()「」『』）で、2件以上に現れるもの:
+  - 「(仮)」**4件**。予定表由来で、例: 2027-03-12 第1期JPMLリーグ(仮)ベスト16AB卓 / 03-13 同CD卓 / 03-19 同ベスト8AB卓
+  - ほかに、1件だけのものとして「（1/2）」「（2/2）」がある（予定表由来の 2026-12-29・12-30 第9回麻雀格闘倶楽部プロNo1決定戦）
+  - 【】は残っていない（【Free broadcast】は手順1で外れる）
+- (b) 定型の語:
+  - 「特別」8件（大会名の一部）。例: インターネット麻雀日本選手権2023 Vtuber特別予選 / 2024開幕式特別記念大会 / 世界麻雀TOKYO2025プロ代表決定戦&中国籍特別予選
+  - 「スペシャル」6件（番組名の一部）。例: こずえの部屋で迎春8時間スペシャル2021〜2026
+  - 「特番」1件。予定表由来で、2027-01-01 お正月特番
+  - 生放送・LIVE・Live・ライブ・配信・無料・限定・アーカイブ・再放送・速報・見逃し・SP: **なし**
+- (c) 末尾の区切り（｜ | ／ /）の後ろで、2件以上に現れるもの: **なし**
+  - 「/」で引っかかったのは「（1/2）」「（2/2）」の中の「/」だけで、区切りではない
+- (d) ハッシュタグ: **なし**
+- (e) 記号:
+  - 「・」32件（「準決勝・決勝」などの並べ）
+  - 「!」5件（例: パチスロ麻雀格闘倶楽部 真を打とう!・目指せ第二の日吉辰哉!第1回日本プロ麻雀連盟実況オーディション）
+  - 「×」2件（天鳳×Vtuber杯チーム対抗戦2022・WRPM × 日本プロ麻雀4団体 パートナーシップ締結調印式）
+  - ★☆■◆♪・絵文字: なし
+  - どれも題名の一部で、印ではない
+- (f) 前後の空白・連続する空白・全角空白・全角英数: **なし**（`clean_title()` の NFKC と `strip()` で整っている）
+
 ## 報告
 
 - 状態: 作業中
@@ -67,12 +99,12 @@ CAL-20 の報告で残った「【Free broadcast】」（3件）を、「【無�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj c97e4a85）: https://github.com/retroeater/mj-logs/tree/main/guide/c97e4a85
+ガイド文書（この版を写した時点の最新、mj 8112fbb8）: https://github.com/retroeater/mj-logs/tree/main/guide/8112fbb8
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c97e4a85/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c97e4a85/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c97e4a85/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c97e4a85/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c97e4a85/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c97e4a85/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/8112fbb8/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/8112fbb8/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/8112fbb8/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8112fbb8/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8112fbb8/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8112fbb8/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/14245a4d.md

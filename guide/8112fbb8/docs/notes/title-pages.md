@@ -22,6 +22,16 @@
   - 旧表 `jpml_titles.html` は廃止し、`_redirects` で `/title/` へ 301（#441）。`?name=<選手名>` はそのまま付き、`assets/title.js` が `q` の無いときの検索の初期値に使う。
     `jpml_pros.html` の「決勝進出」は `generate_title_pages.final_counts()`（title/ に載る決勝の回数）で数え、`/title/?q=<名前>` へリンクする
   - `/title/<slug>`（末尾スラッシュなし）は `/title/<slug>/` へ 301（#455。下の「URL の解決」）
+- OGP（#232、2026-10-01）: 決定の経緯は `docs/decisions/title.md`（grill Q1〜Q16 と DUP-07〜DUP-11）
+  - og:image: 入口は `img/ogp/title/index-black.png`（「タイトル戦」）、大会ページと期ページは大会の `img/ogp/title/<slug>-black.png`（大会名）。
+    黒地・白字の文字だけで、写真は使わない（肖像権）。`generate_title_pages.py` の `og_image_for()` が画像のある大会だけ差し替え、無ければ共通の `img/ogp.png`（最強戦と同じ作り）。og:image:alt は大会名（入口は「タイトル戦」）
+  - og:title: 入口「タイトル戦 | 日本プロ麻雀連盟 | ryoei.pro」、大会ページ「<大会名> | …」、期ページ「<期の名前> | …」（`Period.title`。「第41期鳳凰戦」「第3回リーチ麻雀世界選手権」「麻雀日本シリーズ2025」のように、期と大会名の間は空けず、数え方は実物のまま）。
+    `<title>` は正式名のまま（「… 歴代優勝者（第1期〜第42期）」「… 決勝結果」）。分けるのは `page_meta()` の `og_label`（`PageMeta.og_title`）
+  - 画像は手で作ってコミットする（生成の Actions では作らない）: `python3 scripts/build_ogp_image.py --text <大会名> --color '#ffffff' --bg '#000000' --max-size 400 --tracking -0.03 --out img/ogp/title/<slug>-black.png`。
+    フォントは Noto Sans JP Bold（`~/.local/share/fonts/NotoSansJP-Bold.otf`、クラウドのセッションでは `raw.githubusercontent.com/notofonts/noto-cjk` の `Sans/SubsetOTF/JP/NotoSansJP-Bold.otf` から取得できた）。長い大会名は横幅に収まるまで字が小さくなる（そのままでよい、平野さん 2026-10-01）
+  - **新しい大会を表示するとき**: 上のコマンドで画像を1枚作り、ページの生成し直しと同じコミットに入れる（画像が無い間は共通の `img/ogp.png` のままで止まらない）。
+    `scripts/tests/test_title_ogp.py` が、表示している大会すべてに画像があること・置いた画像が実在の大会に当たることを確かめる（無ければテストが落ちる）。
+    大会名を変えたときも画像を作り直す。中身を変えるので名前（接尾辞 `OGP_DESIGN`）を変えるか、`docs/notes/ogp.md`「中身を差し替える画像はファイル名を変える」に従う
 - 写真カードの処理は `generate_saikyo_pages.py` と重複している（共通化は #222 の未決定）
 - 入口（#358・#364、2026-09-18）: タイトルホルダーを決勝日（日付列）の降順に並べ、カード全体を大会ページへのリンクにする。カードは写真そのもので、
   上端に大会名を帯（色は下の「帯と回戦ラベルの色」）で、下端に選手名を透明になるグラデーションに白文字と影で重ねる（#364。#358 の「大会名の帯と写真を縦に並べる」形はやめた）。
