@@ -51,29 +51,69 @@ Chat-Ref: CHAT-1001-GSC-01
 ## 経過
 
 - Chat-Ref の確認: `git fetch --unshallow origin` の後、`git log --all` で `CHAT-1001-GSC-01` および `GSC` 識別子のコミット・`docs/logs/*-GSC-*` の履歴なし。`work/1001-gsc-01` はローカル・リモートとも無し → `git checkout -b work/1001-gsc-01 origin/cloudflare`。
+- 着手時のログを push（a2b51a80、`[sync-logs]`）。
+
+### 0. 指示文の末尾と未マージのブランチ
+
+- 「指示」欄の末尾は「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」で、指示文の最後の行と一致。
+- `git branch -r --no-merged origin/cloudflare` は `origin/work/1001-gsc-01`（このログのコミットだけ）のみ。docs/handover.md に触れる未マージのブランチは無し。
+
+### 着手中コメントの確認
+
+- #269: CHAT-0921-GC-07 の「着手中」（2026-09-21）があるが、同じセッションが後の GC-11・GC-16 で実装・定期実行の有効化を報告済みで、GC-07 のコミットも cloudflare に入っている。現に作業中のものではないと判断した。
+- #390: 着手中コメント（DJ-01〜04）はすべて後のコメントで解除済み。DK-03・AF-37 は着手中コメントではない。
+
+### 1. #269 の照合
+
+基準は #269 本文の対応案3（直近28日のクエリ別・ページ別・デバイス別・国別を `docs/gsc/YYYY-MM-DD/*.csv`）・対応案4（`docs/**` のみのコミット）・追加要件（robots.txt の保存と差分の issue コメント）と、GC-16 で足した query-page。
+
+- 実行: `fetch-gsc.yml` run 36795074558（schedule、2026-10-01 00:13 UTC、success）。コミット 14664e85（差分は `docs/gsc/` 配下のみ）
+- 期間: `docs/gsc/2026-10-01/20260901-20260928/` = 2026-09-01〜09-28 の28日
+- ファイルと行数（見出しを除く。`wc -l` − 1、取得分の README の表と一致）: query.csv 69 / page.csv 98 / device.csv 3 / country.csv 40 / query-page.csv 73
+- robots.txt: `docs/gsc/2026-10-01/robots.txt` 142行。前回 `2026-09-21/robots.txt`（12行、Sitemap 行とコメントのみ）から Cloudflare の Content-Signal ブロックが付いた形に変わり、ジョブの「robots.txtの差分を知らせる」が #304 にコメントした（issuecomment-5922042496、ジョブログで確認）
+- `docs/gsc/README.md` の履歴表に 2026-10-01 の行あり
+- 06:00 JST 予定に対し 09:13 JST 開始（schedule の遅れ）。取得に影響なし
+- → 揃っている。#269 にコメント（issuecomment-5930011530）してクローズ（completed）。「状況:」ラベルは元から無し
+
+### 2. #390 の確認
+
+- `sync-dojo-calendar.yml` の直近の定期実行 run 36800180432（2026-10-01 01:15 UTC、success）は「画像は前回の読み取りから変わっていません。何もしません。（2026年9月 …/202609R.jpg）」で終了。10月分の画像は未掲載で、Claude API は呼ばれていない。読み取り件数 0
+- #426 のコメントは0件（通知なし）
+- 次の定期実行は 2026-10-02 07:12 JST（cron `12 22 * * *`）
+- #390 にコメント（issuecomment-5930014027）。クローズしない
+
+### 3. handover.md・決定
+
+- 「最終更新」の3行目（#446 の行）を #269 のクローズ・#390 の状態に置き換えた（3行以内の規則）
+- 「次の会話の順番」(1) から #269 を外した
+- 期限付きの表から #269 の行を外し、#390 の行に「10/1 時点で10月分の画像は未掲載」「毎日 07:12 JST」を足した
+- `docs/decisions/operations.md` にこの指示の「決定」節を足した（引用符付きヒアドキュメントで追記した。CLAUDE.md の「ファイルは Write / Edit で書く」に沿っていなかった。内容に展開の混入は無いことを diff で確認）
+- push 直前の再 fetch で cloudflare が e4ae1932・f119279e（CHAT-0929-ZK-23、docs のみ）だけ進んでいた。`git merge origin/cloudflare` で取り込み、`docs/decisions/operations.md` の末尾の追記同士が衝突したので、両方の見出し（ZK-23 → GSC-01 の順）を残して解いた。ZK-23 の `docs/notes/title-pages.md`・ログも取り込み後に残っていることを確認
+- 検証: unittest 487件 OK。容量 CLAUDE.md 26481 / handover.md 22872 / chat-side-operations.md 21860 バイト（いずれも警告域未満）。変更は docs/ のみ
 
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1001-gsc-01
-- ログ: https://github.com/retroeater/mj/blob/work/1001-gsc-01/docs/logs/CHAT-1001-GSC-01.md
+- 状態: 完了（handover の次の会話の順番: (1) 10/13 #473 (2) #408 (3) #475・#446 の U1〜U4 (4) 11/2 #485）
+- ブランチ: work/1001-gsc-01（マージ済み。削除は `delete-merged-branches.yml` に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1001-GSC-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1001-gsc-01
 - 確認用URL: なし
-- マージ: 未
-- issue: #269, #390, #426
+- マージ: 済（work/1001-gsc-01 の先頭＝このログを含むコミットを cloudflare へ fast-forward で push。push 直前に再 fetch し `git merge-base --is-ancestor origin/cloudflare HEAD` を確認）
+- issue: #269（照合: 期間 2026-09-01〜09-28 の28日、query 69 / page 98 / device 3 / country 40 / query-page 73 行、robots.txt 保存と #304 への差分通知あり → 揃っているのでクローズ）、#390（10/1 の実行は9月分の画像のままで未読・読み取り0件。結果をコメント、クローズせず）、#426（通知なし）
 - 判断が必要なこと: なし
-- 未確認の項目: なし
+- 未確認の項目:
+  - #390: 修正後のコードでの10月分の読み取り。次の定期実行は 2026-10-02 07:12 JST、以後毎日。結果は #426 に出る
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 8d4c4d9d）: https://github.com/retroeater/mj-logs/tree/main/guide/8d4c4d9d
+ガイド文書（この版を写した時点の最新、mj 428dc963）: https://github.com/retroeater/mj-logs/tree/main/guide/428dc963
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/8d4c4d9d/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/8d4c4d9d/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/8d4c4d9d/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8d4c4d9d/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8d4c4d9d/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8d4c4d9d/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/428dc963/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/428dc963/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/428dc963/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/428dc963/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/428dc963/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/428dc963/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a2b51a80.md
