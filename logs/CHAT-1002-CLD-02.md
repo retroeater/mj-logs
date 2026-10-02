@@ -60,12 +60,111 @@
 
 ## 経過
 
+### 0. 着手前の確認
+
 - Chat-Ref の重複: 全ブランチのコミットに `CHAT-1002-CLD-02` は無し
-- 作業ブランチ: ローカルの `work/1002-cld` が `origin/work/1002-cld` と同じ（361bf505）。`origin/cloudflare` は祖先
+- 作業ブランチ: ローカルの `work/1002-cld` が `origin/work/1002-cld` と同じ（361bf505）。`origin/cloudflare` は祖先（取り込み不要）
+- 「指示」欄の末尾は指示文の最後の行と一致
+- CHAT-1002-CLD-01 の `## 報告` は「状態: 判断待ち」。案1（公開版を時刻の重なりで限定版に付ける。grill Q1 の「完全版」の定義を置き換える）はこの指示の決定と合う
+- `git branch -r --no-merged origin/cloudflare`: `origin/work/1002-cld` だけ。マージの行 (5) のファイル・docs/notes/yotei-sheet.md に触れる他のブランチは無し
+- #448 の着手中のコメントは、このセッションの CLD-01 のものだけ。着手中のコメントを残した（https://github.com/retroeater/mj/issues/448#issuecomment-5946427614 ）
+
+### 1. 実装の前の確認
+
+条件（限定版の無い組の公開版／同じ日／同じ大会 `event_of()`／実際の開始・終了が両方ある枠どうしで配信の時間が重なる）で、層1（890dd035 の時点）から数えた。
+
+- **32組。公開版の動画IDは CLD-01 の32組と全件一致**（「同じ大会」を足しても増減なし。実際の終了が無いため外れた組も無し）
+- 重なる限定版はどの組も1本
+- **32組すべてで公開版が付く先の限定版より短い**。ただし 2023-03-28 の Focus M season8 は差が5秒（公開版 2:18:06、限定版 2:18:11）で、ほぼ同じ長さ
+
+| 日付 | 公開版（長さ） | 付く先の限定版（長さ） | 大会 | 重なる限定版 | 長さ |
+|---|---|---|---|---|---|
+| 2023-02-15 | Sgl3uxFvrd4 Focus M season8（1:12:35） | qnOLIVoICxU 【メンバー限定】FocusM season8（2:06:21） | Focus M | 1 | 短い（差 0:53:46） |
+| 2023-02-21 | Vt0P9dVzjF4 Focus M season8（1:11:21） | y_XN8brT1ok 【メンバー限定】FocusM season8（2:05:26） | Focus M | 1 | 短い（差 0:54:05） |
+| 2023-02-22 | HonzAKZ9Zh8 Focus M season8（1:05:26） | 63Ybq04_88M 【メンバー限定】FocusM season8（1:50:56） | Focus M | 1 | 短い（差 0:45:30） |
+| 2023-02-27 | UYrzcQibhbI Focus M season8（1:09:01） | 11w3x6QW_Sk 【メンバー限定】FocusM season8（1:52:31） | Focus M | 1 | 短い（差 0:43:30） |
+| 2023-02-28 | VoStKjNphfQ Focus M season8（1:23:55） | xGklfnmW0Sc 【メンバー限定】FocusM season8（2:36:11） | Focus M | 1 | 短い（差 1:12:16） |
+| 2023-03-01 | yTpsEqeXsOU Focus M season8（1:02:30） | -pdAL6AzBjA 【メンバー限定】FocusM season8（1:33:51） | Focus M | 1 | 短い（差 0:31:21） |
+| 2023-03-06 | UC5oTwV15DE Focus M season8（0:51:10） | uU0eQAU7V1U 【メンバー限定】FocusM season8（1:54:06） | Focus M | 1 | 短い（差 1:02:56） |
+| 2023-03-07 | ekT7g7EN8rg Focus M season8（1:24:36） | vri8oB4uGH0 【メンバー限定】FocusM season8（2:22:41） | Focus M | 1 | 短い（差 0:58:05） |
+| 2023-03-20 | CLPt2WtTpnk Focus M season8（1:40:31） | 3bOCiWOU0Ng 【メンバー限定】FocusM season8（2:23:06） | Focus M | 1 | 短い（差 0:42:35） |
+| 2023-03-21 | QOlxIJ6PKyg Focus M season8（1:36:36） | Ghme_6dy6z8 【メンバー限定】FocusM season8（3:05:21） | Focus M | 1 | 短い（差 1:28:45） |
+| 2023-03-27 | sR_B60HWT9w Focus M season8（1:04:51） | cv6anCCO5uQ 【メンバー限定】FocusM season8（2:28:26） | Focus M | 1 | 短い（差 1:23:35） |
+| 2023-03-28 | gBXei9qB4W4 Focus M season8（2:18:06） | lpbEv-LSlNI 【メンバー限定】FocusM season8（2:18:11） | Focus M | 1 | 短い（差 0:00:05） |
+| 2023-03-29 | cIXAWCAcxwU Focus M season8（1:06:36） | SIgyfuu_S-w 【メンバー限定】FocusM season8（2:21:31） | Focus M | 1 | 短い（差 1:14:55） |
+| 2023-04-04 | RSyGPi5N7L0 Focus M season8（1:17:16） | GbrRVDBNXrI 【メンバー限定】FocusM season8（2:20:41） | Focus M | 1 | 短い（差 1:03:25） |
+| 2023-04-05 | ETo_P7CqXmw Focus M season8（1:11:51） | qwPVVzUtkXs 【メンバー限定】FocusM season8（1:42:41） | Focus M | 1 | 短い（差 0:30:50） |
+| 2023-04-10 | LWH7znJBTJM Focus M season8（0:58:46） | n4YZVa3fw-A 【メンバー限定】FocusM season8（2:10:36） | Focus M | 1 | 短い（差 1:11:50） |
+| 2023-04-11 | _ESOBwLrxwo Focus M season8（1:38:36） | a0MSSeiapR8 【メンバー限定】FocusM season8（2:32:16） | Focus M | 1 | 短い（差 0:53:40） |
+| 2023-04-12 | 03bEscInrDA Focus M season8（1:32:21） | Uw58d82SDew 【メンバー限定】FocusM season8（2:56:56） | Focus M | 1 | 短い（差 1:24:35） |
+| 2023-04-17 | kGrSLkEpRa4 Focus M season8（0:57:30） | KsxBjyrgv9U 【メンバー限定】FocusM season8（1:54:01） | Focus M | 1 | 短い（差 0:56:31） |
+| 2023-04-18 | rBV_7e3A-Qc Focus M season8（1:41:55） | kry15--AY7U 【メンバー限定】FocusM season8（2:54:01） | Focus M | 1 | 短い（差 1:12:06） |
+| 2023-04-19 | UZdc-YkRbMU Focus M season8（1:16:20） | c6LPTALxYhY 【メンバー限定】FocusM season8（2:00:51） | Focus M | 1 | 短い（差 0:44:31） |
+| 2023-04-24 | EsC2t_P9uK4 Focus M season8（0:56:46） | 1xDCcglwLC0 【メンバー限定】FocusM season8（2:00:21） | Focus M | 1 | 短い（差 1:03:35） |
+| 2023-04-25 | plcqmguHI6U Focus M season8（1:03:51） | x4hP820ameo 【メンバー限定】FocusM season8（2:36:01） | Focus M | 1 | 短い（差 1:32:10） |
+| 2023-04-26 | Cr0dMZvbe08 Focus M season8（0:49:51） | _gGwawmDktE 【メンバー限定】FocusM season8（1:29:26） | Focus M | 1 | 短い（差 0:39:35） |
+| 2023-05-01 | eIAA_S7Vhe4 Focus M season8（1:00:00） | V2fiJ79k_QY 【メンバー限定】FocusM season8（2:20:06） | Focus M | 1 | 短い（差 1:20:06） |
+| 2023-05-02 | 67ciwQRe8p8 Focus M season8（1:09:36） | LgCtguK1a5g 【メンバー限定】FocusM season8（1:56:26） | Focus M | 1 | 短い（差 0:46:50） |
+| 2023-05-03 | t2YUQ3jQYJ0 Focus M season8（1:10:36） | wKNA37ULJpY 【メンバー限定】FocusM season8（2:12:05） | Focus M | 1 | 短い（差 1:01:29） |
+| 2023-07-16 | 6LJecimPcYI 麻雀日本シリーズ2023第３節（2:38:51） | gMDOwdKFSLw 【メンバー限定】麻雀日本シリーズ2023第２節（6:25:39） | 麻雀日本シリーズ | 1 | 短い（差 3:46:48） |
+| 2023-10-13 | G4w5fnsWVco 第６期若獅子戦~ベスト16ＡＢ卓~（3:07:56） | v8I76nBJHyc 【メンバー限定】第６期若獅子戦~ベスト16ＡＢ卓~（最終戦オーラスは概要欄リンクからご覧ください）（11:54:56） | 若獅子戦 | 1 | 短い（差 8:47:00） |
+| 2026-03-29 | DNnt08iLGm0 女流プロ麻雀日本シリーズ2026決勝戦（３回戦南４局～４回戦）（1:41:51） | fEx5AHBtqvc 【メンバー限定】女流プロ麻雀日本シリーズ2026決勝戦（5:48:42） | 女流プロ麻雀日本シリーズ | 1 | 短い（差 4:06:51） |
+| 2026-08-29 | J3KYImyN7-s 第12期桜蕾戦~ベスト16~（4:16:21） | lkFA50-qMi0 【メンバー限定】第12期桜蕾戦~ベスト８Ｂ卓~（6:12:06） | 桜蕾戦 | 1 | 短い（差 1:55:45） |
+| 2026-10-01 | dFOIYiIeQy4 第一期鳳匠戦ベスト16A（2:53:25） | lRfK1G89L-M 【メンバー限定】第一期鳳匠戦ベスト16A・B卓（6:19:03） | 鳳匠戦 | 1 | 短い（差 3:25:38） |
+
+`yotei.full_frames()` を使う所（`grep`）:
+
+- `scripts/lib/live_calendar.py` の `build_desired()`: `full_frames(..., split=True)`（カレンダーの同期）
+- `scripts/lib/yotei.py` の `build_layer2()`: `full_frames(...)`（split=False。予定表の【2】の「完全版の動画ID」「無料版の動画ID」・終了の仮置きの「次の枠」と、`start_table()` の開始の仮置き）
+- ページ生成（`scripts/generate_*.py`）は `yotei`・`live_calendar` を import していない（`yotei` を import するのは `fetch_yotei.py`・`write_yotei_sheet.py`・`sync_live_calendar.py`・`lib/live_calendar.py`・`lib/sheets_write.py`〈シートID の参照だけ〉）
+
+split=True だけ変えたときの食い違い: `build_desired()` の仮の予定は「【2】の完全版の動画IDが空でない」か「同じ日・同じ大会の枠がある」で枠に切り替わる。外れる公開版は必ず同じ日・同じ大会の限定版と重なっており、その限定版の枠は残るので、切り替わりの判定は変わらない（今の入力でも仮の予定の差は0件）。食い違いは無いと判断した。
+
+### 2. 実装とテスト（92de13c1）
+
+- `yotei.attached_publics(groups)`: {公開版の動画ID: 付く先の限定版}。限定版の無い組の公開版のうち、`event_of()` が同じで判定できる・実際の開始と終了が両方ある限定版と配信の時間が重なるもの。重なる限定版が2本以上なら重なりの最も長いものに付ける。放送前の枠（実際の終了が無い）は見ない
+- `full_frames(split=True)`: 付いた公開版は予定にしない。付く先の限定版に同じ組の無料版が無ければ、その公開版を無料版にする（説明欄は完全版の概要欄が優先のため、今の入力で変化なし）
+- `split=False` は変えない
+- テスト（`scripts/tests/test_yotei.py` の FramesTest に4件）: 10-01 の鳳匠戦の4本で A卓・B卓が1件ずつ／時間が重ならない・大会が違う・大会が判定できない・放送前の公開版は完全版のまま／重なりの長い限定版に付き、Q3 の同じ題名の2本は2件のまま／split=False は変わらない
+- `python3 -m unittest discover -s scripts/tests`: 514件 OK
+- 修正前のコード（HEAD の `scripts/` を別の場所に展開し、新しいテストだけ差し替え）では、新しいテストのうち規則を確かめる2件（鳳匠戦・重なりの長い限定版）が FAIL。残る2件は今までどおりの挙動の確認なので修正前でも通る
+
+### 3. 見込み
+
+同じ入力（層1 890dd035、/live の【2】【3】【4】と予定表の【2】【3】を1回読んで保存したもの、today=2026-10-02）で、修正前後の `build_desired()` の `body_of()`（件名・説明欄・開始・終了・key）を比べた。
+
+- 修正前 2,651件 → 修正後 2,619件
+- **消える: 32件（動画IDが手順1の32組の公開版と全件一致）／作る: 0件／残る予定の変化: 0件**
+- ページ生成: `full_frames()` を使うページ生成は無い（上のとおり）。マージの行 (4) は、使う生成が無いことで満たすと判断した
+
+`split=False` にも同じ規則を入れた場合の予定表の【2】（1,132行）: 252行が変わる（主に「開始の根拠」の件数の表記 250行。過去2年の枠が3本減るため「833件」→「830件」など）。値が変わるのは次の行:
+
+- 開始(仮置き): 鳳匠戦の5行（09-13 予選・10-01 ベスト16AB卓・10-08 ベスト16CD卓・10-22 ベスト8AB卓・11-20 決勝）が 11:00 → 14:00（鳳匠戦の過去の枠が3本から2本になり、`MIN_HISTORY` を下回って全体の中央値に落ちる）
+- 完全版の動画ID: 2行（10-01 鳳匠戦ベスト16AB卓から dFOIYiIeQy4、2026-03-29 女流日本シリーズ決勝から DNnt08iLGm0 が外れる）
+- 無料版の動画ID: 2行（10-01 鳳匠戦に dFOIYiIeQy4、2026-08-29 桜蕾戦ベスト8AB卓に J3KYImyN7-s が加わる）
+- 終了(仮置き) 6行・終了の根拠 7行（次の枠が無くなり 23:00 になる 2026-03-29 の3行・08-29 の1行・09-13 鳳匠戦予選、鳳匠戦決勝の開始が 14:00 になり 11-20 の WRC リーグ第23節が 23:00 → 14:00 など）
+
+【2】は変えていない（指示どおり）。
+
+### マージの条件
+
+1. unittest: 514件 OK
+2. `build_desired()` の差: 消える32件（CLD-01 の32組の公開版と一致）・作る0・変化0
+3. 消える32件すべてで公開版が短い（最小の差は 2023-03-28 の5秒）
+4. `full_frames()` を使うページ生成は無い
+5. 変更したファイル: `scripts/lib/yotei.py`・`scripts/tests/test_yotei.py`・`docs/notes/yotei-sheet.md`・`docs/decisions/broadcast-calendar.md`・`docs/logs/`
+
+すべて満たすため cloudflare へ入れる。
+
+### 文書
+
+- `docs/notes/yotei-sheet.md`「公開カレンダーへの同期」の枠の予定の項に、題名の違う公開版の扱いを足した（writing-for-agents の skill を読んでから。規則・理由・範囲・【2】に効かせない理由を同じ項にまとめた）
+- `docs/decisions/broadcast-calendar.md`: CAL-12 grill Q1 の行に「→ 置き換え: 2026-10-02（CHAT-1002-CLD-02）」、末尾にこの指示の決定
+- CHAT-1002-CLD-01 の `## 報告` の状態を「完了（判断が出た: 案1。続きは CHAT-1002-CLD-02）」に直した
 
 ## 報告
 
-- 状態: 作業中
+- 状態: 作業中（マージ前）
 - ブランチ: work/1002-cld
 - ログ: https://github.com/retroeater/mj/blob/work/1002-cld/docs/logs/CHAT-1002-CLD-02.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1002-cld
@@ -79,12 +178,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj fe63c7d3）: https://github.com/retroeater/mj-logs/tree/main/guide/fe63c7d3
+ガイド文書（この版を写した時点の最新、mj 80300296）: https://github.com/retroeater/mj-logs/tree/main/guide/80300296
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/fe63c7d3/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/fe63c7d3/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/fe63c7d3/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/fe63c7d3/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/fe63c7d3/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/fe63c7d3/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/80300296/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/80300296/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/80300296/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/80300296/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/80300296/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/80300296/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b308711e.md
