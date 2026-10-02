@@ -62,28 +62,177 @@
 - 識別子 DOJ: unshallow 後、全ブランチのコミット（`Chat-Ref` を含む本文）と `docs/logs/` の履歴に `DOJ` の使用なし。`CHAT-1002-DOJ-01` のコミットも無し
 - `work/1002-doj` はローカル・リモートとも無かったため `git checkout -b work/1002-doj origin/cloudflare` で作成（起点 890dd03）
 
+### 0. 着手前の確認
+
+- 「指示」欄の末尾は指示文の最後の行（「不明な点があれば、…この行が指示文の最後の行です。」）と一致
+- `git branch -r --no-merged origin/cloudflare`（unshallow 後）: `origin/work/1002-doj`（このブランチ自身）だけ。道場部ゲストの同期・handover.md に触れる未マージのブランチは無い
+
+### 1. 原因の裏取り
+
+issue:
+
+- #390: open。最新コメントは CHAT-1001-GSC-01（2026-10-01、「10月分の読み取りは、まだ起きていない」）。着手中のまま残ったコメントは無い（各「着手中」には解除のコメントが続いている）
+- #426: open。コメント0件（通知は一度も出ていない）
+
+`sync-dojo-calendar.yml` の 10/1 以降の実行:
+
+- run 36800180432（#16、schedule、2026-10-01 01:15 UTC、success）: 前回のログどおり「変わっていません」で終了
+- run 36951854982（#17、schedule、2026-10-02 01:37 UTC = 10:37 JST、success、head 890dd03）: 同期の出力は
+  `画像は前回の読み取りから変わっていません。何もしません。` / `（2026年9月 https://www.ma-jan.or.jp/wp-content/uploads/202609R.jpg）`。
+  「結果をissueに知らせる」は `画像が変わっていないため通知しません`。Claude API は呼ばれていない。10月分は読めていない
+
+連盟サイト（クラウドから取得できた）: `dojo_guest.fetch_page()`（同期と同じ URL・User-Agent）で 68,515 バイト。`article:modified_time` は 2026-09-28T23:35:45+00:00（前提と一致）。
+
+2026年10月の見出し（`<strong>` の中身をそのまま、`repr`）と直後の画像:
+
+- `'　×10日本プロ麻雀連盟本部道場　2026年10月講師　～麻雀教室～'` → `/wp-content/uploads/202610B.jpg`
+- `'　×10日本プロ麻雀連盟本部道場　2026年10月ゲスト　～麻雀教室～'` → `/wp-content/uploads/202610R.jpg`
+  （先頭は全角スペース U+3000 が10個。種別の前も U+3000、波線は2つとも U+FF5E 全角チルダ。9月の見出しと同じ文字種）
+
+`find_images()` の結果（6件）と `pick()`:
+
+| 年月 | kind | label | 画像 |
+|---|---|---|---|
+| 2026-10 | teacher | 講師　～麻雀教室～ | 202610B.jpg |
+| 2026-10 | （空） | ゲスト　～麻雀教室～ | 202610R.jpg |
+| 2026-09 | teacher | 講師　～麻雀教室～ | 202609B.jpg |
+| 2026-09 | school-staff | スタッフ　～麻雀教室～ | 202609Y.jpg |
+| 2026-09 | guest | ゲスト　～道場部～ | 202609R.jpg |
+| 2026-09 | dojo-staff | スタッフ　～道場部～ | 202609G.jpg |
+
+- `pick(images)`（種別 guest、年月指定なし）→ 2026年9月 202609R.jpg
+- `pick(images, year=2026, month=10)` → None
+- 「ゲスト　～麻雀教室～」は `KINDS` のどれにも当てはまらず kind が空になる（`_kind_of` は「ゲスト」と「道場部」の両方を含む見出しだけを guest にする）。
+  そのため同期は9月を最新月と判断し、9月の画像の Last-Modified が state と同じなので「変わっていません」で終わる。**チャット側の推定と一致**
+- 画像の Last-Modified: 202610B.jpg `Mon, 28 Sep 2026 23:35:02 GMT`、202610R.jpg `Mon, 28 Sep 2026 23:35:08 GMT`。
+  10月分は 9/29 08:35 JST には出ていた。handover.md の「10月分はまだ画像が出ておらず未読」（CHAT-1001-GSC-01 の判断）は、見つけられていなかっただけ
+
+202610R.jpg の中身（セッションで画像を取得して表示した。Claude API の呼び出しではない）:
+
+- 左上の見出しが「道場部ゲスト」（9月の 202609R.jpg と同じ見出し・同じ図案）、右上に「10月 Oct」、営業時間 16:30〜23:30、金曜に「公式ルール」。**道場部ゲストの表で、麻雀教室の表ではない**。ページの見出しだけが誤り
+- 平日のマスは 10/1〜10/30 の22マス。8日のマスに「NEW!!」
+
+### 2. 書き込みなしの手動実行（着手前のメモ）
+
+state（`dojo-state.json`、actions/cache）の扱いをコードで確かめた:
+
+- `--image` を指定しても state の判定は効く（`state.get(image.url) == last_modified` なら読み取らずに終わる）。読み取ったあとは `_save_state` で `202610R.jpg` の Last-Modified が state に入り、キャッシュに保存される
+- そのため、この書き込みなしの実行のあとに同じ `image` で apply を付けて実行すると、「画像は前回の読み取りから変わっていません」で終わり、**書き込まれない**（次の指示の入力に関わる。手順2の結果のあとに整理する）
+
+### 2. 書き込みなしの手動実行の結果
+
+起動: `actions_run_trigger`、ref `cloudflare`、入力 `{"image": "https://www.ma-jan.or.jp/wp-content/uploads/202610R.jpg", "month": "2026-10", "apply": "false"}`（入力名は yml の `workflow_dispatch.inputs` の実物: image・month・apply）。
+
+- run 36955440028（#18、workflow_dispatch、head 890dd03）: 2026-10-02 02:23:56Z 起動、02:24:55Z 完了、**success**（約1分）。同期のステップは34秒
+- **修正後のコード（`max_tokens` 16000）での初めての読み取りが成功した**（max_tokens 切れ・JSON 解析エラーなし）
+- テスト（unittest）のステップも成功
+- #426 に通知が出た（issuecomment-5944446615、github-actions[bot]、02:24:51Z）。#426 への初めてのコメント
+- キャッシュ `dojo-guest-state-36955440028` を保存（293 バイト。10/2 の定期実行の 280 バイトから増えた＝202610R.jpg の行が足された）
+
+結果（#426 の通知の本文から）:
+
+```
+2026年10月 guest（https://www.ma-jan.or.jp/wp-content/uploads/202610R.jpg）
+
+読み取り 22件 / 照合できない名前 0件 / 既にある予定 0件 / 追加 22件
+```
+
+日付と名前の一覧（全22件。すべて追加する予定）:
+
+| 日付 | 名前 |
+|---|---|
+| 2026-10-01（木） | 庄田祐生 |
+| 2026-10-02（金） | 勝又健志 |
+| 2026-10-05（月） | 川原舞子 |
+| 2026-10-06（火） | 沢崎誠 |
+| 2026-10-07（水） | 渡邉浩史郎 |
+| 2026-10-08（木） | 香野蘭 |
+| 2026-10-09（金） | ともたけ雅晴 |
+| 2026-10-12（月） | 朝比奈ゆり |
+| 2026-10-13（火） | 和泉由希子 |
+| 2026-10-14（水） | 一井慎也 |
+| 2026-10-15（木） | 紺野真太郎 |
+| 2026-10-16（金） | 魚谷侑未 |
+| 2026-10-19（月） | 大久保朋美 |
+| 2026-10-20（火） | 内村翠 |
+| 2026-10-21（水） | 阿久津翔太 |
+| 2026-10-22（木） | 瀬戸麻衣 |
+| 2026-10-23（金） | 長村大 |
+| 2026-10-26（月） | 部谷幸則 |
+| 2026-10-27（火） | 福島佑一 |
+| 2026-10-28（水） | 後藤咲 |
+| 2026-10-29（木） | 光岡舞織 |
+| 2026-10-30（金） | 藤島健二郎 |
+
+- 照合できない名前: 0件（22名すべて「プロ」シートの在籍者の登録名と一致）
+- 既にある予定: 0件（10月の予定はカレンダーにまだ1件も無い。平野さんの発言と一致）
+- 追加する予定: 22件
+- 新規ゲスト: 香野蘭（画像のNEW表示 / 過去の予定になし。両方の根拠で一致）
+- 10月が誕生日のゲスト: 渡邉浩史郎（10/28）、和泉由希子（10/24）、光岡舞織（10/24）
+- 画像の注記: 「道場部ゲスト」「◆営業時間◆ 16：30〜23：30」「※1回戦目は17時より開始」「各試合は毎時00分からスタート！」「金曜日は公式ルール」
+
+道場部ゲストの表であることの確認:
+
+- 読み取り結果の注記の1つ目が「道場部ゲスト」、営業時間 16:30〜23:30 と金曜の公式ルールは9月の道場部ゲストの表と同じ
+- 手順1でセッションに表示した画像の22マスの名前と、読み取り結果の22件は日付・名前とも一致した（目視の突き合わせ。8月分で読み違いのあった「福島佑一」も、画像の字と登録名の両方で「佑」）
+- 以上から、202610R.jpg は道場部ゲストの表と判断した
+
+次の指示で書き込むときの入力と、画像をもう一度読むか（コードを読んだ結果）:
+
+- 入力は今回と同じ `image` = `https://www.ma-jan.or.jp/wp-content/uploads/202610R.jpg`、`month` = `2026-10`、それに `apply` = `true`
+- ただし、**そのまま実行すると書き込まれない**。今回の実行で state（キャッシュ）に 202610R.jpg の Last-Modified が入ったため、
+  `sync_dojo_calendar.py` は `state.get(image.url) == last_modified` で「画像は前回の読み取りから変わっていません。何もしません。」と終わる
+  （`--apply` の判定より前に return する。通知も出ない）。ワークフローの入力に state を無視する指定は無い
+- 読み取り結果を渡す `--entries-file` はスクリプトにあるが、ワークフローの入力には無い。今回の読み取り結果（result.json）はアーティファクトとして残していない
+- コードを変えずに書き込むには、state を外す必要がある。考えられる手段（どれも未実施、判断は平野さん）:
+  - (a) `image` に同じ画像の別の URL（例: 末尾にクエリ `?r=1` を付ける）を渡す。state のキーが変わるので読み取りが走る。
+    連盟サイトがクエリを無視して同じ画像を返すかは未確認
+  - (b) Actions のキャッシュ `dojo-guest-state-*` を削除する。次の定期実行で9月分も読み直し（Claude API を1回余計に呼び #426 に9月分の通知が出る）、手動実行の前に定期実行が走ると順序の問題が出る
+  - (c) ワークフローに「state を無視する」入力を足す（docs/ 以外の変更になるので、この指示ではしない）
+- **どの手段でも、書き込みのときに Claude API で画像をもう一度読む。** 今回の22件とは別の読み取りになり、結果が違う可能性がある
+  （照合できない名前があれば書き込まずに止まるが、別の登録名に読み違えた場合は止まらない）。書き込みの実行の出力（追加する予定）を今回の一覧と突き合わせる必要がある
+
+### 3. issue・文書・マージ
+
+- #390 にコメント（issuecomment-5944456758）。クローズしない
+- docs/handover.md: 「最終更新」を 2026-10-02 にし、「10月分はまだ画像が出ておらず未読」の行（事実と違っていた）を、見出しの誤りで見つけられなかったこと・書き込みなしで読めたこと・書き込みは確認待ちの1行に置き換えた（Search Console の行は外した。3行以内のため）。
+  「期限付き・確認待ちタスク」の #390 の行を、今の状態（定期実行では読まれない・同じ入力の apply では書き込まれない）と次にやること（名前の確認→次の指示で書き込む、B1・B2）に直した。writing-for-agents の skill を読んでから書いた
+- docs/decisions/dojo-guest.md を作り（分野「道場部ゲスト」が無かったため）、この指示の「決定」5項目を足した。README.md の分野の一覧に1行足した
+- 検証: 変更は docs/ だけ（handover.md・decisions/README.md・decisions/dojo-guest.md・このログ）。`.assetsignore` に `docs` があり公開対象は増えない。
+  容量: CLAUDE.md 26,481 バイト（上限32KB・警告域30KB）、handover.md 23,356 バイト（上限28KB・警告域26KB）、chat-side-operations.md 21,860 バイト（同）。いずれも警告域の手前。
+  `python3 -m unittest discover -s scripts/tests`: 487件 OK
+- マージ: 変更が docs/ だけなので、冒頭の「マージ: 承認済み」の条件に当たる。push 直前に再 fetch し、`git merge-base --is-ancestor origin/cloudflare HEAD` を確かめて `git push origin work/1002-doj:cloudflare`（fast-forward）
+- 片付け: クラウドセッションではブランチの削除が拒否されるため削除しない。マージ済みの `work/1002-doj` は `delete-merged-branches.yml` が削除する（docs/notes/cloud-sessions.md「ブランチの削除」）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1002-doj
-- ログ: https://github.com/retroeater/mj/blob/work/1002-doj/docs/logs/CHAT-1002-DOJ-01.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1002-DOJ-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1002-doj
 - 確認用URL: なし
-- マージ: 未
-- issue: #390, #426
-- 判断が必要なこと: なし
-- 未確認の項目: なし
-- エラー: なし
+- マージ: 済（fast-forward。cloudflare の先頭はこのログを含む work/1002-doj の先頭）
+- issue: #390（コメント、クローズしない）、#426（ワークフローが10月分を通知）
+- 原因の裏取り: チャット側の推定どおり。10月のゲストの見出しが `ゲスト　～麻雀教室～`（U+3000・U+FF5E）で、同期は「ゲスト」と「道場部」を両方含む見出しだけを道場部ゲストとみなすため、9月（202609R.jpg）を最新と判断し「変わっていません」で終わっていた（10/1・10/2 の定期実行とも）。202610R.jpg は 9/28 23:35 UTC から出ていた。画像の中身は「道場部ゲスト 10月」の表（「経過」1.）
+- 手順2の結果: run 36955440028 が success。読み取り22件・照合できない名前0件・既にある予定0件・追加22件。新規ゲストは香野蘭（NEW表示／過去の予定になし）。10月誕生日は渡邉浩史郎・和泉由希子・光岡舞織。#426 に通知が出た。`max_tokens` の修正後の初めての読み取りが成功。日付と名前の一覧は「経過」2. の表
+- 判断が必要なこと:
+  - 10月分の22件をカレンダーに書き込んでよいか（名前の確認は平野さん。一覧は「経過」2.）
+  - 書き込みの手段: 今回の実行で state に 202610R.jpg が入ったため、同じ入力で apply を付けても書き込まれない。(a) 画像の URL にクエリを付けて渡す、(b) キャッシュを消す、(c) state を無視する入力をワークフローに足す（コード変更）のどれにするか。どれでも画像を Claude API でもう一度読むので、書き込みの実行の出力を今回の22件と突き合わせる必要がある（「経過」2. の末尾）
+- 未確認の項目:
+  - 案 (a) で連盟サイトがクエリ付きの URL に同じ画像を返すか、Claude API がその URL を読めるか
+  - B1（連盟サイトへの見出しの修正の依頼）の結果
+- エラー:
+  - Actions のキャッシュ一覧を API（curl）で引こうとして失敗（ログのダウンロード先 blob.core.windows.net への接続がプロキシで拒否、キャッシュ一覧の応答に `actions_caches` が無い）。キャッシュの保存はジョブのログ（`Cache saved with key: dojo-guest-state-36955440028`）で確かめた。作業への影響はなし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 428dc963）: https://github.com/retroeater/mj-logs/tree/main/guide/428dc963
+ガイド文書（この版を写した時点の最新、mj 9120f4ff）: https://github.com/retroeater/mj-logs/tree/main/guide/9120f4ff
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/428dc963/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/428dc963/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/428dc963/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/428dc963/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/428dc963/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/428dc963/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9120f4ff/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9120f4ff/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9120f4ff/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9120f4ff/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9120f4ff/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9120f4ff/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/16ce2cf4.md
