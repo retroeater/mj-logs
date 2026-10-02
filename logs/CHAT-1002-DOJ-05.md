@@ -52,15 +52,95 @@
 - ブランチ: ローカルの `work/1002-doj`（2a4f4fc1）は `origin/cloudflare` の祖先、`origin/work/1002-doj` もマージ済み。`git merge --ff-only origin/cloudflare` で 29b3e66b へ（別セッションの CLD-02 のログの更新だけ）
 - 0章: 「指示」欄の末尾は指示文の最後の行と一致。CHAT-1002-DOJ-04 の `## 報告` は「状態: 完了」
 
+- #426: コメントは github-actions[bot] の通知3件だけ。他セッションの着手中コメントは無い
+
+### 1. #426 の本文（変更前の全文）
+
+```
+道場部ゲストの告知画像の取り込み（#390）の通知先。閉じずに使い続ける。
+
+`.github/workflows/sync-dojo-calendar.yml` が毎日 07:12 JST に連盟サイトの告知画像を見て、次のどちらかのときにここへコメントする。
+
+- カレンダーに足す予定があるとき（翌月分の画像が出たとき）
+- 読み取った名前が「プロ」シートの登録名と一致しないとき（画像の読み違い・改名・退会者）
+
+コメントには、追加する予定・新規ゲスト（画像の NEW 表示／過去の予定になし）・その月に誕生日のゲスト・画像の注記が載る。
+
+**カレンダーへの書き込みは自動では行わない。** 内容を確かめてから、
+[ワークフロー](https://github.com/retroeater/mj/actions/workflows/sync-dojo-calendar.yml)を「カレンダーに書き込む」を付けて手動実行する。
+
+仕組みと設定手順: `docs/notes/dojo-guest-calendar.md`
+
+Chat-Ref: CHAT-0921-DJ-02
+```
+
+文書（docs/notes/dojo-guest-calendar.md「仕組み」「毎月の運用」、docs/decisions/dojo-guest.md）・yml と食い違う箇所:
+
+1. 「カレンダーへの書き込みは自動では行わない」: 書き込み済みの月の画像が差し替わると、定期実行が当日以降を自動で直す（DOJ-03）。新しい月は自動では書き込まない、は今も正しい
+2. コメントする条件が2つだけ: 実物は、新しい画像を読んだとき（追加0件でも）、書き込み済みの月の差し替え（「自動で更新しました」「自動では更新していません」）、見出しが見つからないとき、同期が失敗したとき
+3. 「カレンダーに足す予定があるとき（翌月分の画像が出たとき）」: 追加0件でも通知する（2026-09-21 から）
+4. 見る画像が書かれていない（当月とページの最も新しい月）。画像が変わらない日は何も書かないことも無い
+5. コメントの中身に、書き込み済みの月の「変更前 → 変更後」・照合できない名前が無い
+6. 手で直した予定・手で入れた予定の扱い（書き戻さない・食い違いは直さない）が無い
+
+いずれも本文の側が古く、文書の側は yml・コード（`sync_dojo_calendar.py`）と合っている（止まる条件には当たらない）。
+
+### 2. #426 の本文（変更後の全文）
+
+`issue_write`（update）で本文だけを直した。タイトルは変えていない（ワークフローがタイトルで探すため）。コメントは足していない。
+
+```
+道場部ゲストの告知画像の取り込み（#390）の通知先。閉じずに使い続ける（ワークフローはこの issue をタイトルで探すので、タイトルは変えない）。
+
+`.github/workflows/sync-dojo-calendar.yml` が毎日 07:12 JST に連盟サイトの告知画像（当月と、ページの最も新しい月）を見て、次のときにここへコメントする。画像が前回から変わっていない日は何も書かない。
+
+## 通知を見てすること
+
+| 通知 | すること |
+| --- | --- |
+| 新しい月の画像を読んだ（「追加する予定」の一覧） | 名前を確かめ、良ければ[ワークフロー](https://github.com/retroeater/mj/actions/workflows/sync-dojo-calendar.yml)を「カレンダーに書き込む」を付けて手動実行する（入力は空でよい）。**新しい月は自動では書き込まない** |
+| 「自動で更新しました」（書き込み済みの月の画像が差し替わった） | 確かめるだけ。定期実行が当日以降を画像に合わせて書き換え・削除・追加した（「変更前 → 変更後」） |
+| 「自動では更新していません」（変更が3件以上か、照合できない名前がある） | 内容を確かめ、良ければ「カレンダーに書き込む」を付けて手動実行する（入力は空でよい）。照合できない名前があるときは書き込まれないので、名前を Claude Code に伝える |
+| 「見出しが見つかりません」 | 通知にある画像が道場部ゲストの表かを確かめ、「画像のURL」と「対象の月」を指定して手動実行する（まず書き込みなしで読み、良ければ同じ入力で「カレンダーに書き込む」を付ける） |
+| 「取り込みが失敗しました」 | 実行ログを見る。一時的な失敗なら次の日の実行か手動実行で追いつく |
+
+- 「手で入れた予定との食い違い」は同期では直さない。必要なら手で直す
+- 同期が作った予定を手で直してもよい。入力なしの「カレンダーに書き込む」では書き戻されない。後で画像が差し替わると画像のとおりに直る
+
+コメントには、追加する予定（書き込み済みの月は当日以降の「変更前 → 変更後」）・新規ゲスト（画像の NEW 表示／過去の予定になし）・その月に誕生日のゲスト・画像の注記・照合できない名前が載る。
+
+仕組み（書き込む範囲・自動更新の条件・手で直した予定の扱い）と設定手順: `docs/notes/dojo-guest-calendar.md`
+
+Chat-Ref: CHAT-0921-DJ-02
+本文の更新: 2026-10-02（Chat-Ref: CHAT-1002-DOJ-05）
+```
+
+### 3. docs/notes/dojo-guest-calendar.md
+
+今の動きと食い違う・過ぎた見込みの記述を探した（「見込み」「まだ」「初めて」「未確認」などで検索して前後を読んだ）。直したのは2か所:
+
+- 冒頭の要約「まだ無い予定を足す」だけだった → 「書き込み済みの月の画像が差し替わったときは、当日以降を画像に合わせて直す」を足した
+- 「初回の実行」の「**#426 への通知の見え方は、10月分の画像が出たときが初めてになる**」（過ぎた見込み）→ 最初の通知は 2026-10-02 の10月分の読み取り（手動実行）で出た、に置き換えた
+
+直さなかったもの: 「設定手順 (d)」の「2026年9月中に実行した場合」「翌月分の画像が出てから…」は設定をやり直すときの手順の説明で、今も成り立つ。「分かっていること」の「2026-10-02 時点で本番ではまだ一度も動いていない」は日付つきの現状で、今も正しい
+
+- 検証: 変更は docs/ だけ（dojo-guest-calendar.md とこのログ）。容量の上限の対象の3文書は変えていない
+- マージ: 変更が docs/ だけなので「マージ:」の行の条件に当たる。push 直前に再 fetch し祖先を確かめ、fast-forward で cloudflare へ入れる
+- 片付け: クラウドセッションではブランチを削除しない。マージ済みの `work/1002-doj` は `delete-merged-branches.yml` が削除する
+- 決定（「#426 の本文を今の動きに合わせて直す」）は issue の本文の運用で、仕組みの決定ではないため docs/decisions/ には足していない
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1002-doj
-- ログ: https://github.com/retroeater/mj/blob/work/1002-doj/docs/logs/CHAT-1002-DOJ-05.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1002-DOJ-05.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1002-doj
 - 確認用URL: なし
-- マージ: 未
-- issue: #426
+- マージ: 済（fast-forward。cloudflare の先頭はこのログを含む work/1002-doj の先頭）
+- issue: #426（本文を更新。コメントは足していない）
+- 本文の直し（要点）: 「カレンダーへの書き込みは自動では行わない」を消し、新しい月は自動で書き込まない／書き込み済みの月の差し替えは定期実行が自動で直す、に分けた。
+  通知の種類（新しい月・自動で更新しました・自動では更新していません・見出しが見つかりません・失敗）ごとに「すること」の表を置いた。見る画像（当月と最も新しい月）、画像が変わらない日は書かないこと、手で直した予定・手で入れた予定の扱いを1行ずつ足し、詳しくは docs/notes/dojo-guest-calendar.md を指す。タイトルは変えていない（全文は「経過」1.・2.）
+- 文書の直し: あり。docs/notes/dojo-guest-calendar.md の冒頭の要約と、過ぎた見込み（「10月分の画像が出たときが初めてになる」）の2か所（「経過」3.）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
@@ -68,12 +148,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 29b3e66b）: https://github.com/retroeater/mj-logs/tree/main/guide/29b3e66b
+ガイド文書（この版を写した時点の最新、mj 9b1b456f）: https://github.com/retroeater/mj-logs/tree/main/guide/9b1b456f
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/29b3e66b/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/29b3e66b/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/29b3e66b/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/29b3e66b/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/29b3e66b/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/29b3e66b/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9b1b456f/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9b1b456f/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9b1b456f/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9b1b456f/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9b1b456f/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9b1b456f/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b308711e.md
