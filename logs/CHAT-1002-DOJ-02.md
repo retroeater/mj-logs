@@ -103,28 +103,55 @@
 - docs/notes/dojo-guest-calendar.md（仕組みの見出し・通知・ワークフローの state、毎月の運用、分かっていること）と docs/notes/static-generation.md の `sync-dojo-calendar.yml` の行を直した（writing-for-agents の skill を読んでから）
 - 変更のファイル（`git diff --name-only origin/cloudflare...HEAD`）: yml・`scripts/lib/dojo_guest.py`・`scripts/sync_dojo_calendar.py`・`scripts/tests/test_dojo_guest.py`・docs/ だけ。マージの条件を満たす
 
+- マージ: 作業ブランチの先頭 fbb1adb8 を `git push origin work/1002-doj:cloudflare`（push 直前に再 fetch し `merge-base --is-ancestor origin/cloudflare HEAD` を確認、fast-forward 9120f4ff..fbb1adb8）
+- マージ後の自動処理（fbb1adb8）: 「ページの再生成」run 36956802582 success。「変更をコミット・push」は成功だが cloudflare に新しいコミットは無い（差分なし。`git log fbb1adb8..origin/cloudflare` が空）。「公開対象を検査する」「作業ログを mj-logs へ写す」も success
+
+### 3. 10月分の書き込み
+
+- 書き込みなし: run 36956806002（cloudflare、head fbb1adb8、入力 image=`https://www.ma-jan.or.jp/wp-content/uploads/202610R.jpg`・month=2026-10・apply=false）→ success、約1分
+  - 出力: 読み取り22件 / 照合できない名前0件 / 既にある予定0件 / 追加22件。末尾に「画像は前回から変わっていませんが、保存した読み取り結果が無いため読み直して保存しました。」（Claude API 1回）。通知のステップは「画像が変わっていないため通知しません」（想定どおり #426 には出ない）
+  - **DOJ-01 の22件との突き合わせ**: DOJ-01 のログの表（`| 2026-10-DD（曜）| 名前 |`）と、この実行の「追加する予定」（`- 2026-10-DD 名前`）を正規表現で取り出して比べ、22件・22件で順序も含め全件一致（不一致0件）
+  - 新規ゲスト 香野蘭（NEW表示 / 過去の予定になし）、10月誕生日 渡邉浩史郎・和泉由希子・光岡舞織 は DOJ-01 と同じ。注記の文言は少し違う（「16：30～23：30」の波線、「金曜は公式ルール」）。予定には使わない
+- 書き込み: run 36956904047（同じ image・month、apply=true）→ success、約1分
+  - 出力に「画像は前回から変わっていないため、保存した読み取り結果を使いました（Claude API は呼んでいません）。」と「書き込みました: 追加 22件」。追加する予定の一覧は上の22件と同じ
+  - #426 に通知（issuecomment-5944629101、footer「書き込み済み」）
+- カレンダーの実物（Google Calendar の読み取りで 2026-10-01〜10-31 を一覧）: 22件（作成 2026-10-02 02:43:29〜44Z、作成者はサービスアカウント）。日付・名前は上の22件と一致。
+  すべて終日（start/end が date）、タイトル「<登録名>（道場部）」、透明（予定なし扱い）。説明欄は X の URL が21件、ともたけ雅晴の1件は空（「プロ」シートに X の ID が無い。`_event_body` の仕様どおり）
+- #390 にコメント（issuecomment-5944635727）。クローズしない
+- docs/handover.md の「最終更新」の道場部ゲストの行と「期限付き・確認待ちタスク」の #390 の行を直した。docs/decisions/dojo-guest.md にこの指示の決定を足した
+- 容量: CLAUDE.md 26,481 バイト、handover.md 23,127 バイト、chat-side-operations.md 21,860 バイト（いずれも警告域の手前）
+- 片付け: クラウドセッションではブランチを削除しない。マージ済みの `work/1002-doj` は `delete-merged-branches.yml` が削除する
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1002-doj
-- ログ: https://github.com/retroeater/mj/blob/work/1002-doj/docs/logs/CHAT-1002-DOJ-02.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1002-DOJ-02.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1002-doj
-- 確認用URL: なし
-- マージ: 未
-- issue: #390, #426
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 確認用URL: なし（ページの変更なし）
+- マージ: 済（コードは fbb1adb8 で fast-forward。このログと docs の仕上げも fast-forward で cloudflare へ入れる）
+- issue: #390（着手中・結果のコメント、クローズしない）、#426（見出しの通知1件・書き込みの通知1件がワークフローから出た）
+- 見出し: 2026-10-02 の時点で**直っていない**（`2026年10月ゲスト　～麻雀教室～`）
+- 実装した動き: 前回の状態に画像ごとの読み取り結果を保存。画像が同じで結果があれば、apply なしは何もせず通知もしない、apply ありは保存した結果で照合・突き合わせ・書き込み（API を呼ばない）。結果が無ければ読み直して保存し通知しない。B2 はページの最も新しい年月に「ゲスト　～道場部～」が無ければ #426 へ、同じ見出し・画像の組では1回だけ（「経過」2.）
+- テストと作業ブランチの実行: unittest 496件 OK（追加9件、修正前のコードでは9件とも失敗）。作業ブランチの手動実行 run 36956608192 success（B2 の通知が #426 に出て、内容はページの実物と一致）
+- 10月分の書き込み: 追加22件。書き込みなしの読み直しが DOJ-01 の22件と日付・名前とも全件一致、照合できない名前0件を確かめてから apply。apply は保存した結果を使い Claude API を呼んでいない。カレンダーの10月は22件で、形（終日・タイトル・説明欄）も確かめた（「経過」3.）
+- マージ後の自動再生成: 「ページの再生成」が動いたが差分なしでコミット無し
+- 判断が必要なこと:
+  - 「プロ」シートに「樫野凪」の行が無くなっている（9/21 は一致、今回の9月分の読み直しで照合できない名前になった）。退会・改名などのシート側の変化かを平野さんが確かめるか（9月分はカレンダーに入っており、10月分には影響しない）
+- 未確認の項目:
+  - cloudflare の定期実行での B2 の通知（作業ブランチのキャッシュは cloudflare から見えないため、次の定期実行でもう1回出る見込み）と、その後に同じ通知が重ならないこと
+  - 見出しが直った後の定期実行が「変わっていません」で終わること
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj fbb1adb8）: https://github.com/retroeater/mj-logs/tree/main/guide/fbb1adb8
+ガイド文書（この版を写した時点の最新、mj 31876178）: https://github.com/retroeater/mj-logs/tree/main/guide/31876178
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/fbb1adb8/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/fbb1adb8/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/fbb1adb8/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/fbb1adb8/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/fbb1adb8/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/fbb1adb8/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/31876178/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/31876178/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/31876178/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/31876178/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/31876178/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/31876178/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/16ce2cf4.md
