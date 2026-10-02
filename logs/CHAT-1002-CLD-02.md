@@ -162,28 +162,58 @@ split=True だけ変えたときの食い違い: `build_desired()` の仮の予�
 - `docs/decisions/broadcast-calendar.md`: CAL-12 grill Q1 の行に「→ 置き換え: 2026-10-02（CHAT-1002-CLD-02）」、末尾にこの指示の決定
 - CHAT-1002-CLD-01 の `## 報告` の状態を「完了（判断が出た: 案1。続きは CHAT-1002-CLD-02）」に直した
 
+### マージ
+
+- `origin/cloudflare` が 13cb6b26 に進んでいたため（CHAT-1002-DOJ-04。触るファイルの重なり無し）、`git merge origin/cloudflare` で取り込んだ（80300296）。取り込み後も unittest は OK、cloudflare との差は上の6ファイルだけ
+- push 直前に再 fetch し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめて `git push origin work/1002-cld:cloudflare`（13cb6b26..80300296、2026-10-02 06:03 UTC）
+- `regenerate-page.yml` が push で起動した: run 36971719274（`scripts/lib/` の変更で全ページが対象）。success。再生成のコミットは出ず、変わったファイルは0（80300296 の後の cloudflare は DOJ-04 の docs だけ）
+
+### マージの後に気づいたこと: 毎朝の同期が止まる
+
+`scripts/sync_live_calendar.py` は `MAX_DELETES = 30`（1回に消す上限）を超えると、何も書かずに `sys.exit` する（`--allow-many-deletes` で続ける）。
+消す予定は32件で上限を超えるため、**次の毎朝の実行（10-03 朝）のステップ「放送対局の公開カレンダーへ同期する」は失敗し、その日はカレンダーが一切更新されない**（作る・直す・消すのどれも行わない）。
+`update-live-channel.yml` に `--allow-many-deletes` を渡す入力は無く、毎朝同じく止まる。ジョブ `yotei` が失敗するので失敗通知のメールも届く。
+指示文の「次の毎朝の実行が32件を消す見込み」はこの上限を考えておらず、私もマージ前の確認で見落とした。
+
+指示どおりワークフロー・カレンダーは変えず、ここで止めて判断を仰ぐ。案:
+
+1. **平野さんが Google カレンダーの画面で、32件のうち2件以上を手で消す**（例: 10-01 の「第1期鳳匠戦 ベスト16 A卓」のうち 10:55〜13:48 の方〈dFOIYiIeQy4〉と、2023-02-15 の「Focus M season8」〈Sgl3uxFvrd4、11:58〜13:11〉）。残りが30件以下になり、翌朝の実行が消す。コード・ワークフローの変更なし
+2. `update-live-channel.yml` に手動実行の入力（例 `calendar_allow_many_deletes`）を足し、`calendar_apply` と合わせて1回実行する（ワークフローの変更。docs/notes/branch-operations.md「ワークフローを変更したとき」の手順が要る）
+3. 案1の実装（92de13c1）を cloudflare で取り消し（revert）、上限の扱いを決めてから入れ直す
+
 ## 報告
 
-- 状態: 作業中（マージ前）
-- ブランチ: work/1002-cld
-- ログ: https://github.com/retroeater/mj/blob/work/1002-cld/docs/logs/CHAT-1002-CLD-02.md
+- 状態: 判断待ち
+- ブランチ: work/1002-cld（cloudflare へマージ済み。削除は `delete-merged-branches.yml` に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1002-CLD-02.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1002-cld
-- 確認用URL: なし
-- マージ: 未
-- issue: #448
-- 判断が必要なこと: なし
-- 未確認の項目: なし
-- エラー: なし
+- 確認用URL: なし（ページは変わらない）
+- マージ: 済（80300296。マージの行の条件 (1)〜(5) をすべて満たした）
+- issue: #448（Open のまま。結果をコメントした: https://github.com/retroeater/mj/issues/448#issuecomment-5946465914 ）
+- 判断が必要なこと:
+  - **10-03 朝の毎朝の実行で、カレンダーの同期が止まる。** 消す予定が32件で、1回の上限30件（`sync_live_calendar.MAX_DELETES`）を超えるため、何も書かずに失敗する（対応が決まるまで毎朝）。案は「経過」の「マージの後に気づいたこと」: (1) 平野さんがカレンダーで2件以上を手で消す (2) ワークフローに上限を外す入力を足して1回実行 (3) 実装を取り消す。私の見落としで、マージの前に止めるべきだった
+  - 手順1の結果: 条件（同じ日・同じ大会・実際の配信の時間が重なる）に当たる組は32組で、CLD-01 の32組と動画IDが全件一致。32組すべてで公開版のほうが短い。ただし 2023-03-28 の Focus M season8 は差が5秒（公開版 2:18:06・限定版 2:18:11）
+  - 実装した規則: `yotei.attached_publics()`。カレンダー用（`full_frames(split=True)`）だけ。放送済み（実際の開始・終了が両方ある）枠だけを見る。重なる限定版が2本以上なら重なりの最も長いものに付ける。付く先の限定版に無料版が無ければ、その公開版を無料版にする
+  - テスト: 4件を足し 514件 OK。規則を確かめる2件は修正前のコードで FAIL
+  - 修正前後の `build_desired()`: 2,651件 → 2,619件。消える32件・作る0件・残る予定の変化0件
+  - `split=False`（予定表の【2】）は変えていない。同じ規則を入れると【2】の252行が変わる（大半は「開始の根拠」の件数表記。値では鳳匠戦の5行の開始の仮置きが 11:00 → 14:00、完全版・無料版の動画IDが各2行、終了の仮置き6行）
+  - `full_frames()` を使うページ生成は無い
+  - マージ後の `regenerate-page.yml`（run 36971719274）は success、変わったファイル0
+- 未確認の項目:
+  - 本番のカレンダーで32件が消えること（上の上限のため、今のままでは消えない）
+  - 10-08 の鳳匠戦ベスト16 C卓・D卓が、10-09 の朝の実行の後にそれぞれ1件ずつになること
+- エラー:
+  - なし（push・マージは通った）。ただし上の同期の停止は、このマージが原因で 10-03 朝に起きる見込み
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 80300296）: https://github.com/retroeater/mj-logs/tree/main/guide/80300296
+ガイド文書（この版を写した時点の最新、mj 29b3e66b）: https://github.com/retroeater/mj-logs/tree/main/guide/29b3e66b
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/80300296/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/80300296/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/80300296/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/80300296/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/80300296/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/80300296/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/29b3e66b/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/29b3e66b/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/29b3e66b/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/29b3e66b/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/29b3e66b/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/29b3e66b/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b308711e.md

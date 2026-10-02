@@ -73,7 +73,7 @@
 `--compare --apply`（入力なし、`--auto-update` なし）を実行 → `update_event` が `ev10-13` に「和泉由希子（道場部）」で呼ばれた。出力は「- 10/13 新井啓文 → 和泉由希子」。
 **手直しは書き戻される**（チャット側の心配のとおり）。手順2で直す
 
-### 2. (A) の直し（コード 8 行ほど、別コミット）
+### 2. (A) の直し（別コミット）
 
 - `_sync_image` の `--apply`: 照合できない名前が無く、**書き込み済みの月で `--image` の指定が無く、その画像に保留の印（state の `held`）が無ければ**、書き込まずに `kept` とし、
   出力に「書き込み済みの月のため変えていません（定期実行が保留した変更がありません。手で直した予定を書き戻さないため）。この月を画像に合わせるときは「画像のURL」と「対象の月」を指定して…」を出す。計画（変更前 → 変更後）は表示する
@@ -96,28 +96,52 @@
   「新しい会話の始めは…」の項を「平野さんは「ログ（公開）」の行を送る（どのログの完了報告かの指定。clone できても変えない）」に置き換え、末尾のリンクが読めないときの項は「URL で読むときに」と限定した。事例・日付・出典の Chat-Ref は足していない
 - 関連 issue: #211（closed、チャット側サンドボックスからの clone を扱った issue）に変えた点をコメント（issuecomment は報告に記載）。#440 はクラウドセッションの確認でチャット側の読み方ではないためコメントしない。新しい issue は作っていない
 
+### 4. マージと確認
+
+- マージ: 13cb6b26 を `git push origin work/1002-doj:cloudflare`（push 直前に再 fetch し `merge-base --is-ancestor origin/cloudflare HEAD` を確認、fast-forward fe63c7d3..13cb6b26）
+- マージ後の自動処理（13cb6b26）: 「公開対象を検査する」「作業ログを mj-logs へ写す」は success。**「ページの再生成」（regenerate-page.yml）は動いていない**（13cb6b26 の run 無し）。自動のコミットも無い
+- cloudflare での入力なし・書き込みなしの手動実行: run 36971686516（head 13cb6b26）→ **success**。当月=最新=202610R を見て「画像は前回の読み取りから変わっていません。何もしません。」。通知・書き込みなし
+- #390 に結果をコメント（issuecomment-5946467608）。クローズしない。あわせて DOJ-03 の結果のコメント（issuecomment-5945878082）の、cloudflare の実行のリンクが崩れていた箇所を直した（追記の1行を付けた）
+- #211 にコメント（issuecomment-5946456058）
+- その後 origin/cloudflare に別セッションの CHAT-1002-CLD-02（`scripts/lib/yotei.py` など。道場部ゲスト・この指示のファイルには触れていない）が入っていたので fast-forward で取り込んだ
+- docs/handover.md の「最終更新」の道場部ゲストの行に入力なしの手動の書き込みの動きを足した（#390 の確認待ちの行は内容が変わらないので据え置き）。
+  docs/decisions/dojo-guest.md と docs/decisions/operations.md（(B) は運用の分野）にこの指示の決定を足した
+- 容量: CLAUDE.md 26,481 バイト、handover.md 23,195 バイト、chat-side-operations.md 22,793 バイト（警告域の手前）
+- 片付け: クラウドセッションではブランチを削除しない。マージ済みの `work/1002-doj` は `delete-merged-branches.yml` が削除する
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1002-doj
-- ログ: https://github.com/retroeater/mj/blob/work/1002-doj/docs/logs/CHAT-1002-DOJ-04.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1002-DOJ-04.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1002-doj
-- 確認用URL: なし
-- マージ: 未
-- issue: #390, #426
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 確認用URL: なし（ページの変更なし）
+- マージ: 済（コード・文書は 13cb6b26 で fast-forward。このログと decisions・handover の仕上げも fast-forward で入れる）
+- issue: #390（着手中・結果のコメント、クローズしない。DOJ-03 のコメントのリンクの崩れを直した）、#211（変えた点のコメント）、#426（この指示での通知なし）
+- (A) が起きたか: **起きていた。** 入力なしの `--apply` は当月（書き込み済み）を保存した読み取り結果（`from_saved`）で `plan_changes` に通し、目印付きの予定の名前が違えば書き換えていた。偽のカレンダーで 10/13 の手直しが元の名前に書き戻されることを再現した（「経過」1.）
+- 手動の書き込みの新しい動き:
+  - 入力なし: 書き込み済みの月は、定期実行が保留した変更（state の `held`）があるときだけ直し、反映したら印を消す。無ければ「書き込み済みの月のため変えていません」と出して触らない。まだ書き込んでいない月の初回の追加は今までどおり
+  - `image`・`month` 指定: 今のとおり指定の月を当日以降で画像に合わせる（手直しも画像に戻る）
+- テストと手動実行: unittest 514件 OK（追加4件。動きを変えた3件は修正前のコードで失敗）。yml は変えていない。cloudflare の入力なし・書き込みなしの実行 run 36971686516 success（変わっていませんで終了）
+- (B): docs/notes/chat-side-operations.md の「読み方」「作業ログの読み方」を、mj-logs は clone（`git clone --depth 1`、読む前に毎回 pull、最新のガイドは `guide/HISTORY`・識別子は `chat-ids/HISTORY` の最後の行）か URL で読む形に置き換えた。
+  取得できたチャットは URL が届く前でも読んでよい、取得できないチャットは URL で読む、「ログ（公開）」の行を送る運用は変えない。足した後 22,793 バイト（警告域 26,624 の手前）
+- マージ後の自動再生成: 動いていない（コミットも無し）
+- 判断が必要なこと:
+  - #426 の本文の「カレンダーへの書き込みは自動では行わない」は、DOJ-03 の後は月中の差し替えの自動更新があるため実物と食い違っている。本文を直すか（この指示の範囲外なので触っていない）
+- 未確認の項目:
+  - 本番での自動更新・保留からの反映（実際の画像の差し替えが起きていない。DOJ-03 から変わらず）
+  - (B) の clone で読む方法が、ほかのチャットでも使えるか（チャット側の申告は1つのチャットだけ）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 13cb6b26）: https://github.com/retroeater/mj-logs/tree/main/guide/13cb6b26
+ガイド文書（この版を写した時点の最新、mj 29b3e66b）: https://github.com/retroeater/mj-logs/tree/main/guide/29b3e66b
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/13cb6b26/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/13cb6b26/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/13cb6b26/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/13cb6b26/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/13cb6b26/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/13cb6b26/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/29b3e66b/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/29b3e66b/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/29b3e66b/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/29b3e66b/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/29b3e66b/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/29b3e66b/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b308711e.md
