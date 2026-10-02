@@ -121,28 +121,54 @@ Chat-Ref: CHAT-1002-DOJ-03
 - docs/notes/dojo-guest-calendar.md（突き合わせと書き込み・通知・ワークフロー・毎月の運用・分かっていること）と docs/notes/static-generation.md の行を直した（writing-for-agents の skill の方針で、古い記述を置き換えた）
 - 変更のファイル: yml・`scripts/sync_dojo_calendar.py`・`scripts/tests/test_dojo_guest.py`・docs/ だけ。マージの条件を満たす
 
+### 3. マージと確認
+
+- マージ: dcc5cf21 を `git push origin work/1002-doj:cloudflare`（push 直前に再 fetch し `merge-base --is-ancestor origin/cloudflare HEAD` を確認、fast-forward 31876178..dcc5cf21）
+- マージ後の自動処理（dcc5cf21）: 「公開対象を検査する」「作業ログを mj-logs へ写す」は success。**「ページの再生成」（regenerate-page.yml）は動いていない**（dcc5cf21 の run 無し。最新は DOJ-02 の fbb1adb8 のもの）。cloudflare に自動のコミットも無い
+- cloudflare での入力なし・書き込みなしの手動実行: run 36966866952（head dcc5cf21）→ **success**。cloudflare のキャッシュ（DOJ-02 の書き込みの実行で保存した、202610R の読み取り結果あり）を復元し、
+  当月=最新=202610R の1枚を見て「画像は前回の読み取りから変わっていません。何もしません。」。Claude API は呼んでいない。通知・見出しの通知・書き込みは無し。
+  state の 202610R の行にはこの実行で年月が付いた（skip のときも付ける）
+- DOJ-02 の未確認の項目（cloudflare の定期実行での見出しの通知）: 見出しが直ったため起きない。cloudflare では定期実行より先に、この手動実行が見出しを確かめ、通知は出ていない（#426 のコメントは3件のまま）
+- #390 にコメント（issuecomment-5945878082）。クローズしない
+- docs/handover.md の「最終更新」の道場部ゲストの行と「期限付き・確認待ちタスク」の #390 の行を直した。docs/decisions/dojo-guest.md にこの指示の決定を足し、置き換えた決定（DOJ-01 の「自動書き込みは見送る」、DOJ-02 のその再確認）に「→ 置き換え」を付けた
+- 容量: CLAUDE.md 26,481 バイト、handover.md 23,083 バイト、chat-side-operations.md 21,860 バイト（警告域の手前）
+- 片付け: クラウドセッションではブランチを削除しない。マージ済みの `work/1002-doj` は `delete-merged-branches.yml` が削除する
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1002-doj
-- ログ: https://github.com/retroeater/mj/blob/work/1002-doj/docs/logs/CHAT-1002-DOJ-03.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1002-DOJ-03.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1002-doj
-- 確認用URL: なし
-- マージ: 未
-- issue: #390, #426
+- 確認用URL: なし（ページの変更なし）
+- マージ: 済（コードは dcc5cf21 で fast-forward。このログと docs の仕上げも fast-forward で入れる）
+- issue: #390（着手中・結果のコメント、クローズしない）、#426（この指示での新しい通知なし）
+- 見出し: **直っていた**（2026-10-02 04:51 UTC 時点で `2026年10月ゲスト　～道場部～` → 202610R.jpg、ほかに講師・スタッフで計4枚）
+- 実装した動き（「経過」2.）:
+  - 見る画像: 当月（日本時間）とページの最も新しい月。当月がページに無ければ state に残した当月の画像
+  - 書き込み済みの月: その月に目印 `ryoei=dojo` の予定が1件でもある月（カレンダーの実物で判定）
+  - 更新の範囲: 実行した日（当日を含む）以降。目印付きの予定だけ書き換え（名前・X の URL）・削除し、予定の無い日は追加。手で入れた予定は変えず食い違いとして通知
+  - 安全弁: 照合できない名前が1件でもある、または変更が3件（`AUTO_UPDATE_LIMIT`）以上なら自動で直さず通知だけ。反映は「カレンダーに書き込む」の手動実行（保存した読み取り結果、同じ範囲）
+  - 自動更新は定期実行（`--auto-update`）で、画像が差し替わったときだけ。新しい月の初回・画像が変わらない日・見出しの通知の動きは変えていない
+  - 通知の形: 「### 当日以降の変更（変更前 → 変更後）」「### 手で入れた予定との食い違い（変えていません）」と、「自動で更新しました: 書き換え n件・削除 n件・追加 n件」か「自動では更新していません（理由）」
+- テストと手動実行: unittest 510件 OK（追加14件は修正前のコードで全件失敗）。作業ブランチ run 36966720918 success（10月を書き込み済みと判定、10/2 以降の変更0件、通知なし）。cloudflare run 36966866952 success（変わっていませんで終了）
+- DOJ-02 の未確認の項目（cloudflare の定期実行での見出しの通知）: 見出しが直ったため出ない。cloudflare の手動実行でも出ていない
+- マージ後の自動再生成: 動いていない（コミットも無し）
 - 判断が必要なこと: なし
-- 未確認の項目: なし
+- 未確認の項目:
+  - 本番での自動更新（実際の画像の差し替えでの予定の書き換え・削除・追加）。サービスアカウントでの予定の書き換え・削除の権限も、本番では試していない（権限「予定の変更」の範囲のはず）
+  - 翌月分が出た後の当月の差し替えの検知は、テストでのみ確かめた（11月分の掲載後に本番で初めて2枚を見る）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj dcc5cf21）: https://github.com/retroeater/mj-logs/tree/main/guide/dcc5cf21
+ガイド文書（この版を写した時点の最新、mj fe63c7d3）: https://github.com/retroeater/mj-logs/tree/main/guide/fe63c7d3
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/dcc5cf21/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/dcc5cf21/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/dcc5cf21/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/dcc5cf21/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/dcc5cf21/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/dcc5cf21/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/fe63c7d3/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/fe63c7d3/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/fe63c7d3/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/fe63c7d3/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/fe63c7d3/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/fe63c7d3/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/16ce2cf4.md
