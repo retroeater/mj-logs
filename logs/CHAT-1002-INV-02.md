@@ -155,6 +155,11 @@ INV-01 の分類表のうち、平野さんが決めたクローズ・集約・�
 - **ラベルの一括の付け外し**: INV-01 の `## 報告`「改善の提案」1（「状況: 待ち／保留」の付け漏れと、理由が消えたのに残っているもの〈#7 対応中・#244・#398〜#400 保留〉）
 - #491 の作成で、#448 のクローズ時（10-09 以降）に #488 の親を #491 へ付け替える作業が1つ増えた
 
+### マージ
+- push の直前に `git fetch origin` し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真（origin/cloudflare は 9b1b456f のまま）であることを確かめ、`git push origin work/1002-inv:cloudflare` で早送り（9b1b456f..89431339）
+- 入ったファイル: docs/logs/CHAT-1002-INV-01.md・docs/logs/CHAT-1002-INV-02.md・docs/decisions/operations.md（INV-01 の決定の追記）。docs/ のみのため Workers Builds は走らない（#171）
+- この記録はマージの後の docs/logs のみの追いの push
+
 ## 報告
 
 - 状態: 完了
@@ -162,7 +167,7 @@ INV-01 の分類表のうち、平野さんが決めたクローズ・集約・�
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1002-INV-02.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1002-inv
 - 確認用URL: なし（docs/logs のみ）
-- マージ: 済（下の `### マージ` に SHA。INV-01 のログと docs/decisions/operations.md の INV-01 の決定も同じブランチにあり、一緒に入った）
+- マージ: 済（89431339、早送り。詳細は `## 経過`「マージ」。INV-01 のログと docs/decisions/operations.md の INV-01 の決定も同じブランチにあり、一緒に入った）
 - issue: 起票 #490 #491 #492 #493 #494 #495 #496 #497／クローズ #103 #204 #260 #302 #303 #307 #309 #315 #318 #332 #338 #427 #440 #449 #15 #106 #347 #477 #375 #297 #370 #386 #446 #437 #180 #293／本文の更新 #488 #262 #298 #176 #101 #304 #186／コメントのみ #298 #448／ラベル「種類: 常設」を新設し #352 #357 #426 #475 #481 に付与
 - 判断が必要なこと:
   - INV-03 の範囲（`## 経過`「INV-03 に回す項目」）。とくに #370 を閉じたことで check-meibo.yml・static-generation.md・birthday-calendar.md の3か所が閉じた issue を常設の通知先として指している
@@ -177,12 +182,12 @@ INV-01 の分類表のうち、平野さんが決めたクローズ・集約・�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 9b1b456f）: https://github.com/retroeater/mj-logs/tree/main/guide/9b1b456f
+ガイド文書（この版を写した時点の最新、mj 89431339）: https://github.com/retroeater/mj-logs/tree/main/guide/89431339
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9b1b456f/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9b1b456f/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9b1b456f/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9b1b456f/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9b1b456f/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9b1b456f/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/89431339/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/89431339/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/89431339/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/89431339/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/89431339/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/89431339/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/601aa7ce.md
