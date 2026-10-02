@@ -69,6 +69,58 @@ Chat-Ref: CHAT-1002-DOJ-03
 - Chat-Ref: `CHAT-1002-DOJ-03` のコミット・ログは無し
 - ブランチ: ローカルの `work/1002-doj`（3187617）は `origin/cloudflare` の祖先、`origin/work/1002-doj` もマージ済み。`git merge --ff-only origin/cloudflare` は Already up to date（起点 3187617 = origin/cloudflare の先頭）
 
+### 0. 着手前の確認
+
+- 「指示」欄の末尾は指示文の最後の行と一致。CHAT-1002-DOJ-02 の `## 報告` は「状態: 完了」
+- `git branch -r --no-merged origin/cloudflare`: `origin/work/1002-doj`（このブランチ自身。cloudflare との差はこのログだけ）。重なる未マージのブランチは無い
+
+### 1. 現状（2026-10-02 04:51 UTC 頃）
+
+- **10月の見出しは直っていた。** ページの10月は4枚: `…2026年10月講師　～麻雀教室～`（202610B）、`…スタッフ　～麻雀教室～`（202610Y）、`…ゲスト　～道場部～`（202610R、kind=guest）、`…スタッフ　～道場部～`（202610G）。
+  202610R.jpg の Last-Modified は `Mon, 28 Sep 2026 23:35:08 GMT` のまま（画像は差し替わっていない）
+- #390: 最新は DOJ-02 の結果のコメント（この指示の着手中コメントは issuecomment-5945819842）。他セッションの着手中コメントは無い。#426: DOJ-01・DOJ-02 の通知3件のまま
+- DOJ-02 のマージ（02:41 UTC）後の cloudflare の定期実行はまだ無い（次は 22:12 UTC = 10/3 07:12 JST）。**見出しが直ったので、cloudflare の定期実行で B2 の通知は出ない見込み**（最新の月に道場部ゲストの見出しがあり、覚えた組も消える）。DOJ-02 の未確認の項目「cloudflare の定期実行での見出しの通知」はこの理由で起きない
+- 判定の流れ（`sync_dojo_calendar.py`、DOJ-02 の形）: 画像を1枚選ぶ（`--image` か、ページの guest の最も新しい月）→ Last-Modified と state の読み取り結果で skip・保存結果・読み直しを決める → 照合 → `_read_calendar` は対象月の `(日, 名前)` と過去の名前だけを返す（予定のIDや目印は捨てている）→ `plan_adds`（同じ日に同じ名前が無ければ足す）→ apply なら `insert_events`
+- state の形: `{"images": {URL: {"last_modified", "data"}}, "missing_heading"}`。画像の年月は持っていない（DOJ-02 で保存した 202610R の行も年月なし）
+- カレンダー操作（`scripts/lib/gcal.py`）: `list_events`・`insert_events` のほか、`update_event`（PUT）・`delete_event`（410 は成功扱い）が既にある（`sync_live_calendar.py` が使っている）。gcal.py は変えずに済む
+- yml: schedule と workflow_dispatch で同じ `sync_dojo_calendar.py --compare --state … --json result.json` を呼び、手動実行だけ `--apply`・`--image`・`--month` が付く。通知は result.json の `notify`・`summary`・`applied`・`adds` を見る（1件の結果）
+- 「前提」の案で満たせない点と変える点:
+  - 1回の実行で2枚（当月と最も新しい月）を見るため、result.json を「画像ごとの結果の一覧＋見出しの通知」の形にし、yml の通知は画像ごとにコメントする
+  - state の画像の行に年月を足す（ページから見つけた画像を処理するたびに書く）。state から当月の画像を探すのは年月を持つ行だけ。DOJ-02 で保存した 202610R の行は、今はページに出ているので次の実行で年月が付く
+  - 書き込み済みの月の判定は、カレンダーのその月に目印 `ryoei=dojo` の予定が1件でもあること（state ではなくカレンダーの実物で見る）
+  - 画像が同じで保存した読み取り結果が無いだけの読み直しは、今までどおり通知も書き込みもしない（自動更新は「画像が差し替わった」ときだけ）
+  - 予定の書き換え・削除の権限: サービスアカウントの権限は「予定の変更」で、Calendar の writer 権限は削除を含む。本番では試さないので、実際の差し替えまでは未確認
+
+### 2. 実装（8145fce6、docs は別コミット）
+
+- `scripts/sync_dojo_calendar.py`（`scripts/lib/gcal.py` は既存の `update_event`・`delete_event` を使い、変えていない）
+  - 見る画像（`_choose_images`）: `--image` が無ければ、当月（日本時間）と最も新しい月の guest の画像。当月がページに無ければ state の年月付きの行から当月の画像を取る（`_saved_image`）。同じ URL なら1枚
+  - 画像ごとに `_sync_image` を回す。Last-Modified と保存結果による skip・保存結果の利用・読み直しは DOJ-02 のまま。state の画像の行に `year`・`month`・`kind` を足した（skip のときも付ける）
+  - 書き込み済みの月の見分け: `_read_calendar` が返すその月の予定に、目印 `ryoei=dojo` のものが1件でもあるか（`_is_ours`）
+  - 書き込み済みの月は `plan_changes`: `_first_open_day`（当月なら今日の日、未来の月は1日、過去の月は無し）以降の日について、
+    目印付きの予定の名前が画像と違えば書き換え、画像に無ければ削除、予定が無ければ追加。目印なしの予定がある日は変えず、画像と違えば食い違い（足さない）
+  - まだ書き込んでいない月は今までどおり `plan_adds`
+  - 書き込み: `--apply`（手動）は今までどおり照合できない名前があれば止める。`--auto-update`（yml が schedule のときだけ付ける）は、書き込み済みの月・画像が差し替わった（`changed`）・変更ありのときだけ。
+    照合できない名前があるか、変更が `AUTO_UPDATE_LIMIT`（3）件以上なら書かずに `auto` に理由を入れる
+  - 通知の本文: 書き込み済みの月は「### 当日以降の変更（変更前 → 変更後）」（`- 10/13 A → B`、`- 10/14 A → （なし。予定を削除）`、`- 10/15 （なし） → C（追加）`）、
+    「### 手で入れた予定との食い違い（変えていません）」、最後に「自動で更新しました: 書き換え n件・削除 n件・追加 n件」か「**自動では更新していません（理由）。** …手動実行すると反映されます」
+  - `should_notify` は DOJ-02 のまま（skip でなく、画像が変わったか書き込んだとき）。result.json は `{"results": [画像ごと], "alert": 見出しの通知}`
+- yml: schedule のときだけ `--auto-update` を付ける。通知のステップは `results` を1件ずつ見て、通知するものだけコメントする（footer は `applied`／`pending`）。
+  失敗時の文面は、apply の手動実行か schedule なら「途中まで書き込んだ可能性」と書く
+- テスト（`scripts/tests/test_dojo_guest.py`）: `MidMonthUpdateTest` 14件（偽のカレンダー、今日=2026-10-10）。書き換えと「変更前 → 変更後」／削除／追加／前日までは何もしない／当日は書き換える／
+  手で入れた予定は変えず食い違いを出す／照合できない名前は通知だけ／3件は通知だけで手動の書き込み（保存結果、Claude API なし）で反映／2件は自動更新／定期実行でなければ自動更新しない／
+  まだ書き込んでいない月の差し替えは通知だけ／最も新しい月が11月でも10月の差し替えに気づく／見出しが誤っていても state の当月の画像に気づく／画像が変わらなければ何もしない。
+  `MainStateTest` は result.json の形の変更に合わせ、今日を 2026-09-21 に固定した
+  - `python3 -m unittest discover -s scripts/tests`: **510件 OK**（変更前 496件）
+  - **修正前のコード**（`git archive HEAD scripts` に新しいテストだけを置いたもの）: 新しい14件はすべて失敗。ほかに `MainStateTest` の5件も失敗（result.json の形と `_today` が無いため）
+- 作業ブランチの手動実行: run 36966720918（ref work/1002-doj、head 8145fce6、入力 apply=false のみ）→ **success**
+  - 作業ブランチのキャッシュ（DOJ-02 の試運転のもの。202610R の読み取り結果が無い）を復元。ページの10月のゲストは見出しが直っていたので当月=最新=202610R の1枚
+  - 画像は同じで読み取り結果が無いため読み直し（Claude API 1回）。出力は「読み取り 22件 / 照合できない名前 0件 / 書き込み済みの月 / 当日以降の変更 0件」「### 当日以降の変更（変更前 → 変更後）- なし」。
+    本番のカレンダーの目印付き予定から書き込み済みの月と判定でき、10/2 以降の22件中の該当分が画像と一致した
+  - 通知のステップは「画像が変わっていないため通知しません（…202610R.jpg）」。見出しの通知も無し（見出しが直ったため）。#426 への新しいコメントは無い。カレンダーへの書き込みは無い
+- docs/notes/dojo-guest-calendar.md（突き合わせと書き込み・通知・ワークフロー・毎月の運用・分かっていること）と docs/notes/static-generation.md の行を直した（writing-for-agents の skill の方針で、古い記述を置き換えた）
+- 変更のファイル: yml・`scripts/sync_dojo_calendar.py`・`scripts/tests/test_dojo_guest.py`・docs/ だけ。マージの条件を満たす
+
 ## 報告
 
 - 状態: 作業中
@@ -85,12 +137,12 @@ Chat-Ref: CHAT-1002-DOJ-03
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 31876178）: https://github.com/retroeater/mj-logs/tree/main/guide/31876178
+ガイド文書（この版を写した時点の最新、mj dcc5cf21）: https://github.com/retroeater/mj-logs/tree/main/guide/dcc5cf21
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/31876178/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/31876178/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/31876178/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/31876178/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/31876178/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/31876178/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/dcc5cf21/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/dcc5cf21/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/dcc5cf21/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/dcc5cf21/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/dcc5cf21/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/dcc5cf21/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/16ce2cf4.md
