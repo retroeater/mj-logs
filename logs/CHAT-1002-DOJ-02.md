@@ -61,6 +61,48 @@
 - Chat-Ref: `CHAT-1002-DOJ-02` のコミット・ログは無し（`git log --all --grep`、`docs/logs/`）。`DOJ` は同じセッションの 01 で使ったもの
 - ブランチ: ローカルの `work/1002-doj`（9120f4f）は `origin/cloudflare` の祖先、`origin/work/1002-doj` もマージ済み。cloud-sessions.md「作業ブランチの用意」の「ローカルにあり origin/cloudflare の祖先」に当たるため、`git merge --ff-only origin/cloudflare`（Already up to date。起点 9120f4f）
 
+### 0. 着手前の確認
+
+- 「指示」欄の末尾は指示文の最後の行と一致
+- CHAT-1002-DOJ-01 の `## 報告` は「状態: 完了」
+- `git branch -r --no-merged origin/cloudflare`: `origin/work/1002-doj` だけ（このブランチ自身。この時点で cloudflare との差はこのログだけ）。重なる未マージのブランチは無い
+
+### 1. 現状
+
+- dojo_guest.html（同期と同じ取得、`article:modified_time` 2026-09-28T23:35:45+00:00 のまま）: **10月のゲストの見出しは直っていない。**
+  `2026年10月ゲスト　～麻雀教室～` → 202610R.jpg（kind 空）。見出し6件は DOJ-01 と同じ
+- #426: コメントは DOJ-01 の試運転の通知（2026-10-02 02:24:51Z）1件だけ。#390: 最新は DOJ-01 のコメント。他セッションの着手中コメントは無い。この指示の着手中コメントを #390 に出した（issuecomment-5944560716）
+- state（`sync_dojo_calendar.py`）: `_load_state` が `{画像URL: Last-Modified}` の dict を読み、`state.get(image.url) == last_modified` なら `skipped=True` で `_output` して return（「変わっていません」）。この判定は `--apply` より前。`_save_state` は最後に URL の行だけ書き換える（skip のときは保存しない）
+- キャッシュ（yml）: `actions/cache@v4`、path `dojo-state.json`、key `dojo-guest-state-<run_id>`、restore-keys `dojo-guest-state-`（最も新しいものを復元し、毎回新しい key で保存。保存はジョブ成功時の post ステップ）
+- 通知（yml）: 同期が success でなければ失敗を通知。success なら result.json の `notify`（= `not skipped`）が真のときだけ `summary` を #426 に出す。footer は `applied`・`adds` で3通り
+- 「前提」の案との差: 案のとおりで実装できる。変える点は2つ
+  - B2 の判定はページを読んだ実行（`image` 入力なし）だけで行う。`image` を指定した実行はページを読まないため判定しない（判定の状態はそのまま残す）
+  - 「画像が変わっていないが保存した読み取り結果が無い」ときは、読み直して保存するが **通知しない**（画像は変わっていないので、定期実行が9月分を読み直しても #426 に9月分が出ないように）。そのため手順3の書き込みなしの実行は #426 に通知が出ない見込みで、結果は実行の出力（Summary）で突き合わせる
+
+### 2. 実装（440b2960、docs は別コミット）
+
+- state の形を `{"images": {画像URL: {"last_modified", "data"}}, "missing_heading": 通知した組}` にした。`data` は `parse_entries` の検証を通った読み取り結果（API の応答の dict）。
+  旧形（`{URL: Last-Modified}`）は読み込み時に `data: None` へ直す（`_load_state`）
+- 判定（`main`。`--entries-file` 以外）:
+  - 画像が同じで `data` あり・apply なし → 「変わっていません」で終わる（API を呼ばない・通知しない。見出しの通知の組だけ保存）
+  - 画像が同じで `data` あり・apply あり → `data` を使って照合・突き合わせ・書き込み（API を呼ばない）。出力に「保存した読み取り結果を使いました」の行。通知する（書き込み済み）
+  - 画像が同じで `data` なし → 読み直して保存。`changed=False` なので通知しない（apply があれば書き込み、通知する）。出力に「読み直して保存しました」の行
+  - 画像が変わった → 今までどおり読み直して通知
+  - `should_notify`: `skipped` でなく、`changed` か `applied` のとき
+- B2: `dojo_guest.missing_kind()` がページの最も新しい年月に種別の見出しが無ければその月の画像を返す。`missing_heading_alert()` が見出し全体と URL の組を JSON にして state と比べ、違うときだけ本文を返す（揃えば state を消す）。
+  `Image` に見出し全体（`heading`、前後の空白を除く）を足した。ページを読んだ実行（`image` 入力なし）だけで判定。yml の通知のステップは `result.alert` があれば #426 に別のコメントを出し、続けて今までの通知の判定へ進む
+- テスト: `MissingHeadingTest` 4件（10月の誤記のページで通知・同じ状態の2回目は無し・組が変われば再通知・9月だけのページでは無く組を消す）、
+  `MainStateTest` 5件（保存した結果で読み取りを呼ばず22件の書き込み・apply なしで画像が同じなら何もしない・旧形の state で読み直すが通知しない・画像が変われば通知・見出しの通知は1回）。
+  `python3 -m unittest discover -s scripts/tests`: 496件 OK（変更前 487件）。**修正前のコード**（`git archive HEAD scripts` に新しいテストだけを置いたもの）では新しい9件がすべて失敗（failures=3, errors=6）
+- 作業ブランチでの手動実行: run 36956608192（ref work/1002-doj、head c9f48a18、入力 apply=false のみ）→ **success**
+  - cloudflare のキャッシュ（旧形。202609R・202610R の Last-Modified）を復元し、ページから9月を選び、画像は同じだが `data` が無いので9月を読み直した（Claude API 1回）。通知のステップは「画像が変わっていないため通知しません」
+  - 9月の読み直しの結果: 読み取り22件 / **照合できない名前 1件（樫野凪）** / 既にある予定22件 / 追加0件。新規ゲスト 大久保隼人。9月誕生日なし。
+    「プロ」シートを読むと「樫野凪」の行が無い（`A CONTAINS "樫野"` が0行。在籍 Y は1,099名）。9/21 の実行では一致していたので、シート側で行が無くなった（読み違いではない。画像とカレンダーの 9/4 の予定は同じ名前で、既にある予定22件・追加0件）。この指示の範囲外なので報告に回す
+  - **B2 の通知が #426 に出た**（issuecomment-5944592502）: 2026年10月の見出し2件（講師・ゲスト、ともに「～麻雀教室～」）と画像 URL、ゲストの見出しに「種別を判定できない見出し」の印、判定できなかった見出し 1件、手動実行の案内。ページの実物（手順1）と一致
+  - キャッシュ `dojo-guest-state-36956608192`（1,117 バイト、作業ブランチの範囲）。cloudflare の実行からは見えないため、マージ後の cloudflare の定期実行でも B2 の通知がもう1回出る見込み
+- docs/notes/dojo-guest-calendar.md（仕組みの見出し・通知・ワークフローの state、毎月の運用、分かっていること）と docs/notes/static-generation.md の `sync-dojo-calendar.yml` の行を直した（writing-for-agents の skill を読んでから）
+- 変更のファイル（`git diff --name-only origin/cloudflare...HEAD`）: yml・`scripts/lib/dojo_guest.py`・`scripts/sync_dojo_calendar.py`・`scripts/tests/test_dojo_guest.py`・docs/ だけ。マージの条件を満たす
+
 ## 報告
 
 - 状態: 作業中
@@ -77,12 +119,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 9120f4ff）: https://github.com/retroeater/mj-logs/tree/main/guide/9120f4ff
+ガイド文書（この版を写した時点の最新、mj fbb1adb8）: https://github.com/retroeater/mj-logs/tree/main/guide/fbb1adb8
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9120f4ff/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9120f4ff/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9120f4ff/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9120f4ff/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9120f4ff/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9120f4ff/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/fbb1adb8/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/fbb1adb8/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/fbb1adb8/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/fbb1adb8/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/fbb1adb8/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/fbb1adb8/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/16ce2cf4.md
