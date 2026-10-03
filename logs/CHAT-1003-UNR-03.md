@@ -1,0 +1,81 @@
+# CHAT-1003-UNR-03
+
+- 着手日時: 2026-10-03
+- 対象issue: #490・#475
+- ブランチ: work/1002-unr
+- 着手時HEAD: 836b267a（origin/work/1002-unr ee183243 に origin/cloudflare を merge）
+
+## 指示
+
+【Claude作成】Claude Code 向け指示：「連盟プロ以外」「別名」の更新を確かめ、#475 に残る読み違い7件を層2の規則で直す（#490。模擬まで行い、判断待ちで止まる） Chat-Ref: CHAT-1003-UNR-03 マージ: 判断待ちで止まる（コードとテストは作業ブランチまで。「【2】自動変換後」などシートには書かない。apply の手動実行もしない） 作業ブランチ: クラウドセッションで実行する。未マージの work/1002-unr を続けて使う（CHAT-1002-UNR-02 のログと同じブランチで仕上げるため）。`git checkout -b work/1002-unr origin/work/1002-unr` のうえ、`git merge-base --is-ancestor origin/cloudflare HEAD` が偽なら merge で取り込んでよい（rebase しない）。リモートに無ければ止まる 共通手順: CLAUDE.md「Chat-Ref」「ブランチ運用」「作業ログ」節のとおり（識別子確認 → origin/cloudflare を起点に work/<識別子>〈クラウドセッションでは worktree を使わず docs/notes/cloud-sessions.md の読み替えに従う〉 → ログ先行push → 最終報告の Chat-Ref の行の直前に「ログ（公開）」の行、最後の行に Chat-Ref）。平野さんは、この指示のための作業ブランチ work/<識別子> の作成と push を許可している（セッションに割り当てられた claude/… のブランチは使わない）。
+
+0. 着手前に、このログの「指示」欄の末尾が、この指示文の末尾（最後の行）と一致しているか確認し、一致しなければ作業せず報告する。CHAT-1002-UNR-02 のログの `## 経過`「1. 読む」「2. 分ける」と `## 報告` を読む（この指示の根拠。名前・件数・原因はそこから取る）。
+
+目的
+平野さんが 2026-10-03 に行った「連盟プロ以外」「別名」の更新が名前の検査を通り、#475 の未登録の名前が見込みどおり減ることを確かめる。あわせて、残る読み違い7件を層2（【2】）の抜き出しの規則で直す変更を作業ブランチに作り、模擬の結果をログに書く。マージと【2】の書き直しは、平野さんが結果を見たあとの次の指示で行う。
+決定（2026-10-03、平野さん）
+
+* #475 に残る読み違い7件（CHAT-1002-UNR-02 のログ「2. 分ける」の (c)）は、層2の規則で直す（#490）
+* 「連盟プロ以外」「別名」を更新した（2026-10-03）。UNR-02 の案 (a) の一部は「連盟プロ以外」に登録せず、「別名」で解決した
+
+前提（チャット側。平野さんの決定ではない）
+
+* どの名前を「別名」に回したかはチャット側では分からない。シートの実物を正とし、UNR-02 の貼り付け用の一覧と違っていても直さない
+* 見込み: 今の名簿で数え直すと、未登録に残るのは (c) の7件（「解説：」「1:西野拓也」「1卓:滝沢和典」「A卓予選:高宮まり」「A卓予選:三浦智博」「◎A卓 越後良太」「藤居冴加 ※放送卓」）だけ。違っていても止まらず、残った名前と理由を書く
+* (c) の原因は UNR-02 のログの表の「根拠」のとおり（丸数字・数字の卓の前置き、「X卓予選：」の前置き、記号付きの卓の前置き、vs 行の末尾の「※…」の注記、「解説：」の後が空で見出しが名前に残る）。直す場所は【2】の抜き出しのコード（docs/notes/live-channel-write.md、`scripts/lib/live_extract.py` と読んでいるが、実物で確かめる）
+* 規則を直すと、同じ形のほかの動画の行も変わる。変わってよいのは、前置き・注記が外れた名前の列（対局者・実況・解説）と、それに伴う「確認」「理由」だけと見ている
+* マージした後は、次の apply の実行（毎日の取り込み）で【2】が書き直り、#475 に増減のコメントが付く（この指示では起きない）
+
+手順
+
+1. シートの確かめ（書かない）: 生成と同じ経路で「連盟プロ以外」「別名」を読み、UNR-02 で読んだ時点（725行・17行）から増えた行・変わった行を一覧にし、名前の検査（`scripts/lib/names.py` の `NameBook` の警告: 所属団体が想定外・重複・「プロ」にいる名前・別名の変換後が無い・連鎖など）の結果を書く。今の「【2】自動変換後」の対局者・実況・解説を今の名簿で解決し直して未登録の名前を数え、UNR-02 の56名を「消える名前」「残る名前」に分けて書く。(c) の7件以外が残るときは、名前ごとに理由（検査で使われなかった行・貼り漏れ・表記の違いなど）を書く。
+2. 規則の直し（作業ブランチまで）: 直す前に、(c) の5つの形それぞれについて【1】元データの全件で当たる動画の件数と例を数えて書く。抜き出しの規則を直し、テストを足す。直した関数・定数を import・参照しているスクリプトを洗い出して書く。模擬として、直した後のコードで【1】から新しい【2】を作り、今のシートの【2】と全行・全列で比べ、変わるセルを種類（列ごと・変わり方ごと）に分けて件数と例を書く。あわせて、今の【3】のまま /live・title/ を手元で生成し直した差分（変わるファイル数と種類、公開しなかった行の増減）と、放送対局のカレンダーの同期の模擬で変わる予定の件数を書く（模擬の方法は CHAT-0929-SH-15 のログの「5.」と同じ。シート・カレンダーには書かない）。最後に、直した後の【2】と今の名簿での未登録の名前の人数と名前を書く。
+3. 記録して止まる: #490 にコメントする（足した規則と、手順2の模擬の結果。件数はこのログの手順2の節から引用する）。#475 にはコメントしない。報告の「判断が必要なこと」に、マージしてよいかと、手順2の差分のうち前提の「変わってよい種類」に入らないものの一覧（無ければ「なし」）を書く。
+
+止まる条件
+
+* 「連盟プロ以外」「別名」「【1】元データ」「【2】自動変換後」のどれかが読めない、必要な見出しが無い、行数が読み直すたびに変わる（件数を書いて止まる）
+* #490 が Closed になっている、#490・#475 に他セッションの着手中コメントがある、同じコード（【2】の抜き出し）を変える未マージの work/ ブランチがある（`git branch -r --no-merged origin/cloudflare` で一覧を出して確かめる）
+* 模擬で、候補の行数が減る、または掲載=Y の行が公開から外れる（件数と例を書き、手順3の #490 へのコメントはせずに止まる）
+
+完了条件
+
+* ログの「## 報告」を CLAUDE.md「作業ログ」節のとおりに書いて push する（状態は「判断待ち」）
+* マージは冒頭の「マージ:」の行のとおり（CHAT-1002-UNR-02 のログもこのブランチに残したままにする）
+* ターミナルへの最終報告の Chat-Ref の行の直前に ログ（公開）: https://github.com/retroeater/mj-logs/blob/main/logs/CHAT-1003-UNR-03.md?v=<SHA>（CLAUDE.md「作業ログ」節）を書き、最後の行に Chat-Ref: CHAT-1003-UNR-03 を書く
+
+不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
+
+## 経過
+
+- 識別子の確認: `git log --all --grep="CHAT-1003-UNR-03"` は0件。UNR は UNR-02 と同じセッションで使い続けている
+- ブランチ: ローカルに `work/1002-unr` が既にあり（UNR-02 と同じセッション）、`origin/work/1002-unr` と同じ SHA（ee183243）だったため、
+  指示文の `git checkout -b` ではなく docs/notes/cloud-sessions.md「作業ブランチの用意」の「ローカルにあり…origin/work と一致」の場合として、そのまま使った。
+  `origin/cloudflare` が祖先でなかった（19コミット遅れ）ため `git merge origin/cloudflare`（衝突なし、836b267a）
+- 手順0: 「指示」欄の末尾の行は「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」で一致。UNR-02 のログは同じセッションで書いたもので、内容は手元にある
+
+## 報告
+
+- 状態: 作業中
+- ブランチ: work/1002-unr
+- ログ: https://github.com/retroeater/mj/blob/work/1002-unr/docs/logs/CHAT-1003-UNR-03.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1002-unr
+- 確認用URL: なし
+- マージ: 未
+- issue: #490・#475
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
+
+<!-- guide-links -->
+---
+
+ガイド文書（この版を写した時点の最新、mj fee9a96e）: https://github.com/retroeater/mj-logs/tree/main/guide/fee9a96e
+
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/fee9a96e/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/fee9a96e/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/fee9a96e/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/fee9a96e/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/fee9a96e/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/fee9a96e/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/ffc4839a.md
