@@ -37,38 +37,86 @@
 
 完了条件
 
-* ログの「## 報告」を CLAUDE.md「作業ログ」節のとおりに書いて push する。「判断が必要なこと」に、入力の名前と形、不正な値の扱い、差分の要点を書く。決定は CLAUDE.md のとおり `docs/decisions/broadcast-calendar.md` に足す。
-* ターミナルへの最終報告の Chat-Ref の行の直前に ログ（公開）: https://github.com/retroeater/mj-logs/blob/main/logs/CHAT-0930-CAL-24.md を書き、最後の行に Chat-Ref: CHAT-0930-CAL-24 を書く
+* ログの「### 手順1: 確かめ
 
-不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
+- 今の上限: `scripts/sync_live_calendar.py` の定数 `MAX_DELETES = 30`
+  - 判定は `main()` の中で、`plan()` と一覧の表示（`show()`）の後に行う
+  - 消す予定がこれを超えると「消す予定がN件で、上限30件を超えます。書き込まずに止めます」で `sys.exit` し、ステップが失敗する。作る・直すも書かない
+  - `--allow-many-deletes`（上限を外す）はあったが、ワークフローは渡していなかった
+- `update-live-channel.yml` の手動実行の入力（8個）: apply・verify・allow_many_changes・allow_shrink・allow_many・backfill・yotei_apply・calendar_apply
+- 同じファイルを触る未マージのブランチ: 無い
+  - 調べたファイル: `sync_live_calendar.py`・`live_calendar.py`・`update-live-channel.yml`・`test_sync_live_calendar.py`・`yotei-sheet.md`
 
-## 経過
+### 手順2: 実装（945bcadf）
 
-- 識別子: `git log --all --grep=CHAT-0930-CAL-24` は0件。`work/1003-cal-del` はローカル・リモートとも無いので `git checkout -b work/1003-cal-del origin/cloudflare`（bb0fca60）
-- 手順0: 指示欄の末尾は指示文の最後の行と一致
+- ワークフロー:
+  - 入力 `calendar_max_delete` を足した（type number、既定 30、required。入力は9個で、上限10の内）
+  - yotei ジョブの環境変数 `CALENDAR_MAX_DELETE` に入れ、同期のステップは `--max-deletes "$CALENDAR_MAX_DELETE"` を渡す
+- スクリプト（`sync_live_calendar.py`）:
+  - `--allow-many-deletes` を `--max-deletes` に置き換えた。`--allow-many-deletes` を使っていたのはこのスクリプトの `main()` だけ。同じ名前の引数がある `sync_books_calendar.py`・`sync_birthday_calendar.py`・`write_yotei_sheet.py` は別物で、変えていない
+  - `delete_limit(value, event_name)` を足した。呼び出しは `main()` だけ
+- `delete_limit()` の扱い:
+  - `GITHUB_EVENT_NAME` が `schedule` なら、入力を見ずに 30
+  - 空・30 なら 30
+  - 1以上の整数ならその数。既定と違うときは「削除の上限をこの回だけ 30 から N に変えた(手動実行の入力 calendar_max_delete)」と出す
+  - **0・負の数・整数でない値（「abc」「1.5」）は、書き込まずに止める**
+  - **既定より小さい数（例 5）はそのまま使う**（上限を厳しくするだけで、消しすぎにはならないため）
+- 効く範囲:
+  - 手動実行なら `calendar_apply` の有無を問わず効く。書き込みなしの見込みも同じ上限で出せる
+  - 前提の案は「calendar_apply を付けた手動実行のときだけ」だったが、同じ数で先に見込みを確かめられるようにこうした
+- 上限を変えた回で書き込みありのときは、消すたびに「消しました: 開始 件名(理由)」を1件ずつ出す
+  - 書き込みの前の一覧（「消す: key 開始 件名(理由)」）は今までどおり
+- テスト: `DeleteLimitTest` を6本足した（既定・上げた上限・上げても超える・schedule では効かない・小さい数・不正な値4種）
+  - 全件 OK
+  - **修正前のコードでは足したテストがすべてエラーになることを確かめた**
+- 資料: `docs/notes/yotei-sheet.md` を直した
+  - 「作る・直す・消す」に使い方を足した
+  - 「同期の規則を変える変更は…」の手順の例を「平野さんが手で消す」から「`calendar_max_delete` で上限を上げる」に変えた
+  - 入力の表に1行足した
+
+### 手順3: 見込み（書き込みなし）
+
+- run 37092542044（work/1003-cal-del、945bcadf。apply・yotei_apply・calendar_apply は外し、calendar_max_delete=45）。update・yotei success、エラーの行なし
+- 入力は読めていた:
+  - 環境変数は `CALENDAR_MAX_DELETE: 45`
+  - 出力に「削除の上限をこの回だけ 30 から 45 に変えた(手動実行の入力 calendar_max_delete)」
+- 今の予定 2,617件・載せる予定 2,617件。**作る 0・直す 0・消す 0**
+- 決定の記録: `docs/decisions/broadcast-calendar.md` にこの指示の決定を足した
 
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち（実装と書き込みなしの見込みまで。マージは未承認）
 - ブランチ: work/1003-cal-del
 - ログ: https://github.com/retroeater/mj/blob/work/1003-cal-del/docs/logs/CHAT-0930-CAL-24.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1003-cal-del
 - 確認用URL: なし
 - マージ: 未（未承認）
 - issue: なし
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 判断が必要なこと:
+  - **入力の名前と形**: `calendar_max_delete`（数、既定 30）。手動実行の「Run workflow」で、その回だけ消してよい件数の上限を入れる。毎朝の実行（schedule）では使わない
+  - **不正な値の扱い**:
+    - 0・負の数・整数でない値は、書き込まずに止める
+    - 既定より小さい1以上の数は、そのまま使う（厳しくなるだけ）
+    - 空は既定の 30
+  - **前提の案との違い**: 手動実行なら `calendar_apply` を付けなくても効く。同じ数で先に書き込みなしの見込みを出し、消す件数と一覧を確かめられるようにするため。付けたときだけにしたいなら直す
+  - **差分の要点**（4ファイル、+71/−7）:
+    - ワークフローに入力1つと環境変数1つ
+    - `sync_live_calendar.py` に `delete_limit()` を足し、`--allow-many-deletes` を `--max-deletes` に置き換えた
+    - テスト6本
+    - `yotei-sheet.md` の使い方
+  - マージしてよいか（差分と上の見込みを見て）
+- 未確認の項目: 上限を上げて実際に30件を超えて消す書き込みありの実行（今は消す予定が0件のため試せない）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 5c0f5ffa）: https://github.com/retroeater/mj-logs/tree/main/guide/5c0f5ffa
+ガイド文書（この版を写した時点の最新、mj 661b42b3）: https://github.com/retroeater/mj-logs/tree/main/guide/661b42b3
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/5c0f5ffa/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/5c0f5ffa/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/5c0f5ffa/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/5c0f5ffa/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/5c0f5ffa/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/5c0f5ffa/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/661b42b3/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/661b42b3/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/661b42b3/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/661b42b3/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/661b42b3/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/661b42b3/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/85555f77.md
