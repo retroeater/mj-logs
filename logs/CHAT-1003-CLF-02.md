@@ -83,7 +83,7 @@ CHAT-1003-CLF-01 は、分類器による拒否の件を新規起票しようと
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1003-CLF-02.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1003-clf
 - 確認用URL: なし
-- マージ: 済（下の「マージ」の追記で SHA を記録）
+- マージ: 済（ad3e7374。`git push origin work/1003-clf:cloudflare` の fast-forward、8f3bcfe5..ad3e7374。docs/ のみのため Workers Builds は走らない）
 - issue: #493（題と本文を変更、コメント https://github.com/retroeater/mj/issues/493#issuecomment-5965243876 ）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
