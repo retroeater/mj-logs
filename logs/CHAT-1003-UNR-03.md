@@ -53,29 +53,117 @@
   指示文の `git checkout -b` ではなく docs/notes/cloud-sessions.md「作業ブランチの用意」の「ローカルにあり…origin/work と一致」の場合として、そのまま使った。
   `origin/cloudflare` が祖先でなかった（19コミット遅れ）ため `git merge origin/cloudflare`（衝突なし、836b267a）
 - 手順0: 「指示」欄の末尾の行は「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」で一致。UNR-02 のログは同じセッションで書いたもので、内容は手元にある
+- 止まる条件の確認: #490 は Open でコメント0件、#475 に他セッションの着手中コメントなし。未マージの work/ は `1002-cld`・`1002-unr`（この）・`1003-cal-del`・`1003-cal-mos`。
+  docs/ 以外を変えているのは `1003-cal-del`（`update-live-channel.yml`・`sync_live_calendar.py` とそのテスト）だけで、【2】の抜き出し（`lib/live_extract.py`・`lib/live_candidate.py`）を変えるものは無い
+
+### 1. シートの確かめ（書いていない）
+
+読み方は UNR-02 と同じ gviz の経路（フィルタの検知つき）。2回読んで行数は同じ。
+
+- 「【2】自動変換後」14,113行・「【1】元データ」14,113行（UNR-02 と同じ）。【2】の「理由」から読んだ未登録の名前はまだ56名（10/3 の更新の後に apply の実行が無いため）
+- 「連盟プロ以外」: 725行 → **764行**（39行の追加。変更・削除なし）。追加の39名は UNR-02 の (a) 41名から「佐々木俊哉…」を含む39名で、
+  (a) のうち **咲良美緒・西名優の2名は「連盟プロ以外」ではなく「別名」（区分 `登録名変更`）に入った**。所属団体は `-` が38、`最高位戦` が1（海老沢稔）。所属補足が入った行1
+- 「別名」: 17行 → **27行**（10行の追加。変更・削除なし）。UNR-02 の (b) 8件が貼り付け用どおり（区分 `訂正`、備考「概要欄の誤記」）と、上の `登録名変更` 2件
+- 名前の検査（`generate_live_pages.load_name_book()` → `NameBook` の警告）: **0件**（所属団体の想定外・重複・「プロ」にいる名前・変換後が無い・連鎖・区分の想定外のどれも無し）
+- 今の【2】の候補の行の対局者・実況・解説を今の名簿で解決し直した（`book.resolve()`）結果:
+  - **未登録 7名・14行**: 解説：(3)、1:西野拓也(2)、1卓:滝沢和典(2)、A卓予選:高宮まり(2)、◎A卓 越後良太(2)、藤居冴加 ※放送卓(2)、A卓予選:三浦智博(1)。見込みの (c) 7件と一致
+  - **消える名前 49名**: (a) の41名（39名は「連盟プロ以外」、咲良美緒・西名優は「別名」の登録名変更で解決）と (b) の8名（「別名」の訂正で解決）
+  - 56名に無い名前が新しく未登録になることは無い
+
+### 2. 規則の直し（31b59136）
+
+#### 直す前の数え（【1】元データ 14,113本の全件。vs 行は NFKC の後）
+
+| 形 | 当たる動画 | 例 |
+|---|---|---|
+| 丸数字・数字の卓の前置き（`①：`・`①卓：`） | 4本 | `TJ6leW2iNjY`「第13期麻雀グランプリＭＡＸ~予備予選~」`①：西野拓也ｖｓ…`、`l7zI8YVYEUw`「第２期紅龍戦~予選Ａブロック~」`①卓：滝沢和典ｖｓ…`（ほかはこの2本のメンバー限定版） |
+| 「X卓予選：」の前置き（卓と「：」の間の語。実物は `予選`・`決勝` だけ） | 3本 | `bpyBvK1KLF8`「第３期紅龍戦~Ａ卓~」`Ａ卓予選：高宮まりｖｓ…`、`nbEV_NP6omQ`（第４期・A卓予選：三浦智博…）、`TRkQYKRqSMk` |
+| 記号付きの卓の前置き（`◎A卓　`） | 2本 | `8H5aitq1kis`「第２期 昇龍戦」`◎A卓　越後良太ｖｓ…`／`◎B卓　関本幸樹ｖｓ…`、`FXtYzZBEtXA`（メンバー限定版） |
+| vs 行の末尾の「※…」の注記 | 5本（行頭の「※」の注意書きが vs 行に続く3本は別） | `bNoy75lStSA`「第12期桜蕾戦~ベスト16~」`…藤居冴加　※放送卓`、`zFTMTqdzsss`、`yjX-3duubqU`、`JttRNPEuFBk`・`RhwetPpb8B8`（第19期WRCリーグ ベスト16） |
+| 「実況：」「解説：」の後が空で次の行を巻き込む（`CAST_RE` の `\s*` が改行をまたぐ） | 6本（11か所） | `-G4RS4dl4XI`・`fVVuygIk6UY`・`GgAZyzkPZnw`・`tMwcjumwz-o`・`kcIvHpsBMiY` の `実況：` の後が空で次の行の `解説：` を実況の名前にする。ほか `lNuBvLvzMjs`・`k7_A29T-Q2I`・`DQpz5zCukUM` は行末の `\r` を含むだけで、名前は今も正しく取れている |
+
+#### 直したこと（`scripts/lib/live_extract.py`）
+
+- `TABLE_LABEL_RE`: `^([A-H])卓[:：]` → `^◎?([A-H])卓(?:予選|決勝)?(?:[:：]|\s)`。外すのと同時に卓の行の選択にも使う。選択は `startswith(f"{table}卓")` から、この正規表現で取った卓の記号との比較に変えた（`◎` の付いた行でも選べるように）
+- `TABLE_NUMBER_LABEL_RE`（新）: `^\d+卓?:\s*` を外す。卓の選択には使わない（丸数字の卓は A〜H の卓と対応しないため）
+- `NOTE_TAIL_RE`（新）: `\s+※\S*$` を外す。空白の後の行末の注記だけで、行頭の「※著作権者の…」は外さない
+- `CAST_RE`: `[:：]\s*(.+)` → `[:：][^\S\r\n]*([^\r\n]+)`（見出しの後の空白は行の中だけ）
+- テスト4件を `scripts/tests/test_live_extract.py` に足した。**直す前のコードで4件とも失敗（6か所）することを確かめた後に**直し、全体 522件 OK
+
+#### 直した関数・定数を使っている所
+
+- `extract_players_and_staff()`: `scripts/lib/live_candidate.py`（`build_row()`、【2】の対局者・実況・解説）と `scripts/lib/live_calendar.py`（`player_lines()`・`people()`、放送対局のカレンダーの説明文）
+- `live_candidate` を読むもの: `write_live_channel_candidate.py`（毎日の【2】の書き直し）・`append_live_layer3_candidates.py`・`fetch_live_channel_raw.py`・`write_live_layer1.py`・`sync_live_calendar.py`・`lib/live_layer3.py`・`generate_title_pages.py`・`lib/yotei.py`・`write_yotei_sheet.py`
+- 4つの定数（`TABLE_LABEL_RE`・`TABLE_NUMBER_LABEL_RE`・`NOTE_TAIL_RE`・`CAST_RE`）は `live_extract.py` の中だけで使う
+
+#### 模擬（シート・カレンダーには書いていない）
+
+方法は SH-15 の「4.」「5.」と同じ: `git archive` の作業コピーで、`live_layer3.fetch_layer2` を作った【2】に差し替え、`generate_live_pages.py`・`generate_title_pages.py` を実行し、
+`live_calendar.build_desired()` で予定を作って比べた（書き込みはしない）。名簿・【3】・予定表は今のシート。3つを作った:
+
+- A: 今のコード（origin/cloudflare）＋今のシートの【2】（今の本番の状態）
+- B: 今のコード＋層1（`data/live_channel_raw.jsonl`）から今の名簿で作り直した【2】（名簿の更新だけの効果）
+- C: 直したコード＋同じく作り直した【2】（B との差がこの変更の効果）
+
+【2】の比較（全行・全列。行数・並び・候補の数は3つとも同じ: 14,113行・候補 4,307行。**候補は減らない**）:
+
+- シートの【2】→ B（名簿の更新だけ）: 確認 55・理由 70・対局者 13・実況 5 セル。対局者・実況は18セルとも「別名」の `訂正` で直った名前（例 `8H5aitq1kis` の 畑谷翔大 → 畑谷翔太）、確認・理由は未登録の名前が消えたもの
+- **B → C（この変更）: 対局者 11・理由 14・確認 4・実況 3 セル。ほかの列・候補でない行は変わらない**
+  - 対局者 11: 前置き・注記が外れた（`bNoy75lStSA`・`zFTMTqdzsss` 「…藤居冴加 ※放送卓」→「…藤居冴加」、`8H5aitq1kis`・`FXtYzZBEtXA` 「◎A卓 越後良太、…」→「越後良太、…」、`bpyBvK1KLF8`・`TRkQYKRqSMk`・`nbEV_NP6omQ` 「A卓予選:…」、`l7zI8YVYEUw`・`h6cs7x9VUbk` 「1卓:…」、`TJ6leW2iNjY`・`GYEJoRc9-rM` 「1:…」）。選ばれる vs 行は11本とも直す前と同じ（名前の並び・人数は同じで、先頭の名前の前置きだけが外れた）
+  - 実況 3: `-G4RS4dl4XI`・`fVVuygIk6UY`・`GgAZyzkPZnw` の「解説：」→ 空
+  - 理由 14: 上の14本の「未登録の名前（読み違いを含む）: …」が外れた（ほかの理由「ステージがSTAGE_SLUGSの語彙に無い」「対局者が概要欄から抜けない」は残る）
+  - 確認 4: `bNoy75lStSA`・`zFTMTqdzsss`・`l7zI8YVYEUw`・`h6cs7x9VUbk` が Y → 空（理由がほかに無くなったため）。残り10本はほかの理由で確認=Y のまま
+- 未登録の名前: シートの【2】56名・109行 → B 7名・14行 → **C 0名**
+
+生成の模擬:
+
+- A はリポジトリの生成物と /live・title/ とも差分 0（模擬の方法の確かめ）
+- A → B・B → C とも **/live・title/ の差分 0ファイル**。公開しなかった【3】の行は3つとも **813件で一覧も同じ**（掲載=Y の行が公開から外れることは無い）。
+  変わった14本は、【3】に補正がある・掲載が Y でないなどで、表示に出ていない
+
+放送対局のカレンダー（`build_desired()`、3つとも 2,617件。増減なし）:
+
+- B → C（この変更）: **2件の説明文が変わる**
+  - `FXtYzZBEtXA`（第２期 昇龍戦、メンバー限定版）: 【対局者】の「◎A卓 越後良太」「◎B卓 関本幸樹」→「越後良太」「関本幸樹」
+  - `tMwcjumwz-o`（候補でない動画）: 【実況】「解説：」の行が消え、説明文は URL だけになる
+- A → B（名簿の更新だけ。この変更の外）: 3件
+  - `7VCJfciIzuY`: 一黒沢咲 → 黒沢咲、`ki38IDxwIjE`: 渡辺英悟 → 渡辺英梧（「別名」の訂正）
+  - `FXtYzZBEtXA`: 【対局者】が「…畑谷翔太、塩澤彰大、**畑谷翔大**、…」になる。【2】の値は訂正で「畑谷翔太」になるが、`live_calendar.people()` が概要欄の行（2行以上あるとき）を後ろに足し、
+    概要欄の「畑谷翔大」は「別名」で直さないため、同じ人が2つの表記で並ぶ。C でも同じく残る
+
+### 3. 記録
+
+- #490 にコメントした（足した規則と模擬の結果）: https://github.com/retroeater/mj/issues/490#issuecomment-5965192443
+- #475 にはコメントしていない
+- 決定を docs/decisions/live.md に足した
 
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1002-unr
+- 状態: 判断待ち
+- ブランチ: work/1002-unr（UNR-02 と同じ。CHAT-1002-UNR-02 のログもこのブランチに残したまま）
 - ログ: https://github.com/retroeater/mj/blob/work/1002-unr/docs/logs/CHAT-1003-UNR-03.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1002-unr
-- 確認用URL: なし
-- マージ: 未
-- issue: #490・#475
-- 判断が必要なこと: なし
-- 未確認の項目: なし
-- エラー: なし
+- 確認用URL: なし（変えたのは scripts/ と docs/ だけで、生成物・表示は変わらない）
+- マージ: 未（平野さんの判断待ち。シート・【2】・カレンダーには書いていない。apply の実行もしていない）
+- issue: #490（コメント1件）、#475（読んだだけ）
+- 判断が必要なこと:
+  - 31b59136（`lib/live_extract.py` の規則4つとテスト4件）を cloudflare にマージしてよいか。マージ後の次の apply で【2】が書き直り、未登録の名前は 56名 → 0名になる見込み（#475 にその増減のコメントが付く）
+  - 手順2 の差分のうち前提の「変わってよい種類」に入らないもの: **【2】ではなし**（対局者・実況・確認・理由だけ）。前提の外の場所として、**放送対局のカレンダーの説明文が2件変わる**（`FXtYzZBEtXA` の「◎A卓 」「◎B卓 」が外れる、候補でない `tMwcjumwz-o` の【実況】「解説：」が消える）。`extract_players_and_staff()` をカレンダーも共用しているため
+  - 別件（この変更の外、名簿の更新で起きる）: カレンダーの `FXtYzZBEtXA` の【対局者】に「畑谷翔太」と概要欄の表記「畑谷翔大」が並ぶ。`live_calendar.people()` が概要欄の名前を「別名」で直さずに足すため。issue にするか
+- 未確認の項目:
+  - シートは毎日の取り込みと同じ API の経路ではなく gviz の経路で読んだ（UNR-02 と同じ。A の模擬がリポジトリの生成物と差分0で、読んだ値の確かめにはなっている）
+  - カレンダーは `build_desired()` までで、今のカレンダーとの突き合わせ（`plan()`）はしていない（鍵が要る）
+- エラー: なし。指示文の `git checkout -b work/1002-unr origin/work/1002-unr` は、ローカルに同じ SHA のブランチが既にあったため実行せず、そのまま使った（「経過」の冒頭）
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj fee9a96e）: https://github.com/retroeater/mj-logs/tree/main/guide/fee9a96e
+ガイド文書（この版を写した時点の最新、mj cf0f7e27）: https://github.com/retroeater/mj-logs/tree/main/guide/cf0f7e27
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/fee9a96e/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/fee9a96e/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/fee9a96e/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/fee9a96e/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/fee9a96e/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/fee9a96e/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/ffc4839a.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/cf0f7e27/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/cf0f7e27/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/cf0f7e27/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/cf0f7e27/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/cf0f7e27/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/cf0f7e27/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/0384cc68.md
