@@ -174,6 +174,10 @@ INV-03 で止めた一括変更（E・F の本文・期限、ラベル）を iss
 - #340: フォントの箇条を「一覧用の1枚にしたため要らなくなった」に置き換えた。その下の `build_wayhome_ogp.py` の細目は残した
 - 題を変えた6件: #22「X・note・YouTube列をかな順でソートできるようにする」、#255「resource_logs を分割する」、#272「数値列を右揃えにする（mj-num）」、#398「紅龍戦の予選の行のステージの定義を決める」、#400「第3回・第4回リーチ麻雀世界選手権の対局を /live に載せる」、#419「作業ブランチを Chat-Ref の番号ごとに切るか（運用の提案）」
 
+### マージの後
+- 仕上げのログ（166f292c）を入れる前に origin/cloudflare が他セッション（CHAT-1001-ASG-01、assets-check の許可リスト）で 29197c6b に進んでいた。`git merge origin/cloudflare` で取り込み（衝突なし。docs/notes/cloudflare.md は別の節の変更で、Rate limiting の記録は残っている）、`git merge-base --is-ancestor origin/cloudflare HEAD` を確かめて `git push origin work/1003-inv:cloudflare` で早送り（29197c6b..fee9a96e）
+- この記録は docs/logs のみの追いの push
+
 ## 報告
 
 - 状態: 完了
@@ -194,12 +198,12 @@ INV-03 で止めた一括変更（E・F の本文・期限、ラベル）を iss
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj d8f0c083）: https://github.com/retroeater/mj-logs/tree/main/guide/d8f0c083
+ガイド文書（この版を写した時点の最新、mj fee9a96e）: https://github.com/retroeater/mj-logs/tree/main/guide/fee9a96e
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d8f0c083/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d8f0c083/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d8f0c083/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d8f0c083/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d8f0c083/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d8f0c083/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/fee9a96e/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/fee9a96e/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/fee9a96e/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/fee9a96e/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/fee9a96e/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/fee9a96e/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/ffc4839a.md
