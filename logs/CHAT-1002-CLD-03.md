@@ -102,6 +102,12 @@ run 37066828131（schedule、cloudflare 93c91fe4、2026-10-02 21:26〜21:31 UTC 
 - docs/notes/yotei-sheet.md「公開カレンダーへの同期」の「作る・直す・消す」の項: 上限の記述は「1回に30件を超えると書き込まずに止まる（`--allow-many-deletes` で続ける）」だけで、ワークフローに入力が無いこと・作る・直すも止まること・マージ前に比べる手順は無かった。
   同じ項に「30件を超えると作る・直すも含めて何も書かずに失敗する（30件ちょうどは通る）。ワークフローに入力が無く毎朝止まる」と「同期の規則を変える変更は、マージの前に消す件数を出して30件と比べ、超えるなら入れる前に手順を決める」を足した（writing-for-agents の skill は CLD-02 で読み込み済みのものに従った）
 
+### 3. マージ
+
+- push 直前に再 fetch し、`origin/cloudflare` が HEAD の祖先であることを確かめて `git push origin work/1002-cld:cloudflare`（a8fcf150..f35729a7）。差分は docs/logs/CHAT-1002-CLD-02.md・CHAT-1002-CLD-03.md・docs/notes/yotei-sheet.md だけ
+- f35729a7 で動いたのは `sync-logs.yml`（success）だけで、`regenerate-page.yml` は動いていない（docs のみのため）
+- 作業ブランチはマージ済み。削除は `delete-merged-branches.yml` に任せる（クラウドセッションでは削除できない）
+
 ## 報告
 
 - 状態: 完了
@@ -109,7 +115,7 @@ run 37066828131（schedule、cloudflare 93c91fe4、2026-10-02 21:26〜21:31 UTC 
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1002-CLD-03.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1002-cld
 - 確認用URL: なし
-- マージ: 済（docs のみ）
+- マージ: 済（f35729a7、docs のみ。regenerate-page.yml は動いていない）
 - issue: #448（Open のまま。結果をコメントした: https://github.com/retroeater/mj/issues/448#issuecomment-5963469460 ）
 - 判断が必要なこと: なし
 - 未確認の項目:
@@ -120,12 +126,12 @@ run 37066828131（schedule、cloudflare 93c91fe4、2026-10-02 21:26〜21:31 UTC 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj f35729a7）: https://github.com/retroeater/mj-logs/tree/main/guide/f35729a7
+ガイド文書（この版を写した時点の最新、mj 5c0f5ffa）: https://github.com/retroeater/mj-logs/tree/main/guide/5c0f5ffa
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f35729a7/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f35729a7/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f35729a7/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f35729a7/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f35729a7/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f35729a7/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/5c0f5ffa/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/5c0f5ffa/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/5c0f5ffa/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/5c0f5ffa/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/5c0f5ffa/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/5c0f5ffa/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/48398cff.md
