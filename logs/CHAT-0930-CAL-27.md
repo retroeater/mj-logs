@@ -41,6 +41,49 @@ CAL-25 の報告の「食い違いの判断」を片付け、申送りの追記�
 - 識別子: `git log --all --grep=CHAT-0930-CAL-27` は0件。ローカルの work/1003-cal-mos は origin/work/1003-cal-mos（d92e94c5、d26166bc を含む）と同じ
 - 手順0: 指示欄の末尾は指示文の最後の行と一致。CAL-25 の `## 報告` は「判断待ち（追記まで。マージは未承認）」だったので「判断待ち → 続き: CHAT-0930-CAL-27」に直した（このコミットに含める）
 
+### 手順1: 直し
+
+- `docs/notes/chat-side-operations.md`「指示文の書き方・渡し方」の先頭の行の前半を直した
+  - 「ブランチ名を具体的に書かない。『ブランチ運用』の規則どおりと書く」を「作業ブランチ名は書く（クラウドセッションでは `work/<…>` を指定する。文面は雛形の『作業ブランチ』の行）」にした
+  - 後半（重なりは名指しせず `git branch -r --no-merged origin/cloudflare` で一覧を出させる、既存ブランチを続ける指示は雛形の行）はそのまま
+- ほかの同じ趣旨の記述:
+  - **`docs/instruction-template.md` の注意書きの先頭「作業ブランチ名は具体名を書かず『ブランチ運用』の規則どおりとする」**: 同じ趣旨に直した
+  - CLAUDE.md: 無い（「ブランチ運用」節は受け手側の規則で、指示文に書くかどうかは書いていない）
+  - docs/notes/cloud-sessions.md: 無い
+- 同じ文書を触るほかの未マージのブランチ: 無い（一覧に出たのはこのブランチ自身だけ）
+- 大きさ: chat-side-operations.md 23,654（警告域 26,624・上限 28,672）、instruction-template.md 12,288（検査の対象外）。`check_asset_limits.py` OK
+- 決定の記録: `docs/decisions/operations.md` に足した。CAL-25 の「未マージ」に済の印を付けた
+- 差分:
+
+```diff
+diff --git a/docs/instruction-template.md b/docs/instruction-template.md
+index 2ddfd197..728fe352 100644
+--- a/docs/instruction-template.md
++++ b/docs/instruction-template.md
+@@ -2,7 +2,7 @@
+ 
+ チャット側（claude.ai）が Claude Code へ渡す指示文の骨組み（#294）。受け手側のルールは CLAUDE.md が正で、ここには複製しない。
+ 
+-- 作業ブランチ名は具体名を書かず「『ブランチ運用』の規則どおり」とする
++- 作業ブランチ名は書く（クラウドセッションでは `work/<…>` を指定する。下の「作業ブランチ」の行）
+ - 既存の作業ブランチを続けて使う指示は、「Chat-Ref」の次に「作業ブランチ: origin/cloudflare を起点に切った既存の work/<識別子> を続けて使う（〜のため）。着手時と作業中に origin/cloudflare が進んでいたら merge で取り込んでよい（push 済みなので rebase しない）」の1行を入れる。取り込みの可否を書かないと、祖先確認だけで中断する
+ - クラウドセッション（Claude Code on the web）で実行する指示は、`/workspaces/mj` と worktree が無いため「作業ブランチ」の行を次のどちらかにする（読み替えは docs/notes/cloud-sessions.md）。判定の向きが2つで逆なので、式をそのまま書く
+   - 新しく作る: 「作業ブランチ: クラウドセッションで実行する。work/<識別子> を使う。リモートに無ければ origin/cloudflare から作る。リモートにあってマージ済み（`git merge-base --is-ancestor origin/work/<識別子> origin/cloudflare` が真）なら origin/cloudflare から作る（`checkout -B` は使わない。ローカルにあるときを含め手順は docs/notes/cloud-sessions.md「作業ブランチの用意」）。マージ済みでなければ止まる」
+diff --git a/docs/notes/chat-side-operations.md b/docs/notes/chat-side-operations.md
+index d361e5c1..d1602c50 100644
+--- a/docs/notes/chat-side-operations.md
++++ b/docs/notes/chat-side-operations.md
+@@ -121,7 +121,7 @@ Claude Code 側で確認できる範囲は `docs/notes/cloudflare.md`「ビル
+ 
+ ### 指示文の書き方・渡し方
+ 
+-- **ブランチ名を具体的に書かない。**「『ブランチ運用』の規則どおり」と書く。未マージのブランチとの重なりも名指しせず、
++- **作業ブランチ名は書く**（クラウドセッションでは `work/<…>` を指定する。文面は `docs/instruction-template.md`「作業ブランチ」の行）。未マージのブランチとの重なりは名指しせず、
+   `git branch -r --no-merged origin/cloudflare` で一覧を出させてから確かめさせる（書いた後に増えたブランチを見落とさないため）。
+   既存ブランチを続ける指示は `docs/instruction-template.md`「作業ブランチ」の行
+ - **コミットSHAを固定して書かない。** 土台や比較対象は「その時点の`origin/cloudflare`」と書く。既存の特定コミットの参照（`git show <sha>:<path>` など）は書いてよい
+```
+
 ## 報告
 
 - 状態: 作業中
