@@ -84,6 +84,82 @@ Chat-Ref: CHAT-1001-ASG-01
 - 2026-10-01: `cat docs/logs/_template.md`（Bash）が拒否された。文言: 「Permission for this action was denied by the Claude Code auto mode classifier. Reason: [Interfere With Workloads].」。別ツールでの読み直しはせず止まり、平野さんに確認した
 - 2026-10-03: 平野さんの許可を受け、Read ツールで雛形を読めた（代替 a・b は使っていない）
 
+### 1. 重なりの確認（2026-10-03）
+
+- issue 検索（MCP の search_issues、open・closed とも）: 「assets-check .assetsignore 配信 許可リスト 公開対象 漏れ」「assets-check workflow」「.assetsignore 公開しないファイルが配信される」→ #331 のみ。#133 は #331 の背景として引用されているだけ
+- #331: コメント 0 件（他セッションの着手中コメント無し）
+- #387: 指示文では「共通の検査スクリプトを regenerate.py と assets-check.yml から呼ぶ案A」とあるが、実物は「配信の上限との比」の issue で、2026-09-28 にマージ・クローズ済み（`check_asset_limits.py` を呼ぶ別ステップを最後に足したもの）。最上位の項目の判定には触れていない → 重なりなし
+- #298（open）: コメントのうち assets-check に触れるのは起動条件（`paths`）の変更で、2026-09-29 にマージ済み。最上位の項目の判定を変える予定は無い → 重なりなし
+- `git branch -r --no-merged origin/cloudflare` の各ブランチで `git log origin/cloudflare..<b> -- .github/workflows/assets-check.yml` → 該当 0 件
+- #331 に着手中コメント: https://github.com/retroeater/mj/issues/331#issuecomment-5965000290
+
+### 2. 許可リストの根拠と書き換え
+
+`git -c core.quotePath=false ls-files | cut -d/ -f1 | sort -u`（661b42b3）:
+
+```
+.assetsignore .claude .devcontainer .github .gitignore .vscode 404.html CLAUDE.md _headers _redirects
+apple-touch-icon.png assets books data dic docs favicon.ico houou_leagues.html houou_leagues_data.json
+houou_ranking.html houou_results.html houou_results.js img index.css index.html index.js jpml_links.html
+jpml_pros.html jpml_pros.js jpml_test.html league_ranking.js leagues.js live llms.txt navbar.js
+ouka_leagues.html ouka_leagues_data.json ouka_ranking.html ouka_results.html ouka_results.js
+resource_dictionary.html resource_efficiency.html resource_logs.html resource_logs.js rh_links.html
+rh_paifu.html rh_results.html rh_results_detail.html robots.txt saikyo saikyo_mens.html scripts
+sitemap-books.xml sitemap-pages.xml sitemap-saikyo.xml sitemap-title.xml sitemap-wayhome.xml sitemap.xml
+style.css table.js title video_en.html video_live.html video_mtsuku.html video_wayhome.html
+video_wayhome.js wayhome wayhome_episodes.js wrangler.jsonc wrc_ranking.html wrc_results.html wrc_results.js
+```
+
+（実際の出力は1行1項目。ここでは空白区切りに詰めた）
+
+`.assetsignore` の有効行: `.youtube_api_key` `data` `docs` `scripts` `.assetsignore` `.claude` `.git` `.github` `.gitignore` `.devcontainer` `.vscode` `.wrangler` `CLAUDE.md` `wrangler.jsonc`（#331 の 2026-09-14 時点と同じ）
+
+公開ディレクトリの中身（`git ls-files <d>` の件数・拡張子）: assets 15（css 3・js 12）、books 191（html）、dic 4（txt）、img 51（jpg・png・svg・webp）、live 908（html）、saikyo 17（html）、title 385（html 384・json 1）、wayhome 39（html）
+
+許可リスト（`allowed` の case）:
+
+| 種類 | 項目 |
+|---|---|
+| 公開ディレクトリ（個別） | assets books dic img live saikyo title wayhome |
+| パターン | `*.html` `*.js` `*.css` `sitemap*.xml` |
+| json（個別） | houou_leagues_data.json ouka_leagues_data.json |
+| その他（個別） | _headers _redirects apple-touch-icon.png favicon.ico llms.txt robots.txt |
+
+- 2026-09-14 時点の4ディレクトリ（assets・dic・img・wayhome）から books・live・saikyo・title が増えていた。いずれもページ（html）だけで、sitemap-*.xml・llms.txt から参照される公開ページ
+- 判断の要る項目は無かった。`jpml_test.html` は名前が試験用に見えるが、プロテストの記事・動画のページ（sitemap-pages.xml・llms.txt に載る）
+- `_headers`・`_redirects` は Cloudflare の設定ファイルで、今も除外されていない（配信の設定として読まれる）ため許可リストに入れた
+- xml は `*.xml` でなく `sitemap*.xml` に絞った。画像・txt もパターンにせず個別にした（最上位に置く種類が少ないため）
+- `grep -qx -e docs -e scripts` を廃止し、LEAKED の各行を `allowed` に通して、通らない項目を `::error::` に並べる形にした。`git -c core.quotePath=false ls-files` と `grep -vxF -f` はそのまま
+- コメントに (i) 公開ディレクトリ新設時は `allowed` の追加が要る (ii) 追跡されていない項目は原理的に見えない、を書いた
+
+### 3. 手元の検証
+
+書き換えたステップ（新）と origin/cloudflare のステップ（旧）の `run:` を、ワークフローの YAML から python の yaml で取り出して `bash -e` で実行した。サイトの中身（docs/・.github/ 以外）は origin/cloudflare と同一（`git diff --quiet origin/cloudflare -- . ':!docs' ':!.github'` が真）。
+
+- 現物（A）: 新 exit=0。LEAKED の 61 項目すべてが許可リストを通った
+- 漏れの模擬（scratchpad に `git clone --shared` したコピーで、`.assetsignore`・インデックスを書き換えて実行）:
+
+| 場合 | 旧 | 新 |
+|---|---|---|
+| A そのまま | exit=0 | exit=0 |
+| B `.assetsignore` から data を外す | exit=0（検知しない） | exit=1 `: data` |
+| C `.github`・`CLAUDE.md` を外す | exit=0（検知しない） | exit=1 `: .github CLAUDE.md` |
+| D 最上位に new_data.json を追加 | exit=0 | exit=1 `: new_data.json` |
+| E 最上位に newdir/a.html を追加 | exit=0 | exit=1 `: newdir` |
+| F `.assetsignore` から docs を外す | exit=1 | exit=1 `: docs` |
+
+新のエラー文の例: `::error::許可リストに無い最上位の項目が配信対象として検出されました: data。非公開にするなら .assetsignore へ、公開してよいなら .github/workflows/assets-check.yml の allowed へ追加してください(#133・#331)。`
+
+### 文書
+
+- docs/handover.md: assets-check.yml について「docs や scripts が出たら失敗させる」旨の記述は無かった（`.assetsignore` に触れるのは「`.assetsignore` に列挙している（追加時のルールは CLAUDE.md「方針」、#133）」の1行だけで、新方式と食い違わない）→ 変更しない
+- docs/notes/cloudflare.md「`.github/workflows/assets-check.yml`（旧 deploy.yml）」に「`docs` や `scripts` が出ていたら失敗させる」とあったので新方式に置き換え、許可リストの更新と追跡外の項目の2点を足した
+- 決定の記録: 該当する分野が無かったので docs/decisions/publishing.md（配信の対象）を作り、README の一覧に1行足した
+
+### 作業ブランチの assets-check
+
+- 24e73f46 の push で起動（`paths` に `.github/**` が含まれる）。run 37092852875: https://github.com/retroeater/mj/actions/runs/37092852875 → success（「公開対象の最上位を確認」を含む全ステップ success、約10秒）。push の起動で作業ブランチでの実行を確かめたため、手動実行（workflow_dispatch）はしていない
+
 ## 報告
 
 - 状態: 着手中
@@ -100,12 +176,12 @@ Chat-Ref: CHAT-1001-ASG-01
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 661b42b3）: https://github.com/retroeater/mj-logs/tree/main/guide/661b42b3
+ガイド文書（この版を写した時点の最新、mj d8f0c083）: https://github.com/retroeater/mj-logs/tree/main/guide/d8f0c083
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/661b42b3/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/661b42b3/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/661b42b3/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/661b42b3/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/661b42b3/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/661b42b3/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d8f0c083/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d8f0c083/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d8f0c083/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d8f0c083/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d8f0c083/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d8f0c083/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/ffc4839a.md
