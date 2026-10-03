@@ -113,6 +113,27 @@ index 329675b2..857569f5 100644
 +- ログの `## 報告` などの書き換え方（最後の一致を相手にする）と、「ログ（公開）」の行を書く前の写しの確かめは CLAUDE.md「作業ログ」節
 ```
 
+### 手順3: マージ
+
+- 差分は CLAUDE.md・cloud-sessions.md（手順2）・operations.md（決定）・このログだけ
+- 再 fetch し `merge-base --is-ancestor` が真なのを確かめて push（7f5bcc8c..f0eb8960、fast-forward）
+- sync-logs（f0eb8960）success。mj-logs の `guide/f0eb8960/CLAUDE.md` に3つの追記（節の書き換え・raw の URL での確かめ・cloudflare は目印なしで写る）が入っていた
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1003-cal-log（cloudflare へマージ済み）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-0930-CAL-29.md
+- 比較URL: https://github.com/retroeater/mj/compare/7f5bcc8c...f0eb8960
+- 確認用URL: なし
+- マージ: 済（f0eb8960、fast-forward。この報告は docs/logs のみの追いの push）
+- issue: なし
+- 判断が必要なこと:
+  - なし
+  - 参考: 前提1の規則（最後の一致を使う）は docs/notes/cloud-sessions.md にすでにあったが守られなかった。CLAUDE.md へ移し、cloud-sessions.md は参照にした
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
