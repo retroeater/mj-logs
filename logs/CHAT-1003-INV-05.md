@@ -52,28 +52,51 @@ INV-01〜04（2026-10-02〜03）の振り返りで出た知見のうち、機械
 
 ## 経過
 
+### 着手前の確認
+- Chat-Ref: `git log --all --grep=CHAT-1003-INV-05` は0件。識別子 INV はこのセッションで使用中
+- 0. の確認: このログの「指示」欄の末尾は指示文の最後の行と一致
+- ブランチ: ローカルの `work/1003-inv`（16b2dff5）は origin/cloudflare の祖先（INV-04 でマージ済み）。`git merge --ff-only origin/cloudflare` で cf0f7e27 へ進めて使った
+- 同じ趣旨の既存の規則: cloud-sessions.md・branch-operations.md・chat-side-operations.md・instruction-template.md に、一括の issue 編集・期日とカレンダー・依存の書き方の規則は無かった（「カレンダー」「期日」「矢印」「blocked」「常設」「updated_at」で grep）。止まる条件には当たらない
+
+### 1. 追記前後のバイト数
+
+| ファイル | 前 | 後 | 上限・警告域 |
+|---|---:|---:|---|
+| docs/notes/cloud-sessions.md | 13,349 | 13,974 | なし |
+| docs/notes/chat-side-operations.md | 22,793 | 23,411 | 警告域 26,624・上限 28,672（下回る） |
+| docs/instruction-template.md | 11,146 | 11,401 | なし |
+| docs/notes/handover-archive-2026.md | 67,976 | 69,188 | なし（退避先） |
+
+### 2. 追記した内容
+- (a) `docs/notes/cloud-sessions.md`「gh の代わりに GitHub MCP」に1項目（3行）: 1件ごとに書き換える直前に `updated_at` を取り直し、違えば飛ばして報告／10〜15件ごとに「済」をログに追記して push／本文・題・ラベルは REST で通るが、state の変更とコメントの作成は REST だと 405 になるので MCP（INV-02 の実測）
+- (b) `scripts/check_conventions.py` は無い（#292 は未着手）。決定のとおり検査は作らず、#292 の本文のチェック項目の一覧（「生成物HTMLの重複 id」の次）に「`unittest discover` を実行するワークフローは、テストより前に `pip install`（少なくとも `google-auth requests`）を持つか」を1行足した（REST の部分置換、直前に updated_at を確かめた）。参考に今の7本を手で確かめた: どれもテストより前に `pip install google-auth requests` がある（update-live-channel.yml は2ジョブで、テストのあるジョブは132行の pip → 136行のテスト）
+- (c) `docs/notes/chat-side-operations.md` に小節「期日とカレンダー」を新設し3項目（①期日を書かせるときにカレンダーに予定〈件名「【R#番号】…」・説明の冒頭に issue のリンク・トマト〉②クローズを知ったら「【R#番号】」で検索し、残課題を行き先の予定へ移してから消す ③動きを変える指示では常設 issue〈「種類: 常設」〉の本文も文書更新の対象）。「外部サービスの設定」の前に置いた。Chat-Ref は書いていない（3文書の規則）
+- (d) `docs/instruction-template.md` の注意の箇条に1項目: blocked by は「A は B を待つ」の文で書き、矢印は使わない（INV-04 の「#422 → #428」の例）
+- archive: `docs/notes/handover-archive-2026.md` に「## Open issue の棚卸し（INV、2026-10-02〜03）」の段落（4段の進め方・カレンダーの番号の受け渡し・updated_at の確認・#448 を外したこと・check-meibo.yml の失敗の経緯・ログ4本の名前）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1003-inv
-- ログ: https://github.com/retroeater/mj/blob/work/1003-inv/docs/logs/CHAT-1003-INV-05.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1003-INV-05.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1003-inv
-- 確認用URL: なし
-- マージ: 未
-- issue: なし
-- 判断が必要なこと: なし
+- 確認用URL: なし（docs のみ）
+- マージ: 済（docs のみ。検査スクリプトは作っていないため、検査とテストの確認は対象外）
+- issue: #292（本文のチェック項目に、テストを走らせるワークフローの `pip install` の検査を1行追記）
+- 判断が必要なこと:
+  - (b) は `scripts/check_conventions.py` が無いため検査を作らず、#292 への追記にとどめた（決定のとおり）。検査を作るのは #292 の着手時
 - 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj cf0f7e27）: https://github.com/retroeater/mj-logs/tree/main/guide/cf0f7e27
+ガイド文書（この版を写した時点の最新、mj ad3e7374）: https://github.com/retroeater/mj-logs/tree/main/guide/ad3e7374
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/cf0f7e27/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/cf0f7e27/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/cf0f7e27/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/cf0f7e27/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/cf0f7e27/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/cf0f7e27/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ad3e7374/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ad3e7374/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ad3e7374/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ad3e7374/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ad3e7374/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/ad3e7374/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/0384cc68.md

@@ -74,6 +74,7 @@ CHAT-1003-CLF-01 は、分類器による拒否の件を新規起票しようと
 
 - CLF-01 の `## 報告`: 状態を「完了（#493 に集約）」、ログの URL を blob/cloudflare、マージを「済（CLF-02 のマージ）」、issue に #493 とコメントの URL、判断が必要なことを「なし」に直した
 - docs/decisions/operations.md: CLF-01 の節の「起票する」「題を広げ2件を並べる」の行に「→ 置き換え: CLF-02」を付け（README の書き方のとおり前の決定は消さない）、CLF-02 の節を足した
+- 誤り: CLF-01 の `## 報告` を置き換えるスクリプトが、指示欄の中の「## 報告」の文字列で切ったため、c99e3320 で CLF-01 のログの指示欄の途中から経過までが消えた。49519efd の版から復元し、`## 報告` だけを差し替えて直した（次のコミット）
 
 ## 報告
 
@@ -92,12 +93,12 @@ CHAT-1003-CLF-01 は、分類器による拒否の件を新規起票しようと
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj cf0f7e27）: https://github.com/retroeater/mj-logs/tree/main/guide/cf0f7e27
+ガイド文書（この版を写した時点の最新、mj ad3e7374）: https://github.com/retroeater/mj-logs/tree/main/guide/ad3e7374
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/cf0f7e27/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/cf0f7e27/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/cf0f7e27/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/cf0f7e27/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/cf0f7e27/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/cf0f7e27/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ad3e7374/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ad3e7374/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ad3e7374/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ad3e7374/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ad3e7374/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/ad3e7374/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/0384cc68.md
