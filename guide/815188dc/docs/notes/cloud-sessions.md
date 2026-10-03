@@ -59,6 +59,9 @@ Chat-Ref の確認・`git branch --merged` が誤る。**これらの判定の�
 - ワークフローの起動: `actions_run_trigger`（method `run_workflow`、ref は既定ブランチ `cloudflare`）。
   **入力はすべて文字列で渡す**（`{"dry_run": "true"}`）。起動できるのは既定ブランチにあるワークフローだけ（docs/notes/branch-operations.md「ワークフローを変更したとき」）
 - ジョブのログ（`get_job_logs`）は**ジョブの完了後に読む**。実行中は HTTP 404 になる
+- **複数の issue の本文・題・ラベルをまとめて書き換えるときは、1件ごとに書き換える直前に `updated_at` を取り直し、取得時と違えばその issue は書き換えずに飛ばして報告する。**
+  10〜15件ごとに「済」の番号をログに追記して push する。本文・題の部分置換とラベルの付け外しは REST（`PATCH /issues/{n}`・`/labels`）で通るが、
+  state の変更とコメントの作成は REST だと HTTP 405 になるため MCP（`issue_write`・`add_issue_comment`）で行う（#304 の月次の棚卸しにも当てはまる）
 - 触れるリポジトリはセッションの sources（`retroeater/mj`）だけ。mj-logs への書き込みは拒否される（写すのは `sync-logs.yml`）
 
 ## ブランチの削除
@@ -114,5 +117,4 @@ CLAUDE.md「ブランチ運用」の「作業ブランチも削除する」は�
   最新の版と違えば `chat-ids/<mj の短い SHA>.md` に書く（10個を残す。最新は `chat-ids/HISTORY` の最後の行、#474）。写したログの末尾からリンクする
   mj-logs に写したログの末尾には、その時点で最新のフォルダと CLAUDE.md・handover.md・instruction-template.md・chat-side-operations.md・cloudflare.md・decisions/README.md へのリンクが付く（mj の元のログは変えない）。
   ガイド文書に書かない情報はログと同じ。写す一覧は `python3 scripts/sync_guides.py --dest <任意> copy --base HEAD --after HEAD --list`
-- **`## 報告` を書き換えるときは、ファイルの中で最後に出てくる `## 報告` を対象にする。** `## 指示` に貼った指示文の中にも
-  `## 報告` が出てくることがあり、最初の一致を使うと指示文の途中から後ろを消す（MD-14 のログで起きた。MD-15 で直した）
+- ログの `## 報告` などの書き換え方（最後の一致を相手にする）と、「ログ（公開）」の行を書く前の写しの確かめは CLAUDE.md「作業ログ」節

@@ -749,6 +749,15 @@ split -b 22m /tmp/mj.bundle /tmp/mj.bundle.part-
 
 `--filter=blob:none` や `--since` を付けたバンドルは軽いがクローンできない（検証済み）。使わないこと。
 
+## Open issue の棚卸し（INV、2026-10-02〜03）
+
+Open 221件を4段で再編成した。INV-01 で全件の本文・コメントを読んで分類表（A 完了・B 重複・C 相反・D 一部残り・E 範囲・F 期限）だけを出し、
+平野さんの判断の後に INV-02（クローズ26・起票8・本文7）、INV-03（文書の直し・E・F・ラベルの変更案の表）、INV-04（本文・期日66件・ラベル27件・blocked by 2件）で反映した。
+チャット側はカレンダーに予定がある issue 番号を INV-01 に渡し、閉じた9件の予定を消した。一括の書き換えは1件ごとに `updated_at` を取り直してから書き、
+他セッションが途中で更新した #448 は表から外した。INV-03 で check-meibo.yml の作業ブランチの dry-run がテストで落ち、修正前の cloudflare でも同じだったため、
+#472 の `test_net_retry.py`（requests を import）が入った後、`pip install` の無い check-meibo.yml だけが落ちる状態だったと分かった（予約実行の前に 661b42b3 で修正）。
+経過は作業ログ CHAT-1002-INV-01・CHAT-1002-INV-02・CHAT-1003-INV-03・CHAT-1003-INV-04。
+
 ## `/titles` 統合の検討と中止（#435、2026-09-22）
 
 「タイトル戦」（`title/`）と「放送対局」（`live/`）を1つのページ群（`/titles`）に統合する計画（#435）は、
