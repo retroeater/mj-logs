@@ -183,7 +183,7 @@ split=True だけ変えたときの食い違い: `build_desired()` の仮の予�
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 完了（判断が出た: 案(1)。平野さんが 10-02 に5件を手で消し、残り27件を 10-03 朝の同期〈run 37066828131〉が消した。続きは CHAT-1002-CLD-03）
 - ブランチ: work/1002-cld（cloudflare へマージ済み。削除は `delete-merged-branches.yml` に任せる）
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1002-CLD-02.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1002-cld
@@ -208,12 +208,12 @@ split=True だけ変えたときの食い違い: `build_desired()` の仮の予�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 29b3e66b）: https://github.com/retroeater/mj-logs/tree/main/guide/29b3e66b
+ガイド文書（この版を写した時点の最新、mj f35729a7）: https://github.com/retroeater/mj-logs/tree/main/guide/f35729a7
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/29b3e66b/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/29b3e66b/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/29b3e66b/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/29b3e66b/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/29b3e66b/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/29b3e66b/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b308711e.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f35729a7/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f35729a7/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f35729a7/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f35729a7/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f35729a7/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f35729a7/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/48398cff.md
