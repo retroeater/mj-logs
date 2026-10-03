@@ -160,18 +160,27 @@ video_wayhome.js wayhome wayhome_episodes.js wrangler.jsonc wrc_ranking.html wrc
 
 - 24e73f46 の push で起動（`paths` に `.github/**` が含まれる）。run 37092852875: https://github.com/retroeater/mj/actions/runs/37092852875 → success（「公開対象の最上位を確認」を含む全ステップ success、約10秒）。push の起動で作業ブランチでの実行を確かめたため、手動実行（workflow_dispatch）はしていない
 
+### マージ
+
+- push 直前に `git fetch origin cloudflare` し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真（cloudflare は 661b42b3 のまま）を確認して `git push origin work/1001-asg:cloudflare`（661b42b3..d8f0c083、fast-forward）
+- cloudflare（d8f0c083）の assets-check: run 37092903678 https://github.com/retroeater/mj/actions/runs/37092903678 → success
+- d8f0c083 の check-run: check success・sync success。「Workers Builds: mj」は確認時点で in_progress（サイトのファイルは変えていないため、配信の中身は変わらない）
+- #331 に結果をコメントしてクローズ（completed）: https://github.com/retroeater/mj/issues/331#issuecomment-5965019840 。「状況:」ラベルは付いていなかった
+
 ## 報告
 
-- 状態: 着手中
+- 状態: 完了
 - ブランチ: work/1001-asg
-- ログ: https://github.com/retroeater/mj/blob/work/1001-asg/docs/logs/CHAT-1001-ASG-01.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1001-ASG-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1001-asg
-- 確認用URL: なし
-- マージ: 未
-- issue: #331
+- 確認用URL: なし（サイトのファイルは変えていない）
+- マージ: 済（d8f0c083、fast-forward）
+- issue: #331（クローズ）
 - 判断が必要なこと: なし
-- 未確認の項目: なし
-- エラー: 2026-10-01 に雛形の読み込み（Bash の cat）が auto モードの分類器に拒否された（[Interfere With Workloads]）。2026-10-03 に許可を得て Read で読めた
+- 未確認の項目:
+  - d8f0c083 の「Workers Builds: mj」は確認時点で in_progress のまま。ワークフローと docs だけの変更なので、配信の中身には影響しない
+  - 指示文で #387 を「共通の検査スクリプトを regenerate.py と assets-check.yml から呼ぶ案A」としていたが、実物は配信の上限との比の issue（2026-09-28 にクローズ済み）だった。最上位の項目の判定とは重ならないため、止まらずに進めた
+- エラー: 2026-10-01 に雛形 docs/logs/_template.md の読み込み（Bash の cat）が拒否された（文言「Permission for this action was denied by the Claude Code auto mode classifier. Reason: [Interfere With Workloads].」）。平野さんの許可を得て 2026-10-03 に Read ツールで雛形を読めた（代替 a・b は使っていない）
 
 <!-- guide-links -->
 ---
