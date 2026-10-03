@@ -139,12 +139,12 @@
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 完了（CHAT-1003-UNR-04 で、平野さんの登録と規則の直しのマージにより #475 が0名になった）
 - ブランチ: work/1002-unr（UNR-02 と同じ。CHAT-1002-UNR-02 のログもこのブランチに残したまま）
-- ログ: https://github.com/retroeater/mj/blob/work/1002-unr/docs/logs/CHAT-1003-UNR-03.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1003-UNR-03.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1002-unr
 - 確認用URL: なし（変えたのは scripts/ と docs/ だけで、生成物・表示は変わらない）
-- マージ: 未（平野さんの判断待ち。シート・【2】・カレンダーには書いていない。apply の実行もしていない）
+- マージ: 済（CHAT-1003-UNR-04 で cloudflare へ。6d694cef..bc7308a8）
 - issue: #490（コメント1件）、#475（読んだだけ）
 - 判断が必要なこと:
   - 31b59136（`lib/live_extract.py` の規則4つとテスト4件）を cloudflare にマージしてよいか。マージ後の次の apply で【2】が書き直り、未登録の名前は 56名 → 0名になる見込み（#475 にその増減のコメントが付く）
@@ -158,12 +158,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj cf0f7e27）: https://github.com/retroeater/mj-logs/tree/main/guide/cf0f7e27
+ガイド文書（この版を写した時点の最新、mj cedee711）: https://github.com/retroeater/mj-logs/tree/main/guide/cedee711
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/cf0f7e27/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/cf0f7e27/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/cf0f7e27/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/cf0f7e27/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/cf0f7e27/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/cf0f7e27/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/cedee711/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/cedee711/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/cedee711/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/cedee711/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/cedee711/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/cedee711/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/0384cc68.md
