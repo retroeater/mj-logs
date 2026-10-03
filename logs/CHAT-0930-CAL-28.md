@@ -134,34 +134,41 @@ CAL-27 は、origin/cloudflare の取り込みで `docs/decisions/operations.md`
 - origin/cloudflare との差分（ログ以外）: `docs/decisions/operations.md`（CAL-25・CAL-27・CAL-28 の決定）・`docs/handover.md`（1000行の注意）・`docs/instruction-template.md`・`docs/notes/chat-side-operations.md`（CAL-25・CAL-27 の追記と直し）
 - ログ: 戻した16本と CAL-25・27・28。想定外の差分は無い
 
+- cloudflare へ入れた: 再 fetch し `merge-base --is-ancestor` が真なのを確かめて push（77c35579..81e73c31、fast-forward）
+
+### 写しの確かめ
+
+- sync-logs（81e73c31）は success
+- mj-logs の写しを開いて、戻したログが直ったことを確かめた
+  - CAL-11・18・27・28・OLT-12: `## 経過` と指示文の最後の行があり、`## 報告` が最後の節
+  - CAL-09・12・14・16・17・20〜26: 写しの末尾のガイドへのリンクを除き、mj のファイルと一致
+- `guide/81e73c31/` が新しくでき、雛形（貼る時機の行・許すずれを数で・作業ブランチ名は書く）・chat-side（作業ブランチ名は書く・結果が出てから作る・作業ブランチを分ける）・handover（1000行の注意を対応済みに）が入っていた
+- 写しの URL は raw.githubusercontent.com で 200 を確かめた（github.com のページはこの環境のプロキシで 403 になり開けない）
+
 ## 報告
 
-- 状態: 作業中（返答を受けて再開）
-- ブランチ: work/1003-cal-mos（未マージ）
-- ログ: https://github.com/retroeater/mj/blob/work/1003-cal-mos/docs/logs/CHAT-0930-CAL-28.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1003-cal-mos
+- 状態: 完了
+- ブランチ: work/1003-cal-mos（cloudflare へマージ済み）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-0930-CAL-28.md
+- 比較URL: https://github.com/retroeater/mj/compare/77c35579...81e73c31
 - 確認用URL: なし
-- マージ: 未
+- マージ: 済（81e73c31、fast-forward）
 - issue: なし
 - 判断が必要なこと:
-  - **壊れたログを git の履歴から戻してよいか**
-    - 対象: cloudflare の13本（CAL-09・11・12・14・16・17・18・20・21・22・23・24・26）と、作業ブランチの CAL-25・27
-    - 戻し方: 壊れる直前の版の `## 報告` より前に、後から足した節と今の `## 報告` をつなぐ
-    - docs/logs だけの変更で、mj-logs の写しも直る
-  - 戻した後に、CAL-28 の本題（operations.md の衝突の解消・INV-05 との読み比べ・マージ）を進めるか
-- 未確認の項目:
-  - CAL 以外のログに同じ壊れ方があるか（このセッションが書いたのは CAL の系列だけ）
-- エラー: 作業ログの欠け（上のとおり。私のスクリプトの誤り）
+  - なし（壊れたログ16本を戻した。一覧と戻し元は「壊れたログの戻し」の表）
+  - 参考: 原因は私のログの書き方（`## 報告` を最初の一致で探していた）。今は最後の `\n## 報告\n` で探している。OLT-12 は別のセッションのログで、同じ壊れ方だった。ログを書くスクリプトを使うほかのセッションにも同じ誤りがありうる
+- 未確認の項目: mj-logs の github.com のページの見え方（この環境から github.com のページは 403。raw の URL で中身を確かめた）
+- エラー: なし（作業ログの欠けは戻した）
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 81e73c31）: https://github.com/retroeater/mj-logs/tree/main/guide/81e73c31
+ガイド文書（この版を写した時点の最新、mj c42c8735）: https://github.com/retroeater/mj-logs/tree/main/guide/c42c8735
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/81e73c31/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/81e73c31/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/81e73c31/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/81e73c31/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/81e73c31/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/81e73c31/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c42c8735/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c42c8735/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c42c8735/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c42c8735/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c42c8735/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c42c8735/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/d7dac40b.md
