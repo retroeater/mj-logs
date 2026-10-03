@@ -269,7 +269,7 @@ PowerShell 5.1 の既定が UTF-16LE のため、日本語部分が文字化け�
 | Rule name | `Throttle rapid HTML fetches (#124)` |
 | 条件式 | `(ends_with(http.request.uri.path, ".html") or ends_with(http.request.uri.path, "/")) and not cf.client.bot and not starts_with(http.request.uri.path, "/cdn-cgi/")` |
 | 数える単位（characteristics） | IP |
-| 閾値 | 60 requests / 1 minute |
+| 閾値 | 30 requests / 1 minute（2026-09-29 の導入時は 60。2026-10-02 に下げた） |
 | アクション | Managed Challenge |
 | Execution order / Status | First / Active |
 | 本数 | 入れる前は0本、入れた後は 1/2（Pro の上限は2本） |
@@ -277,7 +277,7 @@ PowerShell 5.1 の既定が UTF-16LE のため、日本語部分が文字化け�
 - 検証済みボット（`cf.client.bot`）を外すのは、検索エンジンのクローラを数えないため。`/cdn-cgi/` は Web Analytics のビーコン（#110 と同じ注意）
 - Pro の制約: **Log のアクションは使えない**（Enterprise のみ）ため、高めの閾値の Managed Challenge で当たった相手を Security Events で見てから閾値を下げる。**チャレンジ系は Duration を選べず**、上限を超えたリクエストだけにかかる。数える単位は IP のみ、期間は1分まで。
   調べた経緯と公式ドキュメントの URL は #124 のコメントと https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-0928-CX-05.md
-- 2026-10-02 に Security Events（Service「Rate limiting rules」）を見て、閾値を 30 に下げるかを決める（#124）
+- 2026-10-02 に Security Events（Service「Rate limiting rules」）を見て、閾値を 60 → 30 に下げた（アクション・条件式・順序は変えていない。10/1〜10/2 の当たりは Oracle Cloud〈AS31898〉の2 IP・26件のみ）。2026-10-09 に1週間分を見て #124 のクローズを判断する
 - 戻すときは Security rules の一覧でトグルを Off
 - workers.dev・プレビューはゾーンを通らないので対象外
 
@@ -545,8 +545,8 @@ Workers & Pages → `mj` → Settings → Builds:
   `gh api repos/retroeater/mj/commits/<sha>/check-runs` で
   「Workers Builds: mj」のcheck-runを見れば、`conclusion`（success/failure）と
   実行ログへのリンクが取得できる（#153で実例、2026-09-12の#169後始末
-  （`1f7f76d`）でも`success`を確認済み）。check-run の状態と本番への
-  反映タイミングの対応は #334
+  （`1f7f76d`）でも`success`を確認済み）。**check-run が success になった時点で本番は反映済み。確認の手順は今のままで変えない。
+  success の後に古い内容が返る事例が出たら起票する**（#334、2026-10-03 にクローズ）
 - **check-run は push の先頭コミットにしか付かない（2026-09-13）。**
   複数コミットをまとめて push した場合、Workers Builds の check-run が
   記録されるのは先頭の1つだけで、それ以外のコミットには何も付かない。
@@ -620,8 +620,13 @@ Workers & Pages → `mj` → Settings → Builds:
 ### `.github/workflows/assets-check.yml`（旧 deploy.yml）
 
 デプロイ前に「除外後に配信される最上位の項目」をログに出し、
-`.assetsignore` の漏れ（#133 の再発）を検知する。`docs` や `scripts` が
-出ていたらジョブを失敗させる。Cloudflareへのアクセスは一切必要としない。
+`.assetsignore` の漏れ（#133 の再発）を検知する。ワークフロー内の許可リスト（`allowed`）に
+無い最上位の項目が出たらジョブを失敗させる（#331）。Cloudflareへのアクセスは一切必要としない。
+
+- 公開ディレクトリ・最上位の新しい種類のファイルを足したときは `allowed` への追加が要る。
+  `*.json` はパターンにせず個別に列挙している（新しい json は一度落として公開してよいか判断する）
+- git で追跡されていない項目（`.youtube_api_key`・`.git`・`.wrangler` 等）はこの検査では見えない。
+  追跡されていなければ Workers Builds が取得しないため本番にも載らない
 
 - これは**「防止」ではなく「検知」。** Workers BuildsはGitHub Actionsと
   独立に動くため、このワークフローが失敗しても本番反映は止まらない。

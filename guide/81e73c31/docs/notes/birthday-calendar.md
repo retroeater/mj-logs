@@ -113,7 +113,7 @@
 
 `.github/workflows/sync-birthday-calendar.yml` の `schedule` で毎週月曜 05:17 JST（日曜 20:17 UTC）に実行する。初回は 2026-09-21。
 
-`check-meibo.yml`（05:07）の10分後に置いたのは、名簿と「プロ」シートの不一致がその朝のうちにissue（#370）へ出ているようにするため。
+`check-meibo.yml`（05:07）の10分後に置いたのは、名簿と「プロ」シートの不一致がその朝のうちに、題名で探して作る issue（例: #445）へ出ているようにするため。
 誕生日の一覧は両者を登録名で結合するので、件数の異常や削除の原因をそのissueと突き合わせられる。
 
 - schedule の実行は書き込みまで行う（`APPLY` が `github.event_name == 'schedule'` で真になる）。手動実行の既定は dry-run のまま

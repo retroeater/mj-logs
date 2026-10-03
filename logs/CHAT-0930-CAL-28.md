@@ -100,6 +100,39 @@ CAL-27 は、origin/cloudflare の取り込みで `docs/decisions/operations.md`
 
 - OLT-12 は別のセッションのログ（壊したのはそのセッションのコミット「docs: OLT の申送り」）で、壊れ方が同じだったので同じ方法で戻した
 - ほかのログには同じ壊れ方は無かった
+- d7dac40b で push した
+
+### 手順1: 取り込み
+
+- `git merge origin/cloudflare`（824402a9）。衝突は `docs/decisions/operations.md` だけ
+  - 末尾の見出しを日付・Chat-Ref の順に INV-03・INV-04・CAL-25・CAL-27・INV-05・CLF-01〜03 と並べ、両方の追記を残した
+- テスト 528件 OK。`check_asset_limits.py` OK
+- 大きさ: CLAUDE.md 26,317・handover.md 23,056・chat-side-operations.md 24,272（いずれも警告域の外）
+
+### 手順2: 読み比べ
+
+- INV-05（a6097335・8f3bcfe5）が足した規則:
+  - 雛形: 依存（blocked by）は「A は B を待つ」の文で書き、矢印を使わない
+  - chat-side「期日とカレンダー」: 期日を書かせるときにカレンダーの予定を作る／クローズを知ったら予定を検索して残課題を移して消す／動きを変える指示では常設 issue の本文も文書更新の対象に入れる
+  - cloud-sessions.md: 複数 issue のまとめ書き換えは1件ごとに `updated_at` を取り直す、10〜15件ごとに進みを push、REST と MCP の使い分け
+  - CLAUDE.md・handover.md: 触っていない
+- CAL-25・CAL-27 の規則との対比:
+
+| CAL の規則（置き場所） | INV-05 の近い規則 | 判定 |
+|---|---|---|
+| 貼る時機の行（雛形の骨組み・注意書き） | 依存は文で書き矢印を使わない（雛形） | 別の対象（貼る順序と issue の依存）。貼る時機の例も「〜の完了の後」の文の形で、矢印の規則と合う |
+| 許すずれを数で書く（雛形の注意書き・止まる条件） | なし | — |
+| 並行の指示はブランチを分ける（chat-side） | なし | — |
+| 後の結果に頼る指示は結果が出てから作る（chat-side） | なし | — |
+| 作業ブランチ名は書く（雛形・chat-side） | なし | — |
+| handover の1000行の注意（handover） | なし（INV-05 は handover を触っていない） | — |
+
+- **重なり・食い違いなし**
+
+### 手順3: 差分の確かめ
+
+- origin/cloudflare との差分（ログ以外）: `docs/decisions/operations.md`（CAL-25・CAL-27・CAL-28 の決定）・`docs/handover.md`（1000行の注意）・`docs/instruction-template.md`・`docs/notes/chat-side-operations.md`（CAL-25・CAL-27 の追記と直し）
+- ログ: 戻した16本と CAL-25・27・28。想定外の差分は無い
 
 ## 報告
 
@@ -123,12 +156,12 @@ CAL-27 は、origin/cloudflare の取り込みで `docs/decisions/operations.md`
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 77c35579）: https://github.com/retroeater/mj-logs/tree/main/guide/77c35579
+ガイド文書（この版を写した時点の最新、mj 81e73c31）: https://github.com/retroeater/mj-logs/tree/main/guide/81e73c31
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/77c35579/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/77c35579/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/77c35579/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/77c35579/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/77c35579/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/77c35579/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/81e73c31/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/81e73c31/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/81e73c31/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/81e73c31/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/81e73c31/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/81e73c31/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/d7dac40b.md
