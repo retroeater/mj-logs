@@ -50,15 +50,53 @@ docs/handover.md が、閉じた #446 を進行中の issue として指して�
 - 識別子の確認: `git log --all --grep="CHAT-1003-UNR-05"` は0件。`work/1003-unr` はローカル・リモートとも無かったため `git checkout -b work/1003-unr origin/cloudflare`
 - 手順0: 「指示」欄の末尾の行は指示文の最後の行と一致
 
+### 1. 確かめる
+
+- issue の状態（REST で取得）: #446 closed（2026-10-02 12:34）・#437 closed（同 12:34）・#477 closed（同 12:33）・**#490 open**「/live 層2の残りの規則と掲載範囲（U1〜U4・候補の判別・公開版・複数卓・3大会）」
+- #490 の本文の残り: 層2の規則（U1 ライブが無い組の対局日 217件、U2 紅龍戦のステージの並び、U3 件数の少ない列、U4「プレイヤー解説：」、項目2 候補の判別、項目3 公開版の掲載 N、項目6 複数卓、項目9 生成の上限との比、未登録の名前があっても載せる案）、掲載範囲（#437 から: 確認用一覧の印13件・対象外の候補16件、日本シリーズの「予選」の命名）、達人戦・昇龍戦・鳳匠戦（#477 から）
+- 重なり: 未マージの work/ は `work/1003-unr`（この）だけ
+- CLAUDE.md と docs/（docs/logs/・handover-archive-2026.md・docs/decisions/ を除く）の検索（`#446`・`#437`・`#477`、番号だけの表記も）:
+
+| ファイル | 箇所 | 分類 |
+|---|---|---|
+| docs/handover.md | 「5. 次にやること」の会話の順番「(3) #446 の未決 U1〜U4」 | 残りの置き場所 → 直す |
+| docs/handover.md | 同じ節の表の「#446 \| /live の【2】の規則の改善 \| …未決 U1〜U4…は #446 のコメント」の行 | 残りの置き場所 → 直す |
+| docs/handover.md | 文書の表の `docs/notes/live-page-design.md` の行「掲載範囲の拡大は『3-5』（#437）」 | 残りの置き場所 → 直す |
+| docs/notes/live-page-design.md | 「3-5」の末尾「残っている論点は issue #437 参照。」 | 残りの置き場所 → 直す |
+| docs/notes/live-page-design.md | 「3-5」の見出し「…issue #437、親 #346」・本文「…引き継ぐ（issue #437）」 | 経緯（どの issue で行った作業か） |
+| docs/notes/live-page-design.md | 「3-5」の「規則の拡張（…#437 で `lib/live.py` への反映を検討）」 | 経緯として残す（下） |
+| docs/notes/live-channel-write.md | 層2の説明の「（#446）」4か所・「（#446 項目8・#475）」 | 経緯（規則を入れた issue） |
+| docs/notes/yotei-sheet.md | 「形は #446・#426 と同じ」 | 経緯（通知の形の出どころ） |
+| CLAUDE.md | なし | — |
+
+- #477 を指す記述は、除外した場所の外には無かった。番号だけの「437」は docs/lighthouse-baseline.md の DOM 要素数で、issue ではない
+
+### 2. 直す
+
+| ファイル・節 | 前 | 後 |
+|---|---|---|
+| docs/handover.md「5. 次にやること」の会話の順番 | (2) #408 (3) #446 の未決 U1〜U4 (4) #485… | (2) #408 (3) #490（/live 層2の残りの規則 U1〜U4 と掲載範囲） (4) #485… |
+| docs/handover.md「5. 次にやること」の表 | \| #446 \| /live の【2】の規則の改善 \| ステージの並び・対局日・読み違いは済み（【3】の補正は 7,834 → 1,392）。未決 U1〜U4（…）は #446 のコメント（2026-09-30） \| | \| #490 \| /live 層2の残りの規則と掲載範囲 \| #446 でステージの並び・対局日・読み違いは済み（【3】の補正は 7,834 → 1,392）。残りは U1〜U4（…）・候補の判別・公開版の掲載・複数卓・達人戦／昇龍戦／鳳匠戦の扱い（#437・#477 から集約） \| |
+| docs/handover.md 文書の表の live-page-design.md の行 | 掲載範囲の拡大は「3-5」（#437） | 掲載範囲の拡大は「3-5」（残りは #490） |
+| docs/notes/live-page-design.md「3-5」末尾 | 残っている論点は issue #437 参照。 | 残っている論点は issue #490（#437 から集約）。 |
+
+直さなかった記述と理由:
+
+- live-page-design.md「3-5」の見出し・本文の #437: その作業を行った issue を示す経緯
+- live-page-design.md「3-5」の「#437 で `lib/live.py` への反映を検討」: 移行スクリプト側の規則拡張は3層化（#438）で層2の規則に置き換わり、#490 の本文にもこの項目は無い。#490 に付け替えると #490 に無い作業を指すことになるため、当時の記述として残した
+- live-channel-write.md・yotei-sheet.md の #446: 規則・通知の形を入れた issue を示す経緯
+- 文書のサイズ: CLAUDE.md 26,317・handover.md 23,212・chat-side-operations.md 24,272 バイト（どれも警告域の下）
+- 変更は docs/ だけ（handover.md・notes/live-page-design.md・このログ）
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1003-unr
-- ログ: https://github.com/retroeater/mj/blob/work/1003-unr/docs/logs/CHAT-1003-UNR-05.md
+- 状態: 完了
+- ブランチ: work/1003-unr（マージ後。削除は delete-merged-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1003-UNR-05.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1003-unr
-- 確認用URL: なし
-- マージ: 未
-- issue: #446・#490
+- 確認用URL: なし（docs のみ）
+- マージ: 済（このログを含む最後の push で cloudflare へ）
+- issue: なし（#446・#437・#477・#490 は読んだだけ。コメントなし）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
@@ -66,12 +104,12 @@ docs/handover.md が、閉じた #446 を進行中の issue として指して�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj c42c8735）: https://github.com/retroeater/mj-logs/tree/main/guide/c42c8735
+ガイド文書（この版を写した時点の最新、mj 7f5bcc8c）: https://github.com/retroeater/mj-logs/tree/main/guide/7f5bcc8c
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c42c8735/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c42c8735/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c42c8735/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c42c8735/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c42c8735/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c42c8735/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/7f5bcc8c/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/7f5bcc8c/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/7f5bcc8c/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/7f5bcc8c/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/7f5bcc8c/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/7f5bcc8c/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/d7dac40b.md
