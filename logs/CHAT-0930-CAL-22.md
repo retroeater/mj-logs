@@ -32,7 +32,19 @@ CAL-21 の報告で残った件名の印のうち2つについて、平野さん
 - 手順3まで終えたら、判断待ちで止まる。
 
 ## 完了条件
-- ログの「### 手順1: 麻雀格闘倶楽部プロNo.1決定戦
+- ログの「## 報告」を CLAUDE.md「作業ログ」節のとおりに書いて push し、ログと決定の記録を cloudflare へ入れる。「判断が必要なこと」に、手順1・2から見た「（1/2）（2/2）」と「[SANMA]」の扱いの案（残す・外す・言い換える）を書く。
+- ターミナルへの最終報告の Chat-Ref の行の直前に ログ（公開）: https://github.com/retroeater/mj-logs/blob/main/logs/CHAT-0930-CAL-22.md を書き、最後の行に Chat-Ref: CHAT-0930-CAL-22 を書く
+
+不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
+
+## 経過
+
+- 識別子: `git log --all --grep=CHAT-0930-CAL-22` は0件
+  - origin/work/1001-cal-title は origin/cloudflare の祖先（マージ済み）
+  - ローカルの work/1001-cal-title も祖先なので、`git merge --ff-only origin/cloudflare` で進めた（8efeb156）
+- 手順0: 指示欄の末尾は指示文の最後の行と一致
+
+### 手順1: 麻雀格闘倶楽部プロNo.1決定戦
 
 予定表の【1】（全期間）を gviz で読み、件名を NFKC で正規化したうえで「麻雀格闘倶楽部」と「No1」「No.1」の両方を含む予定を拾った。【3】の件名・掲載も並べた。
 
@@ -122,12 +134,12 @@ YouTube の層1の同じ大会の枠（ライブ、すべて公開版。限定�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 8d31613b）: https://github.com/retroeater/mj-logs/tree/main/guide/8d31613b
+ガイド文書（この版を写した時点の最新、mj 77c35579）: https://github.com/retroeater/mj-logs/tree/main/guide/77c35579
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/8d31613b/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/8d31613b/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/8d31613b/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8d31613b/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8d31613b/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8d31613b/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/14245a4d.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/77c35579/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/77c35579/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/77c35579/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/77c35579/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/77c35579/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/77c35579/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/d7dac40b.md

@@ -37,7 +37,17 @@
 
 完了条件
 
-* ログの「### 手順1: 確かめ
+* ログの「## 報告」を CLAUDE.md「作業ログ」節のとおりに書いて push する。「判断が必要なこと」に、入力の名前と形、不正な値の扱い、差分の要点を書く。決定は CLAUDE.md のとおり `docs/decisions/broadcast-calendar.md` に足す。
+* ターミナルへの最終報告の Chat-Ref の行の直前に ログ（公開）: https://github.com/retroeater/mj-logs/blob/main/logs/CHAT-0930-CAL-24.md を書き、最後の行に Chat-Ref: CHAT-0930-CAL-24 を書く
+
+不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
+
+## 経過
+
+- 識別子: `git log --all --grep=CHAT-0930-CAL-24` は0件。`work/1003-cal-del` はローカル・リモートとも無いので `git checkout -b work/1003-cal-del origin/cloudflare`（bb0fca60）
+- 手順0: 指示欄の末尾は指示文の最後の行と一致
+
+### 手順1: 確かめ
 
 - 今の上限: `scripts/sync_live_calendar.py` の定数 `MAX_DELETES = 30`
   - 判定は `main()` の中で、`plan()` と一覧の表示（`show()`）の後に行う
@@ -111,12 +121,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj fee9a96e）: https://github.com/retroeater/mj-logs/tree/main/guide/fee9a96e
+ガイド文書（この版を写した時点の最新、mj 77c35579）: https://github.com/retroeater/mj-logs/tree/main/guide/77c35579
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/fee9a96e/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/fee9a96e/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/fee9a96e/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/fee9a96e/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/fee9a96e/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/fee9a96e/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/ffc4839a.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/77c35579/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/77c35579/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/77c35579/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/77c35579/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/77c35579/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/77c35579/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/d7dac40b.md
