@@ -66,28 +66,140 @@ INV-03 で止めた一括変更（E・F の本文・期限、ラベル）を iss
 - `docs/notes/cloudflare.md`「Rate limiting rules」: 閾値を「30 requests / 1 minute（2026-09-29 の導入時は 60。2026-10-02 に下げた）」に、「2026-10-02 に…下げるかを決める」の行を「60 → 30 に下げた（アクション・条件式・順序は変えていない。10/1〜10/2 の当たりは Oracle Cloud〈AS31898〉の2 IP・26件のみ）。2026-10-09 に1週間分を見て #124 のクローズを判断する」に置き換えた（値は既存の段落のとおり平野さんの申告）
 - **作業ブランチで dry_run=true で手動実行: run 37092542802 は success**。ステップは「依存をインストール」「テスト」「名簿と『プロ』シートを突き合わせる」「実行サマリに表示」とも success、「結果をissueに反映」は dry-run のため skipped。INV-03 の失敗（run 37091694361・37091766866、テストで errors=4）は解消
 
+### 2. マージ
+- push の直前に `git fetch origin` し、origin/cloudflare（bb0fca60）が HEAD の祖先であることを確かめ、`git push origin work/1003-inv:cloudflare` で早送り（bb0fca60..661b42b3）。入ったもの: INV-03 の文書の直し（3f826848）・check-meibo.yml の修正と handover・cloudflare.md（fb2f1a91）・INV-03/04 のログ・docs/decisions/operations.md の INV-03 の決定
+- #472 の本文の末尾に「追記（2026-10-03）: check-meibo.yml に `pip install google-auth requests` を足した（cloudflare 661b42b3）。2026-10-05 の予約実行で確かめる」を足した
+
+### 3. E・F の書き換え（進み）
+- 書き換えの前に66件を取り直した: INV-03（2026-10-03 03:05 UTC ごろ）の後に変わった issue は無い。各 issue は PATCH の直前にもう一度取り直し、updated_at が同じときだけ書いた
+- 区切り1 済: #4 #5 #7 #9 #21 #22 #25 #30 #95 #96 #97 #111 #135 #139 #141
+
+- 区切り2 済: #142 #156 #159 #202 #223 #224 #227 #230 #231 #238 #244 #254 #255 #256 #262
+
+- 区切り3 済: #268 #272 #275 #277 #279 #290 #291 #292 #296 #298 #301 #304 #308 #311 #314
+
+- 区切り4 済: #327 #335 #340 #361 #362 #365 #367 #372 #396 #397 #398 #400 #403 #411 #419 #425 #447 #451 #481 #485 #486（66件すべて済）
+- 題を変えた6件（#22・#255・#272・#398・#400・#419）の旧い題名は、docs/logs を除く .md・.yml・.py・.js から参照されていない（grep で0件）
+
+### 4. ラベル・blocked by・#491
+- ラベル: INV-03 の「ラベルの表（27件）」のとおり付け外しした（REST、すべて 200）。付けた「状況: 待ち」: #4 #7 #111 #135 #141 #173 #225 #234 #259 #276 #277 #278 #279 #285 #329 #362 #382 #422 #457 #473 #485／付けた「状況: 保留」: #286 #383／外した: #7（対応中）・#244 #362 #398 #399 #400（保留）
+- blocked by（REST `POST /issues/{n}/dependencies/blocked_by`、どちらも 201）:
+  - #382 は #428 に blocked by（#382 の画像の優先度は、#428 で固定バーのずれを直してから入れ直す〈#428 の本文〉）
+  - #428 は #422 に blocked by（#428 の完了の確認は #422 の `cdp.py` を使う〈#428 の本文〉）
+  - 指示文の「#422 → #428」は、#428 が #422 を待つ向きと読んだ（#422 が #428 を待つ理由は本文に無い）
+- #491: 本文の「MAX_DELETES の件」をチェック済みにし、10-03 朝の同期の結果（#448 の CHAT-1002-CLD-03 のコメント）を1行で書いた。あわせて MCP でコメント（末尾に Chat-Ref）
+
+### 5. 書き換えた66件（2026-10-03、書き換え後に取り直した値）
+
+| # | 題（今） | 期日 | 状況ラベル |
+|---|---|---|---|
+| #4 | Sentryを導入してJSエラーを検知する | 2026-10-09（#304 の 2026-10 の月次の回で、現行で入れるか #296 送りにするかを決める） | 待ち |
+| #5 | 他ページへのSEO展開 | — | — |
+| #7 | 他21ページのGoogle Charts依存を解消する | — | 待ち |
+| #9 | CSP(Content-Security-Policy)を設定する | — | 待ち |
+| #21 | Astroへの移行を検討する | — | 保留 |
+| #22 | X・note・YouTube列をかな順でソートできるようにする | — | 保留 |
+| #25 | プロフィール画像をR2へ移行する | — | 保留 |
+| #30 | メール送信の手段を検討する | — | 保留 |
+| #95 | #7のテーブル描画方式を比較検討する | — | 保留 |
+| #96 | Google Workspace APIでカレンダーの参照・更新を自動化する | — | 保留 |
+| #97 | 書籍ページを自前の一覧・個別ページに作り変える | 2026-12-22（楽天データの保存期限。再取得か削除） | 保留 |
+| #111 | #7の型B 3ページ（Dashboard＋ローソク足）の移行方針を決める | 2026-11-07（#141 の判断〈10-31〉の1週間後） | 待ち |
+| #135 | abs.twimg.com の既定アイコンURL（13件）を img/avatar.svg に正規化する | — | 待ち |
+| #139 | check_image_links.py の対象を jpml_pros.html 以外の生成済みページへ広げるか決める | — | — |
+| #141 | ランキング3ページ（houou_ranking / ouka_ranking / wrc_ranking）の移行方針を決める（#7 から分割） | 2026-10-31（移行方針の判断） | 待ち |
+| #142 | title整備（#5）の効果をSearch Consoleで測る | 2026-10-07（`fetch-gsc.yml` を期間指定で手動実行して計測する）。次は 2026-11-01 の月次の自動取得（#269）。#5 の再オープン分の効果もここで測る | 待ち |
+| #156 | 次回データ更新後、エッジキャッシュのETagを比較して置き換わりを確認する | 2026-11-30（女流桜花の更新〈9〜11月〉の直後の再生成で行う。週次の再生成で json が変わったときも契機にしてよい） | 待ち |
+| #159 | ?name= 付きURLから選手個別ページへの301マッピングを設計する | — | 保留 |
+| #202 | apple-touch-icon / apple-mobile-web-app-title を全ページへ展開するか判断する | — | — |
+| #223 | 大会期間中に成績系ページを速報再生成する（Ampai） | — | — |
+| #224 | 「最近の変更（過去30日）」ページを追加する | — | — |
+| #227 | llms.txt を生成対象にし、要約・更新頻度・件数を出す | — | — |
+| #230 | AI検索での言及を月次で計測する | 初回 2026-10-09（#304 の 2026-10 の月次の回）。比較は 2027-01 の月次の回 | — |
+| #231 | 開催中・直近の大会日程を表示する | — | — |
+| #238 | 表の行全体を選手個別ページへのリンクにする | — | 保留 |
+| #244 | 大会名マスタを一本化する | — | — |
+| #254 | navbar.js の document.write をやめ、ナビを静的HTMLに焼き込む | — | — |
+| #255 | resource_logs を分割する | — | — |
+| #256 | data-info 属性の重複をやめ、HTMLサイズを削減する | — | — |
+| #262 | Web Analytics の Core Web Vitals 実測値を月次で記録する | 初回 2026-10-09（#304 の 2026-10 の月次の回） | — |
+| #268 | 動画一覧3ページに VideoObject 構造化データを入れる | — | — |
+| #272 | 数値列を右揃えにする（mj-num） | — | — |
+| #275 | RSS/Atom フィードを追加する | — | — |
+| #277 | タイトル戦年表ビューを作る | — | 待ち |
+| #279 | プロ雀士クイズページを作る | — | 待ち |
+| #290 | 生成のオフライン検証をゴールデンファイルで行えるようにする | — | — |
+| #291 | check-run / Chat-Ref / マージ判定の検証手順をスクリプト化する | — | — |
+| #292 | 機械判定できる規約を scripts/check_conventions.py に集約する | — | — |
+| #296 | 新サイト（ryoei.pro の作り直し） | — | 保留 |
+| #298 | Actions の使用量の監視と削減 | 2026-10-07（Billing で使用量を実測する。平野さんのカレンダーに予定あり） | — |
+| #301 | CLAUDE.md の一部を Skill として切り出せるか検討する | — | — |
+| #304 | 月次運用チェックリスト（平野さんの手作業） | 2026-10-09（2026-10 の月次の実施。#4・#230・#262・#365・#367 の判断と、10-01 の robots.txt の差分の通知の確認を含む） | — |
+| #308 | ワークフローのアクションをNode 24対応版に上げる | 2026-11-30 | — |
+| #311 | Claude Code の応答言語を settings.json の language で固定する | — | — |
+| #314 | #310 のページング修正が実際に効いているかを検証する | 2026-10-31 | — |
+| #327 | 「プロ」シートのYouTubeアイコンURL列（N列）を廃止する | 2026-10-13（10/5・10/12 の週次の実行を見て判断。#473 と同じ日） | — |
+| #335 | サイトマップインデックスに lastmod を入れる | — | — |
+| #340 | 「帰り道」の新しい回に合わせてOGP画像を自動で生成する | — | — |
+| #361 | 作業ログ（docs/logs/）が大きくなる原因を調べる | — | — |
+| #362 | /live の正式公開 | — | 待ち |
+| #365 | WRC リーグの第18期以降の成績を反映する | 2026-10-09（#304 の 2026-10 の月次の回で、入力の担当と時期を決める） | — |
+| #367 | 「ログ」に平野良栄・谷岡育夫の未反映期間のデータを追加する | 2026-10-09（#304 の 2026-10 の月次の回で、入力の担当と時期を決める。#365 と同じ日） | — |
+| #372 | 最強戦の出場者同士の対戦成績を見られるようにする | — | — |
+| #396 | 「連盟プロ以外」のうち /live の公開行に出る人のかな・所属団体・X を埋める | — | — |
+| #397 | 「連盟プロ以外」の全員分のかな・所属団体・X を埋める | — | — |
+| #398 | 紅龍戦の予選の行のステージの定義を決める | — | — |
+| #400 | 第3回・第4回リーチ麻雀世界選手権の対局を /live に載せる | — | — |
+| #403 | 「放送対局」の対局日の残りを、生放送以外の情報源で埋める | — | — |
+| #411 | 写真の読み込み失敗の取りこぼし（スクリプトの実行前に失敗した画像が代替アバターに差し替わらない）を他のページでも直す | — | — |
+| #419 | 作業ブランチを Chat-Ref の番号ごとに切るか（運用の提案） | — | — |
+| #425 | 最強戦の対局の個別ページを作り、ABEMA の動画へつなぐか決める | — | — |
+| #447 | Cloudflare の AI Labyrinth を使うかを再検討する | — | 保留 |
+| #451 | X の画像が無い連盟プロ27人の写真を足す | — | — |
+| #481 | 予定表の変化 | — | — |
+| #485 | 旧表 jpml_titles.html の転送と title/ の ?name= の受け取りを終える | 2026-11-02（11-01 の取得で旧 URL への着地を見る）。それまでに「十分に減った」の基準を決める（案: 廃止後2か月続けて旧 URL の表示が一桁） | 待ち |
+| #486 | Bing Webmaster Tools の Recommendations（h1・description・タイトル・コンテンツ量・alt）に対応する | 2026-10-30（Bing の Recommendations の再確認） | — |
+
+「期日」は本文の太字の「期日: …」の行。— は期日を書かない行（E のみ）。#298 の期日は INV-03 で書いたもの。
+
+**INV-03 の表との差:**
+- 飛ばした行: なし（66件とも INV-03 の確認以降に他から変わっておらず、着手中のコメントも無かった）
+- #9: img-src の候補はドメインを列挙せず、材料の場所（site-findings.md と #9 のコメント）と、ron2.jp・hayabusa.io を外し楽天を足すことだけを書いた（本文に一覧を写すと、コメントの記録と二重になるため）
+- #296: 子 issue の表の末尾（#96 の行の後）に #417 の行を足した
+- #298: 背景の5本の表は残し、直前の文を「起票時は5本、今は16本（一覧は static-generation.md）」に置き換えた。やることに「削減（済）」と「10-07 の Billing の確認」を足した
+- #304: 決定のとおり「分析情報」の項目は足していない。表にあった「(5) に Projects ボードは使わないを反映」は、(5) にボードの記述が無かったため変更なし
+- #227: CLAUDE.md を行番号で指していたのはコメント（本文ではない）のため、本文の参照は変えていない
+- #277: #220 を前提にするかの見直しは、別の判断項目ではなく冒頭の「前提」の行に書いた
+- #290・#301・#311・#335・#340・#361・#362・#396・#398・#400・#403・#419・#451・#486: 古い記述を全部は置き換えず、冒頭に「更新（2026-10-03）」の段落を置き、そのうえで食い違う文だけを置き換えた（起票時の記録を残すため）。#396 は先行関係の古い行も「（起票時）…」に置き換えた
+- #340: フォントの箇条を「一覧用の1枚にしたため要らなくなった」に置き換えた。その下の `build_wayhome_ogp.py` の細目は残した
+- 題を変えた6件: #22「X・note・YouTube列をかな順でソートできるようにする」、#255「resource_logs を分割する」、#272「数値列を右揃えにする（mj-num）」、#398「紅龍戦の予選の行のステージの定義を決める」、#400「第3回・第4回リーチ麻雀世界選手権の対局を /live に載せる」、#419「作業ブランチを Chat-Ref の番号ごとに切るか（運用の提案）」
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1003-inv
-- ログ: https://github.com/retroeater/mj/blob/work/1003-inv/docs/logs/CHAT-1003-INV-04.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1003-INV-04.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1003-inv
-- 確認用URL: なし
-- マージ: 未
-- issue: なし
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 確認用URL: なし（ワークフロー1本と文書のみ。表示は変わらない）
+- マージ: 済（661b42b3、早送り。check-meibo.yml の作業ブランチでの dry-run〈run 37092542802〉の success を確かめてから。ログの追いの push は `## 経過` の末尾）
+- issue: 本文・期日の書き換え66件（`## 経過`「5.」の表）、題の変更6件（#22 #255 #272 #398 #400 #419）、ラベルの付け外し27件、blocked by 2件（#382←#428、#428←#422）、#491 のチェックとコメント、#472 の本文に1行追記
+- 判断が必要なこと:
+  - blocked by の向き: 指示文の「#422 → #428」を「#428 が #422 を待つ」と読んで設定した（`## 経過`「4.」）。逆なら付け直す
+  - 2026-10-05 05:07 JST の check-meibo.yml の予約実行で、テストのステップが通るかを確かめる（#472 のクローズの判断と同じ日）
+- 未確認の項目:
+  - check-meibo.yml の修正は作業ブランチの dry-run で確かめただけで、cloudflare での予約実行（10-05）はまだ
+  - #124 の閾値（cloudflare.md に書いた 30）は平野さんの申告で、セッションからは検証できない
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 661b42b3）: https://github.com/retroeater/mj-logs/tree/main/guide/661b42b3
+ガイド文書（この版を写した時点の最新、mj d8f0c083）: https://github.com/retroeater/mj-logs/tree/main/guide/d8f0c083
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/661b42b3/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/661b42b3/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/661b42b3/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/661b42b3/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/661b42b3/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/661b42b3/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/85555f77.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d8f0c083/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d8f0c083/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d8f0c083/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d8f0c083/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d8f0c083/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d8f0c083/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/ffc4839a.md
