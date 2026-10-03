@@ -12,8 +12,10 @@
 |---|---|
 | [broadcast-calendar.md](broadcast-calendar.md) | 放送対局の公開カレンダー「mj_放送対局」・連盟の予定表の取り込み（#448 系） |
 | [dojo-guest.md](dojo-guest.md) | 道場部ゲスト（「mj_道場部ゲスト」カレンダーの取り込み、#390・#426） |
+| [live.md](live.md) | 放送対局ページ（/live の名前の登録・層2の規則、#475・#490 系） |
 | [operations.md](operations.md) | 運用（チャット側と Claude Code のやり取り・指示文の書き方） |
 | [pros.md](pros.md) | プロ一覧（jpml_pros.html） |
+| [publishing.md](publishing.md) | 配信の対象（`.assetsignore`・`assets-check.yml`、#133・#331） |
 | [seo-bing.md](seo-bing.md) | SEO・Bing（Bing Webmaster Tools・title・h1・description、#126・#486・#5 系） |
 | [title.md](title.md) | タイトル戦（title/、「タイトル」タブのデータ・公開後の残件、#222 系） |
 
