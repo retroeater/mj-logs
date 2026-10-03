@@ -55,6 +55,17 @@ INV-03 で止めた一括変更（E・F の本文・期限、ラベル）を iss
 
 ## 経過
 
+### 着手前の確認
+- Chat-Ref: `git log --all --grep=CHAT-1003-INV-04` は0件。識別子 INV はこのセッションで使用中
+- 0. の確認: このログの「指示」欄の末尾は指示文の最後の行（「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」）と一致。INV-03 の `## 経過`「3.」と `## 報告` を読んだ
+- ブランチ: セッションの再開後、ローカルの `work/1003-inv` は origin/work/1003-inv と同じ ee771096 で、origin/cloudflare（bb0fca60）が祖先。そのまま続けて使う
+
+### 1. check-meibo.yml の修正と文書の直し（fb2f1a91）
+- `.github/workflows/check-meibo.yml`: 「Pythonをセットアップ」と「テスト」の間に「依存をインストール: `pip install google-auth requests`」を足した。テストを走らせる他の6本（fetch-gsc・sync-birthday-calendar・sync-books-calendar・update-live-channel・write-live-channel-candidate は同じ文、sync-dojo-calendar は anthropic を加えたもの）と同じ。requirements ファイルはリポジトリに無く、どのワークフローも直接列挙している
+- `docs/handover.md` 5章「着手可能な主なもの」の表から #370 の行を消した
+- `docs/notes/cloudflare.md`「Rate limiting rules」: 閾値を「30 requests / 1 minute（2026-09-29 の導入時は 60。2026-10-02 に下げた）」に、「2026-10-02 に…下げるかを決める」の行を「60 → 30 に下げた（アクション・条件式・順序は変えていない。10/1〜10/2 の当たりは Oracle Cloud〈AS31898〉の2 IP・26件のみ）。2026-10-09 に1週間分を見て #124 のクローズを判断する」に置き換えた（値は既存の段落のとおり平野さんの申告）
+- **作業ブランチで dry_run=true で手動実行: run 37092542802 は success**。ステップは「依存をインストール」「テスト」「名簿と『プロ』シートを突き合わせる」「実行サマリに表示」とも success、「結果をissueに反映」は dry-run のため skipped。INV-03 の失敗（run 37091694361・37091766866、テストで errors=4）は解消
+
 ## 報告
 
 - 状態: 作業中
@@ -71,12 +82,12 @@ INV-03 で止めた一括変更（E・F の本文・期限、ラベル）を iss
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 5c0f5ffa）: https://github.com/retroeater/mj-logs/tree/main/guide/5c0f5ffa
+ガイド文書（この版を写した時点の最新、mj 661b42b3）: https://github.com/retroeater/mj-logs/tree/main/guide/661b42b3
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/5c0f5ffa/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/5c0f5ffa/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/5c0f5ffa/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/5c0f5ffa/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/5c0f5ffa/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/5c0f5ffa/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/661b42b3/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/661b42b3/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/661b42b3/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/661b42b3/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/661b42b3/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/661b42b3/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/85555f77.md

@@ -386,10 +386,10 @@ GitHub Actions (`.github/workflows/regenerate-page.yml`) が、`scripts/generate
 | `sitemap-lastmod.yml` | HTMLを含むpush。sitemapのlastmodをgitの最終コミット日にそろえてコミットする（#265、`docs/notes/sitemap-lastmod.md`） |
 | `check-leagues-dropped.yml` | 手動実行のみ。型Cで選択リストから漏れている選手を検知する（#168） |
 | `cleanup-logs.yml` | 毎週月曜06:23 JST。7日を過ぎた作業ログを片付け、条件外のものを #357 に通知する |
-| `check-meibo.yml` | 毎週月曜05:07 JST。連盟員名簿と「プロ」シートの在籍者の不一致を常設issueに書く（#370） |
+| `check-meibo.yml` | 毎週月曜05:07 JST。連盟員名簿と「プロ」シートの在籍者の不一致を、題名で探して作る issue に書く（例: #445。#370 はクローズ済み） |
 | `sync-birthday-calendar.yml` | 毎週月曜05:17 JST。名簿の誕生日をGoogleカレンダーへ同期する（#379、`docs/notes/birthday-calendar.md`） |
 | `fetch-gsc.yml` | 毎月1日06:00 JST。Search Console の検索パフォーマンスを `docs/gsc/` に取り出し、robots.txt の差分を #304 に知らせる（#269） |
-| `sync-dojo-calendar.yml` | 毎日07:12 JST。道場部ゲストの告知画像を読み、カレンダーへの追加分と新規ゲスト・当月誕生日を #426 に知らせる（同期が失敗したとき・最新の月に道場部ゲストの見出しが無いときもその旨を知らせる、#472・#390）。書き込みは手動実行のときだけで、保存した読み取り結果を使う（#390、`docs/notes/dojo-guest-calendar.md`） |
+| `sync-dojo-calendar.yml` | 毎日07:12 JST。道場部ゲストの告知画像を読み、カレンダーへの追加分と新規ゲスト・当月誕生日を #426 に知らせる（同期が失敗したとき・最新の月に道場部ゲストの見出しが無いときもその旨を知らせる、#472・#390）。新しい月の書き込みは手動実行のときだけで、保存した読み取り結果を使う。書き込み済みの月の画像が差し替わったときは、当日以降を自動で直して知らせる（変更3件以上・照合できない名前があれば通知だけ）（#390、`docs/notes/dojo-guest-calendar.md`） |
 | `sync-books-calendar.yml` | **2026-09-22 開発凍結にともない無効化（`gh workflow disable`）。** 元は毎週月曜05:27 JSTに「書籍」タブの発売日をGoogleカレンダーへ同期していた（#97、`docs/notes/books-calendar.md`・`docs/notes/books-freeze.md`） |
 | `sync-logs.yml` | `docs/logs/**` を含む push（cloudflare は毎回、`work/**` はコミットのメッセージに`[sync-logs]`のある push だけ。無い push はジョブが skip、#298）。実行の時点の mj と mj-logs を突き合わせ、写っていない・古い作業ログを public の `retroeater/mj-logs` の `logs/` へ写し、cloudflare で削除されたログを消す（#440。書き込みはシークレット `MJ_LOGS_TOKEN`）。concurrency で取り消された実行の分は次の実行で追いつく（`scripts/sync_logs.py`、#454）。使用済みの Chat-Ref 識別子の一覧も毎回集め直して `chat-ids/` に写す（`scripts/chat_ids.py`、#474） |
 | `delete-merged-branches.yml` | 毎日07:53 JST と手動。マージ済みで先頭が24時間より前の `work/*` を削除する（#440、`scripts/delete_merged_branches.py`） |
