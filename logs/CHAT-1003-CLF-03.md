@@ -50,29 +50,51 @@ CHAT-1003-CLF-02 の指示文で、チャット側が「作業ブランチ」の
 - 識別子確認: 全ブランチに `CHAT-1003-CLF-03` のコミット無し
 - 手順0: 指示欄の末尾が指示文の最後の行と一致
 - ブランチ: ローカルの work/1003-clf（CLF-02 でマージ済み、origin/cloudflare の祖先）があり、チェックアウト中だった。docs/notes/cloud-sessions.md「作業ブランチの用意」の「ローカルにあり origin/cloudflare の祖先」に従い `git merge --ff-only origin/cloudflare` で進めた（6d694cef → cedee711）。指示文の「origin/cloudflare から作る」は、ローカルにあるときは同節に従う旨の指示文の括弧書きのとおり
+- ログ先行 push（ed2c6286）
+
+### 手順1: 同じ論点の issue
+
+- search_issues（Open・Closed）「指示文 テンプレート 作業ブランチ checkout -b cloud-sessions 同名のブランチ」→ #419（Chat-Ref の番号ごとにブランチを切るか）・#293（closed、フックでの防止）・#294（closed、テンプレートの版管理）・#493・#176・#325。いずれも「同じセッションを続けるときの作業ブランチの行の書き方」は扱っていない → 同じ論点の issue は無い
+
+### 手順2: 現在の内容
+
+- docs/instruction-template.md: 「未マージの作業を続ける」の行（雛形の引用部）に `git checkout -b work/<識別子> origin/work/<識別子>` のうえ…と書かれていた。CLF-02 の指示文はこれをそのまま写したもの
+- docs/notes/cloud-sessions.md「作業ブランチの用意」: ローカルの有無で4通りに分け、`checkout -b … origin/work/<識別子>` は「ローカルに無く、リモートにあり未マージ」の場合だけ。テンプレートはローカルにある場合（同じセッションの続き）を書いておらず、矛盾ではなく不足。どちらが正かの判断は不要（cloud-sessions.md が手順の正、テンプレートの「新しく作る」の行もそこを指している）
+
+### 手順3: 足し先・サイズ・変更
+
+- 足し先: docs/instruction-template.md（チャット側が写す雛形の行そのものが誤りの元のため）。cloud-sessions.md はすでに4通りを正しく書いており、変えていない
+- サイズ: 両文書とも assets-check.yml のサイズ判定の対象外（判定は CLAUDE.md・docs/handover.md・docs/notes/chat-side-operations.md の3つ）。instruction-template.md 11401 → 11393 バイト、68 → 68 行
+- 変更:
+  - 「未マージの作業を続ける」の行から `git checkout -b work/<識別子> origin/work/<識別子>` のうえ、を除き、末尾に「（ローカルにあるときを含め手順は docs/notes/cloud-sessions.md「作業ブランチの用意」）」を足した（「新しく作る」の行と同じ言い回し）
+  - バイト数を増やさないため、親の行の「（読み替えは docs/notes/cloud-sessions.md）」を除いた（2つの子の行がどちらも同じ文書を指すようになり、共通手順の行にも同じ参照がある）
+  - 「`checkout -b` は使わない」とは書かなかった。ローカルに無いとき（新しいセッション）は cloud-sessions.md が `checkout -b … origin/work/<識別子>` を指定しており、矛盾するため。「同じセッションでは `-b` が失敗する」という理由の句も、バイト数の制約のため入れていない（「ローカルにあるときを含め」で手順の側に寄せた）
+  - 事例・経緯は書いていない。handover-archive-2026.md への事例の追記もしていない（CLF-02 のログに経過がある）
+- 決定の記録: docs/decisions/operations.md に CLF-03 の節を足した
 
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1003-clf
-- ログ: https://github.com/retroeater/mj/blob/work/1003-clf/docs/logs/CHAT-1003-CLF-03.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1003-CLF-03.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1003-clf
 - 確認用URL: なし
-- マージ: 未
+- マージ: 済（542be8a7。`git push origin work/1003-clf:cloudflare` の fast-forward、cedee711..542be8a7。docs/ のみのため Workers Builds は走らない）
 - issue: なし
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
+- 補足: 足し先は docs/instruction-template.md。理由の句（同じセッションでは `-b` が失敗する）は、バイト数を増やさない条件のため入れず、手順を cloud-sessions.md へ寄せる形にした。要るなら次の指示で足す
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj cedee711）: https://github.com/retroeater/mj-logs/tree/main/guide/cedee711
+ガイド文書（この版を写した時点の最新、mj 77c35579）: https://github.com/retroeater/mj-logs/tree/main/guide/77c35579
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/cedee711/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/cedee711/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/cedee711/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/cedee711/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/cedee711/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/cedee711/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/77c35579/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/77c35579/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/77c35579/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/77c35579/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/77c35579/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/77c35579/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/0384cc68.md
