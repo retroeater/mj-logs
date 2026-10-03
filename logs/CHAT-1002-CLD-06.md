@@ -66,9 +66,64 @@
 - Chat-Ref の重複: 全ブランチのコミットに `CHAT-1002-CLD-06` は無し
 - 作業ブランチ: ローカルの `work/1002-cld` が `origin/work/1002-cld` と同じ（c0658d24）。`origin/cloudflare` が祖先でなかったため `git merge origin/cloudflare`（c4060980。衝突なし。UNR-03・04 の `live_extract.py` の変更が入った）
 
+
+### 0. 着手前の確認
+
+- 「指示」欄の末尾は指示文の最後の行と一致
+- CHAT-1002-CLD-05 の `## 報告` は「状態: 判断待ち（実装していない）」で、判断が必要なことの1つ目が「jt4E_u--mxg が、マージの行 (2) のどちらにも当たらない」。指示の前提と一致
+- `git branch -r --no-merged origin/cloudflare`: `origin/work/1002-cld`（この作業）・`origin/work/1003-cal-mos`（CAL-25・27・28、文書）・`origin/work/1003-clf`（CLF-03）。マージの行 (5) のファイル・docs/notes/yotei-sheet.md に触れるものは無し。CLD-05 の時点で未マージだった `work/1002-unr` は cloudflare に入っていた（`live_extract.py` の変更を含む。取り込み後の cloudflare で比べた）
+- #448 の着手中のコメントはこのセッションのものだけ。着手中のコメントを残した（https://github.com/retroeater/mj/issues/448#issuecomment-5965383587 ）
+
+### 1. 実装とテスト（2d820ee3）
+
+規則: 見出し（対局者・実況・解説）ごとに、/live の【3】に値があれば【3】の値だけを使い、概要欄の名前を足さない。【3】のその列が空欄なら今までどおり（【2】の値に、概要欄に対局者の行が2行以上あれば概要欄の名前を足す）。
+
+- 【3】由来の見分け方: `live_layer3.merge_records()` が各レコードに `CORRECTED_KEY`（「【3】で補正した列」）を付ける。値は、【3】の行で値がある補正の列の集合（`frozenset`。`-`〈EXPLICIT_BLANK、空として扱う〉も【3】の値に数える）
+- `live_calendar.people()`: 概要欄に対局者の行が2行以上のとき、`CORRECTED_KEY` にある見出しは【3】の値のまま、無い見出しだけ `add_names()` で足す
+- `live_calendar.build_desired()`: 同じ動画の【3】の行が複数あるときは、`CORRECTED_KEY` を和集合でまとめる
+- 参照の洗い出し: `people()` を呼ぶのは `live_calendar.frame_description()` だけ（`generate_live_pages.py` の `people()` は別のクラスのメソッド）。`merge_records()`／`fetch_matches()` を使うのは `generate_live_pages.py`・`generate_title_pages.py`・`sync_live_calendar.py`。生成はレコードを見出しの名前で読むだけで、足したキーは読まない（下で出力が同じことを確かめた）
+- テスト: `test_live_calendar.py` に3件（【3】の対局者は概要欄が2行以上・1文字違いの名前があっても【3】のまま／【3】が空欄〈【2】〉なら今までどおり足す／【3】の対局者に値があり実況が空欄なら実況だけ足す）、`test_live_layer3.py` に1件（`CORRECTED_KEY` に【3】に値がある列と「-」の列が入る）。概要欄が1行だけの枠は既存の `test_record_kept_for_single_line` が確かめる。`test_record_keys_match_match_headers` はキーの集合に `CORRECTED_KEY` を足した
+- `python3 -m unittest discover -s scripts/tests`: 532件 OK
+- 修正前のコード（HEAD の `scripts/` を別の場所に展開し、新しいテストのキー名を文字列に置き換えて実行）: 新しいテストのうち規則を確かめる3件（2件 FAIL・1件 ERROR）と、キーの集合のテストが落ちる。【2】の値に足すテストは修正前でも通る（今までどおりの確認）
+
+### 2. 見込み
+
+/live のシートと予定表のシート・【4】を2回読み、2回とも【2】14,114行・【3】4,310行・予定表【2】1,132行・【3】1,132行・【4】6行で内容も同じ（JSON に保存して修正前後で同じ入力に使った）。
+
+- 【3】手動補正 3147行（jt4E_u--mxg）: P 対局者「金子正明、猪鼻拓哉、木戸僚之、猿川真寿」・Q 実況「大野雄輝」・R 解説「阿久津翔太」（**平野さんの希望の値に書き換え済み**。CLD-05 の時点は P 空欄・Q 楠原遊・R 矢崎航之介）
+- 【3】手動補正 3495行（v8I76nBJHyc）: P 対局者「真田悠暉、野沢友太朗、大野雄輝、渡辺涼、柴田航平、伊藤俊介、高畑敬太、澤谷諒」（Q・R は空欄）
+
+修正前後の `build_desired()`（層1 は取り込み後の data/live_channel_raw.jsonl、today=2026-10-03）: どちらも 2,617件。**作る 0・消す 0・変わる予定 2件**（どちらも説明欄だけ）。
+
+| 動画ID | 件名 | 見出し | 修正前 | 修正後 | 【3】のその列と一致 |
+|---|---|---|---|---|---|
+| jt4E_u--mxg | 第6期鸞和戦 ベスト16 CD卓 1回戦 | 対局者 | 金子正明、猪鼻拓哉、木戸僚之、猿川真寿、高村龍一、ポロリ、林潤一郎、山脇千文美 | 金子正明、猪鼻拓哉、木戸僚之、猿川真寿 | 一致（P） |
+| jt4E_u--mxg | 同 | 実況 | 大野雄輝、楠原遊 | 大野雄輝 | 一致（Q） |
+| jt4E_u--mxg | 同 | 解説 | 阿久津翔太、矢崎航之介 | 阿久津翔太 | 一致（R） |
+| v8I76nBJHyc | 第6期若獅子戦 ベスト16 A、B卓 最終戦 | 対局者 | （8名）、野沢友太郎 | 真田悠暉、野沢友太朗、大野雄輝、渡辺涼、柴田航平、伊藤俊介、高畑敬太、澤谷諒（8名） | 一致（P） |
+
+- jt4E_u--mxg の修正前の値は、平野さんが【3】を書き換えた後の値に概要欄の C卓の名前が足されたもの（今のカレンダーは CLD-05 の時点の値。次の毎朝の実行で、修正前のコードでも【3】の書き換えは反映される）
+- /live・title/ の生成: 修正前（HEAD）と修正後の作業ツリーをそれぞれ別の場所に展開し、`generate_live_pages.py`・`generate_title_pages.py` を同じ時刻に実行して出力を比べた。**ファイルの差は0**（どちらも終了コード 0）。なお、どちらの出力も cloudflare の生成物とは /live の鸞和戦の第6期のページなどで違う（平野さんの【3】3147行の書き換えなど、データの変化による。コードの変化ではない）
+
+### マージの条件
+
+1. unittest: 532件 OK
+2. `build_desired()` の差: jt4E_u--mxg・v8I76nBJHyc の2件、作る 0・消す 0・ほかの変化 0
+3. v8I76nBJHyc の対局者が【3】の8名。変わった見出し（4つ）の修正後の値はすべて【3】のその列と一致
+4. /live・title/ の生成の出力が修正前後で同じ
+5. 変更したファイル: `scripts/lib/live_calendar.py`・`scripts/lib/live_layer3.py`・`scripts/tests/test_live_calendar.py`・`scripts/tests/test_live_layer3.py`・`docs/notes/yotei-sheet.md`・`docs/decisions/broadcast-calendar.md`・`docs/logs/`
+
+すべて満たすため cloudflare へ入れる。消す予定は0件で、削除の上限（30件）にも当たらない。
+
+### 文書
+
+- docs/notes/yotei-sheet.md「公開カレンダーへの同期」の説明欄の項: 「/live の【3】の値に概要欄の名前を足す」を、「【3】に値がある見出しは【3】の値だけ。空欄の見出しは【2】の値に足す。見分けは `CORRECTED_KEY`」に置き換えた（writing-for-agents の skill に従い、同じ項の中で古い記述を置き換えた）
+- docs/decisions/broadcast-calendar.md: CLD-05 の決定の「未実装」を「CLD-06 で実装」に直し、この指示の決定（2件ならマージ、jt4E_u--mxg の表示）を足した。置き換える元の 2026-09-28 の決定は #448 の本文にあり、このファイルに行が無いため印は付けていない（CLD-05 の行に「#448 の本文の決定を置き換える」と書いてある）
+- CHAT-1002-CLD-04・CLD-05 の `## 報告` の状態を「完了（判断が出た…続きは CHAT-1002-CLD-06）」に直した
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 作業中（マージ前）
 - ブランチ: work/1002-cld
 - ログ: https://github.com/retroeater/mj/blob/work/1002-cld/docs/logs/CHAT-1002-CLD-06.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1002-cld
@@ -82,12 +137,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 77c35579）: https://github.com/retroeater/mj-logs/tree/main/guide/77c35579
+ガイド文書（この版を写した時点の最新、mj c42c8735）: https://github.com/retroeater/mj-logs/tree/main/guide/c42c8735
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/77c35579/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/77c35579/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/77c35579/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/77c35579/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/77c35579/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/77c35579/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/0384cc68.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c42c8735/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c42c8735/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c42c8735/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c42c8735/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c42c8735/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c42c8735/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/d7dac40b.md

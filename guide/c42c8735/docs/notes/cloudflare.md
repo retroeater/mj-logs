@@ -620,8 +620,13 @@ Workers & Pages → `mj` → Settings → Builds:
 ### `.github/workflows/assets-check.yml`（旧 deploy.yml）
 
 デプロイ前に「除外後に配信される最上位の項目」をログに出し、
-`.assetsignore` の漏れ（#133 の再発）を検知する。`docs` や `scripts` が
-出ていたらジョブを失敗させる。Cloudflareへのアクセスは一切必要としない。
+`.assetsignore` の漏れ（#133 の再発）を検知する。ワークフロー内の許可リスト（`allowed`）に
+無い最上位の項目が出たらジョブを失敗させる（#331）。Cloudflareへのアクセスは一切必要としない。
+
+- 公開ディレクトリ・最上位の新しい種類のファイルを足したときは `allowed` への追加が要る。
+  `*.json` はパターンにせず個別に列挙している（新しい json は一度落として公開してよいか判断する）
+- git で追跡されていない項目（`.youtube_api_key`・`.git`・`.wrangler` 等）はこの検査では見えない。
+  追跡されていなければ Workers Builds が取得しないため本番にも載らない
 
 - これは**「防止」ではなく「検知」。** Workers BuildsはGitHub Actionsと
   独立に動くため、このワークフローが失敗しても本番反映は止まらない。
