@@ -63,28 +63,123 @@
 - Chat-Ref の重複: 全ブランチのコミットに `CHAT-1002-CLD-07` は無し
 - 作業ブランチ: `origin/work/1002-cld`（36c379f4）は cloudflare へマージ済み。ローカルも cloudflare の祖先なので `git merge --ff-only origin/cloudflare` で 7f5bcc8c へ進めた
 
+- 「指示」欄の末尾は指示文の最後の行と一致
+- `git branch -r --no-merged origin/cloudflare`: `origin/work/1002-cld`（このログ）だけ。同期・/live の生成に触れる未マージのブランチは無し
+
+### 1. 実物
+
+/live の3層のスプレッドシートを gviz の `select *` で2回読み、2回とも【1】元データ 14,114行・【2】自動変換後 14,114行・【3】手動補正 4,310行（見出しを除く）で内容も同じ。行番号は見出しを1行目とした番号。
+
+| タブ | 行 | 動画ID | 列と値 |
+|---|---|---|---|
+| 【1】元データ | 908 | jt4E_u--mxg | H タイトル「【メンバー限定】第６期鸞和戦~ベスト16ＣＤ卓~（D卓４回戦南場）」、C 限定 Y、F 配信開始 2026-04-17T13:59:32Z、K 配信終了 14:26:47Z、G 長さ PT27M31S |
+| 【1】元データ | 946 | R3IZ244ANxQ | H タイトル「【メンバー限定】第６期鸞和戦~ベスト16ＣＤ卓~」、C 限定 Y、F 01:55:31Z、K 14:26:58Z、G PT11H54M59S |
+| 【2】自動変換後 | 908 | jt4E_u--mxg | I タイトル戦 鸞和戦、J 期 第6期、L ステージ ベスト16、**N 卓 C**、O 動画の単位 回戦、**P 回戦 4**、Q 枝番 空欄、R まとめ単位 ベスト16C、V 対局日 2026-04-17 |
+| 【2】自動変換後 | 946 | R3IZ244ANxQ | I 鸞和戦、J 第6期、L ベスト16、N 卓 C、O 動画の単位 卓、P 回戦 空欄、R まとめ単位 ベスト16C |
+| 【3】手動補正 | 3147 | jt4E_u--mxg | B 掲載 Y、**K 卓「CD」**、L 動画の単位 空欄、**M 回戦「1」**、N 枝番 空欄、**O まとめ単位「ベスト16C、ベスト16D」**、P・Q・R は D卓の値（CLD-06 のとおり）、T 追加日 2026-09-18、U 備考「LV-25: メンバー限定版（題名の解析）」 |
+| 【3】手動補正 | 3148 | R3IZ244ANxQ | B 掲載 Y、K 卓「C、D」、M 回戦 空欄、O まとめ単位「ベスト16C、ベスト16D」、U 備考「LV-25: メンバー限定版（公開版の行、公開版 i0PJN2GkWYU）」 |
+
+- 公開の iCal（10-03 取得）: jt4E_u--mxg「第6期鸞和戦 ベスト16 CD卓 1回戦」（2026-04-17 22:59:32〜23:26:47）、R3IZ244ANxQ「第6期鸞和戦 ベスト16 C、D卓」（10:55:31〜23:26:58）。前提のとおり
+- /live のページ（今の生成物と、今のシートからこの環境で生成した出力）: jt4E_u--mxg は `live/ranwa/6/b16-c.html`（C卓）と `live/ranwa/6/b16-d.html`（D卓）の両方に、動画カードの見出し「1回戦 CD卓」で出る（まとめ単位が C・D の2つ、動画の単位は【2】の「回戦」、回戦は【3】の「1」、卓「CD」がページの卓と違うので「CD卓」が付く。`generate_live_pages.game_label()`）。ほかに、出演者の「この選手の他の対局」の一覧などから参照されている
+
+### 2. 件名の出どころ
+
+**「CD卓」は【3】3147行 K 列「CD」、「1回戦」は【3】3147行 M 列「1」から来る。** 【2】908行（N 卓 C・P 回戦 4）は【3】で置き換えられている。
+
+経路:
+
+1. `sync_live_calendar.main()` → `live_layer3.fetch_matches()` → `merge_records()`。補正の列は `_resolve()`（【3】が空欄でなければ【3】の値、「-」なら空、空欄なら【2】の値）。卓・回戦も**件名でも【2】を置き換える**（件名は合わせた後のレコードだけを見る）
+2. `live_calendar.build_desired()` → `summary_of(full, record)` → `match_title(record, full["タイトル"])`:
+
+```python
+text = f"{record.get('期', '')}{record['タイトル戦']} {record.get('ステージ', '')}".strip()
+if record.get("卓"):
+    text += f" {record['卓']}卓"
+game = record.get("回戦", "")
+if game:
+    text += f" {game}" if game == live.FINAL_GAME else f" {game}回戦"
+day = DAY_RE.search(unicodedata.normalize("NFKC", video_title or ""))
+if day and day.group(0) not in text:
+    text += f" {day.group(0)}"
+```
+
+3. YouTube の題名から足すのは日の区別（`DAY_RE` = 初日・N日目・最終日）だけ。題名の括弧の中の「（D卓４回戦南場）」は件名に使わない。/live の【3】があれば件名はレコードから組み立て、題名は日の区別にしか使わない（docs/notes/yotei-sheet.md「公開カレンダーへの同期」の件名の項のとおり）
+4. 件名は【3】の **枝番** を使わない（/live のカードの見出しは枝番を足す。`game_label()` の `if video.branch: text += f" {video.branch}"`）
+
+CHAT-1002-CLD-06 の規則は説明欄の対局者・実況・解説だけで、件名には関わらない（コードの上でもそうなっている）。
+
+### 3. 直し方（実装しない）
+
+シートを書き換えずに、【3】3147行の値だけを差し替えて `merge_records()`・`summary_of()` と /live の生成を動かした。
+
+| 案 | 【3】3147行に書く値 | カレンダーの件名 | /live（`live/ranwa/6/`） |
+|---|---|---|---|
+| 今 | K 卓 CD、M 回戦 1、N 枝番 空欄、O まとめ単位 ベスト16C、ベスト16D | 第6期鸞和戦 ベスト16 CD卓 1回戦 | b16-c と b16-d の両方に「1回戦 CD卓」 |
+| **A** | **K 卓 D、M 回戦 4、O まとめ単位 ベスト16D**（N 枝番は空欄） | **第6期鸞和戦 ベスト16 D卓 4回戦** | b16-d だけに「4回戦」。b16-c から外れる |
+| **B** | A に加えて **N 枝番「南場」** | 第6期鸞和戦 ベスト16 D卓 4回戦（件名は A と同じ。枝番は件名に使わない） | b16-d だけに「**4回戦 南場**」 |
+| 参考 | K・M を空欄にする（【2】の値に戻す） | 第6期鸞和戦 ベスト16 C卓 4回戦（【2】の卓が C のため合わない） | — |
+
+- 「南場」は、/live では枝番の値として用意されている（`live.BRANCH_ORDER = ("", "東場", "南場", "初日", "二日目", "最終日")`）。今の【3】・【2】で枝番に「南場」「東場」を書いた行は無い（枝番のある枠 85件は 初日・二日目・最終日・三日目・別日）
+- L 動画の単位は空欄のままで【2】の「回戦」になる（A・B とも書かなくてよい）
+- /live で変わるファイル（A・B とも同じ36ファイル。`data/live_pages.json` も変わる）: `live/ranwa/6/` の全ページ（b16-c から外れ、b16-d のカードの見出しが変わる）と `live/ranwa/index.html`・`live/ranwa/6.html`・`live/index.html`、出演者の「この選手の他の対局」の一覧が載るほかの大会のページ（`live/gpmax/13/`・`live/jwrc/12/`・`live/jwrc-r/4・5・7/`・`live/kouryu/2・3/`・`live/ranwa/1・4/`・`live/shinjinou/30・36/`・`live/judan/36/b16-a.html` など。例: `live/gpmax/13/q1-b.html` で鸞和戦 第6期ベスト16C卓の本数が6本→5本、代表のサムネイルが変わる）
+- **件名は【3】だけで D卓の4回戦の形にできる（案A）。「南場」まで件名に出すことは【3】だけではできない**（`match_title()` が枝番を使わないため）。/live のカードには案B で「南場」が出る
+
+件名に枝番も出すコードの案（`live_calendar.match_title()` で回戦の後ろに枝番を足す）:
+
+- 今のシートで件名が変わる予定は8件（今の件名の末尾 → 変更後）。うち6件は「…決定戦 2日目」→「…決定戦 二日目 2日目」と日の区別が二重になる（枝番「二日目」と、題名から足す「2日目」の表記が違い、`day.group(0) not in text` で重複が見分けられない）。2件は「…第6節」→「…第6節 別日」（2022麻雀日本シリーズ 第6節・2026女流プロ麻雀日本シリーズ 第6節）
+- 二重を避けるには、枝番が日の区別のときは題名からの日の区別を足さない、などの規則も要る。平野さんの判断が要る
+
+同じ形（題名の括弧の中に卓・回戦の記述がある枠）: 6件。件名の卓・回戦と食い違うのは jt4E_u--mxg の1件だけ。
+
+| 日付 | 件名 | 動画ID | 題名の括弧の中 | 食い違い |
+|---|---|---|---|---|
+| 2026-04-17 | 第6期鸞和戦 ベスト16 CD卓 1回戦 | jt4E_u--mxg | D卓４回戦南場 | 卓・回戦 |
+| 2025-03-11 | 第9期桜蕾戦 ベスト16 D卓 4回戦 | ujj0qvH-mIM | ４回戦南場 | なし（「南場」は件名に無い） |
+| 2025-11-12 | 第42期鳳凰戦 A1リーグ第13節C卓 (4回戦南4局) | iIPXx3m03RM | ４回戦南４局 | なし |
+| 2025-11-17 | 第42期鳳凰戦 A1リーグ第13節C卓 (5回戦) | agtYiECMvZA | ５回戦 | なし |
+| 2024-03-19 | 第7期桜蕾戦 ベスト16 D卓 4回戦 | az2iOf7kUpw | ４回戦 | なし |
+| 2023-10-13 | 第6期若獅子戦 ベスト16 A、B卓 最終戦 | v8I76nBJHyc | 最終戦オーラスは概要欄リンクからご覧ください | なし |
+
+（括弧は全角・半角の両方。卓は A〜H、回戦は「N回戦」と「最終戦」を見た。）
+
+### mj-logs に写らなかった件（2026-10-03、チャット側の指摘で再開）
+
+- 調査と `## 報告`（状態: 判断待ち）は 302546a0 で作業ブランチに push 済みだった。作業は止まっていない
+- その push の `sync-logs.yml`（run 37097140560、04:37:09Z）が **cancelled** で終わり、mj-logs には着手時（484f3dcb、`## 報告` が「作業中」）の版が残った
+- `sync-logs.yml` は `concurrency: group: sync-logs`（`cancel-in-progress: false`）で、実行中の run の後ろに待てるのは1つだけ。待っている間に別のブランチの push の run が後から入り、待っていたこの run が取り消されたと見られる。後の run は自分のブランチのログしか写さないため、このログは追いつかなかった
+- 私は push の後に `sync-logs.yml` の成否を確かめていなかった。この版を `[sync-logs]` 付きで push し直し、run の成否と mj-logs の中身を確かめる
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1002-cld
 - ログ: https://github.com/retroeater/mj/blob/work/1002-cld/docs/logs/CHAT-1002-CLD-07.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1002-cld
 - 確認用URL: なし
-- マージ: 未
-- issue: なし
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- マージ: 未（指示どおり調査のみ。ログも cloudflare へ入れない）
+- issue: なし（#448 の関連。コメントはしていない）
+- 判断が必要なこと:
+  - 件名の出どころ: 「CD卓」は【3】手動補正 3147行 K 卓「CD」、「1回戦」は同 M 回戦「1」から来る（【2】908行は N 卓 C・P 回戦 4 で、【3】がこれを置き換える）。件名は `live_calendar.match_title()` が合わせた後のレコードの 期・タイトル戦・ステージ・卓・回戦から組み立て、YouTube の題名からは日の区別（初日・N日目・最終日）しか足さないため、「（D卓４回戦南場）」は反映されない。【3】の卓・回戦は件名でも【2】を置き換える
+  - 【3】だけで直す案（シートを書き換えずに計算した）:
+    - 案A: 3147行の K 卓を「D」、M 回戦を「4」、O まとめ単位を「ベスト16D」にする → 件名「第6期鸞和戦 ベスト16 D卓 4回戦」。/live は b16-d だけに「4回戦」で出る（b16-c から外れる）
+    - 案B: 案A に N 枝番「南場」を足す → 件名は案A と同じ。/live のカードは「4回戦 南場」
+    - どちらも /live の36ファイル（鸞和戦 第6期のページと、出演者の他の対局の一覧が載るほかの大会のページ）と `data/live_pages.json` が変わる
+  - 件名に「南場」まで出すのは【3】だけではできない（`match_title()` が枝番を使わない）。枝番を件名に足すコードの案では、今のシートで8件の件名が変わり、うち6件は「二日目 2日目」と日の区別が二重になるので、二重を避ける規則も要る
+  - 同じ形（題名の括弧に卓・回戦がある枠）は6件で、件名と食い違うのはこの1件だけ
+- 未確認の項目:
+  - YouTube の今の題名（層1 の値を使った。平野さんが伝えた題名と一致）
+  - 案A・B で /live の36ファイルのうち、鸞和戦以外のページの変化は代表のサムネイルと本数の違いまで見た（全ファイルの差分は1行ずつは見ていない）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 7f5bcc8c）: https://github.com/retroeater/mj-logs/tree/main/guide/7f5bcc8c
+ガイド文書（この版を写した時点の最新、mj 815188dc）: https://github.com/retroeater/mj-logs/tree/main/guide/815188dc
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/7f5bcc8c/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/7f5bcc8c/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/7f5bcc8c/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/7f5bcc8c/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/7f5bcc8c/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/7f5bcc8c/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/d7dac40b.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/815188dc/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/815188dc/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/815188dc/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/815188dc/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/815188dc/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/815188dc/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/139b5538.md
