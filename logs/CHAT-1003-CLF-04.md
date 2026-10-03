@@ -50,18 +50,37 @@ CHAT-1003-CLF-03 で docs/instruction-template.md の「未マージの作業を
 - 手順0: 指示欄の末尾が指示文の最後の行と一致
 - ブランチ: ローカルの work/1003-clf（マージ済み、origin/cloudflare の祖先）を `git merge --ff-only origin/cloudflare` で進めた（77c35579 → f0eb8960）。取り込んだ中に docs/instruction-template.md（8行の変更）と docs/notes/cloud-sessions.md（3行の変更）が含まれる → 手順1で確かめる
 
+- ログ先行 push（c9de565d）
+
+### 手順1: 該当行の確認
+
+- 取り込んだ他セッションの変更（998fc47e・d26166bc・f0eb8960 など）は、instruction-template.md の5行目（作業ブランチ名は書く）・「貼る時機」・見込みのずれの行と、cloud-sessions.md の末尾の1項目（`## 報告` の書き換え方を CLAUDE.md へ寄せる）。「クラウドセッションで実行する指示」の親の行と2つの子の行、cloud-sessions.md「作業ブランチの用意」は変わっておらず、CLF-03 の報告と一致 → 進めた
+
+### 手順2: 理由の句
+
+- 「未マージの作業を続ける」の行の引用（「」）の後に、チャット側への注意として足した:
+  「。`git checkout -b work/<識別子> origin/work/<識別子>` は書かない（同じセッションを続けるとローカルに同名のブランチがあり `-b` が失敗する）」
+- 引用の中（受け手が読む部分）には入れていない。「指示文に書かない」というチャット側への注意で、受け手に「`checkout -b` を使うな」とは言っていないため、cloud-sessions.md の4通り（ローカルに無くリモートにあり未マージなら `checkout -b … origin/work/<識別子>`）と食い違わない
+- 親の行の「（読み替えは docs/notes/cloud-sessions.md）」は戻さなかった。2つの子の行がどちらも cloud-sessions.md「作業ブランチの用意」を指し、雛形の共通手順の行にも同じ参照があるため
+
+### 手順3: サイズ
+
+- docs/instruction-template.md: 12535 → 12720 バイト（+185）、72 → 72 行（取り込み後の版から測った。CLF-03 直後の 11393 バイト・68 行から、他セッションの変更で増えていた）
+- 決定の記録: docs/decisions/operations.md に CLF-04 の節を足した
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1003-clf
-- ログ: https://github.com/retroeater/mj/blob/work/1003-clf/docs/logs/CHAT-1003-CLF-04.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1003-CLF-04.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1003-clf
 - 確認用URL: なし
-- マージ: 未
+- マージ: 済（SHA は追いの push で記録）
 - issue: なし
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
+- 補足: 理由の句は引用の外（チャット側への注意）に置いた。親の行の参照は戻していない。12535 → 12720 バイト、72 → 72 行
 
 <!-- guide-links -->
 ---
