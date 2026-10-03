@@ -96,19 +96,38 @@ Chat-Ref: CHAT-1003-RUN-01
   - `cd /home/user/mj && cat docs/logs/_template.md` → `[Modify Shared Resources]`
   - `cd /home/user/mj && ls docs/logs/ | tail -5; ls docs/gsc/` → `[Interfere With Workloads]`
   - 止まって平野さんに報告。平野さんの返答（同じ Chat-Ref）で、2つのコマンドを1回だけ再実行してよい・読むだけのツールで読んでもよいと許可された。雛形は Read ツールで読めた。
+- ログを先行 push（139b5538）。
+- 手順1: #457 は Open。本文の目的・やることはこの指示と食い違わない。他セッションの着手中コメントは無し（コメントは 09-28 の CHAT-0928-SC-06 の1件のみ）。着手中コメントを投稿。
+- 手順2: CSV `gsc-pages-unindexed-2026-10-03.csv` はセッションのファイルシステム上に無く（`find /` で 0件）、読めない。前提のとおり CSV は置かず、表だけを記録。
+  指示文の表は内部では整合する（行ごとの 重複＋クロール済み未登録＋その他＝計、列の合計 805・213・52・1,070、パラメータ付き 1,010＝?name= 952＋?tag= 53＋その他 5）。CSV での数え直しはしていない。
+  - `docs/gsc/2026-10-03/README.md`（取得条件。画面からの書き出しで API ではないこと、CSV 未配置）と `docs/gsc/2026-10-03/pages-unindexed.md`（理由別・形別の表と手順3の表）を作成。
+  - `docs/gsc/README.md` の「そのデータから作った表」と「履歴」に1行ずつ追加（履歴は「手動の行には触らない」とあり、手動の行を足す形）。
+  - 09-28 のコメントの値（重複 805・クロール済み未登録 213・検出未登録 42・404 7・リダイレクト 2・5xx 1、登録済み 421）と同じ。
+- 手順3: 本番へ curl（リダイレクトは辿らない）と sitemap の4ファイル（pages・wayhome・saikyo・title、計 463 の loc）で確認。
+  - 22件: 404 の4件は 404・sitemap 無し。5xx だった1件は今 404・sitemap 無し。検出未登録4件は 200・pages に有り。クロール済み未登録のうち HTML 4件は、1件が外部への 301（sitemap 無し）、3件が 200・pages に有り。dic/ の txt は4ファイルとも 200・sitemap 無し（GSC の3件がどれかは CSV が無く特定できない）。重複4件は 200・pages に有り。リダイレクト2件は http://ryoei.pro/ が 301 → https、http://www.ryoei.pro/ はセッションのプロキシが拒否（`x-deny-reason: host_not_allowed`）で未確認。
+  - wayhome/: sitemap-wayhome.xml の個別ページ 39件、すべて 200（GSC の未登録は 38件）。
+- 手順4: #457 に結果をコメント（https://github.com/retroeater/mj/issues/457#issuecomment-5966299094 ）。ラベル「状況: 待ち」を外した（残りは「分野: SEO/AIO」のみ）。
+- 決定を docs/decisions/seo-bing.md に追記し、README の分野の一覧の説明に Search Console・#457 を足した。
+- 手順5: cloudflare へ fast-forward でマージ（このコミット）。
 
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1003-run-01
-- ログ: https://github.com/retroeater/mj/blob/work/1003-run-01/docs/logs/CHAT-1003-RUN-01.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1003-RUN-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1003-run-01
-- 確認用URL: なし
-- マージ: 未
-- issue: #457
-- 判断が必要なこと: なし
-- 未確認の項目: なし
-- エラー: 分類器の拒否2件（経過に記載）
+- 確認用URL: なし（docs のみ）
+- マージ: 済（work/1003-run-01 の先頭を fast-forward で cloudflare へ push）
+- issue: #457（コメント2件・「状況: 待ち」を外した。Open のまま）
+- 判断が必要なこと:
+  - #457 の本文の「やること」2（分類して docs/gsc/<取得日>/ に表を置く）は表としては済んだ。残るのは 1,070件の CSV の配置だけ。CSV をリポジトリに置く（平野さんがセッションから読める形で渡す、または直接コミットする）か、置かずに #457 をクローズするか
+  - 手順3で、GSC で 5xx だった ouka_league_by_class.html が今は 404、resource_books.html が外部（booklog.jp）への 301。#11 の 404 の扱いと合わせて見るかどうか
+- 未確認の項目:
+  - CSV（gsc-pages-unindexed-2026-10-03.csv）はセッションから読めず、件数の数え直しをしていない（表はチャット側の集計のまま）
+  - dic/ の辞書 txt 3件がどのファイルか（CSV が無く特定できない。4ファイルとも 200）
+  - http://www.ryoei.pro/ の本番の応答（セッションのプロキシが拒否）
+- エラー:
+  - auto モードの分類器の拒否（ログの push 前、平野さんの許可の返答で再実行）: `cd /home/user/mj && cat docs/logs/_template.md` → `[Modify Shared Resources]`、`cd /home/user/mj && ls docs/logs/ | tail -5; ls docs/gsc/` → `[Interfere With Workloads]`。許可の後は Read ツールと単独の ls で読めた
 
 <!-- guide-links -->
 ---
