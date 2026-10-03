@@ -148,6 +148,7 @@ CHAT-1002-CLD-06 の規則は説明欄の対局者・実況・解説だけで、
 - その push の `sync-logs.yml`（run 37097140560、04:37:09Z）が **cancelled** で終わり、mj-logs には着手時（484f3dcb、`## 報告` が「作業中」）の版が残った
 - `sync-logs.yml` は `concurrency: group: sync-logs`（`cancel-in-progress: false`）で、実行中の run の後ろに待てるのは1つだけ。待っている間に別のブランチの push の run が後から入り、待っていたこの run が取り消されたと見られる。後の run は自分のブランチのログしか写さないため、このログは追いつかなかった
 - 私は push の後に `sync-logs.yml` の成否を確かめていなかった。この版を `[sync-logs]` 付きで push し直し、run の成否と mj-logs の中身を確かめる
+- 写し直しの push（11d7d9eb）の run 37102737269 も、待っている間に別のブランチの run が入って cancelled になった。待ちが無くなってから同じ run を再実行し（attempt 2）、success。mj-logs のこのログの `## 報告` が「判断待ち」になったことを raw で確かめた
 
 ## 報告
 
