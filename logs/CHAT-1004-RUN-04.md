@@ -74,7 +74,8 @@ CHAT-1003-RUN-01（#457 の分類）と CHAT-1003-RUN-02（query-page.csv の集
 - 手順4: #296（5981244297）と #11（5981244584）にコメント。#11 は閉じたまま。
 - 手順2: #457（5981242760）・#459（5981243148）・#461（5981243438）にクローズのコメントを書いてクローズ（completed）。3件ともクローズ後のラベルに「状況:」は無い。
 - 決定を docs/decisions/seo-bing.md に追記。
-- 手順5: cloudflare へマージ（このコミット）。
+- 決定の記録の書き方（docs/decisions/README.md）に合わせ、RUN-01 の「CSV を docs/gsc/ に置く」の行に「→ 取り下げ」、新しい行に置き換えの旨を付けた（14b02792）。
+- 手順5: push 前の再 fetch で cloudflare は進んでおらず（祖先を確かめた）、14b02792 を cloudflare へ push。
 
 ## 報告
 
@@ -83,7 +84,7 @@ CHAT-1003-RUN-01（#457 の分類）と CHAT-1003-RUN-02（query-page.csv の集
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1004-RUN-04.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1004-run-04
 - 確認用URL: なし（docs のみ）
-- マージ: 済（work/1004-run-04 の先頭を cloudflare へ push）
+- マージ: 済（14b02792。work/1004-run-04 の先頭を fast-forward で cloudflare へ push）
 - issue: #457・#459・#461 をクローズ。#142 の本文を更新しコメント。#296・#11 にコメント。新規の起票は無し
 - 判断が必要なこと: なし
 - 未確認の項目: なし
@@ -92,12 +93,12 @@ CHAT-1003-RUN-01（#457 の分類）と CHAT-1003-RUN-02（query-page.csv の集
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj d82931aa）: https://github.com/retroeater/mj-logs/tree/main/guide/d82931aa
+ガイド文書（この版を写した時点の最新、mj 14b02792）: https://github.com/retroeater/mj-logs/tree/main/guide/14b02792
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d82931aa/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d82931aa/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d82931aa/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d82931aa/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d82931aa/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d82931aa/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/14b02792/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/14b02792/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/14b02792/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/14b02792/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/14b02792/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/14b02792/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a8cd42e0.md
