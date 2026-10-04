@@ -60,18 +60,31 @@ Chat-Ref: CHAT-1004-VID-04
 - 手順2: docs/decisions/title.md に「2026-10-04（CHAT-1004-VID-04）」の見出しで、初版のまま確定・スクリプトをマージに含めること・マージの承認を足した（README の「1つの指示の決定を1つの見出し」に従い、VID-03 の項は書き換えず別の見出しにした。VID-01・VID-03 の項と矛盾は無い）
 - docs/notes/title-pages.md に「告知動画（2026-10、X 向け）」の節（4行）を足した: setup.sh → build.sh、定数の場所、字幕の時刻を手で直すこと、確定版
 - CHAT-1003-VID-01・CHAT-1004-VID-03 のログの `## 報告` の「状態」「ログ」「マージ」の行を、マージ済みの内容に直した（最後の `## 報告` を相手にし、指示欄が変わっていないことを確かめた）
+- 手順3: 直前に `git fetch origin cloudflare` と `git merge-base --is-ancestor origin/cloudflare HEAD`（真）、差分が docs/ と scripts/promo_video/title/ だけであることを再確認し、`git push origin work/1003-vid-01:cloudflare` → `2040e6c4..200ed2c4`（fast-forward）
+- マージ後に 200ed2c4 で動いた自動処理（1分強で全部完了）:
+  - Actions: 「公開対象を検査する」success、「サイトマップのlastmodを同期」success（追加のコミットは無し）、「作業ログを mj-logs へ写す」success と skipped（2件）
+  - check-run: 「Workers Builds: mj」success、ほか sync・check の check-run が success（1件 skipped）
+  - 結論: 本番のデプロイは走ったが、2040e6c4..200ed2c4 の差分は docs/ と scripts/ だけで、配信されるファイルは変わっていない。mj-logs の CHAT-1003-VID-01 は「完了」の版に写った
+- 作業ブランチの削除は delete-merged-branches.yml に任せる（先頭が24時間より前になった後の実行で消える見込み）。このログの追いの push で先頭は進む
+- このログの最終版を書く1回目で、置き換えのスクリプトの改行の書き方を誤ってファイルが崩れた（コミット前に気づき、控えから戻して書き直した。push はしていない）
 
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1003-vid-01
-- ログ: https://github.com/retroeater/mj/blob/work/1003-vid-01/docs/logs/CHAT-1004-VID-04.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1003-vid-01
-- 確認用URL: なし
-- マージ: 未
+- 状態: 完了
+- ブランチ: work/1003-vid-01（cloudflare へマージ済み。削除は delete-merged-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1004-VID-04.md
+- 比較URL: https://github.com/retroeater/mj/compare/2040e6c4...200ed2c4
+- 確認用URL: なし（docs と scripts/ のみ）
+- マージ: 済（cloudflare 2040e6c4 → 200ed2c4、fast-forward。この報告の追いの push で docs/logs のみさらに進む）
 - issue: なし
+- マージで入ったファイル（11件）: docs/decisions/title.md、docs/logs/CHAT-1003-VID-01.md、docs/logs/CHAT-1004-VID-03.md、docs/logs/CHAT-1004-VID-04.md、docs/notes/title-pages.md、scripts/promo_video/title/ の build.sh・capture.mjs・composition/hyperframes.json・composition/index.html・fonts.conf・setup.sh
+- 動いた自動処理と結論: 公開対象の検査・サイトマップの lastmod 同期・mj-logs への写し・Workers Builds がすべて success（または skipped）。配信されるファイルは変わらない
+- 記録: docs/decisions/title.md に 2026-10-04（CHAT-1004-VID-04）の決定を追加、docs/notes/title-pages.md に「告知動画（2026-10、X 向け）」の節を追加
+- 直したログ: CHAT-1003-VID-01・CHAT-1004-VID-03 の `## 報告` の「状態」（判断待ち → 完了）・「ログ」（blob/cloudflare）・「マージ」（未 → 済）
 - 判断が必要なこと: なし
-- 未確認の項目: なし
+- 未確認の項目:
+  - 本番のブラウザでの見え方（配信されるファイルは変わっていないため確かめていない）
+  - 作業ブランチの削除（delete-merged-branches.yml の次回以降の実行）
 - エラー: なし
 
 <!-- guide-links -->
