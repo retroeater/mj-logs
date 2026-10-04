@@ -219,7 +219,7 @@ CHAT-1002-INV-01 の `## 報告`「改善の提案」5 で、「現行サイト�
 
 - docs/handover.md 5章の表の「現行サイトで小さく作れる6件」の行を「現行サイトで小さく作れるもの」に直した（「平野さんは未了承」を外し、#389 → #388 → #377 → #277 の順、#366・#371・#378・#425 の扱いを書いた。#365・#367 の未決はそのまま）。23,212 → 23,406 バイト（警告域 26KB の外）。handover.md のほかの行に対象の issue の記述は無い（#394 の blocked by の1行だけで、変える必要なし）
 - 決定を docs/decisions/features.md（新設）に書き、docs/decisions/README.md の分野の一覧に1行足した
-- マージ: cloudflare へ（このコミット）
+- マージ: push 前の再 fetch で cloudflare が進んでいた（CHAT-1004-DNY-01・CHAT-1005-UNR-07 のログと docs/decisions・docs/notes の別ファイル、重なり無し）ので origin/cloudflare を merge して取り込み、祖先を確かめて e3c4360d を cloudflare へ push
 
 ## 報告
 
@@ -228,7 +228,7 @@ CHAT-1002-INV-01 の `## 報告`「改善の提案」5 で、「現行サイト�
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1005-RUN-05.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1005-run-05
 - 確認用URL: なし（docs のみ）
-- マージ: 済（work/1005-run-05 の先頭を cloudflare へ push）
+- マージ: 済（e3c4360d。work/1005-run-05 の先頭を fast-forward で cloudflare へ push）
 - issue: 現行サイト #389・#388・#377・#277、条件つき #425（現行の方向）、同時に決める #366（#111）・#371（#141）、新サイト送り #224・#226・#276・#278・#279・#285・#369・#376・#373・#394・#378（#378 は位置データが無いため）。#296 の子の表と sub-issue を更新（21 → 32件）。クローズは無し。飛ばした issue は無し
 - 判断が必要なこと:
   - #141 と #111 の判断の順序: #141 の 09-11 のコメントは「#111 の結論が出てから #141」、09-12 の SEO のコメントは「#141 を #111 より先に」と逆を向いている。今の期日は #141（10-31）が先。経過「4-1」「4-2」に選択肢の表
