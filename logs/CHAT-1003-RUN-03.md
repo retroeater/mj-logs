@@ -72,6 +72,20 @@
 - 0. 指示欄の末尾は指示文の最後の行（「この行が指示文の最後の行です。」）と一致。
 - 識別子の確認: `CHAT-1003-RUN-03` のコミットは 0件。RUN の他のコミットは同じチャットの RUN-01・RUN-02 のみ。
 - `origin/work/1003-run-03` は無く、`git checkout -b work/1003-run-03 origin/cloudflare` で作成。
+- ログを先行 push（4b12fca2）。
+- 手順1: #498 は Open、コメント無し。本文の案（sync-logs.yml で直近の実行を mj-logs の1ファイルに書き出す）と指示は一致。
+  同じ論点の issue を検索（Actions・実行結果・workflow run・mj-logs・status、クローズ済みを含む）: #498 のほかは #361・#357・#454・#466・#308 で、どれも別の論点。
+  0章ゲート: 未マージの work/ ブランチで sync-logs.yml・static-generation.md・cloud-sessions.md・chat-side-operations.md・scripts/tests を変えているものは無し。
+  CLAUDE.md 27,227・handover.md 23,212・chat-side-operations.md 24,272 バイト（警告域の外）。
+  sync-logs.yml の履歴（db055cc1〜26ac378c）と branch-operations.md「ワークフローを変更したとき」を読んだ。sync-logs.yml は既定ブランチにあり、push の契機で作業ブランチ版が走るので、`[sync-logs]` 付きの push で確かめる。
+- 手順2: 実装。
+  - `scripts/actions_status.py`: API（workflows・各 workflow の runs per_page=5・失敗した run の jobs）を引き、`render()`（ネットワークを呼ばない）で `actions/status.md` を作る。書かないもの: display_title・head_commit・ログ。cron はワークフローのファイルから読み JST に直す。
+  - `.github/workflows/sync-logs.yml`: `schedule: '29 23 * * *'`（JST 08:29。既存の cron は分 0・7・12・17・23・27・37・43・50・53 で、29 は重ならない）と `workflow_dispatch` を追加。`permissions` に `actions: read`。ジョブの if を `github.event_name != 'push' || …` に。push の直前に書き出しのステップ。新しい Secret・トークンの権限の追加は無し（`GITHUB_TOKEN` と既存の `MJ_LOGS_TOKEN`）。
+  - テスト `scripts/tests/test_actions_status.py`（11件）。`python3 -m unittest discover -s scripts/tests` は 546件 OK。
+  - セッションのトークンで実際の API を引いて書き出し（scratchpad）: ワークフロー 17件・239行。失敗した run のジョブ名・ステップ名が出ることを確かめた。
+  - 文書: static-generation.md「ワークフローの一覧」の sync-logs.yml の行を拡張、cloud-sessions.md「作業ログ」に1項目、chat-side-operations.md「確認対象ごとの手段」の表に1行（24,272 → 24,476 バイト）。
+  - コミット 0f4cc369。
+- 手順3: 作業ブランチ版を走らせるため、このログの追記を `[sync-logs]` 付きで push（指示の例外）。
 
 ## 報告
 
