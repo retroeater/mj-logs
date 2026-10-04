@@ -59,18 +59,30 @@
 - 手順2: docs/decisions/title.md に「2026-10-04（CHAT-1004-VID-07）」の見出しで確定とマージの承認を足した（VID-05・VID-06 の項はそれぞれの時点の決定で、矛盾は無い。置き換えではないので前の項には印を付けていない）
 - docs/notes/title-pages.md「告知動画」の節を5行で置き換えた: 確定版、`VARIANT=standard bash build.sh <作業フォルダ> b` と出力名、`VARIANT=x`・曲調 `a`・`none`・`REUSE_VIDEO=1`、定数・`STATS`・`compose.py` の `CAPTIONS` と時刻の自動の埋め込み、`music.py` の合成と loudnorm。build.sh・compose.py・music.py・capture.mjs の実物を読んで合わせた（26,910B）
 - CHAT-1004-VID-05・CHAT-1004-VID-06 のログの `## 報告` の「状態」「ログ」「マージ」の行を直した（最後の `## 報告` を相手にし、指示欄が変わっていないことを確かめた）
+- 手順3: 直前に `git fetch origin cloudflare` と `git merge-base --is-ancestor origin/cloudflare HEAD`（真）、差分が docs/ と scripts/promo_video/title/ だけであることを再確認し、`git push origin work/1004-vid-05:cloudflare` → `ef37d9f2..d82931aa`（fast-forward）
+- マージ後に d82931aa で動いた自動処理（1分強で全部完了）:
+  - Actions: 「公開対象を検査する」success、「サイトマップのlastmodを同期」success（追加のコミットは無し）、「作業ログを mj-logs へ写す」success と skipped（2件）
+  - check-run: 「Workers Builds: mj」success、ほか sync・check の check-run が success（1件 skipped）
+  - 結論: 本番のデプロイは走ったが、ef37d9f2..d82931aa の差分は docs/ と scripts/ だけで、配信されるファイルは変わっていない
+- 作業ブランチの削除は delete-merged-branches.yml に任せる。このログの追いの push で先頭は進む
 
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1004-vid-05
-- ログ: https://github.com/retroeater/mj/blob/work/1004-vid-05/docs/logs/CHAT-1004-VID-07.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1004-vid-05
-- 確認用URL: なし
-- マージ: 未
+- 状態: 完了
+- ブランチ: work/1004-vid-05（cloudflare へマージ済み。削除は delete-merged-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1004-VID-07.md
+- 比較URL: https://github.com/retroeater/mj/compare/ef37d9f2...d82931aa
+- 確認用URL: なし（docs と scripts/ のみ）
+- マージ: 済（cloudflare ef37d9f2 → d82931aa、fast-forward。この報告の追いの push で docs/logs のみさらに進む）
 - issue: なし
+- マージで入ったファイル（10件）: docs/decisions/title.md、docs/logs/CHAT-1004-VID-05.md、docs/logs/CHAT-1004-VID-06.md、docs/logs/CHAT-1004-VID-07.md、docs/notes/title-pages.md、scripts/promo_video/title/ の build.sh・capture.mjs・compose.py（新規）・composition/index.html・music.py（新規）
+- 動いた自動処理と結論: 公開対象の検査・サイトマップの lastmod 同期・mj-logs への写し・Workers Builds がすべて success（または skipped）。配信されるファイルは変わらない
+- 直した文書: docs/decisions/title.md（2026-10-04 CHAT-1004-VID-07 の決定を追加）、docs/notes/title-pages.md「告知動画（2026-10、X 向け）」の節（確定版・作り直しの手順・出力名・選択肢・字幕の時刻の自動化・音楽の合成に置き換え）
+- 直したログ: CHAT-1004-VID-05・CHAT-1004-VID-06 の `## 報告` の「状態」（判断待ち → 完了）・「ログ」（blob/cloudflare）・「マージ」（未 → 済）
 - 判断が必要なこと: なし
-- 未確認の項目: なし
+- 未確認の項目:
+  - 本番のブラウザでの見え方（配信されるファイルは変わっていないため確かめていない）
+  - 作業ブランチの削除（delete-merged-branches.yml の次回以降の実行）
 - エラー: なし
 
 <!-- guide-links -->
