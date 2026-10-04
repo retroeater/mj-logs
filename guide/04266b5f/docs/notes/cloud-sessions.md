@@ -117,5 +117,4 @@ CLAUDE.md「ブランチ運用」の「作業ブランチも削除する」は�
   最新の版と違えば `chat-ids/<mj の短い SHA>.md` に書く（10個を残す。最新は `chat-ids/HISTORY` の最後の行、#474）。写したログの末尾からリンクする
   mj-logs に写したログの末尾には、その時点で最新のフォルダと CLAUDE.md・handover.md・instruction-template.md・chat-side-operations.md・cloudflare.md・decisions/README.md へのリンクが付く（mj の元のログは変えない）。
   ガイド文書に書かない情報はログと同じ。写す一覧は `python3 scripts/sync_guides.py --dest <任意> copy --base HEAD --after HEAD --list`
-- **`## 報告` を書き換えるときは、ファイルの中で最後に出てくる `## 報告` を対象にする。** `## 指示` に貼った指示文の中にも
-  `## 報告` が出てくることがあり、最初の一致を使うと指示文の途中から後ろを消す（MD-14 のログで起きた。MD-15 で直した）
+- ログの `## 報告` などの書き換え方（最後の一致を相手にする）と、「ログ（公開）」の行を書く前の写しの確かめは CLAUDE.md「作業ログ」節
