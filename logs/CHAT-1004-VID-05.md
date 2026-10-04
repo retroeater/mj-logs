@@ -68,17 +68,62 @@
 - 0: 指示欄の末尾は指示文の最後の行と一致
 - 止まる条件: `git branch -r --no-merged origin/cloudflare` の work/ は work/1002-cld だけで、scripts/promo_video/ には触れていない
 
+### 手順1 映像
+
+- `composition/index.html` の冒頭を差し替えた: 1行目「ryoei.pro/title/」（96px・Black）、2行目「「タイトル戦」を／リニューアルしました」（76px・Black、2行に折り返し。1行だと17字×76px で約1,290px となり 1080px に収まらないため、前提の折り返し方で `<br>` を入れた）。下の余白は 120→110px にした。続く数字の行・場面の秒数・ほかの画面は初版のまま
+- `setup.sh` → `build.sh <作業フォルダ> none a b` で、撮影から描画・音の重ねまで通った（約4分20秒）。撮影は初版と同じ 37枚・13.05秒（場面の時刻 0 / 3.2 / 6.2 / 8.6 / 13.05 秒は同じ）、期の一覧は最初から開いていた（`aria-expanded="true"`）。`hyperframes check` は 0 errors・3 warnings（初版と同じ構成の推奨）で Check passed、描画のやり直しは無し
+- 数字の数え直し（撮り直したため。CHAT-1003-VID-01 と同じスクリプト、3dfac105 の生成物。本番の `title/search.json` も同一）: 20大会・363期・619本（ライブ 94期139本＋動画 88期480本）・581人。差は無し
+- 静止画（0.3・1・2・3.9秒）: 2行目まで欠け・はみ出し・意図しない折り返し無し。0.8秒から出る「20大会・363期の決勝」、1.6秒から出る「決勝の映像 619本」と重ならない
+- 静止画（6・8・10・12・14・16・18・19.9秒）: 初版と同じ見え方。字幕は初版と同じ（どれも2秒以上）。デモ画面の上端40px の明るさは 4.3〜17秒の 382 フレームすべてで YMAX=139（白い隙間なし）、灰色の余白なし
+
+### 手順2 音楽
+
+- 道具: `scripts/promo_video/title/music.py`（新規）。Python の標準ライブラリ（`math`・`array`・`wave`・`random`）で波形を合成し、ffmpeg の `loudnorm`（2パス、I=-16・TP=-1.5・LRA=11、linear）で音量をそろえる。numpy などは入っておらず、新しく入れたものは無い。外部の音源・サンプル・サウンドフォントは使っていない
+- 長さは動画（ffprobe の 20.066667 秒）に合わせて合成し、`-t` で切りそろえた。場面の境目は `DEMO_START=4.0`・`URL_START=17.05`（composition の data-start と同じ値）
+- **A（落ち着いた）**: 90 BPM、ヘ長調。和音は Fmaj7 → Dm9 → B♭maj7 → C(sus4) を1小節ずつ繰り返す。音色は、わずかにずらした3つの正弦波と弱い倍音の持続音（パッド）、2オペレータ FM のエレクトリックピアノ風、正弦波のベース、簡単な残響（フィードバック遅延）。打楽器なし。0〜4秒はパッドと小節頭の EP だけ、4秒からベースと EP の8分音符の分散和音、17.05秒から EP を全音符に減らす、末尾0.8秒で2乗のフェードアウト
+- **B（軽快）**: 120 BPM、ト長調。和音は G → Em7 → Cadd9 → D。音色は、速く減衰する短い音（三角波に近い倍音の和）の16分音符のアルペジオ、軽いキック（150→48Hz に下がる正弦波）、ハイハット（白色雑音の差分を速く減衰）、ベース、薄いパッド、軽い残響。0〜2秒はアルペジオだけ（暗めの音）、2秒から裏拍のハイハット、4秒からキック（4つ打ち）とベースを足して明るい音色・高い音域に、17.05秒で打楽器を止めて4分音符に、末尾0.8秒でフェードアウト。ハイハットの雑音は種を固定しており、毎回同じ音になる
+- 旋律は和音の構成音を順にたどる分散和音だけで、既存の曲の旋律は写していない。和音進行は一般的な和声
+- 測った音量（ffmpeg `ebur128=peak=true`、mp4 に重ねた後の AAC で測定）: A 統合 -15.9 LUFS・LRA 8.6 LU・トゥルーピーク -4.8 dBTP、B 統合 -15.8 LUFS・LRA 5.2 LU・トゥルーピーク -3.3 dBTP。`silencedetect`（-50dB・0.3秒）で無音の区間は無し。`astats` の標本ピークは A -4.8・B -3.2 dBFS で 0 dBFS に届かない（音割れなし）。末尾の標本は0で、ぶつ切りは無し
+- スペクトログラム（`showspectrumpic`）と波形（`showwavespic`）を見た: A は4秒で EP の倍音が増え、17.05秒で減り、末尾で消える。B は2秒からハイハットの広帯域の縦線、4秒からキックとベースの低域、17.05秒で打楽器が消える。音割れの跡は無し
+- 直した点: 包絡（`adsr`）を「立ち上がりと減衰の小さいほう」に変えた。短い音で両方が重なると値が跳ぶ書き方だったため（スペクトログラムで A の約19.5秒に薄い縦線が見え、疑った。直した後も同じ薄い線が残り、標本の差分では目立つ段差は無かったので、表示上のものとみなした）
+- 重ね方: `ffmpeg -i 無音の映像 -i 曲.wav -map 0:v -map 1:a -c:v copy -c:a aac -b:a 192k -ar 48000 -ac 2`。映像は再エンコードしていない（3本の映像のストリームが無音の版とバイト単位で同一であることを確かめた）
+
+### 手順3 受け渡しと残したもの
+
+- `SendUserFile` で3本を送った → 「3 files delivered」: `title-promo-v2-silent.mp4`（無音）、`title-promo-v2-music-a-calm.mp4`（A）、`title-promo-v2-music-b-upbeat.mp4`（B）
+- コミット（444531af）: `composition/index.html`（冒頭の文言）、`music.py`（新規）、`build.sh`（曲調を引数で選ぶ。`REUSE_VIDEO=1` で撮影と描画を飛ばし、前回の無音の映像に音だけ重ね直せる）
+- 作り直し: `bash scripts/promo_video/title/setup.sh <作業フォルダ>` → `bash scripts/promo_video/title/build.sh <作業フォルダ> none a b`（出力は `<作業フォルダ>/title-promo-none.mp4`・`-a.mp4`・`-b.mp4`。無音の描画結果は `title-promo.mp4` にも残る）。曲だけなら `python3 scripts/promo_video/title/music.py --style a --duration 20.066667 --out <wav>`
+- docs/decisions/title.md に 2026-10-04（CHAT-1004-VID-05）の決定を足し、VID-04 の「初版のまま確定」の行末に「→ 置き換え」を付けた（README の書き方）
+- docs/notes/title-pages.md は指示どおり直していない（「確定版」の記述と、build.sh の引数が増えたことの説明は、どれを確定にするかが決まった後の指示で直す）
+- `python3 -m unittest discover -s scripts/tests`: OK
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1004-vid-05
 - ログ: https://github.com/retroeater/mj/blob/work/1004-vid-05/docs/logs/CHAT-1004-VID-05.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1004-vid-05
-- 確認用URL: なし
-- マージ: 未
+- 確認用URL: なし（scripts/ と docs のみ）
+- マージ: 未（指示の「マージ: 判断待ちで止まる」のとおり）
 - issue: なし
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 冒頭の画面: 1行目「ryoei.pro/title/」（96px）、2行目「「タイトル戦」を／リニューアルしました」（76px、2行に折り返した）。続く数字の行と重ならない
+- 3本の仕様（ffprobe）: いずれも映像は h264（High）・yuv420p・1080×1920・30fps・20.07秒（映像は3本とも同一）
+  - 無音: 音声トラックなし、3,034,600バイト
+  - A: 音声 AAC（LC）・48kHz・2ch 1本、3,539,423バイト
+  - B: 音声 AAC（LC）・48kHz・2ch 1本、3,550,973バイト
+- 曲の作りと音量:
+  - A（落ち着いた）: 90 BPM・ヘ長調・Fmaj7→Dm9→B♭maj7→C(sus4)。パッド＋FM のエレピ風の分散和音＋ベース＋残響、打楽器なし。-15.9 LUFS・トゥルーピーク -4.8 dBTP
+  - B（軽快）: 120 BPM・ト長調・G→Em7→Cadd9→D。16分音符の短い音のアルペジオ＋キック＋ハイハット＋ベース。-15.8 LUFS・トゥルーピーク -3.3 dBTP
+  - 共通: 0〜4秒導入、4秒で音を足す、17.05秒で落ち着かせる、末尾0.8秒フェードアウト、動画と同じ長さ
+- 合成に使った道具: Python 標準ライブラリ（`music.py`、新規）と ffmpeg（loudnorm・AAC）。新しく入れたものは無し
+- 初版から変えたほかの点: 無し（数字・操作デモ・字幕・URL の画面・秒数は初版のまま。数え直しで数字の差も無し）
+- 受け渡し: `SendUserFile` で3本を送付済み
+- 判断が必要なこと:
+  - 3本（無音・A・B）のどれを投稿するか、直すところがあるか
+  - 決まった後に、docs/notes/title-pages.md の「告知動画」の節（確定版・build.sh の引数）を直し、このブランチをマージする指示
+- 未確認の項目:
+  - 音そのものの聞こえ方（このセッションでは聴けない。測定値とスペクトログラムだけで確かめた）
+  - X に載せたときの音量・見え方（投稿しない指示のため）
 - エラー: なし
 
 <!-- guide-links -->
@@ -92,4 +137,4 @@
 - docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/200ed2c4/docs/notes/chat-side-operations.md
 - docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/200ed2c4/docs/notes/cloudflare.md
 - docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/200ed2c4/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/89a52942.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/de5c28a8.md
