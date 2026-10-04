@@ -93,6 +93,7 @@
   **作る 0・直す 2・消す 0**、「書き込みました: 作る 0・直す 2・消す 0」
   - この変更によるもの: `video:FXtYzZBEtXA` 第2期昇龍戦（06-20 17:57〜22:33）
   - それ以外: `video:jt4E_u--mxg`（件名「第6期鸞和戦 ベスト16 CD卓 1回戦」→「第6期鸞和戦 ベスト16 D卓 4回戦」、04-17）。/live の【3】の値の変更（CHAT-1002-CLD-06 の決定で平野さんが書くとした行）によるもので、直す前後のコードの模擬では両方に同じく出るため差に出なかった
+- 最後の push の前に、bot の生成し直し 8de4fe92（37ファイル、live/ranwa/ など）が cloudflare に入っていた。差分は鸞和戦 第6期 ベスト16 の /live の【3】の変更（`jt4E_u--mxg` の D卓 4回戦）によるもので、`live_calendar.py`・`sync_live_calendar.py` は /live・title/ の生成に使われないため、この変更とは関係しない。取り込んで 406b3317 で cloudflare へ入れた
 - #491 にコメントした（(1) 重複の直しと反映、(2) 件名が空の予定1件）: https://github.com/retroeater/mj/issues/491#issuecomment-5980272241
 
 ## 報告
@@ -115,12 +116,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 406b3317）: https://github.com/retroeater/mj-logs/tree/main/guide/406b3317
+ガイド文書（この版を写した時点の最新、mj b907bc5f）: https://github.com/retroeater/mj-logs/tree/main/guide/b907bc5f
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/406b3317/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/406b3317/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/406b3317/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/406b3317/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/406b3317/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/406b3317/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b907bc5f/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b907bc5f/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b907bc5f/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b907bc5f/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b907bc5f/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b907bc5f/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a8cd42e0.md

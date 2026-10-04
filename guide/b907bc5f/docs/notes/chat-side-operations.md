@@ -18,6 +18,7 @@ mj は private で、チャット側のサンドボックスからの `git clone
 | 確認したいこと | 手段 |
 | --- | --- |
 | 作業ログ（`docs/logs/`）・ガイド文書 | mj-logs で読む（下の「作業ログの読み方」） |
+| Actions の実行結果 | mj-logs の `actions/status.md`（各ワークフローの直近5回。更新は毎日 08:29 JST とログが写るたび。冒頭の書き出した時刻を見る、#498） |
 | issue・コミット・ブランチ | Claude Code に `gh`（クラウドセッションは GitHub MCP）/ `git` で確かめさせ、ログに書かせる。PC では Chrome でも読める |
 | 本番の見え方 | 平野さんに目で確認してもらうか、Claude Code に headless Chrome で測らせる |
 
