@@ -91,7 +91,10 @@
   - 既存の写し: logs/ のログは写り、末尾に guide/406b3317・chat-ids/a8cd42e0 へのリンクが付いている（前の実行 a78f02d と同じ動き）。guide/ の写しは cloudflare の push だけなので work では元から動かない。chat-ids は変化なしで書かれない（従来どおり）。
   - status.md の中身: 直近の mj のコミットの題（09-25 以降、全ブランチ）との一致は 0件、トークンらしい文字列 0件、ログの中身なし。
 - 決定を docs/decisions/operations.md に追記。
-- 手順4: cloudflare へマージ（このコミット）。
+- 手順4: push 前の再 fetch で cloudflare は進んでおらず（祖先を確かめた）、b907bc5f を cloudflare へ push。
+  - cloudflare で手動実行（workflow_dispatch）を1回起動: run 37207989577 が success、全ステップ success、ジョブ 27秒。mj-logs のコミット 4e90ec8 で guide/b907bc5f の写し・logs/ の写し・actions/status.md（契機 workflow_dispatch（cloudflare））を確かめた。
+  - 同じ SHA の cloudflare の push の実行（37207987747）は concurrency で取り消された（その前の c0311f30 の push も同じく取り消されていて、従来からある動き）。手動実行が同じ版で写しを行ったので、写しの漏れは無い。
+  - #498（5980865478）と #298（5980865750）にコメント。
 ## 報告
 
 - 状態: 完了
@@ -99,7 +102,7 @@
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1003-RUN-03.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1003-run-03
 - 確認用URL: なし（scripts・ワークフロー・docs のみ。ページは変えていない）
-- マージ: 済（work/1003-run-03 の先頭を cloudflare へ push）
+- マージ: 済（b907bc5f。work/1003-run-03 の先頭を fast-forward で cloudflare へ push。マージ後に cloudflare で手動実行して success を確かめた）
 - issue: #498（Open のまま。結果をコメント）・#298（使用量を1行コメント）
 - 判断が必要なこと:
   - #498 のクローズ（チャット側が mj-logs の actions/status.md を読めることを確かめてから）
