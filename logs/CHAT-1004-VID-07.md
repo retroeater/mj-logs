@@ -52,6 +52,13 @@
 - Chat-Ref の確認: CHAT-1004-VID-07 のコミットは無し
 - ブランチ: ローカル・リモートとも work/1004-vid-05 は f05c2f12。origin/cloudflare は祖先（取り込み不要）
 - 0: 指示欄の末尾は指示文の最後の行と一致。CHAT-1004-VID-06 の `## 報告` の状態は「判断待ち」
+- 手順1: `git diff --name-only origin/cloudflare...HEAD`（8f94095b 時点）は次の9件で、条件 (1) を満たす
+  - docs/decisions/title.md、docs/logs/CHAT-1004-VID-05.md、docs/logs/CHAT-1004-VID-06.md、docs/logs/CHAT-1004-VID-07.md
+  - scripts/promo_video/title/ の build.sh・capture.mjs・compose.py・composition/index.html・music.py（ほかに既存の fonts.conf・setup.sh・composition/hyperframes.json。最大は music.py 13,244B）。動画・音声・連番・フォント・node_modules は無し。token・secret・api key・password・bearer の語も無し
+- 検証: unittest 546件 OK（取り込んだ cloudflare 側でテストが増えている）、`scripts/check_asset_limits.py` OK、CLAUDE.md 27,227B（警告域 30,720B 未満）・handover.md 23,212B・chat-side-operations.md 24,476B。作業ブランチの 1dc0c953 で「公開対象を検査する」success
+- 手順2: docs/decisions/title.md に「2026-10-04（CHAT-1004-VID-07）」の見出しで確定とマージの承認を足した（VID-05・VID-06 の項はそれぞれの時点の決定で、矛盾は無い。置き換えではないので前の項には印を付けていない）
+- docs/notes/title-pages.md「告知動画」の節を5行で置き換えた: 確定版、`VARIANT=standard bash build.sh <作業フォルダ> b` と出力名、`VARIANT=x`・曲調 `a`・`none`・`REUSE_VIDEO=1`、定数・`STATS`・`compose.py` の `CAPTIONS` と時刻の自動の埋め込み、`music.py` の合成と loudnorm。build.sh・compose.py・music.py・capture.mjs の実物を読んで合わせた（26,910B）
+- CHAT-1004-VID-05・CHAT-1004-VID-06 のログの `## 報告` の「状態」「ログ」「マージ」の行を直した（最後の `## 報告` を相手にし、指示欄が変わっていないことを確かめた）
 
 ## 報告
 
@@ -69,12 +76,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj b907bc5f）: https://github.com/retroeater/mj-logs/tree/main/guide/b907bc5f
+ガイド文書（この版を写した時点の最新、mj d82931aa）: https://github.com/retroeater/mj-logs/tree/main/guide/d82931aa
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b907bc5f/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b907bc5f/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b907bc5f/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b907bc5f/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b907bc5f/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b907bc5f/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d82931aa/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d82931aa/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d82931aa/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d82931aa/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d82931aa/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d82931aa/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a8cd42e0.md
