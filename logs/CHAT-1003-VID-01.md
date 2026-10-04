@@ -156,12 +156,12 @@ docs/notes/title-pages.md との差: 期数 362→363、年を持つ期 360→36
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 完了（2026-10-04 に CHAT-1004-VID-04 で cloudflare へマージ）
 - ブランチ: work/1003-vid-01
-- ログ: https://github.com/retroeater/mj/blob/work/1003-vid-01/docs/logs/CHAT-1003-VID-01.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1003-VID-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1003-vid-01
 - 確認用URL: なし（ログと docs/decisions のみ。生成物・コードは変えていない）
-- マージ: 未（指示の「マージ: 判断待ちで止まる」のとおり）
+- マージ: 済（CHAT-1004-VID-04 で work/1003-vid-01 を cloudflare へ fast-forward。先頭の SHA は CHAT-1004-VID-04 のログ）
 - issue: なし（告知・SNS 向け動画の open issue は無し）
 - 結果の要点:
   - 手順1: 20大会・363期・title/ 384ページ・決勝進出 581人（延べ1,485人）・決勝ライブ 94期139本・決勝動画 88期480本（合計146期619本）・1973〜2026年・優勝回数 前原雄大11／魚谷侑未10／荒正義・仲田加南8・決勝進出 荒正義33／前原雄大31／藤崎智30（表と title-pages.md との差は「経過」）
@@ -189,12 +189,12 @@ docs/notes/title-pages.md との差: 期数 362→363、年を持つ期 360→36
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 815188dc）: https://github.com/retroeater/mj-logs/tree/main/guide/815188dc
+ガイド文書（この版を写した時点の最新、mj 200ed2c4）: https://github.com/retroeater/mj-logs/tree/main/guide/200ed2c4
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/815188dc/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/815188dc/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/815188dc/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/815188dc/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/815188dc/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/815188dc/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/c162d893.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/200ed2c4/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/200ed2c4/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/200ed2c4/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/200ed2c4/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/200ed2c4/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/200ed2c4/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/89a52942.md
