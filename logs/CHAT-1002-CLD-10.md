@@ -55,9 +55,36 @@ CLD のチャットの振り返りの申送り（CHAT-1002-CLD-09）で足した
 - Chat-Ref の重複: 全ブランチのコミットに `CHAT-1002-CLD-10` は無し
 - 作業ブランチ: ローカルの `work/1002-cld` が `origin/work/1002-cld` と同じ（081b1945）。`origin/cloudflare` が祖先でなかったため `git merge origin/cloudflare`（bafb9383。衝突なし。取り込んだ変更は CLD-09 で足した5ファイルに触れていない）
 
+- 「指示」欄の末尾は指示文の最後の行と一致。指示文の冒頭の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある
+- CHAT-1002-CLD-09 の `## 報告` は「状態: 判断待ち」で、判断が必要なことは「足した文面の読み比べ」。指示の前提と一致
+
+### 1. 確認
+
+- issue の検索（CLD-09 の手順1と同じ3つの検索語、GitHub MCP の `search_issues`、Open・Closed とも）: 結果は CLD-09 のときと同じ（0件／#399・#398・#482・#450・#446／#294）。どれも CLD-09 より前に立った別の論点で、同じ論点の issue は立っていない
+- cloudflare の取り込み（bafb9383）は衝突なし。取り込んだ変更は CLD-09 で足した5ファイル（CLAUDE.md・docs/notes/chat-side-operations.md・docs/notes/handover-archive-2026.md・docs/decisions/operations.md・docs/decisions/broadcast-calendar.md）に触れていない。`git diff 081b1945 HEAD -- <5ファイル>` は空で、CLD-09 で足した箇所は CLD-09 のログの「3. 変更の差分」（8d04aa26..081b1945 の差分）のとおり
+- バイト数（取り込み後）: CLAUDE.md 27,630（警告域 30,720・上限 32,768）、docs/notes/chat-side-operations.md 25,116（警告域 26,624・上限 28,672）
+
+### 2. 直した2点
+
+docs/notes/handover-archive-2026.md（事例の1件目の末尾の日付）:
+
+```diff
+-  CHAT-1002-CLD-05 を出したが、実際は6件が【2】由来で変わらず、残る1件（鸞和戦 jt4E_u--mxg）が条件に当たらず手順1で止まった（2026-10-03、CLD の振り返り）
++  CHAT-1002-CLD-05 を出したが、実際は6件が【2】由来で変わらず、残る1件（鸞和戦 jt4E_u--mxg）が条件に当たらず手順1で止まった（2026-10-04、CLD の振り返り）
+```
+
+docs/decisions/broadcast-calendar.md「2026-10-04（CHAT-1002-CLD-09、#448）」の節（前提の文面の案のとおり）:
+
+```diff
+ - 動画 jt4E_u--mxg（2026-04-17 第6期鸞和戦、D卓4回戦南場の27分）は「【4】カレンダー非掲載」に入れ、予定は全編（R3IZ244ANxQ）だけにする（【4】に入れるのは平野さん）
++- 動画 us_j3ZINmm0（2023-07-09 第2期小島武夫杯帝王戦 決勝）の説明欄の対局者「千葉」は、概要欄の表記どおりで直さない（読み違いではない）
+```
+
+ほかに、この指示の決定（2点を直してマージしてよい）を docs/decisions/operations.md に「2026-10-05（CHAT-1002-CLD-10）」として足した。CHAT-1002-CLD-09 の `## 報告` の状態を「完了（判断が出た: 2点を直してマージしてよい。続きは CHAT-1002-CLD-10）」に直した（`## 指示` 欄が変わっていないことを確かめた）。CLAUDE.md と docs/notes/chat-side-operations.md は変えていない。
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 作業中（マージ前）
 - ブランチ: work/1002-cld
 - ログ: https://github.com/retroeater/mj/blob/work/1002-cld/docs/logs/CHAT-1002-CLD-10.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1002-cld
@@ -71,12 +98,12 @@ CLD のチャットの振り返りの申送り（CHAT-1002-CLD-09）で足した
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj d6f51c35）: https://github.com/retroeater/mj-logs/tree/main/guide/d6f51c35
+ガイド文書（この版を写した時点の最新、mj bc730f65）: https://github.com/retroeater/mj-logs/tree/main/guide/bc730f65
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d6f51c35/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d6f51c35/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d6f51c35/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d6f51c35/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d6f51c35/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d6f51c35/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/bc730f65/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/bc730f65/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/bc730f65/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/bc730f65/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/bc730f65/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/bc730f65/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/e883c1ec.md
