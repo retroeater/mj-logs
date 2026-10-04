@@ -54,17 +54,67 @@
 - Chat-Ref の重複: 全ブランチのコミットに `CHAT-1002-CLD-08` は無し
 - 作業ブランチ: ローカルの `work/1002-cld` が `origin/work/1002-cld` と同じ（39556546）。`origin/cloudflare` が祖先でなかったため `git merge origin/cloudflare`（04468ecf。衝突なし）
 
+- 「指示」欄の末尾は指示文の最後の行と一致
+- CHAT-1002-CLD-07 の `## 報告` は「状態: 判断待ち」で、案A（卓 D・回戦 4・まとめ単位 ベスト16D）・案B（案A＋枝番 南場）が書かれている
+- #448 の着手中のコメントはこのセッションのものだけ。着手中のコメントを残した（https://github.com/retroeater/mj/issues/448#issuecomment-5980141910 ）
+- 取り込んだ cloudflare の変更のうち関係するもの: CLAUDE.md「作業ログ」節に、節を書き換えるときは `## 指示` より後ろの見出しを相手にすること、「ログ（公開）」の行は mj-logs の raw で今回の版を確かめてから書くこと、が足された。この指示ではそれに従う
+
+### 1. シートと表示
+
+/live の3層のスプレッドシートを gviz の `select *` で2回読み、2回とも【1】元データ 14,116行・【2】自動変換後 14,116行・【3】手動補正 4,310行（見出しを除く）で内容も同じ。
+
+【3】手動補正 3147行（jt4E_u--mxg）の今の値:
+
+| 列 | 値 |
+|---|---|
+| B 掲載 | Y |
+| K 卓 | D |
+| L 動画の単位 | 空欄（【2】の「回戦」） |
+| M 回戦 | 4 |
+| N 枝番 | 南場 |
+| O まとめ単位 | ベスト16D |
+| P 対局者 | 金子正明、猪鼻拓哉、木戸僚之、猿川真寿 |
+| Q 実況 | 大野雄輝 |
+| R 解説 | 阿久津翔太 |
+
+- K・M・O は「D」「4」「ベスト16D」で、CLD-07 の案B（枝番「南場」を含む）のとおり
+- 今のシートから `build_desired()`（層1 は取り込み後の data/live_channel_raw.jsonl、today=2026-10-04）で計算した件名: **「第6期鸞和戦 ベスト16 D卓 4回戦」**（2026-04-17 22:59:32〜23:26:47）。説明欄は【対局者】金子正明・猪鼻拓哉・木戸僚之・猿川真寿／【実況】大野雄輝／【解説】阿久津翔太。載せる予定は全 2,617件
+- 公開の iCal（10-04 取得、全 2,617件）の今の件名: **「第6期鸞和戦 ベスト16 CD卓 1回戦」のまま**（LAST-MODIFIED 2026-10-03T20:14:26Z）
+- `update-live-channel.yml` の最後の同期: run 37150585027（schedule、2026-10-03 20:10:26〜20:14:32 UTC = 10-04 05:10〜05:14 JST、success）。iCal の LAST-MODIFIED はこの実行の時刻。シートの書き換えはこの実行より後と見られる（書き換えた時刻はシートから読めないので確かめていない）
+- 次の毎朝の実行で、件名が「第6期鸞和戦 ベスト16 D卓 4回戦」に直る見込み（`plan()` は件名が違えば「直す」にする。説明欄・開始・終了は今と同じ）
+
+/live（`live/ranwa/6/`）のこの動画のカードの見出し:
+
+| ページ | cloudflare の今の生成物 | 今のシートから生成（この環境、書き込みなし） |
+|---|---|---|
+| `b16-c.html`（C卓） | 「1回戦 CD卓」 | 出ない（まとめ単位が ベスト16D だけになったため） |
+| `b16-d.html`（D卓） | 「1回戦 CD卓」 | 「4回戦 南場」 |
+
+- 今のシートから生成した出力は、cloudflare の生成物と37ファイルが違う（CLD-07 の見込みの36ファイル＋`data/live_pages.json` などと同じ形。鸞和戦 第6期のページ、出演者の他の対局の一覧が載るほかの大会のページ）。生成物は書き込んでいない
+- /live の再生成は、毎朝の `update-live-channel.yml` のジョブ `regenerate`（`target_page: live_pages title_pages`）が行う。次の毎朝の実行で上の見出しになる見込み
+
+### 2. 記録
+
+- CHAT-1002-CLD-07 の `## 報告` の状態を「完了（判断が出た: 平野さんが【3】3147行を案B に書き換えた。続きは CHAT-1002-CLD-08）」に直した（`## 指示` 欄が書く前と同じことを確かめた）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1002-cld
-- ログ: https://github.com/retroeater/mj/blob/work/1002-cld/docs/logs/CHAT-1002-CLD-08.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1002-CLD-08.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1002-cld
 - 確認用URL: なし
-- マージ: 未
-- issue: #448
+- マージ: 済（docs/logs のみ）
+- issue: #448（Open のまま。結果をコメントした: https://github.com/retroeater/mj/issues/448#issuecomment-5980162649 ）
 - 判断が必要なこと: なし
-- 未確認の項目: なし
+  - 【3】3147行の今の値: K 卓 D・M 回戦 4・N 枝番 南場・O まとめ単位 ベスト16D・P 金子正明、猪鼻拓哉、木戸僚之、猿川真寿・Q 大野雄輝・R 阿久津翔太（CLD-07 の案B のとおり）
+  - 計算した件名: 「第6期鸞和戦 ベスト16 D卓 4回戦」
+  - iCal の今の件名: 「第6期鸞和戦 ベスト16 CD卓 1回戦」のまま。最後の同期は run 37150585027（2026-10-03 20:10〜20:14 UTC）で、シートの書き換えはその後と見られる
+  - /live の見出し: cloudflare の今の生成物では b16-c・b16-d の両方に「1回戦 CD卓」。今のシートから生成すると b16-d だけに「4回戦 南場」
+- 未確認の項目:
+  - 次の毎朝の実行で、カレンダーの件名が「第6期鸞和戦 ベスト16 D卓 4回戦」に直ること
+  - 次の毎朝の実行の /live の再生成で、b16-d の見出しが「4回戦 南場」になり、b16-c から外れること
+  - 【3】を書き換えた時刻（シートからは読めない）
 - エラー: なし
 
 <!-- guide-links -->
@@ -78,4 +128,4 @@
 - docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/200ed2c4/docs/notes/chat-side-operations.md
 - docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/200ed2c4/docs/notes/cloudflare.md
 - docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/200ed2c4/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/de5c28a8.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/d951d060.md
