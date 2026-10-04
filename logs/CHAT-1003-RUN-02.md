@@ -62,18 +62,39 @@
 - 0. 指示欄の末尾は指示文の最後の行（「この行が指示文の最後の行です。」）と一致。
 - 識別子の確認: `CHAT-1003-RUN-02` のコミットは 0件。RUN のコミットは同じチャットの RUN-01（work/1003-run-01、マージ済み）のみ。
 - `origin/work/1003-run-02` は無く、`git checkout -b work/1003-run-02 origin/cloudflare` で作成。
+- ログを先行 push（d951d060）。
+- 手順1: #459・#461・#485・#142 はいずれも Open。他セッションの着手中コメントは無し。4件に着手中コメントを投稿。
+  - #459: 本文はしきい値を「着手時に決める」とし数が無い → 指示どおり順位4〜20位を全件並べる。#461: 本文と 09-30 のコメント（旧表の扱い）は指示と一致。#485: 09-30 のコメントで 10/1 の値を廃止直前の基準値とすると書かれており一致。
+  - #142: 本文は #5 の効果測定（期日 10-07）で、title/ の公開前後の比較は本文に無い。指示の決定（元は #413 の予定）として扱い、食い違いではなく追加と判断した（報告に記載）。
+  - GC-20 の表は #413（2026-09-28 にクローズ）のコメントにある（ログではない）。表の元は docs/gsc/2026-09-21/tournament-queries.md。
+- 手順2: `docs/gsc/2026-10-01/20260901-20260928/query-page.csv` は見出しを除いて73行。
+  - 名簿は `generate_jpml_pros.py` のシートを `check_meibo.fetch_sheet` で読み 1,099名（Y列の在籍の条件あり・なしとも同数）。
+  - #459: 順位4〜20位 41組・表示 602・クリック 5。最大は houou_ranking.html?sheet=鳳凰（8組・表示 331）。title に「鳳凰位」「歴代」が無いが、ページは成績ランキングで、歴代は title/houou/ が受け持つため、今の title・description で直す候補は無しと判断。#5 にはコメントしていない。
+  - #461: 選手名クエリ 26行・21名・表示 185・クリック 3（全体 73行・表示 661・クリック 7）。名簿に一致しない人名らしいクエリ 11行は参考の表に分けた。jpml_pros.html への着地 12行はすべて同じ1つの `?name=` URL（Google の正規化と推測）。
+  - #485: page.csv で旧表 22行（`?name=` 21・なし 1）・表示 88・クリック 3。query-page.csv で 5行・表示 22・クリック 0。
+  - #142: GC-20 と同じ語の行は 12行（11クエリ）・表示 336・クリック 2。GC-20 の10クエリはすべて同じ着地先。title/ 配下は入口 `title/` のみ（query-page 1行・表示 7、page.csv 表示 9）。
+  - ファイル: docs/gsc/2026-10-01/ の low-ctr-pairs.md・name-queries.md・jpml-titles-landing.md・tournament-queries.md。docs/gsc/README.md「そのデータから作った表」に4行追加。push（74a04dc2）。
+- 手順3: 4件にコメント（#459 5980191513・#461 5980192531・#485 5980193323・#142 5980194652）。
+- 決定を docs/decisions/seo-bing.md に追記。
+- 手順4: cloudflare へマージ（このコミット）。
 
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1003-run-02
-- ログ: https://github.com/retroeater/mj/blob/work/1003-run-02/docs/logs/CHAT-1003-RUN-02.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1003-RUN-02.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1003-run-02
-- 確認用URL: なし
-- マージ: 未
-- issue: #459・#461・#485・#142
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 確認用URL: なし（docs のみ）
+- マージ: 済（work/1003-run-02 の先頭を cloudflare へ push）
+- issue: #459・#461・#485・#142（各コメント2件: 着手中と結果。いずれも Open のまま。#5 にはコメントしていない）
+- 判断が必要なこと:
+  - #459: 本文の「やること」1〜3（抜き出し・title と description を並べる・docs/gsc/ に表を置く）は満たした。しきい値は数を置かず4〜20位の全件にした。直す候補は無しと判断したため、10/7 の取得を見るまで残すかクローズするか
+  - #461: 本文の「やること」1〜3（名簿で判定・選手ごとの表・docs/gsc/<取得日>/ に置く）は満たした。クローズしてよいか（月次で続けるなら本文に書く）
+  - #142: 本文には title/ の公開前後の比較が書かれていない（今回の指示の決定で足した扱い）。本文に足すか
+  - #461 で見つけた点: jpml_pros.html への着地はどの選手名でも同じ1つの `?name=` URL になっている（Google の正規化と推測）。新サイト（#296）の URL 設計で扱うか
+- 未確認の項目:
+  - jpml_pros.html の `?name=` の変種が1つの URL にまとまっている理由（Search Console の URL 検査で正規 URL を見れば確かめられる。セッションからは見られない）
+  - title/ への表示（page.csv の 9）が公開の前か後か（日別の値を取っていない）
 - エラー: なし
 
 <!-- guide-links -->
@@ -87,4 +108,4 @@
 - docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/200ed2c4/docs/notes/chat-side-operations.md
 - docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/200ed2c4/docs/notes/cloudflare.md
 - docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/200ed2c4/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/d951d060.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a8cd42e0.md
