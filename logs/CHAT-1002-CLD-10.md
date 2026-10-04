@@ -82,17 +82,28 @@ docs/decisions/broadcast-calendar.md「2026-10-04（CHAT-1002-CLD-09、#448）�
 
 ほかに、この指示の決定（2点を直してマージしてよい）を docs/decisions/operations.md に「2026-10-05（CHAT-1002-CLD-10）」として足した。CHAT-1002-CLD-09 の `## 報告` の状態を「完了（判断が出た: 2点を直してマージしてよい。続きは CHAT-1002-CLD-10）」に直した（`## 指示` 欄が変わっていないことを確かめた）。CLAUDE.md と docs/notes/chat-side-operations.md は変えていない。
 
+### 3. マージ
+
+- マージの行の条件: (1) CLD-09 で足した箇所は取り込み後も差分のとおりで、文面の違いはこの指示の2点だけ (2) CLAUDE.md 27,630・chat-side-operations.md 25,116 バイトで、どちらも警告の値（30,720・26,624）より小さい (3) 変更は CLAUDE.md と docs/ だけ（cloudflare との差: CLAUDE.md・docs/decisions/broadcast-calendar.md・docs/decisions/operations.md・docs/logs/CHAT-1002-CLD-09.md・docs/logs/CHAT-1002-CLD-10.md・docs/notes/chat-side-operations.md・docs/notes/handover-archive-2026.md）
+- push 直前に再 fetch し、`origin/cloudflare` が HEAD の祖先であることを確かめて `git push origin work/1002-cld:cloudflare`（d6f51c35..bc730f65）
+- bc730f65 の push で動いたもの: `assets-check.yml`（run 37213725276）success、`sync-logs.yml`（run 37213725249）success。`regenerate-page.yml` は動いていない（CLAUDE.md と docs/ だけのため）
+- 作業ブランチはマージ済み。削除は `delete-merged-branches.yml` に任せる（クラウドセッションでは削除できない）
+
 ## 報告
 
-- 状態: 作業中（マージ前）
-- ブランチ: work/1002-cld
-- ログ: https://github.com/retroeater/mj/blob/work/1002-cld/docs/logs/CHAT-1002-CLD-10.md
+- 状態: 完了
+- ブランチ: work/1002-cld（cloudflare へマージ済み。削除は `delete-merged-branches.yml` に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1002-CLD-10.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1002-cld
 - 確認用URL: なし
-- マージ: 未
-- issue: なし
+- マージ: 済（bc730f65）
+- issue: なし（同じ論点の issue は立っていない。検索の結果は CLD-09 と同じ）
 - 判断が必要なこと: なし
-- 未確認の項目: なし
+  - 取り込み後の CLD-09 の箇所: 5ファイルとも取り込みで変わっておらず、CLD-09 のログの差分のとおり
+  - 直した2点: archive の事例1件目の日付「2026-10-03、CLD の振り返り」→「2026-10-04、CLD の振り返り」。docs/decisions/broadcast-calendar.md の CLD-09 の節に「動画 us_j3ZINmm0（2023-07-09 第2期小島武夫杯帝王戦 決勝）の説明欄の対局者『千葉』は、概要欄の表記どおりで直さない（読み違いではない）」を足した
+  - マージ後のバイト数: CLAUDE.md 27,630（警告域 30,720）、docs/notes/chat-side-operations.md 25,116（警告域 26,624）。`assets-check.yml` success。`regenerate-page.yml` は動いていない
+- 未確認の項目:
+  - jt4E_u--mxg がカレンダーから消えたか（指示どおり、この指示では確かめていない）
 - エラー: なし
 
 <!-- guide-links -->
