@@ -73,32 +73,35 @@ CHAT-1004-WBD-01 の調査で、`Merge origin/cloudflare into work/...` のマ�
 
 指示文の「決定」節を docs/decisions/cloudflare.md に足した（起票は既存の決定と重なるため止めたことを添えた）。
 
+### 平野さんの回答（2026-10-04）と仕上げ
+
+回答（チャット経由で貼られたもの、要旨）: (a) 起票しない。CW-18（2026-09-28）と CX-15（2026-09-29）の決定のままとする。#363・#171 へのコメントも足さない。このログ（docs/ のみ）は cloudflare へマージしてよい。docs/decisions/cloudflare.md をこの判断に合わせて直してから入れる。報告の「状態」を完了に、「判断が必要なこと」を解消済みにする。
+
+- docs/decisions/cloudflare.md: 「起票する」の行に「→ 置き換え」を付け、「起票しない（(a)）」の行を足した（README の「前の決定を消さない」に従う）
+- issue の起票・コメントはしていない
+
 ## 報告
 
-- 状態: 判断待ち（起票せず、手順1で止まった）
+- 状態: 完了（起票せず。平野さんの判断 (a)）
 - ブランチ: work/1004-wbd
-- ログ: https://github.com/retroeater/mj/blob/work/1004-wbd/docs/logs/CHAT-1004-WBD-02.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1004-WBD-02.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1004-wbd
 - 確認用URL: なし
-- マージ: 未（止まる条件に当たったため。判断の後、docs のみを cloudflare へマージできる）
-- issue: なし（起票していない。重なりは #363 のコメント CX-04・CX-15、ほかに #171）
-- 判断が必要なこと:
-  - 同じ現象は 2026-09-28 に CW-16 で調べ済みで、減らす運用（案1・案2）は採らないと決めている（CW-18。#363 のコメント CX-04）。ビルド回数も「今のままでよい」と決めている（#363 のコメント CX-15）。それでも起票するか。選べる形:
-    - (a) 起票しない（2026-09-28〜29 の決定のまま）
-    - (b) #363 か #171 にコメントで WBD-01 の実数と見立て（マージコミットは第1親との差分で数えているように見える）を足す（#171 の再オープンの条件に当たるとみるなら再オープンも）
-    - (c) 新しい issue を立てる（前の決定との関係を本文に書く。運用の案1・案2は CW-18 で採らないと決めているので、候補はダッシュボード側の調査だけになる）
+- マージ: 済（docs のみを cloudflare へ。SHA は最終報告のログ（公開）の ?v= と同じ）
+- issue: なし（起票・コメントとも無し。重なっていたのは #363 のコメント CX-04・CX-15、#171）
+- 判断が必要なこと: 解消済み（(a) 起票しない。2026-09-28 CW-18・2026-09-29 CX-15 の決定のまま）
 - 未確認の項目: なし（参考: このログの先行 push〈04266b5f → 8750bb59、マージ済みの work/1004-wbd を早送り〉でも「Workers Builds: mj」が success。CW-16 の「作り直し」の場合と同じ）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 14b02792）: https://github.com/retroeater/mj-logs/tree/main/guide/14b02792
+ガイド文書（この版を写した時点の最新、mj d6f51c35）: https://github.com/retroeater/mj-logs/tree/main/guide/d6f51c35
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/14b02792/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/14b02792/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/14b02792/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/14b02792/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/14b02792/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/14b02792/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a8cd42e0.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d6f51c35/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d6f51c35/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d6f51c35/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d6f51c35/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d6f51c35/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d6f51c35/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/d6f51c35.md

@@ -6,7 +6,7 @@
 - 既存の作業ブランチを続けて使う指示は、「Chat-Ref」の次に「作業ブランチ: origin/cloudflare を起点に切った既存の work/<識別子> を続けて使う（〜のため）。着手時と作業中に origin/cloudflare が進んでいたら merge で取り込んでよい（push 済みなので rebase しない）」の1行を入れる。取り込みの可否を書かないと、祖先確認だけで中断する
 - クラウドセッション（Claude Code on the web）で実行する指示は、`/workspaces/mj` と worktree が無いため「作業ブランチ」の行を次のどちらかにする。判定の向きが2つで逆なので、式をそのまま書く
   - 新しく作る: 「作業ブランチ: クラウドセッションで実行する。work/<識別子> を使う。リモートに無ければ origin/cloudflare から作る。リモートにあってマージ済み（`git merge-base --is-ancestor origin/work/<識別子> origin/cloudflare` が真）なら origin/cloudflare から作る（`checkout -B` は使わない。ローカルにあるときを含め手順は docs/notes/cloud-sessions.md「作業ブランチの用意」）。マージ済みでなければ止まる」
-  - 未マージの作業を続ける: 「作業ブランチ: クラウドセッションで実行する。未マージの work/<識別子> を続けて使う（〜のため）。`git merge-base --is-ancestor origin/cloudflare HEAD` が偽なら merge で取り込んでよい（rebase しない）。リモートに無ければ止まる（ローカルにあるときを含め手順は docs/notes/cloud-sessions.md「作業ブランチの用意」）」
+  - 未マージの作業を続ける: 「作業ブランチ: クラウドセッションで実行する。未マージの work/<識別子> を続けて使う（〜のため）。`git merge-base --is-ancestor origin/cloudflare HEAD` が偽なら merge で取り込んでよい（rebase しない）。リモートに無ければ止まる（ローカルにあるときを含め手順は docs/notes/cloud-sessions.md「作業ブランチの用意」）」。`git checkout -b work/<識別子> origin/work/<識別子>` は書かない（同じセッションを続けるとローカルに同名のブランチがあり `-b` が失敗する）
 - SHA を固定して書かない。土台や比較対象は「その時点の `origin/cloudflare`」と書く
 - 定型部分は2行目の「共通手順」1行にまとめ、個々の手順を文章で書き直さない（写し間違いと途中切れを減らすため。2026-09-17）
 - 運用ルールの変更を含む指示は、手順1を「同じ論点の open issue を検索し（クローズ済みも含めて確認）、あれば止まって報告する」に固定する。チャット側はブラウザで検索できないことがあり、受け手側の検索で代替するため（HT-02 で #294 を検出した実例）
