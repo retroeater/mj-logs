@@ -58,28 +58,77 @@
 - 識別子の確認: `git log --all --grep="CHAT-1005-UNR-13"` は0件。ローカルの `work/1005-unr` は `origin/work/1005-unr`（6bcc175f）と同じで origin/cloudflare の祖先（マージ済み）。`git merge --ff-only origin/cloudflare`（86229eca）
 - 手順0: 「指示」欄の末尾の行は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はそろっている
 
+- 読んだもの: CHAT-1005-UNR-12 のログ（「4.」「5.」・`## 報告`）、#500 の本文とコメント（Open、コメント3件は UNR-10〜12 のもの。着手中のコメントは無い）。未マージの work/ は `1002-cld`（ログ1本）と `1005-unr`（この）だけ
+- #500 の予定は Google カレンダーに無い（「#500」「連盟プロ以外 所属団体」で検索して0件）
+
+### 1. シートの確かめ（書いていない）
+
+- 「連盟プロ以外」（gviz、2回読んで同じ）: **765行**（UNR-12 の 764行から1行増えた）。増えたのは **87行「齋藤けーすけ」（協会、所属補足 空）**。名前で並んだ表のため、87行より後ろの行は行番号が1つずつずれている
+- 名前で引いた今の値（行番号は今の位置。括弧は UNR-12 の時点の行番号）:
+
+| 今の行 | 名前 | 今の所属団体 | 今の所属補足 | 決定・提案の値 | 一致 |
+|---|---|---|---|---|---|
+| 396（395） | 佐藤聖誠 | - | 元最高位戦 | - / 元最高位戦 | 一致 |
+| 443（442） | 若林伸一 | - | 一般 | - / 一般 | 一致 |
+| 495（494） | 水沼利晃 | - | 一般 | - / 一般 | 一致 |
+| 567（566） | 段谷昭夫 | - | 一般 | - / 一般 | 一致 |
+| 626（625） | 筒井久美子 | - | 元連盟 | - / 元連盟 | 一致 |
+| 680（679） | 牧野卓人 | - | 一般 | - / 一般 | 一致 |
+| 706（705） | 涼崎いづみ | - | 元最高位戦 | - / 元最高位戦 | 一致 |
+| 263（262） | 井出洋介 | - | 元連合 | - / 元連合 | 一致 |
+| 459（458） | 小川稜太 | - | 元協会？ | - / 元協会？ | 一致 |
+| 616（615） | 田本英輔 | - | 元協会？ | - / 元協会？ | 一致 |
+| 86（86） | 齋藤敬輔 | - | 元最高位戦 | （前提: 協会のまま） | **前提と違う** |
+| 87（新） | 齋藤けーすけ | 協会 | （空） | （決定: 協会に移籍し登録名を変えた） | 新しい行 |
+
+- 齋藤敬輔は、前提（チャット側）の「86行は協会のまま」ではなく、86行が `-`／「元最高位戦」、87行に新しい名前「齋藤けーすけ」（協会）が足された形だった。止まる条件（UNR-12 の7行の違い・名前の検査の警告）には当たらないので進めた。書き方は「判断が必要なこと」に書いた
+- 所属団体: `-` 480・協会 113・最高位戦 104・連合 37・RMU 31
+- 所属団体 `-` の行の所属補足: 空 295・一般 125・元連盟 47・元最高位戦 6・元協会 2・元協会？ 2・元RMU 1・元連合 1・元最高位戦？ 1
+  - 空の 295行は、UNR-12 の「5.」の不明 262名＋調べられない 33名と同じ数（UNR-12 の提案7名がそれぞれの値に入った）
+- 名前の検査（`NameBook` の警告）: **0件**
+- 協会の選手一覧 https://npm2001.com/player/ を1回読んだ（200、924名）: **「齋藤けーすけ」がある**。個別ページ https://npm2001.com/player/saito-kesuke/
+
+### 2. #500 を閉じる
+
+- 締めのコメント: https://github.com/retroeater/mj/issues/500#issuecomment-5991848320 （調べ方、回ごとの件数、シートに入った行数〈32行＋新しい行1行〉、残した295行と名前の一覧の場所〈UNR-12 のログ「5.」〉、RMU の一覧が作り直せなかったことと残した3名、「？」付きの行、齋藤敬輔の登録名の変更と根拠の URL）
+- #500 を閉じた（state_reason: completed）。「状況:」ラベルは付いていなかった（ラベルは `分野: データ`・`対象: video_live` のまま）
+- #396 にコメント: https://github.com/retroeater/mj/issues/396#issuecomment-5991850854
+
+### 3. 文書
+
+- CLAUDE.md と docs/（docs/logs・docs/decisions・handover-archive を除く）で `#500` を検索: 2か所
+  - docs/notes/live-page-design.md「1-4」: 「行を足すときに所属が分からなければ `-` を入れ、所属団体の確かめ（#500）の対象にする」→ **置き換えた**:
+    「行を足すときに所属が分からなければ、所属団体 `-`・所属補足 空で入れる。所属の確かめ方: 4団体の公式の選手一覧と名前を突き合わせ（NFKC・空白と「・」を除く・異体字を同じ字とみなす）、無ければ連盟公式サイトのサイト内検索（`https://www.ma-jan.or.jp/?s=<名前>`）の記事の「名前（団体）」の注記と成績表の「プロ/一般」の欄を見る。今はどこにも所属していない人は `-` と「元〜」、確かでないときは「？」を付ける（「元協会？」）。手順の実例は #500（Closed）と CHAT-1005-UNR-10〜12 のログ」
+  - docs/notes/cloud-sessions.md「ネットワーク」の許可ドメインの行（「…読むため、#500」）: 許可を足した理由の経緯なので直していない
+- docs/handover.md・CLAUDE.md に #500 の記述は無い
+- 決定を docs/decisions/live.md に2行で足した
+- サイズ: CLAUDE.md 27,630・handover.md 24,380・chat-side-operations.md 26,558 バイト（3つとも警告域の下。chat-side-operations.md は警告域 26,624 まで 66 バイトだが、今回は変えていない）
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1005-unr
-- ログ: https://github.com/retroeater/mj/blob/work/1005-unr/docs/logs/CHAT-1005-UNR-13.md
+- 状態: 完了
+- ブランチ: work/1005-unr（マージ済み。削除は delete-merged-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1005-UNR-13.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1005-unr
-- 確認用URL: なし
-- マージ: 未
-- issue: #500
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 確認用URL: なし（docs のみ）
+- マージ: 済（docs のみ。このログを含む最後の push）
+- issue: #500（締めのコメントのうえ Closed）、#396（コメント）
+- 判断が必要なこと:
+  - 齋藤敬輔: シートは 86行「齋藤敬輔」`-`／元最高位戦 と、87行「齋藤けーすけ」協会（新しい行）の2行になっている（チャット側の前提は「86行は協会のまま」）。/live の表示で同じ人を1人にまとめるなら、「別名」に `齋藤敬輔 → 齋藤けーすけ`（区分 `登録名変更`）を足し、86行を消す形もある（「別名」の変換前は「プロ」「連盟プロ以外」に無いことが名前の検査の条件）。どちらにするかは平野さん
+  - docs/notes/chat-side-operations.md が警告域まで 66 バイト（今回は変えていない）。次に足す前に整理が要る
+- 未確認の項目:
+  - 「齋藤敬輔」の「元最高位戦」の根拠（平野さんが入れた値。この回は調べていない）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 86229eca）: https://github.com/retroeater/mj-logs/tree/main/guide/86229eca
+ガイド文書（この版を写した時点の最新、mj 4cd979d6）: https://github.com/retroeater/mj-logs/tree/main/guide/4cd979d6
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/86229eca/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/86229eca/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/86229eca/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/86229eca/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/86229eca/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/86229eca/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/4cd979d6/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/4cd979d6/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/4cd979d6/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/4cd979d6/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/4cd979d6/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/4cd979d6/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b89c3b19.md

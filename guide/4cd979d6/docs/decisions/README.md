@@ -10,6 +10,7 @@
 
 | ファイル | 分野 |
 |---|---|
+| [automation.md](automation.md) | 自動化（GitHub Actions の予約実行とその起動、#491 系） |
 | [broadcast-calendar.md](broadcast-calendar.md) | 放送対局の公開カレンダー「mj_放送対局」・連盟の予定表の取り込み（#448 系） |
 | [cloudflare.md](cloudflare.md) | Cloudflare（Workers Builds の起動条件・配信基盤、#171 系） |
 | [dojo-guest.md](dojo-guest.md) | 道場部ゲスト（「mj_道場部ゲスト」カレンダーの取り込み、#390・#426） |
