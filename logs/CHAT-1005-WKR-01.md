@@ -89,6 +89,35 @@
 2. 指示欄の末尾の確認（手順0）: 指示欄の最後の行は「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」で、指示文の最後の行と一致
 3. 着手時HEAD の取得（`git rev-parse --short HEAD`）が分類器に拒否された（理由: Modify Shared Resources。#493 と同じ症状）。HEAD の SHA を得る別の手段は試していない
 4. 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+5. 0章ゲート
+   - #504 は Open。本文の「決定」「必ず守ること」（`.assetsignore` に `workers`、常設 issue を段階1で作る、`CLOUDFLARE_API_TOKEN` を置かない）と指示は合う。コメントは0件だった → 着手中のコメントを出した
+   - 同じ目的の issue: 「予約実行の起動」「Worker」「起動の失敗・遅れの検知」で検索し、#504・#505・#503 だけ。delete-merged-branches の結果を知らせる常設 issue は無い（「種類: 常設」の Open は #481・#475・#426・#357・#352）
+   - 未マージのブランチ: `git branch -r --no-merged origin/cloudflare` は `origin/work/1005-wkr-01` だけ（着手前の確認で見えた `work/1002-cld` は fetch の後にマージ済みになっていた）
+   - ラベル「種類: 常設」「分野: 自動化」は実在する
+   - delete-merged-branches.yml の今の作り: 入力 `dry_run`（真偽、既定 true）。手動は入力どおり、schedule は `SCHEDULE_ENABLED` で決める。前提どおり。`scripts/delete_merged_branches.py` は契機を見ていない（`schedul`・`event` の grep で0件）
+   - `SCHEDULE_ENABLED` は **`'true'`**。docs/notes/static-generation.md「ワークフローを手動実行するとき」の「現在 `'false'`」が古い（cloud-sessions.md の「毎日削除する」が正しい）→ static-generation.md を直す
+6. 公式の文書で確かめたこと（docs.github.com はプロキシで拒否されたので、`raw.githubusercontent.com/github/docs` の原稿で読んだ）
+   - Workers Builds: wrangler の `name` がダッシュボードの Worker の名前と違うと「The name in your Wrangler configuration file (…) must match the name of your Worker」でビルドが失敗する
+   - `workers_dev`: 「scheduled のイベントだけの Worker なら false にできる」。`workers_dev` を切っても Preview URLs は切れない → `preview_urls: false` も書く（省略時は workers_dev に従う、と wrangler の設定の文書）
+   - scheduled ハンドラ: `controller.scheduledTime`（ms）・`controller.cron`
+   - GitHub: `inputs` コンテキストは真偽を真偽のまま保ち、`github.event.inputs` は文字列にする。`workflow_dispatch` の入力は最大 25 個（#504 の未確認の「入力の数の上限」が分かった。update-live-channel は 10 個にしても足りる）
+   - 起動の API: Actions: write。204（`return_run_details` が真なら 200 と run の ID）。REST の全リクエストに User-Agent が要る
+   - `run-name` は `github` と `inputs` のコンテキストを使える。空なら契機ごとの既定の題
+   - 実行の一覧の API の `created` に `>=2026-10-03T15:00:00Z` を渡すと、その時刻より後だけが返った（実物で確かめた。delete-merged-branches の schedule の実行 #12〈2026-10-05T01:19:19Z〉・#11）
+7. 予約の起動の見分け方: `run-name: ${{ inputs.scheduled && '[scheduled] マージ済みの作業ブランチを削除する' || '' }}` にし、Worker は `event` が `workflow_dispatch` で `display_title` が `[scheduled]` で始まるものを予約の起動とみなす。`scripts/actions_status.py` は display_title を書かないので status.md は変わらない
+8. 常設 issue #506「予約実行の起動」を起票（ラベル 種類: 常設・分野: 自動化）
+9. Worker の実装（`workers/scheduler/`）: `wrangler.jsonc`（name `mj-scheduler`、cron `*/5 * * * *`、`workers_dev`・`preview_urls` は false、vars に GITHUB_REPOSITORY・DISPATCH_REF・NOTIFY_ISSUE=506）、`schedule.json`、`src/index.mjs`（入口）、`src/scheduler.mjs`（判定と API）、`test/scheduler.test.mjs`
+   - 指示の案から変えた点: ファイルは `.mjs`（`package.json` を置かずに Node でも ESM として読むため）。起動の窓は「前の回より後〜この回まで」で、00:00 の回は前の日の 23:56〜 の予定を拾う。朝の確かめで、予定から15分以内で起動が無い行は「起動待ち」、API が失敗した行は「確認できず」として通知する。起動の API につながらなかったときも通知する。行のキーは `weekdays`（0=日曜）・`monthdays`
+   - `node --test 'workers/scheduler/test/*.test.mjs'`: 16件すべて通過。Node 22 では `node --test workers/scheduler/test/`（ディレクトリ）は MODULE_NOT_FOUND で失敗する
+   - 束ねの確認: scratchpad に esbuild を入れ（リポジトリには入れない）、`src/index.mjs` を束ねて、偽の fetch で `scheduled` を3回呼んだ。04:20 の回は dispatch 1件（ref cloudflare、inputs `{"scheduled":true}`）、06:00 の回は一覧→ワークフローの状態→#506 へのコメント（偽の応答で未起動）、Secret なしは `console.error` だけ
+   - `python3 -m unittest discover -s scripts/tests`: 546件 OK
+10. delete-merged-branches.yml: 入力 `scheduled`（真偽、既定 false）と `run-name` を足し、判定を「workflow_dispatch で scheduled が真でない → 入力どおり、それ以外 → SCHEDULE_ENABLED」にした。`schedule:` の行は変えていない
+11. コミット `f153aab5`（`.assetsignore` に `workers`、`workers/scheduler/`、ワークフロー）を push
+    - assets-check.yml run 2847（job 111704750655）: success。「除外後に配信される最上位の項目」に `workers` は無い
+    - 手動実行 (a) run #13（id 37292138645、入力なし）: success。ログ `INPUT_DRY_RUN: true`・`INPUT_SCHEDULED: false`・`DRY_RUN: true`。題は既定の「マージ済みの作業ブランチを削除する」。`work/1003-vid-01` を「削除対象（dry-run）」と出しただけ
+    - 手動実行 (b) run #14（id 37292147782、`scheduled` を `"true"`）: success。ログ `INPUT_SCHEDULED: true`・`DRY_RUN: false`（予約実行と同じ分岐。SCHEDULE_ENABLED が 'true'）。題は `[scheduled] マージ済みの作業ブランチを削除する`。**削除: `work/1003-vid-01` 3dfac105fe16879fee6a4592e39ae7f0d5f35833（マージ済み、先頭から26.4時間）**。ほかは猶予中・未マージで残した
+    - 文字列の `"true"` で渡した入力が真偽の入力として通り、`${{ inputs.scheduled }}` は `true`/`false` で env に入った
+12. 文書: `docs/notes/scheduler-worker.md` を新設。handover.md「7. 関連文書」に1行（24380 → 24584 バイト、警告域 26624 の内側）。static-generation.md の「ワークフローの一覧」「ワークフローを手動実行するとき」、cloudflare.md の「本番反映（デプロイ）の仕組み」に1行、decisions/automation.md に決定
 
 ## 報告
 
@@ -107,12 +136,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj fe048151）: https://github.com/retroeater/mj-logs/tree/main/guide/fe048151
+ガイド文書（この版を写した時点の最新、mj 64aa604f）: https://github.com/retroeater/mj-logs/tree/main/guide/64aa604f
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/fe048151/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/fe048151/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/fe048151/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/fe048151/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/fe048151/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/fe048151/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/64aa604f/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/64aa604f/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/64aa604f/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/64aa604f/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/64aa604f/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/64aa604f/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/1faab674.md

@@ -88,6 +88,7 @@ CLAUDE.md「ブランチ運用」の「作業ブランチも削除する」は�
 - `*.cloudflare.com`（2026-09-28。公式ドキュメント `developers.cloudflare.com` と公式ブログ `blog.cloudflare.com` を読むため。CW-11 で両方 200 を確認）
 - `*.workers.dev`（2026-09-28。本番の Worker と作業ブランチのプレビューの確認用。CW-14 で両方 200 を確認。URL はログに書かない）
 - `calendar.google.com`（2026-09-28。放送対局の予定表の公開カレンダーを読むため、#448）
+- `saikouisen.com`・`npm2001.com`・`rmu.jp`・`mu-mahjong.jp`（2026-10-05。最高位戦・協会・RMU・麻将連合の公式サイトの選手一覧・プロフィールを読むため、#500。4つとも 200 で読めた）
 
 未追加: `openapi.rakuten.co.jp`（books は凍結中）。再生成は `jpml_titles` で確かめた（MD-15。旧表は #441 で廃止し、今は `regenerate.py` の対象に無い）。鍵の要るスクリプトはクラウドでは動かない（次節）。
 
