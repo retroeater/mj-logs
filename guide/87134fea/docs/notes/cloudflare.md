@@ -524,6 +524,8 @@ Workers & Pages → `mj` → Settings → Builds:
   2026-09-12にExclude pathsへ`docs/**`を追加し完了。設定値自体はセッション
   からは検証できないため申告の記録として残す）
 
+- **2つ目の Worker `mj-scheduler`**（#504）: 予約実行を起動する Worker。コードは `workers/scheduler/`（`.assetsignore` で配信から外す）。同じリポジトリを Root directory `workers/scheduler` で Workers Builds につなぐ（段階1のマージの時点ではまだつないでいない）。説明は `docs/notes/scheduler-worker.md`。設定値の表は、つないだ後に書く
+
 ### APIトークンの棚卸し（2026-09-12）
 
 現役は平野さんのアカウント（`<平野さんのメールアドレス>`）に紐づく **User API Token 1本**（`mj build token`。Workers Builds が自動発行するため Account Token は選べない）。**このユーザーのアカウントが使えなくなると本番反映が止まる。****権限は手で絞らず触らないこと**（次のビルドが壊れうる）。リポジトリを接続し直すと同名トークンが増えるので、古いものは削除する。4本→1本に整理した経緯は `docs/notes/handover-archive-2026.md`
