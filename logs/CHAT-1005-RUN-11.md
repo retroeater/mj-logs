@@ -65,17 +65,42 @@ RUN のチャット（CHAT-1003-RUN-01〜CHAT-1005-RUN-10）を閉じ、#504 の
 - 識別子の確認: `CHAT-1005-RUN-11` のコミットは 0件。RUN の他のコミットは同じチャットの RUN-01〜10。
 - `origin/work/1005-run-11` は無く、`git checkout -b work/1005-run-11 origin/cloudflare` で作成。
 
+
+### 1. docs/notes/chat-side-operations.md
+
+- 着手時 **25,902 バイト**（指示文の値と同じ）→ 追記後 **26,558 バイト**（警告域 26,624 バイトの内側、余り 66 バイト）。既存の記述は縮めずに収まった
+- 同じ趣旨の記述は無く、矛盾する記述も無い（「添付した」と書く前の確認・issue のクローズ時の予定の扱いは別の論点）
+- 置いた場所:
+  1. 「期日とカレンダー」: 期日を過ぎた繰り返しの予定は、その回だけをチャットを開いた日へ移す（済むまで繰り返す。別の予定は作らない）
+  2. 「確認対象ごとの手段」の Actions の行の末尾: 予約実行は2〜3時間遅れる（#504）。動いたかは status.md の版の履歴の「書き出した実行の契機」で、ジョブのログの中身は Code に確かめさせる（「書き出した実行の契機」は `scripts/actions_status.py` が書く行の名前と一致）
+  3. 「指示文の書き方・渡し方」: チャットの添付ファイル（CSV 等）は Code から読めないことがある。チャット側で集計し、表にして指示文に入れる
+  4. 「平野さんの判断とマージの許可」: クローズの時点で残る作業は別の issue に起票する（平野さんの決定。クローズの指示に書く）
+- 字数を抑えるため、2 の「sync-logs の直近5回は push の実行で埋まる」は「版の履歴で確かめる」に含めて書かなかった
+
+### 2. #503・#505
+
+- どちらも Open（#503 更新 06:54:17Z・コメント0、#505 更新 07:01:01Z・コメント0）
+- 指示の前提を実物で確かめた: `sync-dojo-calendar.yml` は `github.event_name == 'schedule'` のときだけ `--auto-update` を付け、`scripts/sync_dojo_calendar.py` は実行のたびに状態（画像の Last-Modified）を保存する
+- #503 の本文の「やること」に 3（書き込みなしの手動実行で状態を壊さない）と 4（#504 の入力 `scheduled` で `--auto-update` が付くことの確認）を足した（REST で `updated_at` を確かめてから PATCH）。コメント: https://github.com/retroeater/mj/issues/503#issuecomment-5991370975
+- #505 にコメント（取り消された sync-logs の実行の分が後で写るか・10/5 の実測の遅れ）: https://github.com/retroeater/mj/issues/505#issuecomment-5991371846
+  - 補足: RUN-10 のログは、この作業中（09:0x UTC 頃）に確かめたところ mj-logs に最新版（マージの記録入り）が写っていた。何の実行で写ったかは確かめていない
+  - 10/5 の実測（2時間半〜3時間遅れ、sync-logs の 08:29 が 11:16）は指示文の値をそのまま写した。この作業では確かめていない
+
+### 3. decisions
+
+- docs/decisions/operations.md に RUN-11 の節を足した（繰り返しの予定の繰越し・#503 に足したこと）。クローズ時に残る作業を別 issue に起票する決定は operations.md・seo-bing.md に既にあるので足していない
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1005-run-11
 - ログ: https://github.com/retroeater/mj/blob/work/1005-run-11/docs/logs/CHAT-1005-RUN-11.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1005-run-11
-- 確認用URL: なし
-- マージ: 未
-- issue: #503・#505
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 確認用URL: なし（docs のみ）
+- マージ: 済（ドキュメントのみの変更。結果は経過の末尾）
+- issue: #503（本文にやること 3・4 を追加、コメント）・#505（コメント）
+- 判断が必要なこと: chat-side-operations.md の余りは 66 バイト。次に足すときは、先に同じ文書の記述を縮めるか `docs/notes/` の別の文書へ移す必要がある。指示文の雛形の行に欠けは無い
+- 未確認の項目: 10/5 の予約実行の遅れの実測値（指示文の値を写した）。RUN-10 のログが mj-logs に写った契機
 - エラー: なし
 
 <!-- guide-links -->
