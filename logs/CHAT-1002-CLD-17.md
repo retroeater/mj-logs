@@ -67,16 +67,28 @@ CLD のチャットの2回目の振り返りの申送り（CHAT-1002-CLD-16。�
 - マージの行の条件 (1)(2)(3) はすべて満たす
 - CHAT-1002-CLD-16 の `## 報告` の状態を「完了（判断が出た: そのままマージしてよい。続きは CHAT-1002-CLD-17）」に直した（`## 指示` 欄が変わっていないことを確かめた）
 
+### 2. マージ
+
+- `work/1002-cld` へ push した後の再 fetch で `origin/cloudflare` が CHAT-1005-WKR-02 のログだけのコミット（8d3f1dca）で進んでいたため、もう一度 `git merge origin/cloudflare`（衝突なし）
+- push 直前に再 fetch し、`origin/cloudflare` が HEAD の祖先であることを確かめて `git push origin work/1002-cld:cloudflare`（8d3f1dca..87134fea）。差分は docs/decisions/operations.md・docs/instruction-template.md・docs/logs/CHAT-1002-CLD-16.md・CLD-17.md・docs/notes/chat-side-operations.md・docs/notes/handover-archive-2026.md だけ。マージ時のバイト数は chat-side-operations.md 26,576・CLAUDE.md 27,630
+- 87134fea の `assets-check.yml`（run 37330074816）は success。`sync-logs.yml`（run 37330074840）も success
+- `regenerate-page.yml` は動いていない（docs だけのため）
+- 8d3f1dca の cloudflare の `sync-logs.yml`（run 37330049101）は、87134fea の push で concurrency により cancelled になった。87134fea の実行が cloudflare の全ログを写すので、CHAT-1005-WKR-02 のログもそこで写る
+- 作業ブランチはマージ済み。削除は `delete-merged-branches.yml` に任せる（クラウドセッションでは削除できない）
+
 ## 報告
 
-- 状態: 作業中（マージ前）
-- ブランチ: work/1002-cld
-- ログ: https://github.com/retroeater/mj/blob/work/1002-cld/docs/logs/CHAT-1002-CLD-17.md
+- 状態: 完了
+- ブランチ: work/1002-cld（cloudflare へマージ済み。削除は `delete-merged-branches.yml` に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1002-CLD-17.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1002-cld
 - 確認用URL: なし
-- マージ: 未
-- issue: なし
+- マージ: 済（87134fea、docs のみ。`assets-check.yml` success、`regenerate-page.yml` は動いていない）
+- issue: なし（CLD-16 と同じ検索語で、同じ論点の issue は立っていない。当たったのは別の論点の #291〈Open〉・#466〈Closed〉だけ）
 - 判断が必要なこと: なし
+  - 取り込み後も CLD-16 の4文書の変更行は CLD-16 のコミットと完全に一致し、ほかの文面の違いは無い。取り込んだ他セッションの変更（CHAT-1005-WKR-02）はこの4文書と CLAUDE.md に触れていない
+  - マージ後のバイト数: docs/notes/chat-side-operations.md 26,576（警告 26,624）、CLAUDE.md 27,630（警告 30,720）
+  - CHAT-1002-CLD-16 の `## 報告` の状態を「完了（判断が出た: そのままマージしてよい。続きは CHAT-1002-CLD-17）」に直した
 - 未確認の項目: なし
 - エラー: なし
 
