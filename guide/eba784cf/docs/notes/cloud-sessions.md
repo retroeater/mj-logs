@@ -25,7 +25,7 @@ Codespace の代わりにクラウドセッションで作業するときの、C
 **ブランチの作成・切り替え・進める操作は、`cd`・`;`・`|`・`&&` を付けない単独のコマンドで、クローンの中から `git -C` も付けずに実行する**
 （読むだけのコマンドとつなぐと全体が破壊的な操作として判定され、拒否されることがある。許可ルール `Bash(git checkout -b work/*)` の形にも合わせる。#298）。
 
-分類器に拒否されたら（`git checkout -b work/…` が「Modify Shared Resources」で拒否された例がある。同じ操作が通る回もある）、別の手段（`claude/…` のブランチを使う、許可ルールを足すなど）を試さずに止まり、コマンドの全文と理由をログの `## 報告` の「エラー」に書く（#298）。平野さんがそのコマンドを許可する返答を貼ったら、同じコマンドを1回だけ実行し直し、また拒否されたら止まる（チャット側の返し方は `docs/notes/chat-side-operations.md`「Claude Code とのやり取り」）。
+分類器に拒否されたら（`git checkout -b work/…` が「Modify Shared Resources」「Interfere With Workloads」で拒否された例がある。同じ操作が通る回もある）、別の手段（`claude/…` のブランチを使う、許可ルールを足すなど）を試さずに止まり、コマンドの全文と理由をログの `## 報告` の「エラー」に書く（#298）。平野さんがそのコマンドを許可する返答を貼ったら、同じコマンドを1回だけ実行し直し、また拒否されたら止まる（チャット側の返し方は `docs/notes/chat-side-operations.md`「Claude Code とのやり取り」）。
 
 ローカルに `work/<識別子>` があるか（`git rev-parse --verify --quiet work/<識別子>`）を先に見る。
 
@@ -117,4 +117,7 @@ CLAUDE.md「ブランチ運用」の「作業ブランチも削除する」は�
   最新の版と違えば `chat-ids/<mj の短い SHA>.md` に書く（10個を残す。最新は `chat-ids/HISTORY` の最後の行、#474）。写したログの末尾からリンクする
   mj-logs に写したログの末尾には、その時点で最新のフォルダと CLAUDE.md・handover.md・instruction-template.md・chat-side-operations.md・cloudflare.md・decisions/README.md へのリンクが付く（mj の元のログは変えない）。
   ガイド文書に書かない情報はログと同じ。写す一覧は `python3 scripts/sync_guides.py --dest <任意> copy --base HEAD --after HEAD --list`
+- **Actions の実行結果も書き出す。** `sync-logs.yml` の実行のたび（push に加えて毎日 08:29 JST の予約実行と手動実行）に、`scripts/actions_status.py` が
+  各ワークフローの直近5回の実行を mj-logs の `actions/status.md` に上書きする（#498）。予約実行・手動実行は `[sync-logs]` の目印に関係なく走る。
+  セッションでも `GITHUB_REPOSITORY=retroeater/mj python3 scripts/actions_status.py --dest <任意>` で同じ表を手元に作れる（環境変数のトークンを使う）
 - ログの `## 報告` などの書き換え方（最後の一致を相手にする）と、「ログ（公開）」の行を書く前の写しの確かめは CLAUDE.md「作業ログ」節
