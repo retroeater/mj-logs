@@ -77,28 +77,37 @@ docs/decisions/README.md（書き方: 見出しは `## YYYY-MM-DD（Chat-Ref）`
 
 CHAT-1002-CLD-11 の `## 報告` の状態を「完了（判断が出た: jt4E_u--mxg は残し、R3IZ244ANxQ の対局者は8名のまま。シートもコードも変えない。続きは CHAT-1002-CLD-12）」に直した（`## 指示` 欄が変わっていないことを確かめた）。
 
+### 3. マージ
+
+- push 直前に再 fetch し、`origin/cloudflare` が HEAD の祖先であることを確かめて `git push origin work/1002-cld:cloudflare`（9cb43b18..f00f59d9）。差分は docs/decisions/live.md・docs/logs/CHAT-1002-CLD-11.md・docs/logs/CHAT-1002-CLD-12.md だけ
+- f00f59d9 で動いたのは `sync-logs.yml`（run 37274861996、success）だけ。`regenerate-page.yml` は動いていない（docs だけのため）
+- 作業ブランチはマージ済み。削除は `delete-merged-branches.yml` に任せる（クラウドセッションでは削除できない）
+
 ## 報告
 
-- 状態: 作業中（マージ前）
-- ブランチ: work/1002-cld
-- ログ: https://github.com/retroeater/mj/blob/work/1002-cld/docs/logs/CHAT-1002-CLD-12.md
+- 状態: 完了
+- ブランチ: work/1002-cld（cloudflare へマージ済み。削除は `delete-merged-branches.yml` に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1002-CLD-12.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1002-cld
 - 確認用URL: なし
-- マージ: 未
-- issue: なし
+- マージ: 済（f00f59d9、docs のみ。`regenerate-page.yml` は動いていない）
+- issue: なし（#448 の関連）
 - 判断が必要なこと: なし
-- 未確認の項目: なし
+  - docs/decisions/live.md に「2026-10-05（CHAT-1002-CLD-12、#448 の関連）」を足した: jt4E_u--mxg は /live に残す（ライブの全編 R3IZ244ANxQ は D卓4回戦の南1局の途中で終わるため）／R3IZ244ANxQ の対局者は両卓の8名のまま（行を卓ごとに分けない）／jt4E_u--mxg は D卓の対局者・実況・解説だけ（例外なのでコードは直さない）。文面は「経過」の「1. 決定の記録」
+  - CHAT-1002-CLD-11 の `## 報告` の状態を「完了（判断が出た…続きは CHAT-1002-CLD-12）」に直した
+- 未確認の項目:
+  - 【3】3147行の値はこの指示では読み直していない（CLD-11 の時点で D卓の値だった）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj f00f59d9）: https://github.com/retroeater/mj-logs/tree/main/guide/f00f59d9
+ガイド文書（この版を写した時点の最新、mj 14a118fd）: https://github.com/retroeater/mj-logs/tree/main/guide/14a118fd
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f00f59d9/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f00f59d9/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f00f59d9/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f00f59d9/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f00f59d9/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f00f59d9/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/14a118fd/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/14a118fd/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/14a118fd/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/14a118fd/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/14a118fd/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/14a118fd/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b89c3b19.md
