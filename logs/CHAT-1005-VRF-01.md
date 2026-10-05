@@ -62,29 +62,55 @@ Chat-Ref: CHAT-1005-VRF-01
 - 0. 指示欄の末尾は「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」で、指示文の最後の行と一致
 - 雛形の行の確認（CLAUDE.md「Chat-Ref」節）: Chat-Ref・マージ・共通手順はある。**「貼る時機:」の行が無い**（docs/instruction-template.md の雛形では共通手順の手前に置く）。止まらずに進める
 
+### 手順1: 同じ論点の issue
+
+- 検索（MCP の search_issues、Open・Closed とも）: 「チャット側 断定 要確認 記憶から 指示文の事実」→ #498（open、Actions の実行結果をチャット側から確かめる）・#294（closed、指示文テンプレートの版管理）・#421（closed、chat-side-operations.md の軽量化）。「起票の前 既存issue 確認 チャット側 提案」→ 0件
+- 同じ論点（チャット側が事実を断定しない・起票前に既存の決定を確かめる）の issue は無し
+
+### 手順2: 足し先と既存の記述
+
+足し先は指示文の想定どおり docs/notes/chat-side-operations.md「指示文を書くときの注意」→「書く前に実物で確かめる」。同じ趣旨の記述が既に2つあり、矛盾は無いので拡張した（新しい項目は足していない）。
+
+- 決定2 → 1項目目の「**issue 番号・ページ数も記憶から書かない。** 洗い出しのログにあるものだけ使い、無いものは「（要確認）」を付けて…（#486）」を、
+  「指示文の「目的」「前提」に書く事実（issue の中身・番号・ファイル名・件数・どの文書が何の対象か等）は、そのチャットで実物を読んで確かめたものだけを断定し、ほかは「（要確認）」を付けて Claude Code に確かめさせる。issue 番号・ページ数は洗い出しのログにあるものだけ使う（#486）」に置き換えた（対象を広げた）
+- 決定1 → 「対象・関連する issue の状態…を実物で確かめてから書く」の場面の一覧の「運用ルールや文書整理の指示: 同じ論点の issue の決定をクローズ済みも含め確かめる（#328）」を、
+  「起票・方針の提案、運用ルールや文書整理の指示: 同じ論点の issue を、クローズ済みとコメントに書かれた決定まで含めて確かめる（#328）。チャット側で読めないときは提案せず、Claude Code に確かめさせる指示にする」に広げた。
+  次の行「インフラやデプロイに関わる提案: クローズ済みの issue と実物の設定」は、前の行に issue の確認が含まれたので「あわせて実物の設定」に縮めた
+- docs/instruction-template.md: 雛形の「前提」の欄の説明の括弧に「実物で確かめていない事実には「（要確認）」を付ける」の一句を足した（instruction-template.md はサイズ判定の対象外）
+
+### 手順3: サイズ
+
+- assets-check.yml の判定対象: CLAUDE.md・docs/handover.md・docs/notes/chat-side-operations.md（chat-side-operations.md は警告域 26624・上限 28672 バイト）
+- docs/notes/chat-side-operations.md: 25,116 → 25,468 バイト（+352）。警告域 26,624（26KB）・上限 28,672（28KB）の内側
+- docs/instruction-template.md: 12,720 → 12,798 バイト（判定の対象外）
+
+### 決定の記録
+
+docs/decisions/operations.md に「2026-10-05（CHAT-1005-VRF-01）」として決定2件を足した。
+
 ## 報告
 
-- 状態: 対応中
+- 状態: 完了
 - ブランチ: work/1005-vrf
-- ログ: https://github.com/retroeater/mj/blob/work/1005-vrf/docs/logs/CHAT-1005-VRF-01.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1005-VRF-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1005-vrf
 - 確認用URL: なし
-- マージ: 未
-- issue: なし
+- マージ: 済（docs のみを cloudflare へ。SHA は最終報告のログ（公開）の ?v= と同じ）
+- issue: なし（同じ論点の issue は無かった）
 - 判断が必要なこと:
-  - 指示文に雛形の「貼る時機:」の行が無い
+  - 指示文に雛形の「貼る時機:」の行が無い（CLAUDE.md「Chat-Ref」節の確認。止まらずに進めた）
 - 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 7a90a9c9）: https://github.com/retroeater/mj-logs/tree/main/guide/7a90a9c9
+ガイド文書（この版を写した時点の最新、mj 517e062b）: https://github.com/retroeater/mj-logs/tree/main/guide/517e062b
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/7a90a9c9/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/7a90a9c9/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/7a90a9c9/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/7a90a9c9/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/7a90a9c9/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/7a90a9c9/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/517e062b/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/517e062b/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/517e062b/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/517e062b/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/517e062b/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/517e062b/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b89c3b19.md

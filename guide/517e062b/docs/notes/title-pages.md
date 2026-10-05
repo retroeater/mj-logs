@@ -158,7 +158,8 @@
 
 ## 告知動画（2026-10、X 向け）
 
-- 作り直しは `bash scripts/promo_video/title/setup.sh <作業フォルダ>` → `bash scripts/promo_video/title/build.sh <作業フォルダ>`（出力は `<作業フォルダ>/title-promo.mp4`。作業フォルダはリポジトリの外。動画・素材はコミットしない）。クラウドセッションで動くことを確かめた（プロキシの CA の NSS 登録と日本語フォントは setup.sh が行う）
-- 映す大会・期・選手は `capture.mjs` の先頭の定数。動画に出す数字は `composition/index.html` の `STATS` と字幕の文言
-- 字幕の切り替え時刻は `composition/index.html` に手で書いている。撮影の秒数（`capture.mjs` の各 `shot()` の秒数、出力の `scenes.json`）を変えたら、デモの開始4秒を足した値に直す
-- 確定版は十段戦 第43期＋検索「岡本和也」（`docs/decisions/title.md` 2026-10-04）
+- 確定版は標準版・音楽 B（十段戦 第43期＋検索「岡本和也」、約20秒・1080×1920・30fps）（`docs/decisions/title.md` 2026-10-04）。動画・素材はコミットしない
+- 作り直しは `bash scripts/promo_video/title/setup.sh <作業フォルダ>` → `VARIANT=standard bash scripts/promo_video/title/build.sh <作業フォルダ> b`。出力は `<作業フォルダ>/title-promo-standard-b.mp4`（無音の描画結果は `title-promo-standard.mp4`）。作業フォルダはリポジトリの外。クラウドセッションで動く（プロキシの CA の NSS 登録と日本語フォントは setup.sh が行う）
+- 選択肢: `VARIANT=x`（比較版。最後に期ページで選手の写真カード〈X へのリンク〉に押す印を出す）、曲調 `a`（落ち着いた）・`none`（無音）。複数の曲調を並べてよい。`REUSE_VIDEO=1` で撮影と描画を飛ばし音だけ重ね直す
+- 映す大会・期・選手は `capture.mjs` の先頭の定数、動画に出す数字は `composition/index.html` の `STATS`。字幕の文言は `compose.py` の `CAPTIONS` で、字幕と URL の画面の時刻は `compose.py` が撮影の `scenes.json` から埋める（手で直さない）
+- 音楽は `music.py` が波形を合成して作る（標準ライブラリと ffmpeg だけ。外部の音源・サンプルは使わない）。場面の境目と長さは build.sh が渡し、ffmpeg の loudnorm で -16 LUFS 前後にそろえる
