@@ -13,6 +13,7 @@
 | [broadcast-calendar.md](broadcast-calendar.md) | 放送対局の公開カレンダー「mj_放送対局」・連盟の予定表の取り込み（#448 系） |
 | [cloudflare.md](cloudflare.md) | Cloudflare（Workers Builds の起動条件・配信基盤、#171 系） |
 | [dojo-guest.md](dojo-guest.md) | 道場部ゲスト（「mj_道場部ゲスト」カレンダーの取り込み、#390・#426） |
+| [features.md](features.md) | 新機能の行き先（現行サイトで作るか、新サイト #296 送りか） |
 | [live.md](live.md) | 放送対局ページ（/live の名前の登録・層2の規則、#475・#490 系） |
 | [operations.md](operations.md) | 運用（チャット側と Claude Code のやり取り・指示文の書き方） |
 | [pros.md](pros.md) | プロ一覧（jpml_pros.html） |

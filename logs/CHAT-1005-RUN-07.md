@@ -95,29 +95,112 @@ CHAT-1005-RUN-06 の「判断が必要なこと」と、その後のチャット
 - 指示文の冒頭の雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある。
 - 識別子の確認: `CHAT-1005-RUN-07` のコミットは 0件。RUN の他のコミットは同じチャットの RUN-01〜06（RUN-08 は 0件）。
 - `origin/work/1005-run-07` は無く、`git checkout -b work/1005-run-07 origin/cloudflare` で作成。
+- ログを先行 push（12e3d1df）。
+
+### 1. 対象の issue の確認
+
+- 9件すべて Open。#141・#111・#7・#366・#425 の最後のコメントは RUN-06（10/5）のもの。#296 の子は 34件
+- #235: 本文の要件に「選手名リストは #220 の `data/players.json` を読む」 → 新サイト送りの理由と一致
+- #472: **09-29 に別セッション（CHAT-0929-AF-37）の「着手中」コメントがある。** 同じ Chat-Ref 系の続くコメント（AF-38、09-29 05:42）で「cloudflare へマージした。この issue はクローズしていない。マージ後に確かめること: …」と締めている。指示の止まる条件「他セッションの着手中コメントがある（その issue だけ飛ばし、報告に書く）」に当たるため、#472 は読むだけの確認に留め、コメントもクローズもしていない（報告の「判断が必要なこと」）
+- #426: 常設の「道場部ゲストの取り込み」（ラベル「種類: 常設」）。10/5 09:52 JST に失敗の通知のコメントがある（下）
+
+### 2. #141・#111・#7・#235・#366（REST で本文・題・ラベル、MCP でコメント・クローズ。書く前に updated_at の一致を確かめた）
+
+| issue | 変更 | コメント |
+|---|---|---|
+| #141 | 題を「ランキング3ページ（houou_ranking / ouka_ranking / wrc_ranking）を Python の生成に移す（#7 から分割）」に変えた | 5986684527 |
+| #111 | クローズ（completed）。「状況:」は RUN-06 で外し済み。残る作業は無いので起票なし | 5986684930 |
+| #7 | 本文に「完了条件: ランキング3ページの移植（#141）で完了。成績3ページは対象外」を足した。「状況:」は付けない（#141 は未着手で「対応中」に当たらず、待つ相手も無い） | 5986685185 |
+| #235 | 「状況: 保留」・#296 の sub-issue に登録（子 35件）・#296 の本文の子の表に1行 | 5986685411（「親: #296」） |
+| #366 | 方針の行の下に「データ: シートは未作成。平野さんが公式サイトの成績表から作る予定」を足した。「状況: 待ち」のまま | 5986685685 |
+
+### 4. #472 の確認（10/5 の週次実行）
+
+ジョブのログは MCP の get_job_logs で読んだ（ログの直リンク〈`productionresultssa16.blob.core.windows.net`〉はセッションのプロキシに拒否される）。
+
+| 実行 | 開始（JST） | 結論 | 「再試行」の行 |
+|---|---|---|---|
+| check-meibo.yml #11（37242103246） | 10/5 07:59（cron は 05:07） | success | 照合のステップ（`check_meibo.py`）には無し。テストのステップ（`unittest discover`、546件 OK）の出力に「再試行 1/2: …」が9行あるが、テストの模擬の出力（URL が `SHEET`、0.1秒の間に出る。`test_net_retry.py` など） |
+| sync-birthday-calendar.yml #9（37242874753） | 08:11 | success | 同期のステップ（読み取り〜書き込み約9秒、追加・更新・削除 0）には無し |
+| regenerate-page.yml #215（37244182235） | 08:33 | success | 全1,334行を読んで「再試行」「Traceback」「timed out」「##[error]」は0行 |
+| sync-dojo-calendar.yml #27（37249036913） | 09:50 | **failure**（ステップ「同期」、2分15秒） | 「再試行 1/2: 道場部のページの取得: URLError: timed out（5秒後）」「再試行 2/2: …（15秒後）」の後、3回目もタイムアウトで Traceback |
+
+- 道場部の失敗の原因: 連盟サイト（道場部のページ）への接続のタイムアウト（`dojo_guest.fetch_page` → `net_retry.call` が2回再試行したあと、`TimeoutError: timed out` → `URLError`）。設定・データの問題ではなく、外部のサイトの一時的な失敗と見られる。09-28 の #12 と同じ種類
+- 再試行は動いた（#472 で入れた `net_retry` が2回試した）。3回とも失敗したため吸収できなかった
+- 通知: 同じジョブの「結果をissueに知らせる」が「issue #426 にコメントしました」。#426 に 10/5 09:52 JST のコメント「道場部ゲストの取り込みが失敗しました（同期: failure）。カレンダーに途中まで書き込んだ可能性があります（…定期実行のため）…関連: #390 #472」がある → #472 の決定「道場部の同期が失敗したときも issue に知らせる」は実物で動いた。ただし今回はページの取得で止まっており、カレンダーには書いていない（文面の「途中まで書き込んだ可能性」は、定期実行では一律に出る文）
+- 毎日の実行（#472 の AF-38 の確認項目）: update-live-channel.yml は直近8回 success（10/5 05:23 JST の schedule を含む）。sync-dojo-calendar.yml は 10/3・10/4 の schedule が success、10/5 が failure
+- 予約の時刻の遅れ: check-meibo は cron 05:07 に対し 07:59 開始（約3時間遅れ）。#491 の材料
+- ワークフローの再実行はしていない（次の予約実行は 10/6 の朝）
+
+### 3. #425・起票・容量
+
+#425 の本文（REST、書く前に updated_at の一致を確かめた）:
+
+- 冒頭の方針の行を「1〜4 はすべて決まった」に直し、その下に「## やること（2026-10-05 決定）」を足した: 対局と卓の両方のページ・ABEMA へは文字リンク（サムネイルは #502）・年度ページは各対局の勝ち上がり者だけ・`?match=` は対局のページへリダイレクトルールで 301（設定は平野さん）・ABEMA の確認は PC のスクリプト（#501）・ページ数と入力量は問題にしない
+- 2 の見出しに「決定: リンクのみで始める。サムネイルは #502」。本文の「自動処理から取得できるかは未確認」を、指示文の実測（`abema.go.link/8KZPv` → `abema.tv/video/episode/68-38_s26_p1`、国外からはエラーページ）に直した
+- 3 の見出しを「決定: 対局のページと卓のページの両方」に置き換えた（RUN-06 の「対局単位」を置き換える、と明記）
+- 対局・卓の数を数え直した: **対局219・卓642**（年度ページ16枚の `class="mj-saikyo-match"`・`class="mj-saikyo-table"` の出現数）。RUN-06 の経過の「対局 220件」は `grep -c`（行数）で数えた誤り
+- 4 の見出しに手段（リダイレクトルール、設定は平野さん）を足し、`_redirects`・Bulk Redirects ではできず Single Redirects の Wildcard なら見込みがあることを1段落で書いた
+- 「生成とサイトマップ」の増分を「対局と卓の両方で 861件（219＋642）」に直した
+- コメント 5986698072
+
+起票（同じ論点の issue を検索: REST の検索 API は結果を返さず〈total_count が None〉、MCP の search_issues で「ABEMA 最強戦 動画 サムネイル URL スクリプト」「日本の PC から動かすスクリプト 地域制限 動画の確認 リンク切れ」を引いて、#425 のほかは無し）:
+
+- #501「最強戦の ABEMA の URL を、平野さんの PC から確かめるスクリプトを作る」（分野: 自動化・対象: saikyo）。作る前に確かめる3項目（利用規約・公開 API・番組一覧からの列挙）、CSV の項目、月1回の手動実行、完了条件、親 #425
+- #502「最強戦の個別ページに ABEMA のサムネイルを載せるか決める」（分野: UI/UX・対象: saikyo・状況: 待ち〈#501 と #425 の個別ページ待ち〉）。論点（権利・CSP #9・自前で置く手作業・取得の手段）、親 #425
+- #501 の本文の「別の issue」を #502 に直した。#501・#502 は #425 の sub-issue には登録していない（本文に「親: #425」と書いた）
+
+容量の確認（平野さんの問いへの材料）:
+
+| 項目 | 今 | 個別ページを足した後の見込み | 上限 | 出典 |
+|---|---:|---:|---:|---|
+| 配信ファイル数（`.assetsignore` を除く） | 1,663 | 2,524（＋861）。OGP 画像をページごとに作るとさらに＋861で 3,385 | Workers Free: 1バージョンあたり 20,000（Paid は 100,000） | `python3 scripts/check_asset_limits.py`（#387）、https://developers.cloudflare.com/workers/platform/limits/ の Static Assets |
+| 1ファイルの大きさ | 最大は resource_logs.html の 2,123,412 バイト | 個別ページは1枚 10〜20KB 程度（wayhome の個別ページの平均 9,763 バイト） | 25 MiB | 同上 |
+| `_redirects` | 静的 36・動的 2 | 変わらない（`?match=` はリダイレクトルールで、`_redirects` を使わない） | 静的 2,000・動的 100 | 同上 |
+| リダイレクトルール（Single Redirects） | 1（www→apex） | 1〜2 増える | Pro: 25 | https://developers.cloudflare.com/rules/url-forwarding/ |
+| sitemap-saikyo.xml の URL 数 | 17 | 878（＋861） | 1ファイル 50,000 URL・50MB（sitemaps.org の規約） | — |
+| Workers Builds | — | 1回のビルドで上げるファイルが増えるが、静的アセットは変わったファイルだけを上げる仕組み | 月 3,000分・同時1本・1回20分（Free） | https://developers.cloudflare.com/workers/ci-cd/builds/limits-and-pricing/ 、docs/notes/cloudflare.md |
+| リポジトリの大きさ | 作業ツリー 96MB（.git を除く）。GitHub の API の size は 123,318KB | 個別ページの HTML は合わせて十数 MB の見込み。再生成のたびに履歴に差分が積もる | GitHub の推奨は 1〜5GB 以下 | — |
+
+- このサイトの Workers のプランは Free（`scripts/check_asset_limits.py` の注記「アカウントの Workers のプランは Free（平野さん、2026-09-28）」）。ゾーンの Pro プランとは別。申告値で、ダッシュボードはここからは確かめていない
+- どの上限にも余裕がある。いちばん近いのは配信ファイル数で、OGP まで作っても 17% 程度。`check_asset_limits.py` は 80% で警告する
+- 再生成の時間: `generate_saikyo_pages.py` が書くページが 17 → 878 枚に増える。書き出しは1枚数ミリ秒の規模で、全ページの再生成（regenerate-page.yml、10/5 は約1分半）に対して数秒〜十数秒の増加の見込み（実測していない）
+
+### 5. handover.md と決定の記録
+
+- docs/handover.md（23,963 → 23,997 バイト。警告域 26KB の外）: 5章の表の #7・#111・#141 の3行を #7・#141 の2行に（#111 はクローズしたので行を消した。#7 は「#141 の移植で完了。型B は対象外」）。「現行サイトで小さく作れるもの」の #366（データは平野さんが作る予定）・#425（やることと #501・#502）。「#7 の進め方」の現状を「#141 の移植で完了。型B は対象外」に
+- docs/decisions/features.md に RUN-07 の節を足し、RUN-06 の #425 の行に「→ 置き換え（3 と 2）」を付けた。#472 の決定は docs/decisions/operations.md に足した
+- マージ: push 前の再 fetch で cloudflare は進んでおらず（祖先を確かめた）、8688fe31 を cloudflare へ push
 
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了（#472 は判断待ち）
 - ブランチ: work/1005-run-07
-- ログ: https://github.com/retroeater/mj/blob/work/1005-run-07/docs/logs/CHAT-1005-RUN-07.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1005-RUN-07.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1005-run-07
-- 確認用URL: なし
-- マージ: 未
-- issue: 対象の9件
-- 判断が必要なこと: なし
-- 未確認の項目: なし
-- エラー: なし
+- 確認用URL: なし（docs のみ）
+- マージ: 済（8688fe31。work/1005-run-07 の先頭を fast-forward で cloudflare へ push）
+- issue: #111 をクローズ。#141 の題を変更。#7 に完了条件。#235 を新サイト送り（#296 の子 35件）。#366・#425 の本文を更新。#501・#502 を起票。#472 は操作していない（確認のみ）
+- 判断が必要なこと:
+  - #472 のクローズ: 09-29 に別セッション（CHAT-0929-AF-37）の「着手中」コメントがあり、止まる条件に当たるため操作していない（同じ系の AF-38 で「マージした。クローズはしていない」と締めている）。確認の結果は、3本とも実際の処理のステップに「再試行」の行は無く、道場部の失敗は再試行のあと #426 に通知された（経過「4」）。ただし check-meibo と誕生日カレンダーのログには、テストのステップの模擬の出力として「再試行」の行がある。これを「行が無い」と見てよいか、あわせて決めてほしい。よければ、次の指示でクローズのコメントとクローズを行う
+  - 道場部の同期の 10/5 の失敗（連盟サイトへの接続のタイムアウト。再試行2回とも失敗）: 再実行はしていない。次の予約実行は 10/6 の朝。#426 への通知の文面の「カレンダーに途中まで書き込んだ可能性」は、定期実行では一律に出る文で、今回はページの取得で止まり書き込んでいない
+  - #501・#502 を #425 の sub-issue にするか（本文に「親: #425」と書いただけ）
+- 未確認の項目:
+  - Workers のプランが Free であることは `check_asset_limits.py` の注記（平野さんの 09-28 の申告）による。ダッシュボードは確かめていない
+  - 個別ページを足した後の再生成の時間の増加は見込みで、実測していない
+  - Single Redirects の Wildcard で `?match=` に一致させられるかは、公式ドキュメントからの見込み（RUN-06 と同じ）
+- エラー:
+  - GitHub の REST の検索 API（`/search/issues`）が結果を返さなかった（total_count が None）。MCP の search_issues で代えた
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 3030674f）: https://github.com/retroeater/mj-logs/tree/main/guide/3030674f
+ガイド文書（この版を写した時点の最新、mj abe9be8d）: https://github.com/retroeater/mj-logs/tree/main/guide/abe9be8d
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/3030674f/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/3030674f/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/3030674f/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/3030674f/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/3030674f/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/3030674f/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/abe9be8d/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/abe9be8d/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/abe9be8d/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/abe9be8d/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/abe9be8d/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/abe9be8d/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b89c3b19.md
