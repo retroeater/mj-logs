@@ -123,17 +123,34 @@ index 74e75da5..1eccf3f8 100644
 +- どちらも /live に残し、D卓の対局者・実況・解説だけにする
 ```
 
+### 3. マージ
+
+- push 直前に再 fetch し、`origin/cloudflare` が HEAD の祖先であることを確かめて `git push origin work/1002-cld:cloudflare`（6f63525e..2b8a3ce4）。差分は docs/decisions/broadcast-calendar.md・docs/decisions/live.md・docs/logs/CHAT-1002-CLD-18.md だけ
+- 2b8a3ce4 で動いたのは `sync-logs.yml`（run 37332354240、success）だけ。`regenerate-page.yml` は動いていない（docs だけのため。最後の実行は 2026-10-04 の schedule のまま）
+- 作業ブランチはマージ済み。削除は `delete-merged-branches.yml` に任せる（クラウドセッションでは削除できない）
+- 成果物のコミットの件名を「oraisen」と書いたが、桜蕾戦のページのパスは `ourai`（件名だけの誤記で、中身には影響しない。push 済みのため直していない）
+
 ## 報告
 
-- 状態: 作業中（マージ前）
-- ブランチ: work/1002-cld
-- ログ: https://github.com/retroeater/mj/blob/work/1002-cld/docs/logs/CHAT-1002-CLD-18.md
+- 状態: 完了
+- ブランチ: work/1002-cld（cloudflare へマージ済み。削除は `delete-merged-branches.yml` に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1002-CLD-18.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1002-cld
 - 確認用URL: なし
-- マージ: 未
+- マージ: 済（2b8a3ce4、docs のみ。`regenerate-page.yml` は動いていない）
 - issue: なし（#448 の関連）
 - 判断が必要なこと: なし
-- 未確認の項目: なし
+  - 【3】手動補正 3243行（ujj0qvH-mIM）: 掲載 Y・卓 D・動画の単位「卓」・回戦 4・枝番「4回戦 南場」（「4」「回」「戦」「 」〈U+0020 半角の空白〉「南」「場」の6文字。前後の空白なし）・まとめ単位 ベスト16D・D卓の対局者4名・実況 大和・解説 和久津晶
+  - 【3】手動補正 3330行（az2iOf7kUpw）: 掲載 Y・卓 D・動画の単位「卓」・回戦 4・枝番「4回戦」（「4」「回」「戦」の3文字。前後の空白なし）・まとめ単位 ベスト16D・D卓の対局者4名・実況 大和・解説 和久津晶
+  - 「【4】カレンダー非掲載」に2本ともある
+  - 今のシートから生成した見出し: `live/ourai/9/b16-d.html` の ujj0qvH-mIM は「ベスト16 D卓 4回戦 南場」、`live/ourai/7/b16-d.html` の az2iOf7kUpw は「ベスト16 D卓 4回戦」で、どちらも見込みと完全に一致。カードに対局者の名前は出ない。C卓のページには出ない。ページ上部の対局者は全編の8名（鸞和戦と同じ形）
+  - cloudflare の今の生成物の見出しは、どちらも「ベスト16 D卓」。違うファイルは27（桜蕾戦の17と `live/index.html`、ほかに CLD-15 の鸞和戦の10）
+  - カレンダー: `build_desired()` に2本は載らない。次の毎朝の実行で消す見込みは2件（この2本の予定）で、`MAX_DELETES`（30）以下。鳳凰戦の3本は別の予定のまま
+  - 足した決定: docs/decisions/live.md「2026-10-05（CHAT-1002-CLD-18、#448 の関連）」、docs/decisions/broadcast-calendar.md「2026-10-05（CHAT-1002-CLD-18、#448）」。文面は「経過」の「2. 記録」
+- 未確認の項目:
+  - 次の /live の生成（`update-live-channel.yml`、日本時間 2:43）で cloudflare の生成物に反映されるか
+  - 次の毎朝の同期で2件が消えるか（消す件数は iCal の動画ID と件名・開始で突き合わせた見込みで、`live_calendar.plan()` の `key` での比較ではない）
+  - ブラウザでの見た目（HTML で確かめた）
 - エラー: なし
 
 <!-- guide-links -->
