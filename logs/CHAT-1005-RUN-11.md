@@ -90,6 +90,10 @@ RUN のチャット（CHAT-1003-RUN-01〜CHAT-1005-RUN-10）を閉じ、#504 の
 
 - docs/decisions/operations.md に RUN-11 の節を足した（繰り返しの予定の繰越し・#503 に足したこと）。クローズ時に残る作業を別 issue に起票する決定は operations.md・seo-bing.md に既にあるので足していない
 
+### マージ
+
+- 再 fetch 後に `git merge-base --is-ancestor origin/cloudflare HEAD` が真であることを確かめ、この記録のコミットごと `git push origin work/1005-run-11:cloudflare`（起点 6bcc175f）。RUN-10 で記録の push の sync-logs が取り消されたため、記録を先に書いて push を1回にした。docs/ のみなので Workers Builds は走らない
+
 ## 報告
 
 - 状態: 完了
@@ -106,12 +110,12 @@ RUN のチャット（CHAT-1003-RUN-01〜CHAT-1005-RUN-10）を閉じ、#504 の
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 6bcc175f）: https://github.com/retroeater/mj-logs/tree/main/guide/6bcc175f
+ガイド文書（この版を写した時点の最新、mj 86229eca）: https://github.com/retroeater/mj-logs/tree/main/guide/86229eca
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6bcc175f/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6bcc175f/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6bcc175f/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6bcc175f/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6bcc175f/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6bcc175f/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/86229eca/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/86229eca/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/86229eca/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/86229eca/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/86229eca/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/86229eca/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b89c3b19.md
