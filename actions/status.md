@@ -1,7 +1,7 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-05 15:52 JST
-- 書き出した実行の契機: push（work/1005-run-09）
+- 書き出した時刻: 2026-10-05 15:54 JST
+- 書き出した実行の契機: push（work/1002-cld）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは sync-logs.yml（#498）
 
@@ -12,11 +12,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-05 15:54 | push | work/1002-cld | success | #2838（37274814659） | 0分11秒 |
 | 2026-10-05 10:48 | push | work/1005-unr | success | #2837（37252897616） | 0分10秒 |
 | 2026-10-05 10:46 | push | cloudflare | success | #2836（37252719026） | 0分12秒 |
 | 2026-10-05 10:46 | push | work/1005-run-07 | success | #2835（37252715426） | 0分13秒 |
 | 2026-10-05 09:43 | push | work/1005-unr | success | #2834（37248616308） | 0分12秒 |
-| 2026-10-05 09:43 | push | cloudflare | success | #2833（37248614020） | 0分14秒 |
 
 ## check-image-links.yml
 
@@ -181,11 +181,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-05 15:52 | workflow_dispatch | cloudflare | success | #28（37274638682） | 0分43秒 |
 | 2026-10-05 09:50 | schedule | cloudflare | failure | #27（37249036913） | 2分19秒 |
 | 2026-10-04 09:32 | schedule | cloudflare | success | #26（37165263316） | 0分22秒 |
 | 2026-10-03 10:07 | schedule | cloudflare | success | #25（37084846475） | 0分26秒 |
 | 2026-10-02 15:02 | workflow_dispatch | cloudflare | success | #24（36971686516） | 0分27秒 |
-| 2026-10-02 13:58 | workflow_dispatch | cloudflare | success | #23（36966866952） | 0分29秒 |
 
 - #27 failure: ジョブ「sync」 ステップ「同期」
 
@@ -197,11 +197,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-10-05 15:51 | push | work/1005-run-09 | in_progress | #1466（37274569049） |  |
+| 2026-10-05 15:54 | push | work/1002-cld | in_progress | #1467（37274814746） |  |
+| 2026-10-05 15:51 | push | work/1005-run-09 | success | #1466（37274569049） | 0分26秒 |
 | 2026-10-05 12:46 | push | work/1005-unr | success | #1465（37260752397） | 0分54秒 |
 | 2026-10-05 12:46 | push | cloudflare | success | #1464（37260750756） | 0分30秒 |
 | 2026-10-05 12:37 | push | cloudflare | success | #1463（37260166823） | 0分43秒 |
-| 2026-10-05 12:37 | push | work/1005-run-08 | cancelled | #1462（37260164709） | 0分03秒 |
 
 ## update-live-channel.yml
 
