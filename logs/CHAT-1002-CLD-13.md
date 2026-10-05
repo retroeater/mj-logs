@@ -122,7 +122,7 @@ K1 と K2 の違い: /live の出力は同じ。回戦を残す K1 は、jt4E_u-
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 完了（判断が出た: 平野さんが【3】手動補正 3147行を書き換えた〈動画の単位「卓」、枝番「4回戦 南場」〉。続きは CHAT-1002-CLD-15）
 - ブランチ: work/1002-cld
 - ログ: https://github.com/retroeater/mj/blob/work/1002-cld/docs/logs/CHAT-1002-CLD-13.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1002-cld
@@ -143,12 +143,12 @@ K1 と K2 の違い: /live の出力は同じ。回戦を残す K1 は、jt4E_u-
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 14a118fd）: https://github.com/retroeater/mj-logs/tree/main/guide/14a118fd
+ガイド文書（この版を写した時点の最新、mj fe048151）: https://github.com/retroeater/mj-logs/tree/main/guide/fe048151
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/14a118fd/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/14a118fd/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/14a118fd/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/14a118fd/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/14a118fd/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/14a118fd/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/fe048151/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/fe048151/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/fe048151/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/fe048151/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/fe048151/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/fe048151/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b89c3b19.md

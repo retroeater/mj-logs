@@ -58,28 +58,74 @@ CHAT-1002-CLD-14 は、【3】手動補正の `jt4E_u--mxg` の行の枝番に�
 - 作業ブランチ: ローカルの `work/1002-cld` が `origin/work/1002-cld` と同じ（604b2b85）。`origin/cloudflare` が祖先でなかったため `git merge origin/cloudflare`（4b1df6c5。衝突なし。取り込んだのは docs のみ）
 - 指示文の冒頭の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある
 
+- 0章: 「指示」欄の末尾は指示文の最後の行と一致。CHAT-1002-CLD-14 の `## 報告` は「状態: 判断待ち」で、判断が必要なことは「【3】手動補正 3147行（`jt4E_u--mxg`）の N 枝番が『4回戦南場』（空白なし）のため、見出しが一致しない」
+
+### 1. シートと表示
+
+- /live のシートを gviz の `select *` で2回読んだ。2回とも【1】元データ 14,119行・【2】自動変換後 14,119行・【3】手動補正 4,312行で、内容も同じ
+- 【3】手動補正 3147行（`jt4E_u--mxg`。行番号は CLD-14 と同じ）: K 卓 D・L 動画の単位「卓」・M 回戦 4・N 枝番「4回戦 南場」・O まとめ単位 ベスト16D（B 掲載 Y、P・Q・R は D卓の対局者4名・実況・解説のまま）
+- N 枝番は6文字: 「4」(U+0034 半角数字)・「回」(U+56DE)・「戦」(U+6226)・「 」(**U+0020 半角の空白**)・「南」(U+5357)・「場」(U+5834)。前後に余分な空白は無い（gviz が返した値で見た）
+- 今のシートからこの環境で `generate_live_pages.py` を動かした（コミットしていない）:
+  - `live/ranwa/6/b16-d.html` の「ライブ」の欄の `jt4E_u--mxg` のカードの見出しは `<span class="mj-video-card-title">ベスト16 D卓 4回戦 南場</span>` で、「ベスト16 D卓 4回戦 南場」（空白はどれも半角）と**完全に一致**
+  - カードに対局者の名前は出ていない（再生時間 27:31・2026年4月17日 メンバー限定・見出しだけ）
+  - `b16-c.html` にはこの動画は出ないまま（`jt4E_u--mxg` の出現0）
+  - cloudflare と違うファイルは10（CLD-13 の K1 と同じ: `live/ranwa/6/` の8ページ・`live/ranwa/6.html`・`live/ranwa/index.html`・`live/index.html` のうち b16-d 以外は検索の語だけ）。この指示では生成物をコミットしない
+- cloudflare の今の生成物の同じカード: 見出し「4回戦 南場」、対局者「金子正明、猪鼻拓哉、木戸僚之、猿川真寿」（前のまま）。次の /live の生成は `update-live-channel.yml` の毎日の実行（cron `43 17 * * *` UTC＝日本時間 2:43）の見込み
+- `build_desired()`（今日の日付）: 2,616件。`jt4E_u--mxg` は含まれない（【4】カレンダー非掲載にある）。最初の1回は予定表の【2】の読み取りが HTTP 500 で落ち、読み直して通った
+
+### 2. 記録
+
+docs/decisions/README.md（見出し `## YYYY-MM-DD（Chat-Ref）`、日付の古い順、1項目1行・理由1行まで）と live.md を読んだ。CLD-12 の節（「シートもコードも変えない」は C卓・D卓の表示についての決定で、jt4E_u--mxg の対局者を D卓だけにするのは【3】で書くとしている）と矛盾しない。jt4E_u--mxg は D卓の対局者・実況・解説のままで、カードに名前が出ないだけ。live.md の末尾（同じ日の CHAT-1005-UNR-12 の後）に足した:
+
+```diff
++## 2026-10-05（CHAT-1002-CLD-15、#448 の関連）
++
++鸞和戦 第6期 ベスト16 D卓（`live/ranwa/6/b16-d.html`）の27分の動画 jt4E_u--mxg の見出し（CHAT-1002-CLD-13・CLD-14 の続き）。
++
++- 見出しを「4回戦 南場」→「ベスト16 D卓 4回戦 南場」にする。回戦の動画のままではステージと卓が付かないため
++- 【3】手動補正（3147行）で、動画の単位を「卓」、枝番を「4回戦 南場」（空白は半角）と書く。コードは直さない
++- カードに対局者の名前が出なくなるのは了承済み（卓の動画のカードには名前を出さないため）
+```
+
+CHAT-1002-CLD-13・CLD-14 のログの `## 報告` の状態を「完了（判断が出た: 平野さんが【3】手動補正 3147行を書き換えた〈動画の単位「卓」、枝番「4回戦 南場」〉。続きは CHAT-1002-CLD-15）」に直した（どちらも `## 指示` 欄が変わっていないことを確かめた）。
+
+### 3. マージ
+
+- 再 fetch で `origin/cloudflare` が CHAT-1005-UNR-13 の3コミットで進んでいたため `git merge origin/cloudflare`。docs/decisions/live.md が衝突した（同じ日の節の末尾への追記どうし）。どちらの版も残し、CHAT-1005-UNR-13 の節 → この指示の節の順にした（79afcc38）。衝突は docs だけ
+- push 直前に再 fetch し、`origin/cloudflare` が HEAD の祖先であることを確かめて `git push origin work/1002-cld:cloudflare`（4cd979d6..79afcc38）。差分は docs/decisions/live.md・docs/logs/CHAT-1002-CLD-13.md・CLD-14.md・CLD-15.md だけ
+- 79afcc38 で動いたのは `sync-logs.yml` だけ。`regenerate-page.yml` は動いていない（docs だけのため）
+- 作業ブランチはマージ済み。削除は `delete-merged-branches.yml` に任せる（クラウドセッションでは削除できない）
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1002-cld
-- ログ: https://github.com/retroeater/mj/blob/work/1002-cld/docs/logs/CHAT-1002-CLD-15.md
+- 状態: 完了
+- ブランチ: work/1002-cld（cloudflare へマージ済み。削除は `delete-merged-branches.yml` に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1002-CLD-15.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1002-cld
 - 確認用URL: なし
-- マージ: 未
+- マージ: 済（79afcc38、docs のみ。`regenerate-page.yml` は動いていない）
 - issue: なし（#448 の関連）
 - 判断が必要なこと: なし
-- 未確認の項目: なし
-- エラー: なし
+  - 【3】手動補正 3147行（`jt4E_u--mxg`）: K 卓 D・L 動画の単位「卓」・M 回戦 4・N 枝番「4回戦 南場」・O まとめ単位 ベスト16D。N は「4」「回」「戦」「 」（U+0020 半角の空白）「南」「場」の6文字で、前後に余分な空白は無い
+  - 今のシートからの生成: D卓のページのライブのカードの見出しは「ベスト16 D卓 4回戦 南場」で完全に一致。カードに対局者の名前は出ない。C卓のページには出ないまま。cloudflare と違うファイルは10（生成物はコミットしていない）
+  - cloudflare の今の生成物: 見出し「4回戦 南場」と対局者4名のまま。次の /live の生成（`update-live-channel.yml`、日本時間 2:43）で変わる見込み
+  - `build_desired()`: 2,616件。`jt4E_u--mxg` は【4】にあり載らないまま
+  - live.md に「2026-10-05（CHAT-1002-CLD-15、#448 の関連）」を足した（見出しを「ベスト16 D卓 4回戦 南場」にする／【3】3147行で動画の単位「卓」、枝番「4回戦 南場」（半角の空白）と書き、コードは直さない／カードに対局者の名前が出なくなるのは了承済み）。文面は「経過」の「2. 記録」
+  - CHAT-1002-CLD-13・CLD-14 のログの状態を「完了（判断が出た…続きは CHAT-1002-CLD-15）」に直した
+- 未確認の項目:
+  - 次の /live の生成で cloudflare の生成物に反映されるか（この指示の後に動く）
+  - ブラウザでの見た目（HTML で確かめた）
+- エラー: なし（`build_desired()` の最初の読み取りが予定表の HTTP 500 で落ち、読み直して通った）
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 86229eca）: https://github.com/retroeater/mj-logs/tree/main/guide/86229eca
+ガイド文書（この版を写した時点の最新、mj fe048151）: https://github.com/retroeater/mj-logs/tree/main/guide/fe048151
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/86229eca/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/86229eca/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/86229eca/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/86229eca/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/86229eca/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/86229eca/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/fe048151/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/fe048151/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/fe048151/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/fe048151/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/fe048151/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/fe048151/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b89c3b19.md
