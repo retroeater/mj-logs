@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-05 09:44 JST
+- 書き出した時刻: 2026-10-05 10:16 JST
 - 書き出した実行の契機: push（work/1005-unr）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは sync-logs.yml（#498）
@@ -181,11 +181,13 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-05 09:50 | schedule | cloudflare | failure | #27（37249036913） | 2分19秒 |
 | 2026-10-04 09:32 | schedule | cloudflare | success | #26（37165263316） | 0分22秒 |
 | 2026-10-03 10:07 | schedule | cloudflare | success | #25（37084846475） | 0分26秒 |
 | 2026-10-02 15:02 | workflow_dispatch | cloudflare | success | #24（36971686516） | 0分27秒 |
 | 2026-10-02 13:58 | workflow_dispatch | cloudflare | success | #23（36966866952） | 0分29秒 |
-| 2026-10-02 13:56 | workflow_dispatch | work/1002-doj | success | #22（36966720918） | 0分58秒 |
+
+- #27 failure: ジョブ「sync」 ステップ「同期」
 
 ## sync-logs.yml
 
@@ -195,11 +197,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-10-05 09:43 | push | work/1005-unr | in_progress | #1443（37248616313） |  |
+| 2026-10-05 10:16 | push | work/1005-unr | in_progress | #1444（37250781527） |  |
+| 2026-10-05 09:43 | push | work/1005-unr | success | #1443（37248616313） | 1分24秒 |
 | 2026-10-05 09:43 | push | cloudflare | success | #1442（37248614056） | 0分27秒 |
 | 2026-10-05 09:42 | push | work/1005-unr | skipped | #1441（37248554545） | 0分01秒 |
 | 2026-10-05 09:41 | push | work/1005-unr | success | #1440（37248481025） | 0分50秒 |
-| 2026-10-05 09:32 | push | work/1002-cld | success | #1439（37247893923） | 0分23秒 |
 
 ## update-live-channel.yml
 
