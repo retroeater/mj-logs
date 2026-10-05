@@ -652,7 +652,7 @@ resize();
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち（続き: CHAT-1006-LGR-02）
 - ブランチ: work/1005-lgr-01
 - ログ: https://github.com/retroeater/mj/blob/work/1005-lgr-01/docs/logs/CHAT-1005-LGR-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1005-lgr-01
@@ -678,12 +678,12 @@ resize();
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 64aa604f）: https://github.com/retroeater/mj-logs/tree/main/guide/64aa604f
+ガイド文書（この版を写した時点の最新、mj 2b8a3ce4）: https://github.com/retroeater/mj-logs/tree/main/guide/2b8a3ce4
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/64aa604f/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/64aa604f/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/64aa604f/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/64aa604f/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/64aa604f/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/64aa604f/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/092ef956.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/2b8a3ce4/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/2b8a3ce4/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/2b8a3ce4/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/2b8a3ce4/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/2b8a3ce4/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/2b8a3ce4/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/024decd1.md
