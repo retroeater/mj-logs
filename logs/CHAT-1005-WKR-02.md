@@ -59,6 +59,17 @@ mj-scheduler が GitHub の起動の API に送る入力を、通ることを確
 1. Chat-Ref の確認: `git log --all --grep="CHAT-1005-WKR-02"` は0件。リモート・ローカルに `work/1005-wkr-02` は無い → `git checkout -b work/1005-wkr-02 origin/cloudflare`。識別子 WKR は同じチャットの WKR-01 で使っている（指示の前提どおり）
 2. 手順0: 指示欄の最後の行は「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」で、指示文の最後の行と一致
 3. 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+4. 今の作り: `workers/scheduler/src/scheduler.mjs` の `dispatchDue` が `JSON.stringify({ ref: config.ref, inputs: { scheduled: true } })` を送る（真偽値）。テストは `scheduler.test.mjs` の「起動: 予定の回に scheduled を真で dispatch する」で `inputs: { scheduled: true }` と比べている。前提どおり
+5. 未マージの `work/` ブランチ（`work/1002-cld`・`work/1005-lgr-01`・`work/1005-wkr-02`）で `workers/scheduler` を変えるものは無い（`git diff --name-only origin/cloudflare...<ブランチ> -- workers/scheduler` が空）
+6. 公式の文書の inputs の値の型（docs.github.com はプロキシで拒否されるため原稿で読んだ）
+   - REST の説明（github/docs `src/rest/data/fpt-2022-11-28/actions.json`、「Create a workflow dispatch event」）: `inputs` は `type: object`、「Input keys and values configured in the workflow file. The maximum number of properties is 25. Any default properties configured in the workflow file will be used when inputs are omitted.」。値の型の記述は無い
+   - OpenAPI の定義（github/rest-api-description `descriptions/api.github.com/api.github.com.json`、`POST /repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches` の requestBody）: `inputs` は `{"type": "object", "additionalProperties": true, "maxProperties": 25}`。値の型を決めていない
+   - 「Manually running a workflow」（`content/actions/how-tos/manage-workflow-runs/manually-run-a-workflow.md`）の REST の節も、`inputs` と `ref` を本文に入れる、とだけ書く
+   - 真偽値が拒まれるとも通るとも書いていない → 指示どおり文字列の `"true"` に直す
+7. テストを先に直した: 期待を `inputs: { scheduled: 'true' }` にして直す前のコードで実行 → 16件中1件（「起動: 予定の回に scheduled を真で dispatch する」）が落ちた（`+ scheduled: true` / `- scheduled: 'true'`）。テストが送る値を見ていることを確かめた
+8. コードを直した（`inputs: { scheduled: 'true' }`、理由のコメント1行）→ `node --test 'workers/scheduler/test/*.test.mjs'` 16件すべて通過
+9. 束ねの確認: WKR-01 と同じ scratchpad の esbuild で `src/index.mjs` を束ね、偽の fetch で 04:20 の回を呼んだ → 送った本文は `{"ref":"cloudflare","inputs":{"scheduled":"true"}}`
+10. 文書: docs/notes/scheduler-worker.md「動き」の inputs を `{"scheduled": "true"}` にし、文字列で送る理由を足した。#506 の本文は「入力 `scheduled` を真」とだけ書いていて型に触れていない（ワークフローの側では真になる）ので直さない。decisions/automation.md に決定
 
 ## 報告
 
@@ -76,12 +87,12 @@ mj-scheduler が GitHub の起動の API に送る入力を、通ることを確
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 64aa604f）: https://github.com/retroeater/mj-logs/tree/main/guide/64aa604f
+ガイド文書（この版を写した時点の最新、mj 8c794c0f）: https://github.com/retroeater/mj-logs/tree/main/guide/8c794c0f
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/64aa604f/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/64aa604f/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/64aa604f/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/64aa604f/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/64aa604f/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/64aa604f/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/8c794c0f/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/8c794c0f/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/8c794c0f/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8c794c0f/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8c794c0f/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8c794c0f/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/ce0b3a1c.md
