@@ -71,17 +71,27 @@ mj-scheduler が GitHub の起動の API に送る入力を、通ることを確
 9. 束ねの確認: WKR-01 と同じ scratchpad の esbuild で `src/index.mjs` を束ね、偽の fetch で 04:20 の回を呼んだ → 送った本文は `{"ref":"cloudflare","inputs":{"scheduled":"true"}}`
 10. 文書: docs/notes/scheduler-worker.md「動き」の inputs を `{"scheduled": "true"}` にし、文字列で送る理由を足した。#506 の本文は「入力 `scheduled` を真」とだけ書いていて型に触れていない（ワークフローの側では真になる）ので直さない。decisions/automation.md に決定
 
+11. マージ: 再 fetch の後 `git merge-base --is-ancestor origin/cloudflare HEAD` が真 → `git push origin work/1005-wkr-02:cloudflare`（f687ea60..8c794c0f、fast-forward）
+12. マージの後の check-run（8c794c0f）: 「Workers Builds: mj-scheduler」completed/success（2つ目の Worker がつながっていた。check-run の名前は `Workers Builds: mj-scheduler`）、「Workers Builds: mj」completed/success（サイトの Worker のビルドも走った。Exclude に `workers/*` がまだ入っていないか、ほかの理由かはここからは分からない）、GitHub Actions の `check`・`sync` も success（push から約1分半）
+13. #504 に1行コメントした
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1005-wkr-02
-- ログ: https://github.com/retroeater/mj/blob/work/1005-wkr-02/docs/logs/CHAT-1005-WKR-02.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1005-wkr-02
-- 確認用URL: なし
-- マージ: 未
-- issue: #504
+- 状態: 完了
+- ブランチ: work/1005-wkr-02（マージ済み。削除は delete-merged-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1005-WKR-02.md
+- 比較URL: https://github.com/retroeater/mj/compare/f687ea60...8c794c0f
+- 確認用URL: なし（サイトのファイルは変えていない）
+- マージ: 済（8c794c0f。fast-forward のためマージコミットは無い）
+- issue: #504（コメント1件、Open のまま）。#506 は本文が型に触れていないので変えていない
+- 結果の要点:
+  - 公式の文書の inputs の値の型: 決めていない。REST の説明（github/docs の `src/rest/data/fpt-2022-11-28/actions.json`）は `inputs` を `type: object`・最大 25 個とだけ書く。OpenAPI（github/rest-api-description の `api.github.com.json`）は `{"type": "object", "additionalProperties": true, "maxProperties": 25}`
+  - 送る中身: 直す前 `{"ref":"cloudflare","inputs":{"scheduled":true}}` → 直した後 `{"ref":"cloudflare","inputs":{"scheduled":"true"}}`（テストと、esbuild で束ねて偽の fetch で呼んだ結果の両方で確かめた）
+  - 直したテストは、直す前のコードで1件落ちた（送る値を見ている）
+  - マージの後の check-run: 「Workers Builds: mj-scheduler」success、「Workers Builds: mj」success
 - 判断が必要なこと: なし
-- 未確認の項目: なし
+- 未確認の項目:
+  - 実際の定時実行（04:20 JST）で、文字列の `"true"` を送る起動が通るか（PAT で起動するのは最初の回が初めて）
 - エラー: なし
 
 <!-- guide-links -->
@@ -95,4 +105,4 @@ mj-scheduler が GitHub の起動の API に送る入力を、通ることを確
 - docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8c794c0f/docs/notes/chat-side-operations.md
 - docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8c794c0f/docs/notes/cloudflare.md
 - docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8c794c0f/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/ce0b3a1c.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/4ba44518.md
