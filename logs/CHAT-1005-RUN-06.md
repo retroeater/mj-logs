@@ -85,29 +85,117 @@ CHAT-1005-RUN-05 の「判断が必要なこと」に平野さんが答えた。
 - 指示文の冒頭の雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある。
 - 識別子の確認: `CHAT-1005-RUN-06` のコミットは 0件。RUN の他のコミットは同じチャットの RUN-01〜05 のみ。
 - `origin/work/1005-run-06` は無く、`git checkout -b work/1005-run-06 origin/cloudflare` で作成。
+- ログを先行 push（078344cf）。
+
+### 1. 対象の issue の確認
+
+- 16件すべて Open。他セッションの着手中コメントは無し（最後のコメントはどれも RUN-05 以前）。#141・#111 の本文に今回の決定と食い違う判断は無い（冒頭は期日の行のみ）。
+- #228 の本文「#141（移行方針）の前に、現行の Google Charts 方式のままでも実施できる範囲で行う」は、今回の決定（#141 の移植の中で扱う）で変わる向き。食い違いではなく、置き換えの対象と判断した。
+- #220 の本文「位置づけ」に #235（共通検索ボックス）の選手名リストもこれを読む、とある。#235 は今回の決定に入っていない（報告に記載）。
+
+### 2・3. 本文・ラベル・コメント（REST で本文とラベル、MCP でコメント。書く直前に updated_at を取り直して一致を確かめた）
+
+| issue | 本文 | ラベル | コメント |
+|---|---|---|---|
+| #141 | 冒頭の期日の行 → 「判断: (a) Python へ移植する（…）。#111 より先に進める。#371・#228・#234 はこの移植の中で扱う」 | 「状況: 待ち」を外した | 5985975729 |
+| #111 | 冒頭の期日の行 → 「判断: 据え置く（Google Charts のまま）（…）」 | 「状況: 待ち」を外した | 5985976122 |
+| #7 | 進捗の段落 → ランキング3ページは #141 で移植、成績3ページは据え置き、gstatic・docs.google.com への依存は消えない | 「状況: 待ち」を外した（方針待ちが無くなった。#141 の実装は未着手なので「対応中」も付けない） | 5985976405 |
+| #9 | 「前提」に #111 の据え置きで gstatic を CSP に残す1行 | 変えない（「状況: 待ち」のまま。#4・#7 の後の前提は変わらない） | 5985976676 |
+| #371 | RUN-05 の方針の行 → 「#141 の移植（Python へ）の中で扱う」 | 「状況: 待ち」のまま（#141 の実装待ち） | 5985976959 |
+| #228 | 「#141 の前に現行方式で行う」の行 → 「#141 の移植の中で扱う」 | 変えない（「状況:」無し） | 5985977170 |
+| #234 | 「ブロック: #141」の行に「#141 の移植の中で扱う」を書き足し | 「状況: 待ち」のまま | 5985977463 |
+| #366 | RUN-05 の方針の行 → 「#111 は据え置きに決まった。載せ方は未決」 | 「状況: 待ち」のまま（載せ方が未決） | 5985977717 |
+| #388 | 方針の行 → 「順番は最後（#389 → #377 → #277 → #388）。平野さんが『映画』のタブを作ったら着手」 | 「状況: 待ち」を付けた | 5985978035 |
+| #389・#377・#277 | 方針の行の順番を #389 → #377 → #277 → #388 に | 変えない | 5985978256・5985978410・5985978664 |
+
+新サイト送り（#296 の本文の手順と RUN-05 の形）:
+
+- #220: 「状況: 保留」を付けた・sub-issue に登録・コメント「親: #296」（5985981441）
+- #405: 同上（5985981738）
+- #296 の子は 32 → 34件。#296 の本文の子の表に2行を足した（書く前に本文が読んだときと同じことを確かめた）
+
+### 4. #425 の本文・ABEMA の実測・`?match=` の 301
+
+#425 の本文（REST、書く前に updated_at の一致を確かめた）:
+
+- 冒頭の方針の行: 「先に決めること」は 1・3・4 が決まり 2 は未決、に直した
+- 1 の見出しに「決定: 列を足す。足す作業は平野さん。入力の範囲と時期は未決」
+- 2 の「ABEMA は日本国外からは取得できない…」の段落を、ABEMA のヘルプ（一部の地域を除き各国で利用できる。視聴できない国・番組がある）に合わせて書き換え、「サイトの自動処理から取得できるか、リンク切れを検知できるかは未確認」とした
+- 3 の見出しに「決定: 対局単位（動画も対局単位のため）」、4 の見出しに「決定: 案A（301 で畳む）」
+- 「生成とサイトマップ」の古い記述（`sitemap.xml` が `sitemap-saikyo.xml` の参照を無効化している）を「参照している（2026-10-05 に確認）。個別ページを足すとそのまま検索エンジンに出る」に直した。`sitemap.xml` の24行目に `<loc>https://ryoei.pro/sitemap-saikyo.xml</loc>` がある
+- コメント 5985997427（決定と 301 の調べの要約）
+
+ABEMA の実測（2 の材料）:
+
+- 最強戦の ABEMA のページの URL は、#425 の本文・最強戦シート（gviz で全2,744行、A〜L 列、文字列「abema」0件）・リポジトリ（html・py・md・js に0件。docs/decisions/features.md の決定文だけ）のどこにも無い → 指示どおり実測は飛ばした（「未確認の項目」）
+
+`?match=` の URL を個別ページへ 301 で畳む手段（4 の案A）:
+
+- 今の `?match=` の形: `saikyo/<年度>.html?match=<対局識別子>`。識別子は対局日（例 `20251214`）。年度ページ16枚の対局は今 220件（`class="mj-saikyo-match"` の数。#425 本文の 219 は 09-21 時点）
+- リポジトリの記録: docs/notes/cloudflare.md「www→apex の Redirect Rule」に「`_redirects` はパスでしか分岐できずホスト名で条件を書けないため Redirect Rule を使った」。www→apex は Single Redirects の Wildcard pattern・308・Preserve query string 有効で、ダッシュボード側の設定（コードに無い）。プランは Cloudflare Pro（docs/handover.md の表）
+- Cloudflare 公式ドキュメント（2026-10-05 に developers.cloudflare.com から取得）:
+  - Workers の静的アセットの `_redirects`（https://developers.cloudflare.com/workers/static-assets/redirects/ ）: 「Advanced redirects」の表で **Query Parameters ❌**（例 `/shop id=:id /blog/:id 301`）。source はファイルパスで、クエリ文字列は宛先にだけ書ける → **`_redirects` ではできない**
+  - Bulk Redirects（https://developers.cloudflare.com/rules/url-forwarding/bulk-redirects/reference/url-components/ ）: 元 URL にクエリ文字列を持てない（Query string: Source URL No）→ **できない**
+  - Single Redirects（Redirect Rules）: 全プランで使える。Pro は25ルール、Wildcard あり、正規表現は Business 以上（https://developers.cloudflare.com/rules/url-forwarding/ ）。Wildcard URL redirect は Request URL に `https://*.example.com/files/*` のような完全な URL のワイルドカードを書き、Target URL に `${1}` などを使える（https://developers.cloudflare.com/rules/url-forwarding/single-redirects/settings/ ）。Request URL はクエリを含む完全な URL（`http.request.full_uri`）に一致させる形なので、`https://ryoei.pro/saikyo/*.html?match=*` → `https://ryoei.pro/saikyo/${1}-${2}.html`（#425 本文の URL 案 c-1）、Preserve query string 無効・301 の1ルールで畳める見込み（実地では試していない）
+- 手段ごとの比較:
+
+| 手段 | 共有済みの URL が動く | 検索エンジンに 301 として伝わる | 置き場所・注意 |
+|---|---|---|---|
+| `_redirects` | ×（クエリを条件にできない） | × | — |
+| Bulk Redirects | ×（元 URL にクエリを持てない） | × | — |
+| Single Redirects（Wildcard、1ルール） | ○ | ○（サーバの 301） | ダッシュボードの設定でコードに残らない（www→apex と同じ）。Pro の25ルールのうち1つ。`?match=` の後ろに別のパラメータ（`&utm_…` など）が付くと `${2}` に混ざるので、`?match=*&*` を先に置く2ルール目が要るかもしれない。wildcard は大文字小文字を区別しない（strict wildcard もある）。個別ページの URL の形（c-1）と、識別子が対局日で1日1対局かを先に決める必要あり |
+| Worker のコードで 301（`run_worker_first` など） | ○ | ○ | 今は静的アセットだけの構成（`wrangler.jsonc` に main が無い）。Worker を足すと `_headers` が Worker の応答に効かなくなる（#296 の 09-28 のコメント、#449）など構成が変わる |
+| ページ内の JS で転送＋canonical | ○（JS が動けば） | △（Google は JS の転送も扱うが、301 ではない。他の検索エンジン・AI クローラーには届かないことがある） | 年度ページの JS（`assets/saikyo.js`）に足す。canonical は今は年度ページ |
+
+### #366 の材料（決めない）
+
+- 本文「未定のこと: 載せ方（既存の `wrc_*` ページのシート切替に足すか、別ページにするか）」
+- データ: `wrc_results.js` と `wrc_ranking.html` はスプレッドシート（`generate_jpml_pros.py` と同じ ID）の「JWRC」タブを読む（`SELECT A…U WHERE V = "Y"`）。JWRC タブの最新の行は第17期。WRC-R のタブは見つからない（「WRC-R」「JWRC-R」「WRCR」「JWRCR」で gviz を引くと、どれも同じ既定のタブ〈リーグ名の表〉が返る。gviz は存在しないタブ名で既定のタブを返すため、どれも存在しないと見られる）
+- #365（WRC リーグの第18期以降の成績を反映する、Open、期日 2026-10-09 に入力の担当と時期を決める）: 同じ「JWRC」タブへの入力の話。WRC-R を JWRC タブに足すなら #365 の入力と同じ担当・時期で決めるのが自然
+- 据え置きの wrc ページに足す場合の選択肢:
+  - (i) `wrc_results`・`wrc_ranking` のシート切替に WRC-R を足す: 今は Google Charts のページ（#111 で据え置き）。`wrc_ranking` は #141 で Python へ移植するので、ランキング側は移植の中で WRC-R を足すかを決めることになる。`league_ranking.js` は `sheet == 'JWRC'`・`'特昇'` などで閾値を分けている
+  - (ii) 別ページにする: 生成ページにすれば Google Charts を増やさない（現行サイトで作る条件に合う）。成績の表は型A と同じ生成で作れる見込み
+  - 要る材料: WRC-R の成績データ（タブ）があるか・誰が入れるか、列の形が JWRC と同じか、`wrc_ranking` の移植（#141）の範囲に入れるか
+
+### 5. handover.md と決定の記録
+
+- docs/handover.md（23,406 → 23,963 バイト。警告域 26KB の外）:
+  - 4章「外部ドメインへの依存を増やさない」: 残る外部依存の Google Charts に「ランキング3ページは #141 で外し、成績3ページ（#111）は据え置くため残る」を足し、「`gstatic.com` を消すには #111 と #141 の両方の判断が要る」を「#111 を据え置きに決めた（2026-10-05）ため `gstatic.com` は残り、#9 の CSP は gstatic を許可する形で書く」に置き換えた
+  - 5章の表: 「現行サイトで小さく作れるもの」の行（順番 #389 → #377 → #277 → #388、#388 は「映画」のタブの後、#371 は #141 の中、#366 は未決、#425 は 1・3・4 決定）。指示に無いが同じ決定で古くなった #7・#111・#141 の行も直した
+  - 「#7 の進め方」の「現状」: 「#111 と #141 の方針待ち」を「ランキング3ページは #141 で移植、型B は #111 で据え置き」に置き換えた（指示に無いが同じ決定で古くなった記述）
+- 決定を docs/decisions/features.md に追記。RUN-05 の順番の行と「同時に決める」の行に「→ 置き換え: 2026-10-05（CHAT-1005-RUN-06）」を付けた
+- マージ: push 前の再 fetch で cloudflare は進んでおらず（祖先を確かめた）、03cfdaa0 を cloudflare へ push
 
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1005-run-06
-- ログ: https://github.com/retroeater/mj/blob/work/1005-run-06/docs/logs/CHAT-1005-RUN-06.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1005-RUN-06.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1005-run-06
-- 確認用URL: なし
-- マージ: 未
-- issue: 対象の16件
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 確認用URL: なし（docs のみ）
+- マージ: 済（03cfdaa0。work/1005-run-06 の先頭を fast-forward で cloudflare へ push）
+- issue: #141・#111・#7・#9・#371・#228・#234・#366・#388・#389・#377・#277・#425 の本文を更新しコメント。#220・#405 を新サイト送り（「状況: 保留」・sub-issue・「親: #296」）、#296 の子の表に2行（子は 34件）。ラベルは #141・#111・#7 の「状況: 待ち」を外し、#388 に「状況: 待ち」を付けた。クローズは無し。飛ばした issue は無し
+- 判断が必要なこと:
+  - #141 の題（「…移行方針を決める」）: 案1 は題を「ランキング3ページを Python の生成に移す」などの実装の題に変え、この issue で実装まで進める（判断の経緯と要件のコメントが一か所に残る）。案2 は判断済みとしてクローズし、実装の issue を新たに起こして #371・#228・#234 をその子にする。題は変えていない
+  - #111 のクローズ: 判断（据え置き）は済み、本文に残る作業は無い。クローズしてよいと見られる。ただし #7 の残り6ページの数え方（据え置きの3ページを #7 から外すか）を決めてからのほうが、#7 の完了条件と合う
+  - #7 の完了条件: 成績3ページが据え置きになったので、#7 は「ランキング3ページの移植で完了とする」か「3ページは対象外にする」かを本文に書くか
+  - #425 の 2（サムネイルかリンクのみか）と、4 の実現手段（Single Redirects の Wildcard の1ルールが見込み。ダッシュボードの設定でコードに残らない）。経過「4」に比較の表
+  - #366 の載せ方（経過「#366 の材料」）。WRC-R のタブが見つからないので、データの有無と担当（#365 と同じ）を先に決める必要がある
+  - #220 の本文の「位置づけ」に #235（共通検索ボックス）がこれを読むとある。#235 は今回の決定に入っていない
+- 未確認の項目:
+  - ABEMA の最強戦のページの取得（HTTP ステータス・og:title・og:image・サムネイルのドメイン）: URL が #425 の本文・最強戦シート・リポジトリのどこにも無く、実測していない
+  - Single Redirects の Wildcard で `?match=` を含む URL に一致させられるかは、公式ドキュメントからの見込みで、実地では試していない（ダッシュボードはセッションから見られない）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj e3c4360d）: https://github.com/retroeater/mj-logs/tree/main/guide/e3c4360d
+ガイド文書（この版を写した時点の最新、mj 7a90a9c9）: https://github.com/retroeater/mj-logs/tree/main/guide/7a90a9c9
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e3c4360d/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e3c4360d/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e3c4360d/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e3c4360d/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e3c4360d/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e3c4360d/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/7a90a9c9/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/7a90a9c9/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/7a90a9c9/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/7a90a9c9/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/7a90a9c9/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/7a90a9c9/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/078344cf.md
