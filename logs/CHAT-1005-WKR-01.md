@@ -119,19 +119,38 @@
     - 文字列の `"true"` で渡した入力が真偽の入力として通り、`${{ inputs.scheduled }}` は `true`/`false` で env に入った
 12. 文書: `docs/notes/scheduler-worker.md` を新設。handover.md「7. 関連文書」に1行（24380 → 24584 バイト、警告域 26624 の内側）。static-generation.md の「ワークフローの一覧」「ワークフローを手動実行するとき」、cloudflare.md の「本番反映（デプロイ）の仕組み」に1行、decisions/automation.md に決定
 
+13. マージ: 再 fetch の後 `git merge-base --is-ancestor origin/cloudflare HEAD` が真 → `git push origin work/1005-wkr-01:cloudflare`（fe048151..64aa604f、fast-forward）。直前に作業ブランチの 64aa604f で assets-check.yml run 2848 が success
+    - check-run「Workers Builds: mj」（64aa604f）: success（push から約1分）。サイトの Worker のビルドが1回走った（watch paths の Exclude に `workers/*` がまだ無いため）
+    - 本番: `https://ryoei.pro/workers/scheduler/` の下の `schedule.json`・`wrangler.jsonc`・`src/index.mjs`・`src/scheduler.mjs`、`workers/` は、どれも存在しないパス（`no-such-path-xyz/file.json`）と同じ 404・同じ本文（1508 バイト、同じ md5）。`robots.txt` は 200。**本番の HTML の応答で確かめた範囲。ブラウザでの見え方は見ていない**
+    - #504 に段階1が入ったことをコメントした（閉じていない）
+14. CLAUDE.md に足すべき規則: なし（`.assetsignore` は「判断・作業の原則」の既存の規則で足りる。`wrangler deploy` の禁止も既存の禁止事項に含まれる）
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1005-wkr-01
-- ログ: https://github.com/retroeater/mj/blob/work/1005-wkr-01/docs/logs/CHAT-1005-WKR-01.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1005-wkr-01
-- 確認用URL: なし
-- マージ: 未
-- issue: #504
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 状態: 完了
+- ブランチ: work/1005-wkr-01（マージ済み。削除は delete-merged-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1005-WKR-01.md
+- 比較URL: https://github.com/retroeater/mj/compare/fe048151...64aa604f
+- 確認用URL: なし（サイトの表示は変えていない。本番で `workers/scheduler/` の下が 404 であることを確かめた）
+- マージ: 済（64aa604f。fast-forward のためマージコミットは無い）
+- issue: #504（着手・完了のコメント、Open のまま）、#506（起票。常設「予約実行の起動」）
+- 結果の要点:
+  - Worker の名前: `mj-scheduler`。Secret の名前: `GITHUB_TOKEN`。通知用の issue: #506
+  - 起動の表（`workers/scheduler/schedule.json`）: `delete-merged-branches.yml`・毎日・04:20 JST・有効 の1行
+  - 手動実行 (a) run #13（入力なし）: success、dry-run の分岐。(b) run #14（`scheduled` を真）: success、予約実行と同じ分岐で `work/1003-vid-01`（3dfac105fe16879fee6a4592e39ae7f0d5f35833）を削除
+  - `scheduled` の起動の見分け方: ワークフローの `run-name` で、`scheduled` が真のとき題の先頭に `[scheduled]` を付ける。Worker は `event` が `workflow_dispatch` で `display_title` が `[scheduled]` で始まる実行を予約の起動とみなす（run #14 で題を確かめた）
+  - 平野さんがマージの後に行う作業: docs/notes/scheduler-worker.md「マージの後に平野さんが行う作業」
+  - 指示の案から変えた点: Worker のファイルを `.mjs` にした。朝の確かめに「起動待ち」（予定から15分以内）と「確認できず」（API の失敗）を足した。起動の API につながらないときも通知する。行のキーは `weekdays`（0=日曜）・`monthdays`
+- 判断が必要なこと:
+  - 平野さんの作業（Worker の作成とリポジトリの接続〈名前は `mj-scheduler`、Root directory は `workers/scheduler`、非本番ブランチのビルドは OFF を推す〉、watch paths、トークンの発行と Secret `GITHUB_TOKEN` の登録、サイトの Worker の Exclude に `workers/*`、Cron Triggers の数の確認）。手順は上の文書の節
+- 未確認の項目:
+  - 定時実行の入口（`scheduled` ハンドラ）を通した動き。Worker がつながった後の最初の 04:20 と 06:00 の回で確かめる。Cloudflare の Cron Triggers 自体の遅れも同じ
+  - fine-grained の PAT で起動・一覧・コメントが通るか（テストは偽の fetch、手動実行はセッションの MCP で起動した）
+  - `mj-scheduler` の Workers Builds の check-run の名前と、接続で増えるトークン
+  - アカウントの Cron Triggers の数（0 本の見込み）
 - エラー:
-  - 着手時HEAD の取得（`git rev-parse --short HEAD`）が分類器に拒否された（#493）
+  - 着手時に `git rev-parse --short HEAD`（読むだけ）が分類器に拒否された（理由: Modify Shared Resources、#493）。別の手段は試さず、着手時の HEAD は「未取得」とした。以後の SHA は push の出力から読んだ
+  - docs.github.com がプロキシで拒否された（EGRESS_BLOCKED）。GitHub の文書は `raw.githubusercontent.com/github/docs` の原稿で読んだ
 
 <!-- guide-links -->
 ---
