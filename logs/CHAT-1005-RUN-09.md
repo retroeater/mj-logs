@@ -72,29 +72,62 @@ CHAT-1005-RUN-07 の「判断が必要なこと」に平野さんが答えた。
 - 指示文の冒頭の雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある。
 - 識別子の確認: `CHAT-1005-RUN-09` のコミットは 0件。RUN の他のコミットは同じチャットの RUN-01〜08。
 - `origin/work/1005-run-09` は無く、`git checkout -b work/1005-run-09 origin/cloudflare` で作成。
+- ログを先行 push（5186d079）。
+
+### 1. 対象の issue の確認
+
+- #472・#498・#426・#425・#501・#502 はすべて Open。#472 の着手中コメント（09-29、CHAT-0929-AF-37）は決定のとおり止まる理由にしない。ほかに着手中コメントは無い
+- #472 の本文に残る確認項目: AF-38 のコメントの「マージ後に確かめること」（連盟ch と道場部の毎日の成否・10/5 の週次3本・「再試行」の行・道場部の失敗の通知）と、本文の追記（check-meibo の pip install を 10/5 で確かめる）。どれも RUN-07 とこの指示で確かめ済み → クローズの条件を満たす
+- #498 の本文の「決めること」4項目は RUN-03 で決めて実装済み。残る項目は無い
+- #425 は sub-issue の親を持たない（`/issues/425/parent` が 404。本文の「親: #319」は文字だけ）。入れ子の制約には当たらない
+
+### 2. 道場部の同期の手動実行
+
+- 入力の確かめ: `sync-dojo-calendar.yml` の手動実行の入力は image・month（空なら連盟サイトの最も新しい月）と apply（既定 false）。予約実行は `--compare --state --json --auto-update`、apply なしの手動実行は `--compare --state --json`。違いは `--auto-update`（書き込み済みの月の画像が差し替わったとき、当日以降を自動で直す）の有無だけ（docs/notes/dojo-guest-calendar.md、`scripts/sync_dojo_calendar.py`）
+- 手動実行は前回の状態（キャッシュ）を保存する。画像が差し替わっていると、手動実行が新しい Last-Modified を保存し、翌朝の予約実行が差し替えに気づかず自動で直さなくなる。そこで実行の前に、セッションから連盟サイトの道場部のページを読んで（接続できた）、画像の Last-Modified を確かめた: 10月の guest の画像 `202610R.jpg` は 2026-09-28 23:35:02 GMT。前回の成功（10/4 09:32 JST の予約実行）より前なので、差し替えは無く、手動実行は予約実行と同じ結果（何もしない）になる。11月の画像はまだページに無い（ほかに 202610B・202610Y・202610G があるが、同期の対象〈kind guest〉ではない）
+- 入力は既定のまま（image・month は空、apply は false）で、cloudflare で1回起動した
+- 結果: **run #28（37274638682）、success、所要 43秒**（06:52:29〜06:53:12 UTC = 15:52〜15:53 JST）。全ステップ success。「結果をissueに知らせる」は「画像が変わっていないため通知しません（…202610R.jpg）」。**追加・更新・削除は 0（画像が変わっていないため読み取り・照合をせずに終わった）。#426 への通知は無し**（#426 のコメントは4件のまま）。キャッシュは `dojo-guest-state-37274638682` で保存された
+
+### 3. 起票
+
+- 同じ論点の issue を検索（MCP の search_issues「道場部 同期 タイムアウト 再試行 間隔 失敗の通知 文面」、#390 のコメント）: #472（再試行を入れた元。今回クローズ）のほかは無し
+- **#503**「道場部の同期: 連盟サイトのタイムアウトへの対処（再試行の間隔・失敗の通知の文面）」（分野: 自動化・対象: resource_calendar）。背景（09-28 #12・10-05 #27 の失敗、再試行 5秒・15秒、接続のタイムアウト 30秒、同じ日の手動実行 #28 は success）、やること1（間隔を延ばす、#298 の使用量、ほかの取り込みへ広げるかは案だけ）、やること2（失敗の段階で文面を出し分ける。今は `SYNC_OUTCOME` と apply・定期実行かだけで決めている）、完了条件、関係（#426・#472・#390・#491）。起票の後、本文の「08:5x〜09:52」という根拠の無い書き方を「#27 の3回の試行（09:50〜09:52 JST）の間、接続できなかった」に直した
+
+### 4. クローズと sub-issue
+
+- #472: クローズのコメント（5989610037）に、AF-38 の確認項目の結果と #503 の起票を書いてクローズ（completed）。「状況:」のラベルは無かった
+- #498: クローズのコメント（5989610809）に、status.md を読めていること・予約実行の初回（10/5 11:16 JST、schedule）・残る作業が無いことを書いてクローズ（completed）。「状況:」のラベルは無かった
+- #501・#502 を #425 の sub-issue に登録（REST の `POST /issues/425/sub_issues`。#425 の子は2件）。#425 に1行コメント
+
+### 5. handover.md と決定の記録
+
+- docs/handover.md に #472・#498 の行は無い（23,997 バイトのまま、変更なし）
+- 決定を docs/decisions/operations.md に追記
+- マージ: push 前の再 fetch で cloudflare が進んでいた（CHAT-1002-CLD-11・12 のログと docs/decisions/live.md、重なり無し）ので origin/cloudflare を merge して取り込み、祖先を確かめて 2fcb8f64 を cloudflare へ push
 
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1005-run-09
-- ログ: https://github.com/retroeater/mj/blob/work/1005-run-09/docs/logs/CHAT-1005-RUN-09.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1005-RUN-09.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1005-run-09
-- 確認用URL: なし
-- マージ: 未
-- issue: #472・#498・#426・#425・#501・#502
-- 判断が必要なこと: なし
+- 確認用URL: なし（docs のみ）
+- マージ: 済（2fcb8f64。work/1005-run-09 の先頭を fast-forward で cloudflare へ push）
+- issue: #472・#498 をクローズ。#503 を起票。#501・#502 を #425 の sub-issue に登録。#425 にコメント。`sync-dojo-calendar.yml` を1回手動で実行した（run #28、success、変更なし・通知なし）
+- 判断が必要なこと:
+  - 手動実行（apply なし）は `--auto-update` が付かず、前回の状態を保存する。画像が差し替わった日に手動で実行すると、翌朝の予約実行が自動で直さなくなる。今回は差し替えが無いことを先に確かめたので影響は無い。#503 か、手動実行の注意として docs/notes/dojo-guest-calendar.md に書くか
 - 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 9cb43b18）: https://github.com/retroeater/mj-logs/tree/main/guide/9cb43b18
+ガイド文書（この版を写した時点の最新、mj 14a118fd）: https://github.com/retroeater/mj-logs/tree/main/guide/14a118fd
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9cb43b18/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9cb43b18/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9cb43b18/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9cb43b18/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9cb43b18/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9cb43b18/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/14a118fd/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/14a118fd/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/14a118fd/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/14a118fd/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/14a118fd/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/14a118fd/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b89c3b19.md
