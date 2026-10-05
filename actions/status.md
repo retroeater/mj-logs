@@ -1,7 +1,7 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-06 00:07 JST
-- 書き出した実行の契機: push（cloudflare）
+- 書き出した時刻: 2026-10-06 00:09 JST
+- 書き出した実行の契機: push（work/1002-cld）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは sync-logs.yml（#498）
 
@@ -197,11 +197,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-10-06 00:06 | push | cloudflare | in_progress | #1526（37330074840） |  |
+| 2026-10-06 00:09 | push | cloudflare | pending | #1528（37330511608） |  |
+| 2026-10-06 00:09 | push | work/1002-cld | in_progress | #1527（37330502974） |  |
+| 2026-10-06 00:06 | push | cloudflare | success | #1526（37330074840） | 0分54秒 |
 | 2026-10-06 00:06 | push | work/1002-cld | cancelled | #1525（37330068102） | 0分04秒 |
 | 2026-10-06 00:06 | push | work/1002-cld | cancelled | #1524（37330050229） | 0分10秒 |
-| 2026-10-06 00:06 | push | cloudflare | cancelled | #1523（37330049101） | 0分02秒 |
-| 2026-10-06 00:06 | push | work/1005-wkr-02 | success | #1522（37330028712） | 0分36秒 |
 
 ## update-live-channel.yml
 
