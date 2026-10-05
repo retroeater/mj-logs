@@ -53,9 +53,33 @@ CHAT-1002-CLD-11 の報告を受けて、平野さんが /live の鸞和戦 第6
 - 作業ブランチ: ローカルの `work/1002-cld` が `origin/work/1002-cld` と同じ（be9e079a）。`origin/cloudflare` が祖先でなかったため `git merge origin/cloudflare`（34cb7ff9。衝突なし）
 - 指示文の冒頭の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある
 
+- 「指示」欄の末尾は指示文の最後の行と一致
+- CHAT-1002-CLD-11 の `## 報告` は「状態: 判断待ち」で、直し方の案 A〜D（A: 枝番を空欄、B: 対局者の並び、C: R3IZ244ANxQ の行を卓ごとに分ける、D: 掲載 N）が書かれている
+
+### 1. 決定の記録
+
+docs/decisions/README.md（書き方: 見出しは `## YYYY-MM-DD（Chat-Ref）`、日付の古い順、1項目1行で理由は1行まで）と docs/decisions/live.md を読んだ。live.md には鸞和戦・複数の卓に出るライブの表示についての決定は無く、矛盾する記述も無い。末尾（同じ日の CHAT-1005-UNR-11 の後）に足した:
+
+```diff
++## 2026-10-05（CHAT-1002-CLD-12、#448 の関連）
++
++鸞和戦 第6期 ベスト16 C卓・D卓（`live/ranwa/6/b16-c.html`・`b16-d.html`）の表示。シートもコードも変えない。
++
++- 27分の動画 jt4E_u--mxg（D卓4回戦南場）は /live に残す。ライブの全編 R3IZ244ANxQ は D卓4回戦の南1局の途中で終わり、以降が入っていないため（対局動画ではカバーされているが、ライブだけで全量を見るには要る）
++- 全編 R3IZ244ANxQ の対局者は、C卓・D卓の両方の8名のままでよい（【3】の行を卓ごとに分けない）。C卓・D卓のページの「対局者」の一覧が両卓の8名になるのも今のまま
++- jt4E_u--mxg は D卓の対局者・実況・解説だけにする（【3】で書く。例外なのでコードは直さない）
+```
+
+- 3つ目の決定は、CLD-11 で読んだ【3】手動補正 3147行（jt4E_u--mxg）の P・Q・R がすでに D卓の値（金子正明、猪鼻拓哉、木戸僚之、猿川真寿／大野雄輝／阿久津翔太）で満たされている。この指示ではシートを読み直していない
+- CLD-11 の案A・B・D は平野さんの指定が無いので記録していない
+
+### 2. CLD-11 のログ
+
+CHAT-1002-CLD-11 の `## 報告` の状態を「完了（判断が出た: jt4E_u--mxg は残し、R3IZ244ANxQ の対局者は8名のまま。シートもコードも変えない。続きは CHAT-1002-CLD-12）」に直した（`## 指示` 欄が変わっていないことを確かめた）。
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 作業中（マージ前）
 - ブランチ: work/1002-cld
 - ログ: https://github.com/retroeater/mj/blob/work/1002-cld/docs/logs/CHAT-1002-CLD-12.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1002-cld
@@ -69,12 +93,12 @@ CHAT-1002-CLD-11 の報告を受けて、平野さんが /live の鸞和戦 第6
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 9cb43b18）: https://github.com/retroeater/mj-logs/tree/main/guide/9cb43b18
+ガイド文書（この版を写した時点の最新、mj f00f59d9）: https://github.com/retroeater/mj-logs/tree/main/guide/f00f59d9
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9cb43b18/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9cb43b18/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9cb43b18/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9cb43b18/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9cb43b18/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9cb43b18/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f00f59d9/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f00f59d9/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f00f59d9/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f00f59d9/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f00f59d9/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f00f59d9/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b89c3b19.md
