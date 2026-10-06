@@ -189,17 +189,30 @@ CHAT-1006-LGR-03 は、同じ論点の Open の issue #243「新規ページの�
 実例の違い: saikyo/ は noindex を付けずに伏せた。title/ は公開の issue を後から分けた。どちらも、上の手順では noindex を付けて公開の issue を作る段で起票する形に揃えた。
 ````
 
+- マージ: 再 fetch のうえ `git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめ、`git push origin work/1006-lgr-03:cloudflare`（76ceb429..fad9eb53、早送り）。
+  check-run（約1分後）: sync success、check success、Workers Builds: mj は in_progress（CLAUDE.md を含むためデプロイが1回走る。表示は変わらない）
+- #243: 書いた所の表をコメント https://github.com/retroeater/mj/issues/243#issuecomment-6008508405 のうえクローズ（completed）。「状況:」ラベルは元から無し
+- `scripts/sync_guides.py` の `ALLOWED_PATTERNS` に `docs/new-page-checklist.md` は含まれず、mj-logs の guide/ には写らない（scripts は変更の範囲外のため直していない）
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1006-lgr-03
-- ログ: https://github.com/retroeater/mj/blob/work/1006-lgr-03/docs/logs/CHAT-1006-LGR-06.md
+- 状態: 完了
+- ブランチ: work/1006-lgr-03（CHAT-1006-LGR-03 の続き）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1006-LGR-06.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1006-lgr-03
 - 確認用URL: なし
-- マージ: 未
-- issue: なし
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- マージ: 済（fad9eb53。この報告のログは追いの push）
+- issue: #508 を起票（houou_race の公開。#507 を待つ）／#507 に #508 をコメント／#243 にコメントしてクローズ
+- 判断が必要なこと:
+  - 手順を書いた所: `docs/new-page-checklist.md`（作る段の確かめ・段1・段2・実例の表）。参照は CLAUDE.md「CLAUDE.md / handover.md の更新ルール」の1項（置き換え・拡張）、static-generation.md「新しいページを作るとき」、instruction-template.md の注意書き（1項目追加）
+  - 実例の表の要点: 段1 は4例とも navbar・サイトマップ・`llms.txt` に載せず、saikyo/ だけ noindex を付けずに導線を外して伏せた。公開の issue は title/ だけ作る issue から後で分けた。公開後の確かめは、本番の HTML（`curl`）は saikyo/・title/ とも行った。ブラウザでの確かめは saikyo/ が headless で、title/ は平野さんに依頼した。live/ と books/ はまだ公開していない
+  - 実例に無く足した項目: 段2の「共有ボタンの確かめ」「h1 の確かめ」（指示文の案から）、公開後の「X・LINE のカード表示」（#243 のコメントから。実例では公開時に行っていない）、段1の「`NOINDEX_TAG` を定数にする」（houou_race・books/ の作りから一般化）
+  - `docs/new-page-checklist.md` は `docs/notes/` の外のため mj-logs の guide/ に写らない。チャット側で読むなら `scripts/sync_guides.py` の `ALLOWED_PATTERNS` に足すか、`docs/notes/` へ移すかを決めてほしい
+  - 指示文の「work/1005-rvw には触れない」「RVW-02 のマージの前に入れてよい」は、着手時点で RVW-02 が既に cloudflare にマージ済みだったため当てはまらなかった（CLAUDE.md は RVW-02 の後の版に1項を直した）
+  - 雛形の行の欠け: なし
+- 未確認の項目:
+  - fad9eb53 の Workers Builds: mj は確認の時点で in_progress（docs のみの変更で表示は変わらない）
+  - #507 の本文の「メニュー『鳳凰戦 > リーグ別成績推移』に足す」は書き換えていない（#507 へのコメントで #508 へ移したと書いた）
 - エラー: なし
 
 <!-- guide-links -->
