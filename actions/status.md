@@ -1,7 +1,7 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-06 12:46 JST
-- 書き出した実行の契機: push（cloudflare）
+- 書き出した時刻: 2026-10-06 12:51 JST
+- 書き出した実行の契機: push（work/1006-lgr-08）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは sync-logs.yml（#498）
 
@@ -12,7 +12,7 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-10-06 12:46 | push | work/1006-pht | in_progress | #2885（37410576444） |  |
+| 2026-10-06 12:46 | push | work/1006-pht | success | #2885（37410576444） | 0分12秒 |
 | 2026-10-06 12:46 | push | cloudflare | success | #2884（37410525706） | 0分11秒 |
 | 2026-10-06 12:45 | push | work/1006-wkr-07 | success | #2883（37410517465） | 0分14秒 |
 | 2026-10-06 12:31 | push | work/1006-rvw-h1 | success | #2882（37409411925） | 0分12秒 |
@@ -26,11 +26,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-06 12:46 | workflow_dispatch | cloudflare | success | #20（37410583779） | 3分04秒 |
 | 2026-10-06 12:07 | workflow_dispatch | cloudflare | success | #19（37407457066） | 3分10秒 |
 | 2026-10-05 06:00 | schedule | cloudflare | success | #18（37234274297） | 3分06秒 |
 | 2026-09-28 15:25 | workflow_dispatch | cloudflare | success | #17（36386417750） | 3分03秒 |
 | 2026-09-28 11:01 | workflow_dispatch | work/0928-af | success | #16（36368183473） | 3分16秒 |
-| 2026-09-28 09:39 | workflow_dispatch | cloudflare | success | #15（36363004627） | 3分05秒 |
 
 ## check-leagues-dropped.yml
 
@@ -124,11 +124,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-06 12:50 | workflow_dispatch | cloudflare | in_progress | #219（37410835413） |  |
 | 2026-10-06 12:31 | push | cloudflare | success | #218（37409349775） | 0分31秒 |
 | 2026-10-06 12:10 | workflow_dispatch | cloudflare | success | #217（37407733699） | 3分40秒 |
 | 2026-10-06 11:37 | push | cloudflare | success | #216（37405007821） | 0分33秒 |
 | 2026-10-05 08:33 | schedule | cloudflare | success | #215（37244182235） | 1分30秒 |
-| 2026-10-04 22:02 | push | cloudflare | success | #214（37204224841） | 1分26秒 |
 
 ## sitemap-lastmod.yml
 
@@ -197,11 +197,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-10-06 12:46 | push | work/1006-pht | pending | #1611（37410576451） |  |
-| 2026-10-06 12:46 | push | cloudflare | in_progress | #1610（37410525717） |  |
+| 2026-10-06 12:50 | push | work/1006-lgr-08 | in_progress | #1613（37410907844） |  |
+| 2026-10-06 12:46 | push | work/1006-pht | skipped | #1612（37410589288） | 0分05秒 |
+| 2026-10-06 12:46 | push | work/1006-pht | cancelled | #1611（37410576451） | 0分12秒 |
+| 2026-10-06 12:46 | push | cloudflare | success | #1610（37410525717） | 0分53秒 |
 | 2026-10-06 12:45 | push | work/1006-wkr-07 | success | #1609（37410517431） | 0分29秒 |
-| 2026-10-06 12:44 | workflow_dispatch | cloudflare | success | #1608（37410374061） | 0分59秒 |
-| 2026-10-06 12:43 | push | work/1006-wkr-07 | success | #1607（37410331536） | 0分58秒 |
 
 ## update-live-channel.yml
 
