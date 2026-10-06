@@ -1,7 +1,7 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-06 13:53 JST
-- 書き出した実行の契機: push（work/1006-pht）
+- 書き出した時刻: 2026-10-06 13:54 JST
+- 書き出した実行の契機: push（work/1006-rvw-h1）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは sync-logs.yml（#498）
 
@@ -12,11 +12,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-06 13:54 | push | work/1006-pht | queued | #2902（37415888532） |  |
+| 2026-10-06 13:54 | push | cloudflare | in_progress | #2901（37415886204） |  |
 | 2026-10-06 13:52 | push | work/1006-rvw-h1 | success | #2900（37415799214） | 0分15秒 |
 | 2026-10-06 13:52 | push | work/1006-pht | success | #2899（37415743078） | 0分15秒 |
 | 2026-10-06 13:51 | push | work/1006-lgr-09 | success | #2898（37415667280） | 0分47秒 |
-| 2026-10-06 13:51 | push | cloudflare | success | #2897（37415659502） | 0分14秒 |
-| 2026-10-06 13:50 | push | cloudflare | success | #2896（37415644109） | 0分10秒 |
 
 ## check-image-links.yml
 
@@ -124,11 +124,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-06 13:54 | push | cloudflare | in_progress | #222（37415886177） |  |
 | 2026-10-06 13:51 | push | cloudflare | success | #221（37415659488） | 0分32秒 |
 | 2026-10-06 13:50 | push | cloudflare | success | #220（37415644301） | 0分37秒 |
 | 2026-10-06 12:50 | workflow_dispatch | cloudflare | success | #219（37410835413） | 2分27秒 |
 | 2026-10-06 12:31 | push | cloudflare | success | #218（37409349775） | 0分31秒 |
-| 2026-10-06 12:10 | workflow_dispatch | cloudflare | success | #217（37407733699） | 3分40秒 |
 
 ## sitemap-lastmod.yml
 
@@ -197,11 +197,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-06 13:54 | push | work/1006-pht | pending | #1659（37415888628） |  |
+| 2026-10-06 13:54 | push | cloudflare | pending | #1658（37415886223） |  |
 | 2026-10-06 13:52 | push | cloudflare | pending | #1657（37415802567） |  |
-| 2026-10-06 13:52 | push | work/1006-rvw-h1 | pending | #1656（37415799192） |  |
-| 2026-10-06 13:52 | push | work/1006-pht | in_progress | #1655（37415743113） |  |
-| 2026-10-06 13:51 | push | work/1006-lgr-09 | success | #1654（37415667203） | 2分04秒 |
-| 2026-10-06 13:51 | push | cloudflare | success | #1653（37415659528） | 1分44秒 |
+| 2026-10-06 13:52 | push | work/1006-rvw-h1 | in_progress | #1656（37415799192） |  |
+| 2026-10-06 13:52 | push | work/1006-pht | success | #1655（37415743113） | 1分37秒 |
 
 ## update-live-channel.yml
 
