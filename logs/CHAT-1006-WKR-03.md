@@ -88,6 +88,54 @@ Chat-Ref: CHAT-1006-WKR-03
 2. 手順0: 指示欄の最後の行は「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」で、指示文の最後の行と一致
 3. 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
 
+4. #504・#506 はどちらも Open（#504 の updated_at 2026-10-05T15:05:38Z・コメント3件、#506 はコメント0件）
+5. 確かめること A
+   - run #15（id 37362716913）: `event` workflow_dispatch、`display_title` `[scheduled] マージ済みの作業ブランチを削除する`、`head_branch` cloudflare（head_sha 75fa0e6c）、success。triggering_actor は retroeater
+   - 作られた時刻 2026-10-05T19:20:36Z = **10/6 04:20:36 JST（予定 04:20:00 から 36 秒の遅れ）**。ジョブの開始 04:21:00、完了 04:21:23（run の updated_at 04:21:24、48 秒）
+   - ジョブのログ: `INPUT_SCHEDULED: true`・`INPUT_DRY_RUN: true`・`DRY_RUN: false`・`SCHEDULE_ENABLED: true`。削除したブランチ（8本、どれも「マージ済み」）:
+     - work/1003-run-02 befac7495c4cf03cb5618bfcbe075a286916205e
+     - work/1003-run-03 ef37d9f2635b40b616ca33014285f91b9d9fb97d
+     - work/1004-dny de2f68de817a184cf74f018d75e9355fff8da351
+     - work/1004-run-04 227de80aeba92ecf66d57b3880c2cc2da0212c60
+     - work/1004-unr c0311f3012f09e51c0b647ac56906d3694bfedf6
+     - work/1004-vid-05 b03045fc2fa3640eeeef520d51c524aa5a24d31d
+     - work/1004-wbd d6f51c3521592d4562056ae45cacc21e7a818e29
+     - work/1005-run-05 c482b197a0af814c7f8632a26f522c5712acb94a
+     - 残したもの: 猶予中 12本、未マージ 1本（work/1005-lgr-01）
+   - #506 のコメント: 10/5 19:00Z（04:00 JST）以降は0件（コメントの総数も0）。06:00 の朝の確かめがすべて success だった場合と、06:00 の回が動かなかった場合の区別は GitHub の側からはつかない
+   - 今の予約実行（schedule、07:53 の予定）の 10/6 の回: 10:28 JST の時点でまだ無い（最新は run #15）。待たずに「未確認の項目」へ
+   - `workers/scheduler/wrangler.jsonc` に `observability` は無い。公式の文書（https://developers.cloudflare.com/workers/observability/logs/workers-logs/ ）: `observability` の `enabled = true`（`head_sampling_rate` は 0〜1）で Workers Logs が有効になる。Free プランに含まれ、1日 20 万件・保存は3日。cron の起動も記録される → 入れる案を報告に書く（この指示では変えない）
+6. 確かめること B（cloudflare の 10/5 13:40Z〈22:40 JST〉以降のコミットと check-run。push そのものは API で見えないので、コミットの時刻・親と check-run から push の先頭を読んだ。時刻は UTC）
+
+| コミット | 時刻 | 中身（直前からの変更） | Workers Builds: mj | Workers Builds: mj-scheduler | 読み |
+|---|---|---|---|---|---|
+| 7c9001a3 | 14:07 | docs/logs だけ | success（14:08） | 無し | 作業ブランチのプレビューの可能性（mj は非本番ブランチのビルドあり） |
+| df10786e | 14:09 | docs だけ（chat-side-operations.md など） | 無し | 無し | cloudflare への push（CLD-16）の見込み |
+| 8c794c0f | 15:03 | `workers/scheduler/src`・`test`・docs（WKR-02 のマージ、f687ea60..8c794c0f） | success（15:04） | success（15:05） | cloudflare への push |
+| 8d3f1dca | 15:05 | docs/logs だけ（WKR-02 のログの追いの push、8c794c0f..8d3f1dca） | 無し | **success（15:06）** | cloudflare への push。docs だけ |
+| 1d938fea | 15:06 | docs/logs だけ（CLD-17） | success（15:07） | 無し | CLD の作業ブランチのプレビューの見込み |
+| 87134fea | 15:06 | マージ（8d3f1dca と CLD-17 の docs） | 無し | **success（15:08）** | cloudflare への push。docs だけ |
+| 6f63525e | 15:09 | docs/logs だけ | 無し | **success（15:10）** | cloudflare への push。docs だけ |
+| 2b8a3ce4 | 15:22 | docs/decisions・docs/logs | 無し | **success（15:23）** | cloudflare への push。docs だけ |
+| 75fa0e6c | 15:25 | docs/logs だけ | 無し | **success（15:26）** | cloudflare への push。docs だけ |
+| 9afc397e | 23:22 | data/ だけ（update-live-channel） | success | **success** | cloudflare への push。workers を含まない |
+| 46fac15d | 23:24 | live/ など（regenerate） | success | **success** | 同上 |
+| f6169080 | 00:59（10/6） | CLAUDE.md・docs（RVW-02 の作業ブランチ） | success | 無し | 作業ブランチのプレビューの見込み |
+| 95ac1cbb | 01:25（10/6） | CLAUDE.md・docs（RVW-03 のマージ） | success | **success** | cloudflare への push。workers を含まない |
+
+   - 読み: **指示の2つ目「docs だけの push にも mj-scheduler の check-run が付いている → Include の変更が保存されていない（平野さんが画面を確かめる）」に当たる。** 8c794c0f 以降、cloudflare への push はパスにかかわらず（docs だけ・data だけ・live だけでも）すべて mj-scheduler がビルドされた。ただし 14:09 ごろの df10786e（docs だけ）には mj-scheduler の check-run が無い（Include を直した直後か、Git 連携のビルドがまだ始まっていなかったかは分からない）
+   - `src/` だけの変更でビルドされない、という3つ目の形は見えていない（8c794c0f はビルドされた）
+   - サイトの Worker（mj）: docs だけの cloudflare への push（8d3f1dca・87134fea・6f63525e・2b8a3ce4・75fa0e6c）ではビルドされず、Exclude の `docs/**` は効いている。8c794c0f（`workers/` と docs だけ）でビルドされたので、その時点で Exclude の `workers/*` は効いていなかった（保存がその後だったのか、`workers/*` が `workers/scheduler/src/…` に当たらないのかは、`workers/` だけを変える次の push まで分からない）
+   - 公式の文書（https://developers.cloudflare.com/workers/ci-cd/builds/build-watch-paths/ 、10/6 に読んだ）: 先に Exclude で外し、残ったパスを Include と照らし、1つでも合えばビルド。「A wildcard will match zero or more characters」。既定は Include `[*]`・Exclude `[]`。変更が0件・3000件以上・20コミット以上の push は判定を飛ばして必ずビルド。パスがリポジトリの根からか Root directory からかは書いていない（例は根から）
+
+7. 文書（追記先を読んでから直した）
+   - docs/notes/scheduler-worker.md（9967 → 約 12.4KB）: 冒頭の「まだ動いていない」を、動き出した日と最初の起動に置き換えた。「マージの後に平野さんが行う作業」を「ダッシュボードの設定（申告値）」と「作り直す手順」（画面の表記: Create application → Set up your application、Advanced settings の Path）に置き換えた。トークンの期限 2027-10-05（365 日）と予定 2027-09-05。「未確認」を 10/6 の時点に直した（watch paths の疑い、Exclude `workers/*` の効き、06:00 の回、`observability` の案、Cron Triggers の遅れ）。watch paths の表の参照先は、ログ（定期削除される）ではなく #504 の 10/6 のコメントにした
+   - 矛盾の扱い: scheduler-worker.md の「期限は 366 日」と申告の 365 日は、決定と実物の違いとして両方を書いた（判断は要らないと見た）。cloudflare.md の `mj` の表の「Builds for non-production branches: OFF（2026-09-12）」と、同じ文書の「work/ ブランチのプレビュー」（#38 で有効化）は前から食い違っていた。10/6 の申告値「チェックあり」に直し、9/12 の時点は OFF だったことを残した
+   - docs/notes/cloudflare.md: 見出しに「2026-10-06 に一部更新」。`mj` の表の non-production と Exclude を申告値に。mj-scheduler の行をつないだ事実と参照に置き換え、Cron Triggers の行を足した。「APIトークンの棚卸し」に 10/6 も1本・mj-scheduler は共用。「ビルド時間の見積もり」に集計期間（9/9〜10/9、641 分）と mj-scheduler の 34 秒
+   - docs/handover.md: 5章の #504 の行と 7章の scheduler-worker.md の行。**22411 → 22581 バイト**（警告域 26624 の内側）
+   - docs/decisions/: 足す決定は無い
+8. #504: 本文の「未確認の項目」を書き換えた（書き換えの直前に updated_at が 2026-10-05T15:05:38Z のままであることを2回確かめた。書き換え後 2026-10-06T01:30:53Z）。済にしたもの: Cron Triggers の数・入力の上限 25・トークンの増え方と check-run の名前・集計期間（プランは「確かめ済みの事実」に元からある）。残したもの: Cron Triggers 自体の遅れ。足したもの: 06:00 の回、mj-scheduler の watch paths。コメントで最初の起動・朝の確かめ・push ごとの check-run の表を書いた
+
 ## 報告
 
 - 状態: 作業中
@@ -104,12 +152,12 @@ Chat-Ref: CHAT-1006-WKR-03
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 95ac1cbb）: https://github.com/retroeater/mj-logs/tree/main/guide/95ac1cbb
+ガイド文書（この版を写した時点の最新、mj 48026c96）: https://github.com/retroeater/mj-logs/tree/main/guide/48026c96
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/95ac1cbb/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/95ac1cbb/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/95ac1cbb/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/95ac1cbb/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/95ac1cbb/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/95ac1cbb/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/48026c96/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/48026c96/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/48026c96/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/48026c96/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/48026c96/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/48026c96/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/88b1476b.md
