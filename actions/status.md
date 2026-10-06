@@ -1,7 +1,7 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-06 12:45 JST
-- 書き出した実行の契機: workflow_dispatch（cloudflare）
+- 書き出した時刻: 2026-10-06 12:46 JST
+- 書き出した実行の契機: push（work/1006-wkr-07）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは sync-logs.yml（#498）
 
@@ -12,11 +12,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-06 12:46 | push | cloudflare | in_progress | #2884（37410525706） |  |
+| 2026-10-06 12:45 | push | work/1006-wkr-07 | success | #2883（37410517465） | 0分14秒 |
 | 2026-10-06 12:31 | push | work/1006-rvw-h1 | success | #2882（37409411925） | 0分12秒 |
 | 2026-10-06 12:31 | push | cloudflare | success | #2881（37409349792） | 0分12秒 |
 | 2026-10-06 12:29 | push | work/1006-lgr-07 | success | #2880（37409181957） | 0分11秒 |
-| 2026-10-06 12:16 | push | work/1006-pht | success | #2879（37408176047） | 0分14秒 |
-| 2026-10-06 12:15 | push | work/1006-wkr-06 | success | #2878（37408126888） | 0分13秒 |
 
 ## check-image-links.yml
 
@@ -197,11 +197,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-10-06 12:44 | workflow_dispatch | cloudflare | in_progress | #1608（37410374061） |  |
+| 2026-10-06 12:46 | push | cloudflare | pending | #1610（37410525717） |  |
+| 2026-10-06 12:45 | push | work/1006-wkr-07 | in_progress | #1609（37410517431） |  |
+| 2026-10-06 12:44 | workflow_dispatch | cloudflare | success | #1608（37410374061） | 0分59秒 |
 | 2026-10-06 12:43 | push | work/1006-wkr-07 | success | #1607（37410331536） | 0分58秒 |
 | 2026-10-06 12:35 | push | work/1006-swp | skipped | #1606（37409737118） | 0分01秒 |
-| 2026-10-06 12:33 | push | work/1006-rvw-h1 | success | #1605（37409543346） | 0分34秒 |
-| 2026-10-06 12:33 | push | cloudflare | cancelled | #1604（37409508537） | 0分26秒 |
 
 ## update-live-channel.yml
 
