@@ -38,3 +38,7 @@
 - #504 の段階2は2回に分ける。先に sync-dojo-calendar と sync-logs、数日見てから update-live-channel
 - sync-logs の concurrency の `queue: max`（取り消しを無くす）は、段階2とは別の指示で試す（#509）
 - #505 を閉じる。残る作業（`queue: max` の試し）は #509 に起票した
+
+## 2026-10-06（CHAT-1006-WKR-08）
+
+- sync-logs の concurrency の `queue: max` を、#504 の段階2とは別の指示で試す。この指示のマージは承認済み（止まる条件つき）（#509）
