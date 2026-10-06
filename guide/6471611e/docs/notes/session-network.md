@@ -51,6 +51,11 @@ codespace、`curl -sS -m 20 -A 'Mozilla/5.0'`、プロキシ環境変数なし�
 |---|---|
 | `www.ma-jan.or.jp`（連盟公式HP） | トップ 200、`/title-fight.html` と大会ごとの `/title-fight/<名前>.html` 200（歴代優勝者の表を取得できた） |
 
+## Codespace の確認用 URL
+
+Workers Builds のプレビューが作られなかったときの確認用 URL は Codespace のポート転送の URL になる（GitHub ログイン必須）。
+開けないときは「ポート」タブで該当ポートを右クリック →「ブラウザーで開く」（docs/notes/chat-side-operations.md「確認用 URL」から移した）。
+
 ---
 
 以下の3節は、削除した旧ノート（Codespace 内のセッション環境の記録。CHAT-0914-GH-01 / SK-05 / DOC-01）から
