@@ -50,28 +50,28 @@
 ### カレンダー（削除したもの）
 
 - 削除前: 190件（すべて同期の印 `ryoei=book`・`isbn13=<ISBN13>` を持つ、2026-09-22 に初めて書き込まれた予定。
-  `docs/logs/CHAT-0921-BK-22.md`）
+  `https://github.com/retroeater/mj/blob/ea8b86a18fbe581b9000d7a6135a4717966d7b53/docs/logs/CHAT-0921-BK-22.md`）
 - 印の無い予定（手で足した予定などが混ざっていないか）: **0件**（削除前に確認。あれば消さない方針だった）
-- 削除後: 0件（`--delete-all --apply` で実行。`docs/logs/CHAT-0922-BP-02.md`「経過」に実行ログのリンク）
+- 削除後: 0件（`--delete-all --apply` で実行。`https://github.com/retroeater/mj/blob/ea8b86a18fbe581b9000d7a6135a4717966d7b53/docs/logs/CHAT-0922-BP-02.md`「経過」に実行ログのリンク）
 - カレンダー本体（「mj_書籍」）と GitHub Variables の `BOOKS_CALENDAR_ID` は削除していない
 
 ## ここまでの決定の経緯
 
 - #97（本体）: シート設計→書影の出所の検討→楽天採用→列変更→凍結、まで全経緯がコメントに残る
-- #429（公開の切替）: 「公開の条件」に凍結までの残課題が並んでいた（`docs/logs/CHAT-0922-BP-01.md`で実態を洗い出し）
+- #429（公開の切替）: 「公開の条件」に凍結までの残課題が並んでいた（`https://github.com/retroeater/mj/blob/ea8b86a18fbe581b9000d7a6135a4717966d7b53/docs/logs/CHAT-0922-BP-01.md`で実態を洗い出し）
 - 主な作業ログ（`docs/logs/`、週次で消えるため詳細が要るときは早めに読む）:
-  - `CHAT-0921-BK-01.md` — 書影の出所の比較（NDL・Amazon Creators API・楽天・openBD）、設計の叩き台
-  - `CHAT-0921-BK-03.md`〜`BK-07.md` — books/ の初期構築、noindexで未公開のまま本番設置、カレンダー同期の追加
-  - `CHAT-0921-BK-08.md`・`BK-09.md` — 楽天ウェブサービスの登録手順・規約・被覆率の実測
-  - `CHAT-0921-BK-12.md`・`BK-13.md`・`BK-15.md`・`BK-16.md` — 書影・見た目の反映
-  - `CHAT-0921-BK-19.md` — シートの列を ISBN13 中心に作り直し（book_id→ISBN13、著者の「・」分解、他）
-  - `CHAT-0921-BK-21.md`〜`BK-23.md` — カレンダー初回同期・収束確認・振り返り
-  - `CHAT-0922-BP-01.md` — #429「公開の条件」の実態確認（列名変更の影響・著者11名の照合状況・楽天の複数著者29冊・OGPの規約材料）
-  - `CHAT-0922-BP-02.md` — 本書を作った凍結作業そのもの
+  - [`CHAT-0921-BK-01.md`](https://github.com/retroeater/mj/blob/ea8b86a18fbe581b9000d7a6135a4717966d7b53/docs/logs/CHAT-0921-BK-01.md) — 書影の出所の比較（NDL・Amazon Creators API・楽天・openBD）、設計の叩き台
+  - [`CHAT-0921-BK-03.md`](https://github.com/retroeater/mj/blob/ea8b86a18fbe581b9000d7a6135a4717966d7b53/docs/logs/CHAT-0921-BK-03.md)〜[`BK-07.md`](https://github.com/retroeater/mj/blob/ea8b86a18fbe581b9000d7a6135a4717966d7b53/docs/logs/CHAT-0921-BK-07.md) — books/ の初期構築、noindexで未公開のまま本番設置、カレンダー同期の追加
+  - [`CHAT-0921-BK-08.md`](https://github.com/retroeater/mj/blob/ea8b86a18fbe581b9000d7a6135a4717966d7b53/docs/logs/CHAT-0921-BK-08.md)・[`BK-09.md`](https://github.com/retroeater/mj/blob/ea8b86a18fbe581b9000d7a6135a4717966d7b53/docs/logs/CHAT-0921-BK-09.md) — 楽天ウェブサービスの登録手順・規約・被覆率の実測
+  - [`CHAT-0921-BK-12.md`](https://github.com/retroeater/mj/blob/ea8b86a18fbe581b9000d7a6135a4717966d7b53/docs/logs/CHAT-0921-BK-12.md)・[`BK-13.md`](https://github.com/retroeater/mj/blob/ea8b86a18fbe581b9000d7a6135a4717966d7b53/docs/logs/CHAT-0921-BK-13.md)・[`BK-15.md`](https://github.com/retroeater/mj/blob/ea8b86a18fbe581b9000d7a6135a4717966d7b53/docs/logs/CHAT-0921-BK-15.md)・`BK-16.md` — 書影・見た目の反映
+  - [`CHAT-0921-BK-19.md`](https://github.com/retroeater/mj/blob/ea8b86a18fbe581b9000d7a6135a4717966d7b53/docs/logs/CHAT-0921-BK-19.md) — シートの列を ISBN13 中心に作り直し（book_id→ISBN13、著者の「・」分解、他）
+  - [`CHAT-0921-BK-21.md`](https://github.com/retroeater/mj/blob/ea8b86a18fbe581b9000d7a6135a4717966d7b53/docs/logs/CHAT-0921-BK-21.md)〜[`BK-23.md`](https://github.com/retroeater/mj/blob/ea8b86a18fbe581b9000d7a6135a4717966d7b53/docs/logs/CHAT-0921-BK-23.md) — カレンダー初回同期・収束確認・振り返り
+  - [`CHAT-0922-BP-01.md`](https://github.com/retroeater/mj/blob/ea8b86a18fbe581b9000d7a6135a4717966d7b53/docs/logs/CHAT-0922-BP-01.md) — #429「公開の条件」の実態確認（列名変更の影響・著者11名の照合状況・楽天の複数著者29冊・OGPの規約材料）
+  - [`CHAT-0922-BP-02.md`](https://github.com/retroeater/mj/blob/ea8b86a18fbe581b9000d7a6135a4717966d7b53/docs/logs/CHAT-0922-BP-02.md) — 本書を作った凍結作業そのもの
 
 ## 調査結果の要点
 
-### 書影の出所の比較（`CHAT-0921-BK-01.md`）
+### 書影の出所の比較（[`CHAT-0921-BK-01.md`](https://github.com/retroeater/mj/blob/ea8b86a18fbe581b9000d7a6135a4717966d7b53/docs/logs/CHAT-0921-BK-01.md)）
 
 | 候補 | 結果 |
 |---|---|
@@ -85,7 +85,7 @@
 - クレジット表記必須（配布HTMLの改変不可）、書影を出すページには楽天ブックスの商品ページへのリンク必須
 - 画像は加工しない（`largeImageUrl`、長辺200pxのまま）。自サイトへのコピーもしない
 - 保存は「その他の情報」として3か月まで（価格・在庫は出していないためこちらに該当）
-- OGP（`og:image`）での利用は規約に直接の記述が無く、未解決の論点が残っていた（`CHAT-0922-BP-01.md`手順2(g)）。
+- OGP（`og:image`）での利用は規約に直接の記述が無く、未解決の論点が残っていた（[`CHAT-0922-BP-01.md`](https://github.com/retroeater/mj/blob/ea8b86a18fbe581b9000d7a6135a4717966d7b53/docs/logs/CHAT-0922-BP-01.md)手順2(g)）。
   凍結により当面は判断不要
 
 ### 著者の照合
@@ -93,7 +93,7 @@
 - 「プロ」「連盟プロ以外」「別名」のどこにも見つからない著者が**11名**、凍結まで解消しなかった
   （ASAPIN・独歩・RUKO・こいで・因幡はねる・新倉和花・木村尚嵩・木村由佳・渋谷ハル・神尾亮・竹内隆之）
 - 楽天ブックス書籍検索APIの`author`フィールドで、シートの単著者表記と食い違う（楽天側が複数著者を返す）本が**29冊**見つかった
-  （`CHAT-0922-BP-01.md`手順2(f)）。今回の「著者・監修」列への改名・複数名反映で解消したかは未確認
+  （[`CHAT-0922-BP-01.md`](https://github.com/retroeater/mj/blob/ea8b86a18fbe581b9000d7a6135a4717966d7b53/docs/logs/CHAT-0922-BP-01.md)手順2(f)）。今回の「著者・監修」列への改名・複数名反映で解消したかは未確認
   （凍結によりこのセッションでは確かめていない）
 
 ## 楽天の期限
