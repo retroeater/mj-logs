@@ -1,7 +1,7 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-06 15:57 JST
-- 書き出した実行の契機: push（work/1006-rvw-377）
+- 書き出した時刻: 2026-10-06 16:04 JST
+- 書き出した実行の契機: push（work/1006-lgr-10）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは sync-logs.yml（#498）
 
@@ -12,11 +12,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-06 16:04 | push | cloudflare | in_progress | #2908（37427412412） |  |
 | 2026-10-06 15:55 | push | work/1006-rvw-377 | success | #2907（37426486537） | 0分11秒 |
 | 2026-10-06 15:53 | push | work/1006-rvw-377 | success | #2906（37426327356） | 0分15秒 |
 | 2026-10-06 15:52 | push | work/1006-lgr-10 | success | #2905（37426254377） | 0分12秒 |
 | 2026-10-06 14:48 | push | work/1006-lgr-10 | success | #2904（37420350145） | 0分14秒 |
-| 2026-10-06 14:00 | push | work/1006-lgr-09 | success | #2903（37416402220） | 0分17秒 |
 
 ## check-image-links.yml
 
@@ -124,11 +124,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-06 16:04 | push | cloudflare | in_progress | #223（37427412467） |  |
 | 2026-10-06 13:54 | push | cloudflare | success | #222（37415886177） | 1分41秒 |
 | 2026-10-06 13:51 | push | cloudflare | success | #221（37415659488） | 0分32秒 |
 | 2026-10-06 13:50 | push | cloudflare | success | #220（37415644301） | 0分37秒 |
 | 2026-10-06 12:50 | workflow_dispatch | cloudflare | success | #219（37410835413） | 2分27秒 |
-| 2026-10-06 12:31 | push | cloudflare | success | #218（37409349775） | 0分31秒 |
 
 ## sitemap-lastmod.yml
 
@@ -137,11 +137,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-06 16:04 | push | cloudflare | in_progress | #65（37427412359） |  |
 | 2026-10-06 13:50 | push | cloudflare | success | #64（37415643996） | 0分15秒 |
 | 2026-10-06 11:37 | push | cloudflare | success | #63（37405007748） | 0分16秒 |
 | 2026-10-04 23:45 | push | cloudflare | success | #62（37210435879） | 0分22秒 |
 | 2026-10-04 16:21 | push | cloudflare | success | #61（37185530901） | 0分20秒 |
-| 2026-10-01 11:05 | push | cloudflare | success | #60（36804206388） | 0分15秒 |
 
 ## sync-birthday-calendar.yml
 
@@ -197,11 +197,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-10-06 15:56 | push | work/1006-rvw-377 | in_progress | #1681（37426640577） |  |
+| 2026-10-06 16:04 | push | cloudflare | pending | #1683（37427412465） |  |
+| 2026-10-06 16:04 | push | work/1006-lgr-10 | in_progress | #1682（37427395936） |  |
+| 2026-10-06 15:56 | push | work/1006-rvw-377 | success | #1681（37426640577） | 0分32秒 |
 | 2026-10-06 15:53 | push | work/1006-pht-logs | success | #1680（37426377680） | 1分43秒 |
 | 2026-10-06 15:53 | push | cloudflare | success | #1679（37426374771） | 1分17秒 |
-| 2026-10-06 15:53 | push | work/1006-pht-logs | success | #1678（37426358802） | 0分59秒 |
-| 2026-10-06 15:53 | push | cloudflare | success | #1677（37426356107） | 0分30秒 |
 
 ## update-live-channel.yml
 

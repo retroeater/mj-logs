@@ -77,6 +77,27 @@ function placePlay(){            // 再生ボタンを、表の見えている�
 - 手順0: 指示欄の末尾の行は指示文の最後の行と一致。CHAT-1006-LGR-10 の `## 報告` の状態は「判断待ち」
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 4つとも揃っている
 
+
+### 手順1 再生ボタンの不具合
+
+- #508・#507 に他セッションの着手中コメントは無い。#508 に着手中のコメントを残した。CHAT-1006-LGR-10 のログの状態を「判断待ち（続き: CHAT-1006-LGR-11）」にした
+- 再現（直す前の houou_race.js、手元のサーバ、Playwright の Chromium）。既定 43前 B1 → 24後 A1 → 25前 D2（76行）→ 24後 A1 と切り替え、1秒待ってボタンと表の位置を取った（px、画面の上端から）
+
+| 画面 | 表 | 表の上〜下 | ボタンの上〜下 | 表の中か |
+|---|---|---|---|---|
+| 1280×900 | 24後 A1（B1 から） | 390〜730 | 600〜692 | 中 |
+| 1280×900 | 24後 A1（25前 D2 から） | 390〜730 | 600〜692 | 中 |
+| 1920×1080 | 24後 A1（B1 から） | 390〜730 | 617〜709 | 中 |
+| 1920×1080 | 24後 A1（25前 D2 から） | 390〜730 | 690〜782 | **はみ出す**（下の半分が切れる） |
+| 1440×1300 | 24後 A1（25前 D2 から） | 390〜730 | 800〜892 | **はみ出す**（全部が表の外） |
+
+- 原因: `placePlay()` がボタンの位置を、表の今の見た目の高さ（`getBoundingClientRect()`）と画面の下端の小さいほうで計算している。表の高さは CSS で動きながら変わるため、
+  人数の多い表から少ない表へ切り替えた直後には前の表の高さで計算され、ボタンが新しい表の下の端をまたぐ（表は `overflow: clip` で切れる）。
+  画面の高さが表の下端より小さいときは画面の高さで計算されるので、スマホや高さの小さい画面では起きない。見込みのとおり
+- 直し方（付録のとおり）: 表の高さの行き先を `tableH` に持ち（`layout()` で `style.height` と一緒に入れる）、`placePlay()` はそれで計算し、ボタンの半分の高さ以上・表の高さ−半分以下に丸めて必ず表の中に収める
+- 直した後（同じ手順）: 1920×1080・1440×1300・1280×900 とも 24後 A1 でボタン 515〜607（表 390〜730）で中。追加の切り替え（1920×1080: 43前 B1→38前 E1 ①組〈55行〉→38後 A1〈13行〉→23前 D2〈55行〉→23後 A2〈13行〉→42後 A2〈16行〉）もすべて中。エラーなし
+- 390×780: 既定（43前 B1）のボタンは 528〜620 で、直す前のコードが動いている本番と同じ。24後 A1 は直す前 528〜620、直した後 491〜583（どちらも表 366〜706 の中。直した後は表の見えている部分の中央）
+
 ## 報告
 
 - 状態: 作業中
@@ -93,12 +114,12 @@ function placePlay(){            // 再生ボタンを、表の見えている�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 569dab20）: https://github.com/retroeater/mj-logs/tree/main/guide/569dab20
+ガイド文書（この版を写した時点の最新、mj 01b946ae）: https://github.com/retroeater/mj-logs/tree/main/guide/01b946ae
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/569dab20/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/569dab20/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/569dab20/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/569dab20/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/569dab20/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/569dab20/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/01b946ae/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/01b946ae/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/01b946ae/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/01b946ae/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/01b946ae/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/01b946ae/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/824dc807.md
