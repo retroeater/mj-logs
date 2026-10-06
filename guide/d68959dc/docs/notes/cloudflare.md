@@ -494,7 +494,7 @@ Email Address Obfuscation は 2026-09-11 に Off と記録したが（#120）202
 
 handover.md「4-x」から移した。結論は handover.md 2章「配信」の「本番反映（旧「4-x」）」に残している。
 
-### 平野さんがCloudflareダッシュボードで確認した設定値（2026-09-12時点）
+### 平野さんがCloudflareダッシュボードで確認した設定値（2026-09-12時点、2026-10-06 に一部更新）
 
 **以下はセッションからは検証できない。平野さんが目視で確認した時点の値
 としてそのまま記録する。** 今後この値が変わってもセッションからは気づけない。
@@ -509,9 +509,9 @@ Workers & Pages → `mj` → Settings → Builds:
 | Version command | `npx wrangler versions upload` |
 | Root directory | `/` |
 | Production branch | `cloudflare` |
-| Builds for non-production branches | OFF（2026-09-12にOFFへ変更） |
+| Builds for non-production branches | チェックあり（2026-10-06 の申告値。2026-09-12 の時点は OFF。プレビューは #38 で有効化、下の「work/ ブランチのプレビュー」） |
 | Build watch paths: Include | `*` |
-| Build watch paths: Exclude | `node_modules/**, .git/, docs/**`（`docs/**`は2026-09-12に平野さんが追加、#171） |
+| Build watch paths: Exclude | `.git/`・`docs/**`・`node_modules/**`・`workers/**`（`docs/**`は2026-09-12に追加、#171。2026-10-05 の深夜に足した `workers/*` を 2026-10-06 11:20 に `workers/**` に置き換えた、#504。申告値） |
 | API token | `mj build token` |
 | Cache | Disabled |
 
@@ -524,11 +524,14 @@ Workers & Pages → `mj` → Settings → Builds:
   2026-09-12にExclude pathsへ`docs/**`を追加し完了。設定値自体はセッション
   からは検証できないため申告の記録として残す）
 
-- **2つ目の Worker `mj-scheduler`**（#504）: 予約実行を起動する Worker。コードは `workers/scheduler/`（`.assetsignore` で配信から外す）。同じリポジトリを Root directory `workers/scheduler` で Workers Builds につなぐ（段階1のマージの時点ではまだつないでいない）。説明は `docs/notes/scheduler-worker.md`。設定値の表は、つないだ後に書く
+- **2つ目の Worker `mj-scheduler`**（#504）: 予約実行を起動する Worker。コードは `workers/scheduler/`（`.assetsignore` で配信から外す）。2026-10-05 の夜に、同じリポジトリを Path `/workers/scheduler` で Workers Builds につないだ。check-run は「Workers Builds: mj-scheduler」。設定値（申告値）と watch paths の未確認の点は `docs/notes/scheduler-worker.md`
+- Cron Triggers: `mj` は静的アセットだけなので持てない（画面の表示「Triggers cannot be added to a Worker that only has static assets.」）。アカウントの Cron Triggers は `mj-scheduler` の1本（Free は5本まで）
 
 ### APIトークンの棚卸し（2026-09-12）
 
 現役は平野さんのアカウント（`<平野さんのメールアドレス>`）に紐づく **User API Token 1本**（`mj build token`。Workers Builds が自動発行するため Account Token は選べない）。**このユーザーのアカウントが使えなくなると本番反映が止まる。****権限は手で絞らず触らないこと**（次のビルドが壊れうる）。リポジトリを接続し直すと同名トークンが増えるので、古いものは削除する。4本→1本に整理した経緯は `docs/notes/handover-archive-2026.md`
+
+2026-10-06 も1本（申告値。期限なし）。`mj-scheduler` は同じ `mj build token` を使い、接続でトークンは増えなかった。
 
 ### ビルド成否と本番の確認範囲（check-runs）
 
@@ -603,6 +606,8 @@ Workers & Pages → `mj` → Settings → Builds:
 - Workers Builds のプランは Free: **ビルド時間 月3,000分・同時に走るビルド1本**（公式の Limits & pricing）。同時1本なので、プレビューのビルド中は本番のビルドが待つ
 - 本番のビルド1回は **33 秒**（cloudflare `b5e28a0`、初期化 10 秒・clone 4 秒・install 0.2 秒・deploy 約 18 秒。平野さんのスクリーンショットによる）。Build history の総数は 1,175 回（2026-09-29 時点）
 - 2026-09-28〜29 の24時間のビルドは63回（プレビュー46・本番17。GitHub のイベント記録から数えたもので少なめの可能性あり）。すべて33秒なら1日35分ほど、**月1,000〜1,100分**の見込みで、枠の3分の1程度。枠の数え方に準備の時間が入るかは未確認（33秒は準備を含む）
+- 枠の集計期間は暦の月ではなく課金の期間（2026-10-05 の Usage の画面で「September 9 - October 9」、641 / 3,000 分。申告値）
+- `mj-scheduler` のビルド1回は 34 秒（2026-10-05 の最初のビルド。申告値）。watch paths が効いていない疑いがあり（`docs/notes/scheduler-worker.md`「未確認」）、効くまでは cloudflare への push ごとに1回増える
 - 上限を超えたときの動きは公式のページに書かれていない。ビルドが大きく増えたら（毎日の再生成を増やすなど）見直す
 - `Cloning` の段階の「error occurred while fetching repository」で数秒で落ちるプレビューのビルドがある（2026-09-29、`work/0928-cx` の `668fdc0`）。ビルド時間の上限とは関係ない。ブランチを作り直した直後に古いコミットを取りにいった可能性（推測）
 
