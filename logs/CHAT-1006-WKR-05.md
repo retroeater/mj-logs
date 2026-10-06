@@ -95,6 +95,12 @@ mj-scheduler の動き（06:00 JST の朝の確かめの回が動いたか、何
    - 読み: mj-scheduler はプレビューのビルドが OFF なので見込みどおり。サイトの mj は、`workers/` だけの作業ブランチへの push でプレビューがビルドされた → **Exclude の `workers/**` は、この push には効いていない**（保存されていないのか、プレビューのビルドの判定が違うのかは分からない）。docs だけの push で mj がビルドされないことは今回も同じ
 9. 文書: docs/notes/scheduler-worker.md の「ダッシュボードの設定（申告値）」の Build と `mj` の行を 10/6 11:20 の申告値に（`*` が保存されずに残っていた経過を含む）、「作り直すときの手順」の watch paths を `workers/scheduler/**`・`workers/**` に、「ログ（Workers Logs）」の節を足し、「未確認」の 06:00 の項目を「ログで確かめられる（平野さんの作業）」に直した。docs/notes/cloudflare.md の `mj` の表の Exclude を申告値に。decisions/automation.md に決定
 
+10. マージ: 再 fetch の後 `git merge-base --is-ancestor origin/cloudflare HEAD` が真 → `git push origin work/1006-wkr-05:cloudflare`（347de45a..d2e7f8a6、02:33:26 UTC、fast-forward）
+11. **表の2つ目の push（マージ、cloudflare）**: 範囲は `workers/scheduler/` の3ファイルと docs（notes・decisions・logs）
+    - d2e7f8a6: **「Workers Builds: mj-scheduler」success（02:33:58 開始）**。**「Workers Builds: mj」は push から5分過ぎ（02:38:43）も付かなかった**。`check`・`sync` は success（`sync` の1つは skipped）
+    - 読み: cloudflare への push では、mj-scheduler の Include `workers/scheduler/**` が `src/`・`test/` の下の変更に当たってビルドされ、mj の Exclude（`docs/**`・`workers/**`）で mj はビルドされなかった
+12. 表の3つ目の push（docs/logs だけの追い）: このログの追記だけを cloudflare に push する。結果は次の節目に書く
+
 ## 報告
 
 - 状態: 作業中
@@ -111,12 +117,12 @@ mj-scheduler の動き（06:00 JST の朝の確かめの回が動いたか、何
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj d2e7f8a6）: https://github.com/retroeater/mj-logs/tree/main/guide/d2e7f8a6
+ガイド文書（この版を写した時点の最新、mj 678d5f6e）: https://github.com/retroeater/mj-logs/tree/main/guide/678d5f6e
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d2e7f8a6/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d2e7f8a6/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d2e7f8a6/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d2e7f8a6/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d2e7f8a6/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d2e7f8a6/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/678d5f6e/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/678d5f6e/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/678d5f6e/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/678d5f6e/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/678d5f6e/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/678d5f6e/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/88b1476b.md
