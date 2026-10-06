@@ -79,28 +79,50 @@
 2. 手順0: 指示欄の最後の行は「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」で、指示文の最後の行と一致
 3. 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
 
+4. 手順1: #504 は Open（updated_at 2026-10-06T02:45:20Z）、#505 は Open（03:14:42Z、ラベルは「分野: 自動化」だけ）。#505 のコメントは5件で、最後は WKR-06 の 3/3（03:14:34Z）。それより後のコメントは無い
+5. 同じ目的の issue の検索（MCP の search_issues。REST の検索 API は結果が返らなかった）: 「sync-logs concurrency 取り消し cancelled queue 写らない」「mj-logs へ写す ワークフローの実行が取り消される」で、#454（Closed）・#357・#361・#506・#498 が出た
+   - #454「sync-logs.yml の実行が取り消されると、mj-logs にログの古い版が残る」（2026-09-29 に Closed・completed）は、取り消された実行の分を写す範囲を突き合わせに直して、次の実行で追いつくようにしたもの。案3「push ごとに別の組にして取り消されないようにする」は採らなかった
+   - 今回の目的は取り消しそのものを無くす（`queue: max`）で、#454 の解決（追いつかせる）とは別、と判断して起票した。#454 は関係に載せた（止まる条件の「同じ目的の issue」には当たらないと見た）
+6. 起票: #509「sync-logs の実行の取り消しを無くす（concurrency の queue: max を試す）」（ラベル「分野: 自動化」）。背景は #505 の 1/3 のコメントを引用元にした。やること3つ・完了の条件・関係（#505・#504・#506・#454・#298）
+7. #504 の本文（直前に updated_at 02:45:20Z を2回確かめた。書き換え後 03:44:45Z）で直した節:
+   - 冒頭の「元:」の行: #505 に「2026-10-06 に済。結果はコメント3件」
+   - 「決定」: 4 に「残し方の中身は 2026-10-06 の決定 10 で具体にした」を添えた（置き換えではない）。9〜12（2026-10-06）を足した
+   - 「3. 起動時刻の案と範囲」: 表の後に注記3つ（道場部の 04:15 は午前の差し替えを翌朝、試験の間は保険で当日、外すときの昼の2回目は未決）。「予約実行（schedule）の扱い」の案A・案Bの記述を、決定 4・10 に合わせて置き換え、ゲートの作りを「案。未決」とした
+   - 「7. 費用と上限」: 保険の予約実行の使用量の見積もり（月約150分）を決定 10 の形（毎日3本、月約90分、見積もり）に直した
+   - 「8. 段階と試験」: 段階2を先の回・後の回に分け、#505 は済、置き換える箇所の数は #505 のコメント 2/3 への参照に。#503 のやること3・4 を先の回で扱うかは未決
+   - 起動時刻の表そのもの・決定 1〜8 の文面は変えていない。決定 1〜4 と矛盾する既存の決定は無かった
+   - #504 にコメント1件
+8. 文書: docs/decisions/automation.md に決定 1〜5。docs/handover.md 5章の #504 の行を今の状態に、#505 の行を #509 の行に置き換えた（**23009 → 23068 バイト**、警告域 26624 の内側）。docs/notes/scheduler-worker.md の冒頭の #505 に「2026-10-06 に済」を足した（「これから」として書いている箇所はほかに無い）
+9. #505: 新しいコメントが無いことを確かめ直してから、決定 1〜5・結果のコメント3件の場所・残りの行き先（#509、#504）をコメントし、completed で閉じた。「状況:」のラベルは付いていなかった
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1006-wkr-07
-- ログ: https://github.com/retroeater/mj/blob/work/1006-wkr-07/docs/logs/CHAT-1006-WKR-07.md
+- 状態: 完了
+- ブランチ: work/1006-wkr-07（マージ済み。削除は delete-merged-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1006-WKR-07.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1006-wkr-07
-- 確認用URL: なし
-- マージ: 未
-- issue: #504・#505
+- 確認用URL: なし（docs だけ）
+- マージ: 済（docs だけ。SHA はこのログを入れた push の先頭）
+- issue: #509（起票）、#505（コメントして Closed）、#504（本文の更新とコメント、Open のまま）
+- 結果の要点:
+  - 起票: #509「sync-logs の実行の取り消しを無くす（concurrency の queue: max を試す）」
+  - #505 を閉じた（completed）
+  - #504 の本文で直した節: 冒頭の「元:」、「決定」（4 に添え書き、9〜12 を追加）、「3. 起動時刻の案と範囲」（注記と予約実行の扱い）、「7. 費用と上限」（Actions の使用量）、「8. 段階と試験」（段階2を2回に分割）
+  - 同じ目的に近い #454（Closed）が見つかったが、目的が違う（追いつかせる／取り消しを無くす）と判断して起票した
 - 判断が必要なこと: なし
-- 未確認の項目: なし
+- 未確認の項目:
+  - #505 の 3/3 の未確認3点（sync-logs の 10/6 の予約実行の遅れ、平野さんがシートを編集する時間帯、道場部の早朝の不調）は、段階2の指示を書くときに確かめる
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj daff02ec）: https://github.com/retroeater/mj-logs/tree/main/guide/daff02ec
+ガイド文書（この版を写した時点の最新、mj 6c75264a）: https://github.com/retroeater/mj-logs/tree/main/guide/6c75264a
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/daff02ec/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/daff02ec/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/daff02ec/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/daff02ec/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/daff02ec/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/daff02ec/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6c75264a/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6c75264a/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6c75264a/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6c75264a/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6c75264a/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6c75264a/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/9d644c33.md
