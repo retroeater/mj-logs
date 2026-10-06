@@ -61,17 +61,56 @@
 - 2026-10-06 着手。CHAT-1005-RVW-07 のコミットなし。work/1006-rvw-377 はローカル・リモートとも無く、origin/cloudflare（d66a5861）から作成
 - 0. 指示欄の末尾は指示文の最後の行と一致。雛形の行は揃っている
 
+### 手順1: 確認
+
+- 未マージの `work/` ブランチは自分の `work/1006-rvw-377` だけ（`resource_dictionary.html`・`dic/`・`scripts/lib/`・`scripts/regenerate.py`・`regenerate-page.yml` を変えるものは無い）
+- RVW-06 はマージ済み。`resource_dictionary.html` に `<h1 class="visually-hidden">リソース 辞書</h1>` がある
+- 「辞書」タブ（冊 `10g_Xub…J34`）・「プロ」タブ（冊 `1h4-…TeP0`、`SELECT A,B WHERE Y = "Y"` で 1,099 行）とも、このセッションの gviz で読めた
+
+どこをどう変えるか（案。止まったため作っていない）:
+
+| 対象 | 今 | 変え方 |
+|---|---|---|
+| `scripts/generate_resource_dictionary.py` | 無い | 新規。「辞書」タブを `fetch_records()`（見出しで読む）、「プロ」タブを `generate_jpml_pros.py` と同じ冊・`WHERE Y = "Y"` で読み、カテゴリごとのデータと `resource_dictionary.html` を書く（`render_content()`、`has_search_boxes=False`・`wrap_main=True`） |
+| 定期実行 | `regenerate-page.yml` が `scripts/generate_*.py` の有無で対象を決める（週次 `all` と push の判定） | **ワークフローは変えない**（生成スクリプトを1本足せば自動で対象になる、`regenerate.py` の docstring）。出力がディレクトリを含むため `scripts/regenerate.py` の `OUTPUT_OVERRIDES` に `"resource_dictionary": "resource_dictionary.html dic/"` を1行足す |
+| 生成日の焼き込み | ページに「1067語、2026-05-01更新」と手書き | 毎週の `all` で日付だけが変わってコミットが出ないよう、データが前回と同じなら前回の日付を保つ作りにする案 |
+| `dic/` | 4ファイル（旧形式） | 消して、カテゴリごとのデータ（例: `dic/pros.json`・`dic/mahjong.json`）に置き換える |
+| `resource_dictionary.html` | 手書き（閉じていない `<p>`・余分な `</a>`） | 生成に変える。h1・title・description・og は今の値を保つ。ページの JS（例: `resource_dictionary.js`）で集めて Blob で保存 |
+| `scripts/apply_page_meta.py` | title・description の表に `resource_dictionary.html` の行がある | 生成ページでも同じ値を `PageMeta` に入れる（表の行は残すか外すかを実装時に確かめる） |
+| `docs/notes/static-generation.md` | 「ページの一覧」で静的なページ（4）に入っている。「navbar.js と検索欄」で手書き4ページに数えられている | 系統を生成へ移し、件数を直す |
+| サイト内のリンク | navbar.js（`/resource_dictionary.html`）・`llms.txt`・`sitemap-pages.xml` はページへのリンクだけ。`dic/` を直接指すのはページ本体だけ（ほかに docs/gsc の記録と `docs/review-followup-instructions.md` の古い記述） | ページの URL は変わらないので直さない。`llms.txt` の説明文（「辞書ファイル（Microsoft IME・Google日本語入力）」）は今のままで合う |
+
+「辞書」タブの実物（2026-10-06 取得）:
+
+- 見出し: カテゴリ・**よみ**・**単語**・品詞・コメント・**備考**（RVW-05 の案の「読み」「語」と名前が違い、「備考」列がある。生成は見出しの名前で読むので、実物の名前に合わせればよい）
+- 625 行。カテゴリは全件「麻雀用語」。空の行・読みや語の空欄は無い
+
+### 止まった理由: 「辞書」タブの麻雀用語が今の辞書（2026-05-01 版）と食い違う
+
+止まる条件「今の辞書と『辞書』タブの麻雀用語が、件数・中身で食い違う」に当たるため、手順2（作る）に入らず止まった。
+
+| 食い違い | 件数 | 例 | 見立て |
+|---|---:|---|---|
+| タブにだけある語 | 2 | しゅはい／取牌（備考「20260605追加」）、だちゃんすう／打荘数（備考「20260713追加」） | 2026-05-01 版の後に平野さんが元データに足した語。公開ファイルには入っていない |
+| 語の文字が違う | 1 | やおちゅーはい: タブは「么九牌」、`Google_mahjong_20260501.txt` は「?九牌」 | 今の公開ファイルの文字化け。「么」は cp932（Microsoft IME 用の今の文字コード）に無い字で、変換で「?」になったと見られる（Google 用の UTF-8 のファイルも「?」）。UTF-16LE にすれば表せる |
+
+ほかの 622 行は、読み・語・品詞・コメントの順番と中身が一致した（タブ 625 行 = 一致 622 + 追加 2 + 修正 1）。どれも誤りではなくタブ側が新しいと見られるが、指示の止まる条件どおり、判断を待つ。
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 中断（止まる条件に当たった。「辞書」タブの麻雀用語が今の辞書と食い違う）
 - ブランチ: work/1006-rvw-377
 - ログ: https://github.com/retroeater/mj/blob/work/1006-rvw-377/docs/logs/CHAT-1005-RVW-07.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1006-rvw-377
-- 確認用URL: なし
-- マージ: 未
-- issue: なし
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 確認用URL: なし（コードは書いていない）
+- マージ: しない
+- issue: なし（#377 にはコメントしていない）
+- 判断が必要なこと:
+  - 「辞書」タブの麻雀用語は 625 行で、今の辞書（623 語）と3件違う: 追加2語（取牌・打荘数、備考に追加日）と、今の公開ファイルの文字化け「?九牌」がタブでは「么九牌」。タブを正として進めてよいか（進めると麻雀用語は 625 語になる）
+  - 「辞書」タブの見出しは「よみ」「単語」で、「備考」列がある。生成は見出しの名前で読み、「備考」は出さない（管理用）でよいか
+  - 続きは新しい番号の指示で（このログにコミットがあるため、同じ Chat-Ref では貼り直せない）。作業ブランチ work/1006-rvw-377 はこのログだけで、そのまま続けて使える
+  - 指示文の雛形の行に欠けは無い
+- 未確認の項目: 連盟プロの件数と旧との差（「プロ」タブは読めたが、作る手前で止まったため数えていない。RVW-05 の見込みは −23・+55）
 - エラー: なし
 
 <!-- guide-links -->
