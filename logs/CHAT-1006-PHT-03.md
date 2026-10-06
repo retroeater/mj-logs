@@ -260,28 +260,55 @@
 ### 削除のコミット
 - 甲 145件を 1コミットで削除した（コミット 9060e317）。`git show --stat`: 145 files changed, 22600 deletions(-)。`git show --name-only` でファイルは145件すべて `docs/logs/CHAT-*.md`、それ以外のファイルは0件、甲以外のログは0件（乙・丙・保留の14件は含まれない）
 
+### マージ・ワークフロー・mj-logs・#357
+- マージ: 作業ブランチを再 fetch して `git merge-base --is-ancestor origin/cloudflare HEAD` が真であることを確かめ、`git push origin work/1006-pht:cloudflare` で cloudflare へ入れた（4be9367f。参照の差し替え 321cd09f・削除 9060e317・決定の記録・ログを含む。`docs/` 外のファイルは含まない）
+- ワークフロー: push（cloudflare 4be9367f）で動いたのは sync-logs.yml（run 37412780704）だけで success。`docs/` のみの変更のため Workers Builds は走らない。work/1006-pht への push で動いた sync-logs.yml は、削除を含む 4be9367f の run（37412783503）が skipped（`[sync-logs]` の目印が無いため）、先の 824dc807 の run が success。失敗したものは無く、再実行はしていない
+- mj-logs の logs/ から削除した145件の写しが消えたか: raw URL で145件を引き、0件が残っていた（すべて404）。通知時点で写っていた30件（0922-MD-17〜24、0922-UT-17〜28、0924-TQ-03〜08、0925-AL-01〜03、0926-DK-03）のうち、残っているのは MD-17・MD-21・UT-19・UT-20・TQ-07 の5件で、残した14件のうち写っていたものと一致する
+- #357 に片付けの要約をコメントした（https://github.com/retroeater/mj/issues/357#issuecomment-6009227547）
+
 ## 報告
 
-- 状態: 中断（作業中）
+- 状態: 判断待ち（乙 9件・丙 3件・参照保留 2件を残した。移し先は下の表）
 - ブランチ: work/1006-pht
-- ログ: https://github.com/retroeater/mj/blob/work/1006-pht/docs/logs/CHAT-1006-PHT-03.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1006-PHT-03.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1006-pht
-- 確認用URL: なし
-- マージ: 未
-- issue: #357
-- 判断が必要なこと: なし
-- 未確認の項目: 作業中
+- 確認用URL: なし（docs/ のみの変更）
+- マージ: 済（4be9367f。削除のコミットは 9060e317、参照の差し替えは 321cd09f）
+- issue: #357（着手中コメントと要約コメント。起票・クローズは無し）
+- 判断が必要なこと: 残した14件。論点の issue への移動・起票はこの指示では行っていない。移し先を決めてほしい
+
+  | ファイル | 区分 | 論点・理由 | 移し先の候補 |
+  | --- | --- | --- | --- |
+  | CHAT-0919-BD-10.md | 丙 | 本番ブラウザで #e4c441 が既存5本と紛れないか・8名並ぶ日の見え方の目視が残る。#407 は closed、後続 CAL-04/10 は6本目の色を維持して7本目を足しているが「平野さんが確認済み」は指示文の申告のみで、確認の記録を自分では確かめられない。小文字16進の描画も未確認 |  |
+  | CHAT-0921-BK-16.md | 乙 | #263（regenerate-page.yml の concurrency、Open・コメント0件・最終更新 9/13）に、今回の push 競合の実例（run 35617145521 が sitemap-lastmod.yml との競合で failure）が未記載。週次 cron でも起こりうる（sitemap-lastmod.md に「対策していない（#263）」）。優先度の判断も未了。他の論点（#194 へのコメント、`fetched_at` 取りこぼし）は済み | #263 にコメント（実例と、手動実行では sitemap-lastmod.yml の回避が効かない点）。優先度は平野さん判断 |
+  | CHAT-0921-MT-06.md | 乙 | フィルタ以外の隠れた行(手動の行の非表示・グループの折りたたみ)で gviz が行を落とすかは未調査。#432 は Open でなく、docs/notes/static-generation.md にも記載なし。ほかの項目は MT-07/08・同 docs で解消 | 新規起票（主題: gviz は手動で非表示にした行・折りたたんだグループの行を返すか。結論は docs/notes/static-generation.md「シートのフィルタの検知」へ）。小さければ docs の注記のみ |
+  | CHAT-0921-MT-07.md | 乙 | 報告の未確認の項目に MT-06 と同じ「フィルタ以外の隠れた行は調べていない」が残る。そのほか(26名の差分の出どころ・97秒・警告0件)は MT-08 と #432 のコメントで解消 | MT-06 と同じ |
+  | CHAT-0921-SG-03.md | 乙 | /live の `.mj-live-players .mj-saikyo-name` の上書き（既定と同値）の整理が未了。記録は closed の #412（SG-04 のコメント）にあるだけで、整理先とした #362（open）には書かれていない。そのほかの項目（`.mj-lead` の幅は #412 の決定表で「今のまま」、順位空欄の行は SG-04 の三角で解消、マージ済み）は片付いている | #362（コメントで追記）。または style.css 側にコメントを残す |
+  | CHAT-0921-SG-04.md | 乙 | SG-03 と同じ論点（/live の上書き。style.css には現在 LP-11 の注記つきで残っている）。ほかは `.mj-lead` 16px・2018年度の三角が #412 の決定表と saikyo-page-design.md に反映、マージ・本番反映済み、#412 closed | #362（コメントで追記） |
+  | CHAT-0921-SG-06.md | 乙 | 一般公開後の検索エンジンの反映確認（`sitemap-saikyo.xml` のクロール、Search Console）が、どの issue・docs にも残っていない。平野さんの目視での本番確認の記録もなし。#101（トップから最強戦への導線）は #101 の 2026-09-21 04:01 のコメントで記録済み。#348 は closed | 新規起票（最強戦公開後の Search Console 確認）。または #348 の後続として記録 |
+  | CHAT-0921-SG-07.md | 乙 | SG-06 と同じ論点（Search Console での反映確認の時期）。`llms.txt` の件数のずれは #227 のコメント（2026-09-21・09-30）に記録済みで、タイトルの行は #441 で廃止。#319・#348 は closed | 新規起票（SG-06 と同じ） |
+  | CHAT-0922-MD-17.md | 乙 | 大半は MD-18/19 で解消（SCHEDULE_ENABLED 'true'、プレビューURLの扱い、concurrency は queue: max に変更済み）。ただし work/** の push で写したログが、cloudflare にマージされず終わったブランチの分は mj-logs に残り自動で消えない点は、sync_logs.py・docs・issue のどこにも対処・記録が無い | 新規起票（mj-logs の未マージ work ログの残存の扱い）。または #440 の後継の mj-logs 運用 issue |
+  | CHAT-0922-UT-19.md | 丙 | マージと再生成は UT-20 で完了し #380・#359 はクローズ済み。ただし消えた写真の代替画像の表示は本番で見たという記録が見つからず、判定できない |  |
+  | CHAT-0922-UT-20.md | 丙 | #380・#359 クローズ済み。本番の代替画像の見え方は未確認のまま（読み直しで甲から変更）。週次実行の差分は UT-24 の run の記録で見られる範囲 |  |
+  | CHAT-0924-TQ-07.md | 乙 | マージ可否は TQ-08 で決着、#410 クローズ（本番確認済み）。saikyo/ の59pxずれの原因は未確認だが画面内に収まる軽微な観察で、本番確認 OK のため扱いは終了 | #428（Open）にコメント、または新規起票（低優先）。saikyo/ の 59px ずれの原因 |
+  | CHAT-0922-UT-06.md | 参照保留 | 論点は片付いている。scripts/fetch_live_channel_raw.py:5 と scripts/lib/live_layer3.py:5 のコメントが `docs/logs/CHAT-0922-UT-06.md` を参照している | scripts/ のコメントを直した後で削除（scripts/ を変える別の指示） |
+  | CHAT-0922-MD-21.md | 参照保留 | 論点は片付いている。scripts/tests/test_sync_guides.py:22 が文字列のテストデータとして使っている | テストデータの文字列を変えた後で削除（scripts/ を変える別の指示） |
+
+  - scripts/・.github/ の参照は、決まりのとおり差し替えていない（上の2件）
+- 未確認の項目:
+  - 甲147件の判定は、系列ごとのサブエージェントの読みと、自分での抜き取りの確認による（全件の通読ではない）。論点が片付いたかは issue・docs・コミットの現状で確かめたが、平野さんの本番・実機での目視が済んだかは記録の有無でしか見ていない
+  - 丙の BD-10・UT-19・UT-20 は、平野さんが本番で見たかどうかを記録から確かめられなかった
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 058141da）: https://github.com/retroeater/mj-logs/tree/main/guide/058141da
+ガイド文書（この版を写した時点の最新、mj 4be9367f）: https://github.com/retroeater/mj-logs/tree/main/guide/4be9367f
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/058141da/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/058141da/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/058141da/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/058141da/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/058141da/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/058141da/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/4be9367f/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/4be9367f/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/4be9367f/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/4be9367f/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/4be9367f/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/4be9367f/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/824dc807.md
