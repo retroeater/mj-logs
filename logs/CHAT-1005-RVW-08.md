@@ -58,28 +58,33 @@ CHAT-1005-RVW-06 で h1 を足した8ページを cloudflare へ入れ、#283・
 - 2. handover.md 5章の表の #486 の行に「実態として残るのは h1 の無い11ページ」とあったため、実物に合わせて1行直した（「h1 は8ページに付けた〈2026-10-06〉。残りのランキング3ページは #141 の移植で付ける。10/30 に再確認」。サイズ 23,076、警告域の外）。同じ5章の「次の会話の順番」の「(2) #283 → #486 の h1（11ページ）」は順番の行で「現状」ではないため直していない
 - issue へのコメント（末尾に Chat-Ref）: #141（移植で h1 を付ける）、#283（8ページはマージ済み。残りは title / h1 / caption / og:title の統一。閉じない）、#486（8ページはマージ済み。残り3ページは #141。10/30 に確かめる。閉じない）
 
+- マージ: push 直前に再 fetch して origin/cloudflare が HEAD の祖先であることを確かめ、`git push origin work/1006-rvw-h1:cloudflare` で fast-forward（e4bf5d12..a643706c）。拒否されなかった
+- 3. a643706c の check-run（04:52 UTC に取得）: 「Workers Builds: mj」success（04:51:23）、`check`（assets-check.yml）success 2件、`regenerate`（regenerate-page.yml）success、`sync`（sync-logs.yml）success 3件。15分以内に揃った
+- regenerate-page.yml は生成スクリプトの変更で動き、`cdd0f5c1 chore: regenerate houou_leagues.html … via GitHub Actions` を足した。中身は `sitemap-pages.xml` の lastmod 8行だけ（ページ本体は手元で再生成したものと同じで変化なし）
+- 本番（ryoei.pro）の HTML を curl で取得し、houou_leagues・ouka_leagues・houou_results・jpml_links・resource_dictionary に h1 が出ていることを確かめた。ブラウザでの見え方（実機の Safari・Google Charts を描いた状態）は確かめていない
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1006-rvw-h1
-- ログ: https://github.com/retroeater/mj/blob/work/1006-rvw-h1/docs/logs/CHAT-1005-RVW-08.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1006-rvw-h1
-- 確認用URL: なし
-- マージ: 未
-- issue: なし
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1005-RVW-08.md
+- 比較URL: https://github.com/retroeater/mj/compare/e4bf5d12...a643706c
+- 確認用URL: なし（本番に反映済み）
+- マージ: 済（cloudflare a643706c。Workers Builds: mj・assets-check・regenerate とも success）
+- issue: #141・#283・#486 にコメント（#283・#486 は閉じていない）
+- 判断が必要なこと: なし（指示文の雛形の行に欠けは無い）
+- 未確認の項目: 実機の Safari と、Google Charts の表・グラフを描いた状態での見え方（前提のとおり、マージ後に平野さんが気づけば報告する扱い）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj a643706c）: https://github.com/retroeater/mj-logs/tree/main/guide/a643706c
+ガイド文書（この版を写した時点の最新、mj bd4fc8b8）: https://github.com/retroeater/mj-logs/tree/main/guide/bd4fc8b8
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a643706c/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a643706c/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a643706c/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a643706c/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a643706c/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a643706c/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/bd4fc8b8/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/bd4fc8b8/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/bd4fc8b8/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/bd4fc8b8/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/bd4fc8b8/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/bd4fc8b8/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/824dc807.md
