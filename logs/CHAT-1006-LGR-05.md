@@ -568,17 +568,61 @@ showKi(); changed();
 - プレビュー（f2581582 の版ごとの URL）: check-run「Workers Builds: mj」・check とも success。noindex あり。390px の既定と 360px の 42後 A1（前原雄大の移動）で同じ結果。エラーは beacon 以外に無い
 - マージ前: origin/cloudflare を取り込み、cloudflare との差分は止まる条件の一覧のファイルだけ（.github/workflows/assets-check.yml の allowed の1項目、docs、houou_race.html・houou_race.js・houou_race/41ファイル、scripts の3つ、style.css の追加だけ）。navbar.js・sitemap-pages.xml・llms.txt の差分は0
 
+### マージと本番の確認
+
+- `git push origin work/1005-lgr-01:cloudflare`（直前に fetch し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真）: 6471611e..678d5f6e
+- 678d5f6e の check-run: Workers Builds: mj success、mj-scheduler success、check success、regenerate success、sync success（2026-10-06 02:38 UTC 時点）。regenerate による追加のコミットは無い
+- 本番（https://ryoei.pro/houou_race.html）: 200、`<meta name="robots" content="noindex">` あり。navbar.js・sitemap-pages.xml・llms.txt に houou_race は無い。houou_race.js・houou_race/43-1.json は手元と同じ内容
+- 本番を Playwright の Chromium（390px）で開き、既定（43前 B1）を再生前から最後まで動かした。横のはみ出し・エラーなし、X へのリンク 15件。ブラウザでの見え方（実機）は確かめていない
+
+### 報告用の一覧
+
+**JSON の項目**（`houou_race/<期>-<1前・2後>.json`。1ファイルは表の配列。docs/notes/houou-race.md「JSON の項目」と同じ）
+
+| 項目 | 中身 | 出どころ |
+|---|---|---|
+| `league` | リーグ（A1〜E3） | 「鳳凰」D列「リーグ」 |
+| `group` | 組の番号（0は組なし） | 「鳳凰」X列「備考」 |
+| `rounds` | 表の節の数 | 「鳳凰」I〜U列「第1節」〜「第13節」 |
+| `players[].name` / `short` | 登録名 / 名前チップの文字（先頭2文字） | 「鳳凰」A列「名前」 |
+| `players[].img` | X の画像（`_200x200`） | 「プロ」J列（Y列が Y の行） |
+| `players[].x` | X の ID | 「プロ」I列（同上） |
+| `players[].cum` | 節0〜最後の累計ポイント | 「鳳凰」I〜U列 |
+| `players[].end` | 順位が付く最後の節 | 「鳳凰」I〜U列・G列 |
+| `up` | 上側の帯 `{count, label}` | G列「昇級」の人数（A1 は上位3名・「決定戦進出」） |
+| `down` | 降級の帯 `{count, rows, label}` | G列「降級」の人数、帯より下の行数（＋途中で終わった選手） |
+
+**V列「表示」で外れた数**: N は 595行（すべて 43後、節の値なし）。対象の表・行で外れたものは0
+
+**1節も無い選手**（17名。どの表も組なし）: 37後 D3 吉村隼人（G列 空欄）／33前 D1 荒牧冬樹（降級）／33前 D2 上野友裕（降級）／27後 B1 下山道男（降級）／27後 C1 幸月シモン（降級）／27後 C2 鮎川卓（降級）／
+27後 D3 立枝直樹・若松亨次・佐藤孔明（3名とも残留）／26後 A2 二階堂亜樹（降級）／25後 C3 渡辺郁江（降級）／24後 D2 水原千春（空欄）／24前 D1 田村りんか（降級）／23前 C1 清水香織・斉藤実（降級）／23前 D1 岡本紗也加（降級）／23前 D2 南久明（残留）
+
+**途中で終わった選手（1節も無い選手を含む）の G列が「降級」でない表**: 6表・8名。37後 D3 吉村隼人（空欄、0節）、27後 D3 立枝直樹・若松亨次・佐藤孔明（残留、0節）、24後 A1 老月貴紀（残留、第9節まで。シートの直し待ち）、
+24後 D2 水原千春（空欄、0節）、24前 D2 吉岡美音（残留、第4節まで）、23前 D2 南久明（残留、0節）。どれも降級の枠のいちばん下に入る（建付けのとおり）
+
+**付録から変えた点**
+- 期は 23〜43、初期表示は 43前 B1、A1 の上側の帯は上位3名（コード）、組は X列（LGR-02 の決定のまま）。押せない組み合わせは押せない表示、期を送って無ければ近いリーグに移す
+- 書体・ページの枠はサイトの既存、暗い配色なし、背景は白（LGR-02 のまま）
+- 同点の並びはシートの行の順（試作は直前の並びを保つ）
+- 選ぶ部品・行は DOM で組み立て、インラインの style 属性を出さない
+- 帯の人数は G列の「昇級」「降級」の数（試作は上・下から続く結果の人数）。降級の枠の行数は生成時に決める
+- 進行中の表（G列が全部空）では全員が最後の節まで順位に入る（今は該当なし）
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1005-lgr-01
-- ログ: https://github.com/retroeater/mj/blob/work/1005-lgr-01/docs/logs/CHAT-1006-LGR-05.md
+- 状態: 完了
+- ブランチ: work/1005-lgr-01（cloudflare へマージ済み）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1006-LGR-05.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1005-lgr-01
-- 確認用URL: なし（作業中）
-- マージ: 未
-- issue: #507
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 確認用URL: 本番 https://ryoei.pro/houou_race.html （未公開の形: noindex・メニュー未掲載）。プレビューも確認済み（URL は最終報告）
+- マージ: 済（678d5f6e）
+- issue: #507（閉じない。残りは 24後 A1 のシートの直し、iPhone の実機での確認、公開の issue）
+- 判断が必要なこと:
+  - 平野さんに本番で確かめてほしい点（https://ryoei.pro/houou_race.html ）: 帯がすべりこむ速さと数え始めまでの間、字の大きさ（見出し・選ぶ部品）、42後 A1 の前原雄大が第9節の開始で降級の枠のいちばん下へ移る見え方、アイコンから X へ飛ぶこと、iPhone の Safari での動き
+  - 1節も無い選手（17名）を表に出すか（今は最初から降級の枠のいちばん下に「出場なし」で出す）。G列が降級でない途中で終わった選手（6表・8名）も降級の枠に入る
+  - 公開の issue は CHAT-1006-LGR-06 で起票の予定（この作業の時点で LGR-06 のログ・コミットは無かった）。起票されたら docs/notes/static-generation.md「ページの一覧」に番号を書く
+- 未確認の項目:
+  - 実機の iPhone の Safari での見え方（Chromium の 360・390px で確かめた）
 - エラー: なし
 
 <!-- guide-links -->
