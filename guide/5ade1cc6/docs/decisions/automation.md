@@ -26,3 +26,15 @@
 ## 2026-10-05（CHAT-1005-WKR-02）
 
 - mj-scheduler が起動の API に送る入力 `scheduled` を、真偽値から文字列の `"true"` に直す（手動実行で通ることを確かめてある形にそろえる）。マージは承認済み（止まる条件つき）
+
+## 2026-10-06（CHAT-1006-WKR-05）
+
+- mj-scheduler にログの設定（observability、Workers Logs）を足す。マージは承認済み（止まる条件つき）
+
+## 2026-10-06（CHAT-1006-WKR-07）
+
+- #504 の起動時刻の表は変えない（sync-dojo-calendar は 04:15 のまま）（#505）
+- 保険として残す予約実行（`schedule`）: update-live-channel だけ「当日に予約の起動が成功済みなら何もしない」ゲートを付け、予定を 06:43 JST に移す。sync-dojo-calendar と sync-logs はゲートなしで、今の時刻のまま（2026-10-05 の「試験の間は遅い時刻に保険として残す」の中身を具体にした）
+- #504 の段階2は2回に分ける。先に sync-dojo-calendar と sync-logs、数日見てから update-live-channel
+- sync-logs の concurrency の `queue: max`（取り消しを無くす）は、段階2とは別の指示で試す（#509）
+- #505 を閉じる。残る作業（`queue: max` の試し）は #509 に起票した

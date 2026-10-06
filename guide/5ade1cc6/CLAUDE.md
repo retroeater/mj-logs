@@ -190,7 +190,8 @@ push したログとガイド文書は public の`retroeater/mj-logs`に写る�
 
 ## CLAUDE.md / handover.md の更新ルール
 - ページの移行・追加・削除を行ったときは、同じコミットで docs/notes/static-generation.md「ページの一覧」の件数・ページ列挙と
-  `llms.txt`（手書き、#161）を更新すること（CLAUDE.md にはページを列挙しない。型が増えたときだけ「データの流れ」を直す。#136）
+  `llms.txt`（手書き、#161）を更新すること。**新しいページは未公開で入れ、`llms.txt`・navbar・サイトマップには公開の issue で載せる**
+  （docs/new-page-checklist.md、#243）。CLAUDE.md にはページを列挙しない。型が増えたときだけ「データの流れ」を直す（#136）
 - **docs/handover.md は「現状・ルール・次にやること」のみを書く。** 実装の詳細は issue のコメントか `docs/notes/<topic>.md` へ書き、handover 側には結論1〜2行と参照だけを置く
 - 記述を更新するときは古い記述を消して置き換えること（「→その後こうした」という追記型にしない）。同じ内容を2箇所に書かず、片方は参照にする
 - handover.md / CLAUDE.md をissueやコメントから参照するときは、行番号ではなく節・項目の見出しで書くこと（行番号はすぐずれる）
