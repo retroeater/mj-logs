@@ -536,6 +536,38 @@ showKi(); changed();
 - 手順0: 指示欄の末尾の行は指示文の最後の行と一致。CHAT-1006-LGR-02 の `## 報告` の状態は「判断待ち」
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 4つとも揃っている
 
+- `git merge origin/cloudflare`（2回。衝突なし。CLAUDE.md の整理が入ったが、この作業の手順は変わらない）
+
+### 手順1
+
+- #507 のコメントは このセッションの LGR-01・LGR-02 の着手中だけ。着手中のコメントを足した。CHAT-1006-LGR-02 のログの状態を「判断待ち（続き: CHAT-1006-LGR-05）」にした
+- 「プロ」の X の ID: I列（見出し「X ID」）。`generate_saikyo_pages.py` の `PRO_QUERY`（`SELECT A,I,J WHERE Y = "Y"`）と同じ行で読む。X ID のある選手 856名
+- title/・saikyo/ の X へのリンク: `href="https://x.com/<ID>" target="_blank" rel="noopener"`。saikyo はシートの数式エラー（`#` で始まる値）を空扱い。同じにした
+- V列「表示」: 16,011行のうち N は 595行で、すべて 43後（節の値が無く、もともと対象外）。外して減った表・行は0（表 445、行 13,665 のまま）。
+  既存の houou_results（`houou_results.js`）は `WHERE V = "Y"` で V が Y の行だけを出す。houou_leagues（`generate_houou_leagues.py`）は V列を見ない。どちらも変えていない
+- CHAT-1006-LGR-06 のログ・コミットは、着手時と手順2の時点でどのブランチにも mj-logs にも無い（「ページの一覧」には「公開の issue は CHAT-1006-LGR-06 で起票」と書いた）
+- 未マージの work/1006-lgr-03 は docs のみ（docs/decisions/README.md の行の追加が重なる。衝突はマージする側で行の追加どうし）
+
+### 手順2
+
+- 生成スクリプト: 「表示」N の行を外す、「プロ」の X ID を JSON の `x` に入れる、選手を1つの並びにして `end`（順位が付く最後の節）と `down.rows`（降級の帯より下の行数）を持たせる、
+  枠の行数が最後まで打った人数以上の表で止める、noindex、説明文を差し替え。注記の段落を外した
+- ページ: 付録の動き（帯のすべりこみ、途中で終わった選手の移動、順位のマスの色、もう一度見るの動きなしの戻し）と配置（見出しのカード、期・前後期・A〜E・番号・組、字の大きさ3段）にした。
+  X へのリンク先は `playerUrl()` の1か所。同点はシートの行の順（LGR-02 のまま）
+- 未公開の形: navbar.js・sitemap-pages.xml・llms.txt を origin/cloudflare の内容に戻した（houou_race の行が無いことを確認）。static-generation.md は「ページの一覧」に noindex・メニュー未掲載と書き、件数とサイトマップの節は元に戻した
+- unittest（17件）: 途中で終わった選手の `end` と枠の行数、1節も無い選手、降級0人の表、進行中、A1 の上位3名、同点の境目、組の分割、混在で止まる、「表示」N を外す、枠の行数で止まる。
+  新しい項目（`end`・`rows`・`x`・「表示」）は前の実装には無く、前の実装では通らない。全体 OK
+- 生成の結果: 帯と G列の食い違い0、枠の行数で止まる表0、データ 41ファイル・2,251,240 バイト
+
+### 手順3
+
+- 手元（Playwright の Chromium、`python3 -m http.server`）: 390px の既定（43前 B1）、360px の既定、390px の 43前 D2 ②組、390px の 25前 D2（76名）、390px と 1280px の 42後 A1、390px の動きを減らす設定。
+  再生前（帯なし）・帯が入る途中（300ms 後）・再生中・最後を撮った。横のはみ出しなし、エラーなし
+- 42後 A1 で節のラベルを押して確かめた: 第8節の終わりでは前原雄大は2位で順位が付き「第8節まで」は出ない。第9節の終わりでは並びのいちばん下（15行目）、順位は「–」、降級の色、「第8節まで」が出る。降級の帯の位置は 476px のまま
+- X へのリンク: 43前 B1 の16名のうち15名のアイコンが `<a href="https://x.com/…" target="_blank" rel="noopener">`（1名は「プロ」に X ID が無い）
+- プレビュー（f2581582 の版ごとの URL）: check-run「Workers Builds: mj」・check とも success。noindex あり。390px の既定と 360px の 42後 A1（前原雄大の移動）で同じ結果。エラーは beacon 以外に無い
+- マージ前: origin/cloudflare を取り込み、cloudflare との差分は止まる条件の一覧のファイルだけ（.github/workflows/assets-check.yml の allowed の1項目、docs、houou_race.html・houou_race.js・houou_race/41ファイル、scripts の3つ、style.css の追加だけ）。navbar.js・sitemap-pages.xml・llms.txt の差分は0
+
 ## 報告
 
 - 状態: 作業中
@@ -552,12 +584,12 @@ showKi(); changed();
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 48026c96）: https://github.com/retroeater/mj-logs/tree/main/guide/48026c96
+ガイド文書（この版を写した時点の最新、mj 678d5f6e）: https://github.com/retroeater/mj-logs/tree/main/guide/678d5f6e
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/48026c96/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/48026c96/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/48026c96/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/48026c96/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/48026c96/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/48026c96/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/678d5f6e/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/678d5f6e/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/678d5f6e/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/678d5f6e/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/678d5f6e/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/678d5f6e/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/88b1476b.md
