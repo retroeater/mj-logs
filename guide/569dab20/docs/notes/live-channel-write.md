@@ -2,7 +2,7 @@
 
 `/live` のデータの流れを3層に分ける設計（docs/notes/live-page-design.md「1-7」）で、
 GitHub Actions から Google Sheets API で3層のタブ（下記）へ直接書き込むための設定手順と、毎日の取り込みの手順。
-方式の比較は `docs/logs/CHAT-0922-UT-07.md`、実装は `docs/logs/CHAT-0922-UT-09.md`。
+方式の比較は `https://github.com/retroeater/mj/blob/ea8b86a18fbe581b9000d7a6135a4717966d7b53/docs/logs/CHAT-0922-UT-07.md`、実装は `https://github.com/retroeater/mj/blob/ea8b86a18fbe581b9000d7a6135a4717966d7b53/docs/logs/CHAT-0922-UT-09.md`。
 
 既存のサービスアカウント（`birthday-calendar`・`gsc-export`）は使い回さない（用途が変わると見分けがつかなくなるため）。
 プロジェクトは `YOUTUBE_API_KEY` と同じ「My First Project」（`<Google Cloud のプロジェクト ID>`。値は Google Cloud Console で確かめる）を使う
@@ -46,7 +46,7 @@ GitHub Actions から Google Sheets API で3層のタブ（下記）へ直接書
 2. 名前に `live-channel-writer` を入れて「作成して続行」。ロールは付けずに「完了」（シートの権限は手順4で共有により与える）
 3. 一覧に出たサービスアカウントのメールアドレス（`live-channel-writer@<Google Cloud のプロジェクト ID>.iam.gserviceaccount.com` の形）を控える
 4. そのサービスアカウントを開き、「鍵」タブ →「鍵を追加」→「新しい鍵を作成」→「JSON」→「作成」。JSON ファイルがダウンロードされる
-   - **「鍵の作成が組織のポリシーで無効」と出たら、ここで止めて Claude Code に伝える**（birthday-calendar で確認したときと違う結果になっている。Workload Identity Federation への切り替えが必要になる。詳細は `docs/logs/CHAT-0922-UT-07.md`「Sheets APIで「連盟ch」へ直接書き込む方式の調査」参照）
+   - **「鍵の作成が組織のポリシーで無効」と出たら、ここで止めて Claude Code に伝える**（birthday-calendar で確認したときと違う結果になっている。Workload Identity Federation への切り替えが必要になる。詳細は `https://github.com/retroeater/mj/blob/ea8b86a18fbe581b9000d7a6135a4717966d7b53/docs/logs/CHAT-0922-UT-07.md`「Sheets APIで「連盟ch」へ直接書き込む方式の調査」参照）
 5. ダウンロードした JSON は「5. 鍵を GitHub の Secret に登録する」で登録したら PC から削除する（ごみ箱も空にする）
 
 ### 3. 書き込み先のタブを作る
@@ -243,4 +243,4 @@ Sheets APIの呼び出し回数（サービスアカウントの書き込み上�
 - 「My First Project」で鍵作成が止められていないことは birthday-calendar での実施結果からの推測（2026-09-22時点の平野さんの報告）。
   このセッションから Google Cloud のコンソールを直接確認する手段は無いため、実際に手順2を試すまでは確定しない
 - Google Sheets API の書き込み上限は 300 リクエスト/分（プロジェクト）・60 リクエスト/分（サービスアカウント単位）。
-  日次で新着分を追記する程度の量なら十分（`docs/logs/CHAT-0922-UT-07.md` で確認済み）
+  日次で新着分を追記する程度の量なら十分（`https://github.com/retroeater/mj/blob/ea8b86a18fbe581b9000d7a6135a4717966d7b53/docs/logs/CHAT-0922-UT-07.md` で確認済み）

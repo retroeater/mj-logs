@@ -1,7 +1,7 @@
 # 道場部ゲストのカレンダー同期（#390）
 
 連盟サイトの告知画像を読み、「mj_道場部ゲスト」Google カレンダーにまだ無い予定を足す。書き込み済みの月の画像が差し替わったときは、当日以降を画像に合わせて直す。
-方式の調査は `docs/logs/CHAT-0921-DJ-01.md`、実装は `docs/logs/CHAT-0921-DJ-02.md`。
+方式の調査は `https://github.com/retroeater/mj/blob/ea8b86a18fbe581b9000d7a6135a4717966d7b53/docs/logs/CHAT-0921-DJ-01.md`、実装は `https://github.com/retroeater/mj/blob/ea8b86a18fbe581b9000d7a6135a4717966d7b53/docs/logs/CHAT-0921-DJ-02.md`。
 
 ## 仕組み
 

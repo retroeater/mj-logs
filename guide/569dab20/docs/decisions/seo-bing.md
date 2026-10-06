@@ -50,3 +50,13 @@
 - #296 に、新サイトの URL 設計の論点として #457・#461 の結果を指すコメントを足す
 - 今は 404 の ouka_league_by_class.html と外部への 301 の resource_books.html は、#11 に1行つなぐだけにする。新しい作業は起こさない
 - クローズの時点で作業が残る場合は、別の issue に起票する
+
+## 2026-10-06（CHAT-1005-RVW-06）
+
+- #283 は今日は h1 の11ページだけを行う（#486 と一緒）。title・og:title の文言の統一は分けて後に行う
+
+## 2026-10-06（CHAT-1005-RVW-08）
+
+- RVW-06 の h1 の8ページ（houou_leagues・ouka_leagues・houou_results・ouka_results・wrc_results・jpml_links・rh_links・resource_dictionary）をマージしてよい
+- h1 の無い残り3ページ（houou_ranking・ouka_ranking・wrc_ranking）は、#141 の移植で h1 を付ける（今の手書きの HTML には足さない）。それまで Bing の Recommendations に3ページが残る。10/30 の見直しで #141 が終わっていなければ、その時点で判断する
+- resource_dictionary の h1「リソース 辞書」は、#377 の実装（CHAT-1005-RVW-07）で作り直すときに見直す

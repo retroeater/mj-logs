@@ -71,6 +71,30 @@ CHAT-1006-PHT-03 の判断待ちへの回答。#357 の159件のうち残した1
 - CHAT-1006-PHT-03 の `## 報告` の状態は「判断待ち（乙 9件・丙 3件・参照保留 2件を残した。…）」で、条件を満たす
 - work/1006-pht は origin/cloudflare の祖先（マージ済み）だったため `git merge --ff-only origin/cloudflare` で進めた（cdd0f5c1）。14件は docs/logs/ にすべて現存する
 
+### 1. 論点を移す（確認と移し先）
+- 確認: #357・#263・#362・#428 に他セッションの着手中コメントは無く（#357 の着手中は PHT-03 の自分のもの）、14件は cloudflare の docs/logs/ に現存した。#263・#362・#428 はいずれも Open。CHAT-1006-PHT-03 のログの状態を「判断待ち（続き: CHAT-1006-PHT-04）」にした
+- 論点の移し先（削除前の SHA は cdd0f5c1248bd46543cfb374a16d16485cefcade）:
+  - CHAT-0921-BK-16 → #263 にコメント: https://github.com/retroeater/mj/issues/263#issuecomment-6009590311
+  - CHAT-0921-SG-03・SG-04 → #362 にコメント: https://github.com/retroeater/mj/issues/362#issuecomment-6009590974
+  - CHAT-0924-TQ-07 → #428 にコメント: https://github.com/retroeater/mj/issues/428#issuecomment-6009591529
+  - CHAT-0921-MT-06・MT-07 → 新規起票 #510（https://github.com/retroeater/mj/issues/510）。ラベル「分野: 自動化」
+  - CHAT-0921-SG-06・SG-07 → 新規起票 #511（https://github.com/retroeater/mj/issues/511）。ラベル「分野: SEO/AIO」
+  - CHAT-0922-MD-17 → 新規起票 #512（https://github.com/retroeater/mj/issues/512）。ラベル「分野: 自動化」
+- 起票前の検索（クローズ済みを含む）: 「gviz 非表示 行 折りたたみ」は0件。「最強戦 Search Console 反映 sitemap-saikyo」は #142（title 整備の効果測定。title/ の公開前後の着地先の比較で、最強戦の公開後の確認ではない）・#458（URL 検査 API の定期取得）・#126（Bing、クローズ）などが出たが、同じ論点のものは無く、#511 の関連に #142・#458 を書いた。「mj-logs 未マージ work ログ 残る」は #357・#361・#454（sync-logs の取り消しで古い版が残る件。論点は別）・#474 が出たが、同じ論点のものは無し
+- コメントには、論点の要旨・出典の Chat-Ref・削除前の版の permalink を書いた。#428 と #362 のコメントの「この issue の作業のときに確かめる・決める」は、移し先の issue の内容から私が書いた案で、平野さんの決定ではない
+
+### 2. scripts/ の参照
+- 直した3か所:
+  - scripts/fetch_live_channel_raw.py:5 — `docs/logs/CHAT-0922-UT-06.md「設計案 3-1」` → `docs/notes/live-page-design.md「1-7. 生データ（層1、#438）」`（層1の設計がその節にある）
+  - scripts/lib/live_layer3.py:5 — `docs/logs/CHAT-0922-UT-06.md「設計案3-3・3-4」` → `docs/notes/live-page-design.md「1-7. 生データ（層1、#438）」「3-3. 自動取り込み」`
+  - scripts/tests/test_sync_guides.py:22 — テストデータの文字列 `docs/logs/CHAT-0922-MD-21.md` → `docs/logs/CHAT-0000-TST-01.md`（`docs/logs/` 配下のログは is_guide が偽、という意味は同じ）
+- 変更はコメント2か所とテストデータの文字列1か所だけ。docs/（docs/logs/ を除く）・CLAUDE.md・scripts/・.github/ に `CHAT-0922-UT-06`・`CHAT-0922-MD-21` を指す箇所は、直した後に残っていない（`__pycache__` の .pyc は追跡外）
+- テスト `python3 -m unittest discover -s scripts/tests`: 直す前 564件 OK（失敗0）、直した後 564件 OK（失敗0）
+
+### 3. 削除
+- 14件を1コミットで削除した（`git show --stat`: 14 files changed, 2678 deletions(-)。`git show --name-only` の14件はすべて `docs/logs/CHAT-*.md`で、docs/logs/ 以外のファイルは0件）。移せなかったログは無い
+- cloudflare に入る差分は、`git diff --stat origin/cloudflare HEAD` で、docs/logs/ の14件の削除・このログ・CHAT-1006-PHT-03 のログの状態の行・docs/decisions/・scripts/ の3か所だけ（説明できる差分のみ）
+
 ## 報告
 
 - 状態: 中断（作業中）
@@ -87,12 +111,12 @@ CHAT-1006-PHT-03 の判断待ちへの回答。#357 の159件のうち残した1
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj bd4fc8b8）: https://github.com/retroeater/mj-logs/tree/main/guide/bd4fc8b8
+ガイド文書（この版を写した時点の最新、mj 569dab20）: https://github.com/retroeater/mj-logs/tree/main/guide/569dab20
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/bd4fc8b8/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/bd4fc8b8/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/bd4fc8b8/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/bd4fc8b8/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/bd4fc8b8/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/bd4fc8b8/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/569dab20/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/569dab20/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/569dab20/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/569dab20/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/569dab20/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/569dab20/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/824dc807.md
