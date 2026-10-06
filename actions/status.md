@@ -1,7 +1,7 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-06 12:44 JST
-- 書き出した実行の契機: push（work/1006-wkr-07）
+- 書き出した時刻: 2026-10-06 12:45 JST
+- 書き出した実行の契機: workflow_dispatch（cloudflare）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは sync-logs.yml（#498）
 
@@ -197,8 +197,8 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-10-06 12:44 | workflow_dispatch | cloudflare | pending | #1608（37410374061） |  |
-| 2026-10-06 12:43 | push | work/1006-wkr-07 | in_progress | #1607（37410331536） |  |
+| 2026-10-06 12:44 | workflow_dispatch | cloudflare | in_progress | #1608（37410374061） |  |
+| 2026-10-06 12:43 | push | work/1006-wkr-07 | success | #1607（37410331536） | 0分58秒 |
 | 2026-10-06 12:35 | push | work/1006-swp | skipped | #1606（37409737118） | 0分01秒 |
 | 2026-10-06 12:33 | push | work/1006-rvw-h1 | success | #1605（37409543346） | 0分34秒 |
 | 2026-10-06 12:33 | push | cloudflare | cancelled | #1604（37409508537） | 0分26秒 |

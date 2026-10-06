@@ -560,17 +560,36 @@ showKi(); changed();
   24後 A1 の老月貴紀は第9節の終わりで9位、第10節の終わりで降級の帯のすぐ上（順位「–」、色なし）、山田浩之（G列 降級）は降級の枠
 - プレビュー（004d03f6 の版ごとの URL）: Workers Builds・check とも success。noindex あり。390px の既定で同じ結果（色は約560ms で0、約1060ms で10）、360px の 24前 D2 で吉岡美音の動きも同じ
 
+### マージと本番の確認
+
+- 直前に fetch し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真。cloudflare との差分は houou_race.js・`houou_race/`・scripts の2つ・docs だけ（houou_race.html・style.css・navbar.js・sitemap-pages.xml・llms.txt は差分なし）
+- `git push origin work/1006-lgr-07:cloudflare`: d5e7ec91..daff02ec
+- daff02ec の check-run（03:31 UTC）: Workers Builds: mj・check・regenerate・sync とも success。regenerate による追加のコミットは無い
+- 本番 https://ryoei.pro/houou_race.html : 200、noindex あり。navbar.js・sitemap-pages.xml・llms.txt に houou_race は無い。houou_race.js・houou_race/42-2.json は手元と同じ
+- 本番を Playwright の Chromium（390px）で開いた: 43前 B1 で色の付いた行・マスが約560ms で0、約1060ms で10。42後 A1 で前原雄大のアイコンが出て、第8節の終わり2位・第9節の終わりで降級の枠のいちばん下。はみ出し・エラーなし。実機での見え方は確かめていない
+
+### 付録から変えた点
+
+- 期は 23〜43、初期表示は 43前 B1、A1 の帯は上位3名、組は X列、昇級・降級の帯の人数は G列（本番の今の作りのまま）
+- 降級の枠の行数（`Z`）は、付録の「表の選手のうち結果が降級の人数」と同じ数を生成時に `down.count` として入れる（1節も無い選手は JSON に入れない）
+- 同点の並びはシートの行の順（付録は直前の並びを保つ。LGR-02 からのまま）
+- 書体・ページの枠はサイトの既存、暗い配色なし（今までのまま）
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1006-lgr-07
-- ログ: https://github.com/retroeater/mj/blob/work/1006-lgr-07/docs/logs/CHAT-1006-LGR-07.md
+- 状態: 完了
+- ブランチ: work/1006-lgr-07（cloudflare へマージ済み）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1006-LGR-07.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1006-lgr-07
-- 確認用URL: なし（作業中）
-- マージ: 未
-- issue: #507
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 確認用URL: 本番 https://ryoei.pro/houou_race.html （未公開の形: noindex・メニュー未掲載）。プレビューも確認済み（URL は最終報告）
+- マージ: 済（daff02ec）
+- issue: #507（閉じない。残りは 24後 A1 のシートの直しと、この直しの本番での確認）
+- 判断が必要なこと:
+  - 平野さんに本番で確かめてほしい点（https://ryoei.pro/houou_race.html ）: 帯が入り終わるまで色が付かず、動き出してから付く見え方。42後 A1・24後 A1 の前原雄大のアイコン（「連盟プロ以外」から引いた画像と X）。24前 D2 の吉岡美音が第5節で順位「–」・「第4節まで」になる見え方。24後 A1 の老月貴紀が第10節で降級の帯のすぐ上に出ること（シートを直すまで）
+  - 前原雄大は「連盟プロ以外」に X ID・X画像URL とも入っていた（足す行は無い）
+  - 画像が引ける選手は9名、X の ID が引ける選手は11名増えた（「別名」と「連盟プロ以外」から）。1節も無いため外した選手は17名。24前 D2 の G列に降級は無い（残留54・昇級16）
+- 未確認の項目:
+  - 実機（iPhone の Safari など）での見え方（Chromium の 360・390px で確かめた）
 - エラー: なし
 
 <!-- guide-links -->
@@ -584,4 +603,4 @@ showKi(); changed();
 - docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/daff02ec/docs/notes/chat-side-operations.md
 - docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/daff02ec/docs/notes/cloudflare.md
 - docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/daff02ec/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/96fa2201.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/9d644c33.md
