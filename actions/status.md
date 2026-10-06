@@ -199,8 +199,8 @@
 | --- | --- | --- | --- | --- | --- |
 | 2026-10-06 12:59 | workflow_dispatch | work/1006-wkr-08 | pending | #1626（37411602480） |  |
 | 2026-10-06 12:59 | workflow_dispatch | work/1006-wkr-08 | pending | #1625（37411600635） |  |
-| 2026-10-06 12:59 | workflow_dispatch | work/1006-wkr-08 | pending | #1624（37411598187） |  |
-| 2026-10-06 12:59 | workflow_dispatch | work/1006-wkr-08 | in_progress | #1623（37411595999） |  |
+| 2026-10-06 12:59 | workflow_dispatch | work/1006-wkr-08 | in_progress | #1624（37411598187） |  |
+| 2026-10-06 12:59 | workflow_dispatch | work/1006-wkr-08 | success | #1623（37411595999） | 0分27秒 |
 | 2026-10-06 12:58 | workflow_dispatch | cloudflare | success | #1622（37411465656） | 1分25秒 |
 
 ## update-live-channel.yml
