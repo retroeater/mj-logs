@@ -1,7 +1,7 @@
 # Actions の実行結果（retroeater/mj）
 
 - 書き出した時刻: 2026-10-06 12:10 JST
-- 書き出した実行の契機: push（work/1006-wkr-06）
+- 書き出した実行の契機: push（work/1006-rvw-dic）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは sync-logs.yml（#498）
 
@@ -26,7 +26,7 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-10-06 12:07 | workflow_dispatch | cloudflare | in_progress | #19（37407457066） |  |
+| 2026-10-06 12:07 | workflow_dispatch | cloudflare | success | #19（37407457066） | 3分10秒 |
 | 2026-10-05 06:00 | schedule | cloudflare | success | #18（37234274297） | 3分06秒 |
 | 2026-09-28 15:25 | workflow_dispatch | cloudflare | success | #17（36386417750） | 3分03秒 |
 | 2026-09-28 11:01 | workflow_dispatch | work/0928-af | success | #16（36368183473） | 3分16秒 |
@@ -124,11 +124,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-06 12:10 | workflow_dispatch | cloudflare | in_progress | #217（37407733699） |  |
 | 2026-10-06 11:37 | push | cloudflare | success | #216（37405007821） | 0分33秒 |
 | 2026-10-05 08:33 | schedule | cloudflare | success | #215（37244182235） | 1分30秒 |
 | 2026-10-04 22:02 | push | cloudflare | success | #214（37204224841） | 1分26秒 |
 | 2026-10-03 13:13 | push | cloudflare | success | #213（37095824891） | 1分13秒 |
-| 2026-10-03 12:55 | push | cloudflare | success | #212（37094799932） | 1分27秒 |
 
 ## sitemap-lastmod.yml
 
@@ -197,11 +197,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-10-06 12:09 | push | work/1006-wkr-06 | in_progress | #1584（37407678181） |  |
+| 2026-10-06 12:10 | push | cloudflare | pending | #1587（37407725867） |  |
+| 2026-10-06 12:10 | push | work/1006-rvw-dic | cancelled | #1586（37407722403） | 0分04秒 |
+| 2026-10-06 12:10 | push | work/1006-rvw-dic | in_progress | #1585（37407715332） |  |
+| 2026-10-06 12:09 | push | work/1006-wkr-06 | success | #1584（37407678181） | 0分31秒 |
 | 2026-10-06 12:08 | push | cloudflare | success | #1583（37407584456） | 0分33秒 |
-| 2026-10-06 12:08 | push | work/1006-lgr-03 | cancelled | #1582（37407581912） | 0分04秒 |
-| 2026-10-06 12:08 | push | work/1006-rvw-dic | success | #1581（37407554675） | 0分31秒 |
-| 2026-10-06 12:07 | push | cloudflare | success | #1580（37407452703） | 0分51秒 |
 
 ## update-live-channel.yml
 
