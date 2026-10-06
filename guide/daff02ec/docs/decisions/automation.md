@@ -26,3 +26,7 @@
 ## 2026-10-05（CHAT-1005-WKR-02）
 
 - mj-scheduler が起動の API に送る入力 `scheduled` を、真偽値から文字列の `"true"` に直す（手動実行で通ることを確かめてある形にそろえる）。マージは承認済み（止まる条件つき）
+
+## 2026-10-06（CHAT-1006-WKR-05）
+
+- mj-scheduler にログの設定（observability、Workers Logs）を足す。マージは承認済み（止まる条件つき）

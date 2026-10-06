@@ -531,6 +531,35 @@ showKi(); changed();
 - 手順0: 指示欄の末尾の行は指示文の最後の行と一致
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 4つとも揃っている
 
+
+### 手順1
+
+- #507 のコメントは このセッションの LGR-01・02・05 の着手中と LGR-06 の公開の issue（#508）の案内だけ。着手中のコメントを足した
+- 未マージの `work/` で houou_race を触るブランチ: 無い（work/1006-lgr-07 自身のみ）
+- `docs/new-page-checklist.md` を読んだ。段1（noindex・navbar／サイトマップ／llms.txt に載せない・ページの一覧に「公開は #NNN」）は今の作りのまま保つ。
+  docs/notes/static-generation.md「ページの一覧」は既に「公開は #508」になっていた（直す所なし）
+- saikyo/ の画像と X の引き方: `generate_saikyo_pages.py` の `load_name_book()`。「プロ」（`SELECT A,I,J WHERE Y = "Y"`）・「連盟プロ以外」（/live 用のスプレッドシート、`fetch_records()` で見出しの名前〈名前・所属団体・所属補足・X ID・X画像URL〉）・「別名」から `lib/names.py` の `NameBook` を作り、`resolve()` で現在名に直して `x_profile()` で引く。同じ形で借りた（部品は変えていない）
+- 前原雄大: 「プロ」には行が無い。「連盟プロ以外」にある（所属団体「-」、所属補足「元連盟」、X ID と X画像URL あり）。足す行は無い
+- 24前 D2 の G列: 残留54・昇級16・降級0（平野さんの認識のとおり）
+
+### 手順2（004d03f6）
+
+- 生成スクリプト: 名前の辞書で画像と X を引く（`load_name_book()`・`profiles_for()`）。確定した表では1節も無い選手を入れない。`players[].result`（G列）を足し、`down` は G列の降級の人数（途中で終わった選手を含む）の `{count, label}` にした（`rows` を外した）。
+  止める条件は「降級の枠の行数が表の人数以上」にした
+- 結果: 1節も無いため外した選手 17名。表 445、行 13,648（前は 13,665）。帯と G列の食い違い0。途中で終わった選手は5名（42後 A1 前原雄大〈降級〉、28後 D2 三木英人〈降級〉、24後 A1 老月貴紀〈残留〉・山田浩之〈降級〉、24前 D2 吉岡美音〈残留〉）。データ 41ファイル・2,494,980 バイト
+- 画像と X の ID が引ける選手（対象の名前の中で）: 画像 589名（「プロ」の名前のままで引けるのは 580名、増えたのは9名）、X ID 595名（同 584名、増えたのは11名）
+- houou_race.js: 付録のとおり `tintOn`・`setTint()` を足し、帯が入り終わるまで色を付けない。`Z` は `down.count`。順位から外れた選手は G列が降級なら枠のいちばん下、そうでなければ降級の帯のすぐ上。順位の数字は順位が付いている選手だけに振る。「出場なし」の表示を外した。style.css は変えていない
+- unittest（18件）を直した。全体 OK。新しい項目（1節も無い選手を外す・`down.count` の数え方・`profiles_for()`）は前の実装では通らない
+- docs/notes/houou-race.md を今の形に直した
+
+### 手順3
+
+- 手元（Playwright の Chromium）: 390px・360px の既定、360px の 42後 A1、390px の 24前 D2・24後 A1、390px の動きを減らす設定。再生前・約560ms（帯が入り終わる頃）・約1060ms（動き出した後）・最後を撮った。
+  色の付いた行・順位のマスの数は、どれも約560ms で0、約1060ms で10（24前 D2 は32、24後 A1 は8）。横のはみ出し・エラーなし
+- 節のラベルで確かめた: 42後 A1 の前原雄大は第8節の終わりで2位、第9節の終わりで降級の枠のいちばん下（順位「–」、降級の色）。24前 D2 の吉岡美音は第4節の終わりで70位（最下位）、第5節の終わりで表のいちばん下・順位「–」・色なし・「第4節まで」。
+  24後 A1 の老月貴紀は第9節の終わりで9位、第10節の終わりで降級の帯のすぐ上（順位「–」、色なし）、山田浩之（G列 降級）は降級の枠
+- プレビュー（004d03f6 の版ごとの URL）: Workers Builds・check とも success。noindex あり。390px の既定で同じ結果（色は約560ms で0、約1060ms で10）、360px の 24前 D2 で吉岡美音の動きも同じ
+
 ## 報告
 
 - 状態: 作業中
@@ -547,12 +576,12 @@ showKi(); changed();
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj fad9eb53）: https://github.com/retroeater/mj-logs/tree/main/guide/fad9eb53
+ガイド文書（この版を写した時点の最新、mj daff02ec）: https://github.com/retroeater/mj-logs/tree/main/guide/daff02ec
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/fad9eb53/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/fad9eb53/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/fad9eb53/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/fad9eb53/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/fad9eb53/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/fad9eb53/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/daff02ec/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/daff02ec/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/daff02ec/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/daff02ec/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/daff02ec/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/daff02ec/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/96fa2201.md
