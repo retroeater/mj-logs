@@ -842,7 +842,7 @@ GitHub Issues（Open）に全件あるが、着手可能な主なものは以下
 
 ## 報告
 
-- 状態: 判断待ち（整理後の全文の読み比べとマージの判断）
+- 状態: 完了（判断が出た: マージしてよい。続きは CHAT-1005-RVW-03）
 - ブランチ: work/1005-rvw
 - ログ: https://github.com/retroeater/mj/blob/work/1005-rvw/docs/logs/CHAT-1005-RVW-02.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1005-rvw
@@ -863,12 +863,12 @@ GitHub Issues（Open）に全件あるが、着手可能な主なものは以下
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 2b8a3ce4）: https://github.com/retroeater/mj-logs/tree/main/guide/2b8a3ce4
+ガイド文書（この版を写した時点の最新、mj 95ac1cbb）: https://github.com/retroeater/mj-logs/tree/main/guide/95ac1cbb
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/2b8a3ce4/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/2b8a3ce4/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/2b8a3ce4/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/2b8a3ce4/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/2b8a3ce4/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/2b8a3ce4/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/95ac1cbb/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/95ac1cbb/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/95ac1cbb/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/95ac1cbb/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/95ac1cbb/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/95ac1cbb/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/88b1476b.md
