@@ -100,28 +100,43 @@ function valueOf(p){
   （はじめ、節の終わりを固定の待ち時間で撮ったため、節がまだ終わっていない時点を撮って合わなかった。ラベルの色が満ちるのを待つ形に直して一致を確かめた）
 - プレビュー（f3f0e6ec の版ごとの URL）: Workers Builds・check とも success。noindex あり。43前 B1: 数えている9名が全員 28.4・止まっている7名、42後 A1: 数えている10名が全員 24.8・止まっている5名。第1節の終わりで全員 `cum[1]` と同じ。最後の並びと値は本番と同じ。動きを減らす設定も同じ。はみ出し・エラーなし
 
+### マージと本番の確認
+
+- 1回目の `git push origin work/1006-lgr-09:cloudflare` は、fetch と push の間に他のセッションが cloudflare を進めたため拒否された（`cannot lock ref`。権限の判定ではない）。
+  `git merge origin/cloudflare`（衝突なし。#486 の h1 の追加など）の後、差分が houou_race.js と docs だけ・navbar.js／sitemap-pages.xml／llms.txt／houou_race.html の差分0・`merge-base --is-ancestor` が真を確かめて push: a643706c..bd4fc8b8
+- bd4fc8b8 の check-run（04:53 UTC）: Workers Builds: mj・check・regenerate・sync とも success。その後の regenerate（cdd0f5c1）は houou_leagues・ouka_leagues の再生成で、houou_race とは関係が無い
+- 本番 https://ryoei.pro/houou_race.html : 200、noindex あり。navbar.js・sitemap-pages.xml・llms.txt に houou_race は無い。houou_race.js は手元と同じ
+- 本番を Playwright の Chromium（390px）で 42後 A1 を再生: 節の途中で数えている選手は全員 24.3、第1節の終わりで全員 `cum[1]` と同じ、最後の並びと値は直す前の本番と同じ。エラーなし。実機での見え方は確かめていない
+
+### 付録から変えた点
+
+- なし（関数の中身は付録のとおり。`nodeMax` の計算を `setup()` に、`valueOf()` を置き換えた。JS の書き方の規約に合わせて if に `{}` を付けた）
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1006-lgr-09
-- ログ: https://github.com/retroeater/mj/blob/work/1006-lgr-09/docs/logs/CHAT-1006-LGR-09.md
+- 状態: 完了
+- ブランチ: work/1006-lgr-09（cloudflare へマージ済み）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1006-LGR-09.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1006-lgr-09
-- 確認用URL: なし（作業中）
-- マージ: 未
-- issue: #507
-- 判断が必要なこと: なし
-- 未確認の項目: なし
-- エラー: なし
+- 確認用URL: 本番 https://ryoei.pro/houou_race.html （未公開の形: noindex・メニュー未掲載）。プレビューも確認済み（URL は最終報告）
+- マージ: 済（bd4fc8b8）
+- issue: #507（閉じない）
+- 判断が必要なこと:
+  - 平野さんに本番で確かめてほしい点（https://ryoei.pro/houou_race.html ）: 各節で小さく動いた選手が先に止まり、いちばん動いた選手が最後まで数える見え方（42後 A1 など）。止まった選手を追い越す動きの見え方
+- 未確認の項目:
+  - 実機（iPhone の Safari など）での見え方（Chromium の 390px で確かめた）
+- エラー:
+  - 1回目の cloudflare への push が、他のセッションの push と重なって拒否された（`cannot lock ref`）。取り込み直して2回目で入った
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj bd4fc8b8）: https://github.com/retroeater/mj-logs/tree/main/guide/bd4fc8b8
+ガイド文書（この版を写した時点の最新、mj 569dab20）: https://github.com/retroeater/mj-logs/tree/main/guide/569dab20
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/bd4fc8b8/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/bd4fc8b8/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/bd4fc8b8/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/bd4fc8b8/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/bd4fc8b8/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/bd4fc8b8/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/569dab20/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/569dab20/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/569dab20/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/569dab20/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/569dab20/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/569dab20/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/824dc807.md
