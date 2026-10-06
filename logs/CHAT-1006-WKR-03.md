@@ -136,17 +136,34 @@ Chat-Ref: CHAT-1006-WKR-03
    - docs/decisions/: 足す決定は無い
 8. #504: 本文の「未確認の項目」を書き換えた（書き換えの直前に updated_at が 2026-10-05T15:05:38Z のままであることを2回確かめた。書き換え後 2026-10-06T01:30:53Z）。済にしたもの: Cron Triggers の数・入力の上限 25・トークンの増え方と check-run の名前・集計期間（プランは「確かめ済みの事実」に元からある）。残したもの: Cron Triggers 自体の遅れ。足したもの: 06:00 の回、mj-scheduler の watch paths。コメントで最初の起動・朝の確かめ・push ごとの check-run の表を書いた
 
+9. マージ: 再 fetch の後 `git merge-base --is-ancestor origin/cloudflare HEAD` が真 → `git push origin work/1006-wkr-03:cloudflare`（95ac1cbb..48026c96、fast-forward。変更は docs/ の下だけ）
+   - 48026c96（docs だけの push）の check-run を 01:31〜01:38 UTC（約7分）見た: **「Workers Builds: mj-scheduler」success（01:32 開始）が付いた**。「Workers Builds: mj」は付かなかった。GitHub Actions の `check`・`sync` は success（`sync` の1つは skipped）
+   - mj-scheduler の watch paths が効いていない疑いの、もう1つの例になった
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1006-wkr-03
-- ログ: https://github.com/retroeater/mj/blob/work/1006-wkr-03/docs/logs/CHAT-1006-WKR-03.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1006-wkr-03
-- 確認用URL: なし
-- マージ: 未
-- issue: #504・#506
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 状態: 完了
+- ブランチ: work/1006-wkr-03（マージ済み。削除は delete-merged-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1006-WKR-03.md
+- 比較URL: https://github.com/retroeater/mj/compare/95ac1cbb...48026c96
+- 確認用URL: なし（docs だけ）
+- マージ: 済（48026c96。fast-forward のためマージコミットは無い）
+- issue: #504（本文の「未確認の項目」を更新、コメント1件、Open のまま）、#506（コメント無しを確かめた、Open）
+- 結果の要点:
+  - 最初の起動の遅れ: run #15 は 2026-10-06 04:20:36 JST に作られた。**予定から 36 秒**。workflow_dispatch・`[scheduled]` の題・cloudflare・success。`INPUT_SCHEDULED: true`・`DRY_RUN: false`で、マージ済みの `work/*` を8本削除（ブランチ名と SHA は経過「5」）
+  - #506 のコメント: 無い（04:00 JST 以降0件、総数も0）
+  - 確かめること B: **指示の読み方の2つ目に当たる**（docs だけの push にも mj-scheduler の check-run が付く → Include の変更が保存されていない疑い）。8c794c0f 以降、cloudflare への push はパスにかかわらず毎回 mj-scheduler がビルドされた（このマージの 48026c96 も）。例外は 10/5 14:09 UTC ごろの df10786e（docs だけ、mj-scheduler の check-run 無し）。`src/` の下の変更でビルドされない形は見えていない。サイトの mj は docs だけの push ではビルドされず、8c794c0f（`workers/` を含む）ではビルドされた
+  - `observability`: `workers/scheduler/wrangler.jsonc` に無い。案: `"observability": {"enabled": true}` を足す（Workers Logs。Free プランに含まれ、1日 20 万件・3日保存、cron の起動も記録される。公式の文書 https://developers.cloudflare.com/workers/observability/logs/workers-logs/ ）。06:00 の回が動いたか・#506 に書かなかった理由を、平野さんがダッシュボードで後から見られる。1日 288 回の起動は上限に十分収まる
+  - handover.md: 22411 → 22581 バイト
+- 判断が必要なこと:
+  - mj-scheduler の Build watch paths: 平野さんが Settings > Build の Include が `workers/scheduler/*` で保存されているかを確かめる（表は #504 の 2026-10-06 のコメント）。害はビルドが1回 34 秒ずつ増えることだけ
+  - `observability` を `workers/scheduler/wrangler.jsonc` に入れるか（コードの変更なので別の指示で）
+- 未確認の項目:
+  - 06:00 JST の朝の確かめの回が動いたか（#506 にコメントが無いのは、すべて success でも Worker が止まっても同じ）
+  - 今の予約実行（schedule、07:53 の予定）の 10/6 の回: 10:28 JST の時点でまだ動いていない
+  - サイトの Worker の Exclude `workers/*` が `workers/scheduler/src/…` のような下の階層に効くか（`workers/` だけを変える次の push で分かる）
+  - Cloudflare の Cron Triggers 自体の遅れ（1回分だけ。数日分を見る）
+  - 表の申告値（ダッシュボードの設定）はセッションからは検証できない
 - エラー: なし
 
 <!-- guide-links -->
