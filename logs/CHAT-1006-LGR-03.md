@@ -59,17 +59,47 @@
 
 ## 経過
 
+- 着手前の確認: `git fetch --unshallow origin` の後、`git log --all --grep="CHAT-1006-LGR-03"` は0件。`docs/logs/CHAT-1006-LGR-03.md` の履歴も無し。
+  `LGR` は同じチャットの LGR-01・LGR-02 で使用済み（今回は03なので識別子の重複確認の対象外）
+- 作業ブランチ: ローカルにもリモートにも `work/1006-lgr-03` が無かったため、`git checkout -b work/1006-lgr-03 origin/cloudflare`（着手時HEAD 46fac15d）
+- 雛形の行: Chat-Ref・マージ・貼る時機・作業ブランチ・共通手順の行は揃っていた
+- 手順0: ログの「指示」欄の末尾は「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」で、指示文の最後の行と一致
+- 手順1（同じ論点の issue）: `search_issues` で「新しいページ 公開の手順 noindex navbar sitemap llms.txt」「houou_race 公開 リーグ別成績推移」を検索
+  - houou_race の公開の issue: 無し（#507 は作成の issue）
+  - **#243「新規ページのチェックリスト docs/new-page-checklist.md を作る」（Open、2026-09-13 起票、CHAT-0913-SP-01）が重なる。**
+    本文は「`docs/new-page-checklist.md` を新設し、CLAUDE.md から参照させる」で、チェック項目に「sitemap・llms.txt への追随」「title/description/OGP」
+    「`_redirects` の要否」「`.assetsignore` の確認」を含む。コメント1件（CHAT-0916-XC-05）は OGP の確認項目（X・LINE のカード表示）をチェックリストに入れる依頼
+  - 重なり方: 今回の段2（公開する）のうち sitemap・`llms.txt`・title/description/OGP・転送の確かめは #243 の項目と同じ。
+    書く場所も食い違う（#243 は独立ファイル `docs/new-page-checklist.md`、指示文の案は static-generation.md「新しいページを作るとき」）。
+    また #243 の「sitemap・llms.txt への追随」はページを作る時点で載せる読み方ができ、今回の決定（作る issue では載せず、公開の issue で載せる）と時機が違う
+  - 他: #413「title/ を公開する」（Closed）は実例。#5・#160・#227・#250・#254・#335 は別の論点
+- 手順1（未マージの work/ ブランチ）: `git branch -r --no-merged origin/cloudflare` は work/1005-lgr-01（#507）・work/1005-rvw・work/1006-lgr-03（これ）の3本
+  - work/1005-lgr-01: 件名に公開関連は `chore: update sitemap lastmod from git` のみ（lastmod の自動更新）
+  - work/1005-rvw（RVW-02、判断待ち）: 目的は3文書の縮小で別。ただし **CLAUDE.md（91行）・docs/notes/chat-side-operations.md（138行）を書き換えている**。
+    今回変える予定だった CLAUDE.md「CLAUDE.md / handover.md の更新ルール」の「ページの移行・追加・削除…」の行は、その差分には含まれない
+- 大きさ（参考、cloudflare の版）: CLAUDE.md 27630（警告域 30720）、chat-side-operations.md 26576（警告域 26624 まで48バイト）、handover.md 24584
+- 止まる条件「同じ論点の issue がある（公開の手順をまとめる issue…）」に当たると判断し、手順2以降（実例の調べ・文書の変更・issue の起票・#507 へのコメント）は行わずに止まった
+- 決定は docs/decisions/page-release.md（新設）に記録した（判断待ちの最後の push に含める規則のため）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1006-lgr-03
 - ログ: https://github.com/retroeater/mj/blob/work/1006-lgr-03/docs/logs/CHAT-1006-LGR-03.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1006-lgr-03
 - 確認用URL: なし
-- マージ: 未
-- issue: なし
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- マージ: 未（止まる条件に当たったため。ログと docs/decisions/page-release.md のみ）
+- issue: なし（起票していない。#507 へのコメントもしていない）
+- 判断が必要なこと:
+  - 止まった理由: Open の #243「新規ページのチェックリスト docs/new-page-checklist.md を作る」が、公開の段の項目（sitemap・llms.txt・title/description/OGP・`_redirects`）と書く場所で重なる。選択肢:
+    - (a) 今回の2段の手順を #243 の中で書く（置き場所は #243 の `docs/new-page-checklist.md` に従い、static-generation.md「新しいページを作るとき」から参照）
+    - (b) 2段の手順は指示文の案どおり static-generation.md に書き、#243 には「公開の段の項目はこちら」とコメントして、#243 は作る段の品質チェック（a11y・規約3節など）に絞る
+    - (c) #243 を今回の手順で置き換えてクローズする（#243 の残りの項目〈a11y・URL/UI文言/localStorage 規約〉の行き先を別に決める）
+  - #243 の「sitemap・llms.txt への追随」を「公開の issue で行う」と読み替えてよいか（今回の決定と時機の向きを揃えるため）
+  - work/1005-rvw（RVW-02、判断待ち）が CLAUDE.md・chat-side-operations.md を書き換えている。今回の CLAUDE.md の変更を RVW-02 のマージの前に入れてよいか（衝突する行は無い見込み）。chat-side-operations.md は警告域まで48バイトで、参照の1行も入らない
+  - 雛形の行の欠け: なし
+- 未確認の項目:
+  - 実例（#348・#362・#413・books/）の表は作っていない（手順2の前で止まった）
 - エラー: なし
 
 <!-- guide-links -->
