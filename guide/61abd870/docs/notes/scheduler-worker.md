@@ -1,7 +1,7 @@
 # 予約実行を起動する Worker（mj-scheduler、#504）
 
 GitHub Actions の予約実行（`schedule`）は予定より2時間半〜5時間遅れる（#491）。そこで Cloudflare の Worker の定時実行（Cron Triggers）から、
-ワークフローを `workflow_dispatch` で時刻どおりに起動する。設計・決定・段階は #504 の本文、起動時刻・依存関係の確かめは #505、通知先は #506。
+ワークフローを `workflow_dispatch` で時刻どおりに起動する。設計・決定・段階は #504 の本文、起動時刻・依存関係の確かめは #505（2026-10-06 に済。結果は #505 のコメント）、通知先は #506。
 
 **2026-10-05 の夜に平野さんがつなぎ、動いている。** 最初の定時の起動は 10/6 04:20 JST（delete-merged-branches の run #15、04:20:36 に作られ予定から 36 秒の遅れ、success）。設定は下の「ダッシュボードの設定（申告値）」。
 
@@ -57,7 +57,7 @@ run-name: ${{ inputs.scheduled && '[scheduled] <ワークフローの name>' || 
 
 段階1の表は `delete-merged-branches.yml`・毎日・04:20・有効 の1行だけ。時刻の案は #504 の本文「起動時刻の案と範囲」。
 
-- 表を変えて `cloudflare` に入ると、Workers Builds の `mj-scheduler` がデプロイする（check-run「Workers Builds: mj-scheduler」）。cron の変更の反映は最大15分。watch paths は下の「未確認」を参照（2026-10-06 の時点では、docs だけの push でもビルドされている）
+- 表を変えて `cloudflare` に入ると、Workers Builds の `mj-scheduler` がデプロイする（check-run「Workers Builds: mj-scheduler」）。cron の変更の反映は最大15分。`workers/scheduler/` の外だけを変える push ではビルドされない（2026-10-06 に check-run で確かめた）
 - 表に足すワークフローは、先に上の「予約の起動の見分け方」の3つを足しておく。足さないと、`scheduled` が知らない入力として 422 になる
 
 ## テスト
@@ -72,6 +72,17 @@ Node 22 で、引数にディレクトリを渡すと失敗する。パターン
 
 #506 の本文に書いた（未起動・起動待ち・失敗・実行中・無効・確認できず、手動で成功済み）。すべて success の日は何も書かれない。
 **Worker やトークンが止まると、#506 にも何も書かれない。** 試験の間は mj-logs の `actions/status.md` で、その日の起動があったかも見る（#504 の「層2」は段階3）。
+
+## ログ（Workers Logs）
+
+`wrangler.jsonc` の `observability` を `{"enabled": true}` にしている（2026-10-06、#504）。`head_sampling_rate` は省略で、既定は 1（すべての起動を残す）。
+見る場所はダッシュボードの Workers & Pages > `mj-scheduler` > Observability（公式の文書の表記。実際の画面の表記は未確認）。cron の起動は「cron」として並ぶ。保存は3日、Free の上限は1日 20 万件（この Worker は1日 288 回の起動）。
+
+Worker が書く行（`console.log`。何もしない回は書かない。トークンは書かない）:
+
+- 起動した回: `起動: delete-merged-branches.yml HTTP 204`
+- 06:00 の朝の確かめの回: `朝の確かめ: 2026-10-06 予定 1・success 1・それ以外 0・#506 に書かない`
+- 失敗（`console.error`）: `起動に失敗: …`・`確かめに失敗: …`・`issue へのコメントに失敗: …`・`Secret GITHUB_TOKEN が無いため…`
 
 ## トークン
 
@@ -88,10 +99,10 @@ Node 22 で、引数にディレクトリを渡すと失敗する。パターン
 |---|---|
 | 作成（10/5） | Project name `mj-scheduler`、Build command 空、Deploy command `npx wrangler deploy`、Path `/workers/scheduler`、Enable Preview builds OFF、API token は既存の `mj build token`（「artifacts_read・artifacts_write が無い」の注意書きが出たが権限は変えていない） |
 | 最初のビルド（10/5 22:51） | 成功、34 秒（Initializing 6 秒・Cloning 5 秒・Installing 0.1 秒・残りが Deploying）。「Manually deployed」、wrangler 4.147.0、Total Upload 10.07 KiB。ログに `Deployed mj-scheduler triggers`・`schedule: */5 * * * *` と vars の3つ |
-| Settings > Build（10/5 23:00〜23:10） | Build watch paths の Include を `*` から `workers/scheduler/*` に変えた。Exclude は既定の `node_modules/**, .git/`。「Builds for Preview branches」は OFF |
+| Settings > Build（10/6 11:20） | Build watch paths の Include は `workers/scheduler/**` の1つだけ。Exclude は `node_modules/**, .git/`。Build command None・Deploy command `npx wrangler deploy`・Root directory `/workers/scheduler`・ブランチ `cloudflare`。「Builds for Preview branches」は OFF。**10/5 23:00〜23:10 に Include の `*` を `workers/scheduler/*` に変えたつもりが保存されず、`*` が残っていた**（10/6 11:20 に直した） |
 | Settings > Variables and Secrets（10/5 23:35） | Variable `DISPATCH_REF`・`GITHUB_REPOSITORY`・`NOTIFY_ISSUE`（`wrangler.jsonc` の vars と同じ値）。Secret `GITHUB_TOKEN` |
 | GitHub のトークン（10/5 23:30 ごろ発行） | fine-grained、名前 `mj-scheduler`、Resource owner retroeater、Only select repositories で retroeater/mj、Actions・Issues が Read and write、Metadata が Read-only、期限 2027-10-05 |
-| サイトの Worker `mj`（10/5 深夜） | Build watch paths の Exclude に `workers/*` を足した（詳しくは `docs/notes/cloudflare.md`「本番反映（デプロイ）の仕組み」） |
+| サイトの Worker `mj`（10/6 11:20） | Build watch paths の Exclude は `.git/`・`docs/**`・`node_modules/**`・`workers/**`（10/5 の深夜に足した `workers/*` を 10/6 11:20 に `workers/**` に置き換えた。詳しくは `docs/notes/cloudflare.md`「本番反映（デプロイ）の仕組み」） |
 | Cron Triggers | つなぐ前は 0 本（アプリケーションは `mj` だけで、`mj` は静的アセットだけなので Triggers を持てない）。今は `mj-scheduler` の1本（Free は5本まで） |
 | API トークン（10/6 00:00） | `mj build token (Workers Builds)` の1本のまま。**`mj-scheduler` の接続でトークンは増えなかった** |
 
@@ -101,14 +112,20 @@ Node 22 で、引数にディレクトリを渡すと失敗する。パターン
    - Project name: **`mj-scheduler`**（`wrangler.jsonc` の `name` と同じ。違うとビルドが「The name in your Wrangler configuration file … must match the name of your Worker」で失敗する）
    - Build command は空、Deploy command は `npx wrangler deploy`。「Enable Preview builds」は OFF（`preview_urls` も `false`）
    - 「Advanced settings」の「Path」を `/workers/scheduler` にする（既定は `/`）。API token は既存の `mj build token` を選ぶ。ビルド用の変数の欄は空のまま
-2. 作った Worker > Settings > Build > Build watch paths の Include を `workers/scheduler/*` にする（効き方は下の「未確認」）
+2. 作った Worker > Settings > Build > Build watch paths の Include を `workers/scheduler/**` の1つだけにする（既定の `*` を消し、保存されたことを画面で確かめる）
 3. 上の「トークン」の条件で GitHub のトークンを発行し、Settings > Variables and Secrets に Secret **`GITHUB_TOKEN`** を足す。発行した日付をチャットに伝える（期限の予定を入れるため）
-4. サイトの Worker `mj` の Exclude に `workers/*` があることを確かめる
+4. サイトの Worker `mj` の Exclude に `workers/**` があることを確かめる
 5. 次の朝（04:20 JST）に、題が `[scheduled] …` の実行が success かを Actions の画面か mj-logs の `actions/status.md` で見る
+
+## Build watch paths の確かめ（2026-10-06）
+
+10/6 11:20 に直した後、cloudflare への push で次のとおりだった（push ごとの check-run は #504 の 2026-10-06 のコメント）。直す前は mj-scheduler の Include に `*` が残っていて、docs だけの push でも毎回ビルドされていた。
+
+- `workers/scheduler/` の下（`src/`・`test/`・`wrangler.jsonc`）と docs を変える push: 「Workers Builds: mj-scheduler」success、「Workers Builds: mj」は付かない
+- docs だけの push: どちらも付かない
 
 ## 未確認（2026-10-06 の時点）
 
-- **mj-scheduler の Build watch paths が効いていない疑い。** 申告では Include は `workers/scheduler/*` だが、10/5 15:06 UTC 以降、cloudflare への push は docs だけ・data だけでも毎回「Workers Builds: mj-scheduler」が付いた（push ごとの表は #504 の 2026-10-06 のコメント）。平野さんが画面の保存を確かめる。ビルドが余分に走るだけで、動きへの害は無い（1回 34 秒、Workers Builds の月 3,000 分の枠を使う）
-- サイトの Worker の Exclude `workers/*` が `workers/scheduler/src/…` のような下の階層に効くか（`workers/` だけを変える次の push で確かめる）
-- 06:00 JST の朝の確かめの回が動いているか。#506 にコメントが無いのは、すべて success の場合と Worker が止まった場合の両方。Worker のログを後から見るには `wrangler.jsonc` に `observability`（Workers Logs。Free でも使え、1日 20 万件・3日保存、cron の起動も記録される）を入れる案がある（未決定）
+- 作業ブランチへの `workers/` だけの push で、サイトの `mj` のプレビューがビルドされた（「Workers Builds: mj」success）。cloudflare への push では Exclude の `workers/**` が効いているのに、プレビューでは効いていない。理由は分からない（害はプレビューのビルドが1回増えることだけ）
+- 06:00 JST の朝の確かめの回が動いているか。#506 にコメントが無いのは、すべて success の場合と Worker が止まった場合の両方。上の「ログ（Workers Logs）」の「朝の確かめ: …」の行で確かめられる（平野さんの作業。3日で消える）
 - Cloudflare の Cron Triggers 自体の遅れ（最初の回は 36 秒。数日分を見る）

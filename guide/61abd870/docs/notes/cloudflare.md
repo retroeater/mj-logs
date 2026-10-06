@@ -511,7 +511,7 @@ Workers & Pages → `mj` → Settings → Builds:
 | Production branch | `cloudflare` |
 | Builds for non-production branches | チェックあり（2026-10-06 の申告値。2026-09-12 の時点は OFF。プレビューは #38 で有効化、下の「work/ ブランチのプレビュー」） |
 | Build watch paths: Include | `*` |
-| Build watch paths: Exclude | `.git/`・`docs/**`・`node_modules/**`・`workers/*`（`docs/**`は2026-09-12に追加、#171。`workers/*`は2026-10-05の深夜に追加、#504。2026-10-06 の申告値） |
+| Build watch paths: Exclude | `.git/`・`docs/**`・`node_modules/**`・`workers/**`（`docs/**`は2026-09-12に追加、#171。2026-10-05 の深夜に足した `workers/*` を 2026-10-06 11:20 に `workers/**` に置き換えた、#504。申告値） |
 | API token | `mj build token` |
 | Cache | Disabled |
 
