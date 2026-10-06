@@ -99,19 +99,35 @@ mj-scheduler の動き（06:00 JST の朝の確かめの回が動いたか、何
 11. **表の2つ目の push（マージ、cloudflare）**: 範囲は `workers/scheduler/` の3ファイルと docs（notes・decisions・logs）
     - d2e7f8a6: **「Workers Builds: mj-scheduler」success（02:33:58 開始）**。**「Workers Builds: mj」は push から5分過ぎ（02:38:43）も付かなかった**。`check`・`sync` は success（`sync` の1つは skipped）
     - 読み: cloudflare への push では、mj-scheduler の Include `workers/scheduler/**` が `src/`・`test/` の下の変更に当たってビルドされ、mj の Exclude（`docs/**`・`workers/**`）で mj はビルドされなかった
-12. 表の3つ目の push（docs/logs だけの追い）: このログの追記だけを cloudflare に push する。結果は次の節目に書く
+12. **表の3つ目の push（docs/logs だけの追い、cloudflare）**: push の前の再 fetch で、別セッション（LGR）の push で cloudflare が 678d5f6e に進み、HEAD の祖先でなくなっていた。作業ブランチの側で取り込むと、マージコミットの1つ目の親が作業ブランチになり、push の範囲にサイトのファイル（`houou_race` など）が入って見える恐れがあった。そこで `git checkout --detach origin/cloudflare` → `git merge --no-edit work/1006-wkr-05` で、1つ目の親を cloudflare にしたマージコミット d3ca8ab9 を作った（cloudflare からの差分はこのログの6行だけ。`origin/cloudflare` と `origin/work/1006-wkr-05` がどちらも祖先であることを確かめた）
+    - `git push origin HEAD:cloudflare`（678d5f6e..d3ca8ab9、02:39:31 UTC）。続けて同じコミットを `HEAD:work/1006-wkr-05` に push し（de27f0ba..d3ca8ab9、fast-forward）、`work/1006-wkr-05` に戻って `git merge --ff-only`
+    - d3ca8ab9（push から5分後の 02:44:49）: **「Workers Builds: mj-scheduler」は付かなかった**。「Workers Builds: mj」が1つ付いた（success、02:40:08）が、出力に Preview URL があり、**作業ブランチ側の push のプレビューのビルド**（作業ブランチの範囲 de27f0ba..d3ca8ab9 には LGR のサイトの変更が入る）。cloudflare の本番のビルドは付かなかった。`check`・`sync` は success
+    - 読み: cloudflare への docs だけの push では、どちらの Worker もビルドされなかった
+13. 文書: docs/notes/scheduler-worker.md の起動の表の節の watch paths の記述、「Build watch paths の確かめ（2026-10-06）」の節（新設）、「未確認」（作業ブランチのプレビューで Exclude `workers/**` が効かなかったことを残す）を直した
+14. #504: 本文の「未確認の項目」を書き換えた（直前に updated_at 2026-10-06T01:31:04Z を2回確かめた。書き換え後 02:45:11Z）。06:00 の回の項目に Workers Logs で確かめられることを足し、watch paths の項目を済に移した。コメントで、入れた設定と3つの push の check-run を書いた
 
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1006-wkr-05
-- ログ: https://github.com/retroeater/mj/blob/work/1006-wkr-05/docs/logs/CHAT-1006-WKR-05.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1006-wkr-05
-- 確認用URL: なし
-- マージ: 未
-- issue: #504
+- 状態: 完了
+- ブランチ: work/1006-wkr-05（マージ済み。削除は delete-merged-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1006-WKR-05.md
+- 比較URL: https://github.com/retroeater/mj/compare/347de45a...d2e7f8a6
+- 確認用URL: なし（サイトのファイルは変えていない）
+- マージ: 済（d2e7f8a6、fast-forward。追いの push は d3ca8ab9 と、このログの最後の push）
+- issue: #504（本文の「未確認の項目」を更新、コメント1件、Open のまま）
+- 結果の要点:
+  - 足した設定: `workers/scheduler/wrangler.jsonc` に `"observability": {"enabled": true}`（`head_sampling_rate` は省略で既定の 1）。公式の文書で形・既定・Free で使えること（1日 20 万件・3日保存）・cron の起動が記録されることを確かめた
+  - ログの1行: 足した。起動した回は `起動: delete-merged-branches.yml HTTP 204`（前はステータス無し）、06:00 の回は `朝の確かめ: 2026-10-06 予定 1・success 1・それ以外 0・#506 に書かない`（前は success のとき何も書かなかった）。何もしない回は書かない。テスト3件を先に足し、直す前のコードで2件が落ちることを確かめた。テストは19件すべて通過
+  - check-run（どれも自分の push）:
+    1. 作業ブランチ 4c4d3cb7（`workers/scheduler/` だけ）: mj-scheduler は付かない（見込みどおり）。**mj は付いた（success、プレビュー）**（見込みと違う）
+    2. cloudflare d2e7f8a6（マージ、`workers/` と docs）: mj-scheduler success、mj は付かない（見込みどおり）
+    3. cloudflare d3ca8ab9（docs/logs だけ）: どちらも本番のビルドは付かない（見込みどおり）。mj のプレビューの check-run が1つ付いたのは、同じコミットの作業ブランチ側の push の分
+  - watch paths の効き: cloudflare への push では、mj-scheduler の Include `workers/scheduler/**` は下の階層（`src/`・`test/`）に効き、docs だけでは走らない。mj の Exclude `docs/**`・`workers/**` も効いている。作業ブランチのプレビューでは、mj の Exclude `workers/**` が効かなかった
+  - 平野さんがログを見る場所: docs/notes/scheduler-worker.md「ログ（Workers Logs）」
 - 判断が必要なこと: なし
-- 未確認の項目: なし
+- 未確認の項目:
+  - 実際のダッシュボードの表記（Observability の画面）と、本番で最初の「起動: …」「朝の確かめ: …」の行が出るか（次の 04:20・06:00 JST。平野さんの作業）
+  - 作業ブランチのプレビューで、mj の Exclude `workers/**` が効かなかった理由
 - エラー: なし
 
 <!-- guide-links -->
