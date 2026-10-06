@@ -1,7 +1,7 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-06 12:13 JST
-- 書き出した実行の契機: schedule（cloudflare）
+- 書き出した時刻: 2026-10-06 12:15 JST
+- 書き出した実行の契機: push（work/1006-wkr-06）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは sync-logs.yml（#498）
 
@@ -124,7 +124,7 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-10-06 12:10 | workflow_dispatch | cloudflare | in_progress | #217（37407733699） |  |
+| 2026-10-06 12:10 | workflow_dispatch | cloudflare | success | #217（37407733699） | 3分40秒 |
 | 2026-10-06 11:37 | push | cloudflare | success | #216（37405007821） | 0分33秒 |
 | 2026-10-05 08:33 | schedule | cloudflare | success | #215（37244182235） | 1分30秒 |
 | 2026-10-04 22:02 | push | cloudflare | success | #214（37204224841） | 1分26秒 |
@@ -197,11 +197,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-10-06 12:13 | schedule | cloudflare | in_progress | #1588（37407941866） |  |
+| 2026-10-06 12:15 | push | cloudflare | pending | #1591（37408128963） |  |
+| 2026-10-06 12:15 | push | work/1006-wkr-06 | cancelled | #1590（37408126930） | 0分03秒 |
+| 2026-10-06 12:15 | push | work/1006-wkr-06 | in_progress | #1589（37408106726） |  |
+| 2026-10-06 12:13 | schedule | cloudflare | success | #1588（37407941866） | 0分34秒 |
 | 2026-10-06 12:10 | push | cloudflare | success | #1587（37407725867） | 0分52秒 |
-| 2026-10-06 12:10 | push | work/1006-rvw-dic | cancelled | #1586（37407722403） | 0分04秒 |
-| 2026-10-06 12:10 | push | work/1006-rvw-dic | success | #1585（37407715332） | 0分35秒 |
-| 2026-10-06 12:09 | push | work/1006-wkr-06 | success | #1584（37407678181） | 0分31秒 |
 
 ## update-live-channel.yml
 
