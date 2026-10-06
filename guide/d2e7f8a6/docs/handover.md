@@ -6,27 +6,21 @@
 **この文書は現状・ルール・次にやることだけを書く。** 実装記録は `docs/notes/`、issue単位の経緯は GitHub Issues、過去の履歴は
 `docs/notes/handover-archive-2026.md`。容量の上限と退避方法は CLAUDE.md「CLAUDE.md / handover.md の更新ルール」。
 
-最終更新: 2026-10-02
+最終更新: 2026-10-06
 
-- **title/ の OGP を出し分け（入口・全大会の文字だけの画像、短い og:title、#232）、navbar の項目を「タイトル戦」にした。** 期ページの決勝ライブは無料のものだけを出す（#487）。作り方は `docs/notes/title-pages.md`
-- **旧表 `jpml_titles.html` を廃止し（`/title/` へ301、#441）、「決勝 n回」を title/ の集計に切り替えた。** 廃止を前提に issue・文書・自動処理を洗い直した。#470・#471・#484・#222 は閉じた。決定は `docs/decisions/title.md`
-- **道場部ゲスト（#390）: 10月分（22件）を書き込み、書き込み済みの月の画像が差し替わったら定期実行が当日以降を直して #426 に知らせるようにした**（変更3件以上・照合できない名前があれば通知だけ）。入力なしの手動の書き込みは、保留した変更が無ければ書き込み済みの月を変えない（手直しを書き戻さない）。仕組みは `docs/notes/dojo-guest-calendar.md`
+- **#111（型B の成績3ページ）は据え置き、#141（ランキング3ページ）は Python へ移植と決めた（2026-10-05）。** #7 は #141 で完了する。gstatic は残り、#9 の CSP は gstatic を許可する形で書く
+- **予約実行を Cloudflare の Worker（`mj-scheduler`）から時刻どおりに起動する作りを入れた（#504）。** 段階と今の `schedule` を外す予定は #504 の本文、仕組みは `docs/notes/scheduler-worker.md`
+- **Actions の実行結果（各ワークフローの直近5回）を mj-logs の `actions/status.md` に書き出すようにした（#498）。** チャット側の読み方は `docs/notes/chat-side-operations.md`「読み方」
 
 ---
 
 ## 0. 新しい会話の始め方
 
 会話開始時に読むのは `docs/handover.md` のみ（平野さんが毎回定型文を貼る前提にしない）。
-**ただし、マージ・ブランチ操作・ルール追記を行う（チャット側は指示する）前と、会話が長くなったときは、
-CLAUDE.md の該当節（「ブランチ運用」「Chat-Ref」「CLAUDE.md / handover.md の更新ルール」）も読み直すこと**（並行セッションが会話の途中でも更新する、#313）。
+**マージ・ブランチ操作・ルール追記を行う（指示する）前と会話が長くなったときは、CLAUDE.md の該当節（「ブランチ運用」「Chat-Ref」「CLAUDE.md / handover.md の更新ルール」）も読み直す**（並行セッションが途中でも更新する、#313）。
 
-**チャット側（claude.ai）の読み方: mj は private（#211）のため、作業ログとガイド文書は `sync-logs.yml` が写す public の `retroeater/mj-logs` で読む。**
-入口は平野さんが送る「ログ（公開）」の行で、ガイド文書はそのログの末尾のリンク（`guide/<SHA>/`）から読む。
-新しい会話の始めは、前回の最後の「ログ（公開）」の行を送ってもらう。写し方は `docs/notes/cloud-sessions.md`「作業ログ」。
-
-issue の状況（Open/Closed・本文・コメント）は、Claude Code は `gh issue list` / `gh issue view`（クラウドセッションは GitHub MCP）で見る。
-チャット側は Claude Code に確かめさせてログに書かせる（PC では Claude for Chrome で直接読んでもよい、`docs/notes/chrome-reading.md`）。
-**チャット側は指示文を書く前に `docs/notes/chat-side-operations.md` を読み、指示文は `docs/instruction-template.md` で書く**（#294）。
+**チャット側（claude.ai）は、mj が private（#211）のため public の `retroeater/mj-logs` で読み、指示文を書く前に `docs/notes/chat-side-operations.md` を読み、
+指示文は `docs/instruction-template.md` で書く**（#294）。読み方（「ログ（公開）」の行・issue の確かめ方）は同「読み方」。
 
 **大きな作業の区切りごとに新しい会話を始める**とよい（長い会話は1回あたりのコストが上がる）。
 
@@ -37,8 +31,7 @@ issue の状況（Open/Closed・本文・コメント）は、Claude Code は `g
 平野良栄（日本プロ麻雀連盟のプロ雀士・理事）の個人サイト `ryoei.pro` の改善。
 
 中心となるコンテンツは**日本プロ麻雀連盟のプロ雀士1,100名超のデータベース**と、
-鳳凰戦・女流桜花などの成績記録。事業上の目的は、企業案件（出演・タイアップ・
-イベント）の入口として機能させること。
+鳳凰戦・女流桜花などの成績記録。
 
 ### 経緯
 
@@ -53,7 +46,7 @@ GitHub Pages からの移行の相談に始まり、Cloudflare への移行の�
 
 | 項目 | 内容 |
 |---|---|
-| リポジトリ | `retroeater/mj`。**private**（#211。チャット側の読み方は0章） |
+| リポジトリ | `retroeater/mj`。**private**（#211） |
 | 本番 | Cloudflare Workers（静的アセット配信）。`cloudflare` ブランチ |
 | ドメイン | `ryoei.pro` / `www.ryoei.pro`。DNS・レジストラともCloudflare |
 | 旧環境 | GitHub Pages。**2026-09-21 に無効化済み**（#84）。`gh-pages` ブランチは履歴として残す |
@@ -63,9 +56,8 @@ GitHub Pages からの移行の相談に始まり、Cloudflare への移行の�
 `wrangler.jsonc` の `assets.directory` がリポジトリ全体（`./`）を指すため、
 公開したくないファイルは `.assetsignore` に列挙している（追加時のルールは CLAUDE.md「方針」、#133）。
 
-`html_handling: "none"`（#89）のため、`_redirects` 先頭の `/  /index.html  200` を消すとトップページが404になる。
-canonical は付けない（#113）。例外は `wayhome/` の38枚で、URL変種を持たないため canonical を持つ（#162）。`_headers` はセキュリティヘッダ5件とキャッシュ制御（#92）を持つ。
-設定値と経緯は `docs/notes/cloudflare.md`「配信設定: html_handling・_redirects・canonical・_headers」
+`html_handling`・`_redirects` の先頭行の規則は CLAUDE.md「禁止事項」。canonical は付けない（#113）。例外は `wayhome/` の個別ページで、URL変種を持たないため canonical を持つ（#162）。
+`_headers` はセキュリティヘッダ5件とキャッシュ制御（#92）。設定値と経緯は `docs/notes/cloudflare.md`「配信設定: html_handling・_redirects・canonical・_headers」
 
 **本番反映（旧「4-x」）**: Workers Builds が `cloudflare` への push を検知して反映する（`chore: regenerate ...` も即座に。ゲートは #170。規則は CLAUDE.md「構成」「判断・作業の原則」）。
 設定値・APIトークン・check-runs での確認範囲は `docs/notes/cloudflare.md`「本番反映（デプロイ）の仕組み」、セッションからの到達は `docs/notes/session-network.md`（#328）。
@@ -81,7 +73,7 @@ Google Charts依存（#7の対象）・静的なページ の4つ。**件数の�
 
 選手データや成績はすべて**Googleスプレッドシート**にある（生成スクリプトが読むのは7冊。ほかに連盟員名簿の1冊を `check_meibo.py`・`sync_birthday_calendar.py` が読む）。
 
-- ビルド時生成のページ … `scripts/generate_<ページ名>.py` がビルド時に取得してHTMLに焼き込む（型ごとの仕組みは `docs/notes/static-generation.md`「現行の仕組み」）。`wayhome_episodes`は出力が`wayhome/`配下38枚、`saikyo_pages`は`saikyo/`配下、`title_pages`は`title/`配下、`live_pages`は`live/`配下と`_redirects`の生成部分・`data/live_*.json`になる（`scripts/regenerate.py`の`OUTPUT_OVERRIDES`）
+- ビルド時生成のページ … `scripts/generate_<ページ名>.py` がビルド時に取得してHTMLに焼き込む（型ごとの仕組みは `docs/notes/static-generation.md`「現行の仕組み」）。出力がディレクトリになるページの出力先の正は `scripts/regenerate.py` の `OUTPUT_OVERRIDES`
 - Google Charts依存の6ページ … 訪問者がページを開くたびにブラウザが `docs.google.com` へクエリを投げる
 - `jpml_pros`のYouTubeアイコンだけはYouTube Data APIから取る（#3。取得条件は `docs/notes/static-generation.md`「生成スクリプトの構成（lib/page.py）」）
 - `saikyo_pages`は生成する環境で選手写真の結果が揺らぐ。**本番はActionsの生成が正**（`docs/notes/saikyo-page-design.md`「7. 選手写真の更新」）
@@ -108,17 +100,12 @@ Google Charts依存（#7の対象）・静的なページ の4つ。**件数の�
 
 Claude Code の実行環境は Codespace（`/workspaces/mj` で `claude`、`gh` 認証済み）かクラウドセッション（`docs/notes/cloud-sessions.md`）。
 Rebuild・gh の認証は `docs/notes/session-network.md`「Rebuild と Claude Code」「gh の認証」。
-
-### Chat-Ref と並行作業
-
-チャット側の指示文には `Chat-Ref`（`CHAT-MMDD-XXX-nn`）が付く。受け手側の規則は CLAUDE.md「Chat-Ref」、並行作業の規則は同「ブランチ運用」が正
-（決まるまでの経緯は `docs/notes/handover-archive-2026.md`）。チャット側の運用（識別子の確認、完了報告の受け方、「申送り」、指示文の書き方）は
-`docs/notes/chat-side-operations.md`。
+Chat-Ref・並行作業の規則は CLAUDE.md「Chat-Ref」「ブランチ運用」、チャット側の運用は `docs/notes/chat-side-operations.md`、決まるまでの経緯は archive。
 
 ### skill と hook
 
 skill は `.claude/skills/`（`/grill-me`・`/grill-with-docs` など）、git の危険な操作を止める hook は `.claude/hooks/mj-git-guard.py` に置く。
-cloudflare への push と `claude/*` への push は確認（ask）が出る。入れ方・更新・判定一覧は `docs/notes/skills.md`。
+hook の判定は deny（実行させない）だけで、確認（ask）は出さない。入れ方・更新・判定一覧は `docs/notes/skills.md`。
 
 ### タスク管理
 
@@ -128,12 +115,9 @@ cloudflare への push と `claude/*` への push は確認（ask）が出る。
   `状況:`（対応中、保留、待ち。未着手はラベルなし）、
   `分野:`（SEO/AIO、パフォーマンス、自動化、セキュリティ、整理・保守、インフラ、UI/UX）、
   `対象:`（ページ名。jpml_pros、index、全ページ など）
-- 優先順位は issue の本文・ラベル・期日で表す
-- 完了分もcloseした状態で残している（判断の経緯を後から追えるように）
-- **issueに着手したら、コードを触る前に「着手中」のコメントを残す（#157）。** ルールの本文は `CLAUDE.md`「issueの着手ルール」節
-- issueの状況の見方は0章（エクスポートファイルは廃止、#210）
-- **新サイト全体の親 issue は #296（sub-issue 21件）。** #101 はトップページの
-  作り直しに限る。新サイト送りにするときの手順は #296 の本文
+- 優先順位は issue の本文・ラベル・期日で表す。完了分もcloseした状態で残している（判断の経緯を後から追えるように）
+- 着手中コメントなどの規則は CLAUDE.md「issueの着手ルール」（#157）。issueの状況は0章の読み方で見る（エクスポートファイルは廃止、#210）
+- **新サイト全体の親 issue は #296（sub-issue 21件）。** #101 はトップページの作り直しに限る。新サイト送りの手順は #296 の本文
   「新サイト送りにするとき・やめるとき」
 - ユーザ登録（サーバ側のアカウント）が前提の機能は #394（保留）に blocked by で依存させる
 - 月次の手作業（AI言及・Core Web Vitals・デバイス比率・robots.txt差分・Cloudflare の設定と記録の照合）は
@@ -165,9 +149,9 @@ cloudflare への push と `claude/*` への push は確認（ask）が出る。
 CSP（#9）の導入を予定しているため。Bootstrapのローカル化やインライン
 `onerror` の廃止も、この方針に沿ったもの。
 
-残る外部依存は Google Charts（`www.gstatic.com` / `docs.google.com`、6ページ、#7。ランキング3ページは #141 で外し、成績3ページ（#111）は据え置くため残る）・Cloudflare Web Analytics（`static.cloudflareinsights.com`。
+残る外部依存は Google Charts（`www.gstatic.com` / `docs.google.com`、6ページ、#7）・Cloudflare Web Analytics（`static.cloudflareinsights.com`。
 CSPでは `script-src` にのみ必要で、送信先は自ドメインの `/cdn-cgi/rum`）・画像12ドメイン。
-**#111 を据え置きに決めた（2026-10-05）ため `gstatic.com` は残り、#9 の CSP は gstatic を許可する形で書く。** 詳細は `docs/notes/handover-archive-2026.md`「外部ドメイン依存の詳細」と
+**ランキング3ページは #141 で外すが、成績3ページ（#111）を据え置くため `gstatic.com` は残り、#9 の CSP は gstatic を許可する形で書く。** 詳細は `docs/notes/handover-archive-2026.md`「外部ドメイン依存の詳細」と
 `docs/notes/site-findings.md`（画像ドメインの実測）、#9 でCSPの`img-src`を書くときの指針は #9 のコメント。
 
 ### 表の色とアクセシビリティ
@@ -186,66 +170,66 @@ CSPでは `script-src` にのみ必要で、送信先は自ドメインの `/cdn
 
 **次の会話の順番（2026-10-01 に更新）:** (1) 10/13 #473（「プロ」V1 の見出しの扱いもこのとき決める）
 (2) #408 (3) #490（/live 層2の残りの規則 U1〜U4 と掲載範囲） (4) #485（11/2 に、廃止後はじめての旧表 URL への着地を見る）。
-次のチャットは新しい識別子で始める（DUP は使い切った）。
-
-予定表のジョブ `yotei` の「【1】元データ」の1000行の上限での失敗は、書く前にシートの行を足す修正（2026-10-01 マージ）で対応済み。
 
 **期限付き・確認待ちタスク**
 
 | # | 内容 | 期限・目安 |
 |---|---|---|
-| #390 | 書き込み済みの月の自動更新（予定の書き換え・削除）は、実際の画像の差し替えが起きるまで本番で動いていない（サービスアカウントの削除の権限も未確認） | 差し替えで #426 に「自動で更新しました」か「自動では更新していません」が出たら、カレンダーの当日以降が画像と合っているかを確かめる |
-| #485 | 旧表 `jpml_titles.html` の転送と title/ の `?name=` の受け取りを終える | **2026-11-02** に 11/1 の取得（廃止後はじめての値）で旧 URL への着地を見る。10/1 の取得は廃止直前の基準値。十分に減ったら終える（基準は未定）。終えるときの作業は #485 の本文 |
+| #390 | 書き込み済みの月の自動更新（予定の書き換え・削除）は、画像の差し替えが起きるまで本番で動いていない（サービスアカウントの削除の権限も未確認） | 差し替えで #426 に「自動で更新しました」か「自動では更新していません」が出たら、カレンダーの当日以降が画像と合っているかを確かめる |
+| #485 | 旧表 `jpml_titles.html` の転送と title/ の `?name=` の受け取りを終える | **2026-11-02** に 11/1 の取得（廃止後はじめての値。10/1 は廃止直前の基準値）で旧 URL への着地を見て、十分に減ったら終える（基準は未定。作業は #485 の本文） |
 | #473 | (旧)タブ4つ（旧表の「(旧)タイトル」を含む）と【3】の控えのタブ2つの削除（平野さん） | **2026-10-13**（カレンダー登録済み）。削除の前後にすることは #473 の本文 |
-| #504 | 予約実行を Cloudflare の Worker から時刻どおりに起動する（設計・決定・段階は #504 の本文。delete-merged-branches の1本から始める） | 今の `schedule` を外す予定日 **2026-11-30**（仮） |
+| #504 | 予約実行を Cloudflare の Worker から時刻どおりに起動する（設計・決定・段階は #504 の本文）。段階1（delete-merged-branches の1本）は 2026-10-06 から動いている。数日の起動と #506 の通知を見てから段階2。段階2の前に #505 | 今の `schedule` を外す予定日 **2026-11-30**（仮） |
 | #97 | 書籍ページ開発凍結中の楽天データ保存期限 | **2026-12-22**（最後に取得した2026-09-22の3か月後）までに再取得するか削除する（`docs/notes/books-freeze.md`「楽天の期限」） |
 
 GitHub Issues（Open）に全件あるが、着手可能な主なものは以下。
 
 | # | 内容 | 備考 |
 |---|---|---|
-| **#7** | Google Charts依存の解消 | **最大の残件。** ランキング3ページの移植（#141）で完了。型B 3ページは対象外（#111 で据え置き、クローズ済み）。#9 の前提でもある |
-| #141 | ランキング3ページを Python の生成に移す | 2026-10-05 に移植と決定。#371・#228・#234 はこの移植の中で扱う |
+| **#7** | Google Charts依存の解消 | **最大の残件。** #9 の前提でもある。進め方は下の「#7 の進め方」 |
+| #141 | ランキング3ページを Python の生成に移す | 2026-10-05 に移植と決定。#371・#228・#234 と、`select#selectbox` のラベル・選択と同時の遷移（#180 の残り）はこの移植の中で扱う |
 | #486 | Bing の Recommendations | 実態として残るのは h1 の無い11ページ。順序は #283（h1 と title の文言統一）→ #486 の h1 → #7。title の長さ（短いページの共通の末尾）は #5 |
 | #9 | CSP設定 | #7の後にやると強いポリシーが書ける |
 | #4 | SentryでJSエラー検知 | 外部サービスの登録が必要 |
 | #96 | カレンダーの参照・更新を自動化 | スコープ未定。決めるべき項目が4つある |
 | #505 | 予約実行の起動時刻・依存関係・並行実行の可否の包括的な確認 | #504 の段階2の前に済ませる |
 | #186 | アクセシビリティの実機での通し確認 | 静的レビュー（#178〜#185）の残り。チェックリストは `docs/notes/a11y-manual-check.md`。**Lighthouse のスコアを到達点として扱わない**（根拠は #186） |
-| #180 | `select#selectbox` のラベル・選択と同時の遷移 | ランキング3ページ分は #141 の移行で対応する |
 | #408 | タイトル戦の対局日を確定させる | `YYYY-XX-XX` の大半は決勝ライブが無く【2】【3】から直せない（外の資料が要る）。書式は `docs/notes/title-pages.md`「日付列の書式」 |
-| #490 | /live 層2の残りの規則と掲載範囲 | #446 でステージの並び・対局日・読み違いは済み（【3】の補正は 7,834 → 1,392）。残りは U1〜U4（ライブの無い組の対局日 217件・紅龍戦のステージの並び・件数の少ない列・「プレイヤー解説：」）・候補の判別・公開版の掲載・複数卓・達人戦／昇龍戦／鳳匠戦の扱い（#437・#477 から集約） |
+| #490 | /live 層2の残りの規則と掲載範囲 | 残りは U1〜U4（ライブの無い組の対局日・紅龍戦のステージの並び・件数の少ない列・「プレイヤー解説：」）・候補の判別・公開版の掲載・複数卓・達人戦／昇龍戦／鳳匠戦の扱い（#437・#477 から集約。済んだものと件数は #490 の本文） |
 | #475 | /live の未登録の名前（2026-10-03 に0名） | 常設。毎日の取り込みが増減の日だけコメントする。出たら実在の人は「連盟プロ以外」、誤記は「別名」に `訂正` で平野さんが登録し、概要欄の読み違いは層2の規則で直す（#490） |
-| — | 現行サイトで小さく作れるもの | 平野さんの決定（2026-10-05）: #389 → #377 → #277 → #388 の順に作る（#388 は平野さんが「映画」のタブを作ってから）。#371 は #141 の移植の中で扱う。#366 は載せ方が未決（データのシートは平野さんが公式サイトの成績表から作る予定）。#378 は位置データが無く新サイト（#296）送り。#425 は現行サイトで作る（対局と卓の両方のページ・ABEMA へは文字リンク・`?match=` はリダイレクトルールで 301。URL の確認は平野さんの PC のスクリプト #501、サムネイルは #502）。未決: #365・#367 のデータを誰がいつ入力するか |
+| — | 現行サイトで小さく作れるもの | 平野さんの決定（2026-10-05）: #389 → #377 → #277 → #388 の順に作る（#388 は平野さんが「映画」のタブを作ってから）。#425 も現行サイトで作る（sub-issue #501・#502）。#366 は載せ方が未決、#378 は新サイト（#296）送り。未決: #365・#367 のデータを誰がいつ入力するか。各 issue の決定は `docs/decisions/features.md` |
 
 ### #7 の進め方（検討済み）
 
-**現状**: 21ページ中15完了。残りはランキング3ページで、#141 で Python へ移植すれば #7 は完了。型B（`houou_results` / `ouka_results` / `wrc_results`）は #111 で据え置きに決め、#7 の対象外（2026-10-05）。
+**現状**: 対象18ページ中15完了（型B 3ページは #111 で据え置きに決め対象外、2026-10-05。完了分の `jpml_titles` は #441 で廃止）。残りはランキング3ページで、#141 で Python へ移植すれば完了。
 共通部品は出そろっている（`docs/notes/static-generation.md`、型別の進捗表は `docs/notes/handover-archive-2026.md`「#7 の型別の進捗表」）。
 移行しても速くはならず、目的は外部依存とインラインハンドラの解消（static-generation.md「#7 の期待値」）。
 テーブル描画ライブラリの選定（#95）は #7 の前提から外し、新サイトのスタック（#21）と併せて検討する。型Aの表の方針は static-generation.md「型Aの表の方針」。
 
 ---
 
-## 7. 関連文書
+## 6. 関連文書
 
 完了済み作業の実装記録・調査結果は `docs/notes/` にある（handover には結論と参照先だけ）。`docs/notes/` 以下は下の一覧が正（`ls docs/notes/` にあって載っていないものは、開く場面を1行で足す）。
 
 | ファイル | 開く場面 |
 |---|---|
 | `CLAUDE.md` | 作業のルール（ブランチ運用・Chat-Ref・作業ログ）。Claude Code がセッション開始時に読む |
+| `docs/instruction-template.md` | チャット側が指示文を書くときの雛形 |
+| `docs/decisions/` | 平野さんの決定の記録（分野ごと。書き方は `README.md`） |
 | `docs/new-site-design.md` | 新サイト（#296）の設計。中断中で再開手順まである |
 | `docs/astro-migration-study.md` | 新サイトのスタック（#21）の判断 |
 | `docs/lighthouse-baseline.md` | パフォーマンスの改善前後の比較（ページ別スコアの基準値） |
 | `docs/gsc/` | Search Console の数値（#142） |
 | `docs/notes/cloudflare.md` | Cloudflare の設定・配信（`_headers`・`_redirects`・`wrangler dev`）・本番反映と確認範囲 |
 | `docs/notes/session-network.md` | セッションから外部に届くか、gh の認証、Rebuild、シートの行番号、作業ファイルの置き場所 |
+| `docs/notes/cloud-sessions.md` | クラウドセッション（Claude Code on the web）での CLAUDE.md の読み替え（ブランチの用意・GitHub MCP・ネットワーク・プレビュー） |
 | `docs/notes/chat-side-operations.md` | チャット側が指示文を書く前（ログの読み方もここ） |
 | `docs/notes/chrome-reading.md` | チャット側が PC で Claude for Chrome を使い mj を直接読む前 |
 | `docs/notes/skills.md` | skill の追加・更新、git の hook の判定を変える・確かめる前 |
-| `docs/notes/branch-operations.md` | ブランチの削除・ワークフローの変更・作業ログの寿命（入口の規則は CLAUDE.md） |
+| `docs/notes/branch-operations.md` | ブランチの削除・ワークフローの変更・作業ログの寿命・Chat-Ref の着手前の確認（入口の規則は CLAUDE.md） |
 | `docs/notes/static-generation.md` | ページの一覧・生成スクリプト・ページ側のJS・ワークフローの一覧・メンテナンス用スクリプト、#7 の残り |
 | `docs/notes/sitemap-lastmod.md` | sitemap の lastmod（#265） |
+| `docs/notes/scheduler-worker.md` | 予約実行を起動する Worker（`mj-scheduler`、#504）。起動の表の直し方・通知（#506）・トークンの期限と差し替え・ダッシュボードの設定と作り直す手順・未確認の点 |
 | `docs/notes/dojo-guest-calendar.md` | 道場部ゲストの告知画像の取り込みと平野さん側の設定（#390） |
 | `docs/notes/ogp.md` | OGP 画像・`og:title`・SNS のカード表示 |
 | `docs/notes/video-wayhome.md` | 「帰り道」の一覧・個別ページ、新しい回の追加 |

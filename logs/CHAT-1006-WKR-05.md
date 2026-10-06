@@ -81,6 +81,20 @@ mj-scheduler の動き（06:00 JST の朝の確かめの回が動いたか、何
 2. 手順0: 指示欄の最後の行は「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」で、指示文の最後の行と一致
 3. 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
 
+4. 手順1の確かめ: #504 は Open（updated_at 2026-10-06T01:31:04Z）。`workers/scheduler/wrangler.jsonc` に `observability` は無い。未マージの `work/` ブランチ（`work/1005-lgr-01`・`work/1006-lgr-03`・`work/1006-wkr-05`）で `workers/scheduler` を変えるものは無い
+5. 公式の文書（https://developers.cloudflare.com/workers/observability/logs/workers-logs/ ）: jsonc の形は `"observability": {"enabled": true, "head_sampling_rate": 1}`。`head_sampling_rate` を省くと既定は 1。Free プランに含まれる（1日 20 万件・保存3日）。ダッシュボードは Workers & Pages > Worker >「Observability」。cron の起動は「cron」として並ぶ
+6. ログの1行の今の作り: 起動に成功した行は `起動: <ファイル名>`（ステータス無し）。失敗は `console.error` にステータスつきで書く。06:00 の朝の確かめは、すべて success なら何も書かない → 足す
+   - テストを先に足した（`t.mock.method(console, 'log')` で行を拾う3件）。直す前のコードでは「起動した回」「朝の確かめ」の2件が落ち、「何もしない回は書かない」は通った
+   - コード: 起動に成功した行を `起動: <ファイル名> HTTP <ステータス>` に。朝の確かめの最後に `朝の確かめ: <日付> 予定 n・success n・それ以外 n・#<issue> に書いた／に書かない` を1行。トークン・Authorization は書かない（テストで `Bearer` が出ないことも見る）
+   - `node --test 'workers/scheduler/test/*.test.mjs'`: 19件すべて通過。`python3 -m unittest discover -s scripts/tests`: OK
+   - 束ねの確認（scratchpad の esbuild、偽の fetch）: `起動: delete-merged-branches.yml HTTP 204`、`朝の確かめ: 2026-10-05 予定 1・success 0・それ以外 1・#506 に書いた`
+7. `wrangler.jsonc`: `"observability": {"enabled": true}`（`head_sampling_rate` は既定の 1 に任せる）と説明のコメント1行。コメントの行を除いて JSON として読めた（`name`・`main`・`compatibility_date`・`workers_dev`・`preview_urls`・`observability`・`triggers`・`vars`）
+8. **表の1つ目の push（作業ブランチ、自分の push）**: `git push origin work/1006-wkr-05:work/1006-wkr-05`（55728ae7..4c4d3cb7、02:27:29 UTC）。範囲は `workers/scheduler/` の3ファイルだけ（docs は含まない。ログの先行 push 55728ae7 は別の push）
+   - 4c4d3cb7（push から5分後の 02:32:45 に確かめた）: **「Workers Builds: mj」が付いた（success、02:28:05 開始）**。「Workers Builds: mj-scheduler」は付かなかった。GitHub Actions の `check`（assets-check）は success
+   - 比べ: ログの先行 push（55728ae7、docs/logs だけ、新しいブランチの最初の push）には Workers Builds はどちらも付かなかった（`sync` だけ）
+   - 読み: mj-scheduler はプレビューのビルドが OFF なので見込みどおり。サイトの mj は、`workers/` だけの作業ブランチへの push でプレビューがビルドされた → **Exclude の `workers/**` は、この push には効いていない**（保存されていないのか、プレビューのビルドの判定が違うのかは分からない）。docs だけの push で mj がビルドされないことは今回も同じ
+9. 文書: docs/notes/scheduler-worker.md の「ダッシュボードの設定（申告値）」の Build と `mj` の行を 10/6 11:20 の申告値に（`*` が保存されずに残っていた経過を含む）、「作り直すときの手順」の watch paths を `workers/scheduler/**`・`workers/**` に、「ログ（Workers Logs）」の節を足し、「未確認」の 06:00 の項目を「ログで確かめられる（平野さんの作業）」に直した。docs/notes/cloudflare.md の `mj` の表の Exclude を申告値に。decisions/automation.md に決定
+
 ## 報告
 
 - 状態: 作業中
@@ -97,12 +111,12 @@ mj-scheduler の動き（06:00 JST の朝の確かめの回が動いたか、何
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 48026c96）: https://github.com/retroeater/mj-logs/tree/main/guide/48026c96
+ガイド文書（この版を写した時点の最新、mj d2e7f8a6）: https://github.com/retroeater/mj-logs/tree/main/guide/d2e7f8a6
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/48026c96/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/48026c96/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/48026c96/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/48026c96/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/48026c96/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/48026c96/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d2e7f8a6/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d2e7f8a6/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d2e7f8a6/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d2e7f8a6/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d2e7f8a6/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d2e7f8a6/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/88b1476b.md

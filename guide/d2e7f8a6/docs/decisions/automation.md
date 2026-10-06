@@ -18,3 +18,15 @@
 - GitHub のトークンは fine-grained の PAT（対象は mj だけ、Actions と Issues の読み書き）。期限は 366 日にし、切れる1か月前にカレンダーで知らせる
 - 通知先は、新しい常設の issue「予約実行の起動」（#504 の段階1で作る）
 - delete-merged-branches の1本から始める
+
+## 2026-10-05（CHAT-1005-WKR-01）
+
+- #504 段階1（`workers/scheduler/` の Worker `mj-scheduler`、delete-merged-branches の1行、入力 `scheduled`、通知用の常設 issue #506）のマージを承認する。止まる条件のどれかに当たったらマージしない
+
+## 2026-10-05（CHAT-1005-WKR-02）
+
+- mj-scheduler が起動の API に送る入力 `scheduled` を、真偽値から文字列の `"true"` に直す（手動実行で通ることを確かめてある形にそろえる）。マージは承認済み（止まる条件つき）
+
+## 2026-10-06（CHAT-1006-WKR-05）
+
+- mj-scheduler にログの設定（observability、Workers Logs）を足す。マージは承認済み（止まる条件つき）
