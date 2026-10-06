@@ -98,28 +98,47 @@ function placePlay(){            // 再生ボタンを、表の見えている�
 - 直した後（同じ手順）: 1920×1080・1440×1300・1280×900 とも 24後 A1 でボタン 515〜607（表 390〜730）で中。追加の切り替え（1920×1080: 43前 B1→38前 E1 ①組〈55行〉→38後 A1〈13行〉→23前 D2〈55行〉→23後 A2〈13行〉→42後 A2〈16行〉）もすべて中。エラーなし
 - 390×780: 既定（43前 B1）のボタンは 528〜620 で、直す前のコードが動いている本番と同じ。24後 A1 は直す前 528〜620、直した後 491〜583（どちらも表 366〜706 の中。直した後は表の見えている部分の中央）
 
+### 手順2 プレビューとマージ
+
+- 3bec7d99（直し）と 4adbc799（ログ）を一度に push したため、ビルドは 4adbc799 に対して走った: Workers Builds: mj・check とも success
+- プレビュー（4adbc799 の版ごとの URL）: houou_race.html に noindex なし、houou_race.js に直しが入っている。1920×1080 で 43前 B1→24後 A1→25前 D2→24後 A1→38後 E1 ①組→38後 A1 と切り替え、ボタンはすべて表の中（24後 A1 は 515〜607、表 390〜730）。
+  390×780 の既定は 528〜620（直す前と同じ）。390px・1280px で houou_leagues.html のメニュー「鳳凰戦」の末尾「リーグ別成績推移」から開ける。はみ出し・エラーなし
+- マージ前: `git merge origin/cloudflare`（衝突なし。他セッションの docs のログ）。cloudflare との差分は houou_race.html・houou_race.js・`houou_race/24-2.json`・scripts/generate_houou_race.py・navbar.js・sitemap-pages.xml・llms.txt・docs だけ。
+  navbar.js・sitemap-pages.xml・llms.txt の差分は自分の追加の行だけ。sitemap は parse できる。unittest・`check_asset_limits.py` OK
+- 直前に fetch し `merge-base --is-ancestor` が真を確かめて `git push origin work/1006-lgr-10:cloudflare`: 3cf68cff..0d63d263
+
+### 手順3 公開後の確かめと片付け
+
+- 0d63d263 の check-run（07:05 UTC）: Workers Builds: mj・check・regenerate・sync とも success
+- 本番 https://ryoei.pro/houou_race.html : 200。robots の meta なし、応答ヘッダに x-robots-tag なし。本番の navbar.js・sitemap-pages.xml・llms.txt に houou_race がある。houou_race.js は手元と同じ
+- 本番を Chromium で: 390px で houou_leagues.html のメニュー「鳳凰戦」の末尾から開ける。1920×1080 で 43前 B1→25前 D2→24後 A1 の切り替えで、24後 A1 のボタンは 515〜607（表 390〜730）で中。エラーなし
+- #508 に公開した日・SHA・確かめた結果・平野さんの作業をコメントし、「状況: 待ち」を外して閉じた。#507 に公開の記録をコメントして閉じた（「状況:」ラベルは元から無い）
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1006-lgr-10
-- ログ: https://github.com/retroeater/mj/blob/work/1006-lgr-10/docs/logs/CHAT-1006-LGR-11.md
+- 状態: 完了
+- ブランチ: work/1006-lgr-10（cloudflare へマージ済み）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1006-LGR-11.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1006-lgr-10
-- 確認用URL: なし（作業中）
-- マージ: 未
-- issue: #508（#507）
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 確認用URL: 本番 https://ryoei.pro/houou_race.html （公開済み）。プレビューも確認済み（URL は最終報告）
+- マージ: 済（0d63d263）
+- issue: #508（閉じた）、#507（閉じた）
+- 判断が必要なこと:
+  - 不具合の原因と直し方: 再生ボタンの位置を表の今の見た目の高さで計算していたため、人数の多い表から少ない表へ切り替えた直後（表の高さが動いている途中）に前の表の高さで計算され、ボタンが表の下で切れていた（画面の高さが約980px を超える PC で起きる）。行き先の高さで計算し、必ず表の中に収める形に直した。直す前と後の数値は経過の表のとおり（1920×1080 で 690〜782 → 515〜607、表は 390〜730）
+  - 平野さんが行うこと（docs/new-page-checklist.md「公開後の確かめ」、https://ryoei.pro/houou_race.html ）: X と LINE の投稿画面に URL を貼ってカード表示を確かめる（X は `?x=<未使用の数字>` を付け、デプロイ直後の1〜2分は避ける）／実機で navbar の「鳳凰戦」から開けること・PC で再生ボタンが表の中に出ること／Search Console で `sitemap.xml` の再送信と https://ryoei.pro/houou_race.html の URL 検査
+- 未確認の項目:
+  - 実機のブラウザでの見え方（Chromium の 390px・1280px・1920×1080 で確かめた）。X・LINE のカード表示
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 01b946ae）: https://github.com/retroeater/mj-logs/tree/main/guide/01b946ae
+ガイド文書（この版を写した時点の最新、mj 0d63d263）: https://github.com/retroeater/mj-logs/tree/main/guide/0d63d263
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/01b946ae/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/01b946ae/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/01b946ae/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/01b946ae/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/01b946ae/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/01b946ae/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/0d63d263/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/0d63d263/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/0d63d263/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/0d63d263/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/0d63d263/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/0d63d263/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/824dc807.md
