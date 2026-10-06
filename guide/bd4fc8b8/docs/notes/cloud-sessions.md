@@ -111,13 +111,13 @@ CLAUDE.md「ブランチ運用」の「作業ブランチも削除する」は�
 
 - push したログは `sync-logs.yml` が public の mj-logs に写す。`work/**` への push では、コミットのメッセージに `[sync-logs]` のある push（着手と、完了・判断待ち・中断の最後の push）だけ写り、途中の節目の push はジョブが skip する（#298）。目印の付け方と書かない情報は CLAUDE.md「作業ログ」節
 - **ガイド文書も mj-logs に写る。** cloudflare への push でガイド文書（`scripts/sync_guides.py` の `ALLOWED_PATTERNS`: CLAUDE.md・
-  docs/handover.md・docs/instruction-template.md・docs/logs/_template.md・docs/notes/ 直下の .md・docs/decisions/ 直下の .md〈決定の記録〉）が変わると、
+  docs/handover.md・docs/instruction-template.md・docs/new-page-checklist.md・docs/logs/_template.md・docs/notes/ 直下の .md・docs/decisions/ 直下の .md〈決定の記録〉）が変わると、
   `guide/<mj の短い SHA>/` へパスを保って写す（新しい順に10個を残す。最新は `guide/HISTORY` の最後の行）。
   チャット側の取得の道具が一度読んだ URL をキャッシュから返すため、変わるたびに URL を変える。
 - **使用済みの Chat-Ref 識別子の一覧も写る。** `sync-logs.yml` の実行のたびに `scripts/chat_ids.py` が全ブランチの `Chat-Ref:` トレーラと `docs/logs/` の履歴から集め、
   最新の版と違えば `chat-ids/<mj の短い SHA>.md` に書く（10個を残す。最新は `chat-ids/HISTORY` の最後の行、#474）。写したログの末尾からリンクする
   mj-logs に写したログの末尾には、その時点で最新のフォルダと CLAUDE.md・handover.md・instruction-template.md・chat-side-operations.md・cloudflare.md・decisions/README.md へのリンクが付く（mj の元のログは変えない）。
-  ガイド文書に書かない情報はログと同じ。写す一覧は `python3 scripts/sync_guides.py --dest <任意> copy --base HEAD --after HEAD --list`
+  ガイド文書に書かない情報はログと同じ。写す一覧は `python3 scripts/sync_guides.py --dest <任意> copy --after HEAD --list`
 - **Actions の実行結果も書き出す。** `sync-logs.yml` の実行のたび（push に加えて毎日 08:29 JST の予約実行と手動実行）に、`scripts/actions_status.py` が
   各ワークフローの直近5回の実行を mj-logs の `actions/status.md` に上書きする（#498）。予約実行・手動実行は `[sync-logs]` の目印に関係なく走る。
   セッションでも `GITHUB_REPOSITORY=retroeater/mj python3 scripts/actions_status.py --dest <任意>` で同じ表を手元に作れる（環境変数のトークンを使う）

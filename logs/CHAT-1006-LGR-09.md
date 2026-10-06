@@ -77,6 +77,29 @@ function valueOf(p){
 - 手順0: 指示欄の末尾の行は指示文の最後の行と一致
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 4つとも揃っている
 
+
+### 手順1
+
+- #507 のコメントは このセッションの着手中（LGR-01・02・05・07）と LGR-06 の公開の案内だけ。着手中のコメントを足した。未マージの `work/` で houou_race を触るブランチは無い
+- `docs/new-page-checklist.md` の段1: noindex・navbar／サイトマップ／llms.txt に載せない・既存のページからリンクしない。この指示は houou_race.js と docs だけを変えるので、段1の形はそのまま
+- 今の数える処理: houou_race.js の `valueOf()` で、節の中の経過 f（0〜1）に比例して `cum[a] + (cum[b] - cum[a]) * f`（全員が節の終わりに同時に着く）
+
+### 手順2（f3f0e6ec）
+
+- houou_race.js: 表を読み込んだ時（`setup()`）に、節ごとの「いちばん大きい動き」`nodeMax` を JSON の `cum` から求める（その節を打った選手〈`end` が節の番号より大きい〉の、その節の動きの絶対値の最大。最小 0.1）。
+  `valueOf()` を、その節の動きが0なら動かさず、そうでなければ `min(|動き|, nodeMax × f)` を符号付きで足す形にした（付録のとおり。変数名は本番と同じ `node`・`f`・`N`・`p.cum`・`p.end`）
+- 生成スクリプト・JSON・style.css・houou_race.html は変えていない
+- docs/notes/houou-race.md「見た目と動き」の数え方の記述を置き換えた
+- unittest（Python のみ。JS の変更には当たらない）: 全体 OK
+
+### 手順3
+
+- 確かめ方: Playwright の Chromium（390px）で再生し、▶から約2.15秒（帯の待ち0.65秒＋節の中の1.5秒）の値・第1節のラベルの色が満ちた時（節の終わり）の値・最後まで再生した並びと値を取り、JSON と今の本番（LGR-07 の版）を同じ手順で再生した結果と比べた
+- 手元: 43前 B1 は節の途中で数えている11名の絶対値が全員 25.5（別の回は 28.9）、小さく動いた5名は第1節の終わりの値で止まっている。42後 A1 は数えている11名が全員 21.1（別の回は 24.8）、4名が止まっている。
+  第1節の終わりで全員が JSON の `cum[1]` と同じ値。最後まで再生した並びと値は、本番と同じ（43前 B1・42後 A1 とも）。動きを減らす設定は ▶ で最終の状態だけが出て、本番と同じ。はみ出し・エラーなし
+  （はじめ、節の終わりを固定の待ち時間で撮ったため、節がまだ終わっていない時点を撮って合わなかった。ラベルの色が満ちるのを待つ形に直して一致を確かめた）
+- プレビュー（f3f0e6ec の版ごとの URL）: Workers Builds・check とも success。noindex あり。43前 B1: 数えている9名が全員 28.4・止まっている7名、42後 A1: 数えている10名が全員 24.8・止まっている5名。第1節の終わりで全員 `cum[1]` と同じ。最後の並びと値は本番と同じ。動きを減らす設定も同じ。はみ出し・エラーなし
+
 ## 報告
 
 - 状態: 作業中
@@ -93,12 +116,12 @@ function valueOf(p){
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 4be9367f）: https://github.com/retroeater/mj-logs/tree/main/guide/4be9367f
+ガイド文書（この版を写した時点の最新、mj bd4fc8b8）: https://github.com/retroeater/mj-logs/tree/main/guide/bd4fc8b8
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/4be9367f/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/4be9367f/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/4be9367f/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/4be9367f/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/4be9367f/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/4be9367f/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/bd4fc8b8/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/bd4fc8b8/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/bd4fc8b8/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/bd4fc8b8/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/bd4fc8b8/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/bd4fc8b8/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/824dc807.md
