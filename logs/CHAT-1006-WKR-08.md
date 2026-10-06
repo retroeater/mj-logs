@@ -81,17 +81,34 @@ sync-logs の実行は、同じ組（concurrency）で待ちが1本までのた�
    - その後、別セッションの push の実行（`queue: max` を持たない古い分岐）で 1629（work/1006-lgr-08）と 1630（cloudflare、068bb4d8）が取り消された。古いファイルで動く実行では、今までどおり取り消しが起きる（マージの後も、マージより前に分岐した作業ブランチの実行は同じ）
 10. 文書: docs/notes/static-generation.md「ワークフローの一覧」の sync-logs の行（concurrency の説明）を今の動きに直した。sync-logs の concurrency・取り消しを説明している箇所はほかに見当たらなかった（cloud-sessions.md「作業ログ」にも無い）。`sync-logs.yml` の冒頭の注記「concurrency で取り消された実行の分も、次の実行で追いつく」は、古い分岐の実行や待ちが溢れたときに当てはまるので残した。decisions/automation.md に決定
 
+11. マージ: 再 fetch で cloudflare が進んでいた（別セッションの docs）ので `git merge --no-edit origin/cloudflare`（衝突なし）→ `origin/cloudflare` が祖先であることを確かめ、`git push origin work/1006-wkr-08:cloudflare`（068bb4d8..058141da、04:04:14 UTC）
+12. **試験 C**（マージの後、ref は cloudflare、04:04 UTC に4回続けて起動）: run 1635（04:06:22 終了）・1636（04:06:51）・1637（04:07:17）・1638（04:07:49）が**4本とも success**（058141da）。直前のマージの push の実行 1633（work）・1634（cloudflare）と合わせ、6本が取り消されずに順に動いた
+13. 使用量（#298）: 9/29〜10/5 の7日の sync-logs の実行 900 件（success 631・skipped 145・cancelled 124）。success の所要の中央値 22 秒・最大 112 秒。取り消されていた分が動くと、1回1分で月に最大約530分。skip になる割合（145/776 ≒ 19%）を除くと約430分。#298 の本文の枠（Pro 3,000 分、Free 2,000 分）の 15〜25%
+14. #509: コメント（公式の文書、試験 A〜C、使用量、期日）。本文の冒頭に期日 2026-10-13 の行を足した（直前に updated_at を取り直した。04:09:03Z → 04:09:08Z）
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1006-wkr-08
-- ログ: https://github.com/retroeater/mj/blob/work/1006-wkr-08/docs/logs/CHAT-1006-WKR-08.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1006-wkr-08
-- 確認用URL: なし
-- マージ: 未
-- issue: #509
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 状態: 完了
+- ブランチ: work/1006-wkr-08（マージ済み。削除は delete-merged-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1006-WKR-08.md
+- 比較URL: https://github.com/retroeater/mj/compare/068bb4d8...058141da
+- 確認用URL: なし（ワークフローと docs だけ）
+- マージ: 済（058141da）
+- issue: #509（着手と結果のコメント、本文に期日。Open のまま）
+- 結果の要点:
+  - 公式の文書: github/docs の `data/reusables/actions/actions-group-concurrency.md`（`queue` は `concurrency` の下、`single` は既定で待ち1本、`max` は待ち最大 100 本、`cancel-in-progress: true` とは併用できない）。`actions-nga` の版だけの記述で、その版は GitHub.com と Enterprise Cloud（`data/features/actions-nga.yml`）。preview・beta の記述は無い
+  - 足した設定: `.github/workflows/sync-logs.yml` の `concurrency` に `queue: max`（`group: sync-logs`・`cancel-in-progress: false` はそのまま）と注記2行
+  - 試験 A（直す前、cloudflare）: 1619 success・1620 cancelled・1621 cancelled・1622 success
+  - 試験 B（直した後、work/1006-wkr-08）: 1623・1624・1625・1626 すべて success
+  - 試験 C（マージの後、cloudflare）: 1635・1636・1637・1638 すべて success
+  - 使用量の見積もり: 月に最大約530分（skip を除くと約430分）増える。#298 の枠の 15〜25%
+  - #454 で採らなかった案（別の組）の懸念は `queue: max` に当てはまらない（理由の記録は #454 に無い）
+  - 試験による取り消しの通知（試験 A の 1620・1621）は対応不要
+- 判断が必要なこと:
+  - 使用量: 取り消されていた分が動くので、Actions の使用量が月に約430〜530分増える見込み（枠の 15〜25%）。#298 の 10/7 の Billing の確かめで月のペースと合わせて見て、多すぎれば `work/**` の写しを減らすなどを決める
+- 未確認の項目:
+  - マージより前に分岐した作業ブランチの push の実行（`queue` なしの古いファイル）が混じる間の取り消しの件数（試験 B の直後に 1629・1630 が取り消された）。#509 の期日 2026-10-13 に数える
+  - 実際の使用量の増え方（見積もりは7日の件数から）
 - エラー: なし
 
 <!-- guide-links -->
