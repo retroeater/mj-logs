@@ -55,28 +55,78 @@ Bing の Recommendations（#486）に残る「h1 の無いページ」を解消�
 - 0. 指示欄の末尾は指示文の最後の行と一致。雛形の行は揃っている
 - 「貼る時機」は「別のセッションに貼る」だが、RVW-05 と同じセッションに貼られた（RVW-05 は完了済みで、作業に影響なし）
 
+### 手順1: 確認
+
+- #283（本文: h1 は非表示のまま、title「ページ名 | 大分類 | ryoei.pro」・h1「大分類 ページ名」に統一する案）・#486（残り: h1 の無い11ページ〈#283 の後〉・10月末の再確認・index の alt）は RVW-04 で読んだ内容から変わっていない（最新のコメントは 2026-09-30）
+- 未マージの `work/` ブランチ: `work/1006-lgr-07` は新しいページ `houou_race`（`houou_race.js`・`houou_race/*.json`・`scripts/generate_houou_race.py`）だけで、対象ページと `scripts/lib/page.py` は変えていない（止まる条件に当たらない）
+- 既存のページの h1 はすべて `<h1 class="visually-hidden">…</h1>`（非表示。例: jpml_pros「日本プロ麻雀連盟 プロ雀士データベース」、rh_paifu「平野良栄 牌譜一覧」）。例外は resource_efficiency（可視の `mj-page-heading`）と houou_race（可視の `mj-race-title`）。対象ページには見出しにあたる可視の要素は無い。よって同じ非表示の h1 を足す（見た目は変わらない）
+- `scripts/lib/page.py` の `render_content()` は h1 を入れない（呼び出し側の本文に任せる作り）。リーグ推移の2ページは `PageMeta.h1`（「鳳凰戦 リーグ推移」など）を持っているのに本文に出していなかった。共有の関数は変えず、2本の生成スクリプトの `BODY_TEMPLATE` の先頭に足す
+
+| ページ | 本番の h1（curl） | 見出しにあたる要素 | 生成／手書き | 直す場所 |
+|---|---|---|---|---|
+| houou_leagues | なし | なし（`PageMeta.h1` はあるが未出力） | 生成（型C） | `scripts/generate_houou_leagues.py` の `BODY_TEMPLATE` |
+| ouka_leagues | なし | 同上 | 生成（型C） | `scripts/generate_ouka_leagues.py` の `BODY_TEMPLATE` |
+| houou_results | なし | なし | 手書き（Google Charts、型B） | HTML の `<main>` の直後 |
+| ouka_results | なし | なし | 手書き（型B） | 同上 |
+| wrc_results | なし | なし | 手書き（型B） | 同上 |
+| jpml_links | なし | なし | 手書き（静的） | 同上 |
+| rh_links | なし | なし | 手書き（静的） | 同上 |
+| resource_dictionary | なし | なし | 手書き（静的） | 同上 |
+| houou_ranking・ouka_ranking・wrc_ranking | なし | なし | 手書き（Google Charts、型A のランキング） | **手を入れない**（#141 の移植で作り直す。前提の「入っていないはず」と違い、11ページに入っていた） |
+
+対象は11ページのうち8ページ。違いの3ページはランキング（#141 と重なる）で、理由が説明できるため止まらない。
+
+### 手順2: 直したもの（コミット d2bf4975）
+
+| ページ | h1 の文言（title） |
+|---|---|
+| houou_leagues | 鳳凰戦 リーグ推移（リーグ推移 \| 鳳凰戦） |
+| ouka_leagues | 女流桜花 リーグ推移（リーグ推移 \| 女流桜花） |
+| houou_results | 鳳凰戦 成績詳細（成績詳細 \| 鳳凰戦） |
+| ouka_results | 女流桜花 成績詳細（成績詳細 \| 女流桜花） |
+| wrc_results | JPML WRC 成績詳細（成績詳細 \| JPML WRC） |
+| jpml_links | 日本プロ麻雀連盟 リンク（リンク \| 日本プロ麻雀連盟） |
+| rh_links | 平野良栄 リンク（リンク \| 平野良栄） |
+| resource_dictionary | リソース 辞書（辞書 \| リソース） |
+
+- 文言は #283 の案どおり title の「大分類 ページ名」の順（リーグ推移の2ページは既存の `PageMeta.h1` をそのまま使った）。title・og:title・description は変えていない
+- 再生成: `python3 scripts/regenerate.py houou_leagues ouka_leagues`。差分は2ページとも h1 の1行だけ（シートの変化は出なかった。`*_data.json` も変化なし）
+- `python3 -m unittest discover -s scripts/tests`: OK
+- h1 の数（リポジトリの全 HTML 1,565 ファイル、docs/・scripts/ を除く）: 1個が 1,562、0個が3（ランキング3ページ）、2個以上は0
+
+### 手順3: 見た目の確認
+
+- ローカルで cloudflare（`git archive origin/cloudflare`）と作業ブランチを別々に配信し、Playwright の Chromium で PC 幅（1280×900）と iPhone 13 の幅（390、Safari の UA の端末設定）で8ページの全体のスクリーンショットを撮って比べた: **16組すべてバイト単位で同じ**。`<main>` の位置・高さ・ページの高さも同じ。h1 は `position: absolute`・幅1px（visually-hidden）
+- 外部への接続（Google Charts・Analytics・画像）は止めて撮った。両方とも同じ条件のため、比較には影響しない。Google Charts の表・グラフを描いた状態の見た目は確かめていない（h1 は表の器の外で、非表示）
+- プレビュー: 「Workers Builds: mj」success（d2bf4975）。プレビューの8ページで h1 が出ていることを curl で確かめた（URL は最終報告にだけ書く）。実機の Safari では見ていない
+- cloudflare との差分（このログを除く）: 手書きの HTML 6・生成された HTML 2・生成スクリプト 2（計10ファイル、+12/−2 行）。ほかに docs/decisions/seo-bing.md（決定）とこのログ
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち（プレビューを見てマージを決める）
 - ブランチ: work/1006-rvw-h1
 - ログ: https://github.com/retroeater/mj/blob/work/1006-rvw-h1/docs/logs/CHAT-1005-RVW-06.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1006-rvw-h1
-- 確認用URL: なし
-- マージ: 未
-- issue: なし
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 確認用URL: ターミナルの最終報告にだけ書いた（Workers Builds のプレビュー）
+- マージ: しない（判断待ち）
+- issue: なし（#283・#486 にはコメントしていない。マージの指示で結果を書く想定）
+- 判断が必要なこと:
+  - 8ページの h1 の文言（経過「手順2」の表。title の「大分類 ページ名」の順）でよいか。特に resource_dictionary の「リソース 辞書」（既存の resource_logs は「日本プロ麻雀連盟 麻雀プロが訪れた飲食店ログ」と説明的。#377 で作り直すときに見直す案もある）
+  - ランキング3ページ（houou_ranking・ouka_ranking・wrc_ranking）は前提と違い11ページに入っていたが、#141 の移植と重なるため手を入れていない。#141 の移植で h1 を付けるか、先に手書きの HTML に足すか
+  - 見た目は h1 が非表示のため変わらない（スクリーンショットは同一）。プレビューでの目視は「変わっていないこと」の確認になる
+  - 指示文の雛形の行に欠けは無い。「貼る時機」は別のセッションの指定だったが、同じセッションに貼られた（作業に影響なし）
+- 未確認の項目: Google Charts の表・グラフを描いた状態での見た目（外部への接続を止めて比べた）。実機（iPhone の Safari）での表示
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj fad9eb53）: https://github.com/retroeater/mj-logs/tree/main/guide/fad9eb53
+ガイド文書（この版を写した時点の最新、mj daff02ec）: https://github.com/retroeater/mj-logs/tree/main/guide/daff02ec
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/fad9eb53/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/fad9eb53/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/fad9eb53/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/fad9eb53/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/fad9eb53/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/fad9eb53/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/96fa2201.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/daff02ec/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/daff02ec/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/daff02ec/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/daff02ec/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/daff02ec/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/daff02ec/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/9d644c33.md
