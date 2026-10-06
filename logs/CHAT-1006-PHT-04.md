@@ -95,17 +95,26 @@ CHAT-1006-PHT-03 の判断待ちへの回答。#357 の159件のうち残した1
 - 14件を1コミットで削除した（`git show --stat`: 14 files changed, 2678 deletions(-)。`git show --name-only` の14件はすべて `docs/logs/CHAT-*.md`で、docs/logs/ 以外のファイルは0件）。移せなかったログは無い
 - cloudflare に入る差分は、`git diff --stat origin/cloudflare HEAD` で、docs/logs/ の14件の削除・このログ・CHAT-1006-PHT-03 のログの状態の行・docs/decisions/・scripts/ の3か所だけ（説明できる差分のみ）
 
+### 4. マージ・ワークフロー・mj-logs・#357
+- マージ: 作業ブランチを再 fetch し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真であることを確かめて `git push origin work/1006-pht:cloudflare`（569dab20。参照の直し b0bae675、削除 2ea6bf9a、決定・経過 14fa79fd を含む）。止まる条件のどれにも当たらなかった（cloudflare に入った差分は、docs/logs/ の14件の削除・このログ・PHT-03 のログの状態の行・docs/decisions/・scripts/ の3か所だけ）
+- push（cloudflare 569dab20）で動いたワークフロー: ページの再生成（regenerate-page.yml、run 37415886177）success、公開対象を検査する（assets-check.yml、37415886204）success、作業ログを mj-logs へ写す（sync-logs.yml、37415886223）success。work/1006-pht への push では assets-check.yml（37415888532）・sync-logs.yml（37415888628）がともに success。Workers Builds の check-run は success
+- regenerate-page.yml がコミットを作ったか: 作っていない（569dab20 の後に `chore: regenerate` のコミットは無く、再生成のステップは success、コミットのステップも差分なしで終わった）。生成物の差分は無し
+- mj-logs: 14件の写しは raw URL で全件404（残っていない。このうち BD-10・UT-19 などは元から写っていなかったものを含む）
+- #357 に片付けの要約をコメントした: https://github.com/retroeater/mj/issues/357#issuecomment-6009629054
+
 ## 報告
 
-- 状態: 中断（作業中）
+- 状態: 完了
 - ブランチ: work/1006-pht
-- ログ: https://github.com/retroeater/mj/blob/work/1006-pht/docs/logs/CHAT-1006-PHT-04.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1006-PHT-04.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1006-pht
-- 確認用URL: なし
-- マージ: 未
-- issue: #357
-- 判断が必要なこと: なし
-- 未確認の項目: 作業中
+- 確認用URL: なし（scripts/ はコメントとテストデータだけの変更で、表示は変わらない）
+- マージ: 済（569dab20。削除のコミットは 2ea6bf9a）
+- issue: #357（要約コメント）、#263・#362・#428（コメント）、#510・#511・#512（新規起票）
+- 判断が必要なこと: なし。次の2点だけ知らせる
+  - #362・#428 に書いた「この issue の作業のときに確かめる・決める」という書き方は、移し先の issue の内容から私が書いた案で、決定ではない。違えばコメントを直す
+  - #511（最強戦公開後の Search Console 確認）と #510（gviz の隠れた行）は、平野さんの作業（Search Console の画面・テスト用タブの用意）を含む
+- 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
