@@ -1,7 +1,7 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-06 12:04 JST
-- 書き出した実行の契機: push（work/1006-lgr-03）
+- 書き出した時刻: 2026-10-06 12:07 JST
+- 書き出した実行の契機: push（work/1006-pht）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは sync-logs.yml（#498）
 
@@ -12,11 +12,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-06 12:07 | push | cloudflare | in_progress | #2877（37407452760） |  |
+| 2026-10-06 12:06 | push | work/1006-lgr-03 | success | #2876（37407443677） | 0分12秒 |
 | 2026-10-06 12:03 | push | work/1006-lgr-03 | success | #2875（37407189997） | 0分12秒 |
 | 2026-10-06 11:39 | push | work/1006-wkr-05 | success | #2874（37405204351） | 0分11秒 |
 | 2026-10-06 11:37 | push | cloudflare | success | #2873（37405007793） | 0分13秒 |
-| 2026-10-06 11:37 | push | work/1005-lgr-01 | success | #2872（37404999368） | 0分12秒 |
-| 2026-10-06 11:35 | push | cloudflare | success | #2871（37404831540） | 0分12秒 |
 
 ## check-image-links.yml
 
@@ -26,11 +26,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-06 12:07 | workflow_dispatch | cloudflare | in_progress | #19（37407457066） |  |
 | 2026-10-05 06:00 | schedule | cloudflare | success | #18（37234274297） | 3分06秒 |
 | 2026-09-28 15:25 | workflow_dispatch | cloudflare | success | #17（36386417750） | 3分03秒 |
 | 2026-09-28 11:01 | workflow_dispatch | work/0928-af | success | #16（36368183473） | 3分16秒 |
 | 2026-09-28 09:39 | workflow_dispatch | cloudflare | success | #15（36363004627） | 3分05秒 |
-| 2026-09-28 06:03 | schedule | cloudflare | success | #14（36350270111） | 3分05秒 |
 
 ## check-leagues-dropped.yml
 
@@ -197,11 +197,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-10-06 12:03 | push | work/1006-lgr-03 | in_progress | #1577（37407190110） |  |
+| 2026-10-06 12:07 | push | cloudflare | pending | #1580（37407452703） |  |
+| 2026-10-06 12:06 | push | work/1006-pht | in_progress | #1579（37407447444） |  |
+| 2026-10-06 12:06 | push | work/1006-lgr-03 | skipped | #1578（37407443681） | 0分01秒 |
+| 2026-10-06 12:03 | push | work/1006-lgr-03 | success | #1577（37407190110） | 0分31秒 |
 | 2026-10-06 11:46 | push | cloudflare | success | #1576（37405748204） | 0分44秒 |
-| 2026-10-06 11:46 | push | work/1006-wkr-05 | cancelled | #1575（37405745044） | 0分04秒 |
-| 2026-10-06 11:45 | push | work/1006-wkr-05 | success | #1574（37405724923） | 0分29秒 |
-| 2026-10-06 11:40 | push | cloudflare | success | #1573（37405266370） | 0分42秒 |
 
 ## update-live-channel.yml
 
