@@ -57,29 +57,34 @@ CHAT-1006-LGR-06 で作った `docs/new-page-checklist.md`（新しいページ�
 - 直した所: `scripts/sync_guides.py` に1項目、テストの許可パスに1件、docs/notes/cloud-sessions.md の一覧に1件。ほかに写す対象を列挙する文書は無し（grep）。あわせて同文書の `--base HEAD` は存在しない引数だったので削除（`--after HEAD --list` が正）
 - 写す一覧: `python3 scripts/sync_guides.py --dest <任意> copy --after HEAD --list` に `docs/new-page-checklist.md` が入る（48行中）。unittest 564件 OK。CLAUDE.md は変えていない
 - 写る契機: `sync-logs.yml` の push 契機は paths に `docs/new-page-checklist.md` が無いが、このマージは `docs/notes/**`（cloud-sessions.md）を含むため起動し、`guides_differ` が新ファイルを検知して `guide/<SHA>/` に写す。cloudflare で毎日の予約実行でも `copy` が走る。今後 checklist だけを直した push は paths に合わず、次の予約実行（最大1日）まで写らない（ワークフローの paths は範囲外のため変えていない）
+- マージ: `git push origin work/1006-lgr-08:cloudflare`（push 直前に再fetchし、origin/cloudflare が HEAD の祖先であることを確認。6c75264a..d68959dc）。Actions: 「公開対象を検査する」success、「作業ログを mj-logs へ写す」success（run 37410964175）
+- 写った先: mj-logs の `guide/d68959dc/docs/new-page-checklist.md` が HTTP 200。その後の別の push で最新は `guide/5ade1cc6/` に進んだが、そちらにも同ファイルがある
+
 
 ## 報告
 
-- 状態: 着手中
+- 状態: 完了
 - ブランチ: work/1006-lgr-08
-- ログ: https://github.com/retroeater/mj/blob/work/1006-lgr-08/docs/logs/CHAT-1006-LGR-08.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1006-LGR-08.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1006-lgr-08
-- 確認用URL: なし
-- マージ: 未
+- 確認用URL: なし（docs とスクリプトの定数のみ）
+- マージ: 済（d68959dc。cloudflare へ fast-forward）
 - issue: なし
-- 判断が必要なこと: なし
+- 判断が必要なこと:
+  - `sync-logs.yml` の push 契機の paths に `docs/new-page-checklist.md` が無い。このマージは docs/notes を含んだため写ったが、今後 checklist だけを直した push では起動せず、毎日の予約実行（最大1日後）まで写らない。paths に1行足すか（ワークフローの変更になるため範囲外で未実施）、1日の遅れでよいかの判断
+- 足した項目: `ALLOWED_PATTERNS` に `^docs/new-page-checklist\.md$`。直した文書: docs/notes/cloud-sessions.md（一覧に追加。存在しない `--base HEAD` の記述も削除）、scripts/tests/test_sync_guides.py。ほかに写す対象を列挙する文書は無し
 - 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj d68959dc）: https://github.com/retroeater/mj-logs/tree/main/guide/d68959dc
+ガイド文書（この版を写した時点の最新、mj 058141da）: https://github.com/retroeater/mj-logs/tree/main/guide/058141da
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d68959dc/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d68959dc/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d68959dc/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d68959dc/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d68959dc/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d68959dc/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/058141da/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/058141da/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/058141da/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/058141da/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/058141da/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/058141da/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/9d644c33.md

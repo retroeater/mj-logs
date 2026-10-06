@@ -69,6 +69,18 @@ sync-logs の実行は、同じ組（concurrency）で待ちが1本までのた�
 2. 手順0: 指示欄の最後の行は「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」で、指示文の最後の行と一致
 3. 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
 
+4. 手順1: #509 は Open（updated_at 2026-10-06T03:44:09Z、コメント0件）→ 着手中のコメント。未マージの `work/` ブランチ（`work/1006-rvw-h1`・`work/1006-swp`・`work/1006-wkr-08`）に `sync-logs.yml` を変えるものは無い。今の concurrency は `group: sync-logs`・`cancel-in-progress: false`
+5. 公式の文書（github/docs の原稿。docs.github.com はプロキシで拒否されるため raw で読んだ）
+   - `data/reusables/actions/actions-group-concurrency.md`: 「To allow more than one `pending` job or workflow run to wait in the same concurrency group, use the optional `queue` property」。`single`（既定）は待ち1本で新しいものが古い待ちを取り消す。`max` は「Up to 100 jobs or workflow runs can be `pending` in the concurrency group. When the queue is full, any additional jobs or workflow runs are canceled.」。「The combination of `queue: max` and `cancel-in-progress: true` is not allowed and will result in a workflow validation error.」。同じ組は待ち始めた時刻の順（FIFO）で動くが、順序は保証されない
+   - `content/actions/reference/workflows-and-actions/workflow-syntax.md` の例: ワークフローの `concurrency:` の下に `group:` と `queue: max` を書く
+   - これらの記述は `{% ifversion actions-nga %}` の中。`data/features/actions-nga.yml` は `fpt: '*'`・`ghec: '*'`（GitHub.com と Enterprise Cloud）。プランや private のリポジトリでの制限の記述は無い。preview・beta の記述も無い（`grep -i "preview\|beta"` で該当なし）
+6. #454 で案3（push ごとに別の組にする）を採らなかった理由: #454 の本文とコメントに、採らなかった理由の記録は無い（案1の突き合わせを選んで直した記録だけ）。案3の「別の組にする」は並行に動いて mj-logs への push がぶつかりうる（本文は再試行に任せるとしていた）。`queue: max` は同じ組のまま1本ずつ動かすので、その懸念は当てはまらない、と判断した
+7. **試験 A**（直す前、ref は cloudflare、03:58 UTC に4回続けて起動）: run 1619 success（03:58:02 作成、03:58:31 終了）、**1620 cancelled**（03:58:04）、**1621 cancelled**（03:58:05）、1622 success（03:58:07 作成、03:59:32 終了）。4本の間にほかの実行は入っていない（直前の 1618 は自分のログの push の実行で 03:58:05 に終わった）。見込みどおり（1本が動き、1本が待ち、間の2本は取り消し）
+8. `sync-logs.yml` の concurrency に `queue: max` と注記2行を足した（YAML として読めることを確かめた）。コミット 0736964a を作業ブランチに push（`sync-logs.yml` は sync-logs の push の paths に無いので、この push では sync-logs は動かない）
+9. **試験 B**（直した後、ref は work/1006-wkr-08、03:59 UTC に4回続けて起動）: run 1623（03:59:51 作成、04:00:18 終了）・1624（04:00:45）・1625（04:01:09）・1626（04:01:36）が**4本とも success**。取り消しは無く、1本ずつ順に動いた（どれも 0736964a）
+   - その後、別セッションの push の実行（`queue: max` を持たない古い分岐）で 1629（work/1006-lgr-08）と 1630（cloudflare、068bb4d8）が取り消された。古いファイルで動く実行では、今までどおり取り消しが起きる（マージの後も、マージより前に分岐した作業ブランチの実行は同じ）
+10. 文書: docs/notes/static-generation.md「ワークフローの一覧」の sync-logs の行（concurrency の説明）を今の動きに直した。sync-logs の concurrency・取り消しを説明している箇所はほかに見当たらなかった（cloud-sessions.md「作業ログ」にも無い）。`sync-logs.yml` の冒頭の注記「concurrency で取り消された実行の分も、次の実行で追いつく」は、古い分岐の実行や待ちが溢れたときに当てはまるので残した。decisions/automation.md に決定
+
 ## 報告
 
 - 状態: 作業中
@@ -85,12 +97,12 @@ sync-logs の実行は、同じ組（concurrency）で待ちが1本までのた�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 5ade1cc6）: https://github.com/retroeater/mj-logs/tree/main/guide/5ade1cc6
+ガイド文書（この版を写した時点の最新、mj 058141da）: https://github.com/retroeater/mj-logs/tree/main/guide/058141da
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/5ade1cc6/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/5ade1cc6/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/5ade1cc6/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/5ade1cc6/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/5ade1cc6/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/5ade1cc6/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/058141da/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/058141da/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/058141da/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/058141da/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/058141da/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/058141da/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/9d644c33.md

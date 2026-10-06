@@ -1,7 +1,7 @@
 # 予約実行を起動する Worker（mj-scheduler、#504）
 
 GitHub Actions の予約実行（`schedule`）は予定より2時間半〜5時間遅れる（#491）。そこで Cloudflare の Worker の定時実行（Cron Triggers）から、
-ワークフローを `workflow_dispatch` で時刻どおりに起動する。設計・決定・段階は #504 の本文、起動時刻・依存関係の確かめは #505、通知先は #506。
+ワークフローを `workflow_dispatch` で時刻どおりに起動する。設計・決定・段階は #504 の本文、起動時刻・依存関係の確かめは #505（2026-10-06 に済。結果は #505 のコメント）、通知先は #506。
 
 **2026-10-05 の夜に平野さんがつなぎ、動いている。** 最初の定時の起動は 10/6 04:20 JST（delete-merged-branches の run #15、04:20:36 に作られ予定から 36 秒の遅れ、success）。設定は下の「ダッシュボードの設定（申告値）」。
 
@@ -57,7 +57,7 @@ run-name: ${{ inputs.scheduled && '[scheduled] <ワークフローの name>' || 
 
 段階1の表は `delete-merged-branches.yml`・毎日・04:20・有効 の1行だけ。時刻の案は #504 の本文「起動時刻の案と範囲」。
 
-- 表を変えて `cloudflare` に入ると、Workers Builds の `mj-scheduler` がデプロイする（check-run「Workers Builds: mj-scheduler」）。cron の変更の反映は最大15分。watch paths は下の「未確認」を参照（2026-10-06 の時点では、docs だけの push でもビルドされている）
+- 表を変えて `cloudflare` に入ると、Workers Builds の `mj-scheduler` がデプロイする（check-run「Workers Builds: mj-scheduler」）。cron の変更の反映は最大15分。`workers/scheduler/` の外だけを変える push ではビルドされない（2026-10-06 に check-run で確かめた）
 - 表に足すワークフローは、先に上の「予約の起動の見分け方」の3つを足しておく。足さないと、`scheduled` が知らない入力として 422 になる
 
 ## テスト
@@ -117,9 +117,15 @@ Worker が書く行（`console.log`。何もしない回は書かない。トー
 4. サイトの Worker `mj` の Exclude に `workers/**` があることを確かめる
 5. 次の朝（04:20 JST）に、題が `[scheduled] …` の実行が success かを Actions の画面か mj-logs の `actions/status.md` で見る
 
+## Build watch paths の確かめ（2026-10-06）
+
+10/6 11:20 に直した後、cloudflare への push で次のとおりだった（push ごとの check-run は #504 の 2026-10-06 のコメント）。直す前は mj-scheduler の Include に `*` が残っていて、docs だけの push でも毎回ビルドされていた。
+
+- `workers/scheduler/` の下（`src/`・`test/`・`wrangler.jsonc`）と docs を変える push: 「Workers Builds: mj-scheduler」success、「Workers Builds: mj」は付かない
+- docs だけの push: どちらも付かない
+
 ## 未確認（2026-10-06 の時点）
 
-- **mj-scheduler の Build watch paths が効いていない疑い。** 申告では Include は `workers/scheduler/*` だが、10/5 15:06 UTC 以降、cloudflare への push は docs だけ・data だけでも毎回「Workers Builds: mj-scheduler」が付いた（push ごとの表は #504 の 2026-10-06 のコメント）。平野さんが画面の保存を確かめる。ビルドが余分に走るだけで、動きへの害は無い（1回 34 秒、Workers Builds の月 3,000 分の枠を使う）
-- サイトの Worker の Exclude `workers/*` が `workers/scheduler/src/…` のような下の階層に効くか（`workers/` だけを変える次の push で確かめる）
+- 作業ブランチへの `workers/` だけの push で、サイトの `mj` のプレビューがビルドされた（「Workers Builds: mj」success）。cloudflare への push では Exclude の `workers/**` が効いているのに、プレビューでは効いていない。理由は分からない（害はプレビューのビルドが1回増えることだけ）
 - 06:00 JST の朝の確かめの回が動いているか。#506 にコメントが無いのは、すべて success の場合と Worker が止まった場合の両方。上の「ログ（Workers Logs）」の「朝の確かめ: …」の行で確かめられる（平野さんの作業。3日で消える）
 - Cloudflare の Cron Triggers 自体の遅れ（最初の回は 36 秒。数日分を見る）

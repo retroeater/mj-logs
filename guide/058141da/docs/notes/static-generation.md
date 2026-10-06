@@ -249,7 +249,7 @@ handover.md 5章から移した。ページの一覧は下の「ページの一�
 
 ### ページの一覧
 
-HTMLは25ページ + 書籍の一覧と個別ページ（`books/`、#97、noindex・メニュー未掲載。**2026-09-22 開発凍結、`docs/notes/books-freeze.md`**） + 「帰り道」エピソード個別ページ39枚（`wayhome/`、#162） + 最強戦のトップと年度ページ（`saikyo/`、#319/#355、2026-09-21 に公開） + タイトル戦の新構成（`title/`、#222、2026-09-28 に公開、#413） + 放送対局ページ（`live/`、#346、noindex・メニュー未掲載。正式公開は #362）。大きく4系統に分かれる。
+HTMLは25ページ + 書籍の一覧と個別ページ（`books/`、#97、noindex・メニュー未掲載。**2026-09-22 開発凍結、`docs/notes/books-freeze.md`**） + 「帰り道」エピソード個別ページ39枚（`wayhome/`、#162） + 最強戦のトップと年度ページ（`saikyo/`、#319/#355、2026-09-21 に公開） + タイトル戦の新構成（`title/`、#222、2026-09-28 に公開、#413） + 放送対局ページ（`live/`、#346、noindex・メニュー未掲載。正式公開は #362） + 鳳凰戦 リーグ別成績推移（`houou_race.html`、#507、noindex・メニュー未掲載。公開は #508）。大きく4系統に分かれる。
 
 | 系統 | ページ数 | 状態 |
 |---|---|---|
@@ -259,6 +259,7 @@ HTMLは25ページ + 書籍の一覧と個別ページ（`books/`、#97、noinde
 | ビルド時生成（型A'・多列テキスト） | 2 | `rh_results.html` / `rh_results_detail.html`。画像列を持たないため`.mj-table-auto`を使う（#7、完了） |
 | ビルド時生成（型D・静的SVG） | 1 | `resource_efficiency.html`。表を持たないため`render_content()`を使う。外部JS・外部ドメインへの依存が一切ない（#7/#128、完了） |
 | ビルド時生成（型C・積み上げ棒+折れ線） | 2 | `houou_leagues.html` / `ouka_leagues.html`。積み上げ棒と既定選手の折れ線は静的SVG、`?name=`時の折れ線差し替えのみ`leagues.js`が担う（#7/#127、完了） |
+| ビルド時生成（独自: 順位表の数え上げ+期ごとのJSON） | 1 | `houou_race.html`（鳳凰戦 リーグ別成績推移）。`render_content()`+専用JS`houou_race.js`。データは`houou_race/<期>-<1前・2後>.json`を選んだときに読む。noindex・メニュー・サイトマップ・`llms.txt` 未掲載（#507、`docs/notes/houou-race.md`） |
 | ビルド時生成（独自: 全画面ヒーロー+横スクロールカード列） | 1 | `video_wayhome.html`。`render_content()`+専用JS`video_wayhome.js`。新サイトのパイロット（`docs/notes/video-wayhome.md`） |
 | ビルド時生成（サブディレクトリ、ヒーロー構成のエピソード個別ページ） | 39 | `wayhome/<動画ID>.html`。`scripts/generate_wayhome_episodes.py`（`docs/notes/video-wayhome.md`） |
 | ビルド時生成（サブディレクトリ、最強戦のトップと年度ページ） | トップ1＋年度数 | `saikyo/index.html`・`saikyo/<年度>.html`。`scripts/generate_saikyo_pages.py`。2026-09-21 に一般公開し、navbar・`sitemap-saikyo.xml`・`llms.txt` に載る（#319・#348、`docs/notes/saikyo-page-design.md`） |
@@ -353,6 +354,7 @@ title/ では「タイトル戦」タブの大会の改名が「タイトル」�
 
 ### 新しいページを作るとき（/live の実例、CHAT-0916-LV-33）
 
+- **作る段の確かめ・未公開で本番に入れる手順・公開の手順は `docs/new-page-checklist.md`（#243）。** 公開は作る issue と別の issue で行う
 - **件数・容量・配信ファイル数を先に見積もる。** /live は、1回戦1ページなら約3,300ページという見積もり（CHAT-0916-LV-03）から、
   個別ページの単位を「同一ステージの同一卓」に変えた（LV-04、約960ページ）。Workers の静的アセットの上限（Free で 20,000 ファイル）、
   `_redirects` の上限（静的 2,000行）、埋め込むページの大きさも同時に見る
@@ -391,7 +393,7 @@ GitHub Actions (`.github/workflows/regenerate-page.yml`) が、`scripts/generate
 | `fetch-gsc.yml` | 毎月1日06:00 JST。Search Console の検索パフォーマンスを `docs/gsc/` に取り出し、robots.txt の差分を #304 に知らせる（#269） |
 | `sync-dojo-calendar.yml` | 毎日07:12 JST。道場部ゲストの告知画像を読み、カレンダーへの追加分と新規ゲスト・当月誕生日を #426 に知らせる（同期が失敗したとき・最新の月に道場部ゲストの見出しが無いときもその旨を知らせる、#472・#390）。新しい月の書き込みは手動実行のときだけで、保存した読み取り結果を使う。書き込み済みの月の画像が差し替わったときは、当日以降を自動で直して知らせる（変更3件以上・照合できない名前があれば通知だけ）（#390、`docs/notes/dojo-guest-calendar.md`） |
 | `sync-books-calendar.yml` | **2026-09-22 開発凍結にともない無効化（`gh workflow disable`）。** 元は毎週月曜05:27 JSTに「書籍」タブの発売日をGoogleカレンダーへ同期していた（#97、`docs/notes/books-calendar.md`・`docs/notes/books-freeze.md`） |
-| `sync-logs.yml` | `docs/logs/**` を含む push（cloudflare は毎回、`work/**` はコミットのメッセージに`[sync-logs]`のある push だけ。無い push はジョブが skip、#298）・毎日 08:29 JST の予約実行・手動実行（この2つは目印に関係なく走る、#498）。実行の時点の mj と mj-logs を突き合わせ、写っていない・古い作業ログを public の `retroeater/mj-logs` の `logs/` へ写し、cloudflare で削除されたログを消す（#440。書き込みはシークレット `MJ_LOGS_TOKEN`）。concurrency で取り消された実行の分は次の実行で追いつく（`scripts/sync_logs.py`、#454）。使用済みの Chat-Ref 識別子の一覧も毎回集め直して `chat-ids/` に写す（`scripts/chat_ids.py`、#474）。毎回、各ワークフローの直近5回の実行（開始時刻・契機・ブランチ・結論・run 番号・所要時間、失敗したジョブ名とステップ名）を mj-logs の `actions/status.md` に上書きで書き出す（`scripts/actions_status.py`、`GITHUB_TOKEN` の `actions: read`。コミットの題とログの中身は書かない、#498） |
+| `sync-logs.yml` | `docs/logs/**` を含む push（cloudflare は毎回、`work/**` はコミットのメッセージに`[sync-logs]`のある push だけ。無い push はジョブが skip、#298）・毎日 08:29 JST の予約実行・手動実行（この2つは目印に関係なく走る、#498）。実行の時点の mj と mj-logs を突き合わせ、写っていない・古い作業ログを public の `retroeater/mj-logs` の `logs/` へ写し、cloudflare で削除されたログを消す（#440。書き込みはシークレット `MJ_LOGS_TOKEN`）。concurrency は `queue: max` で、続けて来た実行を取り消さずに1本ずつ順に動かす（#509）。取り消された実行（待ちが100本を超えたとき、`queue: max` を持たない古い分岐の作業ブランチの実行）の分は、次の cloudflare の実行で追いつく（`scripts/sync_logs.py`、#454）。使用済みの Chat-Ref 識別子の一覧も毎回集め直して `chat-ids/` に写す（`scripts/chat_ids.py`、#474）。毎回、各ワークフローの直近5回の実行（開始時刻・契機・ブランチ・結論・run 番号・所要時間、失敗したジョブ名とステップ名）を mj-logs の `actions/status.md` に上書きで書き出す（`scripts/actions_status.py`、`GITHUB_TOKEN` の `actions: read`。コミットの題とログの中身は書かない、#498） |
 | `delete-merged-branches.yml` | 毎日07:53 JST と手動、Worker `mj-scheduler` からの予約の起動（毎日04:20 JST、入力 `scheduled`、#504。Worker が動くのは平野さんがつないだ後）。マージ済みで先頭が24時間より前の `work/*` を削除する（#440、`scripts/delete_merged_branches.py`） |
 
 ### ワークフローを手動実行するとき
