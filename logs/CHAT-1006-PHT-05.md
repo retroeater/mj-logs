@@ -154,7 +154,7 @@
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1006-PHT-05.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1006-pht-logs
 - 確認用URL: なし（docs/ のみの変更）
-- マージ: 済（マージコミットは最後の push で確定。最終報告の SHA を参照）
+- マージ: 済（01b946ae。docs/logs/ と docs/decisions/ のみ）
 - issue: #357・#361・#512（読んだだけ。起票・コメント・本文の変更はしていない）。同じ論点の Open の issue は無かった
 - 判断が必要なこと:
   - 自動削除の条件をどうするか。現状と案の比較は「## 経過」の「3. 案の当てはめ」と下の表。おすすめは「案2を主に、案4を当面の補助に」
