@@ -1,7 +1,7 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-06 12:59 JST
-- 書き出した実行の契機: workflow_dispatch（cloudflare）
+- 書き出した時刻: 2026-10-06 13:00 JST
+- 書き出した実行の契機: workflow_dispatch（work/1006-wkr-08）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは sync-logs.yml（#498）
 
@@ -12,11 +12,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-06 12:59 | push | work/1006-wkr-08 | success | #2889（37411593767） | 0分14秒 |
 | 2026-10-06 12:54 | push | work/1006-pht | success | #2888（37411209716） | 0分14秒 |
 | 2026-10-06 12:51 | push | cloudflare | success | #2887（37410964163） | 0分14秒 |
 | 2026-10-06 12:51 | push | work/1006-lgr-08 | success | #2886（37410959787） | 0分14秒 |
 | 2026-10-06 12:46 | push | work/1006-pht | success | #2885（37410576444） | 0分12秒 |
-| 2026-10-06 12:46 | push | cloudflare | success | #2884（37410525706） | 0分11秒 |
 
 ## check-image-links.yml
 
@@ -197,11 +197,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-10-06 12:58 | workflow_dispatch | cloudflare | in_progress | #1622（37411465656） |  |
-| 2026-10-06 12:58 | workflow_dispatch | cloudflare | cancelled | #1621（37411463492） | 0分03秒 |
-| 2026-10-06 12:58 | workflow_dispatch | cloudflare | cancelled | #1620（37411461392） | 0分03秒 |
-| 2026-10-06 12:58 | workflow_dispatch | cloudflare | success | #1619（37411458945） | 0分29秒 |
-| 2026-10-06 12:57 | push | work/1006-wkr-08 | success | #1618（37411422523） | 0分32秒 |
+| 2026-10-06 12:59 | workflow_dispatch | work/1006-wkr-08 | pending | #1626（37411602480） |  |
+| 2026-10-06 12:59 | workflow_dispatch | work/1006-wkr-08 | pending | #1625（37411600635） |  |
+| 2026-10-06 12:59 | workflow_dispatch | work/1006-wkr-08 | pending | #1624（37411598187） |  |
+| 2026-10-06 12:59 | workflow_dispatch | work/1006-wkr-08 | in_progress | #1623（37411595999） |  |
+| 2026-10-06 12:58 | workflow_dispatch | cloudflare | success | #1622（37411465656） | 1分25秒 |
 
 ## update-live-channel.yml
 
