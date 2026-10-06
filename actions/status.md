@@ -1,7 +1,7 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-06 11:35 JST
-- 書き出した実行の契機: push（cloudflare）
+- 書き出した時刻: 2026-10-06 11:37 JST
+- 書き出した実行の契機: push（work/1005-lgr-01）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは sync-logs.yml（#498）
 
@@ -12,11 +12,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-06 11:37 | push | cloudflare | in_progress | #2873（37405007793） |  |
+| 2026-10-06 11:37 | push | work/1005-lgr-01 | success | #2872（37404999368） | 0分12秒 |
 | 2026-10-06 11:35 | push | cloudflare | success | #2871（37404831540） | 0分12秒 |
 | 2026-10-06 11:34 | push | work/1005-rvw | success | #2870（37404828720） | 0分11秒 |
 | 2026-10-06 11:34 | push | work/1005-rvw | success | #2869（37404801701） | 0分12秒 |
-| 2026-10-06 11:33 | push | cloudflare | success | #2868（37404705822） | 0分14秒 |
-| 2026-10-06 11:32 | push | work/1005-lgr-01 | success | #2867（37404614334） | 0分32秒 |
 
 ## check-image-links.yml
 
@@ -124,11 +124,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-06 11:37 | push | cloudflare | in_progress | #216（37405007821） |  |
 | 2026-10-05 08:33 | schedule | cloudflare | success | #215（37244182235） | 1分30秒 |
 | 2026-10-04 22:02 | push | cloudflare | success | #214（37204224841） | 1分26秒 |
 | 2026-10-03 13:13 | push | cloudflare | success | #213（37095824891） | 1分13秒 |
 | 2026-10-03 12:55 | push | cloudflare | success | #212（37094799932） | 1分27秒 |
-| 2026-10-02 15:03 | push | cloudflare | success | #211（36971719274） | 2分09秒 |
 
 ## sitemap-lastmod.yml
 
@@ -137,11 +137,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-06 11:37 | push | cloudflare | in_progress | #63（37405007748） |  |
 | 2026-10-04 23:45 | push | cloudflare | success | #62（37210435879） | 0分22秒 |
 | 2026-10-04 16:21 | push | cloudflare | success | #61（37185530901） | 0分20秒 |
 | 2026-10-01 11:05 | push | cloudflare | success | #60（36804206388） | 0分15秒 |
 | 2026-10-01 00:41 | push | cloudflare | success | #59（36738618096） | 0分15秒 |
-| 2026-09-30 22:16 | push | cloudflare | success | #58（36720464719） | 0分18秒 |
 
 ## sync-birthday-calendar.yml
 
@@ -197,11 +197,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-10-06 11:35 | push | cloudflare | in_progress | #1565（37404831544） |  |
+| 2026-10-06 11:37 | push | cloudflare | pending | #1567（37405007730） |  |
+| 2026-10-06 11:37 | push | work/1005-lgr-01 | in_progress | #1566（37404999391） |  |
+| 2026-10-06 11:35 | push | cloudflare | success | #1565（37404831544） | 0分58秒 |
 | 2026-10-06 11:34 | push | work/1005-rvw | success | #1564（37404828686） | 0分30秒 |
 | 2026-10-06 11:34 | push | work/1005-rvw | skipped | #1563（37404801723） | 0分01秒 |
-| 2026-10-06 11:33 | push | cloudflare | success | #1562（37404705725） | 0分28秒 |
-| 2026-10-06 11:33 | push | work/1006-wkr-05 | skipped | #1561（37404696156） | 0分03秒 |
 
 ## update-live-channel.yml
 
