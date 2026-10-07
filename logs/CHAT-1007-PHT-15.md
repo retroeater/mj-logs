@@ -61,6 +61,16 @@ CHAT-1007-PHT-12 で、scripts/ から参照されているために残した作
 - 着手前の確認: `git log --all --grep="CHAT-1007-PHT-15"` は0件。`work/1007-pht-links` はローカルにあり（d1bc5658）、リモートにあってマージ済み。ローカルは `origin/cloudflare` の祖先のため、`git checkout work/1007-pht-links` のうえ `git merge --ff-only origin/cloudflare` で 3cf23351 に進めた
 - CHAT-1007-PHT-12 の `## 報告` の状態は「完了」。未マージのリモートブランチ（work/1007-rvw-handoff）は scripts/lib/yotei.py・scripts/tests/test_chat_ids.py に触れていない
 
+### 手順1・2: 洗い出しと直し
+
+- 2件（CHAT-0928-HC-02・CHAT-0929-ZK-01）は cloudflare（3cf23351）の docs/logs/ に現存
+- 2件のパスを指す箇所（docs/〈docs/logs/ を除く〉・CLAUDE.md・scripts/・.github/）: scripts/lib/yotei.py 12行目、scripts/tests/test_chat_ids.py 33・36・37行目。docs/notes/yotei-sheet.md は CHAT-1007-PHT-12 で permalink に直し済み、docs/decisions/operations.md の行は ID を書いた決定の記録（パスでない）。前提の2ファイルのほかには無かった
+- 直す前のテスト: 634件 OK（失敗0）。直した後: 634件 OK（失敗0）
+- 直した箇所（前 → 後）:
+  - `scripts/lib/yotei.py` 12行目（モジュールの docstring の中）: 「判定の規則の出どころは docs/logs/CHAT-0928-HC-02.md「手順1」。仕組みの説明は docs/notes/yotei-sheet.md。」→「判定の規則と仕組みの説明は docs/notes/yotei-sheet.md「【2】の規則」。規則の出どころの調べ: https://github.com/retroeater/mj/blob/1ad5d8be5a7b06ddd53620c536034cd78acddfdb/docs/logs/CHAT-0928-HC-02.md」。docstring の1行だけで、コード（AST）は変わらないことを、docstring を除いた AST の比較（一致）で確かめた。yotei-sheet.md に「【2】の規則」の節があるため、その節への参照にし、出どころの調べは permalink で添えた
+  - `scripts/tests/test_chat_ids.py` 33行目: `id_in_path('docs/logs/CHAT-0929-ZK-01.md'), 'ZK'` → `id_in_path('docs/logs/CHAT-0929-ZZ-99.md'), 'ZZ'`／36行目: `'docs/logs/CHAT-0929-ZK-01.md.bak'` → `'docs/logs/CHAT-0929-ZZ-99.md.bak'`／37行目: `'docs/notes/CHAT-0929-ZK-01.md'` → `'docs/notes/CHAT-0929-ZZ-99.md'`（文字列の判定のテストで、意味は変えていない）
+- 削除のコミット: 2件を1コミット。`git show --stat` は 2 files changed, 400 deletions で、docs/logs/ 以外のファイルは無い。GX-08 は含まれない。削除の後のテスト: 634件 OK
+
 ## 報告
 
 - 状態: 中断（着手直後。作業中）
@@ -77,12 +87,12 @@ CHAT-1007-PHT-12 で、scripts/ から参照されているために残した作
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 361dce7a）: https://github.com/retroeater/mj-logs/tree/main/guide/361dce7a
+ガイド文書（この版を写した時点の最新、mj aa431223）: https://github.com/retroeater/mj-logs/tree/main/guide/aa431223
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/361dce7a/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/361dce7a/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/361dce7a/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/361dce7a/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/361dce7a/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/361dce7a/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/aa431223/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/aa431223/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/aa431223/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/aa431223/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/aa431223/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/aa431223/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/1257323c.md

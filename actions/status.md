@@ -1,7 +1,7 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-07 13:21 JST
-- 書き出した実行の契機: push（work/1007-pht-links）
+- 書き出した時刻: 2026-10-07 13:22 JST
+- 書き出した実行の契機: push（cloudflare）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは sync-logs.yml（#498）
 
@@ -12,11 +12,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-07 13:21 | push | work/1007-rvw-handoff | in_progress | #2942（37571095379） |  |
+| 2026-10-07 13:21 | push | cloudflare | success | #2941（37571084252） | 0分11秒 |
+| 2026-10-07 13:21 | push | work/1007-pht-links | success | #2940（37571081863） | 0分11秒 |
 | 2026-10-07 13:21 | push | work/1007-pht-links | success | #2939（37571046811） | 0分13秒 |
 | 2026-10-07 13:01 | push | cloudflare | success | #2938（37569482341） | 0分11秒 |
-| 2026-10-07 13:00 | push | work/1007-pht-doc | success | #2937（37569386626） | 0分13秒 |
-| 2026-10-07 12:57 | push | cloudflare | success | #2936（37569117602） | 0分13秒 |
-| 2026-10-07 12:56 | push | work/1007-rvw-close | success | #2935（37569115562） | 0分12秒 |
 
 ## check-image-links.yml
 
@@ -124,11 +124,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-07 13:21 | push | cloudflare | in_progress | #227（37571084246） |  |
 | 2026-10-07 12:31 | push | cloudflare | success | #226（37567146178） | 0分30秒 |
 | 2026-10-07 12:24 | push | cloudflare | success | #225（37566632945） | 0分27秒 |
 | 2026-10-07 11:58 | push | cloudflare | success | #224（37564504181） | 0分32秒 |
 | 2026-10-06 16:04 | push | cloudflare | success | #223（37427412467） | 1分00秒 |
-| 2026-10-06 13:54 | push | cloudflare | success | #222（37415886177） | 1分41秒 |
 
 ## sitemap-lastmod.yml
 
@@ -195,11 +195,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-10-07 13:21 | push | work/1007-pht-links | in_progress | #1771（37571046566） |  |
+| 2026-10-07 13:21 | push | work/1007-rvw-handoff | pending | #1774（37571095444） |  |
+| 2026-10-07 13:21 | push | cloudflare | in_progress | #1773（37571084217） |  |
+| 2026-10-07 13:21 | push | work/1007-pht-links | skipped | #1772（37571081842） | 0分01秒 |
+| 2026-10-07 13:21 | push | work/1007-pht-links | success | #1771（37571046566） | 0分27秒 |
 | 2026-10-07 13:20 | push | work/1007-rvw-handoff | success | #1770（37570989644） | 0分29秒 |
-| 2026-10-07 13:03 | push | cloudflare | success | #1769（37569605204） | 0分49秒 |
-| 2026-10-07 13:03 | push | work/1007-pht-doc | success | #1768（37569602941） | 0分23秒 |
-| 2026-10-07 13:01 | push | cloudflare | success | #1767（37569482343） | 0分27秒 |
 
 ## update-live-channel.yml
 
