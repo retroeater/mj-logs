@@ -117,7 +117,7 @@
 - ログ: https://github.com/retroeater/mj/blob/work/1006-pht-photo/docs/logs/CHAT-1006-PHT-06.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1006-pht-photo
 - 確認用URL: なし（docs/ のみの変更）
-- マージ: 未（最後の push のあとで cloudflare へ入れる）
+- マージ: 済（58198b2e。docs/logs/ と docs/decisions/ のみ）
 - issue: #499（読んだだけ。起票・コメント・本文の変更はしていない。解決の失敗を扱う Open の issue は無い）
 - 判断が必要なこと:
   - 原因（確かめた事実）: 解決が働いたのは 2026-09-20 20:30 UTC（run #12）まで、失敗は 2026-09-27 21:05 UTC（run #14）から。その間にスクリプトの変更は無い。このセッションの Chromium（`--headless=new`）で x.com/104307/photo を開くと「HTTP ERROR 403」のエラーページで画像 URL は無く、`curl` では `/photo` が `/104307`（プロフィール）に 307 転送された。「画像URLが見つからない」は、Chrome の出力に画像 URL が無ければ出る一括の状態で、失敗の中身（403・空の出力・ログイン画面）を区別できない
