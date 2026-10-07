@@ -1,7 +1,7 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-06 16:12 JST
-- 書き出した実行の契機: push（cloudflare）
+- 書き出した時刻: 2026-10-07 10:11 JST
+- 書き出した実行の契機: push（work/1006-pht-photo）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは sync-logs.yml（#498）
 
@@ -96,11 +96,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-07 04:20 | workflow_dispatch | cloudflare | success | #17（37518187033） | 0分44秒 |
 | 2026-10-06 11:32 | schedule | cloudflare | success | #16（37404652637） | 0分21秒 |
 | 2026-10-06 04:20 | workflow_dispatch | cloudflare | success | #15（37362716913） | 0分48秒 |
 | 2026-10-05 18:45 | workflow_dispatch | work/1005-wkr-01 | success | #14（37292147782） | 0分30秒 |
 | 2026-10-05 18:45 | workflow_dispatch | work/1005-wkr-01 | success | #13（37292138645） | 0分18秒 |
-| 2026-10-05 10:19 | schedule | cloudflare | success | #12（37250970612） | 0分21秒 |
 
 ## fetch-gsc.yml
 
@@ -197,11 +197,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-10-06 16:12 | push | cloudflare | in_progress | #1685（37428196594） |  |
+| 2026-10-07 10:10 | push | work/1006-pht-photo | in_progress | #1686（37555800307） |  |
+| 2026-10-06 16:12 | push | cloudflare | success | #1685（37428196594） | 0分26秒 |
 | 2026-10-06 16:06 | push | work/1006-lgr-10 | success | #1684（37427658499） | 0分32秒 |
 | 2026-10-06 16:04 | push | cloudflare | success | #1683（37427412465） | 0分51秒 |
 | 2026-10-06 16:04 | push | work/1006-lgr-10 | success | #1682（37427395936） | 0分32秒 |
-| 2026-10-06 15:56 | push | work/1006-rvw-377 | success | #1681（37426640577） | 0分32秒 |
 
 ## update-live-channel.yml
 
@@ -211,11 +211,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-07 06:52 | schedule | cloudflare | success | #73（37536913863） | 6分14秒 |
 | 2026-10-06 08:20 | schedule | cloudflare | success | #72（37387962113） | 4分00秒 |
 | 2026-10-05 05:23 | schedule | cloudflare | success | #71（37231908575） | 3分36秒 |
 | 2026-10-05 01:05 | workflow_dispatch | cloudflare | success | #70（37215446789） | 3分05秒 |
 | 2026-10-04 22:02 | workflow_dispatch | cloudflare | success | #69（37204228383） | 4分33秒 |
-| 2026-10-04 05:10 | schedule | cloudflare | success | #68（37150585027） | 4分06秒 |
 
 ## write-live-channel-candidate.yml
 
