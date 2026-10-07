@@ -1,7 +1,7 @@
 # Actions の実行結果（retroeater/mj）
 
 - 書き出した時刻: 2026-10-07 13:25 JST
-- 書き出した実行の契機: push（work/1007-rvw-handoff）
+- 書き出した実行の契機: push（cloudflare）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは sync-logs.yml（#498）
 
@@ -195,8 +195,8 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-10-07 13:24 | push | cloudflare | pending | #1780（37571280327） |  |
-| 2026-10-07 13:24 | push | work/1007-rvw-handoff | in_progress | #1779（37571276379） |  |
+| 2026-10-07 13:24 | push | cloudflare | in_progress | #1780（37571280327） |  |
+| 2026-10-07 13:24 | push | work/1007-rvw-handoff | success | #1779（37571276379） | 1分05秒 |
 | 2026-10-07 13:23 | push | cloudflare | success | #1778（37571252916） | 0分56秒 |
 | 2026-10-07 13:23 | push | work/1007-pht-links | success | #1777（37571250359） | 0分27秒 |
 | 2026-10-07 13:22 | push | cloudflare | success | #1776（37571137558） | 0分58秒 |

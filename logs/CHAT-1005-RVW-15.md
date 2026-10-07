@@ -117,6 +117,7 @@ diff --git a/docs/notes/static-generation.md b/docs/notes/static-generation.md
 
 - ほかのファイルは衝突しなかった。取り込み後の cloudflare との差は docs と CLAUDE.md だけ（10ファイル）。サイズは取り込み後も CLAUDE.md 25,941・handover.md 23,564・chat-side-operations.md 24,035
 - マージ: push 直前に再 fetch して祖先を確かめ、`git push origin work/1007-rvw-handoff:cloudflare` で入れる。CLAUDE.md を含むため Workers Builds が1回走る（表示は変わらない）。assets-check.yml の結果は追いの push で書く
+- マージの結果: `git push origin work/1007-rvw-handoff:cloudflare` で fast-forward（aa431223..a67b4e09）。拒否されなかった。a67b4e09 の check-run（04:23 UTC に取得）: `check`（assets-check.yml）success 2件、「Workers Builds: mj」success、`sync` success 2件。15分以内に揃った
 
 ## 報告
 
@@ -125,7 +126,7 @@ diff --git a/docs/notes/static-generation.md b/docs/notes/static-generation.md
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1005-RVW-15.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1007-rvw-handoff
 - 確認用URL: なし（ドキュメントのみ）
-- マージ: 済（ドキュメントのみ。assets-check の結果は経過の末尾）
+- マージ: 済（cloudflare a67b4e09。assets-check・Workers Builds とも success）
 - issue: なし
 - 判断が必要なこと:
   - スプレッドシートを指す「冊」は、指示文の2か所（handover.md・static-generation.md）のほかに docs/new-site-design.md にも1か所（「スプレッドシートは5冊に分かれ」）あり、「5つのブックに分かれ」に直した
