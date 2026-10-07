@@ -72,6 +72,219 @@
 
 - Chat-Ref の重複確認: CHAT-1007-PHT-07 のコミット無し。識別子 PHT は指示文のとおり同じチャットのもの。指示欄の末尾は指示文の最後の行と一致
 - work/1007-pht-logs はリモート・ローカルとも無かったため origin/cloudflare から作成
+### 1. 対象の作り方と件数
+- 対象の一覧: `python3 scripts/cleanup_logs.py --dry-run --json` を cloudflare（1c5d349b）の docs/logs/ で実行した（2026-10-07 01:30 UTC）。結果は「7日以内のため対象外 170件、削除対象 10件、通知対象 174件」。**通知対象 174件が対象**（件数の範囲 120〜260 に収まる）。次の週次実行で消える10件（UT-30・AF-22・AF-23・SC-08・AF-32・AF-39・AF-41・SC-11・SH-12・ZK-04）は対象にしていない。最終コミットは 2026-09-28 00:02 〜 09-30 00:48 UTC
+- 系列ごとの件数: 0928-AF 23／0928-CW 19／0928-CX 18／0928-DC 2／0928-HC 16／0928-SC 5／0929-AF 10／0929-GX 18／0929-SC 2／0929-SH 15／0929-SKL 2／0929-ZK 12／0930-CAL 4／0930-HKG 3／0930-SKL 2／0924-TQ 22／0922-UT 1。状態: 完了 111、判断待ち 38、中断 25
+- #357 に他セッションの着手中コメントは無く（最後のコメントは PHT-03 の自分のもの）、着手中のコメントを残した
+- 残すログに加えるもの:
+  - `CHAT-0929-GX-08.md`: 平野さんのカレンダーの【R#298】の予定が「チャットの最初に送るログ」として名指ししている（指示文）。対象173件から外した（残りは 173件）。ほかに名指しされている CHAT-1002-CLD-18・CHAT-1006-WKR-08 は7日以内で対象外
+  - Open の issue（204件、本文とコメントを全文読んだ）が `mj-logs/blob/main/logs/CHAT-…` または `docs/logs/CHAT-…` の形でログを名指ししていたもの: 対象のうち 26件が出典・根拠として参照されている（うち21件が甲、5件は乙・丙で、いずれも残す）。どれも「次の作業で読むログ」「チャットの最初に送るログ」という書き方ではなく、「根拠」「詳細」「出典」の書き方（例: #124 の「根拠: …」、#448 の「詳細: …」、#298 の「ログ: …」、#235・#296・#362・#398・#433・#447・#456）。削除するとこれらのリンクが404になり、issue の本文・コメントは書き換えない決まりのため、**甲でも削除しない**ことにした（迷うものは残す）
+  - scripts/ が参照しているログ: scripts/apps_script/add_layer3_opening_column.gs（ZK-05・ZK-06）、clear_layer3_redundant_20260929.gs（SH-09）、clear_layer3_redundant_20260930.gs（SH-17）、scripts/lib/yotei.py（HC-02）、scripts/tests/test_chat_ids.py（ZK-01、文字列のテストデータ）。scripts/ は差し替えない決まりのため、これらのログは削除しない
+
+### 2. 仕分けの結果
+- 173件の仕分け: 甲 161・乙 11・丙 1。仕分けは系列ごとのサブエージェント9つ（各系列から2件以上を読み直させた）による。自分でも次を確かめた: 判断待ち・中断の状態のまま甲にしたもの61件の根拠（続きのログ・issue・マージ）を一覧で読み、ZK-08・ZK-12・CX-10・TQ-28 の `## 報告` と、#476 の状態とコメント、ほか CW・AF・HC・GX・SH・SC・SKL・CAL・HKG の各系列の甲の根拠が指す issue（#298・#448・#454・#466・#473・#476・#490・#493）の状態
+- サブエージェントの判定から変えたもの: TQ-28 を甲から丙に（カレンダー登録候補13件のうち、どれを登録したか確かめられない）
+- 判断が分かれたが甲にしたもの: ZK-08・09・10・12・14、CX-10 などの「ブラウザでの本番の見え方は HTML の取得・curl の応答だけで確かめた」という定型の未確認の記述（本番の HTML・応答は確かめている。平野さんの目視を要件にするなら乙に寄る）。平野さんの目視の結果そのものが未記録のものは甲にしていない）
+- 削除した136件・残した38件（乙 11・丙 1・GX-08・Open の issue が名指す 21・scripts/ が参照する 4）。内訳:
+
+| 区分 | 件数 |
+| --- | --- |
+| 削除（甲） | 136 |
+| 残す: 乙 | 11 |
+| 残す: 丙 | 1 |
+| 残す: GX-08（カレンダーが名指し） | 1 |
+| 残す: 甲だが Open の issue が出典として名指し | 21 |
+| 残す: 甲だが scripts/ が参照 | 4 |
+
+（173件 = 削除 136 + 乙 11 + 丙 1 + 名指し 21 + scripts 4。GX-08 は対象外から加えたので、残すログは合計 38件）
+
+### 残す38件
+
+| ファイル | 区分 | 論点・理由 | 移し先の候補 |
+| --- | --- | --- | --- |
+| CHAT-0924-TQ-09.md | 乙 | パラメータのそろえ方は案A（TQ-10・#410・docs/notes/saikyo-page-design.md）で決着。ただし全ページの `?name=`／`?q=`／`?player=` の照合方法（完全一致か部分一致か）・リンク元と件数の調査表は、ログにしか無い（docs/notes/site-findings.md「URLパラメータの棚卸し」は内部リンク件数のみで、照合方法の差と title/・live/・saikyo/ の現状を含まない） | docs/notes/site-findings.md「URLパラメータの棚卸し」へ追記、または #415（正規化）に調査表への参照を追記 |
+| CHAT-0924-TQ-25.md | 乙 | 判断事項1〜5は TQ-27 で実施、導線は #441・末尾スラッシュは #455（どちらもクローズ）、IndexNow は #126（決着）、10-01 後の着地先比較は #142 に引き継ぎ済み。残る論点: 公開後の Google Search Console 作業（`sitemap.xml` 再送信、`/title/` の URL 検査・登録リクエスト）と、本番のブラウザでの noindex 消失の確認が、実施済みかどうかどこにも書かれていない（#413 はクローズ済み） | #142（効果測定）または #304（月次チェック）に項目として足す。実施済みなら平野さんに確認して不要とする |
+| CHAT-0924-TQ-27.md | 乙 | title/ の公開は完了し #413・#455・#441 も決着。残る論点は TQ-25 と同じ（Google Search Console の再送信・URL 検査、本番ブラウザでの noindex 確認の実施記録なし）。Open の issue は無い | TQ-25 と同じ（#142 または #304） |
+| CHAT-0924-TQ-28.md | 丙 | カレンダー登録候補13件のうち、どれを登録したかを確かめられない（候補は元の issue に期日つきで残っている。TQ-29 で #370・#103 は決着） |  |
+| CHAT-0928-CW-02.md | 乙 | #130 のクローズ条件・AI Labyrinth（#447）・着手順（ボット系は1つずつ、#124 を先に）・chat-side-operations.md の目安の書き方（DC-01 で書き直し済み）は片付いた。ただし robots.txt の `Disallow: /` が 32件→31件（AwarioSmartBot が無い）になった理由は、どこにも記録が無い（推測のまま。cloudflare.md は「31件」の数のみ） | #304 (4)（robots.txt の差分通知。2026-10-01 に robots.txt 全体が変わった通知が出ている）へのコメント、または cloudflare.md の該当行に「理由不明」と書く |
+| CHAT-0928-CW-05.md | 乙 | #130 のクローズ、#447 の起票、#433 のやること1は済み（#433 は Open でやること2・3を issue が保持）。残るのは 32件→31件の理由が未記録の点（CW-02 と同じ論点）。Applebot 単独・4XX が 403 かは平野さんの申告の範囲で、cloudflare.md に申告として記録済み | CW-02 と同じ（#304 (4) へのコメント） |
+| CHAT-0929-GX-01.md | 乙 | Actions 使用量の判断（sync-logs のさらなる削減 C/D、月の目標・予算）と Billing の実値（API 403 で読めず、平野さんの画面確認が要る）が残る。案 K は GX-02〜04 で実装済みだが、残りは #298 が Open（2026-10-07 の Billing 確認が未了） | #298 |
+| CHAT-0929-GX-02.md | 乙 | 「skip したジョブが0分か」と30日換算約5,200分の実値は Billing でしか確かめられず、#298 の未了項目。sync-logs 追加削減の判断も同じ | #298 |
+| CHAT-0929-GX-04.md | 乙 | 判断事項（GX-03 の状態表記、chat-side-operations の #454 の行）は GX-05 で片付いた。残りは「課金の実値を10月の Billing で確かめる」のみで、平野さんの画面確認が必要（#298 の未了項目） | #298 |
+| CHAT-0929-GX-05.md | 乙 | 「マージで同じ SHA を work/ と cloudflare へ push するため assets-check が2回走る」の対処（work/ への push を省くか skip 条件を足すか）が未決で、#298 のコメントに「未決」として残り、後続ログで決着していない。許可ルールの件は #493 | #298 |
+| CHAT-0929-SH-02.md | 乙 | 共有ボタンの実機確認（iPhone・Android の共有シート、LINE の共有画面、スマホ幅の折り返し・メニューの重なりの修正の見え方）が未確認のまま。平野さんのプレビュー確認は OK だが実機の記録は無い（docs/notes・decisions・#409 にも無い）。check-run の未完了は SH-03 で success と確認済み | 新規起票（共有ボタンの実機確認）または #409 に記録して終える |
+| CHAT-0929-SH-03.md | 乙 | SH-02 と同じ論点（実機の共有シート・LINE 共有画面の確認、本番のブラウザでの見え方）。#409 は実機確認を残したままクローズ | 同上 |
+| CHAT-0929-GX-08.md | 残す（指示） | カレンダーの【R#298】が「チャットの最初に送るログ」として名指し（指示文）。状態は完了（判断が必要なことは「なし」でない） | 予定を別のログに替えたあとで削除 |
+| CHAT-0928-CW-08.md | 残す（Open の issue が出典として名指し） | 論点は片付いている（甲）。#447 が出典・根拠として参照 | issue のリンクを SHA 固定の permalink に直したあとで削除（issue の本文・コメントの書き換えは別の指示） |
+| CHAT-0928-CW-18.md | 残す（Open の issue が出典として名指し） | 論点は片付いている（甲）。#296 が出典・根拠として参照 | issue のリンクを SHA 固定の permalink に直したあとで削除（issue の本文・コメントの書き換えは別の指示） |
+| CHAT-0928-CX-03.md | 残す（Open の issue が出典として名指し） | 論点は片付いている（甲）。#124, #304 が出典・根拠として参照 | issue のリンクを SHA 固定の permalink に直したあとで削除（issue の本文・コメントの書き換えは別の指示） |
+| CHAT-0928-CX-05.md | 残す（Open の issue が出典として名指し） | 論点は片付いている（甲）。#124 が出典・根拠として参照 | issue のリンクを SHA 固定の permalink に直したあとで削除（issue の本文・コメントの書き換えは別の指示） |
+| CHAT-0928-CX-08.md | 残す（Open の issue が出典として名指し） | 論点は片付いている（甲）。#124 が出典・根拠として参照 | issue のリンクを SHA 固定の permalink に直したあとで削除（issue の本文・コメントの書き換えは別の指示） |
+| CHAT-0928-HC-01.md | 残す（Open の issue が出典として名指し） | 論点は片付いている（甲）。#448 が出典・根拠として参照 | issue のリンクを SHA 固定の permalink に直したあとで削除（issue の本文・コメントの書き換えは別の指示） |
+| CHAT-0928-HC-02.md | 残す（Open の issue が出典として名指し） | 論点は片付いている（甲）。#448 が出典・根拠として参照 | issue のリンクを SHA 固定の permalink に直したあとで削除（issue の本文・コメントの書き換えは別の指示） |
+| CHAT-0928-HC-03.md | 残す（Open の issue が出典として名指し） | 論点は片付いている（甲）。#448 が出典・根拠として参照 | issue のリンクを SHA 固定の permalink に直したあとで削除（issue の本文・コメントの書き換えは別の指示） |
+| CHAT-0928-HC-06.md | 残す（Open の issue が出典として名指し） | 論点は片付いている（甲）。#448 が出典・根拠として参照 | issue のリンクを SHA 固定の permalink に直したあとで削除（issue の本文・コメントの書き換えは別の指示） |
+| CHAT-0928-HC-07.md | 残す（Open の issue が出典として名指し） | 論点は片付いている（甲）。#448 が出典・根拠として参照 | issue のリンクを SHA 固定の permalink に直したあとで削除（issue の本文・コメントの書き換えは別の指示） |
+| CHAT-0928-HC-08.md | 残す（Open の issue が出典として名指し） | 論点は片付いている（甲）。#448 が出典・根拠として参照 | issue のリンクを SHA 固定の permalink に直したあとで削除（issue の本文・コメントの書き換えは別の指示） |
+| CHAT-0928-HC-09.md | 残す（Open の issue が出典として名指し） | 論点は片付いている（甲）。#448 が出典・根拠として参照 | issue のリンクを SHA 固定の permalink に直したあとで削除（issue の本文・コメントの書き換えは別の指示） |
+| CHAT-0928-HC-10.md | 残す（Open の issue が出典として名指し） | 論点は片付いている（甲）。#448 が出典・根拠として参照 | issue のリンクを SHA 固定の permalink に直したあとで削除（issue の本文・コメントの書き換えは別の指示） |
+| CHAT-0928-HC-15.md | 残す（Open の issue が出典として名指し） | 論点は片付いている（甲）。#456 が出典・根拠として参照 | issue のリンクを SHA 固定の permalink に直したあとで削除（issue の本文・コメントの書き換えは別の指示） |
+| CHAT-0929-GX-03.md | 残す（Open の issue が出典として名指し） | 論点は片付いている（甲）。#298 が出典・根拠として参照 | issue のリンクを SHA 固定の permalink に直したあとで削除（issue の本文・コメントの書き換えは別の指示） |
+| CHAT-0929-GX-10.md | 残す（Open の issue が出典として名指し） | 論点は片付いている（甲）。#298 が出典・根拠として参照 | issue のリンクを SHA 固定の permalink に直したあとで削除（issue の本文・コメントの書き換えは別の指示） |
+| CHAT-0929-GX-17.md | 残す（Open の issue が出典として名指し） | 論点は片付いている（甲）。#298 が出典・根拠として参照 | issue のリンクを SHA 固定の permalink に直したあとで削除（issue の本文・コメントの書き換えは別の指示） |
+| CHAT-0929-SH-06.md | 残す（Open の issue が出典として名指し） | 論点は片付いている（甲）。#398 が出典・根拠として参照 | issue のリンクを SHA 固定の permalink に直したあとで削除（issue の本文・コメントの書き換えは別の指示） |
+| CHAT-0929-ZK-01.md | 残す（Open の issue が出典として名指し） | 論点は片付いている（甲）。#298 が出典・根拠として参照 | issue のリンクを SHA 固定の permalink に直したあとで削除（issue の本文・コメントの書き換えは別の指示） |
+| CHAT-0930-CAL-01.md | 残す（Open の issue が出典として名指し） | 論点は片付いている（甲）。#448 が出典・根拠として参照 | issue のリンクを SHA 固定の permalink に直したあとで削除（issue の本文・コメントの書き換えは別の指示） |
+| CHAT-0930-CAL-03.md | 残す（Open の issue が出典として名指し） | 論点は片付いている（甲）。#448 が出典・根拠として参照 | issue のリンクを SHA 固定の permalink に直したあとで削除（issue の本文・コメントの書き換えは別の指示） |
+| CHAT-0929-SH-09.md | 残す（scripts/ が参照） | 論点は片付いている（甲）。scripts/ のコメントが参照 | scripts/ のコメントを直したあとで削除（scripts/ を変える別の指示） |
+| CHAT-0929-SH-17.md | 残す（scripts/ が参照） | 論点は片付いている（甲）。scripts/ のコメントが参照 | scripts/ のコメントを直したあとで削除（scripts/ を変える別の指示） |
+| CHAT-0929-ZK-05.md | 残す（scripts/ が参照） | 論点は片付いている（甲）。scripts/ のコメントが参照 | scripts/ のコメントを直したあとで削除（scripts/ を変える別の指示） |
+| CHAT-0929-ZK-06.md | 残す（scripts/ が参照） | 論点は片付いている（甲）。scripts/ のコメントが参照 | scripts/ のコメントを直したあとで削除（scripts/ を変える別の指示） |
+
+### 甲の根拠（削除した136件。ファイルごと）
+
+| ファイル | 状態（通知時） | どこで片付いたか |
+| --- | --- | --- |
+| CHAT-0922-UT-29.md | 完了 | 判断2件（live_seed 削除・candidate ワークフロー）は UT-30 の決定で解消（live_seed は削除済み、ワークフローは残して docs/notes/live-channel-write.md に記載）。通知はメール（失敗時のみ）と UT-30 で確認済み |
+| CHAT-0924-TQ-10.md | 判断待ち（プレビューでの確認とマージの判断を待つ） | 案Aを実装して #410 クローズ。マージは TQ-11。`?tag=` の 301 の本番応答は docs/notes/saikyo-page-design.md に実測が記録 |
+| CHAT-0924-TQ-11.md | 完了 | TQ-09・10 を cloudflare へマージ済み（`git log origin/cloudflare` で確認）。残りは Workers Builds の成否・ブランチ削除のみで、ブランチ `work/0924-tq` は origin に無い |
+| CHAT-0924-TQ-12.md | 判断待ち（プレビューでの確認とマージの判断を待つ） | #418 は TQ-13 で解決しクローズ、#412 もクローズ。マージ済み |
+| CHAT-0924-TQ-13.md | 完了 | #418 クローズ済み。本番応答も報告済み |
+| CHAT-0924-TQ-14.md | 判断待ち（比較ページを見ての案の決定を待つ） | 3案の決定は TQ-15 以降と #222 のコメント・docs/notes/title-pages.md「期ページの放送」に反映。「決勝動画」タブの8本は #452（クローズ、8本とも掲載）。TQ-21 でマージ済み |
+| CHAT-0924-TQ-15.md | 判断待ち（プレビューの確認と、「決勝動画」タブにしか無い8本の扱いの決定 | 8本の扱いは #452 で完了。不要になった CSS（`.mj-title-live`・`.mj-title-video-label`）は assets/ に残っていない（grep で0件）。マージ済み（TQ-21） |
+| CHAT-0924-TQ-16.md | 中断 / 続き: CHAT-0924-TQ-18（案1: AF-07 の | 中断のログ。TQ-18 で再開し、8本は #452 で完了 |
+| CHAT-0924-TQ-18.md | 判断待ち（プレビューの確認を待つ） | タブの日付重複・ライブ概要の足し方は TQ-19・20 で決着し、docs/notes/title-pages.md（`day_labels()`、概要はカードと同じ形）に記録。#452 完了。マージ済み（TQ-21） |
+| CHAT-0924-TQ-19.md | 判断待ち（プレビューの確認を待つ） | `work/0928-hc` との重なりの読み方は TQ-21 までマージが通っており問題が出ていない。マージ済み（TQ-21） |
+| CHAT-0924-TQ-20.md | 判断待ち（プレビューの確認を待つ） | `work/0928-af`（AF-11）との重なりも同上。マージ済み（TQ-21） |
+| CHAT-0924-TQ-21.md | 完了 | TQ-14〜20 をマージ済み（16d90731）。未確認は Workers Builds の成否・ブラウザ表示で、title/ はその後公開・告知まで進み問題の記録なし |
+| CHAT-0924-TQ-22.md | 中断 / 続き: CHAT-0924-TQ-23（確認の結果は (3)  | 中断のログ。TQ-23 で再開。#356 は「今の値で正しい」で決着しクローズ |
+| CHAT-0924-TQ-23.md | 判断待ち（プレビューの確認とマージの判断を待つ） | 第13期新人王戦3行の備考が空の件は #356 コメントで「値も備考もそのまま」と決着。マージ済み（TQ-24）。#356 クローズ |
+| CHAT-0924-TQ-24.md | 完了 | #356 コメント・クローズ済み。本番の HTML 確認済み |
+| CHAT-0924-TQ-26.md | 中断 / 続き: CHAT-0924-TQ-27（1: 生成し直して解く | 中断のログ。判断1・2は TQ-27 で決着（生成し直して解く／cw-exp と独立。docs/notes/branch-operations.md に反映）。マージ済み |
+| CHAT-0924-TQ-29.md | 完了 | #370・#103 にコメント済みで両方クローズ。カレンダーの予定は「消してよい」と判断済み |
+| CHAT-0924-TQ-30.md | 完了 | branch-operations.md に反映済み。CLAUDE.md は 25,577 バイトで警告域を脱した。サイトマップの扱いも branch-operations.md の衝突時の規則（生成物と手で編集するもの）に記載 |
+| CHAT-0924-TQ-31.md | 完了 | `sitemap-pages.xml` の扱いは branch-operations.md に「手で編集するサイトマップ」として記載。#297 はクローズ済み |
+| CHAT-0928-AF-01.md | 中断（前提と違うため。修正は不要と判断） | 実行 #14 は CHAT-0922-UT-25 の意図した試験で修正不要。以後 #15〜#18 成功。AF-04 でログを cloudflare へマージ済み |
+| CHAT-0928-AF-02.md | 完了 | 古橋の画像残りは AF-04 で /live・title/ を再生成して解消。#444 は bot がクローズ。ブラウザ表示は HTML・画像200の確認で足りる扱い |
+| CHAT-0928-AF-03.md | 完了（調査のみ。ログ以外の変更なし） | 龍龍の同期確認ワークフローごと AF-06 で廃止、#424 クローズ。直し方 A〜C は不要になった（AF-16 まとめ） |
+| CHAT-0928-AF-04.md | 完了 | 再生成 8e5d11a9 とマージ済み。判断事項なし |
+| CHAT-0928-AF-05.md | 完了（調査のみ。ログ以外の変更なし） | 案1相当で進行（AF-07〜16）。27人は #451（Open、本文に対象・案・未決を記録）、残したもの（jpml_links の龍龍リンク等）は AF-16 に記録、#443・#8・#424 クローズ、#25 コメント済み |
+| CHAT-0928-AF-06.md | 完了 | #424 クローズ・マージ済み。食い違い（workflow コメント2行の修正）は報告済みで影響なし |
+| CHAT-0928-AF-07.md | 判断待ち | jpml_test は AF-08 で対応、マージは AF-10（9bf451b9）。27人は #451 |
+| CHAT-0928-AF-08.md | 判断待ち（マージの前の確認が1つ通らず、マージしていない） | TQ との衝突は AF-10 で先にマージ（案A）、work/0924-tq は取り込み済み（未マージ一覧に無い） |
+| CHAT-0928-AF-10.md | 完了 | TQ への申し送りは work/0924-tq がマージ済みで解消。#443 は AF-13 でクローズ |
+| CHAT-0928-AF-11.md | 判断待ち | 第2段は AF-12（35b29c33）、G・H 消去は平野さん実施（AF-16）、第3段は AF-13。#451 に記録 |
+| CHAT-0928-AF-12.md | 完了 | G・H 消去・列削除・ron2.jp の許可ドメイン削除とも AF-13・AF-16 で完了 |
+| CHAT-0928-AF-13.md | 完了 | 画像URL列の削除は AF-14・AF-16 で確認済み。ron2.jp は AF-16 で外した（平野さん） |
+| CHAT-0928-AF-14.md | 中断（止まる条件「ページに lastmod 以外の差分が出る」に当たった | 5位「—」の消失は平野さんの意図どおり（AF-16）。旧「タイトル」タブの残りは #473（10/13 に削除予定）に集約 |
+| CHAT-0928-AF-15.md | 中断（止まる条件「update のジョブが失敗する」に当たった。原因は  | Actions 上限は平野さんが Billing で解消（#298 コメント 2026-09-28）。取り込みの再確認は AF-16 以降で動作。docs 修正は b6ccda33 でマージ済み |
+| CHAT-0928-AF-16.md | 完了 | Actions 使用量は #298 とその後の GX 系で対応。旧シート行は #473、mj-logs への写しは sync-logs の運用で解消。#451 は Open で記録済み |
+| CHAT-0928-AF-17.md | 中断（止まる条件「同じ主題の issue が見つかった」に当たった） | 案A（#298 へ集約）で AF-18 に決着。#298 に記録 |
+| CHAT-0928-AF-18.md | 完了 | #298 にコメント済み。一致検査の警告は新旧検査自体が外れ（OLT-07）、旧タブは #473 で削除予定 |
+| CHAT-0928-AF-19.md | 完了 | #297 クローズ、CLAUDE.md は現在 25.6KB で整理済み（警告域の件は解消） |
+| CHAT-0928-AF-20.md | 中断（止まる条件「同じ趣旨の規則がすでにどこかにある」に当たった。前提「 | #298 に AF-22 のコメント（ログの push の運用を調査範囲に）として反映済み。GX-02 で目印方式を導入済み |
+| CHAT-0928-AF-24.md | 中断（手順0の止まる条件: AF-23 が実行済み） | A-2・B は AF-26 で実施済み。#445 クローズ済み |
+| CHAT-0928-AF-26.md | 判断待ち（A: 再生成が2回とも失敗して中断。B: 完了） | check_asset_limits は AF-27/28（4e15626e・673ffe8a）で修正。書籍シート行数・見出しは AF-29/30 と docs/notes/books-freeze.md に記録（凍結、再開時に決める）。樫野凪は別名で解消（AF-28）。B は成功 |
+| CHAT-0928-AF-27.md | 判断待ち（修正とテストは作業ブランチに push 済み。マージは平野さん | AF-28 でマージ・再生成済み。書籍は books-freeze.md、11ページの削除は別名追加で回避（AF-28） |
+| CHAT-0928-AF-28.md | 完了 | houou/ouka の _data.json は AF-30 で修正し c5cebbfe で再コミット確認。books_pages は AF-29/30 の決定（凍結）。#387 クローズ |
+| CHAT-0928-CW-03.md | 完了（判断待ちの後、CHAT-0928-CW-06 で案1に決まり #2 | #258 は CW-06 で対応不要としてクローズ（Closed）。HTML の ETag は #449 に移り、#449 も Closed（Workers の静的アセットの仕様として cloudflare.md に記録） |
+| CHAT-0928-CW-04.md | 完了（判断待ちの後、CHAT-0928-CW-07・CW-10 で実装・ | #387 は CW-07・CW-10 で実装・マージし Closed。プランは Free（CX-03 の表）。scripts/check_asset_limits.py と regenerate.py・assets-check.yml への組み込みが現存 |
+| CHAT-0928-CW-06.md | 完了 | #258 は Closed、#449 も Closed。`work/0928-cw-387` の未マージは CW-10 でマージ済み（リモートに 0928 の未マージブランチは無い） |
+| CHAT-0928-CW-07.md | 完了（判断待ちの後、CHAT-0928-CW-10 で cloudfla | cloudflare へのマージは CW-10（4247581c）で済み、#387 は Closed。上限超で regenerate.py が終了コード1になる件も、マージ時の判断として CW-10 に反映（判断なしで完了）。regenerate-page.yml は 2026-10-06 まで success が続く |
+| CHAT-0928-CW-09.md | 完了（(a) の workers.dev との比較はセッションから接続で | workers.dev との比較は CW-14 で実施済み。#449 は原因を静的アセットの配信そのものと結論して Closed。RUM・HTTPS Rewrites 等の切り分けは不要になった |
+| CHAT-0928-CW-10.md | 完了 | #387 は Closed。check_asset_limits.py が regenerate.py に入り、後続の regenerate-page.yml の実行も success。sync-logs の未完は #454 の修正（Closed）で解消 |
+| CHAT-0928-CW-11.md | 完了 | `*.workers.dev` の許可は CW-14 で実施し、cloud-sessions.md と #328（Closed）に記録済み。#447 は保留として Open だが状態は反映済み |
+| CHAT-0928-CW-12.md | 完了 | Email Obfuscation は CW-17 で Off に戻し、cloudflare.md に記録、#304 (9) にコメント済み。#449 は Closed。ダッシュボード状態の照合は #304 (9) が扱う |
+| CHAT-0928-CW-13.md | 完了（CW-10 はすでに完了していた。指示の「CW-10 を中断に直す | sync-logs.yml の取り消しの問題は #454 に起票され、突き合わせで写す方式に直して Closed（0件を確認） |
+| CHAT-0928-CW-14.md | 完了 | html_handling の切り分けは CW-17・CW-18 で実施して原因でないと確定。#449 は Closed。Email Obfuscation は Off に戻し済み |
+| CHAT-0928-CW-15.md | 完了 | #454 は修正・マージ・突き合わせ0件の確認のうえ Closed（ガイド文書の写しも同じ取り消しの影響があり、修正済み） |
+| CHAT-0928-CW-16.md | 完了 | 案1・案2を採らないことと TH-03 の観察を追わないことは CX-04 が #363 に記録し、#363 は Closed。cloudflare.md の「理由は分からない」の記述の見直しは #433（Open）が保持 |
+| CHAT-0928-CW-17.md | 中断（実験のプレビューのビルドが失敗し、止まる条件に当たった） | 中断は CW-18 で解決（実験の再実施）。`work/0928-cw-exp` は 2026-09-28 に削除済み（#449 のコメントに SHA つきで記録）。#449 は Closed |
+| CHAT-0928-CW-19.md | 完了 | #449 を #296 の子にしないと CW-20 で決定済み。#296 に申し送りコメントあり。#447 は保留のまま据え置き（Open だが状態は反映済み）。実験ブランチは削除済み |
+| CHAT-0928-CW-20.md | 完了 | (a)(b) は CHAT-0928-DC-01 で chat-side-operations.md に足された。#304 (9) と #449・#454 のコメントも済み |
+| CHAT-0928-CX-01.md | 中断 / 続き: CHAT-0928-CX-02 | 中断。判断（絞り方）は CX-02・CX-03 で絞り込まれ、28件の表になった |
+| CHAT-0928-CX-02.md | 中断 / 続き: CHAT-0928-CX-03 | 中断。2段目の対象の決め方は CX-03 で28件に決着 |
+| CHAT-0928-CX-04.md | 完了 | #129 の次の手は CX-08 で Early Hints を Off に戻して #129 をクローズ。Email Obfuscation の照合は #304 (9) に記録 |
+| CHAT-0928-CX-06.md | 完了 | (a)〜(c') の選択は CX-09 で (a) に決まり、CX-10 で本番デプロイを確認して #455 クローズ |
+| CHAT-0928-CX-07.md | 中断 / 続き: CHAT-0928-CX-08 | 中断。Speed Brain は新規起票せず・#105 にも書かない、Rocket Loader は書き足さない、の決定が CX-08 に書いてある。残手順は CX-08 で完了 |
+| CHAT-0928-CX-09.md | 中断 / 続き: CHAT-0928-CX-10 | 中断。マージ判断・slug の解釈は CX-10 で承認され a6717e40 でマージ。本番の応答も確認済み（#455 のコメント） |
+| CHAT-0928-CX-10.md | 完了 | テストが再生成時に走らない件は CX-11・CX-12 で regenerate-page.yml に反映。ブラウザでの見え方だけが未確認の記述だが、本番の curl 確認済みの 301 で #455 は Closed。気になるなら丙に変更可 |
+| CHAT-0928-CX-11.md | 中断 / 続き: CHAT-0928-CX-12 | 中断。マージと作業ブランチでの手動実行は CX-12 で実施（run 36515779122 failure、36515883524 success） |
+| CHAT-0928-CX-12.md | 完了 | 未確認の update-live-channel.yml からの workflow_call は、その後の毎日の実行（10-03〜10-06）がすべて success |
+| CHAT-0928-CX-13.md | 完了 | #363 の問い1・2、#125、#17 は CX-14・CX-15 で決定し、#363・#125 はクローズ、#17 は保留の条件を本文に追記。通知の有無・SPF のまとめ方・ビルドの数え方・上限超過時の動きは cloudflare.md と #17 本文に「未確認」と記録済み |
+| CHAT-0928-CX-14.md | 完了 | #363・#125 は CX-15 でクローズ。#304 (11) は CX-15 で修正済み。分析情報の項目は #304 のコメント（CHAT-0929-SC-09）に記録 |
+| CHAT-0928-CX-15.md | 完了 | 未確認の項目（枠の数え方・上限超過・通知の有無）は cloudflare.md「ビルド時間の見積もり」「Synthetic monitoring」に未確認と記録。通知は #304 (11) で見る |
+| CHAT-0928-CX-16.md | 中断 / 続き: CHAT-0928-CX-17 | 中断。A は CX-17/18 で案(1)を実施（案(2)の見直しは平野さんが今回は行わないと決定）、B は #454 クローズ済みで書かない決定 |
+| CHAT-0928-CX-17.md | 中断 / 続き: CHAT-0928-CX-18 | 中断。cloudflare へのマージは CX-18 で 27dd5d92 により実施 |
+| CHAT-0928-CX-18.md | 完了 | blob の URL は既存3文書のリンクと同じ形（セッションから 403 は環境の制約、raw は 200）。chat-side-operations.md「インフラやデプロイの提案」に cloudflare.md を読む記述がある。Builds for non-production branches の設定値は #433 のコメントに記録（#433 は Open） |
+| CHAT-0928-DC-01.md | 完了 | 判断待ち・未実施3項目は DC-02 の決定で承認、マージ済み。残りは #297 のコメントと #492 に分けて記録（#297 クローズ済み） |
+| CHAT-0928-DC-02.md | 完了 | work/0928-dc は未マージ一覧に無く、マージ済み。未確認の削除は反映済み。#297 クローズ済み |
+| CHAT-0928-HC-04.md | 完了 | 翌朝の取り込み3点は HC-06 で確認。#450 は起票後クローズ済み |
+| CHAT-0928-HC-11.md | 完了（調査のみ。ログ以外の変更なし） | 調査。直し方の判断は HC-14 で実施（専用 QUERY に修正、再生成、本番39/39一致）。AF-19・20 の規則に反映 |
+| CHAT-0928-HC-12.md | 判断待ち（GitHub Actions が支払い・使用上限のため動かない | Billing の件は HC-13 で解消（Actions 動作、書き込み・差分0件を確認）。手順2は HC-13 で実施 |
+| CHAT-0928-HC-13.md | 判断待ち（公開カレンダーに書き込み済み。平野さんの見え方の確認待ち） | 回戦ごとの面子は HC-15 の決定（重複のない一覧）で決着。見え方の確認は HC-15・16 のマージと #448 コメント |
+| CHAT-0928-HC-14.md | 判断待ち（帰り道の修正は反映済み。止まる条件「再生成のコミットに、帰り道 | jpml_titles の十段戦5位の削除は旧シートの意図した削除（TQ-24・AF-14〜18）。帰り道は反映済み |
+| CHAT-0928-HC-16.md | 完了 | 完了。翌朝の同期の成否は CAL-01・CAL-07・#448 の CLD コメントで確認済み |
+| CHAT-0928-HC-17.md | 完了 | #456 を起票（#290 との関係も #456 本文に記載）。chat-side-operations.md は現在 23.6KB で警告域より下 |
+| CHAT-0928-SC-01.md | 完了 | 「記載なし」候補の issue 化は SC-03 で #457〜#465 に起票。gsc-export 権限は docs/gsc/README.md と #458 に記録。URL 検査 API の権限確認は #458 本文に項目あり |
+| CHAT-0928-SC-03.md | 完了 | 判断待ち #464 は SC-04 で #304 の (10) に反映してクローズ。公式値の未照合は #458・#465 本文に明記済み |
+| CHAT-0928-SC-04.md | 完了 | #304 本文に (10) あり、#464 クローズ済み |
+| CHAT-0928-SC-06.md | 完了 | #304 の提案は本文 (1) に反映済み。#462 は SC-07 で決着。内部リンクの理由「不明」は #463 のコメントに記録してクローズ。mj-logs に SC-06 が写っている（raw 200） |
+| CHAT-0928-SC-07.md | 完了 | #462 クローズ、#262 にコメント済み。スクリーンショット値は申告値としてコメントに記録 |
+| CHAT-0929-AF-29.md | 判断待ち（A は作業ブランチに push 済み。B は前提の食い違いで止 | A・B・見出しの判断は AF-30 の決定で解消。bc40c621 は cloudflare に入り、10/6 の再生成コミット cdd0f5c1 で2つの _data.json がコミットされた。見出しは docs/notes/books-freeze.md に記載 |
+| CHAT-0929-AF-30.md | 完了 | 未確認だった _data.json の再生成コミットは 10/6 の cdd0f5c1 に含まれる（git log で確認） |
+| CHAT-0929-AF-31.md | 判断待ち（仕分けと影響の調査は完了。片付け方は平野さんの判断） | 判断3件は AF-32 の決定で解消。乙10件は #397・#446・#340・#176・#360・#222・#107・#373・#362・#186 と新規 #467〜#469 へ移し、214件は削除済み |
+| CHAT-0929-AF-33.md | 判断待ち（修正とテストは作業ブランチに push 済み。マージは平野さん | af06351f は cloudflare に入っている。マージ可否と SC-06 の扱いは AF-34 の決定で解消。実物での確認は AF-34 で実施 |
+| CHAT-0929-AF-34.md | 判断待ち（マージと確認は完了。見つかった不具合の扱いと #454 のクロ | 不具合の修正と #454 のクローズは AF-35 で実施。#454 クローズ済み |
+| CHAT-0929-AF-35.md | 完了 | #454 クローズ済み。残る未確認は「実物にその状態のログが無い」ことによるテスト止まりで、修正の本体は実物で確認済み |
+| CHAT-0929-AF-36.md | 判断待ち（調査は完了。対策の要否は平野さんの判断） | 対策の判断は AF-37・AF-38 で決着（再試行・タイムアウト・#426 通知）。龍龍の2件は廃止済みのため追わない |
+| CHAT-0929-AF-37.md | 判断待ち（実装・テスト・作業ブランチでの確認まで完了。マージは平野さんの | 03d9e0c5・dd2eb9cc は cloudflare に入っている。CSV 再試行の判断は AF-38 で決着。マージ後の確認結果は #472 の最終コメントに記録（#472 クローズ済み、残作業は #503） |
+| CHAT-0929-AF-38.md | 完了 | 未確認だった予約実行の成否と「再試行」の行は #472 の最終コメント（10/5 の結果）で確認済み |
+| CHAT-0929-AF-40.md | 中断（止まる条件: 未登録の名前の通知を SH-09 が着手中） | 中断の判断は AF-41 で「SH-09 と項目8の後に調べる」と決着し、#446 にコメント済み。#446 クローズ時に #490 本文へ引き継がれた（#490 は Open） |
+| CHAT-0929-GX-06.md | 中断 / 続き: CHAT-0929-GX-07 | mj-logs の GX-05 は raw で「状態: 完了」の版が返る。再発防止は #454（Closed、AF-33 が cloudflare に入っている）で解消。許可ルールの効き目は #493 に記録 |
+| CHAT-0929-GX-07.md | 中断 / 続き: なし（#454 の修正は CHAT-0929-AF-3 | 状態は「中断／続き: なし」。#454 の修正は AF-33 に委ねられ、cloudflare に入って #454 も Closed。判断事項は GX-08 で決着 |
+| CHAT-0929-GX-09.md | 完了 | 判断事項なし。許可ルールの効き目の未判定は #493（Open）にチェック項目として記録、cloudflare の cloud-sessions.md にも記録済み |
+| CHAT-0929-GX-11.md | 完了 | 3件の判断事項は GX-12 の決定として #298 コメントに記録、settings.json と cloud-sessions.md に反映済み |
+| CHAT-0929-GX-12.md | 完了 | 判断事項なし。許可ルールの効き目は GX-13 の判定、#493 に集約 |
+| CHAT-0929-GX-13.md | 完了 | 一文の効果は「様子見」として #493 に記録。判断事項なし |
+| CHAT-0929-GX-14.md | 完了 | 完了条件に「ログ（公開）」の行が無い件は GX-15 で足して #298 に記録 |
+| CHAT-0929-GX-15.md | 完了 | 雛形の末尾の形の食い違いは GX-16 で確認文に揃えて #298 に記録 |
+| CHAT-0929-GX-16.md | 完了 | 見本に0章を足す件は GX-17 で反映 |
+| CHAT-0929-GX-18.md | 完了 | 判断事項なし。変更は cloudflare にあり #298 に記録 |
+| CHAT-0929-SC-09.md | 完了 | #466 の直し方は SC-10 で (b) に決着し、#466 クローズ済み。SC-06 は mj-logs に写っている（raw 200）。SC-06 が写らなかった理由は AF-33〜35 の仕組み修正で解消 |
+| CHAT-0929-SC-10.md | 判断待ち | 49a156ca・bcc3a6bd は cloudflare に入り、#466 のコメントでマージ済みを確認。_template.md の冒頭に「状態:」は無い |
+| CHAT-0929-SH-01.md | 完了 | (a) 共有ボタンは SH-02/03 で実装・#409 クローズ（#82 は新サイト送りのまま、handover.md に記載）。(b) の各項目は #222・#455・#441・#126・#232・#452・#470・#471 がクローズ済み、#408 は Open で記録済み。古い文書の記述は static-generation.md が1521に更新済み。1521/1522 は SH-04 が「サブエージェントの書き間違い」と説明 |
+| CHAT-0929-SH-04.md | 完了 | 判断1〜6: #455 CX-11 は 95659321 が origin/cloudflare に入り regenerate-page.yml に test_title_redirects がある。#452・#222・#232・#441・#126 クローズ、#398 は Open で15行を Y にした旨と予選の定義が記録済み、#408 は Open で記録済み、#470・#471 クローズ。1521/1522 は書き間違いと説明 |
+| CHAT-0929-SH-05.md | 完了 | B3 の1〜7: #452 クローズ（#473 に「8本すべて期ページに載った」）。紅龍戦は #398 に「決勝段階15行を 09-29 に Y」と記録。#470・#471 はクローズ（結果コメントあり）。リーチ麻雀世界選手権は live/wrc/4/f.html・title/wrc/4.html に出ている |
+| CHAT-0929-SH-07.md | 判断待ち | 判断待ちの (b) 5種類は SH-09（kansuji・order・alias・prefix・sep、1,890セル）と SH-15・SH-17（4,563セル）で実施済み。消し方の案1（Apps Script）は #473 に「平野さんが実行」と記録。c-fill は #446 を経て #490 U1〜U3 に集約 |
+| CHAT-0929-SH-08.md | 完了 | 3921行の L列は live/teiou/3/f.html に出ていることで解消。旧タブの削除は #473（SH-10 で起票）。【2】で作れていない列は #446 → #490 |
+| CHAT-0929-SH-10.md | 完了 | #473 の本文に「削除の予定日 2026-10-13（Google カレンダーに登録済み）」と記録済み |
+| CHAT-0929-SH-11.md | 完了 | 判断なし。1,890セル削除後の生成確認は #446 コメント、#473 に確認結果が記録済み。ブラウザでの見え方の未確認は生成物の差分が名前の並び順だけのため残す論点ではない |
+| CHAT-0929-SH-13.md | 完了 | U1〜U4 は #446 → #490 に移って Open で追跡。事前マージ許可は SH-15 の決定と SH-19（instruction-template.md に追加）で反映。「N回戦:」の対局者16人は SH-15 の決定で「そのままでよい」 |
+| CHAT-0929-SH-14.md | 中断 / 続き: CHAT-0929-SH-15（#476 が入った後に | 中断。続きの SH-15 で #476 のマージ後にやり直して完了 |
+| CHAT-0929-SH-15.md | 完了 | D5 の不一致セル（ステージの並び6件・名前27件）は【3】を正とし、規則化の是非は #490 U3 に集約。「次の指示に進んでよいか」は SH-17・SH-18 で実施。残る未登録57名は #475（Open）で追跡 |
+| CHAT-0929-SKL-01.md | 判断待ち | 7件の判断事項は SKL-02 で平野さんの決定どおり実装（plugin を外し .claude/skills/ に6本、mj-git-guard.py の hooks、CLAUDE.md への追記、cloudflare の MCP は持ち込まない）。現状も .claude/skills・hooks が存在。plugin 前提の未確認項目は無効になった |
+| CHAT-0929-SKL-02.md | 完了 | 未確認3項目は SKL-03 で解消（skills.md に実機確認済み、hook の ask は平野さんが画面で承認を確認）。許可ルール側の件は #493 に記録 |
+| CHAT-0929-ZK-02.md | 完了 | 未確認の「guide/ に新版が写ったこと」は ZK-03・04 で sync-logs 成功と chat-ids/ の写りを確認。#474 は closed |
+| CHAT-0929-ZK-03.md | 判断待ち → 続き: CHAT-0929-ZK-04 | 未マージ判断・一覧10個残し・ブラウザで開けることは ZK-04 で確認しマージ、#474 クローズ。`/ids.md` はコンテナ破棄で無害。仕組みは docs/notes/branch-operations.md・cloud-sessions.md に記載 |
+| CHAT-0929-ZK-07.md | 判断待ち → 続き: CHAT-0929-ZK-08（平野さんの App | Apps Script は ZK-08 以降で実行済み（【3】に「冒頭」列が現存、docs/notes/live-channel-write.md の見出し並び）。追記の「冒頭」規則は ZK-08、昇龍戦 第2期2本は ZK-08 で載せない扱い。#477・#478 は closed、#400 は open で記録済み |
+| CHAT-0929-ZK-08.md | 判断待ち → 続き: CHAT-0929-ZK-09（プレビューの確認待 | プレビュー確認・マージは ZK-09/10。帝王戦 第2期・昇龍戦 第1期は ZK-10/14 で対応。既存行の規則とシートの違い（86/154行）は「追記する行にだけ規則を使う」と説明済みで、docs/notes/title-pages.md に反映 |
+| CHAT-0929-ZK-09.md | 判断待ち → 続き: CHAT-0929-ZK-10（プレビューの確認待 | 帝王戦 第2期 `2B_BeAPH_zc` の冒頭=Y と掲載=Y 冒頭版8本の扱いは ZK-10 で実施（5本は掲載を空欄に、長い3本は全編の無料放送とみなす）。ZK-10 でマージ |
+| CHAT-0929-ZK-11.md | 中断 / 続き: CHAT-0929-ZK-12 | 毎日の取り込みの確認は ZK-12 で実施。#476 を閉じない判断も ZK-14 で解消（クローズ）。先行 push 漏れは記録のみ |
+| CHAT-0929-ZK-12.md | 完了 | 残りの昇龍戦 第1期のステージ直しは ZK-13（未反映）→ ZK-14（反映確認、#476 クローズ）で解消 |
+| CHAT-0929-ZK-13.md | 中断 / 続き: CHAT-0929-ZK-14 | 「直しがシートに入っているか」は ZK-14 で確認し完了。#476 は closed |
+| CHAT-0929-ZK-14.md | 完了 | 判断なし。#476 を閉じた。未確認はブラウザでの見え方のみ（HTML の取得と生成物の一致は確認済みで、定型の注記） |
+| CHAT-0930-CAL-05.md | 判断待ち → 続き: CHAT-0930-CAL-07 | Apps Script 実行・マージは CAL-07 で完了。#481 起票済み。work/0930-cal もマージ済み |
+| CHAT-0930-CAL-07.md | 完了（次の毎朝の実行の確認待ち） | #479 クローズ済み（10-01）。EVENTS への JPMLリーグ追加は #488、READ_UNTIL は #491、#448 のクローズ確認は #448 に記録 |
+| CHAT-0930-HKG-01.md | 完了（CHAT-0930-HKG-02 でマージした） | HKG-02 でマージ・決定済み。hook の実機確認は ask 廃止（HKG-04〜06）で不要 |
+| CHAT-0930-HKG-02.md | 完了 | 追いの push の扱いは CLAUDE.md に記載済み。ダイアログの確認は ask 廃止で不要 |
+| CHAT-0930-HKG-03.md | 完了 | ダイアログ確認は ask 廃止（HKG-04〜06、PR #483）で不要 |
+| CHAT-0930-SKL-03.md | 完了（リモートの work/SKL の削除だけ、定期実行に残る） | リモート work/SKL は削除済み（ls-remote で0件）。hook の ask 表示の件も SKL-02 で確認済みと記載 |
+| CHAT-0930-SKL-04.md | 完了 | 判断事項・エラーなし。変更は cloudflare にマージ済み（7b088c47） |
+
+### 3. 参照の差し替え・削除
+- docs/（docs/logs/・docs/decisions/ を除く）・CLAUDE.md・.github/・llms.txt・scripts/ を `CHAT-….md`・`docs/logs/CHAT` で検索した。甲のログを指す箇所: docs/notes/books-freeze.md:47（AF-29）、cloudflare.md:279（CX-05、保存）、yotei-sheet.md:6（HC-01・02・06・10、保存）、scripts/ の5ファイル（保存）。**差し替えたのは books-freeze.md の1か所だけ**（`docs/logs/CHAT-0929-AF-29.md` を削除前の SHA 1c5d349b に固定した URL にした。コミット）。CLAUDE.md・.github/・llms.txt・docs/decisions/ に、削除するログのパスを指す箇所は無い
+- 削除のコミット: 136件を1コミット（`git show --stat`: 136 files changed, 17,266 deletions(-)）。`git show --name-only` の136件はすべて `docs/logs/CHAT-*.md` で、docs/logs/ 以外のファイルは0件、乙・丙・GX-08・名指し・scripts 参照のログは含まない
 
 ## 報告
 
@@ -89,12 +302,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 58198b2e）: https://github.com/retroeater/mj-logs/tree/main/guide/58198b2e
+ガイド文書（この版を写した時点の最新、mj 84f7dfcf）: https://github.com/retroeater/mj-logs/tree/main/guide/84f7dfcf
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/58198b2e/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/58198b2e/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/58198b2e/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/58198b2e/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/58198b2e/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/58198b2e/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/1b684c6b.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/84f7dfcf/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/84f7dfcf/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/84f7dfcf/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/84f7dfcf/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/84f7dfcf/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/84f7dfcf/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/84f7dfcf.md
