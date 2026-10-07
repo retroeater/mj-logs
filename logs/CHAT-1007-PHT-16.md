@@ -80,28 +80,100 @@
 - 着手前の確認: `git log --all --grep="CHAT-1007-PHT-16"` は0件。`work/1007-pht-gsc` はローカルにもリモートにも無く、`git checkout -b work/1007-pht-gsc origin/cloudflare`
 - #511・#142 は Open。#511 にコメントは無く、#142 の最新コメントは CHAT-1007-PHT-10 のもの。他セッションの着手中コメントは無い
 
+### 手順1: 確かめ
+
+- #511・#142 は Open。#511 にコメントは無く、#142 の最新コメントは CHAT-1007-PHT-10 のもの。他セッションの着手中コメントは無い
+- #511 の本文の「確認すること」（sitemap-saikyo.xml の状態・「ページ」レポートで /saikyo/ 配下の登録状況・結果をコメント）は前提どおり。#142 の本文に期日 2026-10-07 の記述は2か所あった（冒頭の「期日: 2026-10-07」と、着地先の比較の「10/7 の取得（09-09〜10-06）」）。食い違いは無い
+
+### 手順2: 本番を読んだ結果（読むだけ。何も直していない。2026-10-07 05:28 UTC、curl、User-Agent を指定）
+
+- 共通: 全ページ `server: cloudflare`、`cache-control: public, max-age=0, must-revalidate`。`X-Robots-Tag` はどのページにも無い
+- `/title/`: HTTP 200、meta robots 無し、X-Robots-Tag 無し、canonical `https://ryoei.pro/title/`、title「タイトル戦 現在のタイトルホルダー・歴代優勝者 | 日本プロ麻雀連盟 | ryoei.pro」
+- sitemap-saikyo.xml の loc 17件（`/saikyo/` と `/saikyo/2011.html`〜`2026.html` の16件。見込みと一致）:
+
+  | URL | HTTP | meta robots | X-Robots-Tag | canonical | title |
+  | --- | --- | --- | --- | --- | --- |
+  | `/saikyo/` | 200 | 無し | 無し | 自分（`/saikyo/`） | 麻雀最強戦 \| 最強戦 \| ryoei.pro |
+  | `/saikyo/2026.html` | 200 | 無し | 無し | 自分（`/saikyo/2026.html`） | 麻雀最強戦2026 \| 最強戦 \| ryoei.pro |
+  | `/saikyo/2025.html` | 200 | 無し | 無し | 自分（`/saikyo/2025.html`） | 麻雀最強戦2025 \| 最強戦 \| ryoei.pro |
+  | `/saikyo/2024.html` | 200 | 無し | 無し | 自分（`/saikyo/2024.html`） | 麻雀最強戦2024 \| 最強戦 \| ryoei.pro |
+  | `/saikyo/2023.html` | 200 | 無し | 無し | 自分（`/saikyo/2023.html`） | 麻雀最強戦2023 \| 最強戦 \| ryoei.pro |
+  | `/saikyo/2022.html` | 200 | 無し | 無し | 自分（`/saikyo/2022.html`） | 麻雀最強戦2022 \| 最強戦 \| ryoei.pro |
+  | `/saikyo/2021.html` | 200 | 無し | 無し | 自分（`/saikyo/2021.html`） | 麻雀最強戦2021 \| 最強戦 \| ryoei.pro |
+  | `/saikyo/2020.html` | 200 | 無し | 無し | 自分（`/saikyo/2020.html`） | 麻雀最強戦2020 \| 最強戦 \| ryoei.pro |
+  | `/saikyo/2019.html` | 200 | 無し | 無し | 自分（`/saikyo/2019.html`） | 麻雀最強戦2019 \| 最強戦 \| ryoei.pro |
+  | `/saikyo/2018.html` | 200 | 無し | 無し | 自分（`/saikyo/2018.html`） | 麻雀最強戦2018 \| 最強戦 \| ryoei.pro |
+  | `/saikyo/2017.html` | 200 | 無し | 無し | 自分（`/saikyo/2017.html`） | 麻雀最強戦2017 \| 最強戦 \| ryoei.pro |
+  | `/saikyo/2016.html` | 200 | 無し | 無し | 自分（`/saikyo/2016.html`） | 麻雀最強戦2016 \| 最強戦 \| ryoei.pro |
+  | `/saikyo/2015.html` | 200 | 無し | 無し | 自分（`/saikyo/2015.html`） | 麻雀最強戦2015 \| 最強戦 \| ryoei.pro |
+  | `/saikyo/2014.html` | 200 | 無し | 無し | 自分（`/saikyo/2014.html`） | 麻雀最強戦2014 \| 最強戦 \| ryoei.pro |
+  | `/saikyo/2013.html` | 200 | 無し | 無し | 自分（`/saikyo/2013.html`） | 麻雀最強戦2013 \| 最強戦 \| ryoei.pro |
+  | `/saikyo/2012.html` | 200 | 無し | 無し | 自分（`/saikyo/2012.html`） | 麻雀最強戦2012 \| 最強戦 \| ryoei.pro |
+  | `/saikyo/2011.html` | 200 | 無し | 無し | 自分（`/saikyo/2011.html`） | 麻雀最強戦2011 \| 最強戦 \| ryoei.pro |
+
+- `https://ryoei.pro/robots.txt`: HTTP 200。`User-agent: *` は `Allow: /`。`Disallow: /` は31件で、すべて名指しの AI 系クローラー（`*` のブロックに Disallow は無い）。/saikyo/・/title/ に当たる Disallow は無い
+- サイト内の導線（リポジトリ）: `navbar.js` 60行目（`/saikyo/`、トップ階層の「最強戦」）、`llms.txt` 41行目（`/saikyo/` と `/saikyo/<年度>.html`）・65行目、`sitemap.xml` のインデックスに `sitemap-saikyo.xml`
+- title/ との比較: saikyo/ のサイト側の設定に違いは見つからなかった（200・noindex 無し・自分を指す canonical）。原因は断定しない（Google 側の事情は、ここからは読めない）。**登録を妨げる設定は無かった**
+- 読めなかった項目: ブラウザでの見え方（HTML と応答ヘッダだけ）
+
+### 手順3: 記録
+
+- #511 へのコメント（スクショの結果・手順2の表の要約・残る確認）: https://github.com/retroeater/mj/issues/511#issuecomment-6031625052
+- #511 のラベル: 「状況: 待ち」（説明「外部要因で進められない」）を付けた。#142 が同じ待ちに使っており、10/9 の取得とリクエストの再確認を待つ今の状態に合う。ラベルは `分野: SEO/AIO`・`状況: 待ち`（取り直して確認）。#511 は閉じていない
+- #142 へのコメント（title/ の3項目の結果・延期の理由）: https://github.com/retroeater/mj/issues/142#issuecomment-6031626006
+- #142 の本文の書き換え（GitHub MCP の issue_write。署名の行は付かなかった）。変えたのは次の2点だけ: 「**期日: 2026-10-07（」→「**期日: 2026-10-09（」、「10/7 の取得（09-09〜10-06）の」→「10/9 の取得（28日分。期間は取得日に合わせる）の」（後者は日付に伴う語。期間の具体の日付は、10/9 の取得の指示で決める）。書き換え後に REST で取り直し、本文が期待どおりで署名の行が無いこと、ラベル（`状況: 待ち`・`分野: SEO/AIO`）が変わっていないことを確かめた
+- 書き換える前の #142 の本文:
+
+  ````
+**期日: 2026-10-07（`fetch-gsc.yml` を期間指定で手動実行して計測する）。次は 2026-11-01 の月次の自動取得（#269）。#5 の再オープン分の効果もここで測る**（2026-10-03 更新）
+
+### 状況
+
+#5で26ページの`<title>`を整備したが、効果測定は「これから」のまま
+（handover SEO節: 表示48回・クリック2回・CTR約4%）。
+
+### 対応
+
+変更前後で同じ期間長（例: 28日）の表示回数/クリック数/CTR/平均掲載
+順位を比較し、結果をhandoverのSEO節に追記する。GSCの計測期間が
+短いので、結論を急がず「初回計測」として記録する。
+
+**平野さんが実施**（Search Consoleの操作）。
+
+#### title/ の公開（2026-09-28）の前後の着地先の比較（2026-10-04 追加、元は #413 の予定）
+
+- 10/7 の取得（09-09〜10-06）の `query-page.csv` で、#413 の GC-20 の表と同じ語（鳳凰位・鳳凰戦・女流桜花・桜花・十段位・十段戦・王位・マスターズ・グランプリ・モンド・最強戦・プロクイーン・女流・リーグ）を含む行を抜き、着地先を比べる
+- 公開前の値は2回分ある: #413 の GC-20 の表（2026-09-21、`docs/gsc/2026-09-21/tournament-queries.md`）と `docs/gsc/2026-10-01/tournament-queries.md`（期間 09-01〜09-28）
+- 見るところ: (1) 着地先に `title/` が現れるか、(2) `houou_ranking.html?sheet=鳳凰` の表示回数が減るか、(3) 「女流桜花」「十段位」のクエリが出てくるか
+- #459（クローズ）から引き継ぐ: 「鳳凰位 歴代」などが `title/houou/` へ移らず `houou_ranking.html` に着地し続けるなら、`houou_ranking.html` の title・description を #5 で検討する
+
+2026-09-11のレビューで判明。
+  ````
+
+- 決定を足したファイル: docs/decisions/seo-bing.md（取得の延期と今回の結果）、docs/decisions/operations.md（#362・#428 の扱い）。#362・#428 には何も書いていない
+
 ## 報告
 
-- 状態: 中断（着手直後。作業中）
+- 状態: 完了
 - ブランチ: work/1007-pht-gsc
-- ログ: https://github.com/retroeater/mj/blob/work/1007-pht-gsc/docs/logs/CHAT-1007-PHT-16.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1007-PHT-16.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1007-pht-gsc
-- 確認用URL: なし
-- マージ: 未
-- issue: #511・#142
-- 判断が必要なこと: 着手直後のため、まだ無い
-- 未確認の項目: 着手直後のため、まだ無い
+- 確認用URL: なし（docs/ のみ）
+- マージ: 済（fast-forward。docs/logs/・docs/decisions/ のみ）
+- issue: #511（コメントと「状況: 待ち」）、#142（コメントと本文の期日の直し）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 9a8093be）: https://github.com/retroeater/mj-logs/tree/main/guide/9a8093be
+ガイド文書（この版を写した時点の最新、mj e2fd59f6）: https://github.com/retroeater/mj-logs/tree/main/guide/e2fd59f6
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a8093be/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a8093be/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a8093be/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a8093be/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a8093be/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a8093be/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2fd59f6/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2fd59f6/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2fd59f6/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2fd59f6/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2fd59f6/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2fd59f6/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/1257323c.md

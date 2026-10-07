@@ -60,3 +60,8 @@
 - RVW-06 の h1 の8ページ（houou_leagues・ouka_leagues・houou_results・ouka_results・wrc_results・jpml_links・rh_links・resource_dictionary）をマージしてよい
 - h1 の無い残り3ページ（houou_ranking・ouka_ranking・wrc_ranking）は、#141 の移植で h1 を付ける（今の手書きの HTML には足さない）。それまで Bing の Recommendations に3ページが残る。10/30 の見直しで #141 が終わっていなければ、その時点で判断する
 - resource_dictionary の h1「リソース 辞書」は、#377 の実装（CHAT-1005-RVW-07）で作り直すときに見直す
+
+## 2026-10-07（CHAT-1007-PHT-16）
+
+- #142 の28日分（09-09〜10-06）の取得と比較は、2026-10-07 から 2026-10-09 へ延ばす（Search Console の数値は直近3日ほどが埋まりきらないため）。#142 の本文の期日も 2026-10-09 に直した
+- 2026-10-07 の Search Console の作業（sitemap.xml の再送信、/title/ と /saikyo/・/saikyo/2026.html の URL 検査、インデックス登録のリクエスト）の結果は #142・#511 に記録した。最強戦の2ページは「検出 - インデックス未登録」（未クロール）。サイト側に登録を妨げる設定（noindex・Disallow・200 以外・別 URL の canonical）は見つからなかった。#511 は閉じず「状況: 待ち」にし、リクエストした2件の再確認は日付未定
