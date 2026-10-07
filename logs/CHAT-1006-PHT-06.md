@@ -112,7 +112,7 @@
 
 ## 報告
 
-- 状態: 判断待ち（直し方の案を平野さんが選ぶ）
+- 状態: 判断待ち（続き: CHAT-1007-PHT-09）
 - ブランチ: work/1006-pht-photo
 - ログ: https://github.com/retroeater/mj/blob/work/1006-pht-photo/docs/logs/CHAT-1006-PHT-06.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1006-pht-photo
@@ -147,12 +147,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 58198b2e）: https://github.com/retroeater/mj-logs/tree/main/guide/58198b2e
+ガイド文書（この版を写した時点の最新、mj f8a2cb5c）: https://github.com/retroeater/mj-logs/tree/main/guide/f8a2cb5c
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/58198b2e/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/58198b2e/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/58198b2e/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/58198b2e/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/58198b2e/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/58198b2e/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/cc13f170.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f8a2cb5c/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f8a2cb5c/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f8a2cb5c/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f8a2cb5c/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f8a2cb5c/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f8a2cb5c/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/1257323c.md

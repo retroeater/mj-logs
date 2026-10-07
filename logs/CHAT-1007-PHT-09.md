@@ -78,28 +78,65 @@
 - 未マージのブランチ（`git branch -r --no-merged origin/cloudflare`）を全件調べ、scripts/collect_saikyo_images.py・.github/workflows/check-image-links.yml に触れているものは無かった
 - work/1007-pht-photo はリモート・ローカルとも無かったため origin/cloudflare から作成
 
+### 1. issue
+- 同じ論点（自動解決が働いていない）の issue: 全 issue（open・closed）の題と本文の先頭を検索し、**無かった**。**新規起票: #514**（題「最強戦の選手写真の自動解決が働いていない（診断と表示の直し、その後の方針）」、ラベル「分野: 自動化」「対象: saikyo」）。着手中のコメントを残した（https://github.com/retroeater/mj/issues/514#issuecomment-6030021119 ）
+- `git log -- .github/workflows/check-image-links.yml`（最後の変更は 2026-09-28 の龍龍の削除）と docs/notes/branch-operations.md「ワークフローを変更したとき」を読んだ。scripts/collect_saikyo_images.py のテストは、それまで無かった（scripts/tests に該当なし）
+
+### 2. 実装（作りの案から変えた点を含む）
+- scripts/collect_saikyo_images.py:
+  - `classify_page(returncode, stdout, stderr)`（純粋関数）: 成功／アカウントなし（`GONE_STATUS`）／古いヘッドレスが外された旨／HTTP エラーページ（`neterror` と「HTTP ERROR <数字>」）／**Chrome の読み込み失敗（`Page load failed: net::ERR_…`。ランナーの診断で分かったので、案に無かった分類として足した）**／出力なしで異常終了／ログインを求められた／出力が空／理由不明、に分ける。エラーページのスクリプトの `portalSignin` をログインと取り違えないよう、HTTP エラー判定を先にした
+  - `describe_run()`（診断の1行: 終了コード・秒・標準出力のバイト数・title・標準エラーの先頭3行〈dbus を除く〉。DOM の全文は出さない）、`chrome_version()`、`resolve()` が診断を標準エラーに出す（戻り値の型は今までどおり `(画像URL, エラー)`）
+  - `resolution_summary()`: 解決できた・アカウントなし・失敗（理由別）の件数と、**解決できた件数が0で、アカウントなし以外の失敗があるときだけ** `message`（「X のページから自動で解決できませんでした(試した◯件すべて)。新しいURLは手で確認すること(…)。理由: …」）を作る。JSON に `resolution` を足した（`write_json` の引数を足した。ほかの項目は変えていない）。集計の見出しは「解決不可(アカウントなし)」と「解決に失敗(Xのページを開けない等)」に分け、理由別の件数も出す
+  - `--resolve-test <X ID>`: `resolve()` を1回だけ呼んで診断を出す（シートも issue も読み書きしない）
+- .github/workflows/check-image-links.yml: 入力 `saikyo_resolve_test` を足し、ジョブ `saikyo` に、入力があるときだけ動く step「ランナーのChromeでX IDを1つだけ解決する」を足した。入力があるとき、既存の step「選手写真を確認」「結果をissueに反映」は skip。github-script は、`r.resolution.message` があるとき表の上に「自動解決は働いていません。…」の1行を出すだけ（文言は Python 側）。ジョブ `check` は変えていない
+- `--headless=old` は変えていない（ランナーで受け付けることを確かめた）
+- docs: docs/notes/saikyo-page-design.md「7. 選手写真の更新」（解決の説明を事実に直し、手で読む手順と、診断の入口、ランナーの結果を足した）、docs/notes/static-generation.md（`collect_saikyo_images.py` の説明と `check-image-links.yml` の入力）
+- テスト: scripts/tests/test_collect_saikyo_images.py（17件。Chrome にも X にも出ない）。`python3 -m unittest discover -s scripts/tests`: **直す前 565件 OK、直した後 582件 OK**（失敗0）。新しい17件は、直す前のコードに対しては17件すべてエラー（`resolution_summary` 等が無い）で、通らないことを確かめた（直す前のファイルを `git show origin/cloudflare:…` で別の場所に置いて実行）。JavaScript の部分は `node --check` と、メッセージの出力・空のときの出力の見本で確かめた
+
+### 3. ランナーでの確かめ（作業ブランチで check-image-links.yml を手動実行2回）
+- run 37565106437（作業ブランチ work/1007-pht-photo、`saikyo_resolve_test=104307`）: ジョブ saikyo・check とも success（step「選手写真を確認」「結果をissueに反映」は skip）。ジョブ saikyo のログ: `Chrome: /usr/bin/google-chrome Google Chrome 154.0.8037.57`、`診断: 終了コード0 9.1秒 標準出力0バイト title=(なし) 標準エラー=['…headless_command_handler.cc:403] Page load failed: net::ERR_HTTP_RESPONSE_CODE_FAILURE']`、`104307 — Chromeの出力が空`（この時点の分類。そのため上の「読み込み失敗」の分類を足した）
+- run 37565398389（`saikyo_resolve_test=momonga_211`、分類を足した後）: 同じ Chrome 154.0.8037.57、終了コード0・7.9秒・標準出力0バイト、同じ標準エラー。状態は `ページを開けない(net::ERR_HTTP_RESPONSE_CODE_FAILURE)`
+- 分かったこと: ランナーの Chrome は **`--headless=old` を受け付けて動いている**（原因ではない）。x.com へ届き、**HTTP エラー応答で読み込みが失敗**している（コードは Chrome の出力に出ない）。2つの X ID で同じ。調査のセッションの Chromium の「HTTP ERROR 403」と同じ向き（ランナーでは、応答のコードは読めていない）
+- X への取得は、ランナーから2回（上の2回）、セッションからは0回（止まる条件の範囲内）
+- 常設の issue: #352（jpml_pros.html の検知。ジョブ check が動いたため本文が更新され、14件→13件。作業ブランチの実行でも同じシートを読むため。コードの変更とは関係が無い）。#499（クローズ済み）・ほか最強戦の検知の issue は、入力ありの実行では書き換えていない
+
+### 4. マージ・ワークフロー・check-run
+- マージ: origin/cloudflare を取り込み、`git merge-base --is-ancestor origin/cloudflare HEAD` が真であることと、cloudflare との差分が scripts/collect_saikyo_images.py・scripts/tests/test_collect_saikyo_images.py・.github/workflows/check-image-links.yml・docs/notes/saikyo-page-design.md・docs/notes/static-generation.md・このログだけであることを確かめて `git push origin work/1007-pht-photo:cloudflare`（f8a2cb5c。実装は 068948d6〈診断と表示と入口〉と ea44c39a〈読み込み失敗の分類〉、docs は f8a2cb5c）。止まる条件のどれにも当たらなかった
+- push で動いたワークフロー: 公開対象を検査する（assets-check.yml）success、作業ログを mj-logs へ写す（sync-logs.yml）success。Workers Builds の check-run success。ページの再生成（regenerate-page.yml）は起動しなかった（変えたのが `scripts/generate_*.py`・`scripts/lib/**`・`*.js` でないため）。`chrome: regenerate` のコミットも無し
+- issue #514 に、診断の結果と案 C・D の見立てをコメントした: https://github.com/retroeater/mj/issues/514#issuecomment-6030137680
+
 ## 報告
 
-- 状態: 中断（作業中）
+- 状態: 判断待ち（案 C か D かを平野さんが選ぶ）
 - ブランチ: work/1007-pht-photo
-- ログ: https://github.com/retroeater/mj/blob/work/1007-pht-photo/docs/logs/CHAT-1007-PHT-09.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1007-PHT-09.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1007-pht-photo
-- 確認用URL: なし
-- マージ: 未
-- issue: 起票予定
-- 判断が必要なこと: なし
-- 未確認の項目: 作業中
+- 確認用URL: なし（表示は変わらない。docs・scripts・ワークフローの変更）
+- マージ: 済（f8a2cb5c。実装のコミットは 068948d6・ea44c39a）
+- issue: #514（新規起票。診断の結果をコメント）。#352 は、ジョブ check が動いて本文が更新された（コードの変更とは無関係）
+- 判断が必要なこと:
+  - **案 C（自動解決をやめる）か案 D（別の取り方を調べる）か**。診断の結果: ランナーの Chrome 154（`--headless=old` を受け付ける）は x.com に届き、`/photo` の読み込みが HTTP エラー応答で失敗している（`Page load failed: net::ERR_HTTP_RESPONSE_CODE_FAILURE`、104307 と momonga_211 の2件で同じ）。調査のセッションの Chromium の「HTTP ERROR 403」と同じ向き。
+    - 事実: ランナーの Chrome の版・`--headless=old` は原因ではない。X が `/photo` に HTTP エラーを返している（コードはランナーでは未確認）
+    - 推測: X がログインなしの `/photo` を Cloudflare のチャレンジで 403 になるページに転送するようになった
+    - 案 C: 外部の依存・費用・ログインが増えず、今回の直しで「自動解決は働いていません」と分かる。手で読む手順は docs に足した（X にログイン済みのブラウザで `https://x.com/<X ID>/photo` を開き `_400x400` の URL を読む）。検知（404 の一覧）は今までどおり
+    - 案 D: 公開の埋め込み用のエンドポイントなどが候補だが、どれも試していない。外部ドメイン・非公式の壊れやすさ・X 公式 API（費用）や unavatar.io（1日25件）をやめた経緯との整合を調べる必要がある
+    - 見立て: 当面は案 C（表示だけ正直にする）で足り、案 D は余力のあるときに別の指示で調べる
+  - 作りの案から変えた点: 診断に「Chrome の読み込み失敗（`Page load failed: net::ERR_…`）」の分類を足した（ランナーの診断で分かったため）
+- 未確認の項目:
+  - X が返した HTTP エラーのコード（ランナーの Chrome の出力に出ない）
+  - 2026-09-20〜09-27 のどの日に X 側が変わったか
+  - 週次（schedule）で、解決を試して全件失敗したときの issue の表示（「自動解決は働いていません」の1行）。入力ありの実行は issue を書き換えないため、実際の issue での見え方は次の検知で初めて確かめられる（JSON と github-script の部分は、見本で確かめた）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj c7cc409b）: https://github.com/retroeater/mj-logs/tree/main/guide/c7cc409b
+ガイド文書（この版を写した時点の最新、mj f8a2cb5c）: https://github.com/retroeater/mj-logs/tree/main/guide/f8a2cb5c
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c7cc409b/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c7cc409b/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c7cc409b/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c7cc409b/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c7cc409b/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c7cc409b/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f8a2cb5c/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f8a2cb5c/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f8a2cb5c/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f8a2cb5c/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f8a2cb5c/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f8a2cb5c/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/1257323c.md
