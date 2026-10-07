@@ -79,14 +79,43 @@ ryoei.pro/houou_race.html
 - 手順0: 指示欄の末尾の行は指示文の最後の行と一致
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 4つとも揃っている
 
+### 手順1（同じ論点の issue）
+
+- 全 issue（516件、open・closed）の題を「告知・動画・promo・投稿・宣伝・ポスト・テンプレート・型」で検索。open の #225（データ更新を検知して X ポストの下書きを自動生成する）と #393（誕生日の連盟員を X に自動ポスト）は自動の投稿の論点で、新しいページの告知の型・手順ではない。同じ論点の issue は無い
+
+### 手順2（型の資料）
+
+- 読んだもの: docs/notes/houou-race.md「告知動画」、docs/notes/title-pages.md「告知動画」、CHAT-1007-LGR-17・CHAT-1007-LGR-18 のログ、`scripts/promo_video/houou_race/`（compose.py の秒と字幕、composition/index.html の白地）、`scripts/promo_video/title/composition/index.html`（黒地・数字の動きから始まる）
+- 作った資料: `docs/notes/page-announcement.md`（新しいページの告知〈X の投稿・告知動画〉）。見出し:
+  - 進め方（6段: 案 → 平野さんの OK → 初版を送る〈マージしない〉→ 平野さんが決める → 確定したらスクリプトと文書をマージ〈動画は入れない〉→ 平野さんが投稿）
+  - 投稿文の型（型と、2026-10-07 19:00 の投稿の実物と URL）
+  - 告知動画の型（形式・曲・7場面の構成の表〈順位変動の秒とテロップを例に〉・テロップ・実画面の撮り方。時間で動くページの撮り方の詳細は houou-race.md への参照）
+  - 毎回確かめること（人が映ること・見本・曲）
+  - 次に作る時に考える点（サムネイルは最初のコマ・撮る側の時計の共通化）
+  - 実例（順位変動〈型の元〉とタイトル戦〈別の形〉の表）
+- 前提から実物に合わせて変えた点:
+  - テロップは「補足の説明が要る所だけ」でなく、決定の文のとおり「補足の説明が要る内容をテロップにする」とした（実物はタイトルと締め以外の5場面すべてに1つずつ出ている）
+  - テロップの置き場所を足した（実画面の上、画面の上の端から 80〜210px。実物の composition/index.html のとおり）
+  - 形式に mp4（H.264・yuv420p・AAC）と音量（-16 LUFS 前後）を足した（実物の仕様）
+  - 構成の表の秒は実物の値（場面3の押すのは 5.4秒、早送りは 13.5〜16.9秒、結果は 16.9〜20.5秒）。チャット側の構成の表（早送り 13.5〜18、結果 18〜20.5）とは違う
+  - 実画面の大きさ（390×664・3倍で撮り 846×1440 の枠に入れる）を足した
+
+### 手順3（参照と記録）
+
+- docs/notes/houou-race.md「告知動画」・docs/notes/title-pages.md「告知動画」: 節の先頭に「告知（X の投稿・告知動画）の型は `docs/notes/page-announcement.md`。この節はこのページの動画の作り直しだけを書く」の1行
+- docs/new-page-checklist.md「公開後の確かめ」の末尾: 「X で告知するときは `docs/notes/page-announcement.md` の型で（投稿文と告知動画）」の1行
+- docs/handover.md の資料の表（`docs/notes/ogp.md` の次）: 「`docs/notes/page-announcement.md` | 新しいページの X での告知の型（投稿文・告知動画・進め方）」の1行。大きさ 23,564 → 23,689 バイト（警告 26,624 まで 2,935 残る）
+- docs/decisions/page-release.md に新しい節「2026-10-08（CHAT-1008-LGR-20）」
+- 公開の対象: docs/ は `.assetsignore` で配信しない（7行目 `docs`）。CLAUDE.md 25,941・chat-side-operations.md 24,306 は変えていない。check_asset_limits OK
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1008-lgr
-- ログ: https://github.com/retroeater/mj/blob/work/1008-lgr/docs/logs/CHAT-1008-LGR-20.md
+- 状態: 完了
+- ブランチ: work/1008-lgr（cloudflare へマージ済み、削除していない）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1008-LGR-20.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1008-lgr
 - 確認用URL: なし（docs のみ）
-- マージ: 未
+- マージ: 済（このログを入れたコミットを、そのまま cloudflare へ push した。`git log -1 origin/cloudflare -- docs/logs/CHAT-1008-LGR-20.md`）
 - issue: なし
 - 判断が必要なこと: なし
 - 未確認の項目: なし
