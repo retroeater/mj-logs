@@ -73,6 +73,31 @@
 - 手順0: 指示欄の末尾の行は指示文の最後の行と一致
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 4つとも揃っている
 
+### 手順1（洗い出しと着手）
+
+- #507: 閉じている。他セッションの着手中コメントなし。着手中のコメントを残した（閉じたまま）
+- `git branch -r --no-merged origin/cloudflare`: navbar.js・llms.txt・houou_race の一式に触る未マージのブランチなし
+- 「リーグ別成績推移」の検索（docs/logs を除く、件数は行数）: docs/decisions/README.md 1、docs/decisions/houou.md 4、docs/notes/houou-race.md 3、docs/notes/static-generation.md 1、houou_race.html 3、houou_race.js 1、llms.txt 1、navbar.js 1、scripts/generate_houou_race.py 4、style.css 1。docs/logs は9ファイル（直さない）。docs/handover.md・テスト・handover-archive には無し
+- 直す所: 上の docs/logs 以外のすべて。ただし docs/decisions/houou.md は冒頭の説明だけ
+- 直さない所: docs/logs/ の過去のログ9ファイル、docs/decisions/houou.md の過去の日付の節（CHAT-1005-LGR-01・CHAT-1006-LGR-05・CHAT-1006-LGR-10 の節の3行）
+
+### 手順2（直す、011b7f97）
+
+- scripts/generate_houou_race.py: 見出し・title（og:title は title と同じ）を新しい名前に。説明文は `describe(periods)` が、書き出す期（`houou_race/` に出す periods のキー）の最小と最大の期から作る（「〜」は U+301C）。説明文は meta description・og:description・ページ末尾の段落（mj-lead）の3か所に出ていたので3か所とも同じ文
+- 作られた文: 「日本プロ麻雀連盟の鳳凰戦（第23期〜第43期）について、リーグごとの順位変動を節単位でたどれます。」（決定の文と一字一句同じ）
+- navbar.js: 「順位変動」を「成績詳細」の前へ。「女流桜花」ほかは触っていない（navbar はほかのページの HTML に焼き込まれないので、ほかの生成物は変わらない）
+- llms.txt: 項目名を「順位変動」に、行を「成績詳細」の前へ。説明の文は変えていない
+- houou_race.js・style.css の節のコメント、docs/notes/houou-race.md・static-generation.md、docs/decisions/README.md・houou.md の冒頭を「順位変動」に
+- テスト: `DescribeTest`（期を1つ増やすと最後の期が変わる）。unittest すべて OK、check_asset_limits OK
+- 再生成の差分: houou_race.html の title・description・og:title・og:description・h1・mj-lead だけ。`houou_race/` の JSON は差分なし
+- `update_sitemap_lastmod.py --from-git` が sitemap-pages.xml を書き換えたが、指示のとおり戻した（コミットに入れていない）
+- 残した「リーグ別成績推移」: docs/notes/houou-race.md の改名の経緯の1か所（旧名から変えたことの記述）、docs/decisions/houou.md の過去の節の3行、docs/logs
+
+### 手順3（プレビュー）
+
+- check-run: Workers Builds 成功（011b7f97）
+- 390px・1280px: 「鳳凰戦」は ランキング → リーグ推移 → 順位変動 → 成績詳細。「順位変動」から houou_race.html が開く。見出し「鳳凰戦 順位変動」、title・og:title「順位変動 | 鳳凰戦 | ryoei.pro」、meta description・og:description・mj-lead が決定の文と一字一句同じ。再生（43前 B1、4秒後に累計が動いている）OK。「女流桜花」は ランキング・リーグ推移・成績詳細のまま。横のはみ出しなし（scrollWidth = 幅）。エラーは Cloudflare Web Analytics の beacon の 403 だけ
+
 ## 報告
 
 - 状態: 作業中
@@ -89,12 +114,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj b5f76164）: https://github.com/retroeater/mj-logs/tree/main/guide/b5f76164
+ガイド文書（この版を写した時点の最新、mj c7cc409b）: https://github.com/retroeater/mj-logs/tree/main/guide/c7cc409b
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b5f76164/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b5f76164/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b5f76164/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b5f76164/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b5f76164/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b5f76164/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c7cc409b/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c7cc409b/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c7cc409b/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c7cc409b/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c7cc409b/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c7cc409b/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/1257323c.md

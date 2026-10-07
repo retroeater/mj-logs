@@ -1,7 +1,7 @@
 # Actions の実行結果（retroeater/mj）
 
 - 書き出した時刻: 2026-10-07 11:58 JST
-- 書き出した実行の契機: push（work/1007-lgr）
+- 書き出した実行の契機: push（cloudflare）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは sync-logs.yml（#498）
 
@@ -12,11 +12,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-10-07 11:58 | push | cloudflare | in_progress | #2918（37564504216） |  |
+| 2026-10-07 11:58 | push | work/1007-pht-logs | queued | #2919（37564555970） |  |
+| 2026-10-07 11:58 | push | cloudflare | success | #2918（37564504216） | 0分14秒 |
 | 2026-10-07 11:57 | push | work/1007-lgr | success | #2917（37564496965） | 0分12秒 |
 | 2026-10-07 11:57 | push | cloudflare | success | #2916（37564429791） | 0分13秒 |
 | 2026-10-07 11:56 | push | work/1007-pht-logs | success | #2915（37564382086） | 0分13秒 |
-| 2026-10-07 11:54 | push | work/1007-lgr | success | #2914（37564234883） | 0分12秒 |
 
 ## check-image-links.yml
 
@@ -124,7 +124,7 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-10-07 11:58 | push | cloudflare | in_progress | #224（37564504181） |  |
+| 2026-10-07 11:58 | push | cloudflare | success | #224（37564504181） | 0分32秒 |
 | 2026-10-06 16:04 | push | cloudflare | success | #223（37427412467） | 1分00秒 |
 | 2026-10-06 13:54 | push | cloudflare | success | #222（37415886177） | 1分41秒 |
 | 2026-10-06 13:51 | push | cloudflare | success | #221（37415659488） | 0分32秒 |
@@ -137,7 +137,7 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-10-07 11:58 | push | cloudflare | in_progress | #66（37564504182） |  |
+| 2026-10-07 11:58 | push | cloudflare | success | #66（37564504182） | 0分17秒 |
 | 2026-10-06 16:04 | push | cloudflare | success | #65（37427412359） | 0分22秒 |
 | 2026-10-06 13:50 | push | cloudflare | success | #64（37415643996） | 0分15秒 |
 | 2026-10-06 11:37 | push | cloudflare | success | #63（37405007748） | 0分16秒 |
@@ -195,11 +195,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-10-07 11:58 | push | cloudflare | pending | #1721（37564504191） |  |
-| 2026-10-07 11:57 | push | work/1007-lgr | in_progress | #1720（37564496950） |  |
+| 2026-10-07 11:58 | push | cloudflare | pending | #1723（37564557660） |  |
+| 2026-10-07 11:58 | push | work/1007-pht-logs | pending | #1722（37564556086） |  |
+| 2026-10-07 11:58 | push | cloudflare | in_progress | #1721（37564504191） |  |
+| 2026-10-07 11:57 | push | work/1007-lgr | success | #1720（37564496950） | 0分30秒 |
 | 2026-10-07 11:57 | push | cloudflare | success | #1719（37564429855） | 0分56秒 |
-| 2026-10-07 11:56 | push | work/1007-pht-logs | success | #1718（37564425210） | 0分27秒 |
-| 2026-10-07 11:56 | push | work/1007-pht-logs | skipped | #1717（37564382121） | 0分46秒 |
 
 ## update-live-channel.yml
 
