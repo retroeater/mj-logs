@@ -71,6 +71,29 @@ CHAT-1007-PHT-07 の判断待ちへの回答。残した38件のうち16件（�
 - 着手前の確認: `git log --all --grep="CHAT-1007-PHT-10"` は0件。`work/1007-pht-logs` はリモートにあり cloudflare の祖先（マージ済み）、ローカルには無かったため `git checkout -b work/1007-pht-logs origin/cloudflare`。
 - CHAT-1007-PHT-07 の `## 報告` の状態は「判断待ち」。
 
+### 手順1: 確かめと論点の移し
+
+- 確かめ: #357・#298・#304・#142 に他セッションの着手中コメントは無い（#357 の最新の着手中は CHAT-1007-PHT-07 自身で、要約コメントで完了済み）。#142・#298・#304 は Open。16件は cloudflare（c73e1800）の docs/logs/ に全て現存
+- CHAT-1007-PHT-07 の `## 報告` の状態は「判断待ち」だった。「判断待ち（続き: CHAT-1007-PHT-10）」に書き換えた
+- コメント（出典の permalink は削除前の cloudflare の SHA c73e1800a3bcc183b6ab6ae29a88863dd0d37e96 に固定）:
+  - #304（CW-02・CW-05）: https://github.com/retroeater/mj/issues/304#issuecomment-6029939126
+  - #298（GX-01・GX-02・GX-04・GX-05）: https://github.com/retroeater/mj/issues/298#issuecomment-6029940027
+  - #142（TQ-25・TQ-27）: https://github.com/retroeater/mj/issues/142#issuecomment-6029940540
+- docs/notes/site-findings.md「URLパラメータの棚卸し（#7）」に「照合方法の差と、リンク元・件数の調査」の節（箇条書き5項目＋TQ-09 の permalink）を追記した。既存の表（2026-09-11 の内部リンクの有無）は残し、同じ趣旨の記述は無かったため置き換えは無し
+- docs/decisions/operations.md に決定を追記した
+
+### 手順2: scripts/ の参照とテスト
+
+- docs/notes/ に ZK-05・ZK-06・SH-09・SH-17 の中身（OPENING_IDS の推定の根拠、相殺の一覧の作り方）を書いた節は無く（live-page-design.md 2-9 は規則だけ）、3ファイルとも SHA 固定の permalink にした。直した箇所はコメントのみ: `add_layer3_opening_column.gs` 2行（6行目・26行目）、`clear_layer3_redundant_20260929.gs` 1行、`clear_layer3_redundant_20260930.gs` 1行
+- docs/（docs/logs/ を除く）・CLAUDE.md・scripts/・.github/ に、16件の `docs/logs/<ファイル名>` を指す箇所は、直した後に残っていない（grep で確認。残るのは permalink のみ）
+- `python3 -m unittest discover -s scripts/tests`: 直す前 564件 OK（失敗0）、直した後 564件 OK（失敗0）
+
+### 手順3: 削除とマージ
+
+- 削除のコミット dddb1568: docs/logs/ の16件（TQ-09・TQ-25・TQ-27・TQ-28、CW-02・CW-05、GX-01・GX-02・GX-04・GX-05、SH-02・SH-03、ZK-05・ZK-06・SH-09・SH-17）。`git show --stat` は 16 files changed, 3328 deletions で、docs/logs/ 以外のファイルは無い。残すログ（GX-08・HC-02・ZK-01 ほか）は入っていない
+- 削除の後のテスト: 564件 OK
+- 取り込み: 着手時の cloudflare（c73e1800）が、別セッション（CHAT-1007-PHT-08）のマージで b9319474 に進んでいた。`git merge origin/cloudflare` で `docs/decisions/operations.md` が衝突（両側が末尾に節を追記）。生成ページ・生成スクリプト・CSS・JS・データ・設定の衝突ではなく、決定の記録の追記同士のため、PHT-08 の節と PHT-10 の節を両方残して解いた（片方の記述は消していない）。取り込み後の `git diff origin/cloudflare HEAD` は、指示の「説明できる差分」（16件の削除・このログ・PHT-07 のログの状態の行・site-findings.md・docs/decisions/・scripts/apps_script/ の3ファイルのコメント）だけ
+
 ## 報告
 
 - 状態: 中断（着手直後。作業中）
@@ -87,12 +110,12 @@ CHAT-1007-PHT-07 の判断待ちへの回答。残した38件のうち16件（�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj b5f76164）: https://github.com/retroeater/mj-logs/tree/main/guide/b5f76164
+ガイド文書（この版を写した時点の最新、mj c596949c）: https://github.com/retroeater/mj-logs/tree/main/guide/c596949c
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b5f76164/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b5f76164/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b5f76164/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b5f76164/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b5f76164/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b5f76164/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c596949c/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c596949c/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c596949c/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c596949c/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c596949c/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c596949c/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/1257323c.md
