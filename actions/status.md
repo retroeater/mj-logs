@@ -1,7 +1,7 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-07 17:51 JST
-- 書き出した実行の契機: workflow_dispatch（main）
+- 書き出した時刻: 2026-10-07 18:50 JST
+- 書き出した実行の契機: push（work/1007-rvw-sync4）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは sync-logs.yml（#498）
 
@@ -195,11 +195,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-07 18:50 | push | work/1007-rvw-sync4 | in_progress | #1840（37603340132） |  |
 | 2026-10-07 17:49 | push | work/1007-lgr | success | #1839（37596343687） | 0分58秒 |
 | 2026-10-07 17:49 | push | cloudflare | success | #1838（37596340574） | 0分29秒 |
 | 2026-10-07 17:47 | push | cloudflare | success | #1837（37596099511） | 0分59秒 |
 | 2026-10-07 17:47 | push | work/1007-rvw-sync3 | success | #1836（37596094854） | 0分29秒 |
-| 2026-10-07 17:44 | push | work/1007-lgr | success | #1835（37595791676） | 0分29秒 |
 
 ## update-live-channel.yml
 
