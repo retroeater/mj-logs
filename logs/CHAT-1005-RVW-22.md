@@ -57,6 +57,24 @@ Chat-Ref: CHAT-1005-RVW-22
 - 2026-10-07 着手。CHAT-1005-RVW-22 のコミットなし。work/1007-rvw-sync4 はローカル・リモートとも無く、origin/cloudflare（0395f376）から作成
 - 0. 指示欄の末尾は指示文の最後の行と一致。雛形の行は揃っている。RVW-21 のログは同じセッションで書いたもので、読み直した
 
+### 1. 確かめ
+
+- 未マージの `work/` ブランチ（この指示のブランチだけ）は `.github/workflows/sync-logs.yml`・`workers/`・`scripts/actions_status.py` を変えていない
+- mj-logs の sync-from-mj の実行: RVW-21 の後（run 9〜15）に failure 3件（run 6 を含めた全体では 15件中 failure 4件）
+- mj-logs に push で接続できる（RVW-20 の接続のまま。`git push --dry-run` が通った）
+- 今の再試行は `git push` → 失敗なら `git pull -q --rebase origin main`（3回まで）。`actions/status.md` は毎回中身が違うので rebase がぶつかる
+
+### 2. 作ったもの
+
+- mj-logs の `.github/workflows/sync-from-mj.yml`（2ac1101、題に Chat-Ref）: 「写す」「書き出す」「push」の3つの step を1つの step のループ（3回まで）にまとめた。push が拒否されたら `git fetch` → `git reset --hard origin/main` → 写す・書き出す・commit・push をやり直す。commit するものが無ければ「変更なし」で終える。冒頭の説明を「mj の sync-logs.yml は止めた」に直した
+- 手動実行（run 16、37603412619）: success。`写した 0 件・消した 0 件`・`write: actions/status.md`・コミット 06863688 `sync: mj 0395f376`。実行ログにブランチ名・トークンは出ていない
+- mj の `.github/workflows/sync-logs.yml`: `on:` を `workflow_dispatch` だけにした（`push`・`schedule` を外し、理由と戻し方の1行を足した。中身は変えていない）
+- Worker の `workers/scheduler/schedule.json`: `sync-logs.yml` 05:30 の行を消した（2行になった）。テストは表の行を固定で見ていない（`rows.length > 0` と形だけ）ので変えていない。`dispatchSync()` は変えていない
+- `scripts/actions_status.py`: `actions/status.md` の見出しの「書き出しは sync-logs.yml（#498）」を「書き出しは mj-logs の sync-from-mj.yml（#498・#298）」に（1行）
+- 文書: docs/notes/static-generation.md（sync-logs.yml の行を停止中に、`sync_all_logs.py` と mj-logs 側の行を本番に）、docs/notes/scheduler-worker.md（今の表を2行に）。CLAUDE.md は変えていない（「写すのは mj-logs 側のワークフロー」の1行は任意だったので、目印の規則を消す実装4の後半でまとめて直す）。決定を docs/decisions/operations.md に足した
+- テスト: Worker 24件 pass、`python3 -m unittest discover -s scripts/tests` OK
+- ワークフローを変えたので（docs/notes/branch-operations.md「ワークフローを変更したとき」）、作業ブランチで sync-logs.yml を手動実行した: run 1841（workflow_dispatch、53788d15）success。この作業ブランチの push（53788d15）では sync-logs.yml が push で起動していない（新しい `on:` が効いている）
+
 ## 報告
 
 - 状態: 作業中
