@@ -84,6 +84,77 @@
 - 着手前の確認: `git log --all --grep="CHAT-1007-PHT-14"` は0件。`work/1007-pht-doc` はローカルにもリモートにも無く、`git checkout -b work/1007-pht-doc origin/cloudflare`
 - CHAT-1007-PHT-11 の `## 報告` の状態は「完了」。`git branch -r --no-merged origin/cloudflare` に、CLAUDE.md・docs/notes/branch-operations.md・docs/logs/_template.md・docs/instruction-template.md・scripts/cleanup_logs.py に触れているブランチは無い。#513 に他セッションの着手中コメントは無い
 
+### 手順1: 確かめ（直す前）
+
+- 読んだもの: CHAT-1007-PHT-11 のログ（「指示②で書くべき判定の事実」）、docs/decisions/operations.md の PHT-08 の節、scripts/cleanup_logs.py とそのテスト、直す文書の今の内容
+- 直す前の `python3 scripts/cleanup_logs.py --dry-run`（着手時 HEAD e3c5b6f5）: 対象外 173／削除対象 10／通知対象 17（判断待ち・中断 8、書き方の違反 9、読めない 0）
+- 文書のバイト数（前 → 後）: CLAUDE.md 25,577 → 25,707（+130。上限 32KB・警告域 30KB の内）／docs/handover.md 23,187 → 23,549（上限 28KB・警告域 26KB の内）／docs/notes/branch-operations.md 16,219 → 20,327／docs/logs/_template.md 4,435 → 5,440／docs/instruction-template.md 13,254 → 13,620／docs/notes/static-generation.md 62,861 → 63,119／docs/notes/chat-side-operations.md 23,674（変えない）
+
+### 手順2: コード
+
+- `scripts/cleanup_logs.py`: `CONTINUATION_RE` を `(?:[/／]|→|[（(])\s*続き[:：]\s*(CHAT-…)` に広げた（` / 続き:`・`→ 続き:`・`（続き:`）。`NEW_RULE_DATE` を `"2026-10-08"`（D、JST）にし、`is_new_rule_log` は最初のコミットを JST の日付にして D と比べる
+- テスト（`scripts/tests/test_cleanup_logs.py`、30 → 34件）: `→`・`（`・`(` の形が続きとして読めること、`→` の続き先が判断待ちなら残ること、「続き: なし」「続き: 新しいChat-Ref待ち」「（続き: なし）」「続きは CHAT-…」「続き CHAT-…（コロン無し）」「、続き: 未定」は読まないこと。直す前のコード（`git show origin/cloudflare:scripts/cleanup_logs.py` に差し替えて実行）では3件が失敗（`→`・`（` の形と、形の一覧）。直した後は全体 634件 OK
+- 直した後の `--dry-run`: 対象外 173／削除対象 12／通知対象 15（判断待ち・中断 6、書き方の違反 9、読めない 0）。**直す前に消えるログは全て残る**（消えなくなったログ 0件）。**新しく削除の対象になるのは2件**（30件以内）:
+
+  | ログ | 状態 | 続き先 | 続き先の状態 |
+  | --- | --- | --- | --- |
+  | CHAT-0929-ZK-01 | 判断待ち → 続き: CHAT-0929-ZK-02 | CHAT-0929-ZK-02 | 削除済み |
+  | CHAT-0930-CAL-06 | 判断待ち → 続き: CHAT-0930-CAL-10 | CHAT-0930-CAL-10 | 完了 |
+
+  - 通知対象は 17 → 15（この2件が抜けた）。ZK-01 は scripts/tests/test_chat_ids.py が文字列として使っているだけで、ファイルを読まない（ZK-01 を外してもテストは 634件 OK を確認）
+  - ほかに読めるようになった形のログ（`→ 続き:`・`（続き:`）は、続き先が判断待ち・中断のため、削除されない（ZK-15・ZK-16・CAL-04・OLT-02 など）
+
+### 手順3: 文書
+
+- 変えた文書: CLAUDE.md（「作業ログ」節の「ログの寿命」の1行だけ）、docs/notes/branch-operations.md「作業ログの寿命」（書き直し。書き方・削除の条件・続きの形・#357 の通知3種類・効果の確かめ方）、docs/logs/_template.md、docs/instruction-template.md、docs/notes/static-generation.md（`cleanup_logs.py` の説明の1行）、docs/handover.md（期限付きの表に #513 の効果の確認の行、最終更新と直近の変更の1行）。docs/notes/chat-side-operations.md は変えない
+- 同じ趣旨の古い記述: branch-operations.md「作業ログの寿命」の旧記述（完了で3項目「なし」・旧形式・通知の1種類）を新しい節で置き換えた（矛盾する記述は無かった）。「作業を再開するとき」（「状態: 中断 / 続き: <新しいChat-Ref>」）は新しい規則と同じ形なので変えていない。static-generation.md の `cleanup-logs.yml` の説明（2か所）は条件を書いておらず、そのまま
+- 入れた文面（変えた行、そのまま）:
+
+  CLAUDE.md:
+
+  ```
+- ログの寿命: 「完了」は判断待ちも移していない論点も無いときだけ。完了の「判断が必要なこと」「未確認の項目」は「なし」だけ。続きは状態の末尾に` / 続き: CHAT-…`。
+  週次の自動削除の条件・通知（#357）・書き方はdocs/notes/branch-operations.md「作業ログの寿命」
+  ```
+
+  docs/logs/_template.md:
+
+  ```
+| 状態 | 完了 / 判断待ち / 中断（エラー）/ 取り下げ のいずれか。**「完了」は、平野さんの判断待ちも、移していない論点も無いときだけ**（残るなら「判断待ち」）。続きの指示を受けたときは、前のログの状態の末尾に ` / 続き: <続きの Chat-Ref>` を足す（続き先が完了・取り下げになると前のログは自動で削除される）。「取り下げ」は平野さんが決めたときだけ（決定を docs/decisions に1行書く）。規則は `docs/notes/branch-operations.md`「作業ログの寿命」 |
+| issue | 番号（起票・クローズ・論点を移したものを含む）。無ければ「なし」 |
+| 判断が必要なこと | 状態が完了なら「なし」だけ（`なし（#NNN に移した）` も可）。判断待ちのときだけ箇条書き |
+| 未確認の項目 | 状態が完了なら「なし」だけ。追跡しない確認は `## 経過` に書く |
+| エラー | 作業を止めた・結果に影響した未解決のものだけ。無ければ「なし」。解決済みのエラーは `## 経過` に書く |
+
+**完了のログで、先頭が「なし」でも子の行（字下げした行）を続けると「なし」と読まれず、自動で削除されない。** 書きたいことは `## 経過` に書く。
+  ```
+
+  docs/instruction-template.md:
+
+  ```
+- **続きの指示（前の指示の判断待ち・中断への回答、再開）には、前のログの `## 報告` の状態の末尾に ` / 続き: <この指示の Chat-Ref>` を足す手順を入れる。** 続き先が完了・取り下げになると前のログが自動で削除される（`docs/notes/branch-operations.md`「作業ログの寿命」）
+
+  ```
+
+- コードの条件と文書の記述の突き合わせ（docs/notes/branch-operations.md「作業ログの寿命」）:
+
+  | 項目 | コード（scripts/cleanup_logs.py） | 文書 | 一致 |
+  | --- | --- | --- | --- |
+  | 保持日数 | `RETENTION_DAYS = 7`、最終コミットから | 最終コミットから7日以上 | ○ |
+  | 旧形式 | `## 報告` が無ければ削除。`## 未決・判断待ち` に「なし」以外があれば通知（読めない） | 同じ | ○ |
+  | 取り下げ | 状態の先頭が「取り下げ」なら3項目に関わらず削除 | 同じ | ○ |
+  | 完了 | 先頭が「完了」で3項目が「なし」で始まり子の行が無い。項目が欠ければ対象外（読めない） | 同じ | ○ |
+  | 続き先 | 完了・取り下げ・削除済みなら削除。判断待ち・中断なら残す。読めない・存在しないは読めない（③）。自分自身は読まない | 同じ | ○ |
+  | 多段 | 続き先が完了・取り下げ・削除済みになるまで残る | 同じ | ○ |
+  | 続きの形 | `/`・`／`・`→`・`（`・`(` の直後の `続き:`（全角コロン可）＋ CHAT の ID | 同じ（これから書く形は ` / 続き: `） | ○ |
+  | 削除済みの判定 | `git log -1 -- docs/logs/<ID>.md` が空でない | HEAD の履歴にあって今は無い | ○ |
+  | 通知の種類 | pending（判断待ち・中断）／violation（完了で3項目が「なし」でない）／unreadable | ①②③ | ○ |
+  | ② の一覧 | D 以後（JST）に最初にコミットされたログだけ表、前は件数のみ | 同じ（D は 2026-10-08） | ○ |
+  | 一覧にするログが無いとき | コメントしない（cleanup-logs.yml） | コメントしない | ○ |
+  | 削除の時機 | 判定がすべて済んでからまとめて | 同じ | ○ |
+
+- 作業ブランチでの手動実行（`actions_run_trigger`、ref=work/1007-pht-doc、dry_run=true）: run 37569389834（HEAD 0176ecbd）が success。「削除をコミット・push」「条件外のログを常設issueに通知」は skipped。出力は手元と一致（対象外 173／削除対象 12／通知 15〈pending 6・violation 9・unreadable 0〉、新しい2件も同じ）。#357 のコメント数は実行の前後で変わらず（16件）
+
 ## 報告
 
 - 状態: 中断（着手直後。作業中）
@@ -100,12 +171,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj e3c5b6f5）: https://github.com/retroeater/mj-logs/tree/main/guide/e3c5b6f5
+ガイド文書（この版を写した時点の最新、mj 361dce7a）: https://github.com/retroeater/mj-logs/tree/main/guide/361dce7a
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e3c5b6f5/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e3c5b6f5/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e3c5b6f5/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e3c5b6f5/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e3c5b6f5/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e3c5b6f5/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/361dce7a/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/361dce7a/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/361dce7a/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/361dce7a/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/361dce7a/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/361dce7a/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/1257323c.md
