@@ -64,15 +64,35 @@ CHAT-1007-LGR-17 で作った告知動画の初版を、平野さんが見て「
 - 手順0: 指示欄の末尾の行は指示文の最後の行と一致。CHAT-1007-LGR-17 の状態は「判断待ち」
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 4つとも揃っている
 
+### 手順1（続きの印と記録）
+
+- CHAT-1007-LGR-17 の `## 報告` の状態の末尾に ` / 続き: CHAT-1007-LGR-18` を足した
+- docs/notes/houou-race.md「告知動画」: 「初版は…確定するまでは作業ブランチに置く」を、確定版（初版のまま。曲調 b〈タイトル戦の告知と同じ曲〉・早送り3倍・「もう一度見る」の矢印は消さない。動画は平野さんの端末に置く）に置き換えた。作り直しの手順（setup.sh → build.sh、`REUSE_CAPTURE`・`REUSE_VIDEO`）は書いてあった。撮る側の時計の共通化（`scripts/promo_video/lib/`）は次に告知動画を作る時に考える、の1行を足した
+- docs/decisions/houou.md に新しい節「2026-10-07（CHAT-1007-LGR-18）」
+
+### 手順2（マージの前の確かめ）
+
+- origin/cloudflare を merge で取り込んだ（衝突なし。ほかのセッションの docs/logs・scripts/sync_all_logs.py など）
+- cloudflare に入る差分（`git diff --name-only origin/cloudflare HEAD`）は `scripts/promo_video/houou_race/` の5ファイル（build.sh・capture.mjs・compose.py・composition/index.html・setup.sh）と docs/（decisions/houou.md・logs/CHAT-1007-LGR-17.md・logs/CHAT-1007-LGR-18.md・notes/houou-race.md）だけ
+- 動画・画像・フォント・音声・gsap のファイルは含まれていない（拡張子 mp4・png・jpg・otf・ttf・woff・wav と「gsap」で0件）。`scripts/promo_video/title/` の差分は0
+- unittest OK。check_asset_limits OK。CLAUDE.md 25,941・handover.md 23,564・chat-side-operations.md 24,035 バイト
+
+### 手順3（マージ）
+
+- 再fetch・`merge-base --is-ancestor` 確認のうえ `git push origin work/1007-lgr-promo:cloudflare`（5aab3f3d..91c25427）
+- check-run（91c25427）: Workers Builds・check・sync すべて success。regenerate は走らなかった（見込みどおり）。マージの後に cloudflare に自動のコミットは無い
+- #507 に確定とマージの SHA をコメントした（閉じたまま）
+- 作り直しの手順の場所: docs/notes/houou-race.md「告知動画」。作業ブランチは削除していない（マージ済みの `work/*` を消す定時のワークフローに任せる）
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1007-lgr-promo
-- ログ: https://github.com/retroeater/mj/blob/work/1007-lgr-promo/docs/logs/CHAT-1007-LGR-18.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1007-lgr-promo
+- 状態: 完了
+- ブランチ: work/1007-lgr-promo（cloudflare へマージ済み、削除していない）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1007-LGR-18.md
+- 比較URL: https://github.com/retroeater/mj/compare/5aab3f3d...91c25427
 - 確認用URL: なし（配信するファイルは変わらない）
-- マージ: 未
-- issue: #507（閉じたまま）
+- マージ: 済（91c25427。この報告のログは追いの push）
+- issue: #507（閉じたまま。確定とマージの SHA をコメント）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
@@ -80,12 +100,12 @@ CHAT-1007-LGR-17 で作った告知動画の初版を、平野さんが見て「
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj c201eba8）: https://github.com/retroeater/mj-logs/tree/main/guide/c201eba8
+ガイド文書（この版を写した時点の最新、mj 91c25427）: https://github.com/retroeater/mj-logs/tree/main/guide/91c25427
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c201eba8/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c201eba8/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c201eba8/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c201eba8/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c201eba8/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c201eba8/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/91c25427/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/91c25427/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/91c25427/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/91c25427/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/91c25427/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/91c25427/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/1257323c.md
