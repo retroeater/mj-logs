@@ -1,7 +1,7 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-07 13:34 JST
-- 書き出した実行の契機: push（cloudflare）
+- 書き出した時刻: 2026-10-07 13:38 JST
+- 書き出した実行の契機: push（work/1007-lgr）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは sync-logs.yml（#498）
 
@@ -12,11 +12,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-07 13:38 | push | work/1007-lgr | success | #2950（37572431773） | 0分14秒 |
 | 2026-10-07 13:33 | push | work/1007-rvw-dicdate | success | #2949（37572063443） | 0分13秒 |
 | 2026-10-07 13:33 | push | work/1007-lgr | success | #2948（37572022768） | 0分14秒 |
 | 2026-10-07 13:32 | push | cloudflare | success | #2947（37571975788） | 0分13秒 |
 | 2026-10-07 13:32 | push | work/1007-rvw-dicdate | success | #2946（37571916822） | 0分11秒 |
-| 2026-10-07 13:23 | push | work/1007-pht-links | success | #2945（37571250352） | 0分11秒 |
 
 ## check-image-links.yml
 
@@ -195,11 +195,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-10-07 13:33 | push | cloudflare | in_progress | #1787（37572067019） |  |
+| 2026-10-07 13:38 | push | work/1007-lgr | in_progress | #1788（37572431818） |  |
+| 2026-10-07 13:33 | push | cloudflare | success | #1787（37572067019） | 0分57秒 |
 | 2026-10-07 13:33 | push | work/1007-rvw-dicdate | success | #1786（37572063423） | 0分29秒 |
 | 2026-10-07 13:33 | push | work/1007-lgr | success | #1785（37572022762） | 0分26秒 |
 | 2026-10-07 13:32 | push | cloudflare | success | #1784（37571975804） | 0分30秒 |
-| 2026-10-07 13:32 | push | work/1007-rvw-dicdate | skipped | #1783（37571969273） | 0分01秒 |
 
 ## update-live-channel.yml
 
