@@ -78,6 +78,7 @@
 - Workers Logs: 1日 1,440 回の起動（Free の上限 1日20万件、scheduler-worker.md の記録）。Worker が書く行は起動した回だけ
 - 計測 1: 目印なしの節目の push
 - 計測 2: 目印なしの節目の push
+- 計測 3: 目印なしの節目の push
 
 ## 報告
 
