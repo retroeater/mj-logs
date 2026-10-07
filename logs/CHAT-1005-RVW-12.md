@@ -54,17 +54,25 @@ CHAT-1005-RVW-09・RVW-11 で作った辞書ページ（シートからの生成
 
 - 2026-10-07 着手。CHAT-1005-RVW-12 のコミットなし。work/1006-rvw-377 はローカルとリモートが一致（8ab4ddb0）
 - 0. 指示欄の末尾は指示文の最後の行と一致。RVW-11 の `## 報告` の状態は「判断待ち」。雛形の行は揃っている
+- 1. 未マージの `work/` ブランチ（`work/1007-lgr`・`work/1007-pht-photo`）は辞書ページ・`dic/`・生成スクリプト・`scripts/regenerate.py` を変えていない
+- `git merge origin/cloudflare` で `docs/notes/static-generation.md` が再び衝突した。止まる条件（「origin/cloudflare の取り込みで衝突した」「RVW-11 が解いた static-generation.md が再び衝突した場合も、解かずに止まる」）に当たるため、`git merge --abort` で取り消し（作業ツリーは bed1f187 のまま）、マージ・本番の確認・#377 へのコメントは行わずに止まった
+  - 衝突の箇所: RVW-11 と同じ「ページの一覧」の表の隣り合う行。cloudflare 側は `011b7f97 feat: rename houou_race to 順位変動 and reorder menu` で houou_race の行の名前を「鳳凰戦 リーグ別成績推移」から「鳳凰戦 順位変動」に書き換え、こちらはその直後に辞書の行を持つ。RVW-11 と同じく、cloudflare 側の houou_race の行を採り、辞書の行を残せば解ける見込み（衝突は1ファイル・1箇所）
+  - 同じ取り込みで、cloudflare 側は `dd4cd3d8`（#504 の scheduler の docs）も同じファイルを変えているが、こちらは衝突していない
+- 決定（マージしてよい・「(1)」はそのまま）を docs/decisions/features.md に「2026-10-07（CHAT-1005-RVW-12）」として足した（未マージと書いた）。RVW-10・RVW-11 の行の「未マージ」と RVW-11 のログの状態は、マージしていないため直していない。handover.md 5章も直していない
 
 ## 報告
 
-- 状態: 作業中
+- 状態: 中断（止まる条件に当たった。origin/cloudflare の取り込みで docs/notes/static-generation.md が再び衝突）
 - ブランチ: work/1006-rvw-377
 - ログ: https://github.com/retroeater/mj/blob/work/1006-rvw-377/docs/logs/CHAT-1005-RVW-12.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1006-rvw-377
-- 確認用URL: なし
-- マージ: 未
-- issue: なし
-- 判断が必要なこと: なし
+- 確認用URL: なし（RVW-11 のプレビューのまま）
+- マージ: しない（衝突で止まった）
+- issue: なし（#377 にはコメントしていない）
+- 判断が必要なこと:
+  - 衝突は RVW-11 と同じ形（「ページの一覧」の houou_race の行と辞書の行。cloudflare 側は houou_race の名前を「順位変動」に変えた）。houou_race の行が別セッション（LGR）で続けて書き換わっているため、取り込みのたびに同じ衝突が起きうる。続きの指示で「この表の houou_race の行の衝突は cloudflare 側を採り、辞書の行を残して解いてよい（何度起きても同じ）」と許せば、取り込みとマージを1回で進められる
+  - 続きは新しい番号の指示で（このログにコミットがあるため）
+  - 指示文の雛形の行に欠けは無い
 - 未確認の項目: なし
 - エラー: なし
 
