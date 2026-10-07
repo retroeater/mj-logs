@@ -65,6 +65,31 @@ houou_race の既定の表示（開いた時に出る期・リーグ）は、今
 - 手順0: 指示欄の末尾の行は指示文の最後の行と一致
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 4つとも揃っている
 
+### 手順1（確かめと着手）
+
+- #507: 閉じている。他セッションの着手中コメントなし。着手中のコメントを残した（閉じたまま）
+- `git branch -r --no-merged origin/cloudflare`: houou_race の一式（houou_race.*・`houou_race/`・generate_houou_race.py・test_houou_race.py）に触る未マージのブランチなし
+- 今の作り（前提どおり）:
+  - 定数: scripts/generate_houou_race.py の `DEFAULT_SELECTION = ("43-1", "B1", 0)`
+  - データに無いとき: `render_page()` が「既定の表示 ... のデータがありません」で生成を止める
+  - 進行中の表: `build_unit()` が G列が1つも無い表を進行中とみなし、全員を最後の節まで順位に入れて描く（止めない）
+- 通知先の常設 issue: regenerate-page.yml には issue への通知が無く、docs/notes/static-generation.md にも生成を止める条件は「通知は生成の失敗そのもの（常設issueは作らない）」とある。該当の常設 issue が無いので足していない
+- 「鳳凰」の第43期後期の行（今日）: A1〜E3・鳳凰位の全行が「表示」N、節の値も G列も空
+
+### 手順2（直す、61b3337f）
+
+- `DEFAULT_SELECTION` を消し、`pick_default(periods)` を足した。periods（`build_periods()` の結果。「表示」N の行と節の値が無いリーグを除いた後）から、期の数字と前後（前=1・後=2）の組がいちばん大きい期 → その期で `LEAGUES` の順のいちばん上のリーグ → 組の番号のいちばん小さい表、を選ぶ
+- 選ばれた表の選手の G列がすべて空欄（進行中）なら止める。メッセージ（例）:「生成を止めました: 既定の表示に選ばれた 第43期後期 A1 が進行中です(G列「結果」が空欄)。「鳳凰」のその表の行の V列「表示」を N にするか、G列「結果」を入れてください」
+- 既定に選ばれない表が進行中のときは今のまま描く
+- テスト（`PickDefaultTest`）: 同じ期なら後期／後期の A1／期の数字が大きいほう／「表示」N の行は入らない／組は最小の番号／進行中なら止まる。新しいテストは `pick_default` を呼ぶので、修正前のコードでは通らない。unittest 630件 OK
+- 生成し直した結果: 選ばれた既定は第43期前期 B1（組なし）。data-default は `{"ki":"43","half":"1","league":"B1","group":0}` で前と同じ。houou_race.html・`houou_race/` の41ファイルとも差分なし
+- 文書: docs/notes/houou-race.md の表の「既定の表示（43前 B1）」を直し、「既定の表示」の節を足した。ほかの文書（docs/notes/static-generation.md・handover.md）に「43前 B1」は無い。docs/decisions/houou.md に新しい節（過去の節は直さない）
+
+### 手順3（プレビュー）
+
+- check-run: Workers Builds 成功（61b3337f）
+- 390px・1280px: 開くと第43期・前期・B・B1 が選ばれている（今の本番と同じ）。再生（4秒後に累計が動いている）OK。横のはみ出しなし。エラーは Cloudflare Web Analytics の beacon の 403 だけ
+
 ## 報告
 
 - 状態: 作業中
@@ -81,12 +106,12 @@ houou_race の既定の表示（開いた時に出る期・リーグ）は、今
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj ccdefd6b）: https://github.com/retroeater/mj-logs/tree/main/guide/ccdefd6b
+ガイド文書（この版を写した時点の最新、mj 0c64c929）: https://github.com/retroeater/mj-logs/tree/main/guide/0c64c929
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ccdefd6b/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ccdefd6b/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ccdefd6b/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ccdefd6b/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ccdefd6b/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/ccdefd6b/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/0c64c929/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/0c64c929/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/0c64c929/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/0c64c929/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/0c64c929/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/0c64c929/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/1257323c.md
