@@ -71,6 +71,85 @@ CHAT-1007-PHT-07 の仕分けで、論点は片付いているのに、Open の 
 - 着手前の確認: `git log --all --grep="CHAT-1007-PHT-12"` は0件。`work/1007-pht-links` はローカルにもリモートにも無く、`git checkout -b work/1007-pht-links origin/cloudflare`
 - CHAT-1007-PHT-10 の `## 報告` の状態は「完了」。#513 に、リンクの書き換えについての他セッションの着手中コメントは無い
 
+### 手順1: 洗い出し
+
+- 対象: Open の issue 206件の本文と、そのコメント 516件（REST で全件取得。クローズ済みの issue・コメントは読むだけで書き換えない）。作業ログへの参照は 165か所
+- 内訳: すでに SHA 固定の permalink（37 + `tree` 11 ほか）は書き換えない。現存していて今回は削除しない（D）28か所は書き換えない。書き換えの対象は **46か所（44か所の本文・コメント）**: (a) 今回削除するログへの参照 22、(b) HC-02・ZK-01 への参照 2、(c) すでに削除されたログへのブランチ名・`cloudflare` のリンク 22。150か所の上限の範囲内
+- 参照の形: `https://github.com/retroeater/mj/blob/cloudflare/docs/logs/…`・`…/blob/work/<ブランチ>/docs/logs/…`（URL）と、`docs/logs/CHAT-…md` の文字列だけのもの（bare）。mj-logs のリンクは Open の issue には無く（`CHAT-MMDD-XXX-nn` のひな形の例が #298 のコメントに1つあるだけで、実在のログではない）、mj-logs 側の固定 URL は使っていない。すべて mj の permalink に替える
+- bare（URL でなく `docs/logs/…md` の文字列）: (a)(b) の8か所は、ログを削除すると参照先が失われるため URL に置き換える（文字列が URL に変わる）。すでに削除されたログの bare の参照 42か所は、リンクでなく、指示の「URL の文字列だけ」の範囲外なので書き換えない（「判断が必要なこと」に書く）
+- アンカー・`?v=` が付いたリンクは、書き換え対象に無かった（付いた部分を保つ処理は入れてあるが、使われていない）
+- 新しい URL の SHA（すべて cloudflare の祖先。書き換える前に、`git cat-file -e <SHA>:docs/logs/<ファイル>` で46か所ともファイルがあることを確かめた。欠けは0件）。現存のログ（a・b）は着手時の cloudflare 先頭、削除済みのログ（c）は削除コミットの親:
+  - `0d9e3b10` = `0d9e3b1016ab5afc214d609fd112d98a7a0b4d6d`
+  - `1ad5d8be` = `1ad5d8be5a7b06ddd53620c536034cd78acddfdb`
+  - `321cd09f` = `321cd09fe816405a443724bf5f5a2d2b08a5ce24`
+  - `85aaacb9` = `85aaacb93fa716ec59aed87a22e158b72337cb66`
+  - `d1f0d6ef` = `d1f0d6efbe21ef302802242665bc6449e7fa9e38`
+- 書き換えの表（書き換えた結果は「### 手順2」に書く）:
+
+| issue | 場所 | 区分 | 元の URL・パス | 新しい URL（`https://github.com/retroeater/mj/blob/<SHA>/docs/logs/<ファイル>`） |
+| --- | --- | --- | --- | --- |
+| #456 | 本文 | A | `cloudflare/docs/logs/CHAT-0928-HC-15.md` | `1ad5d8be` / `CHAT-0928-HC-15.md` |
+| #448 | 本文 | A | `cloudflare/docs/logs/CHAT-0928-HC-01.md` | `1ad5d8be` / `CHAT-0928-HC-01.md` |
+| #448 | 本文 | B | `cloudflare/docs/logs/CHAT-0928-HC-02.md` | `1ad5d8be` / `CHAT-0928-HC-02.md` |
+| #362 | コメント 5726294545 | C | `work/0916-lv22/docs/logs/CHAT-0916-LV-22.md` | `0d9e3b10` / `CHAT-0916-LV-22.md` |
+| #362 | コメント 5726610098 | C | `work/0916-lv23/docs/logs/CHAT-0916-LV-23.md` | `0d9e3b10` / `CHAT-0916-LV-23.md` |
+| #362 | コメント 5726859217 | C | `work/0916-lv23/docs/logs/CHAT-0916-LV-24.md` | `0d9e3b10` / `CHAT-0916-LV-24.md` |
+| #362 | コメント 5727563152 | C | `work/0916-lv25/docs/logs/CHAT-0916-LV-25.md` | `0d9e3b10` / `CHAT-0916-LV-25.md` |
+| #362 | コメント 5727797356 | C | `work/0916-lv26/docs/logs/CHAT-0916-LV-26.md` | `0d9e3b10` / `CHAT-0916-LV-26.md` |
+| #362 | コメント 5731681318 | C | `work/0916-lv27/docs/logs/CHAT-0916-LV-27.md` | `0d9e3b10` / `CHAT-0916-LV-27.md` |
+| #362 | コメント 5732484134 | C | `work/0916-lv27/docs/logs/CHAT-0916-LV-28.md` | `0d9e3b10` / `CHAT-0916-LV-28.md` |
+| #362 | コメント 5733092682 | C | `cloudflare/docs/logs/CHAT-0916-LV-29.md` | `0d9e3b10` / `CHAT-0916-LV-29.md` |
+| #362 | コメント 5733423287 | C | `work/0916-lv30/docs/logs/CHAT-0916-LV-30.md` | `0d9e3b10` / `CHAT-0916-LV-30.md` |
+| #362 | コメント 5733992222 | C | `cloudflare/docs/logs/CHAT-0916-LV-31.md` | `0d9e3b10` / `CHAT-0916-LV-31.md` |
+| #362 | コメント 5734090762 | C | `cloudflare/docs/logs/CHAT-0916-LV-32.md` | `0d9e3b10` / `CHAT-0916-LV-32.md` |
+| #362 | コメント 5734245381 | C | `cloudflare/docs/logs/CHAT-0916-LV-33.md` | `0d9e3b10` / `CHAT-0916-LV-33.md` |
+| #362 | コメント 5734312916 | C | `cloudflare/docs/logs/CHAT-0916-LV-34.md` | `0d9e3b10` / `CHAT-0916-LV-34.md` |
+| #362 | コメント 5739070091 | C | `cloudflare/docs/logs/CHAT-0919-LP-01.md` | `0d9e3b10` / `CHAT-0919-LP-01.md` |
+| #390 | コメント 5755211429 | C | `cloudflare/docs/logs/CHAT-0921-DJ-01.md` | `321cd09f` / `CHAT-0921-DJ-01.md` |
+| #97 | コメント 5755903833 | C | `cloudflare/docs/logs/CHAT-0921-BK-01.md` | `321cd09f` / `CHAT-0921-BK-01.md` |
+| #397 | コメント 5759219736 | C | `work/0921-mt/docs/logs/CHAT-0921-MT-05.md` | `321cd09f` / `CHAT-0921-MT-05.md` |
+| #194 | コメント 5762792092 | C | `cloudflare/docs/logs/CHAT-0921-BK-13.md` | `321cd09f` / `CHAT-0921-BK-13.md` |
+| #429 | コメント 5774956311 | C | `cloudflare/docs/logs/CHAT-0922-BP-01.md` | `321cd09f` / `CHAT-0922-BP-01.md` |
+| #97 | コメント 5776491631 | C | `cloudflare/docs/logs/CHAT-0922-BP-03.md` | `85aaacb9` / `CHAT-0922-BP-03.md` |
+| #235 | コメント 5861274682 | C | `work/0924-tq/docs/logs/CHAT-0924-TQ-09.md` | `d1f0d6ef` / `CHAT-0924-TQ-09.md` |
+| #448 | コメント 5862205976 | A | `work/0928-hc/docs/logs/CHAT-0928-HC-03.md` | `1ad5d8be` / `CHAT-0928-HC-03.md` |
+| #448 | コメント 5862831468 | A | `cloudflare/docs/logs/CHAT-0928-HC-03.md` | `1ad5d8be` / `CHAT-0928-HC-03.md` |
+| #447 | コメント 5862955630 | A | `docs/logs/CHAT-0928-CW-08.md` | `1ad5d8be` / `CHAT-0928-CW-08.md` |
+| #448 | コメント 5863063224 | A | `work/0928-hc/docs/logs/CHAT-0928-HC-06.md` | `1ad5d8be` / `CHAT-0928-HC-06.md` |
+| #448 | コメント 5863385419 | A | `work/0928-hc/docs/logs/CHAT-0928-HC-07.md` | `1ad5d8be` / `CHAT-0928-HC-07.md` |
+| #447 | コメント 5864040853 | A | `docs/logs/CHAT-0928-CW-08.md` | `1ad5d8be` / `CHAT-0928-CW-08.md` |
+| #448 | コメント 5864191965 | A | `work/0928-hc/docs/logs/CHAT-0928-HC-08.md` | `1ad5d8be` / `CHAT-0928-HC-08.md` |
+| #448 | コメント 5864554813 | A | `cloudflare/docs/logs/CHAT-0928-HC-09.md` | `1ad5d8be` / `CHAT-0928-HC-09.md` |
+| #448 | コメント 5864826428 | A | `work/0928-hc/docs/logs/CHAT-0928-HC-10.md` | `1ad5d8be` / `CHAT-0928-HC-10.md` |
+| #296 | コメント 5865731888 | A | `docs/logs/CHAT-0928-CW-18.md` | `1ad5d8be` / `CHAT-0928-CW-18.md` |
+| #362 | コメント 5865786042 | C | `cloudflare/docs/logs/CHAT-0924-TQ-27.md` | `d1f0d6ef` / `CHAT-0924-TQ-27.md` |
+| #304 | コメント 5872146508 | A | `cloudflare/docs/logs/CHAT-0928-CX-03.md` | `1ad5d8be` / `CHAT-0928-CX-03.md` |
+| #124 | コメント 5872147704 | A | `cloudflare/docs/logs/CHAT-0928-CX-03.md` | `1ad5d8be` / `CHAT-0928-CX-03.md` |
+| #124 | コメント 5880896339 | A | `cloudflare/docs/logs/CHAT-0928-CX-05.md` | `1ad5d8be` / `CHAT-0928-CX-05.md` |
+| #124 | コメント 5881567353 | A | `cloudflare/docs/logs/CHAT-0928-CX-08.md` | `1ad5d8be` / `CHAT-0928-CX-08.md` |
+| #298 | コメント 5881908905 | A | `docs/logs/CHAT-0929-GX-03.md` | `1ad5d8be` / `CHAT-0929-GX-03.md` |
+| #398 | コメント 5883571847 | A | `docs/logs/CHAT-0929-SH-06.md` | `1ad5d8be` / `CHAT-0929-SH-06.md` |
+| #298 | コメント 5884208357 | A | `docs/logs/CHAT-0929-GX-10.md` | `1ad5d8be` / `CHAT-0929-GX-10.md` |
+| #298 | コメント 5884932982 | B | `docs/logs/CHAT-0929-ZK-01.md` | `1ad5d8be` / `CHAT-0929-ZK-01.md` |
+| #298 | コメント 5887665907 | A | `docs/logs/CHAT-0929-GX-17.md` | `1ad5d8be` / `CHAT-0929-GX-17.md` |
+| #448 | コメント 5895910765 | A | `cloudflare/docs/logs/CHAT-0930-CAL-01.md` | `1ad5d8be` / `CHAT-0930-CAL-01.md` |
+| #448 | コメント 5895910765 | A | `cloudflare/docs/logs/CHAT-0930-CAL-03.md` | `1ad5d8be` / `CHAT-0930-CAL-03.md` |
+
+### 手順2: 書き換えと確かめ
+
+- 書き換えた数: 46か所（44か所の本文・コメント。本文 #456・#448、コメント 42）。すべて「### 手順1」の表のとおり。飛ばしたもの 0件（書き換える直前に、現在の本文が取得時の本文と一致することを確かめてから書いた）
+- 書き方: REST（curl）での書き換えは、サーバがコメント・本文の末尾に `---` と `_Generated by [Claude Code]…_` の署名の行を足すため使えなかった（最初の1件 #456 でそれが起き、URL 以外が変わった。下の「エラー」）。GitHub MCP の `issue_write`（本文）・`update_issue_comment`（コメント）は署名を足さなかったため、以降はこれで書いた
+- 読み直し: 44か所すべてを REST の GET で取り直し、書き換え後の本文が、期待した本文（元の本文の該当 URL だけを置き換えたもの）とバイト単位で一致することを確かめた（不一致 0件）。元の本文に署名の行が既にあったコメント（#235・#448・#447・#296・#362・#124・#298・#398 の一部）は、そのまま
+- 新しいリンクが開けること: 新しい URL の 43種類（SHA × ファイル）のすべてで、`GET /repos/retroeater/mj/contents/<path>?ref=<SHA>` が HTTP 200
+- 書き換えの後の再走査: Open の issue の本文・コメントを取り直して同じ洗い出しを走らせると、書き換えの対象は 0か所
+- 書き換えの済み一覧（issue・本文/コメント ID）: #456 本文／#448 本文・コメント 5862205976・5862831468・5863063224・5863385419・5864191965・5864554813・5864826428・5895910765／#362 コメント 5726294545・5726610098・5726859217・5727563152・5727797356・5731681318・5732484134・5733092682・5733423287・5733992222・5734090762・5734245381・5734312916・5739070091・5865786042／#390 5755211429／#97 5755903833・5776491631／#397 5759219736／#194 5762792092／#429 5774956311／#235 5861274682／#447 5862955630・5864040853／#296 5865731888／#304 5872146508／#124 5872147704・5880896339・5881567353／#298 5881908905・5884208357・5884932982・5887665907／#398 5883571847
+
+### 手順3: 参照・削除・マージ
+
+- docs/（docs/logs/ を除く）・CLAUDE.md・scripts/・.github/ で、19件のファイルパスを指す箇所: docs/notes/cloudflare.md（URL 1か所、CX-05）と docs/notes/yotei-sheet.md（パス4か所、HC-01・02・06・10）。scripts/・.github/・CLAUDE.md には無かった。2か所を、1ad5d8be 固定の permalink に差し替えた（コミット）。ほかにチャット ID だけを書いた箇所（docs/decisions/broadcast-calendar.md の見出し、yotei-sheet.md の「CHAT-0928-HC-06・HC-07」）はパスでないので変えない
+- 削除のコミット: 19件（CHAT-0929-GX-03・GX-10・GX-17・SH-06、CHAT-0928-HC-01・03・06・07・08・09・10・15、CHAT-0930-CAL-01・03、CHAT-0928-CX-03・05・08、CHAT-0928-CW-08・18）。`git show --stat` は 19 files changed, 3144 deletions で、docs/logs/ 以外のファイルは無い。HC-02・ZK-01・GX-08 は含まれない
+- 残したログと理由: CHAT-0928-HC-02（scripts/lib/yotei.py の12行目が参照）、CHAT-0929-ZK-01（scripts/tests/test_chat_ids.py の33・36・37行目が参照）、CHAT-0929-GX-08（カレンダーの【R#298】が名指し）
+
 ## 報告
 
 - 状態: 中断（着手直後。作業中）
@@ -87,12 +166,12 @@ CHAT-1007-PHT-07 の仕分けで、論点は片付いているのに、Open の 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj ccdefd6b）: https://github.com/retroeater/mj-logs/tree/main/guide/ccdefd6b
+ガイド文書（この版を写した時点の最新、mj aa4d98dc）: https://github.com/retroeater/mj-logs/tree/main/guide/aa4d98dc
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ccdefd6b/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ccdefd6b/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ccdefd6b/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ccdefd6b/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ccdefd6b/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/ccdefd6b/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/aa4d98dc/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/aa4d98dc/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/aa4d98dc/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/aa4d98dc/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/aa4d98dc/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/aa4d98dc/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/1257323c.md

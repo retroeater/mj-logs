@@ -549,17 +549,28 @@ python3 scripts/collect_saikyo_images.py              # 標準出力へCSV
 python3 scripts/collect_saikyo_images.py -o urls.csv  # ファイルへ
 python3 scripts/collect_saikyo_images.py --limit 5    # 動作確認用
 python3 scripts/collect_saikyo_images.py --json result.json  # ワークフロー用
+python3 scripts/collect_saikyo_images.py --resolve-test 104307  # 1件だけ解決して診断を出す
 ```
 
 - **週1の検知**: `.github/workflows/check-image-links.yml` のジョブ `saikyo` が、`jpml_pros.html` の検知と同じ
   毎週月曜 03:00 JST に `--json` で実行し、常設issue「最強戦の選手写真のリンク切れ検知結果」に
   選手名・ハンドル・行数・取得できなかったURL・解決した新しいURLを書き出す。ゼロになればコメントしてクローズする
   （CHAT-0916-SK-44、#139）。通知はissue経由のGitHubの通知で、メールを直接送る仕組みは無い。
-  issueがopenのまま本文だけ更新された場合は通知が来ないことがある。動作確認は `workflow_dispatch` の入力 `saikyo_limit`
+  issueがopenのまま本文だけ更新された場合は通知が来ないことがある。動作確認は `workflow_dispatch` の入力 `saikyo_limit`。
+  入力 `saikyo_resolve_test` にX IDを1つ入れると、ランナーのChromeで `resolve()` を1回だけ呼んで診断を出す
+  （検知も issue の書き換えもしない。リンク切れがゼロのあいだは解決が動かないので、その確かめ用。#514）
 
 - 解決は**ヘッドレスChromiumで `https://x.com/<handle>/photo` を開いて取り出す**（`--headless=old --dump-dom`）。
-  curlでは取れない（JSでしか描画されず、`/photo` 以外はCloudflareのチャレンジで403）。ログインは要らない。
-  1件5秒ほどかかるが、対象は404の行だけなので許容できる。解決に失敗しても検知結果は出る（状態の列に理由が入る）。
+  curlでは取れない（JSでしか描画されず、`/photo` 以外はCloudflareのチャレンジで403）。ログインは要らない、としていたが、
+  **2026-09-28 朝の週次から1件も解決できていない**（最後の成功は 2026-09-20 20:30 UTC、#423。調査は #514）。
+  調べた範囲では、ログインしていないときの `/photo` は `/<handle>`（プロフィール）へ 307 転送され、Chromiumは「HTTP ERROR 403」のページを受けた
+  Actions のランナー（Google Chrome 154、`--headless=old` は受け付ける）でも、2026-10-07 に104307・momonga_211 の2件を試して、どちらも
+  DOM が出ず「Page load failed: net::ERR_HTTP_RESPONSE_CODE_FAILURE」（読み込みが HTTP エラー応答で失敗。コードは出ない）で終わった。
+  1件5秒ほどかかるが、対象は404の行だけなので許容できる。解決に失敗しても検知結果は出る（状態の列に失敗の理由が入る。
+  「ページを開けない(HTTP 403)」「Chromeが出力なしで終了」「ログインを求められた」「画像URLが見つからない(理由不明)」など。診断はジョブのログに出る）。
+  **解決を試して1件も解決できなかったとき（アカウントなしだけの場合を除く）は、issue の表の上に「自動解決は働いていません」の1行が出る**。
+  その場合の新しいURLは手で読む: X にログイン済みのブラウザで `https://x.com/<X ID>/photo` を開き、写真の `_400x400` の URL を読む
+  （`[aria-modal="true"] img` に出る）。
   Chromiumの場所は `CHROME_BIN` で指定できる（未指定ならPATHとよくある場所から探す。
   GitHub Actionsの `ubuntu-latest` には Google Chrome / Chromium が同梱されている）
 - **当初は unavatar.io を使っていたが、1日25件（APIキー登録で50件）の制限があり16件程度でも枠を使い切るためやめた**
