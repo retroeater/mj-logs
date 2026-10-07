@@ -55,29 +55,228 @@ CHAT-1005-RVW-17 の実測で、Actions の分の 55% を sync-logs（作業ロ�
 
 - 2026-10-07 着手。CHAT-1005-RVW-18 のコミットなし。work/1007-rvw-synclogs はローカル・リモートとも無く、origin/cloudflare（e2fd59f6）から作成
 - 0. 指示欄の末尾は指示文の最後の行と一致。雛形の行は揃っている
+- 止まる条件: 未マージの `work/` ブランチ（work/1007-lgr と、この指示のブランチ）は `.github/workflows/`・`scripts/sync_logs.py`・`workers/` を変えていない
+- mj-logs は add_repo で「public のため匿名の git の読み取りができる（API は対象外）」と返った。git clone で中身を見た。API（`/repos/retroeater/mj-logs`・`/actions/workflows`・`/actions/permissions`）はセッションのプロキシが 403 を返した（「このセッションでは有効でない」）。別の手段は試していない
+- 公式の説明（docs.github.com）は RVW-17 と同じくプロキシで遮断。この指示では読みに行っていない。以下で GitHub・Cloudflare の仕様に頼る箇所は「要確認」と書いた
+
+### 1. 経緯と今の決まり
+
+| issue・文書 | 中身 |
+|---|---|
+| #440 | クラウドセッションのため、作業ログを public の mj-logs へ写す `sync-logs.yml` を作った（mj は private） |
+| #454 | 取り消された実行の分のログが古いまま残った（2026-09-28）。写す範囲を push の差分から「実行時点の mj と mj-logs の突き合わせ」に直した（`scripts/sync_logs.py`）。何度走っても同じ結果になる |
+| #298 | Actions の使用量。09-29 に `work/**` は目印 `[sync-logs]` のある push だけ写すようにした（1回数十秒のジョブが1分に切り上げられるため）。RVW-17 の実測で、10月の分の 55% が sync-logs |
+| #498 | 毎回、mj の各ワークフローの直近5回を mj-logs の `actions/status.md` に書き出す（`scripts/actions_status.py`）。毎日1回の予約実行も足した |
+| #504 | Cloudflare の Worker `mj-scheduler`（cron `*/5`）が予約の時刻に `workflow_dispatch` を送る。sync-logs.yml は毎日 05:30 JST |
+| #509 | concurrency に `queue: max`（待ちを取り消さない）。期日 10-13 |
+| CLAUDE.md「作業ログ」 | 着手と最後の push の本文に `[sync-logs]`。ターミナルの報告の前に mj-logs の raw で今回の版を確かめる（15分まで） |
+| docs/notes | cloud-sessions.md「作業ログ」・static-generation.md「ワークフローの一覧」・docs/logs/_template.md に目印の規則。scheduler-worker.md に Worker の作り |
+
+#### (a) 写す仕組みが mj の何を読むか
+
+| 処理 | 読むもの | 要る権限（今は mj の GITHUB_TOKEN） |
+|---|---|---|
+| チェックアウト（`fetch-depth: 0`） | mj の全ブランチの全履歴 | contents: read |
+| `sync_guides.py copy`（cloudflare のときだけ） | cloudflare の時点のガイド文書（ALLOWED_PATTERNS） | 同上（git だけ） |
+| `chat_ids.py` | 全ブランチのコミットのメッセージと docs/logs の履歴のファイル名 | 同上 |
+| `sync_logs.py` | cloudflare・作業ブランチの docs/logs の履歴と中身、`origin/cloudflare`（作業ブランチのときの基点） | 同上 |
+| 削除（cloudflare のときだけ） | cloudflare の履歴で消えたログ | 同上 |
+| `actions_status.py` | mj の Actions API（ワークフローの一覧・各5回の実行・失敗した実行のジョブ）と、手元の `.github/workflows/*.yml` の cron | actions: read（mj） |
+| mj-logs への push | — | mj-logs への書き込み（今は Secret `MJ_LOGS_TOKEN`） |
+
+`actions_status.py` は対象のリポジトリを環境変数 `GITHUB_REPOSITORY` から取る。mj-logs の上で動かすと mj-logs を指すので、引数で渡せるようにする小さな直しが要る（GitHub の既定の環境変数 `GITHUB_*` はワークフローの `env` で上書きできない、と理解しているが要確認）。ほかの3つのスクリプトは、mj のクローンの中で動かせば今のまま使える。
+
+#### (b) mj-logs の今の状態
+
+| 項目 | 確かめた結果 |
+|---|---|
+| 公開 | public（匿名の git clone と raw が読める。設定の画面では未確認） |
+| 既定のブランチ | main（clone の HEAD） |
+| ワークフロー | 無い（`.github/` が無い） |
+| 中身 | README.md・actions/・chat-ids/・guide/・logs/（205件）。作業ツリー 14MB |
+| Actions の設定・Secret・GITHUB_TOKEN の既定の権限 | API が 403 で読めない。平野さんの画面で確かめる（下の「手作業」1） |
+
+#### (c) Worker の今の作り
+
+| 項目 | 今 |
+|---|---|
+| 入口 | `scheduled`（cron `*/5 * * * *`）だけ。`fetch` の入口は無く、`workers_dev`・`preview_urls` は false（公開の URL が無い） |
+| 外への HTTP | 出せる（GitHub API へ `workflow_dispatch`・実行の一覧・issue のコメントを送っている） |
+| 起動先 | `vars.GITHUB_REPOSITORY`（retroeater/mj）の1つだけ。`dispatchDue()` は `/repos/<repository>/actions/workflows/<file>/dispatches` |
+| Secret | `GITHUB_TOKEN`（fine-grained、対象は mj だけ。Actions・Issues が Read and write） |
+| Free の上限 | Cron Triggers は5本まで（使用1本）。Workers Logs は1日20万件（scheduler-worker.md の記録）。リクエスト数・1回あたりの外への呼び出しの上限は要確認 |
+
+webhook を受けるには、`fetch` の入口・公開の URL（`workers_dev` を true にするか経路を足す）・署名の確かめが要る。GitHub の webhook は認証ヘッダは付けられないが、Secret を設定すると本文の HMAC 署名（`X-Hub-Signature-256`）が付き、受け側で確かめられる（要確認）。
+
+### 2. 設計
+
+#### (d) 公開の実行ログに出るもの
+
+- スクリプトが出すのは、写す・消すログのパス、ガイドのパス、chat-ids の短い SHA、status.md のワークフロー数だけ。ログやガイドの中身は出さない。mj-logs のコミットメッセージに今も `retroeater/mj@<SHA> (<ブランチ>)` が載っているので、新しく公開される情報ではない
+- エラー: `git` の失敗は `CalledProcessError`（コマンドの引数＝パスと SHA）で、中身は出ない。`actions_status.py` の HTTP エラーは URL（リポジトリ名と run ID）
+- 新しく出るもの: mj をクローンしたときの出力。`actions/checkout` は fetch の出力（ブランチ名の一覧 `* [new branch] …`）を出す見込みで、mj の全ブランチ名（`claude/…` を含む）が公開される。静かにクローンする（`git clone -q` を自分で書く）か、出てよいと決める
+- Secret は GitHub がログで伏せる。PAT を `echo` しない、`set -x` を使わない
+- public のリポジトリでは、fork からの pull request で動くワークフローに Secret は渡らない。`pull_request_target` は使わない。起動は `workflow_dispatch`・`repository_dispatch`・`schedule` だけにする
+
+#### (e) mj のクローンの大きさと所要時間（このセッションで測った値。ランナーでは違う）
+
+| クローン | 時間 | .git の大きさ |
+|---|---|---|
+| 全履歴（`--no-checkout`） | 約7.5秒 | 122MB |
+| `--filter=blob:none --no-checkout` | 約1.0秒 | 3.9MB |
+| 上の blobless で cloudflare をチェックアウトした後 | — | 25MB |
+
+blobless のクローンで cloudflare の時点の `chat_ids.py`・`sync_logs.py`（mj-logs の写しに対して）を動かすと、2秒で終わり、写すものは0件だった（今の mj-logs は cloudflare と同じ）。この指示の作業ブランチを指定すると `docs/logs/CHAT-1005-RVW-18.md` の1件を返した。どれも手元の写しに対して動かしただけで、mj-logs には何も書いていない。sparse-checkout は要らない（スクリプトは `git show` で読む。チェックアウトが要るのは `scripts/` と `.github/workflows/` だけ）。
+
+#### (f)〜(i) 起動の方式
+
+| 方式 | 中身 | 遅れ（push から写るまで） | 要るもの | 欠点 |
+|---|---|---|---|---|
+| **W1: Worker の cron から毎回起動（推す）** | 今の Worker の5分ごとの回で、mj-logs の同期のワークフローを `workflow_dispatch` する。同期の側で cloudflare と未マージの `work/**` を全部突き合わせる | 最大 約5分＋実行 約1分 | Worker に「別のリポジトリへの起動」の行を足す。トークンが mj-logs を起動できること | 1日288回動く（無料。mj-logs の Actions の一覧が実行で埋まる）。Worker が止まると写らない（下の保険で拾う） |
+| W2: webhook → Worker → `repository_dispatch` | mj の push の webhook を Worker の公開の URL で受け、署名を確かめ、ref と変わったパスを見て送る | 約1分 | `fetch` の入口・公開の URL・webhook の Secret・署名の確かめ・ref の判定 | 作る物が多い。Worker に初めて公開の入口ができる |
+| W3: mj-logs の `schedule` だけ | `*/5` などで回す | GitHub の予約は2時間半〜5時間遅れる（#491） | なし | 遅れが大きすぎる。保険としてだけ使う |
+| W4: セッション・hook から送る | Code のセッションが push の後に `repository_dispatch` を送る | 約1分 | セッションに mj-logs を起動できるトークン | クラウドセッションには mj-logs のトークンが無い（API も 403）。セッションごとに忘れうる。採れない |
+| （参考）mj の Actions から送るだけ | 送るだけのジョブ | — | — | 1回でも1分に切り上げられ、分が減らない |
+
+W1 では「どの push か」を知らなくてよい。今のスクリプトは突き合わせで決めるので（#454）、毎回すべての対象のブランチを見れば取りこぼしが無い。cloudflare に入ったブランチの `plan_work` は0件になる。
+
+- (h) 順番: mj-logs の同期のワークフローに `concurrency: { group: sync, cancel-in-progress: false }`。毎回すべてを突き合わせるので、待ちが後の実行に置き換えられて取り消されても失うものが無い（`queue: max` は要らない）
+- (g) 失うもの: mj の各コミットに付く sync-logs の check-run。チャット側は raw の URL と `actions/status.md` で読んでいて、check-run は使っていない。代わりに要りそうなのは「最後に写した時刻と mj の SHA」。mj-logs のコミットメッセージに残す（今と同じ）。status.md に mj-logs の同期の直近の実行を足すかは平野さんが決める
+- 保険: mj-logs の `schedule`（1日1回）を残す。Worker が止まっても、遅れながら写る
+
+#### mj-logs のワークフローの骨子（案）
+
+```yaml
+name: mj の作業ログを写す
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '29 23 * * *'   # 保険
+permissions:
+  contents: write            # mj-logs 自身への push（GITHUB_TOKEN）
+concurrency:
+  group: sync
+  cancel-in-progress: false
+jobs:
+  sync:
+    runs-on: ubuntu-latest   # 標準のランナー（public なら無料、要確認）
+    steps:
+      - uses: actions/checkout@v4          # mj-logs
+      - name: mj を読む（静かに）
+        env: { TOKEN: ${{ secrets.MJ_READ_TOKEN }} }
+        run: git clone -q --filter=blob:none <mj を TOKEN で> mj   # 出力を出さない形にする
+      - name: cloudflare と未マージの work/** を写す
+        working-directory: mj
+        run: |
+          # cloudflare: sync_guides copy → chat_ids → sync_logs --ref cloudflare → 写す → 削除
+          # 各 work/**（origin/cloudflare に入っていないもの）: sync_logs --ref <ブランチ> → 写す
+          # 今の sync-logs.yml の手順を、ref のループにして同じスクリプトで回す
+      - name: Actions の結果
+        env: { GITHUB_TOKEN: ${{ secrets.MJ_READ_TOKEN }} }
+        run: python3 mj/scripts/actions_status.py --repo retroeater/mj --dest .   # --repo は足す
+      - name: push（今と同じ再試行）
+```
+
+ループの部分は、ワークフローに書くより mj の `scripts/` に1本足す（例: すべての対象を回すスクリプト）ほうが、テスト（`scripts/tests/`）が書ける。
+
+#### Worker に足す処理の骨子（W1）
+
+- `schedule.json` の行に、任意のキー `repository`（例 `retroeater/mj-logs`）と `ref`（`main`）を足し、無ければ今の `vars` を使う。`dispatchDue()` で行の値を優先する
+- 5分ごとの行は今の表の形（時刻を1つ）で書けないので、`every: 5` のような形を足すか、5分ごとの回で必ず起動する行の種類を作る
+- 朝の確かめ（#506）の対象にするかは別に決める（288回の結果を見るのは重い。mj-logs の最新のコミットの時刻を見るほうが軽い）
+- トークン: 今の Worker のトークンの対象に mj-logs を足すと、mj-logs にも Actions・Issues の Read and write が付く。足すか、mj-logs の起動だけの別のトークンにするかは平野さんが決める（fine-grained のトークンは1つの所有者の複数のリポジトリを選べる。権限はリポジトリごとに分けられない、と理解しているが要確認）
+
+#### mj 側で消すもの・残すもの
+
+| 消す（切り替えの後） | 残す |
+|---|---|
+| `.github/workflows/sync-logs.yml` | `scripts/sync_logs.py`・`sync_guides.py`・`chat_ids.py`・`actions_status.py` とテスト（mj-logs から mj をクローンして使う） |
+| mj の Secret `MJ_LOGS_TOKEN`（とその PAT） | ログの書き方・raw で確かめる手順（CLAUDE.md「作業ログ」） |
+| Worker の表の `sync-logs.yml` 05:30 の行 | Worker の他の行 |
+| CLAUDE.md・_template.md・cloud-sessions.md・static-generation.md・chat-side-operations.md の目印 `[sync-logs]` の規則と sync-logs.yml の説明 | |
+
+#### 切り替えの順番と戻し方
+
+1. 平野さんの手作業（下）を済ませる
+2. 実装1（mj）: `actions_status.py` に対象のリポジトリの引数、すべての対象を回すスクリプトとテスト。mj の sync-logs.yml は今のまま
+3. 実装2（mj-logs）: 同期のワークフローを足す（`workflow_dispatch` と予約だけ）。平野さんが手動実行して、mj-logs に変化が無い（今の写しと同じ）ことを確かめる。**並走**: mj の sync-logs.yml も動いたまま。どちらも突き合わせで同じ中身を書くので、ぶつかっても push の再試行で収まる（2つの push が競う回数は増える）
+4. 実装3（Worker）: 5分ごとの起動を足す。数日並走し、作業ブランチの着手のログ（目印なし）が mj-logs に写ることを確かめる
+5. 実装4（mj）: sync-logs.yml を止める。まず `on:` を `workflow_dispatch` だけにする（消さない）。Worker の 05:30 の行を消す。文書の目印の規則を消す。1〜2週間後に sync-logs.yml と `MJ_LOGS_TOKEN` を消す
+- 戻し方: 5 の後なら、sync-logs.yml の `on:` を戻せば今の形に戻る（`MJ_LOGS_TOKEN` を消すまで）。Worker の起動は表の行の `enabled: false` で止まる。mj-logs のワークフローは無効化（Actions の画面）で止まる
+
+#### 平野さんの手作業（画面の順）
+
+値は書かない。トークンの権限の名前は公式の説明で確かめていないので、発行の画面で合わせる。
+
+1. **mj-logs の設定を確かめる**: GitHub の retroeater/mj-logs → Settings → General の一番下で public であること → Settings → Actions → General で「Allow all actions」等で Actions が動くこと、Workflow permissions（GITHUB_TOKEN の既定の権限）の表示をスクリーンショットで送る
+2. **mj を読むトークンを発行**: 右上のアイコン → Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token。名前の案 `mj-logs-sync`、Resource owner retroeater、Only select repositories で **retroeater/mj だけ**、権限は Contents: Read-only と Actions: Read-only（Metadata は自動で Read-only）。期限は平野さんが決める（Worker のトークンと同じ 2027-10-05 に揃えると予定が1つで済む）
+3. **mj-logs に Secret を登録**: retroeater/mj-logs → Settings → Secrets and variables → Actions → New repository secret。名前の案 `MJ_READ_TOKEN`、値は 2 のトークン
+4. **Worker のトークン（W1 のとき）**: 今の `mj-scheduler` のトークンの対象に retroeater/mj-logs を足す（Settings → Developer settings → Fine-grained tokens → `mj-scheduler` → Edit → Repository access）。または mj-logs の Actions: Read and write だけの別のトークンを発行し、Cloudflare の `mj-scheduler` → Settings → Variables and Secrets に別の名前で足す
+5. **mj-logs にワークフローを置く方法を決める**: Code のセッションは mj-logs に push できない（今の接続は読み取りだけ）。(i) 平野さんが Code のセッションに mj-logs を push で接続する（add_repo の push。GitHub の Claude のアプリが mj-logs に入っている必要がある） (ii) Code が mj の作業ブランチにファイルを用意し、平野さんが GitHub の画面で mj-logs に貼る (iii) 今の MJ_LOGS_TOKEN の sync-logs.yml から置く（トークンに workflows の権限が要り、やめたい形）。推すのは (i)
+6. W2 を選ぶときだけ: mj → Settings → Webhooks → Add webhook（Payload URL は Worker の公開の URL、Content type application/json、Secret、Just the push event）。Worker に webhook の Secret を足す
+
+#### 実装の指示の分け方（案）
+
+| # | 対象 | 中身 | マージ |
+|---|---|---|---|
+| 1 | mj | `actions_status.py` の対象のリポジトリの引数、すべての対象を回すスクリプトとテスト | 承認が要る（scripts） |
+| 2 | mj-logs | 同期のワークフロー。手動実行で確かめる（並走） | mj-logs への push の手段による |
+| 3 | mj（workers/） | Worker に別のリポジトリへの5分ごとの起動。数日並走 | 承認が要る |
+| 4 | mj | sync-logs.yml の停止、Worker の 05:30 の行、文書の目印の規則 | 承認が要る |
+
+1 と 3 はまとめてもよい。4 は 2・3 の並走を見てから。
+
+#### (j) 移した後に mj に残る分（RVW-17 の実測から sync-logs を除く）
+
+| 数え方 | 1日あたり | 31日 |
+|---|---|---|
+| 10-01〜07 の全体（914 − sync-logs 499 − 予約の sync 1 = 414分 / 6.20日） | 66.8分 | 約2,070分 |
+| 10-06 04:04 以降（242 − 143 − 1 = 98分 / 1.03日） | 95.1分 | 約2,950分 |
+
+枠（#298 の記録: Pro 月3,000分）に収まる見込みだが、10-06 以降のペースでは余裕が少ない。残りの大きいものは assets-check（月 約1,140分、そのうち RVW-17 の案 E の同じ SHA の分が 約205分）と連盟ch の取り込み（手動実行を含め 月 約370分）。
+
+### 3. 結論
+
+**条件付きでできる。** スクリプトは mj に置いたまま、mj-logs の上で blobless のクローンから今のまま動く（`actions_status.py` だけ引数を足す）。条件:
+
+1. mj-logs で Actions が動き、GITHUB_TOKEN で自身に push できること（設定は API が 403 で未確認。手作業1）
+2. public・標準のランナーの実行が無料であること（チャット側が公式の説明で確かめた。セッションからは未確認）
+3. mj-logs にワークフローを置く手段（手作業5）
+4. 起動の方式（W1 を推す。Worker の小さな直しと、トークンの対象の追加が要る）
+5. 公開の実行ログに mj のブランチ名が出ないよう、クローンを静かにする（または出てよいと決める）
+
+### 4. issue
+
+- #298 に結論の要点をコメント
+
+### 5. 報告の書き方
+
+- 完了条件は「判断が必要なこと」に平野さんが選ぶ点を書く、としているが、CLAUDE.md「作業ログ」節（ログの寿命）は「完了」の「判断が必要なこと」「未確認の項目」を「なし」だけとする。ルールの側を優先し、論点を #298 のコメントに移して「なし（#298 に移した）」と書いた（状態は指示どおり「完了」）
+- 移した判断が必要なこと: (1) 起動の方式（W1: Worker の5分ごとの起動〈推す〉／W2: webhook。「2. 設計」の表） (2) 着手・節目の写しを含めてすべて写すか（W1 では毎回すべての対象を突き合わせるので、目印は要らなくなり、すべて写る） (3) check-run の代わりの要否（mj-logs のコミットメッセージに mj の SHA を残すのは今と同じ。status.md に mj-logs の同期の実行を足すか） (4) 切り替えの順番（並走 → mj 側を `on:` だけ止める → 1〜2週間後に消す、でよいか） (5) Worker のトークンに mj-logs を足すか、別のトークンにするか (6) mj-logs にワークフローを置く手段（セッションに push で接続〈推す〉／画面で貼る） (7) 公開の実行ログに mj のブランチ名が出てよいか（出さない形を推す） (8) 手作業1のスクリーンショット（mj-logs の public・Actions の設定・Workflow permissions）
+- 移した未確認の項目: mj-logs の Actions の設定と Secret（API が 403）。GitHub の公式の説明（public の実行の無料・fine-grained トークンの権限の名前・`GITHUB_*` の上書きの可否・webhook の署名）と Cloudflare の Free の上限（リクエスト数・外への呼び出しの数）。ランナーでのクローンの所要時間（このセッションでの値だけ）
 
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1007-rvw-synclogs
-- ログ: https://github.com/retroeater/mj/blob/work/1007-rvw-synclogs/docs/logs/CHAT-1005-RVW-18.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1007-rvw-synclogs
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1005-RVW-18.md
+- 比較URL: https://github.com/retroeater/mj/compare/e2fd59f6...work/1007-rvw-synclogs
 - 確認用URL: なし
-- マージ: 未
-- issue: なし
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- マージ: cloudflare へマージ済み（ログと docs/decisions のみ）
+- issue: #298 に結論の要点をコメント
+- 判断が必要なこと: なし（#298 に移した。起動の方式・すべて写すか・check-run の代わり・切り替えの順番・Worker のトークン・mj-logs にワークフローを置く手段・ブランチ名の公開・mj-logs の設定のスクリーンショットの8点）
+- 未確認の項目: なし（#298 に移した）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj e2fd59f6）: https://github.com/retroeater/mj-logs/tree/main/guide/e2fd59f6
+ガイド文書（この版を写した時点の最新、mj 5d8d22d3）: https://github.com/retroeater/mj-logs/tree/main/guide/5d8d22d3
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2fd59f6/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2fd59f6/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2fd59f6/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2fd59f6/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2fd59f6/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2fd59f6/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/5d8d22d3/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/5d8d22d3/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/5d8d22d3/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/5d8d22d3/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/5d8d22d3/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/5d8d22d3/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/1257323c.md
