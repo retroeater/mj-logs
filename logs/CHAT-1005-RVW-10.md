@@ -54,17 +54,25 @@ CHAT-1005-RVW-09 で作った辞書ページ（`resource_dictionary.html`・`res
 
 - 2026-10-07 着手。CHAT-1005-RVW-10 のコミットなし。work/1006-rvw-377 はローカルとリモートが一致（5f8fd017）
 - 0. 指示欄の末尾は指示文の最後の行と一致。RVW-09 の `## 報告` の状態は「判断待ち」。雛形の行は揃っている
+- 1. 未マージの `work/` ブランチのうち辞書ページ・`dic/`・生成スクリプトを変えているのは自分の `work/1006-rvw-377` だけ（ほかは無い）
+- origin/cloudflare を `git merge` で取り込んだところ、`docs/notes/static-generation.md` が衝突した。止まる条件「origin/cloudflare の取り込みで衝突した」に当たるため、`git merge --abort` で取り込みを取り消し（作業ツリーは取り込み前の 5f8fd017 のまま）、手順2に入らず止まった
+  - 衝突の箇所: 「ページの一覧」の表。cloudflare 側は `490a610f feat: publish houou_race`（CHAT-1006-LGR-10、#508）で houou_race の行の文言を公開に合わせて書き換え、こちら（RVW-09）はその直後の行に辞書ページの行を足していた。隣り合う行の衝突で、内容は両立する（cloudflare 側の houou_race の行を採り、辞書の行を残せば解ける見込み）。生成物ではないため、CLAUDE.md「ブランチ運用」でも止まる扱い
+  - 同じ取り込みのほかのファイルは衝突しなかった（衝突は1ファイルだけ）
+- 指示の「決定」節を docs/decisions/features.md に「2026-10-07（CHAT-1005-RVW-10）」として足した（保存名は未実装と書いた）。RVW-09 のログの状態の直しは手順2に含まれるため、行っていない
 
 ## 報告
 
-- 状態: 作業中
+- 状態: 中断（止まる条件に当たった。origin/cloudflare の取り込みで docs/notes/static-generation.md が衝突）
 - ブランチ: work/1006-rvw-377
 - ログ: https://github.com/retroeater/mj/blob/work/1006-rvw-377/docs/logs/CHAT-1005-RVW-10.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1006-rvw-377
-- 確認用URL: なし
-- マージ: 未
+- 確認用URL: なし（コードは変えていない。RVW-09 のプレビューのまま）
+- マージ: しない
 - issue: なし
-- 判断が必要なこと: なし
+- 判断が必要なこと:
+  - 衝突は docs/notes/static-generation.md「ページの一覧」の隣り合う2行（cloudflare 側の houou_race の行の書き換えと、こちらの辞書の行の追加）。cloudflare 側の houou_race の行を採り、辞書の行を残す解き方で取り込んでよいか（続きの指示に「docs/notes/static-generation.md のこの衝突は、両方の行を残して解いてよい」と書けば進められる）
+  - 続きは新しい番号の指示で（このログにコミットがあるため）。保存名の変更・RVW-09 のログの状態の直しはまだ行っていない
+  - 指示文の雛形の行に欠けは無い
 - 未確認の項目: なし
 - エラー: なし
 
