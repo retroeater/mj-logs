@@ -2,7 +2,7 @@ name: mj の作業ログを写す
 
 # private の retroeater/mj の作業ログ・ガイド文書・使用済みの Chat-Ref 識別子・Actions の実行結果を、このリポジトリへ写す（mj の #298）。
 # mj の Actions の分を使わないため、public のこのリポジトリで動かす。手順は mj の scripts/sync_all_logs.py と scripts/actions_status.py。
-# 切り替えまでは mj の sync-logs.yml も動いている（並走）。どちらも突き合わせで同じ中身を書く。
+# 起動は mj の Worker mj-scheduler（mj に push があった直後の毎分の回）と、手動実行・予約実行。mj の sync-logs.yml は 2026-10-07 に起動を止めた。
 #
 # - 実行ログは誰でも読める。mj のブランチ名・ログの中身・トークンを出さない（クローンは -q、スクリプトはパスと件数だけを出す）
 # - mj を読むのは Secret MJ_READ_TOKEN（mj の Contents・Actions が Read-only）。書き込みはこのリポジトリの GITHUB_TOKEN
@@ -10,7 +10,7 @@ name: mj の作業ログを写す
 
 on:
   workflow_dispatch:
-  # 保険。mj の Worker からの起動（予定）が止まっても1日1回は写す。GitHub の予約は遅れる
+  # 保険。mj の Worker からの起動が止まっても1日1回は写す。GitHub の予約は遅れる
   schedule:
     - cron: '41 18 * * *'
 
@@ -46,46 +46,40 @@ jobs:
           git -C "$MJ" config "http.https://github.com/.extraheader" "$header"
           echo "mj cloudflare: $(git -C "$MJ" rev-parse --short HEAD)"
 
-      - name: ログ・ガイド文書を写す・消す
-        env:
-          MJ: ${{ runner.temp }}/mj
-        run: python3 "$MJ/scripts/sync_all_logs.py" --mj "$MJ" --dest "$GITHUB_WORKSPACE"
-
-      - name: Actions の実行結果を書き出す
+      # 写す・書き出す・push を1つの step で回す。push が拒否されたら（mj の別の起動が先に push した等）、
+      # rebase で合わせず origin/main に戻して写す・書き出すをやり直す（actions/status.md は毎回中身が違い、rebase がぶつかるため）
+      - name: 写す・書き出す・push
         env:
           GITHUB_TOKEN: ${{ secrets.MJ_READ_TOKEN }}
           MJ: ${{ runner.temp }}/mj
-        working-directory: ${{ runner.temp }}/mj
-        run: python3 scripts/actions_status.py --repo retroeater/mj --dest "$GITHUB_WORKSPACE"
-
-      - name: push
-        env:
-          MJ: ${{ runner.temp }}/mj
         run: |
           set -euo pipefail
-          git add -A
-          if git diff --cached --quiet; then
-            echo "変更なし"
-            exit 0
-          fi
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           # 載せるのは mj の cloudflare の SHA だけ（作業ブランチの SHA・名前は載せない）
           after=$(git -C "$MJ" rev-parse HEAD)
-          {
-            echo "sync: mj ${after:0:8}"
-            echo
-            echo "retroeater/mj@${after} (cloudflare)"
-            echo
-            git diff --cached --name-status
-          } > "$RUNNER_TEMP/commit_message.txt"
-          git commit -q -F "$RUNNER_TEMP/commit_message.txt"
-          git log -1 --format='%H %s'
-          # 別の実行（mj の sync-logs.yml を含む）が先に push していたら取り込み直す
           for i in 1 2 3; do
+            python3 "$MJ/scripts/sync_all_logs.py" --mj "$MJ" --dest "$GITHUB_WORKSPACE"
+            (cd "$MJ" && python3 scripts/actions_status.py --repo retroeater/mj --dest "$GITHUB_WORKSPACE")
+            git add -A
+            if git diff --cached --quiet; then
+              echo "変更なし"
+              exit 0
+            fi
+            {
+              echo "sync: mj ${after:0:8}"
+              echo
+              echo "retroeater/mj@${after} (cloudflare)"
+              echo
+              git diff --cached --name-status
+            } > "$RUNNER_TEMP/commit_message.txt"
+            git commit -q -F "$RUNNER_TEMP/commit_message.txt"
+            git log -1 --format='%H %s'
             git push -q origin HEAD:main && exit 0
+            echo "push が拒否された（${i}回目）。origin/main に戻してやり直す"
             sleep $((i * 5))
-            git pull -q --rebase origin main
+            git fetch -q origin main
+            git reset -q --hard origin/main
           done
           echo "::error::push に3回失敗しました"
           exit 1
