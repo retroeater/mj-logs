@@ -1,7 +1,7 @@
 # Actions の実行結果（retroeater/mj）
 
 - 書き出した時刻: 2026-10-07 13:51 JST
-- 書き出した実行の契機: push（cloudflare）
+- 書き出した実行の契機: push（work/1007-lgr-15）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは sync-logs.yml（#498）
 
@@ -124,7 +124,7 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-10-07 13:50 | push | cloudflare | in_progress | #229（37573400011） |  |
+| 2026-10-07 13:50 | push | cloudflare | success | #229（37573400011） | 0分38秒 |
 | 2026-10-07 13:32 | push | cloudflare | success | #228（37571975821） | 0分25秒 |
 | 2026-10-07 13:21 | push | cloudflare | success | #227（37571084246） | 1分38秒 |
 | 2026-10-07 12:31 | push | cloudflare | success | #226（37567146178） | 0分30秒 |
@@ -196,9 +196,9 @@
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
 | 2026-10-07 13:50 | push | cloudflare | pending | #1797（37573400183） |  |
-| 2026-10-07 13:50 | push | work/1007-lgr-15 | pending | #1796（37573394929） |  |
-| 2026-10-07 13:50 | push | work/1007-lgr-15 | pending | #1795（37573370577） |  |
-| 2026-10-07 13:50 | push | cloudflare | in_progress | #1794（37573354633） |  |
+| 2026-10-07 13:50 | push | work/1007-lgr-15 | in_progress | #1796（37573394929） |  |
+| 2026-10-07 13:50 | push | work/1007-lgr-15 | skipped | #1795（37573370577） | 1分05秒 |
+| 2026-10-07 13:50 | push | cloudflare | success | #1794（37573354633） | 1分07秒 |
 | 2026-10-07 13:50 | push | work/1007-rvw-actions | success | #1793（37573351585） | 0分44秒 |
 
 ## update-live-channel.yml
