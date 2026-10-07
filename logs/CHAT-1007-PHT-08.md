@@ -111,7 +111,7 @@
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1007-PHT-08.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1007-pht-rule
 - 確認用URL: なし（docs/ のみの変更）
-- マージ: 済（最終報告の SHA を参照。docs/logs/ と docs/decisions/ のみ）
+- マージ: 済（1fb48bed。docs/logs/ と docs/decisions/ のみ）
 - issue: #513（新規起票。決定を記録）。#357・#361・#512・#466 は読んだだけ
 - 判断が必要なこと: なし（未決は無い。12論点と Q8b すべて決定）。次の実装の指示の分け方の案は、「## 経過」の「3. 次の実装の指示の分け方」の表と、#513 のコメントにある。①は scripts/・.github/ を含むため、マージの承認（チャットで）が要る。③も issue の書き換えのため承認が要る
 - 未確認の項目: なし
