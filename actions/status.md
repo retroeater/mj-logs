@@ -1,7 +1,7 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-07 10:40 JST
-- 書き出した実行の契機: push（work/1007-pht-logs）
+- 書き出した時刻: 2026-10-07 10:41 JST
+- 書き出した実行の契機: workflow_dispatch（work/1007-wkr-09）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは sync-logs.yml（#498）
 
@@ -12,11 +12,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-07 10:40 | push | work/1007-wkr-09 | success | #2909（37558286951） | 0分11秒 |
 | 2026-10-06 16:04 | push | cloudflare | success | #2908（37427412412） | 0分13秒 |
 | 2026-10-06 15:55 | push | work/1006-rvw-377 | success | #2907（37426486537） | 0分11秒 |
 | 2026-10-06 15:53 | push | work/1006-rvw-377 | success | #2906（37426327356） | 0分15秒 |
 | 2026-10-06 15:52 | push | work/1006-lgr-10 | success | #2905（37426254377） | 0分12秒 |
-| 2026-10-06 14:48 | push | work/1006-lgr-10 | success | #2904（37420350145） | 0分14秒 |
 
 ## check-image-links.yml
 
@@ -181,11 +181,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-07 10:41 | workflow_dispatch | work/1007-wkr-09 | in_progress | #31（37558320643） |  |
 | 2026-10-07 10:28 | schedule | cloudflare | success | #30（37557267076） | 0分27秒 |
 | 2026-10-06 11:14 | schedule | cloudflare | success | #29（37403154978） | 0分23秒 |
 | 2026-10-05 15:52 | workflow_dispatch | cloudflare | success | #28（37274638682） | 0分43秒 |
 | 2026-10-05 09:50 | schedule | cloudflare | failure | #27（37249036913） | 2分19秒 |
-| 2026-10-04 09:32 | schedule | cloudflare | success | #26（37165263316） | 0分22秒 |
 
 - #27 failure: ジョブ「sync」 ステップ「同期」
 
@@ -197,11 +197,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-10-07 10:39 | push | work/1007-pht-logs | in_progress | #1697（37558184242） |  |
+| 2026-10-07 10:41 | workflow_dispatch | work/1007-wkr-09 | in_progress | #1698（37558323014） |  |
+| 2026-10-07 10:39 | push | work/1007-pht-logs | success | #1697（37558184242） | 1分21秒 |
 | 2026-10-07 10:39 | push | cloudflare | success | #1696（37558181602） | 1分00秒 |
 | 2026-10-07 10:39 | push | work/1007-wkr-09 | success | #1695（37558178763） | 0分30秒 |
 | 2026-10-07 10:36 | push | work/1007-pht-logs | skipped | #1694（37557974531） | 0分36秒 |
-| 2026-10-07 10:36 | push | cloudflare | success | #1693（37557972667） | 0分37秒 |
 
 ## update-live-channel.yml
 
