@@ -17,7 +17,7 @@
 | 作業ログ（`docs/logs/`）・ガイド文書 | mj-logs（下の「作業ログの読み方」） |
 | Actions の実行結果 | mj-logs の `actions/status.md`（各ワークフローの直近5回。更新は毎日 05:30 JST（Worker から）・08:29 JST（予約実行）とログが写るたび。冒頭の書き出した時刻を見る、#498）。予約実行は2〜3時間遅れる（#504）。動いたかは status.md の版の履歴の「書き出した実行の契機」で、ジョブのログの中身は Code に確かめさせる |
 | issue・コミット・ブランチ | Claude Code に `gh`（クラウドセッションは GitHub MCP）/ `git` で確かめさせ、ログに書かせる。PC では Chrome でも読める |
-| 本番の見え方 | 平野さんの目視か、Claude Code の headless Chrome。Code 側で確認できる範囲は `docs/notes/cloudflare.md`「ビルド成否と本番の確認範囲（check-runs）」 |
+| 本番の見え方 | 平野さんの目視か、Claude Code の headless Chrome。Code 側で確認できる範囲は `docs/notes/cloudflare.md`「ビルド成否と本番の確認範囲（check-runs）」。**チャット側が本番（ryoei.pro）のページ・ファイルを読むときは、URL に `?v=<未使用の値>` を付ける。変更の直後の確かめでは必ず付ける**（クエリ無しの URL は、読む道具が古い版を返すことがある） |
 
 ### 作業ログの読み方
 
