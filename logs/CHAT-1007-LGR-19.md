@@ -63,14 +63,41 @@
 - 手順0: 指示欄の末尾の行は指示文の最後の行と一致
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 4つとも揃っている
 
+### 手順1（同じ論点の issue）
+
+- 全 issue（516件、open・closed）の題を「キャッシュ・cache・古い版・古い内容・クエリ・チャット側・読み方・max-age・再検証・stale」で検索。open の #156（エッジキャッシュの ETag の置き換わりの確認、データ更新後）と #460（検索のクエリの集計）は別の論点。チャット側が本番を読むと古い版が返る、チャット側の読み方の規則の issue は無い（closed の #360 はトークンの削減、#454 は mj-logs の古い版、#258・#123 は Cache-Control の設定）
+
+### 手順2（切り分け、2026-10-07 17:37 JST ごろ、Claude Code から curl）
+
+| ページ | クエリ無し | `?v=<乱数>` | 本文 | リポジトリとの一致 |
+|---|---|---|---|---|
+| houou_race.html | title「順位変動 \| 鳳凰戦 \| ryoei.pro」 | 同じ | 一致（md5 36d3d9be） | 一致 |
+| houou_leagues.html | title「リーグ推移 \| 鳳凰戦 \| ryoei.pro」 | 同じ | 一致（8f38fd01） | 一致 |
+| ouka_leagues.html | title「リーグ推移 \| 女流桜花 \| ryoei.pro」 | 同じ | 一致（8f176fa4） | 一致 |
+| jpml_links.html | title「リンク \| 日本プロ麻雀連盟 \| ryoei.pro」、meta description あり | 同じ | 一致（b0d6f6fb） | 一致 |
+| llms.txt | 今の内容 | 同じ | 一致（fd6b83cd） | 一致 |
+
+- 応答ヘッダは5件ともクエリの有無で同じ: `cache-control: public, max-age=0, must-revalidate`、`cf-cache-status: HIT`、`age` は無し（`llms.txt` だけ `etag` あり）
+- 配信の側では再現しなかった。チャット側の読む道具の側の見込み。裏付け: チャット側が見た jpml_links.html の「title が『リンク』だけで meta description も og も無い」版は、2026-09-09 の acb1621c（#5）より前のもので、4週間前の版。デプロイの切り替わりの間に配信の側が返す版ではない
+- 止まる条件（クエリ無しのほうが古い）には当たらないので、規則を書いた
+
+### 手順3（文書）
+
+- docs/notes/chat-side-operations.md「読み方」の表の「本番の見え方」の行に、規則を足した（新しい項目でなく、既存の行を広げた。「作業ログの読み方」の「一度読んだ URL は古い版が返ることがある」は mj-logs のログの URL の話なので、そちらは変えていない）。足した文:
+  「**チャット側が本番（ryoei.pro）のページ・ファイルを読むときは、URL に `?v=<未使用の値>` を付ける。変更の直後の確かめでは必ず付ける**（クエリ無しの URL は、読む道具が古い版を返すことがある）」
+- 大きさ: 24,035 → 24,306 バイト（+271。警告 26,624 まで 2,318 残る）。CLAUDE.md 25,941・handover.md 23,564 は変えていない。check_asset_limits・unittest OK
+- 事例（日時・ページ名・切り分けの結果）は docs/notes/handover-archive-2026.md「docs/notes/chat-side-operations.md から」に小見出し「「読み方」の表（本番の見え方）」で足した
+- 受け手側（Claude Code）が本番を確かめるときにクエリを付ける規則は、CLAUDE.md・docs/notes/cloudflare.md に書いていない（CLAUDE.md「作業ログ」節は「ログ（公開）」の URL の `?v=<SHA>`、docs/notes/ogp.md と docs/new-page-checklist.md は X のカードの `?x=<未使用の数字>` だけ）。指示のとおり書き足していない
+- 決定: docs/decisions/operations.md に申送りの1行、docs/decisions/houou.md に「全リーグ」の文言は修正不要の1行（どちらも新しい節「2026-10-07（CHAT-1007-LGR-19）」）
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1007-lgr
-- ログ: https://github.com/retroeater/mj/blob/work/1007-lgr/docs/logs/CHAT-1007-LGR-19.md
+- 状態: 完了
+- ブランチ: work/1007-lgr（cloudflare へマージ済み、削除していない）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1007-LGR-19.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1007-lgr
 - 確認用URL: なし（docs のみ）
-- マージ: 未
+- マージ: 済（このログを入れたコミットを、そのまま cloudflare へ push した。`git log -1 origin/cloudflare -- docs/logs/CHAT-1007-LGR-19.md`）
 - issue: なし
 - 判断が必要なこと: なし
 - 未確認の項目: なし
