@@ -75,6 +75,15 @@ Chat-Ref: CHAT-1005-RVW-22
 - テスト: Worker 24件 pass、`python3 -m unittest discover -s scripts/tests` OK
 - ワークフローを変えたので（docs/notes/branch-operations.md「ワークフローを変更したとき」）、作業ブランチで sync-logs.yml を手動実行した: run 1841（workflow_dispatch、53788d15）success。この作業ブランチの push（53788d15）では sync-logs.yml が push で起動していない（新しい `on:` が効いている）
 
+### 3. マージと確かめ
+
+- (i) 作業ブランチの節目の push（09:53:33 UTC）→ run 17（workflow_dispatch、09:55:10 に作成）→ mj-logs dc3aa15e `sync: mj 0395f376`（09:55:33、`logs/CHAT-1005-RVW-22.md`）。push から 120秒
+- cloudflare へ b8cef8bc で入れた（09:55:44。push 直前に再 fetch し `merge-base --is-ancestor` を確かめた。取り込みの衝突なし）
+- check-run（b8cef8bc）: 「Workers Builds: mj-scheduler」success（09:56:09）・「Workers Builds: mj」success・assets-check の check success。**`sync` は出ていない**（iii）
+- (ii) マージの push の後、10:06 まで mj-logs の同期が起動しなかった（run 17 の後の実行なし。mj の `pushed_at` は 09:55:44）。この push で Worker の `schedule.json` が変わり、mj-scheduler が 09:56:09 に配備し直された。配備の直後の毎分の回（09:56〜09:58、`pushed_at` から3分の幅）で起動されなかったと見られる。Worker のログ（Observability）はセッションから読めない
+- 確かめのため、目印なしの節目の push（この追記）を作業ブランチに入れる。sync_all_logs.py は毎回 cloudflare を先に写すので、この push で起動すれば、マージ後の cloudflare の guide/・chat-ids・ログ・actions/status.md も写る
+- 10:06:32 の作業ブランチへの push でも、10:15 まで同期が起動しなかった。配備（09:56:09）から15分以内の push で、cron の反映の遅れ（scheduler-worker.md「cron の変更の反映は最大15分」）に当たった可能性がある。配備から15分を過ぎた 10:16 以降にもう1回だけ push して確かめる
+
 ## 報告
 
 - 状態: 作業中
@@ -91,12 +100,12 @@ Chat-Ref: CHAT-1005-RVW-22
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 0395f376）: https://github.com/retroeater/mj-logs/tree/main/guide/0395f376
+ガイド文書（この版を写した時点の最新、mj b8cef8bc）: https://github.com/retroeater/mj-logs/tree/main/guide/b8cef8bc
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/0395f376/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/0395f376/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/0395f376/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/0395f376/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/0395f376/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/0395f376/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b8cef8bc/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b8cef8bc/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b8cef8bc/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b8cef8bc/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b8cef8bc/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b8cef8bc/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/1257323c.md
