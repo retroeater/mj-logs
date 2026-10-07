@@ -75,18 +75,26 @@ CHAT-1005-RVW-12 が止まった点（origin/cloudflare の取り込みで `docs
 - `python3 -m unittest discover -s scripts/tests`: OK
 - docs/handover.md 5章「次の会話の順番」: 済んだ (1) #377・(2) #283 → #486 の h1 を外し、「(1) #277 (2) 待ち: …」にした（日付を 2026-10-07 に）。期日待ちの行は変えていない。「最終更新」は変えていない。サイズ 22,961（警告域の外）
 - docs/decisions/features.md: RVW-10 の行（保存名）を「実装は CHAT-1005-RVW-11、マージは CHAT-1005-RVW-13」、RVW-12 の行を「マージは CHAT-1005-RVW-13」に直した。RVW-11 の状態を「完了（判断が出た: マージしてよい。マージは CHAT-1005-RVW-13）」、RVW-12 の状態を「中断（続きは CHAT-1005-RVW-13）」に直した（`## 指示` 欄は変わっていない）
+- マージ: push 直前に再 fetch して origin/cloudflare が HEAD の祖先であることを確かめ、`git push origin work/1006-rvw-377:cloudflare` で fast-forward（7c923fdb..ccdefd6b）。push の直前の再 fetch で新しい衝突は無かった。拒否されなかった
+- 2. ccdefd6b の check-run（03:27 UTC に取得）: 「Workers Builds: mj」success（03:26:31）、「Workers Builds: mj-scheduler」success、`check`（assets-check.yml）success 2件、`regenerate`（regenerate-page.yml）success（03:25:21）、`sync` success 3件。15分以内に揃った。regenerate-page.yml は新しいコミットを作らなかった（辞書ページと `dic/` の生成物が手元の生成と同じだったため）
+- 本番（ryoei.pro、curl）: `/resource_dictionary.html`・`/resource_dictionary.js`・`/dic/pros.json`・`/dic/mahjong.json` は 200。旧 `dic/MSIME_pros_20260501.txt`・`Google_pros_20260501.txt`・`MSIME_mahjong_20260501.txt`・`Google_mahjong_20260501.txt` は 404。ページにカテゴリのチェックボックス2つとボタンがある。本番の JS は `FILE_SUFFIX = '麻雀用語辞書.txt'` と `return ymd + '_' + format.prefix + '_' + FILE_SUFFIX;` で新しい保存名の形。ブラウザでの見え方・ダウンロードの動きは本番では確かめていない（プレビューで平野さんが確かめ済み）
+- 3. #377 にコメントした（できたこと・カテゴリを足すとき・不正な行があるとき。末尾に Chat-Ref）
+- 新しいカテゴリを足すときのコードの変更（実物で確かめた）: `scripts/generate_resource_dictionary.py` の `CATEGORIES` に（スラッグ, 表示名, 「辞書」タブのカテゴリ名）の1行を足す。足さずに「辞書」タブへ行を足すと、`rows_from_dict_tab()` が「知らないカテゴリ」で生成を止める。ページのチェックボックス・JS・`regenerate.py` は変更不要（チェックボックスは `CATEGORIES` から作り、JS はチェックボックスの値で `dic/<スラッグ>.json` を読む）。品詞を増やすときは `KNOWN_POS` も
+- #377 の本文には完了条件の節が無い（「何をしたいか」だけ）。本文の要望（カテゴリを持たせ、ダウンロード時に必要なカテゴリだけ選べる、既定は全選択）は満たした。残るのは本文の「『Mリーガー氏名』などのカテゴリを追加する予定」だけ
 
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1006-rvw-377
-- ログ: https://github.com/retroeater/mj/blob/work/1006-rvw-377/docs/logs/CHAT-1005-RVW-13.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1006-rvw-377
-- 確認用URL: なし
-- マージ: 未
-- issue: なし
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1005-RVW-13.md
+- 比較URL: https://github.com/retroeater/mj/compare/7c923fdb...ccdefd6b
+- 確認用URL: なし（本番に反映済み）
+- マージ: 済（cloudflare ccdefd6b。Workers Builds: mj・assets-check・regenerate とも success）
+- issue: #377 にコメント（閉じていない）
+- 判断が必要なこと:
+  - #377 を閉じるか: 本文に完了条件の節は無く、要望（カテゴリを持たせて選べる、既定は全選択）は満たした。残りは「Mリーガー氏名などのカテゴリを追加する予定」だけで、平野さんのデータ待ち。追加はコード1行（`CATEGORIES`）と「辞書」タブの行で済む。閉じて追加は別 issue にするか、データができるまで開けておくか
+  - 指示文の雛形の行に欠けは無い
+- 未確認の項目: 本番でのブラウザの見え方とダウンロードの動き（curl で HTML・JS・データの中身までは確かめた。ダウンロードと Microsoft IME への取り込みは、同じコードのプレビューで平野さんが確かめた）
 - エラー: なし
 
 <!-- guide-links -->
