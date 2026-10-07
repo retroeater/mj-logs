@@ -283,21 +283,52 @@
 | CHAT-0930-SKL-04.md | 完了 | 判断事項・エラーなし。変更は cloudflare にマージ済み（7b088c47） |
 
 ### 3. 参照の差し替え・削除
-- docs/（docs/logs/・docs/decisions/ を除く）・CLAUDE.md・.github/・llms.txt・scripts/ を `CHAT-….md`・`docs/logs/CHAT` で検索した。甲のログを指す箇所: docs/notes/books-freeze.md:47（AF-29）、cloudflare.md:279（CX-05、保存）、yotei-sheet.md:6（HC-01・02・06・10、保存）、scripts/ の5ファイル（保存）。**差し替えたのは books-freeze.md の1か所だけ**（`docs/logs/CHAT-0929-AF-29.md` を削除前の SHA 1c5d349b に固定した URL にした。コミット）。CLAUDE.md・.github/・llms.txt・docs/decisions/ に、削除するログのパスを指す箇所は無い
-- 削除のコミット: 136件を1コミット（`git show --stat`: 136 files changed, 17,266 deletions(-)）。`git show --name-only` の136件はすべて `docs/logs/CHAT-*.md` で、docs/logs/ 以外のファイルは0件、乙・丙・GX-08・名指し・scripts 参照のログは含まない
+- docs/（docs/logs/・docs/decisions/ を除く）・CLAUDE.md・.github/・llms.txt・scripts/ を `CHAT-….md`・`docs/logs/CHAT` で検索した。甲のログを指す箇所: docs/notes/books-freeze.md:47（AF-29）、cloudflare.md:279（CX-05、保存）、yotei-sheet.md:6（HC-01・02・06・10、保存）、scripts/ の5ファイル（保存）。**差し替えたのは books-freeze.md の1か所だけ**（`docs/logs/CHAT-0929-AF-29.md` を削除前の SHA 1c5d349b に固定した URL にした。コミット 347eeeca）。CLAUDE.md・.github/・llms.txt・docs/decisions/ に、削除するログのパスを指す箇所は無い
+- 削除のコミット b2581dfd: 136件を1コミット（`git show --stat`: 136 files changed, 17,266 deletions(-)）。`git show --name-only` の136件はすべて `docs/logs/CHAT-*.md` で、docs/logs/ 以外のファイルは0件、乙・丙・GX-08・名指し・scripts 参照のログは含まない
+
+### 4. マージ・ワークフロー・mj-logs・#357・2026-10-12 の見込み
+- マージ: 作業ブランチを再 fetch し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真であることと、cloudflare との差分が docs/logs/・docs/decisions/・docs/notes/books-freeze.md だけであることを確かめて `git push origin work/1007-pht-logs:cloudflare`（84f7dfcf。参照の差し替え 347eeeca、削除 b2581dfd、決定・経過を含む）。止まる条件のどれにも当たらなかった
+- ワークフロー: cloudflare への push で動いたのは sync-logs.yml（success）だけ。work/1007-pht-logs への push の sync-logs.yml は skipped（`[sync-logs]` の目印なし）。`docs/` のみの変更のため Workers Builds・regenerate-page.yml は動いていない（`chore: regenerate` のコミットも無し）。失敗なし、再実行なし
+- mj-logs: 削除した136件の写しを raw URL で全件引いて、0件が残っている（すべて404）
+- #357 に片付けの要約をコメントした: https://github.com/retroeater/mj/issues/357#issuecomment-6029025931 （最初の版に削除コミットの SHA を誤って書いたため、b2581dfd に直した）
+- 2026-10-12 の通知の見込み（今ある218件が、その後コミットされないと仮定。新しいログは含まない）: 今日の時点で 7日以上たつのは48件（自動削除10・通知38）、2026-10-12 06:23 JST に 166件（自動で消える 20・通知 146）、2026-10-19 に 218件（消える 21・通知 197）。PHT-05 の見込み（10-12 に 282件）から、この片付けで約136件減る
 
 ## 報告
 
-- 状態: 中断（作業中）
+- 状態: 判断待ち（乙 11件・丙 1件を残した。ほかに、甲だが削除しなかったもの 25件と GX-08 がある）
 - ブランチ: work/1007-pht-logs
-- ログ: https://github.com/retroeater/mj/blob/work/1007-pht-logs/docs/logs/CHAT-1007-PHT-07.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1007-PHT-07.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1007-pht-logs
-- 確認用URL: なし
-- マージ: 未
-- issue: #357
-- 判断が必要なこと: なし
-- 未確認の項目: 作業中
-- エラー: なし
+- 確認用URL: なし（docs/ のみの変更）
+- マージ: 済（84f7dfcf。削除のコミットは b2581dfd、参照の差し替えは 347eeeca）
+- issue: #357（着手中コメントと要約コメント。起票・コメントの移動は未実施）
+- 判断が必要なこと: 対象 173件 → 削除 136件、残す 38件（乙 11・丙 1・甲だが削除しなかった 25・GX-08）。残す38件の全件は「## 経過」の「残す38件」の表にある。要点:
+
+  | ファイル | 区分 | 論点の要旨 | 移し先の候補 |
+  | --- | --- | --- | --- |
+  | CHAT-0924-TQ-09.md | 乙 | パラメータのそろえ方は案A（TQ-10・#410・docs/notes/saikyo-page-design.md）で決着。ただし全ページの `?name=`／`?q=`／`?player=` の照合方法（完全一致か部分一致か）・リンク元と件数の調査表は、ログにしか無い（docs/notes/site-findings.md「URLパラメータの棚卸し」は内部リンク件数のみで、照合方法の差と tit | docs/notes/site-findings.md「URLパラメータの棚卸し」へ追記、または #415（正規化）に調査表への参照を追記 |
+  | CHAT-0924-TQ-25.md | 乙 | 判断事項1〜5は TQ-27 で実施、導線は #441・末尾スラッシュは #455（どちらもクローズ）、IndexNow は #126（決着）、10-01 後の着地先比較は #142 に引き継ぎ済み。残る論点: 公開後の Google Search Console 作業（`sitemap.xml` 再送信、`/title/` の URL 検査・登録リクエスト）と、本番のブラウザでの noindex | #142（効果測定）または #304（月次チェック）に項目として足す。実施済みなら平野さんに確認して不要とする |
+  | CHAT-0924-TQ-27.md | 乙 | title/ の公開は完了し #413・#455・#441 も決着。残る論点は TQ-25 と同じ（Google Search Console の再送信・URL 検査、本番ブラウザでの noindex 確認の実施記録なし）。Open の issue は無い | TQ-25 と同じ（#142 または #304） |
+  | CHAT-0924-TQ-28.md | 丙 | カレンダー登録候補13件のうち、どれを登録したかを確かめられない（候補は元の issue に期日つきで残っている。TQ-29 で #370・#103 は決着） |  |
+  | CHAT-0928-CW-02.md | 乙 | #130 のクローズ条件・AI Labyrinth（#447）・着手順（ボット系は1つずつ、#124 を先に）・chat-side-operations.md の目安の書き方（DC-01 で書き直し済み）は片付いた。ただし robots.txt の `Disallow: /` が 32件→31件（AwarioSmartBot が無い）になった理由は、どこにも記録が無い（推測のまま。cloudfla | #304 (4)（robots.txt の差分通知。2026-10-01 に robots.txt 全体が変わった通知が出ている）へのコメント、または cloudflare.md の該当行に「理由不明」と書く |
+  | CHAT-0928-CW-05.md | 乙 | #130 のクローズ、#447 の起票、#433 のやること1は済み（#433 は Open でやること2・3を issue が保持）。残るのは 32件→31件の理由が未記録の点（CW-02 と同じ論点）。Applebot 単独・4XX が 403 かは平野さんの申告の範囲で、cloudflare.md に申告として記録済み | CW-02 と同じ（#304 (4) へのコメント） |
+  | CHAT-0929-GX-01.md | 乙 | Actions 使用量の判断（sync-logs のさらなる削減 C/D、月の目標・予算）と Billing の実値（API 403 で読めず、平野さんの画面確認が要る）が残る。案 K は GX-02〜04 で実装済みだが、残りは #298 が Open（2026-10-07 の Billing 確認が未了） | #298 |
+  | CHAT-0929-GX-02.md | 乙 | 「skip したジョブが0分か」と30日換算約5,200分の実値は Billing でしか確かめられず、#298 の未了項目。sync-logs 追加削減の判断も同じ | #298 |
+  | CHAT-0929-GX-04.md | 乙 | 判断事項（GX-03 の状態表記、chat-side-operations の #454 の行）は GX-05 で片付いた。残りは「課金の実値を10月の Billing で確かめる」のみで、平野さんの画面確認が必要（#298 の未了項目） | #298 |
+  | CHAT-0929-GX-05.md | 乙 | 「マージで同じ SHA を work/ と cloudflare へ push するため assets-check が2回走る」の対処（work/ への push を省くか skip 条件を足すか）が未決で、#298 のコメントに「未決」として残り、後続ログで決着していない。許可ルールの件は #493 | #298 |
+  | CHAT-0929-SH-02.md | 乙 | 共有ボタンの実機確認（iPhone・Android の共有シート、LINE の共有画面、スマホ幅の折り返し・メニューの重なりの修正の見え方）が未確認のまま。平野さんのプレビュー確認は OK だが実機の記録は無い（docs/notes・decisions・#409 にも無い）。check-run の未完了は SH-03 で success と確認済み | 新規起票（共有ボタンの実機確認）または #409 に記録して終える |
+  | CHAT-0929-SH-03.md | 乙 | SH-02 と同じ論点（実機の共有シート・LINE 共有画面の確認、本番のブラウザでの見え方）。#409 は実機確認を残したままクローズ | 同上 |
+  | （甲のまま残す25件） | 残す | Open の issue が出典として名指し 21件（ZK-01・HC-01・02・03・06・07・08・09・10・15・CAL-01・03・CX-03・05・08・CW-08・18・GX-03・10・17・SH-06）と、scripts/ が参照 4件（ZK-05・ZK-06・SH-09・SH-17）。HC-02・ZK-01 は scripts/ の参照でもある | issue のリンクを SHA 固定の permalink に直す（issue の書き換えは別の指示）／scripts/ のコメント・テストデータを直す（別の指示）。直したあとで削除 |
+  | CHAT-0929-GX-08.md | 残す | カレンダーの【R#298】が「チャットの最初に送るログ」として名指し | カレンダーの予定を替えたあとで削除 |
+
+  - 乙・丙の移し先の案は、移し先の issue を #298・#304・#409・#142 などから平野さんが選ぶ（この指示では起票・コメントはしていない）。TQ-25・27 は、実施済みなら平野さんに確認して不要とする、という案
+  - Open の issue が出典として参照しているログ21件の扱い: 削除すると、issue のリンクが404になる。削除する場合は、issue 側のリンクを先に直す必要がある
+  - 「ブラウザでの本番の見え方」だけが未確認の記述だったログ（ZK-08・09・10・12・14、CX-10 など）は、HTML・応答の確認が済んでいるため甲にして削除した。平野さんの目視を要件にする場合は、削除したログを cloudflare の 1c5d349b から読める
+- 未確認の項目:
+  - 甲の判定は、系列ごとのサブエージェントの読みと、自分での抜き取りによる（全件の通読ではない）
+  - Open の issue が出典として参照しているログの検索は、issue の本文・コメントの中の `mj-logs/blob/main/logs/` と `docs/logs/` の形だけ。別の書き方（ログ名だけ、短縮形）の参照は拾えていない
+  - 平野さんのカレンダーの【R#298】以外の予定がログを名指ししていないか（チャット側が CLD-18・WKR-08 を確かめた範囲のみ）
+- エラー: #357 の要約コメントに削除コミットの SHA を誤って書き、b2581dfd に直した（直した）。ほかになし
 
 <!-- guide-links -->
 ---
@@ -310,4 +341,4 @@
 - docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/84f7dfcf/docs/notes/chat-side-operations.md
 - docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/84f7dfcf/docs/notes/cloudflare.md
 - docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/84f7dfcf/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/84f7dfcf.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/2fd75cd3.md
