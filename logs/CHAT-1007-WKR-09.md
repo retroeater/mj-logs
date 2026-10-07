@@ -104,7 +104,7 @@ Chat-Ref: CHAT-1007-WKR-09
    - sync-logs.yml: `run-name` と入力 `scheduled` を足しただけ（動きは変えない）
    - 起動の表: `sync-dojo-calendar.yml` 04:15・`delete-merged-branches.yml` 04:20・`sync-logs.yml` 05:30（どれも毎日・有効）。`dueRows` で 04:15・04:20・05:30 の回にそれぞれ1本ずつ起動し、06:00 の回の確かめの対象が3行になることを確かめた
    - `python3 -m unittest discover -s scripts/tests`: OK
-   - コミット 8c0d4c9・a611d5f0 を作業ブランチに push（01:40:39 UTC）
+   - コミット 3d3239ed（実行の一覧の絞り込み）・a611d5f0（ワークフローと起動の表）を作業ブランチに push（01:40:39 UTC）
 7. 道場部の画像の確かめ（D1・D2 の前）: cloudflare での直近の成功した実行は run #30（schedule、2026-10-07T01:28:24Z）。連盟サイトの道場部ゲストのページの画像の Last-Modified は `202610B.jpg`・`202610R.jpg` が 2026-09-28 23:35 GMT、`202610G.jpg`・`202610Y.jpg` が 2026-10-02 04:17 GMT。どれも run #30 より前 → D1・D2 を行う
 8. 手動実行（ref は work/1007-wkr-09、a611d5f0）
    - **D1** run 31（id 37558320643、`scheduled` を "true"）: success。題 `[scheduled] 道場部ゲストのカレンダー同期`。ログ: `SCHEDULED: true`、`引数: --compare --state dojo-state.json --json result.json --auto-update`、「画像は前回の読み取りから変わっていません。何もしません。」、#426 への通知なし（「画像が変わっていないため通知しません」）。キャッシュを `dojo-guest-state-37558320643`（作業ブランチ）として保存
@@ -114,17 +114,33 @@ Chat-Ref: CHAT-1007-WKR-09
    - 失敗・タイムアウトは無かった（やり直しなし）
 9. 文書: scheduler-worker.md（起動の表3行、朝の確かめの一覧の絞り込み、Observability の表記〈申告値〉、「未確認」から 06:00 の回と Cron Triggers の遅れを外して「動いた記録」の節に、作業ブランチのキャッシュの件を未確認に）、dojo-guest-calendar.md（04:15 の Worker と保険の 07:12、`--auto-update` の条件、`scheduled` の扱い、3か所）、static-generation.md（ワークフローの一覧の2行、「ワークフローを手動実行するとき」に `scheduled` は手で付けないの1項目。この節にこの2本の記述は無かったので足した）、cloud-sessions.md「作業ログ」の sync-logs の起動、chat-side-operations.md の Actions の行（**23626 → 23674 バイト**）、handover.md の #504 の行（**23076 → 23100 バイト**）、decisions/automation.md
 
+10. assets-check.yml: a611d5f0 の run 2909 success、432f9794 の run 2911 success
+11. マージ: 再 fetch で cloudflare が別セッションのログ（1589f862、docs/logs だけ）で進んでいたので `git merge --no-edit origin/cloudflare`（衝突なし）→ 祖先を確かめて `git push origin work/1007-wkr-09:cloudflare`（1589f862..b5f76164、01:44:49 UTC）
+   - check-run（b5f76164）: **「Workers Builds: mj」success・「Workers Builds: mj-scheduler」success**（01:46:57 に確かめた）
+12. issue: #504 の本文「8. 段階と試験」の段階1と段階2の先の回を済にした（updated_at 2026-10-06T03:44:53Z を2回確かめてから書き換え、2026-10-07T01:47:13Z）。#504 にコメント（入れたこと・手動実行・check-run・10/8 の見込み）。#503 にコメント（やること4は確かめた・やること3は含めない）。#426 の本文の「毎日 07:12 JST」を Worker の 04:15 と保険の予約実行に直した（題は変えていない。ワークフローが題で探すため）
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1007-wkr-09
-- ログ: https://github.com/retroeater/mj/blob/work/1007-wkr-09/docs/logs/CHAT-1007-WKR-09.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1007-wkr-09
-- 確認用URL: なし
-- マージ: 未
-- issue: #504
+- 状態: 完了
+- ブランチ: work/1007-wkr-09（マージ済み。削除は delete-merged-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1007-WKR-09.md
+- 比較URL: https://github.com/retroeater/mj/compare/1589f862...b5f76164
+- 確認用URL: なし（サイトの表示は変えていない）
+- マージ: 済（b5f76164。cloudflare の取り込みのマージを含む）
+- issue: #504（本文の段階の節とコメント、Open のまま）、#503（コメント、Open のまま）、#426（本文の時刻）
+- 結果の要点:
+  - 直した箇所: sync-dojo-calendar.yml 3か所（gate・`--auto-update`・失敗の通知の文面。前提どおり）＋入力 `scheduled`・`run-name`・env `SCHEDULED`・手動の入力を無視する4行。sync-logs.yml 0か所（入力 `scheduled` と `run-name` だけ）
+  - `scheduled` とほかの入力が両方来たとき: sync-dojo-calendar は手動の入力（画像の URL・対象の月・書き込む）を無視し、予約実行と同じ動き（`--auto-update` 付き、書き込みは新しい月にはしない）
+  - 起動の表: `sync-dojo-calendar.yml` 毎日 04:15・`delete-merged-branches.yml` 毎日 04:20・`sync-logs.yml` 毎日 05:30（どれも有効）
+  - 手動実行（work/1007-wkr-09、a611d5f0）: D1 run 31 success（`--auto-update` 付き・題 `[scheduled] …`）、D2 run 32 success（`--auto-update` なし・題は既定）、L1 run 1698 success（題 `[scheduled] …`）、L2 run 1700 success（題は既定）。道場部はどちらも「画像は変わっていません。何もしません」で、#426 への通知なし
+  - 実行の一覧の引き方: **直した**。`event=workflow_dispatch` で絞る（sync-logs の push の実行で1ページ目が埋まり、予約の起動を見落とす作りだった）。テストを先に足し、直す前のコードで2件落ちることを確かめた。`node --test` 20件通過
+  - マージの後の check-run: 「Workers Builds: mj-scheduler」success、「Workers Builds: mj」success
+  - 段階1の記録: 10/7 の delete-merged-branches の run #17 は 04:20:10 JST に作られた（予定から 10 秒）
 - 判断が必要なこと: なし
-- 未確認の項目: なし
+- 未確認の項目:
+  - 10/8 の朝: 04:15 に sync-dojo-calendar、04:20 に delete-merged-branches、05:30 に sync-logs が Worker から起動され、06:00 のログが「朝の確かめ: 2026-10-08 予定 3・success 3・それ以外 0・#506 に書かない」になるか（チャット側が確かめる）
+  - 作業ブランチで保存した道場部の前回の状態（キャッシュ）が、cloudflare の実行から見えないか（キャッシュの一覧の API がプロキシで拒否された。GitHub の文書どおりなら見えない）
+  - 平野さんの画面の申告値（Observability の表記、06:00 の回のログ）はセッションからは検証できない
 - エラー: なし
 
 <!-- guide-links -->
