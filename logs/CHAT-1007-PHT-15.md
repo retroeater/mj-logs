@@ -71,28 +71,36 @@ CHAT-1007-PHT-12 で、scripts/ から参照されているために残した作
   - `scripts/tests/test_chat_ids.py` 33行目: `id_in_path('docs/logs/CHAT-0929-ZK-01.md'), 'ZK'` → `id_in_path('docs/logs/CHAT-0929-ZZ-99.md'), 'ZZ'`／36行目: `'docs/logs/CHAT-0929-ZK-01.md.bak'` → `'docs/logs/CHAT-0929-ZZ-99.md.bak'`／37行目: `'docs/notes/CHAT-0929-ZK-01.md'` → `'docs/notes/CHAT-0929-ZZ-99.md'`（文字列の判定のテストで、意味は変えていない）
 - 削除のコミット: 2件を1コミット。`git show --stat` は 2 files changed, 400 deletions で、docs/logs/ 以外のファイルは無い。GX-08 は含まれない。削除の後のテスト: 634件 OK
 
+### マージ後
+
+- cloudflare へのマージ: aa431223（push 直前に再 fetch し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真であることを確認。fast-forward）。cloudflare に入った差分は、docs/logs/ の2件の削除・このログ・docs/decisions/operations.md・scripts/lib/yotei.py・scripts/tests/test_chat_ids.py だけ
+- push で走ったワークフロー（aa431223）: 公開対象を検査する（assets-check）success、作業ログを mj-logs へ写す（sync-logs）cloudflare で success（作業ブランチは目印が無い push のため skipped）、ページの再生成（regenerate-page）success。Workers Builds: mj の check-run は success。待ちは2分以内
+- regenerate-page.yml は**コミットを作らなかった**（aa431223 の後の cloudflare に chore: regenerate のコミットは無い。生成物の差分は無し）
+- mj-logs の raw（`logs/<Chat-Ref>.md`）: CHAT-0928-HC-02・CHAT-0929-ZK-01 は HTTP 404（写しが消えた）。CHAT-0929-GX-08 は 200（残す）
+- #513 へのコメント: https://github.com/retroeater/mj/issues/513#issuecomment-6030886361
+
 ## 報告
 
-- 状態: 中断（着手直後。作業中）
+- 状態: 完了
 - ブランチ: work/1007-pht-links
-- ログ: https://github.com/retroeater/mj/blob/work/1007-pht-links/docs/logs/CHAT-1007-PHT-15.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1007-PHT-15.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1007-pht-links
-- 確認用URL: なし
-- マージ: 未
-- issue: #513
-- 判断が必要なこと: 着手直後のため、まだ無い
-- 未確認の項目: 着手直後のため、まだ無い
+- 確認用URL: なし（コメントとテストデータだけの変更。表示は変わらない）
+- マージ: 済（aa431223。fast-forward）
+- issue: #513（削除したことのコメント）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj aa431223）: https://github.com/retroeater/mj-logs/tree/main/guide/aa431223
+ガイド文書（この版を写した時点の最新、mj a67b4e09）: https://github.com/retroeater/mj-logs/tree/main/guide/a67b4e09
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/aa431223/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/aa431223/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/aa431223/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/aa431223/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/aa431223/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/aa431223/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a67b4e09/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a67b4e09/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a67b4e09/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a67b4e09/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a67b4e09/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a67b4e09/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/1257323c.md
