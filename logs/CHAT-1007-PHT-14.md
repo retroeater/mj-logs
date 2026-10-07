@@ -155,17 +155,28 @@
 
 - 作業ブランチでの手動実行（`actions_run_trigger`、ref=work/1007-pht-doc、dry_run=true）: run 37569389834（HEAD 0176ecbd）が success。「削除をコミット・push」「条件外のログを常設issueに通知」は skipped。出力は手元と一致（対象外 173／削除対象 12／通知 15〈pending 6・violation 9・unreadable 0〉、新しい2件も同じ）。#357 のコメント数は実行の前後で変わらず（16件）
 
+### マージ後
+
+- cloudflare へのマージ: 361dce7a（push 直前に再 fetch し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真であることを確認。fast-forward）。cloudflare に入った差分は、scripts/cleanup_logs.py・scripts/tests/test_cleanup_logs.py・CLAUDE.md・docs/（notes/branch-operations.md・notes/static-generation.md・logs/_template.md・instruction-template.md・handover.md・logs/）で、.github/workflows/ は変えていない
+- push で走ったワークフロー（361dce7a）: 公開対象を検査する（assets-check。CLAUDE.md・handover.md の容量の検査を含む）success、作業ログを mj-logs へ写す（sync-logs）cloudflare で success（作業ブランチは `[sync-logs]` の目印が無い push のため skipped）。regenerate-page.yml は起動しなかった。Workers Builds: mj の check-run は success。待ちは2分以内
+- #357 の本文を新しい条件に直した（続きの形の拡張・D・規則の場所の1行）。取得: https://github.com/retroeater/mj/issues/357
+- #513 へのコメント: https://github.com/retroeater/mj/issues/513#issuecomment-6030656186 ／ 着手中のコメント: https://github.com/retroeater/mj/issues/513#issuecomment-6030609473
+- 規則を入れた日: マージは 2026-10-07（UTC 04:01、JST 13:01）。D（翌日、JST）= **2026-10-08**（`NEW_RULE_DATE`）
+- 効果を測る2回の週次: **2026-10-19（月）** と **2026-10-26（月）**（D+7 = 10-15 の後の最初とその次。チャット側がカレンダーに入れる）。指標は branch-operations.md「作業ログの寿命」
+- 新しく消える見込み: 2件（CHAT-0929-ZK-01・CHAT-0930-CAL-06。上の手順2の表）。次の週次（2026-10-12）に、7日以上たっていれば削除される。CHAT-0929-ZK-01 は scripts/tests/test_chat_ids.py が文字列として使うだけで、ファイルが無くてもテストは通る（確認済み）。以前に「scripts/ が参照するため残す」としていたのは、この文字列の使い方の確認前の扱い
+- CHAT-1006-PHT-05 と CHAT-1007-PHT-08 のログには触れていない
+
 ## 報告
 
-- 状態: 中断（着手直後。作業中）
+- 状態: 完了
 - ブランチ: work/1007-pht-doc
-- ログ: https://github.com/retroeater/mj/blob/work/1007-pht-doc/docs/logs/CHAT-1007-PHT-14.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1007-PHT-14.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1007-pht-doc
-- 確認用URL: なし
-- マージ: 未
-- issue: #513
-- 判断が必要なこと: 着手直後のため、まだ無い
-- 未確認の項目: 着手直後のため、まだ無い
+- 確認用URL: なし（scripts/・docs/ のみ。表示は変わらない）
+- マージ: 済（361dce7a。fast-forward）
+- issue: #513（実装②のコメント）、#357（本文の直し）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
