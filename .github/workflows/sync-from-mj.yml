@@ -1,0 +1,91 @@
+name: mj の作業ログを写す
+
+# private の retroeater/mj の作業ログ・ガイド文書・使用済みの Chat-Ref 識別子・Actions の実行結果を、このリポジトリへ写す（mj の #298）。
+# mj の Actions の分を使わないため、public のこのリポジトリで動かす。手順は mj の scripts/sync_all_logs.py と scripts/actions_status.py。
+# 切り替えまでは mj の sync-logs.yml も動いている（並走）。どちらも突き合わせで同じ中身を書く。
+#
+# - 実行ログは誰でも読める。mj のブランチ名・ログの中身・トークンを出さない（クローンは -q、スクリプトはパスと件数だけを出す）
+# - mj を読むのは Secret MJ_READ_TOKEN（mj の Contents・Actions が Read-only）。書き込みはこのリポジトリの GITHUB_TOKEN
+# - pull_request・push では起動しない（fork からの実行に Secret を渡さない）
+
+on:
+  workflow_dispatch:
+  # 保険。mj の Worker からの起動（予定）が止まっても1日1回は写す。GitHub の予約は遅れる
+  schedule:
+    - cron: '41 18 * * *'
+
+permissions:
+  contents: write
+
+# 毎回すべての対象を突き合わせるので、待ちが後の実行に置き換えられても失うものは無い
+concurrency:
+  group: sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: このリポジトリをチェックアウト
+        uses: actions/checkout@v4
+
+      - name: mj をクローン
+        env:
+          TOKEN: ${{ secrets.MJ_READ_TOKEN }}
+          MJ: ${{ runner.temp }}/mj
+        run: |
+          set -euo pipefail
+          # トークンは URL に埋めず、ヘッダで渡す。base64 にした値も伏せる
+          auth=$(printf 'x-access-token:%s' "$TOKEN" | base64 -w0)
+          echo "::add-mask::$auth"
+          header="AUTHORIZATION: basic $auth"
+          # cloudflare をチェックアウトする blobless のクローン（全ブランチの ref を取る）。-q でブランチの一覧を出さない
+          git -c "http.https://github.com/.extraheader=$header" clone -q --filter=blob:none -b cloudflare \
+            https://github.com/retroeater/mj.git "$MJ"
+          # スクリプトが後から中身を取りに行くときにも使う
+          git -C "$MJ" config "http.https://github.com/.extraheader" "$header"
+          echo "mj cloudflare: $(git -C "$MJ" rev-parse --short HEAD)"
+
+      - name: ログ・ガイド文書を写す・消す
+        env:
+          MJ: ${{ runner.temp }}/mj
+        run: python3 "$MJ/scripts/sync_all_logs.py" --mj "$MJ" --dest "$GITHUB_WORKSPACE"
+
+      - name: Actions の実行結果を書き出す
+        env:
+          GITHUB_TOKEN: ${{ secrets.MJ_READ_TOKEN }}
+          MJ: ${{ runner.temp }}/mj
+        working-directory: ${{ runner.temp }}/mj
+        run: python3 scripts/actions_status.py --repo retroeater/mj --dest "$GITHUB_WORKSPACE"
+
+      - name: push
+        env:
+          MJ: ${{ runner.temp }}/mj
+        run: |
+          set -euo pipefail
+          git add -A
+          if git diff --cached --quiet; then
+            echo "変更なし"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          # 載せるのは mj の cloudflare の SHA だけ（作業ブランチの SHA・名前は載せない）
+          after=$(git -C "$MJ" rev-parse HEAD)
+          {
+            echo "sync: mj ${after:0:8}"
+            echo
+            echo "retroeater/mj@${after} (cloudflare)"
+            echo
+            git diff --cached --name-status
+          } > "$RUNNER_TEMP/commit_message.txt"
+          git commit -q -F "$RUNNER_TEMP/commit_message.txt"
+          git log -1 --format='%H %s'
+          # 別の実行（mj の sync-logs.yml を含む）が先に push していたら取り込み直す
+          for i in 1 2 3; do
+            git push -q origin HEAD:main && exit 0
+            sleep $((i * 5))
+            git pull -q --rebase origin main
+          done
+          echo "::error::push に3回失敗しました"
+          exit 1
