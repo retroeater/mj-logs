@@ -276,7 +276,7 @@ PowerShell 5.1 の既定が UTF-16LE のため、日本語部分が文字化け�
 
 - 検証済みボット（`cf.client.bot`）を外すのは、検索エンジンのクローラを数えないため。`/cdn-cgi/` は Web Analytics のビーコン（#110 と同じ注意）
 - Pro の制約: **Log のアクションは使えない**（Enterprise のみ）ため、高めの閾値の Managed Challenge で当たった相手を Security Events で見てから閾値を下げる。**チャレンジ系は Duration を選べず**、上限を超えたリクエストだけにかかる。数える単位は IP のみ、期間は1分まで。
-  調べた経緯と公式ドキュメントの URL は #124 のコメントと https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-0928-CX-05.md
+  調べた経緯と公式ドキュメントの URL は #124 のコメントと https://github.com/retroeater/mj/blob/1ad5d8be5a7b06ddd53620c536034cd78acddfdb/docs/logs/CHAT-0928-CX-05.md
 - 2026-10-02 に Security Events（Service「Rate limiting rules」）を見て、閾値を 60 → 30 に下げた（アクション・条件式・順序は変えていない。10/1〜10/2 の当たりは Oracle Cloud〈AS31898〉の2 IP・26件のみ）。2026-10-09 に1週間分を見て #124 のクローズを判断する
 - 戻すときは Security rules の一覧でトグルを Off
 - workers.dev・プレビューはゾーンを通らないので対象外

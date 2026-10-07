@@ -56,29 +56,39 @@
 
 - 2026-10-07 着手。CHAT-1005-RVW-14 のコミットなし。work/1007-rvw-close はローカル・リモートとも無く、origin/cloudflare（de42f8de）から作成
 - 0. 指示欄の末尾は指示文の最後の行と一致。雛形の行は揃っている
+- 1. #377 は Open（ラベル: 分野: UI/UX・分野: データ・対象: resource_dictionary。「状況:」ラベルなし。最新のコメントは RVW-13 の結果）
+- 辞書・Mリーグを扱う Open の issue: `search_issues` と Open の issue の題（「辞書」「Mリーグ」「Mリーガー」「dictionary」）、ラベル「対象: resource_dictionary」で探した。辞書を扱うのは #377 だけ。#391（「カレンダー」の Mリーグの試合日程の転記の自動化）は Mリーグだが辞書とは別の課題。#388（映画の一覧）にもラベル「対象: resource_dictionary」が付いているが辞書とは無関係（ラベルは直していない）。止まる条件に当たらない
+- `scripts/generate_resource_dictionary.py`: `CATEGORIES` は `("pros", "連盟プロ", None)`・`("mahjong", "麻雀用語", "麻雀用語")`、`KNOWN_POS` は「名詞」「固有名詞」「人名」。「麻雀用語」のコメント「連盟」は 89 件（`dic/mahjong.json`）
+- 2. #515「辞書: 新カテゴリ『Mリーグ』（選手名・チーム名）を追加し、既存のカテゴリを見直す」を起票した（ラベル: 分野: データ・対象: resource_dictionary。#377 と同じ系統。親 issue・期日なし）。本文は「決定」「今の作り」「まだ決まっていないこと〈チャット側の論点、平野さんの決定ではないと明記〉」「あわせて片付けられる小さな残り」、末尾に Chat-Ref
+- #377 にクローズのコメント（本文の要望は満たした。残りは #515 に分けた。末尾に Chat-Ref）を書き、completed で閉じた
+- docs/decisions/features.md に「2026-10-07（CHAT-1005-RVW-14）」を足した
+- docs/handover.md: 5章「次の会話の順番」には #377 は残っていなかった（RVW-13 で外した）。表の「現行サイトで小さく作れるもの」の行の「#389 → #377 → #277 → #388」を「#277 → #388（#389 は整備待ち）」にし、#377 は済み・続きは #515 と書いた。#515 は決めることが残る課題で「着手可能な主なもの」の基準に当たらないため、表の行は足さず同じ行に参照を置いた。「最終更新」は変えていない。サイズ 23,187（警告域の外）
 
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1007-rvw-close
-- ログ: https://github.com/retroeater/mj/blob/work/1007-rvw-close/docs/logs/CHAT-1005-RVW-14.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1005-RVW-14.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1007-rvw-close
-- 確認用URL: なし
-- マージ: 未
-- issue: なし
-- 判断が必要なこと: なし
+- 確認用URL: なし（ドキュメントのみ）
+- マージ: 済（ドキュメントのみ。docs/ 配下のため check-run は出ない見込み）
+- issue: #515（起票）「辞書: 新カテゴリ『Mリーグ』（選手名・チーム名）を追加し、既存のカテゴリを見直す」、#377（クローズのコメントを書いて閉じた）
+- 判断が必要なこと:
+  - #515 の論点 (a)〜(d)（データの出どころと入れ替わりへの追随、品詞、連盟プロとの重なり、「既存のカテゴリを見直す」の中身）は平野さんに聞く必要がある
+  - #388（映画の一覧）にラベル「対象: resource_dictionary」が付いている。辞書とは関係ないため外すか（今回は変えていない）
+  - 指示文の雛形の行に欠けは無い
 - 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj de42f8de）: https://github.com/retroeater/mj-logs/tree/main/guide/de42f8de
+ガイド文書（この版を写した時点の最新、mj e3c5b6f5）: https://github.com/retroeater/mj-logs/tree/main/guide/e3c5b6f5
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/de42f8de/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/de42f8de/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/de42f8de/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/de42f8de/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/de42f8de/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/de42f8de/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e3c5b6f5/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e3c5b6f5/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e3c5b6f5/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e3c5b6f5/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e3c5b6f5/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e3c5b6f5/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/1257323c.md

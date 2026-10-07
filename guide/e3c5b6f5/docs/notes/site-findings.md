@@ -216,6 +216,21 @@ Google Charts依存の6ページ（ブラウザ側で描画するため上のコ
 | `video_en` / `video_mtsuku` | `name`（**移行済み**） |
 | `wrc_results` | `name` |
 
+**照合方法の差と、リンク元・件数の調査（2026-09-24、ebf82608 の生成物）。**
+全ページの JS を読み、生成物の `?` 付きリンクを数えた。そろえ方の決着は案A（`docs/notes/saikyo-page-design.md`・#410・#415）。
+全文（照合の表・リンク元の表・同姓同名と表記ゆれの実例）の出典: CHAT-0924-TQ-09
+（[削除前のログ](https://github.com/retroeater/mj/blob/c73e1800a3bcc183b6ab6ae29a88863dd0d37e96/docs/logs/CHAT-0924-TQ-09.md)）。
+
+- 選手を指すパラメータは3通り: `?q=`（title/・live/）、`?player=`（saikyo/）、`?name=`（旧来の表のページ）。入力に合わせて URL を書き換えるページは無い
+- 照合の違い:
+  - 部分一致・空白区切りの AND・NFKC と小文字化: title/ と live/ の `?q=`（title/ は大会名・期・年も引く）
+  - 部分一致・NFKC と空白除去と小文字化（1語）: saikyo/ トップの `?player=`（旧 `?tag=` も受ける、#350）
+  - 部分一致・小文字化だけ: jpml_pros の `?name=`、jpml_test・video_live・video_en・video_mtsuku・rh_paifu の `?name=`（`table.js` の `data-filter-param`）、`*_ranking` の `?name=`（Google Charts の StringFilter の初期値）
+  - 完全一致: jpml_titles・resource_logs・saikyo_mens の `?name=`（`table.js` の `data-name-mode="exact"`）、`*_results` の `?name=`（シートへの問い合わせ）、`*_leagues` の `?name=`（JSON のキー）、saikyo/ 年度ページの `?match=`
+- リンク元の件数（おもなもの）: live/ の個別ページ → live/ トップ `?q=` 3,793、jpml_titles → jpml_pros `?name=` 1,103、jpml_pros → houou_leagues 716・houou_results 691・jpml_titles 422・video_live 319・ouka_results と ouka_leagues 各178・saikyo/ `?player=` 156。title/・saikyo/・live/ の間のリンクにパラメータ付きの URL は無い。sitemap*.xml・llms.txt にも無い
+- 完全一致で困る場面: 同姓同名は「プロ」1,100名・title/ 581人・saikyo/ 440人のどれにも無い。改名は「別名」タブ16行（title/ は吸収するが旧来の表は旧名のまま、#222）。表記ゆれは live/ に「高」6件・「髙」2件（部分一致でも寄らない、#415）
+- サイト独自の選手の固定 ID は無い（龍龍の ID は1,100名中844名だけ）。ID で指す案は #219 と一緒に決める
+
 **`video_wayhome`だけは2026-09-12（#162）に`?name=`の受け入れを廃止した。**
 他ページと違い一覧・引き継ぎの対象から外れている。理由と経緯は本節末尾
 （「2026-09-11、#113の判断」の段落の後）参照。
