@@ -60,6 +60,23 @@
 - 2026-10-07 着手。CHAT-1005-RVW-21 のコミットなし。work/1007-rvw-sync3 はローカル・リモートとも無く、origin/cloudflare（187e5246）から作成
 - 0. 指示欄の末尾は指示文の最後の行と一致。雛形の行は揃っている。RVW-18・RVW-20 のログは同じセッションで書いたもので、読み直した。scheduler-worker.md は読んだ
 
+### 1. 確かめ
+
+- 未マージの `work/` ブランチ（この指示のブランチだけ）は `workers/`・`scripts/actions_status.py`・`.github/workflows/` を変えていない
+- `dueRows()` の窓は `(scheduledTime - TICK_MS, scheduledTime]` で、`TICK_MS` は5分だった。cron だけを毎分にすると窓が重なり、同じ行が最大5回起動される。`TICK_MS` を1分にすれば窓は重ならない（小さい直し）。`isCheckTick()` も `TICK_MS` を使うので、06:00 の1分だけになる
+- ログ: 起動した回だけ `console.log`、失敗は `console.error`。テストは `workers/scheduler/test/scheduler.test.mjs`（`node --test`）
+- `actions_status.py`: `render()` の3行目が `- 書き出した時刻: …`。この行を除いて比べれば足りる
+
+### 2. 作ったもの
+
+- `scripts/actions_status.py`: `unchanged(old, new)`（「書き出した時刻」の行を除いて同じなら真）。同じなら書かず `actions/status.md: 変更なし（…）` を出す。定数 `TIME_PREFIX`。テスト3件（時刻だけ違う・実行が違う・前のファイルが無い）
+- `workers/scheduler/wrangler.jsonc`: cron を `* * * * *` に
+- `workers/scheduler/src/scheduler.mjs`: `TICK_MS` を1分に。`dispatchSync()` を足した（`GET /repos/retroeater/mj` の `pushed_at` が予定時刻から3分以内なら `retroeater/mj-logs` の `sync-from-mj.yml` を ref `main` で起動。行き先は定数 `SYNC`、幅は `SYNC_WINDOW_MS`）。起動の表の行に `repository` を持たせる形より小さいので、別の関数にした。起動した回だけ `同期: sync-from-mj.yml HTTP 204` を書く。失敗は `console.error` だけで #506 にはコメントしない（毎分の回で通知が増えるため）。朝の確かめの対象に入れない
+- `workers/scheduler/src/index.mjs`: 毎回 `dispatchSync()` を呼ぶ
+- テスト: Worker 24件 pass（直した2件・同期4件を含む）。修正前の `scheduler.mjs` に新しいテストを当てると7件が失敗することを確かめた（毎分で1度だけ・00:00・06:00 の回・同期4件）。`python3 -m unittest discover -s scripts/tests` OK
+- 文書: docs/notes/scheduler-worker.md（cron・窓・「動き」の 4. mj-logs の同期・ログの行・トークンの対象・Logs の件数）、docs/notes/static-generation.md の mj-logs 側の行（Worker から起動・並走中）。決定を docs/decisions/operations.md に足した
+- Workers Logs: 1日 1,440 回の起動（Free の上限 1日20万件、scheduler-worker.md の記録）。Worker が書く行は起動した回だけ
+
 ## 報告
 
 - 状態: 作業中
@@ -76,12 +93,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 187e5246）: https://github.com/retroeater/mj-logs/tree/main/guide/187e5246
+ガイド文書（この版を写した時点の最新、mj 69ea17e3）: https://github.com/retroeater/mj-logs/tree/main/guide/69ea17e3
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/187e5246/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/187e5246/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/187e5246/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/187e5246/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/187e5246/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/187e5246/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/69ea17e3/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/69ea17e3/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/69ea17e3/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/69ea17e3/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/69ea17e3/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/69ea17e3/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/1257323c.md
