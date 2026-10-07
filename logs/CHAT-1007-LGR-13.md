@@ -90,28 +90,43 @@ houou_race の既定の表示（開いた時に出る期・リーグ）は、今
 - check-run: Workers Builds 成功（61b3337f）
 - 390px・1280px: 開くと第43期・前期・B・B1 が選ばれている（今の本番と同じ）。再生（4秒後に累計が動いている）OK。横のはみ出しなし。エラーは Cloudflare Web Analytics の beacon の 403 だけ
 
+
+### 手順3（マージと本番）
+
+- origin/cloudflare の取り込みは進んでおらず不要（取り込み時点で祖先）。差分は scripts/generate_houou_race.py・scripts/tests/test_houou_race.py・docs/ だけ。unittest OK、CLAUDE.md 25,577・handover.md 22,961・chat-side-operations.md 23,674 バイト
+- 再fetch・`merge-base --is-ancestor` 確認のうえ `git push origin work/1007-lgr:cloudflare`（1ad5d8be..0c64c929）
+- check-run（0c64c929）: check・regenerate・sync は success。Workers Builds の check-run は付かなかった（push の先頭が docs/ だけのコミットだったため。docs/notes/cloudflare.md「先頭が docs/ だけのコミットの push ではビルドが走らないことがある」。配信するファイルはこの push で変わらない）
+- regenerate（cloudflare 上で新しいコードで生成）は成功し、生成物のコミットは無し（差分なし）
+- 本番（ryoei.pro）390px・1280px: 開くと第43期・前期・B・B1、data-default は前と同じ、再生 OK、はみ出しなし、エラーは beacon の 403 だけ
+- #507 に直した内容・日付・マージの SHA をコメントした（閉じたまま）
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1007-lgr
-- ログ: https://github.com/retroeater/mj/blob/work/1007-lgr/docs/logs/CHAT-1007-LGR-13.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1007-lgr
-- 確認用URL: なし（作業中）
-- マージ: 未
-- issue: #507（閉じたまま）
-- 判断が必要なこと: なし
-- 未確認の項目: なし
-- エラー: なし
+- 状態: 完了（cloudflare へマージ済み、本番で確認済み）
+- ブランチ: work/1007-lgr（削除していない）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1007-LGR-13.md
+- 比較URL: https://github.com/retroeater/mj/compare/1ad5d8be...0c64c929
+- 確認用URL: https://ryoei.pro/houou_race.html
+- マージ: 0c64c929（2026-10-07、承認済みの指示のとおり）
+- issue: #507（閉じたまま。着手中と完了のコメントあり）
+- 判断が必要なこと:
+  - 選び方: `build_periods()` の結果（「鳳凰」V列「表示」が N の行と、節の値が1つも無いリーグを除いた後）から、(1) 期の数字がいちばん大きく、同じ期なら後期の期 (2) その期で A1 → A2 → B1 … E3 の順のいちばん上のリーグ (3) 組があれば番号のいちばん小さい組（scripts/generate_houou_race.py の `pick_default()`）
+  - 今日のデータで選ばれた既定: 第43期前期 B1（組なし）。今までと同じで、生成物の差分なし
+  - 進行中で止まるときのメッセージ:「生成を止めました: 既定の表示に選ばれた 第43期後期 A1 が進行中です(G列「結果」が空欄)。「鳳凰」のその表の行の V列「表示」を N にするか、G列「結果」を入れてください」（期・リーグは選ばれた表のもの）
+  - 第43期後期の行を表示に切り替えたとき: 節の値が1つでも入った表があれば第43期後期が「いちばん新しい期」になり、その中のいちばん上のリーグ（A1 に値があれば A1＝ページでは通期）が既定になる。その表の G列が空欄の間は生成が止まる（定時の再生成が失敗し、通知が届く）。節の値がまだ1つも無い間は第43期後期は対象に入らず、既定は第43期前期 B1 のまま
+  - 通知先の常設 issue は無い（生成の失敗そのものが通知）ので、本文への追記はしていない
+- 未確認の項目: 0c64c929 の Workers Builds の check-run（付かなかった。配信するファイルは変わらないため、本番はその前の版のまま同じ表示であることを確かめた）
+- エラー: なし（beacon の 403 は Cloudflare Web Analytics で対象外）
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 0c64c929）: https://github.com/retroeater/mj-logs/tree/main/guide/0c64c929
+ガイド文書（この版を写した時点の最新、mj aa4d98dc）: https://github.com/retroeater/mj-logs/tree/main/guide/aa4d98dc
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/0c64c929/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/0c64c929/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/0c64c929/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/0c64c929/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/0c64c929/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/0c64c929/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/aa4d98dc/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/aa4d98dc/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/aa4d98dc/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/aa4d98dc/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/aa4d98dc/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/aa4d98dc/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/1257323c.md
