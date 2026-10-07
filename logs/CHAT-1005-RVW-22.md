@@ -83,19 +83,38 @@ Chat-Ref: CHAT-1005-RVW-22
 - (ii) マージの push の後、10:06 まで mj-logs の同期が起動しなかった（run 17 の後の実行なし。mj の `pushed_at` は 09:55:44）。この push で Worker の `schedule.json` が変わり、mj-scheduler が 09:56:09 に配備し直された。配備の直後の毎分の回（09:56〜09:58、`pushed_at` から3分の幅）で起動されなかったと見られる。Worker のログ（Observability）はセッションから読めない
 - 確かめのため、目印なしの節目の push（この追記）を作業ブランチに入れる。sync_all_logs.py は毎回 cloudflare を先に写すので、この push で起動すれば、マージ後の cloudflare の guide/・chat-ids・ログ・actions/status.md も写る
 - 10:06:32 の作業ブランチへの push でも、10:15 まで同期が起動しなかった。配備（09:56:09）から15分以内の push で、cron の反映の遅れ（scheduler-worker.md「cron の変更の反映は最大15分」）に当たった可能性がある。配備から15分を過ぎた 10:16 以降にもう1回だけ push して確かめる
+- 10:15:42 の push（配備から約20分後）でも 10:24 まで同期が起動しなかった。mj の `pushed_at` は 10:15:41 に更新されている（API で確かめた）ので、Worker が起動していないか、起動の API が失敗している（失敗は `console.error` だけで #506 には書かない作り）。Worker のコードは RVW-21 と同じで、この配備で変わったのは `schedule.json` の 05:30 の行だけ。RVW-21 の配備（08:39:43）の後は 08:40:09 に起動していた。理由は分からない（Observability はセッションから読めない）
+- **止まる条件「(ii) で写らない」に当たった。** mj 側の sync-logs.yml は止まっているので、今は自動の写しが動いていない（残るのは mj-logs の予約実行〈03:41 JST、GitHub の予約は遅れる〉だけ）
+- 中身の経路を分けて確かめるため、sync-from-mj を手動で1回実行した（run 18、10:24:55）: success。mj-logs 4b5a436 `sync: mj b8cef8bc` で、guide/ が b8cef8bc に替わり（52 ファイル）、`actions/status.md` が更新され（見出しは「書き出しは mj-logs の sync-from-mj.yml（#498・#298）」）、このログが写った。chat-ids は 1257323c のまま（mj で `chat_ids.py --print` を作り、mj-logs の 1257323c.md と同じであることを確かめた。RVW の最後の日は 2026-10-07 で変わらない）。写す仕組み自体は新しい経路だけで動く。動いていないのは Worker からの起動
+
+(i)〜(iii) の表:
+
+| 項目 | 結果 |
+|---|---|
+| (i) 作業ブランチの push → mj-logs | 09:53:33 の push で 120秒後に写った（Worker の配備し直しの前） |
+| (ii) cloudflare へのマージの push → ログ・guide/・chat-ids・status.md | **自動では写らなかった**（Worker が起動しない）。手動実行（run 18）では、ログ・guide/（b8cef8bc）・status.md が写り、chat-ids は変わる内容が無く同じ |
+| (iii) mj の cloudflare の check-run の `sync` | b8cef8bc に `sync` は出ていない（sync-logs.yml は起動していない） |
+| 配備し直した後の作業ブランチの push | 10:06:32・10:15:42 の2回とも、9分待って起動なし |
 
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち（止まる条件「(ii) で写らない」に当たって止めた）
 - ブランチ: work/1007-rvw-sync4
-- ログ: https://github.com/retroeater/mj/blob/work/1007-rvw-sync4/docs/logs/CHAT-1005-RVW-22.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1007-rvw-sync4
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1005-RVW-22.md
+- 比較URL: https://github.com/retroeater/mj/compare/0395f376...work/1007-rvw-sync4
 - 確認用URL: なし
-- マージ: 未
-- issue: なし
-- 判断が必要なこと: なし
-- 未確認の項目: なし
-- エラー: なし
+- マージ: mj-logs の main へ sync-from-mj.yml の再試行の直し（2ac1101）。mj の cloudflare へ b8cef8bc（sync-logs.yml の `on:` を workflow_dispatch だけに、Worker の 05:30 の行を削除、status.md の見出し、文書）。check-run はすべて success
+- issue: #298 に実装4の前半の結果と、Worker が起動しなくなったことをコメント
+- 判断が必要なこと: **今は自動の写しが止まっている**（mj 側は停止済み、Worker から mj-logs の同期が起動しない。b8cef8bc の配備〈09:56:09〉の後から）。(1) 平野さんに Cloudflare の `mj-scheduler` → Observability で 09:56 以降を見てほしい: 毎分の起動（Message が `* * * * *`）が並んでいるか、`同期の判定に失敗`・`同期の起動に失敗`・`Secret GITHUB_TOKEN が無いため` の行が無いか。Settings → Triggers の Cron が `* * * * *` か (2) 原因が分かるまで、mj の sync-logs.yml の `on:` を戻すか（戻し方は `on:` を戻すだけ。戻すと RVW-21 の衝突が戻るが、sync-from-mj の再試行は直したので failure にはならない見込み） (3) それまでの間、ログの写しは sync-from-mj の手動実行（mj-logs → Actions → 「mj の作業ログを写す」→ Run workflow）でできる。このログもそれで写した
+- 未確認の項目: Worker が起動しない理由（Observability はセッションから読めない）
+- エラー: Worker `mj-scheduler` が b8cef8bc の配備の後、mj-logs の同期を起動していない（原因不明）
+
+実装4の後半で消すもの:
+
+- mj の `.github/workflows/sync-logs.yml`
+- mj の Actions の Secret `MJ_LOGS_TOKEN` と、その PAT `mj-logs-sync`
+- 目印 `[sync-logs]` の規則と sync-logs.yml の説明: CLAUDE.md「作業ログ」節、docs/logs/_template.md、docs/notes/cloud-sessions.md「作業ログ」、docs/notes/branch-operations.md（該当の箇所）、docs/notes/static-generation.md「ワークフローの一覧」の sync-logs.yml の行、docs/notes/scheduler-worker.md の sync-logs の記述
+- コードの注記: scripts/sync_logs.py・sync_guides.py・chat_ids.py・actions_status.py の docstring の「sync-logs.yml から呼ぶ」（呼ぶのは sync_all_logs.py）
 
 <!-- guide-links -->
 ---
