@@ -62,6 +62,27 @@ houou_race の説明文を決めたとき、平野さんから「『閲覧でき
 
 ## 経過
 
+- 着手前: `git log --all --grep="CHAT-1007-LGR-15"` は0件、ログの履歴も無し。LGR は同じチャットで使用中（このセッションの最初の指示ではない）。
+  ローカル・リモートとも work/1007-lgr-15 が無く、`git checkout -b work/1007-lgr-15 origin/cloudflare`（f14c01fb）
+- 雛形の行: Chat-Ref・マージ・貼る時機・作業ブランチ・共通手順の行は揃っていた
+- 手順0: ログの「指示」欄の末尾は指示文の最後の行と一致
+- 手順1（洗い出し）:
+  - 説明文の出どころ: 共通の所ではなく、それぞれの生成スクリプトの `META = PageMeta(description=...)`（`scripts/generate_houou_leagues.py`・`scripts/generate_ouka_leagues.py`、人数は `{count}` に生成時に入る）。
+    出る所は3か所（meta description・og:description・`<p class="mj-lead">`）。共通の定数・関数は変えないため、ほかのページへの波及は無い
+  - ほかに同じ文言を持つ所: `scripts/apply_page_meta.py` の `PAGES`（全ページの title・description を一括で書き換える #5 のスクリプト）の houou_leagues・ouka_leagues の2項目。
+    実行すると差し戻るため、同じく結びだけを直した。ここの文は変更前から人数が無く（「選手の所属リーグ推移…」）、生成スクリプトの文（「選手{count}名の…」）と食い違っている（`--dry` で2ページが書き換え対象に出る。今回は直していない）
+  - 「閲覧できます」の残り（docs/logs を除く）: 上の4ファイルと生成物2ページのほかは、docs/decisions/houou.md の過去の節（houou_race の旧い説明文、2か所）だけ。title/・saikyo/・wayhome/・live/ の下には無し
+  - `llms.txt` の「リーグ推移」: 鳳凰戦「選手691名の所属リーグ推移（期ごとの各リーグの人数、全出場選手の中での順位等）。」（ページは690名）、女流桜花「選手164名の所属リーグ推移。」（ページは163名、人数があった）
+  - 未マージのブランチ: `git branch -r --no-merged origin/cloudflare` は work/1007-lgr-15・work/1007-rvw-actions。後者は `llms.txt`・2ページ・生成スクリプト・apply_page_meta.py・scripts/lib・scripts/tests のどれにも触れない
+  - 同じ論点の open issue: `llms.txt` の手書きの件数のずれは #227（llms.txt を生成対象にし、要約・更新頻度・件数を出す）。マージ後にコメントする
+- 手順2（直す）: 4ファイルの結びを「をまとめています。」に。`llms.txt` は2行とも「選手の所属リーグ推移（期ごとの各リーグの人数、全出場選手の中での順位等）。」に
+  - `python3 scripts/regenerate.py all`（rc=0、エラーなし）。差分は houou_leagues.html・ouka_leagues.html の3行ずつ（説明文の3か所）だけで、シートの変化の反映は無かった
+  - `python3 -m unittest discover -s scripts/tests`: 633件 OK
+  - 成果物のコミット d8d542e0 を work/1007-lgr-15 へ push
+- 手順3（プレビュー）: Workers Builds: mj は success。2ページの meta description・og:description・mj-lead が新しい文（鳳凰戦690名・女流桜花163名）、`llms.txt` の2行も新しい文
+  - headless Chromium（playwright 1.56.1、`/opt/pw-browsers/chromium`）で 390px・1280px: 2ページとも scrollWidth = 画面幅（横のはみ出し無し）。失敗した読み込みは `static.cloudflareinsights.com/beacon.min.js` だけ（除外の対象）。390px のスクリーンショットで説明文の段落の表示を目視
+  - 起動の注意: セッションのプロキシの CA を Chromium が信頼せず `ERR_CERT_AUTHORITY_INVALID` になった。`proxy: {server: 'http://127.0.0.1:<port>'}` と `--ignore-certificate-errors-spki-list=<プロキシの CA の SPKI の sha256>` を渡して開いた（プロキシの CA だけを信頼する指定で、検証を全体に切ってはいない）
+
 ## 報告
 
 - 状態: 作業中
@@ -78,12 +99,12 @@ houou_race の説明文を決めたとき、平野さんから「『閲覧でき
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj f14c01fb）: https://github.com/retroeater/mj-logs/tree/main/guide/f14c01fb
+ガイド文書（この版を写した時点の最新、mj 9a8093be）: https://github.com/retroeater/mj-logs/tree/main/guide/9a8093be
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f14c01fb/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f14c01fb/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f14c01fb/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f14c01fb/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f14c01fb/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f14c01fb/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a8093be/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a8093be/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a8093be/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a8093be/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a8093be/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a8093be/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/1257323c.md
