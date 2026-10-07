@@ -94,6 +94,26 @@ Chat-Ref: CHAT-1007-WKR-09
 2. 手順0: 指示欄の最後の行は「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」で、指示文の最後の行と一致
 3. 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
 
+4. 手順1: #504 は Open（updated_at 2026-10-06T03:44:53Z、最後のコメントは WKR-07）。他セッションの着手中のコメントは無い。未マージの `work/` ブランチ（`work/1006-rvw-377`・`work/1007-wkr-09`）でこの2本と `workers/scheduler/` を変えるものは無い
+   - sync-dojo-calendar.yml の `schedule` を見ている箇所は3か所で前提どおり: gate（54行目 `github.event_name = schedule`）、同期の `--auto-update`（104行目の `EVENT_NAME` と110行目）、失敗の通知の文面（169行目 `context.eventName === 'schedule'`）。sync-logs.yml は0か所（`if:` は push 以外で常に通る）。`workflow_dispatch:` に入力が無かった
+   - Worker の実行の一覧: `runs?created=>=<当日0時>&per_page=100` でページ送りなし・契機で絞らない。sync-logs は1日100件を超える push の実行があるので、`[scheduled]` の実行が1ページ目から落ちて「未起動」と誤る作りだった
+5. 実行の一覧の引き方を直した: テストを先に足し（`event=workflow_dispatch` で絞らないと 100 件の push の実行しか返らない偽の fetch で、予約の起動を見つけるか）、既存の URL のテストを `event=workflow_dispatch&created=…` に直した。直す前のコードで2件が落ちた → URL に `event=workflow_dispatch` を足した → `node --test` 20件すべて通過。実物の API でも `event` と `created` の両方で絞れることを確かめた（delete-merged-branches の 10/7 の run #17、2026-10-06T19:20:10Z = 10/7 04:20:10 JST、予定から 10 秒）
+   - 副作用: 「手動で成功済み」の判定は `workflow_dispatch` の実行だけを見るようになった（`schedule` の実行は数えない。保険の予約実行は 06:00 より後に動くので、朝の確かめの時点では元から無い）
+6. ワークフロー:
+   - sync-dojo-calendar.yml: `run-name`、入力 `scheduled`、ジョブの env `SCHEDULED: ${{ github.event_name == 'schedule' || inputs.scheduled == true }}` を足し、3か所の判定を `SCHEDULED` に置き換えた。**`scheduled` が真のときは、同期のステップで手動の入力（`INPUT_IMAGE`・`INPUT_MONTH`・`INPUT_APPLY`）を空にする**（予約実行と同じ動き。`scheduled` と `apply` が両方来ても書き込みはしない。`--auto-update` は付く）。`schedule:` の行は変えていない
+   - sync-logs.yml: `run-name` と入力 `scheduled` を足しただけ（動きは変えない）
+   - 起動の表: `sync-dojo-calendar.yml` 04:15・`delete-merged-branches.yml` 04:20・`sync-logs.yml` 05:30（どれも毎日・有効）。`dueRows` で 04:15・04:20・05:30 の回にそれぞれ1本ずつ起動し、06:00 の回の確かめの対象が3行になることを確かめた
+   - `python3 -m unittest discover -s scripts/tests`: OK
+   - コミット 8c0d4c9・a611d5f0 を作業ブランチに push（01:40:39 UTC）
+7. 道場部の画像の確かめ（D1・D2 の前）: cloudflare での直近の成功した実行は run #30（schedule、2026-10-07T01:28:24Z）。連盟サイトの道場部ゲストのページの画像の Last-Modified は `202610B.jpg`・`202610R.jpg` が 2026-09-28 23:35 GMT、`202610G.jpg`・`202610Y.jpg` が 2026-10-02 04:17 GMT。どれも run #30 より前 → D1・D2 を行う
+8. 手動実行（ref は work/1007-wkr-09、a611d5f0）
+   - **D1** run 31（id 37558320643、`scheduled` を "true"）: success。題 `[scheduled] 道場部ゲストのカレンダー同期`。ログ: `SCHEDULED: true`、`引数: --compare --state dojo-state.json --json result.json --auto-update`、「画像は前回の読み取りから変わっていません。何もしません。」、#426 への通知なし（「画像が変わっていないため通知しません」）。キャッシュを `dojo-guest-state-37558320643`（作業ブランチ）として保存
+   - **D2** run 32（id 37558390153、入力なし）: success。題は既定の「道場部ゲストのカレンダー同期」。ログ: `SCHEDULED: false`、`引数: --compare --state dojo-state.json --json result.json`（`--auto-update` なし）、「画像は前回の読み取りから変わっていません」、通知なし。**キャッシュは D1 が作業ブランチで保存した `dojo-guest-state-37558320643` から復元した**（同じブランチの後の実行からは見える）。cloudflare の実行から作業ブランチのキャッシュが見えるかは、キャッシュの一覧の API がプロキシで拒否されたため確かめられなかった（GitHub の文書どおりならブランチの範囲で見えない）
+   - **L1** run 1698（id 37558323014、`scheduled` を "true"）: success。題 `[scheduled] 作業ログを mj-logs へ写す`
+   - **L2** run 1700（id 37558392116、入力なし）: success。題は既定の「作業ログを mj-logs へ写す」
+   - 失敗・タイムアウトは無かった（やり直しなし）
+9. 文書: scheduler-worker.md（起動の表3行、朝の確かめの一覧の絞り込み、Observability の表記〈申告値〉、「未確認」から 06:00 の回と Cron Triggers の遅れを外して「動いた記録」の節に、作業ブランチのキャッシュの件を未確認に）、dojo-guest-calendar.md（04:15 の Worker と保険の 07:12、`--auto-update` の条件、`scheduled` の扱い、3か所）、static-generation.md（ワークフローの一覧の2行、「ワークフローを手動実行するとき」に `scheduled` は手で付けないの1項目。この節にこの2本の記述は無かったので足した）、cloud-sessions.md「作業ログ」の sync-logs の起動、chat-side-operations.md の Actions の行（**23626 → 23674 バイト**）、handover.md の #504 の行（**23076 → 23100 バイト**）、decisions/automation.md
+
 ## 報告
 
 - 状態: 作業中
@@ -110,12 +130,12 @@ Chat-Ref: CHAT-1007-WKR-09
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 84f7dfcf）: https://github.com/retroeater/mj-logs/tree/main/guide/84f7dfcf
+ガイド文書（この版を写した時点の最新、mj b5f76164）: https://github.com/retroeater/mj-logs/tree/main/guide/b5f76164
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/84f7dfcf/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/84f7dfcf/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/84f7dfcf/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/84f7dfcf/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/84f7dfcf/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/84f7dfcf/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b5f76164/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b5f76164/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b5f76164/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b5f76164/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b5f76164/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b5f76164/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/2fd75cd3.md

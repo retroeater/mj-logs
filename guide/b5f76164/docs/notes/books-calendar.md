@@ -82,5 +82,5 @@ Google Cloud プロジェクト・Calendar API・サービスアカウント・`
 ## 分かっていること・注意（凍結時点、2026-09-22）
 
 - 2026-09-22 に初めて190件を書き込み、収束を確認した直後に開発凍結が決まり、全削除した
-  （`docs/logs/CHAT-0921-BK-22.md`→削除は`docs/notes/books-freeze.md`）
+  （`https://github.com/retroeater/mj/blob/ea8b86a18fbe581b9000d7a6135a4717966d7b53/docs/logs/CHAT-0921-BK-22.md`→削除は`docs/notes/books-freeze.md`）
 - 書籍の個別ページは公開まで noindex（#429）。凍結中もページ自体は本番に残る
