@@ -149,7 +149,7 @@
 
 ## 報告
 
-- 状態: 判断待ち（平野さんが案を選ぶ）
+- 状態: 判断待ち（続き: CHAT-1007-PHT-08）
 - ブランチ: work/1006-pht-logs
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1006-PHT-05.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1006-pht-logs
@@ -186,12 +186,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 01b946ae）: https://github.com/retroeater/mj-logs/tree/main/guide/01b946ae
+ガイド文書（この版を写した時点の最新、mj 1fb48bed）: https://github.com/retroeater/mj-logs/tree/main/guide/1fb48bed
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/01b946ae/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/01b946ae/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/01b946ae/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/01b946ae/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/01b946ae/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/01b946ae/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/824dc807.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/1fb48bed/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/1fb48bed/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/1fb48bed/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/1fb48bed/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/1fb48bed/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/1fb48bed/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/1257323c.md
