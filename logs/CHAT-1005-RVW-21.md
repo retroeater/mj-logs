@@ -80,16 +80,38 @@
 - 計測 2: 目印なしの節目の push
 - 計測 3: 目印なしの節目の push
 
+### 3. マージと並走の確かめ
+
+- cloudflare へ 69ea17e3 で入れた（push 直前に再 fetch し `merge-base --is-ancestor` を確かめた。取り込みの衝突なし）
+- check-run（69ea17e3）: 「Workers Builds: mj-scheduler」success（08:39:43 UTC）・「Workers Builds: mj」success・assets-check の check success（2件）・sync-logs の sync success（作業ブランチの push の分は skipped）
+- 配備の後、マージの push（08:39:01）で mj-logs の sync-from-mj の run 3（workflow_dispatch、08:40:09 に作成）が動き、7475ab5a `sync: mj 69ea17e3`（`actions/status.md` だけ）を作った
+
+push（作業ブランチへの目印なしの節目の push。mj の sync-logs.yml は skip するので、写すのは sync-from-mj だけ）から mj-logs のコミットまで:
+
+| 計測 | push（UTC） | 起動した実行（作成） | mj-logs のコミット | push からの時間 |
+|---|---|---|---|---|
+| 1 | 08:40:48 | run 4（08:42:55） | 4aba3076（08:43:24） | 156秒 |
+| 2 | 08:43:33 | run 5（08:43:56） | 99dd05ef（08:44:18） | 45秒 |
+| 3 | 08:44:28 | run 6（08:44:55、**failure**）→ run 7（08:45:09） | 1e73528b（08:45:52） | 84秒 |
+
+- 計測1が遅いのは、配備の直後で cron の変更（`*/5` → 毎分）がまだ効いていなかったためと見られる（scheduler-worker.md「cron の変更の反映は最大15分」。08:40 の回の次の起動は 08:42:55 だった）。計測2・3では push から 23〜27秒で起動した
+- 3回とも mj-logs に `sync: mj 69ea17e3` のコミット（`logs/CHAT-1005-RVW-21.md` と `actions/status.md`）ができた。コミットの題・本文に作業ブランチの名前・SHA は無い
+
+**run 6 の失敗（止まる条件に当たる）**: 原因を1回だけ読んだ。push の step で `! [rejected] (fetch first)` → `git pull --rebase` が `CONFLICT (content): Merge conflict in actions/status.md` で止まった。直前（08:44:55）に mj の sync-logs.yml が `sync: work/1007-lgr 049a439d`（他のセッションのログと `actions/status.md`）を push していた。ログのファイルは同じ中身になるのでぶつからないが、`actions/status.md` は書いた時刻と実行の一覧がそれぞれ違うので、並走中に2つの push が重なると rebase がぶつかる。前提の「どちらも突き合わせで同じ中身を書くので再試行で収まる」は `actions/status.md` には当たらなかった
+
+- 害: その実行が failure で終わるだけ。写しは次の回（run 7、14秒後に起動）で追いついた。mj の sync-logs.yml は同じ時間帯に failure なし（mj 側どうしは concurrency で1本ずつ）
+- 直すには mj-logs の `sync-from-mj.yml`（または mj の `sync-logs.yml`）の push の再試行を変える必要がある（例: rebase がぶつかったら中断して origin/main に合わせ、写す・書き出すをやり直す）。止まる条件のとおり、変えずに報告する
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1007-rvw-sync3
-- ログ: https://github.com/retroeater/mj/blob/work/1007-rvw-sync3/docs/logs/CHAT-1005-RVW-21.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1007-rvw-sync3
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1005-RVW-21.md
+- 比較URL: https://github.com/retroeater/mj/compare/187e5246...69ea17e3
 - 確認用URL: なし
-- マージ: 未
-- issue: なし
-- 判断が必要なこと: なし
+- マージ: cloudflare へマージ済み（69ea17e3）。check-run はすべて success。Worker は毎分の起動で mj-logs の同期を起動している（並走中）
+- issue: #298 に実装3 済み（並走開始・遅れ・run 6 の失敗）をコメント
+- 判断が必要なこと: 並走中に mj-logs の sync-from-mj と mj の sync-logs.yml の push が重なると、`actions/status.md` の rebase がぶつかって sync-from-mj の実行が failure になる（run 6。写しは次の回で追いついた）。(a) sync-from-mj.yml の push の再試行を「ぶつかったらやり直す」形に直す (b) 実装4（mj 側の停止）を早める (c) 並走の間は failure を受け入れる、のどれにするか。push から mj-logs のコミットまでは 45秒・84秒（配備直後の1回目は 156秒）
 - 未確認の項目: なし
 - エラー: なし
 
