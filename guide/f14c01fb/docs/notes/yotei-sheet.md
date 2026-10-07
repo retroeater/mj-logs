@@ -3,7 +3,7 @@
 放送対局の公開カレンダー（#448）の2本目。連盟の「【一般公開】予定表」を Calendar API で読み、
 スプレッドシート「ryoei.pro_日本プロ麻雀連盟_予定表」の3層へ取り込む。あわせて3本目として、層1の YouTube のライブの枠と
 予定表の予定から、放送対局の公開カレンダーへ同期する（「公開カレンダーへの同期」）。
-設計の調べは `docs/logs/CHAT-0928-HC-01.md`・`CHAT-0928-HC-02.md`、実装は `CHAT-0928-HC-06.md`・`CHAT-0928-HC-10.md`。
+設計の調べは https://github.com/retroeater/mj/blob/1ad5d8be5a7b06ddd53620c536034cd78acddfdb/docs/logs/CHAT-0928-HC-01.md ・ https://github.com/retroeater/mj/blob/1ad5d8be5a7b06ddd53620c536034cd78acddfdb/docs/logs/CHAT-0928-HC-02.md 、実装は https://github.com/retroeater/mj/blob/1ad5d8be5a7b06ddd53620c536034cd78acddfdb/docs/logs/CHAT-0928-HC-06.md ・ https://github.com/retroeater/mj/blob/1ad5d8be5a7b06ddd53620c536034cd78acddfdb/docs/logs/CHAT-0928-HC-10.md 。
 
 /live の3層（`docs/notes/live-channel-write.md`）とは別のスプレッドシート・別の表だが、考え方は同じ
 （機械が置き換える【1】【2】と、平野さんが書く【3】。【3】の行は機械が予定表と予定IDでそろえる）。
