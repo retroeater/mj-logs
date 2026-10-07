@@ -1,7 +1,7 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-07 12:09 JST
-- 書き出した実行の契機: push（work/1007-pht-clean）
+- 書き出した時刻: 2026-10-07 12:13 JST
+- 書き出した実行の契機: push（cloudflare）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは sync-logs.yml（#498）
 
@@ -12,11 +12,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-07 12:12 | push | work/1007-pht-clean | in_progress | #2924（37565697703） |  |
+| 2026-10-07 12:12 | push | cloudflare | success | #2923（37565685182） | 0分13秒 |
 | 2026-10-07 12:09 | push | work/1007-pht-photo | success | #2922（37565398519） | 0分12秒 |
 | 2026-10-07 12:05 | push | work/1007-pht-photo | success | #2921（37565106225） | 0分15秒 |
 | 2026-10-07 12:05 | push | work/1007-lgr | success | #2920（37565086595） | 0分12秒 |
-| 2026-10-07 11:58 | push | work/1007-pht-logs | success | #2919（37564555970） | 0分16秒 |
-| 2026-10-07 11:58 | push | cloudflare | success | #2918（37564504216） | 0分14秒 |
 
 ## check-image-links.yml
 
@@ -26,7 +26,7 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-10-07 12:09 | workflow_dispatch | work/1007-pht-photo | in_progress | #22（37565398389） |  |
+| 2026-10-07 12:09 | workflow_dispatch | work/1007-pht-photo | success | #22（37565398389） | 3分05秒 |
 | 2026-10-07 12:05 | workflow_dispatch | work/1007-pht-photo | success | #21（37565106437） | 3分06秒 |
 | 2026-10-06 12:46 | workflow_dispatch | cloudflare | success | #20（37410583779） | 3分04秒 |
 | 2026-10-06 12:07 | workflow_dispatch | cloudflare | success | #19（37407457066） | 3分10秒 |
@@ -82,11 +82,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-07 12:12 | workflow_dispatch | work/1007-pht-clean | in_progress | #6（37565703570） |  |
 | 2026-10-05 09:00 | schedule | cloudflare | success | #5（37245755880） | 0分24秒 |
 | 2026-09-28 08:50 | schedule | cloudflare | success | #4（36360044301） | 0分22秒 |
 | 2026-09-21 08:19 | schedule | cloudflare | success | #3（35544280847） | 0分18秒 |
 | 2026-09-18 09:40 | workflow_dispatch | cloudflare | success | #2（35292168653） | 0分12秒 |
-| 2026-09-18 00:47 | workflow_dispatch | cloudflare | success | #1（35242530724） | 0分21秒 |
 
 ## delete-merged-branches.yml
 
@@ -195,11 +195,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-10-07 12:09 | push | work/1007-pht-clean | in_progress | #1731（37565407271） |  |
+| 2026-10-07 12:12 | push | work/1007-pht-clean | pending | #1733（37565697858） |  |
+| 2026-10-07 12:12 | push | cloudflare | in_progress | #1732（37565685192） |  |
+| 2026-10-07 12:09 | push | work/1007-pht-clean | success | #1731（37565407271） | 0分32秒 |
 | 2026-10-07 12:05 | push | work/1007-pht-photo | skipped | #1730（37565106212） | 0分51秒 |
 | 2026-10-07 12:05 | push | work/1007-lgr | success | #1729（37565086628） | 0分55秒 |
-| 2026-10-07 12:05 | push | cloudflare | success | #1728（37565084156） | 0分30秒 |
-| 2026-10-07 12:03 | push | work/1006-rvw-377 | success | #1727（37564991696） | 1分06秒 |
 
 ## update-live-channel.yml
 
