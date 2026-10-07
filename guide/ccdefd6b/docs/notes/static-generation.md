@@ -249,7 +249,7 @@ handover.md 5章から移した。ページの一覧は下の「ページの一�
 
 ### ページの一覧
 
-HTMLは25ページ + 書籍の一覧と個別ページ（`books/`、#97、noindex・メニュー未掲載。**2026-09-22 開発凍結、`docs/notes/books-freeze.md`**） + 「帰り道」エピソード個別ページ39枚（`wayhome/`、#162） + 最強戦のトップと年度ページ（`saikyo/`、#319/#355、2026-09-21 に公開） + タイトル戦の新構成（`title/`、#222、2026-09-28 に公開、#413） + 放送対局ページ（`live/`、#346、noindex・メニュー未掲載。正式公開は #362） + 鳳凰戦 リーグ別成績推移（`houou_race.html`、#507、noindex・メニュー未掲載。公開は #508）。大きく4系統に分かれる。
+HTMLは26ページ + 書籍の一覧と個別ページ（`books/`、#97、noindex・メニュー未掲載。**2026-09-22 開発凍結、`docs/notes/books-freeze.md`**） + 「帰り道」エピソード個別ページ39枚（`wayhome/`、#162） + 最強戦のトップと年度ページ（`saikyo/`、#319/#355、2026-09-21 に公開） + タイトル戦の新構成（`title/`、#222、2026-09-28 に公開、#413） + 放送対局ページ（`live/`、#346、noindex・メニュー未掲載。正式公開は #362）。大きく4系統に分かれる。
 
 | 系統 | ページ数 | 状態 |
 |---|---|---|
@@ -259,7 +259,8 @@ HTMLは25ページ + 書籍の一覧と個別ページ（`books/`、#97、noinde
 | ビルド時生成（型A'・多列テキスト） | 2 | `rh_results.html` / `rh_results_detail.html`。画像列を持たないため`.mj-table-auto`を使う（#7、完了） |
 | ビルド時生成（型D・静的SVG） | 1 | `resource_efficiency.html`。表を持たないため`render_content()`を使う。外部JS・外部ドメインへの依存が一切ない（#7/#128、完了） |
 | ビルド時生成（型C・積み上げ棒+折れ線） | 2 | `houou_leagues.html` / `ouka_leagues.html`。積み上げ棒と既定選手の折れ線は静的SVG、`?name=`時の折れ線差し替えのみ`leagues.js`が担う（#7/#127、完了） |
-| ビルド時生成（独自: 順位表の数え上げ+期ごとのJSON） | 1 | `houou_race.html`（鳳凰戦 リーグ別成績推移）。`render_content()`+専用JS`houou_race.js`。データは`houou_race/<期>-<1前・2後>.json`を選んだときに読む。noindex・メニュー・サイトマップ・`llms.txt` 未掲載（#507、`docs/notes/houou-race.md`） |
+| ビルド時生成（独自: 順位表の数え上げ+期ごとのJSON） | 1 | `houou_race.html`（鳳凰戦 順位変動）。`render_content()`+専用JS`houou_race.js`。データは`houou_race/<期>-<1前・2後>.json`を選んだときに読む。navbar の「鳳凰戦」から辿れる（#507・#508、`docs/notes/houou-race.md`） |
+| ビルド時生成（独自: カテゴリを選んで辞書ファイルを組み立てる） | 1 | `resource_dictionary.html`。`scripts/generate_resource_dictionary.py` が「辞書」タブ（連盟プロ以外と同じ冊）と「プロ」タブから、カテゴリごとのデータ `dic/<スラッグ>.json` とページを書く。ページの `resource_dictionary.js` が選んだカテゴリをまとめ、Microsoft IME 用（UTF-16LE・BOM 付き・CR+LF）か Google 日本語入力用（UTF-8・LF）で保存させる。更新日は行が前回と同じなら保つ（#377） |
 | ビルド時生成（独自: 全画面ヒーロー+横スクロールカード列） | 1 | `video_wayhome.html`。`render_content()`+専用JS`video_wayhome.js`。新サイトのパイロット（`docs/notes/video-wayhome.md`） |
 | ビルド時生成（サブディレクトリ、ヒーロー構成のエピソード個別ページ） | 39 | `wayhome/<動画ID>.html`。`scripts/generate_wayhome_episodes.py`（`docs/notes/video-wayhome.md`） |
 | ビルド時生成（サブディレクトリ、最強戦のトップと年度ページ） | トップ1＋年度数 | `saikyo/index.html`・`saikyo/<年度>.html`。`scripts/generate_saikyo_pages.py`。2026-09-21 に一般公開し、navbar・`sitemap-saikyo.xml`・`llms.txt` に載る（#319・#348、`docs/notes/saikyo-page-design.md`） |
@@ -267,7 +268,7 @@ HTMLは25ページ + 書籍の一覧と個別ページ（`books/`、#97、noinde
 | ビルド時生成（サブディレクトリ、放送対局ページ） | 691（2026-09-18） | `live/index.html`・`live/<タイトル戦>/index.html` 以下。`scripts/generate_live_pages.py`。noindex・メニュー未掲載、正式公開は #362（`docs/notes/live-page-design.md`） |
 | ビルド時生成（サブディレクトリ、書籍の一覧と個別ページ） | 一覧1＋190 | `books/index.html`・`books/<ISBN13>.html`。`scripts/generate_books_pages.py`。noindex・メニュー未掲載、`sitemap-books.xml` は `sitemap.xml` から未参照。**2026-09-22 開発凍結（自動生成・自動取得を停止、本番はそのまま残す）。詳細は `docs/notes/books-freeze.md`** |
 | Google Charts依存 | **6** | ブラウザから直接スプレッドシートを読む。#7の対象。型B3・ランキング系A3 |
-| 静的なページ | 4 | `404.html` / `jpml_links.html` / `resource_dictionary.html` / `rh_links.html` |
+| 静的なページ | 3 | `404.html` / `jpml_links.html` / `rh_links.html` |
 
 ### 生成スクリプトの構成（lib/page.py）
 
@@ -364,7 +365,7 @@ title/ では「タイトル戦」タブの大会の改名が「タイトル」�
 
 ### サイトマップ
 
-`sitemap.xml`（インデックス）が`sitemap-pages.xml`（25ページ、旧sitemap.xml。27ページのうち`404.html`〈noindex〉と`saikyo_mens.html`〈年1回の単発企画〉を意図的に除外）と`sitemap-wayhome.xml`（wayhome/39ページ、`generate_wayhome_episodes.py`が生成）と`sitemap-saikyo.xml`（saikyo/配下、`generate_saikyo_pages.py`が生成、#319）と`sitemap-title.xml`（title/配下、`generate_title_pages.py`が生成、#413）を束ねる方式（#162）。`robots.txt`のSitemap行は`sitemap.xml`のまま変更していない。lastmodは生成・非生成を区別せずgitの最終コミット日（JST）で、`scripts/update_sitemap_lastmod.py --from-git`が導出する。HTMLを含むpushでは`sitemap-lastmod.yml`、再生成では`regenerate-page.yml`が呼ぶ（#265）。手で書き換えない（`docs/notes/sitemap-lastmod.md`）
+`sitemap.xml`（インデックス）が`sitemap-pages.xml`（24ページ、旧sitemap.xml。26ページのうち`404.html`〈noindex〉と`saikyo_mens.html`〈年1回の単発企画〉を意図的に除外）と`sitemap-wayhome.xml`（wayhome/39ページ、`generate_wayhome_episodes.py`が生成）と`sitemap-saikyo.xml`（saikyo/配下、`generate_saikyo_pages.py`が生成、#319）と`sitemap-title.xml`（title/配下、`generate_title_pages.py`が生成、#413）を束ねる方式（#162）。`robots.txt`のSitemap行は`sitemap.xml`のまま変更していない。lastmodは生成・非生成を区別せずgitの最終コミット日（JST）で、`scripts/update_sitemap_lastmod.py --from-git`が導出する。HTMLを含むpushでは`sitemap-lastmod.yml`、再生成では`regenerate-page.yml`が呼ぶ（#265）。手で書き換えない（`docs/notes/sitemap-lastmod.md`）
 
 ### ページ側のJS（jpml_pros.js / table.js / video_wayhome.js / leagues.js）
 
@@ -391,9 +392,9 @@ GitHub Actions (`.github/workflows/regenerate-page.yml`) が、`scripts/generate
 | `check-meibo.yml` | 毎週月曜05:07 JST。連盟員名簿と「プロ」シートの在籍者の不一致を、題名で探して作る issue に書く（例: #445。#370 はクローズ済み） |
 | `sync-birthday-calendar.yml` | 毎週月曜05:17 JST。名簿の誕生日をGoogleカレンダーへ同期する（#379、`docs/notes/birthday-calendar.md`） |
 | `fetch-gsc.yml` | 毎月1日06:00 JST。Search Console の検索パフォーマンスを `docs/gsc/` に取り出し、robots.txt の差分を #304 に知らせる（#269） |
-| `sync-dojo-calendar.yml` | 毎日07:12 JST。道場部ゲストの告知画像を読み、カレンダーへの追加分と新規ゲスト・当月誕生日を #426 に知らせる（同期が失敗したとき・最新の月に道場部ゲストの見出しが無いときもその旨を知らせる、#472・#390）。新しい月の書き込みは手動実行のときだけで、保存した読み取り結果を使う。書き込み済みの月の画像が差し替わったときは、当日以降を自動で直して知らせる（変更3件以上・照合できない名前があれば通知だけ）（#390、`docs/notes/dojo-guest-calendar.md`） |
+| `sync-dojo-calendar.yml` | 毎日04:15 JST に Worker `mj-scheduler` から（入力 `scheduled`、#504）と、保険の予約実行（毎日07:12 JST）。道場部ゲストの告知画像を読み、カレンダーへの追加分と新規ゲスト・当月誕生日を #426 に知らせる（同期が失敗したとき・最新の月に道場部ゲストの見出しが無いときもその旨を知らせる、#472・#390）。新しい月の書き込みは手動実行のときだけで、保存した読み取り結果を使う。書き込み済みの月の画像が差し替わったときは、当日以降を自動で直して知らせる（変更3件以上・照合できない名前があれば通知だけ）（#390、`docs/notes/dojo-guest-calendar.md`） |
 | `sync-books-calendar.yml` | **2026-09-22 開発凍結にともない無効化（`gh workflow disable`）。** 元は毎週月曜05:27 JSTに「書籍」タブの発売日をGoogleカレンダーへ同期していた（#97、`docs/notes/books-calendar.md`・`docs/notes/books-freeze.md`） |
-| `sync-logs.yml` | `docs/logs/**` を含む push（cloudflare は毎回、`work/**` はコミットのメッセージに`[sync-logs]`のある push だけ。無い push はジョブが skip、#298）・毎日 08:29 JST の予約実行・手動実行（この2つは目印に関係なく走る、#498）。実行の時点の mj と mj-logs を突き合わせ、写っていない・古い作業ログを public の `retroeater/mj-logs` の `logs/` へ写し、cloudflare で削除されたログを消す（#440。書き込みはシークレット `MJ_LOGS_TOKEN`）。concurrency は `queue: max` で、続けて来た実行を取り消さずに1本ずつ順に動かす（#509）。取り消された実行（待ちが100本を超えたとき、`queue: max` を持たない古い分岐の作業ブランチの実行）の分は、次の cloudflare の実行で追いつく（`scripts/sync_logs.py`、#454）。使用済みの Chat-Ref 識別子の一覧も毎回集め直して `chat-ids/` に写す（`scripts/chat_ids.py`、#474）。毎回、各ワークフローの直近5回の実行（開始時刻・契機・ブランチ・結論・run 番号・所要時間、失敗したジョブ名とステップ名）を mj-logs の `actions/status.md` に上書きで書き出す（`scripts/actions_status.py`、`GITHUB_TOKEN` の `actions: read`。コミットの題とログの中身は書かない、#498） |
+| `sync-logs.yml` | `docs/logs/**` を含む push（cloudflare は毎回、`work/**` はコミットのメッセージに`[sync-logs]`のある push だけ。無い push はジョブが skip、#298）・毎日05:30 JST の Worker `mj-scheduler` からの起動（入力 `scheduled`、#504）・毎日 08:29 JST の予約実行（保険）・手動実行（この3つは目印に関係なく走る、#498）。実行の時点の mj と mj-logs を突き合わせ、写っていない・古い作業ログを public の `retroeater/mj-logs` の `logs/` へ写し、cloudflare で削除されたログを消す（#440。書き込みはシークレット `MJ_LOGS_TOKEN`）。concurrency は `queue: max` で、続けて来た実行を取り消さずに1本ずつ順に動かす（#509）。取り消された実行（待ちが100本を超えたとき、`queue: max` を持たない古い分岐の作業ブランチの実行）の分は、次の cloudflare の実行で追いつく（`scripts/sync_logs.py`、#454）。使用済みの Chat-Ref 識別子の一覧も毎回集め直して `chat-ids/` に写す（`scripts/chat_ids.py`、#474）。毎回、各ワークフローの直近5回の実行（開始時刻・契機・ブランチ・結論・run 番号・所要時間、失敗したジョブ名とステップ名）を mj-logs の `actions/status.md` に上書きで書き出す（`scripts/actions_status.py`、`GITHUB_TOKEN` の `actions: read`。コミットの題とログの中身は書かない、#498） |
 | `delete-merged-branches.yml` | 毎日07:53 JST と手動、Worker `mj-scheduler` からの予約の起動（毎日04:20 JST、入力 `scheduled`、#504。Worker が動くのは平野さんがつないだ後）。マージ済みで先頭が24時間より前の `work/*` を削除する（#440、`scripts/delete_merged_branches.py`） |
 
 ### ワークフローを手動実行するとき
@@ -403,9 +404,11 @@ GitHub Actions (`.github/workflows/regenerate-page.yml`) が、`scripts/generate
 - `regenerate-page.yml` の checkout と push 先は実行ブランチ（#326）。古い作業ブランチから手動実行すると、そのブランチの状態で生成物がコミットされる
 - `check-image-links.yml` の checkout の ref は `${{ github.ref }}`（#306）で、手動実行では選んだブランチがチェックアウトされる。
   古い作業ブランチから実行すると常設issue（#218）の本文がそのブランチのデータで上書きされる。schedule は既定ブランチ（cloudflare）で走るため週次実行は変わらない。
-  ジョブ`saikyo`は最強戦の選手写真を別のissueに書き出す（`collect_saikyo_images.py --json`、#139）。画像は1,985枚（handover.md に書いていた時点の数）
+  ジョブ`saikyo`は最強戦の選手写真を別のissueに書き出す（`collect_saikyo_images.py --json`、#139）。画像は1,985枚（handover.md に書いていた時点の数）。
+  入力`saikyo_resolve_test`（X IDを1つ）を入れると、ジョブ`saikyo`はランナーのChromeで解決を1回だけ試して診断を出し、検知も issue の書き換えもしない（#514。ジョブ`check`は今までどおり動く）
 - `cleanup-logs.yml`（`scripts/cleanup_logs.py`、条件は `docs/notes/branch-operations.md`「作業ログの寿命」）: 手動実行は dry_run が既定。週次実行は `SCHEDULE_ENABLED`（現在 `'true'`）が `'false'` なら dry-run
 - `delete-merged-branches.yml`（`scripts/delete_merged_branches.py`）: 手動実行は dry_run が既定。毎日の実行と、入力 `scheduled` を真にした起動は `SCHEDULE_ENABLED`（現在 `'true'`）が `'false'` なら dry-run（`'true'` なら実際に削除する）。`scheduled` は Worker からの予約の起動用で、手では付けない（`docs/notes/scheduler-worker.md`）
+- `sync-dojo-calendar.yml`・`sync-logs.yml`・`delete-merged-branches.yml` の入力 `scheduled` は Worker `mj-scheduler` からの予約の起動用で、手では付けない（付けると予約実行と同じ動きになり、題に `[scheduled]` が付いて Worker の朝の確かめに数えられる。`docs/notes/scheduler-worker.md`）
 - `check-meibo.yml`（`scripts/check_meibo.py`）: 手動実行は dry_run が既定。不一致があっても生成は止めない
 - `sync-birthday-calendar.yml`（`scripts/sync_birthday_calendar.py`）: 週次の schedule（毎週月曜05:17 JST）は書き込みまで行う。手動実行の既定は差分を出すだけで、apply を選んだときだけ書き込む。予約実行と同じ動きは apply をオン・allow_many_deletes をオフ（`docs/notes/birthday-calendar.md`）
 - `fetch-gsc.yml`（`scripts/fetch_gsc.py`、#269）: checkout と push 先は実行ブランチ。手動実行の既定はコミットしない（取得するだけ）。
@@ -428,17 +431,16 @@ GitHub Actions (`.github/workflows/regenerate-page.yml`) が、`scripts/generate
   生成物は `lib/page.py` が `_render_search_boxes()` の結果から自動で出す
   （`render_content()` を使うページだけ `has_search_boxes=False` を明示）。
   現在の対象は1521ページ（2026-09-29、`git grep -l 'data-search="off"' -- '*.html'`）。
-  トップ階層の8ページ（`404` / `jpml_links` / `resource_dictionary` /
+  トップ階層の9ページ（`404` / `houou_race` / `jpml_links` / `resource_dictionary` /
   `resource_efficiency` / `rh_links` / `rh_results` / `rh_results_detail` /
   `video_wayhome`）と、`title/`・`live/`・`saikyo/`・`books/`・`wayhome/` の全ページ。
-  トップ階層の生成物4ページ（`resource_efficiency` / `rh_results` /
+  トップ階層の生成物6ページ（`houou_race` / `resource_dictionary` / `resource_efficiency` / `rh_results` /
   `rh_results_detail` / `video_wayhome`）とサブディレクトリの生成物は
   `has_search_boxes=False`の明示で自動的に出る（サブディレクトリの系統は
   絞り込み欄を本文の`.mj-filterbar`に持つか、検索欄を持たない）。`video_wayhome`は虫眼鏡アイコンで開閉する`#searchBoxes`を
   navbar直下の常時表示フィルタバー（`.mj-filterbar`）に置き換えたため対象に
   加わった（#189）。
-  残り4ページ（手書きHTML: `404` / `jpml_links` / `resource_dictionary` /
-  `rh_links`）を新規に追加するときは手で付ける
+  残り3ページ（手書きHTML: `404` / `jpml_links` / `rh_links`）を新規に追加するときは手で付ける
 
 ### メンテナンス用スクリプトの詳細
 
@@ -449,7 +451,7 @@ GitHub Actions (`.github/workflows/regenerate-page.yml`) が、`scripts/generate
 Google の API（`lib/gcal.py`・`lib/sheets_write.py`・`sync_birthday_calendar.py`）には接続10秒・読み取り60秒のタイムアウトを渡し、読み取り（GET）だけ同じく繰り返す。書き込みは、届いたかが分からず重複しうるため繰り返さない（#472）。
 
 - `check_image_links.py` — `jpml_pros.html` 内の画像URL全件にHEADリクエストを送りリンク切れを検知（毎週月曜03:00 JST）
-- `collect_saikyo_images.py` — 最強戦の選手写真（「プロ」J列・「連盟プロ以外」X画像URL、#384）で取得できなくなった画像URLを見つけ、Xハンドルから現在のURLを解決してCSV出力（#333、手動実行＋`check-image-links.yml`から週1で`--json`実行、ヘッドレスChromiumが必要）。生成時に全件は解決しない。使い方と理由は`docs/notes/saikyo-page-design.md`「選手写真の更新」
+- `collect_saikyo_images.py` — 最強戦の選手写真（「プロ」J列・「連盟プロ以外」X画像URL、#384）で取得できなくなった画像URLを見つけ、Xハンドルから現在のURLを解決してCSV出力（#333、手動実行＋`check-image-links.yml`から週1で`--json`実行、ヘッドレスChromiumが必要）。生成時に全件は解決しない。`--resolve-test <X ID>`で1件だけ解決して診断を出す。2026-09-28 から解決が働いていない（#514）。使い方と理由は`docs/notes/saikyo-page-design.md`「選手写真の更新」
 - `cleanup_logs.py` — `docs/logs/`の作業ログのうち、7日を過ぎて片付けてよいものを削除し、条件外のものを一覧にする（`cleanup-logs.yml`から週1で実行、`--dry-run`で一覧のみ）。条件は`docs/notes/branch-operations.md`「作業ログの寿命」
 - `delete_merged_branches.py` — マージ済み（`origin/cloudflare` の祖先）で先頭が24時間より前の `work/*` を削除し、ブランチ名と先頭の SHA を出力する（`delete-merged-branches.yml`から毎日、`--dry-run`で一覧のみ。完全な履歴のクローンが要る）
 - `check_meibo.py` — 連盟員名簿データ（`lib/meibo.py`）と「プロ」シートの在籍者を登録名で突き合わせ、名簿のみ・プロのみを一覧にする（#370、`check-meibo.yml`から週1、生成は止めない）。テストは CLAUDE.md「判断・作業の原則」

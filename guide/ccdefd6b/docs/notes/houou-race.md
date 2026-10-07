@@ -1,8 +1,10 @@
-# 鳳凰戦 リーグ別成績推移（houou_race.html、#507）
+# 鳳凰戦 順位変動（houou_race.html、#507）
 
 期・リーグを選び、▶で全員ゼロから節ごとに累計ポイントを数え上げ、追い越しで並びが入れ替わる順位表だけのページ。
-スマホの幅（400px まで）に収める。**まだ公開していない**: noindex で、navbar・`sitemap-pages.xml`・`llms.txt` に載せず、既存のページからリンクしない
-（公開は #508）。`houou_race/` の JSON はページが読むので配信の対象（`assets-check.yml` の allowed）。
+スマホの幅（400px まで）に収める。navbar「鳳凰戦」の「リーグ推移」と「成績詳細」の間の「順位変動」・`sitemap-pages.xml`・`llms.txt` に載る（公開は #508）。
+ページの名前は「順位変動」（2026-10-07 に「リーグ別成績推移」から改めた。隣の「リーグ推移」と紛らわしいため）。URL・ファイル名・クラス名の race はそのまま。
+説明文（meta description・og:description・ページ末尾の段落）の期の範囲（「第23期〜第43期」）は、書き出す期の最初と最後から生成スクリプトの `describe()` が入れる
+`houou_race/` の JSON はページが読むので配信の対象（`assets-check.yml` の allowed）。
 
 ## ファイル
 
@@ -12,7 +14,7 @@
 | `houou_race.html` | 生成。選べる組み合わせ（期・前後・リーグ・組）と既定の表示（43前 B1）を script の data 属性に焼き込む |
 | `houou_race/<期>-<1|2>.json` | 生成。1は前期、2は後期。期を選んだときに読む（表ごとに分けると445ファイルになるため期ごと） |
 | `houou_race.js` | 選ぶ部品・数え上げ・並べ替え・帯。計算はしない |
-| `style.css`「鳳凰戦 リーグ別成績推移」 | 見た目。行の高さ `--mj-race-row` は JS も読む |
+| `style.css`「鳳凰戦 順位変動」 | 見た目。行の高さ `--mj-race-row` は JS も読む |
 | `scripts/tests/test_houou_race.py` | 累計・帯・降級の枠・組の分け方・「表示」・画像と X の引き方のテスト |
 
 ## JSON の項目

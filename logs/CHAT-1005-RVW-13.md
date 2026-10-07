@@ -56,6 +56,25 @@ CHAT-1005-RVW-12 が止まった点（origin/cloudflare の取り込みで `docs
 
 - 2026-10-07 着手。CHAT-1005-RVW-13 のコミットなし。work/1006-rvw-377 はローカルとリモートが一致（1b3b9d91）
 - 0. 指示欄の末尾は指示文の最後の行と一致。RVW-11 の状態は「判断待ち」、RVW-12 の状態は「中断」。雛形の行は揃っている
+- 1. 未マージの `work/` ブランチは自分だけ（辞書ページ・`dic/`・生成スクリプト・`scripts/regenerate.py` を変えるほかのブランチは無い）
+- `git merge origin/cloudflare` の衝突は `docs/notes/static-generation.md` の1ファイル・1箇所で、前提の形（houou_race の行〈cloudflare 側は「鳳凰戦 順位変動」〉と辞書の行）。形を確かめてから解くスクリプトで、cloudflare 側の houou_race の行を採り、辞書の行を残して解いた（b53739e1）
+
+解いた後の該当の行と件数（引用、長い行は省略）:
+
+```
+| ビルド時生成（独自: 順位表の数え上げ+期ごとのJSON） | 1 | `houou_race.html`（鳳凰戦 順位変動）。…（cloudflare 側のまま）
+| ビルド時生成（独自: カテゴリを選んで辞書ファイルを組み立てる） | 1 | `resource_dictionary.html`。… （#377）
+| ビルド時生成（独自: 全画面ヒーロー+横スクロールカード列） | 1 | `video_wayhome.html`。…
+| 静的なページ | 3 | `404.html` / `jpml_links.html` / `rh_links.html` |
+  トップ階層の9ページ（`404` / `houou_race` / `jpml_links` / `resource_dictionary` / …
+  トップ階層の生成物6ページ（`houou_race` / `resource_dictionary` / `resource_efficiency` / `rh_results` / …
+  残り3ページ（手書きHTML: `404` / `jpml_links` / `rh_links`）を新規に追加するときは手で付ける
+```
+
+- 件数は取り込み後の実物と合う（「HTMLは26ページ」と `ls *.html` の 26、`data-search="off"` のトップ階層 9）。直す数は無かった
+- `python3 -m unittest discover -s scripts/tests`: OK
+- docs/handover.md 5章「次の会話の順番」: 済んだ (1) #377・(2) #283 → #486 の h1 を外し、「(1) #277 (2) 待ち: …」にした（日付を 2026-10-07 に）。期日待ちの行は変えていない。「最終更新」は変えていない。サイズ 22,961（警告域の外）
+- docs/decisions/features.md: RVW-10 の行（保存名）を「実装は CHAT-1005-RVW-11、マージは CHAT-1005-RVW-13」、RVW-12 の行を「マージは CHAT-1005-RVW-13」に直した。RVW-11 の状態を「完了（判断が出た: マージしてよい。マージは CHAT-1005-RVW-13）」、RVW-12 の状態を「中断（続きは CHAT-1005-RVW-13）」に直した（`## 指示` 欄は変わっていない）
 
 ## 報告
 
@@ -73,12 +92,12 @@ CHAT-1005-RVW-12 が止まった点（origin/cloudflare の取り込みで `docs
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj f8a2cb5c）: https://github.com/retroeater/mj-logs/tree/main/guide/f8a2cb5c
+ガイド文書（この版を写した時点の最新、mj ccdefd6b）: https://github.com/retroeater/mj-logs/tree/main/guide/ccdefd6b
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f8a2cb5c/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f8a2cb5c/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f8a2cb5c/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f8a2cb5c/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f8a2cb5c/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f8a2cb5c/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ccdefd6b/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ccdefd6b/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ccdefd6b/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ccdefd6b/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ccdefd6b/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/ccdefd6b/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/1257323c.md
