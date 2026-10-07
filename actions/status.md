@@ -1,7 +1,7 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-07 10:41 JST
-- 書き出した実行の契機: workflow_dispatch（work/1007-wkr-09）
+- 書き出した時刻: 2026-10-07 10:42 JST
+- 書き出した実行の契機: push（work/1006-rvw-377）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは sync-logs.yml（#498）
 
@@ -181,13 +181,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-10-07 10:41 | workflow_dispatch | work/1007-wkr-09 | in_progress | #31（37558320643） |  |
+| 2026-10-07 10:41 | workflow_dispatch | work/1007-wkr-09 | in_progress | #32（37558390153） |  |
+| 2026-10-07 10:41 | workflow_dispatch | work/1007-wkr-09 | success | #31（37558320643） | 0分31秒 |
 | 2026-10-07 10:28 | schedule | cloudflare | success | #30（37557267076） | 0分27秒 |
 | 2026-10-06 11:14 | schedule | cloudflare | success | #29（37403154978） | 0分23秒 |
 | 2026-10-05 15:52 | workflow_dispatch | cloudflare | success | #28（37274638682） | 0分43秒 |
-| 2026-10-05 09:50 | schedule | cloudflare | failure | #27（37249036913） | 2分19秒 |
-
-- #27 failure: ジョブ「sync」 ステップ「同期」
 
 ## sync-logs.yml
 
@@ -197,11 +195,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-10-07 10:41 | workflow_dispatch | work/1007-wkr-09 | in_progress | #1698（37558323014） |  |
+| 2026-10-07 10:42 | workflow_dispatch | work/1007-wkr-09 | pending | #1700（37558392116） |  |
+| 2026-10-07 10:41 | push | work/1006-rvw-377 | in_progress | #1699（37558371960） |  |
+| 2026-10-07 10:41 | workflow_dispatch | work/1007-wkr-09 | success | #1698（37558323014） | 0分26秒 |
 | 2026-10-07 10:39 | push | work/1007-pht-logs | success | #1697（37558184242） | 1分21秒 |
 | 2026-10-07 10:39 | push | cloudflare | success | #1696（37558181602） | 1分00秒 |
-| 2026-10-07 10:39 | push | work/1007-wkr-09 | success | #1695（37558178763） | 0分30秒 |
-| 2026-10-07 10:36 | push | work/1007-pht-logs | skipped | #1694（37557974531） | 0分36秒 |
 
 ## update-live-channel.yml
 
