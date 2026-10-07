@@ -12,11 +12,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-07 16:25 | push | cloudflare | in_progress | #2959（37587243751） |  |
+| 2026-10-07 16:25 | push | work/1007-lgr-promo | success | #2958（37587240827） | 0分11秒 |
 | 2026-10-07 16:04 | push | cloudflare | success | #2957（37585067569） | 0分13秒 |
 | 2026-10-07 16:00 | push | work/1007-rvw-sync1 | success | #2956（37584736334） | 0分12秒 |
 | 2026-10-07 15:59 | push | work/1007-lgr-promo | success | #2955（37584587014） | 0分11秒 |
-| 2026-10-07 14:50 | push | work/1007-lgr | success | #2954（37578301563） | 0分11秒 |
-| 2026-10-07 13:52 | push | work/1007-lgr-15 | success | #2953（37573546180） | 0分12秒 |
 
 ## check-image-links.yml
 
@@ -137,11 +137,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-07 16:25 | push | cloudflare | in_progress | #70（37587243796） |  |
 | 2026-10-07 13:50 | push | cloudflare | success | #69（37573400044） | 0分15秒 |
 | 2026-10-07 13:32 | push | cloudflare | success | #68（37571975790） | 0分17秒 |
 | 2026-10-07 12:24 | push | cloudflare | success | #67（37566633002） | 0分16秒 |
 | 2026-10-07 11:58 | push | cloudflare | success | #66（37564504182） | 0分17秒 |
-| 2026-10-06 16:04 | push | cloudflare | success | #65（37427412359） | 0分22秒 |
 
 ## sync-birthday-calendar.yml
 
@@ -195,11 +195,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-10-07 16:25 | push | work/1007-lgr-promo | in_progress | #1819（37587179793） |  |
+| 2026-10-07 16:25 | push | cloudflare | pending | #1821（37587244114） |  |
+| 2026-10-07 16:25 | push | work/1007-lgr-promo | in_progress | #1820（37587240655） |  |
+| 2026-10-07 16:25 | push | work/1007-lgr-promo | success | #1819（37587179793） | 0分31秒 |
 | 2026-10-07 16:14 | push | cloudflare | success | #1818（37586134375） | 0分52秒 |
 | 2026-10-07 16:14 | push | work/1007-rvw-sync1 | success | #1817（37586130794） | 0分27秒 |
-| 2026-10-07 16:04 | push | cloudflare | success | #1816（37585067512） | 0分36秒 |
-| 2026-10-07 16:03 | push | work/1007-rvw-sync1 | skipped | #1815（37585063270） | 0分08秒 |
 
 ## update-live-channel.yml
 
