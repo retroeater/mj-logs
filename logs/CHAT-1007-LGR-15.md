@@ -82,18 +82,36 @@ houou_race の説明文を決めたとき、平野さんから「『閲覧でき
 - 手順3（プレビュー）: Workers Builds: mj は success。2ページの meta description・og:description・mj-lead が新しい文（鳳凰戦690名・女流桜花163名）、`llms.txt` の2行も新しい文
   - headless Chromium（playwright 1.56.1、`/opt/pw-browsers/chromium`）で 390px・1280px: 2ページとも scrollWidth = 画面幅（横のはみ出し無し）。失敗した読み込みは `static.cloudflareinsights.com/beacon.min.js` だけ（除外の対象）。390px のスクリーンショットで説明文の段落の表示を目視
   - 起動の注意: セッションのプロキシの CA を Chromium が信頼せず `ERR_CERT_AUTHORITY_INVALID` になった。`proxy: {server: 'http://127.0.0.1:<port>'}` と `--ignore-certificate-errors-spki-list=<プロキシの CA の SPKI の sha256>` を渡して開いた（プロキシの CA だけを信頼する指定で、検証を全体に切ってはいない）
+- 決定: docs/decisions/houou.md に足した（女流桜花と `llms.txt` の分も同じ節に。この流れの前の決定〈提案 A〉が houou.md にあるため。新しいファイルは作っていない）
+- マージ: origin/cloudflare（RVW-17 のログと docs/decisions/operations.md の docs のみ）を merge で取り込み、再 fetch のうえ祖先を確かめて `git push origin work/1007-lgr-15:cloudflare`（a1cc1e21..9a8093be、早送り）。
+  cloudflare に入った差分は 2ページ・`llms.txt`・生成スクリプト2本・apply_page_meta.py・docs のみ
+- check-run（9a8093be）: Workers Builds: mj success、regenerate success、check success、sync success。自動の再生成のコミット 582dd6ea は `sitemap-pages.xml` の lastmod 2行だけ
+- 本番（クエリ付き、マージの約1.5分後に反映）: 2ページとも description・og:description・mj-lead の3か所が新しい文、「閲覧できます」0件。`llms.txt` の2行に人数なし
+- #227 にコメント https://github.com/retroeater/mj/issues/227#issuecomment-6031179547
 
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1007-lgr-15
-- ログ: https://github.com/retroeater/mj/blob/work/1007-lgr-15/docs/logs/CHAT-1007-LGR-15.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1007-LGR-15.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1007-lgr-15
-- 確認用URL: なし
-- マージ: 未
-- issue: なし
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 確認用URL: プレビューあり（URL は最終報告）。houou_leagues.html・ouka_leagues.html・llms.txt を確認
+- マージ: 済（9a8093be。この報告のログは追いの push）
+- issue: #227 にコメント（`llms.txt` の手書きの件数）。起票なし
+- 判断が必要なこと:
+  - 説明文の出どころと変えた所: `scripts/generate_houou_leagues.py`・`scripts/generate_ouka_leagues.py` の `META.description`（出る所は meta description・og:description・mj-lead の3か所）。`scripts/apply_page_meta.py` の同じ2項目も結びを直した（実行すると差し戻るため）
+  - 本番の2ページの説明文:
+    - 「日本プロ麻雀連盟の鳳凰戦について、選手690名の所属リーグ推移（期ごとの各リーグの人数、全出場選手の中での順位等）をまとめています。」
+    - 「日本プロ麻雀連盟の女流桜花について、選手163名の所属リーグ推移（期ごとの各リーグの人数、全出場選手の中での順位等）をまとめています。」
+  - `llms.txt` の直した行:
+    - 鳳凰戦 前「選手691名の所属リーグ推移（期ごとの各リーグの人数、全出場選手の中での順位等）。」→ 後「選手の所属リーグ推移（期ごとの各リーグの人数、全出場選手の中での順位等）。」
+    - 女流桜花 前「選手164名の所属リーグ推移。」→ 後「選手の所属リーグ推移（期ごとの各リーグの人数、全出場選手の中での順位等）。」（人数があったため直し、鳳凰戦と同じ形にした）
+  - `llms.txt` のほかの手書きの件数の食い違い（直していない）: プロ 1,100名（冒頭は「1,100名超」）／ページ 1,099名。放送対局 2,332本／ページ 2,331本。帰り道の各話 38枚（2か所）／実数39枚。一致: プロテスト34件・Mつく61本・English 39本・ログ2,630件・牌譜57件・ルート直下24ページ
+  - 「閲覧できます」のほかの残り: ページの説明文には無し（docs/decisions/houou.md の過去の節2か所だけ、直さない）。参考: `llms.txt` の houou_race の行が「…節単位で閲覧できる（第23期前期以降）。」（常体、検索語には当たらない）
+  - `apply_page_meta.py` の2項目は変更前から人数が無く、生成スクリプトの文（人数あり）と食い違っている。実行すると2ページの人数が消える。揃えるかは未決
+  - 雛形の行の欠け: なし
+- 未確認の項目:
+  - 実機での見え方（headless Chromium の 390px・1280px までで確認）
 - エラー: なし
 
 <!-- guide-links -->
