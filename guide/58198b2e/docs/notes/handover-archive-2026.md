@@ -825,7 +825,7 @@ Open 221件を4段で再編成した。INV-01 で全件の本文・コメント�
 `/title`・`/live` の廃止とリダイレクト・#356 の分類・#412 の扱い・進行中作業の停止）はすべて効力を失った。
 検討時のみ存在した `docs/notes/titles-page-design.md` は削除した。
 
-経過の詳細: `docs/logs/CHAT-0922-UT-01.md`〜`CHAT-0922-UT-05.md`
+経過の詳細: `https://github.com/retroeater/mj/blob/ea8b86a18fbe581b9000d7a6135a4717966d7b53/docs/logs/CHAT-0922-UT-01.md`〜`CHAT-0922-UT-05.md`
 
 ## AIクローラーの扱い（2026-09-13時点）
 

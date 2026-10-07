@@ -5,8 +5,8 @@
 
 `books/` の書影と楽天ブックスへのリンクは、楽天ウェブサービスの
 **楽天ブックス書籍検索API**（`BooksBook/Search/20170404`）から取る。
-調べた経過は `docs/logs/CHAT-0921-BK-08.md`（登録の手順と規約）と
-`docs/logs/CHAT-0921-BK-09.md`（実測）。**作業ログは週次で消えるため、後で要るものはここに置く。**
+調べた経過は `https://github.com/retroeater/mj/blob/ea8b86a18fbe581b9000d7a6135a4717966d7b53/docs/logs/CHAT-0921-BK-08.md`（登録の手順と規約）と
+`https://github.com/retroeater/mj/blob/ea8b86a18fbe581b9000d7a6135a4717966d7b53/docs/logs/CHAT-0921-BK-09.md`（実測）。**作業ログは週次で消えるため、後で要るものはここに置く。**
 
 ## 仕組み
 
@@ -39,7 +39,7 @@
 
 ## 規約上の制約（守っていること）
 
-出典は楽天の公式ヘルプと利用規約。詳細は `docs/logs/CHAT-0921-BK-08.md`「手順2」。
+出典は楽天の公式ヘルプと利用規約。詳細は `https://github.com/retroeater/mj/blob/ea8b86a18fbe581b9000d7a6135a4717966d7b53/docs/logs/CHAT-0921-BK-08.md`「手順2」。
 
 - **クレジット表記は必須。配布されたHTMLを改変してはならない。**
   テキスト形式（`Supported by Rakuten Developers`）を一覧と個別ページの末尾に置く。
