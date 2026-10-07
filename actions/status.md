@@ -1,7 +1,7 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-07 13:50 JST
-- 書き出した実行の契機: push（work/1007-rvw-actions）
+- 書き出した時刻: 2026-10-07 13:51 JST
+- 書き出した実行の契機: push（cloudflare）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは sync-logs.yml（#498）
 
@@ -12,11 +12,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-07 13:50 | push | cloudflare | success | #2952（37573399988） | 0分13秒 |
 | 2026-10-07 13:47 | push | work/1007-lgr-15 | success | #2951（37573186428） | 0分12秒 |
 | 2026-10-07 13:38 | push | work/1007-lgr | success | #2950（37572431773） | 0分14秒 |
 | 2026-10-07 13:33 | push | work/1007-rvw-dicdate | success | #2949（37572063443） | 0分13秒 |
 | 2026-10-07 13:33 | push | work/1007-lgr | success | #2948（37572022768） | 0分14秒 |
-| 2026-10-07 13:32 | push | cloudflare | success | #2947（37571975788） | 0分13秒 |
 
 ## check-image-links.yml
 
@@ -124,7 +124,7 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-10-07 13:50 | push | cloudflare | queued | #229（37573400011） |  |
+| 2026-10-07 13:50 | push | cloudflare | in_progress | #229（37573400011） |  |
 | 2026-10-07 13:32 | push | cloudflare | success | #228（37571975821） | 0分25秒 |
 | 2026-10-07 13:21 | push | cloudflare | success | #227（37571084246） | 1分38秒 |
 | 2026-10-07 12:31 | push | cloudflare | success | #226（37567146178） | 0分30秒 |
@@ -137,7 +137,7 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-10-07 13:50 | push | cloudflare | queued | #69（37573400044） |  |
+| 2026-10-07 13:50 | push | cloudflare | success | #69（37573400044） | 0分15秒 |
 | 2026-10-07 13:32 | push | cloudflare | success | #68（37571975790） | 0分17秒 |
 | 2026-10-07 12:24 | push | cloudflare | success | #67（37566633002） | 0分16秒 |
 | 2026-10-07 11:58 | push | cloudflare | success | #66（37564504182） | 0分17秒 |
@@ -198,8 +198,8 @@
 | 2026-10-07 13:50 | push | cloudflare | pending | #1797（37573400183） |  |
 | 2026-10-07 13:50 | push | work/1007-lgr-15 | pending | #1796（37573394929） |  |
 | 2026-10-07 13:50 | push | work/1007-lgr-15 | pending | #1795（37573370577） |  |
-| 2026-10-07 13:50 | push | cloudflare | pending | #1794（37573354633） |  |
-| 2026-10-07 13:50 | push | work/1007-rvw-actions | in_progress | #1793（37573351585） |  |
+| 2026-10-07 13:50 | push | cloudflare | in_progress | #1794（37573354633） |  |
+| 2026-10-07 13:50 | push | work/1007-rvw-actions | success | #1793（37573351585） | 0分44秒 |
 
 ## update-live-channel.yml
 
