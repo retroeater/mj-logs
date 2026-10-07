@@ -98,18 +98,32 @@
 - check-run: Workers Builds 成功（011b7f97）
 - 390px・1280px: 「鳳凰戦」は ランキング → リーグ推移 → 順位変動 → 成績詳細。「順位変動」から houou_race.html が開く。見出し「鳳凰戦 順位変動」、title・og:title「順位変動 | 鳳凰戦 | ryoei.pro」、meta description・og:description・mj-lead が決定の文と一字一句同じ。再生（43前 B1、4秒後に累計が動いている）OK。「女流桜花」は ランキング・リーグ推移・成績詳細のまま。横のはみ出しなし（scrollWidth = 幅）。エラーは Cloudflare Web Analytics の beacon の 403 だけ
 
+### 手順3（マージと本番）
+
+- origin/cloudflare（docs のみの他セッションの変更）を取り込み、衝突なし。取り込み後の unittest 565件 OK、check_asset_limits OK、CLAUDE.md 25,577・handover.md 23,100・chat-side-operations.md 23,674 バイト
+- cloudflare に入る差分は、houou_race.html・houou_race.js・style.css のコメント・scripts/generate_houou_race.py・scripts/tests/test_houou_race.py・navbar.js・llms.txt・docs/ だけ（`houou_race/` は差分なし）
+- 再fetch・`merge-base --is-ancestor` 確認のうえ `git push origin work/1007-lgr:cloudflare`（c596949c..c7cc409b）
+- check-run（c7cc409b）: Workers Builds・check・regenerate・sync すべて success
+- regenerate のワークフローが e5ad4874（sitemap-pages.xml の lastmod だけ、Actions の自動の更新）を足した。今回のコミットには sitemap の変更は入れていない
+- 本番（ryoei.pro、キャッシュよけのクエリ付き）: houou_race.html の title・og:title・meta description・og:description・h1・ページ末尾の段落が新しい文。「リーグ別成績推移」は0件。navbar.js は ランキング → リーグ推移 → 順位変動 → 成績詳細。llms.txt は「順位変動」の行が「成績詳細」の前で、説明の文はそのまま
+- #507 に直した内容・日付・マージの SHA をコメントした（閉じたまま）
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1007-lgr
-- ログ: https://github.com/retroeater/mj/blob/work/1007-lgr/docs/logs/CHAT-1007-LGR-12.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1007-lgr
-- 確認用URL: なし（作業中）
-- マージ: 未
-- issue: #507（閉じたまま）
-- 判断が必要なこと: なし
-- 未確認の項目: なし
-- エラー: なし
+- 状態: 完了（cloudflare へマージ済み、本番で確認済み）
+- ブランチ: work/1007-lgr（削除していない）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1007-LGR-12.md
+- 比較URL: https://github.com/retroeater/mj/compare/c596949c...c7cc409b
+- 確認用URL: https://ryoei.pro/houou_race.html
+- マージ: c7cc409b（2026-10-07、承認済みの指示のとおり）
+- issue: #507（閉じたまま。着手中と完了のコメントあり）
+- 判断が必要なこと:
+  - 平野さんが行うこと: (1) X の投稿画面に `https://ryoei.pro/houou_race.html?x=<未使用の数字>` を貼り、カードの題が「順位変動 | 鳳凰戦 | ryoei.pro」になっているかを見る (2) Search Console の URL 検査で https://ryoei.pro/houou_race.html のインデックス登録をもう一度リクエストする
+  - 「リーグ別成績推移」を直した所: houou_race.html（title・og:title・h1。説明文も新しい文に）、navbar.js、llms.txt、scripts/generate_houou_race.py、houou_race.js・style.css のコメント、docs/notes/houou-race.md、docs/notes/static-generation.md、docs/decisions/README.md、docs/decisions/houou.md の冒頭
+  - 残した所: docs/logs/ の過去のログ9ファイル、docs/decisions/houou.md の過去の日付の節の3行、docs/notes/houou-race.md の改名の経緯の1か所
+  - 説明文の期の範囲: scripts/generate_houou_race.py の `describe()` が、書き出す期（`houou_race/` に出す periods）の最初と最後の期から作る。今は「第23期〜第43期」
+- 未確認の項目: ブラウザでの X のカードと検索結果の見え方（セッションから確かめられない。平野さんの確認待ち）
+- エラー: なし（プレビューの beacon の 403 は Cloudflare Web Analytics で対象外）
 
 <!-- guide-links -->
 ---
