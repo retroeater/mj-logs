@@ -103,15 +103,22 @@ mj を `git clone --filter=blob:none --no-checkout`、mj-logs を `git clone --d
 
 実装2（mj-logs のワークフロー）では、mj を `--no-checkout` ではなく cloudflare をチェックアウトしてクローンする（先頭の版の中身がまとめて取れる）。RVW-18 の (e) の 2 秒もチェックアウトした後の値だった。
 
+### 4. マージ
+
+- cloudflare へ c201eba8 で入れた（push 直前に再 fetch し、`merge-base --is-ancestor` を確かめた。取り込みの衝突なし）
+- check-run（c201eba8）: 「Workers Builds: mj」success（07:04:31 UTC）・assets-check の check success・sync-logs の sync success（作業ブランチの push の sync は skipped）
+- 待つループのコマンドに書き損じがあり（`python3 -c` の f-string）、結果を読めないまま約10分回った。止めてから読み直した。check-run の結果には影響なし
+- #298 に実装1 済みをコメントした
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1007-rvw-sync1
-- ログ: https://github.com/retroeater/mj/blob/work/1007-rvw-sync1/docs/logs/CHAT-1005-RVW-19.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1007-rvw-sync1
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1005-RVW-19.md
+- 比較URL: https://github.com/retroeater/mj/compare/317c70a0...c201eba8
 - 確認用URL: なし
-- マージ: 未
-- issue: なし
+- マージ: cloudflare へマージ済み（c201eba8）。check-run はすべて success
+- issue: #298 に実装1 済みをコメント
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
