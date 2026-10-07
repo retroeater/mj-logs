@@ -260,7 +260,7 @@ HTMLは26ページ + 書籍の一覧と個別ページ（`books/`、#97、noinde
 | ビルド時生成（型D・静的SVG） | 1 | `resource_efficiency.html`。表を持たないため`render_content()`を使う。外部JS・外部ドメインへの依存が一切ない（#7/#128、完了） |
 | ビルド時生成（型C・積み上げ棒+折れ線） | 2 | `houou_leagues.html` / `ouka_leagues.html`。積み上げ棒と既定選手の折れ線は静的SVG、`?name=`時の折れ線差し替えのみ`leagues.js`が担う（#7/#127、完了） |
 | ビルド時生成（独自: 順位表の数え上げ+期ごとのJSON） | 1 | `houou_race.html`（鳳凰戦 順位変動）。`render_content()`+専用JS`houou_race.js`。データは`houou_race/<期>-<1前・2後>.json`を選んだときに読む。navbar の「鳳凰戦」から辿れる（#507・#508、`docs/notes/houou-race.md`） |
-| ビルド時生成（独自: カテゴリを選んで辞書ファイルを組み立てる） | 1 | `resource_dictionary.html`。`scripts/generate_resource_dictionary.py` が「辞書」タブ（連盟プロ以外と同じブック）と「プロ」タブから、カテゴリごとのデータ `dic/<スラッグ>.json` とページを書く。ページの `resource_dictionary.js` が選んだカテゴリをまとめ、Microsoft IME 用（UTF-16LE・BOM 付き・CR+LF）か Google 日本語入力用（UTF-8・LF）で保存させる。更新日は行が前回と同じなら保つ（#377） |
+| ビルド時生成（独自: カテゴリを選んで辞書ファイルを組み立てる） | 1 | `resource_dictionary.html`。`scripts/generate_resource_dictionary.py` が「辞書」タブ（連盟プロ以外と同じブック）と「プロ」タブから、カテゴリごとのデータ `dic/<スラッグ>.json` とページを書く。ページの `resource_dictionary.js` が選んだカテゴリをまとめ、Microsoft IME 用（UTF-16LE・BOM 付き・CR+LF）か Google 日本語入力用（UTF-8・LF）で保存させる。ページはカテゴリごとの語数を出す（更新日は出さない）（#377・#515） |
 | ビルド時生成（独自: 全画面ヒーロー+横スクロールカード列） | 1 | `video_wayhome.html`。`render_content()`+専用JS`video_wayhome.js`。新サイトのパイロット（`docs/notes/video-wayhome.md`） |
 | ビルド時生成（サブディレクトリ、ヒーロー構成のエピソード個別ページ） | 39 | `wayhome/<動画ID>.html`。`scripts/generate_wayhome_episodes.py`（`docs/notes/video-wayhome.md`） |
 | ビルド時生成（サブディレクトリ、最強戦のトップと年度ページ） | トップ1＋年度数 | `saikyo/index.html`・`saikyo/<年度>.html`。`scripts/generate_saikyo_pages.py`。2026-09-21 に一般公開し、navbar・`sitemap-saikyo.xml`・`llms.txt` に載る（#319・#348、`docs/notes/saikyo-page-design.md`） |
@@ -396,6 +396,9 @@ GitHub Actions (`.github/workflows/regenerate-page.yml`) が、`scripts/generate
 | `sync-books-calendar.yml` | **2026-09-22 開発凍結にともない無効化（`gh workflow disable`）。** 元は毎週月曜05:27 JSTに「書籍」タブの発売日をGoogleカレンダーへ同期していた（#97、`docs/notes/books-calendar.md`・`docs/notes/books-freeze.md`） |
 | `sync-logs.yml` | `docs/logs/**` を含む push（cloudflare は毎回、`work/**` はコミットのメッセージに`[sync-logs]`のある push だけ。無い push はジョブが skip、#298）・毎日05:30 JST の Worker `mj-scheduler` からの起動（入力 `scheduled`、#504）・毎日 08:29 JST の予約実行（保険）・手動実行（この3つは目印に関係なく走る、#498）。実行の時点の mj と mj-logs を突き合わせ、写っていない・古い作業ログを public の `retroeater/mj-logs` の `logs/` へ写し、cloudflare で削除されたログを消す（#440。書き込みはシークレット `MJ_LOGS_TOKEN`）。concurrency は `queue: max` で、続けて来た実行を取り消さずに1本ずつ順に動かす（#509）。取り消された実行（待ちが100本を超えたとき、`queue: max` を持たない古い分岐の作業ブランチの実行）の分は、次の cloudflare の実行で追いつく（`scripts/sync_logs.py`、#454）。使用済みの Chat-Ref 識別子の一覧も毎回集め直して `chat-ids/` に写す（`scripts/chat_ids.py`、#474）。毎回、各ワークフローの直近5回の実行（開始時刻・契機・ブランチ・結論・run 番号・所要時間、失敗したジョブ名とステップ名）を mj-logs の `actions/status.md` に上書きで書き出す（`scripts/actions_status.py`、`GITHUB_TOKEN` の `actions: read`。コミットの題とログの中身は書かない、#498） |
 | `delete-merged-branches.yml` | 毎日07:53 JST と手動、Worker `mj-scheduler` からの予約の起動（毎日04:20 JST、入力 `scheduled`、#504。Worker が動くのは平野さんがつないだ後）。マージ済みで先頭が24時間より前の `work/*` を削除する（#440、`scripts/delete_merged_branches.py`） |
+
+- `scripts/sync_all_logs.py`（#298）: `origin/cloudflare` と未マージの `origin/work/**` のすべてについて、`sync-logs.yml` の「ログ・ガイド文書を写す・消す」と同じ手順で mj-logs の作業ツリーへ写す（commit・push はしない）。mj-logs 側のワークフローから呼ぶ予定で、切り替えまでは `sync-logs.yml` が今のまま写す
+- mj-logs の `.github/workflows/sync-from-mj.yml`（#298）: 手動実行と毎日03:41 JST の予約実行（保険）で起動し、mj を blobless でクローンして `scripts/sync_all_logs.py` と `scripts/actions_status.py --repo retroeater/mj` を動かし、mj-logs 自身へ push する（mj を読むのは mj-logs の Secret `MJ_READ_TOKEN`）。mj の Actions の分を使わない。2026-10-07 から `sync-logs.yml` と並走中（Worker からの起動と mj 側の停止はこの後）
 
 ### ワークフローを手動実行するとき
 

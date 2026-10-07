@@ -63,28 +63,69 @@
 - 2026-10-07 着手。CHAT-1005-RVW-20 のコミットなし。work/1007-rvw-sync2 はローカル・リモートとも無く、origin/cloudflare（447bf75d）から作成
 - 0. 指示欄の末尾は指示文の最後の行と一致。雛形の行は揃っている。RVW-18・RVW-19 のログは同じセッションで書いたもので、読み直した
 
+### 1. 確かめ
+
+- 実装1 は origin/cloudflare にある（`scripts/sync_all_logs.py`、`actions_status.py` の `target_repo`）
+- 未マージの `work/` ブランチ（この指示のブランチだけ）は `.github/workflows/`・`scripts/sync_*.py`・`actions_status.py` を変えていない
+- mj-logs: `add_repo`（push）で接続できた。`.github/` は無く、既定のブランチは main（`origin/HEAD` → `origin/main`）。CLAUDE.md は無い
+- 今の sync-logs.yml の push の再試行: `git push` に失敗したら `sleep` の後 `git pull -q --rebase origin main` で先の push を取り込んでから再び push（3回まで）。同じ形を使った
+
+### 2. 置いたもの
+
+- mj-logs の `.github/workflows/sync-from-mj.yml`（コミット de56b8dc。題に Chat-Ref）
+- `on:` は `workflow_dispatch` と `schedule`（`41 18 * * *` = 毎日 03:41 JST。Worker の 04:15・04:20・05:30 と mj の 08:29 の予約と重ならない）。`permissions: contents: write`、`concurrency: { group: sync, cancel-in-progress: false }`
+- mj のクローン: `$RUNNER_TEMP/mj` に `git clone -q --filter=blob:none -b cloudflare`（全ブランチの ref を取る）。mj-logs の作業ツリーの外に置く（中に置くと `git add -A` が拾う）。トークンは URL に埋めず `http.https://github.com/.extraheader`（`-c` で clone、その後クローンの設定に書いて後からの中身の取得にも使う）。base64 にした値も `::add-mask::` で伏せた
+- `sync_all_logs.py --mj $RUNNER_TEMP/mj --dest $GITHUB_WORKSPACE` → `actions_status.py --repo retroeater/mj`（mj のクローンの中で。`.github/workflows/` の cron を読むため。トークンは `actions_status.py` が読む `GITHUB_TOKEN` の名前で `MJ_READ_TOKEN` を渡す）→ commit・push
+- コミットの題は `sync: mj <cloudflare の短い SHA>`、本文に `retroeater/mj@<SHA> (cloudflare)` と変更のファイルの一覧。作業ブランチの名前・SHA は載せない
+
+### 3. 手動実行の結果
+
+実行の前に、このセッションで同じ手順（mj の blobless クローン＋mj-logs の clone）を動かし、写すログは0件と見込んだ（ログの写しは mj の sync-logs.yml で済んでいた）。
+
+| 項目 | 1回目（run 37588257134） | 2回目（run 37588358305） |
+|---|---|---|
+| 起動 | セッションから API（MCP の run_workflow、204） | 同じ |
+| 結論 | success | success |
+| GITHUB_TOKEN の権限（実行ログ） | Contents: write・Metadata: read（既定の Read でも、宣言で write になった） | 同じ |
+| 出力 | `mj cloudflare: 447bf75d`・`ガイド文書の変更なし`・`chat-ids: 変更なし（1257323c）`・`写した 0 件・消した 0 件`・`write: actions/status.md（ワークフロー 17 件）` | 同じ |
+| mj-logs のコミット | aa302f6 `sync: mj 447bf75d`（`actions/status.md` だけ、3行） | 2643ff8 `sync: mj 447bf75d`（`actions/status.md` の「書き出した時刻」の1行だけ） |
+| ログの差分 | 0件（見込みどおり） | 0件 |
+| 実行ログの `claude/`・`work/`・トークン | 出ていない（トークンは `***`。ブランチの一覧は出ない） | 同じ |
+| 所要時間（ジョブ） | 20秒（クローン 4秒・写す 3秒・status 9秒） | 23秒 |
+
+- 2回目も「差分0件」にはならなかった: `actions/status.md` は毎回「書き出した時刻」が変わるため、実行のたびにコミットができる（mj の sync-logs.yml も同じ動き）。ログの写しは0件で見込みどおり。実装3で1分ごとに起動すると、起動のたびに mj-logs にコミットが1つ増える（#298 に移した）
+- 実行ログに `actions/checkout@v4` の Node.js 20 の廃止の警告が出た（Node.js 24 で動いている。害なし）
+- `actions/status.md` の「書き出した実行の契機」は `workflow_dispatch（main）` になる（mj-logs の実行の値）。見出しの「書き出しは sync-logs.yml（#498）」の文言は実装4で直す候補
+
+mj-logs の HEAD: 2643ff8a（2回目の実行の後。その後 mj の sync-logs.yml の写しで進むことがある）
+
+### 4. mj 側
+
+- docs/notes/static-generation.md「ワークフローの一覧」の下に1行（08f89b0b）。決定を docs/decisions/operations.md に足した
+- 判断が必要なことは無かった。移した論点: `actions/status.md` の毎回のコミット（実装3の起動の間隔と合わせて決める）を #298 のコメントに書いた
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1007-rvw-sync2
-- ログ: https://github.com/retroeater/mj/blob/work/1007-rvw-sync2/docs/logs/CHAT-1005-RVW-20.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1007-rvw-sync2
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1005-RVW-20.md
+- 比較URL: https://github.com/retroeater/mj/compare/447bf75d...work/1007-rvw-sync2
 - 確認用URL: なし
-- マージ: 未
-- issue: なし
-- 判断が必要なこと: なし
+- マージ: mj-logs の main へ `.github/workflows/sync-from-mj.yml`（de56b8dc）。mj の cloudflare へログと docs
+- issue: #298 に実装2 済みと、移した論点（`actions/status.md` が実行のたびにコミットされる）をコメント
+- 判断が必要なこと: なし（#298 に移した）
 - 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 91c25427）: https://github.com/retroeater/mj-logs/tree/main/guide/91c25427
+ガイド文書（この版を写した時点の最新、mj 187e5246）: https://github.com/retroeater/mj-logs/tree/main/guide/187e5246
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/91c25427/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/91c25427/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/91c25427/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/91c25427/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/91c25427/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/91c25427/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/187e5246/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/187e5246/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/187e5246/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/187e5246/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/187e5246/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/187e5246/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/1257323c.md
