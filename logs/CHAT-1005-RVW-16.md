@@ -56,6 +56,39 @@
 
 - 2026-10-07 着手。CHAT-1005-RVW-16 のコミットなし。work/1007-rvw-dicdate はローカル・リモートとも無く、origin/cloudflare（2402b305）から作成。RVW-15 は cloudflare に入っている（2402b305 自身が RVW-15 の最後のコミット）
 - 0. 指示欄の末尾は指示文の最後の行と一致。雛形の行は揃っている
+- 1. 未マージの `work/` ブランチは自分だけ（辞書ページ・JS・`dic/`・生成スクリプト・static-generation.md を変えるほかのブランチは無い）
+
+参照の洗い出し（`git grep`、直す前）:
+
+| 名前 | 使っている場所 | 用途 | 扱い |
+|---|---|---|---|
+| `updated`（`dic/*.json`） | `scripts/generate_resource_dictionary.py` の `keep_or_today()`・`write_data()`・`render_page()`、テスト | 前回の日付を保つ判定と、ラベルの「◯更新」の表示 | 外した |
+| `data-updated` | 生成スクリプトの `CATEGORY_TEMPLATE`、テスト | どこからも読まれていない（JS は使っていない） | 外した |
+| `data-label` | 生成スクリプトの `CATEGORY_TEMPLATE`、テスト | どこからも読まれていない（`resource_dictionary.js` は `dataset` を使っていない。保存後の文言は語数だけ） | 外した |
+| `keep_or_today()`・`JST`・`datetime` | 生成スクリプト | 更新日の判定 | 外した |
+| 「更新日は行が前回と同じなら保つ」 | `docs/notes/static-generation.md`「ページの一覧」の辞書の行 | 説明 | 「ページはカテゴリごとの語数を出す（更新日は出さない）」に直した |
+
+- 想定外の用途は無かった（止まる条件に当たらない）。`dic/*.json` の `label` は表示名で、日付とは関係ないため残した
+- 2. 直したもの（22a0a4ed）: 生成スクリプト・テスト・`resource_dictionary.html`・`dic/pros.json`・`dic/mahjong.json`・`docs/notes/static-generation.md`。生成スクリプトのコメントの「冊」3か所も「ブック」に直した（RVW-15 の用語の決定。同じファイルを触ったため）
+- 再生成: 差分は `resource_dictionary.html`（ラベル2行の日付と属性が消えた）と `dic/*.json`（`updated` が消えただけ）。行は2つとも前と同じ（連盟プロ 1,099・麻雀用語 625。「プロ」タブ・「辞書」タブの値は変わっていない）
+- `python3 -m unittest discover -s scripts/tests`: OK
+- 決定を docs/decisions/features.md に足した（7cccc874）
+
+Chromium（Playwright、`LANG=C.UTF-8`・ja-JP・Asia/Tokyo、ローカル配信）の確かめ:
+
+- ラベル: 「連盟プロ（1,099語）」「麻雀用語（625語）」
+- 保存名: 6通りとも `20261007_MSIME_麻雀用語辞書.txt` / `20261007_Google日本語入力_麻雀用語辞書.txt`（変わっていない）
+
+| 組み合わせ | 形式 | バイト数 | 先頭 | BOM の数 | 改行 | 最後の行の改行 | 行数 | 列数 | 重複 | 品詞 | 「髙」の語 | 「么九牌」 | 中身が期待どおり |
+|---|---|---:|---|---:|---|---|---:|---|---:|---|---:|---:|---|
+| 連盟プロ | MS-IME | 36,828 | FF FE | 1 | CR+LF | なし | 1,099 | 3 | 0 | 人名 | 2 | 0 | ○ |
+| 連盟プロ | Google | 46,436 | （BOM なし） | 0 | LF | なし | 1,099 | 4 | 0 | 人名 | 2 | 0 | ○ |
+| 麻雀用語 | MS-IME | 18,452 | FF FE | 1 | CR+LF | なし | 625 | 3 | 0 | 名詞・固有名詞 | 0 | 1 | ○ |
+| 麻雀用語 | Google | 23,208 | （BOM なし） | 0 | LF | なし | 625 | 4 | 0 | 名詞・固有名詞 | 0 | 1 | ○ |
+| 両方 | MS-IME | 55,282 | FF FE | 1 | CR+LF | なし | 1,724 | 3 | 0 | 人名・名詞・固有名詞 | 2 | 1 | ○ |
+| 両方 | Google | 69,645 | （BOM なし） | 0 | LF | なし | 1,724 | 4 | 0 | 人名・名詞・固有名詞 | 2 | 1 | ○ |
+
+バイト数まで RVW-11 と同じ。
 
 ## 報告
 
@@ -73,12 +106,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj a67b4e09）: https://github.com/retroeater/mj-logs/tree/main/guide/a67b4e09
+ガイド文書（この版を写した時点の最新、mj 59c10e0e）: https://github.com/retroeater/mj-logs/tree/main/guide/59c10e0e
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a67b4e09/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a67b4e09/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a67b4e09/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a67b4e09/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a67b4e09/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a67b4e09/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/59c10e0e/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/59c10e0e/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/59c10e0e/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/59c10e0e/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/59c10e0e/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/59c10e0e/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/1257323c.md
