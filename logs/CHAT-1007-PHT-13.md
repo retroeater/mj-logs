@@ -52,16 +52,21 @@ CHAT-1007-PHT-09 の判断待ち（案 C か案 D か）への回答を、#514 �
 
 - 着手前の確認: `git log --all --grep="CHAT-1007-PHT-13"` は0件。`work/1007-pht-photo` はリモートにあって cloudflare にマージ済み（`git merge-base --is-ancestor` が真）、ローカルには無く、`git checkout -b work/1007-pht-photo origin/cloudflare`
 - CHAT-1007-PHT-09 の `## 報告` の状態は「判断待ち（案 C か D かを平野さんが選ぶ）」。#514 は Open で、コメントは PHT-09 の2件（着手中・診断の結果）だけ。他セッションの着手中コメントは無い
+- #514 へのコメント（決定・閉じる条件。#514 は閉じない）: https://github.com/retroeater/mj/issues/514#issuecomment-6030524672
+- ラベル: 「状況: 待ち」（説明「外部要因で進められない」。#142 などが期日待ちに使っている）は、次の検知を待つ今の状態に合うため付けた。ラベルは `分野: 自動化`・`対象: saikyo`・`状況: 待ち` の3つで、本文は変えていない（取り直して確認）
+- CHAT-1007-PHT-09 のログの `## 報告` の状態を「判断待ち（案 C か D かを平野さんが選ぶ） / 続き: CHAT-1007-PHT-13」にした（docs/logs/ の変更。決まった形の ` / 続き: ` で、次の自動削除の判定が続き先を読める）
+- docs/decisions/saikyo.md に「2026-10-07（CHAT-1007-PHT-13）」を足した（先に今の内容を読んだ。同じ趣旨の記述は無かった）
+- 変えたファイルは docs/logs/（このログ・PHT-09 のログ）と docs/decisions/saikyo.md だけ
 
 ## 報告
 
-- 状態: 中断（着手直後。作業中）
+- 状態: 完了
 - ブランチ: work/1007-pht-photo
-- ログ: https://github.com/retroeater/mj/blob/work/1007-pht-photo/docs/logs/CHAT-1007-PHT-13.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1007-PHT-13.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1007-pht-photo
-- 確認用URL: なし
-- マージ: 未
-- issue: #514
+- 確認用URL: なし（docs/ のみ）
+- マージ: 済（下の最終 push の cloudflare への fast-forward）
+- issue: #514（決定のコメントと「状況: 待ち」のラベル。閉じていない）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
@@ -69,12 +74,12 @@ CHAT-1007-PHT-09 の判断待ち（案 C か案 D か）への回答を、#514 �
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj aa4d98dc）: https://github.com/retroeater/mj-logs/tree/main/guide/aa4d98dc
+ガイド文書（この版を写した時点の最新、mj de42f8de）: https://github.com/retroeater/mj-logs/tree/main/guide/de42f8de
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/aa4d98dc/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/aa4d98dc/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/aa4d98dc/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/aa4d98dc/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/aa4d98dc/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/aa4d98dc/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/de42f8de/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/de42f8de/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/de42f8de/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/de42f8de/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/de42f8de/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/de42f8de/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/1257323c.md

@@ -27,7 +27,7 @@ GitHub Actions の予約実行（`schedule`）は予定より2時間半〜5時�
    予定の時刻が5分刻みでなければ、過ぎて最初の回に起動する。窓は重ならないので、同じ行を二重に起動しない。取りこぼした回の埋め合わせはしない（朝の確かめに「未起動」で出る）
 2. **起動の失敗**: API が 2xx 以外を返したら（つながらなかったときも）、その場で #506 にコメントする
 3. **朝の確かめ（#504 の「層1」）**: 06:00 JST の回に、当日の有効な行のうち予定が 06:00 より前のものごとに、当日（JST）に作られた実行の一覧を引く（`created>=<当日 0 時>`）。
-   すべて success なら何もしない。それ以外は #506 に1件コメントする
+   すべて success なら何もしない。それ以外は #506 に1件コメントする。実行の一覧は `event=workflow_dispatch` で絞る（sync-logs は push の実行が1日に100件を超えることがあり、絞らないと1ページ目に予約の起動が載らない）
 
 ## 予約の起動の見分け方
 
@@ -55,7 +55,7 @@ run-name: ${{ inputs.scheduled && '[scheduled] <ワークフローの name>' || 
 | `monthdays` | 省略可。JST の日の配列（例 `[1]`）。省略は毎日 |
 | `enabled` | `false` の行は起動もしないし、朝の確かめでも見ない |
 
-段階1の表は `delete-merged-branches.yml`・毎日・04:20・有効 の1行だけ。時刻の案は #504 の本文「起動時刻の案と範囲」。
+今の表（2026-10-07、#504 の段階2の先の回まで）は3行: `sync-dojo-calendar.yml` 毎日 04:15・`delete-merged-branches.yml` 毎日 04:20・`sync-logs.yml` 毎日 05:30（どれも有効）。時刻の案は #504 の本文「起動時刻の案と範囲」。
 
 - 表を変えて `cloudflare` に入ると、Workers Builds の `mj-scheduler` がデプロイする（check-run「Workers Builds: mj-scheduler」）。cron の変更の反映は最大15分。`workers/scheduler/` の外だけを変える push ではビルドされない（2026-10-06 に check-run で確かめた）
 - 表に足すワークフローは、先に上の「予約の起動の見分け方」の3つを足しておく。足さないと、`scheduled` が知らない入力として 422 になる
@@ -76,7 +76,7 @@ Node 22 で、引数にディレクトリを渡すと失敗する。パターン
 ## ログ（Workers Logs）
 
 `wrangler.jsonc` の `observability` を `{"enabled": true}` にしている（2026-10-06、#504）。`head_sampling_rate` は省略で、既定は 1（すべての起動を残す）。
-見る場所はダッシュボードの Workers & Pages > `mj-scheduler` > Observability（公式の文書の表記。実際の画面の表記は未確認）。cron の起動は「cron」として並ぶ。保存は3日、Free の上限は1日 20 万件（この Worker は1日 288 回の起動）。
+見る場所はダッシュボードの Workers & Pages > `mj-scheduler` > Observability。Events の一覧に時刻（JST）・Level・Message が並ぶ。5分ごとの回は Message が `*/5 * * * *`・Level が info で、Worker の書いた行は Level が空・Message に本文が出る（2026-10-07 の平野さんの画面。申告値）。保存は3日、Free の上限は1日 20 万件（この Worker は1日 288 回の起動）。
 
 Worker が書く行（`console.log`。何もしない回は書かない。トークンは書かない）:
 
@@ -127,5 +127,9 @@ Worker が書く行（`console.log`。何もしない回は書かない。トー
 ## 未確認（2026-10-06 の時点）
 
 - 作業ブランチへの `workers/` だけの push で、サイトの `mj` のプレビューがビルドされた（「Workers Builds: mj」success）。cloudflare への push では Exclude の `workers/**` が効いているのに、プレビューでは効いていない。理由は分からない（害はプレビューのビルドが1回増えることだけ）
-- 06:00 JST の朝の確かめの回が動いているか。#506 にコメントが無いのは、すべて success の場合と Worker が止まった場合の両方。上の「ログ（Workers Logs）」の「朝の確かめ: …」の行で確かめられる（平野さんの作業。3日で消える）
-- Cloudflare の Cron Triggers 自体の遅れ（最初の回は 36 秒。数日分を見る）
+- 作業ブランチで手動実行した sync-dojo-calendar が保存する前回の状態（Actions のキャッシュ）は、同じ作業ブランチの後の実行からは見える（2026-10-07、run 32 が run 31 の分を復元した）。cloudflare の実行から見えないかは、GitHub の文書どおりなら見えない（ブランチの範囲）が、実物では確かめていない
+
+## 動いた記録（2026-10-07 の時点）
+
+- 06:00 の朝の確かめの回は動いている: 10/7 06:00:08 JST に「朝の確かめ: 2026-10-07 予定 1・success 1・それ以外 0・#506 に書かない」（Observability。平野さんの画面の申告値）
+- 5分ごとの回のログの時刻は予定から 8〜10 秒後。起動した実行が GitHub で作られた時刻は、10/6 が 04:20:36、10/7 が 04:20:10（API）

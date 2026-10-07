@@ -107,7 +107,7 @@
 
 ## 報告
 
-- 状態: 判断待ち（案 C か D かを平野さんが選ぶ）
+- 状態: 判断待ち（案 C か D かを平野さんが選ぶ） / 続き: CHAT-1007-PHT-13
 - ブランチ: work/1007-pht-photo
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1007-PHT-09.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1007-pht-photo
@@ -131,12 +131,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj f8a2cb5c）: https://github.com/retroeater/mj-logs/tree/main/guide/f8a2cb5c
+ガイド文書（この版を写した時点の最新、mj de42f8de）: https://github.com/retroeater/mj-logs/tree/main/guide/de42f8de
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f8a2cb5c/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f8a2cb5c/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f8a2cb5c/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f8a2cb5c/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f8a2cb5c/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f8a2cb5c/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/de42f8de/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/de42f8de/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/de42f8de/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/de42f8de/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/de42f8de/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/de42f8de/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/1257323c.md
