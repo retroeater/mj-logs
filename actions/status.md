@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-07 12:50 JST
+- 書き出した時刻: 2026-10-07 12:51 JST
 - 書き出した実行の契機: push（work/1007-pht-photo）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは sync-logs.yml（#498）
@@ -195,11 +195,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-10-07 12:50 | push | work/1007-pht-photo | in_progress | #1758（37568599718） |  |
+| 2026-10-07 12:50 | push | cloudflare | pending | #1760（37568635819） |  |
+| 2026-10-07 12:50 | push | work/1007-pht-photo | in_progress | #1759（37568633777） |  |
+| 2026-10-07 12:50 | push | work/1007-pht-photo | success | #1758（37568599718） | 0分23秒 |
 | 2026-10-07 12:47 | push | work/1007-lgr | success | #1757（37568410612） | 0分52秒 |
 | 2026-10-07 12:47 | push | cloudflare | success | #1756（37568407806） | 0分27秒 |
-| 2026-10-07 12:42 | push | work/1007-lgr | success | #1755（37568002839） | 2分23秒 |
-| 2026-10-07 12:38 | push | cloudflare | success | #1754（37567677344） | 6分10秒 |
 
 ## update-live-channel.yml
 
