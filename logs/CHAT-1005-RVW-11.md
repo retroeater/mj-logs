@@ -53,18 +53,82 @@ CHAT-1005-RVW-10 が止まった点（origin/cloudflare の取り込みで `docs
 
 - 2026-10-07 着手。CHAT-1005-RVW-11 のコミットなし。work/1006-rvw-377 はローカルとリモートが一致（59d17d6f）
 - 0. 指示欄の末尾は指示文の最後の行と一致。RVW-10 の `## 報告` の状態は「中断」。雛形の行は揃っている
+- 1. 未マージの `work/` ブランチのうち、辞書ページ・`dic/`・生成スクリプトを変えているものは無い（ほかは `work/1007-wkr-09` だけで、該当ファイルの変更なし）
+- `git merge origin/cloudflare` の衝突は `docs/notes/static-generation.md` の1ファイル・1箇所（「ページの一覧」の表の houou_race の行と辞書の行）だけで、前提のとおり。cloudflare 側の houou_race の行を採り、辞書の行を残して解いた（f846134d）
+- 件数の記述: 表は合計 26 ページ（index 1・型A 1＋7・型A' 2・型D 1・型C 2・houou_race 1・辞書 1・video_wayhome 1・Google Charts 6・静的 3）で、冒頭の「HTMLは26ページ」と `ls *.html` の 26 と合う。「navbar.js と検索欄」の `data-search="off"` のトップ階層の数は、houou_race が入ったため実物（`grep -l 'data-search="off"' *.html` で9）に合わせて直した
+
+解いた後の該当箇所（引用、長い行は省略）:
+
+```
+| ビルド時生成（独自: 順位表の数え上げ+期ごとのJSON） | 1 | `houou_race.html`（鳳凰戦 リーグ別成績推移）。…（cloudflare 側の文言のまま）
+| ビルド時生成（独自: カテゴリを選んで辞書ファイルを組み立てる） | 1 | `resource_dictionary.html`。`scripts/generate_resource_dictionary.py` が … （#377）
+| ビルド時生成（独自: 全画面ヒーロー+横スクロールカード列） | 1 | `video_wayhome.html`。…
+…
+| 静的なページ | 3 | `404.html` / `jpml_links.html` / `rh_links.html` |
+…
+  トップ階層の9ページ（`404` / `houou_race` / `jpml_links` / `resource_dictionary` /
+  `resource_efficiency` / `rh_links` / `rh_results` / `rh_results_detail` /
+  `video_wayhome`）と、`title/`・`live/`・`saikyo/`・`books/`・`wayhome/` の全ページ。
+  トップ階層の生成物6ページ（`houou_race` / `resource_dictionary` / `resource_efficiency` / `rh_results` /
+  `rh_results_detail` / `video_wayhome`）とサブディレクトリの生成物は
+…
+  残り3ページ（手書きHTML: `404` / `jpml_links` / `rh_links`）を新規に追加するときは手で付ける
+```
+
+- `python3 -m unittest discover -s scripts/tests`: OK（取り込み後・直した後とも）
+- 2. `resource_dictionary.js` の保存名の組み立てを `<YYYYMMDD>_<MSIME|Google日本語入力>_麻雀用語辞書.txt` に変えた（コミット「feat: name dictionary downloads by download date」）。日付は `new Date()` の現地の年・月・日。選んだカテゴリの名前と「版」は入れない。生成スクリプト・テスト・docs に保存名の記述は無かったため、変えたのは JS だけ
+  - ページの `data-label`・`data-updated` 属性は保存名に使わなくなったが、ページを変えないため残した（害は無い。次にページを触るときに外せる）
+- 再生成（`python3 scripts/generate_resource_dictionary.py`）: `resource_dictionary.html`・`dic/*.json` とも差分なし。「プロ」タブ 1,099 行・「辞書」タブ 625 行で、RVW-09 から変わっていない。更新日は 2026-10-06 のまま（今日 10-07 に生成しても日付が保たれることを確かめた）。生成スクリプトも共有のコードも変えていないため、全ページの再生成はしていない
+- 決定: docs/decisions/features.md の RVW-10 の行の「（未実装）」を「（実装は CHAT-1005-RVW-11、未マージ）」に直した。RVW-09 の状態を「判断待ち（続きは CHAT-1005-RVW-11）」、RVW-10 の状態を「中断（続きは CHAT-1005-RVW-11）」に直した（`## 指示` 欄は変わっていない）
+
+### 手順3: 確かめた結果
+
+保存名（Playwright の Chromium、`LANG=C.UTF-8`・ロケール ja-JP・タイムゾーン Asia/Tokyo）:
+
+| 時計 | ブラウザの現地の日付（UTC） | 組み合わせ | 形式 | 保存名 |
+|---|---|---|---|---|
+| 今 | 2026-10-07（2026-10-07T01:43Z） | 連盟プロ | MS-IME | 20261007_MSIME_麻雀用語辞書.txt |
+| 今 | 同上 | 連盟プロ | Google | 20261007_Google日本語入力_麻雀用語辞書.txt |
+| 今 | 同上 | 麻雀用語 | MS-IME | 20261007_MSIME_麻雀用語辞書.txt |
+| 今 | 同上 | 麻雀用語 | Google | 20261007_Google日本語入力_麻雀用語辞書.txt |
+| 今 | 同上 | 両方 | MS-IME | 20261007_MSIME_麻雀用語辞書.txt |
+| 今 | 同上 | 両方 | Google | 20261007_Google日本語入力_麻雀用語辞書.txt |
+| 固定（`clock.setFixedTime`） | 2027-01-01（2026-12-31T23:30Z） | 両方 | MS-IME | 20270101_MSIME_麻雀用語辞書.txt |
+| 同上 | 同上 | 両方 | Google | 20270101_Google日本語入力_麻雀用語辞書.txt |
+
+固定の時計は、UTC では 12-31・日本時間では 01-01 になる時刻にした。保存名は現地（日本時間）の日付になった。
+
+中身（RVW-09 と同じ確かめ）:
+
+| 時計 | 組み合わせ | 形式 | バイト数 | 先頭 | BOM の数 | 改行 | 最後の行の改行 | 行数 | 列数 | 重複 | 品詞 | 「髙」の語 | 「么九牌」 | 中身が期待どおり |
+|---|---|---|---:|---|---:|---|---|---:|---|---:|---|---:|---:|---|
+| 今 | 連盟プロ | MS-IME | 36,828 | FF FE | 1 | CR+LF | なし | 1,099 | 3 | 0 | 人名 | 2 | 0 | ○ |
+| 今 | 連盟プロ | Google | 46,436 | （BOM なし） | 0 | LF | なし | 1,099 | 4 | 0 | 人名 | 2 | 0 | ○ |
+| 今 | 麻雀用語 | MS-IME | 18,452 | FF FE | 1 | CR+LF | なし | 625 | 3 | 0 | 名詞・固有名詞 | 0 | 1 | ○ |
+| 今 | 麻雀用語 | Google | 23,208 | （BOM なし） | 0 | LF | なし | 625 | 4 | 0 | 名詞・固有名詞 | 0 | 1 | ○ |
+| 今 | 両方 | MS-IME | 55,282 | FF FE | 1 | CR+LF | なし | 1,724 | 3 | 0 | 人名・名詞・固有名詞 | 2 | 1 | ○ |
+| 今 | 両方 | Google | 69,645 | （BOM なし） | 0 | LF | なし | 1,724 | 4 | 0 | 人名・名詞・固有名詞 | 2 | 1 | ○ |
+| 固定 | 両方 | MS-IME | 55,282 | FF FE | 1 | CR+LF | なし | 1,724 | 3 | 0 | 人名・名詞・固有名詞 | 2 | 1 | ○ |
+| 固定 | 両方 | Google | 69,645 | （BOM なし） | 0 | LF | なし | 1,724 | 4 | 0 | 人名・名詞・固有名詞 | 2 | 1 | ○ |
+
+- プレビュー: 「Workers Builds: mj」success（17e0d86e）。プレビューの `resource_dictionary.js` が新しい保存名の組み立てになっていることを確かめた
+- cloudflare との差分（docs・ログを除く）: 生成された HTML 1、JS 1、データ 2 追加・4 削除、生成スクリプト 1、テスト 1、`scripts/regenerate.py` 1。docs は `docs/notes/static-generation.md`・`docs/decisions/features.md` とログ（RVW-07・09・10・11）
 
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち（プレビューで保存名と Microsoft IME への取り込みを確かめてからマージを決める）
 - ブランチ: work/1006-rvw-377
 - ログ: https://github.com/retroeater/mj/blob/work/1006-rvw-377/docs/logs/CHAT-1005-RVW-11.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1006-rvw-377
-- 確認用URL: なし
-- マージ: 未
+- 確認用URL: ターミナルの最終報告にだけ書いた（Workers Builds のプレビュー）
+- マージ: しない（判断待ち）
 - issue: なし
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 判断が必要なこと:
+  - 平野さんの確認の手順（Windows 11）: プレビューの辞書ページで ① 連盟プロのみ ② 麻雀用語のみ ③ 両方 をそれぞれ Microsoft IME 形式で保存し、保存名が「20261007_MSIME_麻雀用語辞書.txt」の形（日付はその日）になっているかを見る。IME の「ユーザー辞書ツール」→「ツール」→「テキストファイルからの登録」で取り込み、②・③ で「やおちゅーはい」→「么九牌」、①・③ で「髙」を含む名前（2名）が変換できること、③ が 1,724 語で登録エラーが無いことを見る。必要なら Google 日本語入力の形式も1つ保存して名前を見る
+  - 同じ日に同じ形式を2回保存すると、ブラウザが「(1)」などを付ける（組み合わせを変えても名前は同じため）。気になるかどうか
+  - 取り込みの衝突は前提の解き方で解いた（経過に引用）。houou_race の公開に合わせ、`data-search="off"` のトップ階層の数を 8 → 9 に直したのは、両方の変更を足した結果の数の直し
+  - 指示文の雛形の行に欠けは無い
+- 未確認の項目: 実際のブラウザ（Windows・iPhone の Safari）での保存名と、Microsoft IME・Google 日本語入力での取り込み（バイト列までは確かめた）
 - エラー: なし
 
 <!-- guide-links -->
