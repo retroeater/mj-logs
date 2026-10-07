@@ -241,3 +241,32 @@
 ## 2026-10-07（CHAT-1007-PHT-16）
 
 - #362・#428 に CHAT-1006-PHT-04 が書いたコメントの「この issue の作業のときに確かめる・決める」という扱いは、このままでよい（#362・#428 には何も書かない）
+
+## 2026-10-07（CHAT-1005-RVW-18）
+
+- #298 の根本策として、sync-logs を public の mj-logs 側で動かす案を進める（まず調査。結果は #298 のコメント）。RVW-17 の削減策 A〜E は保留する
+- Actions の予算は今日は上げない。GitHub の使用量のアラートが来たら対応する
+
+## 2026-10-07（CHAT-1005-RVW-19）
+
+- #298 の sync-logs の移設は RVW-18 の設計で進める: 起動は Worker から。着手・節目の写しを含めてすべて写す（目印 `[sync-logs]` は切り替えの後に不要）。check-run の代わりは mj-logs のコミットメッセージの mj の SHA で足りる。切り替えは並走 → mj 側を `on:` だけ止める → 1〜2週間後に消す。Worker のトークンの対象に mj-logs を足す。mj-logs へのワークフローは Code のセッションに push で接続して置く。公開の実行ログに mj のブランチ名を出さない
+- 実装1（mj 側のスクリプト `scripts/sync_all_logs.py` と `actions_status.py --repo`）はマージまで進めてよい
+
+## 2026-10-07（CHAT-1005-RVW-20）
+
+- sync-logs の移設の起動の間隔は W1'（Worker の cron を1分ごとにし、mj の `pushed_at` が直近数分以内のときだけ起動）。実装3で行う
+- 実装2（mj-logs の `.github/workflows/sync-from-mj.yml`）はマージまで進めてよい。mj-logs にワークフローを置く手段は、Code のセッションに mj-logs を push で接続する
+
+## 2026-10-07（CHAT-1005-RVW-21）
+
+- 起動の間隔は W1': Worker `mj-scheduler` の cron を毎分にし、mj の `pushed_at` が直近3分以内の回だけ mj-logs の `sync-from-mj.yml` を起動する（実装3はマージまで進めてよい）
+- `actions/status.md` は「書き出した時刻」の行のほかに変わりが無ければ書き出さない（チャット側の案。平野さんが指示を貼ることで認めた。時刻は mj-logs のコミットの時刻で分かる）
+
+## 2026-10-07（CHAT-1007-LGR-19）
+
+- チャット側の振り返りの「本番のページを読むとき、古い版が返ることがある」は、申送りにする（`docs/notes/chat-side-operations.md`「読み方」の表に、本番を読むときは `?v=<未使用の値>` を付けると書いた）
+
+## 2026-10-07（CHAT-1005-RVW-22）
+
+- RVW-21 の判断: 実装4の前半を前倒しし、mj 側の sync-logs を今止める（ファイルは残し、起動の条件だけ外す。Worker の 05:30 の予約の行も消す）。あわせて mj-logs の sync-from-mj.yml の push の再試行を「衝突したらやり直す」形に直す
+- 文書の目印の規則の削除、sync-logs.yml・`MJ_LOGS_TOKEN` の削除は、1〜2週間後（実装4の後半）
