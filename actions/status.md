@@ -1,9 +1,9 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-07 18:51 JST
-- 書き出した実行の契機: workflow_dispatch（main）
+- 書き出した時刻: 2026-10-07 18:53 JST
+- 書き出した実行の契機: workflow_dispatch（work/1007-rvw-sync4）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
-- コミットの題とジョブのログの中身は書かない。書き出しは sync-logs.yml（#498）
+- コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
 
 ## assets-check.yml
 
@@ -12,11 +12,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-07 18:52 | push | work/1007-rvw-sync4 | success | #2966（37603600550） | 0分14秒 |
 | 2026-10-07 17:49 | push | cloudflare | success | #2965（37596340557） | 0分13秒 |
 | 2026-10-07 17:44 | push | work/1007-lgr | success | #2964（37595791523） | 0分13秒 |
 | 2026-10-07 17:39 | push | cloudflare | success | #2963（37595175290） | 0分13秒 |
 | 2026-10-07 17:39 | push | work/1007-rvw-sync3 | success | #2962（37595170732） | 0分14秒 |
-| 2026-10-07 17:38 | push | work/1007-lgr | success | #2961（37595144823） | 0分14秒 |
 
 ## check-image-links.yml
 
@@ -191,15 +191,14 @@
 
 - 名前: 作業ログを mj-logs へ写す
 - state: active
-- schedule: `29 23 * * *`（UTC） → JST 08:29
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-07 18:52 | workflow_dispatch | work/1007-rvw-sync4 | in_progress | #1841（37603600355） |  |
 | 2026-10-07 18:50 | push | work/1007-rvw-sync4 | success | #1840（37603340132） | 0分28秒 |
 | 2026-10-07 17:49 | push | work/1007-lgr | success | #1839（37596343687） | 0分58秒 |
 | 2026-10-07 17:49 | push | cloudflare | success | #1838（37596340574） | 0分29秒 |
 | 2026-10-07 17:47 | push | cloudflare | success | #1837（37596099511） | 0分59秒 |
-| 2026-10-07 17:47 | push | work/1007-rvw-sync3 | success | #1836（37596094854） | 0分29秒 |
 
 ## update-live-channel.yml
 
