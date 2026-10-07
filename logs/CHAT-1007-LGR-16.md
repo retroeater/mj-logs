@@ -60,16 +60,57 @@ CHAT-1007-LGR-14 が判断待ちにした2点と、CHAT-1007-LGR-15 の報告に
 - ブランチ: origin/work/1007-lgr はマージ済み。ローカルの work/1007-lgr は origin/cloudflare の祖先なので `git merge --ff-only origin/cloudflare`（f14c01fb..e2fd59f6）
 - 手順0: 指示欄の末尾の行は指示文の最後の行と一致
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 4つとも揃っている
+- 手順0: CHAT-1007-LGR-14 の `## 報告` の状態は「判断待ち（docs は cloudflare へマージ済み。シートの2点の判断待ち）」。進めた
+
+### 手順1（続きの印と記録）
+
+- CHAT-1007-LGR-14・CHAT-1007-LGR-15 の `## 報告`（ファイルの最後の一致）の状態の末尾に ` / 続き: CHAT-1007-LGR-16` を足した
+- docs/decisions/houou.md: 新しい節「2026-10-07（CHAT-1007-LGR-16）」に決定3点。CHAT-1007-LGR-14 の節の「要確認」2行に「→ 置き換え: 2026-10-07（CHAT-1007-LGR-16）」を付けた
+- docs/notes/houou-race.md「データの読み方」の「空欄の節を挟む行（24後 A1 など）」を、今の2行（23後 C2 の山田圭、28後 D3 の丹羽卓哉。どちらも第2節）と、直さない理由（詰めると「第4節まで」になり、山田圭が昇級の帯の外に出る）に置き換えた
+
+### 手順2（「鳳凰」タブ、読むだけ）
+
+- `fetch_records()`（生成と同じ読み方、見出しに「順位」「合計」を足した）で2回読み、どちらも 16,011行（CHAT-1007-LGR-14 と同じ）
+- 37後 D3（48行、組なし）: F列は 1〜47 で、重なりも欠けも無い。48行目は吉村隼人（節の値・G列・H列・F列とも空。1節も無いので houou_race には出ない。CHAT-1007-LGR-14 のときも F列が空の1行だった）
+
+| F列 | 選手 | G列 | H列 |
+|---|---|---|---|
+| 12 | 駒田真子 | 昇級 | 70.7 |
+| 13 | 阿部謙一 | 残留 | 70.1 |
+| 14 | 石川豪士 | 残留 | 52.2 |
+| 15 | 大高啓 | 残留 | 51.7 |
+| 16 | 西田修 | 残留 | 41.0 |
+| 17 | 曽篠春成 | 残留 | 35.4 |
+
+- 成績詳細（houou_results.html）: houou_results.js がページを開くたびにシートを gviz で読む（`SELECT A,…,F,… WHERE V = "Y"`）ので、直しはもう出ている（上の読み方で 14 を確かめた。ブラウザでの見え方は見ていない）
+- リーグ推移（houou_leagues.html）: 生成時に F列を読む（`SELECT A,B,C,D,F`）。手元で生成して比べると、差分は `houou_leagues_data.json` の石川豪士の1点だけ（37後〈データの期の番号 40〉の全出場選手の中での順位 241 → 240）。houou_leagues.html は変わらない。生成物は戻し、コミットしていない（`git checkout -- houou_leagues_data.json`）。本番へは次の定時の再生成（regenerate-page.yml、日曜 20:37 UTC = 月曜 05:37 JST。次は 2026-10-12）で入る見込み
+- houou_race は F列を読まないので変わらない
+
+### 手順3（`scripts/apply_page_meta.py`、変えていない）
+
+- 参照: ワークフロー・ほかのスクリプトから呼ばれていない（`grep -rn apply_page_meta`、docs/logs を除く）。コメントで名前が出るのは `scripts/generate_resource_dictionary.py`（45行目）・`scripts/generate_video_wayhome.py`（58〜59行目）の「同じ文言にする（崩すと次の実行で差し戻る）」。docs は `docs/notes/static-generation.md`「メンテナンス用スクリプトの詳細」の1行と `docs/review-followup-instructions.md` の1行。CLAUDE.md・handover.md には無い
+- 履歴（10コミット）: 2026-09-09 acb1621c で作成（#5・#12）。以後は追随の変更（jpml_titles の生成移行、video_wayhome のリデザイン、og:image #78、帰り道のタイトル、saikyo_results の 301、jpml_pros の列の廃止、jpml_titles の廃止）。最後は 2026-10-07 の d8d542e0（CHAT-1007-LGR-15、「リーグ推移」2ページの結びを「まとめています」に揃えた）
+- 今も実行する場面: 自動では無い。#5 の 2026-09-09 のコメントに「今後の変更もこのスクリプトを直せばよい」とあるが、その後の説明文の変更は生成スクリプトの `META` で行われてきた。実行した記録はコミットからは特定できない
+- `--dry`: 24ページすべてを「確認」に出す（title の前後だけを表示し、title は24ページとも同じ）。description の違いは `--dry` では出ないので、作業ツリーの写し（scratchpad）で実行して前後の HTML を比べた
+  - 書き換わるのは15ページ（meta description と og:description）。houou_leagues・ouka_leagues（人数が消える）、jpml_pros（1,099名 → 1000人超）、jpml_test・resource_efficiency・resource_logs・rh_paifu・rh_results_detail・saikyo_mens・video_en・video_live・video_mtsuku（件数が消える）、video_wayhome（件数が消え、og:image がページ専用の画像から共通の画像に戻る）、rh_results（「通算と年度別に」が消える）、jpml_links（手書き。今の文からスクリプトの古い文に戻る）
+  - 15ページのうち jpml_links 以外の14ページは生成ページで、次の再生成で戻る。jpml_links は戻らない
+- 同じ論点の issue の検索（515件の題、open・closed）: 「apply_page_meta」「meta」「description」「説明文」「title」「OGP」「件数」で探した。#5（title・description の整備。このスクリプトで入れた。残りは title の長さと短い description）、#283（h1 と title の統一）、#486（Bing の指摘）、#227（`llms.txt` の件数）は、どれもスクリプトを消すか揃えるかの論点ではない。合う issue が無いので起票した
+- 起票: #517「scripts/apply_page_meta.py を消すか、生成スクリプトの説明文と揃えるか決める」（ラベル: 分野: 整理・保守・対象: 全ページ。未着手なので状況のラベルは付けない）。本文に、実行すると15ページが書き換わり、houou_leagues・ouka_leagues の説明文から人数が消えること、上の表、参照と履歴、決めること (a) 消す (b) 揃える、関連 #5・#227・#486 を書いた
+
+### 平野さんに伝えること
+
+- 37後 D3 の直しはシートで確かめた（石川豪士 14・大高啓 15、F列は 1〜47 で重なりも欠けも無い）。成績詳細にはもう出ている。リーグ推移は次の定時の再生成（2026-10-12 月曜 05:37 JST の見込み）で、石川豪士の線の 37後の点が 241位 → 240位 になる
+- `apply_page_meta.py` は #517 に移した。決めるのは「消す」か「揃える」か。今のまま実行すると、2ページの人数を含め15ページの説明文が古い文に戻る
 
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1007-lgr
-- ログ: https://github.com/retroeater/mj/blob/work/1007-lgr/docs/logs/CHAT-1007-LGR-16.md
+- 状態: 完了
+- ブランチ: work/1007-lgr（削除していない）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1007-LGR-16.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1007-lgr
 - 確認用URL: なし（docs のみ）
-- マージ: 未
-- issue: なし
+- マージ: 済（このログを入れたコミットを、そのまま cloudflare へ push した。`git log -1 origin/cloudflare -- docs/logs/CHAT-1007-LGR-16.md`）
+- issue: #517（起票。`apply_page_meta.py` の論点を移した）、#227（`llms.txt` の件数の食い違いは #227 に任せる。CHAT-1007-LGR-15 でコメント済み）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし

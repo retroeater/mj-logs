@@ -140,7 +140,7 @@ houou_race の公開までのやり取りをチャット側で振り返り、記
 
 ## 報告
 
-- 状態: 判断待ち（docs は cloudflare へマージ済み。シートの2点の判断待ち）
+- 状態: 判断待ち（docs は cloudflare へマージ済み。シートの2点の判断待ち） / 続き: CHAT-1007-LGR-16
 - ブランチ: work/1007-lgr（削除していない）
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1007-LGR-14.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1007-lgr
@@ -163,12 +163,12 @@ houou_race の公開までのやり取りをチャット側で振り返り、記
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 59c10e0e）: https://github.com/retroeater/mj-logs/tree/main/guide/59c10e0e
+ガイド文書（この版を写した時点の最新、mj e2fd59f6）: https://github.com/retroeater/mj-logs/tree/main/guide/e2fd59f6
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/59c10e0e/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/59c10e0e/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/59c10e0e/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/59c10e0e/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/59c10e0e/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/59c10e0e/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2fd59f6/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2fd59f6/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2fd59f6/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2fd59f6/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2fd59f6/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2fd59f6/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/1257323c.md
