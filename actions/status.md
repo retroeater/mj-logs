@@ -1,7 +1,7 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-07 12:05 JST
-- 書き出した実行の契機: push（work/1007-lgr）
+- 書き出した時刻: 2026-10-07 12:09 JST
+- 書き出した実行の契機: push（work/1007-pht-clean）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは sync-logs.yml（#498）
 
@@ -12,11 +12,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-07 12:09 | push | work/1007-pht-photo | success | #2922（37565398519） | 0分12秒 |
 | 2026-10-07 12:05 | push | work/1007-pht-photo | success | #2921（37565106225） | 0分15秒 |
 | 2026-10-07 12:05 | push | work/1007-lgr | success | #2920（37565086595） | 0分12秒 |
 | 2026-10-07 11:58 | push | work/1007-pht-logs | success | #2919（37564555970） | 0分16秒 |
 | 2026-10-07 11:58 | push | cloudflare | success | #2918（37564504216） | 0分14秒 |
-| 2026-10-07 11:57 | push | work/1007-lgr | success | #2917（37564496965） | 0分12秒 |
 
 ## check-image-links.yml
 
@@ -26,11 +26,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-10-07 12:05 | workflow_dispatch | work/1007-pht-photo | in_progress | #21（37565106437） |  |
+| 2026-10-07 12:09 | workflow_dispatch | work/1007-pht-photo | in_progress | #22（37565398389） |  |
+| 2026-10-07 12:05 | workflow_dispatch | work/1007-pht-photo | success | #21（37565106437） | 3分06秒 |
 | 2026-10-06 12:46 | workflow_dispatch | cloudflare | success | #20（37410583779） | 3分04秒 |
 | 2026-10-06 12:07 | workflow_dispatch | cloudflare | success | #19（37407457066） | 3分10秒 |
 | 2026-10-05 06:00 | schedule | cloudflare | success | #18（37234274297） | 3分06秒 |
-| 2026-09-28 15:25 | workflow_dispatch | cloudflare | success | #17（36386417750） | 3分03秒 |
 
 ## check-leagues-dropped.yml
 
@@ -195,11 +195,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-10-07 12:05 | push | work/1007-pht-photo | pending | #1730（37565106212） |  |
-| 2026-10-07 12:05 | push | work/1007-lgr | in_progress | #1729（37565086628） |  |
+| 2026-10-07 12:09 | push | work/1007-pht-clean | in_progress | #1731（37565407271） |  |
+| 2026-10-07 12:05 | push | work/1007-pht-photo | skipped | #1730（37565106212） | 0分51秒 |
+| 2026-10-07 12:05 | push | work/1007-lgr | success | #1729（37565086628） | 0分55秒 |
 | 2026-10-07 12:05 | push | cloudflare | success | #1728（37565084156） | 0分30秒 |
 | 2026-10-07 12:03 | push | work/1006-rvw-377 | success | #1727（37564991696） | 1分06秒 |
-| 2026-10-07 12:03 | push | work/1006-rvw-377 | success | #1726（37564957878） | 1分01秒 |
 
 ## update-live-channel.yml
 
