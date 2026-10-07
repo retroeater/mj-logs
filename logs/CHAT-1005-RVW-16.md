@@ -89,18 +89,23 @@ Chromium（Playwright、`LANG=C.UTF-8`・ja-JP・Asia/Tokyo、ローカル配信
 | 両方 | Google | 69,645 | （BOM なし） | 0 | LF | なし | 1,724 | 4 | 0 | 人名・名詞・固有名詞 | 2 | 1 | ○ |
 
 バイト数まで RVW-11 と同じ。
+- 3. マージ: 取り込みは不要だった（origin/cloudflare は HEAD の祖先）。push 直前に再 fetch して祖先を確かめ、`git push origin work/1007-rvw-dicdate:cloudflare` で fast-forward（2402b305..59c10e0e）。拒否されなかった
+- 59c10e0e の check-run（04:33 UTC に取得）: 「Workers Builds: mj」success、`check`（assets-check.yml）success、`regenerate`（regenerate-page.yml）success、`sync` success 2件（ほかに skipped 1件）。15分以内に揃った
+- regenerate-page.yml は `e18b51ba chore: regenerate resource_dictionary.html dic/ via GitHub Actions` を足した。中身は `sitemap-pages.xml` の辞書ページの lastmod（2026-10-06 → 2026-10-07）だけで、ページと `dic/` は手元の生成と同じ
+- 本番（ryoei.pro、curl）: `/resource_dictionary.html` のラベルは「連盟プロ（1,099語）」「麻雀用語（625語）」で、「更新）」と `data-updated` は無い。`/dic/pros.json`・`/dic/mahjong.json` は 200 で `updated` が無い
+- #515 にコメントした（小さな残りの2点は済み。閉じていない）
 
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1007-rvw-dicdate
-- ログ: https://github.com/retroeater/mj/blob/work/1007-rvw-dicdate/docs/logs/CHAT-1005-RVW-16.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1007-rvw-dicdate
-- 確認用URL: なし
-- マージ: 未
-- issue: なし
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1005-RVW-16.md
+- 比較URL: https://github.com/retroeater/mj/compare/2402b305...59c10e0e
+- 確認用URL: なし（本番に反映済み）
+- マージ: 済（cloudflare 59c10e0e。Workers Builds: mj・assets-check・regenerate とも success。regenerate は sitemap の lastmod だけのコミット e18b51ba を足した）
+- issue: #515 にコメント（閉じていない）
+- 判断が必要なこと: なし（指示文の雛形の行に欠けは無い）
+- 未確認の項目: 本番でのブラウザの見え方（curl で HTML・データまでは確かめた。ダウンロードの中身はローカルの Chromium で確かめ、RVW-11 とバイト数まで同じ）
 - エラー: なし
 
 <!-- guide-links -->
