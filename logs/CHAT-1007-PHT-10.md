@@ -93,29 +93,35 @@ CHAT-1007-PHT-07 の判断待ちへの回答。残した38件のうち16件（�
 - 削除のコミット dddb1568: docs/logs/ の16件（TQ-09・TQ-25・TQ-27・TQ-28、CW-02・CW-05、GX-01・GX-02・GX-04・GX-05、SH-02・SH-03、ZK-05・ZK-06・SH-09・SH-17）。`git show --stat` は 16 files changed, 3328 deletions で、docs/logs/ 以外のファイルは無い。残すログ（GX-08・HC-02・ZK-01 ほか）は入っていない
 - 削除の後のテスト: 564件 OK
 - 取り込み: 着手時の cloudflare（c73e1800）が、別セッション（CHAT-1007-PHT-08）のマージで b9319474 に進んでいた。`git merge origin/cloudflare` で `docs/decisions/operations.md` が衝突（両側が末尾に節を追記）。生成ページ・生成スクリプト・CSS・JS・データ・設定の衝突ではなく、決定の記録の追記同士のため、PHT-08 の節と PHT-10 の節を両方残して解いた（片方の記述は消していない）。取り込み後の `git diff origin/cloudflare HEAD` は、指示の「説明できる差分」（16件の削除・このログ・PHT-07 のログの状態の行・site-findings.md・docs/decisions/・scripts/apps_script/ の3ファイルのコメント）だけ
+- マージ: `git push origin work/1007-pht-logs:cloudflare`（push 直前に再 fetch し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真であることを確認）。cloudflare は b9319474 → c596949c（fast-forward）
+- push で走ったワークフロー（c596949c）: 公開対象を検査する（assets-check）success、作業ログを mj-logs へ写す（sync-logs）success（cloudflare・work/1007-pht-logs の各1回）。regenerate-page.yml は起動しなかった（`scripts/lib/**` を変えていないため見込みどおり）。Workers Builds: mj の check-run は success（表示は変わらない）。待ちはどれも1分以内
+- mj-logs の raw（`logs/<Chat-Ref>.md`）: 削除した16件は全て HTTP 404（写しが消えた）。残したログ（GX-08・ZK-01）と CHAT-1007-PHT-10 は 200
+- #357 へのコメント: https://github.com/retroeater/mj/issues/357#issuecomment-6029960416
 
 ## 報告
 
-- 状態: 中断（着手直後。作業中）
+- 状態: 完了
 - ブランチ: work/1007-pht-logs
-- ログ: https://github.com/retroeater/mj/blob/work/1007-pht-logs/docs/logs/CHAT-1007-PHT-10.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1007-PHT-10.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1007-pht-logs
-- 確認用URL: なし
-- マージ: 未
-- issue: #357
+- 確認用URL: なし（docs/ と scripts/apps_script/ のコメントのみ。表示は変わらない）
+- マージ: 済（c596949c。削除のコミットは dddb1568、論点の移しと参照の差し替えは f3433410、取り込みの衝突は docs/decisions/operations.md を両方残して解決）
+- issue: #357（要約コメント）、#298・#304・#142（論点のコメント）
 - 判断が必要なこと: なし
-- 未確認の項目: なし
+- 未確認の項目:
+  - 論点を移した先の確認（Billing の実値・Search Console の作業・robots.txt の件数の理由）は、平野さんの作業または今後の月次で、このセッションでは確かめていない
+  - `scripts/apps_script/` の3ファイルは、Apps Script への貼り付けでの実行は行っていない（コメントのみの変更。構文は変えていない）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj c596949c）: https://github.com/retroeater/mj-logs/tree/main/guide/c596949c
+ガイド文書（この版を写した時点の最新、mj c7cc409b）: https://github.com/retroeater/mj-logs/tree/main/guide/c7cc409b
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c596949c/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c596949c/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c596949c/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c596949c/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c596949c/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c596949c/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c7cc409b/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c7cc409b/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c7cc409b/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c7cc409b/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c7cc409b/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c7cc409b/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/1257323c.md
