@@ -59,6 +59,50 @@
 - 2026-10-07 着手。CHAT-1005-RVW-19 のコミットなし。work/1007-rvw-sync1 はローカル・リモートとも無く、origin/cloudflare（317c70a0）から作成
 - 0. 指示欄の末尾は指示文の最後の行と一致。雛形の行は揃っている。RVW-18 のログの「2. 設計」は同じセッションで書いたもので、読み直した
 
+### 1. 確かめ
+
+- 未マージの `work/` ブランチ（work/1007-lgr-promo と、この指示のブランチ）は `scripts/sync_logs.py`・`sync_guides.py`・`chat_ids.py`・`actions_status.py`・`.github/workflows/sync-logs.yml` を変えていない
+
+今の `sync-logs.yml` の step と、`sync_all_logs.py` に入れたもの・ワークフローに残すものの境:
+
+| sync-logs.yml の step | 中身 | 置き場所 |
+|---|---|---|
+| リポジトリをチェックアウト | mj を全履歴で | ワークフロー（mj-logs 側では mj を blobless で静かにクローン） |
+| mj-logs をチェックアウト | MJ_LOGS_TOKEN で | ワークフロー（mj-logs 側では自身のチェックアウト） |
+| ログ・ガイド文書を写す・消す | cloudflare: `sync_guides.py copy` → mkdir → `chat_ids.py` → `sync_logs.py` → `git show` で写す → `sync_guides.py link` → 削除。work/**: `chat_ids.py` → `sync_logs.py` → 写す → link | **`sync_all_logs.py`**（ref のループ） |
+| Actions の実行結果を書き出す | `actions_status.py` | ワークフロー（`--repo retroeater/mj` を渡す） |
+| mj-logs へ push | commit（題 `sync: <ref> <SHA>`）と3回の再試行 | ワークフロー（今の手順をそのまま使える） |
+
+commit・push をスクリプトに入れなかったのは、今の step の分け方（写す step と push の step が別）にそろえ、push の再試行の手順を書き直さずに移せるため。
+
+### 2. 作ったもの
+
+- `scripts/sync_all_logs.py`: 引数 `--mj`（mj のクローン）・`--dest`（mj-logs の作業ツリー）。`origin/cloudflare` → `origin/cloudflare` に入っていない `origin/work/**`（`for-each-ref --no-merged`、名前順）の順に、上の手順を回す。呼ぶスクリプトは自身と同じ `scripts/` のもの（mj のクローンはチェックアウトしなくてよい）
+  - `chat_ids.py` は cloudflare の回だけ呼ぶ。今の sync-logs.yml は work/** の push でも呼ぶが、中身は全ブランチから集めるので ref によらず同じ（違うのはファイル名に使う SHA だけ）。1回の起動で全 ref を回すので1回で足りる
+  - 作業ブランチの回は `sync_logs.py --ref work` と渡す（`sync_logs.py` は cloudflare かどうかだけを見る）。ブランチ名を引数に載せないため
+  - 1つでも失敗したら止まる（`::error::` の行に、失敗したスクリプト名と終了コードだけを出す。引数は出さない）
+  - 出すもの: `copy: <パス>`・`delete: <パス>`・最後に件数。ほかに呼んだスクリプトが今と同じ行（`ガイド文書の変更なし`・`chat-ids: …`・`link: …`）を出す。ブランチ名は出さない
+- `scripts/actions_status.py`: `--repo` を足した（無ければ今どおり `GITHUB_REPOSITORY`）。関数 `target_repo()`
+- `scripts/tests/test_sync_all_logs.py`（8件）: 対象の ref（マージ済みの work・claude/** は対象外）、cloudflare と作業ブランチのログを写し2回目は0件、cloudflare で消えたログを消す、cloudflare が先、cloudflare の回の手順の順番、最初の失敗で止まる、出力にブランチ名が無い、`--repo` の優先と既定。`sync_logs.py` の `SYNC_START` は mj の実在のコミットなので、テストではそこだけ同じプロセスで呼んで起点を一時リポジトリの最初のコミットに替えた（`sync_logs.py` は変えていない）
+- `python3 -m unittest discover -s scripts/tests`: 641件 OK
+- docs/notes/static-generation.md「ワークフローの一覧」の表の下に1行
+
+### 3. 動作の確かめ
+
+mj を `git clone --filter=blob:none --no-checkout`、mj-logs を `git clone --depth 1`（読み取りだけ）で取り、作業ツリーの `scripts/sync_all_logs.py` を動かした。mj-logs には push していない。
+
+| 項目 | 結果 |
+|---|---|
+| mj-logs の時点 | b30ba1c（07:00:42 UTC。この指示のログは着手の版） |
+| 対象の作業ブランチ | 2本（work/1007-lgr-promo と、この指示のブランチ） |
+| 出力 | `ガイド文書の変更なし`・`chat-ids: 変更なし（1257323c）`・`copy: docs/logs/CHAT-1005-RVW-19.md`・`link: CHAT-1005-RVW-19.md → 317c70a0`・`写した 1 件・消した 0 件` |
+| mj-logs の差分 | `logs/CHAT-1005-RVW-19.md` だけ（節目の push〈目印なし〉で足した 28 行） |
+| 見込みとの比較 | 見込みどおり（このセッションの作業ブランチのログだけ）。work/1007-lgr-promo のログは mj-logs と同じで写らない |
+| 所要時間 | `--no-checkout` の blobless では 140 秒（ログの中身を1件ずつ遅れて取りに行くため）。同じクローンの2回目は 3.3 秒 |
+| 所要時間（cloudflare をチェックアウト） | `git clone --filter=blob:none -b cloudflare` が 6.6 秒、実行が 4.6 秒（結果は同じ1件） |
+
+実装2（mj-logs のワークフロー）では、mj を `--no-checkout` ではなく cloudflare をチェックアウトしてクローンする（先頭の版の中身がまとめて取れる）。RVW-18 の (e) の 2 秒もチェックアウトした後の値だった。
+
 ## 報告
 
 - 状態: 作業中
@@ -75,12 +119,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 317c70a0）: https://github.com/retroeater/mj-logs/tree/main/guide/317c70a0
+ガイド文書（この版を写した時点の最新、mj c201eba8）: https://github.com/retroeater/mj-logs/tree/main/guide/c201eba8
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/317c70a0/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/317c70a0/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/317c70a0/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/317c70a0/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/317c70a0/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/317c70a0/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c201eba8/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c201eba8/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c201eba8/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c201eba8/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c201eba8/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c201eba8/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/1257323c.md

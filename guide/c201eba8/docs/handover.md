@@ -71,7 +71,7 @@ Google Charts依存（#7の対象）・静的なページ の4つ。**件数の�
 
 ### データの流れ
 
-選手データや成績はすべて**Googleスプレッドシート**にある（生成スクリプトが読むのは7冊。ほかに連盟員名簿の1冊を `check_meibo.py`・`sync_birthday_calendar.py` が読む）。
+選手データや成績はすべて**Googleスプレッドシート**にある（生成スクリプトが読むブックは7つ。ほかに連盟員名簿のブック1つを `check_meibo.py`・`sync_birthday_calendar.py` が読む）。
 
 - ビルド時生成のページ … `scripts/generate_<ページ名>.py` がビルド時に取得してHTMLに焼き込む（型ごとの仕組みは `docs/notes/static-generation.md`「現行の仕組み」）。出力がディレクトリになるページの出力先の正は `scripts/regenerate.py` の `OUTPUT_OVERRIDES`
 - Google Charts依存の6ページ … 訪問者がページを開くたびにブラウザが `docs.google.com` へクエリを投げる
