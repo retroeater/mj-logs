@@ -90,6 +90,23 @@
 - 受け手側（Claude Code）が本番を確かめるときにクエリを付ける規則は、CLAUDE.md・docs/notes/cloudflare.md に書いていない（CLAUDE.md「作業ログ」節は「ログ（公開）」の URL の `?v=<SHA>`、docs/notes/ogp.md と docs/new-page-checklist.md は X のカードの `?x=<未使用の数字>` だけ）。指示のとおり書き足していない
 - 決定: docs/decisions/operations.md に申送りの1行、docs/decisions/houou.md に「全リーグ」の文言は修正不要の1行（どちらも新しい節「2026-10-07（CHAT-1007-LGR-19）」）
 
+### マージの前の取り込み
+
+- origin/cloudflare の取り込みで docs/decisions/operations.md が衝突した（ほかのセッションの CHAT-1005-RVW-21 の節と、この指示の節が、どちらもファイルの末尾に同じ日付で足されていた）。両方の追記が両立するので、cloudflare にある RVW-21 の節を先に、この指示の節を後に置いて解いた（d367823a）。解いた後の該当箇所:
+
+```
+## 2026-10-07（CHAT-1005-RVW-21）
+
+- 起動の間隔は W1': Worker `mj-scheduler` の cron を毎分にし、…（実装3はマージまで進めてよい）
+- `actions/status.md` は「書き出した時刻」の行のほかに変わりが無ければ書き出さない（…）
+
+## 2026-10-07（CHAT-1007-LGR-19）
+
+- チャット側の振り返りの「本番のページを読むとき、古い版が返ることがある」は、申送りにする（…）
+```
+
+- 取り込み後の cloudflare との差分は docs/ の5ファイル（decisions/houou.md・decisions/operations.md・logs/CHAT-1007-LGR-19.md・notes/chat-side-operations.md・notes/handover-archive-2026.md）だけ
+
 ## 報告
 
 - 状態: 完了
@@ -106,12 +123,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 187e5246）: https://github.com/retroeater/mj-logs/tree/main/guide/187e5246
+ガイド文書（この版を写した時点の最新、mj 69ea17e3）: https://github.com/retroeater/mj-logs/tree/main/guide/69ea17e3
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/187e5246/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/187e5246/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/187e5246/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/187e5246/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/187e5246/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/187e5246/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/69ea17e3/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/69ea17e3/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/69ea17e3/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/69ea17e3/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/69ea17e3/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/69ea17e3/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/1257323c.md
