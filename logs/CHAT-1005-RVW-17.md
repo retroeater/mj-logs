@@ -52,29 +52,177 @@
 - 2026-10-07 着手。CHAT-1005-RVW-17 のコミットなし。work/1007-rvw-actions はローカル・リモートとも無く、origin/cloudflare（7af69c92）から作成
 - 0. 指示欄の末尾は指示文の最後の行と一致。雛形の行は揃っている
 - 「貼る時機」は「別のセッションに貼る」だが、RVW-16 と同じセッションに貼られた（RVW-16 は完了済みで、作業に影響なし）
+- 止まる条件: 未マージの `work/` ブランチで `.github/workflows/` を変えているものはない（`git branch -r --no-merged origin/cloudflare` の各ブランチと merge-base の差分で確認）
+
+### 1. #298・#509 の確認
+
+前提（カレンダーの説明 (a)〜(e)）は #298・#509 の本文・コメントと合っている。違うのは (b) の数え方だけで、約5,200分は「30日換算」（09-25〜28 の4日の実測に GX-02 の変更を当てはめたもの）。
+
+| 項目 | 内容 | 実施 |
+|---|---|---|
+| (a) 9月末までの削減策 | assets-check.yml: push の paths から docs/ を除く（サイズを見る2文書と CLAUDE.md は戻す） | 実施済み（GX-02、09-29 マージ） |
+| | sync-logs.yml: work/** への push は、コミットのメッセージに `[sync-logs]` があるときだけジョブを動かす（無ければ skip） | 実施済み（同上） |
+| | 作業ログの節目の push に目印を付けない運用（CLAUDE.md「作業ログ」） | 実施済み |
+| | skip したジョブは課金されない、という前提 | runner が割り当たらない実測から前提を満たすと扱った（09-29、平野さん）。課金の実値は10月の Billing で確かめる |
+| (b) 見込みの内訳 | 09-25〜28 の4日で、変更前 1,219分（30日換算 約9,100）→ 変更後 約690分（30日換算 約5,200）、約43%減。GX-01 の集計（09-13〜28）の上位は assets-check 2,407分・sync-logs 452分 | — |
+| (c) 残っている論点 | sync-logs の work/** の着手の写しもやめるか（10月のペースを見てから決める、09-29 平野さん） | 未決 |
+| | merge で同じ SHA の assets-check が work/ と cloudflare で2回走る件 | 未対応 |
+| | 10月の Billing での実値の確認（skip したジョブが0分か、月のペース） | この指示と並行（平野さんのスクリーンショット） |
+| (d) 追加された分 | #498: sync-logs に毎日1回の予約実行（月 約30分） | 実施済み（10-04） |
+| (e) #509 | sync-logs の concurrency に `queue: max`（取り消されていた実行が動くため、月に最大 約430〜530分増える見込み） | 実施済み（10-06 04:04 UTC = 13:04 JST） |
+
+課金の規則の出典: private のリポジトリはジョブごとに1分未満を切り上げて数えること、枠（Pro 月3,000分・Free 月2,000分）は #298 の本文・コメントの記録による。GitHub の公式の説明（docs.github.com）はセッションのプロキシで遮断され読めなかった（未確認）。public の mj-logs が対象外であること、ランナーの種類ごとの倍率も公式では未確認（mj の全ジョブは ubuntu-latest）。
+
+ワークフローの起動の条件（`.github/workflows/`）:
+
+| ワークフロー | push | schedule（UTC） | その他 |
+|---|---|---|---|
+| assets-check（公開対象を検査する） | cloudflare・work/**（docs/ だけの push では起動しない） | — | dispatch |
+| sync-logs（作業ログを mj-logs へ写す） | cloudflare・work/**（docs/logs など文書の paths のみ。work/** は `[sync-logs]` が無ければジョブを skip） | 毎日 23:29 | dispatch。concurrency `sync-logs`、`queue: max` |
+| regenerate-page（ページの再生成） | cloudflare | 日曜 20:37 | — |
+| sitemap-lastmod | cloudflare | — | concurrency（ref ごと） |
+| update-live-channel（「連盟ch」の毎日の取り込み） | — | 毎日 17:43 | dispatch |
+| sync-dojo-calendar | — | 毎日 22:12 | dispatch |
+| delete-merged-branches | — | 毎日 22:53 | dispatch。concurrency |
+| check-image-links | — | 日曜 18:00 | dispatch |
+| check-meibo | — | 日曜 20:07 | dispatch |
+| sync-birthday-calendar | — | 日曜 20:17 | dispatch |
+| cleanup-logs | — | 日曜 21:23 | dispatch |
+| sync-books-calendar | — | 日曜 20:27 | dispatch |
+| check-saikyo-unregistered | — | 日曜 21:50 | dispatch |
+| fetch-gsc | — | 28〜31日 21:00 | dispatch |
+| write-live-channel-candidate・check-leagues-dropped | — | — | dispatch のみ |
+
+mj-logs へ写す仕組みの今の形: sync-logs.yml が `scripts/sync_logs.py` で、実行時点の mj と mj-logs を突き合わせてログを写す（cloudflare では写しの開始以降のログ、work/** では cloudflare に入っていないコミットのログ）。あわせてガイド文書・使用済みの Chat-Ref の一覧・actions/status.md を書き出す。書き込みは MJ_LOGS_TOKEN。
+
+### 2. 実測（2026-10-01 00:00 〜 10-07 04:44 UTC、6.20日）
+
+取り方: REST API（セッションの GITHUB_TOKEN）で、`/actions/runs?created=<日>` を日ごとに全件（981件）、各実行の attempt ごとのジョブを全件（939件）取った。標本ではない。
+- 実行ごとの timing の `billable` は全件0で返り、使えなかった。Billing の API（`/users/.../settings/billing/actions`）は 403。別の手段は試していない
+- 分は**見積もり**: runner が割り当たったジョブごとに、所要時間（started_at〜completed_at）を1分に切り上げて足した。課金の実値ではない
+- ジョブの実時間の合計は 350.6分で、切り上げ後の 914分の約38%。1回数十秒のジョブが多いため、切り上げの影響が大きい
+
+(i) ワークフローごと（分の多い順）
+
+| ワークフロー | 実行 | ジョブ（runner あり） | 分（見積もり） | 割合 | 結論 | 契機 |
+|---|---|---|---|---|---|---|
+| 作業ログを mj-logs へ写す（sync-logs） | 663 | 492 | 499 | 54.6% | success 491・skipped 94・cancelled 77・実行中 1 | push 645・dispatch 15・schedule 3 |
+| 公開対象を検査する（assets-check） | 227 | 227 | 227 | 24.8% | success 226・failure 1 | push 227 |
+| 「連盟ch」の毎日の取り込み | 15 | 37 | 73 | 8.0% | success 15 | dispatch 9・schedule 6 |
+| ページの再生成 | 23 | 23 | 39 | 4.3% | success 23 | push 20・dispatch 2・schedule 1 |
+| 画像リンク切れの検知 | 5 | 10 | 26 | 2.8% | success 5 | dispatch 4・schedule 1 |
+| 道場部ゲストのカレンダー同期（[scheduled] 1件を含む） | 17 | 17 | 19 | 2.1% | success 16・failure 1 | dispatch 10・schedule 7 |
+| マージ済みの作業ブランチを削除する（[scheduled] 3件を含む） | 11 | 11 | 11 | 1.2% | success 11 | schedule 7・dispatch 4 |
+| サイトマップの lastmod を同期 | 9 | 9 | 9 | 1.0% | success 9 | push 9 |
+| 名簿と「プロ」シートの不一致の検知 | 4 | 4 | 4 | 0.4% | success 2・failure 2 | dispatch 3・schedule 1 |
+| 作業ログの片付け | 3 | 3 | 3 | 0.3% | success 3 | dispatch 2・schedule 1 |
+| Search Console・誕生日カレンダー・最強戦の登録漏れ | 各1 | 各1 | 3 | 0.3% | success | schedule |
+| [scheduled] 作業ログを mj-logs へ写す | 1 | 1 | 1 | 0.1% | success 1 | dispatch 1 |
+| **合計** | **981** | **939中 runner あり 837** | **914** | 100% | | |
+
+ジョブの所要時間の中央値（秒）: sync-logs 23（最大341、queue の待ちは含まない）・assets-check 9・連盟ch 64・再生成 71・画像リンク 180。
+
+(ii) 日ごと（UTC）
+
+| 日 | 実行 | 分 | うち assets-check | sync-logs 実行 | sync-logs 分 | sync-logs cancelled | sync-logs skipped |
+|---|---|---|---|---|---|---|---|
+| 10-01 | 100 | 109 | 25 | 62 | 54 | 3 | 5 |
+| 10-02 | 76 | 71 | 19 | 45 | 30 | 2 | 13 |
+| 10-03 | 172 | 147 | 40 | 121 | 81 | 19 | 21 |
+| 10-04 | 105 | 106 | 19 | 74 | 57 | 13 | 4 |
+| 10-05 | 152 | 123 | 33 | 111 | 75 | 20 | 17 |
+| 10-06 | 213 | 196 | 49 | 147 | 109 | 20 | 19 |
+| 10-07（04:44まで） | 163 | 162 | 42 | 106 | 96 | 0 | 15 |
+
+sync-logs の #509（10-06 04:04 UTC）の前後:
+
+| 期間 | 日数 | 実行 | 分 | 1日あたりの実行 | 1日あたりの分 | cancelled | skipped |
+|---|---|---|---|---|---|---|---|
+| 前（10-01〜10-06 04:04） | 5.17 | 506 | 359 | 97.9 | 69.4 | 77 | 71 |
+| 後（〜10-07 04:44） | 1.03 | 160 | 143 | 155.7 | 139.1 | 0 | 23 |
+
+#509 の後は cancelled が0になった（取り消されていた実行が動くようになった）。ただし後の期間は1日だけで、10-06・07 は作業が多かった日（実行の件数そのものが多い）なので、1日あたりの分の増え方には #509 の効果と作業量の違いが混ざっている。
+
+(iii) ペースと月末までの見込み（31日）
+
+| 数え方 | 1日あたり | 31日の見込み |
+|---|---|---|
+| 単純な比例（10-01〜今の全体） | 147.5分 | 約4,570分 |
+| 10-06 04:04 以降のペースでの比例 | 235.5分 | 約7,300分 |
+| 実測（914分）＋残り24.8日を 10-06 以降のペース | — | 約6,750分 |
+
+- GX-02 の見込み（30日換算 約5,200分）と比べ、単純な比例では約600分少なく、10-06 以降のペースでは約2,100分多い
+- 枠（#298 の記録: Pro 月3,000分）と比べ、単純な比例でも約1,570分、10-06 以降のペースでは約4,300分超える。枠を31日で割ると1日 約97分で、10-02（71分）以外の日はこれを超えている（106〜196分）。実測の914分は枠の約30%。残り約2,090分は、10-06 以降のペースでは 10-15 ごろ、単純な比例では 10-21 ごろに使い切る見込み
+
+(iv) skipped の確認（全件）
+
+- skipped の実行 94件（すべて sync-logs の work/** への目印の無い push）: ジョブ 94件、すべて runner の割り当てなし、所要時間0、見積もり0分
+- skipped のジョブ全体 102件: runner が割り当たったものは0件
+- cancelled の実行 77件: ジョブが1件も作られていない（concurrency の待ちで取り消し）。見積もり0分
+- API で見える範囲では、skip・取り消しに runner の時間は付いていない。課金の実値が0分かは Billing の画面でしか確かめられない（未確認）
+
+(v) 同じ SHA で work/ と cloudflare の両方で走ったもの（push）
+
+| ワークフロー | 組 | work/ 側の分 | 31日換算 |
+|---|---|---|---|
+| sync-logs | 179 | 112 | 約560 |
+| assets-check | 41 | 41 | 約205 |
+
+sync-logs の work/** の success 315件の内訳（先頭のコミットのメッセージで分類）:
+
+| 種類 | 実行 | 分 | 31日換算 |
+|---|---|---|---|
+| 完了・判断待ち・中断の写し（目印あり） | 142 | 142 | 約710 |
+| 着手の写し（目印あり、`docs: start log` 等） | 125 | 126 | 約630 |
+| cloudflare を取り込んだ merge の push（先頭のコミットに目印なし。取り込んだコミットの目印で動いた） | 32 | 32 | 約160 |
+| その他の目印の無い先頭コミット（同じ push の前のコミットに目印） | 16 | 16 | 約80 |
+
+assets-check: cloudflare 67件・67分、work/ 160件・160分。
+
+### 3. 減らせる候補（案だけ。何も変えていない）
+
+31日換算は、10-01〜07 の実測（6.20日）を31日に比例させた見積もり。候補同士で重なる分がある（例: A と C）。
+
+| 案 | 内容 | 減る分（月、見積もり） | やめた場合に失うもの |
+|---|---|---|---|
+| A | work/** では着手の写しをやめる（着手の push に目印を付けない） | 約630 | チャット側が作業の開始（指示が届いたこと・ブランチ）を mj-logs で見られなくなる。完了・判断待ち・中断までは見えない。着手後にセッションが失われると mj-logs には何も残らない（mj の work/ には残る） |
+| B | sync-logs の目印の判定を push の全コミットではなく先頭のコミット（head_commit）だけにする | 約240 | cloudflare の取り込み（merge）で他の指示の目印に反応して写すことが無くなる。目印のコミットの後に別のコミットを重ねて一度に push すると写らない（運用で最後のコミットに目印を付ける） |
+| C | cloudflare へマージする指示では、work/ への最後の push に目印を付けない（直後の cloudflare への push が写す） | 最大 約560（同じ SHA の work/ 側。A と一部重なる） | cloudflare への push が拒否・失敗したとき完了のログが写らない（その場合は目印付きで work/ に push し直す手順が要る）。判断待ち・中断は今のまま |
+| D | #509 の `queue: max` を戻す | 約370〜460（#509 の前は1日 約15件が取り消し、うち約19%は skip になる。#509 の見込みは 430〜530） | 取り消された実行の分が次の push まで写らず、チャット側が古い版を読む（#509 で直した問題が戻る） |
+| E | assets-check を cloudflare への push で、同じ SHA が work/ で成功済みなら skip する | 約205 | cloudflare の push での検査（早送りのマージは work/ で同じ内容を検査済み）。work/ を経ない push は今どおり走る |
+| — | 節目の push の頻度を減らす | 0 | 節目の push は sync-logs で skip（0分）、docs/ だけなので assets-check も起動しない。減らしても分は減らない |
+
+参考: 連盟ch の取り込み（73分、8.0%）は手動実行が 9件で、予約は1日1回（ジョブ 2〜3件）。予約だけなら月 約90分の見込み。
+
+A＋B＋E で 約1,075分、A〜E を全部でも重なりを除いて約1,500〜1,700分程度で、10-06 以降のペース（約7,300）から引いても枠（3,000）は下回らない。
+
+### 4. issue
+
+- #388: ラベル「対象: resource_dictionary」を外した。外した後のラベルは「状況: 待ち」「分野: UI/UX」（API で読み直して確認）
+- #298: 実測の結果をコメント（金額は書いていない）
 
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1007-rvw-actions
-- ログ: https://github.com/retroeater/mj/blob/work/1007-rvw-actions/docs/logs/CHAT-1005-RVW-17.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1007-rvw-actions
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1005-RVW-17.md
+- 比較URL: https://github.com/retroeater/mj/compare/7af69c92...work/1007-rvw-actions
 - 確認用URL: なし
-- マージ: 未
-- issue: なし
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- マージ: cloudflare へマージ済み（ログと docs/decisions のみ）
+- issue: #298 に実測のコメント。#388 のラベル「対象: resource_dictionary」を外した（残りは「状況: 待ち」「分野: UI/UX」）
+- 判断が必要なこと: (1) 減らせる候補 A〜E のどれを採るか（「3. 減らせる候補」の表。10-06 以降のペースでは全部採っても Pro の枠 3,000分を超える見込みなので、予算を見直すかも含む） (2) 平野さんのスクリーンショットで確かめる項目: GitHub の右上のアイコン → Settings → Billing and licensing（または Billing and plans）→ Usage で、期間を10月・製品を Actions にして (a) 10月の Actions の分（retroeater/mj の分。表の 10-07 04:44 UTC 時点の見積もり 914分と比べる） (b) 日ごとのグラフ（1日 約100〜200分か） (c) 含まれる分（枠）の残り (d) mj-logs（public）が0分か (e) Usage の明細でリポジトリ・ワークフロー別に見られれば、sync-logs が skip した実行に分が付いていないか。金額はチャットで伝える
+- 未確認の項目: 課金の実値（API は timing の billable が0、Billing の API は 403）。GitHub の公式の説明（docs.github.com はプロキシで遮断）による課金の規則・枠・倍率・public の扱い。10-06 以降のペースは1日分の実測で、作業量の多い日を含む
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 59c10e0e）: https://github.com/retroeater/mj-logs/tree/main/guide/59c10e0e
+ガイド文書（この版を写した時点の最新、mj f14c01fb）: https://github.com/retroeater/mj-logs/tree/main/guide/f14c01fb
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/59c10e0e/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/59c10e0e/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/59c10e0e/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/59c10e0e/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/59c10e0e/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/59c10e0e/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f14c01fb/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f14c01fb/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f14c01fb/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f14c01fb/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f14c01fb/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f14c01fb/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/1257323c.md
