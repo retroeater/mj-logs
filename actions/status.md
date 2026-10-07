@@ -1,7 +1,7 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-07 11:56 JST
-- 書き出した実行の契機: push（work/1007-pht-rule）
+- 書き出した時刻: 2026-10-07 11:57 JST
+- 書き出した実行の契機: push（work/1007-pht-logs）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは sync-logs.yml（#498）
 
@@ -12,11 +12,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-07 11:57 | push | cloudflare | in_progress | #2916（37564429791） |  |
 | 2026-10-07 11:56 | push | work/1007-pht-logs | success | #2915（37564382086） | 0分13秒 |
 | 2026-10-07 11:54 | push | work/1007-lgr | success | #2914（37564234883） | 0分12秒 |
 | 2026-10-07 11:54 | push | work/1007-pht-logs | success | #2913（37564232631） | 0分13秒 |
 | 2026-10-07 10:44 | push | cloudflare | success | #2912（37558617305） | 0分11秒 |
-| 2026-10-07 10:44 | push | work/1007-wkr-09 | success | #2911（37558572064） | 0分16秒 |
 
 ## check-image-links.yml
 
@@ -195,11 +195,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-10-07 11:56 | push | work/1007-pht-logs | pending | #1717（37564382121） |  |
-| 2026-10-07 11:55 | push | work/1007-pht-rule | in_progress | #1716（37564321756） |  |
+| 2026-10-07 11:57 | push | cloudflare | pending | #1719（37564429855） |  |
+| 2026-10-07 11:56 | push | work/1007-pht-logs | in_progress | #1718（37564425210） |  |
+| 2026-10-07 11:56 | push | work/1007-pht-logs | skipped | #1717（37564382121） | 0分46秒 |
+| 2026-10-07 11:55 | push | work/1007-pht-rule | success | #1716（37564321756） | 1分22秒 |
 | 2026-10-07 11:55 | push | cloudflare | success | #1715（37564318962） | 0分56秒 |
-| 2026-10-07 11:55 | push | cloudflare | success | #1714（37564313978） | 0分26秒 |
-| 2026-10-07 11:54 | push | work/1007-lgr | skipped | #1713（37564246840） | 0分29秒 |
 
 ## update-live-channel.yml
 
