@@ -116,7 +116,7 @@ headless Chromium でプレビューを開き、並べ方ごとに確かめた�
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1009-NEN-07
 - ブランチ: work/1009-nen
 - ログ: https://github.com/retroeater/mj/blob/work/1009-nen/docs/logs/CHAT-1009-NEN-06.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1009-nen
