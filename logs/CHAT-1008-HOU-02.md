@@ -106,6 +106,18 @@ Chat-Ref: CHAT-1008-HOU-02
 - 旧JSの不具合で、今回のデータでは表に出なかったもの（移植で直した。`lib/ranking.py` の冒頭）: 期単位浮き率の最後の選手の率、節連続浮き回数の各選手の最初の行の 0点の節。通算得点の同値の並び（旧は gviz の並び）は今回の上位100件では一致
 - 突合に使ったスクリプト（`fetch_old.py`・`run_old.js`・`compare.py`）は scratchpad に置いた（コミットしない）
 
+### 手順2 4画面の生成と未公開の形
+
+- 再生成の基準: 既存の部品を変える前に全ページを生成した（`regenerate.py all` は `resource_dictionary` が「辞書」タブの未知のカテゴリ「連盟」で止まるため、ページごとに実行。`resource_dictionary` は変更の前後とも同じ理由で失敗し、生成物は変わらない。シート側の問題でこの作業とは無関係。`books_pages` は凍結で対象外）。シートの変化による差分は4ファイル（`houou_leagues_data.json`〈石川豪士の順位、37後 D3 の直しの反映〉・`title/search.json`・`title/wrc/1.html`・`title/wrc/2.html`〈第1回・第2回に年が付いた〉）で、どれも1行
+- 既存の部品の変更: `generate_houou_leagues.py`（`load()`・`build()` に分けた）・`generate_houou_race.py`（`load_periods()` に分け、`render_page()`・`write_data()` にパスの引数）・`assets/share.js`（押したときに data 属性を読む）。参照は `git grep` で洗い出した（`check_leagues_dropped.py`・`tests/test_regenerate.py`・`tests/test_houou_race.py` は使う名前が変わらない）
+- 変更後に全ページを生成し直し、`houou/` 以外の生成物の差分が基準と同じ4ファイル・同じ内容（sha1 一致）であることを確かめた。この4ファイルはコミットしていない（シートの変化で、この指示の対象外）。`jpml_pros` は鍵なしで生成でき、差分なし
+- 指示の「差分を許す範囲」の外の変更が1つある: `_redirects` に3行（`/houou` → `/houou/` の301、`/houou/` と `/houou/:slug/` → `index.html` の200）。`wrangler.jsonc` の `html_handling: "none"` のため、無いと `/houou/` などのディレクトリの URL が 404 になる（`title/`・`live/` と同じ書き方）。メニュー・sitemap 等からは辿れないままで、未公開の形は保つ
+- `assets-check.yml` の `allowed()` は1行（`houou` を足した）。docs/notes/branch-operations.md「ワークフローを変更したとき」を読んだ。push で走る（`work/**`、`workflow_dispatch` もある）ので push の結果で確かめる
+- 生成: `houou/` に 1,343ファイル・3,811,827バイト（選手ごとの成績 1,296、`race/` の JSON 41、`index.html` 4、`search.json`・`leagues/data.json`）。配信対象の総数（`.assetsignore` の除外後、`check_asset_limits.py`）は 3,049 / 20,000（15.2%）、`_redirects` は静的 38・動的 3
+- 手元の確かめ（`python3 -m http.server` で作業ツリーを配信し、headless Chromium〈Playwright〉で 390×844〈3倍〉・1280×800・1920×1080）: 検索の候補 → 選択 → `?name=` と title と共有の URL・文言、`?name=` の直接、無い名前、行のボタンで各節（`aria-expanded`）、ローソク足、ランキングの部門・`?all=1`・`?name=`、リーグ推移の `?name=` と共有、順位変動の `?term=30-2&league=C1`・既定・選び直しで URL、noindex、横のはみ出し 0、JS のエラー 0。見た目を見て2点直した（成績の表の縞が開く行のせいで出ていなかった、PC の成績の表が 720px に収まらず 960px まで広げた）
+- テスト: `python3 -m unittest discover -s scripts/tests` 662件 OK
+- 文書: `docs/notes/houou-top.md`（実物に合わせて直し、仮置きを足した）・`docs/notes/static-generation.md`「ページの一覧」・`docs/new-page-checklist.md`「URL パラメータの規約」（`term`・`division`）・`docs/decisions/publishing.md`
+
 ## 報告
 
 - 状態: 作業中
@@ -122,12 +134,12 @@ Chat-Ref: CHAT-1008-HOU-02
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj c5b12292）: https://github.com/retroeater/mj-logs/tree/main/guide/c5b12292
+ガイド文書（この版を写した時点の最新、mj a6f17ef3）: https://github.com/retroeater/mj-logs/tree/main/guide/a6f17ef3
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5b12292/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5b12292/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5b12292/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5b12292/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5b12292/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5b12292/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a6f17ef3/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a6f17ef3/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a6f17ef3/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a6f17ef3/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a6f17ef3/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a6f17ef3/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/cb2ba7f5.md
