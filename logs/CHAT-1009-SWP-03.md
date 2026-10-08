@@ -85,28 +85,126 @@ CHAT-1006-SWP-01（サイト全体の横断レビュー）の結果を、作業�
 - 指示欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている。
 - 作業ブランチ: リモート・ローカルとも無かったため `git checkout -b work/1009-swp-doc origin/cloudflare`。`docs/notes/design.md` は無い。
 
+### 手順1 確かめる
+
+#### 行き先の案と実物の食い違い（issue の状態・範囲）
+
+| issue | 状態・範囲（2026-10-08 に本文と最近のコメントを読んだ結果） | 案との差 |
+|---|---|---|
+| #411 | open。差し替えの受け手より先に失敗した画像の取りこぼし（`assets/live.js`・`title.js`〈済〉・`jpml_pros.js`・`table.js`・`video_wayhome.js`・`wayhome_episodes.js`） | G3-03 は範囲そのもの。**G3-04（ヒーロー・動画サムネイルに `data-fallback` が無い）は範囲外**。所見として書き、#529 に入れた |
+| #250 #267 #202 #247 #420 #415 #5 | open。各指摘は範囲そのもの（#415 は全角空白・異体字、ひらがな・カタカナは #235 へ送る旨が本文にある） | 案どおりコメント |
+| #283 #160 | open。#283 は title/h1 の文言の統一（見出しのサイズ・階層は本文に無い）。#160 は新サイトの情報設計で「現行では変更しない」とコメントあり | 案どおりコメント（#160 は設計材料として） |
+| #270 | open。色の直書きの変数化は範囲。角丸の種類・カードの2系統を決める記述は無い | 案どおりコメント。値の決定は #528 |
+| #26 #108 | **closed**（2026-09-12） | コメントしない。G1-11 は #528 に入れた |
+| #23 | open（保留）。症状は検索ボックスの背後が透ける件 | 占有率は別の話と書いてコメント |
+| #7 | open。成績3ページは据え置き（対象外）。2026-10-08 に鳳凰戦の成績詳細は `houou/` で静的化と決定 | G3-05 は範囲外と書いてコメント |
+| #227 | open。手書きの件数のずれは生成に任せる（2026-10-07 のコメント） | G5-08 はコメント。**「24ページ→23」は解消**（`sitemap-pages.xml` が 24 件、`houou_race.html` が加わった）。G5-07 は #227 の範囲と断定できず、コメントに別件として書いた |
+| #515 / #522 | open。`work/1008-dic` の作り直し済み（カテゴリ4つ・見た目刷新） | **G4-06 は `origin/cloudflare`（cd4e3d2c）の `resource_dictionary.html` で再現しない**（`<a>` 3・`</a>` 3、`<p>` 4・`</p>` 4、`alt="ダウンロード"` 0）。コメントしない。G1-12 の辞書の分も同じ |
+| #518 #519 #520 | open。#518 は `houou/` を作る（#520 の内容を取り込んだとコメント）。#519 は #518 の公開後に着手。#520 は「状況: 待ち」 | 案どおりコメント。#520 の状況が実態と合うかは未整理と書いた |
+| #274 | open。型A の2列だけが対象で、型A′（`.mj-table-auto`）は対象外 | G2-07 の `rh_results_detail` は型A′ のため範囲外と書いてコメント。直す案は #525 |
+| #417 #186 | open（#417 は保留・#296 の sub-issue） | 案どおりコメント |
+| #184 #180 #521 | closed | G4-04（#184 の意図どおり）は見送り |
+
+SWP-01 の前提との差（現物の変化）: `houou_race.html` は SWP-01 の時点では未公開（noindex）だったが、`sitemap-pages.xml` に載った（`origin/cloudflare` cd4e3d2c）。G5-11 などの記述は 2026-10-06 時点のもの。
+
+同じ目的の open issue（デザインの指針・横断レビューの指摘の起票）: なし（検索語「デザインの指針・DESIGN.md・横断レビュー」「共通ナビ・スキップリンク・フォーカス」「title/ の select・帰り道 title 重複」で0件。#270 は「トークンの集約」、#107 は「新サイトの UI 方針」で目的が違う）。`docs/notes/design.md` は無かった。
+
+未マージのブランチ: `git diff --name-only origin/cloudflare...<ブランチ> -- docs/new-site-design.md docs/handover.md docs/notes/design.md` の結果、`docs/handover.md` を変えているのは `work/1009-nen-year`（「5. 次にやること」の1行。本作業は「6. 関連文書」の表に1行足すだけで、両立する）。`docs/new-site-design.md` を変えているブランチは無い。`docs/decisions/site-review.md` は `work/1009-swp-fix`（CHAT-1009-SWP-02）も末尾に追記しており、両方がマージされると末尾どうしの衝突になる（両方の項を残して解ける）。
+`docs/new-site-design.md` §2 の「例外はこの1系統に限る」は、`live/` を動画の系統として2系統に広げる形で矛盾なく書き換えられた（止まる条件に当たらない）。handover は 24,243 バイト（警告域 26,624 の手前）。
+
+### 手順2 文書
+
+- `docs/notes/design.md` を新規作成（（a）の値を今の `origin/cloudflare` で確かめ直した。`style.css` は 2375 行より後が +111 行ずれているだけで、それ以前は変わっていない。2375 行より後の出典は +111 した行に直した）。`live/` を含む濃色の例外（2系統）を書いた。未決・不整合は書かず、#528 を指す
+- `docs/new-site-design.md` §2: 「**例外はこの1系統に限る**」を「動画の2系統（`video_wayhome` 系と `live/`）」に置き換え、置き換えた旨（2026-10-09）を本文に書いた
+- `docs/handover.md`「6. 関連文書」に `docs/notes/design.md` の行を足した
+- `docs/decisions/site-review.md` に 2026-10-09（CHAT-1009-SWP-03）の決定を足した（README の分野の一覧には CHAT-1006-SWP-01 で追加済み）
+
+### 手順3 issue
+
+起票（REST、`GITHUB_TOKEN` で `POST /issues`。ラベルは handover「タスク管理」の「分野: UI/UX」「対象: …」。#529 は新サイト送りのため「状況: 保留」も付けた。`対象: title` のラベルは無く、REST が自動で作ったので色を他の「対象:」と同じ `C5DEF5` に直した）:
+
+| 番号 | 題 | 内容 |
+|---|---|---|
+| #524 | 共通ナビとスキップリンクの直し（横断レビューの第2弾） | G1-01・G1-02・G2-02・G2-03・G2-04・G4-01 |
+| #525 | スマホの個別の崩れを直す（第3弾、実機確認待ち） | G2-01・G2-06・G2-07・G2-09・G2-11 |
+| #526 | 小さな直し | G3-02・G3-07・G4-05・G4-09・G5-05（呼び分け未定）・G3-10 の右の余白 |
+| #527 | `title/` の大会の選択欄がキーボードの ↓ で即座に移動する | G4-08 |
+| #528 | デザインの不足・不整合を洗い出し、決める | (b) の「未決」の行4分類・G1-10 ほか |
+| #529 | 新サイトの要件（#296 の sub-issue に登録済み、コメント「親: #296」、#296 の子 issue の表に1行追記） | G2-08・G3-04・G3-06・G3-08・G4-04・新サイトの要件の材料 |
+
+起票は6件（見込みの上限どおり）。
+
+コメント（本文に SWP-01 の行を引用し、「サブ再現」は未検証と書き、末尾に `Chat-Ref: CHAT-1009-SWP-03`）: #417・#186・#274・#411・#250・#267・#202・#283・#160・#270・#23・#247・#420・#415・#7・#5・#227・#518・#519・#520 の20件。#515・#522 は G4-06 が解消したためコメントしていない。クローズ済みの #26・#108・#184 にもコメントしていない。
+
+SWP-01 のログの `## 報告` の状態の末尾に `/ 続き: CHAT-1009-SWP-03` を足した。
+
+#### 指摘の ID ごとの行き先（SWP-01 の56件＋外した1件）
+
+| ID | 行き先 | ID | 行き先 |
+|---|---|---|---|
+| G1-01 | #524 | G3-02 | #526 |
+| G1-02 | #524・#186 | G3-03 | #411 |
+| G1-03 | #417 | G3-04 | #411（範囲外の所見）・#529 |
+| G1-04 | #528 | G3-05 | #7（範囲外の所見）・#518・#519 |
+| G1-05 | #528（見送り。入力欄の行に含む） | G3-06 | #529 |
+| G1-06 | #528 | G3-07 | #526 |
+| G1-07 | #283・#160・#528 | G3-08 | #529 |
+| G1-08 | #270・#528 | G3-09 | #518・#519 |
+| G1-09 | #270 | G3-10 | #526（右の余白）・CHAT-1009-SWP-02（リンク） |
+| G1-10 | #528 | G3-11 | #528（見送り） |
+| G1-11 | #528（#26・#108 は closed） | G3-12 | #518・#519 |
+| G1-12 | CHAT-1009-SWP-02（jpml_links）。辞書の分は解消済み | G4-01 | #524・#186 |
+| G2-01 | #525 | G4-02 | #250 |
+| G2-02 | #524・#417 | G4-03 | #518 |
+| G2-03 | #524 | G4-04 | #529（見送り。#184 の意図どおり） |
+| G2-04 | #524 | G4-05 | #526 |
+| G2-05 | #23 | G4-06 | 解消済み（`origin/cloudflare` で再現せず。コメントなし） |
+| G2-06 | #525 | G4-07 | CHAT-1009-SWP-02（GitHub のリンクを外し、外部リンクを新しいタブ・予告つきに） |
+| G2-07 | #525・#274 | G4-08 | #527 |
+| G2-08 | #529 | G4-09 | #526 |
+| G2-09 | #525 | G5-01 | CHAT-1009-SWP-02 |
+| G2-10 | #518・#519・#520 | G5-02 | CHAT-1009-SWP-02 |
+| G2-11 | #525 | G5-03 | #267 |
+| G3-01 | #247・#420・#415 | G5-04 | #202 |
+| G5-05 | #526 | G5-09 | #283・#5 |
+| G5-06 | 見送り（決定済み: static-generation.md「og_title」） | G5-10 | #5 |
+| G5-07 | #227 にコメント（範囲かは未確認。起票の要否は報告） | G5-11 | 見送り |
+| G5-08 | #227 | G5-12 | 決定済みで対象外（title-pages.md:21・saikyo-page-design.md:263） |
+| 外した1件（G2 の空の検索欄） | #524 の本文に外した旨を書いた | | |
+
+56件（G1 12・G2 11・G3 12・G4 9・G5 12）と外した1件のすべてに行き先がある。
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1009-swp-doc
-- ログ: https://github.com/retroeater/mj/blob/work/1009-swp-doc/docs/logs/CHAT-1009-SWP-03.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1009-SWP-03.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1009-swp-doc
-- 確認用URL: なし
-- マージ: 未
-- issue: なし
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 確認用URL: なし（docs のみ）
+- マージ: 済（docs/ 配下のみの変更を cloudflare へ push。マージ後の SHA はターミナルの最終報告）
+- issue: 起票 #524・#525・#526・#527・#528・#529（#529 は #296 の sub-issue に登録）。コメント #417・#186・#274・#411・#250・#267・#202・#283・#160・#270・#23・#247・#420・#415・#7・#5・#227・#518・#519・#520。#296 の子 issue の表に #529 を1行追記
+- 判断が必要なこと:
+  - G5-07（`sitemap.xml`・`sitemap-pages.xml` の冒頭コメントの件数が古い。実体は `<loc>` 24・39）は、#227 の範囲か断定できず、#227 にコメントするに留めた。別に起票するか、`houou/`（#518）の公開で変わるのを待って直すかを決めてほしい
+  - #522・#515 は G4-06（壊れたタグ・同名のダウンロードリンク）が `origin/cloudflare` で解消していたためコメントしていない。`work/1008-dic` の Gboard 形式（未マージ）に影響しないか確認は不要と見る
+  - #520 の「状況: 待ち」が、#518 に内容を取り込んだ後も付いたままか確かめてほしい（#520 にコメントした）
+  - 起票した #526 に、第1弾で直さなかった `404.html` の右の余白（G3-10、`style.css` に `margin-right: 32px` を足す案）を含めた。`style.css` を変えるため work/1008-hou との重なりを確かめてから着手する
+  - `docs/decisions/site-review.md` は work/1009-swp-fix（CHAT-1009-SWP-02）も末尾に追記している。両方をマージするときは両方の項を残して解く
+  - REST の `POST /issues` が存在しないラベル（`対象: title`）を自動で作ったため、色を `C5DEF5` に直した。ラベルを増やしたくなければ削除してよい
+- 未確認の項目:
+  - コメントに引用した指摘のうち、検証が「サブ再現」のもの（SWP-01 の「検証」欄）は主セッションが未再現
+  - 各 issue のコメントの本文が GitHub の画面でどう見えるか（表・太字）は見ていない
+  - `docs/notes/design.md` の行番号は、`style.css` の 2375 行より後を +111 行ずらした値で、主要な箇所（金・メンバー限定ラベル・パンくず）を除いて個別には開いていない
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj e1cabc36）: https://github.com/retroeater/mj-logs/tree/main/guide/e1cabc36
+ガイド文書（この版を写した時点の最新、mj a6988a56）: https://github.com/retroeater/mj-logs/tree/main/guide/a6988a56
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e1cabc36/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e1cabc36/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e1cabc36/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e1cabc36/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e1cabc36/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e1cabc36/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a6988a56/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a6988a56/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a6988a56/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a6988a56/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a6988a56/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a6988a56/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/cd4e3d2c.md

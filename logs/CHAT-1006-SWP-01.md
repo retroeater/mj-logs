@@ -598,7 +598,7 @@ h1 の無いトップ階層は8ページ（`houou_leagues`・`ouka_leagues`・`h
 
 ## 報告
 
-- 状態: 完了（読むだけ。何も直さず、issue も起票していない）
+- 状態: 完了（読むだけ。何も直さず、issue も起票していない） / 続き: CHAT-1009-SWP-03
 - ブランチ: work/1006-swp（指示どおり。origin/cloudflare から作成）
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1006-SWP-01.md （マージ前は https://github.com/retroeater/mj/blob/work/1006-swp/docs/logs/CHAT-1006-SWP-01.md ）
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1006-swp
@@ -627,12 +627,12 @@ h1 の無いトップ階層は8ページ（`houou_leagues`・`ouka_leagues`・`h
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 61abd870）: https://github.com/retroeater/mj-logs/tree/main/guide/61abd870
+ガイド文書（この版を写した時点の最新、mj a6988a56）: https://github.com/retroeater/mj-logs/tree/main/guide/a6988a56
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/61abd870/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/61abd870/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/61abd870/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/61abd870/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/61abd870/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/61abd870/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/9d644c33.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a6988a56/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a6988a56/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a6988a56/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a6988a56/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a6988a56/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a6988a56/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/cd4e3d2c.md
