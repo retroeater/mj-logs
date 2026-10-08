@@ -75,29 +75,48 @@ CHAT-1008-WKR-11 で作業ブランチに作って確かめた #504 段階2の�
 4. CHAT-1008-WKR-11 のログの状態を「判断待ち / 続き: CHAT-1008-WKR-12」にした
 5. 未マージの `work/` ブランチ（自分以外は `work/1008-hou`・`work/1008-nen`）の差分に、`update-live-channel.yml`・`workers/scheduler/`・`scripts/sync_live_calendar.py`・WKR-11 で直した文書・docs/handover.md・docs/decisions/automation.md は無い。`workers/scheduler/src/` を変えるもの（#298 の続き）も無い
 6. `origin/cloudflare` は HEAD の祖先（取り込みは不要）。`node --test` 25/25、unittest OK
+7. マージ: 再fetch して `merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめ、`git push origin work/1008-wkr-11:cloudflare`（c5b12292..a6f17ef3、早送り。マージのコミットは作っていない。cloudflare の先頭は a6f17ef3）
+8. check-run（a6f17ef3）: 「Workers Builds: mj-scheduler」completed・success（02:59:56Z）、「Workers Builds: mj」completed・success（03:00:37Z。`.github/` などの変更でビルドされた）。ほかに check（success）と試験 C のジョブ
+9. 試験 C: 起動の直前に同じ組の実行中・待ちが無いこと（最新は run 76、completed）を確かめ、ref `cloudflare`・inputs なしで起動。run 77（id 37720569743）、題「「連盟ch」の毎日の取り込み」（既定）、success。update のログ: SCHEDULED false・APPLY false・ALLOW_* false・SCHEDULE_ENABLED true・EVENT_NAME workflow_dispatch、「当日の予約の起動の成功: なし」、層1は取り直しで2行を追記したが「(apply なしのためコミットしない)」、【1】【2】【3】は「--dry-run のため書き込みません」、未登録の名前は「apply なしのためコメントしません」。yotei: APPLY false・CALENDAR_APPLY false・CALENDAR_MAX_DELETE 30、カレンダーは「--apply が無いため書き込みません」。ジョブ regenerate は skipped。実行の後も cloudflare の先頭は a6f17ef3（コミットなし）。失敗の通知は無い
+10. 文書（作業ブランチ、コミット cac80399・0ac61ee4）: docs/handover.md 5章の #504 の行を「段階2は済: update-live-channel は 2026-10-09 から Worker で 04:00 に起動し、保険の予約実行は 06:43 予定でゲート付き」に直し、「後の回は数日見てから」を消した（23,953 → 24,095 バイト、警告域 26,624 未満）。docs/notes/scheduler-worker.md「動き」3 の `head_branch` の行に「直さない（2026-10-08 の決定）」と理由を足した（同じ内容を2箇所に書かない）。docs/decisions/automation.md に決定を足した
+11. #504 の本文: 書き換える直前の `updated_at` は 2026-10-08T02:41:43Z（読んだときと同じ）。直した節: 「決定」（2026-10-08 CHAT-1008-WKR-12 の 14・15。15 が朝の確かめを直さない件）、「3. 起動時刻の案と範囲」のゲートの作り（「案。未決」→ 入れた作り、保険の予約実行は 06:43 JST 予定）、「8. 段階と試験」の段階2（後の回を済、10/9 04:00 が最初の起動、段階2が済）。矛盾する新しい決定は無かった。PATCH の後の本文が作った本文と一致することを確かめた（updated_at 2026-10-08T03:04:26Z）
+12. #504 にコメントした（https://github.com/retroeater/mj/issues/504#issuecomment-6051317053 ）。#504 は Open のまま
 
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1008-wkr-11
-- ログ: https://github.com/retroeater/mj/blob/work/1008-wkr-11/docs/logs/CHAT-1008-WKR-12.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1008-wkr-11
+- 状態: 判断待ち（成果物のマージと記録は済。10/9 の朝に初めて動くものが未確認のため「完了」にしない）
+- ブランチ: work/1008-wkr-11（マージ済み。削除は delete-merged-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1008-WKR-12.md
+- 比較URL: https://github.com/retroeater/mj/compare/c5b12292...cloudflare
 - 確認用URL: なし
-- マージ: 未
-- issue: #504
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- マージ: 済（成果物は a6f17ef3。追いの docs はこのログを入れた push）
+- issue: #504（本文を直し、コメント。Open のまま）
+- 結果の要点:
+  - マージ: cloudflare の先頭 a6f17ef3（早送り。マージのコミットは無い）
+  - check-run: 「Workers Builds: mj-scheduler」success、「Workers Builds: mj」success
+  - 試験 C: run 77、題「「連盟ch」の毎日の取り込み」、success、ゲートの行「当日の予約の起動の成功: なし」。APPLY false で何も書かず、regenerate は skipped
+  - #504 の本文で直した節: 「決定」（14・15）、「3. 起動時刻の案と範囲」のゲートの作り、「8. 段階と試験」の段階2
+  - docs/handover.md: 23,953 → 24,095 バイト
+  - 未マージのブランチ（work/1008-hou・work/1008-nen）との重なりは無い。`workers/scheduler/src/` を変えるブランチも無い
+- 判断が必要なこと:
+  - 10/9 の朝の結果を見て、#504・docs/notes/scheduler-worker.md の「動いた記録」を足す続きの指示を出すか（チャット側）
+  - 指示の完了条件は「未確認の項目」に 10/9 の朝のものを書くこと、branch-operations.md「作業ログの寿命」は完了のログの未確認を「なし」に限るため、状態を「判断待ち」にした
+- 未確認の項目（10/9 の朝に初めて動くもの）:
+  - Worker からの 04:00 の update-live-channel の起動と、`scheduled` での書き込み（層1のコミット・シート・カレンダー・regenerate）
+  - 06:00 の朝の確かめ（予定 3 で、すべて success なら #506 に書かない）
+  - 保険の予約実行（06:43 予定）がゲートで何もせず終わること
+  - Worker の実行と保険の実行が重なったときの concurrency の待ち
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj a6f17ef3）: https://github.com/retroeater/mj-logs/tree/main/guide/a6f17ef3
+ガイド文書（この版を写した時点の最新、mj 88d5ee4b）: https://github.com/retroeater/mj-logs/tree/main/guide/88d5ee4b
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a6f17ef3/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a6f17ef3/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a6f17ef3/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a6f17ef3/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a6f17ef3/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a6f17ef3/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/88d5ee4b/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/88d5ee4b/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/88d5ee4b/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/88d5ee4b/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/88d5ee4b/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/88d5ee4b/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/cb2ba7f5.md

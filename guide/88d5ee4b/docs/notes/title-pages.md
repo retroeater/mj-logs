@@ -158,6 +158,7 @@
 
 ## 告知動画（2026-10、X 向け）
 
+- 告知（X の投稿・告知動画）の型は `docs/notes/page-announcement.md`。この節はこのページの動画の作り直しだけを書く
 - 確定版は標準版・音楽 B（十段戦 第43期＋検索「岡本和也」、約20秒・1080×1920・30fps）（`docs/decisions/title.md` 2026-10-04）。動画・素材はコミットしない
 - 作り直しは `bash scripts/promo_video/title/setup.sh <作業フォルダ>` → `VARIANT=standard bash scripts/promo_video/title/build.sh <作業フォルダ> b`。出力は `<作業フォルダ>/title-promo-standard-b.mp4`（無音の描画結果は `title-promo-standard.mp4`）。作業フォルダはリポジトリの外。クラウドセッションで動く（プロキシの CA の NSS 登録と日本語フォントは setup.sh が行う）
 - 選択肢: `VARIANT=x`（比較版。最後に期ページで選手の写真カード〈X へのリンク〉に押す印を出す）、曲調 `a`（落ち着いた）・`none`（無音）。複数の曲調を並べてよい。`REUSE_VIDEO=1` で撮影と描画を飛ばし音だけ重ね直す

@@ -9,7 +9,7 @@ GitHub Actions の予約実行（`schedule`）は予定より2時間半〜5時�
 
 | ファイル | 中身 |
 |---|---|
-| `workers/scheduler/wrangler.jsonc` | Worker の名前 `mj-scheduler`・cron `*/5 * * * *`・秘密でない設定（`vars`）。`workers_dev` と `preview_urls` は `false`（fetch の入口を持たないので公開の URL は要らない） |
+| `workers/scheduler/wrangler.jsonc` | Worker の名前 `mj-scheduler`・cron `* * * * *`（毎分、#298 で `*/5` から変えた）・秘密でない設定（`vars`）。`workers_dev` と `preview_urls` は `false`（fetch の入口を持たないので公開の URL は要らない） |
 | `workers/scheduler/schedule.json` | 起動の表（下の「起動の表の直し方」） |
 | `workers/scheduler/src/index.mjs` | 定時実行の入口（`scheduled`）。Secret が無ければ `console.error` に書いて終わる |
 | `workers/scheduler/src/scheduler.mjs` | 判定（この回に起動する行・当日の行の状態・通知の文面）と GitHub API の呼び出し。時刻と `fetch` を引数で受ける |
@@ -22,12 +22,16 @@ GitHub Actions の予約実行（`schedule`）は予定より2時間半〜5時�
 
 ## 動き
 
-1. **起動**: cron の回ごとに、定時実行の予定時刻（`controller.scheduledTime`）を JST に直す。窓は「前の回の時刻より後〜この回の時刻まで」（5分）。
+1. **起動**: cron の回ごとに、定時実行の予定時刻（`controller.scheduledTime`）を JST に直す。窓は「前の回の時刻より後〜この回の時刻まで」（1分）。
    その窓に予定の時刻が入る有効な行を、`POST /repos/retroeater/mj/actions/workflows/<ファイル名>/dispatches`（ref `cloudflare`、inputs `{"scheduled": "true"}`）で起動する。値は文字列で送る（真偽の入力に文字列の `"true"` が通ることを手動実行で確かめてある。REST の文書は inputs の値の型を決めていない）。
-   予定の時刻が5分刻みでなければ、過ぎて最初の回に起動する。窓は重ならないので、同じ行を二重に起動しない。取りこぼした回の埋め合わせはしない（朝の確かめに「未起動」で出る）
+   窓は重ならないので、同じ行を二重に起動しない。取りこぼした回の埋め合わせはしない（朝の確かめに「未起動」で出る）
 2. **起動の失敗**: API が 2xx 以外を返したら（つながらなかったときも）、その場で #506 にコメントする
 3. **朝の確かめ（#504 の「層1」）**: 06:00 JST の回に、当日の有効な行のうち予定が 06:00 より前のものごとに、当日（JST）に作られた実行の一覧を引く（`created>=<当日 0 時>`）。
-   すべて success なら何もしない。それ以外は #506 に1件コメントする。実行の一覧は `event=workflow_dispatch` で絞る（sync-logs は push の実行が1日に100件を超えることがあり、絞らないと1ページ目に予約の起動が載らない）
+   すべて success なら何もしない。それ以外は #506 に1件コメントする。実行の一覧は `event=workflow_dispatch` で絞る（sync-logs は push の実行が1日に100件を超えることがあり、絞らないと1ページ目に予約の起動が載らない）。
+   `head_branch` では絞らないので、作業ブランチで `scheduled` を付けた試験の成功も当日の success に数える。**直さない（2026-10-08 の決定）**: 困るのは JST 0:00〜06:00 に作業ブランチで `scheduled` を付けて試験した日だけで、日中の試験はその日の 06:00 の確かめの後になり、翌日の分にも数えない。保険のゲート（下）は `head_branch` で絞るので影響を受けない
+4. **mj-logs の同期（#298）**: 毎回 `GET /repos/retroeater/mj` の `pushed_at` を読み、この回の予定時刻から3分以内なら、mj-logs の `sync-from-mj.yml` を `workflow_dispatch`（ref `main`、inputs なし）で起動する（`dispatchSync()`、行き先は `scheduler.mjs` の定数 `SYNC`）。
+   1回の push で後の2〜3回が起動するが、mj-logs 側は concurrency で1本ずつ動き、写すものが無ければコミットしない。失敗は `console.error` に書くだけで #506 には書かない（毎分の回で通知が増えるため）。朝の確かめの対象にも入れない。
+   起動の表（`schedule.json`）の行ではない。トークンは同じ `GITHUB_TOKEN`（対象に mj-logs を足してある）
 
 ## 予約の起動の見分け方
 
@@ -43,6 +47,20 @@ run-name: ${{ inputs.scheduled && '[scheduled] <ワークフローの name>' || 
 - `display_title` は mj-logs の `actions/status.md` には書かれない（`scripts/actions_status.py` は題を書かない）
 - Worker から起動するワークフローを足すときは、入力 `scheduled`・`run-name`・「`schedule` か `scheduled` が真」の判定の3つを足す。`workflow_dispatch` の入力の上限は 25 個（公式の文書）
 
+## 保険の予約実行のゲート（update-live-channel）
+
+`update-live-channel.yml` は書き込みが重いので、保険の予約実行（`schedule`、06:43 JST）にゲートを置く（#504 の段階2の後の回）。
+ジョブ `update` のステップ「毎日の実行の有効・無効を確かめる」が、当日（JST の 0 時以降）の実行の一覧を
+`GET /actions/workflows/update-live-channel.yml/runs?event=workflow_dispatch&branch=cloudflare&created>=…` で引き、
+`head_branch` が `cloudflare`・題が `[scheduled]` で始まる・`conclusion` が `success` の実行を探す（権限はジョブの `actions: read`）。
+
+- 見つかり、この実行が `schedule` なら、何もせずに終わる（`run=false`。サマリに「当日の予約の起動（run #…）が成功済みのため、保険の実行は何もしません」）
+- 見つからない（Worker の起動が無い・失敗・実行中）なら、いつもどおり実行する
+- 一覧を引けない（API の失敗・応答が読めない）なら、止めずに実行する（サマリに「当日の予約の起動を確かめられなかったため、止めずに実行します」）
+- Worker の起動・手動実行は止めない（ログに見つかった run 番号か「なし」を出すだけ）
+- ジョブのログの行「当日の予約の起動の成功: <run 番号>／なし／引けず」で結果を読む
+- `SCHEDULE_ENABLED` が `'false'` なら、ゲートより先に `schedule`・`scheduled` とも止まる（今までどおり）
+
 ## 起動の表の直し方
 
 `workers/scheduler/schedule.json` の `rows` に1行1オブジェクトで書く。
@@ -50,12 +68,12 @@ run-name: ${{ inputs.scheduled && '[scheduled] <ワークフローの name>' || 
 | キー | 中身 |
 |---|---|
 | `workflow` | ワークフローのファイル名（例 `delete-merged-branches.yml`） |
-| `time` | JST の時刻 `HH:MM`。5分刻みを推す |
+| `time` | JST の時刻 `HH:MM`（毎分の回で、その分に起動する） |
 | `weekdays` | 省略可。JST の曜日の配列（0=日曜〜6=土曜）。省略は毎日 |
 | `monthdays` | 省略可。JST の日の配列（例 `[1]`）。省略は毎日 |
 | `enabled` | `false` の行は起動もしないし、朝の確かめでも見ない |
 
-今の表（2026-10-07、#504 の段階2の先の回まで）は3行: `sync-dojo-calendar.yml` 毎日 04:15・`delete-merged-branches.yml` 毎日 04:20・`sync-logs.yml` 毎日 05:30（どれも有効）。時刻の案は #504 の本文「起動時刻の案と範囲」。
+今の表（2026-10-08、#504 の段階2の後の回まで）は3行: `update-live-channel.yml` 毎日 04:00・`sync-dojo-calendar.yml` 毎日 04:15・`delete-merged-branches.yml` 毎日 04:20（どれも有効）。`sync-logs.yml` 毎日 05:30 の行は 2026-10-07 に消した（#298。mj の sync-logs.yml を止め、写しは mj-logs の `sync-from-mj.yml`。1日1回の保険は mj-logs 側の予約）。時刻の案は #504 の本文「起動時刻の案と範囲」。
 
 - 表を変えて `cloudflare` に入ると、Workers Builds の `mj-scheduler` がデプロイする（check-run「Workers Builds: mj-scheduler」）。cron の変更の反映は最大15分。`workers/scheduler/` の外だけを変える push ではビルドされない（2026-10-06 に check-run で確かめた）
 - 表に足すワークフローは、先に上の「予約の起動の見分け方」の3つを足しておく。足さないと、`scheduled` が知らない入力として 422 になる
@@ -76,17 +94,18 @@ Node 22 で、引数にディレクトリを渡すと失敗する。パターン
 ## ログ（Workers Logs）
 
 `wrangler.jsonc` の `observability` を `{"enabled": true}` にしている（2026-10-06、#504）。`head_sampling_rate` は省略で、既定は 1（すべての起動を残す）。
-見る場所はダッシュボードの Workers & Pages > `mj-scheduler` > Observability。Events の一覧に時刻（JST）・Level・Message が並ぶ。5分ごとの回は Message が `*/5 * * * *`・Level が info で、Worker の書いた行は Level が空・Message に本文が出る（2026-10-07 の平野さんの画面。申告値）。保存は3日、Free の上限は1日 20 万件（この Worker は1日 288 回の起動）。
+見る場所はダッシュボードの Workers & Pages > `mj-scheduler` > Observability。Events の一覧に時刻（JST）・Level・Message が並ぶ。毎回の起動は Message が cron の式（2026-10-07 までは `*/5 * * * *`）・Level が info で、Worker の書いた行は Level が空・Message に本文が出る（2026-10-07 の平野さんの画面。申告値）。保存は3日、Free の上限は1日 20 万件（この Worker は1日 1,440 回の起動。Worker の書く行は起動した回だけなので、合わせても上限より十分小さい）。
 
 Worker が書く行（`console.log`。何もしない回は書かない。トークンは書かない）:
 
 - 起動した回: `起動: delete-merged-branches.yml HTTP 204`
+- mj-logs の同期を起動した回: `同期: sync-from-mj.yml HTTP 204`（起動しない回は書かない）
 - 06:00 の朝の確かめの回: `朝の確かめ: 2026-10-06 予定 1・success 1・それ以外 0・#506 に書かない`
-- 失敗（`console.error`）: `起動に失敗: …`・`確かめに失敗: …`・`issue へのコメントに失敗: …`・`Secret GITHUB_TOKEN が無いため…`
+- 失敗（`console.error`）: `起動に失敗: …`・`同期の判定に失敗: …`・`同期の起動に失敗: …`・`確かめに失敗: …`・`issue へのコメントに失敗: …`・`Secret GITHUB_TOKEN が無いため…`
 
 ## トークン
 
-- fine-grained の PAT。対象は `retroeater/mj` だけ。権限は Actions: Read and write（起動と実行の一覧）・Issues: Read and write（通知）。Metadata: Read は自動で付く。期限は 2027-10-05（2026-10-05 の夜に発行。決定は 366 日だが、画面で選んだのは 365 日）。名前は `mj-scheduler`
+- fine-grained の PAT。対象は `retroeater/mj` と `retroeater/mj-logs`（mj-logs は 2026-10-07 に平野さんが足した。同期の起動のため。申告値）。権限は Actions: Read and write（起動と実行の一覧）・Issues: Read and write（通知）。Metadata: Read は自動で付く。期限は 2027-10-05（2026-10-05 の夜に発行。決定は 366 日だが、画面で選んだのは 365 日）。名前は `mj-scheduler`
 - 置き場所は `mj-scheduler` の Secret `GITHUB_TOKEN` だけ。リポジトリ・ログ・チャットには書かない
 - 期限が切れると、起動も通知も止まる（#506 にも書かれない）。期限の1か月前（2027-09-05）に【R#504】の予定がカレンダーに入っている
 - 差し替え: GitHub で新しいトークンを同じ条件で発行 → Cloudflare の `mj-scheduler` の Settings > Variables and Secrets で `GITHUB_TOKEN` の値を差し替える → 古いトークンを GitHub で消す。発行は差し替えの直前にする（値は一度しか表示されない）
@@ -124,12 +143,13 @@ Worker が書く行（`console.log`。何もしない回は書かない。トー
 - `workers/scheduler/` の下（`src/`・`test/`・`wrangler.jsonc`）と docs を変える push: 「Workers Builds: mj-scheduler」success、「Workers Builds: mj」は付かない
 - docs だけの push: どちらも付かない
 
-## 未確認（2026-10-06 の時点）
+## 未確認（2026-10-08 の時点）
 
 - 作業ブランチへの `workers/` だけの push で、サイトの `mj` のプレビューがビルドされた（「Workers Builds: mj」success）。cloudflare への push では Exclude の `workers/**` が効いているのに、プレビューでは効いていない。理由は分からない（害はプレビューのビルドが1回増えることだけ）
-- 作業ブランチで手動実行した sync-dojo-calendar が保存する前回の状態（Actions のキャッシュ）は、同じ作業ブランチの後の実行からは見える（2026-10-07、run 32 が run 31 の分を復元した）。cloudflare の実行から見えないかは、GitHub の文書どおりなら見えない（ブランチの範囲）が、実物では確かめていない
 
-## 動いた記録（2026-10-07 の時点）
+## 動いた記録（2026-10-08 の時点）
 
 - 06:00 の朝の確かめの回は動いている: 10/7 06:00:08 JST に「朝の確かめ: 2026-10-07 予定 1・success 1・それ以外 0・#506 に書かない」（Observability。平野さんの画面の申告値）
-- 5分ごとの回のログの時刻は予定から 8〜10 秒後。起動した実行が GitHub で作られた時刻は、10/6 が 04:20:36、10/7 が 04:20:10（API）
+- 5分ごとだったときの回のログの時刻は予定から 8〜10 秒後。起動した実行が GitHub で作られた時刻は、10/6 が 04:20:36、10/7 が 04:20:10（API）
+- 10/8 は毎分の起動（cron `* * * * *`、#298）になってから最初の朝。sync-dojo-calendar の run #33 が 04:15:21、delete-merged-branches の run #19 が 04:20:21 に作られた（どちらも予定から 21 秒、success。API）。道場部の同期の Worker からの起動はこの回が最初。06:00:21 JST に「朝の確かめ: 2026-10-08 予定 2・success 2・それ以外 0・#506 に書かない」。毎分の回は Message が `* * * * *` で、ログの時刻は毎分 20 秒ごろ（Observability。平野さんの画面の申告値）
+- 作業ブランチで手動実行した sync-dojo-calendar が保存した前回の状態（Actions のキャッシュ）は、同じ作業ブランチの後の実行からは見えるが（10/7、run 32 が run 31 の分を復元した）、cloudflare の実行からは見えない（10/8 の run #33 は、作業ブランチの試験より前の cloudflare の run #30 の分を復元した）
