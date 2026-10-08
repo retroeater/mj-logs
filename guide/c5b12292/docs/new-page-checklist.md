@@ -77,6 +77,7 @@
 - [ ] 平野さんの実機: navbar から開けて、見え方・操作が崩れていない（セッションから確かめられるのは本番の HTML まで）
 - [ ] 平野さんの作業: Search Console で `sitemap.xml` を再送信し、入口を URL 検査でインデックス登録をリクエスト
 - [ ] 親の issue・作る issue に、公開した日とマージの SHA をコメントする
+- [ ] X で告知するときは `docs/notes/page-announcement.md` の型で（投稿文と告知動画）
 
 ## 実例の表
 

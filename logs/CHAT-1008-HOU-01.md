@@ -123,7 +123,7 @@ grill で詰める論点（決めないと作り直しになるものを先に�
   - Q2 選手名だけ・部分一致（NFKC）。結果はトップの中。共有 URL は `houou/?name=`
   - Q3 選手ごと JSON、ファイル名は選手名そのまま。改名・同名は名寄せしない
   - Q4 ランキングはセレクト（インライン onchange をやめる）。既定「通算得点」、`?division=` 継続
-  - Q5 在籍者のみが既定、`?all=1` のチェックボックス。h1 下・title・description に「第N期◯期 終了時点」。上位100件維持。現行と突合して一致を確かめてから HTML（違いはまとめて確認依頼）
+  - Q5 在籍者のみが既定、`?all=1` のチェックボックス。h1 下・title・description に「第N期前期／後期 終了時点」。上位100件維持。現行と突合して一致を確かめてから HTML（違いはまとめて確認依頼）
   - Q6 リーグ推移は移設だけ（スマホは横スクロール）。作り直しは別 issue
   - Q7 順位変動は移設＋`?term=43-1&league=B1` で指定。成績詳細の行から飛べる
   - Q8 トップ・検索・順位変動は 400px、ランキング・成績詳細の表は 720px まで（表だけ横スクロール）。共通の CSS 変数
@@ -131,28 +131,56 @@ grill で詰める論点（決めないと作り直しになるものを先に�
   - Q10 `generate_houou_pages.py` 1本、集計は `lib/ranking.py`・`lib/results.py`。既存2本は廃止まで残し共通部分を lib から import。テストを足す
   - Q11 公開と同時に旧4ページを 301（パラメータ引き継ぎ）。公開条件は iPhone 確認。告知は公開の issue で
 
+- 第2ラウンド（Q12〜Q16）: すべて「推奨」。Q14 に「共有ボタンも付ける」を添えた
+  - Q12 通算の推移は自前 SVG のローソク足。要約 → グラフ → 期ごとの表
+  - Q13 表は新しい期が上。スマホは期・リーグ・順位・結果・合計で行を押すと各節。720px では全列。各行から順位変動へ
+  - Q14 候補最大10件、選ぶと結果を出し `?name=` に置き換え、「×」で戻る。共有ボタンを付ける
+  - Q15 メニューはカード3枚＋1行の説明、画像なし、下に `.mj-lead`
+  - Q16 検索の対象は V="Y" の行のある選手全員（退会者も）
+- 第3ラウンド（Q17・Q18）
+  - Q17 推奨（共有ボタンは全ページ、状態を URL に、OGP は共通画像）に加え、文言は「前原雄大 | 成績詳細 | 鳳凰戦 | 日本プロ麻雀連盟 | ryoei.pro」
+  - Q18 次の指示（動作サンプル）は (c) 4画面すべて。平野さんは「しばらく応答できなくなるので、可能な限り止めずに進めておいて後でまとめて確認したい（概ね5時間後）」
+- Q18 の「止めずに進めて」は、この指示の範囲（docs と issue。止まる条件「コードや `houou/` は作らない」）の中で止めずに仕上げることと読み、動作サンプルには着手していない（HOU-02 はチャット側が出す）。この読みは「判断が必要なこと」に書いた
+- grill の後、平野さんへの確認なしで書き残しまで進めた（返答を待たずに進めてよいとの回答による）
+
+### 手順3 書き残し
+
+- `docs/notes/houou-top.md` を新規に作った（目的・構成・画面ごとの仕様・データ・非公開の形と公開の方針・女流桜花・仮置き・次の指示の範囲）
+- docs/handover.md「関連文書」に `houou-top.md` と `houou-race.md` の2行を足した（`houou-race.md` は表に無かった）。handover.md は 23,864 バイト（警告域 26KB 未満）
+- 起票: #518（親、ラベル `分野: UI/UX`・`対象: houou_ranking`・`対象: houou_leagues`・`対象: houou_results`。`対象: houou_race` のラベルは無い）、
+  #519（女流桜花の `ouka/`、grill Q9。状況: 待ち）、#520（リーグ推移のスマホ向けの作り直し、grill Q6。状況: 待ち）。#519・#520 は #518 の sub-issue に登録し、本文に「親: #518」
+- 起票前の重複確認: 桜花・ouka・リーグ推移・スマホ・モバイルの題で照合し、同じ目的のものは無し
+- コメント: #141（`houou/` の作業 #518 の中で移植）・#371・#228・#234（#518 の1行）・#111・#7（鳳凰戦の成績詳細は `houou/` で静的に作り直す。女流桜花・WRC は据え置き）
+- 決定: `docs/decisions/houou.md` に 2026-10-08 の節を足した（指示の「決定」節＋grill Q1〜Q18）。前の決定に印: features.md 2026-10-05（CHAT-1005-RUN-06）の #111 の行、houou.md 2026-10-07（CHAT-1007-LGR-12）のメニューの順番の行。README の分野の表の houou.md の行に `houou/` #518 を足した
+- 指示文の前提と実物の違い: 選手数は 1,296 名（見込み 700 前後）。`title/` の検索は氏名だけで、ふりがな・ローマ字・別名は持たない（指示文は「氏名・ふりがな・ローマ字・別名での突き合わせは title/ と同じ程度」）。仕様は「選手名だけ」にした（grill Q2）
+- コードと `houou/` は作っていない
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1008-hou
-- ログ: https://github.com/retroeater/mj/blob/work/1008-hou/docs/logs/CHAT-1008-HOU-01.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1008-HOU-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1008-hou
 - 確認用URL: なし
-- マージ: 未
-- issue: なし
-- 判断が必要なこと: なし
+- マージ: 済（8ab65260。docs のみで Workers Builds は走らない。取り込み時に cloudflare が CHAT-1008-NEN-01 のマージで進んでいたため、作業ブランチに origin/cloudflare をマージしてから push。衝突なし）
+- issue: #518（起票、親）・#519（起票）・#520（起票）・#141・#371・#228・#234・#111・#7（コメント）
+- 判断が必要なこと:
+  - 仮置き（動作サンプルを見て確かめる）: メニューのカードの説明の文言／通算の要約の項目（出場期数・通算得点・最高リーグ）／ランキングの「第N期前期／後期 終了時点」の文言／`search.json` に候補と一緒に持つ情報／JS・JSON のファイル名（`assets/houou.js`・`houou/leagues/data.json`）／公開時の navbar「鳳凰戦」の項目
+  - title の形: 検索結果の表示中は「<選手名> | 成績詳細 | 鳳凰戦 | 日本プロ麻雀連盟 | ryoei.pro」（Q17）。トップ（Q1「鳳凰戦（リーグ戦） | ryoei.pro」）と他の3ページにも「日本プロ麻雀連盟」を入れてそろえるか
+  - Q18 の「可能な限り止めずに進めて」は、この指示の範囲（docs・issue）の中で止めずに仕上げることと読み、動作サンプルには着手していない。HOU-02 の指示文が要る
+  - HOU-02 に向けてチャット側が決めておくこと: (1) 作業ブランチ（`work/1008-hou` を続けるか新しい識別子か） (2) マージの扱い（未公開の形でプレビューまでか、cloudflare まで入れてよいか） (3) `assets-check.yml` の `allowed()` に `houou` を足すことと、配信の対象の決定（docs/decisions/publishing.md） (4) URL パラメータの規約に `term` を足すこと（docs/new-page-checklist.md） (5) 平野さんの不在中に止まらない条件（ランキングの突合の違いは一覧にして進める、等）と、それでも止まる条件 (6) 1回の指示で4画面すべてを作るか、画面ごとに Chat-Ref を分けるか
 - 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj cb2ba7f5）: https://github.com/retroeater/mj-logs/tree/main/guide/cb2ba7f5
+ガイド文書（この版を写した時点の最新、mj c5b12292）: https://github.com/retroeater/mj-logs/tree/main/guide/c5b12292
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/cb2ba7f5/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/cb2ba7f5/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/cb2ba7f5/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/cb2ba7f5/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/cb2ba7f5/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/cb2ba7f5/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5b12292/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5b12292/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5b12292/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5b12292/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5b12292/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5b12292/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/cb2ba7f5.md
