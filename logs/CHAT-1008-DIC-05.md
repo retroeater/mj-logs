@@ -79,7 +79,7 @@ CHAT-1008-DIC-04 の比較ページで平野さんが見た目を選んだ。本
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1008-DIC-06
 - ブランチ: work/1008-dic
 - ログ: https://github.com/retroeater/mj/blob/work/1008-dic/docs/logs/CHAT-1008-DIC-05.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1008-dic
