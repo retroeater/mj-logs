@@ -116,6 +116,14 @@ sitemap の変化はなし。説明できない変更はなし。コミットは
 - 登録する形: どちらも終止形で登録し、活用は IME が作る（よみ「かぶる」単語「カブる」、よみ「くいとる」単語「喰い取る」）
 - Gboard: この指示では扱わない。Gboard の単語リストに品詞・活用の欄があるかは確かめていない（無ければ「カブった」などの活用形は変換候補に出ない）
 
+### マージ
+
+- push 直前に再 fetch したところ origin/cloudflare が進んでいた（CHAT-1008-NEN-05 の title/timeline など）ため `git merge origin/cloudflare` で取り込んだ。衝突なし。取り込み後の cloudflare との差は辞書の4ファイル・`dic/` 2ファイル新規・`houou_leagues_data.json`・docs だけ（title/ の差は Actions の再生成で cloudflare 側に既に入っていた）。テスト 646件 OK
+- `git merge-base --is-ancestor origin/cloudflare HEAD` を確かめて `git push origin work/1008-dic:cloudflare`（f973c4f5..3677639b）
+- 3677639b の check-run: Workers Builds: mj success、regenerate success、sync success、check success（2件）
+- regenerate-page.yml が e1cabc36（`chore: regenerate resource_dictionary.html dic/ via GitHub Actions`）を push。中身は `sitemap-pages.xml` の lastmod 1行だけ
+- 本番の HTML（`curl https://ryoei.pro/resource_dictionary.html`）に4カテゴリ（麻雀用語 547・連盟用語 127・連盟プロ 1,099・Mリーグ 73語）が出ている。`/dic/mleague.json` は 200。ブラウザでの見え方は確かめていない
+
 ## 報告
 
 - 状態: 判断待ち
@@ -123,7 +131,7 @@ sitemap の変化はなし。説明できない変更はなし。コミットは
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1008-DIC-02.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1008-dic
 - 確認用URL: プレビューは見ていない（決定のとおり）。ローカルの Chromium で4形の保存を確かめた（経過の表）
-- マージ: マージの前に書いている。結果は経過の「マージ」に追記する
+- マージ: 済（3677639b）
 - issue: #515（経過をコメント）
 - 判断が必要なこと:
   - 動詞の品詞の書き方（手順3の案）。「辞書」タブの「品詞」列には Google 日本語入力（Mozc）の名前「動詞ラ行五段」をそのまま書き、生成時に Microsoft IME 用は「ら行五段」に置き換える案。理由: Google 日本語入力の名前のほうが「動詞」を含み意味が取りやすく、Microsoft IME の名前との対応は1対1（Mozc の対応表）。実装では `KNOWN_POS` に足し、`dic/*.json` に形式ごとの品詞を持たせるか JS で置き換える。Gboard への出し方は次の指示で決める（品詞の欄が無ければ品詞は出さず、活用形は変換されない）
