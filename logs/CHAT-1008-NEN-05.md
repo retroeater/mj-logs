@@ -49,6 +49,53 @@ NEN-04 は、未マージの `work/1008-hou`（別のチャット、houou/）が
 - 未マージのブランチの取り直し: `origin/work/1008-hou`（先頭 e25f04f4、NEN-04 の時と同じ）と `origin/work/1008-nen` だけ。1008-hou が変える対象のファイルは `_redirects`・`style.css` のままで、`style.css` の差分に `mj-title` を含む行は0。`title/`・`generate_title_pages.py`・`assets/title.js` は変えていない
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
 
+
+### 手順1 確かめ
+
+- 生成と同じ経路で読んだ（`regenerate.py title_pages` の出力）: 表示する大会 20、期 363（範囲内）、年表1。決勝メンバー行数 1487 で一致、警告0件
+- #277 は Open、他セッションの着手中コメントなし（NEN-04 で確認、その後のコメントはこのセッションのものだけ）。同じ目的の公開の issue は無かった（NEN-04 で検索）
+
+### 手順2 作る
+
+- `scripts/generate_title_pages.py`: 比較の仕組み（`timeline_compare_html()`・`TIMELINE_FORMS`・`TIMELINE_COLORS`）、A1・A3、色分け（`TIMELINE_GROUPS`・`is-houou` 等）、優勝者名のリンク（`winner_link_html()`・`PROS_PAGE`）を消した。`photo_card_html()`・`filterbar_html()` に NEN-03 で足した引数も戻した（既存のページの出力は元のまま）
+  - カードは `timeline_card_html()`（試作の A2 と同じ中身。クラス名を `.mj-tl-small*` から `.mj-tl-card*` に改めた。押す先は期ページ、優勝者名のリンクは無い。試作との違いはクラス名と、PC でマウスを乗せたときの薄い背景〈#f2f2f2〉だけ）
+  - 固定バーは `timeline_bar_html()`（`.mj-filterbar.mj-tl-bar`、共有ボタン → 年ジャンプの1段）。`page_html()` に `bar` を足し、渡したページはそのバーを置いて検索結果の `section` を置かない
+  - `check_non_taikai_slugs()` に slug の重なりの検査を切り出した（テストのため）。`year_heading()` を足した
+  - og:image は `og_image_for(TIMELINE_SLUG, "年表")`
+- `img/ogp/title/timeline-black.png`: `build_ogp_image.py --text 年表 --color '#ffffff' --bg '#000000' --max-size 400 --tracking -0.03`（1200×630、16,792 バイト。フォントは `raw.githubusercontent.com/notofonts/noto-cjk` から取得）
+- `assets/title.js`: プルダウン（`#title_select`）が無ければ、高さの追従の後で処理を終える（検索欄・検索結果・「該当する選手はいません」の要素を作らない）。年ジャンプの処理は NEN-03 のまま
+- `style.css`: 年表の節を A2 と年ジャンプ・固定バーだけにした。`.mj-title*` の既存の規則は変えていない
+- テスト: `test_title_ogp.test_every_image_is_used` の許す集合を「大会（`NON_TAIKAI_DIRS` を除くディレクトリ）＋入口＋`NON_TAIKAI_DIRS`」にした（大会でないディレクトリの画像は `NON_TAIKAI_DIRS` のものだけ通る）。`scripts/tests/test_title_timeline.py` を足した（年の並び・見出しの件数とアンカー・カードが期ページへ・slug の重なりで止まる・noindex・`sitemap-title.xml` に無い・入口は noindex でない、8件）
+  - 指示の前提の「優勝者のリンクの3通り」のテストは作らなかった。決定（A2）でカードに優勝者名のリンクを置かないため、該当する処理が無い
+- 公開の issue を、`docs/notes/static-generation.md`「ページの一覧」に番号を書くため、マージの前に起票した: #521
+- 決定・文書: `docs/decisions/title.md`（NEN-04 の決定、NEN-05 の重なりの判断、grill Q8 の行に置き換えの印）、`docs/notes/title-pages.md`（「年表」の節を足し、年を持つ期の記述を 363期すべてに直した）、`docs/notes/static-generation.md`「ページの一覧」、`docs/handover.md` 5章（24,093 バイト、警告域 26,624 の外）
+- `python3 -m unittest discover -s scripts/tests`: 652件 OK
+
+生成物などの差分（origin/cloudflare との比較、docs を除く）:
+
+| 種類 | ファイル | 件数 | 見込みとの突き合わせ |
+|---|---|---|---|
+| 年表の追加 | `title/timeline/index.html`（133,063 バイト） | 1 | 見込みどおり |
+| 対局日の年（シートの変化） | `title/wrc/1.html`・`title/wrc/2.html`（パンくずに「（2014年）」「（2017年）」） | 2 | 見込みどおり |
+| 検索のデータの年（シートの変化） | `title/search.json`（2期の年が空 → 2014・2017。ほかは同じ） | 1 | 見込みどおり |
+| `_redirects` | `/title/timeline  /title/timeline/  301` の1行 | 1 | 見込みどおり |
+| og:image | `img/ogp/title/timeline-black.png` | 1 | 見込みどおり |
+| `sitemap-title.xml`・ほかの title/ のページ | 変化なし | 0 | — |
+
+headless Chromium（手元の `python3 -m http.server`）:
+
+| 項目 | スマホ 375×740 | PC 1280×800 |
+|---|---|---|
+| JS のエラー | なし | なし |
+| 固定バーの中身 | 共有ボタン・年ジャンプだけ（プルダウン・検索欄なし） | 同 |
+| 固定バーの高さ（実測 / `--mj-title-filter-h`） | 61px / 61px | 61px / 61px |
+| ラジオボタン | 0 | 0 |
+| カード | 364枚（363期、第26期王位戦が2枚） | 同 |
+| 年ジャンプ（1990・2014・1973・2025 を押す） | 見出しがバーの下端（117px）、押した年が強調 | 同（141px） |
+| ページ全体の横スクロール | なし | なし |
+
+- 読み込みのエラーは各回1件（`ERR_TUNNEL_CONNECTION_FAILED`。セッションのプロキシで外部の画像1件が拒否されたもの。JS のエラーではない）
+
 ## 報告
 
 - 状態: 作業中
@@ -65,12 +112,12 @@ NEN-04 は、未マージの `work/1008-hou`（別のチャット、houou/）が
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 88d5ee4b）: https://github.com/retroeater/mj-logs/tree/main/guide/88d5ee4b
+ガイド文書（この版を写した時点の最新、mj f973c4f5）: https://github.com/retroeater/mj-logs/tree/main/guide/f973c4f5
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/88d5ee4b/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/88d5ee4b/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/88d5ee4b/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/88d5ee4b/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/88d5ee4b/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/88d5ee4b/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/cb2ba7f5.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f973c4f5/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f973c4f5/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f973c4f5/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f973c4f5/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f973c4f5/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f973c4f5/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/88d5ee4b.md
