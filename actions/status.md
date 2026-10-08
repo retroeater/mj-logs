@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-08 11:45 JST
+- 書き出した時刻: 2026-10-08 11:59 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -12,11 +12,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-08 11:59 | push | cloudflare | success | #2982（37720543744） | 0分11秒 |
 | 2026-10-08 11:45 | push | work/1008-hou | success | #2981（37719415873） | 0分11秒 |
 | 2026-10-08 11:39 | push | work/1008-nen | success | #2980（37718921980） | 0分11秒 |
 | 2026-10-08 11:36 | push | work/1008-wkr-11 | success | #2979（37718708714） | 0分11秒 |
 | 2026-10-08 11:35 | push | work/1008-wkr-11 | success | #2978（37718642113） | 0分12秒 |
-| 2026-10-08 11:29 | push | work/1008-nen | success | #2977（37718143583） | 0分11秒 |
 
 ## check-image-links.yml
 
@@ -204,15 +204,15 @@
 
 - 名前: 「連盟ch」の毎日の取り込み
 - state: active
-- schedule: `43 17 * * *`（UTC） → JST 02:43
+- schedule: `43 21 * * *`（UTC） → JST 06:43
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-08 11:59 | workflow_dispatch | cloudflare | queued | #77（37720569743） |  |
 | 2026-10-08 11:36 | workflow_dispatch | work/1008-wkr-11 | success | #76（37718722931） | 2分33秒 |
 | 2026-10-08 11:35 | workflow_dispatch | work/1008-wkr-11 | success | #75（37718650108） | 0分10秒 |
 | 2026-10-08 07:14 | schedule | cloudflare | success | #74（37694922694） | 4分17秒 |
 | 2026-10-07 06:52 | schedule | cloudflare | success | #73（37536913863） | 6分14秒 |
-| 2026-10-06 08:20 | schedule | cloudflare | success | #72（37387962113） | 4分00秒 |
 
 ## write-live-channel-candidate.yml
 

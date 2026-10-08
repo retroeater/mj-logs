@@ -81,6 +81,7 @@
 
 ## 告知動画（2026-10、X 向け）
 
+- 告知（X の投稿・告知動画）の型は `docs/notes/page-announcement.md`。この節はこのページの動画の作り直しだけを書く
 - 確定版は初版のまま（houou-race-promo-v1.mp4。第43期前期 B1〈既定の表示〉の操作デモ・約24秒・1080×1920・30fps。曲調 b〈タイトル戦の告知と同じ曲〉、第3節からの早送りは3倍、最終結果の画面に出る「もう一度見る」の矢印は消さない）（平野さん、2026-10-07）。動画・連番・素材はコミットしない（動画は平野さんの端末に置く）
 - 作り直しは `bash scripts/promo_video/houou_race/setup.sh <作業フォルダ>` → `bash scripts/promo_video/houou_race/build.sh <作業フォルダ> b`。出力は `<作業フォルダ>/houou-race-promo-b.mp4`（無音は `houou-race-promo.mp4`）。作業フォルダはリポジトリの外。`REUSE_CAPTURE=1` で撮影を飛ばして描画から、`REUSE_VIDEO=1` で音だけ重ね直す
 - 環境・日本語フォントの設定（`fonts.conf`）・音楽（`music.py`）は `scripts/promo_video/title/` のものを借りる（title/ は変えない）。曲は曲調 b（軽快・120 BPM）を、デモの始まり（2.5秒）と締めの画面の始まりに合わせて合成する
