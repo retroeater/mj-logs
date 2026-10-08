@@ -138,7 +138,7 @@ headless Chromium でプレビューを開いて確かめた（「現在」の�
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1009-NEN-09
 - ブランチ: work/1009-nen-year
 - ログ: https://github.com/retroeater/mj/blob/work/1009-nen-year/docs/logs/CHAT-1009-NEN-08.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1009-nen-year
