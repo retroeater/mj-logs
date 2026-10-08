@@ -62,9 +62,24 @@
 - ブランチ: ローカルの `work/1008-nen` は `origin/cloudflare` の祖先（マージ済み）のため、そのまま `git merge --ff-only origin/cloudflare`（Already up to date）
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
 
+
+### 手順1 確かめ（途中）
+
+- #277: Open。着手中のコメントは NEN-01 のもの（同じセッション）だけ
+- 未マージの `work/` ブランチ: `origin/work/1008-hou`（`docs/logs/CHAT-1008-HOU-01.md` だけ）と `origin/work/1008-nen`。対象のファイルを変えていない
+- `regenerate.py --list` の名前は `title_pages`
+
+### テストの事前確認（止まる条件に当たった）
+
+- 生成を書く前に、`title/timeline/` を仮に置いて（空の `index.html`）`python3 -m unittest discover -s scripts/tests` を流した。置かない状態では 644件 OK
+- 置くと2件落ちる（仮のファイルは消した）:
+  - `test_title_ogp.OgImageTest.test_every_taikai_has_image`: `title/` 直下のディレクトリをすべて大会とみなし、`img/ogp/title/timeline-black.png` が無いので落ちる（指示の前提の「timeline を大会と取り違えないか」の確かめで、取り違える）
+  - `test_title_redirects.TitleRedirectsTest.test_each_taikai_has_trailing_slash_redirect`: `_redirects` に `/title/timeline  /title/timeline/  301` が無いので落ちる（#455 の規則。大会と同じく末尾スラッシュなしの 301 が要る）
+- 止まる条件「テストが落ちる（timeline を足したことで落ちるなら、直さず報告して止まる）」に当たるため、生成の実装に入らず平野さんに聞いて止まる
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち（テストの扱いを平野さんに質問中）
 - ブランチ: work/1008-nen
 - ログ: https://github.com/retroeater/mj/blob/work/1008-nen/docs/logs/CHAT-1008-NEN-02.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1008-nen
