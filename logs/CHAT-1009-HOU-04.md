@@ -138,28 +138,44 @@ HOU-03 のサンプルを平野さんが確かめた結果（下の「決定」�
 - 手元の確かめ（headless Chromium、390×844〈3倍〉・1280・1920）: 上の各項目、比較ページの 404、旧 `?all=1`・`?name=A,B&span=all` の URL でも壊れないこと（前者は無視、後者は「見つかりません」）。JS のエラー 0、横のはみ出し 0。見た目で直したもの: 検索欄に Chromium の「×」と自前の「×」が二重に出ていた（HOU-03 から。ブラウザの方を消した）
 - テスト: 自動ルールのテストを足した（4通り）。`python3 -m unittest discover -s scripts/tests` OK
 
+### 手順3 文書・確かめ
+
+- 文書: `docs/notes/houou-top.md`（実物に合わせて書き直し。在籍者のみ・個人成績のカード・ランキングの自動ルール・リーグ推移の固定、仮置きの一覧を「HOU-01〜03 から残るもの」「HOU-04 で足したもの」に分けた）・`docs/decisions/houou.md`（2026-10-09 の2つ目の節〈CHAT-1009-HOU-04〉。前の決定に印: 2026-10-08 の grill Q16・Q5 の `?all=1`、HOU-03 の節の 名前の形・通算得点の順位・X へのリンク・もっと見る・在籍者のみのチェックボックス・注釈のチップ・2名・入会以降・在籍者のみ〈リーグ推移〉・案A/案B〈案B を採用〉）・`docs/new-page-checklist.md`（`name=A,B` の行を「#276 はこの形で決まったまま」に直し、`span` の行を消した）・`docs/notes/static-generation.md`「ページの一覧」（5ページ＋在籍者数、比較ページを消した）
+- 全ページの再生成（ページごと。`books_pages` は凍結で対象外）: 失敗なし（`resource_dictionary`・`jpml_pros` も生成できた）。`houou/` は差分なし。ほかの差分は HOU-03 と同じ9ファイル（「辞書」の麻雀用語の語数、「帰り道」の題の「#2」）で、シートの変化。今回変えた部品（`lib/ranking.py`・`lib/results.py` は houou だけが使う）と関係しないのでコミットしていない
+- 配信対象の総数（`check_asset_limits.py`）: 2,450 / 20,000（12.2%。HOU-03 の 3,054 から 604 減。成績 JSON 603・比較ページ 1）
+- プレビュー: 3e8310e1（e088ab9d のコードを含む）の「Workers Builds: mj」success・「check」success。636d0d79 は docs のみでビルドは走らない（#171）。URL は最終報告
+- プレビューで確かめたこと（headless Chromium、390×844〈3倍〉・1280×800・1920×1080、102項目）: 手順1・2の手元の確かめと同じ結果。比較ページ `compare.html` と在籍者でない選手の成績 JSON（前原雄大）は 404、noindex は5ページとも。横のはみ出し 0。JS のエラーは、比較ページの 404 を開いたときの `404.html` の読み込みだけ（下）
+- 気づいた別件: サイトの `404.html` は CSS・Bootstrap・navbar.js を相対パスで読むため、サブディレクトリの下の 404（`/houou/leagues/compare.html`・`/title/…` など）では読めず（MIME の拒否）、飾りとメニューの無い 404 になる。既存の問題で、この指示の範囲外なので直していない。別の課題の提案（spawn_task）はツールが応答せず出せなかった
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1008-hou
 - ログ: https://github.com/retroeater/mj/blob/work/1008-hou/docs/logs/CHAT-1009-HOU-04.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1008-hou
-- 確認用URL: なし
-- マージ: 未
-- issue: #518
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 確認用URL: プレビューあり（URL は最終報告）。確かめたページ: トップ・個人成績・ランキング・リーグ推移・順位変動
+- マージ: 未（平野さんの判断待ち。指示のとおりマージしない）
+- issue: #518（作業中）・#520（取り込み済み）
+- 判断が必要なこと:
+  - 確かめる手順（URL は最終報告。iPhone と PC で）: (1) 個人成績: 候補に「（東京・30期）」と「43前 C2」が出ること、選んだ後の大きいアイコンと名前・要約3枚・期のカード（押すと1行1節、別のカードで畳む、「この期の順位変動 →」）・結果のチップの色 (2) ランキング: 部門を切り替え、通算得点/期・期単位浮き率・節単位浮き率でだけ「対象: 10期以上出場」などが出ること、件数と表の下の説明、行を押すと個人成績へ (3) リーグ推移: 選手を選び直すと入れ替わること、入会以降だけのグラフ、43前の A1・A2 の段
+  - ランキングの9部門の件数（自動ルール。上限100・同点は110件まで）: 通算得点 100／通算得点/期 100／期最高得点 100／期単位浮き率 105（93〜105位が 0.600 で同点ごと）／期連続浮き回数 71（72〜157位が 5 で外す → 6回以上）／節最高得点 100／節単位浮き率 100（旧ページの上限 50件ではなく 100件）／節連続浮き回数 97（98〜191位が 7 で外す → 8回以上）／連続昇級回数 79（80〜394位が 2 で外す → 3回以上）。連続回数は旧の固定の回数と同じになった
+  - 個人成績の説明文の人数: 指示文の例は 1,296名（全選手）だが、検索できるのが在籍者だけになったので 693名にした。よいか
+  - 仮置き（HOU-01〜03 から残るもの）: 「第43期前期 終了時点」の文言／JS のファイル名／公開時の navbar の項目／共有の文言／トップと順位変動の共有ボタンの置き場（見出しの行の右端）／既定のアイコン／リーグ推移の段の色・選手を選んでいないときの表示
+  - 仮置き（今回足したもの）: 自動ルールの余裕の幅 110件と節単位浮き率を 100件にしたこと／連続回数の説明の「（N件）」（同じ選手が2件になりうるため「名」でなく「件」）／結果のチップの色（入替戦は紫、空欄はチップなし）／期のカードの右側の並び（順位・合計・チップ）と、鳳凰位の期を「42期」にすること、順位変動へのリンクを開いた中に置くこと／アイコン 64〜80px・名前 30px・字の3段 30・20・15px／リーグ推移の前期の鳳凰位も後期から写すこと（決定は A1・A2）
+  - 別件の提案: サイトの `404.html` が相対パスで CSS・navbar.js を読むため、サブディレクトリの下の 404 で飾りとメニューが出ない（`/title/…` でも同じ。既存の問題）。別の課題にするか
+- 未確認の項目:
+  - iPhone の実機での見え方・操作（headless Chromium の 390×844〈3倍〉で確かめた範囲だけ）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj e1cabc36）: https://github.com/retroeater/mj-logs/tree/main/guide/e1cabc36
+ガイド文書（この版を写した時点の最新、mj a6988a56）: https://github.com/retroeater/mj-logs/tree/main/guide/a6988a56
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e1cabc36/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e1cabc36/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e1cabc36/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e1cabc36/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e1cabc36/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e1cabc36/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a6988a56/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a6988a56/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a6988a56/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a6988a56/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a6988a56/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a6988a56/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/cd4e3d2c.md
