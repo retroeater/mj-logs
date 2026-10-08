@@ -118,17 +118,37 @@ Chat-Ref: CHAT-1008-HOU-02
 - テスト: `python3 -m unittest discover -s scripts/tests` 662件 OK
 - 文書: `docs/notes/houou-top.md`（実物に合わせて直し、仮置きを足した）・`docs/notes/static-generation.md`「ページの一覧」・`docs/new-page-checklist.md`「URL パラメータの規約」（`term`・`division`）・`docs/decisions/publishing.md`
 
+### 手順3 プレビューでの確かめ
+
+- e9dfff2c の check-run: 「Workers Builds: mj」success（push から約2分）、「check」（assets-check）success。`allowed()` の変更は push で検証できた
+- プレビューの URL は check-run の出力から取った（URL は最終報告にだけ書く）。`/houou` は `/houou/` へ 301、`/houou/`・`ranking/`・`leagues/`・`race/`・`search.json`・`results/<選手名>.json`・`race/43-1.json`・`assets/houou.js` は 200。旧4ページも 200
+- 手順2と同じ確かめ（58項目）をプレビューに対して 390×844（3倍）・1280×800・1920×1080 で行い、手元と同じ結果。横のはみ出し 0、JS のエラー 0
+- noindex: 4ページとも `<meta name="robots" content="noindex">` がある（プレビューは `X-Robots-Tag: noindex` も付く）
+- 本番の `navbar.js`・`llms.txt`・`sitemap.xml`・`sitemap-pages.xml` に `houou/` は無い。作業ブランチでも navbar・llms.txt・sitemap に無く、既存のページから `/houou/` へのリンクは無い（`live/` の `../houou/` は `live/houou/`）
+- `share.js` の変更の影響: プレビューの `title/` で共有ボタンが出て、「URLをコピー」でトーストが出ることを確かめた
+- 見た目（手元のスクリーンショットで確認。ログに画像は貼れない）: 390 幅でトップ・検索結果・ランキング・順位変動とも、はみ出し・重なりなし。順位変動は見出しの下に共有ボタンの1行が増え、表が1行ぶん下がる。PC の成績の表は 960px で13節まで収まる。リーグ推移は旧ページと同じ（PC 幅の積み上げ棒、スマホは旧ページと同じモバイル用 SVG）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1008-hou
 - ログ: https://github.com/retroeater/mj/blob/work/1008-hou/docs/logs/CHAT-1008-HOU-02.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1008-hou
-- 確認用URL: なし
-- マージ: 未
-- issue: #518
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 確認用URL: プレビューあり（URL は最終報告）。確かめたページ: `houou/`（検索・`?name=`）・`houou/ranking/`・`houou/leagues/`・`houou/race/`
+- マージ: 未（平野さんの判断待ち。指示のとおりマージしない）
+- issue: #518（着手中のコメント）・#141（着手中のコメント）
+- 判断が必要なこと:
+  - 確かめる手順（確認用の URL は最終報告。iPhone と PC で）: (1) トップ `/houou/` で検索欄に「白鳥」などを打ち、候補から選ぶ → 選手の成績（要約・ローソク足・期ごとの表）が出て URL が `?name=` になる。行の右の ▸ で各節が開く。リーグのセルで順位変動のその期・リーグへ飛ぶ。「×」でメニューに戻る (2) `/houou/ranking/` で部門を切り替え、「在籍していない選手も含める」、名前の絞り込み。URL が変わる (3) `/houou/leagues/?name=前原雄大` で折れ線が変わる (4) `/houou/race/?term=30-2&league=C1` でその表が出る。期・リーグを選び直すと URL が変わる (5) 各ページの共有ボタンで、表示中の URL と文言になっているか
+  - 突合の違い（ランキング。手順1の表）: 通算得点/期の6件（川村直寛 72.0→72.1、里木祐介 34.5→34.6、沖野健行 32.7→32.8、中島寿太郎 32.0→32.1〈53位→51位〉、藤井崇勝 23.8→23.9、小野塚永遠 22.3→22.4。どれも平均がちょうど x.x5 で、旧は浮動小数の誤差で切り下げ、新は四捨五入）と、期最高得点 78位の同値2名（岡田啓佑・小松武蔵）の並び。新の値でよいか
+  - title の形: トップ「鳳凰戦（リーグ戦） | ryoei.pro」、ランキング「ランキング（第43期前期 終了時点） | 鳳凰戦 | ryoei.pro」、リーグ推移・順位変動は旧ページのまま、検索結果の表示中「<選手名> | 成績詳細 | 鳳凰戦 | 日本プロ麻雀連盟 | ryoei.pro」。「日本プロ麻雀連盟」を入れてそろえるか
+  - 仮置き（HOU-01 の分）: メニューのカードの説明の文言／通算の要約の項目（出場期数・通算・最高リーグ）／「第43期前期 終了時点」の文言／`search.json` に候補と一緒に持つ情報（「最終 42後 A1」）／JS・JSON のファイル名（`assets/houou.js`・`houou/leagues/data.json`）／公開時の navbar の項目
+  - 仮置き（今回足した分、`docs/notes/houou-top.md`「仮置きの一覧」）: 成績の値は小数1桁・マイナスは「▲」／リーグのセルを順位変動へのリンクに／PC で成績の表示中は 960px まで広げる（720px では13節が収まらない）／ランキングの在籍者のみは在籍者だけで順位を付け直す／チェックボックスの文言「在籍していない選手も含める」／ランキングの h1 は可視の「鳳凰戦 ランキング」（#141 のコメントは非表示の h1 の想定）／部門の対象の条件を表の下に1行／ランキングの名前の絞り込み欄（旧ページにある）と名前から検索結果へのリンク／共有の文言（ランキング・リーグ推移・順位変動）／順位変動の URL に組（①②）を入れない／順位変動・リーグ推移の共有ボタンの置き場（1行増える）／候補の並び（先頭一致 → 部分一致、最後に出た期の新しい順）
+  - 指示の範囲の外の変更: `_redirects` に3行（`/houou` の301と、ディレクトリの URL を `index.html` に向ける200。無いと `html_handling: "none"` で 404）。未公開の形は保つ。残してよいか
+  - 既存の部品の変更: `assets/share.js` を「押したときに data 属性を読む」に変えた（ほかのページの動きは同じ。`title/` で確かめた）。`generate_houou_leagues.py`・`generate_houou_race.py` を関数に分けた（旧ページの出力は変わらない）
+  - 次の指示（本実装・段1）に向けて: 公開の issue の起票。`resource_dictionary` の生成が「辞書」タブのカテゴリ「連盟」で止まっている件（この作業とは無関係。別の扱いが要る）
+- 未確認の項目:
+  - iPhone の実機での見え方・操作（headless Chromium の 390×844〈3倍〉で確かめた範囲だけ）
+  - 本物の Google Charts での旧ランキングの表示との突合（セッションから `www.gstatic.com` に届かず、旧 `league_ranking.js` を Node で動かして比べた。同値の並びは Google Charts の並べ替えと違う可能性がある）
 - エラー: なし
 
 <!-- guide-links -->
