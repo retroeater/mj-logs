@@ -73,28 +73,77 @@ CHAT-1008-DIC-01 は送る前に差し替えたため欠番。「辞書」タブ
   - カテゴリをまたぐ重複は2組: 「一般社団法人Mリーグ機構」（Mリーグ・麻雀用語）、「日本プロ麻雀連盟」（連盟用語・麻雀用語）。指示文の前提は「Mリーグ機構」が2つのカテゴリにあるとしていたが、相手は「連盟用語」でなく「麻雀用語」。どちらもページの JS のまとめで1行になる
 - 今の JS（`mergeRows`）は（読み, 語, 品詞）でまとめている。連盟プロ（品詞「人名」）と Mリーグ（「名詞」）の同じ人はまとまらないため、前提の案のとおり（読み, 語）でまとめるよう変える
 
+### 手順2（作る）
+
+- `scripts/generate_resource_dictionary.py`
+  - `CATEGORIES` を4つにした: `mahjong` 麻雀用語 → `renmei` 連盟用語 → `pros` 連盟プロ（「プロ」タブ）→ `mleague` Mリーグ。スラッグは前提の案のまま
+  - ループを `build_categories()` に出し、「辞書」タブに行の無いカテゴリは飛ばす（ページにも `dic/` にも出さない。`write_data()` が残りの json を消す）。連盟プロが0行のときは今までどおり止める
+  - 「サブカテゴリ」列は読まない（`DICT_HEADERS` は変えず、コメントを「備考」から直した）。`KNOWN_POS` は変えていない
+  - `META`（title・description）は `scripts/apply_page_meta.py` と揃える必要があるため変えていない（description は「麻雀プロの名前、および麻雀用語」のまま）
+- `resource_dictionary.js`: `mergeRows` のまとめのキーを（読み, 語, 品詞）から（読み, 語）にした。先に並ぶカテゴリ（DOM の順＝`CATEGORIES` の順）の行を残す
+- テスト: `BuildCategoriesTest` を足した（並びと空カテゴリの飛ばし、連盟プロ0行で止まる）。`python3 -m unittest discover -s scripts/tests` は 646件 OK
+- 修正前でも通らないかの確認: cloudflare の版の `rows_from_dict_tab()` は今の「辞書」タブで `GenerationError: 「辞書」タブに知らないカテゴリがあります: ['Mリーグ', '連盟用語']` で止まる（指示文の前提どおり）。修正前の JS のキー（読み, 語, 品詞）では4つ全部で 1,844 行になり、連盟プロと Mリーグの同じ人 20 人が2行ずつ残る
+- `docs/notes/static-generation.md`「ページの一覧」の辞書の行を、4カテゴリ・スラッグ・空カテゴリの扱い・まとめのキーを含む形に置き換えた
+- `docs/decisions/features.md` に 2026-10-08 の決定を足し、2026-10-07 の「備考」の決定に「→ 置き換え」を付けた（矛盾ではなくタブの列が変わったための置き換え）
+
+全ページの再生成（`python3 scripts/regenerate.py all`、1分38秒、エラーなし）の差分:
+
+| 種類 | ファイル | 説明 |
+|---|---|---|
+| 決定・「辞書」タブ | `resource_dictionary.html` | カテゴリが4つ（麻雀用語 547・連盟用語 127・連盟プロ 1,099・Mリーグ 73語）。並びは決定のとおり |
+| 決定・「辞書」タブ | `dic/mahjong.json`（625→547語）、新規 `dic/renmei.json`・`dic/mleague.json` | 連盟の語が「連盟用語」に移った。`dic/pros.json` は変化なし |
+| ほかのシート | `houou_leagues_data.json` | 石川豪士の第40期の値 241→240 の1か所 |
+| ほかのシート | `title/wrc/1.html`・`title/wrc/2.html`・`title/search.json` | WRC 第1回・第2回の開催年（2014・2017）が入った |
+
+sitemap の変化はなし。説明できない変更はなし。コミットは辞書の生成物とそれ以外の生成物で分けた。
+
+ローカルの Chromium（Playwright、`python3 -m http.server` で配信）で保存した結果:
+
+| 選んだカテゴリ | 形式 | 語数（ページの表示） | 行数 | 重複（読み, 語） | 形 |
+|---|---|---|---|---|---|
+| 4つ全部 | Microsoft IME | 1,824 | 1,824 | 0 | BOM 付き UTF-16LE・CR+LF・3列・末尾改行なし |
+| 4つ全部 | Google 日本語入力 | 1,824 | 1,824 | 0 | UTF-8・LF・4列・末尾改行なし |
+| 連盟プロ・Mリーグ | Microsoft IME | 1,152 | 1,152 | 0 | 同上 |
+| 連盟プロ・Mリーグ | Google 日本語入力 | 1,152 | 1,152 | 0 | 同上 |
+
+見込み: 4つ全部 547+127+1,099+73=1,846 から、カテゴリをまたぐ重複 22（連盟プロ∩Mリーグ 20、上記の2組）を引いて 1,824。連盟プロ・Mリーグは 1,172−20=1,152。どちらも一致。
+ヘッドレスの Playwright では保存名が `download` と報告された（`suggestedFilename`）。保存名を作る `fileName()` は今回変えていない。
+
+### 手順3（動詞の品詞の調べ。実装しない）
+
+- Google 日本語入力: オープンソース版 Mozc の `src/data/rules/user_pos.def`（google/mozc master、921b8cc9）で、ユーザー辞書の品詞名は「動詞ラ行五段」（`RA_GROUP1_VERB`、活用 五段・ラ行）。ほかに「動詞一段」「動詞サ変」など。Google 日本語入力の実際の書き出しファイルでは確かめていない
+- Microsoft IME: Microsoft の公式資料は見つからなかった（@IT の一括登録の記事は品詞を「名詞」「人名」「地名」「短縮よみ」「顔文字」「その他」とだけ書く）。Mozc の `src/data/rules/third_party_pos_map.def` の「MS-IME」節（他の IME の辞書を取り込むための対応表）では「ら行五段」→「動詞ラ行五段」。ほかに「か行五段」「さ変名詞」「人名」「固有名詞」など。Microsoft IME の実際の書き出しファイルでは確かめていない
+- 登録する形: どちらも終止形で登録し、活用は IME が作る（よみ「かぶる」単語「カブる」、よみ「くいとる」単語「喰い取る」）
+- Gboard: この指示では扱わない。Gboard の単語リストに品詞・活用の欄があるかは確かめていない（無ければ「カブった」などの活用形は変換候補に出ない）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1008-dic
-- ログ: https://github.com/retroeater/mj/blob/work/1008-dic/docs/logs/CHAT-1008-DIC-02.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1008-DIC-02.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1008-dic
-- 確認用URL: なし
-- マージ: 未
-- issue: #515
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 確認用URL: プレビューは見ていない（決定のとおり）。ローカルの Chromium で4形の保存を確かめた（経過の表）
+- マージ: マージの前に書いている。結果は経過の「マージ」に追記する
+- issue: #515（経過をコメント）
+- 判断が必要なこと:
+  - 動詞の品詞の書き方（手順3の案）。「辞書」タブの「品詞」列には Google 日本語入力（Mozc）の名前「動詞ラ行五段」をそのまま書き、生成時に Microsoft IME 用は「ら行五段」に置き換える案。理由: Google 日本語入力の名前のほうが「動詞」を含み意味が取りやすく、Microsoft IME の名前との対応は1対1（Mozc の対応表）。実装では `KNOWN_POS` に足し、`dic/*.json` に形式ごとの品詞を持たせるか JS で置き換える。Gboard への出し方は次の指示で決める（品詞の欄が無ければ品詞は出さず、活用形は変換されない）
+  - 上の案の前提の Microsoft IME の名前「ら行五段」は、Microsoft の公式資料でも書き出したファイルでも確かめられていない。平野さんが Windows の Microsoft IME で「カブる」を動詞として登録して書き出し、品詞の列の文字を見せてもらえれば確定できる
+  - 「辞書」タブのカテゴリをまたぐ（よみ, 単語）の重複: 「一般社団法人Mリーグ機構」は Mリーグと麻雀用語に、「日本プロ麻雀連盟」は連盟用語と麻雀用語に入っている（前提では「Mリーグ機構」の相手を連盟用語としていた）。ダウンロードでは1行にまとまるので害は無い。タブで片方にするかは平野さんの判断
+- 未確認の項目:
+  - Microsoft IME の動詞（ラ行五段）の品詞名（上記）
+  - Google 日本語入力の実際の書き出しファイルでの品詞名（Mozc のソースでのみ確認）
+  - Gboard の単語リストに品詞・活用の欄があるか（次の指示）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 88d5ee4b）: https://github.com/retroeater/mj-logs/tree/main/guide/88d5ee4b
+ガイド文書（この版を写した時点の最新、mj e1cabc36）: https://github.com/retroeater/mj-logs/tree/main/guide/e1cabc36
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/88d5ee4b/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/88d5ee4b/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/88d5ee4b/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/88d5ee4b/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/88d5ee4b/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/88d5ee4b/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e1cabc36/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e1cabc36/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e1cabc36/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e1cabc36/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e1cabc36/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e1cabc36/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/88d5ee4b.md
