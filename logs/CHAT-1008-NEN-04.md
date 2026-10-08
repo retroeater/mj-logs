@@ -76,7 +76,7 @@ NEN-03 の試作（比較ページ）を平野さんがプレビューで見て�
 
 ## 報告
 
-- 状態: 判断待ち（work/1008-hou との `_redirects` の重なりを平野さんに質問中）
+- 状態: 判断待ち（work/1008-hou との `_redirects` の重なりを平野さんに質問中） / 続き: CHAT-1008-NEN-05
 - ブランチ: work/1008-nen
 - ログ: https://github.com/retroeater/mj/blob/work/1008-nen/docs/logs/CHAT-1008-NEN-04.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1008-nen
