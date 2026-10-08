@@ -22,3 +22,7 @@
 
 - 「鳳凰戦 順位変動」の告知の投稿（https://x.com/retroeater/status/2107772937482694688 ）は、気になるところなし
 - 今後の告知は、概ねこのテンプレートで行く（動画の構成を含めて）。型は `docs/notes/page-announcement.md`
+
+## 2026-10-08（CHAT-1008-LGR-21）
+
+- 「鳳凰戦 順位変動」の告知の投稿では、URL は https:// を付けて入力した（`docs/notes/page-announcement.md`「投稿文の型」を、https:// から入力する形に直した。2026-10-08 の CHAT-1008-LGR-20 の型の「https:// を付けない」を置き換える）
