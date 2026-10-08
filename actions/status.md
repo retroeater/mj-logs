@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-08 23:33 JST
+- 書き出した時刻: 2026-10-08 23:34 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -12,11 +12,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-10-08 23:33 | push | work/1008-nen | in_progress | #2987（37793436720） |  |
+| 2026-10-08 23:34 | push | cloudflare | success | #2988（37793516514） | 0分16秒 |
+| 2026-10-08 23:33 | push | work/1008-nen | success | #2987（37793436720） | 0分23秒 |
 | 2026-10-08 23:18 | push | work/1008-nen | success | #2986（37791347418） | 0分17秒 |
 | 2026-10-08 12:05 | push | cloudflare | success | #2985（37721048864） | 0分12秒 |
 | 2026-10-08 12:00 | push | work/1008-wkr-11 | success | #2984（37720636683） | 0分10秒 |
-| 2026-10-08 11:59 | push | work/1008-hou | success | #2983（37720570776） | 0分15秒 |
 
 ## check-image-links.yml
 
@@ -124,11 +124,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-08 23:34 | push | cloudflare | in_progress | #230（37793516259） |  |
 | 2026-10-07 13:50 | push | cloudflare | success | #229（37573400011） | 0分38秒 |
 | 2026-10-07 13:32 | push | cloudflare | success | #228（37571975821） | 0分25秒 |
 | 2026-10-07 13:21 | push | cloudflare | success | #227（37571084246） | 1分38秒 |
 | 2026-10-07 12:31 | push | cloudflare | success | #226（37567146178） | 0分30秒 |
-| 2026-10-07 12:24 | push | cloudflare | success | #225（37566632945） | 0分27秒 |
 
 ## sitemap-lastmod.yml
 
@@ -137,11 +137,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-08 23:34 | push | cloudflare | success | #71（37793516396） | 0分20秒 |
 | 2026-10-07 16:25 | push | cloudflare | success | #70（37587243796） | 0分23秒 |
 | 2026-10-07 13:50 | push | cloudflare | success | #69（37573400044） | 0分15秒 |
 | 2026-10-07 13:32 | push | cloudflare | success | #68（37571975790） | 0分17秒 |
 | 2026-10-07 12:24 | push | cloudflare | success | #67（37566633002） | 0分16秒 |
-| 2026-10-07 11:58 | push | cloudflare | success | #66（37564504182） | 0分17秒 |
 
 ## sync-birthday-calendar.yml
 
