@@ -79,7 +79,7 @@
 
 ## 報告
 
-- 状態: 判断待ち（テストの扱いを平野さんに質問中）
+- 状態: 判断待ち（テストの扱いを平野さんに質問中） / 続き: CHAT-1008-NEN-03
 - ブランチ: work/1008-nen
 - ログ: https://github.com/retroeater/mj/blob/work/1008-nen/docs/logs/CHAT-1008-NEN-02.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1008-nen
