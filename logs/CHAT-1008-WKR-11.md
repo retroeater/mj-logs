@@ -99,18 +99,57 @@
 1. Chat-Ref の確認: `git log --all --grep="CHAT-1008-WKR-11"` は0件。リモート・ローカルに `work/1008-wkr-11` は無い → `git checkout -b work/1008-wkr-11 origin/cloudflare`
 2. 手順0: 指示欄の最後の行は「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」で、指示文の最後の行と一致
 3. 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+4. 手順0の続き: 当日の update-live-channel の `schedule` は run #74（cloudflare、22:14:48 UTC＝10/8 07:14 JST 開始、success）で済んでいた。同じ組に実行中・待ちの実行は無かった
+5. 手順1: #504 は Open、他セッションの着手中のコメントは無い。着手中のコメントを残した（https://github.com/retroeater/mj/issues/504#issuecomment-6050972583 ）
+6. `update-live-channel.yml` の実物は 467 行（前提は 468 行。行番号は前提とほぼ同じ: cron 78 行、env 99〜104 行、gate 111・118 行、backfill 161 行、yotei 317・319・321 行）。契機を見ている箇所は前提の7か所と backfill の条件・`delete_limit()` で、一覧に無いものは無かった
+7. 未マージの `work/` ブランチとの重なり: **着手時にこの確認をした記録が無い**（ログに書いておらず、セッションの記録にもコマンドが見当たらない）。完了の前に `git branch -r --no-merged origin/cloudflare` の各 `work/` ブランチの差分を、変えたファイル（ワークフロー・`workers/scheduler/`・`scripts/sync_live_calendar.py`・直した文書）で確かめた。重なりは自分のブランチだけだった
+8. 実装（コミット 5b06435a）:
+   - 入力 `scheduled`（boolean、既定 false、説明「Worker からの予約の起動用。手では付けない（付けるとほかの入力を無視し、予約実行と同じ動きになる）」）と `run-name`。入力は 10 個
+   - 7か所の置き換え: update の env の `APPLY`（`(schedule || scheduled) || inputs.apply`）・`ALLOW_SHRINK`・`ALLOW_MANY`・`ALLOW_MANY_CHANGES`（`!(schedule || scheduled) && inputs.<名前>`）、gate の SCHEDULE_ENABLED の判定と verify の判定（env `SCHEDULED` を見る）、yotei の `CALENDAR_APPLY`。判定は env `SCHEDULED: ${{ (github.event_name == 'schedule' || inputs.scheduled == true) }}` を update と yotei に1つずつ置いた（sync-dojo-calendar.yml と同じ形。ジョブをまたぐ env は持てないため2か所）
+   - 前提の一覧に沿って足したもの: backfill のステップの `if:` に `&& env.SCHEDULED != 'true'`。カレンダーの同期のステップで `SCHEDULED` が真なら `CALENDAR_MAX_DELETE=""` にする
+   - yotei の `APPLY`（`needs.update.outputs.apply == 'true' || inputs.yotei_apply == true`）は変えていない。`scheduled` のときは update の apply が true なので true になり、矛盾しない
+   - `delete_limit()`（c）: 直していない。`delete_limit(value, event_name)` は値が空なら `MAX_DELETES`（30）を返す。ワークフローが `scheduled` のとき空を渡すので、`schedule` と同じ道（既定の 30）を通る。Python 側で `scheduled` を知る手段を足すより、ワークフローで空を渡すほうが変更が小さいため
+   - cron を `43 21 * * *`（06:43 JST）にし、冒頭の注記を直した
+   - ゲート（e）: 前提の案どおり。引き方は `GET /repos/retroeater/mj/actions/workflows/update-live-channel.yml/runs?event=workflow_dispatch&branch=cloudflare&created=%3E%3D<当日>T00:00:00%2B09:00&per_page=100` を curl で引き、jq で `head_branch == "cloudflare"`・`display_title` が `[scheduled]` で始まる・`conclusion == "success"` の最初の run 番号を取る。`branch=cloudflare` で API 側でも絞り、jq でも `head_branch` を確かめる。curl か jq が失敗したら「引けず」で止めずに実行し、サマリに書く。止めるのは契機が `schedule` でかつ見つかったときだけ。ジョブ update に `actions: read`
+   - concurrency はワークフローの最上位（83 行）で、組 `update-live-channel`・`cancel-in-progress: false`。Worker の実行が動いているうちに保険の実行が来ると待たされ、ゲートは先の実行の後で判定する（前提の見込みのとおり。実際の重なりは確かめていない）
+   - `schedule.json` に 04:00 の行。テスト「起動の表: 04:00 の回に update-live-channel を1本起動し、06:00 の確かめの対象は3行」を足した。表を変える前は失敗し、変えた後に通った（node 25/25、`python3 -m unittest discover -s scripts/tests` OK）
+9. 朝の確かめ（g）: `workers/scheduler/src/scheduler.mjs` の当日の実行の一覧は `event=workflow_dispatch&created>=…` で引き、`display_title` が `[scheduled]` で始まるかを見るが、`head_branch` では絞っていない。作業ブランチで `scheduled` を付けた試験の成功も当日の success に数える（直していない）
+10. gate のシェルの手元の確かめ（yaml から取り出し、env を与えて走らせた）: 無効のとき run=false／手動・見つからない → 「なし」・run=true／`schedule`・見つかった（delete-merged-branches の当日の run #19 で代用）→ run=false とサマリ／`scheduled` の起動・見つかった → 止めない／API の失敗（URL を変えて 403）→ 「引けず」・run=true とサマリ。セッションのプロキシが認証を足すため、無効なトークンでは失敗の道を試せなかった
+11. 試験 S: `SCHEDULE_ENABLED: 'false'` のコミット（7ece67d3）を push し、ref `work/1008-wkr-11`・inputs `{"scheduled": "true"}` で起動。run 75（id 37718650108）、success、題 `[scheduled] 「連盟ch」の毎日の取り込み`。ログの env: SCHEDULED true・APPLY true・ALLOW_SHRINK/ALLOW_MANY/ALLOW_MANY_CHANGES false・SCHEDULE_ENABLED false・EVENT_NAME workflow_dispatch。gate が「毎日の実行は無効」で run=false。以降のステップは skipped、ジョブ regenerate・yotei も skipped
+12. `SCHEDULE_ENABLED` を `'true'` に戻すコミット（9875e167）。差分はその1行だけで、2つの試験用コミットを合わせた差分（HEAD~2..HEAD）は0
+13. 試験 D: ref `work/1008-wkr-11`・inputs なしで起動。run 76（id 37718722931）、success、題「「連盟ch」の毎日の取り込み」（既定）。update のログ: SCHEDULED false・APPLY false・ALLOW_* false・EVENT_NAME workflow_dispatch、「当日の予約の起動の成功: なし」（API を引けた。`actions: read` で足りる）、層1は取り直しで2行を追記したが「(apply なしのためコミットしない)」、【1】【2】【3】は「--dry-run のため書き込みません」、未登録の名前の知らせは書き込みなし。yotei: APPLY false・CALENDAR_APPLY false・CALENDAR_MAX_DELETE 30、シートは dry-run、予定表の知らせは「【3】に関わる変化が無いため知らせません」、カレンダーは「作る 0・直す 0・消す 0」「--apply が無いため書き込みません」。ジョブ regenerate は skipped
+14. 文書（コミット cd8f5396）: `02:43`・`43 17` を docs で探し（decisions・logs を除く）、live-channel-write.md（「7. 毎日の取り込み」の時刻と、編集の注意の2か所）、live-page-design.md（「毎日の流れ」）、instruction-template.md（「貼る時機」の例）を直した。yotei-sheet.md（「手動実行」の列「schedule」に Worker の起動〈`scheduled`、手では付けない〉も当てはまること、削除の上限の扱い、書き込む条件の3か所）、static-generation.md（「ワークフローを手動実行するとき」の `scheduled` の行に update-live-channel を足した。「ワークフローの一覧」には update-live-channel の行が無く、足していない）、scheduler-worker.md（表が3行、ゲートの節を新設、朝の確かめが `head_branch` で絞らないこと）。chat-side-operations.md・handover.md は変えていない
+15. #504 に結果をコメントした（https://github.com/retroeater/mj/issues/504#issuecomment-6051076776 ）。#504 は Open のまま、本文は変えていない
+16. docs/decisions/automation.md に 2026-10-08（CHAT-1008-WKR-11）の決定を足した（10/6 の行は消していない）
+17. マージしない（冒頭の「マージ:」の行のとおり）
 
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1008-wkr-11
 - ログ: https://github.com/retroeater/mj/blob/work/1008-wkr-11/docs/logs/CHAT-1008-WKR-11.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1008-wkr-11
 - 確認用URL: なし
-- マージ: 未
-- issue: #504
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- マージ: 未（指示のとおりしない）
+- issue: #504（着手・結果をコメント、Open のまま、本文は変えていない）
+- 結果の要点:
+  - 置き換えた箇所は7か所: ジョブ update の env の `APPLY`・`ALLOW_SHRINK`・`ALLOW_MANY`・`ALLOW_MANY_CHANGES`、gate の SCHEDULE_ENABLED の判定、gate の verify の判定、ジョブ yotei の `CALENDAR_APPLY`。判定は env `SCHEDULED`（`schedule` か `inputs.scheduled` が真）を update と yotei に置いた。ほかに backfill のステップを `SCHEDULED` のとき動かさない条件と、`SCHEDULED` のときカレンダーの削除の上限に空を渡す処理を足した
+  - `scheduled` とほかの入力が両方来たとき: ほかの入力（apply・verify・allow_*・backfill・yotei_apply・calendar_apply・calendar_max_delete）は無視し、`schedule` と同じ動き（書く・水曜だけ確認・上限は外さない・backfill しない・カレンダーに書く・削除の上限 30）
+  - ゲート: Actions の API で当日（JST の 0 時以降）の `workflow_dispatch`・`branch=cloudflare` の実行を引き、`head_branch` が cloudflare・題が `[scheduled]` で始まる・success のものを探す。止めるのは見つかってかつ契機が `schedule` のときだけ（run=false、サマリに run 番号）。引けない（HTTP のエラー・応答が読めない）ときは止めずに実行し、サマリに書く。結果は毎回ログに1行。ジョブ update に `actions: read`
+  - `delete_limit()` は直していない。値が空なら既定の 30 を返すので、ワークフローが `scheduled` のとき空を渡せば `schedule` と同じ道を通る（変更が小さいほうを選んだ）
+  - 試験 S: run 75、題 `[scheduled] 「連盟ch」の毎日の取り込み`、success。SCHEDULED true・APPLY true・ALLOW_* false・SCHEDULE_ENABLED false、gate が run=false、以降とジョブ regenerate・yotei は skipped
+  - 試験 D: run 76、題「「連盟ch」の毎日の取り込み」（既定）、success。APPLY false、ゲートの行「当日の予約の起動の成功: なし」、層1はコミットせず、シート・カレンダーは dry-run（カレンダーは作る・直す・消す 0）、ジョブ regenerate は skipped
+  - Worker の朝の確かめはブランチで絞っていない（`event=workflow_dispatch` と題だけを見る。作業ブランチの `[scheduled]` の成功も数える）。直していない
+  - 直した文書: docs/notes/scheduler-worker.md・live-channel-write.md・live-page-design.md・yotei-sheet.md・static-generation.md、docs/instruction-template.md、docs/decisions/automation.md
+  - 前提との食い違い: ワークフローは 468 行でなく 467 行。static-generation.md「ワークフローの一覧」に update-live-channel の行は無かった（足していない）
+- 判断が必要なこと:
+  - マージしてよいか
+  - Worker の朝の確かめが `head_branch` で絞っていないこと（作業ブランチで `scheduled` を付けた試験の成功が、本番の起動が無くても当日の success に数えられ、#506 に知らせが出ない）。直すかどうか（直すなら `workers/scheduler/src/` を変える別の指示）
+  - 未マージのブランチとの重なりの確認を着手時に記録していなかった（完了前に確かめ、重なりは無かった）
+- 未確認の項目:
+  - `scheduled` が真で実際に書き込む道筋（マージの後の朝、Worker の 04:00）
+  - `schedule` の契機でゲートが止める道筋（マージの後の朝、06:43 予定。遅れて動く）
+  - Worker の実行と保険の実行が重なったときに concurrency で待たされる動き
 - エラー: なし
 
 <!-- guide-links -->
