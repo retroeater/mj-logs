@@ -15,7 +15,7 @@
 | [cloudflare.md](cloudflare.md) | Cloudflare（Workers Builds の起動条件・配信基盤、#171 系） |
 | [dojo-guest.md](dojo-guest.md) | 道場部ゲスト（「mj_道場部ゲスト」カレンダーの取り込み、#390・#426） |
 | [features.md](features.md) | 新機能の行き先（現行サイトで作るか、新サイト #296 送りか） |
-| [houou.md](houou.md) | 鳳凰戦（houou_*.html、順位変動 #507 系） |
+| [houou.md](houou.md) | 鳳凰戦（houou_*.html、順位変動 #507 系、新ページ houou/ #518 系） |
 | [live.md](live.md) | 放送対局ページ（/live の名前の登録・層2の規則、#475・#490 系） |
 | [operations.md](operations.md) | 運用（チャット側と Claude Code のやり取り・指示文の書き方） |
 | [page-release.md](page-release.md) | 新しいページ・メニューの公開（未公開で入れる段と公開の段、#507 系） |
