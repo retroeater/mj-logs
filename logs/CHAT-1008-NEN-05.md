@@ -96,15 +96,36 @@ headless Chromium（手元の `python3 -m http.server`）:
 
 - 読み込みのエラーは各回1件（`ERR_TUNNEL_CONNECTION_FAILED`。セッションのプロキシで外部の画像1件が拒否されたもの。JS のエラーではない）
 
+
+### 手順3 マージして確かめる
+
+- push 直前に再 fetch し、`origin/cloudflare` が HEAD の祖先であることを確かめて `git push origin work/1008-nen:cloudflare`（88d5ee4b..75abd8af）。取り込みの衝突なし（`work/1008-hou` はまだ未マージで、このブランチに取り込んでいない）
+- check-run（75abd8af）: `regenerate`・`check`・`sync`・`Workers Builds: mj-scheduler` は success。75abd8af には `Workers Builds: mj` が出なかった。直後に別セッションのマージ（CHAT-1008-DIC-02、6d65921d）が続き、その先頭の `Workers Builds: mj` が success（14:41 UTC 開始）。本番が 75abd8af の内容を返すことを確かめた（下の表）
+
+本番の確かめ（`curl`、URL に `?v=nen05a`・`nen05b`）:
+
+| 項目 | 結果 |
+|---|---|
+| `/title/timeline/` | 200。手元の生成物と同じ HTML（`cmp` で一致） |
+| robots | `<meta name="robots" content="noindex">` あり（応答ヘッダの `x-robots-tag` は無い） |
+| `/title/timeline` | 301 → `/title/timeline/` |
+| og:image | `https://ryoei.pro/img/ogp/title/timeline-black.png`、画像は 200 |
+| `assets/title.js` | 手元と同じ（`cmp` で一致） |
+| `navbar.js`・`sitemap.xml`・`sitemap-title.xml`・`llms.txt` の `timeline` | すべて0件 |
+| `title/wrc/1.html` | パンくずに「第1回（2014年）」 |
+
+- 公開の issue: #521（マージの前に起票。手順2）。#277 に段1 済みと #521 をコメントした（issuecomment-6062401364）
+- ブランチの片付け: `docs/notes/branch-operations.md`「ブランチを削除するとき」を読んだ。クラウドセッションではプロキシが削除を拒否するため（`docs/notes/cloud-sessions.md`「ブランチの削除」）、削除はしない。マージ済みの `work/1008-nen` は `delete-merged-branches.yml` が24時間後以降に削除する。マージ時の先頭は 75abd8af（このログの追いの push で先頭は進むが、同じ push を cloudflare にも入れるのでマージ済みのまま）
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1008-nen
-- ログ: https://github.com/retroeater/mj/blob/work/1008-nen/docs/logs/CHAT-1008-NEN-05.md
+- 状態: 完了
+- ブランチ: work/1008-nen（cloudflare へマージ済み。削除は delete-merged-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1008-NEN-05.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1008-nen
-- 確認用URL: なし
-- マージ: 未
-- issue: #277
+- 確認用URL: なし（プレビューを見ずにマージする決定。本番で確かめた）
+- マージ: 済（75abd8af）
+- issue: #277（段1 済み、開いたまま）、#521（公開の issue を起票）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
@@ -112,12 +133,12 @@ headless Chromium（手元の `python3 -m http.server`）:
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj f973c4f5）: https://github.com/retroeater/mj-logs/tree/main/guide/f973c4f5
+ガイド文書（この版を写した時点の最新、mj e1cabc36）: https://github.com/retroeater/mj-logs/tree/main/guide/e1cabc36
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f973c4f5/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f973c4f5/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f973c4f5/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f973c4f5/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f973c4f5/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f973c4f5/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e1cabc36/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e1cabc36/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e1cabc36/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e1cabc36/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e1cabc36/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e1cabc36/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/88d5ee4b.md
