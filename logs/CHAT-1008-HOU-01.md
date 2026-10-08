@@ -116,6 +116,21 @@ grill で詰める論点（決めないと作り直しになるものを先に�
 - 環境で調べた事実: DESIGN.md は無い（リポジトリ直下・docs/ とも）。順位変動の最大幅は `style.css` の `max-width: 400px`。現行ランキングは既に `?division=<部門名>` を受け取る。`title/search.json` は 70KB。
   「別名」タブは `lib/live.py` の `SHEET_ALIASES`（/live 用の別名の表）。docs/handover.md「関連文書」に `docs/notes/houou-race.md` の行は無い
 
+### 手順2 grill
+
+- 第1ラウンド（Q1〜Q11）: 平野さんの回答はすべて「推奨」。Q5 には「現在の JS の計算結果と異なる点があれば、後でまとめて確認依頼してほしい」を添えた
+  - Q1 h1「鳳凰戦（リーグ戦）」、title「鳳凰戦（リーグ戦） | ryoei.pro」。navbar は公開の issue で決める
+  - Q2 選手名だけ・部分一致（NFKC）。結果はトップの中。共有 URL は `houou/?name=`
+  - Q3 選手ごと JSON、ファイル名は選手名そのまま。改名・同名は名寄せしない
+  - Q4 ランキングはセレクト（インライン onchange をやめる）。既定「通算得点」、`?division=` 継続
+  - Q5 在籍者のみが既定、`?all=1` のチェックボックス。h1 下・title・description に「第N期◯期 終了時点」。上位100件維持。現行と突合して一致を確かめてから HTML（違いはまとめて確認依頼）
+  - Q6 リーグ推移は移設だけ（スマホは横スクロール）。作り直しは別 issue
+  - Q7 順位変動は移設＋`?term=43-1&league=B1` で指定。成績詳細の行から飛べる
+  - Q8 トップ・検索・順位変動は 400px、ランキング・成績詳細の表は 720px まで（表だけ横スクロール）。共通の CSS 変数
+  - Q9 集計・索引・ページの枠を大会でパラメータ化、出力は鳳凰のみ。`ouka/` の issue は起票だけ
+  - Q10 `generate_houou_pages.py` 1本、集計は `lib/ranking.py`・`lib/results.py`。既存2本は廃止まで残し共通部分を lib から import。テストを足す
+  - Q11 公開と同時に旧4ページを 301（パラメータ引き継ぎ）。公開条件は iPhone 確認。告知は公開の issue で
+
 ## 報告
 
 - 状態: 作業中
