@@ -102,28 +102,49 @@
 9. title・h1・og:title・og:image
 10. 進め方（試作 → 比較ページ → 本実装 → 未公開でマージ・公開の issue）
 
+
+### 手順2 grill（3ラウンド）
+
+- R1（Q1〜Q6）: Q1 (b) 別ページ / Q2 推奨（1位だけ、第26期王位戦は2名）/ Q3(2) 「タイトル戦」タブの表示順のみ / Q4 (c) 比較ページで決める、小さい写真の版も見たい / Q5 「3色とは？」の質問 / Q6 OK
+- R2（Q3a・Q3b・Q5 の補足と Q7〜Q10）: Q7 プロ一覧にいない人は X、無ければリンクなし / Q8 推奨（絞り込みなし、固定バーは他と同じ）/ Q9 推奨（年を横に並べるスクロールスパイ）/ Q10 nenpyo → timeline、title は「年表 | タイトル戦 | 日本プロ麻雀連盟 | ryoei.pro」
+- R3: Q3a 推奨（新しい年が上）/ Q3b 第1回は2014年、第2回は2017年、平野さんがシートを更新する / Q5 推奨（3色）、比較ページに何パターンか出す（色分けしない、も含める）/ まとめ → OK（Q7 の期ページへのリンク、Q10 の h1「年表」・og:image の文字「年表」は Code の推奨を当てはめたまとめで確認を得た）
+- 本文の記述のうち置き換わるもの: 「`?tag=` をそのまま使う」（Q8 で置かない）、「各大会名から大会ページへのリンク」（Q7）、「`table.js` に描画モード」（廃止した旧表の前提）
+- docs/ 以外の変更が要る決定は無かった（止まる条件に当たらない）
+
+### 手順3 記録
+
+- `docs/decisions/title.md` に追記（title/ の分野のため features.md ではなく title.md。features.md は行き先の決定）
+- `docs/handover.md` 5章「次の会話の順番」の #277 を grill 済みに直した。23,707 バイト（警告域 26,624 の外）
+- #277 に決定・未決・次の指示の分け方の案をコメントした（issuecomment-6050730550）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1008-nen
-- ログ: https://github.com/retroeater/mj/blob/work/1008-nen/docs/logs/CHAT-1008-NEN-01.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1008-NEN-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1008-nen
 - 確認用URL: なし
-- マージ: 未
-- issue: #277
-- 判断が必要なこと: なし
+- マージ: 済（SHA は最終報告の push のコミット）
+- issue: #277（決定・未決・次の指示の案をコメント）
+- 判断が必要なこと:
+  - 未決（比較ページで決める）: Q4 1期の表示の形（写真カード〈入口と同じ大きさ〉／小さい写真のカード／文字だけの行の3案）、Q5 色分け（本文の3色〈鳳凰戦・女流桜花・その他〉を基本に数パターン＋色分けなし、塗る場所〈行の背景・左端の線・帯〉も）
+  - 平野さんの作業: 「タイトル」タブのリーチ麻雀世界選手権 第1回に2014年、第2回に2017年を入れる（試作の前提。入れた後の再生成で docs/notes/title-pages.md の「年を持たないのは第1・2回」の記述も直す）
+  - 次の指示の分け方の案: (1) 試作＋比較ページ（未マージ、プレビューで見る。表示の形3案 × 色分け数パターンをラジオボタンで切り替え、年ジャンプも入れる）→ (2) 本実装（比較ページを消す、og:image `img/ogp/title/timeline-black.png`、テスト・文書）→ (3) 未公開でマージし公開の issue を起票
+  - 置き場所・生成の仕組み: `/title/timeline/index.html` を `scripts/generate_title_pages.py` が書き出す（`regenerate.py` の `OUTPUT_OVERRIDES` は `"title/"` のままで足りる見込み。`_redirects` の `/title/:slug/` の行でそのまま開ける見込み、大会の slug と名前が重ならないことを確かめる）。未公開の段では `sitemap-title.xml`（`sitemap.xml` から参照済み）に timeline を載せない手当てが要る。`title/search.json` は変わらない見込み
+  - 触るファイルの見込み: `scripts/generate_title_pages.py`・`style.css`（`.mj-title*` 節）・`assets/title.js`・生成物 `title/timeline/`・`scripts/tests/`・`docs/notes/title-pages.md`・`docs/notes/static-generation.md`「ページの一覧」・og:image 1枚
+  - 比較ページで見比べる案の数: 表示の形3 × 色分け4前後（3色の塗り方2〜3＋色分けなし）。組み合わせでなく、形と色を別々のラジオボタンにする案
 - 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj cb2ba7f5）: https://github.com/retroeater/mj-logs/tree/main/guide/cb2ba7f5
+ガイド文書（この版を写した時点の最新、mj 0930d8d5）: https://github.com/retroeater/mj-logs/tree/main/guide/0930d8d5
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/cb2ba7f5/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/cb2ba7f5/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/cb2ba7f5/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/cb2ba7f5/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/cb2ba7f5/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/cb2ba7f5/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/0930d8d5/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/0930d8d5/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/0930d8d5/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/0930d8d5/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/0930d8d5/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/0930d8d5/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/cb2ba7f5.md
