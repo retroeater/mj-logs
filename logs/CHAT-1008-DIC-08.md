@@ -92,6 +92,15 @@ Chat-Ref: CHAT-1008-DIC-08
 
 保存（スマホ幅、4つ全部）: Microsoft IME 1,822 行（BOM 付き UTF-16LE・CR+LF・3列）、Google 日本語入力 1,822 行（UTF-8・LF・4列）。見込み（`dic/*.json` から重複をまとめて数えた数）1,822 と一致、重複0。形式は `msime,google` の2つで、本文に「Gboard」は無い。「複数選べます」も無い。テストは OK
 
+### マージ
+
+- push 直前に再 fetch し、`git merge-base --is-ancestor origin/cloudflare HEAD` を確かめて `git push origin work/1008-dic:cloudflare`（a6988a56..46a292e7）
+- 46a292e7 の check-run: Workers Builds: mj success、Workers Builds: mj-scheduler success、regenerate success、sync success、check success（2件）
+- regenerate-page.yml が 0e33fde4（`chore: regenerate resource_dictionary.html dic/ via GitHub Actions`）を push。中身は `sitemap-pages.xml`・`sitemap-wayhome.xml` の lastmod だけ
+- 本番（`https://ryoei.pro/`）: `resource_dictionary.html`・`resource_dictionary.css`・`resource_dictionary.js` は 200、`resource_dictionary_compare.html` は 404。HTML は新しい見た目（`mj-dic-form`）と新しい説明文で、「Gboard」「複数選べます」は無い。`style.css` に `img.dictionary` は無い
+- 本番を Chromium で開いて測定: 説明文とステップカードは PC 296〜984・スマホ 16〜374 で一致。4つ全部の保存は Microsoft IME・Google 日本語入力とも 1,822 行。ブラウザ（実機）での見え方は確かめていない
+- #522 に経過をコメントした
+
 ## 報告
 
 - 状態: 判断待ち
@@ -99,7 +108,7 @@ Chat-Ref: CHAT-1008-DIC-08
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1008-DIC-08.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1008-dic
 - 確認用URL: プレビューは見ていない（決定のとおり）。本番で確かめた（経過の「マージ」）
-- マージ: マージの前に書いている。結果は経過の「マージ」に追記する
+- マージ: 済（46a292e7）
 - issue: #522・#515
 - 判断が必要なこと:
   - `llms.txt` の辞書の行は「麻雀プロの名前および麻雀用語の辞書ファイル（Microsoft IME・Google日本語入力）。」のまま。新しい説明文に合わせるなら案は「一般的な麻雀用語と、日本プロ麻雀連盟・Mリーグ関連の用語（タイトル戦・選手・チーム等）の辞書ファイル（Microsoft IME・Google日本語入力）。」
