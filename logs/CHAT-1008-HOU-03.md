@@ -115,6 +115,15 @@ HOU-02 の報告への回答
 - Chat-Ref の確認: `CHAT-1008-HOU-03` のコミットは無し
 - 作業ブランチ: `origin/work/1008-hou` はリモートにあり、ローカルと一致（e25f04f4）。`origin/cloudflare` は HEAD の祖先でない（cloudflare が先に進んでいる）ため、ログの push の後に merge で取り込む
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- 取り込み: `git merge origin/cloudflare`（05441552）。`docs/notes/static-generation.md`「ページの一覧」の隣り合う行で衝突（cloudflare 側は title/ の行に年表〈#277〉を足し、こちらは houou/ の行を足した）。両立するので両方を残して解いた。解いた後の該当箇所:
+
+```
+| ビルド時生成（サブディレクトリ、タイトル戦の新構成） | 入口1＋大会数＋期数＋年表1 | `title/index.html`・`title/<slug>/index.html`・`title/<slug>/<期>.html`・`title/timeline/index.html`（年表、#277。noindex・メニュー未掲載、公開は #521）。…
+| ビルド時生成（サブディレクトリ、鳳凰戦の新ページ） | 4＋選手数（1,296、2026-10-08） | `houou/index.html`（トップ＋検索）・…
+```
+
+  ほかは自動でまとまった（`_redirects`・`style.css` は別の箇所）。取り込んだ変更は title/ 年表・辞書（`resource_dictionary`）・ログで、houou の部品には触れない。テスト OK
+- 「プロ」タブの列（gviz の見出し）: A登録名・Bソートキー（読み）・C Last Name・D First Name（ローマ字）・E所属（支部）・F出身地・I X ID・J X画像 …。**入会期の列は「プロ」タブに無い**。入会期は名簿（`lib/meibo.py`、連盟員名簿の「公開」タブの D列。#370 で「属性は『プロ』に写さず、ビルド時に名簿から読んで登録名で結合する」と決めた置き場）にあるので、そこから引く（1,099名、読めない行 0）。読み・ローマ字・支部は「プロ」にあるので、止まる条件（名前だけの検索に落とす）には当たらないと判断して進めた。指示文の前提（入会期も「プロ」から）と違うので報告に書く
 
 ## 報告
 
