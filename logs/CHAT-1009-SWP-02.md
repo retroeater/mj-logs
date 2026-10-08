@@ -66,17 +66,88 @@ CHAT-1006-SWP-01（サイト全体の横断レビュー）の指摘のうち、�
 - 指示欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている。
 - 作業ブランチ: リモート・ローカルとも無かったため `git checkout -b work/1009-swp-fix origin/cloudflare`。
 
+### 手順1 確かめる
+
+SWP-01 の5行（G5-01・G3-10・G4-07・G1-12・G5-02）を、着手時の origin/cloudflare（cd4e3d2c）の4ファイルで再現した。404 の深い階層は、SWP-01 と同じく 404 応答を返す手元の配信（`python3 -m http.server` ＋ Playwright の `route.fulfill`、status 404）で確かめた。
+
+| 指摘 | 直す前の再現 | 判断 |
+|---|---|---|
+| G5-01 `404.html` | `/title/nothing/here.html` で `/title/nothing/style.css`・`…/assets/vendor/bootstrap/css/bootstrap.min.css`・`…/navbar.js`・`…/bootstrap.bundle.min.js` が 404、`nav` 無し、body の font が "Times New Roman"、favicon も `/title/nothing/favicon.ico`。`/nothing.html` は正常（1280・390px とも） | 直す |
+| G3-10 `404.html` | 本文に `a` が 0 個。`.mj-margin-text` の margin-left 32px・margin-right 0px | リンクは足す。**右の余白は直さない**（下記） |
+| G4-07 `rh_links.html` | リンク 16 本、`target` 無し・予告無し。GitHub のリンク先 `retroeater/mj` は未ログインで 404（SWP-01 で確認済み） | 直す（GitHub を外す） |
+| G1-12 `jpml_links.html` | リンク 22 本、リンクの範囲は 16×17px のアイコンだけ、文字はリンクの外 | 直す |
+| G5-02 `ouka_results.js` | `console.log(season)`・`console.log(formattedClass)` が `getFormattedClass`（281・285 行）にある | 直す |
+
+再現しなかった指摘: なし。
+
+未マージのブランチ: `origin/work/1008-dic`・`origin/work/1008-hou`・`origin/work/1009-nen` について `git diff --stat origin/cloudflare...origin/<ブランチ> -- 404.html rh_links.html jpml_links.html ouka_results.js` を取った。3ブランチとも4ファイルの変更は無し（止まる条件に当たらない）。
+
+### 手順2 直した内容
+
+- `404.html`: favicon・Bootstrap の CSS・JS・`style.css`・`navbar.js` の5つの参照を `/` 始まりにした。本文に `<p><a href="/">トップへ戻る</a></p>` を足した。
+- `rh_links.html`: GitHub の行（`https://github.com/retroeater/mj`）を削除。残り15本を `jpml_links.html` と同じ形（`target="_blank"`・リンク内に外部リンクのアイコン・「（新しいタブで開く）」の visually-hidden）にした。リンクの文字が名前になるため、アイコンの `alt` は空にした。
+- `jpml_links.html`: アイコンと隣の文字（と予告）を1つのリンクにした。アイコンの `alt` は元のまま残した（同名の「公式サイト」が3つあり、アクセシブルネームの区別を保つため。読み上げでは `alt` と文字が続けて読まれるので冗長になる点は報告に書く）。
+- **アイコンを `<span>` で包んだ理由**: `style.css` の `a:has(> img) { text-decoration: none }` は `img` が `<a>` の直下にあるリンクの下線を消す。文字をリンクに入れると、直下に `img` があるままでは文字の下線まで消えて色だけの区別になる。`style.css` は変えられないため、`img` を `<span>` で包んで規則に当たらないようにした（HTML のコメントに理由を書いた）。計測: 直す前は全リンクの `text-decoration-line` が `none`（`jpml_links`）、直した後は `underline`。
+- `ouka_results.js`: `console.log` の2行を、前後の空行ごと消した。`node --check` は通る。
+- 4ファイル以外・`style.css`・生成スクリプト・生成物は変えていない。
+
+#### G3-10 の右の余白を直さなかった理由
+
+`.mj-margin-text` の余白は `style.css:80-83`（`margin-left: 32px; margin-top: 24px`）で、右の指定が無い。`style.css` を変えずに直すには、インラインの `style` 属性（CSP #9 の予定に反する）か、32px にならない Bootstrap の余白クラス（`me-4`＝24px、`me-5`＝48px）しかない。指示どおり余白だけ直さずに進めた。同じ `.mj-margin-text` を使う `jpml_links`・`rh_links`・`resource_dictionary` も右の余白が 0（390px で文字が右端に付く）。`style.css` に `margin-right: 32px` を足せば4ページがまとめて直る。
+
+### 手順3 検証
+
+- 先に「修正前でも通らないか」: 同じスクリプト（`scratchpad/fix/shot.js`）を、直す前の作業ツリーに対して実行し、上の表の事象が出ることを確かめてから直した（#310）。直した後に同じスクリプトで、事象が消えることを確かめた。
+- `python3 -m unittest discover -s scripts/tests`: 654件 OK。
+- プレビュー: 作業ブランチの push（`eaf7f00b`）で Workers Builds が走り、check-run「Workers Builds: mj」は `completed / success`（push から約5分）。URL は最終報告にだけ書く。
+- プレビューの配信が作業ツリーと同じこと: `404.html`・`rh_links.html`・`jpml_links.html`・`ouka_results.js` と、無関係な `jpml_pros.html`・`ouka_results.html`・`style.css`・`navbar.js`・`index.html` の本文の sha256 が、手元のファイルと一致（変更した4ファイル以外は cloudflare と同じ内容を配信している）。
+- プレビューの実際の 404（`not_found_handling: 404-page`）: `/title/nothing/here.html`・`/nothing.html` とも HTTP 404 で `404.html` の本文を返す。1280px・390px とも、`style.css`・Bootstrap の CSS/JS・`navbar.js` は 200（失敗した応答 0 件）、`nav` が出て、font は "Hiragino Sans"、`a[href="/"]`「トップへ戻る」が1つ。直す前は手元のモックで再現したもので、プレビューでの直す前は取っていない（直す前のコミットのプレビューが無いため）。「トップへ戻る」のリンク先は `href="/"` を確認した（クリックして `/` へ遷移することはプレビューで未実施）。
+- 画面写真は scratchpad にだけ置いた（コミットしない）。
+
+#### `jpml_links.html`（22本、増減なし。行き先はすべて同じ）
+
+全22本で、`target="_blank"`・予告ありは前後とも同じ。変わったのはリンクの範囲と下線:
+
+| | 直す前 | 直した後 |
+|---|---|---|
+| リンクの範囲 | アイコンだけ（16×17px） | アイコン＋文字（52〜200px 幅×17px。例: 公式サイト 102×17、ニコニコチャンネル 168×17、公式オンラインショップ 200×17） |
+| 下線（`text-decoration-line`） | none（アイコンのみ） | underline（文字に付く） |
+| 文字 | 予告「（新しいタブで開く）」だけがリンク内 | 「公式サイト（新しいタブで開く）」のように文字と予告がリンク内 |
+
+行き先（22本）: `ma-jan.or.jp`・`note.com/jpml`・`x.com/JPML0306`・`x.com/JPML_sokuhou`・YouTube 2本・`openrec.tv`・`ch.nicovideo.jp`・`shop.ma-jan.or.jp`・`worldriichi.org`・`wrc2025tokyo.com`（ja/en）・`wrc2022vienna.com`・`wrc2017vegas.com`（http）・`x.com/riichisekai`・`x.com/WorldRiichi`・YouTube `@worldriichi`・`ron2.jp`（http）・`x.com/ron2jp`・`x.com/tattuan_`・YouTube（龍龍）・`ron2.jp/3/`。
+
+#### `rh_links.html`（16本→15本）
+
+| 行き先 | 直す前 | 直した後 |
+|---|---|---|
+| `https://github.com/retroeater/mj`（GitHub） | `target` なし・予告なし・下線あり | **削除**（減った1本） |
+| 残り15本（Bootstrap・Codespaces・EzOCR・Favicon Generator・Google Analytics・Google Charts・Google Search Console・Google Sheets・ImportJSON・Namecheap・PageSpeed Insights・Twitobu・Twitter Card Validator・vis.js・Visual Studio Code） | `target` なし・予告なし・下線あり・幅 36〜170px×17px | `target="_blank"`・予告あり・下線あり・アイコン付きで幅が約20px 増える（56〜190px×17px） |
+
+増えたリンクは無い。Google Analytics・ImportJSON・vis.js・Twitter Card Validator・Twitobu の掲載が現状と合っているかは確かめていない（SWP-01 の未確認のまま）。
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち（プレビューを平野さんが見てから、別の指示でマージ）
 - ブランチ: work/1009-swp-fix
 - ログ: https://github.com/retroeater/mj/blob/work/1009-swp-fix/docs/logs/CHAT-1009-SWP-02.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1009-swp-fix
-- 確認用URL: なし
-- マージ: 未
+- 確認用URL: プレビューあり（URL は最終報告）。確認したページ: `404.html`（`/title/nothing/here.html`・`/nothing.html`）・`rh_links.html`・`jpml_links.html`。Workers Builds の check-run は `completed / success`
+- マージ: 未（平野さんの判断待ち）
 - issue: なし
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 判断が必要なこと:
+  - 平野さんがプレビューで見る点（スマホ幅は iPhone の Safari で）:
+    - 存在しない深い URL（プレビューのドメインに `/title/nothing/here.html`）: ナビが出る、書式が Times 体でなくゴシック体、「トップへ戻る」を押すと `/` に行く
+    - 存在しない浅い URL（`/nothing.html`）: 同じく「トップへ戻る」があり、見た目が崩れていない
+    - `rh_links.html`: GitHub が消え、15本のリンクの前に外部リンクのアイコンが付き、押すと新しいタブで開く
+    - `jpml_links.html`: アイコンと隣の文字がひとつながりの下線付きリンクになり、押す範囲が文字まで広がった。前の見た目と比べて、アイコンと文字の間の空きが気にならないか
+  - **G3-10 の右の余白は直していない。** `style.css` に `.mj-margin-text { margin-right: 32px }` を足せば `404`・`jpml_links`・`rh_links`・`resource_dictionary` の4ページがまとめて直る（`style.css` は work/1008-hou が末尾を変えているため、この指示では触らなかった）。第2弾（`style.css`）に入れるか決めてほしい。
+  - `jpml_links.html` のアイコンの `alt` は元のまま残した（同名の「公式サイト」3つを区別するため）。読み上げでは「日本プロ麻雀連盟（公式サイト） 公式サイト（新しいタブで開く）」のように冗長になる。`alt` を空にして文字だけで読ませる（区別は見出し頼み）か、今のままにするか。
+  - `rh_links.html` に残るツールの一覧（Google Analytics・ImportJSON・vis.js・Twitter Card Validator・Twitobu）が今も使っているものかは未確認。載せ続けるか決めてほしい。
+- 未確認の項目:
+  - 直す前の状態をプレビュー（実際の 404 の配信）では取っていない。直す前は手元のモック（404 応答を返す）で再現した。
+  - 「トップへ戻る」を押して `/` に遷移することはクリックしていない（`href="/"` の確認のみ）。
+  - 実機（iPhone Safari）での見え方。画面写真は Chromium（1280px・390px）のみ。
+  - `ouka_results.html` の表示（Charts が描けないため）。`console.log` の削除は `node --check` と本文の一致のみ。
 - エラー: なし
 
 <!-- guide-links -->
