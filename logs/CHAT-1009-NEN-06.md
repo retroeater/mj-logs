@@ -116,7 +116,7 @@ headless Chromium でプレビューを開き、並べ方ごとに確かめた�
 
 ## 報告
 
-- 状態: 判断待ち / 続き: CHAT-1009-NEN-07
+- 状態: 取り下げ（年表ページをやめ、入口の年の切り替えに方針を変えた） / 続き: CHAT-1009-NEN-08
 - ブランチ: work/1009-nen
 - ログ: https://github.com/retroeater/mj/blob/work/1009-nen/docs/logs/CHAT-1009-NEN-06.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1009-nen
