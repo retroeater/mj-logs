@@ -65,28 +65,48 @@
 - 着手前の確認: `git log --all --grep="CHAT-1007-PHT-19"` は0件。`work/1007-pht-links` はローカルにあり、リモートにあってマージ済み。ローカル（e5277b19）は `origin/cloudflare` の祖先のため、`git merge --ff-only origin/cloudflare` で 600c14ea に進めた
 - GX-08 は cloudflare の docs/logs/ に現存。docs/（docs/logs/ を除く）・CLAUDE.md・scripts/・.github/ にそのファイルパスを指す箇所は無い（docs/decisions/operations.md の4か所は ID だけの記述）
 
+### 手順1: 洗い出し（GX-08 へのリンク）
+
+- Open の issue の本文・コメントを REST で全件取り直し（Open の issue 本文と、そのコメント）、`CHAT-0929-GX-08` を含むものを拾った。含むのはコメントの6件（#298 の 5883564556〈`Chat-Ref: CHAT-0929-GX-08` のトレーラ〉、#357 の 6029025931・6029960416・6030387693、#513 の 6030386957・6030886361）で、本文は無い。**いずれも ID を書いているだけで、パス・URL（`docs/logs/CHAT-0929-GX-08.md`・`blob/cloudflare/…`・mj-logs のリンク）の形は1件も無かった**。書き換えの表は空（書き換えの対象 0か所）。このため issue・コメントは書き換えていない
+- CHAT-1007-PHT-12 の記録（「現存していて今回は削除しないログは、リンクを書き換えない」）と合う
+- #510: Open、本文は 2026-10-06 の CHAT-1006-PHT-04 の起票のまま、コメントは無く、他セッションの着手中コメントも無い
+
+### 手順2: 削除
+
+- 削除のコミット: docs/logs/CHAT-0929-GX-08.md の1ファイルだけ（`git show --stat`: 1 file changed, 64 deletions）。docs/logs/ のほかのファイルは入っていない
+- 削除前の版: https://github.com/retroeater/mj/blob/600c14ea95242e2426c16db314814125c8b66f6a/docs/logs/CHAT-0929-GX-08.md（600c14ea は cloudflare の祖先。ファイルがあることを `git cat-file -e` で確認）
+
+### 手順3: #510・#357・決定
+
+- #510 へのコメント（「期日: 2026-10-09（2026-10-09 平野さん決定）」。本文は変えていない）: https://github.com/retroeater/mj/issues/510#issuecomment-6073109190
+- #357 へのコメント（GX-08 を削除した）: https://github.com/retroeater/mj/issues/357#issuecomment-6073110191
+- #510 の本文から読める平野さんの作業は、「手で非表示にした行・折りたたんだグループの行を、gviz が返すかを、テスト用のタブで実測する。**平野さんにタブの用意を頼む必要がある**」の一文だけ。**どのブックのどのタブに、何を用意するか、用意した後にチャットに何を伝えるかは、#510 の本文からは読み取れなかった**（コメントも無い）。最終報告には、この引用と、`scripts/lib/sheets.py` の `check_not_filtered()` と docs/notes/static-generation.md「シートのフィルタの検知」から組み立てた手順の案（#510 の記述ではない）を書いた
+- docs/decisions/operations.md に決定（GX-08 の削除・#510 の期日）を足した
+
 ## 報告
 
-- 状態: 中断（着手直後。作業中）
+- 状態: 判断待ち（#510 の平野さんの手作業〈テスト用タブの用意〉が残っている）
 - ブランチ: work/1007-pht-links
-- ログ: https://github.com/retroeater/mj/blob/work/1007-pht-links/docs/logs/CHAT-1007-PHT-19.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1007-PHT-19.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1007-pht-links
-- 確認用URL: なし
-- マージ: 未
-- issue: #510
-- 判断が必要なこと: 着手直後のため、まだ無い
-- 未確認の項目: 着手直後のため、まだ無い
+- 確認用URL: なし（docs/ のみ）
+- マージ: 済（docs/logs/・docs/decisions/ のみ。GX-08 の削除は1ファイル）
+- issue: #510（期日のコメント）、#357（GX-08 の削除のコメント）。#510 は閉じていない
+- 判断が必要なこと:
+  - #510 の本文にある平野さんの作業（引用）: 「手で非表示にした行・折りたたんだグループの行を、gviz が返すか（テスト用のタブで実測する。平野さんにタブの用意を頼む必要がある）」。**どのブックのどのタブに何を用意するか、用意した後にチャットへ何を伝えるかは、#510 の本文・コメントから読み取れなかった**
+  - 手順の案（#510 の記述ではなく、`scripts/lib/sheets.py` の `check_not_filtered()`〈gviz の `COUNT(A)` と CSV の行数を比べる〉に合わせてチャット側が組み立てたもの）: (1) リンクで読めるブックにテスト用のタブを1枚作る（見出し行＋A列が空でない10行ほど。フィルタは使わない）。(2) 手で非表示にする行を2行（右クリック→行を非表示）。(3) 別の2行を行グループにして折りたたむ（データ→行をグループ化→折りたたむ）。(4) チャットに、ブックの URL（またはID）・タブ名・非表示にした行番号・折りたたんだ行番号を伝える。Code が gviz と CSV の行数を実測し、`check_not_filtered()` で拾えるかを確かめる
+- 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 600c14ea）: https://github.com/retroeater/mj-logs/tree/main/guide/600c14ea
+ガイド文書（この版を写した時点の最新、mj 55b6a3cb）: https://github.com/retroeater/mj-logs/tree/main/guide/55b6a3cb
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/600c14ea/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/600c14ea/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/600c14ea/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/600c14ea/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/600c14ea/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/600c14ea/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/23f4ac3e.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/55b6a3cb/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/55b6a3cb/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/55b6a3cb/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/55b6a3cb/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/55b6a3cb/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/55b6a3cb/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/55b6a3cb.md
