@@ -53,28 +53,85 @@
 - 指示欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている。
 - 作業ブランチ: リモート・ローカルとも無かったため `git checkout -b work/1009-swp-rhl origin/cloudflare`。
 
+### 手順1 確かめる
+
+- #531: open、コメントは0件（他セッションの着手中コメントなし）。「着手中」のコメントを残した（Chat-Ref 付き）。
+- `git grep -n "rh_links"`（`docs/logs/` を除く）の全件と、未マージのブランチが同じファイルを変えているか:
+
+| 場所 | 内容 | 扱い | 未マージのブランチの変更 |
+|---|---|---|---|
+| `rh_links.html` | 本体 | 削除 | なし |
+| `navbar.js:83` | メニュー「良栄」の「リンク」 | 1行削除 | なし（`work/1008-hou` は変えていない） |
+| `sitemap-pages.xml:140` | `<url>`（`<loc>` と `<lastmod>`） | 4行＋空行を削除（lastmod は触っていない） | なし |
+| `llms.txt:61` | 「リンク」の行 | 1行削除 | なし |
+| `docs/notes/static-generation.md` 252・271・438・446 行 | 全ページ数 26→25、静的なページ 3→2、手書きの列挙 | 直した | **`work/1008-hou` が変更（252 行は同じ行、271 行は隣り合う）。衝突する** |
+| `docs/notes/video-wayhome.md:254` | `has_search_boxes` の手書きの列挙（7→6ページ） | 直した | なし |
+| `scripts/apply_page_meta.py:130` | `PAGES` の `rh_links.html` の項目 | **触らない**（下の判断） | なし |
+| `docs/lighthouse-baseline.md:499`・`docs/review-followup-instructions.md:177` | 過去の計測・指示の記録 | 触らない | なし |
+| `docs/decisions/`（seo-bing・site-review）・`docs/gsc/2026-10-03/pages-unindexed.md` | 過去の決定・データ | 触らない | なし |
+| `rh_links.html:12`（`og:url`） | 本体の中 | 本体と一緒に削除 | — |
+
+- ほかのページの HTML・`_redirects`・シート・生成スクリプト（`scripts/generate_*.py`）・`scripts/tests/` に `rh_links` を参照するものは無い（`git grep` に出ない）。
+- **止まる条件の判断（`scripts/apply_page_meta.py`）**: 指示の見込みに無い参照が1件ある。このスクリプトは全ページの `<title>`・description・OGP を一度書き換えた手動の保守用スクリプトで、`regenerate.py`・Actions のどちらからも呼ばれず（`grep` で確認）、`PAGES` の各項目は `path.exists()` が偽なら飛ばす（`apply_page_meta.py:195` 付近）。生成スクリプトでも、シートの読み込みでもなく、消し方に判断は要らない（残しても動作に影響しない）。#531 の本文も「#517 でスクリプトの扱いを決める」としているため、**触らずに進めた**。止まる条件の「生成スクリプト・データにある」には当たらないと判断した（当たるなら止まるべきなので、判断が違えば教えてほしい）。
+- 未マージのブランチ（`git branch -r --no-merged origin/cloudflare`）: `work/1008-dic`・`work/1008-hou`・`work/1009-nen`（と自分）。`navbar.js`・`sitemap-pages.xml`・`llms.txt`・`rh_links.html`・`apply_page_meta.py` を変えているものは無く、`docs/notes/static-generation.md` だけが `work/1008-hou` と重なる。指示の見込み（`work/1008-hou` が `navbar.js`・sitemap・`llms.txt` も変えている）とは違い、実物では変えていなかった。
+
+### 手順2 外した内容
+
+- `rh_links.html` を削除（`git rm`）。
+- `navbar.js`: 「良栄」のメニューの `<a class="dropdown-item" href="/rh_links.html">リンク</a>` の1行を削除（成績・成績詳細・牌譜の3項目になる）。`node --check` OK。
+- `sitemap-pages.xml`: `rh_links.html` の `<url>` ブロックを削除（`lastmod` は書き換えていない）。XML として読める。冒頭コメントの件数・`llms.txt` の本文の件数は直していない（G5-07 は #518 の公開の issue、`llms.txt` の件数は #227。平野さんの決定）。`python3 scripts/update_sitemap_lastmod.py --from-git` を手元で実行して、ほかの URL の lastmod が変わらず、削除した状態のままエラーなく終わることを確かめた（出力はコミットしていない）。
+- `llms.txt`: 「リンク」の行を削除。
+- `docs/notes/static-generation.md`: 「HTMLは26ページ」→「25ページ」、「静的なページ」の行（3→2、`404.html` / `jpml_links.html`）、has_search_boxes の列挙（トップ階層の9ページ→8ページ、手書きの残り3ページ→2ページ）。「現在の対象は1521ページ（2026-09-29）」は日付つきの実測なので直していない。
+- `docs/notes/video-wayhome.md`: `has_search_boxes` の手書きの対象「7ページ」→「6ページ」。
+- `_redirects` には足していない（決定どおり 404）。`python3 -m unittest discover -s scripts/tests`: 659件 OK。
+- 取り込み: `origin/cloudflare` を merge した（衝突なし、`1f666535`）。
+
+#### `work/1008-hou` との重なり（取り込み時の衝突の見込み）
+
+`git merge-tree --write-tree HEAD origin/work/1008-hou` の結果、`docs/notes/static-generation.md` で2か所が衝突する: **252 行**（この枝は「25ページ」、`work/1008-hou` は同じ行の別の部分を変更）と、271 行付近（`cloudflare` 側の `title/` の行の変更と、`work/1008-hou` の鳳凰戦の行の追加）。後者は `rh_links` とは関係なく、`origin/cloudflare` 単体との衝突でもある（`docs/new-page-checklist.md` も同じ）。#518 に重なりをコメントした。
+
+### 手順3 プレビューの確認
+
+- 作業ブランチの push（`1f666535`）で Workers Builds が走り、check-run は `completed / success`（push から約2分）。プレビューの URL は最終報告にだけ書く。
+- プレビューの配信が手元と同じこと: `navbar.js`・`llms.txt`・`sitemap-pages.xml`・`jpml_links.html`・`jpml_pros.html`・`404.html`・`style.css` の本文の sha256 が手元と一致。`/sitemap-pages.xml`・`/llms.txt` に `rh_links` は無い。
+- `/rh_links.html`・`/rh_links`: HTTP 404。`/rh_results.html`・`/jpml_links.html`・`/sitemap-pages.xml`・`/llms.txt`: HTTP 200。
+- 1280px・390px で `/rh_links.html` を開くと、`404.html` の本文（h1「ページが見つかりません」）・ナビが出る・書式はゴシック体・失敗した応答 0 件。
+- 1280px・390px で `/rh_results.html` を開いてメニュー「良栄」を開くと、項目は 成績（`/rh_results.html`）・成績詳細（`/rh_results_detail.html`）・牌譜（`/rh_paifu.html`）の3つ。390px のメニューの見え方の写真を確認した。
+- ほかのページの表示: ナビの項目は全ページ共通で1つ減るが、これは意図。ほかの HTML・CSS・JS は変えていない（上の sha256 が一致）。
+- #531 に結果をコメントした。#518 に重なりをコメントした。
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち（プレビューを平野さんが見てから、別の指示でマージ）
 - ブランチ: work/1009-swp-rhl
 - ログ: https://github.com/retroeater/mj/blob/work/1009-swp-rhl/docs/logs/CHAT-1009-SWP-07.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1009-swp-rhl
-- 確認用URL: なし
-- マージ: 未
-- issue: #531
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 確認用URL: プレビューあり（URL は最終報告）。確認したページ: `/rh_links.html`（404）・`/rh_results.html` のメニュー「良栄」・`/jpml_links.html`。Workers Builds の check-run は `completed / success`
+- マージ: 未（平野さんの判断待ち）
+- issue: #531（着手中・結果をコメント）・#518（`work/1008-hou` との重なりをコメント）。起票なし
+- 判断が必要なこと:
+  - 平野さんがプレビューで見る点:
+    - `/rh_links.html`（プレビューのドメインに付ける）: 404 になり、`404.html` の本文（「ページが見つかりません」・ナビ・「トップへ戻る」）が出る。スマホでも崩れない
+    - ナビのメニュー「良栄」（PC とスマホ）: 項目が 成績・成績詳細・牌譜 の3つになっている（「リンク」が無い）
+    - ほかのページ（例: `/jpml_pros.html`）: ナビ以外は見た目が変わっていない
+  - **`scripts/apply_page_meta.py` の `rh_links.html` の項目は触っていない**（手動の保守用で、存在しないファイルは飛ばすため無害。#517 でスクリプトの扱いを決める予定）。止まる条件の「生成スクリプト・データにある」に当たるという判断なら、止まるべきだった。違うなら教えてほしい
+  - **`work/1008-hou`（#518）の取り込みで `docs/notes/static-generation.md` が衝突する**（252 行は、この枝の「25ページ」と work/1008-hou の変更が同じ行。271 行付近は `cloudflare` 側の変更と work/1008-hou の変更。後者は `rh_links` とは無関係）。指示の見込みと違い、`navbar.js`・`sitemap-pages.xml`・`llms.txt` は work/1008-hou が変えておらず、重ならない。#518 にコメントした
+  - 「1521ページ」（`docs/notes/static-generation.md` の `data-search="off"` の実測）は日付つきの実測のため直していない
+- 未確認の項目:
+  - 本番はまだ反映していない（マージは別の指示）。本番での `/rh_links.html` の 404、ナビの項目は、マージ後に確かめる
+  - 実機（iPhone Safari）での見え方。写真は Chromium（1280px・390px）のみ
+  - 外部から `rh_links.html` へのリンクがあるか（Search Console では「クロール済み未登録」で、直近28日の検索の行は無い。外部リンクは未確認）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj f3e6f8b4）: https://github.com/retroeater/mj-logs/tree/main/guide/f3e6f8b4
+ガイド文書（この版を写した時点の最新、mj 5bba42c1）: https://github.com/retroeater/mj-logs/tree/main/guide/5bba42c1
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f3e6f8b4/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f3e6f8b4/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f3e6f8b4/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f3e6f8b4/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f3e6f8b4/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f3e6f8b4/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/5bba42c1/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/5bba42c1/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/5bba42c1/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/5bba42c1/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/5bba42c1/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/5bba42c1/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/4e7c1a8d.md
