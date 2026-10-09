@@ -65,28 +65,60 @@
 - 指示欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている。
 - CHAT-1009-SWP-05 のログの `## 報告` の状態は「判断待ち（プレビューを平野さんが見てから、別の指示でマージ）」（origin/work/1009-swp-fix、`96d8b7de`）。`work/1009-swp-fix` はリモートにあり（未マージ）、ローカルと一致している。
 
+### 手順1 確かめる
+
+- CHAT-1009-SWP-05 のログの `## 報告` の状態の末尾に `/ 続き: CHAT-1009-SWP-06` を足した（コミット `docs: add continuation note to CHAT-1009-SWP-05 log`）。
+- `git merge-base --is-ancestor origin/cloudflare HEAD` が偽（`cloudflare` に他セッションのコミットが入っていた）だったため、`origin/cloudflare` を merge で取り込んだ（rebase なし）。**衝突は無し。** 取り込んだ中身は他セッションの `title/` の年の切り替え（`title/years.json`・`scripts/tests/test_title_years.py`・`title/timeline/index.html` の削除など）・ログ・決定の記録で、この作業のファイルとは重ならない。
+- `git diff --stat origin/cloudflare...HEAD`（取り込み後。この作業で `cloudflare` に入る差分）: `404.html`（13）・`jpml_links.html`（45）・`ouka_results.js`（5）・`rh_links.html`（21）・`docs/logs/CHAT-1009-SWP-02.md`・`CHAT-1009-SWP-05.md`・`CHAT-1009-SWP-06.md`・`docs/decisions/site-review.md`。**見込みの範囲（4ファイルと docs/logs/・docs/decisions/）だけで、超えていない**（止まる条件に当たらない）。
+- `rh_links.html` の廃止と同じ主題の issue: 無い（クローズ済みを含めて「rh_links・廃止・平野良栄のリンク集・転送」で検索。#441〈jpml_titles の廃止、クローズ済み〉・#434・#442 は別のページ）。
+
+### 手順2 マージ
+
+- push の直前に `git fetch origin cloudflare` し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真であることを確かめてから `git push origin work/1009-swp-fix:cloudflare`（`55b6a3cb..d2ff5f93`）。権限判定の拒否は無かった。
+- 本番反映: check-run「Workers Builds: mj」は `completed / success`（push から約2分）。同じコミットの Actions（公開対象を検査する・サイトマップの lastmod を同期・ページの再生成）も `completed / success`。
+- **本番の HTML に反映を確認した。ブラウザでの見え方は未確認**（本番は HTML の取得のみ。見え方は確認済みのプレビューで代える）:
+
+| 確かめた URL | 結果 |
+|---|---|
+| `https://ryoei.pro/title/nothing/here.html` | HTTP 404 で `404.html` の本文を返す。自サイトの参照は `/favicon.ico`・`/assets/vendor/bootstrap/css/bootstrap.min.css`・`/style.css`・`/assets/vendor/bootstrap/js/bootstrap.bundle.min.js`・`/navbar.js` がルート相対、`#main`、「トップへ戻る」（`href="/"`）がある。`/style.css`・`/navbar.js`・Bootstrap の CSS・`/favicon.ico` はそれぞれ HTTP 200 |
+| `https://ryoei.pro/404.html` | HTTP 200。同じ参照（ルート相対）と「トップへ戻る」 |
+| `https://ryoei.pro/rh_links.html` | HTTP 200。外部リンク4本: `https://getbootstrap.com/`・`https://search.google.com/search-console`・`https://www.google.com/sheets/about/`・`https://pagespeed.web.dev/` |
+| `https://ryoei.pro/jpml_links.html` | HTTP 200。アイコンの `<img alt="">` が22本で、`alt` に文字があるアイコンは 0 本。外部リンクは22本 |
+
+- マージ後に `cloudflare` に入った自動処理のコミット: **無し**。マージ（`d2ff5f93`）から約15分後の `origin/cloudflare` は `d2ff5f93` のまま（`git log d2ff5f93..origin/cloudflare` が空）。ページの再生成とサイトマップの lastmod の同期は成功で終わったが、コミットは作られなかった（`sitemap-pages.xml` の `jpml_links.html`・`rh_links.html` の lastmod は `2026-10-06` のまま。lastmod を手で書き換えない決まり〈#265〉のため触っていない）。シートの変化・lastmod・それ以外の差分は、今のところ種類を分けて書くものが無い。
+
+### 手順3 記録と起票
+
+- 決定を `docs/decisions/site-review.md`（2026-10-09〈CHAT-1009-SWP-06〉）に足した（マージの前に入れ、マージの差分に含めた）。
+- `rh_links.html` の廃止の issue を起票した: #531（ラベル「分野: 整理・保守」「対象: 全ページ」）。本文は背景・決めること（301 の要否と行き先〈Search Console では「クロール済み未登録」、直近28日の `page.csv` に行なし〉・navbar〈`navbar.js:83`〉・sitemap〈`sitemap-pages.xml:140`〉・`llms.txt:61`・ほかのページからのリンクは無し・`scripts/apply_page_meta.py:130`・`docs/notes/static-generation.md`・`video-wayhome.md`）・手順の参考（`docs/new-page-checklist.md`）。末尾に `Chat-Ref: CHAT-1009-SWP-06`。
+- ブランチの片付け: マージ済みの `work/*` は `delete-merged-branches.yml` が毎日、先頭が24時間より前のものを削除する（docs/notes/cloud-sessions.md「ブランチの削除」。セッションの git プロキシはブランチの削除を拒否する）。`work/1009-swp-fix` は自動の削除に任せ、削除はしていない。本番の確かめの成否に条件づけていない。
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1009-swp-fix
-- ログ: https://github.com/retroeater/mj/blob/work/1009-swp-fix/docs/logs/CHAT-1009-SWP-06.md
+- 状態: 完了
+- ブランチ: work/1009-swp-fix（CHAT-1009-SWP-02・SWP-05 の続き。マージ済み。削除は自動に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1009-SWP-06.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1009-swp-fix
-- 確認用URL: なし
-- マージ: 未
-- issue: なし
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 確認用URL: なし（本番の HTML の取得のみ。確かめた URL はログの「手順2 マージ」の表）
+- マージ: 済（第1弾の直しのマージコミット `d2ff5f93`。Workers Builds・Actions は `completed / success`）。この後のログの追いの push は docs のみ
+- issue: 起票 #531（`rh_links.html` の廃止）。コメントなし
+- 判断が必要なこと:
+  - #531 で決めること: `rh_links.html` を廃止するときの転送（301）の要否と行き先（`/rh_results.html` かトップか、転送しないで 404 のままか）。Search Console では「クロール済み未登録」で、直近28日の検索の行は無い
+  - #531 の着手の時機（`sitemap-pages.xml` は鳳凰戦の公開〈#518〉の公開の issue でも触るため、重なる。先に G5-07 〈冒頭コメントの件数〉を #518 の公開の issue で直す予定）
+- 未確認の項目:
+  - 本番のブラウザでの見え方（本番は HTML の取得のみ。確認済みのプレビューで代える）。`rh_links`・`jpml_links` の実機（iPhone）での見え方は、SWP-05 のとおり確かめていない
+  - マージ後の自動処理のコミットは15分以内には入らなかった。後から `chore: regenerate ...` やサイトマップの lastmod のコミットが入る可能性は否定できない（入っても、シートの変化による差分は元に戻さない）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 55b6a3cb）: https://github.com/retroeater/mj-logs/tree/main/guide/55b6a3cb
+ガイド文書（この版を写した時点の最新、mj d2ff5f93）: https://github.com/retroeater/mj-logs/tree/main/guide/d2ff5f93
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/55b6a3cb/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/55b6a3cb/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/55b6a3cb/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/55b6a3cb/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/55b6a3cb/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/55b6a3cb/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d2ff5f93/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d2ff5f93/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d2ff5f93/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d2ff5f93/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d2ff5f93/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d2ff5f93/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/55b6a3cb.md
