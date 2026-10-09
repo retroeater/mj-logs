@@ -83,6 +83,12 @@
 - #510 の本文から読める平野さんの作業は、「手で非表示にした行・折りたたんだグループの行を、gviz が返すかを、テスト用のタブで実測する。**平野さんにタブの用意を頼む必要がある**」の一文だけ。**どのブックのどのタブに、何を用意するか、用意した後にチャットに何を伝えるかは、#510 の本文からは読み取れなかった**（コメントも無い）。最終報告には、この引用と、`scripts/lib/sheets.py` の `check_not_filtered()` と docs/notes/static-generation.md「シートのフィルタの検知」から組み立てた手順の案（#510 の記述ではない）を書いた
 - docs/decisions/operations.md に決定（GX-08 の削除・#510 の期日）を足した
 
+### マージ後
+
+- cloudflare へのマージ: 55b6a3cb（push 直前に再 fetch し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真であることを確認。fast-forward）。cloudflare に入った差分は、docs/logs/（GX-08 の削除とこのログ）と docs/decisions/operations.md だけ
+- push の後に動いたワークフロー: 無し（docs/ のみの変更で、mj 側の sync-logs.yml は止まっているため、この commit の SHA に紐づく実行は無かった）。Workers Builds の check-run も出ない（docs/ のみ）
+- mj-logs の `logs/CHAT-0929-GX-08.md`: push の約5分後に HTTP 404 になった（写しが消えた。mj-logs 側の仕組みで反映）。このログ（PHT-19）の最新版も同じ頃に返った
+
 ## 報告
 
 - 状態: 判断待ち（#510 の平野さんの手作業〈テスト用タブの用意〉が残っている）
@@ -101,12 +107,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 55b6a3cb）: https://github.com/retroeater/mj-logs/tree/main/guide/55b6a3cb
+ガイド文書（この版を写した時点の最新、mj d2ff5f93）: https://github.com/retroeater/mj-logs/tree/main/guide/d2ff5f93
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/55b6a3cb/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/55b6a3cb/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/55b6a3cb/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/55b6a3cb/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/55b6a3cb/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/55b6a3cb/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d2ff5f93/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d2ff5f93/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d2ff5f93/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d2ff5f93/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d2ff5f93/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d2ff5f93/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/55b6a3cb.md
