@@ -134,6 +134,43 @@ HOU-05 の比較ページを平野さんが見て選んだ結果（下の「決�
 - 比較ページ `houou/players/compare.html`: ラジオ「チップの位置」の「得点の右」（既定。得点 → 順位 → チップ）と「得点の左」（チップ → 得点 → 順位）だけ。並びは指示の案のまま
 - 手元の確かめ（390×844、平野良栄・佐々木寿人）: 8行の欄の左右の位置がすべて同じ（右: 得点 187〜260・順位 266〜312・チップ 318〜369px、左: チップ 187〜237・得点 243〜317・順位 323〜369px）。最初の版はカードの右端からチップがはみ出していたので欄の幅と間を詰めた。鳳凰位の期は右側が空。JS のエラー 0
 
+### 手順2 リーグ推移
+
+- 消したもの: 配色 C1・C3 の CSS（グラデーション・光の筋のフィルタを含む）、比較ページ `houou/leagues/compare.html`（生成とファイル）
+- 段の帯の色（note「【鳳凰戦】第43期後期鳳凰戦成績表」の見出しのアイコンの「中」の値を元に、同じ字の中は 1 を濃く〈黒を 12% 混ぜる〉・3 を明るく〈白を 25% 混ぜる〉。グラデーションは帯に使わなかった〈細い帯で見分けにくくなるため〉）と、帯の上に書く字の色。式: 相対輝度 L = 0.2126R + 0.7152G + 0.0722B（各チャンネルは sRGB の値 c〈0〜1〉を c≤0.03928 なら c/12.92、それ以外は ((c+0.055)/1.055)^2.4）、コントラスト比 = (L明+0.05)/(L暗+0.05)。字は黒（#000000）と白のうち 4.5:1 以上で比の大きいほう:
+
+| 段 | 帯の色 | 字 | 比 |
+|---|---|---|---|
+| 鳳凰位（仮置き） | #9f1239 | 白 | 8.02:1 |
+| A1 | #e3561f | 黒 | 5.62:1 |
+| A2 | #fa5d27 | 黒 | 6.66:1 |
+| B1 | #d28528 | 黒 | 7.13:1 |
+| B2 | #ef972e | 黒 | 9.14:1 |
+| C1 | #ccaa2d | 黒 | 9.36:1 |
+| C2 | #e8c133 | 黒 | 12.11:1 |
+| C3 | #eed066 | 黒 | 13.85:1 |
+| D1 | #0193c3 | 黒 | 5.96:1 |
+| D2 | #01a7de | 黒 | 7.58:1 |
+| D3 | #40bde6 | 黒 | 9.64:1 |
+| E1 | #0349c3 | 白 | 7.65:1 |
+| E2 | #0353de | 白 | 6.37:1 |
+| E3 | #427ee6 | 黒 | 5.36:1 |
+
+  A1 は「中」に黒 12% だと黒い字で 5.27:1・濃紺 #111827 で 4.45:1 と境目だったので、やや明るい #e3561f にした。地の白の上の字: 本文 #111827 17.74:1・小さい字 #4b5563 7.56:1。期の文字（「35前」）は白の縁取りを付けた #111827
+- 鳳凰位の色: 金色（#d4a017 など）は C の黄色と見分けにくく、A より濃い赤（#9f1239）にした（仮置き）
+- 線: 濃い線（#111827）は E1・E2 の青の上で 2.3〜2.8:1 しかないので、白い縁取り（7px）の上に重ねた。昇級の区間は赤 #b91c1c、降級は青 #1d4ed8（C2 のまま）
+- 拡大の上限: 2期（HOU-05 は4期）。拡大して1期の幅が 28px 以上のときだけ、帯の下に期（「35前」）を出す。全体のときは出さない
+- 見出しの範囲: 「第24期前期〜第43期前期」の形
+- 最初の動き（全体 6〜10秒。1期 320ms の目安で、点が多いと10秒で頭打ち。白鳥翔〈24期ぶん〉は10秒）:
+  1. 見出しのアイコンの位置から、グラフの左下寄り（入会の期の段の位置。カメラは拡大して、その点を左下に映す）へ重力のある落ち方で落ち、着地で小さく弾む（900ms）
+  2. 選手が通った段の帯（山）だけが、左から順に下から生える（残りの時間、1秒以上）。ほかの段の帯と段の名前は出さない
+  3. 期ごとに登る（1期 320ms〈上限 1200ms〉）。カメラは縦横同じ倍率（3期ぶん）で付いていき、昇級の区間は寄ってアイコンを低めに（下からあおる）、降級は引いてアイコンを高めに（見下ろす）。山の帯にはリーグの名前を書く
+  4. 昇級の期に着くと紙吹雪（12片、0.75秒）、降級の期ではアイコンが小さく沈む（7px、0.45秒）
+  5. ズームアウト（1.1秒）で、ほかの段の帯と段の名前を出す
+  - `prefers-reduced-motion` では最後の状態だけ。途中で触れる・Esc・Space で最後の状態へ
+- 「もう一度見る」: グラフの中央に半透明の丸（84px）。動きの最中・吹き出しを出している間・拡大している間は出さない（中央に重なって邪魔になるため）
+- 手元の確かめ（390×844）: 白鳥翔と平野良栄で、落ちる途中・着地・山が生える・登る（D の帯を見下ろす場面、昇級で紙吹雪の場面、C1 から C2 へ降りる場面）・ズームアウトの途中・最後を撮った。落ちるアイコンは見出しの写真の位置から始まる。山は左から順に生え、登る間はアイコンの周りの2〜3期だけが映る。昇級の区間で上を向くと、カメラが描く範囲の上端で止まるため、アイコンが上の端に寄る場面がある（範囲の外は映さない作り）。最初の版は山が生える前に山の名前が出ていたので、名前は登る間だけにした。PC（1280）でホイールで拡大すると、「32前〜37前」の12期・上限で「34前〜35後」に期が出た。吹き出しを出しているときに「もう一度見る」が重なっていたので、上のとおり出す条件を足した。JS のエラー 0
+
 ## 報告
 
 - 状態: 作業中
@@ -150,12 +187,12 @@ HOU-05 の比較ページを平野さんが見て選んだ結果（下の「決�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj f6f2125c）: https://github.com/retroeater/mj-logs/tree/main/guide/f6f2125c
+ガイド文書（この版を写した時点の最新、mj 419fc58a）: https://github.com/retroeater/mj-logs/tree/main/guide/419fc58a
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f6f2125c/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f6f2125c/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f6f2125c/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f6f2125c/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f6f2125c/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f6f2125c/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/419fc58a/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/419fc58a/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/419fc58a/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/419fc58a/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/419fc58a/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/419fc58a/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/eabe7134.md
