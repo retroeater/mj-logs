@@ -249,7 +249,7 @@ handover.md 5章から移した。ページの一覧は下の「ページの一�
 
 ### ページの一覧
 
-HTMLは26ページ + 書籍の一覧と個別ページ（`books/`、#97、noindex・メニュー未掲載。**2026-09-22 開発凍結、`docs/notes/books-freeze.md`**） + 「帰り道」エピソード個別ページ39枚（`wayhome/`、#162） + 最強戦のトップと年度ページ（`saikyo/`、#319/#355、2026-09-21 に公開） + タイトル戦の新構成（`title/`、#222、2026-09-28 に公開、#413） + 放送対局ページ（`live/`、#346、noindex・メニュー未掲載。正式公開は #362）。大きく4系統に分かれる。
+HTMLは25ページ + 書籍の一覧と個別ページ（`books/`、#97、noindex・メニュー未掲載。**2026-09-22 開発凍結、`docs/notes/books-freeze.md`**） + 「帰り道」エピソード個別ページ39枚（`wayhome/`、#162） + 最強戦のトップと年度ページ（`saikyo/`、#319/#355、2026-09-21 に公開） + タイトル戦の新構成（`title/`、#222、2026-09-28 に公開、#413） + 放送対局ページ（`live/`、#346、noindex・メニュー未掲載。正式公開は #362）。大きく4系統に分かれる。
 
 | 系統 | ページ数 | 状態 |
 |---|---|---|
@@ -260,15 +260,15 @@ HTMLは26ページ + 書籍の一覧と個別ページ（`books/`、#97、noinde
 | ビルド時生成（型D・静的SVG） | 1 | `resource_efficiency.html`。表を持たないため`render_content()`を使う。外部JS・外部ドメインへの依存が一切ない（#7/#128、完了） |
 | ビルド時生成（型C・積み上げ棒+折れ線） | 2 | `houou_leagues.html` / `ouka_leagues.html`。積み上げ棒と既定選手の折れ線は静的SVG、`?name=`時の折れ線差し替えのみ`leagues.js`が担う（#7/#127、完了） |
 | ビルド時生成（独自: 順位表の数え上げ+期ごとのJSON） | 1 | `houou_race.html`（鳳凰戦 順位変動）。`render_content()`+専用JS`houou_race.js`。データは`houou_race/<期>-<1前・2後>.json`を選んだときに読む。navbar の「鳳凰戦」から辿れる（#507・#508、`docs/notes/houou-race.md`） |
-| ビルド時生成（独自: カテゴリを選んで辞書ファイルを組み立てる） | 1 | `resource_dictionary.html`。`scripts/generate_resource_dictionary.py` が「辞書」タブ（連盟プロ以外と同じブック。「サブカテゴリ」列は読まない）と「プロ」タブから、カテゴリごとのデータ `dic/<スラッグ>.json` とページを書く。カテゴリは 麻雀用語 `mahjong`・連盟用語 `renmei`・連盟プロ `pros`（「プロ」タブから）・Mリーグ `mleague` の順。「辞書」タブに行の無いカテゴリは出さない。ページの `resource_dictionary.js` が選んだカテゴリを（読み, 語）が同じ行は先に並ぶカテゴリの行を残してまとめ、Microsoft IME 用（UTF-16LE・BOM 付き・CR+LF）か Google 日本語入力用（UTF-8・LF）で保存させる。ページはカテゴリごとの語数と、選んだカテゴリの重複をまとめた後の語数を出す（更新日は出さない）。見た目は `resource_dictionary.css`（`style.css` には入れない。ステップカード・チップ・セグメント・登録方法の吹き出し〈`popover` 属性〉、#522）。Gboard（Android）用の zip（見出し行 `# Gboard Dictionary version:1` と「読み TAB 語 TAB ja-JP」の `dictionary.txt`、無圧縮）も JS は作れるが、実機での確認までは生成スクリプトの `FORMATS` で無効にしてあり、形式に出さない（#377・#515） |
+| ビルド時生成（独自: 全カテゴリをまとめた辞書ファイルを組み立てる） | 1 | `resource_dictionary.html`。`scripts/generate_resource_dictionary.py` が「辞書」タブ（連盟プロ以外と同じブック。「サブカテゴリ」列は読まない）と「プロ」タブから、カテゴリごとのデータ `dic/<スラッグ>.json` とページを書く。カテゴリは 一般用語 `mahjong`・連盟用語 `renmei`・連盟プロ `pros`（「プロ」タブから）・Mリーグ `mleague` の順（保存する行の順）。「辞書」タブに行の無いカテゴリは出さない。ページはカテゴリを選ばせず、形式のボタン（Microsoft IME・Google 日本語入力・Gboard）を押すと、`resource_dictionary.js` が全カテゴリを（読み, 語）が同じ行は先に並ぶカテゴリの行を残してまとめ、Microsoft IME 用（UTF-16LE・BOM 付き・CR+LF）・Google 日本語入力用（UTF-8・LF）・Gboard 用（見出し行 `# Gboard Dictionary version:1` と「読み TAB 語 TAB ja-JP」の `dictionary.txt` を無圧縮の zip に入れる）で保存させる。description と末尾の説明文に、同じ数え方の語数（`{count}`）を生成のたびに入れる（`scripts/apply_page_meta.py` には語数を除いた文言）。見た目は `resource_dictionary.css`（`style.css` には入れない。白いカード1枚・登録方法の吹き出し〈`popover` 属性〉、#522）（#377・#515） |
 | ビルド時生成（独自: 全画面ヒーロー+横スクロールカード列） | 1 | `video_wayhome.html`。`render_content()`+専用JS`video_wayhome.js`。新サイトのパイロット（`docs/notes/video-wayhome.md`） |
 | ビルド時生成（サブディレクトリ、ヒーロー構成のエピソード個別ページ） | 39 | `wayhome/<動画ID>.html`。`scripts/generate_wayhome_episodes.py`（`docs/notes/video-wayhome.md`） |
 | ビルド時生成（サブディレクトリ、最強戦のトップと年度ページ） | トップ1＋年度数 | `saikyo/index.html`・`saikyo/<年度>.html`。`scripts/generate_saikyo_pages.py`。2026-09-21 に一般公開し、navbar・`sitemap-saikyo.xml`・`llms.txt` に載る（#319・#348、`docs/notes/saikyo-page-design.md`） |
-| ビルド時生成（サブディレクトリ、タイトル戦の新構成） | 入口1＋大会数＋期数＋年表1 | `title/index.html`・`title/<slug>/index.html`・`title/<slug>/<期>.html`・`title/timeline/index.html`（年表、#277。noindex・メニュー未掲載、公開は #521）。`scripts/generate_title_pages.py`。navbar の「連盟 > タイトル」から入口へ（#413、`docs/notes/title-pages.md`） |
+| ビルド時生成（サブディレクトリ、タイトル戦の新構成） | 入口1＋大会数＋期数 | `title/index.html`・`title/<slug>/index.html`・`title/<slug>/<期>.html`（入口は年の切り替え〈`?year=`、#277〉を持つ）。`scripts/generate_title_pages.py`。navbar の「連盟 > タイトル」から入口へ（#413、`docs/notes/title-pages.md`） |
 | ビルド時生成（サブディレクトリ、放送対局ページ） | 691（2026-09-18） | `live/index.html`・`live/<タイトル戦>/index.html` 以下。`scripts/generate_live_pages.py`。noindex・メニュー未掲載、正式公開は #362（`docs/notes/live-page-design.md`） |
 | ビルド時生成（サブディレクトリ、書籍の一覧と個別ページ） | 一覧1＋190 | `books/index.html`・`books/<ISBN13>.html`。`scripts/generate_books_pages.py`。noindex・メニュー未掲載、`sitemap-books.xml` は `sitemap.xml` から未参照。**2026-09-22 開発凍結（自動生成・自動取得を停止、本番はそのまま残す）。詳細は `docs/notes/books-freeze.md`** |
 | Google Charts依存 | **6** | ブラウザから直接スプレッドシートを読む。#7の対象。型B3・ランキング系A3 |
-| 静的なページ | 3 | `404.html` / `jpml_links.html` / `rh_links.html` |
+| 静的なページ | 2 | `404.html` / `jpml_links.html` |
 
 ### 生成スクリプトの構成（lib/page.py）
 
@@ -310,6 +310,11 @@ HTMLは26ページ + 書籍の一覧と個別ページ（`books/`、#97、noinde
   issue を残す意味が薄い
 - **増える時間**: タブごとに CSV 1回＋`COUNT(A)` 1回、スプレッドシートごとに `htmlview` 1回。
   2026-09-21 の実測（Codespace から、1回ずつ）:
+- **フィルタ以外で隠れた行も、gviz は返さない（2026-10-09 実測、#510）。** 手で非表示にした行も、折りたたんだグループの行も、
+  フィルタと同じく gviz の `SELECT *`・`SELECT COUNT(A)` から消え、CSV には全行が出る。そのため `check_not_filtered()` が
+  行数の食い違いで `FilteredSheetError` を出して生成を止める（メッセージは「フィルタがかかっています」だが、
+  非表示の行・折りたたんだ行でも同じ）。新しい検知は要らない。解くには、行の再表示（グループの展開）かフィルタの解除
+  （平野さんが用意したテスト用タブでの実測。表は #510 のコメント）
 
   | 生成 | 検査あり | 検査なし |
   | --- | --- | --- |
@@ -434,8 +439,8 @@ GitHub Actions (`.github/workflows/regenerate-page.yml`) が、`scripts/generate
   生成物は `lib/page.py` が `_render_search_boxes()` の結果から自動で出す
   （`render_content()` を使うページだけ `has_search_boxes=False` を明示）。
   現在の対象は1521ページ（2026-09-29、`git grep -l 'data-search="off"' -- '*.html'`）。
-  トップ階層の9ページ（`404` / `houou_race` / `jpml_links` / `resource_dictionary` /
-  `resource_efficiency` / `rh_links` / `rh_results` / `rh_results_detail` /
+  トップ階層の8ページ（`404` / `houou_race` / `jpml_links` / `resource_dictionary` /
+  `resource_efficiency` / `rh_results` / `rh_results_detail` /
   `video_wayhome`）と、`title/`・`live/`・`saikyo/`・`books/`・`wayhome/` の全ページ。
   トップ階層の生成物6ページ（`houou_race` / `resource_dictionary` / `resource_efficiency` / `rh_results` /
   `rh_results_detail` / `video_wayhome`）とサブディレクトリの生成物は
@@ -443,7 +448,7 @@ GitHub Actions (`.github/workflows/regenerate-page.yml`) が、`scripts/generate
   絞り込み欄を本文の`.mj-filterbar`に持つか、検索欄を持たない）。`video_wayhome`は虫眼鏡アイコンで開閉する`#searchBoxes`を
   navbar直下の常時表示フィルタバー（`.mj-filterbar`）に置き換えたため対象に
   加わった（#189）。
-  残り3ページ（手書きHTML: `404` / `jpml_links` / `rh_links`）を新規に追加するときは手で付ける
+  残り2ページ（手書きHTML: `404` / `jpml_links`）を新規に追加するときは手で付ける
 
 ### メンテナンス用スクリプトの詳細
 

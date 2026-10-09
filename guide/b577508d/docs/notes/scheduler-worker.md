@@ -143,13 +143,16 @@ Worker が書く行（`console.log`。何もしない回は書かない。トー
 - `workers/scheduler/` の下（`src/`・`test/`・`wrangler.jsonc`）と docs を変える push: 「Workers Builds: mj-scheduler」success、「Workers Builds: mj」は付かない
 - docs だけの push: どちらも付かない
 
-## 未確認（2026-10-08 の時点）
+## 未確認（2026-10-09 の時点）
 
+- Worker の実行と保険の予約実行が重なったときに、concurrency（組 `update-live-channel`）で保険の実行が待たされる動き（2026-10-09 時点で重なった日は無い。10/9 は Worker の実行が 04:05 に終わり、保険は 10:28）
 - 作業ブランチへの `workers/` だけの push で、サイトの `mj` のプレビューがビルドされた（「Workers Builds: mj」success）。cloudflare への push では Exclude の `workers/**` が効いているのに、プレビューでは効いていない。理由は分からない（害はプレビューのビルドが1回増えることだけ）
 
-## 動いた記録（2026-10-08 の時点）
+## 動いた記録（2026-10-09 の時点）
 
 - 06:00 の朝の確かめの回は動いている: 10/7 06:00:08 JST に「朝の確かめ: 2026-10-07 予定 1・success 1・それ以外 0・#506 に書かない」（Observability。平野さんの画面の申告値）
 - 5分ごとだったときの回のログの時刻は予定から 8〜10 秒後。起動した実行が GitHub で作られた時刻は、10/6 が 04:20:36、10/7 が 04:20:10（API）
 - 10/8 は毎分の起動（cron `* * * * *`、#298）になってから最初の朝。sync-dojo-calendar の run #33 が 04:15:21、delete-merged-branches の run #19 が 04:20:21 に作られた（どちらも予定から 21 秒、success。API）。道場部の同期の Worker からの起動はこの回が最初。06:00:21 JST に「朝の確かめ: 2026-10-08 予定 2・success 2・それ以外 0・#506 に書かない」。毎分の回は Message が `* * * * *` で、ログの時刻は毎分 20 秒ごろ（Observability。平野さんの画面の申告値）
 - 作業ブランチで手動実行した sync-dojo-calendar が保存した前回の状態（Actions のキャッシュ）は、同じ作業ブランチの後の実行からは見えるが（10/7、run 32 が run 31 の分を復元した）、cloudflare の実行からは見えない（10/8 の run #33 は、作業ブランチの試験より前の cloudflare の run #30 の分を復元した）
+- 10/9 は update-live-channel が Worker から起動した最初の朝（段階2の後の回）。作られた時刻（API）は update-live-channel の run #78 が 04:00:40（題 `[scheduled] 「連盟ch」の毎日の取り込み`、success、5分01秒。層1のコミット・シート・カレンダー・ジョブ regenerate まで書き込んだ）、sync-dojo-calendar の run #35 が 04:15:40（success、28秒）、delete-merged-branches の run #21 が 04:20:40（success、37秒）。どれも予定から 40 秒。06:00:40 JST に「朝の確かめ: 2026-10-09 予定 3・success 3・それ以外 0・#506 に書かない」。この朝の毎分の回のログの時刻は毎分 39〜40 秒ごろ（Observability。平野さんの画面の申告値）
+- 同じ日の保険の予約実行: update-live-channel の run #79（schedule）が 10:28:00 に作られ（予定 06:43 から 3 時間 45 分の遅れ）、ゲートのログの行は「当日の予約の起動の成功: 78」。出力は `run` だけで、以降のステップとジョブ regenerate・yotei は skipped、success・9秒。ゲートなしの sync-dojo-calendar の run #36（11:04:31、29秒）・delete-merged-branches の run #22（11:35:50、18秒）は今までどおり動いた

@@ -54,6 +54,26 @@ YouTube の概要欄が直ったときなどに、「連盟プロ以外」「別
 - Chat-Ref の重複なし（`git log --all --grep`）。識別子 `STL` は全ブランチのコミット・`docs/logs/` の履歴に無い。クローンは浅くない
 - `work/1009-stl` はローカル・リモートとも無し → `git checkout -b work/1009-stl origin/cloudflare`。1回目は auto モードの分類器に `[Modify Shared Resources]` で拒否され、ターミナルで報告して止まった。平野さんが同じコマンドを許可する返答を貼り、1回だけ実行し直して成功した
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- 手順0: このログの「指示」欄の末尾は「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」で、指示文の最後の行と一致
+- issue の着手中コメントは書かない（指示が「issue は変えない」調査のみで、コードも触らないため。CLAUDE.md「issueの着手ルール」は「コードを触る前に」）
+
+### 手順1 前半: 重なりの確認（止まる条件に当たらない）
+
+- issue: 「別名」「連盟プロ以外」「未使用」「使われていない」「訂正 登録名変更 削除」などで検索し、open の全 issue の題（更新順の先頭100件）も見た。
+  同じ論点（使われていない登録の洗い出し・片付け）の issue は無い。近いもの: #475（この論点の行き先、常設）、#396・#397（「連盟プロ以外」のかな・所属・X を埋める。open だが別論点）、#431・#500（closed）
+- 未マージのブランチ（`git branch -r --no-merged origin/cloudflare`）: work/1008-dic（docs/logs のみ）、work/1008-hou（houou/ の生成。`scripts/generate_houou_race.py` を変えるが、名前の辞書を読む部分の差分に「別名」「連盟プロ以外」「NameBook」は無い）、work/1009-wkr-13（docs/logs のみ）、work/1009-stl（このログ）。
+  層2・`names.py`・#475 の知らせに触れるものは無い
+- #475: 本文は bot（github-actions）が作った最初の一覧（173名）。コメントは bot の差分の知らせ（「未登録の名前（読み違いを含む）: N名 → M名」＋「新しく出た名前」「消えた名前」＋案内の文＋実行ログのリンク）と、人（Claude Code）の調査のコメント2件。直近は 10/8 19:03 UTC の「1名 → 0名」（根越英人が消えた）
+
+### 手順2: 概要欄の修正が届くか
+
+- 層1（`scripts/fetch_live_channel_raw.py`）: 毎日の `--mode new` は新着と配信予定・配信中だった動画だけを取り直す。
+  **週1回（水曜 JST、`VERIFY_WEEKDAY: '3'`）の `--mode verify` が既知の全動画を取り直し、取得日時以外の項目（タイトル・概要欄など）が最新の行と違えば取り直した行を追記する**（`plan_verify()`・`changed_keys()`。上限 `CHANGED_LIMIT` 200本、超えたら追記せず止まる）
+- 実測: 10/7（水）の run 37536913863（schedule）で verify が動き、「既知の動画: 14126本、videos.listで取れた 14126本」「値が変わった: 2本 項目別 {'長さ': 2}」で2行を追記した
+- 層2（`write_live_channel_candidate.py`）は毎日、層1の各動画の最新の行（`load_latest_videos`）から【2】を全件作り直す。したがって **概要欄の直しは、次の水曜の実行で層1に入り、その日の層2で【2】に届く**（最長で約1週間遅れる）。【1】も全件を書き写すので同じ日に届く
+- すぐ届かせる方法: 手動実行（`update-live-channel.yml`、入力 `apply` と `verify` を真）。verify は手動の入力 `verify` で曜日に関係なく動く（ワークフローの「実行するかどうかを決める」で `verify="${{ inputs.verify }}"`）。値が変わった動画が200本を超えるときは `allow_many_changes`
+- 【3】: 追記は補正の列を空欄で足すだけで（`append_live_layer3_candidates.py`）、生成は `live_layer3.merge_records()` で列ごとに「【3】が空欄なら【2】、`EXPLICIT_BLANK` なら空、それ以外は【3】」を使う。平野さんが【3】の対局者・実況・解説に手で入れた名前は /live・title/ の生成に入る。
+  **#475 の未登録の検査（層2）は【2】だけを見ており【3】を見ない**。「使われている」の判定には【3】の補正の列（と、それが空欄の行の【2】）を入れる必要がある（手順1の表で扱う）
 
 ## 報告
 
@@ -71,12 +91,12 @@ YouTube の概要欄が直ったときなどに、「連盟プロ以外」「別
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj eabe7134）: https://github.com/retroeater/mj-logs/tree/main/guide/eabe7134
+ガイド文書（この版を写した時点の最新、mj b577508d）: https://github.com/retroeater/mj-logs/tree/main/guide/b577508d
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/eabe7134/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/eabe7134/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/eabe7134/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/eabe7134/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/eabe7134/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/eabe7134/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b577508d/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b577508d/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b577508d/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b577508d/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b577508d/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b577508d/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/eabe7134.md
