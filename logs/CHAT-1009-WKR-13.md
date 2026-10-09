@@ -58,16 +58,33 @@
 ## 経過
 
 1. Chat-Ref の確認: `git log --all --grep="CHAT-1009-WKR-13"` は0件。リモート・ローカルに `work/1009-wkr-13` は無い → `git checkout -b work/1009-wkr-13 origin/cloudflare`
+2. 手順0: 指示欄の最後の行は「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」で一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+3. #504 は Open
+4. run の実物（API の created_at／updated_at。JST に直した）:
+   - update-live-channel run #78（37828694811）: workflow_dispatch・cloudflare・success、作成 04:00:40・終了 04:05:41（5分01秒）、題 `[scheduled] 「連盟ch」の毎日の取り込み`。ジョブ update の書き込みのステップ（層1のコミット、【1】【2】【3】、未登録の名前の知らせ）は success、skipped は「見えなくなった動画・値が変わった動画の確認」（水曜だけ。10/9 は金曜）と「配信終了日時の取り直し」（backfill）だけ。yotei・regenerate（再生成とコミット・push）も success
+   - sync-dojo-calendar run #35（37830603400）: 作成 04:15:40、success、28秒。delete-merged-branches run #21（37831232456）: 作成 04:20:40、success、37秒。どちらも題が `[scheduled]` で始まる
+   - update-live-channel run #79（37869904632）: schedule・cloudflare・success、作成 10:28:00・終了 10:28:09（9秒）。ジョブ update はステップ「実行するかどうかを決める」だけ success で、以降のステップはすべて skipped。ジョブ regenerate・yotei は skipped。ログの env: SCHEDULE_ENABLED true・SCHEDULED true・APPLY true・EVENT_NAME schedule。ゲートの行は「当日の予約の起動の成功: 78」、出力は `Set output 'run'` だけ（`apply` を出さない＝ゲートで止めた道）。サマリ（`GITHUB_STEP_SUMMARY`）はセッションの API から読めないため、文面は確かめていない
+   - sync-dojo-calendar run #36（schedule）: 作成 11:04:31、29秒、success。delete-merged-branches run #22（schedule）: 作成 11:35:50、18秒、success
+   - 前提との食い違いは無い（チャット側の表の分単位の時刻と一致）
+5. CHAT-1008-WKR-12 のログの状態を「判断待ち（…）/ 続き: CHAT-1009-WKR-13」にした。WKR-12 の未確認の項目の結果: 04:00 の起動と書き込み → 確かめた（run #78）。06:00 の朝の確かめ「予定 3」→ 平野さんの画面の申告値で確かめた。保険の予約実行のゲート → 確かめた（run #79）。concurrency の待ち → 重ならず未確認（scheduler-worker.md「未確認」に移した）
+6. docs/notes/scheduler-worker.md（コミット 607e8b12）: 「未確認」の見出しを 2026-10-09 にし、concurrency の待ちを足した。「動いた記録」の見出しを 2026-10-09 にし、10/9 の2行（Worker からの起動と朝の確かめ、保険の予約実行のゲート）を足した
+7. docs/decisions/: この指示に決定は無く、足していない
+8. #504 にコメントした（https://github.com/retroeater/mj/issues/504#issuecomment-6074272733 ）。#504 の本文と docs/handover.md は今の記述（段階2は済、update-live-channel は 2026-10-09 から Worker で 04:00）で足りるので変えていない
 
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1009-wkr-13
-- ログ: https://github.com/retroeater/mj/blob/work/1009-wkr-13/docs/logs/CHAT-1009-WKR-13.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1009-wkr-13
-- 確認用URL: なし
-- マージ: 未
-- issue: #504
+- 状態: 完了
+- ブランチ: work/1009-wkr-13（マージ済み。削除は delete-merged-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1009-WKR-13.md
+- 比較URL: https://github.com/retroeater/mj/compare/4e7c1a8d...cloudflare
+- 確認用URL: なし（docs だけ）
+- マージ: 済（docs だけ。SHA はこのログを入れた push の先頭）
+- issue: #504（コメント。Open のまま、本文は変えていない）
+- 結果の要点:
+  - Worker からの起動の作られた時刻（JST、API）: update-live-channel run #78 が 04:00:40、sync-dojo-calendar run #35 が 04:15:40、delete-merged-branches run #21 が 04:20:40（どれも予定から 40 秒、success）。run #78 は書き込みまで行った
+  - 保険の予約実行 run #79: 10:28:00 作成（予定 06:43 から 3 時間 45 分の遅れ）。ゲートの行「当日の予約の起動の成功: 78」。skipped はジョブ update の「実行するかどうかを決める」より後のステップすべてと、ジョブ regenerate・yotei。success、9秒
+  - 直した節: docs/notes/scheduler-worker.md「未確認」（concurrency の待ちを足した）・「動いた記録」（10/9 の2行）。見出しの日付を 2026-10-09 に
+  - CHAT-1008-WKR-12 のログに「続き: CHAT-1009-WKR-13」を足した。concurrency の待ちは scheduler-worker.md「未確認」に移した
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
@@ -75,12 +92,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 0941ef51）: https://github.com/retroeater/mj-logs/tree/main/guide/0941ef51
+ガイド文書（この版を写した時点の最新、mj f3e6f8b4）: https://github.com/retroeater/mj-logs/tree/main/guide/f3e6f8b4
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/0941ef51/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/0941ef51/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/0941ef51/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/0941ef51/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/0941ef51/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/0941ef51/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f3e6f8b4/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f3e6f8b4/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f3e6f8b4/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f3e6f8b4/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f3e6f8b4/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f3e6f8b4/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/4e7c1a8d.md
