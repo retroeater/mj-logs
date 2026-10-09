@@ -62,6 +62,47 @@ regenerate-page.yml の再生成で1ページが失敗すると、残りのペ�
 
 ## 経過
 
+- 0章: 指示欄の末尾は指示文の最後の行（「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」）と一致。
+  雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- 識別子: `git fetch --unshallow origin` の後、`git log --all -E --grep 'CHAT-[0-9]{4}-RGN-'` と `docs/logs/CHAT-*-RGN-*.md` の履歴はどちらも0件。`CHAT-1009-RGN-01` のコミットも0件
+- ブランチ: `work/1009-rgn` はローカル・リモートとも無かったため `git checkout -b work/1009-rgn origin/cloudflare`（5bba42c1）
+
+### 手順1 重なり
+
+- Search API（`/search/issues`）はセッションのプロキシが拒否する（リポジトリ単位の API だけ通る）。代わりに `repos/retroeater/mj/issues?state=all`（531件、PR を除く）と
+  `issues/comments`（1,864件）を全件取り、手元で検索した。語: regenerate.py・regenerate-page・再生成・生成を止める・1ページ・失敗（232件に当たる）。
+  絞り込み（再生成と「残り/後ろ/以降のページ」「最初の失敗」「途中で止」「巻き添え」「道連れ」「失敗しても続け」などが同じ本文・コメントにあるもの）で当たったのは #194 のコメント（2026-09-21、CHAT-0921-BK-16）だけ
+- #194（「帰り道」の新しい回の自動取り込み、open）のコメントは、video_wayhome の失敗で `regenerate.py` が途中で終わり、残りのページとコミット・push が止まった事例（書籍ページの週次の取り直しが道連れ）を書き、
+  手当ての案「C. 生成の途中で止めない」を挙げ「C は A と別の論点として切り出せる」としている。切り出した issue は無い。#194 の主題は帰り道の取り込みで、この件と同じ主題の issue ではないと判断し、止まらずに進めた。新しい issue の「関係」で #194 に触れる
+- 題に「再生成」「失敗」などを含むほかの issue（#103・#167・#263・#330・#386・#432・#439・#456・#472・#495 など）は、1ページの失敗で全体が止まる件を主題にしていない
+- 未マージの work/ ブランチ: `origin/work/1008-dic`・`origin/work/1008-hou`・`origin/work/1009-swp-rhl`（と自分の `work/1009-rgn`）。
+  `scripts/regenerate.py`・`.github/workflows/regenerate-page.yml` を変えているのは `work/1008-hou` だけで、`OUTPUT_OVERRIDES` に `"houou_pages": "houou/"` を1行足すもの（#518 の新ページの追加）。目的が違うため止まらない。
+  直すときに同じファイルを触るので、issue の論点に書く。コミットの件名で同じ目的のものは無い
+
+### 手順2 実物（cloudflare 5bba42c1。読むだけ）
+
+- `scripts/regenerate.py`
+  - 並び: `known_pages()`（56〜59行）が `scripts/generate_*.py` の名前を `sorted` で返す。`all` はその順から `FROZEN_FROM_ALL`（books_pages）を除いたもの（107行）、`--changed` は `pages_for_changes()` の `sorted`（83・87行）、名前の指定は指定の順（110〜114行）
+  - 失敗: 121〜130行のループで、生成スクリプトの終了コードが0でなければ「<page> の生成に失敗しました。」を出して `return result.returncode`。残りのページは呼ばれず、`check_asset_limits.main()`（134行）も、ワークフローにコミット対象を伝える最後の行（138行）も出ない
+  - 途中の出力: 生成スクリプトは出力を直接書く（`scripts/lib/page.py` 448行の `write_text`、一時ファイルからの置き換えではない）。`regenerate.py` は失敗したページ・それまでのページの出力を戻さないので、作業ツリーに残る。
+    resource_dictionary は `build_categories()` で止まり、書き出し（214〜215行の `write_data()`・`OUTPUT_PATH.write_text`）の前だったので、#233 では途中の出力は無かったはず。ほかのページでは書き出しの途中で止まる形もありうる（例: resource_dictionary の `write_data()` は `dic/*.json` を書いてから知らないファイルを消し、その後に HTML を書く）
+- `.github/workflows/regenerate-page.yml`
+  - 「対象ページを再生成」（98〜133行）は `set -o pipefail` のうえ `regenerate.py ... | tee /tmp/targets.txt`。Actions の既定のシェル（`bash -e`）なので、失敗するとその行でステップが終わり、133行の `files=` の出力も書かれない
+  - 後の4ステップ（サイトマップの lastmod 135行・well-formedness 144行・title/ の転送 168行・コミット・push 180行）の `if` は `steps.regen.outputs.files != ''` で、状態の関数が無いため既定の `success()` も掛かる。前のステップの失敗と、`files` が空の両方の理由で skipped になる
+  - 取得失敗を報告する2ステップ（202・208行）も `if` に状態の関数が無いので、再生成が失敗した回は、取得が失敗していても報告されない（ジョブは再生成の失敗で failure にはなる）
+  - 週次: `schedule`（29行、月曜 05:37 JST）は 123〜131行の else に入り、`inputs.target_page` が空なので `all` で同じ `regenerate.py` を通る。push で範囲が取れないときの `all`（114行）、手動実行・`workflow_call` も同じ経路
+- `regenerate.py` を呼ぶほかの経路
+  - `.github/workflows/update-live-channel.yml` 330〜335行: 毎日の取り込みの後に `regenerate-page.yml` を `workflow_call`（`target_page: live_pages title_pages`）。live_pages が失敗すると title_pages は生成されず、どちらも push されない
+  - ほかのワークフロー・スクリプトで `regenerate.py` を呼ぶものは無い（`git grep` で `.github/workflows/`・`scripts/`）。セッションの手動の `python3 scripts/regenerate.py all` も同じ止まり方（作業ツリーにそれまでの出力が残る）
+- #233・#235（GitHub MCP）
+  - #233: run 37875190474、push、cloudflare 600c14ea、2026-10-09 02:34 UTC（11:34 JST）、failure。ステップ「対象ページを再生成」が failure、lastmod・well-formedness・title/ の転送・コミット・push・取得失敗の報告2つは skipped。
+    ログの末尾は `== ouka_leagues ==`（更新しました）→ `== resource_dictionary ==` →「生成を止めました: 「辞書」タブに知らないカテゴリがあります: ['一般用語']」→「resource_dictionary の生成に失敗しました。」→ exit code 1。NEN-12 の「手順1」と食い違わない
+  - #235: run 37877153780、cloudflare 6e5c0fd9（DIC-11 のマージ）、success。#236（37883709708）も success。mj-logs の `actions/status.md` も #233 failure・#234〜#236 success
+- 補足（食い違いではないと判断）: NEN-12 は #233 の対象を「`style.css` などが変わったため、それを使う20ページ」と書いている。`git diff --name-only c125a19d 600c14ea` には `style.css` と `scripts/lib/share.py` が含まれ、
+  `regenerate.py` は `style.css` を判定に使わない。20ページになったのは `scripts/lib/` の変更で全ページ（21本から凍結の books_pages を除く）が対象になったため（82〜83行）。
+  ページの一覧と件数は NEN-12 と一致し、前提の「`style.css` などの変更で選ばれた20ページ」は「など」に share.py が含まれる意味で実物と合うので、止まらずに issue に補足として書く。
+  名前順で resource_dictionary より後ろの13ページ（resource_efficiency・resource_logs・rh_paifu・rh_results・rh_results_detail・saikyo_mens・saikyo_pages・title_pages・video_en・video_live・video_mtsuku・video_wayhome・wayhome_episodes）は生成されていない
+
 ## 報告
 
 - 状態: 対応中
