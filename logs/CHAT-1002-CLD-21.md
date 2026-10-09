@@ -268,17 +268,19 @@ index 30ab5db1..27931ffb 100644
 
 「マージ: 判断待ちで止まる」のとおり、cloudflare へは入れない。作業ブランチ work/1002-cld は残す（未マージのコミット: d0fb9041 のコード・テスト・docs/notes/yotei-sheet.md と、決定・ログ）。
 
+- 経過の記録: 最初にこのログの `## 報告` を書いたとき、引用符の無いヒアドキュメントで Python に渡したため、報告の中のバッククォートの部分がシェルに展開されて抜けた（6a6e4046）。CLAUDE.md「コミットのルール」に反した。書き直したスクリプトをファイルに置いて実行し、報告を直した
+
 ## 報告
 
 - 状態: 判断待ち
 - ブランチ: work/1002-cld（未マージ。片付けずに残す）
 - ログ: https://github.com/retroeater/mj/blob/work/1002-cld/docs/logs/CHAT-1002-CLD-21.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1002-cld
-- 確認用URL: なし（ と docs だけで、ページは変わらない）
+- 確認用URL: なし（`scripts/` と docs だけで、ページは変わらない）
 - マージ: 未（「マージ: 判断待ちで止まる」のとおり）
 - issue: #491（本文と題を書き換えた。着手中コメント https://github.com/retroeater/mj/issues/491#issuecomment-6073148386 ）
 - 判断が必要なこと:
-  - コードの直し（d0fb9041:  の  に、レコードの人の値が無いときも概要欄の名前に「別名」の訂正をかける枝と  を足した。テスト2件、docs/notes/yotei-sheet.md の説明）を cloudflare へ入れてよいか。模擬で変わる予定は1件だけ（2026-10-12 Focus M season13〈m-P4W_ScUTI〉の【対局者】「渡辺英悟」→「渡辺英梧」）。足す・消すは0件で （30）以下。テスト 658件 OK
+  - コードの直し（d0fb9041: `scripts/lib/live_calendar.py` の `people()` に、レコードの人の値が無いときも概要欄の名前に「別名」の訂正をかける枝と `fix_names()` を足した。テスト2件、docs/notes/yotei-sheet.md の説明）を cloudflare へ入れてよいか。模擬で変わる予定は1件だけ（2026-10-12 Focus M season13〈m-P4W_ScUTI〉の【対局者】「渡辺英悟」→「渡辺英梧」）。足す・消すは0件で `MAX_DELETES`（30）以下。テスト 658件 OK
   - マージの後、カレンダーへの反映は次の毎朝の同期（04:00 JST、Worker からの起動）で「直す」1件になる見込み（手動実行は要らない）。その後、続きの指示で #491 をクローズし #488 を親なしにする
 - 未確認の項目:
   - 次の毎朝の同期で、上の1件が直ること（マージの後）
