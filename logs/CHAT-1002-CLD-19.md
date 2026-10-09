@@ -59,7 +59,7 @@
 - 指示文の冒頭の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある
 - CLAUDE.md が前の指示の後で変わっていた（「作業ログ」節: 「完了」は判断待ちも移していない論点も無いときだけ、完了の「判断が必要なこと」「未確認の項目」は「なし」だけ、など）。今の CLAUDE.md・docs/logs/_template.md・docs/notes/branch-operations.md「作業ログの寿命」を読み直して、それに従う
 
-- 0章: 「指示」欄の末尾は指示文の最後の行と一致。#448 は Open。コメント21件のうち着手中のコメントは CHAT-0928-HC-03 と CLD のこのセッションのもの（どれも作業済みで、続く報告のコメントで締めている）だけで、他セッションの作業中の着手中コメントは無い
+- 0章: 「指示」欄の末尾は指示文の最後の行と一致。#448 は Open。コメント23件のうち着手中のコメントは CHAT-0928-HC-03 と CLD のこのセッションのもの（どれも作業済みで、続く報告のコメントで締めている）だけで、他セッションの作業中の着手中コメントは無い
 - #448 に着手中コメント: https://github.com/retroeater/mj/issues/448#issuecomment-6072336077
 
 ### 1. 確認
@@ -117,15 +117,21 @@ index 5f8cde2d..30ab5db1 100644
 +- #488（第1期JPMLリーグの大会名）の親を #491 に付け替えた。カレンダーの運用の残りは #491 で追う
 ```
 
+### 5. マージ
+
+- push 直前に再 fetch し、`origin/cloudflare` が HEAD の祖先であることを確かめて `git push origin work/1002-cld:cloudflare`（23f4ac3e..a344a853）。差分は docs/decisions/broadcast-calendar.md・docs/logs/CHAT-1002-CLD-19.md だけ
+- マージから約2分の時点で、a344a853 の `regenerate-page.yml` の実行は無い（最後の実行は 2026-10-08 の別のコミット。docs だけのため動かない見込みどおり）
+- 作業ブランチはマージ済み。削除は `delete-merged-branches.yml` に任せる（クラウドセッションでは削除できない）
+
 ## 報告
 
-- 状態: 作業中（マージ前）
-- ブランチ: work/1002-cld
-- ログ: https://github.com/retroeater/mj/blob/work/1002-cld/docs/logs/CHAT-1002-CLD-19.md
+- 状態: 完了
+- ブランチ: work/1002-cld（cloudflare へマージ済み。削除は `delete-merged-branches.yml` に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1002-CLD-19.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1002-cld
 - 確認用URL: なし
-- マージ: 未
-- issue: #448（クローズ）・#488（親を #491 に付け替え）・#491
+- マージ: 済（a344a853、docs のみ。`regenerate-page.yml` は動いていない）
+- issue: #448（クローズ。コメント https://github.com/retroeater/mj/issues/448#issuecomment-6072340981 ）・#488（親を #491 に付け替え）・#491
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
