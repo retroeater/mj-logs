@@ -49,28 +49,50 @@
 
 ## 経過
 
+### 0章・ブランチ
+
+- 「指示」欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・作業ブランチ・共通手順）は揃っている
+- CHAT-1008-DIC-10 の `## 報告` の状態は「判断待ち」
+- `git log --all --grep="CHAT-1008-DIC-11"` は0件
+- ローカルの work/1008-dic は origin/work/1008-dic と同じ（8c5766bb）。`git merge-base --is-ancestor origin/cloudflare HEAD` は偽だったため、ログの push の後に `git merge origin/cloudflare` で取り込んだ（衝突なし。入ったのは docs と 404・リンク集のページなど、辞書と関係の無いもの。cloudflare 側の CHAT-1009-NEN-12 のログに「regenerate failed on dictionary」とあり、指示文のとおり今の cloudflare の生成は「一般用語」で止まっている）
+
+### 手順1（確かめ）
+
+- DIC-10 のログの状態に ` / 続き: CHAT-1008-DIC-11` を足し、`docs/decisions/features.md` に 2026-10-09（DIC-11）の決定を足した
+- 未マージの work/ ブランチ（work/1002-cld・work/1008-hou・work/1009-nen）に、辞書のファイル（`scripts/generate_resource_dictionary.py`・`resource_dictionary.js`・`resource_dictionary.html`・`resource_dictionary.css`・`dic/`・`scripts/apply_page_meta.py`）を変えているものは無い
+
+### 手順2（直す）
+
+- 生成スクリプトの見出しを `<h2 class="mj-dic-title">辞書ダウンロード</h2>` にし、テストに見出しの確かめを足した。見出しを指す `aria-label` などは無かった（吹き出しは `popover` で、見出しを参照していない）。`resource_dictionary.css` の冒頭のコメントの見出しの名前も直した
+- テスト OK
+- 「辞書」タブ（`fetch_records`）: 746 行、カテゴリは 一般用語 546・連盟用語 127・Mリーグ 73 の3つ、品詞は全件「名詞」
+- 全ページの再生成（`python3 scripts/regenerate.py all`、1分15秒、エラーなし）の差分は `resource_dictionary.html` の見出しの1行だけ
+- ローカルの Chromium: 見出し「辞書ダウンロード」、説明文の語数 1,822。3形式の保存は Microsoft IME 1,822・Google 日本語入力 1,822・Gboard 1,822（見出し行を除く、zip の CRC 正常）。吹き出しは Enter で開き Esc・外側のタップで閉じる
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1008-dic
-- ログ: https://github.com/retroeater/mj/blob/work/1008-dic/docs/logs/CHAT-1008-DIC-11.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1008-DIC-11.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1008-dic
-- 確認用URL: なし
-- マージ: 未
+- 確認用URL: プレビューは見ていない（決定のとおり）。本番で確かめた（経過の「マージ」）
+- マージ: マージの前に書いている。結果は経過の「マージ」に追記する
 - issue: #522・#515
-- 判断が必要なこと: なし
+- 判断が必要なこと:
+  - 次の指示で見る2つ（決定のとおり）: PC でボタンを縦に並べた形、登録方法の別案（保存した後に、その形式の手順をボタンの下に出す）
+  - #515 は、平野さんが本番で Android の Gboard の取り込みを確かめた後に閉じる
 - 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj d2ff5f93）: https://github.com/retroeater/mj-logs/tree/main/guide/d2ff5f93
+ガイド文書（この版を写した時点の最新、mj 0b4d0a8a）: https://github.com/retroeater/mj-logs/tree/main/guide/0b4d0a8a
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d2ff5f93/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d2ff5f93/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d2ff5f93/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d2ff5f93/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d2ff5f93/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d2ff5f93/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/0b4d0a8a/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/0b4d0a8a/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/0b4d0a8a/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/0b4d0a8a/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/0b4d0a8a/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/0b4d0a8a/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/55b6a3cb.md
