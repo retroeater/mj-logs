@@ -171,28 +171,50 @@ HOU-05 の比較ページを平野さんが見て選んだ結果（下の「決�
 - 「もう一度見る」: グラフの中央に半透明の丸（84px）。動きの最中・吹き出しを出している間・拡大している間は出さない（中央に重なって邪魔になるため）
 - 手元の確かめ（390×844）: 白鳥翔と平野良栄で、落ちる途中・着地・山が生える・登る（D の帯を見下ろす場面、昇級で紙吹雪の場面、C1 から C2 へ降りる場面）・ズームアウトの途中・最後を撮った。落ちるアイコンは見出しの写真の位置から始まる。山は左から順に生え、登る間はアイコンの周りの2〜3期だけが映る。昇級の区間で上を向くと、カメラが描く範囲の上端で止まるため、アイコンが上の端に寄る場面がある（範囲の外は映さない作り）。最初の版は山が生える前に山の名前が出ていたので、名前は登る間だけにした。PC（1280）でホイールで拡大すると、「32前〜37前」の12期・上限で「34前〜35後」に期が出た。吹き出しを出しているときに「もう一度見る」が重なっていたので、上のとおり出す条件を足した。JS のエラー 0
 
+
+### 手順3 字の大きさへの連動・文書・再生成・プレビュー
+
+- 字の大きさ: `style.css`「鳳凰戦の新ページ」の節の `font-size` 21か所を px から rem に（SVG の中の字〈リーグ推移の段の名前・期、ローソク足の目盛り〉はグラフと一緒に縮むので px のまま）。`--mj-houou-l/m/s` と、`.mj-race:is(.mj-houou, .mj-houou-race)` の中の `--mj-race-l/m/s`・`--mj-race-row`・`--mj-race-ctl` を rem にした（`.mj-race` だけの `houou_race.html` には効かない）
+- 高さ: 見出しのカード・選ぶ部品・部門のセレクト・検索欄・候補・セグメント・期のカード・節ラベルを `min-height`（rem）に。期の送りは 2.75rem
+- 折り返し: 順位変動の名前とランキングの名前は「…」をやめて折り返す。個人成績の要約3枚は `repeat(auto-fit, minmax(min(100%, 6.5rem), 1fr))`（100% では3列のまま、150% で2列、200% で1列）。期のカードの右側は1行に収まらないと次の行へ
+- 順位変動の行: `assets/houou_race.js` が表を組むたびに各行の高さを測り、いちばん高い行に全部の行・順位のマス・帯をそろえる（`--mj-race-row` を px で入れ直す。画面の幅が変わったら測り直す）。順位のマスの幅 2rem、チップ 1.75rem、ポイントの欄の最小幅 3.8em（4.6em では 200% で名前の欄が 66px まで細った）
+- 確かめ（headless Chromium、390×844、ルートの文字サイズ 100%・150%・200%、6ページ）: 横のはみ出し・行どうしの重なり・字の切れ（要素の `scrollHeight` が高さを超える、`text-overflow: ellipsis` で切れている、本文の枠の外へはみ出す）を数えた。最初の版で 200% にすると、ランキングの値の欄が表の外で切れ（名前が折り返さなかった）、個人成績の要約「+1124.3」がカードの外へはみ出し、名前の欄（flex の td）が固定の高さを超えていた。上のとおり直して、3つの大きさ×6ページ＝18項目すべて 0 件。JS のエラー 0
+- 修正前のコードとの比べ: 修正前は字が px なので、ルートの文字サイズを変えても字が大きくならない（この方法では平野さんの iPhone の Chrome の崩れは再現できない。Chrome の文字の拡大は px の字も大きくするため）。修正後は rem なので、ルート 200% で字が2倍になり、そのうえで崩れないことを確かめた。実機の確かめは平野さん
+- 旧 `houou_race.html`: 再生成で差分なし。プレビューで行 34px・期の送り 42px・節ラベル 28px・名前は折り返さない・昇級の色 #e8590c のまま
+- 文書: houou-top.md（個人成績の欄、チップの位置の比較、リーグ推移の色の表〈note の URL と、PDF のアイコンから読み取った値である旨〉・拡大と期の表示・最初の動き、R の表の R-12、部品の値の表、字の大きさへの連動の節、仮置き）、static-generation.md（比較ページを1つに）、decisions/houou.md（2026-10-09 の4つ目の節と、置き換えの印2か所: HOU-05 の「X のアイコンが降り立ち…ズームアウト」「期の目盛りは出さなくてよい」）。houou-top.md は 27.6KB
+- 全ページの再生成（`books_pages`・`jpml_pros`・`resource_dictionary` を除く19ページ。`jpml_pros`・`resource_dictionary` は指示のとおり外した）: 差分なし
+- プレビュー（Workers Builds 成功、e471dcbd）: 390×844（3倍）・1280×800・1920×1080 で7ページ（トップ・個人成績・個人成績の比較・ランキング・リーグ推移・順位変動・旧 houou_race.html）＝21項目すべて 200・要素あり・横のはみ出し 0・JS のエラー 0、新しいページは noindex。`houou/leagues/compare.html` は 404。文字サイズ 100・150・200% の18項目も手元と同じく 0 件。順位変動の R-03〜R-09 の確かめは HOU-05 と同じ結果。リーグ推移のホイールの拡大で期が出ること、個人成績の欄の位置（チップを左にした並び）も手元と同じ
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1008-hou
 - ログ: https://github.com/retroeater/mj/blob/work/1008-hou/docs/logs/CHAT-1009-HOU-06.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1008-hou
-- 確認用URL: なし
-- マージ: 未
-- issue: #518
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 確認用URL: プレビューあり（URL は最終報告）。確かめたページ: トップ・個人成績・個人成績の比較・ランキング・リーグ推移・順位変動
+- マージ: 未（指示のとおり判断待ち。cloudflare へは push していない）
+- issue: #518（作業中）
+- 判断が必要なこと:
+  - 確かめる手順（URL は最終報告。iPhone と PC で）: (1) 個人成績の比較ページで、上のラジオ「チップの位置」を「得点の右」（得点 → 順位 → チップ）と「得点の左」（チップ → 得点 → 順位）で切り替え、期のカードの右側の並びと、行ごとに順位の「位」・チップの位置がそろっていることを見る。どちらにするか決めてほしい（本番の個人成績は「得点の右」） (2) リーグ推移で選手を選ぶ（例: 白鳥翔）。見出しのアイコンから落ちる → 山が生える → 登る（昇級の紙吹雪・降級で沈む・アングルの変化）→ ズームアウトの流れ（6〜10秒）、段の帯の色（note の色）、鳳凰位の色、見出しの「第24期前期〜第43期前期」、終わった後の中央の「もう一度見る」、ピンチ（PC はホイール）で2期まで拡大して帯の下に「35前」の形で期が出ること (3) iPhone の Chrome で文字を最大にして、5ページ（トップ・個人成績・ランキング・リーグ推移・順位変動）で字が切れない・行が重ならない・名前が「…」にならないこと（名前は折り返す。個人成績の要約3枚は2列・1列に、期のカードの右側は次の行に回る）
+  - 鳳凰位の色: 濃い赤 #9f1239 にした（金色は C の黄色と見分けにくい）。よいか
+  - 実物に合わせて変えたこと: A1 の帯の色を「中」に黒 12% ではなく #e3561f（やや明るく）にした（濃い字で 4.5:1 を取るため）／帯の上の字は濃紺 #111827 ではなく黒にした（A1・E3 で 4.5:1 に届くように）／線に白い縁取りを付けた（E の青の上で濃い線が 2.3〜2.8:1 だったため）／「もう一度見る」は、吹き出しを出している間と拡大している間は出さない（中央に重なって邪魔になるため）／帯のグラデーションは使わなかった（細い帯では見分けにくい）
+  - 仮置き（HOU-01〜05 から残るもの）: 「第43期前期 終了時点」の文言／JS のファイル名／公開時の navbar の項目／共有の文言／トップと順位変動の共有ボタンの置き場／既定のアイコン／リーグ推移で選手を選んでいないときの表示／自動ルールの余裕の幅 110件と節単位浮き率 100件／連続回数の「（N件）」／鳳凰位の期を「42期」／アイコンの大きさ・字の3段／組のあるリーグの人数と全体の順位の数え方／順位変動のアイコンと「表」「推移」の切り替えの位置／リーグ推移の吹き出しの文言／順位変動の節ラベルの高さ・チップの押せる範囲・取得失敗の文言
+  - 仮置き（今回足したもの）: 期のカードの右側の欄の幅（得点 4.1em・順位 2.7em・チップ 3.9em）と「得点の左」の並び／段の明るさの付け方（1 は黒 12%・3 は白 25%、A1 は #e3561f）と鳳凰位の色／最初の動きの時間・カメラの倍率（3期ぶん、昇級で 1.2 倍・降級で 0.85 倍）・紙吹雪と沈む動き／拡大の上限 2期・期を出す幅 28px・「もう一度見る」を出す条件／字の大きさの連動での要約3枚の折り返しの幅（6.5rem）・順位変動のポイントの欄（3.8em）・SVG の中の字は連動させないこと
+  - 取り込みで、cloudflare 側で `404.html` の参照がルート相対に直っていた（#532 の内容）。#532 を閉じてよいかは起票した側の確認で（この指示では issue を触っていない）
+- 未確認の項目:
+  - iPhone の実機での見え方・操作と、Chrome の文字の拡大（headless Chromium でルートの文字サイズを変える方法では、修正前の崩れは再現できない。修正後に字が大きくなっても崩れないことだけを確かめた）
+  - リーグ推移の動きの滑らかさ（headless の撮影で場面を確かめた範囲）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 419fc58a）: https://github.com/retroeater/mj-logs/tree/main/guide/419fc58a
+ガイド文書（この版を写した時点の最新、mj 063507e3）: https://github.com/retroeater/mj-logs/tree/main/guide/063507e3
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/419fc58a/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/419fc58a/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/419fc58a/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/419fc58a/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/419fc58a/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/419fc58a/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/eabe7134.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/063507e3/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/063507e3/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/063507e3/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/063507e3/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/063507e3/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/063507e3/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/14f14a50.md
