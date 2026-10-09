@@ -75,28 +75,130 @@ YouTube の概要欄が直ったときなどに、「連盟プロ以外」「別
 - 【3】: 追記は補正の列を空欄で足すだけで（`append_live_layer3_candidates.py`）、生成は `live_layer3.merge_records()` で列ごとに「【3】が空欄なら【2】、`EXPLICIT_BLANK` なら空、それ以外は【3】」を使う。平野さんが【3】の対局者・実況・解説に手で入れた名前は /live・title/ の生成に入る。
   **#475 の未登録の検査（層2）は【2】だけを見ており【3】を見ない**。「使われている」の判定には【3】の補正の列（と、それが空欄の行の【2】）を入れる必要がある（手順1の表で扱う）
 
+### 手順1 後半: 利用先の表（コードから。行番号は 4e7c1a8d 時点）
+
+スプレッドシート: 10g_…（`lib/live.py` の `SPREADSHEET_ID`。「連盟プロ以外」「別名」「タイトル」「書籍」）、1h4-…（「プロ」「最強戦」「鳳凰」）、1_H3…（`lib/live_layer3.py`。【1】【2】【3】【4】）、1y8x…（「テスト」）。
+
+| 利用先 | 動かすワークフロー | 照合する名前の出どころ | 絞り込み・区切り | 別名・連盟プロ以外の使い方 |
+|---|---|---|---|---|
+| /live（`generate_live_pages.load_videos()`・`build_video()`） | regenerate-page.yml（live_pages）、update-live-channel.yml の regenerate（apply のとき） | 【3】の対局者・実況・解説。空欄は【2】の値（`live_layer3.merge_records()`）。手で入れた名前を含む | 【3】の掲載=Y の行だけ。「、」区切り | NameBook で訂正・登録名変更とも解決（登録名変更は「当時」併記）。写真は「プロ」「連盟プロ以外」 |
+| 層2・#475 の知らせ（`write_live_channel_candidate.py` → `live_candidate.build_rows()`・`resolve_names()`） | update-live-channel.yml の層2（毎日）、write-live-channel-candidate.yml（手動） | 【1】（層1 `data/live_channel_raw.jsonl`）の概要欄から `live_extract` で抜いた対局者・実況・解説 | 放送対局候補=Y の行だけ（掲載・確認では絞らない）。表示 N や候補でない行は名前を抜かない（候補でない行は名前の列が空） | 訂正は現在名に直して【2】に書く。登録名変更は書かれた名前のまま。どこにも無い名前は確認=Y・理由に書く |
+| 放送対局カレンダー（`sync_live_calendar.load_name_fixer()` → `live_calendar.people()`） | update-live-channel.yml の yotei（毎日。書くのは calendar_apply・schedule） | 予定の枠の動画の概要欄（vs 行と実況・解説）と【3】の値（【3】の値は直さずそのまま） | 掲載で絞らない。【4】の除外あり。予定の窓の動画だけ | 概要欄の名前の訂正だけを直す |
+| title/（`generate_title_pages.main()`・`People`） | regenerate-page.yml（title_pages）、update-live-channel.yml の regenerate | 10g_ の「タイトル」の名前列（1セル1名） | 表示=Y の行（非表示の大会の行も名前は引く） | `build_aliases()` で区分を見ずに全件を当てる（連鎖を辿る・重複は後勝ち・変換後の存在を確かめない）。「連盟プロ以外」は全行を読む（名前の空欄で止める・X画像・文字化けの検査） |
+| jpml_pros の決勝回数（`title_pages.final_counts()`） | regenerate-page.yml（jpml_pros） | 「タイトル」の名前列 | 同上 | 別名だけ（連盟プロ以外は読まない） |
+| jpml_test（`generate_jpml_test.load_photos()`） | regenerate-page.yml（jpml_test） | 1y8x の「テスト」A列（J=Y）から期の表記を外した名前 | J=Y | 別名だけ（`build_aliases`）。写真を「プロ」から引くため |
+| saikyo/（`generate_saikyo_pages.load_rows()`） | regenerate-page.yml（saikyo_pages）、check-image-links.yml の saikyo（`collect_saikyo_images.py` 経由） | 1h4 の「最強戦」H列 | K=Y | NameBook で両方を解決 |
+| 最強戦の未登録の検査（`check_saikyo_unregistered.py`） | check-saikyo-unregistered.yml（毎週） | 同上 | 同上 | 同上 |
+| 鳳凰戦 順位変動（`generate_houou_race.py`） | regenerate-page.yml（houou_race） | 1h4 の「鳳凰」の名前列 | 表示≠N かつリーグが `LEAGUES` | NameBook で両方を解決 |
+| books/（凍結中、`generate_books_pages.py`） | regenerate-page.yml で名指しのときだけ（`regenerate.py` の凍結） | 10g_ の「書籍」の著者列を「・」で分けたもの | 全行（編集部・団体名は照合しない） | NameBook で両方を解決 |
+
+- 読まないもの: `generate_resource_dictionary.py`（「辞書」だけ）、予定表の取り込み（`yotei`）、`append_live_layer3_candidates.py`（book なしで `build_rows()`）、`.github/workflows/` のインラインの処理（シートの名前を読まない）
+- **名前の出どころが実行時まで決まらない利用先は無い。** 層2とカレンダーは YouTube の概要欄だが、層1としてリポジトリに保存したもの（`data/live_channel_raw.jsonl`）から抜く。カレンダーは実行日の予定の窓の動画だけを見るため、試算では全動画の概要欄で近似した（下の差を参照）
+- 注意: 【2】には訂正を当てた後の名前が入っている（`resolve_names()`）。**訂正の行が使われているかは【2】のタブからは分からず、層1から `build_rows(videos)`（book なし）で抜き直す必要がある**
+- 生成済みの静的ページにだけ名前が残るもの: 凍結中の books/（9/22 の生成、190冊）に今の「書籍」（95行）に無い本の著者がいる（下の 土井泰昭）。`video_mtsuku.html` はこのタブを引かない別のページで、名前は本文の文字列
+
+### 手順3: 今の件数の試算（シートには書いていない）
+
+- スクリプト: scratchpad の `collect.py`（各利用先の読み込みと同じ関数・クエリ・絞り込みで、別名を当てる前の名前を集める）。層1は 4e7c1a8d の `data/live_channel_raw.jsonl`（14171本、候補 4321行）
+- 2回読み、行数と中身が一致: 「連盟プロ以外」765行、「別名」28行、【3】4324行、「タイトル」3110行、「テスト」(J=Y) 30名、「最強戦」(K=Y) 2568行、「鳳凰」16011行、「書籍」95行。`check_not_filtered()` はどのタブも通った
+- 集めた名前の数（重複を除く）: 層2 667、カレンダー（全動画で近似）1309、【3】掲載=Y 413・掲載≠Y 447、「タイトル」表示=Y 764・表示≠Y 395、テスト 30、最強戦 440、鳳凰（表示≠N・LEAGUES）1296・それ以外 600、書籍 44
+- 判定: 基本の集合 = 層2・カレンダー・【3】（掲載の値を問わず）・タイトル（表示=Y）・テスト・最強戦・鳳凰（表示≠N・LEAGUES）。
+  「別名」の `訂正` の行は変換前がこの集合にあれば使われている。「連盟プロ以外」の行は名前がこの集合にあるか、使われている `訂正` の行の変換後なら使われている
+
+#### 使われていない「別名」の `訂正` の行: 2行
+
+| 行 | 変換前 | 変換後 | 備考 | メモ |
+|---|---|---|---|---|
+| 11 | 佐月真理子 | 佐月麻理子 | 概要欄の誤記 | 層1のどの版の行にも無い |
+| 17 | 根越英人 | 根越英斗 | 概要欄の誤記 | 層1の古い行（Zw-a4z12f1k・mUManqtka4c、第一期鳳匠戦ベスト16C卓）にだけある。10/8 19:02 UTC の取り直しで概要欄が「根越英斗」に直っていた（#475 の 10/8 の「1名 → 0名」）。今回の片付けが想定する例そのもの |
+
+参考: 使われていない `登録名変更` の行は2行（一覧は省く）。
+
+#### 使われていない「連盟プロ以外」の行: 26行
+
+| 行 | 名前 | 所属団体 | 所属補足 |
+|---|---|---|---|
+| 15 | 有賀一宏 | 最高位戦 | - |
+| 23 | 石田時敬 | 最高位戦 | - |
+| 87 | 齋藤けーすけ | 協会 | - |
+| 93 | 佐藤崇 | 最高位戦 | - |
+| 98 | 設楽遙斗 | 最高位戦 | - |
+| 102 | 清水裕貴 | 協会 | - |
+| 135 | 田中航 | 最高位戦 | - |
+| 144 | 綱川隆晃 | 最高位戦 | - |
+| 147 | 寿（とし） | - | 一般 |
+| 159 | 中邨光康 | 最高位戦 | - |
+| 167 | 野村勇介 | 協会 | - |
+| 169 | 筥崎弘太郎 | 協会 | - |
+| 170 | 長谷川来輝 | 最高位戦 | - |
+| 196 | 松島リキヤ | 協会 | - |
+| 254 | 伊東一 | - | （空欄） |
+| 292 | 夏目 | - | （空欄） |
+| 302 | 萱場貞二 | - | （空欄） |
+| 317 | 菊池俊幸 | - | （空欄） |
+| 330 | 宮城拓二 | - | （空欄） |
+| 396 | 佐藤聖誠 | - | 元最高位戦 |
+| 476 | 上野龍一 | - | （空欄） |
+| 503 | 清原大 | - | （空欄） |
+| 560 | 大脇貴久 | - | （空欄） |
+| 619 | 土井泰昭 | - | （空欄） |
+| 674 | 平林加一 | - | （空欄） |
+| 685 | 名古屋潤 | - | （空欄） |
+
+- `登録名変更` の行の変換後にだけなっている「連盟プロ以外」の行: 0行（使われているもの・いないものとも）
+- 上の26行のうち、生成済みのページに名前があるもの: 土井泰昭（凍結中の books/ の 9784839984298 の著者。今の「書籍」には無い）、設楽遙斗・佐藤聖誠（`video_mtsuku.html` の本文。このタブを引かないページ）。ほかの23名はリポジトリのどのページにも無い
+
+#### 読む範囲を変えたときの差
+
+| 変えたこと | 訂正 | 連盟プロ以外 |
+|---|---|---|
+| 基本 | 2 | 26 |
+| books/（凍結中の「書籍」）を足す | 2 | 26 |
+| 「タイトル」の表示≠Y の行を足す | 2 | 26 |
+| 「鳳凰」の表示 N・LEAGUES 外の行を足す | 2 | 26 |
+| カレンダーを外す（大川哲也がカレンダーの概要欄の抜き出しにだけ出る） | 2 | 27 |
+| 【3】の掲載≠Y の行を外す | 2 | 26 |
+| 【3】の掲載=Y の行を外す（伊藤大輝・酒井秀隆・鵜飼基史が【3】の手入力にだけ出る） | 2 | 29 |
+| テストを外す | 2 | 26 |
+
+カレンダーは実際には予定の窓の動画だけを読むため、全動画で近似した基本の集合はやや広い（「使われていない」をやや少なく出す側）。
+
+- 試算のスクリプトはクラウドセッションの scratchpad に置いた（セッションが終わると消える）。手順は上の判定の定義と表のとおりで、実装では作り直す
+- 決定を docs/decisions/live.md に足した
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち（調査は完了。実装の案に平野さんの判断が要る）
 - ブランチ: work/1009-stl
-- ログ: https://github.com/retroeater/mj/blob/work/1009-stl/docs/logs/CHAT-1009-STL-01.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1009-STL-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1009-stl
 - 確認用URL: なし
-- マージ: 未
-- issue: #475
-- 判断が必要なこと: 作業中
-- 未確認の項目: 作業中
+- マージ: 済（ドキュメントのみ。SHA は最終報告と「## 経過」）
+- issue: #475（変えていない）
+- 判断が必要なこと:
+  - 結果の要約: 今のデータで使われていない「別名」の `訂正` は2行（佐月真理子・根越英人。根越英人は概要欄が 10/8 に直った例）、「連盟プロ以外」は26行。読む範囲を変えても増減は0〜3行（「## 経過」の手順3）。重なる issue・未マージのブランチは無かった
+  - 概要欄の直しは、毎週水曜の層1の verify で【1】【2】に届く（最長約1週間）。すぐ届かせるなら update-live-channel.yml を apply と verify を付けて手動実行する。このことを #475 の案内か docs に書くか
+  - 判定の入力（案）: 層2と同じ層1から、別名を当てずに抜いた名前（`build_rows(videos)` を book なしで呼ぶ。【2】のタブは訂正の後なので使えない）＋【3】の対局者・実況・解説（掲載を問わない）＋カレンダーの抜き出し（全動画）＋「タイトル」（表示=Y）＋「テスト」＋「最強戦」（K=Y）＋「鳳凰」（表示≠N・LEAGUES）。凍結中の「書籍」・表示≠Y の行は今は差が0なので、読まない案（読む・読まないを決める）
+  - #475 への載せ方（案）: 未使用の一覧が前回と変わった日だけ、未登録の名前の知らせと同じコメントに「使われていない登録」の節として、全件（行番号・名前・所属団体/区分と備考）を並べる。前回の一覧は、コメントの末尾に隠した注記（HTML のコメント）に書き、次の実行で最後の bot のコメントから読む案。未登録の名前の側は今のまま（【2】の前日の値と比べる）
+  - 手動実行の入力（案）: update-live-channel.yml に `unused_report`（真なら、変わっていなくても今の一覧をコメントする。apply が偽なら実行サマリに出すだけ）を足す。ワークフローを変えるので docs/notes/branch-operations.md「ワークフローを変更したとき」の手順に乗る
+  - 検査が失敗したときの扱い（案）: 層2・#475 の未登録の知らせ・層3の後の別のステップにし、`continue-on-error` で実行を失敗にしない。失敗したら実行サマリに書き、コメントでは「使われていない登録: 検査できなかった（理由）」の1行だけを、失敗が続く間は初回の日だけ書く
+  - `登録名変更` の行の変換後にだけなっている「連盟プロ以外」の行（今は0行）の扱い（案）: その `登録名変更` の行が使われていれば「使われている」とみなし、一覧に出さない（旧名で出ている人の写真・X に要るため）。使われていない `登録名変更` の行（今は2行）は決定のとおり出さない
+  - 凍結中の books/ の静的ページに、今の「書籍」に無い本の著者（土井泰昭）が残っている。books/ を解凍するまで「使われていない」に入るが、その行を消すと次に books/ を生成したときに著者のリンクが外れる（今の「書籍」には無いので影響は無いはず）。一覧に注記するか、そのままにするか
+  - 直す文書（案）: docs/notes/live-channel-write.md（#475 の知らせの節に「使われていない登録」の節と入力）、docs/notes/live-page-design.md「1-5」（「使われている」の定義と読む利用先）、update-live-channel.yml の冒頭のコメント、#475 の本文（案内の文に、行を消すのは平野さんの手作業であることと、直しが届くのは水曜であること）、docs/decisions/live.md
+- 未確認の項目:
+  - 手で非表示にした行（フィルタでない）を gviz が返すか（#510）。返さない場合、どのタブでも行数の検査をすり抜けて「使われていない」が増えうる
+  - カレンダーの名前は全動画の概要欄で近似した（実際は予定の窓の動画だけ）。差は大川哲也の1名
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj b577508d）: https://github.com/retroeater/mj-logs/tree/main/guide/b577508d
+ガイド文書（この版を写した時点の最新、mj f6f2125c）: https://github.com/retroeater/mj-logs/tree/main/guide/f6f2125c
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b577508d/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b577508d/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b577508d/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b577508d/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b577508d/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b577508d/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f6f2125c/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f6f2125c/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f6f2125c/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f6f2125c/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f6f2125c/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f6f2125c/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/eabe7134.md
