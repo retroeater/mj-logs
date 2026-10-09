@@ -249,9 +249,9 @@ video_wayhome」に集約した**（このファイルには実装の要点の�
   だけ付けているのは、手書きHTMLで付け忘れたときに現状維持へ倒すため。
   **表を持たない新しいページを作る際は、`render_content()` に
   `has_search_boxes=False` を渡すかどうかを必ず判断すること**（既定は「あり」）。
-  手書きHTMLを追加するときは `<body>` に手で付ける。対象は現在7ページ
+  手書きHTMLを追加するときは `<body>` に手で付ける。対象は現在6ページ
   （`404` / `jpml_links` / `resource_dictionary` / `resource_efficiency` /
-  `rh_links` / `rh_results` / `rh_results_detail`）
+  `rh_results` / `rh_results_detail`）
 - **`<main class="mj-video-page">`でページ全体を包み、Lighthouse
   accessibilityの`landmark-one-main`指摘を解消した。** `navbar.js`を
   触らずに済む範囲でこのページ限りの改善として反映。残る指摘は

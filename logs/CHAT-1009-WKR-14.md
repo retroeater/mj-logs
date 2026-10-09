@@ -55,16 +55,32 @@
 ## 経過
 
 1. Chat-Ref の確認: `git log --all --grep="CHAT-1009-WKR-14"` は0件。リモート・ローカルに `work/1009-wkr-14` は無い → `git checkout -b work/1009-wkr-14 origin/cloudflare`
+2. 手順0: 指示欄の最後の行は「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」で一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+3. 同じ論点の issue の検索（GitHub の issue 検索、クローズ済みを含む）: 「別のチャット 並行 同じ仕組み ログを読む 推測」→ #291（検証手順のスクリプト化）・#300・#498・#474、「ダッシュボード 設定 保存 画面 確かめる 公式ドキュメント」→ 0件、「SCHEDULE_ENABLED 試運転 マージ前 手動実行 書き込みを止める」→ #506・#493・#505。どれも同じ論点ではない
+4. 追記先を読んだ。A〜C と矛盾する記述は無い。同じ趣旨の既存の記述（A: 「他のセッションが同じ日に変えている領域…」の行、B: 「設定の変更を頼むときは、選択肢の意味を公式ドキュメントで確かめてから頼む」の行）を拡張した
+5. 足したもの（コミット 2f71655d）:
+   - A: docs/notes/chat-side-operations.md「指示文を書くときの注意」>「書く前に実物で確かめる」>「場面ごとに次も確かめる」の「他のセッションが同じ日に変えている領域…」の項目を拡張し、2行目に足した。事例は括弧で1つ（起動の表から行が外れたのを知らず見込みを外した）。出典の Chat-Ref は書いていない
+   - B: 同「外部サービスの設定」の「設定の変更を頼むときは…」の項目を拡張した（画面の名前と影響を公式の文書で確かめる、「害は無い」と確かめずに言わない、保存は動きで確かめる）。事例は括弧で1つ（Build watch paths）
+   - C: docs/instruction-template.md の雛形の前の注意書きで、試運転の失敗の項目の直後に新しい項目を足した。事例として CHAT-1008-WKR-11 の試験 S・D を書いた
+   - 同じ日に CHAT-1009-NEN-14 が instruction-template.md を直しているが、cloudflare に入った後の版から作業しており、衝突は無い
+6. 大きさ: docs/notes/chat-side-operations.md は 24,481 → 25,365 バイト（警告域 26,624 未満）
+7. docs/decisions/operations.md（運用〈チャット側と Claude Code のやり取り・指示文の書き方〉）に決定を足した
 
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1009-wkr-14
-- ログ: https://github.com/retroeater/mj/blob/work/1009-wkr-14/docs/logs/CHAT-1009-WKR-14.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1009-wkr-14
-- 確認用URL: なし
-- マージ: 未
+- 状態: 完了
+- ブランチ: work/1009-wkr-14（マージ済み。削除は delete-merged-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1009-WKR-14.md
+- 比較URL: https://github.com/retroeater/mj/compare/14f14a50...cloudflare
+- 確認用URL: なし（docs だけ）
+- マージ: 済（docs だけ。SHA はこのログを入れた push の先頭）
 - issue: なし
+- 結果の要点:
+  - A: chat-side-operations.md「書く前に実物で確かめる」の「場面ごとに次も確かめる」— 既存の「他のセッションが同じ日に変えている領域…」の項目を拡張
+  - B: chat-side-operations.md「外部サービスの設定」— 既存の「設定の変更を頼むときは、選択肢の意味を公式ドキュメントで確かめてから頼む」の項目を拡張
+  - C: instruction-template.md の雛形の前の注意書き — 試運転の失敗の項目の直後に新しく足した
+  - chat-side-operations.md: 24,481 → 25,365 バイト
+  - 決定は docs/decisions/operations.md に足した
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
@@ -72,12 +88,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 6f5fc037）: https://github.com/retroeater/mj-logs/tree/main/guide/6f5fc037
+ガイド文書（この版を写した時点の最新、mj 063507e3）: https://github.com/retroeater/mj-logs/tree/main/guide/063507e3
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6f5fc037/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6f5fc037/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6f5fc037/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6f5fc037/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6f5fc037/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6f5fc037/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/063507e3/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/063507e3/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/063507e3/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/063507e3/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/063507e3/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/063507e3/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/14f14a50.md
