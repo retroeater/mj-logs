@@ -103,15 +103,23 @@ regenerate-page.yml の再生成で1ページが失敗すると、残りのペ�
   ページの一覧と件数は NEN-12 と一致し、前提の「`style.css` などの変更で選ばれた20ページ」は「など」に share.py が含まれる意味で実物と合うので、止まらずに issue に補足として書く。
   名前順で resource_dictionary より後ろの13ページ（resource_efficiency・resource_logs・rh_paifu・rh_results・rh_results_detail・saikyo_mens・saikyo_pages・title_pages・video_en・video_live・video_mtsuku・video_wayhome・wayhome_episodes）は生成されていない
 
+### 手順3 起票
+
+- #533「regenerate.py: 1ページの生成の失敗で、残りのページの再生成と push まで止まる」を作った。ラベルは `分野: 自動化`・`対象: 全ページ`（「状況:」なし）。
+  本文は「何が起きたか」（NEN-12 のログ fd2c1f2f・DIC-11 のログ 49f47987 の permalink。どちらも cloudflare の祖先。DIC-11 の最新の版 1346c5ff は未マージの work/1008-dic にだけあるため、cloudflare の版で固定した）・
+  「今の作り」（cloudflare 5bba42c1 の permalink で行を示す）・「影響」・「論点（未決）」（指示の (a)〜(e) に、手順2で見つかった (f) 上限の比とコミット対象・(g) 複数ページが書く共有のファイル・(h) 取得失敗の報告が skipped になる件、と work/1008-hou との衝突の注意を足した）・「関係」（#277・#515・#194）・`Chat-Ref:` の行
+- #277・#515・#523・#530・#388・#194 にはコメント・ラベル・状態の変更をしていない
+- 「決定」を `docs/decisions/automation.md` に足した。コード・ワークフロー・生成物は変えていない
+
 ## 報告
 
-- 状態: 対応中
+- 状態: 完了
 - ブランチ: work/1009-rgn
-- ログ: https://github.com/retroeater/mj/blob/work/1009-rgn/docs/logs/CHAT-1009-RGN-01.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1009-RGN-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1009-rgn
 - 確認用URL: なし
-- マージ: 未
-- issue: なし
+- マージ: 済（SHA は最終報告の push のコミット）
+- issue: #533（起票。論点 (a)〜(h) を移した）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
@@ -119,12 +127,12 @@ regenerate-page.yml の再生成で1ページが失敗すると、残りのペ�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 5bba42c1）: https://github.com/retroeater/mj-logs/tree/main/guide/5bba42c1
+ガイド文書（この版を写した時点の最新、mj eabe7134）: https://github.com/retroeater/mj-logs/tree/main/guide/eabe7134
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/5bba42c1/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/5bba42c1/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/5bba42c1/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/5bba42c1/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/5bba42c1/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/5bba42c1/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/eabe7134/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/eabe7134/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/eabe7134/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/eabe7134/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/eabe7134/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/eabe7134/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/5bba42c1.md
