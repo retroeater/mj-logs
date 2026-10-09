@@ -131,15 +131,25 @@ index 27931ffb..5b0ee684 100644
 
 4つとも満たす。
 
+
+### 4. マージ
+
+- push 直前に再 fetch し、`origin/cloudflare` が HEAD の祖先であることを確かめて `git push origin work/1002-cld:cloudflare`（49f47987..0941ef51）。差分のファイルは「3. マージの条件」の (3) のとおり
+- 0941ef51 の `assets-check.yml`（run 37883709036）: success
+- 0941ef51 の `regenerate-page.yml`（run 37883709708）: 動いた（`scripts/lib/` が変わったため）。success で、cloudflare への再生成のコミットは出ていない（`live_calendar.py` はページの生成に使われないので、変わるページが無い）
+- #491 にマージの結果をコメント: https://github.com/retroeater/mj/issues/491#issuecomment-6074227708 。着手中コメント（CHAT-1002-CLD-21）は、続きの指示で #491 をクローズするまで残す
+- 作業ブランチはマージ済み。削除は `delete-merged-branches.yml` に任せる（クラウドセッションでは削除できない）
+- 追跡しない確認: 次の毎朝の同期（2026-10-10 04:00 JST、Worker からの起動）で、`m-P4W_ScUTI`（2026-10-12 Focus M season13）の【対局者】が「渡辺英梧」に直ること。反映の確認と #491 のクローズ（#488 を親なしにする）は、平野さんの決定（2026-10-09）どおり続きの指示で行う
+
 ## 報告
 
-- 状態: 作業中（マージ前）
-- ブランチ: work/1002-cld
-- ログ: https://github.com/retroeater/mj/blob/work/1002-cld/docs/logs/CHAT-1002-CLD-22.md
+- 状態: 完了
+- ブランチ: work/1002-cld（cloudflare へマージ済み。削除は `delete-merged-branches.yml` に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1002-CLD-22.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1002-cld
 - 確認用URL: なし
-- マージ: 未
-- issue: #491
+- マージ: 済（0941ef51。`assets-check.yml` success、`regenerate-page.yml` は動いて success・再生成のコミットなし）
+- issue: #491（マージの結果をコメント https://github.com/retroeater/mj/issues/491#issuecomment-6074227708 ）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
