@@ -69,6 +69,15 @@
 - 全ページの再生成（`python3 scripts/regenerate.py all`、1分15秒、エラーなし）の差分は `resource_dictionary.html` の見出しの1行だけ
 - ローカルの Chromium: 見出し「辞書ダウンロード」、説明文の語数 1,822。3形式の保存は Microsoft IME 1,822・Google 日本語入力 1,822・Gboard 1,822（見出し行を除く、zip の CRC 正常）。吹き出しは Enter で開き Esc・外側のタップで閉じる
 
+### マージ
+
+- push 直前に再 fetch し、`git merge-base --is-ancestor origin/cloudflare HEAD` を確かめて `git push origin work/1008-dic:cloudflare`（d6a81703..6e5c0fd9）
+- 6e5c0fd9 の check-run: Workers Builds: mj success、regenerate success、sync success、check success（2件）
+- regenerate-page.yml が 0b4d0a8a（`chore: regenerate resource_dictionary.html dic/ via GitHub Actions`）を push。中身は `sitemap-pages.xml`・`sitemap-title.xml` の lastmod だけ（辞書ページの生成は通り、差は無かった）。0b4d0a8a の Workers Builds: mj も success
+- 本番（`https://ryoei.pro/`）: `resource_dictionary.html`・`.css`・`.js`・`dic/mahjong.json`・`dic/renmei.json`・`dic/pros.json`・`dic/mleague.json` は 200、`resource_dictionary_compare.html` は 404。見出し「辞書ダウンロード」、形式のボタン3つ、説明文の語数 1,822（description・og:description・`.mj-lead` の3か所）。`dic/mahjong.json` の名前は「一般用語」
+- 本番を Chromium（スマホ幅）で開いて保存: Microsoft IME 1,822 行（BOM 付き UTF-16LE）・Google 日本語入力 1,822 行・Gboard 1,822 行（zip の中は `dictionary.txt`、先頭行 `# Gboard Dictionary version:1`、CRC 正常）。どれも重複なしで説明文の語数と一致。吹き出しは Enter で開き、Esc・外側のタップで閉じる。実際のブラウザ（実機）での見え方は確かめていない
+- #522・#515 に経過をコメントした（どちらも閉じていない）
+
 ## 報告
 
 - 状態: 判断待ち
@@ -76,7 +85,7 @@
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1008-DIC-11.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1008-dic
 - 確認用URL: プレビューは見ていない（決定のとおり）。本番で確かめた（経過の「マージ」）
-- マージ: マージの前に書いている。結果は経過の「マージ」に追記する
+- マージ: 済（6e5c0fd9）
 - issue: #522・#515
 - 判断が必要なこと:
   - 次の指示で見る2つ（決定のとおり）: PC でボタンを縦に並べた形、登録方法の別案（保存した後に、その形式の手順をボタンの下に出す）
