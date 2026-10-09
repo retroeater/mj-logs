@@ -64,28 +64,46 @@ CHAT-1007-PHT-20 の判断待ちへの回答。#510 の実測で、手で非表�
 - 「フィルタがかかっています」を使っている所（docs/logs/ を除く）: `scripts/lib/sheets.py` 126行目（エラーの文面）、`docs/notes/static-generation.md` 315行目（メッセージの説明）。テスト・ワークフロー・通知の処理・スクリプトには無く、この文字列で分岐している処理は無い
 - 直す前のテスト: `python3 -m unittest discover -s scripts/tests` 659件 OK（失敗0）
 
+### 手順2: 直し
+
+- `scripts/lib/sheets.py`（`check_not_filtered()` の `FilteredSheetError` のメッセージ。差分は raise の文面の2行だけで、ほかは変えていない）:
+  - 前: `「{sheet_name}」シートにフィルタがかかっています(gviz {gviz_rows}行 / シート {csv_rows}行)。` / `シートのフィルタを解除してください。`
+  - 後: `「{sheet_name}」シートにフィルタ、または非表示・折りたたみの行があります(gviz {gviz_rows}行 / シート {csv_rows}行)。` / `フィルタの解除、または行の再表示・グループの展開をしてください。`
+  - 行数の部分・例外の型・止める動きは同じ。文面の2行目も、フィルタ以外の原因の対処が分かるように合わせた（前提の案は1行目の文面だけだったため、2行目は案に沿って足した）
+- docs/notes/static-generation.md「シートのフィルタの検知（#432）」: PHT-20 で足した項目の中のメッセージの説明を、新しい文面に合わせた
+- 旧い文面（「フィルタがかかっています」）で分岐する処理・テストは、`scripts/lib/sheets.py` の外に無かった。テストは前後とも `python3 -m unittest discover -s scripts/tests` で 659件 OK（失敗0）
+- 決定を docs/decisions/automation.md に足した（先に読んだ。同趣旨の記述は無かった）。CHAT-1007-PHT-20 のログの状態の末尾に ` / 続き: CHAT-1007-PHT-21` を足した
+
+### 手順3: マージと記録
+
+- cloudflare へのマージ: 0becbffc（push 直前に再 fetch し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真であることを確認。fast-forward）。cloudflare に入った差分は、scripts/lib/sheets.py・docs/notes/static-generation.md・docs/decisions/automation.md・docs/logs/ だけ
+- push で動いたワークフロー（0becbffc）: 公開対象を検査する（assets-check）success（cloudflare・作業ブランチ）、ページの再生成（regenerate-page）success。Workers Builds: mj の check-run は success。待ちは約3分
+- regenerate-page.yml は**コミットを作らなかった**（0becbffc の後の cloudflare に github-actions の regenerate コミットは無い。生成物の差分は無し）
+- #510 へのコメント（文面の前後とマージのコミット）: https://github.com/retroeater/mj/issues/510#issuecomment-6075665549 。#510 を閉じた（completed）。本文は変えていない
+- #473（読むだけ。変更していない）: Open、ラベル「状況: 待ち」「分野: データ」、削除の予定日 **2026-10-13**（削除するのは平野さん）。対象は旧シート（`scripts/lib/live.py` と `generate_title_pages.py` の `SPREADSHEET_ID` のブック）の「(旧)連盟ch」「(旧)放送対局」「(旧)決勝動画」、`generate_jpml_pros.py` の `SPREADSHEET_ID` のブックの「(旧)タイトル」、3層のスプレッドシート（`lib/live_layer3.py` の `SPREADSHEET_ID`）の控えのタブ「【3】消した補正 2026-09-29」「【3】消した補正 2026-09-30」。取り違え注意: 消すのは `generate_jpml_pros.py` のブックの「(旧)タイトル」で、title/ 用のブック（`generate_title_pages.py` の `SPREADSHEET_ID`）の「タイトル」は今の正本なので消さない。#473 の本文の「削除の前に見ること」「戻し方」「削除の後にすること」は、最終報告の「判断が必要なこと」に引用した
+
 ## 報告
 
-- 状態: 中断（着手直後。作業中）
+- 状態: 完了
 - ブランチ: work/1007-pht-gviz
-- ログ: https://github.com/retroeater/mj/blob/work/1007-pht-gviz/docs/logs/CHAT-1007-PHT-21.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1007-PHT-21.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1007-pht-gviz
-- 確認用URL: なし
-- マージ: 未
-- issue: #510
-- 判断が必要なこと: 着手直後のため、まだ無い
-- 未確認の項目: 着手直後のため、まだ無い
+- 確認用URL: なし（表示は変わらない。エラーの文面の変更）
+- マージ: 済（0becbffc。fast-forward）
+- issue: #510（コメントして閉じた）。#473 は読んだだけ（変更なし）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 419fc58a）: https://github.com/retroeater/mj-logs/tree/main/guide/419fc58a
+ガイド文書（この版を写した時点の最新、mj 6f5fc037）: https://github.com/retroeater/mj-logs/tree/main/guide/6f5fc037
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/419fc58a/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/419fc58a/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/419fc58a/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/419fc58a/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/419fc58a/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/419fc58a/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6f5fc037/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6f5fc037/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6f5fc037/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6f5fc037/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6f5fc037/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6f5fc037/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/eabe7134.md
