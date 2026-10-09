@@ -165,6 +165,7 @@ YouTube の概要欄が直ったときなどに、「連盟プロ以外」「別
 
 - 試算のスクリプトはクラウドセッションの scratchpad に置いた（セッションが終わると消える）。手順は上の判定の定義と表のとおりで、実装では作り直す
 - 決定を docs/decisions/live.md に足した
+- マージ: push 直前に origin/cloudflare が進んでいたので work/1009-stl に取り込み（衝突なし。差分はこのログと docs/decisions/live.md の2ファイルだけ）、祖先であることを確かめて `git push origin work/1009-stl:cloudflare`（3904b4f2..f6f2125c）
 
 ## 報告
 
@@ -173,7 +174,7 @@ YouTube の概要欄が直ったときなどに、「連盟プロ以外」「別
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1009-STL-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1009-stl
 - 確認用URL: なし
-- マージ: 済（ドキュメントのみ。SHA は最終報告と「## 経過」）
+- マージ: 済（f6f2125c。ドキュメントのみ、fast-forward）
 - issue: #475（変えていない）
 - 判断が必要なこと:
   - 結果の要約: 今のデータで使われていない「別名」の `訂正` は2行（佐月真理子・根越英人。根越英人は概要欄が 10/8 に直った例）、「連盟プロ以外」は26行。読む範囲を変えても増減は0〜3行（「## 経過」の手順3）。重なる issue・未マージのブランチは無かった

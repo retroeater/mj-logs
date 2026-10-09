@@ -85,6 +85,16 @@
 - 保存（PC・スマホとも）: Microsoft IME 1,822 行（BOM 付き UTF-16LE）・Google 日本語入力 1,822 行・Gboard 1,822 行（見出し行を除く、zip の中は `dictionary.txt`、CRC 正常）。どれも重複なしで説明文の語数（1,822）と一致
 - キーボード: 保存の前は Tab で Microsoft IME → Google 日本語入力 → Gboard（どれもフォーカスの輪が出る）。Microsoft IME で Enter を押して保存した後、Tab で欄の公式ヘルプのリンク → 次の Tab で Google 日本語入力のボタン（見た目の順と一致）。Gboard の欄にはリンクが無いので、Gboard の次の Tab はページの外（ブラウザの先頭）へ出る
 
+### マージ
+
+- 1回目の push 直前の確かめで cloudflare が進んでいた（CHAT-1009-SWP-09 の `rh_links.html` の削除・navbar・llms.txt・sitemap など。辞書と関係なし）ので、`git merge origin/cloudflare` で取り込んだ（衝突なし）。辞書ページを生成し直しても差は無く、テストも OK
+- 再 fetch して `git merge-base --is-ancestor origin/cloudflare HEAD` を確かめ、`git push origin work/1008-dic:cloudflare`（21a1f8dd..3904b4f2）
+- 3904b4f2 の check-run: Workers Builds: mj success（05:30:28 UTC に完了）、regenerate success、sync success、check success（2件）。regenerate-page.yml のコミットは出なかった（生成し直しても差が無いため）
+- 本番の確かめ: ビルド完了の約30秒後（05:31:02）に取得した HTML はまだ前の版（チップと吹き出しあり）だった。その数秒後の取得から新しい版になった（反映の遅れ。止まる条件ではない）
+- 本番（`https://ryoei.pro/`）: `resource_dictionary.html`・`.css`・`.js` は 200、`resource_dictionary_compare.html` は 404。HTML にチップ・`popover` は無く、保存の後の欄が3つ（msime・google・gboard）と「辞書ファイルをダウンロードしました。」、説明文の語数 1,822
+- 本番を Chromium で開いて（PC 1280px・スマホ 390px）: ボタンは PC 440〜840（中央）・スマホ 37〜353。3形式それぞれ保存した後、押した形式の欄だけが出る。保存はどれも 1,822 行（重複なし、Gboard の zip の CRC 正常）で説明文の語数と一致。Tab は「押したボタン → 欄の公式ヘルプのリンク → 次のボタン」。実際のブラウザ（実機）での見え方は確かめていない
+- #522 に経過をコメントした（閉じていない）
+
 ## 報告
 
 - 状態: 判断待ち
@@ -92,7 +102,7 @@
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1008-DIC-13.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1008-dic
 - 確認用URL: プレビューは見ていない（決定のとおり）。本番で確かめた（経過の「マージ」）
-- マージ: マージの前に書いている。結果は経過の「マージ」に追記する
+- マージ: 済（3904b4f2）
 - issue: #522
 - 判断が必要なこと:
   - #522 は閉じてよいと考える（見た目の作り直しは決まった形で本番に入った）。閉じるかは平野さんの判断
@@ -104,12 +114,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 3904b4f2）: https://github.com/retroeater/mj-logs/tree/main/guide/3904b4f2
+ガイド文書（この版を写した時点の最新、mj f6f2125c）: https://github.com/retroeater/mj-logs/tree/main/guide/f6f2125c
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/3904b4f2/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/3904b4f2/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/3904b4f2/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/3904b4f2/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/3904b4f2/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/3904b4f2/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f6f2125c/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f6f2125c/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f6f2125c/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f6f2125c/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f6f2125c/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f6f2125c/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/eabe7134.md
