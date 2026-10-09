@@ -54,18 +54,54 @@ NEN-11 は本実装を cloudflare に入れた（600c14ea）が、マージ後�
 - ブランチ: `work/1009-nen-chk` はローカル・リモートとも無かったため `git checkout -b work/1009-nen-chk origin/cloudflare`
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
 
+
+### 手順1 調べる（ジョブのログ、GitHub MCP の `get_job_logs`）
+
+| 実行 | 契機の push | 再生成の対象 | 結果 | 失敗した行 |
+|---|---|---|---|---|
+| regenerate-page.yml #233（run 37875190474、job 113642048157 = 600c14ea の check-run `regenerate`） | c125a19d..600c14ea（NEN-08〜NEN-11 のマージ） | `style.css` などが変わったため、それを使う20ページ: houou_leagues, houou_race, jpml_pros, jpml_test, live_pages, ouka_leagues, resource_dictionary, resource_efficiency, resource_logs, rh_paifu, rh_results, rh_results_detail, saikyo_mens, saikyo_pages, title_pages, video_en, video_live, video_mtsuku, video_wayhome, wayhome_episodes | failure（ステップ「対象ページを再生成」） | `== resource_dictionary ==` の後に「生成を止めました: 「辞書」タブに知らないカテゴリがあります: ['一般用語']」→「resource_dictionary の生成に失敗しました。」→ exit code 1 |
+| regenerate-page.yml #234（run 37875497068） | 55b6a3cb..d2ff5f93（別セッション CHAT-1009-SWP-06 の手書きのページ・docs） | なし（「再生成の対象はありませんでした。」） | success | — |
+
+- 原因: 「辞書」タブ（スプレッドシート）に、cloudflare の `scripts/generate_resource_dictionary.py` が知らないカテゴリ「一般用語」が入っている。対応するコード（カテゴリ「一般用語」）は未マージの `origin/work/1008-dic`（#515 の作業）にだけある。#277 の変更（title/）とは関係しない。シートの値と cloudflare のコードの食い違いなので、再実行しても同じ所で止まる（一時的なものではない）
+- `scripts/regenerate.py` は対象を順に生成し、最初の失敗で全体を止める（`return result.returncode`）。#233 は houou_leagues〜ouka_leagues まで生成した後 resource_dictionary で止まり、title_pages 以降は動いていない。「変更をコミット・push」のステップは skipped で、#233 は cloudflare に何も push していない
+- #234 の success は、別のコミットで再生成の対象が無かっただけで、600c14ea の分を再生成したものではない
+- 600c14ea の title/ の生成物は、マージ前に手元で生成してコミットしたもの（NEN-11）がそのまま本番にある（下の表で cloudflare と本番が一致）
+- 週次の再生成（月曜 05:37 JST、`all`）の見込み: 「辞書」タブとコードの食い違いが残っていれば、同じく resource_dictionary で止まり、その回はどのページも push されない（resource_dictionary より名前順で後ろの title_pages・video_*・wayhome_episodes などは生成もされない）。`work/1008-dic` が先にマージされるか、シートのカテゴリが戻れば通る見込み。ほかの push でも、resource_dictionary が対象に入る（`style.css` などの共有のファイルを変える）と同じく止まる
+
+### 手順2 確かめる（本番、`curl`、URL に `?v=` 付き、2026-10-09）
+
+| 項目 | 結果 |
+|---|---|
+| `/title/` | 200。`#title_year` あり、選択肢「現タイトルホルダー」（既定）・「2026年優勝者」…、`<title>`「タイトル戦 現タイトルホルダー・歴代優勝者 \| 日本プロ麻雀連盟 \| ryoei.pro」、共有ボタン・`share.js`・タイトル戦のプルダウンなし。cloudflare の `title/index.html` と同じ |
+| `/title/houou/` | 200。固定バーは検索欄だけ（プルダウン・共有ボタンなし） |
+| `/title/houou/42.html` | 200。同上。cloudflare と同じ |
+| `/title/years.json` | 200。cloudflare と同じ |
+| `/title/timeline/` | 404 |
+| `/live/`・`/saikyo/`・`/video_wayhome.html` | 200。共有ボタン（`mj-share-btn`）が残っている（各2か所） |
+| `assets/title.js`・`style.css` | cloudflare の先頭と同じ |
+
+### 手順3 閉じる・記録する（止まった）
+
+- 本番の確かめはすべて通ったが、失敗の原因は「一時的なもの（再実行で通る・その後の実行で通っている）」ではない（シートと未マージのコードの食い違いで、再実行しても止まる）。指示の条件どおり #277 は閉じずに止まる
+- 失敗の原因は #277 のコード・生成の誤りではないので、止まる条件の「直し方の案」に当たるものは無い。辞書の側の直し方の候補（#277 では直さない）: (a) `work/1008-dic`（#515）を先にマージする (b) 「辞書」タブのカテゴリを今のコードの名前に戻す (c) `scripts/regenerate.py` が1ページの失敗でほかのページの再生成・push まで止める作り（今の仕様）を見直す
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1009-nen-chk
-- ログ: https://github.com/retroeater/mj/blob/work/1009-nen-chk/docs/logs/CHAT-1009-NEN-12.md
+- 状態: 判断待ち
+- ブランチ: work/1009-nen-chk（ログだけ。cloudflare へ入れる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1009-NEN-12.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1009-nen-chk
 - 確認用URL: なし
-- マージ: 未
-- issue: #277
-- 判断が必要なこと: なし
-- 未確認の項目: なし
-- エラー: なし
+- マージ: 済（ログだけ。SHA は最終報告の push のコミット）
+- issue: #277（開いたまま）
+- 判断が必要なこと:
+  - regenerate-page.yml #233 の失敗の原因は、「辞書」タブのカテゴリ「一般用語」が cloudflare の `generate_resource_dictionary.py` に無いこと（対応は未マージの `work/1008-dic`、#515）。#277 とは関係しないが一時的ではないため、指示の条件どおり #277 を閉じていない。本番の確かめはすべて通っている。#277 を閉じてよいか
+  - 週次の再生成（月曜 05:37 JST）も、辞書の食い違いが残れば resource_dictionary で止まり、その回はどのページも push されない見込み。辞書の側（`work/1008-dic` のマージ、シートのカテゴリ、`regenerate.py` の止め方）をどうするか
+  - 平野さんに本番で見てもらう手順: https://ryoei.pro/title/ 、https://ryoei.pro/title/?year=2025 、https://ryoei.pro/title/houou/42.html をスマホと PC で開く。年のプルダウンを開いて選択肢の文字が読めること、年を選ぶとタブの題名が「2025年優勝者 | タイトル戦 | …」に変わること、固定バーに共有ボタンが無いこと
+- 未確認の項目:
+  - 実機のブラウザでの見え方（選択肢の文字色、タブの題名の変化。本番の HTML までで確かめた）
+- エラー:
+  - regenerate-page.yml #233（600c14ea の check-run `regenerate`）が failure。原因は「辞書」タブのカテゴリ「一般用語」（#277 の変更によるものではない）
 
 <!-- guide-links -->
 ---
