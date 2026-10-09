@@ -28,7 +28,7 @@ GitHub Actions の予約実行（`schedule`）は予定より2時間半〜5時�
 2. **起動の失敗**: API が 2xx 以外を返したら（つながらなかったときも）、その場で #506 にコメントする
 3. **朝の確かめ（#504 の「層1」）**: 06:00 JST の回に、当日の有効な行のうち予定が 06:00 より前のものごとに、当日（JST）に作られた実行の一覧を引く（`created>=<当日 0 時>`）。
    すべて success なら何もしない。それ以外は #506 に1件コメントする。実行の一覧は `event=workflow_dispatch` で絞る（sync-logs は push の実行が1日に100件を超えることがあり、絞らないと1ページ目に予約の起動が載らない）。
-   `head_branch` では絞らないので、作業ブランチで `scheduled` を付けた試験の成功も当日の success に数える（2026-10-08 に読んで確かめた。`scheduler.mjs` は変えていない）
+   `head_branch` では絞らないので、作業ブランチで `scheduled` を付けた試験の成功も当日の success に数える。**直さない（2026-10-08 の決定）**: 困るのは JST 0:00〜06:00 に作業ブランチで `scheduled` を付けて試験した日だけで、日中の試験はその日の 06:00 の確かめの後になり、翌日の分にも数えない。保険のゲート（下）は `head_branch` で絞るので影響を受けない
 4. **mj-logs の同期（#298）**: 毎回 `GET /repos/retroeater/mj` の `pushed_at` を読み、この回の予定時刻から3分以内なら、mj-logs の `sync-from-mj.yml` を `workflow_dispatch`（ref `main`、inputs なし）で起動する（`dispatchSync()`、行き先は `scheduler.mjs` の定数 `SYNC`）。
    1回の push で後の2〜3回が起動するが、mj-logs 側は concurrency で1本ずつ動き、写すものが無ければコミットしない。失敗は `console.error` に書くだけで #506 には書かない（毎分の回で通知が増えるため）。朝の確かめの対象にも入れない。
    起動の表（`schedule.json`）の行ではない。トークンは同じ `GITHUB_TOKEN`（対象に mj-logs を足してある）

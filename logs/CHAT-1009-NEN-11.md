@@ -50,6 +50,57 @@ NEN-10 は、未マージの `work/1008-hou`（別のチャット、houou/）が
 - 未マージの `work/` ブランチの取り直し: `origin/work/1008-dic`（328cc74b）・`origin/work/1009-swp-fix`（96d8b7de）は対象のファイルを変えていない。`origin/work/1008-hou`（37e4c501、NEN-10 の時と同じ）は `_redirects`・`style.css`（houou/ の行・節。title の行・`.mj-title*` を含む差分の行は0）と `assets/share.js`（読み替えのとおり当たらない）。増えたブランチは無い
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
 
+
+### 手順1 確かめ・作る（NEN-10 の手順1）
+
+- #277: Open（ラベル「分野: UI/UX」）。最新のコメントはこのセッションの NEN-09。他セッションの着手中コメントは無い
+- 生成と同じ経路（`regenerate.py title_pages`）: 表示する大会 20、期 363（範囲内）、警告0件、`years.json` 54年・57,202 バイト
+- 消したもの: 比較のラジオボタン（`year_switcher_compare_html()`・`YEAR_SWITCHER_STYLES`・`.mj-title-year-compare`）、S2〜S4 の CSS、送りの矢印のボタン（HTML・CSS・JS）
+- 文言（`generate_title_pages.py`）: `YEAR_CURRENT_LABEL` を「現タイトルホルダー」にし、選択肢・h1（「タイトル戦 現タイトルホルダー」）・`<title>`（今の「タイトル戦 現在のタイトルホルダー・歴代優勝者 | …」の置き換えで済むので「タイトル戦 現タイトルホルダー・歴代優勝者 | 日本プロ麻雀連盟 | ryoei.pro」）に使った。og:title（「タイトル戦 | …」）・og:image・canonical・description は変えていない
+- 年を選んだときのタブの題名（`assets/title.js`）: `document.title` を「2025年優勝者 | タイトル戦 | 日本プロ麻雀連盟 | ryoei.pro」に替え、「現タイトルホルダー」に戻すと元の題名に戻す
+- 選択肢の文字色（`style.css`）: `.mj-title-year-select option` に白地（#fff）・#212529 を指定（コントラスト比 15.43、AAA）。プルダウン自体（黒地に #f2f2f2、16.56）は今のまま。iPhone の Safari は OS の選択の画面になり、この指定の影響を受けない見込み
+- 共有ボタン: `generate_title_pages.py` から共有ボタン（固定バーの `build_share_button()`）・トースト（`SHARE_STATUS_HTML`）・`assets/share.js` の読み込み（`script_tag()`）をやめ、`from lib import … share` も外した。`assets/share.js` は変えていない。`scripts/lib/share.py` の docstring と `style.css` の共有の節のコメントから「title/」を外した（`assets/share.js` の先頭のコメントの「title/」は、触らない約束のため残した。#530 に書いた）
+- テスト（`test_title_years.py`）: 選択肢・h1・`<title>` の文言、比較の名残（`title_ys_`・送りの矢印）が無いこと、title/ の全ページ（384）に共有ボタン・`share.js` が無いこと、`live/index.html`・`saikyo/index.html`・`video_wayhome.html` には共有ボタンが残っていることを足した。`python3 -m unittest discover -s scripts/tests`: 655件 OK
+- headless Chromium（手元の `python3 -m http.server`）:
+
+| 項目 | 375×740 | 1280×800 |
+|---|---|---|
+| JS のエラー | なし | なし |
+| 入口の固定バー（実測 / `--mj-title-filter-h`） | 115 / 115px（2段: 年のプルダウン・検索欄） | 61 / 61px（1段） |
+| 年のプルダウン | 197×44px、ピル型、矢印なし | 同 |
+| 開いた一覧の選択肢の色（計算値） | #212529 on #fff | 同 |
+| 共有ボタン・トースト | 0 | 0 |
+| 既定 | 「現タイトルホルダー」20枚、題名「タイトル戦 現タイトルホルダー・歴代優勝者 | …」 | 同 |
+| 2025 を選ぶ | 25枚、`?year=2025`、h1「タイトル戦 2025年優勝者」、題名「2025年優勝者 | タイトル戦 | …」 | 同 |
+| 1973 を選ぶ | 1枚、題名「1973年優勝者 | …」 | 同 |
+| 「現タイトルホルダー」に戻す | 20枚、`?year` なし、題名が元に戻る | 同 |
+| `?year=2014` で開く | 9枚、題名「2014年優勝者 | …」 | 同 |
+| `?year=x` で開く | 現タイトルホルダー | 同 |
+| 大会ページ・期ページの固定バー | 検索欄だけ、共有ボタン・`share.js` なし、61px | 同 |
+
+- スマホの入口は、年のプルダウン（197px）と検索欄（最小 240px）が1段に収まらず2段のまま（NEN-08・NEN-09 と同じ 115px）
+
+生成物などの差分（origin/cloudflare との比較。NEN-08〜NEN-11 の合計）:
+
+| 種類 | ファイル | 件数 | 中身 |
+|---|---|---|---|
+| 入口 | `title/index.html` | 1 | 年のプルダウン（現タイトルホルダー・2026年優勝者…）、h1・`<title>` の文言、空の並び `#title_year_cards`、共有ボタン・トースト・`share.js` の読み込みを外す。「現タイトルホルダー」のカード20枚は本番と同じ（比べて一致） |
+| 大会ページ | `title/<slug>/index.html` | 20 | タイトル戦のプルダウン・共有ボタン・トースト・`share.js` の読み込みを外しただけ（ほかの行は一致） |
+| 期ページ | `title/<slug>/<期>.html` | 363 | 同上 |
+| データの追加 | `title/years.json` | 1 | 54年・57,202 バイト |
+| 年表の削除 | `title/timeline/index.html`・`img/ogp/title/timeline-black.png` | 2 | 削除 |
+| `_redirects` | `/title/timeline` の1行 | 1 | 削除 |
+| `sitemap-title.xml`・`title/search.json` | — | 0 | 変化なし |
+| title/ 以外のページの生成物 | — | 0 | 変化なし |
+
+### 手順2 記録する
+
+- 共有ボタンの見直しの issue を起票した: #530（題「サイト全体の共有ボタンを見直す（ページ全体の共有ボタンは外す方向）」、ラベル「分野: UI/UX」）。起票の前に全 issue（529件）の題・本文を「共有」で検索し、同じ主題の issue は無かった（関係: #409・#191〈closed〉、#526〈横断レビューの小さな直しのうち共有のトースト・コピー後のフォーカス〉、#82）。洗い出しの候補に houou/（`work/1008-hou`）の表示中の状態を共有する使い方を足した
+- #409 の決定は `docs/decisions/` に記録が無かった（grep で0件）ため、`docs/decisions/title.md` への追記だけにした
+- `docs/decisions/title.md`: NEN-10・NEN-11 の決定を足し、NEN-09 の「S1〜S4 から選ぶ（未決）」と「タイトルホルダー」の行に置き換えの印を付けた
+- `docs/notes/title-pages.md`: 入口の年の切り替えの節（S1・文言・題名・選択肢の色）と、固定バーの記述（共有ボタンを外した、#530）を直した
+- `docs/handover.md`: 4章の共有ボタンの行から title/ を外し、5章の順番から #277 を外して「現行サイトで小さく作れるもの」の行に完了を書いた（24,278 バイト、警告域 26,624 の外）
+
 ## 報告
 
 - 状態: 作業中
@@ -66,12 +117,12 @@ NEN-10 は、未マージの `work/1008-hou`（別のチャット、houou/）が
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj becd9199）: https://github.com/retroeater/mj-logs/tree/main/guide/becd9199
+ガイド文書（この版を写した時点の最新、mj 600c14ea）: https://github.com/retroeater/mj-logs/tree/main/guide/600c14ea
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/becd9199/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/becd9199/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/becd9199/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/becd9199/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/becd9199/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/becd9199/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/600c14ea/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/600c14ea/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/600c14ea/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/600c14ea/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/600c14ea/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/600c14ea/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/23f4ac3e.md
