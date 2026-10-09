@@ -19,7 +19,7 @@
 2. **書き込み**（`scripts/write_yotei_sheet.py`、認証は `LIVE_SHEETS_SA_KEY`＝`live-channel-writer`）:
    【1】【2】をタブ全体の置き換えで書き、読み返して全セルを比べる。【3】は予定表と予定IDで完全に一致させる（下の「【3】の結び付け」）。
    書き込み先は `scripts/lib/sheets_write.py` の `WRITABLE` でこのシートの3タブ（と /live の3タブ）に限る
-3. 書き込むのは、毎朝の実行（schedule）と、手動実行で `apply` か `yotei_apply` を選んだときだけ。それ以外は dry-run（件数と内訳だけを出す）
+3. 書き込むのは、毎朝の実行（Worker の起動・schedule）と、手動実行で `apply` か `yotei_apply` を選んだときだけ。それ以外は dry-run（件数と内訳だけを出す）
 
 `update` が失敗した日は動かない（`needs`）。`yotei` が失敗しても /live の取り込み・再生成には影響しない。
 
@@ -120,9 +120,10 @@
   - 直すのは、件名・説明欄・開始・終了のどれかが違う予定（PUT で置き換え、`key` は残す）
   - 消すのは、載せる予定に無いもの（日付が過ぎた・枠に置き換わった・掲載を外した仮の予定、除外・非公開・削除〈層1で取得不可〉になった枠）。
     一覧に消す理由を出す（`live_calendar.delete_reason()`）。**1回に消す予定が30件（`sync_live_calendar.MAX_DELETES`）を超えると、作る・直すも含めて何も書かずにステップが失敗する**
-    （30件ちょうどは通る）。毎朝の実行（schedule）はいつもこの上限で、超える日は毎朝同じく止まる
+    （30件ちょうどは通る）。毎朝の実行（Worker の起動・schedule）はいつもこの上限で、超える日は毎朝同じく止まる
   - **意図して30件を超えて消すときは、手動実行の入力 `calendar_max_delete` にその回の上限（見込みの件数以上の整数）を入れる**（2026-10-03 の決定）。
-    効くのはその1回だけで、schedule では使わない（`sync_live_calendar.delete_limit()` が `GITHUB_EVENT_NAME` を見て既定に戻す）。
+    効くのはその1回だけで、schedule では使わない（`sync_live_calendar.delete_limit()` が `GITHUB_EVENT_NAME` を見て既定に戻す。
+    Worker の起動〈`scheduled`〉ではワークフローが空の値を渡して既定に戻す）。
     1以上の整数でなければ止まる。既定と違う数のときは「上限を…に変えた」と、書き込みありなら消した予定（開始・件名・理由）を1件ずつ出す。
     先に `calendar_apply` を外して同じ数で実行し、消す件数と一覧を確かめてから `calendar_apply` を付ける
   - **同期の規則（`yotei.py`・`live_calendar.py`）を変える変更は、マージの前に修正前後の `build_desired()` を比べて消す件数を出し、30件と比べる。**
@@ -131,7 +132,7 @@
   - 書く順は 消す → 直す → 作る。**作るのが Calendar の上限などで止まったら**、何件目で・いつ・どんなエラーで止まったかをジョブの出力に出し、
     ステップ「カレンダーの作成が止まった所をissueに残す」が #450 にコメントする。翌朝の実行は、まだ無い予定を作るので続きから作る（#450 の決定。
     初回は放送済みの約2,500件を1回の実行で作る。何件目で上限に当たったかを今後の参考にする）
-- **書き込むのは schedule（毎朝）と、手動実行で `calendar_apply` を選んだときだけ。** 手動実行の既定は、作る・直す・消す予定の件数と、今日から14日分の一覧・説明欄の例を出すだけ
+- **書き込むのは毎朝の実行（Worker の起動・schedule）と、手動実行で `calendar_apply` を選んだときだけ。** 手動実行の既定は、作る・直す・消す予定の件数と、今日から14日分の一覧・説明欄の例を出すだけ
 
 ## 設定（平野さん）
 
@@ -149,7 +150,8 @@
 
 https://github.com/retroeater/mj/actions/workflows/update-live-channel.yml の「Run workflow」。
 
-入力が切り替える書き込み（`update-live-channel.yml`。schedule では inputs が空になり、列「schedule」のとおり動く）:
+入力が切り替える書き込み（`update-live-channel.yml`。schedule では inputs が空になり、列「schedule」のとおり動く。
+Worker の毎朝の起動〈入力 `scheduled`、手では付けない〉もほかの入力を無視して同じ列のとおり動く。docs/notes/scheduler-worker.md）:
 
 | 入力 | ジョブ | 切り替える書き込み | schedule |
 |---|---|---|---|

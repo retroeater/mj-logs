@@ -58,28 +58,50 @@ CHAT-1007-PHT-17 の判断待ち（(a) #142 を閉じるか、(b) houou_ranking.
 - 着手前の確認: `git log --all --grep="CHAT-1007-PHT-18"` は0件。`work/1007-pht-gsc` はローカルにあり、リモートにあってマージ済み。ローカルは `origin/cloudflare`（f13efe1c）と同じで、`git merge --ff-only` は変更なし
 - CHAT-1007-PHT-17 の `## 報告` の状態は「判断待ち」。#142 は Open（「状況: 待ち」）で、最新のコメントは CHAT-1007-PHT-17 のもの。他セッションの着手中コメントは無い。本文の冒頭の行は前提のとおり
 
+### 手順2: #142 への記録
+
+- #142 へのコメント（決定2つと11/1の取得で見る4項目）: https://github.com/retroeater/mj/issues/142#issuecomment-6072567100
+- #142 の本文の冒頭の行（GitHub MCP の issue_write。署名の行は付かなかった）。直す前:
+
+  ```
+  **期日: 2026-10-09（`fetch-gsc.yml` を期間指定で手動実行して計測する）。次は 2026-11-01 の月次の自動取得（#269）。#5 の再オープン分の効果もここで測る**（2026-10-03 更新）
+  ```
+
+  直した後:
+
+  ```
+  **期日: 2026-11-02（11/1 の月次の自動取得〈#269、`fetch-gsc.yml`〉の分を見る日）。10/9 の2回目の計測は済み（結果は `docs/notes/site-findings.md` と下のコメント）。11/1 の取得で、10/9 の取得と並べて整備後の期間どうしの推移を見る: (1) クリック・表示・CTR・順位、(2) 「鳳凰位 歴代」などの着地先が `title/houou/` に移ったか、(3) `title/` の大会ページ・期ページが出てきたか、(4) saikyo/ の表示（#511）。見るべき変化が無ければ、そのときに閉じる。#5 の再オープン分の効果もここで測る**（2026-10-09 更新）
+  ```
+
+  書き換え後に REST で取り直し、2行目以降が直す前の本文（PHT-17 の書き換え後のもの）と一致すること、署名の行が無いこと、ラベル（`状況: 待ち`・`分野: SEO/AIO`）と Open が変わっていないことを確かめた。#142 は閉じていない
+- CHAT-1007-PHT-17 のログの `## 報告` の状態の末尾に ` / 続き: CHAT-1007-PHT-18` を足した（docs/logs/ の変更）
+
+### 手順3: 決定
+
+- docs/decisions/seo-bing.md に「2026-10-09（CHAT-1007-PHT-18）」を足した。先に読んだ「2026-10-09（CHAT-1007-PHT-17）」の節に、(a) と同じ趣旨（次は 2026-11-01 の月次の取得で見る）がすでにあったため、それは参照にとどめ、閉じる条件・11/1 の取得で見る4項目・(b) だけを書いた
+
 ## 報告
 
-- 状態: 中断（着手直後。作業中）
+- 状態: 完了
 - ブランチ: work/1007-pht-gsc
-- ログ: https://github.com/retroeater/mj/blob/work/1007-pht-gsc/docs/logs/CHAT-1007-PHT-18.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1007-PHT-18.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1007-pht-gsc
-- 確認用URL: なし
-- マージ: 未
-- issue: #142
-- 判断が必要なこと: 着手直後のため、まだ無い
-- 未確認の項目: 着手直後のため、まだ無い
+- 確認用URL: なし（docs/ のみ）
+- マージ: 済（fast-forward。docs/logs/・docs/decisions/ のみ）
+- issue: #142（コメントと本文の冒頭の行の直し。閉じていない）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj f13efe1c）: https://github.com/retroeater/mj-logs/tree/main/guide/f13efe1c
+ガイド文書（この版を写した時点の最新、mj becd9199）: https://github.com/retroeater/mj-logs/tree/main/guide/becd9199
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f13efe1c/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f13efe1c/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f13efe1c/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f13efe1c/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f13efe1c/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f13efe1c/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/becd9199/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/becd9199/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/becd9199/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/becd9199/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/becd9199/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/becd9199/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/23f4ac3e.md

@@ -401,7 +401,7 @@ YouTube から取り出した無加工のデータを、手で補正した内容
 
 - 3層に分ける設計（#438、1-7）に合わせ、層1はリポジトリのファイル（`data/live_channel_raw.jsonl`）、層2・層3はサービスアカウントで
   Sheets API から直接書く（判断 LV-22 の「GCP・サービスアカウントは使わない・TSV」は #438 で改めた。`docs/notes/live-channel-write.md`）
-- **毎日の流れ**（`.github/workflows/update-live-channel.yml`、毎日 02:43 JST。手順と平野さんの作業は `docs/notes/live-channel-write.md`「7」）:
+- **毎日の流れ**（`.github/workflows/update-live-channel.yml`、毎日 04:00 JST に Worker から（保険の予約実行は 06:43 JST の予定でゲート付き、#504）。手順と平野さんの作業は `docs/notes/live-channel-write.md`「7」）:
   1. 層1: 新着と配信予定・配信中の取り直しを追記してコミット（水曜は見えなくなった動画・値が変わった動画の確認も。1-7）
   2. 【1】元データ: 層1の動画ごとの最新の行を全件書き写す。**行数が減るなら書かずに止める**
   3. 層2: 「【2】自動変換後」を全件作り直す。**今のタブより行数か候補が減るなら書かずに止める**（#386 の考え方を層2に当てはめたもの。
