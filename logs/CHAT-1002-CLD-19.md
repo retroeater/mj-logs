@@ -59,15 +59,73 @@
 - 指示文の冒頭の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある
 - CLAUDE.md が前の指示の後で変わっていた（「作業ログ」節: 「完了」は判断待ちも移していない論点も無いときだけ、完了の「判断が必要なこと」「未確認の項目」は「なし」だけ、など）。今の CLAUDE.md・docs/logs/_template.md・docs/notes/branch-operations.md「作業ログの寿命」を読み直して、それに従う
 
+- 0章: 「指示」欄の末尾は指示文の最後の行と一致。#448 は Open。コメント21件のうち着手中のコメントは CHAT-0928-HC-03 と CLD のこのセッションのもの（どれも作業済みで、続く報告のコメントで締めている）だけで、他セッションの作業中の着手中コメントは無い
+- #448 に着手中コメント: https://github.com/retroeater/mj/issues/448#issuecomment-6072336077
+
+### 1. 確認
+
+**2026-10-08 の予定**（公開の iCal を 2026-10-09 に読んだ。全2,622件）: 10-08 の予定は次の2件だけで、前提と一致（件名・動画ID・開始・終了）。どちらも説明欄に配信の URL と【対局者】4名・【実況】・【解説】がある
+
+| 開始〜終了（JST） | 件名 | 動画ID | 作成（UTC） | 最終更新（UTC） |
+|---|---|---|---|---|
+| 10:55:52〜17:02:22 | 第1期鳳匠戦 ベスト16 C卓 | mUManqtka4c | 2026-10-07 22:18:45 | 2026-10-08 19:04:47 |
+| 17:03:32〜23:09:04 | 第1期鳳匠戦 ベスト16 D卓 | P4r2rzuAKSk | 2026-10-07 22:18:46 | 2026-10-08 19:04:48 |
+
+- 仮の予定（説明欄「開始時刻は暫定です」）は全体で112件あり、10-08 以前の日付のものは0件
+
+**#448 の sub-issue**（5件）: #450（Closed、過去分）・#453（Closed、掲載 Y/N の分離）・#479（Closed、予定表の【3】を予定IDで結び付け）・#480（Closed、「カレンダー」の埋め込み）・**#488（Open、第1期JPMLリーグの大会名を `yotei.EVENTS` に足す）**
+
+**#448 の本文・コメントの未完のやること**: 本文にチェックボックスは無い。「進め方」の3本（層1・予定表の取り込み・カレンダーへの同期）はコメントのとおりマージ済み。コメントに残る論点は、どれも行き先がある:
+- 毎朝の実行の遅れ・`READ_UNTIL` の延長・MAX_DELETES の件 → #491（CHAT-1002-INV-02 で分割。遅れと MAX_DELETES は #491 で済、`READ_UNTIL` は 2026-12-01 に判断）
+- サイトからの導線（リソース > カレンダー）→ #480（Closed）
+- 予定表の件名の変更への対応 → #479（Closed）
+- 再生成の差分をコードとデータで分ける課題 → #456（別の issue）
+- 1枠で回戦ごとに面子が違う枠の【対局者】（HC-13 の判断）→ HC-16 で重複のない一覧にする修正をマージ済み
+
+**#488・#491（変更前）**: #488 は Open、親は #448。#491 は Open、親なし・sub-issue なし。#491 の本文「親子関係」に「#448 のクローズ時に、この issue の sub-issue へ付け替える」とある（前提どおり）。#488 のコメントに、着手は連盟の予定表で「(仮)」が外れてから（2026-10-06 の決定）とある
+
+### 2. 残る作業の分け方
+
+| 残り | 行き先 |
+|---|---|
+| #488（Open の sub-issue） | 親を #491 に付け替える |
+| `READ_UNTIL` の延長（2026-12-01 に判断） | #491（既に本文にある） |
+
+#488 以外に Open の sub-issue と未完のやることは無いので、手順3へ進んだ。
+
+### 3. 付け替えとクローズ
+
+- #488 の親を #491 に付け替えた（`replace_parent`）。付け替え後、#488 の親は #491、#491 の sub-issue は1件（#488）
+- #448 に結果をコメント: https://github.com/retroeater/mj/issues/448#issuecomment-6072340981 （10-08 の2件、10-01 の二重の予定の原因と CLD-02・CLD-03・CLD-06 で入れた規則、残る作業の行き先）
+- #448 をクローズした（completed）。ラベルは「分野: 自動化」だけで、「状況:」ラベルは無かった
+- #491 の本文の「親子関係」の行（付け替えの予定）は直していない（指示に無いため）
+
+### 4. 記録
+
+docs/decisions/README.md の書き方（見出し `## YYYY-MM-DD（Chat-Ref）`、日付の古い順）に合わせ、broadcast-calendar.md の末尾に足した:
+
+```diff
+diff --git a/docs/decisions/broadcast-calendar.md b/docs/decisions/broadcast-calendar.md
+index 5f8cde2d..30ab5db1 100644
+--- a/docs/decisions/broadcast-calendar.md
++++ b/docs/decisions/broadcast-calendar.md
+@@ -156,0 +157,5 @@
++
++## 2026-10-09（CHAT-1002-CLD-19、#448）
++
++- #448 をクローズした。10-08 の第1期鳳匠戦ベスト16 C卓・D卓が YouTube の枠の予定（mUManqtka4c・P4r2rzuAKSk）の2件だけになり、仮の予定が残っていないため（2026-09-30 の CAL-03 の決定の当てはめ）
++- #488（第1期JPMLリーグの大会名）の親を #491 に付け替えた。カレンダーの運用の残りは #491 で追う
+```
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 作業中（マージ前）
 - ブランチ: work/1002-cld
 - ログ: https://github.com/retroeater/mj/blob/work/1002-cld/docs/logs/CHAT-1002-CLD-19.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1002-cld
 - 確認用URL: なし
 - マージ: 未
-- issue: #448・#488・#491
+- issue: #448（クローズ）・#488（親を #491 に付け替え）・#491
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
@@ -75,12 +133,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj d5ad06b4）: https://github.com/retroeater/mj-logs/tree/main/guide/d5ad06b4
+ガイド文書（この版を写した時点の最新、mj a344a853）: https://github.com/retroeater/mj-logs/tree/main/guide/a344a853
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d5ad06b4/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d5ad06b4/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d5ad06b4/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d5ad06b4/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d5ad06b4/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d5ad06b4/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a344a853/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a344a853/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a344a853/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a344a853/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a344a853/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a344a853/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/23f4ac3e.md
