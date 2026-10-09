@@ -78,28 +78,86 @@
 - 着手前の確認: `git log --all --grep="CHAT-1007-PHT-17"` は0件。今日（JST）は 2026-10-09 10:21。`work/1007-pht-gsc` はローカルにあり、リモートにあってマージ済み。ローカル（e2fd59f6）は `origin/cloudflare` の祖先のため `git merge --ff-only origin/cloudflare` で 23f4ac3e に進めた
 - CHAT-1007-PHT-16 の `## 報告` の状態は「完了」。#142 は Open で、最新のコメントは CHAT-1007-PHT-16 のもの。他セッションの着手中コメントは無い
 
+### 手順1: 確かめ
+
+- #142・#511 は Open。#142 は「状況: 待ち」。#142 に着手中のコメントを残した: https://github.com/retroeater/mj/issues/142#issuecomment-6072328442
+- #142 の本文は前提どおり（冒頭に「期日: 2026-10-09」、着地先の比較の行に「10/9 の取得（28日分。期間は取得日に合わせる）の」）。#5 は Open（2026-09-30 に再オープン、残りは title の長さと短い description）
+- `.github/workflows/fetch-gsc.yml` の手動実行の入力は `commit`（コミットするか）だけで、**期間を指定する入力は無い**。`scripts/fetch_gsc.py` の `--days`（既定28）・`--end-offset`（既定3、終了日を実行日の何日前にするか）は、ワークフローから渡されない。期間は「実行日（JST）の3日前までの28日」で決まる。2026-10-09（JST）に実行すれば 2026-09-09〜2026-10-06 になる（`--plan` で確認）ため、期間を指定できないという止まる条件には当たらないと判断し、今日（JST）のうちに既定のまま実行した（スクリプト・ワークフローは変えていない）
+- `--plan`（`python3 scripts/fetch_gsc.py --plan`、2026-10-09 JST）: プロパティ `sc-domain:ryoei.pro`、期間 **2026-09-09〜2026-10-06（28日）**、出力先 `docs/gsc/2026-10-09/20260909-20261006`。既定の終わりの日（10-06）は 2026-10-06 以後なので、止まる条件に当たらない。`--days 28 --end-offset 3` を付けても同じ
+
+### 手順2: 取得
+
+- 作業ブランチで fetch-gsc.yml を `commit=true` で手動実行（`actions_run_trigger`、ref=work/1007-pht-gsc）: run 37869497652、success。作られたコミット 6805caca（`chore: fetch Search Console export`）。コミットの中身は docs/gsc/ 配下の8ファイルだけ（docs/gsc/README.md の履歴表1行、2026-10-09/README.md・robots.txt、20260909-20261006/ の5つの CSV）
+- 期間は 2026-09-09〜2026-10-06 で指定どおり（`docs/gsc/2026-10-09/README.md` の記載も同じ）
+- ファイルごとの行数（見出しを除く）: query.csv 96／page.csv 113／query-page.csv 107／device.csv 3／country.csv 41。0件のファイルは無い
+- 日別の値は取れない（API の取得は期間の合計だけ）。10-04〜10-06 の表示が極端に少ないかは確かめていない
+- robots.txt の差分: 10-01 の取得から変わらず、#304 にコメントは付かなかった
+
+### 手順3: 集計と記録
+
+- 表の置き場所（cloudflare へのマージ後）: `docs/gsc/2026-10-09/title-effect.md`（title 整備の効果）、`docs/gsc/2026-10-09/tournament-queries.md`（title/ の公開前後の着地先、公開前の2回との比較）、`docs/gsc/2026-10-09/saikyo-pages.md`（saikyo/ 配下17ページ）。`docs/gsc/README.md` の表に3行足した
+- 要約: docs/notes/site-findings.md の「#142 初回計測」の記述の続きに3項目足した（初回計測の「次回計測は2026-10-07」を「2回目の計測は次の項目」に直した。矛盾する記述は無かった）
+- 要点: 変更後28日は クリック109・表示2,582・CTR 4.2%・順位10.3、変更前3日は 3・128・2.3%・9.1。1日あたりは増えたが、変更前がクリック3件で CTR の95%区間が重なり、サイト全体の公開ページが増えた時期なので、title 整備の効果とは言えない。着地先は `houou_ranking.html?sheet=鳳凰` のまま（表示 555 → 558）、title/ は入口のみ（表示 9 → 48）、「女流桜花」「十段位」は0件、saikyo/ は17ページ合計で表示 1
+- #5 の再オープン分: 対象ページと直した日は #5 のコメントから読めず、別表にしていない
+- #142 へのコメント: https://github.com/retroeater/mj/issues/142#issuecomment-6072359292
+- #511 へのコメント: https://github.com/retroeater/mj/issues/511#issuecomment-6072360751
+- #142 の本文の直した1か所（GitHub MCP の issue_write。署名の行は付かなかった）: 「- 10/9 の取得（28日分。期間は取得日に合わせる）の `query-page.csv` で、…」→「- 10/9 の取得（09-09〜10-06）の `query-page.csv` で、…」。書き換え後に REST で取り直し、本文が「元の本文の該当1か所だけを置き換えたもの」と一致すること、署名の行が無いこと、ラベル（`状況: 待ち`・`分野: SEO/AIO`）が変わっていないことを確かめた。書き換える前の本文:
+
+  ````
+**期日: 2026-10-09（`fetch-gsc.yml` を期間指定で手動実行して計測する）。次は 2026-11-01 の月次の自動取得（#269）。#5 の再オープン分の効果もここで測る**（2026-10-03 更新）
+
+### 状況
+
+#5で26ページの`<title>`を整備したが、効果測定は「これから」のまま
+（handover SEO節: 表示48回・クリック2回・CTR約4%）。
+
+### 対応
+
+変更前後で同じ期間長（例: 28日）の表示回数/クリック数/CTR/平均掲載
+順位を比較し、結果をhandoverのSEO節に追記する。GSCの計測期間が
+短いので、結論を急がず「初回計測」として記録する。
+
+**平野さんが実施**（Search Consoleの操作）。
+
+#### title/ の公開（2026-09-28）の前後の着地先の比較（2026-10-04 追加、元は #413 の予定）
+
+- 10/9 の取得（28日分。期間は取得日に合わせる）の `query-page.csv` で、#413 の GC-20 の表と同じ語（鳳凰位・鳳凰戦・女流桜花・桜花・十段位・十段戦・王位・マスターズ・グランプリ・モンド・最強戦・プロクイーン・女流・リーグ）を含む行を抜き、着地先を比べる
+- 公開前の値は2回分ある: #413 の GC-20 の表（2026-09-21、`docs/gsc/2026-09-21/tournament-queries.md`）と `docs/gsc/2026-10-01/tournament-queries.md`（期間 09-01〜09-28）
+- 見るところ: (1) 着地先に `title/` が現れるか、(2) `houou_ranking.html?sheet=鳳凰` の表示回数が減るか、(3) 「女流桜花」「十段位」のクエリが出てくるか
+- #459（クローズ）から引き継ぐ: 「鳳凰位 歴代」などが `title/houou/` へ移らず `houou_ranking.html` に着地し続けるなら、`houou_ranking.html` の title・description を #5 で検討する
+
+2026-09-11のレビューで判明。
+  ````
+
+- 決定を足したファイル: docs/decisions/seo-bing.md
+
 ## 報告
 
-- 状態: 中断（着手直後。作業中）
+- 状態: 判断待ち（#142 を閉じるか、`houou_ranking.html` の title・description を直すかを平野さんが決める）
 - ブランチ: work/1007-pht-gsc
-- ログ: https://github.com/retroeater/mj/blob/work/1007-pht-gsc/docs/logs/CHAT-1007-PHT-17.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1007-PHT-17.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1007-pht-gsc
-- 確認用URL: なし
-- マージ: 未
-- issue: #142・#511
-- 判断が必要なこと: 着手直後のため、まだ無い
-- 未確認の項目: 着手直後のため、まだ無い
+- 確認用URL: なし（docs/ のみ）
+- マージ: 済（取得分と表・要約。docs/gsc/・docs/notes/site-findings.md・docs/logs/・docs/decisions/ のみ）
+- issue: #142（コメントと本文の1か所の直し）、#511（コメント）。どちらも閉じていない
+- 判断が必要なこと:
+  - (a) #142 を閉じられるか: 閉じない案。今回の数値は、変更前が3日・クリック3件で、title 整備の効果とは言えない（言えるのは「整備後は表示・クリックが増えている」まで）。変更前と同じ期間長の比較は成り立たない（Search Console の開始が 09-06）ので、今後は整備後の期間どうしの推移として見る。次に測る日の案: **2026-11-01 の月次の自動取得**（#269。期間 10-02〜10-29 の見込み）で、title/ の公開後の着地先（title/ の大会ページ・期ページが出るか）と saikyo/ の表示を見る。それで「見る価値がある変化が無い」ならクローズ、という決め方でよいか
+  - (b) 着地先の比較から出た、直す候補のページ: `houou_ranking.html?sheet=鳳凰`。「鳳凰位 歴代」（表示 177）などが `title/houou/` へ移らず `houou_ranking.html` に着地し続けている（#142 の #459 から引き継いだ項目の条件に当たる）。title・description を #5 で検討するか。直していない
+- 未確認の項目:
+  - 直近 10-04〜10-06 の表示が極端に少ないか（API の取得は期間の合計だけで、日別の値が無い）
+  - #5 の再オープン分（短い title の共通末尾）の適用日（#5 のコメントから読めず、別表にしていない）
+  - fetch-gsc.yml に期間の入力が無いため、2026-10-09 JST の既定の期間（3日前までの28日）に頼った。10-10 以降の実行では期間がずれる
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj d5ad06b4）: https://github.com/retroeater/mj-logs/tree/main/guide/d5ad06b4
+ガイド文書（この版を写した時点の最新、mj f13efe1c）: https://github.com/retroeater/mj-logs/tree/main/guide/f13efe1c
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d5ad06b4/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d5ad06b4/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d5ad06b4/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d5ad06b4/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d5ad06b4/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d5ad06b4/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f13efe1c/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f13efe1c/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f13efe1c/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f13efe1c/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f13efe1c/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f13efe1c/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/23f4ac3e.md
