@@ -57,15 +57,44 @@
 - 指示欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている。
 - CHAT-1009-SWP-07 のログの `## 報告` の状態は「判断待ち（プレビューを平野さんが見てから、別の指示でマージ）」（origin/work/1009-swp-rhl、`1b7e2f0c`）。`work/1009-swp-rhl` はリモートにあり（未マージ）、ローカルと一致している。
 
+### 手順1 確かめる
+
+- CHAT-1009-SWP-07 のログの `## 報告` の状態の末尾に `/ 続き: CHAT-1009-SWP-09` を足した（コミット `docs: add continuation note to CHAT-1009-SWP-07 log`）。
+- `git merge-base --is-ancestor origin/cloudflare HEAD` が偽だったため `origin/cloudflare` を merge で取り込んだ（rebase なし）。**衝突は無し。** 取り込んだ中身は他セッションのログ・決定（`CHAT-1009-NEN-13`・`CHAT-1009-RGN-01` など）。
+- `git diff --stat origin/cloudflare...HEAD`: `docs/decisions/site-review.md`・`docs/logs/CHAT-1009-SWP-07.md`・`docs/logs/CHAT-1009-SWP-09.md`・`docs/notes/static-generation.md`・`docs/notes/video-wayhome.md`・`llms.txt`・`navbar.js`・`rh_links.html`（削除）・`sitemap-pages.xml`。**見込み（SWP-07 の変更ファイルと docs/logs/・docs/decisions/）の範囲だけで、超えていない。** work/1008-hou は取り込んでいない。
+
+### 手順2 マージ
+
+- 決定を `docs/decisions/site-review.md` に足してから（手順3の1点目、マージの差分に含めた）、push の直前に再 fetch し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真であることを確かめて `git push origin work/1009-swp-rhl:cloudflare`（`eabe7134..b577508d`）。権限判定の拒否は無かった。
+- 本番反映: check-run「Workers Builds: mj」は `completed / success`（push から約2分）。同じコミットの Actions（公開対象を検査する・サイトマップの lastmod を同期・ページの再生成）も `completed / success`。
+- **本番の HTML に反映を確認した。ブラウザでの見え方は未確認**（本番は HTML の取得のみ）:
+
+| 確かめた URL | 結果 |
+|---|---|
+| `https://ryoei.pro/rh_links.html` | HTTP 404。本文は `404.html`（「ページが見つかりません」・「トップへ戻る」を含む） |
+| `https://ryoei.pro/navbar.js` | HTTP 200。`rh_links` は無い（`rh_results_detail` はある） |
+| `https://ryoei.pro/sitemap-pages.xml` | HTTP 200。`rh_links` は無い（`<loc>` 23件） |
+| `https://ryoei.pro/llms.txt` | HTTP 200。`rh_links` は無い |
+| `https://ryoei.pro/rh_results.html` | HTTP 200 |
+
+- マージ後に `cloudflare` に入った自動処理のコミット: **無し**。マージ（`b577508d`）の約5分後の `origin/cloudflare` は `b577508d` のまま（`git log b577508d..origin/cloudflare` が空）。ページの再生成・サイトマップの lastmod の同期は成功で終わったが、コミットは作られなかった。シートの変化・lastmod・それ以外の差分は、種類を分けて書くものが無い。
+
+### 手順3 記録と片付け
+
+- 決定を `docs/decisions/site-review.md`（2026-10-09〈CHAT-1009-SWP-09〉）に足した（`rh_links.html` の廃止のマージの承認、`apply_page_meta.py` の項目は #517 に任せる）。
+- #517 に、`scripts/apply_page_meta.py:130` に `rh_links.html` の項目が残っていること（決定の2点目）をコメントした。
+- #531 に本番の確かめをコメントし、閉じた（`completed`）。「状況:」ラベルは付いていなかった（ラベルは「分野: 整理・保守」「対象: 全ページ」のまま）。閉じる時点で残る作業は無い（`apply_page_meta.py` は #517、`sitemap-pages.xml` の冒頭コメントの件数は #518 の公開の issue、`llms.txt` の件数は #227。いずれも別の決定で担当が決まっている）。各コメントの末尾に `Chat-Ref: CHAT-1009-SWP-09`。
+- ブランチの片付け: マージ済みの `work/*` は `delete-merged-branches.yml` が毎日、先頭が24時間より前のものを削除する（docs/notes/cloud-sessions.md「ブランチの削除」。セッションの git プロキシはブランチの削除を拒否する）。`work/1009-swp-rhl` は自動の削除に任せ、削除はしていない。本番の確かめの成否に条件づけていない。
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1009-swp-rhl
-- ログ: https://github.com/retroeater/mj/blob/work/1009-swp-rhl/docs/logs/CHAT-1009-SWP-09.md
+- 状態: 完了
+- ブランチ: work/1009-swp-rhl（CHAT-1009-SWP-07 の続き。マージ済み。削除は自動に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1009-SWP-09.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1009-swp-rhl
-- 確認用URL: なし
-- マージ: 未
-- issue: #531
+- 確認用URL: なし（本番の HTML の取得のみ。確かめた URL はログの「手順2 マージ」の表）
+- マージ: 済（`rh_links.html` の廃止のマージコミット `b577508d`。Workers Builds・Actions は `completed / success`）。この後のログの追いの push は docs のみ
+- issue: #531 を閉じた（コメントあり）。#517 にコメント。起票なし
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
