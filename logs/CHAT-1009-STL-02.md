@@ -147,7 +147,7 @@ CHAT-1009-STL-01 の調査をもとに、「連盟プロ以外」「別名」（
 
 ## 報告
 
-- 状態: 判断待ち（実装・試運転・文書は済み。マージは平野さんの判断）
+- 状態: 判断待ち（実装・試運転・文書は済み。マージは平野さんの判断） / 続き: CHAT-1009-STL-03
 - ブランチ: work/1009-stl
 - ログ: https://github.com/retroeater/mj/blob/work/1009-stl/docs/logs/CHAT-1009-STL-02.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1009-stl
@@ -167,12 +167,12 @@ CHAT-1009-STL-01 の調査をもとに、「連盟プロ以外」「別名」（
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 419fc58a）: https://github.com/retroeater/mj-logs/tree/main/guide/419fc58a
+ガイド文書（この版を写した時点の最新、mj cd8470aa）: https://github.com/retroeater/mj-logs/tree/main/guide/cd8470aa
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/419fc58a/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/419fc58a/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/419fc58a/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/419fc58a/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/419fc58a/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/419fc58a/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/eabe7134.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/cd8470aa/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/cd8470aa/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/cd8470aa/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/cd8470aa/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/cd8470aa/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/cd8470aa/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/14f14a50.md
