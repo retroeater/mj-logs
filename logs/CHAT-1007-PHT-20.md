@@ -64,28 +64,58 @@
 - 着手前の確認: `git log --all --grep="CHAT-1007-PHT-20"` は0件。`work/1007-pht-gviz` はローカルにもリモートにも無く、`git checkout -b work/1007-pht-gviz origin/cloudflare`
 - CHAT-1007-PHT-19 の `## 報告` の状態は「判断待ち」
 
+### 手順1: 確かめ
+
+- #510 は Open。コメントは CHAT-1007-PHT-19 の期日のもの1件だけで、他セッションの着手中コメントは無い
+- ブックの特定: `scripts/` で先頭が `10g_Xub35O` の ID は、`scripts/lib/live.py` の `SPREADSHEET_ID` と `scripts/generate_title_pages.py` の `SPREADSHEET_ID` の2か所で、**同じ1つの ID**（異なる2つではない）。以下、このブックを「`scripts/lib/live.py` の `SPREADSHEET_ID`（/live・title/ が読む3層のブック）」と呼ぶ。ID・URL は書かない
+- `テスト_gviz` を読むスクリプト・docs は無い（`scripts/`・`docs/` の検索で0件）ので、ページには影響しない
+- 読めた形: 1行目が見出し（`見出し1`〜`見出し9` の9列）、2〜15行目の14行（前提の「2〜11行目に10行ほど」より多い）。A列の値は 1〜14（シートの行 n の値は n−1）。gid は引けた。CSV は9列・見出し＋14行。非表示の行（4〜5）と折りたたんだ行（8〜9）の位置は前提どおり（gviz にだけ出ない行が、シートの行4・5・8・9）。行数の違い（14行）は「10行ほど」の幅の範囲で、隠れた行の位置が前提と合うため、止めずに進めた
+
+### 手順2: 実測（`scripts/lib/sheets.py` の `_query`・`_csv_row_count`・`check_not_filtered`・`fetch_records`・`fetch_sheet` を使うスクリプトを、scratchpad に置いて実行。リポジトリのコードは変えていない）
+
+| 取り方 | 返った A列の値 | 行数 | 返らなかった値（シートの行） |
+| --- | --- | ---: | --- |
+| gviz `SELECT *` | 1, 2, 5, 6, 9, 10, 11, 12, 13, 14 | 10 | 3・4（行4〜5、手で非表示）、7・8（行8〜9、折りたたみ） |
+| gviz `SELECT COUNT(A)` | — | 10 | 同上 |
+| CSV エクスポート（見出しを除く） | 1〜14 すべて | 14 | なし |
+| `check_not_filtered()` | — | gviz 10 / シート 14 | `FilteredSheetError`（「フィルタがかかっています(gviz 10行 / シート 14行)」で止まる） |
+| `fetch_records()` | — | — | 入口の `check_not_filtered()` で `FilteredSheetError` |
+| `fetch_sheet()` | — | — | 同上 |
+
+- 3回繰り返した結果は、3回とも上の表と同じ（gviz の A列・COUNT・CSV の行数・`check_not_filtered()` の結果）。揺れなし
+- 非表示の行と折りたたんだ行を分けて見ると、どちらも gviz は返さない（フィルタと同じ）。見分けは、この実測では要らない
+
+### 手順3: 記録
+
+- docs/notes/static-generation.md「シートのフィルタの検知（#432）」に、箇条書き1項目を足した（先に今の内容を読んだ。「gviz はフィルタで隠れた行を返さない」「CSV はフィルタの影響を受けない」「`check_not_filtered()` が行数を比べる」の記述と矛盾は無く、結論を足しただけ）
+- #510 へのコメント（結論と表。ブックの ID・URL は書いていない）: https://github.com/retroeater/mj/issues/510#issuecomment-6074291697
+- 決定の記録に足すことは無い（平野さんの新しい決定は無かった）
+- CHAT-1007-PHT-19 のログの `## 報告` の状態の末尾に ` / 続き: CHAT-1007-PHT-20` を足した
+
 ## 報告
 
-- 状態: 中断（着手直後。作業中）
+- 状態: 判断待ち（#510 を閉じてよいかを平野さんが決める）
 - ブランチ: work/1007-pht-gviz
-- ログ: https://github.com/retroeater/mj/blob/work/1007-pht-gviz/docs/logs/CHAT-1007-PHT-20.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1007-PHT-20.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1007-pht-gviz
-- 確認用URL: なし
-- マージ: 未
-- issue: #510
-- 判断が必要なこと: 着手直後のため、まだ無い
-- 未確認の項目: 着手直後のため、まだ無い
+- 確認用URL: なし（docs/ のみ）
+- マージ: 済（docs/notes/static-generation.md・docs/logs/ のみ）
+- issue: #510（結論のコメント。閉じていない）
+- 判断が必要なこと:
+  - #510 を閉じてよいか: **閉じる案**。gviz は手で非表示にした行も折りたたんだ行も返さないが、`check_not_filtered()` が行数の食い違いで生成を止めるので、行が静かに消えることはなく、新しい検知は要らない（3回の実測で結果は同じ）。直す作業は要らない。任意の小さな改善として、エラーメッセージ「フィルタがかかっています」を「フィルタ、または非表示・折りたたみの行があります」に書き直す案がある（コードの変更で、別の指示）
+  - テスト用タブ（`テスト_gviz`）は、生成のスクリプトが読んでいないので、平野さんが消してよい
+- 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj f3e6f8b4）: https://github.com/retroeater/mj-logs/tree/main/guide/f3e6f8b4
+ガイド文書（この版を写した時点の最新、mj 5bba42c1）: https://github.com/retroeater/mj-logs/tree/main/guide/5bba42c1
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f3e6f8b4/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f3e6f8b4/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f3e6f8b4/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f3e6f8b4/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f3e6f8b4/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f3e6f8b4/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/5bba42c1/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/5bba42c1/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/5bba42c1/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/5bba42c1/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/5bba42c1/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/5bba42c1/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/4e7c1a8d.md

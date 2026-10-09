@@ -55,15 +55,20 @@ NEN-12 は本番の確かめをすべて通したが、再生成の失敗（#277
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
 - 手順1: #277 は Open（ラベル「分野: UI/UX」、「状況:」ラベルなし）。最新のコメントはこのセッションの NEN-09（他セッションの着手中コメントは無い）。#523・#530 は Open
 
+- 手順2: #277 に経過の要約（NEN-01〜NEN-12、#521・#523・#530、マージ 600c14ea、本番の確かめは NEN-12）をコメントし（issuecomment-6074294605）、閉じた（completed。「状況:」ラベルは無かった）
+- `docs/decisions/title.md` に NEN-13 の決定を足した
+- `docs/handover.md` 5章: 「次の会話の順番」の待ちの先頭に #388（平野さんが「映画」のタブを作ってから）を足し、表の「現行サイトで小さく作れるもの」の行の #277 を「済み、閉じた」にした（#277 は NEN-11 で順番から外してあった）。24,357 バイト（警告域 26,624 の外）
+- クローズの時点で残る作業: #523（「JPML」を外す件）・#530（共有ボタンの見直し）のほかに、`assets/share.js` の先頭のコメントに残る「title/」（#530 の本文に書いてある）。再生成の失敗は #515 のチャットへ引き継ぎ済み
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1009-nen-close
-- ログ: https://github.com/retroeater/mj/blob/work/1009-nen-close/docs/logs/CHAT-1009-NEN-13.md
+- 状態: 完了
+- ブランチ: work/1009-nen-close（cloudflare へマージ済み。削除は delete-merged-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1009-NEN-13.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1009-nen-close
 - 確認用URL: なし
-- マージ: 未
-- issue: #277
+- マージ: 済（SHA は最終報告の push のコミット）
+- issue: #277（閉じた）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
@@ -71,12 +76,12 @@ NEN-12 は本番の確かめをすべて通したが、再生成の失敗（#277
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj f3e6f8b4）: https://github.com/retroeater/mj-logs/tree/main/guide/f3e6f8b4
+ガイド文書（この版を写した時点の最新、mj 5bba42c1）: https://github.com/retroeater/mj-logs/tree/main/guide/5bba42c1
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f3e6f8b4/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f3e6f8b4/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f3e6f8b4/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f3e6f8b4/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f3e6f8b4/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f3e6f8b4/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/5bba42c1/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/5bba42c1/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/5bba42c1/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/5bba42c1/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/5bba42c1/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/5bba42c1/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/4e7c1a8d.md
