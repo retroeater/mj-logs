@@ -55,6 +55,42 @@ CHAT-1009-STL-01 の調査をもとに、「連盟プロ以外」「別名」（
 
 ## 経過
 
+- Chat-Ref の重複なし。work/1009-stl はローカル・リモートとも cloudflare の祖先（STL-01 でマージ済み）→ cloud-sessions.md「ローカルにあり origin/cloudflare の祖先」に従い、`git merge --ff-only origin/cloudflare`（b2529448..1ddf8321）
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている。「作業ブランチ」の行もある
+- 手順0: 「指示」欄の末尾は指示文の最後の行と一致。STL-01 の `## 経過`・`## 報告` を読んだ（同じセッションで書いたもの）。STL-01 の状態に ` / 続き: CHAT-1009-STL-02` を足した
+
+### 手順1: 実装とテスト
+
+- 未マージのブランチ: work/1008-hou・work/1009-stl だけ。work/1008-hou の差分に `names`・`live_candidate`・`live_extract`・`write_live_channel`・`update-live-channel`・`live_layer3`・`live_calendar`・`sync_live` は無い（止まる条件に当たらない）
+- 読んだ: docs/notes/branch-operations.md「ワークフローを変更したとき」（既存のワークフローなので作業ブランチを ref にして手動実行できる）
+- 足したもの（既存の関数は1つも変えていない。全ページの再生成は不要）:
+  - `scripts/lib/unused_names.py`: 判定（`find_unused()`）・比較の鍵（`keys()`。行番号は行を消すとずれるので含めない）・節の文面（`section()`）・注記（`build_marker()`・`parse_marker()`）・載せるかの判断（`decide()`）。値だけを受け取る
+  - `scripts/check_unused_names.py`: 読み込み（下）と、#475 の bot（`github-actions[bot]`）のコメントのうち注記のある最後のものの読み取り（REST、`GITHUB_TOKEN`）。読み込みの例外は捕まえて「検査できなかった」にし、終了コード 0。`--force`（unused_report）・`--no-issue`（手元の確認用）
+  - `scripts/tests/test_unused_names.py`（15件）: 判定の定義、`訂正` だけを数える、`登録名変更` の変換後（使われている行の変換後は使われている・使われていない行の変換後はそうならない）、注記の往復と最後のものを取る、一覧が変わらない日は書かない、`unused_report` のときは書く、変わったときは増減を書く、失敗の1行と初回の日だけ、`unused_report` なら失敗でも書く、失敗からの回復は書く、空の一覧、読み込みの失敗で1行を書き出して正常に終わる
+  - `.github/workflows/update-live-channel.yml`: 入力 `unused_report`、環境変数 `UNUSED_REPORT`（予約の起動では偽）、層2の後・知らせの前のステップ「層2 使われていない登録を調べる」（`continue-on-error: true`）、知らせの段で未登録の名前のコメントと使われていない登録の節を1つのコメントにまとめる（節の後ろに注記、その後ろに今までのフッタ）。検査の段が JSON を残さずに落ちたとき（#475 の読み取りの失敗など）は注記なしで1行だけ書く（この経路は前回の状態が分からないため、失敗が続くと毎日出る）。冒頭のコメントに説明を足した
+- 載せ方の持ち方: 指示の案どおり、前回の一覧は bot のコメント末尾の HTML コメントで持つ（`<!-- unused-registrations: {"failed": …, "keys": […]} -->`、JSON は ASCII にエスケープ）。失敗の注記にも最後に成功した一覧を持ち越し、回復した日は一覧が同じでも書く（失敗の注記のままだと次の失敗を知らせられないため）
+- 検査のステップを層3の後ではなく層2と知らせの間に置いた: 知らせと同じコメントにまとめるため。知らせの段を層3の後へ動かすと、層3の失敗で未登録の名前の知らせが止まる（今の動き）が変わるため動かさなかった。この時点の【3】は当日の追記の前だが、追記する行は補正の列が空欄なので判定は変わらない
+- 流用した既存の関数・定数（振る舞いは変えていない。参照している既存の所）:
+  - `live_candidate.load_latest_videos()`・`build_rows()`（write_live_channel_candidate.py・append_live_layer3_candidates.py・fetch_live_channel_raw.py・sync_live_calendar.py・テスト）、`live.split_list()`（多数）
+  - `live_calendar.player_lines()`・`GAME_PREFIX_RE`、`live_extract.extract_players_and_staff()`（lib/live_calendar.py・lib/live_candidate.py・テスト）
+  - `sheets.fetch_records()`・`fetch_sheet()`・`check_not_filtered()`（生成スクリプト全般）、`live_layer3.SPREADSHEET_ID`・`SHEET_NAME`・`HEADERS`・`FIRST_SHEET`・`EXPLICIT_BLANK`
+  - `generate_title_pages.fetch_tab()`・`TAB_*`・`SPREADSHEET_ID`（generate_title_pages.py・generate_jpml_test.py）、`generate_jpml_test.player_name()`・`SPREADSHEET_ID`・`SHEET_NAME`・`QUERY`、`generate_saikyo_pages.text()`・`QUERY`・`COL_NAME`、`generate_houou_race` の `HEADERS`・`FIRST_SHEET`・`SHEET_NAME`
+  - `names.KIND_CORRECTED`
+- 手元: `python3 -m unittest discover -s scripts/tests` 675件 OK。`python3 scripts/check_unused_names.py --no-issue --out …` の一覧は「連盟プロ以外」26行・「別名」2行で、STL-01 の試算と同じ行（「テスト」は J=Y の34行）
+- 新しいテストは新しいモジュールのものなので、修正前のコードでは import できず通らない（#310 の確かめ）
+
+### 手順3: 文書
+
+- docs/notes/live-channel-write.md「7」: 層2の項に「使われていない登録」（定義の参照・前回の一覧の持ち方・失敗の扱い）、手動実行の段落に `unused_report` と概要欄の直しが届く日（水曜の verify、すぐなら `apply`+`verify`）を足した。今の記述と矛盾は無く、追記だけ
+- docs/notes/live-page-design.md「1-5」: 末尾に「使われていない登録」（使われている名前の利用先・定義・利用先を足したときの注意）を足した。1〜6 の検査とは別のものとして書き、既存の項目は変えていない
+- `update-live-channel.yml` の冒頭のコメント: 3. の項に3行足した
+- docs/decisions/live.md: この指示の決定を足した
+- #475 の本文に書き足す文面（案。マージの後に書く。本文はまだ変えていない）: 本文の案内の段落（「実在の人は…」の次）に次の2段落を足す
+
+  > どこでも使われていない「連盟プロ以外」の行と「別名」の `訂正` の行は、一覧が変わった日に同じコメントの「使われていない登録」に並べます。消してよい候補で、他団体の現役プロなど今後また出る人も入ります。行を消すのは手作業で、この仕組みはシートを変えません。手動実行で `unused_report` を付けると、変わっていなくても今の一覧を出します。
+  >
+  > YouTube の概要欄の直しは、毎週水曜の取り込みで届きます（それまでは古い読み違いが残り、使われていない登録にも出ません）。すぐ届かせるときは、手動実行で `apply` と `verify` を付けます。
+
 ## 報告
 
 - 状態: 作業中
@@ -71,12 +107,12 @@ CHAT-1009-STL-01 の調査をもとに、「連盟プロ以外」「別名」（
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj f6f2125c）: https://github.com/retroeater/mj-logs/tree/main/guide/f6f2125c
+ガイド文書（この版を写した時点の最新、mj 419fc58a）: https://github.com/retroeater/mj-logs/tree/main/guide/419fc58a
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f6f2125c/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f6f2125c/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f6f2125c/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f6f2125c/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f6f2125c/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f6f2125c/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/419fc58a/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/419fc58a/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/419fc58a/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/419fc58a/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/419fc58a/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/419fc58a/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/eabe7134.md

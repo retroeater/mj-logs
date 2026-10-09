@@ -169,7 +169,7 @@ YouTube の概要欄が直ったときなどに、「連盟プロ以外」「別
 
 ## 報告
 
-- 状態: 判断待ち（調査は完了。実装の案に平野さんの判断が要る）
+- 状態: 判断待ち（調査は完了。実装の案に平野さんの判断が要る） / 続き: CHAT-1009-STL-02
 - ブランチ: work/1009-stl
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1009-STL-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1009-stl
@@ -194,12 +194,12 @@ YouTube の概要欄が直ったときなどに、「連盟プロ以外」「別
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj f6f2125c）: https://github.com/retroeater/mj-logs/tree/main/guide/f6f2125c
+ガイド文書（この版を写した時点の最新、mj 419fc58a）: https://github.com/retroeater/mj-logs/tree/main/guide/419fc58a
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f6f2125c/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f6f2125c/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f6f2125c/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f6f2125c/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f6f2125c/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f6f2125c/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/419fc58a/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/419fc58a/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/419fc58a/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/419fc58a/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/419fc58a/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/419fc58a/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/eabe7134.md
