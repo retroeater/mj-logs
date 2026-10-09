@@ -61,28 +61,80 @@
 
 ## 経過
 
+### 0章・ブランチ
+
+- 「指示」欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・作業ブランチ・共通手順）は揃っている
+- CHAT-1008-DIC-09 の `## 報告` の状態は「判断待ち」
+- `git log --all --grep="CHAT-1008-DIC-10"` は0件
+- 「辞書」タブを生成と同じ経路（`fetch_records`）で2回読んだ。2回とも 746 行（一般用語 546・連盟用語 127・Mリーグ 73）、品詞は全件「名詞」、同じカテゴリ内の（よみ, 単語）の重複なし。カテゴリの値は3つだけで、「麻雀用語」は残っていない
+- ローカルの work/1008-dic は origin/work/1008-dic と同じ（237dba58）。`git merge-base --is-ancestor origin/cloudflare HEAD` は偽だったため、ログの push の後に `git merge origin/cloudflare` で取り込んだ（衝突なし、docs だけ）。作業中に cloudflare がさらに進んだ（title/ の年の切り替え・共有ボタンの廃止など、CHAT-1009-NEN）ので、プレビューの前にもう一度取り込んだ（衝突なし）。取り込み後の cloudflare との差はこの作業のファイルだけで、辞書ページを生成し直しても差は出なかった
+
+### 手順1（確かめ）
+
+- DIC-09 のログの状態に ` / 続き: CHAT-1008-DIC-10` を足した
+- `docs/decisions/features.md`: DIC-09 で「→ 置き換え（予定）」を付けた2つ（2026-10-06 の「利用者が好きなカテゴリを選んで」・2026-10-09 の P1＋C2＋R1＋H1）を「→ 置き換え」に確定した。DIC-09 の「収録内容の説明だけを出す」「Gboard は Android 実機での確認の後に本番に出す」と、DIC-06 の「それまで本番ページの形式の選択に Gboard を出さない」に「→ 置き換え」を付け、DIC-10 の決定を足した
+- 未マージの work/ ブランチ: 手順1のファイルを変えているものは無い（work/1008-hou は `style.css` と `scripts/regenerate.py` の houou の2行、work/1009-nen・work/1009-nen-year は `style.css` だけ）
+
+### 手順2（作る）
+
+- 生成スクリプト（`scripts/generate_resource_dictionary.py`）
+  - カテゴリ: `("mahjong", "一般用語", "一般用語")`。並びは 一般用語 → 連盟用語 → 連盟プロ → Mリーグ（保存する行の順）
+  - ページ: 白いカード1枚に、見出し「ダウンロード」＋「ⓘ 登録方法」のチップ（1つ）＋形式のボタン3つ（ボタンの中に形式名と対応する環境）。吹き出し（`popover`）に3形式の手順を形式名の小見出し（`h3`）で並べる。公式ヘルプのリンクは Microsoft IME・Google 日本語入力だけ
+  - `FORMATS` から「画面に出すか」の値を外した（3つとも出す）
+  - description: `{count}` を入れ、`render_content()` の `count` に（読み, 語）の重なりをまとめた語数（`merged_count()`）を渡す。生成されたページの description・og:description・末尾の `.mj-lead` の3か所が「…（タイトル戦・選手・チーム・団体等）の辞書（1,822語）をダウンロードできます。」になる
+  - 比較ページ（`render_compare_page()` と `COMPARE_*`）とチェックボックス・フォームのテンプレートを消した
+- `scripts/apply_page_meta.py`: description は語数を除いた「一般的な麻雀用語、および日本プロ麻雀連盟・Mリーグ関連の用語（タイトル戦・選手・チーム・団体等）の辞書をダウンロードできます。」にした。`apply_page_meta.py` は固定の文字列しか持てず、生成スクリプトが `{count}` を持つ `jpml_pros`（`apply_page_meta.py` は「1000人超」）と同じ扱い。`apply_page_meta.py` を手で実行すると語数の無い文言に戻るが、次の再生成で語数入りに戻る
+- `resource_dictionary.js`: 形式のボタンのページだけにした（チェックボックス・フォーム・語数の表示・ボタンの無効化の処理を消した）。zip を作る処理・保存名「YYYYMMDD_<形式>_麻雀用語辞書.txt」（Gboard は .zip）は変えていない
+- `resource_dictionary.css`: 使う規則だけにした（灰色の地・ステップ・チップのカテゴリ・セグメント・比較用の `.mj-dicx-*` を消した）。説明文の色は共通の #555555 に戻し（白地で 7.46:1）、幅はカードと同じにした。新しい色は増やしていない（ボタン #212529 の上の白 15.43:1、ホバーの #000 で 21:1）
+- `resource_dictionary_compare.html` を消した。`scripts/regenerate.py` は変えていない（cloudflare と差分なし）
+- テスト: `PageTest` を新しい作りに合わせ（全カテゴリのスラッグ・3形式のボタンと吹き出し・環境の表記・チップは1つ）、説明文の語数が重なりをまとめた数になること、Gboard に公式ヘルプが無いことのテストを足した。`ComparePageTest` は消した。OK
+- `docs/notes/static-generation.md`「ページの一覧」の辞書の行を今の作りにした
+
+ボタンの並べ方（PC）: 横に3つ（カードの中で1行）と縦に3つ（幅いっぱい）の両方を撮った。縦に並べると PC ではボタンが 646px 幅になり間延びするので、PC は横、スマホ（576px 未満）は縦にした
+
+全ページの再生成（`python3 scripts/regenerate.py all`、1分33秒、エラーなし）の差分は `resource_dictionary.html` と `dic/mahjong.json` だけ。`dic/mahjong.json` は `"label"` が「麻雀用語」→「一般用語」に変わっただけで、行は同じ
+
+確かめ（ローカルの Chromium とプレビューで同じスクリプト、結果は同じ）:
+
+| 形式 | 行数 | 見込み・説明文の語数 | 重複 | 形 |
+|---|---|---|---|---|
+| Microsoft IME | 1,822 | 1,822 | 0 | BOM（FF FE）付き UTF-16LE・CR+LF・3列・末尾改行なし |
+| Google 日本語入力 | 1,822 | 1,822 | 0 | BOM なし UTF-8・LF・4列・末尾改行なし |
+| Gboard | 1,822（見出し行を除く） | 1,822 | 0 | zip（無圧縮）に `dictionary.txt` 1つ、`testzip()` で CRC は正しい。先頭行 `# Gboard Dictionary version:1`、BOM なし UTF-8・LF・3列目 `ja-JP` |
+
+- 説明文とカードの左右の端: PC 296〜984（どちらも）、スマホ 16〜374（どちらも）。地は白（`main` の背景は透明）、説明文の色は rgb(85, 85, 85)
+- キーボード: Tab で 登録方法 → Microsoft IME → Google 日本語入力 → Gboard の順。どれもフォーカスの輪（白3px＋#14459b 2px）が出る。ボタンで Enter を押すと保存される
+- 吹き出し: Enter で開き（中身は Microsoft IME〈公式あり〉・Google 日本語入力〈公式あり〉・Gboard〈公式なし〉）、Esc で閉じる。外側のタップでも閉じる
+- プレビュー: `resource_dictionary.html`・`.css`・`.js`・`dic/mahjong.json` は 200、`resource_dictionary_compare.html` は 404
+- #522・#515 に経過をコメントした
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1008-dic
 - ログ: https://github.com/retroeater/mj/blob/work/1008-dic/docs/logs/CHAT-1008-DIC-10.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1008-dic
-- 確認用URL: なし
-- マージ: 未
+- 確認用URL: プレビューあり（URL は最終報告）。作り直した `resource_dictionary.html`
+- マージ: 未（指示どおり判断待ち）。今の cloudflare の生成は「辞書」タブの「一般用語」で止まるため、本番の辞書ページは次の再生成から更新されない状態にある
 - issue: #522・#515
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 判断が必要なこと:
+  - プレビューで見てほしい点: PC とスマホでの見た目、ボタンの並べ方（PC は横に3つ・スマホは縦に3つにした。PC で縦に並べた形も撮ったが、ボタンが 646px 幅になり間延びした）、「ⓘ 登録方法」の吹き出し、Android での Gboard の取り込み（プレビューでも保存できる）。よければマージの指示を
+  - description（META・og:description）は説明文と同じ語数入りの文言にした。`scripts/apply_page_meta.py` は固定の文字列しか持てないため語数を除いた文言にした（`jpml_pros` と同じ扱い）
+  - 別案（作っていない）: 保存のボタンを押した後、押した形式の登録方法をボタンの下に出す。今の吹き出しで足りなければ次に作れる
+- 未確認の項目:
+  - Android の実機での Gboard の取り込み（平野さんが本番で確かめた後に #515 を閉じる）
+  - Android の Chrome と PC の実際のブラウザでの見え方（ローカルの Chromium とプレビューのヘッドレスでだけ見た）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj becd9199）: https://github.com/retroeater/mj-logs/tree/main/guide/becd9199
+ガイド文書（この版を写した時点の最新、mj d2ff5f93）: https://github.com/retroeater/mj-logs/tree/main/guide/d2ff5f93
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/becd9199/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/becd9199/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/becd9199/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/becd9199/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/becd9199/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/becd9199/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/23f4ac3e.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d2ff5f93/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d2ff5f93/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d2ff5f93/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d2ff5f93/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d2ff5f93/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d2ff5f93/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/55b6a3cb.md
