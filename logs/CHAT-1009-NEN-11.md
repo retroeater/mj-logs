@@ -101,18 +101,38 @@ NEN-10 は、未マージの `work/1008-hou`（別のチャット、houou/）が
 - `docs/notes/title-pages.md`: 入口の年の切り替えの節（S1・文言・題名・選択肢の色）と、固定バーの記述（共有ボタンを外した、#530）を直した
 - `docs/handover.md`: 4章の共有ボタンの行から title/ を外し、5章の順番から #277 を外して「現行サイトで小さく作れるもの」の行に完了を書いた（24,278 バイト、警告域 26,624 の外）
 
+
+### 手順3 マージして確かめる（止まる条件に当たった）
+
+- push 直前に再 fetch し、`origin/cloudflare` が HEAD の祖先であることを確かめて `git push origin work/1009-nen-year:cloudflare`（c125a19d..600c14ea）。取り込みの衝突なし
+- check-run（600c14ea、2026-10-09 02:35 UTC 時点）:
+
+| check-run | 状態 | 結果 | id |
+|---|---|---|---|
+| Workers Builds: mj | completed | success | 113642357238 |
+| regenerate | completed | **failure** | 113642048157 |
+| check（2件） | completed | success | 113642048112・113642038831 |
+| sync | completed | success | 113642048404 |
+
+- 止まる条件「check-run が失敗した（原因を調べず報告に書いて止まる）」に当たったため、ここで止まった。原因は調べていない。本番の HTML の確かめ、#277 へのコメントとクローズはしていない
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1009-nen-year
-- ログ: https://github.com/retroeater/mj/blob/work/1009-nen-year/docs/logs/CHAT-1009-NEN-11.md
+- 状態: 中断（エラー）
+- ブランチ: work/1009-nen-year（cloudflare へマージ済み）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1009-NEN-11.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1009-nen-year
-- 確認用URL: なし
-- マージ: 未
-- issue: #277
-- 判断が必要なこと: なし
-- 未確認の項目: なし
-- エラー: なし
+- 確認用URL: なし（プレビューを見ずに本番に出す決定）
+- マージ: 済（600c14ea）
+- issue: #277（開いたまま。閉じていない）、#530（起票）
+- 判断が必要なこと:
+  - マージ後の check-run `regenerate`（GitHub Actions、id 113642048157）が failure。Workers Builds: mj は success（本番には反映されている見込みだが、本番の HTML は確かめていない）。原因を調べるか、次の指示で扱うか
+  - #277 を閉じること・本番の確かめ（`/title/`・`/title/?year=2025`・`/title/houou/42.html`・`/title/years.json`・`/title/timeline/` の 404・`/live/` に共有ボタンが残ること）は未実施
+  - 平野さんに本番で見てもらう手順（確かめの後に）: https://ryoei.pro/title/ 、https://ryoei.pro/title/?year=2025 、https://ryoei.pro/title/houou/42.html をスマホと PC で開く。プルダウンを開いて選択肢の文字が読めること、年を選ぶとタブの題名が「2025年優勝者 | タイトル戦 | …」に変わること、固定バーに共有ボタンが無いこと
+- 未確認の項目:
+  - 本番の HTML（`curl`）の確かめ一式
+- エラー:
+  - check-run `regenerate` が failure（600c14ea、id 113642048157。原因は調べていない）
 
 <!-- guide-links -->
 ---
