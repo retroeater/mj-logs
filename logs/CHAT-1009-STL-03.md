@@ -51,28 +51,62 @@ CHAT-1009-STL-02 で作った「使われていない登録」の検査（#475 �
 
 ## 経過
 
+- Chat-Ref の重複なし。work/1009-stl はローカル・リモートとも c7ad810c（STL-02 の最後）で、origin/cloudflare は祖先でなかった（未マージ）→ 指示どおりこのブランチを続けて使う
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- 手順0: 「指示」欄の末尾は指示文の最後の行と一致。STL-02 の状態は「判断待ち（実装・試運転・文書は済み。マージは平野さんの判断）」で判断待ち。末尾に ` / 続き: CHAT-1009-STL-03` を足した
+
+### 手順1: マージ
+
+- 未マージのブランチ: work/1008-hou・work/1009-stl・work/1009-swp-526（STL-02 の後に増えたのは work/1009-swp-526）。work/1008-hou と work/1009-swp-526 の差分に `names`・`live_candidate`・`live_extract`・`write_live_channel`・`update-live-channel`・`unused` は無い（止まる条件に当たらない）
+- `git merge --no-edit origin/cloudflare`: 衝突なし。取り込んだのは docs・ログのほか `scripts/lib/sheets.py`（878813bf、`check_not_filtered()` のエラーの文面だけ。振る舞いは同じ）
+- `python3 -m unittest discover -s scripts/tests`: 675件 OK
+- cloudflare との差分は STL-02 の10ファイル（ワークフロー・scripts 3本・docs 3本・ログ）と STL-03 のログだけ
+- push 直前に再 fetch し `git merge-base --is-ancestor origin/cloudflare HEAD` が真 → `git push origin work/1009-stl:cloudflare`（063507e3..cd8470aa）。拒否されなかった
+
+### 手順2: マージ後の自動処理
+
+- cd8470aa の check-run: 「Workers Builds: mj」success（08:27:43Z）、regenerate success、check（公開対象の検査）success ×2
+- 実行: 公開対象を検査する（cloudflare 37905010645・work/1009-stl 37905003366）success、ページの再生成（37905010589）success
+- ページの再生成: `scripts/lib/` の変更で多くのページ（houou_*・jpml_pros・jpml_test・live/・ouka_leagues・resource_dictionary・dic/・rh_*・saikyo/・title/・video_*・wayhome/ など）が対象になったが、「変更なし」でコミットしなかった。生成物の差分は無い
+- 08:29 UTC の時点で cd8470aa より後の cloudflare のコミットは無い
+
+### 手順3: #475 の本文
+
+- 書く直前に本文を読み、`updated_at` が 2026-10-08T19:03:42Z のままであること、「実在の人は…」の段落が1つあること、「使われていない登録」の文面がまだ無いことを確かめた
+- 「実在の人は…」の段落は、次の行「以後は、新しく出た名前・消えた名前があった日だけこの issue にコメントします。」までが1つの段落（改行1つでつながっている）なので、その行の後ろに空行を挟んで2段落を足した。REST の PATCH で本文の該当箇所だけを置き換えた（1回目は Content-Type が無く HTTP 415 で書かれず、付けて書き直した）。書いた後（updated_at 2026-10-09T08:29:45Z）の該当箇所:
+
+  > 実在の人は「連盟プロ以外」に、誤記・読み違いは「別名」に `訂正` で足すと、次の日の取り込みで消えます（概要欄の読み違いの抜き出しの直しは #446 の項目8）。
+  > 以後は、新しく出た名前・消えた名前があった日だけこの issue にコメントします。
+  >
+  > どこでも使われていない「連盟プロ以外」の行と「別名」の `訂正` の行は、一覧が変わった日に同じコメントの「使われていない登録」に並べます。消してよい候補で、他団体の現役プロなど今後また出る人も入ります。行を消すのは手作業で、この仕組みはシートを変えません。手動実行で `unused_report` を付けると、変わっていなくても今の一覧を出します。
+  >
+  > YouTube の概要欄の直しは、毎週水曜の取り込みで届きます（それまでは古い読み違いが残り、使われていない登録にも出ません）。すぐ届かせるときは、手動実行で `apply` と `verify` を付けます。
+
+- 「#475 の本文に書き足すのはマージの後」の記述: docs/notes には無い。docs/decisions/live.md の STL-02 の決定の行末の「（マージの後）」は、docs/decisions/README.md が「実装が済んだかどうかの追記はしない」としているため直していない
+- 決定を docs/decisions/live.md に足した
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1009-stl
-- ログ: https://github.com/retroeater/mj/blob/work/1009-stl/docs/logs/CHAT-1009-STL-03.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1009-STL-03.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1009-stl
-- 確認用URL: 作業中
-- マージ: 未
-- issue: #475
-- 判断が必要なこと: 作業中
-- 未確認の項目: 作業中
+- 確認用URL: なし
+- マージ: 済（cd8470aa）
+- issue: #475（本文に2段落を書き足した）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 063507e3）: https://github.com/retroeater/mj-logs/tree/main/guide/063507e3
+ガイド文書（この版を写した時点の最新、mj e9a52a64）: https://github.com/retroeater/mj-logs/tree/main/guide/e9a52a64
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/063507e3/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/063507e3/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/063507e3/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/063507e3/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/063507e3/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/063507e3/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e9a52a64/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e9a52a64/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e9a52a64/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e9a52a64/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e9a52a64/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e9a52a64/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/14f14a50.md
