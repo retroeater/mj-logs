@@ -13,6 +13,7 @@
 
 ## 作る段の確かめ
 
+- grill の最初の問いは「目的（誰が何をしに来るか）」と「既存のページの拡張で足りないか」にする。issue の本文が書いている形（例「年表」）から論点を作らない（#277 は形から詰めて試作を重ね、目的を確かめた後に入口の拡張へ変えた）
 - 手書きの HTML は、追加する前に `docs/notes/static-generation.md`「navbar.js と検索欄」を読む（href はルート相対〈#162〉、`data-search="off"`〈#163〉）
 - リンクの形は `html_handling: none` を前提にする（`docs/notes/cloudflare.md`「配信設定: html_handling・_redirects・canonical・_headers」）。`_redirects` に行が要るか（末尾スラッシュの有無の 301 など）を決める
 - 新しいファイル・ディレクトリを公開してよいか確かめ、公開しないものは `.assetsignore` に足す（#133）。最上位に新しい項目を配信するときは `assets-check.yml` の許可リストも直す（#331）

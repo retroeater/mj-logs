@@ -55,14 +55,35 @@
 - ブランチ: `work/1009-nen-memo` はローカル・リモートとも無かったため `git checkout -b work/1009-nen-memo origin/cloudflare`
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
 
+- 手順1: 全 issue（533件）の題と本文を「止まる条件」「未マージ」「grill」「check-run」「指示文」で探した。同じ論点の issue は無かった（近いもの: #291〈open、check-run・Chat-Ref・マージ判定の検証のスクリプト化。別の論点〉、#294・#334〈closed〉）
+- 手順2: 追記先を読んだ。`docs/instruction-template.md` には「見込みと比べて止まる条件は、許すずれを数で書く」などの止まる条件の書き方の箇条があり、重なり・check-run の書き分けと同じ趣旨・矛盾する記述は無かったので、その直後に2つの箇条を足した。`docs/new-page-checklist.md`「作る段の確かめ」には grill・目的の記述が無かったので先頭に足した。`docs/notes/chat-side-operations.md` には書いていない（追記の候補先で足りた）
+
+書いた場所と文面:
+
+| 場所 | 文面 |
+|---|---|
+| `docs/new-page-checklist.md`「作る段の確かめ」の先頭 | grill の最初の問いは「目的（誰が何をしに来るか）」と「既存のページの拡張で足りないか」にする。issue の本文が書いている形（例「年表」）から論点を作らない（#277 は形から詰めて試作を重ね、目的を確かめた後に入口の拡張へ変えた） |
+| `docs/instruction-template.md` の注意の箇条（「見込みと比べて止まる条件は、許すずれを数で書く」の直後） | **未マージの `work/` ブランチとの重なりで止まる条件は、ファイル単位でなく「同じ行・同じ関数を変えている、または取り込みで衝突する」の形で書く。** ファイルが同じでも行が離れた変更で止まると、往復が増える（#277 で2回） |
+| 同上（その次） | **マージ後の check-run の失敗で止める条件は、「今回の変更による失敗」と「無関係な失敗」を分けて書く。** 無関係な失敗（別のページのデータなど）なら、原因を報告に書いたうえで残りの手順（本番の確かめ・issue のクローズ）を進めてよい、とする（#277 で2回止まった）。あわせて、自分の変更で落ちると分かっているテストは直してよい、と書く（同じく1回止まった） |
+| `docs/decisions/operations.md` の末尾 | 「2026-10-09（CHAT-1009-NEN-14）」の節に決定を1行 |
+
+追記先のバイト数（前 → 後）:
+
+| ファイル | 前 | 後 |
+|---|---|---|
+| `docs/instruction-template.md` | 14,323 | 15,152 |
+| `docs/new-page-checklist.md` | 11,125 | 11,454 |
+| `docs/decisions/operations.md` | 32,187 | 32,849 |
+| `docs/notes/chat-side-operations.md`（変えていない） | 24,481 | 24,481（警告域 26,624 の外） |
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1009-nen-memo
-- ログ: https://github.com/retroeater/mj/blob/work/1009-nen-memo/docs/logs/CHAT-1009-NEN-14.md
+- 状態: 完了
+- ブランチ: work/1009-nen-memo（cloudflare へマージ済み。削除は delete-merged-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1009-NEN-14.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1009-nen-memo
 - 確認用URL: なし
-- マージ: 未
+- マージ: 済（SHA は最終報告の push のコミット）
 - issue: なし
 - 判断が必要なこと: なし
 - 未確認の項目: なし
@@ -71,12 +92,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj f6f2125c）: https://github.com/retroeater/mj-logs/tree/main/guide/f6f2125c
+ガイド文書（この版を写した時点の最新、mj 419fc58a）: https://github.com/retroeater/mj-logs/tree/main/guide/419fc58a
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f6f2125c/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f6f2125c/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f6f2125c/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f6f2125c/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f6f2125c/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f6f2125c/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/419fc58a/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/419fc58a/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/419fc58a/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/419fc58a/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/419fc58a/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/419fc58a/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/eabe7134.md
