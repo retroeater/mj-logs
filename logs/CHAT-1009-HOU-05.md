@@ -164,6 +164,31 @@ issue
 - Chat-Ref の確認: `CHAT-1009-HOU-05` のコミットは無し
 - 作業ブランチ: `origin/work/1008-hou` はリモートにあり、ローカルと一致（37e4c501）。`origin/cloudflare` は HEAD の祖先でないので、ログの push の後に merge で取り込む
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- 取り込み: `git merge origin/cloudflare`（衝突なし）。取り込んだのは SWP 系（横断レビューのログ・`docs/notes/design.md`・辞書の分割など）で、houou の部品には触れない
+
+### 手順1 個人成績と比較ページ
+
+- 候補の左端に X の画像（`search.json` に X の `_80x80` の画像を足した。693名で 105KB。読めなければ既定のアイコン）
+- 名前のカード（アイコンを上・名前を下の中央寄せ）、要約3枚は等幅（`repeat(3, minmax(0, 1fr))`）、期のカードは「41期後期 A1」を1行。右に順位・得点・結果のチップ
+- 期・リーグの右に順位変動のアイコンのリンク（自前の SVG の上下の矢印。タップ領域 40×44px。`aria-label="41期後期 A1 の順位変動"`。順位変動に表がある期・リーグだけ）。カードの上の行全体は透明の開閉ボタンで、アイコンのリンクはその上に重ねた（ボタンの中にリンクを入れない）。開いた中の「この期の順位変動 →」は削除
+- 見出し「期ごとの成績」の右に「表」「推移」のセグメント（`aria-pressed`）。「推移」で HOU-02 のローソク足（git の履歴から戻した）。新しい期が右端、幅 380 の SVG に収める。各柱に `<title>`（期・その期の増減・通算）。期の目盛りは最初と最後の期だけ
+- 成績 JSON の行に [リーグ（組）の人数, 全体の順位, その期の全体の人数] を足した（`lib/results.py` の `standings()`）。全体の順位は「上のリーグの人数＋リーグの中の順位」で鳳凰位は数えない。前期は同じ期の後期の A1・A2 を上に数える。**組のあるリーグ**（実データ: 41表すべてで順位が組ごとに 1 から振られている）は、「x位/y人」の y を組の人数にし、全体の順位は組を合わせて合計の大きい順に並べ直した順位を使う（仮置き）。例: 平野良栄 42前 C2 7位/43人・全体117位/545人
+- 比較ページ `houou/players/compare.html`（noindex、どこからもリンクしない、sitemap に無い）: ページの中のラジオ「カード」P1 浮き上がり・P2 ガラス・P3 ダーク、「順位」R1 3位/16人・R2 3位（16人中）・R3 3位/16人＋細いバーと点・R4 3位/16人＋全体45位。`:has(#houou_card_p2:checked)` などで CSS だけで切り替える（JS なし・再読み込みなし）。`?name=` を受ける。本番の `houou/players/` は P1・R1
+- 色のコントラスト（WCAG 2 の式: 相対輝度 L = 0.2126R + 0.7152G + 0.0722B〈各チャンネルは sRGB の値 c を c≤0.03928 なら c/12.92、それ以外は ((c+0.055)/1.055)^2.4〉、比 = (L明+0.05)/(L暗+0.05)）:
+
+| 組み合わせ | 比 |
+|---|---|
+| 本文 #212529 on 白（P1・P2 のカード） | 15.43:1 |
+| ラベル #5a6170 on 白 | 6.22:1 |
+| 昇級のチップ 白 on #c2410c（R-01 の値） | 5.18:1 |
+| 降級のチップ 白 on #1c6fc4 | 5.10:1 |
+| 残留のチップ #212529 on #e9ecef | 13.01:1 |
+| 入替戦のチップ 白 on #6741d9 | 6.30:1 |
+| P2 ラベル on グラデーションの端 #fde3d6・#d8e8f8（カードの外の見出し） | 5.07:1・4.98:1 |
+| P3 白 on #0f172a・ラベル #cbd5e1・数字 #fbbf24 | 17.85:1・12.02:1・10.69:1 |
+
+- 押したとき: P1・P2 は `scale(.98)` と影が浅くなる、P3 は縁が橙に光る輪。`prefers-reduced-motion` では動かさない
+- 手元の確かめ（390×844、比較ページで4通りを撮影）: P1 は白いカードに柔らかい影、P2 は暖色〜寒色の淡いグラデーションの上に半透明の白のカード、P3 は名前と要約が濃紺に白字・数字は黄色。R4 は1行に収まらずアイコンに重なったので、「1位/14人」と「全体1位」を2行にした。JS のエラー 0
 
 ## 報告
 
@@ -181,12 +206,12 @@ issue
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj becd9199）: https://github.com/retroeater/mj-logs/tree/main/guide/becd9199
+ガイド文書（この版を写した時点の最新、mj d2ff5f93）: https://github.com/retroeater/mj-logs/tree/main/guide/d2ff5f93
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/becd9199/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/becd9199/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/becd9199/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/becd9199/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/becd9199/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/becd9199/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/23f4ac3e.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d2ff5f93/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d2ff5f93/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d2ff5f93/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d2ff5f93/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d2ff5f93/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d2ff5f93/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/55b6a3cb.md
