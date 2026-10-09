@@ -79,7 +79,7 @@
 
 ## 報告
 
-- 状態: 判断待ち（`work/1009-nen` が `assets/title.js` を変えているため止まった。再開は別の指示）
+- 状態: 判断待ち（`work/1009-nen` が `assets/title.js` を変えているため止まった。再開は別の指示） / 続き: CHAT-1009-SWP-10
 - ブランチ: work/1009-swp-526
 - ログ: https://github.com/retroeater/mj/blob/work/1009-swp-526/docs/logs/CHAT-1009-SWP-08.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1009-swp-526
@@ -97,12 +97,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 419fc58a）: https://github.com/retroeater/mj-logs/tree/main/guide/419fc58a
+ガイド文書（この版を写した時点の最新、mj 6f5fc037）: https://github.com/retroeater/mj-logs/tree/main/guide/6f5fc037
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/419fc58a/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/419fc58a/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/419fc58a/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/419fc58a/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/419fc58a/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/419fc58a/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6f5fc037/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6f5fc037/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6f5fc037/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6f5fc037/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6f5fc037/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6f5fc037/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/eabe7134.md
