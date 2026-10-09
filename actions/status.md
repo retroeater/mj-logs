@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-10 04:03 JST
+- 書き出した時刻: 2026-10-10 04:22 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -96,11 +96,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-10 04:20 | workflow_dispatch | cloudflare | success | #23（37979577268） | 0分23秒 |
 | 2026-10-09 11:35 | schedule | cloudflare | success | #22（37875326590） | 0分18秒 |
 | 2026-10-09 04:20 | workflow_dispatch | cloudflare | success | #21（37831232456） | 0分37秒 |
 | 2026-10-08 11:18 | schedule | cloudflare | success | #20（37717208803） | 0分16秒 |
 | 2026-10-08 04:20 | workflow_dispatch | cloudflare | success | #19（37673722747） | 0分35秒 |
-| 2026-10-07 10:51 | schedule | cloudflare | success | #18（37559121432） | 0分19秒 |
 
 ## fetch-gsc.yml
 
@@ -181,11 +181,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-10 04:15 | workflow_dispatch | cloudflare | success | #37（37978998284） | 0分27秒 |
 | 2026-10-09 11:04 | schedule | cloudflare | success | #36（37872821040） | 0分29秒 |
 | 2026-10-09 04:15 | workflow_dispatch | cloudflare | success | #35（37830603400） | 0分28秒 |
 | 2026-10-08 10:51 | schedule | cloudflare | success | #34（37714994130） | 0分32秒 |
 | 2026-10-08 04:15 | workflow_dispatch | cloudflare | success | #33（37673084645） | 0分30秒 |
-| 2026-10-07 10:41 | workflow_dispatch | work/1007-wkr-09 | success | #32（37558390153） | 0分29秒 |
 
 ## sync-logs.yml
 
@@ -208,7 +208,7 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-10-10 04:00 | workflow_dispatch | cloudflare | in_progress | #81（37977261629） |  |
+| 2026-10-10 04:00 | workflow_dispatch | cloudflare | success | #81（37977261629） | 5分02秒 |
 | 2026-10-09 15:18 | workflow_dispatch | work/1009-stl | success | #80（37892845226） | 2分47秒 |
 | 2026-10-09 10:28 | schedule | cloudflare | success | #79（37869904632） | 0分09秒 |
 | 2026-10-09 04:00 | workflow_dispatch | cloudflare | success | #78（37828694811） | 5分01秒 |
