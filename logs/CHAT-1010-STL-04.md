@@ -93,7 +93,7 @@
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1010-STL-04.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1010-stl
 - 確認用URL: なし
-- マージ: 済（SHA は最終報告）
+- マージ: 済（aa6931b4。ドキュメントのみ、fast-forward）
 - issue: #475（変えていない）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
