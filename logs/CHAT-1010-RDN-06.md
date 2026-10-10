@@ -98,7 +98,7 @@ Chat-Ref: CHAT-1010-RDN-06
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1010-RDN-07
 - ブランチ: work/1010-rdn
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1010-RDN-06.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1010-rdn
@@ -106,7 +106,7 @@ Chat-Ref: CHAT-1010-RDN-06
 - マージ: 済（このログを含むコミットを cloudflare へ fast-forward で push）
 - issue: #536（段2の結果をコメント、閉じない）
 - 判断が必要なこと:
-  - 段2は止まる条件に当たらずマージした（変える前後の生成物の差0）。ただし、**「帰り道」シートの視聴URLの列に動画IDだけの行（`2Bn3SktouP4`）があり、`video_wayhome`・`wayhome_episodes` の生成が変える前のコードでも失敗する**（今回の変更とは無関係。週次の再生成でもこの2ページが失敗する見込み）。シートの値を URL の形に戻すか、別の指示で読み方を直すかの判断
+  - 段2は止まる条件に当たらずマージした（変える前後の生成物の差0）。ただし、**「帰り道」シートの視聴URLの列に動画IDだけの行（`2Bn3SktouP4`）があり、`video_wayhome`・`wayhome_episodes` の生成が変える前のコードでも失敗する**（今回の変更とは無関係。週次の再生成でもこの2ページが失敗する見込み）。シートの値を URL の形に戻すか、別の指示で読み方を直すかの判断（2026-10-10、平野さんが帰り道のチャットへ引き継いだ）
 - 未確認の項目:
   - wayhome の2ページは両側とも生成が止まったため、前後の生成物の比較はできていない（この2ページのコードは今回変えていない）
 - エラー: なし
@@ -114,12 +114,12 @@ Chat-Ref: CHAT-1010-RDN-06
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 22ca975d）: https://github.com/retroeater/mj-logs/tree/main/guide/22ca975d
+ガイド文書（この版を写した時点の最新、mj a929cafc）: https://github.com/retroeater/mj-logs/tree/main/guide/a929cafc
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/22ca975d/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/22ca975d/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/22ca975d/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/22ca975d/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/22ca975d/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/22ca975d/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a929cafc/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a929cafc/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a929cafc/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a929cafc/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a929cafc/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a929cafc/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b4d859a5.md
