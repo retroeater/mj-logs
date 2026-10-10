@@ -104,33 +104,30 @@
 - 本番（`?v=` に未使用の値）: `/video_wayhome.html` 200・`mj-share-btn` 0・`share.js` 0、`/wayhome/atD2e-NgnKw.html` 200・0・0、
   `/live/` 200・共有ボタン1・`share.js` 1、`/saikyo/2025.html` 200・共有ボタン18・`share.js` 1。`/style.css` に `mj-share-btn-hero` 無し。ブラウザでの見え方は確かめていない（プレビューも見ていない。決定のとおり）
 - #530 は閉じていない（live/ などが残る）。作業ブランチの削除はセッションからできない（docs/notes/cloud-sessions.md「ブランチの削除」）。マージ済みなので `delete-merged-branches.yml` に任せる
+- 片付け（2026-10-10、CHAT-1010-WHS-10）: 「辞書」シートの件は辞書のチャット（CHAT-1008-DIC-18、完了）で直った。帰り道のブラウザでの見え方は平野さんが確かめて OK。G5-09 は #283・#5 に書いたまま（#160 には書かない）
 
 ## 報告
 
-- 状態: 判断待ち / 続き: CHAT-1008-DIC-17
+- 状態: 完了
 - ブランチ: work/1010-whs
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1010-WHS-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1010-whs
 - 確認用URL: プレビューは見ていない（決定のとおり）。本番で `/video_wayhome.html`・`/wayhome/atD2e-NgnKw.html`・`/live/`・`/saikyo/2025.html` を curl で確認
 - マージ: 済（81a53d18）
 - issue: #530（本文の帰り道に印・表のコメント、閉じていない）、#283・#5（G5-09 の決定をコメント）、#186（状況: 保留・コメント）
-- 判断が必要なこと:
-  - マージ後の regenerate が、今回と無関係な「辞書」シートの見出しの変化（`コメント` 列が無い）で `resource_dictionary` の生成に失敗した。シートに列を戻すか、`generate_resource_dictionary.py` の `DICT_HEADERS` を変えるかの判断が要る（直すまで push 時・週次の全ページの再生成と sitemap の lastmod の導出が止まる）。issue は無い
-  - 前提の「G5-09 は #283・#160 にコメント」は実物では #283・#5 だった。#283・#5 に書き、#160 には書いていない
-- 未確認の項目:
-  - 帰り道のブラウザでの見え方（固定バー・ヒーローの操作列の並び）
-- エラー:
-  - regenerate の失敗（81a53d18、上の判断が必要なこと）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj a929cafc）: https://github.com/retroeater/mj-logs/tree/main/guide/a929cafc
+ガイド文書（この版を写した時点の最新、mj efa62293）: https://github.com/retroeater/mj-logs/tree/main/guide/efa62293
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a929cafc/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a929cafc/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a929cafc/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a929cafc/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a929cafc/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a929cafc/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b4d859a5.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/efa62293/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/efa62293/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/efa62293/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/efa62293/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/efa62293/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/efa62293/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/efa62293.md
