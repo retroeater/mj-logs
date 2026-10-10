@@ -95,28 +95,50 @@ CHAT-1010-SKS-02 で止まった origin/cloudflare の取り込みの衝突を�
 
 `saikyo/` は、origin/cloudflare の各ファイルに「`<body>` のクラス」「プルダウンの先頭の項目の文言」「ページの共有ボタンの削除」「トップの `share.js`・トーストの削除」の4つの置き換えをかけたものと、`cmp` で17ファイルとも一致した。シートの変化・写真の揺らぎは無い。
 
+### 3. マージと本番の確認
+
+- `git fetch` の後 `git merge-base --is-ancestor origin/cloudflare HEAD` が真であることを確かめ、`git push origin work/1010-sks:cloudflare`（647a8db8..3a857ea7）
+- 3a857ea7 の check-run: Workers Builds: mj・Workers Builds: mj-scheduler・check（2件）・sync・regenerate がすべて success。workflow の「ページの再生成」「サイトマップのlastmodを同期」「公開対象を検査する」も success
+- Actions の再生成 6fab9f5a（`chore: regenerate saikyo/ via GitHub Actions`）: `sitemap-pages.xml`・`sitemap-saikyo.xml`・`sitemap-wayhome.xml` の lastmod だけ（`--from-git` の導出）。saikyo/ の HTML は変わらない。6fab9f5a の Workers Builds: mj も success
+- 本番（`?v=` に未使用の値、08:45 UTC ごろ）:
+
+| URL | HTTP | 「このページを共有」 | 対局の共有ボタン | `<body>` | プルダウンの先頭 |
+|---|---|---|---|---|---|
+| `/saikyo/` | 200 | 0 | 0（トップは元から無い） | `class="mj-saikyo-page" data-search="off"` | 歴代最強位 |
+| `/saikyo/2026.html` | 200 | 0 | 12 | 同上 | 歴代最強位 |
+| `/saikyo/2026.html?match=20261108` | 200 | 0 | 12 | 同上 | 歴代最強位 |
+
+  `/saikyo/`・`/saikyo/2026.html`・`/style.css` は手元のファイルと `cmp` で一致。確認できたのは本番の HTML と CSS まで。ブラウザでの見え方（実機）は見ていない
+
+### 4. issue
+
+- #442: ラベルに「状況: 保留」を足した（ほかの「状況:」ラベルは元から無し）。本文の先頭に「## 保留（2026-10-10、平野さん）」の節を足し、2026-10-10 に平野さんが廃止を保留にした旨（CHAT-1010-SKS-01・SKS-02）を書いた。それより後の本文はそのまま
+- #511: 本文・コメント2件を読んだ。残っていた作業は (1) 10-09 の表示回数の一覧（コメント2で済み）、(2) リクエストした2件の再確認（平野さんが 2026-10-10 に確認＝今回）、(3) 本文の「『ページ』レポートで /saikyo/ 配下の登録状況」のうち、2件以外の15ページ（2011〜2025年度）が未確認。(3) は sitemap の URL の登録状態を定期的に取る #458（Open）で扱うと判断し、新しい issue は立てなかった。決定（URL 検査の結果）と #458 をコメントし、「状況: 待ち」を外して閉じた（completed）
+- #530・#428: マージ（3a857ea7）をコメントした。閉じていない。#428 には、本番の CLS が未計測であること、title/・`/live`・表のページの分、#382、「1→10」の 59px が残ることを書いた
+- 決定: `docs/decisions/saikyo.md` に SKS-03 の節（SKS-02 の決定はそのまま）を足した
+
 ## 報告
 
-- 状態: 対応中
-- ブランチ: work/1010-sks
-- ログ: https://github.com/retroeater/mj/blob/work/1010-sks/docs/logs/CHAT-1010-SKS-03.md
+- 状態: 完了
+- ブランチ: work/1010-sks（cloudflare にマージ済み。片付けは delete-merged-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1010-SKS-03.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1010-sks
-- 確認用URL: 未
-- マージ: 未
-- issue: #442、#511、#428、#530
-- 判断が必要なこと: 未
-- 未確認の項目: 未
+- 確認用URL: なし（本番で確認した。`/saikyo/`・`/saikyo/2026.html`・`?match=` 付きの2026年度）
+- マージ: 済（3a857ea7。Actions の再生成 6fab9f5a）
+- issue: #442（「状況: 保留」・本文に追記）、#511（クローズ。残りは #458）、#428・#530（マージをコメント、Open のまま）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 6fab9f5a）: https://github.com/retroeater/mj-logs/tree/main/guide/6fab9f5a
+ガイド文書（この版を写した時点の最新、mj 0c17266d）: https://github.com/retroeater/mj-logs/tree/main/guide/0c17266d
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6fab9f5a/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6fab9f5a/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6fab9f5a/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6fab9f5a/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6fab9f5a/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6fab9f5a/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/0c17266d/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/0c17266d/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/0c17266d/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/0c17266d/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/0c17266d/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/0c17266d/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/647a8db8.md
