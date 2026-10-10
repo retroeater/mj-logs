@@ -16,6 +16,10 @@
 スプレッドシート「最強戦」シート（`SPREADSHEET_ID` / `SHEET_NAME` は
 `generate_saikyo_pages.py` が持つ。旧ページを畳んだ #350 第2段で移した）。
 
+シートの更新（週1、月〜火が多い）は、毎朝 `regenerate-saikyo.yml` が saikyo_pages だけを再生成して出す（#537）。
+起動は時刻ではなく、毎朝 04:30 JST に Worker から動く写真のリンク切れ検知（`check-image-links.yml`）の完了（`workflow_run`）。
+差分が無ければコミットしない。ほかに週次の `all` と手動実行（`regenerate-page.yml`）でも再生成される。
+
 | 列 | 内容 | 例・備考 |
 |---|---|---|
 | A | 対局日 | 「2026-11-08」。2011〜2020年度の全行と2021年度の一部は空欄（#323） |

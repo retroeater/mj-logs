@@ -68,7 +68,7 @@ RGN-03 は、Node.js 20 の件が既存の #308 と重なって起票せずに�
 - ほかのワークフロー（各ワークフローの直近の完了した実行、skipped を除くジョブ）: 同じ notice は assets-check・check-image-links・check-meibo・check-saikyo-unregistered・cleanup-logs・delete-merged-branches・fetch-gsc・regenerate-page・regenerate-saikyo・sitemap-lastmod・sync-birthday-calendar・sync-books-calendar（2026-09-22 の実行）・sync-dojo-calendar・sync-logs（2026-10-07）・update-live-channel・update-sns-book・write-live-channel-candidate にある。
   無いのは check-leagues-dropped（直近の実行が 2026-09-12）と pages-build-deployment（GitHub Pages、2026-09-06）だけ
 - `.github/workflows/`（18本）: ジョブはすべて `runs-on: ubuntu-latest`（`regenerate-saikyo.yml` と `update-live-channel.yml` のジョブ regenerate は `regenerate-page.yml` を `workflow_call`）。
-  `actions/setup-python@v5` で `python-version: '3.12'` を指定するのは13本。`setup-python` を使わずランナーの `python3` で `scripts/` を動かすのは `assets-check.yml`（131行）・`delete-merged-branches.yml`（71行）・`sync-logs.yml`（76〜103行、2026-10-07 から停止中）。
+  `actions/setup-python@v5` で `python-version: '3.12'` を指定するのは14本。`setup-python` を使わずランナーの `python3` で `scripts/` を動かすのは `assets-check.yml`（131行）・`delete-merged-branches.yml`（71行）・`sync-logs.yml`（76〜103行、2026-10-07 から停止中）。
   `pip install` は `google-auth requests`（7本）と `anthropic==1.7.0 google-auth requests`（sync-dojo-calendar）。apt・Chrome・フォント・Pillow を使うワークフローは無い（check-image-links の saikyo ジョブは HEAD のリクエストで、Chrome は使わない。Pillow とフォントを使う `build_ogp_image.py`・`build_wayhome_ogp.py` は手動実行だけ）
 - mj-logs の `.github/workflows/sync-from-mj.yml`（public。raw.githubusercontent.com で読めた）: `runs-on: ubuntu-latest`、`actions/checkout@v4`、`setup-python` を使わずランナーの `python3` で mj の `scripts/sync_all_logs.py`・`actions_status.py` を動かす
 - 公式の情報: runner-images の issue のページ（github.com・api.github.com）はプロキシが拒否して読めなかった。raw.githubusercontent.com の `actions/runner-images` の `README.md`・`images/ubuntu/Ubuntu2604-Readme.md`・`Ubuntu2404-Readme.md`（main の版）は読めた。
@@ -78,28 +78,35 @@ RGN-03 は、Node.js 20 の件が既存の #308 と重なって起票せずに�
     24.04 にだけあるもの: Fastlane・Haveged・Julia・Lerna・MediaInfo・Mercurial・Miniconda・Newman・Parcel・Pulumi・Sphinx・Swift（mj のワークフローはどれも使わない）
 - 手元の Python は 3.13.16（3.14 は無い）。3.14 での `scripts/` の試験はしていない
 
+### 手順3 起票
+
+- 重なりの再確認: 最新の100件（#437〜#537）の題と本文で「ubuntu」「Ubuntu 26」「runner-images」を検索し、該当なし。RGN-03 の後に作られた issue は #534〜#537 で、どれも別の主題
+- #538「Actions: ubuntu-latest の Ubuntu 26.04 への移行（2026-10-19〜）への対応」を作った。ラベルは `分野: 自動化`・`対象: 全ページ`（「状況:」なし、期日なし）。
+  本文は「何が出ているか」「今の作り」（cloudflare 447a0d65 の permalink）「移行で変わるもの」（runner-images の README・Readme。読めなかった範囲を分けた）「壊れうる所」「論点（未決）」（指示の (a)〜(e) に、手順2で見つかった (f) `setup-python` を使わない3本と mj-logs の1本の扱いを足した。(b) には Chrome・apt・フォントを使うジョブが今は無いことを書いた）「関係」（#308・#533）・`Chat-Ref:` の行
+- 前提の論点の候補 (b) にあった「ランナーの Chrome を使うジョブ〈check-image-links.yml の saikyo など〉」は、実物では Chrome を使っていなかった（HEAD のリクエストだけ）。論点の候補で要確認の前提ではないため止まらず、issue にはそのとおり書いた
+
 ## 報告
 
-- 状態: 対応中
+- 状態: 完了
 - ブランチ: work/1010-rgn
-- ログ: https://github.com/retroeater/mj/blob/work/1010-rgn/docs/logs/CHAT-1010-RGN-04.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1010-RGN-04.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1010-rgn
 - 確認用URL: なし
-- マージ: 未
-- issue: #308
-- 判断が必要なこと: なし
+- マージ: 済（ログと `docs/decisions/automation.md` だけ。SHA は最終報告の push のコミット）
+- issue: #538（起票。論点 (a)〜(f) と、読めなかった範囲〈runner-images の issue の本文〉・3.14 での未確認を移した）、#308（#257 の警告をコメント）
+- 判断が必要なこと: なし（#538 に移した）
 - 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 447a0d65）: https://github.com/retroeater/mj-logs/tree/main/guide/447a0d65
+ガイド文書（この版を写した時点の最新、mj 5697aa0c）: https://github.com/retroeater/mj-logs/tree/main/guide/5697aa0c
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/447a0d65/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/447a0d65/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/447a0d65/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/447a0d65/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/447a0d65/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/447a0d65/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/5697aa0c/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/5697aa0c/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/5697aa0c/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/5697aa0c/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/5697aa0c/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/5697aa0c/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/19111d74.md
