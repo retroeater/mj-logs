@@ -1,0 +1,81 @@
+# CHAT-1010-RGN-05
+
+- 着手日時: 2026-10-10
+- 対象issue: #538
+- ブランチ: work/1010-rgn
+- 着手時HEAD: 5697aa0c
+
+## 指示
+
+【Claude作成】Claude Code 向け指示：#538 の対応。ランナーの python3 で動く4本のワークフローに setup-python 3.12 を足し、Ubuntu 26.04 への移行（10/19〜）の前に入れる Chat-Ref: CHAT-1010-RGN-05 マージ: 承認済み（チャットで）。下の「止まる条件」のどれかに当たったらマージしない 貼る時機: いつでも 共通手順: CLAUDE.md「Chat-Ref」「ブランチ運用」「作業ログ」節のとおり（識別子確認 → origin/cloudflare を起点に work/<識別子>〈クラウドセッションでは worktree を使わず docs/notes/cloud-sessions.md の読み替えに従う〉 → ログ先行push → 最終報告の Chat-Ref の行の直前に「ログ（公開）」の行、最後の行に Chat-Ref）。平野さんは、この指示のための作業ブランチ work/1010-rgn の作成と push を許可している（セッションに割り当てられた claude/… のブランチは使わない）。 作業ブランチ: クラウドセッションで実行する。work/1010-rgn を使う。リモートに無ければ origin/cloudflare から作る。リモートにあってマージ済み（`git merge-base --is-ancestor origin/work/1010-rgn origin/cloudflare` が真）なら origin/cloudflare から作る（`checkout -B` は使わない。ローカルにあるときを含め手順は docs/notes/cloud-sessions.md「作業ブランチの用意」）。マージ済みでなければ止まる。
+
+0. 着手前に、このログの「指示」欄の末尾が、この指示文の末尾（最後の行）と一致しているか確認し、一致しなければ作業せず報告する。#538 が Open で、他セッションの着手中コメントが無いことを確かめ、着手中のコメントを残す。
+
+目的
+ubuntu-latest が 2026-10-19 から Ubuntu 26.04（既定の Python 3.14）へ移り始める。`setup-python` を使わずランナーの `python3` で `scripts/` を動かすワークフローを、ほかと同じ 3.12 に固定して、移行で Python の版が変わらないようにする。
+決定（2026-10-10、平野さん）
+
+* ubuntu-latest のまま移行を受ける（`ubuntu-24.04` などに固定しない）
+* ランナーの `python3` で動く4本（mj の `assets-check.yml`・`delete-merged-branches.yml`・停止中の `sync-logs.yml`、mj-logs の `sync-from-mj.yml`）に `setup-python` の 3.12 を足し、ほかの14本とそろえる
+* #538 の期日は 2026-10-18（移行の始まる前日）。カレンダーには登録済み
+* この指示のマージは承認済み（止まる条件つき）
+
+前提（チャット側。平野さんの決定ではない。手順で確かめる）
+
+* 対象の4本と行は CHAT-1010-RGN-04 のログの「手順2」のとおり（要確認: `assets-check.yml` 131行・`delete-merged-branches.yml` 71行・`sync-logs.yml` 76〜103行、mj-logs の `sync-from-mj.yml`）。ほかの14本と同じ書き方（`actions/setup-python@v5`・`python-version: '3.12'`）にそろえる。actions の版上げ（Node 24 対応）は #308 で扱い、この指示ではしない
+* mj-logs は別のリポジトリ（public）。このセッションから mj-logs へ push できるか（権限）を先に確かめる。できなければ mj-logs の分は変えず、平野さんが GitHub の画面で直せるように、変える行と差分をログの `## 報告` の「判断が必要なこと」に書く（mj の3本はそのまま進めてマージしてよい）
+* `sync-logs.yml` は停止中（`workflow_dispatch` のみ）。書き換えるだけで、手動実行はしない（mj-logs への写しが二重に動くのを避けるため。要確認: 停止の扱いは docs/notes/static-generation.md「ワークフローの一覧」）
+* mj-logs の `sync-from-mj.yml` を変えたときは、mj-logs で手動実行して success を確かめる（写しの本番なので、失敗したら直前の版に戻す）
+
+手順
+
+1. 確かめる: 上の「前提」の（要確認）を実物で確かめる。docs/notes/branch-operations.md「ワークフローを変更したとき」を読む。未マージの work/ ブランチを `git branch -r --no-merged origin/cloudflare` で一覧し、対象の3本の同じ行を変えている、または取り込みで衝突するものが無いか確かめる（別の行の変更〈例: work/1008-hou の `assets-check.yml` の許可するディレクトリの1行〉は止まる理由にしない。重なりの内容はログに書く）。mj-logs へ push できるかを確かめる。
+2. 直して試す: mj の3本に `setup-python` の 3.12 を足す。作業ブランチで `assets-check.yml`（`workflow_dispatch` が無ければ、作業ブランチへの push で動いた実行）と `delete-merged-branches.yml`（手動実行の既定の dry_run）を動かし、ログで Python が 3.12 であること（`python3 --version` などを1行足してよい）と success を確かめる。`sync-logs.yml` は書き換えだけ。docs/notes/static-generation.md など、ランナーの `python3` に頼っていると書いた所があれば直す。mj-logs へ push できるなら `sync-from-mj.yml` も同じく直し、mj-logs で手動実行して success と 3.12 を確かめる。
+3. マージ: 「マージ:」の行のとおり cloudflare に入れる。マージ後の Workers Builds と、push で動くワークフロー（assets-check など）の結果を待つ（上限15分。超えたらその時点の状態を書き「未確認の項目」に回す）。#538 に経過をコメントし、本文に「期日: 2026-10-18」を足す。上の「決定」を `docs/decisions/automation.md` に足す。mj-logs の分まで済み、移行の後に確かめることが残らなければ #538 を閉じる（「状況:」ラベルがあれば外す）。残るなら閉じず、残ることを #538 に書く。
+
+止まる条件
+
+* #538 が Closed、または他セッションの着手中コメントがある
+* 対象の行が RGN-04 のログと違い、ランナーの `python3` で動くワークフローが4本のほかにもある（数が違えば、一覧を書いて止まる）
+* 未マージの work/ ブランチが対象の3本の同じ行を変えている、または取り込みで衝突する
+* 作業ブランチでの実行が success にならない、または Python が 3.12 にならない
+* mj-logs の `sync-from-mj.yml` を変えた後の手動実行が success にならない（直前の版に戻したうえで止まる）
+* マージ後のワークフローが、今回の変更による理由で失敗した（無関係な失敗なら、原因をログに書いたうえで残りの手順を進めてよい）
+* 取り込みで生成物でない文書が衝突した。ただし両方の変更が両立する衝突（追記どうし・隣り合う行）は、両方を残して解いてよい。解いた後の該当箇所をログに引用する
+* cloudflare・mj-logs への push が権限判定で拒否された（別の手段を試さずに止まる。mj-logs の分は上の前提のとおり平野さんに回す）
+
+完了条件
+
+* ログの「## 報告」を CLAUDE.md「作業ログ」節のとおりに書いて push する
+* マージは冒頭の「マージ:」の行のとおり。止まる条件に当たったときはマージせずに報告する
+* ターミナルへの最終報告の Chat-Ref の行の直前に ログ（公開）: https://github.com/retroeater/mj-logs/blob/main/logs/CHAT-1010-RGN-05.md?v=<SHA>（CLAUDE.md「作業ログ」節）を書き、最後の行に Chat-Ref: CHAT-1010-RGN-05 を書く
+
+不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
+
+## 経過
+
+## 報告
+
+- 状態: 対応中
+- ブランチ: work/1010-rgn
+- ログ: https://github.com/retroeater/mj/blob/work/1010-rgn/docs/logs/CHAT-1010-RGN-05.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1010-rgn
+- 確認用URL: なし
+- マージ: 未
+- issue: #538
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
+
+<!-- guide-links -->
+---
+
+ガイド文書（この版を写した時点の最新、mj 5697aa0c）: https://github.com/retroeater/mj-logs/tree/main/guide/5697aa0c
+
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/5697aa0c/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/5697aa0c/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/5697aa0c/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/5697aa0c/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/5697aa0c/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/5697aa0c/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/19111d74.md
