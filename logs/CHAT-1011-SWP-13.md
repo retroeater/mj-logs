@@ -78,28 +78,163 @@
 - 指示欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている。
 - 作業ブランチ: リモート・ローカルとも無かったため `git checkout -b work/1011-swp-nav origin/cloudflare`（上流の設定は外した）。
 
+
+### 手順1 確かめる
+
+- #524・#526・#530 の本文と、他セッションの「着手中」コメントを確かめた。#524 に他セッションの着手中コメントは無い。#524 に着手中のコメントを残した。#530 の着手中コメントは別の作業（帰り道、`work/1010-whs`）のもの。
+- `git branch -r --no-merged origin/cloudflare` のうち `style.css`・`navbar.js` を変えているもの（`git diff --name-only origin/cloudflare...<ブランチ>`）と、取り込みの衝突（`git merge-tree --write-tree`）:
+
+| ブランチ | `style.css` の変更の場所 | `navbar.js` | この作業との衝突 |
+|---|---|---|---|
+| `origin/work/1009-nen` | 2379行付近〜（`.mj-tl-bar` の年表の書き直し） | 変更なし | `style.css` は衝突しない（場所が離れている）。`assets/title.js`・`scripts/generate_title_pages.py` などが `origin/cloudflare` と衝突する古いブランチ（SWP-08 で記載済み）。この作業のファイルには関係しない |
+| `origin/work/1010-whs` | あり（帰り道） | 変更なし | 衝突なし |
+| `origin/work/1011-hou` | 3699行付近〜（`.mj-houou-race`・houou の部品） | 変更なし | 衝突なし |
+
+  この作業が変える行（`.navbar`・`.visually-hidden-focusable`・`.mj-margin-text`の周辺、71〜100行・370〜400行付近）は、どのブランチの変更とも重ならない。止まる条件には当たらない。
+- 作業ブランチの基点 `a72aaab4b` に対し、`origin/cloudflare`（`ce5677d0a`）は進んでいる（`style.css` も変わっている）。この作業のブランチと `git merge-tree` で衝突しない。マージの指示で取り込む。
+- 7件を、今の `origin/cloudflare` と同じ内容（手元の `python3 -m http.server` に `git archive origin/cloudflare` を展開したもの）と、本番のページの作りで再現した。測り方は `docs/notes/cloudflare.md` の注意どおり（Playwright の Chromium、`viewport` だけを使い `mobile: true` は使わない、外部ドメインは遮断）。幅は 1280・390・360px。
+  - **再現した:**
+    - G1-01: `live/`・`video_wayhome`・`wayhome/` のスキップリンクが 2.10:1（`#14459b` を `#121212` の上に）
+    - G1-02: ナビ項目の枠が 1.29:1（青い影 `rgba(13,110,253,.25)` を `#212529` の上に）。虫眼鏡は枠も影も出ない（`outline: none`・`box-shadow: none`）
+    - G2-02: 固定ナビの `jpml_pros`・`jpml_test` の 390・360px で、メニュー →「リソース」を開くとナビの下端が 855px（画面 667px/640px）まで伸び、最後の項目と虫眼鏡に届かない
+    - G2-03: `jpml_pros`・`jpml_test`・`houou_leagues` の 390・360px でナビが 94.8px、虫眼鏡 50×38.8px が2行目の左端
+    - G2-04: ロゴ 14.5×40px、ハンバーガー 56×40px（全ページ）
+    - G4-01: ドロップダウンの開閉と虫眼鏡で Space を押しても `aria-expanded` が変わらず、ページが下へスクロールする
+    - G3-10: `404`・`jpml_links` の `.mj-margin-text` の `margin-right` が 0px
+  - **再現しなかった（直さない）:**
+    - G1-02 のうち、ロゴ・ハンバーガー・ドロップダウン項目: ブラウザ既定のフォーカスの枠が見える。スクリーンショットで確かめた（ロゴは白と黒の二重の枠、ハンバーガーは明るい灰色の枠、ドロップダウン項目は黒い枠〈枠と背景 `#f8f9fa` で 18.05:1〉）。#524 の本文も「ドロップダウン項目は未検証」としていた
+    - G2-02 のうち、流れるナビのページ（`houou_leagues`・`houou/`・`404`・`jpml_links`・`resource_dictionary`・`live/` など）: ナビがページと一緒にスクロールするため、ページをスクロールすれば最後の項目に届く（`jpml_links` で `scrollY` 821 のとき最後の項目が見える、を確かめた）。固定ナビ以外は #524 の「固定ナビの型A・A'」の範囲外。`title/`・`saikyo/`・`live/`・動画系は元から内側スクロールがある
+    - G3-10 のうち `resource_dictionary`: `.mj-margin-text` を使っていない（独自の CSS で中央寄せ）。この部品を使うのは `404`・`jpml_links`・`resource_efficiency`
+
+### 手順2 直す
+
+変えたファイル: `style.css`（4か所）・`navbar.js`（末尾に1つ）・`nav_compare.html`（新規）。`scripts/`・`assets/share.js` は変えていない。
+
+| 指摘 | 直し方 |
+|---|---|
+| G1-01 | `body:has(.mj-video-page) .visually-hidden-focusable:focus { color: var(--mj-v-accent) }`（`#7fb3d5`） |
+| G1-02 | `.navbar .nav-link:focus-visible`・`.navbar a.btn:focus-visible` に `outline: 2px solid #ffffff; outline-offset: 2px; box-shadow: none`。濃色の領域の既決の白い枠（`.mj-video-btn:focus-visible` と同じ 2px・offset 2px） |
+| G2-02 | 992px 未満の `body:has(.mj-table) nav.navbar .navbar-collapse.show` に `max-height: calc(100dvh - 96px)`（`100vh` を先に書く）と `overflow-y: auto`。96px は上の行 56px と、虫眼鏡の行 約39px の合計 |
+| G2-04 | `.navbar-brand` を `display:inline-flex`・`min-height:44px`・`padding:5px 18px 5px 12px`・`margin:-2px -2px -2px -12px`、`.navbar-toggler` を `min-height:44px`・`margin-block:-2px`。広げた分を負のマージンで打ち消し、ナビの行の高さ・R の位置・隣の項目の位置は変えない |
+| G4-01 | `navbar.js` に `document` の `keydown` を足し、`nav.navbar a[role="button"]` で Space のとき `preventDefault()` して `click()` する |
+| G3-10 | `.mj-margin-text` に `margin-right: 32px`（左と同じ） |
+| G2-03 | 本番のナビは変えない。比較ページ `nav_compare.html`（noindex・どこからもリンクしない・sitemap に載せない。実物の `navbar.js` を使い、ラジオボタンで虫眼鏡の置き場所を切り替える）を作った。案: 今の形・A（ハンバーガーの左に同じ行、右寄せ）・B（メニューの中。開いたときだけメニューの一番下に出る）・C（ロゴ R の右隣、左寄せ）。案は `.container-fluid` を `display: contents` にして `order` で並べ替える CSS だけ（`navbar.js` の変更なし）。どの案も 992px 以上は今と同じで、ナビの行は 56px、虫眼鏡は 44×44px |
+
+途中の失敗（解決済み）: ロゴとハンバーガーを 44px にしたところ、ナビの行が 4px 高くなり、ロゴの幅が 14.5→44px になって 1280px でメニュー全体が右に 30px ずれた。最初は 992px 未満だけナビの上下の余白を 8px→6px にしたが、虫眼鏡の位置が 2px 動いた。上の負のマージンの形に改め、「現行（`git archive origin/cloudflare`）」と「作業ブランチ」の全ページ画像の差分（下の「ほかに表示が変わっていないこと」）がナビで 0 になることを確かめた。
+
+`python3 -m unittest discover -s scripts/tests` は772件 OK。`scripts/check_asset_limits.py` も通る。
+
+#### 検証: 直す前と後（#310）
+
+「前」は上の手順1で測った現行（`origin/cloudflare` の内容）、「後」は作業ブランチのプレビュー（`work/1011-swp-nav`）。同じスクリプト（Playwright の Chromium、`viewport` のみ）で測った。ローカルの作業ツリーとプレビューで、全ページ・3幅の値が一致した（不一致 0）。
+
+コントラスト比は WCAG 2.x の式。sRGB の各成分 c（0〜1）を `c ≤ 0.03928 ? c/12.92 : ((c+0.055)/1.055)^2.4` で線形にし、相対輝度 `L = 0.2126R + 0.7152G + 0.0722B`、比 `(L明 + 0.05) / (L暗 + 0.05)`。半透明の枠は背景に重ねた色で計算。
+- 白 `#ffffff` と `#212529`（ナビ）: 15.43:1
+- 現行の項目の枠 `rgba(13,110,253,.25)` を `#212529` に重ねた色と `#212529`: 1.29:1
+- 紺 `#14459b` と `#121212`: 2.10:1 → `#7fb3d5` と `#121212`: 8.31:1
+- 白と `#121212`: 18.73:1（参考）
+
+幅 390px と 1280px（360px は表のすべての項目で 390px と同じ値だった）。「→」の左が前、右が後。1つだけの値は変わらない。ナビの高さは変わらない（閉じた状態）。
+
+| ページ | 幅 | ナビの高さ | ロゴ R | ハンバーガー | 項目の枠のコントラスト | 虫眼鏡の枠 | スキップリンクのコントラスト | Space | 開いたとき最後の項目 | 右の余白 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| jpml_pros（型A） | 390 | 94.8 | 14.5×40 → 44.5×44 | 56×40 → 56×44 | 1.29 → 15.43 | なし → 15.43 | 8.92 | 効かない → 効く | 届かない → 届く | - |
+| jpml_pros（型A） | 1280 | 80 | 14.5×40 → 44.5×44 | - | 1.29 → 15.43 | なし → 15.43 | 8.92 | 効かない → 効く | 届く | - |
+| jpml_test（型A） | 390 | 94.8 | 14.5×40 → 44.5×44 | 56×40 → 56×44 | 1.29 → 15.43 | なし → 15.43 | 8.92 | 効かない → 効く | 届かない → 届く | - |
+| jpml_test（型A） | 1280 | 80 | 14.5×40 → 44.5×44 | - | 1.29 → 15.43 | なし → 15.43 | 8.92 | 効かない → 効く | 届く | - |
+| houou_leagues（型C） | 390 | 94.8 | 14.5×40 → 44.5×44 | 56×40 → 56×44 | 1.29 → 15.43 | なし → 15.43 | 8.92 | 効かない → 効く | （流れるナビ） | - |
+| houou_leagues（型C） | 1280 | 80 | 14.5×40 → 44.5×44 | - | 1.29 → 15.43 | なし → 15.43 | 8.92 | 効かない → 効く | （流れるナビ） | - |
+| title/ | 390 | 56 | 14.5×40 → 44.5×44 | 56×40 → 56×44 | 1.29 → 15.43 | - | 8.92 | 効かない → 効く | 届く | - |
+| title/ | 1280 | 80 | 14.5×40 → 44.5×44 | - | 1.29 → 15.43 | - | 8.92 | 効かない → 効く | 届く | - |
+| saikyo/ | 390 | 56 | 14.5×40 → 44.5×44 | 56×40 → 56×44 | 1.29 → 15.43 | - | 8.92 | 効かない → 効く | 届く | - |
+| saikyo/ | 1280 | 80 | 14.5×40 → 44.5×44 | - | 1.29 → 15.43 | - | 8.92 | 効かない → 効く | 届く | - |
+| live/ | 390 | 56 | 14.5×40 → 44.5×44 | 56×40 → 56×44 | 1.29 → 15.43 | - | 2.1 → 8.31 | 効かない → 効く | （流れるナビ） | - |
+| live/ | 1280 | 80 | 14.5×40 → 44.5×44 | - | 1.29 → 15.43 | - | 2.1 → 8.31 | 効かない → 効く | （流れるナビ） | - |
+| video_wayhome | 390 | 56 | 14.5×40 → 44.5×44 | 56×40 → 56×44 | 1.29 → 15.43 | - | 2.1 → 8.31 | 効かない → 効く | （流れるナビ） | - |
+| video_wayhome | 1280 | 80 | 14.5×40 → 44.5×44 | - | 1.29 → 15.43 | - | 2.1 → 8.31 | 効かない → 効く | （流れるナビ） | - |
+| wayhome/0OPca1Bl5xk | 390 | 56 | 14.5×40 → 44.5×44 | 56×40 → 56×44 | 1.29 → 15.43 | - | 2.1 → 8.31 | 効かない → 効く | （流れるナビ） | - |
+| wayhome/0OPca1Bl5xk | 1280 | 80 | 14.5×40 → 44.5×44 | - | 1.29 → 15.43 | - | 2.1 → 8.31 | 効かない → 効く | （流れるナビ） | - |
+| houou/（トップ） | 390 | 56 | 14.5×40 → 44.5×44 | 56×40 → 56×44 | 1.29 → 15.43 | - | 8.92 | 効かない → 効く | （流れるナビ） | - |
+| houou/（トップ） | 1280 | 80 | 14.5×40 → 44.5×44 | - | 1.29 → 15.43 | - | 8.92 | 効かない → 効く | （流れるナビ） | - |
+| 404（深いURL） | 390 | 56 | 14.5×40 → 44.5×44 | 56×40 → 56×44 | 1.29 → 15.43 | - | 8.92 | 効かない → 効く | （流れるナビ） | 0px → 32px |
+| 404（深いURL） | 1280 | 80 | 14.5×40 → 44.5×44 | - | 1.29 → 15.43 | - | 8.92 | 効かない → 効く | （流れるナビ） | 0px → 32px |
+| jpml_links | 390 | 56 | 14.5×40 → 44.5×44 | 56×40 → 56×44 | 1.29 → 15.43 | - | 8.92 | 効かない → 効く | （流れるナビ） | 0px → 32px |
+| jpml_links | 1280 | 80 | 14.5×40 → 44.5×44 | - | 1.29 → 15.43 | - | 8.92 | 効かない → 効く | （流れるナビ） | 0px → 32px |
+| resource_dictionary | 390 | 56 | 14.5×40 → 44.5×44 | 56×40 → 56×44 | 1.29 → 15.43 | - | 8.92 | 効かない → 効く | （流れるナビ） | - |
+| resource_dictionary | 1280 | 80 | 14.5×40 → 44.5×44 | - | 1.29 → 15.43 | - | 8.92 | 効かない → 効く | （流れるナビ） | - |
+
+
+#### 比較ページ（G2-03、`/nav_compare.html`）の計測
+
+プレビューで、各案を選んでナビの高さ・虫眼鏡の大きさ・メニューの最後の項目・虫眼鏡の開閉を測った（390×667、360×640。「リソース」まで開いて最後の項目〈牌効率〉までスクロールした）。
+
+| 案 | 幅 | ナビの高さ（閉） | 虫眼鏡（閉） | 開いたときの虫眼鏡 | 開いたナビの下端（画面の高さ） | 最後の項目に届く | 虫眼鏡で下の入力欄が開閉 |
+|---|---|---|---|---|---|---|---|
+| 今の形 | 390 | 94.2px | 50×38.2px | 同じ | 665px（667px） | 届く | する |
+| A（右寄せ） | 390 | 56px | 44×44px | 同じ | 663px（667px） | 届く | する |
+| B（メニューの中） | 390 | 56px | 閉じているとき非表示。開くと 366×44px で一番下 | 366×44px | 663px（667px） | 届く | する（開いてから） |
+| C（Rの隣） | 390 | 56px | 44×44px | 同じ | 663px（667px） | 届く | する |
+| 今の形 | 360 | 94.2px | 50×38.2px | 同じ | 638px（640px） | 届く | する |
+| A | 360 | 56px | 44×44px | 同じ | 636px（640px） | 届く | する |
+| B | 360 | 56px | 非表示（開くと 336×44px） | 336×44px | 636px（640px） | 届く | する |
+| C | 360 | 56px | 44×44px | 同じ | 636px（640px） | 届く | する |
+
+幅 1280px は4案とも今と同じ（ナビ 80px、虫眼鏡は右端 50×38.2px）。今の形の 94.2px は、比較ページの本文のフォントの影響で本番の 94.8px と 0.6px 違う。
+
+#### ほかに表示が変わっていないこと（止まる条件の確認）
+
+- 現行（`git archive origin/cloudflare` を手元の `http.server` で配信）と作業ブランチを、14ページ（`jpml_pros`・`jpml_test`・`houou_leagues`・`title/`・`saikyo/`・`live/`・`video_wayhome`・`wayhome/0OPca1Bl5xk`・`jpml_links`・`resource_dictionary`・`resource_efficiency`・`404`・`video_live`・`rh_results`）× 390・1280px の全体画像で、差のあるピクセル（輝度の差が24を超えるもの）を比べた。
+- **ナビの領域（上端〜約90px）の差は 0。** 差があったのは次だけ:
+  - `404`（390px、本文の右）と `resource_efficiency`（390px、本文の下の部分。ページの高さ 1421→1445px）: `.mj-margin-text` の右の余白（G3-10）による折り返しの変化。この部品を使うページ。`jpml_links` は差なし（折り返す行が無い）
+  - 上の2つのほかに、プレビューと手元の「現行」の比較では `jpml_test`（390px、表の中）・`live/`（390px、本文）・`jpml_pros`（1280px、表の中の1か所）・`video_live`（1280px、本文）に差が出た。手元の「作業ブランチ」と「現行」の比較ではこの4ページの差は 0 で、同じ現行を2回撮った画像も差 0。ページの HTML・`style.css`・`navbar.js` はプレビューと作業ブランチで同一（下の `cmp`）。
+    差の中身を見たのは `jpml_test`（1280px の前回の撮影）だけで、表の中の外部リンクのアイコンが出る・出ないの違いだった（`loading="lazy"` の画像の読み込みの時刻）。ほかの3か所の原因は確かめていない（プレビューの読み込みの遅さによる画像・動画サムネイルの違いと見ているが未検証）
+- プレビューの `style.css`・`navbar.js`・`nav_compare.html` と、6ページの HTML（`jpml_test`・`live/index`・`video_live`・`jpml_pros`・`404`・`resource_efficiency`）は、作業ブランチと一致した（`cmp`）。
+
+### 手順3 プレビューと記録
+
+- 作業ブランチ `work/1011-swp-nav` を push した（`git push origin work/1011-swp-nav`。`origin/cloudflare` へは push していない）。check-run「Workers Builds: mj」は `completed / success`（push から約1〜2分、3回。最後のコミットは `114771799`）。
+- #526 に G3-07・G4-09 を #530 に移した旨をコメントし、#530 に2件の中身（#526 の本文から引用）をコメントした。#526 に残る項目が無くなった（G3-02・G4-05 はマージ済み、G5-05 は不要、G3-10 は #524、G3-07・G4-09 は #530）ため、閉じた（「状況:」ラベルは付いていなかった）。#524 に結果をコメントした（閉じていない。マージ・比較ページの決定が残る）。各コメントの末尾に `Chat-Ref: CHAT-1011-SWP-13`。
+- 決定を `docs/decisions/site-review.md`（2026-10-11〈CHAT-1011-SWP-13〉）に足した。
+
 ## 報告
 
-- 状態: 中断（作業中）
+- 状態: 判断待ち（7件を直し、G2-03 は比較ページを作ってプレビューで止まった。マージは別の指示）
 - ブランチ: work/1011-swp-nav
 - ログ: https://github.com/retroeater/mj/blob/work/1011-swp-nav/docs/logs/CHAT-1011-SWP-13.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1011-swp-nav
-- 確認用URL: 作業中
-- マージ: 未
-- issue: #524
-- 判断が必要なこと: 作業中
-- 未確認の項目: 作業中
+- 確認用URL: プレビューあり（URL は最終報告）。確認したページは「判断が必要なこと」の表
+- マージ: 未（平野さんの判断待ち）
+- issue: #524（結果をコメント。閉じていない）、#526（G3-07・G4-09 を #530 に移した旨をコメントして閉じた）、#530（2件の中身をコメント）。起票なし
+- 判断が必要なこと:
+  - **G2-03 の虫眼鏡の置き場所（A・B・C のどれか）を決める。** 比較ページ `/nav_compare.html`（iPhone で）。ラジオボタンで切り替え、メニューを開いて「リソース」→最後の項目まで届くか、虫眼鏡が押しやすいかを見る。案: A ハンバーガーの左に同じ行（右寄せ）、B メニューの中（開いたときだけ、メニューの一番下）、C ロゴ R の右隣（左寄せ）。どれもナビは 56px、虫眼鏡は 44×44px（B は開いたときだけ 366×44px）。今の形は 94.2px。決まった後、別の指示で `style.css` に移し、比較ページを消す
+  - 平野さんがプレビューで見る点（URL は最終報告の「確認用」。以下はそのドメインに付けるパス）:
+    - `/jpml_test.html`（iPhone）: ハンバーガー → 「リソース」を開き、メニューの中でスクロールして最後の項目（牌効率）と虫眼鏡に届くか（G2-02）。メニューの下端が画面に収まっているか
+    - `/jpml_pros.html`（iPhone）: 閉じたナビの高さ・虫眼鏡の位置が今までと同じか（G2-03 は本番では変えていない）。ロゴ R とハンバーガーが押しやすいか（G2-04。見た目は変わらない）
+    - `/jpml_pros.html`（PC のキーボード）: Tab でメニュー項目と虫眼鏡に白い枠が出るか、Space でドロップダウン・虫眼鏡が開閉するか（G1-02・G4-01）
+    - `/live/` または `/video_wayhome.html`（PC）: Tab を1回押して出る「本文へスキップ」が水色の文字で読めるか（G1-01）
+    - `/jpml_links.html`（iPhone）・`/nothing/here.html`（404 の確認。存在しないパス）: 本文の右に余白があるか（G3-10）。`/resource_efficiency.html` も同じ部品で、本文の折り返しが少し変わる
+  - 新しく決めた値（既決の値にないもの）:
+    - 開いた固定ナビのメニューの最大の高さ `calc(100dvh - 96px)`（96px = 上の行 56px + 虫眼鏡の行 約39px）。虫眼鏡の置き場所が決まったら、案に合わせて直す（A・C なら 60px 前後、B なら 104px 前後。比較ページでは案ごとに入れてある）
+    - ロゴとハンバーガーの押せる範囲を、見た目と配置を変えず負のマージンで 44px にした（上下2px、ロゴは左右にも）。ロゴの幅は 14.5→44.5px、ハンバーガーの高さは 40→44px で、ナビの行の高さと隣の項目の位置は同じ
+    - `.mj-margin-text` の右の余白 32px（左と同じ。#526 の本文の案どおり）
+  - #417（ナビの位置の統一）・共有ボタン・生成スクリプトは変えていない。再現しなかった項目（G1-02 のロゴ・ハンバーガー・ドロップダウン項目、G2-02 の流れるナビ、G3-10 の `resource_dictionary`）を直していない扱いでよいか（理由は `## 経過` の手順1）
+- 未確認の項目:
+  - iPhone の Safari での実機の見え方（`dvh`・画面下のバーを含む）。headless Chromium だけで測った
+  - 読み上げソフトでの実際の読まれ方（スキップリンクの色・フォーカス枠は見た目のみ）
+  - G2-02 を、`jpml_pros`・`jpml_test` 以外の固定ナビの型A・A'（`rh_paifu`・`rh_results`・`resource_logs`・`video_en`・`video_mtsuku` など）では1ページずつ測っていない（同じ `body:has(.mj-table)` の規則が効く）
+  - 差のあった3か所（`live/` の本文・`jpml_pros` の表の1か所・`video_live` の本文）の原因（プレビュー読み込みの時刻による画像の違いと見ているが未検証）
+  - `houou/`（#518、#540 で公開予定）は、今の `origin/cloudflare` にあるトップだけを測った（共通のナビを使う）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj a72aaab4）: https://github.com/retroeater/mj-logs/tree/main/guide/a72aaab4
+ガイド文書（この版を写した時点の最新、mj ce5677d0）: https://github.com/retroeater/mj-logs/tree/main/guide/ce5677d0
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a72aaab4/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a72aaab4/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a72aaab4/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a72aaab4/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a72aaab4/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a72aaab4/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a72aaab4.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce5677d0/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce5677d0/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce5677d0/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce5677d0/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce5677d0/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce5677d0/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/ce5677d0.md
