@@ -63,28 +63,88 @@ Chat-Ref: CHAT-1011-RDN-08
 - 指示欄の末尾の行は指示文の最後の行と一致
 - 指示文は改行が潰れた形で貼られたため、文面は変えずに項目の区切りで改行した
 
+### 手順1: 着手前の確かめ
+
+- 未マージの work/ ブランチ: work/1009-swp-526（scripts の差なし）・work/1010-whs（`lib/wayhome.py`・`generate_video_wayhome.py`・`generate_wayhome_episodes.py`・テスト）・work/1010-xap（docs のみ）・
+  work/1011-hou（HOU-13、作業中。`generate_houou_pages.py`・`lib/results.py`・`tests/test_houou_pages.py`）・work/1011-swp-nav（docs のみ）
+  - work/1011-hou の `generate_houou_pages.py` の hunk は import（16行目付近）・`load_groups()` の末尾（135行目付近に追加）・検索欄・ランキング・`main()` など。
+    この指示で変える `PRO_HEADERS`（56〜57行）と `load_profiles()` の本体とは別の行。実装後に `git merge-tree --write-tree HEAD origin/work/1011-hou` と `… origin/work/1010-whs` を試し、**どちらも衝突なし**
+  - 両ブランチの scripts の追加行に、「プロ」を列記号で読む箇所・廃止する11列の定数・外した名前（`PRO_HEADERS`・`PRO_QUERY`）を使う箇所は無い
+- #536: 他セッションの着手中コメントは無し（RDN-04・06・07 の6件だけ）。着手中コメントを残した
+- 前提の確かめ: `generate_houou_pages.py` はマージ後、`PRO_EXTRA_QUERY`（列記号）ではなく `lib/pro_sheet.py` で見出し（登録名・ソートキー・Last Name・First Name・所属）を読む形に変わっていた（11列のうち C・D・E を使う）。
+  段2・段3の関数は `lib/meibo.py` の `fetch_members()`・`fetch_english_names()`、`lib/pro_stats.py` の `fetch_sources()`・`build()`・`contest_names()`
+- **「プロ」を読む箇所の一覧**（着手時、`scripts/`・`.github/workflows/`・ページ側の JS を、ブックの ID・`"プロ"`・`WHERE Y`・`PRO_QUERY`・`PROS_QUERY`・`PRO_EXTRA_QUERY`・`SELECT A`・11列の見出しで grep）:
+
+| 箇所 | 読み方 | 11列を使うか |
+|---|---|---|
+| `generate_houou_leagues.py`（`load()`。houou/leagues/ も使う） | 列記号 `SELECT A WHERE Y = "Y" AND Q IS NOT NULL ORDER BY B` | Q 鳳凰最高（候補の条件） |
+| `generate_houou_race.py`（`load_name_book()`。houou/ の順位変動・画像も使う） | 列記号 `SELECT A,I,J WHERE Y = "Y"` | 使わない |
+| `check_leagues_dropped.py` | 上と `generate_ouka_leagues.PRO_QUERY` を借りる（列記号） | Q・T |
+| `generate_ouka_leagues.py` の `PRO_QUERY` | 列記号（`check_leagues_dropped.py` のためだけに残していた） | T |
+| `generate_houou_pages.py`（`load_profiles()`） | `lib/pro_sheet.py`（見出し） | C・D・E（ローマ字・支部） |
+| `lib/pro_sheet.py` の定数 | — | 11列の見出しの定数（`LAST_NAME_EN` など。読み取りには使われていないがテストが参照） |
+| `generate_jpml_pros.py`・`generate_ouka_leagues.py`（候補）・saikyo・live・books・title・帰り道2つ・誕生日・道場部・jpml_test・resource_dictionary・check_meibo・fetch_youtube_channels | `lib/pro_sheet.py` | 使わない |
+| `update_sns_book.py`（10/10 に XAP が追加） | `lib/pro_sheet.py`（登録名・ソートキー・XID・X画像・noteID・note画像・YouTubeID） | 使わない |
+| `.github/workflows/` | 「プロ」を直接読まない（`check-image-links.yml` は issue の文言に「「プロ」J列」と書くだけ） | 使わない |
+| ページ側の JS（`houou_results.js`・`ouka_results.js`・`wrc_results.js`・`league_ranking.js`） | 同じブックの「鳳凰」「桜花」「JWRC」などを読む。「プロ」は読まない | 使わない |
+
+  - 11列の見出しの文字列は、ほかに `lib/pro_stats.py` の docstring（定義の説明）・`generate_live_pages.py` の `SECTION_NAME = "放送対局"`（/live の節の名前で、「プロ」の列ではない）・`leagues.js` のコメントにあるだけ。扱いを決められない箇所は無い
+
+### 手順2: 実装
+
+- `generate_houou_leagues.py`・`generate_ouka_leagues.py`: 選手候補を `load_candidates()`（「表示」が Y の在籍者をソートキーの順に並べ、`pro_stats.contest_names()` で「鳳凰」「桜花」タブに1行でもある人に絞る）にした。
+  `PRO_SHEET_NAME`・`PRO_QUERY` を消した（houou は旧「鳳凰最高が空でない」、ouka は RDN-07 で同じ形にした候補を関数に移した）
+- `check_leagues_dropped.py`: `mod.PRO_QUERY` を借りず `mod.load_candidates()` を呼ぶ。出力の文言（「最高リーグ列の入力漏れ」など）は、チェックの出力を変えないため残した（docstring だけ直した）
+- `generate_houou_race.py`: `PRO_QUERY`（A,I,J）を `PRO_COLUMNS = (登録名, XID, X画像)` と `pro_sheet.fetch_pros()` にした（saikyo などと同じ形）
+- `generate_houou_pages.py`: `PRO_HEADERS` を消し、`load_profiles()` の読み・ローマ字・支部を名簿から取る形にした（読み・支部は「公開」の `Member.kana`・`office`、ローマ字は「【2】値貼付」の英字姓・英字名。在籍者〈「プロ」の「表示」が Y〉だけ）。
+  在籍者が名簿にいなければ止める。読み（今まで「プロ」の「ソートキー」）は名簿の「公開」の登録名のかなと在籍者 1,099名で一致することを着手時に確かめた（「ソートキー」は11列ではないが、決定の「読み…は名簿から」に合わせた）
+- `lib/meibo.py`: `check_pros()`（名簿の人数 1,000〜1,300 と、在籍者が「公開」「【2】値貼付」の両方にいるかの検査）を足し、jpml_pros の `join_meibo()` の同じ検査をこれに寄せた（文言は同じ。同じ処理を2か所に持たないため）
+- `lib/pro_sheet.py`: 11列の見出しの定数（`LAST_NAME_EN`・`FIRST_NAME_EN`・`OFFICE`・`HOUOU_SEASONS` 〜 `LIVES`）を消し、代わりに `RETIRED`（廃止する11列の見出しの一覧。テストで「読み取りに戻っていない」ことを確かめるためだけに置く）を置いた
+- テスト: `test_pro_sheet.py` に `NoLetterReadsTest`（`scripts/`・`scripts/lib/` の .py に `WHERE Y = "Y"`・`PRO_QUERY`・`PROS_QUERY`・`PRO_EXTRA_QUERY` が無いこと、11列の見出しの定数が無いこと）、
+  `test_meibo.py` に `CheckProsTest`、新しい `test_league_candidates.py`（houou・ouka の `load_candidates()`。読み取りは差し替え）を足し、`test_jpml_pros.py` を `RETIRED` で書き直した。
+  `python3 -m unittest discover -s scripts/tests`: **779件 OK**。pyflakes: 変えたファイルに指摘なし
+- 文書: `docs/notes/static-generation.md`（「プロ」の読み方の節。残作業の記述を消し、列記号の読み取りが無いことと11列の扱いを書いた）・`docs/notes/houou-top.md`（読み・ローマ字・支部の出どころ）・`docs/notes/houou-race.md`（画像・X ID の読み方）・`docs/decisions/pros.md`（RDN-08 の決定）
+
+### 手順3: 確かめ
+
+- RDN-04・06・07 と同じ方法: origin/cloudflare（a72aaab4）を scratchpad の worktree に出し（比較の後に削除）、作業ブランチ（a72aaab4 ＋ この指示のコミット）と、`regenerate.py --list` の22ページ（houou_pages を含む）を1ページずつ「変える前 → 変えた後」の順に続けて生成
+  - **両方のツリーの生成物は `diff -rq`（.git・scripts・docs を除く）で差0**
+  - 両方のツリーとも、origin/cloudflare のコミット済みの版から同じ4ファイル（`title/ourai/11.html`・`title/ourai/index.html`・`title/search.json`・`title/years.json`）が変わった。
+    両側で同じ内容に変わっており、シートの更新による差（変える前のコードでも出る）で、前後の差ではない。生成物はコミットしないため、作業ツリーでは戻した
+  - 生成ログの差は houou_pages の進捗の表示（「名簿の読み・ローマ字・支部・入会期を取得中...」）だけ
+  - 両側とも同じ理由で飛ばしたページ（差に数えない）: `books_pages`（「書籍」タブの行数が想定外〈95行〉。`regenerate.py` が終了コード3で飛ばす）。帰り道の2ページは今回は両側とも生成できた
+- チェック系: `check_leagues_dropped.py`・`check_meibo.py --json`（JSON と標準出力）・`check_saikyo_unregistered.py`、ページ以外の読み取り（YouTube ID・誕生日・道場部の名簿・辞書の人名）→ 変える前後で**一致**
+- 名簿に見つからない在籍者: 0（`check_pros()` が両方の生成で通った）。集計元のタブ・名簿の行数・見出しは RDN-07・RDN-06 と同じ（生成が止まらなかった）
+- **マージ前の grep のやり直し**（このブランチ。マージ後の cloudflare は同じ内容）: 列記号で「プロ」を読む箇所 **0**（`WHERE Y` 等が出るのは `lib/pro_sheet.py` の docstring の説明だけ）。
+  11列の見出しを読む箇所 **0**（出るのは `pro_sheet.RETIRED` の一覧だけ）。「プロ」を読む19か所はすべて `pro_sheet.fetch_pros()` で、11列を渡す箇所は無い
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1011-rdn
-- ログ: https://github.com/retroeater/mj/blob/work/1011-rdn/docs/logs/CHAT-1011-RDN-08.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1011-RDN-08.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1011-rdn
-- 確認用URL: なし
-- マージ: 未
-- issue: #536
-- 判断が必要なこと: なし
+- 確認用URL: なし（生成物は変わらないため、コードと文書だけをマージ）
+- マージ: 済（このログを含むコミットを cloudflare へ fast-forward で push）
+- issue: #536（結果と「11列を消せる状態」をコメント、閉じない）
+- 判断が必要なこと: なし（11列を消す〈段4〉のは平野さん。手順は下の「11列を消すとき」と #536 のコメント）
 - 未確認の項目: なし
 - エラー: なし
+
+11列を消すとき（平野さん、段4。参考）:
+- 消す列（今の英字と見出し）: C「Last Name」・D「First Name」・E「所属」・O「鳳凰出場」・P「鳳凰43後」・Q「鳳凰最高」・R「桜花出場」・S「桜花21期」・T「桜花最高」・U「最強出場」・W「放送対局」（O〜W の見出しはセル内改行入り）。G・H・N・V はこの一覧に入らない（#327・#484）
+- 値を消すのではなく列ごと削除する。ほかの列（A 登録名・B ソートキー・F 出身地・I〜N・X 最終更新・Y 表示・AA・AB の Ampai など）の見出しは変えない
+- 消した後の確かめ: `regenerate-page.yml` を `target_page` = `all` で手動実行し（または Claude Code に「全ページを再生成して差を確かめる」指示を出す）、生成物に差が出ないこと（jpml_pros・houou/・型C・title/ など）と、`check-meibo.yml`（dry_run）が名簿と在籍者の一致を報告することを見る。見出しが欠けた・重複したときは生成が止まって知らせる
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj a72aaab4）: https://github.com/retroeater/mj-logs/tree/main/guide/a72aaab4
+ガイド文書（この版を写した時点の最新、mj f55bb027）: https://github.com/retroeater/mj-logs/tree/main/guide/f55bb027
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a72aaab4/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a72aaab4/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a72aaab4/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a72aaab4/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a72aaab4/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a72aaab4/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f55bb027/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f55bb027/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f55bb027/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f55bb027/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f55bb027/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f55bb027/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a72aaab4.md
