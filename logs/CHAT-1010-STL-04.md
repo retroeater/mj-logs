@@ -43,28 +43,71 @@
 
 ## 経過
 
+- Chat-Ref の重複なし。`STL` はこのセッションの識別子（STL-01〜03）。work/1010-stl はローカル・リモートとも無し → `git checkout -b work/1010-stl origin/cloudflare`
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- 手順0: 「指示」欄の末尾は指示文の最後の行と一致。STL-02（試運転の一覧）・STL-03 のログは同じセッションで書いたもの
+
+### 手順1: 2つの実行の比較
+
+| | 試運転（STL-02） | 10/10 朝の実行 |
+|---|---|---|
+| run | 37892845226（手動、apply なし・unused_report あり、ref work/1009-stl） | 37977261629（Worker からの予約の起動、cloudflare e9a52a64） |
+| 時刻 | 2026-10-09 06:20 UTC | 2026-10-09 19:04 UTC（10/10 04:04 JST） |
+| 層1 | 14171本 | 14175本 |
+| 「連盟プロ以外」 | 765行 | 765行 |
+| 「別名」 | 28行 | 28行 |
+| 使われている名前 | 2691 | 2696 |
+| 使われていない「連盟プロ以外」 | 26行 | 27行（738行 村越一郎 が増えた。ほかの26行は同じ） |
+| 使われていない「別名」(訂正) | 2行 | 2行（同じ） |
+
+- 10/10 の実行は「前回の注記: None」（#475 にまだ注記が無い初回）で、#475 にコメントした（コメント 6087426323）。#475 のコメントの一覧は、ジョブのログの一覧と同じ（27行・2行。平野さんの PDF は見ていないが、コメントの本文で確かめた）
+
+### 手順2: 「村越一郎」の行と使われていた所
+
+- 今の「連盟プロ以外」を2回読み、どちらも765行。738行が「村越一郎」（所属団体 `-`・所属補足 空欄）
+- 試運転の時点: STL-01 で 10/9 05:xx UTC に読んだ「連盟プロ以外」（scratchpad に保存した読み込み）も765行で、738行が同じ「村越一郎」。**試運転より後に足された・名前が変わったのではない**（(a) ではない）
+- 試運転の時点で使われていた利用先: 層2（候補の行の対局者）とカレンダーの抜き出しだけ。どちらも動画 `9oVz1C776xY`（【メンバー限定】麻雀日本シリーズ2026第８節）・`Hz_8PG5bR54`（麻雀日本シリーズ2026第８節）の概要欄。【3】・「タイトル」・「テスト」・「最強戦」・「鳳凰」には今も無い
+- 層1（`data/live_channel_raw.jsonl`）の2本の行（配信予定の枠なので毎日取り直す）:
+
+  | 取得日時（UTC） | 概要欄の「プレーオフ2回戦」 |
+  |---|---|
+  | 09-25 04:31・09-28 03:44 | ？？？？ｖｓ？？？？ｖｓ？？？？ｖｓ？？？？ |
+  | 10-01 22:00 | 佐々木寿人ｖｓ鈴木優ｖｓ**村越一郎**ｖｓ三浦智博 |
+  | 10-09 19:02 | 佐々木寿人ｖｓ鈴木優ｖｓ**西村雄一郎**ｖｓ三浦智博 |
+
+  10/10 朝の実行の層1の取り直し（19:02 UTC）で概要欄が「西村雄一郎」に直り、同じ実行の検査（19:04 UTC）で「村越一郎」はどこにも出なくなった
+- 試運転の時点の層1（ecbf58d4 の jsonl、14171本）と今の層1（14175本）で、同じ関数（`check_unused_names.py` と同じ抜き出し）で確かめた: 「村越一郎」は試運転の時点で層2・カレンダーとも有り、今は両方とも無い。「西村雄一郎」は今の層2に有る（未登録の名前にも出ていないので「プロ」などで引ける）
+- 行が入った経緯（リポジトリの記録から）: 10/1 22:02 UTC に #475 で「新しく出た名前: 村越一郎(2行)」。CHAT-1002-UNR-02 のログ（ee183243）が、未登録の名前の表で「村越一郎」を (a)（実在の人）に分け、「連盟プロ以外」へ貼る TSV に `村越一郎\t\t-` を入れた。10/3 03:58 UTC の #475 のコメントで「消えた名前」に入っている（この TSV が貼られたと読める）。CHAT-1005-UNR-11（54989d19）の所属の確かめでは 737行・「不明」（連盟公式サイトの検索で記事が無い）
+- シートの版の履歴: 読めない（gviz・CSV の書き出しでは版の履歴を取れない。セッションに Drive の API の認証も無い）。行がいつ・誰の操作で入ったかは、上の記録からの推定
+
+### 手順3: 理由
+
+- **(b)**: 10/9 の試運転の時点では、2本の動画の概要欄（層2の候補の行の対局者と、カレンダーの抜き出し）で使われていた。10/10 朝の取り込みで YouTube の概要欄が「西村雄一郎」に直り、使われなくなった
+- 判定の誤り（(c)）ではない。直しが届いて登録が要らなくなった例で、今回の仕組みが拾うことを想定した場合そのもの（「村越一郎」は概要欄の誤記だったと読める）
+- 平野さんに心当たりが無いのは、行が CHAT-1002-UNR-02 の貼り付け用 TSV の1行として入ったためと考えられる（個別に足した行ではない）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1010-stl
-- ログ: https://github.com/retroeater/mj/blob/work/1010-stl/docs/logs/CHAT-1010-STL-04.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1010-STL-04.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1010-stl
 - 確認用URL: なし
-- マージ: 未
-- issue: #475
-- 判断が必要なこと: 作業中
-- 未確認の項目: 作業中
+- マージ: 済（SHA は最終報告）
+- issue: #475（変えていない）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 77f81735）: https://github.com/retroeater/mj-logs/tree/main/guide/77f81735
+ガイド文書（この版を写した時点の最新、mj aa6931b4）: https://github.com/retroeater/mj-logs/tree/main/guide/aa6931b4
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/77f81735/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/77f81735/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/77f81735/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/77f81735/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/77f81735/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/77f81735/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/aa6931b4/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/aa6931b4/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/aa6931b4/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/aa6931b4/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/aa6931b4/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/aa6931b4/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/db5444b2.md
