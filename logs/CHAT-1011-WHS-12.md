@@ -55,16 +55,27 @@ WHS-10 は、武田雛歩（`UtxpVoWy2GY`）の「プロ」シートの X画像�
 - WHS-10 の `## 報告` の状態は「判断待ち」→ 末尾に ` / 続き: CHAT-1011-WHS-12` を足した
 - 作業ブランチ: ローカル・リモートとも `work/1010-whs` は db7f803a
 
+### 手順1: URL を取る
+
+- SNS ブック（`lib/sns_book.py` の `SPREADSHEET_ID`、cloudflare の版）の【3】画像取得を公開シートの読み取り（gviz）で読んだ（1,864行）。武田雛歩の行: シート プロ・X `hinaho_0303`・X数値ID `3285135152`・
+  X画像URL `https://pbs.twimg.com/profile_images/2108212521459150848/hgPwE-Tk_400x400.jpg`・X取得日 2026-10-10・X状態「解決」
+- 【4】手動補正は空（見出しも無い、0行）。重ねる値は無い
+- この URL を `_400x400` で8回（1秒おき）取り直して、8回とも 200。`update-sns-book.yml` の手動実行は要らなかった
+- 「プロ」シートの今の X画像（`…/1900471980274393088/K5UEBvMm_400x400.jpg`）とは別の写真（差し替えられた後の URL）
+- 平野さんへ: 「プロ」シートの武田雛歩の X画像を次の URL に直してください: https://pbs.twimg.com/profile_images/2108212521459150848/hgPwE-Tk_400x400.jpg
+  （ここで止まり、貼ったという返事を待つ）
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1010-whs
+- 状態: 判断待ち
+- ブランチ: work/1010-whs（未マージ）
 - ログ: https://github.com/retroeater/mj/blob/work/1010-whs/docs/logs/CHAT-1011-WHS-12.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1010-whs
 - 確認用URL: なし
-- マージ: 未
+- マージ: 未（平野さんが「プロ」シートに貼ってから）
 - issue: #195、#514
-- 判断が必要なこと: なし
+- 判断が必要なこと:
+  - 「プロ」シートの武田雛歩の X画像を https://pbs.twimg.com/profile_images/2108212521459150848/hgPwE-Tk_400x400.jpg に直し、貼ったと返事してほしい（SNS ブックの【3】の値、X状態「解決」、8回とも 200）
 - 未確認の項目: なし
 - エラー: なし
 
