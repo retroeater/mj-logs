@@ -315,3 +315,19 @@
 
 - CLAUDE.md の上限を 32KB（警告域 30KB）から 28KB（警告域 26KB）に下げる。#492 の11月中旬の見直しを待たない（未マージ）
 - docs/instruction-template.md に上限 16KB（警告域 14KB）を新設する（未マージ）
+
+## 2026-10-10（CHAT-1010-REV-08）
+
+- CHAT-1010-REV-06 の上限の変更を、assets-check の push の `paths` に docs/instruction-template.md を足す変更を含めてマージしてよい（#492）
+
+## 2026-10-10（CHAT-1010-REV-07）
+
+- チャット側の「レビュー」「振り返り」「申送り」の手順を docs/notes/chat-routines.md 1ファイルにまとめる（3ファイルに分けない）。各節は「何をするか」「観点のチェックリスト」「成果物の形」（未マージ）
+- chat-side-operations.md の「申送り」の項は chat-routines.md へ移し、参照1行にする（未マージ）
+- chat-routines.md には容量の上限を置かない
+- 「振り返り」は、そのセッション（チャット）の会話を全部読み返し、不明点・不整合・別の提案がないかを確認して報告する（決定の日付は不明。この指示で記録した）
+
+## 2026-10-10（CHAT-1010-REV-09）
+
+- CHAT-1010-REV-07 の変更（docs/notes/chat-routines.md の新設など）をマージしてよい
+- chat-side-operations.md の「規約が守られないときは、内容ではなく書き方を疑うこと。…」の行は、chat-routines.md「申送り」へ移す（REV-07 の報告の提案を採用）

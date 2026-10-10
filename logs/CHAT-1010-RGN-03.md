@@ -54,28 +54,52 @@ RGN-02 の判断待ちを片付ける。あわせて、regenerate-page.yml #257 
 
 ## 経過
 
+- 0章: 指示欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- 識別子: `git log --all --grep="CHAT-1010-RGN-03"` は0件（RGN はこのセッションの RGN-01・02 で使ったもの）
+- ブランチ: ローカルの `work/1010-rgn` は `origin/work/1010-rgn`・`origin/cloudflare` と同じ 7e1c39ce（マージ済み）。`git merge --ff-only origin/cloudflare` は「Already up to date」で、そのまま使った
+- RGN-02 の `## 報告` の状態は「判断待ち」だった。末尾に ` / 続き: CHAT-1010-RGN-03` を足した（`## 報告` の最後の一致を相手にした）
+
+### 手順1 記録する
+
+- 「決定」の3項目を `docs/decisions/automation.md` に足した
+- #533 に、RGN-02 の判断待ち2点が片付いたことをコメントした（issuecomment-6098318795。閉じていない）
+
+### 手順2 重なり（ここで止まった）
+
+- Search API はプロキシが拒否するため、リポジトリ単位の API で issue 536件（PR を除く）とコメント 1,934件を全件取り、手元で検索した。語: ubuntu・runner・Node.js 20（`Node\.?js ?20`）・node20・checkout@v・setup-python・runs-on・Ubuntu 26・runner-images
+- **#308「ワークフローのアクションをNode 24対応版に上げる」（open、ラベル `分野: 自動化`、本文の先頭に「期日: 2026-11-30」）が、Node.js 20 の廃止の件そのもの。**
+  本文に移行先の表（checkout v7・setup-python v7・github-script v9。各タグの action.yml の `runs.using` で確かめたもの）・破壊的変更の該当・確かめの順があり、
+  2026-09-30 のコメント（CHAT-0930-ACT-01）で対象が16本・5アクション（`google-github-actions/auth@v2`・`actions/cache@v4` を含む）に増えたことを書いている。指示の論点 (c) は #308 の主題と同じ
+- #217（「GitHub Actions の Node.js 20 非推奨警告に対応する」）・#305（「ワークフローの actions/checkout を v5 以降へ更新する」）は同じ論点で、どちらも #308 に統合してクローズ済み（not_planned）
+- **Ubuntu 26 への移行（ubuntu-latest のラベルが移ること）を扱う issue は無い。** #308 の本文の ubuntu は「ランナー v2.327.1 以上が必要（GitHub ホストの ubuntu-latest なら満たす）」の1か所、#139・#333 のコメントの ubuntu は別の話（ランナーの環境の言及）
+- 指示の止まる条件「同じ主題の issue（クローズ済みを含む）がある」に、Node.js 20 の部分で当たる。題の案は2つの件を1つにまとめたもので、そのまま起票すると #308 と重なるため、起票せずに止まった。手順2の残り（全ワークフローの表・ほかの実行の注記・移行の中身の確認）と手順3は行っていない
+- 参考（確かめ済みの事実）: RGN-02 の手動実行 #257（job 114227586068）のログの末尾に「Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-python@v5.」の警告がある（RGN-02 の作業中に読んだ）。Ubuntu 26 の注記は、そのとき読んだジョブのログには無かった（注記〈annotation〉はジョブのログに出ないことがあり、チャット側が画面で読んだものと食い違うとは言えない。今回は確かめていない）
+- 未マージの work/ ブランチで `.github/workflows/` を変えているのは `work/1008-hou` だけで、`assets-check.yml` の許可するディレクトリの列（`houou` を足す）の1行。`runs-on`・actions の行とは重ならない
+
 ## 報告
 
-- 状態: 対応中
-- ブランチ: work/1010-rgn
-- ログ: https://github.com/retroeater/mj/blob/work/1010-rgn/docs/logs/CHAT-1010-RGN-03.md
+- 状態: 判断待ち
+- ブランチ: work/1010-rgn（ログ・`docs/decisions/` だけ。cloudflare へ入れる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1010-RGN-03.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1010-rgn
 - 確認用URL: なし
-- マージ: 未
-- issue: #533
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- マージ: 済（ログと `docs/decisions/automation.md` だけ。SHA は最終報告の push のコミット）
+- issue: #533（判断待ち2点が片付いたことをコメント）、#308（Node.js 20 の件の既存の issue。触っていない）
+- 判断が必要なこと:
+  - Node.js 20 の廃止の件は #308（open、期日 2026-11-30）が既にある（#217・#305 は統合済み）。Ubuntu 26 への移行を扱う issue は無い。止まる条件のとおり起票していない。どう進めるか（例: (1) Ubuntu 26 の移行だけを新しい issue にし、Node.js 20 は #308 で追う〈#257 の警告は #308 にコメント〉、(2) Ubuntu 26 の移行を #308 に足して1本にする）
+- 未確認の項目:
+  - 手順2の残り（全ワークフローの表・ほかの実行の注記・Ubuntu 26 で変わるものの確認）は、止まったため行っていない
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj a930b4a9）: https://github.com/retroeater/mj-logs/tree/main/guide/a930b4a9
+ガイド文書（この版を写した時点の最新、mj 447a0d65）: https://github.com/retroeater/mj-logs/tree/main/guide/447a0d65
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a930b4a9/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a930b4a9/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a930b4a9/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a930b4a9/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a930b4a9/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a930b4a9/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/447a0d65/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/447a0d65/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/447a0d65/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/447a0d65/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/447a0d65/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/447a0d65/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/19111d74.md
