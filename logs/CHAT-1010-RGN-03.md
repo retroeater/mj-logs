@@ -78,7 +78,7 @@ RGN-02 の判断待ちを片付ける。あわせて、regenerate-page.yml #257 
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1010-RGN-04
 - ブランチ: work/1010-rgn（ログ・`docs/decisions/` だけ。cloudflare へ入れる）
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1010-RGN-03.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1010-rgn
