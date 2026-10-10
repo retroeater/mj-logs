@@ -79,6 +79,24 @@
 - マージ後の見込み: push の `paths`（`scripts/generate_*.py`・`scripts/lib/**`・`*.js`）に `scripts/regenerate.py`・`scripts/tests/`・`.github/workflows/`・`docs/` はどれも当たらないため、この変更の push では regenerate-page.yml は起動しない（再生成の対象は0ページ。`regenerate.py --changed` の判定でも `scripts/regenerate.py` はどのページにも当たらない）。
   Workers Builds は `docs/` 外を含むので1回走る（表示は変わらない）。新しい作りが本番で最初に動くのは、次の push の再生成か、10/12（月）05:37 JST の週次
 
+### 手順2 直して試す
+
+- 直し（ab573e57）:
+  - `scripts/regenerate.py`: ページごとに生成の前の作業ツリーを tree オブジェクトに取り（一時の index に `git add -A` → `git write-tree`。本物の index・ref は変えない）、失敗したら `git diff-tree` で前後を比べ、
+    増えたファイルは消し（空になった親ディレクトリも消す）、変わった・消えたファイルは `git restore --source=<前の tree> --worktree` で戻す。
+    これで、前のページがすでに変えた共有のファイル（`sitemap*.xml`・`_redirects`・`data/` など）を失敗したページがさらに変えた場合も、前のページの出力に戻る（試験で確かめた）。
+    戻せないのは git が追跡しないファイル（`.gitignore` の `__pycache__/` など）だけで、これはコミットにも入らない。確実に戻せない形は見つからなかった
+  - 失敗の理由は生成スクリプトの出力の最後の行（`PYTHONUNBUFFERED=1` で出力の順を保つ。300字まで）。stderr と、`GITHUB_STEP_SUMMARY` があればジョブのサマリに「飛ばしたページ」の一覧を出す（`check_asset_limits.py` と同じ書き方）
+  - `check_asset_limits` とコミット対象の一覧（最後の行）は成功したページだけで出す。飛ばしたページがあれば終了コード 3（`SKIPPED_EXIT`）。全ページ失敗なら一覧を出さずに 3。上限の検査の失敗は今までどおり 1
+  - `.github/workflows/regenerate-page.yml`: 「対象ページを再生成」は `regenerate.py ... | tee ... || RC=$?` で終了コードを受け、0・3 なら `files=` を出し、3 なら `skipped=true` も出して成功で終える（それ以外は今までどおりその終了コードで失敗）。
+    最後に「飛ばしたページを報告」（`!cancelled() && steps.regen.outputs.skipped == 'true'`）で `::error::` を出して失敗にする。取得失敗を報告する2ステップの `if` に `!cancelled()` を足した
+- 試験: `scripts/tests/test_regenerate.py` に `SkipFailedPageTest`（5件）を足した。一時のリポジトリに a（成功、`sitemap.xml`・`data/a.json` を書く）・b（途中まで書き、`sitemap.xml`・`data/a.json` を上書きし、ディレクトリを作り、追跡中のファイルを消し、名前に `*[` を含むファイルを書いてから `ValueError`）・c（成功）を置き、実物の `regenerate.py` を動かす
+  - 直す前のコード（origin/cloudflare の `regenerate.py`）では、修正を確かめる4件（残りの生成・途中の出力の戻し・コミット対象・報告）が通らない（FAIL 2・ERROR 2）。
+    残る1件（全ページ成功なら終了コード0でサマリを書かない）は、今の挙動を壊していないことの確認で、直す前のコードでも通る
+  - 直した後: `python3 -m unittest discover -s scripts/tests` は 751件 OK
+- 前後の `regenerate.py all`: ab573e57 のクローンを2つ作り、片方の `regenerate.py` だけを origin/cloudflare の版にして、続けて流した（old 13:31:08〜13:33:06 UTC、new 〜13:34:46）。
+  どちらも終了コード0、20ページとも成功（飛ばしたページなし）、最後の行（コミット対象）は同じ。生成後の作業ツリーは、どちらも HEAD との差が0件（`git status` が空）で、`diff -r`（`.git` を除く）の差は `scripts/regenerate.py` だけ
+
 ## 報告
 
 - 状態: 対応中
