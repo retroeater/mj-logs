@@ -51,6 +51,50 @@ CHAT-1010-SKS-02 で止まった origin/cloudflare の取り込みの衝突を�
 
 ## 経過
 
+### 0. 着手前の確認
+
+- `CHAT-1010-SKS-03` のコミット: 0件
+- `work/1010-sks` はローカル・リモートとも b048967c、作業ツリーに変更なし
+- 指示欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は4つとも有る
+- CHAT-1010-SKS-02 の状態は「判断待ち」→ 末尾に ` / 続き: CHAT-1010-SKS-03` を足した
+
+### 1. 取り込みと衝突の解消
+
+`git merge --no-edit origin/cloudflare` で衝突したのは前提の3ファイルだけ（SKS-02 と同じ）。前提の解き方で解いた後:
+
+- `scripts/tests/test_title_years.py`:
+
+  ```
+          for other in ["live/index.html", "saikyo/2025.html"]:  # 帰り道と saikyo/ のトップからは外した(#530)
+  ```
+
+- `docs/handover.md`「共有ボタン」:
+
+  ```
+  - 共有ボタン: 新サイトの選手個別ページは #82（新サイト送り）。現行サイトは live/・saikyo/（対局ごとの共有だけ）に共通の部品（#409。`scripts/lib/share.py`・`assets/share.js`・`style.css`）。title/・wayhome/（帰り道）と saikyo/ のページ全体の共有は外した。見直しは #530。books/ は凍結中で旧実装
+  ```
+
+- `docs/decisions/saikyo.md`: 両方の節を日付・Chat-Ref の順に残した。節の並び:
+
+  ```
+  ## 2026-10-07（CHAT-1007-PHT-13）
+  ## 2026-10-09〜10（CHAT-1010-XAP-02）
+  ## 2026-10-10（CHAT-1010-SKS-01）
+  ## 2026-10-10（CHAT-1010-SKS-02）
+  ## 2026-10-10（CHAT-1010-XAP-03）
+  ## 2026-10-10（CHAT-1010-XAP-04）
+  ```
+
+  両側の行がすべて残っていることを行単位で確かめた（HEAD 側の2行が見当たらないのは、cloudflare 側が同じ行の末尾に「→ 置き換え: …」を足した自動マージの結果）
+
+マージコミットの後、`python3 scripts/regenerate.py saikyo_pages` で生成し直した → 差分なし（取り込んだ帰り道の変更などで saikyo/ は変わらない）。`python3 -m unittest discover -s scripts/tests` は OK。
+
+### 2. マージ前の差分（origin/cloudflare との比較）
+
+27ファイル。コード: `scripts/generate_saikyo_pages.py`・`style.css`・`assets/saikyo.js`・`scripts/tests/test_title_years.py`（SKS-01・SKS-02・衝突の解消）。文書: `docs/notes/saikyo-page-design.md`・`docs/handover.md`・`docs/decisions/saikyo.md`・ログ3本。生成物: `saikyo/` の17ファイルだけ（saikyo/ 以外の生成物・ページの差分なし）。
+
+`saikyo/` は、origin/cloudflare の各ファイルに「`<body>` のクラス」「プルダウンの先頭の項目の文言」「ページの共有ボタンの削除」「トップの `share.js`・トーストの削除」の4つの置き換えをかけたものと、`cmp` で17ファイルとも一致した。シートの変化・写真の揺らぎは無い。
+
 ## 報告
 
 - 状態: 対応中
@@ -67,12 +111,12 @@ CHAT-1010-SKS-02 で止まった origin/cloudflare の取り込みの衝突を�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 647a8db8）: https://github.com/retroeater/mj-logs/tree/main/guide/647a8db8
+ガイド文書（この版を写した時点の最新、mj 6fab9f5a）: https://github.com/retroeater/mj-logs/tree/main/guide/6fab9f5a
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/647a8db8/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/647a8db8/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/647a8db8/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/647a8db8/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/647a8db8/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/647a8db8/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6fab9f5a/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6fab9f5a/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6fab9f5a/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6fab9f5a/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6fab9f5a/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6fab9f5a/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/647a8db8.md
