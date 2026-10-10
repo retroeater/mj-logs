@@ -85,6 +85,12 @@ https://ryoei.pro/resource_dictionary.html
   - 容量: 6,005 バイト（上限の対象外）
 - 作り直しの手順: 辞書のページの資料（`docs/notes/` の辞書の文書）が無く、`static-generation.md` の辞書の行は「ページの一覧」の表の中（未マージの work/1008-hou が同じ節を変えている）なので、**`scripts/promo_video/dictionary/README.md`** に「告知動画」として書いた（houou-race.md「告知動画」と同じ項目: 確定版・作り直しのコマンド・借りる部品・撮り方・語数）。`scripts/` は `.assetsignore` で公開されない
 
+### 手順3（マージ）
+
+- `git push origin work/1008-dic:cloudflare` で 396a7262 を入れた（push 直前に再 fetch し、`git merge-base --is-ancestor origin/cloudflare HEAD` は真。差分は `docs/` と `scripts/promo_video/dictionary/` だけ）
+- check-runs（396a7262）: Workers Builds: mj・sync・check（2件）とも success。ページは変えていないので本番の見え方は確かめていない
+- `regenerate-page.yml` は動いていない（変更に生成スクリプト・ページの JS が無いため）
+
 ## 報告
 
 - 状態: 完了
@@ -92,7 +98,7 @@ https://ryoei.pro/resource_dictionary.html
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1008-DIC-25.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1008-dic
 - 確認用URL: なし
-- マージ: 済（cloudflare へ push した SHA は最終報告の「ログ（公開）」の行）
+- マージ: 済（396a7262。マージの結果を書いたログの追いの push は最終報告の「ログ（公開）」の行の SHA）
 - issue: #515・#522（コメントはしていない）
 - 判断が必要なこと: なし（投稿文の「Mリーグの全チーム・全選手を追加」は辞書の中身と合っていた）
 - 未確認の項目: なし
