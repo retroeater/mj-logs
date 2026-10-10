@@ -84,15 +84,24 @@ CHAT-1009-REV-01（判断待ち）の整理を、チャット側の読み比べ�
 - `python3 scripts/check_asset_limits.py` OK、`python3 -m unittest discover -s scripts/tests` OK
 - サイズ（バイト）: CLAUDE.md 26,084・handover.md 22,619・chat-side-operations.md 24,828・instruction-template.md 12,667（REV-01 の前: 25,941・24,379・25,365・15,720。4文書計 91,405 → 86,198）。どれも警告域の外
 
+### マージ
+
+- push 直前に再 fetch し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめて `git push origin work/1009-rev:cloudflare`（0498c327..77f81735）
+- 77f81735 の check-run: 「Workers Builds: mj」success、「check」success ×2
+- #492 にコメント（閉じない）: https://github.com/retroeater/mj/issues/492#issuecomment-6092994542
+- CHAT-1009-REV-01 のログの状態の末尾に ` / 続き: CHAT-1009-REV-02` を足した（マージに含めた）
+- 決定（この指示の「決定」節の2項目）を `docs/decisions/operations.md` に足した
+- 作業ブランチの片付け: クラウドセッションではブランチを削除できない（git プロキシが 403。docs/notes/cloud-sessions.md「ブランチの削除」）。マージ済みの work/1009-rev は `delete-merged-branches.yml` が削除する。先頭は、このログの追いの push の後のコミット（最終報告の SHA）
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1009-rev
-- ログ: https://github.com/retroeater/mj/blob/work/1009-rev/docs/logs/CHAT-1009-REV-02.md
+- 状態: 完了
+- ブランチ: work/1009-rev（マージ済み。削除は delete-merged-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1009-REV-02.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1009-rev
 - 確認用URL: なし
-- マージ: 未
-- issue: #492・#298
+- マージ: 済（77f81735）
+- issue: #492（コメント）・#298
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
