@@ -79,6 +79,20 @@ HOU-01〜11 で作った `houou/`（トップ・個人成績・ランキング9�
 
 ## 経過
 
+- 2026-10-11 着手。**この会話は HOU-01〜11 から続いている（新しく始めたセッションではない）**
+- 0. 指示欄の末尾は指示文の最後の行と一致。HOU-11 のログの報告は 状態「判断待ち」。HOU-11 の状態の末尾に `/ 続き: CHAT-1011-HOU-12` を足した（このログと同じコミット）。`CHAT-1011-HOU-12` のコミットは無し。`origin/work/1008-hou` はリモートにありローカルと一致（9690d73a）。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている。CLAUDE.md「ブランチ運用」と docs/notes/branch-operations.md（「マージするとき」「ブランチを削除するとき」「生成物を含む…」）、docs/notes/cloud-sessions.md「ブランチの削除」を読んだ
+
+### 手順1 取り込み・差分の範囲・再生成とテスト・未公開の形・アセット数
+
+- 取り込み: `git merge origin/cloudflare`（d237af1c）。衝突なし。取り込んだのは docs/logs・`scripts/promo_video/dictionary/`（DIC の動画）・ワークフローの Python 3.12 固定（#538）など
+- 差分の範囲（`origin/cloudflare...HEAD`）: `houou/` 747ファイル（HTML 13・`search.json`・`results/*.json`・`race/*.json`）、`assets/houou.js`・`assets/houou_race.js`、`assets/share.js`（押したときに data 属性を読む）、`style.css`、`scripts/generate_houou_pages.py`・`generate_houou_leagues.py`・`generate_houou_race.py`・`lib/ranking.py`・`lib/results.py`・`regenerate.py`・`tests/test_houou_pages.py`、`_redirects`（`/houou` の 301、`/houou/` と `/houou/:slug/`・`/houou/ranking/:slug/` の 200）、`.github/workflows/assets-check.yml`（`allowed()` に `houou` の1語）、`docs/`（decisions/houou.md・publishing.md、new-page-checklist.md、notes/houou-race.md・houou-top.md・static-generation.md、logs）。見込みの外のファイルは無い。指示の見込みに無い `assets/houou_race.js` は順位変動の写し（HOU-05、`houou/race/` が読む）で説明できる
+- ワークフローの変更（`assets-check.yml`）は、`work/**` への push でも走る（`on.push.branches`）。作業ブランチの push で check-run「check」が success（直近は f5bcfa4a・9788afb3）なので、変えた後の版は作業ブランチで実行済み
+- マージで動く自動処理（`.github/workflows/` の起動条件）: Workers Builds 1回。`assets-check.yml`（cloudflare への push）。`regenerate-page.yml`（`scripts/generate_*.py`・`scripts/lib/**`・`*.js` の変更で動く。`scripts/lib/` が変わるので `regenerate.py --changed` が全ページを対象にし、その時点のシートで再生成。`books_pages` などシートの確かめで止まるものは飛ばす作り）。`sitemap-lastmod.yml`（`**.html` の変更で動く。既存のエントリの lastmod を直すだけで、`houou/` を sitemap に足さない）
+- 全ページの再生成（`jpml_pros`・`resource_dictionary`・`books_pages` は外した）: 差分なし
+- テスト: `python3 -m unittest discover -s scripts/tests` 772件 OK
+- 未公開の形（作業ブランチ）: `houou/` の HTML 13 ファイルすべてに `<meta name="robots" content="noindex">`／`navbar.js`・`sitemap.xml`・`sitemap-pages.xml`・`llms.txt` に `houou/` 無し（`sitemap-title.xml` の `title/houou/` は別のページ）／既存のページ（`houou/`・`docs/`・`scripts/`・新ページの JS を除く追跡ファイルの href・src・value・data 属性と `ryoei.pro/houou`）を相対パスまで解決して、ルートの `houou/` を指すものは 0件（`live/houou/`・`title/houou/` は別）／`compare.html` は 0
+- 配信対象のファイル数: 追跡 3,471 − `.assetsignore` に当たる 1,014 = 2,457（Workers の上限 20,000 の約 12%）。うち `houou/` 747
+
 ## 報告
 
 - 状態: 作業中
