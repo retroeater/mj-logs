@@ -153,28 +153,42 @@ CHAT-1010-XAP-03 の判断待ち（シートへの自動書き込みの方式）
 
 - 未マージの work/1008-hou（`houou/`）も houou_race の `load_name_book()` を通して写真を読むので、本2でその関数を変えると取り込みで衝突しうる。本2の着手時にその時点の未マージのブランチを確かめる
 
+### 手順3: 記録
+
+- 決定の記録先: docs/decisions/saikyo.md（2026-10-07〈PHT-13〉→ 10-09〜10〈XAP-02〉→ 10-10〈XAP-04〉の流れが同じファイルにあるため。選手データの分野のファイルは無く、今回は作っていない）。2026-10-07・10-09・10-10 の決定との関係を1行で書いた。矛盾する記述は無かった
+- #514 へのコメント: https://github.com/retroeater/mj/issues/514#issuecomment-6094153187
+- CHAT-1010-XAP-03 のログの状態は「判断待ち / 続き: CHAT-1010-XAP-04」に直した（着手時のコミット c42d1d8e）
+- 変えたファイルは docs/logs/ と docs/decisions/ だけ。シート・Secret・コードは変えていない
+- マージ: `origin/cloudflare`（REV-04 の docs）を merge で取り込み、祖先を確かめて `git push origin work/1010-xap:cloudflare`（f30b5820..24e6e126）。docs のみのため Workers Builds は走らない
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1010-xap
-- ログ: https://github.com/retroeater/mj/blob/work/1010-xap/docs/logs/CHAT-1010-XAP-04.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1010-XAP-04.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1010-xap
-- 確認用URL: なし
-- マージ: 未
+- 確認用URL: なし（docs のみ）
+- マージ: 済（24e6e126、ドキュメントのみ）
 - issue: #514
-- 判断が必要なこと: なし
+- 判断が必要なこと:
+  - SNS ブックに移す列: (1) X画像URL だけ／(2) X ID と X画像URL（勧める）／(3) X・note・YouTube のすべて
+  - キー: 名前（勧める。今と同じ）か、固定 ID を新しく作るか
+  - 旧列（「プロ」I・J、「連盟プロ以外」E・F）: 切り替えた後に空にする（勧める。列は残す）か、残すか
+  - タブ: 「SNS」1つ（勧める）か、「プロ」用と「連盟プロ以外」用の2つか
+  - SNS ブックの ID をコードに書いてよいか（勧める。今の2つのブックと同じ扱い）
+  - 決まったら、平野さんがブックを作り `live-channel-writer` を編集者で共有、「リンクを知っている全員が閲覧可」にして ID を伝える
 - 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj f30b5820）: https://github.com/retroeater/mj-logs/tree/main/guide/f30b5820
+ガイド文書（この版を写した時点の最新、mj 2df4424f）: https://github.com/retroeater/mj-logs/tree/main/guide/2df4424f
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f30b5820/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f30b5820/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f30b5820/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f30b5820/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f30b5820/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f30b5820/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/2df4424f/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/2df4424f/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/2df4424f/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/2df4424f/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/2df4424f/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/2df4424f/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b813da90.md
