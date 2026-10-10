@@ -125,17 +125,32 @@ SWP-11 と同じ方法・環境・列（「名前」）。`jpml_pros.html` を `
 - **判定: 基準内（gzip +1.9% ≦ +10%。並べ替えの中央値は total が -6.6%・-0.8%、handler が +0.6%・-2.2%で、+20% を超えない）。G4-05 を外さず、G3-02 と G4-05 をマージの対象にする。**
   SWP-11 の `<span>` 方式（total +35〜39%）と比べ、並べ替えの時間は cf と同じ水準に戻った。
 
+### 手順3 マージと記録
+
+- push の直前に再 fetch し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真であることを確かめて `git push origin work/1009-swp-526:cloudflare`（`5f72cc79..a4e01b69`）。権限判定の拒否は無かった。マージ対象の差分は `assets/title.js`・`jpml_pros.html`・`scripts/generate_jpml_pros.py`・`scripts/tests/test_jpml_pros.py` と docs/logs/・docs/decisions/ だけで、見込みの範囲内。
+- 本番反映: check-run「Workers Builds: mj」は `completed / success`（push から約1分）。同じコミットの Actions（check・sync・regenerate）も success。
+- **本番の HTML に反映を確認した。ブラウザでの見え方は未確認。**
+
+| 確かめた URL | 結果 |
+|---|---|
+| `https://ryoei.pro/jpml_pros.html` | HTTP 200、1,220,674 バイト（作業ブランチの版と同じ）。`aria-describedby="mj-newtab-hint"` が3,259、`id="mj-newtab-hint"` が1つ |
+| `https://ryoei.pro/assets/title.js` | HTTP 200。作業ブランチの版と一致（`cmp`）。キャッシュ回避のクエリを付けた取得で確認（付けない最初の取得は反映前の版だった） |
+
+- マージ後に cloudflare に入った自動処理のコミット: `37de7b17 chore: regenerate jpml_pros.html via GitHub Actions`（件名はそうだが中身は `sitemap-pages.xml` の lastmod 1行のみ）。種類: lastmod = 1件、シートの変化 = 無し（`jpml_pros.html` は変わっていない）、それ以外 = 無し。
+- 決定を `docs/decisions/site-review.md`（2026-10-10〈CHAT-1010-SWP-12〉）に足した（マージの前に）。#526 に結果をコメントした（`Chat-Ref: CHAT-1010-SWP-12` 付き）。#526 は G3-07・G4-09 が残るため閉じていない。
+- ブランチの片付け: マージ済みの `work/*` は `delete-merged-branches.yml` が毎日削除する（セッションの git プロキシは削除を拒否する）。削除はせず自動に任せる。本番の確かめの成否に条件づけていない。
+
 ## 報告
 
-- 状態: 中断（作業中）
-- ブランチ: work/1009-swp-526
+- 状態: 完了（G4-05 を**入れた**: `aria-describedby` 方式で基準内だったため、G3-02 と G4-05 の両方をマージした）
+- ブランチ: work/1009-swp-526（マージ済み。削除は自動に任せる）
 - ログ: https://github.com/retroeater/mj/blob/work/1009-swp-526/docs/logs/CHAT-1010-SWP-12.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1009-swp-526
-- 確認用URL: 作業中
-- マージ: 未
-- issue: #526
-- 判断が必要なこと: 作業中
-- 未確認の項目: 作業中
+- 確認用URL: なし（本番の HTML の取得のみ。確かめた URL はログの「手順3」の表）
+- マージ: 済（`a4e01b69`。Workers Builds・Actions は `completed / success`）。この後のログの追いの push は docs のみ
+- issue: #526（結果をコメント。G3-07・G4-09 が残るため閉じない）。起票なし
+- 判断が必要なこと: なし
+- 未確認の項目: 読み上げソフトでの実際の読まれ方（指示で未確認に書く指定。`aria-describedby` の参照先とアクセシブルな説明は Chromium のアクセシビリティツリーで確認済み）。ブラウザでの本番の見え方
 - エラー: なし
 
 <!-- guide-links -->
