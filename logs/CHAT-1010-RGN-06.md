@@ -143,28 +143,36 @@
 - `setup-python` を使わない3本は RGN-05 で 3.12 に固定する予定（未マージ）。mj-logs の `sync-from-mj.yml` も含め、3.14 へ上げる時に一緒に扱うか
 - `actions/setup-python@v5` を v7 へ上げる件（#308）と、`python-version` の変更が同じ行の近くを触る
 
+### 手順3: 起票
+
+- #539「Actions: ワークフローの Python を 3.12 から 3.14 に上げる（2026-10-19 以降）」を作った（題は案のまま）。ラベル `分野: 自動化`・`対象: 全ページ`（#538 と同じ。ワークフロー全体に及ぶため）。「状況:」ラベル・期日なし
+  - 本文: 背景（RGN-05 は cloudflare に入る前と明記）・今の作り（手順2の表、cloudflare 5697aa0c の行へのリンク）・試した結果・論点（未決）(a)〜(f) と手順2で見つかった (g) 版を固定していない `google-auth`・`requests`、(h) 3.12 に固定予定の3本と mj-logs の1本の扱い・関係（#538・#308）・末尾に Chat-Ref
+- #538 に1行のコメント（#539 を作ったこと）。#538 の本文・状態は変えていない
+- `docs/decisions/automation.md` に「2026-10-10（CHAT-1010-RGN-06）」を足した
+- 変えたファイルはログと `docs/decisions/automation.md` だけ。`work/1010-rgn` には触っていない
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1010-rgn-py
-- ログ: https://github.com/retroeater/mj/blob/work/1010-rgn-py/docs/logs/CHAT-1010-RGN-06.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1010-RGN-06.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1010-rgn-py
 - 確認用URL: なし
-- マージ: 未
-- issue: なし
-- 判断が必要なこと: なし
+- マージ: 済（work/1010-rgn-py を cloudflare へ fast-forward。先頭はこのログを仕上げたコミット）
+- issue: #539（起票。論点 (a)〜(h) を移した）・#538（コメント）
+- 判断が必要なこと: なし（#539 に移した）
 - 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 5697aa0c）: https://github.com/retroeater/mj-logs/tree/main/guide/5697aa0c
+ガイド文書（この版を写した時点の最新、mj 706da098）: https://github.com/retroeater/mj-logs/tree/main/guide/706da098
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/5697aa0c/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/5697aa0c/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/5697aa0c/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/5697aa0c/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/5697aa0c/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/5697aa0c/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/706da098/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/706da098/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/706da098/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/706da098/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/706da098/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/706da098/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/19111d74.md
