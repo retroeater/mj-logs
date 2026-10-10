@@ -52,6 +52,32 @@ RGN-03 は、Node.js 20 の件が既存の #308 と重なって起票せずに�
 
 ## 経過
 
+- 0章: 指示欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- 識別子: `git log --all --grep="CHAT-1010-RGN-04"` は0件
+- ブランチ: ローカルの `work/1010-rgn`（e54524c3）は `origin/work/1010-rgn` と同じで origin/cloudflare の祖先。`git merge --ff-only origin/cloudflare` で 447a0d65 へ進めた
+- RGN-03 の状態は「判断待ち」だった。末尾に ` / 続き: CHAT-1010-RGN-04` を足した
+
+### 手順1 記録する
+
+- 決定を `docs/decisions/automation.md` に足した
+- #308 に #257 の Node.js 20 の警告をコメントした（issuecomment-6098463869。本文・期日・状態は変えていない）
+
+### 手順2 調べる
+
+- 注記: check-run の annotations の API（`/check-runs/<id>/annotations`）で読めた。#257（job 114227586068）と #256（job 114225472165）の両方に notice「"The ubuntu-latest label will migrate to Ubuntu 26 beginning October 19, 2026. For more information, see https://github.com/actions/runner-images/issues/14748"」がある（ジョブのログには出ない）
+- ほかのワークフロー（各ワークフローの直近の完了した実行、skipped を除くジョブ）: 同じ notice は assets-check・check-image-links・check-meibo・check-saikyo-unregistered・cleanup-logs・delete-merged-branches・fetch-gsc・regenerate-page・regenerate-saikyo・sitemap-lastmod・sync-birthday-calendar・sync-books-calendar（2026-09-22 の実行）・sync-dojo-calendar・sync-logs（2026-10-07）・update-live-channel・update-sns-book・write-live-channel-candidate にある。
+  無いのは check-leagues-dropped（直近の実行が 2026-09-12）と pages-build-deployment（GitHub Pages、2026-09-06）だけ
+- `.github/workflows/`（18本）: ジョブはすべて `runs-on: ubuntu-latest`（`regenerate-saikyo.yml` と `update-live-channel.yml` のジョブ regenerate は `regenerate-page.yml` を `workflow_call`）。
+  `actions/setup-python@v5` で `python-version: '3.12'` を指定するのは13本。`setup-python` を使わずランナーの `python3` で `scripts/` を動かすのは `assets-check.yml`（131行）・`delete-merged-branches.yml`（71行）・`sync-logs.yml`（76〜103行、2026-10-07 から停止中）。
+  `pip install` は `google-auth requests`（7本）と `anthropic==1.7.0 google-auth requests`（sync-dojo-calendar）。apt・Chrome・フォント・Pillow を使うワークフローは無い（check-image-links の saikyo ジョブは HEAD のリクエストで、Chrome は使わない。Pillow とフォントを使う `build_ogp_image.py`・`build_wayhome_ogp.py` は手動実行だけ）
+- mj-logs の `.github/workflows/sync-from-mj.yml`（public。raw.githubusercontent.com で読めた）: `runs-on: ubuntu-latest`、`actions/checkout@v4`、`setup-python` を使わずランナーの `python3` で mj の `scripts/sync_all_logs.py`・`actions_status.py` を動かす
+- 公式の情報: runner-images の issue のページ（github.com・api.github.com）はプロキシが拒否して読めなかった。raw.githubusercontent.com の `actions/runner-images` の `README.md`・`images/ubuntu/Ubuntu2604-Readme.md`・`Ubuntu2404-Readme.md`（main の版）は読めた。
+  - Readme の Announcements の題: 「[Ubuntu] `ubuntu-latest` label will use Ubuntu 26.04 in November 2026」（#14748、注記のリンク先と同じ番号）と「Ubuntu 26.04 and Ubuntu 26.04 Arm64 are now generally available」（#14747）。注記の「beginning October 19」と題の「in November」はどちらも公式の文で、README の「Latest Migration Process」に「-latest の移行は1〜2か月かけて少しずつ行う」とあるので、10/19 に始まり11月中に移り終える意味と読める（issue の本文は読めていない）
+  - README の表: `ubuntu-latest` は今 Ubuntu 24.04。Ubuntu 26.04 は `ubuntu-26.04` で使える
+  - 26.04（Image 20260927.149.1）と 24.04（20261004.327.1）の比較: 既定の Python 3.14.4 ← 3.12.3、Node.js 24.21.0 ← 22.23.3、Git 2.55.0 は同じ、Google Chrome・Chromium はどちらにもある。setup-python のキャッシュの Python は両方に 3.10〜3.14（26.04 は 3.12.14）。
+    24.04 にだけあるもの: Fastlane・Haveged・Julia・Lerna・MediaInfo・Mercurial・Miniconda・Newman・Parcel・Pulumi・Sphinx・Swift（mj のワークフローはどれも使わない）
+- 手元の Python は 3.13.16（3.14 は無い）。3.14 での `scripts/` の試験はしていない
+
 ## 報告
 
 - 状態: 対応中
