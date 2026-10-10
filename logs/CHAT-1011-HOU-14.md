@@ -116,6 +116,15 @@ HOU-13 のプレビューで平野さんが選んだ形に `houou/` を仕上げ
 - 手元の確かめ（390×844・1280×900）: `?name=今里之彦` で開くと URL が `?name=今里邦彦` になり、「旧名」の文字は無く、カードの中のリンクは 0。カードを押すとシェブロンが回り（transform が none → 180°）、節の行が開く。JS のエラー 0
 - テスト: 786件 OK（取り込みで cloudflare 側のテストが増えた）
 
+### 手順2 文書・再生成・確かめ
+
+- 文書: `docs/notes/houou-top.md`（期のカードの旧名と順位変動のリンクを消し、開閉の印 O1、ランキングの規定打席の1行、成績 JSON の形〈旧名なし〉、名寄せの記述〈旧名は出さない〉、9段・12段の確かめ、比較ページの節を「すべて消した」にして済んだ比較に O1、仮置きの一覧から「旧名の出し方」「開閉の印の3案」「連続回数の基準を表の上の1行に出すこと」を外した）、`docs/notes/static-generation.md`「ページの一覧」（比較ページの記述を消し「13＋在籍者数（691）」）、`docs/handover.md`（「最終更新」に1行。3行に収めるため #504 の段階2の行を外した）、`docs/decisions/houou.md`（「## 2026-10-11（CHAT-1011-HOU-14）」を足し、HOU-13 のランキングの「（10期以上のみ）に変え、表記をそろえる」の行に「→ 置き換え: 2026-10-11（CHAT-1011-HOU-14）」）
+- #540 に、個人成績から順位変動へのリンクが無くなったこと（入口はトップと公開後の navbar）をコメントした
+- 全ページの再生成（`jpml_pros`・`resource_dictionary`・`books_pages` は外した）: 差分なし
+- テスト: 786件 OK
+- 未公開の形（作業ブランチ）: `houou/` の HTML 13 すべてに noindex／`navbar.js`・`sitemap.xml`・`sitemap-pages.xml`・`llms.txt` に `houou/` 無し／既存のページからルートの `houou/` へのリンク 0（相対パスまで解決）／`compare.html` 0
+- 差分の範囲（`origin/cloudflare...HEAD`）: `houou/` の生成物・`assets/houou.js`・`style.css`（`houou/` の節だけ）・`scripts/generate_houou_pages.py`・`docs/`。`scripts/lib/results.py`・`scripts/tests/test_houou_pages.py` は cloudflare と同じに戻った。見込みの外のファイルは無い
+
 ## 報告
 
 - 状態: 作業中
