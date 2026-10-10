@@ -55,19 +55,45 @@
 - 指示欄の末尾は指示文の最後の行と一致。雛形の4行は揃っている
 - WHS-09 の `## 報告` の状態は「判断待ち」→ 末尾に ` / 続き: CHAT-1010-WHS-10` を足した
 - 作業ブランチ: ローカル・リモートとも `work/1010-whs` は 733e5409。`origin/cloudflare` は祖先でない → 取り込む
+- `git merge --no-edit origin/cloudflare`（衝突なし）。#533 の作り（`scripts/regenerate.py` の `SKIPPED_EXIT`・`report_skipped()`、1ページの失敗を飛ばして残りを続ける）は前提どおり
+- 比較ページの行は `.assetsignore`・sitemap・`navbar.js`・`llms.txt` に無かった
+
+### 手順1: 本実装
+
+- `style.css` の `.mj-video-player-photo` に B を入れた: `box-sizing: border-box`・`border: max(2px, 0.07em) solid rgba(255, 255, 255, 0.85)`・`background: rgba(255, 255, 255, 0.1)`（比較ページの B と同じ値）
+- 比較ページ `video_wayhome_photo_compare.html` と `scripts/build_wayhome_photo_compare.py` を `git rm`（A・C の CSS は比較ページの中にしか無かったので一緒に消えた）
+- テスト OK
+- 帰り道の2ページの生成（`regenerate.py video_wayhome wayhome_episodes`）:
+  - 1回目: `video_wayhome` は成功、**`wayhome_episodes` が写真の確かめで止まり、#533 の作りで飛ばされた**
+  - 2回目（`generate_wayhome_episodes.py` 単独）: 成功。生成物は WHS-09 と同じ（HTML の差なし。B は CSS だけ）
+  - 写真の確かめだけを3回流すと、2回が止まり1回が通った。止まったのは毎回 **武田雛歩**（`UtxpVoWy2GY`、第11期桜蕾戦）の `https://pbs.twimg.com/profile_images/1900471980274393088/K5UEBvMm_400x400.jpg`（3回とも 404）。ほかの選手は 200
+  - この写真は大きさを問わず 404 と 200 が入れ替わる（5回ずつ: `_normal` 200/404/200/404/404、`_bigger` 404×5、`_400x400` 200/404/404/200/404、`_200x200` 200/200/200/404/200）。WHS-07 では `_200x200` が続けて 404 だった。
+    プロフィール写真が差し替えられて古い URL が消えかけている（「プロ」シートの X画像が古い）と見る。プレビューの Playwright でもこの回の写真は読めなかった（`naturalWidth` 0）
+  - **止まる条件「今の39話の写真に `_400x400` で読めないものがある」に当たるため、マージしない**
+- プレビュー（ca10c418、Workers Builds success）で B を見た: 390px で写真 28px（フチ 2px）、1280px で 48px（フチ 3px）。スクリーンショットで比較ページの B と同じ見え方（白い細いフチ、名前の右 8px）を確かめた。武田雛歩の回は写真が読めず空の丸
+
+### 手順2・3（途中まで）
+
+- WHS-01 のログ: 状態を「完了」、判断が必要なこと・未確認の項目・エラーを「なし」にし、`## 経過` に片付けの1行を足した（ca10c418、作業ブランチだけ。マージは未）。完了の条件（3項目が「なし」、子の行なし）を満たす
+- `docs/notes/video-wayhome.md` に B を書いた（`docs/notes/design.md` に帰り道のこの部品の行は無い）。決定を `docs/decisions/wayhome.md` に足した
+- #533 に、帰り道が写真の確かめで止まってもほかのページは止まらないことをコメントした（手元で `wayhome_episodes` が飛ばされたことも書いた）
+- マージ・本番の確認・#195 へのコメントはしていない（止まる条件のため）
 
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1010-whs
+- 状態: 判断待ち
+- ブランチ: work/1010-whs（未マージ。B の本実装・比較ページの削除・WHS-01 のログの片付けまでコミット済み）
 - ログ: https://github.com/retroeater/mj/blob/work/1010-whs/docs/logs/CHAT-1010-WHS-10.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1010-whs
-- 確認用URL: なし
-- マージ: 未
-- issue: #195、#533
-- 判断が必要なこと: なし
+- 確認用URL: プレビューあり（URL は最終報告）。B のフチは `OoK3O2BCm8M` などで見られる
+- マージ: 未（止まる条件に当たった）
+- issue: #533（コメント）、#195（未コメント）
+- 判断が必要なこと:
+  - 武田雛歩（`UtxpVoWy2GY`）の「プロ」シートの X画像 `https://pbs.twimg.com/profile_images/1900471980274393088/K5UEBvMm_400x400.jpg` が、大きさを問わず 404 と 200 を行き来する（写真の差し替えで古い URL が消えかけていると見る）。シートの X画像を今の写真の URL に直してほしい。直った後に、生成し直して確かめ、マージする指示を
+  - このまま本番に入れると、週次の再生成で `wayhome_episodes` が写真の確かめで止まり（#533 の作りでほかのページは続く）、帰り道の各話が更新されない日が出る
 - 未確認の項目: なし
-- エラー: なし
+- エラー:
+  - 写真の確かめで `wayhome_episodes` の生成が止まる（武田雛歩の X画像、上の判断が必要なこと）
 
 <!-- guide-links -->
 ---

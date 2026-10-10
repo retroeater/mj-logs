@@ -93,28 +93,47 @@ HOU-01〜11 で作った `houou/`（トップ・個人成績・ランキング9�
 - 未公開の形（作業ブランチ）: `houou/` の HTML 13 ファイルすべてに `<meta name="robots" content="noindex">`／`navbar.js`・`sitemap.xml`・`sitemap-pages.xml`・`llms.txt` に `houou/` 無し（`sitemap-title.xml` の `title/houou/` は別のページ）／既存のページ（`houou/`・`docs/`・`scripts/`・新ページの JS を除く追跡ファイルの href・src・value・data 属性と `ryoei.pro/houou`）を相対パスまで解決して、ルートの `houou/` を指すものは 0件（`live/houou/`・`title/houou/` は別）／`compare.html` は 0
 - 配信対象のファイル数: 追跡 3,471 − `.assetsignore` に当たる 1,014 = 2,457（Workers の上限 20,000 の約 12%）。うち `houou/` 747
 
+### 手順2 公開の issue・文書
+
+- 同じ主題の issue の検索（「鳳凰戦 新ページ houou/ 公開」「houou 公開 旧4ページ 転送 301」、クローズ済みを含む）: #518・#519・#520・#508（houou_race の公開、クローズ済み）などで、`houou/` の公開の issue は無かった
+- 起票: #540「鳳凰戦の新ページ houou/ を公開する（旧4ページの転送を含む）」。ラベルは #518 と同じ `分野: UI/UX`・`対象: houou_results`・`対象: houou_leagues`・`対象: houou_ranking`（`対象: houou_race` のラベルは無い）。本文は docs/new-page-checklist.md「段2」を写し、公開の条件（iPhone での文字の拡大と演出の見え方、先に特別昇級の演出）・navbar の仮置き・旧4ページの 301 とクエリの引き継ぎ・sitemap と冒頭コメントの件数・`llms.txt`・`NOINDEX_TAG`・公開後の確かめと Search Console・閉じる issue（#518・#520・#141・#371・#228）とコメント（#111・#7）・共用の2本の「プロ」タブの読み方を書いた
+- #518 に #540 をコメントした
+- 文書: `docs/notes/houou-top.md`（公開の issue #540）、`docs/notes/static-generation.md`「ページの一覧」の2か所（「公開は別 issue（未起票）」→「公開は #540」）、`docs/handover.md`（「最終更新」を 2026-10-11 にして `houou/` の1行を足し、3行に収めるため #298 の写しの行〈2026-10-07〉を消した。「次にやること」の表に #540 の行。23,294 バイト → 行を消した後も警告域 26KB の下）、`docs/decisions/houou.md`（2026-10-11 の節）。handover の変更で走った check（`assets-check.yml`）は success
+
+### 手順3 マージ・本番の確かめ・片付け
+
+- マージ: 再 fetch して `git merge-base --is-ancestor origin/cloudflare HEAD` が真（origin/cloudflare c75f5889）を確かめ、`git push origin work/1008-hou:cloudflare`（c75f5889..efa62293）
+- check-runs（efa62293）: 「Workers Builds: mj」success（15:23:47Z）、check success、sync success、regenerate success、「Workers Builds: mj-scheduler」success
+- 自動再生成（`regenerate-page.yml`、`scripts/lib/` の変更で全ページが対象）: 0c211541「chore: regenerate … via GitHub Actions」。変わったのは `sitemap-pages.xml` の `video_en.html` の lastmod 1行（2026-10-10 → 2026-09-13、`update_sitemap_lastmod.py --from-git` がファイルの最終コミット日にそろえた）だけで、ページの生成物の差分は無かった
+- 本番（`curl`、`?v=` に未使用の値）: `/houou/`・`/houou/players/`・`/houou/ranking/`・`/houou/ranking/term-high/`・`/houou/leagues/`・`/houou/race/` はすべて 200 で `<meta name="robots" content="noindex">` あり。`x-robots-tag` の応答ヘッダは無い（noindex は meta だけ）。`/houou` は `/houou/` へ 301（クエリを引き継ぐ）。`/houou/leagues/compare.html` は 404。本番の `navbar.js`・`sitemap.xml`・`sitemap-pages.xml`・`llms.txt` に `houou/` 無し。ブラウザでの見え方は確かめていない（平野さん）
+- 片付け: このクラウドセッションはブランチを削除できない（docs/notes/cloud-sessions.md「ブランチの削除」）。マージ済みの `work/*` は `delete-merged-branches.yml` が毎日（22:53 UTC）、先頭が24時間より前のものを削除する。このログの push の後、同じ先頭を `cloudflare` へも push して（docs/logs と docs/decisions だけの追いの push）マージ済みの状態にする。削除の対象の判定と記録はそのワークフローの出力に残る。追いの push の前の先頭は 0c211541（`origin/cloudflare` を fast-forward で取り込んだもの）
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1008-hou
-- ログ: https://github.com/retroeater/mj/blob/work/1008-hou/docs/logs/CHAT-1011-HOU-12.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1008-hou
-- 確認用URL: なし
-- マージ: 未
-- issue: #518
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 状態: 完了
+- ブランチ: work/1008-hou（マージ済み。削除は `delete-merged-branches.yml` に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1011-HOU-12.md
+- 比較URL: なし（マージ済み）
+- 確認用URL: https://ryoei.pro/houou/ ほか（下の「判断が必要なこと」）
+- マージ: 済（c75f5889..efa62293。続いて自動再生成 0c211541、この報告の docs のみの追いの push）
+- issue: #518（#540 をコメント）、#540（公開の issue、起票）
+- 判断が必要なこと:
+  1. 本番での確かめ（未公開でも URL を直接打てば見える）: トップ https://ryoei.pro/houou/ 、個人成績 https://ryoei.pro/houou/players/?name=白鳥翔 、ランキング https://ryoei.pro/houou/ranking/ （チップで部門を切り替える）、リーグ推移 https://ryoei.pro/houou/leagues/?name=大久保隼人 （再生のボタンで演出）、順位変動 https://ryoei.pro/houou/race/ 。旧4ページ（`houou_*.html`）は変わっていないこと
+  2. 公開の issue は #540。navbar の項目の名前・並び、`?division=` の転送を 301 にするか、告知の有無は #540 で決める
+  3. 次の指示: 特別昇級の演出（紙吹雪を付け、飛び級の段数 2〜9段に応じて豪勢にする）
+  4. 配信対象のファイル数は 2,457（上限 20,000 の約 12%。うち `houou/` 747）。15,000 を超えていない
+- 未確認の項目: 本番のブラウザでの見え方（平野さん）。`x-robots-tag` の応答ヘッダは無く、noindex は meta だけで効かせている
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 396a7262）: https://github.com/retroeater/mj-logs/tree/main/guide/396a7262
+ガイド文書（この版を写した時点の最新、mj efa62293）: https://github.com/retroeater/mj-logs/tree/main/guide/efa62293
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/396a7262/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/396a7262/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/396a7262/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/396a7262/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/396a7262/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/396a7262/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/21efaaec.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/efa62293/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/efa62293/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/efa62293/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/efa62293/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/efa62293/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/efa62293/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/efa62293.md
