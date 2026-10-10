@@ -51,14 +51,37 @@ RGN-01〜06 の振り返り（2026-10-11）の申送りのうち、機械的に�
 
 ## 経過
 
+- 0章: 指示欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- 識別子: `git log --all --grep="CHAT-1011-RGN-07"` は0件（RGN はこのセッションの RGN-01〜05 で使ったもの）
+- ブランチ: `work/1011-rgn` はローカル・リモートとも無かったため `git checkout -b work/1011-rgn origin/cloudflare`（af7084f7）
+
+### 手順1 確かめる
+
+- issue 全件とコメント全件をリポジトリ単位の API で取り、手元で検索した（Search API はプロキシが拒否）。「サマリ」を読み方の話（`(ジョブの|実行)サマリ…(読め|読む|API)`・`GITHUB_STEP_SUMMARY…(読め|API)`）・「lastmod」を戻し・試験の話・「Fable」で引いたものは0件。
+  「振り返り」は19件に当たったが、どれも一般の語（作業の振り返り）としての用例で、振り返りの手順や Fable のレビューを主題にする issue は無い
+- 未マージの work/ ブランチで、追記先の4文書（chat-side-operations.md・chrome-reading.md・sitemap-lastmod.md・chat-routines.md）を変えているものは無い
+
+### 手順2 足す
+
+- A（ジョブのサマリ）: docs/notes/chat-side-operations.md「読み方」の表の「Actions の実行結果」の行の末尾に一句足した（第1候補）。同じ趣旨の記述は無かった（サマリ・注記の語は文書に無い）。サイズ 25,877 → 26,105 バイト（警告域 26,624 の下）
+- B（lastmod）: docs/notes/sitemap-lastmod.md「注意」の末尾に1行足した。「結論」の「sitemap を手で書き換えないこと」はそのまま（戻しても動く点は書かれていなかったので、置き換えでなく足した）。サイズ 3,642 → 3,875 バイト
+- 振り返りの規則: docs/notes/chat-routines.md「振り返り」の「成果物の形」に1段落足した（前提の文面のまま、決定の日付を添えた）。サイズ 4,061 → 4,431 バイト
+- 決定を docs/decisions/operations.md に足した
+- 成果物のコミット: c88f1ba1
+
+### 手順3 マージ
+
+- push 直前に再 fetch し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真であることを確かめて `git push origin work/1011-rgn:cloudflare`（af7084f7..d46a6f9d）
+- d46a6f9d の「公開対象を検査する」（assets-check）は success（2件）。Workers Builds の check-run は出ていない（変更が `docs/` 配下だけのため、#171）
+
 ## 報告
 
-- 状態: 対応中
+- 状態: 完了
 - ブランチ: work/1011-rgn
-- ログ: https://github.com/retroeater/mj/blob/work/1011-rgn/docs/logs/CHAT-1011-RGN-07.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1011-RGN-07.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1011-rgn
 - 確認用URL: なし
-- マージ: 未
+- マージ: 済（SHA は最終報告の push のコミット）
 - issue: なし
 - 判断が必要なこと: なし
 - 未確認の項目: なし
@@ -67,12 +90,12 @@ RGN-01〜06 の振り返り（2026-10-11）の申送りのうち、機械的に�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj efa62293）: https://github.com/retroeater/mj-logs/tree/main/guide/efa62293
+ガイド文書（この版を写した時点の最新、mj a72aaab4）: https://github.com/retroeater/mj-logs/tree/main/guide/a72aaab4
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/efa62293/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/efa62293/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/efa62293/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/efa62293/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/efa62293/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/efa62293/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a72aaab4/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a72aaab4/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a72aaab4/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a72aaab4/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a72aaab4/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a72aaab4/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/efa62293.md
