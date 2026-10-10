@@ -53,16 +53,59 @@
 - 0章: 「指示」欄の最後の行は指示文の最後の行と一致
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 揃っている（貼られた文面では冒頭の行の改行が失われていた。内容は欠けていない）
 
+### 手順1
+
+- issue: #492（open。コメント3件はこのセッションの REV-01〜04 のもの）・#421（closed。最後のコメントは 2026-09-21 の締めくくり）・#292・#301（open、コメント0件）。他セッションの着手中のコメントは無い
+- docs/notes/branch-operations.md「ワークフローを変更したとき」を読んだ。assets-check.yml は既存で `workflow_dispatch` を持つため、マージ前に作業ブランチで手動実行できる
+- `git log -- .github/workflows/assets-check.yml`: 前回の上限の変更は 950eb352（2026-09-21、chat-side の上限の新設と handover の引き下げ）。ワークフローの `check` の行・コメントと、CLAUDE.md「更新ルール」・chat-side の冒頭を同じコミットで直していた。今回も同じ形にした
+- 上限の数値の置き場所: `.github/workflows/assets-check.yml` の「ガイド文書のサイズを確認」の `check` の行だけ。`scripts/check_asset_limits.py` は配信の上限（ファイル数など）だけで、ガイド文書の数値は無い
+- `grep -rn '32KB\|30KB\|32768\|30720' docs CLAUDE.md .github scripts`（docs/logs と archive を除く）: CLAUDE.md の上限の行と assets-check.yml の `check` の行だけ（ほかの一致は 232KB の別の話）
+
+### 手順2: 変えたもの（329a8b40）
+
+- `.github/workflows/assets-check.yml`:
+  - CLAUDE.md の `check` を `30720 32768` → `26624 28672`
+  - `docs/instruction-template.md` の `check` を新設（`14336 16384`）と `TEMPLATE=$(wc -c < docs/instruction-template.md)`
+  - **push の `paths` に `docs/instruction-template.md` を足した**（指示に無い変更。`'!docs/**'` で除外されているため、足さないと instruction-template.md だけを変える push で検査が走らず、新設した上限が働かない）。冒頭と検査の前のコメントの「2文書」「3つ」を「3文書」「4つ」に直した
+- CLAUDE.md「CLAUDE.md / handover.md の更新ルール」: 上限の行を「CLAUDE.md 28KB（警告域26KB）・…・docs/instruction-template.md 16KB（警告域14KB）」に、「3文書とも整理する」を「4文書とも整理する」に直した。「退避先には上限を置かない」と「この3文書には出典としてのChat-Refを書かない」はそのまま
+- chat-side-operations.md の冒頭は変えていない（数値が変わらない）
+- `python3 scripts/check_asset_limits.py` OK、`python3 -m unittest discover -s scripts/tests` OK、YAML の読み込み OK
+
+| 文書 | サイズ（`wc -c`） | 警告域 | 上限 | 判定 |
+|---|---:|---:|---:|---|
+| CLAUDE.md | 22,153 | 26,624 | 28,672 | 外 |
+| docs/handover.md | 22,541 | 26,624 | 28,672 | 外 |
+| docs/notes/chat-side-operations.md | 26,306 | 26,624 | 28,672 | 外（残り 318） |
+| docs/instruction-template.md | 12,625 | 14,336 | 16,384 | 外 |
+
+### 手順3: 手動実行
+
+- GitHub MCP の `actions_run_trigger`（run_workflow、ref `work/1010-rev-limit`）で起動。run 38042668323（workflow_dispatch、329a8b40）は completed / **success**。同じコミットの push の run 38042664973 も success
+- 「ガイド文書のサイズを確認」の出力（job 114185861240 のログから引用。警告・エラーの行は無い）:
+
+  ```
+  CLAUDE.md: 22153 bytes (警告域 26624 / 上限 28672)
+  docs/handover.md: 22541 bytes (警告域 26624 / 上限 28672)
+  docs/notes/chat-side-operations.md: 26306 bytes (警告域 26624 / 上限 28672)
+  docs/instruction-template.md: 12625 bytes (警告域 14336 / 上限 16384)
+  ```
+- ジョブのログを curl で取ろうとしたら、ログの置き場所への転送がセッションのプロキシで拒否された（`CONNECT tunnel failed, response 403`）。GitHub MCP の `get_job_logs` で読めた
+- #492 にコメント（閉じない）: https://github.com/retroeater/mj/issues/492#issuecomment-6096275634
+- 決定（この指示の「決定」2件）を `docs/decisions/operations.md` に足した
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1010-rev-limit
 - ログ: https://github.com/retroeater/mj/blob/work/1010-rev-limit/docs/logs/CHAT-1010-REV-06.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1010-rev-limit
 - 確認用URL: なし
-- マージ: 未
-- issue: #492
-- 判断が必要なこと: なし
+- マージ: 未（平野さんの判断待ち。成果物は 329a8b40）
+- issue: #492（コメント）
+- 判断が必要なこと:
+  - マージの可否。手動実行（run 38042668323）は success で、4文書とも新しい警告域の外
+  - 指示に無い変更として、assets-check.yml の push の `paths` に `docs/instruction-template.md` を足した（足さないと新設した上限が instruction-template.md だけの push では検査されない）。外すかの判断
+  - chat-side-operations.md は 26,306 バイトで警告域（26,624）まで残り 318 バイト（今回は上限を変えていない）
 - 未確認の項目: なし
 - エラー: なし
 
