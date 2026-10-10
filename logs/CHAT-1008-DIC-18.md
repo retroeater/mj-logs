@@ -78,6 +78,15 @@ DIC-17 で生成スクリプトを「コメント」列の無いシートに合�
 
 ### マージ
 
+### マージ
+
+- `git push origin work/1008-dic:cloudflare` で 74c6dc64 を入れた（push 直前に再 fetch し、`git merge-base --is-ancestor origin/cloudflare HEAD` は真。直前に cloudflare の docs のみの更新〈CHAT-1010-WHS-02 など〉を衝突なしで取り込んだ）
+- push で動いた `regenerate-page.yml`（run 245、対象は `resource_dictionary`）: 成功。生成物は既にコミット済みのため、差分は sitemap の lastmod だけ（d0fd8918「chore: regenerate resource_dictionary.html dic/ via GitHub Actions」、`sitemap-pages.xml` の `resource_dictionary.html` を 2026-10-09 → 2026-10-10）
+- 止まっていた全ページの再生成が最後まで通ることを確かめるため、`regenerate-page.yml` を cloudflare で手動実行した（入力 `all`、run 246）: 成功。`resource_dictionary`（一般用語 583・連盟用語 138・連盟プロ 1,099・Mリーグ 71）より後の `resource_efficiency`〜`wayhome_episodes` まで全ページを生成し、sitemap の lastmod の更新・well-formed の確認・title/ の転送の確認も通った。コミットは「変更なし」（このブランチで全ページを再生成してコミット済みのため）
+- 本番（`?v=` 付き）: 辞書ページの説明文は 1,870語。PC 幅・スマホ幅で3形式を保存し、どれも 1,870 行（Microsoft IME: BOM あり・CRLF・3列、Google 日本語入力: LF・4列でコメント欄はすべて空、Gboard: `dictionary.txt`・先頭行 `# Gboard Dictionary version:1`・ja-JP・CRC 一致、重複なし）
+- #533 に「#243 が辞書の見出しの変化で止まった。DIC-17・18 で直した」とコメントした
+- CHAT-1010-WHS-01 のログの状態は「判断待ち / 辞書の件の続き: CHAT-1008-DIC-17」だったので、末尾に ` / 辞書の件: CHAT-1008-DIC-18 で解消` を足した
+
 ## 報告
 
 - 状態: 完了
@@ -85,8 +94,8 @@ DIC-17 で生成スクリプトを「コメント」列の無いシートに合�
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1008-DIC-18.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1008-dic
 - 確認用URL: なし
-- マージ: マージの前に書いている。結果は経過の「マージ」に追記する
-- issue: #533
+- マージ: 済（74c6dc64。マージの結果を書いたログの追いの push は最終報告の「ログ（公開）」の行の SHA）
+- issue: #533（コメント）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
@@ -94,12 +103,12 @@ DIC-17 で生成スクリプトを「コメント」列の無いシートに合�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 74c6dc64）: https://github.com/retroeater/mj-logs/tree/main/guide/74c6dc64
+ガイド文書（この版を写した時点の最新、mj cf3cb320）: https://github.com/retroeater/mj-logs/tree/main/guide/cf3cb320
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/74c6dc64/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/74c6dc64/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/74c6dc64/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/74c6dc64/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/74c6dc64/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/74c6dc64/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/cf3cb320/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/cf3cb320/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/cf3cb320/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/cf3cb320/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/cf3cb320/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/cf3cb320/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/647a8db8.md
