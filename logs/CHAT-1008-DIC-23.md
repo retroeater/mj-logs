@@ -76,16 +76,66 @@ https://ryoei.pro/resource_dictionary.html
 
 ## 経過
 
+### 0章・ブランチ
+
+- 「指示」欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・作業ブランチ・共通手順）は揃っている
+- `git log --all --grep="CHAT-1008-DIC-23"` は0件
+- origin/work/1008-dic は origin/cloudflare の祖先（マージ済み）。ローカルも祖先のため `git merge --ff-only origin/cloudflare` で 7e1c39ce に進め、ログを積んで push した。その後、手順1の再生成のコミットを取り込むため `git merge origin/cloudflare`（衝突なし）
+
+### 手順1（確かめる・反映する）
+
+- `python3 scripts/generate_resource_dictionary.py --check`: 通った。一般用語 583・連盟用語 137・連盟プロ 1,099・Mリーグ 71、保存の語数 1,870（「辞書」タブは 792 → 791 行。「日本プロ麻雀連盟」の削除で連盟用語が 138 → 137。全体は一般用語にも同じ語があるため 1,870 のまま。チャット側の見込みのとおり）
+- 反映前の本番: 説明文は 1,870語で同じだったが、`dic/renmei.json` は 138 行でシートと違ったため、`regenerate-page.yml` を cloudflare で入力 `resource_dictionary` で手動実行した（run 258、成功）。自動コミット 447a0d65（`dic/renmei.json`・`dic/mleague.json`。mleague は語数 71 のまま中身だけ変わった）
+- 反映後の本番（`?v=` 付き）: 説明文 1,870語、`dic/` は mahjong 583・renmei 137・pros 1,099・mleague 71。シートと一致
+- 未マージの work/ ブランチ（work/1008-hou・work/1009-nen・work/1009-swp-526・work/1010-whs・work/1010-xap）は `scripts/promo_video/` を変えていない
+- 環境: `title/setup.sh` は `fonts-noto-cjk` が見つからず止まったので、`apt-get update` の後に入れ直して通した（スクリプトは変えていない）
+
+### 手順2（作る）
+
+- 制作のスクリプト: `scripts/promo_video/dictionary/`（`setup.sh`〈title/ を呼ぶ〉・`build.sh`・`capture.mjs`・`compose.py`・`composition/index.html`）。houou_race/ と同じ作りで、曲・環境・フォント設定は title/、締めは `img/ogp.png` を借りる（共有の部品は変えていない）。語数はリポジトリの `dic/*.json` から数え、全体はページの説明文の語数と照らして食い違えば止める。添える語（鳳凰戦・白鳥翔・渋谷ABEMAS）が `dic/` に無ければ止める
+- 作り直し: `bash scripts/promo_video/dictionary/setup.sh <作業フォルダ>` → `bash scripts/promo_video/dictionary/build.sh <作業フォルダ> b`
+- 書き出し: `dictionary-promo-v1.mp4`、25.0秒、1080×1920、30fps、H.264（High）・yuv420p、AAC 48kHz ステレオ、統合ラウドネス -15.9 LUFS（ピーク -3.6 dBFS）、1.65MB
+- 実画面: 本番を iPhone 13（390×664・3倍）で開き、スクリーンショットの連番で撮った。Gboard を押した後は、保存（ダウンロード）が起き `data-saved` が gboard になってから 0.6 秒待って撮った。「辞書ファイルをダウンロードしました。」と登録方法は画面に収まる（下端 539px / 664px）
+- 場面（秒は構成のとおり。変えていない）:
+
+| 秒 | 画面 | テロップ |
+|---|---|---|
+| 0〜2.5 | 白地に「麻雀用語辞書」「スマホ・PC の変換に登録」（最初のコマから表示。フェードインなし） | なし |
+| 2.5〜5 | 実画面。カード → Microsoft IME → Google 日本語入力 → Gboard に順に枠（0.6秒ずつ、最後 0.7秒） | 形式を選んで押すだけ |
+| 5〜8 | Microsoft IME → Google 日本語入力に枠（1.5秒ずつ） | Windows・Mac の IME に対応 |
+| 8〜12 | Gboard に押す印（0.9秒）→ 押す →「辞書ファイルをダウンロードしました。」と登録方法（3.1秒） | NEW　Android（Gboard）に対応（NEW は橙の札） |
+| 12〜19 | 白地に4カテゴリを 1.2 秒おきに出し、語数を 1 秒で数え上げる: 一般用語 583／連盟用語 137（例: 鳳凰戦）／連盟プロ 1,099（例: 白鳥翔）／Mリーグ 71（例: 渋谷ABEMAS） | 12〜15.5「連盟のタイトル戦・選手を充実」、15.5〜19「NEW　Mリーグのチーム・選手を追加」 |
+| 19〜21.5 | 「全 1,870 語」 | なし |
+| 21.5〜25 | 白地に「ryoei.pro」（`img/ogp.png`）が 21.7 秒から1秒で現れ、その後は動かない。最後のコマはロゴだけ | なし |
+
+- コマの確かめ（画像で見た）: 最初のコマはタイトルの2行がはっきり出ている。最後のコマはロゴだけ。各場面の代表のコマで、テロップは画面の上（80〜210px）にあり、実画面の枠（250px から下）にかからない。語数は手順1の値（583・137・1,099・71・1,870）と一致
+- 曲: 曲調 b。境目はデモの始まり 2.5 秒・締めの始まり 21.5 秒
+
+### 手順3（送る）
+
+- `dictionary-promo-v1.mp4` を `SendUserFile` で送った（動画はリポジトリに入れていない）
+- 投稿文（語数を合わせたもの。全体の語数は 1,870 で変わらない）:
+
+```
+リソース「辞書」をリニューアルしました。
+https://ryoei.pro/resource_dictionary.html
+
+・麻雀用語・連盟・Mリーグの1,870語をスマホやPCの変換に登録
+・Android（Gboard）に新しく対応
+・Mリーグのチーム・選手を追加、連盟のタイトル戦・選手を充実
+```
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1008-dic
 - ログ: https://github.com/retroeater/mj/blob/work/1008-dic/docs/logs/CHAT-1008-DIC-23.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1008-dic
 - 確認用URL: なし
-- マージ: 未
-- issue: #515・#522
-- 判断が必要なこと: なし
+- マージ: 未（制作のスクリプトはマージしない。辞書ページの再生成は `regenerate-page.yml` の手動実行で cloudflare に入った〈447a0d65〉）
+- issue: #515・#522（コメントはしていない）
+- 判断が必要なこと:
+  - 初版（`dictionary-promo-v1.mp4`、25.0秒）でよいか。直すところがあれば場面と秒で指示してほしい
 - 未確認の項目: なし
 - エラー: なし
 
