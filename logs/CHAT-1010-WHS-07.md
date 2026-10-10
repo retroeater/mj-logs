@@ -56,17 +56,62 @@
 - 指示欄の末尾は指示文の最後の行と一致。雛形の4行は揃っている
 - WHS-06 の `## 報告` の状態は「判断待ち」→ 末尾に ` / 続き: CHAT-1010-WHS-07` を足した
 - 作業ブランチ: ローカル・リモートとも `work/1010-whs` は 97467f48。`origin/cloudflare` は祖先でない → 取り込む
+- `git merge --no-edit origin/cloudflare`（衝突なし）
+- 未マージのブランチ: 触るファイル（`lib/wayhome.py`・生成スクリプト2本・`style.css`・`video_wayhome.js`・`wayhome_episodes.js`・テスト・文書）に触れるのは `work/1008-hou` の `style.css`（末尾 3446行以降の追記だけ）。重ならない
+
+### 手順1: ほかのページの写真の出し方
+
+- 鳳凰戦「順位変動」（`generate_houou_race.py` の `profiles_for()`）: 読み元は「プロ」シート（と「連盟プロ以外」）の X画像。`lib/x_images.py` の `with_size(image, SIZE_200)`、既定の卵型（`is_default_avatar()`）は画像なし。
+  ページでは `houou_race.js` が読み込めたときだけ丸いチップ（`.mj-race-chip`、28px・`border-radius:50%`）の背景にする（代わりの画像は使わず、名前の短縮のチップのまま）。X ID の `#` で始まる値（シートの数式エラー）は空扱い（`SHEET_ERROR_PREFIX`）
+- title/（`generate_title_pages.py`）: 「プロ」シートの X画像を `SIZE_400` に書き換え、`<img ... src=... data-fallback="img/avatar.svg">`（写真が無いときも `img/avatar.svg`）。受け手は `assets/title.js`（キャプチャの error と、スクリプトより先に失敗した画像を `img.complete && img.naturalWidth === 0` で拾う。saikyo.js も同じ、#406）
+- 読み元は「プロ」シートの「X画像」（`pro_sheet.X_IMAGE`）に決めた（帰り道は今も「プロ」シートを見出しで読んでいる。SNS ブックは生成ではまだ読まれていない〈static-generation.md の `update_sns_book.py` の行〉）
+
+### 手順2: 直し
+
+- `lib/wayhome.py`: `PRO_COLUMNS` に `X画像` を足し、`PlayerLinks(x_id, x_image)`。X画像は `with_size(..., SIZE_400)`（既定の卵型・空は空）、X ID の `#…` は空。`X_ICON_SVG` を消した
+- `build_player_links_html(interviewee, links, asset_prefix)`: X ID があれば `<a class="mj-video-player-link" href="https://x.com/<ID>" target="_blank" rel="noopener"><img class="mj-video-player-photo" alt="<名前>さんのX" width="400" height="400" src="<写真か代わりの画像>" data-fallback="<prefix>img/avatar.svg">（新しいタブで開く）</a>`。X ID が無ければ空（名前だけ）
+- 大きさ: 最初は鳳凰戦と同じ `_200x200` にしたが、`UtxpVoWy2GY`（武田雛歩）の写真は `_200x200`・`_80x80` が 404、`_400x400`・`_normal` が 200 だった（再試行でも同じ）。title/ と同じ `_400x400` にした（27枚とも 200 を2回確かめた）
+- `style.css`: 名前（h1/h2）の右の間 4px → 8px。リンクは `padding: 8px 8px 8px 0`・`margin: -8px -8px -8px 0`（名前の側には広げない）。写真は `1em` 四方・丸・`object-fit: cover`。ホバー・フォーカスで写真に白い縁、フォーカスの枠は今までどおり
+- 代わりの画像の受け手: `video_wayhome.js`・`wayhome_episodes.js` にあったが、`DOMContentLoaded` で error を受ける形のため、先に失敗したヒーローの写真は替わらなかった（プレビューで pbs.twimg.com を 404 にして確かめると `naturalWidth` 0 のまま）。
+  title.js と同じく、読み込み済みで壊れた `img[data-fallback]` に error を送る処理を足した（a2fe7fe7）。直した後は一覧・各話とも `img/avatar.svg` に替わる（手元とプレビューで確かめた）
+- テスト `test_wayhome_player_links.py`: 見出しの組（X画像を含む・note を含まない）、写真の書き換え（400×400）・既定の卵型は写真なし・X ID の `#N/A` は空、写真1つのリンク（alt・`data-fallback`・ロゴ無し）、写真が無いときの代わりの画像、X ID が無いと空。修正前のコードではエラー5、修正後は全体 OK
+- 文書: `docs/notes/video-wayhome.md` の WHS-06 の節を「X の写真1つ」に書き直した。`docs/notes/design.md` に帰り道のこの部品の行は無い（直していない）。決定を `docs/decisions/wayhome.md` に足した
+
+### 手順3: 生成とプレビュー
+
+- 生成: 40件・`6WAPjcxT78A` を外した警告・各話 39ページ。警告「jpml_prosに該当する選手がいないため、Xの写真を出しません: タマシュ・エルドス」
+- 差分: `video_wayhome.html` と各話 38ページ（`o28svvuVI0M` は変わらず）。X のリンクの中身（ロゴ → 写真）を同じ印に置き換えると、39ファイルとも旧版と完全に一致（スクリプトで比較）。39ファイルとも本人の写真（pbs.twimg.com）で、X ID はあるが写真が無い回は無かった。写真は 27種類
+- push（8f5edb63・a2fe7fe7）→「Workers Builds: mj」success（a2fe7fe7）。プレビューを Playwright で 390×844 と 1280×800 で見た:
+
+| 幅 | ページ | 名前の字 | 写真 | 名前の最終行 / 写真（上〜下） | 名前の右端 → タップ領域の左端 | タップ領域 |
+|---|---|---|---|---|---|---|
+| 390 | 一覧（紺野真太郎） | 28px | 28×28、読み込み済み | 420〜451 / 420〜448 | 160 → 168（8px） | 36×44 |
+| 390 | `OoK3O2BCm8M`（2行に折り返し） | 28px | 28×28 | 442〜473 / 442〜470 | 104 → 112（8px） | 36×44 |
+| 390 | `76OsWTSSnso`（2行） | 28px | 28×28 | 442〜473 / 442〜470 | 195 → 203（8px） | 36×44 |
+| 390 | `UtxpVoWy2GY`（武田雛歩） | 28px | 28×28、`_400x400` で読み込み済み | 442〜473 / 442〜470 | 309 → 317 | 36×44 |
+| 390 | `o28svvuVI0M`（X ID なし） | 28px | なし（名前だけ） | — | — | — |
+| 1280 | 一覧 | 48px | 48×48 | 383〜436 / 384〜432 | 288 → 296（8px） | 56×64 |
+| 1280 | `OoK3O2BCm8M` | 48px | 48×48 | 407〜460 / 407〜455 | 144 → 152 | 56×64 |
+| 1280 | `76OsWTSSnso` | 48px | 48×48 | 384〜437 / 385〜433 | 288 → 296 | 56×64 |
+| 1280 | `o28svvuVI0M` | 48px | なし | — | — | — |
+
+  - スクリーンショットで、写真が名前の最終行の右に名前と同じ高さの丸で並び、折り返しても名前の下に回り込まないことを見た。タップ領域は名前の字にかからない（左端は写真の左端）
+  - 一覧の固定バーは WHS-06 のまま（件数なし、0件で「該当する動画がありません」）
+  - 写真を 404 にした場合（Playwright で pbs.twimg.com を 404 に差し替え）、一覧・`OoK3O2BCm8M` とも `img/avatar.svg` に替わる
 
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1010-whs
+- 状態: 判断待ち
+- ブランチ: work/1010-whs（未マージ）
 - ログ: https://github.com/retroeater/mj/blob/work/1010-whs/docs/logs/CHAT-1010-WHS-07.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1010-whs
-- 確認用URL: なし
-- マージ: 未
+- 確認用URL: プレビューあり（URL は最終報告）。見るページは一覧・X ID がある回 `OoK3O2BCm8M`・X ID が無い回 `o28svvuVI0M`（X ID はあるが写真が無い回は無い）
+- マージ: 未（平野さんがプレビューで見た目を確かめてから、別の指示で）
 - issue: #195
-- 判断が必要なこと: なし
+- 判断が必要なこと:
+  - プレビューの見た目でよいか（名前の右に X の写真、間 8px、写真の高さは名前の文字と同じ）。よければ WHS-06・WHS-07 をまとめてマージする指示を
+  - 写真の大きさを鳳凰戦の `_200x200` ではなく title/ と同じ `_400x400` にした（`_200x200` だけ 404 を返す写真が1枚あったため）。このままでよいか
+  - 指示に無かった変更: `video_wayhome.js`・`wayhome_episodes.js` の代わりの画像の処理に、スクリプトより先に失敗した画像を拾う処理を足した（title.js と同じ。足さないと写真が読めないときに代わりの画像が出なかった）
 - 未確認の項目: なし
 - エラー: なし
 
