@@ -63,28 +63,63 @@ Chat-Ref: CHAT-1010-RDN-06
 - 0. 指示欄の末尾の行は指示文の最後の行と一致
 - 指示文は改行が潰れた形で貼られたため、文面は変えずに項目の区切りで改行した
 
+### 手順1: 着手前の確かめ
+
+- 未マージの work/ ブランチ: work/1008-hou・work/1009-swp-526・work/1010-xap（と work/1010-rdn）。手順1のファイル（`generate_jpml_pros.py`・`lib/meibo.py`・`lib/pro_sheet.py`・テスト）と直す文書との
+  `git diff --stat origin/cloudflare...<branch>`: work/1008-hou は `tests/test_houou_pages.py`（新規）と `docs/notes/static-generation.md` の「ページの一覧」の2行、work/1010-xap は `tests/test_sns_book.py`（新規）。
+  **同じ行・同じ関数を変えているものは無い**（static-generation.md で今回足すのは「生成スクリプトの構成」の節）
+- #536 のコメント: 他セッションの着手中コメントは無し（RDN-04 の着手中・結果の2件だけ）。着手中コメントを残した
+- 名簿を `lib/sheets.py` の `fetch_table()` で2回読んだ: **「公開」「【2】値貼付」とも2回とも 1,099行、見出し・値とも同じ**（行数は 1,000〜1,300 の範囲内）
+  - 「公開」の見出し: 所属・登録名・性別・入会期・段位・誕生日。「【2】値貼付」: 所属・登録名・登録名かな・登録名かな姓・登録名かな名・登録名英字姓・登録名英字名・性別・誕生日・入会期・段位（必要な見出しは揃っている。値は登録名・所属・英字だけを使い、ほかはログに書かない）
+  - 「プロ」の在籍者 1,099名と登録名（改行の前）で結合: 「公開」「【2】値貼付」とも**全員結合、片方だけの人 0**。Last Name・First Name・所属の**不一致 0**（First Name が空の9名は名簿側も空）。RDN-01 の結果から変わっていない
+
+### 手順2: 実装
+
+- `scripts/lib/meibo.py`: `fetch_english_names()` を足した。「【2】値貼付」を `fetch_records()` で見出し（登録名・登録名英字姓・登録名英字名）だけ読み、{登録名: (英字姓, 英字名)} を返す（登録名は改行の前。同じ登録名は最初の行）。所属は今までの `fetch_members()`（「公開」）の `office` を使う
+- `scripts/generate_jpml_pros.py`: `COLUMNS` から「Last Name」「First Name」「所属」を外し、`join_meibo()` で名簿の英字姓・英字名・所属を名前・ソートキーの後ろに挟んだ `ROW_FIELDS` の順の行にして `build_row_html()` へ渡す（`build_row_html()` は変えていない）。
+  在籍者が「公開」か「【2】値貼付」のどちらかにいなければ、件数と名前を出して ValueError。名簿の各タブの人数が 1,000〜1,300 を外れても ValueError
+  - 値の型: 「プロ」から読んだ D の空欄は None、名簿の空欄は空文字になるが、`get_name()`・`data-name` は `or ""` で扱っており、出力は同じ（テストと生成物の比較で確認）
+- テスト: `test_jpml_pros.py` に `JoinMeiboTest`（結合と表示・英字名が空の人・名簿にいない人で止まる〈両方のタブ〉・名簿の人数で止まる）と、C・D・E を `COLUMNS` で読まないことを足した。
+  `test_meibo.py` に `fetch_english_names()` のテスト（読み取りは差し替え）を足した。`python3 -m unittest discover -s scripts/tests`: 700件 OK。pyflakes: 変えたファイルに指摘なし
+- 文書: `docs/notes/static-generation.md`「生成スクリプトの構成」に jpml_pros の英字の姓名・所属の出どころ、`docs/handover.md`「データの流れ」に名簿のブックを読むスクリプトとして `generate_jpml_pros.py` を足した（handover.md 22,604 バイト）。
+  `docs/decisions/pros.md`: RDN-02 の決定（英字は「【2】値貼付」、所属は「公開」）は記録済みだったため重ねず、RDN-06 の決定（名簿にいない在籍者がいれば止める・条件付きの承認）を足した
+
+### 手順3: 確かめ
+
+- RDN-04 と同じ方法: origin/cloudflare（77cdcd82）を scratchpad の worktree に出し（比較の後に削除）、作業ブランチ（77cdcd82＋段2のコミット）と、21ページを1ページずつ「変える前 → 変えた後」の順に続けて生成
+  - **両方のツリーとも生成後の `git status` が変更0件、`diff -rq`（.git・scripts・docs を除く）も差0**
+  - 生成ログの差は jpml_pros の進捗の表示（「名簿の所属・英字の姓名を取得中...」の行が増えた）だけ
+  - 両側とも同じ理由で失敗したページ（差には数えない）:
+    - `books_pages`: 「書籍」タブの行数が想定外（95行）。RDN-04 と同じ
+    - **`video_wayhome`・`wayhome_episodes`: 「帰り道」シートの視聴URLの列に動画IDだけ（`'2Bn3SktouP4'`）の行があり、`lib/wayhome.py` の `load_episodes()` が「視聴URLから動画IDを取り出せません」で止める**。
+      「プロ」を読む前（帰り道シートの読み込み）で止まっており、今回の変更（jpml_pros・meibo）とは無関係。RDN-04 の比較の時点では生成できていたので、その後にシートが変わったと見られる
+- チェック系・名簿を使う処理: `check_meibo.py --json`（JSON と標準出力）と、YouTube ID・`birthdays.fetch()`・道場部の名簿・辞書の人名（RDN-04 と同じ取り出し）→ 変える前後で**一致**
+- マージ直前の再 fetch で origin/cloudflare は作業ブランチの祖先（進んでいない）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1010-rdn
-- ログ: https://github.com/retroeater/mj/blob/work/1010-rdn/docs/logs/CHAT-1010-RDN-06.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1010-RDN-06.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1010-rdn
-- 確認用URL: なし
-- マージ: 未
-- issue: #536
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 確認用URL: なし（生成物は変わらないため、コードと文書だけをマージ）
+- マージ: 済（このログを含むコミットを cloudflare へ fast-forward で push）
+- issue: #536（段2の結果をコメント、閉じない）
+- 判断が必要なこと:
+  - 段2は止まる条件に当たらずマージした（変える前後の生成物の差0）。ただし、**「帰り道」シートの視聴URLの列に動画IDだけの行（`2Bn3SktouP4`）があり、`video_wayhome`・`wayhome_episodes` の生成が変える前のコードでも失敗する**（今回の変更とは無関係。週次の再生成でもこの2ページが失敗する見込み）。シートの値を URL の形に戻すか、別の指示で読み方を直すかの判断
+- 未確認の項目:
+  - wayhome の2ページは両側とも生成が止まったため、前後の生成物の比較はできていない（この2ページのコードは今回変えていない）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 9e1c29eb）: https://github.com/retroeater/mj-logs/tree/main/guide/9e1c29eb
+ガイド文書（この版を写した時点の最新、mj 22ca975d）: https://github.com/retroeater/mj-logs/tree/main/guide/22ca975d
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9e1c29eb/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9e1c29eb/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9e1c29eb/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9e1c29eb/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9e1c29eb/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9e1c29eb/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/22ca975d/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/22ca975d/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/22ca975d/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/22ca975d/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/22ca975d/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/22ca975d/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b4d859a5.md
