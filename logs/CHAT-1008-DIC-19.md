@@ -49,17 +49,36 @@
 
 ## 経過
 
+### 0章・ブランチ
+
+- 「指示」欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・作業ブランチ・共通手順）は揃っている
+- `git log --all --grep="CHAT-1008-DIC-19"` は0件
+- origin/work/1008-dic（4544bac2）は origin/cloudflare の祖先（マージ済み）。ローカルの work/1008-dic も同じで祖先のため、`git merge --ff-only origin/cloudflare` で 22ca975d に進め、ログを積んで push した
+
+### 手順1（確かめ）と、止まった理由
+
+- `docs/decisions/features.md` に 2026-10-10（DIC-19）の決定を足した
+- #533: Open。論点は (a)〜(h)。コメントは1件（DIC-18 のもの）
+- 未マージの work/ ブランチ（`git branch -r --no-merged origin/cloudflare`）が手順1の3ファイルを変えているか:
+  - work/1008-hou: **`docs/notes/static-generation.md` を変えている**（先頭 5ae8de6b、2026-10-10 09:41 UTC、CHAT-1010-HOU-08。#518）。変更は「ページの一覧」の節の2か所: 冒頭の段落の末尾に「鳳凰戦の新ページ（`houou/`…）」を足し、表に「ビルド時生成（サブディレクトリ、鳳凰戦の新ページ）」の行を足す（タイトル戦の新構成の行の後）。辞書の行（「ビルド時生成（独自: 全カテゴリをまとめた辞書ファイルを組み立てる）」）は同じ表の4行上
+  - work/1008-dic・work/1009-nen・work/1009-swp-526・work/1010-rev-limit・work/1010-xap: 3ファイルとも変えていない
+  - `scripts/generate_resource_dictionary.py`・`docs/notes/chat-side-operations.md` を変えているブランチは無い
+- 止まる条件「未マージの work/ ブランチが上の手順1のファイルを変えている」に当たるため、手順2（検査の手段・テスト・2か所の追記・#533 へのコメント）には手を付けずに止めた。生成スクリプト・生成物・#533 は変えていない
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1008-dic
 - ログ: https://github.com/retroeater/mj/blob/work/1008-dic/docs/logs/CHAT-1008-DIC-19.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1008-dic
 - 確認用URL: なし
-- マージ: 未
-- issue: #533
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- マージ: 未（止まる条件に当たったため。work/1008-dic にはログと決定だけを push した）
+- issue: #533（Open を確かめた。コメントはしていない）
+- 判断が必要なこと:
+  - 未マージの work/1008-hou（#518、CHAT-1010-HOU-08）が `docs/notes/static-generation.md`「ページの一覧」を変えている（冒頭の段落と表に鳳凰戦の新ページを足す。辞書の行の4行下に行を足す）。DIC-19 の追記先 (1) と同じ節。次のどれで進めるか: (i) work/1008-hou のマージを待ってから DIC-19 をやり直す、(ii) 重なりを承知で進める（辞書の行の中か直後に1行足すだけで、work/1008-hou の変更とは行が離れているため、取り込みは衝突しない見込み）、(iii) 使い方の1行を「ページの一覧」以外（例: 同じ文書の「メンテナンス用スクリプトの詳細」）に書く
+  - 検査の手段の呼び方は、まだ作っていないので未定（案は `python3 scripts/generate_resource_dictionary.py --check`）
+- 未確認の項目:
+  - 今の「辞書」タブでの検査の結果（手順2で行う。DIC-18 の生成では 1,870 語で通っている）
 - エラー: なし
 
 <!-- guide-links -->
