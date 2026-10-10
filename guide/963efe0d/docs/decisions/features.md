@@ -170,3 +170,7 @@
 
 - #515: 本番（https://ryoei.pro/resource_dictionary.html）の「Gboard（Android）」で保存した zip を、Android の Gboard の単語リストに取り込めた
 - #515 を閉じる（2026-10-09 の「平野さんが本番で Android の取り込みを確かめた後に #515 を閉じる」のとおり）
+
+## 2026-10-10（CHAT-1008-DIC-16）
+
+- iPhone 向けの辞書の形式は、別の issue に起票する（2026-10-08 の「iPhone は採用を保留」は変えない）

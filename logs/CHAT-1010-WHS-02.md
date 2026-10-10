@@ -264,29 +264,41 @@ title/ の照合の関数を使い回せるか:
 
 - 決定10の連番の例: 今の39本には同じ公開日（JST）の回が 2024-11-19 に3本、2025-10-17・2026-06-05 に各2本ある。
   案: 最新の公開日の回が N 本（N≥2）なら `index-<日付>-N.jpg`。名前が本数で決まるので、builder とページが同じ関数で同じ名前を出せる
+- 決定を `docs/decisions/wayhome.md` に足し（2b7dc0f3）、README の一覧の行を直した。#194・#340 に決定の要点とログ（710db182 に固定）をコメントした
+- 調べるのに使ったスクリプトは scratchpad（読むだけ。title/ の `load_broadcasts()` などをそのまま呼んだ）。リポジトリには入れていない。`regenerate.py` は流していない
+- 止まる条件: 前提と実物の大きな食い違いは無い（/live の取り込みに帰り道の動画は含まれ、title/ の決勝は /live の【2】＋【3】を使う）。ログ・docs/decisions 以外は変えていない
+- マージ: `origin/cloudflare`（0c17266d）を取り込み（衝突なし）、`git merge-base --is-ancestor origin/cloudflare HEAD` を確かめて `git push origin work/1010-whs:cloudflare`（0c17266d..afa8f455）。ドキュメントのみで Workers Builds は走らない
 
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1010-whs
-- ログ: https://github.com/retroeater/mj/blob/work/1010-whs/docs/logs/CHAT-1010-WHS-02.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1010-WHS-02.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1010-whs
 - 確認用URL: なし
-- マージ: 未
-- issue: #194、#340
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- マージ: 済（afa8f455。ドキュメントのみ）
+- issue: #194・#340（決定の要点とログをコメント）
+- 判断が必要なこと:
+  - `6WAPjcxT78A`（《第３期JPMLWRCR勝又健志編》帰り道ついていってイイっすか、2024-09-12）がシートに無い。シートに足すか、検知から外すか（このままだと実装後の初回に「新しい回」として出る）
+  - H列の候補は title/ の節「決勝動画」（回戦・卓）ではなく「決勝ライブ」（日・ステージ）から採るか（今の H列は39行とも決勝ライブ側）
+  - 決勝が複数日のとき: 決定8どおり空にするか、最後の1本（最終日）を候補にするか（今の H列の8行はすべて最終日と一致）
+  - 無料の冒頭版とメンバー限定の全編があるとき、どちらを候補にするか（今の H列の2行は冒頭版。title/ は全編）
+  - 大会名の違いの扱い: D列の `帝王戦`・`世界麻雀TOKYO2025` と title/ の `小島武夫杯帝王戦`・`リーチ麻雀世界選手権（第4回）`、YouTube の題名の `十段位`・`鳳凰位`・`JPMLWRC` など。別名の表を持つか（新しい回の D列は YouTube の題名から作るしかなく、今の形の素直な変換で今の D列と一致したのは39本中24本）
+  - H列が空の回の知らせ（決定9）: 毎週出すか、変化があったときだけか。ジョブを失敗にするか（`ワールド・リーチ・プロ` は title/ に大会が無く、H列も空のまま出続ける）
+  - 貼る1行の G列（表示）を `Y` で出すか空で出すか
+- 未確認の項目:
+  - `regenerate-page.yml` が既定のトークンで `issues: write` を持つか（リポジトリの既定の権限をセッションから読めない）。`update-live-channel.yml` からの `workflow_call` で呼ばれる側が `issues: write` を求めたときに起動できるか（実装で確かめる）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 0c17266d）: https://github.com/retroeater/mj-logs/tree/main/guide/0c17266d
+ガイド文書（この版を写した時点の最新、mj 963efe0d）: https://github.com/retroeater/mj-logs/tree/main/guide/963efe0d
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/0c17266d/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/0c17266d/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/0c17266d/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/0c17266d/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/0c17266d/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/0c17266d/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/963efe0d/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/963efe0d/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/963efe0d/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/963efe0d/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/963efe0d/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/963efe0d/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/647a8db8.md
