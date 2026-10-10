@@ -388,7 +388,7 @@ GitHub Actions (`.github/workflows/regenerate-page.yml`) が、`scripts/generate
 | ワークフロー | 内容 |
 |---|---|
 | `regenerate-page.yml` | 生成スクリプト・対応する`.js`・`scripts/lib/**`の変更のpushと、毎週月曜05:37 JST（`all`）。ページを再生成してコミットする（詳細は上の「regenerate-page.yml」） |
-| `check-image-links.yml` | 毎週月曜03:00 JST。画像のリンク切れ（最強戦の選手写真を含む）を確かめ、常設issueに書き出す |
+| `check-image-links.yml` | 毎週月曜03:00 JST に `jpml_pros.html` の画像、毎日 04:30 JST（Worker `mj-scheduler` から、入力 `scheduled`）に最強戦の選手写真のリンク切れを確かめ、それぞれ常設issueに書き出す |
 | `check-saikyo-unregistered.yml` | 毎週月曜06:50 JST。最強戦の出場者で「プロ」「連盟プロ以外」から引けない人を常設issueに書く（#431、`docs/notes/saikyo-page-design.md`「8. 出場者の登録漏れの検知」） |
 | `assets-check.yml` | push（`docs/`だけの push は除く。サイズを見る`docs/handover.md`・`docs/notes/chat-side-operations.md`は含む、#298）。`.assetsignore`の漏れ（#133）と CLAUDE.md・handover.md のサイズを検知し、配信の上限との比（`check_asset_limits.py`、#387）を出す |
 | `sitemap-lastmod.yml` | HTMLを含むpush。sitemapのlastmodをgitの最終コミット日にそろえてコミットする（#265、`docs/notes/sitemap-lastmod.md`） |
@@ -411,12 +411,13 @@ GitHub Actions (`.github/workflows/regenerate-page.yml`) が、`scripts/generate
 
 - `regenerate-page.yml` の checkout と push 先は実行ブランチ（#326）。古い作業ブランチから手動実行すると、そのブランチの状態で生成物がコミットされる
 - `check-image-links.yml` の checkout の ref は `${{ github.ref }}`（#306）で、手動実行では選んだブランチがチェックアウトされる。
-  古い作業ブランチから実行すると常設issue（#218）の本文がそのブランチのデータで上書きされる。schedule は既定ブランチ（cloudflare）で走るため週次実行は変わらない。
+  古い作業ブランチから実行すると常設issue（#218）の本文がそのブランチのデータで上書きされる。schedule・Worker の起動は既定ブランチ（cloudflare）で走るため変わらない。
   ジョブ`saikyo`は最強戦の選手写真を別のissueに書き出す（`collect_saikyo_images.py --json`、#139）。画像は1,985枚（handover.md に書いていた時点の数）。
-  入力`saikyo_resolve_test`（X IDを1つ）を入れると、ジョブ`saikyo`はランナーのChromeで解決を1回だけ試して診断を出し、検知も issue の書き換えもしない（#514。ジョブ`check`は今までどおり動く）
+  ジョブ`saikyo`は予約実行（`schedule`）では動かず、入力`scheduled`（Worker からの起動用、手では付けない）ではジョブ`saikyo`だけが動く（#514）。
+  入力`saikyo_resolve_test`（X IDを1つ）を入れると、ジョブ`saikyo`は X API で解決を1回だけ試して診断を出し、検知も issue の書き換えもしない（ジョブ`check`も動かない。#514）
 - `cleanup-logs.yml`（`scripts/cleanup_logs.py`、条件は `docs/notes/branch-operations.md`「作業ログの寿命」）: 手動実行は dry_run が既定。週次実行は `SCHEDULE_ENABLED`（現在 `'true'`）が `'false'` なら dry-run
 - `delete-merged-branches.yml`（`scripts/delete_merged_branches.py`）: 手動実行は dry_run が既定。毎日の実行と、入力 `scheduled` を真にした起動は `SCHEDULE_ENABLED`（現在 `'true'`）が `'false'` なら dry-run（`'true'` なら実際に削除する）。`scheduled` は Worker からの予約の起動用で、手では付けない（`docs/notes/scheduler-worker.md`）
-- `update-live-channel.yml`・`sync-dojo-calendar.yml`・`sync-logs.yml`・`delete-merged-branches.yml` の入力 `scheduled` は Worker `mj-scheduler` からの予約の起動用で、手では付けない（付けると予約実行と同じ動きになり、題に `[scheduled]` が付いて Worker の朝の確かめに数えられる。`docs/notes/scheduler-worker.md`）
+- `update-live-channel.yml`・`sync-dojo-calendar.yml`・`sync-logs.yml`・`delete-merged-branches.yml`・`check-image-links.yml` の入力 `scheduled` は Worker `mj-scheduler` からの予約の起動用で、手では付けない（付けると予約実行と同じ動きになり、題に `[scheduled]` が付いて Worker の朝の確かめに数えられる。`docs/notes/scheduler-worker.md`）
 - `check-meibo.yml`（`scripts/check_meibo.py`）: 手動実行は dry_run が既定。不一致があっても生成は止めない
 - `sync-birthday-calendar.yml`（`scripts/sync_birthday_calendar.py`）: 週次の schedule（毎週月曜05:17 JST）は書き込みまで行う。手動実行の既定は差分を出すだけで、apply を選んだときだけ書き込む。予約実行と同じ動きは apply をオン・allow_many_deletes をオフ（`docs/notes/birthday-calendar.md`）
 - `fetch-gsc.yml`（`scripts/fetch_gsc.py`、#269）: checkout と push 先は実行ブランチ。手動実行の既定はコミットしない（取得するだけ）。
@@ -459,7 +460,7 @@ GitHub Actions (`.github/workflows/regenerate-page.yml`) が、`scripts/generate
 Google の API（`lib/gcal.py`・`lib/sheets_write.py`・`sync_birthday_calendar.py`）には接続10秒・読み取り60秒のタイムアウトを渡し、読み取り（GET）だけ同じく繰り返す。書き込みは、届いたかが分からず重複しうるため繰り返さない（#472）。
 
 - `check_image_links.py` — `jpml_pros.html` 内の画像URL全件にHEADリクエストを送りリンク切れを検知（毎週月曜03:00 JST）
-- `collect_saikyo_images.py` — 最強戦の選手写真（「プロ」J列・「連盟プロ以外」X画像URL、#384）で取得できなくなった画像URLを見つけ、Xハンドルから現在のURLを解決してCSV出力（#333、手動実行＋`check-image-links.yml`から週1で`--json`実行、ヘッドレスChromiumが必要）。生成時に全件は解決しない。`--resolve-test <X ID>`で1件だけ解決して診断を出す。2026-09-28 から解決が働いていない（#514）。使い方と理由は`docs/notes/saikyo-page-design.md`「選手写真の更新」
+- `collect_saikyo_images.py` — 最強戦の選手写真（「プロ」J列・「連盟プロ以外」X画像URL、#384）で取得できなくなった画像URLを見つけ、X 公式 API（user lookup、Secret `X_BEARER_TOKEN`、1回30件まで）で現在のURLを解決してCSV出力（#333・#514、手動実行＋`check-image-links.yml`から毎日`--json`実行）。生成時に全件は解決しない。`--resolve-test <X ID>`で1件だけ解決して診断を出す。使い方と理由は`docs/notes/saikyo-page-design.md`「選手写真の更新」
 - `cleanup_logs.py` — `docs/logs/`の作業ログのうち、7日を過ぎて片付けてよいもの（完了で3項目「なし」・取り下げ・続き先が完了／取り下げ／削除済み・論点の無い旧形式）を削除し、条件外のものを種類別（判断待ち・中断／書き方の違反／読めない）に一覧にする（`cleanup-logs.yml`から週1で実行、`--dry-run`で一覧のみ、`--new-rule-date`で規則を入れた日を試せる）。条件は`docs/notes/branch-operations.md`「作業ログの寿命」
 - `delete_merged_branches.py` — マージ済み（`origin/cloudflare` の祖先）で先頭が24時間より前の `work/*` を削除し、ブランチ名と先頭の SHA を出力する（`delete-merged-branches.yml`から毎日、`--dry-run`で一覧のみ。完全な履歴のクローンが要る）
 - `check_meibo.py` — 連盟員名簿データ（`lib/meibo.py`）と「プロ」シートの在籍者を登録名で突き合わせ、名簿のみ・プロのみを一覧にする（#370、`check-meibo.yml`から週1、生成は止めない）。テストは CLAUDE.md「判断・作業の原則」

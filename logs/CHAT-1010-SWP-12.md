@@ -61,6 +61,70 @@ CHAT-1010-SWP-11 で、`jpml_pros` のサイト内リンクに足した読み上
 - 2026-10-10 着手。Chat-Ref の重複確認: `git log --all --grep="CHAT-1010-SWP-12"` に該当なし。
 - 指示欄の末尾は指示文の最後の行と一致。CHAT-1010-SWP-11 のログの `## 報告` の状態は「判断待ち」。`work/1009-swp-526` はリモートにあり、ローカルと一致（`2d084315`）。
 
+### 手順1 直す
+
+- CHAT-1010-SWP-11 のログの状態の末尾に ` / 続き: CHAT-1010-SWP-12` を足した。
+- `origin/cloudflare` を merge で取り込んだ（rebase なし）。**衝突は無し。** `2d084315..origin/cloudflare` で `jpml_pros.html`・`scripts/generate_jpml_pros.py`・`assets/title.js` を変えるコミットは無い（再生成の取り込みなし）。
+- 直し方（`scripts/generate_jpml_pros.py`）: `get_internal_link()` から `NEW_TAB_HINT` の `<span>` をやめ、リンクに `aria-describedby="mj-newtab-hint"` を付ける。
+  `PAGE_TEMPLATE` の `result_count` の `<p>` の次に `<span id="mj-newtab-hint" hidden>新しいタブで開く</span>` を1つ置く。画像リンクの既存の予告（visually-hidden の文字）は変えない。
+- `scripts/tests/test_jpml_pros.py` の期待値を新しい形に合わせた（`DESCRIBED_BY` を参照。別タブのリンクは「説明の参照」か「画像リンクの中の文字」のどちらかを持つことを確かめるループ）。`python3 -m unittest discover -s scripts/tests` は686件 OK。
+- `python3 scripts/regenerate.py jpml_pros` で生成し直した。確かめた値:
+  - `aria-describedby="mj-newtab-hint"` のリンク **3,259**（見込みどおり）。`id="mj-newtab-hint"` は1つ。`target="_blank"` は4,401で、全部が（説明の参照か画像リンク内の文字の）予告を持つ
+  - `jpml_pros.html` は 1,109,803→1,220,674 バイト（SWP-11 の版は 1,328,156）
+  - 生成物の差分の種類: 作業ブランチの直しによるもの = 上記の属性と説明の1要素。シートの変化によるもの = 2行（高宮まり・宮内こずえ。`origin/cloudflare` の版と、属性・説明を除いて比べて差が出たのはこの2行だけ。SWP-11 でも同じ2行がシートの変化として出ていた）。元に戻していない。それ以外 = 無し
+- アクセシブルな説明（Playwright の CDP `Accessibility.getPartialAXTree`、ローカルの Chromium）: `a[href*="title/"]`（名前「3回」）・`a[href*="saikyo"]`（「5回」）・`a[href*="video_live"]`（「8件」）のいずれも description が「新しいタブで開く」。`aria-describedby` を持つ3,259個の全部で参照先が存在する（参照先は `hidden`、`display:none`）。
+
+### 手順2 測る
+
+SWP-11 と同じ方法・環境・列（「名前」）。`jpml_pros.html` を `page.route` で差し替え、cf（origin/cloudflare の版、1,109,803 バイト）と br（作業ブランチの新しい版、1,220,674 バイト）を交互に10回ずつ（計20回）、直前に各1回の捨て測り。2回行った。
+
+**圧縮後のサイズ**
+
+| 版 | 元 | gzip -9 | brotli（品質11） |
+|---|---|---|---|
+| cf | 1,109,803 | 147,135 | 100,066 |
+| br | 1,220,674 | 149,891 | 100,639 |
+| 増加 | +10.0% | +2,756 バイト（**+1.9%**） | +573 バイト（+0.6%） |
+
+**並べ替えの時間**
+
+**計測1回目**（単位 ms。cf=origin/cloudflare の版、br=作業ブランチの版）
+
+
+クリックから2フレーム描画後まで（total）
+
+| 回 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 中央値 | 増加率 |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| cf | 603.2 | 407.7 | 396.3 | 375.4 | 438.4 | 428.4 | 370.4 | 446.1 | 403.9 | 412.2 | 409.9 | - |
+| br | 381.9 | 368.2 | 393.0 | 364.2 | 758.8 | 386.0 | 368.2 | 405.5 | 367.1 | 383.9 | 382.9 | -6.6% |
+
+クリックのハンドラ〈同期処理〉のみ（handler）
+
+| 回 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 中央値 | 増加率 |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| cf | 52.8 | 50.0 | 50.0 | 47.6 | 51.6 | 68.3 | 51.7 | 63.1 | 61.9 | 58.2 | 52.3 | - |
+| br | 50.3 | 52.2 | 50.3 | 46.2 | 67.1 | 69.3 | 53.2 | 63.0 | 52.9 | 51.4 | 52.6 | +0.6% |
+
+**計測2回目**（単位 ms。cf=origin/cloudflare の版、br=作業ブランチの版）
+
+
+クリックから2フレーム描画後まで（total）
+
+| 回 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 中央値 | 増加率 |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| cf | 346.1 | 380.0 | 400.7 | 404.7 | 362.9 | 369.8 | 432.8 | 344.1 | 376.3 | 383.2 | 378.1 | - |
+| br | 340.3 | 411.3 | 381.9 | 373.6 | 384.7 | 357.1 | 376.5 | 376.8 | 338.1 | 363.5 | 375.1 | -0.8% |
+
+クリックのハンドラ〈同期処理〉のみ（handler）
+
+| 回 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 中央値 | 増加率 |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| cf | 48.8 | 54.6 | 52.1 | 68.1 | 49.5 | 47.3 | 60.2 | 51.0 | 52.9 | 55.5 | 52.5 | - |
+| br | 47.6 | 82.3 | 53.9 | 51.1 | 49.6 | 51.6 | 55.1 | 61.7 | 48.4 | 49.7 | 51.4 | -2.2% |
+
+- **判定: 基準内（gzip +1.9% ≦ +10%。並べ替えの中央値は total が -6.6%・-0.8%、handler が +0.6%・-2.2%で、+20% を超えない）。G4-05 を外さず、G3-02 と G4-05 をマージの対象にする。**
+  SWP-11 の `<span>` 方式（total +35〜39%）と比べ、並べ替えの時間は cf と同じ水準に戻った。
+
 ## 報告
 
 - 状態: 中断（作業中）
@@ -77,12 +141,12 @@ CHAT-1010-SWP-11 で、`jpml_pros` のサイト内リンクに足した読み上
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 237592ff）: https://github.com/retroeater/mj-logs/tree/main/guide/237592ff
+ガイド文書（この版を写した時点の最新、mj 37de7b17）: https://github.com/retroeater/mj-logs/tree/main/guide/37de7b17
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/237592ff/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/237592ff/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/237592ff/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/237592ff/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/237592ff/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/237592ff/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/37de7b17/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/37de7b17/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/37de7b17/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/37de7b17/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/37de7b17/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/37de7b17/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b813da90.md
