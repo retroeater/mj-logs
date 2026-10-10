@@ -5,6 +5,7 @@ GitHub Actions から Google Sheets API で3層のタブ（下記）へ直接書
 方式の比較は `https://github.com/retroeater/mj/blob/ea8b86a18fbe581b9000d7a6135a4717966d7b53/docs/logs/CHAT-0922-UT-07.md`、実装は `https://github.com/retroeater/mj/blob/ea8b86a18fbe581b9000d7a6135a4717966d7b53/docs/logs/CHAT-0922-UT-09.md`。
 
 既存のサービスアカウント（`birthday-calendar`・`gsc-export`）は使い回さない（用途が変わると見分けがつかなくなるため）。
+例外: `live-channel-writer` は SNS ブック（#514）の【1】【2】【3】の書き込みにも使う（2026-10-10 の平野さんの決定。正本・/live 用スプレッドシートは共有せず、書ける先を SNS ブックに限る。`docs/notes/sns-book.md`）。
 プロジェクトは `YOUTUBE_API_KEY` と同じ「My First Project」（`<Google Cloud のプロジェクト ID>`。値は Google Cloud Console で確かめる）を使う
 （このプロジェクトでは鍵作成が組織のポリシーで止められていないことを、既存の birthday-calendar の設定で確認済み、2026-09-22）。
 
@@ -24,7 +25,7 @@ GitHub Actions から Google Sheets API で3層のタブ（下記）へ直接書
 | 【2】自動変換後 | 層2 | 層1から規則で作った表（機械が作る。手では直さない） | 毎日全件を置き換え（公開日時の降順） |
 | 【3】手動補正 | 層3 | 平野さんの判断（掲載 Y/N）と補正 | 毎日、新しい候補を末尾に追記するだけ |
 
-書き込みを許す先は `scripts/lib/sheets_write.py` の `WRITABLE` でこの3つに限り、それ以外（旧シートのタブすべて）へは要求を送る前に止める。
+書き込みを許す先は `scripts/lib/sheets_write.py` の `WRITABLE` でこの3つ（と、予定表のスプレッドシートの3つ〈#448〉・SNS ブックの【1】【2】【3】〈#514〉）に限り、それ以外（旧シートのタブすべて）へは要求を送る前に止める。
 3層のスプレッドシートはサービスアカウントを編集者で共有し、「リンクを知っている全員が閲覧可」にしてある（生成が gviz で読むため）。
 
 **/live・title/ の生成は【2】と【3】を読む**（2026-09-27 に切り替え、#438）。`scripts/lib/live_layer3.py` の `fetch_matches()`・`fetch_uploads()` が、

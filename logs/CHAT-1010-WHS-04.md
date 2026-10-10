@@ -54,6 +54,9 @@ WHS-03 の変更（新しいブックを見出しの名前で読む・動画ID �
 - 指示欄の末尾は指示文の最後の行と一致。雛形の4行は揃っている
 - WHS-03 の `## 報告` の状態は「判断待ち」→ 末尾に ` / 続き: CHAT-1010-WHS-04` を足した
 - 作業ブランチ: ローカル・リモートとも `work/1010-whs` は 7951437e（WHS-03 の最後の push）。`origin/cloudflare` は祖先でない → 次で取り込む
+- `git merge --no-edit origin/cloudflare`（衝突なし、c3dbf580）。取り込みで帰り道の生成に関わるファイル（`lib/wayhome.py`・`lib/sheets.py`・`lib/live.py`・`lib/page.py`・生成スクリプト2本・生成物）は変わっていない
+- 取り込んだ後に `python3 scripts/regenerate.py video_wayhome wayhome_episodes`: シート 40件、`6WAPjcxT78A` を外した警告、各話 39ページ。`git status` に差分なし（WHS-03 の生成物と同じ）
+- テスト: `python3 -m unittest discover -s scripts/tests` OK
 
 ## 報告
 
@@ -71,12 +74,12 @@ WHS-03 の変更（新しいブックを見出しの名前で読む・動画ID �
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj a79dfa83）: https://github.com/retroeater/mj-logs/tree/main/guide/a79dfa83
+ガイド文書（この版を写した時点の最新、mj 40eea4b1）: https://github.com/retroeater/mj-logs/tree/main/guide/40eea4b1
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a79dfa83/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a79dfa83/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a79dfa83/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a79dfa83/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a79dfa83/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a79dfa83/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/40eea4b1/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/40eea4b1/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/40eea4b1/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/40eea4b1/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/40eea4b1/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/40eea4b1/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b4d859a5.md
