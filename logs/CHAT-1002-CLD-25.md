@@ -62,14 +62,21 @@ CLD のチャットの振り返りの申送り（CHAT-1002-CLD-24）で足した
 - cloudflare との差分のファイル: docs/decisions/operations.md・docs/instruction-template.md・docs/logs/CHAT-1002-CLD-24.md・docs/logs/CHAT-1002-CLD-25.md・docs/notes/chat-side-operations.md・docs/notes/handover-archive-2026.md。docs/ だけ
 - マージの行の条件 (1)(2)(3) はすべて満たす
 
+
+### 2. マージ
+
+- push 直前に再 fetch し、`origin/cloudflare` が HEAD の祖先であることを確かめて `git push origin work/1002-cld:cloudflare`（37de7b17..57b074e9）。差分は上の6ファイルだけ
+- 57b074e9 の `assets-check.yml`（run 38024171809）は success。`regenerate-page.yml` は動いていない（docs だけのため。最後の実行は別のコミットの run 38021253597）
+- 作業ブランチはマージ済み。削除は `delete-merged-branches.yml` に任せる（クラウドセッションでは削除できない）
+
 ## 報告
 
-- 状態: 作業中（マージ前）
-- ブランチ: work/1002-cld
-- ログ: https://github.com/retroeater/mj/blob/work/1002-cld/docs/logs/CHAT-1002-CLD-25.md
+- 状態: 完了
+- ブランチ: work/1002-cld（cloudflare へマージ済み。削除は `delete-merged-branches.yml` に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1002-CLD-25.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1002-cld
 - 確認用URL: なし
-- マージ: 未
+- マージ: 済（57b074e9、docs のみ。`assets-check.yml` success、`regenerate-page.yml` は動いていない）
 - issue: なし
 - 判断が必要なこと: なし
 - 未確認の項目: なし
