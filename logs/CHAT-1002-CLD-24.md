@@ -67,7 +67,7 @@ GitHub の issue 検索（Open・Closed とも）で「指示文 完了条件 �
 | 文書 | 着手時 | 変更後 | 警告／上限 |
 |---|---|---|---|
 | docs/notes/chat-side-operations.md | 24,828 | 25,950 | 26,624／28,672（`assets-check.yml`） |
-| docs/instruction-template.md | 12,661 | 12,625 | 上限なし |
+| docs/instruction-template.md | 12,667 | 12,625 | 上限なし |
 | docs/notes/handover-archive-2026.md | — | 85,090 | 上限なし（退避先） |
 | docs/decisions/operations.md | — | 追記 | 上限なし |
 
