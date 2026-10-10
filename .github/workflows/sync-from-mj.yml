@@ -29,6 +29,12 @@ jobs:
       - name: このリポジトリをチェックアウト
         uses: actions/checkout@v4
 
+      # ubuntu-latest の既定の Python が変わっても版を変えない（mj の #538。mj のワークフローと同じ 3.12）
+      - name: Pythonをセットアップ
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
       - name: mj をクローン
         env:
           TOKEN: ${{ secrets.MJ_READ_TOKEN }}
@@ -58,6 +64,7 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           # 載せるのは mj の cloudflare の SHA だけ（作業ブランチの SHA・名前は載せない）
           after=$(git -C "$MJ" rev-parse HEAD)
+          python3 --version
           for i in 1 2 3; do
             python3 "$MJ/scripts/sync_all_logs.py" --mj "$MJ" --dest "$GITHUB_WORKSPACE"
             (cd "$MJ" && python3 scripts/actions_status.py --repo retroeater/mj --dest "$GITHUB_WORKSPACE")
