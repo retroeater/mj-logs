@@ -54,6 +54,29 @@ ubuntu-latest が 2026-10-19 から Ubuntu 26.04（既定の Python 3.14）へ�
 
 ## 経過
 
+- 0章: 指示欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- 識別子: `git log --all --grep="CHAT-1010-RGN-05"` は0件
+- ブランチ: ローカルの `work/1010-rgn` は origin/cloudflare と同じ 5697aa0c（マージ済み）。`git merge --ff-only origin/cloudflare` は「Already up to date」
+- #538: Open、コメント0件（他セッションの着手中コメント無し）。着手中のコメントを残した（issuecomment-6098733221）
+
+### 手順1 確かめる
+
+- `setup-python` を使わずに python を動かすワークフローは mj に3本（`assets-check.yml` 131行・`delete-merged-branches.yml` 71行・`sync-logs.yml` 76〜103行）で、RGN-04 のログのとおり。mj-logs のワークフローは `sync-from-mj.yml` の1本だけで、62・63行で `python3` を使う。合わせて4本
+- `sync-logs.yml` は停止中（docs/notes/static-generation.md「ワークフローの一覧」: 2026-10-07 から `workflow_dispatch` のみ）
+- 「ワークフローを変更したとき」を読んだ。`assets-check.yml` は `work/**` への push で動く（`docs/` 以外の変更）。`delete-merged-branches.yml` は `workflow_dispatch`（既定 dry_run）
+- 未マージの work/ ブランチで対象の3本を変えるのは `work/1008-hou` だけ（`assets-check.yml` 74行の許可するディレクトリに `houou` を足す1行）。`git merge-file` で今回の変更と3方向で合わせ、衝突しないことを確かめた
+- mj-logs: `add_repo`（push）で session に足し、`/home/user/mj-logs` にクローンした。`GET /repos/retroeater/mj-logs` の permissions は push: true
+
+### 手順2 直して試す
+
+- mj（9ad608dc）: 3本に `actions/setup-python@v5`（`python-version: '3.12'`）のステップを足した（assets-check はチェックアウトの直後、delete-merged-branches はチェックアウトの後、sync-logs は mj-logs のチェックアウトの後）。assets-check と delete-merged-branches の python を呼ぶ run に `python3 --version` を1行足した。sync-logs は書き換えだけで実行していない
+- assets-check（run 38061293918、#3168、作業ブランチへの push）: success。「Pythonをセットアップ」success、ログに `Python 3.12.15`
+- delete-merged-branches（run 38061297637、#25、手動実行 dry_run）: success。`Successfully set up CPython (3.12.15)`・`Python 3.12.15`、対象の一覧は dry-run で出ただけ
+- docs/notes などにランナーの `python3` に頼ると書いた所は無かった（grep）
+- mj-logs（910ca2c、main）: `sync-from-mj.yml` の「mj をクローン」の前に同じステップを足し、写すステップに `python3 --version` を1行足した。push の直前に `git fetch` と `git rebase` をした（写しのボットが毎分 push するため）
+- mj-logs の手動実行を起動した。Worker からの起動も同じ workflow_dispatch で、910ca2c を含む 59cef398 で動いた run 38061698534（#743）: success、「Pythonをセットアップ」success、ログに `Python 3.12.15`、写しは「変更なし」で正常に終わった。#741 以前の版に戻す必要は無かった
+- 並行のセッション: 実行中に `work/1010-rgn-py`（CHAT-1010-RGN-06、Python 3.14 への上げを起票するドキュメントだけの指示）が作られていた。ワークフローは変えないので止まる理由にはしない（`docs/decisions/automation.md` の追記が重なりうる）
+
 ## 報告
 
 - 状態: 対応中
@@ -70,12 +93,12 @@ ubuntu-latest が 2026-10-19 から Ubuntu 26.04（既定の Python 3.14）へ�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 5697aa0c）: https://github.com/retroeater/mj-logs/tree/main/guide/5697aa0c
+ガイド文書（この版を写した時点の最新、mj 706da098）: https://github.com/retroeater/mj-logs/tree/main/guide/706da098
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/5697aa0c/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/5697aa0c/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/5697aa0c/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/5697aa0c/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/5697aa0c/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/5697aa0c/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/706da098/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/706da098/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/706da098/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/706da098/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/706da098/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/706da098/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/19111d74.md
