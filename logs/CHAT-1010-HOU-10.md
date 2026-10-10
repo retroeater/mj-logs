@@ -151,6 +151,33 @@ HOU-08 の比較ページで平野さんが選んだ候補を本番の形にし�
 - リーグ推移: グラフの下の説明の1文を消した（選手がいない・見つからないときの案内は残す）。ページ下の説明文はそのまま
 - 手元の確かめ（390×844）: トップは T1 のカード4枚。個人成績の推移は白鳥翔・平野良栄・大久保隼人でベスト・ワースト・最高のラベルが重ならない（撮影で確かめた）。`houou/ranking/term-high/?division=連続昇級回数` → `promotion-streak/`、チップ「期平均」→ `total-per-term/`（title は「通算得点/期 | ランキング | …」）。リーグ推移の説明は空。JS のエラー 0
 
+### 手順2 入替戦の帯・演出の比較ページ
+
+- 「入替戦」のいる表（「鳳凰」タブ、G列「入替戦」12行。すべて表示 Y）:
+
+| 期 | リーグ | 人数 | 入替戦の順位 | 上下（順位が表の上半分か） | ほかの結果 |
+|---|---|---|---|---|---|
+| 17後 | A1 | 12 | 10・11位 | 下側 | 決定戦3・残留6・降級1 |
+| 17後 | A2 | 16 | 2・3位 | 上側 | 昇級1・残留9・降級4 |
+| 18後 | A1 | 12 | 10・11位 | 下側 | 決定戦3・残留6・降級1 |
+| 18後 | A2 | 16 | 2・3位 | 上側 | 昇級1・残留9・降級4 |
+| 19後 | A1 | 12 | 10・11位 | 下側 | 決定戦3・残留6・降級1 |
+| 19後 | A2 | 16 | 2・3位 | 上側 | 昇級1・残留9・降級4 |
+
+  上下どちらとも取れる表は無い。**どれも第17〜19期で、`houou/race/` の対象の期（第23期前期〜。順位変動の JSON があるのは第23期以降）の外にある**ため、今の `houou/race/` には入替戦の帯が出る表が無い（生成の出力は変わらない）
+- 入替戦の帯: `houou/race/` の表のデータに `upPlay`・`downPlay`（人数と文字「入替戦」）を `generate_houou_pages.py` の `playoff_bands()` が入れる（入替戦の選手の、シートの行の順〈順位の順〉の位置が表の上半分なら上側）。`assets/houou_race.js` は帯を一覧（昇級〈A1 は決定戦〉→ 入替戦〈上側〉→ 入替戦〈下側〉→ 降級）で持ち、帯の位置・色の範囲・読み上げの文をその一覧から決める形にした。上側は昇級の帯の下、下側は降級の帯の上に入る。旧 `houou_race.html` は変えない
+- 入替戦の帯の色: 上側 #fdba74（暖色の明るい側）、下側 #7dd3fc（寒色の明るい側）に濃い字 #0e1116（11.21:1・11.34:1。白字だと 1.69:1・1.67:1 なので濃い字にした）。昇級 #c2410c・降級 #1c6fc4（白字 5.18:1・5.10:1）と明るさで分かれる。帯の内側の行は同じ色を 22% 混ぜた地
+- 確かめ（実データに無いので、17後と同じ形に差し替えたデータで）: 第30期後期の A2 を「昇級1・入替戦2・降級4」、A1 を「決定戦3・入替戦2・降級1」にして最後の節へ送ると、A2 は 昇級（1位の下）→ 入替戦・暖色（3位の下）→ 降級（9位の下）、A1 は 決定戦（3位の下）→ 入替戦・寒色（9位の下）→ 降級（11位の下）の順に帯が出て、行と帯の重なりは 0。読み上げの文は「2位、入替戦」「10位、入替戦」など
+- 特別昇級（前に出場した期のリーグから、段の並びで2段以上上へ移った期）: 平野良栄 34前 D1 → 34後 C2（2段）、大久保隼人 42前 E2 → 42後 B2（8段）。白鳥翔 25後 C3 → 26前 C1（2段）にもある
+- 演出の比較ページ `houou/leagues/compare.html?name=`（ラジオ「昇級」「降級」「特別昇級」「到達」を独立に切り替える。本番は各1つ目）:
+  - 昇級: U1 紙吹雪（今まで）・U2 アイコンの下から上へ光の柱が立ち「昇級」の文字が出て上へ消える（0.9秒）・U3 区間の間に大きく跳ねて1回転し、着地で段の帯が一瞬明るくなる（0.5秒）
+  - 降級: D1 沈む（今まで）・D2 区間の初めに小さく揺れてから下へ、着くと頭上に小さな雨雲（0.8秒）・D3 区間の間、元の段の帯が暗くなり、アイコンは静かに下へ
+  - 特別昇級: S1 区間の間、アイコンの下から炎と煙を出し、着くと星が弾ける（0.65秒）・S2 区間の前半で残像を残して消え、後半で着く所に現れ、光の輪が広がる（0.7秒）・S3 区間の間に放物線で高く跳び、着地で衝撃波の輪と画面の小さな揺れ（0.4秒）
+  - 到達（鳳凰位・A1 の決定戦の期に着いたとき）: R1 なし・R2 アイコンの上に王冠（1.2秒）・R3 アイコンの後ろに金色の光（1.2秒）
+  - 演出は 0.4〜1.2秒。区間の動きに重ねる演出（U3・D2・D3・S1〜S3）は区間の中に収まり、着いたときの演出は次の区間に少しかかる。全体の上限 25秒は変えていない。`prefers-reduced-motion` では再生のボタンを出さないので演出も出ない。自前の SVG・JS だけ
+- 前から出ていなかったもの: 最後の期に着いたときの演出（紙吹雪・沈む）は、最後の区間が終わるとすぐズームアウトに入るため出ていなかった。ズームアウトの始めに出すようにした
+- 確かめ（390×844、動きの途中を撮影）: 大久保隼人で U1〜U3・D2・D3・S1〜S3、白鳥翔で R2・R3 の場面を撮った。U1 は紙吹雪、U2 は光の柱と「昇級」、U3 は回転の途中のアイコン、D2 は頭上の雨雲、D3 は暗くなった帯、S1 はアイコンの下の炎、S2 は薄くなったアイコン、S3 は高く跳んだアイコン、R2 は王冠、R3 は金色の光（R3 の場面は紙吹雪と重なって光は淡い）。S1 の炎が小さかったので粒を大きくした。JS のエラー 0
+
 ## 報告
 
 - 状態: 作業中
@@ -167,12 +194,12 @@ HOU-08 の比較ページで平野さんが選んだ候補を本番の形にし�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj a930b4a9）: https://github.com/retroeater/mj-logs/tree/main/guide/a930b4a9
+ガイド文書（この版を写した時点の最新、mj 447a0d65）: https://github.com/retroeater/mj-logs/tree/main/guide/447a0d65
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a930b4a9/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a930b4a9/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a930b4a9/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a930b4a9/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a930b4a9/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a930b4a9/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/447a0d65/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/447a0d65/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/447a0d65/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/447a0d65/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/447a0d65/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/447a0d65/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/19111d74.md
