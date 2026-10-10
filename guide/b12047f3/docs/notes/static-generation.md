@@ -249,7 +249,7 @@ handover.md 5章から移した。ページの一覧は下の「ページの一�
 
 ### ページの一覧
 
-HTMLは25ページ + 書籍の一覧と個別ページ（`books/`、#97、noindex・メニュー未掲載。**2026-09-22 開発凍結、`docs/notes/books-freeze.md`**） + 「帰り道」エピソード個別ページ39枚（`wayhome/`、#162） + 最強戦のトップと年度ページ（`saikyo/`、#319/#355、2026-09-21 に公開） + タイトル戦の新構成（`title/`、#222、2026-09-28 に公開、#413） + 放送対局ページ（`live/`、#346、noindex・メニュー未掲載。正式公開は #362）。大きく4系統に分かれる。
+HTMLは25ページ + 書籍の一覧と個別ページ（`books/`、#97、noindex・メニュー未掲載。**2026-09-22 開発凍結、`docs/notes/books-freeze.md`**） + 「帰り道」エピソード個別ページ39枚（`wayhome/`、#162） + 最強戦のトップと年度ページ（`saikyo/`、#319/#355、2026-09-21 に公開） + タイトル戦の新構成（`title/`、#222、2026-09-28 に公開、#413） + 放送対局ページ（`live/`、#346、noindex・メニュー未掲載。正式公開は #362） + 鳳凰戦の新ページ（`houou/`、#518、noindex・メニュー未掲載、公開は #540）。大きく4系統に分かれる。
 
 | 系統 | ページ数 | 状態 |
 |---|---|---|
@@ -265,6 +265,7 @@ HTMLは25ページ + 書籍の一覧と個別ページ（`books/`、#97、noinde
 | ビルド時生成（サブディレクトリ、ヒーロー構成のエピソード個別ページ） | 39 | `wayhome/<動画ID>.html`。`scripts/generate_wayhome_episodes.py`（`docs/notes/video-wayhome.md`） |
 | ビルド時生成（サブディレクトリ、最強戦のトップと年度ページ） | トップ1＋年度数 | `saikyo/index.html`・`saikyo/<年度>.html`。`scripts/generate_saikyo_pages.py`。2026-09-21 に一般公開し、navbar・`sitemap-saikyo.xml`・`llms.txt` に載る（#319・#348、`docs/notes/saikyo-page-design.md`） |
 | ビルド時生成（サブディレクトリ、タイトル戦の新構成） | 入口1＋大会数＋期数 | `title/index.html`・`title/<slug>/index.html`・`title/<slug>/<期>.html`（入口は年の切り替え〈`?year=`、#277〉を持つ）。`scripts/generate_title_pages.py`。navbar の「連盟 > タイトル」から入口へ（#413、`docs/notes/title-pages.md`） |
+| ビルド時生成（サブディレクトリ、鳳凰戦の新ページ） | 13＋在籍者数（691、2026-10-11） | `houou/index.html`（トップ）・`houou/players/`（個人成績）・`houou/ranking/`（通算得点）と部門ごとの `houou/ranking/<スラッグ>/` 8ページ・`houou/leagues/`・`houou/race/` の各 `index.html`。データは `houou/search.json`・`houou/results/<選手名>.json`（在籍者だけ）・`houou/race/<期>-<1|2>.json`。`scripts/generate_houou_pages.py`（集計は `lib/ranking.py`・`lib/results.py`、順位変動は既存の生成スクリプトの部品）＋`assets/houou.js`・`assets/houou_race.js`（順位変動の写し）。noindex・メニュー未掲載、公開は #540（#518・#520、`docs/notes/houou-top.md`） |
 | ビルド時生成（サブディレクトリ、放送対局ページ） | 691（2026-09-18） | `live/index.html`・`live/<タイトル戦>/index.html` 以下。`scripts/generate_live_pages.py`。noindex・メニュー未掲載、正式公開は #362（`docs/notes/live-page-design.md`） |
 | ビルド時生成（サブディレクトリ、書籍の一覧と個別ページ） | 一覧1＋190 | `books/index.html`・`books/<ISBN13>.html`。`scripts/generate_books_pages.py`。noindex・メニュー未掲載、`sitemap-books.xml` は `sitemap.xml` から未参照。**2026-09-22 開発凍結（自動生成・自動取得を停止、本番はそのまま残す）。詳細は `docs/notes/books-freeze.md`** |
 | Google Charts依存 | **6** | ブラウザから直接スプレッドシートを読む。#7の対象。型B3・ランキング系A3 |
@@ -359,8 +360,9 @@ title/ では「タイトル戦」タブの大会の改名が「タイトル」�
 - **「プロ」シートは `lib/pro_sheet.py` の `fetch_pros()` で読む**（#536）。読む列は見出しの定数（`pro_sheet.NAME`・`X_ID` など）の組で渡し、
   在籍は見出し「表示」が Y の行（旧 `WHERE Y = "Y"`）、並びは `sort=True` で「ソートキー」の順（旧 `ORDER BY B`）。見出しはセル内改行を除いて比べ
   （「X\nID」は `XID`）、A列の「登録名\n0.74」は改行の前の「登録名」で引く（#467）。必要な見出しが無い・2つ以上の列に当たるときは止める。
-  **`generate_houou_leagues.py`・`generate_houou_race.py`・`check_leagues_dropped.py`（`generate_ouka_leagues.PRO_QUERY` も借りる）はまだ列記号で読む**
-  （未マージの work/1008-hou と重なるため、そのマージ後に切り替える。#536 の段1の残作業）
+  列記号で「プロ」を読む箇所は無い（`scripts/tests/test_pro_sheet.py` が `WHERE Y = "Y"`・`PRO_QUERY` などの再登場を検査する）。
+  **廃止する11列（C・D・E・O〜U・W、`pro_sheet.RETIRED`）はどこも読まない**: 英字の姓名・所属・読みは名簿（`lib/meibo.py`。`check_pros()` が在籍者の欠けと人数を検査して止める）、
+  成績の8列は `lib/pro_stats.py`、型C（`houou_leagues`・`ouka_leagues`・`check_leagues_dropped.py`）の選手候補は各ページの `load_candidates()`（「鳳凰」「桜花」タブに1行でもある在籍者）
 - **作業の途中で平野さんがシートを直すことがある。** 最強戦の作業（CHAT-0918-SX）では、SX-08 の「連盟プロ以外」の見出しの改名
   （「備考」→「所属補足」）、SX-09 の「放送対局」の動画の移動があった。見出しの改名は、`lib/live.py` の `OTHER_HEADERS` と
   `generate_title_pages.py` の `EXPECTED_HEADERS` の照合で /live・/title・最強戦（作業ブランチの実装）の生成が止まり、壊れたページを書き出す前に拾えた
