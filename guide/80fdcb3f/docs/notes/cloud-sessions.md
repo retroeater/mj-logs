@@ -68,7 +68,7 @@ Chat-Ref の確認・`git branch --merged` が誤る。**これらの判定の�
 
 セッションの git プロキシがブランチの削除を拒否する（`git push origin --delete` が HTTP 403）。削除はしない。
 マージ済みの `work/*` は `delete-merged-branches.yml` が毎日、先頭が24時間より前のものを削除する（削除の記録もワークフローの出力に残る）。
-CLAUDE.md「ブランチ運用」の「作業ブランチも削除する」は、このワークフローに任せることで満たす。
+docs/notes/branch-operations.md「作業ディレクトリの分離（Codespace）」の「作業ブランチも…削除する」は、このワークフローに任せることで満たす。
 `claude/*` は対象外（#440）。
 
 ## ネットワーク
