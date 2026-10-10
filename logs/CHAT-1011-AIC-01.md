@@ -87,6 +87,26 @@ Claude API の月次クレジット（Max 5x、月 $100。Console の組織「Ry
 - 例の質問「23期生で鳳凰位になった人は？」の答え: 吉田直（第35期）と白鳥翔（第41期・第42期）。**前提の「吉田直（第36期）・白鳥翔（第42期）」は rows の座った期で、獲った期とは1期ずれる**（白鳥翔は第41期も獲っている）。決定どおりに作ることは妨げないため止まらない
 - 改名の名寄せ: HOU-13（未マージ、`work/1011-hou`）で「別名」によりコード側で名寄せする決定（grill Q3 を置き換え）
 
+### 3. 公式文書で確かめたこと（2026-10-10、サブエージェントが取得）
+
+Cloudflare（developers.cloudflare.com）:
+
+- Workers Free: 1日 10万リクエスト（00:00 UTC にリセット）、CPU 10ms／リクエスト（fetch の待ちは数えない）、壁時計の上限なし、サブリクエスト 50／回、Cron Triggers はアカウントで5本（`mj-scheduler` が1本使用）。静的アセットへのリクエストは無料・無制限（workers/platform/limits/、workers/static-assets/billing-and-limitations/）
+- 既存の `mj` に `main` を足す形: `assets.run_worker_first: ["/api/*"]` で `/api/*` だけスクリプトを先に通す。`_redirects`・`_headers` は Worker が返す応答には効かない（ヘッダはスクリプトで付ける）。他のパスは今のまま（workers/static-assets/binding/、…/redirects/、…/headers/）
+- 別の Worker をゾーンのルート `ryoei.pro/api/*` に置く形: ルートは同じホスト名の Custom Domain より優先される（workers/configuration/routing/routes/）
+- 保存: D1 Free は1日 500万行読み・10万行書き・5GB、強い整合（リードレプリカを使わない限り）。KV Free は書き込み1日1,000回・結果整合で数え上げに向かない。Durable Objects は Free で SQLite 版のみ使える。Rate Limiting バインディングは期間が 10秒か60秒だけで「正確な集計には使わない」と明記（d1/platform/、kv/platform/、durable-objects/platform/pricing/、workers/runtime-apis/bindings/rate-limit/）
+- Cron Triggers は UTC だけ（0時 JST = `0 15 * * *`）
+- Secret: Workers & Pages → Worker → Settings → Variables and Secrets → Add（型 Secret）。Workers Builds の「Build variables and secrets」はビルド時だけで実行時には読めない（workers/configuration/secrets/、workers/ci-cd/builds/configuration/）。ダッシュボードで足した Secret が Builds のデプロイで残ることの明文は見つからず（`mj-scheduler` は実際に残っている）
+- D1 は先にダッシュボード（D1 SQL database → Create Database）で作り、`database_id` を `wrangler.jsonc` に書く。Builds の自動のトークンには D1 の権限が無い
+- 利用者の IP は `CF-Connecting-IP`
+
+Anthropic（platform.claude.com、support.claude.com）:
+
+- ワークスペースの作成は組織の管理者だけ: Settings > Workspaces → Create workspace。上限はワークスペースを選んだ画面の Spend limits（月単位。組織の上限より低くだけ設定できる。Default Workspace には付けられない）。到達すると HTTP 400 `invalid_request_error`（manage-claude/workspaces、api/rate-limits）
+- キー: Settings → API keys → Create key。名前・期限（Never 可）・紐づけ先（本人か service account）を選び、ワークスペースに限定できる（manage-claude/authentication）
+- Haiku 5.5: `claude-haiku-5-5`。10万トークン以下の入力で 100万トークンあたり入力 $0.10・出力 $0.50（前提の料金は正しい）。structured outputs（`output_config.format`）に対応。adaptive thinking が既定で有効で、`temperature` 等は送らない（models/haiku-5-5/overview、about-claude/pricing、build-with-claude/structured-outputs）
+- Max の API クレジットは連携した組織のキー全部が同じ残高から使う（support の 17154008）
+
 ## 報告
 
 - 状態: 作業中
@@ -103,12 +123,12 @@ Claude API の月次クレジット（Max 5x、月 $100。Console の組織「Ry
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj a72aaab4）: https://github.com/retroeater/mj-logs/tree/main/guide/a72aaab4
+ガイド文書（この版を写した時点の最新、mj f55bb027）: https://github.com/retroeater/mj-logs/tree/main/guide/f55bb027
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a72aaab4/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a72aaab4/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a72aaab4/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a72aaab4/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a72aaab4/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a72aaab4/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f55bb027/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f55bb027/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f55bb027/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f55bb027/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f55bb027/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f55bb027/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a72aaab4.md

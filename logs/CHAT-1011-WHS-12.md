@@ -65,6 +65,13 @@ WHS-10 は、武田雛歩（`UtxpVoWy2GY`）の「プロ」シートの X画像�
 - 平野さんへ: 「プロ」シートの武田雛歩の X画像を次の URL に直してください: https://pbs.twimg.com/profile_images/2108212521459150848/hgPwE-Tk_400x400.jpg
   （ここで止まり、貼ったという返事を待つ）
 
+### 手順2: 生成し直して確かめる
+
+- 平野さんの返事: 「プロ」シートを `https://pbs.twimg.com/profile_images/2108212521459150848/hgPwE-Tk_80x80.jpg` で更新した（同じ写真の `_80x80`。生成は `with_size()` で `_400x400` に書き換えるので同じ結果）。シートを読んで値を確かめた
+- `git merge --no-edit origin/cloudflare`（衝突なし）
+- テスト OK。`regenerate.py video_wayhome wayhome_episodes` を2回流し、2回とも写真の確かめが通った（39話、止まらない）
+- 差分は `wayhome/UtxpVoWy2GY.html` の写真の URL 1行だけ（`…/K5UEBvMm_400x400.jpg` → `…/hgPwE-Tk_400x400.jpg`）。帰り道以外の生成物は変えていない
+
 ## 報告
 
 - 状態: 判断待ち
@@ -82,12 +89,12 @@ WHS-10 は、武田雛歩（`UtxpVoWy2GY`）の「プロ」シートの X画像�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj a72aaab4）: https://github.com/retroeater/mj-logs/tree/main/guide/a72aaab4
+ガイド文書（この版を写した時点の最新、mj f55bb027）: https://github.com/retroeater/mj-logs/tree/main/guide/f55bb027
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a72aaab4/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a72aaab4/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a72aaab4/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a72aaab4/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a72aaab4/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a72aaab4/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f55bb027/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f55bb027/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f55bb027/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f55bb027/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f55bb027/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f55bb027/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a72aaab4.md

@@ -249,7 +249,7 @@ handover.md 5章から移した。ページの一覧は下の「ページの一�
 
 ### ページの一覧
 
-HTMLは25ページ + 書籍の一覧と個別ページ（`books/`、#97、noindex・メニュー未掲載。**2026-09-22 開発凍結、`docs/notes/books-freeze.md`**） + 「帰り道」エピソード個別ページ39枚（`wayhome/`、#162） + 最強戦のトップと年度ページ（`saikyo/`、#319/#355、2026-09-21 に公開） + タイトル戦の新構成（`title/`、#222、2026-09-28 に公開、#413） + 放送対局ページ（`live/`、#346、noindex・メニュー未掲載。正式公開は #362）。大きく4系統に分かれる。
+HTMLは25ページ + 書籍の一覧と個別ページ（`books/`、#97、noindex・メニュー未掲載。**2026-09-22 開発凍結、`docs/notes/books-freeze.md`**） + 「帰り道」エピソード個別ページ39枚（`wayhome/`、#162） + 最強戦のトップと年度ページ（`saikyo/`、#319/#355、2026-09-21 に公開） + タイトル戦の新構成（`title/`、#222、2026-09-28 に公開、#413） + 放送対局ページ（`live/`、#346、noindex・メニュー未掲載。正式公開は #362） + 鳳凰戦の新ページ（`houou/`、#518、noindex・メニュー未掲載、公開は #540）。大きく4系統に分かれる。
 
 | 系統 | ページ数 | 状態 |
 |---|---|---|
@@ -265,6 +265,7 @@ HTMLは25ページ + 書籍の一覧と個別ページ（`books/`、#97、noinde
 | ビルド時生成（サブディレクトリ、ヒーロー構成のエピソード個別ページ） | 39 | `wayhome/<動画ID>.html`。`scripts/generate_wayhome_episodes.py`（`docs/notes/video-wayhome.md`） |
 | ビルド時生成（サブディレクトリ、最強戦のトップと年度ページ） | トップ1＋年度数 | `saikyo/index.html`・`saikyo/<年度>.html`。`scripts/generate_saikyo_pages.py`。2026-09-21 に一般公開し、navbar・`sitemap-saikyo.xml`・`llms.txt` に載る（#319・#348、`docs/notes/saikyo-page-design.md`） |
 | ビルド時生成（サブディレクトリ、タイトル戦の新構成） | 入口1＋大会数＋期数 | `title/index.html`・`title/<slug>/index.html`・`title/<slug>/<期>.html`（入口は年の切り替え〈`?year=`、#277〉を持つ）。`scripts/generate_title_pages.py`。navbar の「連盟 > タイトル」から入口へ（#413、`docs/notes/title-pages.md`） |
+| ビルド時生成（サブディレクトリ、鳳凰戦の新ページ） | 13＋在籍者数（692、2026-10-10） | `houou/index.html`（トップ）・`houou/players/`（個人成績）・`houou/ranking/`（通算得点）と部門ごとの `houou/ranking/<スラッグ>/` 8ページ・`houou/leagues/`・`houou/race/` の各 `index.html`。データは `houou/search.json`・`houou/results/<選手名>.json`（在籍者だけ）・`houou/race/<期>-<1|2>.json`。`scripts/generate_houou_pages.py`（集計は `lib/ranking.py`・`lib/results.py`、順位変動は既存の生成スクリプトの部品）＋`assets/houou.js`・`assets/houou_race.js`（順位変動の写し）。noindex・メニュー未掲載、公開は #540（#518・#520、`docs/notes/houou-top.md`） |
 | ビルド時生成（サブディレクトリ、放送対局ページ） | 691（2026-09-18） | `live/index.html`・`live/<タイトル戦>/index.html` 以下。`scripts/generate_live_pages.py`。noindex・メニュー未掲載、正式公開は #362（`docs/notes/live-page-design.md`） |
 | ビルド時生成（サブディレクトリ、書籍の一覧と個別ページ） | 一覧1＋190 | `books/index.html`・`books/<ISBN13>.html`。`scripts/generate_books_pages.py`。noindex・メニュー未掲載、`sitemap-books.xml` は `sitemap.xml` から未参照。**2026-09-22 開発凍結（自動生成・自動取得を停止、本番はそのまま残す）。詳細は `docs/notes/books-freeze.md`** |
 | Google Charts依存 | **6** | ブラウザから直接スプレッドシートを読む。#7の対象。型B3・ランキング系A3 |
@@ -308,7 +309,8 @@ HTMLは25ページ + 書籍の一覧と個別ページ（`books/`、#97、noinde
   外部の一時的な不調で今まで通っていた生成を止めないため。フィルタは人の操作で起きるまれな事故で、
   見逃しても次の実行で拾える
 - **通知は生成の失敗そのもの**（常設issueは作らない）。見出しの照合・置換文字の検査と同じ「生成を止める条件」の扱いで、
-  `regenerate-page.yml` が失敗すれば GitHub から通知が届く。フィルタは解除すれば直る一時的な状態なので、
+  止まったページだけが飛ばされ（ほかのページは生成・コミットされる）、`regenerate-page.yml` が失敗して GitHub から通知が届く
+  （飛ばしたページと理由はジョブのサマリ。下の「regenerate-page.yml」、#533）。フィルタは解除すれば直る一時的な状態なので、
   issue を残す意味が薄い
 - **増える時間**: タブごとに CSV 1回＋`COUNT(A)` 1回、スプレッドシートごとに `htmlview` 1回。
   2026-09-21 の実測（Codespace から、1回ずつ）:
@@ -331,6 +333,7 @@ HTMLは25ページ + 書籍の一覧と個別ページ（`books/`、#97、noinde
 ### 生成を止める条件の設計（#222 の実例）
 
 スプレッドシートを読む生成スクリプトは、入力の食い違いに気付かないまま壊れたページを書き出さないよう、次を「生成を止める条件」にする。
+止まるのはそのページだけで、`regenerate.py` が途中の出力を戻して飛ばし、ほかのページは続ける（下の「regenerate-page.yml」、#533）。
 `generate_title_pages.py` はこの形で、title/ の第1段（CHAT-0916-TT-07〜TT-16）で止まったのはすべて実際の食い違いだった。新しい生成スクリプトでも同じ形にする。
 
 - 読むタブの見出しの照合。gviz は存在しないタブ名でも先頭のタブを黙って返すため、これが無いと誤ったタブを読んだまま生成が通る
@@ -386,7 +389,7 @@ title/ では「タイトル戦」タブの大会の改名が「タイトル」�
 
 ### regenerate-page.yml
 
-GitHub Actions (`.github/workflows/regenerate-page.yml`) が、`scripts/generate_*.py` / 対応する `.js` / `scripts/lib/**` の変更をcloudflareブランチへのpushで検知し、自動で再生成・コミットする（`chore: regenerate <ページ名>.html via GitHub Actions`）。検知はpushに含まれる全コミットの範囲（`github.event.before`〜`github.sha`）の差分で行う（#167）。手動実行（workflow_dispatch）も可能。毎週月曜05:37 JSTにも`all`を自動実行し、差分がなければコミットしない（#103）。`table.js`・`leagues.js`はルート直下の`*.js`に該当するためpushでワークフロー自体は起動するが、どのページ名にも一致せず対象0件で終わる（HTMLに焼き込まれないため実害なし）。`regenerate.py`は出力がディレクトリになるページ向けに`OUTPUT_OVERRIDES`（例: `wayhome_episodes` → `"wayhome/"`）を持ち、コミット・lastmod更新対象のパスとして返せる（#162）。ワークフローの`git add`は`-A --`で削除も拾い、`sitemap*.xml`をまとめて対象に含める。**2026-09-22 開発凍結（`docs/notes/books-freeze.md`）以降、`regenerate.py`の`FROZEN_FROM_ALL`が`"all"`から`books_pages`を外し（ページ名を指定すれば個別には動く）、「楽天の書影を取得」ステップは`if: false`で止めている**
+GitHub Actions (`.github/workflows/regenerate-page.yml`) が、`scripts/generate_*.py` / 対応する `.js` / `scripts/lib/**` の変更をcloudflareブランチへのpushで検知し、自動で再生成・コミットする（`chore: regenerate <ページ名>.html via GitHub Actions`）。検知はpushに含まれる全コミットの範囲（`github.event.before`〜`github.sha`）の差分で行う（#167）。手動実行（workflow_dispatch）も可能。毎週月曜05:37 JSTにも`all`を自動実行し、差分がなければコミットしない（#103）。`table.js`・`leagues.js`はルート直下の`*.js`に該当するためpushでワークフロー自体は起動するが、どのページ名にも一致せず対象0件で終わる（HTMLに焼き込まれないため実害なし）。`regenerate.py`は出力がディレクトリになるページ向けに`OUTPUT_OVERRIDES`（例: `wayhome_episodes` → `"wayhome/"`）を持ち、コミット・lastmod更新対象のパスとして返せる（#162）。ワークフローの`git add`は`-A --`で削除も拾い、`sitemap*.xml`をまとめて対象に含める。**1ページの生成が失敗したら、`regenerate.py`がそのページの途中の出力を戻して飛ばし、残りのページを生成する**（失敗の種類では分けない。生成の前の作業ツリーを一時の index で tree オブジェクトに取り、失敗したら増えたファイルを消して変わったファイルを戻す。前のページが変えた共有のファイルは前のページの出力に戻る）。コミット対象と`check_asset_limits`は成功したページだけで出し、飛ばしたページがあれば終了コード 3（`SKIPPED_EXIT`）を返して、飛ばしたページと理由（生成スクリプトの出力の最後の行）を stderr とジョブのサマリに出す。ワークフローは成功したページをコミット・push してから、最後のステップ「飛ばしたページを報告」で失敗にする（失敗通知メールを保つ。常設issueは作らない）。手動実行・週次・`workflow_call`（`update-live-channel.yml`・`regenerate-saikyo.yml`）・セッションの`regenerate.py all`も同じ扱い（#533）。**2026-09-22 開発凍結（`docs/notes/books-freeze.md`）以降、`regenerate.py`の`FROZEN_FROM_ALL`が`"all"`から`books_pages`を外し（ページ名を指定すれば個別には動く）、「楽天の書影を取得」ステップは`if: false`で止めている**
 
 ### ワークフローの一覧
 
@@ -395,6 +398,7 @@ GitHub Actions (`.github/workflows/regenerate-page.yml`) が、`scripts/generate
 | ワークフロー | 内容 |
 |---|---|
 | `regenerate-page.yml` | 生成スクリプト・対応する`.js`・`scripts/lib/**`の変更のpushと、毎週月曜05:37 JST（`all`）。ページを再生成してコミットする（詳細は上の「regenerate-page.yml」） |
+| `regenerate-saikyo.yml` | `check-image-links.yml`（「画像リンク切れの検知」）の実行が cloudflare で終わるたび（`workflow_run`。取り消された回を除く。毎朝 04:30 JST の検知の後など）と手動。`regenerate-page.yml` を `workflow_call` で呼び、saikyo_pages だけを再生成する。差分が無ければコミットしない（#537） |
 | `check-image-links.yml` | 毎週月曜03:00 JST に `jpml_pros.html` の画像、毎日 04:30 JST（Worker `mj-scheduler` から、入力 `scheduled`）に最強戦の選手写真のリンク切れを確かめ、それぞれ常設issueに書き出す |
 | `check-saikyo-unregistered.yml` | 毎週月曜06:50 JST。最強戦の出場者で「プロ」「連盟プロ以外」から引けない人を常設issueに書く（#431、`docs/notes/saikyo-page-design.md`「8. 出場者の登録漏れの検知」） |
 | `assets-check.yml` | push（`docs/`だけの push は除く。サイズを見る`docs/handover.md`・`docs/notes/chat-side-operations.md`は含む、#298）。`.assetsignore`の漏れ（#133）と CLAUDE.md・handover.md のサイズを検知し、配信の上限との比（`check_asset_limits.py`、#387）を出す |
