@@ -70,6 +70,53 @@
 
 ## 経過
 
+### 0. 着手前の確認
+
+- 識別子 SKS: `git fetch --unshallow` の後、全ブランチのコミットの本文（`CHAT-\d{4}-SKS`）と `docs/logs/` の履歴（ファイル名）で0件。使われていない
+- `CHAT-1010-SKS-01` のコミット: 0件
+- 作業ブランチ: `work/1010-sks` はローカル・リモートとも無し → `git checkout -b work/1010-sks origin/cloudflare`（b813da90）
+- 指示欄の末尾: 「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」で、指示文の最後の行と一致
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 4つとも有る
+
+### 1. 確かめたこと（読むだけ）
+
+#### issue
+
+- #530（Open、コメント0）: サイト全体の共有ボタンの見直し。saikyo/ は「年度ページのページ全体の共有と、対局ごとの共有（`?match=`、残す候補）」と書かれている。トップのページの共有は本文に挙がっていない（実物にはある、下の表）
+- #428（Open）: 本文・コメント2件に #422 を待つ（blocked by）旨の記述は無い。#422 との関係は、完了の条件の計測に `docs/logs/CHAT-0919-HG-01/cdp.py` を使う、という点だけ。→ 止まる条件に当たらない
+  - #428 の対応案は `scripts/lib/page.py` の `render_content()` に `<body>` のクラスを渡す口を足す形。**この指示では `scripts/lib/` を変えない**ため、`generate_saikyo_pages.py` の中で生成した HTML の `<body` にクラスを足す形にする（下の「2. 直す」）
+  - #428 の「着手時に確かめること」には title/・`/live`・表のページ（`body:has(.mj-table)`）の同じ形の洗い出しがある。saikyo/ の分だけ直し、#428 は閉じずに残りをコメントする
+  - コメント（CHAT-1006-PHT-04）: 「1→10」で写真が 59px ずれた原因（CHAT-0924-TQ-07）を、上余白を触るときに一緒に確かめる
+- #422（Open、「状況: 待ち」）: HG-01 の計測スクリプトを残すか決める issue。#428 を塞ぐものではない
+
+#### 未マージの work/ ブランチとの重なり
+
+`git branch -r --no-merged origin/cloudflare` の各ブランチで、`scripts/generate_saikyo_pages.py`・`assets/saikyo.js`・`style.css`・`scripts/lib/`・`assets/share.js`・`saikyo/`・`docs/notes/saikyo-page-design.md`・`docs/handover.md`・`docs/decisions/saikyo.md` を変えているもの:
+
+- `origin/work/1008-hou`: `assets/share.js`・`scripts/lib/ranking.py`・`scripts/lib/results.py`・`style.css`。`style.css` は 3452 行目以降（ファイル末尾）への追加だけで、saikyo/ の部分（1515〜1960 行あたり）と離れている。`assets/share.js`・`scripts/lib/` はこの指示では変えない → 重ならない
+- `origin/work/1010-xap`: `docs/decisions/saikyo.md` の末尾に節を足している。こちらも末尾に足すため、後でマージする側で末尾の追記どうしの衝突になりうる（文書のみ。止まる条件の対象〈生成スクリプト・JS・CSS・共通部品〉ではない）。報告に書く
+
+#### saikyo/ の共有ボタンの表
+
+実物（origin/cloudflare の生成物・`scripts/generate_saikyo_pages.py`・`assets/share.js`・`assets/saikyo.js`）から:
+
+- 共有ボタンは3種類: (A) トップの固定バーのページの共有、(B) 年度ページの固定バーのページの共有（どちらも `aria-label="このページを共有"`、`build_filterbar_html()`）、(C) 年度ページの対局の帯の対局の共有（`aria-label="<対局名>を共有"`）
+- 共有ボタンが渡すのは生成時に焼き込んだ URL・テキスト（`navigator.share({title: text, text: text, url})`。使えない環境では X・LINE・URLをコピー）
+- ブラウザの共有が渡すのは、その時の `location.href` と `document.title`。`saikyo.js` は `history` を触らないので、検索欄に入力しても URL は変わらない。`?match=` が対局に当たると `document.title` の先頭に対局名が入る。トップは `?q=` を検索欄の初期値にする。年度ページは `?q=` を読まない
+- 年度ページは `<link rel="canonical">`（クエリなしの年度ページ）を持つ。ブラウザによっては共有に canonical の URL を使う（ここからは確かめていない）
+
+| ページ・URL | ボタン | ボタンが共有する URL・テキスト | ブラウザの共有で渡るもの（`location.href`・題名） | 判定 |
+|---|---|---|---|---|
+| トップ `/saikyo/` | (A) | `https://ryoei.pro/saikyo/`・「麻雀最強戦」 | `https://ryoei.pro/saikyo/`・「麻雀最強戦 \| 最強戦 \| ryoei.pro」 | 変わらない |
+| トップ `/saikyo/?q=<名前>` | (A) | 同上（`?q=` を含まない） | `https://ryoei.pro/saikyo/?q=<名前>`・同上 | 変わらない（同じページに着く。ブラウザ側は検索の初期値まで渡る） |
+| トップ・検索欄に入力した後 | (A) | 同上 | 入力前の URL のまま（`?q=` は付かない） | 変わらない |
+| 年度 `/saikyo/2026.html` | (B) | `https://ryoei.pro/saikyo/2026.html`・「麻雀最強戦2026」 | `https://ryoei.pro/saikyo/2026.html`・「麻雀最強戦2026 \| 最強戦 \| ryoei.pro」 | 変わらない |
+| 年度 `?match=<対局>` | (B) | `https://ryoei.pro/saikyo/2026.html`（絞り込みを外した年度ページ）・「麻雀最強戦2026」 | `…/2026.html?match=<対局>`・「<対局名> \| 麻雀最強戦2026 \| ryoei.pro」 | 変わらない（前提の読み。同じ年度ページに着き、絞り込みの有無だけが違う。ブラウザ側で年度全体を渡すには「すべての対局」のリンクを押してから共有する） |
+| 年度 `?q=<名前>` | (B) | `https://ryoei.pro/saikyo/2026.html`・「麻雀最強戦2026」 | `…/2026.html?q=<名前>`（年度ページは `?q=` を読まない）・「麻雀最強戦2026 \| …」 | 変わらない |
+| 年度（すべての URL） | (C) 対局ごと | `…/2026.html?match=<対局>`・「麻雀最強戦2026 <対局名>（<日付>）」 | 絞り込みの無い年度ページでは `?match=` が付かない | **変わる**（ブラウザの共有では、その対局に絞った URL に届かない）→ 残す |
+
+前提の読みと違う結果のものは無い。(A)(B) を外し、(C) を残す。
+
 ## 報告
 
 - 状態: 対応中
@@ -86,12 +133,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj aa6931b4）: https://github.com/retroeater/mj-logs/tree/main/guide/aa6931b4
+ガイド文書（この版を写した時点の最新、mj 74fcb928）: https://github.com/retroeater/mj-logs/tree/main/guide/74fcb928
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/aa6931b4/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/aa6931b4/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/aa6931b4/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/aa6931b4/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/aa6931b4/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/aa6931b4/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/74fcb928/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/74fcb928/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/74fcb928/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/74fcb928/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/74fcb928/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/74fcb928/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b813da90.md

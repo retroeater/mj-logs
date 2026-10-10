@@ -149,28 +149,138 @@ scratchpad に保存し、openpyxl 3.1.5（`data_only=False`）でセルの式�
   「対局」: 対局者・実況・解説・原題・タイトル・放送URL・画像URL・日付・表示・備考。「リーグ」: B:C が鳳凰のキー→リーグ名、E:F が桜花のキー→リーグ名
 - 「鳳凰」「桜花」タブの「プロ」列は「プロ」シートの A 列を引く式（`COUNTIF('プロ'!$A:$A,$A2)` 等）。「プロ」の列を消してもA列は残るため影響しない
 
+### 手順3: 「プロ」シートを読むコード
+
+`scripts/`・`.github/workflows/`・ページ側の JS（ルートの `*.js`）を、ブックの ID・`"プロ"`・`WHERE Y` で grep して洗い出した。
+ページ側の JS（`houou_results.js`・`ouka_results.js`・`wrc_results.js`・`league_ranking.js`）は同じブックの「鳳凰」「桜花」「JWRC」などを読み、**「プロ」は読まない**。
+ワークフローは「プロ」を直接読まない（`check-meibo.yml` 等がスクリプトを起動するだけ。`check-image-links.yml` は issue の文言に「「プロ」J列」と書くだけ）。
+**どの箇所も列を英字で読み、見出しで読む箇所は無い。** 全箇所が `WHERE Y = "Y"` で在籍を判定しているため、**11列を消すと Y 列の英字がずれ、全箇所が壊れる**（11列を全部消せば Y→N）。
+
+| 箇所 | 読む列（英字） | 11列のうち使う列 | 11列より後ろを英字で読むか |
+|---|---|---|---|
+| `generate_jpml_pros.py` `QUERY` | A,B,C,D,E,F,I,J,K,L,M,N,O,P,Q,R,S,T,U,W,X,AA,AB / WHERE Y / ORDER BY B | 11列すべて（位置のタプル展開 `build_row_html()`） | 読む（F〜AB・Y。位置展開なので全列がずれる） |
+| `generate_houou_leagues.py` `PRO_QUERY`（型C の選手選択リスト） | A / WHERE Y AND **Q IS NOT NULL** / ORDER BY B | Q 鳳凰最高（選ぶ条件） | 読む（Y） |
+| `generate_ouka_leagues.py` `PRO_QUERY`（同） | A / WHERE Y AND **T IS NOT NULL** / ORDER BY B | T 桜花最高（選ぶ条件） | 読む（Y） |
+| `check_leagues_dropped.py`（上の2つの `PRO_QUERY` を借りる） | 同上 | Q・T | 読む（Y） |
+| `generate_houou_race.py` `PRO_QUERY` | A,I,J / WHERE Y | なし | 読む（I・J・Y） |
+| `generate_saikyo_pages.py` `PRO_QUERY`（`check_saikyo_unregistered.py` も使う） | A,I,J / WHERE Y | なし | 読む |
+| `generate_live_pages.py` `PRO_QUERY` | A,I,J / WHERE Y | なし | 読む |
+| `generate_books_pages.py` `PRO_QUERY` | A,I,J / WHERE Y | なし | 読む |
+| `generate_title_pages.py` `PROS_QUERY` | A,I,J,K / WHERE Y | なし | 読む |
+| `lib/wayhome.py` `PRO_QUERY`（`generate_wayhome_episodes.py`・`generate_video_wayhome.py`） | A,I,K / WHERE Y | なし | 読む |
+| `lib/birthdays.py` `PRO_QUERY` | A,I / WHERE Y | なし | 読む |
+| `sync_dojo_calendar.py` `PRO_QUERY` | A,I / WHERE Y | なし | 読む |
+| `generate_jpml_test.py` `PRO_QUERY` | A,J / WHERE Y | なし | 読む |
+| `generate_resource_dictionary.py` `PRO_QUERY` | A,B / WHERE Y / ORDER BY B | なし | 読む（Y） |
+| `check_meibo.py` `PRO_QUERY` | A / WHERE Y | なし | 読む（Y） |
+| `fetch_youtube_channels.py` `QUERY` | M / WHERE Y AND M IS NOT NULL | なし | 読む（M・Y） |
+| `lib/sheets.py` `check_not_filtered()` | `SELECT COUNT(A)` と CSV | なし | 読まない |
+
+- テストで英字を固定しているもの: `scripts/tests/test_jpml_pros.py`（QUERY の並び・A/U/W/P/S/AA/AB の位置）、`test_wayhome_player_links.py`（A・I・K と `WHERE Y = "Y"`）、`test_birthdays.py`（A・I の形）
+- ページ `jpml_pros.html` での11列の出方（`generate_jpml_pros.py`）:
+  - C・D: 名前のセルの2行目（`get_name()`、「漢字<br />Last First」）と、名前検索の `data-name`
+  - E: 「所属<br>出身地」のセルと、所属・出身地検索の `data-place`
+  - O・R・U・W: 列「鳳凰出場」「桜花出場」「最強出場」「放送対局」。値があるときだけリンク（`houou_results.html?name=`・`ouka_results.html?name=`・`saikyo/?q=`・`video_live.html?name=`）と並べ替えの `data-sort`
+  - P・S: 列「鳳凰43後」「桜花21期」。リンク先は AA・AB（Ampai の URL）。検索欄 `league_filter`・`ouka_filter` の `data-league`・`data-ouka`。
+    見出し（`HEADERS`）・検索欄の placeholder「鳳凰43後」「桜花21期」・aria の「鳳凰戦43期後期」「女流桜花21期」は**コードに直書き**
+  - Q・T: 列「鳳凰最高」「桜花最高」。リンク先は `houou_leagues.html?name=`・`ouka_leagues.html?name=`。`鳳凰位`・`桜花` は並べ替えで先頭（"00"）
+  - 「決勝進出」は V 列ではなく `generate_title_pages.final_counts()` で生成時に数えている（#441・#484。今回の8列と同じ形の前例）
+
+### 手順4: 名簿との突き合わせ
+
+- 名簿のブック（`lib/meibo.py` の `SPREADSHEET_ID`）のタブ: 「公開」「【4】変換後」「【3】変換表」「【2】値貼付」「【1】0.74」
+- **`meibo.py` が読む「公開」タブ（A 所属 / B 登録名 / C 性別 / D 入会期 / E 段位 / F 誕生日）には「所属」はあるが、英字の姓名の列は無い。**
+  英字は「【2】値貼付」「【1】0.74」タブの「登録名英字姓」（F）・「登録名英字名」（G）にある（両タブの見出し: 所属・登録名・登録名かな・登録名かな姓・登録名かな名・登録名英字姓・登録名英字名・性別・誕生日・入会期・段位）
+- 「公開」タブ（`meibo.fetch_members()`）: 1,099名、警告0。「プロ」の在籍者 1,099名と登録名で全員結合（片方だけの人 0）。**所属: 一致 1,099・不一致 0**
+- 「【2】値貼付」「【1】0.74」（`fetch_sheet` で A,B,C,F,G を読み、登録名で結合）: どちらも 1,099行・重複0・全員結合（片方だけ 0）。
+  **Last Name（C↔登録名英字姓）: 一致 1,099・不一致 0。First Name（D↔登録名英字名）: 一致 1,099・不一致 0**（D が空の9名は名簿側も空）。所属も一致 1,099
+- 参考（指示の範囲外）: 「プロ」B 列「ソートキー」も名簿の「登録名かな」と 1,099名全員一致。A 列の見出し「登録名\n0.74」は名簿の「【1】0.74」タブ名と同じ
+- 名簿のそれ以外の項目（性別・誕生日など）はログに書いていない
+
+### 手順5: 集計の8列
+
+数式を読めたため（手順2）、定義は推定ではなく**数式そのもの**。その式を Python で再現し（集計元は gviz で読んだ「鳳凰」16,011行・「桜花」1,719行・「リーグ」・「最強戦」2,744行・「対局」2,336行。
+`scripts/lib/sheets.py` の `fetch_sheet()`）、今の列の値と比べた。FILTER が複数行を返す（式の結果が隣の列へはみ出す）人は P・S とも0。
+
+| 列 | 定義（数式） | 集計元 | 一致 | 不一致 |
+|---|---|---|---|---|
+| O 鳳凰出場 | 「鳳凰」で名前一致かつ「表示」(V)=Y の行数（＝表示 Y の (期,前後) の数と全員一致） | 「鳳凰」 | 1,098 | 1 |
+| P 鳳凰43後 | 「鳳凰」で期=43・前後=後 の行のリーグ | 「鳳凰」 | 1,099 | 0 |
+| Q 鳳凰最高 | 「鳳凰」の全行（表示を問わない）のリーグキーの最小を「リーグ」B:C でリーグ名に | 「鳳凰」「リーグ」 | 1,098 | 1 |
+| R 桜花出場 | 「桜花」で名前一致の行数（**表示を問わない**） | 「桜花」 | 1,099 | 0 |
+| S 桜花21期 | 「桜花」で期=21 の行のリーグ | 「桜花」 | 1,099 | 0 |
+| T 桜花最高 | 「桜花」の全行のリーグキーの最小を「リーグ」E:F で | 「桜花」「リーグ」 | 1,099 | 0 |
+| U 最強出場 | 「最強戦」で名前(H)一致かつ「表示」(K)=Y の行数 | 「最強戦」 | 1,099 | 0 |
+| W 放送対局 | 同じブックの旧「対局」タブの A〜C（対局者・実況・解説）で、登録名を部分一致で含むセルの数 | 旧「対局」 | 1,099 | 0 |
+
+- O・Q の不一致1件: 山口哲也（シート: 空欄・空欄 / 作り直し: 4・C1）。「鳳凰」タブの名前が4行とも末尾に全角空白付き（`山口哲也　`）で、シートの式は一致しないが、
+  gviz の読み取り（`_normalize()` が前後の空白を除く、#13）では一致する。**生成時の集計に変えると、この人の鳳凰出場・鳳凰最高が新たに表示される**（「鳳凰」タブの4行を直すのが本筋）
+- 定義についての所見（集計に移すときに決めること）:
+  - **O と R で条件が違う。** O は表示 Y だけを数えるため、進行中の 43期後期（「鳳凰」で表示 N の 595行はすべて 43後）を含まない。R は表示を問わず、進行中の 21期（「桜花」で表示 N の 138行はすべて21期）を含む。
+    リンク先の `houou_results.html`・`ouka_results.html` は表示 Y の行だけを出す（`WHERE V = "Y"`）ため、R の回数とリンク先の行数が合わない人がいる見込み
+  - Q・T は表示を問わないため、進行中の期のリーグも「最高」に入る
+  - U は**行（対局・卓）の数で、出場した年度の数ではない**（年度の数と比べると 111名で違う）
+  - W は**旧「対局」タブ（`video_live.html` の元）**を数えている。/live の3層（【2】【3】）ではない。部分一致のため、名前を含む別の表記のセルも数える
+    （1セル内の「、」区切りを完全一致で数えた値と比べると 3名〈佐々木寿人 291↔290、二階堂亜樹 190↔189、藤崎智 427↔426〉で1ずつ多い）。1動画で2役なら2と数える
+  - 参考: /live の【3】で掲載 Y の動画を、対局者・実況・解説に名前（別名の解決なし）が出る動画の数で数えると、W と一致するのは 1,099名のうち 690名（多くは両方0）。
+    /live に1本以上ある人 459名・W>0 の人 319名。例: 藤崎智 W=427 / /live 467、魚谷侑未 335 / 431、日吉辰哉 381 / 347。**集計元を /live に替えると値が大きく変わる**（リンク先も `video_live.html` のままでよいか決める必要がある）
+
+### 手順6: 実装の段取りの案と、期の列の扱い
+
+#### 段取りの案（4つの指示に分ける）
+
+1. **見出しで読む形への切り替え（列はまだ消さない）**: 上の表の全箇所を `lib/sheets.py` の `fetch_records()`（見出しの名前で読む、#346）か、それに相当する「プロ」用の読み取り関数1つに寄せる。
+   gviz の `WHERE Y = "Y"` の代わりに、読んだ後に「表示」= Y で絞る。見出しの改行（`X\nID` など）と A 列の「登録名\n0.74」（#467）の扱いを決める。
+   確かめ: 全ページを再生成して差分が出ないこと、`scripts/tests` を見出し前提に直して通ること。#327（N列）・G・H・V の削除もこの後なら英字を気にせずできる
+2. **C・D・E を名簿から取る**: `lib/meibo.py` を英字姓名も読める形にする（「公開」タブに列を足してもらうか、「【2】値貼付」を読むか）。`generate_jpml_pros.py` は名簿と登録名で結合。
+   確かめ: 生成した `jpml_pros.html` の差分が0（今回の突き合わせで全員一致）。名簿に無い在籍者が出たときの扱い（空欄で出す／止める）を決める
+3. **8列を生成時に集計する**: 「鳳凰」「桜花」「リーグ」「最強戦」（と W の集計元）を読んで数える。「決勝進出」の `final_counts()` と同じ形。
+   型C の選手選択リスト（`houou_leagues`・`ouka_leagues`・`check_leagues_dropped.py`）の「Q/T が空でない」は「「鳳凰」/「桜花」タブに名前がある」と同じ意味なので、そちらで判定する（#168 の挙動は変えない）。
+   確かめ: 今の式と同じ定義で作り、`jpml_pros.html` の差分が山口哲也の1名だけであること（その前に「鳳凰」タブの末尾の空白を直せば0）。定義を変える列（O/R の揃え、W の集計元など）は別のコミットにして差分を説明する
+4. **平野さんが11列を消す**: 1〜3が本番に入り、週次の再生成と検知（`check-meibo.yml` など）が1回通った後。消した直後に全ページを再生成して差分0を確かめる
+
+#### 「鳳凰43後」「桜花21期」を最新の期に追随させるか
+
+- 判定に使える値: 「鳳凰」タブの最大の (期,前後) は (43,後)、「桜花」の最大の期は 21 で、今の列の期と一致する。進行中の期は「表示」= N で入っている（鳳凰 43後の595行、桜花 21期の138行がすべて N、それ以外はすべて Y）。
+  「最新の期」は「タブにある最大の (期,前後)」で決められる。新しい期の行（リーグ分けだけの行）が入った時点で切り替わる
+- 追随させる場合:
+  - 見出し・検索欄の placeholder・aria の文言（今はコードに直書き）を生成時の期から作る（「鳳凰44前」「桜花22期」など）。期が変わるたびにコードを直さずに済む
+  - リンク先の AA・AB は「鳳凰Ampai」「桜花Ampai」タブ（見出し A が「鳳凰43後」「桜花21」、名前で XLOOKUP）から来ている。期が進んでも Ampai のタブが旧い期のままだと、リーグと Ampai の URL が食い違う。
+    Ampai のタブの見出し（「鳳凰43後」）と最新の期を照合して、違えばリンクを付けない／止めるなどの扱いが要る
+  - 期の切り替え直後（新しい期の行が入った直後）は、前の期の結果を見たい人には見えなくなる
+- 固定する場合:
+  - 今と同じ表示のまま。期が進むたびに、コードの期の数（43・後、21）と見出しの文言を直す指示が要る（今はシートの式の直書きを平野さんが直している形と同じ手間がコードに移る）
+  - 直し忘れると、進んだ後も古い期を出し続ける（気付きにくい）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1010-rdn
-- ログ: https://github.com/retroeater/mj/blob/work/1010-rdn/docs/logs/CHAT-1010-RDN-01.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1010-RDN-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1010-rdn
 - 確認用URL: なし
-- マージ: 未
-- issue: なし
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- マージ: 済（docs/logs・docs/decisions のみ。このログを含むコミットを cloudflare へ fast-forward で push）
+- issue: なし（関係: #127・#168・#370・#445〈いずれも closed〉、実装が重なる open: #327・#467）
+- 判断が必要なこと:
+  - 数式か手入力か: xlsx エクスポートで読めた。C・D・E は手入力、O〜W の8列は全行が数式（式は `## 経過`「手順2」）。平野さんへの確認は不要と判断したが、式の読み違いが無いかの確認は任意
+  - 定義の確かめ: 生成時の集計で今の式の定義をそのまま引き継ぐか。特に (1) O は表示 Y だけ・R は表示を問わない（進行中の期の扱いが違う）を揃えるか、(2) U は対局の行の数（年度の数ではない）のままでよいか、(3) W の集計元を旧「対局」タブのままにするか /live に替えるか（替えると約400名の値が変わる。リンク先 `video_live.html` も）、部分一致をやめるか
+  - 期の列（鳳凰43後・桜花21期）を最新の期に追随させるか固定するか（影響は `## 経過`「手順6」。追随させるなら「鳳凰Ampai」「桜花Ampai」タブの期との照合の扱いも）
+  - C・D の取り方: 名簿の「公開」タブに英字の列が無い。「公開」に英字姓・英字名の列を足すか、「【2】値貼付」を読むか
+  - 「鳳凰」タブの「山口哲也」の4行の末尾の全角空白を直すか（生成時の集計に変えると、この人の鳳凰出場4・鳳凰最高C1が新たに出る）
+  - 段取り（4つの指示に分ける案、`## 経過`「手順6」）と、#327（N列の廃止、期日 10/13）を見出しで読む形への切り替えの後に回すか
+- 未確認の項目:
+  - 実装の指示では、未マージの work/1009-swp-526 が `generate_jpml_pros.py` を変えているため0章ゲートで重なりを見る必要がある（今回はコードを変えていない）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj aa6931b4）: https://github.com/retroeater/mj-logs/tree/main/guide/aa6931b4
+ガイド文書（この版を写した時点の最新、mj 74fcb928）: https://github.com/retroeater/mj-logs/tree/main/guide/74fcb928
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/aa6931b4/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/aa6931b4/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/aa6931b4/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/aa6931b4/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/aa6931b4/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/aa6931b4/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/db5444b2.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/74fcb928/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/74fcb928/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/74fcb928/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/74fcb928/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/74fcb928/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/74fcb928/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b813da90.md
