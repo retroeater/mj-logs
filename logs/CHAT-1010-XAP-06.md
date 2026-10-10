@@ -101,17 +101,30 @@ CHAT-1010-XAP-05 で書き込みの権限が無く止まった SNS ブックの�
 - 文書（0f786194）: docs/notes/sns-book.md を新しく作った。live-channel-write.md の「使い回さない」の直後に例外の1行、`WRITABLE` の書き込み先の文に予定表と SNS ブックを足した（予定表は書かれていなかったので合わせて足した）。static-generation.md のワークフローの一覧・入力 `scheduled` の一覧・スクリプトの一覧に update-sns-book を足した。scheduler-worker.md の「今の表」を5行にした。決定と矛盾する記述は無かった
 - 仮置きの `update-sns-book.yml`（cloudflare b4d859a5）は、このマージで作業ブランチの版に置き換わる
 
+### マージ
+
+- push 直前の再 fetch で `origin/cloudflare` が MCK-02 などの docs で進んでいたため merge で取り込み（衝突なし、テスト・`node --test` OK）、祖先を確かめて `git push origin work/1010-xap:cloudflare`（e3c7dfe9..57694f04）
+- マージ後の check-run（57694f04）: 「Workers Builds: mj」success・「Workers Builds: mj-scheduler」success・`check` success・「公開対象を検査する」success・**`regenerate`（「ページの再生成」run 38043821883）failure**
+- regenerate の失敗は今回の変更と関係が無い: `video_wayhome` の生成が「視聴URLから動画IDを取り出せません: '2Bn3SktouP4'」で止まった（「帰り道」シートの視聴URLの列に、URL でなく動画IDだけの行がある）。1つ前の別の push（22ca975d、run 38043009828）でも同じ理由で失敗している。`scripts/lib/wayhome.py` は変えていない。生成が途中で止まったため、この回の再生成のコミットは無い
+- #514 へのコメント: https://github.com/retroeater/mj/issues/514#issuecomment-6096439259
+- CHAT-1010-XAP-05 のログの状態は「判断待ち / 続き: CHAT-1010-XAP-06」に直した（着手時のコミット）
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1010-xap
-- ログ: https://github.com/retroeater/mj/blob/work/1010-xap/docs/logs/CHAT-1010-XAP-06.md
+- 状態: 判断待ち
+- ブランチ: work/1010-xap（cloudflare へマージ済み）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1010-XAP-06.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1010-xap
-- 確認用URL: なし
-- マージ: 未
+- 確認用URL: なし（ページは変わらない）
+- マージ: 済（57694f04）
 - issue: #514
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 判断が必要なこと:
+  - 次の指示（生成の読む先を SNS ブックへ切り替える）の時期。切り替えの前に、平野さんが【2】への手入力を始める日（それまで X・note・YouTube の ID の直しは旧列と【2】のどちらで行うか。切り替えまでは旧列が正で、【2】は旧列から写した値のまま。旧列だけを直すと【2】と食い違う）
+  - 旧列（「プロ」の XID・X画像・noteID・note画像・YouTubeID、「連盟プロ以外」の X ID・X画像URL）を空にする日（生成の切り替えをマージした後）
+  - 【4】手動補正の見出しを入れるのは平野さんか機械か（今は空。見出しは【3】と同じ＋備考の決定）
+  - 別件: 「帰り道」シートの視聴URLの列に動画IDだけの行（'2Bn3SktouP4'）があり、全ページの再生成が `video_wayhome` で止まっている（今回の変更とは関係が無い。シートを URL に直すか、ID も受ける作りにするかの判断が要る）
+- 未確認の項目:
+  - Worker からの最初の起動（2026-10-11 04:10 JST）が success になるか
 - エラー: なし
 
 <!-- guide-links -->
