@@ -140,6 +140,19 @@ HOU-07 のサンプルを平野さんが確かめた結果（下の「決定」�
 - 作業ブランチ: `origin/work/1008-hou` はリモートにあり、ローカルと一致（7ad62963）。`origin/cloudflare` は HEAD の祖先でないので、ログの push の後に merge で取り込む
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている（貼られた指示文は冒頭の行が1行につながっていた。そのまま写した）
 
+- 取り込み: `git merge origin/cloudflare` は衝突なし。取り込んだ中に「プロ」シートを見出しで読む `scripts/lib/pro_sheet.py`（#536）と各生成スクリプトの読み替えがあった。`generate_houou_pages.py` の「プロ」の読み方（列記号 `SELECT A,B,C,D,E WHERE Y = "Y"`）はこの取り込みでは変わっておらず、取り込んだ後の再生成で `houou/` に差分なし（報告の「判断が必要なこと」に書いた）
+
+### 手順1 順位変動の帯の文字・ランキングの1行・リーグ推移
+
+- G列「結果」の値（「鳳凰」タブ 16,011行、2026-10-10）: 残留 9,683・昇級 3,135・降級 2,485・空欄 618（表示 Y では 23）・決定戦 78・入替戦 12
+- 順位変動 `houou/race/`: 帯の文字は G列の値のまま。上側は「昇級」（A1 は「決定戦」）、下側は「降級」。A1 の上側を「決定戦進出」→「決定戦」にした（`final_by_result()` の `label`）。「入替戦」「残留」は帯にしない（今のまま）。`houou/race/` の 20ファイル（23後〜42後）の A1 の `up.label` が変わった。旧 `houou_race.html` は「決定戦進出」のまま（`generate_houou_race.py` は変えていない）
+- ランキング: 部門のセレクトの直下を「第43期前期終了時点（出場数基準：50節以上）」の形にした（通算得点/期・期単位浮き率は「10期以上」、節単位浮き率は「50節以上」。ほかの6部門は「第43期前期終了時点」だけ）。9ページとも変わった
+- リーグ推移:
+  - 出場していない期（入会〜最後の期の間で行の無い期。白鳥翔は 35後）: 前後の出場した期を点線（白い縁取りの上に濃い丸い点）でつなぐ。その期の位置にはアイコン・点を置かない。吹き出しはその期を選べるようにし「35期後期 出場なし」と出す（シートに休場の区別が無いので「出場なし」）。動きの間、アイコンがその区間を進む間はグレー（彩度 0・不透明度 0.55）
+  - 見出し: 写真（64px）と名前・期の範囲・最高到達と出場回数を縦に中央へそろえ、右に写真と同じ大きさ（64px）の再生のボタン、左は同じ幅の空き。390px で写真の中心とカードの中心が同じ（195px）、ボタンはカードの右から 10px、写真と同じ高さ
+  - 「▲ 鳳凰位」を消した（霞む帯は残す）
+  - 動きの長さ: 1期の時間 = min(1秒, (25秒 − 落ちる 0.9・生える 2.2・止める 1.2・ズームアウト 1.1秒 − 余韻 0.5秒×昇級・降級の数) ÷ 期の数)、下限 0.35秒。測った全体の長さ（ローカル、390×844）: 白鳥翔 25.1秒、平野良栄 25.1秒、こうちゃん（第40期入会、4期ぶん）8.6秒。白鳥翔・平野良栄は点線の区間でアイコンがグレーになることも確かめた。JS のエラー 0
+
 ## 報告
 
 - 状態: 作業中
@@ -156,12 +169,12 @@ HOU-07 のサンプルを平野さんが確かめた結果（下の「決定」�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj cf3cb320）: https://github.com/retroeater/mj-logs/tree/main/guide/cf3cb320
+ガイド文書（この版を写した時点の最新、mj 9e1c29eb）: https://github.com/retroeater/mj-logs/tree/main/guide/9e1c29eb
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/cf3cb320/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/cf3cb320/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/cf3cb320/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/cf3cb320/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/cf3cb320/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/cf3cb320/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9e1c29eb/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9e1c29eb/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9e1c29eb/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9e1c29eb/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9e1c29eb/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9e1c29eb/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/647a8db8.md

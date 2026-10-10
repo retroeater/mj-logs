@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-10 18:15 JST
+- 書き出した時刻: 2026-10-10 18:18 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -12,11 +12,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-10 18:17 | push | cloudflare | success | #3113（38040847738） | 0分11秒 |
+| 2026-10-10 18:17 | push | work/1008-hou | success | #3112（38040844431） | 0分12秒 |
+| 2026-10-10 18:16 | push | work/1010-xap | success | #3111（38040835249） | 0分11秒 |
 | 2026-10-10 18:15 | push | work/1010-rdn-yama | success | #3110（38040730559） | 0分09秒 |
 | 2026-10-10 18:14 | push | work/1010-xap | success | #3109（38040668726） | 0分10秒 |
-| 2026-10-10 18:07 | push | work/1008-dic | success | #3108（38040279528） | 0分12秒 |
-| 2026-10-10 17:56 | push | cloudflare | success | #3107（38039633149） | 0分14秒 |
-| 2026-10-10 17:56 | push | work/1010-rdn | success | #3106（38039628188） | 0分10秒 |
 
 ## check-image-links.yml
 
@@ -215,6 +215,13 @@
 | 2026-10-09 15:18 | workflow_dispatch | work/1009-stl | success | #80（37892845226） | 2分47秒 |
 | 2026-10-09 10:28 | schedule | cloudflare | success | #79（37869904632） | 0分09秒 |
 | 2026-10-09 04:00 | workflow_dispatch | cloudflare | success | #78（37828694811） | 5分01秒 |
+
+## update-sns-book.yml
+
+- 名前: SNS ブックの更新
+- state: active
+
+実行なし
 
 ## write-live-channel-candidate.yml
 
