@@ -55,14 +55,31 @@ CHAT-1010-RDN-03 の「判断が必要なこと」に平野さんが答えたの
 - 0. 指示欄の末尾の行は指示文の最後の行と一致。RDN-03 のログの状態に `/ 続き: CHAT-1010-RDN-05` を足した
 - 指示文は改行が潰れた形で貼られたため、文面は変えずに項目の区切りで改行した
 
+### 手順1: 「連盟プロ以外」の登録と NameBook
+
+生成と同じ経路（`generate_live_pages.read_sheet()`＝`lib/sheets.py` の `fetch_records()` で `live.OTHER_HEADERS` を読み、`load_name_book()` で「プロ」〈`lib/pro_sheet.py`〉「連盟プロ以外」「別名」から `NameBook` を作る）で確かめた。
+
+- 「連盟プロ以外」765行のうち「山口哲也」を含む行は**1行**:
+  `{'名前': '山口哲也（17期）', '所属団体': '-', '所属補足': '元連盟', 'X ID': '', 'X画像URL': ''}`（値は `repr()`。全角括弧、前後の空白なし）。前提の案どおりの形
+- `NameBook`: プロ 1,099名・連盟プロ以外 765名・別名 26件
+  - `resolve("山口哲也（17期）")` → `Resolved(current='山口哲也（17期）', written='山口哲也（17期）', renamed=False, is_pro=False)`（「連盟プロ以外」の人として引ける。`book.others` にあり `book.pros` には無い）
+  - `resolve("山口哲也")` → `Resolved(current='山口哲也', written='山口哲也', renamed=False, is_pro=True)`（今までどおり現役のプロ）
+  - `NameBook` の警告: **0件**（この名前を含む警告も無い。所属団体 `-` は想定内、「プロ」との重複なし）
+- 止まる条件には当たらない
+
+### 手順2: 決定の記録
+
+- `docs/decisions/houou.md` に「2026-10-10（CHAT-1010-RDN-05）」として、`houou_ranking.html` の部分一致は直さないこと・「連盟プロ以外」への登録を足した
+- 「鳳凰」タブの4行の改名は RDN-03 の見出しで記録済みのため重ねていない
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1010-rdn-yama
-- ログ: https://github.com/retroeater/mj/blob/work/1010-rdn-yama/docs/logs/CHAT-1010-RDN-05.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1010-RDN-05.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1010-rdn-yama
 - 確認用URL: なし
-- マージ: 未
+- マージ: 済（docs/logs・docs/decisions のみ。このログを含むコミットを cloudflare へ fast-forward で push）
 - issue: なし
 - 判断が必要なこと: なし
 - 未確認の項目: なし
@@ -71,12 +88,12 @@ CHAT-1010-RDN-03 の「判断が必要なこと」に平野さんが答えたの
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj cf3cb320）: https://github.com/retroeater/mj-logs/tree/main/guide/cf3cb320
+ガイド文書（この版を写した時点の最新、mj 9e1c29eb）: https://github.com/retroeater/mj-logs/tree/main/guide/9e1c29eb
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/cf3cb320/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/cf3cb320/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/cf3cb320/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/cf3cb320/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/cf3cb320/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/cf3cb320/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9e1c29eb/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9e1c29eb/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9e1c29eb/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9e1c29eb/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9e1c29eb/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9e1c29eb/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/647a8db8.md
