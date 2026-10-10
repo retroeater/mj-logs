@@ -77,7 +77,7 @@ Google Charts依存（#7の対象）・静的なページ の4つ。**件数の�
 
 **スプレッドシートを直しただけでは、ビルド時生成のページには反映されない。** 即時に反映したいときは
 `regenerate-page.yml` を`workflow_dispatch`で手動実行する（`target_page`にページ名、または`all`）。
-週次（毎週月曜05:37 JST、#103）で`all`が走る。セッション内でも `python3 scripts/regenerate.py <ページ名>` で生成できる。
+週次（毎週月曜05:37 JST、#103）で`all`が走る。最強戦（saikyo/）は毎朝、写真のリンク切れ検知の後にも再生成する（`regenerate-saikyo.yml`、#537）。セッション内でも `python3 scripts/regenerate.py <ページ名>` で生成できる。
 
 ### 自動化
 
@@ -219,6 +219,7 @@ GitHub Issues（Open）に全件あるが、着手可能な主なものは以下
 | `docs/notes/session-network.md` | セッションから外部に届くか、gh の認証、Rebuild、シートの行番号、作業ファイルの置き場所 |
 | `docs/notes/cloud-sessions.md` | クラウドセッション（Claude Code on the web）での CLAUDE.md の読み替え（ブランチの用意・GitHub MCP・ネットワーク・プレビュー） |
 | `docs/notes/chat-side-operations.md` | チャット側が指示文を書く前（ログの読み方もここ） |
+| `docs/notes/chat-routines.md` | チャット側が「レビュー」「振り返り」「申送り」を行う前 |
 | `docs/notes/chrome-reading.md` | チャット側が PC で Claude for Chrome を使い mj を直接読む前 |
 | `docs/notes/skills.md` | skill の追加・更新、git の hook の判定を変える・確かめる前 |
 | `docs/notes/branch-operations.md` | ブランチの削除・ワークフローの変更・作業ログの寿命・Chat-Ref の着手前の確認（入口の規則は CLAUDE.md） |

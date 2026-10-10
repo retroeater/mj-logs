@@ -56,6 +56,43 @@
 
 ## 経過
 
+### 0. 着手前の確認
+
+- `CHAT-1010-SKS-05` のコミット: 0件
+- 作業ブランチ: ローカルの `work/1010-sks`（c0d5803d）は `origin/cloudflare` の祖先（`origin/work/1010-sks` もマージ済み）→ `git merge --ff-only origin/cloudflare` で 18147a46 へ進めた
+- 指示欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は4つとも有る
+- docs/notes/branch-operations.md「ワークフローを変更したとき」を読んだ: 新規のワークフローは既定ブランチに無いため作業ブランチでは実行できない。副作用の無い状態でマージし、`cloudflare` で手動実行して確かめる（CHAT-0918-HT-06/08）
+
+### 1. 確かめたこと（読むだけ）
+
+- `regenerate-page.yml`: `workflow_call` の入力は `target_page`（string・必須、18〜23行）。`permissions` は持たない。実行ブランチは `github.ref` を checkout し（59行）、`github.ref_name` に push する（197行）。`github.event_name` が `push` 以外なら `inputs.target_page` で `regenerate.py` を呼ぶ（121〜131行）。差分が無ければ「変更なし」でコミットしない（193行）
+- `update-live-channel.yml` の呼び方（360〜366行）: `uses: ./.github/workflows/regenerate-page.yml`・`with: target_page: live_pages title_pages`・`secrets: inherit`。トップに `permissions: contents: write`（97〜98行）
+- `check-image-links.yml`: `name: 画像リンク切れの検知`（1行）。契機は `workflow_dispatch`（入力 `scheduled` は Worker からの予約の起動）と `schedule`（毎週月曜 03:00 JST、`jpml_pros.html` のジョブだけ）
+- 未マージの work/ ブランチで `.github/workflows/` を変えているのは `origin/work/1008-hou`（`assets-check.yml`）だけ。`regenerate-page.yml`・`check-image-links.yml`・新しいファイルとは重ならない
+- #537 のコメント: 0件
+- `workflow_run` で起動した回の `github.ref` は既定ブランチ（cloudflare）。呼ばれた `regenerate-page.yml` は cloudflare を checkout して cloudflare に push する。`event_name` は `workflow_run` なので `push` の分岐に入らず、`target_page` を使う
+
+### 2. 試験（作業ブランチ work/1010-sks、`regenerate-page.yml`・`target_page: saikyo_pages`）
+
+| 回 | run | 結果 | ジョブの時間 | コミット |
+|---|---|---|---|---|
+| 1 | 38053416984（40ccd47f） | success | 12:50:09〜12:50:34 UTC（25秒） | **変更なし**（「変更をコミット・push」のログに「変更なし」） |
+| 2 | 38053492121（40ccd47f） | success | 12:51:20〜12:51:38 UTC（18秒） | **変更なし** |
+
+YouTube・楽天の取得は skipped（`all` のときだけ）。`origin/work/1010-sks` は 40ccd47f のまま（コミットが増えていない）。シートの変化・写真の揺らぎによる差分は2回とも無い。
+
+### 3. 実装
+
+- `.github/workflows/regenerate-saikyo.yml`（0ea723ed）: `on.workflow_run`（`workflows: ['画像リンク切れの検知']`・`types: [completed]`・`branches: [cloudflare]`）と `workflow_dispatch`（マージ後の動作確認用）。`permissions: contents: write`。`concurrency: regenerate-saikyo`（取り消さない）。ジョブは `regenerate-page.yml` を `workflow_call`（`target_page: saikyo_pages`・`secrets: inherit`）。`if` で検知が `cancelled` の回だけ動かさない（success・failure では動く）
+  - `regenerate-page.yml` は変えていない（`workflow_call` で入力を受けるため）
+  - YAML: `python3 -c "yaml.safe_load(...)"` で読め、`actionlint` は新しいファイルに指摘なし（`regenerate-page.yml` に元からある `if: false` の1件だけ）
+- 文書（0ee78771）: docs/notes/static-generation.md「ワークフローの一覧」に行を足した。docs/handover.md「データの流れ」の「スプレッドシートを直しただけでは…」の段に1文足した。docs/notes/saikyo-page-design.md「1. データ源」に再生成の契機を書いた
+- 決定を docs/decisions/saikyo.md に足した
+- 触れておくこと（#537 にも書く）:
+  - Actions の分（#298）: 1回 20〜30秒のジョブが毎朝1回（検知が週次・手動で動いた日はその分も）。月に約30回・十数分の見込み
+  - push の競合（#263）: 同じ時間帯にほかの再生成（毎日の `update-live-channel.yml`〈06:43 JST〉の `live_pages title_pages`、push の再生成）が cloudflare に push したら、`regenerate-page.yml` の3回までの `pull --rebase` で取り込み直す。saikyo/ はほかの再生成と同じファイルを書かないため、衝突するのは `sitemap*.xml` の lastmod が両方で変わったときくらい
+  - 写真の揺らぎ: 試験の2回では出なかった。シートが変わっていない日に差分が出続けたら、毎日コミットと本番の更新が走る（その場合は #537 で扱う）
+
 ## 報告
 
 - 状態: 対応中
@@ -72,12 +109,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 18147a46）: https://github.com/retroeater/mj-logs/tree/main/guide/18147a46
+ガイド文書（この版を写した時点の最新、mj 2e7da207）: https://github.com/retroeater/mj-logs/tree/main/guide/2e7da207
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/18147a46/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/18147a46/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/18147a46/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/18147a46/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/18147a46/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/18147a46/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/2e7da207/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/2e7da207/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/2e7da207/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/2e7da207/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/2e7da207/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/2e7da207/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b4d859a5.md
