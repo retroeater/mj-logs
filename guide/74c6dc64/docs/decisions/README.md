@@ -25,6 +25,7 @@
 | [seo-bing.md](seo-bing.md) | SEO・Bing（Bing Webmaster Tools・Search Console・title・h1・description、#126・#486・#5・#457 系） |
 | [site-review.md](site-review.md) | サイト全体の横断レビューと DESIGN.md（#296 の要件の洗い出し） |
 | [title.md](title.md) | タイトル戦（title/、「タイトル」タブのデータ・公開後の残件、#222 系） |
+| [wayhome.md](wayhome.md) | 帰り道（video_wayhome.html・wayhome/、共有ボタン #530・呼称・新しい回の取り込み #194・一覧の OGP #340） |
 
 ## 書き方
 
