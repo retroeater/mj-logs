@@ -95,17 +95,25 @@ ubuntu-latest が 2026-10-19 から Ubuntu 26.04（既定の Python 3.14）へ�
 - 対応は 2026-10-19 以降に行う
 ```
 
+### 手順3 マージ
+
+- push 直前に再 fetch し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真であることを確かめて `git push origin work/1010-rgn:cloudflare`（706da098..36af3d35）
+- 36af3d35 の check-run: Workers Builds: mj success、check success。push で動いた「公開対象を検査する」（assets-check、run 38061857190）は success（「Pythonをセットアップ」success）
+- #538 の本文の先頭に「期日: 2026-10-18」を足した（書き換えの直前に `updated_at` と本文が取得時と同じことを確かめた）。経過をコメントした（issuecomment-6098851387）
+- #538 は閉じていない。移行が始まった後（10/19〜）に Ubuntu 26.04 で動いた回の実行が success かを確かめることが残るため（#538 のコメントに書いた）。「状況:」ラベルは付いていない
+- 決定を `docs/decisions/automation.md` に足した
+
 ## 報告
 
-- 状態: 対応中
-- ブランチ: work/1010-rgn
-- ログ: https://github.com/retroeater/mj/blob/work/1010-rgn/docs/logs/CHAT-1010-RGN-05.md
+- 状態: 完了
+- ブランチ: work/1010-rgn（mj-logs は main に直接 910ca2c）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1010-RGN-05.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1010-rgn
 - 確認用URL: なし
-- マージ: 未
-- issue: #538
+- マージ: 済（36af3d35。このログの追いの push は最終報告の SHA）
+- issue: #538（期日を本文に足し、経過をコメント。移行の後の確認が残るため閉じていない）
 - 判断が必要なこと: なし
-- 未確認の項目: なし
+- 未確認の項目: なし（移行の後の確認は #538 に移した）
 - エラー: なし
 
 <!-- guide-links -->
