@@ -58,6 +58,43 @@ CHAT-1010-XAP-02 で止まった X API への切り替え・日次化を、403 �
 - 手順0: 「指示」欄の末尾は指示文の最後の行と一致。CHAT-1010-XAP-02 の状態は「判断待ち」→ 末尾に ` / 続き: CHAT-1010-XAP-03` を足した（このコミット）
 - 雛形の行: Chat-Ref・マージ・貼る時機・作業ブランチ・共通手順がそろっている（冒頭がつながって貼られている点は XAP-02 と同じ）
 
+- `origin/cloudflare` を merge で取り込んだ（4a42dff4。STL-04 の docs のログ・決定の2ファイルだけで衝突なし）
+- #514 に他セッションの着手中コメントなし。着手中のコメント: https://github.com/retroeater/mj/issues/514#issuecomment-6093260412
+- 403 は平野さんが直した（この指示の貼る時機のとおり）
+
+### 手順1: 手動実行（work/1010-xap、4a42dff4）
+
+| run | コミット | X ID | HTTP | 診断 | `_400x400` | `_200x200` | トークン |
+|---|---|---|---|---|---|---|---|
+| 38020357000（12:22 JST、12秒） | 4a42dff4 | 104307 | 200 | errors=(なし)、profile_image_url=`…/2106369896217243648/GrIE9AY8_normal.jpg` | HTTP 200 `…/GrIE9AY8_400x400.jpg` | HTTP 200 `…/GrIE9AY8_200x200.jpg` | 出ていない（env は `***`、診断に無い） |
+| 38020402793（12:23 JST、14秒） | 4a42dff4 | momonga_211 | 200 | errors=(なし)、profile_image_url=`…/2106769392302485504/RChWNICI_normal.jpg` | HTTP 200 `…/RChWNICI_400x400.jpg` | HTTP 200 `…/RChWNICI_200x200.jpg` | 出ていない |
+
+（URL の先頭は `https://pbs.twimg.com/profile_images`）
+
+- 成功の応答の実物は `_normal` の大きさ・小文字の `.jpg` で、テストの見本（`…_normal.jpg`）と同じ形。見本とコードは直していない
+- 104307 は 2026-10-07 の診断の画像 ID（`GrIE9AY8`）と同じ URL を返した
+
+### 手順1: 最強戦の検知の通しの実行
+
+- run 38020433131（入力 `scheduled` = true。Worker の起動と同じ形で、ジョブ `saikyo` だけが動いた。ジョブ `check` は skipped。題は `[scheduled] …`）。今日の 06:00 の朝の確かめの後なので、Worker の確かめには影響しない
+- 所要: ジョブ `saikyo` 57秒（03:24:20〜03:25:17 UTC）、実行全体 60秒
+- 結果: 301種類の URL を確認、取得できない URL は1件（最強戦の1行分）。X API を呼んだ件数1件
+- 状態ごと: 解決 1（ヒデオ銀次、「連盟プロ以外」X画像URL。`_400x400`・`_200x200` とも 404 だった URL → 新しい URL を解決）。アカウントなし 0・失敗 0・X ID なし 0。「自動解決は働いていません」の1行は出ていない
+- 常設 issue「最強戦の選手写真のリンク切れ検知結果」は前のもの（#499）がクローズ済みだったため、この実行が #534 を新しく作った（本文の脚注は新しい「X 公式 API（user lookup）で解決したもの」）。シートの直しは平野さんの手作業のまま（自動書き込みは次の指示）
+- 月の実行時間の見込み: 1回 約1分（ジョブ単位の切り上げで2分とみても）× 31日 = 31〜62分。リポジトリは private で、XAP-02 で見た run の `billable` は 0 ms（無料枠の内）。無料枠を超えても単価 $0.006〜0.008/分で月 $0.5 未満 → 10月の予算 $10 を超えない
+- X API の費用: この日は1件 $0.010。シートが直るまで毎日同じ X ID を呼ぶ（上限30件/日）
+
+### 手順2: 文書
+
+- docs/notes/saikyo-page-design.md「7. 選手写真の更新」: 「検知は週1」→ 毎日。「生成時に全員分を解決しない」の理由の段を X API の費用（生成ごとに約$2.76）に絞り、404 の行だけを毎日の検知で X API で解決すると書き換えた（Chromium の所要時間の記述は消した）。`collect_saikyo_images.py` の節の見出しを「手動実行＋毎日の検知」に、「週1の検知」の段を Worker 04:30 の毎日の検知に、Chromium の解決の段を X API の解決・上限30件・状態の種類に置き換え、403（client-not-enrolled）の原因と直し方を1行足した。Chromium をやめた経緯は1行に縮めて残した。アカウントなしの段は状態の段に統合した。アプリの名前は書いていない（平野さんがどう直したかをログに書かないため）
+- docs/notes/static-generation.md: ワークフローの一覧の `check-image-links.yml` の行（週1と毎日）、手動実行の注意の `saikyo_resolve_test`（Chrome → X API、ジョブ check も動かない）と `scheduled` の行、入力 `scheduled` の一覧に `check-image-links.yml` を足した、`collect_saikyo_images.py` の行（X API・毎日・Chromium の記述を消し「2026-09-28 から働いていない」を消した）
+- docs/notes/scheduler-worker.md「起動の表の直し方」の今の表: 3行 → 4行（`check-image-links.yml` 毎日 04:30）
+- docs/decisions/saikyo.md: XAP-02 の「未マージ（…止まった）」を外し、XAP-03 の決定（403 は平野さんが直し続きを進める）を足した
+- 常設 issue の本文: ワークフローが毎回作り直すもので、手で書いた説明は無い。解決の方法の脚注はワークフローの文言（XAP-02 で直した）で #534 にすでに出ている → 手では直していない
+- 決定と矛盾する文書は無かった
+- テスト: `python3 -m unittest discover -s scripts/tests` 686件 OK、`node --test` 25件 pass（文書のコミット 5b5500c1 の後）
+- 変えたファイル（`git diff --name-only origin/cloudflare...HEAD`）: check-image-links.yml・collect_saikyo_images.py・そのテスト・workers/scheduler/ の表とテスト・docs/ だけ
+
 ## 報告
 
 - 状態: 作業中
@@ -74,12 +111,12 @@ CHAT-1010-XAP-02 で止まった X API への切り替え・日次化を、403 �
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj aa6931b4）: https://github.com/retroeater/mj-logs/tree/main/guide/aa6931b4
+ガイド文書（この版を写した時点の最新、mj 74fcb928）: https://github.com/retroeater/mj-logs/tree/main/guide/74fcb928
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/aa6931b4/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/aa6931b4/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/aa6931b4/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/aa6931b4/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/aa6931b4/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/aa6931b4/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/db5444b2.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/74fcb928/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/74fcb928/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/74fcb928/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/74fcb928/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/74fcb928/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/74fcb928/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b813da90.md
