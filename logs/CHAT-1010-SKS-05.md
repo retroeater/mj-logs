@@ -93,17 +93,28 @@ YouTube・楽天の取得は skipped（`all` のときだけ）。`origin/work/1
   - push の競合（#263）: 同じ時間帯にほかの再生成（毎日の `update-live-channel.yml`〈06:43 JST〉の `live_pages title_pages`、push の再生成）が cloudflare に push したら、`regenerate-page.yml` の3回までの `pull --rebase` で取り込み直す。saikyo/ はほかの再生成と同じファイルを書かないため、衝突するのは `sitemap*.xml` の lastmod が両方で変わったときくらい
   - 写真の揺らぎ: 試験の2回では出なかった。シートが変わっていない日に差分が出続けたら、毎日コミットと本番の更新が走る（その場合は #537 で扱う）
 
+### 4. マージと確認
+
+- `git fetch` の後 `git merge-base --is-ancestor origin/cloudflare HEAD` が真であることを確かめ、`git push origin work/1010-sks:cloudflare`（18147a46..2e7da207）。差分は `.github/workflows/regenerate-saikyo.yml`・3文書・`docs/decisions/saikyo.md`・このログだけ
+- Actions の一覧: `regenerate-saikyo.yml`（id 380517818、「最強戦の再生成」、state `active`）が出ている。契機は `workflow_run`（「画像リンク切れの検知」の completed、cloudflare）と `workflow_dispatch`
+- docs/notes/branch-operations.md「ワークフローを変更したとき」のとおり、cloudflare で1回手動実行した: run 38053668468、success、ジョブ「regenerate / regenerate」22秒（12:54:11〜12:54:33 UTC）、「変更をコミット・push」は「変更なし」。cloudflare にコミットは増えていない
+- 2e7da207 の check-run: Workers Builds: mj・regenerate / regenerate・check（2件）がすべて success
+- #537: 決定・作り・試験の結果・触れておくこと・最初の自然な起動の確認をコメントし、「状況: 待ち」を付けた（閉じていない）
+- 状態を「判断待ち」にした理由: 指示の完了条件で、最初の自然な起動を「未確認の項目」に書くため（「完了」は未確認の項目が「なし」のときだけ）
+
 ## 報告
 
-- 状態: 対応中
-- ブランチ: work/1010-sks
-- ログ: https://github.com/retroeater/mj/blob/work/1010-sks/docs/logs/CHAT-1010-SKS-05.md
+- 状態: 判断待ち（最初の自然な起動の確認待ち。#537 で扱う）
+- ブランチ: work/1010-sks（cloudflare にマージ済み）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1010-SKS-05.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1010-sks
-- 確認用URL: 未
-- マージ: 未
-- issue: #537
-- 判断が必要なこと: 未
-- 未確認の項目: 未
+- 確認用URL: なし（ワークフローと文書のみ。表示は変わらない）
+- マージ: 済（2e7da207）
+- issue: #537（実装・試験の結果をコメント、「状況: 待ち」）
+- 判断が必要なこと:
+  - 最初の自然な起動を確かめた後に #537 を閉じるか
+- 未確認の項目:
+  - 最初の自然な起動: 次の 04:30 JST の検知（Worker からの `[scheduled]` の「画像リンク切れの検知」）が終わった後、「最強戦の再生成」が `workflow_run` で起動して success になるか（`workflow_run` のつなぎは既定ブランチでしか働かず、試せていない。Worker からの 04:30 の起動もまだ一度も動いていない）
 - エラー: なし
 
 <!-- guide-links -->
