@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-10 19:00 JST
+- 書き出した時刻: 2026-10-10 19:01 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -12,7 +12,7 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-10-10 18:59 | push | work/1010-mck-304 | in_progress | #3125（38043349673） |  |
+| 2026-10-10 18:59 | push | work/1010-mck-304 | success | #3125（38043349673） | 0分10秒 |
 | 2026-10-10 18:59 | push | work/1010-xap | success | #3124（38043317057） | 0分11秒 |
 | 2026-10-10 18:56 | push | work/1008-dic | success | #3123（38043175818） | 0分13秒 |
 | 2026-10-10 18:56 | push | work/1010-xap | success | #3122（38043138163） | 0分11秒 |
@@ -223,11 +223,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-10-10 18:59 | workflow_dispatch | work/1010-xap | in_progress | #7（38043346900） |  |
+| 2026-10-10 19:00 | workflow_dispatch | work/1010-xap | in_progress | #8（38043406631） |  |
+| 2026-10-10 18:59 | workflow_dispatch | work/1010-xap | success | #7（38043346900） | 0分33秒 |
 | 2026-10-10 18:59 | workflow_dispatch | work/1010-xap | success | #6（38043316877） | 0分20秒 |
 | 2026-10-10 18:57 | workflow_dispatch | work/1010-xap | failure | #5（38043241943） | 0分23秒 |
 | 2026-10-10 18:56 | workflow_dispatch | work/1010-xap | success | #4（38043192283） | 0分25秒 |
-| 2026-10-10 18:56 | workflow_dispatch | work/1010-xap | success | #3（38043143848） | 0分25秒 |
 
 - #5 failure: ジョブ「update」 ステップ「実行」
 
