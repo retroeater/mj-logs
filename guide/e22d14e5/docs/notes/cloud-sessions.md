@@ -62,13 +62,13 @@ Chat-Ref の確認・`git branch --merged` が誤る。**これらの判定の�
 - **複数の issue の本文・題・ラベルをまとめて書き換えるときは、1件ごとに書き換える直前に `updated_at` を取り直し、取得時と違えばその issue は書き換えずに飛ばして報告する。**
   10〜15件ごとに「済」の番号をログに追記して push する。本文・題の部分置換とラベルの付け外しは REST（`PATCH /issues/{n}`・`/labels`）で通るが、
   state の変更とコメントの作成は REST だと HTTP 405 になるため MCP（`issue_write`・`add_issue_comment`）で行う（#304 の月次の棚卸しにも当てはまる）
-- 触れるリポジトリはセッションの sources（`retroeater/mj`）だけ。mj-logs への書き込みは拒否される（写すのは `sync-logs.yml`）
+- 触れるリポジトリはセッションの sources（`retroeater/mj`）だけ。mj-logs への書き込みは拒否される（写すのは mj-logs の `sync-from-mj.yml`）
 
 ## ブランチの削除
 
 セッションの git プロキシがブランチの削除を拒否する（`git push origin --delete` が HTTP 403）。削除はしない。
 マージ済みの `work/*` は `delete-merged-branches.yml` が毎日、先頭が24時間より前のものを削除する（削除の記録もワークフローの出力に残る）。
-CLAUDE.md「ブランチ運用」の「作業ブランチも削除する」は、このワークフローに任せることで満たす。
+docs/notes/branch-operations.md「作業ディレクトリの分離（Codespace）」の「作業ブランチも…削除する」は、このワークフローに任せることで満たす。
 `claude/*` は対象外（#440）。
 
 ## ネットワーク
@@ -109,16 +109,16 @@ CLAUDE.md「ブランチ運用」の「作業ブランチも削除する」は�
 
 ## 作業ログ
 
-- push したログは `sync-logs.yml` が public の mj-logs に写す。`work/**` への push では、コミットのメッセージに `[sync-logs]` のある push（着手と、完了・判断待ち・中断の最後の push）だけ写り、途中の節目の push はジョブが skip する（#298）。目印の付け方と書かない情報は CLAUDE.md「作業ログ」節
+- push したログは public の mj-logs に写る。2026-10-07 からは、Worker `mj-scheduler` が mj への push の直後（`pushed_at` が3分以内の毎分の回）に mj-logs の `sync-from-mj.yml` を起動し、`scripts/sync_all_logs.py` が cloudflare と未マージの `work/**` のログを目印 `[sync-logs]` に関係なく写す（保険は毎日 03:41 JST の予約実行。#298。mj の `sync-logs.yml` は停止中）。目印の付け方と書かない情報は CLAUDE.md「作業ログ」節
 - **ガイド文書も mj-logs に写る。** cloudflare への push でガイド文書（`scripts/sync_guides.py` の `ALLOWED_PATTERNS`: CLAUDE.md・
   docs/handover.md・docs/instruction-template.md・docs/new-page-checklist.md・docs/logs/_template.md・docs/notes/ 直下の .md・docs/decisions/ 直下の .md〈決定の記録〉）が変わると、
   `guide/<mj の短い SHA>/` へパスを保って写す（新しい順に10個を残す。最新は `guide/HISTORY` の最後の行）。
   チャット側の取得の道具が一度読んだ URL をキャッシュから返すため、変わるたびに URL を変える。
-- **使用済みの Chat-Ref 識別子の一覧も写る。** `sync-logs.yml` の実行のたびに `scripts/chat_ids.py` が全ブランチの `Chat-Ref:` トレーラと `docs/logs/` の履歴から集め、
+- **使用済みの Chat-Ref 識別子の一覧も写る。** 写しの実行のたびに `scripts/chat_ids.py` が全ブランチの `Chat-Ref:` トレーラと `docs/logs/` の履歴から集め、
   最新の版と違えば `chat-ids/<mj の短い SHA>.md` に書く（10個を残す。最新は `chat-ids/HISTORY` の最後の行、#474）。写したログの末尾からリンクする
   mj-logs に写したログの末尾には、その時点で最新のフォルダと CLAUDE.md・handover.md・instruction-template.md・chat-side-operations.md・cloudflare.md・decisions/README.md へのリンクが付く（mj の元のログは変えない）。
   ガイド文書に書かない情報はログと同じ。写す一覧は `python3 scripts/sync_guides.py --dest <任意> copy --after HEAD --list`
-- **Actions の実行結果も書き出す。** `sync-logs.yml` の実行のたび（push に加えて、毎日 05:30 JST の Worker からの起動・08:29 JST の予約実行〈保険〉・手動実行）に、`scripts/actions_status.py` が
-  各ワークフローの直近5回の実行を mj-logs の `actions/status.md` に上書きする（#498）。push 以外は `[sync-logs]` の目印に関係なく走る。
+- **Actions の実行結果も書き出す。** 写しの実行のたびに、`scripts/actions_status.py` が
+  各ワークフローの直近5回の実行を mj-logs の `actions/status.md` に上書きする（#498）。
   セッションでも `GITHUB_REPOSITORY=retroeater/mj python3 scripts/actions_status.py --dest <任意>` で同じ表を手元に作れる（環境変数のトークンを使う）
 - ログの `## 報告` などの書き換え方（最後の一致を相手にする）と、「ログ（公開）」の行を書く前の写しの確かめは CLAUDE.md「作業ログ」節

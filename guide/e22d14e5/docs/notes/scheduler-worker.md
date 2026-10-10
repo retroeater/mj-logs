@@ -73,7 +73,7 @@ run-name: ${{ inputs.scheduled && '[scheduled] <ワークフローの name>' || 
 | `monthdays` | 省略可。JST の日の配列（例 `[1]`）。省略は毎日 |
 | `enabled` | `false` の行は起動もしないし、朝の確かめでも見ない |
 
-今の表（2026-10-08、#504 の段階2の後の回まで）は3行: `update-live-channel.yml` 毎日 04:00・`sync-dojo-calendar.yml` 毎日 04:15・`delete-merged-branches.yml` 毎日 04:20（どれも有効）。`sync-logs.yml` 毎日 05:30 の行は 2026-10-07 に消した（#298。mj の sync-logs.yml を止め、写しは mj-logs の `sync-from-mj.yml`。1日1回の保険は mj-logs 側の予約）。時刻の案は #504 の本文「起動時刻の案と範囲」。
+今の表（2026-10-10）は4行: `update-live-channel.yml` 毎日 04:00・`sync-dojo-calendar.yml` 毎日 04:15・`delete-merged-branches.yml` 毎日 04:20・`check-image-links.yml` 毎日 04:30（最強戦の選手写真の検知。`scheduled` ではジョブ `saikyo` だけが動き、所要は約1分。#514）（どれも有効）。`sync-logs.yml` 毎日 05:30 の行は 2026-10-07 に消した（#298。mj の sync-logs.yml を止め、写しは mj-logs の `sync-from-mj.yml`。1日1回の保険は mj-logs 側の予約）。時刻の案は #504 の本文「起動時刻の案と範囲」。
 
 - 表を変えて `cloudflare` に入ると、Workers Builds の `mj-scheduler` がデプロイする（check-run「Workers Builds: mj-scheduler」）。cron の変更の反映は最大15分。`workers/scheduler/` の外だけを変える push ではビルドされない（2026-10-06 に check-run で確かめた）
 - 表に足すワークフローは、先に上の「予約の起動の見分け方」の3つを足しておく。足さないと、`scheduled` が知らない入力として 422 になる

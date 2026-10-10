@@ -51,6 +51,13 @@ CHAT-1010-REV-03（判断待ち）の CLAUDE.md の圧縮と移し先の文書�
 - 作業ブランチ: ローカル・リモートとも work/1010-rev（cce93466）。origin/cloudflare は祖先でない（取り込みが要る）
 - 前提: `git log 3e7b4cb0..origin/work/1010-rev` は cce93466（docs: finish log for CHAT-1010-REV-03）の1件だけで、変更は `docs/logs/CHAT-1010-REV-03.md` だけ。成果物の追加のコミットは無い
 
+### 取り込み
+
+- `git merge origin/cloudflare`: 衝突なし（マージコミット 9f8e9429。トレーラを付けるため push 前に `--amend` でメッセージだけ直した）
+- 取り込んだ cloudflare 側の変更のうち、REV-03 で変えた文書に当たるもの: `docs/notes/chat-side-operations.md`（+3/−2 行）・`docs/notes/handover-archive-2026.md`（+3/−1 行）・`docs/instruction-template.md`（1行）。いずれも別の行で、自動で両方が残った
+- `python3 scripts/check_asset_limits.py` OK、`python3 -m unittest discover -s scripts/tests` OK
+- サイズ（取り込み後）: CLAUDE.md 22,098・handover.md 22,619・chat-side-operations.md 26,306。chat-side は警告域（26,624 バイト）の手前で残りは 318 バイト（REV-03 の +356 と cloudflare 側の変更の分）
+
 ## 報告
 
 - 状態: 作業中
@@ -67,12 +74,12 @@ CHAT-1010-REV-03（判断待ち）の CLAUDE.md の圧縮と移し先の文書�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 57b074e9）: https://github.com/retroeater/mj-logs/tree/main/guide/57b074e9
+ガイド文書（この版を写した時点の最新、mj e22d14e5）: https://github.com/retroeater/mj-logs/tree/main/guide/e22d14e5
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/57b074e9/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/57b074e9/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/57b074e9/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/57b074e9/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/57b074e9/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/57b074e9/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e22d14e5/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e22d14e5/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e22d14e5/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e22d14e5/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e22d14e5/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e22d14e5/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b813da90.md
