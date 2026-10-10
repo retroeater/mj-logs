@@ -77,7 +77,7 @@ Google Charts依存（#7の対象）・静的なページ の4つ。**件数の�
 
 **スプレッドシートを直しただけでは、ビルド時生成のページには反映されない。** 即時に反映したいときは
 `regenerate-page.yml` を`workflow_dispatch`で手動実行する（`target_page`にページ名、または`all`）。
-週次（毎週月曜05:37 JST、#103）で`all`が走る。セッション内でも `python3 scripts/regenerate.py <ページ名>` で生成できる。
+週次（毎週月曜05:37 JST、#103）で`all`が走る。最強戦（saikyo/）は毎朝、写真のリンク切れ検知の後にも再生成する（`regenerate-saikyo.yml`、#537）。セッション内でも `python3 scripts/regenerate.py <ページ名>` で生成できる。
 
 ### 自動化
 

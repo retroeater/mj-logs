@@ -77,6 +77,24 @@ ubuntu-latest が 2026-10-19 から Ubuntu 26.04（既定の Python 3.14）へ�
 - mj-logs の手動実行を起動した。Worker からの起動も同じ workflow_dispatch で、910ca2c を含む 59cef398 で動いた run 38061698534（#743）: success、「Pythonをセットアップ」success、ログに `Python 3.12.15`、写しは「変更なし」で正常に終わった。#741 以前の版に戻す必要は無かった
 - 並行のセッション: 実行中に `work/1010-rgn-py`（CHAT-1010-RGN-06、Python 3.14 への上げを起票するドキュメントだけの指示）が作られていた。ワークフローは変えないので止まる理由にはしない（`docs/decisions/automation.md` の追記が重なりうる）
 
+### 取り込み
+
+- マージの前に再 fetch したら、origin/cloudflare に RGN-06 の3コミット（1209291e〜706da098）が入っていた。`git merge origin/cloudflare` で `docs/decisions/automation.md` が衝突した（どちらも末尾への追記）。止まる条件の例外（追記どうし）のとおり両方を残して解いた。解いた後:
+
+```
+## 2026-10-10（CHAT-1010-RGN-05）
+
+- ubuntu-latest のまま移行を受ける（`ubuntu-24.04` などに固定しない）（#538）
+- ランナーの `python3` で動く4本（…）に `setup-python` の 3.12 を足し、ほかの14本とそろえる（#538）
+- #538 の期日は 2026-10-18（移行の始まる前日）
+- この指示のマージは承認済み（止まる条件つき）
+
+## 2026-10-10（CHAT-1010-RGN-06）
+
+- Python 3.14 へ上げる件を、#538 とは別の issue に起票する（#539）
+- 対応は 2026-10-19 以降に行う
+```
+
 ## 報告
 
 - 状態: 対応中
@@ -93,12 +111,12 @@ ubuntu-latest が 2026-10-19 から Ubuntu 26.04（既定の Python 3.14）へ�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 706da098）: https://github.com/retroeater/mj-logs/tree/main/guide/706da098
+ガイド文書（この版を写した時点の最新、mj 36af3d35）: https://github.com/retroeater/mj-logs/tree/main/guide/36af3d35
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/706da098/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/706da098/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/706da098/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/706da098/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/706da098/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/706da098/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/19111d74.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/36af3d35/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/36af3d35/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/36af3d35/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/36af3d35/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/36af3d35/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/36af3d35/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/36af3d35.md

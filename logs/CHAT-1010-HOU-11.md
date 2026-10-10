@@ -83,28 +83,45 @@ HOU-10 の演出の比較ページで平野さんが選んだ候補を、リー�
   - 内藤正樹 40後 D1 → 41前 D3: 回転の角度が 400° を超えた（2回転）
   - JS のエラー 0（両サイズ）
 
+### 手順2 文書・全ページの再生成・プレビューの確かめ
+
+- 文書: `docs/notes/houou-top.md`（「構成」の比較ページの行を消し、「リーグ推移」の動きに決めた演出を書き、「比較ページ」の節を「すべて消した」と済んだ比較に直し、「公開の段」を一覧にし、仮置きの HOU-10 の行を残る分〈S3・R2 の細部〉に直して HOU-11 の分を足した）、`docs/notes/static-generation.md`「ページの一覧」（「13＋比較ページ1（一時）」→「13」、比較ページの文を消した）。`docs/decisions/houou.md` に「## 2026-10-10（CHAT-1010-HOU-11）」を足した（置き換えた前の決定は無い。HOU-10 は候補を比較ページで見比べる決定で、行として「本番は各1つ目」を決めていない）
+- 公開の段の一覧（`houou-top.md`「非公開の形と公開の方針」）: 旧4ページの 301（`houou_results.html` → `houou/players/`〈`?name=` を引き継ぐ〉・`houou_leagues.html` → `houou/leagues/`・`houou_race.html` → `houou/race/`・`houou_ranking.html` → `houou/ranking/`）、`?division=` の部門ページへの 301、noindex を外して sitemap に載せ `sitemap.xml`・`sitemap-pages.xml` 冒頭コメントの件数を直す、navbar の項目、`llms.txt` の4行、iPhone での文字の拡大の確かめ、#520 のクローズ、告知の有無
+- 全ページの再生成（`jpml_pros`・`resource_dictionary` は外した）: 差分なし。`books_pages` は HOU-10 と同じく「書籍」シートの行数の確かめで止まり、出力は戻った（この作業と無関係）
+- Workers Builds: コードの push（2e4dd065 を含む 9788afb3）の check-runs は「Workers Builds: mj」success・check success
+- プレビュー（headless Chromium、390×844・1280×800）:
+  - `houou/leagues/compare.html`・`houou/compare.html` は 404
+  - トップ・個人成績・ランキング（入口と部門）・リーグ推移・順位変動・旧 `houou_race.html` は 200、JS のエラー 0、横のはみ出し 0。新ページは noindex、旧 `houou_race.html` は noindex なし（今まで）
+  - 演出（両サイズで同じ結果。検出した時点・150ms 後・400ms 後を撮影）: 大久保隼人 41後 E3 → 42前 E2 で、アイコンが E3 から E2 へ上がる途中に紙吹雪が出た（再生から約 5.6秒）。42前 E2 → 42後 B2 で放物線の大ジャンプと着地の揺れ（約 8.3秒）、続く 42後 B2 → 43前 C1 でアイコンが回転しながら落ちていく（約 8.6秒、角度 64° → 136° → 220°）。平野良栄 34前 D1 → 34後 C2 で着地の揺れ（約 11.9秒）。白鳥翔 40後 A2 → 41前 A1（決定戦）で着いた所に王冠（約 21.9秒）。内藤正樹 40後 D1 → 41前 D3 で角度が 400° を超え2回転（約 18.5秒）。JS のエラー 0
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち（平野さんがプレビューで演出を確かめてからマージ）
 - ブランチ: work/1008-hou
 - ログ: https://github.com/retroeater/mj/blob/work/1008-hou/docs/logs/CHAT-1010-HOU-11.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1008-hou
-- 確認用URL: なし
-- マージ: 未
+- 確認用URL: ターミナルへの最終報告に書いた（プレビューの URL は非公開扱い）
+- マージ: 未（指示のとおり cloudflare へは push していない）
 - issue: #518
-- 判断が必要なこと: なし
-- 未確認の項目: なし
-- エラー: なし
+- 判断が必要なこと:
+  1. 確かめる手順: リーグ推移で選手を選び、右上の再生のボタンを押す。大久保隼人（41後→42前 昇級の紙吹雪、42前→42後 特別昇級の大ジャンプ、42後→43前 降級の転げ落ち）・平野良栄（34前→34後 特別昇級）・白鳥翔（決定戦・鳳凰位の期に王冠。後半、再生から約 22秒）
+  2. 2段以上の降級の見本（2回転）: 内藤正樹（40後 D1 → 41前 D3）。ほかに 瀧澤光太郎（40前 E1 → 40後 E3）・高柳寛哉（41前 D3 → 41後 E2）。実データで35件（休場をはさむものを含む）
+  3. 仮置きの一覧（`docs/notes/houou-top.md`「仮置きの一覧」）
+     - 今回（HOU-11）足したもの: 紙吹雪を出す時機（昇級の区間で縦の動きが半分＝区間の時間の約 21%）／降級の回転（時計回り1回転、2段以上は2回転）と着地の弾み（6px・0.45秒）。落ち方は今までの降級の加速のまま
+     - 前から（HOU-01〜10）: HOU-10 の分は、推移のベスト・ワーストの印とラベル、入替戦の帯の色と上下の判定、特別昇級の判定（2段以上）と S3・R2 の細部（跳ぶ高さ 44px・揺れ 0.4秒・王冠 1.2秒）。HOU-01〜08 の分は HOU-10 の報告のまま（一覧を参照）
+  4. 次の指示（マージ）の前に済ませておくこと: なし。マージの時点で `origin/cloudflare` が進んでいれば取り込む（今回の着手時に取り込み済み）。公開の段で行うことは `houou-top.md`「非公開の形と公開の方針」の「公開の段」にそろえた（issue は起票していない）
+- 未確認の項目: iPhone での文字の拡大と演出の見え方（公開前にまとめて行う決定どおり）。演出はブラウザでの目視ではなく、headless Chromium の撮影と要素・角度の検出で確かめた
+- エラー: なし（`books_pages` の再生成が「書籍」シートの行数の確かめで止まったのは、この作業と無関係。出力は戻った）
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 5697aa0c）: https://github.com/retroeater/mj-logs/tree/main/guide/5697aa0c
+ガイド文書（この版を写した時点の最新、mj 36af3d35）: https://github.com/retroeater/mj-logs/tree/main/guide/36af3d35
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/5697aa0c/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/5697aa0c/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/5697aa0c/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/5697aa0c/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/5697aa0c/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/5697aa0c/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/19111d74.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/36af3d35/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/36af3d35/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/36af3d35/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/36af3d35/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/36af3d35/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/36af3d35/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/36af3d35.md
