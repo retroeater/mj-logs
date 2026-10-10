@@ -96,6 +96,18 @@
   - 直した後: `python3 -m unittest discover -s scripts/tests` は 751件 OK
 - 前後の `regenerate.py all`: ab573e57 のクローンを2つ作り、片方の `regenerate.py` だけを origin/cloudflare の版にして、続けて流した（old 13:31:08〜13:33:06 UTC、new 〜13:34:46）。
   どちらも終了コード0、20ページとも成功（飛ばしたページなし）、最後の行（コミット対象）は同じ。生成後の作業ツリーは、どちらも HEAD との差が0件（`git status` が空）で、`diff -r`（`.git` を除く）の差は `scripts/regenerate.py` だけ
+- 手動実行 (i)（run 38056318690、#256、0be55313、`target_page: all`）: success。YouTube の取得・再生成・lastmod・well-formedness・title/ の転送・コミット・push が success、取得失敗の報告2つと「飛ばしたページを報告」は skipped。生成物の差分は無く（「変更なし」）、ブランチにコミットは入らなかった
+- 手動実行 (ii): 一時のコミット c545dd63 で、`generate_jpml_test.py` の最後に「出力に印を書き足してから `SystemExit`」の3行を足し、`video_en.html` の末尾に印のコメントを1行足した（video_en が再生成で戻り、コミットが出る形にするため）。
+  run 38057059331（#257、`target_page: jpml_test video_en`）: 結論 failure。「対象ページを再生成」は success、lastmod・well-formedness・title/ の転送・コミット・push が success、「飛ばしたページを報告」が failure。
+  ログ: `jpml_test の生成に失敗しました。途中の出力 1 件を戻して飛ばします。`→ video_en を生成 →「飛ばしたページ(途中の出力は戻した): - `jpml_test`(終了コード 1): 試験: わざと失敗させる(CHAT-1010-RGN-02、#533)」。
+  コミット f6bd3e9b（github-actions[bot]、`chore: regenerate video_en.html`）は `video_en.html`（印を消す）と `sitemap-pages.xml`（video_en の lastmod）だけで、`jpml_test.html` は入っていない。`check_asset_limits` の表は video_en だけを対象にして出た
+  - ジョブのサマリの中身は API で読めない（regenerate の check-run の `output.summary` は空、github.com はセッションのプロキシが拒否）。サマリへの書き込みは stderr の一覧と同じ関数（`report_skipped()`）で、`check_asset_limits.py` と同じ `GITHUB_STEP_SUMMARY` への追記。書き込みは試験 `test_skipped_pages_are_reported` で確かめたが、画面での見え方は未確認（平野さんに run 38057059331 のサマリを見てもらう）
+- 一時のコミットを戻す: e5e24f89 は `scripts/generate_jpml_test.py` の3行を消すだけ（`git show --stat`: 1 file, 3 deletions）。video_en.html の印は f6bd3e9b の再生成で消えている。
+  試験の前（56e81563）との差は `sitemap-pages.xml` の video_en の lastmod（2026-09-13 → 2026-10-10）の1行だけ。`update_sitemap_lastmod.py --from-git` はファイルの git の最終コミット日を使うので、試験のコミットで video_en.html の最終コミット日が 10-10 になったことによる値（内容は試験の前と同じ）。
+  シートの変化によるものではなく、試験の作り方によるもの。lastmod は手で書き換えない規則（CLAUDE.md「禁止事項」）なので、このまま入れる（本番の video_en の lastmod が 10-10 になる。害は無い見込み）
+- 未マージの `work/1010-rgn` のほかの生成物のコミットは無い
+- `python3 -m unittest discover -s scripts/tests`: 751件 OK（e5e24f89）
+- docs/notes/static-generation.md を直した（56e81563）: 「シートのフィルタの検知」の通知の行、「生成を止める条件の設計」の冒頭、「regenerate-page.yml」の節に、失敗したページだけを飛ばす扱いを足した。`regenerate.py` を `workflow_call` で呼ぶのは `update-live-channel.yml` と `regenerate-saikyo.yml`（#537、saikyo_pages だけ）。後者は1ページなので、失敗すると一覧が空でコミットされず、最後のステップで失敗する（今までと同じ結果）
 
 ## 報告
 
@@ -113,12 +125,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 2e7da207）: https://github.com/retroeater/mj-logs/tree/main/guide/2e7da207
+ガイド文書（この版を写した時点の最新、mj a930b4a9）: https://github.com/retroeater/mj-logs/tree/main/guide/a930b4a9
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/2e7da207/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/2e7da207/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/2e7da207/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/2e7da207/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/2e7da207/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/2e7da207/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a930b4a9/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a930b4a9/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a930b4a9/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a930b4a9/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a930b4a9/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a930b4a9/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/19111d74.md
