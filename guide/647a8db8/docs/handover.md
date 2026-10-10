@@ -131,7 +131,7 @@ hook の判定は deny（実行させない）だけで、確認（ask）は出�
 具体的には、次のような判断をしてきた。
 
 - 構造化データ（#13）は現行サイトでは見送り、新サイトで対応
-- 共有ボタン: 新サイトの選手個別ページは #82（新サイト送り）。現行サイトは live/・saikyo/・wayhome/ に共通の部品（#409。`scripts/lib/share.py`・`assets/share.js`・`style.css`）。title/ は外した。見直しは #530。books/ は凍結中で旧実装
+- 共有ボタン: 新サイトの選手個別ページは #82（新サイト送り）。現行サイトは live/・saikyo/ に共通の部品（#409。`scripts/lib/share.py`・`assets/share.js`・`style.css`）。title/ と wayhome/（帰り道）は外した。見直しは #530。books/ は凍結中で旧実装
 - Astroへの移行（#20/#21）は新サイト構築時に判断。現行サイトの残作業はPythonで進める
 
 **新サイトの第一弾は index.html（#101）。** 他ページと構造が独立し依存が最も少ないため（Astro の試作対象も index.html に変え、#20 はクローズ）。
