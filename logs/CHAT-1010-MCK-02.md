@@ -72,28 +72,51 @@ CHAT-1010-MCK-01 の「10月に決めること」に平野さんが答えた。�
 - #296 本文「新サイト送りにするとき・やめるとき」: コメント「親: #296」と sub-issue の登録を同時に行う、とある。**ラベルの扱いは書かれていない**が、手順の書き出しが「『新サイト（#296）で対応』として**保留にする** issue」で、最近表へ足した子（#224・#226・#276・#378・#235・#529・#417）はすべて `状況: 保留`。これにより「#4 の `状況: 待ち` を外し `状況: 保留` を付ける」と決められると判断した（止まる条件の「決められない」には当たらない）
 - #296 本文の「親の対象外」の表に #4（「現行サイトでも実施可能なため親には紐づけない」）がある。送ると食い違うので、表の行を「子 issue」の表へ移す（ほかの行の「（2026-10-05 に表へ追加）」の書き方に合わせる）
 
+### 手順2: issue への記録（2026-10-10 19:00 JST ごろ）
+
+- **#4**（#296 本文「新サイト送りにするとき・やめるとき」のとおり、同時に2つ）:
+  - コメント「親: #296」を含む決定のコメント: https://github.com/retroeater/mj/issues/4#issuecomment-6096362244 （MCK-01 の「10月に決めること」の #4 の節から引用）
+  - #296 の sub-issue に登録（MCP `sub_issue_write`。登録後の #296 の子は 36 → 37 件）
+  - ラベル `状況: 待ち` → `状況: 保留`（上の判断）。本文先頭の期日の行を「新サイト（#296）送り（2026-10-10、#304 の 2026-10 の月次の回で決定）。現行サイトには入れない」に置き換えた（期日が過ぎた行を残さないため）
+- **#296 本文**: 「親の対象外」の表から #4 の行を消し、「子 issue」の表の末尾に「#4 | … | JS エラーの検知。現行では外部ドメインを増やさず、CSP（#9）を先に進める（2026-10-10 に表へ追加）」を足した。Chat-Ref の行に `CHAT-1010-MCK-02` を足した
+- **#9 本文**: 「#4 の後」の前提を2か所から外した。冒頭の「Sentry導入(旧64番)で外部ドメインが増えるため、その後に着手する。」と、「img-src の候補と前提」の「前提: #4（Sentry）の後、#7（Google Charts の解消）の後に着手する。」。どちらも外した旨を括弧で残し、#7 の後は残した。ラベル `状況: 待ち` は #7 を待つので変えていない
+- **#304 本文**: (11) の後に (12) を足した（(7)〜(11) と同じく子の行に経緯と記録先）。Chat-Ref の行に `CHAT-1010-MCK-02` を足した。「2026-10 実施」のコメントは書いていない。先頭の期日の行（2026-10-09）は指示に無いので変えていない
+- **#230**: 決定と列定義を1つのコメントにした https://github.com/retroeater/mj/issues/230#issuecomment-6096373114 。本文の期日の行を「初回は記録用のブックができてから（固定クエリ・記録先は 2026-10-10 に決定）。比較は 2027-01 の月次の回」に直した。**ブックは平野さんが作る**と書いた。本文の分担（実行は平野さんの手作業、列定義は Claude Code）とは食い違わない。列定義は本文の6列に「回」（各2回のため）と「メモ」を足した「言及」のシートと、本文の手順4（リファラの流入数、主指標）の「流入」のシートの2つ
+- **#262**: 決定のコメント https://github.com/retroeater/mj/issues/262#issuecomment-6096373447 。本文の期日の行（初回 10-09）は指示の対象外なので変えていない
+- **#365**: 決定のコメント https://github.com/retroeater/mj/issues/365#issuecomment-6096373843 。本文の期日の行を「期日未定」に直した
+- **#367**: 決定のコメント https://github.com/retroeater/mj/issues/367#issuecomment-6096374211 。本文の期日の行を「X API での試し取りの結果を見て決める」に直した。決定が MCK-01 の Code の提案（平野さんの入力）と違うことをコメントに書いた
+- 本文の書き換えの方法: 指示の前提は「MCP で行う」だが、docs/notes/cloud-sessions.md「gh の代わりに GitHub MCP」は本文の部分置換は REST で通る（405 になるのは state とコメント）としている。長い本文を MCP の引数に書き写すと取り違えるおそれがあるため、ラベル・sub-issue・コメント・#4 の本文は MCP、#296・#9・#304・#230・#365・#367 の本文の部分置換は REST の `PATCH /issues/{n}` で行った（指示の記述とルールの側の文書が食い違うので、ルールの側に合わせた）。置換は、取り直した本文に置換前の文字列がちょうど1回あることを確かめてから行った。置換前の `updated_at` は手順1で見た値と同じ（6件とも）
+  - 最初の実行は `Content-Type` の付け忘れで6件とも HTTP 415（書き換えは起きていない）。ヘッダを足して再実行し6件とも成功
+
+### 手順3: 文書の直し
+
+- (a) docs/notes/cloudflare.md「AIクローラーの扱い」: 直す前は「`Disallow: /` が32件。2026-09-28 は31件」（MCK-01 の調べのときのまま。他のセッションは直していない）。「`Disallow: /` の対象の UA は32、`Disallow: /` の行は31。`AwarioSmartBot` と `AwarioRssBot` が1グループのため。09-21〜10-10 で一覧は変わっていない、#304 (4)」に置き換えた
+- (b) `git grep` で `(1)〜(` ・`1〜10`・`10項目`・`#304 (` などを探した（docs/logs を除く）。**#304 の項目の数を書いた箇所は無い。** docs/handover.md の 3章「タスク管理」は項目を列挙するだけで数は無い（前提どおり）。docs/notes/cloudflare.md の「#304 (11)」は (11) の項目の参照で正しい。何も直していない
+- CHAT-1010-MCK-01 のログの `## 報告` の状態の末尾に ` / 続き: CHAT-1010-MCK-02` を足した
+- 決定は docs/decisions/features.md（#4）と docs/decisions/operations.md（ほか）に足した
+
 ## 報告
 
-- 状態:
-- ブランチ:
-- ログ:
-- 比較URL:
-- 確認用URL:
-- マージ:
-- issue:
-- 判断が必要なこと:
-- 未確認の項目:
-- エラー:
+- 状態: 完了
+- ブランチ: work/1010-mck-304
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1010-MCK-02.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1010-mck-304
+- 確認用URL: なし
+- マージ: 済（c8295662、fast-forward。この行の追記はマージ後の docs/logs のみの追いの push）
+- issue: #4（新サイト送り・#296 の子に登録・`状況: 保留`）、#296・#9・#304・#230・#365・#367（本文）、#230・#262・#365・#367（決定のコメント）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 22ca975d）: https://github.com/retroeater/mj-logs/tree/main/guide/22ca975d
+ガイド文書（この版を写した時点の最新、mj e3c7dfe9）: https://github.com/retroeater/mj-logs/tree/main/guide/e3c7dfe9
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/22ca975d/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/22ca975d/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/22ca975d/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/22ca975d/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/22ca975d/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/22ca975d/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e3c7dfe9/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e3c7dfe9/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e3c7dfe9/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e3c7dfe9/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e3c7dfe9/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e3c7dfe9/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b4d859a5.md

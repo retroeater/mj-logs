@@ -337,7 +337,7 @@
 
 ## 報告
 
-- 状態: 判断待ち（手順書と判断の材料は完了。10月の回の作業と「10月に決めること」は平野さん）
+- 状態: 判断待ち（手順書と判断の材料は完了。10月の回の作業と「10月に決めること」は平野さん） / 続き: CHAT-1010-MCK-02
 - ブランチ: work/1010-mck-304
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1010-MCK-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1010-mck-304
@@ -359,12 +359,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 9e1c29eb）: https://github.com/retroeater/mj-logs/tree/main/guide/9e1c29eb
+ガイド文書（この版を写した時点の最新、mj e3c7dfe9）: https://github.com/retroeater/mj-logs/tree/main/guide/e3c7dfe9
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9e1c29eb/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9e1c29eb/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9e1c29eb/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9e1c29eb/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9e1c29eb/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9e1c29eb/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e3c7dfe9/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e3c7dfe9/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e3c7dfe9/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e3c7dfe9/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e3c7dfe9/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e3c7dfe9/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b4d859a5.md
