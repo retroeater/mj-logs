@@ -58,28 +58,66 @@
 
 ## 経過
 
+### 0. 着手前の確認
+
+- `CHAT-1010-SKS-04` のコミット: 0件
+- 作業ブランチ: ローカルの `work/1010-sks`（0c17266d）は `origin/cloudflare` の祖先（リモートの `origin/work/1010-sks` もマージ済み）→ `git merge --ff-only origin/cloudflare` で 57963e3e へ進めた（docs/notes/cloud-sessions.md「作業ブランチの用意」の1つ目）
+- 指示欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は4つとも有る
+
+### 1. 今の反映の経路と重なり
+
+実物（cloudflare 57963e3e）:
+
+- `.github/workflows/regenerate-page.yml`: 週次の `schedule`（25〜29行、`cron: '37 20 * * 0'`＝月曜 05:37 JST、GitHub の予約）、`workflow_dispatch` の `target_page`（8〜14行）、push（31〜45行。`scripts/generate_*.py`・`scripts/lib/**`・`*.js`）。27行のコメント「スプレッドシートの更新はpushでは検知できないため、定期的に all を回す」
+- `update-live-channel.yml` の `workflow_call`（360〜366行）は `live_pages title_pages` だけ
+- Worker `mj-scheduler` の `workers/scheduler/schedule.json` に `regenerate-page.yml` は無い
+- docs/notes/static-generation.md「ワークフローの一覧」も同じ（週次 `all` と push）
+- → 前提のとおり、シートの変更を検知して saikyo_pages を再生成する仕組みは無い
+
+issue の検索（クローズ済みを含む。検索語「最強戦 シートの更新 saikyo_pages 再生成 自動」「スプレッドシートの更新を検知して再生成 予約」「saikyo_pages」）:
+
+- #103（closed、「生成済みページの定期再生成を検討する」）: 週次の `all` を入れて閉じたもの（コメント4件を読んだ）。全ページの定期再生成で、最強戦のシートの更新に合わせて早く出す件ではない。食い違いも無い → 同じ主題ではないと判断し、関係に挙げた
+- #223（open、大会期間中の成績系ページの速報再生成〈Ampai〉）・#337（open、シートと生成ページの対応）・#225（open、データ更新の検知から X ポストの下書き）・#506（予約実行の起動）: 主題が違う
+- 同じ主題の issue は無い → 起票した
+
+#458・#428・#530 の本文に期日の記述・欄は無い（本文は直していない）。
+
+### 2. 起票
+
+- **#537**「最強戦: 週1の『最強戦』シートの更新を saikyo/ に自動で反映する」（ラベル: 分野: 自動化・対象: saikyo）。本文は今の反映の経路（ファイルと行）・平野さんの決定・論点 (a)〜(d) と共通の論点（#298・#533・同時実行・写真の揺らぎ）・確かめること（更新の曜日・時刻）・関係（#533・#504・#298・#103）
+- 起票の直後、push の行番号を「31〜44行」から「31〜45行」に直した（REST の PATCH。ほかは変えていない）
+
+### 3. 期日
+
+- #458: 2026-11-02（年度ページ15件の登録状況。11/1 の月次の GSC 取得と #485・#142 の確認に合わせた）をコメント
+- #428: 2026-10-17（残りと固定バーの2行の境目、横断レビュー第3弾に合わせる）と 2026-11-01（本番の CLS、#304 の月次運用チェックに合わせる）を表でコメント
+- #530: 2026-10-24（残りを決める）をコメント
+- 決定を `docs/decisions/saikyo.md` に足した
+
+コード・ワークフロー・生成物・ほかの文書は変えていない。
+
 ## 報告
 
-- 状態: 対応中
-- ブランチ: work/1010-sks
-- ログ: https://github.com/retroeater/mj/blob/work/1010-sks/docs/logs/CHAT-1010-SKS-04.md
+- 状態: 完了
+- ブランチ: work/1010-sks（cloudflare にマージ済み）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1010-SKS-04.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1010-sks
 - 確認用URL: なし
-- マージ: 未
-- issue: #458、#428、#530
-- 判断が必要なこと: 未
-- 未確認の項目: 未
+- マージ: 済（ドキュメントのみ。ログ・docs/decisions/）
+- issue: #537（起票）、#458・#428・#530（期日をコメント）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 57963e3e）: https://github.com/retroeater/mj-logs/tree/main/guide/57963e3e
+ガイド文書（この版を写した時点の最新、mj a929cafc）: https://github.com/retroeater/mj-logs/tree/main/guide/a929cafc
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/57963e3e/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/57963e3e/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/57963e3e/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/57963e3e/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/57963e3e/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/57963e3e/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a929cafc/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a929cafc/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a929cafc/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a929cafc/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a929cafc/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a929cafc/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b4d859a5.md

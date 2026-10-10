@@ -278,6 +278,7 @@ HTMLは25ページ + 書籍の一覧と個別ページ（`books/`、#97、noinde
 - `PageMeta`は`og_title`（既定`None`＝`<title>`と同じ）を持つ。SNSのカード見出しだけを短くしたいページで指定する。「帰り道」の個別ページは`<title>`にシリーズの正式名を残したまま、og:titleを「<大会名> <選手名> | 帰り道 | ryoei.pro」にしている（#339。短縮形は`lib/wayhome.py`の`SERIES_SHORT`）
 - `wayhome/`のエピソード個別ページは`?name=`等のURL変種を持たないため、#113（canonicalなしの判断）の理由が当てはまらない例外として`<link rel="canonical">`を持つ（39ページ）。他27ページはcanonical無しのまま
 - `lib/page.py`はh1直後・`#searchBoxes`手前にページ固有のHTMLを差し込む`content_before`スロット（#102第1段で追加）を持つが、現在どのページも使っていない。ページ固有HTMLをh1直後に差し込む汎用スロットとして残している
+- `jpml_pros`の英字の姓名・所属は「プロ」シート（C・D・E列）ではなく連盟員名簿のブック（`lib/meibo.py`。英字の姓名は「【2】値貼付」タブの「登録名英字姓」「登録名英字名」、所属は「公開」タブ）から登録名で引く。在籍者が名簿のどちらかのタブにいない・名簿の人数が1,000〜1,300を外れるときは生成を止める（#536 の段2。「プロ」の C・D・E 列は段4で消すまで残る）
 - `jpml_pros`のYouTubeアイコンだけはシートではなくYouTube Data API（channels.list）から取り、`data/youtube_channels.json`を経由する（#3。キーはActions secret `YOUTUBE_API_KEY`）。
   取得は週次`all`と`target_page`空/`all`の手動実行時のみ。失敗しても既存JSONでアイコンは維持され、ジョブだけ失敗扱いになる
 - `wayhome_episodes`だけは出力が単一ページではなく`wayhome/`配下39枚になる（#162）
@@ -352,6 +353,11 @@ title/ では「タイトル戦」タブの大会の改名が「タイトル」�
 - **列は見出しの名前で読む。** タブ名・列名・列順はシート側で変わる（LV-11「プロ以外」→「連盟プロ以外」、
   LV-29「全動画」→「連盟ch」・列「候補」→「放送対局」・列の並べ替え）。`fetch_records()` のように、生成に使う列の見出しが
   欠けている・重複しているときだけ止め、知らない列が増えても止まらない形にする（列記号の `SELECT A,I,J` は並べ替えで無言に別の列を読む）
+- **「プロ」シートは `lib/pro_sheet.py` の `fetch_pros()` で読む**（#536）。読む列は見出しの定数（`pro_sheet.NAME`・`X_ID` など）の組で渡し、
+  在籍は見出し「表示」が Y の行（旧 `WHERE Y = "Y"`）、並びは `sort=True` で「ソートキー」の順（旧 `ORDER BY B`）。見出しはセル内改行を除いて比べ
+  （「X\nID」は `XID`）、A列の「登録名\n0.74」は改行の前の「登録名」で引く（#467）。必要な見出しが無い・2つ以上の列に当たるときは止める。
+  **`generate_houou_leagues.py`・`generate_houou_race.py`・`check_leagues_dropped.py`（`generate_ouka_leagues.PRO_QUERY` も借りる）はまだ列記号で読む**
+  （未マージの work/1008-hou と重なるため、そのマージ後に切り替える。#536 の段1の残作業）
 - **作業の途中で平野さんがシートを直すことがある。** 最強戦の作業（CHAT-0918-SX）では、SX-08 の「連盟プロ以外」の見出しの改名
   （「備考」→「所属補足」）、SX-09 の「放送対局」の動画の移動があった。見出しの改名は、`lib/live.py` の `OTHER_HEADERS` と
   `generate_title_pages.py` の `EXPECTED_HEADERS` の照合で /live・/title・最強戦（作業ブランチの実装）の生成が止まり、壊れたページを書き出す前に拾えた
@@ -401,6 +407,7 @@ GitHub Actions (`.github/workflows/regenerate-page.yml`) が、`scripts/generate
 | `sync-books-calendar.yml` | **2026-09-22 開発凍結にともない無効化（`gh workflow disable`）。** 元は毎週月曜05:27 JSTに「書籍」タブの発売日をGoogleカレンダーへ同期していた（#97、`docs/notes/books-calendar.md`・`docs/notes/books-freeze.md`） |
 | `sync-logs.yml` | **2026-10-07 から停止中（`workflow_dispatch` のみ。push・予約・Worker からの起動を外した、#298）。写しは mj-logs 側の `sync-from-mj.yml`（下）。** 以下は止める前の動き: `docs/logs/**` を含む push（cloudflare は毎回、`work/**` はコミットのメッセージに`[sync-logs]`のある push だけ。無い push はジョブが skip、#298）・毎日05:30 JST の Worker `mj-scheduler` からの起動（入力 `scheduled`、#504）・毎日 08:29 JST の予約実行（保険）・手動実行（この3つは目印に関係なく走る、#498）。実行の時点の mj と mj-logs を突き合わせ、写っていない・古い作業ログを public の `retroeater/mj-logs` の `logs/` へ写し、cloudflare で削除されたログを消す（#440。書き込みはシークレット `MJ_LOGS_TOKEN`）。concurrency は `queue: max` で、続けて来た実行を取り消さずに1本ずつ順に動かす（#509）。取り消された実行（待ちが100本を超えたとき、`queue: max` を持たない古い分岐の作業ブランチの実行）の分は、次の cloudflare の実行で追いつく（`scripts/sync_logs.py`、#454）。使用済みの Chat-Ref 識別子の一覧も毎回集め直して `chat-ids/` に写す（`scripts/chat_ids.py`、#474）。毎回、各ワークフローの直近5回の実行（開始時刻・契機・ブランチ・結論・run 番号・所要時間、失敗したジョブ名とステップ名）を mj-logs の `actions/status.md` に上書きで書き出す（`scripts/actions_status.py`、`GITHUB_TOKEN` の `actions: read`。コミットの題とログの中身は書かない、#498） |
 | `delete-merged-branches.yml` | 毎日07:53 JST と手動、Worker `mj-scheduler` からの予約の起動（毎日04:20 JST、入力 `scheduled`、#504。Worker が動くのは平野さんがつないだ後）。マージ済みで先頭が24時間より前の `work/*` を削除する（#440、`scripts/delete_merged_branches.py`） |
+| `update-sns-book.yml` | 毎日04:10 JST に Worker `mj-scheduler` から（入力 `scheduled`）と手動（mode: check / init / update、dry_run 既定）。SNS ブックの【1】【2】【3】を書く（`scripts/update_sns_book.py`、#514、`docs/notes/sns-book.md`） |
 
 - `scripts/sync_all_logs.py`（#298）: `origin/cloudflare` と未マージの `origin/work/**` のすべてについて、`sync-logs.yml` の「ログ・ガイド文書を写す・消す」と同じ手順で mj-logs の作業ツリーへ写す（commit・push はしない）。mj-logs 側の `sync-from-mj.yml` から呼ぶ
 - mj-logs の `.github/workflows/sync-from-mj.yml`（#298）: Worker `mj-scheduler` から mj に push があった直後（`pushed_at` が3分以内の毎分の回、`docs/notes/scheduler-worker.md`「動き」）と、手動実行・毎日03:41 JST の予約実行（保険）で起動し、mj を blobless でクローンして `scripts/sync_all_logs.py` と `scripts/actions_status.py --repo retroeater/mj` を動かし、mj-logs 自身へ push する（mj を読むのは mj-logs の Secret `MJ_READ_TOKEN`）。mj の Actions の分を使わない。2026-10-07 から写しはこれだけ（本番。`sync-logs.yml` は停止中）。push が拒否されたら origin/main に戻して写す・書き出すをやり直す（3回まで）
@@ -417,7 +424,7 @@ GitHub Actions (`.github/workflows/regenerate-page.yml`) が、`scripts/generate
   入力`saikyo_resolve_test`（X IDを1つ）を入れると、ジョブ`saikyo`は X API で解決を1回だけ試して診断を出し、検知も issue の書き換えもしない（ジョブ`check`も動かない。#514）
 - `cleanup-logs.yml`（`scripts/cleanup_logs.py`、条件は `docs/notes/branch-operations.md`「作業ログの寿命」）: 手動実行は dry_run が既定。週次実行は `SCHEDULE_ENABLED`（現在 `'true'`）が `'false'` なら dry-run
 - `delete-merged-branches.yml`（`scripts/delete_merged_branches.py`）: 手動実行は dry_run が既定。毎日の実行と、入力 `scheduled` を真にした起動は `SCHEDULE_ENABLED`（現在 `'true'`）が `'false'` なら dry-run（`'true'` なら実際に削除する）。`scheduled` は Worker からの予約の起動用で、手では付けない（`docs/notes/scheduler-worker.md`）
-- `update-live-channel.yml`・`sync-dojo-calendar.yml`・`sync-logs.yml`・`delete-merged-branches.yml`・`check-image-links.yml` の入力 `scheduled` は Worker `mj-scheduler` からの予約の起動用で、手では付けない（付けると予約実行と同じ動きになり、題に `[scheduled]` が付いて Worker の朝の確かめに数えられる。`docs/notes/scheduler-worker.md`）
+- `update-live-channel.yml`・`sync-dojo-calendar.yml`・`sync-logs.yml`・`delete-merged-branches.yml`・`check-image-links.yml`・`update-sns-book.yml` の入力 `scheduled` は Worker `mj-scheduler` からの予約の起動用で、手では付けない（付けると予約実行と同じ動きになり、題に `[scheduled]` が付いて Worker の朝の確かめに数えられる。`docs/notes/scheduler-worker.md`）
 - `check-meibo.yml`（`scripts/check_meibo.py`）: 手動実行は dry_run が既定。不一致があっても生成は止めない
 - `sync-birthday-calendar.yml`（`scripts/sync_birthday_calendar.py`）: 週次の schedule（毎週月曜05:17 JST）は書き込みまで行う。手動実行の既定は差分を出すだけで、apply を選んだときだけ書き込む。予約実行と同じ動きは apply をオン・allow_many_deletes をオフ（`docs/notes/birthday-calendar.md`）
 - `fetch-gsc.yml`（`scripts/fetch_gsc.py`、#269）: checkout と push 先は実行ブランチ。手動実行の既定はコミットしない（取得するだけ）。
@@ -461,10 +468,12 @@ Google の API（`lib/gcal.py`・`lib/sheets_write.py`・`sync_birthday_calendar
 
 - `check_image_links.py` — `jpml_pros.html` 内の画像URL全件にHEADリクエストを送りリンク切れを検知（毎週月曜03:00 JST）
 - `collect_saikyo_images.py` — 最強戦の選手写真（「プロ」J列・「連盟プロ以外」X画像URL、#384）で取得できなくなった画像URLを見つけ、X 公式 API（user lookup、Secret `X_BEARER_TOKEN`、1回30件まで）で現在のURLを解決してCSV出力（#333・#514、手動実行＋`check-image-links.yml`から毎日`--json`実行）。生成時に全件は解決しない。`--resolve-test <X ID>`で1件だけ解決して診断を出す。使い方と理由は`docs/notes/saikyo-page-design.md`「選手写真の更新」
+- `update_sns_book.py` — SNS ブック（選手の X・note・YouTube の ID と画像の URL、#514）の【1】元データ・【2】ID・【3】画像取得を書く（`--check`・`--init`・毎日の更新・`--dry-run`。`update-sns-book.yml`から毎日）。生成はまだ読まない。仕組みは`docs/notes/sns-book.md`
 - `cleanup_logs.py` — `docs/logs/`の作業ログのうち、7日を過ぎて片付けてよいもの（完了で3項目「なし」・取り下げ・続き先が完了／取り下げ／削除済み・論点の無い旧形式）を削除し、条件外のものを種類別（判断待ち・中断／書き方の違反／読めない）に一覧にする（`cleanup-logs.yml`から週1で実行、`--dry-run`で一覧のみ、`--new-rule-date`で規則を入れた日を試せる）。条件は`docs/notes/branch-operations.md`「作業ログの寿命」
 - `delete_merged_branches.py` — マージ済み（`origin/cloudflare` の祖先）で先頭が24時間より前の `work/*` を削除し、ブランチ名と先頭の SHA を出力する（`delete-merged-branches.yml`から毎日、`--dry-run`で一覧のみ。完全な履歴のクローンが要る）
 - `check_meibo.py` — 連盟員名簿データ（`lib/meibo.py`）と「プロ」シートの在籍者を登録名で突き合わせ、名簿のみ・プロのみを一覧にする（#370、`check-meibo.yml`から週1、生成は止めない）。テストは CLAUDE.md「判断・作業の原則」
 - `regenerate.py` — ページ再生成の共通入口。`scripts/generate_<ページ名>.py`が存在するページを「生成対象」とみなす。`--list`で対象ページ一覧、`all`で全ページ再生成、ページ名指定で単体再生成、`--changed`で変更ファイルから対象判定（`regenerate-page.yml`が使用）
+- `generate_resource_dictionary.py --check` — 「辞書」タブと「プロ」タブを生成と同じ経路で読み、生成と同じ検査（見出し・知らないカテゴリ・品詞・不正な文字・読みと語の組の重複）を止めずに行い、止まる理由をすべてとカテゴリごとの語数を出す。ファイルは書かない（止まる理由があれば終了コード1）。シートを直した後、指示を書く前に回す
 - `check_asset_limits.py` — 配信ファイル数・最大のファイル・`_redirects`（静的・動的）・`_headers`のルール数を Cloudflare の上限（Workers Free）との比で表にし、80% 以上で警告、100% 超でエラー終了する（#387）。`regenerate.py`の最後と`assets-check.yml`から呼ばれ、Actions ではジョブのサマリにも出す
 - `apply_page_meta.py` — 全ページの`<title>`・meta description・OGPタグを一括書き換え（#5）。`--dry`でプレビューのみ
 - `check_leagues_dropped.py` — 型C（`houou_leagues` / `ouka_leagues`）で、リーグの実データがあるのに選手選択リストから漏れている選手を検知（#168、手動実行）。**出力は警告ではなく参考情報。退会者が並ぶのは正常で、在籍中の選手が現れたときだけ「プロ」シートの入力漏れを疑う。**`generate_*_leagues.py` から定数と `period_of()` / `fill_front_half()` をimportし、集計は `lib/leagues.py` を生成時と同じ引数で呼ぶ。生成側で `build_player_series()` の引数を変えたときはこちらも直すこと。`.github/workflows/check-leagues-dropped.yml` からworkflow_dispatchで実行でき、結果を実行サマリと指定issueへのコメントに出す
