@@ -301,3 +301,33 @@
 ## 2026-10-10（CHAT-1010-REV-04）
 
 - CHAT-1010-REV-03 の CLAUDE.md の圧縮をマージしてよい。CLAUDE.md は 22,098 バイトで、20KB に届かなかったのはそのままでよい（#492）
+
+## 2026-10-10（CHAT-1010-MCK-02）
+
+- #230: 固定クエリ5本は「日本プロ麻雀連盟の選手一覧が見られるサイト」「鳳凰位 歴代」「鳳凰戦 順位」「JPML pro mahjong players database」「Japan Professional Mahjong League Hououi winners list」。記録先は新しいブックで、#304 のコメントにはツール別の言及の回数のまとめだけを書く。列定義は Claude Code が作る
+- #262: 全体の LCP・INP・CLS（p75 か良好の割合、画面に出るほう）と表示の多い上位5ページの値を表にして #304 の「YYYY-MM 実施」のコメントに書く。スクショは添えてよいが比べるのは値。API での自動取得の調査は3か月分たまってから
+- #365: Claude Code が公式サイトから成績を集めて貼り付け用の TSV と照合の表を作り、平野さんがブックに貼る。期日は未定（Code の作業は別の指示）
+- #367: X API で取る。まず少量を取って投稿の頻度・全件の費用の見込み・お店の投稿の見分け方を報告し、全件を取るかはその後に決める（別の指示）
+- #304 に「(12) Search Console の『分析情報』で、伸びたページ・クエリを1〜3件控える」を足す（2026-09-29 の「分析情報を月次の項目にする」の文言）
+- docs/notes/cloudflare.md の robots.txt の `Disallow: /` の件数は、UA の名前32・行31（AwarioSmartBot と AwarioRssBot が1グループ）で一覧は変わっていない、と直す。#304 の項目の数を書いた箇所は実際の数に直す
+
+## 2026-10-10（CHAT-1010-REV-06）
+
+- CLAUDE.md の上限を 32KB（警告域 30KB）から 28KB（警告域 26KB）に下げる。#492 の11月中旬の見直しを待たない（未マージ）
+- docs/instruction-template.md に上限 16KB（警告域 14KB）を新設する（未マージ）
+
+## 2026-10-10（CHAT-1010-REV-08）
+
+- CHAT-1010-REV-06 の上限の変更を、assets-check の push の `paths` に docs/instruction-template.md を足す変更を含めてマージしてよい（#492）
+
+## 2026-10-10（CHAT-1010-REV-07）
+
+- チャット側の「レビュー」「振り返り」「申送り」の手順を docs/notes/chat-routines.md 1ファイルにまとめる（3ファイルに分けない）。各節は「何をするか」「観点のチェックリスト」「成果物の形」（未マージ）
+- chat-side-operations.md の「申送り」の項は chat-routines.md へ移し、参照1行にする（未マージ）
+- chat-routines.md には容量の上限を置かない
+- 「振り返り」は、そのセッション（チャット）の会話を全部読み返し、不明点・不整合・別の提案がないかを確認して報告する（決定の日付は不明。この指示で記録した）
+
+## 2026-10-10（CHAT-1010-REV-09）
+
+- CHAT-1010-REV-07 の変更（docs/notes/chat-routines.md の新設など）をマージしてよい
+- chat-side-operations.md の「規約が守られないときは、内容ではなく書き方を疑うこと。…」の行は、chat-routines.md「申送り」へ移す（REV-07 の報告の提案を採用）

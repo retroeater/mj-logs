@@ -65,15 +65,48 @@ Chat-Ref: CHAT-1010-RDN-07
 - 0. 指示欄の末尾の行は指示文の最後の行と一致。RDN-06 のログの状態に続きを、帰り道の件に引き継ぎの注記を足した
 - 指示文は改行が潰れた形で貼られたため、文面は変えずに項目の区切りで改行した
 
+### 手順1: 着手前の確かめ
+
+- 未マージの work/ ブランチ: work/1008-dic・work/1008-hou・work/1009-swp-526・work/1010-rev-routines・work/1010-sks・work/1010-whs（と work/1010-rdn）。
+  手順1のファイル（`generate_jpml_pros.py`・`generate_ouka_leagues.py`・`lib/pro_sheet.py`・テスト）と直す文書の `git diff --stat`: work/1008-dic が `tests/test_resource_dictionary.py` と static-generation.md の「メンテナンス用スクリプトの詳細」の1行、
+  work/1008-hou が `tests/test_houou_pages.py`（新規）と static-generation.md の「ページの一覧」の2行。**同じ行・同じ関数を変えているものは無い**（その後 work/1008-dic の変更は cloudflare に入り、取り込みで自動マージ・衝突なし）
+- #536: 他セッションの着手中コメントは無し（RDN-04・RDN-06 の4件だけ）。着手中コメントを残した
+
+### 手順2: 実装と値の照合
+
+- 集計元のタブを `lib/sheets.py` の `fetch_table()` で2回読んだ: 「鳳凰」16,011行・「桜花」1,719行・「リーグ」14行・「最強戦」2,744行・「対局」2,336行・「鳳凰Ampai」595行・「桜花Ampai」138行。**2回とも行数・見出し・値が同じ**
+  - 見出しの重複: 「鳳凰」は「備考」が2列（使わない）。「リーグ」は「リーグ名」が3列・「ID」が2列、「鳳凰Ampai」「桜花Ampai」は「リーグ」「Ampai URL」などが重複する。
+    「リーグ」は見出しの並び（1つ目の「ID」とその右の「リーグ名」が鳳凰〈式の B:C〉、2つ目の組が桜花〈E:F〉）で組を引く。Ampai のタブは先頭の列の見出し（期の名前）だけを読む
+- 新しい `scripts/lib/pro_stats.py`: `fetch_sources()` が集計元を見出しで読み、`build()` が8列を数式と同じ定義で数える（定義は RDN-01 のログ「手順2」の数式。モジュールの docstring に列ごとの定義を書いた）。
+  `periods()` が最新の期（鳳凰は最大の (期, 前後)、桜花は最大の期）を返し、`Period` が表示の文言（「鳳凰43後」「鳳凰戦43期後期」「桜花21期」「女流桜花21期」と Ampai のタブの形「桜花21」）を作る
+  - 細部: 鳳凰最高・桜花最高は MINIFS と同じく数値のキーが無ければ 0（鳳凰位・桜花）、キーが「リーグ」に無ければ `#N/A`。放送対局は大文字・小文字を区別しない部分一致（COUNTIF と同じ）。0件・空は None（式の "" と同じ扱い）。最新の期のリーグは最初に見つかった行（FILTER が複数行を返す人は RDN-01 で0）
+- `scripts/generate_jpml_pros.py`: `COLUMNS` から O〜U・W の8列を外した（Ampai の URL は「プロ」の鳳凰Ampai・桜花Ampai 列のまま読む）。`add_stats()` が名簿と結合した行に8列を挟み、Ampai のタブの先頭の見出しが最新の期と合わなければその URL を外す。
+  URL が無いときはリーグを文字だけで出す（`get_houou_latest_league()`・`get_ouka_latest_league()`）。見出し（`HEADERS` の「鳳凰<br>{houou_period}」「桜花<br>{ouka_period}」）・検索欄の placeholder・aria の文言は生成時の期から作る
+- `scripts/generate_ouka_leagues.py`: 選手候補を「桜花」タブに1行でもある在籍者（`pro_stats.contest_names()`）で判定する形にした。`PRO_QUERY` は `check_leagues_dropped.py` が借りるので残した
+- **値の照合**: 集計した8列を、「プロ」の今の O〜U・W の値（`pro_sheet.fetch_pros()`）と在籍者 1,099名の全員で比べた → **8列とも一致 1,099・不一致 0**
+- **最新の期**: 鳳凰 43後・桜花 21。「鳳凰Ampai」の先頭の見出しは「鳳凰43後」、「桜花Ampai」は「桜花21」で、どちらも最新の期と合う（Ampai のリンクは今までどおり付く）
+- テスト: `test_pro_stats.py`（各列の定義・表示 N の扱い・最新の期〈前後のある鳳凰・前後の無い桜花〉・表示の文言・部分一致と大文字小文字・数値のキーが無いとき・「リーグ」の組の引き方）と、
+  `test_jpml_pros.py` に `AddStatsTest`（8列の並び・Ampai の期が合わないときはリンクを付けない）と、8列を「プロ」から読まないことを足した。`python3 -m unittest discover -s scripts/tests`: 737件 OK（取り込みの後も OK）。pyflakes: 指摘なし
+- 文書: `docs/notes/static-generation.md`「生成スクリプトの構成」に8列の出どころ・定義・最新の期・Ampai の照合・「リーグ」の読み方・ouka_leagues の候補を足した。`docs/decisions/pros.md` に RDN-07 の承認を足した（8列の定義と期の追随は RDN-02 の見出しで記録済み）
+
+### 手順3: 確かめ
+
+- RDN-04・RDN-06 と同じ方法: origin/cloudflare（3a7e0391）を scratchpad の worktree に出し（比較の後に削除）、作業ブランチ（3a7e0391 を取り込んだ後）と21ページを1ページずつ「変える前 → 変えた後」の順に続けて生成
+  - **両方のツリーとも生成後の `git status` が変更0件、`diff -rq`（.git・scripts・docs を除く）も差0**
+  - 生成ログの差は jpml_pros の進捗の表示（「成績の集計元のタブを取得中...」「最新の期: 鳳凰43後・桜花21期(Ampai のタブ: 鳳凰43後・桜花21)」）だけ。ouka_leagues の選択候補は両側とも 177名
+  - 両側とも同じ理由で失敗（差に数えない）: `books_pages`（「書籍」95行）、`video_wayhome`・`wayhome_episodes`（帰り道シートの視聴URL `'2Bn3SktouP4'`）
+- `check_leagues_dropped.py`: 変える前後で出力が**一致**
+- マージ直前の再 fetch で origin/cloudflare が 5dc1cac0（`docs/logs/CHAT-1010-MCK-03.md` だけ）まで進んでいたため取り込んだ（scripts の変更は無いので比較はそのまま有効）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1010-rdn
-- ログ: https://github.com/retroeater/mj/blob/work/1010-rdn/docs/logs/CHAT-1010-RDN-07.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1010-RDN-07.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1010-rdn
-- 確認用URL: なし
-- マージ: 未
-- issue: #536
+- 確認用URL: なし（生成物は変わらないため、コードと文書だけをマージ）
+- マージ: 済（このログを含むコミットを cloudflare へ fast-forward で push）
+- issue: #536（段3の結果をコメント、閉じない）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
@@ -81,12 +114,12 @@ Chat-Ref: CHAT-1010-RDN-07
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj a929cafc）: https://github.com/retroeater/mj-logs/tree/main/guide/a929cafc
+ガイド文書（この版を写した時点の最新、mj a79dfa83）: https://github.com/retroeater/mj-logs/tree/main/guide/a79dfa83
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a929cafc/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a929cafc/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a929cafc/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a929cafc/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a929cafc/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a929cafc/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a79dfa83/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a79dfa83/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a79dfa83/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a79dfa83/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a79dfa83/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a79dfa83/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b4d859a5.md
