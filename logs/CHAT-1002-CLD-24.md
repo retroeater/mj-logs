@@ -56,28 +56,118 @@ CLD のチャットの #491 の作業（2026-10-09〜10-10、CHAT-1002-CLD-20〜
 - 作業ブランチ: リモートの `work/1002-cld`（66782ab8）は `origin/cloudflare` の祖先（マージ済み）。ローカルも同じだったため `git merge --ff-only origin/cloudflare`（74fcb928）
 - 指示文の冒頭の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある
 
+- 0章: 「指示」欄の末尾は指示文の最後の行と一致
+
+### 1. issue の検索
+
+GitHub の issue 検索（Open・Closed とも）で「指示文 完了条件 状態 承認済み 貼ることが承認」「残っている作業 前提 確かめる chat-side-operations」「マージの承認 指示文を貼る」を引いた。1つ目と3つ目は0件。2つ目は #291・#498・#513・#492・#493・#357・#325・#509・#466・#421・#299 が当たったが、どれも別の論点（検証のスクリプト化、Actions の確認、ログの自動削除、事後処理の検討順、分類器、worktree、sync-logs、ログの状態の更新、chat-side-operations.md の軽量化〈Closed〉、露出評価）。同じ論点の issue は無い。
+
+### 2. 追記先とサイズ
+
+| 文書 | 着手時 | 変更後 | 警告／上限 |
+|---|---|---|---|
+| docs/notes/chat-side-operations.md | 24,828 | 25,950 | 26,624／28,672（`assets-check.yml`） |
+| docs/instruction-template.md | 12,661 | 12,625 | 上限なし |
+| docs/notes/handover-archive-2026.md | — | 85,090 | 上限なし（退避先） |
+| docs/decisions/operations.md | — | 追記 | 上限なし |
+
+- chat-side-operations.md の着手時のサイズは 24,828 バイトで、前提の 25,365（ガイド e85de808）より小さかった（その後にほかのチャットが縮めたと見られる）。3点を足しても警告まで残り674バイトで、縮める整理はしていない
+- writing-for-agents の skill（前の指示で読んだ）の方針で、新しい項は立てず既存の項に1〜2文ずつ統合し、規則と理由の一句だけを書いた。事例は archive へ置いた
+
+### 3. 差分
+
+#### docs/notes/chat-side-operations.md
+
+- (a): 調査だけの指示の項にあった CHAT-1002-CLD-22 の文「状態は『判断待ち』にさせる（…指示文に『状態は完了』と書かない）」を置き換え、どの指示にも当てはまる「完了条件にログの状態を書かない（状態は CLAUDE.md が決め Code が判定する）」に広げた
+- (b): 「『判断待ち』で止める指示を出したら…マージ用の指示文を添える」の項に、「貼ることが承認」としてよい3つの条件と、満たさないときの扱いを1文で足した。同じ節の「『承認済み』は…確かめてから書く（『貼った＝見た』とみなさない）」と食い違わないよう、「報告をチャットで読んだうえでの承認で、『貼った＝見た』とは別」と書いた
+- (c): 「書く前に実物で確かめる」の「場面ごとに次も確かめる」の「前の指示から写す前提」の項に1文足した
+
+```diff
+diff --git a/docs/notes/chat-side-operations.md b/docs/notes/chat-side-operations.md
+index 9ff7d3b6..9f1fd075 100644
+--- a/docs/notes/chat-side-operations.md
++++ b/docs/notes/chat-side-operations.md
+@@ -82 +82 @@
+-  - 他のセッションが同じ日に変えている領域（`title/` など）や、前の指示から写す前提: 使う直前にもう一度確かめさせる。写すときは変更の範囲（対象ファイル）が同じかも。
++  - 他のセッションが同じ日に変えている領域（`title/` など）や、前の指示から写す前提: 使う直前にもう一度確かめさせる。写すときは変更の範囲（対象ファイル）が同じかも。**「残っている作業」を書くときは、docs/decisions/ に置き換え・済の注記が無いか、コード・シートに今もあるかを先に確かめる**（または確認を手順に入れる。前回の報告に残る作業が済んでいることがある）。
+@@ -102 +102 @@
+-  **調査だけの指示（変わるのがそのログだけ）は「ドキュメントのみ（ログ）なので完了報告のうえ cloudflare へ入れてよい」にする**（判断待ちで止めると、ログを直してマージするだけの指示が後で要る）。判断の要る点は「判断が必要なこと」に書かせ、状態は「判断待ち」にさせる（ログはマージ済みのまま。指示文に「状態は完了」と書かない）。続きは作業ブランチを origin/cloudflare から作り直して始める
++  **調査だけの指示（変わるのがそのログだけ）は「ドキュメントのみ（ログ）なので完了報告のうえ cloudflare へ入れてよい」にする**（判断待ちで止めると、ログを直してマージするだけの指示が後で要る）。判断の要る点は「判断が必要なこと」に書かせる（ログはマージ済みのまま）。**どの指示でも、完了条件にログの状態（完了・判断待ち）を書かない**（状態は CLAUDE.md「作業ログ」節が決め、Code が判定する。書くと個別の指定とルールの食い違いを Code に毎回判定させる）。続きは作業ブランチを origin/cloudflare から作り直して始める
+@@ -104,0 +105 @@
++  その「マージ:」は、(1) 止めた報告のマージだけで新しい変更を含まない (2) 何がどう変わるか（件数だけでなく中身、コードなら影響の範囲）をチャットに示した (3) origin/cloudflare を取り込んだ後の再検証（テスト・模擬など）を条件に書く、のすべてを満たすときだけ「承認済み（チャットで。この指示文を貼ることが承認）」としてよい（報告をチャットで読んだうえでの承認で、「貼った＝見た」とは別）。満たさなければ、チャットで「よい」をもらってから「承認済み」と書く。
+```
+
+#### docs/instruction-template.md
+
+「マージ:」の行の選択肢の注記〈調査だけの指示。判断が残れば状態は判断待ち〉（CHAT-1002-CLD-22 で Code が足したもの）を〈調査だけの指示〉に戻した。チャット側はこの注記を指示文にそのまま写すので、(a)「指示文に状態を書かない」と食い違うため。状態の扱いは chat-side-operations.md の項に1か所だけ置く。雛形の「完了条件」の行には状態の指定は無く、(a) と矛盾しない。
+
+```diff
+diff --git a/docs/instruction-template.md b/docs/instruction-template.md
+index 1f61c34b..d92f36de 100644
+--- a/docs/instruction-template.md
++++ b/docs/instruction-template.md
+@@ -40 +40 @@ Chat-Ref: CHAT-MMDD-XXX-nn
+-マージ: 承認済み（チャットで）／判断待ちで止まる／ドキュメントのみ（ログ）なので完了報告のうえ cloudflare へ入れてよい〈調査だけの指示。判断が残れば状態は判断待ち〉（どれかを残す。docs/notes/chat-side-operations.md「平野さんの判断とマージの許可」）
++マージ: 承認済み（チャットで）／判断待ちで止まる／ドキュメントのみ（ログ）なので完了報告のうえ cloudflare へ入れてよい〈調査だけの指示〉（どれかを残す。docs/notes/chat-side-operations.md「平野さんの判断とマージの許可」）
+```
+
+#### docs/notes/handover-archive-2026.md（事例）
+
+```diff
+diff --git a/docs/notes/handover-archive-2026.md b/docs/notes/handover-archive-2026.md
+index 2ca9cd2b..55abacfa 100644
+--- a/docs/notes/handover-archive-2026.md
++++ b/docs/notes/handover-archive-2026.md
+@@ -649,0 +650 @@ Builds が既に稼働しており不要かつ二重デプロイになるもの
++- **残っている作業を確かめずに書く**: CHAT-1002-CLD-20 の前提に「`READ_UNTIL` の延長（2026-12-01 に判断）」を残っている作業として書いたが、2026-09-30 の全期間の取り込み（9b877ae0）で取り除かれていて、#491 の起票の時点で要らなくなっていた（Code の棚卸しで判明。2026-10-10、CHAT-1002-CLD-24）
+@@ -676 +677,2 @@ Builds が既に稼働しており不要かつ二重デプロイになるもの
+-- **調査だけの指示の状態**: CHAT-1002-CLD-20 の指示に「状態は『完了』」と書いたが、判断が残ったため Code は CLAUDE.md「作業ログ」節に従い「判断待ち」にした（ログはマージ済み）。規則に状態の書き方を足した（2026-10-09、CHAT-1002-CLD-22）
++- **調査だけの指示の状態**: CHAT-1002-CLD-20 の指示に「状態は『完了』」と書いたが、判断が残ったため Code は CLAUDE.md「作業ログ」節に従い「判断待ち」にした（ログはマージ済み）。規則に状態の書き方を足した（2026-10-09、CHAT-1002-CLD-22）。2026-10-10（CHAT-1002-CLD-24）に「完了条件に状態を書かない」へ進めた
++- **「貼ることが承認」のマージ用の指示**: CHAT-1002-CLD-22 で、止めた報告（CLD-21）へのマージ用の指示を「この指示文を貼ることが承認」の形で出した。チャットには変わる予定の件数と中身を示していたが、diff は示していなかった。条件を規則にした（2026-10-10、CHAT-1002-CLD-24）
+```
+
+#### docs/decisions/operations.md（決定）
+
+```diff
+diff --git a/docs/decisions/operations.md b/docs/decisions/operations.md
+index 93403362..65ef29c9 100644
+--- a/docs/decisions/operations.md
++++ b/docs/decisions/operations.md
+@@ -294,0 +295,5 @@
++
++## 2026-10-10（CHAT-1002-CLD-24）
++
++- CLD のチャットの #491 の振り返りの申送り3点を、docs/notes/chat-side-operations.md の既存の項に足す（チャット側の案と採否の意見に「おすすめどおりで」）:
++  (a) 指示文の完了条件にログの状態を書かない／(b) 止めた報告へのマージ用の指示は、3つの条件をすべて満たすときだけ「この指示文を貼ることが承認」としてよい／(c) 「残っている作業」を書く前に、decisions の置き換え・済の注記とコード・シートの今を確かめる
+```
+
+「マージ: 判断待ちで止まる」のとおり、cloudflare へは入れない。作業ブランチは残す。
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1002-cld
+- 状態: 判断待ち
+- ブランチ: work/1002-cld（未マージ。片付けずに残す）
 - ログ: https://github.com/retroeater/mj/blob/work/1002-cld/docs/logs/CHAT-1002-CLD-24.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1002-cld
 - 確認用URL: なし
-- マージ: 未
-- issue: なし
-- 判断が必要なこと: なし
+- マージ: 未（「マージ: 判断待ちで止まる」のとおり）
+- issue: なし（同じ論点の issue は無い）
+- 判断が必要なこと:
+  - 足した文面の読み比べ（差分は「経過」の「3. 差分」）。docs/notes/chat-side-operations.md の既存の3項に (a)(b)(c) を1〜2文ずつ統合した。(a) は CHAT-1002-CLD-22 の「状態は判断待ちにさせる」の文を置き換えて広げた。サイズは 24,828 → 25,950 バイト（警告 26,624・上限 28,672）
+  - docs/instruction-template.md の「マージ:」の行の注記から、CHAT-1002-CLD-22 で足した「判断が残れば状態は判断待ち」を外した（(a) と食い違うため）。この判断でよいか
+  - 事例2件を docs/notes/handover-archive-2026.md に、決定を docs/decisions/operations.md に足した
 - 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 74fcb928）: https://github.com/retroeater/mj-logs/tree/main/guide/74fcb928
+ガイド文書（この版を写した時点の最新、mj 237592ff）: https://github.com/retroeater/mj-logs/tree/main/guide/237592ff
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/74fcb928/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/74fcb928/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/74fcb928/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/74fcb928/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/74fcb928/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/74fcb928/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/237592ff/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/237592ff/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/237592ff/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/237592ff/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/237592ff/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/237592ff/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b813da90.md
