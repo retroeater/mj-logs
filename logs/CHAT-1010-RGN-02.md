@@ -109,17 +109,31 @@
 - `python3 -m unittest discover -s scripts/tests`: 751件 OK（e5e24f89）
 - docs/notes/static-generation.md を直した（56e81563）: 「シートのフィルタの検知」の通知の行、「生成を止める条件の設計」の冒頭、「regenerate-page.yml」の節に、失敗したページだけを飛ばす扱いを足した。`regenerate.py` を `workflow_call` で呼ぶのは `update-live-channel.yml` と `regenerate-saikyo.yml`（#537、saikyo_pages だけ）。後者は1ページなので、失敗すると一覧が空でコミットされず、最後のステップで失敗する（今までと同じ結果）
 
+### 手順3 マージ
+
+- push 直前に再 fetch し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真であることを確かめて `git push origin work/1010-rgn:cloudflare`（19111d74..a930b4a9）。
+  衝突・取り込みは無し（cloudflare は着手時から進んでいなかった）
+- a930b4a9 の check-run: Workers Builds: mj success、check success。Actions は「公開対象を検査する」success だけ。
+  regenerate-page.yml は見込みどおり起動していない（`paths` に当たる変更が無い）。新しい作りが本番で最初に動くのは、次の push の再生成か 10/12（月）05:37 JST の週次
+- #533 に経過をコメントした（issuecomment-6098173506。閉じていない。残る論点は `--check` の件だけと書いた）
+- 決定を `docs/decisions/automation.md` に足した
+- 手動実行の試験 (ii)（run 38057059331）はわざと失敗させたので、平野さんに失敗通知メールが届いている。対応は不要
+
 ## 報告
 
-- 状態: 対応中
-- ブランチ: work/1010-rgn
-- ログ: https://github.com/retroeater/mj/blob/work/1010-rgn/docs/logs/CHAT-1010-RGN-02.md
+- 状態: 判断待ち
+- ブランチ: work/1010-rgn（cloudflare へマージ済み）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1010-RGN-02.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1010-rgn
-- 確認用URL: なし
-- マージ: 未
-- issue: #533
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 確認用URL: なし（ページの表示は変えていない。生成物の差は sitemap-pages.xml の video_en の lastmod だけ）
+- マージ: 済（a930b4a9。このログの追いの push は最終報告の SHA）
+- issue: #533（経過をコメント。閉じていない）
+- 判断が必要なこと:
+  - 試験の手動実行 run 38057059331（https://github.com/retroeater/mj/actions/runs/38057059331 ）のジョブのサマリに「生成に失敗して飛ばしたページ(#533)」と `jpml_test` の行が出ているかを、画面で見てほしい（セッションからはサマリを読めない）。この run の失敗通知メールはわざと失敗させたもので、対応は不要
+  - 試験のコミットのため、本番の sitemap の video_en.html の lastmod が 2026-09-13 から 2026-10-10 になった（内容は同じ。`--from-git` の規則どおりの値で、手で戻さない）。このままでよいか
+- 未確認の項目:
+  - ジョブのサマリの画面での見え方（上の1つ目）
+  - 新しい作りの本番での最初の実行（次の push の再生成か、10/12〈月〉05:37 JST の週次）
 - エラー: なし
 
 <!-- guide-links -->
