@@ -61,6 +61,45 @@ CHAT-1010-XAP-05 で書き込みの権限が無く止まった SNS ブックの�
 - 作業ブランチ: work/1010-xap はローカル・リモートとも bb1a9342。`origin/cloudflare` は祖先でない → ログの push の後に merge で取り込む
 - 手順0: 「指示」欄の末尾は指示文の最後の行と一致。CHAT-1010-XAP-05 の状態は「判断待ち」→ 末尾に ` / 続き: CHAT-1010-XAP-06` を足した（このコミット）
 - 雛形の行: Chat-Ref・マージ・貼る時機・作業ブランチ・共通手順がそろっている
+- `origin/cloudflare` を merge で取り込んだ（MCK-01・RDN-06 など。`generate_jpml_pros.py`・`lib/meibo.py` などが変わったが、SNS ブックの仕組みが使う `load_youtube_icons()` はそのまま。衝突なし）。テストは OK
+- #514 に他セッションの着手中コメントなし。着手中のコメント: https://github.com/retroeater/mj/issues/514#issuecomment-6096328685
+
+### 手順1: 確かめ（run 38043143848、mode check、作業ブランチ）
+
+| 項目 | 結果 |
+|---|---|
+| 編集者か | **はい**（HTTP 200） |
+| タブ | 【1】元データ・【2】ID・【3】画像取得・【4】手動補正 |
+| 見出し・行数 | 4つとも見出しなし・データ 0 行（【2】【4】に平野さんの入力なし） |
+| 元の一覧（読み直し） | 「プロ」1,099・「連盟プロ以外」765・計 1,864。X 1,066・X画像 1,017・note 204・note画像 204・YouTube 82。名前かなのある行は「プロ」1,099・「連盟プロ以外」241 |
+
+### 手順2: 書く
+
+| 段 | run | 結果 |
+|---|---|---|
+| (a) init の dry-run | 38043192283 | 【1】【2】【3】とも 1,864 行（= 1,099 + 765）。【2】X 1,066・note 204・YouTube 82・備考 0。【3】X画像URL 1,017・note画像URL 204・YouTube画像URL 82。X の状態: シートから写した 1,017・未入力 798・未取得 49。書く予定の表と元の列の食い違い 0 件 |
+| (b) init | 38043241943 | 書き込みは成功（タブごとに書いた後読み直して同じことを確かめる `write_checked` は3つとも通った）。ただし最後の確かめが「【1】が一覧と違う」で**終了コード1**。原因は確かめの不具合: Sheets API は行末の空セルを省くため、名前かなが空の【1】の行が2セルで返り、3列の一覧と比べていた。値の食い違いではない。直して（7881cd90。直す前のコードでは通らないテストを足した）、check で確かめ直した |
+| (b) の確かめ直し | 38043316877 | 【1】【2】【3】とも 1,864 行、見出しは `シート・名前・名前かな`／`シート・名前・名前かな・X・note・YouTube・備考・状態`／`シート・名前・X・X数値ID・X画像URL・X取得日・X状態・note・note画像URL・note取得日・note状態・YouTube・YouTube画像URL・YouTube取得日・YouTube状態`。**写した値と元の列の食い違い 0 件** |
+| (c) 毎日の更新の dry-run | 38043346900 | 【2】は「変わらない」（一覧に無い 0）。X API を呼ぶ予定 30 件（上限 30）。HEAD の確かめは約17秒 |
+| (c) 毎日の更新 | 38043406631（32秒） | 【2】は「変わらない」（書いていない）。**X API を呼んだ件数 30**（上限 30、認証・クレジットの失敗なし）。【3】を書き直した |
+| (c) の後の確かめ | 38043734180 | 【2】と元の列の食い違い 0 件（入力は変わっていない）。【3】の X画像URL が元の列と違うのは 30 件で、X API で取り直した行と同じ数（想定どおり）。入力のある名前 1,069 |
+
+(c) の後の【3】の状態ごとの件数:
+
+| SNS | 状態ごとの件数 |
+|---|---|
+| X | 解決 1,018・未入力 798・上限で未取得 34・既定のアイコン 12・アカウントなし 1・リンク切れ・上限で未取得 1 |
+| note | 未入力 1,660・確認済み(取得しない) 204 |
+| YouTube | 未入力 1,782・解決 82 |
+
+- X API の 30 件の内訳: 解決 28（解決 990 → 1,018）・既定のアイコン 1（11 → 12）・アカウントなし 1
+- 取り直しの残り 35 件（上限で未取得 34 + リンク切れ・上限で未取得 1）は、翌日以降の毎日の更新で 30 件ずつ取る（2日で終わる見込み。約 $0.35）
+
+### 手順3: 仕上げ
+
+- Worker の表に `update-sns-book.yml` 毎日 04:10 を足した（fc45cee6）。足す前の `origin/cloudflare` の表は4行（04:00・04:15・04:20・04:30）、未マージのブランチで `workers/scheduler/` を変えているものは無い。04:00 の update-live-channel（同じサービスアカウント、04:05 ごろ終わる）と重ならず、04:30 の検知より前。`node --test`: 25件 pass（表のテストを 04:10 の行と朝の確かめの対象 5 行に直した）
+- 文書（0f786194）: docs/notes/sns-book.md を新しく作った。live-channel-write.md の「使い回さない」の直後に例外の1行、`WRITABLE` の書き込み先の文に予定表と SNS ブックを足した（予定表は書かれていなかったので合わせて足した）。static-generation.md のワークフローの一覧・入力 `scheduled` の一覧・スクリプトの一覧に update-sns-book を足した。scheduler-worker.md の「今の表」を5行にした。決定と矛盾する記述は無かった
+- 仮置きの `update-sns-book.yml`（cloudflare b4d859a5）は、このマージで作業ブランチの版に置き換わる
 
 ## 報告
 
@@ -78,12 +117,12 @@ CHAT-1010-XAP-05 で書き込みの権限が無く止まった SNS ブックの�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 22ca975d）: https://github.com/retroeater/mj-logs/tree/main/guide/22ca975d
+ガイド文書（この版を写した時点の最新、mj 57694f04）: https://github.com/retroeater/mj-logs/tree/main/guide/57694f04
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/22ca975d/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/22ca975d/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/22ca975d/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/22ca975d/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/22ca975d/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/22ca975d/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/57694f04/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/57694f04/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/57694f04/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/57694f04/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/57694f04/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/57694f04/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b4d859a5.md
