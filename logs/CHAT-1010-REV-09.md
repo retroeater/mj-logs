@@ -52,14 +52,37 @@ CHAT-1010-REV-07（判断待ち）の docs/notes/chat-routines.md の新設と c
 - 作業ブランチ: ローカル・リモートとも work/1010-rev-routines（a6b27060）。`git checkout work/1010-rev-routines`
 - 前提: `git log 212d9c5d..origin/work/1010-rev-routines` は a6b27060（docs: finish log and record decisions for CHAT-1010-REV-07）の1件だけで、変更は `docs/logs/CHAT-1010-REV-07.md` と `docs/decisions/operations.md`（REV-07 の決定の記録）。成果物の追加のコミットは無い
 
+### 手順1: 1行の移動（22b3d232）
+
+- chat-side-operations.md「Claude Code とのやり取り」の「**規約が守られないときは、内容ではなく書き方を疑うこと。** …」の2行を消し、chat-routines.md「申送り」の「観点のチェックリスト」の末尾へ移した。文言は変えず、括弧の「CLAUDE.md「更新ルール」から移した」を「chat-side-operations.md から移した」に直した
+- 移した後の該当箇所（chat-routines.md）:
+
+  > - 規則と理由の一句だけか（事例は archive へ）
+  > - **規約が守られないときは、内容ではなく書き方を疑うこと。** 手順の1つとして並べた規約より、他の作業との順序
+  >   （「〜より先に行う最初の手順」）で書いた規約のほうが守られる（CLAUDE.md「作業ログ」節の着手時の push。chat-side-operations.md から移した）
+- サイズ: chat-side-operations.md 26,066 → 25,710（−356）、chat-routines.md 3,711 → 4,061。`python3 scripts/check_asset_limits.py` OK
+
+### 手順2: 取り込み（788b2dbe）
+
+- `git merge origin/cloudflare` で `docs/decisions/operations.md` が衝突した。両側とも同じ日付の節を末尾に足しただけ（cloudflare 側「CHAT-1010-MCK-02」「CHAT-1010-REV-06」「CHAT-1010-REV-08」、こちら「CHAT-1010-REV-07」）で両立するため、cloudflare 側の3節の後にこちらの節を置いて両方を残した。解いた後の見出しの並び:
+
+  > ## 2026-10-10（CHAT-1010-MCK-02）
+  > ## 2026-10-10（CHAT-1010-REV-06）
+  > ## 2026-10-10（CHAT-1010-REV-08）
+  > ## 2026-10-10（CHAT-1010-REV-07）
+- chat-side-operations.md は自動で取り込まれた（cloudflare 側の変更は「書く前に実物で確かめる」の「平野さんがシート（タブ）を用意した…」の行に「辞書」タブの `--check` の文を足したもので、移した行とは別の場所）。取り込み後は 25,877 バイトで、移す前（26,066）より小さい
+- `python3 scripts/check_asset_limits.py` OK
+- CHAT-1010-REV-07 のログの状態の末尾に ` / 続き: CHAT-1010-REV-09` を足した（マージに含める）
+- 決定（REV-07 をマージしてよい・規約の行を「申送り」へ移す）を `docs/decisions/operations.md` に足した
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1010-rev-routines
-- ログ: https://github.com/retroeater/mj/blob/work/1010-rev-routines/docs/logs/CHAT-1010-REV-09.md
+- 状態: 完了
+- ブランチ: work/1010-rev-routines（マージ済み。削除は delete-merged-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1010-REV-09.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1010-rev-routines
 - 確認用URL: なし
-- マージ: 未
+- マージ: 済（このログを含む push。SHA は最終報告の「ログ（公開）」の行）
 - issue: なし
 - 判断が必要なこと: なし
 - 未確認の項目: なし
@@ -68,12 +91,12 @@ CHAT-1010-REV-07（判断待ち）の docs/notes/chat-routines.md の新設と c
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj a929cafc）: https://github.com/retroeater/mj-logs/tree/main/guide/a929cafc
+ガイド文書（この版を写した時点の最新、mj 3a7e0391）: https://github.com/retroeater/mj-logs/tree/main/guide/3a7e0391
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a929cafc/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a929cafc/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a929cafc/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a929cafc/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a929cafc/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a929cafc/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/3a7e0391/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/3a7e0391/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/3a7e0391/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/3a7e0391/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/3a7e0391/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/3a7e0391/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b4d859a5.md

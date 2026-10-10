@@ -235,7 +235,8 @@ PowerShell 5.1 の既定が UTF-16LE のため、日本語部分が文字化け�
 - **2026-09-21 に一度 `Block` にして、同じ日に `Disallow` へ戻した。** 2026-09-13 に「Training = Block」と決めたときの
   `Block`（旧トグル＋混在クローラーのオプトアウト）と、2026-09-15 以降の `Block` の意味が違っていたため
 - **`Disallow` でも `Block` でも、robots.txt の付け足しは同じ内容で出る**（142行、うち管理セクション103行、
-  `Content-Signal: search=yes,ai-train=no,use=reference`、`Disallow: /` が32件。2026-09-28 は31件）。
+  `Content-Signal: search=yes,ai-train=no,use=reference`、`Disallow: /` の対象の UA は32、`Disallow: /` の行は31。
+  `AwarioSmartBot` と `AwarioRssBot` が1グループのため。09-21〜10-10 で一覧は変わっていない、#304 (4)）。
   **設定の違いは robots.txt では見分けられない。** CHAT-0921-GC-15 の時点で付け足しが無かった理由は分かっていない
 - `Baiduspider`・`PetalBot` が Cloudflare の管理リストで `Disallow` されている。**許容する**（2026-09-21、平野さんの判断）
 - `Content-Signal` に **`ai-input` の宣言は無い**（`search` / `ai-train` / `use` の3つだけ）

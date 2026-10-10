@@ -174,9 +174,9 @@
 - 記述を更新するときは古い記述を消して置き換える（追記型にしない）。同じ内容を2箇所に書かず、片方は参照にする
 - handover.md / CLAUDE.md をissueやコメントから参照するときは、行番号ではなく節・項目の見出しで書く
 - 「最終更新」は日付＋直近の変更3行以内。外した行は archive へ移さず消してよい
-- 上限はファイルごとに **CLAUDE.md 32KB（警告域30KB）・handover.md 28KB（警告域26KB）・
-  docs/notes/chat-side-operations.md 28KB（警告域26KB）**（`assets-check.yml`、1KB=1024バイト。**作業する worktree の上で測る**）。
-  警告域に近づいたら、足す前に `docs/notes/` へ移す。**警告が出たら、上限を上げずに3文書とも整理する**（同じ趣旨の記述をまとめ、
+- 上限はファイルごとに **CLAUDE.md 28KB（警告域26KB）・handover.md 28KB（警告域26KB）・
+  docs/notes/chat-side-operations.md 28KB（警告域26KB）・docs/instruction-template.md 16KB（警告域14KB）**（`assets-check.yml`、1KB=1024バイト。**作業する worktree の上で測る**）。
+  警告域に近づいたら、足す前に `docs/notes/` へ移す。**警告が出たら、上限を上げずに4文書とも整理する**（同じ趣旨の記述をまとめ、
   事例は `handover-archive-2026.md` へ、場面限定の手順は `docs/notes/` へ。退避先には上限を置かない、#421）。
   上限は下げる方向にだけ動かし、上げるのは平野さんの判断。最終目標は CLAUDE.md 20KB・handover.md 24KB 前後（#292・#301 が進んだ時点で見直す、#492）
 - **この3文書には出典としてのChat-Refを書かない**（ログは定期削除で消え、行き先の無い参照になる。issue番号は書いてよい）

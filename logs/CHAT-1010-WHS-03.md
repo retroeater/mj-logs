@@ -71,28 +71,80 @@
 - 作業ブランチ: ローカルの `work/1010-whs`（963efe0d）は `origin/cloudflare` の祖先、リモートもマージ済み → `git merge --ff-only origin/cloudflare`（57963e3e）
 - 指示欄の末尾は指示文の最後の行と一致。雛形の4行は揃っている
 
+### 手順1: 新しいシート
+
+- 新しいブック（title/ ・ /live と同じ `lib/live.py` の `SPREADSHEET_ID`）を、生成と同じ gviz で読めた。タブ一覧（htmlview）に「帰り道」がある
+- 見出し・列の並び: A 名前・B タイトル・C 動画ID・D 決勝動画ID・E 表示。行数 40。表示は 40行とも `Y`。値はすべて文字列
+- 旧ブックの「帰り道」タブもまだ読める（40行）。ただし旧タブも列が変わっていて（A 名前・B X ID・C 公開日・D タイトル・E 動画ID・F 画像URL・G 表示・H 決勝動画ID。B・C・F は空、値は ID）、
+  タイトル3行と ワールド・リーチ・プロ の決勝（空）は直す前の値のまま。**今の本番のコード（列記号 `SELECT A,D,E,H WHERE G = "Y"`）は E列の ID を視聴URLとして読めないため、マージ前に帰り道の再生成が走ると `load_episodes()` で止まる**
+- 今の公開物（WHS-02 で読んだ 2026-10-10 朝の旧シート、39話）との差（動画IDで突き合わせ）:
+
+| 動画ID | 名前 | 差 | 決定での説明 |
+|---|---|---|---|
+| `6WAPjcxT78A` | 勝又健志 | 足された（タイトル 第3期JPML WRC-Rリーグ、決勝動画ID `q8z6HgpCXug`） | 足した回 |
+| `tXbbwFA-bjg` | 紺野真太郎 | タイトル 第3期帝王戦 → 第3期小島武夫杯帝王戦 | 帝王戦2行 |
+| `OoK3O2BCm8M` | 三浦智博 | タイトル 第4期帝王戦 → 第4期小島武夫杯帝王戦 | 帝王戦2行 |
+| `76OsWTSSnso` | 内川幸太郎 | タイトル 世界麻雀TOKYO2025 → 第4回リーチ麻雀世界選手権 | 世界麻雀TOKYO2025 |
+| `GjzVKdJ5jSM` | 三浦智博（第41期十段戦） | 決勝 空 → `amTs0IqIutE` | 十段戦2行（WHS-02 の照合の最終日と一致） |
+| `WDRBtJJME7I` | 三浦智博（第40期十段戦） | 決勝 空 → `x5eNiaZK9r0` | 十段戦2行（同上） |
+| `o28svvuVI0M` | タマシュ・エルドス | 決勝 空 → `-` | ワールド・リーチ・プロ |
+
+- 消えた回は無い。名前の差は無い。動画IDの重複は無い。決勝動画を全編に直した回は無かった（小車祥・横田幸太朗の冒頭版はそのまま）
+- 以上で説明できない差は無い → 進める
+
+### 手順2: 読み先
+
+- 帰り道のシートを読むのは `lib/wayhome.py` を通す4本（`generate_video_wayhome.py`・`generate_wayhome_episodes.py`・`fetch_youtube_meta.py`・`build_wayhome_ogp.py`）だけ。title/ ・ jpml_pros など、ほかのページは読んでいない
+  （`generate_jpml_test.py` などが旧ブックの ID を持つが、別のタブ）
+- 未マージのブランチで `lib/wayhome.py`・4本・`lib/sheets.py`・文書に触れるのは `work/1008-hou` の `docs/notes/static-generation.md`（252行と表の行の追加〈268行付近〉）だけ。こちらは 264行の1行で重ならない
+- `lib/wayhome.py`:
+  - `SPREADSHEET_ID = live.SPREADSHEET_ID`。`HEADERS = ("名前", "タイトル", "動画ID", "決勝動画ID", "表示")` を `lib/sheets.fetch_records()`（`resource_dictionary` と同じ。先頭のタブの判定は `live.FIRST_SHEET`）で読む `fetch_rows()` を足し、列記号の `COLUMNS`・`QUERY` と位置で読む `to_rows()` をやめた
+  - `to_rows(records)` は表示=Y の行だけを `WayhomeRow(interviewee, title, url, final_video_url)` にする（今までと同じ形。呼び出し側の `row.url`・`video_id_from_watch_url()` はそのまま）。
+    URL は `https://www.youtube.com/watch?v=<ID>`。決勝動画IDの空と `-`（`NO_FINAL_VIDEO`）は空文字にして「決勝戦を見る」を出さない
+  - `load_episodes()`: JSON に無い回は外して続け、`::warning::` の1行を標準出力に出す（決定3の生成側）
+- 4本は `wayhome.to_rows(fetch_sheet(..., QUERY))` を `wayhome.fetch_rows()` に替え、使わなくなった import・定数とコメント（E列・H列・B列）を直した
+- テスト `scripts/tests/test_wayhome_rows.py`（5件）: 動画ID・決勝動画IDから URL、空と `-`、表示=Y だけ、見出しの名前で読む（`fetch_records` に渡す見出し）、JSON に無い回を外して警告。
+  修正前のコード（`git archive HEAD` を一時の場所に展開）では5件とも失敗、修正後は全体 726件 OK
+- 文書: `docs/notes/video-wayhome.md`（「新しい回を追加する手順」の書く列と `-`・JSON に無いときの動き、新しい節「シートを移し、見出しの名前で読む」、決勝動画のデータ元、#192 第2段の「生成を止める」、WH-57 の【注意】）、
+  `docs/notes/static-generation.md`（ページの一覧の `video_wayhome.html` の行）。決定は `docs/decisions/wayhome.md` に WHS-03 の節を足し、置き換えた WHS-02 の2行に「→ 置き換え」を付けた
+- WHS-01 のログの状態: 着手時は「判断待ち / 辞書の件の続き: CHAT-1008-DIC-17 / 辞書の件: CHAT-1008-DIC-18 で解消」だった（DIC-17・DIC-18 の作業で書き足されていた）。指示のとおり「判断待ち / 続き: CHAT-1008-DIC-17」に直した（別のコミット 6dfbe99b）
+
+### 手順3: 生成とプレビュー
+
+- `python3 scripts/regenerate.py video_wayhome wayhome_episodes`: シート 40件、`6WAPjcxT78A` を外した警告が出て、各話 39ページ。sitemap・OGP（`index-20260921.jpg`）は変わらず
+- 差分: `video_wayhome.html` と各話12ページ（58行の入れ替え）。旧版に「タイトル3つの置き換え」と「`https://www.youtube.com/live/3N2s-WC3nrQ` → `https://www.youtube.com/watch?v=3N2s-WC3nrQ`」を当てると、
+  11ファイルは新版と完全に一致し、残る2ファイル（`GjzVKdJ5jSM`・`WDRBtJJME7I`）の差はヒーローの「決勝戦を見る」1つの追加だけ（スクリプトで比較）
+  - タイトルの置き換えは、その3回のページ（title・description・og・JSON-LD・h1・パンくず）と、一覧のカード、前後・同じ選手のカードに出る（各話9ページ＋一覧）
+  - **見込みに無かった差**: 最新話（`2Bn3SktouP4`）の決勝動画の URL が `/live/<ID>` から `watch?v=<ID>` になった（一覧のヒーローと最新話のページ。同じ動画）。旧シートで `/live/` の形はこの1本だけで、値を ID にしたことによる（決定で説明できる）
+- push（11f57780・6dfbe99b）→「Workers Builds: mj」success（6dfbe99b）。プレビューの3ページ（一覧・`OoK3O2BCm8M`・`GjzVKdJ5jSM`）は 200 で、手元の生成物とバイト単位で一致
+- #194 に進みをコメントした
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1010-whs
 - ログ: https://github.com/retroeater/mj/blob/work/1010-whs/docs/logs/CHAT-1010-WHS-03.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1010-whs
-- 確認用URL: なし
-- マージ: 未
-- issue: #194
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 確認用URL: プレビューあり（URL は最終報告）。見るページは一覧・タイトルを直した回 `OoK3O2BCm8M`（第4期小島武夫杯帝王戦 三浦智博）・決勝動画を埋めた回 `GjzVKdJ5jSM`（第41期十段戦 三浦智博）
+- マージ: 未（平野さんの判断待ち。指示のとおり）
+- issue: #194（進みをコメント）
+- 判断が必要なこと:
+  - プレビューを見てマージするか（差分はシートの変化で説明できるものだけ。見込みに無かったのは最新話の決勝動画の URL が `/live/<ID>` から `watch?v=<ID>` になった1本）
+  - マージを急ぐか: 旧ブックの「帰り道」タブも列が変わっているため、マージ前に本番で帰り道の再生成（月曜 05:37 JST の週次 `all` など）が走ると止まる
+  - `6WAPjcxT78A` は `data/youtube_meta.json` に無いため外れたまま。載せるには `fetch_youtube_meta.py` の実行（手元の鍵か、次の指示のワークフロー）が要る
+- 未確認の項目:
+  - プレビューのブラウザでの見え方（HTML が手元の生成物と一致することまでは確かめた）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 57963e3e）: https://github.com/retroeater/mj-logs/tree/main/guide/57963e3e
+ガイド文書（この版を写した時点の最新、mj 3a7e0391）: https://github.com/retroeater/mj-logs/tree/main/guide/3a7e0391
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/57963e3e/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/57963e3e/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/57963e3e/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/57963e3e/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/57963e3e/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/57963e3e/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/3a7e0391/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/3a7e0391/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/3a7e0391/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/3a7e0391/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/3a7e0391/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/3a7e0391/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b4d859a5.md
