@@ -65,28 +65,48 @@ https://ryoei.pro/resource_dictionary.html
 
 ## 経過
 
+### 0章・ブランチ
+
+- 「指示」欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・作業ブランチ・共通手順）は揃っている
+- `git log --all --grep="CHAT-1008-DIC-25"` は0件。CHAT-1008-DIC-24 の状態は「判断待ち」
+- ローカルの work/1008-dic は origin/work/1008-dic（a5c59f89）と一致。cloudflare は祖先でなかったので、ログを push した後に `git merge origin/cloudflare`（衝突なし）
+
+### 手順1（確かめ）
+
+- DIC-24 のログの状態に ` / 続き: CHAT-1008-DIC-25` を足し、`docs/decisions/features.md` に DIC-25 の決定を足した
+- 比較の差分（`git diff --name-only origin/cloudflare...HEAD`）は `docs/`（decisions・logs・notes/page-announcement.md）と `scripts/promo_video/dictionary/` だけ。`scripts/promo_video/title/`・`houou_race/` は変えていない（`lib/` はまだ無い）
+- 投稿文の「Mリーグの全チーム・全選手を追加」の確かめ: **合っていた。** `dic/mleague.json`（本番と同じ版）に 10チーム（EX風林火山・U-NEXT Pirates・KONAMI麻雀格闘倶楽部・KADOKAWAサクラナイツ・渋谷ABEMAS・赤坂ドリブンズ・EARTH JETS・セガサミーフェニックス・BEAST X・TEAM RAIDEN / 雷電）と各4名の40名が入っている。2026-27 シーズンの Mリーガーは全10チーム・40名（Mリーグ機構の 2026-07-02 のお知らせ「Mリーガー全40名との選手契約合意」）で、チームごとの顔ぶれ（新加入の尻無濱航・佐野ひなこ・朝倉康心を含む）も一致した。連盟所属の選手は Mリーグのカテゴリにも入っている。Mリーグ公式のサイトはこのセッションのネットワークから開けなかったため、Web 検索で出たお知らせ・報道の一覧と照らした
+
+### 手順2（書く）
+
+- `docs/notes/page-announcement.md`:
+  - 「実例」の表に辞書の行（2026-10-11、25秒・白地・操作デモ〈Gboard を押す〉とカテゴリの語数、`scripts/promo_video/dictionary/`）を足した。「投稿文の型」の実例は増やしていない
+  - 「次に作る時に考える点」の「X のサムネイルは動画の最初のコマ」は、**型の「告知動画の型」へ移した**（「最初のコマ: X のサムネイルになるので、タイトルはフェードインさせず最初のコマからはっきり出す（辞書の動画で採用、平野さん、2026-10-10）」。テロップの行の前）。「次に作る時に考える点」からは消した
+  - 容量: 6,005 バイト（上限の対象外）
+- 作り直しの手順: 辞書のページの資料（`docs/notes/` の辞書の文書）が無く、`static-generation.md` の辞書の行は「ページの一覧」の表の中（未マージの work/1008-hou が同じ節を変えている）なので、**`scripts/promo_video/dictionary/README.md`** に「告知動画」として書いた（houou-race.md「告知動画」と同じ項目: 確定版・作り直しのコマンド・借りる部品・撮り方・語数）。`scripts/` は `.assetsignore` で公開されない
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1008-dic
-- ログ: https://github.com/retroeater/mj/blob/work/1008-dic/docs/logs/CHAT-1008-DIC-25.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1008-DIC-25.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1008-dic
 - 確認用URL: なし
-- マージ: 未
-- issue: #515・#522
-- 判断が必要なこと: なし
+- マージ: 済（cloudflare へ push した SHA は最終報告の「ログ（公開）」の行）
+- issue: #515・#522（コメントはしていない）
+- 判断が必要なこと: なし（投稿文の「Mリーグの全チーム・全選手を追加」は辞書の中身と合っていた）
 - 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 36af3d35）: https://github.com/retroeater/mj-logs/tree/main/guide/36af3d35
+ガイド文書（この版を写した時点の最新、mj 396a7262）: https://github.com/retroeater/mj-logs/tree/main/guide/396a7262
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/36af3d35/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/36af3d35/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/36af3d35/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/36af3d35/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/36af3d35/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/36af3d35/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/396a7262/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/396a7262/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/396a7262/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/396a7262/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/396a7262/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/396a7262/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/21efaaec.md
