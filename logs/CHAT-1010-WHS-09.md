@@ -56,17 +56,70 @@ WHS-07 のプレビューへの平野さんの回答を入れる。写真のフ�
 - 指示欄の末尾は指示文の最後の行と一致。雛形の4行は揃っている
 - WHS-07 の `## 報告` の状態は「判断待ち」→ 末尾に ` / 続き: CHAT-1010-WHS-09` を足した
 - 作業ブランチ: ローカル・リモートとも `work/1010-whs` は 5d583ca1。`origin/cloudflare` は祖先でない → 取り込む
+- `git merge --no-edit origin/cloudflare`（衝突なし）
+- 未マージのブランチ: 触るファイルに触れるのは `work/1008-hou` の `style.css`（末尾 3446行以降の追記だけ）。今回は `style.css` を変えていない（比較の CSS は比較ページの中に置いた）
+
+### 手順1: 「リーグ推移」の写真のフチ（`origin/work/1008-hou` の `style.css` 4408行〜）
+
+```css
+.mj-houou-lg-photo {
+	flex: 0 0 auto;
+	width: 64px;
+	height: 64px;
+	border: 3px solid var(--lg-ring);
+	border-radius: 50%;
+	object-fit: cover;
+	background: rgba(255, 255, 255, 0.1);
+}
+```
+
+- `--lg-ring` は `#111827`（4384行、1つの値。前提の「リーグごとの色」とは違うが、比較の案には影響しない）。64px に 3px（約5%）
+
+### 手順2: 直し
+
+- `lib/wayhome.py`:
+  - `check_player_photos(links)`: X ID がある選手の写真を HEAD で確かめ（`photo_status()`。タイムアウト・接続の失敗は `net_retry.call()`、HTTP の 404 などは3回まで2秒おきに確かめ直す。WHS-07 で同じ URL に一度だけ 404 が返ったため）、
+    読めない選手・X ID があって写真の URL が空か既定の卵型の選手を「<名前>: <URL> が <状態コード>」で一覧にして `ValueError`。出力は変えない（読めたら出す）。生成スクリプト2本が `index_player_links()` の直後に呼ぶ
+  - `build_player_links_html()` から `data-fallback`（と `asset_prefix` の引数・`AVATAR_PATH`）を外した
+- `video_wayhome.js`・`wayhome_episodes.js`: WHS-07 で足した処理（a2fe7fe7 の JS の差分）を `git apply -R` で戻した（8f5edb63 の時点と同じ中身）。サムネイルなどの `data-fallback` の処理はそのまま
+- テスト `test_wayhome_player_links.py`: 写真のリンクに `data-fallback` が無いこと、`check_player_photos()` の4件（すべて読める・一度の404は通す・読めないと選手と URL を書いて止まる・写真の URL が無いと止まる）。修正前のコードでは失敗1・エラー4、修正後は全体 OK
+- 実データ: 生成（下）で39話の写真はすべて読めて止まらなかった（確かめに約10秒）。読めない URL（`https://pbs.twimg.com/profile_images/1/nonexistent_400x400.jpg`）を与えると「Xの写真が読めない選手がいます。…テスト: … が 404」で止まった
+- 比較ページ: `scripts/build_wayhome_photo_compare.py`（一時）が、生成済みの `video_wayhome.html` の一覧のヒーローと、各話2つ（`OoK3O2BCm8M`・`76OsWTSSnso`、名前が折り返す回）のヒーローを並べた `video_wayhome_photo_compare.html` を書き出す。
+  上の固定のパネルのラジオボタンと `body:has(#frameX:checked)` でフチを切り替える（JS なし、CSS はページの中の `<style>`）。noindex、説明・OGP・構造化データ・計測は外し、どこからもリンクせず sitemap に載せない
+  - A: フチなし（今の WHS-07）
+  - B: `border: max(2px, 0.07em) solid rgba(255, 255, 255, 0.85)`、`background: rgba(255, 255, 255, 0.1)`、`box-sizing: border-box`（外の大きさは 1em のまま）
+  - C: B と同じ太さで色が `--mj-v-accent`（`#7fb3d5`）
+  - 太さは「リーグ推移」の約5%に合わせ、字の大きさに比例させた（28px で 2px、48px で 3px。最初の `max(1.5px, 0.06em)` は 390px 幅で 1px に丸められたので変えた）
+- 文書: `docs/notes/video-wayhome.md` の WHS-06 の節の写真の行を、代わりの画像から「読めなければ止める」に書き直した。決定を `docs/decisions/wayhome.md` に足した
+
+### 手順3: 生成とプレビュー
+
+- 生成: 40件・`6WAPjcxT78A` を外した警告・各話 39ページ。差分は `video_wayhome.html` と各話 38ページで、どれも写真の `data-fallback` 属性が消えただけ（旧版からその属性を除くと完全に一致、スクリプトで比較）
+- push（aa4e465f）→「Workers Builds: mj」success。プレビューの比較ページは 200 で、手元の生成物と一致
+- Playwright で 390×844 と 1280×800、A・B・C を切り替えて3つのヒーローを見た（写真はすべて読み込み済み）:
+
+| 幅 | 案 | 写真の外の大きさ | フチ |
+|---|---|---|---|
+| 390 | A | 28px | なし |
+| 390 | B | 28px | 2px `rgba(255,255,255,.85)` |
+| 390 | C | 28px | 2px `#7fb3d5` |
+| 1280 | A | 48px | なし |
+| 1280 | B | 48px | 3px `rgba(255,255,255,.85)` |
+| 1280 | C | 48px | 3px `#7fb3d5` |
+
+  - スクリーンショットで、B・C とも写真の外の大きさは名前の文字の高さのまま（フチの分だけ写真が内側に縮む）、名前の右 8px の位置で折り返しても崩れないことを見た
 
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1010-whs
+- 状態: 判断待ち
+- ブランチ: work/1010-whs（未マージ）
 - ログ: https://github.com/retroeater/mj/blob/work/1010-whs/docs/logs/CHAT-1010-WHS-09.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1010-whs
-- 確認用URL: なし
-- マージ: 未
+- 確認用URL: プレビューあり（URL は最終報告）。見るのは比較ページ `video_wayhome_photo_compare.html`（上のラジオボタンで A なし・B 白・C アクセント色）
+- マージ: 未（平野さんが比較ページでフチを選んでから、別の指示で本実装とマージ）
 - issue: #195
-- 判断が必要なこと: なし
+- 判断が必要なこと:
+  - 写真のフチを A（なし）・B（白い細いフチ）・C（アクセント色の細いフチ）のどれにするか。決まったら、選んだ案を `style.css` に入れ、比較ページと `scripts/build_wayhome_photo_compare.py` を消してマージする
 - 未確認の項目: なし
 - エラー: なし
 
