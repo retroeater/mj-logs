@@ -62,6 +62,23 @@
 
 ## 経過
 
+- 0章: 指示欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- 識別子: `git log --all --grep="CHAT-1010-RGN-02"` は0件。RGN はこのセッションの RGN-01 で使ったもの（同じセッションの2つ目の指示）
+- ブランチ: `work/1010-rgn` はローカル・リモートとも無かったため `git checkout -b work/1010-rgn origin/cloudflare`（19111d74）
+- #533: Open、ラベル `分野: 自動化`・`対象: 全ページ`。コメントは DIC-18・DIC-21・DIC-22 の3件で、着手中のコメントは無い。着手中のコメントを残した（issuecomment-6097975562）
+
+### 手順1 確かめる
+
+- 今の作り: `scripts/regenerate.py`・`.github/workflows/regenerate-page.yml` は 5bba42c1 から変わっていない（`git diff 5bba42c1 origin/cloudflare` が空）。#533 の「今の作り」のとおり。
+  `update-live-channel.yml` は 5bba42c1 の後に変わったが、ジョブ regenerate の `workflow_call`（`target_page: live_pages title_pages`）はそのまま。`regenerate.py` の中で直せば、手動実行・週次・`workflow_call`・セッションの `regenerate.py all` のどれにも及ぶ
+- 未マージの work/ ブランチ: `work/1008-hou`（`regenerate.py` の `OUTPUT_OVERRIDES` に `houou_pages` の1行を足す。`scripts/tests/test_houou_pages.py` を足す）、`work/1009-swp-526`（重なり無し）、`work/1010-whs`（`scripts/tests/test_wayhome_player_links.py` を変える。`regenerate-page.yml` は変えていない）。
+  `regenerate.py`・`regenerate-page.yml` の同じ行・同じ関数を変えているものは無い。この指示で触るのは `main()` と新しい関数で、`OUTPUT_OVERRIDES` は触らない
+- 帰り道の決定（`docs/decisions/wayhome.md` 2026-10-10 WHS-02「シートにあって JSON に無い回は、その回だけ外してほかを生成し、ワークフローは失敗の扱いにする」「知らせ先は失敗通知メールと帰り道用の常設 issue」）はある。`regenerate-page.yml` に入れた未マージのブランチは今は無い（予定のまま）
+- 「ワークフローを変更したとき」を読んだ。`regenerate-page.yml` は既定ブランチにあり、#326 で作業ブランチでの手動実行（`ref` に作業ブランチ）ができる形。履歴（95659321〈#455〉・711cbc3a〈#438〉など）に初回だけ手順が違う点は無い
+- 最近の regenerate-page.yml: #248・#249・#251 が failure（DIC-21 のコメントの帰り道の検査など）、#252〜#255 は success
+- マージ後の見込み: push の `paths`（`scripts/generate_*.py`・`scripts/lib/**`・`*.js`）に `scripts/regenerate.py`・`scripts/tests/`・`.github/workflows/`・`docs/` はどれも当たらないため、この変更の push では regenerate-page.yml は起動しない（再生成の対象は0ページ。`regenerate.py --changed` の判定でも `scripts/regenerate.py` はどのページにも当たらない）。
+  Workers Builds は `docs/` 外を含むので1回走る（表示は変わらない）。新しい作りが本番で最初に動くのは、次の push の再生成か、10/12（月）05:37 JST の週次
+
 ## 報告
 
 - 状態: 対応中
