@@ -124,11 +124,13 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-10-10 18:53 | push | cloudflare | in_progress | #248（38043009828） |  |
+| 2026-10-10 18:53 | push | cloudflare | failure | #248（38043009828） | 1分25秒 |
 | 2026-10-10 17:56 | push | cloudflare | success | #247（38039633168） | 1分36秒 |
 | 2026-10-10 17:52 | workflow_dispatch | cloudflare | success | #246（38039390625） | 1分31秒 |
 | 2026-10-10 17:51 | push | cloudflare | success | #245（38039343605） | 0分25秒 |
 | 2026-10-10 17:43 | push | cloudflare | success | #244（38038861595） | 0分28秒 |
+
+- #248 failure: ジョブ「regenerate」 ステップ「対象ページを再生成」
 
 ## sitemap-lastmod.yml
 
