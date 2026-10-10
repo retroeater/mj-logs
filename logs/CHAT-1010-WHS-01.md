@@ -71,6 +71,23 @@
 - 雛形の行: Chat-Ref・マージ・貼る時機・共通手順の4行とも揃っている
 - 前提の cloudflare は 0498c32 時点、着手時は 116fea10（以降のコミットで前提が変わっていないかは次で確かめる）
 
+- 前提の確認（116fea10）: 生成スクリプト2本の `share.build_share_button`・`SHARE_STATUS_HTML`・`share.script_tag` の位置、`STYLE_HERO`・`.mj-share-btn-hero`、3か所のコメント、`test_no_share_button_on_title_pages` の目印のリストは前提のとおり。
+  `.mj-video-filter-search` は `generate_video_wayhome.py` と `video_wayhome.html` だけが使う（live/ は `.mj-live-filter-search`）
+- 未マージのブランチ: 変えるファイル（生成スクリプト2本・`share.py`・`share.js`・`style.css`・テスト・`video_wayhome.html`・`wayhome/`・文書・sitemap）に触れるのは
+  `work/1008-hou`（`assets/share.js` の 68行目以降のコード、`style.css` の末尾への追記。こちらは `share.js` 2行目のコメントと `style.css` 1031〜1070・1330 行付近で重ならない）、
+  `work/1010-sks`（前提のとおり）、`work/1010-rdn`（`docs/decisions/pros.md` のみ）。`STYLE_HERO`・`.mj-share-btn-hero`・`.mj-video-filter-search` を使うブランチは無い → 進める
+- #530: Open、他セッションの着手中コメント無し（コメントは SKS-01 の表のみ）。着手中のコメントを残した
+- 読み替え: #530 の本文の帰り道は、チェックボックスではなく1つ目の項目の子の行（`  - 帰り道…`）。子の行を `  - [x]` にして済みとする
+- 実装（b20dd83d）:
+  - 一覧: 固定バーの共有ボタンとトースト・`share.js` の読み込みをやめた。`.mj-video-filter-search` のまとまり（虫眼鏡と入力欄）は並びを保つために残し、コメントだけ直した
+  - 各話: ヒーローの操作列から共有ボタンを外し（「再生」と決勝戦のボタンが残る）、トースト・`share.js` の読み込みをやめた
+  - `share.py` の `STYLE_HERO` と `style.css` の `.mj-share-btn-hero` を消した。`share.py`・`share.js`・`style.css` のコメントから帰り道を外した（`share.js` は2行目のみ）
+  - 指示の見込みに無いが決定で説明できる変更: `video_wayhome.js`・`wayhome_episodes.js` の先頭のコメント（「共有ボタンは assets/share.js に移した」が誤りになるため、外したと直した。コメントのみ）
+  - テスト: `test_title_years.py` の目印から `video_wayhome.html` を外し、`scripts/tests/test_wayhome_no_share.py`（一覧と各話に `mj-share`・`share.js` が無い）を足した。修正前の生成物では新しいテストが落ちることを確かめた
+  - 再生成 `python3 scripts/regenerate.py video_wayhome wayhome_episodes`: 39件・39ページ（数は変わらず）。シートの変化による行は無かった。40ファイルとも、旧版から共有ボタン・トースト・`share.js` の行を除くと新版と完全に一致（スクリプトで比較）。sitemap は変わらず（lastmod は push 後のワークフローが導出する）
+  - テスト: `python3 -m unittest discover -s scripts/tests` 687件 OK
+  - 文書: `docs/handover.md` の共有ボタンの行、`docs/notes/design.md` の共有ボタンの行と style.css の行番号、`docs/notes/video-wayhome.md` に節を追加、
+    `docs/new-site-design.md` §12 に1行、`docs/notes/static-generation.md` の video_wayhome.js の説明。`video-wayhome.md` の 2026-09-14 の確認の記録（「ボタン列（再生・共有・決勝戦を見る）」）は当時の記録なので残した
 ## 報告
 
 - 状態: 作業中
