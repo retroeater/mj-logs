@@ -236,7 +236,7 @@
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1010-MCK-03.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1010-mck-365
 - 確認用URL: なし
-- マージ: 未（この後に行う）
+- マージ: 済（63708d0c。直前に origin/cloudflare を merge で取り込み、fast-forward で push。この行の追記はマージ後の docs/logs のみの追いの push）
 - issue: #365（変えていない）
 - 判断が必要なこと:
   - 第18期の見本（`## 経過`「手順3」）でよいか。よければ貼り、第19期の TSV を別の指示で作る（第20期は進行中なので終わってから）
