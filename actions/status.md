@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-10 12:06 JST
+- 書き出した時刻: 2026-10-10 12:07 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -12,11 +12,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-10 12:06 | push | work/1010-xap | success | #3071（38019395764） | 0分13秒 |
 | 2026-10-10 12:04 | push | work/1010-xap | success | #3070（38019297045） | 0分11秒 |
 | 2026-10-10 11:50 | push | work/1009-rev | success | #3069（38018441421） | 0分12秒 |
 | 2026-10-10 11:50 | push | cloudflare | success | #3068（38018439995） | 0分10秒 |
 | 2026-10-10 11:12 | push | work/1009-swp-526 | success | #3067（38016088175） | 0分11秒 |
-| 2026-10-10 11:10 | push | cloudflare | success | #3066（38015990081） | 0分12秒 |
 
 ## check-image-links.yml
 
@@ -26,11 +26,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-10 12:06 | workflow_dispatch | work/1010-xap | success | #24（38019398367） | 0分14秒 |
 | 2026-10-10 12:04 | workflow_dispatch | work/1010-xap | success | #23（38019300161） | 0分14秒 |
 | 2026-10-07 12:09 | workflow_dispatch | work/1007-pht-photo | success | #22（37565398389） | 3分05秒 |
 | 2026-10-07 12:05 | workflow_dispatch | work/1007-pht-photo | success | #21（37565106437） | 3分06秒 |
 | 2026-10-06 12:46 | workflow_dispatch | cloudflare | success | #20（37410583779） | 3分04秒 |
-| 2026-10-06 12:07 | workflow_dispatch | cloudflare | success | #19（37407457066） | 3分10秒 |
 
 ## check-leagues-dropped.yml
 
