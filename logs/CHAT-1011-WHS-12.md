@@ -72,29 +72,39 @@ WHS-10 は、武田雛歩（`UtxpVoWy2GY`）の「プロ」シートの X画像�
 - テスト OK。`regenerate.py video_wayhome wayhome_episodes` を2回流し、2回とも写真の確かめが通った（39話、止まらない）
 - 差分は `wayhome/UtxpVoWy2GY.html` の写真の URL 1行だけ（`…/K5UEBvMm_400x400.jpg` → `…/hgPwE-Tk_400x400.jpg`）。帰り道以外の生成物は変えていない
 
+### 手順3: マージと確かめ
+
+- fetch 直後に `git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめ、`git push origin work/1010-whs:cloudflare`（a72aaab4..f55bb027）。WHS-06・07・09・10 の変更と、この指示の再生成が入った
+- f55bb027 の check-run: regenerate（push 契機の `regenerate-page.yml`）success、Workers Builds: mj success、mj-scheduler・sync・check success（16:25Z までに6本とも完了）
+  - push 契機の再生成のコミット 16d1edf6 は、帰り道の HTML を変えていない（`sitemap-wayhome.xml` の lastmod だけ）。ほかは live/・title/ の王位戦（ourai）の数ページと sitemap で、シートのデータの変化（今回の変更と無関係）
+- 本番（`?v=` に未使用の値）: `/video_wayhome.html`・`/wayhome/OoK3O2BCm8M.html`・`/wayhome/o28svvuVI0M.html`・`/wayhome/UtxpVoWy2GY.html` が 200 で、手元の生成物とバイト単位で一致。
+  件数の文言（「件中」）は4つとも無い。X の写真（`mj-video-player-photo`）は一覧・`OoK3O2BCm8M`・`UtxpVoWy2GY` に1つずつ、X ID の無い `o28svvuVI0M` には無い。本番の `/style.css` に B のフチの規則がある。`/video_wayhome_photo_compare.html` は 404
+- ブラウザでの見え方は本番では確かめていない（WHS-10 で同じ CSS のプレビューを Playwright で見た）
+- 決定を `docs/decisions/wayhome.md` に足した。#195 に本番に入ったことを、#514 に帰り道の変更が入り XAP-07 を案 A で貼り直せることをコメントした
+- 作業ブランチ `work/1010-whs` は残す（次の指示で使う）
+
 ## 報告
 
-- 状態: 判断待ち
-- ブランチ: work/1010-whs（未マージ）
-- ログ: https://github.com/retroeater/mj/blob/work/1010-whs/docs/logs/CHAT-1011-WHS-12.md
+- 状態: 完了
+- ブランチ: work/1010-whs（次の指示でも使うため残す）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1011-WHS-12.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1010-whs
-- 確認用URL: なし
-- マージ: 未（平野さんが「プロ」シートに貼ってから）
-- issue: #195、#514
-- 判断が必要なこと:
-  - 「プロ」シートの武田雛歩の X画像を https://pbs.twimg.com/profile_images/2108212521459150848/hgPwE-Tk_400x400.jpg に直し、貼ったと返事してほしい（SNS ブックの【3】の値、X状態「解決」、8回とも 200）
+- 確認用URL: なし（本番で確認）
+- マージ: 済（f55bb027。WHS-06・07・09・10 の変更を含む）
+- issue: #195・#514（コメント）
+- 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj f55bb027）: https://github.com/retroeater/mj-logs/tree/main/guide/f55bb027
+ガイド文書（この版を写した時点の最新、mj ce5677d0）: https://github.com/retroeater/mj-logs/tree/main/guide/ce5677d0
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f55bb027/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f55bb027/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f55bb027/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f55bb027/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f55bb027/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f55bb027/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce5677d0/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce5677d0/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce5677d0/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce5677d0/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce5677d0/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce5677d0/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a72aaab4.md

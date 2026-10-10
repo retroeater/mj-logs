@@ -32,3 +32,7 @@
 ## 2026-10-10（CHAT-1010-RDN-07）
 
 - 段3（成績の8列を生成時の集計に移す）のマージは条件付きで承認（条件は CHAT-1010-RDN-07 の指示文の「止まる条件」）。8列の定義・最新の期への追随・Ampai の期の照合は 2026-10-10（CHAT-1010-RDN-02）の決定のとおり
+
+## 2026-10-11（CHAT-1011-RDN-08）
+
+- houou 系（`generate_houou_leagues.py`・`generate_houou_race.py`・`check_leagues_dropped.py`・`generate_houou_pages.py`）も「プロ」を見出しで読み、廃止する11列に頼らない形にする。houou/ の読み・ローマ字・所属は名簿から取り、在籍者が名簿に無ければ生成を止める。マージは条件付きで承認（条件は CHAT-1011-RDN-08 の指示文の「止まる条件」）

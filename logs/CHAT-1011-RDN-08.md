@@ -117,6 +117,9 @@ Chat-Ref: CHAT-1011-RDN-08
 - 名簿に見つからない在籍者: 0（`check_pros()` が両方の生成で通った）。集計元のタブ・名簿の行数・見出しは RDN-07・RDN-06 と同じ（生成が止まらなかった）
 - **マージ前の grep のやり直し**（このブランチ。マージ後の cloudflare は同じ内容）: 列記号で「プロ」を読む箇所 **0**（`WHERE Y` 等が出るのは `lib/pro_sheet.py` の docstring の説明だけ）。
   11列の見出しを読む箇所 **0**（出るのは `pro_sheet.RETIRED` の一覧だけ）。「プロ」を読む19か所はすべて `pro_sheet.fetch_pros()` で、11列を渡す箇所は無い
+- マージの直前に origin/cloudflare が f55bb027 まで進み、work/1010-whs（帰り道。`lib/wayhome.py`・`generate_video_wayhome.py`・`generate_wayhome_episodes.py` など）が入っていたため取り込んだ（衝突なし）。
+  帰り道の2ページは `lib/pro_sheet.py` を使うため、f55bb027 と取り込んだ後のこのブランチで `video_wayhome`・`wayhome_episodes` を続けて生成し直した → 両側とも rc=0、生成物の差0、生成ログも同じ。テスト 779件 OK。
+  取り込んだ後の grep も同じ結果（列記号の読み取り 0・11列の読み取り 0）
 
 ## 報告
 
@@ -139,12 +142,12 @@ Chat-Ref: CHAT-1011-RDN-08
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj f55bb027）: https://github.com/retroeater/mj-logs/tree/main/guide/f55bb027
+ガイド文書（この版を写した時点の最新、mj ce5677d0）: https://github.com/retroeater/mj-logs/tree/main/guide/ce5677d0
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f55bb027/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f55bb027/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f55bb027/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f55bb027/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f55bb027/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f55bb027/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce5677d0/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce5677d0/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce5677d0/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce5677d0/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce5677d0/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce5677d0/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a72aaab4.md
