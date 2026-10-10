@@ -69,6 +69,24 @@ Claude API の月次クレジット（Max 5x、月 $100。Console の組織「Ry
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 4行とも揃っている
 - 0. 指示欄の末尾は指示文の最後の行「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」と一致
 
+### 1. 起票
+
+- 同じ主題の issue の検索: セッションの GitHub 検索 API は使えない（「sessions are bound to their configured repositories」）ため、
+  `GET /repos/retroeater/mj/issues?state=all` で全 540 件（PR を除く。#1〜#541）を取り、題と本文を `AI|質問|コンシェルジュ|Claude API|Anthropic|Haiku|LLM|生成AI|チャットボット|問い合わせ` で照合。
+  題の一致は #130・#447（AI ボット対策）・#161・#227（llms.txt）・#360（トークン削減）だけで、同じ主題（サイトで AI に質問する欄）は無い
+- 未マージの `work/` ブランチ（7本）のコミットの件名とログ: 同じ目的のものは無い。`work/1011-hou`（HOU-13）が `docs/decisions/houou.md` に追記しており、この指示の追記とはマージ時に末尾どうしで衝突しうる（両立する追記）
+- 起票: #542「鳳凰戦のデータ・コンシェルジュ（houou/ のトップで AI に言葉で質問できる欄）を作る」。#518 の sub-issue に登録（`parent_issue_number`、#519・#520 と同じく本文末尾に「親: #518」）、ラベル「分野: UI/UX」。着手中コメントを残した
+
+### 2. 実物の確認（grill の前に、聞かずに分かること）
+
+- 配信: `wrangler.jsonc` の Worker `mj` は静的アセットだけ（`main` 無し）。`workers/scheduler/`（Worker `mj-scheduler`、#504）は cron だけで fetch の入口を持たない（`workers_dev: false`）。ゾーンは Cloudflare Pro、Workers は Free（docs/notes/scheduler-worker.md・docs/handover.md）
+- `houou/search.json` は 692 名（在籍者だけ）。1件は [名前, 読み, ローマ字, 最後の期, 最後のリーグ, 支部, 入会期, 画像]。**入会期は在籍者にしか無い**（退会・物故の鳳凰位は入会期で引けない）
+- `houou/results/*.json`（692 ファイル、2.8MB）: 第17期後期〜第43期前期。rows の「鳳凰位」の行（16行・11名）は**その期に鳳凰位として座っている**ことを表し、獲った期はその前の期（例: 吉田直の行は第36期後期、`title/houou/` では第35期の優勝）
+- `title/houou/`: 第1期〜第42期の決勝（優勝〜4位）と決勝ライブの日付。JSON は無く HTML に焼き込み（`scripts/generate_title_pages.py`）
+- `live/houou/`: 第41期の決定戦の1本だけ（`scripts/generate_live_pages.py`）
+- 例の質問「23期生で鳳凰位になった人は？」の答え: 吉田直（第35期）と白鳥翔（第41期・第42期）。**前提の「吉田直（第36期）・白鳥翔（第42期）」は rows の座った期で、獲った期とは1期ずれる**（白鳥翔は第41期も獲っている）。決定どおりに作ることは妨げないため止まらない
+- 改名の名寄せ: HOU-13（未マージ、`work/1011-hou`）で「別名」によりコード側で名寄せする決定（grill Q3 を置き換え）
+
 ## 報告
 
 - 状態: 作業中
