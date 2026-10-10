@@ -45,16 +45,51 @@ DIC-23 の初版（`dictionary-promo-v1.mp4`）の最初の画面の2行目「�
 
 ## 経過
 
+### 0章・ブランチ
+
+- 「指示」欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・作業ブランチ・共通手順）は揃っている
+- `git log --all --grep="CHAT-1008-DIC-24"` は0件。CHAT-1008-DIC-23 の状態は「判断待ち」
+- ローカルの work/1008-dic は origin/work/1008-dic（e2cd255f）と一致。cloudflare は祖先でなかったので、ログを push した後に `git merge origin/cloudflare`（f54d7f81、衝突なし）
+
+### 手順1（確かめ）
+
+- DIC-23 のログの状態に ` / 続き: CHAT-1008-DIC-24` を足した
+- `docs/decisions/features.md` に DIC-24 の決定を足した（DIC-23 の決定は DIC-23 で記録済み）
+- 未マージの work/ ブランチ（work/1008-hou・work/1009-nen・work/1009-swp-526・work/1010-whs・work/1010-xap）は `scripts/promo_video/` を変えていない
+
+### 手順2（作る）
+
+- 変更は `scripts/promo_video/dictionary/composition/index.html` の2行目の文言だけ: 「スマホ・PC の変換に登録」→「麻雀用語をスマホ・PCで一発変換」。文字の大きさは v1 と同じ 60px のまま1行に収まった（幅はおよそ 920px / 1080px）。改行はしていない。折り返しを防ぐため `white-space: nowrap` を足した
+- 撮り直しを含め `build.sh` で作り直した（撮影・語数の数え直しも v1 と同じ仕組み）。語数は v1 と同じ: 一般用語 583・連盟用語 137・連盟プロ 1,099・Mリーグ 71・全体 1,870（`dic/` とページの説明文は一致）
+- 形式: 25.0秒、1080×1920、30fps、H.264（High）・yuv420p、AAC 48kHz ステレオ、-15.9 LUFS（ピーク -3.6 dBFS）。v1 と同じ
+- コマの確かめ（画像で見た）: 最初のコマで2行がはっきり読める（フェードインなし）。最後のコマはロゴだけ。ほかの場面（枠・押す印・押した後・語数・全体）は v1 と同じ見た目で、テロップは実画面にかからない
+
+### 手順3（送る）
+
+- `dictionary-promo-v2.mp4` を `SendUserFile` で送った
+- v1 からの変更点: 最初の画面の2行目の文言だけ（秒・画面・テロップ・曲・締めは同じ）
+- 投稿文（前提のとおり1行目の箇条を直したもの）:
+
+```
+リソース「辞書」をリニューアルしました。
+https://ryoei.pro/resource_dictionary.html
+
+・麻雀用語・連盟・Mリーグの1,870語をスマホ・PCで一発変換
+・Android（Gboard）に新しく対応
+・Mリーグのチーム・選手を追加、連盟のタイトル戦・選手を充実
+```
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1008-dic
 - ログ: https://github.com/retroeater/mj/blob/work/1008-dic/docs/logs/CHAT-1008-DIC-24.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1008-dic
 - 確認用URL: なし
-- マージ: 未
-- issue: #515・#522
-- 判断が必要なこと: なし
+- マージ: 未（制作のスクリプトはマージしない）
+- issue: #515・#522（コメントはしていない）
+- 判断が必要なこと:
+  - v2（`dictionary-promo-v2.mp4`、25.0秒）でよいか。2行目は 60px のまま1行に収めた
 - 未確認の項目: なし
 - エラー: なし
 
