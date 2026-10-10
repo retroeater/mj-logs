@@ -88,6 +88,13 @@
   - テスト: `python3 -m unittest discover -s scripts/tests` 687件 OK
   - 文書: `docs/handover.md` の共有ボタンの行、`docs/notes/design.md` の共有ボタンの行と style.css の行番号、`docs/notes/video-wayhome.md` に節を追加、
     `docs/new-site-design.md` §12 に1行、`docs/notes/static-generation.md` の video_wayhome.js の説明。`video-wayhome.md` の 2026-09-14 の確認の記録（「ボタン列（再生・共有・決勝戦を見る）」）は当時の記録なので残した
+- issue:
+  - #530: 本文の帰り道の子の行を `  - [x] 帰り道…→ 両方外した（2026-10-10、コメントの表）` に書き換えた（REST の PATCH。直前の `updated_at` は自分の着手コメントの時刻で、取り直しと一致）。SKS-01 と同じ形の表でコメントした
+  - G5-09: 前提は「#283・#160 にコメントされた」（要確認）。実物は #283 と #5（SWP-03 のコメントの本文「#160・#5 にもコメントした」のうち、#160 へのコメントは G1-07 だけで G5-09 は無い）。
+    G5-09 が書かれた #283・#5 に決定をコメントした（#160 には書いていない）
+  - #186: 「状況: 保留」のラベルを付け（REST）、理由をコメントした
+- 決定: `docs/decisions/wayhome.md` を新設（帰り道の共有ボタン・扱う範囲・G5-09・マージ）し README の一覧に1行。NVDA の保留は `site-review.md` に足した
+- マージ前: `git fetch origin cloudflare` で cloudflare は進んでおらず（116fea10）、`git merge-base --is-ancestor origin/cloudflare HEAD` は真。取り込み・衝突なし
 ## 報告
 
 - 状態: 作業中
@@ -104,12 +111,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 116fea10）: https://github.com/retroeater/mj-logs/tree/main/guide/116fea10
+ガイド文書（この版を写した時点の最新、mj 81a53d18）: https://github.com/retroeater/mj-logs/tree/main/guide/81a53d18
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/116fea10/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/116fea10/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/116fea10/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/116fea10/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/116fea10/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/116fea10/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/81a53d18/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/81a53d18/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/81a53d18/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/81a53d18/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/81a53d18/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/81a53d18/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/116fea10.md
