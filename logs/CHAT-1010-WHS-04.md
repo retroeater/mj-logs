@@ -57,16 +57,22 @@ WHS-03 の変更（新しいブックを見出しの名前で読む・動画ID �
 - `git merge --no-edit origin/cloudflare`（衝突なし、c3dbf580）。取り込みで帰り道の生成に関わるファイル（`lib/wayhome.py`・`lib/sheets.py`・`lib/live.py`・`lib/page.py`・生成スクリプト2本・生成物）は変わっていない
 - 取り込んだ後に `python3 scripts/regenerate.py video_wayhome wayhome_episodes`: シート 40件、`6WAPjcxT78A` を外した警告、各話 39ページ。`git status` に差分なし（WHS-03 の生成物と同じ）
 - テスト: `python3 -m unittest discover -s scripts/tests` OK
+- マージ: fetch 直後に `git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめ、`git push origin work/1010-whs:cloudflare`（a79dfa83..40eea4b1）
+- 40eea4b1 の check-run: regenerate（push 契機の `regenerate-page.yml`）success、Workers Builds: mj success、check・sync success（12:38Z までに5本とも完了）。push 契機の再生成はコミットを作らなかった（生成物は作業ブランチで入れ済み）
+- `regenerate-page.yml` を `all` で手動実行（`actions_run_trigger`、ref cloudflare）: run 38052717723 は success（12:38:47Z 開始、約2分）。全ページを生成し「変更なし」でコミットなし
+  （ジョブのログは末尾だけ読んだ。`git add` の対象に houou・jpml_pros・live/・title/・resource_dictionary・video_wayhome・wayhome/ などが並び、すべて生成が通った）
+- 本番（`?v=` に未使用の値）: `/video_wayhome.html`・`/wayhome/OoK3O2BCm8M.html`・`/wayhome/GjzVKdJ5jSM.html` は 200 で、手元の生成物とバイト単位で一致（WHS-03 でプレビューも手元と一致を確かめた）。ブラウザでの見え方は確かめていない（平野さんがプレビューで確認済み）
+- 決定を `docs/decisions/wayhome.md` に足した（bce8ddbe）。#194 に進みをコメントした。作業ブランチは片付けない（次の指示で使う）
 
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1010-whs
-- ログ: https://github.com/retroeater/mj/blob/work/1010-whs/docs/logs/CHAT-1010-WHS-04.md
+- 状態: 完了
+- ブランチ: work/1010-whs（次の指示でも使うため残す）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1010-WHS-04.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1010-whs
-- 確認用URL: なし
-- マージ: 未
-- issue: #194
+- 確認用URL: なし（本番で確認。プレビューは WHS-03）
+- マージ: 済（40eea4b1）。`regenerate-page.yml` の `all` の手動実行（run 38052717723）は success（変更なし）
+- issue: #194（進みをコメント）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
@@ -74,12 +80,12 @@ WHS-03 の変更（新しいブックを見出しの名前で読む・動画ID �
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 40eea4b1）: https://github.com/retroeater/mj-logs/tree/main/guide/40eea4b1
+ガイド文書（この版を写した時点の最新、mj dbea2935）: https://github.com/retroeater/mj-logs/tree/main/guide/dbea2935
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/40eea4b1/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/40eea4b1/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/40eea4b1/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/40eea4b1/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/40eea4b1/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/40eea4b1/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/dbea2935/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/dbea2935/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/dbea2935/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/dbea2935/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/dbea2935/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/dbea2935/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b4d859a5.md
