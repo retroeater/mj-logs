@@ -66,19 +66,53 @@ Chat-Ref: CHAT-1010-RDN-02
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
 - 0. 指示欄の末尾の行は指示文の最後の行と一致。RDN-01 のログの状態に `/ 続き: CHAT-1010-RDN-02` を足した
 - 指示文は改行が潰れた形で貼られたため、文面は変えずに項目の区切りで改行した
-- 前提の「未マージの work/1009-swp-526」は、取り込んだ origin/cloudflare に `generate_jpml_pros.py`・`test_jpml_pros.py` の変更が入っている（マージ済みと見られる。後で確かめる）
+- 前提の「未マージの work/1009-swp-526」は、取り込んだ origin/cloudflare に `generate_jpml_pros.py`・`test_jpml_pros.py` の変更が入っている。
+  ブランチに残る未マージのコミットは `docs: report CHAT-1010-SWP-12 (merged)`（ログ）だけで、scripts の差は無い
+
+### 0章ゲート: 未マージの work/ ブランチとの重なり（ここで止まった）
+
+`git branch -r --no-merged origin/cloudflare`: work/1002-cld、work/1008-hou、work/1009-swp-526、work/1010-rdn（このブランチ）、work/1010-rev、work/1010-sks。
+各ブランチの `git diff --stat origin/cloudflare...<branch> -- scripts .github`:
+
+- work/1002-cld・work/1009-swp-526・work/1010-rev: scripts・.github の変更なし
+- work/1010-sks（CHAT-1010-SKS-01、状態 判断待ち）: `generate_saikyo_pages.py` を変えているが、変更の hunk は 90・309・380〜430・556〜594・685〜721 行あたりで、
+  「プロ」を読む `load_name_book()`（631行〜、`PRO_QUERY` は40行）とは別の関数。**重なりなし**と判断
+- **work/1008-hou（CHAT-1009-HOU-06、状態 判断待ち、#518）: 重なりあり → 止まる条件「同じ行・同じ関数を変えている」に当たる**
+  - `scripts/generate_houou_leagues.py`: `main()` を `load()`・`build()`・`main()` に分ける変更。hunk `@@ -126,7 +126,8 @@`（`def main():` → `def load():`）と
+    `@@ -135,6 +136,13 @@` の文脈行が、段1で書き換える「プロ」の読み取りそのもの:
+    ```
+         pro_rows = fetch_sheet(SPREADSHEET_ID, PRO_SHEET_NAME, PRO_QUERY)
+         candidate_names = [r[0] for r in pro_rows]
+         print(f"{len(candidate_names)}名(選択候補)取得しました。")
+    +    return rows, candidate_names
+    ```
+    段1でこの行（と `PRO_QUERY`）を変えると、同じ関数の隣り合う行になり、後で work/1008-hou を取り込むときに衝突する見込み
+  - `scripts/generate_houou_race.py`: `main()` を `load_periods()` に分ける変更（「プロ」の `PRO_QUERY`〈A,I,J〉の読み取り 255行を含む関数）
+  - **新しいファイル `scripts/generate_houou_pages.py`（work/1008-hou にだけある）が「プロ」を英字で読む:** `PRO_EXTRA_QUERY = 'SELECT A,B,C,D,E WHERE Y = "Y"'`
+    （読み・ローマ字〈C・D〉・支部〈E〉）。RDN-01 の表に無い読み取り箇所で、**廃止する11列のうち C・D・E を使う**。cloudflare 側だけを段1で切り替えても、
+    work/1008-hou がマージされると英字で読む箇所が1つ戻り、段2（C・D・E を名簿から）・段4（列を消す）の前提が崩れる
+- このため、**起票（手順1）・#327 へのコメント・実装には着手していない**（0章ゲートは着手前の確認のため）
+
+### 進め方の案（判断待ち）
+
+- 案A（推奨）: work/1008-hou のマージを先に済ませ、その後の origin/cloudflare を起点に段1を出し直す。`generate_houou_pages.py` の `PRO_EXTRA_QUERY` も段1の対象に含める
+- 案B: 段1を先に進め、`generate_houou_leagues.py`・`generate_houou_race.py` の衝突は work/1008-hou のマージ時に解く（指示文に解き方を書く）。`generate_houou_pages.py` の読み取りは work/1008-hou 側で見出しで読む形に直してからマージする
+- 案C: 段1から `generate_houou_leagues.py`・`generate_houou_race.py` を外して進め、その2つと `generate_houou_pages.py` は work/1008-hou のマージ後に別の指示で切り替える（`check_leagues_dropped.py` は `generate_houou_leagues.PRO_QUERY` を借りるため一緒に外れる）
 
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1010-rdn
 - ログ: https://github.com/retroeater/mj/blob/work/1010-rdn/docs/logs/CHAT-1010-RDN-02.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1010-rdn
 - 確認用URL: なし
-- マージ: 未
-- issue: なし
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- マージ: 未（止まる条件に当たったため。ログと decisions も cloudflare へ入れていない）
+- issue: なし（親 issue は未起票、#327 へのコメントも未実施）
+- 判断が必要なこと:
+  - 0章ゲートで止まった: 未マージの work/1008-hou（#518、判断待ち）が `generate_houou_leagues.py` の「プロ」を読む関数（`main()`→`load()`）と `generate_houou_race.py` の同じ関数を変えており、さらに新しいファイル `generate_houou_pages.py` で「プロ」の A,B,C,D,E を英字で読んでいる（詳細と hunk は `## 経過`「0章ゲート」）。進め方を案A（work/1008-hou を先にマージしてから段1を出し直す。推奨）・案B・案C から選ぶ
+  - 雛形の行は揃っている（指摘なし）
+- 未確認の項目:
+  - work/1008-hou と段1の実際の衝突は、段1を実装していないため試していない（hunk の位置からの見込み）
 - エラー: なし
 
 <!-- guide-links -->
