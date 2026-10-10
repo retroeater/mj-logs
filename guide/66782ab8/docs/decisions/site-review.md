@@ -46,3 +46,15 @@
 - G5-07（`sitemap.xml`・`sitemap-pages.xml` の冒頭コメントの件数が古い）は、houou/（#518）の公開の issue で sitemap を触るときに直す
 - CHAT-1009-SWP-03 の起票で自動で作られたラベル「対象: title」は残す
 - 作業中の回答: なし
+
+## 2026-10-09（CHAT-1009-SWP-07）
+
+- `rh_links.html` は転送（301）せず、404 にする
+- #531（`rh_links.html` の廃止）には今すぐ着手する（鳳凰戦の新ページ〈#518〉の公開を待たない）
+- 作業中の回答: なし
+
+## 2026-10-09（CHAT-1009-SWP-09）
+
+- work/1009-swp-rhl のプレビュー（CHAT-1009-SWP-07）を見て OK。cloudflare へマージしてよい（`rh_links.html` の廃止、#531）
+- `scripts/apply_page_meta.py` に残る `rh_links.html` の項目は、今は触らず、このスクリプトの扱いを決める #517 に任せる
+- 作業中の回答: なし
