@@ -72,18 +72,70 @@
 - 手順0: 「指示」欄の末尾は指示文の最後の行（「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」）と一致
 - 雛形の行: Chat-Ref・マージ・貼る時機・共通手順（作業ブランチの行も）がそろっている。ただし貼られた指示文では冒頭の各行が改行されずに1段落につながっていた（内容は欠けていない）
 
+- 雛形の行（追記）: 各行はそろっている。冒頭の行が改行されずにつながって貼られていたことは「判断が必要なこと」には書かない（内容は欠けていない）
+
+### 手順1: 確かめ
+
+- #514: Open。コメントは CHAT-1007-PHT-09 の着手中（完了済みのセッション）と結果・決定の3件で、他セッションの着手中は無い。着手中のコメント: https://github.com/retroeater/mj/issues/514#issuecomment-6093087536
+- `git branch -r --no-merged origin/cloudflare`（`work/1010-xap` 以外）: `origin/work/1008-hou`（`scripts/tests/test_houou_pages.py`）・`origin/work/1009-swp-526`（`scripts/tests/test_jpml_pros.py`）。どちらも `collect_saikyo_images.py`・`check-image-links.yml`・`workers/scheduler/` を変えていない → 重なりなし
+- 今の実装と参照（切り替え前）:
+  - `scripts/collect_saikyo_images.py`: `resolve(chrome, handle)`（Chromium で `x.com/<handle>/photo` を `--dump-dom`）、`find_chrome()`（`CHROME_BIN`・候補のパス）、`classify_page()`・`describe_run()`・`chrome_version()`（Chromium 用の診断）、`resolve_test(handle)`、`main()` の `--resolve-test`
+  - `.github/workflows/check-image-links.yml`: 入力 `saikyo_resolve_test`、ステップ「ランナーのChromeでX IDを1つだけ解決する(確かめ用)」
+  - `scripts/tests/test_collect_saikyo_images.py`: `classify_page`・`describe_run`・`resolution_summary`・`write_json` のテスト
+  - 文書: docs/notes/saikyo-page-design.md（「7.」の `collect_saikyo_images.py` の節）、docs/notes/static-generation.md（`check-image-links.yml` と `collect_saikyo_images.py` の行）
+  - ほかに `import collect_saikyo_images` している所・`CHROME_BIN` を使う所は無い（`resolve(` の他のヒットは `names.py` の `book.resolve()` で無関係）
+- Secret の名前の一覧: REST の `/actions/secrets` はセッションのプロキシが拒否（「Access to this GitHub Actions path is not permitted through this proxy.」）。代わりにワークフローが参照する Secret を数えた: `ANTHROPIC_API_KEY`・`GCP_SA_KEY`・`GSC_SERVICE_ACCOUNT_JSON`・`LIVE_SHEETS_SA_KEY`・`MJ_LOGS_TOKEN`・`RAKUTEN_ACCESS_KEY`・`RAKUTEN_APPLICATION_ID`・`YOUTUBE_API_KEY`（変更前）。`X_BEARER_TOKEN` が登録されていることは、手動実行のログで環境変数が `***` に伏せられたことで確かめた（値の無い Secret は空文字になり伏せられない）
+- X・Twitter の API の鍵を使う所: コード（scripts・workflows・workers）に無い（`twitter` のヒットは列名・メタタグ・アイコンだけ）。古いアプリのトークンを再生成して困る所は、リポジトリの中には無い
+
+### 手順1: 切り替え（コミット d126d553・1d96ffe5）
+
+- `resolve(handle, token)`: `GET https://api.x.com/2/users/by/username/<X ID>?user.fields=profile_image_url`（ヘッダ `Authorization: Bearer`）。`profile_image_url` の `_normal` 等を `_400x400` に置き換え、`_400x400`・`_200x200` を HEAD で確かめる（どちらかが 200 でなければ「解決したURLが取得できない」）
+- 状態: アカウントなし・凍結（errors の type が `resource-not-found`、または detail に suspended / not find）→「解決不可(アカウントなし)」。既定のアイコン →「解決不可(既定のアイコン)」。401 → 認証に失敗。402、または 403・429 で本文に credit / usage cap → クレジット切れ。429 → レート制限。ほかは「X API のエラー(HTTP <状態> <errors の種類>)」。接続できない →「X API に接続できない(<例外名>)」
+- 認証の失敗・クレジット切れ・レート制限のあとは、残りを呼ばずに同じ状態にする。1回の上限 `API_CALL_LIMIT = 30`（超えた分は「上限で未解決」）。トークンが無いときは呼ばず「未解決(X API のトークンが無い)」で、検知の結果と「自動解決は働いていません」の1行は出る
+- Chromium の起動・`CHROME_BIN`・Chromium 用の診断（`find_chrome`・`classify_page`・`describe_run`・`chrome_version` と目印の正規表現）を消した。`--resolve-test` と入力 `saikyo_resolve_test` は残し、診断に HTTP の状態・errors の種類・detail（最上位の reason・detail・required_enrollment も。client_id は出さない）・得た URL を出す。`--resolve-test` はトークンが無ければ終了コード1
+- `X_BEARER_TOKEN` は、スクリプトを動かす2つのステップ（確かめ用・選手写真を確認）の `env` にだけ渡す
+- テスト: `test_collect_saikyo_images.py` の Chromium のテストを、応答の見本による API のテストに置き換えた（成功・拡張子の大文字・アカウントなし・凍結・既定のアイコン・401・クレジット切れ・usage cap・レート制限・HTTP 500・403 client-forbidden・接続失敗・想定外の URL・解決した URL の 404・トークンが出ない・診断の errors / reason・トークン無し・上限超え・クレジット切れで中止・アカウントなし・ハンドルなし・解決の行）。直す前のコードでは、新しい名前（`API_CALL_LIMIT` など）が無くテストのモジュールの読み込みで失敗する（通らない）ことを確かめた
+- `python3 -m unittest discover -s scripts/tests`: 686件 OK（直す前は 675件。テストのファイル内は 17件 → 28件）
+
+### 手順2: 日次にする（未マージ）
+
+- `workers/scheduler/schedule.json` に `check-image-links.yml` 毎日 04:30 を足した（04:00 update-live-channel〈10/9 は 04:05 に終了〉・04:15 sync-dojo-calendar・04:20 delete-merged-branches の後）。表を変える前の `origin/cloudflare` の表は3行で、未マージのブランチで `workers/scheduler/` を変えているものは無い
+- `check-image-links.yml`: 入力 `scheduled`（真偽）と `run-name`（`[scheduled] 最強戦の選手写真のリンク切れ検知`）を足した。ジョブ `check` は `scheduled` でも `saikyo_resolve_test` でも動かない。ジョブ `saikyo` は予約実行（`schedule`、週1）では動かない（毎日 Worker から）。手動実行で入力なしなら今までどおり両方動く。確かめ用の実行でジョブ check が動かなくなるのは変更点（10/7 は check が #352 を書き換えていた）
+- `workers/scheduler/test/scheduler.test.mjs` の表の行数のテストを3行 → 4行にし、04:30 の回に `check-image-links.yml` を起動することを足した。`node --test 'workers/scheduler/test/*.test.mjs'`: 25件 pass
+- 月の実行時間の見込み: 直近の週次（run 37234274297、10/5）でジョブ saikyo は 67秒（解決の Chromium は全件失敗で各8〜9秒だったころ）。API の解決は1件1秒以下なので、1回 1〜2分。ジョブ単位で分に切り上げて 2分 × 31日 = 月 62分。リポジトリは private。この run の `billable` は 0 ms（無料枠の内）。2コアの Linux の単価（$0.006〜0.008/分）で無料枠を超えたとしても月 $0.4〜0.5 で、10月の予算 $10 を超えない
+- X API の費用の見込み: 呼ぶのは 404 になった選手だけ（上限30件/日）。直近の切れが数件なら1日数件 × $0.010
+
+### 手順2: 手動実行（work/1010-xap）
+
+| run | コミット | X ID | HTTP | 診断 | `_400x400` | `_200x200` | トークン |
+|---|---|---|---|---|---|---|---|
+| 38019300161（12:05 JST、11秒） | d126d553 | 104307 | 403 | errors=['client-forbidden']（reason は出していなかった） | 得られず | 得られず | 出ていない（env は `***`、診断に無い） |
+| 38019398367（12:06 JST） | 1d96ffe5 | 104307 | 403 | reason=client-not-enrolled、detail=「When authenticating requests to the X API v2 endpoints, you must use keys and tokens from a developer App that is attached to a Project. You can create a project via the developer portal.」、required_enrollment=Appropriate Level of API Access | 得られず | 得られず | 出ていない |
+
+- 1回目は理由が読めなかったため、診断に最上位の reason・detail を出す直し（1d96ffe5）を入れ、同じ X ID でもう1回だけ動かした（指示の「1回ずつ」を超える1回。理由を平野さんに伝えるため）
+- 401 ではないのでトークンそのものは通っている。X は、このトークンのアプリが「プロジェクトに入っていない」か、プロジェクトに X API v2 を使える利用の登録（従量課金の有効化など）が無いと判定している。指示文の前提「既存のアプリ retroeater-mj（プロジェクト mj）」と食い違う
+- **止まる条件「2件のどちらかが解決できない」「認証が失敗した」に当たる。マージしない。** momonga_211 は、アプリの単位のエラーで同じ結果になるため動かしていない。最強戦の検知の通しの実行もしていない（所要時間・API を呼んだ件数は未計測）
+- 文書（saikyo-page-design.md・static-generation.md・scheduler-worker.md）と常設 issue の本文は、マージしないため直していない。docs/decisions/saikyo.md には決定を足した（「未マージ」と書いた）
+- 手順3（シートへの自動書き込みの制約の調査）は、中断のため行っていない
+- #514 に中断のコメント: https://github.com/retroeater/mj/issues/514#issuecomment-6093153960
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1010-xap
 - ログ: https://github.com/retroeater/mj/blob/work/1010-xap/docs/logs/CHAT-1010-XAP-02.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1010-xap
-- 確認用URL: なし
-- マージ: 未
+- 確認用URL: なし（変えたのはスクリプト・ワークフロー・Worker の表で、ページは変わらない）
+- マージ: 未（止まる条件に当たった）
 - issue: #514
-- 判断が必要なこと: なし
-- 未確認の項目: なし
-- エラー: なし
+- 判断が必要なこと:
+  - X API が HTTP 403（reason=client-not-enrolled、「developer App that is attached to a Project」）を返す。平野さんに X の開発者コンソールで、アプリ「retroeater-mj」がプロジェクト「mj」に入っているか、プロジェクトで X API v2 の利用（従量課金）が有効かを見てもらい、直したら Bearer Token を再生成して Secret `X_BEARER_TOKEN` を入れ直す必要がある（アプリをプロジェクトに入れた後はトークンの再生成が要ることがある）。直った後に、この指示の続き（手動実行2件 → 通しの実行 → 文書 → マージ → 手順3）を出すか
+  - 手順3（シートへの自動書き込みの制約の調査）は未着手。続きの指示で手順2と一緒に行うか、先に単独で行うか
+- 未確認の項目:
+  - 成功の応答の形（`profile_image_url` の大きさの表記・拡張子）、アカウントなし・凍結・クレジット切れの実物の応答（テストは見本の形で、実物では確かめていない）
+  - 最強戦の検知の通しの実行の所要時間と API を呼んだ件数
+  - クラウドセッションから api.x.com に届くか（試していない。手動実行はランナーで行った）
+- エラー: X API の user lookup が HTTP 403 client-forbidden（reason=client-not-enrolled）。run 38019300161・38019398367
 
 <!-- guide-links -->
 ---
