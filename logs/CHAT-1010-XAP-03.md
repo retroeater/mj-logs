@@ -95,28 +95,94 @@ CHAT-1010-XAP-02 で止まった X API への切り替え・日次化を、403 �
 - テスト: `python3 -m unittest discover -s scripts/tests` 686件 OK、`node --test` 25件 pass（文書のコミット 5b5500c1 の後）
 - 変えたファイル（`git diff --name-only origin/cloudflare...HEAD`）: check-image-links.yml・collect_saikyo_images.py・そのテスト・workers/scheduler/ の表とテスト・docs/ だけ
 
+### 手順2: マージ
+
+- push 直前に再 fetch し、`origin/cloudflare` が RDN-01 の docs で進んでいたため merge で取り込んだ（`docs/decisions/pros.md`・`docs/logs/CHAT-1010-RDN-01.md` だけ。衝突なし）。`git merge-base --is-ancestor origin/cloudflare HEAD` を確かめて `git push origin work/1010-xap:cloudflare`（74fcb928..237592ff）
+- マージ後の check-run（237592ff）: 「Workers Builds: mj」success・「Workers Builds: mj-scheduler」success・`check` success
+- 最初の Worker からの起動は 2026-10-11 04:30 JST の予定（この指示では確かめていない）
+
+### 手順3: シートへの自動書き込みの制約（調査のみ、実装しない）
+
+#### 書き込み先と生成の読み方
+
+| 直す先 | スプレッドシート（呼び名） | 生成の読み方 | 列の指し方 |
+|---|---|---|---|
+| 「プロ」J列 | 正本（`generate_jpml_pros.SPREADSHEET_ID`。最強戦の「最強戦」タブ・jpml_pros と同じブック） | `load_name_book()` が gviz の `SELECT A,I,J WHERE Y = "Y"`（名前・X ID・X画像）で読む | 列の文字 J で固定（見出しではない） |
+| 「連盟プロ以外」X画像URL | /live 用スプレッドシート（docs/notes/live-channel-write.md の「旧シート」。`lib/live.SPREADSHEET_ID`） | `fetch_records()` が見出し（名前・所属団体・所属補足・X ID・X画像URL）で読む | 見出し「X画像URL」の列（位置は見出しから探す） |
+
+- 2つは**別のスプレッドシート**。「プロ」は旧シートではなく正本にある（指示の前提「旧シート側にあるとみられる」は「連盟プロ以外」だけ当たる）
+- 同じ写真の URL は、最強戦だけでなく jpml_pros・/live・title など正本と「連盟プロ以外」を読むすべてのページに出る
+
+#### 行・列を一意に指す方法
+
+- gviz は行番号を返さない。書くときは Sheets API で読み直して位置を決める必要がある
+- 案ア（行番号）: `values.get`（`sheets_write.get_values()`）でタブ全体を読み、「名前が一致し、かつ写真の列が壊れた URL と完全一致」の行を探して `update_cells()` で1セルを書く。読んでから書くまでに平野さんが行を挿入・並べ替えると、別の行に書くおそれがある（書く直前に1セルを読み直して一致を確かめても、間の数百ミリ秒の競合は残る）
+- 案イ（推奨。値で置き換える）: `spreadsheets.batchUpdate` の `findReplace`（`find` = 壊れた URL、`replacement` = 新しい URL、`matchEntireCell: true`、`searchByRegex: false`、`range` = そのタブのその1列〈`sheetId` と列の位置〉）。行番号を使わず、サーバの側で「壊れた URL と完全に一致するセル」だけを置き換える。応答の `occurrencesChanged` で置き換えた件数が分かる（1件を期待し、0 なら平野さんが先に直した、2以上なら同じ URL が複数行にある）。列の位置は「プロ」は J、「連盟プロ以外」は書く直前に見出し行を読んで決める
+- どちらも、表の中の別の列・別の行の値は変えない（案イは一致しないセルに触れない）
+
+#### 平野さんの手入力と同時に書いたとき
+
+- Sheets にセル単位のロックは無い。API の書き込みと画面の編集は後勝ち
+- 案イなら、平野さんがすでにそのセルを新しい URL に直していれば一致せず 0 件で終わる（上書きしない）。平野さんがそのセルを編集中に書き込みが入ると、画面の確定で平野さんの値が後から書かれる（平野さんの値が残る）
+- 書くのは毎日 04:30 JST で、平野さんの作業時間とはふつう重ならない
+- 置き換えたセルは版の履歴（変更履歴）にサービスアカウントの名前で残る
+
+#### 権限・共有・Secret の案
+
+| 案 | サービスアカウント | 平野さんの手作業 | 良い点 | 気になる点 |
+|---|---|---|---|---|
+| A: 既存を使う | `live-channel-writer`（Secret `LIVE_SHEETS_SA_KEY`） | 正本と /live 用スプレッドシートを、このサービスアカウントに「編集者」で共有する（/live 用は UT-12 の試作で共有したことがあり、今も共有済みかは要確認）。Secret の追加は無い | 手作業が共有だけ。GCP の作業が無い | docs/notes/live-channel-write.md の「既存のサービスアカウントを用途の違う処理に使い回さない」に反する（書き込みが誰のものか版の履歴で見分けにくい）。鍵が漏れたときに書ける先が、3層・予定表に加えて正本と /live 用の全タブに広がる |
+| B: 別に作る | 例 `photo-url-writer`（Secret 例 `PHOTO_SHEETS_SA_KEY`） | live-channel-write.md の手順2・4・5と同じ: 同じ GCP プロジェクトでサービスアカウントを作る（ロールなし）→ JSON の鍵を作る → Secret に登録 → 正本と /live 用スプレッドシートを「編集者」で共有。Sheets API は有効化済み | 用途が分かれ、版の履歴で見分けられる。鍵の影響の範囲が写真の2タブのブックに限られる。今の規則に合う | 手作業が多い（5〜10分）。鍵が1本増え、差し替えの手間も増える |
+
+- どちらの案も、共有はブック単位なので、サービスアカウントは正本・/live 用の**全タブ**を編集できるようになる。狭めたいときは、平野さんが「保護されている範囲」で「プロ」J列・「連盟プロ以外」X画像URL 列以外（または他のタブ）を「自分のみ」に保護する（所有者の平野さんの編集は妨げない）。任意の追加の安全策
+- 正本・/live 用の所有者が Workspace（ryoei.net）のアカウントなら、外部共有の制限で共有できないことがある（live-channel-write.md 手順4の注記と同じ）
+- ワークフローの側: ジョブ `saikyo` に `google-github-actions/auth` のステップ（鍵を読むのはそのステップだけ）を足し、書き込みのステップにだけ ADC を渡す
+
+#### `WRITABLE` を広げるときの安全策
+
+- `WRITABLE`（`clear_and_write`・`append_rows`・`update_cells`・`delete_rows` が見る）には足さない。正本と /live 用のタブを足すと、丸ごと置き換え・行の削除の関数も通ってしまうため
+- 別の許可の一覧（例 `REPLACEABLE = {(正本, "プロ", "J"), (/live 用, "連盟プロ以外", "X画像URL")}`）と、それだけを見る関数（例 `replace_exact(spreadsheet, sheet, column, old, new)`。中身は上の案イ）を作る
+- 関数の中で、要求を送る前に次を確かめて外れたら送らない: 先と列が `REPLACEABLE` にある／`old`・`new` が `https://pbs.twimg.com/profile_images/…_400x400.<拡張子>` の形／`old` が当日の検知で `_400x400`・`_200x200` のどちらかが取得できなかった URL／`new` の2サイズが HTTP 200／`old != new`
+- 1回の実行で書く件数の上限（例 API の上限と同じ30件）を置き、`occurrencesChanged` が 2 以上のときは issue の状態に出す（同じ URL が複数行）
+- 書いた結果（選手・タブ・置き換えた件数）は検知の issue の表の「状態」に出す（例「シートを直した」）。書かなかった理由（0件・上限・認証の失敗）も状態に出す
+
+#### 書いた後の全ページの再生成
+
+- 案1（推奨）: 1件以上書いた日だけ、check-image-links.yml に `regenerate-page.yml` を `workflow_call`（`target_page: all`、`secrets: inherit`）で呼ぶジョブを足す（update-live-channel.yml の `regenerate` ジョブと同じ形）。呼ぶジョブには `contents: write` が要る（今の check-image-links.yml は最上位で `contents: read`）。push 先は実行ブランチ（cloudflare）で、Workers Builds が本番に出す
+- 案2: 書いた日だけ `regenerate-page.yml` を `workflow_dispatch` で起動する（GitHub の API。`actions: write` が要る）
+- 範囲を all にするのは 2026-10-06（CHAT-1006-PHT-01）の決定と同じ（写真は正本・「連盟プロ以外」を読むすべてのページに出る）
+- 04:30 の起動の後に再生成が続くので、06:00 の朝の確かめまでに終わるか（再生成 all の所要）は実装の時に測る。04:00 の update-live-channel の再生成（04:05 ごろに終わる）とは重ならない見込み
+- 書いた翌日の検知は、直ったシートを読むので同じ選手は出ない（#514 の閉じる条件の案「写真が切れた日次の検知で自動で直ったことを確かめる」はこれで確かめられる）
+- #514 へのコメント: https://github.com/retroeater/mj/issues/514#issuecomment-6093333707
+- CHAT-1010-XAP-02 のログの状態は「判断待ち / 続き: CHAT-1010-XAP-03」に直した（着手時のコミット 4ca9ce26）
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1010-xap
-- ログ: https://github.com/retroeater/mj/blob/work/1010-xap/docs/logs/CHAT-1010-XAP-03.md
+- 状態: 判断待ち
+- ブランチ: work/1010-xap（cloudflare へマージ済み）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1010-XAP-03.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1010-xap
-- 確認用URL: なし
-- マージ: 未
-- issue: #514
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 確認用URL: なし（ページは変わらない）
+- マージ: 済（237592ff）
+- issue: #514（閉じない）、#534（検知の常設 issue。通しの実行で作られた）
+- 判断が必要なこと:
+  - シートへの自動書き込みに使うサービスアカウント: 案 A（既存の `live-channel-writer` を使い回す。共有だけ）か、案 B（新しく作る。サービスアカウント・鍵・Secret・共有）か。どちらでも正本と /live 用スプレッドシートの2つを「編集者」で共有する手作業が要る
+  - 位置の指し方を案イ（`findReplace` で壊れた URL と完全一致するセルだけを置き換える）にしてよいか
+  - 共有したブックで写真の列以外を「保護されている範囲」で守るか（任意）
+- 未確認の項目:
+  - Worker からの最初の起動（2026-10-11 04:30 JST）が success になるか
+  - X API のアカウントなし・凍結・クレジット切れの実物の応答の形（テストは見本の形）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 74fcb928）: https://github.com/retroeater/mj-logs/tree/main/guide/74fcb928
+ガイド文書（この版を写した時点の最新、mj 237592ff）: https://github.com/retroeater/mj-logs/tree/main/guide/237592ff
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/74fcb928/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/74fcb928/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/74fcb928/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/74fcb928/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/74fcb928/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/74fcb928/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/237592ff/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/237592ff/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/237592ff/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/237592ff/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/237592ff/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/237592ff/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b813da90.md
