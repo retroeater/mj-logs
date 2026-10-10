@@ -117,28 +117,107 @@
 
 前提の読みと違う結果のものは無い。(A)(B) を外し、(C) を残す。
 
+### 2. 直したこと
+
+コミット: d39e5a06（コード）・28d6ac55（生成物）・2f9b1026（文書）
+
+- (a) `scripts/generate_saikyo_pages.py`: `build_filterbar_html()` から `page_url`・`page_title` の引数とページの共有ボタンを外した。トップは共有ボタンが無くなるため、`assets/share.js` の読み込み（`extra_head` をトップと年度ページで分けた）と `SHARE_STATUS_HTML`（トースト）も外した。年度ページは対局の共有のために両方残す。対局の共有ボタンの HTML・動きは変えていない。アクセシビリティ: `aria-label="このページを共有"` のボタンが無くなっただけ（5章は対局の共有ボタンだけを書いていたので変更なし）
+  - `style.css` にページの共有ボタン専用の規則は無かった（形は共通部品の `.mj-share-btn-round`）。変更なし
+  - `assets/saikyo.js` は先頭のコメントの「対局・ページの共有ボタン」を「対局の共有ボタン」に直しただけ
+- (b) #428: `generate_saikyo_pages.py` に `BODY_CLASS = "mj-saikyo-page"` と `add_body_class()`（生成した HTML の `<body` が1つであることを確かめてクラスを足す）を足し、トップ・年度ページの出力に通した。`style.css` の `body:has(.mj-saikyo-year, .mj-saikyo-top)`（10セレクタ）を `body.mj-saikyo-page` に置き換えた（詳細度は同じ (0,1,1)）。`html:has(...)` の `scroll-padding-top`（3セレクタ）はそのまま
+  - `scripts/lib/page.py`（#428 の案A' の 1.）は変えていない。全ページ共通の部品で、止まる条件に当たるため、生成スクリプトの中で足す形にした
+- テスト: `scripts/tests/test_title_years.py` の `test_no_share_button_on_title_pages` が、共通部品をまだ使うページの目印に `saikyo/index.html` を見ていて失敗した（トップから共有ボタンを外したため）。`saikyo/2025.html` に替えた。`python3 -m unittest discover -s scripts/tests` は 675 件 OK
+
+#### 生成物の差分
+
+`python3 scripts/regenerate.py saikyo_pages`。先に origin/cloudflare の生成スクリプトで生成し直したところ、`saikyo/`・`sitemap-saikyo.xml` に差分は出なかった（今朝のシートの更新は c309823b〈2026-10-10 の Actions の再生成〉で既に入っている）。そのうえで新しいスクリプトで生成した差分（17ファイル）:
+
+| 分類 | 内容 | 件数 |
+|---|---|---|
+| (a)(b) によるもの | `<body data-search="off">` → `<body class="mj-saikyo-page" data-search="off">` | 17ファイル |
+| (a)(b) によるもの | 固定バーの検索のまとまりから「このページを共有」のボタン（`.mj-share` の dropdown）を削除 | 17ファイル |
+| (a)(b) によるもの | トップだけ `<script defer src="../assets/share.js">` と `<p id="mj_share_status" …>` を削除 | 1ファイル |
+| シートの変化によるもの | なし | 0 |
+| 写真の揺らぎ（`_400x400`・srcset） | なし | 0 |
+
+saikyo/ 以外の生成物・ページに差分は無い。`sitemap-saikyo.xml` も変わらない。
+
+#### 計測（セッションの headless Chromium 1194・Playwright 1.56.1・`file://`）
+
+変更前 = origin/cloudflare（b813da90）の `saikyo/`・`style.css`・`assets/`、変更後 = 作業ツリー。スクリプトは scratchpad の `measure.js`（rAF ごとに `body` の `padding-top` を記録し、`layout-shift` を合計する）。
+
+**padding-top の時系列（390px・2026年度）**:
+
+- 変更前: first-paint 188ms。t=87ms に `<body>` があって 0px、t=198ms（`main#main` あり、first-paint の後）も 0px、t=481ms に 171px。**修正前のコードで、初回の描画の時点の 0px を再現した**
+- 変更後（6回）: `<body>` が現れた最初の rAF（t=23〜48ms）から 171px。first-paint（48〜328ms）の時点はすべて 171px。0px の回は無い
+- トップ 390px: 変更後は t=26ms から 171px（first-paint 48ms）。変更前は t=47ms に 171px（この回は 0px の rAF 無し）
+
+**CLS（交互に各10回。A=変更前、B=変更後）**:
+
+| ページ・幅 | A 0でない回数 / 中央値 | B 0でない回数 / 中央値 | `<body>` があって padding-top 0px の rAF の数（10回分） A → B |
+|---|---|---|---|
+| 2026年度 390px | 0/10 / 0.0000 | 0/10 / 0.0000 | 0,0,0,1,1,0,0,0,0,0 → すべて0 |
+| 2018年度 390px | 0/10 / 0.0000 | 0/10 / 0.0000 | 0,2,2,1,0,0,0,0,0,0 → すべて0 |
+| 2026年度 1100px | 0/10 / 0.0000 | 0/10 / 0.0000 | 0,1,0,1,1,2,2,0,0,0 → すべて0 |
+| 2018年度 1100px | 0/10 / 0.0000 | 0/10 / 0.0000 | 0,1,2,0,0,0,2,2,1,1 → すべて0 |
+| トップ 390px | 0/10 / 0.0000 | 0/10 / 0.0000 | 0,0,0,2,2,2,0,2,1,1 → すべて0 |
+| トップ 1100px | 0/10 / 0.0000 | 0/10 / 0.0000 | 0,2,2,0,1,1,2,0,1,2 → すべて0 |
+
+- この環境では変更前も CLS が 0 で、CLS では差を確かめられなかった（rAF で 0px が見えても、その間に本文の描画が進まなかった）。当たり外れの判定は padding-top の時系列による（変更後は 0px の回なし）
+- 本番の CLS（#428 の完了の条件）はマージ後に測る
+
+**固定バーの寸法（変更前 → 変更後。2026年度・トップとも同じ値）**:
+
+| 幅 | バーの高さ | navbar | body の padding-top | 入力欄の幅 | 横スクロール |
+|---|---|---|---|---|---|
+| 390px | 115 → 115（2行） | 56 | 171 → 171 | 274 → 328 | なし |
+| 459px | 61 → 61（1行） | 56 | 117 → 117 | 179 → 233 | なし |
+| 460px | 61 → 61 | 56 | 117 → 117 | 180 → 234 | なし |
+| 1100px | 61 → 61 | 80 | 141 → 141 | 680 → 734 | なし |
+
+- ページの共有ボタン（44px＋間隔10px）の分、入力欄が 54px 広がっただけで、2行になる境目と高さは変わらない。CSS のフォールバックは変えない
+- ただし、**この環境の境目は 459/460px ではなく 435/436px**（435px 以下が2行。変更前後で同じ）。年度プルダウンの幅がフォールバックのフォントで 154px のため（154＋10＋240＋左右の余白32＝436）。文書の 459px（CHAT-0921-SG-10）はプルダウンが広い環境の値と見られる。436〜459px ではフォールバック（115px）が実際（61px）より大きく、JS の適用時に本文が上がる。今回の変更とは関係しないため直さず、saikyo-page-design.md に注記した（判断が必要なことに書く）
+- JS 無効（390・460・1100px、トップ・2026年度）: 本文の先頭がバーの下端より下にある（変更前と同じ値）
+
+### 3. issue・文書
+
+- saikyo_mens.html の廃止の issue: 検索語「saikyo_mens」で **#442（Open、「saikyo_mens.html を廃止し、代わりのページを検討する」、2026-09-27 起票、コメント1件）** が見つかった。起票しない。ほかの検索語（「読者アンケート 最強戦 廃止」）では0件。ページの題名は「読者アンケート | 麻雀最強戦 | ryoei.pro」（「最強戦 男子」ではない）
+  - #442 の本文は「廃止予定」（2026-09-27 の決定）。今回の決定は「廃止は保留」。#442 に今回の決定をコメントした（ラベルは変えていない）
+- #530 に最強戦の分の結果（表）をコメントした。閉じない
+- #428 に saikyo/ の分の実装と計測、残り（本番の計測・title/・`/live`・表のページの洗い出し・#382・「1→10」の 59px）をコメントした。閉じない
+- 文書: `docs/notes/saikyo-page-design.md`（3章のトップの固定バーと共有、残っている確認事項の最強位を「平野さんが確認済み（2026-10-10）」、4章のページの共有ボタン・navbar の固定の当て方・上余白と #428・境目の注記）、`docs/handover.md`「共有ボタン」の項目、`docs/decisions/saikyo.md`（決定）
+- 未マージのブランチとの衝突（`git merge-tree`）: `origin/work/1008-hou` は衝突なし。`origin/work/1010-xap` は `docs/decisions/saikyo.md` の末尾の追記どうしで衝突する（後からマージする側で、両方の節を残して解く）
+
 ## 報告
 
-- 状態: 対応中
+- 状態: 判断待ち
 - ブランチ: work/1010-sks
 - ログ: https://github.com/retroeater/mj/blob/work/1010-sks/docs/logs/CHAT-1010-SKS-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1010-sks
-- 確認用URL: 未
-- マージ: 未
-- issue: #530、#428
-- 判断が必要なこと: 未
-- 未確認の項目: 未
+- 確認用URL: プレビューあり（URL は最終報告）。28d6ac55 の「Workers Builds: mj」は success。プレビューのトップ・2026年度・`?match=` 付きの2026年度が 200 を返し、`saikyo/2026.html` と `style.css` が手元の生成物と一致することを確かめた
+- マージ: 未（平野さんの判断待ち）
+- issue: #530（最強戦の分をコメント、Open のまま）、#428（saikyo/ の分をコメント、Open のまま）、#442（saikyo_mens.html の廃止の既存 issue。起票せず、今回の決定をコメント）
+- 判断が必要なこと:
+  - マージの可否（プレビューのトップ・年度ページ〈2026〉・`?match=` 付きの年度ページ）
+  - #428 は `scripts/lib/page.py` を変えず、生成スクリプトの中で `<body>` にクラスを足した（`add_body_class()`）。#428 の案A' のとおり `render_content()` に口を足す形へ移すかどうか（移すなら全ページの再生成と差分の確認が要る）
+  - 固定バーが2行になる境目は、セッションの環境では 435/436px（文書と CSS は 459/460px）。436〜459px ではフォールバックが実際より 54px 大きい。今回の変更の前後で同じで、フォントに依存する。実機のフォントで測り直すか、このままにするか
+  - #442 の本文は「廃止予定」（2026-09-27）のまま。今回の「保留」に合わせて本文・ラベル（「状況: 保留」など）を変えるか
+  - `origin/work/1010-xap`（未マージ）とは `docs/decisions/saikyo.md` の末尾の追記どうしで衝突する。後からマージする側で両方の節を残して解く
+- 未確認の項目:
+  - 実機（iOS Safari など）での表示と、ブラウザの共有ボタンが渡す URL（canonical を使うブラウザがある）
+  - 本番での CLS（#428 の完了の条件。マージ後）。セッションの環境では変更前も CLS が 0 で、CLS の差は出なかった（判定は padding-top の時系列による）
+  - #428 のコメントにある「1→10」で写真が 59px ずれる件
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 74fcb928）: https://github.com/retroeater/mj-logs/tree/main/guide/74fcb928
+ガイド文書（この版を写した時点の最新、mj 37de7b17）: https://github.com/retroeater/mj-logs/tree/main/guide/37de7b17
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/74fcb928/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/74fcb928/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/74fcb928/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/74fcb928/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/74fcb928/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/74fcb928/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/37de7b17/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/37de7b17/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/37de7b17/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/37de7b17/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/37de7b17/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/37de7b17/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b813da90.md
