@@ -69,6 +69,42 @@
 - 手順0: 「指示」欄の末尾は指示文の最後の行と一致。(1) CHAT-1010-XAP-07 の状態は「判断待ち」→ 末尾に ` / 続き: CHAT-1011-XAP-09` を足した（このコミット）。(2) `origin/work/1010-whs` は `origin/cloudflare` の祖先（入っている）。f55bb027 も祖先。(3) cloudflare の regenerate-page.yml の最新の実行は run 38067603258（push、052fc70c、2026-10-10 16:25 UTC）success。その前の f55bb027 の実行 38067428152 も success
 - 作業ブランチ: work/1010-xap はローカル・リモートとも b4da77e2。`origin/cloudflare` は祖先でない → ログの push の後に merge で取り込む
 - 雛形の行: Chat-Ref・マージ・貼る時機・作業ブランチ・共通手順がそろっている（冒頭がつながって貼られている点は前と同じ）
+- `origin/cloudflare` を merge で取り込んだ（6a15eef4。衝突なし、テスト OK）
+- #514 に他セッションの着手中コメントなし（直前は WHS-12 の伝言のコメント）。着手中のコメント: https://github.com/retroeater/mj/issues/514#issuecomment-6099837101
+
+### 手順1: 未マージのブランチとの重なり
+
+| ブランチ | scripts/・workers/・.github/ の変更 | 重なり |
+|---|---|---|
+| origin/work/1011-hou | `generate_houou_pages.py`・`lib/results.py`・テスト | `race_page.load_name_book()` を呼ぶ位置を動かすだけで、`generate_houou_race.load_name_book()` の中は変えていない → 重ならない |
+| origin/work/1009-swp-526・1011-aic・1011-swp-nav | なし | なし |
+
+（XAP-07 で重なった work/1010-whs は cloudflare に入っていた）
+
+### 手順1: 旧列を読む所（grep、cloudflare 6a15eef4 の時点）
+
+| 読む所 | 旧列 | XAP-04 の表との違い |
+|---|---|---|
+| `generate_jpml_pros.py`（`COLUMNS`） | 「プロ」XID・X画像・noteID・note画像・YouTubeID | 同じ（#536 で見出しで読む形になった） |
+| `generate_saikyo_pages.py`・`generate_houou_race.py`・`generate_books_pages.py`・`generate_live_pages.py`（`load_name_book()`） | 「プロ」XID・X画像、「連盟プロ以外」X ID・X画像URL | 同じ。`houou/` の `generate_houou_pages.py` は houou_race の `load_name_book()`・`profiles_for()` を通る（増えた読み手、経路は同じ） |
+| `check_saikyo_unregistered.py`・`sync_live_calendar.py`・`write_live_channel_candidate.py` | 上の `load_name_book()` を通す（名前の解決だけに使う） | 同じ |
+| `generate_title_pages.py` | 「プロ」XID・X画像・noteID、「連盟プロ以外」X ID・X画像URL | 同じ |
+| `lib/wayhome.py`（`generate_video_wayhome.py`・`generate_wayhome_episodes.py`） | 「プロ」XID・X画像 | **変わった**: noteID を読まなくなり（WHS の決定）、X画像を読むようになった（写真の確かめ `check_player_photos()`） |
+| `lib/birthdays.py`・`sync_dojo_calendar.py` | 「プロ」XID | 同じ |
+| `generate_jpml_test.py` | 「プロ」X画像 | 同じ |
+| `fetch_youtube_channels.py` | 「プロ」YouTubeID | 同じ |
+| `collect_saikyo_images.py`（検知） | `generate_saikyo_pages.load_rows()` を通す | 同じ |
+| `update_sns_book.py` | 旧列（写しの元と init の確かめ） | 今回は変えない（【1】の一覧の元。旧列を空にする指示で見直す） |
+
+- ブラウザの JS で「プロ」タブの SNS の列を読む所は無い（XAP-04 と同じ）
+
+### 手順1: 旧列と SNS ブックの食い違い（2026-10-11 01:45 JST、gviz で読んだ）
+
+- 元の一覧: 「プロ」1,099・「連盟プロ以外」765・計 1,864。【2】【3】とも 1,864 行で、元の名前はすべて【2】にある。【2】の状態は全行空（一覧に無い 0）、備考 0、足された列なし
+- **【2】の ID（X・note・YouTube）と旧列の食い違い: 0 件。** 平野さんの【2】への入力は無く、init の後に旧列の ID が直された行も無い → 【2】へ写すものは無い（写した件数 0）
+- 【3】の画像の URL と旧列の食い違い: X画像URL 30 件・note画像URL 0 件。30 件はすべて X API で取り直した行（【3】の X状態が「解決」28〈旧列の URL を置き換え 14・旧列が空だった 14〉・「アカウントなし」1〈旧列に URL があり【3】は空〉・「既定のアイコン」1〈旧列が空〉）。帰り道のチャットが旧列を【3】の値に直した武田雛歩は一致していた（食い違いに入らない）
+- 旧列が平野さんに直されて【3】と違う、という行は無かった → 【3】へ写すものも無い
+- 【4】手動補正は空（見出しも無い。gviz は「NO_COLUMN: A」で読めない）→ 見出しはこの後の SNS ブックの更新（作業ブランチの手動実行）で書く
 
 ## 報告
 

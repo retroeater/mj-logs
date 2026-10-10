@@ -107,6 +107,17 @@ Anthropic（platform.claude.com、support.claude.com）:
 - Haiku 5.5: `claude-haiku-5-5`。10万トークン以下の入力で 100万トークンあたり入力 $0.10・出力 $0.50（前提の料金は正しい）。structured outputs（`output_config.format`）に対応。adaptive thinking が既定で有効で、`temperature` 等は送らない（models/haiku-5-5/overview、about-claude/pricing、build-with-claude/structured-outputs）
 - Max の API クレジットは連携した組織のキー全部が同じ残高から使う（support の 17154008）
 
+### 4. grill（1問1答。回答は平野さん）
+
+- Q1 検索条件の形 → A: 決まった型から選ばせる（structured outputs で型と引数を返させる）。型は6つ: 鳳凰位の一覧・決勝の結果・選手の成績・リーグの顔ぶれ・記録の上位（ranking の9部門）・放送対局。数は結果の件数で答える。型に当たらなければ「答えられません」。型は週1回のまとめを見て足す
+- Q2 2つの「期」 → A: 項目を分ける（鳳凰戦の期 `term`、入会期 `entry`）。「N期生」「N期入会」は入会期、「第N期」等は鳳凰戦の期。曖昧なときは鳳凰戦の期として扱い、答えの冒頭に読み方を書く
+- Q3 入会期が在籍者だけ → A: 在籍者だけで答え、入会期を使った答えには「入会期が分かるのは在籍中の選手だけです」と添える。鳳凰位の期は title/houou/（決勝）を正にする
+- Q4 Worker の形 → B: 新しい Worker `mj-ask`（`workers/ask/`、ゾーンのルート `ryoei.pro/api/*`、Workers Builds の別プロジェクト）。`mj` は変えない。保存は D1 を1つ
+- Q5 データの置き場所 → A: 生成スクリプトが `workers/ask/data.json` に集めて書き、Worker が import する（公開対象は増えない）
+- Q6 時点と出典 → A: 使ったデータの分だけ、プログラムが答えの下に時点と出典のリンクを付ける（Claude に書かせない）
+- Q7 回数の数え方 → A: JST の暦日を鍵に D1 で原子的に数える（cron 不要）。IP は「日付＋Secret の塩」とのハッシュで当日だけ持ち、翌日の最初の問いで前日以前を消す。受け付けた問いは「答えられません」も数え、入力の検査で弾いた問いは数えない
+- Q8 記録の項目 → B: 日時（JST）・質問文・結果・Claude が選んだ型。答えの本文と、受け付けなかった問いは残さない
+
 ## 報告
 
 - 状態: 作業中
@@ -123,12 +134,12 @@ Anthropic（platform.claude.com、support.claude.com）:
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj f55bb027）: https://github.com/retroeater/mj-logs/tree/main/guide/f55bb027
+ガイド文書（この版を写した時点の最新、mj ce5677d0）: https://github.com/retroeater/mj-logs/tree/main/guide/ce5677d0
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f55bb027/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f55bb027/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f55bb027/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f55bb027/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f55bb027/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f55bb027/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a72aaab4.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce5677d0/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce5677d0/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce5677d0/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce5677d0/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce5677d0/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce5677d0/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/ce5677d0.md
