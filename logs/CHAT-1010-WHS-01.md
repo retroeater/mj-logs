@@ -95,18 +95,32 @@
   - #186: 「状況: 保留」のラベルを付け（REST）、理由をコメントした
 - 決定: `docs/decisions/wayhome.md` を新設（帰り道の共有ボタン・扱う範囲・G5-09・マージ）し README の一覧に1行。NVDA の保留は `site-review.md` に足した
 - マージ前: `git fetch origin cloudflare` で cloudflare は進んでおらず（116fea10）、`git merge-base --is-ancestor origin/cloudflare HEAD` は真。取り込み・衝突なし
+- マージ: fetch 直後に `git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめ、`git push origin work/1010-whs:cloudflare`（116fea10..81a53d18）
+- check-run（81a53d18）: 「Workers Builds: mj」success、check success、sync success、**regenerate failure**
+  - regenerate の失敗は今回の変更によらない: `scripts/lib/**` の変更で全ページの再生成になり、`resource_dictionary` で
+    「辞書」シートの見出しに `コメント` が無い（実際: カテゴリ・サブカテゴリ・よみ・単語・品詞）ため `ValueError` で止まった。セッションでも同じ失敗を再現した（シート側の変化。`generate_resource_dictionary.py` の `DICT_HEADERS` は今回触っていない）。
+    同じ主題の issue は無く、直す未マージのブランチも無い。前回の成功は a4e01b69（03:38Z）
+  - 影響: この回の再生成のコミット（sitemap の lastmod の導出を含む）が push されなかった。帰り道の2ページは作業ブランチで再生成済みなので本番の内容には影響しない。`sitemap-wayhome.xml` の lastmod は次に再生成が通るまで古いまま
+- 本番（`?v=` に未使用の値）: `/video_wayhome.html` 200・`mj-share-btn` 0・`share.js` 0、`/wayhome/atD2e-NgnKw.html` 200・0・0、
+  `/live/` 200・共有ボタン1・`share.js` 1、`/saikyo/2025.html` 200・共有ボタン18・`share.js` 1。`/style.css` に `mj-share-btn-hero` 無し。ブラウザでの見え方は確かめていない（プレビューも見ていない。決定のとおり）
+- #530 は閉じていない（live/ などが残る）。作業ブランチの削除はセッションからできない（docs/notes/cloud-sessions.md「ブランチの削除」）。マージ済みなので `delete-merged-branches.yml` に任せる
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1010-whs
-- ログ: https://github.com/retroeater/mj/blob/work/1010-whs/docs/logs/CHAT-1010-WHS-01.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1010-WHS-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1010-whs
-- 確認用URL: なし
-- マージ: 未
-- issue: #530
-- 判断が必要なこと: なし
-- 未確認の項目: なし
-- エラー: なし
+- 確認用URL: プレビューは見ていない（決定のとおり）。本番で `/video_wayhome.html`・`/wayhome/atD2e-NgnKw.html`・`/live/`・`/saikyo/2025.html` を curl で確認
+- マージ: 済（81a53d18）
+- issue: #530（本文の帰り道に印・表のコメント、閉じていない）、#283・#5（G5-09 の決定をコメント）、#186（状況: 保留・コメント）
+- 判断が必要なこと:
+  - マージ後の regenerate が、今回と無関係な「辞書」シートの見出しの変化（`コメント` 列が無い）で `resource_dictionary` の生成に失敗した。シートに列を戻すか、`generate_resource_dictionary.py` の `DICT_HEADERS` を変えるかの判断が要る（直すまで push 時・週次の全ページの再生成と sitemap の lastmod の導出が止まる）。issue は無い
+  - 前提の「G5-09 は #283・#160 にコメント」は実物では #283・#5 だった。#283・#5 に書き、#160 には書いていない
+- 未確認の項目:
+  - 帰り道のブラウザでの見え方（固定バー・ヒーローの操作列の並び）
+- エラー:
+  - regenerate の失敗（81a53d18、上の判断が必要なこと）
 
 <!-- guide-links -->
 ---
