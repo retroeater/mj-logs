@@ -121,7 +121,7 @@
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1010-RGN-03
 - ブランチ: work/1010-rgn（cloudflare へマージ済み）
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1010-RGN-02.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1010-rgn

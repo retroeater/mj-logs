@@ -137,6 +137,20 @@ HOU-08 の比較ページで平野さんが選んだ候補を本番の形にし�
 - 作業ブランチ: `origin/work/1008-hou` はリモートにあり、ローカルと一致（5ae8de6b）。`origin/cloudflare` は HEAD の祖先でないので、ログの push の後に merge で取り込む。`scripts/lib/pro_sheet.py` は cloudflare にある（`fetch_pros(headers, required, sort)` など）
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
 
+- 取り込み: `git merge origin/cloudflare` で `docs/decisions/houou.md` が衝突（こちらの HOU-07・HOU-08 の節と、cloudflare 側の「## 2026-10-10（CHAT-1010-RDN-05）」の節の追記どうし）。両方を残して解いた（85a85ab5）。解いた後: HOU-08 の節の後ろに「## 2026-10-10（CHAT-1010-RDN-05）」「- `houou_ranking.html`（旧方式）の名前検索が部分一致で…直さない」「- 「連盟プロ以外」に「山口哲也（17期）」を登録した（…）」が続く形。取り込んだ中にワークフローの変更（cloudflare 側のもの）があるが、この作業ではワークフローを触っていない
+- 取り込みの途中で `houou_pages` を一度生成した（merge の commit 前）。`houou/` に差分は出なかった
+- 誤って `git stash list` を含むコマンドを打ち、hook（git stash の禁止）に止められた。コマンドは実行されていない
+
+### 手順1 候補の採用・比較ページの削除・ベストとワースト・チップの名前・説明の削除・pro_sheet
+
+- 「プロ」タブ: `generate_houou_pages.py` の `load_profiles()` の列記号の読み方（`SELECT A,B,C,D,E WHERE Y = "Y"`）を `pro_sheet.fetch_pros((登録名, ソートキー, Last Name, First Name, 所属))` に替えた（在籍の絞りは `fetch_pros` の「表示」Y）。替えた後の生成で `houou/` に差分なし。順位変動の X の画像・ID は `generate_houou_race.py` の `profiles_for()`（`SELECT A,I,J WHERE Y = "Y"`、旧ページと共用）、リーグ推移の旧ページは `generate_houou_leagues.py` が列記号のまま。どちらも cloudflare 側でも #536 の置き換えの対象外のままなので、この指示では触っていない（報告に書いた）
+- 消したもの: 比較ページ4つ（`houou/compare.html`・`houou/players/compare.html`・`houou/ranking/compare.html`・`houou/leagues/compare.html`）、トップの T2・T3（見出しの帯を含む）、推移の K1・K3（ローソク・増減の棒、背景の帯）、部門の切り替えの B1〜B3（セレクトと「表示」ボタン、`.mj-houou-row`・`.mj-houou-select`・`.mj-houou-go`）、拡大時の字の F1・F2（`--lg-zoom-font`）、リーグの段の色の変数を個人成績でも使う設定。リーグ推移の比較ページは手順2で演出の比較として作り直す
+- 本番の形: トップは T1（アイコンつきの浮き上がりカード）、推移は K2（面グラフ）、ランキングは9部門のチップ（リンク。今の部門は塗りつぶし・`aria-current="page"`）、リーグ推移の拡大時の字は拡大の倍率に合わせる（全体 1倍〜2期で 1.6倍）
+- チップの名前: 通算・期平均・期最高・期浮き率・期連続浮き・節最高・節浮き率・節連続浮き・連続昇級（`aria-label` は正式な部門名。h1・title・description・表の見出しは正式名のまま）。チップの `href` は入口では `./…`、部門のページでは `../…`（最初の版は部門のページで相対パスがずれていたので直した）。`?division=<正式名>` で開かれたら、`aria-label` が一致するチップのページへ移す
+- 推移（K2）のベストとワースト: その期の得点のベストの期に暖色の星と「ベスト 40後 +278.8」、ワーストの期に寒色の下向きの印と「ワースト 34後 ▲113.8」（同点は新しい期）。今の旗は通算の最高なので残し、ラベルを「最高 +1124.3」にして分けた。ラベルは文字の幅を見積もって、グラフの端と先に置いたラベル・印に重ならない位置を上下に探す。ベストが通算の最高と同じ期（大久保隼人の 42前）は、星を旗の左に、ラベルを点の下に置く。SVG を 380×250 にして上下にラベルの余白を足した
+- リーグ推移: グラフの下の説明の1文を消した（選手がいない・見つからないときの案内は残す）。ページ下の説明文はそのまま
+- 手元の確かめ（390×844）: トップは T1 のカード4枚。個人成績の推移は白鳥翔・平野良栄・大久保隼人でベスト・ワースト・最高のラベルが重ならない（撮影で確かめた）。`houou/ranking/term-high/?division=連続昇級回数` → `promotion-streak/`、チップ「期平均」→ `total-per-term/`（title は「通算得点/期 | ランキング | …」）。リーグ推移の説明は空。JS のエラー 0
+
 ## 報告
 
 - 状態: 作業中
