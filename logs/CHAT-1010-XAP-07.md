@@ -65,17 +65,41 @@
 - 手順0: 「指示」欄の末尾は指示文の最後の行と一致。(1) CHAT-1010-XAP-06 の状態は「判断待ち」→ 末尾に ` / 続き: CHAT-1010-XAP-07` を足した（このコミット）。(2) cloudflare の regenerate-page.yml の最新の実行は run 38052717723（workflow_dispatch、40eea4b1、2026-10-10 12:38 UTC）success。その前の push の実行 38052579585 も success
 - 作業ブランチ: ローカル work/1010-xap（3e15fa62）は `origin/cloudflare` の祖先 → `git merge --ff-only origin/cloudflare` で 19111d74 へ
 - 雛形の行: Chat-Ref・マージ・貼る時機・作業ブランチ・共通手順がそろっている
+- #514 に他セッションの着手中コメントなし（最後は XAP-06 の結果のコメント）
+
+### 手順1: 未マージのブランチとの重なり（ここで止めた）
+
+`git branch -r --no-merged origin/cloudflare`（work/1010-xap を除く）で scripts/・workers/・.github/ を変えているブランチ:
+
+| ブランチ | 状態 | 変えているファイル | この指示との重なり |
+|---|---|---|---|
+| origin/work/1008-hou | 判断待ち（`houou/`） | `generate_houou_race.py`・`generate_houou_pages.py` ほか | `generate_houou_race.py` の変更は `pick_default()`・`main()`・テンプレートで、`load_name_book()`（写真の読み込み）には触れていない。取り込みで衝突しない見込み |
+| origin/work/1010-rgn | （#533） | `.github/workflows/regenerate-page.yml`・`scripts/regenerate.py` ほか | この指示は `regenerate-page.yml` を `workflow_call` で呼ぶだけで、ファイルは変えない。重ならない |
+| **origin/work/1010-whs** | **判断待ち（CHAT-1010-WHS-06、#195。平野さんがプレビューを見てからマージ）** | `scripts/lib/wayhome.py`・`generate_video_wayhome.py`・`generate_wayhome_episodes.py` ほか | **重なる。** `lib/wayhome.py` の `PRO_COLUMNS`（「プロ」の XID・noteID を読む列）と `index_player_links()`・`PlayerLinks` を書き換えている（note を外し X だけにする）。この指示で X・note の ID を SNS ブック【2】から読むように変えるのは、まさにこの列と関数。どちらが先にマージしても、後のほうは同じ行で衝突する |
+
+- 止まる条件「上の重なりがある」に当たったため、ここで止めた。読む所の洗い出しの表・旧列と SNS ブックの食い違いの数え・【4】の見出し・切り替え・マージはしていない（コードもシートも変えていない）
+- #514 には着手中のコメントを書いていない（着手の前に止めたため）
+
+進め方の案（平野さんかチャット側が選ぶ）:
+
+| 案 | 中身 | 良い点 | 気になる点 |
+|---|---|---|---|
+| A（勧める） | 先に work/1010-whs をマージし（WHS-06 の判断待ちの解決）、その後でこの指示を貼り直す | wayhome の変更（X だけにする）の上で SNS ブックへ切り替えるので、衝突も二度手間も無い | 切り替えが WHS のマージまで待つ。その間、ID の直しは旧列のまま |
+| B | wayhome だけを旧列のまま残し、ほかの読む所（jpml_pros・saikyo・live・books・houou_race・title・誕生日・道場部・jpml_test・`fetch_youtube_channels.py`・検知）を先に切り替える。wayhome は WHS のマージ後に別の指示で切り替える | すぐ切り替えられる | 平野さんが今日から【2】で ID を直すと、wayhome だけ古い ID のまま（旧列を空にするまでに wayhome の切り替えが要る）。指示が1本増える |
+| C | この指示で wayhome も切り替え、WHS 側を後で取り込み直す | すぐ全部切り替わる | WHS のブランチが衝突を解き直す必要があり、別のセッションの作業に手を入れることになる |
 
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1010-xap
 - ログ: https://github.com/retroeater/mj/blob/work/1010-xap/docs/logs/CHAT-1010-XAP-07.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1010-xap
 - 確認用URL: なし
-- マージ: 未
-- issue: #514
-- 判断が必要なこと: なし
+- マージ: 未（止まる条件に当たった。変えたのはログだけ）
+- issue: #514（コメントは書いていない）
+- 判断が必要なこと:
+  - 未マージの work/1010-whs（CHAT-1010-WHS-06、判断待ち）が、この指示で変える `lib/wayhome.py` の `PRO_COLUMNS`・`index_player_links()` を書き換えている。進め方を選ぶ: 案 A（先に WHS をマージしてから貼り直す。勧める）／案 B（wayhome を除いて先に切り替え、wayhome は後の指示）／案 C（この指示で wayhome も切り替え、WHS 側が取り込み直す）
+  - 切り替えのマージまで、ID の直しは旧列のまま（2026-10-10 の決定のとおり。【2】にはまだ入力しない）
 - 未確認の項目: なし
 - エラー: なし
 
