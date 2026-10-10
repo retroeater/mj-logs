@@ -61,17 +61,76 @@ CHAT-1010-SKS-01 の変更（最強戦のページの共有ボタンを外す・
 
 ## 経過
 
+### 0. 着手前の確認
+
+- `CHAT-1010-SKS-02` のコミット: 0件
+- 作業ブランチ: `work/1010-sks` はローカル・リモートとも 872d35c9 で一致。`origin/cloudflare` は祖先でない（手順2で取り込む）
+- 指示欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は4つとも有る
+- CHAT-1010-SKS-01 の `## 報告` の状態は「判断待ち」→ 末尾に ` / 続き: CHAT-1010-SKS-02` を足した
+
+### 1. 年度プルダウンの先頭の項目の文言
+
+- 文言を持つのは `scripts/generate_saikyo_pages.py` の `TOP_LABEL`（`= EVENT_NAME` だった）だけ。`TOP_LABEL = "歴代最強位"` にし、`build_filterbar_html()`・`build_year_select()` の docstring の「麻雀最強戦」も直した（248cbbb3）。`assets/saikyo.js`・テスト・`scripts/lib/`・共通部品にこの項目の文言は無い。ページの題名・OGP・年度の選択肢（「麻雀最強戦2026」）・共有テキストの「麻雀最強戦」は `EVENT_NAME` のまま
+- 再生成（4204d31f）: 17ファイルとも、`<option value="./">麻雀最強戦</option>` → `<option value="./">歴代最強位</option>` の1か所だけ（元の HEAD の各ファイルにこの置き換えをかけたものと、生成物が一致することを `cmp` で確かめた）。シートの変化・写真の揺らぎは無し
+- `python3 -m unittest discover -s scripts/tests`: OK
+- 文書（9db46e46）: `docs/notes/saikyo-page-design.md` 3章（トップの選択状態・トップへの移動の項目）と4章（年度プルダウン）の文言を「歴代最強位」にした。4章の SK-22〜RK-11 の経緯の行はそのまま
+
+プルダウンに選択中として出る文言（headless Chromium・390px・`file://`）:
+
+| ページ | JS | 選択中の表示 | 先頭の項目 |
+|---|---|---|---|
+| トップ `/saikyo/` | あり | 歴代最強位 | 歴代最強位 |
+| トップ `/saikyo/` | 無効 | 歴代最強位 | 歴代最強位 |
+| `2026.html` | あり | 麻雀最強戦2026 | 歴代最強位 |
+| `2026.html?match=20261108` | あり | 麻雀最強戦2026（`saikyo.js` が足す hidden・disabled の項目） | 歴代最強位 |
+| `2026.html?match=20261108` | 無効 | 麻雀最強戦2026 | 歴代最強位 |
+| `2019.html?match=nomatch`（該当しない値） | あり | 麻雀最強戦2019 | 歴代最強位 |
+
+「歴代最強位」が選択中として出るのはトップだけ。止まる条件に当たらない。
+
+### 2. マージ（止まった）
+
+`git fetch origin` の後 `git merge --no-edit origin/cloudflare` で、3ファイルが衝突した:
+
+- `docs/decisions/saikyo.md`: 末尾の追記どうし（XAP-03・XAP-04 の節と SKS-01 の節）。両立する
+- `docs/handover.md`「共有ボタン」の1行: cloudflare 側（b20dd83d〈CHAT-1010-WHS-01〉、帰り道の共有ボタンを外した）は「現行サイトは live/・saikyo/ に共通の部品…。title/ と wayhome/（帰り道）は外した」、こちらは「live/・saikyo/（対局ごとの共有だけ）・wayhome/ …。title/ と saikyo/ のページ全体の共有は外した」。同じ行の書き換えどうしだが、内容は両立する（合わせるなら「live/・saikyo/（対局ごとの共有だけ）に共通の部品…。title/・wayhome/（帰り道）と saikyo/ のページ全体の共有は外した」）
+- **`scripts/tests/test_title_years.py`**（`test_no_share_button_on_title_pages` の同じ行）: 
+
+  ```
+  <<<<<<< HEAD
+          for other in ["live/index.html", "saikyo/2025.html", "video_wayhome.html"]:  # saikyo/ はトップから外した(#530)
+  =======
+          for other in ["live/index.html", "saikyo/index.html"]:  # 帰り道は外した(#530)
+  >>>>>>> origin/cloudflare
+  ```
+
+  cloudflare 側は帰り道から共有ボタンを外して `video_wayhome.html` を除き、こちらはトップから外して `saikyo/index.html` を `saikyo/2025.html` に替えた。**生成物でない文書以外（テストのコード）の衝突**のため、手順2「それ以外の衝突は解かずに止まる」と CLAUDE.md「ブランチ運用」（生成スクリプト・CSS・JS 等の衝突は止まる）に従い、解かずに止まった
+
+`git merge --abort` で取り込みを取り消した（取り消す前に未コミットの SKS-01 のログを scratchpad に写し、取り消した後に変わっていないことを `cmp` で確かめた）。cloudflare へは push していない。
+
+- 解き方の案（平野さんの判断待ち）: テストは `for other in ["live/index.html", "saikyo/2025.html"]:`（両方の変更を合わせる。帰り道もトップも外し、共通部品を使うのは live/ と saikyo/ の年度ページ）。handover.md は上の合わせた文。decisions/saikyo.md は両方の節を残す
+- 決定は `docs/decisions/saikyo.md` に足した（この指示を中断する最後の push に含める）
+
+### 3. issue
+
+マージで止まったため、#442・#511・#428・#530 の操作はしていない。
+
 ## 報告
 
-- 状態: 対応中
+- 状態: 判断待ち
 - ブランチ: work/1010-sks
 - ログ: https://github.com/retroeater/mj/blob/work/1010-sks/docs/logs/CHAT-1010-SKS-02.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1010-sks
-- 確認用URL: 未
-- マージ: 未
-- issue: #442、#511、#428、#530
-- 判断が必要なこと: 未
-- 未確認の項目: 未
+- 確認用URL: プレビューあり（URL は最終報告）。文言の変更（248cbbb3〜9db46e46）を push した。プレビューの表示は確かめていない
+- マージ: 未（`origin/cloudflare` の取り込みで `scripts/tests/test_title_years.py` が衝突したため止まった）
+- issue: #442・#511・#428・#530（いずれも未操作）
+- 判断が必要なこと:
+  - `scripts/tests/test_title_years.py` の衝突の解き方。案: `for other in ["live/index.html", "saikyo/2025.html"]:`（帰り道〈cloudflare 側、CHAT-1010-WHS-01〉とトップ〈こちら〉の両方から外した形）。この案で解いてマージを進めてよいか
+  - あわせて `docs/handover.md`「共有ボタン」の行も同じ行の書き換えどうしで衝突する（内容は両立。合わせた文は `## 経過` の 2.）。`docs/decisions/saikyo.md` は末尾の追記どうし
+  - 手順3（#442 を「状況: 保留」に、#511 を閉じる、#428・#530 にマージのコメント）はマージの後に行う想定で未着手。マージと切り離して先に行ってよいか
+- 未確認の項目:
+  - プレビューでの「歴代最強位」の表示（手元の生成物と headless Chromium では確かめた）
+  - マージ後の本番の確認（未マージ）
 - エラー: なし
 
 <!-- guide-links -->
