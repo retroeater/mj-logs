@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-10 18:57 JST
+- 書き出した時刻: 2026-10-10 18:59 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -223,11 +223,13 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-10-10 18:57 | workflow_dispatch | work/1010-xap | in_progress | #5（38043241943） |  |
+| 2026-10-10 18:57 | workflow_dispatch | work/1010-xap | failure | #5（38043241943） | 0分23秒 |
 | 2026-10-10 18:56 | workflow_dispatch | work/1010-xap | success | #4（38043192283） | 0分25秒 |
 | 2026-10-10 18:56 | workflow_dispatch | work/1010-xap | success | #3（38043143848） | 0分25秒 |
 | 2026-10-10 18:23 | workflow_dispatch | work/1010-xap | success | #2（38041200693） | 0分20秒 |
 | 2026-10-10 18:22 | workflow_dispatch | work/1010-xap | success | #1（38041143755） | 0分22秒 |
+
+- #5 failure: ジョブ「update」 ステップ「実行」
 
 ## write-live-channel-candidate.yml
 
