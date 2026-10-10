@@ -32,7 +32,7 @@ CLAUDE.md「ブランチ運用」「Chat-Ref」「作業ログ」から、特定
 
 そのセッションの最初の指示で、次の2つを見る。1件でもあれば着手せず、見つかった Chat-Ref とブランチを報告する。
 使用中の識別子の一覧が要るときも同じ2つで集める。`XXX` は確かめる識別子に置き換える（既存の2文字なども同じ形で引ける）。
-使用済みの一覧は `sync-logs.yml` が実行のたびに全ブランチの履歴から集め直し、mj-logs の `chat-ids/` に写す（チャット側向け、#474。仕組みは docs/notes/cloud-sessions.md「作業ログ」）。受け手側はこの一覧でなく上の2つで確かめる。
+使用済みの一覧は mj-logs の `sync-from-mj.yml`（#298）が実行のたびに全ブランチの履歴から集め直し、mj-logs の `chat-ids/` に写す（チャット側向け、#474。仕組みは docs/notes/cloud-sessions.md「作業ログ」）。受け手側はこの一覧でなく上の2つで確かめる。
 
 - 全ブランチのコミット: `git log --all -E --grep 'CHAT-[0-9]{4}-XXX-' --oneline`
 - 全ブランチの `docs/logs/`: `git log --all --diff-filter=A --format= --name-only -- 'docs/logs/CHAT-*-XXX-*.md'`

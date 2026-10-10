@@ -51,6 +51,39 @@ CHAT-1009-REV-01（判断待ち）の整理を、チャット側の読み比べ�
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 揃っている（貼られた文面では改行が失われ1段落になっていた。内容は欠けていない）
 - 作業ブランチ: ローカル・リモートとも work/1009-rev（81842300）。origin/cloudflare は祖先でない（取り込みが要る）
 
+### 取り込み（origin/cloudflare、10コミット）
+
+- 4文書などで cloudflare が変えていたのは handover.md の1行（5章「現行サイトで小さく作れるもの」: #515・#522 が済み・閉じた）だけ。同じ行を REV-01 が圧縮していたため衝突した
+- #515 は closed（2026-10-10）、#522 は closed（2026-10-09）を REST で確かめた。両方の変更が両立する（cloudflare 側の新しい事実は「#515 の確認待ちが無くなった」、REV-01 側は済んだことを archive へ移す圧縮）と判断し、
+  REV-01 の圧縮した行から「#515 は Android 実機での Gboard の zip の取り込みの確認待ち。」を除いて解いた。cloudflare 側の文言（「Gboard 形式」「閉じた」）は archive の REV-01 の行に反映した（マージコミット 1495de44）
+- 解いた後の該当箇所:
+
+  > | — | 現行サイトで小さく作れるもの | 次は #388・#389（上の「待ち」）。#425 も現行サイトで作る（#501・#502）。#366 は載せ方が未決、#378 は新サイト（#296）送り。未決: #365・#367 のデータを誰がいつ入力するか。決定は `docs/decisions/features.md` |
+
+  archive（`docs/notes/handover-archive-2026.md`「2026-10-09 の整理で4文書から外した記述（#492）」）:
+
+  > …#377（辞書のカテゴリ）に続き、Mリーグのカテゴリ追加・Gboard 形式・ページの作り直しも済み（#515・#522、閉じた）
+
+### 前提 (1) #298 の行
+
+- #298 のコメント（30件）と `docs/decisions/operations.md` に、10/7 の Billing の実値（928 分・$0）と 10-14・10-21 の日付は**書かれていない**。食い違う記述も無い
+  （operations.md は「Billing の実測」を期日 2026-10-07 とし、実装4の後半を「1〜2週間後」とする。10-21 はこの範囲）
+- 指示文の出典の平野さんのカレンダーを Google Calendar で読んだ（【R#298】で検索）:
+  - 「【R#298】Actions の使用量の確認（Billing。10/7 の実測の1週間後）」2026-10-14。説明に「【2026-10-07 実測済み、RVW のチャット】10/1〜10/7 の Billing: 928 分 / 3,000 分（請求 $0）」
+  - 「【R#298】実装4の後半（mj 側の sync-logs.yml・MJ_LOGS_TOKEN・目印の規則を消す、Worker の窓を6分に）」2026-10-21
+- 食い違いが無いため止まらず、handover.md 5章の #298 の行を「10/7 に実測済み（928 / 3,000 分、請求 $0。平野さんのカレンダーの記録）」「次の Billing の確認は 2026-10-14・実装4の後半は 2026-10-21」に直し、
+  表の #473（10-13）と #513（10-19）の間へ移した（f8e76c03）
+
+### 前提 (2) review-followup-instructions.md の行
+
+- archive に「7章の表から `docs/review-followup-instructions.md`（…完了済み）の行を外した。参照する規則が他に無いため」がある（REV-01 の判断の誤り）。6章の前書きの「`ls docs/notes/` にあって載っていないものは…」は docs/notes/ だけが対象で、食い違いは無い
+- 行を消した。`docs/new-page-checklist.md` の行は残した（f8e76c03）
+
+### 検査・サイズ
+
+- `python3 scripts/check_asset_limits.py` OK、`python3 -m unittest discover -s scripts/tests` OK
+- サイズ（バイト）: CLAUDE.md 26,084・handover.md 22,619・chat-side-operations.md 24,828・instruction-template.md 12,667（REV-01 の前: 25,941・24,379・25,365・15,720。4文書計 91,405 → 86,198）。どれも警告域の外
+
 ## 報告
 
 - 状態: 作業中
@@ -67,12 +100,12 @@ CHAT-1009-REV-01（判断待ち）の整理を、チャット側の読み比べ�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj e85de808）: https://github.com/retroeater/mj-logs/tree/main/guide/e85de808
+ガイド文書（この版を写した時点の最新、mj 77f81735）: https://github.com/retroeater/mj-logs/tree/main/guide/77f81735
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e85de808/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e85de808/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e85de808/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e85de808/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e85de808/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e85de808/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/77f81735/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/77f81735/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/77f81735/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/77f81735/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/77f81735/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/77f81735/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/0498c327.md
