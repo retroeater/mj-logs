@@ -165,3 +165,8 @@
 - #522: 本番の辞書ページ（DIC-13 の形）を PC の Chrome・iOS の Chrome・iOS の Safari で見て、問題ない
 - #522 を閉じてよい
 - #515 は、平野さんが本番で Android の Gboard の取り込みを確かめた後に閉じる（まだ確かめていない）
+
+## 2026-10-10（CHAT-1008-DIC-15）
+
+- #515: 本番（https://ryoei.pro/resource_dictionary.html）の「Gboard（Android）」で保存した zip を、Android の Gboard の単語リストに取り込めた
+- #515 を閉じる（2026-10-09 の「平野さんが本番で Android の取り込みを確かめた後に #515 を閉じる」のとおり）
