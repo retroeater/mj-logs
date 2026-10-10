@@ -125,28 +125,42 @@ HOU-13 のプレビューで平野さんが選んだ形に `houou/` を仕上げ
 - 未公開の形（作業ブランチ）: `houou/` の HTML 13 すべてに noindex／`navbar.js`・`sitemap.xml`・`sitemap-pages.xml`・`llms.txt` に `houou/` 無し／既存のページからルートの `houou/` へのリンク 0（相対パスまで解決）／`compare.html` 0
 - 差分の範囲（`origin/cloudflare...HEAD`）: `houou/` の生成物・`assets/houou.js`・`style.css`（`houou/` の節だけ）・`scripts/generate_houou_pages.py`・`docs/`。`scripts/lib/results.py`・`scripts/tests/test_houou_pages.py` は cloudflare と同じに戻った。見込みの外のファイルは無い
 
+### 手順3 マージ・本番の確かめ・片付け
+
+- マージ: 再 fetch して `git merge-base --is-ancestor origin/cloudflare HEAD` が真（origin/cloudflare ce5677d0）を確かめ、`git push origin work/1011-hou:cloudflare`（ce5677d0..b12047f3）
+- check-runs（b12047f3）: 「Workers Builds: mj」success（16:54:28Z）・check success・sync success・regenerate success。自動再生成（`regenerate-page.yml`、`scripts/generate_houou_pages.py` の変更で `houou_pages`）は差分が無くコミットしなかった
+- 本番（`curl`、`?v=` に未使用の値）: `/houou/players/` 200・`/houou/ranking/total-per-term/` 200（どちらも noindex あり、`x-robots-tag` の応答ヘッダは無い）。個人成績に `data-race-url` 無し、期平均に「（出場10期以上のみ）」。本番の `assets/houou.js` に `mj-houou-term-race`・`houou_open` 無し。`/houou/players/compare.html` は 404（404 ページ）
+- 確かめ方の誤りと直し: 最初、`curl -D -` の応答の1行目を状態として読んだため、プロキシの「HTTP/1.1 200 Connection Established」を拾い、比較ページを 200 と読み違えた。`-w %{http_code}` で取り直して 404 を確かめた。同じ読み方をしていた HOU-12 の本番の確かめ（`/houou/`・`/houou/players/`・`/houou/ranking/`・`/houou/ranking/term-high/`・`/houou/leagues/`・`/houou/race/` が 200）も取り直し、6ページとも 200 で title が各ページのもの、`/houou` は `/houou/` へ 301 で、HOU-12 の結論は変わらない
+- 片付け: このクラウドセッションはブランチを削除できない（docs/notes/cloud-sessions.md「ブランチの削除」）。マージ済みの `work/*` は `delete-merged-branches.yml` が毎日、先頭が24時間より前のものを削除する。このログの push の後、同じ先頭を `cloudflare` へも push して（docs/logs だけの追いの push）マージ済みの状態にする。追いの push の前の先頭は b12047f3
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1011-hou
-- ログ: https://github.com/retroeater/mj/blob/work/1011-hou/docs/logs/CHAT-1011-HOU-14.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1011-hou
-- 確認用URL: なし
-- マージ: 未
-- issue: #518
-- 判断が必要なこと: なし
-- 未確認の項目: なし
-- エラー: なし
+- 状態: 完了
+- ブランチ: work/1011-hou（マージ済み。削除は `delete-merged-branches.yml` に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1011-HOU-14.md
+- 比較URL: なし（マージ済み）
+- 確認用URL: https://ryoei.pro/houou/players/?name=今里邦彦 ほか（下の「判断が必要なこと」）
+- マージ: 済（ce5677d0..b12047f3。この報告の docs/logs のみの追いの push あり）
+- issue: #518、#540（順位変動へのリンクが無くなったことをコメント）、#541（シートの「前後」）
+- 判断が必要なこと:
+  1. 本番での確かめ（未公開でも URL を直接打てば見える）: https://ryoei.pro/houou/players/?name=今里邦彦 （旧名の表示が無い、期のカードを押すと右端の「⌄」が上を向いて節が開く、`?name=今里之彦` でも今里邦彦が出る）、https://ryoei.pro/houou/players/?name=白鳥翔 （期のカードが1行に収まる）、https://ryoei.pro/houou/ranking/total-per-term/ ・ https://ryoei.pro/houou/ranking/round-plus-rate/ （「（出場10期以上のみ）」「（出場50節以上のみ）」）、https://ryoei.pro/houou/ranking/term-plus-streak/ ・ https://ryoei.pro/houou/ranking/promotion-streak/ （カッコ書き無し）
+  2. 9段の確かめの結果: 起こりうる最大の段数は E3 → A1 の12段（14段のうち、昇級で着ける最上段は A1）。大久保隼人のデータを再生の中だけで書き換え、9段（E2 → B1）と12段（E3 → A1）で再生した。どちらも紙吹雪 48粒（昇級の4倍。12段も4倍で止まる）・金を含む・着地の金の輪あり・JS のエラー 0。9段の動き全体は 11.8秒（余韻 +0.5秒の上限どおり）
+  3. 仮置きの一覧（`docs/notes/houou-top.md`「仮置きの一覧」）
+     - 今回（HOU-14）足したもの: なし（HOU-13 で足した「旧名の出し方」「開閉の印の3案」「連続回数の基準を表の上の1行に出すこと」は決定で解けたので外した。HOU-13 の「開閉の印の3案」にあった期のカードの余白〈14・10px〉とシェブロンの大きさ〈22px〉、見出しの2行目の大きさは、HOU-13 の分として残した）
+     - 前から（HOU-01〜13）: 一覧のとおり（HOU-13 の A1・A2・鳳凰位を「42期」と書く範囲・欄の間隔・特別昇級の紙吹雪の細部など）
+  4. 本番の確かめの方法の誤り（ログの手順3）: HOU-12 の本番の確かめで、`curl` の状態の読み方がプロキシの行を拾う形だった。取り直して HOU-12 の結論（6ページが 200、`/houou` が 301）は変わらないことを確かめた
+- 未確認の項目: 本番のブラウザでの見え方（平野さん）。iPhone での文字の拡大（公開前にまとめて行う）
+- エラー: なし（`books_pages` は前回と同じく「書籍」シートの行数の確かめで止まるため、再生成から外した）
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj ce5677d0）: https://github.com/retroeater/mj-logs/tree/main/guide/ce5677d0
+ガイド文書（この版を写した時点の最新、mj e732ff7c）: https://github.com/retroeater/mj-logs/tree/main/guide/e732ff7c
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce5677d0/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce5677d0/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce5677d0/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce5677d0/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce5677d0/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce5677d0/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e732ff7c/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e732ff7c/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e732ff7c/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e732ff7c/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e732ff7c/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e732ff7c/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/ce5677d0.md

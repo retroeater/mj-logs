@@ -63,28 +63,51 @@ Chat-Ref: CHAT-1011-RDN-10
 - 指示欄の末尾の行は指示文の最後の行と一致
 - 指示文は改行が潰れた形で貼られたため、文面は変えずに項目の区切りで改行した
 
+### 手順1: シートの確かめ（ここで止まった）
+
+- 「プロ」を `lib/sheets.py` の `fetch_table()`（`lib/pro_sheet.py` と同じ読み取り）で2回読んだ: **2回とも 13列・1,099行、見出し・値とも同じ。「表示」が Y は 1,099名**（行数は範囲内）
+  - 見出し（`\n` はセル内改行）: 登録名\n0.74・ソートキー・出身地・X\nID・X\n画像・note\nID・note\n画像・YouTube\nID・YouTube\n画像・最終更新・表示・鳳凰\nAmpai・桜花\nAmpai
+  - **消した15列（11列＋龍龍ID・龍龍画像・決勝進出・備考）の見出しは残っていない。前提の13列はそろっている**（`pro_sheet.column_indexes()` で13列とも1列ずつ当たる）。見出しの重複なし
+  - 平野さんが実際に消した列は、前提の15列と一致する（13列が残り、15列が無いことから）
+- grep（`scripts/`・`.github/workflows/`・ページ側の JS、「龍龍」「決勝進出」「備考」）: **「プロ」の4列を読む箇所は無い**。出てくるのはほかのシートの同名の列（「鳳凰」X列「備考」〈`generate_houou_race.py`・`generate_houou_pages.py`〉、「書籍」「タイトル」「別名」「SNS 名鑑」「予定表」「【3】」の「備考」）とコメント・文言だけ
+- **`#REF!` の検索**（xlsx エクスポート〈200・約3.4MB〉を scratchpad に保存し、openpyxl 3.1.5 で全タブの数式〈`data_only=False`、配列数式を含む〉と値〈`data_only=True`〉を探した。RDN-01 で 2026-10-10 に保存した削除前のエクスポートも同じ方法で読み、比べた）:
+
+| タブ | 削除前 | 削除後 | 中身 |
+|---|---|---|---|
+| 鳳凰 | 1 | 1 | Y5816 `=IF(ISNA(VLOOKUP(#REF!,'_pro'!O:O,1,FALSE)),"No","Yes")`。**削除前からある**（今回の削除と無関係） |
+| **(旧)タイトル** | **0** | **3,263** | **「画像URL」列の C2〜C3269 のうち 3,263セル（式の無い5行を除く）。削除前は `=IF(COUNTIF('プロ'!$A:$A,$A2),XLOOKUP($A2,'プロ'!$A:$A,'プロ'!$H:$H,""),"")`（「プロ」の H＝龍龍画像を引く式。龍龍画像は全行空なので値も全部空だった）。H列を消したため `=IF(COUNTIF('プロ'!$A:$A,$A2),XLOOKUP($A2,'プロ'!$A:$A,#REF!,""),"")` になった** |
+| そのほか（リーグ・プロ・対局・桜花・JWRC・最強戦・鳳凰Ampai・桜花Ampai） | 0 | 0 | — |
+
+  - gviz で「(旧)タイトル」の「画像URL」列を読むと、3,268行のうち `#N/A` 1,713・空 1,552・URL 3（`#REF!` の式の結果がエラー表示になっている）
+  - 「(旧)タイトル」を読むコードは無い（grep で0件）。#473「(旧)タブ4つと【3】の控えのタブ2つを削除する（2026-10-13）」で、このタブは 2026-10-13 に削除する対象になっている（旧表 `jpml_titles.html` の廃止で読まれなくなった、#441・#484）
+- **止まる条件「消す前には無かった `#REF!` がある」に当たるため、ここで止めた。** 手順2（生成物の確かめ・チェック系）と手順3（#536 のクローズ、#327・#484 へのコメント、static-generation.md の見直し）は行っていない
+- `docs/decisions/pros.md` には、この指示の決定（4列も列ごと削除して前の決定を置き換える・確かめが通ったら #536 を閉じる）を足した（決定そのものは平野さんの判断で、確かめの結果に関係なく記録する）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1011-rdn
-- ログ: https://github.com/retroeater/mj/blob/work/1011-rdn/docs/logs/CHAT-1011-RDN-10.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1011-RDN-10.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1011-rdn
 - 確認用URL: なし
-- マージ: 未
-- issue: #536
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- マージ: 済（docs/logs・docs/decisions のみ。このログを含むコミットを cloudflare へ fast-forward で push）
+- issue: #536（閉じていない・コメントしていない）、#327・#484（コメントしていない）、#473（関係: 「(旧)タイトル」の削除予定）
+- 判断が必要なこと:
+  - 止まった: 「(旧)タイトル」タブの C列「画像URL」3,263セル（C2〜C3269 のうち式のある行）が、消した「プロ」H列（龍龍画像）を引く式だったため `#REF!` になった（削除前は0件。式と表は `## 経過`「手順1」）。このタブを読むコードは無く、#473 で 2026-10-13 に削除予定。扱いを決めてほしい: (a) #473 の削除（10/13）を待つ・前倒しする（`#REF!` は害が無いとして段4の確かめを続ける）、(b) C列の式を消す・値を空にする、(c) そのほか
+  - 「鳳凰」Y5816 の `#REF!`（`'_pro'!O:O` を引く式）は削除前からあり、今回と無関係。直すかは別の判断
+- 未確認の項目:
+  - 手順2（全ページの生成物と origin/cloudflare の差、`check_meibo.py`・`check_leagues_dropped.py`・`check_saikyo_unregistered.py`）は止まったため実行していない。「プロ」は13列・1,099名で読め、生成に要る見出しはそろっている
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj b12047f3）: https://github.com/retroeater/mj-logs/tree/main/guide/b12047f3
+ガイド文書（この版を写した時点の最新、mj e732ff7c）: https://github.com/retroeater/mj-logs/tree/main/guide/e732ff7c
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b12047f3/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b12047f3/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b12047f3/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b12047f3/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b12047f3/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b12047f3/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e732ff7c/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e732ff7c/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e732ff7c/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e732ff7c/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e732ff7c/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e732ff7c/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/ce5677d0.md

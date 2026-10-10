@@ -15,7 +15,7 @@
 | 確認したいこと | 手段 |
 | --- | --- |
 | 作業ログ（`docs/logs/`）・ガイド文書 | mj-logs（下の「作業ログの読み方」） |
-| Actions の実行結果 | mj-logs の `actions/status.md`（各ワークフローの直近5回。写しのたびに書き出す。冒頭の書き出した時刻を見る、#498）。GitHub の予約実行は2〜3時間遅れる（#504）。動いたかは各行の契機・開始時刻で、ジョブのログの中身は Code に確かめさせる |
+| Actions の実行結果 | mj-logs の `actions/status.md`（各ワークフローの直近5回。写しのたびに書き出す。冒頭の書き出した時刻を見る、#498）。GitHub の予約実行は2〜3時間遅れる（#504）。動いたかは各行の契機・開始時刻で、ジョブのログの中身は Code に確かめさせる。ジョブのサマリ（`GITHUB_STEP_SUMMARY`）は API に無く Code は読めないため、Chrome で実行のページを開いて読む（注記〈annotations〉は Code が check-run の annotations API で読める） |
 | issue・コミット・ブランチ | Claude Code に `gh`（クラウドセッションは GitHub MCP）/ `git` で確かめさせ、ログに書かせる。PC では Chrome でも読める |
 | 本番の見え方 | 平野さんの目視か、Claude Code の headless Chrome。Code 側で確認できる範囲は `docs/notes/cloudflare.md`「ビルド成否と本番の確認範囲（check-runs）」。**チャット側が本番（ryoei.pro）のページ・ファイルを読むときは、URL に `?v=<未使用の値>` を付ける。変更の直後の確かめでは必ず付ける**（クエリ無しの URL は、読む道具が古い版を返すことがある） |
 
