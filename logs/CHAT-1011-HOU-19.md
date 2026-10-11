@@ -107,7 +107,7 @@ Chat-Ref: CHAT-1011-HOU-19
 
 ## 報告
 
-- 状態: 判断待ち（平野さんが iPhone でプレビューを見て決める）
+- 状態: 判断待ち（平野さんが iPhone でプレビューを見て決める） / 続き: CHAT-1011-HOU-21
 - ブランチ: work/1011-hou
 - ログ: https://github.com/retroeater/mj/blob/work/1011-hou/docs/logs/CHAT-1011-HOU-19.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1011-hou
