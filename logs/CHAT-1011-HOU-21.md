@@ -115,7 +115,7 @@ CHAT-1011-HOU-20（HOU-19 のマージだけの指示）は、平野さんに渡
 
 ## 報告
 
-- 状態: 判断待ち（平野さんが iPhone でプレビューを見て決める。HOU-19 の直しを含む）
+- 状態: 判断待ち（平野さんが iPhone でプレビューを見て決める。HOU-19 の直しを含む） / 続き: CHAT-1011-HOU-22
 - ブランチ: work/1011-hou
 - ログ: https://github.com/retroeater/mj/blob/work/1011-hou/docs/logs/CHAT-1011-HOU-21.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1011-hou
@@ -136,12 +136,12 @@ CHAT-1011-HOU-20（HOU-19 のマージだけの指示）は、平野さんに渡
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 1fe83b8c）: https://github.com/retroeater/mj-logs/tree/main/guide/1fe83b8c
+ガイド文書（この版を写した時点の最新、mj 7665e09e）: https://github.com/retroeater/mj-logs/tree/main/guide/7665e09e
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/1fe83b8c/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/1fe83b8c/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/1fe83b8c/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/1fe83b8c/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/1fe83b8c/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/1fe83b8c/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/7665e09e/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/7665e09e/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/7665e09e/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/7665e09e/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/7665e09e/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/7665e09e/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a81419df.md

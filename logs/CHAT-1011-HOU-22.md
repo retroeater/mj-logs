@@ -59,6 +59,16 @@ HOU-19・HOU-21 の直しを、未公開の形（noindex・navbar・sitemap・`l
 - 2026-10-11 着手。**この会話は HOU-01〜21 から続いている（新しく始めたセッションではない）**
 - `CHAT-1011-HOU-22` のコミットは無し
 
+### 手順1 取り込み・確かめ
+
+- 0. 指示欄の末尾は指示文の最後の行と一致。HOU-21 のログの報告は 状態「判断待ち」。状態の末尾に ` / 続き: CHAT-1011-HOU-22` を足した。`origin/work/1011-hou` はリモートにありローカルと一致（1c54404e）。CLAUDE.md「ブランチ運用」と `docs/notes/branch-operations.md`（「ブランチを削除するとき」「生成物を含む…」「マージするとき」）を読んだ。指示文の冒頭の雛形の行は揃っている
+- `origin/cloudflare`（9fecbded、ABM-03・ABM-04 の最強戦の試作）は HEAD の祖先でなかったので merge で取り込んだ。衝突なし（`style.css` は自動でまとまった）
+- 差分の範囲（`origin/cloudflare...HEAD`）: `assets/houou.js`（要約の値の `is-long`）、`style.css`（変わった行はすべて `.mj-houou-*` の節）、`docs/decisions/houou.md`・`docs/notes/houou-top.md`・`docs/logs/`（HOU-19・21・22）。前提の範囲で説明できる（生成物・`scripts/` の差分は無し）
+- 全ページの再生成（`jpml_pros`・`resource_dictionary`・`books_pages` は外した）: 差分は `saikyo/2026/20260920.html`・`20260920-s2.html` の2つで、決勝に「ABEMA で見る」のリンクが足されたもの（シートの変化。この作業と無関係なのでコミットせず戻した）。旧ページ・ほかのページにほかの差分なし
+- テスト: 830件 OK
+- 未公開の形: `houou/` の HTML 13件すべてに noindex。`navbar.js`・`sitemap*.xml`・`llms.txt` に `houou/`（トップの階層）は無し（`title/houou/` は別のページ）。既存のページ（旧4ページを含む）から `houou/` へのリンクは0件（相対パスを解いて確かめた。`live/houou/` へのリンクは別の階層）。`houou/` に `compare.html` は無し
+- `docs/decisions/houou.md` に CHAT-1011-HOU-22 の節を足した（2026-10-11 の節は AIC-01・02 を含めて12個目。HOU の節としては10個目）
+
 ## 報告
 
 - 状態: 作業中
