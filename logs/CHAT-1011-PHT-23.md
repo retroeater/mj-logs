@@ -63,16 +63,116 @@
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 0章と着手前の確認
+
+- 指示欄の末尾は指示文の最後の行（「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」）と一致
+- `git fetch --unshallow origin` の後、`git log --all --grep="CHAT-1007-PHT-22"` は0件、`docs/logs/CHAT-1007-PHT-22.md` の履歴も0件（実行されていない）
+- `git log --all --grep="CHAT-1011-PHT-23"` は0件。PHT はこのチャットの続きの番号なので識別子の重複確認は対象外
+- `work/1011-pht-473` はローカル・リモートとも無し → `git checkout -b work/1011-pht-473 origin/cloudflare`（着手時の origin/cloudflare は 8dc74364）
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- #473 には着手中のコメントを書いていない。指示文が「#473 を変えない」としているため（CLAUDE.md「issueの着手ルール」より指示の個別の制約を優先した。シートもコードも変えない読むだけの作業）
+
+### 手順1: コードの確かめ（origin/cloudflare 8dc74364）
+
+- #473: Open、ラベル「状況: 待ち」「分野: データ」、コメント3件（いずれも 2026-09-29〜30 の本文更新の記録）。他セッションの着手中コメントは無い
+- ブックの特定: 旧シート = `scripts/lib/live.py:9`・`scripts/generate_title_pages.py:48`（先頭 `10g_X`、一致）。「プロ」のブック = **`generate_jpml_pros.py` には `SPREADSHEET_ID` が無くなり、`scripts/lib/pro_sheet.py:10` に移っている**（#536、先頭 `1h4-D`、一致。ほかに `lib/pro_stats.py`・`generate_houou_*`・`generate_ouka_leagues.py`・`generate_saikyo_pages.py`・`generate_video_live.py` も同じ ID）。3層 = `scripts/lib/live_layer3.py:15`（先頭 `1_H3L`）
+- 検索（`scripts/`・`.github/workflows/`、テストを除く）:
+  - 文字列そのものの `"連盟ch"`・`"放送対局"`・`"決勝動画"`・`"タイトル"`・`"テスト_gviz"`・`"(旧)タイトル"`: タブとして読む箇所は0件
+    - `"放送対局"`: `generate_live_pages.py:52` の `SECTION_NAME`（既知）と、**`lib/pro_sheet.py:32` の `RETIRED`（#536 で足した「プロ」の廃止列の見出しの一覧。読まないことをテストで確かめるための定数で、タブではない）** ← #473 の本文の「タブ以外の当たり」から増えたもの
+    - `"決勝動画"`: `generate_title_pages.py:650`・`:1070`（既知の節名）
+    - `"タイトル"`: 列の見出しとしての使用（`generate_books_pages.py`・`lib/live_candidate.py`・`lib/yotei.py` など）と、旧シートの正本「タイトル」タブの `generate_title_pages.py:49` `TAB_TITLES`（対象外の正本）。`scripts/apps_script/add_layer3_reference_columns.gs:30` の `TITLE_SOURCE = 'タイトル'` は3層の【1】の列の見出し（#482、タブではない）← 増えたもの。「プロ」のブックで「タイトル」「(旧)タイトル」をタブとして読む箇所は0件
+  - 部分一致（`連盟ch|放送対局|決勝動画` を含む文字列）でも、当たりはワークフローの表示名・列名「放送対局候補」・ページの説明文・`lib/wayhome.py` の列名「決勝動画ID」などでタブの読み込みは無い
+  - `(旧)`・`（旧）`: 0件
+  - タブ名の定数（`SHEET_*`・`*_SHEET_NAME`・`TAB_*`）と `fetch_sheet(`・`fetch_records(`・`fetch_table(` の呼び出し: 対象の7タブは無い。旧シートから読むのは「連盟プロ以外」「別名」「タイトル」「タイトル戦」「書籍」「辞書」「帰り道」
+  - Apps Script の `getSheetByName`: 3層の【1】【2】【3】と記録用のタブだけ
+  - `git grep "消した補正"`（リポジトリ全体、docs/logs を除く）: `clear_layer3_redundant_20260929.gs`・`_20260930.gs` の説明と `BACKUP_SHEET_NAME` の各2か所だけ（本文と同じ）
+  - `テスト_gviz`: `docs/logs/`（CHAT-1007-PHT-20 と本ログ）だけ
+
+### 手順2: シートの確かめ（読むだけ）
+
+`scripts/lib/sheets.py` の `_sheet_gids()` でタブ一覧、`fetch_table()`（フィルタの検知を含む）で各タブを2回読んだ。xlsx エクスポート（`/export?format=xlsx`）は3ブックとも HTTP 200 で取れ、openpyxl 3.1.5（`data_only=False`）で全タブの数式を読めた。
+
+- 旧シート（`10g_X`）: タブ11「連盟プロ以外・別名・タイトル・タイトル戦・書籍・辞書・帰り道・(旧)決勝動画・(旧)連盟ch・(旧)放送対局・(旧)連盟プロ以外」
+  - (旧)連盟ch: 14,058行×10列（2回とも同じ）。見出し 動画ID・種別・限定・公開日時・配信開始日時・長さ・タイトル・最終確認日・放送対局・備考。値のある最後の行 14,059行目（動画ID fbijgjZpGaA、公開日時 2014-02-01、最終確認日 2026-09-17）
+  - (旧)放送対局: 3,495行×19列（2回とも同じ）。見出し 動画ID・表示・タイトル戦・期・期の並び・ステージ・ステージの並び・卓・動画の単位・回戦・枝番・まとめ単位・対局者・実況・解説・対局日・原題・追加日・備考。最後の行 3,496行目（動画ID TvD6wzCSEzo、対局日 2024-02-29、追加日 2026-09-18）
+  - (旧)決勝動画: 32行×6列（2回とも同じ）。見出し タイトル・並び・日程・URL・備考・表示。最後の行 33行目（日程は空）
+  - **テスト_gviz: 既に無い**
+  - 対象外だが #473 の本文に無いタブ「(旧)連盟プロ以外」がある（数式4、ほかのタブを参照しない）。この指示の対象ではないので判定しない
+  - 数式: 「連盟プロ以外」4・「書籍」44・「(旧)連盟プロ以外」4 だけで、どれもほかのタブを参照しない。対象のタブの名前・旧名（連盟ch・放送対局・決勝動画）・INDIRECT を含む式は0件。範囲名0、入力規則0、条件付き書式（3タブに各1）に対象の名前は無い
+  - `#REF!`: 0（式・エラー値とも）
+- 「プロ」のブック（`1h4-D`）: タブ10「リーグ・プロ・対局・鳳凰・桜花・JWRC・最強戦・鳳凰Ampai・桜花Ampai・(旧)タイトル」
+  - (旧)タイトル: 3,268行×8列（2回とも同じ、見込みどおり）。見出し 名前・URL・画像URL・順位・タイトル・日付・表示・備考。最後の行 3,269行目
+  - 数式の参照先（タブ→参照するタブ: 件数）: プロ→鳳凰Ampai・桜花Ampai 各2,198、鳳凰→プロ 32,012・`_pro` 9,180、桜花→プロ 1,719、JWRC→プロ 1,507、(旧)タイトル→プロ 9,792。**「(旧)タイトル」を参照する式は0件**（「(旧)タイトル」「タイトル!」「'タイトル'」・INDIRECT の文字列でも0件）。「プロ」の数式は 2,198（すべて配列数式、参照先は鳳凰Ampai・桜花Ampai のみ）
+  - 範囲名: 「(旧)タイトル」のフィルタの表示（`'(旧)タイトル'!$A$1:$H$3269`）だけで、タブと一緒に消える。入力規則0、条件付き書式（鳳凰・最強戦・(旧)タイトル に各1）に「(旧)タイトル」の参照は無い
+  - `#REF!` を含む式: **(旧)タイトル 3,263（C列、`XLOOKUP($A2,'プロ'!$A:$A,#REF!,"")` の形）＋ 鳳凰 Y5816 の1 = 3,264。前提の 3,263＋1 と一致**。xlsx は `#REF!` のエラー値をキャッシュに持たない（空で出る）ため、件数は式で数えた。別に (旧)タイトル には `#N/A` の値が 1,713セルある（式の結果）
+  - 鳳凰の式が参照する `_pro` はタブ一覧に無い（エクスポートに出ない、または外部の参照）。15列の削除とは関係しない既存の形で、この指示では調べていない
+- 3層（`1_H3L`）: タブ6「【1】元データ・【2】自動変換後・【3】手動補正・【4】カレンダー非掲載・【3】消した補正 2026-09-30・【3】消した補正 2026-09-29」
+  - 【3】消した補正 2026-09-29: 1,890行×5列（2回とも同じ。1セル1行で見込みどおり）。見出し 行番号・列・列の見出し・動画ID・値。最後の行 1,891行目（行番号 3226、列 O、動画ID b3LYGlvy9hw）
+  - 【3】消した補正 2026-09-30: 4,563行×5列（2回とも同じ。見込みどおり）。見出し同じ。最後の行 4,564行目（行番号 3987、列 P、動画ID gJ9iB5lbZnc）
+  - 数式: 【3】手動補正 8,654 だけで、参照先は【1】元データ（4件）。「消した補正」・INDIRECT を含む式は0件。範囲名0、入力規則0、条件付き書式0
+  - `#REF!`: 0
+
+### 手順3: 生成
+
+- `regenerate.py --list` で当たるのは `title_pages`・`live_pages`・`jpml_pros`（ほかに `video_live` があるが #473 の本文の3つではないので対象外）
+- 1ページずつ生成: `title_pages`・`live_pages`・`jpml_pros` とも exit 0、エラー無し（live_pages の警告は「公開しなかった『【3】手動補正』の行 829件」の通常の表）
+- origin/cloudflare の生成物との差: 変わったファイル 0（3つとも）。生成物はコミットしていない
+
+### 判定
+
+| タブ | ブック | コードが読むか | ほかのタブの数式が参照するか | 行数は見込みどおりか | 判定 |
+|---|---|---|---|---|---|
+| (旧)連盟ch | 旧シート | 読まない | しない | 見込みなし（14,058行） | 消してよい |
+| (旧)放送対局 | 旧シート | 読まない | しない | 見込みなし（3,495行） | 消してよい |
+| (旧)決勝動画 | 旧シート | 読まない | しない | 見込みなし（32行） | 消してよい |
+| テスト_gviz | 旧シート | 読まない | — | — | 既に無い |
+| (旧)タイトル | プロのブック | 読まない | しない | 3,268行（どおり） | 消してよい |
+| 【3】消した補正 2026-09-29 | 3層 | 読まない（作った Apps Script だけ） | しない | 1,890行（どおり） | 消してよい |
+| 【3】消した補正 2026-09-30 | 3層 | 読まない（作った Apps Script だけ） | しない | 4,563行（どおり） | 消してよい |
+
+「(旧)タイトル」の単独の判定: コードは読まず、同じブックのほかのタブの数式・範囲名・入力規則・条件付き書式から参照されない。中の `#REF!` 3,263 は「(旧)タイトル」自身の C列の式で、タブと一緒に消える。削除後に残る `#REF!` は 鳳凰 Y5816 の1件（15列の削除より前からある）の見込み。消してよい。
+
+#473 の本文「削除の前に見ること」のうち、「3タブに、ほかで使う値が残っていないか」「控えのタブを見返す必要が無いこと」はコードと数式からは判断できない（平野さんの判断）。どちらも読む箇所・参照する式は無い。
+
+### #473「削除の後にすること」の文書の今の記述
+
+- `docs/notes/live-channel-write.md`: 変わっていない（「使う値（提案。平野さんが変えてもよい）」の節の「(旧)連盟ch」「(旧)放送対局」に名前を変えてしばらく残し、数週間問題が無ければ削除する、と「旧シートの『放送対局』（(旧)放送対局）に入れても使われない」がそのまま）
+- `docs/notes/live-page-design.md`: 変わっていない（「3-3. 自動取り込み」の項がそのまま）
+- `docs/notes/title-pages.md`: データ源の表の「決勝動画」の行（使わない）と「4タブ（決勝動画を除く）」はそのまま。**「プロ」シートの行は「`generate_jpml_pros.py` の定数（旧スプレッドシート）を使う」のままだが、定数は今 `scripts/lib/pro_sheet.py` にある**（#536）。「(旧)タイトル」の注記はそのまま
+- `docs/handover.md`: **「最終更新」から「旧シートの『連盟ch』『放送対局』は読まない」の行は既に無くなっている**（2026-10-11 の最終更新は houou/・title/ の3行）。残っているのは「次にやること」の表の #473 の行（期日 2026-10-13）
+- #473 の本文の「『プロ』V 列を消すか残すか」は、V列（決勝進出）が15列の削除で無くなったので対象が無い（前提のとおり）
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1011-pht-473
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1011-PHT-23.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1011-pht-473
+- 確認用URL: なし
+- マージ: 未（このコミットの後に cloudflare へ入れる）
+- issue: #473（変えていない。着手中のコメントも指示どおり書いていない）
+- 判断が必要なこと:
+  - 消してよい: (旧)連盟ch、(旧)放送対局、(旧)決勝動画（旧シート）／(旧)タイトル（「プロ」のブック）／【3】消した補正 2026-09-29、【3】消した補正 2026-09-30（3層）
+  - まだ消さない: なし（テスト_gviz は既に無い）
+  - 「(旧)タイトル」: コードは読まず、ほかのタブの数式・範囲名・入力規則・条件付き書式から参照されない。中の `#REF!` 3,263 は自身の C列の式なので一緒に消える。削除後に残る `#REF!` は 鳳凰 Y5816 の1件の見込み。消してよい
+  - #473 の「3タブにほかで使う値が残っていないか」「控えのタブを見返す必要が無いこと」は平野さんの判断（読む箇所・参照する式は無い）
+  - 旧シートに #473 の本文に無いタブ「(旧)連盟プロ以外」がある（対象外のため判定していない）
+  - `docs/notes/title-pages.md` の「プロ」シートの行が `generate_jpml_pros.py` の定数と書いたまま（定数は #536 で `lib/pro_sheet.py` に移った）。handover の「最終更新」の該当行は既に無い。削除の後に直す文書は `## 経過` の最後の節
+- 未確認の項目:
+  - 鳳凰の数式が参照する `_pro`（タブ一覧に無い）の正体は調べていない（15列の削除・#473 とは関係しない既存の形）
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 8dc74364）: https://github.com/retroeater/mj-logs/tree/main/guide/8dc74364
+ガイド文書（この版を写した時点の最新、mj 1245b908）: https://github.com/retroeater/mj-logs/tree/main/guide/1245b908
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/8dc74364/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/8dc74364/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/8dc74364/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8dc74364/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8dc74364/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8dc74364/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/1245b908/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/1245b908/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/1245b908/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/1245b908/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/1245b908/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/1245b908/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/8dc74364.md
