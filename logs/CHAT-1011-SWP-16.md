@@ -71,6 +71,68 @@ CHAT-1011-SWP-15 の第3弾の直しを仕上げて本番に入れ、#525 を閉
 - 指示欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている。
 - CHAT-1011-SWP-15 のログの `## 報告` の状態は「判断待ち」。`work/1011-swp-mob` はリモートにあり、ローカルと一致（`2c5d3f415`）。
 
+
+### 手順1 直す
+
+- CHAT-1011-SWP-15 のログの状態の末尾に ` / 続き: CHAT-1011-SWP-16` を足した。
+- `origin/cloudflare` を merge で取り込んだ（rebase なし）。**衝突は無し。** 未マージのブランチで `style.css`・`assets/title.js`・`assets/live.js` を変えるのは古い `work/1009-nen`（年表、SWP-08 で記載済み。変更の場所は `.mj-tl-bar` と `title.js` の 320行以降で、この作業の場所と重ならない）だけ。
+- **案C の本実装:**
+  - `style.css`: `.mj-title-holders.is-text-large`・`.mj-live-players.is-text-large` の中のカードを縦に並べ、帯（`.mj-title-holder-taikai`・`.mj-live-role`）を写真の上、名前（`.mj-title-holder-name`・`.mj-saikyo-name`）を写真の下に出す。名前の地は `rgba(0,0,0,.75)`（上の帯と同じ）。比較ページの案C と同じ指定
+  - JS: `fitCardLabels(並び, カード, 帯と名前)` を `assets/title.js`（`title/` の全ページ）と `assets/live.js`（`live/` の全ページ）に置いた。帯と名前の高さの合計が写真の高さの7割を超えるカードが1枚でもあれば、その並びに `.is-text-large` を付ける。比較ページの JS と同じ判定で、後から中身が入る並び（入口の年のカード）にも追随するよう、並び自体と帯・名前を ResizeObserver で見る。2つのファイルは独立に読み込まれるため、同じ関数をそれぞれに置いた
+  - `live/` は写真カードに `assets/live.js` を読む（`live/` の全ページが `../assets/live.js` などを読み込む）。`saikyo/` の写真カード（同じ `.mj-saikyo-card`）は対象外（`.mj-live-players` の中だけに効かせた）
+- **着順の列の最小幅:** `calc(5ch + 8px)` → `calc(3.2em + 8px)`。`ch` は「0」の字の幅で、ほかの数字（「4」など）はそれより広いことがある（iPhone の PDF で「23214」が折り返し、「32212」は収まっていた）。数字1字を 0.64em と見て5桁分とした
+- 比較ページ `title_card_compare.html` を `git rm` した（今の形の切り替え・案A・ラジオボタンもこのファイルの中）。`git grep -n "title_card_compare"` は docs/logs 以外に残りが無い。
+- `python3 -m unittest discover -s scripts/tests` は通った。
+
+### 手順2 確かめる
+
+測り方は SWP-15 と同じ（Playwright の Chromium、`viewport` だけ。外部の画像は灰色の画像を返す。文字の拡大は全要素の文字の大きさを倍にする近似〈all〉）。「現行」は取り込み後の `origin/cloudflare` を `git archive` して手元で配信したもの。
+
+#### 写真カード: ふだんの文字の大きさ（100%）で現行と同じか
+
+ページ: `title/`（入口、20枚）・`title/houou/`（大会、42枚）・`title/ourai/12`（期、4枚）・`live/ourai/3/f`（対局者4枚・実況解説3枚の2つの並び）。幅 390・360・1280px。最初のカードのカードの大きさ・帯・名前・写真の位置と大きさ、並びの高さを比べた。
+
+| ページ | 390 | 360 | 1280 |
+|---|---|---|---|
+| `title/` | 同じ（並び 1894px、`.is-text-large` 付かない） | 同じ（1744px） | 同じ（1194px） |
+| `title/houou/` | 同じ（3995px） | 同じ（3680px） | 同じ（2646px） |
+| `title/ourai/12` | 同じ（366px） | 同じ（336px） | 同じ（226px） |
+| `live/ourai/3/f`（2つの並び） | 同じ（348px） | 同じ（321px） | 同じ（186px） |
+
+12通り×各並びで、差は 0px（±2px の範囲内）。`.is-text-large` はどれにも付かない。
+
+#### 写真カード: 文字を大きくしたとき（比較ページの案C と並べる）
+
+カードの高さ（現行のカードは正方形のまま）と、写真に重なる文字の割合の最大。
+
+| ページ・並び | 幅 | 1.5倍 現行→本実装 | 2倍 現行→本実装 | 比較ページの案C（SWP-15） |
+|---|---|---|---|---|
+| `title/ourai/12` | 390 | 175px・92% → 278px・0% | 175px・114% → 357px・0% | 278px・0% ／ 357px・0%（同じ） |
+| `title/ourai/12` | 360 | 160px・97% → 260px・0% | 160px・121% → 336px・0% | 260px・0% ／ 336px・0%（同じ） |
+| `title/`（入口） | 390 | 175px・78% → 266px・0% | 175px・147% → 341px・0% | 266px・0% ／ 341px・0%（同じ。比較ページは入口の8枚の写し） |
+| `title/houou/` | 390 | 175px・92% → 278px・0% | 175px・114% → 304px・0% | （比較ページに無い） |
+| `live/ourai/3/f` 対局者 | 390 | 164px・42%（7割を超えず、今の形のまま） | 164px・81% → 278px・0% | （比較ページに無い。同じ判定） |
+| `live/ourai/3/f` 実況・解説 | 390 | 164px・74% → 268px・0% | 164px・122% → 295px・0% | （同上） |
+
+1280px は 1.5倍で `title/` が 67%・期が 53% で7割を超えず今の形のまま、2倍で写真の外に出る（比較ページの案C と同じ判定）。手元とプレビューの値は全項目で一致（不一致 0）。
+
+#### `rh_results_detail` の着順
+
+| 幅 | 5桁以下の値 | うち折り返した | 折り返した値（すべて6桁以上） | 着順の列の幅 | ページの長さ |
+|---|---|---|---|---|---|
+| 390 | 317 件 | **0** | 3 件: `231324242`・`134314`・`2112141`（6桁の `421144` は収まった） | 51px | 33,548px |
+| 360 | 317 件 | **0** | 4 件: `421144`・`231324242`・`134314`・`2112141` | 50px | 46,675px |
+
+日付は 321 件すべて最大2行（「-」でだけ）、得点の折り返しは 0（SWP-15 と同じ）。**ページの長さは、平野さんが受け入れた SWP-15 の値（390px で 31,658px〈+15%〉、360px で 42,612px〈+27%〉）より伸びた。** 現行（27,448px・33,450px）からは 390px で +22%、360px で +40%。着順の列が 46→51px に広がり、文字の列が細くなったため。
+
+#### SWP-15 で直したほかの件
+
+G2-01（4ページ×3画面）・G2-06（3ページ×2幅×5通り）・G2-09（2幅）の値を、SWP-15 の最終プレビューの値と比べた。**不一致 0。** G2-07 の日付・得点は上の表のとおり変わっていない。
+
+#### プレビュー
+
+check-run「Workers Builds: mj」は `completed / success`。プレビューの `style.css`・`assets/title.js`・`assets/live.js`・`assets/saikyo.js` は作業ブランチと一致（`cmp`）。`/title_card_compare.html` は HTTP 404。
+
 ## 報告
 
 - 状態: 中断（作業中）
@@ -87,12 +149,12 @@ CHAT-1011-SWP-15 の第3弾の直しを仕上げて本番に入れ、#525 を閉
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 4790f6d2）: https://github.com/retroeater/mj-logs/tree/main/guide/4790f6d2
+ガイド文書（この版を写した時点の最新、mj 6a3ab9d2）: https://github.com/retroeater/mj-logs/tree/main/guide/6a3ab9d2
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/4790f6d2/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/4790f6d2/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/4790f6d2/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/4790f6d2/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/4790f6d2/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/4790f6d2/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6a3ab9d2/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6a3ab9d2/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6a3ab9d2/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6a3ab9d2/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6a3ab9d2/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6a3ab9d2/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a81419df.md

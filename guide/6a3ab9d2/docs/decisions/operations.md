@@ -340,3 +340,9 @@
 ## 2026-10-11（CHAT-1011-PHT-26）
 
 - PHT のチャット（#473 の6タブの削除）の振り返りの知見を、申送りとして docs に書く（chat-side-operations.md・instruction-template.md・chat-routines.md と、事例は handover-archive-2026.md）
+
+## 2026-10-11（CHAT-1011-WHS-14）
+
+- `docs/notes/chat-side-operations.md`「読み方」の「mj は private で、サンドボックスからの `git clone` / `fetch` / `api.github.com` は遮断される（#211）」は今の実態と違うので直す（チャットのセッションに読み取りでつなげば `git clone` と REST で読める）
+- CHAT-1010-WHS-02 のログの状態「判断待ち」に、続き ` / 続き: CHAT-1010-WHS-03` を足す（WHS-03 の指示に続きを足す手順を書き漏らした）
+- 作業中の回答: なし
