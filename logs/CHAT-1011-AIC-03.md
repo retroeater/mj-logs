@@ -132,7 +132,7 @@ B1 のトークン: Workers Builds が作るトークンの既定の権限に D1
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1011-AIC-04
 - ブランチ: work/1011-aic
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1011-AIC-03.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1011-aic
@@ -155,12 +155,12 @@ B1 のトークン: Workers Builds が作るトークンの既定の権限に D1
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj f0e55372）: https://github.com/retroeater/mj-logs/tree/main/guide/f0e55372
+ガイド文書（この版を写した時点の最新、mj 2524a460）: https://github.com/retroeater/mj-logs/tree/main/guide/2524a460
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f0e55372/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f0e55372/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f0e55372/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f0e55372/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f0e55372/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f0e55372/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/2524a460/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/2524a460/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/2524a460/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/2524a460/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/2524a460/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/2524a460/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a81419df.md
