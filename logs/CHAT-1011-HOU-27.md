@@ -54,15 +54,40 @@
 - 2026-10-11 着手。**この会話は HOU-01〜26 から続いている（新しく始めたセッションではない）**
 - `CHAT-1011-HOU-27` のコミットは無し。`origin/work/1011-hou` はマージ済み。ローカルも cloudflare の祖先なので `git merge --ff-only origin/cloudflare` で 6b7bb050 へ進めた
 
+### 手順1 確かめ・issue
+
+- 0. 指示欄の末尾は指示文の最後の行と一致。HOU-26 のログの報告は 状態「完了」。指示文の冒頭の雛形の行は揃っている
+- #540・#542 のコメントを読んだ。#540 は HOU-14 のコメントだけ。#542 の着手中（AIC-01〜04）はすべて解除のコメントがあり、今の着手中は無い
+- 下層ページから `houou/` のトップへのリンク: 生成された `houou/players/`・`houou/ranking/`（と部門のページ）・`houou/leagues/`・`houou/race/` の HTML と `assets/houou.js` に、トップ（`houou/`）への href は無い（ランキングの部門のチップの「通算」の `./`・`../` は `houou/ranking/`）。前提のとおり
+- #540 の本文を直した（MCP の `issue_write`。`gh` はこのセッションに無い）。直した行:
+  - 「- [x] 平野さんの iPhone での確かめ: 文字の拡大（Chrome で最大）で5ページ（トップ・個人成績・ランキング・リーグ推移・順位変動）が崩れないこと、リーグ推移の演出の見え方（2026-10-11 に OK）」（`[ ]` → `[x]` と末尾）
+  - 足した行（公開の条件）「- [ ] 公開は #542（データ・コンシェルジュ）ができてから。#542 の質問欄までを公開に含める（2026-10-11 の平野さんの決定）」
+  - 置き換えた行（変更）「- [ ] navbar「鳳凰戦」は、押すとトップ（`houou/`）へ飛ぶ1項目だけにする（個人成績・ランキング・リーグ推移・順位変動は並べない。2026-10-11 の平野さんの決定）。旧ページへのリンクを差し替える」
+  - 足した行（変更）「- [ ] 下層ページ（個人成績・ランキング・リーグ推移・順位変動）からトップへ戻る導線（見出しのカードをトップへのリンクにする等）を、公開の前に要否を決める（今は本文の中に無く、戻る道は navbar の「鳳凰戦」だけ。仮置き）」
+  - 本文に「公開の段」という見出しは無いので、導線の行は「変更（1つの作業ブランチで）」の navbar の行の次に置いた
+- コメント: #540 に決定3点と本文の直し（https://github.com/retroeater/mj/issues/540#issuecomment-6110309015 ）、#542 に #540 の公開に含める旨（https://github.com/retroeater/mj/issues/542#issuecomment-6110309234 ）。どちらも末尾に `Chat-Ref: CHAT-1011-HOU-27`
+
+### 手順2 文書
+
+- `docs/notes/houou-top.md`「非公開の形と公開の方針」の公開の段: navbar を「鳳凰戦」1項目でトップへに、iPhone の確かめを済みに直し、#542 を待つこと・下層ページからトップへ戻る導線の要否を足した。「仮置きの一覧」の「公開時の navbar「鳳凰戦」の項目」を外し、「下層ページからトップへ戻る導線の要否」に置き換えた
+- `docs/decisions/houou.md` に CHAT-1011-HOU-27 の節を足した（2026-10-11 の節は AIC を含めて18個目。HOU の節としては15個目）。navbar の5項目は #540 の本文の仮置きで、decisions には前の決定の行が無い（139行目は「navbar の項目は公開の issue で決める」で、すでに置き換え済み）ので、新しい節の側に「#540 の本文の仮置き〈5項目〉を置き換える」と書いた
+- `docs/handover.md`「次にやること」の #540 の行に「公開は #542 ができてから、その質問欄までを含めて行う」を足し、「公開の条件は平野さんの iPhone での確かめ」を外した（23,389 バイト。警告域 26KB 未満）
+
+### 手順3 マージ・片付け
+
+- 差分（`origin/cloudflare...HEAD`）は `docs/` の4ファイルだけ（decisions・handover・houou-top・このログ）
+- マージ: push 直前に再 fetch し（origin/cloudflare は 6b7bb050 のまま）、`git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめて `git push origin work/1011-hou:cloudflare`（6b7bb050..976c61cb）。docs のみなので Workers Builds は走らない（#171）
+- 片付け: このクラウドセッションはブランチを削除できない（docs/notes/cloud-sessions.md「ブランチの削除」）。`origin/work/1011-hou` は `git branch -r --merged origin/cloudflare` に出る（マージ済み）。削除は `delete-merged-branches.yml` に任せる。このログの push の後、同じ先頭を `cloudflare` へも push する（docs/logs だけの追いの push）。追いの push の前の先頭は 976c61cb
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1011-hou
-- ログ: https://github.com/retroeater/mj/blob/work/1011-hou/docs/logs/CHAT-1011-HOU-27.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1011-hou
+- 状態: 完了
+- ブランチ: work/1011-hou（マージ済み。削除は `delete-merged-branches.yml` に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1011-HOU-27.md
+- 比較URL: なし（マージ済み）
 - 確認用URL: なし
-- マージ: 未
-- issue: #540・#542
+- マージ: 済（6b7bb050..976c61cb。この報告の docs/logs のみの追いの push あり）
+- issue: #540（本文の直しとコメント）・#542（コメント）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
@@ -70,12 +95,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 6b7bb050）: https://github.com/retroeater/mj-logs/tree/main/guide/6b7bb050
+ガイド文書（この版を写した時点の最新、mj 9973fe01）: https://github.com/retroeater/mj-logs/tree/main/guide/9973fe01
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6b7bb050/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6b7bb050/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6b7bb050/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6b7bb050/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6b7bb050/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6b7bb050/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9973fe01/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9973fe01/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9973fe01/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9973fe01/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9973fe01/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9973fe01/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a81419df.md
