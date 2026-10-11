@@ -67,15 +67,54 @@ CHAT-1011-PHT-24 の判断待ちへの回答（PHT-24 は CHAT-1011-PHT-23 の�
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 0章と着手前の確認
+
+- 指示欄の末尾は指示文の最後の行と一致。CHAT-1011-PHT-24 の `## 報告` の状態は「判断待ち」
+- `git log --all --grep="CHAT-1011-PHT-25"` は0件
+- `origin/work/1011-pht-473` はローカルと一致（cf9fee68）。`git merge-base --is-ancestor origin/cloudflare HEAD` が偽だったので `git merge origin/cloudflare`（衝突なし、6003961e）
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- #473: Open、コメントは過去3件と PHT-24 の着手中・中断の2件だけ（他セッションの着手中は無い）。着手中のコメントを書いた（issuecomment-6104459749）
+
+### 手順1: 確かめ
+
+- タブの一覧（`_sheet_gids()`、11:05 JST）:
+  - 旧シート 8: 連盟プロ以外・別名・タイトル・タイトル戦・書籍・辞書・帰り道・(旧)連盟プロ以外（見込みどおり。「タイトル」あり）
+  - 「プロ」のブック 9: リーグ・プロ・対局・鳳凰・桜花・JWRC・最強戦・鳳凰Ampai・桜花Ampai（見込みどおり。「(旧)タイトル」が無い）
+  - 3層 4: 【1】元データ・【2】自動変換後・【3】手動補正・【4】カレンダー非掲載（見込みどおり）
+- xlsx エクスポート（旧シート・3層、どちらも HTTP 200）を openpyxl で読み、`#REF!` を含む式は両ブックとも0（旧シートの数式は 連盟プロ以外 4・書籍 44・(旧)連盟プロ以外 4、3層は【3】手動補正 8,654）
+- 生成（1回目、11:05 JST）: `title_pages`・`live_pages` とも exit 3（`regenerate.py` が飛ばした）。原因は #473 と別のブックの SNS ブック（`lib/sns_book.py`、#514）の「【3】画像取得」のフィルタの検知: `FilteredSheetError: 「【3】画像取得」シートにフィルタ、または非表示・折りたたみの行があります(gviz 2行 / シート 1864行)`
+  - 待機の上限内で1分ごとに検知だけを確かめ直した: 11:07 は同じ、11:08 に解けた（一時的な状態。書き込みの最中だったと見られるが原因は調べていない）
+- 生成（2回目、11:08 JST 以降）: `title_pages`・`live_pages` とも exit 0。origin/cloudflare の生成物との差は 0 ファイル（作業ブランチと cloudflare の差は docs/logs・docs/decisions だけの時点）
+- unittest（直す前）: 805件 OK
+
+### 手順2: 直す
+
+- 検索（docs/logs を除く）:
+  - `clear_layer3_redundant`: docs/decisions/title.md（PHT-24 の決定）と、2ファイル自身（`_20260930.gs` の説明のコメント）だけ。スクリプト・テスト・ワークフローからの参照は無い
+  - `apps_script`: `scripts/apps_script/` の中のほかは、docs/decisions/operations.md（3ファイルのコメントを permalink に直した 2026-09 の決定）・docs/decisions/title.md・docs/notes/yotei-sheet.md（移行の Apps Script への言及。2ファイルとは別）だけ。`scripts/`・`.github/` に `.gs` を扱うコードは無い
+- 2ファイルを消した（`scripts/apps_script/` には add_layer3_event_id.gs・add_layer3_opening_column.gs・add_layer3_reference_columns.gs が残る）
+- 文書（今の内容を読んでから、置き換えで直した）:
+  - `docs/notes/live-channel-write.md`: 「名前を変えてしばらく残し、数週間問題が無ければ削除する」→「名前を変えて残し、2026-10-11 に削除した（#473…）」。「旧シートの『放送対局』（(旧)放送対局）に入れても使われない」の文を消した
+  - `docs/notes/live-page-design.md`「3-3」: 「しばらく残したあと削除する」→「残したあと 2026-10-11 に削除した（#473）」
+  - `docs/notes/title-pages.md`: データ源を「5タブ」→「4タブ」にし表の「決勝動画」の行を消した。「『決勝動画』タブは読まない」→「読まなくなり…2026-10-11 に削除した（#473）」。「止める: 4タブ（決勝動画を除く）」→「4タブ」。「プロ」シートの定数を `scripts/lib/pro_sheet.py` に直し、「(旧)タイトル」は 2026-10-11 に削除した、に直した（title/ の生成は `lib/pro_sheet.py` から読む: `generate_title_pages.py:45`）
+  - `docs/handover.md`: 「5. 次にやること」の表から #473 の行を外した。「最終更新」は日付のまま、6タブの削除の1行を先頭に足し、最も古い1行（title/ の年の切り替え）を外して3行にした。サイズ 22,955 バイト（警告域 26KB の外）
+  - `docs/decisions/title.md`: 2026-09-30 の項の「V1 の見出しの扱いは 10/13 に決める」に「→ 置き換え」を付け、PHT-25 の項（6タブの削除と決定）を足した
+  - 前提に無い文書に「(旧)連盟ch」「(旧)放送対局」「(旧)決勝動画」「(旧)タイトル」「消した補正」は残っていない（docs/decisions/pros.md の RDN-10 の決定の「(旧)タイトル」は過去の決定の記録なので直さない）
+- 未マージの `work/` ブランチ（`git branch -r --no-merged origin/cloudflare`）で、直した5文書と `scripts/apps_script/` を変えているものは無い
+- unittest（直した後）: 805件 OK
+- 成果物のコミット: 9144cd4e
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj c28bfedc）: https://github.com/retroeater/mj-logs/tree/main/guide/c28bfedc
+ガイド文書（この版を写した時点の最新、mj 3f294739）: https://github.com/retroeater/mj-logs/tree/main/guide/3f294739
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c28bfedc/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c28bfedc/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c28bfedc/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c28bfedc/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c28bfedc/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c28bfedc/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/3f294739/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/3f294739/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/3f294739/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/3f294739/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/3f294739/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/3f294739/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b2727163.md

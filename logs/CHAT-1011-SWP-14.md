@@ -111,28 +111,46 @@ CHAT-1011-SWP-13 の第2弾の直しを仕上げて本番に入れる。G2-03 �
 - 1280px: 差が出たのは `jpml_test`（表の中の外部リンクのアイコンが出る・出ない）と `video_live`（ページの高さ 4499 と 4574）。どちらも負荷のかかった測定の時だけで、負荷のない2回の測定（`video_live` を現行2回・作業ブランチ2回）は 4499px で一致した（画像の読み込みの時刻の違いと見る）。ほかの12ページは差 0
 - `/nav_compare.html` はプレビューで HTTP 404。プレビューの `style.css`・`navbar.js`・`404.html`・`jpml_pros.html` は作業ブランチと一致（`cmp`）
 
+
+### 手順3 マージと記録
+
+- push の直前に再 fetch し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真であることと、`git diff --name-only origin/cloudflare...HEAD` が `style.css`・`navbar.js`・`docs/notes/design.md`・docs/logs/・docs/decisions/ だけ（比較ページは差分に無い）であることを確かめて `git push origin work/1011-swp-nav:cloudflare`（`c28bfedca..7fcdff8c5`）。権限判定の拒否は無かった。
+- 本番反映: check-run「Workers Builds: mj」は `completed / success`（push から約1分）。同じコミットの Actions（regenerate・check）も success。
+- **本番の HTML・CSS に反映を確認した。ブラウザでの見え方は未確認。**
+
+| 確かめた URL | 結果 |
+|---|---|
+| `https://ryoei.pro/style.css`（キャッシュ回避のクエリ付き） | 作業ブランチの版と一致（`cmp`） |
+| `https://ryoei.pro/navbar.js`（同） | 作業ブランチの版と一致 |
+| `https://ryoei.pro/nav_compare.html` | HTTP 404 |
+
+- マージ後に cloudflare に入った自動処理のコミット: 確認した時点（push から約3分）では無し（`git log 7fcdff8c5..origin/cloudflare` が空）。
+- 決定を `docs/decisions/site-review.md`（2026-10-11〈CHAT-1011-SWP-14〉）に足した。`docs/notes/design.md` に、ナビのフォーカス枠・ロゴとハンバーガーと虫眼鏡の押せる大きさ・虫眼鏡の位置・開いた固定ナビのメニューの最大の高さ・`.mj-margin-text` の余白を既決の値として足した（「タップ領域」と「スキップリンク」の行は置き換え、4行は新規）。
+- #524 に結果をコメントし、閉じた（「状況:」ラベルは付いていなかった。ラベルは「分野: UI/UX」「対象: 全ページ」のまま。閉じる時点で残る作業は無い）。コメントの末尾に `Chat-Ref: CHAT-1011-SWP-14`。
+- ブランチの片付け: マージ済みの `work/*` は `delete-merged-branches.yml` が毎日削除する（セッションの git プロキシは削除を拒否する）。削除はせず自動に任せる。本番の確かめの成否に条件づけていない。
+
 ## 報告
 
-- 状態: 中断（作業中）
-- ブランチ: work/1011-swp-nav
+- 状態: 完了
+- ブランチ: work/1011-swp-nav（マージ済み。削除は自動に任せる）
 - ログ: https://github.com/retroeater/mj/blob/work/1011-swp-nav/docs/logs/CHAT-1011-SWP-14.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1011-swp-nav
-- 確認用URL: 作業中
-- マージ: 未
-- issue: #524
-- 判断が必要なこと: 作業中
-- 未確認の項目: 作業中
+- 確認用URL: なし（本番の HTML・CSS の取得のみ。確かめた URL はログの「手順3」の表）
+- マージ: 済（`7fcdff8c5`。Workers Builds・Actions は `completed / success`）。この後のログの追いの push は docs のみ
+- issue: #524 を閉じた（コメントあり）。起票なし
+- 判断が必要なこと: なし
+- 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 7fcdff8c）: https://github.com/retroeater/mj-logs/tree/main/guide/7fcdff8c
+ガイド文書（この版を写した時点の最新、mj 3f294739）: https://github.com/retroeater/mj-logs/tree/main/guide/3f294739
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/7fcdff8c/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/7fcdff8c/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/7fcdff8c/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/7fcdff8c/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/7fcdff8c/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/7fcdff8c/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/3f294739/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/3f294739/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/3f294739/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/3f294739/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/3f294739/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/3f294739/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b2727163.md
