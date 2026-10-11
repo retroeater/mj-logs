@@ -1,7 +1,7 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-12 07:27 JST
-- 書き出した実行の契機: schedule（main）
+- 書き出した時刻: 2026-10-12 08:54 JST
+- 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
 
@@ -51,11 +51,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-12 08:35 | schedule | cloudflare | success | #12（38184841796） | 0分29秒 |
 | 2026-10-05 07:59 | schedule | cloudflare | success | #11（37242103246） | 0分26秒 |
 | 2026-10-03 12:14 | workflow_dispatch | work/1003-inv | success | #10（37092542802） | 0分28秒 |
 | 2026-10-03 12:00 | workflow_dispatch | cloudflare | failure | #9（37091766866） | 0分19秒 |
 | 2026-10-03 11:59 | workflow_dispatch | work/1003-inv | failure | #8（37091694361） | 0分11秒 |
-| 2026-09-28 23:16 | workflow_dispatch | cloudflare | success | #7（36434709688） | 0分23秒 |
 
 - #9 failure: ジョブ「check」 ステップ「テスト」
 - #8 failure: ジョブ「check」 ステップ「テスト」
@@ -163,11 +163,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-12 08:41 | schedule | cloudflare | success | #10（38185202120） | 0分33秒 |
 | 2026-10-05 08:11 | schedule | cloudflare | success | #9（37242874753） | 0分27秒 |
 | 2026-09-29 00:11 | workflow_dispatch | cloudflare | success | #8（36441730767） | 0分29秒 |
 | 2026-09-28 08:04 | schedule | cloudflare | failure | #7（36357451523） | 1分44秒 |
 | 2026-09-21 07:27 | schedule | cloudflare | success | #6（35541766968） | 0分22秒 |
-| 2026-09-20 09:40 | workflow_dispatch | work/0919-bd | success | #5（35479391095） | 0分24秒 |
 
 - #7 failure: ジョブ「sync」 ステップ「同期」
 
