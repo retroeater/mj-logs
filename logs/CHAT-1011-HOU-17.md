@@ -80,6 +80,46 @@
 
 ## 経過
 
+- 2026-10-11 着手。**この会話は HOU-01〜16 から続いている（新しく始めたセッションではない）**
+- 0. 指示欄の末尾は指示文の最後の行と一致。HOU-16 のログの報告は 状態「完了」。HOU-15 の直し（f9110f92。期の欄・「※出場10期以上のみ」）は origin/cloudflare の祖先。`CHAT-1011-HOU-17` のコミットは無し。雛形の行は揃っている
+- 作業ブランチ: ローカルの `work/1011-hou`（9719c413）とリモートの `origin/work/1011-hou` はどちらも origin/cloudflare の祖先（マージ済み）。docs/notes/cloud-sessions.md「作業ブランチの用意」の「ローカルにあり origin/cloudflare の祖先」に当たるので `git merge --ff-only origin/cloudflare` で c28bfedc へ進めた
+
+### 手順1 比較ページと6案
+
+- 比較ページ `houou/players/compare.html`（noindex・リンクなし・sitemap なし・`?name=` を受ける）: 上部にラジオ「リーグ」（L1 左寄せ・L2 中央寄せ・L3 チップ）と「推移の吹き出し」（T1 1行・T2 3行・T3 3行＋結果）。既定は L1・T1。ラジオの部品（`variants_html`・`.mj-houou-variants`）は HOU-14 で消したものを戻した
+- 本番の部品への入れ方: リーグの欄に段のクラス（`t0` 鳳凰位〜`t13` E3）を足し、L2・L3 は CSS の `.mj-houou:has(#houou_league_l2:checked)` などでだけ効かせる。吹き出しは `tipContent()` がラジオ `houou_tip` を読み、ラジオの無いページ（本番）は T1。本番の形（`houou/players/index.html`）の HTML は生成し直しても変わらない。手元の本番の形と本番（ryoei.pro）の個人成績（白鳥翔）を 390・1280 で撮り比べ、期のカードの部分の画像はバイト単位で同じ、推移の吹き出しの中身とクラスも同じ
+- L2: リーグの欄を「鳳凰位」の幅（3em、リーグの字の大きさ 1.125rem）で取り、中央寄せ
+- L3: リーグの色のチップ。色はリーグ推移の段の色（`style.css` の `--lg-t0`〜`--lg-t13`、HOU-06）と文字の色（`--lg-ink0`〜`--lg-ink13`）をそのまま使う（変数の範囲を `.mj-houou-lg` から個人成績 `.mj-houou-players` にも広げた）。結果のチップ（角が丸い錠剤の形）と見分けるため、角を 4px の四角にした。字の大きさ・行の高さは結果のチップと同じ（0.8125rem・1.4）、幅は 3.2em 以上（鳳凰位は3文字なので少し広い）
+- L2・L3 の幅の問題と直し: そのままでは 390px で前期・後期のある期のカードがすべて2行になった（1行に収めるのに L2 は 19px、L3 は 12px 足りない）。L2・L3 のときだけ、期のカードの左右の欄の間を 8px → 4px、期とリーグの間を 0.3em → 0.2em、得点・順位・チップの間を 0.9em → 0.6em（等間隔のまま）に詰めた。これで 390・1280 とも 100% で白鳥翔 24枚・平野良栄 17枚が1行（L2 の余りは 1.2px）。本番の形（L1）の間隔は変えていない
+- L3 のコントラスト（WCAG 2 の相対輝度の式。文字の色は `--lg-inkN` のまま）:
+
+| リーグ | 背景 | 文字 | 比 |
+|---|---|---|---|
+| 鳳凰位 | #9f1239 | 白 | 8.02 |
+| A1 | #e3561f | 黒 | 5.62 |
+| A2 | #fa5d27 | 黒 | 6.66 |
+| B1 | #d28528 | 黒 | 7.13 |
+| B2 | #ef972e | 黒 | 9.14 |
+| C1 | #ccaa2d | 黒 | 9.36 |
+| C2 | #e8c133 | 黒 | 12.11 |
+| C3 | #eed066 | 黒 | 13.85 |
+| D1 | #0193c3 | 黒 | 5.96 |
+| D2 | #01a7de | 黒 | 7.58 |
+| D3 | #40bde6 | 黒 | 9.64 |
+| E1 | #0349c3 | 白 | 7.65 |
+| E2 | #0353de | 白 | 6.37 |
+| E3 | #427ee6 | 黒 | 5.36 |
+
+  全14色で 4.5 以上（最小は E3 の 5.36）。文字の色の調整は要らなかった
+- 推移のグラフと吹き出しの実物: グラフ（K2）は期ごとの通算得点（その期までの合計の累計）の面グラフ。吹き出し（T1）は「30期 A2 +96.6（通算 +618.2）」の形で、期・リーグ・その期の得点・その期までの通算。通算は合計のある行（`played`）の合計を古い順に足したもので、個人成績の要約の「通算成績」（合計のある行の和）と同じ数え方（最後の期の通算が要約の値と一致する。白鳥翔 +1124.3）
+- T2: 「24期前期」「D1 +11.3」「通算+11.3」の3行（A1・A2・鳳凰位は「41期」）。T3: T2 の2行目の右に結果のチップ（期のカードと同じ色・文言。結果の無い期は出さない）。吹き出しは黒地なので、チップは少し小さくした（0.75rem）
+- 確かめ（http.server、headless Chromium、390×844〈タッチで押す〉・1280×900〈マウスを重ねる〉、白鳥翔・平野良栄）:
+  - リーグの文字の左端は、各案・各文字の大きさで全カード1つの値（390・100%: L1 102・L2 101・L3 101）。L2 は文字の中心も1つの値（128）。L3 は鳳凰位のチップだけ幅が広いので中心が少しずれる（126 と 121）。得点の欄の右端も各条件で1つの値
+  - 2行になるカード: 100% は全案 0枚。150%・200% は L1 と同じく右の欄が次の行に回る（白鳥翔 23枚。鳳凰位の行は1行）。横のはみ出しは 390 で 0、1280・200% の 28px は本番の今の形と同じ
+  - 吹き出し: 左端（最初の期）と右端（最後の期）とも、T1〜T3 の吹き出しがグラフの枠の内に収まる。タッチでもマウスでも同じ中身。白鳥翔 右端 T3「41期／A1 +261.9［決定戦］／通算+1124.3」、平野良栄 左端 T3「31期後期／D3 ▲98.3［残留］／通算▲98.3」
+  - JS のエラー 0
+- テスト: 805件 OK（取り込みで cloudflare 側のテストが増えた）
+
 ## 報告
 
 - 状態: 作業中
@@ -96,12 +136,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj c28bfedc）: https://github.com/retroeater/mj-logs/tree/main/guide/c28bfedc
+ガイド文書（この版を写した時点の最新、mj a1a50feb）: https://github.com/retroeater/mj-logs/tree/main/guide/a1a50feb
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c28bfedc/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c28bfedc/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c28bfedc/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c28bfedc/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c28bfedc/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c28bfedc/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1a50feb/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1a50feb/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1a50feb/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1a50feb/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1a50feb/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1a50feb/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b2727163.md
