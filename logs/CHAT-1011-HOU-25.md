@@ -88,6 +88,34 @@
 - 2026-10-11 着手。**この会話は HOU-01〜24 から続いている（新しく始めたセッションではない）**
 - `CHAT-1011-HOU-25` のコミットは無し。`origin/work/1011-hou` はマージ済み（cloudflare と同じ a24c58c0）。ローカルの `work/1011-hou` も同じなので、`docs/notes/cloud-sessions.md`「作業ブランチの用意」のとおり `git merge --ff-only origin/cloudflare`（変化なし）
 
+### 手順1 0章の確かめ・比較ページ
+
+- 0. 指示欄の末尾は指示文の最後の行と一致。HOU-24 のログの報告は 状態「完了」。origin/cloudflare の `style.css` にアルファベットごとのチップの色（`.mj-houou-lgchip.t13` が `--lg-t12`）がある。指示文の冒頭の雛形の行は揃っている
+- 作り（b6db87c1）:
+  - `assets/houou.js`: 期のカードの「順位・結果のチップ・開閉の印」を入れ物 `.mj-houou-term-after` で包んだ。本番の CSS は `display: contents` なので並びは変わらない（比較ページの P2・P3 で区画として使う）
+  - `scripts/generate_houou_pages.py`: `houou/players/compare.html` を生成（`render_players(compare=True)`。noindex は全ページ共通の head のまま、どこからもリンクせず sitemap にも載せない）。上部にラジオ「配置」P0〜P3（既定 P0）と「順位とチップの間」0.6・0.8（既定）・1em（rem で指定。1em＝16px）。前の比較ページ（HOU-05〜18）の `variants_html` と `.mj-houou-variants` の CSS を戻して使った
+  - `style.css`: 案ごとの見た目を `.mj-houou:has(#houou_lay_pN:checked)` で差し替える（JS なし。本番のページにはラジオが無いので効かない）
+    - P1 詰める: 左右の欄の `space-between` をやめ、右の欄を伸ばして印だけを右端に寄せる。リーグのチップ → 得点の欄の間は今の最も狭いときと同じ 2px（得点の欄は右寄せなので、字までの空きは得点の桁で変わる）。前提の「目安 1em」は 375px で収まらないので置かなかった
+    - P2 得点を中央（小数点そろえ）: 左の区画（期・リーグ）と右の区画（順位・チップ・印）を同じ伸び方（`flex: 1 1 0`、最小は中身の幅）にして、得点の欄（4.4em・右寄せ）をカードの中心に置く。リーグは左の区画の右端（期は左端のまま）、順位・チップは右の区画の左寄せ、印は右端。鳳凰位の行は得点の欄を見えないまま残して区画をそろえる
+    - P3 得点を中央（中央寄せ）: P2 の得点の欄の中を中央寄せ
+    - P1〜P3 共通: 順位 → チップの間をラジオの値に、チップ → 印の間を 2px に（375px で1行に収めるため。今は 0.45em）。得点 → 順位は今と同じ 7.2px
+- 確かめ（http.server、headless Chromium、白鳥翔・真田将成・松岡昭彦〈43期〉。ページの中身の幅は最大 400px ほどなので、600px と 1280px は同じ並びになる）:
+
+| 案 | 375px の余り（標準 / IPA P ゴシック / WenQuanYi） | リーグのチップの右端 → 得点の字の左端（600px） | 順位の字の右端 → 結果のチップの左端 | 得点の欄の中心 − 通算成績の枠の中心（600px） | 得点の字の中心 − 通算成績の字の中心（600px） |
+|---|---|---|---|---|---|
+| P0 今 | 9.2 / 4.0 / 6.2px | 57.1〜84.5px | 7.2px | +15.3px | +23.4〜+37.1px |
+| P1 詰める | 10.7 / 5.7 / 7.7px | 22.9〜50.2px | 12.8px | −19.0px | −10.8〜+2.9px |
+| P2 中央・小数点 | 10.7 / 5.7 / 7.7px | 22.9〜50.2px | 12.8px | 0px | +8.2〜+21.8px |
+| P3 中央・中央寄せ | 10.7 / 5.7 / 7.7px | 14.7〜28.4px | 12.8px | 0px | 0px |
+
+  - 余りは「全カードの右の余白を何 px 足すと2行のカードが出るか」（順位とチップの間 0.8em のとき）。0.6em では +3.3px、1em では −3.1px（標準の字体で P1〜P3 とも 14.0・7.6px）
+  - リーグのチップ → 得点の字は、得点の桁（+17.2 と ▲364.8）で幅がある。P2 は 375・390・600px で同じ（区画の中でリーグを右に寄せたため、広い画面では期とリーグの間が広がる）
+  - P2 は小数点（得点の字の右端）が全行でそろう（1か所）。P3 は行ごとにずれる（白鳥翔で7か所）
+  - どの案も 375・390・600・1280px で2行のカード 0、リーグのチップの中心は全カードで1か所、得点と順位の間 7.2px 以上、横のはみ出し 0、JS のエラー 0。375px・150%・200% は今と同じく右の欄が次の行に回り、横のはみ出し 0（P2・P3 は 200% で鳳凰位の行も2行になる。印が右の区画にあるため）
+  - 比較ページの上のラジオの字は、200% では右端で切れる（比較ページだけ）
+- 本番のページ（`houou/players/?name=白鳥翔`・`真田将成`）: 手元の新しいコードと本番（ryoei.pro）で、期の一覧の中の全要素の位置と大きさ（0.1px 単位）が 375・390・1280px × 100%・200% の12通りとも同じ
+- テスト: 830件 OK
+
 ## 報告
 
 - 状態: 作業中
@@ -104,12 +132,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj a1d76d51）: https://github.com/retroeater/mj-logs/tree/main/guide/a1d76d51
+ガイド文書（この版を写した時点の最新、mj c5e3ebdb）: https://github.com/retroeater/mj-logs/tree/main/guide/c5e3ebdb
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1d76d51/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1d76d51/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1d76d51/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1d76d51/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1d76d51/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1d76d51/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5e3ebdb/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5e3ebdb/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5e3ebdb/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5e3ebdb/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5e3ebdb/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5e3ebdb/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a81419df.md
