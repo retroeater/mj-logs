@@ -71,18 +71,28 @@ HOU-15 の直しを、未公開の形（noindex・navbar・sitemap・`llms.txt`�
 - 未公開の形（作業ブランチ）: `houou/` の HTML 13 すべてに noindex／`navbar.js`・`sitemap*.xml`・`llms.txt` に `houou/` 無し（`sitemap-title.xml` の `title/houou/` は別のページ）／既存のページからルートの `houou/` へのリンク 0（相対パスまで解決）／`compare.html` 0
 - `docs/decisions/houou.md` に「## 2026-10-11（CHAT-1011-HOU-16）」を足した。`docs/handover.md` は変えていない（HOU-14 の「最終更新」の行で足りる）
 
+### 手順2 マージ・本番の確かめ・片付け
+
+- マージ: 再 fetch して `git merge-base --is-ancestor origin/cloudflare HEAD` が真（origin/cloudflare 1bda70d1）を確かめ、`git push origin work/1011-hou:cloudflare`（1bda70d1..1af6fc7c）
+- check-runs（1af6fc7c）: 「Workers Builds: mj」success（01:46:27Z）・check success・sync success・**regenerate failure**（01:46:15Z）
+- regenerate の失敗の原因（run 38102918438 のログ）: `houou_pages` の生成が、「別名」の辞書を作るときに読む SNS のブックの「【3】画像取得」タブで `lib.sheets.FilteredSheetError`（「フィルタ、または非表示・折りたたみの行があります（gviz 2行 / シート 1864行）」）で止まり、ワークフローは `houou_pages` を飛ばした（途中の出力 0 件を戻した。コミットは無し）。手元でも同じエラーが出る（手順1の再生成のときは通っていたので、その後にシートの状態が変わった）。シートの状態によるもので、今回マージした変更とは関係しない。本番の `houou/` は、作業ブランチで生成してコミットした HOU-15 の版のまま
+- 本番（`curl`、`-w %{http_code}`、`?v=` に未使用の値）: `/houou/players/` 200・`/houou/ranking/total-per-term/` 200（どちらも `<meta name="robots" content="noindex">` あり、`x-robots-tag` の応答ヘッダは無い）。期平均のページに「※出場10期以上のみ」。期のカードの欄は JS が作るので、本番の `assets/houou.js` と `style.css` に `mj-houou-term-ki` があることを確かめた。ブラウザでの見え方は確かめていない（平野さん）
+- 片付け: このクラウドセッションはブランチを削除できない（docs/notes/cloud-sessions.md「ブランチの削除」）。マージ済みの `work/*` は `delete-merged-branches.yml` が毎日、先頭が24時間より前のものを削除する。このログの push の後、同じ先頭を `cloudflare` へも push して（docs/logs だけの追いの push）マージ済みの状態にする。追いの push の前の先頭は 1af6fc7c。次の指示 HOU-17 は、work/1011-hou がマージ済みなので origin/cloudflare から作り直して使う
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1011-hou
-- ログ: https://github.com/retroeater/mj/blob/work/1011-hou/docs/logs/CHAT-1011-HOU-16.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1011-hou
-- 確認用URL: なし
-- マージ: 未
+- 状態: 完了
+- ブランチ: work/1011-hou（マージ済み。削除は `delete-merged-branches.yml` に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1011-HOU-16.md
+- 比較URL: なし（マージ済み）
+- 確認用URL: https://ryoei.pro/houou/players/?name=白鳥翔 ほか（下の「判断が必要なこと」）
+- マージ: 済（1bda70d1..1af6fc7c。この報告の docs/logs のみの追いの push あり）
 - issue: #518
-- 判断が必要なこと: なし
-- 未確認の項目: なし
-- エラー: なし
+- 判断が必要なこと:
+  1. 本番での確かめ（未公開でも URL を直接打てば見える）: https://ryoei.pro/houou/players/?name=白鳥翔 （期ごとの成績〈表〉で「42期 鳳凰位」「41期 A1」「37期後期 B1」のリーグの文字が縦にそろう。鳳凰位の行は「⌄」だけが右端）、https://ryoei.pro/houou/ranking/total-per-term/ ・ https://ryoei.pro/houou/ranking/round-plus-rate/ （表の右上に「※出場10期以上のみ」「※出場50節以上のみ」）
+  2. **マージの後の自動再生成（`regenerate-page.yml`）が失敗した**: SNS のブックの「【3】画像取得」タブにフィルタか非表示・折りたたみの行があり（gviz 2行 / シート 1864行）、`houou_pages` の生成が止まって飛ばされた（コミットなし。本番の `houou/` は今回マージした版のまま）。手元でも同じエラー。タブのフィルタの解除か行の再表示をすれば次の再生成で通る見込み。このタブを読む部品は別のセッションの作業（#514）で入ったもので、このままだと `houou_pages` など「別名」の辞書を使う生成が止まり続ける
+- 未確認の項目: 本番のブラウザでの見え方（平野さん）。シートを直した後の再生成の成否
+- エラー: マージの後の `regenerate-page.yml` の失敗（上の 2。この作業の変更が原因ではない）
 
 <!-- guide-links -->
 ---
