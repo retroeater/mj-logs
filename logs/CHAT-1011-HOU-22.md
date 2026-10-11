@@ -69,28 +69,39 @@ HOU-19・HOU-21 の直しを、未公開の形（noindex・navbar・sitemap・`l
 - 未公開の形: `houou/` の HTML 13件すべてに noindex。`navbar.js`・`sitemap*.xml`・`llms.txt` に `houou/`（トップの階層）は無し（`title/houou/` は別のページ）。既存のページ（旧4ページを含む）から `houou/` へのリンクは0件（相対パスを解いて確かめた。`live/houou/` へのリンクは別の階層）。`houou/` に `compare.html` は無し
 - `docs/decisions/houou.md` に CHAT-1011-HOU-22 の節を足した（2026-10-11 の節は AIC-01・02 を含めて12個目。HOU の節としては10個目）
 
+### 手順2 マージ・本番の確かめ・片付け
+
+- 再 fetch で `origin/cloudflare` が 7665e09e（ABM-05 の docs のみ）に進んでいたので、もう一度 merge で取り込んだ（衝突なし。docs のみなので再生成はしていない）
+- マージ: push 直前に再 fetch し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめて `git push origin work/1011-hou:cloudflare`（7665e09e..4790f6d2）
+- Workers Builds の check-run（4790f6d2）: success
+- 本番（`curl`）: `https://ryoei.pro/houou/players/?v=<未使用の値>` が 200、noindex あり。配信の `style.css` は 4790f6d2 の `style.css` と同じ中身（得点の欄 4.4em・カードの余白 `8px 6px`・要約の `is-long` と `clamp(1rem, 5.2vw, 1.375rem)` を含む）。`assets/houou.js` に `STAT_LONG` あり。ブラウザでの見え方はここからは確かめていない
+- 片付け: このクラウドセッションはブランチを削除できない（docs/notes/cloud-sessions.md「ブランチの削除」）。`origin/work/1011-hou` は `git branch -r --merged origin/cloudflare` に出る（マージ済み）。削除は `delete-merged-branches.yml` に任せる。このログの push の後、同じ先頭を `cloudflare` へも push する（docs/logs だけの追いの push）。追いの push の前の先頭は 4790f6d2
+- 前回（HOU-21）の最終報告の「ログ（公開）」の `?v=` に mj-logs のコミットの SHA を書いた。`_template.md` の規則は mj の最後のコミットの短い SHA（今回から規則どおりにする。mj-logs は `?v=` を無視するので読む内容は同じ）
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1011-hou
-- ログ: https://github.com/retroeater/mj/blob/work/1011-hou/docs/logs/CHAT-1011-HOU-22.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1011-hou
-- 確認用URL: なし
-- マージ: 未
+- 状態: 完了
+- ブランチ: work/1011-hou（マージ済み。削除は `delete-merged-branches.yml` に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1011-HOU-22.md
+- 比較URL: なし（マージ済み）
+- 確認用URL: https://ryoei.pro/houou/players/?name=真田将成 ほか（下の「判断が必要なこと」）
+- マージ: 済（7665e09e..4790f6d2。この報告の docs/logs のみの追いの push あり）
 - issue: #518
-- 判断が必要なこと: なし
-- 未確認の項目: なし
-- エラー: なし
+- 判断が必要なこと:
+  1. 本番での確かめ（未公開でも URL を直接打てば見える）: https://ryoei.pro/houou/players/?name=真田将成 （41期前期「▲364.8」「36位」・40期前期「▲272.8」「46位」で得点と順位の間が空く、期のカードが1行、要約の値が枠からはみ出さない）、https://ryoei.pro/houou/players/?name=白鳥翔 （34期「▲113.8」「14位」・36期の行）。プレビューと同じ中身なので、iPhone で見えた形と同じになるはず（ここからはブラウザでの見え方は確かめていない）
+  2. 再生成で、シートの変化による差分が `saikyo/2026/20260920.html`・`20260920-s2.html`（決勝の「ABEMA で見る」のリンク）に出た。この作業と無関係なのでコミットしていない（cloudflare の自動再生成で入る見込み）
+- 未確認の項目: 本番のブラウザでの見え方（平野さん）
+- エラー: なし（`jpml_pros`・`resource_dictionary`・`books_pages` は再生成から外した）
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 7665e09e）: https://github.com/retroeater/mj-logs/tree/main/guide/7665e09e
+ガイド文書（この版を写した時点の最新、mj 4790f6d2）: https://github.com/retroeater/mj-logs/tree/main/guide/4790f6d2
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/7665e09e/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/7665e09e/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/7665e09e/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/7665e09e/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/7665e09e/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/7665e09e/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/4790f6d2/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/4790f6d2/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/4790f6d2/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/4790f6d2/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/4790f6d2/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/4790f6d2/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a81419df.md
