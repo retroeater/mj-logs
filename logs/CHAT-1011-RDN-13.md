@@ -95,28 +95,54 @@ Chat-Ref: CHAT-1011-RDN-13
     生成は【3】の「X」列を読まない（ID は【2】、画像は【3】の「X画像URL」）ため、ページには出ない。【3】は機械が書くタブで、毎日の更新で書き直される
   - 止まる条件「X ID・X画像の値が残っている」には当たらないと判断した（生成と同じ経路の値は両方とも空）
 
+### 手順3: 再生成と確認
+
+- `docs/notes/static-generation.md`「ワークフローを手動実行するとき」を読んだ（`regenerate-page.yml` の checkout と push 先は実行ブランチ。実行元は cloudflare にする）
+- `regenerate-page.yml` を `target_page` = `all`・ref `cloudflare` で手動実行（MCP `actions_run_trigger`）: run 38106752356（02:56〜02:59 UTC、head 6dc8aab7）→ **success**。
+  全ステップ成功（「飛ばしたページを報告」は skipped＝飛ばしたページ無し、「楽天の書影を取得」は凍結で skipped）。帰り道の取り込みの検査も知らせ無し
+- この実行による生成物のコミットは無かった（02:50 UTC 以降の cloudflare に `chore: regenerate` が無い）。02:26 UTC の Actions の再生成（`ce02c249`）で既に SNS ブックの値が反映されていたため、変化が無かった
+- 再生成後の origin/cloudflare（bd971d04）の生成物を grep し直した: **`ayanooo0826` 0件・`1459023390657101824` 0件**
+- 本番の URL（03:00 UTC、`?v=` に未使用の値）: 手順1と同じ6ページとも 200、`ayanooo0826` 0件・画像 URL 0件
+- 指示の決定（X のクリア）を `docs/decisions/pros.md` に足した（最初のマージの後に docs のみで追加）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1011-rdn-x
-- ログ: https://github.com/retroeater/mj/blob/work/1011-rdn-x/docs/logs/CHAT-1011-RDN-13.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1011-RDN-13.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1011-rdn-x
 - 確認用URL: なし
-- マージ: 未
+- マージ: 済（docs/logs のみ。このログを含むコミットを cloudflare へ fast-forward で push）
 - issue: なし
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
 
+結果: 乗っ取られた X アカウント（`ayanooo0826`）へのリンクと画像は、本番・origin/cloudflare の生成物のどちらにも残っていない。入っていたことがあるのは `jpml_pros.html` だけで、10/11 01:01 UTC（画像）・02:26 UTC（ID）の Actions の再生成で既に消えていた。`regenerate-page.yml`（all、cloudflare）を手動で実行しても変化は無かった（run 38106752356、success）。
+「プロ」（X ID・X画像）と SNS ブックの実効の値はどちらも空。SNS ブックの「【3】画像取得」の「X」（機械が書く取ったときの ID）には `ayanooo0826` が残るが、生成は読まない。
+
+X の読み元（引き継ぎ用）:
+
+| スクリプト | X の ID・画像の読み元 |
+|---|---|
+| `generate_jpml_pros.py` | SNS ブック（`sns.fetch_pros`） |
+| `generate_saikyo_pages.py`・`generate_live_pages.py`・`generate_books_pages.py`・`generate_houou_race.py`（houou/ の画像も） | SNS ブック（`sns.fetch_pros`、「連盟プロ以外」は `sns.others`） |
+| `generate_title_pages.py` | SNS ブック（`sns.fetch_pros`、「連盟プロ以外」は `sns.lookup`） |
+| `generate_wayhome_episodes.py`・`generate_video_wayhome.py`（`lib/wayhome.py`）・`generate_jpml_test.py` | SNS ブック（`sns.fetch_pros`） |
+| `lib/birthdays.py`・`sync_dojo_calendar.py` | SNS ブック（`sns.fetch_pros`、X ID だけ） |
+| `fetch_youtube_channels.py` | SNS ブック（YouTube ID） |
+| `collect_saikyo_images.py`（写真の検知） | SNS ブック（`sns.x_details`、【3】の X状態と【4】） |
+| `update_sns_book.py`（SNS ブックの毎日の更新） | 「プロ」の X ID・X画像などを `pro_sheet.fetch_pros` で直接読む（【1】の元と、init・check で写す・比べる値。ページには出ない） |
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 81c65eab）: https://github.com/retroeater/mj-logs/tree/main/guide/81c65eab
+ガイド文書（この版を写した時点の最新、mj 44da572e）: https://github.com/retroeater/mj-logs/tree/main/guide/44da572e
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/81c65eab/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/81c65eab/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/81c65eab/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/81c65eab/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/81c65eab/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/81c65eab/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/44da572e/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/44da572e/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/44da572e/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/44da572e/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/44da572e/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/44da572e/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a81419df.md
