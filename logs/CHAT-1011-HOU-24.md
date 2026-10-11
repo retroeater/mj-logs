@@ -69,18 +69,27 @@ HOU-23 の直しを、未公開の形（noindex・navbar・sitemap・`llms.txt`�
 - 未公開の形: `houou/` の HTML 13件すべてに noindex。`navbar.js`・`sitemap*.xml`・`llms.txt` に `houou/` は無し。既存のページ（旧4ページを含む）から `houou/` へのリンクは0件（相対パスを解いて確かめた）。`houou/` に `compare.html` は無し
 - `docs/decisions/houou.md` に CHAT-1011-HOU-24 の節を足した（2026-10-11 の節は AIC を含めて15個目。HOU の節としては12個目）
 
+### 手順2 マージ・本番の確かめ・片付け
+
+- マージ: push 直前に再 fetch し（origin/cloudflare は cc2de5f0 のまま）、`git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめて `git push origin work/1011-hou:cloudflare`（cc2de5f0..a1d76d51）
+- Workers Builds の check-run（a1d76d51）: success
+- 本番（`curl`）: `https://ryoei.pro/houou/players/?v=<未使用の値>` が 200、noindex あり。配信の `style.css` は a1d76d51 の `style.css` と同じ中身（`.mj-houou-lgchip.t1` が `--lg-t2`・`--lg-ink2`、`.t13` が `--lg-t12`・`--lg-ink12` など、アルファベットごとの色と字の色）。ブラウザでの見え方はここからは確かめていない
+- 片付け: このクラウドセッションはブランチを削除できない（docs/notes/cloud-sessions.md「ブランチの削除」）。`origin/work/1011-hou` は `git branch -r --merged origin/cloudflare` に出る（マージ済み）。削除は `delete-merged-branches.yml` に任せる。このログの push の後、同じ先頭を `cloudflare` へも push する（docs/logs だけの追いの push）。追いの push の前の先頭は a1d76d51
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1011-hou
-- ログ: https://github.com/retroeater/mj/blob/work/1011-hou/docs/logs/CHAT-1011-HOU-24.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1011-hou
-- 確認用URL: なし
-- マージ: 未
+- 状態: 完了
+- ブランチ: work/1011-hou（マージ済み。削除は `delete-merged-branches.yml` に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1011-HOU-24.md
+- 比較URL: なし（マージ済み）
+- 確認用URL: https://ryoei.pro/houou/players/?name=白鳥翔 ほか（下の「判断が必要なこと」）
+- マージ: 済（cc2de5f0..a1d76d51。この報告の docs/logs のみの追いの push あり）
 - issue: #518
-- 判断が必要なこと: なし
-- 未確認の項目: なし
-- エラー: なし
+- 判断が必要なこと:
+  1. 本番での確かめ（未公開でも URL を直接打てば見える）: https://ryoei.pro/houou/players/?name=白鳥翔 （期のカードのチップが A1・A2 は同じ橙、B1・B2 は同じ黄橙、C1・C3 は同じ黄、D1 は水色、いずれも黒い字。鳳凰位は濃い赤に白い字）、https://ryoei.pro/houou/players/?name=真田将成 （E2・E3 が同じ青に白い字）。プレビューと同じ中身
+  2. 再生成で、シートの変化による差分が `saikyo/2026/` の22ファイル（2026-08-16〜09-20 の対局のページに「ABEMA で見る」のリンク、20260920 の決勝のリンクの番号 `_p16` → `_p18`）に出た。この作業と無関係なのでコミットしていない（cloudflare の自動再生成で入る見込み）
+- 未確認の項目: 本番のブラウザでの見え方（平野さん）
+- エラー: なし（`jpml_pros`・`resource_dictionary`・`books_pages` は再生成から外した）
 
 <!-- guide-links -->
 ---
