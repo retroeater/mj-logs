@@ -95,14 +95,18 @@ CHAT-1011-ABM-01 の調査を受けて、チャットで /grill-me の形で決�
 - 「アンカー」の末尾に、同じ日に2つの対局があると対局識別子（`?match=` の値と `data-match`）が重複すること（14組。2つ目の共有 URL が1つ目を出す）と、#425 で2つ目にだけ枝番 `-2` を付けることを足した
 - 個別ページの設計そのものは書いていない（試作の後）
 
+### マージ
+
+- 再 fetch 後も `git merge-base --is-ancestor origin/cloudflare HEAD` が真（取り込み不要）。cloudflare との差はログ2つ・docs/decisions の2つ・設計メモだけ。`git push origin work/1011-abm:cloudflare`（44da572e..527d0910）
+
 ## 報告
 
 - 状態: 完了
 - ブランチ: work/1011-abm
-- ログ: https://github.com/retroeater/mj/blob/work/1011-abm/docs/logs/CHAT-1011-ABM-02.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1011-ABM-02.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1011-abm
 - 確認用URL: なし
-- マージ: 未（ドキュメントのみのため、この後 cloudflare へ入れる）
+- マージ: 済（527d0910。fast-forward で `git push origin work/1011-abm:cloudflare`）
 - issue: #425（本文・コメント）・#501（コメント）・#530（コメント）・#546（起票）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
@@ -111,12 +115,12 @@ CHAT-1011-ABM-01 の調査を受けて、チャットで /grill-me の形で決�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 527d0910）: https://github.com/retroeater/mj-logs/tree/main/guide/527d0910
+ガイド文書（この版を写した時点の最新、mj 637f0008）: https://github.com/retroeater/mj-logs/tree/main/guide/637f0008
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/527d0910/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/527d0910/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/527d0910/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/527d0910/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/527d0910/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/527d0910/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/637f0008/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/637f0008/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/637f0008/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/637f0008/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/637f0008/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/637f0008/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a81419df.md

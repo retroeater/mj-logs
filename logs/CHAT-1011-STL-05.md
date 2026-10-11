@@ -91,7 +91,7 @@
 
 ## 報告
 
-- 状態: 判断待ち（手順1・2は済み。手順3は前提が実物と違うため書かず、マージもしていない）
+- 状態: 判断待ち（手順1・2は済み。手順3は前提が実物と違うため書かず、マージもしていない） / 続き: CHAT-1011-STL-06
 - ブランチ: work/1011-stl
 - ログ: https://github.com/retroeater/mj/blob/work/1011-stl/docs/logs/CHAT-1011-STL-05.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1011-stl
@@ -118,12 +118,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj a1a50feb）: https://github.com/retroeater/mj-logs/tree/main/guide/a1a50feb
+ガイド文書（この版を写した時点の最新、mj 637f0008）: https://github.com/retroeater/mj-logs/tree/main/guide/637f0008
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1a50feb/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1a50feb/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1a50feb/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1a50feb/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1a50feb/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1a50feb/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/637f0008/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/637f0008/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/637f0008/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/637f0008/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/637f0008/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/637f0008/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a81419df.md
