@@ -96,28 +96,52 @@ CHAT-1011-HOU-20（HOU-19 のマージだけの指示）は、平野さんに渡
   - JS のエラー 0
 - テスト: 818件 OK
 
+### 手順2 文書・再生成・プレビュー
+
+- 文書（5f10921d・b32282ba）: `docs/notes/houou-top.md`「期のカードの右側」を得点 4.4em・理由（iPhone の字体）・カードの余白 6・6px・余り（375px 11.2px／390px 26.2px／IPA P ゴシック 6.1px）に置き換えた。「仮置きの一覧」は HOU-06・HOU-19 の行に HOU-21 の変更を注記し、「HOU-21 で足したもの」を足した。`docs/decisions/houou.md` に 2026-10-11 の9つ目の節（CHAT-1011-HOU-21）を足した
+- 全ページの再生成（`jpml_pros`・`resource_dictionary`・`books_pages` は外した。この3つは既存の部品を使わず、CSS の変更は生成物に入らない）: 差分 0
+- 未公開の形: `houou/` の HTML はすべて noindex。navbar・sitemap・`llms.txt` に `houou/` は 0件
+- 旧ページ（`houou_*.html`）: 変えたのは `.mj-houou-term-total`・`.mj-houou-term-bar`（新ページだけのクラス）で、旧ページは使っていない
+- 外部ドメイン・ワークフローの変更: なし
+- プレビュー: Workers Builds の check-run は 2fbc7b38（7bcb78e1 を含む push）で success。プレビューの `style.css` に `width: 4.4em` があることを確かめた。プレビューで手元と同じ確かめ（白鳥翔・真田将成・松岡昭彦）:
+  - 375×812: 2行 0枚、最小の空き 標準 11.2px・IPA P ゴシック 6.1px・WenQuanYi 8.2px。得点 → 順位の間（2桁の順位の行）0.45〜0.51em、得点のはみ出し 0、横のはみ出し 0
+  - 390×844: 2行 0枚、26.2px。1280: 2行 0枚、36.2px
+  - 375・150%・200%: 右の欄が次の行に回る（今までどおり）。横のはみ出し 0
+  - JS のエラー 0
+
+### 手順3 報告
+
+- 下の `## 報告` を書いた
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち（平野さんが iPhone でプレビューを見て決める。HOU-19 の直しを含む）
 - ブランチ: work/1011-hou
 - ログ: https://github.com/retroeater/mj/blob/work/1011-hou/docs/logs/CHAT-1011-HOU-21.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1011-hou
-- 確認用URL: なし
-- マージ: 未
+- 確認用URL: ターミナルへの最終報告にだけ書いた（プレビュー、個人成績の白鳥翔・真田将成）
+- マージ: 未（指示のとおりマージしない）
 - issue: #518
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 判断が必要なこと:
+  - iPhone で確かめる手順: プレビューの個人成績で白鳥翔を開き、34期（▲113.8・14位）と36期の行、真田将成を開き、41期前期（▲364.8・36位）と40期前期（▲272.8・46位）の行で、得点と順位の間に空きがあるか（ほかの行と同じ間隔に見えるか）、期のカードが1行に収まっているかを見る。OK ならマージの指示へ
+  - 得点の欄の幅: 4.1em → 4.4em（目安どおり）。手元の字体の「▲364.8」は 3.49〜3.78em。ヒラギノは手元で測れないので見込み（等幅の数字で「.」も数字の幅になり 4.2em 台）で決めた
+  - 375px での余り（左右の欄の間の最小の空き）: 標準の字体 11.2px、幅の広い字体 IPA P ゴシック 6.1px・WenQuanYi Zen Hei 8.2px。4.4em にすると IPA P ゴシックで 4.1px になったため、カードの左の余白を 8px → 6px にして戻した（字の大きさは変えていない）
+  - 仮置きの一覧（全体は `docs/notes/houou-top.md`「仮置きの一覧」）
+    - 今回（HOU-21）足した分: 得点の欄の幅 4.4em（ヒラギノを測れず見込みで決めた）、カードの左の余白 6px（左右とも 6px）
+    - 今回直した既存の行: HOU-06 の「得点 4.1em」に〈HOU-21 で 4.4em〉、HOU-19 の「カードの左右の余白 8・6px」に〈HOU-21 で 6・6px〉を注記
+    - それ以前からの分（HOU-01〜19）は変えていない
+- 未確認の項目: iPhone（ヒラギノ）での見え方（ここからは測れない。平野さんの目視待ち）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 3afefa88）: https://github.com/retroeater/mj-logs/tree/main/guide/3afefa88
+ガイド文書（この版を写した時点の最新、mj 1fe83b8c）: https://github.com/retroeater/mj-logs/tree/main/guide/1fe83b8c
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/3afefa88/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/3afefa88/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/3afefa88/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/3afefa88/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/3afefa88/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/3afefa88/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/1fe83b8c/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/1fe83b8c/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/1fe83b8c/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/1fe83b8c/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/1fe83b8c/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/1fe83b8c/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a81419df.md
