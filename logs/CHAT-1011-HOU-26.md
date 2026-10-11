@@ -81,6 +81,20 @@ HOU-25 の比較ページで平野さんが選んだ形を個人成績 `houou/pl
 - 2026-10-11 着手。**この会話は HOU-01〜25 から続いている（新しく始めたセッションではない）**
 - `CHAT-1011-HOU-26` のコミットは無し
 
+### 手順1 取り込み・P3・1em
+
+- 0. 指示欄の末尾は指示文の最後の行と一致。HOU-25 のログの報告は 状態「判断待ち」。状態の末尾に ` / 続き: CHAT-1011-HOU-26` を足した。`origin/work/1011-hou` はリモートにありローカルと一致（06617aad）。CLAUDE.md「ブランチ運用」と `docs/notes/branch-operations.md` は HOU-22 で読んだもの（このセッションで続けて読んでいる）。指示文の冒頭の雛形の行は揃っている
+- `origin/cloudflare`（a5e75bd0、ABM-07・08〈最強戦の ABEMA のサムネイル〉と SWP-18）は HEAD の祖先でなかったので merge で取り込んだ（63d33768）。衝突なし（`style.css` は自動でまとまった）
+- 直し（d595fe90）:
+  - `style.css`: P3 と 1em を本番の形にした。右の欄 `.mj-houou-term-right` を `display: contents` にし、左の区画 `.mj-houou-term-left` と右の区画 `.mj-houou-term-after` を `flex: 1 1 0`・最小は中身の幅にして得点の欄をカードの中心に置く。期とリーグの欄 `.mj-houou-term-name` は区画の幅いっぱいにしてリーグを右端へ。得点は中央寄せ。得点 → 順位 7.2px（区画の間の 2px を含む）、順位 → 結果のチップ 1rem、チップ → 開閉の印 2px（印は右端）。鳳凰位の行は得点の欄を見えないまま残す。比較ページのラジオの CSS（`.mj-houou-variants`）と案の切り替え（`:has(#houou_lay_…)`・`--term-rk-gap`）を消した
+  - `assets/houou.js`: 右の区画の入れ物 `.mj-houou-term-after` は残し、コメントを本番の役目に直した
+  - `scripts/generate_houou_pages.py`: `TERM_VARIANTS`・`variants_html`・`compare` 引数と比較ページの書き出しを消した（cloudflare の版と同じに戻った）。`houou/players/compare.html` を `git rm`
+- 確かめ（http.server、headless Chromium、白鳥翔・真田将成・松岡昭彦〈43期〉）:
+  - 375px の余り（全カードの右の余白を何 px 足すと2行のカードが出るか）: 標準 **7.6px**・IPA P ゴシック **2.4px**・WenQuanYi Zen Hei **4.6px**。どれも 2px 以上なので、ほかの間は変えていない。欄はどの行も決まった幅なので、3人とも同じ値（最も幅の広い行も同じ）
+  - 375・390・600・1280px: 2行のカード 0。得点の欄の中心 − 通算成績の枠の中心 **0px**、得点の字の中心 − 通算成績の字の中心 0px（全行）。リーグのチップの中心は全カードで1か所。得点の字 → 順位の字 15.4px 以上、順位の字 → 結果のチップ 16px。横のはみ出し 0、JS のエラー 0（600px 以上はカードの幅が 400px ほどで同じ並び）
+  - 375px・150%・200%: 右の区画が次の行に回る（200% では鳳凰位の行も2行）。横のはみ出し 0
+- テスト: 830件 OK
+
 ## 報告
 
 - 状態: 作業中
