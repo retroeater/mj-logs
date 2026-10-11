@@ -88,6 +88,13 @@
 
 - ubuntu-latest の Ubuntu 26 への移行だけを新しい issue に起票する。Node.js 20 の廃止は #308 で追い、#257 の警告は #308 にコメントする
 
+## 2026-10-10（CHAT-1010-RGN-05）
+
+- ubuntu-latest のまま移行を受ける（`ubuntu-24.04` などに固定しない）（#538）
+- ランナーの `python3` で動く4本（mj の `assets-check.yml`・`delete-merged-branches.yml`・停止中の `sync-logs.yml`、mj-logs の `sync-from-mj.yml`）に `setup-python` の 3.12 を足し、ほかの14本とそろえる（#538）
+- #538 の期日は 2026-10-18（移行の始まる前日）
+- この指示のマージは承認済み（止まる条件つき）
+
 ## 2026-10-10（CHAT-1010-RGN-06）
 
 - Python 3.14 へ上げる件を、#538 とは別の issue に起票する（#539）

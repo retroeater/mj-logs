@@ -1,7 +1,7 @@
 # CHAT-1011-AIC-01
 
 - 着手日時: 2026-10-11（JST）
-- 対象issue: 未定（起票予定。親 #518）
+- 対象issue: #542（起票。親 #518）・#543（起票）
 - ブランチ: work/1011-aic
 - 着手時HEAD: a72aaab4
 
@@ -117,29 +117,80 @@ Anthropic（platform.claude.com、support.claude.com）:
 - Q6 時点と出典 → A: 使ったデータの分だけ、プログラムが答えの下に時点と出典のリンクを付ける（Claude に書かせない）
 - Q7 回数の数え方 → A: JST の暦日を鍵に D1 で原子的に数える（cron 不要）。IP は「日付＋Secret の塩」とのハッシュで当日だけ持ち、翌日の最初の問いで前日以前を消す。受け付けた問いは「答えられません」も数え、入力の検査で弾いた問いは数えない
 - Q8 記録の項目 → B: 日時（JST）・質問文・結果・Claude が選んだ型。答えの本文と、受け付けなかった問いは残さない
+- Q9 週1回のまとめの出し先 → S: 専用のブック（Google スプレッドシート）。`mj-ask` の週次の cron が前の週の行（日時・質問文・結果・型）を足し、90日を過ぎた行を D1 とシートの両方から消す。平野さんの質問「Google シートに書き込むことは可能か」に答えて案を足した（Worker から Sheets API へ、専用のサービスアカウントで。Actions 経由は D1 を読むのに `CLOUDFLARE_API_TOKEN` を GitHub Secret に置くことになり禁止事項に当たるため勧めない）
+- Q10 Anthropic のキー → B: 本人に紐づけ、期限1年。切れる前に予定を入れ、差し替えの手順を文書に書く
+- Q11 乱用への備え → A: 入力 200 字まで・`Origin` の検査。Turnstile は入れない。平野さんの指示で、Turnstile の検討を別の issue #543 に起票した（#542 の子、「状況: 保留」。#240〈誤り報告フォーム〉を関係として書いた。Turnstile を主題とする既存の issue は無し）
+- Q12 試し方 → A: テスト → 未公開の houou/ で本番のルート。試行中は1日50問。費用は1週間で実測（Console の使用額と Worker のログのトークン数）
+- Q13 実装の指示の分け方 → A: 3つ（データと検索／Worker と質問欄／週次の cron）
+- まとめの表を示し、平野さんが「OK」と返した（共有の理解の確認）
+
+### 5. 実装の案（次の指示の材料。決定ではない）
+
+実装1（データと検索、Claude を呼ばない）
+
+- 作る: `workers/ask/data.json`（生成物）、`workers/ask/src/query.mjs`（型ごとの検索・件数・時点と出典の組み立て）、`workers/ask/test/query.test.mjs`（`node --test`。例の「23期生で鳳凰位」→ 吉田直〈第35期〉・白鳥翔〈第41期・第42期〉と、注記を含める）、`scripts/tests/` に data.json の生成のテスト
+- 変える: `scripts/generate_houou_pages.py`（または `scripts/lib/` の集計）に data.json の書き出しを足す。`title/` の鳳凰戦は `generate_title_pages.py` の読み込み、`live/` の鳳凰戦は `generate_live_pages.py` の読み込みを使い回す。改名の名寄せは HOU-13 の「別名」の扱いに合わせる。`scripts/regenerate.py` の対象と `docs/notes/static-generation.md` を合わせて直す
+- 注意: rows の「鳳凰位」の行は座っていた期（獲った期の次）。鳳凰位の一覧は title/houou/ から作る
+
+実装2（Worker と質問欄）
+
+- 作る: `workers/ask/wrangler.jsonc`（name `mj-ask`、`routes: [{ pattern: "ryoei.pro/api/*", zone_name: "ryoei.pro" }]`、`d1_databases`、`vars` に上限〈試行中 50・IP 10〉、`workers_dev`・`preview_urls` は false）、`workers/ask/src/index.mjs`（POST `/api/ask`・GET `/api/ask/status`、Origin の検査、200 字の上限、D1 での数え上げ、Claude の2回の呼び出し）、`workers/ask/schema.sql`（D1 の表: 日ごとの全体の数、日ごとの IP ハッシュの数、質問の記録）、`docs/notes/ask-worker.md`（仕組み・手作業・キーの差し替え）
+- 変える: `houou/` トップのテンプレート（生成スクリプト）にカード4枚の上の質問欄と4つの文言、`assets/houou.js` か新しい JS に送信と表示（上限に達したときの「翌0時まで」の表示を含む）
+- Claude の呼び出し: モデル `claude-haiku-5-5`、1回目は structured outputs（`output_config.format` の JSON schema）で型と引数だけ、2回目は検索の結果だけを渡して文章にする。adaptive thinking が既定で有効なので、軽くする設定（effort など）を公式の文書で確かめて決める。`temperature` 等は送らない。失敗（HTTP 400 のワークスペースの上限、429、5xx）は「いまは答えられません」と表示する
+- 0章ゲート: houou/ のトップは HOU 系の指示が直しているので重なりを確かめる
+
+実装3（週次の cron）
+
+- 作る・変える: `workers/ask/wrangler.jsonc` に `triggers.crons`（週1回。UTC で書く。例: 月曜 9:00 JST = `0 0 * * 1`）、`workers/ask/src/` にサービスアカウントでの署名（WebCrypto の RS256）と Sheets API の `values:append`・古い行の削除、D1 の90日を過ぎた行の削除
+- Cron Triggers はアカウントで5本まで（`mj-scheduler` が1本、これで2本）
+
+平野さんの手作業
+
+- 実装1と2の間:
+  1. Console: Settings > Workspaces → Create workspace（この機能専用）→ そのワークスペースの Spend limits を月 $30
+  2. Console: Settings → API keys → Create key（ワークスペースを選ぶ、本人に紐づけ、期限1年）。期限の前にカレンダーに予定を入れる
+  3. Cloudflare: D1 SQL database → Create Database（名前は実装2の指示で決める）。表の作成（`schema.sql`）は D1 の画面の Console で行う
+  4. Cloudflare: Workers & Pages → Create application → リポジトリ `retroeater/mj`、Project name `mj-ask`、Path `/workers/ask`、Build watch paths の Include を `workers/ask/**`（`mj-scheduler` と同じ形。`mj` の Exclude にはすでに `workers/**` がある）
+  5. Cloudflare: `mj-ask` の Settings → Variables and Secrets に Secret `ANTHROPIC_API_KEY` と `IP_HASH_SALT`（無作為の文字列）を足す
+- 実装2と3の間:
+  6. Google Cloud: この機能専用のサービスアカウントを作り、JSON の鍵を発行する
+  7. 専用の新しいブックを作り、サービスアカウントのメールアドレスに編集者で共有する（平野さんとサービスアカウントだけ）
+  8. `mj-ask` の Secret に鍵（JSON）を足し、ブックの ID を伝える（ID は vars に置く）
+
+前提との食い違い（止まる条件には当たらない）
+
+- 前提の「吉田直（第36期）・白鳥翔（第42期）」は rows で鳳凰位の席に座っていた期で、獲った期は吉田直が第35期、白鳥翔が第41期・第42期（title/houou/）
+- 「Workers Free では回数制限や記録を置けない」には当たらない（D1 で置ける）
+
+### 6. 仕上げ
+
+- 記録の前に `origin/cloudflare` を取り込んだ（`git merge origin/cloudflare`、衝突なし。HOU-13・HOU-14 は cloudflare に入っていた）
+- `docs/decisions/houou.md` に「2026-10-11（CHAT-1011-AIC-01）」を足した（チャットの決定8つ〈「進め方」は実装の指示の分け方に含めた〉と grill Q1〜Q13）
+- #542 に決定の要点と、ログの SHA 固定の permalink（`fad28115`）をコメントした。続けて着手中の解除をコメントした
+- cloudflare へのマージ: 「マージ:」の行（ドキュメントのみ）のとおり `git push origin work/1011-aic:cloudflare` で入れる。結果はこの下のコミットで分かる
 
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1011-aic
-- ログ: https://github.com/retroeater/mj/blob/work/1011-aic/docs/logs/CHAT-1011-AIC-01.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1011-AIC-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1011-aic
 - 確認用URL: なし
-- マージ: 未
-- issue: 未定
-- 判断が必要なこと: 未定
-- 未確認の項目: 未定
+- マージ: 済（このログを含むコミットを cloudflare へ fast-forward で push）
+- issue: #542（起票、#518 の子）・#543（起票、#542 の子、状況: 保留）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj ce5677d0）: https://github.com/retroeater/mj-logs/tree/main/guide/ce5677d0
+ガイド文書（この版を写した時点の最新、mj 8dc74364）: https://github.com/retroeater/mj-logs/tree/main/guide/8dc74364
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce5677d0/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce5677d0/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce5677d0/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce5677d0/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce5677d0/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce5677d0/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/ce5677d0.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/8dc74364/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/8dc74364/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/8dc74364/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8dc74364/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8dc74364/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8dc74364/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/68a49ac0.md
