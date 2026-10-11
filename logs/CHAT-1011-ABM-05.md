@@ -45,28 +45,74 @@
 
 ## 経過
 
+### 着手（2026-10-11）
+
+- 同じ Chat-Ref のコミットは0件。ローカル・リモートの `work/1011-abm` とも `origin/cloudflare` の祖先（マージ済み）で、`git merge --ff-only origin/cloudflare` は「Already up to date」（9fecbded）
+- 0.: 「指示」欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は4つともある（1行目にまとめて書かれている）
+
+### 手順1: シート（生成と同じ経路で2回読んだ）
+
+- 読み方: 見出しは gviz の列の label（`_query(..., "SELECT * LIMIT 1")`）、全行は `fetch_table()`（`load_videos()` と同じ）、K=Y は `fetch_sheet()` と生成の `QUERY`
+- 見出し: A 対局日・B 年度・C 対局・D ステージ・E 卓・F 順位・G 結果・H 名前・I X・J 画像URL・K 表示・L 備考・**M 動画URL**。M は「動画URL」で L（備考）の右
+- 行数: 全行 2,744 / 2,744、K=Y 2,572 / 2,572（2回とも同じ）
+- M に値のある行は**1行**:
+
+| シートの行 | 年度 | 対局日 | 対局 | ステージ | 卓 | 名前 | 表示 | URL |
+|---|---|---|---|---|---|---|---|---|
+| 146 | 2026 | 2026-09-20 | 超頭脳合戦 | 決勝 | - | 醍醐大 | Y | `https://abema.tv/video/episode/68-38_s26_p16` |
+
+- 卓ごと: URL のある卓は1卓（2026 超頭脳合戦 決勝、卓の4行のうち1行だけに入っている）。4行で値が食い違う卓は0
+- URL の形: `https://abema.tv/video/episode/` で始まる直接の URL（短縮 URL ではない）。前後の空白は無い（読んだ値の `repr` で確かめた。読み方は前後の空白を落とす）
+- `videos_from_rows()` の結果: `{('2026', '2026-09-20', '超頭脳合戦', '決勝', ''): 'https://abema.tv/video/episode/68-38_s26_p16'}`
+- 平野さんの申告の「1行」は、URL を入れた行が1行という事実と合う
+
+### 手順2: 手元の生成（`python3 scripts/regenerate.py saikyo_pages`）
+
+- 生成のログ: 「2572件取得しました」「動画URLのある卓: 1」「新しいページ(#425、未公開): 878件」。警告（4行の食い違い・対局日が空など）は無し。飛ばしたページも無し
+- 変わったファイルは2つだけ（`git status`）: `saikyo/2026/20260920-s2.html`（卓のページ）・`saikyo/2026/20260920.html`（対局のページ）
+- 卓のページ `saikyo/2026/20260920-s2.html` の「ABEMA で見る」（卓の4人の `ol` の直後）:
+
+```html
+<p class="mj-saikyo-video"><a href="https://abema.tv/video/episode/68-38_s26_p16" target="_blank" rel="noopener">ABEMA で見る<span class="visually-hidden">（新しいタブで開く）</span></a></p>
+```
+
+- 対局のページ `saikyo/2026/20260920.html`: 決勝の卓の節（`<section class="mj-saikyo-table" id="20260920-s2">`、見出しは卓のページへのリンク）の4人の後に、同じ「ABEMA で見る」が1つ出る。同じ対局のベスト8 A・B卓（`20260920-s1-a`・`-s1-b`）には URL が無いので出ない。年度ページ `saikyo/2026/index.html` には出ない（年度ページは勝ち上がり者だけ）
+- 今の公開中のファイル（`saikyo/index.html`・`saikyo/<年度>.html` 16枚・`sitemap-saikyo.xml`）の差分は無し
+- 戻し: `git diff --name-only` で上の2ファイルだけを確かめ、`git checkout -- saikyo/2026/20260920-s2.html saikyo/2026/20260920.html` でその2つを戻した。戻した後の `git status` は空。生成物はコミットしていない
+
+### 手順3: 翌朝の毎朝の再生成の見込み（コードの読みから。本番は確かめていない）
+
+- `regenerate-saikyo.yml` は `check-image-links.yml`（「画像リンク切れの検知」、毎朝 04:30 JST に Worker から起動）の完了（`workflow_run`、cloudflare、取り消し以外）で `regenerate-page.yml` を `target_page: saikyo_pages` で呼ぶ
+- `generate_saikyo_pages.py` の `main()` は毎回 `load_videos()` でシートの「動画URL」を読み、`attach_videos()` で卓に付け、`write_sub_pages()` が `saikyo/2026/` の卓・対局のページを書く。手元と同じ2ファイルが変わる
+- `regenerate-page.yml` は `git add -A -- saikyo/ sitemap*.xml …` でコミットし cloudflare へ push する。Workers Builds が本番に反映する
+- → **翌朝（2026-10-12）の再生成で、本番の `/saikyo/2026/20260920-s2.html` と `/saikyo/2026/20260920.html` に「ABEMA で見る」が出る見込み**。前提: 検知のワークフローがその朝に動いて完了すること、ほかのページの生成の失敗では止まらない（#533 の作りで saikyo_pages は単独で生成・コミットされる）。ページは noindex のまま（公開は #549）
+
+### docs/decisions
+
+この指示の「決定」（#549 の公開は M 列を足して 2026年度の URL を入れてから）を docs/decisions/saikyo.md に足した。指示文の「マージ: ドキュメントのみ（ログ）」「ログ以外を変える必要が出た（変えずに止まる）」と、CLAUDE.md「作業ログ」節の「指示の完了時に、その指示の「決定」節を docs/decisions/<分野>.md に足す」が食い違うため、ルールの側（CLAUDE.md）を優先した（CLAUDE.md「Chat-Ref」節の「指示文の記述同士が食い違ったときは、個別の指定より前提・ルールの側を優先し、その旨を報告する」）。足したのは決定の1行だけ
+
 ## 報告
 
-- 状態:
-- ブランチ:
-- ログ:
-- 比較URL:
-- 確認用URL:
-- マージ:
-- issue:
-- 判断が必要なこと:
-- 未確認の項目:
-- エラー:
+- 状態: 完了
+- ブランチ: work/1011-abm
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1011-ABM-05.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1011-abm
+- 確認用URL: なし
+- マージ: 済（9edc01f6。fast-forward で `git push origin work/1011-abm:cloudflare`）
+- issue: #425・#549（読むだけ。書き込みなし）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 1fe83b8c）: https://github.com/retroeater/mj-logs/tree/main/guide/1fe83b8c
+ガイド文書（この版を写した時点の最新、mj 7665e09e）: https://github.com/retroeater/mj-logs/tree/main/guide/7665e09e
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/1fe83b8c/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/1fe83b8c/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/1fe83b8c/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/1fe83b8c/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/1fe83b8c/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/1fe83b8c/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/7665e09e/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/7665e09e/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/7665e09e/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/7665e09e/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/7665e09e/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/7665e09e/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a81419df.md
