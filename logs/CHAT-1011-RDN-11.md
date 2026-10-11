@@ -81,7 +81,7 @@ Chat-Ref: CHAT-1011-RDN-11
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1011-RDN-12
 - ブランチ: work/1011-rdn
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1011-RDN-11.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1011-rdn
@@ -97,12 +97,12 @@ Chat-Ref: CHAT-1011-RDN-11
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj c6a3002c）: https://github.com/retroeater/mj-logs/tree/main/guide/c6a3002c
+ガイド文書（この版を写した時点の最新、mj c28bfedc）: https://github.com/retroeater/mj-logs/tree/main/guide/c28bfedc
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c6a3002c/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c6a3002c/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c6a3002c/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c6a3002c/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c6a3002c/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c6a3002c/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c28bfedc/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c28bfedc/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c28bfedc/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c28bfedc/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c28bfedc/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c28bfedc/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b2727163.md
