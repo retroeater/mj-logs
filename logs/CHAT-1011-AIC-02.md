@@ -84,6 +84,10 @@ AIC-01 のログ「5. 実装の案」の実装1から変えた点:
 - 大きさの上限: 公式の Limits「Worker size」は Free・Paid とも**圧縮前 64 MiB**（「There is no compressed size limit」、2026-10-11 に `developers.cloudflare.com/workers/platform/limits/` を取得）。AIC-01 のログの「Free は圧縮後 3MB」は古い値だった。628KB は収まる
 - 公開対象: `.assetsignore` に `workers` の行がある（`workers/` 全体を配信しない）
 - 未マージの work/ ブランチ（1009-swp-526・1011-pht-473・1011-swp-nav）は、変えたファイルと重ならない
+- `python3 scripts/regenerate.py all`（成果物のコミットの後、セッションで実行。終了コード 3）: **作業ツリーの差分は0件**（`workers/ask/data.json` は同じ内容で作り直され、成功した13ページも変わらなかった）。
+  9ページ（houou_pages・houou_race・jpml_pros・jpml_test・live_pages・saikyo_pages・title_pages・video_wayhome・wayhome_episodes）は、SNS ブックの「【3】画像取得」タブのフィルタ（`FilteredSheetError`、gviz 2行 / シート 1864行）で飛ばされた（途中の出力は戻された）。
+  この変更と無関係の外部の状態で、`ask_data` は SNS ブックを読まないので影響しない。ただし、フィルタが残ったままだと週次の `regenerate-page.yml` と毎日の /live・title/ の作り直しが同じ理由で飛ぶ
+- マージ後の push で `regenerate-page.yml` が動くのは `scripts/generate_ask_data.py` の追加による `ask_data` だけの見込み（`scripts/regenerate.py` は `pages_for_changes()` の対象外、`scripts/lib/` は変えていない）
 
 ## 報告
 
@@ -101,12 +105,12 @@ AIC-01 のログ「5. 実装の案」の実装1から変えた点:
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj c6a3002c）: https://github.com/retroeater/mj-logs/tree/main/guide/c6a3002c
+ガイド文書（この版を写した時点の最新、mj 13dc2438）: https://github.com/retroeater/mj-logs/tree/main/guide/13dc2438
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c6a3002c/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c6a3002c/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c6a3002c/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c6a3002c/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c6a3002c/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c6a3002c/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/13dc2438/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/13dc2438/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/13dc2438/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/13dc2438/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/13dc2438/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/13dc2438/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b2727163.md
