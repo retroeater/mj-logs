@@ -144,6 +144,11 @@
 - `docs/handover.md`: **「最終更新」から「旧シートの『連盟ch』『放送対局』は読まない」の行は既に無くなっている**（2026-10-11 の最終更新は houou/・title/ の3行）。残っているのは「次にやること」の表の #473 の行（期日 2026-10-13）
 - #473 の本文の「『プロ』V 列を消すか残すか」は、V列（決勝進出）が15列の削除で無くなったので対象が無い（前提のとおり）
 
+### マージ前の取り込み
+
+- 報告を push した後、origin/cloudflare が 1245b908 に進んでいたため `git merge origin/cloudflare` で取り込んだ（衝突なし）。取り込んだ変更に `lib/sheets.py`（見出しだけのタブの COUNT）・`generate_jpml_pros.py`（SNS ブックの `lib/sns.py` から写真を読む、#514）・`docs/notes/title-pages.md`（写真の行）がある
+- 取り込んだ後に、手順1の文字列の検索をやり直し（結果は同じ。対象の7タブを読む箇所は無い）、`title_pages`・`live_pages`・`jpml_pros` を生成し直した: 3つとも exit 0、取り込んだ後の HEAD との差は 0 ファイル
+
 ## 報告
 
 - 状態: 判断待ち
@@ -151,7 +156,7 @@
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1011-PHT-23.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1011-pht-473
 - 確認用URL: なし
-- マージ: 未（このコミットの後に cloudflare へ入れる）
+- マージ: 済（37311917、fast-forward。docs/logs と docs/decisions のみ）
 - issue: #473（変えていない。着手中のコメントも指示どおり書いていない）
 - 判断が必要なこと:
   - 消してよい: (旧)連盟ch、(旧)放送対局、(旧)決勝動画（旧シート）／(旧)タイトル（「プロ」のブック）／【3】消した補正 2026-09-29、【3】消した補正 2026-09-30（3層）
@@ -167,12 +172,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 1245b908）: https://github.com/retroeater/mj-logs/tree/main/guide/1245b908
+ガイド文書（この版を写した時点の最新、mj b2727163）: https://github.com/retroeater/mj-logs/tree/main/guide/b2727163
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/1245b908/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/1245b908/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/1245b908/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/1245b908/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/1245b908/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/1245b908/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/8dc74364.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b2727163/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b2727163/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b2727163/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b2727163/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b2727163/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b2727163/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b2727163.md
