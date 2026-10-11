@@ -62,6 +62,28 @@
 - 作業ブランチ: ローカルの `work/1011-aic` は `origin/cloudflare` の祖先（リモートもマージ済み）のため、`git merge --ff-only origin/cloudflare` で進めた（cloud-sessions.md「作業ブランチの用意」のローカルにあり祖先の場合）
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 4行とも揃っている
 - 0. 指示欄の末尾は指示文の最後の行と一致。AIC-01 の `## 報告` の状態は「完了」、docs/decisions/houou.md に「2026-10-11（CHAT-1011-AIC-01）」の節がある
+- #542 の既存コメントに他セッションの着手中は無い（AIC-01 の着手中は解除済み）。着手中コメントを残した
+
+### 1. 実装（成果物のコミット 38848860）
+
+AIC-01 のログ「5. 実装の案」の実装1から変えた点:
+
+- **`generate_houou_pages.py` に足さず、別の生成スクリプト `scripts/generate_ask_data.py` にした**（`regenerate.py` の対象名 `ask_data`）。HOU 系の指示が直している `generate_houou_pages.py` と重ならないようにするため。読み込みは `generate_houou_pages.py`（`load_rows()`・`current_names()`・`build_rankings()`）と `generate_live_pages.py`（`load_titles()`・`load_videos()`・`build_pages()`）の関数をそのまま使う
+- **決勝は `generate_title_pages.py` の読み込みでなく、その生成物 `title/search.json` から読む**（期・年・選手ごとの順位を持つ JSON。HTML は読まない）
+- **名前の辞書は SNS ブックを読まずに作る**: 着手時に「【3】画像取得」タブにフィルタか非表示の行があり（`FilteredSheetError`、gviz 2行 / シート 1864行）、X の画像を引く `load_name_book()` が止まった。検索データに X は要らないので、「プロ」「連盟プロ以外」「別名」だけで作る形にした（このフィルタは houou_pages など SNS ブックを読む生成をすべて止めるが、この指示の範囲外）
+- `scripts/regenerate.py` の `OUTPUT_OVERRIDES` に `"ask_data": "workers/ask/data.json"` を足し、`test_regenerate.py` に対応のテストを足した。docs/notes/static-generation.md「ページの一覧」の表の下に1行、docs/notes/ask-worker.md を新設
+
+生成の結果（セッションで実行）: `workers/ask/data.json` 627,922バイト（gzip 143,824）、選手 1,295名（退会者を含む）、在籍者の読み・入会期 693名、別名 26件、決勝 42期、放送対局 1ページ、時点 リーグ「第43期前期終了時点」・決勝「第42期まで」・放送対局「2025-02-01」。名寄せ: 今里之彦 → 今里邦彦（2行）、樫野凪 → かしのなぎ（5行）
+
+例の質問: `runQuery(data, {type: "champions", args: {entry: 23}})` → 吉田直 [35]、白鳥翔 [41, 42]、注記「入会期が分かるのは在籍中の選手だけです」、出典 `/title/houou/`、時点「決勝 第42期まで」（テストに入れた）
+
+### 2. 確かめ
+
+- `node --test 'workers/ask/test/*.test.mjs'`: 10 件すべて pass
+- `python3 -m unittest discover -s scripts/tests`: 805 件 OK（新しい `test_ask_data.py` 5件と `test_regenerate.py` の1件を含む）
+- 大きさの上限: 公式の Limits「Worker size」は Free・Paid とも**圧縮前 64 MiB**（「There is no compressed size limit」、2026-10-11 に `developers.cloudflare.com/workers/platform/limits/` を取得）。AIC-01 のログの「Free は圧縮後 3MB」は古い値だった。628KB は収まる
+- 公開対象: `.assetsignore` に `workers` の行がある（`workers/` 全体を配信しない）
+- 未マージの work/ ブランチ（1009-swp-526・1011-pht-473・1011-swp-nav）は、変えたファイルと重ならない
 
 ## 報告
 
@@ -79,12 +101,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 1af6fc7c）: https://github.com/retroeater/mj-logs/tree/main/guide/1af6fc7c
+ガイド文書（この版を写した時点の最新、mj c6a3002c）: https://github.com/retroeater/mj-logs/tree/main/guide/c6a3002c
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/1af6fc7c/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/1af6fc7c/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/1af6fc7c/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/1af6fc7c/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/1af6fc7c/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/1af6fc7c/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c6a3002c/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c6a3002c/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c6a3002c/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c6a3002c/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c6a3002c/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c6a3002c/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b2727163.md
