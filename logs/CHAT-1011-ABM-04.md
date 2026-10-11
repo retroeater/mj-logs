@@ -95,18 +95,27 @@ CHAT-1011-ABM-03 の試作を平野さんがプレビューで確かめた。そ
 - サイトマップ（`sitemap*.xml`）・`llms.txt`・`navbar.js` に `saikyo/<年度>/` は無い。今のトップ・年度ページから `<年度>/` へのリンクも無い
 - 配信ファイル数 3,335 / 20,000
 
+### マージと本番
+
+- 再 fetch で `origin/cloudflare` は祖先。`git push origin work/1011-abm:cloudflare`（3afefa88..1fe83b8c、fast-forward）
+- マージ後の check-run（1fe83b8c）: 「Workers Builds: mj」「sync」「regenerate」「check」すべて success。自動の再生成（`regenerate-page.yml`、`generate_saikyo_pages.py` の変更で起動）はコミットを作らなかった（生成物がコミット済みのものと同じ）
+- 本番（`curl`）: `/saikyo/2025/index.html`・`/saikyo/2026/index.html`・`/saikyo/2025/20251214-2.html` が 200・noindex あり・「未対局」0、中身はコミットした生成物とバイト一致。本番の `sitemap-saikyo.xml` に `saikyo/<年度>/` は無く、`/saikyo/2025.html` もコミットしたものと一致（今の年度ページは変わっていない）
+- #425 に段1を済ませたことをコメント: https://github.com/retroeater/mj/issues/425#issuecomment-6107131127 。#425 の着手中のコメント（ABM-03）の作業はここで終わり（#425 は公開まで閉じない）
+
+
+
 ## 報告
 
-- 状態:
-- ブランチ:
-- ログ:
-- 比較URL:
-- 確認用URL:
-- マージ:
-- issue:
-- 判断が必要なこと:
-- 未確認の項目:
-- エラー:
+- 状態: 完了
+- ブランチ: work/1011-abm
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1011-ABM-04.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1011-abm
+- 確認用URL: なし（決定によりプレビューは見直さない。本番で 2025・2026年度の新しい年度ページを `curl` で確かめた）
+- マージ: 済（1fe83b8c）
+- issue: #425（コメント2件）・#549（起票、公開の issue）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
