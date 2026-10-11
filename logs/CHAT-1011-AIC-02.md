@@ -89,28 +89,36 @@ AIC-01 のログ「5. 実装の案」の実装1から変えた点:
   この変更と無関係の外部の状態で、`ask_data` は SNS ブックを読まないので影響しない。ただし、フィルタが残ったままだと週次の `regenerate-page.yml` と毎日の /live・title/ の作り直しが同じ理由で飛ぶ
 - マージ後の push で `regenerate-page.yml` が動くのは `scripts/generate_ask_data.py` の追加による `ask_data` だけの見込み（`scripts/regenerate.py` は `pages_for_changes()` の対象外、`scripts/lib/` は変えていない）
 
+### 3. マージ
+
+- `origin/cloudflare` を取り込み（`git merge origin/cloudflare`、衝突なし。RDN-11 のログと docs/decisions/pros.md）、`git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめて `git push origin work/1011-aic:cloudflare`（`c6a3002c..13dc2438`）
+- マージ後の push で動いた `regenerate-page.yml`（run 38103786236）: success。対象は `ask_data` だけ（`git add -A -- workers/ask/data.json …`）で「変更なし」（作り直したページなし。シート側の変更の反映もなし）
+- check-run（`13dc2438`）: 「Workers Builds: mj」・regenerate・check の3つとも success
+- #542 に進みのコメントを残し、着手中を解除した（SNS ブックのフィルタの件も書いた）
+- docs/decisions/houou.md に「2026-10-11（CHAT-1011-AIC-02）」（指示の「決定」節）を足した
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1011-aic
-- ログ: https://github.com/retroeater/mj/blob/work/1011-aic/docs/logs/CHAT-1011-AIC-02.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1011-AIC-02.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1011-aic
 - 確認用URL: なし
-- マージ: 未
+- マージ: 済（13dc2438）
 - issue: #542
-- 判断が必要なこと: 未定
-- 未確認の項目: 未定
+- 判断が必要なこと: なし
+- 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 13dc2438）: https://github.com/retroeater/mj-logs/tree/main/guide/13dc2438
+ガイド文書（この版を写した時点の最新、mj c28bfedc）: https://github.com/retroeater/mj-logs/tree/main/guide/c28bfedc
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/13dc2438/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/13dc2438/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/13dc2438/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/13dc2438/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/13dc2438/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/13dc2438/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c28bfedc/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c28bfedc/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c28bfedc/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c28bfedc/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c28bfedc/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c28bfedc/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b2727163.md
