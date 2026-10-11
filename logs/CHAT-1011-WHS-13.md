@@ -58,6 +58,38 @@
 - 指示欄の末尾は指示文の最後の行と一致。雛形の4行は揃っている
 - 作業ブランチ: `work/1011-whs` はローカル・リモートとも無し → `git checkout -b work/1011-whs origin/cloudflare`（a81419df）
 
+### 手順1: 確かめ
+
+- 同じ目的の issue: 「帰り道 新しい回 取り込み 自動」で #194・#340・#404（/live の毎日の取り込み、closed）。ほかに無い
+- 未マージのブランチで `regenerate-page.yml`・`regenerate.py`・`lib/wayhome.py`・`fetch_youtube_meta.py`・`build_wayhome_ogp.py`・生成スクリプト2本・`video-wayhome.md` に触れるものは無い
+- #194・#340 に着手中のコメントを残した
+- WHS-02 の案との差（読み替え）:
+  - シート: WHS-03 で列が 名前・タイトル・動画ID・決勝動画ID・表示 になった。貼る1行もこの順（WHS-02 の案の A〜I 列ではない）
+  - 写真: XAP-07（5e1ac4f8）で `lib/sns.fetch_pros()` が SNS ブックから X ID・X画像を入れる。新しい回の名前の照合にも `sns.fetch_pros((NAME,))` の名前を使う
+  - #533: `regenerate.py` は1ページの失敗を飛ばし終了コード 3、ワークフローは成功したページをコミットしてから「飛ばしたページを報告」で失敗にする。帰り道の知らせの失敗はこれと別のステップで出す（ほかのページの生成と push は止めない）
+  - 権限: `regenerate-page.yml` に `permissions` が無く、既定のトークンで push している。`issues: write` を宣言すると `update-live-channel.yml` からの `workflow_call`（呼ぶ側は `contents: write` だけ）が起動できなくなりうるため宣言しない。既定で issue に書けるかは手動実行で確かめる
+- 作業ブランチでの手動実行の push 先: `regenerate-page.yml` の checkout は `ref: ${{ github.ref }}`、push は `git push origin HEAD:${{ github.ref_name }}`（#326）。作業ブランチで起動すれば作業ブランチにだけ push する（既定ブランチにあるワークフローなので `--ref` で起動できる）
+
+### 手順2: 実装（c460f644）
+
+- `scripts/fetch_youtube_meta.py`: `viewCount`（と `statistics`）・`fetched_at_utc` を保存しない。`merge_videos()` が、前回の JSON の順を保って新しい回を後ろに足し、API が返さなかった回は前回の値を残す（`missing_video_ids` に載る）。シートから消えた回は落とす
+- `scripts/lib/wayhome.py` の `list_og_image_name()`: 最新話と同じ公開日の回が N 本（N≥2）なら `index-<日付>-N.jpg`
+- `scripts/build_wayhome_ogp.py`: 同じ名前で中身が違うときは止めず、上書きせず今のファイルを残す。名前は全回から決める（`list_og_image_name(all_episodes)`、ページ側と同じ）。手元で作り直すと今の `index-20260921.jpg` とバイト単位で同じ
+- `scripts/lib/wayhome_intake.py`（新規、判定だけ）と `scripts/check_wayhome.py`（新規、読み込みと知らせの組み立て）:
+  - 新しい回: 層1の動画ごとの最後の行で、`状態` が取得不可でなく、題名に「帰り道」か「ついていって」があり、シートに無い（表示を問わず全行の動画ID）。メンバー限定も拾う
+  - **決定の「ついて」は「ついていって」で見る。** 「ついて」だけだと、今の層1で「【プロテスト応募受付中！】プロテストについて新人連盟員に聞いてみた」（`lGPjKHDAlzw`）が新しい回になる（止まる条件「新しい回が1件以上出る」に当たる）。特別編3本（王位・十段位・実家についていってイイっすか）は「ついていって」で拾える
+  - 貼る1行: 題名の《…》から名前（SNS ブックの選手名のうち末尾に一致する最も長いもの）と大会の書き方を分け、title/ の期の題に結び付ける（`TAIKAI_ALIASES` と「戦」「リーグ」を足す・同じ期で大会名の一部が1つに決まる）。
+    決勝動画IDは title/ と同じ照合（`generate_title_pages.load_broadcasts()`）の決勝ライブの最後。今のシートの5回で試すと、勝又健志 `q8z6HgpCXug`（シートの値と同じ）・福島佑一（王位の特別編）`yIZdG8lPNIY`・浜野太陽 `obpel11rd1c`（メンバー限定と注記）・三浦智博（帝王戦）`JnlEecy4uRg` と出た。「世界麻雀2025」は title/ に結び付かず、理由つきで空
+  - JSON に無い回（表示=Y で JSON に無い）・見られなくなった回（`missing_video_ids` のうち JSON に残した回）・決勝動画IDが空の回（「-」は除く）
+  - 前回の知らせのコメントの末尾の `<!-- wayhome-state: {…} -->` と比べ、新しい回・JSON に無い回・見られなくなった回は変わったとき、決勝動画IDが空の回は増えたときだけ知らせる。前回の知らせが無い（初回）ときは今の状態を記録するために書く
+  - 新しい回・JSON に無い回があれば `fail=true`
+- `regenerate-page.yml`（週次・手動の `all` だけ。push と毎朝の取り込みからの呼び出しでは動かない）:
+  「帰り道のYouTube情報を取得」（`continue-on-error`）→「帰り道の一覧のOGP画像を作る」（`pip install Pillow`、`continue-on-error`）→ 再生成 → コミット（`data/youtube_meta.json` を足し、`img/ogp/wayhome` は `video_wayhome.html` を作り直せたときだけ）→
+  「帰り道の前回の知らせを読む」（github-script）→「帰り道の取り込みを調べる」→「帰り道の知らせを書く」（issue が無ければラベル 種類: 常設・分野: 自動化・対象: video_wayhome で作る）→「帰り道の取り込みの失敗を報告」
+- テスト `scripts/tests/test_wayhome_intake.py`（13件）: 検知・貼る1行（タイトル・名前・大会名の違い）・決勝動画の候補・「-」・状態の比較・JSON の順と残し方・閲覧数を保存しない・OGP の連番。全体 OK
+- 文書: `docs/notes/video-wayhome.md`「新しい回を追加する手順」を「シートに1行貼るだけ」に書き換え、`docs/notes/static-generation.md` の `build_wayhome_ogp.py` の行を直し `check_wayhome.py` の行を足した。決定を `docs/decisions/wayhome.md` に足した
+- 手元で `check_wayhome.py` を流した結果（JSON はまだ 6WAPjcxT78A が無い版）: 新しい回 0件・JSON に無い回 1件（6WAPjcxT78A）・見られなくなった回 0件・決勝動画IDが空の回 0件
+
 ## 報告
 
 - 状態: 作業中
