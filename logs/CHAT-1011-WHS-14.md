@@ -59,16 +59,26 @@ Chat-Ref: CHAT-1011-WHS-14
 - Chat-Ref の重複: `git log --all --grep="CHAT-1011-WHS-14"` は0件
 - 指示欄の末尾は指示文の最後の行と一致。雛形の4行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
 - 作業ブランチ: `work/1011-whs-doc` はローカル・リモートとも無し → `git checkout -b work/1011-whs-doc origin/cloudflare`（d43b0f91）
+- 確かめ:
+  - `chat-side-operations.md`「読み方」の冒頭は「mj は private で、サンドボックスからの `git clone` / `fetch` / `api.github.com` は遮断される（#211）」、表の「issue・コミット・ブランチ」は Code に確かめさせる、の形（前提どおり）
+  - `chrome-reading.md` は「private の mj を直接読むときの補助の手順」、`handover.md` は「リポジトリ … **private**（#211）」と「チャット側は chat-side-operations.md を読む」だけで、遮断の記述は無い。矛盾は無く、直していない
+  - WHS-02 の状態は「判断待ち」（続きなし）。WHS-03 は「判断待ち / 続き: CHAT-1010-WHS-04」、WHS-04 は「完了」
+- 直し（93eb03c0）:
+  - 冒頭を「mj は private（#211）。チャットのセッションに読み取りでつなげば `git clone` と REST（`gh api`、GraphQL は不可）で読める（セッションごと。書き込みは Code）。」に置き換え、表の行に「つないだチャットは REST で読める。ほかは …」を足した（「PC では Chrome でも読める」は残した）
+  - 容量: 直す前 26,602 バイト（警告域 26,624 の手前）。置き換えで増えた分を、同じ節の言い回しを短くして相殺した（「（mj を直接読む補助）」「写しのたびに書き出す。」「目印 `[sync-logs]` に関係しない。」「残る論点は」「開き方は」を外した。意味は参照先に残る）。直した後 **26,595 バイト**
+  - 案の「つなげないチャットは mj-logs だけで読む」は、容量のため書いていない（冒頭の「主な読み方は mj-logs」で足りると見た）
+  - WHS-02 の状態を「判断待ち / 続き: CHAT-1010-WHS-03」にした（ログのコミットに入れる）
+  - 決定を `docs/decisions/operations.md` に足した
 
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1011-whs-doc
-- ログ: https://github.com/retroeater/mj/blob/work/1011-whs-doc/docs/logs/CHAT-1011-WHS-14.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1011-WHS-14.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1011-whs-doc
 - 確認用URL: なし
-- マージ: 未
-- issue: #211
+- マージ: 済（ドキュメントのみ）
+- issue: #211（参照のみ）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
