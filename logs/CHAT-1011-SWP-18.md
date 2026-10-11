@@ -84,17 +84,26 @@
 - 決定を `docs/decisions/site-review.md`（2026-10-11〈CHAT-1011-SWP-18〉）に足した。
 - `python3 -m unittest discover -s scripts/tests` は通った（sitemap を読むテストは `test_regenerate.py` が仮のファイルで使うだけ）。
 
+
+### 手順3〜5 マージと記録
+
+- push の直前に再 fetch し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真で、`git diff --name-only origin/cloudflare...HEAD` が `docs/decisions/site-review.md`・`docs/instruction-template.md`・`docs/logs/CHAT-1011-SWP-18.md`・`docs/notes/design.md`・`docs/notes/handover-archive-2026.md`・`sitemap-pages.xml`・`sitemap.xml` だけ（CSS・HTML・JS は無い）であることを確かめて `git push origin work/1011-swp-hnd:cloudflare`（`a24c58c02..c5e3ebdb7`）。権限判定の拒否は無かった。
+- check-run「Workers Builds: mj」は `completed / success`、Actions の check も success。本番の `https://ryoei.pro/sitemap-pages.xml`・`sitemap.xml`（キャッシュ回避のクエリ付き）が作業ブランチの版と一致し、冒頭コメントが新しい版（「件数は書かない。書くと古くなる」）であることを確かめた。マージ後の自動処理のコミットは、確かめた時点で無し。
+- #227 にコメントした（末尾に `Chat-Ref: CHAT-1011-SWP-18`）。**前提と実物の食い違い:** 前提の「SWP-03 が G5-07 を #227 にコメントしている」は違い、#227 にある SWP-03 のコメントは `llms.txt` の件数（G5-08）だった。G5-07 は 2026-10-09 の決定（CHAT-1009-SWP-06）で「houou/（#518）の公開の issue で sitemap を触るときに直す」としていた。コメントは、SWP-03 のコメントを引いたうえで G5-07 の解き方を書き、#518 側で直す必要が無くなったことを添えた（新しいコメント。返信の機能は issue に無い）。
+- 決定は手順2で `docs/decisions/site-review.md` に足した（マージに含めた）。
+- ブランチの片付け: マージ済みの `work/*` は `delete-merged-branches.yml` が毎日削除する。削除はせず自動に任せる。
+
 ## 報告
 
-- 状態: 中断（作業中）
-- ブランチ: work/1011-swp-hnd
+- 状態: 完了
+- ブランチ: work/1011-swp-hnd（マージ済み。削除は自動に任せる）
 - ログ: https://github.com/retroeater/mj/blob/work/1011-swp-hnd/docs/logs/CHAT-1011-SWP-18.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1011-swp-hnd
-- 確認用URL: なし
-- マージ: 未
-- issue: #227
-- 判断が必要なこと: 作業中
-- 未確認の項目: 作業中
+- 確認用URL: なし（文書と sitemap のコメントのみ。本番の sitemap は取得して確かめた）
+- マージ: 済（`c5e3ebdb7`。Workers Builds・Actions は `completed / success`）。この後のログの追いの push は docs のみ
+- issue: #227（G5-07 の解き方をコメント）。起票なし
+- 判断が必要なこと: なし
+- 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->

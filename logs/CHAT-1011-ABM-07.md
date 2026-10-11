@@ -51,28 +51,71 @@
 
 ## 経過
 
+### 着手（2026-10-11）
+
+- 同じ Chat-Ref のコミットは0件。`work/1011-abm` はローカル・リモートとも 64d35a37。`origin/cloudflare` が祖先でなかったので、ログの push の後に `git merge origin/cloudflare` で取り込んだ（衝突なし）
+- 0.: 「指示」欄の末尾は指示文の最後の行と一致。雛形の行は4つともある（1行目にまとめて書かれている）。#425・#502 は Open で、他セッションの着手中コメントは無い（#425 の着手中は CHAT-1011-ABM-03〈このセッション〉のもの）
+- CHAT-1011-ABM-06 の `## 報告` の状態は「判断待ち」だったので、「判断待ち / 続き: CHAT-1011-ABM-07」にした（着手のコミット 947cbe95）
+
+### 手順1: 確かめ
+
+- 「最強戦」シート（`fetch_table()` と `fetch_sheet()` で2回）: 全行 2,744 / 2,744、K=Y 2,572 / 2,572
+- M「動画URL」に値のある行は18行・**18卓**（すべて 2026年度、1卓1行）。4行で食い違う卓は **0**。値はすべて `https://abema.tv/video/episode/68-38_s26_p<n>`（前後の空白なし）で、`https://abema.tv/video/episode/` で始まらない値は無い
+- 風合戦は直っていた: A卓 210行 `p1`、B卓 214行 `p2`、決勝 206行 `p3`。全体は6対局 × A・B・決勝 が `p1`〜`p18` の順（超頭脳合戦は A `p16`・B `p17`・決勝 `p18`）
+- 未マージのブランチ（自分を除く2件: origin/work/1009-swp-526・origin/work/1011-swp-nav）は `generate_saikyo_pages.py`・`style.css` を変えていない。`git merge-tree` で衝突なし
+
+### 手順2: 作ったもの
+
+- `scripts/generate_saikyo_pages.py`:
+  - 定数 `ABEMA_EPISODE_PREFIX`・`ABEMA_EPISODE_ID`・`ABEMA_THUMB_URL`・`THUMB_WIDTH, THUMB_HEIGHT = 640, 360`・`THUMB_CREDIT = "画像: ABEMA"`
+  - `abema_episode_id()`（`https://abema.tv/video/episode/<回のID>` の回のID。`?`・`#` の後は除く。形が違えば空）・`abema_thumb_url()`（`?height=360&quality=75&width=640`、2x は 1280×720。`version=` は付けない）
+  - `build_video_html(match, table)`: 回の URL なら「ABEMA で見る」のリンクの中にサムネイル（`width="640" height="360" loading="lazy"`、`srcset` 1x/2x、alt「ABEMA <対局名> <卓の見出し>」）を置き、リンクの下に「画像: ABEMA」。回の URL でなければ今までどおりリンクだけ
+  - `attach_videos()`: 回の URL の形でない値は生成のログに警告（リンクは付ける）
+  - 年度ページには出さない（年度ページは動画の節を持たない）
+- `style.css`: `.mj-saikyo-video > a`（縦並び）・`.mj-saikyo-video-thumb`（幅 480px まで、16:9 の枠、灰色の背景、角丸、影）・`.mj-saikyo-video-credit`（小さな灰色の文字、#5f6368 は白地で 6.3:1）
+- テスト `scripts/tests/test_saikyo_pages.py` に4件（回のIDの取り出し・画像の URL に `version` が無いこと・卓と対局のページに1枚ずつ出て年度ページに出ないこと・短縮 URL はリンクだけ）。`python3 -m unittest discover -s scripts/tests` は 834件 OK
+- 文書:
+  - docs/notes/saikyo-page-design.md「新しい年度・対局・卓のページ」に「ABEMA のサムネイル」の項を足し、動画URLの読み方の「列は無い」を今の事実（18卓）に直した
+  - 外部ドメインの記録: `docs/handover.md`「外部ドメインへの依存を増やさない」の「画像12ドメイン」に `image.p-c2-x.abema-tv.com` を足した。`docs/notes/site-findings.md`「画像ドメインの実測結果」の表に行を足した（2026-09-14 の実測の後に足したことを書いた）
+  - docs/decisions/saikyo.md に「2026-10-11（CHAT-1011-ABM-07）」の節。docs/decisions/features.md の RUN-07「#425 の 2: リンクのみで始め、サムネイルは別の課題（#502）」に置き換えの注記
+- issue のコメント:
+  - #502（決定とこのログ。閉じない）: https://github.com/retroeater/mj/issues/502#issuecomment-6109590008
+  - #501（平野さんの PC で ABEMA を読んだ結果の引用）: https://github.com/retroeater/mj/issues/501#issuecomment-6109590707
+  - #9（`img-src` に要るドメイン）: https://github.com/retroeater/mj/issues/9#issuecomment-6109591126
+
+### 手順3: 確かめ
+
+- 生成（`generate_saikyo_pages.py`）: 「動画URLのある卓: 18」「新しいページ(#425、未公開): 878件」。警告なし
+- 今の公開中のファイル（`saikyo/index.html`・`saikyo/<年度>.html` 16枚・`sitemap-saikyo.xml`）の差分は無し
+- 変わったファイルは **24**: 2026年度の卓のページ 18（M 列に値のある卓）と、その6対局の対局のページ 6。M 列に値の無い卓・対局のページは変わっていない。今回の差分には、M 列の URL（「ABEMA で見る」のリンク）とサムネイルの両方が入る（ABM-05 の後、毎朝の再生成が saikyo_pages のリンクをまだ作業ブランチに持ってきていないため。リンクの分も M 列に値のある卓だけ）
+- 画像の URL（36個: 18回 × 640/1280）の HTTP: セッションから `image.p-c2-x.abema-tv.com` へは `CONNECT tunnel failed, response 403`（セッションのプロキシの拒否で、ABEMA の応答ではない）。**届かないので確かめていない**
+- headless Chromium（ローカルの `http.server`、外部の画像は読めない）: 卓のページ `20260920-s1-a`・`20260920-s2` と対局のページ `20260920`。390px ではサムネイルの枠が 340×191（本文の幅いっぱい、16:9）、1280px では 480×270。どれも横のはみ出し 0、JS のエラー 0。画像が読めないので枠の中に alt の文字が出る（灰色の枠の大きさは保たれる）。「ABEMA で見る」と「画像: ABEMA」は枠の下に中央そろえで出る
+- プレビュー（8cedaf5e）: check-run「Workers Builds: mj」「check」とも success。卓のページ2つ（`20260920-s1-a`・`20260816-s1-b`）にサムネイル1つずつ、対局のページ `20260920` に3つ、2026年度の年度ページに0。最初の取得では別名の URL が古い版（動画の節が無い）を返したが、時間をおいて取り直すと新しい版になった。URL はターミナルの最終報告にだけ書く
+
 ## 報告
 
-- 状態:
-- ブランチ:
-- ログ:
-- 比較URL:
-- 確認用URL:
-- マージ:
-- issue:
+- 状態: 判断待ち
+- ブランチ: work/1011-abm
+- ログ: https://github.com/retroeater/mj/blob/work/1011-abm/docs/logs/CHAT-1011-ABM-07.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1011-abm
+- 確認用URL: プレビューあり（URL は最終報告）。サムネイルの出る卓のページ2つ（超頭脳合戦 ベスト8 A卓・風合戦 ベスト8 B卓）と対局のページ1つ（超頭脳合戦）
+- マージ: 未（平野さんの判断待ち）
+- issue: #502・#501・#9（コメント）。#425・#502 は閉じていない
 - 判断が必要なこと:
+  - プレビューでサムネイルの見え方を確かめ、マージするか（ページは noindex のまま。マージ後に #502 を閉じる）
 - 未確認の項目:
-- エラー:
+  - 組み立てた画像の URL（18回 × 640/1280）が HTTP 200 で画像を返すか（セッションから `image.p-c2-x.abema-tv.com` に届かない。平野さんのブラウザのプレビューで見える）
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj a1d76d51）: https://github.com/retroeater/mj-logs/tree/main/guide/a1d76d51
+ガイド文書（この版を写した時点の最新、mj c5e3ebdb）: https://github.com/retroeater/mj-logs/tree/main/guide/c5e3ebdb
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1d76d51/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1d76d51/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1d76d51/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1d76d51/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1d76d51/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1d76d51/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5e3ebdb/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5e3ebdb/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5e3ebdb/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5e3ebdb/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5e3ebdb/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5e3ebdb/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a81419df.md
