@@ -96,6 +96,25 @@ PHT のチャット（#473 の6タブの削除、CHAT-1011-PHT-23〜25）の振�
 - 未マージの `work/` ブランチで、直した5文書を変えているものは無い
 - 成果物のコミット: 2de54340
 
+### 手順3: マージ
+
+- 1回目の `git push origin work/1011-pht-handover:cloudflare` は、cloudflare が先へ進んでいて non-fast-forward で拒否された（権限判定の拒否ではない）。再 fetch して `git merge origin/cloudflare`（衝突なし）の後、cloudflare との差は docs/decisions/operations.md・docs/instruction-template.md・docs/logs/CHAT-1011-PHT-26.md・docs/notes/chat-routines.md・docs/notes/chat-side-operations.md・docs/notes/handover-archive-2026.md だけ
+- `git push origin work/1011-pht-handover:cloudflare`: 8f7c9f7d..9a805a94
+- 9a805a94 で動いたもの: 公開対象を検査する（assets-check.yml。サイズの検査を含む）2回とも success、check 2件 success。Workers Builds: mj は報告の時点で in_progress（docs だけの変更で、止まる条件の対象外）
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1011-pht-handover
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1011-PHT-26.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1011-pht-handover
+- 確認用URL: なし
+- マージ: 済（9a805a94）
+- issue: なし
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 

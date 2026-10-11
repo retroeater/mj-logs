@@ -125,18 +125,31 @@ HOU-17 の比較ページで平野さんが選んだ形を個人成績 `houou/pl
 - Workers Builds（コードの push bfdcfc4c を含む d87e2b7e）: 「Workers Builds: mj」success・check success
 - プレビュー（headless Chromium）: 比較ページは 404。390・100% で 3名とも2行 0枚・余り 8.7px・チップの中心 1つの値（124）、1280 で余り 18.7px。推移の吹き出しは手元と同じ中身で、左右の端でも枠の内
 
+### 手順3 マージ・本番の確かめ・片付け
+
+- マージ: 再 fetch して `git merge-base --is-ancestor origin/cloudflare HEAD` が真（origin/cloudflare 6dc8aab7）を確かめ、`git push origin work/1011-hou:cloudflare`（6dc8aab7..8f7c9f7d）
+- check-runs（8f7c9f7d）: 「Workers Builds: mj」success（02:57:05Z）・check success。`regenerate-page.yml` はこの push では動かなかった（起動条件の `scripts/generate_*.py`・`scripts/lib/**`・ルートの `*.js` のどれも変えていない。`assets/houou.js` はルートでないので当たらない）。HOU-16 の失敗の後、手順2の手元の全ページの再生成は通っている（SNS のブックのフィルタの解除の後）
+- 本番（`curl`、`-w %{http_code}`、`?v=` に未使用の値）: `/houou/players/` 200・`<meta name="robots" content="noindex">` あり（`x-robots-tag` の応答ヘッダは無い）。`/houou/players/compare.html` 404。本番の `assets/houou.js` に `mj-houou-lgchip` があり `houou_tip` が無い、`style.css` に `mj-houou-lgchip` がある。ブラウザでの見え方は確かめていない（平野さん）
+- 片付け: このクラウドセッションはブランチを削除できない（docs/notes/cloud-sessions.md「ブランチの削除」）。マージ済みの `work/*` は `delete-merged-branches.yml` が毎日、先頭が24時間より前のものを削除する。このログの push の後、同じ先頭を `cloudflare` へも push して（docs/logs だけの追いの push）マージ済みの状態にする。追いの push の前の先頭は 8f7c9f7d
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1011-hou
-- ログ: https://github.com/retroeater/mj/blob/work/1011-hou/docs/logs/CHAT-1011-HOU-18.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1011-hou
-- 確認用URL: なし
-- マージ: 未
+- 状態: 完了
+- ブランチ: work/1011-hou（マージ済み。削除は `delete-merged-branches.yml` に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1011-HOU-18.md
+- 比較URL: なし（マージ済み）
+- 確認用URL: https://ryoei.pro/houou/players/?name=白鳥翔 ほか（下の「判断が必要なこと」）
+- マージ: 済（6dc8aab7..8f7c9f7d。この報告の docs/logs のみの追いの push あり）
 - issue: #518
-- 判断が必要なこと: なし
-- 未確認の項目: なし
-- エラー: なし
+- 判断が必要なこと:
+  1. 本番での確かめ（未公開でも URL を直接打てば見える）: https://ryoei.pro/houou/players/?name=白鳥翔 （期ごとの成績〈表〉でリーグの色のチップが欄の中央にそろう、カードが1行。「推移」でグラフを押すと3行の吹き出しと結果のチップ）、https://ryoei.pro/houou/players/?name=真田将成 （最も広い行〈41期前期 E3 ▲364.8 36位 残留〉が1行に収まる）
+  2. 最も広い行と余りの幅: 欄が決まった幅なので、どの行も同じ幅になる。得点の最大・最小は +360.9（阿久津翔太）・▲364.8（真田将成）で、得点の欄からはみ出す行は無い。390px・標準の文字の大きさで余りは **8.7px**（4px 以上）。詰めたのは、カードの左右の余白 14・10px → 10・8px と、欄の間（左右の欄の間 8 → 4px、得点・順位・チップの間 0.9em → 0.6em〈等間隔のまま〉）。チップの内側の余白と期とリーグの間は変えていない
+  3. 375px（小さい iPhone）: 前期・後期のある期のカードは2行になる（6.3px 足りない。白鳥翔 23/24 枚）。A1・A2・鳳凰位の期と、文字を大きくしたときと同じ「次の行に回る」形
+  4. 仮置きの一覧（`docs/notes/houou-top.md`「仮置きの一覧」）
+     - 今回（HOU-18）足したもの: リーグの欄の幅（3.9em）とチップの内側の余白（左右 0.45em）／390px で1行に収めるための詰め方（カードの左右の余白 10・8px、左右の欄の間 4px、得点・順位・チップの間 0.6em）
+     - 前から（HOU-01〜17）: 一覧のとおり（HOU-17 の分は吹き出しの行の間とチップの大きさだけを残した）
+- 未確認の項目: 本番のブラウザでの見え方（平野さん）。iPhone での文字の拡大（公開前にまとめて行う）
+- エラー: なし（`books_pages` は前回と同じく「書籍」シートの行数の確かめで止まるため、再生成から外した）
 
 <!-- guide-links -->
 ---
