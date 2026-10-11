@@ -104,15 +104,24 @@
 - 常設 issue **#545「帰り道の新しい回」** がワークフローに作られた（ラベル 種類: 常設・分野: 自動化・対象: video_wayhome、既定のトークンで作れた）。最初のコメントは「知らせることはありません（前回の知らせが無いため、今の状態を記録します）」と状態 `{"empty_final": [], "missing_json": [], "new": [], "unavailable": []}`
   - 新しい回 0件・JSON に無い回 0件・見られなくなった回 0件・決勝動画IDが空の回 0件（見込みどおり）
 
+### マージと確かめ
+
+- fetch 直後に `git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめ、`git push origin work/1011-whs:cloudflare`（a81419df..b1051c14）
+- b1051c14 の check-run: regenerate（push 契機。`scripts/lib/` の変更で全ページ）success・Workers Builds: mj success・check・sync success（02:30Z）。push 契機の再生成はコミットを作らなかった（作業ブランチで生成済み）
+- 本番（`?v=` に未使用の値）: `/wayhome/6WAPjcxT78A.html`・`/video_wayhome.html` が 200 で、手元の生成物と一致
+- #194・#340 に結果をコメントして閉じた（「状況:」ラベルは付いていなかった）
+- 作業ブランチの片付け: クラウドセッションはブランチを削除できない（docs/notes/cloud-sessions.md「ブランチの削除」）。`work/1011-whs`・`work/1010-whs` ともマージ済みなので `delete-merged-branches.yml` に任せる
+- 週次の実行で初めて動くもの（新しい回が出たときの貼る1行、決勝動画IDが空の回の知らせ、同じ公開日の連番）は、テストと手元の試しで確かめた（実データで出るのは次の新しい回のとき）
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1011-whs
-- ログ: https://github.com/retroeater/mj/blob/work/1011-whs/docs/logs/CHAT-1011-WHS-13.md
+- 状態: 完了
+- ブランチ: work/1011-whs（マージ済み。削除は delete-merged-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1011-WHS-13.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1011-whs
-- 確認用URL: なし
-- マージ: 未
-- issue: #194、#340
+- 確認用URL: なし（作業ブランチでの手動実行と本番で確認）
+- マージ: 済（b1051c14）。作業ブランチでの手動実行 run 38104968581 は success（各話40枚、`youtube_meta.json` は閲覧数・取得日時が消え勝又健志の回が足されただけ）
+- issue: #194・#340（閉じた）、#545「帰り道の新しい回」（常設、ワークフローが作った）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
