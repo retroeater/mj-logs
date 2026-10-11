@@ -9,14 +9,14 @@
 
 ## 読み方
 
-**主な読み方は mj-logs（public、スマホ・PC 共通）。** mj は private で、サンドボックスからの `git clone` / `fetch` / `api.github.com` は遮断される（#211）。
-**PC で Claude for Chrome（mj を直接読む補助）を使うときは `docs/notes/chrome-reading.md` を先に読む。**
+**主な読み方は mj-logs（public、スマホ・PC 共通）。** mj は private（#211）。チャットのセッションに読み取りでつなげば `git clone` と REST（`gh api`、GraphQL は不可）で読める（セッションごと。書き込みは Code）。
+**PC で Claude for Chrome を使うときは `docs/notes/chrome-reading.md` を先に読む。**
 
 | 確認したいこと | 手段 |
 | --- | --- |
 | 作業ログ（`docs/logs/`）・ガイド文書 | mj-logs（下の「作業ログの読み方」） |
-| Actions の実行結果 | mj-logs の `actions/status.md`（各ワークフローの直近5回。写しのたびに書き出す。冒頭の書き出した時刻を見る、#498）。GitHub の予約実行は2〜3時間遅れる（#504）。動いたかは各行の契機・開始時刻で、ジョブのログの中身は Code に確かめさせる。ジョブのサマリ（`GITHUB_STEP_SUMMARY`）は API に無く Code は読めないため、Chrome で実行のページを開いて読む（注記〈annotations〉は Code が check-run の annotations API で読める） |
-| issue・コミット・ブランチ | Claude Code に `gh`（クラウドセッションは GitHub MCP）/ `git` で確かめさせ、ログに書かせる。PC では Chrome でも読める |
+| Actions の実行結果 | mj-logs の `actions/status.md`（各ワークフローの直近5回。冒頭の書き出した時刻を見る、#498）。GitHub の予約実行は2〜3時間遅れる（#504）。動いたかは各行の契機・開始時刻で、ジョブのログの中身は Code に確かめさせる。ジョブのサマリ（`GITHUB_STEP_SUMMARY`）は API に無く Code は読めないため、Chrome で実行のページを開いて読む（注記〈annotations〉は Code が check-run の annotations API で読める） |
+| issue・コミット・ブランチ | つないだチャットは REST で読める。ほかは Claude Code に `gh`（クラウドは GitHub MCP）/ `git` で確かめさせ、ログに書かせる。PC では Chrome でも読める |
 | 本番の見え方 | 平野さんの目視か、Claude Code の headless Chrome。Code 側で確認できる範囲は `docs/notes/cloudflare.md`「ビルド成否と本番の確認範囲（check-runs）」。**チャット側が本番（ryoei.pro）のページ・ファイルを読むときは、URL に `?v=<未使用の値>` を付ける。変更の直後の確かめでは必ず付ける**（クエリ無しの URL は、読む道具が古い版を返すことがある） |
 
 ### 作業ログの読み方
@@ -29,7 +29,7 @@
   **末尾のリンク（`guide/<SHA>/`・`chat-ids/`）が読めないときは、指示文を書く前にその URL か読める最新の「ログ（公開）」の行を送ってもらう**（読まずに書くと雛形や handover と食い違う）
 - **平野さんは「ログ（公開）」の行を送る（新しい会話の始めは前回の最後の行）。** どのログの完了報告かの指定になるので、clone できるチャットでも変えない。
   完了報告は、この行を送るだけにする。単発の確認でも作業ログに書かせる
-- **ログは push のたびに数分以内に写る**（目印 `[sync-logs]` に関係しない。仕組みは `docs/notes/cloud-sessions.md`「作業ログ」、#298）。
+- **ログは push のたびに数分以内に写る**（仕組みは `docs/notes/cloud-sessions.md`「作業ログ」、#298）。
   **最終報告が出ているはずなのに `## 報告` が仕上がっていない、または 404 なら、再開の指示を作る前に、Claude Code の画面の最後に最終報告が出ているかを平野さんに確かめてもらう**（#454）。
   出ていれば写しの漏れ（`## 報告` を貼ってもらう）、出ていなければセッションが止まっている
 - **申告をそのまま信じない。** ログ・ブランチ・issue に実行の痕跡があるかを先に確かめる
@@ -44,8 +44,8 @@
 ### 確認用 URL
 
 **プレビュー URL はログに無く、最終報告の「確認用:」の行にだけある**（非公開扱い、CLAUDE.md「作業ログ」節）。平野さんに送ってもらう。
-ログイン不要でスマホでも開ける（`docs/notes/cloudflare.md`「work/ ブランチのプレビュー」、残る論点は #363）。
-ビルドが走らなかったときは Codespace の確認用 URL（GitHub ログイン必須。開き方は `docs/notes/session-network.md`「Codespace の確認用 URL」）
+ログイン不要でスマホでも開ける（`docs/notes/cloudflare.md`「work/ ブランチのプレビュー」、#363）。
+ビルドが走らなかったときは Codespace の確認用 URL（GitHub ログイン必須。`docs/notes/session-network.md`「Codespace の確認用 URL」）
 
 ## セッション識別子の確認
 

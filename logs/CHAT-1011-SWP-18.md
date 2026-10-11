@@ -67,6 +67,23 @@
 - 指示欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている。
 - 作業ブランチ: リモート・ローカルとも無かったため `git checkout -b work/1011-swp-hnd origin/cloudflare`（上流の設定は外した）。
 
+
+### 手順1 読む・測る
+
+- 作業ブランチの上で `wc -c`: `docs/instruction-template.md` 13,546、`docs/notes/design.md` 15,432、`docs/notes/handover-archive-2026.md` 89,089、`docs/decisions/site-review.md` 11,563、`sitemap.xml` 1,133、`sitemap-pages.xml` 3,710 バイト。
+- 未マージのブランチ（`work/1009-nen`・`work/1009-swp-526`・`work/1011-abm`・`work/1011-swp-nav`）は、この指示の6ファイルをどれも変えていない。
+- `style.css` の `tabular-nums` は、前提の「3箇所」ではなく **9箇所**（18・1314・2255・2789・3336・4148・4222・4244・4301 行）。規則の書き方には影響しないため、design.md には「9 箇所」と書いた。
+- 追記先に同じ項目は無かった（雛形の「計測を伴う指示は…」の項はあったので、その子の項目として足した）。
+
+### 手順2 足す・直す
+
+- `docs/instruction-template.md`: (3) を「計測を伴う指示は、環境・回数・判定を最初の指示で決めて書く」の子の項目の最後に、(2) を「issue を変えない読むだけの指示でも…」の項の前に、前提の案の文のとおり1行ずつ足した。**足した後 14,013 バイト**（警告域 14,336 バイトの内）。
+- `docs/notes/design.md`「4. 部品」の表: 「表の数字の列（全般）」の行を「表の数字の列（`rh_results_detail`）」の行の直前に足した（`tabular-nums` で等幅・最小幅は `ch`、等幅にしない列は `em` で決めて幅の広い数字でも折り返さないことを確かめる）。`rh_results_detail` の行は消さず、着順の `calc(3.2em + 8px)` に「数字を等幅〈`tabular-nums`〉にしていないため `ch` でなく `em` で決めている」を書き添えた。
+- `sitemap.xml`・`sitemap-pages.xml` の冒頭コメント: 「配下の4ファイル」「静的HTML25ページ」「38枚」「27ページ中25件」「この2ファイル」を、件数を持たない言い方にした（「件数は書かない。書くと古くなる」を添えた）。`<loc>`・`<lastmod>` は変えていない（`git diff` はコメントの行だけ）。2ファイルとも XML として読めることを確かめた。
+- `docs/notes/handover-archive-2026.md`: 「2026-09-28 の整理で外した記述（#297）」の後に「2026-10-11 横断レビュー（#524〜#526）の振り返りで規則にした事例」の節を足し、SWP-08・SWP-11・SWP-16 の経緯を1行ずつ書いた。
+- 決定を `docs/decisions/site-review.md`（2026-10-11〈CHAT-1011-SWP-18〉）に足した。
+- `python3 -m unittest discover -s scripts/tests` は通った（sitemap を読むテストは `test_regenerate.py` が仮のファイルで使うだけ）。
+
 ## 報告
 
 - 状態: 中断（作業中）
@@ -83,12 +100,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj a1d76d51）: https://github.com/retroeater/mj-logs/tree/main/guide/a1d76d51
+ガイド文書（この版を写した時点の最新、mj c5e3ebdb）: https://github.com/retroeater/mj-logs/tree/main/guide/c5e3ebdb
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1d76d51/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1d76d51/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1d76d51/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1d76d51/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1d76d51/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1d76d51/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5e3ebdb/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5e3ebdb/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5e3ebdb/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5e3ebdb/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5e3ebdb/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5e3ebdb/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a81419df.md
