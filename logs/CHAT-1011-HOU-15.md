@@ -97,7 +97,7 @@ HOU-14 で本番に入った `houou/`（未公開）を、平野さんが本番�
 
 ## 報告
 
-- 状態: 判断待ち（平野さんがプレビューを見て決める）
+- 状態: 判断待ち（平野さんがプレビューを見て決める） / 続き: CHAT-1011-HOU-16
 - ブランチ: work/1011-hou
 - ログ: https://github.com/retroeater/mj/blob/work/1011-hou/docs/logs/CHAT-1011-HOU-15.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1011-hou
