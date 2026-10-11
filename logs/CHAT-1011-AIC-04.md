@@ -96,6 +96,36 @@ Worker `mj-ask` が本番で動き出した。その動きを確かめ、記録�
 - 作業ブランチ: ローカルの `work/1011-aic` は `origin/cloudflare` の祖先（リモートもマージ済み）のため、`git merge --ff-only origin/cloudflare` で進めた
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 4行とも揃っている
 - 0. 指示欄の末尾は指示文の最後の行と一致。AIC-03 の `## 報告` の状態は「判断待ち」、`3a46658d` は origin/cloudflare の祖先。AIC-03 の状態の末尾に ` / 続き: CHAT-1011-AIC-04` を足した
+- #542 のコメントに他セッションの着手中は無い（AIC-03 の着手中は解除済み）。着手中コメントを残した
+- 未マージの work/ ブランチ（1009-swp-526・1011-swp-hnd・1011-swp-nav）は `workers/`・docs/notes/ask-worker.md・docs/notes/cloudflare.md を変えていない
+
+### 1. 本番の確かめ（2026-10-12、セッションから。Claude を呼ぶ問いは送っていない）
+
+- GET `https://ryoei.pro/api/ask/status` → 200、`{"status":"open","remaining":10,"max":200}`、`content-type: application/json; charset=utf-8`、`cache-control: no-store`
+- POST `/api/ask`（Origin 無し）→ 403 `{"status":"forbidden"}`（Worker の応答。WAF の遮断のページではなくなった）
+- POST `/api/ask`（Origin 付き、空の質問）→ 400 `{"status":"invalid","reason":"empty"}`
+- GET `/api/x` → 404。POST `/houou/` → 403（カスタムルールで今も遮断。例外は `/api/ask` だけ）
+- D1・Workers Logs・Console の使用額はセッションから届かない（Cloudflare・Anthropic の鍵が環境に無い）。D1 の Console で実行する SQL と、Observability の見方・費用の式を docs/notes/ask-worker.md「本番の確かめ」に書き、平野さんの確かめに回した
+- 0-RTT: 公式の 0-RTT Connection Resumption のページに「We support 0-RTT for GET, HEAD, and OPTIONS requests … 0-RTT is not supported for POST requests」（2026-10-11 に取得）。前提の見込みのとおり、POST の `/api/ask` にリプレイの実害は無い
+- カスタムルール「Block non-GET/HEAD methods」: リポジトリに記録が無いことを確かめた（`grep -rn 'non-GET\|Block non' docs` で指示とこのログ以外に無し）。docs/notes/cloudflare.md に新しい節で記録した
+
+### 2. 実装3（成果物のコミット 54a0a098、文書 4b682025）
+
+AIC-01「5. 実装の案」の実装3から変えた点:
+
+- 書き出す行は「前の週の行」を、**「ブックの最後の行の日時より後」かつ「今週の月曜 0 時（JST）より前」かつ「90日以内」**とした。同じ回が2度動いても二度足さず、取りこぼした週は次の回に拾う
+- ブックの ID は Secret でなく vars の `ASK_SHEET_ID`（秘密の値ではない。ダッシュボードの変数は Wrangler のデプロイで上書きされるので、`wrangler.jsonc` に書く）。今は空で、C3 の後の指示で入れる
+- ブックの1行目の見出し（日時・質問文・結果・型）は Worker が空のブックに書く。結果は「答えた」「答えられなかった」
+- 書き出しは `valueInputOption=RAW`（質問文が `=` で始まっても式にしない）
+- テストの D1 の作り物を `workers/ask/test/fake-d1.mjs` に分けた（`ask.test.mjs` と `weekly.test.mjs` が使う）
+- Cron Triggers: `0 0 * * 1`（UTC、月曜 9:00 JST）。アカウントの Free の上限5本のうち、`mj-scheduler` と合わせて2本（上限を超えない）
+
+確かめ:
+
+- `node --test 'workers/ask/test/*.test.mjs' 'workers/scheduler/test/*.test.mjs'`: 51 件 pass（`weekly.test.mjs` 6件: 週の始まり、テストで作った RSA の鍵での JWT の署名の検証、空のブックへの見出しと前の週の行、2回目の続きと90日のブックの削除、鍵が無いときは D1 の削除だけ、Google の失敗でも D1 の削除）
+- 二重に足さない条件（`asked_at > <ブックの最後>`）を外すと `weekly.test.mjs` の1件が落ちることを確かめた
+- `python3 -m unittest discover -s scripts/tests`: OK
+- C1〜C3 の画面の名前は docs/notes/live-channel-write.md（`live-channel-writer` の作成の記録）に合わせた。B4 の画面の名前は申告の「Runtime variables and secrets」に直した
 
 ## 報告
 
@@ -113,12 +143,12 @@ Worker `mj-ask` が本番で動き出した。その動きを確かめ、記録�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 2524a460）: https://github.com/retroeater/mj-logs/tree/main/guide/2524a460
+ガイド文書（この版を写した時点の最新、mj 6095724e）: https://github.com/retroeater/mj-logs/tree/main/guide/6095724e
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/2524a460/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/2524a460/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/2524a460/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/2524a460/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/2524a460/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/2524a460/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6095724e/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6095724e/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6095724e/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6095724e/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6095724e/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6095724e/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a81419df.md
