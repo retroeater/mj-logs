@@ -65,28 +65,44 @@ Chat-Ref: CHAT-1011-RDN-11
 - 0. 指示欄の末尾の行は指示文の最後の行と一致。RDN-10 のログの状態に `/ 続き: CHAT-1011-RDN-11` を足した。RDN-10 のログ `## 経過` を読んだ。CHAT-1011-RDN-08 は完了（RDN-10 で確認済み）
 - 指示文は改行が潰れた形で貼られたため、文面は変えずに項目の区切りで改行した
 
+### 手順1: シートの確かめ（ここで止まった）
+
+- 「プロ」を `lib/sheets.py` の `fetch_table()`（`lib/pro_sheet.py` と同じ読み取り）で2回読んだ: **2回とも 13列・1,099行、見出し・値とも同じ。「表示」が Y は 1,099名**。
+  見出しは RDN-10 と同じ13列（登録名\n0.74・ソートキー・出身地・X\nID・X\n画像・note\nID・note\n画像・YouTube\nID・YouTube\n画像・最終更新・表示・鳳凰\nAmpai・桜花\nAmpai）。
+  消した15列の見出しは残っておらず、13列はそろい、重複なし
+- grep（「龍龍」「決勝進出」「備考」）: RDN-10 と同じく、「プロ」の4列を読む箇所は無い（取り込んだ 9719c413 の scripts の変更〈sns・collect_saikyo_images など〉にも無い）
+- **「(旧)タイトル」タブは残っている**（2026-10-11 01:54 UTC 時点）:
+  - タブの一覧（`lib/sheets.py` の `_sheet_gids()`）: リーグ・プロ・対局・鳳凰・桜花・JWRC・最強戦・鳳凰Ampai・桜花Ampai・**(旧)タイトル**
+  - xlsx エクスポート（200・約3.4MB）の sheetnames にも「(旧)タイトル」がある
+  - gviz で「(旧)タイトル」を読むと、そのタブの見出し（名前・URL・画像URL・順位・タイトル・日付・表示・備考）が返り、先頭のタブ（リーグ）とは違う
+- 参考: `#REF!` の件数（RDN-10 と同じ方法）は RDN-10 から変わっていない: 「(旧)タイトル」3,263・「鳳凰」1（Y5816、削除前から）、ほかのタブ 0
+- **止まる条件「「(旧)タイトル」タブが残っている」に当たるため、ここで止めた。** 手順2（生成物・チェック系）・手順3（#536 のクローズ、#327・#484 へのコメント、文書の見直し）は行っていない
+- `docs/decisions/pros.md`: この指示の決定のうち「4列も列ごと削除」「確かめが通ったら #536 を閉じる」は RDN-10 の見出しで記録済みのため重ねず、「(旧)タイトル」の削除を前倒しして `#REF!` を解消する決定を足した
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1011-rdn
-- ログ: https://github.com/retroeater/mj/blob/work/1011-rdn/docs/logs/CHAT-1011-RDN-11.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1011-RDN-11.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1011-rdn
 - 確認用URL: なし
-- マージ: 未
-- issue: #536
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- マージ: 済（docs/logs・docs/decisions のみ。このログを含むコミットを cloudflare へ fast-forward で push）
+- issue: #536（閉じていない・コメントしていない）、#327・#484（コメントしていない）、#473（コメントしていない）
+- 判断が必要なこと:
+  - 止まった: 「プロ」のブックに「(旧)タイトル」タブがまだある（タブの一覧・xlsx エクスポート・gviz の読み取りの3つで確認、2026-10-11 01:54 UTC）。`#REF!` は RDN-10 と同じ 3,263セルのまま。指示文の「貼る時機」（平野さんがタブを削除した後）を満たしていない可能性がある。タブを削除したうえで、同じ確かめを新しい番号の指示で出し直してほしい（「プロ」シートそのものは13列・1,099名で読め、問題は見つかっていない）
+- 未確認の項目:
+  - 手順2（全ページの生成物と origin/cloudflare の差、チェック系3つ）は止まったため実行していない
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 1af6fc7c）: https://github.com/retroeater/mj-logs/tree/main/guide/1af6fc7c
+ガイド文書（この版を写した時点の最新、mj c6a3002c）: https://github.com/retroeater/mj-logs/tree/main/guide/c6a3002c
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/1af6fc7c/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/1af6fc7c/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/1af6fc7c/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/1af6fc7c/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/1af6fc7c/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/1af6fc7c/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c6a3002c/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c6a3002c/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c6a3002c/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c6a3002c/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c6a3002c/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c6a3002c/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b2727163.md

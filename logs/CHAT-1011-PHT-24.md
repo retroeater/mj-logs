@@ -67,15 +67,52 @@ CHAT-1011-PHT-23 の判断待ちへの回答。平野さんが #473 の6タブ�
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 0章と着手前の確認
+
+- 指示欄の末尾は指示文の最後の行と一致。CHAT-1011-PHT-23 の `## 報告` の状態は「判断待ち」
+- `git log --all --grep="CHAT-1011-PHT-24"` は0件
+- `work/1011-pht-473` はローカル・リモートとも origin/cloudflare の祖先（PHT-23 でマージ済み）→ cloud-sessions.md「作業ブランチの用意」の「ローカルにあり origin/cloudflare の祖先」のとおり `git merge --ff-only origin/cloudflare`（b2727163 → 9719c413）
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- #473: Open、ラベル「状況: 待ち」「分野: データ」、コメント3件（他セッションの着手中コメントは無い）。着手中のコメントを書いた（issuecomment-6104378737）
+
+### 手順1: タブの一覧（2026-10-11 10:54 JST ごろ）
+
+`scripts/lib/sheets.py` の `_sheet_gids()` で読んだ。
+
+- 旧シート（`10g_X`）: 8タブ「連盟プロ以外・別名・タイトル・タイトル戦・書籍・辞書・帰り道・(旧)連盟プロ以外」。見込みどおり（(旧)連盟ch・(旧)放送対局・(旧)決勝動画が無い。「タイトル」は残っている）
+- 3層（`1_H3L`）: 4タブ「【1】元データ・【2】自動変換後・【3】手動補正・【4】カレンダー非掲載」。見込みどおり（控えの2タブが無い）
+- **「プロ」のブック（`1h4-D`）: 10タブ「リーグ・プロ・対局・鳳凰・桜花・JWRC・最強戦・鳳凰Ampai・桜花Ampai・(旧)タイトル」。「(旧)タイトル」が残っている（見込みは9タブ）**
+  - 取り違えでないことを3つの経路で確かめた: `_sheet_gids()`（htmlview）、xlsx エクスポートのタブ名（同じ10タブ）、`fetch_table()` で「(旧)タイトル」を読むと 3,268行×8列（見出し 名前・URL・画像URL・順位・タイトル・日付・表示・備考。PHT-23 と同じ）
+- → 止まる条件「6タブのどれかが残っている」に当たったので、ここで止めた。文書・2ファイルは直していない。生成・unittest・マージ・issue の起票・#473 のクローズもしていない
+
+参考（止まる前に読んだ分）: 旧シートと3層の xlsx エクスポート（どちらも HTTP 200）を openpyxl で読み、`#REF!` を含む式は両ブックとも0（旧シートの数式は 連盟プロ以外 4・書籍 44・(旧)連盟プロ以外 4、3層は【3】手動補正 8,654）
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1011-pht-473
+- ログ: https://github.com/retroeater/mj/blob/work/1011-pht-473/docs/logs/CHAT-1011-PHT-24.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1011-pht-473
+- 確認用URL: なし
+- マージ: 未（止まる条件に当たったため）
+- issue: #473（着手中と中断のコメントを書いた。閉じていない）
+- 判断が必要なこと:
+  - 「プロ」のブックの「(旧)タイトル」タブが残っている（10:54 JST ごろ、3,268行×8列のまま）。ほかの5タブは消えている。平野さんが「(旧)タイトル」を消した後に、同じ指示を新しい Chat-Ref で貼り直してほしい（このログには PHT-24 のコミットがあるため）
+- 未確認の項目:
+  - 生成（title_pages・live_pages）と unittest は止まったため実行していない
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 1af6fc7c）: https://github.com/retroeater/mj-logs/tree/main/guide/1af6fc7c
+ガイド文書（この版を写した時点の最新、mj c6a3002c）: https://github.com/retroeater/mj-logs/tree/main/guide/c6a3002c
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/1af6fc7c/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/1af6fc7c/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/1af6fc7c/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/1af6fc7c/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/1af6fc7c/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/1af6fc7c/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c6a3002c/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c6a3002c/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c6a3002c/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c6a3002c/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c6a3002c/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c6a3002c/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b2727163.md
