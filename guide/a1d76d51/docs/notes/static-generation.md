@@ -250,7 +250,7 @@ handover.md 5章から移した。ページの一覧は下の「ページの一�
 
 ### ページの一覧
 
-HTMLは25ページ + 書籍の一覧と個別ページ（`books/`、#97、noindex・メニュー未掲載。**2026-09-22 開発凍結、`docs/notes/books-freeze.md`**） + 「帰り道」エピソード個別ページ39枚（`wayhome/`、#162） + 最強戦のトップと年度ページ（`saikyo/`、#319/#355、2026-09-21 に公開） + タイトル戦の新構成（`title/`、#222、2026-09-28 に公開、#413） + 放送対局ページ（`live/`、#346、noindex・メニュー未掲載。正式公開は #362） + 鳳凰戦の新ページ（`houou/`、#518、noindex・メニュー未掲載、公開は #540）。大きく4系統に分かれる。
+HTMLは25ページ + 書籍の一覧と個別ページ（`books/`、#97、noindex・メニュー未掲載。**2026-09-22 開発凍結、`docs/notes/books-freeze.md`**） + 「帰り道」エピソード個別ページ39枚（`wayhome/`、#162） + 最強戦のトップと年度ページ（`saikyo/`、#319/#355、2026-09-21 に公開） + 最強戦の新しい年度・対局・卓のページ（`saikyo/<年度>/`、#425、noindex・メニュー未掲載、公開は #549） + タイトル戦の新構成（`title/`、#222、2026-09-28 に公開、#413） + 放送対局ページ（`live/`、#346、noindex・メニュー未掲載。正式公開は #362） + 鳳凰戦の新ページ（`houou/`、#518、noindex・メニュー未掲載、公開は #540）。大きく4系統に分かれる。
 
 | 系統 | ページ数 | 状態 |
 |---|---|---|
@@ -265,6 +265,7 @@ HTMLは25ページ + 書籍の一覧と個別ページ（`books/`、#97、noinde
 | ビルド時生成（独自: 全画面ヒーロー+横スクロールカード列） | 1 | `video_wayhome.html`。`render_content()`+専用JS`video_wayhome.js`。新サイトのパイロット（`docs/notes/video-wayhome.md`）。個別ページ（下の行）と同じく、title/ と同じブックの「帰り道」タブを見出しの名前で読み（`lib/wayhome.py` の `fetch_rows()`）、`data/youtube_meta.json` に無い回は外して生成する（#194） |
 | ビルド時生成（サブディレクトリ、ヒーロー構成のエピソード個別ページ） | 39 | `wayhome/<動画ID>.html`。`scripts/generate_wayhome_episodes.py`（`docs/notes/video-wayhome.md`） |
 | ビルド時生成（サブディレクトリ、最強戦のトップと年度ページ） | トップ1＋年度数 | `saikyo/index.html`・`saikyo/<年度>.html`。`scripts/generate_saikyo_pages.py`。2026-09-21 に一般公開し、navbar・`sitemap-saikyo.xml`・`llms.txt` に載る（#319・#348、`docs/notes/saikyo-page-design.md`） |
+| ビルド時生成（サブディレクトリ、最強戦の新しい年度・対局・卓のページ） | 年度数＋対局数＋卓数（878、2026-10-11） | `saikyo/<年度>/index.html`・`saikyo/<年度>/<対局識別子>.html`・`saikyo/<年度>/<卓のアンカー>.html`。`scripts/generate_saikyo_pages.py`（今の年度ページと同じスクリプト）。noindex・メニュー未掲載、公開は #549（#425、`docs/notes/saikyo-page-design.md`「新しい年度・対局・卓のページ」） |
 | ビルド時生成（サブディレクトリ、タイトル戦の新構成） | 入口1＋大会数＋期数 | `title/index.html`・`title/<slug>/index.html`・`title/<slug>/<期>.html`（入口は年の切り替え〈`?year=`、#277〉を持つ）。`scripts/generate_title_pages.py`。navbar の「連盟 > タイトル」から入口へ（#413、`docs/notes/title-pages.md`） |
 | ビルド時生成（サブディレクトリ、鳳凰戦の新ページ） | 13＋在籍者数（691、2026-10-11） | `houou/index.html`（トップ）・`houou/players/`（個人成績）・`houou/ranking/`（通算得点）と部門ごとの `houou/ranking/<スラッグ>/` 8ページ・`houou/leagues/`・`houou/race/` の各 `index.html`。データは `houou/search.json`・`houou/results/<選手名>.json`（在籍者だけ）・`houou/race/<期>-<1|2>.json`。`scripts/generate_houou_pages.py`（集計は `lib/ranking.py`・`lib/results.py`、順位変動は既存の生成スクリプトの部品）＋`assets/houou.js`・`assets/houou_race.js`（順位変動の写し）。noindex・メニュー未掲載、公開は #540（#518・#520、`docs/notes/houou-top.md`） |
 | ビルド時生成（サブディレクトリ、放送対局ページ） | 691（2026-09-18） | `live/index.html`・`live/<タイトル戦>/index.html` 以下。`scripts/generate_live_pages.py`。noindex・メニュー未掲載、正式公開は #362（`docs/notes/live-page-design.md`） |

@@ -116,7 +116,7 @@ note のアイコンの色（チャット側が平野さんの送った PDF か�
 
 ## 報告
 
-- 状態: 判断待ち（平野さんがプレビューを見て決める）
+- 状態: 判断待ち（平野さんがプレビューを見て決める） / 続き: CHAT-1011-HOU-24
 - ブランチ: work/1011-hou
 - ログ: https://github.com/retroeater/mj/blob/work/1011-hou/docs/logs/CHAT-1011-HOU-23.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1011-hou
@@ -148,12 +148,12 @@ note のアイコンの色（チャット側が平野さんの送った PDF か�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 6a3ab9d2）: https://github.com/retroeater/mj-logs/tree/main/guide/6a3ab9d2
+ガイド文書（この版を写した時点の最新、mj a1d76d51）: https://github.com/retroeater/mj-logs/tree/main/guide/a1d76d51
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6a3ab9d2/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6a3ab9d2/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6a3ab9d2/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6a3ab9d2/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6a3ab9d2/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6a3ab9d2/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1d76d51/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1d76d51/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1d76d51/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1d76d51/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1d76d51/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1d76d51/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a81419df.md
