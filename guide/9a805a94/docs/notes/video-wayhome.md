@@ -6,23 +6,32 @@
 
 ## 新しい回を追加する手順
 
-シート（title/ と同じブックの「帰り道」タブ）に行を足したあと、手で実行するものが2つある（どちらも自動では走らない）。
-行は 名前・タイトル・動画ID・決勝動画ID・表示（`Y`）を書く。決勝動画が無いと決めた回は決勝動画IDに `-` を書く（空は未記入）。
+**シート（title/ と同じブックの「帰り道」タブ）に1行貼るだけ。** あとは週次の再生成（`regenerate-page.yml`、毎週月曜 05:37 JST の予定）が行う（#194・#340、2026-10-11）。
 
-1. **`YOUTUBE_API_KEY=... python3 scripts/fetch_youtube_meta.py`**
-   → `data/youtube_meta.json` を更新してコミットする。
-   これを忘れるとシートにあってJSONに無い回になり、**その回だけ外れて生成される**（警告が出る。下の「シートを移し、見出しの名前で読む」節）
-2. **`python3 scripts/build_wayhome_ogp.py`**
-   → 一覧ページのOGP画像 `img/ogp/wayhome/index-<最新話の公開日>.jpg`（最新4本のサムネイルを2×2に並べたもの）を作り直す（#339）。
-   新しい名前で書き出し、古い `index*.jpg` は削除される（`/img/*` は immutable 配信のため同じURLで中身を変えない、`docs/notes/ogp.md`）。
-   **作るのはこの1枚だけで、個別ページ用の画像は作らない**（個別の `og:image` はYouTubeのサムネイルをそのまま使う）。
-   **同じ公開日の回を続けて足した場合は、同じ名前で中身が変わるためエラーで止まる。** 名前の付け方を手動で判断する
-3. **`python3 scripts/regenerate.py video_wayhome` を実行し、画像の追加・削除と `video_wayhome.html`（og:image の1行）を同じコミットに入れる。**
-   画像とページが別々に反映されると、og:image が削除済みの画像を指す時間ができる。
-   **手順2を忘れてもページは壊れない。** 今の最新話の画像が無ければ、一覧の og:image は共通の `img/ogp.png` に戻る
-4. エピソード個別ページなどほかの再生成は `regenerate-page.yml`（週次の `all`、または手動実行）
+1. 新しい回が公開されると、週次の再生成が常設 issue「帰り道の新しい回」に知らせる（/live の層1 `data/live_channel_raw.jsonl` の題名に「帰り道」か「ついていって」があり、シートに無い動画。メンバー限定も）。
+   知らせには、シートにそのまま貼れる1行（名前・タイトル・動画ID・決勝動画ID・表示 `Y`、タブ区切り）が入る。ジョブは失敗になる（失敗通知メール）
+   - タイトルは title/ の期の題（大会名の書き方の違いは `lib/wayhome_intake.py` の `TAIKAI_ALIASES` で直す）。帰り道用に直して貼ってよい
+   - 決勝動画IDの候補は、title/ の期ページの「決勝ライブ」の最後（最終日。冒頭版より全編）。見つからないときは空で、理由が書かれる。決勝動画が無いと決めた回は `-` を書く（空は未記入）
+2. 1行をシートの末尾に貼る（シートへの追記は自動では行わない）
+3. 次の週次の再生成（急ぐときは `regenerate-page.yml` を `all` で手動実行）が、YouTube の情報を取り直して `data/youtube_meta.json` を更新し、
+   一覧の OGP 画像を作り直し、一覧・各話を生成して同じコミットに入れる
 
-自動化（GitHub Actions での生成）は **#340** で判断する（文字を描かないため、フォントの導入は不要。Pillow のみ）。
+週次の再生成が知らせること（前回の知らせと変わったときだけ。決定は `docs/decisions/wayhome.md`）:
+
+| 知らせ | ジョブ | すること |
+| --- | --- | --- |
+| 新しい回 | 失敗 | 上の 2. |
+| シートにあって YouTube の情報が無い回 | 失敗 | その回は外して生成した。動画IDの誤り・非公開を確かめる |
+| YouTube で見られなくなった回 | 成功 | 前回の情報のままページを残す。消すならシートの行を消す |
+| 決勝動画IDが空の回（新しく増えたときだけ） | 成功 | 決勝ライブの動画IDか `-` を書く |
+
+- 仕組み: 「帰り道のYouTube情報を取得」（`scripts/fetch_youtube_meta.py`。閲覧数・取得日時は保存せず、中身が変わったときだけ差分が出る。返らなかった回は前回の値を残す）→
+  「帰り道の一覧のOGP画像を作る」（`scripts/build_wayhome_ogp.py`、Pillow）→ 再生成 → コミット（画像は `video_wayhome.html` を作り直せたときだけ入れる）→
+  「帰り道の取り込みを調べる」（`scripts/check_wayhome.py`）→ 常設 issue へのコメント（前回の状態はコメントの末尾の隠した注記 `<!-- wayhome-state: … -->`）
+- 一覧の OGP 画像 `img/ogp/wayhome/index-<最新話の公開日>.jpg`（最新4本のサムネイルを2×2に並べたもの、#339）。最新話と同じ公開日の回が N 本（N≥2）なら `index-<日付>-N.jpg`。
+  古い `index*.jpg` は削除する（`/img/*` は immutable 配信のため同じURLで中身を変えない、`docs/notes/ogp.md`）。同じ名前で中身が違う（サムネイルの差し替えなど）ときは上書きせず今のファイルを残す。
+  **作るのはこの1枚だけで、個別ページ用の画像は作らない**（個別の `og:image` はYouTubeのサムネイルをそのまま使う）
+- 手元で動かすときは `YOUTUBE_API_KEY=... python3 scripts/fetch_youtube_meta.py`・`python3 scripts/build_wayhome_ogp.py`・`python3 scripts/regenerate.py video_wayhome wayhome_episodes`
 
 OGP画像やタイトルを変えたあと X で確認するときは、URLに `?x=<未使用の数字>` を付けて貼る（X はカードの取得結果をキャッシュするため）。詳細は `docs/notes/ogp.md`。
 

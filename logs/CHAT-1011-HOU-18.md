@@ -115,6 +115,16 @@ HOU-17 の比較ページで平野さんが選んだ形を個人成績 `houou/pl
   - JS のエラー 0
 - テスト: 818件 OK（取り込みで cloudflare 側のテストが増えた）
 
+### 手順2 文書・再生成・確かめ
+
+- 文書: `docs/notes/houou-top.md`（期のカードのリーグのチップ〈L3・中央寄せ〉、右の欄の間 0.6em と 390px で1行に収める詰め方・余り 8.7px・375px の結果、推移の吹き出し T3、「構成」の比較ページの行を消し「比較ページ」の節を「すべて消した」にして済んだ比較に L・T を足した、仮置きの一覧〈HOU-17 の L3 のチップの角・幅・字の大きさと T3 のチップの置き場所は決定で解けたので外し、行の間とチップの大きさを残した。HOU-13・HOU-14 の余白と欄の間隔の行を今の値に合わせた。HOU-18 の分を足した〉）、`docs/notes/static-generation.md`「ページの一覧」（比較ページの記述を消した）、`docs/decisions/houou.md`（「## 2026-10-11（CHAT-1011-HOU-18）」）
+- 全ページの再生成（`jpml_pros`・`resource_dictionary`・`books_pages` は外した）: 差分なし
+- テスト: 818件 OK
+- 未公開の形（作業ブランチ）: `houou/` の HTML 13 すべてに noindex／`navbar.js`・`sitemap*.xml`・`llms.txt` に `houou/` 無し／既存のページからルートの `houou/` へのリンク 0／`compare.html` 0
+- 差分の範囲（`origin/cloudflare...HEAD`）: `assets/houou.js`・`style.css`・`docs/`（decisions・notes・logs）。`houou/` の生成物と `scripts/generate_houou_pages.py` は比較ページを作って消したので cloudflare と同じ。見込みの外のファイルは無い
+- Workers Builds（コードの push bfdcfc4c を含む d87e2b7e）: 「Workers Builds: mj」success・check success
+- プレビュー（headless Chromium）: 比較ページは 404。390・100% で 3名とも2行 0枚・余り 8.7px・チップの中心 1つの値（124）、1280 で余り 18.7px。推移の吹き出しは手元と同じ中身で、左右の端でも枠の内
+
 ## 報告
 
 - 状態: 作業中
@@ -131,12 +141,12 @@ HOU-17 の比較ページで平野さんが選んだ形を個人成績 `houou/pl
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 81c65eab）: https://github.com/retroeater/mj-logs/tree/main/guide/81c65eab
+ガイド文書（この版を写した時点の最新、mj 9a805a94）: https://github.com/retroeater/mj-logs/tree/main/guide/9a805a94
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/81c65eab/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/81c65eab/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/81c65eab/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/81c65eab/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/81c65eab/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/81c65eab/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a805a94/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a805a94/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a805a94/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a805a94/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a805a94/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a805a94/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a81419df.md

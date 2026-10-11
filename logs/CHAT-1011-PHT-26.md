@@ -56,15 +56,55 @@ PHT のチャット（#473 の6タブの削除、CHAT-1011-PHT-23〜25）の振�
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 0章と着手前の確認
+
+- 指示欄の末尾は指示文の最後の行と一致。`git log --all --grep="CHAT-1011-PHT-26"` は0件
+- `work/1011-pht-handover` はローカル・リモートとも無し → `git checkout -b work/1011-pht-handover origin/cloudflare`（6dc8aab7）
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- 対象 issue が無い文書だけの指示なので、着手中のコメントは書いていない
+
+### 手順1: issue の検索
+
+- GitHub MCP の `search_issues`（意味検索）は、複数語・単語とも0件を返し、`(旧)…` のような括弧を含む語は 422 になった。REST の `/search/issues` はセッションのトークンで 403。代わりに `/repos/retroeater/mj/issues?state=all` で全 issue（544件、Open 216）の題と本文を取り、手元で文字列を探した（コメントは対象外）
+  - 「申告」8件: #504・#486・#485・#465・#458（Open）、#448・#339・#124（Closed）。どれも別の主題（予約実行・Bing・転送・Search Console など）
+  - 「手作業」20件: #541・#502・#475・#456・#451・#425・#304（月次運用チェックリスト）・#300・#262 など。手作業の依頼の書き方を主題にするものは無い
+  - 「共有文」1件: #279（Open、プロ雀士クイズ。別の主題）
+  - 「着手中」1件: #157（Closed、並行セッションの事故の整理）
+  - 「読むだけ」2件: #529・#493（Open。新サイトの要件、auto モードの分類器。別の主題）
+  - 「振り返り」2件: #422・#419（Open。計測スクリプトの扱い、作業ブランチの切り方。別の主題）
+  - → 同じ論点の open issue は無い
+- 別の確かめ（「鳳凰」Y5816 の `#REF!` と `_pro`）:
+  - 「#REF!」3件: #544（Open、(旧)連盟プロ以外）、#473（Closed）、#467（Open、「プロ」A列の見出し。本文の `#REF!` は「タイトル」タブの BIG1カップの備考の件で、解消済みと書いてある）
+  - 「_pro」（前後が英数字でない `_pro` に限る）: 0件（`jpml_pros` などの当たりは除いた）
+  - 「Y5816」: 0件
+  - → 「鳳凰」Y5816 の `#REF!` と `_pro` を扱う issue は無い（起票はしていない。平野さんの判断）
+
+### 手順2: 書く（追記先を読んでから）
+
+| 文書 | 前 | 後 | 処理 |
+|---|---|---|---|
+| docs/notes/chat-side-operations.md | 26,076 | 26,602 | 「書く前に実物で確かめる」の「平野さんがシート（タブ）を用意した・直したと言ったとき」の項の末尾に、消す・直すを頼むときの文を同じ項の続きとして足した（同じ趣旨の既存の記述は無い）。「ほかのセッションへの共有」の「『ログにこう書いてある』と『確かめた事実』を分けて書く」を3つに分ける形に置き換え、共有文を受け取ったときの項を足した |
+| docs/instruction-template.md | 13,259 | 13,546 | 冒頭の箇条書きの「『変更は docs のみ』…」の項の前に、読むだけの指示の着手中コメントの項を足した（同じ趣旨の既存の記述は無い） |
+| docs/notes/chat-routines.md | 4,431 | 4,609 | 「振り返り」の「観点のチェックリスト」に issue の確かめの項を足した（同じ趣旨の既存の記述は無い） |
+| docs/notes/handover-archive-2026.md | 88,627 | 89,089 | 「docs/notes/chat-side-operations.md から」の「『ほかのセッションへの共有』」の小見出しに、#473 の件を2行で足した |
+
+- chat-side-operations.md は 26,602 バイトで警告域（26,624。assets-check.yml は「より大きい」で警告）未満のため、事例は移していない。残りは22バイト
+- instruction-template.md は警告域（14,336）未満
+- `docs/decisions/operations.md` に PHT-26 の決定を足した
+- 未マージの `work/` ブランチで、直した5文書を変えているものは無い
+- 成果物のコミット: 2de54340
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 81c65eab）: https://github.com/retroeater/mj-logs/tree/main/guide/81c65eab
+ガイド文書（この版を写した時点の最新、mj 9a805a94）: https://github.com/retroeater/mj-logs/tree/main/guide/9a805a94
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/81c65eab/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/81c65eab/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/81c65eab/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/81c65eab/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/81c65eab/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/81c65eab/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a805a94/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a805a94/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a805a94/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a805a94/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a805a94/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a805a94/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a81419df.md
