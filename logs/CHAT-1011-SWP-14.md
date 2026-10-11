@@ -64,6 +64,53 @@ CHAT-1011-SWP-13 の第2弾の直しを仕上げて本番に入れる。G2-03 �
 - 指示欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている。
 - CHAT-1011-SWP-13 のログの `## 報告` の状態は「判断待ち」。`work/1011-swp-nav` はリモートにあり、ローカルと一致（`1a193f94d`）。
 
+
+### 手順1 直す
+
+- CHAT-1011-SWP-13 のログの状態の末尾に ` / 続き: CHAT-1011-SWP-14` を足した。
+- `origin/cloudflare` を merge で取り込んだ（rebase なし。着手時と、push の直前の2回）。**衝突は無し。**
+- 案A を本実装した（`style.css`）。比較ページの案A の CSS を、共通の規則にした:
+  - 992px 未満で、虫眼鏡を持つナビ（`.navbar:has(> a.btn[data-bs-toggle="collapse"])`）だけ、`.container-fluid` を `display: contents` にし、ロゴ（order 0）・虫眼鏡（order 1、`margin: -2px 4px -2px auto`、`min-width/min-height: 44px`）・ハンバーガー（order 2）・メニュー（order 3）を `nav` 直下の flex 項目として並べる。`nav` の左右の余白は 12px
+  - 開いた固定ナビのメニューの最大の高さを `calc(100dvh - 60px)`（`100vh` を先に書く）にした（SWP-13 の `96px` から。比較ページの案A と同じ値）
+  - `navbar.js` は変えていない（案A は CSS だけ）
+- 比較ページ `nav_compare.html` を `git rm` した。案B・C と、ラジオボタンの CSS はこのファイルの中にあり、一緒に消えた。`git grep -n "nav_compare"` は docs/logs・docs/decisions 以外に残りが無い。
+- `python3 -m unittest discover -s scripts/tests` は通った（取り込み後にも再実行）。
+
+### 手順2 確かめる
+
+#### 比較ページの案A と本実装の並べ比較
+
+比較ページの案A は SWP-13 のプレビューでの測定値（同じスクリプト `cmp.js`）。本実装は作業ブランチのプレビューでの測定値（`fin.js`。ページは `jpml_pros`・`jpml_test`・`houou_leagues`）。幅 390×667、360×640、1280×800。メニューは「ハンバーガーを開く → 『リソース』を開く → 最後の項目へスクロール」の順。
+
+| 幅 | 項目 | 比較ページ 案A | 本実装 | 差 |
+|---|---|---|---|---|
+| 390 | ナビの高さ（閉） | 56px | 56px | 0 |
+| 390 | 虫眼鏡 位置（x, y）・大きさ | (274, 6)・44×44 | (274, 6)・44×44 | 0 |
+| 390 | 開いたナビの下端（画面 667） | 663px | 663px | 0 |
+| 390 | 最後の項目に届く／虫眼鏡が見える／開閉 | 届く／見える／する | 届く／見える／する | 同じ |
+| 360 | ナビの高さ（閉） | 56px | 56px | 0 |
+| 360 | 虫眼鏡 位置（x, y）・大きさ | (244, 6)・44×44 | (244, 6)・44×44 | 0 |
+| 360 | 開いたナビの下端（画面 640） | 636px | 636px | 0 |
+| 360 | 最後の項目に届く／虫眼鏡が見える／開閉 | 届く／見える／する | 届く／見える／する | 同じ |
+| 1280 | ナビの高さ | 80px | 80px | 0 |
+| 1280 | 虫眼鏡 位置・大きさ | (1230, 21)・50×38.2 | (1230, 21)・50×38.8 | 高さ 0.6px（比較ページは本文のフォントが違う） |
+
+- ロゴ R・ハンバーガーと同じ行（y=6、高さ44）で、ロゴ（x=0、幅 44.5）・虫眼鏡・ハンバーガー（x=322/292、56×44）の順。**±2px の範囲内。止まる条件には当たらない。**
+- `houou_leagues`（流れるナビ）はメニューを開くとナビが 816px になるが、ページをスクロールして届く（SWP-13 と同じ。固定ナビではない）。
+- 検索欄を持たないページ（`data-search="off"`）: `404`・`jpml_links`・`title/` で虫眼鏡は出ず（`search: null`）、ナビは 56px のまま。規則は `:has(> a.btn[data-bs-toggle="collapse"])` に限っているため、そのページのナビの並びは変わらない。
+
+#### SWP-13 で直した6件の値
+
+12ページ × 幅 1280・390・360 で、SWP-13 の最終プレビューの値（`prev.json`）と今回のプレビューの値（`prev14.json`、同じスクリプト `probe.js`）を比べた。比べた項目: ロゴの大きさ、ハンバーガーの大きさ、スキップリンクのコントラスト、ナビ項目の枠のコントラスト、虫眼鏡の枠のコントラスト、Space の動き（ドロップダウン・虫眼鏡）、`.mj-margin-text` の右の余白、横スクロール、ナビの位置、固定ナビで最後の項目に届くか。**変わった値は 0 件**（ローカルの作業ツリーとプレビューの値も一致、不一致 0）。変わったのは、虫眼鏡のある3ページ（`jpml_pros`・`jpml_test`・`houou_leagues`）の 390・360px のナビの高さ（94.8→56px）だけ（G2-03 の直し）。
+
+#### ほかに表示が変わっていないこと
+
+`git archive origin/cloudflare`（`c28bfedca`）を手元で配信したものと、作業ブランチ（取り込み後）を、14ページ × 390・1280px の全体画像で比べた:
+
+- 390px: 差があったのは `jpml_pros`・`jpml_test`・`houou_leagues`・`video_live`（虫眼鏡を持つページ。ナビが 39px 低くなり下が全部ずれる。ナビ以外の本文の差は、このずれによるもの）と、`404`・`resource_efficiency`（`.mj-margin-text` の右の余白、SWP-13 で承認済み）だけ。`title/`・`saikyo/`・`live/`・`video_wayhome`・`wayhome/` の個別・`jpml_links`・`resource_dictionary`・`rh_results` は差 0
+- 1280px: 差が出たのは `jpml_test`（表の中の外部リンクのアイコンが出る・出ない）と `video_live`（ページの高さ 4499 と 4574）。どちらも負荷のかかった測定の時だけで、負荷のない2回の測定（`video_live` を現行2回・作業ブランチ2回）は 4499px で一致した（画像の読み込みの時刻の違いと見る）。ほかの12ページは差 0
+- `/nav_compare.html` はプレビューで HTTP 404。プレビューの `style.css`・`navbar.js`・`404.html`・`jpml_pros.html` は作業ブランチと一致（`cmp`）
+
 ## 報告
 
 - 状態: 中断（作業中）
@@ -80,12 +127,12 @@ CHAT-1011-SWP-13 の第2弾の直しを仕上げて本番に入れる。G2-03 �
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 1af6fc7c）: https://github.com/retroeater/mj-logs/tree/main/guide/1af6fc7c
+ガイド文書（この版を写した時点の最新、mj 7fcdff8c）: https://github.com/retroeater/mj-logs/tree/main/guide/7fcdff8c
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/1af6fc7c/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/1af6fc7c/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/1af6fc7c/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/1af6fc7c/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/1af6fc7c/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/1af6fc7c/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/7fcdff8c/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/7fcdff8c/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/7fcdff8c/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/7fcdff8c/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/7fcdff8c/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/7fcdff8c/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b2727163.md
