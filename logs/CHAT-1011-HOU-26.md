@@ -104,18 +104,30 @@ HOU-25 の比較ページで平野さんが選んだ形を個人成績 `houou/pl
 - 差分の範囲（`origin/cloudflare...HEAD`）: `assets/houou.js`（右の区画の入れ物）、`style.css`（`.mj-houou-term-*` の節だけ）、`docs/decisions/houou.md`・`docs/notes/houou-top.md`・`docs/logs/`（HOU-25・26）。`generate_houou_pages.py`・`static-generation.md`・`houou/` の生成物は cloudflare と同じ。前提の範囲で説明できる
 - 旧ページ: `assets/houou.js` と `.mj-houou-term-*` は新ページだけが使う。外部ドメイン・ワークフローの変更なし
 
+### 手順3 マージ・本番の確かめ・片付け
+
+- マージ: push 直前に再 fetch し（origin/cloudflare は a5e75bd0 のまま）、`git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめて `git push origin work/1011-hou:cloudflare`（a5e75bd0..2524a460）
+- Workers Builds の check-run（2524a460）: success
+- 本番（`curl`）: `https://ryoei.pro/houou/players/?v=<未使用の値>` が 200、noindex あり。`/houou/players/compare.html` は 404。配信の `style.css`・`assets/houou.js` は 2524a460 と同じ中身。ブラウザでの見え方はここからは確かめていない
+- 片付け: このクラウドセッションはブランチを削除できない（docs/notes/cloud-sessions.md「ブランチの削除」）。`origin/work/1011-hou` は `git branch -r --merged origin/cloudflare` に出る（マージ済み）。削除は `delete-merged-branches.yml` に任せる。このログの push の後、同じ先頭を `cloudflare` へも push する（docs/logs だけの追いの push）。追いの push の前の先頭は 2524a460
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1011-hou
-- ログ: https://github.com/retroeater/mj/blob/work/1011-hou/docs/logs/CHAT-1011-HOU-26.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1011-hou
-- 確認用URL: なし
-- マージ: 未
+- 状態: 完了
+- ブランチ: work/1011-hou（マージ済み。削除は `delete-merged-branches.yml` に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1011-HOU-26.md
+- 比較URL: なし（マージ済み）
+- 確認用URL: https://ryoei.pro/houou/players/?name=真田将成 ほか（下の「判断が必要なこと」）
+- マージ: 済（a5e75bd0..2524a460。この報告の docs/logs のみの追いの push あり）
 - issue: #518
-- 判断が必要なこと: なし
-- 未確認の項目: なし
-- エラー: なし
+- 判断が必要なこと:
+  1. 本番での確かめ（未公開でも URL を直接打てば見える）: iPhone で https://ryoei.pro/houou/players/?name=真田将成 を開き、41期前期「E3 ▲364.8 36位 残留」の行が1行に収まり、得点が要約の「通算成績」と同じ縦の線（中央）にあること、順位と結果のチップの間が広がったことを見る。https://ryoei.pro/houou/players/?name=白鳥翔 で 42期（鳳凰位）の行の開閉の印が右端にあること
+  2. 375px の余り（全カードの右の余白を何 px 足すと2行になるか）: 標準の字体 7.6px・IPA P ゴシック 2.4px・WenQuanYi Zen Hei 4.6px。どれも 2px 以上なので、ほかの間は変えていない。iPhone のヒラギノはここでは測れない
+  3. 仮置きの一覧（`docs/notes/houou-top.md`「仮置きの一覧」）
+     - 今回（HOU-25・26）の分: チップ → 開閉の印の間 2px、鳳凰位の行の得点の欄を見えないまま残すこと（配置の案と順位 → チップの間の候補は決定で解けたので外した）
+     - それ以前（HOU-01〜23）の分は変えていない（HOU-19 の行に「順位 → チップは HOU-26 で 1em」を注記）
+- 未確認の項目: 本番のブラウザ（iPhone）での見え方（平野さん）
+- エラー: なし（`jpml_pros`・`resource_dictionary`・`books_pages` は再生成から外した）
 
 <!-- guide-links -->
 ---
