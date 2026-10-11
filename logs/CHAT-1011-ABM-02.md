@@ -62,28 +62,61 @@ CHAT-1011-ABM-01 の調査を受けて、チャットで /grill-me の形で決�
 
 ## 経過
 
+### 着手（2026-10-11）
+
+- 同じ Chat-Ref のコミットは0件（`git log --all --grep="CHAT-1011-ABM-02"`）。識別子 ABM はこのセッションの ABM-01 で使ったもの
+- 作業ブランチ: ローカルの `work/1011-abm`（1bda70d1）は `origin/cloudflare` の祖先、リモートの `origin/work/1011-abm` もマージ済み → docs/notes/cloud-sessions.md「作業ブランチの用意」の「ローカルにあり origin/cloudflare の祖先」のとおり `git merge --ff-only origin/cloudflare`（44da572e へ）
+- 0.: 「指示」欄の末尾は指示文の最後の行と一致。CHAT-1011-ABM-01 の `## 報告` の状態を「判断待ち / 続き: CHAT-1011-ABM-02」にした（着手のコミット 118b13d5 に含めた）
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は4つともある
+- #425・#501・#530 は3件とも Open。他セッションの着手中のコメントは無い（#530 の 2026-10-10 の WHS-01 の着手中は帰り道の分で、マージ済み）
+
+### 手順1: 決定の記録（47c42199）
+
+- docs/decisions/README.md・saikyo.md・features.md を読んだ。既存の決定と矛盾して判断が要るものは無く、置き換えの注記で済んだ
+- saikyo.md の末尾に「## 2026-10-11（CHAT-1011-ABM-02）」を足し、決定11項目を書いた（grill の番号を添えた）
+- 置き換えの注記:
+  - saikyo.md「2026-10-10（CHAT-1010-SKS-01）」の「#530 のうち最強戦について、共有ボタンを見直す…」の行末に「→ 置き換え（このとき残した年度ページの対局ごとの共有ボタン）: 2026-10-11（CHAT-1011-ABM-02）」。「残す」の判定そのものは decisions には無く #530 のコメント（2026-10-10、SKS）にあるため、その決定の行に付けた
+  - features.md「2026-10-05（CHAT-1005-RUN-07）」の「#425 の 4: …設定は個別ページを作る時に平野さんがダッシュボードで行う」の行末に「→ 置き換え（設定の時機と転送先の URL の形）: 2026-10-11（CHAT-1011-ABM-02、docs/decisions/saikyo.md）」。決定7・9 で「公開の指示の時」になったため
+  - features.md の #425 のほかの行（RUN-05〜07 の現行サイトで作る・リンクのみ・対局と卓の両方・勝ち上がり者だけ・#501）は今回の決定と食い違わないので注記していない
+
+### 手順2: issue
+
+- **#546 を起票**（「最強戦の個別ページの OGP 画像を検討する」、ラベル: 状況: 待ち・分野: SEO/AIO・対象: saikyo）。先に全 issue（クローズ済みを含む544件）の題・本文を「OGP / og:image」×「最強戦 / saikyo」と、題の「OGP / og:image / 個別ページ」で探した。同じ主題の open は無し。近いもの: #343（年度ページの OGP、Closed）・#232（大会別ページの OGP、Closed）・#165（新サイトの OGP のページ別の出し分け、Open だが新サイトの一般論）。本文に3点（#425 の完了を待つ・今は年度の画像を使い回す・作るなら毎朝の再生成の対象パスに `img/ogp/` が無い〈CHAT-1011-ABM-01〉）を書いた。sub-issue には登録していない（指示に無いため。本文の「関係」に #425 を書いた）
+- **#425 の本文**: REST の PATCH で2回直した。各回の直前に `updated_at` を取り直して確かめた（1回目 2026-10-05T06:54:53Z → 2026-10-11T03:27:01Z、2回目 03:27:01Z → 03:27:10Z）
+  - 冒頭の方針の行の直後（「## やること（2026-10-05 …）」の前）に「## 決まったこと（2026-10-11、CHAT-1011-ABM-02）」を足し、11項目の要約と docs/decisions/saikyo.md の節を指した
+  - 「## URL の形」「## 生成とサイトマップ」の見出しの直後に「（2026-10-11）この節の検討は、上の「決まったこと（2026-10-11）」の 2・7 で置き換わった。古い検討として残す。」を足した（古い検討は消していない）
+- **#425 にコメント**（このログと ABM-01 のログ、#546）: https://github.com/retroeater/mj/issues/425#issuecomment-6105015970
+- **#501 にコメント**（決定11）: https://github.com/retroeater/mj/issues/501#issuecomment-6105016442
+- **#530 にコメント**（対局ごとの共有ボタンは #425 で対局のページへのリンクに置き換えて外す。閉じない）: https://github.com/retroeater/mj/issues/530#issuecomment-6105016798
+
+### 手順3: docs/notes/saikyo-page-design.md（47c42199）
+
+- 「1. データ源」の表: A の備考を「空欄の対局は0件（2026-10-11、#323 で埋めた）。空欄のときの扱いは「アンカー」」に直し、L「備考」（読まない）と M「動画URL」（#425 で足す予定。入れ方は決定10）の行を足した
+- 「アンカー」の末尾に、同じ日に2つの対局があると対局識別子（`?match=` の値と `data-match`）が重複すること（14組。2つ目の共有 URL が1つ目を出す）と、#425 で2つ目にだけ枝番 `-2` を付けることを足した
+- 個別ページの設計そのものは書いていない（試作の後）
+
 ## 報告
 
-- 状態:
-- ブランチ:
-- ログ:
-- 比較URL:
-- 確認用URL:
-- マージ:
-- issue:
-- 判断が必要なこと:
-- 未確認の項目:
-- エラー:
+- 状態: 完了
+- ブランチ: work/1011-abm
+- ログ: https://github.com/retroeater/mj/blob/work/1011-abm/docs/logs/CHAT-1011-ABM-02.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1011-abm
+- 確認用URL: なし
+- マージ: 未（ドキュメントのみのため、この後 cloudflare へ入れる）
+- issue: #425（本文・コメント）・#501（コメント）・#530（コメント）・#546（起票）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 44da572e）: https://github.com/retroeater/mj-logs/tree/main/guide/44da572e
+ガイド文書（この版を写した時点の最新、mj 527d0910）: https://github.com/retroeater/mj-logs/tree/main/guide/527d0910
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/44da572e/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/44da572e/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/44da572e/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/44da572e/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/44da572e/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/44da572e/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/527d0910/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/527d0910/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/527d0910/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/527d0910/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/527d0910/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/527d0910/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a81419df.md

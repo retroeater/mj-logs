@@ -336,3 +336,7 @@
 
 - 申送り A（ジョブのサマリの読み方）と B（lastmod が動く仕組み）を文書に足す。C（一部だけ重なる issue の扱いの規則）は足さない（既存の規則で足りる）
 - 「振り返り」は、その時点のモデル（Opus 5.5 等）が報告を作った後に、必ず Fable 5.1 のレビュー（advisor）を入れる
+
+## 2026-10-11（CHAT-1011-PHT-26）
+
+- PHT のチャット（#473 の6タブの削除）の振り返りの知見を、申送りとして docs に書く（chat-side-operations.md・instruction-template.md・chat-routines.md と、事例は handover-archive-2026.md）
