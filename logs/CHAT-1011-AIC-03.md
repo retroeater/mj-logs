@@ -118,28 +118,49 @@ AIC-01「5. 実装の案」の実装2から変えた点:
 B1 のトークン: Workers Builds が作るトークンの既定の権限に D1 は無い（公式）。既にある D1 を `database_id` で結ぶだけで D1 の権限が要るかは公式に書かれていない（未確認）。足りないときの手順（My Profile → API Tokens → Edit token で D1 : Edit を足す）を B1 に書いた
 - cloudflare の取り込み（`git merge origin/cloudflare`、18コミット、衝突なし。HOU-19〜22 の `assets/houou.js`・`style.css` など）
 
+### 2. マージ
+
+- `git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめて `git push origin work/1011-aic:cloudflare`（`a165e953..3a46658d`）
+- マージ後の `regenerate-page.yml`（run 38131402861）: success。対象は houou_pages だけで「変更なし」（シート側の変更の反映なし）
+- check-run（`3a46658d`）: 「Workers Builds: mj」・check（2つ）・sync・regenerate がすべて success
+- 本番の HTML: `https://ryoei.pro/houou/` に質問欄（`mj-houou-ask`）が入り、`/assets/houou_ask.js` が 200（HTML の確認まで。ブラウザでの見え方は Playwright で手元のファイルを見たもので、本番のブラウザでは見ていない）
+- **本番の POST が Cloudflare の 403**: マージの後、セッションから `POST https://ryoei.pro/api/ask`（Origin 付き）を送ると、「Attention Required! | Cloudflare」の遮断のページ（403）が返った。
+  `/`・`/houou/` への POST も 403、GET は通る。Ray ID `a48d1fb17947feee-IAD`（`/api/ask`）・`a48d1fb39baaf27c-IAD`（`/houou/`）、2026-10-11 19:18 JST。
+  WAF のルールか、セッションの接続元へのボットの判定かは、セッションからは分からない（docs/notes/ask-worker.md「未確認: 本番の POST が Cloudflare の 403 になる」に書いた）
+- #542 に進みのコメントを残し、着手中を解除した
+- docs/decisions/houou.md に「2026-10-11（CHAT-1011-AIC-03）」（指示の「決定」節）を足した
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1011-aic
-- ログ: https://github.com/retroeater/mj/blob/work/1011-aic/docs/logs/CHAT-1011-AIC-03.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1011-AIC-03.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1011-aic
-- 確認用URL: なし
-- マージ: 未
+- 確認用URL: なし（本番の houou/ は未公開のまま。Worker は未デプロイ）
+- マージ: 済（3a46658d）
 - issue: #542
-- 判断が必要なこと: 未定
-- 未確認の項目: 未定
+- 判断が必要なこと:
+  - 平野さんの次の手作業（この順で。手順は https://github.com/retroeater/mj/blob/cloudflare/docs/notes/ask-worker.md ）
+    1. B1: Workers Builds のプロジェクト `mj-ask` を作る（https://github.com/retroeater/mj/blob/cloudflare/docs/notes/ask-worker.md#b1-workers-builds-のプロジェクト-mj-ask-を作る ）。ビルドが API トークンの権限で失敗したら、同じ節の「ビルドが API トークンの権限で失敗したとき」
+    2. B2: D1 `mj-ask` の Console で `workers/ask/schema.sql` を実行する（https://github.com/retroeater/mj/blob/cloudflare/docs/notes/ask-worker.md#b2-d1-に表を作る ）
+    3. B3: Claude Console でキー `mj-ask`（ワークスペース `ryoei-pro-ask`、本人、1年）を作る（https://github.com/retroeater/mj/blob/cloudflare/docs/notes/ask-worker.md#b3-anthropic-のキーを作る ）
+    4. B4: `mj-ask` の Secret `ANTHROPIC_API_KEY`・`IP_HASH_SALT` を登録する（https://github.com/retroeater/mj/blob/cloudflare/docs/notes/ask-worker.md#b4-worker-の-secret-を登録する ）
+  - 本番の POST が Cloudflare の 403 になる件: Security → Events で Ray ID `a48d1fb17947feee-IAD` の行の Service と Rule を見てほしい。メソッドで遮断するルールなら、`/api/ask` の POST を外す方法を次の指示で決める（https://github.com/retroeater/mj/blob/cloudflare/docs/notes/ask-worker.md の「未確認: 本番の POST が Cloudflare の 403 になる」）
+- 未確認の項目:
+  - 本番の POST の 403 の原因（上）
+  - B1 で `mj build token` に D1 の権限が要るか（公式の文書に記述なし）
+  - 質問欄の本番のブラウザでの見え方（手元のファイルを Playwright で見ただけ）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 4790f6d2）: https://github.com/retroeater/mj-logs/tree/main/guide/4790f6d2
+ガイド文書（この版を写した時点の最新、mj f0e55372）: https://github.com/retroeater/mj-logs/tree/main/guide/f0e55372
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/4790f6d2/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/4790f6d2/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/4790f6d2/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/4790f6d2/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/4790f6d2/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/4790f6d2/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f0e55372/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f0e55372/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f0e55372/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f0e55372/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f0e55372/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f0e55372/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a81419df.md
