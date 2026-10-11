@@ -120,18 +120,33 @@
   - JS のエラー 0
 - テスト: 805件 OK（取り込みで cloudflare 側のテストが増えた）
 
+### 手順2 文書・再生成・プレビューの確かめ
+
+- 文書: `docs/notes/houou-top.md`（「構成」に比較ページの行、「比較ページ」の節を「一時」に戻して6案と作りを書いた、仮置きの一覧に HOU-17 の分）、`docs/notes/static-generation.md`「ページの一覧」（「13＋比較ページ1〈一時〉＋在籍者数 691」と比較ページの文）、`docs/decisions/houou.md`（「## 2026-10-11（CHAT-1011-HOU-17）」。置き換える前の決定は無い）
+- 全ページの再生成（`jpml_pros`・`resource_dictionary`・`books_pages` は外した）: 差分なし。HOU-16 で止まっていた SNS のブックの「【3】画像取得」タブの確かめも、今回は通った（`houou_pages` の生成が成功）
+- 未公開の形: `houou/` の HTML 13 と比較ページに noindex、`navbar.js`・`sitemap.xml`・`sitemap-pages.xml`・`llms.txt` に `houou/` 無し
+- Workers Builds（コードの push 318ab0c1 を含む 324689ef）: 「Workers Builds: mj」success・check success
+- プレビュー（headless Chromium、390×844〈タッチ〉・1280×900〈マウス〉、白鳥翔・平野良栄）: 比較ページは 200。手元と同じ結果（L1〜L3 とも 100% で全カード1行、リーグの文字の左端が1つの値、T1〜T3 の吹き出しが左右の端でグラフの枠の内、T3 のチップ「決定戦」「残留」）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち（平野さんが比較ページで選んでから、次の指示で決める）
 - ブランチ: work/1011-hou
 - ログ: https://github.com/retroeater/mj/blob/work/1011-hou/docs/logs/CHAT-1011-HOU-17.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1011-hou
-- 確認用URL: なし
-- マージ: 未
+- 確認用URL: ターミナルへの最終報告に書いた（プレビューの URL は非公開扱い）
+- マージ: 未（指示のとおり cloudflare へは push していない）
 - issue: #518
-- 判断が必要なこと: なし
-- 未確認の項目: なし
-- エラー: なし
+- 判断が必要なこと:
+  1. 確かめる手順: 比較ページを白鳥翔で開き、上部のラジオ「リーグ」（L1 左寄せ・L2 中央寄せ・L3 チップ）で期ごとの成績（表）のリーグの見え方を、「推移の吹き出し」（T1 1行・T2 3行・T3 3行＋結果）で「推移」に切り替えたグラフを押した（PC は重ねた）ときの吹き出しを見比べる。2つのラジオは別々に切り替えられる
+  2. L2・L3 は、そのままでは 390px の幅で期のカードが2行になるため、L2・L3 のときだけ欄の間を詰めた（左右の欄の間 8→4px、期とリーグの間 0.3→0.2em、得点・順位・チップの間 0.9→0.6em〈等間隔のまま〉）。L2・L3 を選ぶ場合はこの詰め方も一緒に入る（L2 の余りは約 1px なので、ほかの直しで幅が増えると2行になりやすい）
+  3. L3 のチップの色とコントラスト（文字は白か黒、WCAG 2）: 鳳凰位 #9f1239 白 8.02・A1 #e3561f 黒 5.62・A2 #fa5d27 黒 6.66・B1 #d28528 黒 7.13・B2 #ef972e 黒 9.14・C1 #ccaa2d 黒 9.36・C2 #e8c133 黒 12.11・C3 #eed066 黒 13.85・D1 #0193c3 黒 5.96・D2 #01a7de 黒 7.58・D3 #40bde6 黒 9.64・E1 #0349c3 白 7.65・E2 #0353de 白 6.37・E3 #427ee6 黒 5.36（全14色 4.5 以上。色はリーグ推移の段の色のまま）。結果のチップ（丸い錠剤の形）と見分けるため、リーグのチップは角を小さく丸めた四角にした
+  4. 推移のグラフと「通算」の確かめ: グラフは期ごとの通算得点（その期までの合計の累計）の面グラフ。吹き出しの「通算」も同じ値で、個人成績の要約の「通算成績」と同じ数え方（白鳥翔の最後の期 +1124.3 が要約と一致）。前提の見込みどおりで、変えていない
+  5. 仮置きの一覧（`docs/notes/houou-top.md`「仮置きの一覧」）
+     - 今回（HOU-17）足したもの: L3 のチップの角（4px）・幅（3.2em 以上、鳳凰位だけ広い）・字の大きさ（0.8125rem）／L2・L3 のときの欄の詰め方／T3 の結果のチップの置き場所（2行目の右）と大きさ（0.75rem）、T2・T3 の行の間
+     - 前から（HOU-01〜15）: 一覧のとおり
+- 未確認の項目: ブラウザでの目視（headless Chromium の要素の位置と撮影で確かめた）。iPhone での文字の拡大（公開前にまとめて行う）
+- エラー: なし（`books_pages` は前回と同じく「書籍」シートの行数の確かめで止まるため、再生成から外した）
 
 <!-- guide-links -->
 ---
@@ -144,4 +159,4 @@
 - docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1a50feb/docs/notes/chat-side-operations.md
 - docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1a50feb/docs/notes/cloudflare.md
 - docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1a50feb/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b2727163.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a81419df.md
