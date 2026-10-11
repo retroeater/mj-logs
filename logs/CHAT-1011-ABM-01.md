@@ -261,6 +261,10 @@ section.mj-saikyo-match#match-<先頭の卓のアンカー>[data-match=<識別�
 - `?match=` の値が個別ページに無いもの（古い `<年度>-n<連番>` の共有 URL、打ち間違い）は、ワイルドカードの1ルールだと存在しない URL への 301 → 404 になる。今は「該当する対局が無い値は絞り込まない」（年度ページの全件表示）
 - `?match=…&utm_source=…` のように後ろに別のパラメータが付くと、`${2}` に混ざる（RUN-06 の指摘のまま）
 
+### マージ
+
+- 再 fetch で origin/cloudflare が先へ進んでいた（XAP-09・PHT-23 のログ、docs/decisions/title.md）ため `git merge origin/cloudflare` で取り込んだ（衝突なし）。`git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめ、`git push origin work/1011-abm:cloudflare`（109c57a3..850921a6）。cloudflare との差はこのログ1ファイルだけ
+
 ### docs/decisions
 
 この指示の「決定」節は docs/decisions/features.md の 2026-10-05（RUN-05〜07）の #425 の行の再掲で、新しい決定は無い。作業中の平野さんの回答も無い。docs/decisions/ には足していない
@@ -269,10 +273,10 @@ section.mj-saikyo-match#match-<先頭の卓のアンカー>[data-match=<識別�
 
 - 状態: 判断待ち
 - ブランチ: work/1011-abm
-- ログ: https://github.com/retroeater/mj/blob/work/1011-abm/docs/logs/CHAT-1011-ABM-01.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1011-ABM-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1011-abm
 - 確認用URL: なし
-- マージ: 未（ドキュメントのみのため、この後 cloudflare へ入れる）
+- マージ: 済（850921a6。origin/cloudflare を取り込んだ後、`git push origin work/1011-abm:cloudflare`）
 - issue: #425・#501・#502（読むだけ。書き込みなし）
 - 判断が必要なこと:
   - /grill-me で決めることの一覧（調べた事実で直した。【足】は足したもの）
