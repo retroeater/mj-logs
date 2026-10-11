@@ -90,6 +90,33 @@
 - 作業ブランチ: ローカルの `work/1011-aic` は `origin/cloudflare` の祖先（リモートもマージ済み）のため、`git merge --ff-only origin/cloudflare` で進めた
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 4行とも揃っている
 - 0. 指示欄の末尾は指示文の最後の行と一致。AIC-02 の `## 報告` の状態は「完了」、origin/cloudflare に `workers/ask/src/query.mjs` と `workers/ask/data.json` がある
+- #542 のコメントに他セッションの着手中は無い（AIC-02 の着手中は解除済み）
+- 未マージの work/ ブランチ（1009-swp-526・1011-hou・1011-swp-mob・1011-swp-nav）: `1011-hou` と `1011-swp-mob` が `assets/houou.js`・`style.css` を変えていたので、質問欄の JS・CSS はそれらに足さず新しいファイル `assets/houou_ask.js`・`assets/houou_ask.css` にした。`generate_houou_pages.py`・`houou/index.html`・`workers/` を変えているブランチは無い（マージの直前に再確認。`1011-hou` はその間に cloudflare に入った）
+- `ryoei.pro/api/*`: `/api/ask`・`/api/` とも本番は 404、リポジトリに `api/` は無く、`_redirects`・`_headers` に `/api` の行も無い。Rate limiting rules の条件（`.html` か `/` で終わる）にも当たらない。既存の動きは変わらない
+
+### 1. 実装（成果物のコミット 443069a7、文書 のコミットはその次）
+
+AIC-01「5. 実装の案」の実装2から変えた点:
+
+- 質問欄の JS・CSS は `assets/houou.js`・`style.css` に足さず、新しいファイル `assets/houou_ask.js`・`assets/houou_ask.css`（上の重なりを避けるため。CSS は houou/ のトップだけが読む）
+- 受付の本体は `workers/ask/src/ask.mjs`（時刻・fetch・データを引数で受けてテストから差し替える）、入口は `index.mjs`
+- Claude は SDK を使わず `fetch` で呼ぶ（`workers/` に npm の依存とビルドの工程を持たないため。`mj-scheduler` と同じ）
+- thinking・effort（公式の文書・claude-api skill で確認）: Haiku 5.5 は adaptive thinking が既定で effort の既定は `medium`。`thinking` は送らず `output_config.effort: "low"` で抑える。`temperature` 等は送らない（既定以外は 400）。thinking も `max_tokens` に数えるので 2048。structured outputs は Haiku 5.5 で使える（`output_config.format` の `json_schema`。すべての object に `additionalProperties: false`）
+- 「読み方」の注記（grill Q2「答えの冒頭に」）を `query.mjs` の `notes` の先頭から別の項目 `lead` に分けた（AIC-02 で作った部分の変更。テストも合わせた）
+- 読み上げ用の見出し「鳳凰戦について AI に質問する」を `visually-hidden` で置いた（画面に出る文言は決定の4つとボタン「質問する」だけ）
+- Claude の失敗した問いも1問と数え、記録は `unanswered`
+
+確かめ:
+
+- `node --test 'workers/ask/test/*.test.mjs' 'workers/scheduler/test/*.test.mjs'`: 45 件 pass（`ask.test.mjs` 10件: 例の質問で2名、記録に IP・答えの本文が残らない、型に当たらない質問の「答えられません」、IP の10問・全体の上限の 429 と翌0時、0時の数え直し、Origin・空・長すぎ、Claude の失敗・拒否、Secret 無し）。D1 は `node:sqlite` で `schema.sql` をそのまま使う作り物
+- 上限の検査を外すと `ask.test.mjs` の2件が落ちることを確かめた（検査がテストで守られていること）
+- `python3 -m unittest discover -s scripts/tests`: OK（cloudflare の取り込みの後も）
+- `python3 scripts/regenerate.py houou_pages`: 終了コード 0。差分は `houou/index.html` だけ（head に `houou_ask.css`・`houou_ask.js` の2行、h1 とカードの間に質問欄）。SNS ブックのフィルタ（AIC-02 で記録）は解かれていた
+- ブラウザ（Playwright の Chromium、幅 390px、`/api/*` は作り物の応答）で houou/ を開き、質問欄がカード4枚の上に出ること、答え・Worker が無いとき（404）の「いまは答えられません。」・上限の表示と受付の停止を確かめた。JS のエラーなし
+
+文書: docs/notes/ask-worker.md に Worker の流れ、Claude の呼び出しの設定、B1〜B4 の手順、キーの差し替え、仮置きを書いた。
+B1 のトークン: Workers Builds が作るトークンの既定の権限に D1 は無い（公式）。既にある D1 を `database_id` で結ぶだけで D1 の権限が要るかは公式に書かれていない（未確認）。足りないときの手順（My Profile → API Tokens → Edit token で D1 : Edit を足す）を B1 に書いた
+- cloudflare の取り込み（`git merge origin/cloudflare`、18コミット、衝突なし。HOU-19〜22 の `assets/houou.js`・`style.css` など）
 
 ## 報告
 
