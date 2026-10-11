@@ -68,8 +68,8 @@
 | スキップリンク | フォーカス時に `position:relative; z-index:1040`（固定ナビより手前）。濃色のページ（`body:has(.mj-video-page)`）は文字色を `--mj-v-accent`（`#7fb3d5`）にする（`#121212` の上で 8.31:1。紺 `#14459b` だと 2.10:1） | 固定ナビのページ・濃色ページ | `style.css` の「本文へスキップリンク」、#182・#524（2026-10-11） |
 | ナビのフォーカス枠 | 白 `#ffffff` 2px、offset 2px（ナビ `#212529` の上で 15.43:1。濃色の領域の既決の枠と同じ）。項目と虫眼鏡に付ける。ロゴ・ハンバーガー・ドロップダウン項目はブラウザ既定の枠のまま | 共通ナビ | `style.css` の「ナビの項目と虫眼鏡のフォーカス枠」、#524（2026-10-11） |
 | ナビの虫眼鏡 | 992px 未満はハンバーガーの左に同じ行（右寄せ）。ナビは56px、虫眼鏡は44×44px。`.container-fluid` を `display:contents` にして `order` で並べる。検索欄を持たないページ（`data-search="off"`）は虫眼鏡が無く、並べ方も変えない。992px 以上は従来どおり右端 | 共通ナビ | `style.css` の「折りたたみ時…虫眼鏡」、#524（2026-10-11、案A） |
-| 開いた固定ナビのメニューの高さ | 992px 未満・`body:has(.mj-table)` で `max-height: calc(100dvh - 60px)`（`100vh` を先に書く）・`overflow-y:auto`。上の行 56px＋余裕 4px | 固定ナビの型A・A' | `style.css` の「固定ナビを開いたとき」、#524（2026-10-11）。ほかの固定ナビ（`title/`・`saikyo/`・動画系）は各系統の値 |
-| `.mj-margin-text` の余白 | 左右 32px、上 24px | `404`・`jpml_links`・`resource_efficiency` | `style.css` の `.mj-margin-text`、#524（2026-10-11） |
+| 開いた固定ナビのメニューの高さ | 992px 未満で `max-height: calc(100dvh - 60px)`（`100vh` を先に書く）・`overflow-y:auto`。上の行 56px＋余裕 4px。navbar の実測の高さ（`--mj-*-nav-h`）は使わない（開いたナビの高さが入って縮む循環になる） | 固定ナビの型A・A'（`body:has(.mj-table)`）・`title/`・`saikyo/` の年度ページ | `style.css` の「固定ナビを開いたとき」と `title/`・`saikyo/` の節、#524・#525（2026-10-11）。動画系は 80vh（WH-17） |
+| `.mj-margin-text` の余白 | 左右 32px、上 24px。見える h1（`.mj-page-heading`）も同じ左右 32px・上 24px（下 0.5rem） | `404`・`jpml_links`・`resource_efficiency` | `style.css` の `.mj-margin-text`・`.mj-page-heading`、#524・#525（2026-10-11） |
 
 ## 4. 部品
 
@@ -80,9 +80,13 @@
 | 最強戦の見た目 | Material Design 3 寄り。影 elev-1/2/3、角丸 12px／8px、8px グリッド。本文 `#212529`・リンク `#14459b` は共通のまま | `style.css:1542-1544`・`1572-1574`、`docs/notes/saikyo-page-design.md`（SK-09） |
 | 最強戦の対局のまとまり | `1px #a8adb3`・角丸 12px・間隔 24px | `style.css:1575-1646`（SK-31） |
 | 写真カード（名前・帯） | 名前はカード幅の 13%（13〜22px）、下端から透明になるグラデーションに白文字と濃い影。大会名の帯は `rgba(0,0,0,.75)`＋白字 | `style.css:1696-1714`・`2123-2126`、`docs/notes/title-pages.md`（TP-14〜TP-16） |
+| 写真カードの文字（文字が大きいとき） | 上の帯と名前の高さの合計が写真の高さの7割を超えるカードが1枚でもあれば、その並び全体で文字を写真の外に出す（帯は写真の上、名前は写真の下で地は `rgba(0,0,0,.75)`）。ふだんの文字の大きさでは写真に重ねる今の形 | `title/` の写真カード（`.mj-title-holders`）・`live/` の写真カード（`.mj-live-players`）。`assets/title.js`・`assets/live.js` の `fitCardLabels()` が `.is-text-large` を付ける。#525 G2-11（2026-10-11、案C） |
+| ヒーロー（動画系・`live/`） | 高さは `min-height: clamp(420px, 72vh, 640px)`（中身が収まらなければ伸びる）。戻るボタンのあるヒーローは中身の上に `calc(clamp(12px, 3vw, 24px) + 44px + 8px)` の余白 | `style.css` の「ヒーロー」、#525 G2-06（2026-10-11） |
+| 表の数字の列（全般） | `font-variant-numeric: tabular-nums` で数字を等幅にし、列の最小幅は `ch`（「0」の幅）で決める。等幅にしない列は `em` で決め、幅の広い数字（「4」など）でも折り返さないことを確かめる（等幅でない数字を `ch` で決めると、`rh_results_detail` の着順のように折り返す）（表・グラフの数字） | 2026-10-11 の横断レビューの振り返り（`docs/decisions/site-review.md`）。`tabular-nums` は `style.css` に既に 9 箇所ある |
+| 表の数字の列（`rh_results_detail`） | 日付は「-」でだけ折り返す。得点は折り返さない。着順は `min-width: calc(3.2em + 8px)`（数字を等幅〈`tabular-nums`〉にしていないため `ch` でなく `em` で決めている。字の幅が字ごとに違っても5桁が収まる）で、6桁以上だけ折り返す。その分ほかの文字の列が細くなり、ページが現行から 390px で +22%（27,448→33,548px）、360px で +40%（33,450→46,675px）長くなるのは受け入れた（2026-10-11） | `style.css` の `#rh_results_detail_table`、#525 G2-07（2026-10-11） |
 | 固定バー（絞り込み） | navbar 直下に固定。背景は不透明 `#131316`、下枠 `rgba(255,255,255,.14)`、`padding:8px`、`gap:10px`、高さ 61px（459px 以下は 115px） | `style.css:1316-1332`・`1859-1888`・`2194-2222`、`docs/notes/saikyo-page-design.md`（SK-18） |
 | パンくずの区切り | 「/」（`title/` の Bootstrap `.breadcrumb` と `live/` で同じ）。`live/` は 13.6px・700、項目の高さ 44px | `style.css:2814-2835`、`docs/notes/live-page-design.md`（LP-11） |
-| 見出し（`resource_efficiency`） | `h1.mj-page-heading`（16px・500）は画面に見える | `style.css:85-89`（#152。経緯は `docs/notes/handover-archive-2026.md`） |
+| 見出し（`resource_efficiency`） | `h1.mj-page-heading`（16px・500）は画面に見える。余白は本文の `.mj-margin-text` にそろえる（左右 32px・上 24px） | `style.css` の `.mj-page-heading`（#152・#525。経緯は `docs/notes/handover-archive-2026.md`） |
 | 他ページの h1 | 画面には出さず `visually-hidden`（#53 の意図的な判断） | `docs/notes/a11y-manual-check.md`「E. 横断確認」 |
 
 ## 5. 未決・食い違い

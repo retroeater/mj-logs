@@ -95,6 +95,15 @@ HOU-25 の比較ページで平野さんが選んだ形を個人成績 `houou/pl
   - 375px・150%・200%: 右の区画が次の行に回る（200% では鳳凰位の行も2行）。横のはみ出し 0
 - テスト: 830件 OK
 
+### 手順2 文書・再生成・確かめ
+
+- 文書（1c92eff3）: `docs/notes/houou-top.md` の「期のカードの右側」を「期のカードの並び（P3）」に置き換え（3区画・得点の中央寄せ・順位 → チップ 1em・375px の余り）、「比較ページ」を「すべて消した」に戻して済んだ比較に P0〜P3 を足し、仮置きの一覧の HOU-25 の行を決定で解けた分を外して「HOU-25・HOU-26 で足したもの」に直した（HOU-19 の行に〈HOU-26 で順位 → チップは 1em〉を注記）。`docs/notes/static-generation.md`「ページの一覧」から比較ページを消した（14 → 13＋在籍者数。cloudflare の版と同じに戻った）。`docs/decisions/houou.md` に CHAT-1011-HOU-26 の節を足した（2026-10-11 の節は AIC を含めて17個目。HOU の節としては14個目）
+- 全ページの再生成（`jpml_pros`・`resource_dictionary`・`books_pages` は外した）: 差分なし（HOU-22〜25 で出ていた `saikyo/2026/` の差分は、取り込んだ cloudflare の再生成〈8440e689〉で入っていた）
+- テスト: 830件 OK
+- 未公開の形: `houou/` の HTML 13件すべてに noindex。`navbar.js`・`sitemap*.xml`・`llms.txt` に `houou/` は無し。既存のページ（旧4ページを含む）から `houou/` へのリンク 0件（相対パスを解いて確かめた）。`houou/` に `compare.html` は無し
+- 差分の範囲（`origin/cloudflare...HEAD`）: `assets/houou.js`（右の区画の入れ物）、`style.css`（`.mj-houou-term-*` の節だけ）、`docs/decisions/houou.md`・`docs/notes/houou-top.md`・`docs/logs/`（HOU-25・26）。`generate_houou_pages.py`・`static-generation.md`・`houou/` の生成物は cloudflare と同じ。前提の範囲で説明できる
+- 旧ページ: `assets/houou.js` と `.mj-houou-term-*` は新ページだけが使う。外部ドメイン・ワークフローの変更なし
+
 ## 報告
 
 - 状態: 作業中
@@ -111,12 +120,12 @@ HOU-25 の比較ページで平野さんが選んだ形を個人成績 `houou/pl
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj a5e75bd0）: https://github.com/retroeater/mj-logs/tree/main/guide/a5e75bd0
+ガイド文書（この版を写した時点の最新、mj 2524a460）: https://github.com/retroeater/mj-logs/tree/main/guide/2524a460
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a5e75bd0/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a5e75bd0/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a5e75bd0/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a5e75bd0/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a5e75bd0/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a5e75bd0/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/2524a460/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/2524a460/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/2524a460/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/2524a460/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/2524a460/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/2524a460/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a81419df.md
