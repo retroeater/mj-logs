@@ -185,7 +185,8 @@ egressポリシーに阻まれ実データを見られない状態が一度あ�
   3名はいずれも現時点で連盟の所属プロではないと判明した。** 鳳凰位
   経験の有無にかかわらず非所属プロ（`jpml_pros`に存在しない選手）は
   選択肢に含めない方針を確定し、現在の生成条件は意図どおりに機能して
-  いる（データ不備ではなく修正不要、詳細は#127のコメント）
+  いる（データ不備ではなく修正不要、詳細は#127のコメント）。
+  〔2026-10-11 追記: 鳳凰最高/桜花最高列は廃止し、今は「鳳凰」「桜花」タブに1行でもある在籍者で判定する（同じ意味、#536）〕
   - 選定した候補選手のうち、鳳凰/桜花シートの実データに1件もヒットしない
     選手（houou 25名・ouka 14名）は生成時にスキップする（選んでも
     折れ線が出ない項目を作らないため）。**この25名/14名は表記ゆれでは
@@ -271,6 +272,8 @@ HTMLは25ページ + 書籍の一覧と個別ページ（`books/`、#97、noinde
 | Google Charts依存 | **6** | ブラウザから直接スプレッドシートを読む。#7の対象。型B3・ランキング系A3 |
 | 静的なページ | 2 | `404.html` / `jpml_links.html` |
 
+ページを書かない生成対象が1つある: `ask_data`（`scripts/generate_ask_data.py`）は Worker `mj-ask` が同梱する検索データ `workers/ask/data.json` だけを書く（配信しない。#542、`docs/notes/ask-worker.md`）。
+
 ### 生成スクリプトの構成（lib/page.py）
 
 - `jpml_pros.html`は独自の`scripts/generate_jpml_pros.py`のまま。型A/A'の9ページは`scripts/lib/page.py`（HTMLテンプレート・行組み立て・画像セル・エスケープの共通処理）を使い、各`scripts/generate_<ページ名>.py`は「設定(`PageMeta`/`TableConfig`) + 行組み立て関数」だけを持つ（#7の共通化）。型C・型D・`video_wayhome.html`・`wayhome/`のエピソード個別ページは表を持たないため`lib/page.py`の`render_content()`を使う。いずれも`scripts/lib/sheets.py`経由でスプレッドシートのgvizエンドポイント（`google.visualization.Query`と同じSELECT構文）を叩く
@@ -281,6 +284,7 @@ HTMLは25ページ + 書籍の一覧と個別ページ（`books/`、#97、noinde
 - `lib/page.py`はh1直後・`#searchBoxes`手前にページ固有のHTMLを差し込む`content_before`スロット（#102第1段で追加）を持つが、現在どのページも使っていない。ページ固有HTMLをh1直後に差し込む汎用スロットとして残している
 - `jpml_pros`の英字の姓名・所属は「プロ」シート（C・D・E列）ではなく連盟員名簿のブック（`lib/meibo.py`。英字の姓名は「【2】値貼付」タブの「登録名英字姓」「登録名英字名」、所属は「公開」タブ）から登録名で引く。在籍者が名簿のどちらかのタブにいない・名簿の人数が1,000〜1,300を外れるときは生成を止める（#536 の段2。「プロ」の C・D・E 列は段4で消すまで残る）
 - `jpml_pros`の成績の8列（鳳凰出場・鳳凰<最新の期>・鳳凰最高・桜花出場・桜花<最新の期>・桜花最高・最強出場・放送対局）は「プロ」シートの O〜U・W 列（数式）ではなく、`lib/pro_stats.py` が集計元のタブ（「鳳凰」「桜花」「リーグ」「最強戦」、旧「対局」）から生成時に数える。定義は数式と同じ（鳳凰出場は表示 Y の行数、桜花出場は表示を問わない行数、最高は全行のリーグキーの最小を「リーグ」タブでリーグ名に戻す、最強出場は表示 Y の対局の行数、放送対局は旧「対局」の対局者・実況・解説で登録名を部分一致で含むセルの数。#536 の段3）。最新の期は「鳳凰」の最大の (期, 前後)・「桜花」の最大の期で、見出し・検索欄の placeholder・aria の文言も生成時の期から作る。「鳳凰Ampai」「桜花Ampai」タブの先頭の見出し（「鳳凰43後」「桜花21」の形）が最新の期と合わないときは、Ampai の URL（「プロ」の鳳凰Ampai・桜花Ampai 列）のリンクを付けない。「リーグ」タブは見出しが重複する（「ID」「リーグ名」の組が鳳凰・桜花の順）ため、見出しの並びで組を引く。`generate_ouka_leagues.py` の選手候補も「桜花」タブに1行でもある在籍者で判定する（旧「桜花最高」が空でない人と同じ）
+- `jpml_pros`ほかの X・note・YouTube の ID と画像の URL は「プロ」「連盟プロ以外」の列ではなく SNS ブックから `lib/sns.py` で引く（2026-10-11、#514、`docs/notes/sns-book.md`。旧列は数日後に空にする）。
 - `jpml_pros`のYouTubeアイコンだけはシートではなくYouTube Data API（channels.list）から取り、`data/youtube_channels.json`を経由する（#3。キーはActions secret `YOUTUBE_API_KEY`）。
   取得は週次`all`と`target_page`空/`all`の手動実行時のみ。失敗しても既存JSONでアイコンは維持され、ジョブだけ失敗扱いになる
 - `wayhome_episodes`だけは出力が単一ページではなく`wayhome/`配下39枚になる（#162）
@@ -386,7 +390,7 @@ title/ では「タイトル戦」タブの大会の改名が「タイトル」�
 ### ページ側のJS（jpml_pros.js / table.js / video_wayhome.js / leagues.js）
 
 - 生成後の絞り込み・並び替え・ページ送りはページ側の軽量JSに委譲する。`jpml_pros.js`は絞り込みと並び替え（ページ送りなし・全行表示）専用。型A・型A'の10ページは共通の`table.js`（絞り込み・ページ送り、並び替えなし）を使う。設定は`<table>`要素のdata属性（`data-page-size` / `data-name-mode` / `data-filter-param`）で渡し、属性省略時はページ送りなし・完全一致フィルターなしになる。ページ固有のUI（`resource_logs.html`の名前セレクトボックス等）はtable.jsとは別の小さなJSで補う。`video_wayhome.html`は`.mj-table`を持たないため`table.js`は読み込まず、専用の`video_wayhome.js`が絞り込み・画像フォールバック等を担う（#102第2段。共有ボタンは #530 で外した）
-- 型Cの2ページは`leagues.js`（共通JS）を使う。積み上げ棒と既定選手の折れ線は静的SVGに焼き込み済みで、`leagues.js`は`?name=`に応じて選手1名分の`<polyline>`と凡例ラベルだけを差し替える（選手ごとの折れ線データは`houou_leagues_data.json`/`ouka_leagues_data.json`をfetchして取得）。選手選択リストは「プロ」シートのY列="Y"かつ鳳凰最高/桜花最高列に値がある選手が対象（#127/#133）。**退会済みの選手は鳳凰/桜花シートにリーグの実データが残っていても選択リストに出ない。これは正しい挙動**（Y列="Y"が在籍・公開対象を表す。#168）
+- 型Cの2ページは`leagues.js`（共通JS）を使う。積み上げ棒と既定選手の折れ線は静的SVGに焼き込み済みで、`leagues.js`は`?name=`に応じて選手1名分の`<polyline>`と凡例ラベルだけを差し替える（選手ごとの折れ線データは`houou_leagues_data.json`/`ouka_leagues_data.json`をfetchして取得）。選手選択リストは「プロ」シートの「表示」が Y かつ鳳凰/桜花シートに1行でもある選手が対象（#127/#133。旧「鳳凰最高/桜花最高列に値がある」と同じ意味で、その列は 2026-10-11 に廃止、#536）。**退会済みの選手は鳳凰/桜花シートにリーグの実データが残っていても選択リストに出ない。これは正しい挙動**（「表示」= Y が在籍・公開対象を表す。#168）
 
 ### regenerate-page.yml
 
@@ -413,7 +417,7 @@ GitHub Actions (`.github/workflows/regenerate-page.yml`) が、`scripts/generate
 | `sync-books-calendar.yml` | **2026-09-22 開発凍結にともない無効化（`gh workflow disable`）。** 元は毎週月曜05:27 JSTに「書籍」タブの発売日をGoogleカレンダーへ同期していた（#97、`docs/notes/books-calendar.md`・`docs/notes/books-freeze.md`） |
 | `sync-logs.yml` | **2026-10-07 から停止中（`workflow_dispatch` のみ。push・予約・Worker からの起動を外した、#298）。写しは mj-logs 側の `sync-from-mj.yml`（下）。** 以下は止める前の動き: `docs/logs/**` を含む push（cloudflare は毎回、`work/**` はコミットのメッセージに`[sync-logs]`のある push だけ。無い push はジョブが skip、#298）・毎日05:30 JST の Worker `mj-scheduler` からの起動（入力 `scheduled`、#504）・毎日 08:29 JST の予約実行（保険）・手動実行（この3つは目印に関係なく走る、#498）。実行の時点の mj と mj-logs を突き合わせ、写っていない・古い作業ログを public の `retroeater/mj-logs` の `logs/` へ写し、cloudflare で削除されたログを消す（#440。書き込みはシークレット `MJ_LOGS_TOKEN`）。concurrency は `queue: max` で、続けて来た実行を取り消さずに1本ずつ順に動かす（#509）。取り消された実行（待ちが100本を超えたとき、`queue: max` を持たない古い分岐の作業ブランチの実行）の分は、次の cloudflare の実行で追いつく（`scripts/sync_logs.py`、#454）。使用済みの Chat-Ref 識別子の一覧も毎回集め直して `chat-ids/` に写す（`scripts/chat_ids.py`、#474）。毎回、各ワークフローの直近5回の実行（開始時刻・契機・ブランチ・結論・run 番号・所要時間、失敗したジョブ名とステップ名）を mj-logs の `actions/status.md` に上書きで書き出す（`scripts/actions_status.py`、`GITHUB_TOKEN` の `actions: read`。コミットの題とログの中身は書かない、#498） |
 | `delete-merged-branches.yml` | 毎日07:53 JST と手動、Worker `mj-scheduler` からの予約の起動（毎日04:20 JST、入力 `scheduled`、#504。Worker が動くのは平野さんがつないだ後）。マージ済みで先頭が24時間より前の `work/*` を削除する（#440、`scripts/delete_merged_branches.py`） |
-| `update-sns-book.yml` | 毎日04:10 JST に Worker `mj-scheduler` から（入力 `scheduled`）と手動（mode: check / init / update、dry_run 既定）。SNS ブックの【1】【2】【3】を書く（`scripts/update_sns_book.py`、#514、`docs/notes/sns-book.md`） |
+| `update-sns-book.yml` | 毎日04:10 JST に Worker `mj-scheduler` から（入力 `scheduled`）と手動（mode: check / init / update、dry_run 既定）。SNS ブックの【1】【2】【3】を書き、【3】のページが使う値が変わった日は `regenerate-page.yml`（all）を呼ぶ（`scripts/update_sns_book.py`、#514、`docs/notes/sns-book.md`） |
 
 - `scripts/sync_all_logs.py`（#298）: `origin/cloudflare` と未マージの `origin/work/**` のすべてについて、`sync-logs.yml` の「ログ・ガイド文書を写す・消す」と同じ手順で mj-logs の作業ツリーへ写す（commit・push はしない）。mj-logs 側の `sync-from-mj.yml` から呼ぶ
 - mj-logs の `.github/workflows/sync-from-mj.yml`（#298）: Worker `mj-scheduler` から mj に push があった直後（`pushed_at` が3分以内の毎分の回、`docs/notes/scheduler-worker.md`「動き」）と、手動実行・毎日03:41 JST の予約実行（保険）で起動し、mj を blobless でクローンして `scripts/sync_all_logs.py` と `scripts/actions_status.py --repo retroeater/mj` を動かし、mj-logs 自身へ push する（mj を読むのは mj-logs の Secret `MJ_READ_TOKEN`）。mj の Actions の分を使わない。2026-10-07 から写しはこれだけ（本番。`sync-logs.yml` は停止中）。push が拒否されたら origin/main に戻して写す・書き出すをやり直す（3回まで）
@@ -473,8 +477,8 @@ GitHub Actions (`.github/workflows/regenerate-page.yml`) が、`scripts/generate
 Google の API（`lib/gcal.py`・`lib/sheets_write.py`・`sync_birthday_calendar.py`）には接続10秒・読み取り60秒のタイムアウトを渡し、読み取り（GET）だけ同じく繰り返す。書き込みは、届いたかが分からず重複しうるため繰り返さない（#472）。
 
 - `check_image_links.py` — `jpml_pros.html` 内の画像URL全件にHEADリクエストを送りリンク切れを検知（毎週月曜03:00 JST）
-- `collect_saikyo_images.py` — 最強戦の選手写真（「プロ」J列・「連盟プロ以外」X画像URL、#384）で取得できなくなった画像URLを見つけ、X 公式 API（user lookup、Secret `X_BEARER_TOKEN`、1回30件まで）で現在のURLを解決してCSV出力（#333・#514、手動実行＋`check-image-links.yml`から毎日`--json`実行）。生成時に全件は解決しない。`--resolve-test <X ID>`で1件だけ解決して診断を出す。使い方と理由は`docs/notes/saikyo-page-design.md`「選手写真の更新」
-- `update_sns_book.py` — SNS ブック（選手の X・note・YouTube の ID と画像の URL、#514）の【1】元データ・【2】ID・【3】画像取得を書く（`--check`・`--init`・毎日の更新・`--dry-run`。`update-sns-book.yml`から毎日）。生成はまだ読まない。仕組みは`docs/notes/sns-book.md`
+- `collect_saikyo_images.py` — 最強戦の選手写真（SNS ブックの実効の値、#514）で取得できなくなった画像URLを見つけ、SNS ブックでの状態（【3】の X状態・【4】の有無）と一緒にCSV・検知の issue に出す（#333、手動実行＋`check-image-links.yml`から毎日`--json`実行）。X API は呼ばない（取り直しは `update_sns_book.py`）。`--resolve-test <X ID>`で X API を1件だけ呼んで診断を出す。使い方は`docs/notes/saikyo-page-design.md`「選手写真の更新」
+- `update_sns_book.py` — SNS ブック（選手の X・note・YouTube の ID と画像の URL、#514）の【1】元データ・【2】ID・【3】画像取得を書く（`--check`・`--init`・毎日の更新・`--dry-run`。`update-sns-book.yml`から毎日）。X の画像を X API で取り直すのはここだけ。ページの生成は SNS の値を `lib/sns.py` から読む（2026-10-11 から）。仕組みは`docs/notes/sns-book.md`
 - `cleanup_logs.py` — `docs/logs/`の作業ログのうち、7日を過ぎて片付けてよいもの（完了で3項目「なし」・取り下げ・続き先が完了／取り下げ／削除済み・論点の無い旧形式）を削除し、条件外のものを種類別（判断待ち・中断／書き方の違反／読めない）に一覧にする（`cleanup-logs.yml`から週1で実行、`--dry-run`で一覧のみ、`--new-rule-date`で規則を入れた日を試せる）。条件は`docs/notes/branch-operations.md`「作業ログの寿命」
 - `delete_merged_branches.py` — マージ済み（`origin/cloudflare` の祖先）で先頭が24時間より前の `work/*` を削除し、ブランチ名と先頭の SHA を出力する（`delete-merged-branches.yml`から毎日、`--dry-run`で一覧のみ。完全な履歴のクローンが要る）
 - `check_meibo.py` — 連盟員名簿データ（`lib/meibo.py`）と「プロ」シートの在籍者を登録名で突き合わせ、名簿のみ・プロのみを一覧にする（#370、`check-meibo.yml`から週1、生成は止めない）。テストは CLAUDE.md「判断・作業の原則」
@@ -485,7 +489,8 @@ Google の API（`lib/gcal.py`・`lib/sheets_write.py`・`sync_birthday_calendar
 - `check_leagues_dropped.py` — 型C（`houou_leagues` / `ouka_leagues`）で、リーグの実データがあるのに選手選択リストから漏れている選手を検知（#168、手動実行）。**出力は警告ではなく参考情報。退会者が並ぶのは正常で、在籍中の選手が現れたときだけ「プロ」シートの入力漏れを疑う。**`generate_*_leagues.py` から定数と `period_of()` / `fill_front_half()` をimportし、集計は `lib/leagues.py` を生成時と同じ引数で呼ぶ。生成側で `build_player_series()` の引数を変えたときはこちらも直すこと。`.github/workflows/check-leagues-dropped.yml` からworkflow_dispatchで実行でき、結果を実行サマリと指定issueへのコメントに出す
 - `build_ogp_image.py` — OGP画像 `img/ogp.png`（1200×630、背景#ffffff、「ryoei.pro」の文字のみ）を生成（#78、手動実行）。Pillowが必要。全ページ共通の1枚で、`lib/page.py` / `generate_jpml_pros.py` のテンプレートと静的ページに `og:image` として入っている。生成したPNGもコミットする（生成環境のフォント差で再生成のたびに差分が出るのを避けるため）。`--check`でコミット済みのPNGと一致するか確認できる。`--text` と `--out` で任意の文字列・出力先の1枚も作れる（#343）。和文は `~/.local/share/fonts/NotoSansJP-Bold.otf`（`OGP_FONT`で差し替え可、無ければ失敗）を使い、横幅1040pxに収まるまで文字を小さくする。段を重ねるときは `--text` を繰り返し、`--scale`（1段目に対する比）・`--color`・`--max-size`・`--tracking`・`--line-gap` で調整する。背景は `--bg`（既定#ffffff）。最強戦の年度ページのコマンドは `docs/notes/saikyo-page-design.md`（`<年度>-black.png`、#343）にあり、年度が増えたときはこれを1回実行して生成したPNGをコミットする。**引数なしの `--check` は、コミット時と環境のフォントが違うと、スクリプトを変える前から一致しない**（2026-09-16 の Codespace では FONT_CANDIDATES のうち DejaVuSans が使われ、変更前のスクリプトでも一致しなかった）。スクリプトを変えたときの回帰確認は、変更前後のスクリプトの `render()` の出力同士を比べる（CHAT-0916-SY-07/08）
 
-- `build_wayhome_ogp.py` — 「帰り道」一覧ページのOGP画像`img/ogp/wayhome/index-<最新話の公開日 YYYYMMDD>.jpg`（1200×630、JPEG品質88）を書き出す（#339、手動実行）。必要なのはPillowだけ（文字を描かないためフォントは要らない）。最新4本のサムネイルを2×2に並べ、切り抜かずに収める（全体が16:9なので高さが先に埋まり、左右の余りは`--mj-v-bg`=#121212のまま。サムネイル同士の区切りは8px）。実行のたびに作り直すが、最新4本が同じなら同じ名前・同じJPEGになり差分は出ない。ほかの`index*.jpg`は削除する。同じ名前で中身が変わる場合（同じ公開日の回が追加されたとき）は上書きせずエラーで止まる。生成したJPEGもコミットする。個別ページの og:image はYouTubeのサムネイルのまま。**ページ別のOGP画像は `img/ogp/<区分>/` 以下に置く。共通の `img/ogp.png` は動かさない。** 新しい回を足したときの手順は`docs/notes/video-wayhome.md`「新しい回を追加する手順」、Actionsでの自動化は#340
+- `build_wayhome_ogp.py` — 「帰り道」一覧ページのOGP画像`img/ogp/wayhome/index-<最新話の公開日 YYYYMMDD>.jpg`（1200×630、JPEG品質88）を書き出す（#339。週次の再生成〈`regenerate-page.yml`〉が作り直す、#340）。必要なのはPillowだけ（文字を描かないためフォントは要らない）。最新4本のサムネイルを2×2に並べ、切り抜かずに収める（全体が16:9なので高さが先に埋まり、左右の余りは`--mj-v-bg`=#121212のまま。サムネイル同士の区切りは8px）。実行のたびに作り直すが、最新4本が同じなら同じ名前・同じJPEGになり差分は出ない。ほかの`index*.jpg`は削除する。最新話と同じ公開日の回が2本以上なら名前に連番を付け（`index-<日付>-N.jpg`）、同じ名前で中身が変わる場合は上書きせず今のファイルを残す。生成したJPEGもコミットする。個別ページの og:image はYouTubeのサムネイルのまま。**ページ別のOGP画像は `img/ogp/<区分>/` 以下に置く。共通の `img/ogp.png` は動かさない。** 新しい回を足したときの手順は`docs/notes/video-wayhome.md`「新しい回を追加する手順」
+- `check_wayhome.py` — 「帰り道」の取り込みの知らせ（新しい回・YouTube の情報が無い回・見られなくなった回・決勝動画IDが空の回）を組み立てる（#194、週次の再生成が呼び、常設 issue「帰り道の新しい回」にコメントする）。判定は `lib/wayhome_intake.py`。手順は`docs/notes/video-wayhome.md`「新しい回を追加する手順」
 
 ### #7 の期待値
 

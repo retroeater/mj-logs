@@ -90,6 +90,20 @@
 - 文書: `docs/notes/video-wayhome.md`「新しい回を追加する手順」を「シートに1行貼るだけ」に書き換え、`docs/notes/static-generation.md` の `build_wayhome_ogp.py` の行を直し `check_wayhome.py` の行を足した。決定を `docs/decisions/wayhome.md` に足した
 - 手元で `check_wayhome.py` を流した結果（JSON はまだ 6WAPjcxT78A が無い版）: 新しい回 0件・JSON に無い回 1件（6WAPjcxT78A）・見られなくなった回 0件・決勝動画IDが空の回 0件
 
+### 手順3: 作業ブランチでの手動実行（run 38104968581）
+
+- `actions_run_trigger`（ref `work/1011-whs`、`target_page: all`）。02:22:58Z 開始、約3分半で **success**
+- ステップ: 帰り道のYouTube情報を取得・帰り道の一覧のOGP画像を作る・対象ページを再生成・コミット・前回の知らせを読む・取り込みを調べる・知らせを書く がすべて success、失敗の報告のステップは skipped
+- コミット ce02c249 は作業ブランチにだけ push された（cloudflare は変わらず）。差分（b6656a66..ce02c249）:
+  - `data/youtube_meta.json`: `fetched_at_utc` と各回の `viewCount` が消え、`6WAPjcxT78A` が末尾に足された。既存39回の値（publishedAt・thumbnails・duration）と並びは変わらず（スクリプトで比較）。`video_count_requested`・`video_count_fetched` は 40、`missing_video_ids` は空
+  - `wayhome/6WAPjcxT78A.html` が増え、各話は **40枚**。前後の回のカードが変わった `wayhome/RVXat9zRycQ.html`・`wayhome/WDRBtJJME7I.html`（各1行）
+  - `video_wayhome.html`: 一覧に勝又健志の回のカード、「全40回」・総再生時間、description・ItemList（回数）
+  - `sitemap-wayhome.xml`（6WAPjcxT78A の行と lastmod）・`sitemap-pages.xml`（lastmod）
+  - 一覧の OGP 画像は変わらず（`index-20260921.jpg`、最新話は変わらない）
+  - **`jpml_pros.html` の1行**（吉田彩乃の X のリンクが消えた）。SNS ブックの【2】ID で X が空（備考「20261011：Xアカウント乗っ取られ中」）・【3】の X状態「アカウントなし」になったため。シートの変化で、今回の変更（`jpml_pros` は `lib/wayhome.py`・`wayhome_intake.py` を読まない）とは関係ない。cloudflare で再生成しても同じ差分になる
+- 常設 issue **#545「帰り道の新しい回」** がワークフローに作られた（ラベル 種類: 常設・分野: 自動化・対象: video_wayhome、既定のトークンで作れた）。最初のコメントは「知らせることはありません（前回の知らせが無いため、今の状態を記録します）」と状態 `{"empty_final": [], "missing_json": [], "new": [], "unavailable": []}`
+  - 新しい回 0件・JSON に無い回 0件・見られなくなった回 0件・決勝動画IDが空の回 0件（見込みどおり）
+
 ## 報告
 
 - 状態: 作業中
@@ -106,12 +120,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj a1a50feb）: https://github.com/retroeater/mj-logs/tree/main/guide/a1a50feb
+ガイド文書（この版を写した時点の最新、mj b1051c14）: https://github.com/retroeater/mj-logs/tree/main/guide/b1051c14
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1a50feb/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1a50feb/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1a50feb/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1a50feb/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1a50feb/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1a50feb/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b1051c14/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b1051c14/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b1051c14/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b1051c14/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b1051c14/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b1051c14/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a81419df.md
