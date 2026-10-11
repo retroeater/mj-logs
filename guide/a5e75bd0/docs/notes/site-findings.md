@@ -59,6 +59,7 @@ for f in *.html wayhome/*.html; do grep -o '<img[^>]*>' "$f" | grep -o ' src="ht
 | `kinmaweb.jp` | saikyo_results（1,326件） |
 | `i.ytimg.com` | index |
 | `www.icualumni.com` | index |
+| `image.p-c2-x.abema-tv.com` | saikyo/<年度>/ の卓・対局のページ（ABEMA のサムネイル。2026-10-11 に足した、#502・#425。上の 2026-09-14 の実測の後。公開は #549） |
 
 `yt3.googleusercontent.com`は2026-09-14時点でどのページにも出現しない
 （`docs/`以外のリポジトリ全体を検索して0件）。以前はjpml_prosのYouTube
