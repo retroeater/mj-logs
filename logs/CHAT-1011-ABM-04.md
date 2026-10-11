@@ -56,6 +56,45 @@ CHAT-1011-ABM-03 の試作を平野さんがプレビューで確かめた。そ
 
 ## 経過
 
+### 着手（2026-10-11）
+
+- 同じ Chat-Ref のコミットは0件。`work/1011-abm` はローカルとリモートが同じ（cc5f6b4b）。`origin/cloudflare` が祖先でなかったので、ログの push の後に `git merge origin/cloudflare` で取り込んだ（衝突なし）
+- 0.: 「指示」欄の末尾は指示文の最後の行と一致。CHAT-1011-ABM-03 の `## 報告` の状態は「判断待ち」だったので、「判断待ち / 続き: CHAT-1011-ABM-04」にした（着手のコミット fb183b1c）。雛形の行は4つともある
+- 未マージのブランチ（自分を除く4件）: `origin/work/1011-hou` が `style.css`（鳳凰戦の `.mj-houou-*` の行）、`origin/work/1011-swp-mob` が `assets/saikyo.js`（`trackBarHeights()` の中の navbar の高さの条件）と `style.css`（表・帰り道・最強戦の navbar の開いたメニューの高さの行）を変えている。この指示で変えた関数・行（`assets/saikyo.js` の新しいページの処理と今の年度ページの選択子、`style.css` の新しいクラスの節と `.mj-saikyo-unplayed` の行）とは別の箇所。`git merge-tree` で2件とも今の作業ブランチとの衝突なし。`check_saikyo_unregistered.py`・`generate_saikyo_pages.py` を変えているブランチは無い
+
+### 手順1: 直し
+
+- 「未対局」の文字を外した（00303aba）: 年度ページの勝ち上がり者がいない対局は見出しの下に代替アバター1枚（`UNPLAYED_CARD_HTML`、`alt=""`。名前・結果が無く、文字を出さない決定のため読み上げも出さない）、対局・卓のページの未対局の卓は4人の写真だけ（`build_table_section()` の「未対局」の行を削除）。定数 `UNPLAYED_LABEL` と CSS の `.mj-saikyo-unplayed` を外した。テストは「未対局」が出ないこと・代替アバター1枚・未対局の卓で4人を確かめる形に直した（変更前のコードでは `assertNotIn("未対局")` が通らない）
+- 対局日が空の対局の知らせ:
+  - `scripts/check_saikyo_unregistered.py`（実名どおり）に `collect_undated()` / `undated_matches()` を足した。シート全体を `fetch_table()` で読み、表示（K）が「Y」で対局日（A）が空の行を（年度, 対局名）でまとめ、シートの行番号（見出しを1行目）を付ける。標準出力に「対局日が空の対局（個別ページを作っていません）: n件」と一覧、JSON に `undated`。テスト2件（1件ある場合の文面「2026年度 日付なし（シートの3・4行目）」、0件）
+  - **ワークフローも変えた**: 常設 issue の本文は `check-saikyo-unregistered.yml` の `actions/github-script` が JSON から組み立てるため、スクリプトだけでは issue に載らない。本文に節「### 対局日が空の対局」（年度・対局・シートの行の表）を足し、閉じる条件を「引けない人も対局日が空の対局も0件」にした。引けない人が0で対局日が空の対局だけがあるときの1行目も足した
+  - ワークフローの確かめ: (1) issue を書く JS を YAML から取り出し、`github`・`core` を差し替えた node で3通り実行した（対局日が空の対局が1件 → 既存の issue の本文を書き換え、節と表が出る／0件で既存の issue あり → コメント「引けない人・対局日が空の対局はありませんでした。」と閉じる／`undated` の無い古い JSON → 今までどおり「登録漏れなし」）。(2) CLAUDE.md「ブランチ運用」のとおり作業ブランチで手動実行（`dry_run: true`）: run 38124584024（5ff8c460）success。ログに「対局日が空の対局（個別ページを作っていません）: 0件」。issue に書く手順は dry-run のため skipped（本番の issue は書き換えていない）
+- `python3 -m unittest discover -s scripts/tests`: 830件 OK
+
+### 手順2: 段1の文書と issue
+
+- 公開の issue を起票: **#549**「最強戦の新しい年度・対局・卓のページを公開する（#425 の段2）」（状況: 待ち・分野: SEO/AIO・分野: UI/UX・対象: saikyo）。先に全 issue（クローズ済みを含む）の題を「最強戦/saikyo」×「公開/個別/年度ページ」で探し、同じ主題の open は無かった（#348 は今の年度ページの公開でクローズ済み）。本文に段2のチェックリスト、指示の「前提」の段2の作業、公開の条件（#425 を待つ・時期は平野さん）を書いた。足したこと:
+  - `_redirects` の1行化の見込み: プレースホルダは `/` 以外を全部取り込む（公式「match all characters apart from the delimiter」）ので `/saikyo/:year.html` の `.html` は文字どおり一致しない見込み → 年度ごとの静的な行（48行）が確実、と書いた。公式に「Redirects are always followed, regardless of whether or not an asset matches the incoming request.」（https://developers.cloudflare.com/workers/static-assets/redirects/ ）
+  - Cloudflare のリダイレクトルールの手順: 公式（https://developers.cloudflare.com/rules/url-forwarding/single-redirects/create-dashboard/ ）の Rules の Overview →「Create rule」→「Redirect Rule」→ Rule name → Wildcard pattern（Request URL・Target URL・Status code・Preserve query string）→「Deploy」に、決定 grill 9 の値を入れて書いた
+  - 新しい年度ページの `#` の移動は公開後も残すこと、歴代最強位のカードの行き先、`_redirects` は `generate_live_pages.py` も一部を書くこと
+- #425 に #549 をコメント: https://github.com/retroeater/mj/issues/425#issuecomment-6107103553
+- docs/notes/saikyo-page-design.md: 3章に「新しい年度・対局・卓のページ（#425、未公開）」（URL とファイル・公開までの状態・枝番・各ページの中身・`#` の移動・動画URLの読み方・対局日が空の扱い・片付け・テスト）を足し、「アンカー」の枝番の記述を「新しいページでは」に直した。8章に対局日が空の対局の一覧と常設 issue の節を足した
+- docs/notes/static-generation.md「ページの一覧」: 表に「最強戦の新しい年度・対局・卓のページ（878、noindex・メニュー未掲載、公開は #549）」の行、冒頭の列挙に同じ1項目を足した
+- docs/handover.md: 「最終更新」の3行の一番古い行を本件に置き換え、着手可能な表に #549 の行を足した（23,164 バイト、警告域 26KB の下）
+- docs/decisions/saikyo.md: 「2026-10-11（CHAT-1011-ABM-04）」の節を足し、ABM-02 の grill 5（「未対局」を出す）に置き換え、grill 3 に知らせ方の注記を付けた
+
+### 手順3: 確かめ（origin/cloudflare の取り込み後、ed4ed2e4 の上でやり直した）
+
+- 再 fetch で `origin/cloudflare` は祖先（取り込み不要）
+- テスト 830件 OK
+- (a) 新しいファイル 878（年度 16・対局 219・卓 643）。見込みとの差 0
+- (b) 今の公開中のファイル（`saikyo/index.html`・`saikyo/<年度>.html` 16枚・`sitemap-saikyo.xml`）の差分 0。直しの生成で変わったのは新しいページの 16 ファイルだけ（2026年度の年度ページと、未対局の5対局のページ・10卓のページ）
+- (c) 新しいページの内部リンク 26,325件はすべて実在。対応表の行き先も実在。今の年度ページの対局・卓の id はすべて対応表にある
+- (d) id の重複 0、noindex と canonical（自分自身）は 878ページすべて
+- (e) 新しいページに「未対局」の文字は 0ファイル
+- サイトマップ（`sitemap*.xml`）・`llms.txt`・`navbar.js` に `saikyo/<年度>/` は無い。今のトップ・年度ページから `<年度>/` へのリンクも無い
+- 配信ファイル数 3,335 / 20,000
+
 ## 報告
 
 - 状態:
@@ -72,12 +111,12 @@ CHAT-1011-ABM-03 の試作を平野さんがプレビューで確かめた。そ
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 3afefa88）: https://github.com/retroeater/mj-logs/tree/main/guide/3afefa88
+ガイド文書（この版を写した時点の最新、mj 1fe83b8c）: https://github.com/retroeater/mj-logs/tree/main/guide/1fe83b8c
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/3afefa88/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/3afefa88/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/3afefa88/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/3afefa88/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/3afefa88/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/3afefa88/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/1fe83b8c/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/1fe83b8c/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/1fe83b8c/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/1fe83b8c/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/1fe83b8c/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/1fe83b8c/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a81419df.md
