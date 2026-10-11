@@ -40,3 +40,4 @@ publishedAt（動画の公開日）を wayhome に使う案は、ページを直
 
 - HTML を含む push のたびに sitemap コミットが1つ増え、Workers Builds のデプロイも1回増える（表示は変わらない）
 - 作業ブランチでコミットした日が lastmod になる（`cloudflare` へのマージ日ではない）
+- HTML を変えたコミットは、後で戻して中身が元どおりでも lastmod を動かす（最終コミット日を見るため）。試験の一時のコミットでも同じで、動いた lastmod は手で戻さない

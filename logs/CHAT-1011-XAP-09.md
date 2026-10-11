@@ -144,6 +144,26 @@
 - 「旧列と【3】で違う行」は、着手時の 30 行から 65 行に増えた（作業ブランチの更新で X API を 30 件呼び、28 人の値が変わったため。同じ考え方の行）
 - 吉田彩乃は【2】に X ID があるが、X API が「アカウントなし」を返した。jpml_pros の X の写真は空（`img/x.png` に落ちる）になり、リンクは残る。【2】を「-」にするか ID を直すのは平野さん
 
+### 手順3: cloudflare の取り込み（7fbabceb）
+
+マージの前に `origin/cloudflare`（HOU-13・14、SKS-06、AIC-01 など）を merge で取り込んだ。衝突は2つ:
+
+- `docs/decisions/saikyo.md`（文書、追記どうし）: 両方を残した。解いた後の該当箇所:
+
+  ```
+  ## 2026-10-10（CHAT-1011-XAP-09）
+
+  - CHAT-1010-XAP-07 が帰り道の未マージの work/1010-whs との重なりで止まった件は、案 A（…）
+  …（この指示の決定5行）
+
+  ## 2026-10-11（CHAT-1011-SKS-06）
+
+  - #537 を閉じる（最強戦の毎朝の再生成の最初の自然な起動を確かめた）
+  ```
+- `houou/search.json`（生成物）: cloudflare の版を取り、取り込んだ後のスクリプトで `python3 scripts/regenerate.py houou_pages` を動かして生成し直した。cloudflare の版との違いは、選手 691 人のうち SNS ブックで写真が変わった 8 人の画像の URL だけ（ほかのキーと選手の並び・値は同じ）。HOU-13・14 の変更（選手比較のページを外すなど）はそのまま残っている
+- テスト OK、`node --test` 25件 pass
+- 取り込んだ cloudflare には、`regenerate-saikyo.yml`（`check-image-links.yml` の実行が終わったら最強戦のページを再生成する、#537）が入っていた。この指示の再生成（SNS ブックの更新 04:10 の後、【3】が変わった日だけ全ページ）とは別の起動で、ぶつからない
+
 ## 報告
 
 - 状態: 作業中
@@ -160,12 +180,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 8dc74364）: https://github.com/retroeater/mj-logs/tree/main/guide/8dc74364
+ガイド文書（この版を写した時点の最新、mj 1245b908）: https://github.com/retroeater/mj-logs/tree/main/guide/1245b908
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/8dc74364/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/8dc74364/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/8dc74364/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8dc74364/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8dc74364/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8dc74364/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/1245b908/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/1245b908/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/1245b908/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/1245b908/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/1245b908/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/1245b908/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/8dc74364.md
