@@ -59,6 +59,18 @@ HOU-15 の直しを、未公開の形（noindex・navbar・sitemap・`llms.txt`�
 
 ## 経過
 
+- 2026-10-11 着手。**この会話は HOU-01〜15 から続いている（新しく始めたセッションではない）**
+- 0. 指示欄の末尾は指示文の最後の行と一致。HOU-15 のログの報告は 状態「判断待ち」。HOU-15 の状態の末尾に `/ 続き: CHAT-1011-HOU-16` を足した（このログと同じコミット）。`CHAT-1011-HOU-16` のコミットは無し。`origin/work/1011-hou` はリモートにありローカルと一致（535f792b）。雛形の行は揃っている。CLAUDE.md「ブランチ運用」・docs/notes/branch-operations.md・docs/notes/cloud-sessions.md は HOU-12 で読んだ後に変わっていない（`git log` で確かめた）
+
+### 手順1 取り込み・差分の範囲・再生成とテスト・未公開の形
+
+- 取り込み: `git merge origin/cloudflare`。入ったのは docs/logs/CHAT-1011-ABM-01.md だけで、衝突なし
+- 差分の範囲（`origin/cloudflare...HEAD`）: `assets/houou.js`・`style.css`・`scripts/generate_houou_pages.py`・`houou/ranking/` の3ページ（期平均・期浮き率・節浮き率の注記）・`docs/`（decisions/houou.md・notes/houou-top.md・logs の HOU-15・HOU-16）。HOU-15 の直しで説明できる。コードの変更はしていない
+- 全ページの再生成（`jpml_pros`・`resource_dictionary`・`books_pages` は外した）: 差分なし
+- テスト: 799件 OK
+- 未公開の形（作業ブランチ）: `houou/` の HTML 13 すべてに noindex／`navbar.js`・`sitemap*.xml`・`llms.txt` に `houou/` 無し（`sitemap-title.xml` の `title/houou/` は別のページ）／既存のページからルートの `houou/` へのリンク 0（相対パスまで解決）／`compare.html` 0
+- `docs/decisions/houou.md` に「## 2026-10-11（CHAT-1011-HOU-16）」を足した。`docs/handover.md` は変えていない（HOU-14 の「最終更新」の行で足りる）
+
 ## 報告
 
 - 状態: 作業中
@@ -75,12 +87,12 @@ HOU-15 の直しを、未公開の形（noindex・navbar・sitemap・`llms.txt`�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj b2727163）: https://github.com/retroeater/mj-logs/tree/main/guide/b2727163
+ガイド文書（この版を写した時点の最新、mj 1af6fc7c）: https://github.com/retroeater/mj-logs/tree/main/guide/1af6fc7c
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b2727163/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b2727163/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b2727163/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b2727163/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b2727163/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b2727163/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/1af6fc7c/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/1af6fc7c/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/1af6fc7c/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/1af6fc7c/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/1af6fc7c/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/1af6fc7c/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b2727163.md
