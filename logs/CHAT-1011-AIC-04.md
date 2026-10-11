@@ -127,28 +127,49 @@ AIC-01「5. 実装の案」の実装3から変えた点:
 - `python3 -m unittest discover -s scripts/tests`: OK
 - C1〜C3 の画面の名前は docs/notes/live-channel-write.md（`live-channel-writer` の作成の記録）に合わせた。B4 の画面の名前は申告の「Runtime variables and secrets」に直した
 
+### 3. マージ
+
+- `git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめて `git push origin work/1011-aic:cloudflare`（`83ddd6a1..6095724e`）
+- check-run（`6095724e`）: 「Workers Builds: mj-ask」success（Version ID `f953f1ca-5fe9-4c3b-9ffe-1bf12cccb70d`）・「Workers Builds: mj」success・check 2つ success。生成スクリプトは変えていないので `regenerate-page.yml` は動かない
+- デプロイの後も `/api/ask/status` は 200 `{"status":"open","remaining":10,"max":200}`
+- cron（`0 0 * * 1`）が登録されたかは、check-run の出力に無くセッションからは見えない（平野さんに見てもらう）
+- #542 に進みのコメントを残し、着手中を解除した
+- docs/decisions/houou.md に「2026-10-11（CHAT-1011-AIC-04）」（指示の「決定」節）を足した
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1011-aic
-- ログ: https://github.com/retroeater/mj/blob/work/1011-aic/docs/logs/CHAT-1011-AIC-04.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1011-AIC-04.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1011-aic
-- 確認用URL: なし
-- マージ: 未
+- 確認用URL: なし（houou/ は未公開のまま）
+- マージ: 済（6095724e）
 - issue: #542
-- 判断が必要なこと: 未定
-- 未確認の項目: 未定
+- 判断が必要なこと:
+  - 平野さんの次の手作業（この順で。手順は https://github.com/retroeater/mj/blob/cloudflare/docs/notes/ask-worker.md ）
+    1. C1: サービスアカウント `mj-ask` を作り、JSON の鍵を発行する（https://github.com/retroeater/mj/blob/cloudflare/docs/notes/ask-worker.md#c1-サービスアカウントを作りjson-の鍵を発行する ）
+    2. C2: 専用のブックを作り、サービスアカウントに編集者で共有する（https://github.com/retroeater/mj/blob/cloudflare/docs/notes/ask-worker.md#c2-専用のブックを作りサービスアカウントに共有する ）
+    3. C3: 鍵を `mj-ask` の Secret `GOOGLE_SA_KEY` に登録し、ブックの ID をチャットに伝える（https://github.com/retroeater/mj/blob/cloudflare/docs/notes/ask-worker.md#c3-鍵を-secret-に登録しブックの-id-を伝える ）。ID は次の指示で `wrangler.jsonc` の `ASK_SHEET_ID` に入れる
+  - 平野さんに見てもらうこと（セッションから届かない）:
+    - D1 `mj-ask` の Console で、docs/notes/ask-worker.md「本番の確かめ（2026-10-12、CHAT-1011-AIC-04）」の SQL 4つを実行し、`questions` の列が5つだけ・`ip_counts` の `hash_length` が 64 であること
+    - `mj-ask` の Settings → Triggers（または Cron Triggers）に `0 0 * * 1` があること
+    - Observability の `{"call":"plan",…}`・`{"call":"answer",…}` の行の入出力トークン数（1問あたりの費用を出すため。試行の1週間の後にまとめる）
+- 未確認の項目:
+  - D1 の記録の中身（上の SQL）
+  - cron の登録（上）
+  - 1問あたりの費用（Workers Logs と Console の使用額。セッションから見られない）
+  - ブックへの書き出し（C1〜C3 と `ASK_SHEET_ID` の後の最初の月曜 9:00 JST）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 6095724e）: https://github.com/retroeater/mj-logs/tree/main/guide/6095724e
+ガイド文書（この版を写した時点の最新、mj 6b7bb050）: https://github.com/retroeater/mj-logs/tree/main/guide/6b7bb050
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6095724e/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6095724e/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6095724e/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6095724e/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6095724e/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6095724e/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6b7bb050/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6b7bb050/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6b7bb050/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6b7bb050/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6b7bb050/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6b7bb050/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a81419df.md

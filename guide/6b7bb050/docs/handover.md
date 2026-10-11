@@ -142,7 +142,7 @@ hook の判定は deny（実行させない）だけで、確認（ask）は出�
 ### 外部ドメインへの依存を増やさない
 
 方針は CLAUDE.md「判断・作業の原則」（CSP〈#9〉のため）。残る外部依存は Google Charts（`www.gstatic.com` / `docs.google.com`、6ページ、#7）・Cloudflare Web Analytics（`static.cloudflareinsights.com`。
-CSPでは `script-src` にのみ必要で、送信先は自ドメインの `/cdn-cgi/rum`）・画像12ドメイン。
+CSPでは `script-src` にのみ必要で、送信先は自ドメインの `/cdn-cgi/rum`）・画像12ドメインと `image.p-c2-x.abema-tv.com`（最強戦の卓・対局のページの ABEMA のサムネイル、#502。やむをえない依存として 2026-10-11 に足した）。
 **ランキング3ページは #141 で外すが、成績3ページ（#111）を据え置くため `gstatic.com` は残り、#9 の CSP は gstatic を許可する形で書く。** 詳細は `docs/notes/handover-archive-2026.md`「外部ドメイン依存の詳細」と
 `docs/notes/site-findings.md`（画像ドメインの実測）、#9 でCSPの`img-src`を書くときの指針は #9 のコメント。
 
