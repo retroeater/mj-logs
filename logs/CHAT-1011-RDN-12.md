@@ -82,15 +82,38 @@ Chat-Ref: CHAT-1011-RDN-12
 - **`#REF!`**（RDN-10 と同じ方法。xlsx エクスポート 200・約3.1MB を scratchpad に保存し openpyxl で全タブの数式と値を探した）: **「鳳凰」Y5816 の1件だけ**（`=IF(ISNA(VLOOKUP(#REF!,'_pro'!O:O,1,FALSE)),"No","Yes")`。削除前からある）。
   RDN-10 の「(旧)タイトル」3,263件はタブごと無くなった。ほかのタブ 0
 
+### 手順2: 生成物の確かめ
+
+- 作業ブランチ（scripts は origin/cloudflare c28bfedc と同じ）で `regenerate.py --list` の23ページ（ask_data・houou_pages を含む）を1ページずつ生成した:
+  - 22ページは rc=0。`books_pages` は「書籍」タブの行数が想定外（95行）で `regenerate.py` が飛ばした（rc=3。RDN-04 以来の既知の失敗で、11列の削除と無関係）
+  - **生成後の `git status`: `jpml_pros.html` の1か所だけ**（ほかのページ・JSON は origin/cloudflare の生成物と同じ）
+  - `jpml_pros.html` の差: 吉田彩乃さんの行の X のセルが空になった（コミット済みの版は X のリンク〈`x.com/ayanooo0826`、画像は空でフォールバック〉があった）。
+    X の値は XAP-09（`5e1ac4f8`、#514）から「プロ」ではなく SNS ブックの「【2】ID」から読む形になっていて（`lib/sns.py`）、SNS ブックの「【2】ID」で吉田彩乃さんの X が空（note は `ayano0826` のまま）。
+    「プロ」の「X ID」には `ayanooo0826` が残っているが、生成はそこを読まない。**SNS ブックの値の変化による差で、11列・4列の削除とは無関係**と判断した（SNS ブックを誰が変えたかはここからは分からない）
+  - 生成物はコミットしない（`jpml_pros.html` は作業ツリーで戻した）
+- チェック系（作業ブランチのコード＝origin/cloudflare）:
+  - `check_meibo.py --json`: 名簿 1,099名 /「プロ」の在籍者 1,099名、名簿にだけいる人 0・「プロ」にだけいる人 0（一致）
+  - `check_leagues_dropped.py`: 出力は RDN-08（列を消す前）と**同じ**（データがあるのに候補から漏れている 691名は退会済みで、#168 の正しい状態）
+  - `check_saikyo_unregistered.py`: 出場者 440名、「プロ」「連盟プロ以外」から引けない人 0
+
+### 手順3: 記録とクローズ
+
+- #536: 結果をコメントし、閉じた（completed）。「状況:」ラベルは付いていなかった（ラベルは「分野: 整理・保守」「対象: jpml_pros」だけ）
+- #327 に「#536 が閉じ、N列の削除に進める。G・H 列は 2026-10-11 に平野さんが削除済み」とコメント（期日の記述は変えていない。参考に、N列〈今の見出し「YouTube画像」〉を読むコードが無いことを添えた）
+- #484 に「V 列は 2026-10-11 に列ごと削除した」とコメント（状態は変えていない）
+- #473 にはコメントしていない（指示どおり）
+- `docs/decisions/pros.md`: 「11列と4列を廃止した（2026-10-11）」を足した（4列の削除で前の決定を置き換えること・確かめが通ったら閉じること・「(旧)タイトル」の前倒しは RDN-10・RDN-11 の見出しで記録済み）
+- `docs/notes/static-generation.md`: 型C の選手選択リストの条件を「「表示」が Y かつ鳳凰/桜花シートに1行でもある」に直し（旧「Y列="Y"かつ鳳凰最高/桜花最高列に値がある」）、#7 の経緯の段落に列の廃止を1行追記した。ほかの notes に「プロ」の11列・列の英字の記述は残っていない（grep）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1011-rdn
-- ログ: https://github.com/retroeater/mj/blob/work/1011-rdn/docs/logs/CHAT-1011-RDN-12.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1011-RDN-12.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1011-rdn
 - 確認用URL: なし
-- マージ: 未
-- issue: #536
+- マージ: 済（docs のみ。このログを含むコミットを cloudflare へ fast-forward で push）
+- issue: #536（クローズ）、#327・#484（コメント）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
@@ -98,12 +121,12 @@ Chat-Ref: CHAT-1011-RDN-12
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj c28bfedc）: https://github.com/retroeater/mj-logs/tree/main/guide/c28bfedc
+ガイド文書（この版を写した時点の最新、mj 3f294739）: https://github.com/retroeater/mj-logs/tree/main/guide/3f294739
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c28bfedc/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c28bfedc/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c28bfedc/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c28bfedc/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c28bfedc/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c28bfedc/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/3f294739/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/3f294739/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/3f294739/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/3f294739/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/3f294739/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/3f294739/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b2727163.md
