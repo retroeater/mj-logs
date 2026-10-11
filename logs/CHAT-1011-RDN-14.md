@@ -49,16 +49,21 @@ Chat-Ref: CHAT-1011-RDN-14
 - ブランチ: work/1011-rdn-issues はローカル・リモートとも無し。`git checkout -b work/1011-rdn-issues origin/cloudflare`（85c264ee）
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
 - 0. 指示欄の末尾の行は指示文の最後の行と一致
+- 1. 検索（クローズ済みを含む）: 「鳳凰出場 桜花出場 最強出場」「放送対局 集計」「鳳凰Ampai 桜花Ampai」「Ampai」「jpml_pros 成績の列 見直し」。同じ主題の issue は無し（近いのは #416〈列見出しの略語に凡例〉で主題が違う）→ 2件とも起票（コメントへの代替は無し）
+- 2. 起票1: #547「jpml_pros の成績8列の定義を見直す（#536 の残作業）」。ラベル `分野: 整理・保守`・`対象: jpml_pros`。本文に見直す点3つ・参照先（RDN-01 の「手順2」「手順5」、RDN-07 と `scripts/lib/pro_stats.py`・`add_stats()`）・決めることの一覧、末尾に Chat-Ref
+- 3. 起票2: #548「鳳凰Ampai・桜花Ampai の URL を複数期で管理し、新しい期で URL が無ければ知らせる」。ラベル `分野: 自動化`・`対象: jpml_pros`。本文に決定・今の形・決めること（タブの形の案〈期・リーグ・組・URL〉、知らせ先〈常設 issue か生成ログか〉ほか）、末尾に Chat-Ref
+- #536 に「残作業を #547・#548 に起票した」とコメント（末尾に Chat-Ref）
+- `docs/decisions/pros.md` に RDN-14 の決定を追記
 
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1011-rdn-issues
-- ログ: https://github.com/retroeater/mj/blob/work/1011-rdn-issues/docs/logs/CHAT-1011-RDN-14.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1011-RDN-14.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1011-rdn-issues
 - 確認用URL: なし
-- マージ: 未
-- issue: なし
+- マージ: cloudflare へマージ（ドキュメントのみ）
+- issue: #547・#548 を起票（同じ主題の既存 issue は無く、コメントへの代替はしていない）。#536 にコメント
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
@@ -66,12 +71,12 @@ Chat-Ref: CHAT-1011-RDN-14
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 85c264ee）: https://github.com/retroeater/mj-logs/tree/main/guide/85c264ee
+ガイド文書（この版を写した時点の最新、mj d43b0f91）: https://github.com/retroeater/mj-logs/tree/main/guide/d43b0f91
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/85c264ee/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/85c264ee/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/85c264ee/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/85c264ee/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/85c264ee/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/85c264ee/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d43b0f91/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d43b0f91/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d43b0f91/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d43b0f91/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d43b0f91/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d43b0f91/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a81419df.md
