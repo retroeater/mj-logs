@@ -133,17 +133,30 @@ G2-01（4ページ×3画面）・G2-06（3ページ×2幅×5通り）・G2-09（
 
 check-run「Workers Builds: mj」は `completed / success`。プレビューの `style.css`・`assets/title.js`・`assets/live.js`・`assets/saikyo.js` は作業ブランチと一致（`cmp`）。`/title_card_compare.html` は HTTP 404。
 
+
+### 手順3 マージと記録
+
+- push の直前に再 fetch したところ `origin/cloudflare` が進んでいた（houou の質問箱 `workers/ask/` など、この作業のファイルに触れない）ため merge で取り込み（衝突なし）、テストを通してから、祖先を確かめて `git push origin work/1011-swp-mob:cloudflare`（`f0e55372e..6a3ab9d2e`）。マージの対象の差分は `style.css`・`assets/title.js`・`assets/live.js`・`assets/saikyo.js`・`docs/notes/design.md`・docs/logs/・docs/decisions/ だけ（比較ページは差分に無い）。権限判定の拒否は無かった。
+- check-run「Workers Builds: mj」は `completed / success`、Actions の check も success。
+- **本番の HTML・CSS・JS に反映を確認した。ブラウザでの見え方は未確認。** `https://ryoei.pro/` の `style.css`・`assets/title.js`・`assets/live.js`・`assets/saikyo.js`（キャッシュ回避のクエリ付き）が作業ブランチの版と一致（`cmp`）。`/title_card_compare.html` は HTTP 404。
+- マージ後に cloudflare に入った自動処理のコミット: 確かめた時点（push から約2分）では無し。
+- 決定を `docs/decisions/site-review.md`（2026-10-11〈CHAT-1011-SWP-16〉）に足した。`docs/notes/design.md` に、開いた固定ナビのメニューの高さ（`title/`・`saikyo/` を足して置き換え）・`.mj-margin-text` と見える h1 の余白（置き換え）・見出し（`resource_efficiency`、置き換え）・写真カードの文字（文字が大きいとき、新規）・ヒーロー（新規）・表の数字の列（新規）を書いた。
+- #529 に `jpml_pros` の分（案 (a)〜(c) と (c) にした理由）をコメントした。#525 に結果をコメントし、閉じた（「状況:」ラベルは付いていなかった）。各コメントの末尾に `Chat-Ref: CHAT-1011-SWP-16`。
+- ブランチの片付け: マージ済みの `work/*` は `delete-merged-branches.yml` が毎日削除する（セッションの git プロキシは削除を拒否する）。削除はせず自動に任せる。本番の確かめの成否に条件づけていない。
+
 ## 報告
 
-- 状態: 中断（作業中）
-- ブランチ: work/1011-swp-mob
+- 状態: 判断待ち（マージ済み・#525 は閉じた。`rh_results_detail` のページの長さが、受け入れた値より伸びたことの確認だけが残る）
+- ブランチ: work/1011-swp-mob（マージ済み。削除は自動に任せる）
 - ログ: https://github.com/retroeater/mj/blob/work/1011-swp-mob/docs/logs/CHAT-1011-SWP-16.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1011-swp-mob
-- 確認用URL: 作業中
-- マージ: 未
-- issue: #525
-- 判断が必要なこと: 作業中
-- 未確認の項目: 作業中
+- 確認用URL: なし（本番の CSS・JS の取得のみ。確かめた内容はログの「手順3」）
+- マージ: 済（`6a3ab9d2e`。Workers Builds・Actions は `completed / success`）。この後のログの追いの push は docs のみ
+- issue: #525 を閉じた（コメントあり）。#529 にコメント。起票なし
+- 判断が必要なこと:
+  - **`rh_results_detail` のページの長さが、受け入れた値（SWP-15: 390px で +15%、360px で +27%）より伸びた。** 着順の5桁を必ず1行にするため列が 46→51px に広がり、現行から 390px で +22%（27,448→33,548px）、360px で +40%（33,450→46,675px）。このままでよいか。戻す案: 5桁の数字の幅をもう少し詰める（`3em` など。字の幅が広い環境で再び折り返す恐れがある）、または表のセルの左右の余白を 4px→3px にする（見た目の新しい値）
+- 未確認の項目:
+  - iPhone の Safari での実機の見え方（写真カードの文字を大きくしたとき・着順の5桁）。Chromium の近似で測った
 - エラー: なし
 
 <!-- guide-links -->
