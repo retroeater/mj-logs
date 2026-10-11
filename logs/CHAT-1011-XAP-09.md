@@ -106,6 +106,44 @@
 - 旧列が平野さんに直されて【3】と違う、という行は無かった → 【3】へ写すものも無い
 - 【4】手動補正は空（見出しも無い。gviz は「NO_COLUMN: A」で読めない）→ 見出しはこの後の SNS ブックの更新（作業ブランチの手動実行）で書く
 
+### 手順2: 切り替え（5e1ac4f8・f180bc15・6641f200）
+
+- `scripts/lib/sns.py` を新しく作った: `load()`（SNS ブックの【2】【3】【4】を gviz で1度だけ読む）・`fetch_pros()`（`pro_sheet.fetch_pros()` と同じ形で返し、XID・X画像・noteID・note画像・YouTubeID・YouTube画像の見出しの値だけを SNS ブックから入れる）・`others()`（「連盟プロ以外」の行に X の値を入れて `NameBook` の形にする）・`lookup()`・`x_details()`（検知用）
+- 引く値: ID は【2】、画像は【3】に【4】の空でないセルを重ねたもの。「-」は空、ID が空なら画像も出さない、状態「一覧に無い」は使わない、【2】の名前の重複は止める
+- 切り替えた読む所: jpml_pros・saikyo・houou_race（`houou/` も）・books・live・title（「連盟プロ以外」の X ID・X画像URL を置き換え）・wayhome（2つの生成）・誕生日・道場部・jpml_test・`fetch_youtube_channels.py`。どれも呼び出しを `sns.fetch_pros()`・`sns.others()` に替えただけで、列の位置は持たない
+- 帰り道の写真の確かめ（`check_player_photos()`）は `sns.fetch_pros(wayhome.PRO_COLUMNS)` の値に効く。止まったときの文言を「SNS ブック(【2】の X ID か【4】手動補正)を直してから」にした
+- 検知（`collect_saikyo_images.py`）: X API を呼ばない（`resolve_targets()` を消した）。取得できない写真の状態を `report_targets()` が【3】の X状態と【4】の有無から出す（【4】があれば「【4】手動補正の値が取れない(自動では直さない)」）。更新が X API を呼べていない状態（認証・クレジット・レート制限・トークンなし）があれば「自動解決は働いていません」の1行。`resolve()`・`--resolve-test` は診断用に残した。`check-image-links.yml` のジョブ saikyo から `X_BEARER_TOKEN` を外し、issue の表を「選手 | X ID | 最強戦の行数 | 現在のURL | 取得できなかったURL | 状態（SNS ブック）」にした
+- 更新（`update_sns_book.py`）: 【3】のページが使う値（SNS の ID・画像URL）が変わった人がいれば出力 `pages_changed=true`、`update-sns-book.yml` のジョブ `regenerate` が `regenerate-page.yml`（all）を呼ぶ。空の【4】に見出しを書く（`sheets_write.HEADER_ONLY` と `write_header_if_empty()`。【4】は `WRITABLE` に入れない）
+- 見出しだけの【4】を読むと `lib/sheets.check_not_filtered()` が IndexError で止まった（gviz の `COUNT(A)` が行を返さない）。作業ブランチの最初の再生成（run 38069444980 のジョブ regenerate）で SNS を読む9ページがこれで飛ばされた（ページのコミットは無し）。行が無ければ 0 行として比べるように直した（6641f200。直す前のコードでは通らないテストを足した）
+- テスト: `python3 -m unittest discover -s scripts/tests` OK（test_sns.py 11件・test_sns_book.py・test_collect_saikyo_images.py・test_sheets_filter.py を足し直し）。`node --test` 25件 pass
+
+#### 作業ブランチでの手動実行
+
+| run | 中身 | 結果 |
+|---|---|---|
+| 38069371969 | update-sns-book update dry-run | success。X API を呼ばず件数だけ |
+| 38069444980 | update-sns-book update | ジョブ update success: X API **30 件**（上限 30）、X の状態 解決 1,046・未入力 798・既定のアイコン 12・上限で未取得 5・アカウントなし 2・リンク切れ・上限で未取得 1、ページが使う値が変わった人 28、**【4】に見出しを書いた**（`シート・名前・X・X数値ID・X画像URL・X取得日・X状態・note・note画像URL・note取得日・note状態・YouTube・YouTube画像URL・YouTube取得日・YouTube状態・備考`）、`pages_changed=true`。ジョブ regenerate は上の `check_not_filtered()` の不具合で failure（9ページを飛ばし、ほかは「変更なし」） |
+| 38100265468 | regenerate-page.yml all（直した後） | success。438ee53e で 113 ファイルを作業ブランチにコミット |
+| 38100497844 | check-image-links.yml（scheduled、ジョブ saikyo だけ） | success、65秒。SNS ブック 1,864名・【4】0行。315種類の URL を確認し、取得できない URL 0 → #534 は「リンク切れは検出されませんでした」でクローズされた（ヒデオ銀次は SNS ブックの値で直っていた） |
+
+#### 全ページの再生成の差分
+
+同じ時刻にシートを読む2つの再生成（`origin/cloudflare` のコードと作業ブランチのコード、scratchpad で `regenerate.py all`）を比べ、コードの変更による差分だけを数えた。どちらも全ページ成功。
+
+| 項目 | 数 |
+|---|---|
+| 差分のあるファイル | 110（houou_race 34・houou/race 34・houou/results 8・houou 1・saikyo 10・live 16・title 6・jpml_pros 1） |
+| X の画像の URL を伏せると同じになるファイル | 66 |
+| 伏せても違うファイル | 44。違いはすべて写真の有無: 代替アバター → 写真（srcset 付き）、JSON の `"img":""` → URL、最強戦のトップの選手データの `""`,0 → URL,1（写真と srcset の有無）、`""` → `"../img/avatar.svg"`（高口和之、【3】「既定のアイコン」）、jpml_pros の X の写真 → 空（吉田彩乃、【3】「アカウントなし」） |
+| 足された画像の URL | 55。**すべて「旧列と【3】で X画像URL が違う行」（65人）の【3】の値**。HEAD はすべて **200** |
+| 消えた画像の URL | 24。すべてその行の旧列の値 |
+| 差分に出た人 | 65人のうち 34人（残りはどのページにも写真が出ない人） |
+
+- 説明できない差分は 0 件
+- Actions の再生成（438ee53e、113 ファイル）は、上の 110 に加えて `live/oui/50/sf.html`（吉田基成の代替アバター → 【3】の写真、「解決」・HTTP 200）と `sitemap-saikyo.xml`・`sitemap-title.xml`（lastmod）。どれも説明できる
+- 「旧列と【3】で違う行」は、着手時の 30 行から 65 行に増えた（作業ブランチの更新で X API を 30 件呼び、28 人の値が変わったため。同じ考え方の行）
+- 吉田彩乃は【2】に X ID があるが、X API が「アカウントなし」を返した。jpml_pros の X の写真は空（`img/x.png` に落ちる）になり、リンクは残る。【2】を「-」にするか ID を直すのは平野さん
+
 ## 報告
 
 - 状態: 作業中
@@ -122,12 +160,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj ce5677d0）: https://github.com/retroeater/mj-logs/tree/main/guide/ce5677d0
+ガイド文書（この版を写した時点の最新、mj 8dc74364）: https://github.com/retroeater/mj-logs/tree/main/guide/8dc74364
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce5677d0/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce5677d0/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce5677d0/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce5677d0/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce5677d0/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce5677d0/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/ce5677d0.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/8dc74364/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/8dc74364/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/8dc74364/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8dc74364/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8dc74364/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8dc74364/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/8dc74364.md
