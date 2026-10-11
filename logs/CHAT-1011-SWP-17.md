@@ -55,28 +55,35 @@ CHAT-1011-SWP-16 が判断待ちで残した1点（`rh_results_detail` のペー
 - 作業ブランチ: リモート・ローカルとも無かったため `git checkout -b work/1011-swp-rec origin/cloudflare`（上流の設定は外した）。
 - CHAT-1011-SWP-16 のログの状態: 最新版（`origin/work/1011-swp-mob` の `1fc834c10`、マージ後の docs のみの追いの push）は「判断待ち」。`origin/cloudflare` にあるのはマージ時点の版で、状態は「中断（作業中）」のまま（最後の報告はマージの後に作業ブランチにだけ push したため）。判断待ちとして進める。
 
+- CHAT-1011-SWP-16 のログの最新版を取り込むため、`origin/work/1011-swp-mob`（`origin/cloudflare` との差は SWP-16 のログ1ファイルだけ）を merge した（衝突なし）。そのうえで、SWP-16 のログの `## 報告` の状態の末尾に ` / 続き: CHAT-1011-SWP-17` を足した。
+- 決定を `docs/decisions/site-review.md` に、2026-10-11（CHAT-1011-SWP-16）の項の後の新しい項として足した。
+- `docs/notes/design.md` の「表の数字の列（`rh_results_detail`）」の行に、ページが長くなることを受け入れた旨を足した（「その分ほかの文字の列が細くなり、ページが現行から 390px で +22%（27,448→33,548px）、360px で +40%（33,450→46,675px）長くなるのは受け入れた（2026-10-11）」）。受け入れた旨の記述は無かった。
+- マージ: push の直前に再 fetch し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真で、`git diff --name-only origin/cloudflare...HEAD` が `docs/decisions/site-review.md`・`docs/notes/design.md`・`docs/logs/CHAT-1011-SWP-16.md`・`docs/logs/CHAT-1011-SWP-17.md` だけであることを確かめて `git push origin work/1011-swp-rec:cloudflare`。docs/ だけの変更のため Workers Builds は走らない（#171）。
+- #525（閉じたまま）に結果をコメントした（末尾に `Chat-Ref: CHAT-1011-SWP-17`）。
+- ブランチの片付け: マージ済みの `work/*` は `delete-merged-branches.yml` が毎日削除する。削除はせず自動に任せる（`work/1011-swp-mob` も同じ）。
+
 ## 報告
 
-- 状態: 中断（作業中）
-- ブランチ: work/1011-swp-rec
-- ログ: https://github.com/retroeater/mj/blob/work/1011-swp-rec/docs/logs/CHAT-1011-SWP-17.md
+- 状態: 完了
+- ブランチ: work/1011-swp-rec（マージ済み。削除は自動に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1011-SWP-17.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1011-swp-rec
-- 確認用URL: なし
-- マージ: 未
-- issue: #525
-- 判断が必要なこと: 作業中
-- 未確認の項目: 作業中
+- 確認用URL: なし（ドキュメントのみ）
+- マージ: 済（ドキュメントのみ。Workers Builds は走らない）
+- issue: #525（閉じたまま、結果をコメント）。起票なし
+- 判断が必要なこと: なし
+- 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 6a3ab9d2）: https://github.com/retroeater/mj-logs/tree/main/guide/6a3ab9d2
+ガイド文書（この版を写した時点の最新、mj cc2de5f0）: https://github.com/retroeater/mj-logs/tree/main/guide/cc2de5f0
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6a3ab9d2/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6a3ab9d2/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6a3ab9d2/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6a3ab9d2/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6a3ab9d2/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6a3ab9d2/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/cc2de5f0/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/cc2de5f0/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/cc2de5f0/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/cc2de5f0/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/cc2de5f0/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/cc2de5f0/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a81419df.md
