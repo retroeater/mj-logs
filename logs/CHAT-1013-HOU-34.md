@@ -77,15 +77,19 @@ HOU-33 の変更（判断待ち）を、平野さんのプレビューの確認�
   - docs/logs: `CHAT-1013-HOU-33.md`・`CHAT-1013-HOU-34.md` とスクリーンショット 22枚（`CHAT-1013-HOU-33/`）
   - 前提の範囲の外のファイルは無い
 
+### 手順2 マージ
+
+- 1回目の push 直前の再 fetch で `origin/cloudflare` が 30a83d63（AIC-05: 質問欄を3行に・`workers/ask/` の週次の cron など。houou/ では `houou/index.html` の質問欄と `generate_houou_pages.py` の `ASK_TEMPLATE` の1行）に進んでいて祖先の確かめが偽になり、push は走らなかった。もう一度 merge で取り込んだ（衝突なし。`generate_houou_pages.py` は別の箇所）。取り込んだ後に生成し直して差分なし、`--check` 通過、テスト OK。差分（`origin/cloudflare...HEAD`）の docs/logs 以外は手順1と同じ11ファイル
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 30a83d63）: https://github.com/retroeater/mj-logs/tree/main/guide/30a83d63
+ガイド文書（この版を写した時点の最新、mj e676f8c2）: https://github.com/retroeater/mj-logs/tree/main/guide/e676f8c2
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/30a83d63/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/30a83d63/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/30a83d63/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/30a83d63/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/30a83d63/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/30a83d63/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e676f8c2/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e676f8c2/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e676f8c2/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e676f8c2/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e676f8c2/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e676f8c2/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/3ce5d549.md
