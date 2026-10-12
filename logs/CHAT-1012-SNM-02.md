@@ -91,7 +91,7 @@ SNS の値はすでにすべて SNS ブックから読んでいる。シート�
 
 grep（直した後）: `OTHER_HEADERS` は `live.py`（3見出し）と `update_sns_book.py`（名前・名前かな）。`"X ID"`・`"X画像URL"` を見出しとして求める所は `live.RETIRED_OTHER_HEADERS`（テスト用）だけ。`pro_sheet.X_ID` などは `sns.fetch_pros()` に渡す所（生成・誕生日・道場部・YouTube）と `sns.PRO_FIELDS`・`pro_sheet.SNS_HEADERS` だけで、`pro_sheet.fetch_pros()` に渡す所は 0。
 
-**テスト**: `python3 -m unittest discover -s scripts/tests` 849件 OK（直す前の cloudflare は 845件。InitTest 1件を消し、6件足した）。
+**テスト**: `python3 -m unittest discover -s scripts/tests` 850件 OK（直す前の cloudflare〈a4ed3bc2〉は 845件 OK。InitTest 1件を消し、6件足した）。
 足したテスト: `test_sns_book.RetiredColumnsTest`（`load_sources()` が旧列を求めない／`live.OTHER_HEADERS` に X の列が無い／init が読まずに 1 を返す）、`test_pro_sheet.test_sns_headers_are_not_read_from_the_sheet`、`test_title_tab_headers.NonProsTabHeadersTest`（X の列があっても無くても同じ値／必要な見出しに無い）。
 直す前のコード（a4ed3bc2）に新しいテストファイルを置いて走らせると、足したうちの5件が落ちる（FAIL 1・ERROR 4。`live.OTHER_HEADERS` の1件はその後に足した）。
 
