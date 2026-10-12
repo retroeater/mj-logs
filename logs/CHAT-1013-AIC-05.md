@@ -87,6 +87,32 @@
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 4行とも揃っている
 - 0. 指示欄の末尾は指示文の最後の行と一致。`6095724e` は origin/cloudflare の祖先。AIC-04 の状態の末尾に ` / 続き: CHAT-1013-AIC-05` を足した
 - cron の曜日: 公式の Cron Triggers のページ（2026-10-12 に取得）に「Days of the week go from 1 = Sunday to 7 = Saturday」と、例「`0 17 * * sun` or `0 17 * * 1` — 17:00 (UTC) on Sunday」があり、決定のとおり
+- #542 のコメントに他セッションの着手中は無い（最新は HOU-27 の「#540 の公開に質問欄を含める」で、着手中ではない）。着手中コメントを残した
+- 未マージの work/ ブランチ（1009-swp-526・1011-swp-hnd・1011-swp-nav・1012-dsn・1013-hou）は、変えるファイル（`workers/ask/`・`docs/notes/ask-worker.md`・`assets/houou_ask.css`・`scripts/generate_houou_pages.py` の `ask_box()` の行）と重ならない（コミットの件名とファイルの差分で確認）
+
+### 1. 書き出しを有効にする
+
+- `workers/ask/wrangler.jsonc`: `crons` を `["0 0 * * 2"]`（月曜 0:00 UTC = 月曜 9:00 JST）に、`ASK_SHEET_ID` にブック「ryoei.pro_AIボット」の ID を入れた。コメントに「Cloudflare の曜日は 1 = 日曜・2 = 月曜」を書いた
+- `git grep -n -E "0 0 \* \* 1|月曜 9:00|月曜 9時|ASK_SHEET_ID" -- ':!docs/logs'` で洗い出した。`0 0 * * 1` を書いていたのは `wrangler.jsonc` と docs/notes/ask-worker.md「週次の cron」だけ（docs/decisions/houou.md には式が無かった。過去のログは記録なので直さない）。ask-worker.md は誤りだった期間の注記を残して直した
+- docs/notes/ask-worker.md の C1〜C3 を実際の結果に書き換えた。**サービスアカウントのメールアドレスとプロジェクト ID は書かなかった**（docs/notes/live-channel-write.md が `<Google Cloud のプロジェクト ID>` と伏せていて、docs/notes/ は public の mj-logs に写るため）。ブックの ID は `wrangler.jsonc` を参照する形にした。C2 に「一般的なアクセスを制限付きにする」手順を足した
+- 書き出しの道筋の確かめ（本番のブックには書かない）: `weekly.test.mjs` に、Google が発行する JSON の鍵と同じ項目（`type`・`project_id`・`private_key_id`・`client_id`・`token_uri`）を持つ鍵と、新しいブックの既定のシート名「シート1」で、見出しと行を足せること・範囲がシート名を引用符で囲んで符号化されること・トークンの取得が jwt-bearer であることのテストを足した。
+  JWT の署名はテストの中で作った RSA の鍵の公開鍵で検証している（AIC-04 から）。`wrangler dev --test-scheduled` は使わなかった（クラウドセッションに wrangler が無く、本番の鍵も無いので本物の Google に届かない。docs/notes/cloud-sessions.md「ローカル確認の代わりにプレビュー」）
+- `node --test 'workers/ask/test/*.test.mjs' 'workers/scheduler/test/*.test.mjs'`: 52 件 pass
+
+### 2. 見た目の確かめ（docs/notes/design.md「3. 文字・寸法」）
+
+Playwright の Chromium、幅 375px、`/api/*` は作り物の応答。字体は既定・IPA P ゴシック・WenQuanYi Zen Hei、ルートの文字の大きさ 100%・150%・200%、状態は 初め・答え（読み方・注記2つ・時点2つ・出典2つ）・答えられません（候補つき）・上限（全体・IP）・いまは答えられません の 6、合わせて 54 通り。
+はかったもの: ページの横のはみ出し、質問欄の中で右端から 2px 以内に入る要素、ボタン「質問する」が1行か、入力欄の中の例の質問（placeholder）がスクロールせずに収まるか。
+
+- **直す前**: はみ出し・右の余白・ボタンは54通りとも合格だったが、画像で見ると**例の質問が3行目で切れていた**（入力欄は2行の高さで、ボタンと横に並んで幅 224px。「鳳凰位になった人は？）」が見えない）
+- **直した**: 入力欄を幅いっぱい・3行の高さにし、ボタンをその下の右に置いた（`assets/houou_ask.css` の `.mj-houou-ask-form`・`.mj-houou-ask-input`、`scripts/generate_houou_pages.py` の `ask_box()` の `rows`）。ほかの部品・`style.css` は変えていない。`regenerate.py houou_pages` の差分は `houou/index.html` の `rows="2"` → `rows="3"` の1行だけ
+- **直した後**: 54通りとも合格（例の質問が収まる、を含む）。右の余白は質問欄 8px 以上・ボタン 17px 以上、入力欄の幅は 200% でも 325px
+- 画像（このログと同じ名前のフォルダ）: `ask-375-<字体>-<大きさ>-<状態>.png`（既定 100%、WenQuanYi 100%・200% の 初め・答え・答えられません・上限〈全体〉・いまは答えられません）
+
+### 3. 起票
+
+- 同じ主題の issue: 全 555 件（PR を除く、#1〜#556）の題と本文を「非公開・公開範囲・リンクを知っている・gviz・共有設定・一般的なアクセス・閲覧者・フォルダ」で照合。gviz の読み取りの検知（#432・#510・#552）などはあるが、ブックの公開範囲を整理する issue は無い。未マージの work/ ブランチにも同じ目的のものは無い
+- 起票: #557「ryoei.pro のブックの公開範囲を整理する（基本は非公開のフォルダ、gviz の公開読み取りの扱いを決める）」。ラベル「分野: セキュリティ」「分野: データ」。読み取りの経路の案（サービスアカウントでの読み取り・公開のブックを分ける・公開用のブックに写す）は調べずに案として書いた
 
 ## 報告
 
@@ -104,12 +130,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 3ce5d549）: https://github.com/retroeater/mj-logs/tree/main/guide/3ce5d549
+ガイド文書（この版を写した時点の最新、mj 30a83d63）: https://github.com/retroeater/mj-logs/tree/main/guide/30a83d63
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/3ce5d549/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/3ce5d549/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/3ce5d549/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/3ce5d549/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/3ce5d549/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/3ce5d549/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/30a83d63/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/30a83d63/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/30a83d63/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/30a83d63/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/30a83d63/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/30a83d63/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/3ce5d549.md

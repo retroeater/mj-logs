@@ -34,7 +34,6 @@
 | J | 選手プロフィール画像URL | **読まない**（#384）。同上 |
 | K | 表示 | 「Y」の行のみ対象 |
 | L | 備考 | **読まない**。選手ごとの出場枠名（「無双伝説」など）と運用メモ |
-| M | 動画URL | **#425 で足す予定**（2026-10-11 時点で未作成）。ABEMA の動画の URL。卓の4行のうちどれか1行以上に入れればよく、4行で違う URL があれば警告してその卓にはリンクを付けない（docs/decisions/saikyo.md 2026-10-11） |
 
 選手の写真とXのリンクは、H列の名前を「別名」で現在名に直したうえで、「プロ」（`Y="Y"` の行）か「連盟プロ以外」にいる選手について、
 SNS ブック（【2】の X ID・【3】＋【4】の X画像URL、#514・docs/notes/sns-book.md）から引く（#384、`generate_saikyo_pages.load_rows()`。
@@ -241,9 +240,10 @@ A を埋めると `2015-n3-...` 形式から日付形式へ変わり、未登録
   `<body class="mj-saikyo-page">` と固定バーの CSS は今の年度ページと同じ。本文の要素は `mj-saikyo mj-saikyo-year mj-saikyo-sub`（`.mj-saikyo-sub` で `assets/saikyo.js` が今の年度ページと分ける）
 - **`#` の移動**: 新しい年度ページは、今の年度ページの id（`#<卓のアンカー>`・`#match-<先頭の卓のアンカー>`）から新しいファイル名への対応表（`#saikyo_anchor_map`、`anchor_map_json()`）を持ち、
   `assets/saikyo.js` が `location.hash` を引いて `location.replace` で移す。公開後、旧 `/saikyo/<年度>.html#…` が 301 で `/saikyo/<年度>/#…` に着いたときのため（`#` は転送で残る）
-- **動画URLの読み方**: `load_videos()` がシート全体を `fetch_table()` で読み、見出し「動画URL」（`VIDEO_HEADER`、M列）があれば（年度, 対局日, 対局, ステージ, 卓）ごとに URL を引く。
-  卓の4行のうち1行以上に入っていればよく、4行で違う URL なら警告してその卓にはリンクを付けない（`videos_from_rows()`）。列が無ければリンクを出さない（2026-10-11 に列ができ、2026年度の18卓〈`68-38_s26_p1`〜`p18`〉が入った）
-- **ABEMA のサムネイル**（#502、2026-10-11 の決定）: M 列が `https://abema.tv/video/episode/<回のID>` の形なら、回のIDから
+- **動画URLの読み方**: `load_videos()` が ABEMA ブック（docs/notes/abema-book.md）の【2】最強戦（機械が毎朝割り当てた卓ごとの回）を【3】手動補正の空でない URL で上書きし、
+  （年度, 対局日, 対局, ステージ, 卓）ごとに URL を引く（`abema_book.video_urls()`、#425・2026-10-12 の決定）。「最強戦」シートには動画の列が無い（M「動画URL」は 2026-10-13 に平野さんが列ごと消した。シートは A〜L の12列）。
+  年度が4桁の数字で読めない行は警告して飛ばす（セルの書式で日付に読まれると、どの卓にも当たらず動画が静かに消えるため）
+- **ABEMA のサムネイル**（#502、2026-10-11 の決定）: 動画の URL が `https://abema.tv/video/episode/<回のID>` の形なら、回のIDから
   `https://image.p-c2-x.abema-tv.com/image/programs/<回のID>/thumb001.png?height=360&quality=75&width=640` を組み立て（`abema_thumb_url()`、`version=` は付けない）、
   「ABEMA で見る」のリンクの中に画像を置き、リンクの下に出典「画像: ABEMA」を添える（`build_video_html()`）。`srcset` の 2x は 1280×720、`width`・`height`（640×360）と `loading="lazy"`、
   alt は「ABEMA <対局名> <卓の見出し>」。表示は幅 480px まで・16:9 の枠（読み込み前・読めないときも灰色の枠の大きさを保つ）。出すのは対局のページ（卓ごと）で、年度ページには出さない。卓のページはヒーローの画像として出す（上の「卓のページ」）。

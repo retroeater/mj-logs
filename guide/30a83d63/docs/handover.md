@@ -214,7 +214,7 @@ GitHub Issues（Open）に全件あるが、着手可能な主なものは以下
 | `docs/astro-migration-study.md` | 新サイトのスタック（#21）の判断 |
 | `docs/lighthouse-baseline.md` | パフォーマンスの改善前後の比較（ページ別スコアの基準値） |
 | `docs/gsc/` | Search Console の数値（#142） |
-| `docs/notes/cloudflare.md` | Cloudflare の設定・配信（`_headers`・`_redirects`・`wrangler dev`）・本番反映と確認範囲 |
+| `docs/notes/cloudflare.md` | Cloudflare の設定・配信（`_headers`・`_redirects`・`wrangler dev`）・本番反映と確認範囲・設定の照合（Chrome） |
 | `docs/notes/session-network.md` | セッションから外部に届くか、gh の認証、Rebuild、シートの行番号、作業ファイルの置き場所 |
 | `docs/notes/cloud-sessions.md` | クラウドセッション（Claude Code on the web）での CLAUDE.md の読み替え（ブランチの用意・GitHub MCP・ネットワーク・プレビュー） |
 | `docs/notes/chat-side-operations.md` | チャット側が指示文を書く前（ログの読み方もここ） |
@@ -234,6 +234,7 @@ GitHub Issues（Open）に全件あるが、着手可能な主なものは以下
 | `docs/notes/a11y-manual-check.md` | アクセシビリティの実機確認（#186） |
 | `docs/notes/mj-lead.md` | 表・グラフのあるページの説明文（`.mj-lead`、#312） |
 | `docs/notes/saikyo-page-design.md` | 最強戦（`saikyo/`）と選手写真の更新 |
+| `docs/notes/abema-book.md` | ABEMA ブック（最強戦の卓ごとの ABEMA の回、#425）。サムネイル・「▶ 再生」の元データを直す・確かめる前 |
 | `docs/notes/title-pages.md` | タイトル戦の新構成（`title/`、#222） |
 | `docs/notes/houou-race.md` | 鳳凰戦の順位変動（`houou_race.html`、#507） |
 | `docs/notes/houou-top.md` | 鳳凰戦の新ページ `houou/` の仕様（トップ＋検索・ランキング・リーグ推移・順位変動、#518） |

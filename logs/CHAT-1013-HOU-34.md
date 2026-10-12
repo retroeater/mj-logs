@@ -44,15 +44,48 @@ HOU-33 の変更（判断待ち）を、平野さんのプレビューの確認�
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+- 2026-10-13 着手。**この会話は HOU-01〜33 から続いている（新しく始めたセッションではない）**
+- `CHAT-1013-HOU-34` のコミットは無し。`origin/work/1013-hou` はリモートにありローカルと一致（1e009af3）。`origin/cloudflare`（e44c459e）は HEAD の祖先でない（取り込む）
+- 0. 指示欄の末尾は指示文の最後の行と一致。HOU-33 のログの報告は 状態「判断待ち」。状態の末尾に ` / 続き: CHAT-1013-HOU-34` を足した。指示文の冒頭の雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+
+### 手順1 取り込みと再検証
+
+- `origin/cloudflare`（e44c459e。SNM-10・RGN-17・BOT-06 など）を merge で取り込んだ（66294344）。`docs/decisions/houou.md` が衝突: 両側とも末尾に 2026-10-13 の節を足していた（cloudflare 側は `## 2026-10-13（CHAT-1013-SNM-10）`、こちらは `## 2026-10-13（CHAT-1013-HOU-33）`）。追記どうしなので両方を残し、先にマージされた SNM-10 を前、HOU-33 を後にした。解いた後の該当箇所（見出しと先頭の行）:
+
+  ```
+  ## 2026-10-13（CHAT-1013-SNM-10）
+
+  決定は 2026-10-12〜13 に平野さんが出したもの（#548）。
+  …（SNM-10 の7項目はそのまま）
+
+  ## 2026-10-13（CHAT-1013-HOU-33）
+
+  個人成績 `houou/players/`（未マージ）:
+  …（HOU-33 の5項目はそのまま）
+  ```
+
+- `scripts/generate_houou_pages.py`・`docs/notes/houou-top.md` は両側で変わっていたが自動でまとまった（cloudflare 側は「鳳凰」を見出しで読む `houou_tab` への切り替え〈`load_groups()` と import〉と「データの持ち方」の正本の列の行、こちらは `render_players()`・`current_leagues()`・`outputs()` と「個人成績」「リーグのタブ」「仮置きの一覧」で、別の箇所）
+- 取り込んだ後に `houou_pages` を生成し直した: 差分なし。`generate_houou_pages.py --check` は通過（「選手 1,295名」）。テスト 945件 OK
+- `git diff --stat origin/cloudflare...HEAD`: 30ファイル（+287 −32）。種類ごと:
+  - 生成スクリプト: `scripts/generate_houou_pages.py`
+  - JS: `assets/houou.js`
+  - CSS: `style.css`（変わった行のセレクタはすべて `.mj-houou-*`）
+  - houou/ の生成物: `houou/players/index.html`
+  - docs: `docs/decisions/houou.md`・`docs/notes/houou-top.md`
+  - docs/logs: `CHAT-1013-HOU-33.md`・`CHAT-1013-HOU-34.md` とスクリーンショット 22枚（`CHAT-1013-HOU-33/`）
+  - 前提の範囲の外のファイルは無い
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj e3b1b713）: https://github.com/retroeater/mj-logs/tree/main/guide/e3b1b713
+ガイド文書（この版を写した時点の最新、mj 30a83d63）: https://github.com/retroeater/mj-logs/tree/main/guide/30a83d63
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e3b1b713/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e3b1b713/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e3b1b713/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e3b1b713/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e3b1b713/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e3b1b713/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/30a83d63/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/30a83d63/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/30a83d63/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/30a83d63/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/30a83d63/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/30a83d63/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/3ce5d549.md

@@ -14,6 +14,8 @@
 ### 観点のチェックリスト
 
 - (a) 古い事実: 「最終更新」の日付、期日を過ぎた行、閉じた issue、仕組みの変更で変わった記述
+  - handover 5章の表の issue は REST か Code で Open/Closed を確かめ、閉じたものの行を直す
+  - プロジェクトのメモリーの「docs/decisions に書かれるまでの控え」は、docs/decisions・docs/notes に書かれたものを消す
 - (b) 文書間の重複: 規則の本文はどれか1つを正にし、ほかは参照にする
 - (c) 冗長: 括弧内の事例・経緯は `docs/notes/handover-archive-2026.md` へ、場面限定の手順は `docs/notes/` へ
 - (d) 消してはならないもの: 規則そのもの、issue 番号、止まる条件、決定の内容
