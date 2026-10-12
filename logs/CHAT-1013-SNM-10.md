@@ -73,15 +73,76 @@
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 着手前の確認（2026-10-13）
+
+- 0.: 「指示」欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある
+- 同じ Chat-Ref のコミットは 0。作業ブランチ: ローカル・リモートの `work/1012-snm-ampai` は a843c441 で一致。`origin/cloudflare` を `git merge` で取り込んだ（9a26ca08、衝突なし）
+- (1) CHAT-1013-SNM-09 の `## 報告` の状態は「中断（エラー）」。末尾に ` / 続き: CHAT-1013-SNM-10` を足した
+- (2) 「鳳凰」（`lib/sheets.fetch_table`）を2回読み、2回とも 16,011行・A 名前・B 期・C 前後・D リーグ・E リーグキー・F 順位・G 結果・H 合計・I〜U 第1〜13節・V 表示・W プロ・X 備考・Y 存在チェック・Z 備考。「組」の列は無く、X は「備考」
+
+### 手順1: 確かめと洗い出し
+
+- #548: コメントは SNM-06（判断待ちで終わった）・SNM-08（中断）の2つで、未完了の着手中コメントは無い。着手中のコメント: https://github.com/retroeater/mj/issues/548#issuecomment-6128386195
+- 未マージのブランチ: work/1009-swp-526・work/1011-swp-hnd・work/1011-swp-nav・work/1012-dsn は直すファイルを変えていない。**work/1013-hou が `scripts/generate_houou_pages.py` を変えている**が、`render_players()`・`current_leagues()`（新しい関数）・`outputs()` の別の箇所で、この指示が直す `load_groups()`・import・定数の行とは重ならない（同じファイルの別の箇所なので止まらない）
+- 「鳳凰」を読む所: SNM-08 のログの表と同じ（Python で列の英字が3つ〈`generate_houou_race.py` の `SELECT A,X`・`generate_houou_leagues.py` の `SELECT A,B,C,D,F`・`generate_houou_pages.py` の `SELECT A,B,C,D,X,V`〉、見出しが3つ〈`generate_houou_race.py`・`generate_houou_pages.py` の `fetch_records()`、`check_unused_names.py`、`lib/pro_stats.py` の `_read()`〉、ページ側の JS が2つ〈`houou_results.js`・`league_ranking.js`。この指示では変えない〉）。取り込んだ cloudflare にも新しい読む所は無かった
+- 「鳳凰」の W〜Z 列の数式: SNM-08 のログ（2026-10-12 の xlsx エクスポート）のとおり。W・Y は数式、X・Z は値、ほかのタブ・同じタブから W〜Z を引く数式は 0。コードで W〜Z を読んで使うのは X（組）だけで、`lib/houou_tab.py` が「組」の列を先に読むので、「組」を挿入した後は読まない
+- 新しい Ampai のブック（`1zk3FQV0DDZhqG9-…`）: 2回読んで同じ。タブは「成績表」1つ、見出しは タイトル戦・期・前後・リーグ・組・Ampai URL・備考（前提の7列）、データ 43行。SNM-06 の TSV から鳳凰位・桜花の2行を除いた43行と、「-」を空とみなして比べると差 0
+
+### 手順2: 直した箇所（c28057dc・6632e78c）
+
+| ファイル・関数 | 変えたこと |
+|---|---|
+| `scripts/lib/houou_tab.py`（新） | 「鳳凰」を見出しで読む `fetch_rows(headers)`。見出し `GROUP`（「組」）は「組」の列 → 無ければ左の「備考」（X 列）。見出しが無い・重複すれば ValueError |
+| `scripts/generate_houou_race.py` `NOTE_QUERY`→`NOTE_HEADERS`・`load_notes()` | `SELECT A,X` をやめ、`houou_tab.fetch_rows(("名前", 組))` で読む（名前の列で行の対応を確かめるのは同じ）。`fetch_sheet` の import を外した |
+| `scripts/generate_houou_leagues.py` `QUERY`→`HEADERS`・`load()` | `SELECT A,B,C,D,F` をやめ、`houou_tab.fetch_rows(("名前", "期", "前後", "リーグ", "順位"))` |
+| `scripts/generate_houou_pages.py` `GROUP_HEADERS`・`load_groups()` | `SELECT A,B,C,D,X,V` をやめ、`houou_tab.fetch_rows(("名前", "期", "前後", "リーグ", 組, "表示"))` |
+| `scripts/lib/ampai.py`（新） | Ampai のブックを見出しで読む `fetch()`・`build()`（キー: タイトル戦・期・前後・リーグ・組、「-」は空、「①組」は「①」。キーが重複すれば ValueError）・`has_period()` |
+| `scripts/lib/pro_stats.py` | 「鳳凰Ampai」「桜花Ampai」タブの先頭の見出しを読むのをやめた（`HOUOU_AMPAI`・`OUKA_AMPAI`・`_first_label()`・`Sources.houou_ampai_label`・`ouka_ampai_label`・`Period.ouka_ampai_label()` を消した）。`Sources.houou_groups`（「鳳凰」の組、`houou_tab`）を足し、`ampai_urls()`（最新の期のタイトル戦・期・前後・リーグ・組で URL を引く）・`missing_ampai_periods()`（最新の期の行が1行も無い期）を足した |
+| `scripts/generate_jpml_pros.py` `COLUMNS`・`ROW_FIELDS`・`add_stats()`・`build_page()` | 「プロ」の鳳凰Ampai・桜花Ampai 列を読まない。URL は `pro_stats.ampai_urls()` から。最新の期の行がブックに無ければ警告を1行出す（生成は止めない）。Ampai のブックの読み取りの失敗（キーの重複など）は生成を止める（`--check` では理由にする） |
+| `scripts/lib/pro_sheet.py` | 定数 `HOUOU_AMPAI`・`OUKA_AMPAI` を消し、`RETIRED_AMPAI`（読まないことをテストで確かめる）に移した |
+| `scripts/check_ampai.py`（新） | 最新の期の行が Ampai のブックに無いかを調べ、標準出力と JSON に書く |
+| `.github/workflows/check-meibo.yml` | 名簿の検知の後に「Ampai の URL が無い期を調べる」と「Ampai の結果をissueに反映」の2ステップを足した（dry_run のときは issue に書かない。題名で探して、無ければ作る・あれば本文を更新・解消したらコメントして閉じる。名簿の検知と同じ作り） |
+
+**知らせの issue**: 題名「Ampai の URL が無い期」。`check-meibo.yml` の週次（毎週月曜 05:07 JST）と手動実行（dry_run=false）で動く。生成（`generate_jpml_pros.py`）のログにも「Ampai のブックに最新の期「…」の行がありません」の1行を出す。
+
+**テスト**: `python3 -m unittest discover -s scripts/tests` 939件 OK。足した・直したテスト: `test_houou_tab.py`（新。組の読み方〈挿入前・挿入後・削除後で同じ値〉、見出しの欠け・重複、「鳳凰」を列記号で読む所の再登場の検査、Ampai のブックの「-」・重複・見出し）、`test_pro_stats.py`（`AmpaiTest`: リーグ＋組で URL、鳳凰位は付かない、最新の期の行が無いときの判定）、`test_jpml_pros.py`（Ampai の URL の受け渡し、「プロ」の Ampai 2列を読まない）、`test_pro_sheet.py`（`RETIRED_AMPAI` を定数にしない）。
+直す前のコード（cloudflare 62f48a8b）に新しいテストを置くと 15件が落ちる（FAIL 2・ERROR 13）。
+
+**直した文書**: `docs/notes/houou-race.md`（組の読み方）、`docs/notes/houou-top.md`（「鳳凰」の列と見出しで読むこと、JS はまだ列記号）、`docs/notes/static-generation.md`（jpml_pros の Ampai の引き方、`check-meibo.yml` の行、`check_ampai.py` の説明）。
+
+**ワークフローの確かめ**（CLAUDE.md「ブランチ運用」）: `check-meibo.yml` を ref `work/1012-snm-ampai`（6632e78c）・`dry_run: false` で手動実行した。起動の前に、題名「名簿と「プロ」シートの不一致」「Ampai の URL が無い期」の open の issue が無いこと（REST の open の一覧に 0）と、手元で名簿の不一致 0・Ampai の欠け 0 を確かめ、どちらの issue の手順も作らず閉じもしない状態で起動した。
+- run 38278633405: success。全ステップ success（テスト・名簿の検知「不一致なし」・Ampai の検知「最新の期の行は Ampai のブックにあります」・Ampai の issue の手順「Ampai の URL が無い期なし」）。issue の作成・更新・クローズ 0
+
+### 手順3: 確かめ
+
+方法: scratchpad に5つのクローン（pre = cloudflare 62f48a8b、post = c28057dc、b1・b2・c = 同じ c28057dc）。ページごとに pre（docs.google.com の応答を記録）→ post → b1 → b2（再生）の順で `regenerate.py <ページ>` を続けて実行し、生成物を比べた。
+b1 は「鳳凰」の `SELECT *` の応答で F 列に「組」（X 列の値の写し）を挿入（14回効いた）、b2 はさらに挿入後の X〜AA（元の W「プロ」・X「備考」・Y「存在チェック」・Z「備考」）を消した（見出しは A〜W の23列、最後が「表示」）。c は Ampai のブックの応答から鳳凰戦43期後期の19行を除いた（43→24行）。再生でキャッシュに無かった URL は post が初めて読んだ Ampai のブックの分だけ。
+
+**(a) 直す前と直した後（今のシート）**
+
+| ページ | 直す前 | 直した後 | 差 |
+|---|---|---|---|
+| books_pages | 止まる（「書籍」の行数 95行） | 同じ理由で止まる | - |
+| jpml_pros | 通る | 通る | **2行だけ**: 清水香織の「桜花21期」の欄（「桜花」）と白鳥翔の「鳳凰43後」の欄（「鳳凰位」）の Ampai のリンクが外れ、文字だけになった（決定どおり） |
+| ほかの21ページ | 通る | 通る | 0 |
+
+**(b1)・(b2)**（直した後のコード、(a) の直した後と比べる）: 23ページすべて (a) の直した後と差 0（books_pages は同じ理由で止まる。ほかは通る）。`check_unused_names.py --no-issue` も pre・post・b1・b2 とも通る。
+
+**(c) 最新の期の行を除いた Ampai のブック**: jpml_pros は止まらずに通る（終了コード 0）。生成のログに「警告: Ampai のブックに最新の期「鳳凰43後」の行がありません(…)」。post と比べた差は591行で、すべて「鳳凰43後」の欄の Ampai のリンクが外れただけ（女流桜花のリンク 136 はそのまま）。`check_ampai.py` は `missing: ["鳳凰43後"]`（知らせる）、post では `missing: []`。
+
+止まる条件に当たるものは無い。
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj e2f06f23）: https://github.com/retroeater/mj-logs/tree/main/guide/e2f06f23
+ガイド文書（この版を写した時点の最新、mj 19e2d39e）: https://github.com/retroeater/mj-logs/tree/main/guide/19e2d39e
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2f06f23/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2f06f23/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2f06f23/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2f06f23/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2f06f23/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2f06f23/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/19e2d39e/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/19e2d39e/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/19e2d39e/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/19e2d39e/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/19e2d39e/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/19e2d39e/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/62f48a8b.md
