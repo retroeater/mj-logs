@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-13 04:06 JST
+- 書き出した時刻: 2026-10-13 04:22 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -95,11 +95,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-13 04:20 | workflow_dispatch | cloudflare | success | #30（38297052395） | 0分31秒 |
 | 2026-10-12 10:51 | schedule | cloudflare | success | #29（38193495109） | 0分16秒 |
 | 2026-10-12 04:20 | workflow_dispatch | cloudflare | success | #28（38167633158） | 0分30秒 |
 | 2026-10-11 10:20 | schedule | cloudflare | success | #27（38101509455） | 0分16秒 |
 | 2026-10-11 04:20 | workflow_dispatch | cloudflare | success | #26（38079442732） | 0分30秒 |
-| 2026-10-10 23:51 | workflow_dispatch | work/1010-rgn | success | #25（38061297637） | 0分18秒 |
 
 ## fetch-gsc.yml
 
@@ -193,11 +193,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-13 04:15 | workflow_dispatch | cloudflare | success | #43（38296490024） | 0分29秒 |
 | 2026-10-12 10:15 | schedule | cloudflare | success | #42（38191192423） | 0分30秒 |
 | 2026-10-12 04:15 | workflow_dispatch | cloudflare | success | #41（38167278315） | 0分33秒 |
 | 2026-10-11 09:55 | schedule | cloudflare | success | #40（38100071575） | 0分24秒 |
 | 2026-10-11 04:15 | workflow_dispatch | cloudflare | success | #39（38079107653） | 0分31秒 |
-| 2026-10-10 10:42 | schedule | cloudflare | success | #38（38014230072） | 0分25秒 |
 
 ## sync-logs.yml
 
@@ -233,11 +233,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-13 04:10 | workflow_dispatch | cloudflare | success | #15（38295925154） | 0分38秒 |
 | 2026-10-12 14:22 | workflow_dispatch | cloudflare | success | #14（38207634224） | 0分21秒 |
 | 2026-10-12 04:10 | workflow_dispatch | cloudflare | failure | #13（38166926033） | 5分10秒 |
 | 2026-10-11 04:10 | workflow_dispatch | cloudflare | success | #12（38078775949） | 0分50秒 |
 | 2026-10-11 01:52 | workflow_dispatch | work/1010-xap | failure | #11（38069444980） | 2分35秒 |
-| 2026-10-11 01:51 | workflow_dispatch | work/1010-xap | success | #10（38069371969） | 0分37秒 |
 
 - #13 failure: ジョブ「regenerate / regenerate」 ステップ「帰り道の前回の知らせを読む」
 - #11 failure: ジョブ「regenerate / regenerate」 ステップ「YouTubeチャンネル情報の取得失敗を報告」「飛ばしたページを報告」
