@@ -114,28 +114,60 @@ Playwright の Chromium、幅 375px、`/api/*` は作り物の応答。字体は
 - 同じ主題の issue: 全 555 件（PR を除く、#1〜#556）の題と本文を「非公開・公開範囲・リンクを知っている・gviz・共有設定・一般的なアクセス・閲覧者・フォルダ」で照合。gviz の読み取りの検知（#432・#510・#552）などはあるが、ブックの公開範囲を整理する issue は無い。未マージの work/ ブランチにも同じ目的のものは無い
 - 起票: #557「ryoei.pro のブックの公開範囲を整理する（基本は非公開のフォルダ、gviz の公開読み取りの扱いを決める）」。ラベル「分野: セキュリティ」「分野: データ」。読み取りの経路の案（サービスアカウントでの読み取り・公開のブックを分ける・公開用のブックに写す）は調べずに案として書いた
 
+### 4. マージ
+
+- `origin/cloudflare` を取り込み（`git merge origin/cloudflare`、8コミット、衝突なし。docs/notes/cloudflare.md への BOT-06 などの追記と、こちらの追記は別の箇所）、テストを再び通して `git push origin work/1013-aic:cloudflare`（`e44c459e8..30a83d630`）
+- check-run（`30a83d63`）: 「Workers Builds: mj-ask」success（Version ID `65187d61-3b2c-4b0c-b94c-b0e4645dcc77`）・「Workers Builds: mj」・regenerate・sync・check 2つ success
+- 本番: `/api/ask/status` は 200 `{"status":"open","remaining":10,"max":200}`。`https://ryoei.pro/houou/` は `rows="3"`、`/assets/houou_ask.css` は新しい内容（デプロイの直後の約1分は古い版が返った）
+- cron の登録（Triggers の画面の曜日）は check-run の出力に無く、セッションからは見えない
+- #542 の本文に「できた」の条件（4つ、1・2 に印）を足し（`updated_at` を取り直してから PATCH）、進みのコメントを残して着手中を解除した
+- docs/decisions/houou.md に「2026-10-13（CHAT-1013-AIC-05）」を足した
+- コミット `docs: fix design.md path in AIC-05 log` のメッセージは `git commit -m "..."` で渡した（CLAUDE.md「コミットのルール」の「文章をシェル経由で書かない」に反する。中身にバッククォートと `$` は無く、展開による崩れは無い）
+- 最後の push の前の取り込み（`git merge origin/cloudflare`、HOU-33・HOU-34 の11コミット）で、docs/decisions/houou.md の末尾が衝突した（HOU-33 と AIC-05 がそれぞれ末尾に節を足した、追記どうし）。指示の「両方の変更が両立する衝突」として、両方を残して解いた（先に cloudflare に入った HOU-33 の節、その後に AIC-05 の節）。解いた後の該当箇所:
+
+  ```
+  - 「リーグ」のグラフに触れたとき（ホバー）の吹き出しを、「通算」のように行を分ける。形は「38期後期」「E2 21位/24人 残留」「全体 371位/377人」の3行
+
+  ## 2026-10-13（CHAT-1013-AIC-05）
+
+  データ・コンシェルジュ（#542）の残り
+  ```
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1013-aic
-- ログ: https://github.com/retroeater/mj/blob/work/1013-aic/docs/logs/CHAT-1013-AIC-05.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1013-AIC-05.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1013-aic
-- 確認用URL: なし
-- マージ: 未
-- issue: #542
-- 判断が必要なこと: 未定
-- 未確認の項目: 未定
+- 確認用URL: なし（houou/ は未公開のまま）
+- マージ: 済（30a83d63）
+- issue: #542（本文に「できた」の条件を追記）・#557（起票）
+- 判断が必要なこと:
+  - 平野さんの iPhone での質問欄の確かめ（#542 の「できた」の条件3）。https://ryoei.pro/houou/ で次を見る:
+    1. 入力欄の中の例の質問「鳳凰戦について質問してみてください（例：23期生で鳳凰位になった人は？）」が切れずに見える（入力欄は幅いっぱい・3行、「質問する」はその下の右）
+    2. 3つの文言（AI の回答には間違い…／個人情報等は…／ご質問の内容は…）が欠けずに読める
+    3. 入力欄をタップしても画面が拡大されない（文字 16px）。キーボードを出したときに「質問する」が押せる
+    4. 1問送ると「調べています…」の後に答えが出て、その下に注記・「データ: …」・「出典: …」のリンクが出る。出典のリンクで該当のページへ飛べる
+    5. 答えが長いときも横にはみ出さない。設定の「文字の大きさ」を大きくしても、切れ・重なりが無い（次の行に回るのは可）
+    6. 例の質問「23期生で鳳凰位になった人は？」で、吉田直（第35期）と白鳥翔（第41期・第42期）が返る
+  - `mj-ask` の Settings → Triggers（Cron Triggers）が「Monday」（`0 0 * * 2`）になったか
+  - 2026-10-19（月）9:00 JST の後に、ブック「ryoei.pro_AIボット」に見出しと行が入ったか、Workers Logs の `週次:` の行（`sheet` が `null` でないこと）
+  - 指示文の「決定」に、サービスアカウントのメールアドレス（Google Cloud のプロジェクト ID を含む）とブックの ID がそのまま書かれていた。ログの「指示」欄は指示文をそのまま写す決まりなので、このログ（public の mj-logs に写る）にも入っている。docs/notes/ では `<Google Cloud のプロジェクト ID>` と伏せた（live-channel-write.md と同じ扱い）。ログからも伏せるか、次の指示文から書かないかを決めてほしい
+- 未確認の項目:
+  - 週次の書き出しの本番の実行（2026-10-19 9:00 JST）
+  - cron の曜日の画面の表示
+  - iPhone での見え方（上）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 30a83d63）: https://github.com/retroeater/mj-logs/tree/main/guide/30a83d63
+ガイド文書（この版を写した時点の最新、mj 62fb5bbb）: https://github.com/retroeater/mj-logs/tree/main/guide/62fb5bbb
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/30a83d63/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/30a83d63/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/30a83d63/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/30a83d63/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/30a83d63/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/30a83d63/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/62fb5bbb/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/62fb5bbb/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/62fb5bbb/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/62fb5bbb/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/62fb5bbb/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/62fb5bbb/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/3ce5d549.md

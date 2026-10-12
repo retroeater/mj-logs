@@ -528,7 +528,8 @@ Workers & Pages → `mj` → Settings → Builds:
 | Production branch | `cloudflare` |
 | Builds for non-production branches | チェックあり（2026-10-06 の申告値。2026-09-12 の時点は OFF。プレビューは #38 で有効化、下の「work/ ブランチのプレビュー」） |
 | Build watch paths: Include | `*` |
-| Build watch paths: Exclude | `.git/`・`docs/**`・`node_modules/**`・`workers/**`（`docs/**`は2026-09-12に追加、#171。2026-10-05 の深夜に足した `workers/*` を 2026-10-06 11:20 に `workers/**` に置き換えた、#504。申告値） |
+| Build watch paths: Exclude（本番のトリガー、branch `cloudflare`・`npx wrangler deploy`） | `.git/`・`docs/**`・`node_modules/**`・`workers/**`（`docs/**`は2026-09-12に追加、#171。2026-10-05 の深夜に足した `workers/*` を 2026-10-06 11:20 に `workers/**` に置き換えた、#504。申告値） |
+| Build watch paths: Exclude（非本番のトリガー「Deploy non-production branches」・`npx wrangler versions upload`） | `.git/`・`docs/**`・`node_modules/**`（2026-10-12 のチャット側の読み〈ダッシュボードと同じ画面の API を GET〉）。**`workers/**` は効かない**: ダッシュボードの Build watch paths の画面は1つで本番の値を表示し、平野さんが `workers/**` を消して足し直して保存しても（2026-10-12、申告値）、`workers/` だけの作業ブランチの push に「Workers Builds: mj」が付いた（2026-10-12、check-run で確認）。**画面からは非本番の除外を直せない。害はプレビューのビルドが1回増えることだけなので受け入れる**（平野さんの決定。API で直すことは今はしない） |
 | API token | `mj build token` |
 | Cache | Disabled |
 
@@ -543,6 +544,26 @@ Workers & Pages → `mj` → Settings → Builds:
 
 - **2つ目の Worker `mj-scheduler`**（#504）: 予約実行を起動する Worker。コードは `workers/scheduler/`（`.assetsignore` で配信から外す）。2026-10-05 の夜に、同じリポジトリを Path `/workers/scheduler` で Workers Builds につないだ。check-run は「Workers Builds: mj-scheduler」。設定値（申告値）と watch paths の未確認の点は `docs/notes/scheduler-worker.md`
 - Cron Triggers: `mj` は静的アセットだけなので持てない（画面の表示「Triggers cannot be added to a Worker that only has static assets.」）。アカウントの Cron Triggers は `mj-scheduler` の1本（Free は5本まで）
+
+### Chrome からダッシュボードの API を読む（#304 の (9) の照合）
+
+月次の (9)（設定と記録の照合）は、ダッシュボード（dash.cloudflare.com）にログインした Chrome のタブで、チャット側が
+`javascript_tool` から `fetch('/api/v4/<path>', {credentials:'include', headers:{'x-cross-site-security':'dash'}})` を呼んで読める（2026-10-12 に実施）。
+
+- **GET だけ。書き込み（POST・PUT・PATCH・DELETE）はしない**
+- 戻り値の `?` `&` `=` は別の文字に置き換えて返す（`docs/notes/chrome-reading.md` の注意と同じ）
+- ゾーン ID・アカウント ID はこの文書・ログに書かない（mj-logs は public）。ダッシュボードの URL から毎回取る
+- 読めたもの（`zones/{id}/` か `accounts/{id}/` の下）:
+
+| パス | 中身 |
+|---|---|
+| `zones/{id}/settings` | HTTP/3・0-RTT・Always use HTTPS・Rocket Loader・Early Hints・Email Obfuscation・Polish など |
+| `zones/{id}/settings/speed_brain` | Speed Brain |
+| `zones/{id}/bot_management` | AI bot policies・AI Labyrinth（`crawler_protection`）・Super Bot Fight Mode |
+| `zones/{id}/rulesets/phases/http_ratelimit/entrypoint`・`.../http_request_firewall_custom/entrypoint` | レート制限・カスタムルール |
+| `zones/{id}/flags/products/cache/changes` | Crawler Hints の適用の履歴（`zones/{id}/settings/crawlhints` は 400。設定名が違う） |
+| `accounts/{id}/registrar/domains/ryoei.pro` | ドメインの自動更新・期限（公式にはこの旧パスは 2026-09-27 で end of life、#555） |
+| `accounts/{id}/workers/scripts`・`accounts/{id}/builds/workers/{tag}/triggers` | Workers Builds のトリガー（本番・非本番の2つ。除外は上の表） |
 
 ### APIトークンの棚卸し（2026-09-12）
 
@@ -592,6 +613,7 @@ Workers & Pages → `mj` → Settings → Builds:
   ログだけのコミットが先頭でも、同じ push に docs 以外の変更が入るとビルドされる。よくあるのは、
   作業ブランチに cloudflare を取り込む・マージ済みの作業ブランチを cloudflare から作り直して push する・
   cloudflare へ他セッションの成果物ごとマージする、の3つ（2026-09-28 の実測。新しいブランチへの docs だけの push はビルドされなかった）
+- **ビルドが走るかを試す push は、前の push の「Workers Builds: mj」が completed になってから次を push する。付くまで15分は待つ**（Workers Builds は順番待ちで遅れる。push の4分後には付いていないように見えて、後から付いた例がある。事例は `docs/notes/handover-archive-2026.md`「docs/notes/cloudflare.md・chrome-reading.md から」）
 - **本番のHTMLは取得して確認できるが、ブラウザでの見え方は確認できない。**
   `curl https://ryoei.pro/<パス>` で配信中のHTMLに変更が入ったかは見られる。
   レイアウト・CSSの効き・JSの動作は見られず、反映後の目視確認は平野さんの作業のまま変わらない
