@@ -211,6 +211,92 @@ A で止まる7ページ（books_pages を含む）はすべて「連盟プロ�
   - /live 用は数式 52。「連盟プロ以外」の中は B 列の `=A102` など4件（名前かなの仮置き）で、旧列を引かない。ほかのタブから「連盟プロ以外」を引く数式は無い
 - 今ある `#REF!`（消す前の基準）: 正本・/live 用とも、数式の中 0・値 0
 
+### 手順2: ページ以外のスクリプト（A・B）
+
+ページと同じ差し替え（キャッシュは別のフォルダ。base で記録し A・B で再生）で、書き込み・X API・YouTube API・カレンダー・issue に触れない形で動かした。
+「差」は標準出力と書き出したファイルを base と比べた。
+
+| スクリプト（動かし方） | A | B |
+|---|---|---|
+| `update_sns_book.py` 毎日の更新（`--dry-run`。scratchpad の包みで `sheets_write` の読み取りを gviz に差し替え、書き込みの関数は呼ばれたら例外にした。`X_BEARER_TOKEN` を消したので X API は 0 件） | 止まる: `run_update()` → `load_sources()` → `pro_sheet.fetch_pros()`「プロ」シートの見出しが不正です(欠けている: ['XID', 'X画像', 'noteID', 'note画像', 'YouTubeID']…)。直しても次に `fetch_records(OTHER_HEADERS)` の X ID・X画像URL で止まる（コードを読んで判定） | 通る。差は X状態の「解決 1051/1052・リンク切れ 13/12」の1件だけで、同じ実行の中の HEAD の揺れ（update は旧列の値を使わない）。【2】は「変わらない」、ページが使う値が変わった人 0 は base と同じ |
+| `update_sns_book.py --check`（同じ包み。編集者かは「模擬」と出す） | 止まる（同じ `load_sources()` の ValueError） | 通るが差あり: 「ブックと元の列の食い違い」が base 59件 → B 2,689件、元の列の件数（X 1,059 など）が全部 0。照合の相手（旧列）が空になるため。止まりはしない |
+| `update_sns_book.py --init` | 動かしていない（書き込みを伴う）。コードを読んで判定: A は `load_sources()` で止まる | 同じく読んで判定: 【2】に入力があるので `run_init()` の最初の確かめで止まる（今も同じ） |
+| `check_meibo.py --json`（名簿の検査） | 通る・差 0 | 通る・差 0 |
+| `sync_birthday_calendar.py`（`--compare` なし。カレンダーを読まない計画だけ） | 通る・差 0 | 通る・差 0 |
+| `check_wayhome.py --out-dir`（帰り道の新しい回の検査） | 通る・差 0 | 通る・差 0 |
+| `collect_saikyo_images.py -o --json`（最強戦の写真の検知。X API は呼ばない） | 止まる: `load_players()` → `generate_saikyo_pages.load_rows()` → `load_name_book()` → `fetch_records()`（「連盟プロ以外」の X ID・X画像URL） | 通る・差 0 |
+| `check_saikyo_unregistered.py --json` | 止まる（同じ `load_name_book()`） | 通る・差 0 |
+| `check_unused_names.py --no-issue --out`（#475 を読まない） | **止まらずに失敗を書く**: `load_registrations()` → `title.fetch_tab()` → `column_order()` の GenerationError を捕まえ、知らせを「使われていない登録: 検査できなかった」にする（終了コード 0） | 通る・差 0 |
+| `check_image_links.py --json`（jpml_pros.html の写真の検知。生成物を読み HEAD） | 通る。差は新城勇哉の X 画像 1件の 404（A・B とも同じ。HEAD の揺れでシートとは関係ない） | 同じ |
+| `fetch_youtube_channels.collect_channel_ids()`（関数だけ。YouTube API は呼ばない） | 通る・差 0 | 通る・差 0 |
+| `sync_dojo_calendar._fetch_roster()`（関数だけ。Claude API・カレンダーに触れない） | 通る・差 0 | 通る・差 0 |
+| `generate_books_pages.load_name_book()`（関数だけ。books_pages は「書籍」の行数で base も止まるため） | 止まる（`fetch_records()`、「連盟プロ以外」） | 通る・差 0 |
+| `generate_live_pages.load_name_book()`（`write_live_channel_candidate.py` が使う。本体は認証が要るので関数だけ） | 止まる（同じ） | 通る・差 0 |
+| `generate_saikyo_pages.load_name_book()`・`generate_houou_race.load_name_book()` | 止まる（同じ） | 通る・差 0 |
+| `write_live_channel_candidate.py --write --dry-run` | 動かしていない（Sheets API の認証が要る）。読んで判定: `load_name_book()` が `generate_live_pages.load_name_book()` なので止まる | 読んで判定: 止まらない（上の関数が通る） |
+| `sync_dojo_calendar.py`・`sync_birthday_calendar.py --compare`・`fetch_youtube_channels.py` 本体 | 動かしていない（Claude API・カレンダー・YouTube API）。読んで判定: 旧列を読むのは上の関数だけで、止まらない | 同じ |
+
+環境の注: この環境では note（assets.st-note.com）と YouTube（yt3.ggpht.com）の画像への HEAD が通らず、dry-run の note状態・YouTube状態が全件「リンク切れ」になった（base・A・B で同じ。許可ドメインに無いため。本番のランナーでは違う）。
+
+### 手順2: 直す箇所（直していない）
+
+**A（列ごと消す）で、消す前に直す必要があるもの**:
+
+| ファイル・関数 | 何を変えるか | 止まるもの |
+|---|---|---|
+| `scripts/lib/live.py` `OTHER_HEADERS` | `"X ID"`・`"X画像URL"` を外す（`sns.others()` は名前・所属団体・所属補足しか使わないので形はそのまま） | ask_data・houou_pages・houou_race・live_pages・saikyo_pages・books_pages、最強戦の写真の検知・未登録の検査・`write_live_channel_candidate.py` |
+| `scripts/generate_title_pages.py` `EXPECTED_HEADERS["連盟プロ以外"]` と `main()` の `values[:4] + [x_id, x_image] + values[6:]` | 見出しから X ID・X画像URL を外し、`main()` の差し込みを `values[:4] + [x_id, x_image] + values[4:]` に（位置で切っているので、外すと「その他の列」がずれる） | title_pages・`check_unused_names.py`（失敗を知らせに書いて続く） |
+| `scripts/update_sns_book.py` `load_sources()` | 「プロ」は登録名・ソートキーだけ、「連盟プロ以外」は名前・名前かなだけを読む。`values`（写す値）を返さない形にし、`run_init()`（旧列から写す）と `run_check()` の `verify_init()` の照合をやめる（init は【2】に入力がある今は止まるだけで使えない） | 毎日の更新・check・init |
+| `.github/workflows/update-sns-book.yml` 入力 `mode` の `init` | init をやめるなら選択肢から外す（任意） | - |
+| `scripts/lib/pro_sheet.py` 定数 `X_ID`〜`YOUTUBE_IMAGE` | 任意。シートの列ではなく `sns.fetch_pros()` のキーとしてだけ残る。`sns.py` へ移すか、`RETIRED` と同じく「読み取りに戻っていない」ことをテストで確かめる形にする | 止まらない（`pro_sheet.fetch_pros()` に直接渡すのが `load_sources()` だけのため） |
+| テスト | 上の変更に合わせて足す（`load_sources()` が旧列を求めないこと、title の「連盟プロ以外」の見出し） | - |
+
+**B（値を空にして列は残す）**: 止まるもの・ページの差は無い。直さなくても動くが、次は古くなる:
+- `update_sns_book.py --check` の「ブックと元の列の食い違い」が 2,689件と出て意味を失う（`run_check()` の照合をやめるか、旧列が空なら飛ばす）
+- `--init` は旧列から写す処理のまま（今も【2】に入力があるので止まるだけ）
+
+**古くなる文書の記述（A・B 共通。A は「必要な見出し」の記述が誤りになる）**:
+- `docs/notes/sns-book.md` 冒頭（「数日後に値を空にする。列は残す」）・「手動実行」の check・init（旧列から写す・元の列との照合）
+- `docs/notes/title-pages.md` 100〜104行（「連盟プロ以外」の必要な見出しに X ID・X画像URL、値があれば X のリンク・写真）
+- `docs/notes/live-page-design.md` 24行（「プロ」の名前・X画像）・97〜98行（「連盟プロ以外」の X ID・X画像URL の列の説明）・269〜270行（X画像は「プロ」シートの URL）
+- `docs/notes/houou-race.md` 49行（`fetch_pros()` で「XID」「X画像」を読む）
+- `docs/notes/books-covers.md` 93行（著者の写真は「プロ」「連盟プロ以外」の X画像）
+- `docs/notes/static-generation.md` 367行（「X\nID」は `XID` の例。列が消えれば例を替える）
+- `docs/notes/saikyo-page-design.md` 40〜41・563〜564行は「2026-10-11 までは」の経緯の記述なので直さなくてよい
+- `.github/workflows/check-saikyo-unregistered.yml` 137行の案内「（名前・所属団体・所属補足・X ID・X画像URL）」→ X は SNS ブックの【2】に入れる案内にする（B でも、旧列に入れても使われないため）
+
+### マージ
+
+止まる条件「#514 に、XAP（CHAT-1010-XAP-02〜CHAT-1011-XAP-10）以外の Chat-Ref の着手中コメントがある」に字面では当たる（CHAT-1007-PHT-09・CHAT-1012-XAP-11。どちらも完了済み）。
+調査は進めたが、CLAUDE.md「ブランチ運用」の「止まる条件に当たったときはマージせずに報告する」に従い、cloudflare へはマージしていない。
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1011-snm
+- ログ: https://github.com/retroeater/mj/blob/work/1011-snm/docs/logs/CHAT-1011-SNM-01.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1011-snm
+- 確認用URL: なし
+- マージ: 未（止まる条件に字面で当たったため。下の「判断が必要なこと」）
+- issue: #514（着手中のコメントだけ）, #327
+- 判断が必要なこと:
+  - #514 に止まる条件の範囲外の着手中コメント（CHAT-1007-PHT-09・CHAT-1012-XAP-11）がある。どちらも完了済みで並行作業ではないと判断し、調査は進めた。この判断でよければ、このログ（docs のみ）を cloudflare へマージしてよいか
+  - 旧列を「列ごと消す（A）」か「値を空にして列は残す（B）」か（チャットで確認中の件）。A なら下の「直す箇所」を先に直す指示が要る
+- 未確認の項目: なし
+- エラー: なし
+
+### 結果の要約
+
+- **A（列ごと消す）で止まるもの**: すべて「連盟プロ以外」の X ID・X画像URL が原因のもの（`live.OTHER_HEADERS` と title の `EXPECTED_HEADERS`）と、`update_sns_book.py`。
+  ページ7（ask_data・books_pages・houou_pages・houou_race・live_pages・saikyo_pages・title_pages）、最強戦の写真の検知（`collect_saikyo_images.py`）・未登録の検査・`write_live_channel_candidate.py`、
+  SNS ブックの毎日の更新・check・init（`load_sources()` が「プロ」の5見出しと「連盟プロ以外」の2見出しを求める）。`check_unused_names.py` は止まらずに「検査できなかった」と知らせる。
+  **「プロ」の旧列6列だけを消すなら、止まるのは `update_sns_book.py` だけ**（ページ・誕生日・道場部・写真の検知・YouTube の取得は `sns.fetch_pros()` を通るので A でも差 0）
+- **B（値を空にする）**: 止まるもの・ページの差は無い（23ページすべて差 0、books_pages は base と同じく「書籍」の行数で止まる）。`--check` の照合が 59件 → 2,689件と出て意味を失うだけ
+- **直す箇所（A）**: `scripts/lib/live.py` `OTHER_HEADERS`、`scripts/generate_title_pages.py` `EXPECTED_HEADERS["連盟プロ以外"]` と `main()` の差し込みの位置、`scripts/update_sns_book.py` `load_sources()`（と init・check の照合）。任意で `update-sns-book.yml` の `init`、`pro_sheet` の定数の置き場、テスト。文書は `docs/notes/sns-book.md`・`title-pages.md`・`live-page-design.md`・`houou-race.md`・`books-covers.md`・`static-generation.md`、`check-saikyo-unregistered.yml` の案内（B でも案内は直す）
+- **旧列にだけ値がある人: 2名**（篠原冴美〈「プロ」YouTube画像に note の画像の URL、YouTube ID なし〉、村田昴〈「連盟プロ以外」X ID が `https`、【2】は「-」〉）。どちらも誤入力とみられ、消しても失われる意味のある値は無い。ID が旧列と【2】で違う人は 0
+- **旧列を引く数式: 無い**（旧列のセルの数式 0、同じタブ・ほかのタブから旧列を引く参照 0。ほかのタブが引くのは `'プロ'!$A:$A` だけ）。今ある `#REF!` は両ブックとも 0。旧列は「プロ」D〜I、「連盟プロ以外」E・F
+- **#514**: Open（状況: 待ち。閉じる条件は次に写真が切れた検知で表示を確かめること）。**#327**: Open（期日 2026-10-13。N列〈今の I 列「YouTube画像」〉は誰も読まず、A でも消せる）
+
 <!-- guide-links -->
 ---
 
