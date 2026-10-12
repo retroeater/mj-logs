@@ -139,6 +139,41 @@ note状態 未入力 1,660・リンク切れ(取得しない) 204、YouTube状�
 「連盟プロ以外」A 名前・B 名前かな・C 所属団体・D 所属補足・**E X ID・F X画像URL**。
 #327 の本文の「N列」は #536 の列の削除の前の英字で、今は I 列（見出し「YouTube画像」）。
 
+### マージ
+
+- push の直前に `git fetch` し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真（cloudflare は a4ed3bc2 のまま）、テスト 850件 OK、作業ツリーは空を確かめて `git push origin work/1011-snm:cloudflare`（a4ed3bc2..61a60278、fast-forward）。CHAT-1011-SNM-01 のログも一緒に入った
+- コメント: #514 https://github.com/retroeater/mj/issues/514#issuecomment-6117443064 ／ #327 https://github.com/retroeater/mj/issues/327#issuecomment-6117443499 （どちらも閉じていない）
+- マージ後の自動再生成: regenerate-page.yml run 38201636779（push、61a60278）は success。cloudflare に再生成のコミットは足されていない（生成物は変わらなかった）。見込みどおり
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1011-snm
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1012-SNM-02.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1011-snm
+- 確認用URL: なし
+- マージ: 済（61a60278）
+- issue: #514, #327
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
+
+### 平野さんが消す列（2026-10-12、マージの直前に gviz で読んだ英字）
+
+| ブック・タブ | 列 | 見出し |
+|---|---|---|
+| 正本「プロ」 | D | X ID（セルの中は「X⏎ID」） |
+| 正本「プロ」 | E | X 画像（「X⏎画像」） |
+| 正本「プロ」 | F | note ID（「note⏎ID」） |
+| 正本「プロ」 | G | note 画像（「note⏎画像」） |
+| 正本「プロ」 | H | YouTube ID（「YouTube⏎ID」） |
+| 正本「プロ」 | I | YouTube 画像（「YouTube⏎画像」。#327 の旧N列） |
+| /live 用「連盟プロ以外」 | E | X ID |
+| /live 用「連盟プロ以外」 | F | X画像URL |
+
+列を1本消すと右の列の英字が詰まるので、右から（「プロ」は I→D、「連盟プロ以外」は F→E）消すか、見出しで確かめながら消す。消した後の確かめは CHAT-1012-SNM-03 の予定。
+`check-saikyo-unregistered.yml` の案内の文（「名前・所属団体・所属補足・X ID・X画像URL」）はワークフローなので変えていない。消した後は X を SNS ブックの【2】に入れる案内に直すのがよい（別の指示）。
+
 <!-- guide-links -->
 ---
 
