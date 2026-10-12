@@ -82,28 +82,43 @@ CHAT-1012-ABM-13 で作った ABEMA ブックの【2】（毎朝の作り直し�
 - 2026年度の18卓: 2026年度のページのうち自分の卓の動画を持つ24ページ（卓のページ18・対局のページ6）で、ヒーローと「ABEMA で見る」の部分が origin/cloudflare（今の本番）とすべて同じ（違い 0）
 - 内部リンク 878ページ・実在しないもの 0、id の重複 0、noindex・canonical は全ページ、`#` の対応表も問題なし
 
+### 手順2: マージと本番
+
+- 再 fetch で `origin/cloudflare` は祖先。`git push origin work/1012-abm-map:cloudflare`（d627615c..a0fe4f25、14:55 UTC）
+- マージ後の GitHub Actions の check-run（a0fe4f25）: 「regenerate」×2・「check」×2・「sync」success。マージの後の自動の再生成はコミットを作らなかった
+- **Workers Builds は確かめられなかった**: a0fe4f25 の check suite「Cloudflare Workers and Pages」は queued のまま check-run が作られず、15:17 UTC（push から22分）で待つのを打ち切った。1つ前の d627615c（CHAT-1012-ABM-14 のログの追いの push）の suite も queued のまま。その前の ff90f7ad（ABM-14 のマージ）は success だった。Cloudflare 側の待ちとみられ、今回の変更による失敗ではない（ビルドが始まっていない）
+- 本番（`curl`、15:06・15:17 UTC）: `/saikyo/2016/20160521-s1-a.html`・`/saikyo/2023/20230326-s1-a.html`・`/saikyo/2026/20260920-s1-a.html` とも 200・noindex ありだが、中身は前の版（ABM-14 の版。2016・2023 のヒーローに ABEMA の回のリンクが無い）。2026 は前の版のまま `68-38_s26_p16` のリンクとサムネイルがある（M 列から生成したもの）
+- cloudflare で `regenerate-saikyo.yml` を手動実行（入力 abema=check・regenerate=false、run 38267725058、a0fe4f25、success）: 「編集者か: はい(HTTP 200)」、【1】670行、【2】の見出し13列・710行、【3】の見出し10列・0行
+
+### 手順3: 決定と #425
+
+- docs/decisions/saikyo.md に「2026-10-12（CHAT-1012-ABM-15）」の節を足した
+- #425 にコメント（閉じない。本番の確かめが済んでいないので M 列はまだ空にしないことを書いた）: https://github.com/retroeater/mj/issues/425#issuecomment-6127160350
+- このログと決定は、マージの結果を書く docs のみの追いの push で cloudflare へ入れた
+
 ## 報告
 
-- 状態:
-- ブランチ:
-- ログ:
-- 比較URL:
-- 確認用URL:
-- マージ:
-- issue:
+- 状態: 完了（本番反映は未確認）
+- ブランチ: work/1012-abm-map
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1012-ABM-15.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1012-abm-map
+- 確認用URL: なし（本番を `curl` で読んだが、まだ前の版）
+- マージ: 済（a0fe4f25）
+- issue: #425（コメント）
 - 判断が必要なこと:
-- 未確認の項目:
-- エラー:
+  - 平野さんへの知らせ: **「最強戦」シートの M 列はまだ空にしないでください。** Workers Builds が d627615c 以降 queued のままで、本番で 2026年度の18卓が【2】から出ていることを確かめられていない（今の本番は前の版で、M 列から生成したもの）。Cloudflare のダッシュボードで Workers Builds の状態（d627615c・a0fe4f25 のビルドが待ちのままか）を見てください。本番が a0fe4f25 以降の版になったら、`/saikyo/2016/20160521-s1-a.html` に ABEMA の回（`68-38_s16_p16`）のリンクがあることを確かめてから M 列を空にしてよい
+- 未確認の項目: Workers Builds のビルドと本番反映（15:17 UTC で待つのを打ち切った。経過「手順2」）。本番の3ページの ABEMA のリンクとサムネイル（2016・2023 は前の版のため無い）。ABEMA の画像が実際に表示されるか
+- エラー: なし（Workers Builds は失敗ではなく queued のまま）
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj a0fe4f25）: https://github.com/retroeater/mj-logs/tree/main/guide/a0fe4f25
+ガイド文書（この版を写した時点の最新、mj 4947b069）: https://github.com/retroeater/mj-logs/tree/main/guide/4947b069
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a0fe4f25/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a0fe4f25/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a0fe4f25/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a0fe4f25/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a0fe4f25/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a0fe4f25/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/283713b9.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/4947b069/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/4947b069/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/4947b069/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/4947b069/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/4947b069/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/4947b069/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/4947b069.md
