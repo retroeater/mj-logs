@@ -54,6 +54,56 @@
 
 ## 経過
 
+### 0. 着手前の確認
+
+- Chat-Ref の重複: `git log --all --grep="CHAT-1012-RGN-14"` は0件
+- 作業ブランチ: ローカル・リモートの work/1012-rgn とも `origin/cloudflare` の祖先（RGN-13 でマージ済み）→ `git merge --ff-only origin/cloudflare`（a0740b4d → fa4ef82f）
+- 指示欄の末尾は指示文の最後の行と一致。冒頭の雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- #551 は Open。コメントはこのセッションのものだけ。着手中コメント: https://github.com/retroeater/mj/issues/551#issuecomment-6118844749
+
+### 1. 確かめる → saikyo_pages を外した
+
+- 前提の作りと行番号は実物のとおり（live_pages の Warnings 224〜249行、`load_videos()` の重なりの検査、`live_layer3.fetch_uploads()` の `to_jst()`・`duration_seconds()`、`resolve_hero_thumbs(save=...)`、`update_redirects()` の上限の検査は書き出しの直前）
+- 未マージの work/ ブランチ（この作業ブランチを除く）で、`generate_live_pages.py`・`generate_saikyo_pages.py`・`lib/live.py`・`lib/live_layer3.py`・`lib/sns.py`・`lib/names.py`・`lib/check.py`・live と saikyo の試験・docs/notes/static-generation.md を変えているもの:
+  - **`origin/work/1012-abm-ui`（CHAT-1012-ABM-12）**: `generate_saikyo_pages.py` の `main()`・`write_sub_page()`・`write_sub_pages()`・`build_table_page_body()`・`build_related_card()` など、`scripts/tests/test_saikyo_pages.py`
+  - **`origin/work/1012-abm-map`（CHAT-1012-ABM-13、判断待ち）**: `generate_saikyo_pages.py` の `load_videos()`（警告の 530・544・556行がある関数）と import、`scripts/tests/test_saikyo_pages.py`、docs/notes/static-generation.md
+  - saikyo_pages の `--check` は、`main()` の書き出しの分け方（1052行の sitemap の検査を書く前に回す）と、`load_videos()` などの警告を `Check.warn()` に出す直しが要り、上の2本と同じ関数を変える。指示文の止まる条件（片方なら外して進めてよい）により **saikyo_pages を外し、live_pages だけを進めた**
+  - live_pages の関係のファイルを変えている未マージのブランチは無い
+
+### 2. 作る（live_pages）
+
+生成の振る舞いは変えない形（RGN-11・13 と同じ）。
+
+- `scripts/lib/live_layer3.py`: `fetch_uploads()` に `stop` を足した。【2】の日時・長さの形が想定外なら、生成では今と同じ例外（同じ文言）で止まり、`--check` では「「【2】自動変換後」の <動画ID>: …」を止まる理由にしてその行を飛ばす（title_pages も使う。生成物は変わらない）
+- `scripts/generate_live_pages.py`:
+  - `load_videos()` に `stop` を足した（同じ動画IDのまとめ単位の重なりは、生成では今と同じ ValueError、`--check` では止まる理由）
+  - `Warnings.messages()`: 警告の文（公開しなかった行は1つの警告にし、行の一覧を字下げした続きの行に。`report()` と同じ中身）
+  - `update_redirects()` を `redirects_content()`（中身と行数。上限の検査を含む。書かない）と書く部分に分けた
+  - `main()` を `load()`（読み込み）と `page_outputs()`（書くページを書く順に、中身を作る関数と転送用の動画IDの表にしたもの。ヒーローの画像の確かめを含み、`save_thumbs` で記録を書くかを選ぶ）に分け、`main()` はその表のとおり書く（書く順・古いページの削除・`_redirects` の更新は今と同じ）。`title/search.json` の読み込み（`load_title_links()`）は個別ページを書く前に移った（読むだけで、live_pages はこのファイルを書かない）
+  - `run_check()`: 読み込み → 画像（HEAD は回すが `data/live_thumbs.json` は書かない）→ 全ページを1枚ずつ `attempt()`（id の重なりの検査 `saikyo.check_duplicate_ids()` も生成と同じに回す）→ `_redirects` の中身（上限の検査。生成では書き出しの後）→ Warnings を警告に
+- `scripts/generate_ask_data.py`: RGN-13 で足した `live_warnings()` が `Warnings.messages()` と同じ組み立てを持っていたので、`messages()` を使う形にした（二重に書かない）。ask_data の警告の文は「/live で公開しなかった…」から「/live: 公開しなかった…」に変わる（data.json は変わらない）。`test_houou_check.py` の期待をそれに合わせた
+- 試験 `scripts/tests/test_live_check.py`（7件）: 【2】の形の不正が全部出る／生成の `fetch_uploads()` は今と同じ文言で止まる／まとめ単位の重なりは `--check` では止まる理由・生成では今と同じく止まる／警告だけなら 0、画像の記録を書かない指定で呼ぶ、`_redirects` の上限の検査が書かずに回り警告になる、公開しなかった行が警告になる／壊れたページは全部止まる理由／`resolve_hero_thumbs(save=False)` は書かない。どれもファイルの書き出し・削除・ディレクトリ作成が起きないことを確かめる
+- 直す前のコード（HEAD fa4ef82f を一時のディレクトリに `git archive` で出し、足した試験だけ置いた）で流すと、7件のうち5件が ERROR。残る2件（生成の `fetch_uploads()` が今と同じ文言で止まる、`save=False` は書かない〈引数は前からある〉）は振る舞いを変えないことの確かめで、直す前でも通る
+- `python3 -m unittest discover -s scripts/tests` は全件 OK
+
+### 3. 今のシートで確かめる
+
+`python3 scripts/regenerate.py --check live_pages`: 終了コード 0、20秒。`--check` で呼ばれ、908ページと `_redirects` を書かずに組み立てた。止まる理由は0件。警告は1件（公開しなかった「【3】手動補正」の行 830件。詳細 830行。RGN-10 の `--check all` と同じ）。ヒーローの画像は記録にある分で足り、HEAD は0本だった。コミットした後のきれいな作業ツリーで流し直し、終わった後の `git status` は空。
+
+| ページ | 結果 | 止まる理由 | 警告 |
+|---|---|---|---|
+| live_pages | 通る（`--check`） | 0 | 1 |
+| saikyo_pages | （外した） | — | — |
+
+`python3 scripts/regenerate.py live_pages`（変えた後）: 終了コード 0、`git status` は空。変える前のコード（HEAD fa4ef82f の全体を一時のディレクトリに出したもの）で流した結果（終了コード 0）と、`live/`・`_redirects`・`data/live_pages.json`・`data/live_thumbs.json` は差0件。生成の出力（進捗の行）も、regenerate.py が足す表を除いて同じ。
+`fetch_uploads()`・`Warnings` を使う title_pages・ask_data も、変えた後のコードで生成して `git status` が空（差0件）であることを確かめた。
+
+docs/notes/static-generation.md の `regenerate.py --check` の項に live_pages を足した。
+
+マージの前に `origin/cloudflare` を取り込んだ（衝突なし）。その中に work/1012-whs-links（CHAT-1012-WHS-17・18、#553）のマージが入っていた（RGN-12 で title 系を止めた原因のブランチ）。取り込んだ後も全件の試験は OK で、`regenerate.py --check video_wayhome wayhome_episodes live_pages` は3本とも通り（警告は帰り道1件・live 1件）、`git status` は空。
+
+`docs/decisions/automation.md`: この指示の「決定」（作り・順番・title 系は WHS-17 の後）は RGN-10・RGN-12・RGN-13 の項に同じものがあるため足していない。
+
 ## 報告
 
 - 状態: 作業中
@@ -70,12 +120,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj fa4ef82f）: https://github.com/retroeater/mj-logs/tree/main/guide/fa4ef82f
+ガイド文書（この版を写した時点の最新、mj 90c58c63）: https://github.com/retroeater/mj-logs/tree/main/guide/90c58c63
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/fa4ef82f/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/fa4ef82f/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/fa4ef82f/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/fa4ef82f/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/fa4ef82f/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/fa4ef82f/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/90c58c63/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/90c58c63/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/90c58c63/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/90c58c63/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/90c58c63/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/90c58c63/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/950bd402.md

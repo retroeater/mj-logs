@@ -90,7 +90,7 @@
 ## 外部ドメイン（CSP・#9）
 
 - 書影の画像: **`thumbnail.image.rakuten.co.jp`**（122冊すべて。ほかのホストは出ていない）
-- 著者の写真: **`pbs.twimg.com`**（「プロ」「連盟プロ以外」の X画像。#9 の実測表に既にある）
+- 著者の写真: **`pbs.twimg.com`**（SNS ブックの X画像URL〈「プロ」「連盟プロ以外」の選手、#514〉。#9 の実測表に既にある）
 - 商品ページのリンク先: `books.rakuten.co.jp`（画像ではないので `img-src` には要らない）
 - APIの `openapi.rakuten.co.jp` は生成時にしか呼ばないので `connect-src` には要らない
 - **2026-09-21 時点で `_headers` に CSP はまだ無い**（#9 は未着手）。
