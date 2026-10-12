@@ -54,15 +54,67 @@
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 着手前の確認（2026-10-12）
+
+- 0.: 「指示」欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある
+- CHAT-1012-SNM-02 の `## 報告`（cloudflare）: 状態「完了」、マージ「済（61a60278）」
+- 同じ Chat-Ref のコミットは 0。`work/1012-snm` はローカル・リモートとも無かったので `git checkout -b work/1012-snm origin/cloudflare`（950bd402）
+- 未マージのブランチ（work/1009-swp-526・work/1011-swp-hnd・work/1011-swp-nav・work/1012-whs-links）は `check-saikyo-unregistered.yml`・直す文書・decisions をどれも変えていない
+
+### 手順1: シートの確かめ（生成と同じ経路〈`lib/sheets.fetch_table`〉で2回読み、2回とも同じ）
+
+| ブック・タブ | 行数 | 見出し（並び順のまま） |
+|---|---|---|
+| 正本「プロ」 | 1,099（在籍〈表示 = Y〉1,099） | A 登録名⏎0.74・B ソートキー・C 出身地・D 鳳凰⏎Ampai・E 桜花⏎Ampai・F 最終更新・G 表示 |
+| /live 用「連盟プロ以外」 | 739 | A 名前・B 名前かな・C 所属団体・D 所属補足 |
+
+- 旧列8列の見出しは残っていない。見出しは指示文の前提（スクリーンショット）と同じで、ほかの列は無い。重複 0
+- xlsx エクスポート（CHAT-1011-RDN-10 と同じ方法。正本 200・3,037,440 バイト、/live 用 200・261,851 バイト。openpyxl、`data_only=False` と `True`）: `#REF!` は正本（数式 49,788、うち配列数式 18,204）・/live 用（数式 52）とも、数式の中 0・値 0
+
+### 手順2: 動作と生成物（origin/cloudflare 950bd402 のクローンで、差し替えなしの今のシート）
+
+全ページを `python3 scripts/regenerate.py <ページ>` で1ページずつ生成: books_pages は「「書籍」シートの行数が想定外です(95行)」で止まる（SNM-01・SNM-02 と同じ）。ほかの22ページは通り、生成の後の `git status` は空（cloudflare にコミットされている生成物と差 0）。
+
+| スクリプト（動かし方） | 結果 |
+|---|---|
+| `update_sns_book.py --dry-run`（SNM-01 の包み。X API は 0 件、書き込まない） | 通る。【2】1,864行（一覧に無い 26）・変わらない、X状態 解決 1,052・未入力 799・リンク切れ・未取得(トークンなし) 12・アカウントなし(確認済み) 1、ページが使う値が変わった人 0（SNM-02 の確かめと同じ数） |
+| `update_sns_book.py --check`（同じ包み） | 通る。【1】1,838行・【2】1,864行（入力のある名前 1,069）、元の一覧 プロ 1,099・連盟プロ以外 739・計 1,838 |
+| `check_meibo.py --json`（書き込みなし） | 通る。名簿にだけいる人 0・「プロ」にだけいる人 0 |
+| `collect_saikyo_images.py`（写真の検知） | 通る。315 URL、取得できない 0 |
+| `check_saikyo_unregistered.py` | 通る。出場者 440名、引けない人 0・対局日が空 0 |
+| `check_unused_names.py --no-issue` | 通る。使われていない登録 0（検査できなかった、にならない） |
+| `sync_birthday_calendar.py`（`--compare` なし） | 通る。名簿 1,099・在籍 1,099・載せる人 1,072 |
+| `check_wayhome.py` | 通る |
+| 関数: `fetch_youtube_channels.collect_channel_ids()`・`sync_dojo_calendar._fetch_roster()`・`generate_books_pages.load_name_book()`・`generate_live_pages.load_name_book()` | 通る |
+
+鍵の要るもの（YouTube API・カレンダー・Sheets API の書き込み）は、マージ後の手動実行で確かめる。
+
+### 手順3: 案内文の直し
+
+`.github/workflows/check-saikyo-unregistered.yml`「結果をissueに反映」の「登録が無い」の節の文:
+- 直す前: 「「${r.sheet}」タブに行を足してください（名前・所属団体・所属補足・X ID・X画像URL）。」
+- 直した後: 「「${r.sheet}」タブに行を足してください（名前・所属団体・所属補足）。X の ID は SNS ブックの【2】ID に入れてください（写真の URL は毎日の更新が【3】に取ります。docs/notes/sns-book.md）。」
+
+同じ趣旨の文: `docs/notes/saikyo-page-design.md`「8.」の「登録が無い」に同じ案内を足した。スクリプト（`check_saikyo_unregistered.py`）には同じ文は無い。
+文書: `docs/notes/sns-book.md` 冒頭の「旧列は列ごと消す（…CHAT-1012-SNM-03 で確かめる予定）」→「旧列は 2026-10-12 に列ごと消した（…消した後の見出し…）」。static-generation.md・title-pages.md・live-page-design.md は「2026-10-12 に廃止」の書き方なので直さなかった。
+決定: `docs/decisions/pros.md`・`docs/decisions/saikyo.md` に 2026-10-12（CHAT-1012-SNM-03）の節（8f806563）。
+
+**作業ブランチでの手動実行**: `check-saikyo-unregistered.yml` を ref `work/1012-snm`（8f806563）・`dry_run: false` で起動した。
+書き込みの道筋（「結果をissueに反映」）は dry_run のときは飛ばされるため、変えた行を通すには false が要る。起動の前に、open の「最強戦の出場者の登録漏れ」の issue が無いこと（REST の open の一覧に 0）と、手元の検査で引けない人・対局日が空が 0 であることを確かめ、
+この状態では issue を作らず閉じもしない（`登録漏れなし` で返る）ことをコードで確かめてから起動した（本番の issue に書かない）。スイッチ（`SCHEDULE_ENABLED`）を変えるコミットは要らなかった。
+- run 38207464466: success。全ステップ success、ログの `DRY_RUN: false`、変えた文を含むスクリプトが読まれ「登録漏れなし」で終わった（issue の作成・更新・クローズ 0）
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 9e9115a2）: https://github.com/retroeater/mj-logs/tree/main/guide/9e9115a2
+ガイド文書（この版を写した時点の最新、mj 387505ef）: https://github.com/retroeater/mj-logs/tree/main/guide/387505ef
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9e9115a2/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9e9115a2/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9e9115a2/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9e9115a2/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9e9115a2/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9e9115a2/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/28649cd5.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/387505ef/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/387505ef/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/387505ef/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/387505ef/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/387505ef/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/387505ef/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/950bd402.md
