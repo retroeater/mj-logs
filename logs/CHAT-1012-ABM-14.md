@@ -78,28 +78,40 @@ CHAT-1012-ABM-12 で直した卓のページ（固定バーと「すべての卓
   - 今の公開中のファイル（`saikyo/index.html`・`saikyo/<年度>.html`・`sitemap-saikyo.xml`）・対局のページ・年度ページ・live/: 0
   - 文書とコード: `scripts/generate_saikyo_pages.py`・`scripts/tests/test_saikyo_pages.py`・`docs/notes/saikyo-page-design.md`・`docs/decisions/saikyo.md`・ログ2つ（ABM-12・ABM-14）
 
+### 手順2: マージと本番
+
+- 再 fetch で `origin/cloudflare` は祖先。`git push origin work/1012-abm-ui:cloudflare`（a13dbb67..ff90f7ad）
+- マージ後の check-run（ff90f7ad）: 「Workers Builds: mj」「sync」「check」×2「regenerate」すべて success。マージの後の自動の再生成はコミットを作らなかった
+- 本番（`curl`）: `/saikyo/2026/20260920-s1-a.html` が 200、コミットした生成物とバイト一致。`mj-saikyo-table-page` あり、固定バー（`mj-filterbar`・`saikyo_year_select`）0、「のすべての卓」0、カード15枚すべて4行（`mj-saikyo-card-event` 15）、「<選手名>の他の対局（N件）」の節 4、noindex 1
+
+### 手順3: 決定と #425
+
+- docs/decisions/saikyo.md に「2026-10-12（CHAT-1012-ABM-14）」の節を足した。ABM-12 の節には未対局の卓の扱いに当たる記述が無かったので、置き換えた行は無い（設計メモの「日付のある未対局の卓は入る」はこの決定のとおり）
+- #425 にコメント（閉じない）: https://github.com/retroeater/mj/issues/425#issuecomment-6126543894
+- このログと決定は、マージの結果を書く docs のみの追いの push で cloudflare へ入れた
+
 ## 報告
 
-- 状態:
-- ブランチ:
-- ログ:
-- 比較URL:
-- 確認用URL:
-- マージ:
-- issue:
-- 判断が必要なこと:
-- 未確認の項目:
-- エラー:
+- 状態: 完了
+- ブランチ: work/1012-abm-ui
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1012-ABM-14.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1012-abm-ui
+- 確認用URL: なし（本番の卓のページを `curl` で確かめた）
+- マージ: 済（ff90f7ad）
+- issue: #425（コメント）
+- 判断が必要なこと: なし
+- 未確認の項目: ブラウザでの本番の見え方（`curl` で HTML を確かめただけ）
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj ff90f7ad）: https://github.com/retroeater/mj-logs/tree/main/guide/ff90f7ad
+ガイド文書（この版を写した時点の最新、mj d627615c）: https://github.com/retroeater/mj-logs/tree/main/guide/d627615c
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ff90f7ad/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ff90f7ad/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ff90f7ad/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ff90f7ad/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ff90f7ad/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/ff90f7ad/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d627615c/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d627615c/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d627615c/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d627615c/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d627615c/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d627615c/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/283713b9.md

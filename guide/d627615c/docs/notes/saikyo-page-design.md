@@ -227,10 +227,14 @@ A を埋めると `2015-n3-...` 形式から日付形式へ変わり、未登録
   **勝ち上がり者がいない（未対局の）対局は、見出しの下に代替アバター1枚だけ**（`UNPLAYED_CARD_HTML`。「未対局」の文字は出さない）。
   選手名の絞り込み・対局ごとの共有ボタンは無い（全員の検索はトップ）。固定バーは年度プルダウンだけ（`build_sub_filterbar()`）
 - **対局のページ**: 今の `?match=` の表示と同じく、ステージ順に全卓・各卓4人。卓の見出しの帯から卓のページへ。動画のリンクも卓ごとに添える
-- **卓のページ**（CHAT-1012-ABM-09 で /live の個別ページと同じ作りに試作、未マージ）: `build_table_page_body()` が本文の `<main class="mj-video-page mj-live mj-saikyo-sub mj-saikyo-table-page">` を自分で持ち（/live と同じ濃色。`<body>` に `mj-saikyo-page` を付けず、navbar と固定バーは /live と同じ sticky）、
+- **卓のページ**（/live の個別ページと同じ作り。CHAT-1012-ABM-09 で作り、ABM-12 で直した）: `build_table_page_body()` が本文の `<main class="mj-video-page mj-live mj-saikyo-sub mj-saikyo-table-page">` を自分で持ち（/live と同じ濃色。`<body>` に `mj-saikyo-page` を付けず、navbar は /live と同じ sticky）、
   ヒーロー（`build_table_hero()`、`.mj-video-hero`。ABEMA のサムネイル〈1280×720〉・パンくず `.mj-live-breadcrumb`・見出し「麻雀最強戦<年度> <対局名> <卓>」・対局日・「▶ 再生」・隅に「画像: ABEMA」。画像を押しても ABEMA へ行く〈透明なリンク `.mj-saikyo-hero-link`、読み上げ・Tab は「▶ 再生」だけ〉）
-  → 年度プルダウンの固定バー（/live のプルダウンの見た目 `.mj-live-title-select`）→「出場者」の4人（今の写真カード・順位・通過/敗退、`.mj-live-players`）
-  →「関連動画」（同じ対局のほかの卓の `.mj-video-card` を `.mj-video-track` に並べ、押すとその卓のページ。見出しの右に対局のページへのリンク `.mj-live-more`）。
+  →「出場者」の4人（今の写真カード・順位・通過/敗退、`.mj-live-players`）
+  →「関連動画」（同じ対局のほかの卓の `.mj-video-card` を `.mj-video-track` に並べ、押すとその卓のページ）
+  → 各選手の他の対局（/live の「〇〇の他の対局」と同じ。出場者の順に「<選手名>の他の対局（N件）」と右に「すべて見る」〈トップの `../?q=<選手名>`〉、最新4枚〈対局日の降順、同じ日はアンカーの降順〉。今の卓を除き、0件の選手は出さない。
+  全年度の卓を現在名で引く `index_tables_by_player()` を `main()` で作って渡す。対局日の無い対局は入らず、日付のある未対局の卓は入る）。
+  固定バー（年度プルダウン）は置かない（パンくずがあるため）。スクロール位置は navbar の高さだけ空ける（`html:has(.mj-saikyo-table-page)`、`--mj-nav-h` は `assets/saikyo.js` の `watchHeight()`）。
+  カードの文字は4行（`build_related_card()`）: 対局日・「麻雀最強戦<年度>」・対局名・ステージと卓（決勝は「決勝」）。
   ABEMA の回の URL が無い卓（未対局・未入力）は、ヒーローとカードの画像を年度の OGP 画像（`year_ogp_path()`）にし、「▶ 再生」と出典を出さない（試作。扱いは未決）。
   ABEMA の画像が読めないときも同じ OGP 画像に差し替える（`data-fallback`、`assets/saikyo.js`）。未対局の卓は4人の写真だけ（結果のバッジ・順位なし、「未対局」の文字なし）
 - 共有ボタンは個別ページにも新しい年度ページにも付けない。canonical・og:url は自分自身（年度ページは `/saikyo/<年度>/`）。OGP 画像は年度の画像（`og_image_for()`）を使い回し、題名と説明はページごと（個別の画像は #546）。

@@ -16,3 +16,8 @@
   - Super Bot Fight Mode の標準設定（Moderate）: 見送り。#91 に再確認として記録する（クローズのまま）
   - AI Labyrinth（Low）: 見送り。#447 に却下として記録してクローズする
   - security.txt（Low）: 見送り。`docs/notes/cloudflare.md` の見送った技術に書く（issue は作らない）
+
+## 2026-10-12（CHAT-1012-BOT-03）
+
+- AI クローラーへの 403（AI Crawl Control、直近7日 1.42k）は、原因の調査を起票する（#554）。設定は変えない（BOT-02 で出た決定）
+- 月次チェック（#304）の取得の自動化を起票する（#555）。Cloudflare は、読み取り専用で、デプロイできない、`CLOUDFLARE_API_TOKEN` とは別名のトークンで API から取ってよい。Search Console は、API で取れるもの（#458）は API で、取れない部分（「ページ」の件数・クロールの統計情報など）は Claude in Chrome で読む（BOT-02 で出た決定）
