@@ -55,6 +55,48 @@
 
 ## 経過
 
+### 0. 着手前の確認
+
+- Chat-Ref の重複: `git log --all --grep="CHAT-1012-RGN-11"` は0件
+- 作業ブランチ: ローカル・リモートの work/1012-rgn とも `origin/cloudflare` の祖先（RGN-10 でマージ済み）→ `git merge --ff-only origin/cloudflare`（a4ed3bc2 → f2012f9a）
+- 指示欄の末尾は指示文の最後の行と一致。冒頭の雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- #551 は Open。コメントはこのセッションの RGN-09・RGN-10 のものだけ（どちらも完了のコメントあり）。着手中コメント: https://github.com/retroeater/mj/issues/551#issuecomment-6118024037
+
+### 1. 確かめる
+
+- 前提の作り（RGN-09 の表・RGN-10 の `lib/check.py` と `regenerate.py --check`）は実物のとおり。行番号もずれていなかった（`lib/wayhome.py` 118・169・177・190・263・403行、`generate_video_wayhome.py` 149行、`generate_wayhome_episodes.py` 241・266・269行、`load_episodes()` の `youtube_meta.json` の読み 112行は捕まえない）
+- 実物で分かったこと: video_wayhome が写真を確かめるのは最新話の選手1名だけ（ヒーローに出す写真）、wayhome_episodes は全員。`index_player_links()` の「プロに居ない・同姓同名」は `warn()` が stderr に出す。wayhome_episodes の 266行（動画IDが取れない行）は、`load_episodes()` が先に止めるため生成では届かない
+- 未マージの work/ ブランチ: `git branch -r --no-merged origin/cloudflare` の各ブランチで `scripts/lib/wayhome.py`・`scripts/generate_video_wayhome.py`・`scripts/generate_wayhome_episodes.py`・`scripts/tests/test_wayhome*`・`docs/notes/static-generation.md`・`docs/notes/video-wayhome.md`・`scripts/lib/check.py`・`scripts/regenerate.py` を変えているものは無い（work/1012-whs も無し）。マージ直前に見直したときも、この作業ブランチ自身だけ
+
+### 2. 作る（9bcd52cf・0ba8ac0e）
+
+決めたこと: **生成の振る舞いは変えない**（今と同じく最初の理由で止まり、文言も同じ）。生成と `--check` が同じ関数を通るように、純粋な部分を切り出した。
+
+- `scripts/lib/wayhome.py`:
+  - `collect_episodes()`（新）: 全行を見て `(回, 動画IDを取り出せない視聴URL, JSON に無い回)` を返す。`load_episodes()` はこれを使い、取り出せない行があれば最初の1行を今と同じ文言で止め、JSON に無い回は今と同じ `::warning::` を出す
+  - `photo_problems()`（新）: 写真の確かめの理由のリスト（止めない）。`check_player_photos()` はこれを使い、今と同じ文言で止める
+  - `index_player_links()` に `warn` の引数（既定は今の `warn()`）。`--check` では警告を `Check` に集める
+  - `check_inputs()`（新）: 2ページの `--check` の前段。シートの読み（見出し・タブ・フィルタの ValueError は止まる理由）→ `youtube_meta.json`（無い・壊れているときも止まる理由）→ 動画IDを取り出せない行を全部止まる理由に → JSON に無い回は警告 → 「プロ」と SNS ブック → 選手の警告 → 写真の確かめ（HEAD は生成と同じに回す）の失敗を全部止まる理由に
+- `scripts/lib/check.py`: `Check.attempt()` を足した（関数を呼び、例外を「ラベル: 例外名: 文言」の止まる理由にして続ける）
+- `scripts/generate_video_wayhome.py`: `main()` の組み立て部分を `build_page()` に、写真を確かめる選手の選び方を `hero_interviewees()` に切り出した。`run_check()`: `check_inputs()`（写真は最新話の選手だけ）→ 回が0件なら止まる理由（生成は `sorted_rows[0]` で止まる）→ カードを1枚ずつ `attempt()` → カードが全部通ったらページ全体を `attempt()`
+- `scripts/generate_wayhome_episodes.py`: 動画IDの検査を `video_id_problems()` に、各回の組み立てを `build_episode()` に、サイトマップの中身（XML の検査を含む）を `build_sitemap()` に切り出した（`write_sitemap()` は書くだけ）。`run_check()`: `check_inputs()`（写真は全員）→ 動画IDの問題 → 各回を `attempt()` → サイトマップを `attempt()`。ディレクトリも作らない
+- 生成の順は変えていない（video_wayhome はヒーローのサムネイル → 写真の確かめ → 組み立て、wayhome_episodes は動画IDの検査 → mkdir → 各回の書き出し → 古いページの削除 → サイトマップ）
+
+試験 `scripts/tests/test_wayhome_check.py`（8件。シート・SNS ブック・HEAD は差し替え、`Path.write_text`・`unlink`・`mkdir` が呼ばれないことを毎回確かめる）:
+
+- 通るとき 2ページとも終了コード 0・書かない／動画IDとして読めない行が2つあれば2つとも止まる理由（2ページとも）／JSON に無い回は警告だけで 0（2ページとも）／読めない写真を全部（個別ページ）／一覧ページは最新話の選手の写真だけ確かめる／「プロ」に居ない選手は警告で 0／サムネイルの欠けを回ごとに全部／生成の `load_episodes()` は最初の1行で今と同じ文言で止まる
+- 直す前のコード（HEAD f2012f9a を一時のディレクトリに `git archive` で出し、足した試験だけ置いた）で流すと、`--check` の7件は ERROR（`run_check` が無い）。最後の1件（生成の止まり方が変わらないこと）は直す前でも通る。これは振る舞いを変えないことの確かめで、意図どおり
+- `python3 -m unittest discover -s scripts/tests` は全件 OK
+
+### 3. 今のシートで確かめる
+
+- `python3 scripts/regenerate.py --check video_wayhome wayhome_episodes`: 終了コード 0、19秒。2ページとも `--check` で呼ばれ「検査: 通りました(42回。ファイルは書いていません)」。警告は wayhome_episodes の1件（jpml_prosに該当する選手がいないため、Xの写真を出しません: タマシュ・エルドス）。`--check` がファイルを書いたという止まる理由は出ていない。コミットした後のきれいな作業ツリーで流し直し、終わった後の `git status` は空
+- `python3 scripts/regenerate.py video_wayhome wayhome_episodes`（変えた後）: 終了コード 0、`git status` は空（生成物はコミット済みのものと同じ）
+- 変える前のコード（HEAD f2012f9a を一時のディレクトリに `git archive` で出した全体）で `generate_video_wayhome.py`・`generate_wayhome_episodes.py` を流した: 終了コードは 0・0。`video_wayhome.html`・`wayhome/`・`sitemap-wayhome.xml` は、変えた後の生成物と差0件
+
+文書: docs/notes/static-generation.md の `regenerate.py --check` の項に `--check` を持つページ（辞書・帰り道の2本）を、docs/notes/video-wayhome.md「新しい回を追加する手順」の手元で動かすときの項の次に `--check` の使い方を1行足した。
+（同じファイルの「写真は代わりの画像に逃がさず」の項の「帰り道が止まると `regenerate.py all` のほかのページも止まる、#533」は #533 の作りで今は当てはまらないが、この指示の範囲外なので触っていない）
+
 ## 報告
 
 - 状態: 作業中
@@ -71,12 +113,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 61a60278）: https://github.com/retroeater/mj-logs/tree/main/guide/61a60278
+ガイド文書（この版を写した時点の最新、mj 9e9115a2）: https://github.com/retroeater/mj-logs/tree/main/guide/9e9115a2
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/61a60278/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/61a60278/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/61a60278/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/61a60278/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/61a60278/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/61a60278/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9e9115a2/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9e9115a2/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9e9115a2/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9e9115a2/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9e9115a2/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9e9115a2/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/28649cd5.md
