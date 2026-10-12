@@ -62,15 +62,47 @@ Cloudflare から「Unexpected increase in bot traffic for ryoei.pro」のメー
 
 ## 経過
 
+### 着手前の確認（2026-10-12）
+
+- 識別子 `BOT`: 全ブランチのコミット・`docs/logs/` の履歴に無し（`git fetch --unshallow` 後に確認）。同じ Chat-Ref のコミットも無し
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- `work/1012-bot` はローカル・リモートとも無し → `git checkout -b work/1012-bot origin/cloudflare`（着手時HEAD 915bafa2）
+- 0. ログの「指示」欄の末尾は指示文の最後の行（「不明な点があれば、…この行が指示文の最後の行です。」）と一致
+- #447: Open（ラベル 状況: 保留）。#91: Closed（not_planned）。着手中コメントは #447 の CHAT-0928-CW-08（2026-09-28、同日に判断材料を報告して完了済み）のみで、今動いている他セッションのものは無し
+
+### 1. 確かめたこと
+
+- #447 本文・コメント: 保留の理由は「得が小さい」「注入の対象（検証済みボットを除くか）が公式に無い」「クラウドの Claude Code・Actions の HTML が乱れるおそれ」「#449 の切り分けの邪魔」。最後の1つは CW-19（2026-09-28）で解消済み。指示文の見立てと食い違いなし。本文冒頭に「再検討: #124 のクローズの判断（2026-10-09）の後、2026-11 の #304 の月次の回」
+- #91 コメント（2026-09-09）: 却下。再検討の条件は Business への移行・スクレイピングの実害
+- #304: 本文・コメント11件に #447 の再検討の予定は書かれていない（予定は #447 の本文側にだけある）→ #304 は変えず、#447 のクローズのコメントにその旨を書いた
+- 同じ論点の issue の検索（クローズ済み含む、MCP の search_issues）: security.txt は0件。Super Bot Fight Mode / ボットは #124（closed）のみ、AI Labyrinth は #447 のみ。広めの語では #550（アクセス解析の導入、open）が出たが別の論点。止まる条件に当たらない
+- `docs/notes/cloudflare.md`: 「AIクローラーの扱い」の AI Labyrinth の行、「検討して見送った技術(2026-09-09〜10)」の Super Bot Fight Mode の行。security.txt の記述は無し。決定と矛盾する記述は無し
+- 未マージの `work/` ブランチで `docs/notes/cloudflare.md`・`docs/decisions/cloudflare.md` を変えているものは無し（`git branch -r --no-merged origin/cloudflare` の各ブランチと `git diff --stat origin/cloudflare...<branch>`）
+
+### 2. 記録した（e4e77828）
+
+- `docs/notes/cloudflare.md`:
+  - 「AIクローラーの扱い」の AI Labyrinth の行を、使わない（2026-10-12、#447 クローズ）と理由に置き換えた。「ボット系の設定は1つずつ変える」は残した
+  - Super Bot Fight Mode の行に 2026-10-12 の再確認（メールの 82.0%/61.0%、スクショの Likely Human 57.63k / 96.72k、送信元上位は国内 ISP、#91 の条件に当たらない）を足した
+  - security.txt の行を「検討して見送った技術(2026-09-11)」の表（最後の表）に足した。表の見出しの日付と違うため、理由の欄の先頭に 2026-10-12 と書いた。理由は「連絡先の公開」「静的な個人サイトで報告の場面がほとんど無い」の2つにした（指示文の案の「公式向けの施策は行わない方針」は、根拠の文書を確かめていないため入れなかった）
+  - 容量: 54,878 → 55,933 バイト。このファイルは退避先で上限なし（`assets-check.yml` の上限は CLAUDE.md・handover.md・chat-side-operations.md・instruction-template.md の4つ）。参考: CLAUDE.md 22,153、handover.md 23,629、chat-side-operations.md 26,595（警告域 26,624 の手前）、instruction-template.md 14,013（警告域 14,336 の手前）。いずれもこの作業では変えていない
+  - `scripts/check_asset_limits.py` は OK
+- `docs/decisions/cloudflare.md` に 2026-10-12 の決定を足した。`docs/decisions/README.md` の分野の一覧の cloudflare.md の説明に「ボット系の設定・Security の提案」を足した
+
+### 3. issue
+
+- #447: 決定と理由をコメント（https://github.com/retroeater/mj/issues/447#issuecomment-6116660736 ）し、not_planned でクローズ。「状況: 保留」を外したことをラベルの取得で確認
+- #91: 2026-10-12 の再確認をコメント（https://github.com/retroeater/mj/issues/91#issuecomment-6116662593 ）。クローズのまま。数値は平野さんのスクショによる値と明記
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1012-bot
-- ログ: https://github.com/retroeater/mj/blob/work/1012-bot/docs/logs/CHAT-1012-BOT-01.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1012-BOT-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1012-bot
 - 確認用URL: なし
-- マージ: 未
-- issue: #447, #91, #304
+- マージ: 済（fast-forward。SHA は直後の docs/logs のみの push で記入）
+- issue: #447（クローズ）, #91（コメント）, #304（変更なし）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
@@ -78,12 +110,12 @@ Cloudflare から「Unexpected increase in bot traffic for ryoei.pro」のメー
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 915bafa2）: https://github.com/retroeater/mj-logs/tree/main/guide/915bafa2
+ガイド文書（この版を写した時点の最新、mj dba9c8ed）: https://github.com/retroeater/mj-logs/tree/main/guide/dba9c8ed
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/915bafa2/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/915bafa2/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/915bafa2/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/915bafa2/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/915bafa2/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/915bafa2/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/dba9c8ed/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/dba9c8ed/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/dba9c8ed/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/dba9c8ed/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/dba9c8ed/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/dba9c8ed/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/915bafa2.md
