@@ -106,6 +106,31 @@
 この状態では issue を作らず閉じもしない（`登録漏れなし` で返る）ことをコードで確かめてから起動した（本番の issue に書かない）。スイッチ（`SCHEDULE_ENABLED`）を変えるコミットは要らなかった。
 - run 38207464466: success。全ステップ success、ログの `DRY_RUN: false`、変えた文を含むスクリプトが読まれ「登録漏れなし」で終わった（issue の作成・更新・クローズ 0）
 
+### マージとマージ後の手動実行
+
+- `origin/cloudflare` が dcd9d5b3（CHAT-1012-ACF-01 の docs のみ）へ進んでいたので `git merge origin/cloudflare`（衝突なし）。テスト 850件 OK、push の直前に `git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめて `git push origin work/1012-snm:cloudflare`（dcd9d5b3..387505ef）
+- 手動実行の前に docs/notes/static-generation.md「ワークフローを手動実行するとき」を読んだ（cloudflare から起動。`scheduled` は付けない）
+- `regenerate-page.yml`（target_page = all、ref cloudflare）run 38207632060: success。cloudflare に再生成のコミットは足されていない（生成物の差 0）
+- `update-sns-book.yml`（mode = check、dry_run = true、ref cloudflare）run 38207634224: success。タブ4つ、編集者か: はい(HTTP 200)、【1】1,838行・【2】1,864行（入力のある名前 1,069）・【3】1,864行・【4】0行、元の一覧 プロ 1,099・連盟プロ以外 739・計 1,838、名前かなのある行 プロ 1,099・連盟プロ以外 227
+
+### issue
+
+- #327: 結果をコメント https://github.com/retroeater/mj/issues/327#issuecomment-6118302077 。本文の判断項目の行に「→ G・H 列は 2026-10-11 に削除済み（#536）。N列（「YouTube画像」）は 2026-10-12 に削除済み（#514、CHAT-1012-SNM-03）」を追記（REST の PATCH、書き換える前に本文が自分のコメント以外で変わっていないことを確かめた）し、completed で閉じた。「状況:」ラベルは元から付いていない
+- #514: 結果をコメント https://github.com/retroeater/mj/issues/514#issuecomment-6118305602 （閉じていない）
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1012-snm
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1012-SNM-03.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1012-snm
+- 確認用URL: なし
+- マージ: 済（387505ef）
+- issue: #514, #327（クローズ）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
