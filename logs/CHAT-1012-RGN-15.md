@@ -95,16 +95,22 @@ RGN-12 は、未マージの work/1012-whs-links（CHAT-1012-WHS-17、#553）と
 
 docs/notes/static-generation.md の `regenerate.py --check` の項に title 系の3本を足した。`docs/decisions/automation.md` には「saikyo_pages は ABM の2本の後」だけを足した（ほかの決定は RGN-10・12・13 の項に同じものがある）。
 
+### マージ・マージ後
+
+- `git fetch` のうえ `git merge-base --is-ancestor origin/cloudflare HEAD` が真 → `git push origin work/1012-rgn:cloudflare`（2d8992f5..88b372fe）
+- 88b372fe の check-run: Workers Builds: mj・check・regenerate とも success。push で動いた再生成（`scripts/lib/` の変更で全ページが対象）は生成物の差が無く、コミットは無い
+- #551 に経過と残りをコメントした
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1012-rgn
-- ログ: https://github.com/retroeater/mj/blob/work/1012-rgn/docs/logs/CHAT-1012-RGN-15.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1012-RGN-15.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1012-rgn
-- 確認用URL: なし
-- マージ: 未
-- issue: #551
-- 判断が必要なこと: なし
+- 確認用URL: なし（生成物は変わらない。表示を変える変更は無い）
+- マージ: 済（88b372fe。このログの仕上げは追いの push）
+- issue: #551（7本目〈title 系〉を実装。残り〈saikyo_pages は ABM の2本の後 → `page.generate()` の9ページ・ouka_leagues・resource_efficiency〉は #551 で追う）
+- 判断が必要なこと: なし（#551 に移した）
 - 未確認の項目: なし
 - エラー: なし
 
