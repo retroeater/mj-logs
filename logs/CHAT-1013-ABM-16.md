@@ -45,28 +45,64 @@ CHAT-1012-ABM-15 のマージで生成は「最強戦」シートの M 列を読
 
 ## 経過
 
+### 着手（2026-10-13）
+
+- 同じ Chat-Ref のコミットは0件。`work/1013-abm` はローカル・リモートとも無かったので `git checkout -b work/1013-abm origin/cloudflare`（ee1a3d87）
+- 0.: 「指示」欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は4つともある（1行目にまとめて書かれている）
+- #425 に着手中のコメント: https://github.com/retroeater/mj/issues/425#issuecomment-6127822152
+
+### 手順1: 確かめる
+
+- 「最強戦」シート（生成と同じ `fetch_table()`）: **12列**、見出し「対局日・年度・対局・ステージ・卓・順位・結果・名前・X・画像URL・表示・備考」（A〜L。今までと同じ）、2,744行
+- 「最強戦」シートを読むコード（`scripts/`。`.github/workflows/` は直接読まず、スクリプトを呼ぶだけ）:
+  - `scripts/generate_saikyo_pages.py` の `load_rows()`: `QUERY = 'SELECT A,B,C,D,E,F,G,H WHERE K = "Y"'`（A〜H と K だけ）
+  - `scripts/check_saikyo_unregistered.py` の `collect()`（44行）: 同じ `QUERY`。`collect_undated()`（67行）: `fetch_table()` で全体を読み、「表示」を見出しの名前で探す（列の位置・数を前提にしない）
+  - `scripts/check_unused_names.py`（70行）: 同じ `QUERY`
+  - `scripts/collect_saikyo_images.py`・`scripts/update_abema_book.py`・`generate_live_pages.py`・`generate_title_pages.py` は `generate_saikyo_pages` の `load_rows()` などを使う
+  - M 列・「動画URL」の見出し・列の数・13列目を前提にしたコードは無い（「動画URL」を読んでいた `videos_from_rows()` は CHAT-1012-ABM-13 で消した）。古いのはコメント1か所だけ: `scripts/generate_saikyo_pages.py` 177行 `Table.video` のコメント「動画のURL(M列)」（動きには関係ない。コードなので直していない）
+- テスト: `python3 -m unittest discover -s scripts/tests` 929件 OK
+- `python3 scripts/regenerate.py saikyo_pages`: 「動画URLのある卓: 603」「新しいページ(#425、未公開): 878件」、警告なし。作業ツリーの差分 0（origin/cloudflare と同じ。生成物はコミットしていない）
+- 検知と毎朝の作り直しを、同じ関数を手元で呼んで確かめた（書き込みなし）:
+  - 週1の登録漏れの検知（`check_saikyo_unregistered.collect()`・`collect_undated()`）: 落ちない。未登録 0・出場者 440、対局日の無い対局 0
+  - 毎朝の `regenerate-saikyo.yml` のジョブ `abema`（`update_abema_book.py` の `read_source()`・`load_matches()` と `abema_book.assign()`・`build_tables()`）: 落ちない。回が当たった卓 603・なし 67・【2】710行（CHAT-1012-ABM-13 と同じ）。再生成のジョブは上の `regenerate.py` と同じ
+
+### 手順2: 文書
+
+- docs/notes/saikyo-page-design.md: 列の表の M の行を消し、「動画URLの読み方」の「M 列は読まない」を「シートには動画の列が無い（M は 2026-10-13 に列ごと消した。A〜L の12列）」にした
+- ほかの docs/notes（abema-book.md など）・handover.md・CLAUDE.md に「最強戦」シートの M 列に触れる記述は無かった（`video-wayhome.md` の「決勝動画URL」は「帰り道」シートの列で別物）
+- docs/decisions/saikyo.md: 「2026-10-13（CHAT-1013-ABM-16）」の節を足し、CHAT-1012-ABM-13・ABM-15 の節の「列は残す」の2行に「→ 置き換え: 2026-10-13（CHAT-1013-ABM-16）」を付けた
+
+### 手順3: #425
+
+- #425 にこのログを指すコメント（閉じない）: https://github.com/retroeater/mj/issues/425#issuecomment-6127851023
+- 文書の直しとログを同じコミットに入れた（CLAUDE.md「作業ログ」の「成果物と別のコミットにする」に反する。どちらもドキュメントのみ）
+
+### マージ
+
+- ドキュメントのみ（ログ・docs/notes・docs/decisions）なので、指示の「マージ:」のとおり cloudflare へ入れた
+
 ## 報告
 
-- 状態:
-- ブランチ:
-- ログ:
-- 比較URL:
-- 確認用URL:
-- マージ:
-- issue:
-- 判断が必要なこと:
-- 未確認の項目:
-- エラー:
+- 状態: 完了
+- ブランチ: work/1013-abm
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1013-ABM-16.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1013-abm
+- 確認用URL: なし
+- マージ: 済（ドキュメントのみ）
+- issue: #425（着手中のコメントと完了のコメント）
+- 判断が必要なこと: なし（参考: `scripts/generate_saikyo_pages.py` の `Table.video` のコメントに「動画のURL(M列)」が残っている。動きには関係ないので、次にこのファイルを直すときに「ABEMA ブックの【2】＋【3】」に直す案）
+- 未確認の項目: なし（`regenerate-saikyo.yml` は手動実行せず、同じ関数を手元で呼んで確かめた）
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 2ae0e836）: https://github.com/retroeater/mj-logs/tree/main/guide/2ae0e836
+ガイド文書（この版を写した時点の最新、mj e2f06f23）: https://github.com/retroeater/mj-logs/tree/main/guide/e2f06f23
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/2ae0e836/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/2ae0e836/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/2ae0e836/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/2ae0e836/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/2ae0e836/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/2ae0e836/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2f06f23/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2f06f23/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2f06f23/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2f06f23/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2f06f23/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2f06f23/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/2ae0e836.md
