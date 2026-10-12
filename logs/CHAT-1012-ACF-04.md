@@ -57,6 +57,21 @@ Chat-Ref: CHAT-1012-ACF-04
 - Chat-Ref の重複確認: `CHAT-1012-ACF-04` のコミット無し。雛形の行は揃っている
 - 作業ブランチ: ローカル・リモートとも `work/1012-acf-357` が無いため、`git checkout -b work/1012-acf-357 origin/cloudflare`
 - 0. 指示欄の末尾は指示文の最後の行と一致
+- 手順1: #357 の 2026-10-12 00:38:54Z のコメント（https://github.com/retroeater/mj/issues/357#issuecomment-6115698507 ）は「101件、削除 29件」。①17件・③3件の一覧は前提の20件と一致（±0）。20件とも今の cloudflare の docs/logs/ にあり、コメントの後に消えた・変わったものは無い。コメントの後に他セッションの着手中コメントは無し
+- #357 に着手中コメント: https://github.com/retroeater/mj/issues/357#issuecomment-6119943578
+- 未マージの work/ ブランチで20件を変えているものは無い（`git branch -r --no-merged origin/cloudflare` の各ブランチの差分を確認）
+- 名指しの洗い出し: docs/（docs/logs/ を除く）・CLAUDE.md・scripts/・.github/ に20件のファイルパス（`docs/logs/<ファイル名>`）の参照は無い。Chat-Ref を文字として書いている箇所（docs/decisions の見出し・docs/notes/yotei-sheet.md・handover-archive-2026.md）は前回（PHT-03）と同じく変えない。Open の issue 218件の本文・コメントで20件のファイル名を出すのは #357 の通知のコメントだけ。カレンダーの説明はセッションから読めない（未確認）
+
+### 判定のすき間（手順3）
+
+- cleanup-logs.yml の checkout は `fetch-depth: 0`（全履歴）。`was_deleted_in_history()` も手元で ZK-17・CAL-06・CAL-11・CAL-27 とも「履歴にあって今は無い」を返す。浅い履歴が原因ではない
+- 通知の直前の版（55e218fc3^）で `cleanup_logs.py --dry-run` を手元で実行（コードは変えていない。一時的な worktree を scratchpad に作り、終わって消した）: 削除対象 29件で通知と一致し、その中に ZK-17（続き先 ZK-18 が完了）・CAL-06（→ CAL-10 が完了）・CAL-11（→ CAL-15 が完了）・CAL-27（→ CAL-28 が完了）が入っている
+- 原因: 1回の実行は続き先の**今のファイル**を読んで判定し、削除は判定がすべて済んでから行う（`main()` の「続き先の判定は…判定がすべて済んでから消す」）。そのため ZK-16 は、同じ実行で消える ZK-17 の消える前の状態（判断待ち → 続き: ZK-18）を読んで pending になった。CAL-04・CAL-08・CAL-25 も同じ。ZK-15 は続き先 ZK-16 が今も判断待ちで残っているため pending
+- これは docs/notes/branch-operations.md「作業ログの寿命」の条件4の「何段も続くときは、…途中のログが消えた次の実行で前のログが消える」のとおりの動き（仕様）。今のまま置けば 10/19 の実行で ZK-16・CAL-04・CAL-08・CAL-25（今の cloudflare の版で `judge()` が削除と判定することを手元で確かめた）、10/26 で ZK-15 が消える
+- すき間は2つ:
+  1. 段の数だけ週がかかり、その間「① 判断待ち・中断（続きなし）」として通知される（続きがあるのに「続きなし」の見出しの下に出る）。`judge()` は続き先が pending のとき kind を pending にし、通知の見出しは pending を一律「続きなし」と書く
+  2. OLT-03 の状態「判断待ち → CHAT-0930-OLT-05 で cloudflare へマージ」は「続き:」の形でないので続きと読まない（規則どおり。文中の「続きは CHAT-…」を読まないのと同じ扱い）
+- 同じ実行の中で消える続き先を「削除済み」とみなして判定をくり返す（不動点まで）と、通知の直前の版で: 1回目 29件 → 2回目 5件（ZK-16・CAL-04・CAL-08・CAL-12・CAL-25）→ 3回目 1件（ZK-15）→ 合計35件。CAL-12 は「完了（判断待ち…）→ 続き: CHAT-0930-CAL-16」で②（10/08 より前のため一覧に無い）に入っていた。今回の通知で影響するのは ①の5件と②の1件の計6件。OLT-02（→ OLT-03 が判断待ち）と OLT-03 は変わらない
 
 ## 報告
 
@@ -74,12 +89,12 @@ Chat-Ref: CHAT-1012-ACF-04
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 4a0e4d3c）: https://github.com/retroeater/mj-logs/tree/main/guide/4a0e4d3c
+ガイド文書（この版を写した時点の最新、mj f09571e4）: https://github.com/retroeater/mj-logs/tree/main/guide/f09571e4
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/4a0e4d3c/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/4a0e4d3c/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/4a0e4d3c/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/4a0e4d3c/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/4a0e4d3c/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/4a0e4d3c/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f09571e4/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f09571e4/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f09571e4/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f09571e4/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f09571e4/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f09571e4/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/7b3e1334.md
