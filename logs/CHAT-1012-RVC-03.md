@@ -53,17 +53,70 @@
 
 ## 経過
 
+### 着手時の確認
+
+- 0章: ログの「指示」欄の末尾は指示文の最後の行と一致
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある（冒頭の行が1行につながって届いたが、内容は揃っている）
+- 同じ Chat-Ref のコミット: 0件。識別子 RVC はこのセッションで使用中（3本目の指示なので重複確認の対象外）
+- 作業ブランチ: work/1012-rvc-handoff はリモート・ローカルとも無い → `git checkout -b work/1012-rvc-handoff origin/cloudflare`（a0fe4f252）
+
+### 手順1
+
+- issue 検索（「コミットメッセージ 閉じるキーワード 自動クローズ fix #番号」「handover 関連文書の表 docs/notes 網羅 テスト 検査」）: 同じ論点の issue は無い。近いものは #292（open、機械判定できる規約を `scripts/check_conventions.py` に集約する。一般の集約で、この2点を名指ししていない）・#291（open、検証手順のスクリプト化）。止まる条件には当たらないと判断した
+- CLAUDE.md「コミットのルール」・docs/notes/chat-routines.md「レビュー」に同じ趣旨の行は無い。handover-archive-2026.md を「close」「閉じる」「キーワード」で検索し、閉じるキーワードの規則を外した記録は無い
+
+### 手順2
+
+#### (1) GitHub の公式文書の確認
+
+- docs.github.com はセッションから届かない（curl: `CONNECT tunnel failed, response 403`、WebFetch: `getaddrinfo ENOTFOUND docs.github.com`）。キーワードの一覧は公式文書で確かめられていない（未確認）
+- 実例: 下の洗い出しで `fix #` `Closes #` が実際に issue を閉じている
+
+#### (1) 洗い出し（origin/cloudflare a0fe4f252 の全コミットの件名・本文）
+
+正規表現 `\b(close|closes|closed|fix|fixes|fixed|resolve|resolves|resolved)\b:?\s+#(\d+)`（大文字小文字を問わない）で 26件・25 issue が当たった。
+そのうち issue の timeline の `closed` の `commit_id` がそのコミットのもの（コミットで閉じたもの）は次の11件。意図したクローズかは判断していない（開け直していない）。
+
+| コミット | キーワード | issue | 今の状態 | 閉じた日時（UTC） | 件名 |
+|---|---|---|---|---|---|
+| 5937f723a | fix | #538 | closed | 2026-10-12T02:03:21Z | docs: report CHAT-1012-RGN-08 and record decisions |
+| f8e76c033 | fix | #298 | open（RVC-02 で開け直した） | 2026-10-10T02:50:38Z | docs: fix #298 deadline row and drop review-followup row in handover |
+| 9d211834e | Closes | #343 | closed | 2026-09-16T09:41:42Z | feat: 最強戦の年度ページのog:imageを年度別にする |
+| d7b7bad51 | Closes | #100 | closed | 2026-09-10T02:43:42Z | fix: フッターの著作権表示をテンプレートのプレースホルダから修正する |
+| 016a303e5 | Closes | #92 | closed | 2026-09-10T02:24:39Z | perf: 静的アセットのブラウザキャッシュを効かせる |
+| 90eaff2cc | Closes | #98 | closed | 2026-09-10T02:17:45Z | chore: 未使用のphp-email-formを削除する |
+| b5d027cba | Closes | #93 | closed | 2026-09-10T01:49:30Z | perf: Google Fontsの読み込みをやめてシステムフォントに統一する |
+| 37df20544 | Closes | #99 | closed | 2026-09-10T01:43:30Z | fix: Bootstrapのソースマップ参照を削除して404をなくす |
+| 0b6c8cf64 | Closes | #94 | closed | 2026-09-10T01:22:18Z | perf: アイコンフォント2種を廃止してSVGに置き換える |
+| 385fa0a6a | Closes | #89 | closed | 2026-09-09T14:05:30Z | fix: html_handlingをnoneにして余計なリダイレクトをなくす |
+| ffdb8f4c1 | Closes | #73 | closed | 2026-09-08T08:59:14Z | index.htmlのvendorスクリプトにdeferを付ける |
+
+ほかの15件（#533・#536・#124・#277・#180・#500・#446・#370×2・#269・#489・#478・#454・#455・#328）はキーワードに当たるが、timeline の `closed` はそのコミットではない（ほかの手段で閉じていた）。
+5937f723a の本文の該当箇所は「fix #538」（#538 は「Actions: ubuntu-latest の Ubuntu 26.04 への…」）。
+
+#### (2) テスト
+
+- `scripts/tests/test_handover_notes_table.py` を作った（標準ライブラリのみ。6章「関連文書」の本文の表の行に `` `docs/notes/<名前>` `` として出ないファイル名を返す関数と、その検出の単体のテスト）。work/1012-rvc-handoff にコミットした（未マージ）
+- 修正前（283713b9d、RVC-01 の前の cloudflare の handover.md と docs/notes/）: **落ちる**。抜け `['ask-worker.md', 'sns-book.md']`（RVC-01 で足した2行と一致）。
+  指示の「a23c99804 の親」（9e704cada）は work/1012-rvc の上のコミットで、2行を足した後のため通る（修正前の確かめには使えなかった）
+- **今の cloudflare（a0fe4f252）: 落ちる。抜け `['abema-book.md']`。** `docs/notes/abema-book.md` は 6759d0fbc「docs: ABEMA ブックの説明と決定を書く (#425)」（work/1012-abm-map、cloudflare にマージ済み）で足され、6章の表に行が無い
+- **止まる条件「(2) のテストが今の cloudflare で落ちる」に当たったため、ここで止めた。** (1) の CLAUDE.md の規則・(3) chat-routines.md の観点・decisions・マージ・hook の issue の起票・#492 へのコメントは行っていない
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1012-rvc-handoff
 - ログ: https://github.com/retroeater/mj/blob/work/1012-rvc-handoff/docs/logs/CHAT-1012-RVC-03.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1012-rvc-handoff
 - 確認用URL: なし
-- マージ: 未
-- issue: #492・#298
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- マージ: 未（止まる条件に当たった）
+- issue: #492・#298（どちらも変えていない）。hook の issue は起票していない
+- 判断が必要なこと:
+  - 止まる条件に当たった: (2) のテストが今の cloudflare（a0fe4f252）で落ちる。handover.md 6章の表に `docs/notes/abema-book.md` の行が無い（6759d0fbc、#425 の ABEMA ブックの説明）。行を足す指示（開く場面の文面）が要る。テストは work/1012-rvc-handoff にコミット済み（未マージ）。修正前（283713b9d）では `ask-worker.md`・`sns-book.md` の抜けで落ちることを確かめた
+  - (1) の洗い出し: コミットで閉じた issue は11件（#538〈5937f723a、2026-10-12、fix〉・#298〈f8e76c033、開け直し済み〉・#343・#100・#92・#98・#93・#99・#94・#89・#73〈2026-09-08〜16、Closes〉）。#538 が意図したクローズかの確認が要る。表は `## 経過`
+  - (1) のキーワードの一覧は、docs.github.com にセッションから届かず公式文書で確かめられていない
+  - 手を付けていないもの: CLAUDE.md の規則・chat-routines.md の観点・docs/decisions・マージ・hook の issue の起票・#492 へのコメント
+- 未確認の項目: GitHub の閉じるキーワードの一覧（公式文書に届かない）
 - エラー: なし
 
 <!-- guide-links -->
