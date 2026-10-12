@@ -88,17 +88,23 @@ Core Web Vitals の気づき（任意。この指示の主題ではない）
 - 起票: **#550**「アクセス解析の導入を検討する（Google Analytics など。利用者の端末・画面幅を知る手段と、Cloudflare Pro の要否）」（https://github.com/retroeater/mj/issues/550 ）。ラベル `分野: インフラ`・`分野: UI/UX`・`対象: 全ページ`（#19・#32・#106 と同じ系統）。本文は背景・論点3つ（分かっていること／確かめることに分けた）・関連・作業の案。論点2の Pro で使っているもの: HTTP Traffic 分析の軸、Synthetic monitoring の定期実行 5本、Rate limiting rules 1本（上限2本）、WAF のカスタムルール、見送った Super Bot Fight Mode など（`docs/notes/cloudflare.md` から写した。Free で使えるかは確かめることに置いた）。関連に #106・#262・#304 を足した
 - `docs/notes/design.md`「3. 文字・寸法」の「最小の画面幅」の行の出典の欄の末尾に「見直しは #550」を足した
 - `docs/handover.md`「次にやること」の表に #550 の1行を足した（#9 の行の次。23,389 → 23,629 バイト、警告域 26KB 未満）
-- #540 にコメント: 公開前に CLS を見る（2026-10-12 の Debug View で `houou/players/` が 0.24〈7件〉、申告値）（https://github.com/retroeater/mj/issues/540#issuecomment-6115585563 ）。順位変動などのほかの要素の値（`#raceTable` 0.377 など）は旧ページのものの見込みなので書かなかった
+- #540 にコメント: 公開前に CLS を見る（2026-10-12 の Debug View で `houou/players/` が 0.24〈7件〉、申告値）（https://github.com/retroeater/mj/issues/540#issuecomment-6115585563 ）。最初は `#raceTable` を旧ページのものの見込みとして書かなかったが、`#raceTable` は旧 `houou_race.html` と新 `houou/race/` の両方にあると確かめたので、コメントを直して 0.377 と「どちらの値かは URL の軸で見分ける」を足した。`#myChart` は旧 `houou_results.html` などのもので、#540 には書いていない
+
+### 手順3 マージ・片付け
+
+- 差分（`origin/cloudflare...HEAD`）は `docs/` の3ファイルだけ（handover・design・このログ）
+- マージ: push 直前に再 fetch し（origin/cloudflare は 5b7422cd のまま）、`git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめて `git push origin work/1012-hou:cloudflare`（5b7422cd..f8d790d9）。docs のみなので Workers Builds は走らない（#171）
+- 片付け: このクラウドセッションはブランチを削除できない（docs/notes/cloud-sessions.md「ブランチの削除」）。`origin/work/1012-hou` は `git branch -r --merged origin/cloudflare` に出る（マージ済み）。削除は `delete-merged-branches.yml` に任せる。このログの push の後、同じ先頭を `cloudflare` へも push する（docs/logs だけの追いの push）。追いの push の前の先頭は f8d790d9
 
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1012-hou
-- ログ: https://github.com/retroeater/mj/blob/work/1012-hou/docs/logs/CHAT-1012-HOU-29.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1012-hou
+- 状態: 完了
+- ブランチ: work/1012-hou（マージ済み。削除は `delete-merged-branches.yml` に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1012-HOU-29.md
+- 比較URL: なし（マージ済み）
 - 確認用URL: なし
-- マージ: 未
-- issue: 起票前
+- マージ: 済（5b7422cd..f8d790d9。この報告の docs/logs のみの追いの push あり）
+- issue: #550（起票）・#540（コメント）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
