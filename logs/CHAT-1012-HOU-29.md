@@ -75,6 +75,21 @@ Core Web Vitals の気づき（任意。この指示の主題ではない）
 - 2026-10-12 着手。**この会話は HOU-01〜28 から続いている（新しく始めたセッションではない）**
 - `CHAT-1012-HOU-29` のコミットは無し。`origin/work/1012-hou` はマージ済み（cloudflare と同じ 5b7422cd）。ローカルも同じなので `git merge --ff-only origin/cloudflare`（変化なし）
 
+### 手順1 確かめ（同じ主題の issue）
+
+- 0. 指示欄の末尾は指示文の最後の行と一致。HOU-28 のログの報告は 状態「完了」。指示文の冒頭の雛形の行は揃っている
+- 検索: `gh` はこのセッションに無く、MCP の `search_issues` は #19・#32 も返さなかった（意味で探す検索のため）。代わりに REST の `repos/retroeater/mj/issues?state=all` で全 548 件を取り、題と本文をキーワード（Analytics・アクセス解析・計測・GA4・Web Analytics・画面幅）で調べた
+- 題に当たったもの: #19（アクセス解析をサーバーサイド方式に変える、クローズ）・#32（GA4 → Cloudflare Web Analytics、クローズ）・#262（Web Analytics の Core Web Vitals を月次で記録、オープン）・#230（AI 検索での言及を月次で計測、オープン）・#341（最強戦の年度ページの表示性能を計測、クローズ）・#422（HG-01 の画面計測スクリプト、オープン）・#153（3画面幅で検証、クローズ）。本文に当たったものはほかに十数件（UTM・月次のチェックリストなど）
+- チャット側の挙げた3件のほかに **#106（訪問者のデバイス比率を実測する、クローズ）** が同じ方向の issue だった（Pro の Source device type で端末の種類を見る。#304 の月次に集約してクローズ）。開いている issue に同じ目的（アクセス解析の導入の検討・利用者の画面幅）のものは無いので起票した
+- 前提と実物の違い: #19 は「Workers Paid（月 $5）が要るとして見送り」ではなく、2026-09-09 のクローズのコメントで「Pro の HTTP Traffic 分析で目的を達した。Workers Paid は要らず Free 枠に収まった見込み。本番の経路に Worker を挟む複雑さに見合わない」として閉じていた。起票した本文は実物に合わせた
+
+### 手順2 起票・文書・コメント
+
+- 起票: **#550**「アクセス解析の導入を検討する（Google Analytics など。利用者の端末・画面幅を知る手段と、Cloudflare Pro の要否）」（https://github.com/retroeater/mj/issues/550 ）。ラベル `分野: インフラ`・`分野: UI/UX`・`対象: 全ページ`（#19・#32・#106 と同じ系統）。本文は背景・論点3つ（分かっていること／確かめることに分けた）・関連・作業の案。論点2の Pro で使っているもの: HTTP Traffic 分析の軸、Synthetic monitoring の定期実行 5本、Rate limiting rules 1本（上限2本）、WAF のカスタムルール、見送った Super Bot Fight Mode など（`docs/notes/cloudflare.md` から写した。Free で使えるかは確かめることに置いた）。関連に #106・#262・#304 を足した
+- `docs/notes/design.md`「3. 文字・寸法」の「最小の画面幅」の行の出典の欄の末尾に「見直しは #550」を足した
+- `docs/handover.md`「次にやること」の表に #550 の1行を足した（#9 の行の次。23,389 → 23,629 バイト、警告域 26KB 未満）
+- #540 にコメント: 公開前に CLS を見る（2026-10-12 の Debug View で `houou/players/` が 0.24〈7件〉、申告値）（https://github.com/retroeater/mj/issues/540#issuecomment-6115585563 ）。順位変動などのほかの要素の値（`#raceTable` 0.377 など）は旧ページのものの見込みなので書かなかった
+
 ## 報告
 
 - 状態: 作業中
@@ -91,12 +106,12 @@ Core Web Vitals の気づき（任意。この指示の主題ではない）
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 5b7422cd）: https://github.com/retroeater/mj-logs/tree/main/guide/5b7422cd
+ガイド文書（この版を写した時点の最新、mj f8d790d9）: https://github.com/retroeater/mj-logs/tree/main/guide/f8d790d9
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b7422cd/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b7422cd/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b7422cd/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b7422cd/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b7422cd/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b7422cd/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f8d790d9/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f8d790d9/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f8d790d9/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f8d790d9/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f8d790d9/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f8d790d9/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/4e18a785.md
