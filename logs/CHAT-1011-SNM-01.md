@@ -1,0 +1,80 @@
+# CHAT-1011-SNM-01
+
+- 着手日時: 2026-10-12
+- 対象issue: #514, #327
+- ブランチ: work/1011-snm
+- 着手時HEAD: 28649cd5
+
+## 指示
+
+【Claude作成】Claude Code 向け指示：「プロ」「連盟プロ以外」の SNS の旧列をシートから消せる状態かを、コードとシートの実物で確かめる（調査のみ。コードもシートも変えない） Chat-Ref: CHAT-1011-SNM-01 マージ: ドキュメントのみ（ログ）なので完了報告のうえ cloudflare へ入れてよい 貼る時機: いつでも 共通手順: CLAUDE.md「Chat-Ref」「ブランチ運用」「作業ログ」節のとおり（識別子確認 → origin/cloudflare を起点に work/<識別子>〈クラウドセッションでは worktree を使わず docs/notes/cloud-sessions.md の読み替えに従う〉 → ログ先行push → 最終報告の Chat-Ref の行の直前に「ログ（公開）」の行、最後の行に Chat-Ref）。平野さんは、この指示のための作業ブランチ work/1011-snm の作成と push を許可している（セッションに割り当てられた claude/… のブランチは使わない）。 作業ブランチ: クラウドセッションで実行する。work/1011-snm を使う。リモートに無ければ origin/cloudflare から作る。リモートにあってマージ済み（`git merge-base --is-ancestor origin/work/1011-snm origin/cloudflare` が真）なら origin/cloudflare から作る（`checkout -B` は使わない。ローカルにあるときを含め手順は docs/notes/cloud-sessions.md「作業ブランチの用意」）。マージ済みでなければ止まる
+
+0. 着手前に、このログの「指示」欄の末尾が、この指示文の末尾（最後の行）と一致しているか確認し、一致しなければ作業せず報告する。
+
+目的
+「プロ」シートに残る SNS の6列（X ID・X画像・note ID・note画像・YouTube ID・YouTube画像）と、「連盟プロ以外」の X ID・X画像URL（以下まとめて「旧列」）を、シートから無くしても生成・毎日の更新・検査が止まらず、値も失われないかを確かめる。結果から、コードを直す指示と、平野さんが旧列を消す手順を作る。 この指示で変わるのはこのログ（と docs/decisions/）だけ。コード・生成物・シート・SNS ブック・issue の本文／状態／ラベルは変えない。
+決定（2026-10-11、平野さん）
+
+* 「プロ」に残る SNS の6列を SNS ブックへ寄せきる作業（SNS 移行の完了）を進める
+
+前提（チャット側。平野さんの決定ではない）
+
+* 識別子 SNM は新しいチャット（SNS 移行の完了）のもの。XAP（#514）・RDN（#536）のチャットの続きを受ける
+* 旧列を「列ごと消す」か「値を空にして列は残す」かは未決（docs/decisions/saikyo.md の 2026-10-10〈CHAT-1010-XAP-05〉は「値を空にし、列は残す」。チャットで平野さんに確認中）。この調査は、どちらになっても使える形で報告する（手順2の A・B）
+* 次はログ・文書にこう書いてあること。このチャットはコードを読んでいない（すべて要確認）
+   * 「プロ」の見出しは13列（登録名・ソートキー・出身地・X ID・X画像・note ID・note画像・YouTube ID・YouTube画像・最終更新・表示・鳳凰Ampai・桜花Ampai）、1,099行（CHAT-1011-RDN-12 のログ「経過」）
+   * ページの生成と写真の検知は、SNS の値（X・note・YouTube の ID と画像）を `scripts/lib/sns.py` で SNS ブックから読む（CHAT-1011-XAP-09 のログ「経過」、docs/notes/sns-book.md「生成の読み方」、CHAT-1011-RDN-13 のログ `## 報告` の表）
+   * `scripts/update_sns_book.py` は `pro_sheet.fetch_pros` に 登録名・ソートキー・XID・X画像・noteID・note画像・YouTubeID を渡している（CHAT-1011-RDN-08 のログ「経過」の表）。毎日の更新が使うのは名前と名前かなだけで、旧列の値は init と check の確かめにだけ使う（CHAT-1011-XAP-09 のログ `## 報告`）
+   * `pro_sheet.fetch_pros` は、渡された見出しがシートに無いと ValueError で止まる（CHAT-1010-RDN-04 のログ「経過」）。ここから、旧列を列ごと消すと `update_sns_book.py` の毎日の更新が止まる見込み。`lib/sns.py` の `fetch_pros()`・`others()` が旧列の見出しを「プロ」「連盟プロ以外」の読み取りに渡しているか（渡していれば全ページの生成が止まる）は分からない
+   * 「連盟プロ以外」は 765行（CHAT-1011-XAP-09 のログ「経過」手順1）
+   * YouTube画像（N列）を読むコードは無い（CHAT-1011-RDN-12 のログ「経過」の #327 へのコメントの記述）
+   * 2026-10-11 から、ID の直しは SNS ブックの【2】で行い、旧列は直さない運用（CHAT-1011-XAP-09 のログ `## 報告`）
+* 使う skill は無い
+
+手順
+
+1. 状態と読む所の洗い出し
+   * #514・#327 の Open/Closed、本文に残っている作業・期日、直近のコメントの要旨をログに書く。#514 に着手中のコメントを書く（本文・状態・ラベルは変えない。Closed なら書かずにログにそう書いて進む）
+   * `git branch -r --no-merged origin/cloudflare` の一覧を出し、`scripts/lib/pro_sheet.py`・`scripts/lib/sns.py`・`scripts/lib/sns_book.py`・`scripts/update_sns_book.py` か、旧列を読む所を変えているブランチがあれば、ブランチ名と変えている関数を書く（止まらない）
+   * リポジトリ全体（`scripts/`・`scripts/tests/`・`.github/workflows/`・ページ側の JS・`docs/`）を、旧列の見出し（改行あり・なしの両方）と `pro_sheet` の定数名、「連盟プロ以外」の X ID・X画像URL の見出しで grep し、表にする: 読む所（ファイル・関数）／渡す・読む見出し／通る場面（ページの生成・毎日の更新・init・check・写真の検知・カレンダーの同期・テスト・文書の記述）／その値を何に使うか（使っていないなら「使わない」）
+2. 旧列が無いときの模擬（リポジトリのファイルは変えず、コミットしない。読み取りの差し替えの方法は任せる）
+   * 生成と同じ経路で読んだ「プロ」「連盟プロ以外」の表を元に、次の2通りを作る。A: 旧列を列ごと落とした表（見出しも無い）。B: 見出しは残し、旧列の値を全行空にした表
+   * 差し替えなし → A → B の順に、`python3 scripts/regenerate.py --list` の全ページを1ページずつ続けて生成し、差し替えなしとの差を比べる（CHAT-1011-RDN-08 と同じ比べ方）。ページごとに「通る・差 0」「通るが差あり（どの値が変わったか）」「止まる（箇所とエラー文）」を表にする
+   * `update_sns_book.py` の毎日の更新（dry-run。X API を呼ばず、書き込まない）と check も、A・B で同じように確かめる。手順1の表にあるそのほかのスクリプト（名簿の検査・誕生日・道場部ゲスト・写真の検知・`fetch_youtube_channels.py` など）は、書き込み・X API・YouTube API・カレンダー・issue への書き込みを伴わない形で動かせるものだけ A・B で動かす。鍵が無い・書き込みを伴うなどで動かせないものは、コードを読んで「止まる・止まらない」を判定し、読んで判定したと書く
+   * A・B のそれぞれで、直す必要のあるコードの箇所（ファイル・関数・何を変えるか）と、古くなる文書の記述（ファイルと節）を一覧にする。直さない
+3. 値の照合とシートの数式
+   * 「プロ」の在籍者について、旧列と SNS ブックを名前で突き合わせる。ID（X・note・YouTube）は【2】、画像（X・note・YouTube）は実効の値（【3】に【4】の空でないセルを重ねたもの）と比べる。【2】の「-」は空として扱う。SNS・ID／画像ごとに、(a) 一致 (b) SNS ブックにだけ値がある (c) 両方に値があり違う (d) 旧列にだけ値がある、の件数を表にする。(c) は【3】の状態ごとの内訳を書く。(d) と、ID の (c) は、名前と両方の値の一覧を書く（旧列を消すと失われる値・どちらが正か決める値）
+   * 「連盟プロ以外」の X ID・X画像URL も同じ形で突き合わせる
+   * 「プロ」のあるブックと「連盟プロ以外」のあるブックを xlsx でエクスポートし（CHAT-1011-RDN-10 と同じ方法。数式は `data_only=False`、配列数式を含む）、旧列の今の列の英字、旧列のセル自体に数式が入っているか、同じタブのほかの列・ほかのタブの数式が旧列を引いているか（タブ・セルの範囲・数式の例・件数）を書く。今ある `#REF!` の件数と場所も書く（消す前の基準）。エクスポートが取れなければ、取れなかったと書く（別の手段は試さない）
+
+止まる条件
+
+* 「プロ」の行数が 1,000〜1,300 を外れる、「連盟プロ以外」の行数が 700〜850 を外れる、どちらかが2回の読みで変わる（件数を書いて止まる）
+* SNS ブックの【2】【3】【4】が読めない、【2】で名前が重複している
+* #514 に、XAP（CHAT-1010-XAP-02〜CHAT-1011-XAP-10）以外の Chat-Ref の着手中コメントがある
+* コード・生成物・シート・SNS ブックを変える、X API を呼ぶ、本番のワークフローを手動実行する必要が出た（行わずに止まる）
+* docs/logs/・docs/decisions/ 以外のファイルを変える必要が出た（変えずに書く）
+* cloudflare への push が権限判定で拒否された（別の手段を試さずに止まる）
+
+完了条件
+
+* 手順1の表（読む所）、手順2の表（ページ・スクリプトごとの A・B の結果）と直す箇所の一覧、手順3の表（件数）・名前の一覧・数式の結果が、ログの「経過」にある
+* ログの `## 報告` の項目の後ろに、結果の要約を書く（CHAT-1011-RDN-13 のログと同じ置き方）: A で止まるもの・B で止まるか差が出るもの、直す箇所の一覧、旧列にだけ値がある人の数と名前、旧列を引く数式の有無、#514・#327 の状態
+* ログの「## 報告」を CLAUDE.md「作業ログ」節のとおりに書いて push する
+* マージは冒頭の「マージ:」の行のとおり
+* ターミナルへの最終報告の Chat-Ref の行の直前に ログ（公開）: https://github.com/retroeater/mj-logs/blob/main/logs/CHAT-1011-SNM-01.md?v=<SHA>（CLAUDE.md「作業ログ」節）を書き、最後の行に Chat-Ref: CHAT-1011-SNM-01 を書く
+
+不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
+
+<!-- guide-links -->
+---
+
+ガイド文書（この版を写した時点の最新、mj dba9c8ed）: https://github.com/retroeater/mj-logs/tree/main/guide/dba9c8ed
+
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/dba9c8ed/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/dba9c8ed/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/dba9c8ed/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/dba9c8ed/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/dba9c8ed/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/dba9c8ed/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/28649cd5.md
