@@ -90,6 +90,25 @@ HOU-32 でマージした個人成績 `houou/players/` に、平野さんの直�
 
 - `docs/decisions/houou.md`: 2026-10-13 の決定を足し、2026-10-09（HOU-05）の「アイコンと名前も1枚のカードにする」に「→ 置き換え（カードに現在のリーグのチップを足す）」を付けた。2026-10-09（HOU-04）の「支部と入会期は…選んだ後の名前には出さない」は変えていない
 - `docs/notes/houou-top.md`: 「個人成績」の名前のカード・通算（380×340）・鳳凰位の行・期のカードの余白、「リーグのタブ」の吹き出しの形を置き換え、「仮置きの一覧」に「HOU-33 で足したもの」を足した
+- プレビュー: f03e8c01 の check-run は Workers Builds: mj・check とも success。プレビューの `houou/players/`・`assets/houou.js`・`style.css` が今回の版であることを `curl` で確かめ、上と同じ headless の確かめ（375px の名前のカード・鳳凰位の行・余白と余り・グラフの大きさ・吹き出し）をプレビューでも行って同じ結果（JS のエラー 0）。ブラウザでの見え方（実機）は平野さんが確かめる
+- 完了時に `docs/decisions/houou.md` に 2026-10-13（CHAT-1013-HOU-33）の決定を足した（f03e8c01 に含めた）。作業中の平野さんの回答は無し
+
+## 報告
+
+- 状態: 判断待ち（プレビューを平野さんが見て決める）
+- ブランチ: work/1013-hou
+- ログ: https://github.com/retroeater/mj/blob/work/1013-hou/docs/logs/CHAT-1013-HOU-33.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1013-hou
+- 確認用URL: プレビューあり（URL は最終報告）
+- マージ: 未（指示のとおりマージしない）
+- issue: #518
+- 判断が必要なこと:
+  1. 見てもらう画面（確認用 URL に付けるもの）: `?name=白鳥翔`（名前の右の「鳳凰位」・期別の一番上の鳳凰位の行に印が無く開かない）／`?name=平野良栄&view=total`（通算のグラフがリーグと同じ大きさ）／`?name=平野良栄&view=league`（吹き出しの3行）／`?name=東幸一郎`（最新の期に出ていない在籍者。チップなし）
+  2. 仮置きにしたもの: 現在のリーグの決め方（最新の期〈第43期前期〉の行のリーグ。A1・A2・鳳凰位はリーグのタブと同じ第43期の段。出ていなければ出さない。該当しない在籍者は 122名）、チップの字の大きさ 0.8125rem（期のカードと同じ）・名前との間 0.5rem・高さ（字の上寄り）、期のカードの左右の余白（375px で 6px から画面の幅に比例して 16px まで。390px 9px・430px 以上 16px）、左右とも広げたこと（得点の欄をカードの中心に保つため）、鳳凰位の行の印の欄を見えないまま残すこと、吹き出しの「全体 26位/319人」（「全体」の後に空き。決定の例に合わせた）と、順位の無い期・進行中の期の2行の形（「42期」「鳳凰位」／「43期」「鳳凰位（進行中）」）
+  3. 前提から変えたこと: 前提の「期別の一番上の行が最新の期でなければ出さない」のままでは、A1・A2・鳳凰位の選手（第43期の行が進行中で成績に無い）にチップが出ず、手順2の「白鳥翔の名前のカード（チップ）」と食い違うため、リーグのタブの第43期前期の段（シートの第43期後期の行から作るもの）を使った
+  4. 指示との違い: 最新の期に出ていない在籍者の名前の一覧はログに書かず、数・最後の期の内訳と例1名だけにした（在籍者の休場などの事情と結びつきうるため。CLAUDE.md の個人情報の扱いを優先）
+- 未確認の項目: 実機（iPhone）での見え方（平野さん）
+- エラー: なし
 
 <!-- guide-links -->
 ---
@@ -102,4 +121,4 @@ HOU-32 でマージした個人成績 `houou/players/` に、平野さんの直�
 - docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2f06f23/docs/notes/chat-side-operations.md
 - docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2f06f23/docs/notes/cloudflare.md
 - docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2f06f23/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/2ae0e836.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/62f48a8b.md
