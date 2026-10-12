@@ -1,9 +1,8 @@
 # データ・コンシェルジュの Worker（mj-ask、#542）
 
 houou/ のトップで鳳凰戦のデータに言葉で質問できる欄。決定は `docs/decisions/houou.md`「2026-10-11（CHAT-1011-AIC-01）」。
-実装は3つに分ける（grill Q13）: (1) データと検索〈済〉、(2) Worker と質問欄〈済、未デプロイ〉、(3) 週次の cron。
-Worker のデプロイは平野さんの手作業 B1（下の「平野さんの手作業」）の後に始まる。それまでは `ryoei.pro/api/*` にサイトの Worker `mj` の 404 が返り、
-質問欄は「いまは答えられません。」と出す。
+実装は3つに分ける（grill Q13）: (1) データと検索〈済〉、(2) Worker と質問欄〈済、2026-10-11 から本番で動作〉、(3) 週次の cron〈コード済。ブックへの書き出しは C1〜C3 の後〉。
+houou/ は未公開のまま（試行中は全体で1日50問）。
 
 ## 構成
 
@@ -18,7 +17,8 @@ Worker のデプロイは平野さんの手作業 B1（下の「平野さんの�
 | `workers/ask/src/index.mjs` | 入口。POST `/api/ask`・GET `/api/ask/status`、ほかの `/api/*` は 404 |
 | `workers/ask/src/ask.mjs` | 受付の本体（入力の検査・回数・Claude の2回の呼び出し・記録） |
 | `workers/ask/schema.sql` | D1 の表（B2 で D1 の Console に貼る） |
-| `workers/ask/test/ask.test.mjs` | 受付のテスト。D1 は `node:sqlite` で `schema.sql` をそのまま使う作り物、Anthropic は偽の fetch |
+| `workers/ask/src/weekly.mjs` | 週次の cron（ブックへの書き出し・90日の削除、下の「週次の cron」） |
+| `workers/ask/test/ask.test.mjs`・`weekly.test.mjs` | 受付と週次のテスト。D1 は `test/fake-d1.mjs`（`node:sqlite` で `schema.sql` をそのまま使う作り物）、Anthropic・Google は偽の fetch |
 | `assets/houou_ask.js`・`assets/houou_ask.css` | houou/ トップの質問欄の送信と表示・見た目（`assets/houou.js`・`style.css` は変えていない）。HTML は `generate_houou_pages.py` の `ask_box()` |
 
 ## データ（data.json）
@@ -99,11 +99,13 @@ GET `/api/ask/status`: `{"status": "open", "remaining": n, "max": 200}` か `{"s
 それ以外（Worker が無い・失敗）は「いまは答えられません。」。答えは `textContent` で入れ、出典はルート相対の URL だけをリンクにする。
 
 vars（`wrangler.jsonc`。Wrangler のデプロイで上書きされるので、変えるときはこのファイルを直す）: `ALLOWED_ORIGIN`、`DAILY_LIMIT`（試行中は 50。公開の指示で 200 に戻す、grill Q12）、`IP_DAILY_LIMIT`（10）。
-Secret（ダッシュボードで登録。デプロイでは消えない）: `ANTHROPIC_API_KEY`・`IP_HASH_SALT`。
+`ASK_SHEET_ID`（週次の書き出し先のブックの ID。空なら書き出しを飛ばす）。
+Secret（ダッシュボードで登録。デプロイでは消えない）: `ANTHROPIC_API_KEY`・`IP_HASH_SALT`・`GOOGLE_SA_KEY`（C3 で登録）。
 
 ## 平野さんの手作業（B1〜B4）
 
-A1（Console のワークスペース `ryoei-pro-ask`、月の上限 $30）と A2（D1 `mj-ask` の作成、Database ID は `wrangler.jsonc`）は 2026-10-11 に済み。
+**2026-10-11 にすべて済み**（実際の結果は下の「B1〜B4 の実際の結果」）。手順は作り直すときのために残す。
+A1（Console のワークスペース `ryoei-pro-ask`、月の上限 $30、地域は「米国」のまま）と A2（D1 `mj-ask` の作成、Database ID は `wrangler.jsonc`）は 2026-10-11 に済み。
 画面の名前は公式の文書（developers.cloudflare.com の Workers Builds・D1・Secrets、platform.claude.com の API keys。2026-10-10〜11 に取得）と `docs/notes/scheduler-worker.md` の `mj-scheduler` の作成の記録から。
 B1 の最初のビルドで `ryoei.pro/api/*` に Worker が付くが、B2〜B4 が済むまでは質問欄は「いまは答えられません。」を出すだけで、Claude は呼ばれない。
 
@@ -151,20 +153,95 @@ B1 の最初のビルドで `ryoei.pro/api/*` に Worker が付くが、B2〜B4 
 
 B1〜B4 の後、次の指示で本番の確かめ（`/api/ask/status` の応答、未公開の houou/ からの質問、費用の実測の始め）と実装3（週次の cron）を行う。
 
-## 未確認: 本番の POST が Cloudflare の 403 になる（2026-10-11 19:18 JST）
+### B1〜B4 の実際の結果（2026-10-11 23:30〜23:45 JST、平野さんのスクリーンショットをチャット側が確認。申告値）
 
-マージの後、クラウドセッションから `POST https://ryoei.pro/api/ask`（`Origin: https://ryoei.pro` 付き）を送ると、
-Worker に届く前に Cloudflare の遮断のページ（「Attention Required! | Cloudflare」、HTTP 403）が返った。`/` や `/houou/` への POST も同じで、GET は通る。
-WAF のルール（HTTP メソッドで遮断するもの）か、セッションの接続元（データセンターの IP）へのボットの判定かは、セッションからは分からない。
-ブラウザの質問欄からの POST も同じく遮断されると、Worker が動いても質問欄は「いまは答えられません。」のままになる。
+- B1: プロジェクト `mj-ask` の最初のビルドは成功（D1 のバインディング `env.DB (mj-ask)`、ルート `ryoei.pro/api/*`、Version ID `a1192b33-919b-4a98-995b-1b7c049d23cb`）。
+  **`mj build token` に D1 の権限を足す必要は無かった**（既にある D1 を `database_id` で結ぶだけなら要らない）。Build watch paths の Include は `workers/ask/**` だけ
+- B2: `schema.sql` の表を1行にまとめた SQL を Console で実行した。Tables に `daily_counts`・`ip_counts`・`questions`・`sqlite_sequence`（AUTOINCREMENT が作る表）が出た
+- B3: キー `mj-ask`（ワークスペース `ryoei-pro-ask`、本人に紐づけ、期限 **2027-10-11 0:00 JST**）。期限を 2027-10-12 0:00 JST にすると「このリクエストは完了できませんでした」で作れなかった（1年を超えると作れない見込み）。
+  作成の前に「ID 連携」を勧めるダイアログが出て、「API キーで続ける」を選んだ。差し替えの予定は平野さんの Google カレンダーの 2027-09-28
+- B4: 画面の名前は「Runtime variables and secrets」（公式の文書の「Variables and Secrets」と違った）。Secret の `ANTHROPIC_API_KEY`・`IP_HASH_SALT` を足した。変数 `ALLOWED_ORIGIN`・`DAILY_LIMIT`（50）・`IP_DAILY_LIMIT`（10）も出ている
+- 本番の最初の1問（2026-10-11 23:45 JST ごろ、平野さんのブラウザ）: 「鳳凰位の最多獲得は誰ですか？」に「安藤満（第2・5・6・10期）と前原雄大（第12・25・33・34期）の4回で並び、獲得者は全部で23名」、
+  「データ: 決勝 第42期まで」と出典「鳳凰戦 歴代優勝者」が付いた（チャット側が `data.json` の finals で数えて一致を確かめた）
 
-- 平野さんに見てもらうこと: Security → Events で Ray ID `a48d1fb17947feee-IAD`（`/api/ask`）・`a48d1fb39baaf27c-IAD`（`/houou/`）の行の Service と Rule
-- メソッドで遮断するルールなら、`/api/ask` の POST を外す（直し方は次の指示で決める）。ボットの判定なら、平野さんのブラウザからは通る見込み（B1〜B4 の後の本番の試しで確かめる）
+## 本番の POST の 403（解決、2026-10-11）
+
+CHAT-1011-AIC-03 で、マージの後に本番へ POST すると Worker に届く前に Cloudflare の遮断のページ（「Attention Required! | Cloudflare」、403）が返った。
+原因は ryoei.pro の WAF のカスタムルール「Block non-GET/HEAD methods」（GET・HEAD 以外を遮断。`/cdn-cgi/` は除外）。チャット側が Security Events で確かめた（直近24時間で POST 123件を遮断）。
+対処として、平野さんが式の末尾に `and not (http.request.uri.path eq "/api/ask")` を足した（2026-10-11 23:30 JST ごろ）。式の全体は docs/notes/cloudflare.md「カスタムルール「Block non-GET/HEAD methods」」。
+`/api/ask` 以外への POST は今も遮断される（2026-10-12 にセッションから `/houou/` への POST が 403 を確かめた）。POST を受けるパスを足すときは、この式にも例外を足す。
+
+## 本番の確かめ（2026-10-12、CHAT-1011-AIC-04）
+
+セッションから確かめたこと（Claude を呼ぶ問いは送っていない。費用と上限を使わないため）:
+
+- GET `/api/ask/status` → 200、`{"status":"open","remaining":10,"max":200}`、`cache-control: no-store`
+- POST `/api/ask`（Origin 無し）→ 403 `{"status":"forbidden"}`（Worker の応答。WAF の遮断のページではない）
+- POST `/api/ask`（Origin 付き、空の質問）→ 400 `{"status":"invalid","reason":"empty"}`（数えない）
+- GET `/api/x` → 404
+
+セッションからは届かないもの（D1・Workers Logs・Console の使用額）は、平野さんに見てもらう。D1 の Console で次を実行すると、記録に IP と答えの本文が無いことを確かめられる:
+
+```sql
+SELECT name FROM pragma_table_info('questions');
+SELECT id, asked_at, question, result, type FROM questions ORDER BY id;
+SELECT day, n FROM daily_counts ORDER BY day;
+SELECT day, length(ip_hash) AS hash_length, n FROM ip_counts;
+```
+
+期待する結果: `questions` の列は `id`・`asked_at`・`question`・`result`・`type` の5つだけ。行は試した問いの数で、`result` は `answered` か `unanswered`。`ip_counts` の `hash_length` は 64（IP そのものではない）。
+
+1問あたりの費用: Workers & Pages → `mj-ask` → Observability の Events に、1問ごとに `{"call":"plan",…}` と `{"call":"answer",…}` の2行（`input_tokens`・`output_tokens`）が出る。
+費用は（入力の合計 × $0.10 ＋ 出力の合計 × $0.50）÷ 100万（Haiku 5.5、入力が10万トークン以下のとき）。Console の Cost の画面のワークスペース `ryoei-pro-ask` の額と突き合わせる。
+2026-10-12 の時点では、この数字はセッションから見られない（試行の1週間の後にまとめる、grill Q12）。
+
+## 週次の cron（実装3、grill Q9）
+
+`wrangler.jsonc` の `triggers.crons` に `0 0 * * 1`（UTC。**月曜 9:00 JST**）。Cron Triggers はアカウントで5本まで（Free）で、`mj-scheduler`（毎分）と合わせて2本。
+入口は `index.mjs` の `scheduled`、本体は `src/weekly.mjs`。
+
+1. **ブックへの書き出し**（`GOOGLE_SA_KEY` と `ASK_SHEET_ID` があるとき）: 専用のブックの最初のシートに、1行目の見出し（日時・質問文・結果・型。空のブックなら最初に書く）に続けて、
+   D1 の `questions` のうち「ブックの最後の行の日時より後」かつ「今週の月曜 0 時（JST）より前」かつ「90日以内」の行を日時の順に足す（`values:append`、`valueInputOption=RAW` で質問文を式として扱わせない）。
+   前の週の行が足され、取りこぼした週があれば次の回に拾い、同じ回が2度動いても同じ行を二度足さない。結果は「答えた」「答えられなかった」、型が無ければ空
+2. **ブックの90日を過ぎた行の削除**: 2行目から日時の古い順に並んでいる前提で、先頭から続く90日より前の行を消す（`batchUpdate` の `deleteDimension`）。ブックの行を手で並べ替えると、古い行が残ることがある
+3. **D1 の90日を過ぎた行の削除**: `DELETE FROM questions WHERE asked_at < <90日前>`。鍵が無いときや Google の呼び出しが失敗したときも行う
+4. 鍵かブックの ID が無ければ、Workers Logs に「週次: 鍵(GOOGLE_SA_KEY)かブックの ID(ASK_SHEET_ID)が無いため、ブックへの書き出しを飛ばす」と書き、1・2 を飛ばして正常に終わる。最後に `週次: {cutoff, until, sheet, d1Deleted}` の1行を書く
+
+Google の認証: サービスアカウントの JSON の鍵の `client_email`・`private_key` で JWT を RS256（WebCrypto）で署名し、`https://oauth2.googleapis.com/token` でアクセストークンに替える（スコープ `https://www.googleapis.com/auth/spreadsheets`。読み書きできるのは共有されたブックだけ）。
+Worker から出るのは `oauth2.googleapis.com`・`sheets.googleapis.com` だけで、ブラウザの外部ドメインは増えない。
+
+## 平野さんの手作業（C1〜C3）
+
+画面の名前は docs/notes/live-channel-write.md（`live-channel-writer` の作成の記録）と同じ。既存のサービスアカウント（`birthday-calendar`・`gsc-export`・`live-channel-writer`）は使い回さない（grill Q9「この機能専用」）。
+3つが済むまでは、週次の cron は D1 の90日の削除だけを行う。
+
+### C1: サービスアカウントを作り、JSON の鍵を発行する
+
+1. https://console.cloud.google.com/ で「My First Project」が選ばれていることを確かめる（Google Sheets API は `live-channel-writer` のときに有効にしてある。無効なら「API とサービス」→「ライブラリ」→「Google Sheets API」→「有効にする」）
+2. 「IAM と管理」→「サービス アカウント」→「サービス アカウントを作成」→ 名前 **`mj-ask`** →「作成して続行」→ ロールは付けずに「完了」
+3. 一覧に出たメールアドレス（`mj-ask@<プロジェクト ID>.iam.gserviceaccount.com` の形）を控える
+4. そのサービスアカウントを開き、「鍵」タブ →「鍵を追加」→「新しい鍵を作成」→「JSON」→「作成」。JSON ファイルがダウンロードされる（C3 で貼ったら PC から消す）
+   - 「鍵の作成が組織のポリシーで無効」と出たら、ここで止めて Claude Code に伝える
+
+### C2: 専用のブックを作り、サービスアカウントに共有する
+
+1. Google ドライブで新しいスプレッドシートを作る（名前の案: 「mj_データ・コンシェルジュの質問」）。最初のシートに書き出す（1行目の見出しは Worker が書くので、空のままでよい）
+2. 右上の「共有」→「ユーザーやグループを追加」→ C1 の3で控えたメールアドレス → 権限「**編集者**」→「送信」。ほかの人には共有しない（質問文が入るため。「リンクを知っている全員」にもしない）
+   - 共有できない・「制限されています」と出たら、ここで止めて Claude Code に伝える（docs/notes/live-channel-write.md「4.」の注記と同じ理由の見込み）
+3. ブックの URL の `https://docs.google.com/spreadsheets/d/<ここ>/edit` の `<ここ>` がブックの ID
+
+### C3: 鍵を Secret に登録し、ブックの ID を伝える
+
+1. Workers & Pages → `mj-ask` → Settings → **Runtime variables and secrets**（B4 と同じ画面）→ **Add**
+2. Type **Secret**、Variable name **`GOOGLE_SA_KEY`**、Value に C1 の4の JSON ファイルの中身を全部（メモ帳で開いて Ctrl+A → Ctrl+C）→ **Deploy**
+3. ダウンロードした JSON を PC から消す（ごみ箱も空にする）
+4. ブックの ID（C2 の3）をチャットに伝える。ID は秘密の値ではないので、次の指示で `wrangler.jsonc` の `ASK_SHEET_ID` に書く（ダッシュボードで変数を足しても、次のデプロイで `wrangler.jsonc` の値に上書きされるため）
+5. 最初の書き出しは、`ASK_SHEET_ID` を入れた後の月曜 9:00 JST。Workers Logs の `週次:` の行と、ブックの行で確かめる
 
 ## キーの差し替え（期限の前・漏れたとき）
 
-1. Claude Console → Settings → API keys → Create key で、同じ条件（ワークスペース `ryoei-pro-ask`・本人・1年）の新しいキーを作る
-2. `mj-ask` → Settings → Variables and Secrets → `ANTHROPIC_API_KEY` の値を新しいキーに替えて **Deploy**
+1. Claude Console → Settings → API keys → Create key で、同じ条件（ワークスペース `ryoei-pro-ask`・本人・1年。1年を超える期限は作れなかった）の新しいキーを作る。今のキーの期限は 2027-10-11 0:00 JST、差し替えの予定は 2027-09-28
+2. `mj-ask` → Settings → Runtime variables and secrets → `ANTHROPIC_API_KEY` の値を新しいキーに替えて **Deploy**
 3. houou/ のトップから1問送って答えが返ることを確かめる
 4. Console の API keys で古いキーを消す（漏れたときは 2 の前に消す。その間は質問欄が「いまは答えられません。」になる）
 5. 次の期限の予定をカレンダーに入れ直す

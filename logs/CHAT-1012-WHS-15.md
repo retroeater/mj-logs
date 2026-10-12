@@ -58,6 +58,38 @@
 - 指示欄の末尾は指示文の最後の行と一致。雛形の4行は揃っている
 - 作業ブランチ: `work/1012-whs` はローカル・リモートとも無し → `git checkout -b work/1012-whs origin/cloudflare`（23130279）
 
+### 手順1: 確かめ（前提どおり）
+
+- `update-sns-book.yml` run 38166926033: ジョブ `update` は success、呼んだ `regenerate / regenerate` が failure。止まった手順は「帰り道の前回の知らせを読む」、注記は `Unhandled error: HttpError: Resource not accessible by integration`。呼び出し側のジョブは `permissions`（`contents: write`）で `uses: ./.github/workflows/regenerate-page.yml`・`target_page: all`
+- `regenerate-page.yml` run 38186096774（schedule）: 失敗した手順は「帰り道の取り込みの失敗を報告」だけ。`check_wayhome.py` は `fail = bool(new or missing_json)`
+- `SUFFIX_RE` は `\s*編?\s*(vol\.?\s*\d+)?\s*$`。「《第15期麻雀グランプリMAX 白鳥翔Vol.6 編》」は名前の一覧があってもなくても名前が `白鳥翔Vol.6` になった（「 編」だけが外れ、「Vol.6」が残って名前の末尾一致に失敗し、空白の後ろが名前になる）。「白鳥翔編vol.2」「白鳥翔 編」は `白鳥翔`
+- 未マージのブランチで `regenerate-page.yml`・`update-sns-book.yml`・`check_wayhome.py`・`wayhome_intake.py` に触れるものは無い
+
+### 手順2: 直し（c3362de8・c8036e85）
+
+- **呼ばれた再生成で動かさない**: 「帰り道のYouTube情報を取得」「帰り道の一覧のOGP画像を作る」の条件に `contains(github.workflow_ref, '/regenerate-page.yml@')` を足した。
+  `workflow_call` では `github.workflow_ref` が呼んだ側のワークフロー（`update-sns-book.yml` など）になるので、直接の週次・手動実行だけが通る。後の「前回の知らせを読む」は `steps.fetch_wayhome.outcome != 'skipped'`、それ以降はその結果を条件にしているので、続けて skipped になる。
+  案の `workflow_call` の入力（`wayhome`）は、`workflow_dispatch`・`schedule` で未定義の入力が `false` と等しく扱われうるため採らず、呼び出し側も変えない形にした。条件式（2つの手順で同じ）:
+  ```
+  if: github.event_name != 'push' && (inputs.target_page == '' || inputs.target_page == 'all') && contains(github.workflow_ref, '/regenerate-page.yml@')
+  ```
+- **新しい回では失敗にしない**: `lib/wayhome_intake.py` に `should_fail(state)`（JSON に無い回があるときだけ真）を足し、`check_wayhome.py` が使う。「帰り道の取り込みの失敗を報告」の文言も直した（取得・OGP・調べる処理の失敗と JSON に無い回は今までどおり失敗）
+- **名前の Vol**: `SUFFIX_RE` を `(\s*(編|vol\.?\s*\d+))+\s*$`（大文字小文字を問わない）にし、「編」と「vol.N」をどちらの順でも外す
+- 知らせることが無いときのコメントの文言を、前回の知らせがあるときは「前回の知らせから変わったため」にした（下の手動実行で「前回の知らせが無いため」と書いたのを見て直した。c8036e85）
+- テスト: 「白鳥翔Vol.6 編」「白鳥翔 編vol.2」「白鳥翔編」で名前が `白鳥翔`（選手名の一覧があってもなくても）、新しい回だけでは `should_fail` が偽・JSON に無い回があれば真、文言の分け方。修正前のコードでは失敗1・エラー1、修正後は全体 OK
+- #545 の本文を直した（新しい回の行に「ジョブは失敗にしない」、失敗にする場合の段落、「ほかのワークフローから呼ばれた再生成では動かない」）。`updated_at` を直す前に取り直して変わっていないことを確かめ、REST の PATCH で
+- 文書: `docs/notes/video-wayhome.md`（手順・表の「新しい回」を成功に、呼ばれた再生成では動かない）。決定を `docs/decisions/wayhome.md` に足し、WHS-02 の「知らせ先は…両方」の行に「→ 置き換え」を付けた
+
+### 手順3: 作業ブランチでの手動実行（run 38193457871）
+
+- `actions_run_trigger`（ref `work/1012-whs`、`all`）。push 先は `HEAD:${{ github.ref_name }}`（作業ブランチ）。**success**（01:50:38Z〜約3分半）
+- 帰り道の手順（取得・OGP・前回の知らせを読む・調べる・知らせを書く）はすべて success、「帰り道の取り込みの失敗を報告」は skipped
+- **平野さんが2本をシートに貼った後だった**: `Yjp_PKHvldw`（第6期鸞和戦 #2 白鳥翔）・`OkKAh8yP8Uk`（第6期鸞和戦 #1 白鳥翔）の YouTube の情報が取れ、各話が **42枚**に。
+  コミット 13b38ae3 の差分は `data/youtube_meta.json`（2本の追加、`missing_video_ids` は空）・2本のページ・白鳥翔の4回と最新話の前後のカード（`2Bn3SktouP4`・`8w7SW0XgX64`・`WztsfHBisUM`・`atD2e-NgnKw`・`kf3RaFtz8o8`）・`video_wayhome.html`・sitemap の lastmod と、
+  **一覧の OGP 画像の名前が `index-20261011-2.jpg` に変わった**（最新話2本が同じ公開日 2026-10-11 なので連番。旧 `index-20260921.jpg` は削除）。帰り道以外の生成物は変わっていない
+- 状態が「新しい回 2件」から「0件」に変わったので、#545 にコメントが1件ついた（01:54:01Z）。文言は「前回の知らせが無いため」だったので直した（上）。名前の Vol の直しは次の新しい回のコメントにしか出ないので、テストで確かめた
+- SNS ブックからの呼び出しで帰り道の手順が skipped になることは、マージ後の次の `update-sns-book.yml`（毎日 04:10 JST、【3】が変わった日だけ再生成を呼ぶ）で確かめる
+
 ## 報告
 
 - 状態: 作業中
@@ -74,12 +106,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 23130279）: https://github.com/retroeater/mj-logs/tree/main/guide/23130279
+ガイド文書（この版を写した時点の最新、mj 32ed04cb）: https://github.com/retroeater/mj-logs/tree/main/guide/32ed04cb
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/23130279/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/23130279/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/23130279/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/23130279/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/23130279/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/23130279/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/32ed04cb/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/32ed04cb/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/32ed04cb/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/32ed04cb/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/32ed04cb/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/32ed04cb/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/23130279.md
