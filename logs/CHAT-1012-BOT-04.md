@@ -50,28 +50,56 @@ Workers `mj` の Workers Builds には、本番（cloudflare）と非本番ブ�
 
 ## 経過
 
+### 着手前の確認（2026-10-12）
+
+- 同じ Chat-Ref のコミット無し。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- ブランチ: ローカル・リモートの `work/1012-bot` とも `origin/cloudflare` の祖先（マージ済み）→ `git merge --ff-only origin/cloudflare` で d627615c1 へ進めた
+- 0. ログの「指示」欄の末尾は指示文の最後の行と一致
+
+### 1. 確かめたこと
+
+- `docs/notes/cloudflare.md`「平野さんがCloudflareダッシュボードで確認した設定値」の表: Build watch paths の Exclude は1行で、トリガーを分けていない
+- `docs/notes/scheduler-worker.md`「未確認（2026-10-09 の時点）」に「作業ブランチへの `workers/` だけの push で、サイトの `mj` のプレビューがビルドされた…理由は分からない」の行がある
+- Include: `mj-scheduler` は `workers/scheduler/**` だけ（scheduler-worker.md の 10/6 の表）、`mj-ask` は `workers/ask/**` だけ（ask-worker.md）。`workers/.watch-test` はどちらにも入らない → 止まる条件に当たらない
+- 未マージの work/ ブランチで docs/notes/cloudflare.md・scheduler-worker.md・docs/decisions/cloudflare.md を変えているものは無し
+
+### 2. 動きで確かめた（止まる条件に当たった）
+
+- a04787e6c（ログだけの push、14:4x UTC）: 「Workers Builds: mj」completed / success が付いていた。ただしこの push は、前回の push の先頭（fd127c14c）から origin/cloudflare の他セッションの変更（`docs/` 外を含む）を取り込んだ後なので、比べる範囲に `docs/` 外の変更が入っていた可能性がある（推測。Cloudflare が何と比べて判定するかは確かめていない）
+- **7ac2439（`workers/.watch-test` を足すだけ、14:49:00 UTC に push）: 「Workers Builds: mj」が付いた**（started_at 2026-10-12T14:50:07Z、app `cloudflare-workers-and-pages`。14:59 の時点でも `in_progress` のまま）。ほかの Worker（mj-scheduler・mj-ask）の check-run は付いていない。ほかは GitHub Actions の `check`（success）だけ
+- 13dc7e876（`workers/.watch-test` を消すだけ、14:54:43 UTC に push）: 4分後（14:59 ごろ）の時点で「Workers Builds: mj」は付いていない（`check` success のみ）。ほかの Worker の check-run も無し
+- 結論: 足すコミットにビルドが付いたため、指示の止まる条件「試験の push のどちらかに『Workers Builds: mj』の check-run が付いた」に当たった。消すコミットには付かなかったので、設定が 14:49〜14:54 のあいだに効き始めた・足す方だけが別の理由で判定された・消す方の check-run が遅れている、のどれかは区別できない
+- ファイルを消すコミットまで push した。`git diff origin/cloudflare...HEAD --stat` は docs/logs/CHAT-1012-BOT-04.md（と、この報告で足す docs/decisions/cloudflare.md）だけで、`workers/` は残っていない
+- 記録の修正（docs/notes/cloudflare.md の Exclude の行を本番・非本番に分ける、scheduler-worker.md の未確認の行を解決にする）は、試験の結果を待つあいだにローカルでコミットしていた（87ab235f3、未 push）。結果が止まる条件に当たったため、`git reset --soft HEAD~1` と2ファイルの `git restore` で取り消した（push していない）
+- マージはしていない。#304 への返信も書いていない
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1012-bot
 - ログ: https://github.com/retroeater/mj/blob/work/1012-bot/docs/logs/CHAT-1012-BOT-04.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1012-bot
 - 確認用URL: なし
-- マージ: 未
-- issue: #304
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- マージ: 未（止まる条件に当たったため）
+- issue: #304（変更なし）
+- 判断が必要なこと:
+  - `workers/.watch-test` を足すだけのコミット（7ac2439）に「Workers Builds: mj」が付いた（14:50:07 UTC に開始、14:59 時点で in_progress）。消すだけのコミット（13dc7e876）には4分後の時点で付いていない。非本番のトリガーの Exclude に `workers/**` が保存されているかを、ダッシュボードで確かめてほしい（保存の時刻が 14:49 より後なら、足す方の結果は設定の前の動き）
+  - 確かめた後、もう一度 `workers/` だけの試験の push をするか（続きの指示）
+  - docs/notes/cloudflare.md・scheduler-worker.md の記録は直していない。決定は docs/decisions/cloudflare.md に「効いたことは未確認」と添えて足した（このブランチのみ、未マージ）
+- 未確認の項目:
+  - 消すコミット（13dc7e876）に後から「Workers Builds: mj」が付くか（4分の時点では無し）
+  - 7ac2439 のビルドの結論（in_progress のまま報告が止まっている可能性。docs/notes/cloud-sessions.md「ローカル確認の代わりにプレビュー」）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj d627615c）: https://github.com/retroeater/mj-logs/tree/main/guide/d627615c
+ガイド文書（この版を写した時点の最新、mj a0fe4f25）: https://github.com/retroeater/mj-logs/tree/main/guide/a0fe4f25
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d627615c/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d627615c/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d627615c/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d627615c/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d627615c/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d627615c/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a0fe4f25/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a0fe4f25/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a0fe4f25/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a0fe4f25/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a0fe4f25/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a0fe4f25/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/283713b9.md
