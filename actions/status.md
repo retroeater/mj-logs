@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-13 04:22 JST
+- 書き出した時刻: 2026-10-13 07:52 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -26,11 +26,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-13 04:30 | workflow_dispatch | cloudflare | success | #32（38298162124） | 0分55秒 |
 | 2026-10-12 06:37 | schedule | cloudflare | success | #31（38177170446） | 3分03秒 |
 | 2026-10-12 04:30 | workflow_dispatch | cloudflare | success | #30（38168346288） | 1分01秒 |
 | 2026-10-11 10:02 | workflow_dispatch | work/1010-xap | success | #29（38100497844） | 1分09秒 |
 | 2026-10-11 04:30 | workflow_dispatch | cloudflare | success | #28（38080109034） | 1分14秒 |
-| 2026-10-10 12:24 | workflow_dispatch | work/1010-xap | success | #27（38020433131） | 1分00秒 |
 
 ## check-leagues-dropped.yml
 
@@ -136,11 +136,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-13 04:31 | workflow_run | cloudflare | success | #9（38298269016） | 1分08秒 |
 | 2026-10-13 00:05 | workflow_dispatch | cloudflare | success | #8（38267725058） | 0分31秒 |
 | 2026-10-12 15:04 | workflow_dispatch | work/1012-abm-map | success | #7（38210749306） | 1分09秒 |
 | 2026-10-12 15:01 | workflow_dispatch | work/1012-abm-map | success | #6（38210571061） | 1分07秒 |
 | 2026-10-12 15:00 | workflow_dispatch | work/1012-abm-map | success | #5（38210461254） | 0分21秒 |
-| 2026-10-12 06:41 | workflow_run | cloudflare | success | #4（38177382894） | 0分36秒 |
 
 ## sitemap-lastmod.yml
 
