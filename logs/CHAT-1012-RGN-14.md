@@ -104,28 +104,35 @@ docs/notes/static-generation.md の `regenerate.py --check` の項に live_pages
 
 `docs/decisions/automation.md`: この指示の「決定」（作り・順番・title 系は WHS-17 の後）は RGN-10・RGN-12・RGN-13 の項に同じものがあるため足していない。
 
+### マージ・マージ後
+
+- `git fetch` のうえ `git merge-base --is-ancestor origin/cloudflare HEAD` が真 → `git push origin work/1012-rgn:cloudflare`（0caa0097..90c58c63）
+- 90c58c63 の check-run: Workers Builds: mj・regenerate・check（2つ）とも success
+- この push で動いた再生成が 7b3e1334（`chore: regenerate …`）を作った。変えたのは `sitemap-title.xml`・`sitemap-wayhome.xml` の lastmod だけ（title/・wayhome/ の各ページの lastmod が 2026-10-12 に）。同じ push に入った WHS-17 の `chore: regenerate wayhome and title pages`（57b1ab88）で title/・wayhome/ のページが変わっていたため、lastmod の更新（`update_sitemap_lastmod.py --from-git`）が拾ったもので、この指示の変更（live_pages。生成物の差0件）によるものではない
+- #551 に経過と残りをコメントした: https://github.com/retroeater/mj/issues/551#issuecomment-6118961141
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1012-rgn
-- ログ: https://github.com/retroeater/mj/blob/work/1012-rgn/docs/logs/CHAT-1012-RGN-14.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1012-RGN-14.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1012-rgn
-- 確認用URL: なし
-- マージ: 未
-- issue: #551
-- 判断が必要なこと: なし
+- 確認用URL: なし（生成物は変わらない。表示を変える変更は無い）
+- マージ: 済（90c58c63。このログの仕上げは追いの push）
+- issue: #551（live_pages の `--check` を実装。saikyo_pages は未マージの work/1012-abm-ui・work/1012-abm-map と同じ関数で重なるため外した。残り〈title 系〈WHS-17 は cloudflare に入った〉→ saikyo_pages〈ABM の2本の後〉→ 残り〉は #551 で追う）
+- 判断が必要なこと: なし（#551 に移した）
 - 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 90c58c63）: https://github.com/retroeater/mj-logs/tree/main/guide/90c58c63
+ガイド文書（この版を写した時点の最新、mj 752118a0）: https://github.com/retroeater/mj-logs/tree/main/guide/752118a0
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/90c58c63/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/90c58c63/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/90c58c63/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/90c58c63/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/90c58c63/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/90c58c63/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/950bd402.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/752118a0/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/752118a0/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/752118a0/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/752118a0/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/752118a0/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/752118a0/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/7b3e1334.md
