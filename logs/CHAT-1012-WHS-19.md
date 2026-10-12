@@ -64,6 +64,30 @@ Chat-Ref: CHAT-1012-WHS-19
 - 指示欄の末尾は指示文の最後の行と一致。雛形の4行は揃っている
 - 作業ブランチ: `work/1012-whs-final` はローカル・リモートとも無し → `git checkout -b work/1012-whs-final origin/cloudflare`（4a0e4d3c）
 
+### 手順1 決勝動画IDを使っている所（`grep` で `決勝動画ID`・`final_video`・`final_candidate`・`empty_final`・`NO_FINAL_VIDEO`・`load_title_finals`、scripts・.github・JS）
+
+| 所 | 使い方 | 直し |
+| --- | --- | --- |
+| `lib/wayhome.py` `HEADERS`・`to_rows()`・`WayhomeRow`/`Episode` の `final_video_url`・`NO_FINAL_VIDEO` | シートの列を読み、YouTube の URL にする | 列を読まない（`HEADERS` から外す。`fetch_records()` は必須の見出しだけを読み、ほかの列は無視するので、列があっても無くても通る）。欄を消した |
+| `lib/wayhome.py` `build_final_video_link_html()` | 「決勝戦を見る」（YouTube、新しいタブ） | 消した。代わりに `build_period_link_html()`（期のページへの「決勝戦を見る」、同じタブ）を各話・一覧で共有 |
+| `generate_wayhome_episodes.py` ヒーロー | 上の YouTube ボタン＋「決勝結果」 | 「▶ 再生」＋「決勝戦を見る」（期のページ）の2つ |
+| `generate_video_wayhome.py` 一覧のヒーロー（最新話、#317） | YouTube の「決勝戦を見る」 | 各話と同じ期のページへの「決勝戦を見る」にした（指示文の前提に無かった所。#317 の「個別ページと同じ操作」に合わせた） |
+| `lib/wayhome_intake.py` `final_candidate()`・`paste_line()` の決勝動画ID・`empty_final_rows()`・`should_notify()` の `empty_final`・`NO_FINAL_VIDEO` | 貼る1行の候補、空の回の知らせ | 消した。`should_notify()` は `new`・`missing_json`・`unavailable` だけを比べる（古い注記の `empty_final` は読めるが比べない） |
+| `check_wayhome.py` `load_title_finals()`（title/ の決勝ライブを読む）・`build_comment()` の空の回の節・`ISSUE_BODY` の行 | 候補を選ぶため title/ のシートと /live の【2】【3】を読む | 消した。期の照合は `title/search.json`（`wayhome.load_period_paths()`、公開している期だけ）で行う（シートを読まなくなった） |
+| テスト（`test_wayhome_rows.py`・`test_wayhome_intake.py`・`test_wayhome_links.py`） | 上の関数 | 直した・足した |
+
+- 使っていなかった所: `VideoObject`（関連動画は無い）・`fetch_youtube_meta.py`（取得対象はシートの動画IDだけ）・`--check`（`check_inputs()` は決勝動画IDを見ない）・OGP・`video_wayhome.js`/`wayhome_episodes.js`・title/ ほか帰り道以外の生成。前提と食い違いなし
+- 未マージのブランチ（`work/1009-swp-526`・`1011-swp-hnd`・`1011-swp-nav`・`1012-abm-map`・`1012-abm-ui`・`1012-bot`）は、帰り道の5ファイルとテストに差分なし
+
+### 手順2 直す（1e684b15・生成 0847d2d1）
+
+- 貼る1行: 列を消すまでの間のずれは、**知らせを作るときに帰り道タブの見出しを読み、その並びで作る**ことで避けた（`paste_line(name, title, video_id, labels)`。名前・タイトル・動画ID・表示 `Y` のほかは空）。今の並び（決勝動画ID が残っている）では `白鳥翔⇥第6期鸞和戦⇥<ID>⇥⇥⇥Y`、消した後は `…⇥<ID>⇥⇥Y`。見出しを読むのは新しい回があるときだけ（`sheets.fetch_table()`）
+- テスト: 907件 OK。足したもの: ボタンが2つ（期に結び付かない回は1つ）・行き先が期のページ・「決勝結果」が無い・一覧のヒーローも同じ・決勝動画ID列があっても無くても同じ行・貼る1行に決勝動画IDが無く今の並びに合う・古い注記の `empty_final` を無視しそれだけでは知らせない。
+  直す前のコードでは、ボタンの数・行き先・貼る1行の引数・列の有無の検査が落ちる（古い注記の検査は直す前でも通る〈直す前は「増えたときだけ」だったため〉。回帰の防ぎとして残した）
+- 手元で `check_wayhome.py` を本物のシートで実行（前回の注記に `empty_final: ["x"]` を入れた）: 「知らせる: False・失敗にする: False」。新しい回の貼る1行は上のとおり
+- 生成し直し（video_wayhome・wayhome_episodes・title_pages）: 変わったのは `wayhome/` 41枚（ヒーローのボタンの行だけ。`o28svvuVI0M` は変化なし）と `video_wayhome.html`（ヒーローのボタンの行だけ）。title/ ほかは変わらない
+- 文書: `docs/notes/video-wayhome.md`（手順・知らせの表・ボタン・列）、`docs/decisions/wayhome.md`（WHS-03 の3行・WHS-18 の「決勝結果」に「→ 置き換え」、WHS-19 の決定）。#545 の本文を新しい `ISSUE_BODY` に「決勝動画ID」列の段落を足した形で更新（REST の PATCH）
+
 ## 報告
 
 - 状態: 中断（作業中）
@@ -80,12 +104,12 @@ Chat-Ref: CHAT-1012-WHS-19
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 4a0e4d3c）: https://github.com/retroeater/mj-logs/tree/main/guide/4a0e4d3c
+ガイド文書（この版を写した時点の最新、mj f09571e4）: https://github.com/retroeater/mj-logs/tree/main/guide/f09571e4
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/4a0e4d3c/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/4a0e4d3c/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/4a0e4d3c/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/4a0e4d3c/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/4a0e4d3c/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/4a0e4d3c/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f09571e4/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f09571e4/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f09571e4/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f09571e4/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f09571e4/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f09571e4/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/7b3e1334.md
