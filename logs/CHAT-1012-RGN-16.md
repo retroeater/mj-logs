@@ -53,6 +53,66 @@
 
 ## 経過
 
+### 0. 着手前の確認
+
+- Chat-Ref の重複: `git log --all --grep="CHAT-1012-RGN-16"` は0件
+- 作業ブランチ: ローカル・リモートの work/1012-rgn とも `origin/cloudflare` の祖先（RGN-15 でマージ済み）→ `git merge --ff-only origin/cloudflare`（585775c2 → 0408731f）
+- 指示欄の末尾は指示文の最後の行と一致。冒頭の雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- #551 は Open。コメントはこのセッションのものだけ
+
+### 1. 確かめる
+
+- `lib/check.py` を import している生成スクリプト（`--check` を持つ）は11本で、jpml_test は RGN-15 で持った → 対象から外した。対象は `page.generate()` を使う8ページ（resource_logs・rh_paifu・rh_results・rh_results_detail・saikyo_mens・video_en・video_live・video_mtsuku）と ouka_leagues・resource_efficiency の10本
+- **前提と違ったところ**: resource_efficiency の「`lib/chart.py` 99行の `max()` が空で例外」は、実物では起きない（`horizontal_bar_chart()` は96行で `data` が空なら空文字を返す）。空のシートでは空のグラフで通る。生成で止まるのは値が数でない行（`max()` の比べ・棒の長さの計算で TypeError）なので、`--check` はそれを止まる理由にし、0件は警告にした
+- ouka_leagues の 101行 `periods[0]`（期が0件で IndexError）は実物のとおり
+- 未マージの work/ ブランチ（この作業ブランチを除く）で、対象の10本・`lib/page.py`・`lib/chart.py`・`lib/check.py`・試験・docs/notes/static-generation.md を変えているもの: work/1012-abm-map（`scripts/tests/test_abema_book.py`・`scripts/tests/test_saikyo_pages.py`・docs/notes/static-generation.md の 408行〈ワークフローの一覧の行〉）と work/1012-abm-ui（`scripts/tests/test_saikyo_pages.py`）。どれも対象のファイル・関数・行と重ならない。外したページは無い。マージ直前に見直したときも重なりは無かった
+- 着手中コメントは残していない（この指示の前のコメントで #551 の残りとして扱いを示していたため）→ 下の「#551 へのコメント」で経過を書いた
+
+### 2. 作る
+
+- `scripts/lib/page.py`: `check_rows()` を足した。`generate()` と同じ `fetch_sheet()` で読み、1行ずつ `build_row_html()` を `attempt()` して、列の数の違いなどで止まる行を全部出す（ラベルは「<読んだ順>件目 <先頭2つの値>」。シートの行番号は WHERE で絞るため分からない）。行が通ったらページ全体を組み立てる。0件は警告（生成は空の表で通る）。`lib/check.py` を import した
+- 8ページ: `__main__` で `check.requested()` なら `check_rows()`、でなければ今と同じ `generate()`（各スクリプト2行と import）
+- `scripts/generate_ouka_leagues.py`: `main()` を `load()`・`build()`（中身。書かない）と書く部分に分けた（houou_leagues と同じ形）。`run_check()`: 期が0件なら IndexError ではなく止まる理由
+- `scripts/generate_resource_efficiency.py`: `main()` を `load()`・`build()` と書く部分に分けた。`row_problem()`（列が2つでない・値が数でない）。`run_check()`: 止まる行を全部出し、通ればページを組み立てる。0件は警告
+- 試験 `scripts/tests/test_simple_pages_check.py`（8件。書き出し・削除・ディレクトリ作成が起きないことを確かめる）: 列の数の違う行が全部止まる理由／通る行は書かずに通る／0件は警告で 0／10本とも `regenerate.has_check()` が真／ouka_leagues の期0件は止まる理由／resource_efficiency の数でない値が全部出る・通る値は通る／生成の `build()` は数でない値で今と同じく TypeError
+- 直す前のコード（HEAD 0408731f を一時のディレクトリに `git archive` で出し、足した試験だけ置いた）で流すと、8件とも落ちた（7件 ERROR・1件 FAIL。最後の振る舞いの確かめも `build()` が無いので ERROR）
+- `python3 -m unittest discover -s scripts/tests` は全件 OK
+
+### 3. 今のシートで確かめる
+
+`python3 scripts/regenerate.py --check all`: 終了コード 0、205秒。終わった後の `git status` は前と同じ（コミットした後のきれいな作業ツリーで対象の10本を流し直し、`git status` は空）。
+
+| ページ | 呼び方 | 結果 | 止まる理由 | 警告 |
+|---|---|---|---|---|
+| ask_data | 書かない `--check` | 通る | 0 | 1（/live で公開しなかった行 830件） |
+| houou_leagues | 書かない `--check` | 通る | 0 | 0 |
+| houou_pages | 書かない `--check` | 通る | 0 | 0 |
+| houou_race | 書かない `--check` | 通る | 0 | 0 |
+| jpml_pros | 書かない `--check` | 通る | 0 | 0 |
+| jpml_test | 書かない `--check` | 通る | 0 | 0 |
+| live_pages | 書かない `--check` | 通る | 0 | 1（公開しなかった行 830件） |
+| ouka_leagues | 書かない `--check` | 通る | 0 | 0 |
+| resource_dictionary | 書かない `--check` | 通る | 0 | 0 |
+| resource_efficiency | 書かない `--check` | 通る | 0 | 0 |
+| resource_logs | 書かない `--check` | 通る | 0 | 0 |
+| rh_paifu | 書かない `--check` | 通る | 0 | 0 |
+| rh_results | 書かない `--check` | 通る | 0 | 0 |
+| rh_results_detail | 書かない `--check` | 通る | 0 | 0 |
+| saikyo_mens | 書かない `--check` | 通る | 0 | 0 |
+| **saikyo_pages** | **生成して戻す** | 通る | 0 | 0 |
+| title_pages | 書かない `--check` | 通る | 0 | 0 |
+| video_en | 書かない `--check` | 通る | 0 | 0 |
+| video_live | 書かない `--check` | 通る | 0 | 0 |
+| video_mtsuku | 書かない `--check` | 通る | 0 | 0 |
+| video_wayhome | 書かない `--check` | 通る | 0 | 0 |
+| wayhome_episodes | 書かない `--check` | 通る | 0 | 1（jpml_pros に該当が無い選手1名） |
+
+（books_pages は凍結で `all` の対象外）
+
+対象の10本の生成（変えた後）: 終了コード 0、`git status` は空。変える前のコード（HEAD 0408731f の全体を一時のディレクトリに出したもの）で10本を流した結果（終了コードはすべて 0）と、生成物11ファイル（8ページの html・ouka_leagues.html・ouka_leagues_data.json・resource_efficiency.html）は差0件。
+
+docs/notes/static-generation.md の `regenerate.py --check` の項の、`--check` を持つページの列挙を、今の状態（書かない `--check` を持たないのは saikyo_pages だけ）とページごとの要点に書き直した。`docs/decisions/automation.md`: この指示の「決定」は RGN-10・RGN-15 の項に同じものがあるため足していない。
+
 ## 報告
 
 - 状態: 作業中
@@ -69,12 +129,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 0408731f）: https://github.com/retroeater/mj-logs/tree/main/guide/0408731f
+ガイド文書（この版を写した時点の最新、mj 6d9223d9）: https://github.com/retroeater/mj-logs/tree/main/guide/6d9223d9
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/0408731f/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/0408731f/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/0408731f/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/0408731f/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/0408731f/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/0408731f/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6d9223d9/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6d9223d9/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6d9223d9/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6d9223d9/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6d9223d9/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6d9223d9/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/7b3e1334.md
