@@ -69,15 +69,69 @@
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 着手前の確認（2026-10-12）
+
+- 0.: 「指示」欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある
+- 同じ Chat-Ref（SNM-07・SNM-08）のコミットは 0。ローカル・リモートの `work/1012-snm-ampai` はマージ済み（cloudflare の祖先）なので `git merge --ff-only origin/cloudflare` で進めた（d627615c）
+- (1) CHAT-1012-SNM-06 の `## 報告` の状態は「判断待ち」。末尾に ` / 続き: CHAT-1012-SNM-08` を足した
+- (2) 「鳳凰」（`lib/sheets.fetch_table`）: 16,011行。見出しは A 名前・B 期・C 前後・D リーグ・E リーグキー・F 順位・G 結果・H 合計・I〜U 第1〜13節・V 表示・W プロ・X 備考・Y 存在チェック・Z 備考。「組」の列は無く、X は「備考」（挿入を戻した後の形）
+
+### 手順1: 確かめと洗い出し
+
+- #548: Open。コメントは SNM-06（このチャット、判断待ちで終わった）の着手中だけで、ほかの Chat-Ref の未完了の着手中コメントは無い
+
+**「鳳凰」を読む所**:
+
+| ファイル・関数 | 読み方 | 読む列 |
+|---|---|---|
+| `scripts/generate_houou_race.py` `HEADERS`・`fetch_records()` | 見出し | 名前・期・前後・リーグ・結果・表示・第1〜13節 |
+| 同 `NOTE_QUERY = "SELECT A,X"`（245行） | **列の英字** | A 名前・X 備考（組。「備考」が X・Z の2列あるため） |
+| `scripts/generate_houou_leagues.py` `QUERY = "SELECT A,B,C,D,F"`（130行） | **列の英字** | A 名前・B 期・C 前後・D リーグ・F 順位（F に「組」を挿入すると順位の代わりに組を読む） |
+| `scripts/generate_houou_pages.py` `HEADERS`・`fetch_records()`（109行） | 見出し | 名前・期・前後・リーグ・順位・結果・合計・表示・第1〜13節 |
+| 同 `fetch_sheet(..., "SELECT A,B,C,D,X,V")`（132行） | **列の英字** | 名前・期・前後・リーグ・X 備考（組）・V 表示 |
+| `scripts/check_unused_names.py` 72行 | 見出し（`generate_houou_race.HEADERS`） | 同上 |
+| `scripts/lib/pro_stats.py` `_read(HOUOU, contest_headers)` | 見出し | 名前・期・前後・リーグ・リーグキー・表示 |
+| **`houou_results.js`**（houou_results.html） | **列の英字（ブラウザの gviz）** | `SELECT A,B,…,U WHERE V = "Y"` |
+| **`league_ranking.js`**（houou_ranking.html?sheet=鳳凰） | **列の英字（ブラウザの gviz）** | `SELECT A,SUM(H) WHERE V = "Y" …` など9通り（A・B・C・G・H・I〜U・V） |
+
+**「鳳凰」の W〜Z 列**（正本の xlsx エクスポート、200・3,039,963 バイト）: W「プロ」は数式 16,006（`=IF(ISNA(XLOOKUP($A2,'プロ'!$A:$A,…)),"No","Yes")`）・値 5、X「備考」は値 2,961、Y「存在チェック」は数式 9,180（`=IF(ISNA(VLOOKUP(A2206,'_pro'!O:O,1,FALSE)),"No","Yes")`）、Z「備考」は値 692。
+ほかのタブ・同じタブの数式で W〜Z を引くものは 0。
+
+**新しい Ampai のブック（`1zk3FQV0LDZhqG9-m2i2LXQcNx8ZzpLjCS4dEFKFrZ98`）が読めない**（2026-10-12 14:54 UTC〈23:54 JST〉）:
+- htmlview（タブの一覧、`lib/sheets._sheet_gids()`）: HTTP 404
+- gviz（`gviz/tq?gid=0&headers=1&tqx=out:json`）: HTTP 404
+- CSV エクスポート（`export?format=csv&gid=0`）: HTTP 404
+- 同じ方法で SNS ブック（`1CQyTzlP…`）の gviz は 200 なので、ネットワークではなくブック側（共有の設定か ID）とみられる
+
+止まる条件「新しい Ampai のブックが読めない」に当たったため、ここで止めた。実装（手順2）・確かめ（手順3）・決定の追記・マージはしていない。
+#548 に中断のコメントを書いた: https://github.com/retroeater/mj/issues/548#issuecomment-6126759063
+
+## 報告
+
+- 状態: 中断（エラー）
+- ブランチ: work/1012-snm-ampai
+- ログ: https://github.com/retroeater/mj/blob/work/1012-snm-ampai/docs/logs/CHAT-1012-SNM-08.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1012-snm-ampai
+- 確認用URL: なし
+- マージ: 未（止まる条件に当たったため）
+- issue: #548（中断のコメントだけ）
+- 判断が必要なこと:
+  - 新しい Ampai のブックが 404 で読めない。共有を「リンクを知っている全員が閲覧可」にしてあるか、URL の ID（`1zk3FQV0LDZhqG9-m2i2LXQcNx8ZzpLjCS4dEFKFrZ98`）が正しいかを確かめてほしい
+  - ページ側の JS（`houou_results.js`・`league_ranking.js`、旧方式の Google Charts の2ページ）が「鳳凰」を列の英字（A〜V）で読んでいる。F 列に「組」を挿入すると2ページが壊れる。次のどちらにするか: (i) 「組」を F ではなく V「表示」より右（例: 消す X〜Z の場所や末尾）に置く（JS は直さなくてよい）、(ii) 2つの JS を見出しで読む形に直す（ブラウザでの確認が要る）
+- 未確認の項目: なし
+- エラー: 止まる条件「新しい Ampai のブックが読めない」に当たった
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj d627615c）: https://github.com/retroeater/mj-logs/tree/main/guide/d627615c
+ガイド文書（この版を写した時点の最新、mj a0fe4f25）: https://github.com/retroeater/mj-logs/tree/main/guide/a0fe4f25
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d627615c/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d627615c/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d627615c/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d627615c/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d627615c/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d627615c/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a0fe4f25/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a0fe4f25/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a0fe4f25/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a0fe4f25/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a0fe4f25/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a0fe4f25/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/283713b9.md

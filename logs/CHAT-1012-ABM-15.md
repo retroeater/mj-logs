@@ -49,6 +49,39 @@ CHAT-1012-ABM-13 で作った ABEMA ブックの【2】（毎朝の作り直し�
 
 ## 経過
 
+### 着手（2026-10-12）
+
+- 同じ Chat-Ref のコミットは0件。「貼る時機」の前提: CHAT-1012-ABM-14 のログ（origin/cloudflare）の `## 報告` の状態は「完了」、`origin/work/1012-abm-ui` は origin/cloudflare の祖先（どちらも真）
+- `work/1012-abm-map` はローカル・リモートとも e1d99ce4 で、`git checkout work/1012-abm-map`（作業ツリーは空）
+- 0.: 「指示」欄の末尾は指示文の最後の行と一致。雛形の行は4つともある（1行目にまとめて書かれている）。CHAT-1012-ABM-13 の `## 報告` の状態は「判断待ち」だったので「判断待ち / 続き: CHAT-1012-ABM-15」にした
+
+### 手順1: 取り込み・テスト・生成し直し
+
+- `git merge origin/cloudflare`: 衝突は `docs/decisions/saikyo.md` の末尾だけ（cloudflare 側の CHAT-1012-ABM-12・ABM-14 の節と、こちらの CHAT-1012-ABM-13 の節の追記どうし）。止まる条件の例外（両立する衝突）として両方を残して解いた（6b677004）。生成物（卓のページ）とコードは衝突しなかった（生成物は文字の上で自動で合わさったが、下で生成し直した）。解いた後の該当箇所:
+
+```
+## 2026-10-12（CHAT-1012-ABM-12）
+…
+## 2026-10-12（CHAT-1012-ABM-14）
+…
+## 2026-10-12（CHAT-1012-ABM-13）
+
+決定はいずれも 2026-10-12 に平野さんが出したもの（CHAT-1012-ABM-10 の結果を見て）。
+…
+```
+
+- テスト: `python3 -m unittest discover -s scripts/tests` 926件 OK
+- `python3 scripts/regenerate.py saikyo_pages`（【2】は CHAT-1012-ABM-13 で書いたもの）: 「動画URLのある卓: 603」「新しいページ(#425、未公開): 878件」、警告なし。取り込んだ後のスクリプトで 641 ファイルが変わったのでコミットした（5b00e582）
+- `origin/cloudflare` との差分の種類:
+  - 卓のページ: **641**（643 以下。ヒーローに ABEMA のリンクのある卓のページは 603。残りは関連動画・他の対局のカードの画像が ABEMA のサムネイルに変わったもの。2026年度の31卓もこの理由で変わる）
+  - 対局のページ: **199**（見込みとの差 0）
+  - シートの変化による差分: 0（取り込みの前後で生成の件数・警告が同じ）
+  - 年度ページ・今の公開中のファイル（`saikyo/index.html`・`saikyo/<年度>.html`・`sitemap-saikyo.xml`）・live/: **0**
+  - 文書とコード: `scripts/generate_saikyo_pages.py`・`scripts/lib/abema_book.py`・`scripts/lib/sheets_write.py`・`scripts/update_abema_book.py`・テスト2つ・`docs/notes/` 4つ（abema-book・live-channel-write・saikyo-page-design・static-generation）・`docs/decisions/saikyo.md`・ログ3つ（ABM-10・ABM-13・ABM-15）
+  - ワークフロー: `.github/workflows/regenerate-saikyo.yml`
+- 2026年度の18卓: 2026年度のページのうち自分の卓の動画を持つ24ページ（卓のページ18・対局のページ6）で、ヒーローと「ABEMA で見る」の部分が origin/cloudflare（今の本番）とすべて同じ（違い 0）
+- 内部リンク 878ページ・実在しないもの 0、id の重複 0、noindex・canonical は全ページ、`#` の対応表も問題なし
+
 ## 報告
 
 - 状態:
@@ -65,12 +98,12 @@ CHAT-1012-ABM-13 で作った ABEMA ブックの【2】（毎朝の作り直し�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj d627615c）: https://github.com/retroeater/mj-logs/tree/main/guide/d627615c
+ガイド文書（この版を写した時点の最新、mj a0fe4f25）: https://github.com/retroeater/mj-logs/tree/main/guide/a0fe4f25
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d627615c/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d627615c/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d627615c/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d627615c/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d627615c/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d627615c/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a0fe4f25/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a0fe4f25/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a0fe4f25/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a0fe4f25/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a0fe4f25/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a0fe4f25/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/283713b9.md

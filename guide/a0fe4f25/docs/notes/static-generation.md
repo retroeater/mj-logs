@@ -405,7 +405,7 @@ GitHub Actions (`.github/workflows/regenerate-page.yml`) が、`scripts/generate
 | ワークフロー | 内容 |
 |---|---|
 | `regenerate-page.yml` | 生成スクリプト・対応する`.js`・`scripts/lib/**`の変更のpushと、毎週月曜05:37 JST（`all`）。ページを再生成してコミットする（詳細は上の「regenerate-page.yml」） |
-| `regenerate-saikyo.yml` | `check-image-links.yml`（「画像リンク切れの検知」）の実行が cloudflare で終わるたび（`workflow_run`。取り消された回を除く。毎朝 04:30 JST の検知の後など）と手動。`regenerate-page.yml` を `workflow_call` で呼び、saikyo_pages だけを再生成する。差分が無ければコミットしない（#537） |
+| `regenerate-saikyo.yml` | `check-image-links.yml`（「画像リンク切れの検知」）の実行が cloudflare で終わるたび（`workflow_run`。取り消された回を除く。毎朝 04:30 JST の検知の後など）と手動。`regenerate-page.yml` を `workflow_call` で呼び、saikyo_pages だけを再生成する。差分が無ければコミットしない（#537）。再生成の前にジョブ `abema` が ABEMA ブックの【2】を作り直す（`scripts/update_abema_book.py`、失敗しても再生成は動く。手動実行の入力 abema・regenerate、#425・`docs/notes/abema-book.md`） |
 | `check-image-links.yml` | 毎週月曜03:00 JST に `jpml_pros.html` の画像、毎日 04:30 JST（Worker `mj-scheduler` から、入力 `scheduled`）に最強戦の選手写真のリンク切れを確かめ、それぞれ常設issueに書き出す |
 | `check-saikyo-unregistered.yml` | 毎週月曜06:50 JST。最強戦の出場者で「プロ」「連盟プロ以外」から引けない人を常設issueに書く（#431、`docs/notes/saikyo-page-design.md`「8. 出場者の登録漏れの検知」） |
 | `assets-check.yml` | push（`docs/`だけの push は除く。サイズを見る`docs/handover.md`・`docs/notes/chat-side-operations.md`は含む、#298）。`.assetsignore`の漏れ（#133）と CLAUDE.md・handover.md のサイズを検知し、配信の上限との比（`check_asset_limits.py`、#387）を出す |
