@@ -47,6 +47,37 @@ CHAT-1012-ABM-12 で直した卓のページ（固定バーと「すべての卓
 
 ## 経過
 
+### 着手（2026-10-12）
+
+- 同じ Chat-Ref のコミットは0件。`work/1012-abm-ui` はローカル・リモートとも f0668246 で、`git checkout work/1012-abm-ui`（作業ツリーは空）
+- 0.: 「指示」欄の末尾は指示文の最後の行と一致。雛形の行は4つともある（1行目にまとめて書かれている）。CHAT-1012-ABM-12 の `## 報告` の状態は「判断待ち」だったので「判断待ち / 続き: CHAT-1012-ABM-14」にした
+
+### 手順1: 取り込み・テスト・生成し直し
+
+- `origin/cloudflare` は祖先でなかった。`git merge origin/cloudflare` で取り込み、`docs/decisions/saikyo.md` の末尾が衝突した（CHAT-1012-ABM-12 の節と、cloudflare に先に入った CHAT-1012-SNM-03 の節の追記どうし）。止まる条件の例外（両立する衝突）として両方を残して解いた（371757cd）。解いた後の該当箇所:
+
+```
+## 2026-10-12（CHAT-1012-SNM-03）
+
+- 旧列8列（「プロ」の X ID・X画像・note ID・note画像・YouTube ID・YouTube画像、…
+…
+
+## 2026-10-12（CHAT-1012-ABM-12）
+
+決定はいずれも 2026-10-12 に平野さんが本番の卓のページを見て出したもの。
+…
+```
+
+- `style.css`・`docs/notes/saikyo-page-design.md` は自動で取り込めた（別の箇所）
+- テスト: `python3 -m unittest discover -s scripts/tests` 912件 OK
+- `python3 scripts/regenerate.py saikyo_pages`: 「動画URLのある卓: 18」「新しいページ(#425、未公開): 878件」、警告なし。生成し直しても作業ツリーの差分は出なかった（シートの変化なし）。配信ファイル数 3,339 / 20,000
+- `origin/cloudflare` との差分の種類:
+  - 卓のページ: **643**（見込み 643 との差 0）
+  - CSS/JS: `assets/saikyo.js`・`style.css`
+  - シートの変化による差分: 0
+  - 今の公開中のファイル（`saikyo/index.html`・`saikyo/<年度>.html`・`sitemap-saikyo.xml`）・対局のページ・年度ページ・live/: 0
+  - 文書とコード: `scripts/generate_saikyo_pages.py`・`scripts/tests/test_saikyo_pages.py`・`docs/notes/saikyo-page-design.md`・`docs/decisions/saikyo.md`・ログ2つ（ABM-12・ABM-14）
+
 ## 報告
 
 - 状態:
@@ -63,12 +94,12 @@ CHAT-1012-ABM-12 で直した卓のページ（固定バーと「すべての卓
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj a23c9980）: https://github.com/retroeater/mj-logs/tree/main/guide/a23c9980
+ガイド文書（この版を写した時点の最新、mj ff90f7ad）: https://github.com/retroeater/mj-logs/tree/main/guide/ff90f7ad
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a23c9980/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a23c9980/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a23c9980/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a23c9980/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a23c9980/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a23c9980/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ff90f7ad/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ff90f7ad/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ff90f7ad/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ff90f7ad/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ff90f7ad/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/ff90f7ad/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/283713b9.md
