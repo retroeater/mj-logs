@@ -58,6 +58,31 @@ CHAT-1012-ABM-10 の割り当ての規則で、ABEMA ブック（ID `1umiz7Sb1ZV
 
 ## 経過
 
+### 着手（2026-10-12）
+
+- 同じ Chat-Ref のコミットは0件。`work/1012-abm-map` はローカル・リモートにあり、どちらも origin/cloudflare の祖先（マージ済み）。docs/notes/cloud-sessions.md「ローカルにあり origin/cloudflare の祖先」のとおり `git checkout work/1012-abm-map` → `git merge --ff-only origin/cloudflare`（1a0da912）
+- 0.: 「指示」欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は4つともある（1行目にまとめて書かれている）。CHAT-1012-ABM-10 のログの `## 報告` の状態を「判断待ち / 続き: CHAT-1012-ABM-13」にした
+
+### 手順1: 確かめる
+
+- 【1】（生成と同じ gviz の `fetch_table()`）: 見出し14列「年度・回のID・URL・題名・og:title・og:image・サムネイルのHTTP・対局者など・司会・実況・解説・その他の役・出演の一覧（ABEMA のまま）・ページの日付」、**670行**。年度ごと 2011 16・2012 20・2013 20・2014 32・2015 29・2016 46・2017 47・2018 60・2019 58・2020 53・2021 54・2022 55・2023 54・2024 54・2025 54・2026 18（前提と一致）
+- 【2】最強戦の今の中身: 見出し「対局日・年度・対局・ステージ・卓・ABEMA」の6列、686行。ABEMA の列はすべて空（年度ごと 2026 54・2025 54 … と、今の「最強戦」シートの643卓より多い。下書きとみられる）。前提のとおり機械が作り直す表として、この中身は上書きする
+- 【3】手動補正: 空（見出しも無い）
+- サービスアカウント: 作業ブランチで `regenerate-saikyo.yml` を手動実行（入力 abema=check・regenerate=false、run 38210461254、success）。`update_abema_book.py --check` の結果は「編集者か: はい(HTTP 200)」（ブックの名前を同じ名前で書き直す試し。`update-sns-book.yml` の check と同じ）。タブ・【1】の見出しと行数は上と同じ
+- 未マージのブランチ（7本）: `generate_saikyo_pages.py` を変えているのは `work/1012-abm-ui`（CHAT-1012-ABM-12）だけ。向こうは卓のページの関数（`build_related_card()`・`build_table_page_body()`・`write_sub_pages()`・`main()` の年度の繰り返し・`build_year_select()`）と import の `urllib.parse`・定数 `OTHER_TABLES_LIMIT`、こちらは `load_videos()`（`videos_from_rows()` を消す）・定数 `VIDEO_HEADER` を消す・`from lib import` の行で、同じ関数・同じ行は無い。`git merge-tree` で試すと、コードとテストは衝突なし、`docs/decisions/saikyo.md` だけが末尾の追記どうしで衝突（両立する）
+
+### 手順2: 作る（1b0830a6）
+
+- `scripts/lib/abema_book.py`（新規）: CHAT-1012-ABM-10 のログ「手順3: 規則の案」の規則1〜5（題名の読み方・対局名の正規化・類似度 0.6 以上で卓の当てはまる最初の対局・ステージの読み方・1つの卓に2つ以上の回なら当てない）。2016 の確かめは `CHECK_PLAYERS`（年度と正規化した ABEMA の対局名）に当たる回だけ、【1】の「対局者など」の名前と当たった卓の4人を現在名（「別名」で解決）で比べ、1人も重ならなければ「割り当てなし」にする
+- 出演の一覧の読み分け（「出演の一覧（ABEMA のまま）」から読み直す）: 項目を「／」で分け、役の書き方「役:名前」「役:」「<役>名前」「<役>」「役」（項目が役の名前だけ）の5通りを役の始まりとし、役の後ろの役の無い項目は次の役までその役の人。役は 司会・実況・司会・実況（両方に入れる）・解説 を【2】に載せ、ゲスト解説・アシスタント・コーナー出演・アンバサダー・進行 は読み分けにだけ使う（【2】に載せない）。最初の役より前と卓の見出し（【A卓】・<A卓>）は対局者、「ほか」は捨てる。1つの役の複数の人は「／」でつなぐ
+- `scripts/update_abema_book.py`（新規）: 【1】を gviz で読み、「最強戦」シートを生成と同じく読んで割り当て、【2】を丸ごと書く（書く直前に読み直して変わっていないこと、書いた後に読み直して同じことを確かめる。`update_sns_book.py` と同じ）。【3】が空なら見出しだけを書く。`--check`・`--dry-run`
+- 【2】の形: 前提の案のとおり（年度・対局日・対局・ステージ・卓・回のID・URL・ABEMA の題名・司会・実況・解説・割り当て・備考）。卓の行は「最強戦」シートの対局の並びで全卓（回の無い卓は鍵の5列だけ）、その後に当たらない回（年度・回のIDの順、割り当て「なし」・備考に理由）。卓の列は「最強戦」シートの E 列と同じ「A卓」「-」。【3】は 年度・対局日・対局・ステージ・卓・URL・司会・実況・解説・備考
+- `scripts/lib/sheets_write.py`: 書いてよい先に ABEMA ブックの【2】、見出しだけを書いてよい先に【3】を足した
+- `.github/workflows/regenerate-saikyo.yml`: 再生成の前にジョブ `abema`（`update_abema_book.py`）を足した。新しい予約実行は足さない（毎朝の検知の後の今の起動に乗る）。`abema` が失敗しても再生成は動く（今の【2】のまま）。手動実行に入力 abema（update / dry_run / check）と regenerate を足した
+- 生成: `load_videos()` を ABEMA ブックの【2】を【3】の空でない URL で上書きしたもの（`abema_book.video_urls()`）に切り替えた。M 列は読まない
+- テスト: `scripts/tests/test_abema_book.py`（題名の読み方・正規化・規則・2つ以上の回・2016 の確かめ〈重なる・重ならない・旧名〉・2026年度の18 / 18・出演の読み分け・【2】の行・【3】の上書き〈空は上書きしない・日付として入力されたセル〉）。M 列を読むテスト（`VideosTest`）は消した。`python3 -m unittest discover -s scripts/tests` 871件 OK
+- 手元で【1】（gviz）と「最強戦」シートから割り当てた結果: 【2】710行（卓 643・割り当てなし 67）、回が当たった卓 603、2026年度 18 / 18、1つの卓に2つ以上の回 0。2016 著名人代表決定戦の3回（p16〜p18）は対局者が重なり、ベスト8 A卓・B卓・決勝に当たった
+
 ## 報告
 
 - 状態:
@@ -74,12 +99,12 @@ CHAT-1012-ABM-10 の割り当ての規則で、ABEMA ブック（ID `1umiz7Sb1ZV
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 387505ef）: https://github.com/retroeater/mj-logs/tree/main/guide/387505ef
+ガイド文書（この版を写した時点の最新、mj fa4ef82f）: https://github.com/retroeater/mj-logs/tree/main/guide/fa4ef82f
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/387505ef/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/387505ef/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/387505ef/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/387505ef/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/387505ef/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/387505ef/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/fa4ef82f/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/fa4ef82f/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/fa4ef82f/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/fa4ef82f/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/fa4ef82f/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/fa4ef82f/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/950bd402.md
