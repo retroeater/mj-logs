@@ -49,14 +49,104 @@ SNS ブックの毎日の更新が 2026-10-12 04:10 JST の回で失敗した。
 
 ## 経過
 
+### 着手前の確認
+
+- `git log --all --grep="CHAT-1012-XAP-11"`: 0件。`origin/work/1012-xap`・ローカルの `work/1012-xap`: 無し → `git checkout -b work/1012-xap origin/cloudflare`（5b280b21）
+- 0. 指示欄の末尾の行は「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」で、指示文の最後の行と一致
+- 冒頭の雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 揃っている
+- #514 に着手コメント（https://github.com/retroeater/mj/issues/514#issuecomment-6116542780 ）
+
+### 1. run 38166926033 のジョブ・ステップ
+
+head は `4e18a785`（cloudflare）。
+
+| ジョブ | 結論 | 時刻（UTC） |
+|---|---|---|
+| `update` | success | 19:11:02〜19:11:38 |
+| `regenerate / regenerate`（regenerate-page.yml を `workflow_call`） | failure | 19:11:39〜19:16:07 |
+
+`regenerate` のステップ: チェックアウト・Python・YouTubeチャンネル情報を取得・帰り道のYouTube情報を取得・帰り道の一覧のOGP画像を作る・対象ページを再生成（19:12:02〜19:16:00、約4分）・サイトマップのlastmod・well-formedness・title/ の転送の行・変更をコミット・push はすべて success（楽天は skipped）。
+**失敗したのは「帰り道の前回の知らせを読む」（actions/github-script）だけ**。後の帰り道の3手順と「飛ばしたページを報告」は skipped。
+
+失敗したステップのログの要点:
+
+```
+変更なし                       ← 直前の「変更をコミット・push」の出力
+##[group]Run actions/github-script@v7
+...
+RequestError [HttpError]: Resource not accessible by integration
+##[error]Unhandled error: HttpError: Resource not accessible by integration
+  status: 403,
+    url: 'https://api.github.com/repos/retroeater/mj/issues?state=open&per_page=100',
+      'x-accepted-github-permissions': 'issues=read',
+```
+
+ジョブ `update` の出力（「実行」）:
+
+```
+mode: update / dry_run: false
+- 【1】元データ を書き直します(プロ 1099・連盟プロ以外 739)
+- 【2】ID: 1864 行(一覧に無い 26)、書き直す
+- X API を呼んだ件数: 0(上限 30)
+- X状態: 解決 1052、未入力 799、既定のアイコン 12、アカウントなし(確認済み) 1
+- note状態: 未入力 1660、確認済み(取得しない) 204
+- YouTube状態: 未入力 1782、解決 82
+- 【3】画像取得 を書き直します
+- ページが使う値(ID・画像URL)が変わった人: 2
+```
+
+`pages_changed` は true（`regenerate` が動いたことから。ログには `Set output 'pages_changed'` の行だけで値は出ない）。
+
+### 2. 原因
+
+- update-sns-book.yml のジョブ `regenerate` は `permissions: contents: write` だけを持つ。`workflow_call` で呼ばれたワークフローの GITHUB_TOKEN はこの権限になる（issues は none）
+- 2026-10-11 に帰り道のチャット（WHS）が regenerate-page.yml に帰り道の取り込みの手順を足した（c460f644、Chat-Ref: CHAT-1011-WHS-13）。「帰り道の前回の知らせを読む」は issue の一覧を読む（issues: read が要る）。条件は `github.event_name != 'push' && target_page が all` で、`workflow_call` では `github.event_name` が呼んだ側（workflow_dispatch）になるため、SNS ブックからの呼び出しでも動いた
+- → 403 で失敗。**原因はほかのチャット（帰り道〈WHS〉）の変更 c460f644（CHAT-1011-WHS-13）と、XAP-09 の `workflow_call` 呼び出しの組み合わせ**。SNS ブックのスクリプト・シートの値（10/11 の吉田彩乃・村田昴の直し）は関係しない
+- ページの生成・push は失敗の前に終わっている。「変更なし」だったのは、ページが ID を【2】から読むため、10/11 の【2】の直しが 10/11 02:26 UTC の再生成（ce02c249）で既に入っていたため（ce02c249 で吉田彩乃の X のリンクが消えている）。今回の【3】の変化ではページに差分が出なかった。サイトへの実害はない
+
+その日のほかの regenerate-page.yml の実行との比較:
+
+| run | 起動 | head | 結論 | 失敗の手順 | 同じ原因か |
+|---|---|---|---|---|---|
+| #276（38186096774） | schedule、10/11 23:55 UTC | 4e18a785 | failure | 「帰り道の取り込みの失敗を報告」（新しい回2件で `exit 1`、#545 にコメント） | 違う（直接の実行なので権限はある。WHS-13 の「新しい回で失敗にする」仕様による） |
+| #277（38193457871） | workflow_dispatch、work/1012-whs、01:50 UTC | c3362de8 | success | — | — |
+| #278・#279 | push（cloudflare） | 32ed04cb・bba86b6d | success | — | — |
+
+**既に直っている**: 帰り道のチャットが同じ失敗を診断し、c3362de8（2026-10-12 01:50 UTC、Chat-Ref: CHAT-1012-WHS-15）で「帰り道のYouTube情報を取得」「帰り道の一覧のOGP画像を作る」の条件に `contains(github.workflow_ref, '/regenerate-page.yml@')` を足した（`workflow_call` では `workflow_ref` が呼んだ側のファイルになる）。「前回の知らせを読む」以降は `steps.fetch_wayhome.outcome != 'skipped'` などで続けて skipped になる。c3362de8 は origin/cloudflare に入っている（`git merge-base --is-ancestor` が真）。WHS-15 のログは「呼び出し側に issues: write を足す案は採らない」（平野さんの決定）と書いている。
+
+今も同じ失敗が起きるか（コードからの判断。ワークフローは動かしていない）: 起きない。今の regenerate-page.yml で issue の API を呼ぶのは帰り道の3手順（読む・調べる・書く）だけで、どれも `fetch_wayhome` が skipped なら動かない。「YouTubeチャンネル情報の取得失敗を報告」「飛ばしたページを報告」などは `echo`・`exit 1` だけで API を呼ばない。`fetch_channels`（YouTube API キー、`secrets: inherit` で渡る）は呼ばれた側でも動くが issues の権限は要らない。実物での確認は、次に【3】の値が変わって再生成を呼ぶ 04:10 の回（WHS-15 の「未確認の項目」と同じ）。dry-run の手動実行は行っていない（dry-run では書かないので `pages_changed` が立たず、再生成を呼ばないため確かめにならない）。
+
+### 3. 「プロ」「連盟プロ以外」から読む見出し
+
+| ファイル | 読むシート | 見出し | 備考 |
+|---|---|---|---|
+| `scripts/update_sns_book.py` `load_sources()` | プロ（`pro_sheet.fetch_pros`） | 登録名・ソートキー・XID・X画像・noteID・note画像・YouTubeID（＋在籍の判定の「表示」） | **check・init・update のすべてで呼ぶ**（update は 394 行で `_values` として捨てるが、`column_indexes` が見出しの存在を求めるので、列が無いと ValueError） |
+| 同 | 連盟プロ以外（`fetch_records`） | 名前・名前かな・X ID・X画像URL | 同上 |
+| `scripts/lib/pro_sheet.py` | プロ | 呼ぶ側が渡した見出しだけ＋表示・ソートキー | 「YouTube画像」は定数 `YOUTUBE_IMAGE` を持つだけ |
+| `scripts/lib/sns.py` `fetch_pros()` | プロ | 登録名と、渡された見出しのうち SNS の6つ（XID・X画像・noteID・note画像・YouTubeID・YouTube画像）**以外** | SNS の6つは「プロ」から読まず SNS ブック（【2】【3】【4】）から入れる |
+| 同 `others()` | 連盟プロ以外（呼ぶ側が読んだ行） | 名前・所属団体・所属補足 | X ID・X画像URL は SNS ブックから |
+
+**「プロ」の「YouTube画像」（N列）は、3ファイルとも読まない**（`sns.fetch_pros` は渡されても SNS ブックから入れる。`YOUTUBE_IMAGE` を渡す呼び出しも scripts/ に無い。tests/test_jpml_pros.py が jpml_pros が読まないことを確かめている）。消しても動きは変わらない。
+一方、**「SNS 移行の完了」で XID・X画像・noteID・note画像・YouTubeID の列を消すと、`update_sns_book.py` が check・update を含めて止まる**（`load_sources()` が見出しを求めるため）。連盟プロ以外の X ID・X画像URL も同じ。
+
+### 直し方の案
+
+- 今回の失敗: **直しは不要（済み）**。c3362de8（帰り道〈WHS〉、CHAT-1012-WHS-15）で直っている。XAP 側で update-sns-book.yml に `issues` の権限を足すのは、WHS-15 の決定（足さない）と重なるので行わない
+- 「SNS 移行の完了」の前提（XAP の作業）: 「プロ」の SNS の5列・「連盟プロ以外」の X の2列を消す前に、`scripts/update_sns_book.py` の `load_sources()` で、update（【1】の名前・かなの写しだけが要る）が SNS の列を読まないようにする（`fetch_pros` に渡す見出しを登録名・ソートキーだけにし、SNS の値は init のときだけ読む、など）。「YouTube画像」だけなら今のままで消せる
+
+### docs/decisions・#514
+
+- docs/decisions/saikyo.md に要旨を1行足した（決定ではない旨を付けた）
+- #514 に要旨をコメントした
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1012-xap
-- ログ: https://github.com/retroeater/mj/blob/work/1012-xap/docs/logs/CHAT-1012-XAP-11.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1012-XAP-11.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1012-xap
 - 確認用URL: なし
-- マージ: 未
+- マージ: 済（fast-forward、7c73600b）
 - issue: #514
 - 判断が必要なこと: なし
 - 未確認の項目: なし
@@ -65,12 +155,12 @@ SNS ブックの毎日の更新が 2026-10-12 04:10 JST の回で失敗した。
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 5b280b21）: https://github.com/retroeater/mj-logs/tree/main/guide/5b280b21
+ガイド文書（この版を写した時点の最新、mj 915bafa2）: https://github.com/retroeater/mj-logs/tree/main/guide/915bafa2
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b280b21/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b280b21/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b280b21/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b280b21/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b280b21/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b280b21/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/915bafa2/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/915bafa2/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/915bafa2/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/915bafa2/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/915bafa2/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/915bafa2/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/5b280b21.md
