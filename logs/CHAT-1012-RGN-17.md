@@ -112,15 +112,22 @@
 
 docs/notes/static-generation.md の `regenerate.py --check` の項を「全ページが書かない `--check` を持つ」に直し、saikyo_pages の要点を足した。`docs/decisions/automation.md`: この指示の「決定」は RGN-10・RGN-15 の項に同じものがあるため足していない。
 
+### マージ・マージ後・#551 を閉じる
+
+- `git fetch` のうえ `git merge-base --is-ancestor origin/cloudflare HEAD` が真 → `git push origin work/1012-rgn:cloudflare`（62f48a8b..19e2d39e）
+- 19e2d39e の check-run: Workers Builds: mj・check・regenerate とも success。push で動いた再生成（`scripts/lib/` の変更で全ページが対象）は生成物の差が無く、コミットは無い
+- #551 の本文の論点を確かめた: 対象のページ（全ページ）・呼び方（`regenerate.py --check` と各スクリプトの `--check`）・共通の部品（`lib/check.py`）・帰り道の JSON に無い回（警告）は済み。ワークフローから使うかは、RGN-10 で使わない形で作った（`regenerate-page.yml` は変えていない）ため残る作業ではないとみなし、閉じるコメントに「使いたくなったら別の issue にする」と書いた。title の `fetch_tab()` の件は #552
+- #551 に経過をコメントし（https://github.com/retroeater/mj/issues/551#issuecomment-6128529751 ）、completed で閉じた。「状況:」ラベルは無かった
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1012-rgn
-- ログ: https://github.com/retroeater/mj/blob/work/1012-rgn/docs/logs/CHAT-1012-RGN-17.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1012-RGN-17.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1012-rgn
-- 確認用URL: なし
-- マージ: 未
-- issue: #551
+- 確認用URL: なし（生成物は変わらない。表示を変える変更は無い）
+- マージ: 済（19e2d39e。このログの仕上げは追いの push）
+- issue: #551（クローズ。全ページが書かない `--check` を持つ。`--check all` は22ページすべて書かない `--check` で通り195秒）、#552（title の `fetch_tab()` の件。別に残る）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
