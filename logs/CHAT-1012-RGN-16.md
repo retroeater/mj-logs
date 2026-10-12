@@ -66,7 +66,7 @@
 - **前提と違ったところ**: resource_efficiency の「`lib/chart.py` 99行の `max()` が空で例外」は、実物では起きない（`horizontal_bar_chart()` は96行で `data` が空なら空文字を返す）。空のシートでは空のグラフで通る。生成で止まるのは値が数でない行（`max()` の比べ・棒の長さの計算で TypeError）なので、`--check` はそれを止まる理由にし、0件は警告にした
 - ouka_leagues の 101行 `periods[0]`（期が0件で IndexError）は実物のとおり
 - 未マージの work/ ブランチ（この作業ブランチを除く）で、対象の10本・`lib/page.py`・`lib/chart.py`・`lib/check.py`・試験・docs/notes/static-generation.md を変えているもの: work/1012-abm-map（`scripts/tests/test_abema_book.py`・`scripts/tests/test_saikyo_pages.py`・docs/notes/static-generation.md の 408行〈ワークフローの一覧の行〉）と work/1012-abm-ui（`scripts/tests/test_saikyo_pages.py`）。どれも対象のファイル・関数・行と重ならない。外したページは無い。マージ直前に見直したときも重なりは無かった
-- 着手中コメントは残していない（この指示の前のコメントで #551 の残りとして扱いを示していたため）→ 下の「#551 へのコメント」で経過を書いた
+- **着手中コメントを残し忘れた**（CLAUDE.md「issueの着手ルール」の、コードを触る前に着手中のコメントを残す規則に反した）。作業の後に #551 へ経過をコメントするとき、残し忘れたことも書いた
 
 ### 2. 作る
 
@@ -113,16 +113,22 @@
 
 docs/notes/static-generation.md の `regenerate.py --check` の項の、`--check` を持つページの列挙を、今の状態（書かない `--check` を持たないのは saikyo_pages だけ）とページごとの要点に書き直した。`docs/decisions/automation.md`: この指示の「決定」は RGN-10・RGN-15 の項に同じものがあるため足していない。
 
+### マージ・マージ後
+
+- `git fetch` のうえ `git merge-base --is-ancestor origin/cloudflare HEAD` が真 → `git push origin work/1012-rgn:cloudflare`（8e0eced1..6d9223d9）
+- 6d9223d9 の check-run: Workers Builds: mj・regenerate・check とも success。push で動いた再生成（`scripts/lib/` の変更で全ページが対象）は生成物の差が無く、コミットは無い
+- #551 に経過と残り（saikyo_pages）をコメントした
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1012-rgn
-- ログ: https://github.com/retroeater/mj/blob/work/1012-rgn/docs/logs/CHAT-1012-RGN-16.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1012-RGN-16.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1012-rgn
-- 確認用URL: なし
-- マージ: 未
-- issue: #551
-- 判断が必要なこと: なし
+- 確認用URL: なし（生成物は変わらない。表示を変える変更は無い）
+- マージ: 済（6d9223d9。このログの仕上げは追いの push）
+- issue: #551（8本目〈残りの10本〉を実装。書かない `--check` を持たないのは saikyo_pages だけ。残り〈saikyo_pages は ABM の2本の後〉は #551 で追う）
+- 判断が必要なこと: なし（#551 に移した）
 - 未確認の項目: なし
 - エラー: なし
 
