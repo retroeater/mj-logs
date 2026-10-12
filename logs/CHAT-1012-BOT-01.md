@@ -101,7 +101,7 @@ Cloudflare から「Unexpected increase in bot traffic for ryoei.pro」のメー
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1012-BOT-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1012-bot
 - 確認用URL: なし
-- マージ: 済（fast-forward。SHA は直後の docs/logs のみの push で記入）
+- マージ: 済（dba9c8ed。fast-forward）
 - issue: #447（クローズ）, #91（コメント）, #304（変更なし）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
