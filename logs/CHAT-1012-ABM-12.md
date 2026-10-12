@@ -55,28 +55,65 @@
 
 ## 経過
 
+### 着手（2026-10-12）
+
+- 同じ Chat-Ref のコミットは0件。`work/1012-abm-ui` はリモートに無く、origin/cloudflare（dcd9d5b3）から作った
+- 0.: 「指示」欄の末尾は指示文の最後の行と一致。雛形の行は4つともある（1行目にまとめて書かれている）。#425 に ABM 以外の着手中コメントは無い
+
+### 手順1: 未マージのブランチ
+
+- `git branch -r --no-merged origin/cloudflare` は6本。3ファイルのどれかを変えているのは `work/1012-whs-links` の `style.css` だけで、変更は 2944 行付近の帰り道の回（`.mj-title-wayhome-*`）。今回の変更（1810 行付近の卓のページの節）とは別の箇所なので止まらない
+
+### 手順2: 作る（0c92c702）
+
+- `scripts/generate_saikyo_pages.py`:
+  - `build_table_page_body()` から固定バーと「<対局名>のすべての卓」（`.mj-live-more`）を外した。第3引数を `years` から全年度の選手の索引 `by_player` に替えた
+  - `build_related_card()` のカードの文字を4行に（`.mj-video-card-date` 対局日・`.mj-video-card-date.mj-saikyo-card-event`「麻雀最強戦<年度>」・`.mj-video-card-title` 対局名・`.mj-video-card-title` ステージと卓）。ほかの年度の卓へは `../<年度>/` を付ける（`table_href()`）
+  - 各選手の他の対局: `index_tables_by_player()`（全年度・個別ページのある卓、対局日の降順・同じ日はアンカーの降順。名前は写真カードと同じ現在名）を `main()` で作って `write_sub_pages()` に渡し、`build_player_others()` が出場者の順に「<選手名>の他の対局（N件）」・「すべて見る」（`../?q=<選手名>`）・最新4枚（`OTHER_TABLES_LIMIT`）を出す。今の卓を除き、0件の選手は出さない
+  - 卓のページのためだけに ABM-09 で足した `build_year_select()` の `select_class` 引数は使い手が無くなったので戻した
+- `assets/saikyo.js`: 卓のページは `watchHeight('nav.navbar', '--mj-nav-h')` だけにし、固定バーの高さと `bindYearSelect()` を呼ばない（プルダウンが無いと `getElementById` が null で落ちるため）
+- `style.css`: `html:has(.mj-saikyo-table-page)` の scroll-padding-top を navbar の高さだけにした（`.mj-live` の規則は固定バーの分 52px を足すため）。カードの2行目の上の余白（`.mj-saikyo-card-event`）
+- テスト: `TablePageTest` を直し（固定バー・「すべての卓」・年度プルダウンが無い）、カードの4行と決勝・ほかの年度の行き先、`PlayerOthersTest`（件数・今の卓を除く・同じ日の並び・最新4枚・「すべて見る」の行き先・対局日の無い対局は入らない）を足した。`python3 -m unittest discover -s scripts/tests` 863件 OK。足したテストは修正前のコードでは関数・引数が無いため通らない
+- docs/notes/saikyo-page-design.md の「卓のページ」の項を書き直した。docs/decisions/saikyo.md に「2026-10-12（CHAT-1012-ABM-12）」の節を足し、ABM-11 の固定バーの行に「→ 置き換え」を付けた
+
+### 手順3: 確かめる
+
+- `python3 scripts/regenerate.py saikyo_pages`: 警告なし、配信ファイル数 3,339 / 20,000
+- (a) origin/cloudflare との差分: 卓のページ **643**（見込みとの差 0）、CSS/JS は `style.css`・`assets/saikyo.js`、ほかはコード・テスト・文書。今の公開中のファイル（`saikyo/index.html`・`saikyo/<年度>.html`・`sitemap-saikyo.xml`）・対局のページ・年度ページ・live/ は 0。シートの変化による差分は無し
+- (b) 内部リンク: 878ページ・36,124本、実在しないもの 0
+- (c) id の重複 0、noindex・canonical は 878ページすべて、`#` の対応表も問題なし
+- 他の対局の節: 卓のページ 643 のすべてに1節以上ある。最多は `saikyo/2020/20200216-s1-a.html`（4人で計125件）。2026年度では `saikyo/2026/20261011-s1-b.html`（阿部孝則9・河野高志8・瀬戸熊直樹34・藤崎智32）
+- 対局日があって結果がまだ無い（未対局の）卓で名前の入っているものが10卓あり（2026年度の義兄弟合戦・超技巧合戦・Mの乱など）、他の対局の先頭に出る（対局日の降順のため）。指示の前提に除く定めが無いので入れたまま（判断が必要なこと）
+- (d) headless Chromium（ローカルの http.server。ABEMA の画像はセッションから届かないため年度の OGP 画像に差し替わった状態）で `20260920-s1-a`・`20261011-s1-b` を 390・1280 で見た:
+  - 固定バー 0、navbar は sticky（下へスクロールしても top 0）、scroll-padding-top は navbar の高さ（390: 56px、1280: 80px）
+  - カード（15枚・17枚）はすべて4行で、行の切れ 0（1行目の例「2026年9月20日／麻雀最強戦2026／超頭脳合戦／ベスト8 B卓」）
+  - 横スクロール: 390 では4枚の列・2枚の列は `overflow-x: auto` で動く（scrollLeft が変わる）。1280 では4枚が1画面に収まりスクロールしない
+  - ページの横のはみ出し 0
+  - 並び: ヒーロー → 出場者 → 関連動画 → 各選手の他の対局
+- push（0c92c702）。check-run「Workers Builds: mj」「check」success。プレビューの2ページと `assets/saikyo.js` はコミットした生成物とバイト一致（URL はターミナルの最終報告にだけ書く）
+
 ## 報告
 
-- 状態:
-- ブランチ:
-- ログ:
-- 比較URL:
-- 確認用URL:
-- マージ:
-- issue:
-- 判断が必要なこと:
-- 未確認の項目:
-- エラー:
+- 状態: 判断待ち
+- ブランチ: work/1012-abm-ui
+- ログ: https://github.com/retroeater/mj/blob/work/1012-abm-ui/docs/logs/CHAT-1012-ABM-12.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1012-abm-ui
+- 確認用URL: プレビュー（ターミナルの最終報告に書く）の `saikyo/2026/20260920-s1-a.html`（超頭脳合戦 ベスト8 A卓）と `saikyo/2026/20261011-s1-b.html`（瀬戸熊直樹34件・藤崎智32件など）
+- マージ: 未（判断待ち）
+- issue: #425（コメントなし）
+- 判断が必要なこと: (1) この作りでマージするか。(2) 日付があって未対局の卓（今は10卓）を各選手の他の対局に入れるか（今は入れており、最新として先頭に出る。/live は放送済みだけ）
+- 未確認の項目: ABEMA のサムネイルが載った状態でのカードの見え方（セッションから ABEMA の画像に届かないため、ローカルでは OGP 画像で見た）。実機のブラウザでの見え方
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj dcd9d5b3）: https://github.com/retroeater/mj-logs/tree/main/guide/dcd9d5b3
+ガイド文書（この版を写した時点の最新、mj 387505ef）: https://github.com/retroeater/mj-logs/tree/main/guide/387505ef
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/dcd9d5b3/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/dcd9d5b3/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/dcd9d5b3/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/dcd9d5b3/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/dcd9d5b3/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/dcd9d5b3/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/387505ef/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/387505ef/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/387505ef/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/387505ef/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/387505ef/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/387505ef/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/950bd402.md
