@@ -90,17 +90,27 @@
 - 状態が「新しい回 2件」から「0件」に変わったので、#545 にコメントが1件ついた（01:54:01Z）。文言は「前回の知らせが無いため」だったので直した（上）。名前の Vol の直しは次の新しい回のコメントにしか出ないので、テストで確かめた
 - SNS ブックからの呼び出しで帰り道の手順が skipped になることは、マージ後の次の `update-sns-book.yml`（毎日 04:10 JST、【3】が変わった日だけ再生成を呼ぶ）で確かめる
 
+### マージと確かめ
+
+- fetch 直後に `git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめ、`git push origin work/1012-whs:cloudflare`（23130279..32ed04cb。作業ブランチでの手動実行のコミット 13b38ae3 を含む）
+- 32ed04cb の check-run: regenerate（push 契機。`.github/` と `scripts/lib/` の変更で全ページ）success・Workers Builds: mj success・check・sync success（01:58Z）。push 契機の再生成はコミットを作らなかった
+- 本番（`?v=` に未使用の値）: `/wayhome/OkKAh8yP8Uk.html`・`/wayhome/Yjp_PKHvldw.html`・`/video_wayhome.html`・`/img/ogp/wayhome/index-20261011-2.jpg` が 200 で、手元の生成物と一致
+- #194 に直しをコメントした
+- 作業ブランチの片付け: クラウドセッションはブランチを削除できない。`work/1012-whs` はマージ済みなので `delete-merged-branches.yml` に任せる
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1012-whs
-- ログ: https://github.com/retroeater/mj/blob/work/1012-whs/docs/logs/CHAT-1012-WHS-15.md
+- 状態: 判断待ち
+- ブランチ: work/1012-whs（マージ済み。削除は delete-merged-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1012-WHS-15.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1012-whs
-- 確認用URL: なし
-- マージ: 未
-- issue: #194、#545
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 確認用URL: なし（作業ブランチでの手動実行と本番で確認）
+- マージ: 済（32ed04cb）。作業ブランチでの手動実行 run 38193457871 は success（帰り道の手順はすべて動き、失敗の報告は skipped。2本が取り込まれ各話42枚、OGP は `index-20261011-2.jpg`）
+- issue: #194（コメント）、#545（本文を直した。状態が変わったコメントが1件ついた）
+- 判断が必要なこと:
+  - 下の未確認の項目を、次の `update-sns-book.yml` の結果で確かめてから完了にする（確かめる指示か、チャットでの REST の確認で）
+- 未確認の項目:
+  - SNS ブックの更新（`update-sns-book.yml`）から呼ばれた再生成で、帰り道の手順が skipped になり失敗しないこと（条件式は経過に引用。次の 04:10 JST の実行で、【3】が変わって再生成を呼んだ日に分かる）
 - エラー: なし
 
 <!-- guide-links -->
@@ -114,4 +124,4 @@
 - docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/32ed04cb/docs/notes/chat-side-operations.md
 - docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/32ed04cb/docs/notes/cloudflare.md
 - docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/32ed04cb/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/23130279.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/32ed04cb.md
