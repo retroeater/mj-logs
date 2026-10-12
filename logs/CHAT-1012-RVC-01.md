@@ -70,6 +70,36 @@ Chat-Ref: CHAT-1012-RVC-01
 
 ## 経過
 
+### 着手時の確認
+
+- 0章: ログの「指示」欄の末尾は指示文の最後の行（「不明な点があれば、…この行が指示文の最後の行です。」）と一致
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある
+- Chat-Ref・識別子 RVC の重複: `git log --all -E --grep 'CHAT-[0-9]{4}-RVC-'`・`docs/logs/CHAT-*-RVC-*.md` の履歴とも0件（unshallow 後）
+- 作業ブランチ: origin/work/1012-rvc はリモートに無く、ローカルにも無い → `git checkout -b work/1012-rvc origin/cloudflare`（283713b9d）
+
+### 手順1
+
+- issue 検索（「ガイド文書 整理 サイズ 上限 chat-side-operations」）: #492（open）・#421（closed）・#297（closed）。
+  #492 の着手中コメントは CHAT-1009-REV-01 のもの（REV-01〜08 で済み、マージ済み）だけで、進行中の作業は無い。2026-10-12 の GCL-03 のコメントは申送り（この整理の依頼）
+- #492 に着手中のコメントを残した（https://github.com/retroeater/mj/issues/492#issuecomment-6125007596）。本文・状態・ラベルは変えていない
+- `git branch -r --no-merged origin/cloudflare` のうち、4文書と移す先（handover-archive-2026.md・branch-operations.md・skills.md・live-channel-write.md・yotei-sheet.md）を変えているもの:
+  - origin/work/1012-abm-map（2026-10-12）: docs/notes/live-channel-write.md の冒頭の「例外: `live-channel-writer` は…」の行と「書き込みを許す先は…」の行（ABEMA ブック、#425）。この指示で足す節（末尾の「未確認のこと」の前）とは別の箇所
+  - 4文書を変えている未マージのブランチは無い
+
+### 前提 (a) の確認
+
+- a1: #298 は 2026-10-10T02:50:38Z にクローズ（state_reason: completed）。クローズのイベントはコミット f8e76c033（CHAT-1009-REV-02、件名「docs: fix #298 deadline row and drop review-followup row in handover」）に付いている。
+  件名の「fix #298」が GitHub の自動クローズのキーワードに当たり、cloudflare への push で閉じたものと見られる（クローズのコメントは無く、最後のコメントは 2026-10-07 の RVW-22「実装4の前半」）。
+  実装4の後半（`[sync-logs]` の規則・`sync-logs.yml`・`MJ_LOGS_TOKEN` の削除）を受け持つ open の issue: #504・#513・#492 の本文とコメントを「実装4」「sync-logs.yml」「MJ_LOGS_TOKEN」「[sync-logs]」で検索 → #504 に `sync-logs.yml` が起動の表から外れた注記があるだけで、削除を受け持つ記述は無い。**受け持つ issue は無い** → handover の行は直さない（判断が必要なことに書く）。
+  あわせて、行の「次の Billing の確認は 2026-10-14」は docs/decisions/operations.md「2026-10-12（CHAT-1012-ACF-01）」の「次の確認は 10/21」と食い違う（行ごと直さない指示のため、これも判断が必要なことに書く）
+- a2: a1 で受け持つ issue が無いため、CLAUDE.md「作業ログ」節の「#298 の実装4の後半」はそのまま
+- a3: handover.md「最終更新: 2026-10-11」。2026-10-12 に ec1f49f0e（#550 の行を足した）がある → 2026-10-12 に直し、3行の最古（#518 の houou/ を未公開で入れた）を外して #550 の行に置き換える
+- a4: 紙吹雪（特別昇級）: 84577fda5「feat: add houou card open marks, ranking notation, jump confetti (#518)」は origin/cloudflare の祖先。docs/decisions/houou.md「2026-10-11（CHAT-1011-HOU-14）」に「リーグ推移の演出（特別昇級の紙吹雪を含む）は OK」「上を直してマージしてよい」。済んでいる → #540 の行から外す。
+  「次の会話の順番（2026-10-09）」: #388・#389 は open・状況: 待ち、#497・#488 は open。変わっていない → そのまま
+- a5: `ls docs/notes/` のうち handover.md に無いのは ask-worker.md・sns-book.md の2つ（指示のとおり）→ 1行ずつ足す
+- a6: 「3文書に出典の Chat-Ref を書かない」は 2026-09-22 の平野さんの判断（94144c055「docs: ガイド文書3つから出典としてのChat-Refを外す」。対象は CLAUDE.md・docs/handover.md・docs/notes/chat-side-operations.md。archive「2026-09-28 の整理で CLAUDE.md から外した記述（#297）」）。
+  instruction-template.md はその後（#492、CHAT-1010-REV-06）に上限の対象に入ったが、この規則を広げた決定は archive・#492 に見つからない → 「4文書」には直さず、3つの文書名を明記して「この3文書」の指す先の曖昧さだけを除く（判断が必要なことに書く）。今の instruction-template.md に出典の Chat-Ref は無い（`CHAT-MMDD-XXX-nn` の書式だけ）
+
 ## 報告
 
 - 状態: 作業中
