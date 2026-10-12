@@ -134,15 +134,46 @@ b1 は「鳳凰」の `SELECT *` の応答で F 列に「組」（X 列の値の
 
 止まる条件に当たるものは無い。
 
+### マージ
+
+- 確かめの後に cloudflare が RGN-17（saikyo_pages の `--check`・`lib/check.py`）へ進んでいたので `git merge origin/cloudflare` で取り込んだ（衝突なし）。テスト OK、取り込んだ後のコードで jpml_pros・houou_pages・houou_race・houou_leagues・saikyo_pages を生成し、差は jpml_pros の2行（清水香織・白鳥翔の Ampai のリンク）だけで (a) と同じ
+- push の直前に再 fetch し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめて `git push origin work/1012-snm-ampai:cloudflare`（4fc84963..3ce5d549）
+- #548 に結果をコメントした（閉じていない）: https://github.com/retroeater/mj/issues/548#issuecomment-6128585880
+- マージ後の自動再生成: regenerate-page.yml run 38279699017（push、3ce5d549）は success。再生成のコミット e3b1b713 の差は `jpml_pros.html` の2行（清水香織・白鳥翔の Ampai のリンクが外れる。(a) の見込みどおり）と `sitemap-pages.xml` の lastmod 1行だけ
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1012-snm-ampai
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1013-SNM-10.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1012-snm-ampai
+- 確認用URL: なし
+- マージ: 済（3ce5d549）
+- issue: #548（着手中・結果のコメント。閉じていない）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
+
+### 平野さんがこの後にすること
+
+- ページ側の JS の2つ（`houou_results.js`・`league_ranking.js`）を見出しで読む形にする次の指示のマージまでは、「鳳凰」の列を触らない（今の JS は A〜V 列の英字で読むので、F 列への挿入で2ページが壊れる）
+- その後に「鳳凰」へ F 列「組」を挿入し、X 列「備考」の値を写す（挿入の後、元の F「順位」以降は1列ずつ右へずれる）
+- 挿入後の X〜AA 列を消す: X「プロ」・Y「備考」（組の元。値は F に写したもの）・Z「存在チェック」・AA「備考」（今の W・X・Y・Z 列）
+
+### 次の指示で消すもの（2026-10-13 のマージの時点の英字）
+
+- 正本「プロ」: D「鳳凰Ampai」（セルの中は「鳳凰⏎Ampai」）・E「桜花Ampai」（「桜花⏎Ampai」）の2列（生成はもう読まない）
+- 正本の「鳳凰Ampai」「桜花Ampai」の2タブ（生成はもう読まない。「プロ」の D・E 列の XLOOKUP がこの2タブを引いているので、列と一緒に消す）
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 19e2d39e）: https://github.com/retroeater/mj-logs/tree/main/guide/19e2d39e
+ガイド文書（この版を写した時点の最新、mj e3b1b713）: https://github.com/retroeater/mj-logs/tree/main/guide/e3b1b713
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/19e2d39e/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/19e2d39e/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/19e2d39e/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/19e2d39e/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/19e2d39e/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/19e2d39e/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/62f48a8b.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e3b1b713/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e3b1b713/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e3b1b713/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e3b1b713/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e3b1b713/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e3b1b713/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/3ce5d549.md
