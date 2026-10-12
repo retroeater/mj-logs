@@ -75,7 +75,7 @@ CHAT-1012-ABM-09 で作った卓のページの新しい作り（未公開）を
 - この指示ではまだ【2】【3】もコードも作らない（次の指示）
 ```
 
-- テスト: `python3 -m unittest discover -s scripts/tests` 835件 OK
+- テスト: `python3 -m unittest discover -s scripts/tests` 838件 OK（取り込んだ cloudflare 側の分を含む）
 - `python3 scripts/regenerate.py saikyo_pages`: 「動画URLのある卓: 18」「新しいページ(#425、未公開): 878件」、警告・飛ばしたページなし。生成し直しても作業ツリーの差分は出なかった（シートの変化なし）。配信ファイル数 3,339 / 20,000
 - `origin/cloudflare` との差分の種類:
   - 卓のページ: **643**（見込み 643 との差 0）
@@ -84,28 +84,41 @@ CHAT-1012-ABM-09 で作った卓のページの新しい作り（未公開）を
   - 今の公開中のファイル（`saikyo/index.html`・`saikyo/<年度>.html`・`sitemap-saikyo.xml`）・対局のページ・年度ページ・live/: 0
   - 文書とコード: `scripts/generate_saikyo_pages.py`・`scripts/tests/test_saikyo_pages.py`・`docs/notes/saikyo-page-design.md`・`docs/decisions/saikyo.md`・ログ2つ（ABM-09・ABM-11）
 
+### 手順2: マージと本番
+
+- 再 fetch で `origin/cloudflare` は祖先。`git push origin work/1012-abm:cloudflare`（73f88804..bba86b6d）
+- マージ後の check-run（bba86b6d）: 「Workers Builds: mj」「check」×2「sync」「regenerate」すべて success。マージの後の自動の再生成はコミットを作らなかった
+- 本番（`curl`）: `/saikyo/2026/20260920-s1-a.html` が 200、`mj-saikyo-table-page`・ヒーロー（`mj-video-hero mj-saikyo-hero`）・「関連動画」があり、noindex あり。コミットした生成物とバイト一致
+
+### 手順3: 決定と #425
+
+- docs/decisions/saikyo.md に「2026-10-12（CHAT-1012-ABM-11）」の節を足した
+- #425 にコメント（閉じない）: https://github.com/retroeater/mj/issues/425#issuecomment-6116484494
+
+
+
 ## 報告
 
-- 状態:
-- ブランチ:
-- ログ:
-- 比較URL:
-- 確認用URL:
-- マージ:
-- issue:
-- 判断が必要なこと:
-- 未確認の項目:
-- エラー:
+- 状態: 完了
+- ブランチ: work/1012-abm
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1012-ABM-11.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1012-abm
+- 確認用URL: なし（本番の卓のページを `curl` で確かめた）
+- マージ: 済（bba86b6d）
+- issue: #425（コメント）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj bba86b6d）: https://github.com/retroeater/mj-logs/tree/main/guide/bba86b6d
+ガイド文書（この版を写した時点の最新、mj 5b280b21）: https://github.com/retroeater/mj-logs/tree/main/guide/5b280b21
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/bba86b6d/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/bba86b6d/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/bba86b6d/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/bba86b6d/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/bba86b6d/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/bba86b6d/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b280b21/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b280b21/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b280b21/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b280b21/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b280b21/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b280b21/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/32ed04cb.md

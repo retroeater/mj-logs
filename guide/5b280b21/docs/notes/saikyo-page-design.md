@@ -227,8 +227,12 @@ A を埋めると `2015-n3-...` 形式から日付形式へ変わり、未登録
   **勝ち上がり者がいない（未対局の）対局は、見出しの下に代替アバター1枚だけ**（`UNPLAYED_CARD_HTML`。「未対局」の文字は出さない）。
   選手名の絞り込み・対局ごとの共有ボタンは無い（全員の検索はトップ）。固定バーは年度プルダウンだけ（`build_sub_filterbar()`）
 - **対局のページ**: 今の `?match=` の表示と同じく、ステージ順に全卓・各卓4人。卓の見出しの帯から卓のページへ。動画のリンクも卓ごとに添える
-- **卓のページ**: その卓の4人と「ABEMA で見る」（動画の URL があるときだけ）、対局のページ（「<対局名>のすべての卓」）と同じ対局のほかの卓への導線（`.mj-saikyo-siblings`）。
-  未対局の卓は4人の写真だけ（結果のバッジ・順位なし、「未対局」の文字なし）
+- **卓のページ**（CHAT-1012-ABM-09 で /live の個別ページと同じ作りに試作、未マージ）: `build_table_page_body()` が本文の `<main class="mj-video-page mj-live mj-saikyo-sub mj-saikyo-table-page">` を自分で持ち（/live と同じ濃色。`<body>` に `mj-saikyo-page` を付けず、navbar と固定バーは /live と同じ sticky）、
+  ヒーロー（`build_table_hero()`、`.mj-video-hero`。ABEMA のサムネイル〈1280×720〉・パンくず `.mj-live-breadcrumb`・見出し「麻雀最強戦<年度> <対局名> <卓>」・対局日・「▶ 再生」・隅に「画像: ABEMA」。画像を押しても ABEMA へ行く〈透明なリンク `.mj-saikyo-hero-link`、読み上げ・Tab は「▶ 再生」だけ〉）
+  → 年度プルダウンの固定バー（/live のプルダウンの見た目 `.mj-live-title-select`）→「出場者」の4人（今の写真カード・順位・通過/敗退、`.mj-live-players`）
+  →「関連動画」（同じ対局のほかの卓の `.mj-video-card` を `.mj-video-track` に並べ、押すとその卓のページ。見出しの右に対局のページへのリンク `.mj-live-more`）。
+  ABEMA の回の URL が無い卓（未対局・未入力）は、ヒーローとカードの画像を年度の OGP 画像（`year_ogp_path()`）にし、「▶ 再生」と出典を出さない（試作。扱いは未決）。
+  ABEMA の画像が読めないときも同じ OGP 画像に差し替える（`data-fallback`、`assets/saikyo.js`）。未対局の卓は4人の写真だけ（結果のバッジ・順位なし、「未対局」の文字なし）
 - 共有ボタンは個別ページにも新しい年度ページにも付けない。canonical・og:url は自分自身（年度ページは `/saikyo/<年度>/`）。OGP 画像は年度の画像（`og_image_for()`）を使い回し、題名と説明はページごと（個別の画像は #546）。
   `<body class="mj-saikyo-page">` と固定バーの CSS は今の年度ページと同じ。本文の要素は `mj-saikyo mj-saikyo-year mj-saikyo-sub`（`.mj-saikyo-sub` で `assets/saikyo.js` が今の年度ページと分ける）
 - **`#` の移動**: 新しい年度ページは、今の年度ページの id（`#<卓のアンカー>`・`#match-<先頭の卓のアンカー>`）から新しいファイル名への対応表（`#saikyo_anchor_map`、`anchor_map_json()`）を持ち、
@@ -238,7 +242,7 @@ A を埋めると `2015-n3-...` 形式から日付形式へ変わり、未登録
 - **ABEMA のサムネイル**（#502、2026-10-11 の決定）: M 列が `https://abema.tv/video/episode/<回のID>` の形なら、回のIDから
   `https://image.p-c2-x.abema-tv.com/image/programs/<回のID>/thumb001.png?height=360&quality=75&width=640` を組み立て（`abema_thumb_url()`、`version=` は付けない）、
   「ABEMA で見る」のリンクの中に画像を置き、リンクの下に出典「画像: ABEMA」を添える（`build_video_html()`）。`srcset` の 2x は 1280×720、`width`・`height`（640×360）と `loading="lazy"`、
-  alt は「ABEMA <対局名> <卓の見出し>」。表示は幅 480px まで・16:9 の枠（読み込み前・読めないときも灰色の枠の大きさを保つ）。出すのは卓のページと対局のページ（卓ごと）で、年度ページには出さない。
+  alt は「ABEMA <対局名> <卓の見出し>」。表示は幅 480px まで・16:9 の枠（読み込み前・読めないときも灰色の枠の大きさを保つ）。出すのは対局のページ（卓ごと）で、年度ページには出さない。卓のページはヒーローの画像として出す（上の「卓のページ」）。
   画像は ABEMA の画像サーバから直接表示し、保存・複製しない（外部ドメインの依存は `docs/notes/site-findings.md`「画像ドメインの実測結果」、CSP は #9）。
   回の URL の形でない値（短縮 URL など）はリンクだけ出し、生成のログに警告する（`attach_videos()`）
 - **対局日が空の対局**: 個別ページを作らずに飛ばし（`has_page()`、識別子が恒久的でないため）、年度ページには見出し（リンクなし）と勝ち上がり者を出す。

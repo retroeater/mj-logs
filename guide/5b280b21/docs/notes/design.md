@@ -70,6 +70,10 @@
 | ナビの虫眼鏡 | 992px 未満はハンバーガーの左に同じ行（右寄せ）。ナビは56px、虫眼鏡は44×44px。`.container-fluid` を `display:contents` にして `order` で並べる。検索欄を持たないページ（`data-search="off"`）は虫眼鏡が無く、並べ方も変えない。992px 以上は従来どおり右端 | 共通ナビ | `style.css` の「折りたたみ時…虫眼鏡」、#524（2026-10-11、案A） |
 | 開いた固定ナビのメニューの高さ | 992px 未満で `max-height: calc(100dvh - 60px)`（`100vh` を先に書く）・`overflow-y:auto`。上の行 56px＋余裕 4px。navbar の実測の高さ（`--mj-*-nav-h`）は使わない（開いたナビの高さが入って縮む循環になる） | 固定ナビの型A・A'（`body:has(.mj-table)`）・`title/`・`saikyo/` の年度ページ | `style.css` の「固定ナビを開いたとき」と `title/`・`saikyo/` の節、#524・#525（2026-10-11）。動画系は 80vh（WH-17） |
 | `.mj-margin-text` の余白 | 左右 32px、上 24px。見える h1（`.mj-page-heading`）も同じ左右 32px・上 24px（下 0.5rem） | `404`・`jpml_links`・`resource_efficiency` | `style.css` の `.mj-margin-text`・`.mj-page-heading`、#524・#525（2026-10-11） |
+| 最小の画面幅 | 375px（iPhone 12/13 mini・SE を想定。仮置き、2026-10-12。来ている人の画面の幅が分かれば見直す）。1行に収める部品は 375px・標準の文字の大きさで収まることを確かめる。`rh_results_detail` の 390・360px の計測（「表の数字の列」の行）は変えない | 全ページ | HOU-13〜26 の振り返り（2026-10-12）、`docs/decisions/site-review.md`。見直しは #550 |
+| 字体の見込み | 第1候補の `Hiragino Sans`（「フォント」の行）より、headless Chromium の既定の字体は幅が狭い。幅の確かめは、幅の広い字体（IPA P ゴシック・WenQuanYi Zen Hei。`font-family` を一時的に当てる）でも収まることを合格の条件にし、最終は実機（平野さんの iPhone）で見る | 1行に収める部品 | HOU-13〜26 の振り返り（2026-10-12）、`docs/decisions/site-review.md` |
+| 文字の拡大 | ルートの文字の大きさ 150%・200% で部品が「次の行に回る」のは崩れとみなさない。切れ・重なり・はみ出しは崩れ | 全ページ | HOU-13〜26 の振り返り（2026-10-12）、`docs/decisions/site-review.md` |
+| 余白の下限 | 1行に収めたとき、幅の広い字体で右に 2px 以上残す（右の余白を何 px 足すと2行になるかで測る） | 1行に収める部品 | HOU-13〜26 の振り返り（2026-10-12）、`docs/decisions/site-review.md` |
 
 ## 4. 部品
 
