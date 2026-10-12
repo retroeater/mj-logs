@@ -60,6 +60,45 @@ SNS の値はすでにすべて SNS ブックから読んでいる。シート�
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 着手前の確認（2026-10-12）
+
+- 0.: 「指示」欄の末尾は指示文の最後の行（「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」）と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある
+- 同じ Chat-Ref のコミットは 0 件。識別子 SNM は同じチャットの SNM-01 のもの（指示文のとおり重複ではない）
+- CHAT-1011-SNM-01 の `## 報告` の状態は「判断待ち」だったので、` / 続き: CHAT-1012-SNM-02` を足した（26aae7cc）
+- 作業ブランチ: ローカル・リモートとも `work/1011-snm` は e9542807 で一致。`origin/cloudflare`（a4ed3bc2）が祖先でなかったので `git merge origin/cloudflare` で取り込んだ（10296b01、衝突なし。入ったのは RGN-09・RGN-10 の `regenerate.py --check`・`lib/check.py`・`generate_resource_dictionary.py`・`static-generation.md` など）
+
+### 手順1: 確かめ
+
+- #514 の着手中コメント: SNM-01 の後に新しいものは無い（最後は SNM-01 の着手中）。完了していない作業の着手中コメントは無い。着手中のコメントを書いた: https://github.com/retroeater/mj/issues/514#issuecomment-6117256866
+- 未マージのブランチ（work/1009-swp-526・work/1011-swp-hnd・work/1011-swp-nav・work/1012-whs-links）は、直すファイル（`scripts/lib/live.py`・`generate_title_pages.py`・`update_sns_book.py`・`lib/pro_sheet.py`・`lib/sns.py`・`scripts/tests/`・直す文書6本）をどれも変えていない（`git diff --name-only origin/cloudflare...<branch>`）
+- RGN-10 の `regenerate.py --check`・`lib/check.py` とは触るファイルが重ならない（static-generation.md は別の節）
+- grep し直した結果は SNM-01 の表と同じ（旧列の見出しを求めるのは `live.OTHER_HEADERS`・title の `EXPECTED_HEADERS["連盟プロ以外"]`・`update_sns_book.py` の `OTHER_HEADERS` と `load_sources()` の `pro_sheet.fetch_pros()` だけ。ほかは `sns.fetch_pros()` 経由）
+
+### 手順2: 直した箇所（b556c68b）
+
+| ファイル・関数 | 変えたこと |
+|---|---|
+| `scripts/lib/live.py` `OTHER_HEADERS` | `("名前", "所属団体", "所属補足")` に（X ID・X画像URL を外した）。外した2つは `RETIRED_OTHER_HEADERS` に置き、テストが使う |
+| `scripts/generate_title_pages.py` `EXPECTED_HEADERS["連盟プロ以外"]`・`main()` | 必要な見出しを 名前・所属団体・所属補足・名前かな に。`main()` の SNS ブックの値の差し込みを `values[:4] + [x_id, x_image] + values[4:]` に（X の2列が無くなり「その他の列」が5列目から始まるため。旧列が残る間は「その他の列」として後ろに付き、使われない） |
+| `scripts/update_sns_book.py` `load_sources()` | 「プロ」は登録名・ソートキー、「連盟プロ以外」は名前・名前かなだけを読み、`(【1】の行, プロの人数, 連盟プロ以外の人数)` を返す（写す値を返さない） |
+| 同 `run_init()` | 旧列を読まずに「止めました: init は使えません…」と出して終了コード 1 |
+| 同 `run_check()` | 旧列との照合（`verify_init()`）と旧列の件数をやめた。タブ・見出し・行数・編集者か・【2】の入力のある名前・元の一覧の件数・名前かなのある行は残した |
+| 同 | 使わなくなった `init_tables()`・`verify_init()`・`ensure_tabs()`・`print_counts()`・状態の文言 `COPIED`・`COPIED_YOUTUBE`・`NOT_FETCHED` を消した。docstring の init の行を直した |
+| `scripts/lib/pro_sheet.py` | `SNS_HEADERS`（X_ID〜YOUTUBE_IMAGE）を足し、`fetch_pros()` は SNS の見出しを渡されるとシートを読む前に ValueError（定数は `sns.fetch_pros()` のキーとして残る。コメントで「シートの列ではない」と書いた） |
+| `.github/workflows/` | 変えていない。`check-saikyo-unregistered.yml` 137行の案内「（名前・所属団体・所属補足・X ID・X画像URL）」はワークフローの中の文なので変えていない（列を消した後は、X は SNS ブックの【2】に入れる案内に直すのがよい。別の指示で） |
+
+grep（直した後）: `OTHER_HEADERS` は `live.py`（3見出し）と `update_sns_book.py`（名前・名前かな）。`"X ID"`・`"X画像URL"` を見出しとして求める所は `live.RETIRED_OTHER_HEADERS`（テスト用）だけ。`pro_sheet.X_ID` などは `sns.fetch_pros()` に渡す所（生成・誕生日・道場部・YouTube）と `sns.PRO_FIELDS`・`pro_sheet.SNS_HEADERS` だけで、`pro_sheet.fetch_pros()` に渡す所は 0。
+
+**テスト**: `python3 -m unittest discover -s scripts/tests` 849件 OK（直す前の cloudflare は 845件。InitTest 1件を消し、6件足した）。
+足したテスト: `test_sns_book.RetiredColumnsTest`（`load_sources()` が旧列を求めない／`live.OTHER_HEADERS` に X の列が無い／init が読まずに 1 を返す）、`test_pro_sheet.test_sns_headers_are_not_read_from_the_sheet`、`test_title_tab_headers.NonProsTabHeadersTest`（X の列があっても無くても同じ値／必要な見出しに無い）。
+直す前のコード（a4ed3bc2）に新しいテストファイルを置いて走らせると、足したうちの5件が落ちる（FAIL 1・ERROR 4。`live.OTHER_HEADERS` の1件はその後に足した）。
+
+**直した文書**: `docs/notes/sns-book.md`（冒頭の「数日後に値を空にする。列は残す」→「旧列は列ごと消す（2026-10-12 の決定…CHAT-1012-SNM-03 で確かめる予定）」、「手動実行」の check・init）、
+`docs/notes/title-pages.md`（「連盟プロ以外」の行と必要な見出し）、`docs/notes/live-page-design.md`（1-1 の「プロ」の行、1-4 の X ID・X画像URL の2行を削除、出場者の X画像の出どころ）、
+`docs/notes/houou-race.md`（画像と X の ID の引き方）、`docs/notes/books-covers.md`（著者の写真）、`docs/notes/static-generation.md`（見出しの例を「鳳凰\nAmpai」に、定数の例を `SORT_KEY` に、SNS の見出しを渡すと止まることを追記）
+
 <!-- guide-links -->
 ---
 
