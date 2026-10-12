@@ -117,3 +117,17 @@
 - 凍結中の books_pages は `--check all` の対象から外す（今の `all` と同じ。名前を指定すれば動く）（#551）
 - title の `fetch_tab()`（`lib/sheets.py` を通らず、フィルタの検知 #432 が掛かっていない）は、#551 とは別の issue に起票する（#552）
 - ask_data が live_pages の警告（除外した行）を作るのに出していない件は、`--check` の4本目（houou 系）で警告として出す（#551）
+
+## 2026-10-12（CHAT-1012-RGN-12）
+
+- `--check` の2段目以降の順番は、帰り道（済）→ title 系 → houou 系 → live・最強戦 → 残り（#551）
+- title の `fetch_tab()` がフィルタの検知（#432）と再試行を通らない件は #552 で扱い、title 系の `--check` の指示では直さない
+
+## 2026-10-12（CHAT-1012-RGN-13）
+
+- `--check` は先に houou 系を進め、title 系は WHS-17（#553）のマージの後に回す（#551）
+- ask_data が live_pages の警告（除外した行）を作るのに出していない件は、houou 系の指示で警告として出す（生成のときにも出てよい）（#551）
+
+## 2026-10-12（CHAT-1012-RGN-15）
+
+- `--check` の saikyo_pages は、未マージの work/1012-abm-ui・work/1012-abm-map の後に回す（#551）
