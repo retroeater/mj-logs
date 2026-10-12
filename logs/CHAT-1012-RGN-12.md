@@ -52,16 +52,38 @@
 
 ## 経過
 
+### 0. 着手前の確認
+
+- Chat-Ref の重複: `git log --all --grep="CHAT-1012-RGN-12"` は0件
+- 作業ブランチ: ローカル・リモートの work/1012-rgn とも `origin/cloudflare` の祖先（RGN-11 でマージ済み）→ `git merge --ff-only origin/cloudflare`（950bd402 → 1a0da912）
+- 指示欄の末尾は指示文の最後の行と一致。冒頭の雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- #551 は Open。コメントはこのセッションの RGN-09〜11 のものだけ（どれも完了のコメントあり）。コードに手を付ける前に止まったため、着手中コメントは残していない
+
+### 1. 確かめる → 止まる条件に当たった
+
+未マージの work/ ブランチで、`scripts/generate_title_pages.py`・`scripts/generate_jpml_pros.py`・`scripts/generate_jpml_test.py`・`scripts/lib/`・title 系の試験・docs/notes/static-generation.md を変えているもの（`git diff --name-only origin/cloudflare...<ブランチ>`）:
+
+- **`origin/work/1012-whs-links`（CHAT-1012-WHS-17、#553）**: `scripts/generate_title_pages.py`・`scripts/lib/wayhome.py`・`scripts/lib/wayhome_intake.py`
+  - `generate_title_pages.py` で変えているところ: `from lib import wayhome` の import、新しい関数（`load_wayhome()`・`wayhome_card_a_html()`・`wayhome_card_b_html()`・`wayhome_html()`、定数 `PREVIEW_CARD_B` など）、**`period_body()` の引数（`wayhome_episodes` を足す）と本体**、**`main()`**（`load_wayhome()` の呼び出し、`period_body()` の呼び出し、件数の print）
+  - そのブランチのログの状態は「判断待ち（マージの判断。プレビューを見て選んでもらう点がある）」。期ページのカードの案A・案B を決めて `PREVIEW_CARD_B` と使わない側を消してからマージする、とある
+  - そのブランチは今の cloudflare と衝突せずに取り込める（`git merge-tree --write-tree`）。RGN-11 で変えた `lib/wayhome.py` とも衝突しない
+- #552 の作業ブランチは無い
+
+title_pages の `--check` は、RGN-11 と同じ形（生成の止まり方を変えずに `Check` に集める）にするには、`main()` の読み込み・検査・組み立てを切り出す必要があり（1070行の照合を書き出しの前に回す、`fetch_tab()`・3層・sns の例外を止まる理由にする、期ページの組み立て `period_body()` を回ごとに `attempt()` する）、WHS-17 が変えている `main()`・`period_body()` と同じ関数を変える。止まる条件「未マージの work/ ブランチが上の title 系のファイルの同じ行・同じ関数を変えている」に当たるため、コードは変えずに止まった。マージもしない（このログは作業ブランチにだけ push する）。
+
+jpml_pros・jpml_test は `generate_title_pages.py` の `fetch_tab()`・`build_aliases()`・`final_counts()` などを借りるだけで、WHS-17 はこれらを変えていない。ただし3本で共有する検査を1か所にまとめる作り（前提のとおり）にすると `generate_title_pages.py` に手が入るため、jpml の2本だけを先に進めることもしていない。
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1012-rgn
 - ログ: https://github.com/retroeater/mj/blob/work/1012-rgn/docs/logs/CHAT-1012-RGN-12.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1012-rgn
 - 確認用URL: なし
-- マージ: 未
-- issue: #551
-- 判断が必要なこと: なし
+- マージ: 未（止まる条件に当たったため。コードは変えていない）
+- issue: #551（変えていない）
+- 判断が必要なこと:
+  - 未マージの `work/1012-whs-links`（CHAT-1012-WHS-17、#553、判断待ち）が `scripts/generate_title_pages.py` の `main()` と `period_body()` を変えていて、title 系の `--check` が変える関数と重なる（止まる条件）。進め方を決めてほしい。案: (1) WHS-17 のマージ（カードの案の決定）を待ってから title 系を作る（推奨。取り込んだ後の `main()` に合わせて切り出すので、二度手間にならない）／(2) 先に houou 系（5本目の予定）を進め、title 系はその後に回す（houou 系のファイルは未マージのブランチと重なっていない。ただし ask_data は houou と live を借りる）／(3) title_pages の `main()`・`period_body()` に触れない形（`run_check()` を別に書き、読み込みの手順を二重に持つ）で今作る（WHS-17 のマージ後に `run_check()` が `load_wayhome()` を回らず、ずれが出る。推奨しない）
 - 未確認の項目: なし
 - エラー: なし
 
