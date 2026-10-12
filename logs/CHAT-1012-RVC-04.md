@@ -76,15 +76,24 @@ RVC-03 は、足したテストが今の cloudflare の抜け（handover 6章に
 - 作業ブランチの未マージのコミットのメッセージを閉じるキーワード＋`#番号` で grep → 0件
 - origin/cloudflare との差分: CLAUDE.md・handover.md・chat-routines.md・decisions/operations.md・テスト1本・ログ2本だけ
 
+### 手順3
+
+- マージ: push 直前に `git fetch origin cloudflare` → `git merge-base --is-ancestor origin/cloudflare HEAD` が真 → `git push origin work/1012-rvc-handoff:cloudflare`（4947b0696..2ae0e836f）
+- check-run（2ae0e836f）: 「Workers Builds: mj」success、「check」2件 success
+- #538: open に戻し、コメントを書いた（https://github.com/retroeater/mj/issues/538#issuecomment-6127699859）。本文・ラベルは変えていない
+- hook の issue: 「mj-git-guard」「閉じるキーワード」「git hook で止める commit」で検索し（クローズ済みを含む）、同じ主題は無かった。新しい issue の一覧も目で確かめた → #556「コミットメッセージの閉じるキーワードを mj-git-guard で止める」（ラベル `分野: 整理・保守`）を起票した
+- #492: コメントを書いた（https://github.com/retroeater/mj/issues/492#issuecomment-6127707061）
+- 作業ブランチの片付け: クラウドセッションは削除できないため、delete-merged-branches.yml に任せる（docs/notes/cloud-sessions.md「ブランチの削除」）
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1012-rvc-handoff
-- ログ: https://github.com/retroeater/mj/blob/work/1012-rvc-handoff/docs/logs/CHAT-1012-RVC-04.md
+- 状態: 完了
+- ブランチ: work/1012-rvc-handoff（cloudflare へマージ済み。削除は delete-merged-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1012-RVC-04.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1012-rvc-handoff
 - 確認用URL: なし
-- マージ: 未
-- issue: #492・#538
+- マージ: 済（2ae0e836f。この報告のログは docs/logs のみの追いの push）
+- issue: #556（起票）・#538（開け直した）・#492（コメント）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
