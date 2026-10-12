@@ -74,17 +74,49 @@ Chat-Ref: CHAT-1012-WHS-16
 - 指示欄の末尾は指示文の最後の行と一致。雛形の4行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
 - 作業ブランチ: `work/1012-whs-links` はローカル・リモートとも無し → `git checkout -b work/1012-whs-links origin/cloudflare`（a4ed3bc2）
 
+### 手順1 確かめ
+
+- 同じ目的の issue: 全 issue（551件、REST の `repos/.../issues?state=all`。search API はセッションの制約で使えない）を「帰り道/wayhome」かつ「title/期/リンク/相互」で絞った。期のページとの相互リンクを扱う issue は無い（近いのは #195 選手の個人ページ・#193 決勝動画〈closed〉・#173 説明文列）
+- 未マージのブランチ: `work/1009-swp-526`・`work/1011-snm`・`work/1011-swp-hnd`・`work/1011-swp-nav`。対象の6ファイル（`generate_title_pages.py`・`lib/wayhome.py`・`generate_wayhome_episodes.py`・`generate_video_wayhome.py`・`lib/wayhome_intake.py`・`regenerate-page.yml`）の差分はどれも0。件名も帰り道・title/ のリンクではない
+- 前提の読み（実物と一致）:
+  - 各話・一覧に `title/` へのリンクは無い。title/ の生成物に帰り道へのリンクは無い（`title/ranwa/6.html` に `wayhome` 0件）。`generate_title_pages.py` が `lib.wayhome` から使うのは `format_duration` だけ
+  - 紹介文は `lib/wayhome.py` の `episode_description()`（`{row.title}を終えた{row.interviewee}への…`）
+  - 帰り道のブック（`lib/live.SPREADSHEET_ID`）は `lib/sheets_write.py` の `WRITABLE` に無い
+  - 期の結び付け（実データ、帰り道シート42行）: 「タイトル」列の末尾の「 #N」を外して `resolve_period()` に通すと **39/42**。外れた3つ:
+    - `uzYFufi6liQ`「麻雀日本シリーズ2025」・`MpdXIrcVPlo`「女流プロ麻雀日本シリーズ2025」: title/ に期のページ（`title/nihon-series/2025.html`・`title/joryu-nihon-series/2025.html`）がある。年の期（「第N期」の形でない）は `resolve_period()` の `PERIOD_RE` に合わないため。期の題との完全一致を先に見れば結び付く（実装で足す予定）→ **41/42**
+    - `o28svvuVI0M`「ワールド・リーチ・プロ」: 対応する期のページは無い（ボタンを出さない回）
+- issue: #553「帰り道の各話と title/ の期のページを相互にリンクする」を起票（ラベル `分野: SEO/AIO`・`対象: video_wayhome`・`対象: title`。本文に #195・#173・#545 との関係）。#173 に (1) の決定と着手中、#553 に着手中、#195 に #553 との関係をコメント
+
+### 手順2 シートの準備（止まる）
+
+- 帰り道タブの見出しは `['名前', 'タイトル', '動画ID', '決勝動画ID', '表示']`（gviz、2026-10-12）。**「紹介文」列は無い**
+- 書き込み: このセッションはサービスアカウントの鍵を持たないため、書けるかを直接は確かめられない。ただし文書の上では **書けない状態で、しかも共有しない決定がある**:
+  - `docs/notes/live-channel-write.md` 冒頭・`docs/decisions/saikyo.md` 2026-10-10（XAP-04）: 「正本・/live 用スプレッドシートはサービスアカウントに共有しない」。帰り道のブック（`10g_X…`）は `lib/live.py` の /live 用スプレッドシートそのもの
+  - 指示の前提「`LIVE_SHEETS_SA_KEY` がこのブックに書けることと `WRITABLE` への追加が要る」は、この決定の見直しを含む
+- サービスアカウントのメールアドレス: `live-channel-writer@<Google Cloud のプロジェクト ID>.iam.gserviceaccount.com`（プロジェクト ID はリポジトリに書いていない。SNS ブックの「共有」の一覧に出ているものと同じ）
+- 平野さんに聞くこと（ターミナルにも同じ内容を書いた）:
+  1. 帰り道タブに「紹介文」列を足す（位置は自由。見出しで読む）
+  2. 自動の文の書き出し先をどれにするか:
+     - **案A（推奨）**: すでに `live-channel-writer` に共有している SNS ブックに、タブ「帰り道（自動の紹介文）」（動画ID・自動の文の2列）を Code が作って書く。/live 用のブックは共有しないまま（2026-10-10 の決定を変えない）。`WRITABLE` にはその1タブだけを足す
+     - 案B: 帰り道のブックを `live-channel-writer` に編集者で共有し、同じブックにタブを作る（2026-10-10 の決定の見直し）
+     - 案C: 書き出し専用の新しいブックを作って共有する
+     - 案D: シートには書かず、リポジトリのファイル（例 `data/wayhome_descriptions.tsv`、公開しない）に書き出し、GitHub 上で写す
+  3. 書き出し先のタブは Code が作るか、平野さんが作るか（案A・B・C。Code が作るなら `sheets_write.add_sheet` を使う）
+
 ## 報告
 
-- 状態: 中断（作業中）
+- 状態: 判断待ち（手順2で止まった。シートの準備の返事を待つ）
 - ブランチ: work/1012-whs-links
 - ログ: https://github.com/retroeater/mj/blob/work/1012-whs-links/docs/logs/CHAT-1012-WHS-16.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1012-whs-links
-- 確認用URL: なし
+- 確認用URL: なし（実装に入っていない）
 - マージ: 未
-- issue: なし
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- issue: #553（起票）、#173（コメント）、#195（関連のコメント）
+- 判断が必要なこと:
+  - 帰り道タブに「紹介文」列を足す（平野さん）
+  - 自動の文の書き出し先（案A〈推奨〉SNS ブックにタブ・案B 帰り道のブックを共有〈2026-10-10 の「/live 用は共有しない」の見直し〉・案C 新しいブック・案D リポジトリのファイル）。詳細は「手順2」
+  - 書き出し先のタブを Code が作るか、平野さんが作るか
+- 未確認の項目: `live-channel-writer` が帰り道のブックに書けないこと（鍵が無く直接は確かめていない。文書の決定から書けない前提）
 - エラー: なし
 
 <!-- guide-links -->
