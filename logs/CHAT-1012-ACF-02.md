@@ -88,28 +88,58 @@
 - Q7 10月分: (a) マージ後すぐ手動実行／(b) 11月1日が初回。推奨 (a)
 - 2巡目の予定: Q8 ツールごとの呼び方、Q9 キー・費用の上限、Q10「流入」の自動化
 
+#### 1巡目の答え（平野さん）
+
+- Q1 a・Q2 a・Q3 おすすめ・Q4「q」（(a) と読んだ。Q11 で確認）・Q5 おすすめ・Q6 OK・Q7 a
+
+#### 2巡目の問いと答え
+
+- Q8 ツール: ChatGPT は OpenAI Responses API の `web_search`（gpt-5.4-mini）、Perplexity は Agent API（sonar・fast）、Claude は `web_search`（Haiku 5.5、非対応なら 4.5、`max_uses` 3）。Gemini は (a) 手作業／(b) 規約を確かめて API／(c) 外す。推奨 Gemini (a) → **おすすめ**
+- Q9 キーと上限: `OPENAI_API_KEY`（Project 上限 $2）・`PERPLEXITY_API_KEY`（前払い $5、自動チャージオフ）・`AIO_ANTHROPIC_API_KEY`（専用 Workspace 上限 $2、既存の `ANTHROPIC_API_KEY`〈sync-dojo-calendar が使用〉と分ける）。登録は平野さん → **おすすめ**
+- Q10 流入: (a) 手作業／(b) 読むだけのトークン `CF_ANALYTICS_TOKEN`（Account Analytics: Read）で GraphQL、禁止に当たらない旨を docs/notes/cloudflare.md に／(c) Worker の Secret → **b**
+- Q11 Q4 は (a) か、ひな形を消す時機 → **a**（消すのは手動実行の前ならいつでも）
+
+#### 3巡目の問いと答え
+
+- Q12 流入: 前月の暦月、5リファラを 0 件でも毎月、10月の手動実行だけ直近30日、`WRITABLE` に「流入」も、その月の行があれば止まる → **おすすめ**
+- Q13 #230 本文の「分担」「手順」2〜4 を直す → **OK**
+- 決定のまとめ（9項目）の確認 → **OK**（共有の理解に到達）
+
+### 記録
+
+- #230 の本文を REST の PATCH で書き換え（直前に `updated_at` 05:45:27Z を確かめた）: 「手順」2〜4 と「分担」の1行目。手順2（自動の実行・Gemini は手作業・経路の列）、手順3（タブ「言及」と列）、手順4（タブ「流入」、前月、GraphQL）、分担（自動にする〈実装は次の指示〉・知らせ先）。期日の行は変えていない
+  - 最初の PATCH は Content-Type を付けず HTTP 415 で失敗。付け直して成功（05:58:19Z、返った本文が送ったものと一致）
+- #230 に決定の要旨をコメント: https://github.com/retroeater/mj/issues/230#issuecomment-6118650409
+- docs/decisions/aio.md を新設（指示文の決定と grill の決定）。docs/decisions/README.md の一覧に1行足した
+- コード・ワークフロー・ブックは変えていない
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1012-acf-230
-- ログ: https://github.com/retroeater/mj/blob/work/1012-acf-230/docs/logs/CHAT-1012-ACF-02.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1012-ACF-02.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1012-acf-230
 - 確認用URL: なし
-- マージ: 未
-- issue: #230
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- マージ: 済（cloudflare へ fast-forward。ドキュメントのみ）
+- issue: #230（決定の要旨 https://github.com/retroeater/mj/issues/230#issuecomment-6118650409 、本文の「手順」「分担」を更新）
+- 判断が必要なこと:
+  - 実装の指示を出す時機。その前に平野さんの手作業: OpenAI・Perplexity のアカウントと前払い、OpenAI の Project の上限 $2、Console の専用 Workspace（上限 $2）とキー、Cloudflare の読むだけのトークン、Secret 4つ（`OPENAI_API_KEY`・`PERPLEXITY_API_KEY`・`AIO_ANTHROPIC_API_KEY`・`CF_ANALYTICS_TOKEN`）の登録、「言及」の I 列の見出し「経路」、10月のひな形40行の削除
+  - 「貼る時機」は ACF-01 と別のセッションだったが、同じセッションに貼られた（平野さんの回答で続行）
+- 未確認の項目:
+  - 料金・規約・機能の事実は WebSearch の公式ドメインの抜粋から得たもので、ページ本文は読めていない（実装の指示の最初に確かめる）
+  - 各 API を1件だけ呼んで通るか、Haiku 5.5 が Web 検索に対応しているか、Gemini の現行の規約、Perplexity の支出上限の有無
+  - 「言及」タブの10月のひな形40行と「流入」タブの10月分の有無（平野さんの申告のみ。セッションからブックは読んでいない）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 387505ef）: https://github.com/retroeater/mj-logs/tree/main/guide/387505ef
+ガイド文書（この版を写した時点の最新、mj fa4ef82f）: https://github.com/retroeater/mj-logs/tree/main/guide/fa4ef82f
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/387505ef/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/387505ef/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/387505ef/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/387505ef/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/387505ef/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/387505ef/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/fa4ef82f/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/fa4ef82f/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/fa4ef82f/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/fa4ef82f/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/fa4ef82f/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/fa4ef82f/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/950bd402.md
