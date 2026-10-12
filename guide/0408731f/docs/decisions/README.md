@@ -10,6 +10,7 @@
 
 | ファイル | 分野 |
 |---|---|
+| [aio.md](aio.md) | AI 検索・AIO（AI 検索での言及の計測、#230 系） |
 | [automation.md](automation.md) | 自動化（GitHub Actions の予約実行とその起動、#491 系） |
 | [broadcast-calendar.md](broadcast-calendar.md) | 放送対局の公開カレンダー「mj_放送対局」・連盟の予定表の取り込み（#448 系） |
 | [cloudflare.md](cloudflare.md) | Cloudflare（Workers Builds の起動条件・配信基盤、#171 系。ボット系の設定・Security の提案） |

@@ -115,7 +115,7 @@
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1012-ACF-03
 - ブランチ: work/1012-acf-230
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1012-ACF-02.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1012-acf-230
@@ -134,12 +134,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj fa4ef82f）: https://github.com/retroeater/mj-logs/tree/main/guide/fa4ef82f
+ガイド文書（この版を写した時点の最新、mj 0408731f）: https://github.com/retroeater/mj-logs/tree/main/guide/0408731f
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/fa4ef82f/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/fa4ef82f/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/fa4ef82f/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/fa4ef82f/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/fa4ef82f/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/fa4ef82f/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/950bd402.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/0408731f/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/0408731f/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/0408731f/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/0408731f/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/0408731f/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/0408731f/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/7b3e1334.md
