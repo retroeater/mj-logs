@@ -51,15 +51,45 @@
 
 ## 経過
 
+### 着手前の確認（2026-10-13 JST）
+
+- 同じ Chat-Ref のコミット無し。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- ブランチ: ローカル・リモートの `work/1012-bot` とも `origin/cloudflare` の祖先（マージ済み）→ `git merge --ff-only origin/cloudflare` で 4fc84963b へ進めた
+- 0. ログの「指示」欄の末尾は指示文の最後の行と一致
+
+### 1. 確かめたこと
+
+- #304: 本文の冒頭は「期日」と「この issue は着手対象ではない」。コメント16件に他セッションの着手中コメントは無し
+- docs/notes/cloudflare.md: 「本番反映（デプロイ）の仕組み」の設定値の表、「ビルド成否と本番の確認範囲（check-runs）」、「work/ ブランチのプレビュー」を読んだ。Chrome からの API の読み・check-run の待ち方の記述は無かった（近いものは「判定は push 全体のファイルで行われる」の項）
+- docs/notes/chrome-reading.md「使い方」: 「1つの確認につき、ブラウザの操作は1回（タイムアウト4分）まで」は GitHub の mj を読む前提の文書の中の規則（冒頭が「private の retroeater/mj を直接読むときの補助の手順」）
+- handover-archive-2026.md: 「## docs/handover.md から」「## CLAUDE.md から」「## docs/notes/chat-side-operations.md から」の形。cloudflare.md・chrome-reading.md からの節は無かった → 「## docs/notes/cloudflare.md・chrome-reading.md から（2026-10-13、#304）」を作った
+- issue の検索（open/closed）: 「月次 担当」は #555（open、取得の自動化）・#464・#491（closed）、「dashboard API Chrome」は #555・#550・#433・#28 など、「check-run 待ち」は #334（closed）・#291（open、検証手順のスクリプト化）。同じ論点（#304 の担当・Chrome からの API の読みの手順・check-run の待ち方）の open issue は無し
+- 未マージの work/ ブランチで、触るファイル（cloudflare.md・chrome-reading.md・handover-archive-2026.md・docs/decisions/operations.md）を変えているものは無し
+- 前提との違い: docs/notes/chat-side-operations.md は 24,600 バイト（警告域 26,624）、instruction-template.md は 13,147（警告域 14,336）で、指示文の「残り1バイト」「14,013」より余裕があった（その後の整理によると見られる）。指示どおりどちらも変えていない
+
+### 2. 書いた（85f4a492f）
+
+- A: #304 の本文の冒頭（「この issue は着手対象ではない」の前）に「**担当: MCK 系列のチャット。** ほかの系列のチャットは手順を読んでも実施せず、平野さんに MCK のチャットへ送るよう伝える（2026-10-12 に2つのチャットが同じ回を重ねたため）。」を足した（REST の PATCH。直前に updated_at を取り直して一致を確認）。コメント: https://github.com/retroeater/mj/issues/304#issuecomment-6128628238
+- B: docs/notes/cloudflare.md「本番反映（デプロイ）の仕組み」の設定値の表の後（「APIトークンの棚卸し」の前）に「### Chrome からダッシュボードの API を読む（#304 の (9) の照合）」を作った。GET だけ・`?` `&` `=` の置き換え・ID を書かないこと・読めたパスの表。registrar の旧パスが公式には 2026-09-27 で end of life であること（BOT-03 で確かめた、#555）を表に添えた
+- B の補足: docs/notes/chrome-reading.md「使い方」の操作1回の規則の下に、ダッシュボードの API の読みには適用しない1行
+- C: docs/notes/cloudflare.md「ビルド成否と本番の確認範囲（check-runs）」の「判定は push 全体のファイルで行われる」の項の次に、待ち方の項を足した（「work/ ブランチのプレビュー」より、check-run の読み方を書いたこちらが合うため）
+- 事例: handover-archive-2026.md に新しい節（#304 を2つのチャットが重ねた件・BOT-04 の4分で付いていないように見えた件・BOT-05 の再試験・API の読みでタイムアウトが無かったこと）
+- handover.md「関連文書」の cloudflare.md の行に「・設定の照合（Chrome）」を足した（23,764 → 23,794 バイト、警告域 26,624 の手前）
+- サイズ（前 → 後）: cloudflare.md 56,841 → 59,033、chrome-reading.md 4,689 → 4,971、handover-archive-2026.md 94,582 → 96,036、handover.md 23,764 → 23,794。chat-side-operations.md・instruction-template.md・CLAUDE.md は変えていない
+
+### 3. 決定
+
+- docs/decisions/operations.md に 2026-10-13 の決定2つ（#304 の担当、残りの知見は文書に足さない）を足した（このログと同じコミット）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1012-bot
-- ログ: https://github.com/retroeater/mj/blob/work/1012-bot/docs/logs/CHAT-1012-BOT-06.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1012-BOT-06.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1012-bot
 - 確認用URL: なし
-- マージ: 未
-- issue: #304
+- マージ: 済（fast-forward。SHA は直後の docs/logs のみの push で記入）
+- issue: #304（本文に担当を追記・コメント）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
@@ -75,4 +105,4 @@
 - docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/3ce5d549/docs/notes/chat-side-operations.md
 - docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/3ce5d549/docs/notes/cloudflare.md
 - docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/3ce5d549/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/62f48a8b.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/3ce5d549.md
