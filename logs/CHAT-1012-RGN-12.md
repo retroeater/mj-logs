@@ -75,7 +75,7 @@ jpml_pros・jpml_test は `generate_title_pages.py` の `fetch_tab()`・`build_a
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1012-RGN-13
 - ブランチ: work/1012-rgn
 - ログ: https://github.com/retroeater/mj/blob/work/1012-rgn/docs/logs/CHAT-1012-RGN-12.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1012-rgn
