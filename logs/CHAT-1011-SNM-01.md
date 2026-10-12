@@ -104,15 +104,78 @@ work/1011-swp-nav・work/1012-rgn。どれも `scripts/lib/pro_sheet.py`・`scri
 - 「プロ」: `登録名\n0.74`・`ソートキー`・`出身地`・`X\nID`・`X\n画像`・`note\nID`・`note\n画像`・`YouTube\nID`・`YouTube\n画像`・`最終更新`・`表示`・`鳳凰\nAmpai`・`桜花\nAmpai`（13列。前提どおり）
 - 「連盟プロ以外」: `名前`・`名前かな`・`所属団体`・`所属補足`・`X ID`・`X画像URL`（6列）
 
+### 手順1: 旧列の見出しで読む所（grep の結果）
+
+grep の対象: `scripts/`・`scripts/tests/`・`.github/workflows/`・ページ側の JS（ルートの `*.js`・`assets/*.js`、vendor を除く）・`docs/`（logs を除く）。
+見出しは改行あり（`X\nID` など、シートの実物）・なし（`XID`・`X画像`・`noteID`・`note画像`・`YouTubeID`・`YouTube画像`）、
+`pro_sheet` の定数名（`X_ID`・`X_IMAGE`・`NOTE_ID`・`NOTE_IMAGE`・`YOUTUBE_ID`・`YOUTUBE_IMAGE`）、「連盟プロ以外」の `X ID`・`X画像URL`、`live.OTHER_HEADERS`。
+ページ側の JS で「プロ」のブック（1h4-…）を読むのは houou_results.js・ouka_results.js・wrc_results.js・league_ranking.js で、タブは「鳳凰」「桜花」「JWRC」とリーグのタブ（「プロ」ではない）。
+「連盟プロ以外」のブック（10g_…）を読む JS は無い。未マージのブランチ5本は、下の表のファイルをどれも変えていない。
+
+| 読む所（ファイル・関数） | 渡す・読む見出し | 通る場面 | 値の使い道 |
+|---|---|---|---|
+| `scripts/lib/pro_sheet.py` 定数 `X_ID`〜`YOUTUBE_IMAGE`・`column_indexes()`・`fetch_pros()` | 呼び手が渡した見出し。無いと ValueError | 下の各行 | 定義だけ |
+| `scripts/lib/sns.py` `PRO_FIELDS`・`fetch_pros()` | 旧列の6見出しを呼び手から受けるが、`pro_sheet.fetch_pros()` には**渡さない**（登録名とほかの見出しだけ） | ページの生成・誕生日・道場部・`fetch_youtube_channels.py`・写真の検知 | 使わない（値は SNS ブック） |
+| `scripts/lib/sns.py` `others()` | 受けた dict の 名前・所属団体・所属補足だけ | 下の `live.OTHER_HEADERS` の行 | X ID・X画像URL は使わない（SNS ブック） |
+| `scripts/lib/live.py` `OTHER_HEADERS`（名前・所属団体・所属補足・**X ID・X画像URL**）→ `lib/sheets.fetch_records()` の必須の見出し | X ID・X画像URL | `generate_books_pages.load_name_book()`・`generate_houou_race.load_name_book()`（houou_pages も呼ぶ）・`generate_saikyo_pages.load_name_book()`（`load_rows()` 経由で `collect_saikyo_images.py`・`check_saikyo_unregistered.py` も）・`generate_live_pages.load_name_book()`（`write_live_channel_candidate.py` も）・`generate_ask_data.load_name_book()` | 使わない（`sns.others()` が捨てる。ask_data は空文字を入れる） |
+| `scripts/generate_title_pages.py` `EXPECTED_HEADERS["連盟プロ以外"]`（…・**X ID・X画像URL**）→ `fetch_tab()`・`column_order()` | X ID・X画像URL（無いと GenerationError） | title_pages の生成・`check_unused_names.py` の `load_registrations()`（`title.fetch_tab()` を呼ぶ） | `check_bad_chars()`（置換文字・制御文字の検査）だけ。生成の値は `main()` で SNS ブックの値に置き換える |
+| `scripts/update_sns_book.py` `load_sources()` | 「プロ」: 登録名・ソートキー・XID・X画像・noteID・note画像・YouTubeID（`pro_sheet.fetch_pros()` に直接）。「連盟プロ以外」: 名前・名前かな・X ID・X画像URL（`OTHER_HEADERS`、`fetch_records()`） | 毎日の更新・init・check | update は名前・名前かなだけ（`_values` を捨てる）。init は【2】【3】へ写す元。check は `verify_init()` の照合 |
+| `generate_jpml_pros.py` `COLUMNS`・`generate_books_pages.py`/`generate_houou_race.py`/`generate_saikyo_pages.py`/`generate_live_pages.py` `PRO_COLUMNS`・`generate_title_pages.py` `PROS_COLUMNS`・`generate_jpml_test.py` `PRO_COLUMNS`・`lib/wayhome.py` `PRO_COLUMNS`（wayhome_episodes・video_wayhome）・`lib/birthdays.py`・`sync_dojo_calendar.py` `PRO_COLUMNS`・`fetch_youtube_channels.py` `collect_channel_ids()` | XID・X画像・noteID・note画像・YouTubeID を `sns.fetch_pros()` に渡す | ページの生成・誕生日・道場部・YouTube のチャンネル取得 | SNS ブックの値（旧列は読まない） |
+| `generate_ask_data.py`・`generate_houou_leagues.py`・`generate_houou_pages.py`・`generate_ouka_leagues.py`・`generate_resource_dictionary.py`・`check_meibo.py`（`pro_sheet.fetch_pros()`）・`check_wayhome.py`（`sns.fetch_pros()`） | 登録名（とソートキー）だけ | 生成・名簿の検査・帰り道の検査 | 旧列に関係しない |
+| テスト `test_pro_sheet.py`・`test_sns.py`・`test_jpml_pros.py`・`test_wayhome_player_links.py`・`test_sns_book.py`・`test_saikyo_pages.py`・`test_x_images.py` | 定数・固定の見出し（シートは読まない） | テスト | `test_sns.py` は旧列が `pro_sheet` に渡らないこと、`test_jpml_pros.py` は YouTube画像を読まないことを確かめる。シートの列を消しても結果は変わらない（定数を消すと直す） |
+| `.github/workflows/check-saikyo-unregistered.yml` 137行 | 文言「名前・所属団体・所属補足・X ID・X画像URL」 | 未登録の知らせ | 文書の記述（入力の案内） |
+| `.github/workflows/check-image-links.yml` | 文言の X ID（SNS ブックの【2】を案内） | 写真の検知 | 文書の記述（直さなくてよい） |
+| `docs/notes/sns-book.md` 冒頭・「生成の読み方」 | 「旧列は読まない（数日後に値を空にする。列は残す）」 | 文書 | 文書の記述 |
+| `docs/notes/title-pages.md` 100〜104行・`docs/notes/live-page-design.md` 24・97〜98・269〜270行・`docs/notes/houou-race.md` 49行・`docs/notes/static-generation.md` 367行・`docs/notes/books-covers.md` 93行・`docs/notes/saikyo-page-design.md` 40〜41・563〜564行 | 「連盟プロ以外」の必要な見出しに X ID・X画像URL、「プロ」の XID・X画像を読む、など | 文書 | 文書の記述（下の「古くなる文書」） |
+
+### 手順2: 模擬の方法
+
+- scratchpad に `/home/user/mj` のクローンを3つ（base・A・B）作り、28649cd5 を detach で出した（102f629d まで scripts の差は無い）。リポジトリの作業ツリーは触っていない
+- `PYTHONPATH` の `sitecustomize.py` で `urllib.request.urlopen` を包み、docs.google.com の GET を記録（base）・再生（A・B）する。A・B では gviz の `SELECT *` のうち
+  「プロ」（1h4-…）の旧列6列と「連盟プロ以外」（10g_…）の X ID・X画像URL を、A は列ごと落とし（`cols` と各行のセル）、B はセルを全行 null にした。
+  `SELECT COUNT(A)`（フィルタの検知）は差し替えない。title の `fetch_tab()` も `urlopen` を通るので同じく差し替わる。再生でキャッシュに無かった URL は 0 件
+- ページごとに base → A → B の順で `python3 scripts/regenerate.py <ページ>` を続けて実行し、生成物を `diff -rq`（`.git`・`__pycache__` を除く）で比べた。
+  base の生成物は 28649cd5 のファイルと同じだった（3つのクローンとも `git status` が空。止まったページは `regenerate.py` が戻すため）
+
+### 手順2: ページごとの結果（23ページ）
+
+| ページ | A（列ごと落とす） | B（値を空にする） |
+|---|---|---|
+| ask_data | 止まる: `generate_ask_data.load_name_book()` → `fetch_records()`「連盟プロ以外」シートの見出しが不正です(欠けている: ['X ID', 'X画像URL']…) | 通る・差 0 |
+| books_pages | 止まる（base も同じ: 「書籍」シートの行数が想定外です(95行)）。旧列の判定は下の「読んで・関数で判定」 | 止まる（base と同じ理由） |
+| houou_leagues | 通る・差 0 | 通る・差 0 |
+| houou_pages | 止まる: `main()` → `generate_houou_race.load_name_book()` → `fetch_records()`（同じ文言） | 通る・差 0 |
+| houou_race | 止まる: `load_name_book()` → `fetch_records()`（同じ文言） | 通る・差 0 |
+| jpml_pros | 通る・差 0 | 通る・差 0 |
+| jpml_test | 通る・差 0 | 通る・差 0 |
+| live_pages | 止まる: `load_name_book()` → `read_sheet()` → `fetch_records()`（同じ文言） | 通る・差 0 |
+| ouka_leagues | 通る・差 0 | 通る・差 0 |
+| resource_dictionary | 通る・差 0 | 通る・差 0 |
+| resource_efficiency | 通る・差 0 | 通る・差 0 |
+| resource_logs | 通る・差 0 | 通る・差 0 |
+| rh_paifu | 通る・差 0 | 通る・差 0 |
+| rh_results | 通る・差 0 | 通る・差 0 |
+| rh_results_detail | 通る・差 0 | 通る・差 0 |
+| saikyo_mens | 通る・差 0 | 通る・差 0 |
+| saikyo_pages | 止まる: `main()` → `load_rows()` → `load_name_book()` → `fetch_records()`（同じ文言） | 通る・差 0 |
+| title_pages | 止まる: `column_order()`「連盟プロ以外」の見出しが不正です(欠けている: ['X ID', 'X画像URL'] / 重複: なし) | 通る・差 0 |
+| video_en | 通る・差 0 | 通る・差 0 |
+| video_live | 通る・差 0 | 通る・差 0 |
+| video_mtsuku | 通る・差 0 | 通る・差 0 |
+| video_wayhome | 通る・差 0 | 通る・差 0 |
+| wayhome_episodes | 通る・差 0 | 通る・差 0 |
+
+A で止まる7ページ（books_pages を含む）はすべて「連盟プロ以外」の X ID・X画像URL が原因。「プロ」の旧列6列を落としたことで止まったページ・差が出たページは無い（jpml_pros・jpml_test・帰り道の2ページなど、`sns.fetch_pros()` を通るページは A でも差 0）。
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj dba9c8ed）: https://github.com/retroeater/mj-logs/tree/main/guide/dba9c8ed
+ガイド文書（この版を写した時点の最新、mj 102f629d）: https://github.com/retroeater/mj-logs/tree/main/guide/102f629d
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/dba9c8ed/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/dba9c8ed/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/dba9c8ed/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/dba9c8ed/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/dba9c8ed/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/dba9c8ed/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/102f629d/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/102f629d/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/102f629d/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/102f629d/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/102f629d/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/102f629d/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/28649cd5.md
