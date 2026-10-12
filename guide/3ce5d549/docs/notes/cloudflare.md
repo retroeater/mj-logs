@@ -528,7 +528,8 @@ Workers & Pages → `mj` → Settings → Builds:
 | Production branch | `cloudflare` |
 | Builds for non-production branches | チェックあり（2026-10-06 の申告値。2026-09-12 の時点は OFF。プレビューは #38 で有効化、下の「work/ ブランチのプレビュー」） |
 | Build watch paths: Include | `*` |
-| Build watch paths: Exclude | `.git/`・`docs/**`・`node_modules/**`・`workers/**`（`docs/**`は2026-09-12に追加、#171。2026-10-05 の深夜に足した `workers/*` を 2026-10-06 11:20 に `workers/**` に置き換えた、#504。申告値） |
+| Build watch paths: Exclude（本番のトリガー、branch `cloudflare`・`npx wrangler deploy`） | `.git/`・`docs/**`・`node_modules/**`・`workers/**`（`docs/**`は2026-09-12に追加、#171。2026-10-05 の深夜に足した `workers/*` を 2026-10-06 11:20 に `workers/**` に置き換えた、#504。申告値） |
+| Build watch paths: Exclude（非本番のトリガー「Deploy non-production branches」・`npx wrangler versions upload`） | `.git/`・`docs/**`・`node_modules/**`（2026-10-12 のチャット側の読み〈ダッシュボードと同じ画面の API を GET〉）。**`workers/**` は効かない**: ダッシュボードの Build watch paths の画面は1つで本番の値を表示し、平野さんが `workers/**` を消して足し直して保存しても（2026-10-12、申告値）、`workers/` だけの作業ブランチの push に「Workers Builds: mj」が付いた（2026-10-12、check-run で確認）。**画面からは非本番の除外を直せない。害はプレビューのビルドが1回増えることだけなので受け入れる**（平野さんの決定。API で直すことは今はしない） |
 | API token | `mj build token` |
 | Cache | Disabled |
 
