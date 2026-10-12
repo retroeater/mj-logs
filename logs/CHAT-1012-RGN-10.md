@@ -136,16 +136,22 @@ docs/notes/static-generation.md「メンテナンス用スクリプトの詳細�
 
 `docs/decisions/automation.md` に「決定」節の4項目を足した（RGN-09 の前の決定は RGN-09 で足し済み）。
 
+### マージ・マージ後
+
+- `git fetch` のうえ `git merge-base --is-ancestor origin/cloudflare HEAD` が真 → `git push origin work/1012-rgn:cloudflare`（102f629d..cf8b4b97）
+- cf8b4b97 の check-run: Workers Builds: mj・regenerate・check とも success（数分で揃った）。push で動いた再生成（`scripts/lib/` の変更で全ページが対象）は生成物の差が無く、コミットは無い
+- #551 に経過と2段目以降の残りをコメントした: https://github.com/retroeater/mj/issues/551#issuecomment-6117169270
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1012-rgn
-- ログ: https://github.com/retroeater/mj/blob/work/1012-rgn/docs/logs/CHAT-1012-RGN-10.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1012-RGN-10.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1012-rgn
-- 確認用URL: なし
-- マージ: 未
-- issue: #551、#552（起票）
-- 判断が必要なこと: なし
+- 確認用URL: なし（生成物は変わらない。表示を変える変更は無い）
+- マージ: 済（cf8b4b97。このログの仕上げは追いの push）
+- issue: #551（2本目を実装。2段目以降の残り〈帰り道 → title 系 → houou 系 → live・最強戦 → 残り〉は #551 にコメントした）、#552（起票: title の fetch_tab() がフィルタの検知と再試行を通らない）
+- 判断が必要なこと: なし（#551 に移した）
 - 未確認の項目: なし
 - エラー: なし
 
