@@ -51,15 +51,43 @@ BOT-04 の試験は、足すコミット（7ac2439、14:49:00 UTC）で「Worker
 
 ## 経過
 
+### 着手前の確認（2026-10-12 15:24 UTC）
+
+- 同じ Chat-Ref のコミット無し。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- ブランチ: `origin/work/1012-bot`（e25909571）とローカルが一致。`origin/cloudflare` が祖先でなかったので `git merge --no-edit origin/cloudflare` で取り込んだ（3d4a1af2f、衝突なし）
+- 0. ログの「指示」欄の末尾は指示文の最後の行と一致。BOT-04 のログの状態は「判断待ち」→ 末尾に ` / 続き: CHAT-1012-BOT-05` を足した（別コミット）
+- 未マージの work/ ブランチで docs/notes/cloudflare.md・scheduler-worker.md・docs/decisions/cloudflare.md を変えているものは無し
+
+### 1. BOT-04 の試験の check-run（15:25 UTC に取り直し）
+
+- 7ac2439（足すだけ）: 「Workers Builds: mj」completed / **failure**（started・completed とも 15:21:07Z と記録。14:50:07Z に in_progress で付いた分の最終の報告）
+- 13dc7e876（消すだけ）: 「Workers Builds: mj」completed / **success**（15:22:21Z）。BOT-04 の時点（push の4分後）では付いていなかったが、後から付いた
+- → BOT-04 の「消す方には付かない」は、ビルドが順番待ちで遅れていただけと見られる（Workers Builds は同時に1本。推測）
+
+### 2. 再試験
+
+- f19d0d1e8（このログの先行 push。origin/cloudflare の取り込みを含み `docs/` 外の変更がある）: 「Workers Builds: mj」success（15:26:25Z）。試験の前の比較の基準
+- **525a76a（`workers/.watch-test` を足すだけ、15:25:46 UTC に push）**: 15分後（15:40:54）の時点で「Workers Builds: mj」completed / **success**（15:27:12Z）
+- **4a403c1（消すだけ、15:41:12 UTC に push）**: 15分後（15:56:17）の時点で「Workers Builds: mj」completed / **success**（15:42:46Z）
+- 3つとも、ほかの check-run は GitHub Actions の `check`（success）だけ。mj-ask・mj-scheduler の check-run は付いていない
+- 結論: 2回とも付いた → 決定のとおり受け入れとして記録した。15分たっても queued・in_progress のものは無く、止まる条件には当たらない
+
+### 3. 記録
+
+- docs/notes/cloudflare.md「平野さんがCloudflareダッシュボードで確認した設定値」の表: Exclude の行を本番・非本番の2行に分けた。非本番は `.git/`・`docs/**`・`node_modules/**`（チャット側の読み）で `workers/**` が効かないこと、画面は1つで直せないこと、害、受け入れ（平野さんの決定）を書いた
+- docs/notes/scheduler-worker.md: 「未確認（2026-10-09 の時点）」の該当行を消し、同じ節の後ろに「作業ブランチの push でサイトの `mj` のプレビューがビルドされる件（2026-10-12 に原因が分かり、受け入れた）」の節を置いた（解決した件を「未確認」の見出しの下に残さないため、見出しを分けた）
+- docs/decisions/cloudflare.md: BOT-04 の行の「（未確認: …）」を外し、BOT-05 の見出しで保存し直し（申告値）と受け入れを足した。「本来の形」（BOT-04）は置き換えていない（決定の本文が「BOT-04 の決定のまま」のため）
+- #304 に結果のコメント（https://github.com/retroeater/mj/issues/304#issuecomment-6127823043 ）。GitHub の issue のコメントには返信の機能が無いため、補足のコメントへのリンクを付けた新しいコメントにした
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1012-bot
-- ログ: https://github.com/retroeater/mj/blob/work/1012-bot/docs/logs/CHAT-1012-BOT-05.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1012-BOT-05.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1012-bot
 - 確認用URL: なし
-- マージ: 未
-- issue: #304
+- マージ: 済（fast-forward。SHA は直後の docs/logs のみの push で記入）
+- issue: #304（結果のコメント）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
@@ -67,12 +95,12 @@ BOT-04 の試験は、足すコミット（7ac2439、14:49:00 UTC）で「Worker
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 4947b069）: https://github.com/retroeater/mj-logs/tree/main/guide/4947b069
+ガイド文書（この版を写した時点の最新、mj 2ae0e836）: https://github.com/retroeater/mj-logs/tree/main/guide/2ae0e836
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/4947b069/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/4947b069/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/4947b069/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/4947b069/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/4947b069/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/4947b069/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/4947b069.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/2ae0e836/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/2ae0e836/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/2ae0e836/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/2ae0e836/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/2ae0e836/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/2ae0e836/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/2ae0e836.md
