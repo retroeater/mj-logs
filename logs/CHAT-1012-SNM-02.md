@@ -99,15 +99,55 @@ grep（直した後）: `OTHER_HEADERS` は `live.py`（3見出し）と `update
 `docs/notes/title-pages.md`（「連盟プロ以外」の行と必要な見出し）、`docs/notes/live-page-design.md`（1-1 の「プロ」の行、1-4 の X ID・X画像URL の2行を削除、出場者の X画像の出どころ）、
 `docs/notes/houou-race.md`（画像と X の ID の引き方）、`docs/notes/books-covers.md`（著者の写真）、`docs/notes/static-generation.md`（見出しの例を「鳳凰\nAmpai」に、定数の例を `SORT_KEY` に、SNS の見出しを渡すと止まることを追記）
 
+### 手順3: 確かめ
+
+方法は SNM-01 と同じ（`## 経過`「手順2: 模擬の方法」）。scratchpad に4つのクローン: 直す前 pre（origin/cloudflare a4ed3bc2）・直した後 post（b556c68b）・post に A（8列を列ごと落とす）・post に B（8列の値を全行空にする）。
+ページごとに pre（docs.google.com の応答を記録）→ post → postA → postB（記録を再生）の順に `python3 scripts/regenerate.py <ページ>` を続けて実行し、生成物を `diff -rq` で比べた。
+A・B の差し替えは「プロ」16回・「連盟プロ以外」7回の `SELECT *` に効いた（`SELECT COUNT(A)` は差し替えない）。再生でキャッシュに無かった URL は 0。4つのクローンとも生成の後の `git status` は空（生成物は a4ed3bc2 のファイルと同じ）。
+
+**(a)・(b) ページ（23ページ）**
+
+| ページ | 直す前 | 直した後 | 直した後＋A | 直した後＋B |
+|---|---|---|---|---|
+| books_pages | 止まる（「書籍」シートの行数が想定外です(95行)） | 同じ理由で止まる | 同じ理由で止まる | 同じ理由で止まる |
+| ほかの22ページ（ask_data・houou_leagues・houou_pages・houou_race・jpml_pros・jpml_test・live_pages・ouka_leagues・resource_dictionary・resource_efficiency・resource_logs・rh_paifu・rh_results・rh_results_detail・saikyo_mens・saikyo_pages・title_pages・video_en・video_live・video_mtsuku・video_wayhome・wayhome_episodes） | 通る | 通る・差 0 | 通る・差 0 | 通る・差 0 |
+
+SNM-01 で A で止まった6ページ（ask_data・houou_pages・houou_race・live_pages・saikyo_pages・title_pages）は、直した後は A でも通り、差 0。
+
+**(b) スクリプト**（書き込み・X API・YouTube API・カレンダー・issue に触れない形。SNM-01 と同じ包み。差は直す前〈pre〉との比較）
+
+| スクリプト | 直す前 | 直した後 | ＋A | ＋B |
+|---|---|---|---|---|
+| `update_sns_book.py --dry-run`（毎日の更新） | 通る | 通る・差 0 | 通る・差 0 | 通る・差 0 |
+| `update_sns_book.py --check` | 通る | 通る。差は旧列との照合の7行が無くなっただけ（意図した変更） | post と同じ | post と同じ |
+| `update_sns_book.py --init --dry-run` | 終了コード 1（【2】に入力があるため止める） | 終了コード 1（「init は使えません」、シートを読まない） | 同じ | 同じ |
+| `collect_saikyo_images.py`（最強戦の写真の検知） | 通る | 通る・差 0 | 通る・差 0 | 通る・差 0 |
+| `check_saikyo_unregistered.py` | 通る | 通る・差 0 | 通る・差 0 | 通る・差 0 |
+| `check_unused_names.py --no-issue` | 通る | 通る。出力の JSON は差 0、標準出力の見出しの行に「(使わない列: ['X ID', 'X画像URL'])」が付く | 通る。JSON 差 0、見出しの行は4列 | post と同じ |
+| `check_meibo.py`・`sync_birthday_calendar.py`（`--compare` なし）・`check_wayhome.py` | 通る | 通る・差 0 | 通る・差 0 | 通る・差 0 |
+| 関数: `generate_books_pages`・`generate_live_pages`（`write_live_channel_candidate.py` が使う）・`generate_saikyo_pages`・`generate_houou_race` の `load_name_book()`、`fetch_youtube_channels.collect_channel_ids()`、`sync_dojo_calendar._fetch_roster()` | 通る | 通る・差 0 | 通る・差 0 | 通る・差 0 |
+
+`update_sns_book.py --dry-run` の結果（直す前・後・A・B で同じ）: 【2】1,864行（一覧に無い 26）・変わらない、X API を呼ぶ予定 0、X状態 解決 1,052・未入力 799・リンク切れ・未取得(トークンなし) 12・アカウントなし(確認済み) 1、
+note状態 未入力 1,660・リンク切れ(取得しない) 204、YouTube状態 未入力 1,782・リンク切れ 82、ページが使う値が変わった人 0。【1】は書き直しの行が出ない（一覧と同じ）。
+（note・YouTube の「リンク切れ」は、この環境から assets.st-note.com・yt3.ggpht.com に HEAD が通らないため。4つとも同じ）
+`--check`（直した後）: 【1】1,838行・【2】1,864行（入力のある名前 1,069）、元の一覧 プロ 1,099・連盟プロ以外 739・計 1,838。
+
+止まる条件に当たるものは無い。
+
+**行数と列の英字**（マージの直前に gviz で2回読み、2回とも同じ）: 「プロ」1,099行、「連盟プロ以外」739行。
+「プロ」A 登録名・B ソートキー・C 出身地・**D XID・E X画像・F noteID・G note画像・H YouTubeID・I YouTube画像**・J 最終更新・K 表示・L 鳳凰Ampai・M 桜花Ampai。
+「連盟プロ以外」A 名前・B 名前かな・C 所属団体・D 所属補足・**E X ID・F X画像URL**。
+#327 の本文の「N列」は #536 の列の削除の前の英字で、今は I 列（見出し「YouTube画像」）。
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj cf8b4b97）: https://github.com/retroeater/mj-logs/tree/main/guide/cf8b4b97
+ガイド文書（この版を写した時点の最新、mj 61a60278）: https://github.com/retroeater/mj-logs/tree/main/guide/61a60278
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/cf8b4b97/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/cf8b4b97/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/cf8b4b97/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/cf8b4b97/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/cf8b4b97/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/cf8b4b97/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/61a60278/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/61a60278/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/61a60278/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/61a60278/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/61a60278/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/61a60278/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/28649cd5.md
