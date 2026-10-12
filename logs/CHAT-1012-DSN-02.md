@@ -93,6 +93,33 @@ DSN-01（判断待ちで止まった）の続き。DSN-01 の目的のまま、(
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべて揃っている
 - Chat-Ref の確認: `CHAT-1012-DSN-02` のコミットなし。識別子 `DSN` はこのセッションが DSN-01 で使ったもの（このセッションの最初の指示ではないので、識別子の重複確認は対象外）
 - 作業ブランチ: `work/1012-dsn` はローカル・リモートとも 28ce66b（一致）。`origin/cloudflare` は HEAD の祖先でない（cloudflare 側に5コミット）→ ログを push した後に `git merge origin/cloudflare` で取り込む
+- 取り込み: `git merge --no-edit origin/cloudflare`（283713b まで）。衝突なし
+
+### 手順1
+
+- DSN-01 のログの `## 報告` の状態を「判断待ち / 続き: CHAT-1012-DSN-02」にした
+- #107 の本文と全コメント（3件: 2026-09-13 の wayhome の明色版、「親: #296」、2026-09-29 の HIG の論点）を読み直した。他セッションの着手中コメントなし。#226（コメント1件: 新サイト送り）も同じ
+- #107 に着手中のコメント（issuecomment-6124976839）
+- ラベル: `docs/handover.md`「タスク管理」に「`状況:`（対応中、保留、待ち。未着手はラベルなし）」とあるため、「状況: 保留」を「状況: 対応中」に替えた（分野: UI/UX・対象: index は残す）。get_labels で確かめた
+- 未マージの work/ ブランチ（取り直し）: DSN-01 の表からの変化は次のとおり
+  - **work/1012-hou: 3cc601f → 90be871（CHAT-1012-HOU-30 が判断待ちで報告）。** この指示で変える文書のうち `docs/decisions/houou.md` を変えている（17行追加・4行変更）。変更は 2026-10-08（HOU-01）・HOU-02・HOU-03 の節の3行に「→ 置き換え: 2026-10-12（CHAT-1012-HOU-30）」を付けることと、末尾の新しい節 `## 2026-10-12（CHAT-1012-HOU-30）` の追加。この指示で印を付ける HOU-05 の節の2行とは別の節で、`git merge-tree` で衝突なし（同じファイルの別の箇所なので止まらない）
+  - work/1012-dsn: このブランチ。ほか5本（swp-526・swp-hnd・swp-nav・abm-map・abm-ui）は変化なし、重なりなし
+  - **内容の注意**: HOU-30 の決定（未マージ）は「リーグ推移を個人成績に統合し、タブ（期別・通算・リーグ）にする」「2026-10-09 のトップのカード4枚を置き換える」。今回の Q6（トップは4項目を4行の面）と項目の数が食い違う可能性がある。Q6 の決定は形（面・行・›・アイコンなし）で、数は houou/ の項目の決定に従うと読み、見本は指示のとおり今の cloudflare の4項目で作る（判断が必要なことに書く）
+
+### 手順2: 決定の記録
+
+- 既存の記録との矛盾の確認: `docs/new-site-design.md` §2「トーン」（静か・白基調・装飾を削ぐ、ダークモードは最初から両方）・「選手一覧は表形式を維持する」と今回の決定は同じ向き。`docs/notes/design.md` の「共通ナビは `navbar-dark bg-dark`」は現行サイトの事実の記述で、新サイトの Q7 とは対象が違う。止まる条件の矛盾は無いと判断
+- `docs/decisions/design-renewal.md` を新しく作った（DSN-01 の決定・DSN-02 の「DSN-01 への回答」・「#107 を使う」を含む。同じ趣旨の既存の分野ファイルは無かったので新規）
+- `docs/decisions/README.md`: 分野の一覧に1行（`dojo-guest.md` の前、名前順）
+- `docs/notes/design.md`: 「1. トーンと方針」の表の末尾に1行（出典の列は #107）
+- `docs/decisions/houou.md`: HOU-05 の節の2行（254行目「カードは立体的で…」・270行目「ビビッドで楽しい配色にする…」）の行末に「→ 置き換え: 2026-10-12（CHAT-1012-DSN-02）」。新しい側（design-renewal.md）に「（… を置き換える）」
+- **印を付けなかった関連の決定**（Q11 で名指しされた2行ではないが、当てはめると変わるもの。houou/ への当てはめの指示で扱う。判断が必要なことに書く）:
+  - HOU-06「カードは P1（浮き上がり）」・「配色は C2（ビビッド）を採用する」
+  - HOU-10「トップは T1（浮き上がりカード）」
+  - HOU-18「期ごとの成績（表）のリーグは L3（リーグの色のチップ）」、HOU-23「同じアルファベットのリーグは同じ色」「色は note の記事のアイコンを参照」（Q5 の「リーグの印は灰色の地に字だけ」と食い違う）
+  - 順位変動の帯の色（昇級 `#c2410c`・鳳凰位 `#9f1239`・入替戦の暖色／寒色）は Q5 の「昇級・降級のピルは色を残す」の側と読み、変わらないものとした
+- コミット: docs: record new-site design basics（下のコミット一覧）
+- #107 に決定の要約をコメント（issuecomment-6124991241）
 
 ## 報告
 
@@ -118,4 +145,4 @@ DSN-01（判断待ちで止まった）の続き。DSN-01 の目的のまま、(
 - docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/283713b9/docs/notes/chat-side-operations.md
 - docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/283713b9/docs/notes/cloudflare.md
 - docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/283713b9/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/c5daf1e8.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/283713b9.md
