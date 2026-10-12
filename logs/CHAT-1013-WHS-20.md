@@ -52,15 +52,22 @@
 - Chat-Ref の重複: `git log --all --grep="CHAT-1013-WHS-20"` は0件
 - 指示欄の末尾は指示文の最後の行と一致。雛形の4行は揃っている（指示文は改行が詰まった形で貼られたため、そのまま写した）
 - 作業ブランチ: `work/1013-whs` はローカル・リモートとも無し → `git checkout -b work/1013-whs origin/cloudflare`（5fcc975b）
+- 確かめ:
+  - 状態: `CHAT-1012-WHS-15.md` は「判断待ち」、`CHAT-1012-WHS-19.md` は「判断待ち（平野さんがシートの「決勝動画ID」列を消す作業が残る）」。どちらも続きの記載なし
+  - `regenerate-page.yml`（cloudflare 5fcc975b）: 「帰り道のYouTube情報を取得」（`id: fetch_wayhome`）と「帰り道の一覧のOGP画像を作る」（`id: build_wayhome_ogp`）の条件は `github.event_name != 'push' && (inputs.target_page == '' || inputs.target_page == 'all') && contains(github.workflow_ref, '/regenerate-page.yml@')`。
+    「帰り道の前回の知らせを読む」は `!cancelled() && steps.fetch_wayhome.outcome != 'skipped'`、「調べる」は `steps.wayhome_prev.outcome == 'success'`、「知らせを書く」は `steps.wayhome_check.outputs.notify == 'true'`、「失敗を報告」は各手順の outcome が failure か `fail == 'true'`。`update-sns-book.yml` は `target_page: all` で呼ぶ。前提と一致
+  - run 38266751554（REST）: 「ページの再生成」#292、`workflow_dispatch`、cloudflare、2026-10-12T14:58:01Z、success。「対象ページを再生成」「変更をコミット・push」success、「飛ばしたページを報告」skipped、帰り道の手順は対象ページの指定（`all` でない）のため skipped。14:55〜15:20Z に cloudflare へ GitHub Actions のコミットは無い（生成物の差なし）。前提と一致
+- 直し: 2つのログの `## 報告` を「完了」にし、「判断が必要なこと」「未確認の項目」を子の行の無い「なし」にした（`docs/notes/branch-operations.md`「作業ログの寿命」の書き方）。`## 経過` の末尾に片付けの1行ずつ。`## 指示` 欄が変わっていないことはスクリプトで比べた
+- `docs/notes/video-wayhome.md` の「SNS ブックの更新・/live の取り込みから呼ばれた再生成では、帰り道の手順は動かない」の行（すでにあった）に「コードで確かめた。呼ばれた再生成の実行での確認は未、2026-10-13」を足した。決定を `docs/decisions/wayhome.md` に足した
 
 ## 報告
 
-- 状態: 中断（作業中）
+- 状態: 完了
 - ブランチ: work/1013-whs
-- ログ: https://github.com/retroeater/mj/blob/work/1013-whs/docs/logs/CHAT-1013-WHS-20.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1013-WHS-20.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1013-whs
 - 確認用URL: なし
-- マージ: 未
+- マージ: 済（ドキュメントのみ）
 - issue: なし
 - 判断が必要なこと: なし
 - 未確認の項目: なし
@@ -69,12 +76,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 62fb5bbb）: https://github.com/retroeater/mj-logs/tree/main/guide/62fb5bbb
+ガイド文書（この版を写した時点の最新、mj 2c5fedab）: https://github.com/retroeater/mj-logs/tree/main/guide/2c5fedab
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/62fb5bbb/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/62fb5bbb/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/62fb5bbb/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/62fb5bbb/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/62fb5bbb/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/62fb5bbb/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c5fedab/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c5fedab/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c5fedab/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c5fedab/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c5fedab/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c5fedab/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/5fcc975b.md

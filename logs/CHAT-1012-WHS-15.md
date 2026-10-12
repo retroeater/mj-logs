@@ -97,31 +97,30 @@
 - 本番（`?v=` に未使用の値）: `/wayhome/OkKAh8yP8Uk.html`・`/wayhome/Yjp_PKHvldw.html`・`/video_wayhome.html`・`/img/ogp/wayhome/index-20261011-2.jpg` が 200 で、手元の生成物と一致
 - #194 に直しをコメントした
 - 作業ブランチの片付け: クラウドセッションはブランチを削除できない。`work/1012-whs` はマージ済みなので `delete-merged-branches.yml` に任せる
+- 片付け（2026-10-13、CHAT-1013-WHS-20）: 未確認だった「SNS ブックから呼ばれた再生成で帰り道の手順が skipped になり失敗しないこと」は、実際の実行を待たずコードで確かめたことにした（平野さんの決定、CHAT-1013-WHS-20）。`regenerate-page.yml` の取得・OGP の手順は `contains(github.workflow_ref, '/regenerate-page.yml@')` が条件で、`workflow_call` では呼んだ側の `update-sns-book.yml` になるため skipped。以降の手順は `steps.fetch_wayhome.outcome != 'skipped'` などの前の手順の結果が条件なので skipped、失敗の報告は failure のときだけ動く。状態を完了にした
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 完了
 - ブランチ: work/1012-whs（マージ済み。削除は delete-merged-branches.yml に任せる）
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1012-WHS-15.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1012-whs
 - 確認用URL: なし（作業ブランチでの手動実行と本番で確認）
 - マージ: 済（32ed04cb）。作業ブランチでの手動実行 run 38193457871 は success（帰り道の手順はすべて動き、失敗の報告は skipped。2本が取り込まれ各話42枚、OGP は `index-20261011-2.jpg`）
 - issue: #194（コメント）、#545（本文を直した。状態が変わったコメントが1件ついた）
-- 判断が必要なこと:
-  - 下の未確認の項目を、次の `update-sns-book.yml` の結果で確かめてから完了にする（確かめる指示か、チャットでの REST の確認で）
-- 未確認の項目:
-  - SNS ブックの更新（`update-sns-book.yml`）から呼ばれた再生成で、帰り道の手順が skipped になり失敗しないこと（条件式は経過に引用。次の 04:10 JST の実行で、【3】が変わって再生成を呼んだ日に分かる）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 32ed04cb）: https://github.com/retroeater/mj-logs/tree/main/guide/32ed04cb
+ガイド文書（この版を写した時点の最新、mj 2c5fedab）: https://github.com/retroeater/mj-logs/tree/main/guide/2c5fedab
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/32ed04cb/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/32ed04cb/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/32ed04cb/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/32ed04cb/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/32ed04cb/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/32ed04cb/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/32ed04cb.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c5fedab/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c5fedab/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c5fedab/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c5fedab/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c5fedab/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c5fedab/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/5fcc975b.md

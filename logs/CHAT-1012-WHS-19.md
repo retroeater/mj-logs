@@ -99,30 +99,30 @@ Chat-Ref: CHAT-1012-WHS-19
 - 追記（セッションの再起動の後、12:27Z）: f09571e4 の Workers Builds は 08:17Z に failure で終わった（check-run の出力にはビルドの ID だけで、原因は書かれていない。ダッシュボードは見ていない）。
   その後の 6fd87436（ACF-04 のログ）と 2b5ffccd（このログ。今回のコードを含む）のビルドが 08:18Z に success で、本番に反映された。
   本番（`curl`、`?v=<未使用の値>`、12:27Z）: `/wayhome/Yjp_PKHvldw.html` 200・ボタンは「▶ 再生」と「決勝戦を見る」→ `../title/ranwa/6.html` の2つ。`/wayhome/o28svvuVI0M.html` 200・「▶ 再生」だけ。見込みどおり
+- 片付け（2026-10-13、CHAT-1013-WHS-20）: 平野さんが 2026-10-12 22:53 JST に帰り道シートの「決勝動画ID」列を消した。その後の手動実行 `regenerate-page.yml` #292（run 38266751554、`target_page: video_wayhome wayhome_episodes`）は success、生成物の差なし（コミットなし）。状態を完了にした
 
 ## 報告
 
-- 状態: 判断待ち（平野さんがシートの「決勝動画ID」列を消す作業が残る）
+- 状態: 完了
 - ブランチ: work/1012-whs-final
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1012-WHS-19.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1012-whs-final
 - 確認用URL: なし（プレビューは見ずにマージ。本番で確かめた〈12:27Z〉）
 - マージ: 済（f09571e4）
 - issue: #553（コメント）、#545（本文を更新）
-- 判断が必要なこと:
-  - 平野さんが帰り道シートの「決勝動画ID」列を消す（消した後の確かめは、次の週次の再生成か手動実行の結果で見る。生成は列があっても無くても通る）
-- 未確認の項目: なし（本番の反映は 12:27Z に確かめた。f09571e4 のビルドの失敗の原因は追っていない。後のビルドで同じ内容が反映された）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj c5daf1e8）: https://github.com/retroeater/mj-logs/tree/main/guide/c5daf1e8
+ガイド文書（この版を写した時点の最新、mj 2c5fedab）: https://github.com/retroeater/mj-logs/tree/main/guide/2c5fedab
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5daf1e8/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5daf1e8/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5daf1e8/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5daf1e8/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5daf1e8/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5daf1e8/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/c5daf1e8.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c5fedab/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c5fedab/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c5fedab/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c5fedab/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c5fedab/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c5fedab/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/5fcc975b.md
