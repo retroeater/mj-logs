@@ -3,7 +3,7 @@
 - 着手日時: 2026-10-12
 - 対象issue: #230
 - ブランチ: work/1012-acf-230
-- 着手時HEAD: dcd9d5b3
+- 着手時HEAD: 1a0da912
 
 ## 指示
 
@@ -63,6 +63,30 @@
 - 作業ブランチ: ローカル・リモートとも `work/1012-acf-230` が無いため、`git checkout -b work/1012-acf-230 origin/cloudflare`
 - 0. 指示欄の末尾の行は指示文の最後の行と一致
 - 指示文は改行の一部が空白に置き換わった形で貼られた（冒頭の数行）。貼られたとおりに写した
+- 着手時HEAD の訂正: ログの初版に dcd9d5b3（ACF-01 のマージ）と書いたが、実際の origin/cloudflare は 1a0da912 だった
+- 手順1: 同じ目的の issue は無し（REST で全 553 件の題・本文を「言及|ChatGPT|Perplexity|Gemini|AI 検索|LLM|生成 AI」で検索。該当は #230 自身と目的の違う #130・#158・#161・#239・#262・#269・#304・#322・#436・#254）。未マージの work/ ブランチ（swp-526・swp-hnd・swp-nav・abm-ui・rgn・whs-links）に同じ目的のものは無し。#230 は Open・他セッションの着手中コメント無し
+- #230 に着手中コメント: https://github.com/retroeater/mj/issues/230#issuecomment-6118507492
+- 決定の置き場所: 新しい分野 `docs/decisions/aio.md`（AI 検索・AIO、#230 系）。README の一覧に1行足す
+- 公式ドキュメントの調べ（サブエージェント）: このセッションからは openai・perplexity・google・anthropic の文書のページを直接取得できず（WebFetch は DNS エラー、curl はプロキシの 403）、**WebSearch で公式ドメインに絞った検索結果の抜粋**から得た。ページ本文は読めていないので、実装の指示の前に URL を開いて確かめる要がある。要点:
+  - OpenAI: Responses API の `web_search`。$10/1,000 回＋検索内容のトークン。gpt-5.4-mini 入力 $0.75・出力 $4.50/100万。前払い（最低 $5）、Project 単位で hard limit（429）。月10回で約 $0.2〜0.3（developers.openai.com/api/docs/guides/tools-web-search・/pricing・/guides/spend-limits）
+  - Perplexity: Sonar の Chat Completions は 2026-09-27 にサポート終了、Agent API（`/v1/agent`）へ。web_search $2.50/1,000（fast は $1）、sonar 入力 $0.25・出力 $2.50/100万。前払い、残高が尽きるとキーがブロック。支出上限の機能は見つからず。月10回で約 $0.05〜0.07（docs.perplexity.ai/docs/agent-api/…）
+  - Gemini: `google_search` のグラウンディング。Gemini 3 系は有料ティアで月 5,000 クエリまで無料、2.5 Flash 系は1日 1,500 件まで無料。出典の URL は vertexaisearch.cloud.google.com のリダイレクトで元のドメインが見えない。**規約（preview 版）で Grounded Results の保存・分析が原則禁止、表示テキストの評価目的の保持は30日まで**（ai.google.dev/gemini-api/terms_preview）。Spend の上限は厳密でない
+  - Claude: サーバーツール `web_search`。$10/1,000 回＋検索結果のトークン。Haiku 4.5 は対応、Haiku 5.5 の対応は文書で確認できず（Models API の capabilities で確かめられる）。Workspace の Spend limits は hard cap（400）。Max の月次 API クレジットは Console の組織で使え、請求サイクルの終わりに失効（support.claude.com/en/articles/17154008）
+  - Cloudflare Web Analytics: GraphQL の `rumPageloadEventsAdaptiveGroups` でリファラを取れる。トークンの権限は「Account Analytics: Read」（developers.cloudflare.com/analytics/graphql-api/…）
+  - 4社合計で月40回 約 $0.5〜0.7（抜粋からの試算）
+
+### grill（/grill-me → grilling skill）
+
+#### 1巡目の問い（2026-10-12）
+
+- Q1 実行の仕組み: (a) Actions のワークフローを mj-scheduler から起動、書き込みは `sheets_write.py` と `live-channel-writer`／(b) Worker の Cron の中で完結。推奨 (a)
+- Q2 実行日: (a) 毎月1日 05:30 JST 固定／(b) #304 の作業日に手動。推奨 (a)（06:00 より前なら朝の確かめの対象）
+- Q3 知らせ先: 失敗は #506、まとめは (a) #230 にコメント／(b) サマリのみ。一部ツールの失敗は残りを書いて #230 に記す。推奨 失敗 #506・まとめ (a)
+- Q4 ブック: 毎月40行を追記、その月の行があれば止まる、10月のひな形40行は平野さんが消す、`WRITABLE` に（ブック・「言及」）を足す。推奨 そのとおり
+- Q5 列: (a)「経路」列を I 列に／(b) メモに。原文は (c) artifact（90日）／(d) ブックの「回答」タブ／(e) 残さない。推奨 (a)+(c)
+- Q6 判定: 出典の URL か本文に ryoei.pro（www. 含む）で Y。順位は出典一覧（重複除き API の順）の最初の位置、本文だけなら `本文`。推奨 そのとおり
+- Q7 10月分: (a) マージ後すぐ手動実行／(b) 11月1日が初回。推奨 (a)
+- 2巡目の予定: Q8 ツールごとの呼び方、Q9 キー・費用の上限、Q10「流入」の自動化
 
 ## 報告
 
