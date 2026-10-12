@@ -54,6 +54,18 @@ HOU-32 でマージした個人成績 `houou/players/` に、平野さんの直�
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+- 2026-10-13 着手。**この会話は HOU-01〜32 から続いている（新しく始めたセッションではない）**
+- `CHAT-1013-HOU-33` のコミットは無し。`work/1013-hou` はリモートにもローカルにも無かったので `origin/cloudflare`（62f48a8b）から作った
+- 0. 指示欄の末尾は指示文の最後の行と一致。HOU-32 のログの報告は 状態「完了」、マージ「済（e07f4327..eb25ac8f）」。指示文の冒頭の雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+
+### 手順1 確かめる
+
+- `git branch -r --no-merged origin/cloudflare`: `work/1009-nen`・`work/1009-swp-526`・`work/1011-swp-hnd`・`work/1011-swp-nav`・`work/1012-dsn`・`work/1012-snm-ampai`。3ファイル（`assets/houou.js`・`style.css`・`scripts/generate_houou_pages.py`）に触れるのは `work/1009-nen` の `style.css` だけで、変えているのは年表（`.mj-title-timeline`・`.mj-tl-*`）の箇所。`.mj-houou-*` には触れていない → 重なりなし
+- リーグの吹き出しの文の組み立て: `assets/houou.js` の `createLeagueView` の中の `tipText(i, p)`（1行の文を返す）。結果のチップは同じ中の `select(j)` で文の後ろに足している。`tipText` はグラフの `aria-label`（「… の最新: 〜」）にも使っている
+- SVG の大きさの定数: 通算は `assets/houou.js` 冒頭の `TREND`（`width: 380, height: 250`、`trendChart` が使う）。リーグは `createLeagueView` の前の `LG`（`W: 380, H: 340`、`leagueChart` が使う）
+
 <!-- guide-links -->
 ---
 
