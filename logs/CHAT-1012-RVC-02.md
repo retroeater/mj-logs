@@ -76,15 +76,24 @@ RVC-01 の整理（判断待ち）をマージする。あわせて、RVC-01 の
 - `python3 -m unittest discover -s scripts/tests`: OK
 - origin/cloudflare との差分（`git diff --stat origin/cloudflare HEAD`）は、RVC-01 の成果物（CLAUDE.md・handover.md・instruction-template.md・chat-side-operations.md・handover-archive-2026.md・live-channel-write.md・skills.md）、この指示の3点、decisions/operations.md、ログ2本だけ
 
+### 手順3
+
+- マージ: push 直前に `git fetch origin cloudflare` → `git merge-base --is-ancestor origin/cloudflare HEAD` が真 → `git push origin work/1012-rvc:cloudflare`（283713b9d..a23c99804、fast-forward）
+- check-run（a23c99804）: 「Workers Builds: mj」success、「check」2件 success（14:25 UTC。マージから約10分で確かめた）
+- #298: open に戻し、コメントを書いた（https://github.com/retroeater/mj/issues/298#issuecomment-6126243043）。本文・ラベルは変えていない
+- #492: 整理を入れたコメント（前後のサイズ）を書いた（https://github.com/retroeater/mj/issues/492#issuecomment-6126245007）
+- 作業ブランチの片付け: クラウドセッションは削除できないため、`delete-merged-branches.yml`（毎日、先頭が24時間より前のマージ済み `work/*`）に任せる（docs/notes/cloud-sessions.md「ブランチの削除」）。削除前の先頭はこのログの push の後のコミット
+- 最終のサイズ（`wc -c`、cloudflare a23c99804）: CLAUDE.md 22,108・docs/handover.md 23,586・docs/notes/chat-side-operations.md 24,600・docs/instruction-template.md 13,147。4文書とも警告域の外
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1012-rvc
-- ログ: https://github.com/retroeater/mj/blob/work/1012-rvc/docs/logs/CHAT-1012-RVC-02.md
+- 状態: 完了
+- ブランチ: work/1012-rvc（cloudflare へマージ済み。削除は delete-merged-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1012-RVC-02.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1012-rvc
 - 確認用URL: なし
-- マージ: 未
-- issue: #492・#298
+- マージ: 済（a23c99804。この報告のログは docs/logs のみの追いの push）
+- issue: #298（開け直した）・#492（コメント）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
