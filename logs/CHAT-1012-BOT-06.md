@@ -88,7 +88,7 @@
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1012-BOT-06.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1012-bot
 - 確認用URL: なし
-- マージ: 済（fast-forward。SHA は直後の docs/logs のみの push で記入）
+- マージ: 済（d78ab83c8。取り込み〈merge origin/cloudflare〉のうえ fast-forward）
 - issue: #304（本文に担当を追記・コメント）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
@@ -97,12 +97,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 3ce5d549）: https://github.com/retroeater/mj-logs/tree/main/guide/3ce5d549
+ガイド文書（この版を写した時点の最新、mj e3b1b713）: https://github.com/retroeater/mj-logs/tree/main/guide/e3b1b713
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/3ce5d549/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/3ce5d549/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/3ce5d549/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/3ce5d549/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/3ce5d549/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/3ce5d549/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e3b1b713/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e3b1b713/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e3b1b713/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e3b1b713/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e3b1b713/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e3b1b713/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/3ce5d549.md
