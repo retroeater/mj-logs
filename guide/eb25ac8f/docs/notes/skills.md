@@ -98,7 +98,9 @@ Bash のコマンド文字列を `&&`・`||`・`;`・`|`・改行で区切り、
 | `git branch -d work/old`・`git checkout -b work/y origin/cloudflare` | 通過 |
 
 - **hook の変更は、セッションからは書き換えも cloudflare へのマージも auto モードの分類器が `[Self-Modification]` として拒否する**（2026-09-30）。
-  平野さんが手でコミットし、PR（Create a merge commit）でマージする。セッションは試験と文書まで
+  平野さんが手でコミットし、PR（Create a merge commit）でマージする。セッションは試験と文書まで。
+  チャット側の指示はこの手作業を前提に組み、「マージ:」は「判断待ちで止まる」にする（`.claude/` の settings を変える指示も同じ）。
+  平野さんは GitHub の画面で作業ブランチにコミットする（「Create a new branch」が選ばれているかを確かめてもらう。外れると cloudflare に直接入る）
 
 限界（文字列の解析であり、事故の防止であって強制ではない）:
 
