@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-12 12:19 JST
+- 書き出した時刻: 2026-10-12 12:20 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -12,11 +12,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-12 12:20 | push | cloudflare | in_progress | #3289（38199336277） |  |
 | 2026-10-12 12:18 | push | work/1012-rgn | success | #3288（38199215006） | 0分11秒 |
 | 2026-10-12 11:28 | push | work/1012-rgn | success | #3287（38195935545） | 0分13秒 |
 | 2026-10-12 11:06 | push | work/1012-abm | success | #3286（38194487771） | 0分11秒 |
 | 2026-10-12 11:06 | push | cloudflare | success | #3285（38194485987） | 0分10秒 |
-| 2026-10-12 10:55 | push | cloudflare | success | #3284（38193767603） | 0分11秒 |
 
 ## check-image-links.yml
 
@@ -124,11 +124,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-12 12:20 | push | cloudflare | in_progress | #280（38199336306） |  |
 | 2026-10-12 11:06 | push | cloudflare | success | #279（38194486016） | 0分30秒 |
 | 2026-10-12 10:55 | push | cloudflare | success | #278（38193767688） | 3分09秒 |
 | 2026-10-12 10:50 | workflow_dispatch | work/1012-whs | success | #277（38193457871） | 3分26秒 |
 | 2026-10-12 08:55 | schedule | cloudflare | failure | #276（38186096774） | 3分25秒 |
-| 2026-10-11 23:09 | push | cloudflare | success | #275（38146070057） | 0分32秒 |
 
 - #276 failure: ジョブ「regenerate」 ステップ「帰り道の取り込みの失敗を報告」
 

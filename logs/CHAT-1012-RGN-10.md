@@ -63,6 +63,79 @@ RGN-09 の推奨 (E) の1段目。`regenerate.py --check` で、シートを直�
 
 ## 経過
 
+### 0. 着手前の確認
+
+- Chat-Ref の重複: `git log --all --grep="CHAT-1012-RGN-10"` は0件
+- 作業ブランチ: ローカル・リモートの work/1012-rgn とも `origin/cloudflare` の祖先（RGN-09 でマージ済み）→ `git merge --ff-only origin/cloudflare`（変化なし、102f629d）
+- 指示欄の末尾は指示文の最後の行と一致。冒頭の雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- RGN-09 の `## 報告` の状態は「判断待ち」→ 末尾に ` / 続き: CHAT-1012-RGN-10` を足した（41920e80）
+- #551 は Open。コメントは RGN-09 の着手中と結果（このセッション）だけ。着手中コメント: https://github.com/retroeater/mj/issues/551#issuecomment-6116963191
+- 未マージの work/ ブランチで `scripts/regenerate.py`・`scripts/generate_resource_dictionary.py`・`scripts/tests/test_regenerate.py`・`scripts/tests/test_resource_dictionary.py`・`docs/notes/static-generation.md`・`scripts/lib/check.py` を変えているものは無い（`git diff --name-only origin/cloudflare...<ブランチ>` で全件を見た）
+
+### 1. 作る（027286cf）
+
+変える前の基準（102f629d）:
+
+- `python3 scripts/generate_resource_dictionary.py --check` → 終了コード 0、「検査: 通りました(保存の語数 1870語。ファイルは書いていません)」（5秒）
+- `python3 scripts/regenerate.py all` → 終了コード 0、199秒、`git status` は空（生成物はコミット済みのものと同じ）
+
+作ったもの:
+
+- `scripts/lib/check.py`（新）: `Check`（`stop()`・`warn()`・`report()`）と `requested()`。`report()` は警告を `警告: …` の行で出し、止まる理由があれば「検査: 止まります(N件)」と「- 理由」の行を出して 1、無ければ「検査: 通りました(…ファイルは書いていません)」で 0
+- `scripts/regenerate.py`: `--check` を足した（`--changed` とは一緒に使えない）。対象の選び方は今と同じ（`all` は `FROZEN_FROM_ALL` を除く）。`run_checks()` は、ページごとに `TreeSnapshot` を取り、生成スクリプトを動かして（`lib/check.py` を import するスクリプトは `--check` で）、成功・失敗とも前の状態に戻す。最後に `--check` を始める前の状態に戻し、戻したファイルがあれば止まる理由にする。`--check` を持つページがファイルを書いたら、それも止まる理由にする（戻す）。`check_asset_limits` とコミット対象の一覧は出さない。`run_page()` に引数と出力の行を受け取る口を足した（今の生成の動きは同じ）
+  - 警告の見分け方（実物の出力から決めた）: 行頭が `警告: ` か `::warning::` の行。続く字下げの行はその警告の詳細として数える（live_pages の「公開しなかった行 830件」の行一覧など）。title_pages の「警告: 0件」は警告にしない
+  - 止まる理由: 生成は失敗したときの出力の最後の行（#533 の飛ばしたページの理由と同じ）。`--check` は「検査: 止まります」の後の「- 」の行（無ければ最後の行）
+- `scripts/generate_resource_dictionary.py`: `run_check()` を `check.Check` に載せ替え、`__main__` の判定を `check.requested()` にした
+- 試験: `scripts/tests/test_regenerate.py` に `CheckModeTest` 7件（一時のリポジトリに、成功・警告・失敗・`--check` を持つ・`--check` で書いてしまう の5つの生成スクリプトを置く。作業ツリーが未コミットの変更ごと元に戻る／止まる理由と警告が分かれて全部出る／止まる理由があれば 1・警告だけなら 0／`--check` を持つページは `--check` で呼ばれる／`--check` で書いたら止まる理由／コミット対象と `check_asset_limits` を出さない）。#533 の試験の一時のリポジトリにも `lib/check.py` を置いた（`regenerate.py` が import するため）
+- 直す前のコードで足した試験を流すと7件とも落ちた（5件 FAIL・2件 ERROR。`--check` が無いので argparse が終了コード 2）。直した後は `test_regenerate.py` 17件・`python3 -m unittest discover -s scripts/tests` 845件とも OK
+
+### 2. 確かめる
+
+`python3 scripts/regenerate.py --check all`（コミット 027286cf の上、作業ツリーはきれいな状態で）: 終了コード 0、177秒。終わった後の `git status` は空。
+（コミット前、未コミットの変更がある状態でも1回流し、186秒・終了コード 0・前後の `git status` が同じことを確かめた）
+
+| ページ | 結果 | 止まる理由 | 警告 |
+|---|---|---|---|
+| ask_data | 通る | 0 | 0 |
+| houou_leagues | 通る | 0 | 0 |
+| houou_pages | 通る | 0 | 0 |
+| houou_race | 通る | 0 | 0 |
+| jpml_pros | 通る | 0 | 0 |
+| jpml_test | 通る | 0 | 0 |
+| live_pages | 通る | 0 | 1（公開しなかった「【3】手動補正」の行 830件。詳細 830行） |
+| ouka_leagues | 通る | 0 | 0 |
+| resource_dictionary | 通る（`--check`） | 0 | 0 |
+| resource_efficiency | 通る | 0 | 0 |
+| resource_logs | 通る | 0 | 0 |
+| rh_paifu | 通る | 0 | 0 |
+| rh_results | 通る | 0 | 0 |
+| rh_results_detail | 通る | 0 | 0 |
+| saikyo_mens | 通る | 0 | 0 |
+| saikyo_pages | 通る | 0 | 0 |
+| title_pages | 通る | 0 | 0 |
+| video_en | 通る | 0 | 0 |
+| video_live | 通る | 0 | 0 |
+| video_mtsuku | 通る | 0 | 0 |
+| video_wayhome | 通る | 0 | 0 |
+| wayhome_episodes | 通る | 0 | 1（jpml_prosに該当する選手がいないため、Xの写真を出しません: タマシュ・エルドス） |
+
+（books_pages は凍結で対象外。22ページ）
+
+`python3 scripts/regenerate.py all`（変えた後）: 終了コード 0、172秒、`git status` は空、最後の行（コミット対象の一覧）は変える前と同じ。生成物は変える前のコードで流したときと同じ（どちらもコミット済みのものと差0件）。
+
+辞書の `--check` の載せ替えの前後:
+
+- 実物のシート: 出力・終了コードとも同じ（終了コード 0、「辞書」タブ・「プロ」の語数の行と「検査: 通りました(保存の語数 1870語。ファイルは書いていません)」）
+- `fetch` を差し替えて3通りを比べた（変える前のファイルを一時に置いて両方の `run_check()` を呼んだ）: 行の検査で止まる場合・通る場合は同じ。**シートの読みの例外（見出し・タブ・フィルタ）で止まる場合だけ、「検査: 止まります」が「検査: 止まります(1件)」になる**（共通の部品は件数を必ず添えるため。終了コード 1 と「- 理由」の行は同じ）。既存の試験（`test_resource_dictionary.py` の `CheckModeTest`）はそのまま通る
+
+docs/notes/static-generation.md「メンテナンス用スクリプトの詳細」の `regenerate.py` の項の次に `regenerate.py --check` の使い方を足し、辞書の `--check` の項に出力の形の参照を足した（1650cfa8）。
+
+### 3. 起票
+
+同じ主題の検索: issue 550件・コメント 2015件を REST の `repos/retroeater/mj/issues?state=all`・`issues/comments` で全部取って手元で検索（`search/issues` はセッションの制限で使えない、RGN-08 と同じ）。`fetch_tab` を含むのは #551 の RGN-09 のコメントだけ。題に「フィルタ」を含むのは #48・#153・#189（表の絞り込み）・#432（フィルタの検知。本文・コメントに title の `fetch_tab()` が検知を通らない件は無い）。→ #552 を起票した（ラベル: 分野: 自動化・対象: title・対象: jpml_pros・対象: jpml_test。「状況:」・期日なし）。
+
+`docs/decisions/automation.md` に「決定」節の4項目を足した（RGN-09 の前の決定は RGN-09 で足し済み）。
+
 ## 報告
 
 - 状態: 作業中
@@ -71,7 +144,7 @@ RGN-09 の推奨 (E) の1段目。`regenerate.py --check` で、シートを直�
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1012-rgn
 - 確認用URL: なし
 - マージ: 未
-- issue: #551
+- issue: #551、#552（起票）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
@@ -79,12 +152,12 @@ RGN-09 の推奨 (E) の1段目。`regenerate.py --check` で、シートを直�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 102f629d）: https://github.com/retroeater/mj-logs/tree/main/guide/102f629d
+ガイド文書（この版を写した時点の最新、mj cf8b4b97）: https://github.com/retroeater/mj-logs/tree/main/guide/cf8b4b97
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/102f629d/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/102f629d/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/102f629d/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/102f629d/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/102f629d/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/102f629d/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/cf8b4b97/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/cf8b4b97/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/cf8b4b97/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/cf8b4b97/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/cf8b4b97/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/cf8b4b97/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/28649cd5.md

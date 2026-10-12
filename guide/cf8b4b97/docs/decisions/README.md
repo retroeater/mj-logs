@@ -12,7 +12,7 @@
 |---|---|
 | [automation.md](automation.md) | 自動化（GitHub Actions の予約実行とその起動、#491 系） |
 | [broadcast-calendar.md](broadcast-calendar.md) | 放送対局の公開カレンダー「mj_放送対局」・連盟の予定表の取り込み（#448 系） |
-| [cloudflare.md](cloudflare.md) | Cloudflare（Workers Builds の起動条件・配信基盤、#171 系） |
+| [cloudflare.md](cloudflare.md) | Cloudflare（Workers Builds の起動条件・配信基盤、#171 系。ボット系の設定・Security の提案） |
 | [dojo-guest.md](dojo-guest.md) | 道場部ゲスト（「mj_道場部ゲスト」カレンダーの取り込み、#390・#426） |
 | [features.md](features.md) | 新機能の行き先（現行サイトで作るか、新サイト #296 送りか） |
 | [houou.md](houou.md) | 鳳凰戦（houou_*.html、順位変動 #507 系、新ページ houou/ #518 系） |
