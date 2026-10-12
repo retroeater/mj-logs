@@ -57,6 +57,19 @@ WHS-17 のプレビューで残っていた選択を決めたので、使わな�
 - 作業ブランチ: `origin/work/1012-whs-links` はあり（e09c0279、ローカルと同じ）。`origin/cloudflare` は祖先でない → 取り込みは次の節目
 - WHS-17 の状態は「判断待ち」→ 末尾に ` / 続き: CHAT-1012-WHS-18` を足した
 
+### 手順1 案B を消す
+
+- `git merge origin/cloudflare`（衝突なし。入ったのは RGN-13〈houou 系の `--check`、`lib/check.py`・`lib/meibo.py`〉と ACF-02 などのログ。帰り道・title/ の生成スクリプトは変わっていない）
+- `generate_title_pages.py` から `PREVIEW_CARD_B`・`wayhome_card_b_html()` と分岐を消し、`wayhome_card_a_html()` を `wayhome_card_html()` にした。`style.css` から `.mj-title-wayhome-b` の2規則を消した（`grep "wayhome-b\|PREVIEW_CARD"` は0件。残る `.mj-title-wayhome-name` は案A の選手名の太字）
+- 生成し直し（title_pages・video_wayhome・wayhome_episodes）: 変わった生成物は `title/gpmax/15.html` だけ。差は帰り道の節の `mj-video-track`/`mj-video-card`（案B）→ `mj-title-videos`/`mj-title-video`（案A、#1・#2 のタブと「白鳥翔 2026年2月22日」）だけ
+- テスト: 881件 OK（取り込んだ RGN-13 のテストを含む）
+- コミット ee4e2508
+
+### 手順2 記録
+
+- `docs/decisions/wayhome.md` に WHS-18 の決定、`docs/decisions/title.md` に1行と参照
+- `docs/notes/title-pages.md`「ページと生成」: 期ページの並びに帰り道を足し、「期ページの帰り道」の項（カードの形・並び・結び付けの参照）を足した。`docs/notes/video-wayhome.md`「紹介文と title/ の期のページ」の title/ 側の行を、案A の形と title-pages.md への参照に直した（紹介文〈補正用〉の列・120字の警告・ボタンは WHS-17 で書いたまま）
+
 ## 報告
 
 - 状態: 中断（作業中）
@@ -73,12 +86,12 @@ WHS-17 のプレビューで残っていた選択を決めたので、使わな�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj fa4ef82f）: https://github.com/retroeater/mj-logs/tree/main/guide/fa4ef82f
+ガイド文書（この版を写した時点の最新、mj 0caa0097）: https://github.com/retroeater/mj-logs/tree/main/guide/0caa0097
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/fa4ef82f/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/fa4ef82f/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/fa4ef82f/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/fa4ef82f/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/fa4ef82f/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/fa4ef82f/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/0caa0097/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/0caa0097/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/0caa0097/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/0caa0097/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/0caa0097/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/0caa0097/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/950bd402.md
