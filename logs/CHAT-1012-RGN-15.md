@@ -53,6 +53,48 @@ RGN-12 は、未マージの work/1012-whs-links（CHAT-1012-WHS-17、#553）と
 
 ## 経過
 
+### 0. 着手前の確認
+
+- Chat-Ref の重複: `git log --all --grep="CHAT-1012-RGN-15"` は0件
+- 作業ブランチ: ローカル・リモートの work/1012-rgn とも `origin/cloudflare` の祖先（RGN-14 でマージ済み）→ `git merge --ff-only origin/cloudflare`（c38b0e34 → 2d8992f5）
+- 指示欄の末尾は指示文の最後の行と一致。冒頭の雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- #551 は Open。コメントはこのセッションのものだけ。着手中コメント: https://github.com/retroeater/mj/issues/551#issuecomment-6119126627
+
+### 1. 確かめる
+
+- WHS-17 の取り込みで `generate_title_pages.py` に `load_wayhome()`・`wayhome_card_html()`・`wayhome_html()` が入り、`period_body()` が帰り道の回を受け取り、`main()` が `load_wayhome()` を呼ぶ形になっていた（行番号は RGN-09 から 30〜50行ずれた。例: 1070行の照合は 1115行）。ほかの前提（`fetch_tab()` 256行〜、`column_order()`、`check_bad_chars()`・`check_non_pros()`・`build_aliases()`・`load_taikai()`・`check_blank_slugs()`・`load_periods()` の止まり方、`final_counts()` を jpml_pros が、`fetch_tab()`＋`build_aliases()` を jpml_test が借りること）は実物のとおり
+- 未マージの work/ ブランチ（この作業ブランチを除く）で、`generate_title_pages.py`・`generate_jpml_pros.py`・`generate_jpml_test.py`・`scripts/lib/`・title と jpml の試験・docs/notes/static-generation.md を変えているもの: `origin/work/1012-abm-map` だけ。変えているのは `scripts/lib/abema_book.py`・`scripts/lib/sheets_write.py`（title 系は使わない）と docs/notes/static-generation.md の 408行（ワークフローの一覧の regenerate-saikyo.yml の行。`--check` の項〈487行付近〉とは別）。重なりなし。#552 の作業ブランチは無い。マージ直前に見直したときも重なりは無かった
+
+### 2. 作る
+
+生成の振る舞いは変えない形（RGN-11・13・14 と同じ）。
+
+- `scripts/lib/check.py`: `guard(stop, label, default, fn, *args)` を足した（生成〈stop が None〉ならそのまま呼び、`--check` なら例外を止まる理由にして default を返す）
+- `scripts/lib/page.py`: `generate()` に `write=False`（書かずに HTML を返す）を足した。既定は今のまま（`page.generate()` を使う9ページは変わらない）
+- `scripts/generate_title_pages.py`:
+  - 3本が借りる検査に `stop` を足した: `fetch_tab()`（応答の形・gviz のエラー）・`column_order()`（見出し）・`check_bad_chars()`・`check_non_pros()`・`build_aliases()`（循環。`--check` ではその名前を飛ばす）・`load_taikai()`（slug の重複・不正。`--check` では不正な行を飛ばす）・`check_blank_slugs()`・`load_periods()`（行ごとの理由を `--check` では1つずつ出す。生成は今と同じ1つの例外）・`load_broadcasts()`（`live_layer3.fetch_uploads()` に渡す）・`final_counts()`。生成ではどれも `check.fail()` が今と同じ文言・同じ例外で止める
+  - `main()` を `prepare()`（読み込みと検査。読めないタブ・SNS ブック・「プロ」は `--check` では理由にして None を返す。3層・帰り道の例外も `guard()` で理由に）と `pages()`（書くページを書く順に、PageMeta・本文を作る関数・URL の表にしたもの）に分け、`main()` はその表のとおり書く（書く順・古いページの削除・サイトマップ・search.json・years.json・照合・表示は今と同じ）。`write_sitemap()` を `sitemap_content()` と書く部分に、`write_page()` から `render_page()` を、照合を `member_row_counts()` に、「プロ」に居ない名前の警告を `unknown_warnings()` に、id の重複の警告を `duplicate_ids_message()` に切り出した
+  - `run_check()`: 読み込み → 全ページを1枚ずつ組み立て（`attempt()`。id の重複は警告）→ サイトマップ → search.json → **決勝メンバー行数の照合**（生成では書き出しの後）→ 警告（区分・状態・表示順・期の対局日など `warnings` に入るもの、「プロ」に居ない名前）
+- `scripts/generate_jpml_pros.py`: `main()` を `build_page()`（中身を作る。書かない）と書く部分に分けた。`join_meibo()` に `stop`（名簿の理由を全部。meibo の `pros_problems()`）、警告（名簿・Ampai・YouTube の JSON・画像の無いチャンネル）を `warn` に。title の検査は `final_counts(stop)` で同じ関数を通る（`title_final_counts()`。生成と同じ位置で呼び、`--check` で前の段が止まったときも title の理由は出す）。`run_check()`
+- `scripts/generate_jpml_test.py`: `load_photos()` に `stop`（`fetch_tab()`・`build_aliases()` に渡す）。`run_check()` は写真の辞書を作り、`page.generate(write=False)` でページを組み立てる
+- 試験 `scripts/tests/test_title_check.py`（11件。ファイルの書き出し・削除・ディレクトリ作成が起きないことを確かめる）: 見出しの不正は理由にしてそのタブを飛ばす（生成は止まる）／slug の重複・不正が全部出る／生成は最初の slug の不正で止まる（振る舞いを変えないことの確かめ）／別名の循環が全部出る／「タイトル」の行の問題が1つずつ出る／決勝メンバー行数の照合と壊れたページが書かずに出る／警告だけなら 0／jpml_pros の名簿の理由が全部出る／組み立てられないページは理由／jpml_test は書かずに組み立てる／`page.generate(write=False)` は書かない
+- 直す前のコード（HEAD 2d8992f5 を一時のディレクトリに `git archive` で出し、足した試験だけ置いた）で流すと、11件のうち10件が ERROR。残る1件（生成は最初の slug の不正で止まる）は振る舞いを変えないことの確かめで、直す前でも通る
+- `python3 -m unittest discover -s scripts/tests` は全件 OK
+
+### 3. 今のシートで確かめる
+
+`python3 scripts/regenerate.py --check title_pages jpml_pros jpml_test`: 終了コード 0、48秒。3本とも `--check` で呼ばれ、止まる理由・警告とも0件（変える前のコードの title_pages の生成でも「警告: 0件」）。コミットした後のきれいな作業ツリーで流し直し、終わった後の `git status` は空。
+
+| ページ | 結果 | 止まる理由 | 警告 |
+|---|---|---|---|
+| title_pages | 通る（`--check`） | 0 | 0 |
+| jpml_pros | 通る（`--check`） | 0 | 0 |
+| jpml_test | 通る（`--check`） | 0 | 0 |
+
+`python3 scripts/regenerate.py title_pages jpml_pros jpml_test`（変えた後）: 終了コード 0、`git status` は空。変える前のコード（HEAD 2d8992f5 の全体を一時のディレクトリに出したもの）で3本を流した結果（終了コードはすべて 0）と、`title/`・`sitemap-title.xml`・`jpml_pros.html`・`jpml_test.html` は差0件。title_pages の生成の出力（進捗・件数の行）も同じ。
+
+docs/notes/static-generation.md の `regenerate.py --check` の項に title 系の3本を足した。`docs/decisions/automation.md` には「saikyo_pages は ABM の2本の後」だけを足した（ほかの決定は RGN-10・12・13 の項に同じものがある）。
+
 ## 報告
 
 - 状態: 作業中
@@ -69,12 +111,12 @@ RGN-12 は、未マージの work/1012-whs-links（CHAT-1012-WHS-17、#553）と
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 2d8992f5）: https://github.com/retroeater/mj-logs/tree/main/guide/2d8992f5
+ガイド文書（この版を写した時点の最新、mj 88b372fe）: https://github.com/retroeater/mj-logs/tree/main/guide/88b372fe
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/2d8992f5/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/2d8992f5/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/2d8992f5/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/2d8992f5/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/2d8992f5/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/2d8992f5/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/88b372fe/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/88b372fe/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/88b372fe/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/88b372fe/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/88b372fe/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/88b372fe/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/7b3e1334.md
