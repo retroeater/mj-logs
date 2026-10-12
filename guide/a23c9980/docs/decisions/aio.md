@@ -24,3 +24,10 @@ grill の決定（未実装。実装は次の指示）:
 - 流入: 自動にする。Cloudflare の GraphQL（`rumPageloadEventsAdaptiveGroups`）を権限「Account Analytics: Read」だけのトークン（Secret `CF_ANALYTICS_TOKEN`）で読む。`CLOUDFLARE_API_TOKEN` の禁止（二重デプロイの防止）には当たらないことを docs/notes/cloudflare.md に書く。期間は前月の暦月、5つのリファラを 0 件でも毎月書く（grill Q10・Q12）
 - #230 の本文の「分担」「手順」を上に合わせて直す（grill Q13）
 - 作業中の回答: 貼る時機の「ACF-01 とは別のセッション」と食い違い、同じセッションに貼られたことについて「このセッションで進める」
+
+## 2026-10-12（CHAT-1012-ACF-03）
+
+- #230 の自動化は後日再開する。それまで #230 は「状況: 保留」にする
+- ここまでの検討・決定と、再開するときの手順を #230 に書き留める
+- このチャットでは、ほかの Actions のエラーのフォローアップを先にする
+- 作業中の回答: なし

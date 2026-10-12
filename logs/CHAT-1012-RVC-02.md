@@ -54,6 +54,28 @@ RVC-01 の整理（判断待ち）をマージする。あわせて、RVC-01 の
 
 ## 経過
 
+### 着手時の確認
+
+- 0章: ログの「指示」欄の末尾は指示文の最後の行と一致
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある（指示文の冒頭の行が1行につながって届いたが、内容は揃っている）
+- 同じ Chat-Ref のコミット: 0件。識別子 RVC はこのセッションの RVC-01 で使用済み（2本目の指示なので重複確認の対象外）
+- 作業ブランチ: ローカル work/1012-rvc は origin/work/1012-rvc と一致（b0ee350ea）。origin/cloudflare（283713b9d）は祖先で、取り込みは不要
+
+### 手順1
+
+- #298: closed（2026-10-10T02:50:37Z）。着手中のコメントは 2026-09-29 の CHAT-0929-GX-01・02・03・05 の4件だけで、どれも作業は済んでいる（GX-04 でマージ済み）。進行中の作業は無い
+- `git branch -r --no-merged origin/cloudflare` のうち、変えるファイル（4文書・archive・skills.md・live-channel-write.md・decisions/operations.md）を変えているのは origin/work/1012-abm-map（e1d99ce40）の live-channel-write.md だけ。差分の位置は 5行目・25行目付近（RVC-01 は末尾の「チャット側の指示」の節）で、同じ行・節ではない
+
+### 手順2
+
+- handover.md 5章 #298 の行: 「次の Billing の確認は **2026-10-14**」→「**2026-10-21**」。ほかは変えていない
+- chat-side-operations.md「指示文の書き方・渡し方」の既定モデルの項: 前提の文面の案のとおり。外した記述は handover-archive-2026.md「2026-10-12 の整理で4文書から外した記述（#492）」の chat-side の箇条に1行
+- docs/decisions/operations.md に「2026-10-12（CHAT-1012-RVC-02）」の節（決定4項・作業中の回答なし）
+- CHAT-1012-RVC-01 のログの `## 報告` の状態を「判断待ち / 続き: CHAT-1012-RVC-02」に
+- サイズ（`wc -c`）: CLAUDE.md 22,108・handover.md 23,586・chat-side-operations.md 24,600・instruction-template.md 13,147。4文書とも警告域（26,624・26,624・26,624・14,336）の外
+- `python3 -m unittest discover -s scripts/tests`: OK
+- origin/cloudflare との差分（`git diff --stat origin/cloudflare HEAD`）は、RVC-01 の成果物（CLAUDE.md・handover.md・instruction-template.md・chat-side-operations.md・handover-archive-2026.md・live-channel-write.md・skills.md）、この指示の3点、decisions/operations.md、ログ2本だけ
+
 ## 報告
 
 - 状態: 作業中
@@ -70,12 +92,12 @@ RVC-01 の整理（判断待ち）をマージする。あわせて、RVC-01 の
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 283713b9）: https://github.com/retroeater/mj-logs/tree/main/guide/283713b9
+ガイド文書（この版を写した時点の最新、mj a23c9980）: https://github.com/retroeater/mj-logs/tree/main/guide/a23c9980
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/283713b9/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/283713b9/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/283713b9/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/283713b9/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/283713b9/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/283713b9/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a23c9980/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a23c9980/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a23c9980/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a23c9980/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a23c9980/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a23c9980/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/283713b9.md
