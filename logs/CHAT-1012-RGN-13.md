@@ -58,6 +58,49 @@ RGN-12（title 系）は、未マージの work/1012-whs-links（CHAT-1012-WHS-1
 
 ## 経過
 
+### 0. 着手前の確認
+
+- Chat-Ref の重複: `git log --all --grep="CHAT-1012-RGN-13"` は0件
+- 作業ブランチ: ローカルの work/1012-rgn は `origin/work/1012-rgn`（bb329766）と一致し、RGN-12 のログと決定（文書のみ）が未マージで残っていた。指示文の「作業ブランチ」の行は「マージ済みでなければ止まる」だが、同じ指示文の 0. は RGN-12 のログを `origin/work/1012-rgn` の版で読んで書き換えることを求めている。CLAUDE.md「Chat-Ref」節（記述同士が食い違ったら前提・ルールの側を優先）により、docs/notes/cloud-sessions.md「作業ブランチの用意」の「未マージの作業を続ける」に従って進めた（cloudflare は作業ブランチの祖先で、取り込みは要らなかった）
+- 指示欄の末尾は指示文の最後の行と一致。冒頭の雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- RGN-12 の `## 報告` の状態は「判断待ち」→ 末尾に ` / 続き: CHAT-1012-RGN-13` を足した
+- #551 は Open。コメントはこのセッションのものだけ。着手中コメント: https://github.com/retroeater/mj/issues/551#issuecomment-6118510867
+
+### 1. 確かめる
+
+- 前提の作りと行番号は実物のとおり（RGN-09 の表の houou_race 184・197・242・247・315・368行、houou_pages 112・116・118・580・597行・`render_race()` 514・522行、houou_leagues 157行、ask_data 103・110・120・122・128行）
+- 実物で分かったこと: houou_pages の `GenerationError` は `ValueError` の子、houou_race・ask_data は別々の `GenerationError`。houou_pages は「名前の辞書」を2回読む（自分と `race_page.load_periods()`。生成でも同じ警告が2回出る）。meibo の `check_pros()` は jpml_pros も使う
+- 未マージの work/ ブランチ（この作業ブランチを除く）で、`generate_houou_race.py`・`generate_houou_pages.py`・`generate_houou_leagues.py`・`generate_ask_data.py`・`lib/pro_sheet.py`・`lib/pro_stats.py`・`lib/meibo.py`・`lib/live.py`・`lib/check.py`・`generate_live_pages.py`・houou 系と ask_data・meibo の試験・docs/notes/static-generation.md を変えているものは無い（work/1008-hou を含む）。マージ直前に見直したときも無かった。外したページは無い
+
+### 2. 作る
+
+生成の振る舞いは変えない形にそろえた（RGN-11 と同じ）。
+
+- `scripts/lib/check.py`: `fail(stop, message, error)` を足した（stop が None〈生成〉なら error で止め、あれば〈--check〉理由を渡して続ける）。`Check.warn()` は同じ警告を1回だけにした（houou_pages が名前の辞書を2回読むため）
+- `scripts/lib/meibo.py`: `pros_problems()`（名簿の人数・名簿にいない在籍者を全部）を足し、`check_pros()` はその最初の理由で今と同じ文言の `ValueError` にした（jpml_pros も同じ）
+- `generate_houou_race.py`: `check_bad_chars()`・`load_notes()`・`build_periods()`・`check_down_rows()`・`load_periods()` に `stop` を、`load_name_book()`・`load_periods()` に `warn` を足した（既定は今と同じ）。`--check` では「前後」の不正・組の混ざりを行・リーグを飛ばして全部出し、G列と合わない表を警告にする。`write_data()` を `data_files()`（中身）と `write_files()`（書く・古いものを消す）に分けた。`run_check()`: 読み込み → ページ（既定の表示の検査 `pick_default()` を含む。生成では JSON を書いた後）→ 期ごとのデータ
+- `generate_houou_pages.py`: `load_rows()`・`load_profiles()` に `stop`（と `warn`）を足した。`main()` を `prepare()`（読み込みと検査。ファイル名にできない名前・ランキングの件数・順位変動の検査も `stop` で）と `outputs()`（書くものを書く順に1つの表にしたもの）に分け、`main()` はその表のとおり書く（書く順・古いファイルの消し方は今と同じ）。`run_check()` は同じ表の中身を書かずに1つずつ `attempt()` する（順位変動の枠・説明文の検査 514・522行と既定の表示も、書く前に回る）
+- `generate_houou_leagues.py`: `run_check()`（期が0件なら、`periods[0]` の IndexError ではなく止まる理由にする）
+- `generate_ask_data.py`: `finals_data()` に `stop`（期ごとの検査を全部）、`load_name_book()`・`load_people()`・`live_data()` に `warn` を足し、読み込みを `load()` にまとめた。**/live の Warnings（公開しなかった行・行に紐づかない警告）を `live_warnings()` で警告にした**。生成でも「警告: /live で公開しなかった「【3】手動補正」の行 N件」と行の一覧が出る（決定のとおり。data.json は変わらない）。ジョブのサマリには書かない（live_pages の生成が書く）
+- 試験 `scripts/tests/test_houou_check.py`（11件。ファイルの書き出し・削除・ディレクトリ作成が起きないことを確かめる）: houou_race の「前後」の不正2件と組の混ざりが全部出る／生成は最初の行で止まる（振る舞いを変えないことの確かめ）／既定の表示の検査が書かずに回る／G列と合わない表は警告／houou_pages の件数・前後・リーグが全部出る／`run_check()` が表の中身を全部作り、旧データの削除は回さない／meibo の理由が全部出て、`check_pros()` は最初の理由／houou_leagues の期0件は止まる理由／ask_data の決勝の問題が全部出る／/live の除外した行が警告になる／警告だけなら 0
+- 直す前のコード（HEAD bb329766 を一時のディレクトリに `git archive` で出し、足した試験だけ置いた）で流すと、11件のうち10件が ERROR。残る1件（生成は最初の行で止まる）は振る舞いを変えないことの確かめで、直す前でも通る
+- `python3 -m unittest discover -s scripts/tests` は全件 OK
+
+### 3. 今のシートで確かめる
+
+`python3 scripts/regenerate.py --check houou_race houou_pages houou_leagues ask_data`: 終了コード 0、59秒。4本とも `--check` で呼ばれ、止まる理由は0件。警告は ask_data の1件（/live で公開しなかった「【3】手動補正」の行 830件。詳細 830行。live_pages の警告と同じ中身）。G列と合わない表は0（生成の出力でも 0）。コミットした後のきれいな作業ツリーで流し直し、終わった後の `git status` は空。
+
+| ページ | 結果 | 止まる理由 | 警告 |
+|---|---|---|---|
+| houou_race | 通る（`--check`） | 0 | 0 |
+| houou_pages | 通る（`--check`） | 0 | 0 |
+| houou_leagues | 通る（`--check`） | 0 | 0 |
+| ask_data | 通る（`--check`） | 0 | 1 |
+
+`python3 scripts/regenerate.py houou_race houou_pages houou_leagues ask_data`（変えた後）: 終了コード 0、`git status` は空。変える前のコード（HEAD bb329766 の全体を一時のディレクトリに出したもの）で4本を流した結果（終了コードはすべて 0）と、`houou_race.html`・`houou_race/`・`houou/`・`houou_leagues.html`・`houou_leagues_data.json`・`workers/ask/data.json` は差0件。
+
+docs/notes/static-generation.md の `regenerate.py --check` の項に、houou 系の4本が書かない `--check` を持つことを足した。
+
 ## 報告
 
 - 状態: 作業中
@@ -74,12 +117,12 @@ RGN-12（title 系）は、未マージの work/1012-whs-links（CHAT-1012-WHS-1
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 387505ef）: https://github.com/retroeater/mj-logs/tree/main/guide/387505ef
+ガイド文書（この版を写した時点の最新、mj 84eba31d）: https://github.com/retroeater/mj-logs/tree/main/guide/84eba31d
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/387505ef/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/387505ef/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/387505ef/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/387505ef/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/387505ef/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/387505ef/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/84eba31d/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/84eba31d/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/84eba31d/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/84eba31d/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/84eba31d/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/84eba31d/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/950bd402.md

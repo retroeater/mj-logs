@@ -243,7 +243,7 @@ PowerShell 5.1 の既定が UTF-16LE のため、日本語部分が文字化け�
 - **検索用クローラーが弾かれていないことを確認した（2026-09-28、#130 のクローズ条件4・5）。** GSC のクロールの統計情報に 403 の行は無く、
   4XX の例は 9/21 が最後。Security Events の「Googlebot」を名乗るブロックは、Google Cloud（AS396982）から `.env` を探るスキャンを
   Managed rules が止めたもので、本物の Googlebot（AS15169）ではない。**UA だけで判断せず ASN と Service を見る**
-- AI Labyrinth は 2026-09-25 のスクショではオフに見えた（未検証）。使うかは #447 で再検討する。**ボット系の設定は1つずつ変える**
+- AI Labyrinth は使わない（2026-10-12、平野さんの決定。#447 をクローズ）。得が小さく（学習拒否を守らないクローラーにしか効かない）、注入の対象から検証済みボットを除くかが公式に書かれておらず、クラウドの Claude Code・GitHub Actions が取得する HTML が乱れるおそれがあるため。2026-09-25 のスクショではオフに見えた（未検証）。**ボット系の設定は1つずつ変える**
 
 ##### #304 の (8) で 403 が見つかったとき
 
@@ -396,7 +396,7 @@ Workers静的アセットにはオリジンサーバーが存在しないため�
 | CodeRabbit | 却下 | PR運用が前提だが、現在は cloudflare ブランチへ直接pushしている |
 | GitHub Copilot | 却下 | Claude Code と役割が重複する |
 | X API | 却下 | 無料枠が実質廃止され有料プランは月$100から。APIを必要とする機能がない |
-| Super Bot Fight Mode | 却下 | Proで遮断できるのは Definitely automated のみ。実測で最大の塊は Likely automated（41%）で手が出ない（#91） |
+| Super Bot Fight Mode | 却下 | Proで遮断できるのは Definitely automated のみ。実測で最大の塊は Likely automated（41%）で手が出ない（#91）。2026-10-12 に再確認して却下のまま: Cloudflare の「Unexpected increase in bot traffic」のメール（10/9 に自動化された通信が 82.0%、平常は 61.0%）と Security Overview の提案を受けたが、平野さんのスクショ（10/5〜10/12）では Likely Human 57.63k / 96.72k が最多で、送信元の上位は国内の ISP。#91 の再検討の条件（スクレイピングの実害・Business への移行）に当たらない |
 | Polish / Mirage / Argo Smart Routing | 却下 | Workers静的アセットにはオリジンが存在しないため効果がない（#71と同じ理由） |
 
 ### 検討して見送った技術(2026-09-11)
@@ -429,6 +429,7 @@ Workers静的アセットにはオリジンサーバーが存在しないため�
 | Automatic Platform Optimization for WordPress | 対象外 | WordPress サイトではない。ダッシュボードにも「The WordPress plugin was not detected on ryoei.pro」と表示される |
 | Shared Dictionary Compression | 見送り | Passthrough はオリジンが辞書圧縮を処理する前提。Workers 静的アセットは対応しないため Off のまま |
 | Smart Hints | 見送り | クローズドベータ。Early Hints の対象を Cloudflare が自動選択する機能。申し込まないまま Early Hints を Off に戻し、#129 を閉じた（2026-09-29） |
+| security.txt | 見送り | 2026-10-12、Security Overview の提案（Low）を見送った。置くと連絡先を公開することになるうえ、認証・ユーザーデータの無い静的な個人サイトで、受ける報告の場面がほとんど無い |
 | Mantis（Google のAIセキュリティ用ハーネス） | 却下 | パイプラインの中核が「サンドボックスでクラッシュを再現 → パッチが再現を止めることで検証」のため、実行体を持たない静的サイトでは空回りする。Worker スクリプトなし・フォーム0・認証なし・DBなしで、自前コードは約6,200行（JS 3,237行 + Python 2,966行）。加えて Docker + gVisor と専用の隔離VMが前提で、`gh` 認証済みの Codespace で回すのは「本番に触れる環境で実行するな」という README の要件に反する。Google 自身も「公式サポート製品ではない」「本番利用を意図しない」と明記。再評価は新サイト（#101/#21）でサーバーサイド（#28/#29/#30）が入ってから |
 
 **すでに対応済みだったもの**

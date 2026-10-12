@@ -362,9 +362,10 @@ title/ では「タイトル戦」タブの大会の改名が「タイトル」�
 - **列は見出しの名前で読む。** タブ名・列名・列順はシート側で変わる（LV-11「プロ以外」→「連盟プロ以外」、
   LV-29「全動画」→「連盟ch」・列「候補」→「放送対局」・列の並べ替え）。`fetch_records()` のように、生成に使う列の見出しが
   欠けている・重複しているときだけ止め、知らない列が増えても止まらない形にする（列記号の `SELECT A,I,J` は並べ替えで無言に別の列を読む）
-- **「プロ」シートは `lib/pro_sheet.py` の `fetch_pros()` で読む**（#536）。読む列は見出しの定数（`pro_sheet.NAME`・`X_ID` など）の組で渡し、
+- **「プロ」シートは `lib/pro_sheet.py` の `fetch_pros()` で読む**（#536）。読む列は見出しの定数（`pro_sheet.NAME`・`SORT_KEY` など）の組で渡し、
   在籍は見出し「表示」が Y の行（旧 `WHERE Y = "Y"`）、並びは `sort=True` で「ソートキー」の順（旧 `ORDER BY B`）。見出しはセル内改行を除いて比べ
-  （「X\nID」は `XID`）、A列の「登録名\n0.74」は改行の前の「登録名」で引く（#467）。必要な見出しが無い・2つ以上の列に当たるときは止める。
+  （「鳳凰\nAmpai」は `鳳凰Ampai`）、A列の「登録名\n0.74」は改行の前の「登録名」で引く（#467）。必要な見出しが無い・2つ以上の列に当たるときは止める。
+  SNS の見出し（`X_ID` など `pro_sheet.SNS_HEADERS`）を渡すと止める（列は 2026-10-12 に廃止。値は `lib/sns.fetch_pros()` が SNS ブックから入れる、#514）。
   列記号で「プロ」を読む箇所は無い（`scripts/tests/test_pro_sheet.py` が `WHERE Y = "Y"`・`PRO_QUERY` などの再登場を検査する）。
   **廃止する11列（C・D・E・O〜U・W、`pro_sheet.RETIRED`）はどこも読まない**: 英字の姓名・所属・読みは名簿（`lib/meibo.py`。`check_pros()` が在籍者の欠けと人数を検査して止める）、
   成績の8列は `lib/pro_stats.py`、型C（`houou_leagues`・`ouka_leagues`・`check_leagues_dropped.py`）の選手候補は各ページの `load_candidates()`（「鳳凰」「桜花」タブに1行でもある在籍者）
@@ -484,7 +485,8 @@ Google の API（`lib/gcal.py`・`lib/sheets_write.py`・`sync_birthday_calendar
 - `delete_merged_branches.py` — マージ済み（`origin/cloudflare` の祖先）で先頭が24時間より前の `work/*` を削除し、ブランチ名と先頭の SHA を出力する（`delete-merged-branches.yml`から毎日、`--dry-run`で一覧のみ。完全な履歴のクローンが要る）
 - `check_meibo.py` — 連盟員名簿データ（`lib/meibo.py`）と「プロ」シートの在籍者を登録名で突き合わせ、名簿のみ・プロのみを一覧にする（#370、`check-meibo.yml`から週1、生成は止めない）。テストは CLAUDE.md「判断・作業の原則」
 - `regenerate.py` — ページ再生成の共通入口。`scripts/generate_<ページ名>.py`が存在するページを「生成対象」とみなす。`--list`で対象ページ一覧、`all`で全ページ再生成、ページ名指定で単体再生成、`--changed`で変更ファイルから対象判定（`regenerate-page.yml`が使用）
-- `generate_resource_dictionary.py --check` — 「辞書」タブと「プロ」タブを生成と同じ経路で読み、生成と同じ検査（見出し・知らないカテゴリ・品詞・不正な文字・読みと語の組の重複）を止めずに行い、止まる理由をすべてとカテゴリごとの語数を出す。ファイルは書かない（止まる理由があれば終了コード1）。シートを直した後、指示を書く前に回す
+- `regenerate.py --check <ページ名…|all>` — シートを直した直後、再生成（push・手動実行）の前に、各ページが生成で止まるかだけを確かめる（#551）。対象の選び方は `all` と同じ（`FROZEN_FROM_ALL` を除く）。`--check` を持たないページは**普通に生成してから作業ツリーをそのページの前に戻す**（#533 の `TreeSnapshot`。未コミットの変更も元に戻る。`.gitignore` のファイルは対象外）。生成と同じ経路なので、live_pages の img.youtube.com・帰り道の pbs.twimg.com への HEAD も回る（割り当ての要る API は呼ばない）。`scripts/lib/check.py` を使う生成スクリプトは `--check` を持つとみなし、生成の代わりに `--check` で呼ぶ（書かない。書いたら止まる理由にして戻す）。`--check` を持つのは resource_dictionary・video_wayhome・wayhome_episodes（帰り道の2本は `lib/wayhome.py` の `check_inputs()` を共有し、動画IDとして読めない行・読めない写真・回ごとの組み立ての失敗を全部出す、2026-10-12）と、houou_race・houou_pages・houou_leagues・ask_data（最初の1つで止まっていた検査は `stop` を受け取り、生成では `lib/check.py` の `fail()` が今までどおり止める。生成では書き出しの後にあった houou_race の既定の表示・houou/race/ の枠と説明文の検査も書く前に回す。ask_data は /live で公開しなかった行を警告に出す〈生成でも出る〉、2026-10-12）。最後に、ページごとの結果と、止まる理由（生成は失敗したときの出力の最後の行、`--check` は「検査: 止まります」の後の「- 」の行）と警告（出力の`警告: `・`::warning::`で始まる行。続く字下げの行は詳細として数える）を分けて出す。止まる理由があれば終了コード 1、警告だけなら 0。`check_asset_limits` とコミット対象の一覧は出さず、ワークフローからは呼ばない。全ページで約3分（2026-10-12）
+- `generate_resource_dictionary.py --check` — 「辞書」タブと「プロ」タブを生成と同じ経路で読み、生成と同じ検査（見出し・知らないカテゴリ・品詞・不正な文字・読みと語の組の重複）を止めずに行い、止まる理由をすべてとカテゴリごとの語数を出す。ファイルは書かない（止まる理由があれば終了コード1。出力の形は `scripts/lib/check.py`）。シートを直した後、指示を書く前に回す
 - `check_asset_limits.py` — 配信ファイル数・最大のファイル・`_redirects`（静的・動的）・`_headers`のルール数を Cloudflare の上限（Workers Free）との比で表にし、80% 以上で警告、100% 超でエラー終了する（#387）。`regenerate.py`の最後と`assets-check.yml`から呼ばれ、Actions ではジョブのサマリにも出す
 - `apply_page_meta.py` — 全ページの`<title>`・meta description・OGPタグを一括書き換え（#5）。`--dry`でプレビューのみ
 - `check_leagues_dropped.py` — 型C（`houou_leagues` / `ouka_leagues`）で、リーグの実データがあるのに選手選択リストから漏れている選手を検知（#168、手動実行）。**出力は警告ではなく参考情報。退会者が並ぶのは正常で、在籍中の選手が現れたときだけ「プロ」シートの入力漏れを疑う。**`generate_*_leagues.py` から定数と `period_of()` / `fill_front_half()` をimportし、集計は `lib/leagues.py` を生成時と同じ引数で呼ぶ。生成側で `build_player_series()` の引数を変えたときはこちらも直すこと。`.github/workflows/check-leagues-dropped.yml` からworkflow_dispatchで実行でき、結果を実行サマリと指定issueへのコメントに出す
