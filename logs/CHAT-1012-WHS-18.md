@@ -70,15 +70,35 @@ WHS-17 のプレビューで残っていた選択を決めたので、使わな�
 - `docs/decisions/wayhome.md` に WHS-18 の決定、`docs/decisions/title.md` に1行と参照
 - `docs/notes/title-pages.md`「ページと生成」: 期ページの並びに帰り道を足し、「期ページの帰り道」の項（カードの形・並び・結び付けの参照）を足した。`docs/notes/video-wayhome.md`「紹介文と title/ の期のページ」の title/ 側の行を、案A の形と title-pages.md への参照に直した（紹介文〈補正用〉の列・120字の警告・ボタンは WHS-17 で書いたまま）
 
+### 手順2 マージ
+
+- fetch 直後に `git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめ、`git push origin work/1012-whs-links:cloudflare`（fa4ef82f..0caa0097）
+- 0caa0097 の check-run: regenerate（push 契機。`scripts/lib/` の変更で全ページ）success・Workers Builds: mj success・check・sync success（06:23Z 時点ですべて完了）
+- その後の `chore: regenerate`（7b3e1334、RGN-14 のマージ後の再生成）が変えたのは `sitemap-wayhome.xml` の lastmod だけで、帰り道・title/ のページは変わらなかった
+
+### 手順3 本番の確かめ
+
+`curl`（`?v=<未使用の値>`）、すべて 200:
+
+- `/wayhome/Yjp_PKHvldw.html`: 「決勝結果」→ `../title/ranwa/6.html`。「（全2回の2回目）」あり、「鸞和戦 #2を終えた」なし
+- `/wayhome/o28svvuVI0M.html`: 「決勝結果」なし
+- `/title/ranwa/6.html`・`/title/gpmax/15.html`: 節 `#title_wayhome` があり、案A のカード（`mj-title-video`）2枚。`wayhome-b` なし
+- `/title/houou/42.html`: 節なし
+
+ここで確かめたのは本番の HTML まで。ブラウザでの見え方は WHS-17 のプレビュー（案A は `/title/ranwa/6.html`）で見た形
+
+- #553 に結果をコメントして閉じた（「状況:」ラベルは付いていなかった）。#173 に (1) 説明文の列が入ったことをコメント（閉じない）
+- 作業ブランチ: クラウドセッションからは削除できないため、`delete-merged-branches.yml` に任せる
+
 ## 報告
 
-- 状態: 中断（作業中）
+- 状態: 完了
 - ブランチ: work/1012-whs-links
-- ログ: https://github.com/retroeater/mj/blob/work/1012-whs-links/docs/logs/CHAT-1012-WHS-18.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1012-WHS-18.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1012-whs-links
-- 確認用URL: なし
-- マージ: 未
-- issue: #553、#173
+- 確認用URL: なし（本番で確かめた。プレビューは WHS-17）
+- マージ: 済（0caa0097）
+- issue: #553（クローズ）、#173（コメント、開いたまま）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
@@ -86,12 +106,12 @@ WHS-17 のプレビューで残っていた選択を決めたので、使わな�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 0caa0097）: https://github.com/retroeater/mj-logs/tree/main/guide/0caa0097
+ガイド文書（この版を写した時点の最新、mj 90c58c63）: https://github.com/retroeater/mj-logs/tree/main/guide/90c58c63
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/0caa0097/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/0caa0097/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/0caa0097/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/0caa0097/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/0caa0097/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/0caa0097/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/950bd402.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/90c58c63/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/90c58c63/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/90c58c63/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/90c58c63/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/90c58c63/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/90c58c63/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/7b3e1334.md
