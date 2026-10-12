@@ -51,15 +51,67 @@ RGN-02 の作り（失敗したページだけを飛ばす）が本番の週次�
 
 ## 経過
 
+### 0. 着手前の確認
+
+- Chat-Ref の重複: `git fetch --unshallow` の後、`git log --all --grep="CHAT-1012-RGN-08"` は0件。`RGN` は同じチャットの連番（01〜07 のログあり）で、最初の指示ではない
+- 作業ブランチ: work/1012-rgn はローカル・リモートとも無し → `git checkout -b work/1012-rgn origin/cloudflare`（32ed04cb）
+- 指示欄の末尾は指示文の最後の行（「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」）と一致
+- #533・#538 は Open。着手中コメントは RGN-02（#533）・RGN-05（#538）のものだけで、どちらも後に完了のコメントがある（他セッションの作業中ではない）。着手中コメントを両方に残した
+- 指示文の冒頭の雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+
+### 1. 週次 #276 の確認（読むだけ）
+
+run 38186096774（#276、schedule、cloudflare 4e18a785、2026-10-11T23:55:45Z = 10/12 08:55 JST 開始）。ジョブ regenerate の結論は failure。ステップの結論:
+
+- 「対象ページを再生成」success。ログの `== <ページ> ==` は ask_data〜wayhome_episodes の20ページ。`の生成に失敗しました` は0件
+- 「飛ばしたページを報告」skipped
+- 「サイトマップのlastmodを更新」「サイトマップのwell-formednessを確認」「title/ の転送の行を確認」「変更をコミット・push」success
+- 「帰り道の取り込みの失敗を報告」だけが failure。直前の `check_wayhome.py` の出力は「新しい回 2件・JSON に無い回 0件・見られなくなった回 0件・決勝動画IDが空の回 0件 / 知らせる: True / 失敗にする: True」（作りどおりの知らせ）
+
+前提との差: 「変更をコミット・push」は success だが、ログの出力は「変更なし」で、この回はコミットも push もしていない（`git diff --cached --quiet && echo "変更なし" && exit 0`）。`origin/cloudflare` の 2026-10-11T23:00Z 以降にも #276 のコミットは無い（次の `chore: regenerate` は 13b38ae3、01:53Z で別の実行）。前提の「push は成功」は「push する変更が無かった」が正しい。
+止まる条件の例（飛ばしたページ・失敗・skipped）には当たらず、#533 の作り（飛ばす経路）の確認には影響しないと判断して進めた。#533 の閉じるコメントにこの点を書いた。
+
+### 2. #533
+
+- コメント: https://github.com/retroeater/mj/issues/533#issuecomment-6116418838
+- 「状況:」ラベルは無し（分野: 自動化・対象: 全ページ）。completed で閉じた
+
+### 3. 起票・#538・決定
+
+検索（クローズ済み・コメントを含む）: `search/issues` はセッションの制限で使えず（「sessions are bound to their configured repositories」）、`repos/retroeater/mj/issues?state=all`（549件）と `issues/comments`（2003件）を全部取って手元で文字列検索した。
+
+- `--check`: #343（OGP 画像の `--check`）・#438（`write_live_channel_candidate.py --check`）・#533 のコメントだけ。主題が違う
+- `検査だけ`: #186（実機の支援技術の確認。別の主題）・#533
+- `ファイルを書かず`: #533 だけ
+- 帰り道の issue（題に「帰り道」「wayhome」）を一覧し、#194・#545 のコメントに `--check` の記述は無い
+- → 同じ主題の issue は無い。#551 を起票した（ラベル: 分野: 自動化・対象: resource_dictionary・対象: video_wayhome。「状況:」・期日なし）
+
+#551 の本文のために実物（cloudflare 32ed04cb）で確かめたこと:
+
+- 辞書の `--check`: `scripts/generate_resource_dictionary.py` の `run_check()`（269〜286行）と `__main__` の分岐（297〜299行）。`fetch()` の ValueError は最初の1つ、`check_all()` は全部を出す
+- 帰り道: `scripts/lib/wayhome.py` の `load_episodes()`（108〜131行）は、視聴URLの動画IDを取れない行で最初の1行で ValueError、JSON に無い回は止めずに外して警告（#194 の決定3）。`check_player_photos()`（382〜404行）は全部を集めてから ValueError。呼ぶのは `generate_video_wayhome.py` 219・231行、`generate_wayhome_episodes.py` 252・261行
+- 決定の「`load_episodes()`（JSON に無い回）」は、今の作りでは止める理由ではなく警告なので、#551 の論点に「`--check` で止まる理由として出すか、知らせとして出すか」を足した。ほかに足した論点: 同名の `--check` を持つほかのスクリプト（`build_ogp_image.py`・`update_sns_book.py`・`write_live_channel_candidate.py`）は意味が違う
+
+#538: 本文1行目を「**期日: 2026-10-20**（Ubuntu 26.04 で動いた回の確認。3.12 の固定は 2026-10-10 に済み）」に置き換えた（REST の PATCH）。
+最初の PATCH で、本文18行目（`setup-python` を使わない3本の行。もともと崩れたリンクの記法を含む）の引用符が、API 側で増えた（バッククォートの並びの隣に、その数だけ `'` が足される）。
+増える数を差し引いた本文を送り直し、元の本文（作業前に取った写し）との差が1行目だけになったことを確かめた。
+
+`docs/decisions/automation.md` に「決定」節の2項目を足した。
+
+
+### マージ
+
+- `git merge origin/cloudflare`（dc16ce3b を取り込み、衝突なし）→ push 直前に再fetchして `git merge-base --is-ancestor origin/cloudflare HEAD` が真 → `git push origin work/1012-rgn:cloudflare`（dc16ce3b..59d5e8be）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1012-rgn
-- ログ: https://github.com/retroeater/mj/blob/work/1012-rgn/docs/logs/CHAT-1012-RGN-08.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1012-RGN-08.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1012-rgn
 - 確認用URL: なし
-- マージ: 未
-- issue: #533、#538
+- マージ: 済（59d5e8be）
+- issue: #533（クローズ）、#551（起票）、#538（期日を直した）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
@@ -67,12 +119,12 @@ RGN-02 の作り（失敗したページだけを飛ばす）が本番の週次�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 32ed04cb）: https://github.com/retroeater/mj-logs/tree/main/guide/32ed04cb
+ガイド文書（この版を写した時点の最新、mj 73f88804）: https://github.com/retroeater/mj-logs/tree/main/guide/73f88804
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/32ed04cb/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/32ed04cb/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/32ed04cb/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/32ed04cb/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/32ed04cb/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/32ed04cb/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/73f88804/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/73f88804/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/73f88804/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/73f88804/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/73f88804/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/73f88804/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/32ed04cb.md
