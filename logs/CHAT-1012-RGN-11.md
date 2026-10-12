@@ -97,16 +97,22 @@
 文書: docs/notes/static-generation.md の `regenerate.py --check` の項に `--check` を持つページ（辞書・帰り道の2本）を、docs/notes/video-wayhome.md「新しい回を追加する手順」の手元で動かすときの項の次に `--check` の使い方を1行足した。
 （同じファイルの「写真は代わりの画像に逃がさず」の項の「帰り道が止まると `regenerate.py all` のほかのページも止まる、#533」は #533 の作りで今は当てはまらないが、この指示の範囲外なので触っていない）
 
+### マージ・マージ後
+
+- `git fetch` のうえ `git merge-base --is-ancestor origin/cloudflare HEAD` が真 → `git push origin work/1012-rgn:cloudflare`（f2012f9a..9e9115a2）
+- 9e9115a2 の check-run: Workers Builds: mj・regenerate・check とも success。push で動いた再生成（`scripts/lib/` の変更で全ページが対象）は生成物の差が無く、コミットは無い
+- #551 に経過と残りをコメントした: https://github.com/retroeater/mj/issues/551#issuecomment-6118121008
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1012-rgn
-- ログ: https://github.com/retroeater/mj/blob/work/1012-rgn/docs/logs/CHAT-1012-RGN-11.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1012-RGN-11.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1012-rgn
-- 確認用URL: なし
-- マージ: 未
-- issue: #551
-- 判断が必要なこと: なし
+- 確認用URL: なし（生成物は変わらない。表示を変える変更は無い）
+- マージ: 済（9e9115a2。このログの仕上げは追いの push）
+- issue: #551（3本目〈帰り道〉を実装。残り〈title 系 → houou 系 → live・最強戦 → 残り〉は #551 で追う）
+- 判断が必要なこと: なし（#551 に移した）
 - 未確認の項目: なし
 - エラー: なし
 
