@@ -55,6 +55,70 @@
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 着手前
+
+- 指示欄の末尾は指示文の最後の行と一致している。CHAT-1013-SNM-10 の `## 報告` は 完了・マージ済（3ce5d549）
+- Chat-Ref の重複なし。work/1013-snm はリモートに無かったので origin/cloudflare（e676f8c2）から作った
+- 未マージの work/ ブランチのうち、`houou_results.js`・`league_ranking.js`・`static-generation.md` を変えているものはない
+- #548 に、ほかの Chat-Ref の未完了の着手中コメントはない。着手中のコメント: https://github.com/retroeater/mj/issues/548#issuecomment-6128814375
+
+### 手順1 消した後の確かめ（すべて通過）
+
+| 項目 | 結果 |
+|---|---|
+| 「プロ」の見出し（並び順のまま、`lib/sheets` の経路） | 登録名・ソートキー・出身地・表示 の4列。gviz の見出しは「登録名⏎0.74」。これまでと同じく、先頭の行が見出しに混ざったもの |
+| 行数・在籍者 | 1,099行・在籍 1,099（2回読んで同じ。内容のハッシュも同じ） |
+| 正本のタブ | リーグ・プロ・対局・鳳凰・桜花・JWRC・最強戦（「鳳凰Ampai」「桜花Ampai」は無い） |
+| xlsx エクスポート | 200・2,959,648 バイト。数式 46,446（配列 16,006）。`#REF!` は数式で0件、値で0件 |
+| 「最終更新」・`pro_sheet.UPDATED` の grep | 読む所なし。当たったのは4か所: `scripts/lib/pro_sheet.py` の定数 `UPDATED`（参照されていない）、`scripts/tests/test_jpml_pros.py`（読まないことを確かめるテスト）、`generate_jpml_pros.py` のコメント、`scripts/actions_status.py` の無関係な docstring。`.github/workflows/` とページ側の JS には無い。外した箇所はない |
+| 全ページの生成（origin/cloudflare e676f8c2、1ページずつ） | 23ページ中22ページが rc=0 で、コミット済みの生成物との差は0（`git status` が空）。books_pages は「書籍」が95行のため止まり（rc=3）、SNM-10 と同じ理由なので許容 |
+| 生成時の警告 | 「【3】手動補正」の非公開の行が830件、title_pages の0件、wayhome_episodes の「タマシュ・エルドス」。どれも以前からあるもの。jpml_pros は Ampai のブック43行から、鳳凰戦594名・女流桜花137名にリンクを付けた |
+| check_meibo.py（dry-run） | rc=0。名簿 1,099名と在籍 1,099名が一致し、差はどちらも0 |
+| update_sns_book.py check・update（dry-run、書かない模擬） | どちらも rc=0。元の一覧は「プロ」1,099・「連盟プロ以外」739。「ページが使う値が変わった人: 0」 |
+
+### 手順2 JS の直し（ac449cb9、work/1013-snm に push 済み・未マージ）
+
+- `houou_results.js`
+  - 問い合わせ文を英字のまま `queryTemplate` に持つ。名前は `%NAME%` で置いて、英字の置き換えの後に入れる（名前に含まれる英字を置き換えないため）
+  - `HOUOU_HEADERS`（A「名前」〜V「表示」）と `resolveHououQuery()` を足した。`SELECT * LIMIT 1` の応答の `getColumnLabel`/`getColumnId` から、見出しと英字の対応を作る（同じ見出しが2つあれば左を採る）
+  - 問い合わせ文の英字を、その見出しの今の英字に引き直してから送る。`withQuery()` が引き直しを1回だけ行い、結果を `drawChart`・`drawDashboard` で使い回す
+- `league_ranking.js`: `SHEET_NAME == '鳳凰'` のときだけ、同じ `resolveHououQuery()` を通してから送る（桜花などは今までどおり）
+- 見出しが読めない・見つからないときは `console.error` に出し、その列は今の英字のまま問い合わせる（表示は今までどおり試みる）
+- 2つの JS は「組」（今の X 列）を使っていないので、組の読み分けは入れていない
+- `node --check` は2ファイルとも通った
+
+### 手順3 ヘッドレス Chrome での確かめ（できず、止まった）
+
+- 2ページは Google Charts を `https://www.gstatic.com/charts/loader.js` から読み込む。このセッションのネットワークの設定で www.gstatic.com が拒否される（`CONNECT tunnel failed, response 403`、時間をおいて2回試した）
+- そのためヘッドレス Chrome で2ページの表示を作れず、(a)(b)(c) の比較ができない。Google Charts の結果を模擬で作るのは、比較の意味がないので行っていない
+- 止まる条件「ヘッドレス Chrome で2ページを確かめられない（確かめずにマージしない）」に当たるため、マージせずに止まった
+- static-generation.md の JS の行は、マージのときに直す（今の cloudflare の JS は英字で読むため、今は直していない）
+- docs/decisions の pros.md・houou.md には、この指示の「決定」を足した
+- #548 への中断のコメント: https://github.com/retroeater/mj/issues/548#issuecomment-6128893826
+
+## 報告
+
+- 状態: 中断（エラー）
+- ブランチ: work/1013-snm
+- ログ: https://github.com/retroeater/mj/blob/work/1013-snm/docs/logs/CHAT-1013-SNM-11.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1013-snm
+- 確認用URL: なし（2ページは Google Charts を読めないため確認していない）
+- マージ: 未（止まる条件に当たった）
+- issue: #548（着手中・中断のコメント。閉じていない）
+- 判断が必要なこと:
+  - 環境のネットワークの設定（Network access の Allowed domains）に `www.gstatic.com` を足すかどうか。足せば、同じ指示（または続き）の手順3から再開できる。手順1と JS の直し（ac449cb9）は済んでいる
+- 未確認の項目:
+  - 手順3の (a)(b)(c) の比較（ヘッドレス Chrome）
+- エラー: ヘッドレス Chrome で2ページを確かめられない（www.gstatic.com がセッションのネットワークの設定で拒否、403）
+
+### 平野さんがこの後にすること
+
+- 「鳳凰」の列は、まだ触らない（cloudflare の2つの JS は今も A〜V 列の英字で読むので、F 列への挿入で2ページが壊れる）
+- 2つの JS の直しがマージされたら、「鳳凰」へ F 列「組」を挿入し、X 列「備考」の値を写す
+- その後、挿入後の X〜AA 列を消す: X「プロ」・Y「備考」（組の元）・Z「存在チェック」・AA「備考」
+
 <!-- guide-links -->
 ---
 
