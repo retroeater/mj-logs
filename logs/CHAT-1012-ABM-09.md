@@ -50,18 +50,74 @@
 
 ## 経過
 
+### 着手（2026-10-12）
+
+- 同じ Chat-Ref のコミットは0件。`work/1012-abm` はローカル・リモートとも無かったので `git checkout -b work/1012-abm origin/cloudflare`（4e18a785）
+- 0.: 「指示」欄の末尾は指示文の最後の行と一致。雛形の行は4つともある（1行目にまとめて書かれている）。#425 は Open で、着手中コメントは CHAT-1011-ABM-03（同じ系列・このセッション）のものだけ
+
+### 手順1: 確かめ
+
+- 未マージのブランチ（自分を除く3件: origin/work/1009-swp-526・origin/work/1011-swp-hnd・origin/work/1011-swp-nav）は `generate_saikyo_pages.py`・`assets/saikyo.js`・`style.css`・`generate_live_pages.py` のどれも変えていない。`git merge-tree` で衝突なし
+- /live の個別ページの部品（`scripts/generate_live_pages.py`・`style.css`。設計は docs/notes/live-page-design.md「2-5」「2-6」）:
+  - 本文: `build_individual()` が `<main class="mj-video-page mj-live" id="main">` を自分で持つ（`render_content(wrap_main=False)`）。`.mj-video-page` で帰り道と同じ濃色（`body:has(.mj-video-page)` の色・navbar の sticky）
+  - ヒーロー: `build_hero()` → `section.mj-video-hero` > `img.mj-video-hero-bg`・`.mj-video-hero-scrim`・`a.mj-video-back`・`.mj-video-hero-content`（パンくず・`h1.mj-video-hero-player`・`p.mj-video-hero-meta`・`.mj-video-hero-actions`）
+  - 「▶ 再生」: `play_button()` → `a.mj-video-btn.mj-video-btn-primary`
+  - パンくず: `build_breadcrumb()` → `ol.mj-live-breadcrumb`
+  - 固定バー: `build_filterbar()` → `form.mj-filterbar`（`select.mj-live-title-select`・検索欄・共有ボタン）。sticky は `body:has(.mj-video-list, .mj-live) .mj-filterbar`、高さは `assets/live.js` の `watchHeight()`（`--mj-nav-h`・`--mj-filter-h`）
+  - 写真カード: `build_player_card()` → `li.mj-saikyo-player` > `.mj-saikyo-card`（最強戦の写真カード）を `ul.mj-saikyo-players.mj-live-players` に並べる
+  - 節: `section.mj-video-episodes` > `h2.mj-video-episodes-heading.mj-live-heading`
+  - 「〇〇の他の対局」: `div.mj-live-other-head` > `h2.mj-live-subheading`＋`a.mj-live-more`、`ul.mj-video-track` > `build_page_card()` の `li.mj-video-card` > `a.mj-video-card-link`（`.mj-video-card-thumb` > `img.mj-video-card-img`・`.mj-video-card-date`・`.mj-video-card-title`）
+
+### 手順2: 作ったもの
+
+- `scripts/generate_saikyo_pages.py`（卓のページだけ。対局のページ・年度ページの関数は変えていない）:
+  - `build_table_page_body()` を作り直し、`<main class="mj-video-page mj-live mj-saikyo-sub mj-saikyo-table-page">` を自分で持つ形にした。`write_sub_page(..., table_page=True)` で `render_content(wrap_main=False)`、`<body>` に `mj-saikyo-page` を付けない（今の固定の navbar・上余白の CSS と /live の sticky がぶつかるため）
+  - `build_table_hero()`（新規。/live の `build_hero()` と同じ HTML の形）: 画像は ABEMA の 1280×720（`table_image()`）、`data-fallback` に年度の OGP 画像。ABEMA の回の URL があるときだけ、画像の上に透明なリンク `a.mj-saikyo-hero-link`（`tabindex="-1" aria-hidden="true"`）・「▶ 再生」・隅の出典 `span.mj-saikyo-hero-credit`「画像: ABEMA」。回の URL の形でない値はボタン「ABEMA で見る」だけ
+  - `build_live_breadcrumb()`（新規。/live の `build_breadcrumb()` と同じ形の `ol.mj-live-breadcrumb`。/live の関数は相対パスの計算が /live のパスに結び付いているので使い回さず、同じ HTML を出す小さな関数にした）
+  - `build_related_card()`（新規。/live の `build_page_card()` と同じ `li.mj-video-card`）: サムネイル（ABEMA の 640×360、無ければ年度の OGP 画像）・対局日・卓の見出し。押すとその卓のページ
+  - 関連動画の節: `div.mj-live-other-head`（見出し「関連動画」＋右に `a.mj-live-more`「<対局名>のすべての卓」→ 対局のページ）＋ `ul.mj-video-track`。ほかの卓が無い対局（卓が1つ）では見出しとリンクだけ
+  - 固定バー: 今と同じ年度プルダウン（`build_year_select()` に `select_class` の引数を足し、/live の見た目 `mj-live-title-select` で出す）を `div.mj-filterbar` に入れた。**位置は /live と同じくヒーローの下の sticky**（前提の「固定バーは今の卓のページと同じ」から変えた。/live の作りにそろえるため。中身は今と同じ年度プルダウンだけ）
+  - 中身の並びは前提の案のとおり（ヒーロー → 出場者の4人 → 関連動画）。見出しの「出場者」は /live の「対局者」に当たる節
+  - 定数: `TABLE_PAGE_CLASS`・`RELATED_HEADING`・`PLAY_LABEL`・`OGP_WIDTH, OGP_HEIGHT = 1200, 630`
+- 使い回した部品（CSS は変えずにそのまま）: `.mj-video-page`（濃色）・`.mj-video-hero` 一式・`.mj-video-btn(-primary)`・`.mj-live-breadcrumb`・`body:has(.mj-live) .mj-filterbar`（sticky）・`.mj-live-title-select`・`.mj-video-episodes`・`.mj-live-heading`・`.mj-live-players`（名前のグラデーション）・`.mj-saikyo-card` 一式（順位・帯）・`.mj-live-other-head`・`.mj-live-subheading`・`.mj-live-more`・`.mj-video-track`・`.mj-video-card` 一式。`generate_live_pages.py` は変えていない（live/ の生成物は変わらない）
+- 新しく足した CSS（`style.css`）: `.mj-saikyo-hero`（`isolation`）・`.mj-saikyo-hero-link`・ヒーローの文字の部分の `pointer-events`・`.mj-saikyo-hero-credit`・`.mj-saikyo-table-page .mj-live-players` の `--mj-saikyo-rank-size`。順位が空の行の三角の2つの選択子を `:is(.mj-saikyo-year, .mj-saikyo-table-page)` に広げた
+- `assets/saikyo.js`: 新しいページの処理で、卓のページ（`.mj-saikyo-table-page`）は navbar・固定バーの高さを /live と同じ `--mj-nav-h`・`--mj-filter-h` に入れる（`watchHeight()` を足した。`assets/live.js` の同名の関数と同じ）。ほかのページは今までどおり
+- テスト（`scripts/tests/test_saikyo_pages.py`）: 卓のページのテストを新しい作りに直し（ヒーロー・「▶ 再生」と画像の2か所が ABEMA・出典・関連動画のカードと対局のページへのリンク・共有ボタンなし）、URL の無い卓（OGP 画像・「▶」と出典なし）を足し、ABEMA のサムネイルのテストは対局のページだけにした。`python3 -m unittest discover -s scripts/tests` は 835件 OK
+- docs/notes/saikyo-page-design.md「新しい年度・対局・卓のページ」の「卓のページ」「ABEMA のサムネイル」の項を新しい作りに直した
+
+### 手順3: 確かめ
+
+- 生成（`generate_saikyo_pages.py`）: 「動画URLのある卓: 18」「新しいページ(#425、未公開): 878件」、警告なし
+- (a) 変わったファイル: 卓のページ **643**（`saikyo/<年度>/` の `-s<n>[-<卓>].html` の全部。見込み 643 との差 0）と `assets/saikyo.js`・`style.css`（とコード・テスト・文書）。今の公開中のファイル（`saikyo/index.html`・`saikyo/<年度>.html`・`sitemap-saikyo.xml`）・対局のページ・年度ページ・live/ の差分は 0。シートの変化による差分も 0
+- (b) 内部リンク（href・src・プルダウンの value、28,296件）はすべて実在。`data-fallback` の行き先（`img/avatar.svg`・`img/ogp/saikyo/2026-black.png`）も実在
+- (c) id の重複 0、noindex と canonical（自分自身）は 878ページすべて。卓のページに `mj-saikyo-page` のクラスは付かない
+- (d) headless Chromium（ローカルの `http.server`。外部の ABEMA の画像は届かないので、`data-fallback` で年度の OGP 画像に替わった状態）: 卓 `2026/20260920-s1-a`・決勝 `20260920-s2`・URL の無い卓 `2025/20251214-2-s1-a`・未対局の卓 `2026/20261011-s1-a`
+  - ヒーローの高さ: 390×844 で 608px（画面の72%）、1280×900 で 640px（71%）、1920×1080 で 640px（59%）。navbar の直下から始まり、固定バーはその下（390 で 664px、1280・1920 で 720px）。どれも画面の上半分以上を占める
+  - 横のはみ出しは無い（`scrollWidth - clientWidth` は -15〜0。`scrollbar-gutter: stable` の分）。JS のエラー 0。navbar・固定バーは sticky で、`--mj-nav-h` は 390 で 56px、1280・1920 で 80px が入る
+  - 見え方: ヒーローの左下にパンくず・見出し（「麻雀最強戦2026 超頭脳合戦 ベスト8 A卓」）・対局日・「▶ 再生」、右下の隅に「画像: ABEMA」。その下に年度プルダウンの固定バー、「出場者」の4人（スマホは2×2、PC は1行）、「関連動画」の見出しと「超頭脳合戦のすべての卓」、カード2枚（ベスト8 B卓・決勝）。URL の無い卓・未対局の卓は「▶ 再生」と出典が無い。崩れは見つからなかった
+  - 気づいたこと: ABEMA の画像が読めないときも `data-fallback` で OGP 画像に替わり、出典「画像: ABEMA」は残る（HTML は生成時に決まるため。ABEMA の画像が読める環境では起きない）
+- プレビュー（8f063365）: check-run「Workers Builds: mj」「check」とも success。上の4ページが 200・ヒーローあり・noindex あり（URL はターミナルの最終報告にだけ書く）
+
+### docs/decisions
+
+この指示の「決定」（2026-10-11 の3つ）を docs/decisions/saikyo.md に足した
+
 ## 報告
 
-- 状態:
-- ブランチ:
-- ログ:
-- 比較URL:
-- 確認用URL:
-- マージ:
-- issue:
+- 状態: 判断待ち
+- ブランチ: work/1012-abm
+- ログ: https://github.com/retroeater/mj/blob/work/1012-abm/docs/logs/CHAT-1012-ABM-09.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1012-abm
+- 確認用URL: プレビューあり（URL は最終報告）。2026 超頭脳合戦 ベスト8 A卓・同じ対局の決勝・URL の無い卓（2025 ファイナル 2nd Stage ベスト8 A卓）・未対局の卓（2026 団体分裂合戦 ベスト8 A卓）
+- マージ: 未（平野さんの判断待ち）
+- issue: #425（読むだけ）
 - 判断が必要なこと:
+  - プレビューを見て、卓のページの新しい作り（/live と同じ濃色のヒーロー・出場者・関連動画）でよいか。マージするか
+  - 固定バー（年度プルダウン）の位置を /live と同じくヒーローの下の sticky にした（前提の「今の卓のページと同じ」から変えた）。これでよいか
+  - ABEMA の URL が無い卓（未対局・未入力）のヒーローとカードは、試作では年度の OGP 画像（「▶ 再生」・出典なし）。どうするかは全年度の ABEMA の突き合わせの後に決める（前提のとおり未決）
 - 未確認の項目:
-- エラー:
+  - ABEMA の画像が実際に出たときのヒーローの見え方（セッションから `image.p-c2-x.abema-tv.com` に届かず、確かめた見え方は OGP 画像に替わった状態。平野さんのブラウザのプレビューで見える）
+- エラー: なし
 
 <!-- guide-links -->
 ---
