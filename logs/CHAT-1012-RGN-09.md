@@ -158,7 +158,7 @@
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1012-RGN-10
 - ブランチ: work/1012-rgn
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1012-RGN-09.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1012-rgn
