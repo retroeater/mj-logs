@@ -59,28 +59,59 @@ HOU-30 のプレビュー（個人成績 `houou/players/`）を平野さんが�
 - 2026-10-12 着手。**この会話は HOU-01〜30 から続いている（新しく始めたセッションではない）**
 - `CHAT-1012-HOU-31` のコミットは無し。`origin/work/1012-hou` はリモートにありローカルと一致（90be8719）。`origin/cloudflare`（d627615c）は HEAD の祖先でない（取り込む）
 
+### 0・手順1 確かめ
+
+- 指示欄の末尾は指示文の最後の行と一致。HOU-30 のログの報告は 状態「判断待ち」。状態の末尾に ` / 続き: CHAT-1012-HOU-31` を足した。指示文の冒頭の雛形の行は揃っている
+- `origin/cloudflare`（d627615c。ABM-12〜14・RVC-01〜02 など。houou/ に触れるのは `style.css` の `saikyo` の節〈1805行あたり〉だけ）を merge で取り込んだ。衝突なし
+- 未マージのブランチ: `assets/houou.js`・`style.css` の `.mj-houou-*`・`generate_houou_pages.py` に触れるのは自分の `work/1012-hou` だけ。`origin/work/1009-nen` は `style.css` を変えるが `.mj-houou` の行は 0 件（title の節）。止まらない
+- 最下位のリーグ（`houou/players/leagues.json` の期ごとの各段の人数で、人数のある最も下の段）: **第17期後期 C3**、**第43期前期 E3**
+
+### 手順2 直し（a6390978）
+
+- 最近見た選手: チップの行（`#houou_recent`）をやめ、検索の候補の枠（`#houou_suggest`、`role="listbox"`）に出す。選手を選んでいない画面では開いたまま（押す前から見える）。文字を打つと同じ枠が候補に置き換わり（枠の読み上げの名前も「選手の候補」に戻す）、空に戻すと最近見た選手に戻る。行の形は検索の候補にそろえた: 左に時計の印、X の画像・名前・最後の期とリーグ、右に「✕」（押せる幅 44px、行の高さ 52px）。既定の1件（白鳥翔）は時計の印の代わりに小さく「鳳凰位」、「✕」なし。キー操作は候補と同じ（矢印・Enter）に、Delete で消す。「保存データを消す」と `mj:` を全部消す処理は消した
+- 山の段の名前は四隅だけ: 左上・右上「A1」（A1 の段の高さ）、左下 C3・右下 E3（その期の最も下の段の高さ）。グラフの右の余白を 8 → 30 にして右の名前を置いた。リーグのタブで全期を見ているとき（再生の前・ズームアウトの後）も同じ
+- 説明の1文（「選手を選ぶと、…重ねます。」）・見出し「期ごとの成績」を消した。タブは幅いっぱいを3等分（375px で 117.7px × 3、要約の3枚と同じ幅 359px。1920px で 126px × 3）
+- リーグのカードの上の1行: 期の範囲を中央（ずれ 0px）、再生のボタンは右端、左に同じ幅（44px）の空き
+- 再生の始め: 押した直後〜落ちる間は全期の山（全段・普通の濃さ・四隅の名前）のまま。着いたら生える時間 2.2秒の初めの 3割（0.66秒）でスタート地点へ寄りながら全期の山を薄くし、寄った時点で入会前の期を消して「選手が通った段の帯が左から生える」に入る。終わりは全期に戻る。動きの時間の式は変えていない
+- 前提から変えたこと: 全期を描くようにした HOU-30 から、寄ったときの倍率（縦横同じ）が選手の期の範囲でなく全期の列の数で決まり、横 15倍前後・縦も同じだけ寄ってアイコンが画面の下の外へ出ていた（HOU-30 の 1.6秒のスクリーンショットでもアイコンが映っていない）。カメラの倍率を縦と横に分け、縦は前（選手の期の範囲だけを描いていたとき）と同じ、横はそれに「全期の列の数 ÷ 選手の期の範囲の列の数」を掛けた。動きの間の山の帯のリーグの名前は、横に伸びないよう縮める
+- 生成し直し: `--check` は通過（「選手 1,295名」）。テスト OK。`houou/players/index.html` の差分は `#houou_recent` を消しただけ（生成スクリプトと CSS・JS 以外の生成物に差分なし。共有の部品は変えていないので全ページの再生成はしていない）
+
+### 手順2 確かめ（http.server、headless Chromium、375×812・1920×1080）
+
+- 選んでいない画面: 履歴なし → 枠が開いていて「鳳凰位 白鳥翔 42期 鳳凰位」の1行（✕なし）。履歴3件 → 「最近見た選手」で3行、各行に ✕。「しら」と打つと枠が「選手の候補」に置き換わり（白鳥翔の1件）、消して空に戻すと3件に戻る。✕ で1件消すと2件になり保存も2件。行を押すと `?name=一森かな&view=league`（選んでいない画面からなのでリーグ）
+- 山の四隅: `A1@左上・C3@左上（第17期後期は列が短く上半分に入る）・A1@右上・E3@右下`。説明の文なし。期の範囲の中央からのずれ 0px
+- 白鳥翔のタブ3つ: 見出しなし、3等分で1行、横のはみ出し 0、候補の枠は閉じている
+- 一森かなの再生: 0.35秒 `matrix(1 0 0 1 0 0)`（全期、帯・段の名前を表示）、2.3秒 横 10.9倍・縦 1.47倍で 39後〜41後 あたりを映し、入会前の帯（39前・39後）は消え、アイコンは画面の中（y 238/303）。終わり `matrix(1 0 0 1 0 0)`、段の名前も戻る。白鳥翔も同じ確かめでアイコンが画面の中
+- 期のカードの 375px の余り: 標準 7.6px・IPA P ゴシック 2.4px（HOU-30 と同じ）
+- JS のエラー 0
+- スクリーンショット（手元の http.server で撮影）: `docs/logs/CHAT-1012-HOU-31/`（01 選んでいない画面〈履歴なし・3件・打ったところ・✕で消したところ〉、02 白鳥翔のタブ3つ、03 一森かなの再生〈押した直後・寄った後・終わり〉、04〜06 1920px）
+- **プレビュー**: a6390978 の push（15:04 UTC）に Workers Builds の check-run が付かず（`check` だけ）、15分を過ぎてもプレビューの `assets/houou.js` は HOU-30 の版のまま（`RECENT_CLOCK` が無い）。後続の push が無いので、まとめられた先のビルドも無い（docs/notes/cloudflare.md「check-run が queued のまま・見当たらない場合」）。確かめは手元で行った。この報告の push の後にもう一度プレビューを見る
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち（プレビューを平野さんが見て決める）
 - ブランチ: work/1012-hou
 - ログ: https://github.com/retroeater/mj/blob/work/1012-hou/docs/logs/CHAT-1012-HOU-31.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1012-hou
-- 確認用URL: なし
-- マージ: 未
+- 確認用URL: プレビュー（URL は最終報告）。ただし a6390978 のビルドがプレビューに出ていない（下の「未確認の項目」）
+- マージ: 未（指示のとおりマージしない）
 - issue: #518・#236
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 判断が必要なこと:
+  1. 見てもらう画面（確認用 URL に付けるもの）: 付けない（選んでいない画面の最近見た選手と山の四隅）／`?name=白鳥翔&view=league`／`?name=一森かな&view=league`（再生の始めの全期の山と寄り方）／`?name=平野良栄`（タブ3つ）。プレビューに今回の版が出ていなければ、Cloudflare の Build history で `work/1012-hou` の a6390978 のビルドを見てほしい（再ビルドが要るかもしれない）
+  2. 仮置きにしたもの: 最近見た選手の行の形（時計の印・X の画像・名前・最後の期とリーグ・✕、行の高さ 52px）、既定の1件の「鳳凰位」の書き方、Delete で消すキー操作、山の四隅の名前の高さ（A1 の段・最も下の段の中ほど）とグラフの右の余白 30、リーグのタブの上の1行（中央の期の範囲・右端の再生のボタン・左の空き 44px）、再生で寄る割合（生える時間の初めの 3割）
+  3. 前提から変えたこと: 再生で寄るときの倍率を縦と横に分けた（HOU-30 で全期を描くようにしてから、寄りすぎてアイコンが画面の外へ出ていたため。縦は全期を描く前と同じ寄り方）
+- 未確認の項目: プレビューへの反映（a6390978 に Workers Builds の check-run が付かず、15分を過ぎてもプレビューは HOU-30 の版。手元の http.server で確かめた）。実機（iPhone）での見え方（平野さん）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj a0fe4f25）: https://github.com/retroeater/mj-logs/tree/main/guide/a0fe4f25
+ガイド文書（この版を写した時点の最新、mj 4947b069）: https://github.com/retroeater/mj-logs/tree/main/guide/4947b069
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a0fe4f25/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a0fe4f25/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a0fe4f25/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a0fe4f25/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a0fe4f25/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a0fe4f25/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/283713b9.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/4947b069/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/4947b069/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/4947b069/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/4947b069/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/4947b069/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/4947b069/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/4947b069.md
