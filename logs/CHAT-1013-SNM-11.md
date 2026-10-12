@@ -100,7 +100,7 @@
 
 ## 報告
 
-- 状態: 中断（エラー）
+- 状態: 中断（エラー） / 続き: CHAT-1013-SNM-12
 - ブランチ: work/1013-snm
 - ログ: https://github.com/retroeater/mj/blob/work/1013-snm/docs/logs/CHAT-1013-SNM-11.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1013-snm

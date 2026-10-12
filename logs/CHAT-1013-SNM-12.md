@@ -47,6 +47,51 @@ CHAT-1013-SNM-11 で、旧方式の2ページの JS（`houou_results.js`・`leag
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 着手（作業ブランチ）
+
+- Chat-Ref の重複: `git fetch --unshallow origin` の後、`git log --all --grep="CHAT-1013-SNM-12"` は0件
+- `work/1013-snm` はローカルに無く、リモートにあり未マージ（cloudflare に無いコミットは 1608a8f2f・ac449cb99・ddc3e5797）。
+  `git checkout -b work/1013-snm origin/work/1013-snm` で用意した。`git merge-base --is-ancestor origin/cloudflare HEAD` は偽だが、下の0章で止まったため cloudflare の取り込みはしていない
+- 指示文の冒頭の雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+
+### 0章の確かめ
+
+- 「指示」欄の末尾: 指示文の最後の行（「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」）と一致
+- (1) CHAT-1013-SNM-11 の `## 報告` の状態は「中断（エラー）」。末尾に ` / 続き: CHAT-1013-SNM-12` を足した
+- (2) このセッションは新しく始めたもの（session_01HqoBGjDrQFRcDGev93KwXv、作成 2026-10-12T23:49:30Z = 2026-10-13 08:49 JST。
+  平野さんが許可ドメインを足したと伝えた 08:45 JST より後）。環境は `Claude-iPhone`（env_01VaGBC1z9HPQX3shXDGoCQe、アカウントの環境はこの1つ）
+- (2) `curl https://www.gstatic.com/charts/loader.js` は `CONNECT tunnel failed, response 403`（HTTP コード 000）。少し置いて再試行しても同じ。
+  プロキシの状態（`__agentproxy/status`）の `recentRelayFailures` は `www.gstatic.com:443 connect_rejected`（gateway answered 403 to CONNECT）
+- 参考に測った他のホスト: `docs.google.com` も同じく 403 で拒否された（cloud-sessions.md「ネットワーク」では 2026-09-25 から許可済みで、再生成に必須）。
+  `sheets.googleapis.com` は通る（HTTP 404 の応答＝接続はできた）。許可ドメインの一覧が保存の時点で変わった（足したつもりの行が入らず、既存の追加分も外れた）か、
+  設定がまだ反映されていない可能性がある。申告値では `www.gstatic.com` を足している。ここからは設定画面を検証できない
+- **止まる条件（「取得できなければ何もせず止まる」）に当たったため、(3)「鳳凰」の見出しの確かめ以降（手順1〜3、#548 のコメント、cloudflare の取り込み・マージ）は行っていない**
+- 決定（指示文の「決定」節）は docs/decisions/houou.md に足した（CLAUDE.md「作業ログ」節の、中断時にも決定を足す規則による）
+
+## 報告
+
+- 状態: 中断（エラー）
+- ブランチ: work/1013-snm
+- ログ: https://github.com/retroeater/mj/blob/work/1013-snm/docs/logs/CHAT-1013-SNM-12.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1013-snm
+- 確認用URL: なし（2ページは確認していない）
+- マージ: 未（0章の止まる条件に当たった）
+- issue: #548（今回はコメントしていない。閉じていない）
+- 判断が必要なこと:
+  - 環境 `Claude-iPhone` の Network access の Allowed domains を見直すこと。このセッションでは `www.gstatic.com` に加え、以前は通っていた `docs.google.com` も拒否された（一覧が保存時に置き換わった可能性）。直した後、新しいセッションで同じ指示（または続き）を貼れば0章から再開できる
+- 未確認の項目:
+  - 0章 (3) の「鳳凰」の見出しの並び
+  - 手順1〜3（未マージのブランチとの重なり、ヘッドレス Chrome での (a)(b)(c) の比較、文書、マージ）
+- エラー: `www.gstatic.com` への接続がセッションのネットワークの設定で拒否された（CONNECT 403）
+
+### 平野さんがこの後にすること
+
+- 「鳳凰」の列は、まだ触らない（cloudflare の2つの JS は今も A〜V 列の英字で読むので、F 列への挿入で2ページが壊れる）
+- 2つの JS の直しがマージされたら、「鳳凰」へ F 列「組」を挿入し、X 列「備考」の値を写す
+- その後、挿入後の X〜AA 列を消す: X「プロ」・Y「備考」（組の元）・Z「存在チェック」・AA「備考」
+
 <!-- guide-links -->
 ---
 
