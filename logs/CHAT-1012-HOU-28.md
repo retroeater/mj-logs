@@ -76,28 +76,54 @@ HOU-13〜26 で、期のカードを1行に収める直しが何度も往復し�
 - 2026-10-12 着手。**この会話は HOU-01〜27 から続いている（新しく始めたセッションではない）**
 - `CHAT-1012-HOU-28` のコミットは無し。`work/1012-hou` はローカル・リモートとも無かったので `git checkout -b work/1012-hou origin/cloudflare`（4e18a785）
 
+### 手順1 確かめ・計測
+
+- 0. 指示欄の末尾は指示文の最後の行と一致。HOU-27 のログの報告は 状態「完了」。指示文の冒頭の雛形の行は揃っている
+- サイズ（`wc -c`、着手時 → 終了時）: `docs/notes/design.md` 16,089 → 17,539、`docs/notes/houou-top.md` 46,478 → 47,053、`docs/new-page-checklist.md` 11,843 → 12,006、`CLAUDE.md` 22,153（変えていない）、`docs/handover.md` 23,389（変えていない）。`docs/notes/chat-side-operations.md` は 26,595 で触っていない
+- 字体: この環境の `fc-list` に「IPA Pゴシック（IPAPGothic）」「WenQuanYi Zen Hei」がある（ほかに IPAゴシック）。指示の字体名のまま書いた
+
+### 手順2 文書
+
+- `docs/notes/design.md`「3. 文字・寸法」の表に4行（最小の画面幅・字体の見込み・文字の拡大・余白の下限）を足した。表の列は「項目・値・適用範囲・出典」（指示の「項目・内容・根拠」は実物では「値」「出典」で、適用範囲の列もある）。出典は「HOU-13〜26 の振り返り（2026-10-12）、`docs/decisions/site-review.md`」。余白の下限の行に測り方（右の余白を何 px 足すと2行になるか）を足した
+- `docs/notes/houou-top.md`: `grep -n 390` は3か所。直したのは2か所（「開閉の印」の項 → 375px と参照先を「期のカードの並び」に、「字の大きさへの連動」の「確かめ方」 → 375px と design.md への参照）。残した1か所は「仮置きの一覧」の HOU-18 の行「（リーグの欄の幅と 390px の詰め方は、HOU-19 の 375px の詰め方に置き換えた）」で、置き換えた経緯の記録なので 390 のままにした
+- `docs/notes/houou-top.md`「データの持ち方」の先頭に、生成が読むブック・タブの一覧を1行で足した（コードから洗った）:
+  - 正本（`lib/pro_sheet.py`）: 「鳳凰」（`generate_houou_pages.py` の `load_rows`・`load_groups`、`generate_houou_race.py`、`generate_houou_leagues.py`）、「プロ」（`lib/pro_sheet.py`、`lib/sns.py` の `fetch_pros` 経由）
+  - /live 用のブック（`lib/live.py`）: 「連盟プロ以外」「別名」（`generate_houou_race.load_name_book`）。前提の見込みの「成績ブックの『別名』」は、実物では /live 用のブック
+  - SNS ブック（`lib/sns_book.py`）: 「【2】ID」「【3】画像取得」「【4】手動補正」（`lib/sns.py` の `load`）
+  - 連盟員名簿のブック（`lib/meibo.py`）: 「公開」「【2】値貼付」（`load_profiles` の `meibo.fetch_members`・`fetch_english_names`）
+- `docs/new-page-checklist.md`「作る段の確かめ」に1行足した（「見え方は、スマホの幅と PC の幅に加えて…」の前）
+- `docs/decisions/site-review.md` に 2026-10-12（CHAT-1012-HOU-28）の節を足した（README の一覧で「サイト全体の横断レビューと DESIGN.md」の分野。合っている）
+
+### 手順3 マージ・片付け
+
+- 差分（`origin/cloudflare...HEAD`）は `docs/` の5ファイルだけ（site-review・new-page-checklist・design・houou-top・このログ）。CLAUDE.md・handover.md は変わっていない
+- マージ: push 直前に再 fetch し（origin/cloudflare は 4e18a785 のまま）、`git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめて `git push origin work/1012-hou:cloudflare`（4e18a785..bc32017d）。docs のみなので Workers Builds は走らない（#171）
+- 片付け: このクラウドセッションはブランチを削除できない（docs/notes/cloud-sessions.md「ブランチの削除」）。`origin/work/1012-hou` は `git branch -r --merged origin/cloudflare` に出る（マージ済み）。削除は `delete-merged-branches.yml` に任せる。このログの push の後、同じ先頭を `cloudflare` へも push する（docs/logs だけの追いの push）。追いの push の前の先頭は bc32017d
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1012-hou
-- ログ: https://github.com/retroeater/mj/blob/work/1012-hou/docs/logs/CHAT-1012-HOU-28.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1012-hou
+- 状態: 完了
+- ブランチ: work/1012-hou（マージ済み。削除は `delete-merged-branches.yml` に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1012-HOU-28.md
+- 比較URL: なし（マージ済み）
 - 確認用URL: なし
-- マージ: 未
+- マージ: 済（4e18a785..bc32017d。この報告の docs/logs のみの追いの push あり）
 - issue: #518
-- 判断が必要なこと: なし
+- 判断が必要なこと:
+  1. houou-top.md の 390 の箇所（3か所）: 直した2か所 =「開閉の印」の項（→ 375px、参照先を「期のカードの並び」に）、「字の大きさへの連動」の「確かめ方」（→ 375px、design.md「3. 文字・寸法」への参照を足した）。残した1か所 =「仮置きの一覧」の HOU-18 の行（390px の詰め方を 375px に置き換えた経緯の記録）
+  2. `houou/` の生成が読むブック・タブ: 正本の「鳳凰」「プロ」、/live 用のブックの「連盟プロ以外」「別名」、SNS ブックの「【2】ID」「【3】画像取得」「【4】手動補正」、連盟員名簿のブックの「公開」「【2】値貼付」（「別名」は前提の見込みの成績ブックでなく /live 用のブック）
 - 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 9973fe01）: https://github.com/retroeater/mj-logs/tree/main/guide/9973fe01
+ガイド文書（この版を写した時点の最新、mj 5b7422cd）: https://github.com/retroeater/mj-logs/tree/main/guide/5b7422cd
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9973fe01/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9973fe01/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9973fe01/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9973fe01/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9973fe01/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9973fe01/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b7422cd/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b7422cd/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b7422cd/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b7422cd/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b7422cd/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b7422cd/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/4e18a785.md
