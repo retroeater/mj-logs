@@ -50,15 +50,34 @@ CHAT-1012-GCL-01 で docs/notes/chat-side-operations.md を 26,623 バイトに�
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 揃っている
 - 0. 指示欄の末尾が指示文の最後の行と一致することを確認
 
+### 1. 書き先の issue
+
+- 検索（ガイド文書・サイズ・上限・chat-side-operations・警告域、open/closed とも）: #492（open）・#421（closed、chat-side-operations.md の軽量化と上限の新設）
+- #297「ガイド文書の予算と削除ルールを定める」: **closed**（2026-10-02、completed）。残りは #492 に分割済み（#492 本文「元: #297」）。カレンダーの【R#297】はクローズ済みの issue を指している
+- #492「ガイド文書: 事後処理の検討順とセンサー化したルールの削除を定める」: open。本文の残りに「上限の見直し（2026年11月中旬）」があり、コメントで4文書のサイズを追っている → この件に合う。書き先は #492
+- 着手中コメント: #492 に CHAT-1009-REV-01 の「着手中」（2026-10-09）がある。ただし REV の作業は REV-02・04・05・08・09 のログが「完了」、REV-01・03・06・07 は「判断待ち / 続き: …」で続き先が完了し、#492 のその後のコメント（REV-02・04・06・08）でマージ済みを報告している。未マージの REV のブランチも無い（`git branch -r --no-merged origin/cloudflare`）。作業中の着手ではないと判断して進めた
+
+### 2. 実測
+
+- `wc -c docs/notes/chat-side-operations.md` = 26,623（work/1012-gcl、cloudflare c5daf1e8c から fast-forward した状態）。案のとおりの値
+
+### 3. コメント
+
+- https://github.com/retroeater/mj/issues/492#issuecomment-6124902963 （案の文に、実測の場所と申送りであることを足した。末尾に Chat-Ref の行）
+
+### 決定の記録
+
+- docs/decisions/operations.md に 2026-10-12（CHAT-1012-GCL-03）を足した。作業中の回答: なし
+
 ## 報告
 
-- 状態: 着手中
+- 状態: 完了
 - ブランチ: work/1012-gcl
-- ログ: https://github.com/retroeater/mj/blob/work/1012-gcl/docs/logs/CHAT-1012-GCL-03.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1012-GCL-03.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1012-gcl
 - 確認用URL: なし
-- マージ: 未
-- issue: 確認中
+- マージ: 済（cloudflare へ fast-forward。先頭はこのログを含むコミット）
+- issue: #492（コメント。#297 はクローズ済みで #492 に分割されている。カレンダーの【R#297】は #492 を指すよう直すのがよい）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
@@ -66,12 +85,12 @@ CHAT-1012-GCL-01 で docs/notes/chat-side-operations.md を 26,623 バイトに�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj c5daf1e8）: https://github.com/retroeater/mj-logs/tree/main/guide/c5daf1e8
+ガイド文書（この版を写した時点の最新、mj 283713b9）: https://github.com/retroeater/mj-logs/tree/main/guide/283713b9
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5daf1e8/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5daf1e8/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5daf1e8/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5daf1e8/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5daf1e8/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5daf1e8/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/283713b9/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/283713b9/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/283713b9/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/283713b9/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/283713b9/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/283713b9/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/c5daf1e8.md
