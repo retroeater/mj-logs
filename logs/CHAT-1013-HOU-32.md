@@ -65,15 +65,27 @@ HOU-30・HOU-31 で作った個人成績の変更（判断待ち）を、平野�
   - 前提の範囲の外のファイルは無い
 - HOU-30・HOU-31 のログの状態: どちらも「判断待ち … / 続き: …」（HOU-30 → HOU-31 → HOU-32）。`docs/notes/branch-operations.md`「作業ログの寿命」では、続き先が「完了」になれば前のログは自動で片付くので、この指示のログを「完了」にすれば足り、前の2つの状態は書き換えない
 
+### 手順2 マージ
+
+- 1回目の push 直前の再 fetch で `origin/cloudflare` が e07f4327（BOT-04・05 の docs と `workers/` の試し〈足して消したもの〉）に進んでいたので、もう一度 merge で取り込んだ（houou/ に触れる変更なし。衝突なし）。取り込んだ後も、差分（`origin/cloudflare...HEAD`）の docs/logs 以外は手順1と同じ11ファイル
+- push 直前に再 fetch し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめて `git push origin work/1012-hou:cloudflare`（e07f4327..eb25ac8f）
+
+### 手順3 本番の確かめ
+
+- check-run（eb25ac8f）: Workers Builds: mj・regenerate・check・sync すべて success。「ページの再生成」（regenerate-page.yml）は success で、再生成のコミットは出なかった（差分なし。houou/ 以外の差分も無し）
+- 本番の反映は check-run の success から数分遅れた（16:00 UTC の時点では前の `assets/houou.js`、16:02 に新しい版）
+- 本番（`curl`）: `https://ryoei.pro/houou/players/?v=<未使用の値>` が 200、noindex あり、`data-champion="白鳥翔"`。配信の `assets/houou.js`・`style.css` は eb25ac8f と同じ中身。`houou/players/leagues.json` が 200。`houou/leagues/` も noindex あり
+- 本番（headless Chromium、375×812）: 選んでいない画面は「鳳凰位 白鳥翔」の1行が開いた枠、山の四隅は A1・C3（左）・A1・E3（右）、説明の文なし、期の範囲の中央からのずれ 0px。履歴3件・打つと候補に置き換わる・空に戻すと履歴・✕ で消す・行を押すとリーグのタブ、は HOU-31 と同じ。`?name=白鳥翔&view=league` はタブ3等分で1行、再生の始めは全期、寄ると入会以降、終わりは全期に戻る。`?name=平野良栄` は「通算」「リーグ」「期別」を押すと URL の `view` が total・league・無しになり、リーグの範囲は「第31期後期〜第43期前期」。JS のエラー 0。ブラウザでの見え方（実機）は平野さんが確かめる
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1012-hou
-- ログ: https://github.com/retroeater/mj/blob/work/1012-hou/docs/logs/CHAT-1013-HOU-32.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1012-hou
-- 確認用URL: なし
-- マージ: 未
-- issue: #518
+- 状態: 完了
+- ブランチ: work/1012-hou（マージ済み。削除は `delete-merged-branches.yml` に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1013-HOU-32.md
+- 比較URL: なし（マージ済み）
+- 確認用URL: なし（本番 `https://ryoei.pro/houou/players/` で確かめた。未公開のまま）
+- マージ: 済（e07f4327..eb25ac8f。この報告の docs/logs のみの追いの push あり）
+- issue: #518（完了のコメント）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
@@ -81,12 +93,12 @@ HOU-30・HOU-31 で作った個人成績の変更（判断待ち）を、平野�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj eb25ac8f）: https://github.com/retroeater/mj-logs/tree/main/guide/eb25ac8f
+ガイド文書（この版を写した時点の最新、mj e2f06f23）: https://github.com/retroeater/mj-logs/tree/main/guide/e2f06f23
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/eb25ac8f/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/eb25ac8f/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/eb25ac8f/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/eb25ac8f/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/eb25ac8f/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/eb25ac8f/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2f06f23/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2f06f23/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2f06f23/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2f06f23/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2f06f23/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2f06f23/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/2ae0e836.md
