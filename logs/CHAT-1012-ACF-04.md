@@ -73,17 +73,69 @@ Chat-Ref: CHAT-1012-ACF-04
   2. OLT-03 の状態「判断待ち → CHAT-0930-OLT-05 で cloudflare へマージ」は「続き:」の形でないので続きと読まない（規則どおり。文中の「続きは CHAT-…」を読まないのと同じ扱い）
 - 同じ実行の中で消える続き先を「削除済み」とみなして判定をくり返す（不動点まで）と、通知の直前の版で: 1回目 29件 → 2回目 5件（ZK-16・CAL-04・CAL-08・CAL-12・CAL-25）→ 3回目 1件（ZK-15）→ 合計35件。CAL-12 は「完了（判断待ち…）→ 続き: CHAT-0930-CAL-16」で②（10/08 より前のため一覧に無い）に入っていた。今回の通知で影響するのは ①の5件と②の1件の計6件。OLT-02（→ OLT-03 が判断待ち）と OLT-03 は変わらない
 
+### 仕分け（手順2）
+
+判定は2つのサブエージェント（8件・12件）に読ませ、主セッションで根拠の一部（コミットが cloudflare の祖先か、issue の状態、docs/decisions/title.md の該当行、DUP-08 の報告）を確かめた。サブエージェントが甲（境界）とした CAL-04 は、「本番・実機の目視が残るものは甲にしない」に当たるので乙に変えた。結果: 甲14・乙6・丙0
+
+| ファイル | 区分 | 根拠・要旨 | 乙の移し先の案 |
+|---|---|---|---|
+| CHAT-0929-ZK-15 | 甲 | ZK-16→17→18（完了）で決着。案2（数式）・列名・出どころ【1】は #482 の 09-30 のコメント、直し 71e77c16 は祖先、10-01 のコメントで全行一致を確認し #482 はクローズ | — |
+| CHAT-0929-ZK-16 | 甲 | 同上。null のセルが数式の広がりを止めないことは #482 の 10-01 のコメント（手動実行の追記）で確認 | — |
+| CHAT-0930-BNG-01 | 乙 | 作業1・2は BNG-02（abf2a3e6）、待つ項目と手作業1〜5は BNG-03 で決着（#126 クローズ）。手作業6「Bing WMT の AI Performance／Copilot 関連の項目の有無」だけ記録が無い | #304 に1項目、または起票「Bing Webmaster Tools の AI Performance（Copilot）の項目を確かめる」 |
+| CHAT-0930-CAL-04 | 乙 | CAL-06→10（完了）で表示名・色などは決着（broadcast-calendar.md「CAL-10」、c2e75c3f は祖先、#480 クローズ）。本番の /resource_calendar.html の見え方の目視の記録が無い（プレビューは平野さんが確認、本番は転送先の src・color の一致まで） | 平野さんが本番を一度見る（起票不要）。10/19 の実行で自動で消える見込み |
+| CHAT-0930-CAL-08 | 甲 | CAL-11（中断）→15 で書き込みありの実行を確認（#479 の 09-30・10-01 のコメント、#479 クローズ）。過去の行の掲載は「付けない」（broadcast-calendar.md「CAL-12」）、手で足した行は「予定表と完全一致させる」（同「CAL-08」） | — |
+| CHAT-0930-CAL-21 | 甲 | 「(仮)」は残す（CAL-22）、「（1/2）」「[SANMA]」も残す（CAL-23）。カレンダーの見え方は平野さんが確認済み（broadcast-calendar.md 10-01・10-02 の節）。8112fbb8 は祖先 | — |
+| CHAT-0930-CAL-22 | 甲 | 2つの残す案は CAL-23 で決定（broadcast-calendar.md「CAL-23」）。英語の配信2件は【4】で非掲載にして消えた | — |
+| CHAT-0930-CAL-25 | 甲 | CAL-27 で作業ブランチ名の記述を直し（75f9a066）、CAL-28 で読み比べてマージ（81e73c31）。どちらも祖先 | — |
+| CHAT-0930-DUP-03 | 乙 | issue コメント・文書の直しは DUP-06（df6e67aa）で済み。ラベル「対象: jpml_titles」を消すかが未決（DUP-06 の報告で判断待ちのまま） | #485（Open）のクローズのときに決める |
+| CHAT-0930-DUP-08 | 甲 | 見本の画像の本番の表示と X・LINE のカードは確認済み（title.md「DUP-09」の節）、Q3 も同節で決定。work/0930-dup-07 は平野さんが削除済み（同節）でリモートに無い | — |
+| CHAT-0930-DUP-09 | 甲 | DUP-10 の確認ページで21枚と og:title を確認しマージ可（title.md「DUP-11」の節）、34256c97 は祖先 | — |
+| CHAT-0930-DUP-10 | 乙 | マージ（34256c97）・文書・確認ページの削除は済み、#232 クローズ。本番の X・LINE での見え方は見本の2枚だけ記録があり、ほかの19枚の記録が無い | 起票「title/ の大会・期ページの OGP カードを X・LINE で本番確認する」か #304 に1行 |
+| CHAT-0930-HKG-04 | 甲 | 成果物は 780337ea で cloudflare に入った（HKG-06 の報告）。work/0930-hkg-04 はリモートに無い | — |
+| CHAT-0930-HKG-05 | 甲 | HKG-06 のログに 780337ea の各チェック（assets-check・sync-logs・Workers Builds ほか）がすべて success | — |
+| CHAT-0930-OLT-02 | 甲 | 決定を受けて OLT-03 で続け、OLT-05 でマージ（cee87c76 は祖先）。V 列は #484（クローズ）で決定、title.md「OLT-02〜08・12」 | — |
+| CHAT-0930-OLT-03 | 甲 | OLT-05 でマージ（cee87c76）、本番の301を curl で確認、プレビューは平野さんが確認。旧タブの削除は #473（クローズ）で済み | — |
+| CHAT-0930-OLT-09 | 乙 | 論点1〜4・6〜8は OLT-10/11・#470・#471・#222・#232 で片付いた。論点5（#408 の大半を外の資料待ちにするか、日付の食い違いを警告に出すコードを足すか）が未決 | #408（Open） |
+| CHAT-0930-OLT-10 | 甲 | 發王戦の4行の削除・表記の確認不要・3期の G 列の直しは title.md「OLT-11」、163行減は同「OLT-02〜08」。a9daa34c は祖先 | — |
+| CHAT-1002-INV-01 | 乙 | 分類表の実行は INV-02〜04 で済み。改善の提案3「親子関係」が手つかず（#223・#231・#233 は本文が「親: #221」で sub-issue 未登録、#395 は #296 の子でない、#396・#397 の親 #404 はクローズ済み） | 起票「本文の『親: #n』と sub-issue の登録の不一致を直す」か #221 |
+| CHAT-1003-INV-03 | 甲 | check-meibo は INV-04 の fb2f1a918 で直り、予約実行2回とも success。次の指示1〜6は INV-04（661b42b3）で済み | — |
+
+- 未マージの work/ ブランチで20件に関係するものは無い（各ログの作業ブランチはリモートに残っていない）
+- 甲の14件を削除: コミット 2134dfa9（削除前の版は f09571e4）。名指しの差し替えは不要（ファイルパスの参照が無い）
+- #357 にコメント: https://github.com/retroeater/mj/issues/357#issuecomment-6120015326
+- #513 にコメント（原因・直す案A/B・差し引く数）: https://github.com/retroeater/mj/issues/513#issuecomment-6120018210
+- 差し引く数: 今回の通知 101件（削除 29件）、手で削除 14件（①12・③2）。そのうち ZK-15・ZK-16・CAL-08・CAL-25 の4件は手で消さなくても 10/19・10/26 の実行で自動で消える見込みだった
+- docs/decisions/operations.md に「2026-10-12（CHAT-1012-ACF-04）」の節を足した
+- origin/cloudflare の取り込みで docs/decisions/operations.md が衝突（末尾への追記どうし。相手は「2026-10-12（CHAT-1012-BOT-03）」の節）。指示の「両方の変更が両立する衝突」に当たるので両方を残して解いた。解いた後の該当箇所:
+
+  ```
+  ## 2026-10-12（CHAT-1012-BOT-03）
+
+  - #304 の 2026-10 実施は ACF-01 のコメントを正とし、BOT-02 のコメント案は取り下げる。ACF-01 に無い点（Workers Builds の非本番トリガーの除外に `workers/**` が無い）だけを補足のコメントとして足す
+
+  ## 2026-10-12（CHAT-1012-ACF-04）
+
+  - #357 の 2026-10-12 の通知の作業ログは今片付ける（10/19・10/26 の #513 の測定の前）。測定で差し引けるよう、手で消した件数を記録する
+  - （2026-10-06 の決定の継続）#357 に通知された作業ログのうち、問題ないものは削除する
+  - 作業中の回答: なし
+  ```
+- ほかのファイルの衝突は無し。取り込んだ変更に20件のログへの変更は無い
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1012-acf-357
-- ログ: https://github.com/retroeater/mj/blob/work/1012-acf-357/docs/logs/CHAT-1012-ACF-04.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1012-ACF-04.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1012-acf-357
 - 確認用URL: なし
-- マージ: 未
-- issue: #357・#513
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- マージ: 済（cloudflare へ fast-forward。docs/logs・docs/decisions のみ）
+- issue: #357（https://github.com/retroeater/mj/issues/357#issuecomment-6120015326 ）・#513（https://github.com/retroeater/mj/issues/513#issuecomment-6120018210 ）
+- 判断が必要なこと:
+  - 乙6件の移し先: BNG-01 → #304 に1項目か起票／CAL-04 → 平野さんが本番の /resource_calendar.html を一度見る（10/19 の実行で自動で消える見込みなので、見ないなら何もしなくてよい）／DUP-03 → #485／DUP-10 → 起票か #304／OLT-09 → #408／INV-01 → 起票か #221
+  - 判定の直す案（#513）: 案A（推奨。1回の実行の中で判定をくり返し、同じ実行で消える続き先を削除済みとみなす。今回の通知では6件が早く消える）／案B（判定は変えず、続き先が判断待ちのログを「④」として①から分ける）／直さない
+- 未確認の項目:
+  - カレンダーの説明が20件のログを名指ししているか（セッションから読めない）
+  - 乙・甲の判定の根拠のうち、サブエージェントが読んだ issue のコメントの中身は、主セッションでは issue の状態と一部の文書の行だけを確かめた
 - エラー: なし
 
 <!-- guide-links -->
@@ -97,4 +149,4 @@ Chat-Ref: CHAT-1012-ACF-04
 - docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f09571e4/docs/notes/chat-side-operations.md
 - docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f09571e4/docs/notes/cloudflare.md
 - docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f09571e4/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/7b3e1334.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/f09571e4.md
