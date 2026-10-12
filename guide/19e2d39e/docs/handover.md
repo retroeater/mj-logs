@@ -6,11 +6,11 @@
 **この文書は現状・ルール・次にやることだけを書く。** 実装記録は `docs/notes/`、issue単位の経緯は GitHub Issues、過去の履歴は
 `docs/notes/handover-archive-2026.md`。容量の上限と退避方法は CLAUDE.md「CLAUDE.md / handover.md の更新ルール」。
 
-最終更新: 2026-10-11
+最終更新: 2026-10-12
 
+- **アクセス解析の導入の検討（#550）を「次にやること」に足した**
 - **最強戦の新しい年度・対局・卓のページ `saikyo/<年度>/`（#425、878ページ）を未公開の形（noindex・どこからも未リンク）で本番に入れた。公開は #549**
 - **`houou/` に「別名」の名寄せ・A1・A2 の期の書き方（暫定、#541）・個人成績とランキングの直しを入れた（未公開のまま）**
-- **鳳凰戦の新ページ `houou/`（#518）を未公開の形（noindex・メニュー未掲載）で本番に入れた。公開は #540**
 
 ---
 
@@ -92,12 +92,11 @@ Google Charts依存（#7の対象）・静的なページ の4つ。**件数の�
 
 | 場所 | 担当する作業 |
 |---|---|
-| **Claudeとのチャット** | 設計の相談、調査、原因の切り分け、実装案・指示文の作成（`docs/notes/chat-side-operations.md`） |
+| **Claudeとのチャット** | 設計の相談、調査、原因の切り分け、実装案・指示文の作成 |
 | **Claude Code** | ファイルの編集、issue操作、コミット・push。コミットの到達確認・差分・マージ判定も行い、結果をログで報告する |
 
-Claude Code の実行環境は Codespace（`/workspaces/mj` で `claude`、`gh` 認証済み）かクラウドセッション（`docs/notes/cloud-sessions.md`）。
-Rebuild・gh の認証は `docs/notes/session-network.md`「Rebuild と Claude Code」「gh の認証」。
-Chat-Ref・並行作業の規則は CLAUDE.md「Chat-Ref」「ブランチ運用」、チャット側の運用は `docs/notes/chat-side-operations.md`、決まるまでの経緯は archive。
+Claude Code の実行環境は Codespace（`/workspaces/mj` で `claude`、`gh` 認証済み。Rebuild・gh の認証は `docs/notes/session-network.md`）かクラウドセッション（`docs/notes/cloud-sessions.md`）。
+Chat-Ref・並行作業の規則は CLAUDE.md「Chat-Ref」「ブランチ運用」、決まるまでの経緯は archive。
 
 ### skill と hook
 
@@ -126,9 +125,7 @@ hook の判定は deny（実行させない）だけで、確認（ask）は出�
 ### 現行サイトに作り込みすぎない
 
 **新サイトを別途新規構築する方針**が決まっている（`docs/new-site-design.md`）。
-現行サイトはいずれ役目を終えるため、大きな投資は避ける。
-
-具体的には、次のような判断をしてきた。
+現行サイトはいずれ役目を終えるため、大きな投資は避ける。これまでの判断:
 
 - 構造化データ（#13）は現行サイトでは見送り、新サイトで対応
 - 共有ボタン: 新サイトの選手個別ページは #82（新サイト送り）。現行サイトは live/・saikyo/（対局ごとの共有だけ）に共通の部品（#409。`scripts/lib/share.py`・`assets/share.js`・`style.css`）。title/・wayhome/（帰り道）と saikyo/ のページ全体の共有は外した。見直しは #530。books/ は凍結中で旧実装
@@ -166,7 +163,7 @@ CSPでは `script-src` にのみ必要で、送信先は自ドメインの `/cdn
 
 | # | 内容 | 期限・目安 |
 |---|---|---|
-| #298 | Actions の使用量: 10/7 に Billing を実測済み（10/1〜10/7 で 928 / 3,000 分、請求 $0。平野さんのカレンダーの記録）。写しの移設（mj-logs 側へ）は実装4の後半（`[sync-logs]` の規則・`sync-logs.yml`・`MJ_LOGS_TOKEN` の削除）が残る | 次の Billing の確認は **2026-10-14**。実装4の後半は **2026-10-21** |
+| #298 | Actions の使用量: 10/7 に Billing を実測済み（10/1〜10/7 で 928 / 3,000 分、請求 $0。平野さんのカレンダーの記録）。写しの移設（mj-logs 側へ）は実装4の後半（`[sync-logs]` の規則・`sync-logs.yml`・`MJ_LOGS_TOKEN` の削除）が残る | 次の Billing の確認は **2026-10-21**。実装4の後半は **2026-10-21** |
 | #513 | 作業ログの自動削除の見直しの効果の確認（規則を入れた日 D は 2026-10-08） | **2026-10-19** と **2026-10-26** の週次で測り、#513 へ報告する（指標は `docs/notes/branch-operations.md`「作業ログの寿命」） |
 | #486 | Bing の Recommendations | **2026-10-30** に再確認 |
 | #485 | 旧表 `jpml_titles.html` の転送と title/ の `?name=` の受け取りを終える | **2026-11-02** に 11/1 の取得（廃止後はじめての値。10/1 は廃止直前の基準値）で旧 URL への着地を見て、十分に減ったら終える（基準は未定。作業は #485 の本文） |
@@ -180,7 +177,7 @@ GitHub Issues（Open）に全件あるが、着手可能な主なものは以下
 | # | 内容 | 備考 |
 |---|---|---|
 | **#7** | Google Charts依存の解消 | **最大の残件。** #9 の前提でもある。進め方は下の「#7 の進め方」 |
-| #540 | 鳳凰戦の新ページ `houou/` の公開（旧4ページの 301 を含む） | 公開は #542（データ・コンシェルジュ）ができてから、その質問欄までを含めて行う。先に、リーグ推移の特別昇級に紙吹雪を付け段数に応じて豪勢にする（2026-10-11 の決定）。手順は #540 の本文 |
+| #540 | 鳳凰戦の新ページ `houou/` の公開（旧4ページの 301 を含む） | 公開は #542（データ・コンシェルジュ）ができてから、その質問欄までを含めて行う。手順は #540 の本文 |
 | #549 | 最強戦の新しい年度・対局・卓のページの公開（今の年度ページの 301、`?match=` のリダイレクトルールを含む） | 時期は平野さんが決める。手順は #549 の本文 |
 | #141 | ランキング3ページを Python の生成に移す | 2026-10-05 に移植と決定。#371・#228・#234 と、`select#selectbox` のラベル・選択と同時の遷移（#180 の残り）はこの移植の中で扱う |
 | #486 | Bing の Recommendations | h1 は8ページに付けた（2026-10-06）。残りのランキング3ページは #141 の移植で付ける。title の長さ（短いページの共通の末尾）は #5 |
@@ -223,7 +220,7 @@ GitHub Issues（Open）に全件あるが、着手可能な主なものは以下
 | `docs/notes/chat-side-operations.md` | チャット側が指示文を書く前（ログの読み方もここ） |
 | `docs/notes/chat-routines.md` | チャット側が「レビュー」「振り返り」「申送り」を行う前 |
 | `docs/notes/chrome-reading.md` | チャット側が PC で Claude for Chrome を使い mj を直接読む前 |
-| `docs/notes/skills.md` | skill の追加・更新、git の hook の判定を変える・確かめる前 |
+| `docs/notes/skills.md` | skill の追加・更新、git の hook の判定を変える・確かめる前（`.claude/` を変える指示を書く前も） |
 | `docs/notes/branch-operations.md` | ブランチの削除・ワークフローの変更・作業ログの寿命・Chat-Ref の着手前の確認（入口の規則は CLAUDE.md） |
 | `docs/notes/static-generation.md` | ページの一覧・生成スクリプト・ページ側のJS・ワークフローの一覧・メンテナンス用スクリプト、#7 の残り |
 | `docs/notes/sitemap-lastmod.md` | sitemap の lastmod（#265） |
@@ -237,13 +234,16 @@ GitHub Issues（Open）に全件あるが、着手可能な主なものは以下
 | `docs/notes/a11y-manual-check.md` | アクセシビリティの実機確認（#186） |
 | `docs/notes/mj-lead.md` | 表・グラフのあるページの説明文（`.mj-lead`、#312） |
 | `docs/notes/saikyo-page-design.md` | 最強戦（`saikyo/`）と選手写真の更新 |
+| `docs/notes/abema-book.md` | ABEMA ブック（最強戦の卓ごとの ABEMA の回、#425）。サムネイル・「▶ 再生」の元データを直す・確かめる前 |
 | `docs/notes/title-pages.md` | タイトル戦の新構成（`title/`、#222） |
 | `docs/notes/houou-race.md` | 鳳凰戦の順位変動（`houou_race.html`、#507） |
 | `docs/notes/houou-top.md` | 鳳凰戦の新ページ `houou/` の仕様（トップ＋検索・ランキング・リーグ推移・順位変動、#518） |
+| `docs/notes/ask-worker.md` | データ・コンシェルジュの Worker（`mj-ask`、#542） |
 | `docs/notes/live-page-design.md` | 放送対局ページ（`live/`、#346）。掲載範囲の拡大は「3-5」（残りは #490） |
 | `docs/notes/birthday-calendar.md` | 誕生日カレンダーの同期（#379） |
 | `docs/notes/yotei-sheet.md` | 連盟の予定表の取り込みと放送対局の公開カレンダーへの同期（#448） |
-| `docs/notes/live-channel-write.md` | /live の3層（【1】【2】【3】）の書き込み・毎日の取り込み・平野さんの入力の手順（#438） |
+| `docs/notes/live-channel-write.md` | /live の3層（【1】【2】【3】）の書き込み・毎日の取り込み・平野さんの入力の手順（#438）。チャット側が /live の指示を書く前 |
+| `docs/notes/sns-book.md` | SNS ブック（選手の SNS の ID・画像の URL、#514）。ID の直し・写真の検知 |
 | `docs/notes/books-freeze.md` | **書籍ページの開発凍結（2026-09-22、#97）。決定・凍結時点の状態・楽天データの期限・再開手順** |
 | `docs/notes/books-calendar.md` | 書籍の発売日のカレンダー同期の仕組み（#97、凍結時点の記録） |
 | `docs/notes/books-covers.md` | 書籍の書影（楽天ブックス書籍検索API）の仕組みと規約（#97、凍結時点の記録） |
