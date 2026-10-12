@@ -171,45 +171,26 @@ Bing 関連の課題をまとめて片付けるため、まず #126 の中身と
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 完了（論点は #304 に移した。CHAT-1012-ACF-05）
 - ブランチ: work/0930-bng
 - ログ: https://github.com/retroeater/mj/blob/work/0930-bng/docs/logs/CHAT-0930-BNG-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/0930-bng
 - 確認用URL: なし（ログのみ）
 - マージ: 未（平野さんの判断待ち。ログのみのため、次の指示で cloudflare へ入れるか決める）
 - issue: #126（読んだだけ。コメントはしていない。「着手中」も付けていない）。他に読んだのは #114・#124・#130・#142・#156・#222・#269・#304・#413・#441・#447・#458・#465 など（表は「経過」の手順2）
-- 判断が必要なこと:
-  - **今すぐできること（Claude Code）**
-    1. `docs/notes/cloudflare.md` に Crawler Hints の設定記録（申告値として。2026-09-28 On、出典 #126）を足す。#126 の記録にしか無いため
-    2. `docs/handover.md:195` の #126 の行に、依存（#156）と「22URL突き合わせ（9/15〜16頃）は記録なし。10/12 にまとめる案」を足す
-    3. 案 c（IndexNow の自前送信）の設計だけ先に作る（キー生成は平野さん、ファイルの置き場所・`.assetsignore`・送信のワークフロー・対象 URL〈`sitemap-title.xml` の差分など〉。実装・マージは 10/12 の結果を見てからでもよい）
-    4. 10/01 の GSC 取得と #441（`jpml_titles.html` → `/title/` の 301、`work/0930-olt-02` 未マージ）の順序を確認し、Bing 側の旧 URL の登録有無が 301 の判断に関わるかを整理する
-  - **10/12 ごろまで待つこと**
-    1. Bing で `https://ryoei.pro/title/` が登録されているかの判断。Crawler Hints が効くかを見る期間（On にしたのは 9/28）。#156（女流桜花のデータ更新後の ETag 比較）の結果が出れば、Crawler Hints が動く条件（デプロイでキャッシュが置き換わる）の裏付けになる
-    2. 未登録なら案 c を実装するか決める
-    3. #269 の Bing Webmaster API による取得は #126 の完了後に判断（Bing 経由の流入比率を見てから）
-  - **平野さんの手作業（Bing Webmaster Tools の画面。Claude Code から見られない）**
-    1. 未実施のまま残っている「Bing のインデックス数と GSC の22URLの突き合わせ」（もとは 9/15〜16頃）。今すぐ見てもよい
-    2. `?name=` 付き URL が Bing で個別にインデックスされているか（`site:ryoei.pro` か URL 検査。#126 コメント2の残作業）
-    3. 現在の Bing の Sitemap の状態（Last submit・URLs discovered。9/12 の 25 が最後の記録。4本の sitemap に増えたはず）。必要なら `sitemap.xml` の再送信
-    4. `/title/` の URL 検査を10/12 より前に1回見て、現状（未登録・クロール待ち等）を記録する
-    5. Crawler Hints が On のままか（記録は申告のみ）
-    6. Bing Webmaster Tools の AI Performance／Copilot 関連の項目の有無は未確認（この洗い出しでは扱っていない）
-  - 前提のずれ: 指示文の「#126 の手順のコメント」は 2026-09-28 のコメント4。決めたのは案 b（Crawler Hints）で、案 c は未定。9/12 のコメントの「#156 の結果が出てから判断する」は 9/28 に変更され、#156 の結果を待たずに On にしている（#126 に理由の記述は無い）
-- 未確認の項目:
-  - Cloudflare の Crawler Hints の現在の設定、Bing Webmaster Tools の現状（登録数・サイトマップの状態・`/title/` の登録）、Bot Fight Mode／Rate limiting が Bingbot に及ぶ実測。すべてダッシュボード・画面の情報で、この環境から確かめられない（申告値または記録なし）
-  - GitHub の検索 API は0件を返して使えなかったため、手元でのキーワード検索（482 issue・1487 コメント）に切り替えた。取得は 2026-09-30 時点。それ以降のコメントは含まない
-  - `msn` に一致する issue は無い（存在しないことの確認まで）
-- エラー: `search_issues` がキーワード検索で0件を返し（`Bing` でも）、`Copilot`・`MSN` は HTTP 403（レート制限）。上のとおり REST の一覧で代替した
+- 判断が必要なこと: なし（#304 に移した）
+- 未確認の項目: なし（#304 に移した）
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj e8e763b3）: https://github.com/retroeater/mj-logs/tree/main/guide/e8e763b3
+ガイド文書（この版を写した時点の最新、mj c5daf1e8）: https://github.com/retroeater/mj-logs/tree/main/guide/c5daf1e8
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e8e763b3/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e8e763b3/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e8e763b3/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e8e763b3/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e8e763b3/docs/notes/cloudflare.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/ad723967.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5daf1e8/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5daf1e8/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5daf1e8/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5daf1e8/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5daf1e8/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5daf1e8/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/c5daf1e8.md

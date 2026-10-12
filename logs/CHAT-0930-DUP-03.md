@@ -123,33 +123,26 @@ closed の issue（#441・#484・#413・#222・#122・#20 など）は、後の�
 
 ## 報告
 
-- 状態: 判断待ち（調査のみ。issue へのコメント・文書・処理の修正はしていない）
+- 状態: 完了（論点は #485 に移した。CHAT-1012-ACF-05）
 - ブランチ: work/0930-dup-03
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-0930-DUP-03.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/0930-dup-03
 - 確認用URL: なし（docs のみ）
 - マージ: 済（8c1d7530。docs のみ〈ログと決定の記録〉を fast-forward で cloudflare へ。直す案は判断待ち）
 - issue: なし（起票・コメントなし）。見た issue は経過の「1. issue」
-- 判断が必要なこと（直す案。詳細は経過の表）:
-  - issue へのコメント（優先）: #485（10/1 の取得は 09-01〜09-28 で廃止の前。廃止後の初めての値は 11/1）、#235・#362（「旧表は残す／?name= は変えない」の記述）、#159（転送元は `/title/?name=`）、#420・#277・#374（ラベル「対象: jpml_titles」の付け替え・外し。#277 は置き場所を title/ に）
-  - issue へのコメント（低）: #95・#139・#227・#224・#279、対象ページの列挙に旧表がある11件（#238・#247・#248・#255・#256・#260・#283・#411・#415・#416・#417）、#461（任意）
-  - 文書の修正: `docs/notes/cloudflare.md` の Speed Brain の例の URL（今は301で、書いてある確かめにならない）、`docs/notes/cloud-sessions.md` の「再生成は jpml_titles で確かめた」に廃止の注記
-  - 処理の修正: `scripts/lib/page.py` の docstring（4本→3本。コメントのみで生成物は変わらない）
-  - 残してよい: `_redirects`・`assets/title.js`（#485 まで要る）、handover.md・decisions、コードの出所・経緯のコメントとテスト、site-findings.md・saikyo-page-design.md・decisions-2026-09-13-review.md（当時の記録）、closed の issue
-  - チャット側の例（カレンダーの 10/1・10/2）に対応する記述は open の issue には無い（closed の #441 の 09-28 のコメントだけで、同じ issue の後のコメントで置き換わっている）
-- 未確認の項目:
-  - `/title/?name=<名前>` で検索欄に名前が入ることのブラウザでの見え方（`assets/title.js` のコードと、転送先が 200 になることまでを確かめた）
+- 判断が必要なこと: なし（#485 に移した）
+- 未確認の項目: なし（#485 に移した）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 5616d23f）: https://github.com/retroeater/mj-logs/tree/main/guide/5616d23f
+ガイド文書（この版を写した時点の最新、mj c5daf1e8）: https://github.com/retroeater/mj-logs/tree/main/guide/c5daf1e8
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/5616d23f/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/5616d23f/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/5616d23f/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/5616d23f/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/5616d23f/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/5616d23f/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b7f138e5.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5daf1e8/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5daf1e8/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5daf1e8/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5daf1e8/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5daf1e8/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5daf1e8/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/c5daf1e8.md

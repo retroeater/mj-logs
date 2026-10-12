@@ -127,3 +127,7 @@
 
 - `--check` は先に houou 系を進め、title 系は WHS-17（#553）のマージの後に回す（#551）
 - ask_data が live_pages の警告（除外した行）を作るのに出していない件は、houou 系の指示で警告として出す（生成のときにも出てよい）（#551）
+
+## 2026-10-12（CHAT-1012-RGN-15）
+
+- `--check` の saikyo_pages は、未マージの work/1012-abm-ui・work/1012-abm-map の後に回す（#551）

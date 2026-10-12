@@ -380,41 +380,26 @@ Closed は9件（#269・#413・#438・#441・#445・#450・#453・#476・#482。
 
 ## 報告
 
-- 状態: 判断待ち（分類表をログに書いた。issue は変えていない）
+- 状態: 完了（論点は #221 に移した。CHAT-1012-ACF-05）
 - ブランチ: work/1002-inv
 - ログ: https://github.com/retroeater/mj/blob/work/1002-inv/docs/logs/CHAT-1002-INV-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1002-inv
 - 確認用URL: なし
 - マージ: 未（指示文の「マージ: 判断待ちで止まる」による。成果物はこのログだけ）
 - issue: なし（Open 221件を読んだだけ。編集・クローズ・起票・コメントはしていない）
-- 判断が必要なこと:
-  - 分類表（`## 経過`「2. 分類表」）のうち、どれを実行するか。まとめ: A 16件（クローズ）・B 6件・C 3件・D 11件（うち新規起票が要るのは #297・#298・#370・#386・#390・#446・#448 の7件）・E 58件・F 21件・問題なし 121件
-  - 急ぎ: #124 は本文の判断日が今日（10-02）。#142 は次回計測日 10-07 だが、GSC の取得が月次の自動取得（#269、10-01 にクローズ）に変わって本文と食い違う
-  - カレンダー: Closed 9件（#269・#413・#438・#441・#445・#450・#453・#476・#482）の予定は消せる。一覧に無い期日は #219（2026-12-22）・#156・#434・#488・#308（`## 経過`「3.」の末尾）
-  - 「issue のクローズで予定を自動削除する」要望は #96 に入れず別の issue にする案（理由は `## 経過`「#96 と…の関係」）
-  - 改善の提案（表の全体から）:
-    1. **ラベル**: 「状況: 待ち／保留」の付け漏れが多い（#4・#111・#141・#173・#234・#259・#276〜#279・#382・#383・#422・#457・#473・#485 ほか）。逆に理由が消えたのに残っているもの（#103 待ち、#244・#338・#398〜#400・#449 保留、#7 対応中）。常設の通知 issue（#352・#357・#426・#475・#481）を見分けるラベル（例: 「種類: 常設の通知」）を足すと、棚卸しで未対応に見えなくなる
-    2. **本文の一括更新**: 龍龍の廃止（09-28）・jpml_titles の廃止（09-30、#441）・saikyo_results の301化・/live の3層化（#438）を、コメントでの読み替えだけで済ませた issue が多い（E の大半）。廃止ごとに「影響を受ける issue の本文を直す」を完了条件に入れるとよい
-    3. **親子関係**: 本文の「親: #n」と sub-issue の登録が片方だけ（#221 の子 #223・#231・#233）。親が閉じて子が Open（#396・#397 の親 #404、#437 の親 #346）。新サイト向けなのに #296 の子でないもの（#394・#395・#405）。#296 の本文の子の表に #417 が無い
-    4. **期限**: 期限の多くがコメントの中にだけあり、本文・題に無い（#124・#142・#486・#97 の 2026-12-22 など）。期日は本文の冒頭の1行にそろえると、カレンダーとの照合が機械的にできる
-    5. **判断待ちの根**: #7 の連鎖（#7・#9・#104・#105・#111・#141）は #141・#111 の判断が 2026-09-12 から出ていないことが根。「現行サイトで作るか #296 送りか」が未決の新機能（#224・#226・#276〜#279・#285・#369・#373・#376・#378・#388・#389・#425）は、handover「現行サイトで小さく作れる6件」の了承とまとめて一度に決めるとよい
-- 未確認の項目:
-  - 分類のうち「推測」と書いたもの（#334 の A など）は実物で確かめていない
-  - 本文・コメントは 2026-10-02 の取得時点。以後の更新は反映していない
-  - Projects ボードの値は見ていない（CLAUDE.md の方針どおり対象外）
-- エラー:
-  - `git log -1 --format=%h`（単独、読むだけ）が auto モードの分類器に「Modify Shared Resources」で拒否された。着手時の HEAD は `git fetch` の出力（9b1b456）で代えた
-  - `api.github.com/search/issues` はセッションのプロキシが拒否する（リポジトリに束縛されたエンドポイントのみ可）。Closed の確認は `GET /repos/retroeater/mj/issues?state=closed` の全件（267件）の題で代えた
+- 判断が必要なこと: なし（#221 に移した）
+- 未確認の項目: なし（#221 に移した）
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 9b1b456f）: https://github.com/retroeater/mj-logs/tree/main/guide/9b1b456f
+ガイド文書（この版を写した時点の最新、mj c5daf1e8）: https://github.com/retroeater/mj-logs/tree/main/guide/c5daf1e8
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9b1b456f/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9b1b456f/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9b1b456f/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9b1b456f/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9b1b456f/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9b1b456f/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/601aa7ce.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5daf1e8/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5daf1e8/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5daf1e8/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5daf1e8/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5daf1e8/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5daf1e8/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/c5daf1e8.md

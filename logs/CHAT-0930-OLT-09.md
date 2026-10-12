@@ -210,36 +210,26 @@
 
 ## 報告
 
-- 状態: 完了（調査のみ。判断待ちの論点は下）
+- 状態: 完了（論点は #408 に移した。CHAT-1012-ACF-05）
 - ブランチ: work/0930-olt-09
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-0930-OLT-09.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/0930-olt-09
 - 確認用URL: なし
 - マージ: 済（docs/logs のみ）
 - issue: #470・#471・#408・#232・#222（読んだだけ。コメント・状態の変更なし）
-- 判断が必要なこと（選択肢と推奨は経過の「3. 進め方の案」）:
-  1. #470 第26期王位戦: 1位2名（同時優勝）のままにするか（推奨: 今のまま。確かめるなら競技部に一度聞く）
-  2. #470 第23期發王戦: 順位の空欄を空欄のまま（備考に不明）にするか、資料を探すか（推奨: 空欄のまま。發王戦は今 title/ に出ない）
-  3. #471 第8期桜蕾戦: 日付を 2024-11-01 に直すか（推奨: 直す。決勝ライブの配信日 11-01 13:57 JST と【3】の決勝の対局日が一致）
-  4. 同じ食い違いの2期（JPML WRC-Rリーグ 第7期: 2026-06-25 と決勝ライブ 07-25、十段戦 第41期: 2024-09-29 とライブの最後 09-28）を #471 と一緒に確かめるか（推奨: 一緒に）
-  5. #408: 大半（`YYYY-XX-XX` 228期・日付なし15期）は決勝ライブが無く、【2】【3】からは直せない。外の資料待ちにして急がないか（推奨）。食い違いを警告に出すコード（任意）を足すか
-  6. 順番: #232 を #408 の前にするか（推奨）。指示の単位は「#470・#471 の確認とクローズ（1本）」「日付の食い違いの警告（任意）」「#232 は先に /grill-me、その後は段階に分けて」
-  7. #222 を閉じるか（推奨: #470・#471 が済んだら閉じる。閉じる前に本文の古い記述を直す。残件はすべて別の issue になっている）
-  8. #232 の /grill-me の論点候補（範囲・画像の中身・意匠・生成の仕組み・名前・og:title・進め方・スコープ・#165 との分け方の9つ。経過に書いた）
-- 未確認の項目:
-  - 第26期王位戦が本当に同時優勝か、第23期發王戦の順位（資料が無く、こちらからは確かめられない）
-  - 十段戦 第41期・WRC-R 第7期の食い違いの正しい側（配信日と対局日が違う可能性がある）
+- 判断が必要なこと: なし（#408 に移した）
+- 未確認の項目: なし（#408 に移した）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 9a820f24）: https://github.com/retroeater/mj-logs/tree/main/guide/9a820f24
+ガイド文書（この版を写した時点の最新、mj c5daf1e8）: https://github.com/retroeater/mj-logs/tree/main/guide/c5daf1e8
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a820f24/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a820f24/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a820f24/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a820f24/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a820f24/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a820f24/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/ad723967.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5daf1e8/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5daf1e8/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5daf1e8/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5daf1e8/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5daf1e8/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5daf1e8/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/c5daf1e8.md

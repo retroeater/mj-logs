@@ -61,30 +61,26 @@ DUP-09 で止まった手順3（全大会の画像の確認ページとプレビ
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 完了（論点は #304 に移した。CHAT-1012-ACF-05）
 - ブランチ: work/0930-dup-09
 - ログ: https://github.com/retroeater/mj/blob/work/0930-dup-09/docs/logs/CHAT-0930-DUP-10.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/0930-dup-09
 - 確認用URL: プレビューあり（URL は最終報告）。確認ページ `title/_ogp_check.html`
 - マージ: 未（判断待ち。マージのときに `title/_ogp_check.html` と `scripts/dup10_title_ogp_check.py` を消す）
 - issue: #232（コメントなし）
-- 判断が必要なこと:
-  - 確認ページで21枚の画像と og:title を確かめ、このままマージしてよいか。長い大会名（女流プロ麻雀日本シリーズ・リーチ麻雀世界選手権・小島武夫杯帝王戦・JPML WRC-Rリーグなど）は字が小さい
-  - og:title の新旧の例は DUP-09 のログの報告のとおり（入口・大会・期・第n回・西暦）
-  - マージのときに要る文書の更新（`docs/notes/ogp.md`・`title-pages.md`・`static-generation.md` に、title/ の画像の置き場所・作り方・og:title の形を書く。handover の #232 の行）は、マージの指示で行う
-- 未確認の項目:
-  - 本番での見え方（マージ前）
+- 判断が必要なこと: なし（#304 に移した）
+- 未確認の項目: なし（#304 に移した）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj e22bfd18）: https://github.com/retroeater/mj-logs/tree/main/guide/e22bfd18
+ガイド文書（この版を写した時点の最新、mj c5daf1e8）: https://github.com/retroeater/mj-logs/tree/main/guide/c5daf1e8
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e22bfd18/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e22bfd18/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e22bfd18/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e22bfd18/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e22bfd18/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e22bfd18/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/14245a4d.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5daf1e8/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5daf1e8/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5daf1e8/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5daf1e8/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5daf1e8/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5daf1e8/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/c5daf1e8.md
