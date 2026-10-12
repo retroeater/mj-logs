@@ -159,7 +159,7 @@ B1〜B4 の後、次の指示で本番の確かめ（`/api/ask/status` の応答
   **`mj build token` に D1 の権限を足す必要は無かった**（既にある D1 を `database_id` で結ぶだけなら要らない）。Build watch paths の Include は `workers/ask/**` だけ
 - B2: `schema.sql` の表を1行にまとめた SQL を Console で実行した。Tables に `daily_counts`・`ip_counts`・`questions`・`sqlite_sequence`（AUTOINCREMENT が作る表）が出た
 - B3: キー `mj-ask`（ワークスペース `ryoei-pro-ask`、本人に紐づけ、期限 **2027-10-11 0:00 JST**）。期限を 2027-10-12 0:00 JST にすると「このリクエストは完了できませんでした」で作れなかった（1年を超えると作れない見込み）。
-  作成の前に「ID 連携」を勧めるダイアログが出て、「API キーで続ける」を選んだ。差し替えの予定は平野さんの Google カレンダーの 2027-09-28
+  作成の前に「ID 連携」を勧めるダイアログが出て、「API キーで続ける」を選んだ。差し替えの予定は ryoei.pro カレンダーの 2027-09-28
 - B4: 画面の名前は「Runtime variables and secrets」（公式の文書の「Variables and Secrets」と違った）。Secret の `ANTHROPIC_API_KEY`・`IP_HASH_SALT` を足した。変数 `ALLOWED_ORIGIN`・`DAILY_LIMIT`（50）・`IP_DAILY_LIMIT`（10）も出ている
 - 本番の最初の1問（2026-10-11 23:45 JST ごろ、平野さんのブラウザ）: 「鳳凰位の最多獲得は誰ですか？」に「安藤満（第2・5・6・10期）と前原雄大（第12・25・33・34期）の4回で並び、獲得者は全部で23名」、
   「データ: 決勝 第42期まで」と出典「鳳凰戦 歴代優勝者」が付いた（チャット側が `data.json` の finals で数えて一致を確かめた）

@@ -71,28 +71,64 @@ Chat-Ref: CHAT-1012-BOT-03
 
 ## 経過
 
+### 着手前の確認（2026-10-12）
+
+- 同じ Chat-Ref のコミット無し。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- ブランチ: `origin/work/1012-bot` あり（a6a5db4e2、ローカルと一致）。`origin/cloudflare` が祖先でなかったため `git merge --no-edit origin/cloudflare` で取り込んだ（80a24fc10、衝突なし）
+- 0. ログの「指示」欄の末尾は指示文の最後の行と一致。BOT-02 のログの状態は「判断待ち」→ 末尾に ` / 続き: CHAT-1012-BOT-03` を足した（別コミット）
+
+### 1. 確かめたこと
+
+- #304 の ACF-01 のコメント（https://github.com/retroeater/mj/issues/304#issuecomment-6118192815 ）: (9) は Workers Builds の Exclude を4つとして「記録どおり」「食い違い無し」
+- `docs/notes/cloudflare.md`「平野さんがCloudflareダッシュボードで確認した設定値」: Build watch paths の Exclude は1行（`.git/`・`docs/**`・`node_modules/**`・`workers/**`）で、本番・非本番のトリガーを分けていない（前提どおり）
+- #230: 保留（2026-10-12）。流入は `CF_ANALYTICS_TOKEN`（Account Analytics: Read）で GraphQL から取る決定（ACF-02）。この指示の決定と矛盾しない
+- #458: open。URL 検査 API の定期取得。B では重ねて作らず関係として書いた
+- issue の検索（MCP の search_issues。open/closed）: 「AI クローラー 403」0件、「月次 自動 取得 読み取り トークン」は #404・#360（closed、別の論点）、「Cloudflare API トークン 読み取り専用 Analytics GraphQL」は #550・#447・#293、「Security Events クローラー…」は #543・#124。同じ論点の open issue は無し
+- 未マージの work/ ブランチで `docs/decisions/cloudflare.md`・`operations.md` を変えているものは無し
+
+### 公式ドキュメントで確かめた B の材料（developers.cloudflare.com の API リファレンスの `index.md`）
+
+- `GET /zones/{zone_id}/settings`・`/settings/{setting_id}`: Zone Settings Read
+- `GET /zones/{zone_id}/bot_management`: Bot Management Read
+- `GET /{accounts_or_zones}/{id}/rulesets/phases/{phase}/entrypoint`: 権限欄はアカウント側の名前（Account WAF Read・Account Rulesets Read など）だけで、ゾーン側の名前は読み取れず「要確認」とした
+- Registrar: **旧 `GET /accounts/{account_id}/registrar/domains/{domain_name}` は 2026-04-10 に deprecated、2026-09-27 で end of life**（deprecations のページ）。後継は `GET /accounts/{account_id}/registrar/registrations`。前提の「チャット側が旧パスで読めた」と食い違う可能性があるため、B に書いた
+- Workers Builds: `GET /accounts/{account_id}/builds/workers/{external_script_id}/triggers` の権限は Workers CI Read。ガイドに「Builds API は user-scoped のトークンが必要、account-scoped は Invalid token」とある → B の未決に足した
+- GraphQL Analytics: Account Analytics Read（ゾーンのデータセットの権限は要確認）
+- Crawler Hints（`/zones/{id}/flags/products/cache/changes`）は公式リファレンスの該当ページを見つけられず「要確認」
+- Google の公式ページ（developers.google.com）はプロキシで拒否（CONNECT 403）。Search Console API の範囲は `docs/gsc/README.md` によった
+
+### 2. 起票
+
+- A: #554「AI クローラーへの 403 の原因を調べる」（分野: セキュリティ・分野: SEO/AIO、状況ラベルなし）。ACF-01 の (9) を引用、方針との食い違いの可能性、見立て3つ、調べ方（Security Events をクローラー名・ルール・ASN で絞る、#555 のトークンが使えれば使う）。本文の B の番号は起票後に REST の PATCH で #555 に置き換えた
+- B: #555「月次チェック（#304）の取得を自動化する（Cloudflare は読み取り専用の別名トークン、Search Console は API と Chrome）」（分野: 自動化・分野: インフラ、状況ラベルなし）。決定、`CLOUDFLARE_API_TOKEN` の規則との両立、材料の表、#230・#458 との関係、依存「#230 の再開を待たない」（見立てどおり。#230 は保留中で、B は設定の読み取りが主のため）、未決（トークンを1本にまとめるか・ユーザー単位のトークンの扱い・置き場所と起動）、最初の実装の確かめ方
+
+### 3. #304 の補足・決定
+
+- #304 に補足のコメント（https://github.com/retroeater/mj/issues/304#issuecomment-6119931680 ）。指示文の本文をそのまま、番号だけ #554・#555 に置き換えた
+- `docs/decisions/cloudflare.md`（#554・#555 の決定）と `docs/decisions/operations.md`（#304 の 2026-10 実施の扱い）に足した（a3d201305）。矛盾する記述は無し
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1012-bot
-- ログ: https://github.com/retroeater/mj/blob/work/1012-bot/docs/logs/CHAT-1012-BOT-03.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1012-BOT-03.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1012-bot
 - 確認用URL: なし
-- マージ: 未
-- issue: #304
-- 判断が必要なこと: なし
+- マージ: 済（9dce2f35c。fast-forward）
+- issue: #554（起票）, #555（起票）, #304（補足のコメント）
+- 判断が必要なこと: なし（Workers Builds の非本番トリガーの除外は #304 の補足のコメントに、トークンの扱いの未決は #555 に移した）
 - 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 4a0e4d3c）: https://github.com/retroeater/mj-logs/tree/main/guide/4a0e4d3c
+ガイド文書（この版を写した時点の最新、mj fd127c14）: https://github.com/retroeater/mj-logs/tree/main/guide/fd127c14
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/4a0e4d3c/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/4a0e4d3c/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/4a0e4d3c/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/4a0e4d3c/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/4a0e4d3c/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/4a0e4d3c/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/fd127c14/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/fd127c14/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/fd127c14/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/fd127c14/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/fd127c14/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/fd127c14/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/7b3e1334.md
