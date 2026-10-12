@@ -134,7 +134,7 @@ Speed → Recommendations（Site Recommendations）の一覧と、それぞれ�
 | HTTP/3 | **有効化(2026-09-11)** | モバイル回線で効く。リスクなし |
 | HTTP/2 to Origin | 有効 | オリジンが存在しないため実質無効。害もないので触らない |
 | Enhanced HTTP/2 Prioritization | 有効 | 同上 |
-| 0-RTT Connection Resumption | **有効化(2026-09-11)** | GET/HEAD にしか適用されない。状態を変えるエンドポイントが1つもない静的サイトのため、リプレイの実害がない |
+| 0-RTT Connection Resumption | **有効化(2026-09-11)** | GET・HEAD・OPTIONS にしか適用されず、POST には使われない（公式の 0-RTT Connection Resumption のページ、2026-10-11 に確認）。状態を変えるのは `/api/ask`（POST、#542）だけなので、リプレイの実害がない。GET の `/api/ask/status` は読むだけ |
 | Always use HTTPS | **有効化(2026-09-11)** | 下記参照 |
 | TLS 1.3 | 有効 | 既定 |
 | Early Hints | **無効（2026-09-29 に Off に戻した）** | 応答に `Link:` が無く、103 も出ていなかった（2026-09-28 の実測）。下記参照（#129） |
@@ -281,6 +281,21 @@ PowerShell 5.1 の既定が UTF-16LE のため、日本語部分が文字化け�
 - 2026-10-02 に Security Events（Service「Rate limiting rules」）を見て、閾値を 60 → 30 に下げた（アクション・条件式・順序は変えていない。10/1〜10/2 の当たりは Oracle Cloud〈AS31898〉の2 IP・26件のみ）。2026-10-09 に1週間分を見て #124 のクローズを判断する
 - 戻すときは Security rules の一覧でトグルを Off
 - workers.dev・プレビューはゾーンを通らないので対象外
+
+#### カスタムルール「Block non-GET/HEAD methods」（2026-10-11 に記録）
+
+ryoei.pro の WAF のカスタムルール（Security rules）。GET・HEAD 以外のメソッドを遮断する。いつ・どの issue で入れたかはリポジトリに記録が無い（2026-10-11 の時点）。
+値は平野さんのスクリーンショットの申告値（チャット側が確認）で、セッションからは検証できない。
+
+| 項目 | 値 |
+|---|---|
+| Rule name | `Block non-GET/HEAD methods` |
+| 式（2026-10-11 23:30 JST 以降） | `(not http.request.method in {"GET" "HEAD"}) and (not starts_with(http.request.uri.path, "/cdn-cgi/")) and not (http.request.uri.path eq "/api/ask")` |
+| アクション | Block（遮断のページ「Attention Required! \| Cloudflare」、HTTP 403） |
+
+- `/cdn-cgi/` を外すのは Web Analytics のビーコン（POST、#110）のため
+- 末尾の `and not (http.request.uri.path eq "/api/ask")` は、データ・コンシェルジュ（#542）の質問の POST を通すために 2026-10-11 に平野さんが足した。足す前は Worker `mj-ask` に届く前に 403 になっていた（CHAT-1011-AIC-03 で発見。Security Events では直近24時間で POST 123件を遮断していた）。経緯は `docs/notes/ask-worker.md`
+- POST を受けるパスを増やすときは、この式に例外を足す必要がある（足さないと Worker に届かない）
 
 ### 公開期間の露出評価（#299、2026-09-14）
 
