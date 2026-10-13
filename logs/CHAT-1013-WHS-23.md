@@ -58,6 +58,39 @@
 - WHS-22 のマージ（0f532f4d）は `origin/cloudflare` の祖先 → 済み
 - 作業ブランチ: `work/1013-whs-url` はローカル・リモートとも無し → `git checkout -b work/1013-whs-url origin/cloudflare`（346c65b1）
 
+### 手順1 確かめ・起票
+
+- 同じ目的の issue: 全 issue を「video_wayhome / wayhome/」かつ「URL / 移 / 301 / index.html」で絞った。一覧の URL を移す issue は無い
+- 未マージのブランチ: `work/1012-dsn` が `navbar.js` を変えているが、鳳凰戦向けの追記（末尾）だけで目的も重ならない。ほかは関係なし
+- 起票: #559「帰り道の一覧の URL を /wayhome/ に移す」（ラベル `分野: SEO/AIO`・`対象: video_wayhome`）。着手中のコメントを残した
+- 旧 URL（`video_wayhome`）を参照している所（`git grep -n "video_wayhome"`、`docs/logs` を除く）:
+
+| 区分 | 所 | 扱い |
+| --- | --- | --- |
+| 生成物 | `video_wayhome.html`（一覧そのもの）、`wayhome/*.html` 42枚（「一覧に戻る」・シリーズ名 `../video_wayhome.html`、`BreadcrumbList` の `https://ryoei.pro/video_wayhome.html`） | 一覧は `wayhome/index.html` に移し旧ファイルを消した。各話は `./` と `https://ryoei.pro/wayhome/` |
+| 配信するファイル | `navbar.js`（`/video_wayhome.html`）、`llms.txt`（一覧の URL と説明）、`sitemap-pages.xml`（一覧の URL） | `navbar.js` は `/wayhome/`、`llms.txt` は `https://ryoei.pro/wayhome/`、サイトマップは `sitemap-pages.xml` から外し `sitemap-wayhome.xml` の先頭へ（各話の生成が書く） |
+| スクリプト | `generate_video_wayhome.py`（出力パス・og:url・JS・相対パス）、`generate_wayhome_episodes.py`（戻るリンク・パンくず）、`regenerate.py`（出力パス）、`apply_page_meta.py`（`PAGES` のキー）、`check_wayhome.py`（常設 issue の本文の文言） | 直した。`regenerate.py` のページ名 `video_wayhome` と `video_wayhome.js` は変えない（`--changed` の判定 `<ページ名>.js` がそのまま効く） |
+| ワークフロー | `regenerate-page.yml`（一覧の OGP 画像を同じコミットに入れる条件 ` video_wayhome.html `、コメント） | ` wayhome/index.html ` に直した。298行目のラベル `対象: video_wayhome` は issue のラベル名なので変えない |
+| テスト | `test_wayhome_no_share.py`（一覧のパス）、`test_wayhome_links.py`（一覧のボタンの href） | 直した |
+| 文書 | `docs/notes/video-wayhome.md`・`static-generation.md`（ページの一覧）・`docs/decisions/wayhome.md`・`README.md` ほか | 今の状態を書く所だけ直した。経緯の記録（lighthouse-baseline・new-site-design など）は当時のファイル名のまま |
+| コメントだけ | `assets/*.js`・`style.css`・`scripts/lib/*.py` などの「video_wayhome.js と同じ」 | JS のファイル名なので変えない |
+
+- 外部（GSC の書き出し `docs/gsc/*.csv` など）にある旧 URL は、301 で足りる
+
+### 手順2 移す（551e53e7・生成 4c5b5611）
+
+- `_redirects` の `/houou/` の後に3行: `/wayhome  /wayhome/  301`・`/wayhome/  /wayhome/index.html  200`・`/video_wayhome.html  /wayhome/  301`（先頭の `/  /index.html  200` は残る）
+- 一覧（`wayhome/index.html`）: 共通アセット・JS・代替画像・期のページへのボタンは `../`、各話へは `<動画ID>.html`。og:url は `https://ryoei.pro/wayhome/`。旧 `video_wayhome.html` との差は、これらのパスと og:url だけ（中身を行ごとに比べた）
+- 各話の生成がシートに無いファイルを消す処理で、一覧の `index.html` を消さないようにした（`LIST_FILENAME`。`regenerate.py all` は `video_wayhome` → `wayhome_episodes` の順に動くため、直さないと一覧を消していた）
+- テスト: `scripts/tests/test_wayhome_url.py`（5件: 一覧の出力パス・og:url・再生成の出力パス・旧ファイルが無い、各話の生成が index.html を残す、サイトマップの先頭が一覧、`_redirects` の3行と先頭の1行、配信するファイルに旧 URL へのリンクが残らない）。直す前のコードでは出力パス・リンク・`_redirects` の検査が落ちる。全体 979件 OK
+- `python3 scripts/regenerate.py all`: 作業ツリーに差なし（帰り道以外の生成物は変わらない）
+- `regenerate-page.yml` を変えたので、作業ブランチで手動実行した: run 38344494366（`target_page: video_wayhome wayhome_episodes`）success。「変更をコミット・push」で ` wayhome/index.html ` の条件が当たり `git add -A -- img/ogp/wayhome` まで進み、差が無いので「変更なし」
+
+### 手順3 確かめ（Workers Builds のプレビュー、551e53e7）
+
+- `/video_wayhome.html` → 301 → `/wayhome/`、`/wayhome` → 301 → `/wayhome/`、`/wayhome/` 200、`/wayhome/index.html` 200、`/wayhome/Yjp_PKHvldw.html` 200
+- リンク切れの検査（ページ内の href・src・data-fallback のうちサイト内のもの）: 一覧 50件・各話 15件、切れなし（一覧の1件は通信のタイムアウトで、取り直すと 200）。各話の「一覧に戻る」（`./`）は `/wayhome/` に解決する
+
 ## 報告
 
 - 状態: 中断（作業中）
@@ -74,12 +107,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 346c65b1）: https://github.com/retroeater/mj-logs/tree/main/guide/346c65b1
+ガイド文書（この版を写した時点の最新、mj 0637b1cc）: https://github.com/retroeater/mj-logs/tree/main/guide/0637b1cc
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/346c65b1/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/346c65b1/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/346c65b1/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/346c65b1/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/346c65b1/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/346c65b1/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/0637b1cc/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/0637b1cc/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/0637b1cc/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/0637b1cc/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/0637b1cc/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/0637b1cc/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b5bbbea3.md
