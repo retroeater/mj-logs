@@ -55,15 +55,18 @@ WHS-24 は、マージ後の本番ビルドが失敗したため「本番への�
 - Chat-Ref の重複: `git log --all --grep="CHAT-1013-WHS-25"` は0件
 - 指示欄の末尾は指示文の最後の行と一致。雛形の4行は揃っている
 - 作業ブランチ: `work/1013-whs-close` はローカル・リモートとも無し → `git checkout -b work/1013-whs-close origin/cloudflare`（a31cd31f）
+- 確かめ: `CHAT-1013-WHS-24.md` の状態は「判断待ち（本番への反映が未確認）」。本番の `/wayhome/`（`curl`、`?v=<未使用の値>`）に `<link rel="canonical" href="https://ryoei.pro/wayhome/">` がある。86979e3d の check-run は Workers Builds: mj success（05:34:44Z = 14:34 JST）・mj-ask success・mj-scheduler failure（前提どおり）
+- 直し: WHS-24 の `## 報告` を「完了」、「判断が必要なこと」「未確認の項目」「エラー」を子の行の無い「なし」にし、`## 経過` の末尾に片付けの1行（失敗の期間、14:34 JST のビルドで反映、本番で canonical を確かめた）。`## 指示` 欄が変わっていないことはスクリプトで比べた。決定を `docs/decisions/wayhome.md` に足した
+
 
 ## 報告
 
-- 状態: 中断（作業中）
+- 状態: 完了
 - ブランチ: work/1013-whs-close
-- ログ: https://github.com/retroeater/mj/blob/work/1013-whs-close/docs/logs/CHAT-1013-WHS-25.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1013-WHS-25.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1013-whs-close
 - 確認用URL: なし
-- マージ: 未
+- マージ: 済（ドキュメントのみ）
 - issue: なし
 - 判断が必要なこと: なし
 - 未確認の項目: なし
@@ -72,12 +75,12 @@ WHS-24 は、マージ後の本番ビルドが失敗したため「本番への�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj feff70b6）: https://github.com/retroeater/mj-logs/tree/main/guide/feff70b6
+ガイド文書（この版を写した時点の最新、mj 7320c071）: https://github.com/retroeater/mj-logs/tree/main/guide/7320c071
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/feff70b6/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/feff70b6/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/feff70b6/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/feff70b6/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/feff70b6/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/feff70b6/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/7320c071/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/7320c071/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/7320c071/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/7320c071/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/7320c071/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/7320c071/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b5bbbea3.md

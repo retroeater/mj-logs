@@ -1,6 +1,6 @@
-# 帰り道（video_wayhome.html・wayhome/）
+# 帰り道（一覧 wayhome/・各話 wayhome/）
 
-「帰り道ついていってイイっすか」の一覧（`video_wayhome.html`）と各話（`wayhome/`）についての決定。実装の記録は `docs/notes/video-wayhome.md`。書き方は [README.md](README.md)。
+「帰り道ついていってイイっすか」の一覧（`/wayhome/`。2026-10-13 までは `video_wayhome.html`）と各話（`wayhome/`）についての決定。実装の記録は `docs/notes/video-wayhome.md`。書き方は [README.md](README.md)。
 
 ## 2026-10-10（CHAT-1010-WHS-01）
 
@@ -157,4 +157,24 @@
 - スマホ幅（縦に積む幅）は今のまま1枚（チャット側の読み。平野さんの指定ではない）
 - WHS-21 のほかの点はそのまま（日付は `YYYY-MM-DD`、一覧の説明文は上のカードの並びと同じ左右の端で画面幅いっぱいに折り返す）
 - 直しの確かめが通れば、プレビューを見ずに WHS-21 ごとマージしてよい
+- 作業中の回答: なし
+
+## 2026-10-13（CHAT-1013-WHS-23、#559）
+
+- 帰り道の一覧の URL を `/wayhome/`（`wayhome/index.html`）にする
+- 旧 URL `/video_wayhome.html` は 301 で `/wayhome/` へ転送する（`/saikyo_results.html` → `/saikyo/`、`/jpml_titles.html` → `/title/` と同じ扱い）
+- issue を起票して扱う。確かめが通れば、プレビューを見ずにマージしてよい
+- 実装で決めたこと（平野さんの決定ではない）: `regenerate.py` のページ名 `video_wayhome` と `video_wayhome.js` は変えない。一覧の URL はサイトマップ `sitemap-wayhome.xml` の先頭に置く
+- 作業中の回答: なし
+
+## 2026-10-13（CHAT-1013-WHS-24、#113）
+
+- 一覧 `/wayhome/` に `<link rel="canonical" href="https://ryoei.pro/wayhome/">` を付ける。各話の canonical はそのまま
+- #113 の「canonical を付けない」（2026-09-11 の判断 (c)）の例外を、帰り道の一覧にも広げる。例外の基準は「URL の別形（`?name=` などのクエリで中身が変わる URL）を持たず、Search Console にも `?` 付きの URL が出ていないページ」。基準に当てはまるほかのページは、ページごとに確かめてから付ける（今回は帰り道だけ）
+- 確かめが通れば、プレビューを見ずにマージしてよい
+- 作業中の回答: なし
+
+## 2026-10-13（CHAT-1013-WHS-25）
+
+- CHAT-1013-WHS-24 を完了にする。マージ後の本番ビルドの失敗は Cloudflare 側の一時的な取得の失敗と見ており、こちらで直すものは無い（14:34 JST の本番ビルドで反映された）
 - 作業中の回答: なし

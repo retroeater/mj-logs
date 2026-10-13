@@ -79,32 +79,30 @@
   - 2026-10-12 の WHS-19 でも、マージのコミットのビルドが失敗し、続くコミットのビルドで反映されたことがある。このログの push は `docs/` だけなので、ビルドは走らない（Build watch paths の Exclude `docs/**`）
 - #113 に「決定」の3つ目（例外を一覧に広げたことと基準）をコメントした（issue は閉じたまま）
 - 作業ブランチ: クラウドセッションからは削除できないため、`delete-merged-branches.yml` に任せる
-
+- 片付け（2026-10-13、CHAT-1013-WHS-25）: 本番ビルドの失敗は 13:15〜14:19 JST の5回（「Cloning repository」での取得の失敗。Cloudflare 側の一時的なものと見ており、こちらで直すものは無い〈平野さんの決定〉）。14:34 JST の本番ビルド（86979e3d の Workers Builds: mj success、05:34:44Z）で反映された。本番の `/wayhome/` に `<link rel="canonical" href="https://ryoei.pro/wayhome/">` があることを `curl` で確かめ、状態を完了にした
 
 ## 報告
 
-- 状態: 判断待ち（本番への反映が未確認）
+- 状態: 完了
 - ブランチ: work/1013-whs-canonical
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1013-WHS-24.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1013-whs-canonical
 - 確認用URL: なし（プレビューは見ずにマージ）
 - マージ: 済（9bba7d55）
 - issue: #113（コメント）
-- 判断が必要なこと:
-  - マージのコミット（9bba7d55）の Workers Builds が失敗し、本番の `/wayhome/` に canonical がまだ出ていない。ダッシュボードでビルドをやり直すか、次にコード・生成物が cloudflare に入ったとき（週次の再生成など）のビルドを待つか
-- 未確認の項目:
-  - 本番の `/wayhome/` の canonical（`<link rel="canonical" href="https://ryoei.pro/wayhome/">`）。リポジトリの生成物には入っている
-- エラー: 9bba7d55 の Workers Builds: mj が failure（原因は check-run に書かれていない）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 9bba7d55）: https://github.com/retroeater/mj-logs/tree/main/guide/9bba7d55
+ガイド文書（この版を写した時点の最新、mj 7320c071）: https://github.com/retroeater/mj-logs/tree/main/guide/7320c071
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9bba7d55/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9bba7d55/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9bba7d55/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9bba7d55/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9bba7d55/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9bba7d55/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/7320c071/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/7320c071/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/7320c071/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/7320c071/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/7320c071/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/7320c071/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b5bbbea3.md
