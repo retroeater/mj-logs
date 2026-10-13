@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-13 17:21 JST
+- 書き出した時刻: 2026-10-13 17:31 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -233,13 +233,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-13 17:30 | workflow_dispatch | cloudflare | success | #22（38369773031） | 0分37秒 |
+| 2026-10-13 17:30 | workflow_dispatch | cloudflare | success | #21（38369688197） | 0分30秒 |
 | 2026-10-13 14:08 | workflow_dispatch | work/1013-acf-xsize | success | #20（38349864980） | 0分33秒 |
 | 2026-10-13 13:36 | workflow_dispatch | work/1013-acf-xsize | success | #19（38347299010） | 0分33秒 |
 | 2026-10-13 13:33 | workflow_dispatch | work/1013-acf-xsize | success | #18（38347038845） | 1分41秒 |
-| 2026-10-13 13:33 | workflow_dispatch | cloudflare | success | #17（38347036103） | 0分42秒 |
-| 2026-10-13 11:12 | workflow_dispatch | cloudflare | failure | #16（38335781712） | 3分40秒 |
-
-- #16 failure: ジョブ「regenerate / regenerate」 ステップ「飛ばしたページを報告」
 
 ## write-live-channel-candidate.yml
 
