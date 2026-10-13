@@ -1,0 +1,58 @@
+# CHAT-1013-ACF-13
+
+- 着手日時: 2026-10-13
+- 対象issue: #558
+- ブランチ: work/1013-acf-xsize
+- 着手時HEAD: 16649bc4996baeff44fe87e93cb5fd9d89123dbd
+
+## 指示
+
+【Claude作成】Claude Code 向け指示：CHAT-1013-ACF-12 の判断待ちへの回答 — 段階2（X画像URL を `_400x400` にそろえて書く）を、作業ブランチの今の中身のままマージする Chat-Ref: CHAT-1013-ACF-13 マージ: 承認済み（チャットで、2026-10-13。平野さんが ACF-12 の判断待ちに「このままマージしてよい」と答えた）。条件は「止まる条件」に当たらないこと 貼る時機: いつでも（CHAT-1013-ACF-12 は完了報告済み〈状態: 判断待ち〉）。ただし毎日の更新（Worker から 04:10）と重ならないよう、03:30〜05:00 には cloudflare へ入れない 共通手順: CLAUDE.md「Chat-Ref」「ブランチ運用」「作業ログ」節のとおり（識別子確認 → origin/cloudflare を起点に work/<識別子>〈クラウドセッションでは worktree を使わず docs/notes/cloud-sessions.md の読み替えに従う〉 → ログ先行push → 最終報告の Chat-Ref の行の直前に「ログ（公開）」の行、最後の行に Chat-Ref）。平野さんは、この指示のための作業ブランチ work/1013-acf-xsize の作成と push を許可している（セッションに割り当てられた claude/… のブランチは使わない）。識別子 ACF は同じチャットの CHAT-1012-ACF-01〜05・CHAT-1013-ACF-06〜12 で使ったもの。 作業ブランチ: クラウドセッションで実行する。work/1013-acf-xsize を使う。このブランチには ACF-08・ACF-10〜12 のログ、docs/decisions/saikyo.md・docs/notes/sns-book.md の追記、ea80330e とその revert、ACF-12 の `update_sns_book.py` の直しとテストが未マージで載っている。この場合に限り、マージ済みでなくても止まらず、`origin/work/1013-acf-xsize` を起点に続ける。ログの先行 push を済ませてから `origin/cloudflare` を取り込む（`checkout -B` は使わない）。これら以外の差がブランチにあれば止まる。cloudflare へ入れるときの取り込みで docs/ の文書が衝突したら、両方の変更が両立する衝突（追記どうし・隣り合う行）は、両方を残して解いてよい。解いた後の該当箇所をログに引用する。それ以外の衝突は解かずに止まる
+
+0. 着手前に、このログの「指示」欄の末尾が、この指示文の末尾（最後の行）と一致しているか確認し、一致しなければ作業せず報告する。あわせて CHAT-1013-ACF-12 のログの `## 報告` を読み、状態が「判断待ち」でなければ何もせず止まる。
+
+目的
+ACF-12 は、作業ブランチの dry_run の1回目で X API を呼ぶ予定が1件出て（直す前は0件）止まった。同じコードの2回目は0件で、変わる行は 828（見込みの ±10 以内）だった。平野さんの判断で、このままマージし、翌朝の更新で【3】の X画像URL を `_400x400` にそろえる。
+決定（2026-10-13、平野さん）
+
+* ACF-12 の「判断が必要なこと」は「このままマージしてよい」にする（X API を呼ぶ条件は変えておらず、1件呼ぶことがあっても上限の内。1回目の1件は、拡張子の無い URL 1件〈鈴木雄介〉の HEAD の一時的な失敗と見る）
+* 拡張子の無い URL を大きさの違う版に広げて確かめる直し（`collect_saikyo_images.page_urls()`）は、この指示では行わない
+
+前提（チャット側。平野さんの決定ではない）
+
+* マージした翌朝 04:10 の更新（Worker から）で【3】の 828 行前後が `_400x400` に書き換わり、その日だけ全ページの再生成が1回起動する。生成物の差は 0 の見込み（各ページは `with_size()` で大きさを決める。books/ は `all` から外れている）
+* 取り込みの後に作業ブランチのコードが ACF-12 の dry_run のときから変わる場合（cloudflare 側で `update_sns_book.py`・`lib/` が変わった場合）は、テストを通したうえで dry_run を1回行い、変わる行が 828 ±10・X API を呼ぶ予定が 0〜1 であることを確かめる。変わらなければ dry_run はしない
+* 使う skill は無い
+
+手順
+
+1. ログを先行 push してから `origin/cloudflare` を取り込む。ブランチの差が上に書いたものだけであることを確かめる。#558 に他セッションの着手中コメントが無いことを確かめ、着手中のコメントを残す。`python3 -m unittest discover -s scripts/tests` を通す（上の前提に当たれば dry_run も行う）
+2. 上の「決定」を docs/decisions/saikyo.md の #558 の項に足し、cloudflare へマージする（03:30〜05:00 を避ける。push 直前に再 fetch し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真であることを確かめる）。#558 にマージしたことと、翌朝の確かめ（【3】の `_80x80` が 0 になること・その日の再生成の生成物の差が 0 であること）・残り（houou_race の丸・houou/ の表のアイコンは work/1012-dsn のマージ後）をコメントする。ACF-12 のログの状態の末尾に `/ 続き: CHAT-1013-ACF-13` を足す
+
+止まる条件
+
+* CHAT-1013-ACF-12 の状態が「判断待ち」でない、#558 が Closed、または他セッションの着手中コメントがある
+* `origin/work/1013-acf-xsize` に上に書いたもの以外の差がある、または取り込みで docs/ 以外が衝突した
+* テストが通らない、または前提に当たって行った dry_run が見込み（828 ±10・X API を呼ぶ予定 0〜1）から外れる
+* cloudflare への push が権限判定で拒否された（別の手段を試さずに止まる）
+
+完了条件
+
+* ログの「## 報告」を CLAUDE.md「作業ログ」節のとおりに書いて push する。翌朝の確かめは「未確認の項目」に書く
+* マージは冒頭の「マージ:」の行のとおり
+* ターミナルへの最終報告の Chat-Ref の行の直前に ログ（公開）: https://github.com/retroeater/mj-logs/blob/main/logs/CHAT-1013-ACF-13.md?v=<SHA>（CLAUDE.md「作業ログ」節）を書き、最後の行に Chat-Ref: CHAT-1013-ACF-13 を書く
+
+不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
+
+<!-- guide-links -->
+---
+
+ガイド文書（この版を写した時点の最新、mj acb5aa04）: https://github.com/retroeater/mj-logs/tree/main/guide/acb5aa04
+
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/acb5aa04/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/acb5aa04/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/acb5aa04/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/acb5aa04/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/acb5aa04/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/acb5aa04/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b5bbbea3.md
