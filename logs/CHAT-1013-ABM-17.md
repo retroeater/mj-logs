@@ -108,7 +108,7 @@ ABEMA ブックの【2】最強戦（毎朝の作り直し）と【3】手動補
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1013-ABM-18
 - ブランチ: work/1013-abm-cast
 - ログ: https://github.com/retroeater/mj/blob/work/1013-abm-cast/docs/logs/CHAT-1013-ABM-17.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1013-abm-cast
@@ -124,12 +124,12 @@ ABEMA ブックの【2】最強戦（毎朝の作り直し）と【3】手動補
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 62fb5bbb）: https://github.com/retroeater/mj-logs/tree/main/guide/62fb5bbb
+ガイド文書（この版を写した時点の最新、mj f81ee0dd）: https://github.com/retroeater/mj-logs/tree/main/guide/f81ee0dd
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/62fb5bbb/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/62fb5bbb/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/62fb5bbb/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/62fb5bbb/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/62fb5bbb/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/62fb5bbb/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/3ce5d549.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f81ee0dd/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f81ee0dd/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f81ee0dd/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f81ee0dd/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f81ee0dd/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f81ee0dd/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/2c5fedab.md

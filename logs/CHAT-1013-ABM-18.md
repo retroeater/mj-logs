@@ -47,6 +47,39 @@ CHAT-1013-ABM-17 で作った卓のページの節「司会・実況・解説」
 
 ## 経過
 
+### 着手（2026-10-13）
+
+- 同じ Chat-Ref のコミットは0件。`work/1013-abm-cast` はローカル・リモートとも 351c7c7e（作業ツリーは空）
+- 0.: 「指示」欄の末尾は指示文の最後の行と一致。雛形の行は4つともある（1行目にまとめて書かれている）。CHAT-1013-ABM-17 の `## 報告` の状態は「判断待ち」だったので「判断待ち / 続き: CHAT-1013-ABM-18」にした
+
+### 手順1: 取り込み・テスト・生成し直し
+
+- `git merge origin/cloudflare`: 衝突なし
+- テスト: `python3 -m unittest discover -s scripts/tests` OK
+- `python3 scripts/regenerate.py saikyo_pages`: 「動画URLのある卓: 603」「司会・実況・解説のある卓: 596」「新しいページ(#425、未公開): 878件」。警告が1件: 「「別名」の行を使いません(変換後が「プロ」にも「連盟プロ以外」にもありません): 梶本琢 → 梶本琢程」
+- 生成し直しで変わったのは3ページ（2019 男子プレミアトーナメント 空中決戦の卓のページ `20190623-s1-a`・`-s1-b`・`-s2`。「独歩」が「別名」で「山田独歩」に当たり、写真と X のリンクが入った）。コミットした
+- 8つの名前を生成と同じ経路（`load_name_book()`）で読んだ結果:
+
+| 名前 | 当たった先 | X ID・写真 |
+|---|---|---|
+| 小山剛志 | 小山剛志 | なし（代替アバター） |
+| 篠原みなみ | 篠原みなみ | なし |
+| 高見奈央 | 高見奈央 | なし |
+| 竹内幸輔 | 竹内幸輔 | なし |
+| 桜井章一 | 桜井章一 | なし |
+| 独歩 | 山田独歩（「別名」） | あり |
+| 梶本琢程 | **当たらない** | — |
+| 梶本琢 | **当たらない**（「別名」の 梶本琢 → 梶本琢程 は、変換後の「梶本琢程」が「プロ」「連盟プロ以外」に無いため使われない） | — |
+
+- 未登録のまま残る名前: **2**（梶本琢程 449卓・梶本琢 5卓）。止まらずに進めた（指示のとおり）。登録した5人（小山剛志など）は X ID・写真が無いので、カードは今までどおり代替アバター・リンクなし（HTML は変わらない）
+- 写真のあるカード 1,058 枚・代替アバター 1,242 枚（卓の数で数えたカードの延べ）
+- `origin/cloudflare` との差分の種類:
+  - 節「司会・実況・解説」を足した卓のページ: **596**（止まる条件の範囲内）
+  - シートの変化による差分: 上の3ページ（同じ596の中）
+  - 対局のページ・年度ページ・今の公開中のファイル（`saikyo/index.html`・`saikyo/<年度>.html`・`sitemap-saikyo.xml`）・live/: 0
+  - 文書とコード: `scripts/generate_saikyo_pages.py`・`scripts/lib/abema_book.py`・テスト2つ・`docs/notes/` 2つ（saikyo-page-design・abema-book）・`docs/decisions/saikyo.md`・ログ2つ（ABM-17・ABM-18）
+- 内部リンク・id の重複・noindex・canonical・`#` の対応表: 問題なし
+
 ## 報告
 
 - 状態:
@@ -63,12 +96,12 @@ CHAT-1013-ABM-17 で作った卓のページの節「司会・実況・解説」
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 5bd6c739）: https://github.com/retroeater/mj-logs/tree/main/guide/5bd6c739
+ガイド文書（この版を写した時点の最新、mj f81ee0dd）: https://github.com/retroeater/mj-logs/tree/main/guide/f81ee0dd
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/5bd6c739/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/5bd6c739/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/5bd6c739/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/5bd6c739/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/5bd6c739/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/5bd6c739/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f81ee0dd/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f81ee0dd/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f81ee0dd/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f81ee0dd/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f81ee0dd/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f81ee0dd/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/2c5fedab.md
