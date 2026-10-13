@@ -80,28 +80,43 @@ CHAT-1013-ABM-17 で作った卓のページの節「司会・実況・解説」
   - 文書とコード: `scripts/generate_saikyo_pages.py`・`scripts/lib/abema_book.py`・テスト2つ・`docs/notes/` 2つ（saikyo-page-design・abema-book）・`docs/decisions/saikyo.md`・ログ2つ（ABM-17・ABM-18）
 - 内部リンク・id の重複・noindex・canonical・`#` の対応表: 問題なし
 
+### 手順2: マージと本番
+
+- 再 fetch で `origin/cloudflare` は祖先。`git push origin work/1013-abm-cast:cloudflare`（5bd6c739..f81ee0dd）
+- マージ後の check-run（f81ee0dd）: 「Workers Builds: mj」「check」×2「sync」「regenerate」すべて success
+- マージの後の自動の再生成（`scripts/lib/` を変えたので全ページ）は 6297eb77 を作った。変わったのは `workers/ask/data.json` の1行だけで、saikyo/ は変わらなかった
+- 本番（`curl`、00:19〜00:21 UTC）: `/saikyo/2011/20110625-s1-a.html`・`/saikyo/2023/20230326-s1-a.html` とも 200、コミットした生成物とバイト一致。節「司会・実況・解説」1、帯は 2011 が「司会・実況」「解説」、2023 が「司会」「司会」「実況」「解説」「解説」、noindex あり
+
+### 手順3: 決定と #425
+
+- docs/decisions/saikyo.md に「2026-10-13（CHAT-1013-ABM-18）」の節を足した
+- #425 にコメント（閉じない。梶本琢程・梶本琢がまだ当たらないことと、その理由を書いた）
+- このログと決定は、マージの結果を書く docs のみの追いの push で cloudflare へ入れた
+
 ## 報告
 
-- 状態:
-- ブランチ:
-- ログ:
-- 比較URL:
-- 確認用URL:
-- マージ:
-- issue:
+- 状態: 完了
+- ブランチ: work/1013-abm-cast
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1013-ABM-18.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1013-abm-cast
+- 確認用URL: なし（本番の卓のページを `curl` で確かめた）
+- マージ: 済（f81ee0dd）
+- issue: #425（コメント）
 - 判断が必要なこと:
-- 未確認の項目:
-- エラー:
+  - 平野さんへの知らせ: 未登録のまま残る名前が2つある（**梶本琢程 449卓・梶本琢 5卓**）。「別名」の 梶本琢 → 梶本琢程 の行は、変換後の「梶本琢程」が「プロ」にも「連盟プロ以外」にも無いため使われていない（生成の警告「「別名」の行を使いません(変換後が「プロ」にも「連盟プロ以外」にもありません): 梶本琢 → 梶本琢程」）。「連盟プロ以外」に「梶本琢程」の行を足せば両方当たる
+  - 参考: 登録した小山剛志・篠原みなみ・高見奈央・竹内幸輔・桜井章一は X ID・写真が無いため、カードは今までどおり代替アバター（写真が入ったのは 独歩 → 山田独歩 だけ）
+- 未確認の項目: ブラウザでの本番の見え方（`curl` で HTML を確かめただけ）
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj f81ee0dd）: https://github.com/retroeater/mj-logs/tree/main/guide/f81ee0dd
+ガイド文書（この版を写した時点の最新、mj b81d1de3）: https://github.com/retroeater/mj-logs/tree/main/guide/b81d1de3
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f81ee0dd/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f81ee0dd/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f81ee0dd/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f81ee0dd/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f81ee0dd/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f81ee0dd/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b81d1de3/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b81d1de3/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b81d1de3/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b81d1de3/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b81d1de3/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b81d1de3/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/2c5fedab.md

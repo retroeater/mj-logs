@@ -131,3 +131,8 @@
 ## 2026-10-12（CHAT-1012-RGN-15）
 
 - `--check` の saikyo_pages は、未マージの work/1012-abm-ui・work/1012-abm-map の後に回す（#551）
+
+## 2026-10-13（CHAT-1013-ACF-06）
+
+- SNS ブックのすべての画像の検知を毎朝にする（`check-image-links.yml` のジョブ `check` も Worker からの毎朝の起動で動かす。週次の `schedule` は #504 の決まりで保険として残す）
+- 作業中の回答: なし
