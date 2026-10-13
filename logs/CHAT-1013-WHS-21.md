@@ -85,7 +85,7 @@ Playwright（Chromium）でスマホ幅 390px・パソコン幅 1280px の全体
 
 ## 報告
 
-- 状態: 判断待ち（マージの判断）
+- 状態: 判断待ち（マージの判断） / 続き: CHAT-1013-WHS-22
 - ブランチ: work/1013-whs-nav
 - ログ: https://github.com/retroeater/mj/blob/work/1013-whs-nav/docs/logs/CHAT-1013-WHS-21.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1013-whs-nav
@@ -102,12 +102,12 @@ Playwright（Chromium）でスマホ幅 390px・パソコン幅 1280px の全体
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj cb0173b5）: https://github.com/retroeater/mj-logs/tree/main/guide/cb0173b5
+ガイド文書（この版を写した時点の最新、mj 1733ea64）: https://github.com/retroeater/mj-logs/tree/main/guide/1733ea64
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/cb0173b5/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/cb0173b5/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/cb0173b5/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/cb0173b5/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/cb0173b5/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/cb0173b5/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/1733ea64/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/1733ea64/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/1733ea64/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/1733ea64/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/1733ea64/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/1733ea64/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b5bbbea3.md
