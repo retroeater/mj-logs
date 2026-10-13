@@ -147,28 +147,34 @@ Ampai の読み取り（今のブック）: `ampai.fetch()` は 43行、組の�
 - `docs/decisions/houou.md`・`pros.md`: この指示の「決定」
 - コードのコメントに残る「G列」（`generate_houou_race.py`・`generate_houou_pages.py`・`houou_race.js` など。意味は「結果」）は、この指示の直しと無関係な箇所のため変えていない
 
+### マージ・#548
+
+- マージ前に cloudflare が進んでいた（b7b29156。RGN-18 の文書と再生成）ので merge で取り込んだ（衝突なし。直したファイルとの重なりなし）。テスト 959件 OK を確かめ、`git merge-base --is-ancestor origin/cloudflare HEAD` を確かめて `git push origin work/1013-snm-kumi:cloudflare`。マージ: a83cb48a
+- #548 への結果と決めたことの一覧のコメント: https://github.com/retroeater/mj/issues/548#issuecomment-6136897222 。「状況:」ラベルは付いていなかった。#548 を閉じた（completed）
+- マージ後の自動再生成: regenerate-page.yml（push）の run 38337166122 は success。再生成のコミット c15c00db で、それまで止まっていた houou/・houou_race/ も生成された。houou の差は (a) と同じ4ファイル（田中光太の X 画像の URL）だけ
+
 ## 報告
 
-- 状態: 対応中
+- 状態: 完了
 - ブランチ: work/1013-snm-kumi
-- ログ: https://github.com/retroeater/mj/blob/work/1013-snm-kumi/docs/logs/CHAT-1013-SNM-14.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1013-SNM-14.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1013-snm-kumi
-- 確認用URL:
-- マージ: 未
-- issue: #548
-- 判断が必要なこと:
-- 未確認の項目:
-- エラー:
+- 確認用URL: なし（確かめはヘッドレス Chrome で行い、プレビューは使っていない）
+- マージ: 済（a83cb48a）
+- issue: #548（着手中・結果のコメント。閉じた）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj caabc1d8）: https://github.com/retroeater/mj-logs/tree/main/guide/caabc1d8
+ガイド文書（この版を写した時点の最新、mj a83cb48a）: https://github.com/retroeater/mj-logs/tree/main/guide/a83cb48a
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/caabc1d8/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/caabc1d8/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/caabc1d8/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/caabc1d8/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/caabc1d8/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/caabc1d8/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a83cb48a/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a83cb48a/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a83cb48a/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a83cb48a/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a83cb48a/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a83cb48a/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b5bbbea3.md
