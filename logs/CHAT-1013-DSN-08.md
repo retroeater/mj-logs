@@ -54,28 +54,70 @@ DSN-02〜07 で作った houou/ のデザインの当てはめ（work/1012-dsn�
 
 ## 経過
 
+- 0: 「指示」欄の末尾は指示文の最後の行と一致。DSN-07 のログの `## 報告` の状態は「判断待ち」、SNM-14 のログ（cloudflare）の `## 報告` は「状態: 完了」「マージ: 済（a83cb48a）」で、a83cb48a は origin/cloudflare の祖先（確認済み）
+- **このセッションは新しく始めたものではない。** DSN-01〜07 を実行したセッション（同じ Claude-Session）に続けて貼られた
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある
+- Chat-Ref の確認: `CHAT-1013-DSN-08` のコミットなし。work/1012-dsn はローカル・リモートとも ad608e9（一致）。`origin/cloudflare` は祖先でない
+
+### 手順1（取り込み・生成し直し）
+
+- DSN-07 のログの状態を「判断待ち / 続き: CHAT-1013-DSN-08」にした
+- `git merge --no-edit origin/cloudflare`（SNM-14 を含む）。衝突は `docs/notes/houou-top.md` の1か所だけで、DSN 側が書き換えた3行（結果のチップ・押したとき・字の大きさ）と SNM 側の隣の行（「①組を開く」→「1組を開く」）の、隣り合う行どうし。両方を残して解いた。解いた後:
+
+  ```
+  - 結果のチップ（12px 太字）: 昇級 #c2410c・降級 #1c6fc4（白字）、残留は灰色の地（`--mj-n-chip`）、入替戦 #6741d9。空欄は出さない
+  - 押したときは行の地が灰色になる（縮む動き・影は 2026-10-13 にやめた）
+  - 順位変動へのリンクは組を URL に入れず、組のあるリーグは1組を開く
+  - 字の大きさは新サイトの4段（28px 太字・16px・13px 灰色・12px 太字、2026-10-13）
+  ```
+- `docs/notes/houou-race.md` の「組のあるリーグは「①組」を足す」を「1組」に直した（取り込みのマージコミット 0f95600 に入れた）
+- `GROUP_MARKS`（SNM-14 の形: 1 以上の組の番号をそのまま返し、0 は空）と DSN の `renderSelectors()` の行: 「1組組」の二重は出ない。組のないリーグ（B1）は何も足さない。ただし1行の選び方が「第43期前期・D11組」と読めたので、リーグと組の間を空けて「D1 1組」にした（9eeb206。DSN が足した1行の中だけ）。シートで「2組」を選ぶと「D1 2組」に変わる
+- `python3 scripts/regenerate.py houou_pages houou_race`: 取り込んだ後の HEAD から差分 0（生成は止まらない。SNM-14 の読み方で動く）
+- `python3 -m unittest discover -s scripts/tests`: OK
+- 生成物の差分（DSN-07 の時点 ad608e9 → 取り込み・生成し直し後）: HTML の骨組み 0、`houou/results/` 1件（田中光太）、`houou/race/` 1件（`43-1.json`）、`houou/search.json` 1件、`houou/players/` 0、ほか 0。3件とも X 画像の URL を置き換えて比べると同じ（組の人数・全体の順位・成績の値の差は 0 件）。DSN-07 の 464 件の差は再現しなかった（DSN-07 で使い捨ての写しで生成したことによるもの）
+- cloudflare との差（ログを除く）: コード 6（`navbar.js`・`style.css`・`assets/houou.js`・`assets/houou_race.js`・`assets/houou_ask.css`・`scripts/generate_houou_pages.py`）、生成物 12（`houou/index.html`・`houou/players/index.html`・`houou/race/index.html`・`houou/ranking/` の9ページ）、文書 6（`docs/decisions/design-renewal.md`〈新規〉・`docs/decisions/houou.md`・`docs/decisions/README.md`・`docs/notes/design.md`・`docs/notes/houou-top.md`・`docs/notes/houou-race.md`）。houou/ の JSON は cloudflare（SNM-14 で生成し直したもの）と同じ。houou/ 以外のページの生成物の差は無い
+
+### 手順2（プレビュー）
+
+- push（9eeb206）の Workers Builds は成功。版ごとのプレビューの URL で、トップ・選ぶ前・平野良栄・ランキング・順位変動（D1）が 200
+- 順位変動: 第43期前期 D1 で1行が「第43期前期・D1 1組」、シートの組の部品が「1組」「2組」。B1 は「第43期前期・B1」、第42期 A1 は「第42期・A1」（組なし・二重なし）
+- 個人成績・ランキング・トップは DSN-07 と同じに出る（375px・1280px の画面写真 01〜12）
+
+### 手順3（マージ）
+
+- 1回目: push の直前の再 fetch で origin/cloudflare が進んでいた（8ac79d1。ACF-12・13 の SNS ブックの変更と docs）ため、push しなかった。取り込んだ（衝突なし、houou/ 系のファイルに触れない）。テスト OK
+- 2回目: 再 fetch → `git merge-base --is-ancestor origin/cloudflare HEAD` が真 → `git push origin work/1012-dsn:cloudflare`（8ac79d137..86979e3d8）
+- マージ後の check-run（86979e3d8）: Workers Builds: mj 成功（このコミットはブランチの push で先にプレビューのビルドが付いていた。本番は push から約13分後の 05:34 UTC に新しい houou/ を返し始めた）、mj-ask 成功、regenerate（ページの再生成 regenerate-page.yml）成功（生成し直しのコミットは無し）、check（公開対象を検査する）成功、sync（サイトマップの lastmod）成功
+- **Workers Builds: mj-scheduler が失敗。** 今回のマージは `scheduler/`・`ask/` のファイルを変えていない。`docs/notes/cloudflare.md` のとおり mj-scheduler は watch paths が効かず cloudflare への push ごとにビルドされるため、このマージで走っただけで、失敗の原因はダッシュボードでしか見られない（check-run の出力にはビルド ID だけ）。直前の cloudflare のコミットでも mj のビルドが失敗している（023175b・acb5aa0）。今回の変更による失敗ではないと判断し、手順を進めた
+- 本番の確かめ（headless Chromium、375px・1280px）: houou/ のトップ・個人成績（`?name=平野良栄`）・ランキング・順位変動が新しい形（白地のナビ・パンくず）。ほかのページ（jpml_pros・title/・saikyo/・live/・帰り道）のナビは `navbar-dark bg-dark`（黒地 `#212529`）・日英2行のまま。サイトのトップ（index.html）は navbar.js を使わない独自のナビで、変わっていない。画面写真 13〜24。iPhone の実機での見え方は確かめていない
+- #107（issuecomment-6139026800。閉じない）と #518（issuecomment-6139027042）にマージしたことをコメント
+- DSN-02〜07 のログの `## 報告` の「マージ」を「済（CHAT-1013-DSN-08 のマージ 86979e3d8 で cloudflare に入った）」にした。状態は「判断待ち / 続き: …」のつながり（DSN-01→02→…→07→08）のままにし、この DSN-08 が完了になると決まりのとおり順に片づく
+- 決定を `docs/decisions/design-renewal.md` の 2026-10-13（DSN-08）に1行
+
+画面写真（`docs/logs/CHAT-1013-DSN-08/`）: 01〜12 は版ごとのプレビュー（375px・1280px のトップ・選ぶ前・平野良栄・リーグ・ランキング・順位変動 D1）、13〜24 は本番の同じ画面
+
 ## 報告
 
-- 状態: 中断（作業中）
+- 状態: 完了
 - ブランチ: work/1012-dsn
-- ログ: https://github.com/retroeater/mj/blob/work/1012-dsn/docs/logs/CHAT-1013-DSN-08.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1013-DSN-08.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1012-dsn
-- 確認用URL: なし
-- マージ: 未
+- 確認用URL: プレビューあり（URL は最終報告）。トップ・個人成績・ランキング・順位変動を確認
+- マージ: 済（86979e3d8）
 - issue: #107、#518
 - 判断が必要なこと: なし
 - 未確認の項目: なし
-- エラー: なし
+- エラー: なし（今回の変更と関係しない Workers Builds: mj-scheduler の失敗は `## 経過`「手順3」）
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj acb5aa04）: https://github.com/retroeater/mj-logs/tree/main/guide/acb5aa04
+ガイド文書（この版を写した時点の最新、mj 5cfee13c）: https://github.com/retroeater/mj-logs/tree/main/guide/5cfee13c
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/acb5aa04/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/acb5aa04/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/acb5aa04/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/acb5aa04/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/acb5aa04/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/acb5aa04/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/5cfee13c/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/5cfee13c/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/5cfee13c/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/5cfee13c/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/5cfee13c/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/5cfee13c/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b5bbbea3.md

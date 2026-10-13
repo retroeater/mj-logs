@@ -177,7 +177,7 @@ houou/ の本体は変えていない。変えたのは `houou/design-sample/` �
 - ログ: https://github.com/retroeater/mj/blob/work/1012-dsn/docs/logs/CHAT-1013-DSN-04.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1012-dsn
 - 確認用URL: プレビューあり（版ごとの URL を最終報告に書く）。`houou/design-sample/` を確認した（b9e5c17 の Workers Builds success、3ファイルとも手元と同じ、エラー0件）
-- マージ: 未（平野さんの判断待ち。見本は cloudflare へ入れない）
+- マージ: 済（CHAT-1013-DSN-08 のマージ 86979e3d8 で cloudflare に入った）
 - issue: #107（着手中・作り直しのコメント）
 - 判断が必要なこと:
   - リーグの色の (b) 今の色と (c) 明るさ順の選択。(c) の色の表・比較の表・画面写真（01〜08・20〜23）は `## 経過`「手順2」「手順3」
@@ -190,12 +190,12 @@ houou/ の本体は変えていない。変えたのは `houou/design-sample/` �
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 62fb5bbb）: https://github.com/retroeater/mj-logs/tree/main/guide/62fb5bbb
+ガイド文書（この版を写した時点の最新、mj 5cfee13c）: https://github.com/retroeater/mj-logs/tree/main/guide/5cfee13c
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/62fb5bbb/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/62fb5bbb/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/62fb5bbb/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/62fb5bbb/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/62fb5bbb/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/62fb5bbb/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/3ce5d549.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/5cfee13c/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/5cfee13c/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/5cfee13c/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/5cfee13c/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/5cfee13c/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/5cfee13c/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b5bbbea3.md
