@@ -55,16 +55,61 @@ Chat-Ref: CHAT-1013-BLD-01
 
 - Chat-Ref の確認（unshallow 後）: `CHAT-1013-BLD` のコミットなし。`BLD` は他のセッション・`docs/logs/` の履歴で未使用。`work/1013-bld` はローカル・リモートとも無く、`git checkout -b work/1013-bld origin/cloudflare` で作成
 - 雛形の行: Chat-Ref・マージ・貼る時機・共通手順は揃っている（作業ブランチは共通手順の行の中に書かれている）
+- 0章: 「指示」欄の末尾は指示文の最後の行と一致
+- 重なり: 未マージの `work/` ブランチで docs/notes/cloudflare.md を変えているものは無い
+
+### 手順1: 検知・通知の issue
+
+`gh` が無く、REST の search は「repository-scoped endpoints のみ」で拒否、MCP の `search_issues` は日本語の語でほぼ当たらなかった。
+代わりに `repos/retroeater/mj/issues?state=all` の全 558 件（PR を除く）の題と本文を正規表現（Workers Builds／ビルド…失敗・通知・検知／デプロイ…失敗／Notifications など）で調べた。
+
+- **Workers Builds のビルド失敗を検知・通知する論点の issue は無い**
+- 近いもの:
+  - #118（closed）Cloudflare の通知（Notifications）を設定する。対象はドメイン・SSL・Security Events・Workers のエラー率で、ビルドの失敗は含まない。結果は Universal SSL Alert のみ（docs/notes/cloudflare.md「DNS・メール・通知の設定」）
+  - #504（open）予約実行の起動。「起動の失敗や遅れを検知」は Actions の予約実行の検知で、Workers Builds は対象外
+  - #291（open）check-run の判定（ビルド成功 / 失敗 / 判定不能）をスクリプト化する。検証の手順で、通知ではない
+  - #170（open・保留）本番反映にゲートを設けるか
+  - #334（closed）・#363（closed）は check-run の読み方・プレビューの運用で、通知ではない
+
+### 手順2: check-runs の照合
+
+`curl` で `repos/retroeater/mj/commits/<sha>/check-runs?filter=all` を引いた（`gh` の代わり、docs/notes/cloud-sessions.md）。
+
+- 本番向け `mj` の failure は 5cbc83eb・9bba7d55・acb5aa04（2回）・023175b4 の5回。前提と一致（本番の check-run には `Preview URL` が無い）
+- 86979e3d: `mj`（本番 success・`Version ID: 88bdd84b…`、`Preview URL` 無し／プレビュー success・`Preview URL` あり）・`mj-ask`（success）・`mj-scheduler`（failure）の3つの Worker。前提と一致
+- 5cbc83eb・9bba7d55 も同じコミットのプレビューは success。023175b4 は本番の `mj-ask` が success
+- **前提の案との差（照合の食い違いではない）**: 案は「`started_at` と `completed_at` は同じ時刻なので所要時間は読めない」。completed の check-run はそのとおりだが、
+  1回のビルドごとに開始時の `in_progress` の check-run（`started_at` = 開始時刻、更新されずに残る）が別にあり、`Build ID` で対にすると所要時間を概算できた。
+  失敗の5回は 434・403・467・410・158 秒で、チャット側の読み（154〜466 秒）とほぼ一致。`mj-scheduler` は約704秒（チャット側「11分半」）、本番 `mj` は25秒、プレビューは23秒（同「23秒」）。
+  文書にはこの読み方を書いた（案を拡張。案と矛盾はしない）
+- 86979e3d の本番 `mj` の開始は 05:34:19Z で、`mj-scheduler` の失敗（05:32:50Z）と `mj-ask` の後。同時1本のビルドで待たされた
+- check-run に出ないもの（Cloning の段階・エラー文・Cloning の秒数・約400回の集計・本番トリガーの設定・10/12 の申告）は文書に「チャット側の読み」「申告値」と書いた
+
+### 手順3: docs/notes/cloudflare.md の差分（fde92a210）
+
+- 「ビルド成否と本番の確認範囲（check-runs）」の末尾に「#### ビルドが Cloning で失敗したとき（2026-10-13）」を足した: 見分け方（Worker ごとの check-run、`Preview URL` の有無、in_progress と completed の2本・Build ID で対にして所要時間）、check-run に出ないものの読み方、対処（設定は変えない・次の push か Retry・本番は前の版のまま・ビルド失敗の通知は無い）、事例の表と読みの出所
+- 「Chrome からダッシュボードの API を読む」の表に `accounts/{id}/builds/builds/<Build ID>`・同 `/logs` の行を足した
+- 「ビルド時間の見積もり」の最後の Cloning の事例（2026-09-29 の 668fdc0）は新しい小見出しへ移し、元の位置は参照にした（同じ内容を2箇所に書かない）
+- 「check-run が queued のまま・見当たらない場合」はビルドがまとめられた場合の話で趣旨が違うため変えていない
+- docs/notes/cloud-sessions.md「ローカル確認の代わりにプレビュー」の「check-run が `in_progress` で残ることがある」は、上の2本の作りで説明がつく可能性がある。今回の範囲外として変えていない
+
+### 決定の記録
+
+指示の「決定」は「なし」、作業中の平野さんの回答も無いため、docs/decisions には足していない。
+
+### マージ
+
+push 直前に再 fetch し `git merge-base --is-ancestor origin/cloudflare HEAD` が真であることを確かめ、`git push origin work/1013-bld:cloudflare` で fast-forward（7320c0714..813ab9ea6）。差分は docs/notes/cloudflare.md と本ログのみ（docs のみなので Workers Builds は走らない見込み）。
 
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1013-bld
-- ログ: https://github.com/retroeater/mj/blob/work/1013-bld/docs/logs/CHAT-1013-BLD-01.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1013-BLD-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1013-bld
 - 確認用URL: なし
-- マージ: 未
-- issue: なし
+- マージ: 済（813ab9ea6）
+- issue: なし（検知・通知の issue は無い。近いものは #118〈closed〉・#504・#291・#170。詳細は経過の「手順1」）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
@@ -72,12 +117,12 @@ Chat-Ref: CHAT-1013-BLD-01
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 7320c071）: https://github.com/retroeater/mj-logs/tree/main/guide/7320c071
+ガイド文書（この版を写した時点の最新、mj ed93cb73）: https://github.com/retroeater/mj-logs/tree/main/guide/ed93cb73
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/7320c071/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/7320c071/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/7320c071/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/7320c071/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/7320c071/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/7320c071/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ed93cb73/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ed93cb73/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ed93cb73/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ed93cb73/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ed93cb73/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/ed93cb73/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/7320c071.md
