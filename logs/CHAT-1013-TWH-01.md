@@ -88,15 +88,37 @@ title/ の期ページ（例: title/ranwa/6.html）の最後にある帰り道�
 - 帰り道の一覧・各話: `python3 scripts/regenerate.py video_wayhome wayhome_episodes` で差なし
 - 気づき（変えていない）: カードに見える文字が無くなったため、リンクの読み上げ名は回の番号と再生時間だけになる（番号の無い回は再生時間だけ）。決勝動画のカードも回戦名だけなので同じ形だが、必要なら別の指示で `visually-hidden` の選手名を足す
 
+### マージと本番の確かめ
+
+- push 直前に再 fetch し `git merge-base --is-ancestor origin/cloudflare HEAD` が真 → `git push origin work/1013-twh:cloudflare`（0186d17f7..c1792dbb6、11:02Z）
+- c1792dbb6 の check-run: Workers Builds: mj・check（2件）・sync・regenerate すべて success
+- マージ後の自動再生成 287861d4d（chore: regenerate title/）は `sitemap-title.xml` の lastmod 36件だけ
+- 本番（`curl`、`?v=twh1`〜`twh4`、11:12Z）: `/title/ranwa/6.html` の帰り道の節は `<h2 id="title_wayhome">帰り道</h2>` で、カード2枚（#1 19:21・#2 34:29）の下に `.mj-title-video-summary`・選手名なし（ページ内に残る `.mj-title-video-summary` 1件は決勝ライブのカード）。本番の `style.css` に `.mj-title-wayhome-name` なし。`/wayhome/` の h1「帰り道ついていってイイっすか」、`/wayhome/Yjp_PKHvldw.html` の h1「第6期鸞和戦 #1 白鳥翔」はリポジトリの生成物と同じで変わっていない。ブラウザでの見え方は確かめていない（指示どおりプレビューも見ていない）
+- #553 に直しをコメントした（状態は閉じたまま）
+- 作業ブランチ: クラウドセッションのプロキシがブランチの削除を拒否するため削除しない。マージ済みの `work/1013-twh` は `delete-merged-branches.yml` が削除する（docs/notes/cloud-sessions.md「ブランチの削除」）。先頭はこのログの最後の push のコミット
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1013-twh
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1013-TWH-01.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1013-twh
+- 確認用URL: なし（プレビューを見ずにマージしてよいとの決定。本番を `curl` で確認した: /title/ranwa/6.html・/wayhome/・/wayhome/Yjp_PKHvldw.html）
+- マージ: 済（c1792dbb6）
+- issue: #553（着手中と直しのコメント。閉じたまま）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 7557aba1）: https://github.com/retroeater/mj-logs/tree/main/guide/7557aba1
+ガイド文書（この版を写した時点の最新、mj b53374d9）: https://github.com/retroeater/mj-logs/tree/main/guide/b53374d9
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/7557aba1/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/7557aba1/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/7557aba1/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/7557aba1/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/7557aba1/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/7557aba1/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b53374d9/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b53374d9/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b53374d9/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b53374d9/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b53374d9/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b53374d9/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/0186d17f.md

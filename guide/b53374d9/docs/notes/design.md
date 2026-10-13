@@ -3,7 +3,7 @@
 現行サイトの見た目について、**決まっている値**を1か所に集めた文書。ページや部品を作る・直す前に開く。
 決まっていないこと・系統の間の食い違いはこの文書に書かず、#528（デザインの不足・不整合） で扱う（本文の「未決」を参照）。
 出典の行番号は 2026-10-08 時点の `origin/cloudflare`（cd4e3d2c）の `style.css` で確かめた。行は動くため、直すときは節の見出し（コメントの文言）で探す。
-**未マージの `houou/`（#518、work/1008-hou）が足す CSS は含まない。**
+**`houou/`（#518）の CSS は、新サイトの基本の形の値（適用範囲「houou/ のみ」の行、2026-10-13）だけを載せる。**
 
 作成の経緯: 横断レビュー（`docs/logs/CHAT-1006-SWP-01.md` の「DESIGN.md の材料」(a)）を、今の `origin/cloudflare` で確かめ直して書いた。決定は `docs/decisions/site-review.md`（2026-10-06 に作ると決定、2026-10-09 に置き場所を `docs/notes/design.md` と決定）。
 
@@ -20,6 +20,7 @@
 | 作り込み | 現行サイトに作り込みすぎない（新サイト #296 で作り直す） | 同「現行サイトに作り込みすぎない」 |
 | `theme-color` | 入れない（全ページ共通値を置けない。別の機会に検討、#271） | `docs/new-site-design.md` §12（2026-09-12 判断） |
 | `data-bs-theme` | 採用しない。独自トークンと `@media (prefers-color-scheme)` で完結させる | 同 §12 |
+| 新サイトの基本の形 | 面・強調色・選ぶ部品・文字の大きさ・共通ナビ → `docs/decisions/design-renewal.md`（2026-10-12 決定）。2026-10-13 に houou/ だけへ当てはめた（未マージ）。値は下の各表の適用範囲「houou/ のみ」の行 | #107 |
 
 ### 濃色固定の例外（2系統）
 
@@ -30,7 +31,7 @@
 | 「帰り道」（`video_wayhome.html`・`wayhome/`） | 常に濃色（OS の設定に関わらない）。トークン7個（下の「色」） | `docs/new-site-design.md` §2・§12（2026-09-12 決定）、`style.css:817-833` |
 | 放送対局（`live/`） | 常に濃色。濃色用の1組だけを持つ（「メンバー限定」ラベルも濃色用の `#8fd19e`／`#1d3524`） | `docs/notes/live-page-design.md`「ラベルの色」（LV-27）、`docs/decisions/site-review.md`（2026-10-09 に例外として記録） |
 
-共通ナビ（`navbar.js`）は全ページで `navbar-dark bg-dark`（`#212529`）。濃色の例外のページでも同じ。
+共通ナビ（`navbar.js`）は全ページで `navbar-dark bg-dark`（`#212529`）。濃色の例外のページでも同じ。houou/ のページだけは新しい形（下の「部品」の「共通ナビ（新しい形）」）。
 
 ## 2. 色
 
@@ -50,6 +51,9 @@
 | トークンの命名 | 機能名で付ける（色名・見た目で付けない）。接頭辞 `--mj-v-` は暫定 | 新サイト | `docs/new-site-design.md` §12「持ち越せる部分／捨てる部分」 |
 | 順位の金 | `#f2c230`＋文字 `#2b2100`（9.49:1）。優勝（タイトル戦の期カード）は淡い金 `#fff3cd`＋`#8a5a00`（5.35:1） | `saikyo/`・`title/` | `style.css:1750`・`2094`・`2678-2679`、#412・#406 |
 | 最強戦の帯 | 対局名 `#3c4043`＋白文字（10.47:1）。卓 `#e8eaed`＋`#202124`（13.36:1） | `saikyo/` | `style.css:1575-1646`、`docs/notes/saikyo-page-design.md`（SK-19） |
+| 新サイトの色（明るい配色） | ページの地 `#f2f2f7`／面 `#ffffff`／字 `#1d1d1f`／灰色の字 `#555555`（面 7.46:1・ページの地 6.68:1）／行の区切り `#e5e5e5`／溝 `#e9e9ee`／選んだ1つ `#ffffff`／残留のピル `#e9e9ee`／押したとき `#ececf0`／紺 `#14459b`（面 8.92:1）＋その上の字 `#ffffff`／写真の無い丸 `#d1d1d6`／シートの背景 `rgba(0,0,0,.32)`。変数は `--mj-n-*` | houou/ のみ | `style.css` の「新サイトのデザインの基本の形…を houou/ に当てはめる」の節、#107 |
+| 新サイトの色（暗い配色） | ページの地 `#000000`／面 `#1c1c1e`／字 `#f5f5f7`／灰色の字 `#aeaeb2`（面 7.69:1・ページの地 9.50:1）／行の区切り `#38383a`／溝 `#1c1c1e`／選んだ1つ・残留のピル `#3a3a3c`／押したとき `#2c2c2e`／紺の役 `#8ab4f8`（面 8.07:1、選んだ1つの上 5.39:1）＋その上の字 `#0b1f44`／写真の無い丸 `#48484a`。`@media (prefers-color-scheme: dark)`、`color-scheme: light dark` | houou/ のみ | 同上 |
+| 新サイトの昇級・降級 | ピル・帯は昇級 `#c2410c`・降級 `#1c6fc4`（白字）。リーグの段と印の色は今の houou/ の色（`--lg-t0`〜`t13`、HOU-18・HOU-23） | houou/ のみ | 同上、`docs/decisions/design-renewal.md`（2026-10-13） |
 | 「メンバー限定」ラベル | 文字 `#8fd19e`、地 `#1d3524`（7.42:1）、角丸 4px、0.75rem・600 | `live/` | `style.css:2795-2809`、`docs/notes/live-page-design.md`（LV-27） |
 
 ## 3. 文字・寸法
@@ -70,6 +74,9 @@
 | ナビの虫眼鏡 | 992px 未満はハンバーガーの左に同じ行（右寄せ）。ナビは56px、虫眼鏡は44×44px。`.container-fluid` を `display:contents` にして `order` で並べる。検索欄を持たないページ（`data-search="off"`）は虫眼鏡が無く、並べ方も変えない。992px 以上は従来どおり右端 | 共通ナビ | `style.css` の「折りたたみ時…虫眼鏡」、#524（2026-10-11、案A） |
 | 開いた固定ナビのメニューの高さ | 992px 未満で `max-height: calc(100dvh - 60px)`（`100vh` を先に書く）・`overflow-y:auto`。上の行 56px＋余裕 4px。navbar の実測の高さ（`--mj-*-nav-h`）は使わない（開いたナビの高さが入って縮む循環になる） | 固定ナビの型A・A'（`body:has(.mj-table)`）・`title/`・`saikyo/` の年度ページ | `style.css` の「固定ナビを開いたとき」と `title/`・`saikyo/` の節、#524・#525（2026-10-11）。動画系は 80vh（WH-17） |
 | `.mj-margin-text` の余白 | 左右 32px、上 24px。見える h1（`.mj-page-heading`）も同じ左右 32px・上 24px（下 0.5rem） | `404`・`jpml_links`・`resource_efficiency` | `style.css` の `.mj-margin-text`・`.mj-page-heading`、#524・#525（2026-10-11） |
+| 新サイトの文字の4段 | 大 28px 太字（題名・要約の数字）／本文 16px（名前・行の数字）／小 13px 灰色（説明・注記）／極小 12px 太字（ピル・リーグの印）。強弱は大きさと灰色かどうかだけ | houou/ のみ | `style.css` の「新サイトのデザインの基本の形…を houou/ に当てはめる」の節、grill Q9 |
+| 新サイトの面 | 角丸 12px・影なし・枠なし。行は 1px の区切り線、押せる行は高さ 44px 以上・左右 16px。題名は枠なし・左寄せ・下に 16px。ページの左右 16px | houou/ のみ | 同上、grill Q1・Q10-4・Q10-5 |
+| 新サイトのグラフ | リーグ・通算とも 380×540 の SVG（375px の幅で B1・B2 の段に名前が入る高さ）。段の名前 12・灰色。触れたときの情報（13px・3行）はグラフの下の決まった場所 | houou/ のみ | 同上、`assets/houou.js` の `LG`・`TREND` |
 | 最小の画面幅 | 375px（iPhone 12/13 mini・SE を想定。仮置き、2026-10-12。来ている人の画面の幅が分かれば見直す）。1行に収める部品は 375px・標準の文字の大きさで収まることを確かめる。`rh_results_detail` の 390・360px の計測（「表の数字の列」の行）は変えない | 全ページ | HOU-13〜26 の振り返り（2026-10-12）、`docs/decisions/site-review.md`。見直しは #550 |
 | 字体の見込み | 第1候補の `Hiragino Sans`（「フォント」の行）より、headless Chromium の既定の字体は幅が狭い。幅の確かめは、幅の広い字体（IPA P ゴシック・WenQuanYi Zen Hei。`font-family` を一時的に当てる）でも収まることを合格の条件にし、最終は実機（平野さんの iPhone）で見る | 1行に収める部品 | HOU-13〜26 の振り返り（2026-10-12）、`docs/decisions/site-review.md` |
 | 文字の拡大 | ルートの文字の大きさ 150%・200% で部品が「次の行に回る」のは崩れとみなさない。切れ・重なり・はみ出しは崩れ | 全ページ | HOU-13〜26 の振り返り（2026-10-12）、`docs/decisions/site-review.md` |
@@ -91,6 +98,13 @@
 | 固定バー（絞り込み） | navbar 直下に固定。背景は不透明 `#131316`、下枠 `rgba(255,255,255,.14)`、`padding:8px`、`gap:10px`、高さ 61px（459px 以下は 115px） | `style.css:1316-1332`・`1859-1888`・`2194-2222`、`docs/notes/saikyo-page-design.md`（SK-18） |
 | パンくずの区切り | 「/」（`title/` の Bootstrap `.breadcrumb` と `live/` で同じ）。`live/` は 13.6px・700、項目の高さ 44px | `style.css:2814-2835`、`docs/notes/live-page-design.md`（LP-11） |
 | 見出し（`resource_efficiency`） | `h1.mj-page-heading`（16px・500）は画面に見える。余白は本文の `.mj-margin-text` にそろえる（左右 32px・上 24px） | `style.css` の `.mj-page-heading`（#152・#525。経緯は `docs/notes/handover-archive-2026.md`） |
+| 選ぶ部品（新しい形） | 溝（地 `--mj-n-groove`・角丸 10px・内側 2px）の中で、選んだ1つが白く浮く（角丸 8px・太字の紺）。高さ 44px、字は 16px。字数に関係なく同じ幅（`grid-auto-columns:1fr` と `min-width:max-content`）。1行に入らないもの（ランキングの9部門）は最も長い名前の幅（`calc(5em + 16px)`）のまま横スクロール | houou/ のみ | `style.css` の「新サイトのデザインの基本の形…を houou/ に当てはめる」の節 |
+| 共通ナビ（新しい形） | 面の色の地＋下の 1px の線。項目名は日本語1行。今いる項目（「鳳凰戦」、`aria-current="true"`）は太字の紺。フォーカス枠は紺 2px。`navbar.js` が `/houou/` のパスのときだけ `.mj-nav-new` を付け、`navbar-dark bg-dark` を外す | houou/ のみ | `navbar.js`、`style.css` の「新サイトのデザインの基本の形…を houou/ に当てはめる」の節、2026-10-13 の Q19 |
+| 再生のボタン（新しい形） | 題の行・グラフの上の行の右端。押せる 44px、見た目は紺の 34px の丸（中の印は白）。データの上に重ねない | houou/ のみ | 同上、grill Q10-1 |
+| 写真の無い選手 | 名前の頭の1字を灰色の丸（`--mj-n-avatar`）に書く。読めない写真も同じ丸に差し替える | houou/ のみ | `assets/houou.js` の `initialMark()`、grill Q10-3 |
+| パンくず（新しい形） | 題名の上に 13px 灰色の1行「鳳凰戦 / 個人成績」。上の階層は紺のリンク（押せる高さ 44px・幅 44px 以上）、区切りは「/」、今のページは `aria-current="page"`。サイトのトップは入れない | houou/ のみ | `style.css` の「新サイトのデザインの基本の形…を houou/ に当てはめる」の節、2026-10-13 の Q23 |
+| 表の行（新しい形） | 行の高さ 56px・アイコン 40px（`jpml_pros` の行と同じ高さ）。列名の行は 13px 灰色。行を押せるときは右端に灰色の ›（8×14px、右から 16px） | houou/ のみ（ランキング） | 同上、2026-10-13 の Q20・Q26 |
+| 横スクロールの選ぶ部品の送り | 端を 32px 薄く消して続きを見せ、端まで来た側は消さない。表示のときに選んだ1つを中央へ送る。マウスの端末（`(hover: hover) and (pointer: fine)`）だけ左右の端に 44px の丸の「‹」「›」と縦のホイールで送る | houou/ のみ（ランキングの部門） | 同上、`assets/houou.js` の `chipScroller()`、Q26 |
 | 他ページの h1 | 画面には出さず `visually-hidden`（#53 の意図的な判断） | `docs/notes/a11y-manual-check.md`「E. 横断確認」 |
 
 ## 5. 未決・食い違い

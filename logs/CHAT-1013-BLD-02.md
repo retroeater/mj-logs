@@ -102,28 +102,46 @@ Chat-Ref: CHAT-1013-BLD-02
 - イベント `cf.workersBuilds.worker.build.failed` の payload に `source.workerName` と `payload.buildTriggerMetadata.branch`・`commitHash`・`buildOutcome` がある（https://developers.cloudflare.com/queues/event-subscriptions/events-schemas/ ）。本番かどうかを branch で確実に見分けられる
 - Queues の料金: Workers Free は「10,000 operations/day included」、1通に約3 operations（https://developers.cloudflare.com/queues/platform/pricing/ ）。失敗のイベントだけなら枠の心配は無い見込み。Free で Event subscriptions が使えるか・消費する Worker（`mj-scheduler` に足すなど）の作りは未確認
 
+### 前提との差
+
+- 前提の A の条件「`output.summary` に `Preview URL` が無い（＝本番）」は、失敗したビルドでは成り立たない（上の (b)）。指示は調べて issue に書くことなので止めず、issue に事実として書き、見分け方の選択を平野さんの判断の項目に入れた
+- BLD-01 で書いた docs/notes/cloudflare.md の「本番かプレビューかは `Preview URL` で見分ける」は成功したビルドに限る。「申告値: 10/12 の f09571e4 …（ここからは検証できない）」は check-run で約31分の failure を確かめられた。今回の指示の範囲（docs/logs・docs/decisions）外なので文書は直さず、#561 の「あわせて直すこと」に書いた
+
+### 手順3: 起票
+
+- #561「本番の Workers Builds の失敗を知らせる」（open、ラベル `分野: 自動化`・`分野: インフラ`）。本文は目的・経緯（BLD-01 のログと cloudflare.md の該当節の引用とリンク）・候補 A・B・C と要確認の点・調査の結果・平野さんの判断が要ること・あわせて直すこと・`Chat-Ref:` の順
+- 起票前に同じ題の issue が無いことは手順1で確認済み
+
+### 決定の記録
+
+- docs/decisions/cloudflare.md に「2026-10-13（CHAT-1013-BLD-02）」として、指示の決定（失敗を知らせる仕組みを入れる、方式は調査の後、#561）を足した
+
+### マージ
+
+最後の push の前に `origin/cloudflare` が進んでいた（7557aba16）ため `git merge origin/cloudflare` で取り込み（衝突なし。差は docs/decisions/cloudflare.md と本ログのみ）、再 fetch して `git merge-base --is-ancestor origin/cloudflare HEAD` が真であることを確かめ、`git push origin work/1013-bld:cloudflare` で fast-forward（7557aba16..2a8c1c69d）。
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1013-bld
-- ログ: https://github.com/retroeater/mj/blob/work/1013-bld/docs/logs/CHAT-1013-BLD-02.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1013-BLD-02.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1013-bld
 - 確認用URL: なし
-- マージ: 未
-- issue: なし
-- 判断が必要なこと: なし
+- マージ: 済（2a8c1c69d）
+- issue: #561（起票）
+- 判断が必要なこと: なし（#561 に移した）
 - 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 7557aba1）: https://github.com/retroeater/mj-logs/tree/main/guide/7557aba1
+ガイド文書（この版を写した時点の最新、mj b53374d9）: https://github.com/retroeater/mj-logs/tree/main/guide/b53374d9
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/7557aba1/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/7557aba1/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/7557aba1/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/7557aba1/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/7557aba1/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/7557aba1/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b53374d9/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b53374d9/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b53374d9/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b53374d9/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b53374d9/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b53374d9/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/0186d17f.md
