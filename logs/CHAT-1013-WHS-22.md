@@ -77,14 +77,22 @@ WHS-21 のプレビューで、前後のエピソードが片方しか無い回�
 - 横スクロール: 6つとも `scrollWidth` = 幅
 - スマホ幅で片方だけの回が1枚だけになるのは、見て違和感は無かった（全幅の1枚で、上下の並びと同じ）
 
+### 手順3 マージと確かめ
+
+- fetch 直後に `git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめ、`git push origin work/1013-whs-nav:cloudflare`（547d49d8..0f532f4d。WHS-21 の変更を含む）
+- 0f532f4d の check-run: Workers Builds: mj・regenerate（push 契機）・check・sync すべて success（03:44Z までに完了）。続く `chore: regenerate`（49195b1f）は `sitemap-wayhome.xml` の lastmod だけ
+- 本番（`curl`、`?v=<未使用の値>`）: `/wayhome/Yjp_PKHvldw.html`・`/wayhome/OkKAh8yP8Uk.html`・`/video_wayhome.html` は 200 で、`origin/cloudflare` の生成物とバイト単位で一致。`/style.css` に `.mj-video-prevnext-link.is-prev` の規則がある。ここで確かめたのは本番の HTML・CSS まで（ブラウザでの見え方は手順2の生成物で確かめた）
+- 作業ブランチ: クラウドセッションからは削除できないため、`delete-merged-branches.yml` に任せる
+
+
 ## 報告
 
-- 状態: 中断（作業中）
+- 状態: 完了
 - ブランチ: work/1013-whs-nav
-- ログ: https://github.com/retroeater/mj/blob/work/1013-whs-nav/docs/logs/CHAT-1013-WHS-22.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1013-WHS-22.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1013-whs-nav
-- 確認用URL: なし
-- マージ: 未
+- 確認用URL: なし（プレビューは見ずにマージ。本番の HTML を確かめた）
+- マージ: 済（0f532f4d。WHS-21 の変更を含む）
 - issue: なし
 - 判断が必要なこと: なし
 - 未確認の項目: なし
