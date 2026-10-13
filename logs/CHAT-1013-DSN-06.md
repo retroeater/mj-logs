@@ -72,17 +72,78 @@ DSN-01〜05 で決めた新サイトのデザインの基本の形を、見本�
 - #107 に着手中のコメント（issuecomment-6135339487）、#518 に着手中のコメント（issuecomment-6135340998）。#518 に他セッションの着手中は無い（HOU-30 の着手中は HOU-32 で解除済み）
 - 未マージの work/ ブランチ: work/1009-swp-526・work/1011-swp-hnd・work/1011-swp-nav・work/1012-dsn・work/1013-snm。houou/ 系のファイル（`style.css`・`assets/houou.js`・`assets/houou_race.js`・`scripts/generate_houou_pages.py`・`navbar.js`・`houou/`・`docs/notes/houou-top.md`・`docs/notes/houou-race.md`・`docs/notes/design.md`・`docs/decisions/houou.md`・`docs/decisions/design-renewal.md`）を変えているのは work/1013-snm だけで、`docs/decisions/houou.md` の末尾に節を2つ足している（CHAT-1013-SNM-11・12）。この指示で印を付ける行とは別の箇所で、`git merge-tree` で衝突なし（止まらない）
 
+### 手順2（当てはめ・確かめ・見本の削除）
+
+変えたファイル（コード 6・生成物 11。指示文の一覧からの増減は下）:
+
+- `style.css`: 末尾に houou/ だけに効く層（`:root:has(.mj-houou, .mj-houou-race)` の色の変数 `--mj-n-*` と暗い配色、`.navbar.mj-nav-new`、題名・面・選ぶ部品・期別・要約・ピル・グラフ・吹き出し・ランキング・順位変動のシート）。上の houou/ の節と順位変動の共有の節（3396〜）は変えていない
+- `navbar.js`: パスが `/houou/` のときだけ `.mj-nav-new` を付け、`navbar-dark bg-dark` を外し、項目名を日本語1行にし、「鳳凰戦」に `aria-current="true"`（開閉の項目でページそのものではないので page でなく true）。**指示文の一覧に無いファイル（増）**。ナビを houou/ に限るにはここで絞るほかない
+- `assets/houou_ask.css`: 質問欄を1行の入力欄・紺の丸い送るボタン・注意書きの1行と ⓘ に。**指示文の一覧に無いファイル（増）**。トップの質問欄の見た目はこのファイルにある
+- `assets/houou.js`: グラフの高さ 380×540（`LG`・`TREND`）、選手のグラフの段の名前を右端の入る段すべて（`LG_SIDE_LABEL_MIN` 12）、写真の無い・読めない選手は頭の1字の丸（`initialMark()`）
+- `assets/houou_race.js`（houou/race/ 専用の写し）: 再生ボタンを題の行の右端に、「第43期前期・B1 ▾」の1行とシートの開閉（`setSheet()`）、チップの字を名前の頭の1字
+- `scripts/generate_houou_pages.py`: トップの3項目を面の行に（アイコンをやめ ›）、質問欄の骨組み（`<input>`・`<details>`）、順位変動の骨組み（`race_layout()`）、ランキングの名前の欄の中身を `<span class="mj-houou-rank-who">` で包む（名前の欄を表の欄に戻し、スコアを名前のすぐ右に寄せるため）、写真の無い選手の丸
+- 生成し直し: `houou/index.html`・`houou/race/index.html`・`houou/ranking/` の9ページ（`python3 scripts/regenerate.py houou_pages`）。`houou/players/`・`houou/leagues/`・JSON は変わらない
+- `houou/design-sample/` を消した（3ファイル）
+- 指示文の一覧のうち `style.css` の race の節（3396〜3755）は変えていない（上書きは末尾の層で `.mj-houou-race` に絞った）
+
+主な判断:
+
+- 本番の動きを残した所（見本と違う所）: 順位変動の行・帯の動きは CSS の transition のまま（見本は rAF）。再生中は再生ボタンが見えなくなり、表を押すと止まる（見本は一時停止のボタン）。節のラベルは今の「第n節」のボタン（見本は「開始・1〜5」の選ぶ部品）。通算のグラフは今の K2「面グラフ」（見本はローソク足）。リーグの再生の動き・吹き出しの文言・URL の状態・最近見た選手は変えていない
+- 見本と違えた所: ランキングの列名の行は出さない（今の表は見出しが読み上げ用だけ）、行の右端の › は付けない（行を押すと個人成績へは今のまま）。題名は今の「鳳凰戦 順位変動」のまま
+- 「通算」の吹き出しもグラフの下の決まった場所に置いた（Q17 は「リーグ」についての決定。同じ3行の形なので合わせた。外すなら CSS 1か所）
+- 選手のグラフで、最後の期の選手のアイコンが自分の段の名前（例: 平野良栄の C2）に重なる。名前のチップに同じリーグがあるので、そのままにした
+- 動きを減らす設定: houou/ の全画面で `document.getAnimations()` 0・transition の付いた要素 0（トップのカードの出てくる動き・通算の伸びる動き・押して縮む動きを外した）
+
+確かめ（ローカルの `python3 -m http.server`、headless Chromium）:
+
+- 単体テスト: `python3 -m unittest discover -s scripts/tests` 954件 OK
+- 生成物: `git status` で変わったのは houou/ の11ファイルだけ。`origin/cloudflare` を取り込んだ後に `regenerate.py houou_pages`・`--changed` を流し直して差分なし
+- houou/ の全画面（トップ・注意書きを開いた状態・選ぶ前・平野良栄の期別〈1期を開く〉・通算〈触れた状態〉・リーグ〈触れた状態〉・白鳥翔・ランキング2部門・順位変動・シート・リーグ推移の案内・ナビを開いた状態）× 375/390/430 × 明暗 × 標準・幅の広い字体・150%・200%:
+  - 標準・幅の広い字体: 1行に収める部品（期別の行・要約・選ぶ部品・質問欄・題の行・1行の選び方・名前の面・ランキングの行・順位変動の行・シートの見出し・最近見た選手）は右に 2px 足しても、はみ出し・折れ・切れなし。横スクロールなし
+  - 150%・200%: 次の行に回るだけ（トップの説明・ランキングの名前・順位変動の題名・要約の列）。切れ・重なり・はみ出しなし（計測で「wrap」と出た表の値・期は、名前の折り返しで行が高くなった欄の誤検出で、値そのものは1行）
+  - 押せる大きさ 44px: 新しく足した部品（再生ボタン・1行の選び方・シートの「完了」・ⓘ・送るボタン・選ぶ部品・行）はすべて 44px 以上。44px 未満は前からのもの: ランキングの名前のリンク（行全体が押せる 44px）・順位変動の節のラベル（高さ 36px、仮置き）・順位変動のアイコンのリンク（28px、押せる範囲を `::after` で広げている、R-07）・幅の広い字体でのナビの「R」の幅（全ページ共通）
+- 灰色の字: 明るい配色 `#555555` 面 7.46:1・ページの地 6.68:1、暗い配色 `#aeaeb2` 面 7.69:1・ページの地 9.50:1（条件 7:1・4.5:1 を満たす）。溝の上の選んでいない字 `#555555` on `#e9e9ee` 6.16:1。紺 `#14459b` 面 8.92:1、暗い配色の `#8ab4f8` 面 8.07:1・選んだ1つの上 5.39:1
+- 挙動: 順位変動はシートで C を選ぶと表と URL（`?term=43-1&league=C1`）が変わり、Esc で閉じてフォーカスが1行に戻る。再生で帯が入り、再生ボタンが見えなくなる。リーグの再生のボタンは「一時停止」に変わる。ページのエラー 0
+- ほかのページの前後比較（前 = このブランチの HEAD〈DSN-06 の変更前〉を `git archive` したもの、後 = 作業ツリー。外部ドメインの読み込みは止めた）: index・jpml_pros・title/・saikyo/・live/・video_wayhome × 375/1280。ナビの HTML と地の色は全件同じ。画素はほとんど同じで、jpml_pros（375・1280）・live（375・1280）・saikyo（375）に出た差は、同じ版を2回撮っても出る差（読み込みの時機。live の 375 は7画素が1段階違うだけ）。旧 `houou_race.html`・`houou_ranking.html` も 375・1280 で同じ
+- 見本と本番の横並び（明暗）を撮ってから見本を消した
+- push（2be5acc）の Workers Builds は成功。版ごとのプレビューの URL で4ページ（トップ・平野良栄のリーグ・ランキング・順位変動）が 200、`houou/design-sample/` は 404、新しいナビ・1行の選び方が動くことを headless で確かめた（URL はターミナルへの最終報告だけ）
+
+画面写真（`docs/logs/CHAT-1013-DSN-06/`）:
+
+- `00_side_by_side_light.jpg`・`00_side_by_side_dark.jpg`: 見本（左）と本番（右）。トップ・個人成績・リーグ・ランキング・順位変動
+- `01`〜`24`: houou/ の全画面の 375px（明るい配色 01〜12、暗い配色 13〜24）
+- `25`〜`36`: ほかのページの前（左）・後（右）。375px と 1280px
+
+### 手順3（記録）
+
+- `docs/decisions/houou.md` に置き換えの印: HOU-06 の「カードは P1（浮き上がり）…」（順位 R2 は続く）、HOU-10 の「トップは T1（浮き上がりカード）」、HOU-05 の「アイコンと名前も1枚のカードにする」（カードの見た目）、HOU-33 の「リーグのグラフに触れたときの吹き出し…3行」（置き場所。3行の形は続く）。HOU-06 の配色 C2・HOU-18・HOU-23 には付けていない。ほかに「浮き上がり」で置き換えていない行は無い（HOU-05 の「立体的」・HOU-08 の「立体的」は印が付いていた）
+- `docs/notes/design.md`: 色・文字と寸法・部品の各表に適用範囲「houou/ のみ」の行を足し（出典は `style.css` の当てはめの節）、「1. トーンと方針」の「新サイトの基本の形」（DSN-02 の行）を「2026-10-13 に houou/ だけへ当てはめた。値は各表」に直した。共通ナビの文と冒頭の「houou/ の CSS は含まない」も直した
+- `docs/notes/houou-top.md`: トップ・名前・要約・通算・期別・結果のチップ・字の大きさ・ランキング・リーグのタブ（グラフの高さ・段の名前・線の色・吹き出しの置き場所・配色の地）の記述を置き換えた
+- `docs/notes/houou-race.md`: houou/race/ の再生ボタン・1行の選び方・シートを足した
+- `docs/decisions/design-renewal.md` に 2026-10-13（DSN-06）の節
+- `origin/cloudflare`（884aecaf1 まで）を取り込んだ（衝突なし。`docs/decisions/houou.md`・`docs/notes/houou-top.md` の末尾・別の行の変更）
+- #107 にプレビュー確認待ちのコメント（issuecomment-6135820648、URL なし）、#518 に1行（issuecomment-6135820857）
+
+マージで cloudflare に入るもの（ログを除く 23 ファイル）: コード 6（`navbar.js`・`style.css`・`assets/houou.js`・`assets/houou_race.js`・`assets/houou_ask.css`・`scripts/generate_houou_pages.py`）、生成物 11（`houou/index.html`・`houou/race/index.html`・`houou/ranking/` の9ページ）、文書 6（`docs/decisions/design-renewal.md`〈新規〉・`docs/decisions/houou.md`・`docs/decisions/README.md`・`docs/notes/design.md`・`docs/notes/houou-top.md`・`docs/notes/houou-race.md`）。ほかに `docs/logs/` の DSN-01〜06 のログと画面写真。マージ後の再生成（`regenerate.py --changed`）が触るのは `houou_pages`（houou/ の生成物）だけで、今のデータでは差分なし
+
 ## 報告
 
-- 状態: 中断（作業中）
+- 状態: 判断待ち
 - ブランチ: work/1012-dsn
 - ログ: https://github.com/retroeater/mj/blob/work/1012-dsn/docs/logs/CHAT-1013-DSN-06.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1012-dsn
-- 確認用URL: なし
-- マージ: 未
+- 確認用URL: プレビューあり（URL は最終報告）。トップ・個人成績（平野良栄のリーグ）・ランキング・順位変動を確認
+- マージ: 未（平野さんの判断待ち）
 - issue: #107、#518
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 判断が必要なこと:
+  - iPhone でプレビューを見て、マージするか（変えたファイル・houou.md の印・ほかのページの比較・マージで変わるファイルは `## 経過`「手順2」「手順3」）
+  - 「通算」の触れたときの情報も、グラフの下の決まった場所に置いた（Q17 はリーグについての決定。外すなら戻す）
+  - 指示文の一覧に無いファイルを2つ変えた: `navbar.js`（ナビを houou/ に限るため）・`assets/houou_ask.css`（トップの質問欄の見た目）
+  - 本番の動きを残して見本と違う所（順位変動の行の動きは CSS の transition、再生中は一時停止のボタンでなく表を押して止める、節のラベル、通算は面グラフ）と、見本から入れなかった所（ランキングの列名の行と行の右端の ›）
+  - 選手のグラフで、最後の期のアイコンが自分の段の名前に重なる（そのままにした）
+- 未確認の項目:
+  - 実機（iPhone の Safari・Chrome）での見え方。確かめは headless Chromium と幅の広い字体まで
+  - マージの後の本番の見え方
 - エラー: なし
 
 <!-- guide-links -->
