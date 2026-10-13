@@ -52,7 +52,7 @@
 
 ### 0章
 
-- 指示欄の末尾は指示文の最後の行と一致している。Chat-Ref の重複なし。work/1013-snm-check はローカル・リモートとも無かったので origin/cloudflare（109374aa の親）から作った
+- 指示欄の末尾は指示文の最後の行と一致している。Chat-Ref の重複なし。work/1013-snm-check はローカル・リモートとも無かったので origin/cloudflare（109374aa）から作った
 
 ### 手順1 「表示」= N の扱い
 
@@ -103,28 +103,104 @@
 
 - `check_leagues_dropped.py`（check-leagues-dropped.yml、手動のみ。最後の実行は 2026-09-12）は、今の cloudflare で `AttributeError: module 'generate_houou_leagues' has no attribute 'QUERY'` で止まる。c28057dc（CHAT-1013-SNM-10、「鳳凰」を見出しで読む形）で `generate_houou_leagues.QUERY` が無くなったため。この指示ではコードを変えない
 
+### 手順2 「リーグ」タブ
+
+#### 読む所（正本 `1h4-DhmvaBJzfkA61mTKkz4mMuICGliuzglakql5TeP0`）
+
+| 読む所 | 読む列 | 使い道 |
+|---|---|---|
+| `lib/pro_stats.fetch_sources()` → `league_maps()` | 見出し「ID」と、その右の最初の「リーグ名」の組を2つ（左が鳳凰、右が桜花。見出しの並びで引く） | jpml_pros の成績の列のうち「鳳凰最高」「桜花最高」（リーグキーの最小をリーグ名に戻す、`highest()`）。houou/・houou_race などほかの生成は読まない |
+| `FIRST_SHEET = "リーグ"`（`lib/pro_sheet.py`・`lib/pro_stats.py`・`lib/houou_tab.py`・`generate_houou_race.py`、`generate_houou_pages.py` は houou_race の値を使う） | 中身は読まない | gviz は存在しないタブ名に先頭のタブを返すので、`fetch_table()`・`fetch_records()` は「読んだ中身が先頭のタブと同じなら、first_sheet を読んだとき以外は止める」。正本の先頭のタブが「リーグ」であることを前提にしている |
+| ページ側の JS | 読まない（「鳳凰」「桜花」「JWRC」を直接読む。「リーグ」はリーグ名の列の見出しとしてだけ出る） | — |
+
+#### 正本の数式（xlsx エクスポート 200・2,603,868 バイト、openpyxl で読んだ）
+
+| タブ | 行×列 | 数式 | 数式の例 | 「リーグ」を引くもの |
+|---|---|---|---|---|
+| リーグ | 15×6 | 0 | — | — |
+| プロ | 1,100×4 | 0 | — | 0 |
+| 対局 | 2,339×10 | 2,311（G 2,307・E 4） | `="https://img.youtube.com/vi/" & RIGHT(F2,…) & "/mqdefault.jpg"`、`=D2` | 0 |
+| 鳳凰 | 16,012×23 | 12,783（I「合計」） | `=SUM(J2:V2)` | 0 |
+| 桜花 | 1,720×24 | 3,244（W 1,719・H 1,525） | `=IF(COUNTIF('プロ'!$A:$A,$A2),"Yes","No")`、`=SUM(I2:P2)` | 0 |
+| JWRC | 1,508×24 | 2,922（W 1,507・H 1,415） | 同上（`'プロ'!$A:$A`）、`=SUM(I2:M2)` | 0 |
+| 最強戦 | 2,745×12 | 0 | — | 0 |
+
+- 合計 21,260（SNM-14 の数と同じ）。「リーグ」を引く数式は0件。条件付き書式・入力規則・名前付き範囲にも「リーグ」は無い（名前付き範囲は桜花・JWRC のフィルタの範囲だけ）。「鳳凰」の「リーグキー」（E 列）は値で、数式ではない
+- 参考: 桜花・JWRC の W 列（存在チェック）は `'プロ'!$A:$A` を引く。「表示」を見ないので、N の人も「Yes」になる（ページの生成は W 列を読まない）
+
+#### 別のブック
+
+- ID は指示文の URL から機械的に取り出した: `10g_Xub35Od6vg8zFlKuB-9Kwgyg-HapWWsnfMur7J34`（gid 1405225134）。ファイル名「ryoei.pro_その他マスタ」。**今の生成が「連盟プロ以外」「別名」「タイトル」などを読んでいる `lib/live.SPREADSHEET_ID` と同じブック**
+- タブ（htmlview の並び）: リーグ・連盟プロ以外・別名・タイトル・タイトル戦・書籍・辞書・帰り道。**「リーグ」が先頭のタブ**（存在しないタブ名で読むと「リーグ」の中身が返る）
+- ログインなしで読める（gviz・CSV エクスポートとも 200）
+- 「リーグ」タブ: 見出し タイトル戦・リーグ名・リーグID の3列（縦の並び）、20行。2回読んで同じ
+- 正本の「リーグ」は 見出し リーグ名・ID・リーグ名・(空)・ID・リーグ名 の横の並び、14行（鳳凰 14組・桜花 6組を横に並べる）。2回読んで同じ
+- 値の比較（ID ごと）: 鳳凰戦の 0〜13（鳳凰位・A1〜E3）は全部同じ。女流桜花の 1〜5（A・B・C1・C2・C3）も同じ。**違いは1行: 女流桜花の ID 0 が、正本は「桜花」、別のブックは「女流桜花」**。jpml_pros の「桜花最高」（今 13 セルが「桜花」）と絞り込みの値が「女流桜花」に変わる
+- 今の別のブックの並びでは、生成は止まらない（模擬なしの全ページの生成が通った）。「連盟プロ以外」を読むときは `first_sheet` が同じ名前なので照合を飛ばし、ほかのタブは先頭（「リーグ」）と中身が違うので通る
+
 ## 報告
 
-- 状態: 対応中
+- 状態: 完了
 - ブランチ: work/1013-snm-check
-- ログ: https://github.com/retroeater/mj/blob/work/1013-snm-check/docs/logs/CHAT-1013-SNM-15.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1013-SNM-15.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1013-snm-check
-- 確認用URL:
-- マージ: 未
+- 確認用URL: なし
+- マージ: 済（5cbc83eb。ドキュメントのみ）
 - issue: なし
-- 判断が必要なこと:
-- 未確認の項目:
-- エラー:
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
+
+### まとめ (1) 「表示」= N の人の扱い
+
+結論: **「シートに存在しない行」としては扱われない。** 「プロ」を読む所（`pro_sheet.fetch_pros()`）はどれも N の行を外すが、成績・対局のタブには名前の行が残るため、その名前は「プロにいない名前」になり、ページごとに次のように扱われる（模擬: 佐々木寿人）。
+
+そうでない所の一覧:
+
+1. /live（放送対局）: その人が対局者・実況・解説に入る動画をすべて公開しなくなる（364本・80ページ。/live の鳳凰戦は丸ごと消える）。ほかの選手の対局まで消える。生成の警告と、/live の層2（#475）の未登録の名前の知らせに出る見込み
+2. title/・saikyo/・houou_race.html・houou/race/・jpml_test.html: 名前は出たまま、写真と X のリンクだけが外れる（代替アバター）
+3. 旧方式のページ（houou_results・houou_ranking・ouka_results・wrc_results・ouka_ranking・wrc_ranking）: 「プロ」を読まないので今までどおり出る
+4. 知らせが出る: check-meibo.yml の issue「名簿と「プロ」シートの不一致」に「名簿にだけいる人（新入会の可能性）」として毎週出る。check-saikyo-unregistered.yml の issue に「登録が無い」として出る（最強戦に出た人）
+5. 止まる: 道場部ゲストの同期（sync-dojo-calendar）は、ゲストに N の人がいると `--apply` が「登録名と一致しない名前があります。止めます」で止まり、定期の自動更新は保留する
+6. 消える（意図どおりと思われる）: jpml_pros・辞書・houou_leagues の候補・houou/ の個人成績・検索・ランキング、誕生日カレンダー（`--apply` で予定を削除。Y に戻せば追加）、SNS ブック【1】（【2】の入力は「一覧に無い」で残る）
+
+直すならどこか（この指示では直していない）:
+
+- 名前の辞書（`lib/names.NameBook` を作る所: generate_live_pages・title・saikyo・houou_race・books などの `load_name_book()`）で、「プロ」の N の人を「プロ」として知る（写真・X は出さない）か、/live の公開の判定で「プロ」の N の人の名前を未登録として扱わないようにする。/live の動画が消えるのを止めるには最低限ここ
+- check_meibo（`scripts/check_meibo.py`）: 「名簿にだけいる人」から「プロ」に行があり「表示」が N の人を外す（`pro_sheet` に「表示」を問わず名前を返す読み方を足す）
+- check_saikyo_unregistered・sync_dojo_calendar の照合: 同じく「プロ」の N の人を登録済みとして扱う
+- 旧方式のページで隠したいなら、各タブの「表示」を N にする（シートの運用）か、旧ページを houou/ などへ移す（#141）
+- どこまでを「存在しない」とするか（名前も出さないのか、写真だけ外すのか）は平野さんの判断。上の 1〜5 の扱いを決めてから直すのがよい
+
+### まとめ (2) 「リーグ」タブを読む先を変えるとき
+
+直す箇所（コード）:
+
+1. `lib/pro_stats.py`: `fetch_sources()` の `league_maps(*fetch_table(SPREADSHEET_ID, LEAGUE, FIRST_SHEET))` を、その他マスタ（`lib/live.SPREADSHEET_ID`）の「リーグ」タブを読む形にし、`league_maps()` を縦の並び（タイトル戦・リーグ名・リーグID の見出しで読む。「鳳凰戦」「女流桜花」で分ける）に書き換える。テスト `scripts/tests/test_pro_stats.py` の `league_maps` の部分も
+2. その他マスタの先頭のタブが「リーグ」になったので、そのブックから「リーグ」を読むときは `first_sheet="リーグ"` を渡す（`lib/live.FIRST_SHEET` は「連盟プロ以外」のまま。「リーグ」を `first_sheet=live.FIRST_SHEET` で読むと「「リーグ」シートがありません」で止まる）。あわせて `lib/live.FIRST_SHEET` を実際の先頭の「リーグ」に直すか、「リーグ」を先頭から動かすかを決める（今のままでも生成は通るが、名前と実際の先頭が食い違う）
+3. 女流桜花の ID 0 の名前（正本「桜花」・その他マスタ「女流桜花」）をそろえる。そろえないと jpml_pros の「桜花最高」13セルと絞り込みの値が「女流桜花」になる
+4. 文書: `docs/notes/static-generation.md` の jpml_pros の成績の列の説明（「リーグ」タブの見出しの並びで組を引く）
+
+正本の「リーグ」タブを消す前にすること:
+
+1. 上の 1〜3 をマージし、`pro_stats` が正本の「リーグ」を読まなくなったことを確かめる
+2. **正本の `FIRST_SHEET = "リーグ"` の4か所（`lib/pro_sheet.py`・`lib/pro_stats.py`・`lib/houou_tab.py`・`generate_houou_race.py`）を、消した後の先頭のタブの名前（今の並びなら「プロ」）に変える。** 変えずに消すと、先頭が「プロ」になり、「プロ」を読むたびに「先頭のタブと同じ中身」と判定されて「「プロ」シートがありません」で全ページの生成が止まる。順番は「コードを先に直す → タブを消す」でも「タブを消す → すぐコードを直す」でも、間に再生成が走ると止まるため、先頭のタブの名前を変える前後は再生成（push・毎日）の時刻を避けるか、先頭のタブを「リーグ」以外に並べ替えてから FIRST_SHEET を合わせ、最後にタブを消す
+3. 数式は「リーグ」を引いていない（0件）ので、シート側の直しは要らない
+4. 消した後に `python3 scripts/regenerate.py --check all` と全ページの生成で差が無いことを確かめる
+
+### 気づいたこと（この指示の範囲外。直していない）
+
+- `scripts/check_leagues_dropped.py`（check-leagues-dropped.yml、手動のみ）が今の cloudflare で止まる（`generate_houou_leagues.QUERY` が c28057dc で無くなった）。別の作業として直す必要がある
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 0637b1cc）: https://github.com/retroeater/mj-logs/tree/main/guide/0637b1cc
+ガイド文書（この版を写した時点の最新、mj 426587e2）: https://github.com/retroeater/mj-logs/tree/main/guide/426587e2
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/0637b1cc/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/0637b1cc/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/0637b1cc/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/0637b1cc/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/0637b1cc/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/0637b1cc/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/426587e2/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/426587e2/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/426587e2/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/426587e2/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/426587e2/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/426587e2/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b5bbbea3.md
