@@ -54,6 +54,28 @@ WHS-21 のプレビューで、前後のエピソードが片方しか無い回�
 - 指示欄の末尾は指示文の最後の行と一致。雛形の4行は揃っている（指示文は改行が詰まった形で貼られたため、そのまま写した）
 - 作業ブランチ: `origin/work/1013-whs-nav` はあり（9f469e57、ローカルと同じ）。`origin/cloudflare` は祖先でない → 取り込みは次の節目
 - WHS-21 の状態は「判断待ち（マージの判断）」→ 末尾に ` / 続き: CHAT-1013-WHS-22` を足した
+- 取り込み: `git merge origin/cloudflare`（衝突なし。入った変更は帰り道の生成スクリプト・`lib/page.py`・`style.css`・生成物に触れない）
+
+### 手順1 直す（a3d7276d・生成 6ad75461・文書 59a7f693）
+
+- `generate_wayhome_episodes.py`: 前後のリンクに列のクラスを付けた（次 `is-next`・前 `is-prev`、定数 `PREVNEXT_NEXT`/`PREVNEXT_PREV`）。DOM の順（次 → 前）は変えない。空いた側に要素は置かない
+- `style.css`: `@media (min-width: 576px)` で `.mj-video-prevnext` を2列の格子（`1fr 1fr`）にし、`.is-next` は1列目、`.is-prev` は2列目。575px 以下は今までの flex のまま縦に積む
+  - 境目について: 今までは flex の折り返し（各リンク最小 240px）で並び方が決まり、2枚が横に並ぶのは本文の幅が 492px 以上（画面幅でおよそ 548px 以上）のとき。今回の格子は 576px からなので、両方ある回は画面幅 548〜575px の間だけ、横並びから縦積みに変わる（スマホ・パソコンの幅には当たらない）
+- テスト: `test_wayhome_prevnext.py` に2件（片方だけの回の列のクラスと1枚だけであること、CSS の列の指定）。全体 974件 OK
+- 生成し直し: 各話42枚。差は前後のリンクの `class` に `is-next`/`is-prev` が付いた行だけ（両方ある回も、列を指定するためクラスが付く）。一覧の HTML は変わらない
+- 文書: `docs/notes/video-wayhome.md` の該当行を直した。決定を `docs/decisions/wayhome.md` に足した
+
+### 手順2 確かめ（ローカルの `http.server` で生成物を開き、Playwright・Chromium）
+
+| 幅 | ページ | リンク（列・左端・幅） |
+| --- | --- | --- |
+| 1280px | `Yjp_PKHvldw`（両方） | 次 138px・496px／前 646px・496px |
+| 1280px | `OkKAh8yP8Uk`（前だけ） | 前 646px・496px（両方ある回の右と同じ） |
+| 1280px | `mj3hZ_udzKM`（次だけ） | 次 138px・496px（両方ある回の左と同じ） |
+| 390px | 3ページとも | 20px・351px（両方ある回は上が次・下が前、片方だけの回は1枚） |
+
+- 横スクロール: 6つとも `scrollWidth` = 幅
+- スマホ幅で片方だけの回が1枚だけになるのは、見て違和感は無かった（全幅の1枚で、上下の並びと同じ）
 
 ## 報告
 
@@ -71,12 +93,12 @@ WHS-21 のプレビューで、前後のエピソードが片方しか無い回�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 1733ea64）: https://github.com/retroeater/mj-logs/tree/main/guide/1733ea64
+ガイド文書（この版を写した時点の最新、mj 0f532f4d）: https://github.com/retroeater/mj-logs/tree/main/guide/0f532f4d
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/1733ea64/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/1733ea64/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/1733ea64/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/1733ea64/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/1733ea64/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/1733ea64/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/0f532f4d/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/0f532f4d/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/0f532f4d/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/0f532f4d/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/0f532f4d/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/0f532f4d/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b5bbbea3.md
