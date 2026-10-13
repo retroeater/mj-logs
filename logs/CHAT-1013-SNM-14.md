@@ -1,0 +1,85 @@
+# CHAT-1013-SNM-14
+
+- 着手日時: 2026-10-13
+- 対象issue: #548
+- ブランチ: work/1013-snm-kumi
+- 着手時HEAD: 4c9b6825c
+
+## 指示
+
+【Claude作成】Claude Code 向け指示：「鳳凰」と Ampai のブックの組を「1」「2」「3」…（組なしは「-」）だけで読む形にし、画面の表示を「1組」「2組」にする。「鳳凰」の列の付け替えの確かめと #548 のクローズ（#548。CHAT-1013-SNM-13 の続き） Chat-Ref: CHAT-1013-SNM-14 マージ: 承認済み（チャットで。2026-10-13 に平野さんが、下の「止まる条件」の確かめが通ればマージしてよいと承認） 貼る時機: 平野さんが Ampai のブック（ryoei.pro_Ampai）の「組」を ①② から 1・2 に書き換えた後（「鳳凰」の F 列「組」の挿入と X〜AA 列の削除は 2026-10-13 10:48 JST までに済んでいる） 共通手順: CLAUDE.md「Chat-Ref」「ブランチ運用」「作業ログ」節のとおり（識別子確認 → origin/cloudflare を起点に work/<識別子>〈クラウドセッションでは worktree を使わず docs/notes/cloud-sessions.md の読み替えに従う〉 → ログ先行push → 最終報告の Chat-Ref の行の直前に「ログ（公開）」の行、最後の行に Chat-Ref）。平野さんは、この指示のための作業ブランチ work/1013-snm-kumi の作成と push を許可している（セッションに割り当てられた claude/… のブランチは使わない）。識別子 SNM は同じチャットの CHAT-1011-SNM-01・CHAT-1012-SNM-02〜08・CHAT-1013-SNM-09〜13 で使ったもので、重複ではない（SNM-07 は欠番）。 作業ブランチ: クラウドセッションで実行する。work/1013-snm-kumi を使う。リモートに無ければ origin/cloudflare から作る。リモートにあってマージ済み（`git merge-base --is-ancestor origin/work/1013-snm-kumi origin/cloudflare` が真）なら origin/cloudflare から作る（`checkout -B` は使わない。ローカルにあるときを含め手順は docs/notes/cloud-sessions.md「作業ブランチの用意」）。マージ済みでなければ止まる
+
+0. 着手前に、このログの「指示」欄の末尾が、この指示文の末尾（最後の行）と一致しているか確認し、一致しなければ作業せず報告する。あわせて (1) CHAT-1013-SNM-13 のログの `## 報告` を読み、状態が「完了」でマージが「済」でなければ何もせず止まる。(2) 「鳳凰」と Ampai のブックを生成と同じ経路で読み、「鳳凰」の見出しが前提の23列で、両方の「組」の値が「1」「2」…の数字か「-」か空だけであることを確かめる（値ごとの件数を書く）。Ampai のブックに ①② が残っていれば何もせず止まる。
+
+目的
+平野さんが「鳳凰」に F 列「組」を挿入し、元の X〜AA 列（プロ・備考・存在チェック・備考）を消した。組の値は ①②（「①組」など）から「1」「2」「-」に統一した（近いうちに「3」も出る）。Ampai のブックの組も 1・2 に直した。今のコードは組を ①② の前提で読むので、組を数字だけで読む形に直し、画面の組の表示を「1組」「2組」にする。あわせて「鳳凰」の列の付け替えの後の確かめをし、#548 を閉じる。
+決定（2026-10-13、平野さん）
+
+* 組の書き方は「1」「2」「3」…の数字だけに統一する（組なしは「-」）。「鳳凰」の F 列「組」は平野さんが 1・2・- に直した。Ampai のブックの「組」も ①② から 1・2 に直す（平野さんが行う）
+* 画面の組の表示は「1組」「2組」…にする（①組・② などの表示をやめる）
+* 「鳳凰」の F 列に「組」を挿入し、元の X〜AA 列（X「プロ」・Y「備考」・Z「存在チェック」・AA「備考」）を消した（平野さん、2026-10-13）
+* このマージは、下の「止まる条件」の確かめが通れば承認する
+
+前提（チャット側。平野さんの決定ではない）
+
+* 平野さんのスクリーンショット（2026-10-13 10:48）での「鳳凰」の見出し: A 名前・B 期・C 前後・D リーグ・E リーグキー・F 組・G 順位・H 結果・I 合計・J〜V 第1節〜第13節・W 表示 の23列（要確認）
+* CHAT-1013-SNM-10 のログ: 組の読み方は `lib/houou_tab.py`（見出し「組」があればそこ、無ければ X 列「備考」）、Ampai のブックは `scripts/lib/ampai.py`（キー: タイトル戦・期・前後・リーグ・組。「-」は空、「①組」は「①」として扱う）。組の値の解釈（①②→数）と表示（順位変動の組の見出しなど）をしている所は未確認（要確認）
+* CHAT-1013-SNM-13 のログ: 旧方式の2ページの JS は見出しで読む形になった（組を使っているかは要確認）
+* 組の書き方を変えた後に、まだ再生成は走っていない見込み（mj-logs の actions/status.md の 10:47 の書き出しで、最後の regenerate-page.yml は 09:35）。cloudflare にコミットされている生成物は ①② の時点のもの（要確認）
+* 使う skill は無い
+
+手順
+
+1. 洗い出し: #548 の本文・コメントを読み、ほかの Chat-Ref の未完了の着手中コメントが無いことを確かめて着手中のコメントを書く。`git branch -r --no-merged origin/cloudflare` の各ブランチが、直すファイルの同じ行・同じ関数を変えていないか確かめる。リポジトリ全体（`scripts/`・`scripts/tests/`・ページ側の JS・`docs/`）で、組の値を読む・解釈する・表示する所を洗い出して表にする（順位変動・houou/・jpml_pros の Ampai・`check_ampai.py`・2つの JS・ほか）。その時点の origin/cloudflare のコードで今のシートから全ページを生成し、コミット済みの生成物との差（組の書き方を変えたことで今どう変わってしまうか）を書く
+2. 直す: 組の値は「1」「2」「3」…の正の整数だけを組として読み、「-」と空は組なしとする。それ以外（①・「①組」など）が「鳳凰」か Ampai のブックにあれば、行（名前・期・前後・リーグ、Ampai は行）を書いて生成を止める（①② を読む処理と、X 列「備考」から読む処理は消す）。組の数を2つに決め打ちしている所があれば、3つ以上でも動く形にする。画面の組の表示は「1組」「2組」…にする。テスト（3組のリーグを含む）と文書（`docs/notes/houou-race.md`・`houou-top.md`・`static-generation.md` など組の書き方や「鳳凰」の列を書いている所）を直す。追記先の今の文を読んでから直す
+3. 確かめてマージ: (a) 直した後のコードで今のシートから全ページを生成し、コミット済みの生成物（①② の時点）と比べる。(b) 旧方式の2ページはヘッドレス Chrome で、直した後の JS が今のシートで表示されることと、組を使っているなら表示が (a) と同じ考え方で変わることを確かめる（コンソールのエラーが無いことも）。(c) 「鳳凰」の一部のリーグを3組にした模擬（読み取りの差し替え。シートは変えない）で、順位変動などが3組を分けて表示することを確かめる。止まる条件に当たらなければ、docs/decisions/houou.md・pros.md に上の「決定」を足し、#548 に結果と、#548 で決めたことの一覧（新しいブック・知らせの issue・過去の期は埋めない・列の付け替え・組の書き方）をコメントして閉じ（「状況:」ラベルがあれば外す）、cloudflare へマージする。正本を xlsx でエクスポートし（CHAT-1011-RDN-10 と同じ方法）、`#REF!` の件数も書く
+
+止まる条件
+
+* 「鳳凰」の見出しが前提の23列と違う、行数が2回の読みで変わる、または「鳳凰」・Ampai のブックの「組」に数字・「-」・空以外の値がある（行を書いて止まる）
+* (a) で、生成物の差が「組の表示（①組・② など → 1組・2組）」以外にある（シートの変化で説明できる差は、直す前と後を続けて生成して出ないことを確かめる。説明できない差が1件でもあれば止まる）、Ampai のリンクが減る・変わる、または直す前は通ったページが直した後に止まる（books_pages が「書籍」の行数で止まるのは、これまでと同じなら許す）
+* (b) で、2ページが表示されない、コンソールにエラーが出る、または組の表示以外の差がある
+* (c) で、3組が分かれない
+* `#REF!` が1件でもある
+* テストが通らない（自分の変更で落ちると分かっているテストは直してよい）
+* #548 にほかの Chat-Ref の未完了の着手中コメントがある
+* 未マージの work/ ブランチが、直すファイルの同じ行・同じ関数を変えている、または取り込みで衝突する（同じファイルの別の箇所の変更では止まらず、ログに書く）
+* cloudflare への push が権限判定で拒否された（別の手段を試さずに止まる）
+
+完了条件
+
+* 0章の値ごとの件数、手順1の表と直す前の差、直した箇所（ファイル・関数・何を変えたか）、テストの結果、(a)(b)(c) の結果（変わった表示の例を含む）、`#REF!` の件数、直した文書の一覧、#548 のコメントの URL がログにある
+* マージ後の自動再生成（regenerate-page.yml、push）の run と結論をログに書く（失敗が今回の変更によるものでなければ、原因を書いて完了してよい）
+* ログの「## 報告」を CLAUDE.md「作業ログ」節のとおりに書いて push する
+* マージは冒頭の「マージ:」の行のとおり
+* ターミナルへの最終報告の Chat-Ref の行の直前に ログ（公開）: https://github.com/retroeater/mj-logs/blob/main/logs/CHAT-1013-SNM-14.md?v=<SHA>（CLAUDE.md「作業ログ」節）を書き、最後の行に Chat-Ref: CHAT-1013-SNM-14 を書く
+
+不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
+
+## 経過
+
+## 報告
+
+- 状態: 対応中
+- ブランチ: work/1013-snm-kumi
+- ログ: https://github.com/retroeater/mj/blob/work/1013-snm-kumi/docs/logs/CHAT-1013-SNM-14.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1013-snm-kumi
+- 確認用URL:
+- マージ: 未
+- issue: #548
+- 判断が必要なこと:
+- 未確認の項目:
+- エラー:
+
+<!-- guide-links -->
+---
+
+ガイド文書（この版を写した時点の最新、mj 7929efdc）: https://github.com/retroeater/mj-logs/tree/main/guide/7929efdc
+
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/7929efdc/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/7929efdc/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/7929efdc/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/7929efdc/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/7929efdc/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/7929efdc/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b5bbbea3.md
