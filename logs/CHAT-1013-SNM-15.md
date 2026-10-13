@@ -50,6 +50,59 @@
 
 ## 経過
 
+### 0章
+
+- 指示欄の末尾は指示文の最後の行と一致している。Chat-Ref の重複なし。work/1013-snm-check はローカル・リモートとも無かったので origin/cloudflare（109374aa の親）から作った
+
+### 手順1 「表示」= N の扱い
+
+「プロ」は2回読んで 1,099行・1,099行（全員「表示」Y）。名簿（「公開」）1,099名。
+
+#### 読む所
+
+| 読む所 | 何を読むか | 在籍の決め方 |
+|---|---|---|
+| `lib/pro_sheet.fetch_pros()` | 「プロ」 | 「表示」= Y の行だけ（「プロ」を読む所はすべてこれを通る） |
+| `lib/sns.fetch_pros()` | 「プロ」＋SNS ブック | `pro_sheet.fetch_pros()` の行に SNS の値を足す（Y だけ）。jpml_pros・title・saikyo・live・houou_race・books・jpml_test・wayhome・誕生日・道場部ゲスト・YouTube の取得が使う |
+| `update_sns_book.py`（毎日） | 「プロ」の名前・ソートキー → SNS ブック【1】 | Y だけ。【2】は名前で突き合わせ、【1】から消えた人の行は消さずに状態「一覧に無い」で末尾へ（入力は残り、Y に戻せば元の行に戻る。`lib/sns_book.merge_ids()`） |
+| `lib/meibo.fetch_members()` | 名簿「公開」 | 名簿にいること。使う所: `check_meibo.py`（「プロ」の Y と比べる）、`lib/birthdays.py`（Y の人を名簿で引く）、jpml_pros・houou/（Y の人を名簿で引く。`check_pros()` は Y の人が名簿にいるかだけを見る）、`generate_ask_data.py`（Y の人を名簿で引く） |
+| `lib/meibo.fetch_english_names()` | 名簿「【2】値貼付」 | 名簿にいること（Y の人を引くだけ） |
+| ページ側の JS（`houou_results.js`・`league_ranking.js`・`ouka_results.js`・`wrc_results.js`） | 「鳳凰」「桜花」「JWRC」を直接 | 「プロ」を読まない。各タブの「表示」で絞る |
+| 成績・対局のタブ（「鳳凰」「桜花」「タイトル」「最強戦」、放送対局の【3】など） | 名前の行 | 「プロ」と無関係に行がある。名前を「プロ」（Y）と「連盟プロ以外」で引き、引けない名前の扱いはページごと（下の表） |
+
+#### 模擬（佐々木寿人の「表示」を N にした。`lib.sheets.fetch_table` を差し替える `sitecustomize.py`、シートは変えない）
+
+同じ時点の模擬なしの生成（23ページ、HEAD と差 0）と、模擬ありの生成を比べた。生成は模擬ありでも全ページ通る（books_pages は前からの「書籍」95行で止まる）。差は 1,091ファイル（変更 1,011・削除 80）。
+
+| 所 | 模擬での結果 | 「存在しない行」として扱われるか |
+|---|---|---|
+| jpml_pros.html | 行が消える（1,098件） | される |
+| dic/pros.json（resource_dictionary） | 語が消える（1,098語） | される |
+| houou_leagues（型C） | 選択候補から消える（715→714名） | される |
+| houou/（新ページ） | `houou/results/佐々木寿人.json` が消え、検索・選手の一覧・ランキング7ページから消える（在籍 691→690名）。順位変動 `houou/race/` の25ファイルには名前が残り、写真と X が空になる | ほぼされる（順位変動の表には名前が残る） |
+| houou_race.html（順位変動） | 25ファイルに名前が残り、写真と X が空に | されない（名前が出る） |
+| title/ | 30ファイルで名前は残り、X のリンクと写真が外れる（代替アバター） | されない（名前が出る） |
+| saikyo/ | 85ファイルで名前は残り、X のリンクと写真が外れる。生成のログに「どちらにもいない選手(写真なし): 1名 佐々木寿人」 | されない（名前が出る） |
+| live/（放送対局） | 彼が対局者・実況・解説に入る動画 364本（2,918→2,554本）を公開しなくなり、80ページを削除。/live の鳳凰戦（第41期決定戦だけ）は丸ごと消え、タイトル戦の選択肢からも消える。「公開しなかった【3】手動補正の行」の警告が 831→1,195件に増え、各行に「未登録の名前「解説 佐々木寿人」」など | されない（ほかの人の対局まで消える） |
+| workers/ask/data.json（ask_data） | 在籍者から消えるが、/live の動画の行が同じく減り、名前は 15→7か所に残る（鳳凰戦の成績の行など） | 一部 |
+| jpml_test.html | 名前は残る（プロテストの記事の行） | されない（名前が出る） |
+| 旧方式のページ（houou_results・houou_ranking・ouka_results・wrc_results など） | 「プロ」を読まないので、今までどおり出る（生成なし。コードから） | されない |
+| `check_meibo.py`（check-meibo.yml、週次で issue「名簿と「プロ」シートの不一致」） | 「名簿にだけいる人（新入会の可能性）: 1名 佐々木寿人（ささきひさと、東京、22期）」 | されない（知らせが出る。毎週出続ける） |
+| `sync_birthday_calendar.py`（既定: カレンダーを読まない計画） | 載せる人 1,072→1,071名。`--compare --apply` では彼の予定を削除する計画になる（Y に戻せば追加） | される（予定が消える） |
+| `update_sns_book.py --dry-run` | このコンテナに `google.auth` と認証が無く動かせない（模擬なしでも同じ）。コードからは上の表のとおり【1】から消え【2】は「一覧に無い」 | される（値は残る） |
+| `sync_dojo_calendar.py`（読み取り結果のファイルを渡し、カレンダーは読まない） | ゲストに彼がいると「照合できない名前」に入る。`--apply` は「「プロ」シートの登録名と一致しない名前があります。止めます」、定期の `--auto-update` は書き込まずに保留 | されない（止まる・知らせが出る） |
+| `check_saikyo_unregistered.py`（check-saikyo-unregistered.yml、週次で常設 issue） | 「登録が無い: 1名 佐々木寿人（38行、2011〜2026）」 | されない（知らせが出る） |
+| /live の層2（update-live-channel.yml → #475 の未登録の名前の知らせ） | 未登録の名前として理由の列に書かれ、知らせに出る見込み（`write_live_channel_candidate.py` は書き込みの認証が要るため動かしていない。名前の辞書は generate_live_pages と同じ） | されない（知らせが出る見込み） |
+| `regenerate.py --check all` | 止まるページは無い。警告は live と同じ | — |
+| `check_ampai.py`・`check_unused_names.py` | 差なし | — |
+| `fetch_youtube_channels.py` | Y の人だけ取る（コードから。API キーが要るため動かしていない） | される |
+| `check_image_links.py` | jpml_pros.html の画像を見るので、彼の画像は見なくなる（コードから） | される |
+| `check_sns_book_images.py` | SNS ブックの全行を見る（「一覧に無い」の行も）（コードから） | されない（画像は検査され続ける。害は無い） |
+
+ほかに気づいたこと（模擬と無関係）:
+
+- `check_leagues_dropped.py`（check-leagues-dropped.yml、手動のみ。最後の実行は 2026-09-12）は、今の cloudflare で `AttributeError: module 'generate_houou_leagues' has no attribute 'QUERY'` で止まる。c28057dc（CHAT-1013-SNM-10、「鳳凰」を見出しで読む形）で `generate_houou_leagues.QUERY` が無くなったため。この指示ではコードを変えない
+
 ## 報告
 
 - 状態: 対応中
@@ -66,12 +119,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 346c65b1）: https://github.com/retroeater/mj-logs/tree/main/guide/346c65b1
+ガイド文書（この版を写した時点の最新、mj 0637b1cc）: https://github.com/retroeater/mj-logs/tree/main/guide/0637b1cc
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/346c65b1/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/346c65b1/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/346c65b1/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/346c65b1/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/346c65b1/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/346c65b1/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/0637b1cc/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/0637b1cc/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/0637b1cc/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/0637b1cc/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/0637b1cc/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/0637b1cc/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b5bbbea3.md
