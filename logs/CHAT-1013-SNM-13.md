@@ -132,28 +132,46 @@ CHAT-1013-SNM-11 で、旧方式の2ページの JS（`houou_results.js`・`leag
 - コンソール: JS のエラー（`pageerror`）・`console.error`（見出しが見つからない等）・`alert` は、(a)(b)(c) の直した後・(a) の直す前のどれにも出ていない。出たのは読み込みの失敗だけで、直す前と後で同じ: `static.cloudflareinsights.com/beacon.min.js`（確かめで外部の読み込みを止めたため `ERR_FAILED`）、`ssl.gstatic.com` の CategoryFilter のボタンの画像2つ（許可ドメインに無く `ERR_TUNNEL_CONNECTION_FAILED`）。どちらもセッションの環境によるもので、JS の直しとは関係しない
 - 気づいたこと（直していない）: houou_results の名前ありでは、グラフと表がそれぞれ先に `withQuery()` を呼ぶため、見出しの問い合わせ（`SELECT * LIMIT 1`）が2回送られる。結果は同じで、表示に影響は無い
 
+### 手順3 文書・マージ
+
+- 直した文書:
+  - `docs/notes/static-generation.md`「ページ側のJS」: 2つの JS が「鳳凰」を見出しで引き直して読むことの1行を足した（この節にはもともと2つの JS の行が無かった）
+  - `docs/notes/houou-top.md`「正本は「鳳凰」タブ」の行: 「ページ側の JS はまだ列記号で読む（次の指示で直す）」を置き換えた
+  - `docs/notes/cloud-sessions.md`「ネットワーク」: 許可ドメインに `www.gstatic.com` を足した（`ssl.gstatic.com` は許可していないことも）
+  - ほかに「鳳凰」の列の英字を書いている所: `houou-top.md` の列の一覧（「2026-10-13 時点」と日付つき）と `houou-race.md` の「V列「表示」」はシートの今の並びを書いたもので、JS の読み方ではないので変えていない。シートの作業の後に直すのがよい（下の「平野さんがこの後にすること」）
+  - `docs/decisions/houou.md`: SNM-11・SNM-12 の節は SNM-11・12 で足し済み。SNM-13 の「決定」（許可ドメインの一覧を平野さんが直した）の節を足した。`pros.md` は SNM-11 の節が足し済みで、今回の「決定」は「プロ」に関係しないので足していない
+- `python3 -m unittest discover -s scripts/tests`: 945件 OK。`node --check` は2ファイルとも通過
+- マージ前に cloudflare が進んでいた（b81d1de3。ABM-18 の作業・再生成）ので merge で取り込み（衝突なし、JS・HTML には触れていない）、`git merge-base --is-ancestor origin/cloudflare HEAD` を確かめて `git push origin work/1013-snm:cloudflare`。マージ: 8e07d685
+- #548 への結果のコメント: https://github.com/retroeater/mj/issues/548#issuecomment-6135337474 （閉じていない）
+- マージ後の自動再生成: regenerate-page.yml（push）の run 38327847640 は success。生成物に変わりが無く、再生成のコミットは無い（変えたのが JS と文書だけのため）
+
 ## 報告
 
-- 状態: 対応中
+- 状態: 完了
 - ブランチ: work/1013-snm
-- ログ: https://github.com/retroeater/mj/blob/work/1013-snm/docs/logs/CHAT-1013-SNM-13.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1013-SNM-13.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1013-snm
-- 確認用URL:
-- マージ: 未
-- issue: #548
-- 判断が必要なこと:
-- 未確認の項目:
-- エラー:
+- 確認用URL: なし（確かめはヘッドレス Chrome で行い、プレビューは使っていない）
+- マージ: 済（8e07d685）
+- issue: #548（着手中・結果のコメント。閉じていない）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
+
+### 平野さんがこの後にすること
+
+- 「鳳凰」の F 列に見出し「組」の列を挿入し、X 列「備考」（挿入後の位置。挿入前の X 列）の値を写す
+- その後、挿入後の X〜AA 列を消す: X「プロ」・Y「備考」（組の元）・Z「存在チェック」・AA「備考」
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj b81d1de3）: https://github.com/retroeater/mj-logs/tree/main/guide/b81d1de3
+ガイド文書（この版を写した時点の最新、mj 8e07d685）: https://github.com/retroeater/mj-logs/tree/main/guide/8e07d685
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b81d1de3/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b81d1de3/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b81d1de3/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b81d1de3/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b81d1de3/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b81d1de3/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/8e07d685/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/8e07d685/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/8e07d685/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8e07d685/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8e07d685/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8e07d685/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/2c5fedab.md
