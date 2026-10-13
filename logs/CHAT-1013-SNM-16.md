@@ -105,18 +105,28 @@ CHAT-1013-SNM-15 の調べで、正本の「リーグ」タブを読むのは `l
 
 ほかに、呼び出しを直したスクリプトを動かした: check_meibo・check_saikyo_unregistered・check_unused_names（`--no-issue`）・check_ampai・sync_birthday_calendar（既定）・`regenerate.py --check all`・check_wayhome は rc=0。sync_books_calendar（「書籍」95行）と sync_live_calendar（`google.auth` が無い）は、直す前のコードでも同じ理由で止まる
 
+### マージ
+
+- マージ前に cloudflare が進んでいた（9ded08d7。ほかの指示のログだけ）ので merge で取り込んだ（衝突なし）。テスト 984件 OK を確かめ、`git merge-base --is-ancestor origin/cloudflare HEAD` を確かめて `git push origin work/1013-snm-league:cloudflare`。マージ: acb5aa04
+- マージ後の自動再生成: regenerate-page.yml（push）の run 38348958077 は success。生成物に変わりが無く、再生成のコミットは無い
+
 ## 報告
 
-- 状態: 対応中
+- 状態: 完了
 - ブランチ: work/1013-snm-league
-- ログ: https://github.com/retroeater/mj/blob/work/1013-snm-league/docs/logs/CHAT-1013-SNM-16.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1013-SNM-16.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1013-snm-league
-- 確認用URL:
-- マージ: 未
+- 確認用URL: なし（生成物に差が無いため）
+- マージ: 済（acb5aa04）
 - issue: なし
-- 判断が必要なこと:
-- 未確認の項目:
-- エラー:
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
+
+### 平野さんがこの後にすること
+
+- 正本の「リーグ」タブを消す。消してよい時機: いつでも（acb5aa04 のマージで、生成は正本の「リーグ」を読まず、先頭のタブの名前にも頼らなくなった。正本の「リーグ」を引く数式は0件〈CHAT-1013-SNM-15〉）。消した後の最初の再生成（push・毎日）が通ることを確かめるとよい
+- その他マスタの「リーグ」タブは先頭のままでも、並べ替えてもよい
 
 <!-- guide-links -->
 ---
