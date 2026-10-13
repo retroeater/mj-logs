@@ -75,6 +75,63 @@ CHAT-1013-SNM-11 で、旧方式の2ページの JS（`houou_results.js`・`leag
 
 - (3) 「鳳凰」の見出し（gviz `SELECT * LIMIT 1`、headers=1）: A「名前」〜V「表示」、W「プロ」、X「備考」、Y「存在チェック」、Z「備考」。「組」は無く X は「備考」で、SNM-11 の時点と同じ
 
+
+### 手順1 確かめ
+
+- origin/cloudflare（5bd6c739 の時点）を merge で取り込んだ。`docs/decisions/houou.md` が衝突（どちらもファイル末尾への追記: cloudflare 側は「2026-10-13（CHAT-1013-AIC-05）」の節、こちらは「2026-10-13（CHAT-1013-SNM-11）」「同（CHAT-1013-SNM-12）」の節）。両方を残し、AIC-05 の節の後に SNM-11・SNM-12 の節を置いた。解いた後の該当箇所:
+
+```
+## 2026-10-13（CHAT-1013-AIC-05）
+
+データ・コンシェルジュ（#542）の残り
+…（AIC-05 の5行はそのまま）
+
+## 2026-10-13（CHAT-1013-SNM-11）
+
+- `houou_results.js`・`league_ranking.js`（旧方式の2ページ）は「鳳凰」を見出しの名前で読む形に直す（案 ii）
+…
+
+## 2026-10-13（CHAT-1013-SNM-12）
+
+- クラウドセッションの環境の Network access の許可ドメインに `www.gstatic.com` を足した（…）
+- CHAT-1013-SNM-11 の「決定」はそのまま。マージは同じ「止まる条件」で承認
+```
+
+- `git branch -r --no-merged origin/cloudflare` のうち、`houou_results.js`・`league_ranking.js`・`houou_results.html`・`houou_ranking.html`・`docs/notes/static-generation.md`・`docs/decisions/houou.md`・`pros.md` を変えているのは work/1013-snm（このブランチ）のほかに `origin/work/1012-dsn` の `docs/decisions/houou.md` だけ。変えているのは 2026-10-09〜10-12 の節の中の行（「→ 置き換え: …」の追記）で、JS・HTML ではなく、こちらの追記（ファイル末尾）とも別の箇所。止まる条件には当たらない
+- #548 の既存のコメントは SNM-06（完了）・SNM-08（中断）・SNM-10（完了）・SNM-11（中断）で、ほかの Chat-Ref の未完了の着手中コメントは無い。着手中のコメント: https://github.com/retroeater/mj/issues/548#issuecomment-6135141418
+
+### 手順2 ヘッドレス Chrome での比較（すべて一致）
+
+方法（スクリプトは scratchpad、Playwright 1.56.1 の Chromium）:
+
+- ページ・JS・CSS はクローンから配り、「直す前の JS」は origin/cloudflare の `houou_results.js`・`league_ranking.js` に差し替えて配った。Google Charts（www.gstatic.com）は本物を読む
+- `docs.google.com/…/gviz/tq` への問い合わせを横取りし、並びごとに「その並びの列の英字 → 今のシートの英字」で問い合わせ文の英字（引用符の外）を置き換えて、本物のシートに問い合わせた応答を返した。`SELECT * LIMIT 1` は本物の応答の列を並べ替えて作った（(b)・(c) は F に見出し「組」・値は今の X 列）。その並びに無い列を問い合わせたらエラーの応答を返す。シートは変えていない
+  - (a) 今の並び A〜Z / (b) F に「組」を挿入（A〜AA。X「プロ」・Y「備考」・Z「存在チェック」・AA「備考」）/ (c) (b) から X〜AA を消す（A〜W）
+- 同じ問い合わせの応答は1回目を記録して使い回し、どの回も同じ元データで比べた
+- 比べた要素: Dashboard に渡した表のデータ（全行の JSON。`Dashboard.draw` を包んで記録）、表示された表の全セル（`tr`）、選択肢（houou_results はリーグの CategoryFilter の項目、houou_ranking は「部門を選択」の項目）、リーグ「A1」を選んだ後の表、グラフ（CandlestickChart に渡したデータの JSON と、描いた SVG）。各要素のハッシュを (a) の直した後と比べた
+
+| ページ・条件 | 比べた要素（(a) 直した後の件数） | (a) 直す前 | (b) 直した後 | (c) 直した後 |
+|---|---|---|---|---|
+| houou_results 名前なし | データ 15,416行、表 501行（1ページ500行）、リーグの選択肢 14、「A1」を選んだ後の表 310行 | 一致 | 一致 | 一致 |
+| houou_results 名前=前原雄大 | データ・表 28行、選択肢 4、グラフのデータ 28行・SVG | 一致 | 一致 | 一致 |
+| houou_results 名前=佐々木寿人 | データ・表 28行、選択肢 8、グラフのデータ 28行・SVG | 一致 | 一致 | 一致 |
+| houou_ranking 通算得点 | データ・表 100行、部門の選択肢 10 | 一致 | 一致 | 一致 |
+| houou_ranking 通算得点/期 | 100行 | 一致 | 一致 | 一致 |
+| houou_ranking 期最高得点 | 100行 | 一致 | 一致 | 一致 |
+| houou_ranking 期単位浮き率 | 100行 | 一致 | 一致 | 一致 |
+| houou_ranking 期連続浮き回数 | 88行 | 一致 | 一致 | 一致 |
+| houou_ranking 節最高得点 | 100行 | 一致 | 一致 | 一致 |
+| houou_ranking 節単位浮き率 | 50行 | 一致 | 一致 | 一致 |
+| houou_ranking 節連続浮き回数 | 100行 | 一致 | 一致 | 一致 |
+| houou_ranking 連続昇級回数 | 95行 | 一致 | 一致 | 一致 |
+| houou_ranking 通算得点 名前=前原雄大 | データ 100行・表（絞り込み後）1行 | 一致 | 一致 | 一致 |
+
+- ページが送った問い合わせの例（houou_ranking 通算得点）: (a) `SELECT A,SUM(H) WHERE V = "Y" …`、(b)・(c) `SELECT A,SUM(I) WHERE W = "Y" AND I IS NOT NULL …`（「合計」「表示」の今の英字に引き直された）。houou_results（名前あり）の (c): `SELECT A,B,C,D,E,G,…,V WHERE W = "Y" AND A = "前原雄大" ORDER BY B,C`
+- 確かめが差を拾えること（修正前のコードでも通らないか、#310）: 直す前の JS を (b) の並びで開くと、13通りすべてで差が出た（houou_results は表が空・選択肢 0、houou_ranking の通算得点系は `Error in query: INVALID_QUERY … AVG_SUM_ONLY_NUMERIC` のダイアログ、ほかは表が空）
+- 同じ `league_ranking.js` を使う ouka_ranking・wrc_ranking（桜花・JWRC。英字のまま読む）も、9部門ずつ直す前と直した後で一致した
+- コンソール: JS のエラー（`pageerror`）・`console.error`（見出しが見つからない等）・`alert` は、(a)(b)(c) の直した後・(a) の直す前のどれにも出ていない。出たのは読み込みの失敗だけで、直す前と後で同じ: `static.cloudflareinsights.com/beacon.min.js`（確かめで外部の読み込みを止めたため `ERR_FAILED`）、`ssl.gstatic.com` の CategoryFilter のボタンの画像2つ（許可ドメインに無く `ERR_TUNNEL_CONNECTION_FAILED`）。どちらもセッションの環境によるもので、JS の直しとは関係しない
+- 気づいたこと（直していない）: houou_results の名前ありでは、グラフと表がそれぞれ先に `withQuery()` を呼ぶため、見出しの問い合わせ（`SELECT * LIMIT 1`）が2回送られる。結果は同じで、表示に影響は無い
+
 ## 報告
 
 - 状態: 対応中
@@ -91,12 +148,12 @@ CHAT-1013-SNM-11 で、旧方式の2ページの JS（`houou_results.js`・`leag
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 5bd6c739）: https://github.com/retroeater/mj-logs/tree/main/guide/5bd6c739
+ガイド文書（この版を写した時点の最新、mj b81d1de3）: https://github.com/retroeater/mj-logs/tree/main/guide/b81d1de3
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/5bd6c739/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/5bd6c739/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/5bd6c739/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/5bd6c739/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/5bd6c739/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/5bd6c739/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b81d1de3/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b81d1de3/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b81d1de3/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b81d1de3/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b81d1de3/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b81d1de3/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/2c5fedab.md
