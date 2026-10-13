@@ -49,6 +49,38 @@ ACF-08 は、未マージの `work/1012-dsn`（DSN のチャット）が houou/ 
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+- 0章: ログの「指示」欄の末尾が指示文の最後の行と一致することを確かめた。CHAT-1013-ACF-08 の `## 報告` の状態は「判断待ち」
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- 貼る時機は「CHAT-1013-ACF-09 とは別のセッション」だったが、ACF-09 と同じセッションに貼られた。ACF-09 は完了・マージ済みで並行の作業は無いので進めた（ブランチは別）
+- Chat-Ref の重複: `git log --all --grep="CHAT-1013-ACF-10"` は 0 件
+- 作業ブランチ: ローカルの `work/1013-acf-xsize` は `origin/work/1013-acf-xsize`（7547d697）と同じ。cloudflare との差は ACF-08 のログと docs/decisions/saikyo.md の追記だけ。`git checkout work/1013-acf-xsize` のうえ `git merge origin/cloudflare`（衝突なし、013da854）
+- **手順の順番の誤り**: 上の取り込みと push を、このログの先行 push より前に行った（CLAUDE.md「作業ログ」節は、ログの push が済むまでブランチ操作を始めないとしている）。取り込みは指示文が着手時に求める操作で、内容への影響は無い
+- 手順1:
+  - #558 は Open、コメントは ACF-07 の2件だけ。着手中のコメント https://github.com/retroeater/mj/issues/558#issuecomment-6137324351
+  - 未マージの work/ ブランチ（1009-swp-526・1011-swp-hnd・1011-swp-nav・1012-dsn・1013-whs-nav）で `generate_books_pages.py`・`generate_houou_race.py`・`lib/x_images.py`・books/・houou_race/ に触れるものは無い
+- 手順2の前に前提を確かめて、食い違いを見つけた:
+  - `generate_houou_race.py` の `IMAGE_SIZE`（今 `SIZE_200`）は `profiles_for()` の中で使われ、**`generate_houou_pages.py` の `load_profiles()` も `race_page.profiles_for()` を呼んでいる**（houou/ の選手の写真 `.mj-houou-player-photo`〈72〜88px〉と表のアイコン `.mj-houou-avatar` の `img`、候補の `thumb` の元）。houou/ の順位変動（`houou/race/*.json`）も `race_page.data_files()` で同じデータから作る
+  - そのため `IMAGE_SIZE = SIZE_80` にすると、houou_race だけでなく houou/ の選手の写真（2倍で 176px が要る所）も `_80x80` になり、`houou/race/*.json`・houou/ の生成物にも差が出る。houou/ は `work/1012-dsn` が変えている範囲
+  - 止まる条件「前提の箇所（`IMAGE_SIZE`）が実物と違い、直す箇所を決められない」「再生成の差が books/・houou_race 以外に出る」に当たるため、テスト・コードの変更をせずに止めた（books/ は前提どおりで直せるが、指示は2か所をまとめて扱うため、片方だけは行っていない）
+- 決定を docs/decisions/saikyo.md に足した（判断待ちで終えるときも足す）
+- 承認済みのマージは、止まる条件に当たったため行わない
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1013-acf-xsize
+- ログ: https://github.com/retroeater/mj/blob/work/1013-acf-xsize/docs/logs/CHAT-1013-ACF-10.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1013-acf-xsize
+- 確認用URL: なし（コード・生成物は変えていない）
+- マージ: 未（止まる条件に当たったため）
+- issue: #558（着手中のコメントの後、止めた旨をコメント）
+- 判断が必要なこと:
+  - `generate_houou_race.py` の `IMAGE_SIZE` は houou/ の選手の写真（72〜88px）・表のアイコン・`houou/race/*.json` にも効く（`generate_houou_pages.py` が `race_page.profiles_for()` を使う）。進め方を選ぶ: (a) books/ の `_200x200` だけを先に行い、houou_race の丸は houou/ と一緒に dsn のマージ後に回す（勧める。dsn と重ならず、段階2へ進める）／(b) houou_race.html のデータ（`houou_race/*.json`）を書く所だけで `_80x80` に変える（`houou/race/*.json` は同じ関数で作るため、houou/ 側も変わるか、関数に大きさの引数を足す要がある。dsn の範囲に近い）／(c) すべて dsn のマージ後にする
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
