@@ -35,8 +35,8 @@
 | リーグ2ページ | `body:has(.mj-league-chart-desktop)` | `--mj-league-chart-desktop-width`（1400px）。480px以下はモバイル用SVG（上限なし）に合わせ `none` |
 | 牌効率 | `body:has(.mj-bar-chart-desktop)` | `--mj-bar-chart-desktop-width`（1200px）。480px以下は `--mj-bar-chart-mobile-width`（360px） |
 
-- 対象外: `video_wayhome` / `wayhome/` 配下38枚。説明文が `<main>` の外にあり、
-  デザインが別系統のため720pxのまま
+- 帰り道: 一覧（`video_wayhome`）は `body:has(.mj-video-list)` で `none`（上のカードの並びと同じ左右の余白、2026-10-13）。
+  各話（`wayhome/`）は説明文を出さない（ヒーローの紹介文と同じ文のため、2026-10-13）。詳細は `docs/notes/video-wayhome.md`
 - 採らなかった案: 表と説明文を `width: fit-content` のラッパーで包む方式。
   `.mj-table-auto` の表が内容幅まで縮む（rh_results で 1440→284px）
 

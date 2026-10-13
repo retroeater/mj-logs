@@ -57,28 +57,61 @@
 
 ## 経過
 
+### 着手（2026-10-13）
+
+- 同じ Chat-Ref のコミットは0件。`work/1013-abm-handover` はローカル・リモートとも無かったので `git checkout -b work/1013-abm-handover origin/cloudflare`（109374aa）
+- 0.: 「指示」欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は4つともある（1行目にまとめて書かれている）
+- #425 に着手中のコメント: https://github.com/retroeater/mj/issues/425#issuecomment-6137800753
+
+### 手順1: 確かめる
+
+- 足し先:
+  - 書式の規則: docs/notes/live-channel-write.md「6. 書き込みの実装・手動実行での確認」の `sheets_write.py` の項（`values.clear`→`values.update` でタブ全体を置き換える、と書いてある所）。同じ趣旨の記述は無かった（docs/notes/abema-book.md の【2】の行に「年度も文字列で書く」があるだけで、矛盾しない）
+  - ブランチ分けの規則: docs/notes/branch-operations.md に新しい節「同じ系列で2本の指示を並行させるとき」（「マージするとき」の前）。同じ趣旨の記述は無かった。CLAUDE.md の「識別子は Chat-Ref から取る（`work/0913-qmx`）」に接尾辞を足す形で、矛盾しない。docs/notes/cloud-sessions.md「作業ブランチの用意」は Codespace と共通の規則ではないので足さなかった
+- 未マージのブランチ（6本）: docs/notes の2文書を変えているものは無い。`work/1013-acf-xsize` が docs/decisions/saikyo.md の末尾に節を足している（CHAT-1013-ACF-08・ACF-10）。こちらも末尾への追記なので、両立する（止まる条件の例外）
+- #501（open、ラベル 分野: 自動化・対象: saikyo）: 「最強戦の ABEMA の URL を、平野さんの PC から確かめるスクリプトを作る」。本文は「最強戦シートの動画 URL の列を順に開き、開けるか・og:title・og:image を CSV に書き出す」で、指示の想定どおり
+- #549（open、ラベル 状況: 待ち ほか）: 段2のチェックリスト（着手前・変更・公開後の確かめ）と段2の作業の一覧がある。ヒーローの記述は無かった
+- 「最強戦」シートと ABEMA ブックの【2】（生成と同じ `load_rows()`・`load_videos()`）: 2026年度で対局日が 2026-10-13 以降の卓は **8**、そのうち【2】に回の無い卓は **8**（10-18 団体対抗スペシャル合戦・10-25 Mの乱・11-01 超技巧合戦・11-08 義兄弟合戦、各ベスト8 A卓・B卓）。対局日の無い 2026年度の対局は 0。参考: 対局日が過ぎて回の無い 2026年度の卓が 5（10-04 女流プロ下剋上合戦 ベスト8 A卓・B卓・決勝、10-11 団体分裂合戦 ベスト8 A卓・B卓）
+
+### 手順2: 文書（3dea5541）
+
+- docs/notes/live-channel-write.md: 「機械がタブを丸ごと書き直すとき（`clear_and_write`）は、書く前にそのタブの既存のセルの書式（日付・数値）を確かめ、鍵の列（年度など）は文字列で書く（`values.clear` は値だけを消して書式を残すため、手で作った下書きの書式が残ると gviz で年度が日付として読まれる、CHAT-1012-ABM-13）」
+- docs/notes/branch-operations.md: 節「同じ系列で2本の指示を並行させるとき」
+- docs/decisions/saikyo.md: 「2026-10-13（CHAT-1013-ABM-19）」の節
+
+### 手順3: issue
+
+- #425: 未決の3点と 2026年度の残りの卓の数のコメント https://github.com/retroeater/mj/issues/425#issuecomment-6137817848
+- #549: 本文の「変更」のチェックリストの title・og の項の次に「- [ ] ABEMA の回が無い卓のヒーローを決める（今は年度の OGP 画像、CHAT-1012-ABM-11）」を足した（REST の PATCH。ほかの行は変えていない）
+- #501: ABEMA ブックで置き換わった旨のコメント（https://github.com/retroeater/mj/issues/501#issuecomment-6137820297）を書いて閉じた（completed）。「状況:」ラベルは付いていなかった
+- #425 にこのログを指すコメント
+
+### マージ
+
+- ドキュメントのみ（ログ・docs/notes・docs/decisions）なので、指示の「マージ:」のとおり cloudflare へ入れた
+
 ## 報告
 
-- 状態:
-- ブランチ:
-- ログ:
-- 比較URL:
-- 確認用URL:
-- マージ:
-- issue:
-- 判断が必要なこと:
-- 未確認の項目:
-- エラー:
+- 状態: 完了
+- ブランチ: work/1013-abm-handover
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1013-ABM-19.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1013-abm-handover
+- 確認用URL: なし
+- マージ: 済（ドキュメントのみ）
+- issue: #425（着手中・未決の整理・完了のコメント）、#549（本文のチェックリストに1行足した）、#501（コメントして閉じた）
+- 判断が必要なこと: なし（未決の3点は #425 に残した）
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 0f532f4d）: https://github.com/retroeater/mj-logs/tree/main/guide/0f532f4d
+ガイド文書（この版を写した時点の最新、mj 346c65b1）: https://github.com/retroeater/mj-logs/tree/main/guide/346c65b1
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/0f532f4d/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/0f532f4d/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/0f532f4d/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/0f532f4d/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/0f532f4d/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/0f532f4d/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/346c65b1/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/346c65b1/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/346c65b1/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/346c65b1/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/346c65b1/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/346c65b1/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b5bbbea3.md

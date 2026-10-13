@@ -74,6 +74,8 @@ GitHub Actions から Google Sheets API で3層のタブ（下記）へ直接書
 
 - 表の組み立ては `scripts/lib/live_candidate.py`（層1の1動画→【2】の1行、UT-09の規則の移植）
 - 書き込みは `scripts/lib/sheets_write.py`（Sheets API v4、`values.clear`→`values.update`でタブ全体を置き換え。1,000行ずつ送る）。**書く範囲がシートのグリッド（新しいシートは1,000行×26列）を超えるときは、書く前に`appendDimension`で行・列を足す**（足りない分＋行500・列2。超えなければ足さない。`clear_and_write`・`append_rows`・`update_cells`のすべて、`WRITABLE`の6タブ共通。CHAT-0930-CAL-15）。
+  **機械がタブを丸ごと書き直すとき（`clear_and_write`）は、書く前にそのタブの既存のセルの書式（日付・数値）を確かめ、鍵の列（年度など）は文字列で書く**
+  （`values.clear` は値だけを消して書式を残すため、手で作った下書きの書式が残ると gviz で年度が日付として読まれる、CHAT-1012-ABM-13）。
   認証は ADC（`google-github-actions/auth`、`LIVE_SHEETS_SA_KEY` を読む手順だけが鍵を扱う。
   `docs/notes/birthday-calendar.md` と同じ形）
 - 実行本体は【1】が `scripts/write_live_layer1.py`、【2】が `scripts/write_live_channel_candidate.py`。
