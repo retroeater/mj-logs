@@ -64,15 +64,69 @@ PHT のチャットの振り返り（2026-10-13）で見つかった、チャッ
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 0章と着手前の確認
+
+- 指示欄の末尾は指示文の最後の行と一致。`git log --all --grep="CHAT-1013-PHT-27"` は0件。PHT は同じチャットの続きの識別子
+- `work/1013-pht-handover` はローカル・リモートとも無し → `git checkout -b work/1013-pht-handover origin/cloudflare`
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている（「作業ブランチ」の行が「共通手順」の前にある）
+- 対象 issue が無い文書だけの指示なので、着手中のコメントは書いていない
+
+### 手順1: issue の検索
+
+`/repos/retroeater/mj/issues?state=all` で全 issue（557件、Open 222）の題と本文を取り、手元で文字列を探した（コメントは対象外）。
+
+- 「指示文」11件（Open: #493・#419・#301・#300・#176、Closed: #421・#386・#294・#293・#209・#205）
+- 「public」8件（Open: #538・#512・#298、Closed: #498・#449・#258・#211・#92）
+- 「mj-logs」13件（Open: #539・#538・#514・#513・#512・#506・#504・#291、Closed: #505・#498・#474・#466・#454）
+- 「非公開」11件（Open: #557・#545・#540・#518・#292、Closed: #531・#453・#437・#331・#211・#194）
+- 「最終報告」2件（Open: #419、Closed: #454）
+- 「引用」18件（Open: #554・#552・#532・#527・#433・#383・#382・#239・#230、Closed 9件）
+- 近い主題を本文で確かめた: #300 は秘密のコミットの機械的な検知、#557 はブックの公開範囲（共有設定）、#419 は作業ブランチの切り方（(b) の報告の Chat-Ref の行は決着済み）。チャット側の指示文に書かないもの・引用の置き場所を主題にする issue は無い
+- → 同じ論点の open issue は無い
+
+### 手順2: 書く
+
+CLAUDE.md「作業ログ」節の該当の2行（実物）:
+- 「**ログに人の個人情報（氏名と結びついた属性など）・鍵やトークンの値・非公開の URL（Claude Code のセッション URL は可）を書かない。**」
+- 「**ターミナルへ返す最終報告は、状態・ログのURL・ブランチ・（あれば）確認用・ログ（公開）・Chat-Ref の行だけにする**（形と書き方は`_template.md`「ターミナルへ返す最終報告」）」
+
+追記先の「指示文の書き方・渡し方」「止まる条件と検証の指定」を読み、決定と矛盾する記述は無かった。同じ趣旨の既存の記述は2つ目の項（issue に書かせるときの引用元の指定）だけで、これを逆向きまで広げた。
+
+入れた文面（docs/notes/chat-side-operations.md、変えた行そのまま）:
+
+- 「指示文の書き方・渡し方」の「貼った指示文が途中で切れて届くことがある」の項の直後に足した行:
+
+```
+- **指示文はログの「指示」欄にそのまま写り、public の mj-logs に出る。** CLAUDE.md「作業ログ」節がログに書かないとするもの（非公開の URL、シートの ID・URL など）は指示文にも書かず、ブックは `scripts/` の定数名などで呼ぶ
+```
+
+- 「止まる条件と検証の指定」の項を置き換えた（前→後）:
+
+```
+- **ログの計測値や事実を issue に書かせるときは、要約を渡さず「どのログのどの節から引用するか」を指定する**
+```
+
+```
+- **ログの計測値や事実を issue に書かせるときは、要約を渡さず「どのログのどの節から引用するか」を指定する。** 逆に issue の本文などをログに引用させるときは、置き場所を `## 経過` と指定する（最終報告は状態の行だけで、そこにだけ書かせるとログに残らない）
+```
+
+- バイト数: 24,600 → 25,112（+512。1項目 +302、2項目 +210。目安の 400 は超えたが、止まる条件の 600 未満。警告域 26,624 未満）
+- 事例: docs/notes/handover-archive-2026.md「docs/notes/chat-side-operations.md から」の「『ほかのセッションへの共有』」の小見出し（PHT-26 が #473 の件を足した所）の末尾に、PHT-20（ブックの URL）と PHT-21（引用が最終報告にだけ）の2行を足した
+- 決定: docs/decisions/operations.md に 2026-10-13（CHAT-1013-PHT-27）の項を足した
+- 未マージの `work/` ブランチで docs/notes/chat-side-operations.md・handover-archive-2026.md・docs/decisions/operations.md を変えているものは無い
+- 成果物のコミット: 0f6618d4
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj b5bbbea3）: https://github.com/retroeater/mj-logs/tree/main/guide/b5bbbea3
+ガイド文書（この版を写した時点の最新、mj 7929efdc）: https://github.com/retroeater/mj-logs/tree/main/guide/7929efdc
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b5bbbea3/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b5bbbea3/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b5bbbea3/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b5bbbea3/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b5bbbea3/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b5bbbea3/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/7929efdc/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/7929efdc/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/7929efdc/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/7929efdc/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/7929efdc/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/7929efdc/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b5bbbea3.md
