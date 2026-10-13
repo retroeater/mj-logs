@@ -52,6 +52,28 @@ CHAT-1013-SNM-17 で、「プロ」の「表示」が N の人を、本人のペ
 
 ## 経過
 
+### 0章
+
+- 指示欄の末尾は指示文の最後の行と一致している。Chat-Ref の重複なし
+- work/1013-snm-hide はローカルとリモートが同じ（532cb325）。それを続けて使った
+- CHAT-1013-SNM-17 の `## 報告` の状態は「判断待ち」。末尾に ` / 続き: CHAT-1013-SNM-18` を足した
+
+### 手順1 確かめ
+
+- origin/cloudflare（5cfee13c。work/1012-dsn〈DSN-08〉がマージ済み）を merge で取り込んだ。衝突なし（`scripts/generate_houou_pages.py` は自動で合わさり、`load_profiles()` の在籍の判定〈`active=current in pro_names`〉はそのまま）
+- 取り込んだ後、`git branch -r --no-merged origin/cloudflare` のうち、直したファイル（scripts/ の18ファイル）を変えているブランチは無い（dsn はマージ済みで外れた）
+- `python3 -m unittest discover -s scripts/tests`: 995件 OK
+
+### 手順2 全ページの生成（SNM-17 の (a) と同じ方法）
+
+- 今のシート（「プロ」全員 Y・正本の「リーグ」なし）で、origin/cloudflare の scripts/ と取り込んだ後の scripts/ を続けて、全ページを1ページずつ生成した
+- 終了コードは同じ（22ページ rc=0、books_pages は前からの「書籍」95行で rc=3）。生成物の木（scripts/ を除く）は同じ（dbdf3a7b）で、HEAD とも差 0
+
+### 手順3 決定・マージ・再生成
+
+- 決定: `docs/decisions/pros.md` に「2026-10-13（CHAT-1013-SNM-18）」の節を足した
+- 正本の「リーグ」を消した後の最初の regenerate-page.yml: run 38350905330（push、2026-10-13 05:20 UTC、86979e3d〈dsn のマージ〉）。SNM-17 の着手時（この run より前）に「リーグ」が消えていたのを確かめているので、これが消した後の最初の run。対象は houou/（正本の「プロ」「鳳凰」を読む）で、ジョブは success、「対象ページを再生成」success、コミットは「変更なし」。毎日の予約実行は、消した後まだ無い
+
 ## 報告
 
 - 状態: 対応中
@@ -68,12 +90,12 @@ CHAT-1013-SNM-17 で、「プロ」の「表示」が N の人を、本人のペ
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 5cfee13c）: https://github.com/retroeater/mj-logs/tree/main/guide/5cfee13c
+ガイド文書（この版を写した時点の最新、mj feff70b6）: https://github.com/retroeater/mj-logs/tree/main/guide/feff70b6
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/5cfee13c/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/5cfee13c/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/5cfee13c/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/5cfee13c/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/5cfee13c/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/5cfee13c/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/feff70b6/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/feff70b6/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/feff70b6/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/feff70b6/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/feff70b6/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/feff70b6/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b5bbbea3.md

@@ -459,12 +459,15 @@ Workers静的アセットにはオリジンサーバーが存在しないため�
 /  /index.html  200
 ```
 
-**canonicalは付けない。** `<link rel="canonical">`が
-存在しないため、上記の影響は受けない。**#113で「現行サイトには
+**canonicalは原則付けない。** **#113で「現行サイトには
 canonicalを付けない（Googleの正規化に任せる）」と決定した（2026-09-11）。**
 単純に付けるとSearch Console実測の`?name=`付き14URL（`docs/notes/site-findings.md` のSEO節）が
 正規化で検索結果から消えるため。選手個別ページと
 title/descriptionの出し分けは新サイト（#296）で解く（#79も同時にクローズ）。
+**例外は帰り道の各話（`wayhome/<動画ID>.html`、#162）と一覧（`/wayhome/`、2026-10-13）だけ。**
+例外の基準は「URL の別形（`?name=` などのクエリで中身が変わる URL）を持たず、Search Console にも `?` 付きの URL が
+出ていないページ」。値は`lib/page.py`の`PageMeta.canonical`（既定`None`）で渡し、html_handling の影響を受けない
+正規の URL（一覧は末尾スラッシュ付きの`https://ryoei.pro/wayhome/`）にする。基準に当てはまるほかのページは、ページごとに確かめてから付ける。
 
 `_headers` はセキュリティヘッダ5件に加えて、
 キャッシュ制御を持つ（#92）。
