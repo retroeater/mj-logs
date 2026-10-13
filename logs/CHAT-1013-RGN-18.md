@@ -49,14 +49,41 @@ RGN-07〜17 の振り返り（2026-10-13、Fable 5.1 のレビュー済み）の
 
 ## 経過
 
+### 0. 着手前の確認
+
+- Chat-Ref の重複: `git log --all --grep="CHAT-1013-RGN-18"` は0件
+- 作業ブランチ: work/1013-rgn はローカル・リモートとも無し → `git checkout -b work/1013-rgn origin/cloudflare`（d7543197）
+- 指示欄の末尾は指示文の最後の行と一致。冒頭の雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+
+### 1. 確かめる
+
+- 同じ論点の issue: REST で issue 557件・コメント 2111件を全部取って手元で検索（語: 「外して進め」「外して残り」「重なる対象」「前回の約束」「立てた約束」「約束が守」、題に「振り返り」）。当たったのは #536（closed）の本文の1か所だけで、その issue の作業で特定のスクリプトを外して進めた、という個別の記述（規則の論点ではない）。題に「振り返り」の issue は無い → 同じ論点の issue は無い
+- 未マージの work/ ブランチで docs/instruction-template.md・docs/notes/chat-routines.md・docs/decisions/operations.md を変えているものは無い
+- **前提と違ったところ**: B の文面の案の理由の括弧「CHAT-1012-RGN-13・14・16 で3回、外して進めた」は、実物では1回（RGN-14 で saikyo_pages を外した）だけ。RGN-13・RGN-16 は重なりが無く、外したページは無い（各ログの `## 経過` の 1.）。目的の「規則と理由の一句だけを書き、事例は書かない」にもより、Chat-Ref の事例は書かず、理由は「1つの重なりで全体が止まると往復が増える」の一句にした
+
+### 2. 足す（3c1ee171）
+
+- docs/instruction-template.md: 「未マージの `work/` ブランチとの重なりで止まる条件は、ファイル単位でなく…」の項の次に、「対象（ページ・ファイル）が複数ある指示では、重なりを『重なる対象だけ外して残りを進めてよい（外したものと理由を報告に書く）。全部が重なるときだけ止まる』の形で書く（1つの重なりで全体が止まると往復が増える）」を足した。雛形の「## 止まる条件」の重なりの行の括弧に「対象が複数なら重なる対象だけ外して進め、全部が重なるときだけ止まる」を足した。同じ趣旨の記述は無く、既存の項（ファイル単位でなく行・関数で書く）とは矛盾しない（拡張）
+- docs/notes/chat-routines.md「振り返り」の「観点のチェックリスト」の末尾に、「前回の振り返り・レビューで立てた約束（『次からこうする』）が守られたか。守られなかったなら、約束のほうが過剰でなかったか」を足した。同じ趣旨の記述は無い
+- docs/notes/chat-side-operations.md は変えていない（25,112 バイト）
+- docs/decisions/operations.md に「決定」節の3項目を足した
+
+サイズ（バイト）:
+
+| ファイル | 前 | 後 |
+|---|---:|---:|
+| docs/instruction-template.md | 13,147 | 13,563（上限 16,384、警告域 14,336） |
+| docs/notes/chat-routines.md | 4,878 | 5,061（上限なし） |
+| docs/notes/chat-side-operations.md | 25,112 | 25,112（変えていない） |
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1013-rgn
-- ログ: https://github.com/retroeater/mj/blob/work/1013-rgn/docs/logs/CHAT-1013-RGN-18.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1013-RGN-18.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1013-rgn
 - 確認用URL: なし
-- マージ: 未
+- マージ: 済（マージの SHA は `## 経過` の末尾）
 - issue: なし
 - 判断が必要なこと: なし
 - 未確認の項目: なし
@@ -65,12 +92,12 @@ RGN-07〜17 の振り返り（2026-10-13、Fable 5.1 のレビュー済み）の
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 7929efdc）: https://github.com/retroeater/mj-logs/tree/main/guide/7929efdc
+ガイド文書（この版を写した時点の最新、mj caabc1d8）: https://github.com/retroeater/mj-logs/tree/main/guide/caabc1d8
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/7929efdc/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/7929efdc/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/7929efdc/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/7929efdc/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/7929efdc/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/7929efdc/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/caabc1d8/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/caabc1d8/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/caabc1d8/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/caabc1d8/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/caabc1d8/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/caabc1d8/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b5bbbea3.md

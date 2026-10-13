@@ -226,9 +226,11 @@ A を埋めると `2015-n3-...` 形式から日付形式へ変わり、未登録
   **勝ち上がり者がいない（未対局の）対局は、見出しの下に代替アバター1枚だけ**（`UNPLAYED_CARD_HTML`。「未対局」の文字は出さない）。
   選手名の絞り込み・対局ごとの共有ボタンは無い（全員の検索はトップ）。固定バーは年度プルダウンだけ（`build_sub_filterbar()`）
 - **対局のページ**: 今の `?match=` の表示と同じく、ステージ順に全卓・各卓4人。卓の見出しの帯から卓のページへ。動画のリンクも卓ごとに添える
-- **卓のページ**（/live の個別ページと同じ作り。CHAT-1012-ABM-09 で作り、ABM-12 で直した）: `build_table_page_body()` が本文の `<main class="mj-video-page mj-live mj-saikyo-sub mj-saikyo-table-page">` を自分で持ち（/live と同じ濃色。`<body>` に `mj-saikyo-page` を付けず、navbar は /live と同じ sticky）、
+- **卓のページ**（/live の個別ページと同じ作り。CHAT-1012-ABM-09 で作り、ABM-12 で直し、CHAT-1013-ABM-17 で司会・実況・解説を足した）: `build_table_page_body()` が本文の `<main class="mj-video-page mj-live mj-saikyo-sub mj-saikyo-table-page">` を自分で持ち（/live と同じ濃色。`<body>` に `mj-saikyo-page` を付けず、navbar は /live と同じ sticky）、
   ヒーロー（`build_table_hero()`、`.mj-video-hero`。ABEMA のサムネイル〈1280×720〉・パンくず `.mj-live-breadcrumb`・見出し「麻雀最強戦<年度> <対局名> <卓>」・対局日・「▶ 再生」・隅に「画像: ABEMA」。画像を押しても ABEMA へ行く〈透明なリンク `.mj-saikyo-hero-link`、読み上げ・Tab は「▶ 再生」だけ〉）
   →「出場者」の4人（今の写真カード・順位・通過/敗退、`.mj-live-players`）
+  →「司会・実況・解説」（ABEMA ブックの【2】＋【3】、CHAT-1013-ABM-17。/live の「実況・解説」と同じ写真カード `.mj-live-staff` で、役は写真の上端の帯 `.mj-live-role`。並びは 司会 → 実況 → 解説、同じ人が2つの役にいれば1枚にして帯を「司会・実況」。
+  名前は出場者と同じく「別名」で現在名に直し、写真と X のリンクは「プロ」「連盟プロ以外」から〈`build_cast()`・`cast_player()`〉。登録の無い人は代替アバター・リンクなし。3つとも空の卓は節を出さない。対局のページ・年度ページ・検索・他の対局には出さない）
   →「関連動画」（同じ対局のほかの卓の `.mj-video-card` を `.mj-video-track` に並べ、押すとその卓のページ）
   → 各選手の他の対局（/live の「〇〇の他の対局」と同じ。出場者の順に「<選手名>の他の対局（N件）」と右に「すべて見る」〈トップの `../?q=<選手名>`〉、最新4枚〈対局日の降順、同じ日はアンカーの降順〉。今の卓を除き、0件の選手は出さない。
   全年度の卓を現在名で引く `index_tables_by_player()` を `main()` で作って渡す。対局日の無い対局は入らず、日付のある未対局の卓は入る）。
