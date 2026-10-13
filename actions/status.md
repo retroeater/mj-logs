@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-13 11:35 JST
+- 書き出した時刻: 2026-10-13 11:37 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -12,11 +12,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-13 11:36 | push | work/1013-acf-img | success | #3406（38337660377） | 0分15秒 |
 | 2026-10-13 11:34 | push | work/1013-snm-kumi | success | #3405（38337555857） | 0分17秒 |
 | 2026-10-13 11:30 | push | cloudflare | success | #3404（38337166070） | 0分15秒 |
 | 2026-10-13 11:30 | push | work/1013-snm-kumi | success | #3403（38337162404） | 0分12秒 |
 | 2026-10-13 11:29 | push | work/1013-snm-kumi | success | #3402（38337137948） | 0分17秒 |
-| 2026-10-13 11:28 | push | work/1013-acf-img | success | #3401（38337005228） | 0分16秒 |
 
 ## check-image-links.yml
 
@@ -26,11 +26,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-13 11:36 | workflow_dispatch | work/1013-acf-img | in_progress | #34（38337667566） |  |
 | 2026-10-13 09:01 | workflow_dispatch | work/1013-acf-img | success | #33（38325195081） | 3分09秒 |
 | 2026-10-13 04:30 | workflow_dispatch | cloudflare | success | #32（38298162124） | 0分55秒 |
 | 2026-10-12 06:37 | schedule | cloudflare | success | #31（38177170446） | 3分03秒 |
 | 2026-10-12 04:30 | workflow_dispatch | cloudflare | success | #30（38168346288） | 1分01秒 |
-| 2026-10-11 10:02 | workflow_dispatch | work/1010-xap | success | #29（38100497844） | 1分09秒 |
 
 ## check-leagues-dropped.yml
 

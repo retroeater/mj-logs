@@ -53,15 +53,37 @@ ACF-06 で、毎朝の2つのジョブ（`check`〈jpml_pros.html の `<img>`〉
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+- 0章: ログの「指示」欄の末尾が指示文の最後の行と一致することを確かめた。CHAT-1013-ACF-06 の `## 報告` の状態は「判断待ち」
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- 貼る時機は「CHAT-1013-ACF-08 とは別のセッション」だったが、ACF-08 と同じセッションに貼られた。ACF-08 は既に止まって（判断待ち）終えており、並行の作業は無いので進めた（ブランチは別）
+- Chat-Ref の重複: `git log --all --grep="CHAT-1013-ACF-09"` は 0 件
+- 作業ブランチ: ローカルに `work/1013-acf-img` は無く、`origin/work/1013-acf-img`（5bd6c739）は cloudflare の祖先（マージ済み）。`git checkout -b work/1013-acf-img origin/cloudflare`（b7b29156）
+- 手順1:
+  - 未マージの work/ ブランチ: 1009-swp-526・1011-swp-hnd・1011-swp-nav・1012-dsn・1013-acf-xsize・1013-snm-kumi。check-image-links.yml・check_image_links.py・collect_saikyo_images.py・lib/sns.py・sns_book に触れるものは無い（snm-kumi はログ1つだけ）
+  - 同じ目的の issue: ACF-06 で調べた #352 系のほか、新しいものは無い（ACF-07 の検索の範囲）
+  - #352: 本文はジョブ check が毎回まるごと書き換える形（1,141件中 2件 404: 新城勇哉・田中光太の X `_80x80`）。コメントは ACF-06 の着手中1件だけ。ACF-06 は同じチャットの前の指示で、判断待ち（この指示の決定の待ち）のため、他セッションの着手とはみなさずに進めた。着手中のコメント https://github.com/retroeater/mj/issues/352#issuecomment-6136884440
+  - 朝の確かめ（Worker `mj-scheduler` の `morningRows`・`morningReport`）は、ワークフローの実行（run）の conclusion で数える。足したジョブが失敗すれば run が失敗になり数えに入る。Worker の起動の表（schedule.json）は変えない
+  - セッションから SNS ブックを読めた（`lib/sns.load()`、1,844名・【4】0行）
+- 手順2（実物に合わせて直した点）:
+  - 置き場所は案のとおり、check-image-links.yml にジョブ `sns_book` を足した。新しいスクリプト `scripts/check_sns_book_images.py`（`lib/sns.load()` の全行、X は `with_size(url, SIZE_400)`、既定アイコンは除く、note・YouTube はシートの値のまま。HEAD は `check_image_links.check()` を使い回す）
+  - 本文の節: #352 の本文は1つのジョブがまるごと書く作りだったため、本文を節（`<!-- 節: check 切れ: N -->`…`<!-- /節: check -->`）に分け、各ジョブが自分の節だけを書き換える関数を `check_image_links.py` に置いた（`merge_issue_body()`。ワークフローの github-script から `--issue-section` で呼ぶ）。閉じるのは全節の切れの合計が 0 のとき。目印の無い今の本文は節なしとして置き換える
+  - 同時に書き換えて上書きし合わないよう、`sns_book` は `needs: check` で check の後に動かす（`!cancelled()` なので check が失敗しても動く）。書き換える直前に issue を取り直す
+  - `sns_book` は `scheduled` の起動と手動実行で動き、週1の schedule（check だけの保険）と `saikyo_resolve_test` のときは動かない。題（run-name）・`check`・`saikyo` の条件は変えていない
+  - テスト 7件を足した（`scripts/tests/test_check_sns_book_images.py`）。全体 961件 OK
+  - セッションでの試し: 1,313種類（1,337件、既定アイコン 12件を除く）、265秒。X の切れは 0。note・YouTube の 286件はセッションのプロキシが `assets.st-note.com`・`yt3.ggpht.com` などを許可していないための 403（許可ドメインは変えていない。ランナーでは起きない見込み）
+  - ACF-06 の 11種類の人（鈴木雄介・羽賀飛鳥・平島晶太・嵯峨寛彬・吉田基成・大畠夏奈・鈴木楓・夏目ひかり・塩澤彰大・五反地清一郎・いわますみえ）は全員、X が対象に入っている（鈴木雄介は「プロ」548行、ほかは「連盟プロ以外」）
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj caabc1d8）: https://github.com/retroeater/mj-logs/tree/main/guide/caabc1d8
+ガイド文書（この版を写した時点の最新、mj a83cb48a）: https://github.com/retroeater/mj-logs/tree/main/guide/a83cb48a
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/caabc1d8/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/caabc1d8/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/caabc1d8/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/caabc1d8/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/caabc1d8/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/caabc1d8/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a83cb48a/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a83cb48a/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a83cb48a/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a83cb48a/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a83cb48a/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a83cb48a/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b5bbbea3.md
