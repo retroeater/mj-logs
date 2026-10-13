@@ -74,6 +74,79 @@
 
 - 注意: Ampai の「組」の列は gviz が数の列と判定し、数（1・2）として返す。「-」は gviz では null（空）になる。数の列では数でない値（①など）も null になって見えなくなるため、値の確かめは CSV エクスポートで行った。直すときに、この列を文字列でなく数で受ける場合も扱う
 
+### 手順1 洗い出し
+
+- #548 のコメントは SNM-06（完了）・SNM-08（中断）・SNM-10（完了）・SNM-11（中断）・SNM-13（完了）で、ほかの Chat-Ref の未完了の着手中コメントは無い。着手中のコメント: https://github.com/retroeater/mj/issues/548#issuecomment-6136699232
+- 未マージのブランチとの重なり: 直すファイルを変えているのは `origin/work/1012-dsn`（DSN-07 着手中）だけ
+  - `assets/houou_race.js`: dsn は `renderSelectors()` の中（組のボタンの行の直後）に `GROUP_MARKS[sel.group] + '組'` を使う行を足している。同じ関数を変えないよう、こちらは関数の外の定数 `GROUP_MARKS` の1行だけを変えた（dsn の足した行も「1組」と出る）
+  - `scripts/generate_houou_pages.py`・`assets/houou.js`・`docs/notes/houou-race.md`・`houou-top.md`・`docs/decisions/houou.md`: dsn の変更とは別の箇所（`load_groups()`、1951行目のコメント、houou-race.md の表と「データの読み方」、houou-top.md の84行目〈dsn の 71〜92 行の変更の範囲の外の行〉と165〜168・241行目、decisions は末尾への追記）
+  - dsn が houou-race.md に足す説明に「組のあるリーグは「①組」を足す」とある。マージ後はコードが「1組」と出すので、dsn 側の文の直しが要る（dsn の作業の範囲）
+- 組の値を読む・解釈する・表示する所:
+
+| 所 | 何をするか（直す前） | 直した後 |
+|---|---|---|
+| `scripts/lib/houou_tab.py` | 見出し「組」、無ければ X 列「備考」の列を選ぶ | 「組」の列だけ（無ければ止める）。`group_number()`・`parse_groups()` を足した（1・2・3…→番号、「-」・空欄→0、ほかは行を並べて止める） |
+| `scripts/generate_houou_race.py` | `GROUP_RE`（①②③・「①組」）と `group_of()` で番号にし、組でない値（「-」「1」「2」も）は止める | `load_groups()` が `parse_groups()` で番号にする。`group_of`・`GROUP_RE`・`GROUP_NUMBERS`・`NOTE_HEADERS` は消した。表の名前（`label()`・既定の表示の文）は前から「n組」 |
+| `scripts/generate_houou_pages.py` | `load_groups()` が `race_page.group_of()` で ①② を番号に（数字は0＝組なしになっていた） | `houou_tab.parse_groups()` で番号に |
+| `scripts/lib/results.py` | 組ごとの人数・全体の順位（組の番号の数は決め打ちしていない） | 変えていない |
+| `scripts/lib/pro_stats.py` | `houou_groups` に組の値（文字のまま）を入れ、Ampai のキーに使う | `houou_groups()` で番号にする（組なしは入れない） |
+| `scripts/lib/ampai.py` | `key()` が組を文字にし「組」を外す（「①組」→「①」） | 組を番号にする（組でない値は止める）。gviz は「組」を数の列とみなし数でない値を空で返すので、`fetch()` で CSV エクスポートの「組」も確かめる（`check_groups()`、CSV の読み取りは `lib/sheets.fetch_csv()` を足した。読めないときは警告で続ける〈フィルタの確認と同じ〉） |
+| `scripts/check_ampai.py` | `ampai.fetch()` を使う | 変えていない（上の確かめが入る） |
+| `houou_race.js`・`assets/houou_race.js` | 組のボタンを `GROUP_MARKS = ['', '①', '②', '③']` で「①組」（4組以上は出せない） | `GROUP_MARKS` を番号の数字にする形に（「1組」「2組」…、上限なし） |
+| `assets/houou.js` | 組を番号で持つ（既定は組の最初）。コメントに「①組」 | コメントだけ「1組」に |
+| `houou_results.js`・`league_ranking.js` | 組を使っていない（`HOUOU_HEADERS` に「組」が無い） | 変えていない |
+| `generate_houou_leagues.py` | 組を読まない | 変えていない |
+
+- 直す前の生成（origin/cloudflare 4c9b6825 のコード、今のシート、1ページずつ）:
+  - houou_pages・houou_race が止まる（「組の列に組でない値があります: ['-', '1', '2']」）。books_pages は前からの「書籍」95行で止まる。ほかの20ページは rc=0
+  - 差: jpml_pros.html 4行（X 画像の URL の変更。Ampai のリンクは 727件で同じ、人ごとの URL も同じ）、saikyo/ の 577ファイル（司会・実況・解説のカードの X リンク・画像。別のセッションの #425 のシートの変化）、workers/ask/data.json（「別名」に1件増えた）。どれも組と関係しない
+  - jpml_pros の Ampai が今も合っていたのは、「鳳凰」の「1」「2」（文字）と Ampai の 1・2（gviz が数として返し int に直る）が同じ文字になり、「-」が両方とも空になるため
+
+### 手順2 直した箇所
+
+- 上の表のとおり（コミット 823fe4e5）。ほかに `generate_houou_race.py` の docstring（「X列「備考」の ①・②」→「「組」の列の 1・2・3…」）と、既定の表示が進行中のときの止まる文の列の英字（G列・V列）を見出しの名前にした
+- テスト: `test_houou_tab.py`（今の23列の形・「組」が無ければ止まる・`group_number()` の値ごと・`parse_groups()` が行を並べる・Ampai の ① で止まる・CSV の確かめ）、`test_houou_race.py`（3組のリーグ〈44前 E1 を 1・2・3 組に分ける、`label()` が「3組」〉、ほかは番号で渡す）、`test_houou_check.py`（`load_groups`）、`test_pro_stats.py`（番号のキー・`houou_groups()`）
+- `python3 -m unittest discover -s scripts/tests`: 959件 OK（直す前の 4c9b6825 では新しいテストの関数〈`group_number` など〉が無く通らない）
+
+### 手順3 確かめ
+
+(a) 直した後のコード（823fe4e5）で全ページを生成（今のシート、1ページずつ）:
+
+- 23ページ中22ページが rc=0（houou_pages・houou_race も通る）。books_pages は前からの「書籍」95行で止まる
+- 差: 直す前に出た jpml_pros.html・saikyo/・workers/ask/data.json の差と同じ（`git diff` の出力が直す前とバイト単位で一致）。ほかに houou の4ファイル（`houou/race/43-1.json`・`houou_race/43-1.json`・`houou/search.json`・`houou/results/田中光太.json`）が、どれも田中光太の X 画像の URL だけ（jpml_pros と同じシートの変化）
+- 組の分け方は ①② の時点の生成物と同じ（表 445・組のあるもの 82、組の番号もそのまま）。組の表示は生成物には無く（JSON は番号）、ページの JS が出す。Ampai のリンクは 727件（鳳凰戦 594名・女流桜花 137名）で人ごとの URL も同じ
+- 生成物はシートの変化だけなので、コミットしていない（作業ツリーは戻した）
+
+組の表示（ヘッドレス Chrome。第43期前期 E3 を開いて組のボタンを押し、表の選手を JSON と比べた）:
+
+| ページ | 直す前の JS（cloudflare） | 直した後の JS |
+|---|---|---|
+| houou_race.html | ボタン「①組」「②組」、表 49名・47名 | ボタン「1組」「2組」、表 49名・47名（JSON と一致） |
+| houou/race/ | 同上 | 同上 |
+
+コンソールのエラーは無い。
+
+(b) 旧方式の2ページ（今の並び替えた後のシートを横取りせずに読む）: SNM-13 の13通り（houou_results 名前なし〈リーグ「A1」の選択を含む〉・名前2人、houou_ranking 9部門と名前あり）で、表のデータ・表示した表・選択肢・グラフのデータと SVG のハッシュが SNM-13 の (a) とすべて一致。問い合わせは見出しで今の英字に引き直されている（例: `SELECT A,SUM(I) WHERE W = "Y" AND I IS NOT NULL …`、houou_results は `SELECT A,B,C,D,E,G,…,V WHERE W = "Y"`）。2ページは組を使わないので組の表示の差は無い。JS のエラー・`console.error`・`alert` は無い（読み込みの失敗は SNM-13 と同じく環境によるもの）
+
+(c) 3組の模擬（`houou_tab.fetch_rows` を差し替え、第43期前期 E3 の 2組の選手を1人おきに「3」にした。23名。シートは変えていない）:
+
+- 順位変動の生成: 表 446（組のあるもの 83）。E3 は 1組 49名・2組 24名・3組 23名の3つの表、選択肢の index は `E3: [1, 2, 3]`
+- houou/ の生成も通り、動かした選手の成績 JSON の「リーグ（組）の人数」が 47→23 に、全体の順位は変わらない（例: 林源 43前 E3 33位、組の人数 23、全体 509位/542人）
+- ヘッドレス Chrome: houou_race.html・houou/race/ とも組のボタンが「1組」「2組」「3組」、押すと表が 49名・24名・23名で JSON の各組と一致し、2組と3組で重なりが無い。コンソールのエラーは無い
+- 模擬の生成物は戻した
+
+`#REF!`: 正本の xlsx エクスポート（200・2,604,398 バイト、タブ: リーグ・プロ・対局・鳳凰・桜花・JWRC・最強戦）で、`#REF!` は数式で0件・値で0件。数式は 21,260（配列 0）。SNM-11 の時点の 46,446（配列 16,006）から減ったのは、「鳳凰」の元の W「プロ」・Y「存在チェック」（数式の列）を消したため
+
+Ampai の読み取り（今のブック）: `ampai.fetch()` は 43行、組の番号は 0・1・2。CSV の確かめも通る（44行〈見出しを含む〉）。`check_ampai.py` は「最新の期の行は Ampai のブックにあります」
+
+直した文書:
+
+- `docs/notes/houou-race.md`: JSON の項目の出どころ（列の英字 → 見出しの名前、組は 1・2・3…）、「データの読み方」（組の書き方・止める値・ボタンの「1組」）、G列・V列の記述を「結果」「表示」に
+- `docs/notes/houou-top.md`: 「鳳凰」の並び（23列。F 列「組」の挿入と X〜AA の削除）、組の書き方、G列の記述を「結果」に、「①組を開く」→「1組を開く」
+- `docs/notes/static-generation.md`: Ampai の組の書き方と CSV での確かめ
+- `docs/decisions/houou.md`・`pros.md`: この指示の「決定」
+- コードのコメントに残る「G列」（`generate_houou_race.py`・`generate_houou_pages.py`・`houou_race.js` など。意味は「結果」）は、この指示の直しと無関係な箇所のため変えていない
+
 ## 報告
 
 - 状態: 対応中
@@ -90,12 +163,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 7929efdc）: https://github.com/retroeater/mj-logs/tree/main/guide/7929efdc
+ガイド文書（この版を写した時点の最新、mj caabc1d8）: https://github.com/retroeater/mj-logs/tree/main/guide/caabc1d8
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/7929efdc/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/7929efdc/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/7929efdc/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/7929efdc/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/7929efdc/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/7929efdc/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/caabc1d8/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/caabc1d8/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/caabc1d8/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/caabc1d8/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/caabc1d8/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/caabc1d8/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b5bbbea3.md
