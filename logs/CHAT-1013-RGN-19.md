@@ -65,9 +65,23 @@
 - docs/decisions/operations.md に「決定」節を足した
 - docs/notes/chat-side-operations.md: 25,112 → 25,326 バイト（警告域 26,624、上限 28,672）
 
+### マージ
+
+- `git fetch` のうえ `git merge-base --is-ancestor origin/cloudflare HEAD` が真 → `git push origin work/1013-rgn:cloudflare`（e92eef3e..1733ea64）
+- 1733ea64 の check-run: check（assets-check を含む2つ）とも success
+
 ## 報告
 
-- 状態: 対応中
+- 状態: 完了
+- ブランチ: work/1013-rgn
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1013-RGN-19.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1013-rgn
+- 確認用URL: なし
+- マージ: 済（1733ea64。このログの仕上げは追いの push）。docs/notes/chat-side-operations.md は 25,112 → 25,326 バイト（警告域 26,624）
+- issue: なし
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
