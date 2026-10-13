@@ -393,6 +393,7 @@ title/ では「タイトル戦」タブの大会の改名が「タイトル」�
 
 - 生成後の絞り込み・並び替え・ページ送りはページ側の軽量JSに委譲する。`jpml_pros.js`は絞り込みと並び替え（ページ送りなし・全行表示）専用。型A・型A'の10ページは共通の`table.js`（絞り込み・ページ送り、並び替えなし）を使う。設定は`<table>`要素のdata属性（`data-page-size` / `data-name-mode` / `data-filter-param`）で渡し、属性省略時はページ送りなし・完全一致フィルターなしになる。ページ固有のUI（`resource_logs.html`の名前セレクトボックス等）はtable.jsとは別の小さなJSで補う。`video_wayhome.html`は`.mj-table`を持たないため`table.js`は読み込まず、専用の`video_wayhome.js`が絞り込み・画像フォールバック等を担う（#102第2段。共有ボタンは #530 で外した）
 - 型Cの2ページは`leagues.js`（共通JS）を使う。積み上げ棒と既定選手の折れ線は静的SVGに焼き込み済みで、`leagues.js`は`?name=`に応じて選手1名分の`<polyline>`と凡例ラベルだけを差し替える（選手ごとの折れ線データは`houou_leagues_data.json`/`ouka_leagues_data.json`をfetchして取得）。選手選択リストは「プロ」シートの「表示」が Y かつ鳳凰/桜花シートに1行でもある選手が対象（#127/#133。旧「鳳凰最高/桜花最高列に値がある」と同じ意味で、その列は 2026-10-11 に廃止、#536）。**退会済みの選手は鳳凰/桜花シートにリーグの実データが残っていても選択リストに出ない。これは正しい挙動**（「表示」= Y が在籍・公開対象を表す。#168）
+- Google Charts 依存の `houou_results.js`・`league_ranking.js`（houou_ranking）は「鳳凰」を見出しの名前で読む（#548）。問い合わせ文は今の並びの英字（A「名前」〜V「表示」、`HOUOU_HEADERS`）で書き、送る前に `resolveHououQuery()` が `SELECT * LIMIT 1` の応答の見出しから今の英字に引き直す（同じ見出しが2つあれば左。見出しが無いときは `console.error` に出してその英字のまま問い合わせる）。列の挿入・削除（F 列「組」の挿入、X〜AA の削除）で表示は変わらない（ヘッドレス Chrome で確かめた）。`league_ranking.js` の桜花・JWRC と `ouka_results`・`wrc_results` は列の英字のまま読む
 
 ### regenerate-page.yml
 
@@ -406,7 +407,7 @@ GitHub Actions (`.github/workflows/regenerate-page.yml`) が、`scripts/generate
 |---|---|
 | `regenerate-page.yml` | 生成スクリプト・対応する`.js`・`scripts/lib/**`の変更のpushと、毎週月曜05:37 JST（`all`）。ページを再生成してコミットする（詳細は上の「regenerate-page.yml」） |
 | `regenerate-saikyo.yml` | `check-image-links.yml`（「画像リンク切れの検知」）の実行が cloudflare で終わるたび（`workflow_run`。取り消された回を除く。毎朝 04:30 JST の検知の後など）と手動。`regenerate-page.yml` を `workflow_call` で呼び、saikyo_pages だけを再生成する。差分が無ければコミットしない（#537）。再生成の前にジョブ `abema` が ABEMA ブックの【2】を作り直す（`scripts/update_abema_book.py`、失敗しても再生成は動く。手動実行の入力 abema・regenerate、#425・`docs/notes/abema-book.md`） |
-| `check-image-links.yml` | 毎週月曜03:00 JST に `jpml_pros.html` の画像、毎日 04:30 JST（Worker `mj-scheduler` から、入力 `scheduled`）に最強戦の選手写真のリンク切れを確かめ、それぞれ常設issueに書き出す |
+| `check-image-links.yml` | 毎日 04:30 JST（Worker `mj-scheduler` から、入力 `scheduled`）に `jpml_pros.html` の画像（ジョブ `check`）と最強戦の選手写真（ジョブ `saikyo`）のリンク切れを確かめ、それぞれ常設issueに書き出す。毎週月曜03:00 JST の予約実行（`schedule`）は `check` だけを動かす保険（外す予定は #504） |
 | `check-saikyo-unregistered.yml` | 毎週月曜06:50 JST。最強戦の出場者で「プロ」「連盟プロ以外」から引けない人を常設issueに書く（#431、`docs/notes/saikyo-page-design.md`「8. 出場者の登録漏れの検知」） |
 | `assets-check.yml` | push（`docs/`だけの push は除く。サイズを見る`docs/handover.md`・`docs/notes/chat-side-operations.md`は含む、#298）。`.assetsignore`の漏れ（#133）と CLAUDE.md・handover.md のサイズを検知し、配信の上限との比（`check_asset_limits.py`、#387）を出す |
 | `sitemap-lastmod.yml` | HTMLを含むpush。sitemapのlastmodをgitの最終コミット日にそろえてコミットする（#265、`docs/notes/sitemap-lastmod.md`） |
@@ -478,7 +479,7 @@ GitHub Actions (`.github/workflows/regenerate-page.yml`) が、`scripts/generate
 フィルタの検知の CSV の取得（`lib/sheets.py` の `_get`）は、失敗しても警告で生成を続けるため繰り返さない（CSV だけが長く落ちた日に再生成が延びないように）。
 Google の API（`lib/gcal.py`・`lib/sheets_write.py`・`sync_birthday_calendar.py`）には接続10秒・読み取り60秒のタイムアウトを渡し、読み取り（GET）だけ同じく繰り返す。書き込みは、届いたかが分からず重複しうるため繰り返さない（#472）。
 
-- `check_image_links.py` — `jpml_pros.html` 内の画像URL全件にHEADリクエストを送りリンク切れを検知（毎週月曜03:00 JST）
+- `check_image_links.py` — `jpml_pros.html` 内の画像URL全件にHEADリクエストを送りリンク切れを検知（毎日 04:30 JST、保険で毎週月曜03:00 JST）
 - `collect_saikyo_images.py` — 最強戦の選手写真（SNS ブックの実効の値、#514）で取得できなくなった画像URLを見つけ、SNS ブックでの状態（【3】の X状態・【4】の有無）と一緒にCSV・検知の issue に出す（#333、手動実行＋`check-image-links.yml`から毎日`--json`実行）。X API は呼ばない（取り直しは `update_sns_book.py`）。`--resolve-test <X ID>`で X API を1件だけ呼んで診断を出す。使い方は`docs/notes/saikyo-page-design.md`「選手写真の更新」
 - `update_sns_book.py` — SNS ブック（選手の X・note・YouTube の ID と画像の URL、#514）の【1】元データ・【2】ID・【3】画像取得を書く（`--check`・`--init`・毎日の更新・`--dry-run`。`update-sns-book.yml`から毎日）。X の画像を X API で取り直すのはここだけ。ページの生成は SNS の値を `lib/sns.py` から読む（2026-10-11 から）。仕組みは`docs/notes/sns-book.md`
 - `cleanup_logs.py` — `docs/logs/`の作業ログのうち、7日を過ぎて片付けてよいもの（完了で3項目「なし」・取り下げ・続き先が完了／取り下げ／削除済み・論点の無い旧形式）を削除し、条件外のものを種類別（判断待ち・中断／書き方の違反／読めない）に一覧にする（`cleanup-logs.yml`から週1で実行、`--dry-run`で一覧のみ、`--new-rule-date`で規則を入れた日を試せる）。条件は`docs/notes/branch-operations.md`「作業ログの寿命」

@@ -1,7 +1,7 @@
 # CHAT-1013-ACF-07
 
 - 着手日時: 2026-10-13
-- 対象issue: 未起票（起票後に追記）
+- 対象issue: #558（起票）
 - ブランチ: work/1013-acf-xsize
 - 着手時HEAD: 884aecaf1ed25627a01d6b6958f4b9a7685a2223
 
@@ -49,15 +49,56 @@ SNS ブックの X の画像 URL の大きさがそろっていない（`_80x80`
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+- 0章: ログの「指示」欄の末尾が指示文の最後の行（「不明な点があれば…この行が指示文の最後の行です。」）と一致することを確かめた
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- Chat-Ref の重複: `git fetch --unshallow` の後 `git log --all --grep="CHAT-1013-ACF-07"` は 0 件。ACF は同じチャットの識別子
+- 作業ブランチ: `work/1013-acf-xsize` はローカル・リモートとも無かったので `git checkout -b work/1013-acf-xsize origin/cloudflare`（884aecaf）
+- 手順1（重なりの確認）:
+  - issue の検索（「80x80 400x400 srcset」「画像 大きさ 解像度」）: #135・#359（クローズ）・#380（クローズ）・#25・#332（クローズ）。同じ目的のものは無い（#380 は X画像URL の処理の共通化、#359 は置き換えの揺れ）
+  - 未マージの work/ ブランチ: 1009-swp-526・1011-swp-hnd・1011-swp-nav・1012-dsn。`lib/sns.py`・`update_sns_book.py`・`sheets_write.py`・sns-book.md に触れるものは無い（1012-dsn は jpml_pros のスクリーンショットだけ）
+  - cloudflare の docs/logs で判断待ち・中断かつ SNS ブック等に触れるログ: 続きのあるものを除くと CHAT-1011-XAP-09（旧列を空にする判断。CHAT-1012-SNM-03 で旧列は 2026-10-12 に削除済みで、論点は解消）と CHAT-1013-ACF-06（画像の検知。指示文が前提で挙げたもの）。SNM の系列は CHAT-1013-SNM-13 が完了。止まる条件に当たらないと判断した
+  - mj-logs の `logs/` は、写し元の cloudflare と未マージの work/ のログを見たことで代えた（mj-logs への接続は試していない）
+  - #514（本文と最新のコメント、SNM-02・SNM-03 の報告）・#327（クローズ）・docs/notes/sns-book.md を読んだ。saikyo-page-design.md は 78KB のため X の画像の大きさに関わる箇所をコードのコメント（`generate_saikyo_pages.py`・`collect_saikyo_images.py`）で確かめた
+- 手順2: #558 を起票（ラベル 分野: パフォーマンス・分野: データ・対象: 全ページ・状況: 対応中。ラベルの一覧は REST で取得）。着手中のコメント https://github.com/retroeater/mj/issues/558#issuecomment-6135954276
+- 手順3:
+  - (a) SNS ブック【3】を gviz の CSV で読んだ（1,864行）。X画像URL のある 1,064 行: `_80x80` 829（すべて「プロ」・解決・取得日 2026-10-10）、`_400x400` 223（連盟プロ以外 208・プロ 15）、`_200x200` 11・`_normal` 1（すべて `abs.twimg.com` の既定アイコン）。【4】は0行。前提（828・223）と ±10 件以内
+  - `update_sns_book.py` の `x_cell()`: ID が同じで前の URL の `_400x400`・`_200x200`（`page_urls()`）が HEAD で取れれば、前の URL をそのまま残す。`_80x80` の行は書き換わらない（前提の未確認の点への答え）
+  - (b) cloudflare の生成物の末尾の数: books 80x80 81・400x400 76、houou 200x200 9,862・80x80 580、houou_race 200x200 8,520、jpml_pros 80x80 844、jpml_test 400x400 22、live 400x400 5,295、saikyo 400x400 15,903・200x200 7,794、saikyo_mens 80x80 90（別のブック）、title 400x400 1,831、wayhome 系 400x400 42。表示の大きさは style.css と各 JS の値（ブラウザでの実測はしていない）。シートの値をそのまま出すのは books/ の `author_image_url()` だけで、ほかは `lib/x_images.with_size()` で書き換えている
+  - (c) 7人分（シート `_80x80` 4人・`_400x400` 3人）を GET して大きさを読んだ: `_mini` 24・`_normal` 48・`_bigger` 73・`_reasonably_small` 128・`_80x80` 80・`_200x200` 200・`_400x400` 400・末尾なし 400 はすべて 200、`_96x96`・`_120x120` は 404。公式の文書は developer.x.com・docs.x.com がセッションから繋がらず（DNS 解決できない／プロキシ 403）、検索で旧 Twitter の文書「Profile images」（`_normal`・`_bigger`・`_mini`・元画像だけ）を確かめた
+  - (d) 案を #558 にコメント https://github.com/retroeater/mj/issues/558#issuecomment-6135967577
+  - 決定を docs/decisions/saikyo.md に足した（SNS ブックの決定の置き場所が saikyo.md のため）
+- コード・シート・ワークフローは変えていない
+- cloudflare へマージ: push 直前に再 fetch し `git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめて `git push origin work/1013-acf-xsize:cloudflare`（884aecaf..edaf5525）
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1013-acf-xsize
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1013-ACF-07.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1013-acf-xsize
+- 確認用URL: なし
+- マージ: 済（edaf5525。docs のみ: ログ・docs/decisions/saikyo.md）
+- issue: #558（起票。案は https://github.com/retroeater/mj/issues/558#issuecomment-6135967577 ）
+- 判断が必要なこと:
+  - jpml_pros の X アイコン（48px 表示）を `_80x80` のままにするか `_200x200` にするか（勧めるのは `_80x80` のまま）
+  - シートをそろえる手段: 案 A（毎日の更新で前の値を `_400x400` に直して書く。勧める）か 案 B（一度だけの書き換え）か
+  - 段階の進め方: 段階1（ページ側: books は `_200x200`、houou の表と houou_race の 28px は `_80x80`）を先に、段階2（シート側）を後にする2本の指示でよいか
+- 未確認の項目:
+  - 今の版の X の公式文書（developer.x.com・docs.x.com に繋がらない）。`_80x80`・`_200x200`・`_400x400` は実物で返ることだけを確かめた
+  - 各部品のブラウザでの表示の大きさ（CSS からの見立て）
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 8e07d685）: https://github.com/retroeater/mj-logs/tree/main/guide/8e07d685
+ガイド文書（この版を写した時点の最新、mj b5bbbea3）: https://github.com/retroeater/mj-logs/tree/main/guide/b5bbbea3
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/8e07d685/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/8e07d685/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/8e07d685/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8e07d685/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8e07d685/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8e07d685/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b5bbbea3/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b5bbbea3/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b5bbbea3/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b5bbbea3/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b5bbbea3/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b5bbbea3/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/2c5fedab.md
