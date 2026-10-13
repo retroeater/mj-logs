@@ -71,18 +71,30 @@
 - 生成し直し: `wayhome/index.html` の差は `<link rel="canonical" href="https://ryoei.pro/wayhome/">` の1行だけ。ほかのページは変わらない（`lib/page.py` は変えていない）
 - 文書: `docs/notes/cloudflare.md`「配信設定」の「canonicalは付けない」を「原則付けない。例外は帰り道の各話と一覧だけ」と基準に置き換えた。`docs/notes/video-wayhome.md` の #162 の「38ページにだけ付けた」を、各話と一覧・基準に置き換えた。決定を `docs/decisions/wayhome.md` に足した
 
+### 手順4 マージと確かめ
+
+- fetch 直後に `git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめ、`git push origin work/1013-whs-canonical:cloudflare`（426587e2..9bba7d55。8b86e568〈実装・生成物・文書〉とログのコミットを1回の push で）
+- 9bba7d55 の check-run: regenerate（push 契機）・check・sync は success。**Workers Builds: mj は failure**（04:33:41Z に始まり同じ秒に終わった。check-run の出力にはビルドの ID とダッシュボードへのリンクだけで、原因は書かれていない。ダッシュボードはこのセッションから見られない）
+- 本番（`curl`、`?v=<未使用の値>`）: `/wayhome/` は 04:34Z〜04:42Z（マージから15分）の間、canonical が無いまま（og:url は `https://ryoei.pro/wayhome/`）。前のデプロイのまま。「未確認の項目」に回した
+  - 2026-10-12 の WHS-19 でも、マージのコミットのビルドが失敗し、続くコミットのビルドで反映されたことがある。このログの push は `docs/` だけなので、ビルドは走らない（Build watch paths の Exclude `docs/**`）
+- #113 に「決定」の3つ目（例外を一覧に広げたことと基準）をコメントした（issue は閉じたまま）
+- 作業ブランチ: クラウドセッションからは削除できないため、`delete-merged-branches.yml` に任せる
+
+
 ## 報告
 
-- 状態: 中断（作業中）
+- 状態: 判断待ち（本番への反映が未確認）
 - ブランチ: work/1013-whs-canonical
-- ログ: https://github.com/retroeater/mj/blob/work/1013-whs-canonical/docs/logs/CHAT-1013-WHS-24.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1013-WHS-24.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1013-whs-canonical
-- 確認用URL: なし
-- マージ: 未
-- issue: #113
-- 判断が必要なこと: なし
-- 未確認の項目: なし
-- エラー: なし
+- 確認用URL: なし（プレビューは見ずにマージ）
+- マージ: 済（9bba7d55）
+- issue: #113（コメント）
+- 判断が必要なこと:
+  - マージのコミット（9bba7d55）の Workers Builds が失敗し、本番の `/wayhome/` に canonical がまだ出ていない。ダッシュボードでビルドをやり直すか、次にコード・生成物が cloudflare に入ったとき（週次の再生成など）のビルドを待つか
+- 未確認の項目:
+  - 本番の `/wayhome/` の canonical（`<link rel="canonical" href="https://ryoei.pro/wayhome/">`）。リポジトリの生成物には入っている
+- エラー: 9bba7d55 の Workers Builds: mj が failure（原因は check-run に書かれていない）
 
 <!-- guide-links -->
 ---
