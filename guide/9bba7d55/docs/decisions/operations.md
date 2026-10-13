@@ -424,3 +424,13 @@
 
 - 指示文はログの「指示」欄から public の mj-logs に出るので、ログに書かないもの（非公開の URL、シートの ID・URL など）は指示文にも書かない。ブックは `scripts/` の定数名などで呼ぶ（docs/notes/chat-side-operations.md に書く。メモリーではなく文書）
 - issue の本文など Code に引用させるものは、置き場所をログの `## 経過` に指定する（同上）
+
+## 2026-10-13（CHAT-1013-RGN-18）
+
+- 申送り B: 指示文の止まる条件は、対象が複数あるとき「未マージのブランチと重なる対象だけ外して残りを進めてよい。全部が重なるときだけ止まる」と書く（docs/instruction-template.md）
+- 振り返りの観点に「前回の振り返り・レビューで立てた約束が守られたか（守られなかったなら約束が過剰でなかったか）」を足す（docs/notes/chat-routines.md）
+- 申送り A（シートを直した後の確かめに `regenerate.py --check` を使う一句）は、docs/notes/chat-side-operations.md のレビュー（圧縮）の後に回す
+
+## 2026-10-13（CHAT-1013-RGN-19）
+
+- 申送り A を行う: docs/notes/chat-side-operations.md のシートの規則に「生成で止まるかどうかだけなら、先に `regenerate.py --check <ページ>` を流させる」を足す。今の規則（生成と同じ経路で読ませ、見出し・件数・既存の公開物との差を報告させる）は置き換えずに残す（`--check` はそれらを返さないため）

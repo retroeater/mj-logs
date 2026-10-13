@@ -56,6 +56,21 @@
 - WHS-23 のマージ（0637b1cc）は `origin/cloudflare` の祖先 → 済み
 - 作業ブランチ: `work/1013-whs-canonical` はローカル・リモートとも無し → `git checkout -b work/1013-whs-canonical origin/cloudflare`（426587e2）
 
+### 手順1 確かめ（前提と一致）
+
+- `video_wayhome.js` に `URLSearchParams`・`location.search`・`location.href`・`history.` は無い（絞り込みは URL を変えない）
+- `wayhome/index.html` の `rel="canonical"` は0件、og:url は `https://ryoei.pro/wayhome/`
+- `lib/page.py` の `PageMeta.canonical`（既定 `None`）を `_render_canonical()` が `<link rel="canonical" href="…">` にする
+- `docs/gsc/*/*/page.csv` の帰り道の一覧は `https://ryoei.pro/video_wayhome.html` の行だけ（3回の書き出しとも、`?` 付きは無い）
+- 未マージのブランチは `generate_video_wayhome.py`・`lib/page.py` に差分なし
+
+### 手順2・3 付ける・文書（8b86e568）
+
+- `generate_video_wayhome.py` の `META` に `canonical=LIST_URL`（WHS-23 で足した定数 `https://ryoei.pro/wayhome/`、og:url と同じ）
+- テスト: `test_wayhome_url.py` に1件（一覧の canonical が1つだけで値が `https://ryoei.pro/wayhome/`、og:url と同じ、`META.canonical == META.og_url`）。直す前の生成物では canonical が0件なので落ちる。全体 980件 OK
+- 生成し直し: `wayhome/index.html` の差は `<link rel="canonical" href="https://ryoei.pro/wayhome/">` の1行だけ。ほかのページは変わらない（`lib/page.py` は変えていない）
+- 文書: `docs/notes/cloudflare.md`「配信設定」の「canonicalは付けない」を「原則付けない。例外は帰り道の各話と一覧だけ」と基準に置き換えた。`docs/notes/video-wayhome.md` の #162 の「38ページにだけ付けた」を、各話と一覧・基準に置き換えた。決定を `docs/decisions/wayhome.md` に足した
+
 ## 報告
 
 - 状態: 中断（作業中）
@@ -72,12 +87,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 426587e2）: https://github.com/retroeater/mj-logs/tree/main/guide/426587e2
+ガイド文書（この版を写した時点の最新、mj 9bba7d55）: https://github.com/retroeater/mj-logs/tree/main/guide/9bba7d55
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/426587e2/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/426587e2/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/426587e2/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/426587e2/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/426587e2/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/426587e2/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9bba7d55/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9bba7d55/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9bba7d55/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9bba7d55/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9bba7d55/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9bba7d55/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b5bbbea3.md
