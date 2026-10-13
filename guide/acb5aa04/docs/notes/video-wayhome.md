@@ -1,4 +1,4 @@
-# video_wayhome / wayhome エピソードページの実装記録
+# 帰り道（一覧 wayhome/index.html・各話 wayhome/）の実装記録
 
 このファイルは完了済み作業の記録。現状とルールは docs/handover.md。
 
@@ -27,7 +27,7 @@ SNS ブックの更新・/live の取り込みから呼ばれた再生成では�
 | YouTube で見られなくなった回 | 成功 | 前回の情報のままページを残す。消すならシートの行を消す |
 
 - 仕組み: 「帰り道のYouTube情報を取得」（`scripts/fetch_youtube_meta.py`。閲覧数・取得日時は保存せず、中身が変わったときだけ差分が出る。返らなかった回は前回の値を残す）→
-  「帰り道の一覧のOGP画像を作る」（`scripts/build_wayhome_ogp.py`、Pillow）→ 再生成 → コミット（画像は `video_wayhome.html` を作り直せたときだけ入れる）→
+  「帰り道の一覧のOGP画像を作る」（`scripts/build_wayhome_ogp.py`、Pillow）→ 再生成 → コミット（画像は一覧 `wayhome/index.html` を作り直せたときだけ入れる）→
   「帰り道の取り込みを調べる」（`scripts/check_wayhome.py`）→ 常設 issue へのコメント（前回の状態はコメントの末尾の隠した注記 `<!-- wayhome-state: … -->`）
 - 一覧の OGP 画像 `img/ogp/wayhome/index-<最新話の公開日>.jpg`（最新4本のサムネイルを2×2に並べたもの、#339）。最新話と同じ公開日の回が N 本（N≥2）なら `index-<日付>-N.jpg`。
   古い `index*.jpg` は削除する（`/img/*` は immutable 配信のため同じURLで中身を変えない、`docs/notes/ogp.md`）。同じ名前で中身が違う（サムネイルの差し替えなど）ときは上書きせず今のファイルを残す。
@@ -53,6 +53,22 @@ SNS ブックの更新・/live の取り込みから呼ばれた再生成では�
 OGP画像やタイトルを変えたあと X で確認するときは、URLに `?x=<未使用の数字>` を付けて貼る（X はカードの取得結果をキャッシュするため）。詳細は `docs/notes/ogp.md`。
 
 ---
+
+### 一覧の URL を /wayhome/ に移した（#559、2026-10-13）
+
+- 一覧は `wayhome/index.html`（URL は `/wayhome/`）。生成は今までどおり `scripts/generate_video_wayhome.py`（`regenerate.py` のページ名 `video_wayhome`、JS の `video_wayhome.js` もそのまま）。`regenerate.py` の `OUTPUT_OVERRIDES` で出力を `wayhome/index.html` にした
+- 旧 URL は `_redirects` で転送: `/video_wayhome.html /wayhome/ 301`・`/wayhome /wayhome/ 301`・`/wayhome/ /wayhome/index.html 200`（`html_handling: none` のためディレクトリの URL は index.html を明示する）
+- 一覧の中の共通アセット・期のページへは `../`、各話へは同じディレクトリ（`<動画ID>.html`）。各話の「一覧に戻る」とシリーズ名は `./`、`BreadcrumbList` の一覧は `https://ryoei.pro/wayhome/`
+- 各話の生成がシートに無いファイルを消すとき、一覧の `index.html`（`LIST_FILENAME`）は消さない
+- サイトマップ: 一覧の URL は `sitemap-pages.xml` から外し、各話の生成が書く `sitemap-wayhome.xml` の先頭に置く
+- `regenerate-page.yml` は、一覧の OGP 画像を一覧（`wayhome/index.html`）を作り直せたときだけ同じコミットに入れる
+
+### 前後のエピソードの並び・日付と、各話の説明文（2026-10-13）
+
+- 各話の前後のエピソードは、下の「〇〇の他のエピソード」（左ほど新しい）に合わせて、左（DOM の先）に「次のエピソード」（新しい回）、右に「前のエピソード」（古い回）。スマホ幅で縦に積むと上が次。最新話（「前」だけ）は右の列、最古の回（「次」だけ）は左の列に置き、もう片方は空ける（576px 以上で2列の格子。リンクの `is-next`・`is-prev`）。575px 以下は1枚が全幅
+- 方向の文字のすぐ下にその回の公開日（`YYYY-MM-DD`、下のカードと同じ書き方・大きさ・色、`.mj-video-prevnext-date`）
+- 各話はページ末尾の説明文（`.mj-lead`）を出さない（ヒーローの紹介文と同じ文のため。`render_content(..., has_lead=False)`）。meta description・og:description・`VideoObject.description` はそのまま
+- 一覧の説明文は、上のカードの並び（`.mj-fullbleed`）と同じ左右の余白（`clamp(12px, 3vw, 48px)`）で画面幅に合わせて折り返す（`body:has(.mj-video-list) .mj-lead`）
 
 ### 件数の表示を消し、ヒーローの X・note を X の写真1つにした（2026-10-10）
 
@@ -370,10 +386,11 @@ sitemap分割を、1/30程度の規模で先に検証する狙い。実装は
 （youtube.com）を指していたためと見ており、個別ページ（自サイトURL）が
 できたことで初めてカルーセルの候補になりうる（#162コメント参照）。
 
-**canonicalは#113の例外として38ページにだけ付けた。** #113は「現行
+**canonicalは#113の例外として、帰り道の各話と一覧（`/wayhome/`、2026-10-13 に足した）にだけ付けている。** #113は「現行
 サイトにはcanonicalを付けない（Googleの正規化任せ）」と判断したが、
-理由は`?name=`付きURLの検索流入14件を正規化で失うことだった。個別
-ページは`?name=`等のURL変種を持たないため、この懸念が当てはまらない。
+理由は`?name=`付きURLの検索流入14件を正規化で失うことだった。例外の基準は
+「URL の別形（`?name=` などのクエリで中身が変わる URL）を持たず、Search Console にも `?` 付きの URL が出ていないページ」で、
+各話も一覧（絞り込みは URL を変えない）も当てはまる。一覧の canonical は `https://ryoei.pro/wayhome/`（og:url と同じ。`/wayhome/index.html`・`?utm_…` をまとめる）。
 `lib/page.py`の`PageMeta`に`canonical`（既定`None`）・`og_image`/
 `og_image_width`/`og_image_height`/`og_image_alt`（既定は全ページ共通の
 `img/ogp.png`・1200×630）を追加し、ページごとに差し替えられるようにした。
@@ -393,7 +410,7 @@ og:imageは各エピソードのサムネイル（一覧のヒーローと同じ
 した（シートから消えた動画IDのページを削除するため）。
 
 **thin content・重複コンテンツの懸念は残る。** 各ページの本文は
-`VideoObject`の`description`と`.mj-lead`が同一文言で、ページごとの
+`VideoObject`の`description`と`.mj-lead`が同一文言で（→ 2026-10-13 に各話の`.mj-lead`は消した。紹介文はヒーローと meta・`VideoObject`）、ページごとの
 独自テキストは実質的にタイトル戦名・選手名・公開日のみ。1,000ページ超の
 選手個別ページで同じ構成を使う場合、レーダーチャートや成績詳細など
 （docs/new-site-design.md「3. 画面構成」）でページ固有の情報量を

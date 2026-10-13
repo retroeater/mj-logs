@@ -61,6 +61,50 @@ CHAT-1013-SNM-15 の調べで、正本の「リーグ」タブを読むのは `l
 
 ## 経過
 
+### 0章
+
+- 指示欄の末尾は指示文の最後の行と一致している。Chat-Ref の重複なし。work/1013-snm-league はローカル・リモートとも無かったので origin/cloudflare（9bba7d55）から作った
+- CHAT-1013-SNM-15 の `## 報告` は 状態「完了」
+- その他マスタの「リーグ」タブ（2回読んで 見出し タイトル戦・リーグ名・リーグID、20行）で、女流桜花の ID 0 は「桜花」
+
+### 手順1 確かめ
+
+- 正本の「リーグ」（今の `league_maps()` で読んだもの）とその他マスタの「リーグ」を ID ごとに比べた: 鳳凰戦 0〜13（鳳凰位・A1〜E3）、女流桜花 0〜5（桜花・A・B・C1・C2・C3）の20組がすべて同じ。違い 0
+- 未マージのブランチとの重なり: 直すファイルを変えているのは `origin/work/1012-dsn` の `scripts/generate_houou_pages.py` だけ。dsn の変更は72行目以降（表示の部品）で、こちらは52行目（`FIRST_SHEET` の定数を消す）と110行目（`fetch_records()` の引数）。別の箇所
+
+### 手順2 直した箇所（25c2299d・c7700d74）
+
+| ファイル・関数 | 何を変えたか |
+|---|---|
+| `scripts/lib/sheets.py` `check_sheet_exists()`（新） | タブの有無を htmlview のタブの一覧（`_sheet_gids()`、フィルタの確認で前から読んでいるもの）で確かめ、無いタブ名は「「…」シートがありません(タブ: …)」で止める。先頭のタブの名前には頼らない。一覧が読めないときだけ、読んだ中身が先頭のタブと同じなら止める（無いタブを読んだかもしれないため） |
+| `scripts/lib/sheets.py` `fetch_records()`・`fetch_table()` | 引数 `first_sheet` を消し、`check_sheet_exists()` を使う（フィルタの確認より先に） |
+| `FIRST_SHEET` の定数（`lib/pro_sheet.py`・`lib/pro_stats.py`・`lib/houou_tab.py`・`lib/live.py`・`lib/live_layer3.py`・`generate_houou_race.py`・`generate_houou_pages.py`） | 消した |
+| 呼び出し35か所（23ファイル） | 最後の引数（先頭のタブ名）を消した。機械的に置き換え |
+| `scripts/lib/pro_stats.py` `league_maps()`・`fetch_sources()` | その他マスタ（`LEAGUE_SPREADSHEET_ID = live.SPREADSHEET_ID`）の「リーグ」を、見出し タイトル戦・リーグ名・リーグID で読む。「鳳凰戦」「女流桜花」で分ける。見出しの欠け・重複、同じタイトル戦の ID の重複、どちらかのタイトル戦の行が無いときは止める |
+| `scripts/check_leagues_dropped.py` `analyze()` | 生成と同じ `mod.load()`（鳳凰は見出しで読む）で行と候補を読む。`generate_houou_leagues.QUERY` を読まない |
+| テスト | `test_sheets_filter.py` に `SheetExistsTest`（先頭のタブを名前に頼らず通す・中身が違っても無いタブは止める・一覧が読めないときの扱い）、`test_pro_stats.py` の `LeagueMapsTest` を縦の並びに、`test_sns_book.py` の差し替えの引数 |
+
+- `python3 -m unittest discover -s scripts/tests`: 984件 OK
+- `check_leagues_dropped.py` を手元で動かした: rc=0。鳳凰: 行 16,011・期 52・候補 715・option 690・データのある選手 1,296・候補に無い 606・データの無い候補 25・「#127以前は選べたが、いま選べない」67名。桜花: 行 1,561・期 20・候補 177・option 163・データのある選手 248・候補に無い 85・データの無い候補 14・同 13名。直近（43前・42後）まで出ていた人（林潤一郎・髙田翔ほか。桜花は土田小緒里ほか）も並ぶが、どれも「プロ」にも名簿にもいない（退会・改名。樫野凪は「別名」で「かしのなぎ」）。参考情報で、直すことは無い
+
+文書: `docs/notes/static-generation.md`（タブの有無の確かめ方、jpml_pros の成績の「リーグ」の出どころと読み方）、`docs/notes/live-page-design.md`（シートの読み方、「連盟プロ以外」が先頭のタブという記述を外した）、`docs/notes/title-pages.md`（同じ）
+
+### 手順3 確かめ
+
+(a) 今のシートで、直す前（origin/cloudflare の scripts/ を作業ツリーに戻して）と直した後を続けて、全ページを1ページずつ生成:
+
+- 終了コードは同じ（22ページ rc=0、books_pages は前からの「書籍」95行で rc=3）
+- 生成物の木（scripts/ を除いた作業ツリーを一時の index で書いた tree）が直す前と直した後で同じ（21ca6e97）。コミット済みの HEAD とも差 0。jpml_pros の「桜花最高」なども今と同じ
+
+(b) 模擬（`lib.sheets._sheet_gids`・`_query` を差し替える `sitecustomize.py`。シートは変えない）:
+
+| 模擬 | 内容 | 結果 |
+|---|---|---|
+| 正本の「リーグ」が無い | タブの一覧から「リーグ」を外し「プロ」を先頭に。無いタブ名には「プロ」の中身を返す | 全ページの終了コードが (a) と同じ、生成物の木も同じ（21ca6e97）。無いタブを読んだページは無い。「リーグ」を読むと「「リーグ」シートがありません」で止まる。**直す前のコードでは同じ模擬で jpml_pros・houou_race が「「プロ」シートがありません(gviz が先頭のタブを返しました)」で止まる** |
+| その他マスタの先頭を「連盟プロ以外」に戻す | 一覧の先頭を「連盟プロ以外」に。無いタブ名には「連盟プロ以外」の中身を返す | 全ページの終了コード・生成物の木とも (a) と同じ。無いタブ名を読むと止まる |
+
+ほかに、呼び出しを直したスクリプトを動かした: check_meibo・check_saikyo_unregistered・check_unused_names（`--no-issue`）・check_ampai・sync_birthday_calendar（既定）・`regenerate.py --check all`・check_wayhome は rc=0。sync_books_calendar（「書籍」95行）と sync_live_calendar（`google.auth` が無い）は、直す前のコードでも同じ理由で止まる
+
 ## 報告
 
 - 状態: 対応中
@@ -77,12 +121,12 @@ CHAT-1013-SNM-15 の調べで、正本の「リーグ」タブを読むのは `l
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 9bba7d55）: https://github.com/retroeater/mj-logs/tree/main/guide/9bba7d55
+ガイド文書（この版を写した時点の最新、mj acb5aa04）: https://github.com/retroeater/mj-logs/tree/main/guide/acb5aa04
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9bba7d55/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9bba7d55/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9bba7d55/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9bba7d55/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9bba7d55/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9bba7d55/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/acb5aa04/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/acb5aa04/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/acb5aa04/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/acb5aa04/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/acb5aa04/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/acb5aa04/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b5bbbea3.md
