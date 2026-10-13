@@ -76,6 +76,11 @@ RGN-07〜17 の振り返り（2026-10-13、Fable 5.1 のレビュー済み）の
 | docs/notes/chat-routines.md | 4,878 | 5,061（上限なし） |
 | docs/notes/chat-side-operations.md | 25,112 | 25,112（変えていない） |
 
+### マージ
+
+- `git fetch` のうえ `git merge-base --is-ancestor origin/cloudflare HEAD` が真 → `git push origin work/1013-rgn:cloudflare`（d7543197..caabc1d8）
+- caabc1d8 の check-run: check（assets-check を含む2つ）とも success
+
 ## 報告
 
 - 状態: 完了
@@ -83,7 +88,7 @@ RGN-07〜17 の振り返り（2026-10-13、Fable 5.1 のレビュー済み）の
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1013-RGN-18.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1013-rgn
 - 確認用URL: なし
-- マージ: 済（マージの SHA は `## 経過` の末尾）
+- マージ: 済（caabc1d8。このログの仕上げは追いの push）
 - issue: なし
 - 判断が必要なこと: なし
 - 未確認の項目: なし
