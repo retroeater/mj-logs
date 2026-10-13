@@ -59,6 +59,49 @@ Chat-Ref: CHAT-1013-BLD-02
 - ブランチ: ローカルの `work/1013-bld` は `origin/cloudflare` の祖先（リモートもマージ済み）→ `git merge --ff-only origin/cloudflare`（ed93cb731..287861d4d）
 - 雛形の行: Chat-Ref・マージ・貼る時機・共通手順・作業ブランチが揃っている
 
+### 手順1
+
+- 既定ブランチ: REST `repos/retroeater/mj` の `default_branch` は `cloudflare`（前提と一致）。リポジトリは private
+- BLD-01 の後に作られた issue は #558・#559 だけ（いずれも別の論点）。同じ論点の issue は増えていない
+- 未マージの `work/` ブランチで `.github/workflows/` を変えるコミットは無い（check_run のワークフローも無い）。既存で `workflow_run` を使うのは `regenerate-saikyo.yml`・`update-live-channel.yml`、`check_run` を使うものは無い
+
+### 手順2: 方式 A の実現性
+
+**(a) 起動回数の見込み。** 2026-10-09 06:00Z 以降の全リモートブランチのコミット 1135 件の check-runs（`?filter=all`）を引き、completed_at が 2026-10-10 00:00〜10-13 00:00 JST の3日間の completed を数えた（重複は check-run の id で除いた）。
+
+| check-run | 3日 | 1日あたり |
+|---|---|---|
+| Workers Builds: mj（`Preview URL` あり） | 203 | 67.7 |
+| Workers Builds: mj（`Preview URL` 無し） | 83 | 27.7 |
+| Workers Builds: mj-scheduler | 12 | 4.0 |
+| Workers Builds: mj-ask | 1 | 0.3 |
+| Actions のジョブ（check 296・regenerate 70・sync 28・update 21 ほか） | 442 | 147.3 |
+
+- Actions のジョブの check-run は A を起動しない（下の (c) の「recursive」の文）。**A の起動は Workers Builds の completed の分だけで、1日約100回**
+- このうち Actions の `GITHUB_TOKEN` で push されたコミット（作者 github-actions[bot]、`chore: regenerate` など）の分は 3日で 18 回（`Preview URL` 無し 12・あり 6）。下の (c) の文から、**これらは A を起動しない可能性がある（未検証）**
+- Workers Builds の check-run は1回のビルドで2本（`in_progress` のまま残る1本と completed の1本）。`types: [completed]` なら起動は completed の1本だけ
+
+**(b) 本番とプレビューを見分ける項目。** GitHub の webhook の `check_run.completed` の payload（github/rest-api-description の `webhook-check-run-completed` のスキーマで確認）の `check_run` の項目は app・check_suite・completed_at・conclusion・deployment・details_url・external_id・head_sha・html_url・id・name・node_id・output（annotations_count・annotations_url・summary・text・title）・pull_requests・started_at・status・url。`check_run.check_suite` に head_branch・before・after がある。既存の check-run と照合した結果:
+
+- **`output.summary` の `Preview URL` は、成功したビルドにしか出ない。失敗したビルドは本番もプレビューも `Build ID` と `Script` の2行だけで同じ**（3日＋10/13 の Workers Builds の failure 10 件すべて）。`details_url` も本番・プレビューとも `.../services/view/mj/production/builds/<Build ID>` で同じ。**前提の A の条件（`Preview URL` が無い＝本番）は失敗の判定には使えない**
+- **`check_suite.head_branch` はそのコミットを最初に push したブランチ**（check suite はアプリとコミットごとに1つ）。本番で失敗した 5cbc83eb の suite は `work/1013-snm-check`、`mj-scheduler` が本番で失敗した 86979e3d の suite は `work/1012-dsn`。本番の判定には使えない
+- check-runs から読めた failure（Workers Builds: mj）は、BLD-01 の5回のほかに 10/12 の4回: f09571e4（07:46:18Z → 08:17:18Z、約31分。suite は `work/1012-whs-final`）・19b99cc9（13:08:27Z → 13:09:46Z、`work/1012-gcl`）・b0ee350e（13:22:34Z → 13:24:07Z、`work/1012-rvc`）・7ac2439e（14:50:07Z → 15:21:07Z、`work/1012-bot`）。どれが本番かは check-run からは決まらない。f09571e4 は BLD-01 の申告値（本番、約30分で失敗）と時間が合う。プレビューの失敗も 10/12 に起きていた可能性がある
+- 確実に見分けられるのは Cloudflare 側の値: ビルドの API（`builds/builds/<Build ID>`）か、候補 C のイベントの `payload.buildTriggerMetadata.branch`（下の (d)）。A で本番だけに絞るには、Build ID から Cloudflare の API を引く（Cloudflare のトークンが Actions に要る）か、`head_sha` が今の `cloudflare` の先頭かを GitHub の API で見る（近似。同じコミットを作業ブランチと cloudflare に push したときのプレビューの失敗は区別できない）
+
+**(c) `check_run` で動くワークフローの制約**（docs.github.com はセッションのプロキシで拒否〈CONNECT 403〉されたため、同じ文書の原稿 github/docs の raw で読んだ。公開ページは https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#check_run ）:
+
+- 「This event will only trigger a workflow run if the workflow file exists on the default branch.」（`data/reusables/actions/branch-requirement.md`）
+- 「To prevent recursive workflows, this event does not trigger workflows if the check run's check suite was created by GitHub Actions or if the check suite's head SHA is associated with GitHub Actions.」
+- 活動の種類は created・rerequested・completed・requested_action。`GITHUB_SHA` は「Last commit on default branch」、`GITHUB_REF` は既定ブランチ。`check_run` には `branches` の絞り込みが無い（`workflow_run` と違う）ので、絞り込みはジョブの `if:` で行う
+- `GITHUB_TOKEN`: 「events triggered by the `GITHUB_TOKEN` will not create a new workflow run」（`workflow_dispatch`・`repository_dispatch` は例外。`data/reusables/actions/actions-do-not-trigger-workflows.md`）。Workers Builds の check-run は Cloudflare のアプリ（`cloudflare-workers-and-pages`）が作るので、この制約には当たらない見込み。ただし上の「head SHA is associated with GitHub Actions」が、`GITHUB_TOKEN` で push したコミット（`chore: regenerate`）を指すかは文書から決まらない
+
+**(d) skipped の実行と使用分。** ジョブの `if:` で絞ると、1日約100回の実行がジョブ skipped で Actions の一覧に残る。skipped のジョブはランナーを使わない。リポジトリは private なので Actions の分は枠を使うが、ジョブが走るのは失敗のときだけ。mj-logs の `actions/status.md` は各ワークフローの直近5回（`scripts/actions_status.py` の `RUNS_PER_WORKFLOW`）なので、この行はほぼ skipped で埋まり、失敗は1時間ほどで表から消える
+
+**(e) 候補 C の公式ドキュメント**（developers.cloudflare.com、2026-10-13 に取得）:
+
+- イベント `cf.workersBuilds.worker.build.failed` の payload に `source.workerName` と `payload.buildTriggerMetadata.branch`・`commitHash`・`buildOutcome` がある（https://developers.cloudflare.com/queues/event-subscriptions/events-schemas/ ）。本番かどうかを branch で確実に見分けられる
+- Queues の料金: Workers Free は「10,000 operations/day included」、1通に約3 operations（https://developers.cloudflare.com/queues/platform/pricing/ ）。失敗のイベントだけなら枠の心配は無い見込み。Free で Event subscriptions が使えるか・消費する Worker（`mj-scheduler` に足すなど）の作りは未確認
+
 ## 報告
 
 - 状態: 作業中
