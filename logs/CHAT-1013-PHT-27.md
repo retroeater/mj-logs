@@ -118,6 +118,25 @@ CLAUDE.md「作業ログ」節の該当の2行（実物）:
 - 未マージの `work/` ブランチで docs/notes/chat-side-operations.md・handover-archive-2026.md・docs/decisions/operations.md を変えているものは無い
 - 成果物のコミット: 0f6618d4
 
+### 手順3: マージ
+
+- `git merge-base --is-ancestor origin/cloudflare HEAD` が真（取り込み不要）。cloudflare との差は docs/decisions/operations.md・docs/logs/CHAT-1013-PHT-27.md・docs/notes/chat-side-operations.md・docs/notes/handover-archive-2026.md だけ
+- `git push origin work/1013-pht-handover:cloudflare`: b5bbbea3..7929efdc
+- 7929efdc で動いたもの: 公開対象を検査する（assets-check.yml。サイズの検査を含む）が cloudflare・work/1013-pht-handover の push とも success、check 2件 success。Workers Builds: mj の check-run は確かめた時点（push の約1分後）でこのコミットに付いていなかった（docs だけの変更で、止まる条件の対象外）
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1013-pht-handover
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1013-PHT-27.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1013-pht-handover
+- 確認用URL: なし
+- マージ: 済（7929efdc）
+- issue: なし
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
