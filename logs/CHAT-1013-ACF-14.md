@@ -76,16 +76,30 @@ Chat-Ref: CHAT-1013-ACF-14
 - 直した後のサイズ: chat-side-operations.md 25,669（+343、警告域まで 955）・instruction-template.md 13,734（+171、警告域まで 602）・handover-archive-2026.md 97,988（+1,416）。どちらも警告域の内なので、整理は要らなかった
 - 手順3: 決定を docs/decisions/operations.md に足した
 - 差分の範囲: 上の3文書・docs/decisions/operations.md・ログだけ（83331c4c）
+- `origin/cloudflare` を取り込んだ（衝突なし）。取り込み後のサイズも警告域の内（下の報告）
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1013-acf-rules
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1013-ACF-14.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1013-acf-rules
+- 確認用URL: なし（docs のみ。サイズ: chat-side-operations.md 25,326→25,669・instruction-template.md 13,563→13,734・handover-archive-2026.md 96,572→97,988 バイト）
+- マージ: 済（88e6ea0d。ed93cb73..88e6ea0d）
+- issue: なし
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj ed93cb73）: https://github.com/retroeater/mj-logs/tree/main/guide/ed93cb73
+ガイド文書（この版を写した時点の最新、mj edaefa8f）: https://github.com/retroeater/mj-logs/tree/main/guide/edaefa8f
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ed93cb73/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ed93cb73/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ed93cb73/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ed93cb73/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ed93cb73/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/ed93cb73/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/edaefa8f/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/edaefa8f/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/edaefa8f/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/edaefa8f/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/edaefa8f/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/edaefa8f/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/7320c071.md
