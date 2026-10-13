@@ -1,7 +1,7 @@
 # CHAT-1013-WHS-23
 
 - 着手日時: 2026-10-13
-- 対象issue: 起票する（経過に書く）
+- 対象issue: #559
 - ブランチ: work/1013-whs-url
 - 着手時HEAD: 346c65b1
 
@@ -91,15 +91,25 @@
 - `/video_wayhome.html` → 301 → `/wayhome/`、`/wayhome` → 301 → `/wayhome/`、`/wayhome/` 200、`/wayhome/index.html` 200、`/wayhome/Yjp_PKHvldw.html` 200
 - リンク切れの検査（ページ内の href・src・data-fallback のうちサイト内のもの）: 一覧 50件・各話 15件、切れなし（一覧の1件は通信のタイムアウトで、取り直すと 200）。各話の「一覧に戻る」（`./`）は `/wayhome/` に解決する
 
+### 手順4 マージと確かめ
+
+- 決定を `docs/decisions/wayhome.md` に足した（551e53e7 に含む）
+- fetch 直後に `git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめ、`git push origin work/1013-whs-url:cloudflare`（346c65b1..0637b1cc）
+- 0637b1cc の check-run: Workers Builds: mj・regenerate（push 契機）・check・sync すべて success（04:04Z までに完了）
+- 本番（`curl`、`?v=<未使用の値>`）: `/video_wayhome.html` → 301 → `/wayhome/`、`/wayhome` → 301 → `/wayhome/`、`/wayhome/` 200、`/wayhome/Yjp_PKHvldw.html` 200。`wayhome/index.html`・`wayhome/Yjp_PKHvldw.html`・`navbar.js` は `origin/cloudflare` の中身とバイト単位で一致。リンク切れの検査: 一覧 50件・各話 16件、切れなし。ここで確かめたのは本番の HTML と応答まで
+- #559 に結果をコメントして閉じた（「状況:」ラベルは付いていなかった）
+- 作業ブランチ: クラウドセッションからは削除できないため、`delete-merged-branches.yml` に任せる
+
+
 ## 報告
 
-- 状態: 中断（作業中）
+- 状態: 完了
 - ブランチ: work/1013-whs-url
-- ログ: https://github.com/retroeater/mj/blob/work/1013-whs-url/docs/logs/CHAT-1013-WHS-23.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1013-WHS-23.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1013-whs-url
-- 確認用URL: なし
-- マージ: 未
-- issue: なし
+- 確認用URL: なし（プレビューは見ずにマージ。プレビューと本番で転送とリンクを確かめた）
+- マージ: 済（0637b1cc）
+- issue: #559（起票・クローズ）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
