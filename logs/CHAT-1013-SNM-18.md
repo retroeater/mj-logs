@@ -74,18 +74,21 @@ CHAT-1013-SNM-17 で、「プロ」の「表示」が N の人を、本人のペ
 - 決定: `docs/decisions/pros.md` に「2026-10-13（CHAT-1013-SNM-18）」の節を足した
 - 正本の「リーグ」を消した後の最初の regenerate-page.yml: run 38350905330（push、2026-10-13 05:20 UTC、86979e3d〈dsn のマージ〉）。SNM-17 の着手時（この run より前）に「リーグ」が消えていたのを確かめているので、これが消した後の最初の run。対象は houou/（正本の「プロ」「鳳凰」を読む）で、ジョブは success、「対象ページを再生成」success、コミットは「変更なし」。毎日の予約実行は、消した後まだ無い
 
+- マージ: `git merge-base --is-ancestor origin/cloudflare HEAD` を確かめて `git push origin work/1013-snm-hide:cloudflare`（feff70b6）
+- マージ後の自動再生成: regenerate-page.yml（push）の run 38362749491 は success。生成物に変わりが無く、再生成のコミットは無い
+
 ## 報告
 
-- 状態: 対応中
+- 状態: 完了
 - ブランチ: work/1013-snm-hide
-- ログ: https://github.com/retroeater/mj/blob/work/1013-snm-hide/docs/logs/CHAT-1013-SNM-18.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1013-SNM-18.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1013-snm-hide
-- 確認用URL:
-- マージ: 未
+- 確認用URL: なし（生成物に差が無いため）
+- マージ: 済（feff70b6）
 - issue: なし
-- 判断が必要なこと:
-- 未確認の項目:
-- エラー:
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
