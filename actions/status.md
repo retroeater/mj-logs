@@ -12,11 +12,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-10-13 13:32 | push | work/1013-acf-xsize | in_progress | #3427（38346947346） |  |
+| 2026-10-13 13:33 | push | work/1013-acf-xsize | queued | #3428（38347027504） |  |
+| 2026-10-13 13:32 | push | work/1013-acf-xsize | success | #3427（38346947346） | 0分20秒 |
 | 2026-10-13 13:32 | push | work/1013-acf-xsize | success | #3426（38346921783） | 0分15秒 |
 | 2026-10-13 13:26 | push | cloudflare | success | #3425（38346440477） | 0分17秒 |
 | 2026-10-13 13:26 | push | work/1013-whs-canonical | success | #3424（38346437893） | 0分12秒 |
-| 2026-10-13 13:15 | push | work/1013-snm-check | success | #3423（38345562952） | 0分13秒 |
 
 ## check-image-links.yml
 
@@ -233,14 +233,13 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-13 13:33 | workflow_dispatch | work/1013-acf-xsize | queued | #18（38347038845） |  |
+| 2026-10-13 13:33 | workflow_dispatch | cloudflare | queued | #17（38347036103） |  |
 | 2026-10-13 11:12 | workflow_dispatch | cloudflare | failure | #16（38335781712） | 3分40秒 |
 | 2026-10-13 04:10 | workflow_dispatch | cloudflare | success | #15（38295925154） | 0分38秒 |
 | 2026-10-12 14:22 | workflow_dispatch | cloudflare | success | #14（38207634224） | 0分21秒 |
-| 2026-10-12 04:10 | workflow_dispatch | cloudflare | failure | #13（38166926033） | 5分10秒 |
-| 2026-10-11 04:10 | workflow_dispatch | cloudflare | success | #12（38078775949） | 0分50秒 |
 
 - #16 failure: ジョブ「regenerate / regenerate」 ステップ「飛ばしたページを報告」
-- #13 failure: ジョブ「regenerate / regenerate」 ステップ「帰り道の前回の知らせを読む」
 
 ## write-live-channel-candidate.yml
 
