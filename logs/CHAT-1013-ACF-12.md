@@ -55,6 +55,41 @@ books/ は開発凍結中（docs/notes/books-freeze.md）で再生成されな�
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+- 0章: ログの「指示」欄の末尾が指示文の最後の行と一致することを確かめた。CHAT-1013-ACF-11 の `## 報告` の状態は「判断待ち」
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- Chat-Ref の重複: `git log --all --grep="CHAT-1013-ACF-12"` は 0 件
+- ログの先行 push（着手時HEAD の次のコミット）の後に、ブランチの差を確かめた: cloudflare との差は ACF-08・ACF-10・ACF-11・ACF-12 のログ、docs/decisions/saikyo.md、ea80330e の `generate_books_pages.py`・`test_books_pages.py` だけ。`git merge origin/cloudflare` は衝突なし（ba65e79f）
+- 手順1: 未マージの work/ ブランチ（1009-swp-526・1011-swp-hnd・1011-swp-nav・1012-dsn）で `update_sns_book.py`・`lib/sns.py`・`lib/x_images.py`・`sheets_write.py`・update-sns-book.yml に触れるものは無い。#558 は Open、他セッションの着手中は無い。着手中のコメント https://github.com/retroeater/mj/issues/558#issuecomment-6138285405
+- 手順2: `git revert ea80330ee`（c9c81200。revert の既定のメッセージにトレーラが無かったため、push 前に `--amend` でメッセージを直した）。`git diff origin/cloudflare -- scripts/generate_books_pages.py scripts/tests/test_books_pages.py` は空
+- 手順3:
+  - `x_cell()` は前提のとおり（同じ ID で `reach.all_ok(old[1])` が真なら `old` をそのまま返す。取り直しに失敗・上限のときも `old[1]` を残す。UNREACHABLE のときも `old[1]`）
+  - 直し方: `old` を作る所で X画像URL を `with_size(…, SIZE_400)` にそろえた（`old[1]` を返すすべての経路に効く）。`with_size()` は `pbs.twimg.com/profile_images/` の末尾だけを書き換え、既定アイコン（`abs.twimg.com`）と X 以外はそのまま。取得日（`old[2]`）は変えない
+  - テストを3件足した（`test_old_80x80_is_kept_as_400x400_without_calling`・`test_default_avatar_is_kept_as_is`・`test_old_80x80_is_kept_as_400x400_when_refetch_fails`）。直す前のコードでは1件目と3件目が FAIL（2件目は変わらないことの確かめなので前後とも通る）。X API の呼び出しの数（`f.calls`）はどれも 0 を確かめている。全体のテスト OK（a1d4d264）
+- 手順4（update-sns-book.yml、`mode: update`・`dry_run: true`）:
+  - 直す前（ref cloudflare）https://github.com/retroeater/mj/actions/runs/38347036103 : X API を呼ぶ予定 0、X状態 解決 1051・未入力 780・既定のアイコン 12・アカウントなし(確認済み) 1、ページが使う値が変わった人 0
+  - 直した後（ref work/1013-acf-xsize、1回目）https://github.com/retroeater/mj/actions/runs/38347038845 : **X API を呼ぶ予定 1**（X状態 解決 1050・dry-run(呼ぶ予定) 1 ほかは同じ）、「【3】画像取得 を書き直します」、変わった人 828
+  - 直した後（2回目、同じコード）https://github.com/retroeater/mj/actions/runs/38347299010 : X API を呼ぶ予定 0、X状態は直す前と同じ、変わった人 828
+  - 変わる 828 行は手元で【3】を gviz で読んで数えた `with_size(…, SIZE_400)` で変わる行の数（828）と一致（ACF-07 の 829 との差は 1。見込みの ±10 以内）。dry-run は列ごとの差を出さないが、X状態・note・YouTube の数は直す前と同じ
+  - 1回目の1件の候補: 拡張子の無い URL が1件ある（鈴木雄介 `…/rQCH2Cvf_80x80`）。`collect_saikyo_images.page_urls()` は拡張子の無い URL を大きさの違う版に広げないため、直す前は `_80x80` だけを、直した後は `_400x400` だけを HEAD で確かめる。手元では `_80x80`・`_400x400`・`_200x200` とも HTTP 200。2回目は呼ぶ予定 0 だったので、1回目はこの行（または別の行）の HEAD がその時だけ失敗したと見られる（dry-run は名前を出さないので、どの行かは確かめられない）
+  - **止まる条件「X API の呼び出しが直す前より増える」に1回目で当たったため、マージしない**
+- 手順5のうち文書・決定は書いた（作業ブランチだけ）: docs/notes/sns-book.md（【3】【4】の X画像URL は `_400x400`、毎日の更新が前の値を直して書く、ページの大きさは各生成スクリプトの定数、books/ は対象外、houou_race・houou/ は dsn のマージ後で未了）、docs/decisions/saikyo.md。ACF-11 のログの状態に `/ 続き: CHAT-1013-ACF-12` を足した
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1013-acf-xsize
+- ログ: https://github.com/retroeater/mj/blob/work/1013-acf-xsize/docs/logs/CHAT-1013-ACF-12.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1013-acf-xsize
+- 確認用URL: なし（生成物は変えていない）
+- マージ: 未（dry_run の1回目で止まる条件に当たったため）
+- issue: #558（着手中のコメントの後、止めた旨をコメント）
+- 判断が必要なこと:
+  - 作業ブランチの dry_run の1回目（run 38347038845）で X API を呼ぶ予定が 1件（直す前は 0）になり、止まる条件に当たった。同じコードの2回目（run 38347299010）は 0件で、変わる行 828・X状態は直す前と同じ。拡張子の無い URL 1件（`page_urls()` が広げない）の HEAD の一時的な失敗と見られる。このままマージしてよいか（勧める。呼び出しの条件は変えておらず、仮に1件呼んでも上限 30 の内）。マージは 03:30〜05:00 を避ける
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
