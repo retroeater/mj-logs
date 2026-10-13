@@ -57,28 +57,85 @@ DSN-08 でマージした houou/ のデザインについて、平野さんが�
 
 ## 経過
 
+- 0: 「指示」欄の末尾は指示文の最後の行と一致。DSN-08 のログ（cloudflare）の `## 報告` は「状態: 完了」「マージ: 済（86979e3d8）」（確認済み）
+- **このセッションは新しく始めたものではない。** DSN-01〜08 を実行したセッション（同じ Claude-Session）に続けて貼られた
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある
+- Chat-Ref の確認: `CHAT-1013-DSN-09` のコミットなし
+- 作業ブランチ: work/1013-dsn はローカル・リモートとも無い → `git checkout -b work/1013-dsn origin/cloudflare`（5cfee13）
+
+### 手順1
+
+- #107 に着手中のコメント（issuecomment-6140426740）
+- 未マージのブランチ: work/1009-swp-526・work/1011-swp-hnd・work/1011-swp-nav は houou/ 系のファイルに触れない。work/1013-snm-hide（CHAT-1013-SNM-17、判断待ち）が `scripts/generate_houou_pages.py` の `load_profiles()` の1行（在籍の判定 `active=`）を変えている。この指示で変えるのは `ASK_TEMPLATE`・`ask_box()`・`outputs()` のトップの行・`PLAYERS_TEMPLATE`・`crumbs` 周りで、同じ関数ではない（止まらない）。ただし SNM-17 が入ると在籍の数（トップ・個人成績の人数）が変わりうる。どちらも `site.active_players` から数えるので、食い違いはしない
+
+### 手順2（直し・比較ページ）
+
+直した点ごとの結果（headless Chromium、ローカルの `python3 -m http.server`）:
+
+1. トップの注意書き: 1件目はいつも見える1行のまま、ⓘ で開く中身は「個人情報等は入力しないでください」「ご質問の内容はサービス改善のため利用させていただく場合があります」の2件（`ASK_NOTICES[1:]`）。入力欄の `aria-describedby` を「1件目の行＋開く中身」にした（読み上げで1件目が抜けないように）。開くボタンの読み上げは「（ほかの注意書き）」
+2. トップの人数: `render_top(len(site.active_players), …)`。説明文は「選手691名」で、個人成績の「出場選手691名」と同じ数（同じ `site.active_players`）。前は全出場選手の 1,295名
+3. ランキングの列名: 「選手」の字の左端と名前の左端が同じ位置（375px で 110px と 110px）。› の列は見出しなし（前から）
+4. 順位変動: 表を組んだ直後に最後の節の終わりの状態へ送る（`setup()` の最後に `jump(N - 1)`。節のラベルで最後の節を押したときと同じ）。再生のボタンは「再生」の形（「もう一度見る」にしない）で、押すと今までの「もう一度見る」と同じく、動きなしで最初の並びに戻してから第1節の 0.0 から動く。確かめ: 最初の表示 B1 は +111.1・+99.6…・帯あり・節のラベルは全部進んだ色／再生 0.4 秒後は全員 0.0・節のラベルは 0／4.4 秒後に第1節の終わり（+6.6・+30.7・+66.1）／第2節のラベルで第2節の終わり／シートで C を選ぶと C1 の最終の状態（+135.4…）／動きを減らす設定で再生を押すと最終の状態のまま（前と同じ）。数え方・帯の入り方・節の時間の定数は変えていない
+5. 個人成績:
+   - 選ぶ前の画面はグラフを出さない（最近見た選手の枠だけ。生成の `houou_pyramid` の枠と JS の積み上げ棒の読み込みを消した）
+   - 検索・最近見た選手から選ぶと「期別」（白鳥翔を最近見た選手から選んで `?name=白鳥翔`・期別）。`?name=平野良栄&view=league` で開くと「リーグ」のまま
+   - 通算とリーグのグラフ: 375px で SVG は両方 323×459、面は両方 343×603（通算の面の内側の余白をリーグにそろえ、再生のボタンの行と同じ 52px の空きを上に置いた。リーグの空の説明の段落は出さない）
+   - 触れたときの情報の場所: DSN-06 で「出していない間も3行分の場所を空ける」としたが、Bootstrap の `[hidden] { display: none !important }` に負けて空いていなかった（DSN-06・07 の確かめでは見落とした）。`display: grid !important` で空くようにした
+   - 名前の右のチップ: `text-align: center`
+
+比較ページ（`_redirects` の `/houou/:slug/ → /houou/:slug/index.html` で開く。noindex〈ページの meta と Workers の `x-robots-tag: noindex`〉・どこからもリンクしない・sitemap と `llms.txt` に載せない）:
+
+- `houou/compare-ranking/`: 生成したランキング（通算得点）の写しに、上の小さな切り替え（(a) 格子・(b) プルダウン・(c) 送り）を足した。(a) 3段×3列の格子（9部門の短い名前、押すと選んだ1つが白く浮く）、(b) 「通算得点 ▾」を押すと端末のプルダウンで正式名の9部門、(c) 「◀ 通算得点 ▶」で前後へ送る（端で押せない）。見本なので、選んでも表は通算得点のまま。表の行を押すと個人成績へ（本番と同じ）
+- `houou/compare-race/`: 生成した順位変動の写し（同じ JS・データ）に切り替えを足した。(a) 題名の場所に「第43期前期 B1 ▾」（題名「鳳凰戦 順位変動」は読み上げにだけ残す。右端に再生）、(b) 題の行の下に面の1行「期・リーグ　第43期前期・B1 ›」、(c) 灰色の溝の中の大きなボタン「第43期前期・B1 ▾」（17px 太字）。どれも押すと本番と同じシートが出て、選ぶと表が変わる（D1 では「D1 1組」）
+- 375×812（ブラウザの枠なし、比較の切り替えの行は隠して測った）の最初の表示に入る表の行（全部入る行／一部が見える行まで）: ランキング (a) 8／9、(b) 9／10、(c) 9／10。順位変動（第43期前期 B1、帯の行は数えない）(a) 15／16、(b) 14／15、(c) 14／15
+- 比較ページは生成し直しでは作られない静的なページ（使い捨ての組み立てで作った）。採らない案と比較ページは次の指示で消す
+
+確かめ:
+
+- 単体テスト OK。生成し直し（`regenerate.py houou_pages`）で変わる生成物は `houou/index.html`・`houou/players/index.html` の2件（骨組みだけ。`houou/results/`・`houou/race/`・`search.json` は差分なし）
+- 変えた画面（トップ・注意書きを開いた状態・選ぶ前・平野良栄の期別/通算/リーグ・白鳥翔・ランキング3部門・順位変動・シート）と比較ページ6案 × 375/390/430 × 明暗 × 標準・幅の広い字体・150%・200%: 標準・幅の広い字体ではみ出し・切れ・横スクロールなし。計測で「wrap」と出たのは、56px の行で欄が高くなった値（「15期」など）の誤検出と、150%・200% で次の行に回るもの（列名・比較の1行の選び方）。押せる大きさ: 新しい部品はすべて 44px 以上。200% で比較ページの切り替えのラジオ（字の行全体が押せる 44px の行の中）が小さく出るのは比較ページだけ
+- 動きを減らす設定: アニメーション・transition は増やしていない。順位変動の最初の表示は動きなしで最終の状態を出す
+- 灰色の字: 色の変数は変えていない（DSN-06 の値のまま）
+- ほかのページ（前 = この指示の変更前の HEAD 5cfee13）: index・jpml_pros・title/・saikyo/・live/・帰り道・旧 houou_race.html・houou_ranking.html × 375/1280。ナビは全件同じ。画素は 13 件が同じ、live・saikyo・title の 375px の各7画素は撮るたびの揺れと同じ所
+- push（9c3c26f）の Workers Builds は成功。版ごとのプレビューの URL でトップ・選ぶ前・平野良栄・ランキング・順位変動・比較ページ2枚が 200、比較ページに `x-robots-tag: noindex`。順位変動が最終の状態・「再生」で始まり、選ぶ前の画面にグラフが無いことをプレビューでも確かめた（URL は最終報告だけ）
+
+画面写真（`docs/logs/CHAT-1013-DSN-09/`）: 01〜14 は変えた画面の 375px（明 01〜07・暗 08〜14）、15〜26 は比較ページの各案の 375px の明・暗（ランキング (a)〜(c)、順位変動 (a)〜(c)）
+
+### 手順3（記録）
+
+- `docs/notes/houou-top.md`: トップの注意書き・人数、タブ（選んだら期別）、選ぶ前の画面、通算のグラフの大きさ、名前のチップ、ランキングの列名、リーグのタブの上の行、比較ページの節（2枚を置いたこと）
+- `docs/notes/houou-race.md`: 選んだときの最終の状態と再生
+- `docs/decisions/design-renewal.md` に 2026-10-13（DSN-09）の節
+- #107 に確認待ちのコメント（issuecomment-6140685007、URL なし）
+
+マージで cloudflare に入るもの（ログを除く 11 ファイル）: コード 4（`style.css`・`assets/houou.js`・`assets/houou_race.js`・`scripts/generate_houou_pages.py`）、生成物 2（`houou/index.html`・`houou/players/index.html`）、比較ページ 2（`houou/compare-ranking/index.html`・`houou/compare-race/index.html`〈新規・静的〉）、文書 3（`docs/notes/houou-top.md`・`docs/notes/houou-race.md`・`docs/decisions/design-renewal.md`）。ほかに `docs/logs/` のこのログと画面写真。マージ後の再生成が触るのは `houou_pages`（houou/ の生成物。比較ページは生成の対象外なので消されない）
+
 ## 報告
 
-- 状態: 中断（作業中）
+- 状態: 判断待ち
 - ブランチ: work/1013-dsn
 - ログ: https://github.com/retroeater/mj/blob/work/1013-dsn/docs/logs/CHAT-1013-DSN-09.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1013-dsn
-- 確認用URL: なし
-- マージ: 未
+- 確認用URL: プレビューあり（URL は最終報告）。トップ・個人成績（選ぶ前・平野良栄）・ランキング・順位変動・比較ページ2枚を確認
+- マージ: 未（平野さんの判断待ち）
 - issue: #107
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 判断が必要なこと:
+  - プレビューを見て、直し（決定の1〜5）をマージするか
+  - 比較ページで、ランキングの部門の切り替え (a) 格子・(b) プルダウン・(c) 送り と、順位変動の選ぶ部品 (a) 題名・(b) 面の1行・(c) 大きなボタン のどれにするか（最初の表示に入る行数は `## 経過`「手順2」）
+  - 通算のタブの上に、リーグの再生のボタンの行と同じ高さ（52px）の空きを置いて大きさをそろえた。空きを嫌うなら、リーグ側の再生のボタンの置き場所を変える必要がある
+- 未確認の項目:
+  - 実機（iPhone の Safari・Chrome）での見え方。比較ページのプルダウン (b) は iPhone では端末の選ぶ画面になる（headless では確かめていない）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 5cfee13c）: https://github.com/retroeater/mj-logs/tree/main/guide/5cfee13c
+ガイド文書（この版を写した時点の最新、mj feff70b6）: https://github.com/retroeater/mj-logs/tree/main/guide/feff70b6
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/5cfee13c/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/5cfee13c/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/5cfee13c/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/5cfee13c/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/5cfee13c/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/5cfee13c/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/feff70b6/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/feff70b6/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/feff70b6/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/feff70b6/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/feff70b6/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/feff70b6/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b5bbbea3.md
