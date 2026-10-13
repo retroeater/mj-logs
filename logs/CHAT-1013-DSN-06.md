@@ -64,6 +64,13 @@ DSN-01〜05 で決めた新サイトのデザインの基本の形を、見本�
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある（貼られた文は改行と見出しの記号が落ちて1段落になっていた）
 - Chat-Ref の確認: `CHAT-1013-DSN-06` のコミットなし。識別子の重複確認はこのセッションの最初の指示ではないので対象外
 - 作業ブランチ: `work/1012-dsn` はローカル・リモートとも 83ca4b3（一致）。`origin/cloudflare` は祖先でない → ログを push した後に merge で取り込む
+- 取り込み: `git merge --no-edit origin/cloudflare`。衝突なし
+
+### 手順1
+
+- DSN-05 のログの `## 報告` の状態を「判断待ち / 続き: CHAT-1013-DSN-06」にした
+- #107 に着手中のコメント（issuecomment-6135339487）、#518 に着手中のコメント（issuecomment-6135340998）。#518 に他セッションの着手中は無い（HOU-30 の着手中は HOU-32 で解除済み）
+- 未マージの work/ ブランチ: work/1009-swp-526・work/1011-swp-hnd・work/1011-swp-nav・work/1012-dsn・work/1013-snm。houou/ 系のファイル（`style.css`・`assets/houou.js`・`assets/houou_race.js`・`scripts/generate_houou_pages.py`・`navbar.js`・`houou/`・`docs/notes/houou-top.md`・`docs/notes/houou-race.md`・`docs/notes/design.md`・`docs/decisions/houou.md`・`docs/decisions/design-renewal.md`）を変えているのは work/1013-snm だけで、`docs/decisions/houou.md` の末尾に節を2つ足している（CHAT-1013-SNM-11・12）。この指示で印を付ける行とは別の箇所で、`git merge-tree` で衝突なし（止まらない）
 
 ## 報告
 
