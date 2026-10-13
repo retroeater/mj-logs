@@ -54,6 +54,23 @@ ACF-12 は、作業ブランチの dry_run の1回目で X API を呼ぶ予定�
   - dry_run（`mode: update`・`dry_run: true`、5a552833）https://github.com/retroeater/mj/actions/runs/38349864980 : X API を呼ぶ予定 0、X状態 解決 1051・未入力 780・既定のアイコン 12・アカウントなし(確認済み) 1（ACF-12 の直す前と同じ）、「【3】画像取得 を書き直します」、ページが使う値が変わった人 828。見込み（828 ±10・0〜1件）どおり
 - #558 に他セッションの着手中は無い。着手中のコメント https://github.com/retroeater/mj/issues/558#issuecomment-6138689924
 - 決定を docs/decisions/saikyo.md に足した。ACF-12 のログの状態に `/ 続き: CHAT-1013-ACF-13` を足した
+- cloudflare へマージ: 14:09 JST に再 fetch し `git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめて `git push origin work/1013-acf-xsize:cloudflare`（2b58cd9c..023175b4）。#558 にマージと翌朝の確かめ・残りをコメントした https://github.com/retroeater/mj/issues/558#issuecomment-6138708191
+
+## 報告
+
+- 状態: 判断待ち（マージ済み。翌朝 04:10 の更新の確かめが残る）
+- ブランチ: work/1013-acf-xsize
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1013-ACF-13.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1013-acf-xsize
+- 確認用URL: なし（生成物は変えていない）
+- マージ: 済（023175b4。ACF-08・ACF-10〜13 のログ、docs/decisions/saikyo.md、docs/notes/sns-book.md も一緒に入った）
+- issue: #558（閉じない。残りは houou_race の丸・houou/ の表のアイコン〈work/1012-dsn のマージ後〉）
+- 判断が必要なこと:
+  - なし（翌朝の確かめの結果を見て、#558 の次の指示〈houou_race・houou/〉の時機を決める）
+- 未確認の項目:
+  - 2026-10-14 04:10 の SNS ブックの更新で【3】の X画像URL の `_80x80` が 0 になること（828 行前後が `_400x400` に書き換わる）
+  - その日に起動する全ページの再生成（regenerate-page.yml、all）の生成物の差が 0 であること
+- エラー: なし
 
 <!-- guide-links -->
 ---
