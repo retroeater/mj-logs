@@ -55,6 +55,35 @@
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+- 0章: ログの「指示」欄の末尾が指示文の最後の行と一致することを確かめた。CHAT-1013-ACF-07 の `## 報告` の状態は「判断待ち」
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- Chat-Ref の重複: `git log --all --grep="CHAT-1013-ACF-08"` は 0 件
+- 作業ブランチ: ローカルの `work/1013-acf-xsize` は origin/cloudflare の祖先（リモートもマージ済み）。`git merge --ff-only origin/cloudflare` で 4c9b6825 へ進めた（cloud-sessions.md「作業ブランチの用意」の1つめの場合）
+- 手順1:
+  - #558 は Open。コメントは ACF-07 の着手中と案の2件だけで、他セッションの着手中は無い
+  - `git branch -r --no-merged origin/cloudflare`: 1009-swp-526・1011-swp-hnd・1011-swp-nav・1012-dsn。**`origin/work/1012-dsn`（先頭 e36fa3c0、2026-10-13 02:04 UTC「docs: start log for CHAT-1013-DSN-07」）が `scripts/generate_houou_pages.py` と `assets/houou_race.js` を変えている**（cloudflare との差 generate_houou_pages.py +59/-30 程度、houou_race.js +35/-1 程度。コミット 2be5acc8「feat: apply new-site design basics to houou/ pages」）
+  - 重なりの中身: dsn は今回直すはずの `avatar_html()`（houou/ の表の 28px のアイコン）の引数と中身を書き換えている（写真の無い選手は `<span class="mj-houou-avatar is-initial">` で名前の頭の1字を出す）。`houou_race.js` は `.mj-race-chip` の文字（写真の無い選手の頭の1字）を変えている。`generate_books_pages.py`・`generate_houou_race.py`・`lib/x_images.py` は触れていない
+  - CHAT-1013-DSN-06 は判断待ち（プレビューの確認待ち）で、DSN-07 が着手したところ
+- 止まる条件「未マージの work/ ブランチが上のファイルに触れている」に当たるため、#558 への着手中のコメント・テスト・コードの変更をせずに止めた
+- 決定を docs/decisions/saikyo.md に足した（CLAUDE.md「作業ログ」節。判断待ちで終えるときも足す）
+- 承認済みのマージは、止まる条件に当たったため行わない（ログと docs/decisions/ は作業ブランチにだけ push）
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1013-acf-xsize
+- ログ: https://github.com/retroeater/mj/blob/work/1013-acf-xsize/docs/logs/CHAT-1013-ACF-08.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1013-acf-xsize
+- 確認用URL: なし（コード・生成物は変えていない）
+- マージ: 未（止まる条件に当たったため）
+- issue: #558（着手中のコメントは残していない）
+- 判断が必要なこと:
+  - 未マージの `work/1012-dsn`（DSN のチャット、CHAT-1013-DSN-06 判断待ち・DSN-07 着手中）が `scripts/generate_houou_pages.py` の `avatar_html()`（今回 `_80x80` にする houou/ の表のアイコン）と `assets/houou_race.js` の `.mj-race-chip` を変えている。進め方を選ぶ: (1) dsn のマージを待ってから段階1を再開する／(2) books/ と houou_race（`generate_houou_race.py` の `IMAGE_SIZE`。dsn は触れていない）だけ先に行い、houou/ の表のアイコンは dsn のマージ後に回す／(3) houou/ の表のアイコンの `_80x80` 化を DSN のチャットの指示に含めてもらう
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
