@@ -96,7 +96,7 @@
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1013-ACF-09
 - ブランチ: work/1013-acf-img
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1013-ACF-06.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1013-acf-img
@@ -113,12 +113,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 5bd6c739）: https://github.com/retroeater/mj-logs/tree/main/guide/5bd6c739
+ガイド文書（この版を写した時点の最新、mj cb0173b5）: https://github.com/retroeater/mj-logs/tree/main/guide/cb0173b5
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/5bd6c739/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/5bd6c739/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/5bd6c739/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/5bd6c739/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/5bd6c739/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/5bd6c739/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/2c5fedab.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/cb0173b5/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/cb0173b5/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/cb0173b5/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/cb0173b5/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/cb0173b5/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/cb0173b5/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b5bbbea3.md

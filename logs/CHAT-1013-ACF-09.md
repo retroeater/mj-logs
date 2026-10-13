@@ -74,16 +74,38 @@ ACF-06 で、毎朝の2つのジョブ（`check`〈jpml_pros.html の `<img>`〉
   - テスト 7件を足した（`scripts/tests/test_check_sns_book_images.py`）。全体 961件 OK
   - セッションでの試し: 1,313種類（1,337件、既定アイコン 12件を除く）、265秒。X の切れは 0。note・YouTube の 286件はセッションのプロキシが `assets.st-note.com`・`yt3.ggpht.com` などを許可していないための 403（許可ドメインは変えていない。ランナーでは起きない見込み）
   - ACF-06 の 11種類の人（鈴木雄介・羽賀飛鳥・平島晶太・嵯峨寛彬・吉田基成・大畠夏奈・鈴木楓・夏目ひかり・塩澤彰大・五反地清一郎・いわますみえ）は全員、X が対象に入っている（鈴木雄介は「プロ」548行、ほかは「連盟プロ以外」）
+- 手順3:
+  - 作業ブランチで `scheduled: true` の手動実行 https://github.com/retroeater/mj/actions/runs/38337667566 （ref work/1013-acf-img。チェックアウトされたのは b05e5117〈コードは 6e8d3b0f と同じ〉）。3ジョブとも success（check 02:36:20〜02:39:24、saikyo 02:36:20〜02:38:06、sns_book 02:39:27〜02:44:03 UTC。run 全体 約8分）
+  - sns_book: 1,337件（URL 1,313種類、既定アイコン 12件は除く）を確認、切れ 0件、所要 263秒（スクリプトの計時。ジョブ全体は約4分40秒）。1日1回で Actions の時間は約5分増える（#298 の見積もりの材料）
+  - #352 の本文の変化: 前は「1141件を確認し、**2件**が取得できませんでした。」（新城勇哉・田中光太の X `_80x80` が 404）をまるごと持つ形。今回 check が 1,141件で切れ 0 を出し、節の形の本文（「毎朝の画像リンク切れの検知の結果。…」・`<!-- 節: check 切れ: 0 -->` の「jpml_pros.html」の節・新しい説明の段落）に書き換えて、全節の切れが 0 のため 02:39:20 に閉じた。続く sns_book も切れ 0 で、開いた issue が無いため何も書かなかった（「SNS ブック」の節は、切れが出た日に初めて本文に現れる）
+  - 新城勇哉・田中光太の `_80x80` は今朝の時点では取れるようになっていた（前の 404 は 00:04 の ACF-06 の手動実行の結果）
+  - 切れが出たときの節の書き換え・新しい issue の作成は、テストとセッションでの `--issue-section` の試し（286件の節を作れた）で確かめた。ランナーで切れのある日の書き換えはまだ通っていない
+  - 文書: static-generation.md「ワークフローの一覧」・sns-book.md「検知と更新の役割」・scheduler-worker.md（表の check-image-links の行の所要）を直した。決定を docs/decisions/automation.md に足した。ACF-06 のログの状態に `/ 続き: CHAT-1013-ACF-09` を足した
+  - 差分の範囲: check-image-links.yml・check_image_links.py・新しい check_sns_book_images.py・そのテスト・上の3文書・docs/decisions・ログ（ACF-06・ACF-09）だけ
+- `origin/cloudflare` を取り込んだ（`git merge origin/cloudflare`、衝突なし。SNM-14 の変更と再生成の生成物）。取り込み後もテスト OK
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1013-acf-img
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1013-ACF-09.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1013-acf-img
+- 確認用URL: なし（ワークフロー・検知のスクリプトと docs のみ。サイトの表示・生成物は変えていない）
+- マージ: 済（07e9cb16。c26b1949..07e9cb16）
+- issue: #352（作業ブランチの手動実行 https://github.com/retroeater/mj/actions/runs/38337667566 で、check の切れ 0 により閉じられた。見つかった切れは check・sns_book とも 0件）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj a83cb48a）: https://github.com/retroeater/mj-logs/tree/main/guide/a83cb48a
+ガイド文書（この版を写した時点の最新、mj cb0173b5）: https://github.com/retroeater/mj-logs/tree/main/guide/cb0173b5
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a83cb48a/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a83cb48a/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a83cb48a/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a83cb48a/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a83cb48a/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a83cb48a/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/cb0173b5/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/cb0173b5/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/cb0173b5/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/cb0173b5/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/cb0173b5/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/cb0173b5/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b5bbbea3.md
