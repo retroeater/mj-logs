@@ -44,15 +44,26 @@ ACF-12 は、作業ブランチの dry_run の1回目で X API を呼ぶ予定�
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+- 0章: ログの「指示」欄の末尾が指示文の最後の行と一致することを確かめた。CHAT-1013-ACF-12 の `## 報告` の状態は「判断待ち」
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- Chat-Ref の重複: `git log --all --grep="CHAT-1013-ACF-13"` は 0 件
+- ログの先行 push の後に確かめた: cloudflare との差は ACF-08・ACF-10〜13 のログ、docs/decisions/saikyo.md、docs/notes/sns-book.md、`update_sns_book.py` とそのテスト（ea80330e とその revert は打ち消し合って差に出ない）。`git merge origin/cloudflare` は衝突なし（5a552833）
+- 取り込みで cloudflare 側の `update_sns_book.py`（`fetch_records()` の引数を1つ減らす。25c2299d「Check tab existence by tab list …」）と `lib/sns.py`（同じ趣旨の1行）が変わったため、前提に従いテスト（OK）と dry_run を行った
+  - dry_run（`mode: update`・`dry_run: true`、5a552833）https://github.com/retroeater/mj/actions/runs/38349864980 : X API を呼ぶ予定 0、X状態 解決 1051・未入力 780・既定のアイコン 12・アカウントなし(確認済み) 1（ACF-12 の直す前と同じ）、「【3】画像取得 を書き直します」、ページが使う値が変わった人 828。見込み（828 ±10・0〜1件）どおり
+- #558 に他セッションの着手中は無い。着手中のコメント https://github.com/retroeater/mj/issues/558#issuecomment-6138689924
+- 決定を docs/decisions/saikyo.md に足した。ACF-12 のログの状態に `/ 続き: CHAT-1013-ACF-13` を足した
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj acb5aa04）: https://github.com/retroeater/mj-logs/tree/main/guide/acb5aa04
+ガイド文書（この版を写した時点の最新、mj 023175b4）: https://github.com/retroeater/mj-logs/tree/main/guide/023175b4
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/acb5aa04/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/acb5aa04/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/acb5aa04/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/acb5aa04/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/acb5aa04/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/acb5aa04/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/023175b4/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/023175b4/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/023175b4/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/023175b4/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/023175b4/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/023175b4/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b5bbbea3.md
