@@ -1,7 +1,7 @@
 # データ・コンシェルジュの Worker（mj-ask、#542）
 
 houou/ のトップで鳳凰戦のデータに言葉で質問できる欄。決定は `docs/decisions/houou.md`「2026-10-11（CHAT-1011-AIC-01）」。
-実装は3つに分ける（grill Q13）: (1) データと検索〈済〉、(2) Worker と質問欄〈済、2026-10-11 から本番で動作〉、(3) 週次の cron〈コード済。ブックへの書き出しは C1〜C3 の後〉。
+実装は3つに分ける（grill Q13）: (1) データと検索〈済〉、(2) Worker と質問欄〈済、2026-10-11 から本番で動作〉、(3) 週次の cron〈済。ブックへの書き出しの最初の本番の実行は 2026-10-19（月）9:00 JST の見込み〉。
 houou/ は未公開のまま（試行中は全体で1日50問）。
 
 ## 構成
@@ -197,7 +197,8 @@ SELECT day, length(ip_hash) AS hash_length, n FROM ip_counts;
 
 ## 週次の cron（実装3、grill Q9）
 
-`wrangler.jsonc` の `triggers.crons` に `0 0 * * 1`（UTC。**月曜 9:00 JST**）。Cron Triggers はアカウントで5本まで（Free）で、`mj-scheduler`（毎分）と合わせて2本。
+`wrangler.jsonc` の `triggers.crons` に `0 0 * * 2`（UTC の月曜 0:00 = **月曜 9:00 JST**）。**Cloudflare の Cron Triggers の曜日は 1 = 日曜・2 = 月曜**（公式の Cron Triggers のページ「Days of the week go from 1 = Sunday to 7 = Saturday」。ほかの cron の 0 = 日曜と違う）。
+2026-10-11〜13 は誤って `0 0 * * 1`（日曜 9:00 JST）になっていた（CHAT-1013-AIC-05 で直した）。Cron Triggers はアカウントで5本まで（Free）で、`mj-scheduler`（毎分）と合わせて2本。
 入口は `index.mjs` の `scheduled`、本体は `src/weekly.mjs`。
 
 1. **ブックへの書き出し**（`GOOGLE_SA_KEY` と `ASK_SHEET_ID` があるとき）: 専用のブックの最初のシートに、1行目の見出し（日時・質問文・結果・型。空のブックなら最初に書く）に続けて、
@@ -212,12 +213,21 @@ Worker から出るのは `oauth2.googleapis.com`・`sheets.googleapis.com` だ�
 
 ## 平野さんの手作業（C1〜C3）
 
+**2026-10-13 にすべて済み**（01:42 JST、平野さんのスクリーンショットをチャット側が確認。申告値）。手順は作り直すときのために残す。
 画面の名前は docs/notes/live-channel-write.md（`live-channel-writer` の作成の記録）と同じ。既存のサービスアカウント（`birthday-calendar`・`gsc-export`・`live-channel-writer`）は使い回さない（grill Q9「この機能専用」）。
-3つが済むまでは、週次の cron は D1 の90日の削除だけを行う。
+
+実際の結果:
+
+- C1: サービスアカウント `mj-ask`（`mj-ask@<Google Cloud のプロジェクト ID>.iam.gserviceaccount.com`。プロジェクト ID の値は Google Cloud Console で確かめる）。Google Sheets API は有効
+- C2: ブック「ryoei.pro_AIボット」（ID は `workers/ask/wrangler.jsonc` の `ASK_SHEET_ID`）。共有は平野さん（オーナー）とサービスアカウント（編集者）だけ。
+  一般的なアクセスは「**制限付き**」（最初は「リンクを知っている全員（閲覧者）」になっていたのを、2026-10-13 01:44 に直した。質問文が入るので公開しない）
+- C3: `mj-ask` の Secret `GOOGLE_SA_KEY` を登録した。ブックの ID は CHAT-1013-AIC-05 で `wrangler.jsonc` の `ASK_SHEET_ID` に入れた（そのデプロイで、ダッシュボードの空の Variable `ASK_SHEET_ID` も置き換わる見込み）
+- 最初の書き出しは 2026-10-19（月）9:00 JST の見込み。Workers Logs の `週次:` の行（`sheet` が `{appended, sheetDeleted}`）と、ブックの1行目の見出し・2行目からの行で確かめる。
+  `sheet` が `null` なら、`週次: ブックへの書き出しに失敗: …`（Google の HTTP の状態）の行を見る
 
 ### C1: サービスアカウントを作り、JSON の鍵を発行する
 
-1. https://console.cloud.google.com/ で「My First Project」が選ばれていることを確かめる（Google Sheets API は `live-channel-writer` のときに有効にしてある。無効なら「API とサービス」→「ライブラリ」→「Google Sheets API」→「有効にする」）
+1. https://console.cloud.google.com/ で `live-channel-writer` と同じプロジェクトが選ばれていることを確かめる（Google Sheets API は有効にしてある。無効なら「API とサービス」→「ライブラリ」→「Google Sheets API」→「有効にする」）
 2. 「IAM と管理」→「サービス アカウント」→「サービス アカウントを作成」→ 名前 **`mj-ask`** →「作成して続行」→ ロールは付けずに「完了」
 3. 一覧に出たメールアドレス（`mj-ask@<プロジェクト ID>.iam.gserviceaccount.com` の形）を控える
 4. そのサービスアカウントを開き、「鍵」タブ →「鍵を追加」→「新しい鍵を作成」→「JSON」→「作成」。JSON ファイルがダウンロードされる（C3 で貼ったら PC から消す）
@@ -225,17 +235,18 @@ Worker から出るのは `oauth2.googleapis.com`・`sheets.googleapis.com` だ�
 
 ### C2: 専用のブックを作り、サービスアカウントに共有する
 
-1. Google ドライブで新しいスプレッドシートを作る（名前の案: 「mj_データ・コンシェルジュの質問」）。最初のシートに書き出す（1行目の見出しは Worker が書くので、空のままでよい）
-2. 右上の「共有」→「ユーザーやグループを追加」→ C1 の3で控えたメールアドレス → 権限「**編集者**」→「送信」。ほかの人には共有しない（質問文が入るため。「リンクを知っている全員」にもしない）
+1. Google ドライブで新しいスプレッドシートを作る（今のブックは「ryoei.pro_AIボット」）。最初のシートに書き出す（1行目の見出しは Worker が書くので、空のままでよい。シート名は「シート1」のままでよい）
+2. 右上の「共有」→「ユーザーやグループを追加」→ C1 の3で控えたメールアドレス → 権限「**編集者**」→「送信」
+3. 同じ「共有」の画面の「一般的なアクセス」を「**制限付き**」にする（新しいブックの既定が「リンクを知っている全員」のことがある。質問文が入るので公開しない）
    - 共有できない・「制限されています」と出たら、ここで止めて Claude Code に伝える（docs/notes/live-channel-write.md「4.」の注記と同じ理由の見込み）
-3. ブックの URL の `https://docs.google.com/spreadsheets/d/<ここ>/edit` の `<ここ>` がブックの ID
+4. ブックの URL の `https://docs.google.com/spreadsheets/d/<ここ>/edit` の `<ここ>` がブックの ID
 
 ### C3: 鍵を Secret に登録し、ブックの ID を伝える
 
 1. Workers & Pages → `mj-ask` → Settings → **Runtime variables and secrets**（B4 と同じ画面）→ **Add**
 2. Type **Secret**、Variable name **`GOOGLE_SA_KEY`**、Value に C1 の4の JSON ファイルの中身を全部（メモ帳で開いて Ctrl+A → Ctrl+C）→ **Deploy**
 3. ダウンロードした JSON を PC から消す（ごみ箱も空にする）
-4. ブックの ID（C2 の3）をチャットに伝える。ID は秘密の値ではないので、次の指示で `wrangler.jsonc` の `ASK_SHEET_ID` に書く（ダッシュボードで変数を足しても、次のデプロイで `wrangler.jsonc` の値に上書きされるため）
+4. ブックの ID（C2 の4）をチャットに伝える。ID は秘密の値ではないので、指示で `wrangler.jsonc` の `ASK_SHEET_ID` に書く（ダッシュボードで変数を足しても、次のデプロイで `wrangler.jsonc` の値に上書きされるため）
 5. 最初の書き出しは、`ASK_SHEET_ID` を入れた後の月曜 9:00 JST。Workers Logs の `週次:` の行と、ブックの行で確かめる
 
 ## キーの差し替え（期限の前・漏れたとき）

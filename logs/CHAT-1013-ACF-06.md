@@ -55,29 +55,70 @@
 - Chat-Ref の重複確認: `CHAT-1013-ACF-06`・`ACF-07` のコミット無し。雛形の行は揃っている
 - 作業ブランチ: ローカル・リモートとも `work/1013-acf-img` が無いため、`git checkout -b work/1013-acf-img origin/cloudflare`
 - 0. 指示欄の末尾は指示文の最後の行と一致
+- 手順1: 未マージの work/ ブランチで check-image-links.yml・collect_saikyo_images.py・check_image_links.py・関係の文書に触れるものは無し。同じ目的の issue は無し（#352 は常設の通知先、#504 は予約実行の移行、#514 は最強戦の自動解決）。#352 に他セッションの着手中コメントは無し（コメントは無かった）
+- #352 に着手中コメント: https://github.com/retroeater/mj/issues/352#issuecomment-6134950868
+- 前提の確かめ: cloudflare（2c5fedab）の check-image-links.yml で、ジョブ `check` の条件 `${{ !inputs.scheduled && inputs.saikyo_resolve_test == '' }}`、ジョブ `saikyo` の条件 `${{ github.event_name != 'schedule' }}`、`schedule` は `0 18 * * 0`（コメント「jpml_pros.html のジョブ check だけを動かす」）、題は `[scheduled] 最強戦の選手写真のリンク切れ検知`。前提どおり
+- Worker の起動の表（workers/scheduler/schedule.json）は `check-image-links.yml` 毎日 04:30・入力 `scheduled` のまま。変えていない。朝の確かめ（#506）は題が `[scheduled]` で始まる実行を見るので、目印は残した
+
+### ワークフローの直し（手順2）
+
+- ジョブ `check` の条件を `${{ inputs.saikyo_resolve_test == '' }}` にした（`!inputs.scheduled` を外した。`saikyo_resolve_test` の診断の実行では動かさないのはそのまま。`schedule` では入力が空なので今までどおり動く）
+- 題を `[scheduled] 画像リンク切れの検知` に、冒頭のコメントと入力 `scheduled` の説明・`schedule` のコメントを中身に合わせて直した
+- **週次の `schedule` は残した。** 理由: #504 の決定4「今の予約実行（schedule）は、試験の間は遅い時刻に保険として残し、移行が済んだら外す。外す予定日は仮に 2026-11-30」に合わせる。月曜は `check` が2回（03:00 の schedule と 04:30 の Worker）動く。schedule ではジョブ `saikyo` は今までどおり動かない
+- 着手時に `git log -- .github/workflows/check-image-links.yml` の流れ（#504・#514 の段階での `scheduled` の追加）を見た。今回は入力も契機も足さないので、初回だけ手順が違う点は無い
+- 作業ブランチで `scheduled: true` を付けた手動実行（MCP の `actions_run_trigger`、ref `work/1013-acf-img`）: run 38325195081（#33）、題「[scheduled] 画像リンク切れの検知」、**success**
+  - ジョブ `check`: success（00:01:55〜00:05:00Z、約3分）。1141件を確認し2件が取得できない。#352 の本文を更新した（「issue #352 を更新しました」）
+  - ジョブ `saikyo`: success（00:01:55〜00:03:01Z、約1分）。「リンク切れなし」。open の検知の issue は無かったので、issue の変化は無し
+  - #352 の差: 実行の前は 1141件中1件（新城勇哉 X、10-11 21:40Z の週次）→ 実行の後は 1141件中2件（新城勇哉 X と **田中光太 X** `.../2107091052507361280/wMTJtgbX_80x80.jpg` が 404）。田中光太の切れは今の週次なら 10-19 まで気づかなかったもので、毎朝にした効果の例
+- #352 の本文は、このワークフローが毎回まるごと書き換える検知の結果で、週次を前提にした説明文は無い（末尾の注記は「次回の検知で解決していれば…自動的に閉じられます」）。手で直しても次の実行で上書きされるため、変えていない
+- 文書: docs/notes/static-generation.md「ワークフローの一覧」の行と `check_image_links.py` の行、docs/notes/scheduler-worker.md の起動の表の説明、docs/notes/sns-book.md「検知と更新の役割」に1行。決定は docs/decisions/automation.md
+- regenerate-saikyo.yml は check-image-links.yml の完了（cloudflare のみ）で動く。今回の変更で1回の実行が約1分 → 約3分に延びるだけで、起動の回数は変わらない
+
+### 範囲の調べ（手順3、直さない）
+
+- **SNS ブックはセッションから読めなかった**（docs.google.com への接続がセッションのプロキシで 403。recentRelayFailures に `connect_rejected docs.google.com:443`。docs/notes/cloud-sessions.md の「環境に追加した許可ドメイン」には docs.google.com があるが、このセッションでは拒否された）。そこで、SNS ブックの値が焼き込まれた生成済みのページ（リポジトリの HTML、cloudflare 2c5fedab 時点）から画像の URL を集めて代わりに調べた。ページに出ない SNS ブックの行（どのページにも使われない人）は数えられていない
+- 方法: 全ページの HTML から pbs.twimg.com/profile_images・assets.st-note.com・d2l930y2yx77uc.cloudfront.net・yt3.ggpht.com の URL を集め、サイズの違い（`_80x80`・`_200x200` など、`?width=`、`=s88-…`）をそろえて比べた。ジョブ `check` の対象は `check_image_links.extract_images(jpml_pros.html)`、ジョブ `saikyo` の対象は saikyo/・saikyo_mens.html に出る URL で近似した
+- 結果: ページに出る画像の URL 1,332種類のうち、jpml_pros.html 1,106種類・最強戦 390種類。**どちらにも入らないものは 11種類（すべて X の画像）**。使うページは live/ 15ファイル・houou/ 6ファイル・title/ 5ファイル
+  | 名前 | SNS | 使うページ |
+  | --- | --- | --- |
+  | 鈴木雄介 | X | houou/ranking/ ほか（鳳凰戦の順位表のアバター） |
+  | 羽賀飛鳥 | X | live/masters/34/（b16・b8-a・b8-b） |
+  | 平島晶太 | X | live/oui/49/sf.html |
+  | 嵯峨寛彬 | X | live/oui/49/sf.html |
+  | 吉田基成 | X | live/oui/50/sf.html |
+  | 大畠夏奈 | X | live/pro-queen/23/・title/ |
+  | 鈴木楓 | X | live/pro-queen/23/・title/ |
+  | 夏目ひかり | X | live/pro-queen/22/ |
+  | 塩澤彰大 | X | title/shouryu/2.html |
+  | 五反地清一郎 | X | title/shinjinou/28.html |
+  | いわますみえ | X | title/oui/31.html |
+  - 名前はページの alt から読んだ（鈴木雄介は houou の行の `data-href` の名前）。jpml_pros.html と最強戦に出ない人（退会・他団体の選手、「連盟プロ以外」）と見られる（SNS ブックのシートの区分は読めず未確認）
 
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1013-acf-img
-- ログ: https://github.com/retroeater/mj/blob/work/1013-acf-img/docs/logs/CHAT-1013-ACF-06.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1013-ACF-06.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1013-acf-img
-- 確認用URL: なし
-- マージ: 未
-- issue: #352
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 確認用URL: なし（ワークフローと docs のみ。サイトの表示・生成物は変えていない）
+- マージ: 済（cloudflare へ。check-image-links.yml・docs/notes の3ファイル・docs/decisions/automation.md・ログ）
+- issue: #352（着手中 https://github.com/retroeater/mj/issues/352#issuecomment-6134950868 。手動実行で本文が更新され、田中光太 X の 404 が増えた）
+- 判断が必要なこと:
+  - 毎朝の2つのジョブのどちらにも入らない SNS ブックの画像が、ページに出るものだけで 11種類（すべて X。live/・houou/・title/ だけで使う人）。含める案: (A) `check_image_links.py` の対象を jpml_pros.html から全ページ（live/・title/・houou/ を含む）の外部画像の和集合に広げる（ページに出るものはすべて見る。ページに出ない行は見ない）／(B) SNS ブックの実効の値（【3】に【4】を重ねた全行）を直接 HEAD する検知にする（ページに出ない行も見る。最強戦の `collect_saikyo_images.py` と同じくブックを読む作り）／(C) このまま（11種類は週を待たずに気づけないが、ページの数は少ない）
+- 未確認の項目:
+  - SNS ブックの行のうちどのページにも出ないものの件数（セッションから docs.google.com に繋がらず、ブックを読めなかった。11種類の人の「連盟プロ以外」かどうかも同じ）
+  - 本番の毎朝 04:30 の起動（10-14 の朝）で `check` と `saikyo` の両方が動き、06:00 の朝の確かめが success に数えること
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 2c5fedab）: https://github.com/retroeater/mj-logs/tree/main/guide/2c5fedab
+ガイド文書（この版を写した時点の最新、mj 5bd6c739）: https://github.com/retroeater/mj-logs/tree/main/guide/5bd6c739
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c5fedab/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c5fedab/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c5fedab/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c5fedab/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c5fedab/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c5fedab/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/5bd6c739/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/5bd6c739/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/5bd6c739/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/5bd6c739/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/5bd6c739/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/5bd6c739/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/2c5fedab.md

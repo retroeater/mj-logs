@@ -73,7 +73,7 @@ run-name: ${{ inputs.scheduled && '[scheduled] <ワークフローの name>' || 
 | `monthdays` | 省略可。JST の日の配列（例 `[1]`）。省略は毎日 |
 | `enabled` | `false` の行は起動もしないし、朝の確かめでも見ない |
 
-今の表（2026-10-10）は5行: `update-live-channel.yml` 毎日 04:00・`update-sns-book.yml` 毎日 04:10（SNS ブックの更新、#514。所要は約40秒）・`sync-dojo-calendar.yml` 毎日 04:15・`delete-merged-branches.yml` 毎日 04:20・`check-image-links.yml` 毎日 04:30（最強戦の選手写真の検知。`scheduled` ではジョブ `saikyo` だけが動き、所要は約1分。#514）（どれも有効）。`sync-logs.yml` 毎日 05:30 の行は 2026-10-07 に消した（#298。mj の sync-logs.yml を止め、写しは mj-logs の `sync-from-mj.yml`。1日1回の保険は mj-logs 側の予約）。時刻の案は #504 の本文「起動時刻の案と範囲」。
+今の表（2026-10-10）は5行: `update-live-channel.yml` 毎日 04:00・`update-sns-book.yml` 毎日 04:10（SNS ブックの更新、#514。所要は約40秒）・`sync-dojo-calendar.yml` 毎日 04:15・`delete-merged-branches.yml` 毎日 04:20・`check-image-links.yml` 毎日 04:30（画像リンク切れの検知。ジョブ `check`〈`jpml_pros.html` の画像、所要は約3分〉と `saikyo`〈最強戦の選手写真、約1分〉が並行で動く。#514。`check` は 2026-10-13 から）（どれも有効）。`sync-logs.yml` 毎日 05:30 の行は 2026-10-07 に消した（#298。mj の sync-logs.yml を止め、写しは mj-logs の `sync-from-mj.yml`。1日1回の保険は mj-logs 側の予約）。時刻の案は #504 の本文「起動時刻の案と範囲」。
 
 - 表を変えて `cloudflare` に入ると、Workers Builds の `mj-scheduler` がデプロイする（check-run「Workers Builds: mj-scheduler」）。cron の変更の反映は最大15分。`workers/scheduler/` の外だけを変える push ではビルドされない（2026-10-06 に check-run で確かめた）
 - 表に足すワークフローは、先に上の「予約の起動の見分け方」の3つを足しておく。足さないと、`scheduled` が知らない入力として 422 になる
@@ -146,7 +146,10 @@ Worker が書く行（`console.log`。何もしない回は書かない。トー
 ## 未確認（2026-10-09 の時点）
 
 - Worker の実行と保険の予約実行が重なったときに、concurrency（組 `update-live-channel`）で保険の実行が待たされる動き（2026-10-09 時点で重なった日は無い。10/9 は Worker の実行が 04:05 に終わり、保険は 10:28）
-- 作業ブランチへの `workers/` だけの push で、サイトの `mj` のプレビューがビルドされた（「Workers Builds: mj」success）。cloudflare への push では Exclude の `workers/**` が効いているのに、プレビューでは効いていない。理由は分からない（害はプレビューのビルドが1回増えることだけ）
+
+## 作業ブランチの push でサイトの `mj` のプレビューがビルドされる件（2026-10-12 に原因が分かり、受け入れた）
+
+作業ブランチへの `workers/` だけの push でも、サイトの `mj` のプレビューがビルドされる（「Workers Builds: mj」）。原因は、`mj` の Workers Builds の2つのトリガーのうち、非本番のトリガー（Deploy non-production branches）の Exclude に `workers/**` が無いこと（2026-10-06 に足したのは本番の側だけ）。ダッシュボードの画面からは非本番の除外を直せず、害はプレビューのビルドが1回増えることだけなので受け入れた（2026-10-12、平野さんの決定。記録は `docs/notes/cloudflare.md`「本番反映（デプロイ）の仕組み」の表）
 
 ## 動いた記録（2026-10-09 の時点）
 
