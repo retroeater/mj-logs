@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-13 21:26 JST
+- 書き出した時刻: 2026-10-14 04:38 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -12,11 +12,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-13 23:40 | push | cloudflare | success | #3453（38415347082） | 0分21秒 |
+| 2026-10-13 23:40 | push | work/1013-bld | success | #3452（38415337932） | 0分17秒 |
+| 2026-10-13 23:37 | push | cloudflare | success | #3451（38415011327） | 0分24秒 |
 | 2026-10-13 21:23 | push | work/1013-bld | success | #3450（38396904282） | 0分15秒 |
 | 2026-10-13 21:19 | push | work/1013-bld | success | #3449（38396450591） | 0分16秒 |
-| 2026-10-13 21:14 | push | cloudflare | success | #3448（38395894323） | 0分14秒 |
-| 2026-10-13 21:14 | push | work/1013-whs-rules | success | #3447（38395891295） | 0分14秒 |
-| 2026-10-13 20:13 | push | work/1013-twh | success | #3446（38388719691） | 0分15秒 |
 
 ## check-image-links.yml
 
@@ -95,11 +95,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-14 04:37 | workflow_dispatch | cloudflare | in_progress | #32（38456349597） |  |
 | 2026-10-13 12:13 | schedule | cloudflare | success | #31（38340707440） | 0分22秒 |
 | 2026-10-13 04:20 | workflow_dispatch | cloudflare | success | #30（38297052395） | 0分31秒 |
 | 2026-10-12 10:51 | schedule | cloudflare | success | #29（38193495109） | 0分16秒 |
 | 2026-10-12 04:20 | workflow_dispatch | cloudflare | success | #28（38167633158） | 0分30秒 |
-| 2026-10-11 10:20 | schedule | cloudflare | success | #27（38101509455） | 0分16秒 |
 
 ## fetch-gsc.yml
 
@@ -114,6 +114,21 @@
 | 2026-09-30 08:59 | schedule | cloudflare | success | #6（36647998515） | 0分08秒 |
 | 2026-09-29 09:40 | schedule | cloudflare | success | #5（36504217917） | 0分09秒 |
 | 2026-09-21 15:10 | workflow_dispatch | cloudflare | success | #4（35567344666） | 0分21秒 |
+
+## notify-build-failure.yml
+
+- 名前: 本番ビルドの失敗の通知
+- state: active
+
+| 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
+| --- | --- | --- | --- | --- | --- |
+| 2026-10-13 23:41 | check_run | cloudflare | skipped | #6（38415581306） | 0分01秒 |
+| 2026-10-13 23:41 | check_run | cloudflare | skipped | #5（38415473106） | 0分01秒 |
+| 2026-10-13 23:38 | check_run | cloudflare | skipped | #4（38415122881） | 0分01秒 |
+| 2026-10-13 23:38 | workflow_dispatch | cloudflare | success | #3（38415117501） | 0分11秒 |
+| 2026-10-13 23:38 | workflow_dispatch | cloudflare | failure | #2（38415113000） | 0分13秒 |
+
+- #2 failure: ジョブ「notify」 ステップ「判定する(該当すればジョブを失敗させる)」
 
 ## regenerate-page.yml
 
@@ -193,11 +208,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-14 04:37 | workflow_dispatch | cloudflare | in_progress | #45（38456349476） |  |
 | 2026-10-13 12:00 | schedule | cloudflare | success | #44（38339572359） | 0分26秒 |
 | 2026-10-13 04:15 | workflow_dispatch | cloudflare | success | #43（38296490024） | 0分29秒 |
 | 2026-10-12 10:15 | schedule | cloudflare | success | #42（38191192423） | 0分30秒 |
 | 2026-10-12 04:15 | workflow_dispatch | cloudflare | success | #41（38167278315） | 0分33秒 |
-| 2026-10-11 09:55 | schedule | cloudflare | success | #40（38100071575） | 0分24秒 |
 
 ## sync-logs.yml
 
@@ -220,11 +235,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-14 04:17 | workflow_dispatch | cloudflare | success | #90（38453650761） | 7分18秒 |
 | 2026-10-13 11:43 | schedule | cloudflare | success | #89（38338239506） | 0分06秒 |
 | 2026-10-13 04:01 | workflow_dispatch | cloudflare | success | #88（38294833049） | 4分26秒 |
 | 2026-10-12 09:44 | schedule | cloudflare | success | #87（38189146060） | 0分10秒 |
 | 2026-10-12 04:01 | workflow_dispatch | cloudflare | success | #86（38166230708） | 3分50秒 |
-| 2026-10-11 10:28 | workflow_dispatch | cloudflare | success | #85（38101965297） | 3分09秒 |
 
 ## update-sns-book.yml
 
@@ -233,11 +248,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-14 04:37 | workflow_dispatch | cloudflare | in_progress | #23（38456349472） |  |
 | 2026-10-13 17:30 | workflow_dispatch | cloudflare | success | #22（38369773031） | 0分37秒 |
 | 2026-10-13 17:30 | workflow_dispatch | cloudflare | success | #21（38369688197） | 0分30秒 |
 | 2026-10-13 14:08 | workflow_dispatch | work/1013-acf-xsize | success | #20（38349864980） | 0分33秒 |
 | 2026-10-13 13:36 | workflow_dispatch | work/1013-acf-xsize | success | #19（38347299010） | 0分33秒 |
-| 2026-10-13 13:33 | workflow_dispatch | work/1013-acf-xsize | success | #18（38347038845） | 1分41秒 |
 
 ## write-live-channel-candidate.yml
 

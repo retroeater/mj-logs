@@ -30,3 +30,18 @@
 
 - ダッシュボードの Build watch paths の画面は1つ（本番の値を表示）。平野さんが `workers/**` を消して足し直して保存した（申告値）
 - 再試験でも `workers/` だけの作業ブランチの push で「Workers Builds: mj」が走ったため、受け入れる: 非本番のトリガーは `workers/` だけの変更でもプレビューがビルドされる。画面から非本番の除外は直せない。害はプレビューのビルドが1回増えることだけ。API などで直すことは今はしない（本来の形は BOT-04 のまま）
+
+## 2026-10-13（CHAT-1013-BLD-02）
+
+- 本番の Workers Builds の失敗を知らせる仕組みを入れる。方式（GitHub Actions の `check_run`・常設 issue へのコメント・Cloudflare のイベント購読）の選定は調査の後（#561）
+
+## 2026-10-13（CHAT-1013-BLD-03）
+
+- 本番ビルドの失敗の通知は方式 A: `check_run` の completed で起動し、該当すればジョブを失敗させて GitHub の失敗通知メールで知らせる。常設 issue は作らない（#561）
+- 本番かどうかは「失敗した check-run の `head_sha` が `cloudflare` に入っているか」で近似する。同じコミットのプレビューだけが失敗したときに余計な通知が出るのは受け入れる
+- 対象は名前が `Workers Builds:` で始まるもの（`mj`・`mj-scheduler`・`mj-ask`）
+
+## 2026-10-13（CHAT-1013-BLD-04）
+
+- BLD-03 の成果物（本番ビルドの失敗の通知）を cloudflare にマージする
+- cloudflare での手動実行3回が期待どおりなら `NOTIFY_ENABLED` を `'true'` にして有効化する（期待と違えば有効化しない。#561）
