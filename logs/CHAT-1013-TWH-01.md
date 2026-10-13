@@ -52,15 +52,51 @@ title/ の期ページ（例: title/ranwa/6.html）の最後にある帰り道�
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 着手前の確認
+
+- 同じ Chat-Ref・識別子 `TWH` のコミット・ログ: なし（`git fetch --unshallow` の後、`git log --all -E --grep 'CHAT-[0-9]{4}-TWH-'` と `docs/logs/CHAT-*-TWH-*.md` の履歴とも0件）
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 揃っている
+- 0. ログの「指示」欄の末尾は指示文の最後の行（「不明な点があれば…この行が指示文の最後の行です。」）と一致
+- 作業ブランチ: `work/1013-twh` はローカル・リモートとも無し → `git checkout -b work/1013-twh origin/cloudflare`（0186d17f7）
+- #553: 他セッションの着手中コメントなし（WHS-16 の着手中は WHS-18・19 で完了済み）。着手中のコメントを残した（本文・状態・ラベルは変えていない）
+- CLAUDE.md 22444 バイト・handover.md 23794 バイト（触らない）
+
+### 1. 確かめ
+
+- 前提のコードは origin/cloudflare にあった: `scripts/generate_title_pages.py` の `wayhome_html()` が `<h2 id="title_wayhome">{esc(wayhome.SERIES_NAME)}</h2>`、`wayhome_card_html()` が `.mj-title-video-summary`（中に `.mj-title-wayhome-name`＋公開日）。`style.css` に `.mj-title-wayhome-name`（太字）と `.mj-title-video-summary`（決勝ライブも使う）
+- docs/decisions/wayhome.md の G5-09（nav「帰り道」、一覧の title・h1「帰り道ついていってイイっすか」を正式とみなす）は一覧・各話の呼称の決定で、title/ の期ページの節の見出しを短くすることとは食い違わないと判断した
+- 未マージの work/ ブランチ: 触るファイル（`scripts/generate_title_pages.py`・`style.css`・`docs/notes/title-pages.md`・`docs/notes/video-wayhome.md`・`docs/decisions/title.md`・`scripts/tests/test_wayhome_links.py`）を変えているのは `origin/work/1013-dsn` の `style.css` だけ（houou/ の 5700 行台。`.mj-title-wayhome-name` は 2989 行付近）で、同じ行ではない。`git merge-tree` で cloudflare と衝突なし。止まる条件に当たらない
+- `git grep -n "帰り道ついていってイイっすか"`（docs/logs を除く）
+  - title/ の期ページに関わるもの: `scripts/generate_title_pages.py`（`wayhome_html()` の docstring）、`scripts/tests/test_wayhome_links.py:144`（期ページの h2 の検査）、`docs/notes/title-pages.md:67`、`docs/notes/video-wayhome.md:50`、生成物 `title/` の37ファイル（各1件）
+  - それ以外（変えない）: `scripts/lib/wayhome.py`（`SERIES_NAME` と docstring）、`scripts/generate_video_wayhome.py`・`scripts/apply_page_meta.py`（一覧の title・説明）、`scripts/check_wayhome.py`（知らせの issue）、`scripts/tests/test_wayhome_intake.py`（11件）・`test_wayhome_links.py:67,70`（紹介文）、`docs/decisions/wayhome.md`（2件）、`docs/notes/ogp.md:54`、`docs/notes/video-wayhome.md:41`（紹介文）、`llms.txt`（2件）、`wayhome/`（一覧9件・各話各8件）、`data/live_channel_raw.jsonl`（38件、動画タイトル）
+
+### 2. 直し（fb98b95e6）
+
+- `generate_title_pages.py`: 定数 `WAYHOME_HEADING = "帰り道"` を title/ 側に足し、`wayhome_html()` の見出しに使う（`SERIES_NAME` は変えない）。`wayhome_card_html()` から `.mj-title-video-summary` を外した。`date_label()` は決勝ライブ等で使うので残る。h2 の id・節の位置・リンク先は変えていない
+- `style.css`: `.mj-title-wayhome-name` を消した（参照が残らないことを `git grep` で確認）。`.mj-title-video-summary` は残した
+- テスト: `test_wayhome_links.py` の期ページの h2 の期待を「帰り道」にし、`.mj-title-video-summary` が無いことを足した（修正前のコードは h2 が「帰り道ついていってイイっすか」なので通らない）。`python3 -m unittest discover -s scripts/tests` 995件 OK
+- 文書: `docs/notes/title-pages.md`「期ページの帰り道」の節名・定数・カードの説明を直した。パンくずの行の「… → 帰り道（その期の回があるときだけ、#553）」は今の実装と合っているので変えていない。`docs/notes/video-wayhome.md` の title/ の節名を直した。決定は `docs/decisions/title.md` に足した（このログと同じコミット）
+
+### 3. 生成と差の確かめ
+
+- origin/cloudflare の `generate_title_pages.py` を一時ファイルにして実行（警告0件、帰り道 37期/41本）→ title/ と `sitemap-title.xml` を scratchpad に退避 → 直したスクリプトで実行（警告0件、37期/41本）
+- 旧スクリプトの生成物は origin/cloudflare のコミット済みの生成物と差なし（シートの変化による差は0件）
+- 旧→新の差: 37ファイル。各ファイルで、旧の帰り道の節に (a) h2 の文字の置き換え (b) `.mj-title-video-summary` の削除 を当てたものが新と完全に一致（ずれ0件）。(a) 37件、(b) 41件。帰り道の節を持たないページの差は0、`sitemap-title.xml` も差なし、増減したファイルなし
+- 帰り道の節を持つ期ページ（37）: gpmax/15・16、houou/41、joryu-nihon-series/2025、judan/40・41・42、jwrc/15・16・17・18、jwrc-r/3・4・5・6、masters/32・33、nihon-series/2025、oui/49・50、ouka/19・20、ourai/8・9・11、ranwa/4・5・6、shinjinou/37・38、teiou/3・4、wakajishi/8・9・10・11、wrc/4
+- 帰り道の一覧・各話: `python3 scripts/regenerate.py video_wayhome wayhome_episodes` で差なし
+- 気づき（変えていない）: カードに見える文字が無くなったため、リンクの読み上げ名は回の番号と再生時間だけになる（番号の無い回は再生時間だけ）。決勝動画のカードも回戦名だけなので同じ形だが、必要なら別の指示で `visually-hidden` の選手名を足す
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 0186d17f）: https://github.com/retroeater/mj-logs/tree/main/guide/0186d17f
+ガイド文書（この版を写した時点の最新、mj 7557aba1）: https://github.com/retroeater/mj-logs/tree/main/guide/7557aba1
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/0186d17f/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/0186d17f/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/0186d17f/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/0186d17f/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/0186d17f/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/0186d17f/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/7557aba1/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/7557aba1/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/7557aba1/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/7557aba1/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/7557aba1/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/7557aba1/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/0186d17f.md
