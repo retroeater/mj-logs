@@ -50,6 +50,31 @@ CHAT-1013-SNM-11 で、旧方式の2ページの JS（`houou_results.js`・`leag
 
 ## 経過
 
+### 0章
+
+- 指示欄の末尾は指示文の最後の行（「不明な点があれば、…この行が指示文の最後の行です。」）と一致している
+- (1) CHAT-1013-SNM-12 の `## 報告` の状態は「中断（エラー）」。末尾に ` / 続き: CHAT-1013-SNM-13` を足した（SNM-11 の `/ 続き:` は SNM-12 のまま）
+- (2) このセッションは新しく始めたもの（この指示文が最初の入力。work/1013-snm はローカルに無く、origin/work/1013-snm〈45adaed0〉から作った）。届くかの確かめ（curl、HTTP の応答が返れば届いている。トンネルの拒否は 000）:
+
+| 宛先 | 結果 |
+|---|---|
+| `https://www.gstatic.com/charts/loader.js` | 200 |
+| `docs.google.com` | 302 |
+| `*.googleusercontent.com`（lh3） | 400（サーバの応答。届いている） |
+| `www.ma-jan.or.jp` | 200 |
+| `x.com` | 200 |
+| `pbs.twimg.com` | 400（サーバの応答） |
+| `www.youtube.com` | 200 |
+| `img.youtube.com` | 404（サーバの応答） |
+| `ryoei.pro` | 200 |
+| `thumbnail.image.rakuten.co.jp` | 403（サーバの応答。トンネルは通った） |
+| `*.cloudflare.com`（developers） | 200 |
+| `*.workers.dev`（プレビューの別名のホスト。URL は書かない） | 200（存在しないホスト名 `mj.workers.dev` では CONNECT 502 だったので、実在のホストで確かめた） |
+| `calendar.google.com` | 200 |
+| `saikouisen.com`・`npm2001.com`・`rmu.jp`・`mu-mahjong.jp` | 200・200・200・200 |
+
+- (3) 「鳳凰」の見出し（gviz `SELECT * LIMIT 1`、headers=1）: A「名前」〜V「表示」、W「プロ」、X「備考」、Y「存在チェック」、Z「備考」。「組」は無く X は「備考」で、SNM-11 の時点と同じ
+
 ## 報告
 
 - 状態: 対応中
