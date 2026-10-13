@@ -51,28 +51,79 @@ CHAT-1013-SNM-17 で `lib/sns.fetch_pros()`・`lib/pro_sheet` に引数 `hidden`
 
 ## 経過
 
+### 0章
+
+- 指示欄の末尾は指示文の最後の行と一致している。Chat-Ref の重複なし。work/1013-snm-sns はローカル・リモートとも無かったので origin/cloudflare（edaefa8f）から作った
+- CHAT-1013-SNM-18 の `## 報告` は 状態「完了」・マージ「済（feff70b6）」
+- 起動の前に update-sns-book.yml と `update_sns_book.py` を読んだ: dry_run 真では、`update` は `--dry-run` を付け、書き込み（`write_checked()`）をせず、`pages_changed` も出さない（再生成のジョブは起動しない）。`check` は読むだけ
+
+### 手順1 起動（ref cloudflare、どちらも scheduled なし・dry_run 真）
+
+| run | 入力 | ref の SHA | 結論 | 所要時間 |
+|---|---|---|---|---|
+| #21 38369688197 | mode check | edaefa8f（feff70b6 を含む） | success（update のジョブ success・regenerate は skipped） | 30秒（08:30:12〜08:30:42 UTC） |
+| #22 38369773031 | mode update | edaefa8f | success（同上） | 37秒（08:30:54〜08:31:31 UTC） |
+
+### 手順2 値と前の run との比べ
+
+check（#21）と、前の cloudflare の check（#14 38207634224、2026-10-12 05:22 UTC）:
+
+| 項目 | #14（10-12） | #21（今回） |
+|---|---|---|
+| タブ | 【1】元データ・【2】ID・【3】画像取得・【4】手動補正 | 同じ |
+| 編集者か | はい（HTTP 200） | はい（HTTP 200） |
+| 【1】の見出し・行数 | シート・名前・名前かな、1,838 | 同じ見出し、1,844 |
+| 【2】の行数・入力のある名前 | 1,864・1,069 | 1,844・1,068 |
+| 【3】の行数 | 1,864 | 1,844 |
+| 【4】の行数 | 0 | 0 |
+| 元の一覧 | プロ 1,099・連盟プロ以外 739・計 1,838 | プロ 1,099・連盟プロ以外 745・計 1,844 |
+
+- 【1】1,844 は元の一覧の 1,844（「プロ」1,099＋「連盟プロ以外」745）と合う
+- 違いはシートの変化で説明できる: 「連盟プロ以外」が 739→745（6名増）で【1】も同じだけ増えた。【2】【3】の 1,864→1,844 は、10-12 の毎日の更新（#15）の時点で「一覧に無い」が 26 行あり、10-13 の #17 の時点で 0 になっていた（一覧に無い行の整理。「プロ」は 1,099 のまま）
+
+update（#22）と、前の cloudflare の update（#17 38347036103、04:33 UTC、9bba7d55）・ACF の作業ブランチの dry-run（#20 38349864980、5a552833）:
+
+| 項目 | #17（9bba7d55） | #20（ACF、5a552833） | #22（今回、edaefa8f） |
+|---|---|---|---|
+| 【2】 | 1,844 行（一覧に無い 0）、変わらない | 同じ | 同じ |
+| X API を呼ぶ予定 | 0（上限 30） | 0 | 0 |
+| X状態 | 解決 1,051・未入力 780・既定のアイコン 12・アカウントなし(確認済み) 1 | 同じ | 同じ |
+| note状態 | 未入力 1,640・確認済み(取得しない) 204 | 同じ | 同じ |
+| YouTube状態 | 未入力 1,762・解決 82 | 同じ | 同じ |
+| 【3】を書き直すか | 書き直さない | 書き直す | 書き直す |
+| ページが使う値が変わった人 | 0 | 828 | 828 |
+| 書き込み | dry-run のため書かない | 同じ | 同じ |
+
+- #17 と #22 の違い（【3】を書き直す・828 人）は、間にマージされた CHAT-1013-ACF-12（a1d4d264、【3】の X画像URL を `_400x400` にそろえて書く、#558）によるもの。ACF-12・13 のログの見込み（828 ±10、X API を呼ぶ予定 0〜1）と、ACF の作業ブランチの dry-run（#19・#20）の値と同じ。CHAT-1013-SNM-16〜18 の変更（タブの確かめ・`hidden`）の後の #22 は #20 と同じ値で、SNM-16〜18 による違いは無い
+- 【1】の行数は update の出力には出ない（`update_sns_book.py` は【2】【3】だけを数えて出す）。check の 1,844 で確かめた
+
 ## 報告
 
-- 状態: 対応中
+- 状態: 完了
 - ブランチ: work/1013-snm-sns
-- ログ: https://github.com/retroeater/mj/blob/work/1013-snm-sns/docs/logs/CHAT-1013-SNM-19.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1013-SNM-19.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1013-snm-sns
-- 確認用URL:
-- マージ: 未
+- 確認用URL: なし
+- マージ: 済（86453029。ドキュメントのみ）
 - issue: なし
-- 判断が必要なこと:
-- 未確認の項目:
-- エラー:
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
+
+### 結論
+
+- CHAT-1013-SNM-18 のマージ（feff70b6）の後も、SNS ブックの更新は止まらない。cloudflare（edaefa8f）で check・update とも dry-run で success、X API を呼ぶ予定 0、【1】1,844 は元の一覧と合う
+- 次の毎日の更新（04:10、Worker から）では、ACF-12 の見込みどおり【3】の 828 行が `_400x400` に書き換わり、その日だけ全ページの再生成が1回起動する見込み（ACF-13 のログの前提どおり）。SNM-17 の「未確認の項目」はこれで解消した
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj edaefa8f）: https://github.com/retroeater/mj-logs/tree/main/guide/edaefa8f
+ガイド文書（この版を写した時点の最新、mj 0186d17f）: https://github.com/retroeater/mj-logs/tree/main/guide/0186d17f
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/edaefa8f/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/edaefa8f/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/edaefa8f/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/edaefa8f/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/edaefa8f/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/edaefa8f/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/0186d17f/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/0186d17f/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/0186d17f/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/0186d17f/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/0186d17f/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/0186d17f/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/7320c071.md

@@ -386,10 +386,11 @@ sitemap分割を、1/30程度の規模で先に検証する狙い。実装は
 （youtube.com）を指していたためと見ており、個別ページ（自サイトURL）が
 できたことで初めてカルーセルの候補になりうる（#162コメント参照）。
 
-**canonicalは#113の例外として38ページにだけ付けた。** #113は「現行
+**canonicalは#113の例外として、帰り道の各話と一覧（`/wayhome/`、2026-10-13 に足した）にだけ付けている。** #113は「現行
 サイトにはcanonicalを付けない（Googleの正規化任せ）」と判断したが、
-理由は`?name=`付きURLの検索流入14件を正規化で失うことだった。個別
-ページは`?name=`等のURL変種を持たないため、この懸念が当てはまらない。
+理由は`?name=`付きURLの検索流入14件を正規化で失うことだった。例外の基準は
+「URL の別形（`?name=` などのクエリで中身が変わる URL）を持たず、Search Console にも `?` 付きの URL が出ていないページ」で、
+各話も一覧（絞り込みは URL を変えない）も当てはまる。一覧の canonical は `https://ryoei.pro/wayhome/`（og:url と同じ。`/wayhome/index.html`・`?utm_…` をまとめる）。
 `lib/page.py`の`PageMeta`に`canonical`（既定`None`）・`og_image`/
 `og_image_width`/`og_image_height`/`og_image_alt`（既定は全ページ共通の
 `img/ogp.png`・1200×630）を追加し、ページごとに差し替えられるようにした。
