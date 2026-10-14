@@ -94,7 +94,7 @@
 
 ## データ源
 
-新しいスプレッドシート `<ライブ用スプレッドシートの ID>`（/live 用と同じ。値は `scripts/generate_title_pages.py` の `SPREADSHEET_ID`）の4タブ。
+新しいスプレッドシート `<ライブ用スプレッドシートの ID>`（/live 用と同じ。値は `scripts/generate_title_pages.py` の `SPREADSHEET_ID`）の「タイトル」「タイトル戦」と、ryoei.pro_選手（`lib/live.py` の `PLAYERS_SPREADSHEET_ID`、#567）の「連盟プロ以外」「別名」の4タブ。タブごとの読む先は `live.spreadsheet_of()`。
 
 | タブ | 用途 |
 |---|---|
