@@ -60,14 +60,48 @@ DSN-09 の比較ページで平野さんが選んだ案（ランキング (a)・
 
 ## 経過
 
+- 0: 「指示」欄の末尾は指示文の最後の行と一致。DSN-09 のログの `## 報告` の状態は「判断待ち」→「判断待ち / 続き: CHAT-1014-DSN-10」にした
+- **このセッションは新しく始めたものではない。** DSN-01〜09 を実行したセッション（同じ Claude-Session）に続けて貼られた
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある
+- Chat-Ref の確認: `CHAT-1014-DSN-10` のコミットなし。work/1013-dsn はローカル・リモートとも 225f04b（一致）
+
+### 手順1
+
+- #107 に着手中のコメント（issuecomment-6157972351）
+- `git merge --no-edit origin/cloudflare`（e71fcdf まで。SNM-17・18〈feff70b6〉を含む）。衝突なし → 6c59936
+- 未マージのブランチ: work/1009-swp-526・work/1011-swp-hnd・work/1011-swp-nav。houou/ 系のファイルに触れるものは無い（work/1013-snm-hide はマージ済み）
+- 単体テスト OK。取り込んだ後に `regenerate.py houou_pages` を流して差分なし。トップ「選手691名」と個人成績「出場選手691名」は同じ数
+
+### 手順2（(a) 2つを本体に・比較ページを消す）
+
+- ランキング: 部門の切り替え（`.mj-houou-chipnav` の9つのリンク）を CSS で3段×3列の格子にした（灰色の溝・押せる高さ 44px・字 15px・今の部門が白く浮く）。横スクロールの帯と、送るボタン・端のぼかし・ホイール（`assets/houou.js` の `chipScroller()` と `style.css` の `.mj-houou-chipnav-box`・`.mj-houou-chipnav-step`）を消した。リンクのままなので、押すとその部門のページへ移り表が変わる（URL の形は前と同じ）。生成の HTML は変わらない
+- 順位変動: 生成の `RACE_HEAD` で、題の行を「h1（`visually-hidden`。読み上げにだけ残す）＋選ぶボタン＋再生」にした。ボタンの字は `renderSelectors()` が選んでいる期・リーグから作る「第43期前期 B1」（中黒を空白に。組は「D1 1組」）。28px 太字、▾ だけ紺。`<title>`・meta は変えていない
+- 比較ページ `houou/compare-ranking/`・`houou/compare-race/` を消した（`git rm`）
+- 生成し直しの差: `houou/race/index.html`（題の行の骨組み）だけ。`houou/results/`・順位変動のデータ・`search.json` の差なし
+- 375×812 の最初の表示に入る表の行（全部入る行／一部が見える行）: ランキング 本体 8／9・比較ページ (a) 8／9、順位変動（第43期前期 B1、帯の行は数えない）本体 15／16・比較ページ (a) 15／16。同じ
+- 動きの確かめ: ランキングで「期浮き率」を押すと `ranking/term-plus-rate/` へ移り、列名が「期単位浮き率」、白く浮くのが「期浮き率」。行を押すと個人成績へ（川村直寛）。順位変動は最初に最終成績・帯あり・ボタンは「再生」、題名を押すとシート、D を選ぶと題名「第43期前期 D1 1組」・URL `?term=43-1&league=D1`、Esc で閉じてフォーカスは題名に戻る、再生で全員 0.0 から動く。ページのエラー 0
+- 確かめ（ランキング3部門・順位変動・シート、ほかに DSN-09 で変えた画面）× 375/390/430 × 明暗 × 標準・幅の広い字体・150%・200%: 標準・幅の広い字体ではみ出し・切れ・横スクロールなし（計測の「cut:鳳凰戦 順位変動」は読み上げ用に隠した h1 の誤検出）。150%・200% は題名が次の行に回るだけ。押せる大きさ: 格子の1マス・題名のボタンとも高さ 44px 以上。動きを減らす設定: 動きは足していない。灰色の字: 色の変数は変えていない。トップ・個人成績は 375px の明暗で崩れなし
+- ほかのページ（前 = この指示の変更前の HEAD 6c59936）: index・jpml_pros・title/・saikyo/・live/・帰り道・旧 houou_race.html・houou_ranking.html × 375/1280。ナビは全件同じ。画素は jpml_pros の 1280px で差が出たが、撮り直すと2回とも同じ（読み込みの時機の揺れ）。live・saikyo・title の 375px の各7画素は前からの揺れ
+- push（e01e660）の Workers Builds は成功。版ごとのプレビューの URL でトップ・選ぶ前・平野良栄・ランキング・順位変動が 200、比較ページ2枚は 404（「ページが見つかりません」）
+- 画面写真（`docs/logs/CHAT-1014-DSN-10/`）: 375px の明（01〜06）・暗（07〜12）のランキング（通算・期浮き率）・順位変動・シート・トップ・個人成績
+
+### 手順3（文書・マージ・本番）
+
+- 文書: `docs/notes/houou-top.md`（ランキングの作り＝格子、比較ページの節を「すべて消した」に書き直し、済んだ比較に足した）、`docs/notes/houou-race.md`（題名が選ぶボタン）、`docs/notes/design.md`（選ぶ部品の行の「横スクロール」を格子に置き換え、「横スクロールの選ぶ部品の送り」の行を「格子の選ぶ部品」「選ぶボタンを兼ねる題名」の2行に置き換え）、`docs/decisions/design-renewal.md`（2026-10-14〈DSN-10〉の節。DSN-03 の「同じ幅のまま横スクロール」と grill Q4 の「表の上の1行」に置き換えの印）
+- マージ: 再 fetch → `git merge-base --is-ancestor origin/cloudflare HEAD` が真 → `git push origin work/1013-dsn:cloudflare`（e71fcdf3d..522a4323f）
+- マージで cloudflare に入ったもの（ログを除く 11 ファイル。DSN-09 の分を含む）: コード 4（`style.css`・`assets/houou.js`・`assets/houou_race.js`・`scripts/generate_houou_pages.py`）、生成物 3（`houou/index.html`・`houou/players/index.html`・`houou/race/index.html`）、文書 4（`docs/decisions/design-renewal.md`・`docs/notes/design.md`・`docs/notes/houou-race.md`・`docs/notes/houou-top.md`）。比較ページ2枚は DSN-09 で作ってこのブランチで消したので、cloudflare との差には出ない。ほかに `docs/logs/` の DSN-09・10 のログと画面写真
+- マージ後: Workers Builds: mj 成功（本番は push から約1分で新しい形を返した）。ページの再生成（regenerate-page.yml、run 38490119988）は成功で、生成し直しのコミットは無し（差分なし）。公開対象を検査する・サイトマップの lastmod・saikyo は成功、本番ビルドの失敗の通知は skipped。画像リンク切れの検知（run 38490119497）はこのログを書いた時点で実行中（今回の変更と関係しない定時の検知と同じ仕組み）
+- 本番の確かめ（headless Chromium、375px）: トップ「選手691名」・注意書きの中身2件／個人成績の選ぶ前はグラフなし・「出場選手691名」／平野良栄は「期別」で開き、名前の下に「第31期後期〜第43期前期」／ランキングの部門は3列の格子（送る部品なし）／順位変動の題名「第43期前期 B1」・ボタン「再生」・帯あり／比較ページ2枚は 404
+- #107 にマージしたことのコメント（issuecomment-6158102493。本文・状態・ラベルは変えていない）
+
 ## 報告
 
-- 状態: 中断（作業中）
+- 状態: 完了
 - ブランチ: work/1013-dsn
-- ログ: https://github.com/retroeater/mj/blob/work/1013-dsn/docs/logs/CHAT-1014-DSN-10.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1014-DSN-10.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1013-dsn
-- 確認用URL: なし
-- マージ: 未
+- 確認用URL: プレビューあり（URL は最終報告）。トップ・個人成績（選ぶ前・平野良栄）・ランキング・順位変動を確認し、比較ページ2枚の 404 を確認
+- マージ: 済（522a4323f）
 - issue: #107
 - 判断が必要なこと: なし
 - 未確認の項目: なし
@@ -76,12 +110,12 @@ DSN-09 の比較ページで平野さんが選んだ案（ランキング (a)・
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj e71fcdf3）: https://github.com/retroeater/mj-logs/tree/main/guide/e71fcdf3
+ガイド文書（この版を写した時点の最新、mj 522a4323）: https://github.com/retroeater/mj-logs/tree/main/guide/522a4323
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e71fcdf3/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e71fcdf3/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e71fcdf3/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e71fcdf3/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e71fcdf3/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e71fcdf3/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/522a4323/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/522a4323/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/522a4323/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/522a4323/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/522a4323/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/522a4323/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/e71fcdf3.md
