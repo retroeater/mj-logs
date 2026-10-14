@@ -101,28 +101,72 @@
 | check-saikyo-unregistered（`dry_run: true`） | #9（38506817102） https://github.com/retroeater/mj/actions/runs/38506817102 | success | 「event: workflow_dispatch / scheduled: false / apply: false」。`Resolved .python-version as 3.12`。出場者440名・引けない人0名・対局日が空0件。upsert-issue「[dry-run] 「最強戦の出場者の登録漏れ」は無いので閉じるものが無い」 | #8（38207464466、10/12）: 「登録漏れなし」（0名）→ 件数は同じ |
 | sync-birthday-calendar（`apply: false`） | #11（38506819071） https://github.com/retroeater/mj/actions/runs/38506819071 | success | 引数 `--compare`、`APPLY: false`・`ALLOW_MANY_DELETES: false`。名簿1099名・載せる人1072名・カレンダーの予定1072件、追加0・更新0・削除0 | #10（38185202120、10/12 の予約実行、apply）。その後に差分0なのは、予約実行が書いた状態のままという意味で整合 |
 
+### upsert-issue の型N・型D・read の形（一時のコミット 8a570e107）
+
+check-saikyo-unregistered の末尾に、型N・型D・read を dry-run で呼ぶ一時のステップを足して `dry_run: true` で実行した: run #10（38507030177） https://github.com/retroeater/mj/actions/runs/38507030177 success。
+
+- notice（題「道場部ゲストの取り込み」）: 「[dry-run] #426 にコメントする」＋実行ログのリンク（`run-url-footer`）
+- notice（無い題、ラベル付き）: 「[dry-run] 「試験 存在しない題」を作る(ラベル: 種類: 常設)」
+- comment（#450）: 「[dry-run] #450 にコメントする」
+- read（題「帰り道の新しい回」、marker `<!-- wayhome-state:`）: #545 を読み、本文 2883 バイト・印付きの最後のコメント 357 バイト（印を1つ含む）
+
+**一時のステップを外す操作で手順を誤った**: `git revert` が隣の行との衝突で止まったのに気づかず `git commit --amend` をしたため、試験のコミット自体の件名が「ci: 試験の upsert-issue のステップを外す」（df7d24ea0、中身は 8a570e107 と同じ tree）に変わった。push は fast-forward でないため拒否され、リモートは壊れていない。
+force push をせず、`origin/work/1014-wfl-parts` を merge で取り込み（822c34335、衝突は自分の側を採った。tree は取り込む前と同じ）、試験のステップを手で外して revert を終えた（93c8fdec1）。
+そのため履歴に件名と中身が合わない df7d24ea0 と、トレーラの無い 93c8fdec1 が残る（`.github/` の最終の中身には影響しない。下の確かめ）。
+
+### 手順2 (b): 予約の起動の道筋（433fda923 → 戻し 667996c47）
+
+- 433fda923 で、check-saikyo-unregistered は upsert-issue の `dry-run` を `'true'` に置き換え（1行）、sync-birthday-calendar は `--apply` を付けた直後に `ARGS="--compare"` を足して（1行）、予約の起動でも書かないようにした。
+  check-saikyo-unregistered は書く道筋の切り替えが upsert-issue の入力にあり、行を足す形にできないため置き換えにした
+- `scheduled: true` で手動実行（sync-birthday-calendar は `allow_many_deletes: true` も付けて、予約の起動で無視されることも見た）:
+
+| ワークフロー | run | 結果 | 要点 |
+|---|---|---|---|
+| check-saikyo-unregistered | #11（38507208870） https://github.com/retroeater/mj/actions/runs/38507208870 | success | 題「[scheduled] 最強戦の出場者の登録漏れの検知」。「event: workflow_dispatch / scheduled: true / apply: true」（`dry_run: true` を付けても予約の起動は書く側になる）。出場者440名・0名・0件。upsert-issue は試験の1行で dry-run |
+| sync-birthday-calendar | #12（38507211408） https://github.com/retroeater/mj/actions/runs/38507211408 | success | 題「[scheduled] 誕生日カレンダーの同期」。`APPLY: true`・`ALLOW_MANY_DELETES: false`（入力は true）。引数は試験の1行で `--compare`。追加0・更新0・削除0 |
+
+- 戻すコミット 667996c47 の差分は、各ファイルの試験の1行だけ（`git show --stat`: 2 files changed, 1 insertion(+), 2 deletions(-)。check-saikyo-unregistered は置き換えの1行、sync-birthday-calendar は足した1行の削除）
+- 戻した後の `.github/` は書き直しのコミット 3d7fa4db2 と同じ（`git diff 3d7fa4db2 -- .github` が空）
+
+### 手順2 (c)
+
+- `python3 -m unittest discover -s scripts/tests`: OK（ローカル、8f18ed371 の時点）
+- check-run「check」（assets-check、`.python-version` を `.assetsignore` に足したことを含む）: 667996c47 で success
+- 失敗通知: この指示の run はすべて success で、失敗通知は無い見込み
+
+### 手順3: docs と #564
+
+- docs/notes/github-actions.md に「共通の部品（`.github/actions/`）」の節を足した（各部品の入力・出力と寄せられない点）。「ワークフローを手動実行するとき」の入力 `scheduled` の一覧に2本を足し、sync-birthday-calendar の `allow_many_deletes` の扱いと check-saikyo-unregistered の項を足した。「ワークフローの一覧」の表は変えていない（`test_workflows_table.py` は OK）
+- docs/notes/saikyo-page-design.md の check-saikyo-unregistered の節にあった `SCHEDULE_ENABLED: 'false'` の記述を今の動きに直した
+- `SCHEDULE_ENABLED` の記述が残るのは cleanup-logs・delete-merged-branches（github-actions.md）で、まだ部品に移していないため今の動きのとおり
+- #564 に2本で試した結果（run の番号）をコメントした: https://github.com/retroeater/mj/issues/564#issuecomment-6160346379
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1014-wfl-parts
 - ログ: https://github.com/retroeater/mj/blob/work/1014-wfl-parts/docs/logs/CHAT-1014-WFL-03.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1014-wfl-parts
-- 確認用URL: なし
-- マージ: 未
-- issue: #564
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 確認用URL: なし（`.github/`・`scripts/`・docs の変更で、ページは変えていない）
+- マージ: 未（判断待ち。指示の「マージ:」の行のとおり）
+- issue: #564（2本で試した結果をコメント）
+- 判断が必要なこと:
+  - マージの可否: 部品3つと2本の書き直し・`.python-version`・`check_saikyo_unregistered.py` の本文の組み立て（元の JS と同じ文面）・docs。作業ブランチの手動実行は5回すべて success
+  - 履歴: 一時のステップを外すときの手順の誤りで、件名と中身が合わない df7d24ea0（中身は試験のステップを足すもの）とトレーラの無い 93c8fdec1 が残る（経過「upsert-issue の型N・型D・read の形」）。最終の中身には影響しない。(a) このままマージする／(b) 次の指示でブランチを作り直す（cloudflare から新しいブランチに最終の差分だけを1コミットで入れ直す）。推奨 (a): force push を避けた結果で、件名の誤りはログに残してあり、作り直すと手動実行の run と結び付くコミットが変わる
+  - 展開の指示で決めが要る点（部品の入力で足りなかったもの・挙動が変わるもの）: (1) upsert-issue は dry-run でも題で探す（今までの本は dry-run なら issue の手順ごと skipped）。API を数回引くだけで書かないが、挙動が変わる。推奨: このまま（何をするはずだったかが dry-run で見える） (2) 本文の組み立てを github-script から各スクリプトへ移す（check-meibo ×2・check-image-links ×3・cleanup-logs・update-live-channel ×2・sync-dojo-calendar）。check_saikyo_unregistered と同じく、元の JS と同じ文面かを node で突き合わせ、テストを足す形にするか。推奨: そうする (3) sync-dojo-calendar の複数コメントを1件にまとめるときの区切り（`---` で並べる案） (4) commit-push の部品は次の指示で作る（この2本は使わない） (5) 入力 `scheduled`・`run-name` は Worker の表に無い本にも足した（段④で表へ移すまで使われない）。展開でも同じく足すか。推奨: 足す（段④の差分が表の行だけになる）
+- 未確認の項目:
+  - 書き込む道筋（`apply: true` で実際にカレンダー・issue を書く）は作業ブランチでは通していない（指示の形のとおり、試験の1行で書かなかった）。マージ後の初回の予約実行で確かめる: sync-birthday-calendar 2026-10-19（月）05:17 JST、check-saikyo-unregistered 2026-10-19（月）06:50 JST（マージがそれより前のとき）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj be98b1fc）: https://github.com/retroeater/mj-logs/tree/main/guide/be98b1fc
+ガイド文書（この版を写した時点の最新、mj 09dfbb52）: https://github.com/retroeater/mj-logs/tree/main/guide/09dfbb52
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/be98b1fc/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/be98b1fc/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/be98b1fc/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/be98b1fc/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/be98b1fc/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/be98b1fc/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/ec9e24c3.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/09dfbb52/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/09dfbb52/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/09dfbb52/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/09dfbb52/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/09dfbb52/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/09dfbb52/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/be98b1fc.md
