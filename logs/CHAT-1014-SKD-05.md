@@ -62,28 +62,138 @@ SKD-03 の比較ページで平野さんが C を選んだので、未公開の�
 
 ## 経過
 
+### 0. 着手前
+
+- 同じセッション（session_01LjQF3LYvdJM7VPNtxPNcVj）で SKD-04 に続けて受けた指示。`git log --all --grep="CHAT-1014-SKD-05"` は0件。指示文の末尾はこのログの「指示」欄の末尾と一致。雛形の行はすべてある
+- 作業ブランチ: `origin/work/1014-skd`（b0ea915f0）とローカルが一致。`git checkout work/1014-skd` のうえ、`origin/cloudflare` が祖先でなかったため `git merge origin/cloudflare`。**`docs/decisions/design-renewal.md` が衝突**（このブランチの SKD-02・SKD-03 の節と、cloudflare の SKD-04 の節が、どちらも SKD-01 の節の後への追記）。指示の「追記どうしは両方を残して解いてよい」に当たるため両方を残した（276c54320）。解いた後の該当箇所:
+
+  > ## 2026-10-14（CHAT-1014-SKD-02）
+  >
+  > - 最強戦の対局の中の選手の並べ方は、B（面に寄せ、写真のカードは残す）と C（面の中の表の行にする）を比較ページで見比べて決める。A（今のまま）は候補から外す（比較ページは未作成）
+  >
+  > ## 2026-10-14（CHAT-1014-SKD-03）
+  >
+  > - SKD-02 の決定（B と C を比較ページで見比べて決める、A は外す）のまま、比較ページを作る（SKD-02 は0章で止まったため、同じ中身を SKD-03 でやり直した）
+  >
+  > ## 2026-10-14（CHAT-1014-SKD-04）
+  >
+  > CHAT-1014-SKD-01 の判断待ち3点への回答（#566）:
+  > （以下 SKD-04 の3行）
+
+  取り込みはログの先行 push より前に行った（ブランチを整えるため。CLAUDE.md の順序と違う点としてここに書く）
+- SKD-03 のログの `## 報告` の状態を「判断待ち / 続き: CHAT-1014-SKD-05」にした（着手のコミット 17bfdde07）
+- #566 の本文と全コメント（「親: #296」の1件だけ）を読んだ。他のセッションの着手中コメントは無い。着手中のコメント: https://github.com/retroeater/mj/issues/566#issuecomment-6161708970
+- 未マージの work/ ブランチ（1009-swp-526・1011-swp-hnd・1011-swp-nav・1014-jpl・1014-wfl-s2）は `scripts/generate_saikyo_pages.py`・`style.css`・`assets/saikyo.js` に触れていない
+
+### 1. 「A卓 1位」の材料と「優勝」の条件
+
+- **前提との違い:** `winners()`（`scripts/generate_saikyo_pages.py`）は勝ち上がった `Player` の並びだけを返し、卓（`Table`）を返さない。卓の英字は `winners()` の結果からは取れない。ただし `winners()` が読む `match.tables` に `Table.table`（卓の英字）と `Player.rank` があるので、`winners()` と同じ選び方で `(Table, Player)` を返す `winner_rows()` を足し、`winners()` はそれを使う形にした（選び方・並びは同じ。`WinnersTest` は変えずに通る）。止まる条件「材料が取れない」は、材料が同じデータにあるので当たらないと判断した（「判断が必要なこと」に書いた）
+- 「A卓 1位」は `winner_place(table, player)`: 順位が空なら空文字、卓の英字が空なら「1位」、ほかは「<英字>卓 <順位>位」
+- **「優勝」の条件（今のまま）:** `Player.label`（`scripts/generate_saikyo_pages.py` の `class Player` の `label` プロパティ）が `self.is_final and self.result == RESULT_PASS` のとき「優勝」。`is_final` は `build_match()` で `stage == FINAL_STAGE`（「決勝」）。年度ページでは勝ち上がり者の `label` が「優勝」なら右端に金の「優勝」のピルを出す（`build_winner_rows()`）
+- **順位が空で右端に何も出ない勝ち上がり者のいる対局**（生成し直した `saikyo/<年度>/index.html` から数えた。「人数／その対局の勝ち上がり者」）:
+  - 2011 敗者復活戦 4/4
+  - 2016 プレミアトーナメント代表決定戦（極限の攻戦・豪傑大激突・修羅の道・無法の哭き）各 1/1
+  - 2017 女流プレミアトーナメント代表決定戦（流派抗争勃発・野望の女達・真・女王決定戦・女達の死闘）各 1/1
+  - 2018 男子プレミアトーナメント（豪傑発見・下剋上決戦・天鳳ニューパワー・新技激突）・女流プレミアトーナメント（女達の秘技・喧嘩上等・新旧女王対決・美女の乱）各 1/1
+  - 2019 男子プレミアトーナメント（恐れ知らずの打撃戦・空中決戦・手役の魔力・王者の底力）・女流プレミアトーナメント（皮肉な下剋上・一発逆転・脅威のツッパリ・華麗な技）各 1/1
+  - 2020・2021 ファイナルトーナメント 2nd Stage 4/4・1st Stage 8/8
+  - 計 29対局。どれも名前の行の下の「通過」はあり、行の右端だけが空
+
+### 2. 変えたもの
+
+**`scripts/generate_saikyo_pages.py`:**
+
+- 足した: `ROW_IMAGE_SIZE`・`NEW_BODY_CLASS`（`mj-saikyo-n-page`）・`UNPLAYED_ROW_HTML`、`winner_rows()`・`winner_place()`、`build_avatar_html()`（写真 40px の丸、写真が無ければ頭の1字の丸）・`build_row_html()`（選手の行、押せない）・`win_pill()`・`build_title_html()`（対局名の行）・`build_winner_rows()`（年度ページの対局1つ）・`build_rank_html()`（対局のページの順位）
+- 変えた: `winners()`（`winner_rows()` を使う）、`build_breadcrumb()`（13px 灰色の1行 `.mj-saikyo-n-crumb`）、`build_sub_year_body()`・`build_table_section()`・`build_match_page_body()`（行の形）、`write_sub_page()`（卓のページ以外の `<body>` に `mj-saikyo-n-page` を足す）
+- 消した: `build_video_html()`（対局のページの ABEMA のサムネイル。決定2）、`build_winner_html()`・`UNPLAYED_CARD_HTML`（年度ページの写真カード）
+- 変えていない: `build_player_html()`（今の年度ページ・卓のページ）、卓のページの関数（`build_table_page_body()` ほか）、トップの関数、`abema_thumb_url()`・`THUMB_*`（卓のページのヒーローが使う）
+- 選手の行は押せない（前提のとおり）。**比較ページ（SKD-03）の C は行全体を X へのリンクにしていた**ので、この点は比較ページと違う（「判断が必要なこと」に書いた）
+
+**`style.css`:**
+
+- 足した: 「#425 の新しい年度・対局のページ…面の中の表の行」の節（`body.mj-saikyo-n-page` と `.mj-saikyo-n-*` だけ。明・暗の変数 `--mj-n-*` を `body.mj-saikyo-n-page` に置く。`.mj-lead` の色と線、`main a` の色、`.mj-saikyo` の字の大きさ 1rem を `body.mj-saikyo-n-page` の中だけで上書き）
+- 消した: 新しいページだけが使っていた `.mj-saikyo-breadcrumb …`・`.mj-saikyo-match-title > a`・`.mj-saikyo-table-title > a`・`.mj-saikyo-winner-label`・`.mj-saikyo-video`・`.mj-saikyo-video > a`・`.mj-saikyo-video-thumb`・`.mj-saikyo-video-credit`。消す前に生成物（`saikyo/`）と JS・テストを `grep` し、今の年度ページ・トップ・卓のページ・live/ が使っていないことを確かめた
+- 残した: `.mj-saikyo-sub .mj-saikyo-siblings a`（もとは `.mj-saikyo-breadcrumb a` などとまとめた規則。どのページも使っていないが、この指示と関係が無いので触らず、まとめから外して単独にした）
+- 変えていない: `.mj-saikyo-card` など写真カード・`.mj-saikyo-match`・`.mj-saikyo-table-title`・固定バー・共通ナビの規則
+
+**`scripts/tests/test_saikyo_pages.py`:** 「A卓 1位」（卓の英字・順位・順位が空）、年度ページの行（順位なし・「通過」1回・優勝のピル・代替アバターの行）、対局のページに動画の紹介が無いこと・順位の金の丸・読み上げの結果、未対局の卓の行を足し・直した。`python3 -m unittest discover -s scripts/tests`: 1,068件 OK
+
+**比較ページを消した:** `saikyo_compare.html` と `scripts/build_saikyo_compare.py` を `git rm`。ほかに足したもの（`.assetsignore`・sitemap・`llms.txt`・`_redirects`）は無かったので、消すものはこの2つだけ（`grep` で参照が残っていないことを確かめた）
+
+### 3. 生成し直しと差の分類
+
+`python3 scripts/regenerate.py saikyo_pages`（シートを読む。終了コード 0）。差は:
+
+| 種類 | 件数 | 中身 |
+|---|---|---|
+| 新しい年度ページ `saikyo/<年度>/index.html` | 16（全年度） | 行の形（決定1・4〜6）と `<body>` の `mj-saikyo-n-page`、パンくずの形 |
+| 対局のページ `saikyo/<年度>/<対局>.html` | 219（全対局のページ） | 行の形（決定1）、動画の紹介を外した（決定2）、`<body>` の `mj-saikyo-n-page`、パンくずの形 |
+| 卓のページ | 0 | |
+| 今の年度ページ `saikyo/<年度>.html` | 0 | |
+| トップ `saikyo/index.html` | 0 | |
+| `sitemap-saikyo.xml` | 0 | |
+
+X の画像の URL の揺らぎも今回は出なかった（卓のページ・今の年度ページ・トップの差が0件）。
+
+### 4. 確かめ
+
+条件: headless Chromium（Playwright 1.56.1）、手元を `python3 -m http.server` で配る。外部の画像は読まない（写真は 40px 固定で高さは画像に依存しない）。
+
+**崩れ（90通り）:** `saikyo/2025/index.html`・`saikyo/2025/20250816.html`・`saikyo/2026/index.html` × 375・390・430px × 明・暗 × 字体5通り（標準／IPA P ゴシック／WenQuanYi Zen Hei／ルートの文字 150%／200%）。見たもの: 横スクロール、面・行・対局名の行・卓の見出しの行・パンくずからのはみ出し、名前と右端の重なり、右端（ピル・「A卓 1位」）の2行、`main` の中の `a`・`select` の 44×44px、`transition`。**90通りとも0件**。
+
+**「A卓 1位」の行が1行に収まるか（375px）:** 勝ち上がりの行で名前が最も長いのは5文字（鈴木たろう・瀬戸熊直樹・多喜田翔吾・内川幸太郎）。2025 年度の「多喜田翔吾 B卓 1位」で測った名前の欄の余り（欄の幅 − 文字の幅）は、標準 121.5px・IPA P ゴシック 120.7px・WenQuanYi 121.3px・150% 58.7px（いずれも1行、右に 2px 以上）。200% では名前が2行に回る（右端の「B卓 1位」は1行のまま。design.md「文字の拡大」で崩れとみなさない）
+
+**`prefers-reduced-motion`:** 新しい年度・対局のページの `main` の中に `transition-duration` が 0 より大きい要素は無い（動きを付けていない）
+
+**コントラスト（WCAG 2.x）:** 相対輝度 L = 0.2126 R + 0.7152 G + 0.0722 B（各成分は c/255 が 0.04045 以下なら c/12.92、超えれば ((c+0.055)/1.055)^2.4）、比 = (L明 + 0.05) / (L暗 + 0.05)。値は SKD-03 のログの表と同じ色で、灰色の字は 明: 面 #555555/#ffffff 7.46:1・ページの地 #555555/#f2f2f7 6.68:1、暗: 面 #aeaeb2/#1c1c1e 7.69:1・ページの地 #aeaeb2/#000000 9.50:1（面で 7:1、ページの地で 4.5:1 を満たす）。ほかに 明 紺／ページの地（パンくず）7.99:1、暗 紺の役／ページの地 9.96:1、金の丸・ピル #2b2100/#f2c230 9.49:1、写真の無い丸 明 11.06:1・暗 8.38:1。末尾の説明文（`.mj-lead`）は灰色の字の変数に置き換えたので、ページの地の上で 6.68:1・9.50:1（暗い配色で今の `#555555` のままだと黒の上で読めないため上書きした）
+
+**ほかのページの前後比較:** `git archive origin/cloudflare` を別のポートで配り、今の年度ページ `saikyo/2025.html`・トップ `saikyo/index.html`・卓のページ `saikyo/2025/20250816-s1-a.html`・live/ の個別ページ `live/judan/43/b16-a.html`・`title/index.html` を 375px・1280px の全体で撮って画素を比べた。**10枚とも差0**
+
+**高さ（390px、明・暗で同じ）:**
+
+| ページ | 今（SKD-01 の計測） | C（この版） | 対局の面 |
+|---|---|---|---|
+| `saikyo/2025/index.html` | 6,099px | 2,844px | 101px（1人）〜520px（8人） |
+| `saikyo/2025/20250816.html` | 2,339px | 1,147px | 863px（3卓・12人） |
+| `saikyo/2026/index.html` | — | 1,663px | 未対局の対局は 101px |
+
+### 5. 直した文書
+
+- `docs/notes/saikyo-page-design.md`「新しい年度・対局・卓のページ（#425、未公開）」: 「年度・対局のページの見た目」を足し、「年度ページ」「対局のページ」を新しい形に置き換えた。`<body>` のクラスの行、「ABEMA のサムネイル」（対局のページに出さない・卓のページのヒーローだけ）、短縮 URL の行（卓のページのリンク）を直した
+- `docs/notes/design.md`: 「最強戦の帯」の適用範囲を今の年度ページに限り、「最強戦の見た目」「最強戦の対局のまとまり」に今の年度ページの値である旨を足し、「最強戦の新しい年度・対局のページ」の行を足した
+
+### 6. push とプレビュー
+
+- コード・CSS・テスト・生成物・文書を1つのコミット（587fb5edc）で、ログより先に push した
+- check-run「Workers Builds: mj」（id 115704582610）: **completed / success**。「check」も success
+- ブランチの別名 URL（`?v=587fb5edc`）で、`/saikyo/2025/index.html` と `/style.css` が手元とバイト単位で同じ。`/saikyo_compare.html` は 404（消えている）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1014-skd
 - ログ: https://github.com/retroeater/mj/blob/work/1014-skd/docs/logs/CHAT-1014-SKD-05.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1014-skd
-- 確認用URL: なし
-- マージ: 未
-- issue: #566
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 確認用URL: プレビューあり（URL は最終報告）。確認したページは `/saikyo/2025/index.html`・`/saikyo/2025/20250816.html`・`/saikyo/2026/index.html`。この版で見える印: 2025 年度の年度ページの「ファイナル 2nd Stage」の下に灰色の「通過」があり、最初の行（近藤誠一）の右端が「A卓 1位」
+- マージ: 未（チャット側と平野さんがプレビューを見てからの判断待ち）
+- issue: #566（着手中・判断待ちのコメント）
+- 判断が必要なこと:
+  - マージしてよいか（プレビューで見てから）
+  - 「A卓 1位」の卓の英字は `winners()` の結果（`Player` だけ）からは取れず、同じ選び方で卓も返す `winner_rows()` を足して作った。止まる条件「材料が取れない」には当たらないと判断して進めた。これでよいか（`## 経過` 1）
+  - 選手の行は前提のとおり押せない形にした。SKD-03 の比較ページの C は行全体を X へのリンクにしていたので、比較ページで見た形と違う。X へのリンクが無くなってよいか（`## 経過` 2）
+- 未確認の項目:
+  - 平野さんの iPhone での見え方（外部の写真を読んだ状態は、セッションでは画像を読まずに確かめた）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 5b933775）: https://github.com/retroeater/mj-logs/tree/main/guide/5b933775
+ガイド文書（この版を写した時点の最新、mj 6f8f8ab2）: https://github.com/retroeater/mj-logs/tree/main/guide/6f8f8ab2
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b933775/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b933775/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b933775/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b933775/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b933775/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b933775/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6f8f8ab2/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6f8f8ab2/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6f8f8ab2/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6f8f8ab2/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6f8f8ab2/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6f8f8ab2/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/59e33bdf.md
