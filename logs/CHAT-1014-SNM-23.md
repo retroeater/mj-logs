@@ -114,18 +114,28 @@ CHAT-1014-SNM-21 で、「使われていない登録」の検査が ABEMA ブ�
 - 直した文書: `docs/notes/live-page-design.md`「使われていない登録」（読み漏れの検出の2つの動きと、知らせが出たとき・テストが落ちたときの直し方）、`docs/decisions/live.md`「2026-10-14（CHAT-1014-SNM-23、#475）」。`docs/notes/live-channel-write.md`「7」は定義を live-page-design.md に任せているので変えない
 - #475 の結果のコメント: https://github.com/retroeater/mj/issues/475#issuecomment-6160395730
 
+### マージ
+
+- origin/cloudflare（09dfbb52。GDS-05・06・MRN-01 の文書とログ）を merge で取り込んだ。衝突なし。取り込んだ後もテスト 1,057件 OK
+- `git merge-base --is-ancestor origin/cloudflare HEAD` を確かめて `git push origin work/1014-snm-leak:cloudflare`（082398d7）
+- マージ後: regenerate-page.yml（push）run 38507848314 success。生成物に変わりが無く、再生成のコミットは無い
+
 ## 報告
 
-- 状態: 対応中
+- 状態: 完了
 - ブランチ: work/1014-snm-leak
-- ログ: https://github.com/retroeater/mj/blob/work/1014-snm-leak/docs/logs/CHAT-1014-SNM-23.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1014-SNM-23.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1014-snm-leak
-- 確認用URL:
-- マージ: 未
+- 確認用URL: なし（生成物に差が無いため）
+- マージ: 済（082398d7）
 - issue: #475
-- 判断が必要なこと:
-- 未確認の項目:
-- エラー:
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
+
+### 平野さんがこの後にすること
+
+- 次の毎日の取り込み（update-live-channel.yml、10/15 04:00 JST ごろ Worker から）の run で、「層2 使われていない登録を調べる」が success で、ログに「生成物に出ている（利用先の読み漏れの疑い）: 0名」が出ることを見る（一覧が前回と同じなら #475 へのコメントは無い）
 
 <!-- guide-links -->
 ---
