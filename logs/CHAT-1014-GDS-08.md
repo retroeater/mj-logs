@@ -87,18 +87,27 @@ docs/notes/chrome-reading.md:
 
 - 5か所の見出しは branch-operations.md に実在する（「マージするとき（CLAUDE.md「ブランチ運用」から移した）」「生成物を含む作業ブランチを取り込む・マージするとき（…）」「ブランチを削除するとき（#209、…）」「作業ログの寿命（cleanup-logs.yml）」。前方一致）。chat-side-operations.md「読み方」も実在する
 - バイト数: CLAUDE.md 23,316 → 23,456（+140、警告域 26,624 の外）、chrome-reading.md 4,971 → 4,953（−18）
-- `python3 -m unittest discover -s scripts/tests`: 全件 OK
+- `python3 -m unittest discover -s scripts/tests`: 1066 件 OK
 - GDS-07 の使い捨てのスクリプトで数え直した: 見出し無し 16 → 10 件（今回の6件が消えた。残りは GDS-07 の表のうち今回直さないもの）
+
+### 手順3: マージと issue
+
+- push の直前に `git fetch origin cloudflare` と `git merge-base --is-ancestor origin/cloudflare HEAD`（真、取り込み不要）を確かめ、`git push origin work/1014-gds-ref2:cloudflare` で a1747ce98..c97113560（fast-forward）
+- c97113560 の check-run: `assets-check.yml`「公開対象を検査する」success（cloudflare の push の run 38516771353、作業ブランチの push の run 38516764945。annotation は Node.js 20 の非推奨と ubuntu-latest の移行のお知らせだけ。純増の警告は出ていない〈chat-side-operations.md は変えていない〉）、「Workers Builds: mj」success（115698550749）。`regenerate-page.yml` は走っていない
+- #564 にコメントした（issuecomment-6161594854: #565 は WFL の改名の段でワークフローのコメントの参照を直した後に、戻らないことを確かめる用途で扱う）
+- #565 にコメントした（issuecomment-6161595514: 「親: #564」と、今回直した6件・見出し無し 16 → 10 件）
+- docs/decisions/operations.md に「2026-10-14（CHAT-1014-GDS-08）」を足した
+- work/1014-gds-ref2 の削除は delete-merged-branches.yml に任せる（クラウドセッションではブランチの削除が拒否される）
 
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1014-gds-ref2
-- ログ: https://github.com/retroeater/mj/blob/work/1014-gds-ref2/docs/logs/CHAT-1014-GDS-08.md
+- 状態: 完了
+- ブランチ: work/1014-gds-ref2（マージ済み。削除は delete-merged-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1014-GDS-08.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1014-gds-ref2
 - 確認用URL: なし
-- マージ: 未
-- issue: #565・#564
+- マージ: 済（c97113560）
+- issue: #565・#564（コメント）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
@@ -106,12 +115,12 @@ docs/notes/chrome-reading.md:
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj c9711356）: https://github.com/retroeater/mj-logs/tree/main/guide/c9711356
+ガイド文書（この版を写した時点の最新、mj 5b933775）: https://github.com/retroeater/mj-logs/tree/main/guide/5b933775
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c9711356/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c9711356/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c9711356/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c9711356/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c9711356/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c9711356/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b933775/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b933775/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b933775/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b933775/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b933775/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b933775/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/59e33bdf.md
