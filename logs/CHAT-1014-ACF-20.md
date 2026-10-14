@@ -51,6 +51,37 @@ X の写真は、大きさによって片方だけ 404 になることがある�
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+- 0章: ログの「指示」欄の末尾が指示文の最後の行と一致することを確かめた
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- Chat-Ref の重複: `git log --all --grep="CHAT-1014-ACF-20"` は 0 件。`work/1014-acf-refetch` はローカル・リモートとも無く、`git checkout -b work/1014-acf-refetch origin/cloudflare`（ab6bf27d）
+- 手順1:
+  - 同じ目的の issue: ACF-07 以降の検索の範囲で無い（#558 は 10/14 にクローズ、#514 は SNS ブック全般、#562 は検知の結果）
+  - 未マージの work/ ブランチ（1009-swp-526・1011-swp-hnd・1011-swp-nav・1014-gds・1014-wfl）で `update_sns_book.py`・`collect_saikyo_images.py`・`check_image_links.py`・`lib/x_images.py`・`lib/sns.py` に触れるものは無い
+  - **`x_api.page_urls()` と `collect_saikyo_images.page_urls()` は同じ関数**（`update_sns_book.py` は `import collect_saikyo_images as x_api`）。呼び出し元は5か所:
+    - `update_sns_book.py` 95行 `Reachability.all_ok()`（前の値・取り直した値の到達）
+    - `update_sns_book.py` 192行 `update_images()` の先読み（`reach.prefetch()`）
+    - `collect_saikyo_images.py` 112行 `broken_urls()`（最強戦の写真の検知、ジョブ `saikyo`）
+    - `collect_saikyo_images.py` 185行 `image_from()`（X API の `profile_image_url` を `_400x400` に直す。`[0]` だけ使う）
+    - `collect_saikyo_images.py` 211行 `resolve()`（`--resolve-test` の診断）
+  - #514・#558・#562 の最新のコメント、docs/notes/sns-book.md「検知と更新の役割」「毎日の更新」を読んだ
+- 手順2:
+  - テストを4件足した（`scripts/tests/test_sns_book.py` の `XCellTest`）: `_80x80` だけ 404 なら取り直す・3つとも取れれば呼ばない（先読みに `_80x80` が入る）・最強戦の検知の大きさは2つのまま・取り直しても同じ URL で `_80x80` だけ取れなければ「解決(一部の大きさが取得できない)」で残し、翌日は呼ばず、7日後に取り直す。直す前のコードでは3件が FAIL／ERROR（最強戦の大きさのテストは変わらないことの確かめなので前後とも通る）
+  - 直したところ: `collect_saikyo_images.page_urls(url, sizes=X_PAGE_SIZES)`（既定は今の2つ。最強戦の検知・`image_from()`・`resolve()` は既定のまま）。`update_sns_book.py` に `CHECK_SIZES = X_PAGE_SIZES + ("_80x80",)`・`PARTIAL = "解決(一部の大きさが取得できない)"`・`PARTIAL_RETRY_DAYS = 7`・`retry_due()` を足し、`Reachability.all_ok(url, sizes=CHECK_SIZES)` と先読みを3つの大きさにした。`x_cell()` は、前の状態が PARTIAL で7日たっておらず `_400x400`・`_200x200` が取れれば X API を呼ばずに残す。取り直した URL が3つとも取れなければ、`_400x400`・`_200x200` が取れるときは取り直した URL を PARTIAL で書き、取れなければ今までどおり「取得したURLが取得できない」で前の値を残す
+  - 無駄に呼ばない形の案は上のとおり（7日ごと）。日数は `PARTIAL_RETRY_DAYS` の定数で変えられる
+  - `python3 -m unittest discover -s scripts/tests` OK（783113af）
+- 手順3:
+  - dry_run（`mode: update`・`dry_run: true`）:
+    - 作業ブランチ（783113af）https://github.com/retroeater/mj/actions/runs/38503614780 : X API を呼ぶ予定 **1件**、X状態 解決 1,050・dry-run(呼ぶ予定) 1・既定のアイコン 12・未入力 780・アカウントなし(確認済み) 1、ページが使う値が変わった人 0、所要（スクリプト）12 秒
+    - 同じ時刻の cloudflare https://github.com/retroeater/mj/actions/runs/38503612971 : 呼ぶ予定 0件、解決 1,051、変わった人 0、所要 19 秒
+    - 作業ブランチだけ「【3】画像取得 を書き直します」が出たのは、dry-run で1件の X状態が「dry-run(呼ぶ予定)」になるため（X画像URL とほかの列は変わらない。変わった人 0）
+    - HEAD は X の画像のある行で 2→3（約 1,050 回増える）だが、所要は 12 秒と 19 秒で通信の揺れの内
+  - 1件の中身: dry-run は名前を出さない。直後に手元で【3】の X の写真の3つの大きさを全部 HEAD したところ、上田稜の `_80x80` は 200 に戻っていた（`_200x200`・`_400x400` も 200）。dry_run の時点（02:56Z）では上田稜の `_80x80` がまだ 404 だったと見られる。ほかに取れないものは既定アイコン（abs.twimg.com、セッションのプロキシで拒否、確かめの対象外）だけ
+  - docs/notes/sns-book.md「毎日の更新」の X の行に確かめる大きさと PARTIAL の扱い、状態の文言に「解決(一部の大きさが取得できない)」を足した（「検知と更新の役割」は最強戦の検知の大きさを書いていないので、毎日の更新の行に書いた）。決定を docs/decisions/saikyo.md に足した
+  - #514 に結果をコメントした https://github.com/retroeater/mj/issues/514#issuecomment-6159881641
+  - #562 と #352 の作り: check-image-links の issue の反映は、最初の版（54e0daf2、2026-09-07）から「開いている同じ題の issue が無ければ新しく作る」作りで、閉じた issue を開き直したことは無い（ACF-09 も同じ）。#352 は 2026-09-16 に github-actions が作り、`種類: 常設` は 10/02 に平野さんが付けた。10/13 02:39Z に初めて自動で閉じられ（ACF-09 の作業ブランチの手動実行）、10/14 00:28Z の検知で #562 が新しく作られた（ラベル無し）
+
 <!-- guide-links -->
 ---
 
