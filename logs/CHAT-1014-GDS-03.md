@@ -71,28 +71,258 @@ docs/notes/chat-side-operations.md は整理のたびに 2KB 減り、2日で戻
 - 0. 指示欄の末尾は指示文の最後の行と一致。GDS-02 のログの `## 報告` の状態は「完了」
 - 指示文の冒頭の雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
 
+### 手順1: issue の確認と読み込み
+
+- GitHub MCP の `search_issues`（「chat-side-operations.md サイズ 分割 整理 純増」、クローズ済みを含む）: #492（open、この issue）・#421（closed、関連）・#200・#336（closed、別の文書）。同じ論点の別 issue は無い
+- #492 のコメント: 他セッションの着手中は無い（前の着手中はすべてマージ済みの報告がある）。着手中のコメントを書いた（issuecomment-6159433560）
+- 未マージの work/ ブランチ（自分を除く）で chat-side-operations.md・chat-routines.md・design.md・cloudflare.md・`assets-check.yml`・handover.md・archive を変えているものは無い
+- 前提の節はすべて実物にあった（見出しも同じ）。archive の「外した記録」（2026-09-28・10-06・10-09・10-12 の節）に、足す規則2件（スクリーンショット・未完了の指示）を前に外した記録は無い
+- `assets-check.yml` を呼ぶ側: `.github/workflows/` に `assets-check` を参照するワークフローは無い（`uses:` での呼び出しなし）。起動は push と workflow_dispatch だけ（前提どおり）
+- `assets-check.yml` の履歴（`git log`）: 直近は #538（Python 3.12 固定）・#492（上限の変更）。初回だけ手順が違う点は無い（既存のワークフローの変更で、workflow_dispatch がある）
+
+### 手順2: 移した節の対応表
+
+| 元の節（chat-side-operations.md） | 移し先 | 処理 |
+|---|---|---|
+| 「見た目の決め方」 | docs/notes/design.md「7. チャット側の決め方」（新設、末尾） | そのまま移した。design.md は番号付きの節のため「## 7.」にした（前提の案「チャット側の決め方」に番号を付けた） |
+| 「期日とカレンダー」 | docs/notes/chat-routines.md「期日とカレンダー」（新設） | そのまま移した。OHA-02 の決定（期日の正はカレンダー「ryoei.pro」）と矛盾しない |
+| 「外部サービスの設定」 | docs/notes/chat-routines.md「外部サービスの設定を頼むとき」（新設） | そのまま移した |
+| 「ほかのセッションへの共有」 | docs/notes/chat-routines.md「ほかのセッションへの共有」（新設） | そのまま移した（Actions の失敗通知の参照の行を含む） |
+| 「書く前に実物で確かめる」の「場面ごとに次も確かめる」の箇条 | docs/notes/chat-routines.md「指示の種類ごとの確かめ」（新設） | 字下げを1段戻して移した。「ワークフローを変える指示: github-actions.md『チャット側』」の行は表の行にまとめた |
+| 「読み方」の表の「Workers Builds の成否」の行の本文 | docs/notes/cloudflare.md「ビルド成否と本番の確認範囲（check-runs）」の冒頭の「チャット側が成否を確かめるとき」 | 本文を移し、表の行は参照にした。本文の「見分け方は `docs/notes/cloudflare.md`『ビルドが Cloning で失敗したとき』」は同じ文書の中なので「下の『…』」にした |
+| 「読み方」の「PC で Claude for Chrome を使うときは chrome-reading.md を先に読む」 | 「場面ごとに読む文書」の表の行 | 表にまとめた |
+| 「Claude Code とのやり取り」の「レビュー・振り返り・申送りと言ったら chat-routines.md の手順で」 | 同上 | 表にまとめた（空いた位置に「未完了の指示」の規則を足した） |
+| 「書く前に実物で確かめる」の「マージ・ブランチ操作…の前には CLAUDE.md『ブランチ運用』節を必ず読む（#313）」 | 同上 | 表にまとめた（「必ず読む」と #313 を残した）。「触れる領域の資料を読んでから書く」の項に「場面ごとの文書は上の表」を足した |
+| 「止まる条件と検証の指定」の「/live の【3】…の前に live-channel-write.md を読む」 | 同上 | 表にまとめた |
+| 「平野さんの判断とマージの許可」の `.claude/` の項の「手順は docs/notes/skills.md『git の hook（mj-git-guard）』」 | 同上 | 項の規則（平野さんの手作業を前提に組み、マージは判断待ち）は残し、参照だけ表へ（「手順は上の表」） |
+
+足した規則2件（2026-10-12 の申送り、決定）:
+
+- 「平野さんの判断とマージの許可」の「判断待ちで止めた報告を確認した返答に…」の項の末尾: 「『マージしてよい』にスクリーンショットが添付されているときは、マージの指示文を書く前に全部見て、見つけた崩れは指示文の『決定』に書く」
+- 「Claude Code とのやり取り」: 「返答の最後に毎回、『未完了の指示』（貼った・実行中・判断待ちで、完了報告をまだ受けていない Chat-Ref の全件）と、平野さんの手作業の残りを一覧で出す」
+
+そのほか:
+
+- 冒頭の規則に「ここには毎回の指示に効く規則だけを置き、場面限定の手順は表の文書へ」「純増したら、足した分と同じ量を docs/notes/ の各文書へ移す（`assets-check.yml` が警告する、#492）」を足した。前提では「足したら同量を移す規則（文書の冒頭にある）」とあったが、実物の冒頭は「足すときは既存項目への統合・置き換えで」だけで、同量を移す規則は無かったため、警告と対になる形で書いた
+- chat-routines.md の題と冒頭を「定型作業（レビュー・振り返り・申送り）と場面ごとの手順」にした
+- docs/handover.md 6章の表: chat-side-operations.md・chat-routines.md・design.md・cloudflare.md の行の説明に移し先の見出しを足した
+- docs/notes/handover-archive-2026.md に「2026-10-14 の作り直しで chat-side-operations.md から移した・まとめた記述（#492）」を足した（移した先と、表にまとめた行の元の文面）
+- 他の文書から chat-side-operations.md の移した節を指す参照は、docs/decisions/（決定の記録）と archive の過去の記述だけで、直していない
+- 元の文書の空でない行がすべて新しい chat-side-operations.md・chat-routines.md・design.md・cloudflare.md のどこかにあるかをスクリプトで突き合わせた。無い行は上の表の「まとめた」行・見出し・冒頭の規則・規則2件を足した項だけ
+
+文書ごとのバイト数（`wc -c`。前は cloudflare 705aa4237、後は 5c0d9d253）:
+
+| 文書 | 前 | 後 | 差 |
+|---|---:|---:|---:|
+| docs/notes/chat-side-operations.md | 25,729 | 21,537 | −4,192（目安 22,528 以下、止まる条件の 24,576 以下） |
+| docs/notes/chat-routines.md | 5,061 | 10,184 | +5,123 |
+| docs/notes/design.md | 23,323 | 24,531 | +1,208 |
+| docs/notes/cloudflare.md | 64,989 | 65,546 | +557 |
+| docs/notes/handover-archive-2026.md | 97,988 | 100,083 | +2,095 |
+| docs/handover.md | 22,349 | 22,675 | +326 |
+| docs/notes/github-actions.md | 20,551 | 20,751 | +200（assets-check の行に警告を書いた） |
+| .github/workflows/assets-check.yml | 7,659 | 9,612 | +1,953 |
+
+### 手順3: assets-check.yml の純増の警告
+
+- `actions/checkout` に `fetch-depth: 0` を足し、ステップ「ガイド文書のサイズを確認」の後にステップ「chat-side-operations.md の純増を確認」を足した。比較元は push では `github.event.before`（空・全部 0・読めないときは merge-base）、workflow_dispatch では `git merge-base HEAD origin/cloudflare`。比較元の版にファイルが無い・比較元が無いときは「比較元が取れないため純増は確かめない」を1行出して終わる。サイズは `git cat-file -s`（blob のバイト数 = `wc -c`）。比較元より大きく、かつ 24,576 超なら `::warning::`。job は成功のまま
+- docs/notes/github-actions.md「ワークフローの一覧」の assets-check の行に警告を書いた
+- 手元で同じスクリプトを BEFORE を空・全部 0・存在しない SHA・前のコミット・文書が無い最初のコミットの5通りで動かし、比較元の選び方と「取れない」の出力を確かめた
+
+作業ブランチでの実行（すべて conclusion success）:
+
+| コミット | run | 契機 | 出力（chat-side-operations.md の行・annotation） | 結果 |
+|---|---|---|---|---|
+| fa964fa64（警告を足した版） | 38500738349 | push（before 32e8022ad） | 比較元 32e8022ad の 25729 bytes → 21537 bytes。警告なし | (b) 出ない |
+| fa964fa64 | 38500743257 | workflow_dispatch（merge-base 705aa4237） | 比較元 705aa4237 の 25729 bytes → 21537 bytes。警告なし | (b) 出ない |
+| 27c623546（空行 4,300 行を一時的に足した版） | 38500830849 | push（before fa964fa64） | annotation warning「docs/notes/chat-side-operations.md が 4300 バイト純増(21537 → 25837 bytes)。足した分と同じ量を docs/notes/ へ移すこと(#492)。」 | (a) 出る |
+| 27c623546 | 38500833178 | workflow_dispatch（merge-base 705aa4237） | annotation warning「… が 108 バイト純増(25729 → 25837 bytes)。…」 | (a) 出る |
+| 5c0d9d253（空行を戻した版） | 38500921165 | push（before 27c623546） | 警告なし（annotation は Node.js 20 の非推奨と ubuntu-latest の移行のお知らせだけ。どの run にも出ている） | 戻した後 |
+
+- 空行の数は、手動実行の比較元（merge-base の 25,729）も超えるように 4,300 行にした（1行では 24,576 に届かない）
+- 戻すコミット 5c0d9d253 の差分は chat-side-operations.md の空行 4,300 行の削除だけ（ほかの変更行 0）。5c0d9d253 のツリーは fa964fa64 と同じ（`git diff --quiet` で確かめた）
+- 途中の手違い: 最初の戻しで `git revert --no-edit HEAD -q` が不正なオプションで失敗し、続く `git commit --amend` が 27c623546 のメッセージを書き換えた版（55ad74f71、ツリーは同じ）をローカルに作った。push は non-fast-forward で拒否され、リモートには出ていない。ツリーと親が 27c623546 と同じことを確かめ、`git reset --soft 27c6235463` でローカルをリモートの版に戻し、`git revert --no-commit HEAD` で戻すコミットを作り直した（作業ツリーの未コミットの変更は無かった）
+- `python3 -m unittest discover -s scripts/tests`: 1030 件 OK（cloudflare 側で test_morning_report.py が増えた分を含む）
+- ジョブのログは、セッションから直接の取得（`curl` のリダイレクト先）がプロキシで拒否されたため、GitHub MCP の `get_job_logs` と check-run の annotations の API で読んだ
+
+### 整理後の docs/notes/chat-side-operations.md の全文（5c0d9d253）
+
+````markdown
+# チャット側（claude.ai）の運用
+
+チャット側がログ・ガイド文書を読む手順と、Claude Code へ渡す指示文を書くときの注意。受け手側（Claude Code）の規則は CLAUDE.md が正。
+**上限あり**（CLAUDE.md「CLAUDE.md / handover.md の更新ルール」）。ここには毎回の指示に効く規則だけを置き、場面限定の手順は下の「場面ごとに読む文書」の表の文書へ。
+足すときは既存項目への統合・置き換えで、規則と理由の一句だけを書く。**純増したら、足した分と同じ量を docs/notes/ の各文書へ移す**（`assets-check.yml` が警告する、#492）。事例は `docs/notes/handover-archive-2026.md`「docs/notes/chat-side-operations.md から」へ。
+
+## 読み方
+
+**主な読み方は mj-logs（public、スマホ・PC 共通）。** mj は private（#211）。チャットのセッションに読み取りでつなげば `git clone` と REST（`gh api`、GraphQL は不可）で読める（セッションごと。書き込みは Code）。
+会話の始めに、プロジェクトのメモリーの preferences も読む（文書に無い個人の指定はそこにある）。
+
+| 確認したいこと | 手段 |
+| --- | --- |
+| 作業ログ（`docs/logs/`）・ガイド文書 | mj-logs（下の「作業ログの読み方」） |
+| Actions の実行結果 | `docs/notes/github-actions.md`「チャット側」 |
+| Workers Builds の成否 | `docs/notes/cloudflare.md`「ビルド成否と本番の確認範囲（check-runs）」の「チャット側が成否を確かめるとき」 |
+| issue・コミット・ブランチ | つないだチャットは REST、ほかは Claude Code に `gh`（クラウドは GitHub MCP）/ `git` で確かめさせ、ログに書かせる。PC では Chrome でも読める。コミット履歴を独立に検証するときは `docs/notes/handover-archive-2026.md`「コミット履歴の bundle による検証」（#211） |
+| 本番の見え方 | 平野さんの目視か、Claude Code の headless Chrome。Code 側で確認できる範囲は `docs/notes/cloudflare.md`「ビルド成否と本番の確認範囲（check-runs）」。**チャット側が本番（ryoei.pro）のページ・ファイルを読むときは URL に `?v=<未使用の値>` を付ける（変更の直後の確かめでは必ず）**（クエリ無しでは古い版が返ることがある）。チャット側から本番を読む手段は WebFetch と Chrome（`curl` は通らない）。**「届かない・読めない」と書く前に両方を試す** |
+
+### 作業ログの読み方
+
+- **サンドボックスに `git clone --depth 1 https://github.com/retroeater/mj-logs.git` で取得して読める（読む前に毎回 `git pull`）。**
+  最新のガイドは `guide/HISTORY` の最後の行の SHA の `guide/<SHA>/`、使用済みの識別子の一覧は `chat-ids/HISTORY` の最後の行の版。
+  取得できたチャットでは、ログの URL が届く前でも最新のログとガイドを読んでよい。取得できるかはチャットごとに違う
+- **取得できないチャットでは、平野さんが送る「ログ（公開）」の行の URL をそのまま使う**（組み立てた URL は開けず、一度読んだ URL は古い版が返る。末尾の `?v=<SHA>` を変えない）。
+  ガイド文書はそのログの末尾のリンク（`guide/<SHA>/`）から読む。読めない・途中の版に見えるときは `## 報告` 節だけを貼ってもらう。
+  **末尾のリンク（`guide/<SHA>/`・`chat-ids/`）が読めないときは、指示文を書く前にその URL か読める最新の「ログ（公開）」の行を送ってもらう**（読まずに書くと雛形や handover と食い違う）
+- **平野さんは「ログ（公開）」の行を送る（新しい会話の始めは前回の最後の行）。** どのログの完了報告かの指定になるので、clone できるチャットでも変えない。
+  完了報告はこの行を送るだけ。単発の確認でも作業ログに書かせる
+- **ログは push のたびに数分以内に写る**（`docs/notes/cloud-sessions.md`「作業ログ」、#298）。
+  **最終報告が出ているはずなのに `## 報告` が仕上がっていない・404 なら、再開の指示を作る前に、Claude Code の画面の最後に最終報告が出ているかを平野さんに確かめてもらう**（#454）。
+  出ていれば写しの漏れ（`## 報告` を貼ってもらう）、出ていなければセッションが止まっている
+- **申告をそのまま信じない。** ログ・ブランチ・issue に実行の痕跡があるかを先に確かめる
+- **ガイド文書は、ログを読んだその場で必要なもの（マージを伴う指示なら CLAUDE.md「ブランチ運用」）を読む**（後の手番では同じ URL を開けなくなることがある）。
+  **ガイドの版（`guide/<SHA>`）が前に読んだ版と違えば、指示文を作る前に `docs/instruction-template.md` を読み直す**
+- **ブランチ名は最終報告の「ブランチ:」の行か比較 URL から取り、推測で組み立てない（指示文でも）。** mj-logs にログが無いときは、
+  Claude Code に `git log --all --grep=<Chat-Ref> --oneline` で到達を確かめさせ、ブランチ名とログの URL を返させる
+- 貼られた `## 報告` には Chat-Ref の行が無い。「ログ:」の URL の Chat-Ref とブランチ名で見分け、見分けられなければ読む前に平野さんに確かめる
+- **ログは `## 報告` だけで足りる。** 全体を貼ってもらうのは「報告だけでは判断できない」と明示して頼んだときに限る
+- ログの「指示」欄の末尾が、送った指示文の末尾と一致しているかを確かめる
+
+### 確認用 URL
+
+**プレビュー URL はログに無く、最終報告の「確認用:」の行にだけある**（非公開扱い）。平野さんに送ってもらう。ログイン不要でスマホでも開ける（`docs/notes/cloudflare.md`「work/ ブランチのプレビュー」、#363）。
+ビルドが走らなかったときは Codespace の確認用 URL（GitHub ログイン必須。`docs/notes/session-network.md`「Codespace の確認用 URL」）
+
+## セッション識別子の確認
+
+- **新しい識別子（`XXX`）は英大文字3文字。** 既存の2文字の識別子は有効なままで重ねない（#474）
+- **最初の識別子は、読んだログの末尾の「使用済みの Chat-Ref 識別子」の一覧に無いものを選ぶ**（`MMDD` を問わない。#440 より前も載る）。
+  一覧は写した時点のもので、以後に始まったセッションは載らないことがある。**本命は受け手側の確認**（CLAUDE.md「Chat-Ref」節）
+
+## Claude Code とのやり取り
+
+- **Claude Code が作業ブランチの作成（`git checkout -b work/…`）などを分類器に拒否されて止まったら**（通る回もある）、
+  同じセッションに「平野さんの判断として、そのコマンド（全文）を許可する。同じ操作がまた拒否されたら別の手段を試さずに止まる」を貼ってもらう
+  （別のブランチや許可ルールで回避させない。Code 側は `docs/notes/cloud-sessions.md`「作業ブランチの用意」）
+- **返答の最後に毎回、「未完了の指示」（貼った・実行中・判断待ちで、完了報告をまだ受けていない Chat-Ref の全件）と、平野さんの手作業の残りを一覧で出す**（2026-10-12 の決定）
+
+## 指示文を書くときの注意
+
+雛形は `docs/instruction-template.md`。
+**Claude が作成した下書き（Claude Code に貼る文面など）には、先頭行を「【Claude作成】…」にするなど Claude 作成と分かる見出しを付ける**（平野さんの発言と区別するため）。
+
+### 場面ごとに読む文書
+
+指示文を書く前に、当たる場面の文書を読む（場面限定の手順はここに書かず、表の文書に置く）。
+
+| 場面 | 読む文書 |
+| --- | --- |
+| PC で Claude for Chrome を使う | `docs/notes/chrome-reading.md`（先に読む） |
+| 平野さんが「レビュー」「振り返り」「申送り」と言った | `docs/notes/chat-routines.md` の同名の節 |
+| 最初の指示・マージ・クローズ・複数の指示にまたがる作業・起票や方針や文書整理・インフラ・他のセッションが変えている領域・シートを用意したと言われた | `docs/notes/chat-routines.md`「指示の種類ごとの確かめ」 |
+| マージ・ブランチ操作・`/workspaces/mj` の操作を含む指示 | CLAUDE.md「ブランチ運用」（**必ず読む**、#313） |
+| ワークフローを変える指示、Actions の実行結果・失敗通知 | `docs/notes/github-actions.md`「チャット側」 |
+| /live の【3】・`update-live-channel.yml` に触れる | `docs/notes/live-channel-write.md`「チャット側の指示」 |
+| `.claude/` の hook・settings を変える | `docs/notes/skills.md`「git の hook（mj-git-guard）」 |
+| 見た目を決める（比較ページ・見本・コントラスト比） | `docs/notes/design.md`「7. チャット側の決め方」 |
+| issue の期日・カレンダーの予定 | `docs/notes/chat-routines.md`「期日とカレンダー」 |
+| 外部サービスの設定を頼む・外部の API を使う実装 | `docs/notes/chat-routines.md`「外部サービスの設定を頼むとき」 |
+| ほかのチャットへの共有、共有文を受け取った | `docs/notes/chat-routines.md`「ほかのセッションへの共有」 |
+
+### 書く前に実物で確かめる
+
+- **事実は実物で確かめたものだけを断定する**（会話の記憶・前回の報告・推測から書かない）。「目的」「前提」の事実は、そのチャットで実物を読んだもの以外に「（要確認）」を付けて Claude Code に確かめさせ、
+  怪しいものは「〜を確かめ、食い違えば止まる」の形にする。issue 番号・ページ数は洗い出しのログにあるものだけ使う（#486）。確かめた場所を正しく書き、見ていない出典を書かない。解釈を事実として書かせない。
+  **issue の状態（Open/Closed・本文・コメント）を確かめられないまま、その issue の作業の指示を書かない**（読めなければ Code に確かめさせてログに書かせてから書く）
+- **触れる領域の資料を読んでから書く**（CLAUDE.md・handover.md に追記・変更するときは追記先の節の今の内容、ある領域に触れるときはその領域の `docs/notes/` の最近の変更。場面ごとの文書は上の表）
+- **仮説を確かめるときは、当たり外れを一発で分ける確認を先に行い、仮説が正しい前提での準備はその後にする**
+- **平野さんの手作業（画面を見るだけ等）が安価で結論を左右するなら、記録・文書の指示より先に頼む**
+- **平野さんに判断を求める前提（「A を直せば B も不要になる」等）や、シートの値を変えるよう頼む前の今の値は、先に Claude Code に照合させるか「未確認」と明記する**（誤った前提で判断をもらうと決定が誤る）
+- **シートの行・カレンダーの予定は動画ID（または行番号）で一意に指す。値の食い違いを調べさせるときは、その値がどの層（【2】か【3】）から来たかを行ごとに書かせる**
+
+### 平野さんの判断とマージの許可
+
+**平野さんは指示文を読まずに貼る**（添え書きの確認は読み落とされ、未決のことが判断として記録される）。次はこの前提による。
+
+- **「平野さんの決定」の欄には、実際に判断をもらった内容だけを書く。** 現状維持も明示が無ければ「前提」の欄へ（欄は `docs/instruction-template.md`）。
+  **チャット本文にも同じ内容を書き、日付は判断した日にする**（Chat-Ref の日付ではない）
+- **平野さんの決定は、ログの末尾のリンク「docs/decisions/README.md」から分野のファイルを読んで確かめ、**指示文の「決定」節はそれと食い違わないように書く（置き換えるときはその旨を書く）
+- **平野さんに選択肢を出す前に docs/decisions/ の分野のファイルを読み、選択肢の説明に平野さんが言っていない仕様を足さない。** 足すなら「チャット側の案」と分けて書く（選択肢に混ぜると、選んだだけで決定として記録される）
+- **指示文を作る前にマージの可否を平野さんに確かめ、「マージ:」の行に「承認済み（チャットで）」か「判断待ちで止まる」を書く**（Code は処理中に承認を求めない）。
+  プレビューを見て決める変更は「判断待ちで止まる」。「承認済み」はプレビューの確認が済んだことをチャットで確かめてから書く（「貼った＝見た」とみなさない）。承認済みでも、マージを止める確認の基準は「止まる条件」に書く。
+  **調査だけの指示（変わるのがログだけ）は「ドキュメントのみ（ログ）なので完了報告のうえ cloudflare へ入れてよい」にする**（判断待ちで止めると、マージだけの指示が後で要る）。判断の要る点は「判断が必要なこと」に書かせ、続きは作業ブランチを origin/cloudflare から作り直して始める。**どの指示でも、完了条件にログの状態（完了・判断待ち）を書かない**（状態は CLAUDE.md「作業ログ」節に従い Code が決める。書くと指定とルールの食い違いを毎回判定させる）
+- **「判断待ち」で止めた報告を確認した返答に、マージ用の指示文を添える**（口頭の「マージしてよい」を前提にしない）。同じ作業ブランチ・マージで動く自動処理の見込み・止めた指示のログの状態の直し・作業ブランチの片付けを含める。
+  「承認済み（チャットで。この指示文を貼ることが承認）」としてよいのは、(1) 止めた報告のマージだけで新しい変更を含まない (2) 何がどう変わるか（件数だけでなく中身、コードなら影響の範囲）をチャットに示した (3) origin/cloudflare を取り込んだ後の再検証（テスト・模擬など）を条件に書いた、のすべてを満たすときだけ（報告を読んだうえの承認で、「貼った＝見た」とは別）。満たさなければチャットで「よい」をもらってから書く。
+  **片付けは、関係のない検証（ワークフローの実行結果など）の成否に条件づけない。**
+  **「マージしてよい」にスクリーンショットが添付されているときは、マージの指示文を書く前に全部見て、見つけた崩れは指示文の「決定」に書く**（2026-10-12 の決定）
+- **`.claude/` の hook・settings を変える指示は平野さんの手作業を前提に組み、「マージ:」は「判断待ちで止まる」**（Code は試験と文書まで。手順は上の表）
+- **クローズの時点で残る作業は別の issue に起票する**（平野さんの決定。クローズの指示に書く）
+- **「添付した」と書く前に、ファイルを提示し終えたことを確かめる**
+- **公開など取り消しにくい段階の指示は、作る前に実施の時期を平野さんに確かめる**
+- **報告の「〜は読み取れない」「〜は不明」を平野さんに伝える前に、handover と突き合わせる**
+
+### 指示文の書き方・渡し方
+
+- **作業ブランチ名は書く**（文面は `docs/instruction-template.md`「作業ブランチ」の行。既存ブランチを続けるときも）。未マージのブランチとの重なりは名指しせず、
+  `git branch -r --no-merged origin/cloudflare` の一覧から確かめさせる（書いた後に増えたブランチを見落とさない）
+- **コミットSHAを固定して書かない。** 土台や比較対象は「その時点の`origin/cloudflare`」と書く。既存の特定コミットの参照（`git show <sha>:<path>` など）は書いてよい
+- 未マージの試作ブランチを捨てさせるときは、CLAUDE.md「未マージのブランチは削除しない」の例外であることを明記する
+- **貼った指示文が途中で切れて届くことがある。** 0章に途中切れの確認の一文を入れ、最後に確認文を置く（文面は `docs/instruction-template.md`）
+- **指示文はログの「指示」欄にそのまま写り、public の mj-logs に出る。** CLAUDE.md「作業ログ」節がログに書かないとするもの（非公開の URL、シートの ID・URL など）は指示文にも書かず、ブックは `scripts/` の定数名などで呼ぶ
+- **設定の読み込みやセッションの状態に左右される検証は、チャット本文で「新しいセッションで貼る」と伝え、0章で「このセッションが新しく始めたものか」をログに書かせる**
+- **チャットの添付ファイル（CSV 等）は Code から読めないことがある。** チャット側で集計し、表にして指示文に入れる
+- **1本の指示は3項目程度まで**（途中で止まったときに何が済んだか分かるように）
+- **配った後の指示を直すときは、先に平野さんがもう貼ったかを確かめる。** 貼った後なら新しい番号で出し直す
+- **並行する指示の中で、ほかの実行中の指示の進み具合に触れない。** 結果が要るなら「`<Chat-Ref>` のログの `## 報告` を読み、完了していなければ止まる」の形にする
+- **後の実行の結果（毎朝の実行・別の指示）を見込みに使う指示は、その結果が出てから作る。** 前もって作るときは「貼る時機」に前提を書き、
+  見込みは「`<Chat-Ref>` のログの `## 報告` に従う」の形にして数を写さない
+- **同じチャットから、前の指示の完了を待たずに次の指示を出すときは、作業ブランチを分ける**（`work/<MMDD>-<識別子>-<短い名前>` など）。
+  平野さんには「1つのセッションに貼る指示は1つ」と伝える
+- **既定モデルは Opus 5.5。別モデルは指示文の手前のチャット本文で伝える**（指示文に「推奨モデル」欄は入れない）。定型作業に Sonnet 5.5 を使うかは後日平野さんと相談する（それまでは Opus 5.5）
+
+### 止まる条件と検証の指定
+
+- **「差分が N 行ならマージ」のような止める条件は、先に変更対象の参照箇所を調べさせてから決める**（容量の増減も実測を報告させる）
+- **マージ・止まる条件は、見込みで説明できる差分の範囲として書く。** 生成物を含む変更は差分を種類に分け、許す種類と確かめ方（変わった画像 URL は HTTP 200 など）を書き、ほかが出たら止める（再生成のたびにシートの変化が混ざる）。
+  「承認済み」の条件は「決定とシートの変化で説明できる差分だけ（見込み: ○○）」の形にする（表示の一部の列挙では、そこから決まる並び〈入口のカードの順・`search.json` の順など〉が外れる）。
+  見込みと比べる条件は許すずれを数で書き（例: 直すは ±3件まで、作る・消すは見込みと同じ。無いと進むかを受け手が決める）、見込みの数は直前のログのどの表のどの数から計算したかを書く（推測の幅は表と食い違う）
+- **止まる条件で数値の増減を見るときは、別名の寄せなど正しい理由で動く場合を想定して書く。** 外の通信（HEAD・API）で動く数は、同じ実行をもう1回行い、それでも外れたら止まる、の形にする
+- **スプレッドシートを読む指示には行数の止まる条件を入れる**（想定と違う・読み直すたびに変わるなら件数を書いて止まる。大量の貼り替えの後は貼り終えたことを伝えてから読ませる。`docs/notes/static-generation.md`「生成を止める条件の設計」）
+- **画像やページから値を読み取らせるときは、元の資料に書かれている値と、こちら側が持つ値を項目ごとに分けて書く**
+- **「通知が出ること」を確認に書く前に、その通知が出る条件を確かめる**
+- **ログの計測値や事実を issue に書かせるときは、要約を渡さず「どのログのどの節から引用するか」を指定する。** 逆に issue の本文などをログに引用させるときは、置き場所を `## 経過` と指定する（最終報告は状態の行だけで、そこにだけ書かせるとログに残らない）
+````
+
+### 決定の記録
+
+docs/decisions/operations.md に「2026-10-14（CHAT-1014-GDS-03）」を足した（決定3項。作業中の回答なし）。
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1014-gds
 - ログ: https://github.com/retroeater/mj/blob/work/1014-gds/docs/logs/CHAT-1014-GDS-03.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1014-gds
 - 確認用URL: なし
-- マージ: 未
+- マージ: 未（平野さんの判断待ち）
 - issue: #492
-- 判断が必要なこと: なし
+- 判断が必要なこと:
+  - work/1014-gds の cloudflare へのマージ（指示文の「マージ: 判断待ちで止まる」）。整理後の chat-side-operations.md の全文は `## 経過`「整理後の docs/notes/chat-side-operations.md の全文」、対応表とバイト数は「手順2」、手動実行の run は「手順3」
+  - 冒頭の規則に「純増したら、足した分と同じ量を docs/notes/ の各文書へ移す」を足した（前提の「文書の冒頭にある」と違い、実物に無かったため）。この書き方でよいか
+  - design.md の移し先の見出しを、番号付きの節に合わせて「7. チャット側の決め方」にした
 - 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 705aa423）: https://github.com/retroeater/mj-logs/tree/main/guide/705aa423
+ガイド文書（この版を写した時点の最新、mj 592334b3）: https://github.com/retroeater/mj-logs/tree/main/guide/592334b3
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/705aa423/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/705aa423/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/705aa423/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/705aa423/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/705aa423/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/705aa423/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/592334b3/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/592334b3/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/592334b3/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/592334b3/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/592334b3/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/592334b3/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/191d9dbd.md
