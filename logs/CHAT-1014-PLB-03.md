@@ -83,7 +83,7 @@ PLB-02 の成果（読む先を「ryoei.pro_選手」に切り替え、「桜花
 - ブランチ: work/1014-plb はマージ済み（`git branch --merged origin/cloudflare` に含まれる）。先頭 79ccf617a。リモートの削除は delete-merged-branches.yml に任せる（クラウドセッションのプロキシは削除を拒否する。docs/notes/cloud-sessions.md「ブランチの削除」）。#567 に記録した
 
 ## 報告
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1015-PLB-04
 - ブランチ: work/1014-plb（cloudflare にマージ済み）
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1014-PLB-03.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1014-plb
@@ -102,12 +102,12 @@ PLB-02 の成果（読む先を「ryoei.pro_選手」に切り替え、「桜花
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 79ccf617）: https://github.com/retroeater/mj-logs/tree/main/guide/79ccf617
+ガイド文書（この版を写した時点の最新、mj 3cf17d8b）: https://github.com/retroeater/mj-logs/tree/main/guide/3cf17d8b
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/79ccf617/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/79ccf617/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/79ccf617/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/79ccf617/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/79ccf617/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/79ccf617/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/f0502df9.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/3cf17d8b/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/3cf17d8b/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/3cf17d8b/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/3cf17d8b/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/3cf17d8b/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/3cf17d8b/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/3cf17d8b.md
