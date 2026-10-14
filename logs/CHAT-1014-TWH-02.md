@@ -49,15 +49,43 @@ CHAT-1013-TWH-01 で title/ の期ページの帰り道のカードの下の文�
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 着手前の確認
+
+- 同じ Chat-Ref のコミット: なし（`git log --all --grep="CHAT-1014-TWH-02"`）。識別子 `TWH` はこのセッションの TWH-01 で使ったもので、このセッションの2本目の指示なので重複の確認の対象外
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 揃っている
+- 0. ログの「指示」欄の末尾は指示文の最後の行と一致
+- 作業ブランチ: `work/1014-twh` はローカル・リモートとも無し → `git checkout -b work/1014-twh origin/cloudflare`（03fde90bf）
+
+### 1. 確かめ
+
+- `wayhome_card_html()` は origin/cloudflare で TWH-01 の形（サムネイルだけのリンク）。`visually-hidden` は Bootstrap 5.3.8（`assets/vendor/bootstrap/css/bootstrap.min.css`）にあり、title/ の期ページはそれを読み込んでいる（決勝ライブの「再生時間」で使用中）
+- 未マージの work/ ブランチで `scripts/generate_title_pages.py`・`scripts/tests/test_wayhome_links.py`・`docs/notes/title-pages.md`・`docs/decisions/title.md` を変えているもの: なし
+- #553 に着手中のコメントを残した（本文・状態・ラベルは変えていない）
+
+### 2. 直し（9c3768f92）
+
+- `wayhome_card_html()`: リンクの中、サムネイル（`.mj-title-video-thumb`）の後ろに `<span class="visually-hidden">{esc(episode.interviewee)}</span>`。CSS は足していない。公開日は戻していない
+- テスト: 期ページの検査に、カードのリンクの末尾に `visually-hidden` の「白鳥翔」があることを足した（`.mj-title-video-summary` が無いことは TWH-01 で足してある）。修正前のスクリプトに差し替えて流すと失敗（failures=1）、直した後は全1006件 OK
+- 文書: `docs/notes/title-pages.md`「期ページの帰り道」のカードの説明に読み上げ用の選手名を足した。決定は `docs/decisions/title.md`（このログと同じコミット）
+
+### 3. 生成と差の確かめ
+
+- origin/cloudflare のスクリプト（警告0件、帰り道 37期/41本）→ 退避 → 直したスクリプト（警告0件、37期/41本）
+- 旧スクリプトの生成物はコミット済みの生成物と差なし（シートの変化による差は0件）
+- 旧→新の差: 37ファイル（TWH-01 の37ページと同じ集合）。各ファイルで、新の帰り道の節から `<span class="visually-hidden">…</span></a></li>` の追加を取り除くと旧と完全に一致し、節より前は差なし。追加は41件（TWH-01 の (b) と同じ）。それ以外のページ・`sitemap-title.xml` の差は0、ファイルの増減なし
+- 帰り道の一覧・各話: `python3 scripts/regenerate.py video_wayhome wayhome_episodes` で差なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 03fde90b）: https://github.com/retroeater/mj-logs/tree/main/guide/03fde90b
+ガイド文書（この版を写した時点の最新、mj 0893a9bf）: https://github.com/retroeater/mj-logs/tree/main/guide/0893a9bf
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/03fde90b/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/03fde90b/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/03fde90b/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/03fde90b/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/03fde90b/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/03fde90b/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/0893a9bf/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/0893a9bf/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/0893a9bf/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/0893a9bf/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/0893a9bf/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/0893a9bf/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/03fde90b.md
