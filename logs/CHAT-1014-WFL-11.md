@@ -51,6 +51,41 @@ WFL-10 の `## 報告`「判断が必要なこと」への回答。いずれも 
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+- Chat-Ref の重複確認: CHAT-1014-WFL-11 は未使用
+- 作業ブランチ: work/1014-wfl-s3b はリモート・ローカルとも無かったので origin/cloudflare（a31620feb）から作った
+- 0. 指示欄の末尾は指示文の最後の行と一致。WFL-10 のログの `## 報告` の状態は「判断待ち」
+- 雛形の行: Chat-Ref・マージ・貼る時機・共通手順（＋作業ブランチ）は揃っている
+- 着手は JST 15:28（03:45〜05:15 の外）
+- work/1014-wfl-s3 以外の未マージの work/ ブランチで、regenerate-page.yml・消す 3 本・docs/notes/github-actions.md など今回のファイルを変えるものは無い
+
+### 手順1: 入れ直し
+
+`git diff origin/cloudflare...origin/work/1014-wfl-s3 --stat`（merge-base は a31620feb で origin/cloudflare と同じ。取り込みは不要）:
+
+| ファイル | 扱い |
+| --- | --- |
+| .github/workflows/check-leagues-dropped.yml（削除） | 入れる |
+| .github/workflows/sync-books-calendar.yml（削除） | 入れる |
+| .github/workflows/write-live-channel-candidate.yml（削除） | 入れる |
+| .github/workflows/regenerate-page.yml | 入れる |
+| docs/decisions/automation.md | 入れる |
+| docs/logs/CHAT-1014-WFL-10.md | 入れる |
+| docs/notes/books-calendar.md・books-freeze.md・github-actions.md・live-channel-write.md・static-generation.md | 入れる |
+| sitemap-pages.xml（df1ddabaa の lastmod） | 入れない |
+| resource_dictionary.html | 入れない（cf54ea34e と df1ddabaa で行って戻り、正味の差分は無い） |
+
+- scripts/tests/ の変更は無かった
+- `git checkout origin/work/1014-wfl-s3 -- <入れるパス>` で取り出し、消す 3 本は `git rm` と作業ツリーからの削除で揃えて 7028e970e の 1 コミットにした
+- 7028e970e の時点で `git diff origin/work/1014-wfl-s3 HEAD -- <入れるパス>` は空、`git diff origin/cloudflare HEAD -- resource_dictionary.html 'sitemap*.xml'` は空
+- その後のコミット c7358b5c3 で WFL-10 のログの状態を「判断待ち / 続き: CHAT-1014-WFL-11」にした（指示の手順1。入れるパスの差分はこの 1 行だけになる）
+
+### 手順2
+
+- `python3 -m unittest discover -s scripts/tests`: 1069 件 OK。部品のテスト（`node --test .github/actions/upsert-issue/test/*.test.js`）: 18 pass
+- `docs/decisions/automation.md` の WFL-10 の節の後に「## 2026-10-14（CHAT-1014-WFL-11）」を足した（c7358b5c3）
+
 <!-- guide-links -->
 ---
 

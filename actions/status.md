@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-14 15:07 JST
+- 書き出した時刻: 2026-10-14 15:31 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -12,11 +12,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-14 15:30 | push | cloudflare | in_progress | #3550（38522642163） |  |
+| 2026-10-14 15:30 | push | work/1014-wfl-s3b | success | #3549（38522614411） | 0分19秒 |
 | 2026-10-14 14:59 | push | work/1014-wfl-s3 | success | #3548（38519606089） | 0分19秒 |
 | 2026-10-14 14:58 | push | work/1014-wfl-s3 | success | #3547（38519492232） | 0分21秒 |
 | 2026-10-14 14:48 | push | work/1014-jpl | success | #3546（38518637226） | 0分18秒 |
-| 2026-10-14 14:44 | push | work/1014-skd | success | #3545（38518269388） | 0分16秒 |
-| 2026-10-14 14:42 | push | work/1014-jpl | success | #3544（38518087199） | 0分20秒 |
 
 ## check-image-links.yml
 
@@ -31,17 +31,6 @@
 | 2026-10-14 12:13 | workflow_dispatch | work/1014-acf-reopen | success | #36（38505091657） | 7分58秒 |
 | 2026-10-14 09:25 | workflow_dispatch | cloudflare | success | #35（38490119497） | 7分46秒 |
 | 2026-10-13 11:36 | workflow_dispatch | work/1013-acf-img | success | #34（38337667566） | 7分47秒 |
-
-## check-leagues-dropped.yml
-
-- 名前: 型Cで漏れている選手の検知
-- state: active
-
-| 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
-| --- | --- | --- | --- | --- | --- |
-| 2026-09-12 20:26 | workflow_dispatch | cloudflare | success | #3（34691075673） | 0分11秒 |
-| 2026-09-12 20:25 | workflow_dispatch | cloudflare | success | #2（34691016415） | 0分13秒 |
-| 2026-09-12 20:23 | workflow_dispatch | cloudflare | success | #1（34690922230） | 0分13秒 |
 
 ## check-meibo.yml
 
@@ -180,20 +169,6 @@
 | 2026-10-05 08:11 | schedule | cloudflare | success | #9（37242874753） | 0分27秒 |
 | 2026-09-29 00:11 | workflow_dispatch | cloudflare | success | #8（36441730767） | 0分29秒 |
 
-## sync-books-calendar.yml
-
-- 名前: 書籍カレンダーの同期
-- state: disabled_manually
-- schedule: `27 20 * * 0`（UTC） → JST 05:27（月曜）
-
-| 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
-| --- | --- | --- | --- | --- | --- |
-| 2026-09-22 20:58 | workflow_dispatch | work/0922-bp | success | #10（35724488886） | 0分35秒 |
-| 2026-09-22 20:55 | workflow_dispatch | work/0922-bp | success | #9（35724163189） | 2分23秒 |
-| 2026-09-22 20:54 | workflow_dispatch | work/0922-bp | success | #8（35724101256） | 0分18秒 |
-| 2026-09-22 11:08 | workflow_dispatch | cloudflare | success | #7（35678361719） | 0分21秒 |
-| 2026-09-22 11:05 | workflow_dispatch | cloudflare | success | #6（35678185161） | 2分26秒 |
-
 ## sync-dojo-calendar.yml
 
 - 名前: 道場部ゲストのカレンダー同期
@@ -247,19 +222,6 @@
 | 2026-10-14 04:37 | workflow_dispatch | cloudflare | success | #23（38456349472） | 3分38秒 |
 | 2026-10-13 17:30 | workflow_dispatch | cloudflare | success | #22（38369773031） | 0分37秒 |
 | 2026-10-13 17:30 | workflow_dispatch | cloudflare | success | #21（38369688197） | 0分30秒 |
-
-## write-live-channel-candidate.yml
-
-- 名前: 「【2】自動変換後」への書き込み
-- state: active
-
-| 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
-| --- | --- | --- | --- | --- | --- |
-| 2026-09-27 21:12 | workflow_dispatch | work/0922-ut | success | #5（36318214679） | 0分22秒 |
-| 2026-09-23 16:54 | workflow_dispatch | cloudflare | success | #4（35834201165） | 0分29秒 |
-| 2026-09-23 02:00 | workflow_dispatch | cloudflare | success | #3（35757892085） | 0分28秒 |
-| 2026-09-23 02:00 | workflow_dispatch | cloudflare | success | #2（35757791157） | 0分20秒 |
-| 2026-09-23 01:59 | workflow_dispatch | cloudflare | success | #1（35757702267） | 0分26秒 |
 
 ## pages-build-deployment
 

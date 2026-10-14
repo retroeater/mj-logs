@@ -105,7 +105,7 @@
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1014-WFL-11
 - ブランチ: work/1014-wfl-s3
 - ログ: https://github.com/retroeater/mj/blob/work/1014-wfl-s3/docs/logs/CHAT-1014-WFL-10.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1014-wfl-s3
@@ -134,4 +134,4 @@
 - docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6f8f8ab2/docs/notes/chat-side-operations.md
 - docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6f8f8ab2/docs/notes/cloudflare.md
 - docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6f8f8ab2/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/59e33bdf.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a31620fe.md
