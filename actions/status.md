@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-15 04:06 JST
+- 書き出した時刻: 2026-10-15 04:16 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -194,11 +194,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-15 04:15 | workflow_dispatch | cloudflare | success | #47（38622199943） | 0分37秒 |
 | 2026-10-14 10:09 | schedule | cloudflare | success | #46（38494200521） | 0分33秒 |
 | 2026-10-14 04:37 | workflow_dispatch | cloudflare | success | #45（38456349476） | 0分32秒 |
 | 2026-10-13 12:00 | schedule | cloudflare | success | #44（38339572359） | 0分26秒 |
 | 2026-10-13 04:15 | workflow_dispatch | cloudflare | success | #43（38296490024） | 0分29秒 |
-| 2026-10-12 10:15 | schedule | cloudflare | success | #42（38191192423） | 0分30秒 |
 
 ## sync-logs.yml
 
@@ -221,7 +221,7 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-10-15 04:01 | workflow_dispatch | cloudflare | in_progress | #92（38620084312） |  |
+| 2026-10-15 04:01 | workflow_dispatch | cloudflare | success | #92（38620084312） | 7分06秒 |
 | 2026-10-14 09:37 | schedule | cloudflare | success | #91（38491227119） | 0分07秒 |
 | 2026-10-14 04:17 | workflow_dispatch | cloudflare | success | #90（38453650761） | 7分18秒 |
 | 2026-10-13 11:43 | schedule | cloudflare | success | #89（38338239506） | 0分06秒 |
@@ -234,11 +234,13 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-15 04:10 | workflow_dispatch | cloudflare | failure | #26（38621492985） | 4分24秒 |
 | 2026-10-14 11:55 | workflow_dispatch | work/1014-acf-refetch | success | #25（38503614780） | 1分07秒 |
 | 2026-10-14 11:55 | workflow_dispatch | cloudflare | success | #24（38503612971） | 0分39秒 |
 | 2026-10-14 04:37 | workflow_dispatch | cloudflare | success | #23（38456349472） | 3分38秒 |
 | 2026-10-13 17:30 | workflow_dispatch | cloudflare | success | #22（38369773031） | 0分37秒 |
-| 2026-10-13 17:30 | workflow_dispatch | cloudflare | success | #21（38369688197） | 0分30秒 |
+
+- #26 failure: ジョブ「regenerate / regenerate」 ステップ「飛ばしたページを報告」
 
 ## pages-build-deployment
 
