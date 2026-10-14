@@ -50,15 +50,36 @@ check-image-links は最初の版から「開いている issue が無ければ�
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+- 0章: ログの「指示」欄の末尾が指示文の最後の行と一致することを確かめた。CHAT-1014-ACF-20 の `## 報告` の状態は「判断待ち」
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- Chat-Ref の重複: `git log --all --grep="CHAT-1014-ACF-21"` は 0 件。`work/1014-acf-reopen` はローカル・リモートとも無く、`git checkout -b work/1014-acf-reopen origin/cloudflare`（716729bb）
+- 手順1:
+  - 同じ目的の issue は無い（#352・#562 そのもの）。未マージの work/ ブランチ（1009-swp-526・1011-swp-hnd・1011-swp-nav）で check-image-links.yml・check_image_links.py・check_sns_book_images.py に触れるものは無い
+  - #352: closed、ラベル `種類: 常設`、コメントは ACF-06 の着手中・ACF-09 の着手中と完了・10/13 の自動のクローズのコメント。他セッションの着手中は無い。着手中のコメント https://github.com/retroeater/mj/issues/352#issuecomment-6160029776
+  - #562: open、ラベル無し、コメント 0（着手中は無い）。本文は jpml_pros の節で切れ 3件（上田稜の `_80x80` の 404、宇都ちょめのすけ・浦野修平の時間切れ）
+- 手順2:
+  - 実物の作り: issue を選ぶのも書き換えるのもワークフローの github-script で、節の書き換えだけ `check_image_links.py --issue-section` を呼んでいた。選び方と「どうするか」を Python に移してテストできるようにした
+  - テストを足した（`scripts/tests/test_check_sns_book_images.py` の `PickIssueTest` 4件・`IssueActionTest` 1件）: 閉じた常設の issue を開いたラベル無しの issue より先に選ぶ・常設が複数なら番号の小さい方・常設が無ければ開いているもの・使えるものが無ければ None（別の題・PR は除く）／閉じていれば reopen・開いていれば update・無ければ create・切れ 0 件なら開いていれば close、閉じていれば none。直す前のコードでは5件とも ERROR（関数が無い）
+  - 直したところ: `check_image_links.py` に `ISSUE_TITLE`・`PERMANENT_LABEL`・`pick_issue()`・`issue_action()`、CLI に `--pick-issue <JSON>`（{number, state} を出す）と `--state`（節の書き換えの出力に `action` を足す）。ワークフローの `check`・`sns_book` の「結果をissueに反映」を、同じ題の issue を状態を問わず全ページ集めて `--pick-issue` で選び、`action` のとおり close／none／create（ラベル `種類: 常設` を付ける）／update／reopen（`state: 'open'` で書き換え）する形にした。`saikyo` のジョブ・節の書き換え・`needs: check`・切れ 0 件で閉じる動きは変えていない。3つの github-script を node で構文だけ確かめた（OK）
+  - `python3 -m unittest discover -s scripts/tests` OK
+- 手順3:
+  - 作業ブランチ（87203d80）で `scheduled: true` の手動実行 https://github.com/retroeater/mj/actions/runs/38505091657 : 3ジョブとも success（saikyo 03:13:05〜03:14:03・check 03:13:05〜03:16:13・sns_book 03:16:15〜03:20:59 UTC）
+  - 切れは check・sns_book とも 0 件（check のログ「リンク切れなし」）。選ばれたのは閉じた #352 で、action は none（開き直さない）。#352 は閉じたまま（updated_at は着手中のコメントの 03:11:51Z のまま）、#562 は開いたまま手つかず（前の作りなら、開いている #562 を選んで閉じていた）。新しい issue は作られていない（最新の issue は #564〈Actions の整理〉で、検知のものではない）
+  - 切れが出て #352 が開き直される動きは本番では起こしていない（テストの `IssueActionTest`・`PickIssueTest` で確かめた）
+  - 文書: ワークフローの一覧は WFL のチャットで docs/notes/github-actions.md に移っていたので、そこの check-image-links の行と、docs/notes/sns-book.md「検知と更新の役割」に「閉じた後に切れが出たら #352 を開き直す」を足した。#352 の本文の説明（`check_image_links.py` の `ISSUE_FOOTER`）の末尾を「…自動的に閉じられ、次に切れが出たら開き直されます。」にした（本文は次に書き込まれたときに入れ替わる）。決定を docs/decisions/automation.md に足した
+- 手順4: #562 に「#352 に移した（CHAT-1014-ACF-21）」とコメントし（https://github.com/retroeater/mj/issues/562#issuecomment-6160142931 ）、duplicate（#352）で閉じた。ACF-20 のログの状態に `/ 続き: CHAT-1014-ACF-21` を足した
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 7a3dac28）: https://github.com/retroeater/mj-logs/tree/main/guide/7a3dac28
+ガイド文書（この版を写した時点の最新、mj 18f8ff58）: https://github.com/retroeater/mj-logs/tree/main/guide/18f8ff58
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/7a3dac28/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/7a3dac28/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/7a3dac28/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/7a3dac28/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/7a3dac28/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/7a3dac28/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/18f8ff58/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/18f8ff58/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/18f8ff58/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/18f8ff58/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/18f8ff58/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/18f8ff58/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/ec9e24c3.md

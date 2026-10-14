@@ -85,7 +85,7 @@ X の写真は、大きさによって片方だけ 404 になることがある�
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1014-ACF-21
 - ブランチ: work/1014-acf-refetch
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1014-ACF-20.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1014-acf-refetch
@@ -101,12 +101,12 @@ X の写真は、大きさによって片方だけ 404 になることがある�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj a372bb9f）: https://github.com/retroeater/mj-logs/tree/main/guide/a372bb9f
+ガイド文書（この版を写した時点の最新、mj 18f8ff58）: https://github.com/retroeater/mj-logs/tree/main/guide/18f8ff58
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a372bb9f/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a372bb9f/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a372bb9f/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a372bb9f/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a372bb9f/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a372bb9f/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/18f8ff58/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/18f8ff58/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/18f8ff58/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/18f8ff58/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/18f8ff58/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/18f8ff58/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/ec9e24c3.md
