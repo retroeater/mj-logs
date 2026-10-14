@@ -60,6 +60,36 @@ GDS-07 の調べ（ログ「手順2」の表）で見つかった参照の曖昧
 - 指示文の冒頭の雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
 - CLAUDE.md の「ガイド文に規則を足す指示に『知見 → 選んだ層 → 理由』の表が無ければ止まる」には当たらない（規則を足さず、既存の参照の文書名を書き換えるだけ）
 
+### 手順1: 重なりと issue の確認
+
+- 未マージの work/ ブランチで CLAUDE.md・docs/notes/chrome-reading.md を変えているものは無い（work/1014-wfl-s2 などは `.github/` 側）
+- #564 のコメント: WFL-01〜08 の段①の報告と CHAT-1014-MRN-01 のフォロー。#565 への言及は無い。#565 のコメントは無い
+
+### 手順2: 直した行
+
+決定の5件はすべて決定の文面どおりに見つかった。前提の「最小の直し」でも 75 行目の2つ目・81 行目は「同」のままにできたが、決定に5件とも書き換えると明記されているため5件とも文書名にした（読み手が迷わない点はどちらも同じ）。
+
+CLAUDE.md:
+
+| 前 | 後 |
+|---|---|
+| `前提が崩れたときはマージせずに報告する（同「マージするとき」）` | `前提が崩れたときはマージせずに報告する（docs/notes/branch-operations.md「マージするとき」）` |
+| `…`git merge-base --is-ancestor origin/cloudflare HEAD`を確かめる**（同「マージするとき」）` | `…を確かめる**（docs/notes/branch-operations.md「マージするとき」）` |
+| `- **`origin/cloudflare`の取り込みで衝突したら、同「生成物を含む作業ブランチを取り込む・マージするとき」に従う**…` | `- **`origin/cloudflare`の取り込みで衝突したら、docs/notes/branch-operations.md「生成物を含む作業ブランチを取り込む・マージするとき」に従う**…` |
+| `- **ブランチを削除する前に同「ブランチを削除するとき」を読む。…` | `- **ブランチを削除する前にdocs/notes/branch-operations.md「ブランチを削除するとき」を読む。…` |
+| `状態の書き方（「完了」の条件・` / 続き: CHAT-…`）は`_template.md`と同「作業ログの寿命」` | `…は`_template.md`とdocs/notes/branch-operations.md「作業ログの寿命」` |
+
+docs/notes/chrome-reading.md:
+
+| 前 | 後 |
+|---|---|
+| `` `docs/notes/chat-side-operations.md`「確認対象ごとの手段」に切り替える（待つより速い）。`` | `` `docs/notes/chat-side-operations.md`「読み方」に切り替える（待つより速い）。`` |
+
+- 5か所の見出しは branch-operations.md に実在する（「マージするとき（CLAUDE.md「ブランチ運用」から移した）」「生成物を含む作業ブランチを取り込む・マージするとき（…）」「ブランチを削除するとき（#209、…）」「作業ログの寿命（cleanup-logs.yml）」。前方一致）。chat-side-operations.md「読み方」も実在する
+- バイト数: CLAUDE.md 23,316 → 23,456（+140、警告域 26,624 の外）、chrome-reading.md 4,971 → 4,953（−18）
+- `python3 -m unittest discover -s scripts/tests`: 全件 OK
+- GDS-07 の使い捨てのスクリプトで数え直した: 見出し無し 16 → 10 件（今回の6件が消えた。残りは GDS-07 の表のうち今回直さないもの）
+
 ## 報告
 
 - 状態: 作業中
@@ -76,12 +106,12 @@ GDS-07 の調べ（ログ「手順2」の表）で見つかった参照の曖昧
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj a1747ce9）: https://github.com/retroeater/mj-logs/tree/main/guide/a1747ce9
+ガイド文書（この版を写した時点の最新、mj c9711356）: https://github.com/retroeater/mj-logs/tree/main/guide/c9711356
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1747ce9/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1747ce9/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1747ce9/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1747ce9/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1747ce9/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1747ce9/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c9711356/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c9711356/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c9711356/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c9711356/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c9711356/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c9711356/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/59e33bdf.md
