@@ -59,28 +59,78 @@ Chat-Ref: CHAT-1015-SKD-17
 
 ## 経過
 
+### 0. 着手前
+
+- 「指示」欄の末尾と指示文の最後の行が一致。`git log --all --grep="CHAT-1015-SKD-17"` は0件。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある
+- ブランチ: work/1015-skd-top はローカルにもリモートにも無かったので `git checkout -b work/1015-skd-top origin/cloudflare`（1854428a4）。ログ先行 push 8db149029（[sync-logs]）
+- #566・#549 の最新のコメントに他セッションの着手中コメントなし。#566 に着手中のコメント（6180998275）
+- 未マージの work/ ブランチ（1009-swp-526・1011-swp-hnd・1011-swp-nav・1014-wfl-s3・1015-acf-skip・1015-hou・MTK）: `scripts/generate_saikyo_pages.py`・`assets/saikyo.js`・`navbar.js`・テストを変えているものはなし。`style.css` は work/MTK が 1504 行付近（`.mj-video-episodes-summary` の後）を変えているが、この指示の追加（2093 行付近の最強戦の新しいページの節）とは別の箇所
+
+### 1. 作り直したもの（10e3fa4f3）
+
+- `scripts/generate_saikyo_pages.py`:
+  - `build_champions_html()`（写真カードの格子）を `build_champion_rows()` に置き換えた（面の行。行き先 `<年度>/index.html`、最強位が未定の年度は年度と › だけ）
+  - `build_top_data()`: 検索のデータを新しいページ向けにした（`m` = [年度, 対局名, 対局日の表示, 新しいページの識別子]、卓 = [m の添字, 卓のページの名前, 卓の見出し, 順位, ピル〈通過・優勝〉]）。対局の中の卓は対局のページと同じ順にし、使わなくなった `stage_desc()` を消した。最強位の名前（`c`）は JS が使っていなかったので外した。データは 170,107 → 165,968 バイト
+  - `build_top_body()`: 濃色の固定バーをやめ、題名「最強戦」（`.mj-saikyo-n-page-title`）・検索欄・「歴代最強位」・面の行。本文のクラスは `.mj-saikyo-n-top`（今の `.mj-saikyo-top` の固定バー用の CSS・JS が当たらないよう名前を分けた）
+  - `write_top()`: `<body class="mj-saikyo-n-page">`（`add_body_class()` の `mj-saikyo-page` は付けない）。ナビの出し分けは `navbar.js` の `mj-saikyo-n-page` の条件（SKD-12）がそのまま当たるので、**`navbar.js` は変えていない**
+  - `build_avatar_html()` に代替画像の引数を足した（トップは `../img/avatar.svg`、新しいページは今のまま `../../img/avatar.svg`）
+- `assets/saikyo.js` のトップの節を書き直した（年度プルダウン・固定バーの高さの処理はトップから外した。今の年度ページの処理は変えていない）
+- `style.css`: 最強戦の新しいページの節の後に「トップ」の節を足した（検索欄・状態の行・「歴代最強位」・押せる行・年度・検索の結果の見出しの行・▾）。行・面・対局名の行・ピル・順位は年度ページの部品（`.mj-saikyo-n-row`・`.mj-saikyo-n-match`・`.mj-saikyo-n-title*`・`.mj-saikyo-n-pill`・`.mj-saikyo-n-place`）をそのまま使う。今のトップだけの CSS は残した（title/ のコメントが値の写し元として参照しているため、#549 の後に整理）
+- テスト `TopTest` 3件（題名・検索欄・固定バーなし・面の行、未定の年度の行、検索のデータの行き先と順位・ピル）。3件とも修正前のコードで失敗し、修正後は全件 OK（`python3 -m unittest discover -s scripts/tests`: 1114件 OK）
+
+### 2. 検索の結果の出し方（Code が決めたこと）
+
+- 選手ごとに見出しの行（写真 40px・名前 16px 太字・右に「N卓」13px 灰色・▾）を置き、押すとその下に対局の面が開く。**1人だけ当たったときは開いた状態**、複数のときは見出しの行だけを並べ、一度に開けるのは1人（今のトップと同じ、#410）
+- 対局の面は年度ページと同じ: 対局名の行（16px 太字、2行目に日付 13px 灰色、対局のページへ、›）＋出場した卓の行（56px、卓の名前・右端に順位「1位」13px 灰色と通過・優勝の金のピル・›、新しい卓のページへ）。並びは年度の新しい順・対局日の新しい順、対局の中の卓は対局のページと同じ順（今のトップは決勝→ベスト8 の順だったが、面の中は対局のページにそろえた）
+- 検索の前: 歴代最強位を出し、結果は隠す。結果なし: 歴代最強位を隠し、「該当する選手はいません」（13px 灰色）だけ。件数は出さない（今と同じ）
+- 行き先: 卓の行は `<年度>/<卓のページ>.html`、対局名の行は `<年度>/<対局>.html`。生成した 219 対局・2,572 件の卓の行・16 年度の行の行き先のファイルがすべてあることを確かめた
+
+### 3. 生成物の差（`python3 scripts/regenerate.py saikyo_pages`）
+
+| 種類 | 件数 |
+|---|---|
+| トップ `saikyo/index.html` | 1 |
+| 今の年度ページ・新しい年度・対局・卓のページ・ほか | 0 |
+
+ほかは `assets/saikyo.js`・`style.css`・`scripts/generate_saikyo_pages.py`・テスト・docs
+
+### 4. 確かめ（ローカル、headless Chromium）
+
+- トップ × 375/390/430 × 明・暗 × 標準・幅の広い字体2種・150%・200% × 状態5つ（検索の前・1人〈桑田 → 桑田憲汰、11卓・10対局〉・複数〈佐々木 → 佐々木寿人・佐々木信也〉・複数で1人を開いた・該当なし）の150通り: 横スクロール・はみ出し・名前と右端の重なり・右端の折り返し・44px 未満・transition は0件。ナビは全通り `mj-nav-new`・relative・今いる項目「最強戦」。濃色の固定バーなし
+- 状態ごとの高さ（390px・明・標準）: 検索欄は全状態で上端 120px・高さ 44px（動かない）。検索の前は歴代最強位 935px（1画面に 11 年度）、1人は結果 1,423px、複数（2人）は 112px、複数で佐々木寿人を開くと 4,324px（28 対局）、該当なしは結果なしで状態の1行だけ
+- 灰色の字は `--mj-n-muted`（明 #555555: 面 7.46:1・地 6.68:1、暗 #aeaeb2: 面 7.69:1・地 9.50:1）
+- キーボード: Tab で スキップ → ナビ → 検索欄 → 歴代最強位の行。`/` で検索欄へ、Esc で消して歴代最強位に戻る。検索の後 Tab で選手の見出し、Enter で開き、Tab で対局名の行 → 卓の行、Enter で卓のページ（`2026/20260906-s1-a.html`）へ移動した
+- 前後比較（HEAD の `git archive` と作業ツリー、375・1280px × 明・暗、全ページのスクリーンショット）: 今の年度ページ `saikyo/2025.html`・新しい年度ページ・対局のページ・卓のページ・houou/ トップ・houou/race・live/ の個別ページ。1回目で houou/race（3通り）と新しい年度ページ（1通り）に差が出たが、同じ版どうしを2回撮っても値が変わる（画像の読み込みの揺れ）ことを確かめ、読み込みの完了を待って撮り直すと前後で一致した
+- プレビュー: 10e3fa4f3 の check-run「Workers Builds: mj」completed/success。別名 URL の `?v=10e3fa4` で `saikyo/index.html`・`style.css`・`assets/saikyo.js` がローカルとバイト単位で一致。ブラウザでの見え方はここからは確かめていない
+
+### 5. ブランチの扱い
+
+- この指示ではマージしない。#549 へのコメント（「公開の指示で work/1015-skd-top を一緒にマージする」）は、プレビューで形が決まってから書く（まだ決まっていないので書いていない）
+- 毎朝の再生成（`regenerate-saikyo.yml`）で cloudflare の `saikyo/index.html` が進むので、#549 の公開の直前に origin/cloudflare を取り込み、`python3 scripts/regenerate.py saikyo_pages` で生成し直す（トップの衝突は生成し直しで解ける）
+- 決定: `docs/decisions/design-renewal.md` の「2026-10-15（CHAT-1015-SKD-17）」（新しい決定なし、SKD-14・SKD-15 の節を指す）。文書: `docs/notes/saikyo-page-design.md` の「トップ」の節に「#549 で入れる新しい形（未マージ、work/1015-skd-top）」を足した（今の形の記述は残した）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1015-skd-top
 - ログ: https://github.com/retroeater/mj/blob/work/1015-skd-top/docs/logs/CHAT-1015-SKD-17.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1015-skd-top
-- 確認用URL: なし
-- マージ: 未
-- issue: #566
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 確認用URL: トップの上に白地のナビと 28px の「最強戦」、虫眼鏡の検索欄があり、濃色の固定バーが無い。歴代最強位は面の行で、2026 の行は年度と › だけ。検索欄に「桑田」と入れると桑田憲汰の見出しの下に対局ごとの面（例「ファイナルトーナメント／2025年12月14日」の中に「決勝 1位 優勝」）が出る（URL はターミナルの最終報告）
+- マージ: 未（この指示ではマージしない。#549 の公開の指示で一緒にマージする）
+- issue: #566（公開は #549）
+- 判断が必要なこと: (1) この形でよいか（よければ #549 にマージ予定のコメントを書く）。(2) 検索の結果の出し方: 選手ごとの見出しの行を押して開く形（1人なら開いた状態）、対局の中の卓の順を対局のページと同じにした。(3) 日付の無い対局の面の2行目は「麻雀最強戦<年度>」にした
+- 未確認の項目: 実機（iPhone・PC）のブラウザでの見え方（セッションからは確かめられない）。#549 の公開の直前の取り込みと生成し直し
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 1854428a）: https://github.com/retroeater/mj-logs/tree/main/guide/1854428a
+ガイド文書（この版を写した時点の最新、mj f0aad707）: https://github.com/retroeater/mj-logs/tree/main/guide/f0aad707
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/1854428a/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/1854428a/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/1854428a/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/1854428a/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/1854428a/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/1854428a/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f0aad707/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f0aad707/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f0aad707/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f0aad707/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f0aad707/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f0aad707/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/d12b1f2e.md
