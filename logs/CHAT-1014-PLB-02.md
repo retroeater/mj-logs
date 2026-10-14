@@ -98,17 +98,41 @@ PLB-01 の手順2〜4の続き（issue #567）。PLB-01 は「プロ」の見出
 - JS（node）: `getQueryString()` を旧と比べ、鳳凰の9区分は文字列が完全に一致。桜花・JWRC は消す列だけが落ちる
 - JS（node、見出しの表を差し替え）: 列を消す前の見出しと消した後の見出しで、引き直した問い合わせが同じ見出しの列を指す（results 2本・ranking 16区分すべて）。消した後もコンソールのエラーは0件
 
-## 報告
+### 手順3: 全ページの生成と JS のページの確かめ
 
-- 状態: 作業中
+- 着手中に origin/cloudflare が 0d933bb に進んだ（work/1014-skd のマージ。`generate_saikyo_pages.py` の別の箇所）→ `git merge origin/cloudflare`（衝突なし）。今回変えた `load_name_book()` の2行はそのまま
+- 生成物の比較: scratchpad に `git clone --shared` で2つ作り、origin/cloudflare（0d933bb）と作業ブランチ（fd4dd90）で `python3 scripts/regenerate.py all` を並べて実行
+  （旧は約1分先に始まった）。新の live_pages だけ SNS ブックの読み込み中の通信断（`http.client.IncompleteRead`、変更と無関係）で飛ばされたため、live_pages を両方で同時にもう一度実行（どちらも exit 0）。
+  **結果: 生成物の差なし。** 両方とも作業ツリーの変更は0件（コミット済みの生成物と同じ）、`diff -rq` で違うのはソース（scripts・docs・JS 3本）だけ
+- JS のページ（ローカルのヘッドレス Chrome）: origin/cloudflare のファイルと作業ツリーを別々の `http.server` で配り、同じページの表の全行の文字と折れ線のSVGの文字を比べた。
+  対象は ouka_results・wrc_results（名前なし・名前あり）、ouka_ranking・wrc_ranking の8区分、houou_ranking の9区分（計33ページ）。
+  - 1回目で ouka_ranking・wrc_ranking が表示されないことを見つけた（`ReferenceError: Cannot access 'SHEET_COLUMNS' before initialization`。ファイル先頭の `getQueryString()` の呼び出しが後ろの `const` を参照していた。node での確かめは関数だけを取り出していたため拾えなかった）。
+    定義を先頭へ移した（コミット 5f6f6a4）。houou_ranking は鳳凰で `getQueryString` が同じ箇所を通るため同じく壊れていたはず（1回目は ranking の比較の途中で止めたため未計測）
+  - 直した後: 33ページすべて旧と一致。新の側のエラーは0件（旧の側の1件は手元の旧ファイルに favicon が無い 404）
+- プレビュー（Workers Builds、5f6f6a4、check-run 成功）: プレビューの league_ranking.js が手元と一致することを確かめ、旧（手元の origin/cloudflare）とプレビューで同じ33ページを比べた。すべて一致、プレビュー側のエラーは0件
+- docs: `docs/notes/static-generation.md` の Google Charts 依存のページの項を直した（コミット 9eb0c1b）
+
+### 外した読み手
+
+なし（「プロ」「連盟プロ以外」「別名」の読み手はすべて ryoei.pro_選手 に切り替えた）
+
+## 報告
+- 状態: 判断待ち
 - ブランチ: work/1014-plb
 - ログ: https://github.com/retroeater/mj/blob/work/1014-plb/docs/logs/CHAT-1014-PLB-02.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1014-plb
-- 確認用URL: なし
-- マージ: 未
-- issue: #567
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 確認用URL: プレビューあり（URL は最終報告）。確認したページ: ouka_results・wrc_results・ouka_ranking・wrc_ranking・houou_ranking（見た目は変わらない。旧と同じ表になる）
+- マージ: 未（平野さんの判断待ち）
+- issue: #567（進み具合をコメント）、#467（A1 の件をコメント）
+- 判断が必要なこと:
+  - マージの判断（生成物の差なし、JS の33ページは旧と一致。切り替えなかった読み手は無し）
+  - マージ後に平野さんが行う手作業（どれもマージの後。先に行うと今の本番のコードが元のタブ・列を読めず、生成やページが止まる）:
+    1. 元の3タブ（正本の「プロ」、ryoei.pro_その他マスタの「連盟プロ以外」「別名」）の名前に「(旧)」を付ける
+    2. 1週間後を目途に元の3タブを消す
+    3. 「桜花」の C・G・Q〜U・W 列と「JWRC」の C〜E・G・N〜U・W 列を消す。**JWRC の G 列「結果」には259行の値（敗退・通過）がある**（どのページも読んでいない。消すと値は失われる）
+  - 新しいブックを読み始めた後は、選手の追加・改名は「ryoei.pro_選手」の3タブで行う（元のタブを直しても反映されない）
+- 未確認の項目:
+  - 列を消した後のシートでのページの表示（コードは見出しで引き直すため、消す前と同じ表になる見込み。node で、消した後の見出しでも引き直した問い合わせが同じ列を指すことは確かめた）
 - エラー: なし
 
 <!-- guide-links -->
@@ -122,4 +146,4 @@ PLB-01 の手順2〜4の続き（issue #567）。PLB-01 は「プロ」の見出
 - docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/0d933bbf/docs/notes/chat-side-operations.md
 - docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/0d933bbf/docs/notes/cloudflare.md
 - docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/0d933bbf/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a31620fe.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/f0502df9.md

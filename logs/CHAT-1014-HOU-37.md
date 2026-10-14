@@ -93,6 +93,86 @@ URL:
 - 2026-10-14 着手。`CHAT-1014-HOU-37` のコミットは無し。`work/1014-hou` はローカル・リモートとも無かったので `origin/cloudflare`（f0502df95）から作った
 - 0. 指示欄の末尾は指示文の最後の行（「不明な点があれば…この行が指示文の最後の行です。」）と一致。冒頭の雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
 
+### 手順1 着手の確かめ
+
+- #518・#540・#541・#542 の本文と最近のコメントを読んだ。他のセッションの着手中は無い（#540 の HOU-30 の着手中は HOU-32 で解除済み、#518 の DSN-06 の着手中は DSN-08 でマージ済み）。#540・#518 に着手中のコメントを書いた
+- 未マージの work/ ブランチ（9本）のうち、手順1のファイルに触れるのは `origin/work/1014-plb`（a8f6be918、PLB-02）の `docs/notes/houou-top.md` だけ。変えているのは「データの持ち方」の節の1行目（読むブック・タブ、#567）。この指示で直す節（構成・共通・選手を探す部品・トップ・個人成績・ランキング・非公開の形と公開の方針・仮置きの一覧）とは別の節なので止まらない。`generate_houou_pages.py`・テスト・`assets/houou.js`・`_redirects`・`docs/decisions/houou.md`・`img/ogp/` を変えている未マージのブランチは無い
+- #540 の本文のチェックリストと、`docs/notes/houou-top.md`「非公開の形と公開の方針」（直す前）・2026-10-14 の決定の突き合わせ:
+
+| # | 項目 | #540 の本文 | houou-top.md（直す前） | 2026-10-14 の決定 | 食い違い |
+|---|---|---|---|---|---|
+| 1 | 特別昇級の演出（紙吹雪）を先に済ませる | 未チェック | 無い | 無い | 本文だけ。仮置きの一覧（HOU-13）に特別昇級の紙吹雪の倍率があり、済んでいる見込み（本文のチェックが残っている） |
+| 2 | #542 ができてから公開 | あり | あり | #542 の残り2件はカレンダーの 10/19・10/20 で扱う | 決定が本文に無い |
+| 3 | 着手前: 公開前の Search Console の数字を残す | あり | 無い | 基準は `docs/gsc/2026-10-09/`、取り直さない | 本文と決定が違う（本文は「残すなら」） |
+| 4 | 下層ページからトップへ戻る導線の要否 | 未決（仮置き） | 未決（仮置き） | パンくず（Q23）で足りる。一覧から外す | 本文・文書とも古い |
+| 5 | 旧 `houou_ranking.html` の 301 | 部門ごとに `houou/ranking/<スラッグ>/`、`?division=` も 301 にするか決める | `houou/ranking/`、`?division=` は部門のページへ 301 | `houou/ranking/total/`（`?division=` は total/ の JS が移す。クエリは 301 で引き継がれる） | 本文・文書とも決定と違う |
+| 6 | 旧 `houou_leagues.html` の 301 | 決める（`houou/leagues/` へ 301 して JS か、別の方法） | 同じく未決 | `houou/leagues/` へ 301、そこから JS | 本文・文書とも未決のまま |
+| 7 | `houou/leagues/` の noindex・サイトマップ | 無い（noindex は `NOINDEX_TAG` の1か所で外すとある） | 無い | 公開後も noindex・サイトマップに載せない | 決定だけ。`NOINDEX_TAG` を外すときに leagues/ だけ残す作りが要る |
+| 8 | ほかのページからのリンクの張り替え | navbar の項目で「旧ページへのリンクを差し替える」だけ | 無い | 新しい URL へ直接張り替える。`jpml_pros` は `houou/players/?name=`（view なし） | 決定だけ（`jpml_pros` の 1,405 件など、下の表） |
+| 9 | og:image・og:title | 「確かめる」 | 「OGP: サイト共通の画像」（共通の節） | 専用の画像を1枚（見本から選ぶ）、og:title は今のまま | 本文・文書とも古い |
+| 10 | 旧4ページの後始末 | 「残すこと」に列記号の読み方だけ | 無い | 公開後もしばらく残し、生成の停止・削除・共有の関数の整理は別の issue（公開の指示で起票） | 決定だけ |
+| 11 | 告知 | 「告知の有無はこの issue で決める」 | 「告知の有無は公開の issue で決める」 | X で告知する。動画は公開後に別の指示で | 本文・文書とも古い |
+| 12 | #541（「前後」の直し） | 無い | 無い | 公開の後に回す | 決定だけ |
+| 13 | ランキングの入口・リンク | 無い | 無い | `total/` に置き、リンクは `total/` へ直接 | 決定だけ（この指示で実装済み） |
+| 14 | トップ・個人成績の説明文の人数 | 無い | 無い | 「在籍する選手691名」 | 決定だけ（この指示で実装済み） |
+| 15 | 閉じる issue | #518・#520・#141・#371・#228 | #520 だけ | 無い | 文書は #520 だけ（本文が正） |
+| 16 | navbar・noindex・sitemap・`llms.txt`・iPhone の確かめ・公開後の確かめ | あり | あり | 無い | 一致 |
+
+### 手順2 実装
+
+- ランキング: `RANKING_SLUGS` の通算得点を `total` にし、`ranking_path()` を9部門とも `ranking/<スラッグ>/` に、部門のチップの href を9部門とも `../<スラッグ>/` に、トップのカードを `ranking/total/` にした。旧 `houou/ranking/index.html` は `outputs()` の削除（`None`）で消す
+- `houou/ranking/` の転送: `_redirects` に `/houou/ranking/  /houou/ranking/total/  301` を `/houou/:slug/`（200）より前に足した（後ろだと `/houou/:slug/` に先に当たる）
+- 確かめ（wrangler 4.151.0 の `npx wrangler dev --port 8789 --ip 127.0.0.1 --persist-to /tmp/wrangler-state`、作業ブランチの中身）:
+  - `/houou/ranking/` → 301 `/houou/ranking/total/`。`/houou/ranking/?division=期最高得点` → 301 `/houou/ranking/total/?division=期最高得点`（クエリは引き継がれる）→ 301 に決めた（JS で移すだけのページにはしない）
+  - `/houou/ranking/total/`・`/houou/ranking/term-high/` は 200。`/houou/ranking`（末尾スラッシュなし）は 404（変更前も同じ、`/houou/ranking` の行は無い）
+  - headless Chromium（375px）: `/houou/ranking/?division=期最高得点` は最後に `/houou/ranking/term-high/`（title「期最高得点 | ランキング | …」）、`/houou/ranking/` は `total/`、`total/?division=通算得点` はクエリを消して `total/` のまま。トップのランキングのカード → `total/`、h1「鳳凰戦 ランキング（通算得点）第43期前期終了時点」（「（通算得点）」は読み上げ用）、パンくずの「鳳凰戦」→ `/houou/`、og:url `https://ryoei.pro/houou/ranking/total/`、チップの「期最高」→ `term-high/`、「通算」→ `total/`、行を押すと `/houou/players/?name=HIRO柴田`。JS のエラー 0
+  - 通算得点のページの title は「通算得点 | ランキング | 鳳凰戦 | 日本プロ麻雀連盟 | ryoei.pro」（変更前と同じ）
+- 説明文: トップ「…について、選手691名の…」→「…について、在籍する選手691名の…」、個人成績「…について、出場選手691名の…」→「…について、在籍する選手691名の…」（description・og:description・本文の `.mj-lead` の3か所ずつ）
+- テスト: `test_houou_pages.py` に2件足した（9部門のパスと `total/`・トップのリンク、説明文の「在籍する選手」）。変更前のコード（`git archive HEAD`）では2件とも落ちることを確かめた。`test_ask_data.py` の通算得点の url の期待値を `/houou/ranking/total/` に直した（`generate_ask_data.py` が `ranking_path()` を使うため、自分の変更で落ちたもの）。`python3 -m unittest discover -s scripts/tests` は 1,081件 OK
+- `python3 scripts/regenerate.py houou_pages` の差分（16ファイル。houou/ の外は無し）:
+
+| 種類 | ファイル | 中身 |
+|---|---|---|
+| ランキングの入口の移動 | `houou/ranking/index.html`（削除）・`houou/ranking/total/index.html`（追加） | 旧入口と比べた違いは og:url（`ranking/total/`）・資源の相対パス（`../../` → `../../../`）・パンくずの href・チップの href・行の `data-href` の相対パスだけ。表の中身は同じ |
+| チップのリンクの `total/` 化 | `houou/ranking/` の8部門の `index.html` | 「通算」のチップの href `../` → `../total/` の1行ずつ |
+| トップのリンクと説明文 | `houou/index.html` | ランキングのカード `ranking/` → `ranking/total/`、description・og:description・`.mj-lead` の人数の書き方 |
+| 個人成績の説明文 | `houou/players/index.html` | description・og:description・`.mj-lead` の人数の書き方 |
+| 成績 JSON・索引 | なし | シートの変化による差分は無かった |
+
+- 共有の関数（`ranking_path()`）の参照を洗い出した: `generate_ask_data.py` だけ。`python3 scripts/regenerate.py ask_data` で生成すると `workers/ask/data.json` の差分は `rankings.通算得点.url` の `/houou/ranking/` → `/houou/ranking/total/` の1か所だけ（JSON を比べて確かめた）。houou/ の外の生成物なので、この差分はコミットせず元に戻した（`git restore` で1ファイル）。判断が必要なことに書く
+- 検索の候補の行の `img/avatar.svg`: 使っていない。候補と最近見た選手の行（`assets/houou.js` の `createSearch()` の中の `photo()`）は、X の画像が無い・読めないときは名前の頭の1字の灰色の丸。`createSearch()` に `avatar: fallback` を渡しているが使われていない。`img/avatar.svg` が今も使われているのは、リーグのタブのグラフの選手のアイコン（SVG の `image`、`createLeagueView()`。画像が無い・読めないとき）だけ（個人成績のページの `data-avatar`）。直していない
+
+### 手順3 OGP 画像の見本
+
+- `python3 scripts/build_ogp_image.py`（Noto Sans JP Bold、`raw.githubusercontent.com/notofonts/noto-cjk` から取得）で、title/ の黒地と同じ指定（`--color '#ffffff' --bg '#000000' --max-size 400 --tracking -0.03`）。同じ指定で `img/ogp/title/houou-black.png` を `--check` すると「一致」（フォントが同じ）
+  - A `img/ogp/houou/sample-a.png`: 「鳳凰戦」＋「個人成績・ランキング・順位変動」＋「ryoei.pro」（`--scale 1 0.2 0.16 --line-gap 0.18`）
+  - B `img/ogp/houou/sample-b.png`: 「鳳凰戦」＋「成績・ランキング」＋「ryoei.pro」（同じ）
+  - C `img/ogp/houou/sample-c.png`: 「鳳凰戦」＋「ryoei.pro」（`--scale 1 0.16 --line-gap 0.18`）
+- 3枚とも 1200×630。白の画素の範囲は A x 193〜1004・y 82〜547、B x 197〜1004・y 82〜547、C x 91〜1111・y 89〜541 で、端から 80px 以上空いて文字は切れていない（画像を目で見ても欠け・重なりは無い）
+- 比較ページは作らず、プレビューの画像の URL を最終報告の「確認用:」に並べる（片付けるページを増やさないため）
+- og:image は差し替えていない。最終の名前の URL は開いていない
+- 参考: docs/notes/ogp.md「X のカード」に「画像の下に『<ドメイン>から』と表示される。画像に `ryoei.pro` を入れる必要はない」とある（チャット側の案は A〜C とも ryoei.pro 入り。案のまま作った）
+
+### 手順4 文書と issue
+
+- `docs/decisions/houou.md`: 「2026-10-14（CHAT-1014-HOU-37）」の節を足した。置き換えた元の決定2行（2026-10-08 の grill Q17 の「OGP は共通画像」、2026-10-11 の HOU-13 の「出場選手」）の行末に「→ 置き換え（…）: 2026-10-14（CHAT-1014-HOU-37）」を付けた。「入口を通算得点にして `total/` を作らない」は決定の記録に無く仮置き（HOU-07）だったので、新しい決定の側にだけ書いた
+- `docs/notes/houou-top.md`: 構成の表・ファイル・`_redirects`・JS の名前・共通の OGP・選手を探す部品（候補の画像は頭文字の丸。`img/avatar.svg` と書いていたのは実物と違っていた）・トップと個人成績の説明文・ランキング（`total/`、`?division=` の 301 と確かめた結果）・非公開の形と公開の方針（全面に置き換え）・仮置きの一覧（残るものだけ）。構成の表の「最近見た選手と全期の積み上げ棒」は DSN-09 の後の実物に合わせて「最近見た選手」にした。表の中の「（仮置き）」2か所（鳳凰位の色・節ラベルの高さ）を消した
+- 仮置きの一覧に残したもの（見た目の値でも、1問ずつ決めたものでもないと判断したもの）: 文言（リーグの吹き出し・「出場なし」・ベスト/ワーストのラベル・ランキングの共通の説明文と h1 の読み上げ用の部門名・トップの個人成績の説明文・説明文の「〜」）、動き・判定（進行中の A1 の帯・再生中の一時停止・入替戦の帯の上下の判定・特別昇級の判定）、作り（`leagues.json` を分けること）、古くなった見込み（連続回数の「（N件）」）
+- ほかのページから旧4ページへのリンク（`git grep`。docs/ と旧4ページ・旧ページの JS の中を除く。2026-10-14 の work/1014-hou）:
+
+| ファイル | 生成元 | 行き先の旧ページ | リンクの形 | 件数 |
+|---|---|---|---|---|
+| `jpml_pros.html` | `scripts/generate_jpml_pros.py`（`get_internal_link()`、229行・240行） | `houou_results.html` | `./houou_results.html?name=<名前>`（鳳凰戦の出場期数の欄） | 690 |
+| `jpml_pros.html` | 同上 | `houou_leagues.html` | `./houou_leagues.html?name=<名前>`（最高リーグの欄） | 715 |
+| `navbar.js` | 手書き | 4ページ | `/houou_ranking.html?sheet=鳳凰`・`/houou_leagues.html`・`/houou_race.html`・`/houou_results.html`（ドロップダウンの4項目） | 4 |
+| `llms.txt` | 手書き | 4ページ | `https://ryoei.pro/houou_ranking.html` ほか（クエリなし） | 4 |
+| `sitemap-pages.xml` | `scripts/update_sitemap_lastmod.py`（lastmod）、`<loc>` は手書き | 4ページ | `https://ryoei.pro/houou_*.html`（`<loc>`。リンクではない） | 4 |
+| `scripts/promo_video/houou_race/capture.mjs` | 手書き | `houou_race.html` | 撮影の URL `https://ryoei.pro/houou_race.html` | 1 |
+
+  - 旧ページの中どうしのリンク（`houou_ranking.html` の部門の切り替え `houou_ranking.html?sheet=鳳凰&division=…`、`houou_leagues.html` の選手の選択 `houou_leagues.html?name=…`〈`generate_houou_leagues.py` の `option_href`〉）は旧ページの中なので表から外した
+  - リンクでない参照（張り替えの対象外）: `scripts/apply_page_meta.py`（旧3ページのメタ）、`scripts/check_leagues_dropped.py`（`page_file`）、`scripts/regenerate.py`（出力先）、`generate_houou_leagues.py`・`generate_houou_race.py`（出力先・og:url）、`style.css`・`houou_race.js`・`assets/houou_race.js`・`leagues.js`・`scripts/lib/results.py`・`generate_houou_pages.py`・`scripts/promo_video/houou_race/compose.py`（コメント）、`scripts/tests/test_fetch_gsc.py`（テストの値）。`scripts/tests/test_jpml_pros.py` の166行は `./houou_results.html?name=甲` の形を確かめているので、張り替えるときに一緒に直す
+  - ほかの手書き HTML・生成ページ（index.html・title/・live/ など）からのリンクは無い
+
 ## 報告
 
 - 状態: 作業中
