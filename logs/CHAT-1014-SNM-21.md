@@ -100,18 +100,23 @@
 - 直した文書: `docs/notes/live-page-design.md`「使われていない登録」の利用先の一覧に ABEMA ブックを足した。`docs/notes/live-channel-write.md` は利用先を live-page-design.md に任せているので変えない。`docs/decisions/live.md` に「2026-10-14（CHAT-1014-SNM-21、#475）」を足した
 - origin/cloudflare（06f86374、DSN-10 のログのみ）を merge で取り込んだ。衝突なし
 
+### マージ
+
+- `git merge-base --is-ancestor origin/cloudflare HEAD` を確かめて `git push origin work/1014-snm-unused:cloudflare`（916667a9）
+- マージ後: regenerate-page.yml（push）run 38490804670 success、続く「最強戦の再生成」（workflow_run）run 38490860171 success。生成物に変わりが無く、再生成のコミットは無い（saikyo/ の差 0 は手順2の確かめと同じ）
+
 ## 報告
 
-- 状態: 対応中
+- 状態: 完了
 - ブランチ: work/1014-snm-unused
-- ログ: https://github.com/retroeater/mj/blob/work/1014-snm-unused/docs/logs/CHAT-1014-SNM-21.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1014-SNM-21.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1014-snm-unused
-- 確認用URL:
-- マージ: 未
-- issue: #475
-- 判断が必要なこと:
-- 未確認の項目:
-- エラー:
+- 確認用URL: なし（生成物に差が無いため）
+- マージ: 済（916667a9）
+- issue: #475（この指示ではコメントしない）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
