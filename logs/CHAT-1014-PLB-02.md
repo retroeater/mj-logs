@@ -74,6 +74,30 @@ PLB-01 の手順2〜4の続き（issue #567）。PLB-01 は「プロ」の見出
 - テスト: `scripts/tests/test_players_book.py`（読む先・title の fetch_tab の問い合わせ先・旧ブックとの組み合わせが戻らないこと）。修正前のコード（origin/cloudflare を git archive で展開）では 4 failures・1 error、修正後は通る。全体 1081 件 OK
 - コミット 3874cb9
 
+### 手順2: 「桜花」「JWRC」を見出しで読む
+
+実データ（2026-10-14、`fetch_table()`）: 消す予定の列の値の有無
+
+- 桜花（1719行）: 前後・結果・第9〜13節は全行空。プロは全行に値（Yes/No、読み手なし）
+- JWRC（1507行）: 前後・リーグ・リーグキー・第6〜13節は全行空。**結果は259行に値（敗退197・通過62）**、プロは全行に値。
+  結果を読むのは league_ranking.js の「連続昇級回数」だけで、ouka_ranking・wrc_ranking のメニューに無い（houou_ranking だけ）。wrc_results.js では結果はコメントアウト済み。
+  消すと結果の値は失われる（平野さんの決定どおり。報告に書く）
+
+直し（コミット 4de39ec）:
+
+- `scripts/generate_ouka_leagues.py`: `fetch_sheet(… 'SELECT A,B,C,D,F WHERE F > 0')` → `fetch_table()` と見出し（名前・期・リーグ・順位）で読む `select_rows()`。行の並び `[名前, 期, None, リーグ, 順位]` は旧と同じ（lib/leagues.py・check_leagues_dropped.py の列の位置を変えないため、前後の位置は None）
+- `scripts/lib/pro_stats.py`: 「桜花」は「前後」を読まず、行の並び（前後は None）は変えない。「鳳凰」は変えない
+- `ouka_results.js`・`wrc_results.js`: houou_results.js と同じ形（`SELECT * LIMIT 1` で見出しを読み、列記号を引き直す）。問い合わせから消す列を外した（桜花 `A,B,D,E,F,H,I〜P`、JWRC `A,B,F,H,I〜M`）。`getValue` の位置を問い合わせに合わせた
+- `league_ranking.js`: `resolveHououQuery` を `resolveQuery` に広げ、「鳳凰」「桜花」「JWRC」で引き直す。タブごとの列 `SHEET_COLUMNS`（鳳凰 `A,B,C`・節 I〜U、桜花 `A,B`・節 I〜P、JWRC `A,B`・節 I〜M）。
+  節・合計を読むループは問い合わせの列数から（鳳凰は従来と同じ範囲）。引き直しは問い合わせに出る列だけ（消した列を探してコンソールに出さない）
+
+確かめ:
+
+- Python: 旧読み方と新読み方を実データで比較。ouka_leagues 1561行・pro_stats の桜花 1719行とも一致
+- テスト `scripts/tests/test_ouka_columns.py`（列を消す前の表と消した後の表で同じ行）。修正前のコードでは 3 errors、修正後は通る。全体 OK
+- JS（node）: `getQueryString()` を旧と比べ、鳳凰の9区分は文字列が完全に一致。桜花・JWRC は消す列だけが落ちる
+- JS（node、見出しの表を差し替え）: 列を消す前の見出しと消した後の見出しで、引き直した問い合わせが同じ見出しの列を指す（results 2本・ranking 16区分すべて）。消した後もコンソールのエラーは0件
+
 ## 報告
 
 - 状態: 作業中
