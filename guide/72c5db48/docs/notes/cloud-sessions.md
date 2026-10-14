@@ -62,7 +62,7 @@ Chat-Ref の確認・`git branch --merged` が誤る。**これらの判定の�
 - **複数の issue の本文・題・ラベルをまとめて書き換えるときは、1件ごとに書き換える直前に `updated_at` を取り直し、取得時と違えばその issue は書き換えずに飛ばして報告する。**
   10〜15件ごとに「済」の番号をログに追記して push する。本文・題の部分置換とラベルの付け外しは REST（`PATCH /issues/{n}`・`/labels`）で通るが、
   state の変更とコメントの作成は REST だと HTTP 405 になるため MCP（`issue_write`・`add_issue_comment`）で行う（#304 の月次の棚卸しにも当てはまる）
-- 触れるリポジトリはセッションの sources（`retroeater/mj`）だけ。mj-logs への書き込みは拒否される（写すのは mj-logs の `sync-from-mj.yml`）
+- 触れるリポジトリはセッションの sources（`retroeater/mj`）だけ。mj-logs は sources に無いので既定では書き込みが拒否される（写すのは mj-logs の `sync-from-mj.yml`）。書くときは `add_repo`（owner `retroeater`、repo `mj-logs`、access `push`）で接続する
 
 ## ブランチの削除
 
@@ -124,5 +124,7 @@ docs/notes/branch-operations.md「作業ディレクトリの分離（Codespace�
   ガイド文書に書かない情報はログと同じ。写す一覧は `python3 scripts/sync_guides.py --dest <任意> copy --after HEAD --list`
 - **Actions の実行結果も書き出す。** 写しの実行のたびに、`scripts/actions_status.py` が
   各ワークフローの直近5回の実行を mj-logs の `actions/status.md` に上書きする（#498）。
+  同じ実行で、直近26時間の異常（失敗など・予約実行の未実行・所要時間の異常・初回成功・未報告のログ）だけを朝の報告用に `actions/morning.md` へ書く
+  （`scripts/morning_report.py`。予約は各ワークフローの `on.schedule` と mj のクローンの `workers/scheduler/schedule.json` から作る）。
   セッションでも `GITHUB_REPOSITORY=retroeater/mj python3 scripts/actions_status.py --dest <任意>` で同じ表を手元に作れる（環境変数のトークンを使う）
 - ログの `## 報告` などの書き換え方（最後の一致を相手にする）と、「ログ（公開）」の行を書く前の写しの確かめは CLAUDE.md「作業ログ」節
