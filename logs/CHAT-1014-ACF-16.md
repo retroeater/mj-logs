@@ -48,15 +48,52 @@
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+- 0章: ログの「指示」欄の末尾が指示文の最後の行と一致することを確かめた
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- Chat-Ref の重複: `git log --all --grep="CHAT-1014-ACF-16"` は 0 件。`work/1014-acf-cron` はローカル・リモートとも無く、`git checkout -b work/1014-acf-cron origin/cloudflare`（191d9dbd）
+- 手順1:
+  - issue の検索（「Worker 起動 取りこぼし 埋め合わせ 未起動 cron 遅れ mj-scheduler」）で当たったのは #506（常設の通知先）だけで、同じ目的の issue は無い
+  - 未マージの work/ ブランチ（1009-swp-526・1011-swp-hnd・1011-swp-nav・1013-acf-xsize）で `workers/scheduler/` に触れるものは無い
+  - #504 の本文と最新のコメント（10/9、CHAT-1009-WKR-13）、#506 の 10/12・10/14 のコメント、docs/notes/scheduler-worker.md、`workers/scheduler/src/index.mjs`・`scheduler.mjs`・`schedule.json`・`wrangler.jsonc` を読んだ
+- 手順2:
+  - (a) 10/6〜10/14 の各行の `[scheduled]` の実行（REST、workflow_dispatch）を集めた。ふだんは予定から 10〜78 秒。10/14 は update-live-channel 04:17:21（+17分21秒）、update-sns-book・sync-dojo-calendar・delete-merged-branches が 04:37:47 に同時（+27分47秒・+22分47秒・+17分47秒）、check-image-links は未起動。表は #504 のコメント https://github.com/retroeater/mj/issues/504#issuecomment-6159187821
+    - `dueRows()` の窓は `(scheduledTime - 1分, scheduledTime]`。04:37:47 に 04:10・04:15・04:20 の行が起動したのは、遅れて届いた呼び出しが元の `scheduledTime` を持っていたためと導ける（コードからの推論。届いた回の数は Observability でしか見られない）
+  - (b) Cloudflare の文書（`developers.cloudflare.com/workers/configuration/cron-triggers/index.md`・`…/runtime-apis/handlers/scheduled/index.md`、どちらも 200）: 定時実行は「underutilized machines」で動く、`scheduledTime` は予定の時刻、`controller.noRetry()` がある（再試行がある前提）。遅れ・抜け・再送の保証は書かれていない。cloudflarestatus.com はプロキシで 403（許可ドメインは変えていない）。検索では 2026-10 の Cron Triggers の障害は見つからず、直近は 2026-09-09 の "Workers Cron Triggers degraded"（IsDown）。10/14 の原因は確かめられていない
+  - (c) 10/13 のビルドの失敗: 86979e3d の check-run「Workers Builds: mj-scheduler」は failure（05:32:50Z、出力に理由なし）。同じコミットに mj（本番 success）・mj-ask（success）。その push（9eeb2067..86979e3d）は `workers/` に触れていない。同じ失敗を CHAT-1013-BLD-01 が調べ済み（Cloning で約 704 秒、原因不明）、知らせる仕組みは #561。走った理由はダッシュボードでしか見られない。今朝の抜けとの関係は見当たらない（ビルドは起動の約14時間前で、動いている版は変わっていない）
+  - 参考: dispatchSync は毎分 `GET /repos/retroeater/mj` を1回呼んでいる（1日 1,440 回）
+- 手順3: 案を #504 にコメントした（同じ URL）。選ぶ点は下の「判断が必要なこと」
+- 決定を docs/decisions/automation.md に足した
+- コード・ワークフロー・Worker の設定は変えていない
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1014-acf-cron
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1014-ACF-16.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1014-acf-cron
+- 確認用URL: なし
+- マージ: 済（cf007bc3。191d9dbd..cf007bc3）
+- issue: #504（案をコメント https://github.com/retroeater/mj/issues/504#issuecomment-6159187821 ）・#506（読んだだけ）
+- 判断が必要なこと:
+  - さかのぼる幅: 30 分／60 分（勧める）／06:00 の確かめの前まで
+  - 二重起動を避ける方法: 案 A（状態を持たず、予定から 5・10・20・40 分後の回だけ実行の一覧を REST で引く。1日 約20回。勧める）／案 B（Workers KV に起動を記録）
+  - 遅れて届いた回（実際の時刻と `scheduledTime` の差が 2 分超）は、一覧を確かめてから起動する（勧める）か、起動せず埋め合わせに任せるか
+  - 06:00 の確かめの回が抜けたとき: 06:15・06:30 で、#506 に当日の確かめが無ければ書く（勧める）／今のまま
+  - ダッシュボードで見る項目（保存は3日なので 10/16 まで。セッションからは見られない）: mj-scheduler > Settings > Trigger Events の「View events」で 10/14 04:00〜04:40 JST の各回（特に 04:30 の回の有無）、Observability の 04:37 ごろの 26 件の中身（`起動:` の行と cron の行の数）、ビルド 493188eb の失敗の表示（`workers/` に触れない push で走った理由。#561 と合わせて）
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 916667a9）: https://github.com/retroeater/mj-logs/tree/main/guide/916667a9
+ガイド文書（この版を写した時点の最新、mj 66e8343c）: https://github.com/retroeater/mj-logs/tree/main/guide/66e8343c
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/916667a9/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/916667a9/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/916667a9/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/916667a9/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/916667a9/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/916667a9/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/66e8343c/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/66e8343c/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/66e8343c/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/66e8343c/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/66e8343c/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/66e8343c/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/191d9dbd.md
