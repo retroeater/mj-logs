@@ -22,9 +22,9 @@ GitHub Actions のワークフローの一覧・動き・手動実行と変更�
 | `regenerate-saikyo.yml` | `check-image-links.yml`（「画像リンク切れの検知」）の実行が cloudflare で終わるたび（`workflow_run`。取り消された回を除く。毎朝 04:30 JST の検知の後など）と手動。`regenerate-page.yml` を `workflow_call` で呼び、saikyo_pages だけを再生成する。差分が無ければコミットしない（#537）。再生成の前にジョブ `abema` が ABEMA ブックの【2】を作り直す（`scripts/update_abema_book.py`、失敗しても再生成は動く。手動実行の入力 abema・regenerate、#425・`docs/notes/abema-book.md`） |
 | `update-live-channel.yml` | 毎日04:00 JST に Worker `mj-scheduler` から（入力 `scheduled`、#504）と、保険の予約実行（毎日06:43 JST。当日の Worker からの起動が成功済みなら動かないゲート付き、`docs/notes/scheduler-worker.md`「保険の予約実行のゲート（update-live-channel）」）と手動。/live の3層（#438）を毎日更新し、`regenerate-page.yml` を `workflow_call` で呼んで /live・title/ を作り直す（#404。手順・入力は `docs/notes/live-channel-write.md`「7. 毎日の取り込み」「チャット側の指示」） |
 | `write-live-channel-candidate.yml` | 手動実行のみ（mode: check / limited / full）。層1から作った表を3層のスプレッドシートの「【2】自動変換後」へ書く（#438。【2】は毎朝の `update-live-channel.yml` も書き直すが、層2の規則を直した直後に使うため残す。`docs/notes/live-channel-write.md`「6. 書き込みの実装・手動実行での確認」） |
-| `check-image-links.yml` | 毎日 04:30 JST（Worker `mj-scheduler` から、入力 `scheduled`）に `jpml_pros.html` の画像（ジョブ `check`）・最強戦の選手写真（ジョブ `saikyo`）・SNS ブックの実効の値の全行の画像（ジョブ `sns_book`、`check` の後に動く。X は `_400x400` だけ。`scripts/check_sns_book_images.py`）のリンク切れを確かめ、常設issueに書き出す（`check` と `sns_book` は「画像リンク切れの検知結果」の本文の自分の節だけを書き換え、全節で切れが無いと閉じる。`saikyo` は別の issue）。毎週月曜03:00 JST の予約実行（`schedule`）は `check` だけを動かす保険（外す予定は #504） |
+| `check-image-links.yml` | 毎日 04:30 JST（Worker `mj-scheduler` から、入力 `scheduled`）に `jpml_pros.html` の画像（ジョブ `check`）・最強戦の選手写真（ジョブ `saikyo`）・SNS ブックの実効の値の全行の画像（ジョブ `sns_book`、`check` の後に動く。X は `_400x400` だけ。`scripts/check_sns_book_images.py`）のリンク切れを確かめ、常設issueに書き出す（`check` と `sns_book` は「画像リンク切れの検知結果」の本文の自分の節だけを書き換え、全節で切れが無いと閉じる。閉じた後に切れが出たら、新しく作らずに常設の #352〈ラベル `種類: 常設`〉を開き直す〈2026-10-14 から〉。`saikyo` は別の issue）。毎週月曜03:00 JST の予約実行（`schedule`）は `check` だけを動かす保険（外す予定は #504） |
 | `check-saikyo-unregistered.yml` | 毎週月曜06:50 JST。最強戦の出場者で「プロ」「連盟プロ以外」から引けない人を常設issueに書く（#431、`docs/notes/saikyo-page-design.md`「8. 出場者の登録漏れの検知」） |
-| `assets-check.yml` | push（`docs/`だけの push は除く。サイズを見る`docs/handover.md`・`docs/notes/chat-side-operations.md`は含む、#298）。`.assetsignore`の漏れ（#133）と CLAUDE.md・handover.md のサイズを検知し、配信の上限との比（`check_asset_limits.py`、#387）を出す |
+| `assets-check.yml` | push（`docs/`だけの push は除く。サイズを見る`docs/handover.md`・`docs/notes/chat-side-operations.md`は含む、#298）。`.assetsignore`の漏れ（#133）と CLAUDE.md・handover.md のサイズを検知し、chat-side-operations.md の純増（push は前の先頭、手動実行は cloudflare との merge-base と比べ、24,576 バイト超で増えていれば警告。job は成功のまま、#492）と配信の上限との比（`check_asset_limits.py`、#387）を出す |
 | `sitemap-lastmod.yml` | HTMLを含むpush。sitemapのlastmodをgitの最終コミット日にそろえてコミットする（#265、`docs/notes/sitemap-lastmod.md`） |
 | `check-leagues-dropped.yml` | 手動実行のみ。型Cで選択リストから漏れている選手を検知する（#168） |
 | `cleanup-logs.yml` | 毎週月曜06:23 JST。7日を過ぎた作業ログを片付け、条件外のものを #357 に通知する |
@@ -45,6 +45,21 @@ GitHub Actions のワークフローの一覧・動き・手動実行と変更�
 
 GitHub Actions (`.github/workflows/regenerate-page.yml`) が、`scripts/generate_*.py` / 対応する `.js` / `scripts/lib/**` の変更をcloudflareブランチへのpushで検知し、自動で再生成・コミットする（`chore: regenerate <ページ名>.html via GitHub Actions`）。検知はpushに含まれる全コミットの範囲（`github.event.before`〜`github.sha`）の差分で行う（#167）。手動実行（workflow_dispatch）も可能。毎週月曜05:37 JSTにも`all`を自動実行し、差分がなければコミットしない（#103）。`table.js`・`leagues.js`はルート直下の`*.js`に該当するためpushでワークフロー自体は起動するが、どのページ名にも一致せず対象0件で終わる（HTMLに焼き込まれないため実害なし）。`regenerate.py`は出力がディレクトリになるページ向けに`OUTPUT_OVERRIDES`（例: `wayhome_episodes` → `"wayhome/"`）を持ち、コミット・lastmod更新対象のパスとして返せる（#162）。ワークフローの`git add`は`-A --`で削除も拾い、`sitemap*.xml`をまとめて対象に含める。**1ページの生成が失敗したら、`regenerate.py`がそのページの途中の出力を戻して飛ばし、残りのページを生成する**（失敗の種類では分けない。生成の前の作業ツリーを一時の index で tree オブジェクトに取り、失敗したら増えたファイルを消して変わったファイルを戻す。前のページが変えた共有のファイルは前のページの出力に戻る）。コミット対象と`check_asset_limits`は成功したページだけで出し、飛ばしたページがあれば終了コード 3（`SKIPPED_EXIT`）を返して、飛ばしたページと理由（生成スクリプトの出力の最後の行）を stderr とジョブのサマリに出す。ワークフローは成功したページをコミット・push してから、最後のステップ「飛ばしたページを報告」で失敗にする（失敗通知メールを保つ。常設issueは作らない）。手動実行・週次・`workflow_call`（`update-live-channel.yml`・`regenerate-saikyo.yml`）・セッションの`regenerate.py all`も同じ扱い（#533）。**2026-09-22 開発凍結（`docs/notes/books-freeze.md`）以降、`regenerate.py`の`FROZEN_FROM_ALL`が`"all"`から`books_pages`を外し（ページ名を指定すれば個別には動く）、「楽天の書影を取得」ステップは`if: false`で止めている**
 
+## 共通の部品（`.github/actions/`）
+
+繰り返しの書き方を寄せた composite action（#564 の段①）。ローカルの部品は checkout の後でないと読めないため、checkout は各本に残し、部品はその後で呼ぶ。
+今は `check-saikyo-unregistered.yml`・`sync-birthday-calendar.yml` だけが使う（残りの本への展開は #564）。
+
+- `setup-python`: `.python-version`（リポジトリ直下、`.assetsignore` で公開しない）の版で `actions/setup-python` を呼ぶ。入力 `packages`（pip で入れるもの）・`test`（`'true'` で `scripts/tests` の unittest）、出力 `python-version`。Python の版を上げるときは `.python-version` の1行を変える（#539）
+- `resolve-mode`: 予約の起動（`schedule` か入力 `scheduled` が真）は書く、手動実行は入力 `manual-apply` に従う（`apply` はそのまま、`dry_run` は `!inputs.dry_run` を渡す）。出力 `scheduled`・`apply`・`dry-run`。ログと実行サマリに「event / scheduled / apply」の1行を出す。
+  予約の起動の有効・無効は Worker の起動の表の `enabled` に任せ、`SCHEDULE_ENABLED` は使わない（部品に移した本から外す）。本ごとの判定（保険のゲート・曜日・予約の起動で外す入力）は出力 `scheduled` を使って各本に残す
+- `upsert-issue`（中身は `upsert.js`）: 常設 issue を題（open・PR を除く・全ページ、重複は番号の小さい方）か番号で探して書く。
+  `mode` が `state`（本文を書き換え、`close` が `'true'` ならコメントして閉じる。無ければ作る）・`notice`（コメントを足す。無ければ本文で作る）・`comment`（番号へコメント）・`read`（今の本文と `marker` を含む最後のコメントをファイルに書き出す）。
+  入力 `body-file`・`comment-file`・`create`・`labels`・`dry-run`（書かずに、することと内容をログと実行サマリに出す。探すのは行う）・`run-url-footer`、出力 `number`・`action`・`body-path`・`comment-path`。
+  本文の組み立ては各スクリプトに置く（例: `check_saikyo_unregistered.py --issue-dir`）
+
+寄せられない点（各本に残す）: checkout の入力（`ref`・`fetch-depth`）、update-live-channel の保険のゲート・水曜の verify・予約の起動で外す `ALLOW_*`、update-sns-book の `mode` の上書き、sync-dojo-calendar の `--auto-update`、fetch-gsc の「JST で1日か」、regenerate-page の Pillow と `test_title_redirects.py`、check-image-links の節の書き換え（`read` で本文を取って Python で差し替え、`state` で書く）。
+
 ## ワークフローを手動実行するとき
 
 実行の契機と内容の一覧は上の「ワークフローの一覧」。手動実行の前に次を確かめる。
@@ -57,9 +72,10 @@ GitHub Actions (`.github/workflows/regenerate-page.yml`) が、`scripts/generate
   入力`saikyo_resolve_test`（X IDを1つ）を入れると、ジョブ`saikyo`は X API で解決を1回だけ試して診断を出し、検知も issue の書き換えもしない（ジョブ`check`も動かない。#514）
 - `cleanup-logs.yml`（`scripts/cleanup_logs.py`、条件は `docs/notes/branch-operations.md`「作業ログの寿命」）: 手動実行は dry_run が既定。週次実行は `SCHEDULE_ENABLED`（現在 `'true'`）が `'false'` なら dry-run
 - `delete-merged-branches.yml`（`scripts/delete_merged_branches.py`）: 手動実行は dry_run が既定。毎日の実行と、入力 `scheduled` を真にした起動は `SCHEDULE_ENABLED`（現在 `'true'`）が `'false'` なら dry-run（`'true'` なら実際に削除する）。`scheduled` は Worker からの予約の起動用で、手では付けない（`docs/notes/scheduler-worker.md`）
-- `update-live-channel.yml`・`sync-dojo-calendar.yml`・`sync-logs.yml`・`delete-merged-branches.yml`・`check-image-links.yml`・`update-sns-book.yml` の入力 `scheduled` は Worker `mj-scheduler` からの予約の起動用で、手では付けない（付けると予約実行と同じ動きになり、題に `[scheduled]` が付いて Worker の朝の確かめに数えられる。`docs/notes/scheduler-worker.md`）
+- `update-live-channel.yml`・`sync-dojo-calendar.yml`・`sync-logs.yml`・`delete-merged-branches.yml`・`check-image-links.yml`・`update-sns-book.yml`・`check-saikyo-unregistered.yml`・`sync-birthday-calendar.yml` の入力 `scheduled` は Worker `mj-scheduler` からの予約の起動用で、手では付けない（付けると予約実行と同じ動きになり、題に `[scheduled]` が付いて Worker の朝の確かめに数えられる。`docs/notes/scheduler-worker.md`）
 - `check-meibo.yml`（`scripts/check_meibo.py`）: 手動実行は dry_run が既定。不一致があっても生成は止めない
-- `sync-birthday-calendar.yml`（`scripts/sync_birthday_calendar.py`）: 週次の schedule（毎週月曜05:17 JST）は書き込みまで行う。手動実行の既定は差分を出すだけで、apply を選んだときだけ書き込む。予約実行と同じ動きは apply をオン・allow_many_deletes をオフ（`docs/notes/birthday-calendar.md`）
+- `sync-birthday-calendar.yml`（`scripts/sync_birthday_calendar.py`）: 週次の schedule（毎週月曜05:17 JST）は書き込みまで行う。手動実行の既定は差分を出すだけで、apply を選んだときだけ書き込む。予約実行と同じ動きは apply をオン・allow_many_deletes をオフ（`docs/notes/birthday-calendar.md`）。allow_many_deletes は手動実行だけで効く（入力 `scheduled` のときは無視）
+- `check-saikyo-unregistered.yml`（`scripts/check_saikyo_unregistered.py`）: 手動実行は dry_run が既定（issue を書かず、することと本文を実行サマリに出す）。週次の schedule は issue を書く
 - `fetch-gsc.yml`（`scripts/fetch_gsc.py`、#269）: checkout と push 先は実行ブランチ。手動実行の既定はコミットしない（取得するだけ）。
   schedule は28〜31日 21:00 UTC に起動し、JST で1日の回だけ本体が動く（毎月1日 06:00 JST。2026-09-21 に有効にした）。
   `--plan` を付けるとAPIを呼ばずに期間と出力先だけ出せる
