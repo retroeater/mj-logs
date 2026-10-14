@@ -98,6 +98,8 @@ docs/notes/branch-operations.md「作業ディレクトリの分離（Codespace�
 
 鍵（`YOUTUBE_API_KEY`・楽天・`ANTHROPIC_API_KEY`・スプレッドシート書き込みの認証など）は環境の変数に置かない。
 **GitHub Actions のシークレットにだけ置き、鍵の要る処理はワークフローを `actions_run_trigger` で起動して行う。**
+**直す前後の確かめも同じで、鍵の要るスクリプトはコンテナで直接動かさず、ワークフローを書き込まない入力（dry-run）で起動して run のログを読む**
+（例: `update-sns-book.yml` の mode `update`・dry_run 真。docs/notes/sns-book.md「手動実行」）。コンテナには鍵が無く、直接動かすと確かめられないまま終わるため（2026-10-13 に起きた）。
 
 ## ローカル確認の代わりにプレビュー
 
