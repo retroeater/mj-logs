@@ -1,7 +1,7 @@
 # CHAT-1014-MTK-01
 
 - 着手日時: 2026-10-14
-- 対象issue: 起票予定（Mつくを帰り道と同じ形に作り直す）
+- 対象issue: #569
 - ブランチ: work/MTK
 - 着手時HEAD: 67ac863
 
@@ -65,6 +65,31 @@ Chat-Ref: CHAT-1014-MTK-01
 - work/MTK はローカル・リモートとも無し → `git checkout -b work/MTK origin/cloudflare`（67ac863）
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてあり
 - 0.「指示」欄の末尾は指示文の最後の行（「この行が指示文の最後の行です。」）と一致
+
+### 手順1 調べたこと
+
+- 作る issue を起票: #569（同じ主題の issue は「Mつく」「mtsuku」「video_mtsuku」で検索して無し。未マージの work/ にも同じ目的のブランチ無し）。着手中のコメント済み
+- 今の生成 `scripts/generate_video_mtsuku.py`: ブック `1y8xBxGpIt-C23cwG7MDjDkebMlpnBufa4_IzYAo2QyQ`（live/title/ のブック `lib/live.SPREADSHEET_ID` とは別）の「Mつく」タブを列記号で読む（`SELECT A..N WHERE O = "Y"`）。型Aの表、`?name=` は3列目（選手）の絞り込みの初期値
+- 「Mつく」タブの見出し（2026-10-14 に読んだ）: 名前・団体・公開日・URL・画像URL・チーム名・名前1・団体1・名前2・団体2・名前3・団体3・名前4・団体4・表示・備考
+  - 61行、すべて 表示=Y。本番相当の `video_mtsuku.html` の行も61（`<tr data-info` の数）。食い違い無し
+  - 公開日は 2019-12-03〜2025-07-22、同じ日付は無し。URL はすべて `watch?v=` の形で動画IDが取れ、重複無し
+  - チーム名が空: 5行（滝沢和典 2024-08-10・沢崎誠 2020-04-29・滝沢和典 2020-02-04・多井隆晴 2020-01-02・園田賢 2019-12-03）
+  - 名前4が空（3人の回）: 4行。作る人の団体が空: 2行（片山まさゆき・馬場裕一）。団体の値は 連盟・最高位戦・協会・連合・RMU（選手側に「RMU?」が1つ）
+  - 「紹介文（補正用）」列は無い。備考はすべて空
+  - 作る人は50名。2回の人が11名（和泉由希子・白鳥翔・滝沢和典・小林剛・瀬戸熊直樹・魚谷侑未・松ヶ瀨隆弥・東城りお・佐々木寿人・仲林圭・松本吉弘）
+- SNS ブック（`lib/sns.fetch_pros()`）で写真を引ける作る人（団体=連盟の作る人を引いた。X ID あり・写真 URL あり）:
+  二階堂亜樹・二階堂瑠美・伊達朱里紗・佐々木寿人・内川幸太郎・勝又健志・古橋崇志・和久津晶・和泉由希子・堀慎吾・宮内こずえ・手塚紗掬・日吉辰哉・本田朋広・東城りお・沢崎誠・滝沢和典・瀬戸熊直樹・猿川真寿・白鳥翔・菅原千瑛・藤島健二郎・藤崎智・高宮まり・魚谷侑未・黒木真生・黒沢咲（27名）。
+  荒正義は X ID が空で名前だけ。連盟以外の作る人は「プロ」に居ないため名前だけ
+- 帰り道: `lib/wayhome.py`（シートの読み・`data/youtube_meta.json` との突き合わせ・サムネイル・再生時間・X の写真・VideoObject）、
+  `generate_video_wayhome.py`（一覧）・`generate_wayhome_episodes.py`（各話・`sitemap-wayhome.xml`）、JS は `video_wayhome.js`（一覧。`?name=` は扱わない）・`wayhome_episodes.js`（各話）
+- `fetch_youtube_meta.py`: 帰り道タブの動画IDを videos.list で引き、`data/youtube_meta.json`（publishedAt・thumbnails・duration）に書く。返らなかった回は前回の値を残す
+- `regenerate-page.yml` の帰り道の手順: 「帰り道のYouTube情報を取得」「一覧のOGP画像を作る」は `target_page` が all（週次・手動の all）で、`workflow_ref` がこのファイルのときだけ動く。
+  そのとき「前回の知らせを読む」→ `check_wayhome.py` → 状態が前回の知らせと変われば常設 issue「帰り道の新しい回」へコメントする（`notify`）。**作業ブランチで all を手動実行しても `workflow_ref` は `/regenerate-page.yml@refs/heads/work/MTK` で条件に当たり、知らせが変わっていれば常設 issue に書く。**
+  さらに all の再生成で全ページの生成物が作業ブランチにコミットされる。Mつくの取得の手順は YAML に無く、workflows を変えない指示のため足せない
+  → **手動実行はしない**。YouTube の情報は仮置き（下の手順2）
+- 未マージの work/（work/1009-swp-526・1011-swp-hnd・1011-swp-nav・1014-hou）と、変えるファイルの重なり: work/1014-hou が `_redirects` の `/houou/` の行の後に1行足している（`/houou/ranking/`）。
+  Mつくの行は `/video_wayhome.html` の行の後に足すため、同じファイルの別の箇所（間に変えない行が3行ある）。止まる条件に当たらない。`lib/wayhome.py`・帰り道の生成・`style.css`・`regenerate.py` を変える未マージのブランチは無し
+- テストの基準: 着手時に `python3 -m unittest discover -s scripts/tests` は 1092件 OK
 
 ## 報告
 
