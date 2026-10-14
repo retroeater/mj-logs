@@ -50,16 +50,81 @@ Chat-Ref: CHAT-1014-SKD-10
 
 ## 経過
 
+### 0. 着手前
+
+- 同じセッション（session_01LjQF3LYvdJM7VPNtxPNcVj）で SKD-09 に続けて受けた指示。`git log --all --grep="CHAT-1014-SKD-10"` は0件。指示文の末尾はこのログの「指示」欄の末尾と一致。雛形の行はすべてある
+- SKD-09 のログの `## 報告`: 状態「完了」、マージ「済（5402cbcd6）」。止まる条件に当たらない
+- 作業ブランチ: `origin/work/1014-skd` はマージ済み、ローカルの `work/1014-skd` も `origin/cloudflare` の祖先なので `git merge --ff-only origin/cloudflare`（すでに最新、67ac863ee）。ログを先に push（1e8972eb6）
+- #566 に着手中のコメント: https://github.com/retroeater/mj/issues/566#issuecomment-6164474171
+- 未マージの work/ ブランチで、`scripts/generate_saikyo_pages.py`・`style.css`・`scripts/tests/test_saikyo_pages.py`・`docs/notes/saikyo-page-design.md` に触れるものは無い
+
+### 1. 直したもの
+
+前提の見込みのとおり、対局名の行は `build_title_html()` とその CSS だった。
+
+- `scripts/generate_saikyo_pages.py` の `build_title_html()`: 名前（`.mj-saikyo-n-title-text`）と日付（`.mj-saikyo-n-date`）を `<span class="mj-saikyo-n-title-body">` に入れた。›（`.mj-saikyo-n-chev`）はまとまりの外（右）のまま。日付の無い対局（対局日が未登録）はまとまりの中が名前だけ
+- `style.css`（「#425 の新しい年度・対局のページ…面の中の表の行」の節の中だけ）:
+  - `.mj-saikyo-n-title-link`: `flex-wrap: wrap`・`align-items: baseline` を外し `align-items: center`（まとまりと › を横に並べ、› はまとまりの高さの縦の中央。SKD-05 でも名前が折り返したときは › が行全体の縦の中央だったので同じ形）。`min-height: 44px`・`padding: 12px 16px` は変えていない
+  - `.mj-saikyo-n-title-body` を足した（`flex: 1 1 auto; min-width: 0; overflow-wrap: anywhere`）
+  - `.mj-saikyo-n-date` に `display: block` を足した（字の大きさ 13px・灰色は変えていない）
+  - 対局名の下の「通過」（`.mj-saikyo-n-note`）は変えていない（日付の下の3行目になる）
+- `scripts/tests/test_saikyo_pages.py`: `test_date_is_second_line_of_title`（名前と日付がまとまりの中、› が外）を足した。修正前（HEAD）の `generate_saikyo_pages.py` をテストの中で読み込み直すと落ちることを確かめた
+- `python3 -m unittest discover -s scripts/tests`: 1,093件 OK
+
+### 2. 生成し直しと差
+
+`python3 scripts/regenerate.py saikyo_pages`（終了コード 0）。
+
+| 種類 | 件数 | 中身 |
+|---|---|---|
+| 新しい年度ページ `saikyo/<年度>/index.html` | 16（見込み 16） | 対局名の行の `<span class="mj-saikyo-n-title-body">…</span>` の包みだけ |
+| 対局のページ `saikyo/<年度>/<対局>.html` | 219（見込み 219） | 同上 |
+| 卓のページ・今の年度ページ・トップ・`sitemap-saikyo.xml` | 0 | |
+
+差の行から包みの `<span class="mj-saikyo-n-title-body">` と閉じタグを取り除くと前と一致することを確かめた（包みは計 438 か所）。シートの変化・X の画像の URL の揺らぎによる差は出なかった。
+
+### 3. 確かめ
+
+条件: headless Chromium（Playwright 1.56.1）、手元を `python3 -m http.server` で配る（外部の画像は読まない）。`saikyo/2025/index.html`・`saikyo/2019/index.html`・`saikyo/2025/20250816.html` × 375・390・430px × 明・暗 × 標準／IPA P ゴシック／WenQuanYi Zen Hei／150%／200% の **90通り**。
+
+- 崩れ（横スクロール・面と行からのはみ出し・名前と右端の重なり・右端の2行・44px 未満・`transition`）: **0件**
+- **日付が2行目か:** 全対局（2025 年度 17・2019 年度 18・対局のページ 1）で、日付の上端が対局名の下端より下、左端が対局名の左端と同じ。90通りとも外れ0件
+- **長い対局名:** 2019 年度の「サイバーエージェント杯 女流プロ代表決定戦」「男子プレミアトーナメント 恐れ知らずの打撃戦」など、折り返す名前でも日付と重ならない（日付は名前の下、› はまとまりより右で重ならない）。375px で撮って目で確かめた
+- **›:** 対局名の行（リンク）の高さは全通りで 44px 以上。› の縦の中央はリンクの縦の中央と1px 以内
+- 2025 年度の「ファイナル 2nd Stage」を暗い配色で撮り、名前・日付・「通過」の3行になっていることを目で確かめた
+
+**高さ（390px・明るい配色。前＝作業前のコミット 67ac863ee の生成物、後＝この版）:**
+
+| ページ | 前 | 後 |
+|---|---|---|
+| `saikyo/2025/index.html` | 2,844px | 3,095px（+251） |
+| `saikyo/2019/index.html` | 2,553px | 2,676px（+123） |
+| `saikyo/2025/20250816.html` | 1,147px | 1,162px（+15） |
+
+（前は対局名が短い対局で日付が同じ行にあったため、その対局の数だけ高くなった）
+
+### 4. 文書と決定
+
+- `docs/notes/saikyo-page-design.md`「新しい年度・対局・卓のページ」の「年度・対局のページの見た目」と、`docs/notes/design.md` の「最強戦の新しい年度・対局のページ」の行の「日付 13px 灰色」を「その下の2行目に日付 13px 灰色」に直した
+- `docs/decisions/design-renewal.md` に「2026-10-14（CHAT-1014-SKD-10）」の節
+
+### 5. push とプレビュー
+
+- コード・CSS・テスト・生成物・文書を1つのコミット（7e598a07c）で、ログより先に push した
+- check-run「Workers Builds: mj」（id 115765408087）: **completed / success**。「check」も success
+- ブランチの別名 URL（`?v=7e598a07c`）の `/saikyo/2025/index.html` と `/style.css` が手元とバイト単位で同じ
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1014-skd
 - ログ: https://github.com/retroeater/mj/blob/work/1014-skd/docs/logs/CHAT-1014-SKD-10.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1014-skd
-- 確認用URL: なし
-- マージ: 未
-- issue: #566
-- 判断が必要なこと: なし
+- 確認用URL: プレビューあり（URL は最終報告）。確認したページは `/saikyo/2025/index.html`・`/saikyo/2019/index.html`・`/saikyo/2025/20250816.html`。この版で見える印: 2025 年度の年度ページの「ファイナルトーナメント」の下の行に「2025年12月14日」
+- マージ: 未（チャット側がプレビューを見てから、マージの指示を別に出す）
+- issue: #566（着手中・判断待ちのコメント）
+- 判断が必要なこと:
+  - マージ（チャット側がプレビューを見てからの指示を待つ）
 - 未確認の項目: なし
 - エラー: なし
 
