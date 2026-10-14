@@ -49,6 +49,57 @@
 
 ## 経過
 
+### 着手前の確認
+
+- Chat-Ref: `git fetch --unshallow` の後、`CHAT-1014-JPL-01` のコミット・`-JPL-` のトレーラ・`docs/logs/CHAT-*-JPL-*.md` の履歴とも0件
+- ブランチ: `work/1014-jpl` はローカル・リモートとも無し → `git checkout -b work/1014-jpl origin/cloudflare`（59e33bdf0）
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある
+- 「指示」欄の末尾は指示文の最後の行（「不明な点があれば…この行が指示文の最後の行です。」）と一致
+- #488: Open、コメント2件（2026-10-06 着手の時期、2026-10-10 親の付け替え）。他セッションの着手中コメント無し → 着手中コメントを残した
+- 0章ゲート: 未マージの `origin/work/*` で `scripts/lib/yotei.py`・`scripts/tests/test_yotei.py` を変えているブランチは無し（`git diff --stat origin/cloudflare...<branch>` で全件0）。CLAUDE.md・handover.md はこの指示では触らない
+
+### 1. 確かめたこと
+
+- `event_of()` は `normalize()`（NFKC・【メンバー限定】などの印を外す・漢数字の期）の後、`EVENTS` を先頭から見て**部分一致**で最初に当たったもの
+- 「JPMLリーグ」は既存の語（`WRC-Rリーグ`・`WRCリーグ`・`A1リーグ`・`プロリーグ決勝` など）と重ならない。「JPML WRCリーグ」は空白を挟むため「JPMLリーグ」を含まず、「第1期JPMLリーグ…」は既存のどの語も含まない。並び順に依らない
+- 予定表【1】（スプレッドシートの CSV、取得日時 2026-10-13T19:23 UTC の版、1,132行）: 「JPMLリーグ」を含む件名 32件（「(仮)」は0件）。
+  第1期 第1〜20節（2026-10-06〜2027-01-21）・トーナメント（2027-02-06）・ベスト16AB卓（03-12）・ベスト16CD卓（03-13）・ベスト8AB卓（03-19）・決勝（03-29）、第2期 第1〜7節（2027-03-01〜03-29）。
+  更新日時は 2026-10-13 05:09〜05:16 UTC（14:09〜14:16 JST）。チャット側の前提と一致。第2期は前提の「第1節」だけでなく第7節まである（前提と食い違うのは件数の書き方だけ）
+- 【1】は `yotei.CALENDAR_ID` の予定表を取り込んだもの（docs/notes/yotei-sheet.md）。チャット側が読んだ予定表と件名・更新時刻が一致するので同じ予定表と見てよい（カレンダーIDそのものは照合していない）
+- JPML WRC 系の件名は 263件（例「 第20期JPML WRCリーグ第10節」、先頭に空白あり）
+- 層1（data/live_channel_raw.jsonl、18,387行・題名14,220種、最終取得 2026-10-13T19:20 UTC）: 「JPMLリーグ」を含む題名は**0件**。
+  「JPML」を含む題名 421件のうち WRC 系以外は6件（「ジェンとガースのライクアプロ…[JPML]」「JPMLの世界NEWS」）で、いずれも JPMLリーグ ではない。
+  2026-10-06〜10-09 の第1〜4節も YouTube の枠が層1に無い。YouTube での JPMLリーグ の題名の書き方は実物で確かめられなかった（全角の「ＪＰＭＬリーグ」は NFKC で当たる。「JPML リーグ」のように空白が入ると当たらない）
+- 予定表【3】では JPMLリーグ の32行のうち掲載 Y は4行（第1期ベスト16AB卓・ベスト16CD卓・ベスト8AB卓・決勝）、残り28行は N。【3】の件名は追記時（2026-09-30）の「(仮)」付きのまま（2026-09-30 の決定どおり、今の件名は【2】で見る）
+
+### 2. 足したこと
+
+- `EVENTS` の `("WRCリーグ", "JPML WRCリーグ")` の直後に `("JPMLリーグ", "JPMLリーグ")`（JPML の他の大会の隣。#450 の行のコメントにあった「JPMLリーグは正式な大会名が決まってから足す」を外した）
+- テスト: `test_jpml_league` を足した（第1期 第1節・第20節・トーナメント・ベスト16AB卓・ベスト8AB卓・決勝、第2期 第1節 → JPMLリーグ。決勝の分けが「JPMLリーグ 決勝・決定戦」。「 第20期JPML WRCリーグ第10節」→ JPML WRCリーグ、「第8期JPML WRC-Rリーグベスト16AB卓」→ JPML WRC-Rリーグ）。
+  `test_events_added_for_published_yotei` の「(仮)」付きの件名が None になる確かめと docstring の「JPMLリーグは足さない」は外した
+- 修正前のコードで新しいテストが落ちることを確かめた（`test_jpml_league` が8件 FAIL）。修正後 `python3 -m unittest discover -s scripts/tests` は 1,061件 OK
+- 足す前（origin/cloudflare の yotei.py）と後で `event_of()` を比べた。大会が変わるのは予定表【1】の32件だけで、すべて None → JPMLリーグ。層1は0件。JPMLリーグ以外の変化は0件:
+
+  | 日付 | 件名 | 前 → 後 |
+  |---|---|---|
+  | 2026-10-06〜2027-01-21 | 第1期JPMLリーグ第1節〜第20節（20件） | None → JPMLリーグ |
+  | 2027-02-06 | 第1期JPMLリーグトーナメント | None → JPMLリーグ |
+  | 2027-03-12 | 第1期JPMLリーグベスト16AB卓 | None → JPMLリーグ |
+  | 2027-03-13 | 第1期JPMLリーグベスト16CD卓 | None → JPMLリーグ |
+  | 2027-03-19 | 第1期JPMLリーグベスト8AB卓 | None → JPMLリーグ |
+  | 2027-03-29 | 第1期JPMLリーグ決勝 | None → JPMLリーグ |
+  | 2027-03-01〜03-29 | 第2期JPMLリーグ第1節〜第7節（7件） | None → JPMLリーグ |
+
+- `yotei` を使うのは fetch_yotei.py・write_yotei_sheet.py・sync_live_calendar.py・lib/live_calendar.py・lib/sheets_write.py だけで、ページの生成スクリプトは使わない（再生成の対象なし）
+
+### 次の毎朝の取り込み・同期で変わる見込み
+
+- 【2】の「大会」「分け」: 32行が空 → 「JPMLリーグ」、分けは「JPMLリーグ その他」31行・「JPMLリーグ 決勝・決定戦」1行（第1期決勝）
+- 【2】の「開始(仮置き)」: 変わらない（14:00 のまま）。JPMLリーグ の過去の配信と配信予定の枠が層1に無いため、全体の中央値に落ちる。YouTube に配信予定の枠が出たら、その枠の予定の開始に変わる
+- 【2】の「枠の開始(YouTube)」・動画ID: 当たる枠が無いので変わらない
+- mj_放送対局: 今は変わらない（掲載 Y の4件は件名・開始が【2】のまま）。今後 YouTube に JPMLリーグ の枠が出れば、同じ日の仮の予定が枠の予定に置き換わる（今までは大会が None で置き換わらず2件並ぶ状態だった）
+- 常設 issue「予定表の変化」（#481）: 件名は変わらないので、改名の知らせは出ない見込み
+
 ## 報告
 
 - 状態: 作業中
@@ -65,12 +116,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 76487b6d）: https://github.com/retroeater/mj-logs/tree/main/guide/76487b6d
+ガイド文書（この版を写した時点の最新、mj d244ac11）: https://github.com/retroeater/mj-logs/tree/main/guide/d244ac11
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/76487b6d/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/76487b6d/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/76487b6d/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/76487b6d/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/76487b6d/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/76487b6d/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d244ac11/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d244ac11/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d244ac11/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d244ac11/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d244ac11/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d244ac11/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/59e33bdf.md

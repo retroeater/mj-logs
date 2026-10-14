@@ -52,15 +52,45 @@
 - 作業ブランチ: work/1014-wfl-log はローカル・リモートとも無し → `git checkout -b work/1014-wfl-log origin/cloudflare`（59e33bdf0）
 - 0. 指示欄の末尾は指示文の最後の行と一致
 - 雛形の行: Chat-Ref・マージ・貼る時機・共通手順（＋作業ブランチ）は揃っている
+- CLAUDE.md（このセッションで読み直した版）の「ガイド文に規則を足す指示に『知見 → 選んだ層 → 理由』の表が無ければ止まる」について: この指示は既存の規則の置き換え（送る場面を減らす）で、規則を足すものではないため、当たらないと判断して進めた
+
+### 手順1: 同じ論点の issue と直す箇所
+
+- issue: REST で全 issue（state=all）の題・本文から「ログ（公開）」「前回の最後」を探し、該当なし（open・closed とも）
+- 未マージの work/ ブランチで `docs/notes/chat-side-operations.md`・`docs/decisions/operations.md` を変えるものは無い
+- `git grep -n 'ログ（公開）' -- docs/ CLAUDE.md`（`docs/logs/` を除く）の結果と扱い:
+
+| 箇所 | 中身 | 扱い |
+|---|---|---|
+| docs/notes/chat-side-operations.md「作業ログの読み方」25〜29行 | 取得できないチャットは送られた行の URL を使う／末尾のリンクが読めないときは読める最新の行を送ってもらう／平野さんは行を送る（新しい会話の始めは前回の最後の行）、clone できても変えない | **直す**（下） |
+| 同 24行 | 取得できたチャットはログの URL が届く前でも最新のログとガイドを読んでよい | 新しい規則に含まれるので、まとめて消した |
+| CLAUDE.md「作業ログ」節 133〜134行、docs/instruction-template.md 45・75行 | Code の最終報告の最後の2行の規則・雛形 | 変えない（指示のとおり） |
+| docs/notes/cloud-sessions.md 130行 | 行を書く前の写しの確かめは CLAUDE.md | 変えない（Code の側） |
+| docs/decisions/operations.md 14・95・99行、handover-archive-2026.md 812行 | 過去の決定・事例 | 変えない（記録） |
+
+- docs/handover.md「0. 新しい会話の始め方」には行を送る記述が無く、食い違いは無い。前提の「今の規則」は実物どおりで、矛盾は無かった
+
+### 手順2: 置き換え（4661f300f）
+
+- 「平野さんは『ログ（公開）』の行を送る（新しい会話の始めは前回の最後の行）。clone できるチャットでも変えない」を、「平野さんが送るのは指示の完了報告（最終報告の最後の2行）だけ（どのログの報告かの指定）。新しい会話の始めには送らない: 取得できたチャットは `logs/`・`chat-ids/`・`guide/HISTORY` の最新を自分で読む（話題の前のログは Chat-Ref 系列〈メモリー等の控え〉か `logs/` の新しい順で探す）」に置き換えた
+- 「取得できないチャットでは、平野さんが送る行の URL をそのまま使う」を「取得できないチャットでだけ、読める最新の『ログ（公開）』の行を頼み、その URL をそのまま使う」にした。同じ趣旨の「末尾のリンクが読めないときは…か読める最新の行を送ってもらう」の後半は、この行と重なるので削った（「その URL を送ってもらう」だけを残した）
+- 「単発の確認でも作業ログに書かせる」は残した（送る行の項へ移した）
+- バイト数: 22,193 → 22,170（23 バイト減。純増なし。上限 28KB・警告域 26KB の下）
+
+### 手順3
+
+- `docs/decisions/operations.md` に「## 2026-10-14（CHAT-1014-WFL-06）」を足した
+- claude.ai のプロジェクトの指示（会話の最初に行を送る）は Code の対象外で、平野さんが画面で直す（前提のとおり）
+- マージ: push 直前に再 fetch して `git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめ、`git push origin work/1014-wfl-log:cloudflare` で 59e33bdf0..ed62415cf（fast-forward。差分は docs/decisions/operations.md・このログ・chat-side-operations.md だけ）
 
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1014-wfl-log
-- ログ: https://github.com/retroeater/mj/blob/work/1014-wfl-log/docs/logs/CHAT-1014-WFL-06.md
+- 状態: 完了
+- ブランチ: work/1014-wfl-log（マージ後の削除は delete-merged-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1014-WFL-06.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1014-wfl-log
 - 確認用URL: なし
-- マージ: 未
+- マージ: 済（ed62415cf）
 - issue: なし
 - 判断が必要なこと: なし
 - 未確認の項目: なし
@@ -69,12 +99,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 76487b6d）: https://github.com/retroeater/mj-logs/tree/main/guide/76487b6d
+ガイド文書（この版を写した時点の最新、mj d244ac11）: https://github.com/retroeater/mj-logs/tree/main/guide/d244ac11
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/76487b6d/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/76487b6d/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/76487b6d/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/76487b6d/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/76487b6d/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/76487b6d/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d244ac11/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d244ac11/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d244ac11/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d244ac11/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d244ac11/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d244ac11/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/59e33bdf.md
