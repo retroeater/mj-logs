@@ -64,40 +64,30 @@ ryoei.pro のすべての転送の一覧と、四半期ごとの棚卸しの手�
 月次の Search Console の取得（`fetch-gsc.yml`、毎月1日）と流入の集計の後に行う。
 
 1. 「棚卸しの対象」の各行について、直近90日の流入を見る
-   - 転送の件数（ボット以外）: 月次の集計（下の「流入の測り方」。次の指示で作る）の直近3か月分の合計
+   - 転送の件数（ボット以外）: #568 の月次のコメント（下の「流入の測り方」）の直近3か月の合計
    - Search Console の着地: `docs/gsc/<取得日>/page.csv` の転送元 URL（クエリ付きの変種を含む）の表示・クリック。ページ一覧から消えているかも見る
 2. **削除の基準: 直近90日で、ボット以外の転送が0件、かつ Search Console の着地も0件**（2026-10-14 の決定）。当たる行は `_redirects` と上の表から消す（同じコミット）。消すと SNS などの古いリンクが 404 になることは基準の中で受け入れている
 3. 当たらない行は「最後の棚卸し」に日付と件数の要約を書く
 4. 「別名」「JS の移動」「予定」の行が今も正しいか（navbar のリンク・JS・issue の状態）を見直す
 5. 結果を #568 にコメントし、次回の日付をカレンダー「ryoei.pro」に入れる（チャット側）
 
-## 流入の測り方（下調べ、2026-10-14）
+## 流入の測り方
 
-公式文書（developers.cloudflare.com）と cloudflare の skill の参照文書だけで調べた。トークンは作らず、API も呼んでいない。
+**`fetch-redirect-counts.yml`**（毎月1日 06:30 JST、`fetch-gsc.yml` の後）が、`scripts/fetch_redirect_counts.py` で「棚卸しの対象」の表の転送元（表から読む。手で二重に持たない）について前月分（JST）の件数を取り、
+`docs/redirect-counts/<YYYY-MM>.csv`（列 `path`・`status`・`count`・`count_non_bot`。公開しない、`.assetsignore` の `docs`）にコミットし、#568 に前月分と直近3か月の合計の表をコメントする。
+ファイル冒頭の `ENABLED` が `'true'` でないあいだは予約実行も dry-run。手動実行は入力 `dry_run`（既定は真）と `month`（YYYY-MM、空なら前月）。
 
-### (a) データセットと期間
+- **データセット: GraphQL Analytics API の `httpRequestsAdaptiveGroups`（ゾーン単位）。** `clientRequestPath_in` で転送元に絞り、`clientRequestPath`・`edgeResponseStatus` でまとめた `count`。CSV には出た状態コードをすべて書き、#568 のコメントは 301 の件数
+- **期間:** Adaptive のデータセットは「どのプランでも少なくとも31日」保持する（公式「GraphQL Analytics API — Limits」）。スクリプトは毎回 `settings` の `notOlderThan`・`maxDuration` を読み、月の始まりが保持期間より古ければ取れる所まで詰め（コメントに範囲を書く）、`maxDuration` ごとに分けて問い合わせる。31日の月は、1日 06:30 JST の実行で月の始まりの数時間が保持期間の外になりうる。90日は一度に取らず、月ごとの集計3つを足す
+- **ボット:** Pro では bot score を使えない（「likely automated」は Pro では不可、Bot Analytics は Business 以上。公式「Bots — Pro」「Bot Analytics」）。代わりに `availableFields` に `userAgent` があれば、`userAgent_notlike` で `bot`・`crawl`・`spider`・`slurp`（先頭が大文字のものも）を含む User-Agent を除いた件数を `count_non_bot` に書く。無ければ空にし、総数で判断する（総数が0ならボット以外も0）
+- **トークン:** 読み取りだけ（Analytics Read、ゾーン ryoei.pro だけ）。Secret 名は `CF_ANALYTICS_TOKEN`（CLAUDE.md「禁止事項」の `CLOUDFLARE_API_TOKEN` とは別の名前・別の権限。2026-10-14 の決定）。ゾーンの ID はリポジトリの変数 `CF_ZONE_ID`（秘密ではない）、無ければスクリプトが名前から引く
+- **#564 との関係:** 毎朝の運行（`daily.yml`）には入れない。#564 の段④で `fetch-gsc.yml` と一緒に Worker `mj-scheduler` の起動の表へ移す
 
-- **データセット: GraphQL Analytics API の `httpRequestsAdaptiveGroups`（ゾーン単位）。** 次元 `clientRequestPath`（パス）と `edgeResponseStatus`（エッジが返した状態コード）で絞り・まとめられ、`count` で件数が取れる（skill の参照 `references/graphql-api/api.md`）。公式のチュートリアル「Querying HTTP events by hostname」も同じデータセットを `clientRequestPath` でまとめている
-- **さかのぼれる期間: Adaptive のデータセットは「どのプランでも少なくとも31日」保持する**（「GraphQL Analytics API — Limits」）。Pro での正確な値（`notOlderThan`）と1回の問い合わせの幅（`maxDuration`）は文書に表が無く、**未確認**。トークンを作った後に `settings { httpRequestsAdaptiveGroups { notOlderThan maxDuration maxPageSize availableFields } }` で確かめる（「Settings」）
-- このため、90日を一度に取ることは前提にしない。**月1回、前月分（31日以内）を取って issue に記録し、棚卸しでは直近3か月分を足す。** 1回の幅が31日より狭ければ、日ごとに分けて問い合わせる
+### 実測（cloudflare での手動実行、2026-10-15 JST）
 
-### (b) ボットを除けるか
+run 38611255688・38611403811（dry-run）。
 
-- Pro は Super Bot Fight Mode の範囲で、「likely automated」の判定は Pro では使えない。Bot Analytics は Business 以上（「Bots — Pro」「Bot Analytics」）。**Pro で `botScore` などのボットの次元が GraphQL で使えるかは未確認**（`availableFields` で確かめる）。使えない前提で設計する
-- 代わり: **User-Agent でボットらしいもの（`bot`・`crawler`・`spider` などを含むもの）を除いた件数**を別に数える。`httpRequestsAdaptiveGroups` に User-Agent の次元があるかは文書の範囲では**未確認**（`availableFields` で確かめる）。無ければ、総数だけを記録し、0件かどうかの判断に使う（総数が0ならボット以外も0）
-- `requestSource: "eyeball"` で絞ると、Cloudflare 内部（Worker のサブリクエストなど）の要求が除ける（チュートリアルの例）。ボットを除くものではない
-
-### (c) `_redirects` の 301 がゾーンの集計に出るか
-
-- Workers の静的アセットの `_redirects` は「静的アセットの応答に適用される」（「Workers — Redirects」）。ゾーンの HTTP の集計にどう出るかは文書に記述が無く、**未確認**
-- 確かめ方: 次の指示の最初の手動実行で、`/saikyo_results.html` などの転送元のパスを `edgeResponseStatus` でまとめ、301 として出るかを見る。出なければ方式を考え直す（判断が必要なこととして報告する）
-
-### (d) トークンの権限と Secret の名前
-
-- 要る権限: **アナリティクスの読み取りだけ。** 公式文書は Account > Account Analytics > Read の例を示し（「Configure an Analytics API token」）、skill の参照はゾーンの HTTP には Zone > Analytics > Read を挙げる。Zone Resources を ryoei.pro の1ゾーンに絞る。どちらで足りるかはトークンを作るときに確かめる（**未確認**）
-- Secret の名前の案: **`CF_ANALYTICS_TOKEN`**。CLAUDE.md「禁止事項」の `CLOUDFLARE_API_TOKEN` は、wrangler が読む名前で、`wrangler deploy` による二重デプロイを防ぐための禁止。別の名前・読み取りだけの権限なら wrangler に拾われず、デプロイもできないため、禁止事項の趣旨に触れない（登録は平野さんがダッシュボードで行う）
-
-### (e) 月次のジョブの置き場（#564 との関係）
-
-- 新しいワークフロー `fetch-redirect-counts.yml`（#564 の命名 `<動詞>-<対象>.yml`）を1本作り、毎朝の運行（`daily.yml`）には入れない。前月分を取るので月初に1回でよく、Search Console の取得と同じ月次の組に入る
-- 起動は当面 GitHub の `schedule`（毎月1日、`fetch-gsc.yml` の後）と `workflow_dispatch`。#564 の段④（週次・月次を `workers/scheduler/schedule.json` へ移す）で `fetch-gsc.yml` と一緒に移す。共通部品（段①の setup-python・upsert-issue）ができていればそれを使う
+- **API は通る。** `settings` の `httpRequestsAdaptiveGroups`: `enabled` 真、`notOlderThan` 2,678,400 秒（31日）、`maxDuration` 2,592,000 秒（30日）、`maxPageSize` 10,000。31日の月は2回に分けて問い合わせる
+- ゾーンの ID は `GET /zones?name=ryoei.pro` で引けた（変数 `CF_ZONE_ID` は未設定のまま）。`/user/tokens/verify` は 401（アカウントのトークンのため。スクリプトは続ける）
+- **`_redirects` の 301 はゾーンの集計に 301 として出る。** 2026-10-01〜10-15 で `/jpml_titles.html` 301 が487件・403 が93件、`/saikyo_results.html` 301 が88件・403 が26件など（403 は Super Bot Fight Mode などの遮断と思われる。未確認）
+- `availableFields` のボット・User-Agent に関わる次元: `dimensions_userAgent`・`dimensions_userAgentBrowser`・`dimensions_userAgentOS`・`dimensions_requestSource`・`dimensions_botManagementDecision`・`dimensions_verifiedBotCategory`。`userAgent_notlike` による除外は通り、2026-09（09-13 以降）で `/saikyo_results.html` は 301 が120件・ボットらしい UA を除くと11件だった。`verifiedBotCategory` も使えるが、今は使っていない

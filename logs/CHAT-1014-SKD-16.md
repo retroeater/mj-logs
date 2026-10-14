@@ -71,16 +71,36 @@ SKD-15 の変更（年度ページの「通過」の見出しを外す、対局�
 
   738ページすべてで、cloudflare の版から「通過」の見出し・`is-pass`・パンくずを取り除くと新版と一致（説明のつかない差は0）。ほかは `style.css`・`scripts/generate_saikyo_pages.py`・テストと docs。比較ページ2ファイルは cloudflare に入っていなかった（SKD-14 は未マージ）ので、差には出ない
 - SKD-15 のログの状態を「判断待ち / 続き: CHAT-1014-SKD-16」に直した
+- マージ: push 直前に再 fetch し `git merge-base --is-ancestor origin/cloudflare HEAD` が真を確認。`git push origin work/1014-skd:cloudflare` で 413e25b7d..d12b1f2e8（マージの SHA d12b1f2e8）
+- マージ後の run（d12b1f2e8）: 「ページの再生成」success・「公開対象を検査する」success（2件）・「サイトマップのlastmodを同期」success・「本番ビルドの失敗の通知」skipped（3件）。`chore: regenerate …` のコミットは出なかった（再生成の差なし。cloudflare の先頭は d12b1f2e8 のまま）
+- check-run: Workers Builds: mj completed/success（ほか regenerate・check・sync も success）
+- 本番の HTML: `https://ryoei.pro/saikyo/2025/20250816-s1-a.html?v=d12b1f2e8` がローカルとバイト単位で一致。パンくず `.mj-saikyo-n-crumb` がヒーロー（`.mj-video-hero`）より前にあり、`.mj-live-breadcrumb` は無い。noindex あり。`style.css`・`saikyo/2025/index.html`・`saikyo/2025/20250816.html` も本番とローカルが一致。`/saikyo_top_compare.html` は 404
+- #566 にマージ済みのコメント（6180801815）。本文・状態・ラベルは変えていない
+- 作業ブランチ work/1014-skd の片付けは `delete-merged-branches.yml` に任せる（自分では消さない）
+- 決定は `docs/decisions/design-renewal.md` の「2026-10-15（CHAT-1014-SKD-16）」（パンくずの左右と折り返しの承認、マージの承認。SKD-15 の決定1〜9 は重ねて書かない）
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1014-skd
+- ログ: https://github.com/retroeater/mj/blob/work/1014-skd/docs/logs/CHAT-1014-SKD-16.md
+- 比較URL: https://github.com/retroeater/mj/compare/413e25b7d...d12b1f2e8
+- 確認用URL: なし（本番の卓のページの左上・ヒーローの上にパンくず。未公開・noindex のまま）
+- マージ: 済み（d12b1f2e8）
+- issue: #566（マージ済みのコメント https://github.com/retroeater/mj/issues/566#issuecomment-6180801815 ）
+- 判断が必要なこと: なし
+- 未確認の項目: 実機のブラウザでの本番の見え方（セッションからは確かめられない）
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj d12b1f2e）: https://github.com/retroeater/mj-logs/tree/main/guide/d12b1f2e
+ガイド文書（この版を写した時点の最新、mj 1854428a）: https://github.com/retroeater/mj-logs/tree/main/guide/1854428a
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d12b1f2e/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d12b1f2e/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d12b1f2e/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d12b1f2e/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d12b1f2e/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d12b1f2e/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/8c23572b.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/1854428a/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/1854428a/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/1854428a/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/1854428a/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/1854428a/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/1854428a/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/d12b1f2e.md
