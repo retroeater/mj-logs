@@ -48,6 +48,32 @@ Chat-Ref: CHAT-1015-ACF-22
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+- 0章: ログの「指示」欄の末尾が指示文の最後の行と一致することを確かめた
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- Chat-Ref の重複: `git log --all --grep="CHAT-1015-ACF-22"` は 0 件。`work/1015-acf-skip` はローカル・リモートとも無く、`git checkout -b work/1015-acf-skip origin/cloudflare`（d12b1f2e）
+- 手順1（同じ件の issue・ログの確かめ）: run 38621492985 で cloudflare の docs/logs を検索すると、**CHAT-1015-JPL-07**（JPL のチャット、cloudflare に 5d627947 でマージ済み、状態「判断待ち」、2026-10-14 23:16Z のコミット）が同じ失敗を調べていた
+  - JPL-07 の経過（「update-sns-book #26」の段落）: ジョブ 116050185392 のログから、飛ばしたのは `video_mtsuku` の1ページだけ。理由は `RuntimeError: … 'Invalid query: NO_COLUMN: O'`（`generate_video_mtsuku.py` のクエリの `WHERE O = "Y"` の O 列を「Mつく」シートが返さない。gviz で読むと A〜N の14列だけ）。`regenerate.py --check video_mtsuku` でも再現する。10-14 06:35 UTC の全ページの生成では通っていたので、その後のシート側の変化とみている
+  - JPL-07 の「判断が必要なこと」に、video_mtsuku の直し方（(a) 平野さんがシートの O 列を確かめて戻す〈推奨〉／(b) 意図して消えたならクエリを直す）と、扱う issue が無いので起票するか朝の報告で追うかの判断が既に書かれている
+- 止まる条件「同じ件を扱う issue・ログがある」に当たるため、手順2〜4（サマリの読み直し・`--check all`・X の取り直しの数の確かめ・#533 へのコメント）をせずに止めた
+- REST で確かめたこと（JPL-07 と食い違いが無いかの確かめだけ）: run 38621492985 のジョブ update は success（19:11:02〜19:11:38Z）、ジョブ「regenerate / regenerate」は failure で、失敗のステップは 19「飛ばしたページを報告」だけ（JPL-07 と一致）
+- 承認済みのマージ（ドキュメントのみ）は、止まる条件に当たったため行わない（ログは作業ブランチにだけ push）
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1015-acf-skip
+- ログ: https://github.com/retroeater/mj/blob/work/1015-acf-skip/docs/logs/CHAT-1015-ACF-22.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1015-acf-skip
+- 確認用URL: なし
+- マージ: 未（止まる条件に当たったため）
+- issue: なし（#533 にはコメントしていない）
+- 判断が必要なこと:
+  - 同じ失敗（update-sns-book #26、run 38621492985）を CHAT-1015-JPL-07 が調べ済み（cloudflare に入っている）。飛ばしたのは `video_mtsuku` だけで、理由は「Mつく」シートの O 列が無い（`NO_COLUMN: O`）。直し方の案と、扱う issue をどうするかは JPL-07 の「判断が必要なこと」にある。この件を ACF で続けるか、JPL の判断に任せるかを決めてほしい（続ける場合、残るのは X の取り直しの数〈ACF-20 の確かめ〉の確かめと #533 へのコメント）
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
