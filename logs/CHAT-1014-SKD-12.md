@@ -58,17 +58,50 @@ Chat-Ref: CHAT-1014-SKD-12
 
 ## 経過
 
+- 0章: 「指示」欄の末尾と指示文の最後の行が一致。#566 に他セッションの着手中コメントなし。Chat-Ref の既存コミットなし
+- ブランチ: origin/work/1014-skd は origin/cloudflare に含まれていた（SKD-11 のマージ済み）。docs/notes/cloud-sessions.md「作業ブランチの用意」のとおり origin/cloudflare（dc67195f7）へ早送り。ログ先行 push d9695c7a3（[sync-logs]）
+- #566 に着手中のコメント（6167133472）
+- 未マージの work/ ブランチ: `navbar.js`・`style.css`・`scripts/generate_saikyo_pages.py`・`assets/saikyo.js`・`assets/houou_race.js` の同じ行・同じ関数を変えているものはなし
+- 実装（85d423c62）:
+  - ナビの見分け方: `navbar.js` の houou/ だけの処理を `newNavCurrent` に広げた。条件の行は `location.pathname.indexOf('/houou/') === 0`（→「鳳凰戦」）と `document.body.classList.contains('mj-saikyo-n-page')`（→「最強戦」）。印を付ける処理は houou/ と同じ
+  - 新しい年度・対局のページの `<body>` は `mj-saikyo-n-page` だけにした（`mj-saikyo-page` を外し、navbar の fixed と上余白を当てない＝houou/ と同じ固定しないナビ）。本文の要素から `mj-saikyo-year` を外した（`mj-saikyo mj-saikyo-sub`）。`build_sub_filterbar()` を消した
+  - 年度の題名とシート: `build_year_picker()`（ボタン `#saikyoYearPicker`、幕 `#saikyoYearScrim`、シート `#saikyoYearSheet`〈role=dialog・aria-modal〉。項目は「歴代最強位」と各年度、今の年度に aria-current）。
+    シートの作り方: CSS は houou/ の `.mj-houou-sheet`・`.mj-houou-scrim`・`.mj-houou-sheet-head`・`.mj-houou-sheet-title` を共有（スコープなし）。題名・「完了」・行の CSS は houou/ 側が `.mj-houou-race` の中に限られているため saikyo 用に同じ値で足した。
+    JS は共有しない: `assets/houou_race.js` の開閉（setSheet）は順位変動の画面の状態と結び付いているため、`assets/saikyo.js` に `bindYearSheet()` を同じ動き（Esc・幕・「完了」で閉じる、開くとシートへ・閉じると題名へフォーカス）で作った。今の年度ページ・トップの `trackBarHeights()`・`bindYearSelect()` はそのまま
+  - 対局のページ: パンくずの下に `h1.mj-saikyo-n-page-title`（対局名 28px 太字＋2行目に日付 13px 灰色）。年度の切り替えなし。**面の中の対局名の行（`build_title_html()`）は外した**（題名と同じ対局名・日付の重複のため。面は卓の見出しから始まる）
+  - テスト2件（`test_year_picker_replaces_filterbar`・`test_match_page_title_outside_face`）。前者は修正前のコードで失敗することを確かめた。`python3 -m unittest discover -s scripts/tests`: 1098件 OK
+- 生成物の差（`python3 scripts/regenerate.py saikyo_pages`）:
+
+| 種類 | 件数 |
+|---|---|
+| 新しい年度ページ `saikyo/<年度>/index.html` | 16 |
+| 対局のページ `saikyo/<年度>/<対局>.html` | 219 |
+| 卓のページ・今の年度ページ・トップ・ほか | 0 |
+
+  ソースの差は `assets/saikyo.js`・`navbar.js`・`scripts/generate_saikyo_pages.py`・テスト・`style.css`。見込み（16・219）どおり
+- 確かめ（ローカル、headless Chromium）:
+  - 2025・2019 年度ページ・`saikyo/2025/20250816.html` × 375/390/430 × 明・暗 × 標準・幅の広い字体2種・150%・200% の90通り: 問題0。ナビは `mj-nav-new`・position relative・今いる項目「最強戦」。固定バーなし。題名ボタンの高さは 28px で 44px（標準・幅の広い字体）、150% で 53px、200% で 140px（折り返し）
+  - シート（375/390/430 × 明・暗 × reduce・no-preference）: 開く前・開いた後・閉じた後で題名の行と最初の面の位置が変わらない。開くとシートにフォーカス・aria-expanded=true、Tab は「完了」→「歴代最強位」→各年度。Esc で閉じて題名へフォーカスが戻る。トランジションなし（reduce でも動きなし）。44px 未満のタップ領域なし（題名・ナビ・シートの行・「完了」）
+  - キーボードだけで 2019 年度ページから 2025 年度ページへ移動できた
+  - 灰色の字（パンくず・日付）は既存の `--mj-n-muted` で、明・暗とも SKD-05 の確かめと同じ組み合わせ
+  - 390px のページの高さ: 2025 年度 3,095（前と同じ）、2019 年度 2,676（前と同じ）、`2025/20250816.html` 1,162 → 1,113（面の中の対局名の行を外した分）
+  - ほかのページのナビの前後比較（HEAD の `git archive` と作業ツリー、375・1280px）: houou/race・houou/ranking/total・houou/ トップ・今の年度ページ `saikyo/2025.html`・トップ `saikyo/index.html`・卓のページ `saikyo/2025/20250816-s1-a.html`・`live/judan/43/b16-a.html`・`title/index.html`・`jpml_pros.html` の18通りで、nav の class・innerHTML・position・高さ・ナビのスクリーンショットがすべて同じ
+  - 画面の写し（明・暗、年度ページ・シート・対局のページ）で白地のナビ・パンくず・「麻雀最強戦2025 ▾」・対局名と日付の題名を目視
+- プレビュー: 85d423c62 の check-run「Workers Builds: mj」completed/success。別名 URL の `?v=85d423c` で `saikyo/2025/index.html`・`saikyo/2025/20250816.html`・`navbar.js`・`style.css`・`assets/saikyo.js` がローカルとバイト単位で一致。ブラウザでの見え方はここからは確かめていない
+- 文書: `docs/notes/design.md`（「共通ナビ」の前置き・「最強戦の新しい年度・対局のページ」・「固定バー（絞り込み）」・「共通ナビ（新しい形）」の行）、`docs/notes/saikyo-page-design.md`（新しいページの節）。決定は `docs/decisions/design-renewal.md` の「2026-10-14（CHAT-1014-SKD-12）」
+- 指示文の冒頭の雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っていた
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1014-skd
 - ログ: https://github.com/retroeater/mj/blob/work/1014-skd/docs/logs/CHAT-1014-SKD-12.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1014-skd
-- 確認用URL: なし
-- マージ: 未
+- 確認用URL: 2025 年度の年度ページの上に白地のナビ（「最強戦」が太字の紺）と 28px の「麻雀最強戦2025 ▾」があり、濃色の固定バーが無い。題名を押すと下から年度のシートが開く。対局のページは題名が対局名＋2行目の日付で、面は卓の見出しから始まる（URL はターミナルの最終報告）
+- マージ: 未（指示どおり判断待ちで止まる）
 - issue: #566
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 判断が必要なこと: SKD-12 をマージしてよいか（プレビューで確かめてから）
+- 未確認の項目: 実機（iPhone・PC）のブラウザでの見え方（セッションからは確かめられない）
 - エラー: なし
 
 <!-- guide-links -->
