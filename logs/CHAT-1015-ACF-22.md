@@ -62,27 +62,26 @@ Chat-Ref: CHAT-1015-ACF-22
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 完了 / 続き: CHAT-1015-ACF-23
 - ブランチ: work/1015-acf-skip
 - ログ: https://github.com/retroeater/mj/blob/work/1015-acf-skip/docs/logs/CHAT-1015-ACF-22.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1015-acf-skip
 - 確認用URL: なし
-- マージ: 未（止まる条件に当たったため）
+- マージ: CHAT-1015-ACF-23 のマージで cloudflare に入れる（SHA は CHAT-1015-ACF-23 のログの報告）
 - issue: なし（#533 にはコメントしていない）
-- 判断が必要なこと:
-  - 同じ失敗（update-sns-book #26、run 38621492985）を CHAT-1015-JPL-07 が調べ済み（cloudflare に入っている）。飛ばしたのは `video_mtsuku` だけで、理由は「Mつく」シートの O 列が無い（`NO_COLUMN: O`）。直し方の案と、扱う issue をどうするかは JPL-07 の「判断が必要なこと」にある。この件を ACF で続けるか、JPL の判断に任せるかを決めてほしい（続ける場合、残るのは X の取り直しの数〈ACF-20 の確かめ〉の確かめと #533 へのコメント）
+- 判断が必要なこと: なし（MTK のチャットに移した。JPL-07 が調べ済み）
 - 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj d12b1f2e）: https://github.com/retroeater/mj-logs/tree/main/guide/d12b1f2e
+ガイド文書（この版を写した時点の最新、mj f0aad707）: https://github.com/retroeater/mj-logs/tree/main/guide/f0aad707
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d12b1f2e/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d12b1f2e/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d12b1f2e/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d12b1f2e/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d12b1f2e/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d12b1f2e/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f0aad707/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f0aad707/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f0aad707/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f0aad707/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f0aad707/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f0aad707/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/d12b1f2e.md

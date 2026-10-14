@@ -58,3 +58,9 @@
 - 削除の基準は「直近90日で、ボット以外の転送が0件、かつ Search Console の着地も0件」。#485 の基準もこれにそろえる（#485 本文の案「廃止後2か月続けて表示が一桁」は採らない）
 - 一覧はリポジトリの `docs/notes/redirects.md` に置き、テストで `_redirects` と照らし合わせる
 - #434（saikyo_results.html の 301 を消すか、#350 第3段）は常設の棚卸し issue に統合してクローズする。`/saikyo_results.html` にも「90日で0件」を当てる（2026-09-21 の「当面着手しない・期限を切らない」〈CHAT-0921-MT-13、決定の記録の導入前〉を置き換える。RDR-01 の判断待ちへの回答）
+
+## 2026-10-14（CHAT-1014-RDR-03）
+
+- `/resource_calendar.html`・`/resource_books.html` は「別名」として棚卸しの対象外のままにする（RDR-02 の判断待ちへの回答）
+- Cloudflare のトークンは読み取りだけ（Analytics Read、ゾーン ryoei.pro だけ）にし、GitHub の Secret 名は `CF_ANALYTICS_TOKEN` にする。`CLOUDFLARE_API_TOKEN` とは別の名前・別の権限なので、CLAUDE.md「禁止事項」に触れないものとして扱う
+- 月次の集計（`fetch-redirect-counts.yml`）のマージは条件付きで承認する。API が通ることと `_redirects` の 301 が集計に出ることの両方を確かめたら有効にし、どちらかが駄目なら止まって報告する（両方を確かめて有効にした、#568）
