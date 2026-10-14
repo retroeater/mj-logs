@@ -54,15 +54,49 @@ CHAT-1014-SKD-01 の「判断が必要なこと」3点に平野さんが答え�
 
 ## 経過
 
+### 0. 着手前
+
+- 同じセッション（session_01LjQF3LYvdJM7VPNtxPNcVj）で SKD-03 に続けて受けた指示。`git log --all --grep="CHAT-1014-SKD-04"` は0件
+- このログの「指示」欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある
+- 貼る時機: SKD-03 のログ（`origin/work/1014-skd`）の `## 報告` の状態は「判断待ち」。止まる条件に当たらない
+- 作業ブランチ: `work/1014-skd-rec` はローカル・リモートとも無かったため `git checkout -b work/1014-skd-rec origin/cloudflare`（baccec3a8）。`work/1014-skd` は触っていない（作業ツリーは空のまま切り替えた）。ログを先に push
+
+### 1. 同じ主題の issue と #296 の決まり
+
+- `GET /repos/retroeater/mj/issues?state=all` の全件（564件、PR を除く）を取り直し、題名に「最強戦」か「saikyo」と「デザイン・基本の形・面・見た目・Material」のどれかを含むもの、本文に「最強戦」か「saikyo」と「基本の形」を含むものを探した: **0件**。2026-10-14 に作られた issue は #562〜#565 の4件で、どれも別の主題（画像リンク切れの検知・朝の報告・Actions の整理・ガイド文書の参照の検査）
+- #296 の本文「新サイト送りにするとき・やめるとき」: 新サイト送りの issue は「親: #296」のコメントと sub-issue の登録を両方行う（片方だけにしない）。本文に「新サイト（#101）で対応」と書かない。前提と食い違いは無い
+  - 本文の「子 issue」の表への追加は、本文の決まりにも指示にも無いため行っていない（これまでは「2026-10-05 に表へ追加」のように足されてきた。表を足すかは後の判断）
+
+### 2. issue の起票と登録
+
+- **#566** 「最強戦（saikyo/）を新サイトのデザインの基本の形に寄せる」 https://github.com/retroeater/mj/issues/566
+  - 本文: 目的（DSN-12 のコメントの残り2の最強戦の分）、決まったこと（この指示の決定1〜3と、SKD-02・SKD-03 の「B と C を比べて決める、A は外す」）、決定の正、調べの結果（SKD-01 のログ）、比較中（SKD-03）、まだ決めていないこと（並べ方・ABEMA のサムネイル・帯の色・共通ナビ・固定バー・暗い配色・卓のページ・共有ボタンと順位の金と三角）、関係する issue
+  - ラベル: `状況: 対応中`・`分野: UI/UX`・`対象: saikyo`。理由: 同じ #296 の子の #417・#529 は `分野: UI/UX` と対象のラベルで付けている。対象は最強戦なので `対象: saikyo`（#549・#425 と同じ）。状況は、SKD-03 の比較ページが判断待ちで作業が動いているため `対応中`（#417・#529 のような手を付けていない子は `保留`）
+- 「親: #296」のコメント: https://github.com/retroeater/mj/issues/566#issuecomment-6161558337
+- sub-issue の登録: `sub_issue_write`（method add、#296 に #566 の id 5842444217）。結果の #296 の `sub_issues_summary` は total 38。`issue_read` の get_parent で #566 の親が #296 であることを確かめた
+- #296 のコメント（1行）: https://github.com/retroeater/mj/issues/296#issuecomment-6161558586
+- #549 のコメント（本文・状態・ラベルは変えていない）: https://github.com/retroeater/mj/issues/549#issuecomment-6161558932
+
+### 3. 決定の記録とログの状態
+
+- 記録先: `docs/decisions/design-renewal.md` に「2026-10-14（CHAT-1014-SKD-04）」の節を足した（SKD-01 の節の直後）。`saikyo.md` でなくこちらにしたのは、3点とも新サイトのデザインの基本の形の当てはめ方の決定で、DSN-12 の決定（同じファイル）を受けたものだから。`saikyo.md` は最強戦のデータ・生成・個別ページの決定が中心
+- DSN-12 の行「残り3件は…#296 にコメントで書き残す」の行末に「→ 最強戦の作業の場は置き換え: 2026-10-14（CHAT-1014-SKD-04）」を付けた（`docs/decisions/README.md` の書き方。矛盾ではなく、作業の場だけを決め直したもの）
+- SKD-01 のログ（cloudflare にあるもの）の `## 報告` の状態を「判断待ち / 続き: CHAT-1014-SKD-04」にした
+- 注意: 未マージの `work/1014-skd` も `design-renewal.md` の同じ場所（SKD-01 の節の後）に SKD-02・SKD-03 の節を足している。`work/1014-skd` を後で cloudflare に入れるとき、この節と衝突する見込み（両方を残す形で解ける。docs だけの衝突）
+
+### 4. マージ
+
+`git merge-base --is-ancestor origin/cloudflare HEAD` が真（取り込み不要）を確かめて `git push origin work/1014-skd-rec:cloudflare`（baccec3a8..99cfd5ef4）。変更は docs/decisions/design-renewal.md・docs/logs/CHAT-1014-SKD-01.md・docs/logs/CHAT-1014-SKD-04.md だけ
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1014-skd-rec
-- ログ: https://github.com/retroeater/mj/blob/work/1014-skd-rec/docs/logs/CHAT-1014-SKD-04.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1014-SKD-04.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1014-skd-rec
 - 確認用URL: なし
-- マージ: 未
-- issue: #296・#549
+- マージ: 済（99cfd5ef4、ドキュメントのみ）
+- issue: #566（起票、#296 の子に登録）、#296・#549（コメント）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
@@ -70,12 +104,12 @@ CHAT-1014-SKD-01 の「判断が必要なこと」3点に平野さんが答え�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 806fba19）: https://github.com/retroeater/mj-logs/tree/main/guide/806fba19
+ガイド文書（この版を写した時点の最新、mj a1747ce9）: https://github.com/retroeater/mj-logs/tree/main/guide/a1747ce9
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/806fba19/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/806fba19/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/806fba19/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/806fba19/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/806fba19/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/806fba19/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1747ce9/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1747ce9/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1747ce9/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1747ce9/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1747ce9/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1747ce9/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/59e33bdf.md

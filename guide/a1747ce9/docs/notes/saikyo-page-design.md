@@ -692,12 +692,11 @@ python3 scripts/check_saikyo_unregistered.py --json result.json  # ワークフ�
 ### `.github/workflows/check-saikyo-unregistered.yml`
 
 毎週月曜 06:50 JST（03:00/04:00/05:37/06:23 の週次ジョブと重ねない）と手動実行。
-常設issue「最強戦の出場者の登録漏れ」を本文ごと置き換え、引けない人も対局日が空の対局も0件になったらコメントして閉じる
-（`check-image-links.yml` と同じ作り）。対局日が空の対局は本文の節「対局日が空の対局」（年度・対局・シートの行の表）に出る。
+常設issue「最強戦の出場者の登録漏れ」を本文ごと置き換え、引けない人も対局日が空の対局も0件になったらコメントして閉じる。
+閉じた常設 issue（ラベル「種類: 常設」）があれば新しく作らずに開き直す（`check-image-links.yml` と同じ作り。`.github/actions/upsert-issue`、#564）。対局日が空の対局は本文の節「対局日が空の対局」（年度・対局・シートの行の表）に出る。
 
-- **新規ワークフローのため、作業ブランチからの `gh workflow run` は404になる**（既定ブランチに無い。
-  `docs/notes/github-actions.md`「ワークフローを変更したとき」）。`SCHEDULE_ENABLED: 'false'` で
-  schedule も dry-run にしてあり、マージ後に `cloudflare` で手動実行して確かめてから `'true'` にする
+- 予約の起動（schedule・入力 `scheduled`）は issue を書き、手動実行は `dry_run` に従う（`.github/actions/resolve-mode`。
+  `SCHEDULE_ENABLED` は #564 の段①で外した）。issue の本文は `check_saikyo_unregistered.py --issue-dir` が作り、`.github/actions/upsert-issue` が書く
 - 手動実行の `dry_run` の既定は true（issueを作らず実行サマリに出すだけ）。
   作業ブランチから実行するときは、常設issueを上書きしないよう既定のままにする
 
