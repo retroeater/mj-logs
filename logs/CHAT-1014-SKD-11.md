@@ -84,17 +84,42 @@ SKD-10 の変更（新しい年度ページ・対局のページで、対局の�
 
 ### 3. マージ
 
-（マージの後に書く）
+- ログの状態のコミット（9166cb7a9）を push した後、再 fetch して `git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめ、`git push origin work/1014-skd:cloudflare`（e5399ce83..9166cb7a9）。**マージの SHA: 9166cb7a9**（2026-10-14 09:03 UTC）
+
+### 4. マージ後
+
+**自動処理（push で走った run、すべて 9166cb7a9）:**
+
+| run | ワークフロー | 結果 |
+|---|---|---|
+| 38539504799 | ページの再生成（`regenerate-page.yml`） | success。**`chore: regenerate …` のコミットは出なかった**（その後に cloudflare に入ったのは HOU-39 のログのコミット 3230e954a・c5e0582fa だけ） |
+| 38539504703 | サイトマップの lastmod を同期 | success |
+| 38539504700・38539500982 | 公開対象を検査する | success |
+| 38539904103・38540227040 | 本番ビルドの失敗の通知（check_run） | skipped（失敗が無いため） |
+
+**Workers Builds の check-run（9166cb7a9）:**
+
+- 「Workers Builds: mj」115772842631: success。ただし出力に Preview URL があり、同じコミットを作業ブランチにも push したため付いた**プレビューのビルド**
+- 「Workers Builds: mj」115774070233（09:12:01 開始）: **本番のビルドと見られ、09:24 の時点でも `in_progress` のまま**（docs/notes/cloud-sessions.md「報告が止まったまま `in_progress` で残ることがある」と同じ形）。そのため本番は HTML で確かめた（下）
+- 「Workers Builds: mj-ask」: 115774058381 success（もう1つ 115772920309 は 09:09 開始で途中の読みでは `in_progress`）。houou の `workers/ask/data.json` が同じ push に入ったため走ったもので、この変更とは関係しない
+
+**本番の HTML**（`https://ryoei.pro/saikyo/2025/index.html?v=9166cb7a9-…`）: 09:09〜09:15 は前の版（`mj-saikyo-n-title-body` 無し）が返り、**09:16 から新しい版**が返った（本番のビルドの反映を待った。09:03 の push から約13分）。最後に取った HTML はリポジトリの生成物とバイト単位で同じで、`<meta name="robots" content="noindex">` が残っている。「ファイナルトーナメント」の名前の直後のまとまりの中に日付「2025年12月14日」（SKD-10 の印）。ブラウザでの見え方はプレビューでチャット側が見たもの（この確かめは HTML まで）
+
+**#566 のコメント:** https://github.com/retroeater/mj/issues/566#issuecomment-6165170717 （本文・状態・ラベルは変えていない。閉じない）
+
+### 5. 作業ブランチ
+
+`work/1014-skd` はマージ済み。片付けは SKD-09 と同じく `delete-merged-branches.yml` に任せる（手では消さない）
 
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1014-skd
-- ログ: https://github.com/retroeater/mj/blob/work/1014-skd/docs/logs/CHAT-1014-SKD-11.md
+- 状態: 完了
+- ブランチ: work/1014-skd（マージ済み。削除は delete-merged-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1014-SKD-11.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1014-skd
-- 確認用URL: なし
-- マージ: 未
-- issue: #566
+- 確認用URL: なし（本番で確かめた。ページは未公開のまま）
+- マージ: 済（9166cb7a9）
+- issue: #566（マージ済みのコメント）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
@@ -102,12 +127,12 @@ SKD-10 の変更（新しい年度ページ・対局のページで、対局の�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 9166cb7a）: https://github.com/retroeater/mj-logs/tree/main/guide/9166cb7a
+ガイド文書（この版を写した時点の最新、mj 3230e954）: https://github.com/retroeater/mj-logs/tree/main/guide/3230e954
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9166cb7a/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9166cb7a/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9166cb7a/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9166cb7a/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9166cb7a/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9166cb7a/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/3230e954/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/3230e954/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/3230e954/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/3230e954/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/3230e954/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/3230e954/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/67ac863e.md
