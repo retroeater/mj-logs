@@ -81,6 +81,7 @@
 | 字体の見込み | 第1候補の `Hiragino Sans`（「フォント」の行）より、headless Chromium の既定の字体は幅が狭い。幅の確かめは、幅の広い字体（IPA P ゴシック・WenQuanYi Zen Hei。`font-family` を一時的に当てる）でも収まることを合格の条件にし、最終は実機（平野さんの iPhone）で見る | 1行に収める部品 | HOU-13〜26 の振り返り（2026-10-12）、`docs/decisions/site-review.md` |
 | 文字の拡大 | ルートの文字の大きさ 150%・200% で部品が「次の行に回る」のは崩れとみなさない。切れ・重なり・はみ出しは崩れ | 全ページ | HOU-13〜26 の振り返り（2026-10-12）、`docs/decisions/site-review.md` |
 | 余白の下限 | 1行に収めたとき、幅の広い字体で右に 2px 以上残す（右の余白を何 px 足すと2行になるかで測る） | 1行に収める部品 | HOU-13〜26 の振り返り（2026-10-12）、`docs/decisions/site-review.md` |
+| 部品の状態ごとの高さ | 開閉・選択・触れたときの情報の有無・再生の前後の各状態で部品の高さを測り、出していない状態でも場所が空いていること（切れ・つぶれ・ずれが無いこと）を確かめる。1つの状態だけを撮る確かめでは、出していない状態でつぶれても気づかない | 状態で中身が変わる部品 | `style.css` の `:is(.mj-houou-trend-tip, .mj-houou-lg-tip)[hidden]` の `display: grid !important`（2026-10-14 の振り返りの決定） |
 
 ## 4. 部品
 
@@ -98,14 +99,16 @@
 | 固定バー（絞り込み） | navbar 直下に固定。背景は不透明 `#131316`、下枠 `rgba(255,255,255,.14)`、`padding:8px`、`gap:10px`、高さ 61px（459px 以下は 115px） | `style.css:1316-1332`・`1859-1888`・`2194-2222`、`docs/notes/saikyo-page-design.md`（SK-18） |
 | パンくずの区切り | 「/」（`title/` の Bootstrap `.breadcrumb` と `live/` で同じ）。`live/` は 13.6px・700、項目の高さ 44px | `style.css:2814-2835`、`docs/notes/live-page-design.md`（LP-11） |
 | 見出し（`resource_efficiency`） | `h1.mj-page-heading`（16px・500）は画面に見える。余白は本文の `.mj-margin-text` にそろえる（左右 32px・上 24px） | `style.css` の `.mj-page-heading`（#152・#525。経緯は `docs/notes/handover-archive-2026.md`） |
-| 選ぶ部品（新しい形） | 溝（地 `--mj-n-groove`・角丸 10px・内側 2px）の中で、選んだ1つが白く浮く（角丸 8px・太字の紺）。高さ 44px、字は 16px。字数に関係なく同じ幅（`grid-auto-columns:1fr` と `min-width:max-content`）。1行に入らないもの（ランキングの9部門）は最も長い名前の幅（`calc(5em + 16px)`）のまま横スクロール | houou/ のみ | `style.css` の「新サイトのデザインの基本の形…を houou/ に当てはめる」の節 |
+| 選ぶ部品（新しい形） | 溝（地 `--mj-n-groove`・角丸 10px・内側 2px）の中で、選んだ1つが白く浮く（角丸 8px・太字の紺）。高さ 44px、字は 16px。字数に関係なく同じ幅（`grid-auto-columns:1fr` と `min-width:max-content`）。1行に入らないもの（ランキングの9部門）は格子で全部を並べる（下の「格子の選ぶ部品」。2026-10-14 までは同じ幅の横スクロール） | houou/ のみ | `style.css` の「新サイトのデザインの基本の形…を houou/ に当てはめる」の節 |
 | 共通ナビ（新しい形） | 面の色の地＋下の 1px の線。項目名は日本語1行。今いる項目（「鳳凰戦」、`aria-current="true"`）は太字の紺。フォーカス枠は紺 2px。`navbar.js` が `/houou/` のパスのときだけ `.mj-nav-new` を付け、`navbar-dark bg-dark` を外す | houou/ のみ | `navbar.js`、`style.css` の「新サイトのデザインの基本の形…を houou/ に当てはめる」の節、2026-10-13 の Q19 |
 | 再生のボタン（新しい形） | 題の行・グラフの上の行の右端。押せる 44px、見た目は紺の 34px の丸（中の印は白）。データの上に重ねない | houou/ のみ | 同上、grill Q10-1 |
 | 写真の無い選手 | 名前の頭の1字を灰色の丸（`--mj-n-avatar`）に書く。読めない写真も同じ丸に差し替える | houou/ のみ | `assets/houou.js` の `initialMark()`、grill Q10-3 |
 | パンくず（新しい形） | 題名の上に 13px 灰色の1行「鳳凰戦 / 個人成績」。上の階層は紺のリンク（押せる高さ 44px・幅 44px 以上）、区切りは「/」、今のページは `aria-current="page"`。サイトのトップは入れない | houou/ のみ | `style.css` の「新サイトのデザインの基本の形…を houou/ に当てはめる」の節、2026-10-13 の Q23 |
 | 表の行（新しい形） | 行の高さ 56px・アイコン 40px（`jpml_pros` の行と同じ高さ）。列名の行は 13px 灰色。行を押せるときは右端に灰色の ›（8×14px、右から 16px） | houou/ のみ（ランキング） | 同上、2026-10-13 の Q20・Q26 |
-| 横スクロールの選ぶ部品の送り | 端を 32px 薄く消して続きを見せ、端まで来た側は消さない。表示のときに選んだ1つを中央へ送る。マウスの端末（`(hover: hover) and (pointer: fine)`）だけ左右の端に 44px の丸の「‹」「›」と縦のホイールで送る | houou/ のみ（ランキングの部門） | 同上、`assets/houou.js` の `chipScroller()`、Q26 |
+| 格子の選ぶ部品 | 選ぶものが1行に入らないときは、横スクロールにせず格子で全部を並べる（ランキングの9部門は3段×3列）。形は選ぶ部品と同じ（溝の中で選んだ1つが白く浮く、押せる高さ 44px、字 15px） | houou/ のみ（ランキングの部門） | `style.css` の当てはめの節の `.mj-houou-chipnav`、2026-10-14 の DSN-10 |
+| 選ぶボタンを兼ねる題名 | 題名（28px 太字）そのものを「第43期前期 B1 ▾」の選ぶボタンにし、▾ だけ紺。ページ名はパンくずに任せ、h1 は読み上げにだけ残す。押すと下からシート | houou/ のみ（順位変動） | 同上の `.mj-houou-race .mj-houou-picker`、2026-10-14 の DSN-10 |
 | 他ページの h1 | 画面には出さず `visually-hidden`（#53 の意図的な判断） | `docs/notes/a11y-manual-check.md`「E. 横断確認」 |
+| `hidden` で消す要素 | Bootstrap Reboot の `[hidden]` は `display: none !important`。**出していない間も場所を空ける要素には `hidden` を使わず**、クラスか `aria-hidden`＋`visibility` で切り替える。やむを得ず `hidden` を使うときは `[hidden]` を付けたセレクタで `display` を書く（場所を空けるなら `!important` で上書きする） | 全ページ | `style.css` の `.mj-pager[hidden]`・`.mj-video-card[hidden]`（クラスの `display` に負けずに消す）、`:is(.mj-houou-trend-tip, .mj-houou-lg-tip)[hidden]`（`display: grid !important` で場所を空ける）（2026-10-14 の振り返りの決定） |
 
 ## 5. 未決・食い違い
 

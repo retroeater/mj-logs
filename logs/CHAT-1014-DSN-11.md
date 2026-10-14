@@ -57,14 +57,42 @@ DSN（houou/ のデザインの作り直し、DSN-01〜10）の振り返り（20
 
 ## 経過
 
+- 0: 「指示」欄の末尾は指示文の最後の行と一致
+- **このセッションは新しく始めたものではない。** DSN-01〜10 を実行したセッション（同じ Claude-Session）に続けて貼られた
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある
+- Chat-Ref の確認: `CHAT-1014-DSN-11` のコミットなし。work/1014-dsn はローカル・リモートとも無い → `git checkout -b work/1014-dsn origin/cloudflare`（705aa42）
+
+### 手順1（検索・読む）
+
+- issue の検索（クローズ済みを含む）: 「プレビュー URL 別名 古い版 チャット側 確認」で #363（クローズ済み）のほかに #529・#291・#527・#532・#485・#186・#422 が出たが、どれも別の論点（#291 は check-run・Chat-Ref・マージ判定の検証のスクリプト化、#422 は画面計測のスクリプト、#529 は新サイトの要件）。「hidden 属性 display none Bootstrap 場所 高さ 確かめ 状態」は 0 件。同じ論点の open issue は無い（止まらない）
+- 別名の URL が古い版を返す件は `docs/notes/cloudflare.md` に無く、CHAT-1012-DSN-03 のログ（「別名の URL は、HTML と CSS が前の版で返った（クエリを付けると新しい版）」）にだけあった → この指示で `cloudflare.md` に足した
+- `docs/notes/chat-side-operations.md`「確認用 URL」の節は「平野さんに送ってもらう」だった（決定1で置き換える。矛盾ではなく同じ節の置き換え）
+- 未マージのブランチ（work/1009-swp-526・1011-swp-hnd・1011-swp-nav・1013-acf-xsize・1014-acf-cron・1014-gds）は、この指示で変える5文書のどれにも触れない
+
+### 手順2（文書）
+
+変えた文書と箇所（バイト数は前 → 後）:
+
+- `docs/notes/chat-side-operations.md`「確認用 URL」の節（25,729 → 26,096。警告域 26,624・上限 28,672 の内側）: 「平野さんに送ってもらう」を、チャット側がブランチ名の別名 URL を自分で開き、`?v=<作業ブランチの HEAD の SHA>` を付けてログの「確認用URL」の印を確かめること、見た目を変える指示ではマージの可否を聞く前に 375px 相当（できなければ PC の幅）の明・暗で見て気になる所を先に挙げることに置き換えた。「ログイン不要でスマホでも開ける」の文は、別名を自分で開く形になったので外して収めた。`docs/notes/chrome-reading.md` への退避は要らなかった
+- `docs/notes/cloudflare.md`「work/ ブランチのプレビュー」（64,989 → 65,380）: 別名の URL が前の版を返すことがあること（CHAT-1012-DSN-03 の観察）と、版を確かめるときは版ごとの URL を使うか、別名にクエリを付けて印を見ることを1行足した
+- `docs/logs/_template.md` の「確認用URL」の行（6,866 → 7,097）: 見た目を変えた作業では「この版で見えるはずの印」を1つ書く（例: 順位変動の題名が「第43期前期 B1 ▾」。URL は書かない）を足した。最終報告の「確認用:」の書き方は変えていない
+- `docs/notes/design.md`（23,323 → 24,567）: 「3. 文字・寸法」の「余白の下限」の次に「部品の状態ごとの高さ」の行（適用範囲は状態で中身が変わる部品、出典は `style.css` の `:is(.mj-houou-trend-tip, .mj-houou-lg-tip)[hidden]` の `display: grid !important`）、「4. 部品」の最後に「`hidden` で消す要素」の行（出典は `.mj-pager[hidden]`・`.mj-video-card[hidden]`〈クラスの `display` に負けずに消す側の例〉と、houou/ の吹き出しの上書き〈場所を空ける側の例〉）
+- `docs/notes/cloud-sessions.md`・CLAUDE.md・docs/handover.md・docs/instruction-template.md は変えていない。`assets-check.yml` の上限を持つ4文書のうち変えたのは chat-side-operations.md だけで、警告域の内側
+
+### 手順3（決定・マージ）
+
+- 決定の記録先は `docs/decisions/design-renewal.md`（16,926 → 18,467）の 2026-10-14（DSN-11）の節。3つのうち2つ（状態ごとの高さ・`hidden`）は見た目の確かめで、残る1つ（プレビューの確認）も DSN の振り返りから出た見た目の確認の手順なので、DSN の一連の決定と同じ所に置いた（`operations.md` は 51KB で、運用全般の決定が多い）
+- マージ（ドキュメントのみ）: 再 fetch → `git merge-base --is-ancestor origin/cloudflare HEAD` が真 → `git push origin work/1014-dsn:cloudflare`（705aa4237..b5512fef5）。cloudflare に入ったのは文書 5 ファイル（上のとおり）とこのログ
+- マージ後の自動処理: 公開対象を検査する（2本）が成功。docs のみなので、ページの再生成は走らなかった
+
 ## 報告
 
-- 状態: 中断（作業中）
+- 状態: 完了
 - ブランチ: work/1014-dsn
-- ログ: https://github.com/retroeater/mj/blob/work/1014-dsn/docs/logs/CHAT-1014-DSN-11.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1014-DSN-11.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1014-dsn
 - 確認用URL: なし
-- マージ: 未
+- マージ: 済（b5512fef5）
 - issue: なし
 - 判断が必要なこと: なし
 - 未確認の項目: なし
@@ -73,12 +101,12 @@ DSN（houou/ のデザインの作り直し、DSN-01〜10）の振り返り（20
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 705aa423）: https://github.com/retroeater/mj-logs/tree/main/guide/705aa423
+ガイド文書（この版を写した時点の最新、mj b5512fef）: https://github.com/retroeater/mj-logs/tree/main/guide/b5512fef
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/705aa423/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/705aa423/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/705aa423/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/705aa423/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/705aa423/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/705aa423/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b5512fef/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b5512fef/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b5512fef/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b5512fef/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b5512fef/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b5512fef/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/191d9dbd.md
