@@ -192,4 +192,35 @@ CHAT-1014-WFL-01 の「判断が必要なこと」への回答（#564）。い�
 - 段①: `SCHEDULE_ENABLED`（6本）はやめ、予約の起動の有効・無効は Worker の起動の表の `enabled` に任せる。部品への置き換えは、まず `check-saikyo-unregistered.yml`・`sync-birthday-calendar.yml` で試してから広げる。`sync-dojo-calendar.yml` の結果ごとの複数コメントは1件にまとめてよい。`.python-version`（`3.12`）を段①で入れ、#539（3.14）はその1行の変更にする。#308（Node 24 の版）は部品に入れるときに同時に上げず、別に扱う
 - 段③: `workers/scheduler/schedule.json` の5行を `run-daily.yml` の1行に置き換えるのは段③で同時に行う（Worker のコードは変えない。#504 の観察の後に回さない）
 - `sync-dojo-calendar.yml`・`delete-merged-branches.yml` の保険の `schedule`（毎日2回動く）は段④まで置く（外す時機は #504 の観察で決める）
+
+## 2026-10-14（CHAT-1014-OHA-06）
+
+- morning.md の2節の対象は、契機が schedule・workflow_dispatch でブランチが cloudflare の実行だけ（作業ブランチの手動実行は数えない）。予定時刻以降の最初の実行が予定＋3時間を超えて始まっていたら「遅れて実行（＋h:mm）」と書く。実行が無いときの「遅れの可能性」／「未実行」は今のまま。閾値（3時間）は定数で持ち、見直し（10/21）で変える
+- 作業中の回答: なし
+
+## 2026-10-14（CHAT-1014-OHA-07）
+
+- morning_report.py が `workflow_call` で呼ばれるワークフローをどう扱うかは、調査のみ（`scripts/`・ワークフロー・文書は変えない）。結果は #564 の段③の材料にする
+- 作業中の回答: なし
+
+## 2026-10-14（CHAT-1014-ACF-21）
+
+- CHAT-1014-ACF-20 の「判断が必要なこと」は (a) にする: 閉じた常設の issue があれば開き直す作りにする（常設の番号 #352 を保つ）
+- #562 は、中身を #352 に移して閉じる
+
+## 2026-10-14（CHAT-1014-WFL-03）
+
+- #564 の段①は CHAT-1014-WFL-02 の決定のとおり進める（`check-saikyo-unregistered.yml`・`sync-birthday-calendar.yml` の2本で試す、`SCHEDULE_ENABLED` をやめる、`.python-version` を入れる、#308 は同時に上げない）。新しい決定は無い
+- 作業中の回答: なし
+
+## 2026-10-14（CHAT-1014-WFL-04）
+
+CHAT-1014-WFL-03 の「判断が必要なこと」への回答（#564）。いずれも Claude Code の推奨のとおり。
+
+- work/1014-wfl-parts（段①の部品3つ・`.python-version`・`check-saikyo-unregistered.yml`・`sync-birthday-calendar.yml` の書き直し）をマージする。件名と中身が合わない df7d24ea0・トレーラの無い 93c8fdec1 はそのままでよい（ブランチを作り直さない）
+- upsert-issue は dry-run でも題で issue を探す（書かずに、することを実行サマリに出す）。今の作りのまま
+- 展開では、issue の本文の組み立てを github-script から各スクリプトへ移す（check-meibo ×2・check-image-links ×3・cleanup-logs・update-live-channel ×2・sync-dojo-calendar）。元の JS と同じ文面かを突き合わせてテストを足す
+- sync-dojo-calendar の結果ごとの複数コメントは、`---` で区切って1件にまとめる
+- commit-push の部品は展開の指示で作る
+- 展開でも、入力 `scheduled` と `run-name` の `[scheduled]` を Worker の起動の表に無い本にも足す（段④の差分を表の行だけにするため）
 - 作業中の回答: なし
