@@ -363,7 +363,7 @@ title/ では「タイトル戦」タブの大会の改名が「タイトル」�
 - **列は見出しの名前で読む。** タブ名・列名・列順はシート側で変わる（LV-11「プロ以外」→「連盟プロ以外」、
   LV-29「全動画」→「連盟ch」・列「候補」→「放送対局」・列の並べ替え）。`fetch_records()` のように、生成に使う列の見出しが
   欠けている・重複しているときだけ止め、知らない列が増えても止まらない形にする（列記号の `SELECT A,I,J` は並べ替えで無言に別の列を読む）
-- **「プロ」シートは `lib/pro_sheet.py` の `fetch_pros()` で読む**（#536）。読む列は見出しの定数（`pro_sheet.NAME`・`SORT_KEY` など）の組で渡し、
+- **「プロ」シートは `lib/pro_sheet.py` の `fetch_pros()` で読む**（#536）。ブックは「ryoei.pro_選手」（`pro_sheet.SPREADSHEET_ID`。「連盟プロ以外」「別名」も同じブックで、`lib/live.py` の `PLAYERS_SPREADSHEET_ID`・`spreadsheet_of()`、#567）。読む列は見出しの定数（`pro_sheet.NAME`・`SORT_KEY` など）の組で渡し、
   在籍は見出し「表示」が Y の行（旧 `WHERE Y = "Y"`）、並びは `sort=True` で「ソートキー」の順（旧 `ORDER BY B`）。
   「表示」が N の人（名簿にいて本番に出す時機を待つ人）は、本人のページ（jpml_pros・houou/ の在籍者・辞書・誕生日・SNS ブック）には出さず、
   ほかの人のページ（/live・title/・saikyo/・順位変動・jpml_test・帰り道・書籍）と検査（名簿・最強戦の未登録・帰り道）・道場部ゲストの照合では
@@ -404,7 +404,9 @@ title/ では「タイトル戦」タブの大会の改名が「タイトル」�
 
 - 生成後の絞り込み・並び替え・ページ送りはページ側の軽量JSに委譲する。`jpml_pros.js`は絞り込みと並び替え（ページ送りなし・全行表示）専用。型A・型A'の10ページは共通の`table.js`（絞り込み・ページ送り、並び替えなし）を使う。設定は`<table>`要素のdata属性（`data-page-size` / `data-name-mode` / `data-filter-param`）で渡し、属性省略時はページ送りなし・完全一致フィルターなしになる。ページ固有のUI（`resource_logs.html`の名前セレクトボックス等）はtable.jsとは別の小さなJSで補う。`video_wayhome.html`は`.mj-table`を持たないため`table.js`は読み込まず、専用の`video_wayhome.js`が絞り込み・画像フォールバック等を担う（#102第2段。共有ボタンは #530 で外した）
 - 型Cの2ページは`leagues.js`（共通JS）を使う。積み上げ棒と既定選手の折れ線は静的SVGに焼き込み済みで、`leagues.js`は`?name=`に応じて選手1名分の`<polyline>`と凡例ラベルだけを差し替える（選手ごとの折れ線データは`houou_leagues_data.json`/`ouka_leagues_data.json`をfetchして取得）。選手選択リストは「プロ」シートの「表示」が Y かつ鳳凰/桜花シートに1行でもある選手が対象（#127/#133。旧「鳳凰最高/桜花最高列に値がある」と同じ意味で、その列は 2026-10-11 に廃止、#536）。**退会済みの選手は鳳凰/桜花シートにリーグの実データが残っていても選択リストに出ない。これは正しい挙動**（「表示」= Y が在籍・公開対象を表す。#168）
-- Google Charts 依存の `houou_results.js`・`league_ranking.js`（houou_ranking）は「鳳凰」を見出しの名前で読む（#548）。問い合わせ文は今の並びの英字（A「名前」〜V「表示」、`HOUOU_HEADERS`）で書き、送る前に `resolveHououQuery()` が `SELECT * LIMIT 1` の応答の見出しから今の英字に引き直す（同じ見出しが2つあれば左。見出しが無いときは `console.error` に出してその英字のまま問い合わせる）。列の挿入・削除（F 列「組」の挿入、X〜AA の削除）で表示は変わらない（ヘッドレス Chrome で確かめた）。`league_ranking.js` の桜花・JWRC と `ouka_results`・`wrc_results` は列の英字のまま読む
+- Google Charts 依存の `houou_results.js`・`league_ranking.js`（houou_ranking）は「鳳凰」を見出しの名前で読む（#548）。問い合わせ文は今の並びの英字（A「名前」〜V「表示」、`HOUOU_HEADERS`）で書き、送る前に `resolveHououQuery()` が `SELECT * LIMIT 1` の応答の見出しから今の英字に引き直す（同じ見出しが2つあれば左。見出しが無いときは `console.error` に出してその英字のまま問い合わせる）。列の挿入・削除（F 列「組」の挿入、X〜AA の削除）で表示は変わらない（ヘッドレス Chrome で確かめた）。
+  `ouka_results.js`・`wrc_results.js`・`league_ranking.js` の「桜花」「JWRC」も同じ形で読み（`COLUMN_HEADERS`・`resolveQuery()`、#567）、消す列（前後・結果・使わない節〈桜花は第9節以降、JWRC は第6節以降〉・プロ、JWRC はリーグ・リーグキーも）を問い合わせに含めない。
+  タブごとの列は `league_ranking.js` の `SHEET_COLUMNS`。`generate_ouka_leagues.py`・`lib/pro_stats.py` も「桜花」を見出しで読み、「前後」を読まない
 
 ### regenerate-page.yml
 

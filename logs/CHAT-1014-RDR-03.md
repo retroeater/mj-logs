@@ -58,6 +58,24 @@
 - 雛形の行: Chat-Ref・マージ・貼る時機・共通手順とも揃っている（指示文は改行が詰まった形で貼られた。そのまま写した）
 - 0. 指示欄の末尾は指示文の最後の行と一致。RDR-02 のログの状態に ` / 続き: CHAT-1014-RDR-03` を足した
 
+
+### 0. Secret の確認
+
+- REST `GET /repos/retroeater/mj/actions/secrets` はセッションのプロキシが拒否（403「Access to this GitHub Actions path is not permitted through this proxy.」）。GitHub MCP にも Secret の一覧を引くツールは無い
+- 前例（CHAT-1010-XAP-02 の「Secret の名前の一覧」）に従い、手動実行で確かめる方法に読み替えた: ワークフローの最初の手順「Secret があるか」が、値を出さずに空かどうかだけを見て、空なら失敗にする。新しいワークフローはマージ前に動かせないため、この確認は手順2の cloudflare での dry-run の実行で行う（dry-run なので、Secret が無くても書き込みは起きない）
+
+### 1. 実装（ecbbde9c7）
+
+- 重なり: 未マージの origin/work/1014-wfl-s3 が docs/notes/github-actions.md の表の別の行（`write-live-channel-candidate.yml`・`check-leagues-dropped.yml`・`sync-books-calendar.yml` の行の削除）と regenerate-page.yml の段落を変えている。今回足す `fetch-redirect-counts.yml` の行（`fetch-gsc.yml` の次）とは別の箇所で、止まる条件に当たらない。`.github/actions/` を変える未マージのブランチは無し
+- 取り込んだ cloudflare（HOU-37 のマージ）で、docs/notes/redirects.md「棚卸しの対象」に `/houou/ranking/` が足されていた（4dd89888f）。集計の対象は5つ
+- `scripts/fetch_redirect_counts.py`: 「棚卸しの対象」の表の1列目を読む（表の行だけ。表の下の注記の行は拾わない。最初の版は注記の行を拾ったため直した）。`settings` の `notOlderThan`・`maxDuration`・`availableFields` を出し、月の始まりを保持期間に合わせて詰め、`maxDuration` ごとに分けて `httpRequestsAdaptiveGroups` を問い合わせる。`userAgent` が使えるときだけ、ボットらしい UA を除いた件数も取る。CSV と #568 へのコメント本文（前月分・直近3か月の合計、そろっていない月の注記）を書く
+  - ゾーンの ID はリポジトリに無かった。変数 `CF_ZONE_ID`（`vars`）を読み、無ければ `GET /zones?name=ryoei.pro` で引く（Analytics Read だけのトークンで引けるかは未確認。引けなければ失敗にし、`CF_ZONE_ID` を設定してもらう）
+  - `/user/tokens/verify` はアカウントのトークンでは通らないため、失敗しても続ける
+- `.github/workflows/fetch-redirect-counts.yml`: `workflow_dispatch`（`dry_run` 既定真・`month`）と `schedule`（`30 21 28-31 * *`、JST で1日の回だけ動く。06:30 JST）。`ENABLED: 'false'` のあいだは予約実行も手動実行も書かない（`resolve-mode` の apply と AND）。共通の部品 `resolve-mode`・`setup-python`（テストも回す）・`commit-push`・`upsert-issue`（mode comment、dry-run で実行サマリに出す）を使う
+- テスト `scripts/tests/test_fetch_redirect_counts.py`（11件）: 表の読み方・JST の月の範囲・保持期間で詰める・分割・作り物の応答の足し算と301の0件の行・GraphQL のエラー・3か月の合計とコメントの表・そろっていない月の注記。`python3 -m unittest discover -s scripts/tests` は全部 OK
+- `--plan` で対象と期間を確かめた（2026-09 は UTC 2026-08-31T15:00:00Z 〜 2026-09-30T15:00:00Z、対象5つ）。`CF_ANALYTICS_TOKEN` が空なら終了コード1
+- docs/notes/github-actions.md の表に行を足し（`test_workflows_table.py` OK）、docs/notes/redirects.md「流入の測り方」を実装に合わせて書き直した（実測の2項目は「未確認」のまま、手動実行の後に埋める）
+
 ## 報告
 
 - 状態: 作業中
@@ -74,12 +92,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj b8500442）: https://github.com/retroeater/mj-logs/tree/main/guide/b8500442
+ガイド文書（この版を写した時点の最新、mj d83ab27f）: https://github.com/retroeater/mj-logs/tree/main/guide/d83ab27f
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b8500442/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b8500442/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b8500442/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b8500442/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b8500442/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b8500442/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d83ab27f/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d83ab27f/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d83ab27f/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d83ab27f/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d83ab27f/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d83ab27f/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b8500442.md
