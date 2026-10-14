@@ -1,6 +1,6 @@
 # 朝の報告用の異常（retroeater/mj）
 
-- 書き出した時刻: 2026-10-14 16:45 JST（見た範囲: 2026-10-13 14:45 JST から）
+- 書き出した時刻: 2026-10-14 16:46 JST（見た範囲: 2026-10-13 14:46 JST から）
 - 書き出した実行の契機: workflow_dispatch（main）
 - 異常だけを書く。全体は actions/status.md。判定は mj の scripts/morning_report.py（各ワークフローの直近 100 回まで）
 
@@ -8,7 +8,6 @@
 
 - 2026-10-13 23:38 notify-build-failure.yml failure（workflow_dispatch・cloudflare） https://github.com/retroeater/mj/actions/runs/38415113000
 - 2026-10-14 15:32 regenerate-page.yml failure（push・cloudflare） https://github.com/retroeater/mj/actions/runs/38522800783
-- 2026-10-14 16:44 assets-check.yml in_progress（push・work/1014-rdr） https://github.com/retroeater/mj/actions/runs/38530363220
 
 ## 2. 予約実行の未実行（予定から3時間以内は「遅れの可能性」。3時間を超えて始まった実行は「遅れて実行」）
 
@@ -25,7 +24,7 @@
 ## 4. 初回成功
 
 - 2026-10-13 23:38 notify-build-failure.yml success（workflow_dispatch・cloudflare）それ以前の 0 件に success なし https://github.com/retroeater/mj/actions/runs/38415024219
-- 2026-10-14 09:25 assets-check.yml success（push・cloudflare）それ以前の 0 件に success なし https://github.com/retroeater/mj/actions/runs/38490120244
+- 2026-10-14 09:32 assets-check.yml success（push・work/1014-snm-unused）それ以前の 0 件に success なし https://github.com/retroeater/mj/actions/runs/38490800718
 
 ## 5. 未報告のログ（`## 報告` の節が無い）
 
