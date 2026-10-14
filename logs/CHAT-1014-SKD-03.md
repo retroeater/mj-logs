@@ -157,7 +157,7 @@ B の対局のページは ABEMA のサムネイル（3枚）を含み、C は�
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1014-SKD-05
 - ブランチ: work/1014-skd
 - ログ: https://github.com/retroeater/mj/blob/work/1014-skd/docs/logs/CHAT-1014-SKD-03.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1014-skd
@@ -177,12 +177,12 @@ B の対局のページは ABEMA のサムネイル（3枚）を含み、C は�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 806fba19）: https://github.com/retroeater/mj-logs/tree/main/guide/806fba19
+ガイド文書（この版を写した時点の最新、mj 5b933775）: https://github.com/retroeater/mj-logs/tree/main/guide/5b933775
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/806fba19/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/806fba19/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/806fba19/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/806fba19/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/806fba19/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/806fba19/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b933775/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b933775/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b933775/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b933775/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b933775/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b933775/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/59e33bdf.md
