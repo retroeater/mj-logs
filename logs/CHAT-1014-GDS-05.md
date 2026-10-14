@@ -62,16 +62,62 @@
 - 0. 指示欄の末尾は指示文の最後の行と一致
 - 指示文の冒頭の雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
 
+### 手順1: issue の確認と読み込み
+
+- GitHub MCP の `search_issues`（「センサー ガイド文 事後処理 検討順 規則の削除 テスト hook」、クローズ済みを含む）: #492 だけ。同じ論点の別 issue は無い
+- #492 のコメント: 他セッションの着手中は無い（直近は GDS-04 のマージの報告）。着手中のコメントを書いた（issuecomment-6160207866）
+- 未マージの work/ ブランチで CLAUDE.md・chat-routines.md・chat-side-operations.md を変えているものは無い
+- 追記先の節（CLAUDE.md「Chat-Ref」「CLAUDE.md / handover.md の更新ルール」、chat-routines.md「申送り」「指示の種類ごとの確かめ」、chat-side-operations.md「場面ごとに読む文書」）を読んだ。矛盾する記述は無い
+- archive（handover-archive-2026.md）の「外した記録」に、センサー・検討順・仕組みづくりの目安・環境に依存する操作の参照を前に外した記録は無い（`grep` で「センサー」「ガイド文」「検討順」「仕組みづくり」「直近3」を探して0件）
+
+### 手順2: 足した・置き換えた行
+
+今回の指示自体の検討順（指示文の前提のとおり。4件ともガイド文）: やること1・2 は仕組みづくりの手順そのもので仕組みに落とせない、HE-14 (a) は数える部分だけ Code の手順（推論的センサー）に落とした、(b) は参照の1行で規則ではない。CLAUDE.md に足した「表が無ければ止まる」の規則は、この指示の後から効く（この指示は前提の箇条で理由を書いている）。
+
+1. docs/notes/chat-routines.md「申送り」の「観点のチェックリスト」の先頭の項を置き換えた（同じ趣旨の拡張）:
+   - 前: `- 機械的に確かめられる手順（仕組み・検査・issue）に落とせるか。落とせないもの（抽象的な心得）は書かない`
+   - 後: `- **知見ごとに、計算的センサー（テスト・hook・ワークフロー）→ 推論的センサー（Code の着手前の確認手順など、受け手が手順で確かめるもの）→ ガイド文 の順に検討する。** 落とせないもの（抽象的な心得）は書かない。ガイド文を選んだときは、指示文に「知見 → 選んだ層 → 理由」の表を入れる（無いと Code は止まる、#492）`
+2. CLAUDE.md「Chat-Ref」の受け取る側の箇条（「指示文の記述同士が食い違ったときは…」の次）に足した:
+   - `- **ガイド文（CLAUDE.md・handover.md・docs/notes/ のチャット側の文書）に規則を足す指示に「知見 → 選んだ層 → 理由」の表が無ければ、着手せず報告して止まる**（センサーを先に検討させるため、#492）`
+3. CLAUDE.md「CLAUDE.md / handover.md の更新ルール」（「記述を更新するときは古い記述を消して置き換える…」の次）に足した:
+   - `- **テスト・hook・ワークフローで確かめるようにした規則は、同じコミットでガイド文から消し、参照だけ残す**（二重に持つと片方が古くなる、#492）`
+4. docs/notes/chat-routines.md「指示の種類ごとの確かめ」の「起票・方針の提案、運用ルールや文書整理」の項に続けて足した（HE-14 (a)）:
+   - `  仕組み（検査・自動化）の issue を起票する指示では、直近3セッションのログでページ・内容の変更があったかを Code に数えさせて目的欄に書かせる（仕組みづくりを続けるかは平野さんが数を見て決める、#492）`
+5. docs/notes/chat-side-operations.md「場面ごとに読む文書」の表の最後に足した（HE-14 (b)）:
+   - `| Code に環境に依存する操作（`gh`・ネットワーク・ブランチの削除など）をさせる | `docs/notes/cloud-sessions.md`（クラウド）・`docs/notes/session-network.md`（Codespace） |`
+
+文書ごとのバイト数（`wc -c`。前は cloudflare be98b1fc3、後は f4c75c074）:
+
+| 文書 | 前 | 後 | 差 |
+|---|---:|---:|---:|
+| CLAUDE.md | 22,843 | 23,316 | +473（警告域 26,624 の外） |
+| docs/notes/chat-side-operations.md | 21,980 | 22,193 | +213（24,576 以下） |
+| docs/notes/chat-routines.md | 10,184 | 10,774 | +590 |
+
+- CLAUDE.md は見込み（+250）より大きい（+473）。2行とも理由の一句と issue 番号を含むため
+
+### 手順3: #492 の本文とテスト
+
+- #492 の本文を更新した（GitHub MCP の `issue_write` の body。クラウドセッションでは `--body-file` の代わり、docs/notes/cloud-sessions.md）:
+  - やること1・2・HE-14 の2件を `[x]` にし、書いた場所と「CHAT-1014-GDS-05、マージ待ち」を添えた
+  - ワークフローのコメントの項は6か所に書き換えた。行番号は実物の `git grep` で確かめた: `assets-check.yml` 7行目・`regenerate-page.yml` 58行目（`docs/handover.md「4-x」`）、`check-saikyo-unregistered.yml` 30行目・`delete-merged-branches.yml` 40行目・`notify-build-failure.yml` 37行目（branch-operations.md「ワークフローを変更したとき」）、`fetch-gsc.yml` 11行目（static-generation.md「ワークフローを手動実行するとき」）。前提の行番号（7・58）は実物と一致
+  - 上限の見直しは残し、「2026-11-16、カレンダー【R#492】」にした。古い実測（「2026-10-02 の CLAUDE.md は 26,481 バイト（警告域 30,720）」）は今の値と違うため外した
+  - 末尾に `Chat-Ref: CHAT-1014-GDS-05` を足した
+- `python3 -m unittest discover -s scripts/tests`: 1047 件 OK
+- docs/decisions/operations.md に「2026-10-14（CHAT-1014-GDS-05）」を足した（決定6項。作業中の回答なし）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1014-gds-492
 - ログ: https://github.com/retroeater/mj/blob/work/1014-gds-492/docs/logs/CHAT-1014-GDS-05.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1014-gds-492
 - 確認用URL: なし
-- マージ: 未
-- issue: #492
-- 判断が必要なこと: なし
+- マージ: 未（平野さんの判断待ち）
+- issue: #492（本文を更新。クローズしない）
+- 判断が必要なこと:
+  - work/1014-gds-492 の cloudflare へのマージ（指示文の「マージ: 判断待ちで止まる」）。足した行の全文は `## 経過`「手順2」
+  - #492 の本文で、上限の見直しの項から古い実測（2026-10-02 の CLAUDE.md 26,481 バイト）を外した。残すべきなら戻す
 - 未確認の項目: なし
 - エラー: なし
 
