@@ -230,15 +230,24 @@ jobs:
 
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1014-wfl
-- ログ: https://github.com/retroeater/mj/blob/work/1014-wfl/docs/logs/CHAT-1014-WFL-01.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1014-WFL-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1014-wfl
 - 確認用URL: なし
-- マージ: 未
-- issue: なし
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- マージ: 済（ドキュメントのみ。SHA は経過の末尾）
+- issue: #564（起票）、#263・#132（段②で扱う旨をコメント）
+- 判断が必要なこと:
+  - 改名の代案（比較と推奨は経過「代案」）: A-1 `sitemap-lastmod.yml` → (a) `sync-sitemap-lastmod.yml`／(b) `regenerate-sitemap.yml`、推奨 (b)。A-2 `regenerate-saikyo.yml` → (a) 残す／(b) `update-abema-book.yml` に改め再生成は daily から、推奨 (a)。A-3 `fetch-youtube.yml` の切り出し → (a) 取り直しとコミットだけを移し OGP・帰り道の知らせは `regenerate-page` に残す／(b) 全部移す、推奨 (a)（#340 の「同じコミット」を保つ）。凍結中の楽天の書影の取得は `regenerate-page` に残すのを推奨。A-4 `check-meibo.yml` の `name:` → 推奨はそのまま。A-5 `sync-yotei.yml` →(a) そのまま／(b) `sync-live-calendar.yml`、推奨 (a)。A-6 `daily.yml` → (a) 規則の例外／(b) `run-daily.yml`（動詞 `run` を足す）、推奨 (b)
+  - 段①に要る判断: (1) `SCHEDULE_ENABLED`（6本、すべて `'true'`）をやめて Worker の表の `enabled` に任せるか。偽のときの動きが本で違い（dry-run で走る4本／走らない2本）、残すと resolve-mode に分岐が要る。推奨: やめる (2) 部品への置き換えの範囲: (a) 全本を1回で／(b) 1〜2本（例: check-saikyo-unregistered・sync-birthday-calendar）で試してから広げる。推奨 (b)（作業ブランチで手動実行して確かめる本数が少なく、失敗の範囲が狭い） (3) sync-dojo-calendar の結果ごとの複数コメントを1件にまとめてよいか（upsert-issue を1回で呼べる。推奨: まとめる） (4) `.python-version` は段①で `3.12` のまま入れ、#539 はその1行の変更にするか（推奨: そうする）。#308（Node 24 の版）は部品に入れるときに同時に上げず別にする（推奨）
+  - 段③に効く判断（先に知らせる）: `daily` にまとめると Worker の起動の表の5行が `daily.yml` の1行になり、update-live-channel の保険のゲート（自分のファイル名で当日の起動を引く）も `daily` に移す必要がある。(a) 段③で `schedule.json` の行の置き換えも同時に行う／(b) 段③を #504 の観察の後に回す。推奨 (a)（行の置き換えは Worker のコードを変えない。表の行を残したまま各本の `run-name` が消えると、朝の確かめが毎日 failure を出す）
+  - sync-dojo-calendar・delete-merged-branches の保険の `schedule` に当日の起動を見るゲートが無く、毎日2回動いている。(a) 段④で `schedule` を外すまで置く／(b) 段②で先に外す。推奨 (a)（段④の時機は #504 の観察で決める決定のため）
+  - 報告: 親 issue の本文に「決定」の原文の日付2つ（10/21・11/30）を写さず「#298 の予定」「#504 の予定」とした（期日を書かない規則を優先、経過「手順2」）。直す場合は指示を
+- 未確認の項目:
+  - 直近7日の実行回数が前提（653回）と実物（985回）で違う原因（窓が約2時間ずれ、10/07 の停止前の sync-logs の量が大きい）
+  - 改名・削除の後、古い名前のワークフローが API の一覧（`/actions/workflows`）に残り `actions/status.md` に古い行が出るか
+  - 呼ばれる側の workflow レベルの `concurrency` が呼ぶ側と詰まらないか、入れ子（daily → update-live-channel → regenerate-page の3段）が上限内か（段③で公式の文書と手動実行で確かめる）
+  - work/1014-gds も `docs/decisions/operations.md` の末尾に追記している。この指示のマージの後に work/1014-gds をマージするとき、末尾で衝突し得る（両方を残せば解ける）
 - エラー: なし
 
 <!-- guide-links -->
