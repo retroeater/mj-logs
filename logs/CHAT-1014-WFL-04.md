@@ -72,28 +72,36 @@ WFL-03 の `## 報告`「判断が必要なこと」への回答。いずれも 
 - `git diff 63cdd9362 HEAD -- .github/` は空（2本と部品は取り込みで変わっていない）。`scripts/check_saikyo_unregistered.py`・`.python-version`・`.assetsignore` も変わっていない。手動実行のやり直しは不要
 - `docs/decisions/automation.md` に「## 2026-10-14（CHAT-1014-WFL-04）」を足した（WFL-03 の節の後）
 
+### 手順3: マージ
+
+- push 直前の再 fetch で `origin/cloudflare` が 2935bd8e0 まで進んでいた（SNM-23 のログだけ）ため、もう一度 merge で取り込んだ（衝突なし）。unittest OK、`git diff 63cdd9362 HEAD -- .github/` は空のまま
+- 再 fetch して祖先を確かめ、`git push origin work/1014-wfl-parts:cloudflare` で 2935bd8e0..3f0d362d9（fast-forward）
+- cloudflare の 3f0d362d9 の check-run: 「check」（公開対象の検査）completed success。この SHA で動いた Actions の run も「公開対象を検査する」success だけ（配信物を変えていないため、ほかは起動しない）
+- #564 にマージをコメントした: https://github.com/retroeater/mj/issues/564#issuecomment-6160573739
+- `## 報告` の「未確認の項目」: CLAUDE.md「作業ログ」節（予約実行を変える変更では初回の予約実行の日時を書く）に従って日時を書いた。`docs/logs/_template.md` は「完了なら『なし』だけ」としていて食い違うため、ルールの側（CLAUDE.md）を優先した。平野さんの判断待ちは無いので状態は「完了」とした（このため、このログは自動の削除の対象にならない）
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1014-wfl-parts
-- ログ: https://github.com/retroeater/mj/blob/work/1014-wfl-parts/docs/logs/CHAT-1014-WFL-04.md
+- 状態: 完了
+- ブランチ: work/1014-wfl-parts（マージ済み。削除は delete-merged-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1014-WFL-04.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1014-wfl-parts
 - 確認用URL: なし
-- マージ: 未
+- マージ: 済（3f0d362d9）
 - issue: #564
 - 判断が必要なこと: なし
-- 未確認の項目: なし
+- 未確認の項目: 書く道筋の初回の予約実行: sync-birthday-calendar 2026-10-19（月）05:17 JST、check-saikyo-unregistered 2026-10-19（月）06:50 JST（GitHub の予約は遅れることがある）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 3f0d362d）: https://github.com/retroeater/mj-logs/tree/main/guide/3f0d362d
+ガイド文書（この版を写した時点の最新、mj 76487b6d）: https://github.com/retroeater/mj-logs/tree/main/guide/76487b6d
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/3f0d362d/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/3f0d362d/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/3f0d362d/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/3f0d362d/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/3f0d362d/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/3f0d362d/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/be98b1fc.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/76487b6d/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/76487b6d/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/76487b6d/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/76487b6d/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/76487b6d/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/76487b6d/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/1d39d68a.md
