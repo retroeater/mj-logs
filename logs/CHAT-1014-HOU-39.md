@@ -58,6 +58,31 @@ CHAT-1014-HOU-37・HOU-38 の変更（ランキングの入口の `total/` へ�
 
 - 2026-10-14 着手。HOU-37・HOU-38 と同じセッションで続けた。`CHAT-1014-HOU-39` のコミットは無し。`origin/work/1014-hou` はリモートにありローカルと一致（8abe79276）
 - 0. 指示欄の末尾は指示文の最後の行と一致。HOU-38 のログの `## 報告` の状態は「判断待ち（降級の動きの変化をプレビューで見て、マージを決める）」。冒頭の雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- HOU-38 のログの状態の末尾に ` / 続き: CHAT-1014-HOU-39` を足した（HOU-37 は ` / 続き: CHAT-1014-HOU-38` のまま）
+
+### 手順1 取り込みと再検証
+
+- `origin/cloudflare` は HEAD の祖先でなかったので `git merge origin/cloudflare` で取り込んだ（衝突なし。入ったのは `docs/logs/CHAT-1014-SKD-09.md` だけ）
+- 未マージの work/ ブランチのうち、手順1のファイルに触れるのは `origin/work/MTK`（d12fb5539、CHAT-1014-MTK-01、判断待ち）の `_redirects`（`/mtsuku` の 301 と 200 の2行を `/video_wayhome.html` の後に足す）と `docs/notes/redirects.md`（「常設」の末尾スラッシュの行に `/mtsuku` を足す）。この作業の変更（`_redirects` の `/houou/` の後の1行、`redirects.md` の「棚卸しの対象」「JS の移動」「予定」の表）とは別の行・別の表で、`git merge-tree --write-tree HEAD origin/work/MTK` は衝突なし。止まらない
+- `python3 -m unittest discover -s scripts/tests`: OK（`test_redirects_inventory.py` を含む）
+- `python3 scripts/regenerate.py houou_pages`・`python3 scripts/regenerate.py ask_data`: 作業ツリーに差分なし（コミット済みの生成物と同じ）
+- `origin/cloudflare` との差分（28ファイル）の種類:
+
+| 種類 | ファイル |
+|---|---|
+| ランキングの入口の移動 | `houou/ranking/index.html`（削除）・`houou/ranking/total/index.html`（追加） |
+| チップの `total/` | `houou/ranking/` の8部門の `index.html`（「通算」の href と og:image・alt） |
+| トップのリンクと説明文 | `houou/index.html`（カード `ranking/total/`、description・og:description・`.mj-lead`、og:image・alt） |
+| 個人成績の説明文 | `houou/players/index.html`（description・og:description・`.mj-lead`、og:image・alt） |
+| og:image・alt だけ | `houou/leagues/index.html`・`houou/race/index.html` |
+| OGP 画像の追加 | `img/ogp/houou/index-black.png` |
+| 降級の演出 | `assets/houou.js` |
+| 質問欄のデータ | `workers/ask/data.json`（通算得点の url の1か所） |
+| 転送 | `_redirects`（`/houou/ranking/` の1行） |
+| 生成・テスト | `scripts/generate_houou_pages.py`・`scripts/tests/test_houou_pages.py`・`scripts/tests/test_ask_data.py` |
+| 文書・ログ | `docs/decisions/houou.md`・`docs/notes/houou-top.md`・`docs/notes/ogp.md`・`docs/notes/redirects.md`・`docs/logs/CHAT-1014-HOU-37〜39.md` |
+
+- houou/ の HTML（`git ls-files 'houou/*.html'`）はすべて noindex のまま。`navbar.js`・`sitemap*.xml`・`llms.txt` は差分に無い。成績 JSON・索引（`houou/results/`・`search.json`）の差分も無い
 
 ## 報告
 
@@ -75,12 +100,12 @@ CHAT-1014-HOU-37・HOU-38 の変更（ランキングの入口の `total/` へ�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 5402cbcd）: https://github.com/retroeater/mj-logs/tree/main/guide/5402cbcd
+ガイド文書（この版を写した時点の最新、mj 9166cb7a）: https://github.com/retroeater/mj-logs/tree/main/guide/9166cb7a
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/5402cbcd/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/5402cbcd/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/5402cbcd/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/5402cbcd/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/5402cbcd/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/5402cbcd/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9166cb7a/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9166cb7a/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9166cb7a/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9166cb7a/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9166cb7a/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9166cb7a/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/67ac863e.md
