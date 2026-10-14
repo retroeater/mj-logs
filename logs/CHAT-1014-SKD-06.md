@@ -94,17 +94,36 @@ SKD-05 で作った、未公開の新しい年度・対局のページ（`saikyo
 
 ### 3. マージ
 
-（マージの後に書く）
+- 決定とログの状態のコミット（ef78e26d3）を push した後、`origin/cloudflare` が ce6a80719 に進んでいた（JPL-05・WFL-11 のログだけの6コミット）。`git merge origin/cloudflare`（衝突なし、変わったのは docs/logs の2ファイル）の後、再 fetch して `git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめ、`git push origin work/1014-skd:cloudflare`（ce6a80719..0d933bbf3）。**マージの SHA: 0d933bbf3**（2026-10-14 06:39 UTC）
+
+### 4. マージ後
+
+**自動処理（push で走った run、すべて 0d933bbf3）:**
+
+| run | ワークフロー | 結果 |
+|---|---|---|
+| 38523515527 | ページの再生成（`regenerate-page.yml`） | success。**`chore: regenerate …` のコミットは出なかった**（`origin/cloudflare` は 07:00 UTC の時点でも 0d933bbf3 のまま。再生成で差が出なかったため） |
+| 38523515477 | サイトマップの lastmod を同期 | success |
+| 38523515451 | 公開対象を検査する | success |
+| 38523876535・38524181366・38524435345 | 本番ビルドの失敗の通知（check_run） | skipped（失敗が無いため） |
+
+毎朝の `regenerate-saikyo.yml` は次の予約の回（翌朝）で、この指示の間には走っていない。
+
+**Workers Builds（本番）の check-run:** 0d933bbf3 に「Workers Builds: mj」が2つ付いた。115722649932 は **completed / success**（06:53 UTC）。もう1つの 115721353314（06:48:59 開始）は 07:00 の時点で `in_progress` のまま（docs/notes/cloud-sessions.md「報告が止まったまま `in_progress` で残ることがある」と同じ形。同じコミットに success があるのでそちらを見た）
+
+**本番の HTML**（`https://ryoei.pro/saikyo/2025/index.html?v=0d933bbf3`・`…/saikyo/2025/20250816.html?v=0d933bbf3`）: どちらも HTTP 200 で、**中身がリポジトリの生成物とバイト単位で同じ**。`<meta name="robots" content="noindex">` が残っている。年度ページの「ファイナル 2nd Stage」の下に「通過」、最初の行が「近藤誠一」で右端が「A卓 1位」（SKD-05 の印）。ブラウザでの見え方はプレビューで平野さんが見たもの（この確かめは HTML まで）
+
+**#566 のコメント:** https://github.com/retroeater/mj/issues/566#issuecomment-6162803474 （本文・状態・ラベルは変えていない。残りがあるので閉じない）
 
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1014-skd
-- ログ: https://github.com/retroeater/mj/blob/work/1014-skd/docs/logs/CHAT-1014-SKD-06.md
+- 状態: 完了
+- ブランチ: work/1014-skd（SKD-07 で続けて使うので消さない）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1014-SKD-06.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1014-skd
-- 確認用URL: なし
-- マージ: 未
-- issue: #566
+- 確認用URL: なし（本番で確かめた。ページは未公開のまま）
+- マージ: 済（0d933bbf3）
+- issue: #566（マージ済みのコメント）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
@@ -112,12 +131,12 @@ SKD-05 で作った、未公開の新しい年度・対局のページ（`saikyo
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj a9fdf92e）: https://github.com/retroeater/mj-logs/tree/main/guide/a9fdf92e
+ガイド文書（この版を写した時点の最新、mj 0d933bbf）: https://github.com/retroeater/mj-logs/tree/main/guide/0d933bbf
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a9fdf92e/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a9fdf92e/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a9fdf92e/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a9fdf92e/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a9fdf92e/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a9fdf92e/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/0d933bbf/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/0d933bbf/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/0d933bbf/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/0d933bbf/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/0d933bbf/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/0d933bbf/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a31620fe.md
