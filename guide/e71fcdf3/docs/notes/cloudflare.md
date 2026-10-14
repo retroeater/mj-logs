@@ -567,6 +567,7 @@ Workers & Pages → `mj` → Settings → Builds:
 | `zones/{id}/flags/products/cache/changes` | Crawler Hints の適用の履歴（`zones/{id}/settings/crawlhints` は 400。設定名が違う） |
 | `accounts/{id}/registrar/domains/ryoei.pro` | ドメインの自動更新・期限（公式にはこの旧パスは 2026-09-27 で end of life、#555） |
 | `accounts/{id}/workers/scripts`・`accounts/{id}/builds/workers/{tag}/triggers` | Workers Builds のトリガー（本番・非本番の2つ。除外は上の表） |
+| `accounts/{id}/builds/builds/<Build ID>`・同 `/logs` | 1回のビルドの段階・所要時間とログ（Build ID は check-run の `.output.summary`。2026-10-13 にチャット側が読んだ） |
 
 ### APIトークンの棚卸し（2026-09-12）
 
@@ -631,6 +632,43 @@ Workers & Pages → `mj` → Settings → Builds:
   内容が画面幅に収まるページ、ナビの高さ、要素の大きさには差が出ない。
   **スマホ幅の異常をエミュレーションだけで見つけたら、起票の前に平野さんの実機で確かめる**
 
+#### ビルドが Cloning で失敗したとき（2026-10-13）
+
+- **見分け方（check-runs で読める範囲）**: 1つのコミットに Workers Builds の check-run が Worker ごとに付く（`mj`・`mj-ask`・`mj-scheduler`）。
+  本番かプレビューかは `.output.summary` に `Preview URL` があるかで見分ける（本番には無い。成功した本番には `Version ID` だけが出る）。
+  **見分けられるのは成功したビルドだけ。** 失敗したビルドは本番もプレビューも `Build ID` と `Script` の2行だけで同じ。
+  `check_suite.head_branch` はそのコミットを最初に push したブランチなので、これも使えない（本番で失敗した 5cbc83eb でも `work/1013-snm-check`、#561）。
+  **1回のビルドで check-run が2本できる**: 開始時の `in_progress`（`started_at` が開始時刻。更新されずに残る）と、完了時に別に作られる `completed`
+  （`started_at` と `completed_at` が同じ完了時刻）。2本は `.output.summary` の `Build ID` が同じ。**所要時間はこの2本の差で概算できる**。
+  `in_progress` が残っていても、同じ Build ID の `completed` があれば止まってはいない
+- 失敗の段階・エラー文・段階ごとの秒数は check-run に出ない。ダッシュボードの Build history（平野さん）か、チャット側が Chrome で
+  ダッシュボードの API（下の「Chrome からダッシュボードの API を読む」の `builds/builds`）で読む。Build ID は check-run の `.output.summary` にある
+- **対処: 設定は変えない。** 次の `cloudflare` への push か、ダッシュボードの「Retry build」で通る。通るまで本番は前の版のまま（失敗で壊れはしない）。
+  **失敗の通知は `notify-build-failure.yml`（#561）**: check-run の完了（`check_run`）で起動し、名前が「Workers Builds:」で始まる failure（`mj`・`mj-ask`・`mj-scheduler`）で、
+  コミットが `cloudflare` に入っていれば（compare の status が identical・behind）ジョブを失敗させ、GitHub の失敗通知メールで知らせる。
+  失敗は本番とプレビューを見分けられないため、同じコミットのプレビューだけが失敗したときも知らせる（受け入れた近似）。
+  起動は Workers Builds の check-run の完了ごと（1日約100回）で、失敗以外はジョブが skipped の実行として Actions の一覧に残る。
+  mj-logs の `actions/status.md` はワークフローごとの直近5回なので、この行はほぼ skipped で埋まり、失敗の回はすぐ表から外れる（気づくのはメール）。
+  2026-10-13 に有効化した（確かめた run は docs/notes/static-generation.md「ワークフローの一覧」）。Cloudflare 側の通知は Universal SSL Alert だけ（上の「DNS・メール・通知の設定」）
+- 事例（2026-10-13 13:15〜14:20 JST、本番向け `mj` が5回続けて失敗）:
+
+| コミット | check-run（UTC、in_progress → completed） | 結果 |
+|---|---|---|
+| `5cbc83eb` | 04:15:57 → 04:23:11（約434秒） | failure。同じコミットのプレビューは success |
+| `9bba7d55` | 04:26:58 → 04:33:41（約403秒） | failure。同じコミットのプレビューは success |
+| `acb5aa04` | 04:57:33 → 05:05:20（約467秒）、Retry 05:12:57 → 05:19:47（約410秒） | 2回とも failure |
+| `023175b4` | 05:10:18 → 05:12:56（約158秒） | failure。同じコミットの本番の `mj-ask` は success |
+| `86979e3d` | プレビュー 05:20:43 → 05:21:06、`mj-scheduler` 05:21:06 → 05:32:50（約704秒）、本番 `mj` 05:34:19 → 05:34:44 | `mj` は本番・プレビューとも success、`mj-scheduler` は failure |
+
+  - 上の時刻と成否は check-runs で確かめた（2026-10-13）。ビルドは同時1本なので、`86979e3d` の本番 `mj` は `mj-scheduler` の失敗を待ってから走った
+  - チャット側の読み（ダッシュボードの API、2026-10-13）: 5回とも Initializing は成功し、Cloning で「Failed: error occurred while fetching repository」。
+    `86979e3d` の本番 `mj` は Cloning 6 秒で成功（Version `88bdd84b`）、`mj-scheduler` も Cloning で失敗。10/9〜10/13 の `mj` の約400回のうち本番の失敗はこの5回だけで、
+    成功した本番は1回 19〜102 秒（大半は 20〜40 秒）。失敗までの時間はばらばらで、決まった上限で切れてはいない
+  - 失敗は `cloudflare` 向け（`mj`・`mj-scheduler`）に限られ、同じコミットのプレビューは通った。原因は不明。本番のトリガーの設定は失敗の前後で同じ（チャット側の読み）
+  - 10/12 の `f09571e4` は check-run で 07:46:18Z → 08:17:18Z（約31分）の failure を確かめた。本番かどうかは check-run からは決まらない（申告値では本番）。
+    10/12 にはほかに `19b99cc9`・`b0ee350e`・`7ac2439e` の failure もあり、どれが本番かは同じく決まらない（#561）
+- プレビューにも、Cloning の同じエラー文で数秒で落ちる例がある（2026-09-29、`work/0928-cx` の `668fdc0`。ブランチを作り直した直後に古いコミットを取りにいった可能性。推測）
+
 ### work/ ブランチのプレビュー（2026-09-18、CHAT-0918-TH-07・TH-08）
 
 非本番ブランチへの push でも Workers Builds がプレビューを作る（#38 で有効化、#114 で `*.workers.dev` に noindex）。本番（`cloudflare`）への影響とビルド回数は、今のままでよいと決めた（2026-09-29、#363）。材料は下の「ビルド時間の見積もり」。
@@ -651,7 +689,7 @@ Workers & Pages → `mj` → Settings → Builds:
 - 枠の集計期間は暦の月ではなく課金の期間（2026-10-05 の Usage の画面で「September 9 - October 9」、641 / 3,000 分。申告値）
 - `mj-scheduler` のビルド1回は 34 秒（2026-10-05 の最初のビルド。申告値）。watch paths が効いていない疑いがあり（`docs/notes/scheduler-worker.md`「未確認」）、効くまでは cloudflare への push ごとに1回増える
 - 上限を超えたときの動きは公式のページに書かれていない。ビルドが大きく増えたら（毎日の再生成を増やすなど）見直す
-- `Cloning` の段階の「error occurred while fetching repository」で数秒で落ちるプレビューのビルドがある（2026-09-29、`work/0928-cx` の `668fdc0`）。ビルド時間の上限とは関係ない。ブランチを作り直した直後に古いコミットを取りにいった可能性（推測）
+- `Cloning` の段階の失敗はビルド時間の上限とは関係ない（事例と見分け方は上の「ビルドが Cloning で失敗したとき」）
 
 ### check-run が queued のまま・見当たらない場合（2026-09-13）
 

@@ -50,14 +50,23 @@
 - ブランチ: ローカル・リモートの `work/1013-bld` は `origin/cloudflare` の祖先 → `git merge --ff-only origin/cloudflare`（0893a9bf0）
 - 雛形の行: Chat-Ref・マージ・貼る時機・共通手順・作業ブランチの行はあるが、貼られた指示文では題から「作業ブランチ」までが改行なしで1行につながっていた（節の見出しの `##` も無い）。内容は読めるので止めずに進めた。ログの「指示」欄は貼られたまま写した
 
+### 手順1〜3
+
+- 「読み方」（節の冒頭2行と表）にメモリー・preferences を読む旨の行は無かった（文書全体でも「メモリー」「preferences」は0件）。足す
+- 未マージの `work/` ブランチで docs/notes/chat-side-operations.md を変えているものは無い
+- 足した行（「PC で Claude for Chrome を使うときは…」の行の直後、前提の文面のまま）:
+  `会話の始めに、プロジェクトのメモリーの preferences も読む（文書に無い個人の指定はそこにある）。`
+- サイズ（`wc -c`、この作業ブランチの作業ツリーで測定。assets-check.yml も `wc -c < docs/notes/chat-side-operations.md`）: 26,419 → 26,556 バイト（+137）。警告域 26,624 未満。`git diff --stat` は 1 insertion
+- 成果物のコミット 0e063f75f。docs/decisions/operations.md に「2026-10-14（CHAT-1014-BLD-06）」を足した
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1013-bld
-- ログ: https://github.com/retroeater/mj/blob/work/1013-bld/docs/logs/CHAT-1014-BLD-06.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1014-BLD-06.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1013-bld
 - 確認用URL: なし
-- マージ: 未
+- マージ: 済（成果物 0e063f75f と本ログ・決定を最後の push で cloudflare へ入れた）
 - issue: なし
 - 判断が必要なこと: なし
 - 未確認の項目: なし
@@ -66,12 +75,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 0893a9bf）: https://github.com/retroeater/mj-logs/tree/main/guide/0893a9bf
+ガイド文書（この版を写した時点の最新、mj e71fcdf3）: https://github.com/retroeater/mj-logs/tree/main/guide/e71fcdf3
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/0893a9bf/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/0893a9bf/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/0893a9bf/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/0893a9bf/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/0893a9bf/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/0893a9bf/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e71fcdf3/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e71fcdf3/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e71fcdf3/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e71fcdf3/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e71fcdf3/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e71fcdf3/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/03fde90b.md
