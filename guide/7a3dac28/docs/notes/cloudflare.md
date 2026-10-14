@@ -579,6 +579,8 @@ Workers & Pages → `mj` → Settings → Builds:
 
 セッションから Cloudflare・本番に到達できるかの実測は `docs/notes/session-network.md`（#328）。
 
+**チャット側が成否を確かめるとき**（2026-10-14 に `docs/notes/chat-side-operations.md`「読み方」の表から移した、#492）: check-run（`gh api repos/retroeater/mj/commits/<sha>/check-runs`）。1つのコミットに Worker ごと（`mj`・`mj-ask`・`mj-scheduler`）と本番・プレビューの別で複数付く。**失敗を平野さんに伝える前に、失敗した check-run の Worker 名・Build ID・本番かプレビューかを書く**（見分け方は下の「ビルドが Cloning で失敗したとき」）
+
 - **到達できても、セッションから `wrangler deploy` は行わない。** 本番反映は
   Workers Builds（`cloudflare`へのpushで自動実行）に一本化しているため。
   `CLOUDFLARE_API_TOKEN` を GitHub Secret に登録しない方針（二重デプロイの防止）
@@ -677,6 +679,7 @@ Workers & Pages → `mj` → Settings → Builds:
   - `Preview URL: https://<バージョンIDの先頭8桁>-mj.<アカウントのサブドメイン>.workers.dev`（そのバージョン固定。サブドメインの実際の値はこの check-run の出力で確かめる）
   - `Preview Alias URL: https://<ブランチ名>-mj.<アカウントのサブドメイン>.workers.dev`（ブランチ名の `/` を `-` にした形。例: `work/0918-th` → `work-0918-th-mj…`）。2026-09-12〜18 の work/ ブランチ24本で同じ形を確認。`.` や大文字を含む名前は未確認
 - ログイン不要で誰でも開ける。`x-robots-tag: noindex` が付く。ブランチを削除した後も開ける
+- 別名の URL は前の版を返すことがある（2026-10-12、CHAT-1012-DSN-03: HTML と CSS が前の版で返り、クエリを付けると新しい版が返った。キャッシュと見られる）。版を確かめるときは、版ごとの URL を使うか、別名にクエリ（`?v=<SHA>`）を付けてログの「確認用URL」の印（`docs/logs/_template.md`）を見る
 - この URL は非公開として扱い、作業ログには書かず、ターミナルへの最終報告にだけ書く（CLAUDE.md「作業ログ」節、ログの書き方は `docs/logs/_template.md`）
 - **先頭が docs/ だけのコミットの push ではビルドが走らないことがある**（TH-03 の f7d74e4・TH-04 の 7e601b3 をログのコミットと一緒に push し、check-run が付かなかった）。
   公式の説明（上の「判定は push 全体のファイルで行われる」）とは食い違い、理由は分かっていない（ビルドがまとめられた可能性。下の「check-run が queued のまま・見当たらない場合」）。この観察は追わないと決めた（2026-09-28、#363）。確実に見たいときは、コードのコミットをログのコミットより先に単独で push する

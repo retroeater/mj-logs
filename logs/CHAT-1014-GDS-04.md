@@ -85,14 +85,26 @@ GDS-03 の判断待ちへの回答。1行の直しを足して、work/1014-gds �
 - `python3 -m unittest discover -s scripts/tests`: 1042 件 OK
 - 取り込みの後の chat-side-operations.md: 21,980 バイト（24,576 以下。cloudflare 側の「確認用 URL」の変更を含む）
 
+### 手順3: マージ
+
+- push の直前に `git fetch origin cloudflare` と `git merge-base --is-ancestor origin/cloudflare HEAD`（真）を確かめ、`git push origin work/1014-gds:cloudflare` で d1821d927..716729bb0（fast-forward）
+- 716729bb0 の check-run:
+  - `assets-check.yml`「公開対象を検査する」: cloudflare の push の run 38504600530 が success。純増のステップの出力は「docs/notes/chat-side-operations.md: 比較元 d1821d927 の 26096 bytes → 21980 bytes(警告は 24576 bytes 超で純増のとき)」で警告なし。annotation は Node.js 20 の非推奨（warning）と ubuntu-latest の移行（notice）だけで、どの run にも出ているもの。作業ブランチの push の run 38504594153 も success
+  - 「Workers Builds: mj」success（115659492047・115659808156）、「Workers Builds: mj-scheduler」success（115659654730）。`notify-build-failure.yml` は skipped
+  - `regenerate-page.yml` は走っていない
+- #492 にマージのコメントを書いた（issuecomment-6160013609。バイト数の表は GDS-03 のログ「手順2」から、直した1行を添えた）
+- work/1014-gds の削除: docs/notes/branch-operations.md「ブランチを削除するとき」を読んだ。クラウドセッションではプロキシがブランチの削除を拒否するため（docs/notes/cloud-sessions.md「ブランチの削除」）、削除は `delete-merged-branches.yml`（マージ済みで先頭が24時間より前の `work/*` を毎日削除）に任せる。マージの時点の先頭は 716729bb0（`origin/cloudflare` と同じ、マージ済み）。この後のログの追いの push も work/1014-gds と cloudflare の両方へ同じ SHA で入れるので、マージ済みのまま残る
+- docs/decisions/operations.md に「2026-10-14（CHAT-1014-GDS-04）」を足し、GDS-03 の「毎回」の行に「→ 置き換え」を付けた
+- メモリーの控え2件（スクリーンショット・未完了の指示）を消すのはチャット側の作業（指示文のとおり）
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1014-gds
-- ログ: https://github.com/retroeater/mj/blob/work/1014-gds/docs/logs/CHAT-1014-GDS-04.md
+- 状態: 完了
+- ブランチ: work/1014-gds（マージ済み。削除は delete-merged-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1014-GDS-04.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1014-gds
 - 確認用URL: なし
-- マージ: 未
+- マージ: 済（716729bb0）
 - issue: #492
 - 判断が必要なこと: なし
 - 未確認の項目: なし
@@ -101,12 +113,12 @@ GDS-03 の判断待ちへの回答。1行の直しを足して、work/1014-gds �
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 716729bb）: https://github.com/retroeater/mj-logs/tree/main/guide/716729bb
+ガイド文書（この版を写した時点の最新、mj 7a3dac28）: https://github.com/retroeater/mj-logs/tree/main/guide/7a3dac28
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/716729bb/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/716729bb/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/716729bb/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/716729bb/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/716729bb/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/716729bb/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/7a3dac28/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/7a3dac28/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/7a3dac28/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/7a3dac28/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/7a3dac28/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/7a3dac28/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/ec9e24c3.md

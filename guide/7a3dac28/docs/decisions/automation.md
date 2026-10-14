@@ -160,3 +160,40 @@
 - 所要時間の判定は OHA-03 の形のまま（3倍以上 または 10分以上。skipped は中央値と対象から除く）。閾値の調整は1週間様子を見てから別の指示で行う
 - 書き出しの頻度（中身が同じでも JST の日付が変わったら書く。mj-logs のコミットが1日1回増えうる）は受け入れる
 - 作業中の回答: なし
+
+## 2026-10-14（CHAT-1014-ACF-18）
+
+決定はいずれも 2026-10-14 に平野さんが出したもの（#504 の ACF-16 の案の勧めるとおり）。
+
+- さかのぼる幅は予定から 60 分
+- 二重起動を避ける方法は案 A: 状態を持たず、予定から 5・10・20・40 分後の回だけ、その行の当日の実行の一覧を REST で引き、`[scheduled]` の実行が無ければ起動する（1行1日4回、5行で約20回）
+- 遅れて届いた回（実際の時刻と `scheduledTime` の差が 2 分超）は、ふだんの起動をせず、一覧を確かめてから起動する。チェックポイントの判定は実際の時刻で行う
+- 06:00 の朝の確かめの回が抜けたときに備え、06:15・06:30 の回でも確かめ、#506 に当日の確かめが無ければ書く
+- 「取りこぼした回の埋め合わせはしない」（docs/notes/scheduler-worker.md「起動」）を改める
+
+## 2026-10-14（CHAT-1014-WFL-01）
+
+GitHub Actions の整理（#564）。
+
+- 役目を終えた4本（`sync-logs.yml`・`sync-books-calendar.yml`・`write-live-channel-candidate.yml`・`check-leagues-dropped.yml`）は削除する（`sync-logs.yml` は #298 の予定と合わせる。未実装）
+- 毎朝の運行（Worker からの5本と、その連鎖の `regenerate-saikyo`）は1本のワークフロー（仮に `daily.yml`）にまとめ、先行関係は `needs:` で書く。各本は `workflow_call` 化して残し、手動実行は各本でできるようにする（未実装）
+- 週次・月次の起動も Worker `mj-scheduler` の起動の表（`workers/scheduler/schedule.json`）へ移し、GitHub 側の保険の `schedule` は外す（#504 の予定を前倒し。外す時機は #504 の観察の結果を見て別に決める。未実装）
+- ファイル名を `<動詞>-<対象>.yml` に統一する。`name:`・`run-name`・入力の `description`・ファイル冒頭の説明コメント・docs の記述も同じ規則で改名してそろえる（規則と対応表の確定は平野さんの判断待ち。案は CHAT-1014-WFL-01 のログ）
+- ダッシュボードは案 A: mj-logs に静的ページ（`actions/index.html`）として生成し、GitHub Pages で開く。mj-logs の Pages の有効化は平野さんの手作業。再実行は GitHub の「Run workflow」画面へのリンク（未実装）
+- 作業中の回答: なし
+
+## 2026-10-14（CHAT-1014-WFL-02）
+
+CHAT-1014-WFL-01 の「判断が必要なこと」への回答（#564）。いずれも Claude Code の推奨のとおり。
+
+- 改名（段③で行う）: `sitemap-lastmod.yml` は `regenerate-sitemap.yml` にする（`regenerate` = 生成物を作り直してコミット）。`regenerate-saikyo.yml` はそのまま残す。`check-meibo.yml` の `name:` はそのまま（Ampai はファイル冒頭のコメントに書く）
+- 切り出し（段③）: `fetch-youtube.yml` は YouTube のチャンネル情報と帰り道の情報の取り直しとコミットだけを持ち、最後に `regenerate-page` を `all` で呼ぶ。OGP の作成・帰り道の知らせ・凍結中の楽天の書影の取得（`if: false`）は `regenerate-page` に残す（#340 の「同じコミット」を保つ）。予定表の切り出し先は `sync-yotei.yml`
+- 束ねる本は `run-daily.yml`。動詞 `run`（ほかのワークフローを束ねて動かす）を命名規則の7つ目に足す
+- 段①: `SCHEDULE_ENABLED`（6本）はやめ、予約の起動の有効・無効は Worker の起動の表の `enabled` に任せる。部品への置き換えは、まず `check-saikyo-unregistered.yml`・`sync-birthday-calendar.yml` で試してから広げる。`sync-dojo-calendar.yml` の結果ごとの複数コメントは1件にまとめてよい。`.python-version`（`3.12`）を段①で入れ、#539（3.14）はその1行の変更にする。#308（Node 24 の版）は部品に入れるときに同時に上げず、別に扱う
+- 段③: `workers/scheduler/schedule.json` の5行を `run-daily.yml` の1行に置き換えるのは段③で同時に行う（Worker のコードは変えない。#504 の観察の後に回さない）
+- `sync-dojo-calendar.yml`・`delete-merged-branches.yml` の保険の `schedule`（毎日2回動く）は段④まで置く（外す時機は #504 の観察で決める）
+
+## 2026-10-14（CHAT-1014-OHA-06）
+
+- morning.md の2節の対象は、契機が schedule・workflow_dispatch でブランチが cloudflare の実行だけ（作業ブランチの手動実行は数えない）。予定時刻以降の最初の実行が予定＋3時間を超えて始まっていたら「遅れて実行（＋h:mm）」と書く。実行が無いときの「遅れの可能性」／「未実行」は今のまま。閾値（3時間）は定数で持ち、見直し（10/21）で変える
+- 作業中の回答: なし

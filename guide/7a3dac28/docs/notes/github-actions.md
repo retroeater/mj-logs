@@ -24,7 +24,7 @@ GitHub Actions のワークフローの一覧・動き・手動実行と変更�
 | `write-live-channel-candidate.yml` | 手動実行のみ（mode: check / limited / full）。層1から作った表を3層のスプレッドシートの「【2】自動変換後」へ書く（#438。【2】は毎朝の `update-live-channel.yml` も書き直すが、層2の規則を直した直後に使うため残す。`docs/notes/live-channel-write.md`「6. 書き込みの実装・手動実行での確認」） |
 | `check-image-links.yml` | 毎日 04:30 JST（Worker `mj-scheduler` から、入力 `scheduled`）に `jpml_pros.html` の画像（ジョブ `check`）・最強戦の選手写真（ジョブ `saikyo`）・SNS ブックの実効の値の全行の画像（ジョブ `sns_book`、`check` の後に動く。X は `_400x400` だけ。`scripts/check_sns_book_images.py`）のリンク切れを確かめ、常設issueに書き出す（`check` と `sns_book` は「画像リンク切れの検知結果」の本文の自分の節だけを書き換え、全節で切れが無いと閉じる。`saikyo` は別の issue）。毎週月曜03:00 JST の予約実行（`schedule`）は `check` だけを動かす保険（外す予定は #504） |
 | `check-saikyo-unregistered.yml` | 毎週月曜06:50 JST。最強戦の出場者で「プロ」「連盟プロ以外」から引けない人を常設issueに書く（#431、`docs/notes/saikyo-page-design.md`「8. 出場者の登録漏れの検知」） |
-| `assets-check.yml` | push（`docs/`だけの push は除く。サイズを見る`docs/handover.md`・`docs/notes/chat-side-operations.md`は含む、#298）。`.assetsignore`の漏れ（#133）と CLAUDE.md・handover.md のサイズを検知し、配信の上限との比（`check_asset_limits.py`、#387）を出す |
+| `assets-check.yml` | push（`docs/`だけの push は除く。サイズを見る`docs/handover.md`・`docs/notes/chat-side-operations.md`は含む、#298）。`.assetsignore`の漏れ（#133）と CLAUDE.md・handover.md のサイズを検知し、chat-side-operations.md の純増（push は前の先頭、手動実行は cloudflare との merge-base と比べ、24,576 バイト超で増えていれば警告。job は成功のまま、#492）と配信の上限との比（`check_asset_limits.py`、#387）を出す |
 | `sitemap-lastmod.yml` | HTMLを含むpush。sitemapのlastmodをgitの最終コミット日にそろえてコミットする（#265、`docs/notes/sitemap-lastmod.md`） |
 | `check-leagues-dropped.yml` | 手動実行のみ。型Cで選択リストから漏れている選手を検知する（#168） |
 | `cleanup-logs.yml` | 毎週月曜06:23 JST。7日を過ぎた作業ログを片付け、条件外のものを #357 に通知する |

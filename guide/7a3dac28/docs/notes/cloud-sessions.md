@@ -62,7 +62,7 @@ Chat-Ref の確認・`git branch --merged` が誤る。**これらの判定の�
 - **複数の issue の本文・題・ラベルをまとめて書き換えるときは、1件ごとに書き換える直前に `updated_at` を取り直し、取得時と違えばその issue は書き換えずに飛ばして報告する。**
   10〜15件ごとに「済」の番号をログに追記して push する。本文・題の部分置換とラベルの付け外しは REST（`PATCH /issues/{n}`・`/labels`）で通るが、
   state の変更とコメントの作成は REST だと HTTP 405 になるため MCP（`issue_write`・`add_issue_comment`）で行う（#304 の月次の棚卸しにも当てはまる）
-- 触れるリポジトリはセッションの sources（`retroeater/mj`）だけ。mj-logs への書き込みは拒否される（写すのは mj-logs の `sync-from-mj.yml`）
+- 触れるリポジトリはセッションの sources（`retroeater/mj`）だけ。mj-logs は sources に無いので既定では書き込みが拒否される（写すのは mj-logs の `sync-from-mj.yml`）。書くときは `add_repo`（owner `retroeater`、repo `mj-logs`、access `push`）で接続する
 
 ## ブランチの削除
 
