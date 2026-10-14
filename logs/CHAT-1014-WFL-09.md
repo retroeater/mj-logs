@@ -70,17 +70,25 @@ WFL-08 の `## 報告`「判断が必要なこと」への回答。いずれも 
 - 題「最強戦の選手写真のリンク切れ検知結果」の issue（REST、state=all）: #351・#423・#444・#499・#534、すべて closed・ラベル無し（前提どおり。常設のラベルが付いた同じ題の issue は無い）
 - `docs/decisions/automation.md` に「## 2026-10-14（CHAT-1014-WFL-09）」を足した
 
+### 手順3
+
+- JST 14:40 に、push 直前の再 fetch で祖先を確かめ、`git push origin work/1014-wfl-s2:cloudflare` で 5b9337758..6f8f8ab2e（fast-forward。04:15〜04:45 の外）
+- #534 にラベル「種類: 常設」を付けた（REST `POST /issues/534/labels`）。REST で確かめた結果: 題「最強戦の選手写真のリンク切れ検知結果」・closed・ラベル「種類: 常設」（状態は変えていない）
+- cloudflare の 6f8f8ab2e の check-run: 「check」×2 success、「Workers Builds: mj」success（取り込んだ CLAUDE.md などで起動。配信物は変えていない）、「notify」skipped（本番ビルドの失敗の通知。Workers Builds が成功したので該当なし）。Actions: 公開対象を検査する run #3542（38517893981）・#3543（38517897007）success（部品のテストの手順を含む）
+- #564 にコメントした
+- `## 報告` の「未確認の項目」は CLAUDE.md「作業ログ」節に従って初回の予約実行の日時を書き、状態は「完了」とした（WFL-04・WFL-07 と同じ扱い）
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1014-wfl-s2
-- ログ: https://github.com/retroeater/mj/blob/work/1014-wfl-s2/docs/logs/CHAT-1014-WFL-09.md
+- 状態: 完了
+- ブランチ: work/1014-wfl-s2（マージ済み。削除は delete-merged-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1014-WFL-09.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1014-wfl-s2
 - 確認用URL: なし
-- マージ: 未
-- issue: #564・#534
+- マージ: 済（6f8f8ab2e）
+- issue: #564（コメント）・#534（ラベル「種類: 常設」を付けた。closed のまま）
 - 判断が必要なこと: なし
-- 未確認の項目: なし
+- 未確認の項目: 書く道筋の初回の予約実行: check-image-links は 2026-10-15（水）04:30 JST（Worker。#352 が開き直される見込み）、cleanup-logs は 2026-10-19（月）06:23 JST（GitHub の予約は遅れることがある）
 - エラー: なし
 
 <!-- guide-links -->
