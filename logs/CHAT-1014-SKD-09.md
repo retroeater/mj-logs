@@ -82,17 +82,43 @@ SKD-07・SKD-08 の変更（新しい年度ページで、順位が空の勝ち�
 
 ### 3. マージ
 
-（マージの後に書く）
+- ログの状態のコミット（5402cbcd6）を push した後、再 fetch して `git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめ、`git push origin work/1014-skd:cloudflare`（3e7658e4a..5402cbcd6）。**マージの SHA: 5402cbcd6**（2026-10-14 08:15 UTC）
+
+### 4. マージ後
+
+**自動処理（push で走った run、すべて 5402cbcd6）:**
+
+| run | ワークフロー | 結果 |
+|---|---|---|
+| 38533807531 | ページの再生成（`regenerate-page.yml`） | success。**`chore: regenerate …` のコミットは出なかった**（08:21 UTC の時点で `origin/cloudflare` は 5402cbcd6 のまま） |
+| 38533807638 | サイトマップの lastmod を同期 | success |
+| 38533807694・38533804654 | 公開対象を検査する | success |
+| 38534188784・38534488835 | 本番ビルドの失敗の通知（check_run） | skipped（失敗が無いため） |
+
+**Workers Builds（本番）の check-run:** 「Workers Builds: mj」（id 115753925462）**completed / success**。「check」も success
+
+**本番の HTML**（`https://ryoei.pro/saikyo/2019/index.html?v=5402cbcd6`）: HTTP 200、中身がリポジトリの生成物とバイト単位で同じ。`<meta name="robots" content="noindex">` が残っている。「男子プレミアトーナメント 恐れ知らずの打撃戦」の面は、行が大和1人で右端が「通過」のピル、対局名の下の「通過」は無い（SKD-08 の印）。ブラウザでの見え方はプレビューでチャット側が見たもの（この確かめは HTML まで）
+
+**#566 のコメント:** https://github.com/retroeater/mj/issues/566#issuecomment-6164092449 （本文・状態・ラベルは変えていない。閉じない）
+
+### 5. 作業ブランチの片付け
+
+docs/notes/branch-operations.md「ブランチを削除するとき」を読んだ。`work/1014-skd` は `origin/cloudflare` の祖先（マージ済み）。ただしクラウドセッションの git プロキシはブランチの削除を拒否する（docs/notes/cloud-sessions.md「ブランチの削除」）ため、手では消さず、マージ済みの `work/*` を毎日消す `delete-merged-branches.yml` に任せる。ローカルのブランチもこのクローンが今いるブランチなので消さない。
+
+| ブランチ | 先頭 SHA | 判定 |
+|---|---|---|
+| work/1014-skd | 5402cbcd6（このログの追いのコミットを足すと1つ進む。最終報告の「ログ（公開）」の SHA） | マージ済み |
+| work/1014-skd-rec（SKD-04） | a1747ce98 | マージ済み（同じくワークフローに任せる） |
 
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1014-skd
-- ログ: https://github.com/retroeater/mj/blob/work/1014-skd/docs/logs/CHAT-1014-SKD-09.md
+- 状態: 完了
+- ブランチ: work/1014-skd（マージ済み。削除は delete-merged-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1014-SKD-09.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1014-skd
-- 確認用URL: なし
-- マージ: 未
-- issue: #566
+- 確認用URL: なし（本番で確かめた。ページは未公開のまま）
+- マージ: 済（5402cbcd6）
+- issue: #566（マージ済みのコメント）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
