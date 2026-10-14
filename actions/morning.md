@@ -1,6 +1,6 @@
 # 朝の報告用の異常（retroeater/mj）
 
-- 書き出した時刻: 2026-10-14 12:37 JST（見た範囲: 2026-10-13 10:37 JST から）
+- 書き出した時刻: 2026-10-14 12:38 JST（見た範囲: 2026-10-13 10:38 JST から）
 - 書き出した実行の契機: workflow_dispatch（main）
 - 異常だけを書く。全体は actions/status.md。判定は mj の scripts/morning_report.py（各ワークフローの直近 100 回まで）
 
@@ -8,6 +8,8 @@
 
 - 2026-10-13 11:12 update-sns-book.yml failure（workflow_dispatch・cloudflare） https://github.com/retroeater/mj/actions/runs/38335781712
 - 2026-10-13 23:38 notify-build-failure.yml failure（workflow_dispatch・cloudflare） https://github.com/retroeater/mj/actions/runs/38415113000
+- 2026-10-14 12:37 check-saikyo-unregistered.yml in_progress（workflow_dispatch・work/1014-wfl-parts） https://github.com/retroeater/mj/actions/runs/38507208870
+- 2026-10-14 12:37 sync-birthday-calendar.yml in_progress（workflow_dispatch・work/1014-wfl-parts） https://github.com/retroeater/mj/actions/runs/38507211408
 
 ## 2. 予約実行の未実行（予定から3時間以内は「遅れの可能性」。3時間を超えて始まった実行は「遅れて実行」）
 
@@ -24,7 +26,7 @@
 
 ## 4. 初回成功
 
-- 2026-10-13 12:06 assets-check.yml success（push・work/1013-rgn）それ以前の 0 件に success なし https://github.com/retroeater/mj/actions/runs/38340108593
+- 2026-10-13 12:07 assets-check.yml success（push・work/1013-rgn）それ以前の 0 件に success なし https://github.com/retroeater/mj/actions/runs/38340176948
 - 2026-10-13 23:38 notify-build-failure.yml success（workflow_dispatch・cloudflare）それ以前の 0 件に success なし https://github.com/retroeater/mj/actions/runs/38415024219
 
 ## 5. 未報告のログ（`## 報告` の節が無い）
