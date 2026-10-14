@@ -1,6 +1,6 @@
 # 朝の報告用の異常（retroeater/mj）
 
-- 書き出した時刻: 2026-10-14 12:23 JST（見た範囲: 2026-10-13 10:23 JST から）
+- 書き出した時刻: 2026-10-14 12:24 JST（見た範囲: 2026-10-13 10:24 JST から）
 - 書き出した実行の契機: workflow_dispatch（main）
 - 異常だけを書く。全体は actions/status.md。判定は mj の scripts/morning_report.py（各ワークフローの直近 100 回まで）
 
@@ -24,9 +24,9 @@
 
 ## 4. 初回成功
 
-- 2026-10-13 11:43 assets-check.yml success（push・work/1013-whs-nav）それ以前の 0 件に success なし https://github.com/retroeater/mj/actions/runs/38338234140
+- 2026-10-13 11:46 assets-check.yml success（push・work/1013-acf-img）それ以前の 0 件に success なし https://github.com/retroeater/mj/actions/runs/38338476581
 - 2026-10-13 23:38 notify-build-failure.yml success（workflow_dispatch・cloudflare）それ以前の 0 件に success なし https://github.com/retroeater/mj/actions/runs/38415024219
 
 ## 5. 未報告のログ（`## 報告` の節が無い）
 
-- CHAT-1014-ACF-21.md（着手 2026-10-14） https://github.com/retroeater/mj-logs/blob/main/logs/CHAT-1014-ACF-21.md
+なし

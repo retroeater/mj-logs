@@ -70,16 +70,44 @@ check-image-links は最初の版から「開いている issue が無ければ�
   - 切れが出て #352 が開き直される動きは本番では起こしていない（テストの `IssueActionTest`・`PickIssueTest` で確かめた）
   - 文書: ワークフローの一覧は WFL のチャットで docs/notes/github-actions.md に移っていたので、そこの check-image-links の行と、docs/notes/sns-book.md「検知と更新の役割」に「閉じた後に切れが出たら #352 を開き直す」を足した。#352 の本文の説明（`check_image_links.py` の `ISSUE_FOOTER`）の末尾を「…自動的に閉じられ、次に切れが出たら開き直されます。」にした（本文は次に書き込まれたときに入れ替わる）。決定を docs/decisions/automation.md に足した
 - 手順4: #562 に「#352 に移した（CHAT-1014-ACF-21）」とコメントし（https://github.com/retroeater/mj/issues/562#issuecomment-6160142931 ）、duplicate（#352）で閉じた。ACF-20 のログの状態に `/ 続き: CHAT-1014-ACF-21` を足した
+- `origin/cloudflare` の取り込みで docs/decisions/automation.md が衝突した。末尾への追記どうし（cloudflare 側の CHAT-1014-OHA-07 の節と、こちらの ACF-21 の節）で両立するため、両方を残して解いた。解いた後の該当箇所:
+
+  ```
+  ## 2026-10-14（CHAT-1014-OHA-07）
+
+  - morning_report.py が `workflow_call` で呼ばれるワークフローをどう扱うかは、調査のみ（…）。結果は #564 の段③の材料にする
+  - 作業中の回答: なし
+
+  ## 2026-10-14（CHAT-1014-ACF-21）
+
+  - CHAT-1014-ACF-20 の「判断が必要なこと」は (a) にする: 閉じた常設の issue があれば開き直す作りにする（常設の番号 #352 を保つ）
+  - #562 は、中身を #352 に移して閉じる
+  ```
+  取り込み後もテスト OK
+- cloudflare へマージ: 12:23 JST に再 fetch し `git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめて `git push origin work/1014-acf-reopen:cloudflare`（18f8ff58..efac1e4f）。03:30〜06:45 の外
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1014-acf-reopen
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1014-ACF-21.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1014-acf-reopen
+- 確認用URL: なし（ワークフロー・検知のスクリプトと docs のみ）
+- マージ: 済（efac1e4f。18f8ff58..efac1e4f）
+- issue: #352（閉じたまま。切れが出たら開き直される）・#562（#352 の重複として閉じた）。手動実行 https://github.com/retroeater/mj/actions/runs/38505091657
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 18f8ff58）: https://github.com/retroeater/mj-logs/tree/main/guide/18f8ff58
+ガイド文書（この版を写した時点の最新、mj be98b1fc）: https://github.com/retroeater/mj-logs/tree/main/guide/be98b1fc
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/18f8ff58/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/18f8ff58/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/18f8ff58/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/18f8ff58/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/18f8ff58/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/18f8ff58/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/be98b1fc/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/be98b1fc/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/be98b1fc/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/be98b1fc/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/be98b1fc/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/be98b1fc/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/ec9e24c3.md
