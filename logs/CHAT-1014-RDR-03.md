@@ -76,28 +76,50 @@
 - `--plan` で対象と期間を確かめた（2026-09 は UTC 2026-08-31T15:00:00Z 〜 2026-09-30T15:00:00Z、対象5つ）。`CF_ANALYTICS_TOKEN` が空なら終了コード1
 - docs/notes/github-actions.md の表に行を足し（`test_workflows_table.py` OK）、docs/notes/redirects.md「流入の測り方」を実装に合わせて書き直した（実測の2項目は「未確認」のまま、手動実行の後に埋める）
 
+### 2. dry-run でマージして cloudflare で手動実行
+
+- d83ab27fb を cloudflare にマージ（push 直前に再 fetch して祖先を確認。以降のマージも同じ）。起動はすべて GitHub MCP の `actions_run_trigger`（ref cloudflare）
+- run 38610972729（`month` 2026-10、dry-run）: **失敗。** setup-python の部品のテストで `test_net_retry` が `requests` を import できなかった（`packages` を渡していなかった）。`packages: requests` を足した（31c8d85e0）
+- run 38611141347（同）: **失敗。** 「Secret があるか」は通り（**Secret `CF_ANALYTICS_TOKEN` は登録されている**。値は `***` に伏せられた）、取得で `ValueError: Invalid header value`。登録した値の前後に改行・空白が付いている。スクリプトで `strip()` するようにした（ca5d05b99）
+- run 38611255688（同）: 成功。結果:
+  - (1) API が通る: `settings` は `enabled` 真・`notOlderThan` 2678400（31日）・`maxDuration` 2592000（30日）・`maxPageSize` 10000。ゾーンの ID は名前から引けた。`/user/tokens/verify` は 401（アカウントのトークン。続行する作り）
+  - (2) 301 が出る: 2026-10-01〜10-15 で `/jpml_titles.html` 301 が487、`/saikyo_results.html` 301 が88、`/video_wayhome.html` 10、`/tanilog.html` 5、`/houou/ranking/` 4
+  - ただし `availableFields` の名前が `dimensions_userAgent` の形で、User-Agent の判定が外れ、ボットらしい UA を除く件数を取っていなかった。判定を直してテストを足した（a136f511d）
+- run 38611403811（`month` 空＝前月 2026-09、dry-run）: 成功。2026-09 は保持期間のため 09-13 18:10 UTC 以降に詰められた。ボットらしい UA を除く件数も取れた（`/saikyo_results.html` 120 → 11、`/jpml_titles.html` 89 → 9、`/tanilog.html` 29 → 26）
+- docs/notes/redirects.md「実測」に結果を書いた（bdc7a0b20）
+
+### 3. 有効化
+
+- 有効にする条件 (1)(2) を両方満たした → `ENABLED: 'false'` → `'true'` の1行だけのコミット（409d9b521。`git show --stat` で 1 file changed, 1 insertion(+), 1 deletion(-) を確かめた）を cloudflare にマージ
+- run 38611570265（`dry_run` false、`month` 空）: 成功。bot のコミット b4323bf12（`docs/redirect-counts/2026-09.csv`）と #568 のコメント（2026-09 の表、範囲の注記・3か月そろっていない注記つき）ができた
+- 2026-09 の CSV には 301 以外も入っている（例: `/jpml_titles.html` 200 が1956・504 が1718・403 が391・308 が410）。200 は廃止前の配信、308 は www → apex。504 が多い理由は調べていない（転送の棚卸しには関係しない）
+- 決定は docs/decisions/cloudflare.md に「2026-10-14（CHAT-1014-RDR-03）」の節で足した
+- 失敗した2回の手動実行で、失敗通知メールが届いている可能性がある（対応不要）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1014-rdr
-- ログ: https://github.com/retroeater/mj/blob/work/1014-rdr/docs/logs/CHAT-1014-RDR-03.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1014-RDR-03.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1014-rdr
 - 確認用URL: なし
-- マージ: 未
-- issue: #568
+- マージ: 済（有効化 409d9b521、報告 76975f281。いずれも `git push origin work/1014-rdr:cloudflare`、直前に再 fetch して祖先を確認）
+- issue: #568（月次のコメントの1件目を bot が書いた）
 - 判断が必要なこと: なし
-- 未確認の項目: なし
+- 未確認の項目:
+  - 初回の予約実行: 2026-11-01 06:30 JST（cron は 10-31 21:30 UTC。GitHub の予約実行は遅れることがある）。2026-10 分の CSV と #568 のコメントができるかを見る
+  - 2回の手動実行の失敗で失敗通知メールが届くことがあるが対応不要（run 38610972729・38611141347）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj d83ab27f）: https://github.com/retroeater/mj-logs/tree/main/guide/d83ab27f
+ガイド文書（この版を写した時点の最新、mj cca707c1）: https://github.com/retroeater/mj-logs/tree/main/guide/cca707c1
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d83ab27f/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d83ab27f/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d83ab27f/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d83ab27f/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d83ab27f/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d83ab27f/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/cca707c1/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/cca707c1/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/cca707c1/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/cca707c1/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/cca707c1/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/cca707c1/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b8500442.md
