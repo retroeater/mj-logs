@@ -67,17 +67,25 @@ WFL-05 の `## 報告`「判断が必要なこと」への回答。いずれも 
 - `docs/decisions/automation.md` に「## 2026-10-14（CHAT-1014-WFL-07）」を足した（WFL-05 の節の後）
 - #445（REST）: 題「名簿と「プロ」シートの不一致」・closed・ラベル無し・issue。WFL-05 で全 issue を題で探したとき、この題は #445 だけ（番号の小さい同じ題は無い）
 
+### 手順3
+
+- push 直前に再 fetch して祖先を確かめ、`git push origin work/1014-wfl-s1:cloudflare` で 4969f89a5..806fba19e（fast-forward）
+- #445 にラベル「種類: 常設」を付けた（REST `POST /issues/445/labels`。最初の1回は Content-Type の欠けでプロキシに断られ、付け直した）。REST で確かめた結果: closed・ラベル「種類: 常設」（状態は変えていない）
+- cloudflare の 806fba19e の check-run: 「check」×2（公開対象の検査）completed success。今回の変更による失敗は無い
+- #564 にコメントした: https://github.com/retroeater/mj/issues/564#issuecomment-6161108680
+- `## 報告` の「未確認の項目」は CLAUDE.md「作業ログ」節（予約実行を変える変更では初回の日時を書く）に従って書き、状態は「完了」とした（WFL-04 と同じ扱い。`_template.md` の「完了なら『なし』だけ」とは食い違う）
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1014-wfl-s1
-- ログ: https://github.com/retroeater/mj/blob/work/1014-wfl-s1/docs/logs/CHAT-1014-WFL-07.md
+- 状態: 完了
+- ブランチ: work/1014-wfl-s1（マージ済み。削除は delete-merged-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1014-WFL-07.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1014-wfl-s1
 - 確認用URL: なし
-- マージ: 未
-- issue: #564・#445
+- マージ: 済（806fba19e）
+- issue: #564（コメント）・#445（ラベル「種類: 常設」を付けた。closed のまま）
 - 判断が必要なこと: なし
-- 未確認の項目: なし
+- 未確認の項目: 書く道筋・開き直しの道筋の初回の予約実行: check-meibo 2026-10-19（月）05:07 JST、check-saikyo-unregistered 2026-10-19（月）06:50 JST（GitHub の予約は遅れることがある）
 - エラー: なし
 
 <!-- guide-links -->
