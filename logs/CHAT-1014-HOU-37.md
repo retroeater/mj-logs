@@ -173,17 +173,29 @@ URL:
   - リンクでない参照（張り替えの対象外）: `scripts/apply_page_meta.py`（旧3ページのメタ）、`scripts/check_leagues_dropped.py`（`page_file`）、`scripts/regenerate.py`（出力先）、`generate_houou_leagues.py`・`generate_houou_race.py`（出力先・og:url）、`style.css`・`houou_race.js`・`assets/houou_race.js`・`leagues.js`・`scripts/lib/results.py`・`generate_houou_pages.py`・`scripts/promo_video/houou_race/compose.py`（コメント）、`scripts/tests/test_fetch_gsc.py`（テストの値）。`scripts/tests/test_jpml_pros.py` の166行は `./houou_results.html?name=甲` の形を確かめているので、張り替えるときに一緒に直す
   - ほかの手書き HTML・生成ページ（index.html・title/・live/ など）からのリンクは無い
 
+### プレビューと issue
+
+- #540 にコメントを書いた（2026-10-14 の決定のうち公開の段に関わるもの・説明文、手順1の突き合わせの表、手順4のリンクの表、末尾に Chat-Ref）。本文は変えていない
+- プレビュー（6faffc53 の Workers Builds: mj は success。9bc6c13e〈ログのみ〉には check-run が付かなかった。URL は最終報告にだけ書く）: `/houou/ranking/` → 301 `total/`、`?division=期最高得点` を付けると 301 の行き先にもクエリが残る（Cloudflare 側でも引き継がれる）。headless Chromium（375px）で wrangler dev と同じ確かめをし、結果は同じ（`?division=期最高得点` → `term-high/`、カード・パンくず・チップ・行のリンク、og:url、JS のエラー 0）。トップに `href="ranking/total/"`、「在籍する選手691名」、`total/` は noindex のまま。見本の画像3枚は 200
+- `docs/notes/houou-top.md` の「本番の Cloudflare では未確認」を「wrangler dev とプレビューで確かめた」に直した
+- この指示の作業中に平野さんの回答は無い（決定は指示文の「決定」節だけで、`docs/decisions/houou.md` に足した）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち（OGP 画像の見本の選択と、下の判断）
 - ブランチ: work/1014-hou
 - ログ: https://github.com/retroeater/mj/blob/work/1014-hou/docs/logs/CHAT-1014-HOU-37.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1014-hou
-- 確認用URL: なし
-- マージ: 未
-- issue: #518・#540
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 確認用URL: プレビューあり（URL は最終報告）。確認したページ: `houou/`・`houou/ranking/`（301）・`houou/ranking/total/`・`houou/ranking/?division=期最高得点`・見本の画像3枚。この版で見える印: トップの説明文が「…について、在籍する選手691名の…」で、ランキングのカードが `houou/ranking/total/` に飛ぶ
+- マージ: 未（平野さんの判断待ち）
+- issue: #518・#540（着手中と、決定・突き合わせ・リンクの表のコメント）
+- 判断が必要なこと:
+  1. OGP 画像の見本 A・B・C のどれにするか。見る場所: プレビューの `img/ogp/houou/sample-a.png`・`sample-b.png`・`sample-c.png`（URL は最終報告の「確認用:」）。A「鳳凰戦」＋「個人成績・ランキング・順位変動」＋「ryoei.pro」、B「鳳凰戦」＋「成績・ランキング」＋「ryoei.pro」、C「鳳凰戦」＋「ryoei.pro」。3枚とも 1200×630・文字の切れなし。docs/notes/ogp.md には「X のカードは画像の下にドメインが出るので、画像に ryoei.pro を入れる必要はない」とある
+  2. 検索の候補の行の `img/avatar.svg`: 使っていない（候補・最近見た選手の行は、画像が無い・読めないとき名前の頭の1字の灰色の丸）。`img/avatar.svg` が残っているのは、個人成績のリーグのタブのグラフの選手のアイコン（SVG の `image`）の代わりの画像だけ。直していない
+  3. `workers/ask/data.json`（質問欄のデータ、houou/ の外の生成物）: `ranking_path()` を共有しているので、再生成すると通算得点の url が `/houou/ranking/` → `/houou/ranking/total/` に変わる（差分はこの1か所だけ）。houou/ の外なのでコミットしていない（今のままでも 301 で `total/` へ着く）。このブランチで再生成して入れてよいか（入れないと、マージ後の再生成で変わる見込み）
+  4. 仮置きの一覧に残したもの（見た目の値でも1問ずつの決定でもないと判断したもの。`docs/notes/houou-top.md`「仮置きの一覧」）: 文言（リーグの吹き出し・「出場なし」・ベスト/ワーストのラベル・ランキングの共通の説明文と h1 の読み上げ用の部門名・トップの個人成績の説明文・説明文の「〜」）、動き・判定（進行中の A1 の帯・再生中の一時停止・入替戦の帯の上下の判定・特別昇級の判定）、作り（`leagues.json` を分けること）、古くなった見込み（連続回数の「（N件）」。今は画面に出していない）。決定にするか外すか
+  5. #540 の本文は直していない（突き合わせの表はコメントに書いた）。本文の「特別昇級の演出」の未チェックは済んでいる見込み、「戻る導線の要否」「`houou_ranking.html`・`houou_leagues.html` の 301 の行き先」「告知の有無」は決定済み。本文を直すのは公開の指示でよいか
+- 未確認の項目: 本番（ryoei.pro）での `/houou/ranking/` の 301（マージ前のため。プレビューでは確かめた）。平野さんの実機での見え方
 - エラー: なし
 
 <!-- guide-links -->
