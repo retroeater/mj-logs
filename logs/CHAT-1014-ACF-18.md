@@ -54,15 +54,34 @@
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+- 0章: ログの「指示」欄の末尾が指示文の最後の行と一致することを確かめた。CHAT-1014-ACF-16 の `## 報告` の状態は「判断待ち」
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- Chat-Ref の重複: `git log --all --grep="CHAT-1014-ACF-18"` は 0 件
+- 作業ブランチ: ローカルの `work/1014-acf-cron`（66e8343c）は origin と同じで cloudflare の祖先。`git checkout work/1014-acf-cron` → `git merge --ff-only origin/cloudflare`（705aa423）。**この ff をログの先行 push より前に行った**（CLAUDE.md「作業ログ」節の順番と違う。内容への影響は無い）
+- 手順1:
+  - 同じ目的の issue は ACF-16 の検索で #506 だけ（常設の通知先）。未マージの work/ ブランチ（1009-swp-526・1011-swp-hnd・1011-swp-nav・1013-acf-xsize・1014-gds）で `workers/scheduler/`・scheduler-worker.md に触れるものは無い
+  - #504 の最新は ACF-16 の案のコメントで、他セッションの着手中は無い。着手中のコメント https://github.com/retroeater/mj/issues/504#issuecomment-6159454137
+  - 取り込んだ cloudflare に `scripts/morning_report.py`（OHA のチャット、mj-logs の `actions/morning.md`）が入っていた。`workers/scheduler/schedule.json` の `rows` を読むだけで、この指示では schedule.json を変えないので重ならない
+  - 前提（`dueRows()` の窓 `(scheduledTime - 1分, scheduledTime]`・表の作り・`[scheduled]` の見分け方）は実物どおり
+- 手順2:
+  - テストを新しいファイル `workers/scheduler/test/catchup.test.mjs` に 15 件足した（遅れた回の見分け・チェックポイントの回〈04:30 の行は 04:35・04:40・04:50・05:10〉・04:30 の回が来ず 04:35 に一覧が空なら起動・一覧に `[scheduled]` があれば起動しない・手動の実行は数えない・04:10 の回が 04:37 に届いたら確かめて起動しない／一覧に無ければ起動・60 分を過ぎたら起動しない・ふだんの回は一覧を引かない・同じ回は表の順・ふだんの1日の REST の数・06:15／06:30 の回・#506 に当日の確かめがあれば何もしない・無ければ書く・すべて success なら書かない）。直す前のコードでは、このファイルが「The requested module '../src/scheduler.mjs' does not provide an export named 'checkMorningRetry'」で落ちた（既存の 25 件は通った）
+  - 実装（`workers/scheduler/src/scheduler.mjs`）: 定数 `CHECKPOINT_MINUTES = [5, 10, 20, 40]`・`CATCHUP_LIMIT_MS = 60 分`・`LATE_TICK_MS = 2 分`・`CHECK_RETRY_MINUTES = [06:15, 06:30]`、関数 `isLateTick()`・`checkpointRows()`・`isCheckRetryTick()`・`checkMorningRetry()`。`dispatchDue()` に引数 `now`（既定は `scheduledTime`。既存のテストはそのまま通る）を足し、起動の本体を `dispatchRow()`、一覧の確かめを `startedSince()`（`event=workflow_dispatch&branch=<ref>&created>=<予定>`、題が `[scheduled]`、一覧を引けなければ起動しない）に分けた。`index.mjs` は `Date.now()` を渡し、遅れて届いた回では朝の確かめをしない（まとめて届くと二重に書くため）。朝の確かめの判定は実際の時刻で行う
+  - 案の (ii) との違い: 「前の行がまだ起動していなければ同じ回で先に起動する」は、同じ回に起動する行を表の順に処理する形にした（チェックポイントの間隔〈5 分〉が予定の間隔〈5〜10 分〉以下なので、前の行の埋め合わせは後の行の予定より前か同じ回に来る）
+  - テスト: `node --test 'workers/scheduler/test/*.test.mjs'` 40 件すべて pass、`python3 -m unittest discover -s scripts/tests` OK（取り込み後も同じ）
+  - REST の増分（テスト「REST の数」と数え上げ）: チェックポイントの一覧は1行1日4回 → 5行で 20 回。06:15・06:30 の書き直しは、すべて success の日に各回 #506 のコメント1回＋一覧5回で 12 回（未起動がある日は状態の GET が足される）。合わせて 1日 約32回（見込み「約20回＋朝の確かめの分」の内、2倍を超えない）。今の同期の判定（毎分 1,440 回）と比べて小さい。遅れて届いた回の確かめは、抜けた日だけ
+- 手順3（マージ前）: docs/notes/scheduler-worker.md の「動き」の 1（起動）に埋め合わせと遅れて届いた回の段落、3（朝の確かめ）に 06:15・06:30 の書き直しを足し、「取りこぼした回の埋め合わせはしない」を消した。決定を docs/decisions/automation.md に足した。ACF-16 のログの状態に `/ 続き: CHAT-1014-ACF-18` を足した。`origin/cloudflare` を取り込んだ（衝突なし）
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 705aa423）: https://github.com/retroeater/mj-logs/tree/main/guide/705aa423
+ガイド文書（この版を写した時点の最新、mj 592334b3）: https://github.com/retroeater/mj-logs/tree/main/guide/592334b3
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/705aa423/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/705aa423/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/705aa423/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/705aa423/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/705aa423/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/705aa423/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/592334b3/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/592334b3/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/592334b3/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/592334b3/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/592334b3/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/592334b3/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/191d9dbd.md
