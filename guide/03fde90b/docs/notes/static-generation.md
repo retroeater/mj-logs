@@ -364,7 +364,10 @@ title/ では「タイトル戦」タブの大会の改名が「タイトル」�
   LV-29「全動画」→「連盟ch」・列「候補」→「放送対局」・列の並べ替え）。`fetch_records()` のように、生成に使う列の見出しが
   欠けている・重複しているときだけ止め、知らない列が増えても止まらない形にする（列記号の `SELECT A,I,J` は並べ替えで無言に別の列を読む）
 - **「プロ」シートは `lib/pro_sheet.py` の `fetch_pros()` で読む**（#536）。読む列は見出しの定数（`pro_sheet.NAME`・`SORT_KEY` など）の組で渡し、
-  在籍は見出し「表示」が Y の行（旧 `WHERE Y = "Y"`）、並びは `sort=True` で「ソートキー」の順（旧 `ORDER BY B`）。見出しはセル内改行を除いて比べ
+  在籍は見出し「表示」が Y の行（旧 `WHERE Y = "Y"`）、並びは `sort=True` で「ソートキー」の順（旧 `ORDER BY B`）。
+  「表示」が N の人（名簿にいて本番に出す時機を待つ人）は、本人のページ（jpml_pros・houou/ の在籍者・辞書・誕生日・SNS ブック）には出さず、
+  ほかの人のページ（/live・title/・saikyo/・順位変動・jpml_test・帰り道・書籍）と検査（名簿・最強戦の未登録・帰り道）・道場部ゲストの照合では
+  登録済みとして名前だけで扱う（写真・X は出さない）。後者は `fetch_pros(..., hidden=True)`（`lib/sns.py` の同名の関数は、その人の SNS の値を空にする）で読む（2026-10-13）。見出しはセル内改行を除いて比べ
   （「鳳凰\nAmpai」は `鳳凰Ampai`）、A列の「登録名\n0.74」は改行の前の「登録名」で引く（#467）。必要な見出しが無い・2つ以上の列に当たるときは止める。
   SNS の見出し（`X_ID` など `pro_sheet.SNS_HEADERS`）を渡すと止める（列は 2026-10-12 に廃止。値は `lib/sns.fetch_pros()` が SNS ブックから入れる、#514）。
   列記号で「プロ」を読む箇所は無い（`scripts/tests/test_pro_sheet.py` が `WHERE Y = "Y"`・`PRO_QUERY` などの再登場を検査する）。
@@ -375,6 +378,13 @@ title/ では「タイトル戦」タブの大会の改名が「タイトル」�
   `generate_title_pages.py` の `EXPECTED_HEADERS` の照合で /live・/title・最強戦（作業ブランチの実装）の生成が止まり、壊れたページを書き出す前に拾えた
   （SX-08 で判明、/live・/title は SX-09、最強戦は SX-10 で見出しを合わせた）。
   平野さんはシートを直したらチャットに伝える運用にした（2026-09-19）
+
+#### 平野さんがシートを用意した・直したと言ったときのチャット側の指示
+
+`docs/notes/chat-side-operations.md`「書く前に実物で確かめる」から移した（2026-10-13）。
+
+- 平野さんがシート（タブ）を用意した・直したと言ったとき: 実装の指示の前に、生成と同じ経路で読ませ、見出し・件数・既存の公開物との差を報告させる（差は止まる条件にせず、どちらを正とするかを平野さんに聞いてから書く）。生成で止まるかどうかだけなら、先に `python3 scripts/regenerate.py --check <ページ>` を流させる（ファイルを書かず止まる理由と警告を全部出す。static-generation.md）。
+  消す・直すを頼むときは済んだ後の状態（ブックごとのタブの数など）を書き、平野さんに数を返してもらってから次の指示を作る（申告だけで作ると、残りがあって止まる）
 
 ### 新しいページを作るとき（/live の実例、CHAT-0916-LV-33）
 
@@ -421,6 +431,7 @@ GitHub Actions (`.github/workflows/regenerate-page.yml`) が、`scripts/generate
 | `sync-books-calendar.yml` | **2026-09-22 開発凍結にともない無効化（`gh workflow disable`）。** 元は毎週月曜05:27 JSTに「書籍」タブの発売日をGoogleカレンダーへ同期していた（#97、`docs/notes/books-calendar.md`・`docs/notes/books-freeze.md`） |
 | `sync-logs.yml` | **2026-10-07 から停止中（`workflow_dispatch` のみ。push・予約・Worker からの起動を外した、#298）。写しは mj-logs 側の `sync-from-mj.yml`（下）。** 以下は止める前の動き: `docs/logs/**` を含む push（cloudflare は毎回、`work/**` はコミットのメッセージに`[sync-logs]`のある push だけ。無い push はジョブが skip、#298）・毎日05:30 JST の Worker `mj-scheduler` からの起動（入力 `scheduled`、#504）・毎日 08:29 JST の予約実行（保険）・手動実行（この3つは目印に関係なく走る、#498）。実行の時点の mj と mj-logs を突き合わせ、写っていない・古い作業ログを public の `retroeater/mj-logs` の `logs/` へ写し、cloudflare で削除されたログを消す（#440。書き込みはシークレット `MJ_LOGS_TOKEN`）。concurrency は `queue: max` で、続けて来た実行を取り消さずに1本ずつ順に動かす（#509）。取り消された実行（待ちが100本を超えたとき、`queue: max` を持たない古い分岐の作業ブランチの実行）の分は、次の cloudflare の実行で追いつく（`scripts/sync_logs.py`、#454）。使用済みの Chat-Ref 識別子の一覧も毎回集め直して `chat-ids/` に写す（`scripts/chat_ids.py`、#474）。毎回、各ワークフローの直近5回の実行（開始時刻・契機・ブランチ・結論・run 番号・所要時間、失敗したジョブ名とステップ名）を mj-logs の `actions/status.md` に上書きで書き出す（`scripts/actions_status.py`、`GITHUB_TOKEN` の `actions: read`。コミットの題とログの中身は書かない、#498） |
 | `delete-merged-branches.yml` | 毎日07:53 JST と手動、Worker `mj-scheduler` からの予約の起動（毎日04:20 JST、入力 `scheduled`、#504。Worker が動くのは平野さんがつないだ後）。マージ済みで先頭が24時間より前の `work/*` を削除する（#440、`scripts/delete_merged_branches.py`） |
+| `notify-build-failure.yml` | Workers Builds の check-run の完了（`check_run`、既定ブランチのファイルだけが働く）と手動（入力 check_run_id・dry_run）。名前が「Workers Builds:」で始まる failure で、コミットが cloudflare に入っていればジョブを失敗させて失敗通知メールで知らせる（`scripts/check_build_failure.py`、#561、`docs/notes/cloudflare.md`「ビルドが Cloning で失敗したとき」）。それ以外の起動はジョブが skipped で残る（1日約100回）。2026-10-13 に有効化（`NOTIFY_ENABLED: 'true'`。cloudflare での手動実行 run 38415024219・38415113000・38415117501 で判定とジョブの失敗を確かめた） |
 | `update-sns-book.yml` | 毎日04:10 JST に Worker `mj-scheduler` から（入力 `scheduled`）と手動（mode: check / init / update、dry_run 既定）。SNS ブックの【1】【2】【3】を書き、【3】のページが使う値が変わった日は `regenerate-page.yml`（all）を呼ぶ（`scripts/update_sns_book.py`、#514、`docs/notes/sns-book.md`） |
 
 - `scripts/sync_all_logs.py`（#298）: `origin/cloudflare` と未マージの `origin/work/**` のすべてについて、`sync-logs.yml` の「ログ・ガイド文書を写す・消す」と同じ手順で mj-logs の作業ツリーへ写す（commit・push はしない）。mj-logs 側の `sync-from-mj.yml` から呼ぶ
