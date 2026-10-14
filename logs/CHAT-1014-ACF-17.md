@@ -48,15 +48,52 @@ ACF-15 は、houou/ のランキングの表のアイコンが CSS で 40px（DS
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+- 0章: ログの「指示」欄の末尾が指示文の最後の行と一致することを確かめた。CHAT-1013-ACF-15 の `## 報告` の状態は「判断待ち」
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- Chat-Ref の重複: `git log --all --grep="CHAT-1014-ACF-17"` は 0 件
+- 作業ブランチ: ローカルの `work/1013-acf-xsize`（0ce51401）は `origin/work/1013-acf-xsize` と同じ。`git checkout work/1013-acf-xsize` → ログの先行 push → `git merge origin/cloudflare`（衝突なし）。取り込む前の cloudflare との差は ACF-15・ACF-17 のログと docs/decisions/saikyo.md だけ
+- 手順1:
+  - 未マージの work/ ブランチ（1009-swp-526・1011-swp-hnd・1011-swp-nav・1014-gds・1014-oha・1014-snm-handover）で `generate_houou_*`・houou_race/・houou/・`lib/x_images.py`・`style.css`・`assets/houou*` に触れるものは無い
+  - #558 は Open、他セッションの着手中は無い。着手中のコメント https://github.com/retroeater/mj/issues/558#issuecomment-6159279415
+  - CSS（style.css）: `.mj-race-chip` 28px、houou/ の順位変動の `.mj-houou-race .mj-race-chip` 1.75rem（28px）、`.mj-houou-avatar` 28px、`.mj-houou-rank .mj-houou-avatar` 40px（ランキングの表）。前提どおり
+  - 使われ方: `avatar_html()` を呼ぶのは `ranking_row_html()` だけ。`"img"`（`build_unit()`）を JS で使うのは `assets/houou_race.js` の丸だけ。Python では 388行（写真の無い人の数え上げ）だけ。houou/ の選手の写真・個人成績のリーグの図は `load_profiles()` の `img`（`_200x200`）で、順位変動のデータではない
+  - 表のアイコンの HTML の属性は `width="28" height="28"` のまま（CSS が 40px にする）。属性は変えていない（DSN の領域）
+- 手順2:
+  - テストを3件足した: `test_houou_race.py` の `test_chip_image_is_80x80`、`test_houou_check.py` の `RankingAvatarTest`（`test_row_icon_is_80x80`・`test_no_image_keeps_initial`）。直す前のコードでは `test_chip_image_is_80x80` と `test_row_icon_is_80x80` が FAIL（写真の無い選手のテストは変わらないことの確かめなので前後とも通る）。houou/ の選手の写真が `_200x200` のままなことは既存の `profiles_for()` のテスト（`_200x200`）が見ている
+  - 直したところ: `generate_houou_race.py` に `CHIP_IMAGE_SIZE = SIZE_80` を足し、`build_unit()` の `"img"` を `with_size(img, CHIP_IMAGE_SIZE)`。`generate_houou_pages.py` に `RANKING_ICON_SIZE = SIZE_80` を足し、`ranking_row_html()` で `with_size(icons.get(...), RANKING_ICON_SIZE)`。`IMAGE_SIZE` は変えていない。全体のテスト OK（31ebd3c34「feat: 鳳凰戦の X のアイコンを 80x80 で出す」）
+  - 再生成（`python3 scripts/regenerate.py houou_race houou_pages`）: 差は 91 ファイル（houou_race/ 41・houou/race/ 41・houou/ranking/ 9）。各ファイルで `profile_images/…_200x200`（前）と `…_80x80`（後）を同じ印に置き換えて比べると 91 ファイルとも一致（末尾以外の変化 0）。houou_race.html と houou/ のほかのページは変わらない
+  - 末尾の件数（前 → 後）: houou_race/ `_200x200` 8,503 → `_80x80` 8,503、houou/race/ 同じく 8,503 → 8,503、houou/ranking/ `_200x200` 756 → `_80x80` 756。houou/ 全体は `_200x200` 9,838・`_80x80` 579 → `_200x200` 579・`_80x80` 9,838（残る `_200x200` 579 は選手の写真、`_80x80` には前からの候補の 579 を含む）
+  - 変わった URL の確かめ: 変わった `_80x80` の URL 579 種類を全部 HEAD した。578 が 200、**1 件が 404**: 上田稜 `https://pbs.twimg.com/profile_images/1235610083922305025/hKnrB159_80x80.jpg`。1回だけやり直しても 404。同じ写真の `_200x200`・`_400x400` は 200（大きさごとに片方だけ切れる例）
+    - この `_80x80` は、前から houou/search.json（候補の 32px の画像）でも使われていた（本番でも切れている）
+    - 表示への影響: 順位変動の丸は画像の読み込みに成功したときだけ写真を出す作りで、失敗すると名前の頭の1字の丸のまま。ランキングの表は houou.js が読めないとき頭の1字に差し替える。どちらも代替（頭の1字）に落ちる
+  - **止まる条件「やり直しても 404 が出る」に当たったため、プレビューの確かめ・文書の直し・マージをせずに止めた**。コードと再生成の結果は作業ブランチにだけコミットした（f2285498）
+- 決定を docs/decisions/saikyo.md に足した。ACF-15 のログの状態に `/ 続き: CHAT-1014-ACF-17` を足した
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1013-acf-xsize
+- ログ: https://github.com/retroeater/mj/blob/work/1013-acf-xsize/docs/logs/CHAT-1014-ACF-17.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1013-acf-xsize
+- 確認用URL: プレビューは見ていない（止まる条件に当たった後のため）。作業ブランチへの push でビルドされる見込み
+- マージ: 未（変わった URL の1件が `_80x80` だけ 404 で、止まる条件に当たったため）
+- issue: #558（着手中のコメントの後、止めた旨をコメント）
+- 判断が必要なこと:
+  - 上田稜の写真は `_80x80` だけ 404（`_200x200`・`_400x400` は 200）。`_80x80` にすると順位変動の丸とランキングの表で頭の1字に落ちる（候補の 32px は前から切れている）。進め方を選ぶ: (a) このままマージする（1人だけ頭の1字。X 側で `_80x80` が直れば戻る。毎朝の検知は `_400x400` だけを見るので気づけない）／(b) 1人だけのために作りを変えない範囲で、上田稜の X の画像を取り直す（SNS ブックの毎日の更新は `_400x400`・`_200x200` だけを確かめるので、自動では取り直さない。【4】手動補正に新しい URL を入れる）／(c) `_80x80` をやめ、表のアイコンと丸は `_200x200` のまま
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 66e8343c）: https://github.com/retroeater/mj-logs/tree/main/guide/66e8343c
+ガイド文書（この版を写した時点の最新、mj 6820592e）: https://github.com/retroeater/mj-logs/tree/main/guide/6820592e
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/66e8343c/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/66e8343c/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/66e8343c/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/66e8343c/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/66e8343c/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/66e8343c/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6820592e/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6820592e/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6820592e/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6820592e/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6820592e/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6820592e/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/191d9dbd.md
