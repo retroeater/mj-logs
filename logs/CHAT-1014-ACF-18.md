@@ -1,0 +1,68 @@
+# CHAT-1014-ACF-18
+
+- 着手日時: 2026-10-14
+- 対象issue: #504・#506
+- ブランチ: work/1014-acf-cron
+- 着手時HEAD: 705aa4237f0e4861338ff60f6be6e1c1a756e980
+
+## 指示
+
+【Claude作成】Claude Code 向け指示：CHAT-1014-ACF-16 の判断待ちへの回答 — Worker（mj-scheduler）に、取りこぼした予定を後の回で起動する埋め合わせと、朝の確かめの書き直しを入れる Chat-Ref: CHAT-1014-ACF-18 マージ: 承認済み（チャットで、2026-10-14。平野さんが ACF-16 の4つの選ぶ点をすべて勧める案で答えた）。条件は「止まる条件」に当たらず、テストが通り、マージ後の Workers Builds（check-run「Workers Builds: mj-scheduler」）が success であること 貼る時機: いつでも（CHAT-1014-ACF-16 は完了報告済み〈状態: 判断待ち〉）。ただし毎朝の起動と重ならないよう、03:30〜06:45 には cloudflare へ入れない（デプロイの反映は最大15分）。CHAT-1014-ACF-17 とはブランチが別なので、並行で動かすなら別のセッションに貼る 共通手順: CLAUDE.md「Chat-Ref」「ブランチ運用」「作業ログ」節のとおり（識別子確認 → origin/cloudflare を起点に work/<識別子>〈クラウドセッションでは worktree を使わず docs/notes/cloud-sessions.md の読み替えに従う〉 → ログ先行push → 最終報告の Chat-Ref の行の直前に「ログ（公開）」の行、最後の行に Chat-Ref）。平野さんは、この指示のための作業ブランチ work/1014-acf-cron の作成と push を許可している（セッションに割り当てられた claude/… のブランチは使わない）。識別子 ACF は同じチャットの CHAT-1012-ACF-01〜05・CHAT-1013-ACF-06〜15・CHAT-1014-ACF-16・17 で使ったもの。 作業ブランチ: クラウドセッションで実行する。work/1014-acf-cron を使う。リモートに無ければ origin/cloudflare から作る。リモートにあってマージ済み（`git merge-base --is-ancestor origin/work/1014-acf-cron origin/cloudflare` が真）なら origin/cloudflare から作る（`checkout -B` は使わない。ローカルにあるときを含め手順は docs/notes/cloud-sessions.md「作業ブランチの用意」）。マージ済みでなければ止まる。cloudflare へ入れるときの取り込みで docs/ の文書が衝突したら、両方の変更が両立する衝突（追記どうし・隣り合う行）は、両方を残して解いてよい。解いた後の該当箇所をログに引用する。それ以外の衝突は解かずに止まる
+
+0. 着手前に、このログの「指示」欄の末尾が、この指示文の末尾（最後の行）と一致しているか確認し、一致しなければ作業せず報告する。あわせて CHAT-1014-ACF-16 のログの `## 報告` を読み、状態が「判断待ち」でなければ何もせず止まる。
+
+目的
+2026-10-14 の朝、Cloudflare の定時の回が抜け・遅れて届き、check-image-links が未起動になった（ACF-16）。Worker に、取りこぼした予定を後の回で起動する埋め合わせを入れ、遅れて届いた回で二重に起動しないようにし、06:00 の朝の確かめの回が抜けても確かめが書かれるようにする。
+決定（2026-10-14、平野さん。#504 の ACF-16 の案〈https://github.com/retroeater/mj/issues/504#issuecomment-6159187821 〉の勧めるとおり）
+
+* さかのぼる幅は予定から 60 分
+* 二重起動を避ける方法は案 A: 状態を持たず、予定から 5・10・20・40 分後の回だけ、その行の当日の実行の一覧を REST で引き、`[scheduled]` の実行が無ければ起動する（1行1日4回、5行で約20回）
+* 遅れて届いた回（実際の時刻と `scheduledTime` の差が 2 分超）は、ふだんの起動をせず、一覧を確かめてから起動する。チェックポイントの判定は実際の時刻で行う
+* 06:00 の朝の確かめの回が抜けたときに備え、06:15・06:30 の回でも確かめ、#506 に当日の確かめが無ければ書く
+* 「取りこぼした回の埋め合わせはしない」（docs/notes/scheduler-worker.md「起動」）を改める
+
+前提（チャット側。平野さんの決定ではない）
+
+* 作りの詳細（一覧の引き方 `GET …/actions/workflows/<ファイル>/runs?event=workflow_dispatch&branch=cloudflare&created>=<予定>`、`[scheduled]` の見分け方、起動の順番を表の順に保つこと、テストの項目、マージ後の確かめ方）は ACF-16 の案の (ii)〜(vi) が正。実物と合わなければ合わせて、どう直したかをログに書く
+* 未マージの work/ ブランチ（2026-10-14 11:10 JST、REST）: 1009-swp-526・1011-swp-hnd・1011-swp-nav・1013-acf-xsize・1014-gds・1014-oha。どれも `workers/scheduler/`・docs/notes/scheduler-worker.md に触れていない。着手時に改めて確かめる
+* ダッシュボードの Trigger Events はチャット側の Chrome で開いたが、過去の回の一覧（「View events」）は見当たらなかった（2026-10-14）。Observability の 15 分ごとの件数で抜けは確かめてある（ACF-16 の前提）。この指示では見ない
+* 本番で抜けは起こせないので、マージ後の確かめは「ふだんの朝が変わらない」「チェックポイントの回の REST の数が見込みどおり」を数日見ることになる（ACF-16 の案の (vi)）。Observability は平野さんかチャット側が見る
+* 10/13 の mj-scheduler のビルドの失敗は #561（Closed、BLD のチャット）で扱い済み。この指示では扱わない
+* 使う skill は無い
+
+手順
+
+1. 同じ目的の issue と、未マージの work/ ブランチで `workers/scheduler/` に触れるものが無いことを確かめる。#504・#506 の最新のコメント、docs/notes/scheduler-worker.md、`workers/scheduler/` の src・test・schedule.json を読む。#504 に他セッションの着手中コメントが無ければ、着手中のコメントを残す
+2. テストを先に足し（ACF-16 の案の (vi) の項目。偽の fetch と時計）、直す前のコードで通らないことを確かめる。そのうえで実装し、`workers/scheduler/` のテスト（`node --test` など、既存のやり方）と `python3 -m unittest discover -s scripts/tests` を通す。1日の REST の増分を、テストかコードの数え上げで見込み（約20回＋朝の確かめの書き直しの分）と比べてログに書く
+3. docs/notes/scheduler-worker.md の「起動」（埋め合わせの記述）と「朝の確かめ」を直す。#506 の本文に読み方の説明があれば合わせる。上の「決定」を docs/decisions/automation.md に足す。cloudflare へマージする（03:30〜06:45 を避ける）。マージ後、check-run「Workers Builds: mj-scheduler」が success になることを確かめる（Cloning の失敗〈cloudflare.md「ビルドが Cloning で失敗したとき」〉なら設定は変えず、ログに書いて「判断が必要なこと」に Retry build を頼む旨を書く）。#504 に結果と、マージ後に数日見ること（ACF-16 の案の (vi)）をコメントする。ACF-16 のログの状態の末尾に `/ 続き: CHAT-1014-ACF-18` を足す
+
+止まる条件
+
+* CHAT-1014-ACF-16 の状態が「判断待ち」でない、同じ目的の issue がある、未マージの work/ ブランチが `workers/scheduler/` を変えている、または #504 に他セッションの着手中コメントがある
+* 案の前提（`dueRows()` の窓・起動の表の作り・ゲートの見分け方）が実物と違い、決定のとおりに作れない
+* 足したテストが直す前のコードで通ってしまう、またはテストが通らない
+* 1日の REST の増分が見込み（約20回＋朝の確かめの分）の2倍を超える
+* Worker の設定（cron・vars・秘密）を変える要が出た
+* 差分が `workers/scheduler/`・上の文書・#506 の本文・docs/decisions・ログ以外に出た
+* cloudflare への push が権限判定で拒否された（別の手段を試さずに止まる）
+
+完了条件
+
+* ログの「## 報告」を CLAUDE.md「作業ログ」節のとおりに書いて push する。マージ後に数日見ることは「未確認の項目」に書く
+* マージは冒頭の「マージ:」の行のとおり
+* ターミナルへの最終報告の Chat-Ref の行の直前に ログ（公開）: https://github.com/retroeater/mj-logs/blob/main/logs/CHAT-1014-ACF-18.md?v=<SHA>（CLAUDE.md「作業ログ」節）を書き、最後の行に Chat-Ref: CHAT-1014-ACF-18 を書く
+
+不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
+
+<!-- guide-links -->
+---
+
+ガイド文書（この版を写した時点の最新、mj 705aa423）: https://github.com/retroeater/mj-logs/tree/main/guide/705aa423
+
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/705aa423/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/705aa423/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/705aa423/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/705aa423/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/705aa423/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/705aa423/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/191d9dbd.md
