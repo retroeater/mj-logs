@@ -49,6 +49,27 @@ PLB-02 の成果（読む先を「ryoei.pro_選手」に切り替え、「桜花
 
 ## 経過
 
+### 着手前の確認
+
+- 0: ログの「指示」欄の末尾は指示文の最後の行と一致。PLB-02 の `## 報告` は「判断待ち」→ 末尾に `/ 続き: CHAT-1014-PLB-03` を足した
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 全部ある
+- `CHAT-1014-PLB-03` のコミット: 無し。`work/1014-plb` はリモートにあり、ローカルと一致（a8d9013）
+
+### 手順1: 取り込み・テスト・全ページの比較・G 列を残した見出しの確かめ
+
+- `git merge origin/cloudflare`（e6dd2e0、衝突なし）→ 476853c
+- `python3 -m unittest discover -s scripts/tests`: OK
+- 全ページの比較: scratchpad に `git clone --shared` で2つ作り、origin/cloudflare（e6dd2e0）と作業ブランチ（476853c）で `python3 scripts/regenerate.py all` を並べて実行（どちらも exit 0、飛ばしたページなし）。
+  **生成物の差なし**（両方とも作業ツリーの変更0件、`diff -rq` で違うのはソースだけ）
+- G 列を残した JWRC（C〜E・N〜U・W を除いた見出し）: PLB-02 と同じ node の確かめで、wrc_results.js の1件・league_ranking.js の JWRC 8区分とも、消す前の見出しと同じ見出しの列を指す。コンソールのエラー0件。
+  桜花（C・G・Q〜U・W を除く）も同じく一致。
+  （途中で、node の確かめの抜き出しが PLB-02 で先頭へ移した `SHEET_COLUMNS` を含まず ranking の分が例外で止まっていたことに気づき、抜き出しを直して全件を確かめ直した。ページのコードの問題ではない）
+
+### 手順2: #567
+
+- 本文: 決定に「JWRC の G 列は残す（予選の通過・敗退を載せる可能性）」を足し、JWRC の消す列を C〜E・N〜U・W に直した。
+  マージ後の手作業の順番（改名 → 列の削除 → 1週間後に元のタブの削除。どれもマージ後。マージ後の選手の追加・改名は ryoei.pro_選手 で）を書いた
+
 ## 報告
 
 - 状態: 作業中
@@ -65,12 +86,12 @@ PLB-02 の成果（読む先を「ryoei.pro_選手」に切り替え、「桜花
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 913ca2c1）: https://github.com/retroeater/mj-logs/tree/main/guide/913ca2c1
+ガイド文書（この版を写した時点の最新、mj 904d73a3）: https://github.com/retroeater/mj-logs/tree/main/guide/904d73a3
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/913ca2c1/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/913ca2c1/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/913ca2c1/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/913ca2c1/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/913ca2c1/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/913ca2c1/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/904d73a3/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/904d73a3/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/904d73a3/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/904d73a3/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/904d73a3/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/904d73a3/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/f0502df9.md
