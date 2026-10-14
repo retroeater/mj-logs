@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-14 17:55 JST
+- 書き出した時刻: 2026-10-14 17:56 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -12,12 +12,13 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-10-14 17:54 | push | work/MTK | in_progress | #3575（38538480828） |  |
+| 2026-10-14 17:54 | push | work/MTK | failure | #3575（38538480828） | 0分17秒 |
 | 2026-10-14 17:52 | push | work/MTK | failure | #3574（38538215818） | 0分18秒 |
 | 2026-10-14 17:47 | push | work/1014-skd | success | #3573（38537634328） | 0分19秒 |
 | 2026-10-14 17:33 | push | work/1014-hou | success | #3572（38536003268） | 0分18秒 |
 | 2026-10-14 17:15 | push | cloudflare | success | #3571（38533807694） | 0分20秒 |
 
+- #3575 failure: ジョブ「check」 ステップ「公開対象の最上位を確認」
 - #3574 failure: ジョブ「check」 ステップ「公開対象の最上位を確認」
 
 ## check-image-links.yml
@@ -111,11 +112,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-14 17:56 | check_run | cloudflare | queued | #108（38538676806） |  |
 | 2026-10-14 17:50 | check_run | cloudflare | skipped | #107（38537975451） | 0分10秒 |
 | 2026-10-14 17:38 | check_run | cloudflare | skipped | #106（38536518672） | 0分01秒 |
 | 2026-10-14 17:21 | check_run | cloudflare | skipped | #105（38534488835） | 0分01秒 |
 | 2026-10-14 17:18 | check_run | cloudflare | skipped | #104（38534188784） | 0分01秒 |
-| 2026-10-14 17:03 | check_run | cloudflare | skipped | #103（38532409817） | 0分01秒 |
 
 ## regenerate-page.yml
 
