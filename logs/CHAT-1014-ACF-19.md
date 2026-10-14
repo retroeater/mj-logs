@@ -46,15 +46,37 @@ ACF-17 は、変わった URL の確かめで上田稜の `_80x80` だけが 404
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+- 0章: ログの「指示」欄の末尾が指示文の最後の行と一致することを確かめた。CHAT-1014-ACF-17 の `## 報告` の状態は「判断待ち」
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- Chat-Ref の重複: `git log --all --grep="CHAT-1014-ACF-19"` は 0 件
+- 作業ブランチ: ローカルの `work/1013-acf-xsize`（fa9837cd）は origin と同じ。`git checkout work/1013-acf-xsize` → ログの先行 push → `git merge origin/cloudflare`（衝突なし、64bb652b）
+- 取り込む前の cloudflare との差: ACF-15・ACF-17・ACF-19 のログ、docs/decisions/saikyo.md、ACF-17 のコードとテスト（`generate_houou_race.py`・`generate_houou_pages.py`・`test_houou_race.py`・`test_houou_check.py`）、再生成の結果（houou_race/ 41・houou/race/ 41・houou/ranking/ 9）。指示文の書いたものだけ
+- 手順1: 未マージの work/ ブランチ（1009-swp-526・1011-swp-hnd・1011-swp-nav・1014-gds・1014-wfl）で houou・`style.css`・`assets/houou*`・`lib/x_images.py` に触れるものは無い。#558 は Open、他セッションの着手中は無い。着手中のコメント https://github.com/retroeater/mj/issues/558#issuecomment-6159620409
+- 手順2:
+  - コードとテストは ACF-17 でコミット済み（31ebd3c3。テストを先に足し、直す前に2件が落ちることを ACF-17 で確かめてある）。取り込み後に `python3 -m unittest discover -s scripts/tests` OK
+  - 取り込み後のコードで `python3 scripts/regenerate.py houou_race houou_pages` を流し直した。作業ブランチとの差は 0（ACF-17 の再生成のまま）。cloudflare との差は 91 ファイル（houou_race/ 41・houou/race/ 41・houou/ranking/ 9）で、`_200x200`／`_80x80` を同じ印に置き換えて比べると 91 ファイルとも一致（末尾以外の変化 0）
+  - 末尾の件数（cloudflare → 作業ブランチ）: houou_race/ `_200x200` 8,503 → `_80x80` 8,503、houou/race/ 8,503 → 8,503、houou/ranking/ 756 → 756
+  - 変わった `_80x80` の URL 579 種類を全部 HEAD: 578 が 200、404 は上田稜の `…/1235610083922305025/hKnrB159_80x80.jpg` の1件だけ（やり直しても 404。指示のとおり受け入れる）
+  - プレビュー（check-run「Workers Builds: mj」、64bb652b、success。URL は最終報告）をヘッドレスの Chromium（390px 幅）で見た:
+    - houou_race.html（既定の表示）: 丸 16 個のうち写真 15 個。写真の無い1つ（「高橋」）はデータの `img` が空の選手（43-1 の高橋良介は `img` が空）で、元から頭の1字
+    - houou/race/: 同じく 16 個のうち 15 個が写真、残りの1つは同じ選手
+    - houou/ranking/: `img.mj-houou-avatar` 91 枚、読めないもの 0、頭の1字 9（生成した HTML の時点で写真の無い選手 9 人と同じ数）。1枚目は `_80x80` で実寸 80
+    - houou/players/?name=平野良栄: 選手の写真は `_200x200`（実寸 200）のまま
+    - 上田稜は既定の表示に出ないため、プレビューでは見ていない（`_80x80` は 404 なので、出れば頭の1字になる）
+  - 段階2の結果: SNS ブック【3】を gviz で読み直すと、X画像URL は `_400x400` 1,051・既定アイコン 12（`_200x200` 11・`_normal` 1）で、`_80x80` は 0（10/14 の朝の更新で書き換わった）
+  - docs/notes/sns-book.md の「houou_race の丸・houou/ の表のアイコンの `_80x80` 化は … 未了」を済の記述に直した。決定を docs/decisions/saikyo.md に足した。ACF-17 のログの状態に `/ 続き: CHAT-1014-ACF-19` を足した
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 592334b3）: https://github.com/retroeater/mj-logs/tree/main/guide/592334b3
+ガイド文書（この版を写した時点の最新、mj 71f40273）: https://github.com/retroeater/mj-logs/tree/main/guide/71f40273
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/592334b3/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/592334b3/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/592334b3/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/592334b3/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/592334b3/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/592334b3/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/71f40273/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/71f40273/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/71f40273/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/71f40273/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/71f40273/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/71f40273/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/ec9e24c3.md
