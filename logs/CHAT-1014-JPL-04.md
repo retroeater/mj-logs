@@ -51,18 +51,113 @@ JPL-03 は「タイトル戦」タブに JPMLリーグ の行が無く止まっ�
 
 ## 経過
 
+### 着手前の確認
+
+- Chat-Ref: `CHAT-1014-JPL-04` のコミットは0件（同じセッションの続きなので識別子の重複確認は対象外）。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある。「指示」欄の末尾は指示文の最後の行と一致
+- ブランチ: `origin/work/1014-jpl`（144776ba1）はローカルと一致。`origin/cloudflare` が祖先でないため `git merge origin/cloudflare`（衝突なし、b0cfab082）
+- JPL-03 の `## 報告` の状態は「中断（エラー）」→ 末尾に ` / 続き: CHAT-1014-JPL-04` を足した
+- #497・#523 とも Open、他セッションの着手中コメント無し（#497 の JPL-03 の着手中はその中断コメントで解除済み）→ 両方に着手中コメントを残した
+- 未マージの `work/*` で docs/handover.md・docs/decisions/title.md・broadcast-calendar.md を変えているのは `work/1014-jpl` 自身だけ
+
+### 1. 「タイトル戦」タブ・「タイトル」タブ（生成と同じ gviz の経路、2026-10-14）
+
+「タイトル戦」タブ 31行。該当の行（大会名・slug・表示順・区分・状態）:
+
+| 行 | 大会名 | slug | 表示順 | 区分 | 状態 |
+|---|---|---|---|---|---|
+| 11 | JPMLリーグ | jwrc | 410 | 連盟 | 継続 |
+| 12 | WRCリーグ | jwrc | 420 | 連盟 | 継続 |
+| 13 | WRC-Rリーグ | jwrc-r | 430 | 連盟 | 継続 |
+
+- JPMLリーグ は1行、区分・状態は前提どおり、WRC 2大会の名前は決定どおり → 止まる条件（行・名前）には当たらない
+- **slug が JPMLリーグ と WRCリーグ で同じ「jwrc」**（チャット側の案は「jpml-league」）。表示順の重なりは無い（JPMLリーグ が 410 に入り、WRC 2大会が 420・430 へ1つずつ下がった）
+- 「タイトル」タブ 3,110行の大会名ごとの行数: JPML WRCリーグ 80・JPML WRC-Rリーグ 32（旧名）、WRCリーグ 0・WRC-Rリーグ 0・JPMLリーグ 0（新名）。
+  「タイトル」タブは大会名のほかに「タイトル」列（例「第1期JPML WRCリーグ」）も大会名・期と照合される
+
+### 2. 生成（手元、書き込み・push なし）
+
+`python3 scripts/regenerate.py --check title_pages`（ファイルは書かない、#551）: **止まる（105件）**。出力（「タイトル」タブの104件は同じ形なので先頭と末尾だけ）:
+
+```
+検査: 止まります(105件)
+- slug が重複しています: jwrc
+- 「タイトル」タブ: 113行目: 大会名が「タイトル戦」にありません: 'JPML WRCリーグ'
+- 「タイトル」タブ: 114行目: 大会名が「タイトル戦」にありません: 'JPML WRCリーグ'
+…
+- 「タイトル」タブ: 1263行目: 大会名が「タイトル戦」にありません: 'JPML WRCリーグ'
+検査の結果(1ページ):
+- title_pages: 止まる(--check)
+```
+
+`python3 scripts/regenerate.py --check live_pages`: **止まる（1件）**。/live も同じ「タイトル戦」タブを読み（`scripts/lib/live.py` の `parse_titles()`）、slug の重複で例外にする:
+
+```
+検査: 止まります(1件)
+- 読み込み: ValueError: 「タイトル戦」シートの値が不正です: slugの重複「jwrc」
+```
+
+`scripts/generate_ask_data.py` も同じ `load_titles()` を使うため、同じく止まる見込み（実行していない）。
+
+**追加の確かめ（読み込んだ値を手元のメモリ上で差し替えて組み立て。シート・ファイルは変えていない。スクリプトは scratchpad）:**
+
+- 改称前の再現（「タイトル戦」タブの WRC 2大会を旧名に戻し、JPMLリーグ の行を外す）: title/ は 384ページで、リポジトリの title/ と**全ページ一致**。/live は検査が通り 908ページ・公開する動画 2,918本。比較の基準にした
+- **slug だけ直した場合**（JPMLリーグ を jpml-league。WRC 2大会は新名のまま）:
+  - title/: 止まる（「タイトル」タブの旧名104件）
+  - /live: **検査は通る（止まらない）が、742ページ・2,593本に減る。** 【3】【2】の「タイトル戦」列が旧名の 325行（JPML WRCリーグ 223・JPML WRC-Rリーグ 102）が「タイトル戦が『タイトル戦』シートに無い」で公開されず、`/live/jwrc/`（111）・`/live/jwrc-r/`（55）の 166ページが消える（「転送先の無い URL(404 になる)」の警告だけ）
+- slug を直し、さらに「タイトル」タブの大会名とタイトル列も新名にした場合（案1の想定）:
+  - title/: 止まらない。384ページで増減・URL の変化なし。変わるのは 30ファイル（jwrc 20・jwrc-r 8・入口 index.html・search.json）で、表示名「JPML WRCリーグ」→「WRCリーグ」（title・description・og・パンくず・h1）。
+    **期ページの放送が外れる**: `broadcast_key()` が（大会名, 期）で【3】【2】の旧名と突き合わせるため、jwrc の期ページの YouTube へのリンクが 49→0、jwrc-r が 19→0
+  - 記録の無い大会: 「JPMLリーグ」「鳳匠戦」（今は「鳳匠戦」だけ）。JPMLリーグ のページは作られない
+  - /live: 上と同じく 166ページ・325本が消える（/live は「タイトル」タブを読まず、【3】【2】の旧名と「タイトル戦」タブを突き合わせるため）
+
+**次の自動実行で起きる見込み**（docs/notes/github-actions.md・workers/scheduler/schedule.json・各ワークフローの `on`）:
+
+| 実行 | 時刻（JST） | 見込み |
+|---|---|---|
+| update-live-channel.yml（Worker `mj-scheduler` の起動 / 保険の cron 21:43 UTC） | 毎朝 04:00 / 06:43。次は 2026-10-15 | ジョブ regenerate（live_pages・title_pages）で両方が止まり、`regenerate.py` が飛ばす（途中の出力は戻す）。成功したページが無いのでコミットなし、ジョブは「飛ばしたページを報告」で失敗。**/live・title/ は今の版のまま更新されない**（新しい放送が /live に出ない） |
+| regenerate-page.yml の週次（cron 20:37 UTC 日曜） | 2026-10-19（月）05:37 | 全ページのうち title_pages・live_pages（と ask の見込み）を飛ばし、残りをコミットしてジョブは失敗 |
+| cloudflare への push | — | `scripts/generate_*.py`・`scripts/lib/**`・`*.js` を変える push でだけ regenerate-page.yml が動く。この指示の docs のみの push では動かない |
+
+### 改称の影響（実物で確かめた範囲）
+
+| 場所 | 今の値 | 影響 | 直し方の案 |
+|---|---|---|---|
+| 「タイトル戦」タブ JPMLリーグ の slug | jwrc（WRCリーグ と重複） | **生成が止まる**（title/・/live・ask） | 「jpml-league」に（平野さんのシート作業、1セル） |
+| 「タイトル」タブ 大会名・タイトル列 | 旧名 112行（照合で止まるのは104行） | **title/ の生成が止まる** | 案1〜3（下の「判断が必要なこと」） |
+| 【3】【2】（/live のシート）の「タイトル戦」列 | 旧名 325行 | slug を直すと**照合が外れる**（/live の 166ページ・325本が消え、title/ の期ページの放送 68件が外れる）。止まらないので気付きにくい | 旧名のまま照合できるようにする（コード）か、【3】と抽出の規則（`live_extract.py`）を新名にする |
+| `scripts/lib/live_extract.py` の大会名の対応（`"JPML WRCリーグ": r"JPML\s*WRCリーグ|WRCリーグ|WRC"` など） | 旧名を出力 | 新しい【2】の行も旧名で作られ続ける（照合が外れる側に増える） | #523 の実装で新名にするか、旧名→新名の寄せを持つ |
+| `scripts/lib/wayhome_intake.py` の `TAIKAI_ALIASES`（`"JPMLWRC": "JPML WRCリーグ"`） | 旧名 | 「タイトル」タブを新名にすると、帰り道の新しい回の期の引き当てが外れる見込み（未実行） | #523 の実装で直す |
+| title/ の slug・URL（jwrc・jwrc-r） | jwrc・jwrc-r | 影響なし（JPMLリーグ の slug を変えれば） | — |
+| OGP 画像 `img/ogp/title/jwrc-black.png`・`jwrc-r-black.png` | 大会名「JPML WRCリーグ」などの文字が焼き込み（ファイル名から。画像の中身は目視していない） | 表示名を変えると**表示が変わる**（og:title と画像の文字が食い違う） | 作り直すなら名前を変える（docs/notes/ogp.md） |
+| `title/search.json`・`years.json`・`sitemap-title.xml` | — | 案1の想定で search.json の表示名だけ変わる。sitemap・years は増減なし | 再生成で追随 |
+| `scripts/lib/yotei.py` の `EVENTS`（`("WRCリーグ", "JPML WRCリーグ")`）とテスト | 旧名 | 影響なし（予定表の件名と YouTube の題名の両方を同じ規則で当てるだけで、「タイトル戦」タブと照合しない） | 表記をそろえるなら #523 で |
+| 手書きのページ・メタ（`apply_page_meta.py`・`llms.txt`・`index.html`・`wrc_ranking.html`・`wrc_results.html`・`rh_results_detail.html`・`video_live.html`） | 「JPML WRC」 | 影響なし（シートを読まない）。表記がそろわないだけ | #523 で |
+| 「別名」タブ（変換前・変換後・区分「登録名変更」15・「訂正」13） | 人の名前だけ | 大会名には効かない（`build_aliases()` は名前にだけ適用）。**「別名」で大会名を寄せる案はコードの変更が要る** | — |
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1014-jpl
 - ログ: https://github.com/retroeater/mj/blob/work/1014-jpl/docs/logs/CHAT-1014-JPL-04.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1014-jpl
-- 確認用URL:
-- マージ:
-- issue: #523・#497
+- 確認用URL: なし
+- マージ: 未（止まる条件「手順2で生成が止まる」に当たったため。docs の変更〈handover.md・decisions・JPL-01/03 のログ〉は作業ブランチにある）
+- issue: #523・#497（結果のコメントのみ。本文・状態・ラベルは変えていない）
 - 判断が必要なこと:
+  - 今のシートのままだと、次の毎朝（10-15 04:00 JST）から /live・title/ の再生成が止まり、ジョブが失敗し続ける（/live に新しい放送が出ない）。直すまでの扱いを決めてほしい
+  - JPMLリーグ の slug: 「jwrc」が WRCリーグ と重複。案「jpml-league」（既存の小文字・ハイフン区切り〈pro-queen・nihon-series〉に合わせ、jwrc の略し方と紛れない）。ただし改称を残したまま slug だけ直すと、/live は止まらずに WRC 2大会の 166ページ・325本を消す（気付きにくい）ので、改称の扱いと同時に直すこと
+  - 改称（#523）の扱いの案:
+    - 案1「タイトル」タブを新名に直す（大会名と「タイトル」列 112行）: title/ は通る。デメリット: /live（【3】【2】と抽出の規則が旧名）で 166ページが消え、title/ の期ページの放送 68件が外れる。直すには【3】の旧名 325行の書き換えと `live_extract.py`・`wayhome_intake.py` の変更（コード）が要る。平野さんの手作業: 大
+    - 案2「別名」で寄せる: 「別名」タブは人の名前用で、大会名には効かない。title/・/live の両方に大会名の別名を読む変更（コード）が要る。平野さんの手作業: 別名の2行だけ。デメリット: コードの変更と設計（どの列に・どの向きに寄せるか）が先に要る
+    - 案3「タイトル戦」タブに旧名を残して表示名だけ変える仕組みを作る（例: 「タイトル戦」タブに「表示名」列を足し、照合は旧名、表示は新名）: 照合が外れない。デメリット: コードの変更（title/・/live の表示）と OGP 画像の作り直し。平野さんの手作業: 列の追加と2セル
+    - 案4（暫定）「タイトル戦」タブの WRC 2大会の大会名を旧名に戻し、JPMLリーグ の slug を直す: 今日のうちに生成が今の版どおりに戻る（改称前の再現で title/ 384ページが一致、/live 908ページ）。デメリット: 決定で採らないとした案 B と同じ形になる（改称は #523 の実装まで保留）。平野さんの手作業: 3セル
+    - 推奨: **案4で生成を戻し、#523 は案3で実装する。** 理由: 案1・2・3はどれもコードの変更が要り、それまで毎朝の /live・title/ の更新が止まる。案3は過去の YouTube 概要欄・【3】の旧名をそのまま照合に使えて、#523 の本文の懸念（過去の紐づけ）に合う。案4は決定（案 B を採らない）を見直すことになるので、平野さんの判断が要る
+  - #497 をこの時点でクローズするか: (i) クローズ（「タイトル戦」タブに行があり、記録の無い大会として扱われることは確かめた。記録が入ったときの作業は新しい issue かカレンダーで追う）: 残る issue が減る / 記録が入る 2027-03 の作業を忘れやすい。(ii) 記録が入るまで待つ: 決勝後の作業を同じ issue で追える / 半年近く Open のまま。推奨は (i)（slug を直した後）。記録が入った時点で要る作業: 「タイトル」タブに第1期の行（表示=Y）を足す、OGP 画像 `img/ogp/title/jpml-league-black.png` を作る（docs/notes/ogp.md）、`_redirects` に `/title/jpml-league  /title/jpml-league/  301` を足す（`test_title_redirects.py` が要求、#455）、/live の【3】で決勝段階の放送を JPMLリーグ に当てる（`live_extract.py` に大会名の対応を足す）、title/ の入口・sitemap に出ることを確かめる
 - 未確認の項目:
-- エラー:
+  - 10-15 04:00 JST の update-live-channel.yml の regenerate ジョブが、見込みどおり title_pages・live_pages を飛ばして失敗するか
+  - `generate_ask_data.py` が slug の重複で止まるか（実行していない）
+  - OGP 画像 jwrc-black.png・jwrc-r-black.png の中の文字（目視していない）
+- エラー: 手順2で生成が止まる（title_pages: slug の重複と「タイトル」タブの旧名104行、live_pages: slug の重複）。止まる条件に当たったため cloudflare へマージしていない
 
 <!-- guide-links -->
 ---
