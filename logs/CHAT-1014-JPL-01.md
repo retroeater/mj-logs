@@ -117,30 +117,26 @@
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 完了 / 続き: CHAT-1014-JPL-04
 - ブランチ: work/1014-jpl
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1014-JPL-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1014-jpl
 - 確認用URL: なし（変えたのは公開対象外の scripts/ と docs/ だけ）
 - マージ: 済（d244ac11d）
 - issue: #488（クローズ）
-- 判断が必要なこと:
-  - docs/handover.md「次の会話の順番」の #488 の待ちの記述が古くなった。直すかどうか（この指示の範囲外のため触っていない。#497 は CHAT-1014-JPL-02 で扱う予定）
-  - YouTube の JPMLリーグ の題名の書き方を実物で確かめられなかった（層1に0件）。題名に「JPMLリーグ」が続けて入らない書き方（例「JPML リーグ」）なら枠と結び付かず、カレンダーに仮の予定と枠の予定が2件並ぶ。最初の枠が出たときに確かめるかどうか（追跡する issue は作っていない）
-- 未確認の項目:
-  - 次の毎朝の update-live-channel.yml（2026-10-15 朝）で、予定表【2】の JPMLリーグ の32行の「大会」「分け」が埋まること
-  - YouTube の JPMLリーグ の題名の書き方（最初の枠が出たとき）
+- 判断が必要なこと: なし（handover.md の記述と YouTube の題名の確かめの2点は CHAT-1014-JPL-04 で扱った）
+- 未確認の項目: なし（10-15 朝の【2】と YouTube の題名は、チャット側がカレンダー「ryoei.pro」で追う。CHAT-1014-JPL-04 で記録）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 4969f89a）: https://github.com/retroeater/mj-logs/tree/main/guide/4969f89a
+ガイド文書（この版を写した時点の最新、mj 6f8f8ab2）: https://github.com/retroeater/mj-logs/tree/main/guide/6f8f8ab2
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/4969f89a/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/4969f89a/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/4969f89a/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/4969f89a/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/4969f89a/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/4969f89a/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6f8f8ab2/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6f8f8ab2/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6f8f8ab2/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6f8f8ab2/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6f8f8ab2/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6f8f8ab2/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/59e33bdf.md
