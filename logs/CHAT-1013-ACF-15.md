@@ -55,6 +55,38 @@
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+- 0章: ログの「指示」欄の末尾が指示文の最後の行と一致することを確かめた
+- DSN-09 の確かめ: cloudflare の docs/logs/CHAT-1013-DSN-09.md の `## 報告` は「状態: 判断待ち / 続き: CHAT-1014-DSN-10」「マージ: 未」。続きの CHAT-1014-DSN-10 の `## 報告` は「状態: 完了」「マージ: 済（522a4323f）」で、`origin/work/1013-dsn` は cloudflare の祖先（DSN-09 の作業は DSN-10 で cloudflare に入った）。0章の文面（DSN-09 のログに「マージ: 済」）とは違うが、貼る時機の前提（DSN-09 が cloudflare に入った後）は満たすので進めた。前回（2026-10-13）同じ指示を貼られたときは DSN-09 が未マージで、0章で何もせず止めた
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- Chat-Ref の重複: `git log --all --grep="CHAT-1013-ACF-15"` は 0 件
+- 作業ブランチ: ローカルの `work/1013-acf-xsize`（8ac79d13）は `origin/work/1013-acf-xsize` と同じで cloudflare の祖先。`git checkout work/1013-acf-xsize` のうえ `git merge --ff-only origin/cloudflare`（191d9dbd）。**この ff をログの先行 push より前に行った**（CLAUDE.md「作業ログ」節の順番と違う。内容への影響は無い）
+- 手順1:
+  - 未マージの work/ ブランチは 1009-swp-526・1011-swp-hnd・1011-swp-nav（と、このブランチ）だけで、houou・houou_race・x_images・sns・assets/houou*・style.css に触れるものは無い（work/1013-dsn はマージ済み）
+  - #558 は Open。コメントは ACF-07〜13 のものだけで、他セッションの着手中は無い。着手中のコメント https://github.com/retroeater/mj/issues/558#issuecomment-6158264531
+  - 実物の確かめ:
+    - 順位変動の丸: `generate_houou_race.py` の `build_unit()`（103行）が `"img": img` を入れる（`profiles_for()` の `IMAGE_SIZE = SIZE_200`）。JS でこの `img` を使うのは `assets/houou_race.js` の `.mj-race-chip`（310〜316行）だけ。CSS は `.mj-race-chip` 28px、houou/ の順位変動では `.mj-houou-race .mj-race-chip` 1.75rem（28px）。ほかの Python で `p["img"]` を読むのは 388行（写真の無い人の数え上げ）だけ。前提どおり
+    - houou/ の個人成績のリーグの図（`assets/houou.js` 1260行、半径 13px の丸）と選手の写真（546行、80px）の `img` は個人成績のデータ（`load_profiles()` の `img`）から来ていて、順位変動のデータではない
+    - **ランキングの表のアイコン: `ranking_row_html()`（389行）→ `avatar_html()`（370行）の `<img class="mj-houou-avatar" … width="28" height="28">` は HTML の属性は 28 だが、CSS `style.css` 6048行 `.mj-houou-rank .mj-houou-avatar { width: 40px; height: 40px; }` で 40px で出ている**（2026-10-13 の 77ab2c4a「fix: refine houou/ design pass after preview check」、Chat-Ref CHAT-1013-DSN-07。基の `.mj-houou-avatar`〈4049行〉は 28px）。`avatar_html()` を使うのはランキングの表だけ
+  - 止まる条件「直す箇所の `img` が 28px 以外の表示にも使われている、または前提の箇所が実物と違い直す箇所を決められない」に当たるため、テスト・コードの変更をせずに止めた。40px の2倍は 80px なので `_80x80` でもちょうど足りる計算だが、前提（28px）と違うので判断を仰ぐ
+- 決定を docs/decisions/saikyo.md に足した（判断待ちで終えるときも足す）
+- 承認済みのマージは、止まる条件に当たったため行わない
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1013-acf-xsize
+- ログ: https://github.com/retroeater/mj/blob/work/1013-acf-xsize/docs/logs/CHAT-1013-ACF-15.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1013-acf-xsize
+- 確認用URL: なし（コード・生成物は変えていない）
+- マージ: 未（止まる条件に当たったため）
+- issue: #558（着手中のコメントの後、止めた旨をコメント）
+- 判断が必要なこと:
+  - houou/ のランキングの表のアイコンは、DSN-07 の直し（77ab2c4a）で CSS が 40px になっている（HTML の属性は 28）。前提の 28px と違う。進め方を選ぶ: (a) 40px でも2倍は 80px なので、指示のとおり表のアイコンと順位変動の丸（28px）を両方 `_80x80` にする（勧める。2倍の表示でちょうど足りる）／(b) 表のアイコンは `_200x200` のままにして、順位変動の丸だけ `_80x80` にする／(c) 表のアイコンを別の大きさにする（文書に無い `_reasonably_small`〈128px〉は勧めない）
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
