@@ -33,7 +33,7 @@
 
 | 対象 | 止め方 | 確認 |
 |---|---|---|
-| `sync-books-calendar.yml`（週次カレンダー同期） | `gh workflow disable`（コードは変えていない） | 次回予定（2026-09-28 05:27 JST）は動かない。`gh workflow list --all` で `disabled_manually` |
+| `sync-books-calendar.yml`（週次カレンダー同期） | `gh workflow disable`（コードは変えていない）。2026-10-14 にファイルごと削除した（#564） | 次回予定（2026-09-28 05:27 JST）は動かない。`gh workflow list --all` で `disabled_manually` |
 | `regenerate-page.yml`の「楽天の書影を取得」ステップ | `if: false` に変更（元の条件をコメントで残す） | 手動実行（`work/0922-bp`、target_page=all）で `skipped` を確認 |
 | `scripts/regenerate.py` の `"all"` | `FROZEN_FROM_ALL = {"books_pages"}` を追加。ページ名を直接指定すれば動く | 同じ手動実行で「対象:」の一覧に `books_pages` が含まれないことを確認 |
 
@@ -119,7 +119,7 @@
    残すか消すかは再開時に判断）
 3. `.github/workflows/regenerate-page.yml`「楽天の書影を取得」ステップの `if: false` を、コメントに残した元の条件に戻す
 4. `scripts/regenerate.py` の `FROZEN_FROM_ALL` から `books_pages` を外す（または定数ごと削除する）
-5. `gh workflow enable 書籍カレンダーの同期`（`sync-books-calendar.yml`）で再開する（再開する場合のみ。
+5. `sync-books-calendar.yml` を git の履歴から戻して再開する（再開する場合のみ。削除したコミットは `git log --diff-filter=D --oneline -- .github/workflows/sync-books-calendar.yml`、戻すのは `git checkout <そのコミット>^ -- .github/workflows/sync-books-calendar.yml`。
    独立ページを作らない決定のため、カレンダー同期自体を続けるかは要判断）
 6. 2026-12-22 を過ぎている場合は、生成・同期の前に `scripts/fetch_rakuten_books.py` を実行して
    書影URLを取り直す（3か月ルールを満たすため）
