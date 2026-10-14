@@ -61,28 +61,87 @@
 - 2026-10-15 着手。HOU-37〜39 と同じセッションで続けた。`CHAT-1015-HOU-40` のコミットは無し。`work/1015-hou` はローカル・リモートとも無かったので `origin/cloudflare`（3cf17d8b3）から作った
 - 0. 指示欄の末尾は指示文の最後の行と一致。冒頭の雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
 
+### 手順1 着手の確かめ
+
+- #518・#540 に他のセッションの着手中のコメントは無い（最後の着手中は HOU-37・HOU-38 のもので、HOU-39 のマージで解除した）。#518 に着手中のコメントを書いた
+- 未マージの work/ ブランチで、`assets/houou.js`・`scripts/generate_houou_pages.py`・`style.css`・`docs/notes/houou-top.md`・`docs/decisions/houou.md` を変えているものは無い
+
+### 手順2 実装
+
+- 本体（`assets/houou.js` の `renderPlayer()`）: 並びを「名前の面 → タブ → 要約 → 各タブの中身」にし、タブを開くときに要約を `stats.hidden = key !== ''`（「期別」だけ出す）にした。`style.css` は変えていない（要約の `display: grid` は Bootstrap の `[hidden]{display:none!important}` で消える）。再生のボタンは (a) のまま
+- 比較ページ `houou/compare-play/index.html`（`generate_houou_pages.py` の `render_play_compare()`）: 個人成績のページの HTML をそのまま使い、題名の上にラジオ (a)・(J)・(D) と代表の選手（白鳥翔・坪原光、リーグのタブ）のリンク、題名の行の右端の置き場（(J)）を差し込み、`<style>` と `<script>` をページの中に足した。リーグのタブのデータは `../players/leagues.json` を読む。og:url は `houou/compare-play/`。noindex あり、どこからもリンクしない、サイトマップに無い
+  - 小さなスクリプトが、個人成績の JS の作った再生のボタン（`.mj-houou-lg-replay`）を案の置き場へ移す（(J) 題名の行の右端、(D) 名前の面の右端〈`margin-left: auto` の欄を面の最後に足す。名前とチップの折り返しの作りは変えない〉、(a) 元の行）。押したときの動き・ラベルの移り変わり・動きを減らす設定で出さないこと・キーボードの操作は、同じボタンなので変わらない。(J)・(D) はリーグのタブのときだけ置き場を出し、ほかのタブでは置き場を消す（場所を空けない）。(J)・(D) ではグラフの上の 52px の行（リーグの `.mj-houou-lg-bar`、通算の `::before`）を消す
+  - 選び直したときは前の選手のボタンを消す（元の行がページから外れたもの）
+- `python3 -m unittest discover -s scripts/tests`: OK（テストは変えていない）
+- `python3 scripts/regenerate.py houou_pages` の差分: `houou/compare-play/index.html` の追加だけ（`houou/players/index.html` は変わらない。並びは JS で組むため）。houou/ の外・navbar・サイトマップ・`llms.txt` の差分は無し
+
+### 手順3 確かめ
+
+wrangler 4.151.0 の `wrangler dev` と headless Chromium。「本番の今の形」は、同じサーバで `assets/houou.js` だけを HEAD の前の版（cloudflare の版）に差し替えて測った。グラフの上端は、リーグ・通算の SVG（380×540 の viewBox。幅で縮み、表示の高さは 459〜495px）の上端の y（スクロール 0）。比較ページは題名の上にラジオと選手のリンクの 2 行（164px）があるので、本体と比べるときは 164px を引く。
+
+グラフの上端の y（明・暗とも同じ値。白鳥翔・坪原光とも同じ値）:
+
+| 幅×高さ | タブ | 本番の今の形 | 本体（この版、(a)） | 比較 (a) | 比較 (J) | 比較 (D) |
+|---|---|---|---|---|---|---|
+| 375×667 | リーグ | 527 | 424 | 588 | 536 | 536 |
+| 375×667 | 通算 | 527 | 424 | 588 | 536 | 536 |
+| 390×844 | リーグ・通算 | 528 | 424 | 588 | 536 | 536 |
+| 430×932 | リーグ・通算 | 528 | 424 | 588 | 536 | 536 |
+
+- 本体: 本番の今の形より 103〜104px 上（タブの上端も 401〜402 → 298）。リーグと通算の上端はそろったまま
+- (J)・(D): (a) よりさらに 52px 上（本体に入れれば 424 → 372 の見込み）。(J) で題名の行の高さは変わらない（タブの上端は (a)・(J)・(D) とも 462）。標準の文字の大きさではリーグと通算の上端がそろう
+- 再生のボタンの位置（左・上、スクロール 0。3つの幅・明暗・2人とも画面の中。h1・名前と重ならない）: 本体 (a) x 301〜341・y 372（375〜430px）、比較 (a) y 536、(J) x 315〜355・y 264（題名の行）、(D) x 299〜339・y 382（名前の面）。本番の今の形は y 475〜476
+- ページの横スクロール・JS のエラー: 120 通り（3案＋本体＋今の形 × 3幅 × 明暗 × 2人 × 2タブ）で 0
+- 文字の大きさ 150%・200%（375px・明、ルートの文字サイズを変えた。白鳥翔・坪原光・名前の最も長い江崎しんのすけ）: 横スクロール・JS のエラー・ボタンと題名や名前の重なりは 0。(J) は 150% で題名がボタンの分だけ折り返し、リーグのタブのときだけ題名の行が 52px 高くなる（グラフの上端: リーグ 711・通算 659）。(D) は名前の面が 150% で 29px、200% で 39px 高くなる（リーグ 688・通算 659〈150%〉、925・886〈200%〉）。どちらも字の大きいときは「タブを替えてもグラフの位置がそろう」が崩れる。(a)・本体はそろう。ボタンが画面の下の外になるのは字が大きいときの全案と今の形（ページを下へ送れば出る）
+- 「期別」: 3幅 × 明暗 × 2人で、要約の大きさ・中身と期の行の数・一覧の大きさは今の形と同じ。一覧の上端の y も同じ（461〜462）。並びだけが「名前の面 206 → タブ 298 → 要約 358 → 一覧 461」（今の形は 名前 206 → 要約 290 → タブ 401 → 一覧 461）
+- 「期別」から切り替えたときの上下の跳び（375×667）:
+  - ページの上の方で切り替えたとき・タブが画面の上にあるとき（スクロール 238）に「通算」へ: 跳ばない（タブの位置は同じ）
+  - 「リーグ」へ切り替えると、スクロールが 0 に戻る（どこにいても）。今の形でも同じ（変更前からの振る舞い）
+  - 期の行を下まで読んでいる途中（白鳥翔のように期の多い選手、スクロール 700）で「通算」へ: ページが短くなるので 442 まで戻され、タブが画面の上の外（y −144）になる。今の形でも同じ（545 まで戻される）
+- 再生のアイコンの画面内の座標（中心。375px、白鳥翔・坪原光）。グラフ全体が画面に入るまで送ってから再生のボタンを押したとき:
+
+| 案 | 画面 | 選手 | 始め（落ちた直後） | 寄った後 | 終わり |
+|---|---|---|---|---|---|
+| 本体 (a) | 375×667（スクロール 224） | 白鳥翔 | (122, 334) | (111, 516) | (321, 209) |
+| 本体 (a) | 375×667（224） | 坪原光 | (276, 461) | (112, 514) | (321, 498) |
+| 本体 (a) | 375×812（79） | 白鳥翔 | (122, 479) | (111, 661) | (321, 354) |
+| 本体 (a) | 375×812（79） | 坪原光 | (277, 606) | (111, 659) | (321, 643) |
+| 比較 (J) | 375×667（336） | 白鳥翔 / 坪原光 | (122, 334) / (277, 460) | (112, 517) / (111, 513) | (321, 208) / (321, 497) |
+| 比較 (D) | 375×667（336） | 白鳥翔 / 坪原光 | (122, 334) / (277, 460) | (112, 517) / (112, 514) | (321, 208) / (321, 497) |
+
+  - すべて画面の中。送らずに押したとき（375×667）は、本体 (a) で白鳥翔の寄った後 y 742・坪原光の始め y 685 が画面の下の外（グラフの下端が 919 で、667px の画面には入りきらない。今の形はさらに下）。直していない（グラフの大きさは変えない決定。ページを送れば見える）
+  - (J)・(D) は、グラフを画面に入れるまで送るとボタンが画面の上の外になる（375×667 で比較ページを 336 送ったとき）。グラフに触れる・Esc・Space の一時停止は残る
+- プレビュー（9abfd176 の Workers Builds: mj は success）: `assets/houou.js` は手元と同じ、`houou/compare-play/` は 200 で noindex あり。坪原光のリーグのタブで (a)・(J)・(D) のグラフの上端とボタンの位置が手元と同じ（588・536・536）、JS のエラー 0
+
+### 文書
+
+- `docs/decisions/houou.md` に「2026-10-14〜15（CHAT-1015-HOU-40）」の節を足した（置き換えた決定は無い。DSN-09 の「タブを替えてもグラフの位置と大きさが変わらない」はそのまま）
+- `docs/notes/houou-top.md`: 構成の表の個人成績、「個人成績」のタブ（名前の面のすぐ下）と要約（「期別」のときだけ）、「リーグのタブ」の再生のボタン（比較中、3案と比較ページ）、「比較ページ」の節（見出しの「すべて消した」を外し、`houou/compare-play/` を足した）。「通算」のタブの 52px の空きの記述は (a) のままなので変えていない
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち（再生のボタンの位置を比較ページで選ぶ）
 - ブランチ: work/1015-hou
 - ログ: https://github.com/retroeater/mj/blob/work/1015-hou/docs/logs/CHAT-1015-HOU-40.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1015-hou
-- 確認用URL: なし
-- マージ: 未
-- issue: #518
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 確認用URL: プレビューあり（URL は最終報告）。見るページ: 比較ページ `houou/compare-play/`（白鳥翔・坪原光のリーグのタブのリンクあり）と、本体の個人成績 `houou/players/?name=白鳥翔`。この版で見える印: 個人成績で「期別」「通算」「リーグ」のタブが名前の面のすぐ下にあり、「通算」「リーグ」では要約3枚が出ない
+- マージ: 未（平野さんの判断待ち）
+- issue: #518（着手中のコメント）
+- 判断が必要なこと:
+  - 再生のボタンの位置を (a)・(J)・(D) のどれにするか（比較ページのラジオで切り替える）。グラフの上端の y（スクロール 0、375〜430px、明暗・2人とも同じ）: 本番の今の形 527〜528 → 本体（この版、(a)）424 で、(J)・(D) は (a) よりさらに 52px 上（本体に入れれば 372 の見込み）。ボタンは3案とも画面の中で、題名・名前と重ならない。字を 150%・200% にすると、(J) は題名、(D) は名前の面がボタンの分だけ高くなり、リーグのタブのグラフが通算より 29〜52px 下になる（標準の字ではそろう）
+  - 「期別」→「リーグ」の切り替えでスクロールが 0 に戻ること、期の多い選手で下まで読んだ途中に「通算」へ替えるとページが短くなって戻されることは、今の形からの振る舞い（この変更で増えていない）。直すかどうか
+- 未確認の項目: 平野さんの iPhone での見え方（3案）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 27fe15af）: https://github.com/retroeater/mj-logs/tree/main/guide/27fe15af
+ガイド文書（この版を写した時点の最新、mj b8500442）: https://github.com/retroeater/mj-logs/tree/main/guide/b8500442
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/27fe15af/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/27fe15af/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/27fe15af/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/27fe15af/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/27fe15af/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/27fe15af/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b8500442/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b8500442/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b8500442/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b8500442/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b8500442/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b8500442/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/27fe15af.md
