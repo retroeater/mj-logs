@@ -238,3 +238,39 @@ CHAT-1014-WFL-05 の「判断が必要なこと」への回答（#564）。い�
 - 題「名簿と「プロ」シートの不一致」は、閉じている #445 にラベル「種類: 常設」を付ける（次に不一致が出たら #445 が開き直される）。「Ampai の URL が無い期」「最強戦の出場者の登録漏れ」は issue が無いので何もしない（次に作られる issue にラベルが付く）
 - 部品のテストは `assets-check.yml` に1ステップ足して push ごとに回す（足すのは次の展開の指示で）
 - 作業中の回答: なし
+
+## 2026-10-14（CHAT-1014-WFL-08）
+
+- #564 の段①の展開その2は、これまでの決定のとおり進める（部品のテストを `assets-check.yml` で push ごとに回す〈WFL-07〉、本文の組み立てを各スクリプトへ移す・commit-push の部品を作る・入力 `scheduled` と `run-name` を足す〈WFL-04〉、型S は ACF-21 の作り〈WFL-05〉）。新しい決定は無い
+- 作業中の回答: なし
+
+## 2026-10-14（CHAT-1014-WFL-09）
+
+CHAT-1014-WFL-08 の「判断が必要なこと」への回答（#564）。いずれも Claude Code の推奨のとおり。
+
+- work/1014-wfl-s2（assets-check の部品のテスト・check-image-links と cleanup-logs の部品化・commit-push の部品・upsert-issue の直し）をマージする
+- 最強戦の選手写真の issue（題「最強戦の選手写真のリンク切れ検知結果」）は、最新の #534 にラベル「種類: 常設」を付ける（次に切れが出たら #534 が開き直される。切れるたびに新しい issue が作られてきたのを止める）
+- 作業中の回答: なし
+
+## 2026-10-14（CHAT-1014-WFL-10）
+
+- 役目を終えた `sync-books-calendar.yml`・`write-live-channel-candidate.yml`・`check-leagues-dropped.yml` を削除する（`sync-logs.yml` は #298 の予定に合わせ、この指示では消さない。#564、未マージ）
+- 段の順: 段②を先に済ませ、毎朝のワークフロー（update-live-channel・update-sns-book・sync-dojo-calendar・delete-merged-branches・regenerate-saikyo）の部品化は段③の `run-daily.yml` とまとめる。regenerate-page・sitemap-lastmod・fetch-gsc・notify-build-failure の部品化は段③の後（チャット側の推奨に平野さんが同意）
+- 作業中の回答: なし
+
+## 2026-10-14（CHAT-1014-WFL-11）
+
+CHAT-1014-WFL-10 の「判断が必要なこと」への回答（#564）。いずれも Claude Code の推奨のとおり。
+
+- 段②（3 つのワークフローの削除・regenerate-page の concurrency と入力の env 化）をマージする
+- regenerate-page の concurrency の `queue: max` を受け入れる（既定の待ち 1 つでは、続けて 3 つ来ると真ん中が取り消されるため）
+- 作業ブランチに入った試験の生成物のコミット（cf54ea34e と bot の df1ddabaa）は入れない。cloudflare から `work/1014-wfl-s3b` を作り、その 2 コミットを除いた変更だけを入れ直してマージする（`sitemap-pages.xml` の lastmod を動かさないため）
+- 作業中の回答: なし
+
+## 2026-10-14（CHAT-1014-WFL-12）
+
+CHAT-1014-WFL-11 の「判断が必要なこと」への回答（#564）。いずれも Claude Code の推奨のとおり。
+
+- 未マージの work/1014-wfl-s3（先頭 30fc41b50）を消す。中身は 44920ebbc で cloudflare に入り、残るのは試験の生成物のコミット（cf54ea34e・df1ddabaa）だけのため。「未マージのブランチは削除しない」の例外として平野さんの判断で消す（docs/notes/branch-operations.md「ブランチを削除するとき」が未マージのブランチは平野さんが GitHub の画面で消すとしているため、WFL-12 では消さずに止まった）
+- #132（入力の env 化）は今クローズする。#263（concurrency）は 2026-10-15 朝の毎朝の実行で、続けて呼ばれた regenerate-page が来た順に動くのを確かめてからクローズする（WFL-12 は手順1で止まったため、#132 は未クローズ）
+- 作業中の回答: なし
