@@ -51,6 +51,29 @@ PLB-01 の手順2〜4の続き（issue #567）。PLB-01 は「プロ」の見出
 
 ## 経過
 
+### 着手前の確認
+
+- 0: ログの「指示」欄の末尾は指示文の最後の行と一致。PLB-01 の `## 報告` は「判断待ち」→ 末尾に `/ 続き: CHAT-1014-PLB-02` を足した
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 全部ある
+- `CHAT-1014-PLB-02` のコミット: 無し。`work/1014-plb` はリモートにあり、ローカルと一致（131150c）
+- `origin/cloudflare` が祖先でなかった → ログ先行 push の後 `git merge origin/cloudflare`（衝突なし。JPL-05 〈`lib/taikai_names.py` など〉が入った）
+
+### 手順1: 新旧の比較と読む先の切り替え
+
+- 比較（PLB-01 と同じ。`fetch_table()`・`fetch_csv()` で旧・新を2回ずつ）: 「プロ」1099行・「連盟プロ以外」745行・「別名」28行、2回とも行数同じ、値の違う行は0。
+  違いは「プロ」の A1（旧「登録名\n0.74」・新「登録名」）だけ → 進めた
+- 読み手の洗い出し直し: PLB-01 の一覧から増減なし。`check_unused_names.py` の `load_registrations()` が `title.SPREADSHEET_ID` で「連盟プロ以外」「別名」のフィルタを確かめていた（PLB-01 の一覧に無かった。含めた）
+- 未マージのブランチ: work/1014-jpl はマージ済みになった。work/1014-skd の `generate_saikyo_pages.py` の変更は 116〜947 行あたりで、今回変えた `load_name_book()`（1140・1142 行）とは別の箇所
+- 直し:
+  - `lib/pro_sheet.py`: `SPREADSHEET_ID` を ryoei.pro_選手 に
+  - `lib/live.py`: `PLAYERS_SPREADSHEET_ID`（= `pro_sheet.SPREADSHEET_ID`。ID を1か所に持つ）・`PLAYER_SHEETS`・`spreadsheet_of()` を足した。`SPREADSHEET_ID` は変えない（「タイトル戦」「リーグ」「辞書」「書籍」などが読む）
+  - `fetch_records(live.SPREADSHEET_ID, live.SHEET_OTHERS/ALIASES, …)` を `live.PLAYERS_SPREADSHEET_ID` に: generate_books_pages・generate_houou_race・generate_saikyo_pages（読む先の行だけ）・update_sns_book・generate_ask_data
+  - `generate_live_pages.read_sheet()`・`generate_title_pages.fetch_tab()` の URL・`check_unused_names.load_registrations()` は `live.spreadsheet_of(tab)` で引く（generate_title_pages は読む先の1行と `SPREADSHEET_ID = live.SPREADSHEET_ID` だけ）
+  - docs/notes: live-page-design.md（1-1 の表）・title-pages.md（データ源）・sns-book.md・static-generation.md（「プロ」シートの項）・houou-top.md。コードのコメント: generate_live_pages・generate_resource_dictionary・lib/names・lib/pro_sheet
+  - 案内文: ワークフロー・issue 本文に旧ブックの URL・ID は無かった（grep）
+- テスト: `scripts/tests/test_players_book.py`（読む先・title の fetch_tab の問い合わせ先・旧ブックとの組み合わせが戻らないこと）。修正前のコード（origin/cloudflare を git archive で展開）では 4 failures・1 error、修正後は通る。全体 1081 件 OK
+- コミット 3874cb9
+
 ## 報告
 
 - 状態: 作業中
