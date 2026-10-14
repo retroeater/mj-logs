@@ -100,28 +100,47 @@
 - mj_放送対局: 今は変わらない（掲載 Y の4件は件名・開始が【2】のまま）。今後 YouTube に JPMLリーグ の枠が出れば、同じ日の仮の予定が枠の予定に置き換わる（今までは大会が None で置き換わらず2件並ぶ状態だった）
 - 常設 issue「予定表の変化」（#481）: 件名は変わらないので、改名の知らせは出ない見込み
 
+### 3. マージ・クローズ
+
+- push 直前に origin/cloudflare が db8f4b888 へ進んでいた（CHAT-1014-WFL-06 の docs のみ）→ `git merge origin/cloudflare`（衝突なし）。取り込み後もテスト 1,061件 OK、cloudflare との差は yotei.py・test_yotei.py・decisions/broadcast-calendar.md・このログの4ファイルだけ
+- 再 fetch して `git merge-base --is-ancestor origin/cloudflare HEAD` が真 → `git push origin work/1014-jpl:cloudflare`（db8f4b888..d244ac11d）
+- マージで動いたワークフロー（`on.push` で cloudflare に当たるもの）:
+  - 「公開対象を検査する」（assets-check.yml）: success
+  - 「ページの再生成」（regenerate-page.yml、`scripts/lib/**` が変わったので全ページ）: success。生成物の変化なし（`chore: regenerate` のコミットは出ていない）。ページの生成スクリプトは yotei を使わないので、今回の変更は生成物に影響しない
+  - sitemap-lastmod.yml: `**.html` が変わっていないので動かない
+  - d244ac11d の check-run: check ×2・regenerate すべて success。`scripts/` は `.assetsignore` で公開対象外のため、本番の配信物は変わらない
+- 次の毎朝の update-live-channel.yml（ジョブ yotei とカレンダー同期）で変わる見込みは上の「次の毎朝の取り込み・同期で変わる見込み」のとおり
+- #488: 結果のコメント（Chat-Ref の行付き）を書いてクローズ（completed）。「状況:」ラベルは付いていなかった
+- docs/decisions/broadcast-calendar.md に「2026-10-14（CHAT-1014-JPL-01、#488）」を足した
+- 作業ブランチの片付け: クラウドセッションではブランチの削除が拒否されるため削除しない（docs/notes/cloud-sessions.md「ブランチの削除」）。マージ済みの `work/1014-jpl` は `delete-merged-branches.yml` に任せる。先頭は d244ac11d（このログの追いの push の後はその SHA）
+- docs/handover.md「次の会話の順番（2026-10-09）」の「#497／#488（連盟の予定表で JPMLリーグの「(仮)」が外れてから）」は、#488 が済んだので古くなった。この指示で変えてよいファイルの範囲（docs/ の decisions・notes・logs）の外なので触っていない
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1014-jpl
-- ログ: https://github.com/retroeater/mj/blob/work/1014-jpl/docs/logs/CHAT-1014-JPL-01.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1014-JPL-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1014-jpl
-- 確認用URL:
-- マージ:
-- issue: #488
+- 確認用URL: なし（変えたのは公開対象外の scripts/ と docs/ だけ）
+- マージ: 済（d244ac11d）
+- issue: #488（クローズ）
 - 判断が必要なこと:
+  - docs/handover.md「次の会話の順番」の #488 の待ちの記述が古くなった。直すかどうか（この指示の範囲外のため触っていない。#497 は CHAT-1014-JPL-02 で扱う予定）
+  - YouTube の JPMLリーグ の題名の書き方を実物で確かめられなかった（層1に0件）。題名に「JPMLリーグ」が続けて入らない書き方（例「JPML リーグ」）なら枠と結び付かず、カレンダーに仮の予定と枠の予定が2件並ぶ。最初の枠が出たときに確かめるかどうか（追跡する issue は作っていない）
 - 未確認の項目:
-- エラー:
+  - 次の毎朝の update-live-channel.yml（2026-10-15 朝）で、予定表【2】の JPMLリーグ の32行の「大会」「分け」が埋まること
+  - YouTube の JPMLリーグ の題名の書き方（最初の枠が出たとき）
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj d244ac11）: https://github.com/retroeater/mj-logs/tree/main/guide/d244ac11
+ガイド文書（この版を写した時点の最新、mj 4969f89a）: https://github.com/retroeater/mj-logs/tree/main/guide/4969f89a
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d244ac11/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d244ac11/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d244ac11/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d244ac11/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d244ac11/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d244ac11/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/4969f89a/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/4969f89a/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/4969f89a/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/4969f89a/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/4969f89a/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/4969f89a/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/59e33bdf.md
