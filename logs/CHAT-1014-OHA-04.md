@@ -54,15 +54,34 @@ OHA-03 で実装した morning.md の書き出し（`scripts/morning_report.py`�
 - 0. CHAT-1014-OHA-02 の `## 報告` は「状態: 完了」で、cloudflare（e076630a0）に入っている
 - 作業ブランチ: ローカルの `work/1014-oha` は `origin/work/1014-oha`（1f073d52b）と一致するため `git checkout work/1014-oha`
 
+### 1. 取り込みとテスト
+
+- `git merge origin/cloudflare`（OHA-02 のほか CHAT-1014-GDS・ACF-16・SNM-22 などが入っていた）。`docs/notes/cloud-sessions.md` は自動で合わさった
+- `docs/decisions/automation.md` の末尾の追記どうしが衝突したので、両方を残して cloudflare 側（ACF-16）→ OHA-03 の順に並べて解いた。解いた後の該当箇所:
+
+```
+## 2026-10-14（CHAT-1014-ACF-16）
+
+- 取りこぼした回の埋め合わせを足す（今の「埋め合わせはしない」を改める）。…
+
+## 2026-10-14（CHAT-1014-OHA-03）
+
+- 朝の報告用に、mj-logs の `actions/morning.md` へ直近26時間の異常だけを書き出す。…
+```
+
+- `python3 -m unittest discover -s scripts/tests`: OK（cloudflare で増えた `test_workflows_table.py` を含む）
+- 前提の確かめ: OHA-02 が変えたファイル（CLAUDE.md・handover.md・decisions/operations.md）と work/1014-oha の変更は重ならなかった。重なったのは cloudflare の別の作業（ACF-16）の automation.md の追記
+- 新設の docs/notes/github-actions.md は status.md だけに触れていて、morning.md には触れていない（今回は変えない）
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 6820592e）: https://github.com/retroeater/mj-logs/tree/main/guide/6820592e
+ガイド文書（この版を写した時点の最新、mj 81ffda44）: https://github.com/retroeater/mj-logs/tree/main/guide/81ffda44
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6820592e/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6820592e/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6820592e/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6820592e/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6820592e/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6820592e/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/81ffda44/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/81ffda44/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/81ffda44/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/81ffda44/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/81ffda44/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/81ffda44/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/191d9dbd.md
