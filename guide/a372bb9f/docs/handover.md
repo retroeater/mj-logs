@@ -81,7 +81,7 @@ Google Charts依存（#7の対象）・静的なページ の4つ。**件数の�
 
 ### 自動化
 
-ワークフローの一覧（実行の契機と内容）は `docs/notes/static-generation.md`「ワークフローの一覧」。正は `.github/workflows/`。
+ワークフローの一覧（実行の契機と内容）は `docs/notes/github-actions.md`「ワークフローの一覧」。正は `.github/workflows/`。
 **手動実行の前に同「ワークフローを手動実行するとき」を読む**（古い作業ブランチから実行すると、そのブランチの状態で生成物や常設issueが上書きされる）。
 
 ---
@@ -211,8 +211,9 @@ GitHub Issues（Open）に全件あるが、着手可能な主なものは以下
 | `docs/notes/chat-routines.md` | チャット側が「レビュー」「振り返り」「申送り」を行う前 |
 | `docs/notes/chrome-reading.md` | チャット側が PC で Claude for Chrome を使い mj を直接読む前 |
 | `docs/notes/skills.md` | skill の追加・更新、git の hook の判定を変える・確かめる前（`.claude/` を変える指示を書く前も） |
-| `docs/notes/branch-operations.md` | ブランチの削除・ワークフローの変更・作業ログの寿命・Chat-Ref の着手前の確認（入口の規則は CLAUDE.md） |
-| `docs/notes/static-generation.md` | ページの一覧・生成スクリプト・ページ側のJS・ワークフローの一覧・メンテナンス用スクリプト、#7 の残り |
+| `docs/notes/branch-operations.md` | ブランチの削除・作業ログの寿命・Chat-Ref の着手前の確認（入口の規則は CLAUDE.md） |
+| `docs/notes/static-generation.md` | ページの一覧・生成スクリプト・ページ側のJS・メンテナンス用スクリプト、#7 の残り |
+| `docs/notes/github-actions.md` | GitHub Actions のワークフローの一覧・`regenerate-page.yml`・手動実行と変更の前・チャット側の扱い（実行結果の確かめ方・失敗通知） |
 | `docs/notes/sitemap-lastmod.md` | sitemap の lastmod（#265） |
 | `docs/notes/scheduler-worker.md` | 予約実行を起動する Worker（`mj-scheduler`、#504）。起動の表の直し方・通知（#506）・トークンの期限と差し替え・ダッシュボードの設定と作り直す手順・未確認の点 |
 | `docs/notes/dojo-guest-calendar.md` | 道場部ゲストの告知画像の取り込みと平野さん側の設定（#390） |

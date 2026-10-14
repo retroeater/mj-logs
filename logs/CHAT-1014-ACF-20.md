@@ -81,16 +81,32 @@ X の写真は、大きさによって片方だけ 404 になることがある�
   - docs/notes/sns-book.md「毎日の更新」の X の行に確かめる大きさと PARTIAL の扱い、状態の文言に「解決(一部の大きさが取得できない)」を足した（「検知と更新の役割」は最強戦の検知の大きさを書いていないので、毎日の更新の行に書いた）。決定を docs/decisions/saikyo.md に足した
   - #514 に結果をコメントした https://github.com/retroeater/mj/issues/514#issuecomment-6159881641
   - #562 と #352 の作り: check-image-links の issue の反映は、最初の版（54e0daf2、2026-09-07）から「開いている同じ題の issue が無ければ新しく作る」作りで、閉じた issue を開き直したことは無い（ACF-09 も同じ）。#352 は 2026-09-16 に github-actions が作り、`種類: 常設` は 10/02 に平野さんが付けた。10/13 02:39Z に初めて自動で閉じられ（ACF-09 の作業ブランチの手動実行）、10/14 00:28Z の検知で #562 が新しく作られた（ラベル無し）
+- cloudflare へマージ: 11:59 JST に再 fetch し `git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめて `git push origin work/1014-acf-refetch:cloudflare`（ab6bf27d..ca78f405）。03:30〜05:00 の外
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1014-acf-refetch
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1014-ACF-20.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1014-acf-refetch
+- 確認用URL: なし（ページは変えていない）
+- マージ: 済（ca78f405）
+- issue: #514（結果をコメント）・#562（読んだだけ）
+- 判断が必要なこと:
+  - 画像リンク切れの検知の issue: check-image-links は最初の版（2026-09-07）から「開いている issue が無ければ新しく作る」作りで、#352（常設のラベルは平野さんが手で付けた）が 10/13 に自動で閉じたため、10/14 に #562（ラベル無し）が新しく作られた。(a) 閉じた同じ題の issue があれば開き直す作りにする（常設の番号を保つ）／(b) 今のまま（新しく作られたら、その都度ラベルを手で付ける）。どちらかを選んでほしい（#562 と #352 の扱いも合わせて）
+- 未確認の項目:
+  - マージ後の翌朝（2026-10-15）04:10 の更新で、`_80x80` が取れない写真があれば取り直されること。上田稜の `_80x80` は 10/14 12 時ごろに 200 に戻っていたので、翌朝は取り直しが起きない見込み（起きなければ、X API の呼び出し 0 で「解決」のまま）
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj ab6bf27d）: https://github.com/retroeater/mj-logs/tree/main/guide/ab6bf27d
+ガイド文書（この版を写した時点の最新、mj a372bb9f）: https://github.com/retroeater/mj-logs/tree/main/guide/a372bb9f
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ab6bf27d/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ab6bf27d/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ab6bf27d/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ab6bf27d/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ab6bf27d/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/ab6bf27d/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a372bb9f/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a372bb9f/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a372bb9f/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a372bb9f/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a372bb9f/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a372bb9f/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/ec9e24c3.md
