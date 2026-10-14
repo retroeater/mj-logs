@@ -73,6 +73,74 @@ OHA-03 で実装した morning.md の書き出し（`scripts/morning_report.py`�
 - 前提の確かめ: OHA-02 が変えたファイル（CLAUDE.md・handover.md・decisions/operations.md）と work/1014-oha の変更は重ならなかった。重なったのは cloudflare の別の作業（ACF-16）の automation.md の追記
 - 新設の docs/notes/github-actions.md は status.md だけに触れていて、morning.md には触れていない（今回は変えない）
 
+### 2. マージ
+
+- push 直前に再 fetch し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真であることを確かめて `git push origin work/1014-oha:cloudflare`（6820592e0..81ffda44a、2026-10-14 11:13:51 JST）
+- check-run（81ffda44a）: `check` 2件 success・`Workers Builds: mj` success・`notify` 2件 skipped。失敗は無い
+- マージ後の cloudflare に再生成のコミット（`chore: regenerate ...`）はできていない（`git log 81ffda44a..origin/cloudflare` が空。11:2x JST 時点）
+
+### 3. mj-logs の最初の写し
+
+- mj-logs の Actions の API はこのセッションのトークンでは読めない（「GitHub access to this repository is not enabled for this session」。`add_repo`〈read〉は「public なので git の読み取りだけ可能」で、API は付かない）。そのため実行の結論は API で見ず、mj-logs の main のコミットで確かめた
+- mj-logs の main に `e2db29b sync: mj 81ffda44`（2026-10-14 11:15:08 JST）ができ、その中で `A actions/morning.md`・`M actions/status.md`。`sync-from-mj.yml` は push に成功したときだけ `exit 0` で終わる作りなので（失敗は3回のやり直しの後に `exit 1`）、この回は push まで進んでいる。実行の結論（success）そのものは API で見ていない
+- morning.md の「書き出した時刻」は 11:15 JST で、マージの push（11:13:51 JST）の後
+- status.md: 前の写し（17bd101、11:12 JST）との差は「書き出した時刻」の行と、各表の新しい実行が上に足され古い実行が下から押し出された行だけ（形・見出し・列は同じ）
+- morning.md の 5 節の未報告のログは、このログ（OHA-04、まだ `## 報告` が無かった）だけ。手元の実行（OHA-03）で出た CHAT-1014-ACF-16 は消えている（`## 報告` が書かれた）
+
+mj-logs の main（e2db29b）の morning.md の全文:
+
+```
+# 朝の報告用の異常（retroeater/mj）
+
+- 書き出した時刻: 2026-10-14 11:15 JST（見た範囲: 2026-10-13 09:15 JST から）
+- 書き出した実行の契機: workflow_dispatch（main）
+- 異常だけを書く。全体は actions/status.md。判定は mj の scripts/morning_report.py（各ワークフローの直近 100 回まで）
+
+## 1. 失敗など（結論が success・skipped 以外。実行中を含む）
+
+- 2026-10-13 11:12 update-sns-book.yml failure（workflow_dispatch・cloudflare） https://github.com/retroeater/mj/actions/runs/38335781712
+- 2026-10-13 23:38 notify-build-failure.yml failure（workflow_dispatch・cloudflare） https://github.com/retroeater/mj/actions/runs/38415113000
+
+## 2. 予約実行の未実行（予定から3時間以内は「遅れの可能性」）
+
+なし
+
+## 3. 所要時間の異常（直近20回の中央値の3倍以上、または10分以上。skipped は除く）
+
+- 2026-10-13 09:17 regenerate-page.yml success（push・cloudflare）所要 3分12秒（直近20回の中央値 0分50秒） https://github.com/retroeater/mj/actions/runs/38326537772
+- 2026-10-13 11:12 update-sns-book.yml failure（workflow_dispatch・cloudflare）所要 3分40秒（直近20回の中央値 0分36秒） https://github.com/retroeater/mj/actions/runs/38335781712
+- 2026-10-13 11:30 regenerate-page.yml success（push・cloudflare）所要 3分58秒（直近20回の中央値 0分50秒） https://github.com/retroeater/mj/actions/runs/38337166122
+- 2026-10-13 12:41 regenerate-page.yml success（push・cloudflare）所要 3分29秒（直近20回の中央値 0分50秒） https://github.com/retroeater/mj/actions/runs/38342868015
+- 2026-10-13 13:57 regenerate-page.yml success（push・cloudflare）所要 2分52秒（直近20回の中央値 0分50秒） https://github.com/retroeater/mj/actions/runs/38348958077
+- 2026-10-13 16:27 regenerate-page.yml success（push・cloudflare）所要 2分50秒（直近20回の中央値 0分50秒） https://github.com/retroeater/mj/actions/runs/38362749491
+- 2026-10-14 04:37 update-sns-book.yml success（workflow_dispatch・cloudflare）所要 3分38秒（直近20回の中央値 0分36秒） https://github.com/retroeater/mj/actions/runs/38456349472
+
+## 4. 初回成功
+
+- 2026-10-13 23:38 notify-build-failure.yml success（workflow_dispatch・cloudflare）それ以前の 0 件に success なし https://github.com/retroeater/mj/actions/runs/38415024219
+
+## 5. 未報告のログ（`## 報告` の節が無い）
+
+- CHAT-1014-OHA-04.md（着手 2026-10-14） https://github.com/retroeater/mj-logs/blob/main/logs/CHAT-1014-OHA-04.md
+```
+
+- OHA-03 のログの `## 報告` の状態の末尾に ` / 続き: CHAT-1014-OHA-04` を足した
+
+- 状態を「完了」とし「未確認の項目」に翌朝の確かめを書いた。`_template.md` は「完了なら未確認の項目は『なし』だけ」とするが、指示の完了条件と CHAT-1014-OHA-02 で足した規則（予約実行の確認日を「未確認の項目」に書く）に従った。自動削除の判定でこのログが「完了」と読まれない可能性がある
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1014-oha
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1014-OHA-04.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1014-oha
+- 確認用URL: なし（`scripts/` と docs の変更で、配信物は変わらない）
+- マージ: 済（81ffda44a。このログの追いの push も cloudflare へ fast-forward）
+- issue: #563（関連）
+- 判断が必要なこと: なし
+- 未確認の項目: 2026-10-15 朝の写し（Worker からの 04:00〜04:30 の起動の後）で morning.md が前日分に更新されること。mj-logs の `sync-from-mj.yml` の実行の結論（API で読めないため、main のコミットで push まで進んだことだけを確かめた）
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
