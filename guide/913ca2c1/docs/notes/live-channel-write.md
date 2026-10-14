@@ -80,13 +80,7 @@ GitHub Actions から Google Sheets API で3層のタブ（下記）へ直接書
   `docs/notes/birthday-calendar.md` と同じ形）
 - 実行本体は【1】が `scripts/write_live_layer1.py`、【2】が `scripts/write_live_channel_candidate.py`。
   どちらも書いたあと読み返して全セルを比べる。書き込み先は `sheets_write.py` の `WRITABLE` で止めており、本番タブへ書く経路は無い
-- ワークフロー: `.github/workflows/write-live-channel-candidate.yml`（workflow_dispatchのみ、定期実行は無い）。
-  `mode` 入力で `check`（書き込まず見出し・行数を返す。既定）・`limited`（`limit` 件数だけ書く）・
-  `full`（全件を書く）を選ぶ
-- 【2】は毎朝の `update-live-channel.yml` も書き直すが、このワークフローは残す（2026-09-28 平野さんの判断）。層2の規則を直した直後に、
-  翌朝を待たず、YouTube からの取り込みもせずに【2】だけを書き直せる。ページへの反映は「【3】の直しをすぐ出したいとき」の再生成で行う
-
-手動実行は https://github.com/retroeater/mj/actions/workflows/write-live-channel-candidate.yml から。
+- 【2】だけを書き直す手動のワークフロー `write-live-channel-candidate.yml` は削除した（2026-10-14、#564）。【2】は毎朝の `update-live-channel.yml` が書き直す
 
 #### 手動実行の結果（2026-09-22、CHAT-0922-UT-12。書き込み先は当時の旧シートの試作タブ）
 

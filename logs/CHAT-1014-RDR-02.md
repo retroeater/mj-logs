@@ -80,28 +80,79 @@ ryoei.pro のすべての転送を1つの一覧にまとめ、テストで `_red
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 揃っている
 - 0. 指示欄の末尾は指示文の最後の行と一致。RDR-01 のログの状態に ` / 続き: CHAT-1014-RDR-02` を足した
 
+- 取り込み: `git merge origin/cloudflare`（e6dd2e0e3）。衝突なし（入ったのは docs/decisions/automation.md と WFL-12・13 のログだけ）
+
+### 1. issue の検索・前提の照合・重なり
+
+- 検索（クローズ済み含む）「リダイレクト 転送 棚卸し 一覧 削除 流入 301 redirect」「Cloudflare GraphQL API 転送件数 集計 月次」「四半期 棚卸し 常設」: 手順1の issue のほかに同じ論点は無し（ヒットは #434 のみ）
+- #434・#485 に他セッションの着手中コメントは無し（#485 の着手中は CHAT-1003-RUN-02 でマージ済み。#434 の最終更新は 2026-09-21）
+- `_redirects`（取り込み後。origin/cloudflare の f0502df から変化なし）: 48行。コメント3・200 が11・301 が34（末尾スラッシュ付け26、旧 URL・別名8）。前提と一致
+- 未マージの work/ ブランチとの重なり（`_redirects`・handover.md・new-page-checklist.md・作るファイル・decisions/cloudflare.md）:
+  - **origin/work/1014-hou（CHAT-1014-HOU-37）が `_redirects` に `/houou/ranking/  /houou/ranking/total/  301` を1行足している**（`/houou/` の行の後）。今回は `_redirects` を変えないので止まる条件には当たらない。ただし、このテストの後に HOU-37 がマージされると、この行が一覧に無いため `test_every_redirect_is_listed` が落ちる（作業ツリーで行を足して落ちることを確かめた）。docs/notes/redirects.md の「予定」に行を置き、マージ時に「棚卸しの対象」か「常設」へ1行足すと書いた
+  - ほかのブランチは重ならない
+
+### 2. 文書・テスト
+
+- `docs/notes/redirects.md`: 常設（棚卸しの対象外）・棚卸しの対象（4行）・別名（2行）・JS の移動（3行）・予定（3行）・棚卸しの手順・流入の測り方。ダッシュボードのルールは「2026-10-14 平野さんの画面で確認（申告値）」と書いた
+  - 棚卸しの対象: `/saikyo_results.html`・`/jpml_titles.html`・`/video_wayhome.html`・`/tanilog.html`。入れた日は `git log -S` で確かめた（690fb4a98 2026-09-21、b6dacbedf 2026-09-30、4c5b5611e 2026-10-13、380a4fb3f 2026-09-07）
+  - 別名: `/resource_calendar.html`・`/resource_books.html`（`navbar.js` の 71・72行目の href）。チャット側の案のとおりに置き、決定ではないと注記した
+  - live の生成部分の2行は「常設」にまとめた（生成物。前提の「当面は消さない」のとおり）
+- `scripts/tests/test_redirects_inventory.py`: `_redirects` の 200 でも末尾スラッシュ付けでもなく live の目印の外の行と、一覧の「棚卸しの対象」「別名」の表の1・2列目を比べる（転送元の過不足と転送先の一致。転送先が `…` で終わるときは前方一致。カレンダーの URL が長いため）
+- 確かめ（作業ツリーだけ。`cp` で退避・復元し、コミットしていない）:
+  - 今の `_redirects`: 4件 OK
+  - `_redirects` から `/tanilog.html` を消す → `test_every_listed_row_exists` が落ちる
+  - 一覧から `/video_wayhome.html` の行を消す → `test_every_redirect_is_listed` が落ちる
+  - `/jpml_titles.html` の転送先を変える → `test_targets_match` が落ちる
+  - work/1014-hou の `/houou/ranking/` の行を足す → `test_every_redirect_is_listed` が落ちる
+  - 最初の版は「別名（流入に関係なく残す）」の見出しを完全一致で探していて2行を拾えず落ちた。前方一致に直した
+- `python3 -m unittest discover -s scripts/tests`: 1083件 OK（`test_handover_notes_table.py` も通る）
+- docs/handover.md「6. 関連文書」に redirects.md の行、docs/new-page-checklist.md の旧ページの 301 の項目に「一覧に行を足す」を足した。handover.md は 22,992 バイト（警告域 26KB の手前）
+- `docs/` と `scripts/` は `.assetsignore` にあり、公開対象は増えない
+
+### 3. Cloudflare の API の下調べ
+
+cloudflare の skill（`.claude/skills/cloudflare` の `references/graphql-api/`）と developers.cloudflare.com（GraphQL Analytics API の Limits・Settings・Analytics API token・チュートリアル「Querying HTTP events by hostname」、Workers の Redirects、Bots の Pro・Bot Analytics）を読んだ。結果は docs/notes/redirects.md「流入の測り方」。要点:
+
+- (a) `httpRequestsAdaptiveGroups` の `clientRequestPath`・`edgeResponseStatus`・`count`。Adaptive は「どのプランでも少なくとも31日」。Pro の `notOlderThan`・`maxDuration` の値は文書に無く未確認（`settings` で確かめる）。→ 月1回前月分を記録し、棚卸しで3か月分を足す形にした。止まる条件「Pro では転送元ごとの件数を取れないと分かった」には当たらない
+- (b) Pro は bot score を使えず（likely automated は Pro では不可、Bot Analytics は Business 以上）。GraphQL のボットの次元・User-Agent の次元が Pro で使えるかは未確認。代わりに User-Agent の絞り込み、無ければ総数で判断
+- (c) `_redirects` の 301 がゾーンの集計に 301 として出るかは文書に記述が無く未確認。次の指示の最初の手動実行で確かめる
+- (d) 読み取りだけ（Account Analytics Read か Zone Analytics Read、ゾーンを1つに絞る。どちらで足りるかは未確認）。Secret 名の案 `CF_ANALYTICS_TOKEN`。禁止事項は wrangler が読む `CLOUDFLARE_API_TOKEN` による二重デプロイの防止が趣旨で、別名・読み取りだけなら触れないと判断
+- (e) 新しい `fetch-redirect-counts.yml` を1本。`daily.yml` には入れず、当面 GitHub の `schedule`（毎月1日）、#564 段④で `fetch-gsc.yml` と一緒に `schedule.json` へ移す
+
+### 4. issue
+
+- 常設 issue #568「転送（リダイレクト）の四半期の棚卸し」を起票（ラベル「種類: 常設」「分野: 整理・保守」。同じ主題の検索は上の1.）。本文に周期・基準・数え方（次の指示で作る）・手順・次回 2027-01 上旬。#434 の判断材料（Search Console のページ一覧から消えているか・SNS の古いリンクの 404）を手順に入れた
+- #485: 取得し直した `updated_at`（2026-10-12T12:34:31Z）が前回と同じことを確かめてから本文を書き換えた（期日を 2027-01 上旬の棚卸しに、基準を「90日で0件」に、数える仕組みは次の指示で作ると書き、終えるときの作業に一覧の行を消すことを足した）。ラベルは変えていない（「状況: 待ち」のまま）
+- #434: 統合のコメントを書き、「状況: 保留」を外してクローズ（completed）
+- 決定: docs/decisions/cloudflare.md の RDR-01 の節を「RDR-01・RDR-02」の1つの節に置き換えた（分野は指示の案の cloudflare.md）。MT-13 の決定は決定の記録の導入前で記録に無いため、置き換えの印は新しい側にだけ書いた
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1014-rdr
-- ログ: https://github.com/retroeater/mj/blob/work/1014-rdr/docs/logs/CHAT-1014-RDR-02.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1014-RDR-02.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1014-rdr
 - 確認用URL: なし
-- マージ: 未
-- issue: #485、#434
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- マージ: 済（8e2dacf82。`git push origin work/1014-rdr:cloudflare`、直前に再fetchして祖先を確認。fast-forward）
+- issue: #568（起票、常設）、#485（本文の期日・基準を書き換え）、#434（コメントしてクローズ）
+- 判断が必要なこと:
+  - `/resource_calendar.html`・`/resource_books.html` を「別名」（棚卸しの対象外）に置いた。チャット側の案で平野さんの決定ではないため、このままでよいか
+  - 流入の数え方の Secret 名の案 `CF_ANALYTICS_TOKEN`（読み取りだけの権限）で禁止事項に触れないと判断した。次の指示の前に平野さんの確認がほしい
+- 未確認の項目:
+  - 次回の棚卸し 2027-01 上旬（常設 issue #568）
+  - work/1014-hou（HOU-37）のマージ時に、`/houou/ranking/` の行を docs/notes/redirects.md の表に足さないと `test_redirects_inventory.py` が落ちる
+  - Pro での `notOlderThan`・`maxDuration`・ボット／User-Agent の次元の有無、`_redirects` の 301 がゾーンの集計に出るか（次の指示でトークンを作った後に確かめる）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj e6dd2e0e）: https://github.com/retroeater/mj-logs/tree/main/guide/e6dd2e0e
+ガイド文書（この版を写した時点の最新、mj 913ca2c1）: https://github.com/retroeater/mj-logs/tree/main/guide/913ca2c1
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e6dd2e0e/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e6dd2e0e/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e6dd2e0e/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e6dd2e0e/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e6dd2e0e/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e6dd2e0e/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/913ca2c1/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/913ca2c1/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/913ca2c1/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/913ca2c1/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/913ca2c1/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/913ca2c1/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/f0502df9.md
