@@ -228,16 +228,24 @@ jobs:
 
 あわせて `.python-version`（中身 `3.12`）を置き、21か所の `python-version: '3.12'` を `python-version-file` に替える。#539（3.14）はこの1行の書き換えになる。
 
+### マージ（止めた）
+
+- 報告と決定の記録のコミット b6f31cf2f を push した後、`git fetch origin cloudflare` で `origin/cloudflare` が進んでいた（9ec82bb79 まで、work/1013-acf-xsize の ACF-17・ACF-19 と OHA-05 が入った）ため、`git merge --no-edit origin/cloudflare` で取り込もうとした
+- **`docs/decisions/operations.md` の末尾で衝突した。** 両方が同じ位置（CHAT-1014-GDS-02 の節の後）に節を足している: こちらは「## 2026-10-14（CHAT-1014-WFL-01）」、cloudflare は「## 2026-10-14（CHAT-1014-OHA-05）」
+- 生成物ではないため、CLAUDE.md「ブランチ運用」（同 docs/notes/branch-operations.md「生成物を含む作業ブランチを取り込む・マージするとき」）に従い、解かずに `git merge --abort` で戻して止まった。指示文はこの衝突の解き方を書いていない。cloudflare へは push していない
+- 解き方の案: 両方の節を残し、日付の古い順の規則（docs/decisions/README.md「書き方」）に合わせて OHA-05 の節の後に WFL-01 の節を置く（どちらも 2026-10-14。OHA-05 が先に cloudflare に入ったため先に置く）
+
 ## 報告
 
 - 状態: 判断待ち
 - ブランチ: work/1014-wfl
-- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1014-WFL-01.md
+- ログ: https://github.com/retroeater/mj/blob/work/1014-wfl/docs/logs/CHAT-1014-WFL-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1014-wfl
 - 確認用URL: なし
-- マージ: 済（ドキュメントのみ。SHA は経過の末尾）
+- マージ: 未（`origin/cloudflare` の取り込みで `docs/decisions/operations.md` が衝突したため止めた。経過「マージ（止めた）」）
 - issue: #564（起票）、#263・#132（段②で扱う旨をコメント）
 - 判断が必要なこと:
+  - マージ: `docs/decisions/operations.md` の衝突（OHA-05 と WFL-01 の節が同じ位置）を「両方を残し OHA-05 の後に WFL-01 を置く」で解いてマージしてよいか。指示文に解き方を書いてもらえれば、そのとおりに解いてマージする
   - 改名の代案（比較と推奨は経過「代案」）: A-1 `sitemap-lastmod.yml` → (a) `sync-sitemap-lastmod.yml`／(b) `regenerate-sitemap.yml`、推奨 (b)。A-2 `regenerate-saikyo.yml` → (a) 残す／(b) `update-abema-book.yml` に改め再生成は daily から、推奨 (a)。A-3 `fetch-youtube.yml` の切り出し → (a) 取り直しとコミットだけを移し OGP・帰り道の知らせは `regenerate-page` に残す／(b) 全部移す、推奨 (a)（#340 の「同じコミット」を保つ）。凍結中の楽天の書影の取得は `regenerate-page` に残すのを推奨。A-4 `check-meibo.yml` の `name:` → 推奨はそのまま。A-5 `sync-yotei.yml` →(a) そのまま／(b) `sync-live-calendar.yml`、推奨 (a)。A-6 `daily.yml` → (a) 規則の例外／(b) `run-daily.yml`（動詞 `run` を足す）、推奨 (b)
   - 段①に要る判断: (1) `SCHEDULE_ENABLED`（6本、すべて `'true'`）をやめて Worker の表の `enabled` に任せるか。偽のときの動きが本で違い（dry-run で走る4本／走らない2本）、残すと resolve-mode に分岐が要る。推奨: やめる (2) 部品への置き換えの範囲: (a) 全本を1回で／(b) 1〜2本（例: check-saikyo-unregistered・sync-birthday-calendar）で試してから広げる。推奨 (b)（作業ブランチで手動実行して確かめる本数が少なく、失敗の範囲が狭い） (3) sync-dojo-calendar の結果ごとの複数コメントを1件にまとめてよいか（upsert-issue を1回で呼べる。推奨: まとめる） (4) `.python-version` は段①で `3.12` のまま入れ、#539 はその1行の変更にするか（推奨: そうする）。#308（Node 24 の版）は部品に入れるときに同時に上げず別にする（推奨）
   - 段③に効く判断（先に知らせる）: `daily` にまとめると Worker の起動の表の5行が `daily.yml` の1行になり、update-live-channel の保険のゲート（自分のファイル名で当日の起動を引く）も `daily` に移す必要がある。(a) 段③で `schedule.json` の行の置き換えも同時に行う／(b) 段③を #504 の観察の後に回す。推奨 (a)（行の置き換えは Worker のコードを変えない。表の行を残したまま各本の `run-name` が消えると、朝の確かめが毎日 failure を出す）
@@ -247,8 +255,8 @@ jobs:
   - 直近7日の実行回数が前提（653回）と実物（985回）で違う原因（窓が約2時間ずれ、10/07 の停止前の sync-logs の量が大きい）
   - 改名・削除の後、古い名前のワークフローが API の一覧（`/actions/workflows`）に残り `actions/status.md` に古い行が出るか
   - 呼ばれる側の workflow レベルの `concurrency` が呼ぶ側と詰まらないか、入れ子（daily → update-live-channel → regenerate-page の3段）が上限内か（段③で公式の文書と手動実行で確かめる）
-  - work/1014-gds も `docs/decisions/operations.md` の末尾に追記している。この指示のマージの後に work/1014-gds をマージするとき、末尾で衝突し得る（両方を残せば解ける）
-- エラー: なし
+  - work/1014-gds も `docs/decisions/operations.md` の末尾に追記している。この指示と work/1014-gds の後にマージする側で、末尾が衝突し得る（両方を残せば解ける）
+- エラー: `origin/cloudflare`（9ec82bb79）の取り込みで `docs/decisions/operations.md` が衝突（生成物以外のためマージを止めた）
 
 <!-- guide-links -->
 ---
