@@ -69,29 +69,45 @@ PLB-02 の成果（読む先を「ryoei.pro_選手」に切り替え、「桜花
 
 - 本文: 決定に「JWRC の G 列は残す（予選の通過・敗退を載せる可能性）」を足し、JWRC の消す列を C〜E・N〜U・W に直した。
   マージ後の手作業の順番（改名 → 列の削除 → 1週間後に元のタブの削除。どれもマージ後。マージ後の選手の追加・改名は ryoei.pro_選手 で）を書いた
+- 進み具合をコメントした（マージの結果も別のコメントに書いた）
+
+### 手順3: マージ
+
+- マージ直前に origin/cloudflare が 904d73a に進んでいた（docs と `scripts/tests/test_redirects_inventory.py` のみ）→ `git merge origin/cloudflare`（衝突なし）、テスト OK → 79ccf61。
+  再 fetch のうえ `git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめ、`git push origin work/1014-plb:cloudflare`（904d73a..79ccf61）
+- コミットメッセージに閉じるキーワード + `#番号` が無いことを確かめた
+- check-run（79ccf61）: Workers Builds: mj は数分 `in_progress` のあと success。regenerate success、check success×2、notify skipped
+- 本番: 08:03 UTC に ouka_results.js・wrc_results.js・league_ranking.js が作業ブランチと同じ版を返すことを確かめた。
+  本番の ouka_results・wrc_results（名前なし・名前あり）と wrc_ranking「節連続浮き回数」を、旧コード（手元の 904d73a 以前のファイル）とヘッドレス Chrome で比べ、5ページとも同じ表（本番側のエラー0件）
+- regenerate の後、cloudflare に生成物のコミットは増えていない（生成物の差なしと合う）
+- ブランチ: work/1014-plb はマージ済み（`git branch --merged origin/cloudflare` に含まれる）。先頭 79ccf617a。リモートの削除は delete-merged-branches.yml に任せる（クラウドセッションのプロキシは削除を拒否する。docs/notes/cloud-sessions.md「ブランチの削除」）。#567 に記録した
 
 ## 報告
-
-- 状態: 作業中
-- ブランチ: work/1014-plb
-- ログ: https://github.com/retroeater/mj/blob/work/1014-plb/docs/logs/CHAT-1014-PLB-03.md
+- 状態: 判断待ち
+- ブランチ: work/1014-plb（cloudflare にマージ済み）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1014-PLB-03.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1014-plb
-- 確認用URL: なし
-- マージ: 未
-- issue: #567
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 確認用URL: なし（本番で確かめた。ouka_results・wrc_results・wrc_ranking が旧と同じ表）
+- マージ: 済（79ccf61）
+- issue: #567（本文を直し、進み具合とマージの結果をコメント。平野さんの手作業が残るので開いたまま）
+- 判断が必要なこと:
+  - マージ後の平野さんの手作業（順番に。どれもマージ済みなので今から行える。選手の追加・改名は今後「ryoei.pro_選手」の3タブで行う）:
+    1. 元の3タブ（正本の「プロ」、ryoei.pro_その他マスタの「連盟プロ以外」「別名」）の名前に「(旧)」を付ける
+    2. 「桜花」の C・G・Q〜U・W 列と、「JWRC」の C〜E・N〜U・W 列を消す（JWRC の G 列「結果」は残す）
+    3. 1週間後を目途に、元の3タブを消す
+- 未確認の項目:
+  - 列を消した後・元のタブを改名した後の本番の表示と、次の再生成（コードは見出しと新しいブックで読むため変わらない見込み）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 904d73a3）: https://github.com/retroeater/mj-logs/tree/main/guide/904d73a3
+ガイド文書（この版を写した時点の最新、mj 79ccf617）: https://github.com/retroeater/mj-logs/tree/main/guide/79ccf617
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/904d73a3/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/904d73a3/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/904d73a3/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/904d73a3/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/904d73a3/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/904d73a3/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/79ccf617/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/79ccf617/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/79ccf617/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/79ccf617/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/79ccf617/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/79ccf617/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/f0502df9.md
