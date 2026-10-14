@@ -579,6 +579,8 @@ Workers & Pages → `mj` → Settings → Builds:
 
 セッションから Cloudflare・本番に到達できるかの実測は `docs/notes/session-network.md`（#328）。
 
+**チャット側が成否を確かめるとき**（2026-10-14 に `docs/notes/chat-side-operations.md`「読み方」の表から移した、#492）: check-run（`gh api repos/retroeater/mj/commits/<sha>/check-runs`）。1つのコミットに Worker ごと（`mj`・`mj-ask`・`mj-scheduler`）と本番・プレビューの別で複数付く。**失敗を平野さんに伝える前に、失敗した check-run の Worker 名・Build ID・本番かプレビューかを書く**（見分け方は下の「ビルドが Cloning で失敗したとき」）
+
 - **到達できても、セッションから `wrangler deploy` は行わない。** 本番反映は
   Workers Builds（`cloudflare`へのpushで自動実行）に一本化しているため。
   `CLOUDFLARE_API_TOKEN` を GitHub Secret に登録しない方針（二重デプロイの防止）
