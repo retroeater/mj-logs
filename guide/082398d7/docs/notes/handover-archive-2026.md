@@ -922,6 +922,21 @@ CLAUDE.md:
 - 「更新ルール」の「この3文書」は、2026-09-22 の決定の対象（CLAUDE.md・handover.md・chat-side-operations.md）を名前で書いた（上限の対象が4文書になり、指す先が曖昧になったため）
 
 
+### 2026-10-14 の作り直しで chat-side-operations.md から移した・まとめた記述（#492）
+
+場面限定の節は docs/notes/ の各文書へ移し、chat-side-operations.md「指示文を書くときの注意」の冒頭に「場面ごとに読む文書」の表を置いた。規則は移した先に残し、消していない。
+
+- 移した節: 「見た目の決め方」→ docs/notes/design.md「7. チャット側の決め方」、「期日とカレンダー」→ docs/notes/chat-routines.md「期日とカレンダー」、
+  「外部サービスの設定」→ 同「外部サービスの設定を頼むとき」、「ほかのセッションへの共有」→ 同「ほかのセッションへの共有」、
+  「書く前に実物で確かめる」の「場面ごとに次も確かめる」の箇条 → 同「指示の種類ごとの確かめ」、
+  「読み方」の表の「Workers Builds の成否」の行の本文 → docs/notes/cloudflare.md「ビルド成否と本番の確認範囲（check-runs）」の「チャット側が成否を確かめるとき」
+- 表にまとめた「〜の前に読む」の行: 「読み方」の「PC で Claude for Chrome を使うときは chrome-reading.md を先に読む」、
+  「Claude Code とのやり取り」の「レビュー・振り返り・申送りと言ったら chat-routines.md の手順で」、
+  「書く前に実物で確かめる」の「マージ・ブランチ操作・`/workspaces/mj` の操作を含む指示文の前には CLAUDE.md『ブランチ運用』節を必ず読む（#313）」と
+  「場面ごとに次も確かめる」の「ワークフローを変える指示: github-actions.md『チャット側』」、
+  「止まる条件と検証の指定」の「/live の【3】・`update-live-channel.yml` に触れる指示の前に live-channel-write.md『チャット側の指示』を読む」、
+  「`.claude/` の hook・settings を変える指示」の項の「手順は docs/notes/skills.md『git の hook（mj-git-guard）』」（項の規則は残し、参照を表へ）
+
 ## docs/notes/cloudflare.md・chrome-reading.md から（2026-10-13、#304）
 
 規則は `docs/notes/cloudflare.md`「ビルド成否と本番の確認範囲（check-runs）」「Chrome からダッシュボードの API を読む」と `docs/notes/chrome-reading.md`「使い方」、#304 の本文の冒頭（担当）が正。
