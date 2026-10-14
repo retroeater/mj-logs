@@ -696,7 +696,7 @@ python3 scripts/check_saikyo_unregistered.py --json result.json  # ワークフ�
 （`check-image-links.yml` と同じ作り）。対局日が空の対局は本文の節「対局日が空の対局」（年度・対局・シートの行の表）に出る。
 
 - **新規ワークフローのため、作業ブランチからの `gh workflow run` は404になる**（既定ブランチに無い。
-  `docs/notes/branch-operations.md`「ワークフローを変更したとき」）。`SCHEDULE_ENABLED: 'false'` で
+  `docs/notes/github-actions.md`「ワークフローを変更したとき」）。`SCHEDULE_ENABLED: 'false'` で
   schedule も dry-run にしてあり、マージ後に `cloudflare` で手動実行して確かめてから `'true'` にする
 - 手動実行の `dry_run` の既定は true（issueを作らず実行サマリに出すだけ）。
   作業ブランチから実行するときは、常設issueを上書きしないよう既定のままにする

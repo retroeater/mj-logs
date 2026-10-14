@@ -53,15 +53,37 @@ DSN-01〜11 で新サイトのデザインの基本の形が決まり、houou/ �
 
 ## 経過
 
+- 0: 「指示」欄の末尾は指示文の最後の行と一致
+- **このセッションは新しく始めたものではない。** DSN-01〜11 を実行したセッション（同じ Claude-Session）に続けて貼られた
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある
+- Chat-Ref の確認: `CHAT-1014-DSN-12` のコミットなし
+- 作業ブランチ: work/1014-dsn はローカル・リモートとも origin/cloudflare の祖先（マージ済み）。ローカルにあるので `docs/notes/cloud-sessions.md`「作業ブランチの用意」のとおり `git merge --ff-only origin/cloudflare`（6151b10 → 9ec82bb）
+
+### 手順1（読む）
+
+- #107: Open、ラベル「状況: 対応中」「分野: UI/UX」「対象: index」、コメント21件。着手中のコメントはすべてこのセッションの DSN-02〜10 のもの（同じ Claude-Session）で、ほかのセッションの着手中は無い。最後のコメントは DSN-10 のマージ済みのコメント（issuecomment-6158102493）。親は #296
+- #296 の本文「新サイト送りにするとき・やめるとき」は、issue を新サイト送りにする・やめるときの決まり（「親: #296」のコメントと sub-issue の登録を同時に）。今回は新サイト送りの操作ではなく、残りの作業をコメントで書き残すだけなので食い違わない（止まらない）。#107 の sub-issue の登録はそのまま（閉じると #296 の完了数に数えられる）
+
+### 手順2（コメント・閉じる）
+
+- #296 に残り3件のコメント: https://github.com/retroeater/mj/issues/296#issuecomment-6159740650
+- #107 に最後のコメント（決定の記録先、決まった項目と #101 の設計時に扱う項目、残り3件を #296 に書いたこと）: https://github.com/retroeater/mj/issues/107#issuecomment-6159741352
+- #107 のラベル「状況: 対応中」を外し、閉じた（理由: completed）。閉じた時刻 2026-10-14T02:46:25Z（11:46:25 JST）。残るラベルは「分野: UI/UX」「対象: index」（REST で確かめた）。`gh` が無いクラウドセッションなので GitHub の MCP のツールで閉じた。コミットメッセージに閉じるキーワードは使っていない
+
+### 手順3（記録・マージ）
+
+- 指示文は「コード・文書は変えない」だが、CLAUDE.md「作業ログ」の決まり（指示の完了時に「決定」節を `docs/decisions/` に足す）に従い、`docs/decisions/design-renewal.md` に 2026-10-14（DSN-12）の節を2行足した（ルールの側を優先した）
+- ログと決定の記録を作業ブランチに push し、ドキュメントのみなので cloudflare へマージした（下の報告のマージ）
+
 ## 報告
 
-- 状態: 中断（作業中）
+- 状態: 完了
 - ブランチ: work/1014-dsn
-- ログ: https://github.com/retroeater/mj/blob/work/1014-dsn/docs/logs/CHAT-1014-DSN-12.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1014-DSN-12.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1014-dsn
 - 確認用URL: なし
-- マージ: 未
-- issue: #107、#296
+- マージ: 済（a9fca30d0）
+- issue: #107（閉じた）、#296
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
@@ -69,12 +91,12 @@ DSN-01〜11 で新サイトのデザインの基本の形が決まり、houou/ �
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 9ec82bb7）: https://github.com/retroeater/mj-logs/tree/main/guide/9ec82bb7
+ガイド文書（この版を写した時点の最新、mj ab6bf27d）: https://github.com/retroeater/mj-logs/tree/main/guide/ab6bf27d
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9ec82bb7/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9ec82bb7/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9ec82bb7/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9ec82bb7/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9ec82bb7/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9ec82bb7/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ab6bf27d/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ab6bf27d/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ab6bf27d/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ab6bf27d/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ab6bf27d/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/ab6bf27d/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/ec9e24c3.md

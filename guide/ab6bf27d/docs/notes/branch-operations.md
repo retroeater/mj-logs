@@ -96,15 +96,7 @@ CLAUDE.md「ブランチ運用」「Chat-Ref」「作業ログ」から、特定
 
 ## ワークフローを変更したとき
 
-- **着手時に、同種の既存ファイルの履歴（`git log -- .github/workflows/<file>`）と関連する過去のログ・issueを見て、
-  GitHubの仕様で初回だけ手順が違う点が無いか確かめる**（CHAT-0918-HT-06）
-- **`.github/workflows/`配下を変更したら、マージ前に作業ブランチでワークフローを手動実行し結果を確認すること。**
-  `gh workflow run <ファイル名> --ref <作業ブランチ>`で起動し、`gh run list --workflow=<ファイル名>`で
-  runを特定して`gh run view <run-id> --log`を見る。省くと一度も実行されていないワークフローがマージされる。
-  セッションのトークンで起動が403になる場合は、平野さんにGitHub画面の「Run workflow」を依頼する。
-  **`workflow_dispatch`を持たないワークフローはマージ前に検証できないため、その旨を報告し判断を仰ぐこと**
-- 新規追加のワークフローは既定ブランチに無いため`gh workflow run --ref <作業ブランチ>`が404になり、マージ前に実行できない。
-  その場合は副作用の無い状態（dry-run 既定、schedule も dry-run で走る等）でマージし、`cloudflare`で手動実行して確認してから有効化する（CHAT-0918-HT-06/08）
+`docs/notes/github-actions.md`「ワークフローを変更したとき」へ移した（#492）。
 
 ## 生成物を含む作業ブランチを取り込む・マージするとき（CHAT-0918-SX-16）
 

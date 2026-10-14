@@ -13,7 +13,7 @@
 - 通るもの: jpml_pros・saikyo・live・books・houou_race（`houou/` も）・title・wayhome・誕生日・道場部・jpml_test・`fetch_youtube_channels.py`・写真の検知
 - 引く値: ID は【2】、画像の URL は【3】に【4】の空でないセルを重ねたもの（【4】の ID の列は使わない）。【2】の「-」は空と同じ（リンクもアイコンも出さない・代替アバター）。ID が空の SNS は画像も出さない。状態「一覧に無い」の行は使わない
 - gviz で読む（ログインなし）。1回の実行で1度だけ読む。【2】で名前が重複していたら生成を止める
-- **【3】【4】の X画像URL は `_400x400`**（#558）。毎日の更新が前の値を残すときも `_400x400` に直して書く（下の「毎日の更新」）。ページで出す大きさは各生成スクリプトの定数で決め、`lib/x_images.with_size()` でシートの末尾によらず書き換える（books/ は凍結中で対象外。houou_race の丸・houou/ の表のアイコンの `_80x80` 化は work/1012-dsn のマージ後〈未了〉。`generate_houou_race.py` の `IMAGE_SIZE` は houou/ の選手の写真にも効く）
+- **【3】【4】の X画像URL は `_400x400`**（#558）。毎日の更新が前の値を残すときも `_400x400` に直して書く（下の「毎日の更新」）。ページで出す大きさは各生成スクリプトの定数で決め、`lib/x_images.with_size()` でシートの末尾によらず書き換える（books/ は凍結中で対象外。鳳凰戦の順位変動の丸〈28px〉とランキングの表のアイコン〈40px〉は `_80x80`〈2026-10-14〉、houou/ の選手の写真は `_200x200`。`generate_houou_race.py` の `IMAGE_SIZE` は houou/ の選手の写真にも効くので、丸は `CHIP_IMAGE_SIZE`、表は `generate_houou_pages.py` の `RANKING_ICON_SIZE` で小さくしている）
 - 帰り道の写真の確かめ（`lib/wayhome.py` の `check_player_photos()`）は、この値（`_400x400`）に効く。読めなければ生成を止める（直す先は【2】の X ID か【4】）
 
 ## 検知と更新の役割
