@@ -91,6 +91,33 @@ Chat-Ref: CHAT-1014-MTK-01
   Mつくの行は `/video_wayhome.html` の行の後に足すため、同じファイルの別の箇所（間に変えない行が3行ある）。止まる条件に当たらない。`lib/wayhome.py`・帰り道の生成・`style.css`・`regenerate.py` を変える未マージのブランチは無し
 - テストの基準: 着手時に `python3 -m unittest discover -s scripts/tests` は 1092件 OK
 
+### 手順2 作ったもの（490b7ce）
+
+- `scripts/lib/mtsuku.py`（新規）: 「Mつく」タブを見出しの名前で読む（`sheets.fetch_table()`。必須は 名前・団体・URL・チーム名・名前1〜4・団体1〜4・表示。「紹介文（補正用）」は任意の列で、あれば上書き）。
+  紹介文の自動の文・ページの名前・VideoObject（再生時間が無い回は `duration` を付けない）・NOINDEX_TAG。サムネイル・再生時間・Xの写真は `lib/wayhome.py` の関数をそのまま使う
+- `scripts/generate_mtsuku.py`（一覧、ページ名 `mtsuku` → `mtsuku/index.html`）・`scripts/generate_mtsuku_episodes.py`（各話、`mtsuku_episodes` → `mtsuku/`）。`regenerate.py` の `OUTPUT_OVERRIDES` に2行
+- 共通化（帰り道の生成物は変えない）: 固定の検索バーを `lib/wayhome.build_filterbar_html(placeholder, aria_label, param=None)` に、戻る矢印を `lib/wayhome.BACK_ICON_SVG` に移し、帰り道の2本の生成スクリプトはそれを呼ぶ形にした。
+  `build_card_thumb_html()` は再生時間が無い回だけ重ねない。`video_wayhome.js` は検索欄に `data-param` があるときだけその URL パラメータを初期値にする（帰り道の検索欄には付けない）
+- `scripts/fetch_youtube_meta.py --series mtsuku`: 「Mつく」タブの動画を `data/mtsuku_youtube_meta.json` に書く（引数なしは今までどおり帰り道 → `data/youtube_meta.json`）
+- YouTube の情報は**仮置き**: 手順1のとおり手動実行はしていない。`data/mtsuku_youtube_meta.json` を、公開日=シートの「公開日」の 00:00 JST、サムネイル=`img.youtube.com` の maxresdefault・sddefault・hqdefault・mqdefault への HEAD（61本すべて4つとも 200）、再生時間=なし、で作った（JSON の先頭の `provisional` に書いた。作ったスクリプトはセッションの scratchpad で、リポジトリには入れていない）。
+  再生時間が無いので、カード・ヒーローの再生時間、一覧の総再生時間、`VideoObject.duration` は出ない。API の取得が入れば上書きされ、出るようになる
+- `_redirects`: `/mtsuku  /mtsuku/  301`・`/mtsuku/  /mtsuku/index.html  200`（`/video_wayhome.html` の行の後）。`docs/notes/redirects.md` の末尾スラッシュの行に `/mtsuku` を足した
+- `.assetsignore`: 変更なし（`data`・`scripts` は既に除外）。`assets-check.yml` の許可リストに `mtsuku` が要る（workflows は変えていない。作業ブランチの check は「許可リストに無い最上位の項目: mtsuku」だけで失敗した〈job 115766233407〉）
+- テスト `scripts/tests/test_mtsuku.py`（18件）。全体 1110件 OK
+- **帰り道の生成物の差分0**: 変更前に `regenerate.py video_wayhome wayhome_episodes` で差分0を確かめ（基準）、変更後に `regenerate.py video_wayhome wayhome_episodes title_pages` で `wayhome/`・`title/`・`sitemap*.xml` の差分0
+- 生成のログ: 各話の生成で「jpml_prosに該当する選手がいないため、Xの写真を出しません: 前原雄大」の警告（連盟の作る人で「プロ」に居ない。名前だけで出る）
+
+### 手順3 確かめ
+
+headless Chromium（ローカルの `python3 -m http.server`、`mtsuku/index.html` を直接開いた）で 375×812・1366×900・1920×1080。
+見たページ: 一覧・一覧 `?name=魚谷`・最新話 ZeFtFG2ov_Q（和泉由希子、写真あり）・最古の回 nLeGJz-nt-E（園田賢、チーム名が空・写真なし〈最高位戦〉）・チーム名が空で写真のある回 vSduV7-kLls（滝沢和典）・写真の無い作る人の回 6vXHmiBj--c（竹内元太）。
+
+- 全ページ・全幅で JS のエラーなし、横スクロールなし、読めない画像なし
+- 一覧: ヒーローは作る人の名前＋Xの写真、「最新話」・公開日・「チーム名」、その下に「選んだ選手：…」、▶ 再生。固定の検索バー、件数は出ない。`?name=魚谷` で検索欄に「魚谷」が入り4件（作る人2回＋選ばれた回）。存在しない名前で「該当する動画がありません」。帰り道の一覧に `?name=堀` を付けても検索欄は空のまま（今までどおり）
+- 各話: 左上の「一覧に戻る」、シリーズ名のリンク、見出し「「チーム名」 作る人」＋写真、選んだ選手、紹介文、▶ 再生。前後のエピソードは最新話が右の「前」だけ、最古が左の「次」だけ、中間は2つ（公開日つき）。「〇〇の他のエピソード」は作る人で出る（和泉由希子・滝沢和典）
+- 気づいたこと: PC 幅で各話の見出しが「「どこでも行けます。」 和 / 泉由希子」のように名前の途中で折り返す（帰り道の「期の題 選手名」も同じ組み方で、同じことが起きうる）。直していない（判断が必要なことに書いた）
+- チーム名が空の回は、カードのチーム名の行を出さない（日付と名前だけ）。同じ行のカードと高さはそろう
+
 ## 報告
 
 - 状態: 作業中
