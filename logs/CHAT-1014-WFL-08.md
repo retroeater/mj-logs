@@ -61,18 +61,85 @@
 - 作業ブランチ: work/1014-wfl-s2 はローカル・リモートとも無し → `git checkout -b work/1014-wfl-s2 origin/cloudflare`（baccec3a8）
 - 0. 指示欄の末尾は指示文の最後の行と一致
 - 雛形の行: Chat-Ref・マージ・貼る時機・共通手順（＋作業ブランチ）は揃っている
+- docs/notes/github-actions.md「ワークフローを変更したとき」「共通の部品」を読んだ
+
+### 前提の確かめ
+
+- `efac1e4f..origin/cloudflare` で `check-image-links.yml`・`check_image_links.py`・`check_sns_book_images.py`・`collect_saikyo_images.py`・`cleanup-logs.yml`・`cleanup_logs.py`・`assets-check.yml` を変えたコミットは無い（ACF-21 の版のまま）。節の書き換え・`needs: check`・`saikyo_resolve_test`・入力 `scheduled` は前提どおり
+- 未マージの work/ ブランチで `.github/`・上の scripts を変えるものは無い
+
+### 設計の判断
+
+- **#352 の節の書き換え**: upsert-issue の `read`（今の本文を書き出す）→ `check_image_links.py --issue-section`（自分の節を差し替え、どの節にも切れが無ければ閉じるコメントを `--close-comment` に書く）→ `state`（書く）の3段にした。`--issue-section` を部品の外に残すと、ACF-21 の github-script（issue の選び方・書き換え・開き直し・閉じる）をこの本だけ持ち続けることになり、型S を二重に持つ。部品に寄せると Python に残るのは「節の差し替え」だけになる
+  - そのため部品を2点直した: (1) `read` を `state` と同じ選び方（常設を状態を問わず優先、無ければ開いているもの）にし、出力 `state` を足した（読む issue と書く issue を同じにする）。(2) `state` で閉じるとき、`body-file` があれば本文も書き換える（ACF-21 は閉じるときに自分の節を「切れなし」にした本文を書いていた）。check-meibo・check-saikyo-unregistered は閉じるとき `body.md` を作らないので動きは変わらない
+  - `check_image_links.py` の `pick_issue()`・`issue_action()`・`--pick-issue`・`--state` を外した（部品の型S と同じ判定。`scripts/tests/test_check_sns_book_images.py` の `PickIssueTest` 4件・`IssueActionTest` 1件は外し、同じ観点のテストは WFL-05 で部品側〈`upsert.test.js`〉にある）。代わりに `WriteIssueBodyTest`（閉じるコメントを書く・別の節が切れていれば書かない）2件を足した
+- **入力 `dry_run` を足した（既定 false = 今までどおり書く）**: check-image-links には書かない入力が無く、作業ブランチの試験のたびに一時のコミットが要るため。既定を変えないので Worker・予約の起動・手動の今の使い方は変わらない
+- **commit-push の部品**: WFL-01 の案から `branch` の入力を外し、push 先を実行ブランチ（`github.ref_name`）に固定した（作業ブランチで動かして cloudflare へ push する道を作らないため。止まる条件「試験のコミットが cloudflare へ push されそうになる」を構造で防ぐ）。`retry` の既定は `none`（cleanup-logs の今の動き。sitemap-lastmod・regenerate-page の展開で `rebase` を使う）
+- **notice の `create: 'false'`**: #357 が無くても、足すコメントが無ければ失敗にしない（元の github-script は通知対象が無ければ issue を探さずに終わっていた）。足すコメントがあって #357 が無ければ今までどおり失敗
+- **本文の移し替え**: 最強戦の issue は `collect_saikyo_images.py` の `issue_text()`・`--issue-dir`、#357 へのコメントと削除のコミットメッセージは `cleanup_logs.py` の `issue_comment()`・`commit_message()`・`--issue-dir`。元の github-script（とワークフローの `python3 -c`）を node・python で動かし、最強戦3通り（切れなし・2件〈`|` の escape・X ID なし・状態が数値と文字〉・解決の文言あり）、#357 4通り（対象なし・①②③の全部・旧い違反だけ・新しい違反だけ）、コミットメッセージ2通りが一致することを確かめた。テスト: `test_collect_saikyo_images.py` に3件、`test_cleanup_logs.py` に3件
+
+### 手順1: assets-check（403d42baf）
+
+- 最後のステップに「共通の部品のテスト」（`node --test .github/actions/upsert-issue/test/*.test.js`）を足した。`on.push.paths` は `'**'` から `docs/**` を除く形で、`.github/actions/**` の変更を含む push で動く
+- 作業ブランチへの push で run #3534（38514650092） https://github.com/retroeater/mj/actions/runs/38514650092 success
+- 部品のテストは 18 件（WFL-05 の14件＋read 2件・閉じるときの本文1件・notice の create 1件）
+
+### 手順2: check-image-links（403d42baf）
+
+| run | 入力 | 結果 | 要点 |
+|---|---|---|---|
+| #37（38514656954） https://github.com/retroeater/mj/actions/runs/38514656954 | `dry_run: true` | success（3ジョブ） | check:「[dry-run] #352(closed) を開き直して本文を書き換える」、1141件中1件（`404` 上田稜 X の `_80x80`）。saikyo:「(無い) は閉じるものが無い」（切れ0）。sns_book:「#352(closed) は閉じるものが無い」（dry-run で check が書いていないため、読んだ #352 の本文は check の節が0件のまま。本番では check が開き直して書いた後に sns_book が読む） |
+| #38（38515680429） https://github.com/retroeater/mj/actions/runs/38515680429 | `scheduled: true`・`dry_run: true`（一時のコミット cef5f54c7） | success（3ジョブ） | 題「[scheduled] 画像リンク切れの検知」。upsert-issue は試験の行で dry-run |
+
+- 直前の cloudflare の実行（#35、38490119497、10/14 09:25 JST、ACF-21 の前の作り）は check で3件切れて #562 を作っていた（#562 の本文: 1141件中3件、上田稜を含む）。今回は1件（上田稜だけ残る）で、データの変化（2件が直った）で説明できる。#352 は closed・常設（ACF-21 で #562 の中身を移して閉じた）なので、今回の作りでは #352 を開き直すことになる
+- 戻すコミット 8b963746c の差分は check-image-links の3行（各ジョブの upsert-issue の `dry-run` 1行ずつ）と cleanup-logs の2行（下）。戻した後の `.github/` は 403d42baf と同じ（`git diff 403d42baf -- .github` が空）
+
+### 手順3: commit-push・cleanup-logs（403d42baf）
+
+| run | 入力 | 結果 | 要点 |
+|---|---|---|---|
+| #9（38514659595） https://github.com/retroeater/mj/actions/runs/38514659595 | `dry_run: true` | success | 判定: 削除対象15件・通知対象137件。upsert-issue「[dry-run] #357 にコメントする」（①判断待ち・中断10件の表、②旧い違反127件は件数だけ） |
+| #10（38515522199） https://github.com/retroeater/mj/actions/runs/38515522199 | `dry_run: true`（一時のコミット 8eaafb3c2 で commit-push の試験のステップを足した） | success | 差分なし → `committed=false`・「変更なし」。試験のファイルを足して push → 作業ブランチに 51ff7bbbb（bot）。消して push（`retry: rebase`）→ e0283c22d（bot）。2つのコミットの差し引きは空。push 先は `work/1014-wfl-s2`（cloudflare には push していない） |
+| #11（38515683088） https://github.com/retroeater/mj/actions/runs/38515683088 | `scheduled: true`・`dry_run: true`（一時のコミット cef5f54c7） | success | 題「[scheduled] 作業ログの片付け」。コミットの手順（`if: dry-run != 'true'`）が動いたこと＝予約の起動で apply が真。判定は試験の行で dry-run なので「変更なし」、通知は試験の行で dry-run |
+
+- 試験のステップを外したコミット 7df789c3c（`cleanup-logs.yml` の32行の削除だけ）。bot の2コミットは `git merge --ff-only` で取り込んでから外した
+- 直前の cleanup-logs の success（#8、38188776148、10/12 の予約実行）とは日付が違い、ログの増減で件数は変わる（dry-run のため比べる基準は「同じ作りの判定」で、判定のスクリプトは変えていない）
+
+### docs・#564
+
+- docs/notes/github-actions.md: 一覧の check-image-links（入力 `dry_run`）・assets-check（部品のテスト）・cleanup-logs（commit-push・#357 が無ければ失敗）の行、「共通の部品」（使う本・upsert-issue の read・閉じるときの本文・notice の create・節の書き換えの形・テストを assets-check が回す・commit-push）、「ワークフローを手動実行するとき」の check-image-links・cleanup-logs・入力 `scheduled` の一覧を直した（7e0b9ef80）。`test_workflows_table.py` は OK
+- `python3 -m unittest discover -s scripts/tests`: OK（1069件）。`node --test …`: 18 pass
+- #564 にコメントした
+
+最強戦の issue（題「最強戦の選手写真のリンク切れ検知結果」、REST の全 issue から題で探した）:
+
+| 番号 | 状態 | ラベル | 閉じた日 |
+|---|---|---|---|
+| #351 | closed | 無し | 2026-09-18 |
+| #423 | closed | 無し | 2026-09-21 |
+| #444 | closed | 無し | 2026-09-28 |
+| #499 | closed | 無し | 2026-10-06 |
+| #534 | closed | 無し | 2026-10-11 |
+
+切れが出るたびに新しい issue が作られてきた（5件）。案: (a) 最新の #534 に「種類: 常設」を付ける（次に切れが出たら #534 が開き直される）／(b) #351（最初）に付ける／(c) 付けない（次に作られる issue に常設のラベルが付き、以後はそれを開き直す）。
+推奨 (a): 直近の経緯が #534 にあり、閉じた issue が増え続けるのを今止められる。(b) は経緯が古く、(c) でも新しい issue が1件増えるだけで以後は止まるが、#534 と分かれる
 
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1014-wfl-s2
 - ログ: https://github.com/retroeater/mj/blob/work/1014-wfl-s2/docs/logs/CHAT-1014-WFL-08.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1014-wfl-s2
-- 確認用URL: なし
-- マージ: 未
-- issue: #564
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 確認用URL: なし（`.github/`・`scripts/`・docs の変更で、ページは変えていない）
+- マージ: 未（判断待ち。指示の「マージ:」の行のとおり）
+- issue: #564（結果をコメント）
+- 判断が必要なこと:
+  - マージの可否: assets-check の部品のテスト・check-image-links の部品化（`check_image_links.py` の `pick_issue()`・`issue_action()` を外して部品に寄せた、入力 `dry_run` を足した）・commit-push の部品・cleanup-logs の部品化・upsert-issue の3点の直し（read の選び方と出力 `state`、閉じるときの本文、notice の `create: 'false'` でコメントが無いとき）・docs。作業ブランチの手動実行5回と assets-check すべて success
+  - マージ後の最初の check-image-links（Worker の毎朝 04:30）で、#352（closed・常設）が開き直される見込み（今は jpml_pros.html の1件〈上田稜 X の `_80x80` が 404〉が切れているため）。ACF-21 の作りのままでも同じ動きで、今回の変更による違いではない
+  - 最強戦の issue の常設ラベル（経過の表）: (a) #534 に付ける／(b) #351 に付ける／(c) 付けない。推奨 (a)
+- 未確認の項目:
+  - 初回の予約実行（マージがそれより前のとき）: check-image-links は毎日 04:30 JST（Worker、入力 `scheduled`）、cleanup-logs は 2026-10-19（月）06:23 JST。GitHub の予約は遅れることがある
+  - 書く道筋（#352 の開き直し・本文の書き換え、#357 へのコメント、削除のコミット）は作業ブランチでは通していない（dry-run と試験のステップで確かめた）
 - エラー: なし
 
 <!-- guide-links -->
