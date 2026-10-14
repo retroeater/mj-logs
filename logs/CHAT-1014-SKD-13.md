@@ -69,16 +69,48 @@ SKD-12 の変更（新しい年度・対局のページの共通ナビを白地�
 
   ほかは `navbar.js`・`style.css`・`assets/saikyo.js`・`scripts/generate_saikyo_pages.py`・テストと docs。許す範囲どおり
 - SKD-12 のログの状態を「判断待ち / 続き: CHAT-1014-SKD-13」に直した
+- マージ: push 直前に再 fetch し `git merge-base --is-ancestor origin/cloudflare HEAD` が真を確認。`git push origin work/1014-skd:cloudflare` で dc67195f7..6ae903ee9（マージの SHA 6ae903ee9）
+- マージ後の run（6ae903ee9）: 「ページの再生成」success・「サイトマップのlastmodを同期」success・「公開対象を検査する」success・「本番ビルドの失敗の通知」skipped。`chore: regenerate …` のコミットは出なかった（再生成の差なし。cloudflare の先頭は 6ae903ee9 のまま）
+- check-run: Workers Builds: mj completed/success（ほか regenerate・check・sync も success）
+- 本番の HTML: `https://ryoei.pro/saikyo/2025/index.html?v=6ae903ee9` がローカルとバイト単位で一致。題名の「麻雀最強戦2025」・シート `saikyoYearSheet` あり、固定バー `mj-filterbar` なし、noindex あり。`navbar.js`・`style.css`・`assets/saikyo.js` も本番とローカルが一致
+- `_headers` に `navbar.js` の長期キャッシュの規則は無く、本番の応答は `cache-control: public, max-age=0, must-revalidate`（古い版が返る状態ではない）
+- 本番のナビ（headless Chromium、本番の各ファイルを curl で取得して与えた、375・1280px）:
+
+| ページ | class | position | 今いる項目 |
+|---|---|---|---|
+| houou/race/index.html | mj-nav-new | relative | 鳳凰戦 |
+| saikyo/2025.html（今の年度ページ） | navbar-dark bg-dark | fixed | なし |
+| live/judan/43/b16-a.html | navbar-dark bg-dark | sticky | なし |
+| saikyo/2025/index.html | mj-nav-new | relative | 最強戦 |
+| saikyo/2025/20250816.html | mj-nav-new | relative | 最強戦 |
+
+  上3つは SKD-12 の前後比較のマージ前の値と同じ
+- #566 にマージ済みのコメント（6168336376）。本文・状態・ラベルは変えていない
+- 作業ブランチ work/1014-skd の片付けは `delete-merged-branches.yml` に任せる（自分では消さない）
+- 決定は `docs/decisions/design-renewal.md` の「2026-10-14（CHAT-1014-SKD-13）」に1行（マージの承認。SKD-12 の決定は重ねて書かない）
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1014-skd
+- ログ: https://github.com/retroeater/mj/blob/work/1014-skd/docs/logs/CHAT-1014-SKD-13.md
+- 比較URL: https://github.com/retroeater/mj/compare/dc67195f7...6ae903ee9
+- 確認用URL: なし（本番の `/saikyo/2025/index.html` に白地のナビと「麻雀最強戦2025 ▾」。未公開・noindex のまま）
+- マージ: 済み（6ae903ee9）
+- issue: #566（マージ済みのコメント https://github.com/retroeater/mj/issues/566#issuecomment-6168336376 ）
+- 判断が必要なこと: なし
+- 未確認の項目: 実機のブラウザでの本番の見え方（セッションからは確かめられない）
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 6ae903ee）: https://github.com/retroeater/mj-logs/tree/main/guide/6ae903ee
+ガイド文書（この版を写した時点の最新、mj 3cf17d8b）: https://github.com/retroeater/mj-logs/tree/main/guide/3cf17d8b
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6ae903ee/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6ae903ee/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6ae903ee/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6ae903ee/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6ae903ee/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6ae903ee/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/3cf17d8b/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/3cf17d8b/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/3cf17d8b/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/3cf17d8b/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/3cf17d8b/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/3cf17d8b/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/67ac863e.md
