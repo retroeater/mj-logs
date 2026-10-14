@@ -82,29 +82,26 @@ JPL-04・JPL-05 の「判断が必要なこと」に平野さんが答えた。#
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 完了 / 続き: CHAT-1015-JPL-07
 - ブランチ: work/1014-jpl
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1014-JPL-06.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1014-jpl
 - 確認用URL: なし
 - マージ: 済（b993340ee）
 - issue: #497（クローズ）・#523（本文に「残り」の節を足した。Open のまま）
-- 判断が必要なこと:
-  - 下の未確認の2点（JPL-05 から移したもの）を、チャット側のカレンダーか朝の報告で追うか。追うことになれば、このログは完了にしてよい
-- 未確認の項目:
-  - 2026-10-15 04:00 JST の update-live-channel.yml の regenerate（live_pages・title_pages）が成功するか（JPL-05 の改修後の最初の毎朝の実行）
-  - 同じ朝のカレンダー同期で、mj_放送対局 の WRC 2大会の予定の件名が新名に変わるか
+- 判断が必要なこと: なし（未確認の2点はチャット側がカレンダーで追い、CHAT-1015-JPL-07 で確かめた）
+- 未確認の項目: なし（CHAT-1015-JPL-07 で確かめた: 10-15 朝の regenerate は title_pages・live_pages とも成功、カレンダーの WRC の仮の予定の件名は旧名のまま〈原因は JPL-07 のログ〉）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 904d73a3）: https://github.com/retroeater/mj-logs/tree/main/guide/904d73a3
+ガイド文書（この版を写した時点の最新、mj cca707c1）: https://github.com/retroeater/mj-logs/tree/main/guide/cca707c1
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/904d73a3/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/904d73a3/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/904d73a3/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/904d73a3/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/904d73a3/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/904d73a3/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/f0502df9.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/cca707c1/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/cca707c1/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/cca707c1/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/cca707c1/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/cca707c1/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/cca707c1/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/8c23572b.md
