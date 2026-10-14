@@ -53,6 +53,53 @@
 
 ## 経過
 
+### 0章
+
+- 指示欄の末尾は指示文の最後の行と一致している。Chat-Ref の重複なし。work/1014-snm-unused はローカル・リモートとも無かったので origin/cloudflare（522a4323）から作った
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+
+### 手順1 確かめ
+
+- 未マージの work/ ブランチ（1009-swp-526・1011-swp-hnd・1011-swp-nav）は、直すファイル（`scripts/check_unused_names.py`・`scripts/generate_saikyo_pages.py`・`scripts/tests/test_unused_names.py`・`docs/notes/live-page-design.md`・`docs/decisions/live.md`）を変えていない
+- 今の cloudflare のコードで `check_unused_names.py --no-issue`: 使われている名前 2,696、「連盟プロ以外」745行、「別名」28行。一覧は 10/14 のコメントと同じ（行番号も同じ）:
+  「連盟プロ以外」60行 梶本琢程・85行 小山剛志・92行 桜井章一・101行 篠原みなみ・132行 高見奈央・137行 竹内幸輔（どれも - / 一般）、「別名」6行 梶本琢 → 梶本琢程（訂正 / 概要欄の誤記）
+
+7行の名前の出どころ（ABEMA ブック。どれも【2】最強戦で、【3】手動補正には無い。卓は代表の1つ）:
+
+| 名前 | 役 | セルの値（例） | 卓の数 | 卓の例 |
+|---|---|---|---|---|
+| 梶本琢程 | 解説（ほか司会3） | 「梶本琢程／岡田紗佳」「馬場裕一／梶本琢程」「金太賢・小林剛・和久津晶・梶本琢程」など17通り | 70 | 2016〜2024 年度（2018 男子プレミアトーナメント 決勝 など） |
+| 小山剛志 | 司会・実況 | 「小山剛志」「小山剛志・篠原みなみ」「小山剛志／高見奈央」「小山剛志／矢野優花」 | 司会 606・実況 114 | 2018〜2026 年度（2026 超頭脳合戦 ベスト8 A 卓 など） |
+| 桜井章一 | 解説 | 「桜井章一 森山茂和」 | 3 | 2014 近代麻雀特別予選 ベスト8 A 卓 |
+| 篠原みなみ | 司会 | 「小山剛志・篠原みなみ」「小山剛志／篠原みなみ」 | 100 | 2024・2025 ファイナル |
+| 高見奈央 | 司会 | 「小山剛志／高見奈央」 | 54 | 2023 ファイナルトーナメント |
+| 竹内幸輔 | 司会・実況 | 「竹内幸輔」 | 13 | 2016 プレミアトーナメント代表決定戦 |
+| 梶本琢（別名の変換前） | 実況 | 「梅中悠介／梶本琢」 | 5 | 2017 ファイナルトーナメント ベスト16 |
+
+### 手順2 直した箇所
+
+- `scripts/generate_saikyo_pages.py`: `known_cast_name(book, seen)` を足した（`abema_book.cast_names()` の known。ほかの卓に1人だけで書かれているか、名前の辞書に当たるか）。`build_cast()` はこれを使う形にした（読み分けは変えていない。saikyo_pages を生成し直して生成物の差 0 を確かめた）
+- `scripts/check_unused_names.py`: `page_names()` の最後で、`saikyo.load_videos()`（【2】を【3】の空でないセルで上書きした卓ごとの値）の司会・実況・解説を `cast_names()` で名前にして、使われている名前に足す。`cast_names()` は `abema_book.cast_names()` と `known_cast_name()` を使い、生成と同じ読み分けにする（別名を当てる前の名前）。司会・実況・解説のある卓が無ければ名前の辞書を読まない
+- `scripts/tests/test_unused_names.py`: `AbemaCastNamesTest`（「・」「／」・空白の2人の項目、別名の変換前〈梶本琢〉、URL だけの卓、名前の辞書を読むのは1回・卓が無ければ読まない）
+- テスト: `python3 -m unittest discover -s scripts/tests` 1,007件 OK
+
+読んでいない利用先（名前を出す所で `check_unused_names.py` が読まない所。足したのは ABEMA ブックだけ）:
+
+| 利用先 | 読む所 | 扱い |
+|---|---|---|
+| books/ の著者 | `generate_books_pages.build_authors()`（「書籍」タブ、名前の辞書で解決） | 数えない（2026-10-09 の決定、凍結中） |
+| ABEMA ブック【1】元データ | `update_abema_book.py`（【2】を作るときに名前の辞書で照合） | 【2】の司会・実況・解説として今回読む。【1】の「対局者など」は卓の割り当てにだけ使い、ページには出さない |
+
+ほか（wayhome・dojo など）は「プロ」だけを読み、「連盟プロ以外」「別名」を使わない。
+
+### 手順3 直した後
+
+- `check_unused_names.py --no-issue`（直した後）: ABEMA ブックの司会・実況・解説 56名、使われている名前 2,703（+7）、「連盟プロ以外」0行・「別名」(訂正)0行
+- 上の7行がすべて消えた。ほかに消えた行・増えた行は無い
+- #475 には書いていない
+- 直した文書: `docs/notes/live-page-design.md`「使われていない登録」の利用先の一覧に ABEMA ブックを足した。`docs/notes/live-channel-write.md` は利用先を live-page-design.md に任せているので変えない。`docs/decisions/live.md` に「2026-10-14（CHAT-1014-SNM-21、#475）」を足した
+- origin/cloudflare（06f86374、DSN-10 のログのみ）を merge で取り込んだ。衝突なし
+
 ## 報告
 
 - 状態: 対応中
@@ -69,12 +116,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 522a4323）: https://github.com/retroeater/mj-logs/tree/main/guide/522a4323
+ガイド文書（この版を写した時点の最新、mj 916667a9）: https://github.com/retroeater/mj-logs/tree/main/guide/916667a9
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/522a4323/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/522a4323/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/522a4323/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/522a4323/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/522a4323/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/522a4323/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/916667a9/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/916667a9/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/916667a9/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/916667a9/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/916667a9/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/916667a9/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/e71fcdf3.md
