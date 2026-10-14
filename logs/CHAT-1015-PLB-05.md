@@ -46,15 +46,42 @@
 
 ## 経過
 
-## 報告
+### 着手前の確認
 
-- 状態: 作業中
+- 0: ログの「指示」欄の末尾は指示文の最後の行と一致
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 全部ある
+- `CHAT-1015-PLB-05` のコミット: 無し
+- 作業ブランチ: ローカルの `work/1015-plb` があり origin/cloudflare の祖先（リモートもマージ済み）→ `git merge --ff-only origin/cloudflare`（Already up to date、27fe15a）
+
+### 手順1: 同じ主題の issue
+
+検索（「予選 通過 敗退 JWRC 女流桜花 結果 載せる」「WRC 予選 通過」、クローズ済みを含む）: 同じ主題は無し。
+近いもの: #376（鳳凰戦・女流桜花の昇降級ボーダーの予想）、#365（WRC リーグの第18期以降の成績の反映）、#366（WRC-R リーグの成績表）。いずれも主題は別
+
+### 手順2: 「結果」の列
+
+`fetch_table()` で読んだ（正本のブック）。
+
+- 桜花（17列・1719行）: 見出し「結果」は F 列。値のある行は0行
+- JWRC（12列・1507行）: 見出し「結果」は D 列。値のある行は259行（「敗退」197・「通過」62）。期ごと: 1期 11・2期 10・3期 15・4期 7・5期 9・6期 6・7期 6・8期 81・9期 96・10期 9・11期 9
+
+**止まる条件「G 列の見出しが『結果』でない」の読み方**: PLB-04 で確かめたとおり、列を消した後の今の G 列は、桜花が「合計」・JWRC が「第2節」で、「結果」は桜花の F 列・JWRC の D 列にある。
+指示文の「G 列『結果』」は列を消す前の位置での呼び名（決定の文も同じ）と読み、止まる条件の趣旨（「結果」の列が両方のタブにあること）は満たすとして進めた（報告に書く）
+
+### 手順3: 起票
+
+- #571「JWRC・女流桜花の予選の通過・敗退をサイトに載せる」。本文に背景・今のデータの数・決めていないこと（載せる場所・見せ方・予選の範囲・桜花の値の入れ方）・関連（#567・#519・#516・#365・#7）
+- ラベル: 状況: 保留・分野: UI/UX・対象: wrc_results（#516〈時期未定の女流桜花のページ〉に合わせた。「対象: ouka_results」のラベルは無いため付けていない）。期日なし
+- #567 に #571 の番号をコメントした
+
+## 報告
+- 状態: 完了
 - ブランチ: work/1015-plb
-- ログ: https://github.com/retroeater/mj/blob/work/1015-plb/docs/logs/CHAT-1015-PLB-05.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1015-PLB-05.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1015-plb
 - 確認用URL: なし
-- マージ: 未
-- issue: #567
+- マージ: 済（ログのみ。work/1015-plb を cloudflare へ fast-forward で入れた）
+- issue: #571（起票）、#567（番号をコメント）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
@@ -62,12 +89,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 27fe15af）: https://github.com/retroeater/mj-logs/tree/main/guide/27fe15af
+ガイド文書（この版を写した時点の最新、mj b8500442）: https://github.com/retroeater/mj-logs/tree/main/guide/b8500442
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/27fe15af/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/27fe15af/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/27fe15af/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/27fe15af/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/27fe15af/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/27fe15af/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b8500442/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b8500442/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b8500442/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b8500442/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b8500442/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b8500442/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/27fe15af.md

@@ -21,11 +21,11 @@
 
 | スプレッドシート | タブ | 用途 | 書くのは |
 |---|---|---|---|
-| 正本 `1h4-DhmvaBJzfkA61mTKkz4mMuICGliuzglakql5TeP0` | 「プロ」 | 連盟在籍の選手（名前。X の ID・画像は SNS ブック、docs/notes/sns-book.md）。既存 | 平野さん |
-| 同上 | 「対局」 | 現行 `video_live.html` の元。/live の初期データの元にしただけで、/live は読まない | 平野さん |
-| /live 用 `<ライブ用スプレッドシートの ID>`（値は `scripts/lib/live.py` の `SPREADSHEET_ID`） | 「連盟プロ以外」（旧「プロ以外」、#222 で改名） | 「プロ」にいない選手（退会・他団体・一般）（1-4） | 平野さん |
+| ryoei.pro_選手（値は `scripts/lib/pro_sheet.py` の `SPREADSHEET_ID`、#567） | 「プロ」 | 連盟在籍の選手（名前。X の ID・画像は SNS ブック、docs/notes/sns-book.md）。既存 | 平野さん |
+| 同上 | 「連盟プロ以外」（旧「プロ以外」、#222 で改名） | 「プロ」にいない選手（退会・他団体・一般）（1-4）。`lib/live.py` の `PLAYERS_SPREADSHEET_ID` | 平野さん |
 | 同上 | 「別名」 | 旧名・誤記 → 現在名 | 平野さん |
-| 同上 | 「タイトル戦」 | タイトル戦の名前・記号（slug）・表示順（2-4） | 平野さん |
+| 正本 `1h4-DhmvaBJzfkA61mTKkz4mMuICGliuzglakql5TeP0` | 「対局」 | 現行 `video_live.html` の元。/live の初期データの元にしただけで、/live は読まない | 平野さん |
+| /live 用 `<ライブ用スプレッドシートの ID>`（値は `scripts/lib/live.py` の `SPREADSHEET_ID`） | 「タイトル戦」 | タイトル戦の名前・記号（slug）・表示順（2-4） | 平野さん |
 | 同上 | 「放送対局」 | 1行＝1動画の属性。/live のページはここから作る | 平野さん・bot（追記のみ） |
 | 同上 | 「連盟ch」（旧「全動画」、LV-29 で改名） | 連盟チャンネルの全動画（1-3） | bot |
 
