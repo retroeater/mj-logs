@@ -58,15 +58,46 @@
 - 同じ Chat-Ref のコミット: 0件。雛形の4行は揃っている。指示欄の末尾は指示文の最後の行と一致
 - 作業ブランチ: ローカル・リモートとも無いため `git checkout -b work/1014-oha-late origin/cloudflare`
 
+### 1. 今の条件の確かめ
+
+- `scripts/morning_report.py` の2節（cloudflare ab6bf27df）: `event` が `schedule`・`workflow_dispatch` で `created_at` が予定時刻以降の実行が1件でもあれば「実行あり」。ブランチでは絞っていない。目的欄の説明と同じ
+- 未マージの work/ ブランチで `scripts/morning_report.py`・テスト・`actions_status.py` を変えているものは無い
+
+### 2. 実装（bc6133a02）
+
+- 定数 `SCHEDULED_BRANCH = 'cloudflare'` を足し、対象を「契機が schedule・workflow_dispatch、ブランチが cloudflare、`created_at` が予定時刻以降」に限った
+- 対象の実行があれば `created_at` の最も早い1件だけを見て、開始（`run_started_at`、無ければ `created_at`）− 予定時刻 が `DELAY_GRACE`（3時間、既存の定数）を超えていたら「遅れて実行」の行を書く。行の形は `- 遅れて実行: <開始> <ファイル> <結論>（<契機>・<ブランチ>）予定 <予定> → 開始 <開始>（＋h:mm） <実行のリンク>`
+- 対象の実行が無いときの「遅れの可能性」／「未実行」は今のまま（行の「実行なし」に `（cloudflare）` を足した）
+- 見出しを「2. 予約実行の未実行（予定から3時間以内は「遅れの可能性」。3時間を超えて始まった実行は「遅れて実行」）」にした（時間は定数から作る）
+- **指示に無い条件を1つ足した**: 「遅れて実行」は、その実行が直近26時間の範囲で始まったときだけ書く。最初の手元の実行で、GitHub の予約だけで動く週次・月次のワークフロー（check-meibo・cleanup-logs・regenerate-page・sync-birthday-calendar の 10/12、fetch-gsc の 10/01）が「遅れて実行（＋3:13〜3:28）」として出た。直近の予定時刻は次の予定まで変わらないため、足さないと同じ遅れが次の予定（週次は1週間、月次は1か月）まで毎朝くり返し出る（`## 報告` の「判断が必要なこと」）
+- テストを5件足した: 遅れて実行（＋3:15、cloudflare）／＋3時間以内（＋2:45）は書かない／最初の1件だけを見る（定時の実行の後の遅い実行は書かない）／26時間より前の遅れは書かない／作業ブランチの手動実行だけなら「未実行」。
+  修正前の `morning_report.py` で新しいテストを動かすと「遅れて実行」と「作業ブランチ」の2件が落ちることを確かめた（ほかの3件は修正前でも「なし」になる形）
+- `python3 -m unittest discover -s scripts/tests`: 1038件 OK
+- docs/notes/cloud-sessions.md の morning.md の説明に2節の判定の一句は無いため、文書は変えていない
+
+### 手元の実行
+
+- OHA-03 と同じ手順（mj-logs の main を scratchpad で最新にし、`logs/` を2つの dest に写して、cloudflare の版と作業ブランチの版を続けて実行）
+- 1回目: status.md に1行の差（cloudflare の push の実行 #3498 が、旧版の実行時は `in_progress`、新版の実行時は `success`）。2つの実行の間に実行が進んだ分で、スクリプトの違いではない。26時間の条件を足した後の2回目は差分0
+- 2回目の morning.md の2節（2026-10-14 12:0x JST）:
+
+```
+## 2. 予約実行の未実行（予定から3時間以内は「遅れの可能性」。3時間を超えて始まった実行は「遅れて実行」）
+
+- 遅れて実行: 2026-10-14 09:25 check-image-links.yml success（workflow_dispatch・cloudflare）予定 2026-10-14 04:30 → 開始 2026-10-14 09:25（＋4:55） https://github.com/retroeater/mj/actions/runs/38490119497
+```
+
+- 旧版の2節は「なし」だった
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj ab6bf27d）: https://github.com/retroeater/mj-logs/tree/main/guide/ab6bf27d
+ガイド文書（この版を写した時点の最新、mj a372bb9f）: https://github.com/retroeater/mj-logs/tree/main/guide/a372bb9f
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ab6bf27d/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ab6bf27d/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ab6bf27d/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ab6bf27d/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ab6bf27d/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/ab6bf27d/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a372bb9f/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a372bb9f/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a372bb9f/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a372bb9f/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a372bb9f/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a372bb9f/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/ec9e24c3.md
