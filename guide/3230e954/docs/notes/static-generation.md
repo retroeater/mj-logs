@@ -363,7 +363,7 @@ title/ では「タイトル戦」タブの大会の改名が「タイトル」�
 - **列は見出しの名前で読む。** タブ名・列名・列順はシート側で変わる（LV-11「プロ以外」→「連盟プロ以外」、
   LV-29「全動画」→「連盟ch」・列「候補」→「放送対局」・列の並べ替え）。`fetch_records()` のように、生成に使う列の見出しが
   欠けている・重複しているときだけ止め、知らない列が増えても止まらない形にする（列記号の `SELECT A,I,J` は並べ替えで無言に別の列を読む）
-- **「プロ」シートは `lib/pro_sheet.py` の `fetch_pros()` で読む**（#536）。読む列は見出しの定数（`pro_sheet.NAME`・`SORT_KEY` など）の組で渡し、
+- **「プロ」シートは `lib/pro_sheet.py` の `fetch_pros()` で読む**（#536）。ブックは「ryoei.pro_選手」（`pro_sheet.SPREADSHEET_ID`。「連盟プロ以外」「別名」も同じブックで、`lib/live.py` の `PLAYERS_SPREADSHEET_ID`・`spreadsheet_of()`、#567）。読む列は見出しの定数（`pro_sheet.NAME`・`SORT_KEY` など）の組で渡し、
   在籍は見出し「表示」が Y の行（旧 `WHERE Y = "Y"`）、並びは `sort=True` で「ソートキー」の順（旧 `ORDER BY B`）。
   「表示」が N の人（名簿にいて本番に出す時機を待つ人）は、本人のページ（jpml_pros・houou/ の在籍者・辞書・誕生日・SNS ブック）には出さず、
   ほかの人のページ（/live・title/・saikyo/・順位変動・jpml_test・帰り道・書籍）と検査（名簿・最強戦の未登録・帰り道）・道場部ゲストの照合では
@@ -404,7 +404,9 @@ title/ では「タイトル戦」タブの大会の改名が「タイトル」�
 
 - 生成後の絞り込み・並び替え・ページ送りはページ側の軽量JSに委譲する。`jpml_pros.js`は絞り込みと並び替え（ページ送りなし・全行表示）専用。型A・型A'の10ページは共通の`table.js`（絞り込み・ページ送り、並び替えなし）を使う。設定は`<table>`要素のdata属性（`data-page-size` / `data-name-mode` / `data-filter-param`）で渡し、属性省略時はページ送りなし・完全一致フィルターなしになる。ページ固有のUI（`resource_logs.html`の名前セレクトボックス等）はtable.jsとは別の小さなJSで補う。`video_wayhome.html`は`.mj-table`を持たないため`table.js`は読み込まず、専用の`video_wayhome.js`が絞り込み・画像フォールバック等を担う（#102第2段。共有ボタンは #530 で外した）
 - 型Cの2ページは`leagues.js`（共通JS）を使う。積み上げ棒と既定選手の折れ線は静的SVGに焼き込み済みで、`leagues.js`は`?name=`に応じて選手1名分の`<polyline>`と凡例ラベルだけを差し替える（選手ごとの折れ線データは`houou_leagues_data.json`/`ouka_leagues_data.json`をfetchして取得）。選手選択リストは「プロ」シートの「表示」が Y かつ鳳凰/桜花シートに1行でもある選手が対象（#127/#133。旧「鳳凰最高/桜花最高列に値がある」と同じ意味で、その列は 2026-10-11 に廃止、#536）。**退会済みの選手は鳳凰/桜花シートにリーグの実データが残っていても選択リストに出ない。これは正しい挙動**（「表示」= Y が在籍・公開対象を表す。#168）
-- Google Charts 依存の `houou_results.js`・`league_ranking.js`（houou_ranking）は「鳳凰」を見出しの名前で読む（#548）。問い合わせ文は今の並びの英字（A「名前」〜V「表示」、`HOUOU_HEADERS`）で書き、送る前に `resolveHououQuery()` が `SELECT * LIMIT 1` の応答の見出しから今の英字に引き直す（同じ見出しが2つあれば左。見出しが無いときは `console.error` に出してその英字のまま問い合わせる）。列の挿入・削除（F 列「組」の挿入、X〜AA の削除）で表示は変わらない（ヘッドレス Chrome で確かめた）。`league_ranking.js` の桜花・JWRC と `ouka_results`・`wrc_results` は列の英字のまま読む
+- Google Charts 依存の `houou_results.js`・`league_ranking.js`（houou_ranking）は「鳳凰」を見出しの名前で読む（#548）。問い合わせ文は今の並びの英字（A「名前」〜V「表示」、`HOUOU_HEADERS`）で書き、送る前に `resolveHououQuery()` が `SELECT * LIMIT 1` の応答の見出しから今の英字に引き直す（同じ見出しが2つあれば左。見出しが無いときは `console.error` に出してその英字のまま問い合わせる）。列の挿入・削除（F 列「組」の挿入、X〜AA の削除）で表示は変わらない（ヘッドレス Chrome で確かめた）。
+  `ouka_results.js`・`wrc_results.js`・`league_ranking.js` の「桜花」「JWRC」も同じ形で読み（`COLUMN_HEADERS`・`resolveQuery()`、#567）、消す列（前後・結果・使わない節〈桜花は第9節以降、JWRC は第6節以降〉・プロ、JWRC はリーグ・リーグキーも）を問い合わせに含めない。
+  タブごとの列は `league_ranking.js` の `SHEET_COLUMNS`。`generate_ouka_leagues.py`・`lib/pro_stats.py` も「桜花」を見出しで読み、「前後」を読まない
 
 ### regenerate-page.yml
 
@@ -463,7 +465,7 @@ Google の API（`lib/gcal.py`・`lib/sheets_write.py`・`sync_birthday_calendar
 - `generate_resource_dictionary.py --check` — 「辞書」タブと「プロ」タブを生成と同じ経路で読み、生成と同じ検査（見出し・知らないカテゴリ・品詞・不正な文字・読みと語の組の重複）を止めずに行い、止まる理由をすべてとカテゴリごとの語数を出す。ファイルは書かない（止まる理由があれば終了コード1。出力の形は `scripts/lib/check.py`）。シートを直した後、指示を書く前に回す
 - `check_asset_limits.py` — 配信ファイル数・最大のファイル・`_redirects`（静的・動的）・`_headers`のルール数を Cloudflare の上限（Workers Free）との比で表にし、80% 以上で警告、100% 超でエラー終了する（#387）。`regenerate.py`の最後と`assets-check.yml`から呼ばれ、Actions ではジョブのサマリにも出す
 - `apply_page_meta.py` — 全ページの`<title>`・meta description・OGPタグを一括書き換え（#5）。`--dry`でプレビューのみ
-- `check_leagues_dropped.py` — 型C（`houou_leagues` / `ouka_leagues`）で、リーグの実データがあるのに選手選択リストから漏れている選手を検知（#168、手動実行）。**出力は警告ではなく参考情報。退会者が並ぶのは正常で、在籍中の選手が現れたときだけ「プロ」シートの入力漏れを疑う。**`generate_*_leagues.py` から定数と `period_of()` / `fill_front_half()` をimportし、集計は `lib/leagues.py` を生成時と同じ引数で呼ぶ。生成側で `build_player_series()` の引数を変えたときはこちらも直すこと。`.github/workflows/check-leagues-dropped.yml` からworkflow_dispatchで実行でき、結果を実行サマリと指定issueへのコメントに出す
+- `check_leagues_dropped.py` — 型C（`houou_leagues` / `ouka_leagues`）で、リーグの実データがあるのに選手選択リストから漏れている選手を検知（#168、手動実行）。**出力は警告ではなく参考情報。退会者が並ぶのは正常で、在籍中の選手が現れたときだけ「プロ」シートの入力漏れを疑う。**`generate_*_leagues.py` から定数と `period_of()` / `fill_front_half()` をimportし、集計は `lib/leagues.py` を生成時と同じ引数で呼ぶ。生成側で `build_player_series()` の引数を変えたときはこちらも直すこと。ワークフロー `check-leagues-dropped.yml` は削除した（2026-10-14、#564。使うときは git の履歴から戻す）
 - `build_ogp_image.py` — OGP画像 `img/ogp.png`（1200×630、背景#ffffff、「ryoei.pro」の文字のみ）を生成（#78、手動実行）。Pillowが必要。全ページ共通の1枚で、`lib/page.py` / `generate_jpml_pros.py` のテンプレートと静的ページに `og:image` として入っている。生成したPNGもコミットする（生成環境のフォント差で再生成のたびに差分が出るのを避けるため）。`--check`でコミット済みのPNGと一致するか確認できる。`--text` と `--out` で任意の文字列・出力先の1枚も作れる（#343）。和文は `~/.local/share/fonts/NotoSansJP-Bold.otf`（`OGP_FONT`で差し替え可、無ければ失敗）を使い、横幅1040pxに収まるまで文字を小さくする。段を重ねるときは `--text` を繰り返し、`--scale`（1段目に対する比）・`--color`・`--max-size`・`--tracking`・`--line-gap` で調整する。背景は `--bg`（既定#ffffff）。最強戦の年度ページのコマンドは `docs/notes/saikyo-page-design.md`（`<年度>-black.png`、#343）にあり、年度が増えたときはこれを1回実行して生成したPNGをコミットする。**引数なしの `--check` は、コミット時と環境のフォントが違うと、スクリプトを変える前から一致しない**（2026-09-16 の Codespace では FONT_CANDIDATES のうち DejaVuSans が使われ、変更前のスクリプトでも一致しなかった）。スクリプトを変えたときの回帰確認は、変更前後のスクリプトの `render()` の出力同士を比べる（CHAT-0916-SY-07/08）
 
 - `build_wayhome_ogp.py` — 「帰り道」一覧ページのOGP画像`img/ogp/wayhome/index-<最新話の公開日 YYYYMMDD>.jpg`（1200×630、JPEG品質88）を書き出す（#339。週次の再生成〈`regenerate-page.yml`〉が作り直す、#340）。必要なのはPillowだけ（文字を描かないためフォントは要らない）。最新4本のサムネイルを2×2に並べ、切り抜かずに収める（全体が16:9なので高さが先に埋まり、左右の余りは`--mj-v-bg`=#121212のまま。サムネイル同士の区切りは8px）。実行のたびに作り直すが、最新4本が同じなら同じ名前・同じJPEGになり差分は出ない。ほかの`index*.jpg`は削除する。最新話と同じ公開日の回が2本以上なら名前に連番を付け（`index-<日付>-N.jpg`）、同じ名前で中身が変わる場合は上書きせず今のファイルを残す。生成したJPEGもコミットする。個別ページの og:image はYouTubeのサムネイルのまま。**ページ別のOGP画像は `img/ogp/<区分>/` 以下に置く。共通の `img/ogp.png` は動かさない。** 新しい回を足したときの手順は`docs/notes/video-wayhome.md`「新しい回を追加する手順」

@@ -84,15 +84,33 @@ CHAT-1014-HOU-37・HOU-38 の変更（ランキングの入口の `total/` へ�
 
 - houou/ の HTML（`git ls-files 'houou/*.html'`）はすべて noindex のまま。`navbar.js`・`sitemap*.xml`・`llms.txt` は差分に無い。成績 JSON・索引（`houou/results/`・`search.json`）の差分も無い
 
+### 手順2 マージ
+
+- push の直前に `git fetch origin cloudflare` し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真（origin/cloudflare は 67ac863ee）であることを確かめて、`git push origin work/1014-hou:cloudflare` で入れた（67ac863ee..e5399ce83）
+- HOU-37・HOU-38 のログの `## 報告` の「マージ」を「済（CHAT-1014-HOU-39 のマージ、67ac863ee..e5399ce83）」に、「ログ」の URL を `blob/cloudflare/` に直した。状態は HOU-37「判断待ち… / 続き: CHAT-1014-HOU-38」、HOU-38「判断待ち… / 続き: CHAT-1014-HOU-39」のまま（このログが完了になると続きをたどって自動で片付く）
+
+### 手順3 マージの後の確かめ
+
+- e5399ce83 の check-run: regenerate・check・sync・Workers Builds: mj-ask は success。Workers Builds: mj の check-run は付かなかった（直後に他のセッションの push〈SKD-10・SKD-11〉が続いた）。このマージを含む 9166cb7a9 の Workers Builds: mj が success になった後に本番を確かめた
+- `regenerate`（`regenerate-page.yml`）は e5399ce83 で success（09:02〜09:02 UTC）。押したコミットは無し（`e5399ce83..origin/cloudflare` に `chore: regenerate` が無い）
+- 本番（URL に `?v=h39…` を付けた）:
+  - `/houou/ranking/` → 301 `/houou/ranking/total/`（クエリを引き継ぐ）
+  - `/houou/ranking/?division=期最高得点` → 301 `/houou/ranking/total/?division=期最高得点` → headless Chromium で最後に `/houou/ranking/term-high/`（title「期最高得点 | ランキング | …」、JS のエラー 0）
+  - `/houou/ranking/total/` は 200、`<meta name="robots" content="noindex">` あり
+  - `/houou/` の og:image は `https://ryoei.pro/img/ogp/houou/index-black.png`、og:image:alt「鳳凰戦」、ランキングのカードは `ranking/total/`、説明文は「在籍する選手691名」
+  - `/img/ogp/houou/index-black.png` は 200（image/png）で手元と同じ。本番の画像の URL は Workers Builds: mj の success の後に初めて開いた
+  - `/assets/houou.js` は手元と同じ（降級の演出を消した版）
+- #518 にマージの SHA と中身の要約、#540 に着手中の解除のコメントを書いた
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1014-hou
-- ログ: https://github.com/retroeater/mj/blob/work/1014-hou/docs/logs/CHAT-1014-HOU-39.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1014-hou
-- 確認用URL: なし
-- マージ: 未
-- issue: #518・#540
+- 状態: 完了
+- ブランチ: work/1014-hou（マージ済み。削除は `delete-merged-branches.yml` に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1014-HOU-39.md
+- 比較URL: https://github.com/retroeater/mj/compare/67ac863ee...e5399ce83
+- 確認用URL: なし（本番で確かめた）
+- マージ: 済（67ac863ee..e5399ce83。この報告の docs/logs のみの追いの push あり）
+- issue: #518・#540（マージの報告と着手中の解除のコメント）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
@@ -100,12 +118,12 @@ CHAT-1014-HOU-37・HOU-38 の変更（ランキングの入口の `total/` へ�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 9166cb7a）: https://github.com/retroeater/mj-logs/tree/main/guide/9166cb7a
+ガイド文書（この版を写した時点の最新、mj 3230e954）: https://github.com/retroeater/mj-logs/tree/main/guide/3230e954
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9166cb7a/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9166cb7a/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9166cb7a/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9166cb7a/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9166cb7a/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9166cb7a/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/3230e954/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/3230e954/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/3230e954/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/3230e954/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/3230e954/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/3230e954/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/67ac863e.md

@@ -120,10 +120,10 @@ CHAT-1014-HOU-37 の「判断が必要なこと」1〜5 への平野さんの回
 
 - 状態: 判断待ち（降級の動きの変化をプレビューで見て、マージを決める） / 続き: CHAT-1014-HOU-39
 - ブランチ: work/1014-hou
-- ログ: https://github.com/retroeater/mj/blob/work/1014-hou/docs/logs/CHAT-1014-HOU-38.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1014-HOU-38.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1014-hou
 - 確認用URL: プレビューあり（URL は最終報告）。見るページ: `houou/players/?name=岡崎圭吾&view=league`（1段の降級 41後→42前）と `houou/players/?name=坪原光&view=league`（2段の降級 42後→43前）の再生、OGP の画像 `img/ogp/houou/index-black.png`。この版で見える印: 降級の区間でアイコンが回らず、着地で弾まない
-- マージ: 未（平野さんの判断待ち）
+- マージ: 済（CHAT-1014-HOU-39 のマージ、67ac863ee..e5399ce83）
 - issue: #518（着手中のコメント。実装の後に書いた）・#540
 - 判断が必要なこと:
   - 降級の動き（回転・加速・弾みなし）をプレビューで見て、マージしてよいか（HOU-37・HOU-38 の変更をまとめてマージする）
@@ -133,12 +133,12 @@ CHAT-1014-HOU-37 の「判断が必要なこと」1〜5 への平野さんの回
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 9166cb7a）: https://github.com/retroeater/mj-logs/tree/main/guide/9166cb7a
+ガイド文書（この版を写した時点の最新、mj 3230e954）: https://github.com/retroeater/mj-logs/tree/main/guide/3230e954
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9166cb7a/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9166cb7a/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9166cb7a/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9166cb7a/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9166cb7a/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9166cb7a/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/3230e954/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/3230e954/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/3230e954/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/3230e954/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/3230e954/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/3230e954/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/67ac863e.md

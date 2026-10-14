@@ -184,10 +184,10 @@ URL:
 
 - 状態: 判断待ち（OGP 画像の見本の選択と、下の判断） / 続き: CHAT-1014-HOU-38
 - ブランチ: work/1014-hou
-- ログ: https://github.com/retroeater/mj/blob/work/1014-hou/docs/logs/CHAT-1014-HOU-37.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1014-HOU-37.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1014-hou
 - 確認用URL: プレビューあり（URL は最終報告）。確認したページ: `houou/`・`houou/ranking/`（301）・`houou/ranking/total/`・`houou/ranking/?division=期最高得点`・見本の画像3枚。この版で見える印: トップの説明文が「…について、在籍する選手691名の…」で、ランキングのカードが `houou/ranking/total/` に飛ぶ
-- マージ: 未（平野さんの判断待ち）
+- マージ: 済（CHAT-1014-HOU-39 のマージ、67ac863ee..e5399ce83）
 - issue: #518・#540（着手中と、決定・突き合わせ・リンクの表のコメント）
 - 判断が必要なこと:
   1. OGP 画像の見本 A・B・C のどれにするか。見る場所: プレビューの `img/ogp/houou/sample-a.png`・`sample-b.png`・`sample-c.png`（URL は最終報告の「確認用:」）。A「鳳凰戦」＋「個人成績・ランキング・順位変動」＋「ryoei.pro」、B「鳳凰戦」＋「成績・ランキング」＋「ryoei.pro」、C「鳳凰戦」＋「ryoei.pro」。3枚とも 1200×630・文字の切れなし。docs/notes/ogp.md には「X のカードは画像の下にドメインが出るので、画像に ryoei.pro を入れる必要はない」とある
@@ -201,12 +201,12 @@ URL:
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 5402cbcd）: https://github.com/retroeater/mj-logs/tree/main/guide/5402cbcd
+ガイド文書（この版を写した時点の最新、mj 3230e954）: https://github.com/retroeater/mj-logs/tree/main/guide/3230e954
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/5402cbcd/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/5402cbcd/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/5402cbcd/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/5402cbcd/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/5402cbcd/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/5402cbcd/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/f0502df9.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/3230e954/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/3230e954/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/3230e954/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/3230e954/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/3230e954/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/3230e954/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/67ac863e.md

@@ -94,7 +94,7 @@
 
 ## データ源
 
-新しいスプレッドシート `<ライブ用スプレッドシートの ID>`（/live 用と同じ。値は `scripts/generate_title_pages.py` の `SPREADSHEET_ID`）の4タブ。
+新しいスプレッドシート `<ライブ用スプレッドシートの ID>`（/live 用と同じ。値は `scripts/generate_title_pages.py` の `SPREADSHEET_ID`）の「タイトル」「タイトル戦」と、ryoei.pro_選手（`lib/live.py` の `PLAYERS_SPREADSHEET_ID`、#567）の「連盟プロ以外」「別名」の4タブ。タブごとの読む先は `live.spreadsheet_of()`。
 
 | タブ | 用途 |
 |---|---|
@@ -162,6 +162,10 @@
 - **「タイトル戦」タブは大会の追加・改名・表示順・区分・状態の正本。** ここを変えると「タイトル」タブとの整合で生成が止まることがある。
   「タイトル戦」側だけを 小島武夫杯帝王戦 → 帝王戦 に改名したとき、「タイトル」タブが旧名のままで表示=Y の20行が止まった
   （CHAT-0916-TT-14。TT-15 で「タイトル戦」を「小島武夫杯帝王戦」に戻して解消）
+- **「タイトル戦」タブだけを改名したときは、旧名→新名を `scripts/lib/taikai_names.py` の `RENAMED` に足す**（#523。シートの旧名の行は書き換えない）。
+  `generate_title_pages.py` の `fetch_tab()`（「タイトル」タブの大会名・期の題、「タイトル戦」タブの大会名）、`live_layer3.merge_records()`（/live の【3】【2】の「タイトル戦」。
+  title/ の期ページの放送・/live・ask・カレンダー同期が通る）、`wayhome_intake.normalize()`（帰り道の題名）が読んだ直後に新名にそろえる。slug・URL は変えない。
+  画像の文字が変わるので OGP 画像を作り直し、名前を変える（`OGP_DESIGN_BY_SLUG`。2026-10-14 に JPML WRCリーグ → WRCリーグ、JPML WRC-Rリーグ → WRC-Rリーグ）
 
 - **X の画像 URL が古くなると、`_400x400` が取れず `_80x80` のまま表示される。** 選手がプロフィール画像を変えると、古い画像は CDN で 200 と 404 が混ざる状態になり、
   生成時の確認で `_400x400` を置き換えない（閲覧者のブラウザでも同じ割合で 404 になるため、リトライで採らない）。直すのは「プロ」シートの J列。現在の URL は `scripts/collect_saikyo_images.py` の `resolve()` で X ハンドルから引ける（CHAT-0918-TH-03、安東郁敬）

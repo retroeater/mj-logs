@@ -9,7 +9,7 @@ OGP 画像・og:title を作る／変えるときに読む。#339（「帰り道
   （本文は `docs/notes/static-generation.md`「メンテナンス用スクリプトの詳細」の `build_wayhome_ogp.py` の行と、
   `docs/notes/static-generation.md`「生成スクリプトの構成（lib/page.py）」）
 - `img/ogp.png` を `img/ogp/` へ移すかは、新サイト（#296）で判断する
-- 現在の実例: `img/ogp/wayhome/index-<最新話の公開日>.jpg`（`docs/notes/video-wayhome.md`）、`img/ogp/saikyo/<年度>-<意匠>.png`（`docs/notes/saikyo-page-design.md`、#343）、`img/ogp/title/<slug>-black.png`（`docs/notes/title-pages.md`、#232）
+- 現在の実例: `img/ogp/wayhome/index-<最新話の公開日>.jpg`（`docs/notes/video-wayhome.md`）、`img/ogp/saikyo/<年度>-<意匠>.png`（`docs/notes/saikyo-page-design.md`、#343）、`img/ogp/title/<slug>-black.png`（`docs/notes/title-pages.md`、#232）、`img/ogp/houou/index-black.png`（houou/ の全ページで1枚。`docs/notes/houou-top.md`「共通」、#540）
 
 ## 中身を差し替える画像はファイル名を変える
 
