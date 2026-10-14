@@ -170,30 +170,26 @@ X の画像の URL の揺らぎも今回は出なかった（卓のページ・�
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 完了 / 続き: CHAT-1014-SKD-06
 - ブランチ: work/1014-skd
-- ログ: https://github.com/retroeater/mj/blob/work/1014-skd/docs/logs/CHAT-1014-SKD-05.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1014-SKD-05.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1014-skd
 - 確認用URL: プレビューあり（URL は最終報告）。確認したページは `/saikyo/2025/index.html`・`/saikyo/2025/20250816.html`・`/saikyo/2026/index.html`。この版で見える印: 2025 年度の年度ページの「ファイナル 2nd Stage」の下に灰色の「通過」があり、最初の行（近藤誠一）の右端が「A卓 1位」
-- マージ: 未（チャット側と平野さんがプレビューを見てからの判断待ち）
+- マージ: 済（CHAT-1014-SKD-06 で cloudflare へ入れた。SHA は SKD-06 のログ）
 - issue: #566（着手中・判断待ちのコメント）
-- 判断が必要なこと:
-  - マージしてよいか（プレビューで見てから）
-  - 「A卓 1位」の卓の英字は `winners()` の結果（`Player` だけ）からは取れず、同じ選び方で卓も返す `winner_rows()` を足して作った。止まる条件「材料が取れない」には当たらないと判断して進めた。これでよいか（`## 経過` 1）
-  - 選手の行は前提のとおり押せない形にした。SKD-03 の比較ページの C は行全体を X へのリンクにしていたので、比較ページで見た形と違う。X へのリンクが無くなってよいか（`## 経過` 2）
-- 未確認の項目:
-  - 平野さんの iPhone での見え方（外部の写真を読んだ状態は、セッションでは画像を読まずに確かめた）
+- 判断が必要なこと: なし（CHAT-1014-SKD-06 で回答を記録した）
+- 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 6f8f8ab2）: https://github.com/retroeater/mj-logs/tree/main/guide/6f8f8ab2
+ガイド文書（この版を写した時点の最新、mj a9fdf92e）: https://github.com/retroeater/mj-logs/tree/main/guide/a9fdf92e
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6f8f8ab2/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6f8f8ab2/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6f8f8ab2/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6f8f8ab2/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6f8f8ab2/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6f8f8ab2/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/59e33bdf.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a9fdf92e/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a9fdf92e/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a9fdf92e/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a9fdf92e/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a9fdf92e/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a9fdf92e/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a31620fe.md

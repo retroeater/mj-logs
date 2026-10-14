@@ -58,6 +58,44 @@ SKD-05 で作った、未公開の新しい年度・対局のページ（`saikyo
 
 ## 経過
 
+### 0. 着手前
+
+- 同じセッション（session_01LjQF3LYvdJM7VPNtxPNcVj）で SKD-05 に続けて受けた指示（コンテナは再起動していたが、クローン・作業ブランチ・scratchpad は残っていた）。`git log --all --grep="CHAT-1014-SKD-06"` は0件。指示文の末尾はこのログの「指示」欄の末尾と一致。雛形の行はすべてある。マージ: 承認済み（チャットで）
+- 作業ブランチ: `origin/work/1014-skd`（11b1cdac5）とローカルが一致。ログを先に push（687c2a71c）
+- CLAUDE.md「ブランチ運用」と docs/notes/branch-operations.md「マージするとき」「生成物を含む作業ブランチを取り込む・マージするとき」を読んだ
+
+### 1. 取り込み・生成し直し・テスト
+
+- `origin/cloudflare` は 34 コミット進んでいた（WFL・JPL の作業と `chore: regenerate …` の 1edc94d21・158b1f361）。この34コミットは `saikyo/` と、この指示で入れるファイル（`scripts/generate_saikyo_pages.py`・`style.css`・`scripts/tests/test_saikyo_pages.py`・`docs/notes/design.md`・`docs/notes/saikyo-page-design.md`・`docs/decisions/design-renewal.md`）に触れていない
+- `git merge origin/cloudflare`: **衝突なし**（6438a4140）
+- `python3 scripts/regenerate.py saikyo_pages`（シートを読む、終了コード 0）: **作業ツリーに差が出なかった**（取り込み後のスクリプトとシートで生成した結果が、SKD-05 でコミットした生成物と同じ。シートの変化・X の画像の URL の揺らぎも無し）
+- `python3 -m unittest discover -s scripts/tests`: 1,079件 OK（取り込みで他の作業のテストが増えた）
+
+**生成物の差（取り込み後の `origin/cloudflare` との比較、`git diff --name-status origin/cloudflare HEAD`）:**
+
+| 種類 | 件数 | 許す範囲か |
+|---|---|---|
+| 新しい年度ページ `saikyo/<年度>/index.html` | 16（M） | 見込み 16 のとおり。SKD-05 の形の差 |
+| 対局のページ `saikyo/<年度>/<対局>.html` | 219（M） | 見込み 219 のとおり。SKD-05 の形の差 |
+| 卓のページ | 0 | |
+| 今の年度ページ `saikyo/<年度>.html` | 0 | |
+| トップ `saikyo/index.html` | 0 | |
+| `sitemap-saikyo.xml` | 0 | |
+| 生成物以外 | 10 | `scripts/generate_saikyo_pages.py`・`scripts/tests/test_saikyo_pages.py`・`style.css`・`docs/notes/design.md`・`docs/notes/saikyo-page-design.md`・`docs/decisions/design-renewal.md`・`docs/logs/CHAT-1014-SKD-02/03/05/06.md`（SKD-01・04 のログは cloudflare に入り済み） |
+
+- 未マージの work/ ブランチ（1009-swp-526・1011-swp-hnd・1011-swp-nav・1014-plb・1014-wfl-s3・1014-wfl-s3b）は、この指示で入れるファイルと `saikyo/` に触れていない
+
+### 2. 決定の記録とログの状態
+
+- `docs/decisions/design-renewal.md` に「2026-10-14（CHAT-1014-SKD-06）」の節（決定1〜4）。SKD-05 の決定1〜6 は SKD-05 の節に記録済みだった（このブランチ）
+- 決定5（対局のページにヒーローを置かない、AMH の要望は見送る）・決定6（ABEMA の放送枠の URL は控えない）は `docs/decisions/saikyo.md` の「2026-10-14（CHAT-1014-SKD-06）」の節に書き、design-renewal.md からは参照にした。理由: どちらも ABEMA の動画・放送枠の扱いで、ABEMA ブック・卓のページの ABEMA の決定（ABM）が saikyo.md にあるため
+- SKD-05 のログ: 状態を「完了 / 続き: CHAT-1014-SKD-06」、マージを「済」、判断が必要なこと・未確認の項目を「なし」（回答はこの指示で記録した。平野さんが iPhone・PC でプレビューを見た）、ログの URL を `blob/cloudflare/` にした
+- SKD-03 のログ: 状態を「完了 / 続き: CHAT-1014-SKD-05」、マージを「済（比較ページは採用後に消した）」、判断が必要なこと・未確認の項目を「なし」、ログの URL を `blob/cloudflare/` にした（比較の結果 C を選んだ。比較ページの check-run の未確認は、比較ページを消したので追わない）
+
+### 3. マージ
+
+（マージの後に書く）
+
 ## 報告
 
 - 状態: 作業中

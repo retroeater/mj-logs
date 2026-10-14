@@ -157,32 +157,26 @@ B の対局のページは ABEMA のサムネイル（3枚）を含み、C は�
 
 ## 報告
 
-- 状態: 判断待ち / 続き: CHAT-1014-SKD-05
+- 状態: 完了 / 続き: CHAT-1014-SKD-05
 - ブランチ: work/1014-skd
-- ログ: https://github.com/retroeater/mj/blob/work/1014-skd/docs/logs/CHAT-1014-SKD-03.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1014-SKD-03.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1014-skd
 - 確認用URL: プレビューあり（URL は最終報告）。確認するページは `/saikyo_compare.html`。この版で見える印: 先頭の切り替えの左のボタンの文言が「B 写真のカード」、右が「C 表の行」
-- マージ: 未（平野さんの判断待ち）
+- マージ: 済（比較ページは採用後に消した。CHAT-1014-SKD-05・SKD-06）
 - issue: #296（着手中・判断待ちのコメント）
-- 判断が必要なこと:
-  - B と C のどちらにするか（プレビューの比較ページで見比べる。390px で年度ページの見本は B 5,303px・C 2,516px、1画面の人数は B 5人・C 10人。`## 経過` 3）
-  - C を選ぶ場合、対局のページの ABEMA のサムネイルを残すか（比較ページの C は「ABEMA で見る ↗」の1行に置き換えた）
-  - 共有ボタン: 指示の前提は「題名の行の右に丸 44px」だが、未公開の新しいページには共有ボタンが無い（#425 の決定 4）ため置かなかった。今のまま置かないでよいか（`## 経過` 1）
-  - C の年度ページの行に順位の列を出していない（今の年度ページも順位の数字を出さない）。これでよいか
-- 未確認の項目:
-  - 「Workers Builds: mj」の check-run（2ec1c053d、id 115687441270）の success。push から約20分 `in_progress` のまま。プレビューの別名 URL が新しい版を返すことは確かめた（`## 経過` 4）
-  - 平野さんの iPhone での見え方（外部の写真・ABEMA のサムネイルを読んだ状態の見え方は、セッションでは画像を読まずに確かめた）
+- 判断が必要なこと: なし（C を選んだ。CHAT-1014-SKD-05 で記録した）
+- 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 5b933775）: https://github.com/retroeater/mj-logs/tree/main/guide/5b933775
+ガイド文書（この版を写した時点の最新、mj a9fdf92e）: https://github.com/retroeater/mj-logs/tree/main/guide/a9fdf92e
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b933775/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b933775/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b933775/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b933775/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b933775/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b933775/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/59e33bdf.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a9fdf92e/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a9fdf92e/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a9fdf92e/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a9fdf92e/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a9fdf92e/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a9fdf92e/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a31620fe.md
