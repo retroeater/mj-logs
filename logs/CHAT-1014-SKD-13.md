@@ -52,15 +52,33 @@ SKD-12 の変更（新しい年度・対局のページの共通ナビを白地�
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+- 0章: 「指示」欄の末尾と指示文の最後の行が一致。Chat-Ref の既存コミットなし。マージの前に CLAUDE.md「ブランチ運用」と docs/notes/branch-operations.md「マージするとき」「生成物を含む作業ブランチを取り込む・マージするとき」を読んだ
+- ブランチ: origin/work/1014-skd（1c5d1b861）を続けて使用。ログ先行 push 86bc8eecd（[sync-logs]）
+- 取り込み: origin/cloudflare（dc67195f7）は HEAD の祖先で、SKD-12 の後に進んでいない（取り込むコミット0件、衝突なし）
+- 未マージの work/ ブランチ（work/1009-swp-526・1011-swp-hnd・1011-swp-nav・1014-wfl-s3・MTK）: `navbar.js`・`scripts/generate_saikyo_pages.py`・`style.css`・`assets/saikyo.js`・`assets/houou_race.js` を変えているものはなし（`work/1014-plb` はリモートに未マージのものとして無い）
+- 再検証: `python3 scripts/regenerate.py saikyo_pages` で生成し直した結果、作業ツリーの差は0（コミット済みの生成物と一致）。`python3 -m unittest discover -s scripts/tests`: OK（1098件）
+- 生成物の差（origin/cloudflare との比較）:
+
+| 種類 | 件数 |
+|---|---|
+| 新しい年度ページ `saikyo/<年度>/index.html` | 16 |
+| 対局のページ `saikyo/<年度>/<対局>.html`（すべて `mj-saikyo-n-page`） | 219 |
+| ほかの saikyo/ のページ（卓のページ・今の年度ページ・トップ） | 0 |
+
+  ほかは `navbar.js`・`style.css`・`assets/saikyo.js`・`scripts/generate_saikyo_pages.py`・テストと docs。許す範囲どおり
+- SKD-12 のログの状態を「判断待ち / 続き: CHAT-1014-SKD-13」に直した
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 3230e954）: https://github.com/retroeater/mj-logs/tree/main/guide/3230e954
+ガイド文書（この版を写した時点の最新、mj 6ae903ee）: https://github.com/retroeater/mj-logs/tree/main/guide/6ae903ee
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/3230e954/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/3230e954/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/3230e954/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/3230e954/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/3230e954/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/3230e954/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6ae903ee/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6ae903ee/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6ae903ee/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6ae903ee/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6ae903ee/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6ae903ee/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/67ac863e.md

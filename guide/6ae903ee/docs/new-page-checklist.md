@@ -71,7 +71,7 @@
 - [ ] サイトマップに載せる（`sitemap.xml` から専用のサイトマップを参照する、または `sitemap-pages.xml` に足す）。lastmod は手で書かない（`docs/notes/sitemap-lastmod.md`）。push 前に `xml.etree.ElementTree` で parse する（`sitemap.xml`・`llms.txt` だけの変更ではワークフローが走らない）
 - [ ] `llms.txt`（手書き、#161）に入口の行を足す
 - [ ] title・description・h1・og:title・og:image・共有ボタンを確かめる。canonical は既定で出さない（#113）。出すときは `saikyo/`・`title/` と同じ形で og:url と同じ値にする
-- [ ] 置き換える旧ページがあれば、残すか 301 で転送するかを決める。決めかねるなら残して別の issue にする（saikyo_results.html は #350、jpml_titles.html は #441 で後から転送した）
+- [ ] 置き換える旧ページがあれば、残すか 301 で転送するかを決める。決めかねるなら残して別の issue にする（saikyo_results.html は #350、jpml_titles.html は #441 で後から転送した）。転送を足したら `docs/notes/redirects.md` の一覧に行を足す（ダッシュボードのルールと JS の移動はテストで拾えない）
 - [ ] `docs/notes/static-generation.md`「ページの一覧」・ページの設計メモ・`docs/handover.md` の「未公開」の記述を直す
 - [ ] `cloudflare` へのマージは平野さんの確認の後（navbar を変えると表示が変わる）
 
