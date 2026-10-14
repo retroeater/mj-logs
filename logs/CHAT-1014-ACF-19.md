@@ -67,16 +67,32 @@ ACF-17 は、変わった URL の確かめで上田稜の `_80x80` だけが 404
     - 上田稜は既定の表示に出ないため、プレビューでは見ていない（`_80x80` は 404 なので、出れば頭の1字になる）
   - 段階2の結果: SNS ブック【3】を gviz で読み直すと、X画像URL は `_400x400` 1,051・既定アイコン 12（`_200x200` 11・`_normal` 1）で、`_80x80` は 0（10/14 の朝の更新で書き換わった）
   - docs/notes/sns-book.md の「houou_race の丸・houou/ の表のアイコンの `_80x80` 化は … 未了」を済の記述に直した。決定を docs/decisions/saikyo.md に足した。ACF-17 のログの状態に `/ 続き: CHAT-1014-ACF-19` を足した
+- `origin/cloudflare` をもう一度取り込んだ（OHA-05 の docs だけ、衝突なし）。取り込み後も houou の差は末尾だけ（91 ファイル）、テスト OK
+- cloudflare へマージ: 11:40 JST に再 fetch し `git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめて `git push origin work/1013-acf-xsize:cloudflare`（71f40273..75d5cce7）
+- #558 に結果をコメントし（https://github.com/retroeater/mj/issues/558#issuecomment-6159681446 ）、残りが無いので閉じた（completed）。「状況: 対応中」のラベルを外した。上田稜の写真は ACF-20 と #562 で扱うとコメントに書いた
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1013-acf-xsize
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1014-ACF-19.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1013-acf-xsize
+- 確認用URL: プレビューあり（URL は最終報告）。houou_race.html・houou/race/・houou/ranking/・houou/players/?name=平野良栄 を確認
+- マージ: 済（75d5cce7。ACF-15・ACF-17 のログと docs/decisions の追記も入った）
+- issue: #558（クローズ）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 71f40273）: https://github.com/retroeater/mj-logs/tree/main/guide/71f40273
+ガイド文書（この版を写した時点の最新、mj 9ec82bb7）: https://github.com/retroeater/mj-logs/tree/main/guide/9ec82bb7
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/71f40273/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/71f40273/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/71f40273/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/71f40273/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/71f40273/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/71f40273/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9ec82bb7/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9ec82bb7/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9ec82bb7/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9ec82bb7/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9ec82bb7/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9ec82bb7/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/ec9e24c3.md
