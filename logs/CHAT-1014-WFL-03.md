@@ -56,6 +56,50 @@
 - 作業ブランチ: work/1014-wfl-parts はローカル・リモートとも無し → `git checkout -b work/1014-wfl-parts origin/cloudflare`（be98b1fc3）
 - 0. 指示欄の末尾は指示文の最後の行と一致
 - 雛形の行: Chat-Ref・マージ・貼る時機・共通手順（＋作業ブランチ）は揃っている
+- docs/notes/github-actions.md「ワークフローを変更したとき」を読んだ（作業ブランチで手動実行して確かめてからマージ）
+
+### 前提の確かめ
+
+- 2本の呼ばれ方: `git grep` で `.github/`・`workers/`・`scripts/` を洗い、ほかから参照するのは `fetch-gsc.yml:81`（コメント）と `scripts/check_saikyo_unregistered.py:17`（docstring）だけ。`uses:`・`workflow_run`・`schedule.json` には無い（前提どおり）
+- 未マージの work/ ブランチで `.github/`・`docs/notes/github-actions.md` を変えるものは無い（work/1014-gds はマージ済みになっていた）
+- `check-saikyo-unregistered.yml` の `SCHEDULE_ENABLED` は `'true'`（やめても動きは変わらない）。`sync-birthday-calendar.yml` には無い（前提どおり）
+
+### 手順1: 部品と2本の書き直し（3d7fa4db2）
+
+作ったもの:
+
+- `.github/actions/setup-python/action.yml`: 入力 `packages`・`test`、出力 `python-version`。`actions/setup-python@v5` を `python-version-file: .python-version` で呼ぶ（版は上げていない。#308 は別）
+- `.github/actions/resolve-mode/action.yml`: 入力 `scheduled`・`manual-apply`、出力 `scheduled`・`apply`・`dry-run`。ログと実行サマリに「event: … / scheduled: … / apply: …」の1行
+- `.github/actions/upsert-issue/action.yml`＋`upsert.js`: 入力 `mode`（state / notice / comment / read）・`title`・`number`・`body-file`・`comment-file`・`close`・`create`・`labels`・`marker`・`dry-run`・`run-url-footer`、出力 `number`・`action`・`body-path`・`comment-path`。WFL-01 の案に、型N・#475 の「前回の印付きコメントを読む」用の `read`（`marker`）を足した
+- `.python-version`（`3.12`）。リポジトリ直下の新しいファイルで公開対象になるため `.assetsignore` に足した（#133）
+- `scripts/check_saikyo_unregistered.py` に `issue_text()` と `--issue-dir`（`body.md` か `close.md` を書く）を足し、github-script にあった本文の組み立てを移した。元の JS と同じ文面になることを node で4通りのデータ（未登録・重複・対局日が空・何も無し、`|` の escape を含む）を突き合わせて確かめ、`scripts/tests/test_saikyo_unregistered.py` に3件のテストを足した
+- `upsert.js` は、モックの `github` で 12 通り（state の更新・作成・閉じる・閉じる相手が無い・dry-run、notice のコメント・空・作成・作らずに失敗、comment、read、不正な mode）を手元で動かして確かめた
+
+ステップの対応表（今 → 部品）:
+
+| 本 | 今のステップ | 書き直した後 |
+|---|---|---|
+| check-saikyo-unregistered | dry-run かどうかを決める（`SCHEDULE_ENABLED`・`INPUT_DRY_RUN`） | リポジトリをチェックアウト（先頭へ移す。部品は checkout の後でないと読めない）→ dry-run かどうかを決める = `resolve-mode`（`scheduled`、`manual-apply: !inputs.dry_run`） |
+| | リポジトリをチェックアウト | （上へ移した。`ref: github.ref` はそのまま） |
+| | Pythonをセットアップ（`python-version: '3.12'`） | `setup-python`（入力なし） |
+| | 登録漏れを確認 | 同じ（`--issue-dir issue` を足す） |
+| | 実行サマリに表示 | 同じ |
+| | 結果をissueに反映（github-script 約80行、dry-run なら skipped） | `upsert-issue`（mode state、題「最強戦の出場者の登録漏れ」、`close` は `body.md` が無いとき、`dry-run` は resolve-mode の出力。dry-run でも探すところまで動き、することを出す） |
+| sync-birthday-calendar | リポジトリをチェックアウト | 同じ |
+| | （env の `APPLY: schedule \|\| inputs.apply`） | 書くかどうかを決める = `resolve-mode`（`scheduled`、`manual-apply: inputs.apply`） |
+| | Pythonをセットアップ・依存をインストール・テスト | `setup-python`（`packages: google-auth requests`、`test: 'true'`） |
+| | Google に認証 | 同じ |
+| | 同期（env の `APPLY`・`ALLOW_MANY_DELETES`） | 同じ。`APPLY` は resolve-mode の出力、`ALLOW_MANY_DELETES` は予約の起動でないときだけ入力を使う |
+| | 実行サマリに表示 | 同じ（`apply:` は resolve-mode の出力） |
+
+両方に入力 `scheduled`（「手では付けない」）と `run-name`（`[scheduled] <name:>`）を今の6本と同じ形で足した。Worker の起動の表には足していない。
+
+### 手順2 (a): 書かない入力での手動実行（3d7fa4db2）
+
+| ワークフロー | run | 結果 | 要点 | 直前の success |
+|---|---|---|---|---|
+| check-saikyo-unregistered（`dry_run: true`） | #9（38506817102） https://github.com/retroeater/mj/actions/runs/38506817102 | success | 「event: workflow_dispatch / scheduled: false / apply: false」。`Resolved .python-version as 3.12`。出場者440名・引けない人0名・対局日が空0件。upsert-issue「[dry-run] 「最強戦の出場者の登録漏れ」は無いので閉じるものが無い」 | #8（38207464466、10/12）: 「登録漏れなし」（0名）→ 件数は同じ |
+| sync-birthday-calendar（`apply: false`） | #11（38506819071） https://github.com/retroeater/mj/actions/runs/38506819071 | success | 引数 `--compare`、`APPLY: false`・`ALLOW_MANY_DELETES: false`。名簿1099名・載せる人1072名・カレンダーの予定1072件、追加0・更新0・削除0 | #10（38185202120、10/12 の予約実行、apply）。その後に差分0なのは、予約実行が書いた状態のままという意味で整合 |
 
 ## 報告
 
