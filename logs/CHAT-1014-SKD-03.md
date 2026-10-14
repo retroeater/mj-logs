@@ -55,28 +55,134 @@
 
 ## 経過
 
+### 0. 着手前
+
+- 同じセッション（session_01LjQF3LYvdJM7VPNtxPNcVj）で SKD-02 に続けて受けた指示。`git log --all --grep="CHAT-1014-SKD-03"` は0件
+- 作業ブランチ: `origin/work/1014-skd`（79c61eb16）があり、ローカルと一致。`git merge-base --is-ancestor origin/cloudflare HEAD` は真で取り込み不要
+- このログの「指示」欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある
+- SKD-02 のログの `## 報告` の状態を「判断待ち / 続き: CHAT-1014-SKD-03」にした（SKD-03 の着手のコミット 425d3eb9a）。SKD-01 の「判断待ち」は変えていない
+- #296 に着手中のコメント（issuecomment-6161002887）
+
+### 1. 置き場所と作り方
+
+**置き場所: リポジトリ直下の `saikyo_compare.html`**（URL は `/saikyo_compare.html`）。
+
+- `saikyo/` の下は使えない: `scripts/generate_saikyo_pages.py` の `main()` が `saikyo/*.html` のうち書き出していないものを消し（1238-1241 行）、`remove_stale_sub_pages()` が `saikyo/` の下のすべてのディレクトリの `*.html` のうち書き出していないものを消す（941-952 行）。毎朝の `regenerate-saikyo.yml` で消える（docstring も「出力先の saikyo/ と sitemap-saikyo.xml はこのスクリプトが所有する」）
+- 直下なら衝突しない: `_redirects` に `/saikyo_compare.html` に当たる行は無い（静的の行は `/saikyo_results.html` などで別の名前、動的の行は `/title/:slug/`・`/live/:slug/`・`/houou/:slug/`・`/houou/ranking/:slug/` だけ）。`html_handling: none` なので `/saikyo_compare.html` がそのまま返る。sitemap はどのスクリプトも直下のファイルを列挙して足さない（`sitemap-saikyo.xml` は生成した年度ページだけ、`update_sitemap_lastmod.py` は既存の項目の lastmod だけ）。`llms.txt`・navbar にも載せない
+- noindex（`<meta name="robots" content="noindex">`）。どこからもリンクしない
+
+**作り方: 生成物から写すスクリプト `scripts/build_saikyo_compare.py`**（`scripts/` は `.assetsignore` で公開しない）。
+
+- `saikyo/2025/index.html` と `saikyo/2025/20250816.html` を読み、対局・卓・選手（名前・X のリンク・写真の src/srcset・順位・通過/敗退・優勝/通過のバッジ）を取り出して B と C の両方の HTML を書く。生成スクリプト（`generate_saikyo_pages.py`）は変えていない
+- B の写真カードは生成物の `<li class="mj-saikyo-player">` の中身をそのまま使い（相対パスだけルート相対に直す）、既存の `.mj-saikyo-card` などの規則は変えず、ページの中の `<style>` で `.mj-cmp` の中だけ上書きした（影なし・角丸 8px・持ち上がる動きなし）。SKD-01 の 2-3 の★（写真カードは live/ と共有）に触れない
+- CSS はすべてページの `<style>` の中。`:root:has(.mj-cmp)`・`body:has(.mj-cmp)`・`.mj-cmp …` に限る。`style.css` は変えていない
+- 切り替えはラジオボタン2つと `:has(#mj_cmp_b:checked)`（JS なし、URL パラメータなし）。既定は B
+- 共通ナビ（濃色・fixed）と固定バー（年度プルダウン、`#131316`）は今のまま。`body.mj-saikyo-page` と `assets/saikyo.js` を今のページと同じに使う（固定の高さの追従・年度プルダウン。プルダウンの行き先はルート相対に直した）
+- 実データの確かめ: 年度ページの見本は 17対局・27人、対局のページの見本は 3卓・12人で、元のページと同じ数（`grep` で数えた）。写真の無い選手は森山茂和1人（元のページで `img/avatar.svg`）。C では「森」の灰色の丸
+
+**両案の形（指示の前提のとおりにしたこと・しなかったこと）:**
+
+| 項目 | 共通 | B | C |
+|---|---|---|---|
+| 地・面・字 | ページの地 `#f2f2f7`／面 `#ffffff`／字 `#1d1d1f`／灰色の字 `#555555`／区切り `#e5e5e5`／紺 `#14459b`。暗い配色は `#000000`／`#1c1c1e`／`#f5f5f7`／`#aeaeb2`／`#38383a`／`#8ab4f8`（`@media (prefers-color-scheme: dark)`） | | |
+| 対局 | 1つの面（角丸 12px・影なし・枠なし）。題名 1rem（16px）太字・左寄せ、日付 0.8125rem（13px）灰色を同じ行に。年度ページでは題名の行が対局のページへのリンク（右に灰色の ›、高さ 44px 以上） | | |
+| パンくず | 0.8125rem 灰色の1行、上の階層は紺のリンク（押せる幅・高さ 44px 以上）、区切り「/」。文言は今のまま（「最強戦 / 麻雀最強戦2025」「最強戦 / 麻雀最強戦2025 / 政権抗争勃発」） | | |
+| 卓 | | 面の中の 13px 灰色の1行（上に 1px の区切り線、卓のページへのリンク、高さ 44px） | 見出しの行「ベスト8 A卓 ›」（13px 灰色の太字、卓のページへ、高さ 44px） |
+| 選手 | | 写真カードは今の格子（480px 以下は2列）。影・枠を外し角丸 8px。順位の三角と金・名前の帯・優勝/通過のバッジは今のまま | 行の高さ 56px。順位（通過・優勝は金 `#f2c230` の丸に `#2b2100` の数字、ほかは灰色の数字）・写真 40px の丸（写真の無い選手は頭の1字の灰色の丸 `#d1d1d6`／暗 `#48484a`）・名前 1rem・右端に通過／優勝のピル 0.75rem（12px）太字（金）。行全体が X へのリンク（今のカードと同じ行き先） |
+| 年度ページの選手 | 勝ち上がった人だけ（今の中身のまま） | 今の写真カード | 同じ行の形。**順位の列は出さない**（今の年度ページも順位の数字を出さないため。ピルで優勝／通過を示す） |
+| 動画の紹介 | | 今のサムネイルのまま（影を外し角丸 8px、出典は灰色） | 卓の選手の行の下に「ABEMA で見る ↗」の1行（紺、高さ 44px、外へのリンク） |
+
+- **共有ボタンは置かなかった。** 指示の前提は「共有ボタン（丸 44px）は題名の行の右」だが、未公開の新しい年度・対局のページには共有ボタンが無い（#425 の決定 4「個別ページに共有ボタンは付けず、年度ページの対局ごとの共有ボタンは…外す」、`docs/notes/saikyo-page-design.md`「共有ボタンは個別ページにも新しい年度ページにも付けない」）。前提に合わせて足すと平野さんの決定と食い違うため、足さずに「判断が必要なこと」に書いた
+- 比較ページだけの部品: 先頭の切り替え（選ぶ部品の形。溝の中で選んだ1つが浮く、高さ 44px）、説明の1行、見本の見出し「見本1 年度ページ（saikyo/2025/index.html）」「見本2 対局のページ（saikyo/2025/20250816.html）」
+
+### 2. 確かめ
+
+条件: headless Chromium（`/opt/pw-browsers/chromium`、Playwright 1.56.1）、手元のファイルを `python3 -m http.server` で配る。外部の画像（pbs.twimg.com・ABEMA）は読まない（写真カードは `aspect-ratio: 1`、サムネイルは 16:9、C の写真は 40px 固定なので、高さは画像に依存しない）。
+
+**崩れ（60通り）:** 375・390・430px × 明・暗 × 字体5通り（標準／IPA P ゴシック／WenQuanYi Zen Hei／ルートの文字 150%／200%）× B・C。見たもの: 横スクロール、面・行・題名の行・切り替えのラベル・卓の見出しの行からの子のはみ出し、C の名前とピルの重なり、ピルの2行、押せる要素（`a`・`label`）の 44×44px。
+
+- 初回: 崩れは0件だったが、文字の大きさを px で書いていたため 150%・200% で字が大きくならないことが分かった（houou/ は rem）。**直した点1:** 字の大きさを rem（16px→1rem、13px→0.8125rem、12px→0.75rem）にし、C の順位の丸を `min-width: 1.5rem; height: 1.5rem` にした
+- 2回目: 375・390px の 200% で横スクロール（399px）。原因は見本の見出し「見本1 年度ページ（saikyo/2025/index.html）」のパスが折り返せないこと。**直した点2:** 見本の見出しと説明の1行に `overflow-wrap: anywhere`
+- 3回目: **60通りとも崩れ0件**（はみ出し・重なり・ピルの2行・44px 未満なし）
+- 切り替えのラベルの右の余白（1行に収めるもの）: 標準・幅の広い字体ではどの幅でも1行で、余白は最小 41px（標準 375px の「B 写真のカード」）、IPA P ゴシック 50px、WenQuanYi 42px。150%（375・390px）と 200% では「B 写真のカード」が2行に回る（design.md「文字の拡大」で崩れとみなさない）。**直した点3（初回の目視）:** 最初のラベル「B 写真のカードを残す面」は標準の字体・390px で2行になったため「B 写真のカード」に縮めた
+- 年度プルダウンは最初 `selected` を外して「歴代最強位」が出ていたため、今のページと同じ「麻雀最強戦2025」に戻した（直した点4）
+
+**`prefers-reduced-motion`:** `reducedMotion: 'reduce'` と通常の両方で、`.mj-cmp` の中に `transition-duration` が 0 より大きい要素は無い（B の写真カードは既存の `a.mj-saikyo-card` の `transition` を `.mj-cmp` の中で `none` にした。持ち上がる動きも外した）。
+
+**コントラスト（WCAG 2.x）:** 相対輝度 L = 0.2126 R + 0.7152 G + 0.0722 B（各成分は c/255 が 0.04045 以下なら c/12.92、超えれば ((c+0.055)/1.055)^2.4）、比 = (L明 + 0.05) / (L暗 + 0.05)。Python で計算した。
+
+| 組み合わせ | 字 | 地 | 比 | 基準 |
+|---|---|---|---|---|
+| 明 灰色の字／面 | #555555 | #ffffff | 7.46:1 | 7:1 以上 ✓ |
+| 明 灰色の字／ページの地 | #555555 | #f2f2f7 | 6.68:1 | 4.5:1 以上 ✓ |
+| 明 字／面 | #1d1d1f | #ffffff | 16.83:1 | |
+| 明 紺／面 | #14459b | #ffffff | 8.92:1 | |
+| 明 紺／ページの地（パンくず） | #14459b | #f2f2f7 | 7.99:1 | |
+| 明 字／溝（切り替え） | #1d1d1f | #e9e9ee | 13.91:1 | |
+| 暗 灰色の字／面 | #aeaeb2 | #1c1c1e | 7.69:1 | 7:1 以上 ✓ |
+| 暗 灰色の字／ページの地 | #aeaeb2 | #000000 | 9.50:1 | 4.5:1 以上 ✓ |
+| 暗 字／面 | #f5f5f7 | #1c1c1e | 15.63:1 | |
+| 暗 紺の役／面 | #8ab4f8 | #1c1c1e | 8.07:1 | |
+| 暗 紺の役／ページの地 | #8ab4f8 | #000000 | 9.96:1 | |
+| 暗 紺の役／選んだ1つ | #8ab4f8 | #3a3a3c | 5.39:1 | |
+| 金（順位の丸・ピル） | #2b2100 | #f2c230 | 9.49:1 | |
+| 写真の無い丸 明 | #1d1d1f | #d1d1d6 | 11.06:1 | |
+| 写真の無い丸 暗 | #f5f5f7 | #48484a | 8.38:1 | |
+
+計算値は `docs/notes/design.md` の「新サイトの色」の値（7.46・6.68・7.69・9.50・8.92・8.07・5.39）と一致。画面の計算値（`getComputedStyle`）も明・暗で上の色になっていた（ページの地 `rgb(242,242,247)`／`rgb(0,0,0)`、灰色の字 `rgb(85,85,85)`／`rgb(174,174,178)` など）。
+
+**比較ページの外のページの前後比較:** `git archive origin/cloudflare`（59e33bdf0）を別のディレクトリに出して別のポートで配り、作業ツリーと並べて `saikyo/2025.html`（今の年度ページ）・`title/index.html`・`houou/ranking/index.html` を 375px・1280px の全体で撮って画素を比べた。**6枚とも差0**（大きさも同じ。375px: 20,820・2,135・6,081px、1280px: 15,359・1,436・6,085px）。`style.css`・`navbar.js`・`assets/` は変えていない。
+
+**本体の生成物:** `git diff --stat origin/cloudflare -- saikyo/ sitemap-saikyo.xml _redirects llms.txt style.css` は空。足したのは `saikyo_compare.html` と `scripts/build_saikyo_compare.py` だけ。
+
+**未マージのブランチ:** `git branch -r --no-merged origin/cloudflare` の6本（1009-swp-526・1011-swp-hnd・1011-swp-nav・1014-jpl・1014-wfl-log・1014-wfl-s1）は、足した2つのファイルに触れていない。
+
+### 3. B と C の高さと1画面の人数（390px）
+
+条件は上と同じ（明・暗で同じ値）。「見本の高さ」は見本の最初の対局の面の上端から最後の対局の面の下端まで。「1画面の人数」は、最初の対局の面の上端を固定バーの直下に置いたとき、画面 844px からナビ 56px と固定バー 61px を除いた 727px に全体が入る選手の数（B は写真カード＋バッジ、C は行）。
+
+| 見本 | B の高さ | C の高さ | B の1画面 | C の1画面 | 選手の数 |
+|---|---|---|---|---|---|
+| 年度ページ（17対局） | 5,303px | 2,516px | 5人 | 10人 | 27人 |
+| 対局のページ（3卓） | 1,953px | 986px | 4人 | 8人 | 12人 |
+
+参考: 今の未公開のページ（SKD-01 の 2-5、390px）は年度ページ全体 6,099px、対局のページ全体 2,339px（対局のまとまり 2,047px）。比較ページ全体は B 7,761px・C 4,007px。年度ページの最初の対局（ファイナルトーナメント、1人）は B 251px・C 100px。
+B の対局のページは ABEMA のサムネイル（3枚）を含み、C は「ABEMA で見る」の1行に置き換えた分も短い。
+
+### 4. push とプレビュー
+
+- 比較ページとスクリプトを1つのコミット（2ec1c053d）で、ログより先に単独で push した
+- check-run: 「check」は success。「Workers Builds: mj」（id 115687441270）は 04:52:13Z に始まり、**05:05:49Z（push から約20分、待ちの上限15分）まで `in_progress` のままで、出力に Preview URL が出ていない**（docs/notes/cloud-sessions.md「Workers Builds の check-run が、報告が止まったまま `in_progress` で残ることがある」と同じ形）。同じコミットにほかの「Workers Builds: mj」は無い
+- 代わりの確かめ（同じ節の手順）: ブランチの別名 URL（ほかのブランチの check-run の出力にあるサブドメインから組み立て、`?v=2ec1c053d` を付けた）で、`/saikyo_compare.html` が HTTP 200・`x-robots-tag: noindex` を返し、**中身が手元の `saikyo_compare.html` とバイト単位で同じ**だった。`style.css`・`assets/saikyo.js`・`navbar.js` も手元と同じ。→ プレビューには新しい版が入っている。check-run の success は未確認（「未確認の項目」）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1014-skd
 - ログ: https://github.com/retroeater/mj/blob/work/1014-skd/docs/logs/CHAT-1014-SKD-03.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1014-skd
-- 確認用URL: なし
-- マージ: 未
-- issue: #296
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 確認用URL: プレビューあり（URL は最終報告）。確認するページは `/saikyo_compare.html`。この版で見える印: 先頭の切り替えの左のボタンの文言が「B 写真のカード」、右が「C 表の行」
+- マージ: 未（平野さんの判断待ち）
+- issue: #296（着手中・判断待ちのコメント）
+- 判断が必要なこと:
+  - B と C のどちらにするか（プレビューの比較ページで見比べる。390px で年度ページの見本は B 5,303px・C 2,516px、1画面の人数は B 5人・C 10人。`## 経過` 3）
+  - C を選ぶ場合、対局のページの ABEMA のサムネイルを残すか（比較ページの C は「ABEMA で見る ↗」の1行に置き換えた）
+  - 共有ボタン: 指示の前提は「題名の行の右に丸 44px」だが、未公開の新しいページには共有ボタンが無い（#425 の決定 4）ため置かなかった。今のまま置かないでよいか（`## 経過` 1）
+  - C の年度ページの行に順位の列を出していない（今の年度ページも順位の数字を出さない）。これでよいか
+- 未確認の項目:
+  - 「Workers Builds: mj」の check-run（2ec1c053d、id 115687441270）の success。push から約20分 `in_progress` のまま。プレビューの別名 URL が新しい版を返すことは確かめた（`## 経過` 4）
+  - 平野さんの iPhone での見え方（外部の写真・ABEMA のサムネイルを読んだ状態の見え方は、セッションでは画像を読まずに確かめた）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 76487b6d）: https://github.com/retroeater/mj-logs/tree/main/guide/76487b6d
+ガイド文書（この版を写した時点の最新、mj 806fba19）: https://github.com/retroeater/mj-logs/tree/main/guide/806fba19
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/76487b6d/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/76487b6d/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/76487b6d/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/76487b6d/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/76487b6d/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/76487b6d/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/806fba19/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/806fba19/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/806fba19/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/806fba19/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/806fba19/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/806fba19/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/59e33bdf.md
