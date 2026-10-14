@@ -111,6 +111,123 @@
 
 この指示は `.github/`・`scripts/`・`workers/` を変えないため重なりでは止まらない。段①〜③の指示では `assets-check.yml` の改名・共通化が work/1014-gds の変更と重なる。
 
+### 手順2: 親 issue
+
+- #564「GitHub Actions の整理（統合・共通化・改名・ダッシュボード）」を起票（ラベル「分野: 自動化」「分野: 整理・保守」）。本文に「決定」を写し、5段をチェックリストで、各段に関係する issue（#263・#132・#308・#539・#538・#298・#504・#492・#563）を書いた
+- **「決定」の原文の日付2つ（`sync-logs.yml` の「#298 の 10/21 の予定」、「#504 の 11/30 を前倒し」）は本文に写さず、「#298 の予定」「#504 の予定を前倒し」とした。** 指示の「そのまま写す」と「期日は書かない」（CLAUDE.md「issueの着手ルール」: 期日はカレンダー「ryoei.pro」）が食い違ったため、ルールの側を優先した（CLAUDE.md「Chat-Ref」節）。本文に注記の1行を置いた
+- 段の順は「チャット側の案。決定ではない」と書いた
+- 着手中のコメント: #564（起票前の他セッションの着手コメントは無し。作ったばかり）
+- #263・#132 に「親 issue #564 の段②で扱う」とコメント（クローズしない）
+
+### 手順3: 改名と統合の対応表（設計）
+
+規則は「前提」の案（動詞6つ、`name:` は「<対象>の<動作>」の名詞形、`run-name` は `name:` と同じ、入力の `description` は「〜する（外すと〜だけ）」）をもとにした。
+「参照」の code は `git grep -n -F '<ファイル名>'` の結果（自分自身を除く。`.github/workflows/` の行はほとんどコメント）、docs は `*.md`（`docs/logs/` を除く）の該当件数。
+mj-logs 側は `sync-from-mj.yml` を raw で読んだ（mj-logs は API ではこのセッションから読めない）。ワークフローのファイル名を参照するのはコメント1か所（`sync-logs.yml`、5行目）だけで、処理は mj の `scripts/sync_all_logs.py`・`scripts/actions_status.py` を呼ぶ。
+
+| # | 今のファイル | 今の `name:` | 新しいファイル | 新しい `name:` | 行き先 | 参照（code） | 参照（docs） |
+|---|---|---|---|---|---|---|---|
+| 1 | assets-check.yml | 公開対象を検査する | **check-assets.yml** | 公開対象の検査 | 残す（push 契機） | scripts/check_asset_limits.py:5 | CLAUDE.md 1・decisions/README 1・automation 1・publishing 3・new-page-checklist 1・notes/cloudflare 2・github-actions 2・handover-archive-2026 2・houou-race 1・houou-top 1・skills 1・static-generation 1。**未マージの work/1014-gds が本体を変える** |
+| 2 | check-image-links.yml | 画像リンク切れの検知 | 同じ | 同じ | `daily` から呼ぶ（job check・saikyo・sns_book のまま） | regenerate-saikyo.yml:13（**`workflow_run.workflows` が `name:` で参照**）・:4・check-meibo.yml:90・regenerate-page.yml:54（コメント）・scripts/check_image_links.py:113・collect_saikyo_images.py:17・lib/x_images.py:7・**workers/scheduler/schedule.json:24**・workers/scheduler/test/catchup.test.mjs:11,76-105・scheduler.test.mjs:307 | decisions/automation 1・saikyo 1・notes/github-actions 4・saikyo-page-design 3・scheduler-worker 1・session-network 1・sns-book 1・static-generation 1 |
+| 3 | check-leagues-dropped.yml | 型Cで漏れている選手の検知 | — | — | **削除** | なし（`scripts/check_leagues_dropped.py` が残る） | notes/github-actions 1・static-generation 1 |
+| 4 | check-meibo.yml | 名簿と「プロ」シートの不一致の検知 | 同じ | 同じ（代案 A-4） | 残す（週次。段④で Worker の表へ） | sync-birthday-calendar.yml:21・scripts/check_ampai.py:6・generate_jpml_pros.py:396・tests/test_actions_status.py:14,53 | CLAUDE.md 1・decisions/operations 2・notes/birthday-calendar 1・github-actions 2・handover-archive-2026 2・static-generation 3 |
+| 5 | check-saikyo-unregistered.yml | 最強戦の出場者の登録漏れの検知 | 同じ | 同じ | 残す（週次） | scripts/check_saikyo_unregistered.py:17 | decisions/pros 1・saikyo 2・notes/github-actions 1・saikyo-page-design 1 |
+| 6 | cleanup-logs.yml | 作業ログの片付け | 同じ | 同じ | 残す（週次） | sync-logs.yml:14（削除予定） | decisions/operations 1・notes/branch-operations 3・github-actions 2・handover-archive-2026 1・static-generation 1・docs/logs/_template.md 1 |
+| 7 | delete-merged-branches.yml | マージ済みの作業ブランチを削除する | **cleanup-branches.yml** | マージ済みブランチの片付け | `daily` から呼ぶ | scripts/delete_merged_branches.py:1・**schedule.json:19**・workers/scheduler/test/scheduler.test.mjs:150,152,155（`name:` の文字列も） | decisions/automation 1・notes/cloud-sessions 1・github-actions 3・scheduler-worker 3・static-generation 1 |
+| 8 | fetch-gsc.yml | Search Consoleのエクスポート | 同じ | Search Console のエクスポート | 残す（月次。段④で Worker の表へ。「JST で1日か」のゲートは不要になる） | update-live-channel.yml:229（コメント） | docs/gsc/README 1・notes/github-actions 2 |
+| 9 | notify-build-failure.yml | 本番ビルドの失敗の通知 | **check-build-failure.yml** | 本番ビルド失敗の検知 | 残す（check_run 契機） | scripts/check_build_failure.py:2 | decisions/cloudflare 1（`name:` の文字列）・notes/cloudflare 1・github-actions 1 |
+| 10 | regenerate-page.yml | ページの再生成 | 同じ | 同じ | 残す＋**分ける**（YouTube チャンネル・帰り道の取り直し・OGP・帰り道の知らせ → `fetch-youtube.yml`。代案 A-3） | update-live-channel.yml:21,359,363（363 は `uses:`）・update-sns-book.yml:8,94,100（100 は `uses:`）・regenerate-saikyo.yml:5,18,97（97 は `uses:`）・check-meibo.yml:6・cleanup-logs.yml:51・fetch-gsc.yml:7・sitemap-lastmod.yml:4,9,46,49,51,62,74・scripts/check_wayhome.py:2,36・generate_saikyo_pages.py:1103・generate_wayhome_episodes.py:226・lib/wayhome_intake.py:3・regenerate.py:41,101・update_sitemap_lastmod.py:7。自身の 106・116 行が `workflow_ref` に自分のファイル名を書く | astro-migration-study 3・decisions/wayhome 1・handover 2・new-site-design 2・notes/abema-book 1・books-covers 1・books-freeze 4・branch-operations 1・cloudflare 1・github-actions 7・handover-archive-2026 1・live-channel-write 2・live-page-design 1・saikyo-page-design 3・session-network 1・site-findings 1・sitemap-lastmod 5・sns-book 1・static-generation 8・video-wayhome 6 |
+| 11 | regenerate-saikyo.yml | 最強戦の再生成 | 同じ（代案 A-2） | 同じ | `daily` から呼ぶ（`workflow_run` を外す） | scripts/update_abema_book.py:4 | handover 1・notes/abema-book 1・github-actions 2・saikyo-page-design 2 |
+| 12 | sitemap-lastmod.yml | サイトマップのlastmodを同期 | **sync-sitemap-lastmod.yml**（代案 A-1） | サイトマップの lastmod の同期 | 残す（push 契機） | fetch-gsc.yml:8・regenerate-page.yml:175（コメント） | notes/github-actions 1・saikyo-page-design 1・session-network 1・sitemap-lastmod 3・static-generation 1 |
+| 13 | sync-birthday-calendar.yml | 誕生日カレンダーの同期 | 同じ | 同じ | 残す（週次） | fetch-gsc.yml:81（コメント） | notes/birthday-calendar 4・github-actions 2 |
+| 14 | sync-books-calendar.yml | 書籍カレンダーの同期 | — | — | **削除**（今は `gh workflow disable` で無効） | scripts/tests/test_actions_status.py:15,59（テストの例の文字列） | notes/books-calendar 3・books-freeze 3・github-actions 1 |
+| 15 | sync-dojo-calendar.yml | 道場部ゲストのカレンダー同期 | 同じ | 道場部ゲストのカレンダーの同期 | `daily` から呼ぶ | delete-merged-branches.yml:25・update-live-channel.yml:14,279（コメント）・**schedule.json:14**・scripts/tests/test_morning_report.py:16,17,84,88 | decisions/operations 1・notes/dojo-guest-calendar 4・github-actions 2・scheduler-worker 1 |
+| 16 | sync-logs.yml | 作業ログを mj-logs へ写す | — | — | **削除**（#298 の予定に合わせる） | scripts/actions_status.py:1・chat_ids.py:1・sync_all_logs.py:3,84・sync_guides.py:1・sync_logs.py:1,4,21・tests/test_sync_logs.py:4,48・workers/scheduler/test/scheduler.test.mjs:253,261・mj-logs の sync-from-mj.yml:5（コメント） | decisions/automation 2・operations 1・notes/cloud-sessions 1・github-actions 4・scheduler-worker 1 |
+| 17 | update-live-channel.yml | 「連盟ch」の毎日の取り込み | 同じ | 「連盟ch」の取り込み | `daily` から呼ぶ＋**分ける**（job yotei → `sync-yotei.yml`。代案 A-5） | regenerate-page.yml:16・scripts/check_unused_names.py:4,28・lib/yotei.py:497・**schedule.json:4**・catchup.test.mjs:9,119,120,142・scheduler.test.mjs:303。**自身の 143 行（保険のゲート）が API の URL に自分のファイル名を書く** | notes/chat-side-operations 1・github-actions 4・handover-archive-2026 1・live-channel-write 4・live-page-design 2・scheduler-worker 3（`name:` の文字列も）・yotei-sheet 3 |
+| 18 | update-sns-book.yml | SNS ブックの更新 | 同じ | 同じ | `daily` から呼ぶ | check-image-links.yml:135・regenerate-saikyo.yml:65（コメント）・**schedule.json:9**・catchup.test.mjs:10,109,111,134,142・scheduler.test.mjs:305 | decisions/pros 1・wayhome 1・notes/cloud-sessions 1・github-actions 2・handover-archive-2026 1・scheduler-worker 1・sns-book 3・static-generation 1 |
+| 19 | write-live-channel-candidate.yml | 「【2】自動変換後」への書き込み | — | — | **削除**（`scripts/write_live_channel_candidate.py` は update-live-channel が使うので残す） | なし | notes/github-actions 1・live-channel-write 2 |
+| 新 | — | — | **daily.yml**（代案 A-6） | 毎朝の運行 | Worker から 04:00 に1回。下の「daily の形」 | — | — |
+| 新 | — | — | **fetch-youtube.yml** | YouTube の情報の取り直し | 週次（段④で Worker の表へ）。下の A-3 | — | — |
+| 新 | — | — | **sync-yotei.yml** | 予定表の取り込み | `daily` から（update-live-channel の後）。入力 `yotei_apply`・`calendar_apply`・`calendar_max_delete` を移す | — | — |
+
+参照の追随で効くもの（ほかはコメントと docs の書き換え）:
+
+- `workers/scheduler/schedule.json` の `workflow`（Worker は行のファイル名で起動・埋め合わせ・朝の確かめを行う。`scheduler.mjs` の `/actions/workflows/${row.workflow}/…`）
+- `regenerate-saikyo.yml` の `workflow_run.workflows: ['画像リンク切れの検知']`（`daily` に入れると不要になる）
+- `update-live-channel.yml` の保険のゲート（`…/workflows/update-live-channel.yml/runs`）と `regenerate-page.yml` の `contains(github.workflow_ref, '/regenerate-page.yml@')`
+- `scripts/actions_status.py`・`scripts/morning_report.py` はファイル名を持たず、API の `path` と `schedule.json` から作る（改名に追随する）。ただし改名・削除の後、古い名前のワークフローが API の一覧（`/actions/workflows`）に残るかは未確認（残れば status.md に古い行が出る）
+- Worker のテスト（`workers/scheduler/test/*.mjs`）はファイル名を例の文字列として持つだけで、改名しても通る（直すかは任意）
+- `name:` の文字列を参照するのは `regenerate-saikyo.yml`（`workflow_run`）・`workers/scheduler/test/scheduler.test.mjs`・`docs/decisions/cloudflare.md`・`docs/notes/scheduler-worker.md` だけ。`scripts/check_image_links.py:113` などの「画像リンク切れの検知結果」は常設 issue の題で、ワークフローの `name:` ではない（変えない）
+
+#### daily の形（段③の案）
+
+```
+daily.yml（name: 毎朝の運行）
+on: workflow_dispatch（入力 scheduled）     ← Worker から 04:00 に1回
+permissions: contents: write / issues: write / actions: read   ← 呼ばれる側の和（呼ばれる側は呼ぶ側を超えられない）
+jobs:
+  live:     uses update-live-channel.yml   （内で regenerate-page を呼ぶ。入れ子は3段）
+  yotei:    needs live;  uses sync-yotei.yml
+  sns:      needs live;  if !cancelled();  uses update-sns-book.yml   ← regenerate の push を live の後に並べる（#263）
+  images:   needs sns;   if !cancelled();  uses check-image-links.yml ← sns_book・saikyo は SNS ブックの更新の後に読む
+  saikyo:   needs sns;   if !cancelled();  uses regenerate-saikyo.yml ← 今の「検知の完了に連鎖」をやめ、SNS ブックの後に直接
+  dojo:     uses sync-dojo-calendar.yml   （先行なし）
+  branches: uses cleanup-branches.yml     （先行なし）
+```
+
+- 呼ばれる側の `run-name` は使われない（題は `daily` の `run-name` だけ）。呼ばれる側は `workflow_call.inputs` に `scheduled` を持ち、`daily` が `scheduled: true` を渡す。呼ばれる側の `github.event_name` は呼ぶ側のもの（`workflow_dispatch`）
+- 先行の失敗の扱い: `needs` は既定で先行が成功のときだけ動く。シートの反映を止めない今の方針に合わせ、`yotei` 以外は `if: ${{ !cancelled() }}` を付ける（`yotei` は層1のコミットを読むので live の成功が要る。今と同じ）
+- 呼ばれる側の workflow レベルの `concurrency` は、呼ぶ側と同じ group だと詰まることがある（要確認）。group はファイルごとに別の名前のままにし、#263 の concurrency は job `regenerate` に置く
+- `daily` の実行1回の中で1つの job が失敗すると、Worker の朝の確かめは `daily.yml` の1行が failure と出るだけになる（どの部分かは `actions/status.md`・`morning.md` の失敗したジョブ・ステップで見る）
+
+#### 代案（決めるのは平野さん。`## 報告` の「判断が必要なこと」に並べた）
+
+- **A-1 `sitemap-lastmod.yml` の新しい名前**: 案の動詞 `sync` は「外部へ差分を反映」だが、このワークフローは外部へ出さず、リポジトリの `sitemap*.xml` を作り直してコミットする。
+  比較: (a) `sync-sitemap-lastmod.yml`（チャット案。`sync` の定義を「差分を反映」に広げる必要がある）／(b) `regenerate-sitemap.yml`（`regenerate` を「生成物を作り直してコミット」と読めば定義に合う。`regenerate-page.yml` が同じ処理を内で呼んでいるのとも並ぶ）。
+  **推奨 (b)**: 動詞の定義を崩さずに済み、並べたときに `regenerate-*` で生成物を作るものがまとまる
+- **A-2 `regenerate-saikyo.yml`**: 中身は「ABEMA ブックの【2】を書く（job abema）」＋「`regenerate-page` を saikyo_pages で呼ぶ」。`daily` に入れると後者は `daily` から `regenerate-page` を直接呼べる。
+  比較: (a) そのまま残す（チャット案。手動の「最強戦の再生成」が1つの画面で済む）／(b) `update-abema-book.yml`（ABEMA ブックの【2】だけ。`update` = スプレッドシートを書く、に合う）に改め、再生成は `daily` の job で `regenerate-page` を呼ぶ。
+  **推奨 (a)**: 手動で「【2】を作り直してから再生成」を1回で行う使い方（#425・#537）が残り、変える量が少ない。(b) は名前の規則には合うが、手動では2本を順に動かすことになる
+- **A-3 `fetch-youtube.yml` の切り出し方**: 帰り道の一覧の OGP 画像は `wayhome/index.html` と同じコミットに入れる決まり（#340）で、OGP の名前は最新話の公開日から決まる。取り直しと生成を別のワークフローにすると、この「同じコミット」が保てない。
+  比較: (a) `fetch-youtube.yml` は YouTube のチャンネル情報（`data/youtube_channels.json`）と帰り道の情報（`data/youtube_meta.json`）を取ってコミットし、最後に `regenerate-page` を `all` で呼ぶ。OGP の作成と帰り道の知らせは `regenerate-page` に残す（`workflow_ref` の判定は「all のときだけ」に置き換える）／(b) OGP・知らせも含めて全部を `fetch-youtube.yml` に移し、`regenerate-page` の生成とコミットを `fetch-youtube.yml` の中で1回にまとめる（`regenerate-page` を呼ばず、生成の手順を2か所に持つ）。
+  **推奨 (a)**: #340 の「同じコミット」を `regenerate-page` の中で保てる。取り直しのコミットと再生成のコミットが2つに分かれるが、どちらも bot のコミットで本番の見え方は変わらない。
+  あわせて、凍結中の楽天の書影の取得（`if: false`）の行き先も決めが要る（削除／`fetch-youtube.yml` に入れず `regenerate-page` に残す）。推奨は「`regenerate-page` に残す」（books の凍結の解除のときに戻す元がそこにあるため、docs/notes/books-freeze.md）
+- **A-4 `check-meibo.yml` の `name:`**: 今は Ampai の URL の検知（#548）も同じワークフローで行うが、`name:` は名簿だけを言う。
+  比較: (a) そのまま「名簿と「プロ」シートの不一致の検知」／(b) 「名簿と Ampai の URL の検知」。**推奨 (a)**: Ampai は付け足しで、ファイル冒頭のコメントに書いてあれば足りる。題が長くなると一覧で読みにくい
+- **A-5 `sync-yotei.yml` の名前**: job yotei は「予定表を読む → 予定表のスプレッドシートに書く（`update`）→ 放送対局の公開カレンダーへ同期（`sync`）」で、動詞が2つ当たる。
+  比較: (a) `sync-yotei.yml`（チャット案。最後の外部への反映で名付ける）／(b) `sync-live-calendar.yml`（同期する先の「放送対局の公開カレンダー」で名付ける）。**推奨 (a)**: docs/notes/yotei-sheet.md・#448 の呼び名「予定表」と合い、スクリプト名（`fetch_yotei.py`・`write_yotei_sheet.py`）とも並ぶ
+- **A-6 `daily.yml` の名前**: 決定の規則 `<動詞>-<対象>.yml` に合わない。
+  比較: (a) `daily.yml`（規則の例外として認める。束ねるだけで動詞が当たらない）／(b) `run-daily.yml`（動詞 `run` = 「ほかのワークフローを束ねて動かす」を7つ目に足す）。
+  **推奨 (b)**: 規則に例外を作らずに済み、段④で週次・月次の束（`run-weekly.yml` など）を作るときも同じ形で並ぶ
+
+#### composite action の案（段①）
+
+置き場所は `.github/actions/<名前>/action.yml`（ローカルの composite action は checkout の後でないと読めないため、checkout は各本に残す。checkout の入力〈`ref: github.ref`・`fetch-depth: 0`〉が本ごとに違うことも理由）。
+
+1. **setup-python**（`.github/actions/setup-python/action.yml`）
+   - 入力: `packages`（pip で入れるもの。既定は空。例 `google-auth requests`、dojo は `anthropic==1.7.0 google-auth requests`）・`test`（`'true'` で `python3 -m unittest discover -s scripts/tests`。既定 `'false'`）
+   - 中身: `actions/setup-python` を `python-version-file: .python-version` で呼ぶ → pip → unittest
+   - 出力: `python-version`
+   - 寄せられない点: `regenerate-page` の Pillow は OGP の手順の中で条件付きで入れる（`packages` に入れると毎回入る）。`notify-build-failure` は Python を使わない。`regenerate-page` の unittest は `test_title_redirects.py` だけを失敗の文面付きで回す（`test` では寄せない）
+2. **resolve-mode**（`.github/actions/resolve-mode/action.yml`）
+   - 入力: `scheduled`（`inputs.scheduled`）・`manual-apply`（手動の「書く」入力。`apply`・`commit` はそのまま、`dry_run` は `!inputs.dry_run` を渡す）
+   - 判定: 予約の起動 = `github.event_name == 'schedule'` か `scheduled` が真。予約の起動は書く、手動は `manual-apply` に従う
+   - 出力: `scheduled`・`apply`・`dry-run`（`apply` の否定）。サマリに「event / scheduled / apply」の1行
+   - 寄せられない点: (1) `SCHEDULE_ENABLED` が偽のときの動きが本で違う（check-meibo・check-saikyo-unregistered・cleanup-logs・delete-merged-branches は「dry-run で走る」、sync-dojo-calendar・update-live-channel は「走らない」）。6本とも `'true'` なので、**`SCHEDULE_ENABLED` をやめて Worker の表の `enabled` に任せる**案を推す（判断が要る）／(2) update-live-channel の保険のゲート（API で当日の起動を引く）と水曜の verify、予約の起動で `ALLOW_*` を外す処理／(3) update-sns-book の `mode` の上書き（予約は `update`）、sync-dojo-calendar の予約時の `--auto-update`・手動の入力を空にする処理／(4) fetch-gsc の「JST で1日か」（段④で Worker の月次の行にすれば不要）。これらは出力 `scheduled` を使って各本に残す
+   - 注意: `workflow_call` で呼ばれたときに入力が渡らないと `!inputs.dry_run` が真（書く）になる。`daily` から呼ぶ本は `scheduled` を必ず渡す
+3. **upsert-issue**（`.github/actions/upsert-issue/action.yml`。中身は `actions/github-script` で、スクリプトは `.github/actions/upsert-issue/upsert.js`）
+   - 入力: `title`（題で探す。open・PR を除く・全ページ・番号の小さい方、重複は warning）または `number`（番号で直接。#450・#304 用）・`mode`（`state` = 本文を書き換え、0件なら閉じる／`notice` = コメントを足す、無ければ本文で作る）・`body-file`・`comment-file`（空ならコメントしない）・`close`（`'true'` で閉じる。`state` のとき）・`close-comment`・`create`（無いときに作るか。既定 `'true'`）・`labels`・`dry-run`（内容を出すだけ）・`run-url-footer`（実行ログの1行を足すか）
+   - 出力: `number`・`action`（created / updated / commented / closed / none）・`body-path`（今の本文を書き出したファイル。節の書き換え用）
+   - 3つの型に分かれる: **型S**（本文を書き換え、切れが0なら閉じる）check-image-links ×3・check-meibo ×2・check-saikyo-unregistered／**型N**（変化があればコメント、無ければ作る）update-live-channel ×2（未登録の名前・予定表の変化）・sync-dojo-calendar・regenerate-page（帰り道）・cleanup-logs／**型D**（番号へコメント）update-live-channel（#450）・fetch-gsc（#304、今は `gh issue comment`）・check-leagues-dropped（削除予定）
+   - 寄せられない点: check-image-links は書き換える直前に本文を取り直し、Python（`--issue-section`）で自分の節だけを差し替える（`body-path` を出して2回呼ぶ形になる）／cleanup-logs は題の issue が無ければ作らずに失敗させる（`create: 'false'` で表せる）／sync-dojo-calendar は1回の実行で結果ごとに複数のコメントを書く（1件にまとめるか、呼ぶ回数を増やすか）／regenerate-page の帰り道と update-live-channel の #475 は「前回のコメント（印付き）」を読んで比べる（読むだけの `mode: read-last-comment` が別に要る）／notice JSON（`applied`・`comment`・`body`）の形は各スクリプトのもの
+4. **commit-push**（`.github/actions/commit-push/action.yml`）
+   - 入力: `paths`（`git add -A --` に渡す。空白区切り）・`message`（件名）・`body`（本文。既定は「Generated by <ワークフロー>（run: <URL>）」）・`message-file`（cleanup-logs のように一覧を本文に入れるとき）・`branch`（既定 `github.ref_name`）・`retry`（`rebase` = `pull --rebase` で3回／`none`）・`autostash`
+   - 中身: bot の `git config` → add → 差分が無ければ終わる → commit → push（失敗時 `retry`）
+   - 出力: `committed`（true/false）・`sha`
+   - 寄せられない点: sitemap-lastmod は push を拒否されたら rebase せずに最新を取り直して計算し直す（`retry` に `recompute` を足すか、この本だけ残す）／regenerate-page は再生成できたページによって `img/ogp/wayhome` を足すか決める（`paths` を呼ぶ側で組む）／sync-logs は mj-logs へ push（削除予定なので対象外）
+
+あわせて `.python-version`（中身 `3.12`）を置き、21か所の `python-version: '3.12'` を `python-version-file` に替える。#539（3.14）はこの1行の書き換えになる。
+
 ## 報告
 
 - 状態: 作業中
@@ -127,12 +244,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 71f40273）: https://github.com/retroeater/mj-logs/tree/main/guide/71f40273
+ガイド文書（この版を写した時点の最新、mj 9ec82bb7）: https://github.com/retroeater/mj-logs/tree/main/guide/9ec82bb7
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/71f40273/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/71f40273/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/71f40273/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/71f40273/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/71f40273/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/71f40273/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9ec82bb7/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9ec82bb7/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9ec82bb7/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9ec82bb7/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9ec82bb7/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9ec82bb7/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/ec9e24c3.md
