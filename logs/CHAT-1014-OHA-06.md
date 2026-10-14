@@ -89,15 +89,51 @@
 
 - 旧版の2節は「なし」だった
 
+### 3. マージと確かめ
+
+- cloudflare が CHAT-1014-ACF-20 のマージで進んでいたため `git merge origin/cloudflare` で取り込んだ（衝突なし。SNS ブック・最強戦のスクリプトとテスト、`morning_report.py` には触れていない）。取り込み後のテスト OK
+- push 直前に再 fetch して祖先を確かめ、`git push origin work/1014-oha-late:cloudflare`（a372bb9f0..d8ba79238、12:02 JST）
+- check-run（d8ba79238）: `check` 2件 success・`Workers Builds: mj` success・`notify` skipped
+- mj-logs の写し `456dfc9 sync: mj d8ba7923`（12:04 JST）の morning.md: 2節の見出しが新しい文言になり、10/14 04:30 の check-image-links が「遅れて実行（＋4:55）」で出た（上の手元の実行と同じ行）
+- docs/decisions/automation.md に決定を足した（docs のみの追いの push）
+
+- 追いの push の前に cloudflare が CHAT-1014-WFL-01・02 のマージで進んでいたため取り込んだ。`docs/decisions/automation.md` の末尾の追記どうしが衝突したので、両方を残して WFL-01・WFL-02 → OHA-06 の順に並べて解いた。解いた後の該当箇所:
+
+```
+## 2026-10-14（CHAT-1014-WFL-02）
+…
+## 2026-10-14（CHAT-1014-OHA-06）
+
+- morning.md の2節の対象は、契機が schedule・workflow_dispatch でブランチが cloudflare の実行だけ（…）
+```
+
+- WFL-01・02 の決定（#564）は、週次・月次の起動を Worker の表へ移し、毎朝の5本を `run-daily.yml` の1本に束ねる。実装されると2節の予約の一覧（`on.schedule` と `schedule.json`）の中身が変わるため、そのときに2節の出方を見直す必要がある（`## 報告` の「判断が必要なこと」）
+
+## 報告
+
+- 状態: 判断待ち（実装はマージ済み。下の1点の判断待ち）
+- ブランチ: work/1014-oha-late
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1014-OHA-06.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1014-oha-late
+- 確認用URL: なし（`scripts/` の変更で、配信物は変わらない）
+- マージ: 済（d8ba79238。このログと決定は docs のみの追いの push で cloudflare へ）
+- issue: #504（関連）
+- 判断が必要なこと:
+  - 指示に無い条件を1つ足してマージした: 「遅れて実行」は、その実行が直近26時間の範囲で始まったときだけ書く。足さないと、GitHub の予約だけで動く週次・月次のワークフロー（10/12 の週次4本、10/01 の fetch-gsc。遅れは＋3:13〜3:28）が次の予定まで毎朝くり返し出る。外す（毎朝くり返す形にする）なら `scripts/morning_report.py` の `started(r) >= since` の条件とテスト `test_late_run_before_window_not_listed` を消す
+  - #564（WFL-01・02）で毎朝の5本が `run-daily.yml` に束ねられ、週次・月次も Worker の表へ移ると、2節が見るワークフローと予定時刻が変わる。その実装の指示で morning.md の2節（束ねた中の5本は個別の予定を持たなくなる）の扱いも決める必要がある
+  - 予想される出方: GitHub の予約（`on.schedule`）は2時間半〜5時間遅れるため、Worker の起動が無いワークフロー（週次の4本・月次の fetch-gsc）は予定の翌朝に「遅れて実行」がよく出る見込み。Worker と予約の両方があるワークフロー（update-live-channel・sync-dojo-calendar・delete-merged-branches）は、直近の予定が保険の予約（06:43・07:12・07:53）になるため、保険の予約が3時間を超えて遅れた日にも「遅れて実行」が出る
+- 未確認の項目: 2026-10-15 朝の写しで、2節が新しい判定で出ること（Worker の起動が定時なら『なし』）
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj a372bb9f）: https://github.com/retroeater/mj-logs/tree/main/guide/a372bb9f
+ガイド文書（この版を写した時点の最新、mj d1821d92）: https://github.com/retroeater/mj-logs/tree/main/guide/d1821d92
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a372bb9f/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a372bb9f/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a372bb9f/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a372bb9f/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a372bb9f/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a372bb9f/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d1821d92/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d1821d92/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d1821d92/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d1821d92/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d1821d92/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d1821d92/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/ec9e24c3.md
