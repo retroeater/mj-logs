@@ -649,7 +649,7 @@ Workers & Pages → `mj` → Settings → Builds:
   失敗は本番とプレビューを見分けられないため、同じコミットのプレビューだけが失敗したときも知らせる（受け入れた近似）。
   起動は Workers Builds の check-run の完了ごと（1日約100回）で、失敗以外はジョブが skipped の実行として Actions の一覧に残る。
   mj-logs の `actions/status.md` はワークフローごとの直近5回なので、この行はほぼ skipped で埋まり、失敗の回はすぐ表から外れる（気づくのはメール）。
-  2026-10-13 に有効化した（確かめた run は docs/notes/static-generation.md「ワークフローの一覧」）。Cloudflare 側の通知は Universal SSL Alert だけ（上の「DNS・メール・通知の設定」）
+  2026-10-13 に有効化した（確かめた run は docs/notes/github-actions.md「ワークフローの一覧」）。Cloudflare 側の通知は Universal SSL Alert だけ（上の「DNS・メール・通知の設定」）
 - 事例（2026-10-13 13:15〜14:20 JST、本番向け `mj` が5回続けて失敗）:
 
 | コミット | check-run（UTC、in_progress → completed） | 結果 |

@@ -57,7 +57,7 @@ Chat-Ref の確認・`git branch --merged` が誤る。**これらの判定の�
   環境変数のトークンで `curl -sS -H "Authorization: Bearer $GITHUB_TOKEN" https://api.github.com/repos/retroeater/mj/commits/<SHA>/check-runs` を引く
   （名前・状態・成否・ID と `.output.summary`。SH-02・SH-03 で実測。トークンの値は出力しない）
 - ワークフローの起動: `actions_run_trigger`（method `run_workflow`、ref は既定ブランチ `cloudflare`）。
-  **入力はすべて文字列で渡す**（`{"dry_run": "true"}`）。起動できるのは既定ブランチにあるワークフローだけ（docs/notes/branch-operations.md「ワークフローを変更したとき」）
+  **入力はすべて文字列で渡す**（`{"dry_run": "true"}`）。起動できるのは既定ブランチにあるワークフローだけ（docs/notes/github-actions.md「ワークフローを変更したとき」）
 - ジョブのログ（`get_job_logs`）は**ジョブの完了後に読む**。実行中は HTTP 404 になる
 - **複数の issue の本文・題・ラベルをまとめて書き換えるときは、1件ごとに書き換える直前に `updated_at` を取り直し、取得時と違えばその issue は書き換えずに飛ばして報告する。**
   10〜15件ごとに「済」の番号をログに追記して push する。本文・題の部分置換とラベルの付け外しは REST（`PATCH /issues/{n}`・`/labels`）で通るが、
@@ -98,6 +98,8 @@ docs/notes/branch-operations.md「作業ディレクトリの分離（Codespace�
 
 鍵（`YOUTUBE_API_KEY`・楽天・`ANTHROPIC_API_KEY`・スプレッドシート書き込みの認証など）は環境の変数に置かない。
 **GitHub Actions のシークレットにだけ置き、鍵の要る処理はワークフローを `actions_run_trigger` で起動して行う。**
+**直す前後の確かめも同じで、鍵の要るスクリプトはコンテナで直接動かさず、ワークフローを書き込まない入力（dry-run）で起動して run のログを読む**
+（例: `update-sns-book.yml` の mode `update`・dry_run 真。docs/notes/sns-book.md「手動実行」）。コンテナには鍵が無く、直接動かすと確かめられないまま終わるため（2026-10-13 に起きた）。
 
 ## ローカル確認の代わりにプレビュー
 
@@ -122,5 +124,7 @@ docs/notes/branch-operations.md「作業ディレクトリの分離（Codespace�
   ガイド文書に書かない情報はログと同じ。写す一覧は `python3 scripts/sync_guides.py --dest <任意> copy --after HEAD --list`
 - **Actions の実行結果も書き出す。** 写しの実行のたびに、`scripts/actions_status.py` が
   各ワークフローの直近5回の実行を mj-logs の `actions/status.md` に上書きする（#498）。
+  同じ実行で、直近26時間の異常（失敗など・予約実行の未実行・所要時間の異常・初回成功・未報告のログ）だけを朝の報告用に `actions/morning.md` へ書く
+  （`scripts/morning_report.py`。予約は各ワークフローの `on.schedule` と mj のクローンの `workers/scheduler/schedule.json` から作る）。
   セッションでも `GITHUB_REPOSITORY=retroeater/mj python3 scripts/actions_status.py --dest <任意>` で同じ表を手元に作れる（環境変数のトークンを使う）
 - ログの `## 報告` などの書き換え方（最後の一致を相手にする）と、「ログ（公開）」の行を書く前の写しの確かめは CLAUDE.md「作業ログ」節
