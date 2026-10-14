@@ -25,7 +25,7 @@
 
 ## 4. 初回成功
 
-- 2026-10-13 13:15 assets-check.yml success（push・work/1013-snm-check）それ以前の 0 件に success なし https://github.com/retroeater/mj/actions/runs/38345562952
+- 2026-10-13 13:26 assets-check.yml success（push・work/1013-whs-canonical）それ以前の 0 件に success なし https://github.com/retroeater/mj/actions/runs/38346437893
 - 2026-10-13 23:38 notify-build-failure.yml success（workflow_dispatch・cloudflare）それ以前の 0 件に success なし https://github.com/retroeater/mj/actions/runs/38415024219
 
 ## 5. 未報告のログ（`## 報告` の節が無い）
