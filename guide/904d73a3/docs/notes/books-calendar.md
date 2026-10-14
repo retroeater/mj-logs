@@ -1,6 +1,6 @@
 # 書籍カレンダーの同期（#97）
 
-**2026-09-22 開発凍結。** ワークフロー（`sync-books-calendar.yml`）は無効化し、「mj_書籍」カレンダーの予定は
+**2026-09-22 開発凍結。** ワークフロー（`sync-books-calendar.yml`）は無効化し（2026-10-14 に削除、#564。戻し方は `docs/notes/books-freeze.md`）、「mj_書籍」カレンダーの予定は
 全削除した（190件、同期の印`ryoei=book`を持つ予定のみ）。カレンダー自体と`BOOKS_CALENDAR_ID`は残す。
 凍結の経緯・現状・再開手順は `docs/notes/books-freeze.md`。この文書は凍結時点の仕組みの記録として残す。
 
@@ -10,7 +10,7 @@
 
 ## 仕組み
 
-- 判定と書き込みは `scripts/sync_books_calendar.py`、実行は `.github/workflows/sync-books-calendar.yml`
+- 判定と書き込みは `scripts/sync_books_calendar.py`、実行は `.github/workflows/sync-books-calendar.yml`（削除した。2026-10-14、#564）
 - **載せるのは発売日が日まで入っている本だけ**（`YYYY-MM-DD`）。`YYYY-MM-XX`・`YYYY-XX-XX`・空は載せない
   （平野さんの決定、2026-09-21）。それ以外の形と、日付として存在しない値（`2026-02-30` など）は警告に出して載せない
 - 予定は**発売日の終日予定**（繰り返しなし）。タイトルは**書名**、説明欄は個別ページのURL。
@@ -61,7 +61,7 @@ Google Cloud プロジェクト・Calendar API・サービスアカウント・`
 
 ### (c) 手動実行で確かめる
 
-1. https://github.com/retroeater/mj/actions/workflows/sync-books-calendar.yml
+1. https://github.com/retroeater/mj/actions/workflows/sync-books-calendar.yml （ワークフローは削除した。戻してから使う。`docs/notes/books-freeze.md`）
 2. 「Run workflow」→ ブランチは `cloudflare`、**`apply` は外したまま**（dry-run）→ 実行
 3. 実行サマリの「書籍カレンダーの同期」を見る。次を確かめる:
    - 「`書籍` 191冊 / 発売日が日まである本 N冊」の N が、シートで日まで入れた本の数と合っている
