@@ -53,15 +53,34 @@ SKD-15 の変更（年度ページの「通過」の見出しを外す、対局�
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+- 0章: 「指示」欄の末尾と指示文の最後の行が一致。Chat-Ref の既存コミットなし。マージの前に CLAUDE.md「ブランチ運用」と docs/notes/branch-operations.md「マージするとき」「生成物を含む作業ブランチを取り込む・マージするとき」を読んだ
+- ブランチ: origin/work/1014-skd（6592d4ed5）を続けて使用。ログ先行 push 23ceda4a7（[sync-logs]）
+- 未マージの work/ ブランチ（1009-swp-526・1011-swp-hnd・1011-swp-nav・1014-wfl-s3・1015-hou・MTK）: `scripts/generate_saikyo_pages.py` を変えているものはなし。`style.css` は work/MTK が変えているが、1504 行付近（`body:has(.mj-video-list) .mj-video-episodes-summary` の後への追加）で、この指示の変更（2002〜2117 行付近の最強戦の新しいページの節）とは別の箇所
+- 取り込み: `git merge-base --is-ancestor origin/cloudflare HEAD` が偽（JPL-07・自動再生成 8c23572ba など）。`git merge origin/cloudflare` で取り込み（059985aa0）、衝突なし
+- 再検証: `python3 scripts/regenerate.py saikyo_pages` で生成し直した結果、作業ツリーの差は0（取り込んだ後の生成物とコミット済みのものが一致）。`python3 -m unittest discover -s scripts/tests`: OK
+- 生成物の差（origin/cloudflare との比較）:
+
+| 種類 | 件数 | 中身 |
+|---|---|---|
+| 新しい年度ページ | 4 | 「通過」の見出しを外した |
+| 対局のページ | 91 | 順位の `is-pass` を外した |
+| 卓のページ | 643 | パンくずの位置と部品 |
+| 今のトップ・今の年度ページ・live/・ほか | 0 | |
+
+  738ページすべてで、cloudflare の版から「通過」の見出し・`is-pass`・パンくずを取り除くと新版と一致（説明のつかない差は0）。ほかは `style.css`・`scripts/generate_saikyo_pages.py`・テストと docs。比較ページ2ファイルは cloudflare に入っていなかった（SKD-14 は未マージ）ので、差には出ない
+- SKD-15 のログの状態を「判断待ち / 続き: CHAT-1014-SKD-16」に直した
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj cca707c1）: https://github.com/retroeater/mj-logs/tree/main/guide/cca707c1
+ガイド文書（この版を写した時点の最新、mj d12b1f2e）: https://github.com/retroeater/mj-logs/tree/main/guide/d12b1f2e
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/cca707c1/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/cca707c1/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/cca707c1/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/cca707c1/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/cca707c1/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/cca707c1/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d12b1f2e/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d12b1f2e/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d12b1f2e/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d12b1f2e/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d12b1f2e/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d12b1f2e/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/8c23572b.md
