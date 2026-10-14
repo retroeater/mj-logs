@@ -46,6 +46,55 @@ WFL-11 の `## 報告`「判断が必要なこと」への回答。いずれも 
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+- Chat-Ref の重複確認: CHAT-1014-WFL-12 は未使用
+- 作業ブランチ: work/1014-wfl-s4 はリモート・ローカルとも無かったので origin/cloudflare（f0502df95）から作った
+- 0. 指示欄の末尾は指示文の最後の行と一致。WFL-11 のログの `## 報告` の状態は「判断待ち」
+- 雛形の行: Chat-Ref・マージ・貼る時機・共通手順（＋作業ブランチ）は揃っている
+- 着手は JST 16:17
+
+### 手順1: 前提の確かめ
+
+- `git ls-remote origin refs/heads/work/1014-wfl-s3`: 30fc41b50（前提どおり）。`git branch --merged origin/cloudflare` に含まれず、`origin/cloudflare` の祖先でもない（未マージ）
+- cloudflare に無いコミットは 8 件: 7b25ef39e・9897585c8・1a7d7a36c・cf54ea34e・df1ddabaa・39acc9b5a・3433fb8b2・30fc41b50（WFL-10 のログ・3 本の削除・concurrency と env 化・試験 2 件・`queue: max`・docs・WFL-10 の報告）
+- work/1014-wfl-s3 が変えたファイル（`git diff --name-only origin/cloudflare...origin/work/1014-wfl-s3`）ごとに今の cloudflare と比べた結果:
+  - `.github/`（regenerate-page.yml・消した 3 本）: 差なし
+  - docs/notes/（books-calendar.md・books-freeze.md・github-actions.md・live-channel-write.md・static-generation.md）: 差なし
+  - docs/decisions/automation.md: cloudflare 側にある「## 2026-10-14（CHAT-1014-WFL-11）」の節が無いだけ
+  - docs/logs/CHAT-1014-WFL-10.md: 状態の行の「 / 続き: CHAT-1014-WFL-11」が無いだけ
+  - sitemap-pages.xml: lastmod 1 行（df1ddabaa の試験の生成物。cloudflare 側は 2026-10-10、s3 側は 2026-10-14）
+  - resource_dictionary.html: 差なし（cf54ea34e と df1ddabaa で行って戻った）
+- 指示に書かれた `git diff origin/cloudflare origin/work/1014-wfl-s3 -- .github/ docs/notes/ docs/decisions/` は、s3 の分岐後に cloudflare へ入った他セッションの docs（design.md・saikyo-page-design.md・decisions/title.md など）も差として出る。s3 の変更ではないので、上の比べ方（s3 が変えたファイルに絞る）で判定した
+- 結論: 中身は 44920ebbc（と WFL-11 の docs）で cloudflare に入り済み。cloudflare に無い中身は試験の生成物（sitemap-pages.xml の lastmod）だけ
+
+### 手順1: 削除の手順（止まる条件に当たった）
+
+docs/notes/branch-operations.md「ブランチを削除するとき」を読んだ。未マージのブランチの削除に、次の条件がある:
+
+> HEADを動かしても拒否される・未マージのブランチを消す必要が出たときは、hookを外さず、平野さんがGitHubの画面で消す
+
+あわせて docs/notes/cloud-sessions.md「ブランチの削除」は、クラウドセッションでは git プロキシがブランチの削除を拒否する（HTTP 403）ので削除はしない、としている。マージ済みでない work/1014-wfl-s3 は delete-merged-branches.yml の対象にもならない。
+
+止まる条件「『ブランチを削除するとき』の手順が、未マージのブランチの削除に別の条件（平野さんの手作業など）を課している」に当たるので、work/1014-wfl-s3 は消さずに（`git push origin --delete` も試さずに）止まった。手順2（#132 のクローズ・#263 へのコメント）と手順3のマージも行っていない。
+
+- 削除直前の記録（同節の書式）: work/1014-wfl-s3・30fc41b50・未マージ（中身は 44920ebbc で cloudflare に入り済み。残るのは試験の生成物 cf54ea34e・df1ddabaa）
+- ローカルの work/1014-wfl-s3 も残した（`-D` は hook が deny する）
+- 平野さんの決定（docs/decisions）は CLAUDE.md「作業ログ」節のとおり `docs/decisions/automation.md` に足した（実行は未了と書いた）
+
+## 報告
+
+- 状態: 中断（止まる条件に当たった）
+- ブランチ: work/1014-wfl-s4（未マージ。ログと docs/decisions だけ）
+- ログ: https://github.com/retroeater/mj/blob/work/1014-wfl-s4/docs/logs/CHAT-1014-WFL-12.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1014-wfl-s4
+- 確認用URL: なし
+- マージ: 未（止まる条件に当たったため。CLAUDE.md「ブランチ運用」）
+- issue: なし（#132・#263 は手順2の前に止まったため触っていない）
+- 判断が必要なこと: (1) work/1014-wfl-s3（30fc41b50、未マージ）の削除。docs/notes/branch-operations.md「ブランチを削除するとき」は未マージのブランチを平野さんが GitHub の画面で消すとしており、クラウドセッションの git プロキシも削除を拒否する（docs/notes/cloud-sessions.md「ブランチの削除」）。前提の確かめでは `.github/` に差は無く、cloudflare に無い中身は試験の生成物（sitemap-pages.xml の lastmod 1 行）だけなので、平野さんが GitHub の画面で消してよい状態。(2) 消した後に、#132 のクローズ・#263 へのコメント・このログと docs/decisions のマージを行う指示（続き）。(3) 指示文の前提の diff（`-- .github/ docs/notes/ docs/decisions/`）は s3 の分岐後に cloudflare へ入った他セッションの docs も差に出すため、s3 が変えたファイルに絞って判定した（経過）
+- 未確認の項目: #263 のクローズの前提の確かめ: 2026-10-15（木）04:00〜05:00 JST の毎朝の実行で、続けて呼ばれた regenerate-page が来た順に動くか
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
