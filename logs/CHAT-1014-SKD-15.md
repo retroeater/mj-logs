@@ -59,17 +59,66 @@ SKD-14 の比較ページを平野さんが見た結果のうち、未公開の�
 
 ## 経過
 
+### 0. 着手前
+
+- 「指示」欄の末尾と指示文の最後の行が一致。`git log --all --grep="CHAT-1014-SKD-15"` は0件。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある
+- ブランチ: origin/work/1014-skd（3cfeeb02e、SKD-14 の比較ページ入り・未マージ）を続けて使用。ログ先行 push 24a8f65d5（[sync-logs]）の後、`git merge-base --is-ancestor origin/cloudflare HEAD` が偽だったため `git merge origin/cloudflare` で取り込んだ（RDR-03・PLB-05 などのコミット。衝突なし）
+- #566 に着手中のコメント（6174957774）
+- 未マージの work/ ブランチ（1009-swp-526・1011-swp-hnd・1011-swp-nav・1014-wfl-s3・1015-hou・MTK）: `scripts/generate_saikyo_pages.py`・`style.css`・`assets/saikyo.js`・`scripts/tests/test_saikyo_pages.py` を変えているものはなし
+
+### 1. 直し3点
+
+- 決定6（年度ページの「通過」の見出し）: `build_winner_rows()` から `has_place` と `<p class="mj-saikyo-n-note">` を外した。`style.css` の `.mj-saikyo-n-note` の規則を消した。右端の「A卓 1位」・「通過」「優勝」のピルは今のまま
+- 決定7（対局のページの順位の金）: `build_rank_html()` の `is-pass` を外し、全行 `mj-saikyo-n-rank`（灰色の数字）。`style.css` の `.mj-saikyo-n-rank.is-pass` の規則を消した。卓のページの写真カードの三角と金（live/ と共有）は変えていない
+- 決定8（卓のページのパンくず）: `build_table_hero()` からヒーローの中のパンくず（`.mj-live-breadcrumb`）を外し、`build_table_page_body()` で `<main>` の先頭（ヒーローの上）に年度・対局のページと同じ `build_breadcrumb()`（`.mj-saikyo-n-crumb`、13px の1行・区切り「/」・リンクは 44px）を置いた。使わなくなった `build_live_breadcrumb()` を消した（live/ の生成は `generate_live_pages.py` の別の関数で、`.mj-live-breadcrumb` の CSS も変えていない）
+  - `style.css` に `.mj-saikyo-table-page` に限った規則を足した: 左右の余白は下の本文（`.mj-video-episodes`、`max-width: 1100px`・`padding: 0 clamp(16px, 5vw, 48px)`）にそろえた（指示の「左右 16px」と違うのは、390px で「出場者」の見出しと左端を合わせるため。375px では 18.75px、16px になるのは 320px 以下）。灰色の字は `--mj-v-fg-muted`（#a8adb3、地 #121212 で 8.6:1）、リンクは今のヒーローのパンくずのリンクと同じ白
+- テスト: `test_no_pass_note_even_with_place`（`test_note_kept_when_some_rows_have_place` を置き換え）・`test_rows_show_place_and_pass_once` の直し・`test_match_page_has_no_video` の順位の直し・`test_breadcrumb_above_hero`（新規）。4件とも修正前のコード（HEAD の生成スクリプト）で失敗し、修正後は全件 OK（`python3 -m unittest discover -s scripts/tests`: 1111件 OK）
+
+### 2. 比較ページの片付けと B の作りの控え
+
+`saikyo_top_compare.html` と `scripts/build_saikyo_top_compare.py` を消した（中身は 17939bf92 にある。`git show 17939bf92:scripts/build_saikyo_top_compare.py`）。次の指示で本体に作るときの元:
+
+- 歴代最強位の面の行（B）: `build_row_b()`。`<li><a class="mj-cmp-row" href="/saikyo/<年度>/index.html">` の中に 年度 `.mj-cmp-year`（13px 灰色・`min-width: 2.5rem`・等幅の数字）→ 写真 `.mj-saikyo-n-avatar`（40px の丸。写真の無い選手は頭の1字の `span`）→ 名前 `.mj-saikyo-n-name` → `.mj-saikyo-n-chev`。面は `.mj-cmp-face`（角丸 12px・行の区切り 1px）。行は `display:flex; gap:12px; min-height:56px; padding:8px 16px`、押したときの地 `--mj-n-pressed`
+- 最強位が未定の年度の行: 比較ページは代替アバターと「開催中」（`.mj-cmp-undecided`）だった。決定2で「写真の丸も出さず、年度と › だけ」に変わる
+- 検索欄: `.mj-cmp-search`（面の色・角丸 12px・左に虫眼鏡の svg `SEARCH_ICON`・`:focus-within` で紺 2px の枠）と `input.mj-cmp-search-input`（`min-height: 44px`・16px）
+- 検索の結果: ページの中の JS（`SCRIPT`）。選手の行 `button.mj-cmp-player`（写真 40px・名前・右に「N卓」`.mj-cmp-count`・▾ `.mj-cmp-toggle`、`aria-expanded`）と、その下の卓の行 `ol.mj-cmp-tables > li > a.mj-cmp-trow`（名前の列に字下げ 68px、`.mj-cmp-trow-body` の1行目 対局名〈見出しの末尾の「（日付）」を外す〉・2行目 `.mj-cmp-trow-sub`「2025 · ベスト8 A卓」、右端に `.mj-saikyo-n-pill`〈通過・優勝〉か `.mj-saikyo-n-place`、›）。並び・一度に1人だけ開く・1人なら自動で開く・該当なしの文言・`?q=` は今のトップの `assets/saikyo.js` と同じ。行き先は今の年度ページのアンカーだったが、決定3で新しい卓のページにする（データ `build_top_data()` の卓のアンカーから `Match.table_slug()` の名前を引く必要がある）
+
+### 3. 生成物の差（`python3 scripts/regenerate.py saikyo_pages`）
+
+| 種類 | 差のあるページ | 全体 | 中身 |
+|---|---|---|---|
+| 新しい年度ページ | 4（2022〜2025） | 16 | 「通過」の見出しを外しただけ。見出しがあったのはこの4年度だけ（ほかの12年度は HEAD でも見出しが無い） |
+| 対局のページ | 91 | 219 | 順位の `is-pass` を外しただけ。金の順位があったのはこの91ページだけ |
+| 卓のページ | 643 | 643（878 − 16 − 219） | パンくずの位置と部品だけ |
+| 今のトップ・今の年度ページ・ほか | 0 | | |
+
+見込み（年度 16・対局 219）より少ないのは、変わる要素を持つページだけが変わるため。738ページすべてで、旧版から「通過」の見出し・`is-pass`・パンくずを取り除くと新版と一致することを確かめた（説明のつかない差は0）。X の画像の URL・シートの変化による差は無かった
+
+### 4. 確かめ（ローカル、headless Chromium）
+
+- 2025 年度ページ・`saikyo/2025/20250816.html`・卓のページ `saikyo/2025/20250816-s1-a.html` × 375/390/430 × 明・暗 × 標準・幅の広い字体2種・150%・200% の90通り: 横スクロール・はみ出し・44px 未満は0件。「通過」の見出しは0、金の順位は0。卓のページの transition 9件は出場者の写真カード（live/ と共有、変える前から同じ数）
+- 卓のページのパンくず（390px）: 共通ナビ（sticky、56px）のすぐ下、ヒーローの上で重ならない。左端は「出場者」の見出しと同じ 20px。13px・#a8adb3。標準の字体で1行（高さ 44px）、幅の広い字体では最後の「ベスト8 A卓」が2行目に回る（64px）、150% で 88px、200% で 127px
+- ヒーロー: 高さ 608px は前と同じ。中のパンくずが無くなった分、題名・日付・「▶ 再生」の塊は下端からの位置が前と同じ（題名の下端からヒーローの下端まで 106px）
+- 前後比較（HEAD の `git archive` と作業ツリー、375・1280px × 明・暗、全ページのスクリーンショット）: `live/judan/43/b16-a.html`・今のトップ `saikyo/index.html`・今の年度ページ `saikyo/2025.html` がすべて同じ
+- プレビュー: c9e5f702f の check-run「Workers Builds: mj」completed/success。別名 URL の `?v=c9e5f70` で `saikyo/2025/index.html`・`style.css` がローカルと一致、卓のページは1回目の取得で違い、取り直すとローカルとバイト単位で一致（1回目は配信の切り替わりの途中とみられる）。比較ページは 404。ブラウザでの見え方はここからは確かめていない
+
+### 5. 記録
+
+- 決定1〜9は `docs/decisions/design-renewal.md` の「2026-10-15（CHAT-1014-SKD-15）」
+- 文書: `docs/notes/saikyo-page-design.md`（年度ページの「通過」・対局のページの順位・卓のページのパンくず）、`docs/notes/design.md`（「最強戦の新しい年度・対局のページ」の行）
+- SKD-14 のログの状態を「判断待ち / 続き: CHAT-1014-SKD-15」にした
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1014-skd
 - ログ: https://github.com/retroeater/mj/blob/work/1014-skd/docs/logs/CHAT-1014-SKD-15.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1014-skd
-- 確認用URL: なし
-- マージ: 未
+- 確認用URL: 卓のページの左上、白字のナビの下・ヒーローの上に「最強戦 / 麻雀最強戦2025 / 政権抗争勃発 / ベスト8 A卓」の 13px の1行があり、ヒーローの中にはパンくずが無い。2025 年度ページの対局名の下に「通過」の見出しが無く、対局のページの順位はすべて灰色の数字（URL はターミナルの最終報告）
+- マージ: 未（判断待ちで止まる）
 - issue: #566
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 判断が必要なこと: (1) この版をマージしてよいか。(2) 卓のページのパンくずの左右は指示の 16px ではなく下の本文（「出場者」）の端にそろえた（375〜430px で約 19〜21px）。これでよいか。(3) 幅の広い字体ではパンくずの最後の項目が2行目に回る（年度・対局のページと同じ部品のふるまい）
+- 未確認の項目: 実機（iPhone・PC）のブラウザでの見え方（セッションからは確かめられない）
 - エラー: なし
 
 <!-- guide-links -->
