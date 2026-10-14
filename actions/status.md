@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-14 14:15 JST
+- 書き出した時刻: 2026-10-14 14:17 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -12,11 +12,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-14 14:15 | push | work/1014-wfl-s2 | success | #3537（38515679905） | 0分21秒 |
+| 2026-10-14 14:15 | push | work/1014-wfl-s2 | success | #3536（38515657214） | 0分22秒 |
 | 2026-10-14 14:13 | push | work/1014-wfl-s2 | success | #3535（38515522095） | 0分19秒 |
 | 2026-10-14 14:03 | push | work/1014-wfl-s2 | success | #3534（38514650092） | 0分17秒 |
 | 2026-10-14 13:57 | push | work/1014-jpl | success | #3533（38514117201） | 0分18秒 |
-| 2026-10-14 13:46 | push | cloudflare | success | #3532（38513088446） | 0分22秒 |
-| 2026-10-14 13:46 | push | work/1014-wfl-s1 | success | #3531（38513086158） | 0分17秒 |
 
 ## check-image-links.yml
 
@@ -26,11 +26,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-14 14:15 | workflow_dispatch | work/1014-wfl-s2 | in_progress | #38（38515680429） |  |
 | 2026-10-14 14:04 | workflow_dispatch | work/1014-wfl-s2 | success | #37（38514656954） | 8分05秒 |
 | 2026-10-14 12:13 | workflow_dispatch | work/1014-acf-reopen | success | #36（38505091657） | 7分58秒 |
 | 2026-10-14 09:25 | workflow_dispatch | cloudflare | success | #35（38490119497） | 7分46秒 |
 | 2026-10-13 11:36 | workflow_dispatch | work/1013-acf-img | success | #34（38337667566） | 7分47秒 |
-| 2026-10-13 09:01 | workflow_dispatch | work/1013-acf-img | success | #33（38325195081） | 3分09秒 |
 
 ## check-leagues-dropped.yml
 
@@ -79,11 +79,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-14 14:15 | workflow_dispatch | work/1014-wfl-s2 | success | #11（38515683088） | 0分38秒 |
 | 2026-10-14 14:13 | workflow_dispatch | work/1014-wfl-s2 | success | #10（38515522199） | 0分45秒 |
 | 2026-10-14 14:04 | workflow_dispatch | work/1014-wfl-s2 | success | #9（38514659595） | 0分37秒 |
 | 2026-10-12 09:38 | schedule | cloudflare | success | #8（38188776148） | 0分33秒 |
 | 2026-10-07 13:00 | workflow_dispatch | work/1007-pht-doc | success | #7（37569389834） | 0分20秒 |
-| 2026-10-07 12:12 | workflow_dispatch | work/1007-pht-clean | success | #6（37565703570） | 0分23秒 |
 
 ## delete-merged-branches.yml
 
