@@ -57,6 +57,16 @@ WFL-05 の `## 報告`「判断が必要なこと」への回答。いずれも 
 - 0. 指示欄の末尾は指示文の最後の行と一致。WFL-05 のログの `## 報告` の状態は「判断待ち」
 - 雛形の行: Chat-Ref・マージ・貼る時機・共通手順（＋作業ブランチ）は揃っている
 
+### 手順1・2
+
+- WFL-05 のログの `## 報告`（最後の一致）の状態を「判断待ち / 続き: CHAT-1014-WFL-07」にした
+- 未マージの work/ ブランチで `.github/`・`scripts/check_meibo.py`・`scripts/check_ampai.py` を変えるものは無い
+- `git merge --no-edit origin/cloudflare`（4969f89a5）は衝突なし。取り込んだのは docs・ログ（GDS-07・JPL-01・WFL-06）と `scripts/lib/yotei.py`・テスト
+- `python3 -m unittest discover -s scripts/tests`: OK。`node --test .github/actions/upsert-issue/test/*.test.js`: 14 pass
+- `git diff 1128709ce HEAD -- .github/` は空（手動実行のやり直しは不要）
+- `docs/decisions/automation.md` に「## 2026-10-14（CHAT-1014-WFL-07）」を足した（WFL-05 の節の後）
+- #445（REST）: 題「名簿と「プロ」シートの不一致」・closed・ラベル無し・issue。WFL-05 で全 issue を題で探したとき、この題は #445 だけ（番号の小さい同じ題は無い）
+
 ## 報告
 
 - 状態: 作業中
@@ -73,12 +83,12 @@ WFL-05 の `## 報告`「判断が必要なこと」への回答。いずれも 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 4969f89a）: https://github.com/retroeater/mj-logs/tree/main/guide/4969f89a
+ガイド文書（この版を写した時点の最新、mj 806fba19）: https://github.com/retroeater/mj-logs/tree/main/guide/806fba19
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/4969f89a/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/4969f89a/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/4969f89a/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/4969f89a/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/4969f89a/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/4969f89a/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/806fba19/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/806fba19/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/806fba19/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/806fba19/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/806fba19/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/806fba19/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/59e33bdf.md
