@@ -53,6 +53,37 @@ SKD-07・SKD-08 の変更（新しい年度ページで、順位が空の勝ち�
 
 ## 経過
 
+### 0. 着手前
+
+- 同じセッション（session_01LjQF3LYvdJM7VPNtxPNcVj）で SKD-08 に続けて受けた指示。`git log --all --grep="CHAT-1014-SKD-09"` は0件。指示文の末尾はこのログの「指示」欄の末尾と一致。雛形の行はすべてある（指示文は節の見出しが `##`・`###` の形だが、`## 経過`・`## 報告` はこのログの最後の一致を相手にした）。マージ: 承認済み（チャットで）
+- 作業ブランチ: `origin/work/1014-skd`（5b16fc006）とローカルが一致。ログを先に push（a3ece3e97）
+- CLAUDE.md「ブランチ運用」と docs/notes/branch-operations.md「マージするとき」「生成物を含む作業ブランチを取り込む・マージするとき」を読んだ（SKD-06 で読んだ版から変わっていない）
+
+### 1. 取り込み・生成し直し・テスト
+
+- `origin/cloudflare` は 28 コミット進んでいた。`work/1014-plb` はすでに cloudflare にマージ済み（`git merge-base --is-ancestor origin/work/1014-plb origin/cloudflare` が真）で、その変更（`scripts/generate_saikyo_pages.py` の `load_name_book()` の読む先を `live.PLAYERS_SPREADSHEET_ID` へ）が取り込みに入っていた
+- `git merge origin/cloudflare`: `scripts/generate_saikyo_pages.py` は自動で合わさり、**衝突なし**（0ea67e7ac）。取り込み後の `origin/cloudflare` との差の hunk は `winner_place()`（601 行目付近）・`build_row_html()` の後の `result_pill()`（659 行目付近）・`build_winner_rows()`（678 行目付近）だけで、`load_name_book()` には差が無い（同じ行・同じ関数の重なりは無い）
+- `python3 scripts/regenerate.py saikyo_pages`（取り込み後のスクリプト＝ PLB の読む先で、シートを読む。終了コード 0）: **作業ツリーに差が出なかった**（SKD-08 でコミットした生成物と同じ。読む先の切り替えで saikyo/ は変わらなかった）
+- `python3 -m unittest discover -s scripts/tests`: 1,092件 OK
+
+**生成物の差（取り込み後の `origin/cloudflare` との比較）:**
+
+| 種類 | 件数 | 許す範囲か |
+|---|---|---|
+| 新しい年度ページ `saikyo/<年度>/index.html` | 7（2011・2016・2017・2018・2019・2020・2021） | 許す範囲。`<span class="mj-saikyo-n-pill">通過</span>` が 52 個増え、`<p class="mj-saikyo-n-note">通過</p>` が 29 個減っただけ（差の行からこの2つを除くと一致） |
+| ほかの saikyo/ のページ・`sitemap-saikyo.xml` | 0 | |
+| 生成物以外 | 6 | `scripts/generate_saikyo_pages.py`・`scripts/tests/test_saikyo_pages.py`・`docs/decisions/design-renewal.md`・`docs/logs/CHAT-1014-SKD-07/08/09.md` |
+
+### 2. ログの状態
+
+- SKD-07: 状態「完了 / 続き: CHAT-1014-SKD-08」、マージ「済」、判断が必要なこと「なし」、ログの URL を `blob/cloudflare/` に
+- SKD-08: 状態「完了 / 続き: CHAT-1014-SKD-09」、マージ「済」、判断が必要なこと「なし」、ログの URL を `blob/cloudflare/` に
+- 決定（SKD-07 の変更はマージしてよい）は SKD-08 の節に記録済みなので重ねて書いていない
+
+### 3. マージ
+
+（マージの後に書く）
+
 ## 報告
 
 - 状態: 作業中
@@ -69,12 +100,12 @@ SKD-07・SKD-08 の変更（新しい年度ページで、順位が空の勝ち�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 79ccf617）: https://github.com/retroeater/mj-logs/tree/main/guide/79ccf617
+ガイド文書（この版を写した時点の最新、mj 5402cbcd）: https://github.com/retroeater/mj-logs/tree/main/guide/5402cbcd
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/79ccf617/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/79ccf617/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/79ccf617/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/79ccf617/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/79ccf617/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/79ccf617/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/5402cbcd/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/5402cbcd/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/5402cbcd/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/5402cbcd/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/5402cbcd/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/5402cbcd/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/f0502df9.md

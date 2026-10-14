@@ -163,7 +163,7 @@
 
 ## データの持ち方
 
-- 生成（`scripts/generate_houou_pages.py`、`generate_houou_race.py`・`generate_houou_leagues.py`・`lib/` を含む）が読むブック・タブ: 正本（`lib/pro_sheet.py`）の「鳳凰」「プロ」、/live 用のブック（`lib/live.py`）の「連盟プロ以外」「別名」、SNS ブック（`lib/sns_book.py`）の「【2】ID」「【3】画像取得」「【4】手動補正」、連盟員名簿のブック（`lib/meibo.py`）の「公開」「【2】値貼付」
+- 生成（`scripts/generate_houou_pages.py`、`generate_houou_race.py`・`generate_houou_leagues.py`・`lib/` を含む）が読むブック・タブ: 正本（`lib/houou_tab.py`）の「鳳凰」、ryoei.pro_選手（`lib/pro_sheet.py`）の「プロ」「連盟プロ以外」「別名」（#567）、SNS ブック（`lib/sns_book.py`）の「【2】ID」「【3】画像取得」「【4】手動補正」、連盟員名簿のブック（`lib/meibo.py`）の「公開」「【2】値貼付」
 - 正本は「鳳凰」タブ（A名前・B期・C前後・Dリーグ・Eリーグキー・F組・G順位・H結果・I合計・J〜V 第1〜13節・W表示の23列。2026-10-13 に F 列「組」を挿入し、元の X〜AA 列〈プロ・備考・存在チェック・備考〉を消した）。生成は列記号ではなく見出しで読む（`lib/houou_tab.py`。組は「1」「2」「3」…の数字、「-」と空欄は組なし。それ以外は止める、#548）。旧ページの JS（`houou_results.js`・`league_ranking.js`）も見出しで列を引き直して読む（#548、`docs/notes/static-generation.md`「ページ側のJS」）。V="Y" の行だけ使う（2026-10-08: 15,416行、1,296名〈うち在籍者 693名〉、第17期〜第43期）
 -「結果」の値（2026-10-10）: 残留・昇級・降級・入替戦・決定戦・空欄（鳳凰位の行など）。A1 の1〜3位は「決定戦」（鳳凰位決定戦へ進む。平野さんがシートを直した、2026-10-10。それまでは「残留」）
 - 入替戦の帯（`houou/race/` だけ、2026-10-10）:「結果」が「入替戦」の選手がいる表は、その選手の位置に帯を出す（文字は「結果」の値のまま）。選手のシートの行の順（順位の順）の位置が表の上半分なら上側（昇級の帯の下、暖色の明るい側 #fdba74）、下半分なら下側（降級の帯の上、寒色の明るい側 #7dd3fc）。字は濃い色（11.21:1・11.34:1）。データは `generate_houou_pages.py` の `playoff_bands()` が `upPlay`・`downPlay` で渡す。入替戦は第17〜19期の A1（10・11位、下側）・A2（2・3位、上側）だけで、`houou/race/` の対象の期（第23期〜）には無い

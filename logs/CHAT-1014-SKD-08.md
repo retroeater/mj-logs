@@ -106,27 +106,26 @@ SKD-07 のプレビューを平野さんが見た結果を入れる。順位が�
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 完了 / 続き: CHAT-1014-SKD-09
 - ブランチ: work/1014-skd
-- ログ: https://github.com/retroeater/mj/blob/work/1014-skd/docs/logs/CHAT-1014-SKD-08.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1014-SKD-08.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1014-skd
 - 確認用URL: プレビューあり（URL は最終報告）。確認したページは `/saikyo/2019/index.html`。この版で見える印: 2019 年度の「男子プレミアトーナメント 恐れ知らずの打撃戦」の大和の行の右端が金の「通過」のピルで、対局名の下に「通過」の見出しが無い
-- マージ: 未（チャット側がプレビューを見てから、マージの指示を別に出す）
+- マージ: 済（CHAT-1014-SKD-09 で cloudflare へ入れた。SHA は SKD-09 のログ）
 - issue: #566（着手中・判断待ちのコメント）
-- 判断が必要なこと:
-  - マージ（SKD-07・SKD-08 の変更をまとめて cloudflare へ入れる指示を待つ）
+- 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 79ccf617）: https://github.com/retroeater/mj-logs/tree/main/guide/79ccf617
+ガイド文書（この版を写した時点の最新、mj 5402cbcd）: https://github.com/retroeater/mj-logs/tree/main/guide/5402cbcd
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/79ccf617/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/79ccf617/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/79ccf617/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/79ccf617/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/79ccf617/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/79ccf617/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/5402cbcd/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/5402cbcd/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/5402cbcd/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/5402cbcd/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/5402cbcd/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/5402cbcd/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/f0502df9.md
