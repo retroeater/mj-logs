@@ -1,7 +1,7 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-15 04:22 JST
-- 書き出した実行の契機: workflow_dispatch（main）
+- 書き出した時刻: 2026-10-15 06:56 JST
+- 書き出した実行の契機: schedule（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
 
@@ -26,11 +26,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-15 04:30 | workflow_dispatch | cloudflare | success | #39（38624324053） | 8分07秒 |
 | 2026-10-14 14:15 | workflow_dispatch | work/1014-wfl-s2 | success | #38（38515680429） | 8分07秒 |
 | 2026-10-14 14:04 | workflow_dispatch | work/1014-wfl-s2 | success | #37（38514656954） | 8分05秒 |
 | 2026-10-14 12:13 | workflow_dispatch | work/1014-acf-reopen | success | #36（38505091657） | 7分58秒 |
 | 2026-10-14 09:25 | workflow_dispatch | cloudflare | success | #35（38490119497） | 7分46秒 |
-| 2026-10-13 11:36 | workflow_dispatch | work/1013-acf-img | success | #34（38337667566） | 7分47秒 |
 
 ## check-meibo.yml
 
@@ -153,11 +153,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-15 04:39 | workflow_run | cloudflare | success | #12（38625465359） | 1分16秒 |
 | 2026-10-14 15:01 | workflow_dispatch | work/1014-wfl-s3 | success | #11（38519804715） | 1分20秒 |
 | 2026-10-14 09:33 | workflow_run | cloudflare | success | #10（38490860171） | 1分14秒 |
 | 2026-10-13 04:31 | workflow_run | cloudflare | success | #9（38298269016） | 1分08秒 |
 | 2026-10-13 00:05 | workflow_dispatch | cloudflare | success | #8（38267725058） | 0分31秒 |
-| 2026-10-12 15:04 | workflow_dispatch | work/1012-abm-map | success | #7（38210749306） | 1分09秒 |
 
 ## sitemap-lastmod.yml
 
