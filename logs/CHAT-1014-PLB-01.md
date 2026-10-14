@@ -65,16 +65,73 @@
 
 ## 経過
 
+### 着手前の確認
+
+- 0: ログの「指示」欄の末尾は指示文の最後の行（「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」）と一致
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 全部ある
+- `git fetch --unshallow origin` の後、`CHAT-1014-PLB-01` のコミット・`PLB` の識別子（全ブランチのコミット・`docs/logs/` の履歴）: どちらも無し
+- `work/1014-plb`: ローカル・リモートとも無し → `git checkout -b work/1014-plb origin/cloudflare`（a31620f）
+- サイズ: 今回はガイド文（CLAUDE.md・handover.md）を変えていない
+
+### 手順1: 同じ主題の issue・未マージのブランチ
+
+- issue の検索（「ryoei.pro_選手 ブック 選手マスタ 移行」「桜花 JWRC 列 見出しで読む 列記号」「スプレッドシート ブックの整理 不要な列 タブ削除」「連盟プロ以外 別名 タブ 移す 新しいブック」、クローズ済みを含む）: 同じ主題は無し
+  （近いもの: #544・#473・#536〈いずれもクローズ〉、#396・#397〈連盟プロ以外の値を埋める。主題は別〉）
+- 未マージの work/ ブランチ（work/1009-swp-526・1011-swp-hnd・1011-swp-nav〈報告のみ〉、1014-jpl、1014-skd、1014-wfl-s3）: 同じ目的のものは無し。
+  変える予定のファイルとの重なり:
+  - work/1014-wfl-s3: `docs/notes/static-generation.md` の `check_leagues_dropped.py` の行（今回直す予定の箇所とは別の行）
+  - work/1014-skd: `scripts/generate_saikyo_pages.py`（`load_name_book()` 付近の `live.SPREADSHEET_ID` の読む先を変える予定だった。skd 側の変更箇所は未確認のまま止まった）
+  - work/1014-jpl（JPL-05）: いまは docs のみだが、WRC の旧名の読み替えを `generate_title_pages.py` 等に入れる予定の指示が進行中。今回 `generate_title_pages.py` の読む先を変える予定だった
+- 起票: #567「選手のマスタを ryoei.pro_選手 に移し、桜花・JWRC を見出しで読む」（決定とマージ後の手作業を本文に書いた）。着手中のコメントを残した
+
+### 読み手の洗い出し（origin/cloudflare a31620f）
+
+前提のとおり。追加で分かったこと:
+
+- 「連盟プロ以外」「別名」を `live.SPREADSHEET_ID` で読む箇所: generate_books_pages.py・generate_houou_race.py・generate_saikyo_pages.py（`load_name_book()`、generate_houou_pages.py・check_saikyo_unregistered.py が使う）・generate_ask_data.py・generate_live_pages.py・update_sns_book.py（write_live_channel_candidate.py は generate_live_pages の辞書を使う）
+- `generate_title_pages.py` は `SPREADSHEET_ID`（=その他マスタ）1つで「タイトル」「タイトル戦」「連盟プロ以外」「別名」の4タブを読む（`fetch_tab()`）。タブごとに読む先を分ける必要がある
+- 「プロ」は `pro_sheet.SPREADSHEET_ID` だけが読む（同じ ID を持つ他の定数は「鳳凰」「桜花」「最強戦」「対局」を読む）。`pro_sheet.SPREADSHEET_ID` を新しいブックに変えれば足りる
+- JS（houou_results・ouka_results・wrc_results・league_ranking）は「プロ」「連盟プロ以外」「別名」を読まない
+
+### 手順2: 新旧のブックの比較（止まる条件に当たった）
+
+`lib/sheets.py` の `fetch_table()`（生成と同じ gviz の経路）と `fetch_csv()`（CSV エクスポート）で、旧・新を2回ずつ読んで比べた。
+2回の読み込みで行数は変わらなかった。
+
+| タブ | 見出しの並び | 行数（旧/新、見出しを除く） | 値の違う行 |
+|---|---|---|---|
+| プロ | **不一致**（下記） | 1099 / 1099 | 0 |
+| 連盟プロ以外 | 一致（4列） | 745 / 745 | 0 |
+| 別名 | 一致（4列） | 28 / 28 | 0 |
+
+「プロ」の見出しの違い（gviz・CSV とも同じ。A1 のセルの文字が違う）:
+
+- 旧: `['登録名\n0.74', 'ソートキー', '出身地', '表示']`
+- 新: `['登録名', 'ソートキー', '出身地', '表示']`
+
+旧の A1 は「登録名」の後にセル内改行で「0.74」が入っている（#467 で知られている形。`pro_sheet.label_keys()` は改行の前の「登録名」で引くため、生成はどちらでも同じ列を読む）。
+新は「0.74」が無い（値の写しで A1 の数式・付記が落ちた可能性。平野さんの意図は確かめていない）。
+
+指示の止まる条件「新しいブックの3タブと元の3タブの見出し・行数・値が一致しない」に当たるため、読む先の切り替え・手順3・手順4は行わずに止まった。コードは変えていない。
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1014-plb
 - ログ: https://github.com/retroeater/mj/blob/work/1014-plb/docs/logs/CHAT-1014-PLB-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1014-plb
-- 確認用URL: なし
-- マージ: 未
-- issue: なし
-- 判断が必要なこと: なし
+- 確認用URL: なし（コードを変えていない）
+- マージ: 未（平野さんの判断待ち）
+- issue: #567（起票・着手中）
+- 判断が必要なこと:
+  - 「プロ」タブの見出しの A1 が、旧「登録名\n0.74」・新「登録名」で違う（行数 1099・値は全行一致。「連盟プロ以外」「別名」は見出し・行数・値とも一致）。止まる条件に当たったため切り替えていない。
+    この違いを許して切り替えを進めてよいか（生成は改行の前の「登録名」で引くので結果は変わらない見込み）、それとも新しいブックの A1 を旧と同じにするか
+  - 続きの指示では、手順2の切り替え・手順3（桜花・JWRC を見出しで読む）・手順4（全ページの比較）が残っている
+  - マージ後に平野さんが行う手作業（どれも切り替えのマージの後に行う。先に改名・削除すると今のコードが読めず生成が止まる）:
+    1. 元の3タブ（正本の「プロ」、ryoei.pro_その他マスタの「連盟プロ以外」「別名」）の名前に「(旧)」を付ける
+    2. 1週間後を目途に元の3タブを消す
+    3. 「桜花」の C・G・Q〜U・W 列と「JWRC」の C〜E・G・N〜U・W 列を消す（見出しで読む直しのマージの後）
+  - 未マージのブランチとの重なり: work/1014-jpl（JPL-05、`generate_title_pages.py` に手を入れる予定の指示が進行中）・work/1014-skd（`generate_saikyo_pages.py`）。続きの指示の着手時に同じ関数を触っていないか確かめる
 - 未確認の項目: なし
 - エラー: なし
 
