@@ -57,7 +57,7 @@ Chat-Ref の確認・`git branch --merged` が誤る。**これらの判定の�
   環境変数のトークンで `curl -sS -H "Authorization: Bearer $GITHUB_TOKEN" https://api.github.com/repos/retroeater/mj/commits/<SHA>/check-runs` を引く
   （名前・状態・成否・ID と `.output.summary`。SH-02・SH-03 で実測。トークンの値は出力しない）
 - ワークフローの起動: `actions_run_trigger`（method `run_workflow`、ref は既定ブランチ `cloudflare`）。
-  **入力はすべて文字列で渡す**（`{"dry_run": "true"}`）。起動できるのは既定ブランチにあるワークフローだけ（docs/notes/branch-operations.md「ワークフローを変更したとき」）
+  **入力はすべて文字列で渡す**（`{"dry_run": "true"}`）。起動できるのは既定ブランチにあるワークフローだけ（docs/notes/github-actions.md「ワークフローを変更したとき」）
 - ジョブのログ（`get_job_logs`）は**ジョブの完了後に読む**。実行中は HTTP 404 になる
 - **複数の issue の本文・題・ラベルをまとめて書き換えるときは、1件ごとに書き換える直前に `updated_at` を取り直し、取得時と違えばその issue は書き換えずに飛ばして報告する。**
   10〜15件ごとに「済」の番号をログに追記して push する。本文・題の部分置換とラベルの付け外しは REST（`PATCH /issues/{n}`・`/labels`）で通るが、
@@ -98,6 +98,8 @@ docs/notes/branch-operations.md「作業ディレクトリの分離（Codespace�
 
 鍵（`YOUTUBE_API_KEY`・楽天・`ANTHROPIC_API_KEY`・スプレッドシート書き込みの認証など）は環境の変数に置かない。
 **GitHub Actions のシークレットにだけ置き、鍵の要る処理はワークフローを `actions_run_trigger` で起動して行う。**
+**直す前後の確かめも同じで、鍵の要るスクリプトはコンテナで直接動かさず、ワークフローを書き込まない入力（dry-run）で起動して run のログを読む**
+（例: `update-sns-book.yml` の mode `update`・dry_run 真。docs/notes/sns-book.md「手動実行」）。コンテナには鍵が無く、直接動かすと確かめられないまま終わるため（2026-10-13 に起きた）。
 
 ## ローカル確認の代わりにプレビュー
 

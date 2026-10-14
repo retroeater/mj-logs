@@ -636,13 +636,20 @@ Workers & Pages → `mj` → Settings → Builds:
 
 - **見分け方（check-runs で読める範囲）**: 1つのコミットに Workers Builds の check-run が Worker ごとに付く（`mj`・`mj-ask`・`mj-scheduler`）。
   本番かプレビューかは `.output.summary` に `Preview URL` があるかで見分ける（本番には無い。成功した本番には `Version ID` だけが出る）。
+  **見分けられるのは成功したビルドだけ。** 失敗したビルドは本番もプレビューも `Build ID` と `Script` の2行だけで同じ。
+  `check_suite.head_branch` はそのコミットを最初に push したブランチなので、これも使えない（本番で失敗した 5cbc83eb でも `work/1013-snm-check`、#561）。
   **1回のビルドで check-run が2本できる**: 開始時の `in_progress`（`started_at` が開始時刻。更新されずに残る）と、完了時に別に作られる `completed`
   （`started_at` と `completed_at` が同じ完了時刻）。2本は `.output.summary` の `Build ID` が同じ。**所要時間はこの2本の差で概算できる**。
   `in_progress` が残っていても、同じ Build ID の `completed` があれば止まってはいない
 - 失敗の段階・エラー文・段階ごとの秒数は check-run に出ない。ダッシュボードの Build history（平野さん）か、チャット側が Chrome で
   ダッシュボードの API（下の「Chrome からダッシュボードの API を読む」の `builds/builds`）で読む。Build ID は check-run の `.output.summary` にある
 - **対処: 設定は変えない。** 次の `cloudflare` への push か、ダッシュボードの「Retry build」で通る。通るまで本番は前の版のまま（失敗で壊れはしない）。
-  Workers Builds の失敗を知らせる通知は無い（Cloudflare の通知は Universal SSL Alert だけ。上の「DNS・メール・通知の設定」）。気づくのは check-run を見たとき
+  **失敗の通知は `notify-build-failure.yml`（#561）**: check-run の完了（`check_run`）で起動し、名前が「Workers Builds:」で始まる failure（`mj`・`mj-ask`・`mj-scheduler`）で、
+  コミットが `cloudflare` に入っていれば（compare の status が identical・behind）ジョブを失敗させ、GitHub の失敗通知メールで知らせる。
+  失敗は本番とプレビューを見分けられないため、同じコミットのプレビューだけが失敗したときも知らせる（受け入れた近似）。
+  起動は Workers Builds の check-run の完了ごと（1日約100回）で、失敗以外はジョブが skipped の実行として Actions の一覧に残る。
+  mj-logs の `actions/status.md` はワークフローごとの直近5回なので、この行はほぼ skipped で埋まり、失敗の回はすぐ表から外れる（気づくのはメール）。
+  2026-10-13 に有効化した（確かめた run は docs/notes/github-actions.md「ワークフローの一覧」）。Cloudflare 側の通知は Universal SSL Alert だけ（上の「DNS・メール・通知の設定」）
 - 事例（2026-10-13 13:15〜14:20 JST、本番向け `mj` が5回続けて失敗）:
 
 | コミット | check-run（UTC、in_progress → completed） | 結果 |
@@ -658,7 +665,8 @@ Workers & Pages → `mj` → Settings → Builds:
     `86979e3d` の本番 `mj` は Cloning 6 秒で成功（Version `88bdd84b`）、`mj-scheduler` も Cloning で失敗。10/9〜10/13 の `mj` の約400回のうち本番の失敗はこの5回だけで、
     成功した本番は1回 19〜102 秒（大半は 20〜40 秒）。失敗までの時間はばらばらで、決まった上限で切れてはいない
   - 失敗は `cloudflare` 向け（`mj`・`mj-scheduler`）に限られ、同じコミットのプレビューは通った。原因は不明。本番のトリガーの設定は失敗の前後で同じ（チャット側の読み）
-  - 申告値: 10/12 の `f09571e4` の本番ビルドも約30分かけて失敗した（ここからは検証できない）
+  - 10/12 の `f09571e4` は check-run で 07:46:18Z → 08:17:18Z（約31分）の failure を確かめた。本番かどうかは check-run からは決まらない（申告値では本番）。
+    10/12 にはほかに `19b99cc9`・`b0ee350e`・`7ac2439e` の failure もあり、どれが本番かは同じく決まらない（#561）
 - プレビューにも、Cloning の同じエラー文で数秒で落ちる例がある（2026-09-29、`work/0928-cx` の `668fdc0`。ブランチを作り直した直後に古いコミットを取りにいった可能性。推測）
 
 ### work/ ブランチのプレビュー（2026-09-18、CHAT-0918-TH-07・TH-08）

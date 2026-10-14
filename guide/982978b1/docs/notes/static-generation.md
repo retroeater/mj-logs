@@ -315,7 +315,7 @@ HTMLは24ページ + 書籍の一覧と個別ページ（`books/`、#97、noinde
   見逃しても次の実行で拾える
 - **通知は生成の失敗そのもの**（常設issueは作らない）。見出しの照合・置換文字の検査と同じ「生成を止める条件」の扱いで、
   止まったページだけが飛ばされ（ほかのページは生成・コミットされる）、`regenerate-page.yml` が失敗して GitHub から通知が届く
-  （飛ばしたページと理由はジョブのサマリ。下の「regenerate-page.yml」、#533）。フィルタは解除すれば直る一時的な状態なので、
+  （飛ばしたページと理由はジョブのサマリ。`docs/notes/github-actions.md`「regenerate-page.yml」、#533）。フィルタは解除すれば直る一時的な状態なので、
   issue を残す意味が薄い
 - **増える時間**: タブごとに CSV 1回＋`COUNT(A)` 1回、スプレッドシートごとに `htmlview` 1回。
   2026-09-21 の実測（Codespace から、1回ずつ）:
@@ -338,7 +338,7 @@ HTMLは24ページ + 書籍の一覧と個別ページ（`books/`、#97、noinde
 ### 生成を止める条件の設計（#222 の実例）
 
 スプレッドシートを読む生成スクリプトは、入力の食い違いに気付かないまま壊れたページを書き出さないよう、次を「生成を止める条件」にする。
-止まるのはそのページだけで、`regenerate.py` が途中の出力を戻して飛ばし、ほかのページは続ける（下の「regenerate-page.yml」、#533）。
+止まるのはそのページだけで、`regenerate.py` が途中の出力を戻して飛ばし、ほかのページは続ける（`docs/notes/github-actions.md`「regenerate-page.yml」、#533）。
 `generate_title_pages.py` はこの形で、title/ の第1段（CHAT-0916-TT-07〜TT-16）で止まったのはすべて実際の食い違いだった。新しい生成スクリプトでも同じ形にする。
 
 - 読むタブの見出しの照合。gviz は存在しないタブ名でも先頭のタブを黙って返すため、これが無いと誤ったタブを読んだまま生成が通る
@@ -408,54 +408,15 @@ title/ では「タイトル戦」タブの大会の改名が「タイトル」�
 
 ### regenerate-page.yml
 
-GitHub Actions (`.github/workflows/regenerate-page.yml`) が、`scripts/generate_*.py` / 対応する `.js` / `scripts/lib/**` の変更をcloudflareブランチへのpushで検知し、自動で再生成・コミットする（`chore: regenerate <ページ名>.html via GitHub Actions`）。検知はpushに含まれる全コミットの範囲（`github.event.before`〜`github.sha`）の差分で行う（#167）。手動実行（workflow_dispatch）も可能。毎週月曜05:37 JSTにも`all`を自動実行し、差分がなければコミットしない（#103）。`table.js`・`leagues.js`はルート直下の`*.js`に該当するためpushでワークフロー自体は起動するが、どのページ名にも一致せず対象0件で終わる（HTMLに焼き込まれないため実害なし）。`regenerate.py`は出力がディレクトリになるページ向けに`OUTPUT_OVERRIDES`（例: `wayhome_episodes` → `"wayhome/"`）を持ち、コミット・lastmod更新対象のパスとして返せる（#162）。ワークフローの`git add`は`-A --`で削除も拾い、`sitemap*.xml`をまとめて対象に含める。**1ページの生成が失敗したら、`regenerate.py`がそのページの途中の出力を戻して飛ばし、残りのページを生成する**（失敗の種類では分けない。生成の前の作業ツリーを一時の index で tree オブジェクトに取り、失敗したら増えたファイルを消して変わったファイルを戻す。前のページが変えた共有のファイルは前のページの出力に戻る）。コミット対象と`check_asset_limits`は成功したページだけで出し、飛ばしたページがあれば終了コード 3（`SKIPPED_EXIT`）を返して、飛ばしたページと理由（生成スクリプトの出力の最後の行）を stderr とジョブのサマリに出す。ワークフローは成功したページをコミット・push してから、最後のステップ「飛ばしたページを報告」で失敗にする（失敗通知メールを保つ。常設issueは作らない）。手動実行・週次・`workflow_call`（`update-live-channel.yml`・`regenerate-saikyo.yml`）・セッションの`regenerate.py all`も同じ扱い（#533）。**2026-09-22 開発凍結（`docs/notes/books-freeze.md`）以降、`regenerate.py`の`FROZEN_FROM_ALL`が`"all"`から`books_pages`を外し（ページ名を指定すれば個別には動く）、「楽天の書影を取得」ステップは`if: false`で止めている**
+`docs/notes/github-actions.md`「regenerate-page.yml」へ移した（#492）。
 
 ### ワークフローの一覧
 
-実行の契機と内容。正は `.github/workflows/`（本数はここに書かない）。
-
-| ワークフロー | 内容 |
-|---|---|
-| `regenerate-page.yml` | 生成スクリプト・対応する`.js`・`scripts/lib/**`の変更のpushと、毎週月曜05:37 JST（`all`）。ページを再生成してコミットする（詳細は上の「regenerate-page.yml」） |
-| `regenerate-saikyo.yml` | `check-image-links.yml`（「画像リンク切れの検知」）の実行が cloudflare で終わるたび（`workflow_run`。取り消された回を除く。毎朝 04:30 JST の検知の後など）と手動。`regenerate-page.yml` を `workflow_call` で呼び、saikyo_pages だけを再生成する。差分が無ければコミットしない（#537）。再生成の前にジョブ `abema` が ABEMA ブックの【2】を作り直す（`scripts/update_abema_book.py`、失敗しても再生成は動く。手動実行の入力 abema・regenerate、#425・`docs/notes/abema-book.md`） |
-| `check-image-links.yml` | 毎日 04:30 JST（Worker `mj-scheduler` から、入力 `scheduled`）に `jpml_pros.html` の画像（ジョブ `check`）・最強戦の選手写真（ジョブ `saikyo`）・SNS ブックの実効の値の全行の画像（ジョブ `sns_book`、`check` の後に動く。X は `_400x400` だけ。`scripts/check_sns_book_images.py`）のリンク切れを確かめ、常設issueに書き出す（`check` と `sns_book` は「画像リンク切れの検知結果」の本文の自分の節だけを書き換え、全節で切れが無いと閉じる。`saikyo` は別の issue）。毎週月曜03:00 JST の予約実行（`schedule`）は `check` だけを動かす保険（外す予定は #504） |
-| `check-saikyo-unregistered.yml` | 毎週月曜06:50 JST。最強戦の出場者で「プロ」「連盟プロ以外」から引けない人を常設issueに書く（#431、`docs/notes/saikyo-page-design.md`「8. 出場者の登録漏れの検知」） |
-| `assets-check.yml` | push（`docs/`だけの push は除く。サイズを見る`docs/handover.md`・`docs/notes/chat-side-operations.md`は含む、#298）。`.assetsignore`の漏れ（#133）と CLAUDE.md・handover.md のサイズを検知し、配信の上限との比（`check_asset_limits.py`、#387）を出す |
-| `sitemap-lastmod.yml` | HTMLを含むpush。sitemapのlastmodをgitの最終コミット日にそろえてコミットする（#265、`docs/notes/sitemap-lastmod.md`） |
-| `check-leagues-dropped.yml` | 手動実行のみ。型Cで選択リストから漏れている選手を検知する（#168） |
-| `cleanup-logs.yml` | 毎週月曜06:23 JST。7日を過ぎた作業ログを片付け、条件外のものを #357 に通知する |
-| `check-meibo.yml` | 毎週月曜05:07 JST。連盟員名簿と「プロ」シートの在籍者の不一致を、題名で探して作る issue に書く（例: #445。#370 はクローズ済み）。あわせて最新の期の Ampai の URL が Ampai のブックに無ければ issue「Ampai の URL が無い期」に書く（`scripts/check_ampai.py`、#548） |
-| `sync-birthday-calendar.yml` | 毎週月曜05:17 JST。名簿の誕生日をGoogleカレンダーへ同期する（#379、`docs/notes/birthday-calendar.md`） |
-| `fetch-gsc.yml` | 毎月1日06:00 JST。Search Console の検索パフォーマンスを `docs/gsc/` に取り出し、robots.txt の差分を #304 に知らせる（#269） |
-| `sync-dojo-calendar.yml` | 毎日04:15 JST に Worker `mj-scheduler` から（入力 `scheduled`、#504）と、保険の予約実行（毎日07:12 JST）。道場部ゲストの告知画像を読み、カレンダーへの追加分と新規ゲスト・当月誕生日を #426 に知らせる（同期が失敗したとき・最新の月に道場部ゲストの見出しが無いときもその旨を知らせる、#472・#390）。新しい月の書き込みは手動実行のときだけで、保存した読み取り結果を使う。書き込み済みの月の画像が差し替わったときは、当日以降を自動で直して知らせる（変更3件以上・照合できない名前があれば通知だけ）（#390、`docs/notes/dojo-guest-calendar.md`） |
-| `sync-books-calendar.yml` | **2026-09-22 開発凍結にともない無効化（`gh workflow disable`）。** 元は毎週月曜05:27 JSTに「書籍」タブの発売日をGoogleカレンダーへ同期していた（#97、`docs/notes/books-calendar.md`・`docs/notes/books-freeze.md`） |
-| `sync-logs.yml` | **2026-10-07 から停止中（`workflow_dispatch` のみ。push・予約・Worker からの起動を外した、#298）。写しは mj-logs 側の `sync-from-mj.yml`（下）。** 以下は止める前の動き: `docs/logs/**` を含む push（cloudflare は毎回、`work/**` はコミットのメッセージに`[sync-logs]`のある push だけ。無い push はジョブが skip、#298）・毎日05:30 JST の Worker `mj-scheduler` からの起動（入力 `scheduled`、#504）・毎日 08:29 JST の予約実行（保険）・手動実行（この3つは目印に関係なく走る、#498）。実行の時点の mj と mj-logs を突き合わせ、写っていない・古い作業ログを public の `retroeater/mj-logs` の `logs/` へ写し、cloudflare で削除されたログを消す（#440。書き込みはシークレット `MJ_LOGS_TOKEN`）。concurrency は `queue: max` で、続けて来た実行を取り消さずに1本ずつ順に動かす（#509）。取り消された実行（待ちが100本を超えたとき、`queue: max` を持たない古い分岐の作業ブランチの実行）の分は、次の cloudflare の実行で追いつく（`scripts/sync_logs.py`、#454）。使用済みの Chat-Ref 識別子の一覧も毎回集め直して `chat-ids/` に写す（`scripts/chat_ids.py`、#474）。毎回、各ワークフローの直近5回の実行（開始時刻・契機・ブランチ・結論・run 番号・所要時間、失敗したジョブ名とステップ名）を mj-logs の `actions/status.md` に上書きで書き出す（`scripts/actions_status.py`、`GITHUB_TOKEN` の `actions: read`。コミットの題とログの中身は書かない、#498） |
-| `delete-merged-branches.yml` | 毎日07:53 JST と手動、Worker `mj-scheduler` からの予約の起動（毎日04:20 JST、入力 `scheduled`、#504。Worker が動くのは平野さんがつないだ後）。マージ済みで先頭が24時間より前の `work/*` を削除する（#440、`scripts/delete_merged_branches.py`） |
-| `update-sns-book.yml` | 毎日04:10 JST に Worker `mj-scheduler` から（入力 `scheduled`）と手動（mode: check / init / update、dry_run 既定）。SNS ブックの【1】【2】【3】を書き、【3】のページが使う値が変わった日は `regenerate-page.yml`（all）を呼ぶ（`scripts/update_sns_book.py`、#514、`docs/notes/sns-book.md`） |
-
-- `scripts/sync_all_logs.py`（#298）: `origin/cloudflare` と未マージの `origin/work/**` のすべてについて、`sync-logs.yml` の「ログ・ガイド文書を写す・消す」と同じ手順で mj-logs の作業ツリーへ写す（commit・push はしない）。mj-logs 側の `sync-from-mj.yml` から呼ぶ
-- mj-logs の `.github/workflows/sync-from-mj.yml`（#298）: Worker `mj-scheduler` から mj に push があった直後（`pushed_at` が3分以内の毎分の回、`docs/notes/scheduler-worker.md`「動き」）と、手動実行・毎日03:41 JST の予約実行（保険）で起動し、mj を blobless でクローンして `scripts/sync_all_logs.py` と `scripts/actions_status.py --repo retroeater/mj` を動かし、mj-logs 自身へ push する（mj を読むのは mj-logs の Secret `MJ_READ_TOKEN`）。mj の Actions の分を使わない。2026-10-07 から写しはこれだけ（本番。`sync-logs.yml` は停止中）。push が拒否されたら origin/main に戻して写す・書き出すをやり直す（3回まで）
+`docs/notes/github-actions.md`「ワークフローの一覧」へ移した（#492）。
 
 ### ワークフローを手動実行するとき
 
-実行の契機と内容の一覧は上の「ワークフローの一覧」。手動実行の前に次を確かめる。
-
-- `regenerate-page.yml` の checkout と push 先は実行ブランチ（#326）。古い作業ブランチから手動実行すると、そのブランチの状態で生成物がコミットされる
-- `check-image-links.yml` の checkout の ref は `${{ github.ref }}`（#306）で、手動実行では選んだブランチがチェックアウトされる。
-  古い作業ブランチから実行すると常設issue（#218）の本文がそのブランチのデータで上書きされる。schedule・Worker の起動は既定ブランチ（cloudflare）で走るため変わらない。
-  ジョブ`saikyo`は最強戦の選手写真を別のissueに書き出す（`collect_saikyo_images.py --json`、#139）。画像は1,985枚（handover.md に書いていた時点の数）。
-  ジョブ`saikyo`は予約実行（`schedule`）では動かず、入力`scheduled`（Worker からの起動用、手では付けない）ではジョブ`saikyo`だけが動く（#514）。
-  入力`saikyo_resolve_test`（X IDを1つ）を入れると、ジョブ`saikyo`は X API で解決を1回だけ試して診断を出し、検知も issue の書き換えもしない（ジョブ`check`も動かない。#514）
-- `cleanup-logs.yml`（`scripts/cleanup_logs.py`、条件は `docs/notes/branch-operations.md`「作業ログの寿命」）: 手動実行は dry_run が既定。週次実行は `SCHEDULE_ENABLED`（現在 `'true'`）が `'false'` なら dry-run
-- `delete-merged-branches.yml`（`scripts/delete_merged_branches.py`）: 手動実行は dry_run が既定。毎日の実行と、入力 `scheduled` を真にした起動は `SCHEDULE_ENABLED`（現在 `'true'`）が `'false'` なら dry-run（`'true'` なら実際に削除する）。`scheduled` は Worker からの予約の起動用で、手では付けない（`docs/notes/scheduler-worker.md`）
-- `update-live-channel.yml`・`sync-dojo-calendar.yml`・`sync-logs.yml`・`delete-merged-branches.yml`・`check-image-links.yml`・`update-sns-book.yml` の入力 `scheduled` は Worker `mj-scheduler` からの予約の起動用で、手では付けない（付けると予約実行と同じ動きになり、題に `[scheduled]` が付いて Worker の朝の確かめに数えられる。`docs/notes/scheduler-worker.md`）
-- `check-meibo.yml`（`scripts/check_meibo.py`）: 手動実行は dry_run が既定。不一致があっても生成は止めない
-- `sync-birthday-calendar.yml`（`scripts/sync_birthday_calendar.py`）: 週次の schedule（毎週月曜05:17 JST）は書き込みまで行う。手動実行の既定は差分を出すだけで、apply を選んだときだけ書き込む。予約実行と同じ動きは apply をオン・allow_many_deletes をオフ（`docs/notes/birthday-calendar.md`）
-- `fetch-gsc.yml`（`scripts/fetch_gsc.py`、#269）: checkout と push 先は実行ブランチ。手動実行の既定はコミットしない（取得するだけ）。
-  schedule は28〜31日 21:00 UTC に起動し、JST で1日の回だけ本体が動く（毎月1日 06:00 JST。2026-09-21 に有効にした）。
-  `--plan` を付けるとAPIを呼ばずに期間と出力先だけ出せる
-- `assets-check.yml` は Cloudflare へのアクセスを要しない検査専用
-- **待機は上限15分。** ワークフロー・check-run・ビルド・デプロイなど外部の状態を、sleep を挟んで繰り返し確かめる「待機」は、始めてから15分で打ち切る（until ループなど上限の無い待機は使わない）。打ち切ったらその時点の状態をログに書き、確かめられなかったことを「未確認の項目」に回して先へ進む。テスト・生成・取得など、自分のコマンドが処理を進めている「実行」はこの上限の対象ではない（進み具合が出力に出るようにする）
+`docs/notes/github-actions.md`「ワークフローを手動実行するとき」へ移した（#492）。
 
 ### style.css の共通クラス
 
