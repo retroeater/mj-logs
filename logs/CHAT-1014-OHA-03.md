@@ -62,15 +62,118 @@
 - 雛形の行: Chat-Ref・マージ・貼る時機・共通手順の4行とも揃っている
 - 0. 指示欄の末尾は「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」で、指示文の最後の行と一致
 
+### 1. 経路の確かめと起票
+
+- mj-logs の `.github/workflows/sync-from-mj.yml`（main、読むだけ。public なので `git clone` で読めた。`add_repo` は使っていない）:
+  mj の cloudflare を `$MJ` にクローンし、ステップ「写す・書き出す・push」で `sync_all_logs.py` の後に
+  `(cd "$MJ" && python3 scripts/actions_status.py --repo retroeater/mj --dest "$GITHUB_WORKSPACE")` を呼ぶ。前提のとおり
+- 前提との違い（止まる条件ではない）: 「Worker の表は mj-logs から直接読めない」とあったが、表 `workers/scheduler/schedule.json` は mj のリポジトリにあり、
+  上のステップは mj のクローンの中（`cd "$MJ"`）でスクリプトを動かす。そのため REST も mj-logs 側の定数も要らず、クローンのファイルを読む。
+  scheduler-worker.md に「mj-logs の定数も直す」の1行は足していない（定数を持たないため）。`scheduler.mjs` の置き場所は `workers/scheduler/src/scheduler.mjs`
+- `actions_status.py` の呼び出しの中で morning.md も書くので、**`sync-from-mj.yml` の差分は無い**（mj-logs への push は不要。cloudflare へのマージだけで次の写しから morning.md が出る）
+- #498（closed）・#298（open）の本文とコメントを読んだ。経路は #298 の 2026-10-07 以降の形（mj の sync-logs.yml は停止、mj-logs の sync-from-mj.yml が書く）
+- 同じ論点の open issue の検索（朝の報告・おはよう・morning.md・自動実行・スケジュールされたタスク・毎朝の報告・定型）: 該当なし（当たったのは #503・#426・#390・#404・#498 で、いずれも別の主題）
+- 未マージの work/ ブランチとの重なり: `actions_status.py`・テスト・cloud-sessions.md・chat-side-operations.md・scheduler-worker.md・schedule.json を変えているブランチは無い
+- #563「朝の報告（おはよう）の自動実行を検討する」を起票した。ラベルは `分野: 自動化`・`状況: 保留`（着手の時期が未定のため。`対象:` は当てはまるページが無いので付けていない）
+
+### 2. 実装（8ed58bd10）
+
+- 新しい `scripts/morning_report.py`（判定と書き出し）と `scripts/tests/test_morning_report.py`（20件）。`actions_status.py` の変更は次の3点だけ
+  - 実行の一覧を `per_page=100` で1回引き、status.md には先頭5件（今までの `per_page=5` と同じもの）を渡す。API の呼び出しの回数は変わらない
+  - status.md を書いた後に `morning_report.write()` を呼ぶ（morning.md の失敗で status.md を止めないため、後に置いた）
+  - status.md の「変更なし」の早期 return を if/else にした（後ろの morning.md の書き出しまで進むように）
+- morning.md の書き直しは status.md と同じく「書き出した時刻」の行（見た範囲も同じ行に置いた）を除いて比べ、違うときだけ書く。
+  加えて、前の書き出しが JST で今日でなければ中身が同じでも書く（全節が「なし」の日が続いても、朝に前日の時刻が残らないように。1日1回の写しのコミットが増えうる）
+- `python3 -m unittest discover -s scripts/tests`: 1027件 OK
+
+### 手元の実行（mj-logs のワークフローは動かしていない）
+
+- 手順: mj-logs を scratchpad にクローンし、`actions/` と `logs/` を2つの dest に写して `status.md` を消す →
+  cloudflare の版の `actions_status.py`（`git show origin/cloudflare:…`）と作業ブランチの版を続けて実行 →
+  「書き出した時刻」の行を除いて diff
+- 結果: **status.md の差分 0**（2回行い、2回とも0）。続けて同じ dest でもう1回実行し、status.md・morning.md とも「変更なし」になることを確かめた
+- 予約の直近の予定時刻（11:0x JST の時点。手元で計算）: check-image-links 10/14 04:30・check-meibo 10/12 05:07・check-saikyo-unregistered 10/12 06:50・cleanup-logs 10/12 06:23・
+  delete-merged-branches 10/14 07:53・fetch-gsc 10/01 06:00・regenerate-page 10/12 05:37・sync-birthday-calendar 10/12 05:17・sync-books-calendar 10/12 05:27・
+  sync-dojo-calendar 10/14 07:12・update-live-channel 10/14 06:43・update-sns-book 10/14 04:10。週次（UTC 日曜）が JST 月曜になること、`28-31` の日の範囲を確かめた
+- 最初の実行では所要時間の節に notify-build-failure.yml の skipped（数秒）が中央値を 1 秒に下げて5件出たため、skipped を中央値と対象から外した（下の「判断が必要なこと」）。
+  また節の中の並びをワークフロー順から開始時刻の古い順に変えた
+
+書き出した morning.md の全文（2026-10-14 11:03 JST）:
+
+```
+# 朝の報告用の異常（retroeater/mj）
+
+- 書き出した時刻: 2026-10-14 11:03 JST（見た範囲: 2026-10-13 09:03 JST から）
+- 書き出した実行の契機: workflow_dispatch（local）
+- 異常だけを書く。全体は actions/status.md。判定は mj の scripts/morning_report.py（各ワークフローの直近 100 回まで）
+
+## 1. 失敗など（結論が success・skipped 以外。実行中を含む）
+
+- 2026-10-13 11:12 update-sns-book.yml failure（workflow_dispatch・cloudflare） https://github.com/retroeater/mj/actions/runs/38335781712
+- 2026-10-13 23:38 notify-build-failure.yml failure（workflow_dispatch・cloudflare） https://github.com/retroeater/mj/actions/runs/38415113000
+
+## 2. 予約実行の未実行（予定から3時間以内は「遅れの可能性」）
+
+なし
+
+## 3. 所要時間の異常（直近20回の中央値の3倍以上、または10分以上。skipped は除く）
+
+- 2026-10-13 09:17 regenerate-page.yml success（push・cloudflare）所要 3分12秒（直近20回の中央値 0分50秒） https://github.com/retroeater/mj/actions/runs/38326537772
+- 2026-10-13 11:12 update-sns-book.yml failure（workflow_dispatch・cloudflare）所要 3分40秒（直近20回の中央値 0分36秒） https://github.com/retroeater/mj/actions/runs/38335781712
+- 2026-10-13 11:30 regenerate-page.yml success（push・cloudflare）所要 3分58秒（直近20回の中央値 0分50秒） https://github.com/retroeater/mj/actions/runs/38337166122
+- 2026-10-13 12:41 regenerate-page.yml success（push・cloudflare）所要 3分29秒（直近20回の中央値 0分50秒） https://github.com/retroeater/mj/actions/runs/38342868015
+- 2026-10-13 13:57 regenerate-page.yml success（push・cloudflare）所要 2分52秒（直近20回の中央値 0分50秒） https://github.com/retroeater/mj/actions/runs/38348958077
+- 2026-10-13 16:27 regenerate-page.yml success（push・cloudflare）所要 2分50秒（直近20回の中央値 0分50秒） https://github.com/retroeater/mj/actions/runs/38362749491
+- 2026-10-14 04:37 update-sns-book.yml success（workflow_dispatch・cloudflare）所要 3分38秒（直近20回の中央値 0分36秒） https://github.com/retroeater/mj/actions/runs/38456349472
+
+## 4. 初回成功
+
+- 2026-10-13 23:38 notify-build-failure.yml success（workflow_dispatch・cloudflare）それ以前の 0 件に success なし https://github.com/retroeater/mj/actions/runs/38415024219
+
+## 5. 未報告のログ（`## 報告` の節が無い）
+
+- CHAT-1014-ACF-16.md（着手 2026-10-14） https://github.com/retroeater/mj-logs/blob/main/logs/CHAT-1014-ACF-16.md
+```
+
+`sync-from-mj.yml` に足す差分: なし（上の「経路の確かめ」のとおり、`actions_status.py` の中で書く）
+
+### 3. 文書
+
+- docs/notes/cloud-sessions.md「作業ログ」の「Actions の実行結果も書き出す」の項に2行を足した（morning.md・`scripts/morning_report.py`・予約の一覧の出どころ）。
+  chat-side-operations.md は警告域の直前（26,556 バイト）なので変えていない
+- docs/decisions/automation.md に今回の決定を足した
+
+## 報告
+
+- 状態: 判断待ち（cloudflare へのマージは平野さんの判断。mj-logs への push は不要）
+- ブランチ: work/1014-oha
+- ログ: https://github.com/retroeater/mj/blob/work/1014-oha/docs/logs/CHAT-1014-OHA-03.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1014-oha
+- 確認用URL: なし（`scripts/` と docs だけの変更で、配信物は変わらない）
+- マージ: 未（平野さんの判断待ち）
+- issue: #563（起票）
+- 判断が必要なこと:
+  - cloudflare へのマージ（8ed58bd10 の実装と docs）。マージすると次の mj-logs の写しから `actions/morning.md` が出る。**`sync-from-mj.yml` の変更は無い**（`actions_status.py` の中で書くため。次の指示の `add_repo`（push）は要らない）
+  - morning.md の各節の判定の式（「直近26時間」= 書き出し時刻 − 26時間 以降。実行の時刻は `run_started_at`、無ければ `created_at`。各ワークフローの実行は API の新しい順に最大100件）
+    1. 失敗など: 直近26時間に開始した実行のうち、`conclusion` が `success`・`skipped` 以外（空〈実行中〉を含む）
+    2. 予約実行の未実行: `state` が `active` のワークフローで、予定（`on.schedule` の cron〈UTC〉と schedule.json の `enabled` な行〈JST、weekdays・monthdays〉）のうち書き出し時刻以前で最も新しい時刻（32日まで遡る）を求め、`event` が `schedule` か `workflow_dispatch` で `created_at` がその時刻以降の実行が1件も無ければ書く。書き出し時刻 − 予定 ≦ 3時間なら「遅れの可能性」、それより前なら「未実行」。ブランチでは絞らない（指示のとおり。作業ブランチの手動実行も「実行あり」に数える）
+    3. 所要時間の異常: 直近26時間の完了した実行の所要（`updated_at` − `run_started_at`）が、10分以上か、そのワークフローの新しい順20件のうち完了したものの所要の中央値の3倍以上。**指示から外した点: `skipped` を中央値と対象から外した**（入れると notify-build-failure.yml の中央値が1秒になり、8〜14秒の実行が5件出た）。外さない形に戻すかの判断を
+    4. 初回成功: 直近26時間の `success` で、取得した100件のうちそれより古い実行に `success` が1件も無いもの
+    5. 未報告のログ: mj-logs の `logs/CHAT-*.md` のうち、行頭 `## ` の見出しの最後が `## 報告` でないもの（指示欄に `## 報告` の見出しが出ても誤らないように最後の見出しで見る）。着手日時は `- 着手日時:` の行
+  - 予約の一覧の作り方: REST でも定数でもなく、**mj のクローンの中のファイルを読む**（`sync-from-mj.yml` は mj の cloudflare をクローンし、その中でスクリプトを動かすため。`on.schedule` は `.github/workflows/*.yml`、Worker の表は `workers/scheduler/schedule.json`）。Worker の表を変えても mj-logs 側の直しは要らない
+  - 書き出しの頻度: 中身が同じなら書かないが、前の書き出しが JST で今日でなければ書く（朝に前日の時刻が残らないように）。これで mj-logs のコミットが1日1回増えうる
+- 未確認の項目: mj-logs の上での実行（マージ後の最初の写しで、`actions/morning.md` が出ることと、status.md が変わらないこと）
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 916667a9）: https://github.com/retroeater/mj-logs/tree/main/guide/916667a9
+ガイド文書（この版を写した時点の最新、mj 66e8343c）: https://github.com/retroeater/mj-logs/tree/main/guide/66e8343c
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/916667a9/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/916667a9/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/916667a9/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/916667a9/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/916667a9/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/916667a9/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/66e8343c/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/66e8343c/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/66e8343c/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/66e8343c/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/66e8343c/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/66e8343c/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/191d9dbd.md
