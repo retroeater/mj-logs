@@ -83,7 +83,11 @@ ryoei.pro のすべての転送の一覧と、四半期ごとの棚卸しの手�
 - **トークン:** 読み取りだけ（Analytics Read、ゾーン ryoei.pro だけ）。Secret 名は `CF_ANALYTICS_TOKEN`（CLAUDE.md「禁止事項」の `CLOUDFLARE_API_TOKEN` とは別の名前・別の権限。2026-10-14 の決定）。ゾーンの ID はリポジトリの変数 `CF_ZONE_ID`（秘密ではない）、無ければスクリプトが名前から引く
 - **#564 との関係:** 毎朝の運行（`daily.yml`）には入れない。#564 の段④で `fetch-gsc.yml` と一緒に Worker `mj-scheduler` の起動の表へ移す
 
-### 実測（cloudflare での手動実行）
+### 実測（cloudflare での手動実行、2026-10-15 JST）
 
-- `settings` の `notOlderThan`・`maxDuration`・`maxPageSize`、ボット・User-Agent に関わる `availableFields`: **未確認**（CHAT-1014-RDR-03 の手動実行で埋める）
-- `_redirects` の 301 がゾーンの集計に 301 として出るか: **未確認**（同上）
+run 38611255688・38611403811（dry-run）。
+
+- **API は通る。** `settings` の `httpRequestsAdaptiveGroups`: `enabled` 真、`notOlderThan` 2,678,400 秒（31日）、`maxDuration` 2,592,000 秒（30日）、`maxPageSize` 10,000。31日の月は2回に分けて問い合わせる
+- ゾーンの ID は `GET /zones?name=ryoei.pro` で引けた（変数 `CF_ZONE_ID` は未設定のまま）。`/user/tokens/verify` は 401（アカウントのトークンのため。スクリプトは続ける）
+- **`_redirects` の 301 はゾーンの集計に 301 として出る。** 2026-10-01〜10-15 で `/jpml_titles.html` 301 が487件・403 が93件、`/saikyo_results.html` 301 が88件・403 が26件など（403 は Super Bot Fight Mode などの遮断と思われる。未確認）
+- `availableFields` のボット・User-Agent に関わる次元: `dimensions_userAgent`・`dimensions_userAgentBrowser`・`dimensions_userAgentOS`・`dimensions_requestSource`・`dimensions_botManagementDecision`・`dimensions_verifiedBotCategory`。`userAgent_notlike` による除外は通り、2026-09（09-13 以降）で `/saikyo_results.html` は 301 が120件・ボットらしい UA を除くと11件だった。`verifiedBotCategory` も使えるが、今は使っていない

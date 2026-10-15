@@ -298,7 +298,9 @@
 
 ### 手順3
 
-- #571 へのコメントと、CHAT-1010-MCK-03 のログの状態の追記は、この節の push の後に行う（下に結果を書く）
+- 貼り方は上の「手順2」の「平野さん向け: 貼り方」に4行で書いた
+- #571（Open、コメント0件だった）に「第12〜17期の『結果』は #571 で扱う（2026-10-15 の決定）」をコメントした: https://github.com/retroeater/mj/issues/571#issuecomment-6183330509
+- CHAT-1010-MCK-03 のログの `## 報告` の状態の末尾に ` / 続き: CHAT-1015-MCK-05` を足した
 
 ### 決定の記録（docs/decisions/）
 
@@ -311,7 +313,7 @@
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1015-MCK-05.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1015-mck-365
 - 確認用URL: なし
-- マージ: 未（この後に行う）
+- マージ: 済（cc29a4c5d。直前に origin/cloudflare を merge で取り込み、fast-forward で push。この行の追記はマージ後の docs/logs のみの追いの push）
 - issue: #365（着手中のコメント）、#571（コメント）
 - 判断が必要なこと:
   - TSV を JWRC タブに貼り、「合計」の数式をコピーする（貼り方は `## 経過`「手順2」）
@@ -322,12 +324,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 3508c80c）: https://github.com/retroeater/mj-logs/tree/main/guide/3508c80c
+ガイド文書（この版を写した時点の最新、mj f39e26a9）: https://github.com/retroeater/mj-logs/tree/main/guide/f39e26a9
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/3508c80c/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/3508c80c/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/3508c80c/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/3508c80c/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/3508c80c/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/3508c80c/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f39e26a9/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f39e26a9/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f39e26a9/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f39e26a9/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f39e26a9/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f39e26a9/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/66464371.md
