@@ -1,6 +1,6 @@
 # 朝の報告用の異常（retroeater/mj）
 
-- 書き出した時刻: 2026-10-15 14:48 JST（見た範囲: 2026-10-14 12:48 JST から）
+- 書き出した時刻: 2026-10-15 14:50 JST（見た範囲: 2026-10-14 12:50 JST から）
 - 書き出した実行の契機: workflow_dispatch（main）
 - 異常だけを書く。全体は actions/status.md。判定は mj の scripts/morning_report.py（各ワークフローの直近 100 回まで）
 
@@ -12,7 +12,6 @@
 - 2026-10-15 02:56 fetch-redirect-counts.yml failure（workflow_dispatch・cloudflare） https://github.com/retroeater/mj/actions/runs/38610972729
 - 2026-10-15 02:58 fetch-redirect-counts.yml failure（workflow_dispatch・cloudflare） https://github.com/retroeater/mj/actions/runs/38611141347
 - 2026-10-15 04:10 update-sns-book.yml failure（workflow_dispatch・cloudflare） https://github.com/retroeater/mj/actions/runs/38621492985
-- 2026-10-15 14:37 run-daily.yml in_progress（workflow_dispatch・work/1015-wfl-s7） https://github.com/retroeater/mj/actions/runs/38687819982
 
 ## 2. 予約実行の未実行（予定から3時間以内は「遅れの可能性」。3時間を超えて始まった実行は「遅れて実行」）
 
@@ -25,11 +24,12 @@
 - 2026-10-14 16:50 regenerate-page.yml success（push・cloudflare）所要 3分22秒（直近20回の中央値 0分47秒） https://github.com/retroeater/mj/actions/runs/38531008713
 - 2026-10-15 04:10 update-sns-book.yml failure（workflow_dispatch・cloudflare）所要 4分24秒（直近20回の中央値 0分38秒） https://github.com/retroeater/mj/actions/runs/38621492985
 - 2026-10-15 12:21 regenerate-page.yml success（push・cloudflare）所要 3分19秒（直近20回の中央値 0分47秒） https://github.com/retroeater/mj/actions/runs/38675846949
-- 2026-10-15 12:54 run-daily.yml success（workflow_dispatch・cloudflare）所要 12分03秒（直近20回の中央値 12分03秒） https://github.com/retroeater/mj/actions/runs/38678691802
+- 2026-10-15 12:54 run-daily.yml success（workflow_dispatch・cloudflare）所要 12分03秒（直近20回の中央値 12分17秒） https://github.com/retroeater/mj/actions/runs/38678691802
+- 2026-10-15 14:37 run-daily.yml success（workflow_dispatch・work/1015-wfl-s7）所要 12分32秒（直近20回の中央値 12分17秒） https://github.com/retroeater/mj/actions/runs/38687819982
 
 ## 4. 初回成功
 
-- 2026-10-14 14:13 assets-check.yml success（push・work/1014-wfl-s2）それ以前の 0 件に success なし https://github.com/retroeater/mj/actions/runs/38515522095
+- 2026-10-14 14:15 assets-check.yml success（push・work/1014-wfl-s2）それ以前の 0 件に success なし https://github.com/retroeater/mj/actions/runs/38515657214
 - 2026-10-15 02:58 fetch-redirect-counts.yml success（workflow_dispatch・cloudflare）それ以前の 2 件に success なし https://github.com/retroeater/mj/actions/runs/38611255688
 - 2026-10-15 12:26 fetch-x-posts.yml success（workflow_dispatch・cloudflare）それ以前の 0 件に success なし https://github.com/retroeater/mj/actions/runs/38676252888
 - 2026-10-15 12:54 run-daily.yml success（workflow_dispatch・cloudflare）それ以前の 0 件に success なし https://github.com/retroeater/mj/actions/runs/38678691802
