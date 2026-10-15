@@ -256,7 +256,7 @@ HTMLは24ページ + 書籍の一覧と個別ページ（`books/`、#97、noinde
 |---|---|---|
 | `index.html` | 1 | Webサイトテンプレート（iPortfolio）由来。`index.css` と11個のvendorライブラリを使う |
 | ビルド時生成（型A・15列） | 1 | `jpml_pros.html`。独自の`generate_jpml_pros.py`のまま |
-| ビルド時生成（型A・2列/3列） | 7 | `jpml_test.html` / `resource_logs.html` / `video_live.html` / `video_en.html` / `rh_paifu.html` / `saikyo_mens.html` / `video_mtsuku.html`(3列)。`scripts/lib/page.py` + 共有JS `table.js` を使う（#7）。旧表 `jpml_titles.html` は廃止し `/title/` へ 301（#441） |
+| ビルド時生成（型A・2列/3列） | 7 | `jpml_test.html` / `resource_logs.html` / `video_live.html` / `video_en.html` / `rh_paifu.html` / `saikyo_mens.html` / `video_mtsuku.html`(3列)。`scripts/lib/page.py` + 共有JS `table.js` を使う（#7）。**`video_mtsuku.html` は 2026-10-15 から生成を止めた**（`regenerate.py` の `FROZEN_FROM_ALL` で all から外し、今の HTML のまま配信。「Mつく」タブの列が変わり、旧の生成はページ名を指定しても失敗する。旧 URL の転送と生成スクリプト・`FROZEN_FROM_ALL` の行の削除は #570）。旧表 `jpml_titles.html` は廃止し `/title/` へ 301（#441） |
 | ビルド時生成（型A'・多列テキスト） | 2 | `rh_results.html` / `rh_results_detail.html`。画像列を持たないため`.mj-table-auto`を使う（#7、完了） |
 | ビルド時生成（型D・静的SVG） | 1 | `resource_efficiency.html`。表を持たないため`render_content()`を使う。外部JS・外部ドメインへの依存が一切ない（#7/#128、完了） |
 | ビルド時生成（型C・積み上げ棒+折れ線） | 2 | `houou_leagues.html` / `ouka_leagues.html`。積み上げ棒と既定選手の折れ線は静的SVG、`?name=`時の折れ線差し替えのみ`leagues.js`が担う（#7/#127、完了） |

@@ -94,28 +94,53 @@
 - ローカルの dry-run（このセッション。Google の認証は無い）: トークン 無、ブック 開けない（`google.auth` が無い）、谷岡育夫 既存の行 1,533件・ids 10件、平野良栄 556件・10件、呼び出し 3回・最大 220件・$1.1。出力にブックの ID は無い
 - マージの条件: テスト OK／入力 `dry_run` の既定は true、スクリプトの既定も dry-run／`.github/workflows/` の既存の本と `workers/scheduler/schedule.json` に差分なし（`git diff --name-only origin/cloudflare -- .github/workflows workers/scheduler` は新しいファイルだけ）／止まる条件に当たらない
 
+### マージ
+
+- 直前の再 fetch で cloudflare が進んでいた（WRC の略記の直し〈JPL〉と自動再生成）ので、`git merge origin/cloudflare` で取り込んだ（衝突なし）。取り込み後にテストを回し直して 1,122件 OK、cloudflare との差分は上の5ファイルだけ
+- `git merge-base --is-ancestor origin/cloudflare HEAD` を確かめて `git push origin work/1015-mck-367:cloudflare`（e8b8038ae..31debbccc、fast-forward）
+
+### 手順3: cloudflare での dry-run（run 38676252888）
+
+- 2026-10-15 12:26 JST に MCP の `actions_run_trigger`（ref `cloudflare`、入力 `mode=both`・`dry_run=true`、ほかは既定）で起動。**success**（17秒）。コミット 31debbccc
+- 出力（ジョブのログの「実行」ステップ。本文は出ていない）:
+  - `X_BEARER_TOKEN`: **有**
+  - 書き込み先のブック: **開けた**。タブ3個: 【1】元データ・【2】自動変換後・【3】手動補正
+  - 「ログ_候補」タブ: 無（本番で作る）。生成が読む「ログ」タブ: **無**（前提の「生成が読むブックと同じか」は「別のブック」と分かった）
+  - 書き込みの権限（Drive の `capabilities.canEdit`）: **未確認**（Drive API が HTTP 403。GCP のプロジェクトで Drive API が有効でないか、範囲が足りないとみられる。原因は確かめていない）。開けたので少なくとも閲覧はできる
+  - 谷岡育夫: 「ログ」の既存の行 1,533件、ids で読む投稿 10件／平野良栄: 556件・10件（どちらも 2025-11・2025-12 の行から）
+  - mode both・期間 2025-11-15〜2026-01-07: X API の呼び出し **3回**、読む投稿 最大 **220件**、見込みの費用 最大 **$1.1**（上限 250件・$1.25）
+- ジョブのログにブックの ID・本文・トークンの値は出ていない（トークンは `***`）
+- 止まる条件の「サービスアカウントがブックを開けない」には当たらない（開けた）。書き込めるかは未確認のまま
+- #367 に結果をコメントした: https://github.com/retroeater/mj/issues/367#issuecomment-6183713136
+- CHAT-1010-MCK-04 のログの `## 報告` の状態の末尾に ` / 続き: CHAT-1015-MCK-06` を足した
+- 決定節を docs/decisions/operations.md に足した（作業中の回答は無い）
+
 ## 報告
 
-- 状態:
-- ブランチ:
-- ログ:
-- 比較URL:
-- 確認用URL:
-- マージ:
-- issue:
+- 状態: 判断待ち（ワークフローを入れ、cloudflare で dry-run を1回動かした。X API は呼んでいない）
+- ブランチ: work/1015-mck-367
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1015-MCK-06.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1015-mck-367
+- 確認用URL: なし
+- マージ: 済（31debbccc。成果物とログ。この報告は後の docs/logs のみの追いの push）
+- issue: #367（着手中のコメント・結果のコメント）
 - 判断が必要なこと:
+  - 本番の取得の前に、X の開発者画面でクレジットの残高を見る
+  - 書き込み先のブックの「共有」で、サービスアカウント（`update-sns-book.yml` などと同じ `LIVE_SHEETS_SA_KEY` のもの）が「編集者」になっているかを見る（dry-run では書かずに確かめられなかった）。なっていなければ編集者で共有する
+  - 上の2つの後、本番（`dry_run` を外して1回、約220件・約 $1.1）を動かす指示を出すか
 - 未確認の項目:
-- エラー:
+  - 書き込み先のブックへの書き込みの権限（Drive API が 403 で読めなかった）
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 1b7c188b）: https://github.com/retroeater/mj-logs/tree/main/guide/1b7c188b
+ガイド文書（この版を写した時点の最新、mj b41b6aa9）: https://github.com/retroeater/mj-logs/tree/main/guide/b41b6aa9
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/1b7c188b/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/1b7c188b/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/1b7c188b/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/1b7c188b/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/1b7c188b/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/1b7c188b/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b41b6aa9/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b41b6aa9/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b41b6aa9/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b41b6aa9/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b41b6aa9/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b41b6aa9/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/66464371.md
