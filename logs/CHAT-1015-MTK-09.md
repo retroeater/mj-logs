@@ -84,7 +84,7 @@ MTK-07 の時点では2人とも SNS ブックに X ID が無く（写真なし�
 
 ## 報告
 
-- 状態: 中断（写真の URL が SNS ブックに入るまで、Mつくのページを生成し直せない）
+- 状態: 中断（写真の URL が SNS ブックに入るまで、Mつくのページを生成し直せない） / 続き: CHAT-1015-MTK-10
 - ブランチ: work/MTK
 - ログ: https://github.com/retroeater/mj/blob/work/MTK/docs/logs/CHAT-1015-MTK-09.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/MTK
@@ -100,12 +100,12 @@ MTK-07 の時点では2人とも SNS ブックに X ID が無く（写真なし�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 4a361525）: https://github.com/retroeater/mj-logs/tree/main/guide/4a361525
+ガイド文書（この版を写した時点の最新、mj 23eb8ffb）: https://github.com/retroeater/mj-logs/tree/main/guide/23eb8ffb
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/4a361525/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/4a361525/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/4a361525/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/4a361525/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/4a361525/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/4a361525/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/23eb8ffb/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/23eb8ffb/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/23eb8ffb/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/23eb8ffb/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/23eb8ffb/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/23eb8ffb/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/2fcae3af.md

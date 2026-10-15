@@ -315,3 +315,21 @@ CHAT-1015-WFL-15 の「判断が必要なこと」への回答（#564）。い�
 - run-daily.yml の入力は `scheduled` だけにする（`dry_run` を設けず、`scheduled` なしの手動実行は常に書かない道筋）。書く手動実行は各本の画面で行う
 - regenerate-saikyo の `workflow_call` の `abema` の既定を設計の `check` ではなく `dry_run` にしたことを受け入れる（チャット側の確認）
 - 作業中の回答: なし
+
+## 2026-10-15（CHAT-1015-WFL-17）
+
+WFL-15 の決定の再掲（新しい決定は無い）。#564 の段③-2。
+
+- run-daily.yml の並びは live → sns → images → saikyo の直列（`!cancelled()`）と、dojo・branches の並行（WFL-16 の cloudflare の手動実行で確かめ済み）
+- update-live-channel の保険のゲートは、run-daily の実行のジョブ `live / update` の結論を見る（run-daily 全体の結論では見ない）
+- 段③-2 は schedule.json・ゲート・regenerate-saikyo の `workflow_run` の削除・morning_report.py の 2 点（所要時間の絶対値〈600 秒〉の判定を中央値が 600 秒未満の本だけにする・失敗の行に失敗したジョブ名を足す）を同じマージに入れる
+- Worker のコードは変えない（2026-10-14）
+- 作業中の回答: なし
+
+## 2026-10-15（CHAT-1015-WFL-18）
+
+CHAT-1015-WFL-17 の「判断が必要なこと」への回答（#564）。いずれも Claude Code の推奨のとおり。
+
+- `workers/scheduler/test/scheduler.test.mjs` の表の中身を確かめるテスト（`schedule.json` の中身の写しを期待値に持つもの）を新しい表（04:00 の回に `run-daily.yml` を1本、確かめの対象は1行）に合わせて直す。表の中身の写しのテストは表と一緒に変わる性質のものとして、「Worker のコードを変えない」（2026-10-14）の例外にはしない（Worker の動き〈`src/`〉は変えない）
+- morning_report.py の所要時間の判定は「判定する実行自身を除いた、ほかの実行の中央値が 600 秒未満の本だけ絶対値（600 秒）で見る。ほかの実行が無ければ絶対値で見る」とする
+- 作業中の回答: なし
