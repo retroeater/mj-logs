@@ -104,7 +104,7 @@ Chat-Ref: CHAT-1015-HOU-49
 
 ## 報告
 
-- 状態: 判断待ち（見た目と動きをプレビューで見て決める。マージは 10/20 の試行の判断の後に別の指示で）
+- 状態: 判断待ち（見た目と動きをプレビューで見て決める。マージは 10/20 の試行の判断の後に別の指示で） / 続き: CHAT-1016-HOU-50
 - ブランチ: work/1015-hou6
 - ログ: https://github.com/retroeater/mj/blob/work/1015-hou6/docs/logs/CHAT-1015-HOU-49.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1015-hou6
@@ -129,4 +129,4 @@ Chat-Ref: CHAT-1015-HOU-49
 - docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a94b0a64/docs/notes/chat-side-operations.md
 - docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a94b0a64/docs/notes/cloudflare.md
 - docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a94b0a64/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/95d46b4d.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a94b0a64.md
