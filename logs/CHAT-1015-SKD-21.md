@@ -88,29 +88,35 @@
 - `saikyo/2019/20190223.html`（2019年2月23日 女流プレミアトーナメント 華麗な技）のベスト32 B卓: 塚田美紀・小笠原奈央（通過、金のピル）→ 都美・岡田紗佳（敗退、灰色のピル）の順になった（指示文の前提どおり）。ベスト32 A卓は 石田亜沙己・水口美香（通過）→ 与那城葵・桜川姫子（敗退）、ベスト16 は 水口美香（通過）→ 小笠原奈央・石田亜沙己・塚田美紀（敗退）。読み上げの「（通過）」「（敗退）」は各行の名前の中にあり、行と一緒に並べ替わるので対応は崩れない
 - 卓のページ `saikyo/2019/20190223-s1-b.html` の出場者の写真カードも 塚田美紀 → 小笠原奈央 → 都美 → 岡田紗佳 の順
 - 2ページ × 375/390/430 × 明・暗 × 標準・幅の広い字体2種・150%・200% の60通り: 横スクロール・はみ出し・重なり・44px 未満は0件（卓のページの transition 9件は live/ と共有の写真カードで、前からのもの）
+- プレビュー: fa89213de の check-run「Workers Builds: mj」completed/success。別名 URL の `?v=fa89213` で `saikyo/2019/20190223.html`・`saikyo/2019/20190223-s1-b.html`・`saikyo/index.html` がローカルとバイト単位で一致。ブラウザでの見え方はここからは確かめていない
+
+### 5. 記録
+
+- 決定1・2は `docs/decisions/design-renewal.md` の「2026-10-15（CHAT-1015-SKD-21）」。文書は `docs/notes/saikyo-page-design.md` の変換ルールの卓内の並びを直した
+- SKD-20 のログの状態を「判断待ち / 続き: CHAT-1015-SKD-21」にした
 
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1015-skd-top
 - ログ: https://github.com/retroeater/mj/blob/work/1015-skd-top/docs/logs/CHAT-1015-SKD-21.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1015-skd-top
-- 確認用URL: なし
-- マージ: 未
-- issue: #566
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 確認用URL: 2019年2月23日（女流プレミアトーナメント 華麗な技）の対局のページのベスト32 B卓で、上の2行が塚田美紀・小笠原奈央（金の「通過」）、下の2行が都美・岡田紗佳（灰色の「敗退」）。ベスト32 A卓・ベスト16 も通過が上（URL はターミナルの最終報告）
+- マージ: 未（この指示ではマージしない。#549 の公開の指示で一緒にマージする。卓のページ 284・対局のページ 124・今の年度ページ 11 の差もこのブランチに入る）
+- issue: #566（公開は #549）
+- 判断が必要なこと: この並べ方でよいか（順位が空の卓 397 卓のうち 284 卓の並びが変わる。今の年度ページ 2011〜2021 年度も同じ並びになるが、このブランチは #549 の公開時に入る）
+- 未確認の項目: 実機（iPhone・PC）のブラウザでの見え方（セッションからは確かめられない）。#549 の公開の直前の取り込みと生成し直し
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 3791f374）: https://github.com/retroeater/mj-logs/tree/main/guide/3791f374
+ガイド文書（この版を写した時点の最新、mj ddd0fcee）: https://github.com/retroeater/mj-logs/tree/main/guide/ddd0fcee
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/3791f374/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/3791f374/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/3791f374/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/3791f374/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/3791f374/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/3791f374/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ddd0fcee/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ddd0fcee/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ddd0fcee/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ddd0fcee/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ddd0fcee/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/ddd0fcee/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/66464371.md
