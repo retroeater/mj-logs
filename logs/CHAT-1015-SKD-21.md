@@ -54,6 +54,41 @@
 
 ## 経過
 
+### 0. 着手前
+
+- 「指示」欄の末尾と指示文の最後の行が一致。`git log --all --grep="CHAT-1015-SKD-21"` は0件。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある
+- ブランチ: origin/work/1015-skd-top（3716b42b8、未マージ）を続けて使用。ログ先行 push 6dd260214（[sync-logs]）の後、cloudflare が祖先でなかったので `git merge origin/cloudflare` で取り込んだ（衝突なし。取り込んだのは wayhome/・live の予定・X の投稿の取得など、saikyo/ 以外）
+- #566・#549 の最新のコメントに他セッションの着手中コメントなし。#566 に着手中のコメント（6183976299）。#549 には新しいコメントを書いていない
+- 未マージの work/ ブランチ: `scripts/generate_saikyo_pages.py`・テストを変えているものはなし
+
+### 1. 変えたもの（fa89213de）
+
+- `scripts/generate_saikyo_pages.py`: `build_match()` の卓の中の並べ替え（340 行付近の `sorted(players, key=lambda p: (p.rank is None, p.rank or 0))`）を `sorted(players, key=player_order)` にした。`player_order()` は順位のある人を `(0, 順位, 0)`、順位の無い人を `(1, 0, 結果の順)` にする（結果の順は定数 `RESULT_ORDER`: 通過 0・敗退 1・結果なし 2）。sorted は安定なので同じ結果の中はシート順、順位のある卓は前と同じ、未対局の卓（全員が結果なし）はシート順のまま
+- 並び順は `Match` の卓の中の順なので、新しい対局のページの行・卓のページの写真カード・「各選手の他の対局」の順・トップの検索データ・今の年度ページに同じく効く
+- テスト `PlayerOrderTest` 3件（順位が空の卓で通過が先・同じ結果の中はシート順、順位のある卓は順位の順のまま、未対局の卓はシート順のまま）。1件目は修正前のコードで失敗し、残り2件は前後とも通る（変わらないことの確かめ）。`python3 -m unittest discover -s scripts/tests`: OK
+
+### 2. 順位が空の卓の数
+
+結果の入った卓のうち、順位（F）が空の人がいる卓は 2011〜2021 年度の 397 卓（2011: 18、2012: 22、2013: 26、2014: 28、2015: 25、2016: 38、2017: 41、2018: 54、2019: 51、2020: 50、2021: 44）。2022 年度以降は無い。このうち並びが変わったのは 284 卓（残りはシート順ですでに通過が先だった）
+
+### 3. 生成物の差（`python3 scripts/regenerate.py saikyo_pages`）
+
+| 種類 | 件数 | 中身 |
+|---|---|---|
+| 卓のページ | 284 | 並びが変わった卓のページ（写真カードと「各選手の他の対局」の順）。並びが変わった卓の集合と差のある卓のページの集合が一致 |
+| 新しい対局のページ | 124 | 並びが変わった卓を含む対局のページ。集合が一致 |
+| 今の年度ページ `saikyo/<年度>.html` | 11（2011〜2021） | 同じ並べ替えが効く（このブランチは #549 の公開で今の年度ページが無くなるときに入る） |
+| トップ `saikyo/index.html` | 1 | 検索データの卓の中の人の順（表示は選手ごとなので見た目は変わらない） |
+| 新しい年度ページ・live/・ほか | 0 | |
+
+順位のある卓で並びが変わったものは0件。live/ の差は0（`generate_live_pages.py` は最強戦の並べ替えを使っていない）
+
+### 4. 確かめ（ローカル、headless Chromium）
+
+- `saikyo/2019/20190223.html`（2019年2月23日 女流プレミアトーナメント 華麗な技）のベスト32 B卓: 塚田美紀・小笠原奈央（通過、金のピル）→ 都美・岡田紗佳（敗退、灰色のピル）の順になった（指示文の前提どおり）。ベスト32 A卓は 石田亜沙己・水口美香（通過）→ 与那城葵・桜川姫子（敗退）、ベスト16 は 水口美香（通過）→ 小笠原奈央・石田亜沙己・塚田美紀（敗退）。読み上げの「（通過）」「（敗退）」は各行の名前の中にあり、行と一緒に並べ替わるので対応は崩れない
+- 卓のページ `saikyo/2019/20190223-s1-b.html` の出場者の写真カードも 塚田美紀 → 小笠原奈央 → 都美 → 岡田紗佳 の順
+- 2ページ × 375/390/430 × 明・暗 × 標準・幅の広い字体2種・150%・200% の60通り: 横スクロール・はみ出し・重なり・44px 未満は0件（卓のページの transition 9件は live/ と共有の写真カードで、前からのもの）
+
 ## 報告
 
 - 状態: 作業中
@@ -70,12 +105,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 281628d5）: https://github.com/retroeater/mj-logs/tree/main/guide/281628d5
+ガイド文書（この版を写した時点の最新、mj 3791f374）: https://github.com/retroeater/mj-logs/tree/main/guide/3791f374
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/281628d5/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/281628d5/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/281628d5/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/281628d5/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/281628d5/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/281628d5/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/3791f374/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/3791f374/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/3791f374/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/3791f374/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/3791f374/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/3791f374/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/66464371.md
