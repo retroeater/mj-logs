@@ -52,17 +52,30 @@ ABEMA の新しい回を ABEMA ブックの【1】元データへ入れる流れ
 
 ## 経過
 
+- 0章: 「指示」欄の末尾と指示文の最後の行が一致。`git log --all --grep="CHAT-1015-SKD-23"` は0件。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある
+- ブランチ: ローカルの work/1015-skd-notes（SKD-22 でマージ済み）が origin/cloudflare の祖先だったので `git merge --ff-only origin/cloudflare` で e06076750 へ進めた。ログ先行 push d955fd947（[sync-logs]）
+- 同じ主題の issue の確かめ（search API は使えないので REST で全 570 件の題名と本文の先頭を読んだ。語は「ABEMA」「abema」「新しい回」「abema_new」と「検知」）:
+  - 題名に ABEMA を含む: #502（閉じた。サムネイルを載せるか決める）・#501（閉じた。ABEMA の URL を PC から確かめるスクリプト）・#425（開。個別ページと ABEMA の動画）
+  - 「新しい回」を含む: #545（開。帰り道の新しい回）・#340・#194（閉じた。帰り道）・#553・#316（閉じた。帰り道）・#569（開。Mつく）。どれも YouTube の帰り道・Mつくで、ABEMA の検知ではない
+  - 同じ主題の開いた issue は無かった。`abema_new` はリポジトリ・issue のどこにも無い（チャット側の呼び名）ので、本文では「チャット側の呼び名。リポジトリには無い」と書いた
+- #425 の最新のコメント: 2026-10-13 の着手中（振り返りの申送り）は、その後の「振り返りの申送りを済ませました」で解除済み。他のセッションの着手中は無い
+- ラベル: 「分野: 自動化」「対象: saikyo」はどちらもあり、付けた。「状況:」ラベルは付けていない
+- 背景の事実は #501 の本文（2026-10-05 の実測「このサービスはお住まいの地域からはご利用になれません」）と `docs/notes/abema-book.md` の【1】の行で確かめた
+- 起票: #572 https://github.com/retroeater/mj/issues/572 （本文の末尾に `Chat-Ref: CHAT-1015-SKD-23`）
+- #425 のコメント: https://github.com/retroeater/mj/issues/425#issuecomment-6185914918 （決定1・2と #572。本文・状態・ラベルは変えていない）
+- `docs/decisions/saikyo.md` の「流れは未決」の置き換えは行っていない（指示のとおり）
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1015-skd-notes
+- 状態: 完了
+- ブランチ: work/1015-skd-notes（ログのみ）
 - ログ: https://github.com/retroeater/mj/blob/work/1015-skd-notes/docs/logs/CHAT-1015-SKD-23.md
 - 比較URL: なし
 - 確認用URL: なし
-- マージ: なし
-- issue: #425
+- マージ: なし（issue の操作だけ）
+- issue: #572（起票）、#425（コメント）
 - 判断が必要なこと: なし
-- 未確認の項目: なし
+- 未確認の項目: docs/decisions/saikyo.md への記録は未（最強戦の棚卸しのチャットで記録する）
 - エラー: なし
 
 <!-- guide-links -->
