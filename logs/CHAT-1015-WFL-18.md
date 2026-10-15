@@ -51,15 +51,50 @@ WFL-17 の `## 報告`「判断が必要なこと」への回答。いずれも 
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+- Chat-Ref の重複確認: CHAT-1015-WFL-18 は未使用
+- 作業ブランチ: work/1015-wfl-s7 はローカル・リモートとも 40840c0ce で一致。そのまま使う
+- 0. 指示欄の末尾は指示文の最後の行と一致。WFL-17 のログの `## 報告` の状態は「判断待ち」
+- 雛形の行: Chat-Ref・マージ・貼る時機・共通手順（＋作業ブランチ）は揃っている
+- 着手は JST 14:36（貼る時機 05:15〜23:30 の内）
+- 未マージの work/ ブランチで `workers/scheduler/`・6 本・run-daily.yml・`scripts/morning_report.py`・`scripts/actions_status.py` を変えるもの: なし（WFL-17 と同じ）
+
+### 手順1: Worker のテスト（56c25f985）
+
+- WFL-17 のログの状態を「判断待ち / 続き: CHAT-1015-WFL-18」にした
+- `workers/scheduler/test/scheduler.test.mjs` で `schedule.json` を読む箇所（18 行の読み込みと、それを使う 51・173・227・301 行のテスト）を見た。中身を期待値に持つのは 301 行のテストだけで、これを「04:00 の回に run-daily を1本起動し、ほかの回（04:10・04:30）では起動せず、06:00 の確かめの対象は1行」に直した。51 行の「schedule.json の行は形がそろっている」（ファイル名の形・`HH:MM`・`enabled` が真偽）は新しい1行でそのまま通る。173・227 行は 03:00 の回に何も起動しないことを確かめるテストで、新しい表でも通る（変えていない）。`src/` は変えていない
+- Worker の `node --test`: 40 pass・0 fail。unittest: OK。部品のテスト: 18 pass
+
+### 手順2: 作業ブランチの run-daily と docs
+
+- 作業ブランチ（56c25f985）で run-daily を `scheduled` なしで手動実行: run #2（38687819982、題「毎朝の運行」）**success**、所要 12分32秒（05:37:53Z〜05:50:25Z、JST 14:37:53〜14:50:25）。並びは WFL-16 と同じ（live・dojo・branches が同時に始まり、sns → images → saikyo）。live / regenerate・sns / regenerate は skipped、saikyo / regenerate / regenerate は success
+- 書かない道筋: 作業ブランチに bot のコミットは無い。05:37Z 以降の issue のコメントは他セッションの #367 の1件だけで、bot の書き込みは無い
+- 新しいゲートは、手動実行（`workflow_dispatch`）では判定を出すだけで止めない。判定の中身は WFL-17 でこのセッションから同じ関数を今日の実行に当てて確かめた（(1) で `run #92`、(2) の run-daily の `[scheduled]` の実行は無し、ジョブの filter は run-daily #1 の `live / update` に当たる）
+- docs（78abc2d19）:
+  - docs/notes/github-actions.md: 一覧の表の 6 本と run-daily の行を、2026-10-16 から run-daily から呼ばれる形に直した。「## run-daily.yml」の節を足し、並び・権限・手動実行・ゲート・morning.md の判定と、戻し方（schedule.json を5行に・regenerate-saikyo の `workflow_run` と `if:` の条件を戻す・Worker のテストの期待値を戻す、の1コミット）を書いた
+  - docs/notes/scheduler-worker.md: 起動の表（今は run-daily の1行、初回 2026-10-16 04:00 JST）と、保険のゲートの見る先（(1)・(2) の和）・ログの行の形を直した
+- `docs/decisions/automation.md`: WFL-17 の節（再掲）は WFL-17 で足してある。その後に「## 2026-10-15（CHAT-1015-WFL-18）」を足した
+
+### 手順3: 取り込み
+
+- `git merge --no-edit origin/cloudflare` で docs/notes/github-actions.md が衝突した。一覧の表の隣り合う2行で、cloudflare 側は `fetch-x-posts.yml` の行（他セッションの #367 の作業で文言を直した）、こちらは `sync-dojo-calendar.yml` の行。両立するので、`fetch-x-posts.yml` の行は cloudflare 側、`sync-dojo-calendar.yml` の行はこちらを残して解いた（88668f6c8）。解いた後の該当箇所:
+
+  > | `fetch-x-posts.yml` | 手動だけ（schedule を持たず、Worker の起動の表にも載せない）。「ログ」の未反映期間の投稿を X API で試し取りし、書き込み先のブック（3層）の【1】元データに API の値のまま足す（…） |
+  > | `sync-dojo-calendar.yml` | 毎朝 `run-daily.yml` から（入力 `scheduled`、2026-10-16 から。それまでは Worker から 04:15 JST）と、保険の予約実行（毎日07:12 JST）。（…） |
+
+- 取り込んだのは fetch-x-posts.yml・scripts/fetch_x_posts.py とそのテスト・docs/decisions/operations.md・ログ。6 本・run-daily.yml・`workers/scheduler/`・morning_report.py は変わっていない
+- 取り込んだ後: unittest OK・Worker の `node --test` 0 fail・部品のテスト 0 fail
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 5150009b）: https://github.com/retroeater/mj-logs/tree/main/guide/5150009b
+ガイド文書（この版を写した時点の最新、mj a5b7e739）: https://github.com/retroeater/mj-logs/tree/main/guide/a5b7e739
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/5150009b/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/5150009b/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/5150009b/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/5150009b/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/5150009b/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/5150009b/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/66464371.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a5b7e739/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a5b7e739/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a5b7e739/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a5b7e739/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a5b7e739/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a5b7e739/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/2fcae3af.md
