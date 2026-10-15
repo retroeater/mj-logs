@@ -262,7 +262,7 @@ HTMLは24ページ + 書籍の一覧と個別ページ（`books/`、#97、noinde
 | ビルド時生成（型C・積み上げ棒+折れ線） | 2 | `houou_leagues.html` / `ouka_leagues.html`。積み上げ棒と既定選手の折れ線は静的SVG、`?name=`時の折れ線差し替えのみ`leagues.js`が担う（#7/#127、完了） |
 | ビルド時生成（独自: 順位表の数え上げ+期ごとのJSON） | 1 | `houou_race.html`（鳳凰戦 順位変動）。`render_content()`+専用JS`houou_race.js`。データは`houou_race/<期>-<1前・2後>.json`を選んだときに読む。navbar の「鳳凰戦」から辿れる（#507・#508、`docs/notes/houou-race.md`） |
 | ビルド時生成（独自: 全カテゴリをまとめた辞書ファイルを組み立てる） | 1 | `resource_dictionary.html`。`scripts/generate_resource_dictionary.py` が「辞書」タブ（連盟プロ以外と同じブック。「サブカテゴリ」列は読まない）と「プロ」タブから、カテゴリごとのデータ `dic/<スラッグ>.json` とページを書く。カテゴリは 一般用語 `mahjong`・連盟用語 `renmei`・連盟プロ `pros`（「プロ」タブから）・Mリーグ `mleague` の順（保存する行の順）。「辞書」タブに行の無いカテゴリは出さない。ページはカテゴリを選ばせず、形式のボタン（Microsoft IME・Google 日本語入力・Gboard）を押すと、`resource_dictionary.js` が全カテゴリを（読み, 語）が同じ行は先に並ぶカテゴリの行を残してまとめ、Microsoft IME 用（UTF-16LE・BOM 付き・CR+LF）・Google 日本語入力用（UTF-8・LF）・Gboard 用（見出し行 `# Gboard Dictionary version:1` と「読み TAB 語 TAB ja-JP」の `dictionary.txt` を無圧縮の zip に入れる）で保存させる。description と末尾の説明文に、同じ数え方の語数（`{count}`）を生成のたびに入れる（`scripts/apply_page_meta.py` には語数を除いた文言）。見た目は `resource_dictionary.css`（`style.css` には入れない。白いカード1枚に形式のボタンを縦に3つ〈最大 400px で中央〉。保存した後に、押したボタンのすぐ下に「辞書ファイルをダウンロードしました。」とその形式の登録方法を出す〈JS が `#dicDownload` の `data-saved` に形式を入れ、CSS が出し分ける〉、#522）（#377・#515） |
-| ビルド時生成（サブディレクトリ、独自: 全画面ヒーロー+横スクロールカード列） | 1 | `wayhome/index.html`（URL は `/wayhome/`。2026-10-13 に `/video_wayhome.html` から移し、旧 URL は `_redirects` で 301、#559。ページ名は `video_wayhome` のまま）。`render_content()`+専用JS`video_wayhome.js`。新サイトのパイロット（`docs/notes/video-wayhome.md`）。個別ページ（下の行）と同じく、title/ と同じブックの「帰り道」タブを見出しの名前で読み（`lib/wayhome.py` の `fetch_rows()`）、`data/youtube_meta.json` に無い回は外して生成する（#194） |
+| ビルド時生成（サブディレクトリ、独自: 全画面ヒーロー+横スクロールカード列） | 1 | `wayhome/index.html`（URL は `/wayhome/`。2026-10-13 に `/video_wayhome.html` から移し、旧 URL は `_redirects` で 301、#559。ページ名は `video_wayhome` のまま）。`render_content()`+専用JS`video_wayhome.js`。新サイトのパイロット（`docs/notes/video-wayhome.md`）。個別ページ（下の行）と同じく、動画のタブをまとめたブック（`lib/video_book.py`、#578）の「帰り道」タブを見出しの名前で読み（`lib/wayhome.py` の `fetch_rows()`）、`data/youtube_meta.json` に無い回は外して生成する（#194） |
 | ビルド時生成（サブディレクトリ、ヒーロー構成のエピソード個別ページ） | 39 | `wayhome/<動画ID>.html`。`scripts/generate_wayhome_episodes.py`（`docs/notes/video-wayhome.md`） |
 | ビルド時生成（サブディレクトリ、Mつくの一覧と各話） | 一覧1＋61（2026-10-15） | `mtsuku/index.html`（URL は `/mtsuku/`）・`mtsuku/<動画ID>.html`。`scripts/generate_mtsuku.py`・`scripts/generate_mtsuku_episodes.py`（帰り道と同じ形、`docs/notes/video-mtsuku.md`）。2026-10-15 に公開（navbar・`sitemap-mtsuku.xml`・`llms.txt`、#570）。旧 `/video_mtsuku.html` は `_redirects` で 301 |
 | ビルド時生成（サブディレクトリ、最強戦のトップと年度ページ） | トップ1＋年度数 | `saikyo/index.html`・`saikyo/<年度>.html`。`scripts/generate_saikyo_pages.py`。2026-09-21 に一般公開し、navbar・`sitemap-saikyo.xml`・`llms.txt` に載る（#319・#348、`docs/notes/saikyo-page-design.md`） |
@@ -349,6 +349,8 @@ HTMLは24ページ + 書籍の一覧と個別ページ（`books/`、#97、noinde
 - 置換文字（U+FFFD）・制御文字。取り込みでの文字化けをページに出る前に捕まえる
 - マスタのタブとの不整合。キー（大会名など）の欠け、組み立てた値と記録されている値の食い違い、出力の件数と入力の行数の一致検査
 
+**シート由来の止まる理由・警告には、動画ID（か行番号）と列名を含める**（名前だけでは直す側がセルを探し、直しが漏れる。Mつくで1セル漏れた）。
+
 **マスタのタブは、チャットの指示と並行して平野さんが変えることがある。** 読み込んだ現在の値（行数、表示・区分・状態のように
 表示対象が変わる列）を生成の出力に出し、指示文の前提と違えば手を入れずに報告する（CLAUDE.md「Chat-Ref」）。
 title/ では「タイトル戦」タブの大会の改名が「タイトル」タブと合わずに生成が止まり（CHAT-0916-TT-14、TT-15 で解消）、
@@ -386,6 +388,7 @@ title/ では「タイトル戦」タブの大会の改名が「タイトル」�
 
 - 平野さんがシート（タブ）を用意した・直したと言ったとき: 実装の指示の前に、生成と同じ経路で読ませ、見出し・件数・既存の公開物との差を報告させる（差は止まる条件にせず、どちらを正とするかを平野さんに聞いてから書く）。生成で止まるかどうかだけなら、先に `python3 scripts/regenerate.py --check <ページ>` を流させる（ファイルを書かず止まる理由と警告を全部出す。static-generation.md）。
   消す・直すを頼むときは済んだ後の状態（ブックごとのタブの数など）を書き、平野さんに数を返してもらってから次の指示を作る（申告だけで作ると、残りがあって止まる）
+- タブ・列を変えたと言われたら、そのタブを読む処理（凍結中のページ・検査を含む）を `git grep` で洗わせる手順を次の指示に入れる（読む処理が残っていると本番の再生成で失敗する。2026-10-15 に旧 Mつくの生成が失敗した）
 
 ### 新しいページを作るとき（/live の実例、CHAT-0916-LV-33）
 

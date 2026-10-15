@@ -48,28 +48,68 @@ JPL-09 でマージした WRC 2大会の新名称の全面反映について、�
 
 ## 経過
 
+### 着手前の確認
+
+- Chat-Ref: `CHAT-1016-JPL-10` のコミットは0件（同じセッションの続き）。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある。「指示」欄の末尾は指示文の最後の行と一致
+- ブランチ: `work/1016-jpl` はローカル・リモートとも無し → `git checkout -b work/1016-jpl origin/cloudflare`（dbb58b89d）
+- JPL-09 の状態は「判断待ち」→ 末尾に ` / 続き: CHAT-1016-JPL-10` を足した
+- #523: Open（ラベル「分野: データ」だけ）。着手中コメントはこのセッション（JPL-04〜09）のものだけ → 着手中コメントを残した
+
+### 1. 今朝の反映（2026-10-15 22:5x UTC に読んだ）
+
+- 予定表【2】（`fetch_records(yotei.SPREADSHEET_ID, yotei.LAYER2_SHEET_NAME, yotei.LAYER2_HEADERS)`、同期と同じ経路）: 1,132行。「大会」は WRCリーグ 129・WRC-Rリーグ 128（計257、見積もりと一致）・WRCアマチュアグランプリ 6。
+  「分け」は WRCリーグ その他 124・WRC-Rリーグ その他 123・各 決勝・決定戦 5。「大会」「分け」「開始の根拠」に「JPML WRC」を含む行は0
+- /live の【2】（`live_layer3.fetch_layer2()`）: 14,197行。「タイトル戦」は WRCリーグ 272・WRC-Rリーグ 130（計402、見積もりと一致）。旧名は0
+- 常設 issue「予定表の変化」（#481）: 今朝の知らせは無い（最後のコメントは 2026-10-13T19:24Z の JPMLリーグ の「(仮)」外れ）。yotei ジョブの出力も「【3】に関わる変化が無いため知らせません」（【2】の大会名の変化は知らせの対象外）
+- run-daily.yml #3（id 38790317281、2026-10-15T19:00Z 開始、workflow_dispatch、cloudflare 635b984c6、success）: ジョブ live/update・live/yotei・live/regenerate/regenerate ほかすべて success（失敗のステップ無し）。
+  live/update の「層2 「【2】自動変換後」を作り直す」success。live/yotei（ジョブ 116614637038 のログ、全 681行を読んだ）から:
+
+```
+2026-10-15T19:04:28.0699509Z 「【2】自動変換後」に1132行を書き、読み返して一致を確認しました
+2026-10-15T19:04:31.0961086Z 【3】に関わる変化が無いため知らせません
+2026-10-15T19:04:46.2225363Z 作る: 0件(枠 0・予定表 0。うち放送済み 0) / 直す: 8件 / 消す: 0件 / そのまま: 2613件
+2026-10-15T19:04:46.2227874Z   直す: yotei:… 第8期JPML WRC-Rリーグベスト16AB卓 → 第8期WRC-Rリーグベスト16AB卓 12-03 11:00〜12-03 23:00
+…（12-04 ベスト16CD卓・12-18 ベスト8AB卓・12-24 決勝、01-05 第20期WRCリーグベスト16AB卓・01-08 ベスト16CD卓・01-11 ベスト8AB卓）
+2026-10-15T19:04:46.2243440Z   直す: yotei:… 第20期JPML WRCリーグ決勝 → 第20期WRCリーグ決勝 02-07 14:00〜02-07 23:00
+2026-10-15T19:04:51.8708541Z 書き込みました: 作る 0・直す 8・消す 0
+```
+
+  開始の仮置きの表でも分けが新名（「WRC-Rリーグ その他 | 11:00 | …」など）。チャット側がカレンダーで読んだ8件の件名・最終更新（19:04Z）と一致
+- 本番（`?v=` 付き）: wrc_ranking.html の `<title>`「ランキング | WRCリーグ | ryoei.pro」、wrc_results.html の `<title>`「成績詳細 | WRCリーグ | ryoei.pro」と h1「WRCリーグ 成績詳細」。JPL-09 の未確認の項目だった本番の反映も確かめた
+- 毎朝の実行の置き場所: run-daily.yml の中のジョブ live（update・yotei・regenerate）として動いていた。docs/notes の github-actions.md・yotei-sheet.md・scheduler-worker.md・live-channel-write.md・live-page-design.md・chat-side-operations.md に update-live-channel.yml の記述がある（指示のとおり直していない。どれが古いかは確かめていない）
+
+### 2. #523
+
+- 旧名は0、数は見積もりと一致（±0）→ 結果をコメントしてクローズした（completed）。「状況:」ラベルは付いていなかった
+
+### 3. 記録
+
+- docs/decisions/title.md に「2026-10-16（CHAT-1016-JPL-10、#523）」を足した
+- JPL-09 の `## 報告` を「完了 / 続き: CHAT-1016-JPL-10」にした（判断が必要なこと・未確認の項目はこの指示で扱った旨）
+- 作業ブランチ: クラウドセッションでは削除が拒否されるため削除しない。`delete-merged-branches.yml` に任せる
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1016-jpl
-- ログ: https://github.com/retroeater/mj/blob/work/1016-jpl/docs/logs/CHAT-1016-JPL-10.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1016-JPL-10.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1016-jpl
-- 確認用URL:
-- マージ:
-- issue: #523
-- 判断が必要なこと:
-- 未確認の項目:
-- エラー:
+- 確認用URL: なし
+- マージ: 済（SHA は最終報告）
+- issue: #523（クローズ）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 8e48fa5f）: https://github.com/retroeater/mj-logs/tree/main/guide/8e48fa5f
+ガイド文書（この版を写した時点の最新、mj 82bde681）: https://github.com/retroeater/mj-logs/tree/main/guide/82bde681
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/8e48fa5f/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/8e48fa5f/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/8e48fa5f/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8e48fa5f/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8e48fa5f/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8e48fa5f/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/82bde681/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/82bde681/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/82bde681/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/82bde681/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/82bde681/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/82bde681/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/dbb58b89.md
