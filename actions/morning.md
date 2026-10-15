@@ -1,6 +1,6 @@
 # 朝の報告用の異常（retroeater/mj）
 
-- 書き出した時刻: 2026-10-15 16:05 JST（見た範囲: 2026-10-14 14:05 JST から）
+- 書き出した時刻: 2026-10-15 16:11 JST（見た範囲: 2026-10-14 14:11 JST から）
 - 書き出した実行の契機: workflow_dispatch（main）
 - 異常だけを書く。全体は actions/status.md。判定は mj の scripts/morning_report.py（各ワークフローの直近 100 回まで）
 
@@ -12,7 +12,6 @@
 - 2026-10-15 02:56 fetch-redirect-counts.yml failure（workflow_dispatch・cloudflare）ジョブ「fetch」 https://github.com/retroeater/mj/actions/runs/38610972729
 - 2026-10-15 02:58 fetch-redirect-counts.yml failure（workflow_dispatch・cloudflare）ジョブ「fetch」 https://github.com/retroeater/mj/actions/runs/38611141347
 - 2026-10-15 04:10 update-sns-book.yml failure（workflow_dispatch・cloudflare）ジョブ「regenerate / regenerate」 https://github.com/retroeater/mj/actions/runs/38621492985
-- 2026-10-15 16:05 update-sns-book.yml in_progress（workflow_dispatch・cloudflare） https://github.com/retroeater/mj/actions/runs/38696400299
 
 ## 2. 予約実行の未実行（予定から3時間以内は「遅れの可能性」。3時間を超えて始まった実行は「遅れて実行」）
 
@@ -23,9 +22,10 @@
 
 - 2026-10-14 15:32 regenerate-page.yml failure（push・cloudflare）所要 3分14秒（直近20回の中央値 0分58秒） https://github.com/retroeater/mj/actions/runs/38522800783
 - 2026-10-14 16:50 regenerate-page.yml success（push・cloudflare）所要 3分22秒（直近20回の中央値 0分58秒） https://github.com/retroeater/mj/actions/runs/38531008713
-- 2026-10-15 04:10 update-sns-book.yml failure（workflow_dispatch・cloudflare）所要 4分24秒（直近20回の中央値 0分39秒） https://github.com/retroeater/mj/actions/runs/38621492985
+- 2026-10-15 04:10 update-sns-book.yml failure（workflow_dispatch・cloudflare）所要 4分24秒（直近20回の中央値 0分40秒） https://github.com/retroeater/mj/actions/runs/38621492985
 - 2026-10-15 12:21 regenerate-page.yml success（push・cloudflare）所要 3分19秒（直近20回の中央値 0分58秒） https://github.com/retroeater/mj/actions/runs/38675846949
 - 2026-10-15 14:58 regenerate-page.yml success（push・cloudflare）所要 3分39秒（直近20回の中央値 0分58秒） https://github.com/retroeater/mj/actions/runs/38689705396
+- 2026-10-15 16:05 update-sns-book.yml success（workflow_dispatch・cloudflare）所要 5分11秒（直近20回の中央値 0分40秒） https://github.com/retroeater/mj/actions/runs/38696400299
 
 ## 4. 初回成功
 
