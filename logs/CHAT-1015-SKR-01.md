@@ -76,6 +76,47 @@
 
 ## 経過
 
+### 着手前の確認
+
+- 指示欄の末尾は指示文の最後の行（「不明な点があれば…この行が指示文の最後の行です。」）と一致
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある
+- `git fetch --unshallow origin` の後、`git log --all -E --grep 'CHAT-[0-9]{4}-SKR-'` と `docs/logs/CHAT-*-SKR-*.md` の履歴はともに0件。`origin/work/1015-skr` もローカルの `work/1015-skr` も無いため `git checkout -b work/1015-skr origin/cloudflare`（e0724da7c）
+- 0章ゲート: 実装（コード・ページ）は無く、触るのは docs/decisions/saikyo.md・docs/notes/saikyo-page-design.md とログだけ
+
+### issue の要点（2026-10-15 時点）
+
+| issue | 状態・ラベル | 要点 |
+|---|---|---|
+| #428 | open／分野: パフォーマンス・UI/UX、対象: saikyo | saikyo/ の分は 2026-10-10 にマージ（3a857ea7）。残りは本番の CLS・title/・/live・表のページの同じ形・#382 の入れ直し・「1→10」の 59px。期日 10/17・11/1（SKS-04）。着手中のコメントなし |
+| #382 | open／状況: 待ち、分野: パフォーマンス | 2026-09-21 に実装→戻した。#428 の後に入れ直す予定 |
+| #383 | open／状況: 保留、分野: パフォーマンス | 2026-09-21 に保留（実ユーザーの値で詰まりが見えたら再開） |
+| #458 | open／分野: SEO/AIO・自動化 | 期日 2026-11-02 に旧年度ページ15件の登録状況を確かめる（SKS-04） |
+| #546 | open／状況: 待ち、分野: SEO/AIO、対象: saikyo | コメントなし。#425 の完了を待って個別ページの OGP 画像を決める |
+| #549 | open／状況: 待ち、分野: SEO/AIO・UI/UX、対象: saikyo | チェックリストに「OGP 画像は年度の画像を使い回す」「ABEMA の回が無い卓のヒーローを決める」。最新は SKD-18（work/1015-skd-top を一緒にマージ） |
+| #425 | open／分野: SEO/AIO・UI/UX、対象: saikyo | ABM-19（10-13）の未決1〜3。最新は SKD-23（10-15 06:24）: 未決1への決定（PC の CSV を【1】に手で取り込む・検知は自動化しない、#572 を起票）。saikyo.md への記録はまだ |
+| #566 | open／状況: 対応中、分野: UI/UX、対象: saikyo | 最新は SKD-21 の「着手中を解除（判断待ち）」（04:02）。想定どおり |
+| #372 | open／分野: UI/UX、対象: saikyo | 現行サイトで作る・着手できる（10-03） |
+| #469 | open／分野: データ、対象: saikyo | コメントなし |
+| #442 | open／状況: 保留、分野: 整理・保守、対象: saikyo | 外部リンク 11（参照サイト 3、09-28 SC-06）。10-10 に廃止を保留 |
+
+- 未解除の他セッションの着手中コメントがある issue は無い。外した issue は無し
+- 決定 8 と #425 の SKD-23 の決定（10-15）は同じ趣旨（手で取り込む・検知は自動化しない）で矛盾しない。saikyo.md には両方をまとめて書く
+
+### 新しい issue A・B の重複の検索
+
+- `対象: saikyo` の issue 15件（open・closed）の題を見た。MCP の検索で「最強戦 読者アンケート エントリー 投票数 saikyo_mens」「アンケート」「ABEMA 割り当てなし 突き合わせ 片方にしか無い対局 卓 アマチュア最強位」を検索。当たったのは #537（closed、シートの自動反映）・#425・#501（closed）・#502（closed）だけで、同じ目的の issue は無い（REST の search API はこのセッションでは結果が返らなかった）
+
+### 前提の確かめ
+
+- ABEMA の og:image（`image.p-c2-x.abema-tv.com`）の HEAD: セッションのプロキシが接続を拒否（`CONNECT tunnel failed, response 403`、`connect_rejected`）。環境の許可ドメインに無いため。200 と Content-Type は確かめられていない（止まらずに進む）
+- `git show origin/work/1015-skd-top:scripts/generate_saikyo_pages.py`: `BODY_CLASS = "mj-saikyo-page"` を足す `add_body_class()` を呼ぶのは `build_year_page()`（今の年度ページ）だけ。新しい年度・対局のページ（980行付近）とトップ（1155行付近）は `NEW_BODY_CLASS = "mj-saikyo-n-page"` だけを付ける。前提と一致
+- ラベル: 一覧（REST）に `状況: 保留`・`状況: 待ち`・`対象: saikyo`・`分野: データ`・`分野: UI/UX` がある
+
+### docs の重なり
+
+- 未マージの work/ ブランチのうち docs/decisions/saikyo.md・docs/notes/saikyo-page-design.md・docs/notes/abema-book.md を変えるのは `origin/work/1015-skd-top` の saikyo-page-design.md だけ（57行・144行の後・239行付近）。saikyo.md は変えていない。今回直す saikyo-page-design.md の箇所（251〜253行・ABEMA の回が無い卓と OGP 画像）は別の箇所
+- docs/notes/abema-book.md には新しい回の流れの「未決」は無い（【1】は「平野さん〈PC のスクリプトの CSV を取り込む〉」とある）ため触らない
+
 ## 報告
 
 - 状態: 作業中
@@ -92,12 +133,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj e0724da7）: https://github.com/retroeater/mj-logs/tree/main/guide/e0724da7
+ガイド文書（この版を写した時点の最新、mj e15f9e25）: https://github.com/retroeater/mj-logs/tree/main/guide/e15f9e25
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e0724da7/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e0724da7/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e0724da7/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e0724da7/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e0724da7/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e0724da7/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e15f9e25/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e15f9e25/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e15f9e25/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e15f9e25/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e15f9e25/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e15f9e25/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/e0724da7.md
