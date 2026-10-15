@@ -63,6 +63,19 @@ houou/ の公開準備（CHAT-1014-HOU-37〜CHAT-1015-HOU-45）の振り返り�
 
 - 2026-10-15 着手。HOU-46 と同じセッションで続けた。`CHAT-1015-HOU-47` のコミットは無し。`work/1015-hou4` はローカル・リモートとも無かったため `origin/cloudflare`（f360e031f）から作った
 
+- 0. 指示欄の末尾は指示文の最後の行と一致。冒頭の雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている。ガイド文に規則を足す指示で、「知見 → 選んだ層 → 理由」の表がある
+- 1. 着手の確かめ:
+  - `git branch -r --no-merged origin/cloudflare` のうち CLAUDE.md・`docs/notes/design.md` を変えるのは `work/1015-skd-top` の design.md だけで、差は94行目（「7. チャット側の決め方」〈123行目〜〉の外）。止まらない
+  - `.github/workflows/` で `node --test` を回すのは `assets-check.yml` の `node --test .github/actions/upsert-issue/test/*.test.js` だけ。`workers/*/test` の Node のテストを回すワークフローは無い
+  - #564 の本文・コメント14件に同じ提案は無し（`node --test` の記述は upsert-issue の部品のテストのことだけ）
+- 2. 書き残し:
+  - 追記先の今の内容: CLAUDE.md「判断・作業の原則」のテストの行（「テストは`scripts/tests/`…週次の`check-meibo.yml`も実行する」）、design.md「7. チャット側の決め方」のコントラストの行（「コントラスト比などの数値は手計算せず…突き合わせる」）
+  - サイズ: CLAUDE.md 23,456 → 23,651 バイト（`assets-check.yml` の警告域 26,624・上限 28,672。警告域まで 2,973）。design.md 28,348 → 28,519 バイト（`docs/notes/` は上限なし）
+  - CLAUDE.md: テストの行に続けて「`workers/<名前>/`のコード・テスト・生成物（`data.json`など）を変えたときは`node --test 'workers/<名前>/test/*.test.mjs'`も回す（CI では回っていない）」を足した（同じ項目の2行目。項目は増やしていない）
+  - design.md: コントラストの行の末尾に「色を直す指示は、先に今の比を測らせ、基準を満たしていれば変えない形で書く（見た目の印象と比は食い違うことがある）」を足した（事例の Chat-Ref は書いていない）
+  - #564 に「push で `workers/*/test/*.test.mjs` の Node のテストを回す」提案のコメントを書いた（経緯と CHAT-1015-HOU-46 の直し、末尾に `Chat-Ref:`）
+  - `docs/decisions/` には足していない（止まる条件が変更を CLAUDE.md・design.md・ログに限るため。決定2件は指示文とこのログにある）
+- 3. `python3 -m unittest discover -s scripts/tests` OK
 ## 報告
 
 - 状態: 作業中
