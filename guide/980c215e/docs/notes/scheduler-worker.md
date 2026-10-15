@@ -55,15 +55,16 @@ run-name: ${{ inputs.scheduled && '[scheduled] <ワークフローの name>' || 
 ## 保険の予約実行のゲート（update-live-channel）
 
 `update-live-channel.yml` は書き込みが重いので、保険の予約実行（`schedule`、06:43 JST）にゲートを置く（#504 の段階2の後の回）。
-ジョブ `update` のステップ「毎日の実行の有効・無効を確かめる」が、当日（JST の 0 時以降）の実行の一覧を
-`GET /actions/workflows/update-live-channel.yml/runs?event=workflow_dispatch&branch=cloudflare&created>=…` で引き、
-`head_branch` が `cloudflare`・題が `[scheduled]` で始まる・`conclusion` が `success` の実行を探す（権限はジョブの `actions: read`）。
+ジョブ `update` のステップ「実行するかどうかを決める」が、当日（JST の 0 時以降）の実行の一覧を
+`GET /actions/workflows/<ファイル>/runs?event=workflow_dispatch&branch=cloudflare&created>=…` で引き、`head_branch` が `cloudflare`・題が `[scheduled]` で始まる実行のうち、次のどちらかを探す（権限はジョブの `actions: read`）:
+(1) `update-live-channel.yml` の `conclusion` が `success` の実行（2026-10-15 までの本ごとの起動の形）、
+(2) `run-daily.yml` の実行で、ジョブ `live / update` の `conclusion` が `success` のもの（`/actions/runs/<id>/jobs?filter=latest`。2026-10-16 から。run-daily 全体の結論は見ない、#564）。
 
 - 見つかり、この実行が `schedule` なら、何もせずに終わる（`run=false`。サマリに「当日の予約の起動（run #…）が成功済みのため、保険の実行は何もしません」）
 - 見つからない（Worker の起動が無い・失敗・実行中）なら、いつもどおり実行する
 - 一覧を引けない（API の失敗・応答が読めない）なら、止めずに実行する（サマリに「当日の予約の起動を確かめられなかったため、止めずに実行します」）
 - Worker の起動・手動実行は止めない（ログに見つかった run 番号か「なし」を出すだけ）
-- ジョブのログの行「当日の予約の起動の成功: <run 番号>／なし／引けず」で結果を読む
+- ジョブのログの行「当日の予約の起動の成功: run #<番号>／run-daily の実行 <ID> のジョブ live / update／なし／引けず」で結果を読む
 - `SCHEDULE_ENABLED` が `'false'` なら、ゲートより先に `schedule`・`scheduled` とも止まる（今までどおり）
 
 ## 起動の表の直し方
@@ -78,7 +79,7 @@ run-name: ${{ inputs.scheduled && '[scheduled] <ワークフローの name>' || 
 | `monthdays` | 省略可。JST の日の配列（例 `[1]`）。省略は毎日 |
 | `enabled` | `false` の行は起動もしないし、朝の確かめでも見ない |
 
-今の表（2026-10-10）は5行: `update-live-channel.yml` 毎日 04:00・`update-sns-book.yml` 毎日 04:10（SNS ブックの更新、#514。所要は約40秒）・`sync-dojo-calendar.yml` 毎日 04:15・`delete-merged-branches.yml` 毎日 04:20・`check-image-links.yml` 毎日 04:30（画像リンク切れの検知。ジョブ `check`〈`jpml_pros.html` の画像、所要は約3分〉と `saikyo`〈最強戦の選手写真、約2分〉が並行で動き、`check` の後に `sns_book`〈SNS ブックの全行の画像、約5分〉が動く。全体で約8分。#514。`check` と `sns_book` は 2026-10-13 から）（どれも有効）。`sync-logs.yml` 毎日 05:30 の行は 2026-10-07 に消した（#298。mj の sync-logs.yml を止め、写しは mj-logs の `sync-from-mj.yml`。1日1回の保険は mj-logs 側の予約）。時刻の案は #504 の本文「起動時刻の案と範囲」。
+今の表（2026-10-15 から。初回の起動は 2026-10-16 04:00 JST）は1行: `run-daily.yml` 毎日 04:00（毎朝の運行。update-live-channel・update-sns-book・check-image-links・regenerate-saikyo を順に、sync-dojo-calendar・delete-merged-branches を並行に呼ぶ。`docs/notes/github-actions.md`「run-daily.yml」、#564）。それまでの5行（update-live-channel 04:00・update-sns-book 04:10・sync-dojo-calendar 04:15・delete-merged-branches 04:20・check-image-links 04:30）と戻し方は同じ節。`sync-logs.yml` 毎日 05:30 の行は 2026-10-07 に消した（#298）。時刻の案は #504 の本文「起動時刻の案と範囲」。
 
 - 表を変えて `cloudflare` に入ると、Workers Builds の `mj-scheduler` がデプロイする（check-run「Workers Builds: mj-scheduler」）。cron の変更の反映は最大15分。`workers/scheduler/` の外だけを変える push ではビルドされない（2026-10-06 に check-run で確かめた）
 - 表に足すワークフローは、先に上の「予約の起動の見分け方」の3つを足しておく。足さないと、`scheduled` が知らない入力として 422 になる

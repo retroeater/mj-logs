@@ -48,6 +48,24 @@ CHAT-1015-MTK-09 は、七瀬美希・設楽遙斗（平野さんが SNS ブッ�
 - 同じ Chat-Ref のコミットなし。work/MTK はローカル・リモートとも c1f4409（未マージ）
 - 雛形の行はすべてあり（貼られた文では改行が詰まっていた）。0.「指示」欄の末尾は指示文の最後の行と一致。MTK-09 のログの状態に「 / 続き: CHAT-1015-MTK-10」を足した
 - SNS ブックの更新: MTK-09 の報告（c1f4409、06:55 UTC）より後の実行は #29（run 38696400299、workflow_dispatch、cloudflare、2026-10-15 07:05 UTC = 16:05 JST 開始、結論 success）
+- `git merge origin/cloudflare`（衝突なし）。cloudflare は #29 の後の再生成で Mつくの2ページを七瀬美希・設楽遙斗の写真つき（noindex つき）で作り直していた（取り込んだ）
+
+### 手順1 --check
+
+- `python3 scripts/regenerate.py --check mtsuku mtsuku_episodes`: 2ページとも通る（61回）
+- 写真の URL（SNS ブック【3】）: 七瀬美希（X ID nanasemiki_）`https://pbs.twimg.com/profile_images/1537250838934339584/XQtBncfl_400x400.jpg`、設楽遙斗（X ID shitaraaaa___）`https://pbs.twimg.com/profile_images/1953018759272382465/6Ml2MPRH_400x400.jpg`。
+  佐藤聖誠は【2】の X が「-」（`x_marked_none()` が真）で写真なし・止めない
+
+### 手順2 生成と確かめ（ae57f40）
+
+- `regenerate.py mtsuku mtsuku_episodes`: `mtsuku/` 62ファイルと `sitemap-mtsuku.xml`（新規、62件）。`mtsuku/` の差分は62ファイルとも `<meta name="robots" content="noindex">` の1行を消しただけ（写真は cloudflare の再生成で入っていた）
+- サイトマップの parse: `sitemap.xml`（5件）・`sitemap-pages.xml`（21件、旧 URL を外した）・`sitemap-mtsuku.xml`（62件）・`sitemap-wayhome.xml`・`sitemap-saikyo.xml`・`sitemap-title.xml` すべて OK
+- テスト: `scripts/tests` OK。`node --test`: upsert-issue 18件・scheduler 40件・ask 27件すべて OK（ask の「記録の上位」は HOU 側で直っていた）
+- `python3 scripts/regenerate.py --check all`: 23ページすべて通る。警告3件は前と同じ（ask_data・live_pages の【3】手動補正835件、wayhome_episodes のタマシュ・エルドス）
+- 「公開対象を検査する」（ae57f40）: success
+- ほかのページの生成物: navbar.js は HTML に焼き込まれない（各ページは `<script src=navbar.js>` で読む）ので、ほかのページの HTML に差分は出ない。`mtsuku/`・`sitemap-mtsuku.xml` 以外の生成物の差分なし
+- 未マージの work/（1009-swp-526・1011-swp-hnd・1011-swp-nav・1015-hou4・1015-skd-notes・1015-skd-top・1015-wfl-s7）: `git merge-tree` で work/1015-skd-top だけ衝突（`docs/decisions/design-renewal.md`）。これは cloudflare と work/1015-skd-top の間で既に起きている衝突で、この変更のファイルではない。ほかは衝突なし。`navbar.js`・`_redirects`・`sitemap.xml`・`llms.txt` を変えるブランチは無し
+- 文書: `docs/notes/static-generation.md`（型Aの行から旧ページを外し6ページに、Mつくの行を公開に）・`docs/notes/video-mtsuku.md`（公開・サイトマップ・転送）・`docs/handover.md`（6章の表の行）・`docs/decisions/mtsuku.md`（MTK-09・10 の決定）
 
 ## 報告
 
@@ -65,12 +83,12 @@ CHAT-1015-MTK-09 は、七瀬美希・設楽遙斗（平野さんが SNS ブッ�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 23eb8ffb）: https://github.com/retroeater/mj-logs/tree/main/guide/23eb8ffb
+ガイド文書（この版を写した時点の最新、mj 980c215e）: https://github.com/retroeater/mj-logs/tree/main/guide/980c215e
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/23eb8ffb/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/23eb8ffb/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/23eb8ffb/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/23eb8ffb/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/23eb8ffb/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/23eb8ffb/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/980c215e/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/980c215e/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/980c215e/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/980c215e/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/980c215e/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/980c215e/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/2fcae3af.md
