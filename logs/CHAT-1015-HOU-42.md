@@ -66,15 +66,31 @@ CHAT-1015-HOU-40・HOU-41 の変更（個人成績のタブを名前の面のす
   - 比較ページ（`houou/compare-play/`）・`scripts/generate_houou_pages.py`・生成された HTML の差分は無い（作って消したので残っていない）
   - houou/ の HTML はすべて noindex のまま。navbar・サイトマップ・`llms.txt` の差分は無い
 
+### 手順2 マージ
+
+- push の直前に `git fetch origin cloudflare` し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真（origin/cloudflare は 8d40f40cb）であることを確かめて、`git push origin work/1015-hou:cloudflare` で入れた（8d40f40cb..3508c80cf）
+- HOU-40・HOU-41 のログの `## 報告` の「マージ」を「済（CHAT-1015-HOU-42 のマージ、8d40f40cb..3508c80cf）」に、「ログ」の URL を `blob/cloudflare/` に直した。状態は HOU-40「判断待ち… / 続き: CHAT-1015-HOU-41」、HOU-41「判断待ち… / 続き: CHAT-1015-HOU-42」のまま（このログが完了になると続きをたどって片付く）
+
+### 手順3 マージの後の確かめ
+
+- 3508c80cf の check-run: Workers Builds: mj は success（02:58:54 UTC）、check（2件）も success
+- 本番（URL に `?v=h42…` を付けた）: Workers Builds の成功の直後（02:59 UTC）は `assets/houou.js`・`style.css` がマージ前（8d40f40cb）の版のままだった。20秒ごとに取り直し、03:05:28 UTC（成功の表示から約6分半後）にこのマージの版と同じになった
+  - `/houou/players/?name=白鳥翔&view=league` は 200、`<meta name="robots" content="noindex">` あり
+  - headless Chromium（375×667）: 再生のボタンは名前の面の中（左上 299, 218）、グラフの上端 372、グラフの上の行（`.mj-houou-lg-bar`）は無い、JS のエラー 0
+  - `/houou/compare-play/` は 404
+- `regenerate-page.yml`: push の契機のパスが `scripts/generate_*.py`・`scripts/lib/**`・ルートの `*.js` で、このマージ（`assets/houou.js`・`style.css`・docs）は当たらないため、動いていない（3508c80cf の Actions の実行は「公開対象を検査する」だけ。押したコミットも無い）
+- #518 にマージの SHA と中身の要約、着手中の解除のコメントを書いた
+- `docs/decisions/houou.md` に「2026-10-15（CHAT-1015-HOU-42）」の節（マージの承認と、受け手が決めた3点の承認）を足した
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1015-hou
-- ログ: https://github.com/retroeater/mj/blob/work/1015-hou/docs/logs/CHAT-1015-HOU-42.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1015-hou
-- 確認用URL: なし
-- マージ: 未
-- issue: #518
+- 状態: 完了
+- ブランチ: work/1015-hou（マージ済み。削除は `delete-merged-branches.yml` に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1015-HOU-42.md
+- 比較URL: https://github.com/retroeater/mj/compare/8d40f40cb...3508c80cf
+- 確認用URL: なし（本番で確かめた）
+- マージ: 済（8d40f40cb..3508c80cf。この報告の docs/logs のみの追いの push あり）
+- issue: #518（マージの報告と着手中の解除のコメント）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
@@ -82,12 +98,12 @@ CHAT-1015-HOU-40・HOU-41 の変更（個人成績のタブを名前の面のす
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 3508c80c）: https://github.com/retroeater/mj-logs/tree/main/guide/3508c80c
+ガイド文書（この版を写した時点の最新、mj b2da47b9）: https://github.com/retroeater/mj-logs/tree/main/guide/b2da47b9
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/3508c80c/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/3508c80c/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/3508c80c/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/3508c80c/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/3508c80c/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/3508c80c/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b2da47b9/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b2da47b9/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b2da47b9/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b2da47b9/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b2da47b9/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b2da47b9/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/66464371.md

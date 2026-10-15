@@ -139,10 +139,10 @@ wrangler 4.151.0 の `wrangler dev` と headless Chromium。「本番の今の�
 
 - 状態: 判断待ち（落ちる動きと見た目の変化をプレビューで見て、マージを決める） / 続き: CHAT-1015-HOU-42
 - ブランチ: work/1015-hou
-- ログ: https://github.com/retroeater/mj/blob/work/1015-hou/docs/logs/CHAT-1015-HOU-41.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1015-HOU-41.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1015-hou
 - 確認用URL: プレビューあり（URL は最終報告）。見るページ: 個人成績の白鳥翔・坪原光のリーグのタブ（`houou/players/?name=…&view=league`）。この版で見える印: 再生のボタンが名前の面の右端にあり、押すと名前の面の写真がグラフのスタート地点へ落ちる
-- マージ: 未（平野さんの判断待ち。HOU-40・HOU-41 をまとめて）
+- マージ: 済（CHAT-1015-HOU-42 のマージ、8d40f40cb..3508c80cf）
 - issue: #518（着手中のコメント）
 - 判断が必要なこと:
   - 落ちる動き・再生のボタン (D)・タブの行の保ち方をプレビューで見て、マージしてよいか
@@ -154,12 +154,12 @@ wrangler 4.151.0 の `wrangler dev` と headless Chromium。「本番の今の�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 3508c80c）: https://github.com/retroeater/mj-logs/tree/main/guide/3508c80c
+ガイド文書（この版を写した時点の最新、mj b2da47b9）: https://github.com/retroeater/mj-logs/tree/main/guide/b2da47b9
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/3508c80c/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/3508c80c/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/3508c80c/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/3508c80c/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/3508c80c/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/3508c80c/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b2da47b9/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b2da47b9/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b2da47b9/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b2da47b9/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b2da47b9/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b2da47b9/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/66464371.md

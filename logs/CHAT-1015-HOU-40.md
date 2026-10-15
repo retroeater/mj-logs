@@ -122,10 +122,10 @@ wrangler 4.151.0 の `wrangler dev` と headless Chromium。「本番の今の�
 
 - 状態: 判断待ち（再生のボタンの位置を比較ページで選ぶ） / 続き: CHAT-1015-HOU-41
 - ブランチ: work/1015-hou
-- ログ: https://github.com/retroeater/mj/blob/work/1015-hou/docs/logs/CHAT-1015-HOU-40.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1015-HOU-40.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1015-hou
 - 確認用URL: プレビューあり（URL は最終報告）。見るページ: 比較ページ `houou/compare-play/`（白鳥翔・坪原光のリーグのタブのリンクあり）と、本体の個人成績 `houou/players/?name=白鳥翔`。この版で見える印: 個人成績で「期別」「通算」「リーグ」のタブが名前の面のすぐ下にあり、「通算」「リーグ」では要約3枚が出ない
-- マージ: 未（平野さんの判断待ち）
+- マージ: 済（CHAT-1015-HOU-42 のマージ、8d40f40cb..3508c80cf）
 - issue: #518（着手中のコメント）
 - 判断が必要なこと:
   - 再生のボタンの位置を (a)・(J)・(D) のどれにするか（比較ページのラジオで切り替える）。グラフの上端の y（スクロール 0、375〜430px、明暗・2人とも同じ）: 本番の今の形 527〜528 → 本体（この版、(a)）424 で、(J)・(D) は (a) よりさらに 52px 上（本体に入れれば 372 の見込み）。ボタンは3案とも画面の中で、題名・名前と重ならない。字を 150%・200% にすると、(J) は題名、(D) は名前の面がボタンの分だけ高くなり、リーグのタブのグラフが通算より 29〜52px 下になる（標準の字ではそろう）
@@ -136,12 +136,12 @@ wrangler 4.151.0 の `wrangler dev` と headless Chromium。「本番の今の�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 66464371）: https://github.com/retroeater/mj-logs/tree/main/guide/66464371
+ガイド文書（この版を写した時点の最新、mj b2da47b9）: https://github.com/retroeater/mj-logs/tree/main/guide/b2da47b9
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/66464371/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/66464371/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/66464371/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/66464371/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/66464371/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/66464371/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/d12b1f2e.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b2da47b9/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b2da47b9/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b2da47b9/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b2da47b9/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b2da47b9/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b2da47b9/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/66464371.md
