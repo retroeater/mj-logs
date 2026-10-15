@@ -97,16 +97,19 @@ Mつく（MTK 系列、#569・#570）の振り返りで出た知見のうち、�
 - `python3 -m unittest discover -s scripts/tests`: OK。`regenerate.py --check all`: 23ページすべて通る。警告3件は既知（ask_data・live_pages の【3】手動補正835件、wayhome_episodes のタマシュ・エルドス）
 - 容量: CLAUDE.md 23,651・handover.md 23,126・chat-side-operations.md 22,203・instruction-template.md 14,274 バイト（どれも警告域未満）
 - 差分の種類: スクリプト（`lib/sns.py`・`lib/wayhome.py`・`lib/mtsuku.py`・生成3本）、テスト3本、文書（instruction-template・static-generation・video-wayhome・video-mtsuku・decisions 2本）、ログ。生成物なし
+- #569 に申送りのコメント（クローズのまま）
+- 指示の食い違いの扱い: D の書き場所は、表（chat-side-operations.md）より前提・文書の規則（場面限定の手順は表の文書へ、同じ場面の手順が既にある static-generation.md）を優先した（上の「手順2」）
+- マージ直前に cloudflare が進んでいた（MCK-14 の `convert_x_posts.py` とログ・github-actions.md）ので merge で取り込み（衝突なし、重なるファイルなし）。取り込み後もテスト OK
 
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1015-MTK-handover
-- ログ: https://github.com/retroeater/mj/blob/work/1015-MTK-handover/docs/logs/CHAT-1015-MTK-12.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1015-MTK-12.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1015-MTK-handover
-- 確認用URL: なし
-- マージ: 未
-- issue: #569
+- 確認用URL: なし（生成物の差分なし）
+- マージ: 済（このコミットを cloudflare へ push）
+- issue: #569（申送りのコメント、クローズのまま）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
@@ -114,12 +117,12 @@ Mつく（MTK 系列、#569・#570）の振り返りで出た知見のうち、�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj e2355cd7）: https://github.com/retroeater/mj-logs/tree/main/guide/e2355cd7
+ガイド文書（この版を写した時点の最新、mj e9d5efe8）: https://github.com/retroeater/mj-logs/tree/main/guide/e9d5efe8
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2355cd7/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2355cd7/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2355cd7/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2355cd7/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2355cd7/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2355cd7/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e9d5efe8/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e9d5efe8/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e9d5efe8/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e9d5efe8/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e9d5efe8/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e9d5efe8/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/95d46b4d.md
