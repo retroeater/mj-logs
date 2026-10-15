@@ -64,7 +64,7 @@ HOU-49 の選手カードは、プレビューのホストに質問欄の Worker
 
 ## 報告
 
-- 状態: 判断待ち（送った PNG 9枚でカードの見た目を確かめて決める。マージは 10/20 の試行の判断の後に別の指示で）
+- 状態: 判断待ち（送った PNG 9枚でカードの見た目を確かめて決める。マージは 10/20 の試行の判断の後に別の指示で） / 続き: CHAT-1016-HOU-51
 - ブランチ: work/1015-hou6
 - ログ: https://github.com/retroeater/mj/blob/work/1015-hou6/docs/logs/CHAT-1016-HOU-50.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1015-hou6
