@@ -57,19 +57,45 @@
 - 同じ Chat-Ref のコミットなし。MTK-08 のログの `## 報告` は「状態: 完了」（cloudflare 上で確かめた）
 - work/MTK はローカル・リモートとも cloudflare にマージ済み → ローカルの work/MTK を `git merge --ff-only origin/cloudflare` で進めた（4a36152）
 - 雛形の行はすべてあり（貼られた文では改行が詰まっていた）。0.「指示」欄の末尾は指示文の最後の行と一致
+- 未マージの work/ で `navbar.js`・`_redirects`・`sitemap.xml`・`llms.txt`・`update_sitemap_lastmod.py`・`regenerate-page.yml` を変えているものは無し。`mtsuku/` は 1e1cc49 の後に cloudflare で変わっていない
+- #570 に着手のコメント（公開の条件が揃ったこと、YouTube の情報の取得が要らなくなったこと、Search Console の数字は残さないこと）
+
+### 手順1・2 変更（db12674、未マージ）
+
+- noindex を外した（`lib/mtsuku.py` の `NOINDEX_TAG` と2つの生成の使い方）。「公開していない」と書いた docstring・コメントを直した（`generate_mtsuku.py` の docstring に残っていた `data/mtsuku_youtube_meta.json` の記述も直した）
+- 各話の生成が `sitemap-mtsuku.xml` を書き出す（一覧が先頭、続いて各話。既にある URL の lastmod は残し、新しい URL は当日）。`sitemap.xml` に参照、`update_sitemap_lastmod.py` に `mtsuku/` の行き先と `--from-git` の対象、`regenerate-page.yml` の well-formedness の一覧に `sitemap-mtsuku.xml`（ワークフローの変更はこの1か所）
+- 旧ページ: `generate_video_mtsuku.py`・`video_mtsuku.html` を消し、`FROZEN_FROM_ALL` を `{"books_pages"}` に戻した。`sitemap-pages.xml` から旧 URL を外した（帰り道 #559 と同じ）。`_redirects` に `/video_mtsuku.html  /mtsuku/  301`、`docs/notes/redirects.md` の棚卸しの表に1行。`apply_page_meta.py` の項目を `mtsuku/index.html` に（帰り道と同じ扱い）。`test_simple_pages_check.py` から `video_mtsuku` を外した
+- `navbar.js`: 「動画」の Mつくのリンク先を `/mtsuku/` に（項目名・位置は同じ）。`llms.txt`: Mつくの行を `/mtsuku/` に、サイトマップの説明に `sitemap-mtsuku.xml`
+- テスト: noindex が無いこと・サイトマップを足した。全体 OK
+
+### 止まった（ページを生成し直せない）
+
+`python3 scripts/regenerate.py mtsuku mtsuku_episodes`（2026-10-15）が2ページとも止まって飛ばされた（終了コード 3）:
+
+```
+七瀬美希(X ID nanasemiki_): SNS ブックのX画像が空か既定のアイコン
+設楽遙斗(X ID shitaraaaa___): SNS ブックのX画像が空か既定のアイコン
+```
+
+MTK-07 の時点では2人とも SNS ブックに X ID が無く（写真なし、止めない）、その後【2】に X ID が入ったが、写真の URL（【3】）はまだ無い。【3】は SNS ブックの毎日の更新（04:10 JST）が取る。
+決めた範囲（X ID があって写真の URL が無い人は止める）のとおり止まっている。noindex を外したページを作れないので、cloudflare にはマージしていない（noindex のページのまま navbar・サイトマップ・転送を入れると食い違うため）。
+
+- cloudflare の今の生成（1e1cc49 以降）でも、週次・SNS ブックから呼ばれる all で Mつくの2ページは同じ理由で飛ばされる（ジョブが失敗）。SNS ブックの更新は【3】を書いてから再生成を呼ぶので、次の毎日の更新で直る見込み
 
 ## 報告
 
-- 状態: 作業中
+- 状態: 中断（写真の URL が SNS ブックに入るまで、Mつくのページを生成し直せない）
 - ブランチ: work/MTK
 - ログ: https://github.com/retroeater/mj/blob/work/MTK/docs/logs/CHAT-1015-MTK-09.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/MTK
-- 確認用URL: なし
-- マージ: 未
-- issue: #570・#569
-- 判断が必要なこと: なし
+- 確認用URL: なし（ページを生成し直していない）
+- マージ: 未（公開の変更は work/MTK の db12674 にある）
+- issue: #570（着手のコメント）・#569
+- 判断が必要なこと:
+  - 続け方: (a) 次の SNS ブックの毎日の更新（04:10 JST）で七瀬美希・設楽遙斗の写真の URL が【3】に入った後、続きの指示で生成し直してマージする、(b) 平野さんが SNS ブックの更新（`update-sns-book.yml`）を今動かして【3】を埋めてから続ける、のどちらか
+  - 平野さんに残る作業（公開の後）: 実機での確かめ、X と LINE の投稿画面でのカード表示、Search Console の `sitemap.xml` 再送信と入口（/mtsuku/）の URL 検査
 - 未確認の項目: なし
-- エラー: なし
+- エラー: なし（止まったのは決めた範囲の検査による）
 
 <!-- guide-links -->
 ---
