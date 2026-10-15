@@ -79,6 +79,9 @@ Chat-Ref: CHAT-1015-HOU-48
 
 - 2026-10-15 着手。HOU-47 と同じセッション（再起動の後）で続けた。`CHAT-1015-HOU-48` のコミットは無し。`work/1015-hou5` はローカル・リモートとも無かったため `origin/cloudflare` から作った
 
+- 0. 指示欄の末尾は指示文の最後の行と一致。冒頭の雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- 1. 着手の確かめ: #518・#540・#542 に他のセッションの着手中は無し（最新はどれも自分の着手中の解除・報告）。#540 に着手中を書いた。`git branch -r --no-merged origin/cloudflare` の各ブランチと cloudflare の差に `scripts/promo_video/` の変更は無し。本番（`?v=<未使用の値>`）の `houou/index.html`・`houou/players/index.html`・`houou/ranking/total/index.html`・`assets/houou.js`・`style.css` は origin/cloudflare（95d46b4d9。houou/ の最後の変更は HOU-45 の e54f18808）とバイト一致
+- 質問欄: `/api/ask/status` は `{"status":"open","remaining":10,"max":200}`。送った回数 1回目: 2026-10-15 09:28:09 UTC（18:28 JST）、curl で「通算得点の歴代1位は？」。答えの全文（約5秒）: `{"status":"answered","lead":"","answer":"通算得点の歴代1位はHIRO柴田で、通算得点は2074.4です。","notes":[],"asof":["鳳凰戦リーグ 第43期前期終了時点"],"sources":[{"label":"鳳凰戦 ランキング（通算得点）","url":"/houou/ranking/total/"}],"remaining":9}`。ランキング（通算得点）の1位 HIRO柴田 +2074.4 と一致。動画ではこの答えをそのまま使い、撮る側で `/api/ask` への POST にこの本文を返す（本番へ送る回数を増やさないため。撮るたびに送らない）
 ## 報告
 
 - 状態: 作業中
