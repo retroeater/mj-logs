@@ -82,28 +82,73 @@
 - `python3 -m unittest discover -s scripts/tests`: OK
 - ローカルの dry-run（Google の認証は無い）: 予定 3回・最大 220件・$1.1。出力にブックの ID は無い
 
+### マージ
+
+- マージの条件: テスト OK／入力 `dry_run` の既定 true・スクリプトの既定も dry-run／変えたのは `fetch-x-posts.yml`（説明の1行）・`scripts/fetch_x_posts.py`・そのテスト・docs/notes/github-actions.md の該当の行とログだけ（`.github/workflows/` の差分は `fetch-x-posts.yml` だけ、Worker の起動の表は変えていない）／止まる条件に当たらない
+- 再 fetch で `git merge-base --is-ancestor origin/cloudflare HEAD` が真（取り込み不要）。`git push origin work/1015-mck-367:cloudflare`（3f3ec6ede..5150009b0、fast-forward）
+
+### 手順2: cloudflare での dry-run と本番
+
+**dry-run**（run 38687825226、2026-10-15 14:38 JST、success）:
+
+- トークン 有、ブック 開けた（タブ3個: 【1】元データ・【2】自動変換後・【3】手動補正）、Drive の canEdit は未確認（HTTP 403、前回と同じ）
+- 「【1】元データ」: **見出し 空**、既存の行 0行（書かないタブ: 【2】自動変換後・【3】手動補正・ログ）
+- 予定: X API の呼び出し **3回**、読む投稿 最大 **220件**、見込みの費用 最大 **$1.1**（上限内）
+
+**本番**（run 38687884955、2026-10-15 14:38〜14:39 JST、success、入力 `mode=both`・`dry_run=false`、ほかは既定）:
+
+- 「【1】元データ」の見出しを書けた（X API を呼ぶ前。**書き込みの権限あり**＝平野さんの申告と一致）
+- X API の呼び出し **3回**（ids 1回・timeline 2回）。応答の分類: すべて成功（認証の失敗・クレジット切れ・レート制限は無し）
+- 読んだ投稿 **117件**、見込みの費用 **約 $0.585**（1件 $0.005 で計算。実際の請求は X の開発者画面で見る）
+- 「【1】元データ」に **107行** を足した（ids と timeline で重なった投稿 10件は足していない）
+- ジョブのログに本文・ブックの ID・トークンの値は出ていない
+
+### 手順3: 結果の集計
+
+| 区分 | 名前 | 件数 | 写真 | 地図のリンク | ハッシュタグ | 「ログ」にある | 「ログ」に無い | 無いうち写真 | 無いうち地図 | 投稿日の範囲（JST） |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---|
+| ids | 谷岡育夫 | 10 | 10 | 0 | 0 | 10 | 0 | 0 | 0 | 2025-11-29〜2025-12-09 |
+| ids | 平野良栄 | 10 | 10 | 0 | 0 | 10 | 0 | 0 | 0 | 2025-12-21〜2025-12-30 |
+| timeline | 平野良栄 | 97 | 60 | 0 | 1 | 38 | 59 | 22 | 0 | 2025-11-16〜2026-01-06 |
+| timeline | 谷岡育夫 | 0 | — | — | — | — | — | — | — | — |
+
+- **見分け方の当たり（ids の20件＝お店の投稿と分かっている投稿）**: 写真あり 20/20、地図のリンク 0/20、ハッシュタグ 0/20。投稿の本文に地図のリンクは入っていない（「ログ」の店URL は投稿からは作れない）。ハッシュタグも使われていない
+- **平野さんの timeline（54日・97件、100件に届かず期間を全部取れた）**: 「ログ」にある 38件は全件写真あり（取りこぼし 0）。写真のある 60件のうち「ログ」にあるのは 38件（63%）、無い 22件は写真付きでもお店以外の投稿とみられる（または未登録のお店の投稿。見分けは人の判断）。写真の無い 37件は「ログ」に1件も無い
+- **投稿の頻度と全件の見込み**:
+  - 平野さん: 1日あたり 1.80件。未反映の期間（「ログ」の最新の日の翌日 2025-12-31〜今日 2026-10-15、289日。前提の 2026-01-01〜 と1日違うのは、「ログ」の平野さんの最新の行が 2025-12-30 のため）の全件は **約519件・約 $2.6**、直近 3,200件に**収まる**見込み
+  - 谷岡さん: **期間 2025-11-15〜2026-01-07 の timeline が0件**。同じ期間の投稿（2025-11-29〜12-09 の10件）は ids で読めているので、投稿が無いのではなく、タイムラインで取れる直近 3,200件より前になっている見込み（原因は確かめていない。応答の `meta` は記録していない）。そうなら、谷岡さんの1日あたりは 3,200件 ÷（2026-01-07〜今日の 282日）＝ 11件超で、今のタイムラインの読み方では未反映の期間の古い分に届かない。直近 3,200件を全部読むと約 $16（残高 $19.27 の大半）
+- #367 に結果をコメントした: https://github.com/retroeater/mj/issues/367#issuecomment-6185298962
+- CHAT-1015-MCK-06 のログの `## 報告` の状態の末尾に ` / 続き: CHAT-1015-MCK-08` を足した
+- 決定節を docs/decisions/operations.md に足した（「ログ_候補」ではなく【1】と定めたことを、MCK-06 の行を置き換える形で書いた。作業中の回答は無い）
+
 ## 報告
 
-- 状態:
-- ブランチ:
-- ログ:
-- 比較URL:
-- 確認用URL:
-- マージ:
-- issue:
+- 状態: 判断待ち（直しをマージし、本番の試し取りを1回動かした。全件の取得に進むかは平野さん）
+- ブランチ: work/1015-mck-367
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1015-MCK-08.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1015-mck-367
+- 確認用URL: なし
+- マージ: 済（5150009b0。この報告は後の docs/logs・docs/decisions のみの追いの push）
+- issue: #367（結果のコメント）
 - 判断が必要なこと:
+  - 平野さんの分の全件（2025-12-31〜今日、約519件・約 $2.6、3,200件に収まる）を取るか
+  - 谷岡さんの分: タイムラインでは期間の古い分（2026-01-07 以降の初めの方）に届かない見込み。(a) 直近 3,200件だけ取る（約 $16、届く範囲だけ。届かない古い分は別の手段）／(b) 全期間の検索（`/2/tweets/search/all` など。使えるか・料金は確かめていない）を調べる／(c) 谷岡さんの分は手で入れる、のどれにするか。先に「0件の原因（3,200件の制限か）」を確かめる小さな実行（応答の `meta` を出す）を挟むか
+  - 見分け方: 手がかりは写真の有無だけ（地図のリンク・ハッシュタグは0件）。写真付きでもお店以外が約4割混ざる（平野さんの timeline で 22/60）ので、【2】で写真ありに絞ったうえで、店名などは人が判断する形でよいか
+  - 実際の請求額（見込み $0.585）を X の開発者画面で見てもらえるか
 - 未確認の項目:
-- エラー:
+  - 谷岡さんの timeline が0件だった原因（直近 3,200件の制限とみているが、応答の `meta` を見ていない）
+  - 実際の請求額（見込み約 $0.585、117件）
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 5150009b）: https://github.com/retroeater/mj-logs/tree/main/guide/5150009b
+ガイド文書（この版を写した時点の最新、mj 2fcae3af）: https://github.com/retroeater/mj-logs/tree/main/guide/2fcae3af
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/5150009b/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/5150009b/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/5150009b/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/5150009b/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/5150009b/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/5150009b/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/2fcae3af/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/2fcae3af/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/2fcae3af/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/2fcae3af/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/2fcae3af/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/2fcae3af/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/66464371.md

@@ -255,3 +255,14 @@
 
 - #497 は今クローズする（JPL-04 の案 (i)）。決勝の結果が出た後の作業はカレンダーで追う
 - #523 は残りを片付けるまで Open のまま（JPL-05 の案 (ii)）。手書きのページ・メタなどに残る「JPML WRC」の表記は、同じ issue で続ける
+
+## 2026-10-15（CHAT-1015-JPL-08、#523）
+
+- 「JPML WRCリーグ」「JPML WRC-Rリーグ」は新名称「WRCリーグ」「WRC-Rリーグ」が適用された。今後は、過去の大会・予定・成績なども含め、ryoei.pro での表示はすべて新名称にする
+- YouTube の概要欄など（過去の分）は変わらないので、ryoei.pro 側で読み替える
+- video_mtsuku の再生成の停止は MTK のチャットで対応する（この件では扱わない）
+
+## 2026-10-15（CHAT-1015-JPL-09、#523）
+
+- wrc_ranking.html・wrc_results.html の `<title>`・og:title・h1 と `scripts/apply_page_meta.py` の略記「JPML WRC」は「WRCリーグ」にする（例「ランキング | WRCリーグ | ryoei.pro」「成績詳細 | WRCリーグ | ryoei.pro」「WRCリーグ 成績詳細」）
+- JPL-08 の変更のマージを承認する（翌朝の実行で予定表【2】・/live の【2】・mj_放送対局 の仮の予定が新名に書き換わることを含めて）
