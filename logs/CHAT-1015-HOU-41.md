@@ -67,28 +67,99 @@ CHAT-1015-HOU-40 の「判断が必要なこと」への平野さんの回答を
 - 2026-10-15 着手。HOU-40 と同じセッションで続けた。`CHAT-1015-HOU-41` のコミットは無し。`origin/work/1015-hou` はリモートにありローカルと一致（60631f287）
 - 0. 指示欄の末尾は指示文の最後の行と一致。HOU-40 のログの `## 報告` の状態は「判断待ち（再生のボタンの位置を比較ページで選ぶ）」。冒頭の雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
 
+### 手順1 着手の確かめ
+
+- #518・#540 に他のセッションの着手中のコメントは無い。#518 に着手中のコメントを書いた
+- `origin/cloudflare` は HEAD の祖先でなかったので merge で取り込んだ（01152abb0。衝突なし。入ったのは `scripts/fetch_redirect_counts.py` などで houou/ と無関係）
+- 未マージの work/ ブランチのうち、手順1のファイルに触れるのは `origin/work/MTK` の `style.css` だけ（1504行あたりの動画の節に16行足す）。houou/ の節（4054行〜）とは別の箇所。止まらない
+- HOU-40 のログの状態の末尾に ` / 続き: CHAT-1015-HOU-41` を足した
+
+### 手順2 実装
+
+- 再生のボタン (D): `renderPlayer()` が名前の面の最後に欄（`.mj-houou-play-slot.mj-houou-player-play`、`margin-left: auto`）を足し、リーグのタブのときだけ出す（ほかのタブでは `hidden` で場所を空けない）。`createLeagueView()` はグラフの上の行（`.mj-houou-lg-bar`・期の範囲・左右の欄）を作らなくなり、ボタンを `replay` として返す。呼ぶ側がその欄に入れる。ボタンの CSS の範囲を `.mj-houou-lg-card .mj-houou-lg-replay` から `.mj-houou-lg-replay` にした（見た目は同じ）。通算の `::before`（52px の空き）と、上の行の CSS を消した。名前の行（`nameHeading()`）は変えていない
+- 比較ページ: `render_play_compare()` と関係の定数・`outputs()` の行を消し、`houou/compare-play/index.html` を消した（`generate_houou_pages.py` は cloudflare と同じに戻った）
+- 落ちる動き: 再生を押したとき（`start()`）に、名前の面の写真（`.mj-houou-player-photo`。頭文字の丸も同じ要素）の写しをページに重ね（`.mj-houou-lg-drop`、絶対配置）、落ちる間（0.9秒）はグラフの中のアイコンを隠して写しを動かす。位置は今の落ち方の式（横は減速、縦は重力と弾み）をそのまま使い、落ち始めを写真の中心（SVG の座標に直したもの）、大きさを写真の大きさ（48px）から登る間の大きさへ。着いたら写しを消し、グラフの中のアイコンを出す（寄りの区間の始め、または `finish()`）。名前の面の写真はそのまま
+  - 写真が画面の外（上に送ってある）とき: 今までどおり、グラフの上端のスタート地点の真上から落とす
+  - 押したときにグラフの下が画面の外のとき: 写真の上端が隠れない範囲で、ページをなめらかに送る（`bringIntoView()`）。送る量は「グラフの下端＋48px」が画面に入るまで。48px は、山が生える間にアイコンがグラフの下端より下へ出る分（白鳥翔で最大 37px。今の動きでも同じ値で、この変更とは関係ない）。初めは 8px にしたが、375×667 の白鳥翔で山が生える間にアイコンが y 677（画面の外）になったので 48px に直した
+  - 落ちた後（寄り・山・止める・登る・演出・ズームアウト）のコードは変えていない
+- タブの切り替え: タブのボタンを押す前にタブの行の画面上の位置を測り、見えていればその位置、上に隠れていれば（上に固定・貼り付きの帯があればその下端より上なら）画面の上端（帯の下端）を目標にして、中身を替えた後に一瞬で（`behavior: 'instant'`）送る。リーグは読み込みの後にもう一度合わせる（`keepTabsAt()`・`stickyBottom()`）。houou/ のページには固定の帯は無かった（測った）
+- テストは変えていない。`python3 -m unittest discover -s scripts/tests`: OK
+- `python3 scripts/regenerate.py houou_pages` の差分: `houou/compare-play/index.html` の削除だけ（`houou/players/index.html` は変わらない）。houou/ の外・navbar・サイトマップ・`llms.txt` の差分は無し
+
+### 手順3 確かめ
+
+wrangler 4.151.0 の `wrangler dev` と headless Chromium。「本番の今の形」は `assets/houou.js` と `style.css` を cloudflare の版に差し替えて測った。
+
+グラフの上端の y と再生のボタンの位置（左・上。スクロール 0）。白鳥翔・坪原光、明・暗とも同じ値:
+
+| 字 | 幅×高さ | 本番の今の形（リーグ・通算） | この版（リーグ・通算） | ボタン（この版） | ボタン（今の形） |
+|---|---|---|---|---|---|
+| 100% | 375×667 | 527・527 | 372・372 | (299, 218) 名前の面の中 | (301, 475) |
+| 100% | 390×844 | 528・528 | 372・372 | (314, 218) | (316, 476) |
+| 100% | 430×932 | 528・528 | 372・372 | (339, 218) | (341, 476) |
+| 150% | 375×667（明） | 725・725 | 486・456 | (299, 311) | (301, 673) 画面の下の外 |
+| 200% | 375×667（明） | 1095〜1107・同じ | 坪原光 664・664、白鳥翔 703・664 | (299, 471〜490) | 画面の下の外 |
+
+- 100% ではグラフが今の形より 155〜156px 上、リーグと通算の上端はそろう。ボタンは3つの幅とも画面の中・名前の面の中で、名前と重ならない。横スクロール・JS のエラーは 64 通りで 0
+- 150%・200% では名前の面がボタンの分だけ高くなり（名前の面の高さ 81 → 110px〈150%〉、138 → 177px〈200%、白鳥翔〉）、リーグのグラフが通算より 30px（150%）・39px（200% の白鳥翔）下になる。HOU-40 の見込みのとおり。直していない
+- 落ちる動き（アイコンの中心の画面内の座標。写しは `.mj-houou-lg-drop`、着いた後はグラフの中のアイコン。375×667 は再生を押すとページが 208px 送られる）:
+
+| 画面 | 選手 | 始め（名前の面の写真） | 中ほど（0.45秒） | 着いたとき（0.9秒） | 寄った後（1.6秒） | 終わり |
+|---|---|---|---|---|---|---|
+| 375×667 | 白鳥翔 | (56, 240) 48px | (112, 128) | (122, 296) → アイコン (122, 297) | (111, 476) | (321, 173) |
+| 375×667 | 坪原光 | (56, 240) 48px | (248, 185) | (279, 424) → (279, 424) | (111, 476) | (321, 462) |
+| 1920×1080 | 白鳥翔 | (816, 244) 48px | (879, 351) | (890, 516) → (890, 519) | (878, 713) | (1104, 386) |
+| 1920×1080 | 坪原光 | (816, 244) 48px | (1029, 417) | (1059, 656) → (1058, 656) | (878, 713) | (1104, 697) |
+
+- 再生の間のすべての時点（毎フレーム）でアイコンは画面の中。写しは着いたときに消え（残り 0）、グラフの中のアイコンが出る。写しの大きさは着いたとき 29〜31px、グラフの中のアイコンは輪を含めて 33〜36px（写真の大きさは同じで、輪の分だけ大きく見える）
+- 再生の全体の時間: 白鳥翔 25.0秒、坪原光 15.9秒（今と同じ。坪原光は HOU-38 の 15,916ms と同じ）。落ちた後の動きが変わっていないことは、今の形と新しい形で「アイコンの中心 − グラフの下端」の最大を比べて同じ（白鳥翔 37px・坪原光 −27px）ことでも確かめた
+- 再生のボタンは送った後も画面の中（375×667 で y 10〜54）
+- 動きを減らす設定: ボタンは出ない（リーグのタブで欄は出るが中は空）。ほかのタブでは欄ごと消える
+- タブの切り替え（375×667。切り替えた後のタブの行の画面上の y）:
+
+| 選手 | 切り替える前 | 期別 → 通算 | 期別 → リーグ |
+|---|---|---|---|
+| 白鳥翔 | ページの上（タブの行 y 298） | 298（動かない） | 298（動かない。前はページの一番上へ戻った） |
+| 白鳥翔 | タブの行が y 60 | 60 | 60 |
+| 白鳥翔 | 期別の一番下（タブの行 y −915） | 0（画面の上端） | 0 |
+| 坪原光 | ページの上（y 298） | 298 | 298 |
+| 坪原光 | タブの行が y 60 | 60 | 60 |
+| 坪原光 | 期別の一番下（y −120） | 0 | 0 |
+
+- 「期別」: 3幅 × 明暗 × 2人で、要約の大きさ・中身と期の行の数・一覧の大きさは今の形と同じ（名前の面の欄は「期別」では消えている）
+- プレビュー（56c1413e の Workers Builds: mj は success）: `assets/houou.js`・`style.css` は手元と同じ、`houou/compare-play/` は 404。落ちる動きの座標は手元と同じ
+
+### 文書
+
+- `docs/decisions/houou.md`: 「2026-10-15（CHAT-1015-HOU-41）」の節を足した。置き換えた元の行に「→ 置き換え」を付けた（2026-10-14〈HOU-37〉の見た目の値の一括の決定の行に「（リーグの再生の落ち始め）」、2026-10-14〜15〈HOU-40〉の再生ボタンの比較の行に「（(D) に決めた）」）。2026-10-09 の「左上のプロフィールアイコンから…」は決定の記録に行が無かった（houou-top.md の動きの記述にあったもの）ので、新しい節の側に書いた
+- `docs/notes/houou-top.md`: 「個人成績」のタブ（切り替えたときのタブの行の位置）、「通算」のタブ（上の空きの行は無い）、「リーグのタブ」（上の行は無い・再生のボタンは名前の面の右端・150%/200% の差・落ち始めと送り方）、「比較ページ」の節（`compare-play` を消した、済んだ比較に足した）
+- `docs/notes/design.md`「再生のボタン（新しい形）」の置き場を「題の行（順位変動）・名前の面（個人成績のリーグのタブ）の右端」に直した
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち（落ちる動きと見た目の変化をプレビューで見て、マージを決める）
 - ブランチ: work/1015-hou
 - ログ: https://github.com/retroeater/mj/blob/work/1015-hou/docs/logs/CHAT-1015-HOU-41.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1015-hou
-- 確認用URL: なし
-- マージ: 未
-- issue: #518
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 確認用URL: プレビューあり（URL は最終報告）。見るページ: 個人成績の白鳥翔・坪原光のリーグのタブ（`houou/players/?name=…&view=league`）。この版で見える印: 再生のボタンが名前の面の右端にあり、押すと名前の面の写真がグラフのスタート地点へ落ちる
+- マージ: 未（平野さんの判断待ち。HOU-40・HOU-41 をまとめて）
+- issue: #518（着手中のコメント）
+- 判断が必要なこと:
+  - 落ちる動き・再生のボタン (D)・タブの行の保ち方をプレビューで見て、マージしてよいか
+  - 受け手が決めたこと: 写真が画面の外なら今までどおりグラフの上端から落とす。押したときにグラフの下（＋48px）が画面の外なら、写真の上端が隠れない範囲でページをなめらかに送る（375×667 で 208px）。タブの行を送る動きは一瞬（なめらかにしない）
+  - 字 150%・200% で、リーグのグラフが通算より 30〜39px 下になる（直していない）
+- 未確認の項目: 平野さんの iPhone での見え方（落ちる動き・送り方）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 1854428a）: https://github.com/retroeater/mj-logs/tree/main/guide/1854428a
+ガイド文書（この版を写した時点の最新、mj 66464371）: https://github.com/retroeater/mj-logs/tree/main/guide/66464371
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/1854428a/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/1854428a/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/1854428a/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/1854428a/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/1854428a/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/1854428a/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/66464371/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/66464371/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/66464371/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/66464371/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/66464371/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/66464371/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/d12b1f2e.md
