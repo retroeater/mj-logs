@@ -58,6 +58,25 @@
 
 - 「指示」欄のブックの URL の ID だけを伏せた（CLAUDE.md「作業ログ」の「非公開の URL を書かない」と、指示の前提「ブックの ID はログに書かない」による。ほかは貼られたとおり）
 
+### 着手前の確認（2026-10-15）
+
+- 手順0: 「指示」欄の末尾は指示文の最後の行と一致。CHAT-1010-MCK-04 の `## 報告` の状態は「判断待ち」
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 4行とも冒頭にある
+- Chat-Ref の重複: `CHAT-1015-MCK-06` のコミット 0件（`MCK` はこのセッションの MCK-01 で使ったもの）
+- 作業ブランチ: `work/1015-mck-367` はローカル・リモートとも無かったため `git checkout -b work/1015-mck-367 origin/cloudflare`（起点 490aa1a52）
+
+### 手順1: issue・規則・未マージのブランチ
+
+- #367: Open、コメント2件（09-19・10-10）、他セッションの着手中コメントは無い。着手中のコメントを残した
+- 命名（docs/decisions/automation.md の 2026-10-14・10-15）: ファイル名は `<動詞>-<対象>.yml`、`name:`・入力の description・冒頭コメントも同じ規則。既存の `fetch-gsc.yml`・`fetch-redirect-counts.yml`（外から取ってきて置く）と同じ動詞で **`fetch-x-posts.yml`**、スクリプトは `scripts/fetch_x_posts.py`
+- docs/notes/github-actions.md「ワークフローを変更したとき」: 新しいワークフローは既定ブランチに無いと作業ブランチで手動実行できない（404）→ 副作用の無い既定（dry-run）でマージし、cloudflare で手動実行する。表に行を足す（`test_workflows_table.py`）
+- docs/notes/cloud-sessions.md「鍵」: 鍵は Actions のシークレットだけ。`X_BEARER_TOKEN`・`LIVE_SHEETS_SA_KEY`（サービスアカウント、`update-sns-book.yml` と同じ）を使う
+- 未マージのブランチで `.github/workflows/`・docs/notes/github-actions.md・`test_workflows_table.py`・`workers/scheduler/schedule.json` を変えているもの:
+  - `origin/work/1015-wfl-s6`（WFL、10-15）: 毎朝の6本と `run-daily.yml`、docs/notes/github-actions.md の表の**末尾**（`update-sns-book.yml` の行の後）に `run-daily.yml` の行を足し、`scheduled` の箇条の行を変えている。`fetch-x-posts.yml` という名前は使っていない
+  - `origin/work/MTK`（10-15）: `assets-check.yml` だけ
+  - 衝突を避けるため、表の行は末尾ではなく `fetch-redirect-counts.yml` の行の後に足す（WFL の変えた行とは離れる）。止まる条件には当たらない
+- 共有の `scripts/lib/` は変えない（`regenerate-page.yml` の push の契機に `scripts/lib/**` があり、変えると全ページの再生成になる）。シートへの書き込みの許可の表（`lib/sheets_write.WRITABLE`）にも足さず、書き込み先の確かめはスクリプトの中で行う
+
 ## 報告
 
 - 状態:
@@ -74,12 +93,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 490aa1a5）: https://github.com/retroeater/mj-logs/tree/main/guide/490aa1a5
+ガイド文書（この版を写した時点の最新、mj 1b7c188b）: https://github.com/retroeater/mj-logs/tree/main/guide/1b7c188b
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/490aa1a5/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/490aa1a5/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/490aa1a5/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/490aa1a5/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/490aa1a5/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/490aa1a5/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/1b7c188b/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/1b7c188b/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/1b7c188b/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/1b7c188b/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/1b7c188b/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/1b7c188b/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/66464371.md
