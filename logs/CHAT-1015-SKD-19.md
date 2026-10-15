@@ -52,28 +52,60 @@ SKD-18 のプレビューで、検索の結果の卓の行の1行目「対局名
 
 ## 経過
 
+### 0. 着手前
+
+- 「指示」欄の末尾と指示文の最後の行が一致。`git log --all --grep="CHAT-1015-SKD-19"` は0件。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある
+- ブランチ: origin/work/1015-skd-top（5ef0f63bd、未マージ）を続けて使用。ログ先行 push d87934f44（[sync-logs]）の後、cloudflare が祖先でなかったので `git merge origin/cloudflare`（8abc0b67d、衝突なし、取り込んだのは docs のみ）
+- #566・#549 の最新のコメントに他セッションの着手中コメントなし。#566 に着手中のコメント（6183229359）。#549 には新しいコメントを書いていない（SKD-18 のコメントのとおり）
+- 未マージの work/ ブランチ: `assets/saikyo.js` を変えているものはなし。`style.css` は work/1015-hou（houou/ の節）と work/MTK（1504 行付近）だが、この指示では `style.css` を変えていない
+
+### 1. 直したもの（54666365e）
+
+- `assets/saikyo.js` のトップの節の `buildYears()`: 卓の行の `.mj-saikyo-n-name` を対局名だけにし、2行目 `.mj-saikyo-n-date` を「卓名・月日」にした。月日は対局日の表示（`date_label()` の「2025年12月14日」）から先頭の年を外したもの（定数 `YEAR_PREFIX`、新しい年度・対局のページの日付と同じ「12月14日」の形）。卓名と月日を「・」でつなぎ、片方が無ければもう片方だけ、両方無ければ2行目を出さない
+- CSS は変えていない（SKD-18 の行の上下 8px の余白・日付の 13px 灰色のまま）
+- 実データの該当: 対局日の無い対局は0件（219 対局すべてに日付がある）、卓の見出しが空の卓の行は0件（見出しは「決勝」「ベスト8 B卓」「ベスト16」など10種）。片方だけ・両方無しの出し方は今の実データには出ない
+- JS だけの変更なので Python のテストは足していない（`python3 -m unittest discover -s scripts/tests`: OK）
+
+### 2. 生成物の差
+
+生成スクリプトを変えていないので、生成し直した作業ツリーの差は0。origin/cloudflare との差はトップ `saikyo/index.html` だけ（SKD-17 の分）
+
+### 3. 確かめ（ローカル、headless Chromium）
+
+- トップ × 375/390/430 × 明・暗 × 標準・幅の広い字体2種・150%・200% × 状態5つ（検索の前・1人〈桑田 → 桑田憲汰〉・複数〈鈴木 → 7人、開く前〉・鈴木たろうを開いた後・該当なし）の150通り: 横スクロール・はみ出し・名前と右端／› の重なり・右端の折り返し・44px 未満・transition は0件。ナビは `mj-nav-new`・relative・「最強戦」
+- **375px の1行目の折り返し**: 卓名を外したので、SKD-18 の「ファイナル 2nd Stage ベスト8 B卓」のような卓名による折り返しは無くなった（桑田憲汰の結果で1行目が折り返すのは 2024・2023 などの「ファイナルトーナメント 2nd Stage／1st Stage」で、区切りの空白で2行目に回る）。
+  全 153 種類の対局名を、右端がいちばん広い行（「1位」＋「優勝」）に入れて測ると、375px で 56 種類・390px で 50 種類・430px で 31 種類が対局名そのものの長さで折り返す。375px で折り返すのは「男子／女流プレミアトーナメント ○○」（21 種類、空白で折り返す）、「女流プレミアトーナメント代表決定戦 ○○」「プレミアトーナメント代表決定戦・○○」（11 種類）、「男子／女流プロ代表決定戦 ○○」（16 種類）、「ファイナルトーナメント 2nd／1st Stage」、ほかに「最強位 vs Mリーガー頂上合戦」「Mリーガーvsタイトルホルダー」「最強＆インフルエンサー決戦」「鉄壁のディフェンスマスター決戦」「次世代プロ集結麻雀代理戦争」「プロ雀士ランキングベスト16大会」「サイバーエージェント杯 女流プロ代表決定戦」「全日本プロ代表決定戦（男子）／（女流）」など。空白・「・」以外の位置で折り返すのは 375px で 38 種類（例「Mリーガーvsタイトルホル|ダー」「女流プレミアトーナメント|代表決定戦」）。どれも右端とは重ならない
+- **桑田憲汰の結果の高さ（390px・明）**: SKD-17 1,423px → SKD-18 1,019px → SKD-19 947px（標準）。150% は 1,702 → 1,619px、200% は 3,198 → 2,718px
+- 状態ごとの高さ（390px・明・標準）: 検索欄は全状態で上端 120px（動かない）。検索の前は歴代最強位 935px、複数（鈴木 7人）の開く前は 392px、鈴木たろうを開いた後は 3,173px（SKD-18 は 3,341px）、該当なしは状態の1行だけ
+- プレビュー: 54666365e の check-run「Workers Builds: mj」completed/success。別名 URL の `?v=5466636` で `saikyo/index.html`・`style.css`・`assets/saikyo.js` がローカルとバイト単位で一致。ブラウザでの見え方はここからは確かめていない
+
+### 4. 記録
+
+- 決定は `docs/decisions/design-renewal.md` の「2026-10-15（CHAT-1015-SKD-19）」。文書は `docs/notes/saikyo-page-design.md` の「#549 で入れる新しい形」の卓の行の記述を直した
+- SKD-18 のログの状態を「判断待ち / 続き: CHAT-1015-SKD-19」にした
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1015-skd-top
 - ログ: https://github.com/retroeater/mj/blob/work/1015-skd-top/docs/logs/CHAT-1015-SKD-19.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1015-skd-top
-- 確認用URL: なし
-- マージ: 未
-- issue: #566
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 確認用URL: トップの検索欄に「桑田」と入れると、「麻雀最強戦2025 ›」の面の中に、1行目「ファイナルトーナメント」・2行目「決勝・12月14日」（右端に「1位」と「優勝」）の行と、1行目「ファイナル 2nd Stage」・2行目「ベスト8 B卓・12月14日」（「2位」「通過」）の行がある（URL はターミナルの最終報告）
+- マージ: 未（この指示ではマージしない。#549 の公開の指示で一緒にマージする）
+- issue: #566（公開は #549）
+- 判断が必要なこと: (1) この形でよいか。(2) 対局名そのものが長い行は 375px で折り返す（153 種類中 56 種類、語の途中の位置で折り返すものが 38 種類。例「Mリーガーvsタイトルホル|ダー」）。折り返し位置をそろえる手（例: 対局名の区切りで改行を許す指定）を入れるか
+- 未確認の項目: 実機（iPhone・PC）のブラウザでの見え方（セッションからは確かめられない）。#549 の公開の直前の取り込みと生成し直し
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj a177d10d）: https://github.com/retroeater/mj-logs/tree/main/guide/a177d10d
+ガイド文書（この版を写した時点の最新、mj 3508c80c）: https://github.com/retroeater/mj-logs/tree/main/guide/3508c80c
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a177d10d/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a177d10d/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a177d10d/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a177d10d/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a177d10d/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a177d10d/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/3508c80c/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/3508c80c/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/3508c80c/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/3508c80c/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/3508c80c/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/3508c80c/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/66464371.md
