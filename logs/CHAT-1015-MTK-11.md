@@ -48,29 +48,34 @@ Mつく（/mtsuku/）の公開（CHAT-1015-MTK-10、cloudflare 980c215）の後�
 - 同じ Chat-Ref のコミットなし。work/MTK はローカル・リモートとも cloudflare にマージ済み → `git merge --ff-only origin/cloudflare`（95d46b4）
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてあり。0.「指示」欄の末尾は指示文の最後の行と一致
 - MTK-10 のログの状態を「完了 / 続き: CHAT-1015-MTK-11」に直した
+- 重複の確認: 「Mつく 公開 確かめ」の issue 検索で open は #570 だけ（#569 はクローズ済み）。ラベル「対象: video_mtsuku」の open も #570 だけ
+- #570: open、本文のチェックリストは想定どおり（着手前2・変更9・公開後の確かめ6、すべて未チェック）
+- #570 に平野さんの確かめ（日付・項目ごと、申告値でここからは検証できない旨）をコメントし、本文のチェックリスト17件に印を付けた。
+  「公開前の Search Console の数字」は「残さないと決めた（MTK-09）」、公開の条件の YouTube の情報の取得は「要らなくなった」と注記。completed でクローズし「状況: 待ち」を外した
+- `docs/decisions/mtsuku.md` に MTK-11 の節、`docs/notes/video-mtsuku.md` に「公開後の確かめ（2026-10-15）」の1行（1793e47）
 
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/MTK
-- ログ: https://github.com/retroeater/mj/blob/work/MTK/docs/logs/CHAT-1015-MTK-11.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1015-MTK-11.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/MTK
 - 確認用URL: なし
-- マージ: 未
-- issue: #570
+- マージ: 済（ドキュメントのみ。このコミットを cloudflare へ push）
+- issue: #570（確かめをコメントしクローズ）
 - 判断が必要なこと: なし
-- 未確認の項目: なし
+- 未確認の項目: なし（Search Console の登録の結果は待たない）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 95d46b4d）: https://github.com/retroeater/mj-logs/tree/main/guide/95d46b4d
+ガイド文書（この版を写した時点の最新、mj f6b567c4）: https://github.com/retroeater/mj-logs/tree/main/guide/f6b567c4
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/95d46b4d/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/95d46b4d/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/95d46b4d/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/95d46b4d/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/95d46b4d/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/95d46b4d/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f6b567c4/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f6b567c4/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f6b567c4/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f6b567c4/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f6b567c4/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f6b567c4/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/95d46b4d.md
