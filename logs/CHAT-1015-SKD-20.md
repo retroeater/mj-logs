@@ -57,6 +57,40 @@
 
 ## 経過
 
+### 0. 着手前
+
+- 「指示」欄の末尾と指示文の最後の行が一致。`git log --all --grep="CHAT-1015-SKD-20"` は0件。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある
+- ブランチ: origin/work/1015-skd-top（a905521bc、未マージ）を続けて使用。ログ先行 push 76ab6ab50（[sync-logs]）の後、cloudflare が祖先でなかったので `git merge origin/cloudflare`（13e2bbc89、衝突なし。取り込んだのは docs・`assets/houou.js`・`scripts/regenerate.py`・`style.css` の houou/ の箇所）
+- #566・#549 の最新のコメントに他セッションの着手中コメントなし。#566 に着手中のコメント（6183638325）。#549 には新しいコメントを書いていない
+- docs/decisions に新しいページで敗退のピルを出さないと決めた記録は無い（`docs/decisions/*.md` の「敗退」「ピル」を確かめた。ピルの記録は年度ページの「通過」「優勝」だけ）。saikyo-page-design.md の「敗退はグレーのまま」（#406）とも食い違わない（灰色のピル）
+- 未マージの work/ ブランチ: `scripts/generate_saikyo_pages.py`・`assets/saikyo.js`・テストを変えているものはなし。`style.css` は work/MTK（1504 行付近）だが、この指示の変更（2082 行付近の `.mj-saikyo-n-pill`）とは別の箇所
+
+### 1. 変えたもの（5f0db8153）
+
+- `scripts/generate_saikyo_pages.py`: 定数 `PILL_RESULTS = (RESULT_PASS, RESULT_OUT)` と `pill_class()`（敗退なら `mj-saikyo-n-pill is-out`）を足した。`build_table_section()`（対局のページ）は結果が通過・敗退の行にピルを出す（字は `player.label`。決勝の通過は「優勝」、敗退は「敗退」になることを確かめた）。`build_top_data()` のピルも同じ条件にした
+- `assets/saikyo.js` のトップの節: ピルの字が「敗退」（`OUT_LABEL`）なら `is-out` を付ける
+- `style.css`: `.mj-saikyo-n-pill.is-out`。**色は地 `--mj-n-line`・字 `--mj-n-muted`**（明 #e5e5e5 の地に #555555 で 5.92:1、暗 #38383a の地に #aeaeb2 で 5.29:1）。形・大きさ・字（12px 太字）は通過・優勝のピルと同じ。金（9.49:1、彩度の高い地）より目立たない
+- 出す条件: 結果（G）が「敗退」の行。未対局の卓はピルなし（今のまま）。順位が空の行は順位の欄を空のままピルだけ（2019 年度では 18 対局のページにある。例 `saikyo/2019/20190223.html` に7行）。読み上げは対局のページの「（4位敗退）」のままでピルは `aria-hidden`、トップの検索の結果は通過・優勝の行と同じ扱い
+- 年度ページ（`result_pill()`、勝ち上がった人だけ）と卓のページ（写真カード）は変えていない
+- テスト2件（`TopTest.test_search_data_has_out_pill`・`OutPillTest.test_match_page_shows_gray_out_pill`）。どちらも修正前のコードで失敗し、修正後は全件 OK（`python3 -m unittest discover -s scripts/tests`: OK）
+
+### 2. 生成物の差（`python3 scripts/regenerate.py saikyo_pages`）
+
+| 種類 | 件数 | 中身 |
+|---|---|---|
+| 新しい対局のページ | 214（全 219） | 敗退の行に `<span class="mj-saikyo-n-pill is-out" aria-hidden="true">敗退</span>` を足しただけ（差のある全ページで、新版からこのピルを取り除くと旧版と一致）。残り5ページは 2026 年度の未対局の対局（`20261011`〜`20261108`）で結果が無い |
+| トップ `saikyo/index.html` | 1 | 検索データのピルに「敗退」が入った |
+| 新しい年度ページ・卓のページ・今の年度ページ・ほか | 0 | |
+
+対局のページの差もこのブランチ（work/1015-skd-top）に入り、#549 の公開の指示で一緒にマージする
+
+### 3. 確かめ（ローカル、headless Chromium）
+
+- 対局のページ（`saikyo/2025/20250816.html`・`saikyo/2019/20190223.html`）× 375/390/430 × 明・暗 × 標準・幅の広い字体2種・150%・200% の60通り: 横スクロール・はみ出し・名前と右端の重なり・右端の折り返し・44px 未満は0件
+- トップ × 同じ組み合わせ × 状態6つ（検索の前・桑田・鈴木〈開く前・鈴木たろうを開いた後〉・猿川・該当なし）の180通り: 同じく0件
+- 行の高さ（390px）: 対局のページ 2 枚はページの高さ・行の高さ（56px）とも前と同じ（1,113px・1,168px）。トップの桑田は 947px で前と同じ（敗退の行が無い）。猿川は 3,042 → 3,066px、鈴木たろうを開いた後は 3,173 → 3,197px（右端が広がった分、対局名が1行増える行がある。重なり・右端の折り返しは無い）
+- 画面の写しで、対局のページの「3位・4位」の行の右端に灰色の「敗退」、「1位・2位」に金の「通過」、決勝の1位に「優勝」を確かめた
+
 ## 報告
 
 - 状態: 作業中
@@ -73,12 +107,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 490aa1a5）: https://github.com/retroeater/mj-logs/tree/main/guide/490aa1a5
+ガイド文書（この版を写した時点の最新、mj b41b6aa9）: https://github.com/retroeater/mj-logs/tree/main/guide/b41b6aa9
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/490aa1a5/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/490aa1a5/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/490aa1a5/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/490aa1a5/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/490aa1a5/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/490aa1a5/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b41b6aa9/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b41b6aa9/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b41b6aa9/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b41b6aa9/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b41b6aa9/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b41b6aa9/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/66464371.md
