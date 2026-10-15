@@ -58,6 +58,24 @@ SKD のチャット（CHAT-1014/1015-SKD-01〜21、#566）の振り返りで分�
 
 ## 経過
 
+- 0章: 「指示」欄の末尾と指示文の最後の行が一致。`git log --all --grep="CHAT-1015-SKD-22"` は0件。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある。ガイド文に規則を足す指示で「知見 → 選んだ層 → 理由」の表がある
+- ブランチ: work/1015-skd-notes はローカルにもリモートにも無かったので `git checkout -b work/1015-skd-notes origin/cloudflare`（a5c01728b）。ログ先行 push 37bb69fcf（[sync-logs]）
+- 大きさ（作業ツリー、バイト）:
+
+| 文書 | 前 | 後 | 上限・警告域 |
+|---|---|---|---|
+| docs/instruction-template.md | 13,948 | 13,942 | 16,384・14,336 |
+| docs/notes/chat-side-operations.md | 22,170 | 22,203 | 28,672・26,624 |
+| docs/notes/chat-routines.md | 10,774 | 11,241 | なし |
+
+- 足した・直した箇所（1569fcd94）:
+  1. `docs/notes/chat-routines.md`「指示の種類ごとの確かめ」の箇条書き（「他のセッションが同じ日に…」の次、「平野さんがシート…」の前）に1項目: 「一覧の行の形（表・面の行・検索の結果）を決める指示: 前提に端の実データ（いちばん長い名前・順位や日付が空・結果の種類ごと〈例: 通過・敗退・優勝・未対局〉）を書き、確かめの欄でその行を報告させる。平野さんにプレビューを頼む前に、チャット側が端のデータの画面を見る（端のデータで見つかる直しは1本の指示で済むため）」
+  2. `docs/instruction-template.md` の0章の説明（49行目）を置き換えた。前「（「貼る時機」に前提を書いたときは、0章にその確かめを足す。前の指示の結果が前提なら「<Chat-Ref> のログの `## 報告` を読み、完了していなければ何もせず止まる。」）」→ 後「（「貼る時機」の前提は0章で確かめる。条件はログの状態でなく結果〈マージ済み等〉で書く。プレビューで止まる指示は「判断待ち」で終わり「完了」にならない）」。純増させないよう短くし、6 バイト減った（docs/notes/ へ移したものは無い）
+  3. `docs/notes/chat-side-operations.md`「場面ごとに読む文書」の表の、`chat-routines.md`「指示の種類ごとの確かめ」を指す行に「一覧の行の形を決める」を足した（「他のセッションが変えている領域」と「シートを用意したと言われた」の間）
+- CLAUDE.md・handover.md は変えていない
+- `assets-check.yml`（公開対象を検査する）が作業ブランチの push で走り success（「ガイド文書のサイズを確認」「chat-side-operations.md の純増を確認」の段も success）
+- 決定は `docs/decisions/design-renewal.md` の「2026-10-15（CHAT-1015-SKD-22）」。SKD-21 のログの状態は変えていない（このブランチに無いため）
+
 ## 報告
 
 - 状態: 作業中
@@ -74,12 +92,12 @@ SKD のチャット（CHAT-1014/1015-SKD-01〜21、#566）の振り返りで分�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 1e1cc49f）: https://github.com/retroeater/mj-logs/tree/main/guide/1e1cc49f
+ガイド文書（この版を写した時点の最新、mj 6c06af33）: https://github.com/retroeater/mj-logs/tree/main/guide/6c06af33
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/1e1cc49f/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/1e1cc49f/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/1e1cc49f/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/1e1cc49f/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/1e1cc49f/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/1e1cc49f/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6c06af33/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6c06af33/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6c06af33/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6c06af33/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6c06af33/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6c06af33/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/2fcae3af.md
