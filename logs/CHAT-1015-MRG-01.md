@@ -42,15 +42,45 @@
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+- 識別子の確認: `git fetch --unshallow` の後、全ブランチのコミットと `docs/logs/` の履歴に `MRG` は無かった。同じ Chat-Ref のコミットも無し
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っていた
+- 作業ブランチ: ローカル・リモートとも `work/1015-mrg` が無かったため `git checkout -b work/1015-mrg origin/cloudflare`
+- 手順0: ログの「指示」欄の末尾は指示文の最後の行と一致
+- 手順1: `docs/decisions/operations.md` の「## 2026-10-14（CHAT-1015-MRF-01）」の1行目（539行目）に「（無ければ新規起票、ラベル `morning`）」があった。
+  `docs/`・`.github/`（`docs/logs/` を除く）で `morning` を grep した。ほかの一致は `actions/morning.md`・`scripts/morning_report.py`（ファイル名）だけで、ラベル `morning` に触れる記述は無かった
+- 未マージの `work/` ブランチで `docs/decisions/operations.md` を変えているものは無かった
+- 手順2: 指示文の「前提」（古い記述は消して置き換える）・手順2（同じ節に 2026-10-15 の1行を足す）と、`docs/decisions/README.md`「書き方」（前の決定を消さずに行末に「→ 置き換え: …」を付け、新しい決定の側に「（… を置き換える）」と書く。見出しは指示ごと）が食い違った。
+  CLAUDE.md「Chat-Ref」（記述同士が食い違ったら前提・ルールの側を優先）と手順2の「README の書き方に従う」により README に従った:
+  - 539行目は消さず、行末に「 → 置き換え: 2026-10-15（CHAT-1015-MRG-01）」を付けた
+  - ファイル末尾に「## 2026-10-15（CHAT-1015-MRG-01）」の節を足し、新しい決定（ラベル `morning` は付けない。issue への追記〈無ければ新規起票〉で渡す。CHAT-1015-MRF-01 の該当箇所を置き換える）と「作業中の回答: なし」を書いた
+- 変更は docs/decisions/operations.md と本ログのみ。issue は変えていない
+- マージ: ドキュメントのみのため、`git push origin work/1015-mrg:cloudflare`（push 直前に再 fetch して `git merge-base --is-ancestor origin/cloudflare HEAD` を確認）
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1015-mrg
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1015-MRG-01.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1015-mrg
+- 確認用URL: なし
+- マージ: 済（b6dcc1c4c。fast-forward）
+- issue: なし
+- 判断が必要なこと:
+  - 指示文の前提「古い記述は消して置き換える」と手順2「同じ節に 2026-10-15 の1行を足す」は、docs/decisions/README.md「書き方」（前の決定は消さずに「→ 置き換え」を付け、新しい決定は指示ごとの見出しに書く）と食い違ったため、README に従った（539行目は残して行末に「→ 置き換え: 2026-10-15（CHAT-1015-MRG-01）」、末尾に「## 2026-10-15（CHAT-1015-MRG-01）」の節）。旧行から `morning` を消す形にするなら次の指示で行う
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 2fcae3af）: https://github.com/retroeater/mj-logs/tree/main/guide/2fcae3af
+ガイド文書（この版を写した時点の最新、mj 71b0e22c）: https://github.com/retroeater/mj-logs/tree/main/guide/71b0e22c
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/2fcae3af/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/2fcae3af/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/2fcae3af/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/2fcae3af/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/2fcae3af/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/2fcae3af/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/71b0e22c/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/71b0e22c/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/71b0e22c/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/71b0e22c/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/71b0e22c/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/71b0e22c/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/2fcae3af.md
