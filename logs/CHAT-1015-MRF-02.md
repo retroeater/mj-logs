@@ -83,7 +83,7 @@ CHAT-1015-MRF-01 の「判断が必要なこと」に回答し、朝のフォロ
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1015-MRF-03
 - ブランチ: work/1015-mrf
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1015-MRF-02.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1015-mrf
@@ -91,19 +91,19 @@ CHAT-1015-MRF-01 の「判断が必要なこと」に回答し、朝のフォロ
 - マージ: 済（7732e04d8、`git push origin work/1015-mrf:cloudflare`、fast-forward）
 - issue: なし
 - 判断が必要なこと:
-  - MRF-02 の決定（(A) は渡さない・video_wayhome はフォローから外す・operations.md の追記は残す）を docs/decisions に足すか。CLAUDE.md の規則では足すが、今回のマージの承認の範囲外のため足していない。足すなら次の指示で
+  - MRF-02 の決定（(A) は渡さない・video_wayhome はフォローから外す・operations.md の追記は残す）を docs/decisions に足すか。CLAUDE.md の規則では足すが、今回のマージの承認の範囲外のため足していない。足すなら次の指示で → 解決（2026-10-15、MRF-03）: 足さない
 - 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 490aa1a5）: https://github.com/retroeater/mj-logs/tree/main/guide/490aa1a5
+ガイド文書（この版を写した時点の最新、mj 281628d5）: https://github.com/retroeater/mj-logs/tree/main/guide/281628d5
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/490aa1a5/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/490aa1a5/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/490aa1a5/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/490aa1a5/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/490aa1a5/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/490aa1a5/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/281628d5/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/281628d5/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/281628d5/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/281628d5/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/281628d5/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/281628d5/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/66464371.md
