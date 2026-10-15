@@ -56,6 +56,29 @@ MCK-08 の試し取りで、谷岡さんのタイムライン（直近 3,200件�
 
 ## 経過
 
+### 0. 着手前の確認
+
+- 「指示」欄の末尾は指示文の最後の行（「この行が指示文の最後の行です。」）と一致
+- CHAT-1015-MCK-08 の `## 報告` の状態は「判断待ち」
+- #367: Open、他セッションの着手中コメントなし
+- 未マージの work/ ブランチで `fetch-x-posts.yml`・`scripts/fetch_x_posts.py` を変えているものなし
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある
+
+### 1. 全期間検索の取り方を足す（4c5d9ce29）
+
+- `scripts/fetch_x_posts.py`: `--mode search`。`tweets/search/all` を1人1ページ（`max_results=100`）だけ呼び、`next_token` があっても次のページは取らない。
+  検索の式は `from:<handle> has:images -is:retweet -is:reply`（handle は英数字と `_` の15文字まで。違えば止める）。`start_time` は JST の0時を UTC に、
+  `--end now` は `end_time` を送らない（X API の既定で今まで。search のときだけ使える）。上限は定数 `SEARCH_MAX_READS=100`・`SEARCH_MAX_COST=0.5`。
+  応答の `meta`（`result_count`・`next_token` の有無）を出力に出す。権限の拒否（403 など）は、分類とエラーの説明（`reason`・`detail`）を出してそれ以上呼ばずに止める。
+  区分は `search`。同じ投稿 ID は【1】に足さない（既存の `new_rows`）。見込みの計算は timeline と同じ式（1ページで切れたら、取れた一番古い日から今日まで）
+- `fetch-x-posts.yml`: `mode` に `search`、`start_time`・`end_time` の説明に search と `now`。`dry_run` の既定は真のまま
+- `docs/notes/github-actions.md`「ワークフローの一覧」の fetch-x-posts.yml の行
+- テスト 7件を追加（式の組み立て・1ページだけ・上限・403 の説明に本文が出ない・dry-run は何も呼ばない・同じ投稿 ID を足さず meta を出す・`now` は search だけ）。
+  新しい関数を相手にするため、直す前のコードでは通らない。`python3 -m unittest discover -s scripts/tests`: 1177件 OK
+- docs/notes/github-actions.md「ワークフローを変更したとき」に従い、マージ前に作業ブランチで dry-run を1回（run 38694359691、success）:
+  トークン有、ブックを開けた（タブ3個）、【1】の見出し「同じ」・既存の行 107行、検索の式は上のとおり、予定 呼び出し1回・最大100件・最大 $0.5（上限 100件・$0.5）。
+  Drive の canEdit は MCK-08 と同じく「未確認(HTTP 403)」（書き込みの権限は本番で見出しの書き直しで確かめる）
+
 ## 報告
 
 - 状態:
@@ -72,12 +95,12 @@ MCK-08 の試し取りで、谷岡さんのタイムライン（直近 3,200件�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj b50b41fd）: https://github.com/retroeater/mj-logs/tree/main/guide/b50b41fd
+ガイド文書（この版を写した時点の最新、mj 1aa2436a）: https://github.com/retroeater/mj-logs/tree/main/guide/1aa2436a
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b50b41fd/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b50b41fd/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b50b41fd/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b50b41fd/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b50b41fd/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b50b41fd/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/1aa2436a/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/1aa2436a/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/1aa2436a/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/1aa2436a/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/1aa2436a/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/1aa2436a/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/2fcae3af.md
