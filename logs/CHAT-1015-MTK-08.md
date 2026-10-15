@@ -106,16 +106,26 @@ ZeFtFG2ov_Q（2025-07-22 和泉由希子）: YouTubeチャンネル「麻雀遊�
   - 検査: `scripts/check_saikyo_unregistered.py`（Mつくの節）・`scripts/check_unused_names.py`（Mつくの名前を利用先に）・`scripts/lib/sns.py`（`x_marked_none()`）
   - `style.css`（`.mj-mtsuku-round`）
   - 文書: `docs/notes/video-mtsuku.md`・`docs/notes/static-generation.md`・`docs/notes/redirects.md`・`docs/handover.md`（6章の表に1行）・ログ5本（`docs/decisions/mtsuku.md` は MTK-08 の節だけ）
+- マージ直前に cloudflare が進んでいた（WFL-17・18 の workflows・Worker・文書）ので再度取り込み（衝突なし。取り込んだ変更は生成スクリプト・`scripts/lib` を含まない）。テスト OK・scheduler の node テスト 40件 OK を確かめ、再 fetch で cloudflare が祖先であることを確かめて `git push origin work/MTK:cloudflare`（1e1cc49）
+
+### マージ後
+
+- 1e1cc49 の Workers Builds: mj・mj-ask・mj-scheduler とも success。`regenerate`（push からの再生成）・`check` も success
+- 本番（2026-10-15、マージから約11分後に反映）: `/mtsuku` → 301 `/mtsuku/`、`/mtsuku/`・ZeFtFG2ov_Q・vSduV7-kLls が 200 で `<meta name="robots" content="noindex">` あり。
+  vSduV7-kLls は作業ブランチの生成物と同じバイト（紹介文「滝沢和典プロの第2回です。」・`uploadDate` 「2024-08-10」）。
+  `navbar.js`・`sitemap.xml`・`sitemap-pages.xml`・`sitemap-wayhome.xml`・`sitemap-saikyo.xml`・`sitemap-title.xml`・`llms.txt` に `mtsuku/` は無い（navbar は今までどおり `video_mtsuku.html`）。ブラウザでの見え方は確かめていない（本番の HTML まで）
+- #569 にコメント（クローズしない。公開は #570）
+- 決定を `docs/decisions/mtsuku.md` の MTK-08 の節に書いた
 
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/MTK
-- ログ: https://github.com/retroeater/mj/blob/work/MTK/docs/logs/CHAT-1015-MTK-08.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1015-MTK-08.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/MTK
-- 確認用URL: なし
-- マージ: 未
-- issue: #569
+- 確認用URL: なし（本番に未公開のまま入れた。プレビューは見ていない〈指示のとおり〉）
+- マージ: 済（1e1cc49）
+- issue: #569（コメント。クローズしない）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
@@ -123,12 +133,12 @@ ZeFtFG2ov_Q（2025-07-22 和泉由希子）: YouTubeチャンネル「麻雀遊�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj a5b7e739）: https://github.com/retroeater/mj-logs/tree/main/guide/a5b7e739
+ガイド文書（この版を写した時点の最新、mj 6c06af33）: https://github.com/retroeater/mj-logs/tree/main/guide/6c06af33
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a5b7e739/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a5b7e739/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a5b7e739/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a5b7e739/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a5b7e739/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a5b7e739/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6c06af33/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6c06af33/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6c06af33/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6c06af33/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6c06af33/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6c06af33/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/2fcae3af.md
