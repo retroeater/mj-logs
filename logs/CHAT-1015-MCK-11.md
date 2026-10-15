@@ -174,7 +174,7 @@ MCK-03・MCK-05 で作った第18期の TSV は、第5節が全員空で、順�
 
 ## 報告
 
-- 状態: 判断待ち（止まる条件「JWRC タブにすでに第18期以降が入っている」に当たり、手順3〈TSV〉の前で止めた。画像の読み取りと照合A・B・C は済み）
+- 状態: 判断待ち（止まる条件「JWRC タブにすでに第18期以降が入っている」に当たり、手順3〈TSV〉の前で止めた。画像の読み取りと照合A・B・C は済み） / 続き: CHAT-1015-MCK-13
 - ブランチ: work/1015-mck-wrc18
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1015-MCK-11.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1015-mck-wrc18
@@ -195,12 +195,12 @@ MCK-03・MCK-05 で作った第18期の TSV は、第5節が全員空で、順�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 0372f061）: https://github.com/retroeater/mj-logs/tree/main/guide/0372f061
+ガイド文書（この版を写した時点の最新、mj e0724da7）: https://github.com/retroeater/mj-logs/tree/main/guide/e0724da7
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/0372f061/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/0372f061/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/0372f061/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/0372f061/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/0372f061/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/0372f061/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/2fcae3af.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e0724da7/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e0724da7/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e0724da7/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e0724da7/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e0724da7/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e0724da7/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/e0724da7.md
