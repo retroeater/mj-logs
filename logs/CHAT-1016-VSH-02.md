@@ -85,18 +85,28 @@ CHAT-1016-VSH-01 は、新しいブックが gviz で読めず（HTTP 401）止�
 - work/1015-skr-pub: `docs/notes/static-generation.md` で変えるのは最強戦の表の行と `saikyo_pages` の行で、今回の帰り道の行（別の行）と重ならない
 - work/JBK: `scripts/check_unused_names.py`（今回は変えていない）・`docs/notes/static-generation.md`（「ページの一覧」の文と表に女流勉強会を足す。今回の帰り道の行とは別の行）。衝突なし
 
+### マージとその後
+
+- push 直前に再 fetch し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真であることを確かめて `git push origin work/VSH:cloudflare`（a94b0a641..8e48fa5f6、fast-forward）
+- 8e48fa5f6 の check-run: Workers Builds: mj success、regenerate success、check success×2（notify は skipped）。push 後の再生成のコミット（`chore: regenerate`）は出ていない（生成物の差分 0 と合う）。
+  本番の HTML・ブラウザでの見え方は確かめていない（生成物が変わらない変更のため）
+- #578 に「旧タブを削除してよい」と、削除してよい旧タブの名前とブックをコメントし、クローズした（「状況:」ラベルは付いていなかった）
+- 残る作業（旧タブの削除、平野さんの手作業）を #579 に起票した
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/VSH
-- ログ: https://github.com/retroeater/mj/blob/work/VSH/docs/logs/CHAT-1016-VSH-02.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1016-VSH-02.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/VSH
-- 確認用URL:
-- マージ:
-- issue: #578
+- 確認用URL: なし（生成物の差分 0 のため、指示どおりプレビューを見ずにマージ）
+- マージ: 済（8e48fa5f6、fast-forward）
+- issue: #578（クローズ）、#579（起票、旧タブの削除）
 - 判断が必要なこと:
-- 未確認の項目:
-- エラー:
+  - 平野さんの手作業（#579）: 旧タブの削除。「帰り道」は title/ ・ /live と同じブック（`scripts/lib/live.py` の `SPREADSHEET_ID`）の「帰り道」タブ、「Mつく」はブック `1y8xBxGpIt-C23cwG7MDjDkebMlpnBufa4_IzYAo2QyQ`（`jpml_test`・`resource_logs`・`video_en` と同じ）の「Mつく」タブ。後者のブックのほかのタブは消さない
+  - work/JBK との重なり: `docs/notes/static-generation.md`（「ページの一覧」。帰り道の行を今回変えた。JBK は文と表に女流勉強会を足す。別の行で、`git merge-tree` で衝突なし）。`scripts/check_unused_names.py` は今回変えていない。JBK の女流勉強会は、新しいブックの ID として `scripts/lib/video_book.py` の `SPREADSHEET_ID` を使える
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
