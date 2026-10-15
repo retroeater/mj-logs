@@ -11,7 +11,7 @@ ryoei.pro のすべての転送の一覧と、四半期ごとの棚卸しの手�
 |---|---|---|---|
 | www → apex（308、クエリを保つ） | Cloudflare の Redirect Rule「www to apex」 | `www.ryoei.pro` の全パス | #115、docs/notes/cloudflare.md「www→apexのRedirect Rule」 |
 | http → https | Always Use HTTPS | 全パス | docs/notes/cloudflare.md |
-| 末尾スラッシュを付ける 301 | `_redirects` | `/saikyo`・`/title`・`/live`・`/books`・`/houou`・`/wayhome` と `/title/<大会>`（20行。`test_title_redirects.py` が検査） | #455 |
+| 末尾スラッシュを付ける 301 | `_redirects` | `/saikyo`・`/title`・`/live`・`/books`・`/houou`・`/wayhome`・`/mtsuku` と `/title/<大会>`（20行。`test_title_redirects.py` が検査） | #455 |
 | `/live` の URL 変更の 301 | `_redirects` の `# live: generated` 〜 `# live: end`（`scripts/generate_live_pages.py` が書く） | 2026-10-14 時点で `/live/teiou/3/b16.html`・`/live/teiou/4/b16.html` → 同じ期の `f.html` | docs/notes/live-page-design.md「3-4」。生成物なので行ごとに照らし合わせない。当面は消さない |
 | 内部の書き換え（200） | `_redirects` | 11行（`/`、各ディレクトリの `index.html`、`/title/:slug/` など） | docs/notes/cloudflare.md「配信設定」。転送ではないので棚卸ししない |
 
@@ -27,6 +27,7 @@ ryoei.pro のすべての転送の一覧と、四半期ごとの棚卸しの手�
 | `/saikyo_results.html` | `/saikyo/` | `_redirects` 301 | 2026-09-21 | #350・#434（#568 に統合） | 未（初回 2027-01 上旬） |
 | `/jpml_titles.html` | `/title/` | `_redirects` 301 | 2026-09-30 | #441・#485 | 未（初回 2027-01 上旬） |
 | `/video_wayhome.html` | `/wayhome/` | `_redirects` 301 | 2026-10-13 | #559 | 未（初回 2027-01 上旬） |
+| `/video_mtsuku.html` | `/mtsuku/` | `_redirects` 301 | 2026-10-15 | #570 | 未（初回 2027-01 上旬） |
 | `/tanilog.html` | `/resource_logs.html?name=谷岡育夫` | `_redirects` 301 | 2026-09-07 | GitHub Pages からの移行 | 未（初回 2027-01 上旬） |
 | `/houou/ranking/` | `/houou/ranking/total/` | `_redirects` 301（クエリを引き継ぐ。`?division=` は下の「JS の移動」） | 2026-10-14 | #518・#540（通算得点を `total/` に移した開発中の入口） | 未（初回 2027-01 上旬） |
 

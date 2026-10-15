@@ -48,7 +48,8 @@
 - ビルド・lint の自動化コマンドはなし。HTML/JSの変更はブラウザで直接確認する
 - 外部の状態を待つ待機は上限15分（超えたら状態を書き「未確認の項目」に回して進む。自分のコマンドの実行は対象外）。共有の定数・関数を変えるときは参照を洗い出し、
   マージ前に全ページを再生成して差分を確かめる（docs/notes/github-actions.md「ワークフローを手動実行するとき」、docs/notes/static-generation.md「生成スクリプトの構成」）
-- テストは`scripts/tests/`（unittest、標準ライブラリのみ）。実行は`python3 -m unittest discover -s scripts/tests`。週次の`check-meibo.yml`も実行する
+- テストは`scripts/tests/`（unittest、標準ライブラリのみ）。実行は`python3 -m unittest discover -s scripts/tests`。週次の`check-meibo.yml`も実行する。
+  `workers/<名前>/`のコード・テスト・生成物（`data.json`など）を変えたときは`node --test 'workers/<名前>/test/*.test.mjs'`も回す（CI では回っていない）
 
 ### 禁止事項（理由は参照先）
 - `gh-pages` ブランチに触らない（docs/handover.md「gh-pages ブランチは触らない」）

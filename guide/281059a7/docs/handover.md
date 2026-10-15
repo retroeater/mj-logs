@@ -221,6 +221,7 @@ GitHub Issues（Open）に全件あるが、着手可能な主なものは以下
 | `docs/notes/ogp.md` | OGP 画像・`og:title`・SNS のカード表示 |
 | `docs/notes/page-announcement.md` | 新しいページの X での告知の型（投稿文・告知動画・進め方） |
 | `docs/notes/video-wayhome.md` | 「帰り道」の一覧・個別ページ、新しい回の追加 |
+| `docs/notes/video-mtsuku.md` | 「Mつく」の一覧 `/mtsuku/`・各話（帰り道と同じ形、2026-10-15 に公開、#570） |
 | `docs/notes/site-findings.md` | 現行サイトの実測値（パフォーマンス・画像ドメイン・SEO・配色） |
 | `docs/notes/design.md` | 見た目の既決の値（色・文字・寸法・部品・濃色の例外）。ページや部品を作る・直す前。チャット側の決め方（比較ページ・見本・コントラスト比） |
 | `docs/notes/a11y-manual-check.md` | アクセシビリティの実機確認（#186） |
