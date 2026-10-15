@@ -86,15 +86,45 @@ WFL-17 の `## 報告`「判断が必要なこと」への回答。いずれも 
 - 取り込んだのは fetch-x-posts.yml・scripts/fetch_x_posts.py とそのテスト・docs/decisions/operations.md・ログ。6 本・run-daily.yml・`workers/scheduler/`・morning_report.py は変わっていない
 - 取り込んだ後: unittest OK・Worker の `node --test` 0 fail・部品のテスト 0 fail
 
+### 手順3: マージと check-run（止まる条件に当たった）
+
+- JST 14:52 に、push 直前の再 fetch で祖先を確かめ、`git push origin work/1015-wfl-s7:cloudflare`（71b0e22cc..a5b7e739d。03:45〜05:15 の外）。`schedule.json`・`workers/scheduler/test/scheduler.test.mjs` の変更を含む（`git diff --name-only 71b0e22cc a5b7e739d -- workers`）
+- a5b7e739d の check-run（06:09:50Z〈JST 15:09:50〉、push から約18分）: 「check」×2 success（05:52:19Z・05:52:25Z）、「Workers Builds: mj」success（06:00:56Z）、「notify」skipped×2。**「Workers Builds: mj-scheduler」の check-run は付いていない**。Actions: 公開対象を検査する run #3637（38689113821）・#3638（38689117078）success
+- 15 分（06:07Z まで）待っても `mj-scheduler` の check-run が付かないので、止まる条件「15 分待っても check-run が付かない: 戻さずに止まり、状態を書く」に当たった。戻していない。#564 へのコメントもしていない
+- 比べたこと（check-runs の API）:
+  - 2026-10-07 の `workers/scheduler/` の変更（d7428823a など）の push の先頭（b8cef8bc5・0395f3760・69ea17e3b）には「Workers Builds: mj-scheduler: success」が付いていた
+  - 2026-10-14 の ACF-18（7e6d723a6）のマージの push の先頭 716729bb0（03:07:10Z）にも「Workers Builds: mj」と「Workers Builds: mj-scheduler」の success が付いていた
+  - 今回の a5b7e739d には付いていない。作業ブランチの 56c25f985 には「Workers Builds: mj」（プレビュー）だけが付いた（mj-scheduler はプレビューのビルドが OFF なので付かないのは設定どおり）
+  - a5b7e739d の「本番ビルドの失敗の通知」は check_run の契機で 2 回動いた（#162 05:52:34Z・#163 05:55:39Z、どちらも skipped）。#163 は「check」の完了（05:52:25Z）より後で、どの check-run の完了で動いたかはここからは確かめられない
+- ここから確かめられないこと: Cloudflare のダッシュボードで `mj-scheduler` のビルドが走ったか・待ちに入っているか・デプロイされたか（セッションから到達できない。CLAUDE.md「判断・作業の原則」により、check-run が無いことを根拠に「ビルドされていない」とは結論づけない）
+- 翌朝（2026-10-16 04:00 JST）の動き（どちらになるかは Worker の版で決まる）:
+  - `mj-scheduler` が新しい表（1行）でデプロイされていれば: 04:00 に run-daily.yml が `scheduled` で起動し、各本は run-daily から動く。06:00 の朝の確かめは run-daily の1行
+  - 前の表（5行）のままなら: 今までどおり本ごとに 04:00〜04:30 に起動する（run-daily は起動しない）。ただし regenerate-saikyo の `workflow_run` は外したので、**最強戦の再生成（abema の【2】の作り直しと saikyo/ の再生成）だけが動かない**。update-live-channel のゲートは両方の和なので、保険が二重に動くことは無い
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1015-wfl-s7（マージ済み。削除は delete-merged-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/work/1015-wfl-s7/docs/logs/CHAT-1015-WFL-18.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1015-wfl-s7
+- 確認用URL: なし
+- マージ: 済（a5b7e739d。切り替え〈schedule.json・ゲート・workflow_run の削除・morning_report.py・Worker のテスト・docs〉を含む）
+- issue: なし（止まる条件に当たったため #564 へのコメントはしていない）
+- 判断が必要なこと:
+  1. マージの後 15 分（約18分の時点まで見た）待っても、a5b7e739d に「Workers Builds: mj-scheduler」の check-run が付かない（10/07・10/14 の `workers/scheduler/` の変更のマージでは付いていた）。Cloudflare のダッシュボード（Workers & Pages > `mj-scheduler` > Deployments / Builds）で、a5b7e739d のビルドが走ったか・デプロイされたかを平野さんに確かめてほしい（セッションからは到達できない）
+  2. 翌朝の扱い。デプロイされていれば 04:00 に run-daily が動く（目的どおり）。デプロイされていなければ前の5行で本ごとに動き、最強戦の再生成だけが動かない。推奨: (a) ダッシュボードでデプロイ済みならそのまま翌朝を待つ。(b) デプロイされていなければ、ダッシュボードから `mj-scheduler` のビルドをやり直す（Retry build など）か、翌朝は最強戦の再生成を手動実行（regenerate-saikyo.yml を cloudflare で、abema: update）で補う。戻す（schedule.json を5行・workflow_run を戻す）のは、(b) のどちらもできないときだけ
+- 未確認の項目: `mj-scheduler` のデプロイ（上）。切り替えの翌朝の初回: 2026-10-16（金）04:00 JST の run-daily（`[scheduled]` の題）、06:00 JST の Worker の朝の確かめ（#506。run-daily の1行）、同日の mj-logs の morning.md（失敗の行のジョブ名・所要時間の判定）。保険の update-live-channel（06:43 JST の予定、実際は遅れる）がゲートで止まるか（ログの行「当日の予約の起動の成功: run-daily の実行 <ID> のジョブ live / update」）
+- エラー: なし（ビルドの失敗は出ていない。check-run が付かない）
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj a5b7e739）: https://github.com/retroeater/mj-logs/tree/main/guide/a5b7e739
+ガイド文書（この版を写した時点の最新、mj 6c06af33）: https://github.com/retroeater/mj-logs/tree/main/guide/6c06af33
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a5b7e739/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a5b7e739/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a5b7e739/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a5b7e739/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a5b7e739/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a5b7e739/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6c06af33/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6c06af33/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6c06af33/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6c06af33/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6c06af33/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6c06af33/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/2fcae3af.md
