@@ -166,6 +166,10 @@
   `generate_title_pages.py` の `fetch_tab()`（「タイトル」タブの大会名・期の題、「タイトル戦」タブの大会名）、`live_layer3.merge_records()`（/live の【3】【2】の「タイトル戦」。
   title/ の期ページの放送・/live・ask・カレンダー同期が通る）、`wayhome_intake.normalize()`（帰り道の題名）が読んだ直後に新名にそろえる。slug・URL は変えない。
   画像の文字が変わるので OGP 画像を作り直し、名前を変える（`OGP_DESIGN_BY_SLUG`。2026-10-14 に JPML WRCリーグ → WRCリーグ、JPML WRC-Rリーグ → WRC-Rリーグ）
+- **改称した大会は、過去の分も含めて ryoei.pro の表示をすべて新名にする**（2026-10-15 の決定）。入力（連盟の予定表の件名・YouTube の題名と概要欄・シートの旧名の行）は
+  旧名・新名のどちらでも同じ大会に当て（`live_extract` の `KW`・`yotei.EVENTS` の語）、ryoei.pro が書く出力は新名にする（/live と予定表の【2】の大会名、カレンダーの件名〈`live_calendar`〉、
+  帰り道〈`wayhome.to_rows()`〉・成績詳細〈`generate_rh_results_detail.py`〉・動画〈`generate_video_live.py`〉の題名、手書きの文言）。読み替えは `taikai_names` に寄せる。
+  「JPML WRC」のように「リーグ」を伴わない略記は、世界選手権（WRC、slug `wrc`）と紛れるため置き換えない
 
 - **X の画像 URL が古くなると、`_400x400` が取れず `_80x80` のまま表示される。** 選手がプロフィール画像を変えると、古い画像は CDN で 200 と 404 が混ざる状態になり、
   生成時の確認で `_400x400` を置き換えない（閲覧者のブラウザでも同じ割合で 404 になるため、リトライで採らない）。直すのは「プロ」シートの J列。現在の URL は `scripts/collect_saikyo_images.py` の `resolve()` で X ハンドルから引ける（CHAT-0918-TH-03、安東郁敬）

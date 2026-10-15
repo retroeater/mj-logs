@@ -52,15 +52,29 @@ WFL-15 の `## 報告`「判断が必要なこと」への回答。いずれも 
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+- Chat-Ref の重複確認: CHAT-1015-WFL-16 は未使用
+- 作業ブランチ: work/1015-wfl-s6 はローカル・リモートとも 3ac06c29a で一致。そのまま使う
+- 0. 指示欄の末尾は指示文の最後の行と一致。WFL-15 のログの `## 報告` の状態は「判断待ち」
+- 雛形の行: Chat-Ref・マージ・貼る時機・共通手順（＋作業ブランチ）は揃っている
+- 着手は JST 12:53（03:45〜05:15 の外）
+
+### 手順1・2
+
+- WFL-15 のログの状態を「判断待ち / 続き: CHAT-1015-WFL-16」にし、`docs/decisions/automation.md` の WFL-15 の節の後に「## 2026-10-15（CHAT-1015-WFL-16）」を足した
+- `git merge --no-edit origin/cloudflare`（0f3788774）は衝突なし。取り込んだ `.github/` の変更は他セッションの新しいワークフロー `fetch-x-posts.yml` だけで、6 本・run-daily.yml・`.github/actions/` は変わっていない（`git diff 4ecdbbb93 HEAD -- <7本> .github/actions` が空）ので、作業ブランチの手動実行はやり直していない
+- `python3 -m unittest discover -s scripts/tests`: OK（取り込んだ fetch-x-posts.yml の表の行も含めて）。部品のテスト: 18 pass
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 3791f374）: https://github.com/retroeater/mj-logs/tree/main/guide/3791f374
+ガイド文書（この版を写した時点の最新、mj ddd0fcee）: https://github.com/retroeater/mj-logs/tree/main/guide/ddd0fcee
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/3791f374/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/3791f374/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/3791f374/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/3791f374/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/3791f374/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/3791f374/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ddd0fcee/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ddd0fcee/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ddd0fcee/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ddd0fcee/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ddd0fcee/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/ddd0fcee/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/66464371.md

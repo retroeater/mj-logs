@@ -292,3 +292,26 @@ GitHub Actions の整理の段③（#564）。
 - ワークフローの改名は `<動詞>-<対象>.yml` に揃える。ファイル名だけでなく `name:`・run-name・入力の description・冒頭コメント・docs も同じ規則で揃える（2026-10-14）
 - #263（regenerate-page の concurrency）は今閉じる。本番では 10/15 朝の 3 回の呼び出しが重ならず、待ちは起きなかった。待ちの動きは WFL-10 の作業ブランチで確かめ済み。段③で毎朝の本を `needs:` でつなぐと重なり自体がほぼ起きなくなるため、本番の重なりを待たない（2026-10-15）
 - 作業中の回答: なし
+
+## 2026-10-15（CHAT-1015-WFL-15）
+
+CHAT-1015-WFL-14 の「判断が必要なこと」1〜7 への回答（#564）。いずれも Claude Code の推奨のとおり。
+
+- run-daily.yml の並びは live → sns → images → saikyo の直列（後の 3 つは前が失敗しても `!cancelled()` で動かす）とし、dojo・branches は並行にする
+- update-live-channel の保険のゲートは、run-daily の実行のジョブ `live / update` の結論を見る（run-daily 全体の結論では見ない）
+- sync-yotei.yml は update-live-channel の job yotei を `uses: ./.github/workflows/sync-yotei.yml` に置き換えて呼ぶ（run-daily の job にしない）
+- fetch-youtube.yml は WFL-02 の決定のとおり regenerate-page から切り出す。update-live-channel の層1（YouTube の取り込み）は分けない
+- 改名の残りは WFL-01 の案で確定する: `assets-check.yml` → `check-assets.yml`、`delete-merged-branches.yml` → `cleanup-branches.yml`、`notify-build-failure.yml` → `check-build-failure.yml`、`name:` の言い回し（WFL-14 の経過の改名の表）。段③-3 でまとめて行う
+- 実装は段③-1 → ③-2（切り替え: schedule.json・ゲート・`workflow_run` の削除・morning_report.py）→ ③-3（改名・sync-yotei）→ ③-4（fetch-youtube）の順に分ける
+- morning_report.py は段③-2 で 2 点直す: 所要時間の絶対値（600 秒）の判定を中央値が 600 秒未満の本だけにする・失敗の行に失敗したジョブ名を足す
+- 作業中の回答: なし
+
+## 2026-10-15（CHAT-1015-WFL-16）
+
+CHAT-1015-WFL-15 の「判断が必要なこと」への回答（#564）。いずれも Claude Code の推奨のとおり。
+
+- work/1015-wfl-s6 をマージし、cloudflare で run-daily.yml の書かない手動実行に進む。sync-dojo-calendar の作業ブランチの手動実行（#49）の 1 回目の failure は連盟サイトの道場部のページの取得のタイムアウト（`workflow_call` の変更と関係しない）で、再実行で success になったため、止まる条件に当たらないものとして扱う
+- #426 に bot が書いた失敗の知らせ（2026-10-15 03:19:53Z）は残す（今までの作りどおりの記録で、中身は正しい）
+- run-daily.yml の入力は `scheduled` だけにする（`dry_run` を設けず、`scheduled` なしの手動実行は常に書かない道筋）。書く手動実行は各本の画面で行う
+- regenerate-saikyo の `workflow_call` の `abema` の既定を設計の `check` ではなく `dry_run` にしたことを受け入れる（チャット側の確認）
+- 作業中の回答: なし
