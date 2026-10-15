@@ -52,6 +52,51 @@ MCK-07 の下調べへの平野さんの回答の続き。Python で作るペー
 
 ## 経過
 
+### 着手前の確認（2026-10-15）
+
+- 手順0: 「指示」欄の末尾は指示文の最後の行と一致。CHAT-1015-MCK-07 の `## 報告` の状態は「判断待ち」
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 4行とも冒頭にある
+- Chat-Ref の重複: `CHAT-1015-MCK-09` のコミット 0件
+- 作業ブランチ: `work/1015-mck-names` はローカル・リモートとも無かったため `git checkout -b work/1015-mck-names origin/cloudflare`（起点 6c06af33f）
+
+### 手順1: 確認と #141 への記録
+
+- 未マージの work/ ブランチで `scripts/lib/pro_stats.py`・`scripts/generate_houou_leagues.py`・`scripts/generate_ouka_leagues.py`・`scripts/generate_jpml_pros.py`・`scripts/lib/names.py` を変えているものは無い
+- `lib/pro_stats.py`・リーグ推移の生成を扱う open の issue は見当たらない（#536 は Closed）。#141 に他セッションの着手中は無い（最後の着手中は 10-08 の HOU-02 で、その作業は済んでいる）
+- #141 に案C の決定と、この作業の着手中をコメントした: https://github.com/retroeater/mj/issues/141#issuecomment-6185758265
+
+### 手順2: 直し（コミット 402db14dc）
+
+**共有の `scripts/lib/` は変えていない**（全ページの再生成を起こさない）。直したのは生成スクリプトの側:
+
+- `generate_houou_leagues.py`: `current_name(book, name)`（`NameBook.resolve` で現在名、どこにもいなければそのまま）と `current_rows()` を足し、`load(book=None)`・`load_candidates(book=None)` が `book` を受けたら行の名前と選択候補を現在名で作る。`main()`・`--check` は `generate_houou_race.load_name_book()`（houou/ と同じ読み方）を渡す。`book` を渡さない呼び出し（`generate_houou_pages.py` の houou/leagues/ と `check_leagues_dropped.py`）は今までどおり（houou/ は自分の `current_names()` で直す）
+- `generate_ouka_leagues.py`: 同じ形（`current_name`・`current_rows` は `generate_houou_leagues` のものを使う）
+- `generate_jpml_pros.py`: `current_sources()` を足し、`pro_stats.fetch_sources()` の「鳳凰」「桜花」「最強戦」の行と「鳳凰」の組の表のキーの名前を現在名に直してから `pro_stats.build()` などで数える。放送対局（登録名の部分一致）は直さない
+- `check_unused_names.py`: 名前を解決する関数の表（`NAME_RESOLVERS`。`test_name_resolvers.py` が関数と表を突き合わせる）に `generate_houou_leagues.current_name` を足した。表の決まり（利用先を検査が読んでいなければ `page_names()` に足す）に従い、検査が「桜花」の名前も読むようにした（「鳳凰」「最強戦」は前から読んでいる）。このテストが落ちて気づいた
+- テスト: `test_league_candidates.py` に「旧名の行が今の名前に数えられる」「別名の無い人・どこにもいない人は変わらない」「選択候補が今の名前で選ばれる／book なしは今までどおり」、`test_jpml_pros.py` に「旧名の期が今の名前の出場・最高に入る（直す前は漏れていた）」「別名の無い人の値は変わらない」「放送対局は直さない」
+- `python3 -m unittest discover -s scripts/tests`: 1,163件 OK（直した後）
+- 「別名」の検査の警告: **0件**（`NameBook` の警告なし。止まる条件に当たらない）。集計元の旧名: 鳳凰 樫野凪 6行・今里之彦 2行、桜花 樫野凪 3行、最強戦 0行、鳳凰の組の表のキー 6件
+
+### 手順3: 直す前と直した後の生成の比べ
+
+同じ時点（2026-10-15 15時台 JST）に、直す前（origin/cloudflare 6c06af33f）と直した後で `python3 scripts/regenerate.py jpml_pros houou_leagues ouka_leagues` を動かして比べた。直す前の生成物は、コミット済みのファイルと同じだった（その時点のシートの変化は無し）。`scripts/regenerate.py --changed` で判定される対象も、この3ページ（`lib/` を変えていないので全ページではない）。
+
+**かしのなぎ・今里邦彦 の分**（ほかの差分はこれだけ）:
+
+| ページ | かしのなぎ | 今里邦彦 |
+|---|---|---|
+| `jpml_pros.html` | 鳳凰出場 空 → 5回、鳳凰（最新の期）空 → E1、鳳凰最高 空 → E1、桜花出場 空 → 3回、桜花（最新の期）空 → C3、桜花最高 空 → C3。放送対局 1回 は変わらず。あわせて、成績の列から張るリンク（`houou_results.html?name=`・`houou_leagues.html?name=`・`ouka_results.html?name=`・`ouka_leagues.html?name=`）と Ampai のリンク 2つが付いた | 鳳凰出場 15回 → 17回（鳳凰最高 A2 などは変わらず） |
+| `houou_leagues.html`・`_data.json` | 選択候補に加わった（690名 → 691名、meta description・リードの人数も）。折れ線 0点 → 5点（6行のうち1行は順位の無い行） | 折れ線 15点 → 17点 |
+| `ouka_leagues.html`・`_data.json` | 選択候補に加わった（163名 → 164名）。折れ線 0点 → 2点（順位が正の2行） | — |
+
+- **ほかの人の値・行は変わっていない**（JSON は人ごとに比べて変わったのは2人だけ、HTML の差分の行も2人の行と人数の表記だけ）。期ごとの各リーグの人数（積み上げ棒）も変わらない
+- 旧名で選ばれていて消えた候補は無い（旧名は「プロ」にいないので、もともと候補に無かった）
+- **気づいた点**: かしのなぎ の行に付いた `houou_results.html?name=かしのなぎ`・`ouka_results.html?name=かしのなぎ` は旧 JS のページ（シートの名前のまま読む）なので、案C（WRC・桜花）と #540（鳳凰）までは開いても行が出ない。今里邦彦 は前から同じ（新名の期だけが出る）
+
+### マージ
+
+（下に結果を書く）
+
 ## 報告
 
 - 状態:
@@ -68,12 +113,12 @@ MCK-07 の下調べへの平野さんの回答の続き。Python で作るペー
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 6c06af33）: https://github.com/retroeater/mj-logs/tree/main/guide/6c06af33
+ガイド文書（この版を写した時点の最新、mj 320b70ca）: https://github.com/retroeater/mj-logs/tree/main/guide/320b70ca
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6c06af33/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6c06af33/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6c06af33/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6c06af33/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6c06af33/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6c06af33/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/320b70ca/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/320b70ca/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/320b70ca/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/320b70ca/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/320b70ca/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/320b70ca/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/2fcae3af.md
