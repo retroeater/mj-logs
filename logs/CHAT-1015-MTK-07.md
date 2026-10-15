@@ -82,7 +82,7 @@ headless Chromium（ローカルの `http.server`）で 375×812・1366×900・1
 
 ## 報告
 
-- 状態: 判断待ち（平野さんがプレビューで見て、マージと仮置きを決める）
+- 状態: 判断待ち（平野さんがプレビューで見て、マージと仮置きを決める） / 続き: CHAT-1015-MTK-08
 - ブランチ: work/MTK
 - ログ: https://github.com/retroeater/mj/blob/work/MTK/docs/logs/CHAT-1015-MTK-07.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/MTK
@@ -108,12 +108,12 @@ headless Chromium（ローカルの `http.server`）で 375×812・1366×900・1
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj ddd0fcee）: https://github.com/retroeater/mj-logs/tree/main/guide/ddd0fcee
+ガイド文書（この版を写した時点の最新、mj 2fcae3af）: https://github.com/retroeater/mj-logs/tree/main/guide/2fcae3af
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ddd0fcee/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ddd0fcee/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ddd0fcee/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ddd0fcee/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ddd0fcee/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/ddd0fcee/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/2fcae3af/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/2fcae3af/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/2fcae3af/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/2fcae3af/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/2fcae3af/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/2fcae3af/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/66464371.md
