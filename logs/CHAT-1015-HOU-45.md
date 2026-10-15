@@ -69,20 +69,36 @@
   - `houou/players/index.html`（部門別の表の焼き込み・タブ）、`assets/houou.js`、`style.css`（差は4か所とも houou/ の節: 要約・効果の削除、タブ、部門別の行）
   - `scripts/generate_houou_pages.py`・`scripts/tests/test_houou_pages.py`・`docs/`（decisions 2・notes・new-page-checklist・ログ3）
   - 比較ページ（compare）・navbar・サイトマップ・`llms.txt` の差は無し。houou/ の noindex の行の増減も無し。houou/ の外の生成物の差は無し
+- マージ: push の直前の再 fetch で cloudflare が進んでいた（別のセッションの docs/logs のみの2コミット、`docs/logs/CHAT-1015-SKD-22.md`）ため祖先の確かめが偽。merge で取り込み直し（衝突なし、テスト OK）、再 fetch して `git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめ、`git push origin work/1015-hou2:cloudflare` で入れた（be5fb6c5f..320b70ca4）
+- マージの後の確かめ（2026-10-15 06:19〜06:34 UTC）:
+  - 320b70ca4 の check-run: sync・check・regenerate は success。Workers Builds: mj は 320b70ca4 では走らず、直後に入った別のセッションのマージ（0171e0a6d、CHAT-1015-MCK-09）とその再生成のコミット e06076750 で走って success（e06076750 は 320b70ca4 を含み、`assets/houou.js`・`style.css`・`houou/players/` は 320b70ca4 と同じ）
+  - `regenerate-page.yml`（320b70ca4、FILES: `houou/`）: success、「変更なし」でコミットしていない。e06076750（houou_leagues.html ほか）は MCK-09 のマージの再生成で、この指示の差分ではない
+  - 本番（`?v=<未使用の値>`）: `/houou/players/?name=平野良栄&view=division` は 200、`<meta name="robots" content="noindex">` あり、`houou_divisions` の焼き込みあり。`assets/houou.js`・`style.css` はマージの版とバイト一致（06:33）。`/houou/compare-best/` は 404。平野良栄の成績 JSON に `divisions` あり
+- HOU-43・HOU-44 のログの `## 報告` の「マージ:」を「済（CHAT-1015-HOU-45 のマージ、be5fb6c5f..320b70ca4）」に、ログの URL を `blob/cloudflare/` に直した（状態の行は `/ 続き:` のつながりのまま）。#518 にマージの SHA と中身の要約を書き、着手中を解除した
 
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
+- ブランチ: work/1015-hou2（マージ済み。削除は `delete-merged-branches.yml` に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1015-HOU-45.md
+- 比較URL: https://github.com/retroeater/mj/compare/be5fb6c5f...320b70ca4
+- 確認用URL: なし（本番で確かめた）
+- マージ: 済（be5fb6c5f..320b70ca4。HOU-43・HOU-44 の変更を含む。この報告の docs/logs のみの追いの push あり）
+- issue: #518（マージの報告と着手中の解除のコメント）
+- 判断が必要なこと:
+  - 部門別の順位の字（「規定未達」も）は直す前からすでに AA 以上だったため、色を変えていない。前後とも 13px・太さ 400・`--mj-n-muted`（明 #555555 で面の地 #ffffff に 7.46:1、暗 #aeaeb2 で面の地 #1c1c1e に 7.69:1）。前提の案の色と同じ。読みにくさが残るなら、色ではなく大きさ・太さを変えるかの判断になる（この指示では変えない）
+- 未確認の項目: 平野さんの iPhone での見え方
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 320b70ca）: https://github.com/retroeater/mj-logs/tree/main/guide/320b70ca
+ガイド文書（この版を写した時点の最新、mj b50b41fd）: https://github.com/retroeater/mj-logs/tree/main/guide/b50b41fd
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/320b70ca/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/320b70ca/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/320b70ca/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/320b70ca/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/320b70ca/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/320b70ca/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b50b41fd/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b50b41fd/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b50b41fd/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b50b41fd/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b50b41fd/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b50b41fd/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/2fcae3af.md
