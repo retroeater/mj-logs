@@ -68,19 +68,65 @@ Chat-Ref: CHAT-1015-HOU-49
 
 - 2026-10-15 着手。HOU-48 と同じセッションで続けた。`CHAT-1015-HOU-49` のコミットは無し。`work/1015-hou6` はローカル・リモートとも無かったため `origin/cloudflare`（e9d5efe88）から作った
 
+- 0. 指示欄の末尾は指示文の最後の行と一致。冒頭の雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- 1. 着手の確かめ: #542 に他のセッションの着手中は無し（最新は自分の HOU-46 の解除）。#540 の最新の着手中は自分の HOU-48（告知動画、判断待ち）で、他のセッションのものではない。`git branch -r --no-merged origin/cloudflare` と cloudflare の差で手順1のファイルを変えるのは:
+  - `work/1015-hou5`（自分の HOU-48）: `docs/decisions/houou.md` の末尾への追記だけ（この指示も末尾に追記するので、後でマージするときは追記どうしの衝突になる見込み。両方残して解ける）
+  - `work/1015-skd-top`・`work/1015-skr-pub`・`work/JBK`: `style.css` の 1500〜2800行あたり（saikyo・video・title の節）。houou/ の節（4000行〜）ではない
+  - `assets/houou_ask.js`・`workers/ask/`・`scripts/generate_ask_data.py`・`scripts/generate_houou_pages.py`・`docs/notes/ask-worker.md`・`docs/notes/houou-top.md` を変えるブランチは無し
+- 2. 実装（受け手が決めたこと）:
+  - 突き合わせは画面側（`assets/houou_ask.js` の `pickPlayers`）。Worker は試行中の本番に出さないため、名簿を画面に配る案のまま（Worker で選手の一覧を返す理由は見当たらなかった）
+  - 名簿は `houou/ask-players.json`（65,862 バイト、在籍 691名。`[名前, 写真〈X の _80x80〉, 現在のリーグ, 最高到達, 出場期数]`）。`generate_houou_pages.py` の `ask_roster()` が、選手ごとの成績 JSON と同じもの（`result_files()` の結果を1回だけ作って共有）と `current_leagues()` から作る。トップの HTML の質問欄に `data-players-url` と空の `<nav id="houou_ask_players">` を足した。名簿は答えが出たときに初めて読む（トップを開いたときは読まない）
+  - 見た目は `assets/houou_ask.css` に足した（質問欄の CSS はもともとこのファイル）。行はトップの3項目の `.mj-houou-menu`・`.mj-houou-card`、写真は候補の `.mj-houou-suggest-photo`（32px）、チップは名前の面の `.mj-houou-name-chip`・`.mj-houou-lgchip`。チップの色の変数（`--lg-*`）が `.mj-houou-lg, .mj-houou-players` にしか無くトップでは色が付かなかったので、`style.css` のその選択子に `.mj-houou-ask-players` を足した（1行。新しい色は作っていない）
+  - 「ほか N名」は行と同じ形のボタン（紺の字）。押すと残りの行に置き換わり、閉じない。フォーカスは4人目へ
+  - 「最高到達 ○○」「出場 ○期」はそれぞれの中で折り返さない（字 200% で「出 / 場」に割れたため）。最高到達が無い選手は「出場 ○期」だけ（在籍者には0名）
+  - AI への指示（`workers/ask/src/ask.mjs` の `ANSWER_SYSTEM`）に「選手を挙げるときは名前を書く。多いときは結果の順のまま並べ、人数も添える」を足した。決定の「文に出た順で並べ」は、答えの文を作る側では「検索の結果の順のまま」と読んだ（既存の「自分で並べ替えない」と合わせるため）
+  - 名前の重なり: 在籍者の名簿で、ある名前が別の名前の一部になっている組は 0組（2026-10-15）。テストでは HIRO柴田／柴田 の作り物で確かめた
+  - テスト `scripts/tests/test_houou_ask.py`（8件）: 文に出た順・重複の除き・長い名前の優先・退会者を拾わない・当たらないときは空・「ほか」の境目（3人と4人）を node で、`ask_roster()` の値、書き出した名簿が名前の面（成績 JSON と `houou_current`）と全 691名で一致すること。`python3 -m unittest discover -s scripts/tests` 1227件 OK、`node --test 'workers/ask/test/*.test.mjs'` 27件 OK
+  - 生成し直した差分（origin/cloudflare との比較）: `houou/ask-players.json`（新規）、`houou/index.html`（質問欄の2行）、`assets/houou_ask.js`・`assets/houou_ask.css`、`style.css`（houou/ の節の選択子1行）、`workers/ask/src/ask.mjs`（指示1行）、`scripts/generate_houou_pages.py`・テスト・docs。houou/ の noindex・navbar・サイトマップ・`llms.txt` の差は無し。ほかの houou/ の生成物（成績 JSON・ランキングなど）の差は無し
+  - AI への指示の変更の前後の比べ: このセッションに `ANTHROPIC_API_KEY` が無く、作業ブランチの Worker を Claude 付きで動かせなかった（`wrangler dev` は鍵が要る）。案は報告に書いた。作業ブランチの push で Workers Builds の `mj-ask` は走っておらず（check-run は `mj` だけ）、本番の Worker は変わっていない
+- 3. 確かめ:
+  - 本番の質問欄へ送った回数は5回（UTC）: 12:36:58「現在の鳳凰位は？」、12:37:03「通算得点の上位5人は？」、12:37:07「第1期から第10期の鳳凰位は？」、12:37:11「第40期の放送対局は何回？」、12:37:23「第43期前期のA1の人数は？」。答えの全文:
+    - 1: answered「現在の鳳凰位は白鳥翔さん(23期)です。第41期と第42期に鳳凰位を獲得しています。」（データ: 決勝 第42期まで／出典: 鳳凰戦 歴代優勝者）
+    - 2: answered「通算得点の上位5人は、1位がHIRO柴田（2074.4）、2位が佐々木寿人（1729.9）、3位が勝又健志（1665.1）、4位が前田直哉（1595.3）、5位が内川幸太郎（1483.8）です。」（データ: 鳳凰戦リーグ 第43期前期終了時点／出典: 鳳凰戦 ランキング（通算得点））。ランキングの1〜3位と一致
+    - 3: answered「第1期から第10期までの鳳凰位は6人です。島田昭（1期、4期）、安藤満（2期、5期、6期、10期）、ロッキー堀江（3期）、椎名大介（7期）、荒正義（8期）、伊藤優孝（9期）の順です。」（データ: 決勝 第42期まで／出典: 鳳凰戦 歴代優勝者）。在籍の名簿にいるのは荒正義・伊藤優孝だけ
+    - 4・5: unanswerable「答えられません。」
+  - 「選手に当たらない答え」は本番で取れなかったので、作り物の答え（answered「第43期前期のA1は10名です。」）で確かめた
+  - プレビュー（ブランチの別名 URL）で、本番の答えを撮る側で `/api/ask` に返して確かめた（プレビューのホストには質問欄の Worker のルートが無いため）。375・390・430px × 明・暗 × 字 100・150・200%（90通り）:
+    - 1人 → 白鳥翔の1行（チップ 鳳凰位、「最高到達 鳳凰位 · 出場 23期」）。名前の面と同じ値
+    - 5人 → HIRO柴田・佐々木寿人・勝又健志の3行と「ほか 2名」。押すと5行（前田直哉・内川幸太郎）になり、フォーカスは前田直哉
+    - 退会者を含む → 荒正義（写真なし、頭文字の丸、チップなし）・伊藤優孝（B2）の2行。島田昭・安藤満・ロッキー堀江・椎名大介は出ない
+    - 当たらない答え・「答えられません。」→ カードの面は出ない
+    - 横のはみ出し・ページのエラーは無し。字が切れている要素は無し（読み上げ用の `visually-hidden` を除く）。行の高さは 100%: 64〜65px、150%: 85〜86px、200%: 146〜147px（「ほか」は 45・57・69px）
+    - カードを押すと `players/?name=白鳥翔` が開き、タブは「期別」
+    - 既存の表示: 答えの面（1人の答え・「答えられません。」）とトップの3項目を、本番とプレビューで同じ答えを返して画素で比べ、明・暗とも一致（カードの面は隠して比べた）
+- #542 の着手中のコメントを、実装と確かめの後に書いた（コードを触る前に書くべきところを落としていた）
+- origin/cloudflare は着手後に進んでいる（docs/logs の SKR-03 など）。マージは判断待ちなので取り込んでいない
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち（見た目と動きをプレビューで見て決める。マージは 10/20 の試行の判断の後に別の指示で）
+- ブランチ: work/1015-hou6
+- ログ: https://github.com/retroeater/mj/blob/work/1015-hou6/docs/logs/CHAT-1015-HOU-49.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1015-hou6
+- 確認用URL: プレビューあり（URL は最終報告）。見るページ: トップ（質問欄）。プレビューのホストには質問欄の Worker が無く、送ると「いまは答えられません。」になる（本番の答えでの見え方は経過の確かめのとおり）。この版で見える印: トップの HTML の質問欄に `data-players-url="ask-players.json"` がある
+- マージ: 未（判断待ち）
+- issue: #542（着手中のコメント。実装の後に書いた。CLAUDE.md の「コードを触る前に」に遅れた）
+- 判断が必要なこと:
+  - カードの見た目と「ほか N名」の開き方（押すと残りに置き換わり、閉じない）でよいか
+  - 何人まで名前を書かせるかの案: 10人まで名前を書き、それより多いときは上位10人の名前と「ほか N人」・全体の人数にする（実例は5人で約100字・6人で約110字。指示の「3文程度まで」に収まるのは10人前後まで。カードは3人＋「ほか N名」なので、文の人数がカードの上限になる）
+  - AI への指示の変更の確かめ方の案（このセッションでは鍵が無く動かせなかった）: (a) マージの指示で、平野さんが `workers/ask/.dev.vars` に鍵を置いた環境（Codespace など）で作業ブランチの Worker を `wrangler dev` で動かし、10問を変更の前後で比べる（本番の回数に数えない）／(b) マージの後に本番で10問を送って、前の記録（10/20 の集計）と比べる（1日の上限 50 に数える）。(a) を推す
+- 未確認の項目: 平野さんの iPhone での見え方。AI への指示の変更による答えの変化（上の案）
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj e9d5efe8）: https://github.com/retroeater/mj-logs/tree/main/guide/e9d5efe8
+ガイド文書（この版を写した時点の最新、mj a94b0a64）: https://github.com/retroeater/mj-logs/tree/main/guide/a94b0a64
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e9d5efe8/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e9d5efe8/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e9d5efe8/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e9d5efe8/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e9d5efe8/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e9d5efe8/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a94b0a64/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a94b0a64/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a94b0a64/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a94b0a64/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a94b0a64/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a94b0a64/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/95d46b4d.md
