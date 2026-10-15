@@ -92,7 +92,7 @@
 
 ## 報告
 
-- 状態: 中断（エラー）
+- 状態: 中断（エラー） / 続き: CHAT-1016-VSH-02
 - ブランチ: work/VSH
 - ログ: https://github.com/retroeater/mj/blob/work/VSH/docs/logs/CHAT-1016-VSH-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/VSH
