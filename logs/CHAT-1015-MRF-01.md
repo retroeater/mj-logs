@@ -53,6 +53,71 @@
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+- Chat-Ref の重複確認（`git fetch --unshallow` の後）: `CHAT-1015-MRF-01` のコミットなし、`MRF` を使ったコミット・ログなし
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- work/1015-mrf はローカル・リモートとも無し → `git checkout -b work/1015-mrf origin/cloudflare`（664643716）
+- 0章: 指示欄の末尾は指示文の最後の行「不明な点があれば…この行が指示文の最後の行です。」と一致
+- mj-logs の `actions/morning.md`・`actions/status.md` は、このセッションの GitHub の範囲（retroeater/mj のみ）の外なので読んでいない。morning.md の記載は指示文のとおりとし、run の事実は mj の Actions で確かめた
+
+### (A) #533
+
+- #533 は closed（2026-10-12、CHAT-1012-RGN-08）。題は「regenerate.py: 1ページの生成の失敗で、残りのページの再生成と push まで止まる」。
+  「飛ばしたページを報告」のステップを足した issue（a930b4a9）で、注釈にページ名を入れる案1の issue ではない（指示文の前提と違う。案1は #564 の段③、CHAT-1014-MRN-01 のログ）
+  → 手順1・止まる条件により新規起票へ進むところだった
+- run の確認:
+  - update-sns-book.yml run 38621492985（#26、workflow_dispatch、10/15 04:10:58 JST 開始・04:15:22 JST 終了）: ジョブ「regenerate / regenerate」のステップ「飛ばしたページを報告」が failure。
+    飛ばしたのは `video_mtsuku`（`RuntimeError: スプレッドシートのクエリでエラーが発生しました: … 'Invalid query: NO_COLUMN: O'`、「Mつく」シートを取得中に）。
+    残りのページは 8c23572ba で cloudflare に push 済み
+  - regenerate-page.yml run 38522800783（#320、push、10/14 15:32:21 JST 開始）: 同じくステップ「飛ばしたページを報告」が failure。
+    飛ばしたのは `video_wayhome`（`http.client.IncompleteRead: IncompleteRead(45064 bytes read)`）。残りは 1edc94d21 で push 済み。
+    `video_wayhome` は 10/15 の run 38621492985 では生成に成功している
+- 起票前の確認（CLAUDE.md「issueの着手ルール」）:
+  - issue の検索（クローズ済みを含む）: Mつく・NO_COLUMN・飛ばしたページで、同じ主題の issue なし（#337・#533 のみ）
+  - 未マージの `work/` ブランチ: **`origin/work/MTK`（#569「Mつくを帰り道と同じ形に作り直す（/mtsuku/）」、着手中、CHAT-1015-MTK-04）が見つかった。**
+    e7973ac11「feat: read Mつく from the sheet only …」の本文に「The Mつく tab now carries the video ID, publish date and duration」とある。
+    「Mつく」タブの列が MTK の作業に合わせて変わり、cloudflare の `generate_video_mtsuku.py` のクエリが O 列を見つけられなくなった見込み（推測。シートは見ていない）
+  - → 「見つかったら作る前に止まって報告する」により、**(A) は起票せずに止めた**。#569 は他セッションの着手中なのでコメントもしていない
+- ラベル `morning` は retroeater/mj に存在しない（get_label で not found）。起票するときは作るかどうかの判断も要る
+
+### (B) #563
+
+- #563: open（「朝の報告（おはよう）の自動実行を検討する」、状況: 保留）。コメント0件 → 手順1は該当なし。他セッションの着手中コメントも無い
+- 事実の確認:
+  - fetch-redirect-counts.yml は ecbbde9c で cloudflare に追加（10/15 02:56:20 JST）。予約は毎月1日 06:30 JST の `schedule`
+  - 10/15 02:56 の回は run 38610972729（#1、workflow_dispatch、failure）。#1〜#5（02:56〜03:01 JST）はどれも cloudflare での workflow_dispatch の試し実行
+  - check-image-links.yml の 10/15 の回は run 38624324053（workflow_dispatch、開始 04:30:58 JST、success）で、書き出しの 04:16 より後
+- #563 にコメント: https://github.com/retroeater/mj/issues/563#issuecomment-6182773448
+  文面案からの変更: run の番号・時刻を足した。morning.md の記載は朝のチャットの読み取りと明記した。着手中コメントの代わりにセッション URL を入れた
+- 本文・状態・ラベルは変えていない
+
+### その他
+
+- 指示文は「docs/decisions/ への追記は不要」としていたが、CLAUDE.md「作業ログ」節は指示の完了時に「決定」節を docs/decisions に足すとしており、
+  この決定（2026-10-14）は docs/decisions のどこにも無かったため、規則を優先して `docs/decisions/operations.md` に足した
+  （追記は引用符付きのヒアドキュメントで行った。CLAUDE.md の「ファイルは Write / Edit で書く」に沿っていない。内容は確かめた）
+- (A) で止まったため、cloudflare へのマージはしていない（CLAUDE.md「ブランチ運用」: 止まる条件に当たったときはマージせずに報告する）
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1015-mrf
+- ログ: https://github.com/retroeater/mj/blob/work/1015-mrf/docs/logs/CHAT-1015-MRF-01.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1015-mrf
+- 確認用URL: なし
+- マージ: 未（(A) が止まる条件に当たったため。平野さんの判断待ち）
+- issue: #563（コメント）、#533（closed、コメントせず）、#569（重なりとして確認のみ）
+- 判断が必要なこと:
+  - (A) の渡し先: #533 は閉じていて、案1の issue でもなかった。新規起票の前の確認で、未マージの `work/MTK`（#569、着手中）が「Mつく」タブの列を変えた作業と分かった。`video_mtsuku` が飛ばされた原因（`NO_COLUMN: O`）はこれと重なる見込み。次のどちらにするか: ① #569 の系列（MTK）に渡す（MTK のチャットに伝えるか、#569 へのコメントを許可する） ② 予定どおり新規起票する（ラベル `morning` は存在しないので、作るかどうかも）
+  - 10/14 15:32 の `video_wayhome` の失敗（IncompleteRead）は 10/15 の回で成功しており、(A) に含めるかどうか
+  - 指示文は docs/decisions への追記を不要としていたが、規則を優先して operations.md に足した。これでよいか
+  - マージ: ドキュメントのみ（ログ・decisions）だが、止まる条件に当たったためマージしていない
+- 未確認の項目:
+  - 「Mつく」タブの今の列（シートは見ていない）と、本番の video_mtsuku.html が古い版のまま止まっていること
+  - mj-logs の morning.md・status.md の記載（セッションの範囲外のため読んでいない）
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
