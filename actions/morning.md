@@ -1,6 +1,6 @@
 # 朝の報告用の異常（retroeater/mj）
 
-- 書き出した時刻: 2026-10-15 15:36 JST（見た範囲: 2026-10-14 13:36 JST から）
+- 書き出した時刻: 2026-10-15 15:43 JST（見た範囲: 2026-10-14 13:43 JST から）
 - 書き出した実行の契機: workflow_dispatch（main）
 - 異常だけを書く。全体は actions/status.md。判定は mj の scripts/morning_report.py（各ワークフローの直近 100 回まで）
 
@@ -20,7 +20,6 @@
 
 ## 3. 所要時間の異常（直近20回の中央値の3倍以上、または10分以上。skipped は除く）
 
-- 2026-10-14 13:38 regenerate-page.yml success（push・cloudflare）所要 2分54秒（直近20回の中央値 0分58秒） https://github.com/retroeater/mj/actions/runs/38512423600
 - 2026-10-14 15:32 regenerate-page.yml failure（push・cloudflare）所要 3分14秒（直近20回の中央値 0分58秒） https://github.com/retroeater/mj/actions/runs/38522800783
 - 2026-10-14 16:50 regenerate-page.yml success（push・cloudflare）所要 3分22秒（直近20回の中央値 0分58秒） https://github.com/retroeater/mj/actions/runs/38531008713
 - 2026-10-15 04:10 update-sns-book.yml failure（workflow_dispatch・cloudflare）所要 4分24秒（直近20回の中央値 0分38秒） https://github.com/retroeater/mj/actions/runs/38621492985
@@ -29,7 +28,7 @@
 
 ## 4. 初回成功
 
-- 2026-10-14 15:37 assets-check.yml success（push・work/1014-jpl）それ以前の 0 件に success なし https://github.com/retroeater/mj/actions/runs/38523284122
+- 2026-10-14 15:39 assets-check.yml success（push・work/1014-skd）それ以前の 0 件に success なし https://github.com/retroeater/mj/actions/runs/38523497953
 - 2026-10-15 02:58 fetch-redirect-counts.yml success（workflow_dispatch・cloudflare）それ以前の 2 件に success なし https://github.com/retroeater/mj/actions/runs/38611255688
 - 2026-10-15 12:26 fetch-x-posts.yml success（workflow_dispatch・cloudflare）それ以前の 0 件に success なし https://github.com/retroeater/mj/actions/runs/38676252888
 - 2026-10-15 12:54 run-daily.yml success（workflow_dispatch・cloudflare）それ以前の 0 件に success なし https://github.com/retroeater/mj/actions/runs/38678691802
