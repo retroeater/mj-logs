@@ -140,17 +140,47 @@ Chat-Ref: CHAT-1015-SKR-02
 | `sitemap-saikyo.xml` | 17件 → 879件（トップ・年度16・対局・卓。新しい URL の lastmod は生成スクリプトが当日の日付を入れる。手では書いていない） |
 | saikyo/ 以外の生成物 | 変化なし |
 
+### プレビューの確かめ（b5276d6ab の「Workers Builds: mj」、success）
+
+- URL は check-run の `.output.summary` の Preview URL（版ごと）を使った。URL はターミナルの最終報告にだけ書く
+- `curl`（リダイレクトは追わない）:
+
+| パス | 応答 |
+|---|---|
+| `/saikyo/`・`/saikyo/2025/`・`/saikyo/2011/`・`/saikyo/2025/index.html`・`/saikyo/2026/20261004.html`・`/saikyo/2026/20261004-s1-a.html` | 200。`<meta name="robots">` 無し |
+| `/saikyo/2025.html`・`/saikyo/2025` | 301 → `/saikyo/2025/` |
+| `/saikyo/2025.html?match=20251214` | 301 → `/saikyo/2025/?match=20251214`（クエリは引き継がれる。`?match=` の対局のページへの移動は公開の直後に平野さんが作る Single Redirects のルールの役目で、ルールは `_redirects` より先に動く） |
+| `/saikyo/2027/`（無い年度） | 404 |
+
+- プレビューの `*.workers.dev` には `x-robots-tag: noindex` が付く（docs/notes/cloudflare.md「work/ ブランチのプレビュー」。本番には付かない）
+- headless Chromium（Playwright、390px と 1100px、明・暗）で、トップ・2025年度の年度ページ・対局のページ（`2025/20251214.html`）・ABEMA の回がある卓（`2025/20250816-s1-a.html`）・回の無い卓（`2026/20261004-s1-a.html`）を開いた（20通り）
+  - すべて 200、横のはみ出し無し、`meta robots` 無し。og:image はトップが年度の画像（`index-black.png`）、年度・対局・卓が ABEMA の作品の画像（`series/68-38/thumb.png?height=720&…&version=1762941079&width=1280`）
+  - コンソールのエラー・読み込みの失敗は、`static.cloudflareinsights.com` と `image.p-c2-x.abema-tv.com` への接続（セッションのプロキシが拒否、`ERR_TUNNEL_CONNECTION_FAILED`）だけ。ABEMA の画像が読めないため、卓のヒーロー・カードは `data-fallback` の年度の OGP 画像に差し替わって表示された（差し替えの動きは確かめられた。ABEMA の画像そのものの表示は未確認）
+  - 開いたページの内部リンク 87件の応答（リダイレクトは追わない）: 200 以外は navbar の `/resource_calendar.html`・`/resource_books.html`（既知の別名の 301）だけ
+  - 画面: 年度ページ（1100px・暗）、卓のページ（390px・暗）、トップの検索の結果を目で見て崩れは無かった
+- トップで「桑田」を検索（390px・1100px）: 「桑田憲汰 11卓」の1人が当たり、開いた状態で出る。年度の見出しのリンクは `2025/`・`2024/`・`2023/`、行のリンクは `2025/20251214-s1.html` など卓のページ。画面は告知動画の見本として撮った（スクリーンショットはセッションの作業ディレクトリにあり、リポジトリには入れていない）
+
+### 決定の記録
+
+- docs/decisions/saikyo.md（公開の順番と範囲）・docs/decisions/design-renewal.md（SKD-21 のプレビューへの回答）・docs/decisions/page-release.md（告知動画）に `## 2026-10-15（CHAT-1015-SKR-02）` を足した
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1015-skr-pub
+- 状態: 判断待ち
+- ブランチ: work/1015-skr-pub（origin/cloudflare から作り、origin/work/1015-skd-top を merge で取り込んだ。skd-top 自身には push していない）
 - ログ: https://github.com/retroeater/mj/blob/work/1015-skr-pub/docs/logs/CHAT-1015-SKR-02.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1015-skr-pub
-- 確認用URL: なし
-- マージ: 未
-- issue: #549
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 確認用URL: プレビューあり（URL は最終報告）。この版の印: `/saikyo/2025.html` が `/saikyo/2025/` へ 301、卓のページ `2026/20261004-s1-a` のヒーローの画像の src が ABEMA の作品の画像（`series/68-38`）で、隅に「画像: ABEMA」、年度ページへのリンクが `/saikyo/2025/` の形（パンくずは `./`）。確かめたページはトップ・2025年度・`2025/20251214`・`2025/20250816-s1-a`・`2026/20261004-s1-a`
+- マージ: 未（判断待ち。告知動画の確定後に別の指示でマージ＝公開）
+- issue: #549（着手中のコメントと、止めるときの解除のコメント。状態・ラベル・本文は変えていない）
+- 判断が必要なこと:
+  - プレビューのこの形で公開してよいか
+  - ABEMA の回が無い卓のヒーローにも出典「画像: ABEMA」を出した（作品の画像も ABEMA の画像のため。指示に無い判断。出さない形にもできる）
+  - docs/notes/static-generation.md「ページの一覧」の段落の行（最強戦の新しいページを「noindex・メニュー未掲載、公開は #549」と書いた1行）は、未マージの work/JBK が同じ行を変えているため直していない。マージの指示で、JBK の取り込みの状況を見て直す
+  - マージの指示で行うこと（ログの経過の表）: 公開の直前の origin/cloudflare の取り込みと再生成、handover.md 5章の #549 の行、#458 の対象の見直し、各 issue のコメント・クローズ、#566 の本文の直し、公開後の確かめ。平野さんの手作業は `?match=` の Single Redirects のルールと Search Console
+- 未確認の項目:
+  - ABEMA の画像（作品の og:image・回のサムネイル）の取得と表示。セッションのプロキシが `image.p-c2-x.abema-tv.com` への接続を拒否し、HEAD も表示も確かめていない（チャット側が Chrome で確かめる）
+  - 実機（iOS Safari など）での見え方
 - エラー: なし
 
 <!-- guide-links -->
