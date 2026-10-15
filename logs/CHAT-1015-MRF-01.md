@@ -101,7 +101,7 @@
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1015-MRF-02
 - ブランチ: work/1015-mrf
 - ログ: https://github.com/retroeater/mj/blob/work/1015-mrf/docs/logs/CHAT-1015-MRF-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1015-mrf
@@ -109,10 +109,10 @@
 - マージ: 未（(A) が止まる条件に当たったため。平野さんの判断待ち）
 - issue: #563（コメント）、#533（closed、コメントせず）、#569（重なりとして確認のみ）
 - 判断が必要なこと:
-  - (A) の渡し先: #533 は閉じていて、案1の issue でもなかった。新規起票の前の確認で、未マージの `work/MTK`（#569、着手中）が「Mつく」タブの列を変えた作業と分かった。`video_mtsuku` が飛ばされた原因（`NO_COLUMN: O`）はこれと重なる見込み。次のどちらにするか: ① #569 の系列（MTK）に渡す（MTK のチャットに伝えるか、#569 へのコメントを許可する） ② 予定どおり新規起票する（ラベル `morning` は存在しないので、作るかどうかも）
-  - 10/14 15:32 の `video_wayhome` の失敗（IncompleteRead）は 10/15 の回で成功しており、(A) に含めるかどうか
-  - 指示文は docs/decisions への追記を不要としていたが、規則を優先して operations.md に足した。これでよいか
-  - マージ: ドキュメントのみ（ログ・decisions）だが、止まる条件に当たったためマージしていない
+  - (A) の渡し先: #533 は閉じていて、案1の issue でもなかった。新規起票の前の確認で、未マージの `work/MTK`（#569、着手中）が「Mつく」タブの列を変えた作業と分かった。`video_mtsuku` が飛ばされた原因（`NO_COLUMN: O`）はこれと重なる見込み。次のどちらにするか: ① #569 の系列（MTK）に渡す（MTK のチャットに伝えるか、#569 へのコメントを許可する） ② 予定どおり新規起票する（ラベル `morning` は存在しないので、作るかどうかも）→ 解決（2026-10-15、MRF-02）: MTK の系列で対応中なので渡さない（#569 へのコメントも新規起票もしない）
+  - 10/14 15:32 の `video_wayhome` の失敗（IncompleteRead）は 10/15 の回で成功しており、(A) に含めるかどうか → 解決（2026-10-15、MRF-02）: フォローから外す
+  - 指示文は docs/decisions への追記を不要としていたが、規則を優先して operations.md に足した。これでよいか → 解決（2026-10-15、MRF-02）: そのまま残す
+  - マージ: ドキュメントのみ（ログ・decisions）だが、止まる条件に当たったためマージしていない → 解決（2026-10-15、MRF-02）: MRF-02 で cloudflare へ入れる
 - 未確認の項目:
   - 「Mつく」タブの今の列（シートは見ていない）と、本番の video_mtsuku.html が古い版のまま止まっていること
   - mj-logs の morning.md・status.md の記載（セッションの範囲外のため読んでいない）
@@ -121,12 +121,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 66464371）: https://github.com/retroeater/mj-logs/tree/main/guide/66464371
+ガイド文書（この版を写した時点の最新、mj 490aa1a5）: https://github.com/retroeater/mj-logs/tree/main/guide/490aa1a5
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/66464371/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/66464371/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/66464371/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/66464371/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/66464371/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/66464371/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/490aa1a5/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/490aa1a5/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/490aa1a5/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/490aa1a5/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/490aa1a5/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/490aa1a5/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/66464371.md

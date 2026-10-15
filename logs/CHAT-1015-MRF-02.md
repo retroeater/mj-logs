@@ -44,15 +44,66 @@ CHAT-1015-MRF-01 の「判断が必要なこと」に回答し、朝のフォロ
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+- Chat-Ref の重複確認: `CHAT-1015-MRF-02` のコミットなし。`MRF` は同じセッションの MRF-01 で使ったもの（続きの番号）
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- 0章: 指示欄の末尾は指示文の最後の行と一致。MRF-01 の `## 報告` の状態は「判断待ち」→ 続ける
+- 作業ブランチ: ローカル・リモートとも work/1015-mrf（51e36d505、一致）。そのまま続けた
+- 手順1: MRF-01 のログの状態を「判断待ち / 続き: CHAT-1015-MRF-02」にし、「判断が必要なこと」の4項目の末尾に「→ 解決（2026-10-15、MRF-02）: …」を足した（消していない）
+- 手順2: `origin/cloudflare` が HEAD の祖先でなかったため `git merge origin/cloudflare`（b2da47b94 を取り込み）。
+  `docs/decisions/operations.md` で追記どうしの衝突（MRF-01 の追記と、cloudflare 側の CHAT-1015-MCK-05 の追記が同じ末尾）。
+  両方を残し、日付の古い順（10-14 → 10-15）に並べて解いた。解いた後の該当箇所:
+
+  ```
+  ## 2026-10-14（CHAT-1015-MRF-01）
+
+  - 朝の報告のフォローは、各チャットへの伝言や台帳ではなく、issue への追記（無ければ新規起票、ラベル `morning`）で渡し、朝のチャットはその後を追わない
+  - 作業中の回答: なし
+
+  ## 2026-10-15（CHAT-1015-MCK-05）
+
+  - #365: JWRC の「結果」の列は、公式の表で合計が「敗退」の人に「敗退」と入れる（2026-10-10）。第19期の TSV も作る（2026-10-10）
+  ```
+
+  取り込み後の `git diff --stat origin/cloudflare...HEAD`:
+
+  ```
+   docs/decisions/operations.md  |   5 ++
+   docs/logs/CHAT-1015-MRF-01.md | 119 ++++++++++++++++++++++++++++++++++++++++++
+   docs/logs/CHAT-1015-MRF-02.md |  45 ++++++++++++++++
+   3 files changed, 169 insertions(+)
+  ```
+
+  operations.md の差分は MRF-01 の追記（4行＋空行）だけ。範囲内
+- MRF-02 の決定（2026-10-15）は docs/decisions に足していない。CLAUDE.md「作業ログ」節は指示の完了時に足すとしているが、
+  この指示の承認は cloudflare へ入れる差分を「operations.md の MRF-01 で足した追記だけ」に限っているため、承認の範囲を優先した
+- issue の本文・状態・ラベルは変えていない。コメントもしていない
+- マージは 12:1x JST（03:30〜05:00 JST の外）
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1015-mrf
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1015-MRF-02.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1015-mrf
+- 確認用URL: なし
+- マージ: 済（7732e04d8、`git push origin work/1015-mrf:cloudflare`、fast-forward）
+- issue: なし
+- 判断が必要なこと:
+  - MRF-02 の決定（(A) は渡さない・video_wayhome はフォローから外す・operations.md の追記は残す）を docs/decisions に足すか。CLAUDE.md の規則では足すが、今回のマージの承認の範囲外のため足していない。足すなら次の指示で
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj b2da47b9）: https://github.com/retroeater/mj-logs/tree/main/guide/b2da47b9
+ガイド文書（この版を写した時点の最新、mj 490aa1a5）: https://github.com/retroeater/mj-logs/tree/main/guide/490aa1a5
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b2da47b9/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b2da47b9/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b2da47b9/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b2da47b9/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b2da47b9/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b2da47b9/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/490aa1a5/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/490aa1a5/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/490aa1a5/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/490aa1a5/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/490aa1a5/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/490aa1a5/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/66464371.md
