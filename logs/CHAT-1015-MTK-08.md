@@ -60,6 +60,53 @@ CHAT-1015-MTK-07 のプレビューを平野さんが見て決めたことで /m
 - 同じ Chat-Ref のコミットなし。work/MTK はローカル・リモートとも be19b58
 - 雛形の行はすべてあり（貼られた文では改行が詰まっていた）。0.「指示」欄の末尾は指示文の最後の行と一致。MTK-07 のログの状態に「 / 続き: CHAT-1015-MTK-08」を足した
 
+### 手順1 紹介文・公開日・再生時間・登録漏れの節（db50574）
+
+- 紹介文: `auto_description(作る人, 何回目)`。何回目は `creator_counts()` が同じ作る人の回を公開日の古い順に数える。チーム名・団体は入れない。連盟以外の作る人にも「プロ」（仮置き）。3回目以降は「第3回」（仮置き）
+- `uploadDate`: 日付だけ（`published_at.date().isoformat()`）
+- 再生時間: 空・「-」の回を止める理由にした（`duration_problems()`。`--check` でも全部出す）。総再生時間の「そろったときだけ出す」の分岐は残した
+- 常設 issue の「Mつく」の節: SNS ブック【2】の X が「-」の人を X ID が無い人から外す。`sns.lookup()` は「-」を空にするので、元の値を見る `lib/sns.py` の `x_marked_none()` を足した。今の13名はどれも【2】の X が空欄（「-」ではない）で、節の顔ぶれは変わらない
+- テスト `test_mtsuku.py` 28件（紹介文・回数の数え方・再生時間が空・`uploadDate`・`x_marked_none`）
+- `python3 scripts/regenerate.py --check mtsuku mtsuku_episodes`: 2ページとも通る（61回）。生成し直した紹介文の例（meta description）:
+
+```
+2FOsXsIqTAA（2020-02-04 滝沢和典）: YouTubeチャンネル「麻雀遊戯王」の企画「Mリーグチームを作ろう！」。滝沢和典プロの回です。
+vSduV7-kLls（2024-08-10 滝沢和典）: YouTubeチャンネル「麻雀遊戯王」の企画「Mリーグチームを作ろう！」。滝沢和典プロの第2回です。
+VPWAMK0IYm4（2020-03-16 和泉由希子）: YouTubeチャンネル「麻雀遊戯王」の企画「Mリーグチームを作ろう！」。和泉由希子プロの回です。
+ZeFtFG2ov_Q（2025-07-22 和泉由希子）: YouTubeチャンネル「麻雀遊戯王」の企画「Mリーグチームを作ろう！」。和泉由希子プロの第2回です。
+```
+
+  `uploadDate` は4つとも日付だけ（「2020-02-04」など）
+
+### 手順2 名前の辞書の共通化（b676f92）
+
+- 写しは5つあった: `generate_saikyo_pages.py`・`generate_live_pages.py`・`lib/mtsuku.py`（この3つが決定の対象）と、`generate_houou_race.py`（同じ読み方）・`generate_books_pages.py`（凍結中）。`generate_ask_data.py` は SNS ブックを読まない別の形
+- `lib/names.py` は「シートの読み取りは呼び出し側が行い、ここは値だけを受け取る」とあるので、読む部分は新しい `scripts/lib/name_book.py` の `load(warn)` に置いた（前提の案〈names.py に置く〉から変えた）。警告の受け取り方と件数の print は呼ぶ側に残した（最強戦・Mつくは「警告: …」を print、/live は `warnings.others.append` と「名前: プロ …」の print）
+- /live の写しの `read_sheet` は `live.spreadsheet_of(タブ)` で、「連盟プロ以外」「別名」は `live.PLAYERS_SPREADSHEET_ID` と同じ（確かめた）。共通の `load()` は `fetch_records(live.PLAYERS_SPREADSHEET_ID, …)` で読む
+- 使わなくなった import・`PRO_COLUMNS` を3ファイルから消した。`test_hidden_pros.py` は新しい読み口（`name_book.fetch_records`）を差し替える形にし、Mつくの辞書のテストを足した
+- 3つの写し以外（houou_race・books）は今回は変えていない
+- 確かめ: 変更前に `regenerate.py saikyo_pages live_pages` を回して HEAD と差分0（データの揺れが無い基準）を確かめ、変更後に `regenerate.py saikyo_pages live_pages mtsuku mtsuku_episodes` で差分0。/live の「名前: プロ 1099名、連盟プロ以外 748名、別名 28件」も変更前と同じ。
+  ほかに辞書を使うページ: houou_pages・ask_data は自分の写しを使い変わらない。sync_live_calendar・write_live_channel_candidate・update_abema_book・check_* はページを作らない（`generate_live_pages.load_name_book()`・`generate_saikyo_pages.load_name_book()` を呼ぶ形のまま）
+- 未マージの work/（1009-swp-526・1011-swp-hnd・1011-swp-nav・1015-hou2・1015-skd-top・1015-wfl-s7）: `load_name_book()` を変えているものは無い（work/1015-skd-top は `generate_saikyo_pages.py` の別の関数）。`git merge-tree` で6本とも衝突なし。止まる条件に当たらない
+
+### 手順3 確かめ
+
+- `git merge origin/cloudflare`（58f48b1、衝突なし）
+- テスト: `python3 -m unittest discover -s scripts/tests` OK（1156件）。`node --test .github/actions/upsert-issue/test/*.test.js` 18件 OK、`node --test 'workers/scheduler/test/*.test.mjs'` 40件 OK、
+  `node --test 'workers/ask/test/*.test.mjs'` は 26件 OK・**1件失敗**（query.test.mjs「記録の上位」が `/houou/ranking/` を期待し `/houou/ranking/total/` が返る）。`workers/` は cloudflare と同じ内容（差分なし）で、cloudflare の 14c8ffb（ask のデータを `houou/ranking/total/` にした）からの失敗。この変更とは無関係
+- `python3 scripts/regenerate.py --check all`: 23ページすべて通る。警告3件はこの変更の前と同じ（ask_data・live_pages の【3】手動補正835件、wayhome_episodes のタマシュ・エルドス）
+- 帰り道: `regenerate.py video_wayhome wayhome_episodes` で差分0
+- 「公開対象を検査する」（58f48b1）: success
+- cloudflare との差分（91ファイル）:
+  - `mtsuku/` の生成物: 62（一覧と各話61）
+  - Mつくのスクリプトとテスト: `scripts/generate_mtsuku.py`・`scripts/generate_mtsuku_episodes.py`・`scripts/lib/mtsuku.py`・`scripts/tests/test_mtsuku.py`
+  - 共通化: `scripts/lib/name_book.py`（新規）・`scripts/generate_saikyo_pages.py`・`scripts/generate_live_pages.py`・`scripts/tests/test_hidden_pros.py`
+  - 帰り道と共有にした部品: `scripts/lib/wayhome.py`・`scripts/generate_video_wayhome.py`・`scripts/generate_wayhome_episodes.py`・`video_wayhome.js`・`wayhome_episodes.js`（帰り道の生成物は差分0）
+  - `scripts/regenerate.py`（`OUTPUT_OVERRIDES` の mtsuku 2行）・`_redirects`（/mtsuku の2行）・`.github/workflows/assets-check.yml`（許可リストに mtsuku）
+  - 検査: `scripts/check_saikyo_unregistered.py`（Mつくの節）・`scripts/check_unused_names.py`（Mつくの名前を利用先に）・`scripts/lib/sns.py`（`x_marked_none()`）
+  - `style.css`（`.mj-mtsuku-round`）
+  - 文書: `docs/notes/video-mtsuku.md`・`docs/notes/static-generation.md`・`docs/notes/redirects.md`・`docs/handover.md`（6章の表に1行）・ログ5本（`docs/decisions/mtsuku.md` は MTK-08 の節だけ）
+
 ## 報告
 
 - 状態: 作業中
@@ -76,12 +123,12 @@ CHAT-1015-MTK-07 のプレビューを平野さんが見て決めたことで /m
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 2fcae3af）: https://github.com/retroeater/mj-logs/tree/main/guide/2fcae3af
+ガイド文書（この版を写した時点の最新、mj a5b7e739）: https://github.com/retroeater/mj-logs/tree/main/guide/a5b7e739
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/2fcae3af/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/2fcae3af/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/2fcae3af/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/2fcae3af/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/2fcae3af/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/2fcae3af/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/66464371.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a5b7e739/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a5b7e739/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a5b7e739/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a5b7e739/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a5b7e739/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a5b7e739/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/2fcae3af.md
