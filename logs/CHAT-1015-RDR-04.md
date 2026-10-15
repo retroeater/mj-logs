@@ -55,15 +55,38 @@ RDR 系列（転送の一覧と棚卸し）の振り返りで出た2点を issue
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 揃っている
 - 0. 指示欄の末尾は指示文の最後の行と一致
 
+### 1. 確認
+
+- #485・#568 の本文とコメントを読んだ。他のセッションの着手中のコメントは無し（#485 の「着手中」は CHAT-1003-RUN-02 で完了済み。#568 のコメントは bot の月次の1件だけ）
+- #485 の「次の指示で作る」の趣旨の記述は前提の2か所だけ: 冒頭の太字の行の末尾「転送の件数を数える仕組みは次の指示で作る」と、「判断材料」の「（案A。**仕組みは未実装で、次の指示で作る**）」。ほかには無し
+- `docs/redirect-counts/2026-09.csv` の 504 の行: `/jpml_titles.html,504,1718,1718`（前提の 1,718件と一致）。ほかに `/saikyo_results.html,504,535,535`・`/video_wayhome.html,504,245,245`・`/tanilog.html,504,6,6`
+
+### 2. #485 の本文
+
+- `updated_at` が 2026-10-14T07:45:11Z（RDR-02 の書き換え）のままであることを確かめてから書き換えた
+- 冒頭の行: 期日・基準は残し、末尾を「転送の件数は `fetch-redirect-counts.yml` が毎月1日 06:30 JST に前月分を取る（2026-10-14 有効化、初回の予約実行は 2026-11-01）」に置き換えた
+- 「判断材料」の転送の件数の行: 仕組みの説明（CSV の置き場所・#568 へのコメント・RDR-03 で作り 2026-10-14 有効化・初回 2026-11-01・`docs/notes/redirects.md`「流入の測り方」）に置き換えた
+- 末尾の Chat-Ref に `CHAT-1015-RDR-04（数える仕組みの記述の更新）` を足した。状態・ラベルは変えていない
+
+### 3. #568 のコメント
+
+- https://github.com/retroeater/mj/issues/568#issuecomment-6181163428
+- CSV の 504 の4行をそのまま引用し、`/jpml_titles.html` の 1,718件・廃止前の期間・原因未調査と、「2026-10 分の集計でも 504 が残っていれば調べる」の条件を書いた。末尾に Chat-Ref。本文・状態・ラベルは変えていない
+- 前提の案は `/jpml_titles.html` だけを挙げていたが、CSV のほかの転送元にも 504 があるため、行はすべて引用した（条件は決定のとおり）
+
+### 決定の記録
+
+- 指示の「変えるのは issue の本文・コメントとログだけで、コードと文書は変えない」と、CLAUDE.md「作業ログ」節の「指示の完了時に決定節を docs/decisions/ に足す」が食い違う。ルールの側を優先し、docs/decisions/cloudflare.md に「2026-10-15（CHAT-1015-RDR-04）」の節を足した（ログと同じコミット）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1015-rdr
-- ログ: https://github.com/retroeater/mj/blob/work/1015-rdr/docs/logs/CHAT-1015-RDR-04.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1015-RDR-04.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1015-rdr
 - 確認用URL: なし
-- マージ: 未
-- issue: #485、#568
+- マージ: 済（85f63b67f。`git push origin work/1015-rdr:cloudflare`、直前に再 fetch して祖先を確認）
+- issue: #485（本文の仕組みの記述を更新）、#568（504 の確認の条件をコメント）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
@@ -71,12 +94,12 @@ RDR 系列（転送の一覧と棚卸し）の振り返りで出た2点を issue
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj f0aad707）: https://github.com/retroeater/mj-logs/tree/main/guide/f0aad707
+ガイド文書（この版を写した時点の最新、mj 66464371）: https://github.com/retroeater/mj-logs/tree/main/guide/66464371
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f0aad707/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f0aad707/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f0aad707/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f0aad707/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f0aad707/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f0aad707/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/66464371/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/66464371/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/66464371/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/66464371/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/66464371/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/66464371/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/d12b1f2e.md
