@@ -77,6 +77,23 @@
   - 衝突を避けるため、表の行は末尾ではなく `fetch-redirect-counts.yml` の行の後に足す（WFL の変えた行とは離れる）。止まる条件には当たらない
 - 共有の `scripts/lib/` は変えない（`regenerate-page.yml` の push の契機に `scripts/lib/**` があり、変えると全ページの再生成になる）。シートへの書き込みの許可の表（`lib/sheets_write.WRITABLE`）にも足さず、書き込み先の確かめはスクリプトの中で行う
 
+### 手順2: ワークフロー・スクリプト・テスト（コミット f82fa9b26）
+
+- `.github/workflows/fetch-x-posts.yml`（`name: X の投稿の試し取り`）: `workflow_dispatch` だけ。入力 `mode`（both / ids / timeline、既定 both）・`handles`（既定 `it_uesama,retroeater`）・`start_time`（既定 2025-11-15）・`end_time`（既定 2026-01-07、その日を含む）・`dry_run`（**既定 true**）。Secret は `X_BEARER_TOKEN`・`LIVE_SHEETS_SA_KEY`（`update-sns-book.yml` と同じ認証の形）、Python は共通の部品 `setup-python`。concurrency `fetch-x-posts`
+- `scripts/fetch_x_posts.py`:
+  - **dry-run（既定）**: X API を呼ばず、シートに書かない。出すのは、トークンの有無、書き込み先のブックを開けたか・タブの名前、「ログ_候補」タブの有無、生成が読む「ログ」タブの有無、書き込みの権限（Drive のメタデータ `capabilities.canEdit` を読むだけ。Drive API が使えなければ「未確認」）、「ログ」タブ（生成と同じブック・gviz）の既存の行の人ごとの件数と `ids` で読む件数、呼び出し回数・読む投稿の最大・見込みの費用
+  - 上限はスクリプトの定数（`MAX_READS = 250`・`COST_PER_READ = 0.005`・`MAX_COST = 1.25`・`IDS_PER_HANDLE = 10`・`TIMELINE_PAGE = 100`）。予定が上限を超えると呼ぶ前に止まる。入力では上げられない
+  - `ids`: 「ログ」タブの 2025年11〜12月の行から1人10件（新しい順）を `GET /2/tweets` で読む。`timeline`: ids の応答の `author_id` で `GET /2/users/{id}/tweets`（`exclude=retweets,replies`、1人1ページ100件まで）。**user lookup は呼ばない**。`timeline` だけのときは author_id のために1人1件を ids で読む
+  - 失敗の分類は `collect_saikyo_images.py` の文言・判定（`CREDIT_RE`・`error_labels`）を使い、認証の失敗・クレジット切れ・レート制限の後は呼ばない
+  - 書き込み（dry-run でないときだけ）: 書き込み先のブックの「ログ_候補」タブに足す。タブが無ければ作って見出しを書き、あれば見出しが同じときだけ足す（違えば書かずに止まる）。「ログ」タブには書かない（`FORBIDDEN_TABS`）。列は「ログ」タブと同じ11列（店名〜表示は空）＋ 本文・地図のリンク・ハッシュタグ・写真・判定・区分・**既存の行**・取得日時。「既存の行」は前提の案に1列足したもの（timeline で拾った投稿が「ログ」タブに既にあるかで、お店以外を拾った数を数えるため）
+  - 本文は出力に出さない（サマリは件数の表だけ）。例外の文言のブックの ID は伏せる
+- `scripts/tests/test_fetch_x_posts.py`（11件）: ids の選び方・既定の予定（3回・220件・$1.1）と上限・JST→UTC・応答の分類と止まり方・行の列・サマリに本文が出ないこと・**dry-run で X API もシートへの書き込みも呼ばないこと**・「ログ」タブを書き先にしないこと・見出しの違うタブに書かないこと
+  - dry-run の分岐を外した版で `test_dry_run_calls_nothing` が落ちることを確かめてから戻した（その確かめで、`request=call` の既定の引数が定義の時点で束縛され mock が効かないと分かったので、呼ぶ時点で引くように直した）
+- docs/notes/github-actions.md「ワークフローの一覧」: `fetch-redirect-counts.yml` の行の後に1行足した
+- `python3 -m unittest discover -s scripts/tests`: 1,122件 OK（`test_workflows_table.py` を含む）
+- ローカルの dry-run（このセッション。Google の認証は無い）: トークン 無、ブック 開けない（`google.auth` が無い）、谷岡育夫 既存の行 1,533件・ids 10件、平野良栄 556件・10件、呼び出し 3回・最大 220件・$1.1。出力にブックの ID は無い
+- マージの条件: テスト OK／入力 `dry_run` の既定は true、スクリプトの既定も dry-run／`.github/workflows/` の既存の本と `workers/scheduler/schedule.json` に差分なし（`git diff --name-only origin/cloudflare -- .github/workflows workers/scheduler` は新しいファイルだけ）／止まる条件に当たらない
+
 ## 報告
 
 - 状態:
