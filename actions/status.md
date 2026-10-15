@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-15 12:14 JST
+- 書き出した時刻: 2026-10-15 12:17 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -12,11 +12,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-15 12:17 | push | work/1015-mrf | in_progress | #3613（38675460244） |  |
+| 2026-10-15 12:16 | push | work/1015-jpl | success | #3612（38675437662） | 0分20秒 |
 | 2026-10-15 12:13 | push | work/MTK | success | #3611（38675144998） | 0分18秒 |
 | 2026-10-15 11:55 | push | work/1015-mck-365 | success | #3610（38673546463） | 0分25秒 |
 | 2026-10-15 11:53 | push | cloudflare | success | #3609（38673342310） | 0分16秒 |
-| 2026-10-15 11:53 | push | work/1015-hou | success | #3608（38673334531） | 0分17秒 |
-| 2026-10-15 11:50 | push | cloudflare | success | #3607（38673151042） | 0分20秒 |
 
 ## check-image-links.yml
 
@@ -82,11 +82,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-15 12:17 | workflow_dispatch | work/1015-wfl-s6 | queued | #36（38675502217） |  |
 | 2026-10-15 09:58 | schedule | cloudflare | success | #35（38663072596） | 0分24秒 |
 | 2026-10-15 04:20 | workflow_dispatch | cloudflare | success | #34（38622911946） | 0分40秒 |
 | 2026-10-14 10:26 | schedule | cloudflare | success | #33（38495760735） | 0分22秒 |
 | 2026-10-14 04:37 | workflow_dispatch | cloudflare | success | #32（38456349597） | 0分37秒 |
-| 2026-10-13 12:13 | schedule | cloudflare | success | #31（38340707440） | 0分22秒 |
 
 ## fetch-gsc.yml
 
@@ -153,11 +153,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-15 12:17 | workflow_dispatch | work/1015-wfl-s6 | queued | #13（38675506956） |  |
 | 2026-10-15 04:39 | workflow_run | cloudflare | success | #12（38625465359） | 1分16秒 |
 | 2026-10-14 15:01 | workflow_dispatch | work/1014-wfl-s3 | success | #11（38519804715） | 1分20秒 |
 | 2026-10-14 09:33 | workflow_run | cloudflare | success | #10（38490860171） | 1分14秒 |
 | 2026-10-13 04:31 | workflow_run | cloudflare | success | #9（38298269016） | 1分08秒 |
-| 2026-10-13 00:05 | workflow_dispatch | cloudflare | success | #8（38267725058） | 0分31秒 |
 
 ## sitemap-lastmod.yml
 
@@ -221,11 +221,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-15 12:17 | workflow_dispatch | work/1015-wfl-s6 | queued | #94（38675494908） |  |
 | 2026-10-15 09:07 | schedule | cloudflare | success | #93（38658202969） | 0分09秒 |
 | 2026-10-15 04:01 | workflow_dispatch | cloudflare | success | #92（38620084312） | 7分06秒 |
 | 2026-10-14 09:37 | schedule | cloudflare | success | #91（38491227119） | 0分07秒 |
 | 2026-10-14 04:17 | workflow_dispatch | cloudflare | success | #90（38453650761） | 7分18秒 |
-| 2026-10-13 11:43 | schedule | cloudflare | success | #89（38338239506） | 0分06秒 |
 
 ## update-sns-book.yml
 
@@ -234,11 +234,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-15 12:17 | workflow_dispatch | work/1015-wfl-s6 | in_progress | #27（38675497590） |  |
 | 2026-10-15 04:10 | workflow_dispatch | cloudflare | failure | #26（38621492985） | 4分24秒 |
 | 2026-10-14 11:55 | workflow_dispatch | work/1014-acf-refetch | success | #25（38503614780） | 1分07秒 |
 | 2026-10-14 11:55 | workflow_dispatch | cloudflare | success | #24（38503612971） | 0分39秒 |
 | 2026-10-14 04:37 | workflow_dispatch | cloudflare | success | #23（38456349472） | 3分38秒 |
-| 2026-10-13 17:30 | workflow_dispatch | cloudflare | success | #22（38369773031） | 0分37秒 |
 
 - #26 failure: ジョブ「regenerate / regenerate」 ステップ「飛ばしたページを報告」
 
