@@ -56,6 +56,32 @@
 
 ## 経過
 
+### 着手前の確認（2026-10-15）
+
+- 手順0: 「指示」欄の末尾は指示文の最後の行と一致。CHAT-1015-MCK-06 の `## 報告` の状態は「判断待ち」
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 4行とも冒頭にある
+- Chat-Ref の重複: `CHAT-1015-MCK-08` のコミット 0件
+- 作業ブランチ: ローカルの `work/1015-mck-367`（b41b6aa94）は `origin/cloudflare` の祖先、リモートもマージ済み。docs/notes/cloud-sessions.md「作業ブランチの用意」の「ローカルにあり祖先」のとおり `git checkout work/1015-mck-367` → `git merge --ff-only origin/cloudflare`（3f3ec6ede）
+
+### 手順1: 直し（コミット cb7214cd5）
+
+- #367: Open。コメントは 4件（09-19・10-10・MCK-06 の着手中と結果）。他セッションの着手中コメントは無い（着手中は MCK-06 のものを続けて使う）
+- 未マージの work/ ブランチで `fetch-x-posts.yml`・`scripts/fetch_x_posts.py`・そのテストを変えているものは無い
+- `scripts/fetch_x_posts.py`:
+  - 書き込み先は `TAB = "【1】元データ"`。`FORBIDDEN_TABS` に「【2】自動変換後」「【3】手動補正」「ログ」。タブは作らない（【1】が無ければ書かずに止める）。「ログ_候補」の作りは消した
+  - 【1】の列（前提の案のとおり）: 投稿ID・投稿URL・アカウント・author_id・投稿日時(UTC)・投稿日(JST)・本文・写真のURL（複数は空白でつなぐ）・リンクの展開先（`unwound_url` があればそれ、複数は空白でつなぐ）・ハッシュタグ（API の tag のまま、空白でつなぐ）・区分・ログにある・取得日時。判定（写真・地図・ハッシュタグ）は【1】に書かず、集計だけに使う
+  - 【1】の見出し: 空なら本番で書く、同じならその下に足す、違えば書かずに止める（dry-run でも止める）
+  - 本番では、**X API を呼ぶ前に**【1】の1行目に見出しを書く（空なら新たに、あれば同じ見出しの書き直し）。これが失敗したら X API を呼ばずに止める（費用をかけずに書き込みの権限を確かめる）
+  - すでに【1】にある投稿 ID（と同じ実行の中の重なり）は足さない
+  - 集計: 区分・人ごとに、件数・写真・地図のリンク・ハッシュタグ・「ログ」にある／無い・無いうちの写真・地図、投稿日の範囲。timeline は1日あたりの件数（100件で切れたら取れた最古の日から期間の終わりまで、切れなければ期間の日数で割る）と、「ログ」の最新の日の翌日から今日までの見込みの件数・費用・3,200件に収まるか
+  - 本文・ブックの ID は出さない（例外の文言の ID も伏せる）。上限の定数は変えていない
+- `fetch-x-posts.yml`: 入力 `dry_run` の説明だけを直した（既定は true のまま）
+- docs/notes/github-actions.md「ワークフローの一覧」の `fetch-x-posts.yml` の行を【1】に合わせて直した
+- テスト（15件）: 【1】の見出しが違えば止める・【2】【3】・ログには書かない・同じ投稿 ID を足さない・書き込みは【1】の URL だけ・dry-run は X API もシートも呼ばない・見出しの書き込みが失敗したら X API を呼ばない・行が API の値のまま・サマリに本文が出ない・見込みの計算
+  - 重複除けと書き先の確かめを外した版で、該当の2件が落ちることを確かめてから戻した
+- `python3 -m unittest discover -s scripts/tests`: OK
+- ローカルの dry-run（Google の認証は無い）: 予定 3回・最大 220件・$1.1。出力にブックの ID は無い
+
 ## 報告
 
 - 状態:
@@ -72,12 +98,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj ddd0fcee）: https://github.com/retroeater/mj-logs/tree/main/guide/ddd0fcee
+ガイド文書（この版を写した時点の最新、mj 5150009b）: https://github.com/retroeater/mj-logs/tree/main/guide/5150009b
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ddd0fcee/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ddd0fcee/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ddd0fcee/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ddd0fcee/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ddd0fcee/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/ddd0fcee/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/5150009b/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/5150009b/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/5150009b/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/5150009b/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/5150009b/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/5150009b/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/66464371.md
