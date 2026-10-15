@@ -75,15 +75,17 @@ SKD のチャット（CHAT-1014/1015-SKD-01〜21、#566）の振り返りで分�
 - CLAUDE.md・handover.md は変えていない
 - `assets-check.yml`（公開対象を検査する）が作業ブランチの push で走り success（「ガイド文書のサイズを確認」「chat-side-operations.md の純増を確認」の段も success）
 - 決定は `docs/decisions/design-renewal.md` の「2026-10-15（CHAT-1015-SKD-22）」。SKD-21 のログの状態は変えていない（このブランチに無いため）
+- マージ: push 直前に再 fetch し `git merge-base --is-ancestor origin/cloudflare HEAD` が真を確認。`git push origin work/1015-skd-notes:cloudflare` で a5c01728b..6c06af33f（マージの SHA 6c06af33f）。マージ後の run は「公開対象を検査する」success（check-run の check も success）。docs/ のみの変更なので Workers Builds は走らない（#171）
+- mj-logs の `guide/HISTORY` の末尾に `6c06af33` が載った（`sync-from-mj.yml`、マージから15分以内）
 
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1015-skd-notes
 - ログ: https://github.com/retroeater/mj/blob/work/1015-skd-notes/docs/logs/CHAT-1015-SKD-22.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1015-skd-notes
-- 確認用URL: なし
-- マージ: 未
+- 比較URL: https://github.com/retroeater/mj/compare/a5c01728b...6c06af33f
+- 確認用URL: なし（ドキュメントのみ）
+- マージ: 済み（6c06af33f）
 - issue: #566
 - 判断が必要なこと: なし
 - 未確認の項目: なし
