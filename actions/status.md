@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-15 12:19 JST
+- 書き出した時刻: 2026-10-15 12:20 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -194,11 +194,13 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-10-15 12:17 | workflow_dispatch | work/1015-wfl-s6 | in_progress | #49（38675499896） |  |
+| 2026-10-15 12:17 | workflow_dispatch | work/1015-wfl-s6 | failure | #49（38675499896） | 2分21秒 |
 | 2026-10-15 09:28 | schedule | cloudflare | success | #48（38660249644） | 0分34秒 |
 | 2026-10-15 04:15 | workflow_dispatch | cloudflare | success | #47（38622199943） | 0分37秒 |
 | 2026-10-14 10:09 | schedule | cloudflare | success | #46（38494200521） | 0分33秒 |
 | 2026-10-14 04:37 | workflow_dispatch | cloudflare | success | #45（38456349476） | 0分32秒 |
+
+- #49 failure: ジョブ「sync」 ステップ「同期」
 
 ## sync-logs.yml
 
@@ -221,7 +223,7 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-10-15 12:17 | workflow_dispatch | work/1015-wfl-s6 | in_progress | #94（38675494908） |  |
+| 2026-10-15 12:17 | workflow_dispatch | work/1015-wfl-s6 | success | #94（38675494908） | 2分54秒 |
 | 2026-10-15 09:07 | schedule | cloudflare | success | #93（38658202969） | 0分09秒 |
 | 2026-10-15 04:01 | workflow_dispatch | cloudflare | success | #92（38620084312） | 7分06秒 |
 | 2026-10-14 09:37 | schedule | cloudflare | success | #91（38491227119） | 0分07秒 |
