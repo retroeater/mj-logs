@@ -95,7 +95,7 @@ JBK-01 の仮置きのうち3点に平野さんの答えが出たので、プレ
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1015-JBK-03
 - ブランチ: work/JBK
 - ログ: https://github.com/retroeater/mj/blob/work/JBK/docs/logs/CHAT-1015-JBK-02.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/JBK
