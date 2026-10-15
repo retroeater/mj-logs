@@ -54,15 +54,47 @@
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてあり（貼られた文では改行が詰まって1行になっていた）
 - 0.「指示」欄の末尾は指示文の最後の行と一致
 
+### 手順1 確かめ
+
+- origin/cloudflare の `generate_video_mtsuku.py`: `QUERY = 'SELECT A,B,C,D,E,F,G,H,I,J,K,L,M,N WHERE O = "Y"'`（列記号で読む）。今の「Mつく」タブは14列（A〜N）で O 列が無い
+- `regenerate.py` の `FROZEN_FROM_ALL`（`{"books_pages"}`）の効き方:
+  - `all`（引数なしを含む）: 対象から外す（`main()` の `targets = [p for p in pages if p not in FROZEN_FROM_ALL]`）
+  - `--check all`: 同じ `targets` を使うので外れる
+  - `--changed`: `pages_for_changes()` が `scripts/lib/` の変更（全ページ）・個別の変更のどちらでも外す
+  - `--list`: `known_pages()` をそのまま出すので**外れない**（books_pages も出る）。指示の「`--list` で対象に無い」は当てはまらず、一覧には今も `video_mtsuku` が出る
+  - ページ名の直接指定（`regenerate.py video_mtsuku`）: 動く（今は失敗する）
+- run 38621492985（[scheduled] SNS ブックの更新、2026-10-15 04:10 JST）のジョブ「regenerate / regenerate」（job 116050185392）のログを全部（2369行）読んだ: 飛ばしたのは `video_mtsuku` の1ページだけ（`RuntimeError: … Invalid query: NO_COLUMN: O`）。ほかの20ページは生成し、成功したページはコミット・push され、最後の「飛ばしたページを報告」でジョブが failure（#533 のとおり）。止まる条件に当たらない
+- 未マージの work/ で `regenerate.py` を変えているのは work/MTK だけ（`OUTPUT_OVERRIDES` に mtsuku の2行。`FROZEN_FROM_ALL` の行ではない）。止まる条件に当たらない。work/MTK は変えていない
+
+### 手順2 変更（bc2892f）
+
+- `scripts/regenerate.py`: `FROZEN_FROM_ALL = {"books_pages", "video_mtsuku"}` とコメント（名前を指定しても失敗すること、#570 で消すこと）
+- `docs/notes/static-generation.md`「ページの一覧」の型Aの行に、2026-10-15 から生成を止めた旨
+- `docs/decisions/mtsuku.md`: 「MTK-01 と同じ分野のファイル」は work/MTK（未マージ）にしか無い。後で work/MTK が cloudflare を取り込むときの衝突を小さくするため、work/MTK の版（MTK-01・MTK-04 の決定）をそのまま写し、その後に MTK-05 の節を足した。`docs/decisions/README.md` の一覧の行も work/MTK と同じ1行（取り込みで同じ変更になる）。
+  このため MTK-01・MTK-04 の決定（実装は work/MTK、未マージ）も cloudflare に入る
+- `video_mtsuku.html`・`generate_video_mtsuku.py` は変えていない
+- #570 の本文の段2のチェックリストに「`generate_video_mtsuku.py` と `FROZEN_FROM_ALL` の `video_mtsuku` を消す」を足した。#569 にコメント（生成を止めた旨）
+
+### 手順3 確かめ
+
+- テスト 全体 OK
+- `--changed scripts/generate_video_mtsuku.py` → 対象なし。`--changed scripts/lib/page.py`（全ページ）にも `video_mtsuku` は入らない
+- `python3 scripts/regenerate.py --check all`:
+  - 変更前（42c4465）: 22ページ。`video_mtsuku` だけ止まる（NO_COLUMN: O）。警告3件（ask_data・live_pages の【3】手動補正835件、wayhome_episodes のタマシュ・エルドス）
+  - 変更後（作業ツリー = bc2892f と同じ内容）: 21ページ。全部通る。ほかの21ページの結果と警告3件は変更前と同じ（「検査の結果」以降を diff して、違いは `video_mtsuku` の行と止まる理由だけ）。作業ツリーは戻った
+- cloudflare との差分は `scripts/regenerate.py`・`docs/`（notes・decisions・ログ）だけ。`video_mtsuku.html` は変わっていない
+- 次の all（SNS ブックの更新から呼ばれるもの、または 2026-10-19〈月〉05:37 JST の週次）で `video_mtsuku` の失敗が出なくなることは未確認。マージ後の手動実行はしていない（指示のとおり）。
+  指示の完了条件は「未確認の項目」に書くとあるが、`_template.md` の「状態が完了なら未確認は『なし』だけ」（ルールの側）を優先してここに書いた。カレンダー「ryoei.pro」の 10/19 に【R#569】がある（MTK のチャットの伝言による）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1015-MTK-frozen
-- ログ: https://github.com/retroeater/mj/blob/work/1015-MTK-frozen/docs/logs/CHAT-1015-MTK-05.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1015-MTK-05.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1015-MTK-frozen
-- 確認用URL: なし
-- マージ: 未
-- issue: #569・#570
+- 確認用URL: なし（ページは変えていない）
+- マージ: 済（2f9176b、fast-forward で cloudflare へ。push の直前に再 fetch して cloudflare が祖先であることを確かめた）
+- issue: #569（コメント）、#570（段2のチェックリストに1行）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
@@ -70,12 +102,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj a177d10d）: https://github.com/retroeater/mj-logs/tree/main/guide/a177d10d
+ガイド文書（この版を写した時点の最新、mj 8d40f40c）: https://github.com/retroeater/mj-logs/tree/main/guide/8d40f40c
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a177d10d/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a177d10d/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a177d10d/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a177d10d/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a177d10d/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a177d10d/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/8d40f40c/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/8d40f40c/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/8d40f40c/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8d40f40c/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8d40f40c/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8d40f40c/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/66464371.md
