@@ -48,6 +48,43 @@ CHAT-1016-VSH-01 は、新しいブックが gviz で読めず（HTTP 401）止�
 - 新しいブックの gviz（`/gviz/tq?tqx=out:json`）: HTTP 200
 - VSH-01 のログの状態に ` / 続き: CHAT-1016-VSH-02` を足した
 
+### 新旧のタブの比較（生成と同じ `lib/sheets.py` の `fetch_table()` で読む）
+
+- 帰り道: 旧タブ（`live.SPREADSHEET_ID` のブック）全42行・表示=Y 42行 / 新タブ 42行。動画IDの集合は一致（旧のみ・新のみ 0）、重複なし。
+  見出しは 旧 名前・タイトル・動画ID・紹介文（補正用）・表示 → 新 動画ID・名前・タイトル・紹介文（補正用）（並びの違いと「表示」の無いことは一致とみなす）。各列の値の差 0
+- Mつく: 旧タブ 61行 / 新タブ 61行。動画IDの集合は一致、重複なし。見出しは「URL」→「動画ID」のほか同じ並び。各列の値の差 0
+- → 止まる条件に当たらない
+
+### 切り替え（e4943b7de）
+
+- 新しいブックの ID を `scripts/lib/video_book.py` の `SPREADSHEET_ID` 1つにまとめた（女流勉強会〈work/JBK〉も後でこれを使う）
+- `scripts/lib/wayhome.py`: `SPREADSHEET_ID = video_book.SPREADSHEET_ID`（`live` の import を外した）、`HEADERS` から「表示」を外し、`SHOWN` と `to_rows()` の表示=Y の絞り込みを削除
+- `scripts/lib/mtsuku.py`: `SPREADSHEET_ID = video_book.SPREADSHEET_ID`、`VIDEO_ID_HEADERS`（「動画ID」「URL」）を `VIDEO_ID_HEADER = "動画ID"` にして `HEADERS` の先頭に入れ、「URL」を読む分岐を削除
+- `scripts/lib/wayhome_intake.py`: `SHOWN` を削除、`PASTE_LABELS` を新タブの並び（動画ID・名前・タイトル・紹介文（補正用））に、`paste_line()` から表示 `Y` を外した。貼る1行は今までどおり `check_wayhome.py` が新タブの見出しを読んで組む
+- `scripts/check_wayhome.py`: 表示=Y の絞り込み（`shown_ids`）をやめ、シートの全行の動画ID（シートの順）で JSON に無い回を数える。知らせの文言・常設 issue の本文の表から表示の記述を外した
+- `check_saikyo_unregistered.py`・`check_unused_names.py`・`generate_title_pages.py`・`build_wayhome_ogp.py`・`fetch_youtube_meta.py`・各生成スクリプトは `wayhome.fetch_rows()`・`mtsuku.fetch_rows()` 経由なので変更なし
+- テスト: `test_wayhome_rows.py`（全行を載せる・見出しに「表示」が無い）、`test_wayhome_intake.py`（貼る1行）、`test_mtsuku.py`（見出し「動画ID」、「URL」だけでは止める）、`test_wayhome_check.py`・`test_taikai_names.py`（記録から「表示」を外す）
+- 文書: `docs/notes/video-wayhome.md`（新しい回を追加する手順の置き場所・貼る1行、移した経緯の節）、`docs/notes/video-mtsuku.md`（データの置き場所・見出し）、`docs/notes/static-generation.md`（「ページの一覧」の帰り道の行）
+
+### 確かめ
+
+- 変更前の生成（旧タブ）: `regenerate.py video_wayhome wayhome_episodes mtsuku mtsuku_episodes title_pages` で差分なし（基準）
+- 修正前のコードで新しいテストが通らないこと: 旧コード（`git archive HEAD`）に新しいテスト3ファイルを置いて実行 → FAIL 3・ERROR 4
+- `python3 scripts/regenerate.py --check video_wayhome wayhome_episodes mtsuku mtsuku_episodes title_pages`: 通った
+- `python3 scripts/regenerate.py video_wayhome wayhome_episodes mtsuku mtsuku_episodes title_pages`: 生成物の差分 0（`git status` に生成物が出ない）
+- 新しいブックから読んでいること: `wayhome.fetch_rows()` 42行、`mtsuku.fetch_rows()` 61行、両方の `SPREADSHEET_ID` が `video_book.SPREADSHEET_ID`
+- `check_wayhome.py --out-dir <scratchpad>`: 新しい回 0・JSON に無い回 0・見られなくなった回 0
+- `check_saikyo_unregistered.py --json <scratchpad>`: Mつく 132名、登録が無い 0・使われない 0・X ID が無い 10（取り込み前と同じ傾向。ファイルは scratchpad のみ）
+- `check_unused_names.py --out <scratchpad> --no-issue`: 「Mつく」61行を読めた
+- 全体のテスト `python3 -m unittest discover -s scripts/tests`: 1219件 OK。workers/ は変えていない
+- 旧ブックの ID `1y8xBxGpIt…` は `generate_jpml_test.py`・`generate_resource_logs.py`・`generate_video_en.py` が別のタブで使い続ける（今回の対象外。旧「Mつく」タブを消しても影響しない）
+
+### 未マージのブランチとの重なり
+
+- `git merge-tree` で各未マージのブランチと試した: work/1015-skd-top（`docs/decisions/design-renewal.md`）と work/1015-skr-pub（`docs/decisions/saikyo.md`）が衝突するが、どちらも origin/cloudflare とのあいだで既に衝突しており、今回触れないファイル。ほかは衝突なし
+- work/1015-skr-pub: `docs/notes/static-generation.md` で変えるのは最強戦の表の行と `saikyo_pages` の行で、今回の帰り道の行（別の行）と重ならない
+- work/JBK: `scripts/check_unused_names.py`（今回は変えていない）・`docs/notes/static-generation.md`（「ページの一覧」の文と表に女流勉強会を足す。今回の帰り道の行とは別の行）。衝突なし
+
 ## 報告
 
 - 状態: 作業中
@@ -64,12 +101,12 @@ CHAT-1016-VSH-01 は、新しいブックが gviz で読めず（HTTP 401）止�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj a94b0a64）: https://github.com/retroeater/mj-logs/tree/main/guide/a94b0a64
+ガイド文書（この版を写した時点の最新、mj 8e48fa5f）: https://github.com/retroeater/mj-logs/tree/main/guide/8e48fa5f
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a94b0a64/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a94b0a64/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a94b0a64/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a94b0a64/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a94b0a64/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a94b0a64/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/8e48fa5f/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/8e48fa5f/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/8e48fa5f/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8e48fa5f/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8e48fa5f/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8e48fa5f/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a94b0a64.md
