@@ -60,6 +60,54 @@
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+- Chat-Ref の重複確認: CHAT-1015-WFL-17 は未使用
+- 作業ブランチ: work/1015-wfl-s7 はリモート・ローカルとも無かったので origin/cloudflare（3f3ec6ede）から作った
+- 0. 指示欄の末尾は指示文の最後の行と一致。WFL-16 のログの `## 報告` の状態は「完了」。docs/notes/github-actions.md「ワークフローを変更したとき」と docs/notes/scheduler-worker.md を読んだ
+- 雛形の行: Chat-Ref・マージ・貼る時機・共通手順（＋作業ブランチ）は揃っている
+- 着手は JST 14:24（貼る時機 05:15〜23:30 の内）
+- 未マージの work/ ブランチで `workers/scheduler/`・6 本・run-daily.yml・`scripts/morning_report.py`・`scripts/actions_status.py` を変えるもの: なし
+
+### 手順1: 変えた所（6309ec101、作業ブランチだけ。マージしていない）
+
+- `workers/scheduler/schedule.json`: 5 行を `{"workflow": "run-daily.yml", "time": "04:00", "enabled": true}` の 1 行にした（キーは今の行の形のまま）
+- update-live-channel のゲート: 当日・cloudflare・`[scheduled]` の (1) update-live-channel.yml の success の実行（今まで）か、(2) run-daily.yml の実行のジョブ `live / update` の success（`/actions/runs/<id>/jobs?filter=latest`）のどちらかがあれば、schedule は何もしない。引けなかったときは止めずに実行する（今までどおり）。サマリの文言は「当日の予約の起動（run #N／run-daily の実行 <id> のジョブ live / update）が成功済みのため…」
+- ゲートの引き方を、同じシェルの関数をこのセッションで今日（10/15）の実行に当てて確かめた（API は同じ URL・jq の filter）:
+  - (1) が当たる: `run #92`（今朝 04:01 の Worker の起動）。今日は (1) で止まる
+  - (2) の run-daily の `[scheduled]` の実行の一覧は空（WFL-16 の run-daily #1〈38678691802〉は題が「毎朝の運行」で `[scheduled]` が付かないので当たらない）
+  - ジョブの filter を run-daily #1 のジョブに当てると `live / update` の success が 1 件（名前の形 `live / update` が合っている）
+- regenerate-saikyo: `on.workflow_run` と、ジョブ abema・regenerate の `if:` の `workflow_run` の条件を外した。`workflow_dispatch`・`workflow_call` は残した。冒頭のコメントを今の呼ばれ方（run-daily から）に直した
+- `scripts/morning_report.py`:
+  - 「3. 所要時間の異常」の絶対値（600 秒）の判定を、**ほかの実行**の中央値が 600 秒未満の本だけにした（決定の「中央値が 600 秒未満の本だけ」を、判定する実行自身を除いた中央値で読んだ。自身を含めると、1 回しか実行が無い本で 600 秒の実行が中央値 600 秒になり、今のテスト `test_ten_minutes` が落ちるため）。ほかの実行が無ければ絶対値で見る。比（中央値の 3 倍）は今のまま
+  - 「1. 失敗など」の行に、失敗・取り消しのジョブ名を「ジョブ「sns / update」」の形で足した（`actions_status.py` が引いた `jobs_by_run` を `write()` に渡す。`actions_status.py` は失敗した実行のうち直近 5 回のジョブだけを引くので、それより古い失敗はジョブ名を書かない）
+  - テストを 3 つ足した（いつも長い本は比だけで見る・長い本でも 3 倍なら出す・失敗の行のジョブ名）
+- `python3 -m unittest discover -s scripts/tests`: 1130 件 OK。部品のテスト: 18 pass
+
+### Worker のテストが落ちた（止まる条件に当たった）
+
+`node --test 'workers/scheduler/test/*.test.mjs'`: 39 pass・**1 fail**。
+
+- 落ちたのは `workers/scheduler/test/scheduler.test.mjs` の 301 行のテスト「起動の表: 04:00 の回に update-live-channel、04:10 の回に update-sns-book、04:30 の回に check-image-links を1本起動し、06:00 の確かめの対象は5行」。このテストは 18 行で `schedule.json` を読み（`readFileSync(new URL('../schedule.json', import.meta.url))`）、表の中身（5 行と各行のファイル名・時刻）を確かめている。新しい表では 04:00 の回が `run-daily.yml` になり、`AssertionError`（`+ 'run-daily.yml'` / `- 'update-live-channel.yml'`）
+- 指示の前提「テストは例の文字列でファイル名を持ち、schedule.json は読まない（WFL-14 の調べ）」は誤り。WFL-14 の調べで、`index.mjs` が schedule.json を import することと catchup.test.mjs が例の文字列を持つことだけを見て、scheduler.test.mjs の 18 行・51 行（「schedule.json の行は形がそろっている」）を見落とした
+- テストを通すには `workers/scheduler/test/scheduler.test.mjs` のこのテスト（表の中身の期待値）を新しい表に合わせて直す必要がある。止まる条件「Worker のテストを通すのに `workers/scheduler/` のコード（`schedule.json` 以外）を変える必要がある（変えずに止まる）」に当たるので、テストは変えず、ここで止めた。Worker の動き（`src/`）は変えなくてよい（落ちたのは表の中身を確かめるテストだけ）
+- 止まったので、作業ブランチでの run-daily の手動実行・docs（scheduler-worker.md・github-actions.md）の直し・マージはしていない
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1015-wfl-s7（未マージ。6309ec101 に途中までの変更）
+- ログ: https://github.com/retroeater/mj/blob/work/1015-wfl-s7/docs/logs/CHAT-1015-WFL-17.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1015-wfl-s7
+- 確認用URL: なし
+- マージ: 未（止まる条件「Worker のテストを通すのに workers/scheduler/ のコード〈schedule.json 以外〉を変える必要がある」に当たったため）
+- issue: なし
+- 判断が必要なこと:
+  1. `workers/scheduler/test/scheduler.test.mjs` の表の中身を確かめるテスト（301 行、「06:00 の確かめの対象は5行」）を、新しい表（04:00 の回に `run-daily.yml` を1本、確かめの対象は1行）に合わせて直してよいか。Worker の動き（`src/`）は変えない。推奨: 直す（このテストは表の中身の写しで、表を変えれば一緒に変わる性質のもの。Worker のコードの変更ではない）。直してよければ、続きの指示で直して手順1の残り（作業ブランチの run-daily の手動実行・docs）と手順3（マージ）を行う
+  2. morning_report.py の所要時間の判定を「判定する実行自身を除いた、ほかの実行の中央値が 600 秒未満の本だけ」と読んだ（自身を含めると、実行が 1 回だけの本の 600 秒の実行を出せず、今のテストが落ちる）。これでよいか。推奨: このまま
+- 未確認の項目: 切り替えの翌朝 04:00 JST の run-daily の書く道筋の初回（日は続きの指示のマージで決まる）
+- エラー: Worker のテスト 1 件が落ちた（`scheduler.test.mjs` 301 行、`AssertionError`: 04:00 の回の行が `run-daily.yml`）
+
 <!-- guide-links -->
 ---
 
