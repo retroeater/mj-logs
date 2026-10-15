@@ -59,18 +59,55 @@
 - 指示欄の末尾は指示文の最後の行（「この行が指示文の最後の行です。」）と一致
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある
 
+### 前提の確かめ（チャット側の前提との違い）
+
+- ファイルの場所は `lib/` ではなく `scripts/lib/`（`scripts/lib/wayhome.py`・`scripts/lib/mtsuku.py`・`scripts/lib/live.py`）
+- 帰り道: `wayhome.SPREADSHEET_ID = live.SPREADSHEET_ID`、タブ「帰り道」、`HEADERS` に「表示」を含み、`to_rows()` が表示=Y の行だけを返す（前提どおり）
+- Mつく: `mtsuku.SPREADSHEET_ID` は live とは別のブック、タブ「Mつく」、`VIDEO_ID_HEADERS = ("動画ID", "URL")` で両方を読む（前提どおり）
+
+### 旧タブを読む処理の洗い出し（`git grep`、docs/logs を除く）
+
+- `wayhome.fetch_rows()` の呼び出し: `scripts/build_wayhome_ogp.py`、`scripts/fetch_youtube_meta.py`、`scripts/generate_title_pages.py`（期のページの帰り道の節）、`scripts/generate_video_wayhome.py`、`scripts/generate_wayhome_episodes.py`
+- `wayhome.SPREADSHEET_ID`・`SHEET_NAME` を直接読む: `scripts/check_wayhome.py`（`fetch_records`・`fetch_table`、表示=Y の絞り込みあり）
+- 貼る1行: `scripts/lib/wayhome_intake.py` の `PASTE_LABELS`・`paste_line()`（表示 `Y` を入れる）、`check_wayhome.py` の `build_comment()` の文言
+- `mtsuku.fetch_rows()` の呼び出し: `scripts/check_saikyo_unregistered.py`（「Mつく」の節）、`scripts/check_unused_names.py`、Mつくの生成（`mtsuku.prepare()` 経由）
+- テスト: `test_wayhome_rows.py`・`test_wayhome_check.py`・`test_wayhome_intake.py`・`test_taikai_names.py`・`test_mtsuku.py`
+
+### issue と未マージのブランチ
+
+- 同じ主題の issue（クローズ済みを含む）: 無し（検索で出たのは #545 帰り道の新しい回〈常設〉・#569・#570〈Mつく、クローズ済み〉・#575〈女流勉強会〉。いずれも主題が別）
+- 起票: #578「帰り道・Mつくのタブを新しいブックに移す」（本文に決定とマージ後の平野さんの手作業）
+- 未マージの work/ ブランチで、変える予定のファイルに触れているもの:
+  - `work/JBK`: `scripts/check_unused_names.py`（import 行と `page_names()` に女流勉強会を足す。`mtsuku.fetch_rows()` の行には触れない）、`docs/notes/static-generation.md`（「ページの一覧」の文と表に女流勉強会の行を足す）。指示により止まる対象外
+  - `work/1015-skr-pub`: 対象ファイルのうち1ファイル（3行）。切り替えの実装に入る前に止まったため、行の重なりまでは確かめていない
+
+### 新旧のタブの比較 → 止まる条件に当たった
+
+- 比較のスクリプト（scratchpad、生成と同じ `scripts/lib/sheets.py` の `fetch_table()` で読む）を実行した
+- 旧ブックの「帰り道」は読めた。新しいブック（`1f7dlNUoGm9tm5dPulWdyHPZ4f9GliqUX4WK2B3hnaGM`）の「帰り道」で `urllib.error.HTTPError: HTTP Error 401: Unauthorized`
+- curl で確かめ: 新しいブックの `/gviz/tq?tqx=out:json` は 401、旧ブックの同じ URL（帰り道のタブ）は 200
+- 原因の見立て: 生成・検査は鍵を使わず gviz で読むため、サービスアカウントの編集者の権限では読めない。ほかの生成用のブックは「リンクを知っている全員（閲覧者）」にしてある（docs/notes/live-channel-write.md・abema-book.md）。新しいブックはこの設定が無いと見られる（ここからは共有の設定を確かめられない）
+- 止まる条件「新しいブックが読めない（権限など）」により、比較・切り替え・マージをせずに止めた。#578 に着手→中断のコメントを書いた
+- 決定は `docs/decisions/wayhome.md`・`mtsuku.md` の両方に足した（未実装と明記）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 中断（エラー）
 - ブランチ: work/VSH
 - ログ: https://github.com/retroeater/mj/blob/work/VSH/docs/logs/CHAT-1016-VSH-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/VSH
-- 確認用URL:
-- マージ:
-- issue:
+- 確認用URL: なし
+- マージ: 未（止まる条件に当たったため。work/VSH はログと決定の記録だけ）
+- issue: #578（起票、着手→中断のコメント済み、open のまま）
 - 判断が必要なこと:
+  - 新しいブック（ID `1f7dlNUoGm9tm5dPulWdyHPZ4f9GliqUX4WK2B3hnaGM`）の「共有」→「一般的なアクセス」を「リンクを知っている全員（閲覧者）」にする（平野さんの手作業。生成が gviz で読むため。ほかの生成用のブックと同じ）。設定のあと、続きの指示で手順1の比較から再開する
+  - 旧タブ（`scripts/lib/live.py` の `SPREADSHEET_ID` のブックの「帰り道」、`scripts/lib/mtsuku.py` の `SPREADSHEET_ID` のブックの「Mつく」）はまだ参照されているため、削除しない
+  - work/JBK との重なり（続きで実装するときに当たる）: `scripts/check_unused_names.py`（import 行と `page_names()`。Mつくの行そのものは変えていない）、`docs/notes/static-generation.md`（「ページの一覧」）
+  - チャット側の前提のずれ: ファイルは `lib/` でなく `scripts/lib/` にある（中身は前提どおり）
 - 未確認の項目:
-- エラー:
+  - 新旧のタブの一致（新しいブックが読めず未実施）
+  - work/1015-skr-pub と変える予定のファイルの行の重なり
+- エラー: 新しいブックの gviz の読み取りが HTTP 401（旧ブックは 200）。止まる条件「新しいブックが読めない」
 
 <!-- guide-links -->
 ---
