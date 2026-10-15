@@ -65,6 +65,53 @@ WFL-15 の `## 報告`「判断が必要なこと」への回答。いずれも 
 - WFL-15 のログの状態を「判断待ち / 続き: CHAT-1015-WFL-16」にし、`docs/decisions/automation.md` の WFL-15 の節の後に「## 2026-10-15（CHAT-1015-WFL-16）」を足した
 - `git merge --no-edit origin/cloudflare`（0f3788774）は衝突なし。取り込んだ `.github/` の変更は他セッションの新しいワークフロー `fetch-x-posts.yml` だけで、6 本・run-daily.yml・`.github/actions/` は変わっていない（`git diff 4ecdbbb93 HEAD -- <7本> .github/actions` が空）ので、作業ブランチの手動実行はやり直していない
 - `python3 -m unittest discover -s scripts/tests`: OK（取り込んだ fetch-x-posts.yml の表の行も含めて）。部品のテスト: 18 pass
+- 最初の push 直前の確かめで cloudflare が他セッションのコミット（3791f3741、CHAT-1015-MCK-07 のログ）で進んでいたので、もう一度 merge で取り込み（衝突なし。ログ1ファイルだけ）、unittest OK を確かめ、祖先を確かめて `git push origin work/1015-wfl-s6:cloudflare`（JST 12:54、3791f3741..ddd0fceec）
+- cloudflare の ddd0fceec: check-run「check」success、Actions の公開対象を検査する run #3628（38678687890）success（部品のテストを含む）。本番ビルドの失敗の通知は skipped×3。この時点で ddd0fceec に「Workers Builds: mj」の check-run は付いていなかった（14 件の check-run の中に無い。変更は `.github/`・docs・ログだけで、配信物は変えていない）
+
+### 手順3: cloudflare での run-daily の手動実行
+
+`scheduled` なし（入力なし）で起動した。run #1（38678691802、題「毎朝の運行」で `[scheduled]` は付いていない）、head ddd0fceec、**success**、所要 12分03秒（03:54:33Z〜04:06:36Z、JST 12:54:33〜13:06:36）。
+
+| ジョブ | 結論 | 開始（JST） | 終了（JST） |
+| --- | --- | --- | --- |
+| branches / delete | success | 12:54:37 | 12:54:53 |
+| dojo / sync | success | 12:54:36 | 12:55:03 |
+| live / update | success | 12:54:36 | 12:56:30 |
+| live / regenerate | skipped（apply が偽） | — | — |
+| live / yotei | success | 12:56:32 | 12:57:08 |
+| sns / update | success | 12:57:10 | 12:57:32 |
+| sns / regenerate | skipped（pages_changed が偽） | — | — |
+| images / check | success | 12:57:34 | 13:00:44 |
+| images / saikyo | success | 12:57:34 | 12:58:47 |
+| images / sns_book | success | 13:00:46 | 13:05:27 |
+| saikyo / abema | success | 13:05:29 | 13:05:58 |
+| saikyo / regenerate / regenerate | success | 13:06:00 | 13:06:35 |
+
+- `needs`・並行: live・dojo・branches が同時に始まり、sns は live の yotei の後、images は sns の後、saikyo は images（sns_book）の後に始まった。設計のとおり
+- 入れ子3段: run-daily → regenerate-saikyo → regenerate-page が通った（ジョブ名 `saikyo / regenerate / regenerate`）。`FILES: saikyo/`・`BRANCH: cloudflare` で「変更なし」（コミットなし。cloudflare に bot のコミットは入っていない）
+- `concurrency`: 詰まった・取り消されたジョブは無い。呼ばれる側のワークフロー全体の組（`update-live-channel`・`update-sns-book`・`sync-dojo-calendar`・`delete-merged-branches`・`regenerate-saikyo`）と run-daily の組 `run-daily`、regenerate-page の job の組 `regenerate-page-refs/heads/cloudflare` が同じ実行の中で詰まらずに動いた（WFL-14 の未確認の項目は解消）
+- 書かない道筋（各ジョブのログの該当行）:
+  - branches / delete: `INPUT_DRY_RUN: true`・`INPUT_SCHEDULED: false`・`DRY_RUN: true`（「未マージ（残す）: work/MTK …」などの一覧を出すだけ）
+  - live / yotei: `APPLY: false`・`SCHEDULED: false`・`CALENDAR_APPLY: false`（live / update は apply が偽で regenerate が skipped）
+  - sns / update: `mode: check / dry_run: true`（タブ・見出し・件数を読むだけ）
+  - saikyo / abema: `mode: dry_run`・「- 書いていません(dry-run)」
+  - saikyo / regenerate / regenerate: 「変更なし」
+  - dojo / sync・images の3つ: issue への書き込みなし（下）
+- 実行中（03:54Z 以降）の issue のコメントは他セッションの #569・#566 の2件だけで、bot（github-actions[bot]）の書き込みは無い。`/issues?since=` で更新された issue も #569・#566 だけ（#352・#534・#426 などは更新されていない）
+- cloudflare のコミット: ddd0fceec の後に run による bot のコミットは無い
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1015-wfl-s6（マージ済み。削除は delete-merged-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1015-WFL-16.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1015-wfl-s6
+- 確認用URL: なし
+- マージ: 済（ddd0fceec）
+- issue: #564（コメント）
+- 判断が必要なこと: なし
+- 未確認の項目: 段③-2 の書く道筋の初回（切り替えの翌朝 04:00 JST。日は段③-2 のマージで決まる）。ddd0fceec に「Workers Builds: mj」の check-run が付いていなかった（配信物を変えていないので影響は無い見込み。ここからは原因を確かめていない）
+- エラー: なし
 
 <!-- guide-links -->
 ---
