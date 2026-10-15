@@ -117,28 +117,46 @@
 - 未マージの work/ ブランチのうち docs/decisions/saikyo.md・docs/notes/saikyo-page-design.md・docs/notes/abema-book.md を変えるのは `origin/work/1015-skd-top` の saikyo-page-design.md だけ（57行・144行の後・239行付近）。saikyo.md は変えていない。今回直す saikyo-page-design.md の箇所（251〜253行・ABEMA の回が無い卓と OGP 画像）は別の箇所
 - docs/notes/abema-book.md には新しい回の流れの「未決」は無い（【1】は「平野さん〈PC のスクリプトの CSV を取り込む〉」とある）ため触らない
 
+### issue の操作（2026-10-15）
+
+- 起票: #573（A「最強戦の ABEMA の回と『最強戦』シートの対局の突き合わせ（片方にしか無い対局・卓）」、分野: データ・対象: saikyo）、#574（B「最強戦の読者アンケート（2026年11月〜）の新しいページを作る」、分野: UI/UX・対象: saikyo。期日 2026-10-20 を本文に書いた）
+- コメント（各末尾に Chat-Ref）: #428（決定1と `mj-saikyo-page` の確かめ）・#382・#383（決定2）・#458（決定3）・#546（決定5・6）・#549（公開の指示に入れること: 決定1・2・3・5・7・13 と SKD-21 までを含める旨）・#425（決定7・8、#573）・#566（決定13）・#372（決定10）・#469（決定11）・#442（決定12、#574）
+- ラベル（REST）: #546 から「状況: 待ち」、#442 から「状況: 保留」を外し、#372 に「状況: 保留」を付けた（いずれも 200。#372 は Content-Type を付けずに送った1回目が 415、付け直して 200）
+- 閉じた（MCP）: #546（not_planned）・#469（completed）
+- 本文と題は変えていない
+
+### docs
+
+- docs/decisions/saikyo.md: 末尾に `## 2026-10-15（CHAT-1015-SKR-01）` を足し決定1〜13を書いた。置き換わる行（2026-10-11 ABM-02 の grill 7・grill 8、2026-10-12 ABM-11 の回が無い卓のヒーロー、2026-10-13 ABM-19 の「流れは未決」・回が無い卓のヒーロー）の行末に「→ 置き換え: 2026-10-15（CHAT-1015-SKR-01）」を付けた。決定12が置き換える 2026-10-10（SKS-01・SKS-02）の #442 の保留とラベルの2行にも同じ印を付けた（指示の列挙には無いが、README の書き方に従った）
+- 決定8 は #425 の SKD-23（2026-10-15）の決定（PC の CSV を【1】に手で取り込む・検知は自動化しない、#572）と同じ趣旨のため、1行にまとめて書いた
+- docs/notes/saikyo-page-design.md: 回の無い卓のヒーロー（「試作。扱いは未決」）と OGP 画像の使い回しの2か所を「#549 の公開で ABEMA の作品の og:image に替える」に直した。docs/notes/abema-book.md は該当の記述が無く触らない
+- 取り込みの衝突の確かめ: `git merge-tree` で未マージの work/ ブランチと合わせると `origin/work/1015-skd-top` だけ docs/decisions/design-renewal.md で衝突する。origin/cloudflare と skd-top の間でも同じく衝突するため、今回の変更によるものではない（saikyo-page-design.md・saikyo.md は自動で合わさる）
+- 「未確認の項目」には指示の完了条件どおり #573・#574 と期日を書く（`_template.md` の「完了なら未確認はなし」より、指示の個別の指定に従った）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1015-skr
-- ログ: https://github.com/retroeater/mj/blob/work/1015-skr/docs/logs/CHAT-1015-SKR-01.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1015-SKR-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1015-skr
 - 確認用URL: なし
-- マージ: 未
-- issue: なし
+- マージ: 済（93ebace41）
+- issue: 起票 #573・#574、クローズ #546・#469、コメント #428・#382・#383・#458・#549・#425・#566・#372・#442
 - 判断が必要なこと: なし
-- 未確認の項目: なし
+- 未確認の項目:
+  - 新しい issue A は #573（期日なし）、B は #574（期日 2026-10-20: エントリーの確定を確かめて着手を決める）
+  - ABEMA の作品の og:image（`image.p-c2-x.abema-tv.com`）の HEAD は、セッションのプロキシが接続を拒否して確かめていない（#549 の公開の指示で確かめる）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj e15f9e25）: https://github.com/retroeater/mj-logs/tree/main/guide/e15f9e25
+ガイド文書（この版を写した時点の最新、mj 95d46b4d）: https://github.com/retroeater/mj-logs/tree/main/guide/95d46b4d
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e15f9e25/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e15f9e25/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e15f9e25/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e15f9e25/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e15f9e25/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e15f9e25/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/95d46b4d/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/95d46b4d/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/95d46b4d/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/95d46b4d/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/95d46b4d/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/95d46b4d/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/e0724da7.md
