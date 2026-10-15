@@ -138,17 +138,40 @@ Chat-Ref: CHAT-1015-MCK-14
 - 判定: 「ログ」の30件はすべて飲食店だが、2モデルとも 27件（90%）が「飲食店」、残りは「不明」など（どの投稿かは「比較」タブ）
 - 1件あたりの費用は「比べた30件」の平均。【1】の 809行は本文の長さが違うので、全件の費用は見込み
 
+### 4. 記録
+
+- #367 に結果をコメント: https://github.com/retroeater/mj/issues/367#issuecomment-6191990065（本文は変えていない）
+- CHAT-1015-MCK-12 のログの `## 報告` の状態の末尾に ` / 続き: CHAT-1015-MCK-14` を足した
+- 決定を docs/decisions/operations.md（MCK-08・10 の #367 の決定と同じファイル）に足した
+
 ## 報告
+
+- 状態: 判断待ち（変換のスクリプトとワークフローをマージし、「ログ」の30件で Haiku と Sonnet を比べた。全件に使うモデルと Places の鍵は平野さん）
+- ブランチ: work/1015-mck-367-conv
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1015-MCK-14.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1015-mck-367-conv
+- 確認用URL: なし
+- マージ: 済（08943b5e9。この報告は後の docs/logs・docs/decisions のみの追いの push）
+- issue: #367（着手中のコメントと結果のコメント）
+- 判断が必要なこと:
+  - 全件に使うモデルの案: **claude-sonnet-5-5**。理由: 店名の完全一致 80%（Haiku 66%）と駅 90%（Haiku 73%）が高く、店名は Places で店を探す手がかりになるため。【1】全件 809行で見込み約 $2.56（Haiku は約 $0.13）。カテゴリは Haiku が少し高い（76% 対 70%）が、新しい案と同じく「カテゴリ案」タブで平野さんがまとめる前提なので差は小さい。費用を最小にするなら Haiku でも店名は部分一致まで 83% 取れる
+  - `GOOGLE_PLACES_API_KEY` の登録（決定どおり、シートのサービスアカウントと同じ GCP プロジェクトで作り、Places API (New) だけに制限）。登録まで、店URL は空で、駅は本文から読んだ駅になる。登録後に比較をもう一度（Claude 約 $0.10、X 約 $0.15）動かすと、Places を含めた駅・店名の一致を測れる
+  - 全件の変換（`mode=all`）の Claude の費用の上限。今の定数は1回の実行で $3（比べる分の決定の値を流用）。Sonnet で 809行なら見込み約 $2.56 で収まる
+  - 判定: 「ログ」の30件（すべて飲食店）のうち、2モデルとも 3件を「飲食店」にしなかった（「比較」タブで見られる）。全件では「不明」が要確認になる
+- 未確認の項目:
+  - Claude API の実際の請求額（今回 $0.0997 は使用量からの計算。Claude Console で見る）。X の今回の 30件（見込み $0.150）の請求
+  - Places API の料金の段と無料の枠（Text Search・Nearby Search で返す項目による。Places を呼んでいないので未確認）
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 08943b5e）: https://github.com/retroeater/mj-logs/tree/main/guide/08943b5e
+ガイド文書（この版を写した時点の最新、mj e2355cd7）: https://github.com/retroeater/mj-logs/tree/main/guide/e2355cd7
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/08943b5e/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/08943b5e/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/08943b5e/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/08943b5e/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/08943b5e/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/08943b5e/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2355cd7/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2355cd7/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2355cd7/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2355cd7/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2355cd7/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2355cd7/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/95d46b4d.md

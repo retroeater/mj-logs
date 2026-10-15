@@ -65,6 +65,39 @@ Mつく（MTK 系列、#569・#570）の振り返りで出た知見のうち、�
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてあり。0.「指示」欄の末尾は指示文の最後の行と一致
 - ガイド文に規則を足す指示で、「知見 → 層 → 理由」の表はある
 
+### 手順1 A・B（db08a7c）
+
+- 見分ける材料: SNS ブック【3】に「X」（取ったときの ID）と「X状態」がある。実物の【3】の X状態は 解決 1,053・未入力 779・既定のアイコン 12・アカウントなし(確認済み) 3。
+  【2】に X ID がある人で【3】の行が無い・ID が違う人は今は 0（七瀬美希・設楽遙斗は 解決、2026-10-15 取得）
+- 「まだ取っていない」の判定（`lib/sns.is_x_pending()`・`x_pending()`）: 【3】に行が無い／【3】の X が【2】の X と違う（ID を足した・変えた）／X状態が 未入力・未取得・上限で未取得・未取得(トークンなし)。
+  `fetch_pros()` は状態を返さないので広げず、写真の URL が空のときだけ別に引く形にした（`lib/wayhome.photo_problems()` の `pending`）
+- `photo_problems()`: 写真の URL が空で pending なら止めず warn（「SNS ブックがX ID … の写真をまだ取っていません。代わりの絵で出します」）、pending でなければ今までどおり理由。URL があって HEAD が 200 でなければ pending でも止める。
+  帰り道・Mつくとも共有のこの関数1か所。代わりの絵: ヒーロー（`build_player_links_html()`）は `/img/avatar.svg`（ルート相対の定数 `AVATAR_URL`）、Mつくの指名選手のカードは既存の `AVATAR_FALLBACK`。どちらも X へのリンクは残す
+- 文面（B）: 帰り道は「選手名(動画ID・動画ID)」（`wayhome.photo_places()`、生成・`--check` の両方）。Mつくは「名前(動画ID「列名」・…)」（`mtsuku.person_places()`、`Person` に列名 `header` を足した）を写真の理由・警告と登録が無い人の理由に入れる。
+  再生時間・サムネイル・空欄の理由には既に動画ID（空欄は列名も）があった
+- テスト: 新しく 13件（未取得で止まらない・警告に動画ID、404 は未取得でも止まる、取った結果で写真が無い人は止まる、ヒーローの代わりの絵、`photo_places`、`is_x_pending` の各状態・`x_pending` の「一覧に無い」行、Mつくの理由に動画IDと列名、指名選手のカードの代わりの絵）。
+  既存の「写真の URL が無いと止まる」2件は `pending=lambda name: False` を渡す形にした（そのままでは実物の SNS ブックを読みに行く）
+- 修正前のコード（origin/cloudflare の scripts）で新しいテストを回すと 15件が失敗（ERROR 14・FAIL 1）。修正後は全件 OK（1,193件）
+- `regenerate.py --check video_wayhome wayhome_episodes mtsuku mtsuku_episodes`: 4ページとも通る（警告はタマシュ・エルドスの既知1件）
+- `regenerate.py video_wayhome wayhome_episodes mtsuku mtsuku_episodes`: 生成物の差分なし（`git status` に出たのは scripts のみ）。最強戦・/live は変えた関数を使わない（`lib/sns.py` は関数を足しただけ）
+
+### 手順2 文書（ec2a7874）
+
+- C: `docs/instruction-template.md` の箇条書きに1行（「新しいページ・メニューを作る指示に公開…」の前）。同じ趣旨の記述は無かった。13,942 → 14,274 バイト（警告域 14,336 未満）
+- D: **`docs/notes/chat-side-operations.md` ではなく `docs/notes/static-generation.md`「平野さんがシートを用意した・直したと言ったときのチャット側の指示」に1行で足した。**
+  同じ場面（シートのタブを直したと言われたとき）の手順が既にそこにあり（2026-10-13 に chat-side-operations.md「書く前に実物で確かめる」から移されたもの）、chat-side-operations.md は「場面ごとに読む文書」の表と `docs/notes/chat-routines.md`「指示の種類ごとの確かめ」の行（「平野さんがシート（タブ）を用意した・直したと言ったとき」）から、そこへ案内している。
+  chat-side-operations.md の冒頭の規則（場面限定の手順は表の文書へ）と、前提の「書き場所は実物に合わせて変えてよい」に従った。chat-side-operations.md は変えていない（22,203 → 22,203 バイト、移したもの なし）
+- B の規則: `docs/notes/static-generation.md`「生成を止める条件の設計」の箇条書きの後に1行
+- 決定: `docs/decisions/wayhome.md`・`docs/decisions/mtsuku.md` に同じ決定（互いを参照）
+- `docs/notes/video-wayhome.md`「写真は代わりの画像に逃がさず…」に例外を追記、`docs/notes/video-mtsuku.md` の写真の行も同じに直した
+
+### 確かめ
+
+- 未マージの work/: `photo_problems()`・instruction-template.md・chat-side-operations.md・この変更のほかのファイルを変えるブランチは無い。static-generation.md は work/JBK・work/1015-skr-pub が変えているが、`git merge-tree` で衝突なし
+- `python3 -m unittest discover -s scripts/tests`: OK。`regenerate.py --check all`: 23ページすべて通る。警告3件は既知（ask_data・live_pages の【3】手動補正835件、wayhome_episodes のタマシュ・エルドス）
+- 容量: CLAUDE.md 23,651・handover.md 23,126・chat-side-operations.md 22,203・instruction-template.md 14,274 バイト（どれも警告域未満）
+- 差分の種類: スクリプト（`lib/sns.py`・`lib/wayhome.py`・`lib/mtsuku.py`・生成3本）、テスト3本、文書（instruction-template・static-generation・video-wayhome・video-mtsuku・decisions 2本）、ログ。生成物なし
+
 ## 報告
 
 - 状態: 作業中
@@ -81,12 +114,12 @@ Mつく（MTK 系列、#569・#570）の振り返りで出た知見のうち、�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj f6b567c4）: https://github.com/retroeater/mj-logs/tree/main/guide/f6b567c4
+ガイド文書（この版を写した時点の最新、mj e2355cd7）: https://github.com/retroeater/mj-logs/tree/main/guide/e2355cd7
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f6b567c4/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f6b567c4/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f6b567c4/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f6b567c4/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f6b567c4/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f6b567c4/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2355cd7/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2355cd7/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2355cd7/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2355cd7/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2355cd7/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2355cd7/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/95d46b4d.md
