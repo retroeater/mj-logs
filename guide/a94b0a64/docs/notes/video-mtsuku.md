@@ -1,7 +1,8 @@
 # Mつく（一覧 mtsuku/index.html・各話 mtsuku/）の実装記録
 
 YouTube チャンネル「麻雀遊戯王」の企画「Mリーグチームを作ろう！」の一覧と各話。帰り道（`docs/notes/video-wayhome.md`）と同じ仕様・デザインで作った（#569、2026-10-14・10-15）。
-**noindex・メニュー未掲載。公開は #570。** 旧 `video_mtsuku.html`（型Aの3列の表、`generate_video_mtsuku.py`）は残している。
+**2026-10-15 に公開した（#570）。** navbar の「動画」の「Mつく」・`sitemap-mtsuku.xml`（`sitemap.xml` から参照）・`llms.txt` に載る。旧 `video_mtsuku.html`（型Aの3列の表）と旧生成 `generate_video_mtsuku.py` は消し、`/video_mtsuku.html` は `/mtsuku/` へ 301。
+公開後の確かめ（2026-10-15）: 平野さんが実機・LINE と X のカード・Search Console（`sitemap.xml` の再送信と `/mtsuku/` のインデックス登録のリクエスト）を確かめ、#570 をクローズした。
 
 ## 構成
 
@@ -12,13 +13,14 @@ YouTube チャンネル「麻雀遊戯王」の企画「Mリーグチームを�
   再生時間は「再生時間」列（「m:ss」の文字か時刻の値。**空・「-」の回、1分未満・1時間以上〈読み違いとみなす〉の回があれば止める**。週次の all では #533 の扱いで Mつくの2ページを飛ばしてジョブが失敗になる）、
   サムネイルは生成のときに `img.youtube.com` へ HEAD（ヒーローは maxres → sd → hq の最初に読めるもの、カードは mq。どれも読めなければ止める）
 - 写真: 作る人と指名選手を、名前を「別名」で現在名に直して「プロ」「連盟プロ以外」から引く（`resolve_people()`。名前の辞書の読み方は最強戦・/live と共通の `lib/name_book.py` の `load()`）。
-  **登録が無い人、X ID があって写真が読めない・写真の URL が無い・既定の卵型の人がいれば、全員を一覧にして生成を止める**（帰り道と同じく代わりの画像に逃がさない）。
-  X ID が無い人は止めず、ヒーローでは名前だけ、指名選手のカードでは代わりの絵（`img/avatar.svg`）
+  **登録が無い人、X ID があって写真が読めない・写真の URL が無い・既定の卵型の人がいれば、全員を一覧にして生成を止める**（帰り道と同じく代わりの画像に逃がさない。理由には動画IDと列名〈「名前」「名前1」〜「名前4」〉）。
+  X ID が無い人は止めず、ヒーローでは名前だけ、指名選手のカードでは代わりの絵（`img/avatar.svg`）。SNS ブックがまだ写真を取っていない人（`lib/sns.x_pending()`、帰り道と同じ例外、2026-10-15）も止めず、警告してヒーロー・カードとも代わりの絵（X へのリンクは付ける）
 - 生成: 一覧 `scripts/generate_mtsuku.py`（ページ名 `mtsuku`、出力 `mtsuku/index.html`）、各話 `scripts/generate_mtsuku_episodes.py`（`mtsuku_episodes`、`mtsuku/`。シートに無い動画IDのファイルを消す。`index.html` は除く）。
   どちらも読み方と止める範囲は `lib/mtsuku.py` の `prepare()`。止まる理由を全部見るのは `python3 scripts/regenerate.py --check mtsuku mtsuku_episodes`（各スクリプトの `--check`）
 - 共有: サムネイル・再生時間・カードのサムネイル・Xの写真の確かめ・固定の検索バー・戻る矢印は `lib/wayhome.py` の関数。JS は帰り道と同じ `video_wayhome.js`（一覧）・`wayhome_episodes.js`（各話）。
   指名選手のカードは最強戦の写真カード（`.mj-saikyo-players`・`.mj-live-players`・`.mj-saikyo-card`）、「N巡目」の札は `style.css` の `.mj-mtsuku-round`（title/ の決勝ライブの札と同じ置き方）
-- 転送: `_redirects` に `/mtsuku  /mtsuku/  301`・`/mtsuku/  /mtsuku/index.html  200`。`assets-check.yml` の許可リストに `mtsuku`
+- 転送: `_redirects` に `/video_mtsuku.html  /mtsuku/  301`・`/mtsuku  /mtsuku/  301`・`/mtsuku/  /mtsuku/index.html  200`。`assets-check.yml` の許可リストに `mtsuku`
+- サイトマップ: 各話の生成が `sitemap-mtsuku.xml`（一覧が先頭、続いて各話）を書く。新しい URL の lastmod は当日、既にある URL は残し、`update_sitemap_lastmod.py --from-git` が最終コミット日にそろえる（帰り道と同じ）
 - 登録漏れの知らせ: 毎週の `check_saikyo_unregistered.py`（常設 issue「最強戦の出場者の登録漏れ」）に「Mつく」の節。登録が無い人（生成が止まる）と X ID が無い人を分けて出す。
   SNS ブックの【2】の X が「-」（アカウントが無いと確かめ済み）の人は出さない（`lib/sns.py` の `x_marked_none()`）。X ID が無い人が残っている間は issue は閉じない。「使われていない登録」の検査（`check_unused_names.py`）も Mつくの名前を利用先として数える
 - テストは `scripts/tests/test_mtsuku.py`
