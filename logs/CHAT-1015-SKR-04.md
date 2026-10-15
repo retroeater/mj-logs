@@ -70,28 +70,50 @@ https://ryoei.pro/saikyo/
 
 ## 経過
 
+### 着手前の確認
+
+- 指示欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある
+- `git log --all --grep=CHAT-1015-SKR-04` は0件。`origin/work/1015-skr-vid`・ローカルとも無いため `git checkout -b work/1015-skr-vid origin/cloudflare`（82bde6810）
+- 未マージの work/ ブランチで `scripts/promo_video/` を変えるのは `origin/work/1015-hou5`（`scripts/promo_video/houou/` の6ファイルを足す）。今回作る予定の `scripts/promo_video/saikyo/` とは別のファイル
+
+### 手順1 の確かめ（2026-10-15）
+
+- `work/1015-skr-pub` の HEAD は 8ab674ba5（ログだけのコミットで check-run は付いていない）。その前のコード・生成物のコミット b5276d6ab の「Workers Builds: mj」は success（CHAT-1015-SKR-02）
+- プレビューの別名に `?v=8ab674ba5` を付けて開けた: `/saikyo/2025.html` → 301 `/saikyo/2025/`、`/saikyo/2026/20261004-s1-a.html` → 200 で、ヒーローの画像が ABEMA の作品の画像（`series/68-38`）。CHAT-1015-SKR-02 の印が出ている
+- **ABEMA の画像: 取得できない。** `image.p-c2-x.abema-tv.com` への接続をセッションのプロキシが拒否した（`curl: (56) CONNECT tunnel failed, response 403`。プロキシの状態の `recentRelayFailures` に `connect_rejected`・`host: image.p-c2-x.abema-tv.com:443`、作品の画像 `series/68-38/thumb.png` と回のサムネイル `programs/68-38_s25_p1/thumb001.png` の両方）。CHAT-1015-SKR-01・SKR-02 と同じ
+- X の写真（`pbs.twimg.com`）: 取得できる（`work/1015-skr-pub` の `saikyo/2025/20251214-s1.html` の写真の URL で 200・`image/jpeg`）
+- 年度: `work/1015-skr-pub` の `saikyo/<年度>/` は 2011〜2026 の16年度。場面1「全16年度」・場面6「2011〜2026年」は実物と合う
+- 場面4 の候補: 桑田憲汰の卓は 2025 決勝（`2025/20251214-s1`、1位 優勝）・2025 ファイナル 2nd Stage ベスト8 B卓（`2025/20251214-2-s1-b`）など。どちらも ABEMA の回がある（`mj-saikyo-hero-link` あり）。ただし上のとおり、このセッションからはサムネイルが写らない
+
+### 止まった理由
+
+- 止まる条件「ABEMA の画像の取得がプロキシに拒否される（ヒーローのサムネイルが写らない動画は作らない）」に当たった。動画・制作のスクリプトは作っていない（`scripts/promo_video/saikyo/` も未作成）
+- 直し方: 平野さんが、このクラウド環境（`Claude-iPhone`）の設定（セッションの題名の横の環境のメニュー → Edit）の Network access で、Allowed domains に `image.p-c2-x.abema-tv.com` を足す（「Allow package managers」はチェックのまま）。手順は https://code.claude.com/docs/en/cloud-environments#network-access 。足した後は同じ内容の指示を新しい Chat-Ref で貼れば、手順1から進められる（このセッションに足しても効くかは未確認。新しいセッションの方が確実）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1015-skr-vid
 - ログ: https://github.com/retroeater/mj/blob/work/1015-skr-vid/docs/logs/CHAT-1015-SKR-04.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1015-skr-vid
 - 確認用URL: なし
-- マージ: 未
+- マージ: 未（判断待ち）
 - issue: なし
-- 判断が必要なこと: なし
-- 未確認の項目: なし
-- エラー: なし
+- 判断が必要なこと:
+  - ABEMA の画像サーバ `image.p-c2-x.abema-tv.com` への接続をセッションのプロキシが拒否するため、止まる条件のとおり動画を作らずに止まった。環境の Network access の Allowed domains に `image.p-c2-x.abema-tv.com` を足すか（足したら新しい Chat-Ref で同じ指示を貼る）、ほかの撮り方にするか
+- 未確認の項目:
+  - 告知動画の初版（作っていない）
+- エラー: `image.p-c2-x.abema-tv.com:443` への CONNECT がプロキシで 403（connect_rejected）
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 82bde681）: https://github.com/retroeater/mj-logs/tree/main/guide/82bde681
+ガイド文書（この版を写した時点の最新、mj f003b3c7）: https://github.com/retroeater/mj-logs/tree/main/guide/f003b3c7
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/82bde681/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/82bde681/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/82bde681/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/82bde681/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/82bde681/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/82bde681/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f003b3c7/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f003b3c7/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f003b3c7/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f003b3c7/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f003b3c7/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f003b3c7/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/82bde681.md
