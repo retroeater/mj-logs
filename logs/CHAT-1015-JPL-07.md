@@ -128,28 +128,26 @@ Actions の実行（API の workflow runs）:
 
 ## 報告
 
-- 状態: 判断待ち / 続き: CHAT-1015-JPL-08
+- 状態: 完了 / 続き: CHAT-1015-JPL-08
 - ブランチ: work/1015-jpl
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1015-JPL-07.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1015-jpl
 - 確認用URL: なし
 - マージ: 済（5d6279471）
 - issue: #523（結果のコメントと、本文の「残り」に1行）
-- 判断が必要なこと:
-  - video_mtsuku の再生成が止まっている（「Mつく」シートの O 列が無い、`NO_COLUMN: O`）。#523 とは無関係で、次の再生成でも同じく飛ばされ、ジョブは失敗し続ける（ページは今の版のまま）。案: (a) 平野さんが「Mつく」シートの O 列（掲載の Y）を確かめて戻す: コードの変更なし / シートを見る手作業が要る。(b) 列が意図して消えたなら、クエリの `WHERE O = "Y"` を外すか列の位置を直す（コード）: 列の意味の確認が先に要る。推奨は (a) を先に確かめること（10-14 06:35 UTC まで通っていたので、シート側の一時的な変化の可能性が高い）。扱う issue が無いので、起票するか朝の報告で追うかも決めてほしい
-  - 「mj_放送対局」の WRC 2大会の仮の予定（8件）の件名が旧名のまま。案: (a) `live_calendar.build_desired()` の仮の予定の件名を `taikai_names.current_title()` に通す（コード1行とテスト。【2】のシートは変えない）: 予定の件名が新名にそろう / 連盟の予定表の書き方とずれる。(b) `yotei.EVENTS` の名前と件名の両方を新名にする: 【2】の「大会」列もそろう / テスト4本の変更と、【2】の値が変わるので影響が広い。(c) そのまま（枠が出れば新名の予定に置き換わる）: 手間なし / 12月〜2月まで旧名の予定が見える。推奨は (a)（表示を新名にする 10-14 の決定に合い、変更が小さい）。#523 の「残り」に足した
+- 判断が必要なこと: なし（video_mtsuku は MTK で対応、カレンダーの件名は CHAT-1015-JPL-08・09 で扱った）
 - 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj f0aad707）: https://github.com/retroeater/mj-logs/tree/main/guide/f0aad707
+ガイド文書（この版を写した時点の最新、mj 281628d5）: https://github.com/retroeater/mj-logs/tree/main/guide/281628d5
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f0aad707/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f0aad707/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f0aad707/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f0aad707/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f0aad707/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f0aad707/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/d12b1f2e.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/281628d5/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/281628d5/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/281628d5/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/281628d5/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/281628d5/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/281628d5/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/66464371.md

@@ -140,33 +140,26 @@ headless Chromium（`/opt/pw-browsers/chromium-1194`、`--dump-dom`、`?v=jpl08a
 
 ## 報告
 
-- 状態: 判断待ち / 続き: CHAT-1015-JPL-09
+- 状態: 完了 / 続き: CHAT-1015-JPL-09
 - ブランチ: work/1015-jpl
 - ログ: https://github.com/retroeater/mj/blob/work/1015-jpl/docs/logs/CHAT-1015-JPL-08.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1015-jpl
 - 確認用URL: プレビューあり（URL は最終報告）。確かめたのは title/jwrc/・title/jwrc/19.html・title/jwrc-r/・title/jwrc-r/7.html・live/jwrc-r/1/f.html・wayhome/0OPca1Bl5xk.html・rh_results_detail.html・video_live.html・index.html・wrc_ranking.html・wrc_results.html。この版で見える印: 成績詳細（rh_results_detail.html）の大会の列が「WRC-Rリーグ」
 - マージ: 未（平野さんの判断待ち）
 - issue: #523（結果のコメント。Open のまま）
-- 判断が必要なこと:
-  - マージしてよいか。差分は旧名→新名の置き換えだけ（生成物 22ファイル、コード・手書き）。マージ後の最初の毎朝の実行で、予定表【2】257行・/live の【2】402行の大会名と、mj_放送対局 の今後の仮の予定 8件の件名が新名に書き換わる（見積もり）。
-    なお、マージの push で全ページの再生成が動き、video_mtsuku が「Mつく」シートの件で飛ばされてジョブが失敗表示になる（MTK の対応が済むまで。この変更とは無関係）
-  - 見てもらうページ（確認用 URL からの相対パス）: `title/jwrc/`・`title/jwrc/19.html`・`title/jwrc-r/`・`title/jwrc-r/7.html`・`live/jwrc-r/1/f.html`・`wayhome/0OPca1Bl5xk.html`・`rh_results_detail.html`・`video_live.html`・`index.html`（ポートフォリオの第3期WRC-Rリーグ）・`wrc_ranking.html`・`wrc_results.html`
-  - WRC（リーチ麻雀世界選手権）と紛れるため置き換えなかった箇所（「JPML WRC」単独の略記）: `wrc_ranking.html` の `<title>`・og:title「ランキング | JPML WRC | ryoei.pro」、`wrc_results.html` の `<title>`・og:title「成績詳細 | JPML WRC | ryoei.pro」と h1「JPML WRC 成績詳細」、`scripts/apply_page_meta.py` の同じ2つの文言とコメント「# ---- JPML WRC ----」。
-    案: 「WRCリーグ」にする（例「ランキング | WRCリーグ | ryoei.pro」）/「JPML WRC」のまま。文言は平野さんの判断
-- 未確認の項目:
-  - プレビューの見え方の目視（DOM の文字だけを確かめた）
-  - マージした場合、最初の毎朝の実行で予定表【2】・/live の【2】・カレンダーが見積もりどおりに変わるか、常設 issue「予定表の変化」（#481）に知らせが出るか
+- 判断が必要なこと: なし（マージの可否と略記の文言は CHAT-1015-JPL-09 で扱った）
+- 未確認の項目: なし（CHAT-1015-JPL-09 の未確認の項目に移した）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 1b7c188b）: https://github.com/retroeater/mj-logs/tree/main/guide/1b7c188b
+ガイド文書（この版を写した時点の最新、mj 281628d5）: https://github.com/retroeater/mj-logs/tree/main/guide/281628d5
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/1b7c188b/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/1b7c188b/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/1b7c188b/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/1b7c188b/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/1b7c188b/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/1b7c188b/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/281628d5/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/281628d5/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/281628d5/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/281628d5/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/281628d5/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/281628d5/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/66464371.md
