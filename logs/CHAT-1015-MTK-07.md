@@ -51,29 +51,69 @@ CHAT-1015-MTK-04・MTK-06 で止まった原因（「プロ」「連盟プロ以
 
 - 同じ Chat-Ref のコミットなし。work/MTK はローカル・リモートとも 1c5f7b1
 - 雛形の行はすべてあり（貼られた文では改行が詰まっていた）。0.「指示」欄の末尾は指示文の最後の行と一致。MTK-06 のログの状態に「 / 続き: CHAT-1015-MTK-07」を足した
+- `git merge origin/cloudflare`（ad09434、衝突なし）。テスト 全体 OK
+
+### 手順1 --check
+
+`python3 scripts/regenerate.py --check mtsuku mtsuku_episodes`: 2ページとも「通りました（61回）」。止まる理由・警告なし（「Mつく」タブ 61行）。
+生成は X の ID が無い人を止めないので警告に出さない。`check_saikyo_unregistered.collect_mtsuku()` で数えた結果: 作る人と指名選手132名のうち、登録が無い 0名・重複などで使われない 0名・**X の ID が無い 13名**:
+設楽遙斗（最高位戦）・三原孝博（連合）・高橋良介（連盟）・平賀聡彦（最高位戦）・七瀬美希（協会）・荒正義（連盟）・坂本大志（最高位戦）・灘麻太郎（連盟）・ケネス徳田（連盟）・金子正輝（最高位戦）・佐藤聖誠（最高位戦）・森山茂和（連盟）・西島一彦（連盟）。
+足した3名（七瀬美希・設楽遙斗・佐藤聖誠）は「連盟プロ以外」から引けるが、SNS ブックにまだ X の ID が無いため写真なし（指名選手のカードは代わりの絵）。止まる理由ではない
+
+### 手順2 生成（e50d804）
+
+- `python3 scripts/regenerate.py mtsuku mtsuku_episodes`: `mtsuku/index.html` と各話61枚（62ファイル）を作り直した。差分は `mtsuku/` だけ
+- `regenerate.py video_wayhome wayhome_episodes title_pages saikyo_pages`: `wayhome/`・`title/`・`saikyo/`・サイトマップの差分0
+
+### 手順3 確かめ
+
+headless Chromium（ローカルの `http.server`）で 375×812・1366×900・1920×1080。見たページ: 一覧・最新話 ZeFtFG2ov_Q・最古の回 nLeGJz-nt-E・チーム名の無い回 vSduV7-kLls・連盟以外の作る人の回 6vXHmiBj--c（竹内元太、最高位戦）・足した3名のいる回 VokQ75dRDe4（仲林圭、4巡目 七瀬美希）・dOi0lO1Q_oI（金子正輝、3巡目 佐藤聖誠）・6vXHmiBj--c（2巡目 設楽遙斗）・松ヶ瀬隆弥の回 ElS68JMR6hU。
+
+- 全ページ・全幅で JS のエラー・横スクロール・読めない画像なし
+- 見出し（h1）は作る人の名前だけ（和泉由希子・園田賢・滝沢和典・竹内元太・仲林圭・金子正輝・松ヶ瀬隆弥）。連盟以外の作る人（竹内元太・松ヶ瀬隆弥）も写真が出る。X の ID が無い作る人（金子正輝）は名前だけ
+- 日付の行は「公開日・「チーム名」・再生時間」（チーム名の無い滝沢和典の回は「公開日・再生時間」）
+- 指名選手: 「1巡目」〜「4巡目」の札が写真の左上に出る（3人の回〈園田賢〉は3巡目まで）。PC は4人横1列、375px は2×2。代わりの絵（`img/avatar.svg`）は X の ID が無い人だけ: 坂本大志・設楽遙斗・七瀬美希・平賀聡彦・佐藤聖誠（どの回でも名前は絵の下端に出る）
+- 松ヶ瀬隆弥の回: 見出し「松ヶ瀬隆弥」と写真、「松ヶ瀬隆弥の他のエピソード（1件）」。59行目を直した多井隆晴の回（CtDQ5NjWSN0）の3巡目は「松ヶ瀬隆弥」で写真あり
+- 一覧: ヒーローは最新話の和泉由希子、総再生時間「約12時間19分」、`?name=` は MTK-01 と同じく効く
+
+### プレビュー
+
+- e50d804 の「Workers Builds: mj」success・「公開対象を検査する」success。プレビューで `/mtsuku` → 301、`/mtsuku/`・ZeFtFG2ov_Q・vSduV7-kLls・6vXHmiBj--c・dOi0lO1Q_oI が 200 で noindex あり、各話に「N巡目」の札。dOi0lO1Q_oI は手元の生成物と同じバイト。`/video_mtsuku.html` は 200（旧のまま）
 
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち（平野さんがプレビューで見て、マージと仮置きを決める）
 - ブランチ: work/MTK
 - ログ: https://github.com/retroeater/mj/blob/work/MTK/docs/logs/CHAT-1015-MTK-07.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/MTK
-- 確認用URL: なし
-- マージ: 未
-- issue: #569
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 確認用URL: プレビューあり（URL は最終報告。一覧・最新話・チーム名の無い回・連盟以外の作る人の回・足した3名のいる回）。この版で見える印: 各話の「指名選手」の写真の左上に「1巡目」〜「4巡目」
+- マージ: 未（判断待ち）
+- issue: #569（生成とプレビューをコメント）
+- 判断が必要なこと:
+  - プレビューで見て、マージするかを決める
+  - MTK-04 の仮置き1〜7（そのまま写す）:
+    - 仮置き1 公開日: シートの日付の 00:00 JST（`uploadDate` は「2025-07-22T00:00:00+09:00」）。ほかの案: 日付だけの形
+    - 仮置き2 総再生時間: 全回の再生時間がそろったときだけ出す（今は61回そろっていて出る）。ほかの案: そろった回だけで出す
+    - 仮置き3 `<title>`・og:title・前後のリンク・`VideoObject.name` は「「チーム名」 作る人」のまま（同じ作る人の回が11名に2回ずつある）。見出し（h1）だけ作る人
+    - 仮置き4 指名選手の節の位置は前後のエピソードの下・「〇〇の他のエピソード」の上。カードは X ID がある人だけ X へのリンク（最強戦と同じ）、名前は現在名、団体は alt にだけ出す
+    - 仮置き5 「N巡目」の札の色・大きさは title/ の決勝ライブの札と同じ（黒 75%・白字・0.875rem）
+    - 仮置き6 常設 issue「最強戦の出場者の登録漏れ」の「Mつく」の節に、X ID が無い人も出す。10名が残る間 issue は閉じない（閉じたいなら、X ID が無い人を節から外すか別の issue にする）
+    - 仮置き7 名前の辞書の読み込み（`load_name_book()`）は `generate_saikyo_pages.py`・`generate_live_pages.py` と同じ処理の3つ目の写しを `lib/mtsuku.py` に置いた（最強戦のファイルを変える未マージのブランチがあるため共通化しなかった）
+  - X の ID が無い人は今は13名（MTK-04 の10名に、足した3名〈設楽遙斗・七瀬美希・佐藤聖誠〉が加わった）。SNS ブックの毎日の更新・【2】の ID の入力で写真が出るようになる
+  - この指示で仮置きしたこと: なし
+- 未確認の項目:
+  - 足した3名が SNS ブックに載った後（毎日の更新、04:10 JST）の写真（X の ID が入れば、次の再生成で出る）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 281628d5）: https://github.com/retroeater/mj-logs/tree/main/guide/281628d5
+ガイド文書（この版を写した時点の最新、mj ddd0fcee）: https://github.com/retroeater/mj-logs/tree/main/guide/ddd0fcee
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/281628d5/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/281628d5/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/281628d5/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/281628d5/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/281628d5/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/281628d5/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ddd0fcee/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ddd0fcee/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ddd0fcee/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ddd0fcee/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ddd0fcee/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/ddd0fcee/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/66464371.md
