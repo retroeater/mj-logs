@@ -69,28 +69,66 @@ CHAT-1015-HOU-43 の「判断が必要なこと」への平野さんの回答と
 - 2026-10-15 着手。HOU-43 と同じセッションで続けた。`CHAT-1015-HOU-44` のコミットは無し。`origin/work/1015-hou2` はリモートにありローカルと一致（a958eb87d）
 - 0. 指示欄の末尾は指示文の最後の行と一致。HOU-43 のログの `## 報告` の状態は「判断待ち（最高到達の置き場の選択と、見た目・動きのプレビューの確かめ）」。冒頭の雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
 
+### 手順1 着手の確かめ
+
+- #518・#540 に他のセッションの着手中のコメントは無い（あるのはこのセッションの HOU-43 のもの）。#518 に着手中のコメントを書いた
+- `origin/cloudflare` を merge で取り込んだ（衝突なし。houou/ と無関係の `scripts/fetch_x_posts.py` など）
+- 未マージの work/ ブランチのうち手順1のファイルに触れるのは `origin/work/1015-skd-top`（`style.css` の 2090・2097行あたり、最強戦の節）と `origin/work/MTK`（`style.css` の 1504行あたり、動画の節）だけ。houou/ の節とは別の箇所。止まらない
+- HOU-43 のログの状態の末尾に ` / 続き: CHAT-1015-HOU-44` を足した
+
+### 手順2 実装
+
+- 名前の面（`assets/houou.js` の `renderPlayer()`）: 名前の下の期間の行をやめ、名前とチップの下に「最高到達 ○○」（`bestLeague()`。無ければ出さない）と「出場 ○期（○節）」（成績 JSON の `divisions.seasons`・`sections`）を、期間の行と同じ `.mj-houou-player-span`（13px 灰色）で出す。期間にだけ使っていた `latestTerm()` を消した
+- 部門別: 上の行（`.mj-houou-div-head`）と注記（`.mj-houou-div-note`）を JS・CSS から消し、ページの `houou_divisions` から注記を外した（`division_table()`）。順位欄は、規定に届いていてランク外なら空欄（規定未達は今のまま）
+- 比較ページ: `render_best_compare()` と関係の定数・`outputs()` の行を消し、`houou/compare-best/index.html` を消した（生成は古いページを消さないので `git rm`）
+- 再生を押したときのページの送り（`bringIntoView()`）: 名前の面が1行高くなり、375×667 で写真の上端を基準にすると送り足りず、白鳥翔・平野良栄で山が生える間にアイコンが画面の下の外（y 668〜673）に出た。基準を写真の中心に変えた（送りは 216 → 228px。送った後は写真の上端が画面の上へ 4px 出るが、中心は見えている）
+- テストは変えていない（`python3 -m unittest discover -s scripts/tests`: OK）
+- `python3 scripts/regenerate.py houou_pages` の差分: `houou/players/index.html` の `houou_divisions` から注記が消えただけ、`houou/compare-best/index.html` の削除。成績 JSON（9部門の値・順位を含む）は変わっていない。houou/ の外・navbar・サイトマップ・`llms.txt` の差分は無し
+
+### 手順3 確かめ
+
+wrangler 4.151.0 の `wrangler dev` と headless Chromium。白鳥翔・平野良栄・坪原光。
+
+- 名前の面（375・390・430px × 明・暗、24 通り）: 3行は「白鳥翔 鳳凰位 / 最高到達 鳳凰位 / 出場 23期（183節）」「平野良栄 C2 / 最高到達 C1 / 出場 17期（85節）」「坪原光 E1 / 最高到達 D2 / 出場 9期（45節）」。2・3行目は 13px、色は明 #555555・暗 #aeaeb2。名前・チップ・2行・写真・再生のボタン（リーグのタブ）の重なりは 0、名前の面からのはみ出し 0、横スクロール 0、JS のエラー 0。名前の面の高さは 68 → 84px
+- 4つのタブの中身の上端の y: 375・390・430px とも 374（HOU-43 の 358 から +16px）。4つともそろう
+- 字 150%（375px）: 名前の面 112px、上端は4つとも 474 でそろう（HOU-43 では リーグだけ +30px 下だったが、名前の面が3行になってボタンの分の高さが要らなくなった）。字 200%: 名前の面 140px、上端は「期別」「通算」「部門別」 700、「リーグ」 734〜749（ボタンの分）。どちらも切れ・重なり・横スクロールは 0
+- 部門別の順位欄（375px）: 平野良栄「 / / 35位 / / / 18位 / / / 」（ランク外は空欄）、坪原光「 / 規定未達 / 85位 / 規定未達 / / / 規定未達 / / 」、白鳥翔は9部門とも順位あり
+- 落ちる動き（アイコンの中心。写真は名前の面の左）:
+  - 375×667: 始め 写真 (56, 248) → 白鳥翔: 中ほど (113, 126)・着いたとき (122, 292)・寄った後 (111, 473)・終わり (321, 169)／平野良栄: 中ほど (178, 151)・着いたとき (201, 383)・寄った後 (111, 472)・終わり (321, 276)／坪原光: 中ほど (248, 176)・着いたとき (279, 418)・寄った後 (111, 472)・終わり (321, 457)。ページは押した後に 228px 送られる
+  - 1920×1080: 始め 写真 (816, 252)（送らない）。白鳥翔 着いたとき (890, 534)・平野良栄 (974, 632)・坪原光 (1058, 672)
+  - どれも再生の間すべての時点で画面の中。再生の時間は 白鳥翔 25.0秒・平野良栄 24.9秒・坪原光 15.9秒
+- プレビュー（cd0d8d08 の Workers Builds: mj は success）: 成功の直後は前の版の `assets/houou.js` が返り `houou/compare-best/` も 200 だったが、05:56 UTC に `assets/houou.js`・`style.css` は手元と同じ、`houou/compare-best/` は 404 になった。白鳥翔・平野良栄の部門別のタブで名前の面の3行・順位欄の空欄・上の行が無いことを確かめた
+
+### 文書
+
+- `docs/decisions/houou.md`: 「2026-10-15（CHAT-1015-HOU-44）」の節を足した。置き換えた元の行（2026-10-13〈HOU-33〉の「名前のカード: … ほかの情報は足さない」、2026-10-15〈HOU-43〉の「順位はランキングに入った部門だけ…『—』」「タブの上に『出場 ○期・○節』の1行と注記」「最高到達の置き場は…」）に「→ 置き換え」を付けた
+- `docs/decisions/design-renewal.md`: 「個人成績の名前の下に期間…」の行に「→ 置き換え」を付けた（この決定はこのファイルにあった）
+- `docs/notes/houou-top.md`: 名前の面（3行）、要約をやめた行（最高到達は名前の面に決めた）、部門別のタブ（上の行と注記は置かない・ランク外は空欄）、「通算」のタブとリーグのタブの期間の記述、再生を押したときの送り（写真の中心）、比較ページの節（`compare-best` を消した・済んだ比較に足した）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち（名前の面の見た目の変化をプレビューで見て、マージを決める）
 - ブランチ: work/1015-hou2
 - ログ: https://github.com/retroeater/mj/blob/work/1015-hou2/docs/logs/CHAT-1015-HOU-44.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1015-hou2
-- 確認用URL: なし
-- マージ: 未
-- issue: #518
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 確認用URL: プレビューあり（URL は最終報告）。見るページ: 白鳥翔・平野良栄の個人成績（部門別のタブ）。この版で見える印: 名前の面が「平野良栄 C2 / 最高到達 C1 / 出場 17期（85節）」の3行で、部門別の上に行と注記が無い
+- マージ: 未（平野さんの判断待ち。HOU-43・HOU-44 をまとめて）
+- issue: #518（着手中のコメント）
+- 判断が必要なこと:
+  - 名前の面の3行・部門別の見た目をプレビューで見て、マージしてよいか
+  - 受け手が決めたこと: 名前の面が高くなった分、再生を押したときのページの送りの基準を写真の上端から中心に変えた（375×667 で送りが 216 → 228px。送った後は写真の上 4px が画面の外）
+- 未確認の項目: 平野さんの iPhone での見え方
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj ddd0fcee）: https://github.com/retroeater/mj-logs/tree/main/guide/ddd0fcee
+ガイド文書（この版を写した時点の最新、mj a5b7e739）: https://github.com/retroeater/mj-logs/tree/main/guide/a5b7e739
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ddd0fcee/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ddd0fcee/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ddd0fcee/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ddd0fcee/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ddd0fcee/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/ddd0fcee/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/66464371.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a5b7e739/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a5b7e739/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a5b7e739/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a5b7e739/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a5b7e739/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a5b7e739/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/2fcae3af.md
