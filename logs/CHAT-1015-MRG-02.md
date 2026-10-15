@@ -36,6 +36,29 @@ CHAT-1015-MRG-01 の「判断が必要なこと」に回答し、MRG の作業�
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+- 同じ Chat-Ref のコミットは無かった。識別子 MRG は同じセッションの CHAT-1015-MRG-01 で使ったもの
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っていた
+- 作業ブランチ: `origin/work/1015-mrg` は `origin/cloudflare` の祖先（マージ済み）、ローカルの `work/1015-mrg` も祖先だったため、cloud-sessions.md「作業ブランチの用意」のとおり `git merge --ff-only origin/cloudflare` で進めた（71b0e22cc → 1e1cc49fc）
+- 手順0: ログの「指示」欄の末尾は指示文の最後の行と一致。CHAT-1015-MRG-01 の `## 報告` の状態は「判断待ち」だった
+- 手順1: MRG-01 の `## 報告` の状態に「 / 続き: CHAT-1015-MRG-02」、「判断が必要なこと」の項目の末尾に「 → 解決（2026-10-15、MRG-02）: README の形のまま」を足した。MRG-01 の `## 指示` 欄が変わっていないことを確かめた
+- docs/decisions/ は指示どおり変えていない（上の決定は MRG-01 の書き方の確認で、新しい決定ではないため）
+- マージ: 15:0x JST（03:30〜05:00 を外れる）に、再 fetch と `git merge-base --is-ancestor origin/cloudflare HEAD` の確認のうえ `git push origin work/1015-mrg:cloudflare`
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1015-mrg
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1015-MRG-02.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1015-mrg
+- 確認用URL: なし
+- マージ: 済（52188999e。fast-forward）
+- issue: なし
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 

@@ -60,7 +60,7 @@
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1015-MRG-02
 - ブランチ: work/1015-mrg
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1015-MRG-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1015-mrg
@@ -68,19 +68,19 @@
 - マージ: 済（b6dcc1c4c。fast-forward）
 - issue: なし
 - 判断が必要なこと:
-  - 指示文の前提「古い記述は消して置き換える」と手順2「同じ節に 2026-10-15 の1行を足す」は、docs/decisions/README.md「書き方」（前の決定は消さずに「→ 置き換え」を付け、新しい決定は指示ごとの見出しに書く）と食い違ったため、README に従った（539行目は残して行末に「→ 置き換え: 2026-10-15（CHAT-1015-MRG-01）」、末尾に「## 2026-10-15（CHAT-1015-MRG-01）」の節）。旧行から `morning` を消す形にするなら次の指示で行う
+  - 指示文の前提「古い記述は消して置き換える」と手順2「同じ節に 2026-10-15 の1行を足す」は、docs/decisions/README.md「書き方」（前の決定は消さずに「→ 置き換え」を付け、新しい決定は指示ごとの見出しに書く）と食い違ったため、README に従った（539行目は残して行末に「→ 置き換え: 2026-10-15（CHAT-1015-MRG-01）」、末尾に「## 2026-10-15（CHAT-1015-MRG-01）」の節）。旧行から `morning` を消す形にするなら次の指示で行う → 解決（2026-10-15、MRG-02）: README の形のまま
 - 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 71b0e22c）: https://github.com/retroeater/mj-logs/tree/main/guide/71b0e22c
+ガイド文書（この版を写した時点の最新、mj 1e1cc49f）: https://github.com/retroeater/mj-logs/tree/main/guide/1e1cc49f
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/71b0e22c/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/71b0e22c/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/71b0e22c/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/71b0e22c/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/71b0e22c/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/71b0e22c/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/1e1cc49f/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/1e1cc49f/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/1e1cc49f/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/1e1cc49f/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/1e1cc49f/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/1e1cc49f/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/2fcae3af.md
