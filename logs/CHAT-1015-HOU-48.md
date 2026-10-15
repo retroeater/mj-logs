@@ -82,19 +82,61 @@ Chat-Ref: CHAT-1015-HOU-48
 - 0. 指示欄の末尾は指示文の最後の行と一致。冒頭の雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
 - 1. 着手の確かめ: #518・#540・#542 に他のセッションの着手中は無し（最新はどれも自分の着手中の解除・報告）。#540 に着手中を書いた。`git branch -r --no-merged origin/cloudflare` の各ブランチと cloudflare の差に `scripts/promo_video/` の変更は無し。本番（`?v=<未使用の値>`）の `houou/index.html`・`houou/players/index.html`・`houou/ranking/total/index.html`・`assets/houou.js`・`style.css` は origin/cloudflare（95d46b4d9。houou/ の最後の変更は HOU-45 の e54f18808）とバイト一致
 - 質問欄: `/api/ask/status` は `{"status":"open","remaining":10,"max":200}`。送った回数 1回目: 2026-10-15 09:28:09 UTC（18:28 JST）、curl で「通算得点の歴代1位は？」。答えの全文（約5秒）: `{"status":"answered","lead":"","answer":"通算得点の歴代1位はHIRO柴田で、通算得点は2074.4です。","notes":[],"asof":["鳳凰戦リーグ 第43期前期終了時点"],"sources":[{"label":"鳳凰戦 ランキング（通算得点）","url":"/houou/ranking/total/"}],"remaining":9}`。ランキング（通算得点）の1位 HIRO柴田 +2074.4 と一致。動画ではこの答えをそのまま使い、撮る側で `/api/ask` への POST にこの本文を返す（本番へ送る回数を増やさないため。撮るたびに送らない）
+- 2. 撮影と制作:
+  - 制作のスクリプトは `scripts/promo_video/houou/`（`setup.sh`・`build.sh`・`capture.mjs`・`compose.py`・`composition/index.html`・`README.md`）。作業フォルダは `/home/user/promo-houou/`（リポジトリの外。動画・連番・素材はコミットしない）。setup の途中で `fonts-noto-cjk` が `apt-get update` 無しでは入らず、update してから入れ直した
+  - `scripts/promo_video/lib/` へはまとめなかった（時計の進め方は houou_race/capture.mjs から写した。houou_race/ と title/ は変えない。まとめるかは次に作る時に考える）
+  - 質問欄は本番へ送らず、1回目に送った答え（`ask-answer.json`）を撮る側で `/api/ask` の POST に返した（撮った2回とも送ったのは0回。「調べています…」を撮ってから答えを返す）。答えが出るまでの待ち（実際は約5秒）は動画では 1.0秒に詰めた。本番の質問欄に送った回数は合計1回（09:28:09 UTC）
+  - 見た目の初回の動画のタイトルは雛形（houou_race）がフェードインしていたので、型（最初のコマからはっきり出す）に合わせてフェードインを外した
+  - 構成（実物に合わせて変えた所: 場面4は「個人成績」のカードを押し、個人成績のページの「鳳凰位」の候補〈白鳥翔〉を押して開く。場面7は ▶ を押してから 5.4秒〈落ちる・山が生える・止まる・引く〉を実際の速さ、登る間を3倍。場面9は通算得点の行 → ランキングの白鳥翔の行〈11位、色付き〉→ 上へ送り「期連続浮き」に切り替え。場面10は「期連続浮き」の表で止める。秒は下の表）
+  - リーグの再生のアイコンの座標（画面 390×664、1フレームずつ 358コマ）: 落ち始め (59, 248)、着地 (127, 286)→顔 (127, 287)、寄った後（▶ から 4.3秒）(152, 654)、終わり (335, 157)。画面の外に出たのは1コマだけ: ▶ から 4.33秒（寄る途中）で中心が (164, 665)、下の端から 1px 下（アイコンの上半分は見えている）。ページの動き（iPhone 13 の高さ 664 で、スタート地点へ寄る途中にグラフの下端まで下がる）で、撮り方では直さない
+  - 白いままのコマ: 動画のデモの部分（2.9〜50.4秒、1425コマ）の枠の中の明るさ（YAVG）は 193〜235 で、白一色（248 超）のコマは無し。写真は各場面で画面に見えている img と SVG の image を読み終わるまで待ってから撮った（読めない写真があれば止まる作り）
+- 3. 確かめ:
+  - mp4: 53.6秒（53.633）・1080×1920・30fps・H.264 High yuv420p・AAC 48kHz 2ch・8.9MB。ラウドネス（ebur128）: I −15.9 LUFS・LRA 0.5 LU（loudnorm の入力 −15.27）
+  - 場面ごとの秒とテロップ（動画の秒）:
+
+  | 場面 | 秒 | 画面 | テロップ |
+  |---|---|---|---|
+  | 1 タイトル | 0〜2.5 | 白地に「鳳凰戦」「個人成績・ランキング・順位変動」（最初のコマから出す） | なし |
+  | 2 トップ | 2.5〜5.5 | 質問欄 → 個人成績・ランキング・順位変動に順に枠 | 鳳凰戦のデータをひとつに |
+  | 3 質問欄 | 5.5〜12.49 | 押す印 → 「通算得点の歴代1位は？」を1字ずつ → 送る → 調べています… → 答え → 出典のリンクに枠 | 質問すると、データから答える |
+  | 4 選手を開く | 12.49〜14.49 | 個人成績のカードを押す → 鳳凰位の白鳥翔を押す | 選手ごとの成績 |
+  | 5 期別 | 14.49〜18.99 | 名前の面 → 期のカードを送る → 戻す | 全期の成績を一覧で |
+  | 6 通算 | 18.99〜22.69 | 通算のタブを押す → グラフ | 通算得点の推移 |
+  | 7 リーグ | 22.69〜37.52 | リーグのタブ → ▶ に押す印 → 押す → 写真から落ちる → 登る（29.59 から3倍）→ 終わりで止める | リーグの昇降級を再生 |
+  | 8 部門別 | 37.52〜41.22 | 部門別のタブを押す → 9部門の値と順位 | ランキング9部門の順位 |
+  | 9 ランキング | 41.22〜47.12 | 通算得点の行を押す → 白鳥翔の行（11位 +1124.3、色付き）→ 上へ → 「期連続浮き」を押す | 歴代の記録を9部門で |
+  | 10 範囲 | 47.12〜50.12 | 期連続浮きの表で止める | 第17期後期〜第43期前期・691名（撮った日のトップの説明文から） |
+  | 11 締め | 50.12〜53.63 | 白地に ryoei.pro が1秒で現れる | なし |
+
+  - 最初のコマと各場面のコマ（0・4・7・11・13.5・16・20・23.5・29・39.5・43・48.5・51.5秒）を PNG にして見た: 最初のコマからタイトルが出る。テロップは画面の上（80〜210px）で、実画面の枠（250〜1690px）の外にあり、見せたい所を隠していない。枠の下端は画面の下の端から 230px（12%）離れている
+  - mp4 を `houou-promo-v1.mp4` として SendUserFile で送った。投稿文は書いていない
+- `docs/decisions/houou.md` に決定5件を足し、2026-10-14 の「告知動画は公開の後に…本番の最終形で撮る」に置き換えの印を付けた
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち（送った動画 houou-promo-v1.mp4 を見て、確定か直すかを決める）
+- ブランチ: work/1015-hou5
+- ログ: https://github.com/retroeater/mj/blob/work/1015-hou5/docs/logs/CHAT-1015-HOU-48.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1015-hou5
+- 確認用URL: なし（見る物は送った mp4。53.6秒・1080×1920・30fps・I −15.9 LUFS）
+- マージ: 未（判断待ち。制作のスクリプトは確定するまでマージしない）
+- issue: #540（着手中のコメント）
+- 判断が必要なこと:
+  - 動画（houou-promo-v1.mp4）を確定するか、直すか
+  - 受け手が決めたこと: 質問欄は「通算得点の歴代1位は？」（答え「通算得点の歴代1位はHIRO柴田で、通算得点は2074.4です。」、出典 ランキング（通算得点）。ランキングと一致）。本番へ送ったのは1回で、動画ではその答えを撮る側で返した。答えの待ち（約5秒）は 1.0秒に詰めた。ランキングで切り替える先の部門は「期連続浮き」（表の先頭を見せる）。範囲のテロップは「第17期後期〜第43期前期・691名」
+  - リーグの再生で、寄る途中の1コマ（1/30秒）だけアイコンの中心が画面の下の端から 1px 外に出る（ページの動き。動画では上半分が見える）。ページを直すかは別の判断
+- 未確認の項目: 平野さんの端末（X）での見え方
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 95d46b4d）: https://github.com/retroeater/mj-logs/tree/main/guide/95d46b4d
+ガイド文書（この版を写した時点の最新、mj f6b567c4）: https://github.com/retroeater/mj-logs/tree/main/guide/f6b567c4
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/95d46b4d/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/95d46b4d/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/95d46b4d/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/95d46b4d/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/95d46b4d/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/95d46b4d/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f6b567c4/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f6b567c4/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f6b567c4/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f6b567c4/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f6b567c4/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f6b567c4/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/95d46b4d.md
