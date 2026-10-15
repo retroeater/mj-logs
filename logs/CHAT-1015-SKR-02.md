@@ -66,6 +66,80 @@ Chat-Ref: CHAT-1015-SKR-02
 
 ## 経過
 
+### 着手前の確認
+
+- 指示欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある
+- `git log --all --grep=CHAT-1015-SKR-02` は0件。`origin/work/1015-skr-pub`・ローカルとも無いため `git checkout -b work/1015-skr-pub origin/cloudflare`（f6b567c44）
+- #549・#566・#425 に未解除の他セッションの着手中コメントは無い。#549 に着手中のコメントを書いた
+- 未マージの work/ ブランチ（`work/1015-skd-top` を除く）の重なり: `origin/work/JBK`（女流勉強会、CHAT-1015-JBK-01・02）だけが、この指示で変えるファイルのうち `_redirects`（mtsuku の行の後に2行。今回は `/saikyo/` の行の後に足すので別の箇所）・`style.css`（女流勉強会のヒーロー、1520行付近。別の箇所）・`docs/handover.md`（7章の表に1行。別の箇所）・`docs/notes/static-generation.md` を変える
+  - static-generation.md は「ページの一覧」の段落の行（253行、ページの列挙の1行）が**同じ行**。止まる条件の「同じ行」に当たるため、この指示ではその行を変えずに進めた（行の中の「最強戦の新しい年度・対局・卓のページ（…noindex・メニュー未掲載、公開は #549）」の直しはマージの指示へ回す）。表の行は JBK が mtsuku の行の後に1行足し、今回は次の最強戦の2行を直す（隣り合う行）
+- `origin/work/1015-skd-top` の取り込み（447e86501）: `docs/decisions/design-renewal.md` だけが衝突。cloudflare 側の `## 2026-10-15（CHAT-1015-SKD-22）` と skd-top 側の SKD-17〜21 の節がどちらも末尾への追記だったので、両方を残した。解いた後の並び:
+
+```
+## 2026-10-15（CHAT-1015-SKD-17）
+## 2026-10-15（CHAT-1015-SKD-18）
+## 2026-10-15（CHAT-1015-SKD-19）
+## 2026-10-15（CHAT-1015-SKD-20）
+## 2026-10-15（CHAT-1015-SKD-21）
+## 2026-10-15（CHAT-1015-SKD-22）
+```
+
+- 取り込み後に `python3 -m unittest discover -s scripts/tests` が通った（1191件）。SKD-21 のログの状態を「判断待ち / 続き: CHAT-1015-SKR-02」にした
+
+### #549 の実装の一覧（本文の「変更」「段2の作業」）
+
+| 項目 | 扱い |
+|---|---|
+| noindex を外して再生成（`NOINDEX_TAG`） | この指示（定数ごと消した） |
+| navbar は変えない | この指示（変えていない） |
+| サイトマップ（879件） | この指示 |
+| `llms.txt` に URL の形 | この指示 |
+| title・description・og:title・og:image を確かめる（og:image は決定5で ABEMA の作品の画像） | この指示 |
+| ABEMA の回が無い卓のヒーロー | この指示（決定5） |
+| 今の年度ページを 301 | この指示（`_redirects` の年度ごとの3行） |
+| static-generation.md・saikyo-page-design.md・handover.md の「未公開」 | この指示（static-generation.md の段落の行だけはマージの指示。上の重なり） |
+| cloudflare へのマージ | マージの指示（平野さんの確認の後） |
+| 年度ページを `saikyo/<年度>/` へ、今の年度ページの生成をやめる（共有ボタン・`?match=`・選手名の絞り込み・`share.js` の読み込みも外す） | この指示 |
+| `_redirects` の 200 と 301 の行 | この指示（静的な行 48 行＋説明の1行。静的 93/2,000） |
+| トップの検索結果・歴代最強位の行き先 | この指示（`<年度>/` の形） |
+| 年度のシート・パンくずの行き先を `/saikyo/<年度>/` へ | この指示（`../<年度>/`・`./`） |
+| 新しい年度ページの JS の `#` の移動は残す | この指示（残した） |
+| 使われなくなる CSS・JS を消す（決定1） | この指示 |
+| Cloudflare のリダイレクトルール（`?match=`、Single Redirects） | 平野さんの手作業（公開のマージの直後） |
+| #458 の対象の見直し・新しい URL の登録の確認（決定3） | マージの指示（公開から約2週間後の確認はチャット側がカレンダーに） |
+| #530・#425・#382・#383・#566・#549 へのコメント・クローズ、#566 の本文の直し | マージの指示 |
+| 公開後の確かめ全部・Search Console の作業 | マージの指示・平野さんの作業 |
+| handover.md 5章の #549 の行 | マージの指示（公開と同時に消す） |
+
+### 実装（167b4ec5e、c8cfbe4b1）
+
+- `scripts/generate_saikyo_pages.py`: `NOINDEX_TAG`・`BODY_CLASS`・`MATCH_PARAM`・`TOP_HREF` と、今の年度ページだけの関数（`build_match_html`・`build_filterbar_html`・`build_year_select`・`build_year_body`・`build_year_nav`・`build_year_page`・`add_body_class`）を消し、`main()` を年度・対局・卓のページとトップだけにした。saikyo/ 直下の `index.html` 以外の `.html` は消す。サイトマップは `sitemap_urls()`。`_redirects` に年度の3行が無ければ警告（`warn_missing_redirects()`、`redirect_lines()`）
+- og:image: 定数 `ABEMA_SERIES_IMAGE_URL`（`{w}`・`{h}` を入れる形。og:image は 1280×720 で、指示の URL と同じ文字列になる）。`series_og()` を年度・対局・卓のページに。トップは年度の画像のまま
+- 卓のヒーロー・カード: 回の無い卓は作品の画像（ヒーロー 1280×720、カード 640×360）。読めないときの代わりは年度の OGP 画像（回のある卓も同じ）。**回の無い卓にも出典「画像: ABEMA」を出すようにした**（ABEMA の画像を出すため。指示に無い判断なので「判断が必要なこと」に書く）
+- 卓のページの写真カードの `data-name`（今の年度ページの絞り込みだけが使っていた）を外した
+- `assets/saikyo.js`: 固定バーの高さ・年度プルダウン・絞り込み・`?match=` の処理を消した。トップの検索結果の年度の見出しのリンクを `<年度>/` に
+- `style.css`: 今の年度ページ・旧トップだけの規則を消した（431行減）。消したクラス: `.mj-saikyo-years`・`.mj-saikyo-match`・`.mj-saikyo-match-head`・`.mj-saikyo-match-title`・`.mj-saikyo-all`・`.mj-saikyo-siblings`・`.mj-saikyo-table`・`.mj-saikyo-table-title`・`body.mj-saikyo-page`（navbar の固定・上余白・`.mj-filterbar` の最強戦の分・`.mj-saikyo-year-select`・`.mj-filterbar-count:empty`）・`html:has(.mj-saikyo-year, .mj-saikyo-top)`・`.mj-saikyo-filter-search`・`.mj-saikyo-champion-year`・`.mj-saikyo-result*`・`.mj-saikyo-results*`。`:is(.mj-saikyo-year, .mj-saikyo-table-page)` は `.mj-saikyo-table-page` だけに。写真カード（`.mj-saikyo-card`・`.mj-saikyo-players` など live/・mtsuku/ と共有）と `.mj-filterbar` の共通の規則は残した。消す前に、style.css の `mj-saikyo` で始まるクラスをすべて、HTML・JS・Python（docs と tests を除く）で使われているかを洗い出した（使うのが JS だけのトップの検索結果の `.mj-saikyo-n-hit-*` などは残した）。title/ の CSS のコメントの写し元の参照は「#549 で廃止」と書き換えた
+- `assets/share.js` の先頭のコメントから saikyo/ を外した
+- `_redirects`: `/saikyo/  /saikyo/index.html  200` の後に説明の1行と 2011〜2026 の各3行。先頭の `/  /index.html  200` はそのまま。`check_asset_limits.py`: 静的 93/2,000・動的 4/100
+- テスト: `scripts/tests/test_saikyo_redirects.py` を足した（年度ディレクトリごとに3行があるか、saikyo/ 直下がトップだけか）。`test_saikyo_pages.py` を直し・足した（回の無い卓のヒーローが作品の画像、パンくずの `./`、`series_og()`、`sitemap_urls()`）。`test_title_years.py` の共有ボタンの確かめから `saikyo/2025.html` を外した。`docs/notes/redirects.md` の「棚卸しの対象」に旧年度 URL 16行を足した（`test_redirects_inventory.py`）。全件通る（1196件）
+- 共有の関数（`scripts/lib/`）は変えていない。ほかのスクリプトが読む `generate_saikyo_pages` の名前（`SEARCH_ICON_SVG`・`X_LARGE_SUFFIX`・`check_duplicate_ids`・`load_rows` など）は残っており、`generate_live_pages`・`generate_title_pages` などの import が通ることを確かめた。全ページの再生成はしていない（saikyo/ 以外の生成物は変わらない）
+- 文書: `llms.txt`、`docs/handover.md`（最終更新の1行・共有ボタン・外部依存）、`docs/notes/static-generation.md`（表の2行と生成の説明。段落の行は上のとおり残した）、`docs/notes/saikyo-page-design.md`
+
+### 生成物の差
+
+変更前のスクリプト（447e86501）で同じ時点のシートから生成したもの（作業ディレクトリの外にコピーして実行）と、変更後を比べた（`classify.py`。意図した変更を変更前に当てて、残る差が無いかを見る）。変更前のスクリプトの生成物はコミット済みの saikyo/ と一致した（シートの変化なし）。
+
+| 種類 | 件数 |
+|---|---|
+| 消した今の年度ページ（`saikyo/<年度>.html`） | 16 |
+| 年度・対局・卓のページで noindex が消えたもの | 878 |
+| 同じく og:image が ABEMA の作品の画像になったもの | 878 |
+| ヒーローが変わった卓（回の無い卓。年度の OGP 画像 → 作品の画像） | 40 |
+| それ以外の差 | なし（残差 0件。上に当たらない差は、年度ページへのリンクの形〈`index.html` → ディレクトリ〉、回の無い卓のカードの画像、出典の追加、`data-name` の削除で、すべて同じページの中） |
+| トップ `saikyo/index.html` | 歴代最強位の行のリンクが `<年度>/index.html` → `<年度>/` だけ |
+| `sitemap-saikyo.xml` | 17件 → 879件（トップ・年度16・対局・卓。新しい URL の lastmod は生成スクリプトが当日の日付を入れる。手では書いていない） |
+| saikyo/ 以外の生成物 | 変化なし |
+
 ## 報告
 
 - 状態: 作業中
