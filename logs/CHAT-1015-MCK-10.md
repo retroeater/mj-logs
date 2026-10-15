@@ -79,28 +79,85 @@ MCK-08 の試し取りで、谷岡さんのタイムライン（直近 3,200件�
   トークン有、ブックを開けた（タブ3個）、【1】の見出し「同じ」・既存の行 107行、検索の式は上のとおり、予定 呼び出し1回・最大100件・最大 $0.5（上限 100件・$0.5）。
   Drive の canEdit は MCK-08 と同じく「未確認(HTTP 403)」（書き込みの権限は本番で見出しの書き直しで確かめる）
 
+### マージ
+
+- `git fetch` 後に `git merge-base --is-ancestor origin/cloudflare HEAD` が真、`git push origin work/1015-mck-367:cloudflare`: 2fd9c03b2..1aa2436a0
+- 条件: テスト OK（1177件）・`dry_run` の既定は真のまま・変えたのは `fetch-x-posts.yml`・`scripts/fetch_x_posts.py`・そのテスト・docs/notes/github-actions.md の該当の行とこのログだけ・止まる条件に当たらない
+
+### 2. cloudflare で dry-run と本番
+
+- dry-run（run 38694512057、1aa2436a0、success）: 作業ブランチの dry-run と同じ出力（【1】の見出し「同じ」・既存の行 107行、予定 1回・最大100件・最大 $0.5）
+- 本番（run 38694582217、1aa2436a0、success）:
+  - 【1】の見出しの書き直し: 書けた（書き込みの権限あり）
+  - X API の呼び出し 1回（`tweets/search/all`）、応答の分類: 成功（HTTP 200）。権限の拒否・認証の失敗・クレジット切れ・レート制限なし
+  - 応答の `meta`: `result_count` 91、`next_token` 有（次のページは取らない）
+  - 読んだ投稿 91件、見込みの費用 $0.455（1件 $0.005 として。実際の請求は X の開発者画面で平野さんが見る）
+  - 【1】元データに 91行を足した（すでにあった投稿 0件。【1】は 107行 → 198行）
+
+ジョブの出力の表（本文は出していない）:
+
+| 区分 | 名前 | 件数 | 写真 | 地図のリンク | ハッシュタグ | 「ログ」にある | 「ログ」に無い | 無いうち写真 | 無いうち地図 | 投稿日の範囲 |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---|
+| search | 谷岡育夫 | 91 | 91 | 0 | 0 | 0 | 91 | 91 | 0 | 2026-09-02〜2026-10-14 |
+
+### 3. 結果の集計
+
+- 取れた件数: 91件（`max_results=100` に対して 91件で `next_token` 有。全期間検索は1ページが `max_results` より少なくても続きがある）
+- 最古と最新の投稿日（JST）: 2026-09-02〜2026-10-14。新しい順に返るため、1ページでは 2026-01-07 まで届かない
+- 1日あたりの写真付きの件数: 91件 ÷ 44日（2026-09-02〜2026-10-15）= 約 2.07件
+  - ジョブの出力の見込み（「1日あたり 0.32件（282日で 91件）」「約91件・約$0.46」）は誤り。スクリプトは「1ページの件数が 100件に届いたか」で切れたかを見ており、
+    91件で `next_token` 有の場合を「期間の全件」と扱って 282日で割った。正しくは上の 2.07件（`next_token` で判断すべき。直しは「判断が必要なこと」）
+- 写真付き: 91件すべて（`has:images` の条件のとおり）。地図のリンク 0件・ハッシュタグ 0件（MCK-08 の ids と同じく、どちらも見分けの材料にならない）
+- 「ログ」タブに既にある投稿: 0件（見込みどおり）
+- 見込み（1日あたりの件数 × 日数、1件 $0.005）:
+
+| 人 | 期間 | 日数 | 1日あたり | 写真付きの全件 | 費用 | ページ数（1ページ約91〜100件） | ページ数（max_results=500） |
+|---|---|---:|---:|---:|---:|---:|---:|
+| 谷岡さん | 2026-01-07〜2026-10-15 | 282 | 2.07（今回の検索） | 約583件（うち91件は取得済み、残り約492件） | 約$2.92（残り約$2.46） | 約6〜7 | 約2 |
+| 平野さん | 2025-12-31〜2026-10-15 | 289 | 1.12（MCK-08 の 1.80 × 62%） | 約323件 | 約$1.61 | 約4 | 約1 |
+| 計 | | | | 約906件（残り約815件） | 約$4.53（残り約$4.07） | | |
+
+  - 谷岡さんの 2.07件は 2026-09〜10 の6週間の値で、季節の偏りがありうる。平野さんの 1.12件はタイムライン（2025-12）の値で、検索の条件（`has:images`）で数えたものではない
+- MCK-08 の「谷岡さんの timeline が0件の原因」: 今回の検索では、2026-09-02〜10-14 の 6週間だけで写真付きの本人の投稿が 91件あった。
+  タイムラインの「直近 3,200件」は返信・リポストを含む全投稿で数えるため、写真付き以外の投稿を合わせると 2025-11〜2026-01 は 3,200件より前になっている、という見立てと矛盾しない。
+  確かめるための追加の呼び出しはしていない（未確認のまま）
+
+### 4. 記録
+
+- #367 にコメント: https://github.com/retroeater/mj/issues/367#issuecomment-6186265545（本文は変えていない）
+- CHAT-1015-MCK-08 のログの `## 報告` の状態の末尾に ` / 続き: CHAT-1015-MCK-10` を足した
+- 決定を docs/decisions/operations.md に足した
+
 ## 報告
 
-- 状態:
-- ブランチ:
-- ログ:
-- 比較URL:
-- 確認用URL:
-- マージ:
-- issue:
+- 状態: 判断待ち（全期間検索の取り方をマージし、谷岡さんの 2026-01-07 以降を1ページ〈91件〉取った。全件の取得に進むかと上限は平野さん）
+- ブランチ: work/1015-mck-367
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1015-MCK-10.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1015-mck-367
+- 確認用URL: なし
+- マージ: 済（1aa2436a0。この報告は後の docs/logs・docs/decisions のみの追いの push）
+- issue: #367 に結果をコメント（https://github.com/retroeater/mj/issues/367#issuecomment-6186265545）
 - 判断が必要なこと:
+  - 全件の取得に進むか、上限をいくらにするか。見込み（1件 $0.005）: 谷岡さん 2026-01-07〜今日 写真付き約583件・約$2.92（取得済み91件、残り約492件・約$2.46）、平野さん 2025-12-31〜今日 約323件・約$1.61。計 残り約815件・約$4.07。
+    谷岡さんの 1日 2.07件は 2026-09〜10 の6週間の値、平野さんの 1.12件は MCK-08 のタイムラインの値（検索の条件では数えていない）なので、上限には余裕が要る
+  - 全件の取得の作り: 今は1人1ページ（`max_results=100`）で止まる。全件には `next_token` でのページ送りが要る。必要なページ数は 100件/ページで谷岡さん残り約5〜6・平野さん約4、`max_results=500` なら谷岡さん約1〜2・平野さん約1
+  - 見込みの計算の直し: スクリプトは「1ページが 100件に届いたか」で切れたかを見るため、今回（91件・`next_token` 有）の見込みを 0.32件/日と誤って出した。`next_token` の有無で判断する直しを、全件の取得の指示に含めるか
+  - 実際の請求額（今回 91件、見込み $0.455）が 1件 $0.005 の見込みと合うか（X の開発者画面。Code からは見えない）
 - 未確認の項目:
-- エラー:
+  - 実際の請求額（上のとおり、平野さんが X の開発者画面で見る）
+  - MCK-08 の谷岡さんの timeline が0件の原因（直近 3,200件より前、という見立てと今回の結果は矛盾しないが、追加の呼び出しはしていない）
+  - Drive の canEdit は HTTP 403 で未確認のまま（書き込みは見出しの書き直しと行の追加で成功）
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 1aa2436a）: https://github.com/retroeater/mj-logs/tree/main/guide/1aa2436a
+ガイド文書（この版を写した時点の最新、mj 4a361525）: https://github.com/retroeater/mj-logs/tree/main/guide/4a361525
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/1aa2436a/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/1aa2436a/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/1aa2436a/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/1aa2436a/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/1aa2436a/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/1aa2436a/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/4a361525/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/4a361525/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/4a361525/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/4a361525/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/4a361525/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/4a361525/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/2fcae3af.md

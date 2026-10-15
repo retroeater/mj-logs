@@ -31,7 +31,7 @@
 - `name`（選手名。完全一致か部分一致かは `data-name-mode`）/ `tag` / `place` / `league` / `ouka` / `sheet` / `page`（1始まり）/ `all`
 - `term`（期と前後。`43-1` の形で、1は前期・2は後期。`houou/race/` で `league` と組で使う）/ `division`（ランキングの部門名。`houou/ranking/`・旧 `houou_ranking.html`）（#518）
 - `year`（西暦4桁。title/ の入口の年の切り替え〈#277〉。無い・範囲外なら既定の表示）
-- `view`（ページの中のタブ。`houou/players/` の `total`〈通算〉・`league`〈リーグ〉。既定のタブは付けない。2026-10-12）
+- `view`（ページの中のタブ。`houou/players/` の `total`〈通算〉・`league`〈リーグ〉・`division`〈部門別、2026-10-15。ランキングの部門の `division` と言葉をそろえた〉。既定のタブは付けない。2026-10-12）
 - 2名を並べるページ（比較ページ #276）は `name=A,B`（カンマ区切り。2026-10-09 に `houou/leagues/` の2名で決めた形。`houou/leagues/` は同じ日のうちに1名に戻したが、#276 の未決はこの形で決まったまま）
 
 ### UI 文言の規約
