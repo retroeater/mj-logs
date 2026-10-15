@@ -54,6 +54,26 @@
 
 ## 経過
 
+### 0. 着手前の確認
+
+- 「指示」欄の末尾は指示文の最後の行と一致。CHAT-1015-MCK-10 の `## 報告` の状態は「判断待ち」
+- Chat-Ref の重複: `CHAT-1015-MCK-12` のコミット 0件（`MCK` はこのセッションの MCK-01 で使ったもの）
+- 作業ブランチ: ローカルの `work/1015-mck-367`（4a3615253）は origin/cloudflare の祖先だったため、`git checkout work/1015-mck-367` のうえ `git merge --ff-only origin/cloudflare`（a9e34357e）
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 4行ともある
+- #367: Open。着手中のコメントはこのセッションのもの（MCK-06）だけ。未マージの work/ ブランチで `fetch-x-posts.yml`・`scripts/fetch_x_posts.py` を変えているものは無い
+
+### 1. ページ送りを足す（3a2e36698）
+
+- `scripts/fetch_x_posts.py`:
+  - `mode=search` は `next_token` が無くなるまで読む。`max_results` は 500（`SEARCH_PAGE`）
+  - 全件用の上限は定数 `SEARCH_MAX_READS=1200`・`SEARCH_MAX_COST=6.0`（入力では上げられない）。次のページを呼ぶ前に、`max_results` を「上限 − これまで読んだ件数」までに縮め、10件（`max_results` の下限）に満たなければ呼ばずに止める（`LimitReached`）。止まる前に読んだ分は【1】に書く
+  - 2人の期間の初めが違うため、`--handles` で `handle@YYYY-MM-DD` を受けるようにした（1回の実行で2人を同じ上限の中で読む）。search 以外では使えない
+  - 見込みの計算は、search では `next_token` が残ったか（取り切れていないか）で判断する（MCK-10 の誤りの直し）。出力に人ごとの「全件／取り切れていない」とページごとの `meta` を出す
+  - ページの間は 1.1秒あける（全期間検索は1秒に1回まで、のレート制限に当たらないように）
+- テスト（`scripts/tests/test_fetch_x_posts.py`）: ページ送りが `next_token` が無くなるまで続く・上限の手前で `max_results` を縮める／10件未満なら呼ばない・止まっても読んだ分は書く・同じ投稿 ID を足さない・dry-run は何も呼ばない・`handle@日付` の読み取り・見込みが `next_token` で決まる。新しい関数・引数を相手にするため、直す前のコードでは通らない。`python3 -m unittest discover -s scripts/tests`: 1183件 OK
+- `fetch-x-posts.yml`（`mode`・`handles` の説明と冒頭のコメント）、docs/notes/github-actions.md「ワークフローの一覧」の fetch-x-posts.yml の行
+- 作業ブランチで dry-run（run 38705086811、3a2e36698、success）: 【1】の見出し「同じ」・既存の行 198行。it_uesama 2026-01-07〜now・retroeater 2025-12-31〜now、呼び出し 2回以上・読む投稿 最大 1200件・最大 $6.0（上限 1200件・$6.0）
+
 ## 報告
 
 <!-- guide-links -->
