@@ -66,17 +66,28 @@ CHAT-1015-MTK-09 は、七瀬美希・設楽遙斗（平野さんが SNS ブッ�
 - ほかのページの生成物: navbar.js は HTML に焼き込まれない（各ページは `<script src=navbar.js>` で読む）ので、ほかのページの HTML に差分は出ない。`mtsuku/`・`sitemap-mtsuku.xml` 以外の生成物の差分なし
 - 未マージの work/（1009-swp-526・1011-swp-hnd・1011-swp-nav・1015-hou4・1015-skd-notes・1015-skd-top・1015-wfl-s7）: `git merge-tree` で work/1015-skd-top だけ衝突（`docs/decisions/design-renewal.md`）。これは cloudflare と work/1015-skd-top の間で既に起きている衝突で、この変更のファイルではない。ほかは衝突なし。`navbar.js`・`_redirects`・`sitemap.xml`・`llms.txt` を変えるブランチは無し
 - 文書: `docs/notes/static-generation.md`（型Aの行から旧ページを外し6ページに、Mつくの行を公開に）・`docs/notes/video-mtsuku.md`（公開・サイトマップ・転送）・`docs/handover.md`（6章の表の行）・`docs/decisions/mtsuku.md`（MTK-09・10 の決定）
+- マージ直前に cloudflare が進んでいた（HOU-47 の文書・CLAUDE.md）ので取り込み（衝突なし、生成物・スクリプトの変更なし）。再 fetch で cloudflare が祖先であることを確かめ `git push origin work/MTK:cloudflare`（980c215）
+
+### 公開後の確かめ（手順3）
+
+- 980c215 の Workers Builds: mj・mj-ask success。`regenerate`・`check`・`sync` も success。本番の反映はマージから約10分後
+- 本番の HTML: `/mtsuku/`・ZeFtFG2ov_Q・vSduV7-kLls・6vXHmiBj--c が 200、noindex なし、応答ヘッダに `x-robots-tag` なし。一覧は canonical なし、各話は canonical あり（`https://ryoei.pro/mtsuku/ZeFtFG2ov_Q.html`）
+- `navbar.js` に `href="/mtsuku/">Mつく`（`video_mtsuku` は無い）、`sitemap.xml` が `sitemap-mtsuku.xml` を参照、`sitemap-mtsuku.xml` は62件、`llms.txt` に `/mtsuku/`、`sitemap-pages.xml` に `video_mtsuku` は無い
+- 転送: `/video_mtsuku.html` → 301 `https://ryoei.pro/mtsuku/`。`/video_mtsuku.html?name=魚谷` → 301 `https://ryoei.pro/mtsuku/?name=魚谷`（`?name=` を引き継ぐ。転送先は 200）
+- ブラウザでの見え方は確かめていない（本番の HTML まで）
+- #569 に公開した日とマージの SHA をコメントしてクローズ（「状況: 対応中」を外した）。#570 に済んだ項目を書いた（平野さんの作業が残るのでクローズしない）
 
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち（公開は済んだ。平野さんの確かめが残る）
 - ブランチ: work/MTK
-- ログ: https://github.com/retroeater/mj/blob/work/MTK/docs/logs/CHAT-1015-MTK-10.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1015-MTK-10.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/MTK
-- 確認用URL: なし
-- マージ: 未
-- issue: #570・#569
-- 判断が必要なこと: なし
+- 確認用URL: なし（本番に公開した）
+- マージ: 済（980c215）
+- issue: #569（クローズ）・#570（済んだ項目を書いた。開いたまま）
+- 判断が必要なこと:
+  - 平野さんの作業（#570 の残り）: 実機で navbar から /mtsuku/ を開いて見え方・操作を確かめる、X と LINE の投稿画面に URL を貼ってカード表示を確かめる（X は `?x=<未使用の数字>`）、Search Console で `sitemap.xml` を再送信し入口 /mtsuku/ を URL 検査でインデックス登録をリクエストする
 - 未確認の項目: なし
 - エラー: なし
 
