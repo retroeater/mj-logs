@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-15 21:19 JST
+- 書き出した時刻: 2026-10-15 21:22 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -12,11 +12,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-15 21:21 | push | cloudflare | success | #3680（38734000021） | 0分22秒 |
+| 2026-10-15 21:21 | push | work/1015-mck-367-conv | success | #3679（38733989551） | 0分27秒 |
 | 2026-10-15 21:14 | push | work/JBK | failure | #3678（38733088201） | 0分17秒 |
 | 2026-10-15 19:01 | push | work/1015-skr-pub | success | #3677（38717297344） | 0分21秒 |
 | 2026-10-15 18:50 | push | work/JBK | failure | #3676（38715940246） | 0分17秒 |
-| 2026-10-15 18:41 | push | work/1015-hou5 | success | #3675（38714813266） | 0分18秒 |
-| 2026-10-15 18:33 | push | work/MTK | success | #3674（38713767826） | 0分18秒 |
 
 - #3678 failure: ジョブ「check」 ステップ「公開対象の最上位を確認」
 - #3676 failure: ジョブ「check」 ステップ「公開対象の最上位を確認」
@@ -76,6 +76,16 @@
 | 2026-10-14 14:04 | workflow_dispatch | work/1014-wfl-s2 | success | #9（38514659595） | 0分37秒 |
 | 2026-10-12 09:38 | schedule | cloudflare | success | #8（38188776148） | 0分33秒 |
 | 2026-10-07 13:00 | workflow_dispatch | work/1007-pht-doc | success | #7（37569389834） | 0分20秒 |
+
+## convert-x-posts.yml
+
+- 名前: X の投稿の変換
+- state: active
+
+| 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
+| --- | --- | --- | --- | --- | --- |
+| 2026-10-15 21:22 | workflow_dispatch | cloudflare | queued | #2（38734109150） |  |
+| 2026-10-15 21:21 | workflow_dispatch | cloudflare | success | #1（38734003614） | 0分30秒 |
 
 ## delete-merged-branches.yml
 

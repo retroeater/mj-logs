@@ -95,17 +95,35 @@ Chat-Ref: CHAT-1015-MCK-14
   - 店URL: Google マップの共有のリンク（`maps.app.goo.gl` 1,771行・`goo.gl` 835行）。地図以外の値（「閉店」9・「期間限定」7・「場所不明」・「自宅」など）も少しある。**【2】でも「店URL」に Google マップの URL を入れる**（使い方が同じなので列は分けない）
   - 表示: Y 2,630・N 26・空 50。2026-01 の先頭の数行は店名の列に投稿の文がそのまま入っていて、駅・カテゴリが空（未整理の行とみられる。比べる 30件の対象から外れる）
 
+### 2. 変換のスクリプトとワークフロー（5a85147e3）
+
+- `scripts/convert_x_posts.py`（新規）:
+  - `--mode compare`: 「ログ」タブから 30件を選び（店名・駅・カテゴリが入り表示が Y の行。2人で半分ずつ、カテゴリを順に回して新しい順）、X から ID で取り直し（【1】には混ぜない。上限 40件）、`--models` の各モデルで変換して答えと比べ、行ごとの結果を3層のブックの「比較」タブに足す（無ければ作る）。【2】には書かない
+  - `--mode all`: 【1】の行のうち【2】に無い投稿 ID を、1つのモデルで変換して【2】に足す（同じ投稿 ID は重ねない。`--limit` で件数を絞れる）。今回は動かさない
+  - 変換: Claude API が本文と投稿日だけを読む（画像は読まない）。`output_config` の JSON スキーマで 判定（飲食店／飲食店以外／不明）・理由・店名・メニュー・本文の駅・地図の手がかりの地名・カテゴリを返させる。`effort` は low。既存のカテゴリ（「ログ」タブの単独の値、件数の多い順）をプロンプトに渡し、新しい案も許す（既存に無いものは「カテゴリの新しい案」の列に出す）
+  - Places API (New): Text Search（店名＋地名、1件、id・displayName・formattedAddress・location）で店を探し、店名は Places の名前に、店URL は `https://www.google.com/maps/place/?q=place_id:<id>` に。駅は Nearby Search（`train_station`・`subway_station`、半径 800m、近い順）で、距離を計算し 800m 以内を近い順に「、」でつなぐ（「駅」は付けない。東京都の外は先頭の駅に【県】）。同じ問い合わせは使い回す。呼び出しの上限は定数（compare 150回・all 2,000回）。鍵が無い・失敗した後は呼ばず、要確認の理由に「Places 未実行」などを書く
+  - 要確認: 判定が不明・店名が本文に無い・店が見つからない・圏内に駅が無い・本文の駅が圏内に無い・Places 未実行・Claude の拒否や応答の切れ
+  - 【2】の列（22列）: 「ログ」タブの11列（名前・X URL・画像・日付・店名・メニュー・駅・カテゴリ・タグ・店URL・表示〈N〉）＋ 投稿ID・判定・判定の理由・要確認・要確認の理由・店名の出どころ（本文／Places）・place_id・駅の候補（距離つき）・カテゴリの新しい案・モデル・変換日時。タグは「最初の駅、カテゴリ」（「ログ」タブの 94% と同じ作り方）。店URL は「ログ」タブと同じ使い方なので列は分けない。駅の候補と距離は1列にまとめた
+  - 一致の数え方: 店名・メニューは NFKC・小文字・カタカナをひらがなに・空白と記号を除いてそろえ、完全一致／部分一致（片方が他方を含む）を分ける。駅は正解の駅のどれかが出力に入っていれば一致。カテゴリは「、」で分けた集合が同じなら一致。費用は応答の使用量（入力・出力のトークン）× 料金（`claude-haiku-5-5` $0.10／$0.50、`claude-sonnet-5-5` $2／$10 per 1M）
+  - 上限: Claude API は実行の中で費用を数え、次の呼び出しの最大の見込み（入力は文字数×1.5＋500、出力は `max_tokens` 4,000）で $3 を超えるなら呼ばずに止める。認証の失敗・権限の拒否・レート制限・クレジット切れ・接続できない は以降を呼ばずに止める（それまでの分は書く）
+  - 書くのは同じブックの「【2】自動変換後」と「比較」だけ（それ以外のタブ名は止める。「ログ」タブは別のブックで、読むだけ）。【1】の見出しが MCK-08 と違えば止める
+- `.github/workflows/convert-x-posts.yml`（新規）: 手動だけ。入力 `mode`（compare／all）・`models`（既定 `claude-haiku-5-5,claude-sonnet-5-5`）・`limit`・`dry_run`（既定 真）。Secret `ANTHROPIC_API_KEY`（`sync-dojo-calendar.yml` と同じ）・`X_BEARER_TOKEN`・`GOOGLE_PLACES_API_KEY`（未登録なら空で、Places を飛ばす）・`LIVE_SHEETS_SA_KEY`。`anthropic==1.7.0`（`sync-dojo-calendar.yml` と同じ版）
+- docs/notes/github-actions.md「ワークフローの一覧」に行を足した（`test_workflows_table.py` が通る）
+- テスト `scripts/tests/test_convert_x_posts.py`（26件）: dry-run は X・Claude・Places・シートのどれも呼ばない・Claude の費用の上限の手前で止まる・Claude のエラーで止まり、それまでの分は書く・Places の鍵が無いときは飛ばす・Places の呼び出しの上限・駅が圏外／圏内に無いと要確認・【1】・【3】・「ログ」に書かない・【2】に同じ投稿 ID を重ねない・【1】の見出しが違えば止まる・30件の選び方・一致の数え方・出力に本文が出ない。新しいファイルなので直す前のコードでは通らない（ファイルが無い）。`python3 -m unittest discover -s scripts/tests`: 1209件 OK
+- 新しいワークフローは既定のブランチに無いため、作業ブランチでは手動実行できない（docs/notes/github-actions.md「ワークフローを変更したとき」）。dry-run が既定のままマージし、cloudflare で dry-run を動かして確かめる
+- `scripts/generate_resource_logs.py` は変えていない
+
 ## 報告
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj f6b567c4）: https://github.com/retroeater/mj-logs/tree/main/guide/f6b567c4
+ガイド文書（この版を写した時点の最新、mj 08943b5e）: https://github.com/retroeater/mj-logs/tree/main/guide/08943b5e
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f6b567c4/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f6b567c4/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f6b567c4/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f6b567c4/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f6b567c4/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f6b567c4/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/08943b5e/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/08943b5e/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/08943b5e/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/08943b5e/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/08943b5e/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/08943b5e/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/95d46b4d.md
