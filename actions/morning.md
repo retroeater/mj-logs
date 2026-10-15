@@ -1,6 +1,6 @@
 # 朝の報告用の異常（retroeater/mj）
 
-- 書き出した時刻: 2026-10-16 02:19 JST（見た範囲: 2026-10-15 00:19 JST から）
+- 書き出した時刻: 2026-10-16 04:02 JST（見た範囲: 2026-10-15 02:02 JST から）
 - 書き出した実行の契機: workflow_dispatch（main）
 - 異常だけを書く。全体は actions/status.md。判定は mj の scripts/morning_report.py（各ワークフローの直近 100 回まで）
 
@@ -15,11 +15,11 @@
 - 2026-10-15 18:50 assets-check.yml failure（push・work/JBK） https://github.com/retroeater/mj/actions/runs/38715940246
 - 2026-10-15 21:14 assets-check.yml failure（push・work/JBK） https://github.com/retroeater/mj/actions/runs/38733088201
 - 2026-10-15 21:29 assets-check.yml failure（push・work/JBK） https://github.com/retroeater/mj/actions/runs/38735048354
+- 2026-10-16 04:00 run-daily.yml in_progress（workflow_dispatch・cloudflare） https://github.com/retroeater/mj/actions/runs/38790317281
 
 ## 2. 予約実行の未実行（予定から3時間以内は「遅れの可能性」。3時間を超えて始まった実行は「遅れて実行」）
 
 - 遅れて実行: 2026-10-15 02:56 fetch-redirect-counts.yml failure（workflow_dispatch・cloudflare）予定 2026-10-01 06:30 → 開始 2026-10-15 02:56（＋332:26） https://github.com/retroeater/mj/actions/runs/38610972729
-- 遅れて実行: 2026-10-15 12:54 run-daily.yml success（workflow_dispatch・cloudflare）予定 2026-10-15 04:00 → 開始 2026-10-15 12:54（＋8:54） https://github.com/retroeater/mj/actions/runs/38678691802
 
 ## 3. 所要時間の異常（直近20回の中央値の3倍以上、または10分以上。skipped は除く）
 
