@@ -81,28 +81,97 @@
 - 2026-10-15 着手。HOU-37〜42 と同じセッションで続けた。`CHAT-1015-HOU-43` のコミットは無し。`work/1015-hou2` はローカル・リモートとも無かったので `origin/cloudflare`（b2da47b94）から作った
 - 0. 指示欄の末尾は指示文の最後の行と一致。冒頭の雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
 
+### 手順1 着手の確かめ
+
+- #518・#540 に他のセッションの着手中のコメントは無い。#518 に着手中のコメントを書いた
+- 未マージの work/ ブランチのうち手順1のファイルに触れるのは `origin/work/1015-skd-top`（`style.css` の 2097行あたり、最強戦の節）と `origin/work/MTK`（`style.css` の 1504行あたり、動画の節）だけ。houou/ の節（4054行〜）とは別の箇所。止まらない
+
+### 手順2 実装
+
+- 演出（`assets/houou.js`）: 昇級の紙吹雪（`burst()`・`stepConfetti()`）、特別昇級の判定と演出（`moveKind()` の jump・`jumpTiers()`・`jumpExtra()`・`jumpConfetti()`・放物線の跳び・`ringFx()`・画面の揺れ・金・星）と関係の定数を消した。到達の王冠（`follow()`・`playFx()`）、区間のカメラ（昇級は寄って下からあおる）、昇級・降級の期の余韻 +0.5秒は残した。5段以上の特別昇級に足していた余韻の延長（0.1〜0.5秒、`jumpExtra()`）は特別昇級の演出の一部なので一緒に消した（下の時間を参照）
+- 部門別（生成）: `player_divisions()` が在籍者ごとに `{seasons, sections, items}` を作り、成績 JSON に `divisions` として足す。値と順位は、ランキングのページと同じ `ranking.rank(..., limit=False)`（在籍者だけ・名寄せ後）の全件の表の、その選手のいちばん上の行から取り、表示対象（`auto_cut()` の後の表）に入っていれば順位を付ける。規定（通算得点/期・期単位浮き率は合計のある期が10期以上、節単位浮き率は節の成績が50節以上）に届かない部門は `[null, null, 0]`。規定に届いていて合計が0以下の選手の通算得点/期（ランキングの集計に入らない）は値だけ出す。値の書き方はランキングと同じ `value_text()`
+- 部門別（ページ）: 個人成績のページに部門の並び（正式名・スラッグ）と注記を `houou_divisions` として入れ（`division_table()`）、JS の `divisionView()` がタブの中身を作る。上の1行「出場 ○期・○節・最高到達 ○○」、注記、9部門の行（部門名・値・順位〈「11位」/「—」/「規定未達」〉・›）。行はランキングのその部門のページへのリンクで、順位のある部門だけ `?name=<選手名>` を付ける（前提の案のまま。規約の `name` と同じ）
+- ランキングのページ: 選手の行のリンクを `players/?name=…&view=division` にした。`?name=` で開かれたら、その選手のいちばん上の行に `.is-me`（地を紺 12%）を付け、画面の中ほどへ一瞬で送る（`initRanking()`）
+- 要約3枚（`.mj-houou-stats`）を JS と CSS から消した
+- タブは4等分。字が大きくて入らないときはタブの字を折り返す（初めは 200% で横にはみ出してページが横にスクロールしたので直した。`minmax(0, 1fr)`・左右の余白 4px）。部門別の行は、部門名（7em 以上）と値・順位が1行に入らないときは値・順位を次の行の右へ回す（初めは 200% で部門名が1文字ずつ折り返されたので直した）
+- 比較ページ `houou/compare-best/`（`render_best_compare()`）: 個人成績のページに (a)・(b) のラジオと代表の選手（白鳥翔・平野良栄・坪原光、部門別のタブ）のリンクを差し込み、(a) では「最高到達 ○○」を名前の面の期間の下に写して部門別の上の行からは隠す。本体は (b)。noindex あり、どこからもリンクしない、サイトマップに無い
+- テスト: `test_houou_pages.py` に `PlayerDivisionsTest`（3件: 順位がランキングの表のその選手のいちばん上の行と同じ・表に無ければ順位なし、規定未達と出場期数・節数、100件で切れた選手は値だけ）を足した。`python3 -m unittest discover -s scripts/tests`: OK
+- `python3 scripts/regenerate.py houou_pages` の差分:
+  - `houou/results/*.json`（691ファイル）: `divisions` の項目が足されただけ（ほかの項目は前と同じことを JSON で比べた）。合計 848,095 → 984,641 バイト（+136,546、1ファイル平均 +198 バイト）
+  - `houou/ranking/` の9ページ: 選手の行のリンク（`data-href` と名前のリンク）に `&view=division` が付いただけ（各ページで `&amp;view=division` を除くと前と同じ）
+  - `houou/players/index.html`: `houou_divisions` の JSON が足されただけ
+  - `houou/compare-best/index.html` の追加
+  - houou/ の外・navbar・サイトマップ・`llms.txt` の差分は無し。houou/ の HTML はすべて noindex のまま
+
+### 手順3 確かめ
+
+- 順位の一致: 生成した9部門のランキングのページの表（順位・名前・値）と、691人の成績 JSON の `divisions` を突き合わせた（6,219 件）。食い違いは0件（表にいる選手は、その選手のいちばん上の行の値と順位が一致。表にいない選手は順位なし）
+- 選んだ選手の部門別（値 / 順位）:
+
+| 部門 | 白鳥翔 | 平野良栄 | 坪原光 | 堀慎吾（第43期入会、1期） |
+|---|---|---|---|---|
+| 出場 | 23期・183節 | 17期・85節 | 9期・45節 | 1期・5節 |
+| 通算得点 | +1124.3 / 11位 | +80.1 / — | +7.7 / — | +62.2 / — |
+| 通算得点/期 | +48.9 / 13位 | +4.7 / — | — / 規定未達 | — / 規定未達 |
+| 期最高得点 | +278.8 / 14位 | +252.8 / 35位 | +224.9 / 85位 | +62.2 / — |
+| 期単位浮き率 | 0.696 / 35位 | 0.471 / — | — / 規定未達 | — / 規定未達 |
+| 期連続浮き回数 | 9期 / 5位 | 2期 / — | 3期 / — | 1期 / — |
+| 節最高得点 | +120.8 / 77位 | +140.6 / 18位 | +99.4 / — | +47.7 / — |
+| 節単位浮き率 | 0.568 / 66位 | 0.459 / — | — / 規定未達 | — / 規定未達 |
+| 節連続浮き回数 | 10節 / 12位 | 5節 / — | 4節 / — | 4節 / — |
+| 連続昇級回数 | 3期 / 10位 | 1期 / — | 1期 / — | 1期 / — |
+
+  - 「出場 ○期」と前の要約の「出場回数」（行の数）: 平野良栄 17・17、坪原光 9・9 で同じ。白鳥翔は 23期・24回で違う（鳳凰位の期の行は合計が無く、ランキングの規定の数え方では数えない）
+- 見え方（wrangler 4.151.0 の `wrangler dev`、headless Chromium、上の4人）:
+  - 375・390・430px × 明・暗: 4つのタブの中身の上端はどのタブも y 358 でそろう。タブの幅は 83・87・90px で「部門別」は1行に収まる（高さ 44px）。部門別の行は高さ 56px で、切れ・重なり・横スクロールは 0、JS のエラー 0
+  - 字 150%・200%（375px・明）: 横スクロール・行の中の切れと重なりは 0（直した後）。200% でタブの字は2行（高さ 96px）、部門別の行は値・順位が次の行へ回る（高さ 107〜116px）。上端は「期別」「通算」「部門別」がそろい、「リーグ」だけ名前の面の再生のボタンの分だけ下（150% で +30px、200% で +39px。HOU-41 と同じ）
+- 往復（375×667、明・暗）:
+  - 坪原光の部門別「期最高得点」（85位）→ `ranking/term-high/?name=坪原光`: 坪原光の行が画面の y 306（中ほど）に来て、地が色付く（明 rgb(227, 233, 243) 相当・暗 rgb(41, 46, 56) 相当）
+  - 白鳥翔の「連続昇級回数」（10位）→ `ranking/promotion-streak/?name=白鳥翔`: 同じく y 306
+  - 坪原光の「通算得点」（—）→ `ranking/total/`（`?name=` なし）: 表の先頭から（スクロール 0）
+  - ランキングの行を押す → `players/?name=…&view=division` で「部門別」のタブが選ばれて開く
+- 演出（1920×1080。再生の初めから終わりまで毎フレーム数えた）:
+
+| 選手 | 前（cloudflare の版） | この版 |
+|---|---|---|
+| 大久保隼人（8段の特別昇級） | 紙吹雪の片 最大44・輪 2・揺れ 22フレーム・王冠 0・11.31秒 | 紙吹雪 0・輪 0・揺れ 0・王冠 0・10.92秒 |
+| 白鳥翔（2段の特別昇級・鳳凰位） | 紙吹雪 最大30・輪 1・揺れ 22フレーム・王冠 3・25.02秒 | 紙吹雪 0・輪 0・揺れ 0・王冠 3・25.01秒 |
+
+  - 再生の全体の時間: 5段以上の特別昇級のある選手は、消した余韻の延長の分だけ短くなる（大久保隼人 −0.4秒〈8段: (8−5+1)×0.1秒〉。上限は 0.5秒）。それ以外の選手は同じ（白鳥翔は 25秒の上限のまま）。JS のエラー 0
+- 比較ページ（375・430px）: (a) は名前の面に「最高到達 鳳凰位」（名前の面が 68 → 84px、タブの上端が 15px 下がる）、部門別の上の行は「出場 23期・183節」。(b) は上の行が「出場 23期・183節・最高到達 鳳凰位」
+- プレビュー（a4c1dc29 の Workers Builds: mj は success。6cbf3aa8〈文書だけ〉には付かなかった）: `assets/houou.js`・`style.css` は手元と同じ、`houou/compare-best/` は 200、坪原光の成績 JSON の `divisions` は手元と同じ
+
+### 文書
+
+- `docs/decisions/houou.md`: 「2026-10-15（CHAT-1015-HOU-43）」の節を足した。置き換えた元の行（2026-10-10〈HOU-11〉の昇級 U1・特別昇級 S3、2026-10-11 の特別昇級の紙吹雪、2026-10-12〈HOU-30〉の「`?name=` だけの URL〈ランキングのリンク・共有〉は期別」、2026-10-14〜15〈HOU-40〉の要約は期別だけ）に「→ 置き換え」を付けた
+- `docs/notes/houou-top.md`: 構成の表、個人成績のタブ（4等分・`view=division`・ランキングのリンク）、要約の行を「やめた・最高到達は比較中」に置き換え、部門別のタブの節を足した、期のカードの並びと吹き出しの「要約の通算成績」の記述、ランキングの行のリンク先、リーグのタブの演出、成績 JSON の形（`divisions`）、字が大きいと折り返すもの、比較ページの節（`compare-best` を比較中）
+- `docs/new-page-checklist.md`「URL パラメータの規約」の `view` に `division` を足した
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち（最高到達の置き場の選択と、見た目・動きのプレビューの確かめ）
 - ブランチ: work/1015-hou2
 - ログ: https://github.com/retroeater/mj/blob/work/1015-hou2/docs/logs/CHAT-1015-HOU-43.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1015-hou2
-- 確認用URL: なし
-- マージ: 未
-- issue: #518
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 確認用URL: プレビューあり（URL は最終報告）。見るページ: 比較ページ `houou/compare-best/`、個人成績の部門別のタブ（白鳥翔・坪原光）、リーグのタブの再生（大久保隼人〈8段の特別昇級〉）。この版で見える印: 個人成績のタブが「期別・通算・リーグ・部門別」の4つで、要約3枚が無い
+- マージ: 未（平野さんの判断待ち）
+- issue: #518（着手中のコメント）
+- 判断が必要なこと:
+  - 最高到達の置き場を (a) 名前の面・(b) 部門別の上の行のどちらにするか（見る場所は比較ページ `houou/compare-best/`。ラジオで切り替える。本体は (b)）
+  - 5段以上の特別昇級の余韻の延長（0.1〜0.5秒）も演出の一部として消した（大久保隼人で 11.3 → 10.9秒）。残すなら戻す
+  - 「出場 ○期」はランキングの規定と同じ数え方（合計のある期）なので、鳳凰位になった選手は前の「出場回数」より1つ少ない（白鳥翔 24回 → 23期）。このままでよいか
+- 未確認の項目: 平野さんの iPhone での見え方（部門別のタブ・往復・リーグの再生）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 490aa1a5）: https://github.com/retroeater/mj-logs/tree/main/guide/490aa1a5
+ガイド文書（この版を写した時点の最新、mj 281628d5）: https://github.com/retroeater/mj-logs/tree/main/guide/281628d5
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/490aa1a5/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/490aa1a5/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/490aa1a5/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/490aa1a5/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/490aa1a5/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/490aa1a5/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/281628d5/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/281628d5/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/281628d5/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/281628d5/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/281628d5/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/281628d5/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/66464371.md
