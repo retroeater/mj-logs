@@ -48,15 +48,47 @@
 
 ## 経過
 
-## 報告
+### 着手前の確認
 
-- 状態: 作業中
+- 0: ログの「指示」欄の末尾は指示文の最後の行と一致。PLB-04 の `## 報告` は「判断待ち」→ 末尾に `/ 続き: CHAT-1015-PLB-06` を足した（このログの最初の push と同じコミット）
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 全部ある
+- `CHAT-1015-PLB-06` のコミット: 無し
+- 作業ブランチ: ローカルの `work/1015-plb`（b850044）は origin/cloudflare の祖先、リモートも同じ → `git merge --ff-only origin/cloudflare`（bcec5f2）
+- #567・#467・#547 に他セッションの着手中コメントは無し
+
+### 手順1: タブ一覧
+
+htmlview（`lib/sheets._sheet_gids()`）で読んだ（2026-10-15）。
+
+- 正本: 対局・鳳凰・桜花・JWRC・最強戦
+- ryoei.pro_その他マスタ: リーグ・タイトル・タイトル戦・書籍・辞書・帰り道
+- ryoei.pro_選手: プロ・連盟プロ以外・別名
+- 「(旧)」の3タブは無い。#567 に着手中のコメントを残した
+
+### 手順2: 「対局」タブの読み手・#547・#467
+
+`git grep`（bcec5f2）で「対局」タブを読む箇所:
+
+- `scripts/generate_video_live.py`（`SHEET_NAME = "対局"`、正本のブック）
+- `scripts/lib/pro_stats.py`（`LIVES = "対局"`。`fetch_sources()` で 対局者・実況・解説 を読む）。`fetch_sources()` を呼ぶのは `generate_jpml_pros.py` と **`check_ampai.py`**（`check-meibo.yml` から。チャット側の確認に無かった間接の読み手。「対局」の値は使わないが読み込みは通る）
+- 「対局」の文字を含むが、タブではなく列の見出し: `generate_rh_results_detail.py`（表の見出し）・`lib/abema_book.py`（ABEMA ブックの列）
+
+#547 に「対局」タブを消せる条件（上の読み手と、読む先の変更・video_live の廃止の後に消せること、#567 からの持ち越し）をコメントした。
+#467 に閉じる理由（新しいブックで A1 が1行。回避策 `pro_sheet.label_keys()` は残す）をコメントして閉じた（completed。「状況:」ラベルは付いていなかった）
+
+### 手順3: docs/decisions と #567
+
+- docs/decisions/pros.md の「2026-10-14（CHAT-1014-PLB-03）」の「載せる issue は平野さんが別に起票する」の行の末尾に「→ 置き換え: 2026-10-15（CHAT-1015-PLB-05、#571）」を足した（行は消していない。その行に置き換えの注記は無かった）
+- #567 の本文の手作業3項目を「済」にした（`updated_at` を取り直して変わっていないことを確かめてから REST で本文を書き換え）。クローズのコメント（#571・#547 への持ち越し、#467 を閉じたこと）を残して閉じた（completed。「状況:」ラベルは付いていなかった）
+
+## 報告
+- 状態: 完了
 - ブランチ: work/1015-plb
-- ログ: https://github.com/retroeater/mj/blob/work/1015-plb/docs/logs/CHAT-1015-PLB-06.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1015-PLB-06.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1015-plb
 - 確認用URL: なし
-- マージ: 未
-- issue: #567・#467・#547
+- マージ: 済（ログ・docs/decisions のみ。work/1015-plb を cloudflare へ fast-forward で入れた）
+- issue: #567（クローズ）、#467（クローズ）、#547（「対局」タブを消せる条件をコメント。読み手に check_ampai.py〈pro_stats 経由〉が加わる）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
@@ -64,12 +96,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 66464371）: https://github.com/retroeater/mj-logs/tree/main/guide/66464371
+ガイド文書（この版を写した時点の最新、mj a177d10d）: https://github.com/retroeater/mj-logs/tree/main/guide/a177d10d
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/66464371/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/66464371/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/66464371/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/66464371/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/66464371/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/66464371/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a177d10d/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a177d10d/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a177d10d/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a177d10d/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a177d10d/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a177d10d/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/66464371.md
