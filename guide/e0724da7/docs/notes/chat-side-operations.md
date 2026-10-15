@@ -69,7 +69,7 @@
 | --- | --- |
 | PC で Claude for Chrome を使う | `docs/notes/chrome-reading.md`（先に読む） |
 | 平野さんが「レビュー」「振り返り」「申送り」と言った | `docs/notes/chat-routines.md` の同名の節 |
-| 最初の指示・マージ・クローズ・複数の指示にまたがる作業・起票や方針や文書整理・インフラ・他のセッションが変えている領域・シートを用意したと言われた | `docs/notes/chat-routines.md`「指示の種類ごとの確かめ」 |
+| 最初の指示・マージ・クローズ・複数の指示にまたがる作業・起票や方針や文書整理・インフラ・他のセッションが変えている領域・一覧の行の形を決める・シートを用意したと言われた | `docs/notes/chat-routines.md`「指示の種類ごとの確かめ」 |
 | マージ・ブランチ操作・`/workspaces/mj` の操作を含む指示 | CLAUDE.md「ブランチ運用」（**必ず読む**、#313） |
 | ワークフローを変える指示、Actions の実行結果・失敗通知 | `docs/notes/github-actions.md`「チャット側」 |
 | /live の【3】・`update-live-channel.yml` に触れる | `docs/notes/live-channel-write.md`「チャット側の指示」 |
