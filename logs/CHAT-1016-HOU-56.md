@@ -53,19 +53,47 @@ HOU-54 の PNG で、ランキングの表の見出しの ⓘ が部門名の字
 
 - 着手。HOU-55 と同じセッションで続けた。`CHAT-1016-HOU-56` のコミットは無し。`work/1016-hou2` はリモートにありローカルと一致（525fbd86d）
 
+- 0. 指示欄の末尾は指示文の最後の行と一致。HOU-55 のログの `## 報告` の状態は判断待ち。冒頭の雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- 1. HOU-55 のログの状態の末尾に `/ 続き: CHAT-1016-HOU-56` を足した。#518 に他のセッションの着手中は無し（最新は自分の HOU-54 の着手中）。#518 にこの指示の着手中を書いた（実装の前）。`origin/cloudflare` は HEAD の祖先で、取り込みは不要だった
+- 2. 直し:
+  - `scripts/generate_houou_pages.py` の `FLOOR_HEAD`: ⓘ を部門名の前に移し、部門名を `<span class="mj-houou-floor-name">` で包んだ。トップの項目の説明を「通算・期最高など9部門」にした（`MENU`）
+  - `style.css`（houou/ の節、見出しの ⓘ の部分だけ）: ボタンの間を 4px → 0.3em。ⓘ の欄の幅を 20px → 1.25em（字 100% では同じ 20px）。ⓘ と部門名の行の高さを両方 normal にした。見出しはもともと右そろえ（th と値の td の右の余白が同じ 6px）で、ⓘ を左に移したことで部門名の右端が値の右端にそろった。通算など ⓘ の無い部門も同じ右そろえ（変更なし）
+  - 縦の中心のそろえ方は、字 100・150・200% で4通りを測って選んだ（行の高さ 1・ⓘ を 0.1em／0.14em 下げる・baseline でそろえる・行の高さ normal）。ⓘ を下げる形は字 100% では合うが 150・200% で 2.5〜3.7px ずれ、行の高さ normal がどの大きさでも 1px 未満だった
+  - テストはトップの説明の文字を直した（`test_houou_pages.py`）。`python3 -m unittest discover -s scripts/tests` OK、`node --test 'workers/ask/test/*.test.mjs'` 35件 OK。`python3 scripts/regenerate.py houou_pages` の差分は `houou/index.html`（説明）と ⓘ のある3ページ（期平均・期浮き率・節浮き率の見出し）だけ
+  - `docs/decisions/houou.md` に決定を足し、HOU-54 の「見出しの横に ⓘ」の行に置き換えの印を付けた。`docs/notes/houou-top.md` のトップの項目・規定打席（ⓘ の置き場）・列名の行（右そろえ）を直した
+- 3. 確かめ（プレビュー、ブランチの別名 URL。期浮き率と通算 × 375・390・430px × 明・暗 × 字 100・150・200%、36通り）。縦の中心は、見出しの欄を3倍で撮った画像の字の色の付いた行の上端と下端の真ん中（ⓘ と部門名それぞれ）の差。右端は部門名の字の範囲の右端と1位の値の字の範囲の右端の差:
+  - 部門名の右端 − 値の右端: 36通りとも 0px
+  - ⓘ − 部門名の縦の中心（負は ⓘ が上）: 字 100% −0.33px、150% +0.33〜+0.5px、200% +0.67px（幅・明暗で同じ）。HOU-54 の版では字 100% で ⓘ が約2〜3px 上だった
+  - ⓘ と部門名の間（字の範囲の間）: 字 100% 5.9px、150% 8.8px、200% 11.8px（HOU-54 の版の字 200% は約2px でくっついて見えた）
+  - 横のはみ出しは無し。開閉（aria-expanded の切り替え）は撮るときに確かめた
+  - PNG（幅 390px・3倍）を SendUserFile で送った: rank-kiukirate-closed-light.png・rank-kiukirate-closed-dark.png・rank-kiukirate-open-light.png・rank-total-light.png・rank-kiukirate-200-light.png（字 200%、閉じた状態）・top-ranking-light.png。測るスクリプトは `/home/user/hou56/measure.mjs`・`shots.mjs`（使い捨て）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち（送った PNG で見出しの直しを見て、HOU-54・HOU-55・HOU-56 をまとめてマージの指示で入れる）
+- ブランチ: work/1016-hou2
+- ログ: https://github.com/retroeater/mj/blob/work/1016-hou2/docs/logs/CHAT-1016-HOU-56.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1016-hou2
+- 確認用URL: プレビューあり（URL は最終報告）。見るページ: 期浮き率・通算のランキングとトップ。この版で見える印: 表の見出しが「ⓘ 期浮き率」の順で、トップのランキングの説明が「通算・期最高など9部門」
+- マージ: 未（判断待ち）
+- issue: #518（着手中のコメント）
+- 判断が必要なこと:
+  - ⓘ の置き場（部門名の左）・高さ・右そろえの見た目でよいか（縦の中心の差は 1px 未満、部門名と値の右端の差は 0px）
+  - 字 200% の間: 直せた（ⓘ の欄の幅と間を em にし、200% で 11.8px 離れる）
+  - （HOU-54 から引き継ぐ）名前を変えた場所で迷ったところ: (1) トップの項目の説明は今回「通算・期最高など9部門」に決まった (2) ランキングの説明文の「通算・期最高・節最高など9部門」 (3) 質問欄の答えの下の注記「※出場10期以上のみ」は変えていない (4) 「通算」のタブのグラフの読み上げ名「通算得点の推移」は変えていない (5) 質問欄の部門名の変更で、マージ後の本番の出典の名前が「鳳凰戦 ランキング（通算）」になる
+  - （HOU-55 から引き継ぐ）歴代の鳳凰位の並べ替えは10人以下でも行う（「第1期から第10期の鳳凰位は？」の答えで挙げる順が新しい順になる）。マージの後の本番の確かめは「現在の鳳凰位は？」「鳳凰位になった人は全部で何人？」「第1期から第10期の鳳凰位は？」「通算得点の上位15人は？」の4問を推す
+- 未確認の項目: 平野さんの iPhone での見え方
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 374ad1fb）: https://github.com/retroeater/mj-logs/tree/main/guide/374ad1fb
+ガイド文書（この版を写した時点の最新、mj 271498b2）: https://github.com/retroeater/mj-logs/tree/main/guide/271498b2
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/374ad1fb/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/374ad1fb/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/374ad1fb/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/374ad1fb/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/374ad1fb/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/374ad1fb/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/271498b2/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/271498b2/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/271498b2/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/271498b2/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/271498b2/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/271498b2/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/98839f38.md
