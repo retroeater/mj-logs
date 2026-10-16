@@ -12,7 +12,6 @@
 |---|---|
 | [aio.md](aio.md) | AI 検索・AIO（AI 検索での言及の計測、#230 系） |
 | [automation.md](automation.md) | 自動化（GitHub Actions の予約実行とその起動、#491 系） |
-| [study.md](study.md) | 女流勉強会（一覧 /study/・各話 study/、帰り道と同じ形、#575 系） |
 | [broadcast-calendar.md](broadcast-calendar.md) | 放送対局の公開カレンダー「mj_放送対局」・連盟の予定表の取り込み（#448 系） |
 | [cloudflare.md](cloudflare.md) | Cloudflare（Workers Builds の起動条件・配信基盤、#171 系。ボット系の設定・Security の提案） |
 | [design-renewal.md](design-renewal.md) | 新サイトのデザインの基本の形（面・強調色・選ぶ部品・文字の大きさ・共通ナビ、houou/ が最初の題材、#107） |
@@ -26,8 +25,9 @@
 | [pros.md](pros.md) | プロ一覧（jpml_pros.html） |
 | [publishing.md](publishing.md) | 配信の対象（`.assetsignore`・`assets-check.yml`、#133・#331） |
 | [saikyo.md](saikyo.md) | 最強戦（saikyo/、選手写真のリンク切れ #499 系） |
-| [seo-bing.md](seo-bing.md) | SEO・Bing（Bing Webmaster Tools・Search Console・title・h1・description、#126・#486・#5・#457 系） |
+| [seo-bing.md](seo-bing.md) | SEO・Bing（Bing Webmaster Tools・Search Console・title・h1・description・OGP 画像、#126・#486・#5・#457・#581 系） |
 | [site-review.md](site-review.md) | サイト全体の横断レビューと DESIGN.md（#296 の要件の洗い出し） |
+| [study.md](study.md) | 女流勉強会（一覧 /study/・各話 study/、帰り道と同じ形、#575 系） |
 | [title.md](title.md) | タイトル戦（title/、「タイトル」タブのデータ・公開後の残件、#222 系） |
 | [wayhome.md](wayhome.md) | 帰り道（一覧 /wayhome/・各話 wayhome/、共有ボタン #530・呼称・新しい回の取り込み #194・一覧の OGP #340） |
 

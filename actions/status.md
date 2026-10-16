@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-16 15:16 JST
+- 書き出した時刻: 2026-10-16 15:17 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -25,8 +25,8 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-10-16 15:16 | push | cloudflare | queued | #42（38860241004） |  |
-| 2026-10-16 15:15 | push | work/1016-ogr | in_progress | #41（38860234303） |  |
+| 2026-10-16 15:16 | push | cloudflare | success | #42（38860241004） | 0分19秒 |
+| 2026-10-16 15:15 | push | work/1016-ogr | success | #41（38860234303） | 0分24秒 |
 | 2026-10-16 15:11 | push | work/1016-skr-rank | success | #40（38859799155） | 0分20秒 |
 | 2026-10-16 15:01 | push | work/1015-hou5 | success | #39（38858874323） | 0分21秒 |
 | 2026-10-16 14:56 | push | work/1016-lvp | success | #38（38858400585） | 0分30秒 |
@@ -181,11 +181,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-16 15:16 | push | cloudflare | in_progress | #343（38860240993） |  |
 | 2026-10-16 14:16 | push | cloudflare | success | #342（38854891438） | 4分26秒 |
 | 2026-10-16 12:02 | push | cloudflare | success | #341（38843505197） | 4分54秒 |
 | 2026-10-16 11:55 | push | cloudflare | success | #340（38842899536） | 1分09秒 |
 | 2026-10-16 11:37 | workflow_dispatch | work/1016-wfl-s9 | success | #339（38841382169） | 0分31秒 |
-| 2026-10-16 09:49 | push | cloudflare | success | #338（38831721544） | 4分55秒 |
 
 ## regenerate-saikyo.yml
 
@@ -207,7 +207,7 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-10-16 15:16 | push | cloudflare | in_progress | #4（38860241014） |  |
+| 2026-10-16 15:16 | push | cloudflare | success | #4（38860241014） | 0分19秒 |
 | 2026-10-16 12:02 | push | cloudflare | success | #3（38843505287） | 0分18秒 |
 | 2026-10-16 11:55 | push | cloudflare | success | #2（38842899634） | 0分18秒 |
 | 2026-10-16 10:19 | workflow_dispatch | cloudflare | success | #1（38834457795） | 0分32秒 |

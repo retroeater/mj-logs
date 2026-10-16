@@ -81,15 +81,45 @@ CHAT-1016-SKR-13 の比較ページで平野さんが選んだ置き場所を、
 
 - 動画URLのある卓は 614 のまま
 
+### 手順3 プレビューでの確かめ（c3bf319b2 の「Workers Builds: mj」〈プレビュー〉success）
+
+headless Chromium（iPhone 13、390×664・3倍）で3卓の「出場者」の節を撮り、帯の位置・大きさ・文字の切れ・名前とのかぶりを計った（撮った画像はセッションの scratchpad にだけ置いた）。卓のページは濃色固定なので明・暗は撮り分けていない。
+
+| 卓 | 応答 | 帯の文字 | 帯の位置 | 崩れ・文字の切れ・名前とのかぶり |
+|---|---|---|---|---|
+| 2025 決勝 `saikyo/2025/20251214-s1.html` | 200 | 1位 優勝・2位 敗退・3位 敗退・4位 敗退 | 4人とも写真の上端（0px）、幅はカードと同じ、高さ 20.8px | 無し |
+| 2019 ベスト16 A卓 `saikyo/2019/20191214-s1-a.html` | 200 | 通過・敗退・敗退・敗退 | 同じ | 無し（2行の「小島レボリューション」も帯と離れている） |
+| 未対局 `saikyo/2026/20261101-s1-a.html` | 200 | 帯なし（4人とも） | — | 無し |
+
+- 3卓とも、カードの外のピル（`.mj-saikyo-card-pill`）と三角（`.mj-saikyo-rank`）は0個
+- 色（計った値）: 通過・優勝 `rgba(242, 194, 48, 0.8)` / `rgb(43, 33, 0)`、敗退 `rgba(60, 64, 67, 0.8)` / `rgb(255, 255, 255)`
+- 比較ページ `/saikyo_pill_compare.html` は 404
+- 撮った卓で気づいたこと（直していない）: 帯は写真の上から約 21px にかかる。JOKER（イラスト）は髪の上の端、鈴木大介は頭頂の髪の一部が帯の下になるが、顔にはかかっていない。2025 決勝の近藤誠一（集合写真）は写真の上の看板の一部が隠れる
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1016-skr-rank
+- ログ: https://github.com/retroeater/mj/blob/work/1016-skr-rank/docs/logs/CHAT-1016-SKR-14.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1016-skr-rank
+- 確認用URL: プレビューあり（URL は最終報告）。確認したページは 2025 決勝・2019 ベスト16 A卓・2026 の未対局の卓。この版で見える印: 卓のページの「出場者」の写真の上端に「1位 優勝」「2位 敗退」などの半透明の帯があり、写真の下のピルが無い。比較ページ `/saikyo_pill_compare.html` は 404
+- マージ: 未（平野さんの判断待ち）
+- issue: なし
+- 判断が必要なこと:
+  - プレビューのこの形（写真の上端の半透明の帯）でマージしてよいか。マージは、この作業ブランチ（SKR-10〜14 の積み重ね。比較ページは2つとも消してある）をまとめて cloudflare に入れる形になる
+- 未確認の項目:
+  - iPhone の実機での見え方（headless Chromium の 390px で確かめた）
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj f03198fd）: https://github.com/retroeater/mj-logs/tree/main/guide/f03198fd
+ガイド文書（この版を写した時点の最新、mj 9901aa99）: https://github.com/retroeater/mj-logs/tree/main/guide/9901aa99
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f03198fd/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f03198fd/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f03198fd/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f03198fd/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f03198fd/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f03198fd/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9901aa99/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9901aa99/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9901aa99/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9901aa99/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9901aa99/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9901aa99/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/91b5dd30.md

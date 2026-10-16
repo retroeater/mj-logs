@@ -57,6 +57,51 @@
 
 ## 経過
 
+### 着手前の確認
+
+- `CHAT-1016-OGR-02` のコミット: 無し。識別子 `OGR` は同じセッションの続き（OGR-01）なので重複の確認の対象外
+- 作業ブランチ: ローカルの `work/1016-ogr` は origin/cloudflare の祖先、リモートもマージ済み。cloud-sessions.md「作業ブランチの用意」の「ローカルにあり祖先」のとおり `git checkout work/1016-ogr`（既に上）のうえ `git merge --ff-only origin/cloudflare`（371e00365 → f03198fdf）
+- 手順0: 「指示」欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は4行とも有る
+- 重なり: 未マージの `work/` 7本のうち、3ファイル（`generate_live_pages.py`・`generate_saikyo_pages.py`・`lib/page.py`）を変えているのは `work/1016-skr-rank` の `generate_saikyo_pages.py` だけ。
+  変えているのは選手カードの帯（`BAND_CLASSES`・`Player.rank_label`→`result_text`・`build_player_html()`）で、卓の meta・`table_image()` とは別の関数・別の行。止まる条件に当たらない
+
+### 前提の確かめ
+
+- チャット側の前提どおり: `PageMeta.og_type`・`og_video`（空なら4行を出さない `_render_og_video()`）、帰り道・Mつく・女流勉強会の各話は `og_video=wayhome.embed_url(video_id)`、live/ の個別ページは `build_individual()` の `meta_for()` で `HERO_SIZES`/`thumb_url()`、最強戦の卓は `table_image()`
+- og:video の URL: 共通の関数を新しく作らず、Mつく・女流勉強会と同じく `lib.wayhome.embed_url()` を `generate_live_pages.py` から使う（既に3か所が使う共通の関数のため）
+
+### 変更前の再生成（修正前でも差分が出ないか）
+
+- 変更前のコードで `python3 scripts/regenerate.py live_pages saikyo_pages` → `git status` は差分なし（シートの変化による差分は無い）
+- 回のある卓の見込み: 卓のページ 643件のうち、ヒーローの画像（`table_image(match, table, 2)` の出力）が ABEMA の回のサムネイル（`/image/programs/`）の卓が **606**、作品の画像（`/image/series/`）が 37
+
+### 実装
+
+- `generate_live_pages.py` `build_individual()`: `meta_for()` の後に `og_type = "video.other"`・`og_video = embed_url(first.video_id)`（「▶ 再生」・og:image と同じ最初の動画）
+- `generate_saikyo_pages.py`: `table_og(match, table, alt)` を足す。回があれば `table_image(…, 2)` の URL・幅・高さと alt「<対局名（日付）> <卓>（ABEMA）」、無ければ `series_og()`。卓のページだけ `**og` を `**table_og(...)` に替えた。年度・対局のページは `series_og()` のまま
+
+### 変更後の再生成と差分
+
+- 変わったファイル: live/ 743・saikyo/ 606・scripts 2（docs を除く）。見込みと ±0
+- 変わった行（`git diff -U0` を全件数えた）:
+  - live/: `-og:type` 743・`+og:type` 743・`+og:video`/`:type`/`:width`/`:height` 各743。1ファイルあたり +5/-1。ほかの行は無し
+  - saikyo/: `-/+og:image` 各606・`-/+og:image:alt` 各606。1ファイルあたり +2/-2。width/height は変わる前後とも 1280×720 のため行は変わらない
+- 例（live/gpmax/10/b16-a.html）: og:type website → video.other、og:video `https://www.youtube.com/embed/oTObdvrRxuw`
+- 例（saikyo/2019/20190223-s1-a.html）: og:image `…/image/programs/68-38_s19_p1/thumb001.png?height=720&quality=75&width=1280`、alt「女流プレミアトーナメント 華麗な技（2019年2月23日） ベスト32 A卓（ABEMA）」。回の無い卓 saikyo/2019/20190901-s1-b.html は変化なし
+- テスト: `python3 -m unittest discover -s scripts/tests` 1274件 OK
+
+### live/・study/ の og:image:width/height の確かめ（全件）
+
+| 場所 | 画質 | 件数 | width/height |
+|---|---|---|---|
+| live/ | maxresdefault（1280×720） | 672 | すべて一致 |
+| live/ | sddefault（640×480） | 71 | すべて一致 |
+| live/ | YouTube 以外（共通の img/ogp.png） | 165 | 対象外 |
+| study/ | maxresdefault | 39 | すべて一致 |
+| study/ | hqdefault（480×360） | 2 | すべて一致 |
+
+食い違いは無し。
+
 ## 報告
 
 - 状態:
@@ -73,12 +118,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj f03198fd）: https://github.com/retroeater/mj-logs/tree/main/guide/f03198fd
+ガイド文書（この版を写した時点の最新、mj 9901aa99）: https://github.com/retroeater/mj-logs/tree/main/guide/9901aa99
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f03198fd/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f03198fd/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f03198fd/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f03198fd/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f03198fd/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f03198fd/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9901aa99/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9901aa99/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9901aa99/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9901aa99/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9901aa99/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9901aa99/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/91b5dd30.md

@@ -639,3 +639,13 @@
 - チャット側が後で行う確認（「明日の XX:XX 以降に確認してください」など）には、そのチャットに届く予約（send_later）を使う。規則は `docs/notes/chat-routines.md`「期日とカレンダー」（`docs/notes/chat-side-operations.md`「場面ごとに読む文書」から引く）
 - 期日の記録の正はカレンダー「ryoei.pro」のまま。予約を入れた確認は、カレンダーの予定の説明に予約があることを書き添える
 - 作業中の回答: なし
+
+## 2026-10-16（CHAT-1016-WFL-23）
+
+WFL-21 の判断待ち 1〜3 への回答（用語集 docs/notes/glossary.md に反映）。
+
+- git の意味の「取り込み」（`origin/cloudflare` を作業ブランチに入れること）は、原語に合わせて「マージ」と書く。データを外から持ってくる意味の「取り込み」（ワークフローの表示名「「連盟ch」の取り込み」など）は今のまま使う
+- GitHub の `schedule`（cron）が本来の起動であるワークフロー（週次の check-meibo・check-saikyo-unregistered・cleanup-logs など。フォールバックではないもの）の実行は「cron 実行」と書く（「予約実行」と書かない。「定期実行」は Worker からの起動に限る）
+- Git・GitHub・開発の用語は、平野さんがエンジニアのため、原語（英語、またはそのカタカナ）のまま書く（例: マージ・push・cron・dry run）。和語に言い換えない
+- chat-side-operations.md の WFL-21 での純増（参照の 1 行）は、同じ量以上を docs/notes の別の文書へ移して相殺する
+- 作業中の回答: なし
