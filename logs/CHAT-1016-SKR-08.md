@@ -44,6 +44,67 @@ CHAT-1016-SKR-06 は cloudflare へのマージ（fa2791042）の後、本番の
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 着手前の確認
+
+- 指示欄の末尾は指示文の最後の行と一致。冒頭の数行（題・Chat-Ref・マージ・貼る時機・共通手順・作業ブランチ）は改行なしの1行で届いたので、そのまま写した。雛形の行はすべてある
+- `git log --all --grep=CHAT-1016-SKR-08` は0件。作業ブランチはローカル・リモートとも無し → `git checkout -b work/1016-skr-after origin/cloudflare`（374ad1fba）
+- #549・#425・#566 の着手中コメントはすべて解除済み（#549 の最後は SKR-06 の中断の解除）。#549 に着手中のコメントを書いた
+- このセッションは SKR-05〜07 と同じセッション（貼る時機は「新しいセッションでよい」）
+- CHAT-1016-SKR-06 のログの状態に ` / 続き: CHAT-1016-SKR-08` を足した
+
+### 手順1 本番の確かめ（2026-10-16 02:19 UTC ごろ、`curl`、クエリ `?v=…` 付き、リダイレクトは追わない）
+
+| パス | 応答 | Location | robots の meta | x-robots-tag | 備考 |
+|---|---|---|---|---|---|
+| `/saikyo/` | 200 |  | 0 | 0 |  |
+| `/saikyo/2025/` | 200 |  | 0 | 0 |  |
+| `/saikyo/2025/20251214.html` | 200 |  | 0 | 0 |  |
+| `/saikyo/2025/20251214-s1.html` | 200 |  | 0 | 0 | ABEMA の回あり |
+| `/saikyo/2026/20261004-s1-a.html` | 200 |  | 0 | 0 | ABEMA の回あり |
+| `/saikyo/2011/20110430-s1.html` | 200 |  | 0 | 0 | 回なし(作品の画像) |
+| `/saikyo/2025.html` | 301 | /saikyo/2025/?v=… | 0 | 0 |  |
+| `/saikyo/2025` | 301 | /saikyo/2025/?v=… | 0 | 0 |  |
+/sitemap-saikyo.xml: /saikyo/2025/ を含む行 67、<loc> 879
+/llms.txt: /saikyo/2025/ を含む行 0、<loc> 0
+
+- `/saikyo/2025/` の canonical は `https://ryoei.pro/saikyo/2025/`、og:image は ABEMA の作品「麻雀最強戦」の画像（`series/68-38`）
+- `llms.txt` は本番とリポジトリが同じ（`https://ryoei.pro/saikyo/<年度>/` の形の説明あり。上の表の 0 は「/saikyo/2025/」という文字列が無いだけ）
+- 指示の「回が無い卓 `2026/20261004-s1-a`」は、公開前（1447edda1）に ABEMA の回が付いた（CHAT-1016-SKR-06 の経過）。回が無い卓は `2011/20110430-s1`（ヒーローが作品の画像）で確かめた
+- 本番のビルドの見分け方（指示の前提の要確認）: `docs/notes/cloudflare.md`「ビルド成否と本番の確認範囲（check-runs）」の「ビルドが Cloning で失敗したとき」に「本番かプレビューかは `.output.summary` に `Preview URL` があるかで見分ける」はある。**「待つ間に cloudflare へ新しい push が来ると古い本番のビルドは飛ばされる」挙動と、`in_progress` の check-run の summary には `Preview URL` が出ず、完了するまで本番と見分けられないこと（CHAT-1016-SKR-06 で実測）は書かれていない** → 報告の「判断が必要なこと」に書き足す案として書いた（この指示では文書を直していない）
+
+### 手順2 issue（各コメントの末尾に Chat-Ref: CHAT-1016-SKR-08）
+
+| issue | した事 |
+|---|---|
+| #549 | 公開のコメント（2026-10-16・マージ fa2791042・本番に出たビルド 5bf5d9b0f・本番の確かめ）と平野さんの手作業の残りのチェックリスト（Single Redirects のルール・X と LINE のカード・iPhone の実機・Search Console の sitemap 再送信と URL 検査・2026-10-30 の登録の確認）。static-generation.md の段落の行が残ることも書いた。閉じた（completed、「状況: 待ち」を外した） |
+| #425 | 公開のコメント（同じ SHA）。2026-10-15 の決定7 のとおり閉じた（completed。「状況:」ラベルは元から無し）。片方にしか無い対局・卓は #573 |
+| #382 | 閉じる理由のコメント（docs/decisions/saikyo.md の CHAT-1015-SKR-01 の決定2: 対象の写真が無くなった）。閉じた（not planned、「状況: 待ち」を外した） |
+| #383 | 同じく（対象の `.mj-saikyo-match` が無くなった）。閉じた（not planned、「状況: 保留」を外した） |
+| #566 | 本文の「まだ決めていないこと」（SKD-04 の時点）を「今の状態（2026-10-16、#549 で公開）」に置き換えた（並べ方 C・帯・共通ナビ・固定バー・暗い配色・共有ボタン・順位の金・トップ。各項目に決定の Chat-Ref）。「調べの結果」の「比較中」の行も外した。閉じた（completed、「状況: 対応中」を外した） |
+| #530 | 最強戦の共有ボタンが無くなったことのコメント（閉じない） |
+| #458 | 旧 URL 15件の確認は不要になり、新しい URL の登録は 2026-10-30 に確かめるとのコメント（閉じない） |
+
+- 閉じた5件の状態とラベルを REST で読み直して確かめた
+- 決定の記録: CHAT-1016-SKR-06 の決定は `docs/decisions/saikyo.md`・`docs/decisions/page-release.md` に記録済み。この指示の決定は無し、作業中の平野さんの回答も無し
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1016-skr-after
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1016-SKR-08.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1016-skr-after
+- 確認用URL: なし（本番で確かめた）
+- マージ: 済（ドキュメントのみ。ログ）
+- issue: #549・#425・#382・#383・#566 を閉じた。#530・#458 にコメント
+- 判断が必要なこと:
+  - `docs/notes/cloudflare.md`「ビルド成否と本番の確認範囲（check-runs）」に、(1) 本番のビルドが順番待ちの間に cloudflare へ新しい push が来ると、古い本番のビルドは飛ばされ新しいものだけが走る（平野さんの Build history の申告。セッションからは確かめられない）、(2) `in_progress` の check-run の summary には `Preview URL` が出ないため、完了するまで本番とプレビューを見分けられない（CHAT-1016-SKR-06 で実測）、の2点を書き足すか。足すなら別の指示で（この指示では文書を直していない）
+- 未確認の項目:
+  - `?match=` の転送（平野さんが作る Single Redirects のルール。チャット側が後で確かめる）
+  - 平野さんの手作業（X と LINE のカード・iPhone の実機・Search Console の sitemap 再送信と URL 検査・2026-10-30 の登録の確認）。#549 のチェックリストに書いた
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
