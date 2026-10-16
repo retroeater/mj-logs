@@ -102,6 +102,46 @@
 - テスト 1271件 OK
 - 手元（`python3 -m http.server` で配信、headless Chromium、iPhone 13 の 390px、明・暗）で全 4×3×2 を撮り、崩れが無いことを先に確かめた。明の地で見本の見出しのリンクが薄かった（暗用の色のまま）ので、明では `#14459b` にした
 
+### 手順3 プレビューでの確かめ（e0409b030 の「Workers Builds: mj」〈プレビュー〉success）
+
+- 比較ページ `/saikyo_rank_compare.html?v=e0409b0` は 200、`<meta name="robots" content="noindex">` あり
+- headless Chromium（iPhone 13、390×664・3倍）で、ブラウザの明・暗（`colorScheme`）× 形4 × 文字3 の24通りを、2卓それぞれの「出場者」の節で撮った（地のラジオボタンは既定の「自動」）。各通りで、印の文字が箱からはみ出していないか（`scrollWidth > clientWidth`）、三角・帯が名前の文字の行と重ならないか、ピルがカードに重ならないかを計った
+- 撮った画像はセッションの scratchpad にだけ置いた（リポジトリには入れない）
+
+| 明・暗 | 形 | ⓐ なし | ⓑ 通過・敗退 | ⓒ 順位つき |
+|---|---|---|---|---|
+| 明 | ① 三角 | OK | OK | OK（「1位 優勝」は三角の中で2行） |
+| 明 | ② 帯・塗り | OK | OK | OK |
+| 明 | ③ 帯・半透明 | OK | OK | OK |
+| 明 | ④ ピル | OK（敗退の玉は明の地で薄い） | OK | OK |
+| 暗 | ① 三角 | OK | OK | OK（同上） |
+| 暗 | ② 帯・塗り | OK | OK | OK |
+| 暗 | ③ 帯・半透明 | OK | OK | OK |
+| 暗 | ④ ピル | OK | OK | OK |
+
+- 2卓とも、崩れ・名前とのかぶり・文字の切れは無し（24通り×2卓）。2019 の卓は順位が空欄なので ⓑ と ⓒ が同じ見た目になる（指示のとおり）
+- 目で見て気づいたこと（判断の材料。直していない）: ④×ⓐ の敗退の玉は、明の地（`#f2f2f7`）の上の `#e5e5e5` でほとんど見えない（文字が無いのでコントラスト比の対象外）。③ の半透明の帯は、黄色い写真（小島レボリューション）の上では通過の帯と写真の境目が見えにくくなりうる（今の見本では敗退なので灰色）
+- 手元（`http.server`）でも同じ24通りを撮り、同じ結果だった
+
+### 決定の記録
+
+- 指示の「決定（2026-10-16）」を `docs/decisions/saikyo.md` に足した
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1016-skr-rank
+- ログ: https://github.com/retroeater/mj/blob/work/1016-skr-rank/docs/logs/CHAT-1016-SKR-10.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1016-skr-rank
+- 確認用URL: プレビューあり（URL は最終報告）。比較ページは `/saikyo_rank_compare.html`。この版で見える印: ページの題が「比較: 卓のページの『出場者』の通過・敗退」で、「形」「文字」「地」の3組のラジオボタンがある
+- マージ: 未（平野さんの判断待ち）
+- issue: なし
+- 判断が必要なこと:
+  - どの組み合わせにするか（形 ①〜④ × 文字 ⓐ〜ⓒ）。決まったら、別の指示で卓のページに本実装し、比較ページ（`saikyo_rank_compare.html`）と `scripts/build_saikyo_rank_compare.py` を消す
+- 未確認の項目:
+  - iPhone の実機での見え方（headless Chromium の 390px で確かめた）
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
