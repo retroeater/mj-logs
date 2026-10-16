@@ -1,7 +1,7 @@
 # Mつく（一覧 mtsuku/index.html・各話 mtsuku/）の実装記録
 
 YouTube チャンネル「麻雀遊戯王」の企画「Mリーグチームを作ろう！」の一覧と各話。帰り道（`docs/notes/video-wayhome.md`）と同じ仕様・デザインで作った（#569、2026-10-14・10-15）。
-**2026-10-15 に公開した（#570）。** navbar の「動画」の「Mつく」・`sitemap-mtsuku.xml`（`sitemap.xml` から参照）・`llms.txt` に載る。旧 `video_mtsuku.html`（型Aの3列の表）と旧生成 `generate_video_mtsuku.py` は消し、`/video_mtsuku.html` は `/mtsuku/` へ 301。
+**2026-10-15 に公開した（#570）。** navbar の「番組」の「Mつく」・`sitemap-mtsuku.xml`（`sitemap.xml` から参照）・`llms.txt` に載る。旧 `video_mtsuku.html`（型Aの3列の表）と旧生成 `generate_video_mtsuku.py` は消し、`/video_mtsuku.html` は `/mtsuku/` へ 301。
 公開後の確かめ（2026-10-15）: 平野さんが実機・LINE と X のカード・Search Console（`sitemap.xml` の再送信と `/mtsuku/` のインデックス登録のリクエスト）を確かめ、#570 をクローズした。
 
 ## 構成

@@ -91,28 +91,56 @@ HOU-63 で作った公開の変更（旧4ページの 301・jpml_pros のリン�
 
 動画のテロップの人数: 告知動画（v4）の範囲の字幕は撮ったときのトップの説明文の「691名」で、今は690名。撮り直さない（指示どおり）
 
+### 手順3 マージ
+
+- push の直前に `git fetch origin cloudflare` → `git merge-base --is-ancestor origin/cloudflare HEAD` が真（origin/cloudflare は 4f9aee6cc）
+- `git push origin work/1016-hou4:cloudflare` → `4f9aee6cc..5b362ee36`（07:19 UTC 頃）
+- HOU-48・60〜63 のログの「マージ:」を「済（CHAT-1016-HOU-64 で work/1016-hou4 ごと cloudflare へマージした。SHA は CHAT-1016-HOU-64 のログ）」に直した（マージのコミットに含めた）。状態の行は「判断待ち … / 続き: …」のまま（続きの鎖の最後のこのログが完了になると、前のログは自動で片付く）
+
+### 手順4 公開後の確かめ（本番）
+
+- check-run（5b362ee36）: 最初に付いた「Workers Builds: mj」（07:25 UTC）は作業ブランチの push のプレビューのビルド（Preview Alias が work-1016-hou4）。本番のビルドは mj-ask の後に走り、`Workers Builds: mj` success 07:35:00 UTC・`Workers Builds: mj-ask` success 07:32:03 UTC・`mj-scheduler` success。本番の `navbar.js` が新しい版を返したのは 07:35:35 UTC（push から約8分）
+- `regenerate-page.yml`（run 38866518889）: success。対象は `houou/ jpml_pros.html`、「変更なし」でコミットは無し（手元の生成と CI の生成が一致）
+- 旧4ページ（curl）: 4つとも 301、行き先は `/houou/ranking/total/`・`/houou/leagues/`・`/houou/race/`・`/houou/players/`。クエリ（`?sheet=鳳凰&division=期最高得点`・`?name=白鳥翔`）は引き継がれた
+- 行き先（ヘッドレス Chromium 375px、本番）: `houou_results.html?name=白鳥翔` → 白鳥翔の個人成績、`houou_leagues.html?name=白鳥翔` → `players/?name=白鳥翔&view=league`、`houou_ranking.html?sheet=鳳凰` → 通算（害なし）、`?division=期最高得点` → `term-high/`、`?division=節最高` → `round-high/`、`houou_race.html` → `/houou/race/`。JS のエラー 0
+- noindex: houou/ の12ページは 200 で robots の meta なし・`x-robots-tag` なし、`houou/leagues/` は meta あり。13ページとも配信の HTML が手元と一致
+- `navbar.js`・`sitemap-pages.xml`・`llms.txt`・`jpml_pros.html`: 配信が手元と一致。ナビの「鳳凰戦」は `href="/houou/"`・下の項目なし、houou/ の下（トップ・個人成績・ランキング・順位変動）で `aria-current="true"`。`jpml_pros.html` の houou へのリンクは 1,406（ナビ1＋2欄 1,405。退会者の2件が減った）、旧ページへのリンク 0、1件たどって個人成績が開いた
+- 質問欄の上限200: `/api/ask/status` は `{"status":"open","remaining":10,"max":200}`。`max` は質問の字数の上限（`QUESTION_MAX`）で、`remaining` は IP の上限（10）で決まるため、全体の1日の上限の値は応答から読めない。`DAILY_LIMIT` を 200 にした `wrangler.jsonc` の版を `mj-ask` のビルドが配ったことまでは確かめた。本番に質問は送っていない
+
+### 手順5 issue
+
+- 後始末の issue を #582 で起票した（題・本文は HOU-63 の案のまま、末尾に Chat-Ref）
+- #540 にマージの SHA・公開後の確かめ・#582 のコメントを書いた
+- #518・#520・#141・#371・#228・#540 に公開で閉じる旨のコメント（末尾に Chat-Ref）を書いて閉じた（completed）。「状況:」ラベルは #371 の「状況: 待ち」だけで、外した。#541 は開けたまま
+- `docs/handover.md` の #540 の行を #582 の行に置き換え、「最終更新」に1行。`docs/notes/houou-top.md` の後始末の行を #582 に（docs のみの追いの push で cloudflare へ入れる）
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1016-hou4
-- ログ: https://github.com/retroeater/mj/blob/work/1016-hou4/docs/logs/CHAT-1016-HOU-64.md
+- 状態: 判断待ち（X の告知の準備ができた。投稿は平野さん）
+- ブランチ: work/1016-hou4（cloudflare へマージ済み）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1016-HOU-64.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1016-hou4
-- 確認用URL: なし
-- マージ: 未
-- issue: #540
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 確認用URL: なし（本番 https://ryoei.pro/houou/ で確かめた）
+- マージ: 済（4f9aee6cc..5b362ee36。この報告と handover・houou-top の docs のみの追いの push あり）
+- issue: #540・#518・#520・#141・#371・#228 を閉じた。#582 を起票（旧4ページの後始末）。#541 は開けたまま
+- 判断が必要なこと:
+  - 告知の準備ができた: 投稿文は HOU-63 のログの案B（全文はそのログの「手順4」）、動画は houou-promo-v4.mp4。投稿は平野さん。動画の範囲の字幕は「691名」で、今の在籍は690名（退会者1名の分。撮り直さない決定のまま）
+  - 他のシートの確かめ: 退会者を在籍者として残している他のシートは見つからなかった。ただし今回生成し直していない `dic/pros.json`（辞書）・`houou_leagues.html`（旧ページ）にはまだ在籍者として出ている（次の再生成〈週次の all・月曜〉で消える。比較用の生成で消えることを確かめた）。急ぐなら `regenerate-page.yml` を `resource_dictionary houou_leagues` で手動実行する
+  - 質問欄のデータ `workers/ask/data.json` は指示の対象の外だったが、退会者がランキングに残って順位がページと1つずれるため、生成し直して含めた（差は退会者の分だけ）
+- 未確認の項目:
+  - 質問欄の全体の1日の上限が本番で200になっていること（応答に値が出ない。D1 の `daily_counts` が200に届くか、ダッシュボードの mj-ask の Variables の `DAILY_LIMIT` で見られる）
+  - X・LINE の投稿画面でのカード表示、Search Console での `sitemap.xml` の再送信と URL 検査、平野さんの実機での見え方（#540 の本文の残り）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 5b362ee3）: https://github.com/retroeater/mj-logs/tree/main/guide/5b362ee3
+ガイド文書（この版を写した時点の最新、mj 065b75e3）: https://github.com/retroeater/mj-logs/tree/main/guide/065b75e3
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b362ee3/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b362ee3/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b362ee3/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b362ee3/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b362ee3/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b362ee3/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/065b75e3/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/065b75e3/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/065b75e3/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/065b75e3/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/065b75e3/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/065b75e3/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/91b5dd30.md
