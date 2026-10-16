@@ -126,6 +126,43 @@ sync-yotei.yml:
   > - 作業中の回答: なし
 
 - 取り込んだのは docs（chat-routines.md・chat-side-operations.md・github-actions.md の「チャット側」の1行・handover-archive-2026.md）とログだけ。`.github/` は変わっていない。取り込んだ後も古い名前の参照は残っていない（日付つきの記録を除く）。unittest OK
+- 最初の push の直前に cloudflare が他セッションのログのコミット（28be5421b）で進んでいたので、もう一度 merge で取り込み（衝突なし。ログ1ファイル）、祖先を確かめて `git push origin work/1016-wfl-s8:cloudflare`（JST 10:18、28be5421b..10ba2aac1）
+
+### マージの後の確かめ（cloudflare、10ba2aac1）
+
+| 本 | run | 契機 | 結論 | 中身 |
+| --- | --- | --- | --- | --- |
+| check-assets.yml（公開対象の検査） | #3（38834406955） | push | success | |
+| check-build-failure.yml（本番ビルド失敗の検知） | #1（38834434679） | check_run | skipped | 新しい名前のファイルが既定ブランチで check_run を受けた（Workers Builds の失敗でないのでジョブは skipped。今までと同じ） |
+| cleanup-branches.yml（マージ済みブランチの片付け） | #1（38834411797） | workflow_dispatch（`dry_run: true`） | success | `INPUT_DRY_RUN: true`・`DRY_RUN: true`・一覧を出すだけ（例 `猶予中（残す）: work/VSH …`） |
+| regenerate-sitemap.yml（サイトマップの lastmod の同期） | #1（38834457795） | workflow_dispatch | success | 今回の push は HTML を含まず、`paths: '**.html'` に当たらないので push では動かない。手動実行で確かめた。bot のコミットは無い（lastmod のずれ無し） |
+
+- 古い名前の4本は消えたので、mj-logs の status.md から古い節が消え、新しい4本は「初回成功」に出る見込み（WFL-11 で、消したファイルの節が残らないことは確かめ済み）
+- #564・#565 にコメントした
+
+### 表に無い本の `name:`
+
+`.github/workflows/` の 21 本の `name:` を並べた。規則（「<対象>の<動作>」の名詞止め）に合っていないのは2本:
+
+| 本 | 今の `name:` | 案 |
+| --- | --- | --- |
+| fetch-gsc.yml | Search Consoleのエクスポート | Search Console のエクスポート（英字と和文の間に空白を入れる。WFL-01 の表の案と同じ） |
+| sync-logs.yml | 作業ログを mj-logs へ写す | 変えない（停止中で、#298 の予定で消す） |
+
+ほか（check-saikyo-unregistered「最強戦の出場者の登録漏れの検知」・sync-birthday-calendar「誕生日カレンダーの同期」・fetch-redirect-counts「転送の件数の集計」・cleanup-logs「作業ログの片付け」・regenerate-page「ページの再生成」・fetch-x-posts「X の投稿の試し取り」・convert-x-posts「X の投稿の変換」など）は名詞止めで揃っている。この指示では変えていない
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1016-wfl-s8（マージ済み。削除は cleanup-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1016-WFL-20.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1016-wfl-s8
+- 確認用URL: なし
+- マージ: 済（10ba2aac1）
+- issue: #564・#565（コメント）
+- 判断が必要なこと: 表に無い本の `name:` のうち規則と揃っていないのは2本（経過「表に無い本の `name:`」）。(a) `fetch-gsc.yml` を「Search Console のエクスポート」にする（空白だけの直し。参照する所は無い）／(b) 変えない。推奨 (a)（段③-4 の fetch-youtube の切り出しの指示で一緒に行えば、手動実行の確かめを1回で済ませられる）。`sync-logs.yml`（「作業ログを mj-logs へ写す」）は #298 の予定で消すので変えない、を推奨
+- 未確認の項目: 改名の後の初回の run-daily: 2026-10-17（土）04:00 JST（`branches / delete` が cleanup-branches.yml、`live / yotei / sync` が sync-yotei.yml で、書く道筋で動くか）。同日 06:00 の Worker の朝の確かめ（#506）と mj-logs の status.md・morning.md（新しい4本が「初回成功」に出て、古い4本の節が消えるか）。保険の update-live-channel（10/17、schedule）で sync-yotei が動かずにゲートで止まるか。次は段③-4（fetch-youtube.yml の切り出し）
+- エラー: なし
 
 <!-- guide-links -->
 ---
