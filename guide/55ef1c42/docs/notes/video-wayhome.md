@@ -15,8 +15,8 @@ SNS ブックの更新・/live の取り込みから呼ばれた再生成では�
    - タイトルは title/ の期の題（大会名の書き方の違いは `lib/wayhome_intake.py` の `TAIKAI_ALIASES` で直す。期は `title/search.json` の公開している期）。帰り道用に直して貼ってよい。
      期に結び付かないタイトルは注記が付き、その回の各話には「決勝戦を見る」が出ない
 2. 1行をシートの末尾に貼る（シートへの追記は自動では行わない）
-3. 次の週次の再生成（急ぐときは `regenerate-page.yml` を `all` で手動実行）が、YouTube の情報を取り直して `data/youtube_meta.json` を更新し、
-   一覧の OGP 画像を作り直し、一覧・各話を生成して同じコミットに入れる
+3. 次の週次の `fetch-youtube.yml`（毎週月曜 05:37 JST。急ぐときは `fetch-youtube.yml` を手動実行）が、YouTube の情報を取り直して `data/youtube_meta.json` をコミットし、
+   続けて呼ぶ `regenerate-page.yml`（`all`）が一覧の OGP 画像を作り直し、一覧・各話を生成して同じコミットに入れる（データのコミットとページのコミットは2つに分かれる。2026-10-16 から、#564）
 
 週次の再生成が知らせること（前回の知らせと変わったときだけ。決定は `docs/decisions/wayhome.md`）:
 
@@ -26,8 +26,8 @@ SNS ブックの更新・/live の取り込みから呼ばれた再生成では�
 | シートにあって YouTube の情報が無い回 | 失敗 | その回は外して生成した。動画IDの誤り・非公開を確かめる |
 | YouTube で見られなくなった回 | 成功 | 前回の情報のままページを残す。消すならシートの行を消す |
 
-- 仕組み: 「帰り道のYouTube情報を取得」（`scripts/fetch_youtube_meta.py`。閲覧数・取得日時は保存せず、中身が変わったときだけ差分が出る。返らなかった回は前回の値を残す）→
-  「帰り道の一覧のOGP画像を作る」（`scripts/build_wayhome_ogp.py`、Pillow）→ 再生成 → コミット（画像は一覧 `wayhome/index.html` を作り直せたときだけ入れる）→
+- 仕組み: `fetch-youtube.yml` の「帰り道のYouTube情報を取得」（`scripts/fetch_youtube_meta.py`。閲覧数・取得日時は保存せず、中身が変わったときだけ差分が出る。返らなかった回は前回の値を残す）→
+  `regenerate-page.yml` の「帰り道の一覧のOGP画像を作る」（`scripts/build_wayhome_ogp.py`、Pillow）→ 再生成 → コミット（画像は一覧 `wayhome/index.html` を作り直せたときだけ入れる）→
   「帰り道の取り込みを調べる」（`scripts/check_wayhome.py`）→ 常設 issue へのコメント（前回の状態はコメントの末尾の隠した注記 `<!-- wayhome-state: … -->`）
 - 一覧の OGP 画像 `img/ogp/wayhome/index-<最新話の公開日>.jpg`（最新4本のサムネイルを2×2に並べたもの、#339）。最新話と同じ公開日の回が N 本（N≥2）なら `index-<日付>-N.jpg`。
   古い `index*.jpg` は削除する（`/img/*` は immutable 配信のため同じURLで中身を変えない、`docs/notes/ogp.md`）。同じ名前で中身が違う（サムネイルの差し替えなど）ときは上書きせず今のファイルを残す。

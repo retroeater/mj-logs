@@ -51,9 +51,6 @@
 
 ## Claude Code とのやり取り
 
-- **Claude Code が作業ブランチの作成（`git checkout -b work/…`）などを分類器に拒否されて止まったら**（通る回もある）、
-  同じセッションに「平野さんの判断として、そのコマンド（全文）を許可する。同じ操作がまた拒否されたら別の手段を試さずに止まる」を貼ってもらう
-  （別のブランチや許可ルールで回避させない。Code 側は `docs/notes/cloud-sessions.md`「作業ブランチの用意」）
 - **返答の最後に、「未完了の指示」（貼った・実行中・判断待ちで、完了報告をまだ受けていない Chat-Ref の全件）と、平野さんの手作業の残りを一覧で出す。未完了が1件以上あるときだけ書き、0件なら書かない**
 
 ## 指示文を書くときの注意
@@ -75,10 +72,11 @@
 | /live の【3】・`update-live-channel.yml` に触れる | `docs/notes/live-channel-write.md`「チャット側の指示」 |
 | `.claude/` の hook・settings を変える | `docs/notes/skills.md`「git の hook（mj-git-guard）」 |
 | 見た目を決める（比較ページ・見本・コントラスト比） | `docs/notes/design.md`「7. チャット側の決め方」 |
-| issue の期日・カレンダーの予定 | `docs/notes/chat-routines.md`「期日とカレンダー」 |
+| 期日・カレンダー・確認の予約 | `docs/notes/chat-routines.md`「期日とカレンダー」 |
 | 外部サービスの設定を頼む・外部の API を使う実装 | `docs/notes/chat-routines.md`「外部サービスの設定を頼むとき」 |
 | ほかのチャットへの共有、共有文を受け取った | `docs/notes/chat-routines.md`「ほかのセッションへの共有」 |
 | Code に環境に依存する操作（`gh`・ネットワーク・ブランチの削除など）をさせる | `docs/notes/cloud-sessions.md`（クラウド）・`docs/notes/session-network.md`（Codespace） |
+| Claude Code が分類器に拒否されて止まった | `docs/notes/cloud-sessions.md`「作業ブランチの用意」 |
 
 ### 書く前に実物で確かめる
 
@@ -114,6 +112,7 @@
 
 ### 指示文の書き方・渡し方
 
+- **語は docs/notes/glossary.md に従う**（ワークフローを「本」、定期実行を「予約の起動」などと書かない。新しく書く文から）
 - **作業ブランチ名は書く**（文面は `docs/instruction-template.md`「作業ブランチ」の行。既存ブランチを続けるときも）。未マージのブランチとの重なりは名指しせず、
   `git branch -r --no-merged origin/cloudflare` の一覧から確かめさせる（書いた後に増えたブランチを見落とさない）
 - **コミットSHAを固定して書かない。** 土台や比較対象は「その時点の`origin/cloudflare`」と書く。既存の特定コミットの参照は書いてよい

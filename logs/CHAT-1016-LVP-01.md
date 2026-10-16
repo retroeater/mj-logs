@@ -49,29 +49,93 @@
 - Chat-Ref の確認: `git fetch --unshallow` の後、`CHAT-*-LVP-*` のコミット・`docs/logs/` の履歴とも0件。`work/1016-lvp` はローカル・リモートとも無く、origin/cloudflare（dde7793）から作成
 - 0. 「指示」欄の末尾は指示文の最後の行（「不明な点があれば、…この行が指示文の最後の行です。」）と一致
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- #362 のコメント（37件）に他セッションの着手中は無し。着手中のコメントを書いた（本文・状態・ラベルは変えていない）
+
+### 手順1: 読み込みと「表示」の出どころ
+
+- 読み方: `live_layer3.fetch_layer2()` と、`fetch_matches()` と同じ `fetch_records(SPREADSHEET_ID, SHEET_NAME, HEADERS + ("冒頭",))`（【3】の生の行。追加日・冒頭を見るため）。合わせ方は `merge_records()`、公開の判定は `generate_live_pages.build_video()` をそのまま呼んだ
+- 2回読んで行数は同じ: 【2】14,197行（うち放送対局候補 Y 4,330）、【3】4,333行
+- コード: `live_layer3.merge_records()` が `record["表示"] = row["掲載"]`（【3】の掲載）。`generate_live_pages.load_videos()` は `表示` が `live.SHOW_VALUES`（Y・N・除外）に無ければ警告、`Y` 以外は飛ばし、`Y` だけ `build_video()` に回す。前提どおりなので続けた
+- 【2】の候補で【3】に行が無いもの: 0件。【3】の行で【2】の候補でないもの: 2行（行4217 `9sP_ePg3xgg` は掲載 Y で公開中、行4312 `tMwcjumwz-o` は掲載 N）。同じ動画IDが2行の動画が1本（判断 LV-30 の分割）
+
+### 手順2: 出ない理由ごとの件数（【3】の行単位）
+
+| 分類 | 計 | 追加日 空欄 | 2026-09 | 2026-10 |
+|---|---|---|---|---|
+| 公開（掲載 Y で条件を通る） | 2,918 | 6 | 2,912 | 0 |
+| (a) 掲載が空欄 | **836** | 707 | 102 | 27 |
+| (b) 掲載が N | 579 | 0 | 578 | 1 |
+| (b) 掲載が 除外 | 0 | 0 | 0 | 0 |
+| (c) 掲載 Y だが条件で落ちる | **0** | 0 | 0 | 0 |
+
+- (c) が0件であることの裏付け: 公開と判定した 2,918 本の動画IDは、origin/cloudflare（dde7793）の `live/` の HTML に出る動画ID 2,918 本と完全に一致した（生成物は今のシートと同じ状態）
+- 追加日が空欄の 707 行は、自動追記（#404）より前に入った行（初期データ）。追加日の入った (a) は 129 行（2026-09-03 以降）
+
+### (a) が 300 行を超えたため止まった
+
+止まる条件「(a) が 300 行を超える」に当たった（836 行）。手順3の行ごとの表は作っていない。以下は件数だけ。
+
+(a) のタイトル戦 × ステージ × 追加日の月:
+
+| タイトル戦 | ステージ | 空欄 | 2026-09 | 2026-10 |
+|---|---|---|---|---|
+| 麻雀日本シリーズ | 予選・第1〜9節・プレーオフ・決勝ほか | 257 | 2 | 2 |
+| 女流プロ麻雀日本シリーズ | 予選・第1〜7節・プレーオフ・決勝 | 382 | 0 | 0 |
+| 鳳凰戦 | 決定戦 | 39 | 0 | 0 |
+| 小島武夫杯帝王戦 | ベスト16・決勝 | 10 | 0 | 0 |
+| 十段戦 | ベスト16・ベスト8・決定戦 | 8 | 8 | 15 |
+| プロクイーン | ベスト16・ベスト8・決定戦 | 4 | 0 | 4 |
+| 紅龍戦 | （空）・決勝 | 4 | 3 | 0 |
+| 若獅子戦・桜蕾戦 | ベスト16 | 3 | 0 | 0 |
+| 達人戦 | （空）・決勝 | 0 | 81 | 0 |
+| 昇龍戦 | （空）・決勝 | 0 | 4 | 0 |
+| 鳳匠戦 | ベスト16 | 0 | 2 | 6 |
+| WRC-Rリーグ・新人王戦 | 決勝 | 0 | 2 | 0 |
+
+(a) をチャット側の案の分け方で数えた件数（参考。機械的な当てはめで、行ごとの確認はしていない）:
+
+| 案 | 計 | 追加日 空欄 | 2026-09 | 2026-10 |
+|---|---|---|---|---|
+| N 案（冒頭のみ無料の公開版） | 117 | 108 | 6 | 3 |
+| 保留（達人戦・昇龍戦・鳳匠戦、#490） | 93 | 0 | 87 | 6 |
+| N 案（掲載範囲の外、2-1） | 9 | 9 | 0 | 0 |
+| Y 案（それ以外） | 617 | 590 | 9 | 18 |
+
+- 当てはめの規則: 保留はタイトル戦名。冒頭は【3】の「冒頭」が Y、または限定でないライブで同じタイトル戦・期・まとめ単位にメンバー限定の動画があるもの。範囲の外は 2-1 の表にないタイトル戦（小島武夫杯帝王戦の9行）と、表の段の外のステージ（今回は該当なし）
+- Y 案 617 行を掲載 Y にしたときの判定（`build_video()`）:
+  - 通る 450（空欄 427、2026-09 8、2026-10 15）
+  - まとめ単位を記号にできない 162（空欄 160、2026-09 の行4209「第8節」、2026-10 の行4330「第9節」。麻雀日本シリーズの「第N節」などが主）
+  - まとめ単位が空 2・期を記号にできない 1（いずれも追加日空欄）
+  - 配信予定 2（2026-10 の行4316・4320、第24期プロクイーン決定戦。配信が始まれば通る）
+- チャット側の前提「2026-09-03 以降の対象らしい動画が約56本」に対し、追加日の入った (a) は 129 行（うち達人戦 81 行）。数え方が違うため食い違いとはせず、記録だけ残す
+- 2-1 の表の「麻雀日本シリーズ・女流プロ麻雀日本シリーズ | すべて載せる | 判断 LV-04（2026-09-22 に撤回）」は、「すべて載せる」が撤回されたのか、撤回を経て「すべて載せる」になったのかが読み取れない。(a) の 643 行がこの2つのため、Y 案・N 案のどちらに数えるかで結果が大きく変わる
 
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1016-lvp
 - ログ: https://github.com/retroeater/mj/blob/work/1016-lvp/docs/logs/CHAT-1016-LVP-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1016-lvp
 - 確認用URL: なし
-- マージ: 未
-- issue: #362
-- 判断が必要なこと: なし
+- マージ: 未（止まる条件に当たったため、ドキュメントのみでもマージしていない）
+- issue: #362（着手中のコメントのみ）
+- 判断が必要なこと:
+  - 止まる条件「(a) が 300 行を超える」に当たった。(a) 掲載が空欄は 836 行（追加日 空欄 707・2026-09 102・2026-10 27）。(b) 掲載 N 579 行、(c) 掲載 Y で落ちる行は 0 行
+  - 案ごとの件数（機械的な当てはめ）: N 案（冒頭）117、保留（#490）93、N 案（範囲外）9、Y 案 617。Y 案のうち掲載を Y にしても 167 行は (c) で落ちる（まとめ単位を記号にできない 162 など）
+  - 707 行は追加日が空欄の初期データで、うち 639 行が麻雀日本シリーズ・女流プロ麻雀日本シリーズ。2-1 の表の日本シリーズの行（「すべて載せる」「2026-09-22 に撤回」）の意味を決めれば大半が片付く。表を作る範囲を「追加日の入った 129 行」に絞った指示にするか、日本シリーズの扱いを先に決めるか
+  - 未記入を知らせる仕組みの所見: 自動追記の後に入った未記入は 129 行で、2026-09 102・2026-10 27 と毎月出ている（うち達人戦などの保留 93）。毎日の追記で行が足されても知らせが無いため、追加日の入った未記入（保留のタイトル戦を除く）の件数を朝の報告か生成の警告に出す仕組みはあったほうがよい
 - 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj dde77936）: https://github.com/retroeater/mj-logs/tree/main/guide/dde77936
+ガイド文書（この版を写した時点の最新、mj 55ef1c42）: https://github.com/retroeater/mj-logs/tree/main/guide/55ef1c42
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/dde77936/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/dde77936/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/dde77936/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/dde77936/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/dde77936/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/dde77936/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/55ef1c42/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/55ef1c42/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/55ef1c42/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/55ef1c42/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/55ef1c42/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/55ef1c42/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/dde77936.md

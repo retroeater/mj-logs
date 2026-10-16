@@ -48,16 +48,33 @@ CHAT-1016-JBK-12 で、`--check` と週次の再生成のログ（Actions）に�
 ## 経過
 
 - 0章: 指示欄の末尾が指示文の最後の行と一致することを確かめた。Chat-Ref の重複なし。指示文の冒頭の雛形の行は揃っている。work/JBK はマージ済みで、ローカルも `origin/cloudflare` の祖先（`git merge --ff-only origin/cloudflare` は既に最新）。JBK-12 のログの状態に続きを足した
+- issue: #576 に着手中のコメントを書いた。未マージの work/ ブランチで `lib/study.py`・`generate_study*.py`・`lib/wayhome.py`・`lib/mtsuku.py` を変えているものは無い
+- 手順1 生徒の名前がログに出る経路の洗い出し:
+  1. `prepare()` が出す生徒の一覧（`student_report_lines()`。回ごとに「生徒 <タブに書いた名前> 写真入り / 名前だけ(理由)」）。`--check`・生成・週次の再生成のログに出ていた
+  2. 写真の確かめ（`wayhome.photo_problems()`）の警告「<現在名>: SNS ブックがX ID … の写真をまだ取っていません」。生徒にも既定の `warn` が使われ、Actions では `::warning::` の注釈になり、名前と X ID が実行サマリにも出ていた
+  3. 止まる理由・例外: 生徒は止める理由にならない（JBK-09）。`row_problems()` の文は動画ID・回だけ。見出しが不正なときの文は見出しだけ。`regenerate.py` の検査の結果（`result.warn`・`result.stop`）にも生徒は入らない
+  4. ほかの利用先: `lib/study.py` を読むのは `generate_study.py`・`generate_study_episodes.py`・`check_unused_names.py` だけ。`check_unused_names.py` は生徒を「使われている名前」に数えるだけで、ログには件数しか出さない
+- 手順1 直し（d26efcbae）: 切り替えは **環境変数 `CI` の有無**（`HIDE_NAMES_ENV`。Actions では `true`）。明示のオプションは足していない（手元の Code のセッションでは `CI` が無いので一覧が出る）
+  - `CI` が立っているとき: 「生徒の写真: 生徒 N人: 写真入り N人(うち SNS ブックが写真をまだ取っていない N人は代わりの絵)、名前だけ: 登録なし N人・X ID なし N人・写真が読めない N人」の1行だけ（`student_summary()`）
+  - 手元: 上の1行の下に、回ごとの一覧と、写真をまだ取っていない生徒の警告（「警告: …」）を出す（`student_report()`）
+  - 生徒の写真の確かめの警告は `::warning::` に出さず、`prepare()` が集めて上の形で出す（`student_photo_reasons()` の `warn`）。講師・MC の警告・止まる理由は今のまま
+  - 数えるのは生徒の人（タブに書いた名前ごと。講師・MC でもある人は除く）
+- 手順1 テスト（`StudentLogTest`、架空の生徒6人: 別名で寄せる人・写真入り・登録なし・X ID なし・写真が読めない・写真をまだ取っていない）:
+  - `CI=true`（と `GITHUB_ACTIONS=true`）で、標準出力・標準エラーに生徒の名前（旧名・現在名とも）が1つも出ず、件数の行が合う
+  - `CI` なしで、回ごとの一覧と警告が出る
+  - 修正前の `lib/study.py` に戻すと2件とも失敗する（`CI=true` でも旧名が出る）。戻して通ることを確かめた。全テスト OK
+- 手順2 生成物: `CI=true python3 scripts/regenerate.py study study_episodes` で差分0。出力は「生徒の写真: 生徒の名前を入れた回はありません」（今のタブは生徒が空）。`lib/study.py` を読むページはこの2つだけなので、ほかのページは変わらない
+- 手順2 文書: `docs/notes/video-study.md`（実装記録）・`docs/notes/static-generation.md`「生成を止める条件の設計」に1行ずつ、`docs/decisions/study.md` に JBK-13 の節
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj dde77936）: https://github.com/retroeater/mj-logs/tree/main/guide/dde77936
+ガイド文書（この版を写した時点の最新、mj 55ef1c42）: https://github.com/retroeater/mj-logs/tree/main/guide/55ef1c42
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/dde77936/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/dde77936/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/dde77936/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/dde77936/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/dde77936/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/dde77936/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/55ef1c42/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/55ef1c42/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/55ef1c42/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/55ef1c42/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/55ef1c42/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/55ef1c42/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/dde77936.md
