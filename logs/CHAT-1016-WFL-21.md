@@ -61,15 +61,73 @@ Chat-Ref: CHAT-1016-WFL-21
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+- Chat-Ref の重複確認: CHAT-1016-WFL-21 のコミットは無い（1 回目に貼られたものは着手前に止めたので、作業ブランチ・ログ・コミットは無かった）
+- 作業ブランチ: work/1016-wfl-glossary はリモート・ローカルとも無かったので origin/cloudflare（0835017c8）から作った
+- 0. 指示欄の末尾は指示文の最後の行と一致。今回は「知見 → 選んだ層 → 理由」の表があるので、CLAUDE.md「Chat-Ref」の止まる条件に当たらない
+- 雛形の行: Chat-Ref・マージ・貼る時機・共通手順（＋作業ブランチ）は揃っている
+- 着手は JST 10:42
+- 同じ目的の用語集・issue: `git grep -il 'glossary\|用語集'` で当たるのは `.claude/skills/` の汎用のスキル文書だけ（このプロジェクトの用語集は無い）。GitHub の issue の検索（「用語 用語集 glossary 呼び方を揃える」）は 0 件。止まる条件に当たらない
+
+### 手順1: 使わない語の件数（CLAUDE.md・docs/notes〈handover-archive を除く〉・docs/instruction-template.md）
+
+| 語 | 件数（行） | 多いファイル |
+| --- | --- | --- |
+| ブック | 115 | ask-worker.md 20・saikyo-page-design.md 15・static-generation.md 12・video-wayhome.md 11・sns-book.md 9・books-covers.md 9・github-actions.md 6・books-freeze.md 6 |
+| タブ | 191 | static-generation.md 31・title-pages.md 30・live-page-design.md 28・live-channel-write.md 22・houou-top.md 20・video-wayhome.md 9・yotei-sheet.md 7・video-study.md 5 |
+| 起動の表 | 10 | github-actions.md 6・scheduler-worker.md 3・redirects.md 1 |
+| 予約の起動 | 18 | scheduler-worker.md 8・github-actions.md 8・saikyo-page-design.md 1・dojo-guest-calendar.md 1 |
+| 予約実行 | 32 | github-actions.md 11・scheduler-worker.md 7・dojo-guest-calendar.md 4・live-channel-write.md 2・cloud-sessions.md 2・ほか |
+| 保険の実行 | 5 | github-actions.md 3・scheduler-worker.md 2 |
+| 書く道筋 | 0 | — |
+| 書かない道筋 | 2 | github-actions.md 2 |
+| 本ずつ（「1本ずつ」など） | 4 | github-actions.md 2・yotei-sheet.md 1・scheduler-worker.md 1 |
+| 取り込み | 49（「取り込」を含む行は 65） | live-page-design.md 9・title-pages.md 8・live-channel-write.md 7・yotei-sheet.md 5・instruction-template.md 5・branch-operations.md 4 |
+
+- 「本」は一般の語（「本番」「本実行」「本文」など）と区別できないので、ワークフローを数える「〜本」は件数に入れていない（「本ずつ」だけを数えた）
+- 「取り込み」: git の意味（`origin/cloudflare` を merge する）で使っている行は 10 ほどで、残りはデータを外から持ってくる意味（「毎朝の取り込み」「層1の取り込み」「CSV を取り込む」、ワークフローの名前「「連盟ch」の取り込み」「予定表の取り込み」「道場部ゲストの取り込み」など）。前提の案（git の意味にだけ使い、データは「取得」）は今の使われ方と合わないので、用語集では git の意味の行を置き、使い分けは判断待ちにした
+- 「ブック」の規則（「ブックと書く」）は CLAUDE.md「コード規約」の1か所だけ。chat-side-operations.md・instruction-template.md には同じ趣旨の規則は無い（chat-side-operations.md の「ブックは `scripts/` の定数名などで呼ぶ」、instruction-template.md の「シート・SNS ブックなど」は呼び名として使っているだけ。触っていない）
+
+### 手順2: 用語集と参照（b31739cd1）
+
+- `docs/notes/glossary.md` を作った。3 つの表（GitHub Actions・Worker／ブランチ・反映／Google スプレッドシート）で、1 語 1 行（使う語・使わない語・意味・対応する英語やファイル・入力）。冒頭に「新しく書く文はこの語に従う。今ある docs・issue はその箇所を触るときに直す」。載せた語: ワークフロー・ジョブ・実行・スケジュール・定期実行・フォールバック実行・手動実行・本実行・ドライラン・作業ブランチ・マージ・本番反映・取り込み（git）・スプレッドシート・シート。新旧の対応（SNS ブック → SNS スプレッドシート、ABEMA ブック → ABEMA スプレッドシート、「〜タブ」→「〜シート」）
+- CLAUDE.md「コード規約」の「スプレッドシートのファイルは『ブック』と書く（『冊』で数えない）」を「スプレッドシートのファイルは『スプレッドシート』、タブは『シート』と書く。ほかの語（ワークフロー・定期実行・本実行など）も docs/notes/glossary.md に従う（新しく書く文から）」に置き換えた（置き換えと参照を1行にした）
+- docs/notes/chat-side-operations.md「指示文の書き方・渡し方」の先頭に参照の1行を足した
+- docs/handover.md の文書の一覧の表（chat-side-operations.md の次）に glossary.md の行を足した（docs/notes/static-generation.md「ページの一覧」はページの一覧で、文書の一覧ではないので載せていない）
+- 公開しないこと: `.assetsignore` の 7 行目 `docs` で docs/ 全体が配信から外れている
+- サイズ（バイト。上限 28,672・警告域 26,624）: CLAUDE.md 23,651 → 23,801、chat-side-operations.md 22,192 → 22,361、handover.md 23,172 → 23,349。警告域を超えない
+- unittest: OK
+
+### 手順3
+
+- `docs/decisions/operations.md` に「## 2026-10-16（CHAT-1016-WFL-21）」を足した（自動化だけの話ではないので operations.md にした）
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1016-wfl-glossary（マージ済み。削除は cleanup-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1016-WFL-21.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1016-wfl-glossary
+- 確認用URL: なし
+- マージ: 済（f6fae4d33）
+- issue: なし
+- 判断が必要なこと:
+  1. 「取り込み」の使い分け: 今の docs では git の意味（`origin/cloudflare` の取り込み）は 10 行ほどで、残りの 50 行ほどはデータを持ってくる意味（ワークフローの名前「「連盟ch」の取り込み」「予定表の取り込み」を含む）。(a) git の意味は「`origin/cloudflare` の取り込み」と対象を添えて書き、データの意味の「取り込み」は今のまま使う／(b) 前提の案どおり git の意味にだけ使い、データは「取得」と書く（ワークフローの名前も変えることになる）／(c) git の意味を「マージ」と区別して「merge」と書く。推奨 (a)（ワークフローの名前を変えずに済み、git の意味は対象を添えれば取り違えない）。用語集は (a) を仮に書いた
+  2. ほかに同じものを別の語で呼んでいる例（用語集には入れていない）: GitHub の `schedule`（cron）で動く実行のうち、フォールバックではないもの（週次の check-meibo・check-saikyo-unregistered・cleanup-logs など、cron が本来の起動）を、今の docs は「予約実行」と呼んでいる。(a) 「cron の実行」と書く／(b) 「定期実行」に含める（Worker からの定期実行と区別できなくなる）。推奨 (a)（定期実行は Worker の起動に限る今回の決定と食い違わない）
+  3. chat-side-operations.md は冒頭で「純増したら、足した分と同じ量を docs/notes/ の各文書へ移す」としている。今回は指示どおり参照の1行（169 バイト）を足しただけで、移していない（警告の 24,576 バイトより下の 22,361 バイト）。移すならどの項目を移すかはチャット側で決めてほしい
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 10ba2aac）: https://github.com/retroeater/mj-logs/tree/main/guide/10ba2aac
+ガイド文書（この版を写した時点の最新、mj 2536efeb）: https://github.com/retroeater/mj-logs/tree/main/guide/2536efeb
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/10ba2aac/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/10ba2aac/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/10ba2aac/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/10ba2aac/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/10ba2aac/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/10ba2aac/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/2536efeb/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/2536efeb/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/2536efeb/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/2536efeb/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/2536efeb/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/2536efeb/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/98839f38.md
