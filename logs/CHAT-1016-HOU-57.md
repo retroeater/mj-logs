@@ -61,7 +61,7 @@ HOU-55 で、質問欄の歴代の鳳凰位（`champions`）を、10人以下で
 
 ## 報告
 
-- 状態: 判断待ち（HOU-54〜56 と一緒に、HOU-56 の PNG を見た後のマージの指示で入れる）
+- 状態: 判断待ち（HOU-54〜56 と一緒に、HOU-56 の PNG を見た後のマージの指示で入れる） / 続き: CHAT-1016-HOU-58
 - ブランチ: work/1016-hou2
 - ログ: https://github.com/retroeater/mj/blob/work/1016-hou2/docs/logs/CHAT-1016-HOU-57.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1016-hou2
@@ -78,12 +78,12 @@ HOU-55 で、質問欄の歴代の鳳凰位（`champions`）を、10人以下で
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 0112228f）: https://github.com/retroeater/mj-logs/tree/main/guide/0112228f
+ガイド文書（この版を写した時点の最新、mj aabdd8d5）: https://github.com/retroeater/mj-logs/tree/main/guide/aabdd8d5
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/0112228f/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/0112228f/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/0112228f/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/0112228f/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/0112228f/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/0112228f/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/aabdd8d5/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/aabdd8d5/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/aabdd8d5/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/aabdd8d5/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/aabdd8d5/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/aabdd8d5/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/98839f38.md

@@ -1,0 +1,431 @@
+# 帰り道（一覧 wayhome/index.html・各話 wayhome/）の実装記録
+
+このファイルは完了済み作業の記録。現状とルールは docs/handover.md。
+
+---
+
+## 新しい回を追加する手順
+
+**シート（動画のタブをまとめたブック〈`lib/video_book.py` の `SPREADSHEET_ID`〉の「帰り道」タブ、#578）に1行貼るだけ。** あとは週次の再生成（`regenerate-page.yml`、毎週月曜 05:37 JST の予定）が行う（#194・#340、2026-10-11）。
+SNS ブックの更新・/live の取り込みから呼ばれた再生成では、帰り道の手順は動かない（`github.workflow_ref` が `regenerate-page.yml` のときだけ、2026-10-12。コードで確かめた。呼ばれた再生成の実行での確認は未、2026-10-13）。
+
+1. 新しい回が公開されると、週次の再生成が常設 issue「帰り道の新しい回」に知らせる（/live の層1 `data/live_channel_raw.jsonl` の題名に「帰り道」か「ついていって」があり、シートに無い動画。メンバー限定も）。
+   知らせには、シートにそのまま貼れる1行（名前・タイトル・動画ID。ほかの列〈紹介文（補正用）など〉は空、タブ区切り。「表示」列は 2026-10-16 に廃止）が入る。ジョブは失敗にしない（issue へのコメントだけ、2026-10-12）
+   - 1行の列は、知らせを作るときの帰り道タブの見出しの並びに合わせる（`check_wayhome.py` が見出しを読む。名前・タイトル・動画ID 以外の列は空にして並びを保つ）
+   - タイトルは title/ の期の題（大会名の書き方の違いは `lib/wayhome_intake.py` の `TAIKAI_ALIASES` で直す。期は `title/search.json` の公開している期）。帰り道用に直して貼ってよい。
+     期に結び付かないタイトルは注記が付き、その回の各話には「決勝戦を見る」が出ない
+2. 1行をシートの末尾に貼る（シートへの追記は自動では行わない）
+3. 次の週次の `fetch-youtube.yml`（毎週月曜 05:37 JST。急ぐときは `fetch-youtube.yml` を手動実行）が、YouTube の情報を取り直して `data/youtube_meta.json` をコミットし、
+   続けて呼ぶ `regenerate-page.yml`（`all`）が一覧の OGP 画像を作り直し、一覧・各話を生成して同じコミットに入れる（データのコミットとページのコミットは2つに分かれる。2026-10-16 から、#564）
+
+週次の再生成が知らせること（前回の知らせと変わったときだけ。決定は `docs/decisions/wayhome.md`）:
+
+| 知らせ | ジョブ | すること |
+| --- | --- | --- |
+| 新しい回 | 成功 | 上の 2. |
+| シートにあって YouTube の情報が無い回 | 失敗 | その回は外して生成した。動画IDの誤り・非公開を確かめる |
+| YouTube で見られなくなった回 | 成功 | 前回の情報のままページを残す。消すならシートの行を消す |
+
+- 仕組み: `fetch-youtube.yml` の「帰り道のYouTube情報を取得」（`scripts/fetch_youtube_meta.py`。閲覧数・取得日時は保存せず、中身が変わったときだけ差分が出る。返らなかった回は前回の値を残す）→
+  `regenerate-page.yml` の「帰り道の一覧のOGP画像を作る」（`scripts/build_wayhome_ogp.py`、Pillow）→ 再生成 → コミット（画像は一覧 `wayhome/index.html` を作り直せたときだけ入れる）→
+  「帰り道の取り込みを調べる」（`scripts/check_wayhome.py`）→ 常設 issue へのコメント（前回の状態はコメントの末尾の隠した注記 `<!-- wayhome-state: … -->`）
+- 一覧の OGP 画像 `img/ogp/wayhome/index-<最新話の公開日>.jpg`（最新4本のサムネイルを2×2に並べたもの、#339）。最新話と同じ公開日の回が N 本（N≥2）なら `index-<日付>-N.jpg`。
+  古い `index*.jpg` は削除する（`/img/*` は immutable 配信のため同じURLで中身を変えない、`docs/notes/ogp.md`）。同じ名前で中身が違う（サムネイルの差し替えなど）ときは上書きせず今のファイルを残す。
+  **作るのはこの1枚だけで、個別ページ用の画像は作らない**（個別の `og:image` はYouTubeのサムネイルをそのまま使う）
+- 手元で動かすときは `YOUTUBE_API_KEY=... python3 scripts/fetch_youtube_meta.py`・`python3 scripts/build_wayhome_ogp.py`・`python3 scripts/regenerate.py video_wayhome wayhome_episodes`
+- シートや SNS ブックを直した後は、再生成の前に `python3 scripts/regenerate.py --check video_wayhome wayhome_episodes` で、止まる理由（動画IDとして読めない行・読めない写真など）を最初の1つでなく全部確かめられる。ファイルは書かない。写真の HEAD は生成と同じに回り、JSON に無い回・「プロ」に居ない選手は警告（#551）
+
+## 紹介文と title/ の期のページ（#173・#553、2026-10-12）
+
+- 紹介文（各話のヒーローの文・meta description・`VideoObject.description` の3か所で同じ文）は自動で組む:
+  「日本プロ麻雀連盟「帰り道ついていってイイっすか」。<期の題>を終えた<名前>への密着インタビュー動画です。」。期の題はタイトル列から末尾の「 #N」を外したもの。
+  同じ期・同じ選手で番号の付いた回が複数あれば「（全2回の1回目）」を添える（`lib/wayhome.py` の `episode_descriptions()`）
+- **「帰り道」タブの「紹介文（補正用）」列に書いた回は、その文で上書きする。空の回は自動の文。** 自動の文を直したいときは、ページに出ている文を写して直し、この列に書く。
+  自動の文はシートに書き出さない（2026-10-10 の決定のまま）。
+  120字（`DESCRIPTION_MAX_CHARS`）を超えると生成のログに警告が出る（止めない。`--check` でも警告）
+- 各話と一覧（最新話）のヒーローのボタンは「▶ 再生」と、その回の期のページへの「決勝戦を見る」の2つ（`lib/wayhome.py` の `build_period_link_html()`。2026-10-12 に YouTube の決勝動画へのボタン〈「決勝動画ID」列〉と「決勝結果」を1つにした）。期のページの一覧は `title/search.json`（公開している期だけ）から引く。
+  結び付けはタイトル列から「 #N」を外し、期の題と同じ書き方ならそれ（年の期「麻雀日本シリーズ2025」など）、違えば取り込みと同じ照合（`lib/wayhome_intake.py` の `resolve_period()`）。
+  結び付かない回（2026-10-12 時点で「ワールド・リーチ・プロ」）は「▶ 再生」だけ。生成のログに一覧が出る
+- 帰り道タブの「決勝動画ID」列は読まない（2026-10-12。列が残っていても無くても生成は通る。見出しで読む `HEADERS` から外した）
+- title/ の期のページは、その期の帰り道の回を節「帰り道」（決勝動画の後）に、決勝動画と同じ並びのカードで出す（詳細は `docs/notes/title-pages.md`「ページと生成」の「期ページの帰り道」）
+- 紹介文の列やタイトル列を直したら、`python3 scripts/regenerate.py video_wayhome wayhome_episodes title_pages`（または `regenerate-page.yml` を手動実行）で反映する。週次の再生成でも反映される
+
+OGP画像やタイトルを変えたあと X で確認するときは、URLに `?x=<未使用の数字>` を付けて貼る（X はカードの取得結果をキャッシュするため）。詳細は `docs/notes/ogp.md`。
+
+---
+
+### 一覧の URL を /wayhome/ に移した（#559、2026-10-13）
+
+- 一覧は `wayhome/index.html`（URL は `/wayhome/`）。生成は今までどおり `scripts/generate_video_wayhome.py`（`regenerate.py` のページ名 `video_wayhome`、JS の `video_wayhome.js` もそのまま）。`regenerate.py` の `OUTPUT_OVERRIDES` で出力を `wayhome/index.html` にした
+- 旧 URL は `_redirects` で転送: `/video_wayhome.html /wayhome/ 301`・`/wayhome /wayhome/ 301`・`/wayhome/ /wayhome/index.html 200`（`html_handling: none` のためディレクトリの URL は index.html を明示する）
+- 一覧の中の共通アセット・期のページへは `../`、各話へは同じディレクトリ（`<動画ID>.html`）。各話の「一覧に戻る」とシリーズ名は `./`、`BreadcrumbList` の一覧は `https://ryoei.pro/wayhome/`
+- 各話の生成がシートに無いファイルを消すとき、一覧の `index.html`（`LIST_FILENAME`）は消さない
+- サイトマップ: 一覧の URL は `sitemap-pages.xml` から外し、各話の生成が書く `sitemap-wayhome.xml` の先頭に置く
+- `regenerate-page.yml` は、一覧の OGP 画像を一覧（`wayhome/index.html`）を作り直せたときだけ同じコミットに入れる
+
+### 前後のエピソードの並び・日付と、各話の説明文（2026-10-13）
+
+- 各話の前後のエピソードは、下の「〇〇の他のエピソード」（左ほど新しい）に合わせて、左（DOM の先）に「次のエピソード」（新しい回）、右に「前のエピソード」（古い回）。スマホ幅で縦に積むと上が次。最新話（「前」だけ）は右の列、最古の回（「次」だけ）は左の列に置き、もう片方は空ける（576px 以上で2列の格子。リンクの `is-next`・`is-prev`）。575px 以下は1枚が全幅
+- 方向の文字のすぐ下にその回の公開日（`YYYY-MM-DD`、下のカードと同じ書き方・大きさ・色、`.mj-video-prevnext-date`）
+- 各話はページ末尾の説明文（`.mj-lead`）を出さない（ヒーローの紹介文と同じ文のため。`render_content(..., has_lead=False)`）。meta description・og:description・`VideoObject.description` はそのまま
+- 一覧の説明文は、上のカードの並び（`.mj-fullbleed`）と同じ左右の余白（`clamp(12px, 3vw, 48px)`）で画面幅に合わせて折り返す（`body:has(.mj-video-list) .mj-lead`）
+
+### 件数の表示を消し、ヒーローの X・note を X の写真1つにした（2026-10-10）
+
+- 一覧の固定バーの「N件中 N件を表示」をやめた。`#result_count`（`role="status"`）は空で出し、`video_wayhome.js` が0件のときだけ「該当する動画がありません」を書く。
+  空のときは `style.css` の `body:has(.mj-video-list) .mj-filterbar-count:empty` で隠す（`saikyo/`・`title/`・`live/` と同じ形）
+- 一覧・各話のヒーローの選手名の右は、選手の X のプロフィール写真1つ（`build_player_links_html()`）。リンクは写真だけで、名前はリンクにしない。
+  一度 X のロゴにしたが、平野さんの「X のアイコン」はプロフィール写真のことだったので置き換えた
+- 写真は SNS ブックの X画像URL（【3】＋【4】、`lib/sns.fetch_pros()`。鳳凰戦の順位変動・title/ と同じ読み元。2026-10-11 までは「プロ」シートの「X画像」、#514）を `lib/x_images.py` の `with_size()` で `_400x400` に書き換える（title/ と同じ大きさ。2026-10-10 に `_200x200` だけ 404 を返す写真があった）
+- **写真は代わりの画像に逃がさず、読めなければ生成を止める**（平野さんの決定）。`lib/wayhome.py` の `check_player_photos()` が、ヒーローに出す写真を生成の前に HEAD で確かめ
+  （同じURLに一度だけ 404 を返すことがあったため3回まで、2秒おき。タイムアウト・接続の失敗は `lib/net_retry.py`）、読めない・X ID があって写真の URL が無い・既定の卵型の選手を一覧にして（動画IDつき）`ValueError` で止める。
+  **例外: SNS ブックがまだ写真を取っていない人**（【3】に行が無い・取ったときの ID が【2】と違う・状態が未取得。`lib/sns.x_pending()`）は止めず、警告して代わりの絵（`/img/avatar.svg`）で出す（2026-10-15 の決定。ID を足した日は次の毎朝の更新まで止まっていた）。
+  出力は変えない（読めたら出す、読めなければ止める）ので、`lib/x_images.py` の #359 の揺れは起きない。止まったら SNS ブック（【2】の X ID か【4】手動補正）を直してから再生成する（帰り道が止まると `regenerate.py all` のほかのページも止まる、#533）
+- 写真は名前と同じ大きさの文字の中で `1em`（`.mj-video-hero-title` に見出しと同じ `font-size`）、丸く切り、白い細いフチ（`max(2px, 0.07em)`、`rgba(255,255,255,.85)`。比較ページで A なし・B 白・C アクセント色から B を選んだ）を付ける。名前との間は 8px。タップ領域は名前の側（左）には広げず、上下と右に 8px（負のマージンで行の高さは変えない）
+- X ID が無い（SNS ブックの【2】が空か「-」）・「プロ」シートにいない選手は名前だけ。note は帰り道では使わない
+- このリンク先は、選手個人ページ（#219）ができたら差し替える（#195）
+
+### 「帰り道」タブを動画のブックへ移した（#578、2026-10-16）
+
+- 平野さんが「帰り道」「Mつく」「女流勉強会」のタブを1つのブック（`lib/video_book.py` の `SPREADSHEET_ID`。「リンクを知っている全員」の閲覧者、サービスアカウントは編集者）にまとめた。
+  帰り道の列は 動画ID・名前・タイトル・紹介文（補正用）の並びになり、「表示」列は廃止した（表にある行はすべて載せる）
+- `lib/wayhome.py` の読む先をこのブックにし、表示=Y の絞り込みを外した。`check_wayhome.py` の貼る1行からも表示 `Y` を外した。
+  移す前に新旧のタブ（旧タブの表示=Y の42行と新タブの全行）が一致し、生成物の差分が0であることを確かめた（Mつくも同じ、`docs/notes/video-mtsuku.md`）
+
+### 「帰り道」シートを移し、見出しの名前で読む（#194、2026-10-10）
+
+- 平野さんがシートを title/ ・ /live と同じブック（`lib/live.py` の `SPREADSHEET_ID`）の「帰り道」タブへ移し、列を 名前・タイトル・動画ID・決勝動画ID・表示 にした
+  （X ID・公開日・画像URL・備考は消した。値は URL ではなく動画の ID）
+- `lib/wayhome.py` の `fetch_rows()` が見出しの名前で読む（`lib/sheets.py` の `fetch_records()`。列記号の `COLUMNS`・`QUERY` はやめた）。表示=Y の行だけを使い、
+  動画ID・決勝動画IDから `https://www.youtube.com/watch?v=<ID>` を組み立てる。決勝動画IDの `-`（無いと決めた回）と空（未記入）は、どちらも「決勝戦を見る」を出さない
+  （→ 2026-10-12 に決勝動画IDは読まなくなった。「決勝戦を見る」は期のページへ。上の「紹介文と title/ の期のページ」）
+- `data/youtube_meta.json` に無い回は、その回だけ外して生成し、標準出力と `::warning::` に出す（`load_episodes()`。それまでは生成を止めていた）。
+  ワークフローを失敗の扱いにすること・取得の自動化は #194 の次の段
+- テストは `scripts/tests/test_wayhome_rows.py`
+
+### 共有ボタンを外した（#530、2026-10-10）
+
+- 一覧の固定バー（検索欄の右）と各話のヒーローの操作列（「再生」の隣）の共有ボタン・トースト・`assets/share.js` の読み込みをやめた。
+  共有するのは正規の URL と `<title>` だけで、ブラウザの共有と効果が変わらないため（平野さんの決定）
+- 帰り道だけが使っていた `share.STYLE_HERO`・`.mj-share-btn-hero` を消した。固定バーの `.mj-video-filter-search`（虫眼鏡と入力欄のまとまり）は残した
+- `scripts/tests/test_wayhome_no_share.py` が、一覧と各話に共有ボタン・`share.js` が無いことを確かめる
+
+### 前後エピソードの向き・一覧ヒーローの操作追加（#316 / #317、2026-09-14）
+
+**#316 前後エピソードを公開日基準に。** `generate_wayhome_episodes.py` は
+`sorted_by_date_desc()`（`publishedAt` 降順）で並べ、その1つ手前を「前」に
+していたため、前＝より新しい回・次＝より古い回と日付と逆だった。前＝1つ後ろ
+（より古い回）、次＝1つ手前（より新しい回）に入れ替えた。表示位置（左が前・
+右が次）は維持したため、片側しかない2枚の欠ける側が入れ替わった（最新話
+`UtxpVoWy2GY` は前のみ、最古 `mj3hZ_udzKM` は次のみ）。
+- 着手前に、シートの行順が `publishedAt` 降順と一致すること（38本、同時刻
+  なし）を確認した。生成はシート順ではなく `publishedAt` で並べるため、
+  一致しなくても隣接の組み合わせは変わらない
+- #215 のサムネイルはリンクと一緒に組み立てるため、全38枚でhrefと
+  サムネイルの動画IDが一致することを生成物で確認した
+
+**#317 一覧ヒーローに個別ページと同じ操作を追加。** `build_hero_html()` に
+「決勝戦を見る」（H列 決勝動画URL、#193）と X・note アイコン（WH-53）を
+追加した。組み立ては個別ページと同じ `lib/wayhome.py` の
+`build_final_video_link_html()` / `index_player_links()` /
+`build_player_links_html()` を使い、値が無ければ出さない扱いも同じ。
+- データ元: 決勝動画URLは「帰り道」シートの決勝動画（2026-10-10 から「決勝動画ID」列。2026-09-14時点で値があるのは
+  最新話 `UtxpVoWy2GY` の1本のみ）。X（I列）・note（K列）は `jpml_pros` の
+  「プロ」シート（WH-57 以降、帰り道シートB列は参照しない）
+- 一覧で引くのは最新話の選手1名だけ（ほかの選手の照合警告を出さないため）
+- 選手名の右にアイコンを並べるため、個別ページと同じ `.mj-video-hero-title`
+  で h2 を包んだ。CSS の追加はない
+- 幅1280/390/320px・740×360pxで、ボタン列（再生・共有・決勝戦を見る）が
+  1行に収まり、ヒーロー内の文字ブロックが上端で切れないことを確認した
+- X・noteのリンク先を選手個別ページへ切り替える検討（#195）の対象に、
+  一覧ヒーローも加わった（#195 にコメント済み）
+
+### 個別ページのUI改善3件（#216 / #213 / #215、2026-09-14）
+
+**#216 sticky navbar を個別ページへ拡張。** #188 のスコープ
+`body:has(.mj-video-list)` を、一覧と個別38枚にだけ付く
+`.mj-video-page` に変えた（`nav.navbar` と collapse の `max-height`
+規則の2つ）。フィルタバー（#189）・ヒーローの `isolation`・全幅化は
+一覧専用のため `.mj-video-list` のまま。`scroll-padding-top` は
+`html:has(.mj-video-page)` を navbar 高さのみにし、一覧は後続の
+`html:has(.mj-video-list)` でフィルタバー分を足して上書きする。
+`--mj-nav-h` の実測は `wayhome_episodes.js` にも追加した（高さが
+ブレークポイント・collapse 開閉で変わるため）。
+
+**#213 一覧へ戻る導線をヒーロー左上の丸ボタンに。** ヒーロー内ボタン列の
+「一覧へ戻る」を廃止し、`.mj-video-hero` 内に矢印アイコンのリンク
+`.mj-video-back`（`aria-label="一覧に戻る"`、44×44px）を置いた。
+ヒーロー基準の `position: absolute` で画像の左上（被写体の多い中央を
+避ける）に重ねるため、流れの外にありレイアウトはずれない。
+- `position: fixed` は使わない。モバイル幅でスクロール時に本文の左端へ
+  重なるため。navbar 直下の全幅 sticky バーにする案も一度実装したが、
+  38枚すべてでヒーローが約53px下がりファーストビューを恒久的に消費する
+  ため撤回した（平野さん判断、CHAT-0914-WH-02）
+- その結果、矢印はスクロールで画面外へ流れる。#213 本文の「常に見える」は
+  意図的に捨てた（#213 にコメント済み）
+- 画像の明るさは動画ごとに違うため、下地 `rgba(0,0,0,.6)`＋白い矢印。
+  フォーカスリングは白の `outline` を黒の `box-shadow` で挟み、どの画像・
+  下地の上でも埋もれないようにした
+- z-index はヒーロー内の `.mj-video-hero-content`（1）より上の 2。
+  navbar（sticky、1020）より下
+- 個別ページの `scroll-padding-top` は navbar 高さのみ（#216 のまま）
+
+ヒーロー内のシリーズ名リンク（パンくず相当）は、JSON-LD の
+`BreadcrumbList` と対応する可視のパンくずとして残した。
+
+**#215 前後エピソードにサムネイル。** `build_prevnext_link()` に
+カードと同じ `medium`（320×180、`img.youtube.com`）を追加。
+`loading="lazy"`・width/height 付き、`data-fallback` はカードと同じ
+`img/125_arr_hoso.png`（定数 `THUMB_FALLBACK` に集約）。リンク文字列と
+同内容のため `alt=""`。表示幅は `clamp(96px, 30%, 160px)`。最新話・最古の
+回（リンク1つ）は全幅に伸びるだけでサムネイル幅は変わらない。
+
+### 公開日・サムネイルをYouTube Data API由来に切り替え（#192 第2段、2026-09-13）
+
+**公開日とサムネイルはAPI由来。** `scripts/fetch_youtube_meta.py`が
+取得した`data/youtube_meta.json`を`scripts/lib/wayhome.py`の
+`load_episodes()`が読み、一覧・エピソード個別ページの両方で使う。
+シートの公開日（C列）・画像URL（F列）は生成に使わない（WH-57で取得対象からも外した）。
+以下の節にある「C列で最新話判定」「HEADでmaxres確認」はこれで廃止。
+
+- **公開日:** `snippet.publishedAt`（UTC）をJSTに変換して表示・並べ替えに使う。
+  JST 0時台公開の回が1本あり、変換を漏らすとその回だけ1日ずれる。
+  シートの日付とは38本すべて一致を確認済み。`uploadDate`は実際の公開時刻になった
+  （旧: 日付＋00:00 JSTの近似）
+- **サムネイルの有無はAPIの`thumbnails`のキーで判定する**（HEADリクエストや
+  404には頼らない）。ヒーロー・og:imageは`maxres`→`standard`→`high`、
+  カード（表示160×90）は`medium`（320×180）。width/heightはAPIの実寸
+- **URLはAPIが返す`i.ytimg.com`ではなく`img.youtube.com`で組み立てる。**
+  CSP導入（#9）に向けて依存ドメインを増やさないため（同じ画像が取れることは確認済み）
+- **`fhd`（1920×1080）は使わない。** APIは7本に返すが、実体は7本とも404だった
+- 読み込み失敗時はインラインonerrorではなく既存の`data-fallback`で差し替える
+  （ヒーローは`hqdefault`、カードは従来どおり`img/125_arr_hoso.png`）
+- シートにあってJSONに無い動画は、その回だけ外して生成する（2026-10-10 まで生成を止めていた）。新しい回をシートに足したら
+  `fetch_youtube_meta.py`を先に実行すること（週次の自動取得は#194）
+
+### 「帰り道」シートのB・C・F列を取得対象から外した（WH-57、2026-09-13）
+
+- `lib/wayhome.py`の`COLUMNS`からB列（X ID）・C列（公開日）・F列（画像URL）を削除し、
+  クエリを`SELECT A,D,E,H WHERE G = "Y"`にした。生成物は1バイトも変わらない
+- 理由: いずれも他に正のデータがあり、シートの値は手で転記した写しだった
+  （公開日・サムネイルはYouTube API＝`data/youtube_meta.json`、X IDは`jpml_pros`）。
+  放置すればシートの値は必ず古くなる。行データから項目を消したので、誤って
+  `row.published_date`等を書き戻すとAttributeErrorになり、二重管理が静かに戻らない
+- シート側は平野さんが値を消す。**列そのものは残す**
+- 当時は列記号（A・D・E・H、絞り込みはG）で読んでいた。2026-10-10 にシートの移動と列の削除に合わせ、見出しの名前で読む形にした（上の「シートを移し、見出しの名前で読む」節）
+
+### 選手のX・noteアイコン（WH-50/WH-53、2026-09-13）
+
+- 2026-10-10 に note をやめ、X の写真1つにした（上の「件数の表示を消し、…」節）。以下は当時の記録
+- **X IDとnote IDはjpml_pros（「プロ」シート）由来。** 「帰り道」シートのB列（X ID）は
+  参照しない（WH-57で取得対象からも外した。C列・F列と同じ扱い）。一覧カードの絞り込み対象からも外した
+- 「帰り道」シートを正とし、その選手名で「プロ」シートを引く（`generate_jpml_pros.py`と
+  同じスプレッドシート・シート・クエリ、`lib/wayhome.py`の`index_player_links()`）。
+  名前が1件だけ一致した選手のみ採用する
+- **見つからない・同姓同名で複数一致する選手は、アイコンを出さず生成は止めない。**
+  代わりに警告を出す（GitHub Actionsでは`::warning::`で実行サマリに出る）。
+  打ち間違いも無言で通るため、警告に出た名前を確認すること。
+  2026-09-13時点では「タマシュ・エルドス」（連盟所属外）が警告に出るのが正常
+- アイコンは個別ページのヒーローの選手名の右にのみ置く（一覧カード・同じ選手の
+  他のエピソードのカードには出さない。カード全体が個別ページへのリンクのため、
+  中に外部リンクを入れると誤タップを誘発する）。アクション列からX @IDは外した
+- note IDが無い選手（27名中17名）はnoteアイコンを出さない（正常系）
+
+### 再生時間の表示（#192 第3段、2026-09-13）
+
+- **閲覧数は掲載しない（平野さん判断）。** 選手への配慮と更新頻度の低減のため。
+  `viewCount`は`data/youtube_meta.json`に保存するが表示には使わず、
+  「YYYY年M月D日時点」の注記も出さない。復活させる場合は概数表示と
+  注記の更新条件（#194の差分判定）を合わせて設計し直すこと
+- 再生時間は`contentDetails.duration`（ISO 8601、時・分・秒が欠ける形あり）を
+  `duration_seconds()`で秒にし、1時間未満はm:ss、以上はh:mm:ssで表示する
+- カード（一覧・同じ選手の他のエピソード）はサムネイル右下に重ねる。
+  ヒーローは日付の行に「日付・m:ss」で並べる。数字だけでは伝わらないため
+  `<time datetime>`＋visually-hiddenの「再生時間」を付けている
+- 一覧の見出し右隣に総再生時間（1分未満切り捨て、「約◯時間◯分」）
+- 構造化データは`VideoObject`に`duration`（ISO 8601のまま）を追加した。
+  `ItemList`の`ListItem`には`duration`プロパティが無いため付けない
+
+### video_wayhome.html のヒーロー画像追加（#102 第1段、2026-09-12）
+
+表形式一辺倒だった`video_wayhome.html`に、最新話のサムネイルを大きく
+見せるヒーローを追加した（第2段の背景動画自動再生は別途判断、本issueは
+第1段のみ対象）。実装は`lib/page.py`に新設した`content_before`スロット
+（上記参照）を使う。
+
+- **最新話の判定はC列（公開日）が最大の行。** シートの並び順（通常は
+  新しい順）に依存しない実装にした。同日が複数ある場合はシート順で
+  先に出てくる行を採用する（`max()`のタイブレーク仕様に依存せず、
+  明示的にループで比較している）
+- **サムネイルはビルド時に`maxresdefault.jpg`へHEADリクエストを送り、
+  存在すれば1280×720、なければ`hqdefault.jpg`(480×360)にフォールバックする**
+  （`scripts/check_image_links.py`のHEAD処理と同じ方針。標準ライブラリのみ、
+  タイムアウト・例外は握りつぶさずログに出す）。現データ(38件)はF列の
+  URLがすべて`img.youtube.com`のため、動画IDの抽出も含めこの経路のみで
+  完結する。issue本文にあった「外部依存はi.ytimg.com」は誤りで、
+  実際は既存表と同じ`img.youtube.com`のみ（#9のCSPは変更不要）
+- **`aspect-ratio`だけでは16:9に収まらない落とし穴があった。**
+  `.mj-hero-image`に`aspect-ratio: 16/9`のみ指定し`height`を明示しなかった
+  ところ、CLS対策で付けている`<img>`の`height`属性（maxres=720、hq=360）が
+  aspect-ratioより優先され、幅100%のまま縦長に伸びる不具合が起きた。
+  `height: auto`を明示して解消（style.cssにコメントを残してある）。
+  スクリーンショットだけでは気づきにくく、Chrome DevTools Protocol経由で
+  `getBoundingClientRect()`/`getComputedStyle()`を直接確認して原因を
+  特定した。同じ落とし穴を踏まないよう記録しておく
+- ヒーローのクラス名は`.mj-hero`系（`.mj-hero` / `.mj-hero-heading` /
+  `.mj-hero-link` / `.mj-hero-image` / `.mj-hero-info`）。左端は
+  `.mj-table`と同じくマージンなしで揃え、中央寄せ（`margin: 0 auto`）には
+  していない。アニメーションは入れず、ホバーは`opacity`の即時変化のみ
+  （`prefers-reduced-motion`の分岐が不要になる）
+- Lighthouseのローカル計測（`wrangler dev`、本番反映前）では、LCPが表の
+  1行目サムネイル(160×90)からヒーローのmaxresdefault(1280×720)に変わり
+  0.5〜0.7秒程度悪化したが、accessibility/best-practices/seoは変更前後で
+  同点、CLSも変化なし（想定どおりで許容範囲）。詳細は
+  `docs/lighthouse-baseline.md`の「video_wayhome.html ヒーロー画像追加」節
+
+**この節の`.mj-hero`系クラス・表ベースの構成は、下記「video_wayhome の
+全面リデザイン」（#102第2段、同日）で置き換えられ現存しない。** 最新話
+判定・サムネイルHEAD確認の仕組み自体は第2段にそのまま引き継いだ
+（その後#192第2段でAPI由来に置き換え、上記）。
+
+### video_wayhome の全面リデザイン（#102 第2段、新サイトのパイロット、2026-09-12）
+
+video_wayhome.html を「新サイト（docs/new-site-design.md）の先取り
+パイロット」として、表形式をやめ全画面ヒーロー+横スクロールの
+エピソード列に作り変えた。全27ページの中で最も影響が小さいページという
+判断。現行サイトの「作り込みすぎない」方針は、このページとこのページ
+専用のCSS/JSに限り今回だけ踏み越えている。詳細な判断材料（カラー
+トークン、Bootstrap 5.3ダークモードの検証結果、トーンについて実装して
+分かったこと、共有ボタンの方針、構造化データの検証結果、新サイトへ
+持ち越せる部分/捨てる部分）は**docs/new-site-design.md「12. パイロット:
+video_wayhome」に集約した**（このファイルには実装の要点のみ記録する）。
+
+- **`scripts/generate_video_wayhome.py`は`TableConfig`/`render()`を
+  やめ、`render_content()`（型D等と同じ）に切り替えた。** `content_before`
+  スロット（第1段で追加）はこのページではもう使わない。`#158`が
+  引き続き使う想定でlib側はそのまま残している
+- **行の並びはPython側で公開日(C列)の降順に明示ソートする**
+  （`sorted(raw_rows, key=lambda row: row[2] or "", reverse=True)`）。
+  シートの並び順に依存しない。Pythonの`sorted`は安定ソートで
+  `reverse=True`でも同値の相対順は保たれるため、同日が複数ある場合は
+  シート順で先に出てくる行が結果でも先に来る（第1段の`max()`ループと
+  同じ規則を、ここでは安定ソートの性質で満たしている）
+- **`table.js`を読まないページでは`data-fallback`の画像フォールバック
+  処理も止まる。** `table.js`は`error`イベントのキャプチャフェーズ
+  ハンドラで全画像のフォールバックをまとめて処理しているが、この
+  ハンドラは`.mj-table`が無いページには効かない（`table.js`自体が
+  何もしないため）。`video_wayhome.js`に同じ処理を移植して対応した。
+  **表を持たない新しいページを作る際は、`table.js`前提の仕組み
+  （画像フォールバック・`?name=`初期値・`--navbar-height`実測）を
+  個別に確認し、必要なら移植すること。忘れると気づきにくい形で
+  壊れる**（今回はCDP経由で意図的に壊れた画像URLを読み込ませて
+  フォールバックが効くことを実地で確認した）
+- **【規約】検索欄を持たないページは `<body data-search="off">` を出す（#163）。**
+  navbar.js の虫眼鏡アイコンは `#searchBoxes` を開閉するリンクなので、検索欄が
+  無いページでは押しても何も起きない。navbar.js は `document.write` で描画され
+  その時点でページ本体は未パースのため、DOMから `#searchBoxes` の有無を
+  調べられない。そこでページ側が `<body>` の data属性で先に伝える
+  （`<body>` は navbar.js の `<script>` より前にパース済みなので描画の瞬間に読める）。
+  **属性が無ければ「検索欄あり」＝従来どおり出す、が既定。** 目印を「無い」側に
+  だけ付けているのは、手書きHTMLで付け忘れたときに現状維持へ倒すため。
+  **表を持たない新しいページを作る際は、`render_content()` に
+  `has_search_boxes=False` を渡すかどうかを必ず判断すること**（既定は「あり」）。
+  手書きHTMLを追加するときは `<body>` に手で付ける。対象は現在6ページ
+  （`404` / `jpml_links` / `resource_dictionary` / `resource_efficiency` /
+  `rh_results` / `rh_results_detail`）
+- **`<main class="mj-video-page">`でページ全体を包み、Lighthouse
+  accessibilityの`landmark-one-main`指摘を解消した。** `navbar.js`を
+  触らずに済む範囲でこのページ限りの改善として反映。残る指摘は
+  `navbar.js`の検索アイコンリンクの`link-name`（全ページ共通の既知の
+  問題、navbar.jsは触らない方針のため未解決のまま）
+- JSON-LD（`VideoObject`+`ItemList`）を`extra_head`経由で出力（#13先行
+  実装）。値に`</`を含みうるため`json.dumps()`後に`"</"` → `"<\\/"`へ
+  置換している
+- Lighthouseのローカル計測は第1段からほぼ横ばい（performance
+  0.91〜0.94、LCP 3.0〜3.2s）だが、**accessibilityが0.89→0.94〜0.96に
+  改善、CLSが0.005→0.000に改善**（上記landmark修正とページ送り撤廃が
+  効いている）。詳細は`docs/lighthouse-baseline.md`
+- **【2026-09-12 決定】このページは濃色固定にした。** OSのカラーモード
+  設定に関係なく常にダークで表示する（`@media (prefers-color-scheme: dark)`
+  を廃し、ダーク側の値を既定に。`color-scheme: dark`を
+  `html:has(.mj-video-page)`に指定）。新サイト全体のトーン（静か・白基調）は
+  維持し、**動画セクションだけを濃色の例外とする**という整理。トークンの
+  構造（機能名の7つ）は両モード前提のまま残してある。決定と理由・確認結果は
+  `docs/new-site-design.md`の §2「デザイン方針 > トーン」と
+  §12「パイロット: video_wayhome」の両方に記載（片方だけ読んで矛盾しないため）
+
+### #162 エピソード個別ページ38枚（新サイトの選手個別ページのパイロット、2026-09-12）
+
+video_wayhomeパイロット（#102第2段）の延長として、「帰り道」のエピソード
+38本を個別ページ（`wayhome/<動画ID>.html`）として静的生成した。新サイトの
+選手個別ページ（#101、1,000名超）で必要になるURL設計・canonical・
+sitemap分割を、1/30程度の規模で先に検証する狙い。実装は
+`scripts/generate_wayhome_episodes.py`（`render_content()`を使用）。
+最新話判定・サムネイル解決（maxres→hqのHEAD確認）・`VideoObject`組み立ては
+`generate_video_wayhome.py`（一覧）と共有するため`scripts/lib/wayhome.py`に
+切り出した。
+
+**最初の発見: 相対パス前提は1,000ページ規模で確実に壊れる。** これまでの
+27ページはすべてリポジトリ直下にあり、`style.css`・`navbar.js`・
+`img/...`といった相対パスがどのページからも同じ深さで解決できていた。
+`wayhome/`のようにサブディレクトリへ1階層でも降りると、この前提は
+即座に崩れる。選手個別ページ（#101）は1,000名超をサブディレクトリで
+持つ可能性が高く、同じ問題が起きる規模がはるかに大きい。今回38枚の
+段階で気づけたことが最大の収穫。対応は以下の2点:
+
+- `lib/page.py`に`asset_prefix`引数を追加した（既定は空文字、既存27ページの
+  出力は1バイトも変わらないことを`regenerate.py all`のdiffで確認済み）。
+  head内のアセット参照（`style.css`・`assets/vendor/*`・`favicon.ico`・
+  `navbar.js`・`table.js`）にこの接頭辞を付ける。`wayhome/`配下は`"../"`
+- `navbar.js`の28本のページhrefをルート相対パス（先頭`/`）に変更した。
+  相対パスのままだと`wayhome/xxx.html`から見た`jpml_pros.html`は
+  `wayhome/jpml_pros.html`という存在しないパスに解決されてしまう
+  （`#`・`#searchBoxes`は対象外）
+
+新サイト（Astro等を想定）ではルーティングの機構自体がこの種の問題を
+吸収する可能性が高いが、**現行サイトの延長で選手個別ページを作る場合は
+この2点を再利用できる**。
+
+**カード・ItemListのリンク先も個別ページへ変更した。** 一覧
+（video_wayhome.html）のカードはYouTube直リンクから個別ページへ変更し
+（YouTube直リンクはヒーローの「再生」ボタンにのみ残す）、`ItemList`の
+`itemListElement.url`も自サイトURLに変更した。#13の本番検証で、
+`ItemList`がリッチリザルトの対象に現れなかったのは`url`が外部サイト
+（youtube.com）を指していたためと見ており、個別ページ（自サイトURL）が
+できたことで初めてカルーセルの候補になりうる（#162コメント参照）。
+
+**canonicalは#113の例外として、帰り道の各話と一覧（`/wayhome/`、2026-10-13 に足した）にだけ付けている。** #113は「現行
+サイトにはcanonicalを付けない（Googleの正規化任せ）」と判断したが、
+理由は`?name=`付きURLの検索流入14件を正規化で失うことだった。例外の基準は
+「URL の別形（`?name=` などのクエリで中身が変わる URL）を持たず、Search Console にも `?` 付きの URL が出ていないページ」で、
+各話も一覧（絞り込みは URL を変えない）も当てはまる。一覧の canonical は `https://ryoei.pro/wayhome/`（og:url と同じ。`/wayhome/index.html`・`?utm_…` をまとめる）。
+`lib/page.py`の`PageMeta`に`canonical`（既定`None`）・`og_image`/
+`og_image_width`/`og_image_height`/`og_image_alt`（既定は全ページ共通の
+`img/ogp.png`・1200×630）を追加し、ページごとに差し替えられるようにした。
+og:imageは各エピソードのサムネイル（一覧のヒーローと同じmaxres→hq
+フォールバック）。
+
+**sitemapはサイトマップインデックス方式にした。** `sitemap.xml`を
+インデックスに変え、既存25件は`sitemap-pages.xml`（旧sitemap.xml）へ
+そのまま移し、`sitemap-wayhome.xml`（38件）は生成スクリプトが書き出す。
+新規URLは当日日付、既存分は`lastmod`を保持し
+`scripts/update_sitemap_lastmod.py`が実際に差分の出たページだけ
+更新する規則を維持した（ページパスから`wayhome/`配下かどうかで
+対象サイトマップを判定するよう拡張）。`robots.txt`のSitemap行は
+`sitemap.xml`のまま変更不要。`regenerate.py`は出力がディレクトリに
+なるページ向けに`OUTPUT_OVERRIDES`（`wayhome_episodes` → `"wayhome/"`）を
+追加し、`regenerate-page.yml`の`git add`は`-A --`で削除も拾えるように
+した（シートから消えた動画IDのページを削除するため）。
+
+**thin content・重複コンテンツの懸念は残る。** 各ページの本文は
+`VideoObject`の`description`と`.mj-lead`が同一文言で（→ 2026-10-13 に各話の`.mj-lead`は消した。紹介文はヒーローと meta・`VideoObject`）、ページごとの
+独自テキストは実質的にタイトル戦名・選手名・公開日のみ。1,000ページ超の
+選手個別ページで同じ構成を使う場合、レーダーチャートや成績詳細など
+（docs/new-site-design.md「3. 画面構成」）でページ固有の情報量を
+増やす設計が要る。今回は検証目的の38ページのみのため対応していない。
+
+**シートに列を追加する運用は次のissueに送った。** 説明文・尺（`duration`）
+といった追加列は平野さんが後日シートに追加する前提で、個別issue
+「帰り道シートに個別ページ用の列を追加し、ページとVideoObjectに反映する」
+を#162に関連付けて起票した（本issueのスコープ外）。
+
