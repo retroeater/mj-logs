@@ -43,6 +43,54 @@ CHAT-1017-SKR-16 で、Code が撮った画像を作業ブランチの `docs/log
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 0. 着手前の確認
+- 「指示」欄の末尾は指示文の最後の行（「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」）と一致
+- Chat-Ref の重複: `git log --all --grep="CHAT-1017-SKR-17"` で該当なし。work/1017-skr-img はリモートに無く、origin/cloudflare（c345618d3）から作った
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+
+### 1. 同じ論点の issue の検索と数え上げ
+- 検索（クローズ済みを含む。「cleanup-logs」「ログの画像」「docs/logs 容量」）で見つかった関連の issue と、同じ論点でない理由:
+  - #361（open）: ログの .md の大きさ（1件あたりの量）の論点。フォルダの画像の削除は扱っていない
+  - #513（open）: ログを消す条件（保持日数・状態）の論点。消す対象の種類は扱っていない
+  - #357: ログの寿命の運用の論点。フォルダは扱っていない
+  - 同じ論点の open issue は無い → 止まる条件に当たらない
+- `scripts/cleanup_logs.py`: `LOG_GLOB = "CHAT-*.md"`、`RETENTION_DAYS = 7`。消すのは `(LOG_DIR / d["file"]).unlink()` の .md だけで、同名のフォルダは見ない。`commit_message()` は消したログを列挙する
+- `cleanup-logs.yml`: cron `23 21 * * 0`（週1回）
+- 実物の数（origin/cloudflare c345618d3、`git ls-tree -z` で数えた）:
+
+| 区分 | 件数 | 容量 |
+|---|---|---|
+| ログ（`CHAT-*.md`） | 655 ファイル | 11.3 MiB |
+| .md 以外のファイル | 314 ファイル（26 フォルダ。.jpg 219・.png 67・.json 19・.py 9） | 26.1 MiB |
+| うち同名のログがあるフォルダ | 14 フォルダ・241 ファイル | 14.3 MiB |
+| うち孤児（ログが消えてフォルダだけ残る） | 12 フォルダ・73 ファイル | 11.8 MiB |
+
+- 孤児のフォルダ: LV-24・LV-25・TT-11・TT-15・RK-02・RK-05・RK-06・RK-11・RK-12・RK-13・HG-01・ZK-05
+- `docs/` は `.assetsignore` で配信の対象外。mj-logs の写しは `CHAT-*.md` だけ（`scripts/sync_all_logs.py` の `LOG_RE`）で画像は写らない
+
+### 2. 起票
+- #585「cleanup-logs でログを消すとき、同じ名前のフォルダ docs/logs/<Chat-Ref>/ も消す」を起票した。ラベル: 分野: 自動化・分野: 整理・保守
+- 本文: 目的／今の挙動（上の表と孤児の一覧）／`.assetsignore`・mj-logs への影響なし／直しの案（`cleanup_logs.py` が同名のフォルダも消す。コミットメッセージ・通知・テスト）／論点（孤児の扱い、.py・.json の扱い、消したものの記録の仕方）／関連 #513・#357・#361・#564／末尾に「担当: WFL の系列（#564）」と `Chat-Ref: CHAT-1017-SKR-17`
+- #564 との関係: #564 は open だが sub-issue が無く、段階を本文に書く形のため、子 issue として足さず、#585 の本文に関連として書くだけにした（指示の「合わなければ関連として書くだけにする」のとおり）
+
+### 3. 決定の記録
+- `docs/decisions/operations.md` に「2026-10-17（CHAT-1017-SKR-17）」の節を足した
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1017-skr-img（cloudflare にマージ）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1017-SKR-17.md
+- 比較URL: なし
+- 確認用URL: なし
+- マージ: ログと docs/decisions のみのため、完了報告のうえ cloudflare へ入れた
+- issue: #585 を起票（#564 は関連として本文で参照のみ）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 

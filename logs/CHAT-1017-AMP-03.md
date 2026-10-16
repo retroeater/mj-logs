@@ -52,15 +52,89 @@ AMP-01（#584）の期別の進行中の期の行に、プレビューで見つ�
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 0. 着手前の確認
+
+- 指示欄の末尾は指示文の最後の行と一致。Chat-Ref: `CHAT-1017-AMP-03` のコミットは無い。識別子 AMP はこのセッション（AMP-01）で使ったもので、他のセッションでは使われていない
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある
+- 作業ブランチ: ローカルの work/1016-amp は origin/work/1016-amp と一致（6982f72）。`git merge-base --is-ancestor origin/cloudflare HEAD` が偽だったため `git merge origin/cloudflare`（62c2f22。取り込んだのは docs のログ・決定と `data/live_channel_raw.jsonl` だけで、衝突なし）
+- CHAT-1016-AMP-01 のログの状態を「判断待ち / 続き: CHAT-1017-AMP-03」にした
+
+### 1. 検査・着手
+
+- `python3 scripts/regenerate.py --check houou_pages`: 通る
+- 未マージの work/ ブランチ: docs 以外を変えているのは work/1017-hou（`scripts/promo_video/houou/` のみ）で、`generate_houou_pages.py`・`assets/houou.js` との重なり無し
+- #584 に着手中のコメント（続き）を書いた。他セッションの着手中コメントは無し
+
+### 2. 直し
+
+- `assets/houou.js` の `currentLeague()`: ページに `houou_upcoming` があれば、その選手の行のリーグ（行が無ければ null でチップを出さない）。無ければ前の決め方。`houou_upcoming` は AMP-01 で入れた進行中の期の行の元（`upcomingTerm()` を共用）
+- 案内文を「進行中の期の成績は Ampai でリアルタイムに見られます」に替えた
+- テスト: `currentLeague()` を node から呼べるよう `assets/houou.js` の末尾に `module.exports`（`houou_ask.js` と同じ形、ブラウザでは何もしない）を足し、`test_houou_pages.py` に `CurrentLeagueTest` 3件（進行中の行があればそのリーグ・行が無ければ出さない・進行中の期が無ければ前の決め方）。**直す前の `currentLeague()` で回すと2件が落ちる**（「C3 != D1」「B1 is not None」）ことを確かめた。全体は OK
+- 生成し直し（`regenerate.py houou_pages`）: 生成物の差分は無し（JS だけの変更で、`houou_upcoming` は AMP-01 のまま。シートも変わっていない）。`jpml_pros.html`・`workers/ask/data.json`・`houou/ask-players.json` も変わっていない
+- `pending`（`houou_current.span` の33名）と進行中の期の行のリーグの食い違い: 0名（止まる条件に当たらない）
+
+チップの値（直す前の決め方 → 直した後、在籍者 690名。成績 JSON と生成したページの `houou_current`・`houou_upcoming` から計算）:
+
+| 区分 | 人数 |
+|---|---|
+| 変わらない（無し→無しを含む） | 449 |
+| 値が変わる | 228 |
+| 新しく付く | 6 |
+| 消える | 7 |
+
+- 値が変わる 228名: かしのなぎ（E2 → E1）、こうちゃん（E3 → E2）、るうこ（E2 → E3）、ガース（E1 → E2）、ジェン（E1 → D3）、ダニーモレノ（D1 → C3）、チャップマン（E3 → E1）、ポロリ（E2 → E1）、一宮さくら（E2 → E1）、三井亮（D2 → D3）、三田不二夫（B2 → B1）、上田まみ（D2 → E1）、上田宗太朗（D1 → C3）、中寿文（D1 → C3）、中島寿太郎（E1 → D3）、中川竜平（E2 → E3）、中西栄二（D1 → D3）、中野妙子（E1 → E2）、中野巧（D3 → E2）、井出一寛（C3 → D1）、井坂彰宏（D2 → D1）、今村壮吾（D3 → D2）、仙田竜祐（E2 → E3）、伊井功雅（D1 → C3）、伊東宏倫（D3 → E1）、伊藤大輔（D3 → D2）、伊達朱里紗（C1 → C2）、佐々木諒輔（D1 → C3）、倉田梨央（E2 → E3）、優月みか（D1 → D2）、光岡舞織（E1 → D3）、内村翠（E3 → E2）、内藤正樹（D1 → D2）、冨田久志（D3 → E1）、刀川昌浩（B1 → B2）、別府要（E3 → E2）、加藤勇飛（E2 → E1）、加藤拓海（C2 → C3）、加賀美幸孝（C2 → C3）、加賀谷春歌（D3 → D1）、北村弦騎（E2 → E3）、北野由実（E2 → E3）、南ていか（E3 → E1）、古小路亜美（E3 → E2）、古川彩乃（C3 → C2）、台直輝（E3 → E2）、吉井優（E1 → E2）、吉成敏（E3 → E2）、吉澤彰真（E3 → E2）、向井譲（E1 → D3）、和泉由希子（C2 → C3）、和田直樹（E3 → B2）、坪原光（E1 → E2）、城下恭平（E3 → E2）、堀場康平（D3 → D2）、堀慎吾（E3 → E2）、堀部雄太（E3 → E2）、塚田悠介（E2 → E1）、塚越達也（D3 → D2）、増田真人（D2 → D1）、夏川夏未（E1 → E2）、夏目一花（E1 → E2）、大久保朋美（C1 → C2）、大久保隼人（C1 → C2）、大宮蓮（E1 → E2）、大庭三四郎（D3 → E1）、大谷剛志（D1 → D2）、大野剛史（D2 → D1）、大野彩乃（C2 → C1）、大野雄輝（B2 → C1）、大鹿糠文也（D2 → D1）、天野美星（E3 → E2）、太田優介（C1 → C2）、奈良圭純（B2 → C1）、奥津勇輝（C3 → C2）、安東郁敬（D3 → E1）、宮村信（E2 → E1）、宮田雅也（D3 → D1）、小原航太（D2 → D1）、小松翔一（C2 → C3）、小林大地（D3 → E1）、小林正和（C2 → C3）、小田尚生（E2 → E1）、小田悟志（D2 → D1）、小笠原奈央（E1 → E2）、小菅隼弥（E2 → E1）、小車祥（C3 → C2）、小野塚永遠（D2 → D1）、山井弘（C2 → C1）、山内大誠（E2 → E3）、山本祐輔（C3 → C1）、山田航輔（E3 → E2）、山脇千文美（D1 → C2）、岡崎圭吾（C2 → C3）、岡崎涼太（C2 → C1）、岡田啓佑（E1 → D3）、岡田紗佳（C2 → C1）、川原舞子（D3 → E1）、川村直寛（C1 → B2）、庄司結真（E1 → D3）、庄田祐生（C1 → C2）、廣岡璃奈（D2 → D3）、成田理良（D2 → D3）、戸田誠輝（B2 → C1）、手塚紗掬（D3 → D2）、斉藤理絵（D3 → D2）、日吉辰哉（C2 → C3）、日水亮輔（E2 → E1）、早川健太（D1 → C2）、早川林香（D3 → D2）、早川航平（E1 → D3）、有田将之（D2 → D3）、木下新ヱ門（E1 → E2）、木島甲太郎（D1 → C3）、末松隆文（C1 → B2）、末永尚暉（D2 → D1）、末続ヒロトシ（C3 → D1）、本田朋広（C2 → C3）、杉原直人（E1 → D3）、杉山俊彦（E1 → D3）、李佳（E3 → E2）、東城りお（D2 → E1）、松尾樹宏（C2 → C1）、松岡優太（E2 → E3）、松岡昭彦（E2 → E3）、松崎良文（B1 → B2）、松田健太郎（E3 → E2）、染川航（D3 → E1）、柴田航平（D1 → D2）、桜井カズキ（D3 → E1）、桜川姫子（D1 → D2）、桶本篤史（C3 → C2）、梅中悠介（D3 → D2）、森下剛任（C1 → C3）、森勇人（E3 → E2）、森岡貞臣（C3 → C2）、森脇司（C3 → D1）、椎名健太（E1 → D3）、樋口徹（D1 → D2）、樋口洋輔（D3 → E1）、橋本直樹（E3 → E2）、武田裕希（C1 → B2）、武石絵里（D1 → C3）、水澤明彦（D2 → D3）、水野孝一（E1 → D3）、江崎しんのすけ（B2 → B1）、池本友馬（E2 → E3）、池田来斗（E2 → E1）、池田隆（E3 → E2）、沖野健行（C3 → C2）、沢村侑樹（D2 → D1）、津藤雅知（D1 → C2）、浅岡勇矢（E2 → E3）、清水智之（C2 → C1）、清水隆市（E2 → E1）、渋澤悟（E3 → E2）、渡辺英梧（C3 → C2）、渡邉準也（E2 → E1）、澤谷諒（C1 → C2）、瀬下勝也（C2 → C3）、猪鼻拓哉（E1 → D3）、猿川真寿（B1 → B2）、猿渡輝也（C3 → D1）、田中史孝（C3 → D1）、田中祐（C2 → C1）、田代航太郎（D2 → D1）、白銀紗希（D2 → D3）、真鍋明広（C3 → D1）、石亀玄樹（D1 → D2）、石川豪士（D2 → D3）、石川遼（C1 → C2）、石橋和也（C3 → D1）、石立岳大（B2 → B1）、砂子直信（D3 → E1）、神森天心（D2 → D1）、福光聖雄（B2 → B1）、福良翔（E2 → E1）、秋場みなみ（E2 → E1）、立松伸英（E2 → E1）、童瞳（C3 → D1）、笠原拓樹（C2 → C1）、篠原冴美（E2 → E3）、篠崎高知（E3 → E1）、紺野光則（D1 → D2）、花岡章生（C1 → C2）、菊田政俊（B2 → B1）、葉山唯一（E1 → E2）、蒼木翔子（C3 → D1）、藤本哲也（C1 → B2）、藤本鉄也（C3 → D1）、藤沢晴信（D2 → D3）、藤田愛（C2 → C3）、藤間大徳（E2 → E1）、西城凛（E1 → D3）、西嶋ゆかり（D2 → D1）、西村諒太（E2 → E1）、西田修（E2 → E3）、角屋保人（E1 → E2）、谷誠之（D3 → D2）、越野智紀（C1 → B2）、都築友和（E1 → D3）、里木祐介（C3 → C2）、野方祐介（D1 → C3）、金澤陸（E2 → E1）、金澤隼人（D2 → D3）、釣本契介（E1 → D3）、鈴木勝也（E3 → E2）、長村大（C1 → B2）、関根大地（E1 → E2）、関谷正信（E3 → E2）、阿部竜也（E2 → E1）、青木惇（E3 → E2）、頼さくら（D3 → D2）、飯盛裕美子（D3 → E1）、香野蘭（D1 → C3）、高柳寛哉（D3 → D2）、高橋大輔（D1 → D2）、高田凜（E3 → E2）、高畑敬太（C3 → C2）、高野宏治（D3 → D2）、鷹見としや（C2 → C3）、麻生知花（C3 → D1）、黒川裕輝（E3 → E2）、黒木真生（C3 → D1）、黒沢咲（C1 → C2）、黒田良（E3 → E2）、齋藤豪（C3 → C1）、齋藤麻衣子（E2 → E3）
+- 新しく付く 6名（43前に出ていない・43後に出ている）: 三ツ谷繭（E3）、久山浩司（D1）、川上レイ（D1）、桜木里咲（E2）、蓮沼友樹（D2）、赤木クロ（E3）
+- 消える 7名（43前に出ていて 43後に出ていない）: 中村毅（B1）、井上泰秀（E1）、伊藤優孝（B2）、吉野敦志（B1）、山宮雅之（E2）、島崎涼（D1）、後藤真帆（E2）
+- 目立つもの: 和田直樹（E3 → B2）。成績 JSON では 43前 E3 で「昇級」、「鳳凰」の 43後の行が B2。シートの値のまま出している（判断が必要なことに挙げた）
+
+### 3. 表示の確かめ
+
+ローカル（`python3 -m http.server`）とプレビュー（e48ef21 の「Workers Builds: mj」completed / success。別名 URL に `?v=e48ef21` を付けて新しい版を確かめた）の両方で、headless Chromium・375px の明と暗・1280px の明。結果は同じ:
+
+| 選手 | 名前の面のチップ | 期別の一番上の行 | 案内文 |
+|---|---|---|---|
+| 末続ヒロトシ | D1（前は C3） | 43期後期 D1 | 1行 |
+| 佐々木寿人 | A1 | 43期 A1 | 1行 |
+| 白鳥翔 | 鳳凰位 | 43期 鳳凰位（リンクなし） | 1行 |
+| 東幸一郎 | なし（前もなし） | 42期後期 D1（進行中の行なし） | 出ない |
+| 江崎しんのすけ | B1（前は B2） | 43期後期 B1 | 1行 |
+
+- 案内文: 13px、要素の高さ 19.5px（`line-height` 19.5px の1行分）。375px で幅 343px・1280px で 368px の中に収まり、横にはみ出さない（`scrollWidth <= clientWidth`）
+- PNG（375px 明・暗、1280px）はセッションのチャットに送った
+- #584 に直した点とプレビューで確かめたことのコメントを書いた
+
+### 4. 文書
+
+- docs/notes/houou-top.md: 名前の面の現在のリーグの決め方と、期別の進行中の期の行の案内文を直した。質問欄の選手のカードのチップは前の決め方のままと書いた
+- docs/decisions/houou.md: 2026-10-17 の決定を足した。AMP-01 の決定（houou.md・pros.md）は AMP-01 で書いてあるため、pros.md は変えていない
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1016-amp
+- ログ: https://github.com/retroeater/mj/blob/work/1016-amp/docs/logs/CHAT-1017-AMP-03.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1016-amp
+- 確認用URL: プレビューあり（URL は最終報告）。確認したページは `houou/players/?name=` の末続ヒロトシ・佐々木寿人・白鳥翔・東幸一郎・江崎しんのすけ。この版の印: 末続ヒロトシの名前の横のチップが「D1」で、期別の案内文が「進行中の期の成績は Ampai でリアルタイムに見られます」の1行
+- マージ: 未（平野さんの判断待ち）
+- issue: #584（コメント2件: 着手中・直した点）
+- 判断が必要なこと:
+  - 直した後の見え方でマージしてよいか
+  - 質問欄の選手のカード（`houou/ask-players.json`）のチップは前の決め方（43前のリーグ）のままで、個人成績の名前の面と 241名で食い違う。この指示では生成物を変えないため直していない。そろえるなら次の指示で `ask_roster()` を直す
+  - 和田直樹の 43後の行が B2（43前 E3 で昇級）。シートの値の確かめ
+- 未確認の項目: 実機（iPhone の Safari）での案内文の1行の収まり（headless Chromium の字体での確かめ。375px で幅 343px に収まった）
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj c51d8345）: https://github.com/retroeater/mj-logs/tree/main/guide/c51d8345
+ガイド文書（この版を写した時点の最新、mj c345618d）: https://github.com/retroeater/mj-logs/tree/main/guide/c345618d
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c51d8345/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c51d8345/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c51d8345/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c51d8345/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c51d8345/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c51d8345/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c345618d/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c345618d/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c345618d/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c345618d/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c345618d/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c345618d/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a4a72a63.md
