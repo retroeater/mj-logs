@@ -53,6 +53,23 @@ Search Console（動画の拡張レポート）が 2026-10-16 に https://ryoei.
 - Chat-Ref の重複確認: `git fetch --unshallow` 後、全ブランチのコミットと `docs/logs/` の履歴に `VTZ` の使用なし。`work/1016-vtz` はローカル・リモートとも無し → `git checkout -b work/1016-vtz origin/cloudflare`
 - 0. 指示欄の末尾は指示文の最後の行（「この行が指示文の最後の行です。」）と一致
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- 手順1: issue を検索（「uploadDate 構造化データ Search Console 動画 警告 VideoObject」）。#268（一覧ページへの VideoObject の追加、open）・#173・#462（closed）は別の主題 → #583 を起票し、着手中コメントを書いた
+- 未マージの `work/` ブランチで `scripts/lib/mtsuku.py`・`wayhome.py`・`study.py` を変えているものは無し
+- 手順2: `uploadDate` の今の値の形（生成物は cloudflare 0be0ada59 時点）
+
+  | ページ（ファイル） | 件数 | 形 | 組み立て |
+  |---|---:|---|---|
+  | `mtsuku/index.html`・`mtsuku/<動画ID>.html` | 62（一覧1＋各話61） | 日付だけ | `lib/mtsuku.py` `build_video_object()` の `published_at.date().isoformat()` |
+  | `study/index.html`・`study/<動画ID>.html`（女流勉強会、未公開・noindex） | 41 | 日付だけ | `lib/study.py` `build_video_object()` の `published_at.date().isoformat()`（`published_at` は層1の配信開始日時で、実際の時刻を持つ） |
+  | `wayhome/index.html`・`wayhome/<動画ID>.html` | 43 | 時刻・タイムゾーン付き | `lib/wayhome.py` `build_video_object()` の `published_at.isoformat()` |
+
+  ほかに `uploadDate` を出すページは無し
+- 女流勉強会は直さなかった: 実際の配信開始時刻を持っているため、決定の「0 時」に揃えるか実際の時刻にするかは別の判断になる。未公開・noindex で Search Console の対象外。#576（公開）にコメントで送った
+- Mつく: `uploadDate` を `published_at.isoformat()`（`parse_published()` が公開日の 00:00 JST を返す）に。帰り道と共有の関数は変えていない
+- テスト: `test_mtsuku.py` の `test_build_episodes_order` の期待値を `2025-07-22T00:00:00+09:00` に。修正前の `lib/mtsuku.py` では失敗（1件）、修正後は全体 1283 件 OK
+- docs/decisions/mtsuku.md に決定を足し、MTK-08 の該当行に「→ 置き換え」を付けた。docs/notes/video-mtsuku.md の記述を直した
+- 手順3: `regenerate.py --check mtsuku mtsuku_episodes` は2ページとも通る（61回）。生成し直した差分は62ファイル。各ファイルを「元の HTML の `"uploadDate": "YYYY-MM-DD"` を `T00:00:00+09:00` 付きに置き換えたもの」と比べ、62ファイルとも一致（置き換え62か所、ほかの差分なし）。サイトマップ・wayhome・study の変更なし
+- 各話の数: シート61行、直前の本番の `/mtsuku/` の各話リンク61件（`?v=vtz0b`）で一致。本番の一覧の `uploadDate` は `"2025-07-22"`（修正前）
 
 <!-- guide-links -->
 ---

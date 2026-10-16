@@ -56,15 +56,17 @@ HOU-65 は制作のスクリプトを変えずに houou-promo-v5.mp4 を作っ�
 - `scripts/promo_video/houou/README.md` にも「4版 … この版で確定」とあるが、`docs/` の外で、指示の直す対象にも無いので直していない
 - `python3 -m unittest discover -s scripts/tests` OK
 - HOU-65 のログの「マージ:」を、このマージで入ったことが分かる形に直した
+- 手順3: push の直前に再 fetch して `git merge-base --is-ancestor origin/cloudflare HEAD` が真。`git push origin work/1016-hou5:cloudflare` → `0be0ada59..18c522750`
+- check-run（18c522750）: `Workers Builds: mj` success（09:19:42 UTC。HTML を変えていないので表示は変わらない）、`check` success
 
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1016-hou5
-- ログ: https://github.com/retroeater/mj/blob/work/1016-hou5/docs/logs/CHAT-1016-HOU-66.md
+- 状態: 完了
+- ブランチ: work/1016-hou5（cloudflare へマージ済み）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1016-HOU-66.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1016-hou5
 - 確認用URL: なし
-- マージ: 未
+- マージ: 済（0be0ada59..18c522750。この報告の docs/logs のみの追いの push あり）
 - issue: なし
 - 判断が必要なこと: なし
 - 未確認の項目: なし
