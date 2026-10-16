@@ -59,29 +59,42 @@ HOU-64 の公開で、退会者1名の分だけ houou/ のトップの在籍の�
 - 質問欄の答え: HOU-60 のログに残る答えの全文（2026-10-16 05:10:41 UTC に1回だけ送ったもの）から `ask-answer.json` を作り直した。撮る側（`capture.mjs` の `page.route('**/api/ask')`）が POST にこれを返すので、本番の質問欄へは送らない
 - 環境: `setup.sh` の初回は `fonts-noto-cjk` が見つからず止まった（apt の一覧が古い）。`apt-get update` の後に入れ直して通った（コンテナの準備だけで、リポジトリは変えていない）
 - 作業フォルダは scratchpad の `promo/`（使い捨て。動画・連番・素材はコミットしない）
+- `bash scripts/promo_video/houou/build.sh <作業フォルダ> b` で通しで撮り直した（`capture.mjs` は一続きの撮り方。公開後の本番から撮った）。本番の質問欄へ送ったのは0回。**ページのコード・生成物・本番の設定、`scripts/promo_video/houou/` はどれも変えていない**。出力 `houou-promo-b.mp4` を `houou-promo-v5.mp4` に写した
+- `facts.json`: `range` 第17期後期〜第43期前期・`people` 690、答えのカードは白鳥翔の1行、ランキングの自分の行は「11 白鳥翔 +1124.3」（v4 と同じ）、通算のグラフの送り 291px（v4 と同じ）
+- 決定（テロップを690名に直してから投稿）を `docs/decisions/houou.md` に足した
+
+### 手順3 確かめと送付
+
+- mp4: 56.6秒（56.633）・1080×1920・30fps・H.264 High yuv420p・AAC 48kHz 2ch・9.7MB（9,720,992バイト）。ラウドネス（ebur128）: I −15.9 LUFS（loudnorm の入力 −15.26）。v4（56.633秒・I −15.9 LUFS・9.7MB）と同じ
+- 場面の始まり（動画の秒）: トップ 2.5・質問欄 5.5・選手を開く 12.4・期別 14.5・通算 19.0・リーグ 23.4（3倍 30.3）・部門別 38.23・ランキング 41.93・範囲 50.13・締め 53.13。v4 のログの表と全部同じ。テロップの文言・位置・曲（曲調 b）も v4 と同じ
+- 場面10（51.5秒）の1コマを PNG にして見た: テロップは「第17期後期〜第43期前期・690名」、背景は期最高の表（1位 阿久津翔太 +360.9）
+- 11.7秒（答えと白鳥翔のカードに枠）・33秒（リーグの再生）のコマも見た。リーグの再生のアイコンの座標は落ち始め (59, 247)・着地 (127, 283) で v4 とほぼ同じ
+- mp4 を `SendUserFile` で送った（`houou-promo-v5.mp4`）
 
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち（v5 で投稿してよいか）
 - ブランチ: work/1016-hou5
 - ログ: https://github.com/retroeater/mj/blob/work/1016-hou5/docs/logs/CHAT-1016-HOU-65.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1016-hou5
-- 確認用URL: なし
-- マージ: 未
+- 確認用URL: なし（見る物は送った mp4。56.6秒・1080×1920・30fps・I −15.9 LUFS。この版の印は場面10のテロップ「第17期後期〜第43期前期・690名」）
+- マージ: 未（コードは変えていないのでマージする成果物は無い。このブランチにあるのはログと docs/decisions の1節だけ）
 - issue: なし
-- 判断が必要なこと: なし
+- 判断が必要なこと:
+  - houou-promo-v5.mp4 で投稿してよいか（見る物は送った mp4）。投稿文は HOU-63 の案B のまま
+  - コードは変えていないので、コードのマージは要らない。ログと決定の1節は、次のマージの指示か docs のみのマージで cloudflare へ入れる
 - 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 065b75e3）: https://github.com/retroeater/mj-logs/tree/main/guide/065b75e3
+ガイド文書（この版を写した時点の最新、mj b768fb1c）: https://github.com/retroeater/mj-logs/tree/main/guide/b768fb1c
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/065b75e3/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/065b75e3/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/065b75e3/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/065b75e3/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/065b75e3/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/065b75e3/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b768fb1c/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b768fb1c/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b768fb1c/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b768fb1c/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b768fb1c/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b768fb1c/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/91b5dd30.md
