@@ -59,15 +59,67 @@
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 着手前の確認
+
+- 指示欄の末尾は指示文の最後の行と一致。貼られた指示文は冒頭の数行（題・Chat-Ref・マージ・貼る時機・共通手順・作業ブランチ）が改行なしの1行で届いたので、そのまま写した。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある
+- 貼る時機は「新しいセッションに貼る」だが、CHAT-1016-SKR-05 と同じセッション（https://claude.ai/code/session_015diBr287WtdwVqutnG1TiL ）に貼られた。続けて実行した
+- `git log --all --grep=CHAT-1016-SKR-06` は0件
+- #549・#566・#425 の着手中コメントはすべて解除済み（#549 の最後は SKR-02 の解除、#566 は SKD-23 の解除、#425 は ABM の各解除）。#549 に着手中のコメントを書いた
+- 作業ブランチ: ローカルに無く、`origin/work/1015-skr-pub` は未マージ → `git checkout -b work/1015-skr-pub origin/work/1015-skr-pub`（8ab674ba5）
+
+### 取り込み
+
+- `git merge origin/cloudflare`（1dc3f307b）: 衝突は `saikyo/` の生成物74件と `docs/decisions/saikyo.md`
+  - 生成物: cloudflare 側を採って `python3 scripts/regenerate.py saikyo_pages` で生成し直した（878件・`sitemap-saikyo.xml`。衝突の印の残りは0件）
+  - `docs/decisions/saikyo.md`: SKR-02 の節と SKR-03 の節の追記どうし。両方を残した（解いた後: 決定13 の後に「## 2026-10-15（CHAT-1015-SKR-02）」の節、その後に「## 2026-10-15（CHAT-1015-SKR-03）」の節〈決定1〜5〉）
+- `git merge origin/work/1015-skr-vid`（6322b9eaa）: 衝突は `docs/decisions/page-release.md` の追記どうし（SKR-02 の節と SKR-04 の節）。両方を残した（解いた後: 「## 2026-10-15（CHAT-1015-SKR-02）」の節の後に「## 2026-10-15（CHAT-1015-SKR-04）」の節）
+- テスト: `python3 -m unittest discover -s scripts/tests` 1240件 OK（取り込み後と、文書を直した後の2回）
+- 未マージの work/ ブランチとの重なり: work/JBK が `docs/notes/static-generation.md` の「ページの一覧」の段落の行（253行）を変えている（JBK は cloudflare に未マージ）。指示の前提のとおり、この行は直さず、#549 のコメントに残りとして書く。今回変えた handover.md・page-announcement.md・decisions の各行と重なる未マージのブランチは無い（`git branch -r --no-merged origin/cloudflare` の各ブランチとの `git diff --stat`）
+
+### 生成物の差（origin/cloudflare との差）
+
+確かめ方: (A) origin/cloudflare のスクリプトで今のシートから生成したもの（作業ツリーの外に展開して `generate_saikyo_pages.py` を実行）は、origin/cloudflare のコミット済みの `saikyo/`・`sitemap-saikyo.xml` と全件一致（差0件。cloudflare の 1447edda1 の再生成の後にシートの変化なし）。(B) 生成スクリプト（`generate_saikyo_pages.py`）は SKR-02（8ab674ba5）から変わっていない。よって origin/cloudflare との差は、SKR-02 の変更を今のシートに当てたもの。
+
+| 種類 | 件数 |
+|---|---|
+| 消した今の年度ページ（`saikyo/<年度>.html`） | 16 |
+| 年度・対局・卓のページで noindex が消えたもの | 878（HEAD に `name="robots"` は0件） |
+| 同じく og:image が ABEMA の作品の画像になったもの | 878 |
+| ヒーローが変わった卓（回の無い卓。年度の OGP 画像 → 作品の画像） | 37（SKR-02 の 40 から、下の 2026-10-04 の3卓が回を持ったぶん減った） |
+| トップ `saikyo/index.html` | 作り直したトップ（work/1015-skd-top、#566。SKR-02 で取り込み済み）。SKR-02 の表はその取り込みの後と比べていたので「リンクの形だけ」だった |
+| `sitemap-saikyo.xml` | 17件 → 879件 |
+| saikyo/ 以外の生成物 | 変化なし |
+
+SKR-02 の生成物（8ab674ba5）からの差（シートの変化。同じスクリプト）: 82件、すべて次で説明できる（残り0行）
+
+| 中身 | 件数 | 理由 |
+|---|---|---|
+| 2026-10-04（団体対抗スペシャル合戦）の卓3枚: ヒーローが回のサムネイルに、「▶ 再生」、司会・実況・解説と回の節 | 3 | 1447edda1（平野さんの手動実行、【1】に足した3回） |
+| 2026 の卓8枚（10-11・10-18・10-25・11-01 の各 A・B卓）: ライブ枠の「ABEMA で見る」のボタン、司会・実況・解説と回の節 | 8 | 【3】手動補正のライブ枠の行（決定3、#577） |
+| ほかの卓の関連カード（各選手の他の対局）の画像が作品の画像 → 回のサムネイル | 71（上の3枚の中のカードを含め 137 枚） | 上の3卓が回を持ったため |
+
+- 動画URLのある卓: 614（指示の前提の 606 に、上の8卓のライブ枠を足した数）
+- 前提の「回が無い卓 `2026/20261004-s1-a`」は、1447edda1 で回を持った。本番の確かめでは、回が無い卓として別の卓を使う
+
+### 文書（6d…のコミット）
+
+- `docs/decisions/saikyo.md`・`docs/decisions/page-release.md`: 決定 2〜4 と告知動画の確定
+- `docs/notes/page-announcement.md`: 実例の表に最強戦の行（タイトル戦の行の後）
+- `docs/handover.md`: 最終更新を 2026-10-16 に、公開の行に作り直したトップ（#566）と日付、5章の表から #549 の行を消した（23,187 → 約23,050 バイト）
+- `docs/notes/static-generation.md` の段落の行: 上のとおり直さない
+- CHAT-1015-SKR-02・CHAT-1016-SKR-05 のログの状態に ` / 続き: CHAT-1016-SKR-06`
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj b4879ad7）: https://github.com/retroeater/mj-logs/tree/main/guide/b4879ad7
+ガイド文書（この版を写した時点の最新、mj 2ae48afb）: https://github.com/retroeater/mj-logs/tree/main/guide/2ae48afb
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b4879ad7/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b4879ad7/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b4879ad7/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b4879ad7/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b4879ad7/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b4879ad7/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/2ae48afb/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/2ae48afb/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/2ae48afb/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/2ae48afb/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/2ae48afb/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/2ae48afb/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/82bde681.md
