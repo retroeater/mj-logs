@@ -103,7 +103,7 @@ SKR-02 の生成物（8ab674ba5）からの差（シートの変化。同じス�
 - 動画URLのある卓: 614（指示の前提の 606 に、上の8卓のライブ枠を足した数）
 - 前提の「回が無い卓 `2026/20261004-s1-a`」は、1447edda1 で回を持った。本番の確かめでは、回が無い卓として別の卓を使う
 
-### 文書（6d…のコミット）
+### 文書（a74c9b4ff）
 
 - `docs/decisions/saikyo.md`・`docs/decisions/page-release.md`: 決定 2〜4 と告知動画の確定
 - `docs/notes/page-announcement.md`: 実例の表に最強戦の行（タイトル戦の行の後）
@@ -111,15 +111,52 @@ SKR-02 の生成物（8ab674ba5）からの差（シートの変化。同じス�
 - `docs/notes/static-generation.md` の段落の行: 上のとおり直さない
 - CHAT-1015-SKR-02・CHAT-1016-SKR-05 のログの状態に ` / 続き: CHAT-1016-SKR-06`
 
+### マージ
+
+- push の直前に再 fetch したら origin/cloudflare が進んでいた（CHAT-1016-HOU-53 の ask worker の変更 4件）。`git merge origin/cloudflare` で取り込み（衝突なし）、テスト 1240件 OK、再 fetch して `git merge-base --is-ancestor origin/cloudflare HEAD` が真
+- `git push origin work/1015-skr-pub:cloudflare`: 2ae48afbb..fa2791042（2026-10-16 00:44 UTC ごろ）
+- マージの後、cloudflare では `regenerate-page.yml` が走り `chore: regenerate saikyo/ via GitHub Actions`（98839f385、`sitemap-saikyo.xml` の lastmod 83行だけ）が入った。中身は新しいスクリプトの出力で、問題なし
+
+### check-run と本番（止まった理由）
+
+- fa2791042 の check-run: `Workers Builds: mj` は success だが `.output.summary` に `Preview URL` がある**プレビュー**のビルド（00:45:29Z、作業ブランチへの push のぶん）。本番の `Workers Builds: mj-scheduler` は success（00:48:14Z）。**本番向けの `Workers Builds: mj` の check-run は、fa2791042 にも、その後の cloudflare のコミット（〜4fdda151b）にも付いていない**（in_progress も無い。後のコミットに付いたのはプレビューの mj だけ）。GitHub Actions の `check`・`sync`・`regenerate` は success
+- 本番（`curl`、`?v=` 付き）は 00:50〜00:59 UTC の間ずっと前の版: `/saikyo/2025/` 404、`/saikyo/2025.html` 200（301 にならない）、卓のページ `/saikyo/2025/20251214-s1.html` に `<meta name="robots" content="noindex">` が残る、`sitemap-saikyo.xml`・`llms.txt` に新しい URL が無い。cloudflare のコミット済みの中身は正しい（`saikyo/2025/index.html` あり、`saikyo/2025.html` なし、卓のページに `name="robots"` なし）
+- 外部の状態の待機の上限（15分）を過ぎても本番のビルドが始まらなかった。止まる条件「本番で新しいページが 200 でない、noindex が残る、旧 URL が 301 にならない（マージ済みなら戻さずに止まって報告する）」に当たるため、マージは戻さずに止まった
+- 本番のビルドが始まらない理由は、セッションからは確かめられない（ダッシュボードの Build history は平野さんかチャット側）。check-run の順番待ちの遅れか、本番のビルドが起動していないかのどちらか（推測）
+- **やっていないこと**（本番の反映を確かめてから行う。次の指示）: 本番の確かめ一式、#549・#425 への公開のコメント、#549・#425・#382・#383・#566 のクローズ、#566 の本文の直し、#530・#458 へのコメント、#549 への残りのチェックリスト。#549 には中断のコメントを書いた
+- 本番のビルドが後で通れば、それで公開される（マージ済み）。そのときの確かめ方: 本番の `Workers Builds: mj` の check-run（`Preview URL` が無いもの）が success になった後、`curl -sS -o /dev/null -w '%{http_code}' https://ryoei.pro/saikyo/2025/?v=<任意>` が 200
+- 追記（01:00〜01:11 UTC）: 8e2d4e5ac に `Workers Builds: mj` の `in_progress`（00:59:28Z、`Preview URL` 無し）が出たが、同じ Build ID の `completed`（01:02:05Z）は `Preview URL` のある**プレビュー**だった（`in_progress` の summary には `Preview URL` が出ないため、`in_progress` の時点では本番と見分けられない）。01:11 UTC まで `/saikyo/2025/` は 404 のまま
+- 本番向けの `Workers Builds: mj` の最後の success は f003b3c74（2026-10-15T23:58:31Z、Build `1e576b93`）。その後の cloudflare のコミット（今回のマージ fa2791042 を含む）には、本番向けの mj の check-run が1つも無い（成功も失敗も無いので `notify-build-failure.yml` も知らせない）。本番の `assets/houou_ask.js` は cloudflare の版と同じで、23:58 までの本番のビルドは反映されている
+- 本番のビルドが走っていない（順番待ちか、起動していない）。セッションからはこれ以上確かめられない
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1015-skr-pub（work/1015-skr-vid を取り込み済み）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1016-SKR-06.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1015-skr-pub
+- 確認用URL: なし（本番で確かめる指示。本番は未反映）
+- マージ: 済（fa2791042、2026-10-16 00:44 UTC ごろ）。本番は未反映
+- issue: #549（着手中と中断のコメント）。#425・#382・#383・#566・#530・#458 は未着手（本番の反映の後）
+- 判断が必要なこと:
+  - cloudflare へのマージ（fa2791042）の後、本番向けの「Workers Builds: mj」が走らず、本番は前の版のまま（`/saikyo/2025/` 404・`/saikyo/2025.html` 200・noindex が残る）。最後の本番の mj のビルドは f003b3c74（2026-10-15 23:58 UTC）。Cloudflare のダッシュボードの Build history で、本番のビルドが順番待ちか起動していないかを確かめ、必要なら「Retry build」か次の cloudflare への push で本番を通してほしい
+  - 本番が反映された後の残り（本番の確かめ一式、#549・#425 への公開のコメント、#549・#425・#382・#383・#566 のクローズ、#566 の本文の直し、#530・#458 へのコメント、平野さんの手作業のチェックリスト）を、続きの指示で行うか
+- 未確認の項目:
+  - 本番の反映（新しいページの 200・noindex の解除・旧 URL の 301・`sitemap-saikyo.xml`・`llms.txt`）
+  - `?match=` の転送（公開の直後に平野さんが作る Single Redirects のルール。チャット側が後で確かめる）
+  - 平野さんの手作業: Single Redirects のルール、X と LINE のカード、iPhone の実機、Search Console の sitemap の再送信と URL 検査
+  - `docs/notes/static-generation.md`「ページの一覧」の段落の行（「noindex・メニュー未掲載、公開は #549」）は、未マージの work/JBK が同じ行を変えているため直していない。JBK が cloudflare を取り込むときに、この行と隣り合う表の行で衝突する（`git merge-tree` で確かめた）
+- エラー: 本番向けの「Workers Builds: mj」が fa2791042 以降に走っていない（check-run が無い。2026-10-16 01:11 UTC 時点）
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 2ae48afb）: https://github.com/retroeater/mj-logs/tree/main/guide/2ae48afb
+ガイド文書（この版を写した時点の最新、mj 4fdda151）: https://github.com/retroeater/mj-logs/tree/main/guide/4fdda151
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/2ae48afb/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/2ae48afb/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/2ae48afb/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/2ae48afb/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/2ae48afb/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/2ae48afb/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/82bde681.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/4fdda151/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/4fdda151/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/4fdda151/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/4fdda151/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/4fdda151/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/4fdda151/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/98839f38.md
