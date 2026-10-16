@@ -70,16 +70,35 @@ Search Console（動画の拡張レポート）が 2026-10-16 に https://ryoei.
 - docs/decisions/mtsuku.md に決定を足し、MTK-08 の該当行に「→ 置き換え」を付けた。docs/notes/video-mtsuku.md の記述を直した
 - 手順3: `regenerate.py --check mtsuku mtsuku_episodes` は2ページとも通る（61回）。生成し直した差分は62ファイル。各ファイルを「元の HTML の `"uploadDate": "YYYY-MM-DD"` を `T00:00:00+09:00` 付きに置き換えたもの」と比べ、62ファイルとも一致（置き換え62か所、ほかの差分なし）。サイトマップ・wayhome・study の変更なし
 - 各話の数: シート61行、直前の本番の `/mtsuku/` の各話リンク61件（`?v=vtz0b`）で一致。本番の一覧の `uploadDate` は `"2025-07-22"`（修正前）
+- `origin/cloudflare` が docs のみ7コミット進んでいた（CHAT-1016-HOU-65・66）。`git merge origin/cloudflare` で取り込み（衝突なし）、push 直前に再 fetch して `git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめ、`git push origin work/1016-vtz:cloudflare` でマージ（0caf7e137）
+- 本番の確認（`?v=vtz<時刻>` 付き、30秒ごと）: 09:32:44 JST に `/mtsuku/` と `/mtsuku/ZeFtFG2ov_Q.html` の `uploadDate` が `"2025-07-22T00:00:00+09:00"` になった。`/wayhome/` は `"2026-10-11T22:23:03+09:00"` のまま
+- 0caf7e137 の check-run: sync・check・regenerate・Workers Builds: mj すべて success（notify は skipped）
+- #583 に完了コメントを書いてクローズ（「状況:」ラベルは無し）
+- 平野さんの作業: Search Console の2つの警告のページで「修正を検証」を押す（#583 のコメントにも書いた）
+- 雛形どおり、完了のため「未確認の項目」は「なし」で始め、平野さんの作業は括弧内に書いた（`cleanup_logs.py` が3項目の「なし」を見るため）
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1016-vtz
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1016-VTZ-01.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1016-vtz
+- 確認用URL: なし（決定によりプレビューは見ずにマージ。本番の `/mtsuku/` と各話1本の `uploadDate` を確認）
+- マージ: 済（0caf7e137）
+- issue: #583（起票・クローズ）、#576（女流勉強会の `uploadDate` の形の判断を送った）
+- 判断が必要なこと: なし（#576 に移した）
+- 未確認の項目: なし（平野さんの作業として Search Console の2つの警告のページで「修正を検証」を押す。#583 に書いた）
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 18c52275）: https://github.com/retroeater/mj-logs/tree/main/guide/18c52275
+ガイド文書（この版を写した時点の最新、mj 0caf7e13）: https://github.com/retroeater/mj-logs/tree/main/guide/0caf7e13
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/18c52275/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/18c52275/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/18c52275/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/18c52275/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/18c52275/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/18c52275/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/0caf7e13/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/0caf7e13/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/0caf7e13/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/0caf7e13/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/0caf7e13/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/0caf7e13/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/18c52275.md
