@@ -55,15 +55,57 @@ WFL-21 の「判断が必要なこと」1〜3 への回答を反映する。
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+- Chat-Ref の重複確認: CHAT-1016-WFL-23 のコミット・ログは無い。`WFL` はこのセッションが使ってきた識別子（WFL-11〜22）で、他のセッションとは重ならない
+- 作業ブランチ: work/1016-wfl-glossary2 はローカル・リモートとも無かったので `git checkout -b work/1016-wfl-glossary2 origin/cloudflare`（ecfc9e751）
+- 0. 指示欄の末尾は指示文の最後の行と一致。WFL-21 のログの `## 報告` は状態「完了」で、`docs/notes/glossary.md` は origin/cloudflare にある（blob 4a4e5870）
+- 雛形の行: Chat-Ref・マージ・貼る時機・共通手順（＋作業ブランチ）は揃っている
+
+### 手順1: 用語集（a1a75ba55）
+
+- 冒頭の方針に「Git・GitHub・開発の用語は原語（英語、またはそのカタカナ）のまま書く（例: マージ・push・cron・dry run）」を足した
+- 「GitHub Actions・Worker」の表に「cron 実行」（使わない語「予約実行」）の行を足し、表の下に「定期実行は Worker からの起動に限る。`schedule` で動く実行はフォールバック実行か cron 実行」の1行を足した
+- 「ブランチ・反映」の表: 「取り込み（git）」の行を消し、「マージ」の行に `origin/cloudflare` を作業ブランチにマージする意味を足した（使わない語「取り込み（git の意味）」）。表の下の判断待ちの注記は「取り込みはデータの意味にだけ使い、git の意味ではマージと書く」に置き換えた
+- 今ある docs は一括で置き換えていない。「ドライラン」の行は指示に無いので変えていない（決定3の例にある dry run との揃え方は下の「判断が必要なこと」）
+
+### 手順2: chat-side-operations.md の純増の相殺（a1a75ba55）
+
+- 前提の項目（「Claude Code が作業ブランチの作成…分類器に拒否されて止まったら」の3行）を、chat-side-operations.md「Claude Code とのやり取り」から docs/notes/cloud-sessions.md「作業ブランチの用意」の分類器の段落のすぐ後へ移した。文は変えず、つなぐための直しは2つ:
+  - cloud-sessions.md の段落の末尾「（チャット側の返し方は `docs/notes/chat-side-operations.md`「Claude Code とのやり取り」）」を「（チャット側の返し方は下）」にした
+  - 移した項目の末尾「Code 側は `docs/notes/cloud-sessions.md`「作業ブランチの用意」」は自分自身への参照になるので「チャット側の手順」にした
+- chat-side-operations.md「場面ごとに読む文書」の表に「Claude Code が分類器に拒否されて止まった | `docs/notes/cloud-sessions.md`「作業ブランチの用意」」の1行を足した
+- 大きさ（バイト）: chat-side-operations.md 22,361 → 21,973（−388。WFL-21 で足した 169 より多く、WFL-21 の前の 22,192 を下回る。WFL-21 のログの計測値「22,192 → 22,361」で確かめた）。別の項目は移していない
+- docs/decisions/operations.md の WFL-21 より前の節（教訓B）が「`chat-side-operations.md`「Claude Code とのやり取り」」を出典として挙げている。決定の記録なので変えていない（節は残っている）
+- CLAUDE.md・handover.md は変えていない。unittest OK
+
+### 手順3: 決定
+
+- docs/decisions/operations.md（WFL-21 と同じ文書）に `## 2026-10-16（CHAT-1016-WFL-23）` を足した（a1a75ba55）
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1016-wfl-glossary2（マージ済み。削除は cleanup-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1016-WFL-23.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1016-wfl-glossary2
+- 確認用URL: なし
+- マージ: 済（a1a75ba55 とこのログ。ドキュメントのみ）
+- issue: なし
+- 判断が必要なこと:
+  1. 用語集の「ドライラン」の行（WFL-21）は、決定3の例「dry run」と表記が違う。(a) 「ドライラン」のまま（カタカナも原語の扱い）／(b) 「dry run」に直す。推奨 (a)（決定3は「英語、またはそのカタカナ」を認めていて、今ある docs も「ドライラン」）。今回は変えていない
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj b77586e6）: https://github.com/retroeater/mj-logs/tree/main/guide/b77586e6
+ガイド文書（この版を写した時点の最新、mj 0112228f）: https://github.com/retroeater/mj-logs/tree/main/guide/0112228f
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b77586e6/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b77586e6/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b77586e6/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b77586e6/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b77586e6/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b77586e6/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/0112228f/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/0112228f/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/0112228f/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/0112228f/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/0112228f/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/0112228f/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/98839f38.md
