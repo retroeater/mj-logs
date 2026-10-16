@@ -1,6 +1,6 @@
 # 朝の報告用の異常（retroeater/mj）
 
-- 書き出した時刻: 2026-10-16 18:00 JST（見た範囲: 2026-10-15 16:00 JST から）
+- 書き出した時刻: 2026-10-16 18:05 JST（見た範囲: 2026-10-15 16:05 JST から）
 - 書き出した実行の契機: workflow_dispatch（main）
 - 異常だけを書く。全体は actions/status.md。判定は mj の scripts/morning_report.py（各ワークフローの直近 100 回まで）
 
@@ -20,7 +20,6 @@
 
 ## 3. 所要時間の異常（直近20回の中央値の3倍以上、または10分以上。skipped は除く）
 
-- 2026-10-15 16:05 update-sns-book.yml success（workflow_dispatch・cloudflare）所要 5分11秒（直近20回の中央値 0分40秒） https://github.com/retroeater/mj/actions/runs/38696400299
 - 2026-10-15 21:27 regenerate-page.yml success（push・cloudflare）所要 4分25秒（直近20回の中央値 1分17秒） https://github.com/retroeater/mj/actions/runs/38734822366
 - 2026-10-16 09:49 regenerate-page.yml success（push・cloudflare）所要 4分55秒（直近20回の中央値 1分17秒） https://github.com/retroeater/mj/actions/runs/38831721544
 - 2026-10-16 12:02 regenerate-page.yml success（push・cloudflare）所要 4分54秒（直近20回の中央値 1分17秒） https://github.com/retroeater/mj/actions/runs/38843505197
