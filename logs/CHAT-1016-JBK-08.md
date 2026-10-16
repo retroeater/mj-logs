@@ -103,33 +103,30 @@
 - 同じ時間帯の CHAT-1016-SKR-06（fa2791042、00:44 UTC のマージ）でも本番向けの「Workers Builds: mj」が走っておらず、本番が前の版のまま（SKR-06 のログの報告）。今回の変更とは無関係の止まり方とみて、残りの手順を進めた
 - 本番を確かめられないため、#575 はクローズせず、結果と本番の未反映をコメントした
 - JBK-01〜07 のログの「ログ」の URL を `blob/cloudflare/` に、「マージ」を「済（4fdda151b）」に直した（状態は ` / 続き:` のまま）
+- 状態の更新（CHAT-1016-JBK-10）: 判断待ちの項目は JBK-10 で決まった。題の「動画」は A1〜A3 だけ「番組」、生徒の扱いの仮置きは確定、本番は cde9da6f9 で反映を確かめ #575 をクローズした。生徒の名前・part1〜33 の確認・公開の残りの段は #576 に移した
 
 ## 報告
 
-- 状態: 判断待ち / 続き: CHAT-1016-JBK-09
+- 状態: 完了 / 続き: CHAT-1016-JBK-09
 - ブランチ: work/JBK
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1016-JBK-08.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/JBK
 - 確認用URL: なし（未公開のまま本番にマージ。本番は未反映）
 - マージ: 済（4fdda151b、fast-forward）。本番は未反映
 - issue: #575（コメント。本番の確かめが済むまでクローズしない）、#576（本文を直した）、#580（起票）
-- 判断が必要なこと:
-  - **本番向けの「Workers Builds: mj」が 4fdda151b で走っていない**（check-run はプレビューのビルドだけ。SKR-06 の fa2791042 から同じ）。Cloudflare のダッシュボードの Build history で、本番のビルドが順番待ちか起動していないかを確かめ、必要なら「Retry build」か次の cloudflare への push で本番を通してほしい。本番が反映された後に、`/study/`・最新話が 200 で noindex、navbar・サイトマップ・`llms.txt` に載らないことを確かめて #575 をクローズする（続きの指示で行う）
-  - 公開（#576）の残りの段: noindex を外す・navbar の「動画」に載せる・`sitemap-study.xml` を書き出して `sitemap.xml` から参照する・`llms.txt` に足す・`docs/notes/redirects.md` に `/study` の行を足す・文書の「未公開」を直す・公開後の確かめ（平野さんの実機・X と LINE のカード・Search Console）
-  - 平野さんの手作業: part1〜33 が層1に無い件を担当者に確かめる
-- 未確認の項目:
-  - 本番の反映（`/study/`・最新話の 200 と noindex、navbar・サイトマップ・`llms.txt` に載らないこと）
-- エラー: 本番向けの「Workers Builds: mj」が 4fdda151b で走っていない（今回の変更とは無関係とみている。上の「判断が必要なこと」）
+- 判断が必要なこと: なし（CHAT-1016-JBK-10 で決定・マージ・本番の確かめを済ませた。残りは #576 に移した）
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 2536efeb）: https://github.com/retroeater/mj-logs/tree/main/guide/2536efeb
+ガイド文書（この版を写した時点の最新、mj cde9da6f）: https://github.com/retroeater/mj-logs/tree/main/guide/cde9da6f
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/2536efeb/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/2536efeb/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/2536efeb/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/2536efeb/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/2536efeb/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/2536efeb/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/cde9da6f/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/cde9da6f/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/cde9da6f/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/cde9da6f/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/cde9da6f/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/cde9da6f/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/98839f38.md

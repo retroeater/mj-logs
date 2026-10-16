@@ -69,6 +69,34 @@ JBK-09 の「動画」の洗い出し（表A）に平野さんの判断が出た
   - 文書・テスト: `scripts/tests/test_study.py`、`docs/notes/video-study.md`・`docs/notes/video-mtsuku.md`（「動画」→「番組」の1語）、`docs/decisions/`（README の行の並び・page-release.md・study.md）、`docs/logs/`（JBK-08・09・10）
   - それ以外: なし
 - マージ直前に cloudflare が進んでいた（aabdd8d5f、HOU-54〜58 の houou・ask の変更）。もう一度 merge した（衝突なし、こちらのファイルとの重なりなし）。全テスト OK、`origin/cloudflare` との差分は上の17ファイルのまま
+- 手順2 マージ: `git push origin work/JBK:cloudflare`（cde9da6f9、push 直前に `git merge-base --is-ancestor origin/cloudflare HEAD` が真）
+- 作業中にコンテナが再起動し、同じ指示文（CHAT-1016-JBK-10）がもう一度貼られた。この指示は着手済み（着手のコミット dac16dc6e からマージ cde9da6f9 まで）なので、最初からやり直さずに続きとして進めた（追記の重複を避けるため。0章の欄・JBK-09 の状態の追記はやり直していない）
+- 手順3 check-run（cde9da6f9）: 「Workers Builds: mj」「Workers Builds: mj-ask」success、「check」2件 success、regenerate・sync success、notify skipped
+- 手順3 本番: マージは 12:09 JST、本番の反映は 12:23 JST（それまでは前の版を返していた。30秒おきに `video_live.html` の題を見た）。反映後の `curl`:
+  - `navbar.js`: 「番組<br>Program」
+  - `video_live.html`: `<title>`・og:title とも「放送対局 | 番組 | ryoei.pro」。`video_en.html`: 「English | 番組 | ryoei.pro」
+  - `/study/`: 200、題「女流勉強会 | 番組 | ryoei.pro」、`<meta name="robots" content="noindex">` あり
+  - `navbar.js`・`llms.txt`・`sitemap.xml` から参照する全サイトマップに `study` は0件。`llms.txt` の節見出しは「## 番組」
+  - ブラウザでの見え方は確かめていない（HTML だけ）
+- 手順3 issue: #575 に結果をコメントしてクローズした（ラベルなし）。残りは #576（公開。本文の「公開の条件」を、メニュー改称・題の置き換え済み、生徒の名前・part1〜33 の確認が残る形に直した）と #580（新しい回の知らせ、#564 待ち）にあることを確かめた
+- JBK-08・09 のログ: 判断待ちの項目がこの指示で片付いたので、状態を「完了」にし、3項目を「なし」にした（経過に状態の更新の1行を足した。残りは #576）
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/JBK
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1016-JBK-10.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/JBK
+- 確認用URL: なし（本番にマージし、本番の HTML で確かめた）。この版の印: メニューの「番組 / Program」、`video_live.html` の題「放送対局 | 番組 | ryoei.pro」
+- マージ: 済（cde9da6f9）
+- issue: #575（結果をコメントしてクローズ）、#576（本文の公開の条件を直した）、#580（変更なし）
+- 判断が必要なこと:
+  - 公開（#576）の残りの段: noindex を外す・navbar の「番組」に載せる（位置を決める）・`sitemap-study.xml` を書き出して `sitemap.xml` から参照する・`llms.txt` の「番組」の節に足す・`docs/notes/redirects.md` に `/study` の行を足す・文書の「未公開」を直す・公開後の確かめ（平野さんの実機・X と LINE のカード・Search Console）。時期は平野さんが決める
+  - 平野さんの手作業: タブ「女流勉強会」の「生徒」列に生徒の名前を入れる（テロップから読み取り、確かめてから。「、」区切り。旧名で書いても「別名」で現在名になる）。入れた後に `python3 scripts/regenerate.py --check study` で「写真入り」「名前だけ（理由）」の一覧を出し、写真入りの人が本人かを確かめる
+  - 平野さんの手作業: part1〜33 が層1に無い件を担当者に確かめる
+- 未確認の項目:
+  - ブラウザでのメニュー「番組 / Program」の見え方（本番の HTML は確かめた）
+- エラー: なし
 
 <!-- guide-links -->
 ---

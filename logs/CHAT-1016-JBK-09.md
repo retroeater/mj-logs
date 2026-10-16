@@ -132,36 +132,30 @@
 - 決定: `docs/decisions/study.md`（JBK-09: 本番の確かめ・生徒の名前をタブに入れる・載せ方の方針（予定）・公開は結果を見てから）、`docs/decisions/page-release.md`（メニューの改称と、「動画」の置き換えは一覧を見てから）。`docs/decisions/README.md` の表の `study.md` の行をアルファベット順に直した
 - 実装記録: `docs/notes/video-study.md` の生徒の記述を置き換えた
 - #576 に進み具合をコメントした
+- 状態の更新（CHAT-1016-JBK-10）: 判断待ちの項目は JBK-10 で決まった。題の「動画」は A1〜A3 だけ「番組」、生徒の扱いの仮置きは確定、本番は cde9da6f9 で反映を確かめ #575 をクローズした。生徒の名前・part1〜33 の確認・公開の残りの段は #576 に移した
 
 ## 報告
 
-- 状態: 判断待ち / 続き: CHAT-1016-JBK-10
+- 状態: 完了 / 続き: CHAT-1016-JBK-10
 - ブランチ: work/JBK
-- ログ: https://github.com/retroeater/mj/blob/work/JBK/docs/logs/CHAT-1016-JBK-09.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1016-JBK-09.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/JBK
 - 確認用URL: プレビューあり（URL は最終報告）。メニューの「番組 / Program」を `mtsuku/` で見た。この版の印: 上のメニューの「動画 / Video」が「番組 / Program」
-- マージ: 未（平野さんの判断待ち）
+- マージ: 済（CHAT-1016-JBK-10 で cde9da6f9）
 - issue: #576（本文を直し、進み具合をコメント）
-- 判断が必要なこと:
-  - 「動画」の置き換え案: このログの `## 経過`「2-1. 「動画」の洗い出し（表A）」。メニューの名前として使っているのは A1（放送対局 \| 動画）・A2（English \| 動画）・A3（女流勉強会 \| 日本プロ麻雀連盟の動画）の3つ。ほかは YouTube の動画そのものを指す文で、変えない案
-  - 生徒の写真の扱いの仮置き: 生徒だけ止めずに、「プロ」「連盟プロ以外」に登録があり X ID があって写真が読める人は写真入り、登録が無い・X ID が無い・写真が読めない人は名前だけ（代わりの絵）。講師・MC は今までどおり止める。同姓同名の別人が登録されていると写真が出る恐れがある
-  - 平野さんの手作業: タブ「女流勉強会」の「生徒」列に生徒の名前を入れる（「、」区切り）。入れた後に `python3 scripts/regenerate.py --check study` で「写真入り」「名前だけ（理由）」の一覧を出し、写真入りになった人が本人かを確かめる（続きの指示で行う）
-  - 平野さんの手作業（JBK-08 から）: part1〜33 が層1に無い件を担当者に確かめる
-  - 本番の反映（JBK-08 から）: 4fdda151b の本番向けのビルドが走っていなかった件は、この指示では確かめていない（#575 はまだ open）
-- 未確認の項目:
-  - 平野さんの実機でのメニューの見え方（プレビュー）
-  - 生徒の名前を入れた後の写真入り・名前だけの一覧（今は生徒が全回空）
+- 判断が必要なこと: なし（CHAT-1016-JBK-10 で決定・マージ・本番の確かめを済ませた。残りは #576 に移した）
+- 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 0112228f）: https://github.com/retroeater/mj-logs/tree/main/guide/0112228f
+ガイド文書（この版を写した時点の最新、mj cde9da6f）: https://github.com/retroeater/mj-logs/tree/main/guide/cde9da6f
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/0112228f/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/0112228f/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/0112228f/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/0112228f/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/0112228f/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/0112228f/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/cde9da6f/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/cde9da6f/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/cde9da6f/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/cde9da6f/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/cde9da6f/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/cde9da6f/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/98839f38.md
