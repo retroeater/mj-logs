@@ -55,6 +55,42 @@ Chat-Ref: CHAT-1016-SKR-07
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 着手前の確認
+
+- 指示欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある
+- `git log --all --grep=CHAT-1016-SKR-07` は0件。`SKR` は同じチャットの続きの番号
+- 作業ブランチ: ローカル・リモートとも無し → `git checkout -b work/1016-skr-sched origin/cloudflare`（2536efebb）
+- このセッションは CHAT-1016-SKR-05・SKR-06 と同じセッション（貼る時機は「別のセッションでよい」で、同じでも差し支えない）
+
+### 手順1
+
+- 同じ論点の issue: GitHub MCP の `search_issues`（クローズ済みを含む。「チャット側 予約 send_later スケジュール 後で確認」）で #563（open、朝の報告〈おはよう〉の自動実行の検討。毎回新しいセッションで動く予定タスクの話）と #498（closed、Actions の実行結果をチャット側から確かめる）。どちらも「同じチャットに届く予約で後の確認をする」論点ではないので止まらない。REST の `search/issues` はセッションのプロキシがリポジトリ外の API として拒否した
+- 追記先の今の内容: `docs/notes/chat-routines.md`「期日とカレンダー」は4項目（期日とカレンダーの予定・繰越し・【済】・常設 issue）。予約の記述は無く、案と矛盾しない。`docs/notes/chat-side-operations.md`「場面ごとに読む文書」の行「issue の期日・カレンダーの予定」→ chat-routines.md「期日とカレンダー」
+- 用語: `docs/notes/glossary.md` は「予約の起動・予約実行」をワークフローの定期実行の言い換えとして使わない語にしている。今回の「予約（send_later）」はチャットへのメッセージの予約で別物なので、規則の中に「ワークフローの定期実行とは別物」と書き添えた（用語集には足していない）
+- 未マージの work/ ブランチ: `docs/notes/chat-routines.md`・`docs/notes/chat-side-operations.md`・`docs/decisions/operations.md` を変えているものは無い
+
+### 手順2（d83b2d0de）
+
+- `docs/notes/chat-routines.md`「期日とカレンダー」に4項目を足した（案のとおり。予約の対象と返答・届いた後、翌日以降はカレンダーにも、向かないもの、取り消し）
+- `docs/notes/chat-side-operations.md`「場面ごとに読む文書」の行を「期日・カレンダー・確認の予約」に直した。サイズ: 22,361 → 22,361 バイト（純増0。上限 28,672 まで 6,311、警告域 26,624 まで 4,263）。案の「issue の期日・カレンダーの予定、後で確かめる予約」は 43 バイトの純増になり、冒頭の規則（純増したら同じ量を移す）に当たるため、同じ長さの文言にした
+- `docs/decisions/operations.md` に 2026-10-16（CHAT-1016-SKR-07）の節（決定2つ）
+- テスト 全件 OK（文書だけの変更だが念のため）
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1016-skr-sched
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1016-SKR-07.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1016-skr-sched
+- 確認用URL: なし
+- マージ: 済（ドキュメントのみ。SHA は cloudflare への push の後、このログの経過に書く）
+- issue: なし
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
