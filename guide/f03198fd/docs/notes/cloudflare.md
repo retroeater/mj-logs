@@ -596,6 +596,13 @@ Workers & Pages → `mj` → Settings → Builds:
   実行ログへのリンクが取得できる（#153で実例、2026-09-12の#169後始末
   （`1f7f76d`）でも`success`を確認済み）。**check-run が success になった時点で本番は反映済み。確認の手順は今のままで変えない。
   success の後に古い内容が返る事例が出たら起票する**（#334、2026-10-03 にクローズ）
+- **同じコミットにプレビューのビルドの check-run「Workers Builds: mj」も付く**（作業ブランチへ push したコミットを fast-forward で `cloudflare` に入れたときなど）。
+  本番のものかは、**完了した** check-run の `output.summary` に `Preview URL`・`Preview Alias URL` が無いことで見分ける（上の「success になった時点で本番は反映済み」は本番の check-run に限る）。
+  **実行中（`in_progress`）の check-run の summary にはプレビューの URL が出ないので、完了するまで本番かどうかを見分けられない**
+- **本番のビルドが順番を待つ間に `cloudflare` へ新しい push が来ると、古い本番のビルドは飛ばされ（Build history の印は ⏩）、最新のものだけが走る。**
+  多くの作業ブランチが同時に push してプレビューのビルドが詰まると起きる。待てば最新が反映されるので「Retry build」は要らない。
+  マージ後に本番の check-run が付かないまま本番が古いときは、壊れたと判断する前にこれを疑う
+  （2026-10-16: 1447edda1〈09:19 JST〉の後の本番のビルドが続けて飛ばされ、5bf5d9b0f〈10:33 JST〉で反映。⏩ は平野さんの Build history の申告値）
 - **check-run は push の先頭コミットにしか付かない（2026-09-13）。**
   複数コミットをまとめて push した場合、Workers Builds の check-run が
   記録されるのは先頭の1つだけで、それ以外のコミットには何も付かない。
