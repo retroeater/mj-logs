@@ -59,15 +59,62 @@ Chat-Ref: CHAT-1017-SKR-16
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 着手前の確認
+
+- 指示欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある
+- `git log --all --grep=CHAT-1017-SKR-16` は0件。作業ブランチはローカル・リモートとも無し → `git checkout -b work/1017-skr-rec origin/cloudflare`（f81b95961）
+- このセッションは SKR-05〜15 と同じセッション
+
+### 手順1 確かめ
+
+- 同じ論点の issue: GitHub MCP の `search_issues`（「スクリーンショット 画像の置き場所 比較ページ」、クローズ済みを含む）で #165（open、新サイトで OGP 画像をページ別に出し分けるか）だけ。別の論点なので止まらない
+- 未マージの work/ ブランチ: `docs/notes/chat-side-operations.md`・`docs/notes/design.md`・`docs/decisions/saikyo.md` を変えているものは無い
+- 追記先の今の内容:
+  - `docs/decisions/saikyo.md`: 「(5) 平野さんが X に投稿する」の行は **CHAT-1015-SKR-02 の節**にあった（指示の前提・決定1 は「CHAT-1015-SKR-01 の節」と書いているが、SKR-01 の節には無い。SKR-02 の節の「#549 の公開の順番」の行で、行は1つだけなので取り違えは無い）。その行の末尾に「→ 置き換え: 2026-10-17（CHAT-1017-SKR-16）」を付け、新しい節の決定1 には「2026-10-15〈CHAT-1015-SKR-02〉の…を置き換える」と実物の節を書いた
+  - `docs/notes/design.md`「7.」: 「見比べたい分かれ目は図か比較ページで並べてから聞く」の行は無かった（同じ趣旨は1行目の「見た目は文章で往復せず実物で見比べる」）。新しい行として足した
+  - `docs/notes/chat-side-operations.md`「確認用 URL」: プレビューの URL の扱いと見た目の確かめ方の一文。画像の置き場所の記述は無い。矛盾は無い
+- 画像の置き場所:
+  - mj-logs の写し（`sync-from-mj.yml` → mj の `scripts/sync_all_logs.py`）が写すのは `docs/logs/CHAT-*.md`（`LOG_RE`）とガイド文書だけで、**画像は写らない**
+  - **issue のコメントへの画像の添付は、GitHub の REST API・MCP に手段が無く、Claude Code からはできない**（画像の添付はブラウザの画面からだけ）
+  - リポジトリには前例がある: 作業ブランチの `docs/logs/<Chat-Ref>/` に PNG を置いたログが既にある（`docs/logs/` の .md 以外のファイルが 310 件、例 `docs/logs/CHAT-0916-TT-11/index-390.png`）。`docs/` は `.assetsignore` で配信の対象外
+  - → **主はリポジトリの作業ブランチの `docs/logs/<Chat-Ref>/`**（指示の案の `docs/logs/img/<Chat-Ref>/` ではなく、前例と同じ形にした）。チャット側は mj の REST・clone で読む（mj-logs には写らない）。issue は Code から画像を貼れないので主にしない。chat-side-operations.md にはこの方だけを書いた
+  - 気づいたこと（直していない）: `cleanup-logs.yml`（`scripts/cleanup_logs.py` の `LOG_GLOB = "CHAT-*.md"`）はログの .md だけを消し、`docs/logs/<Chat-Ref>/` の画像は残る（今 39MB のうち大半が画像）
+
+### 手順2 書いたもの（8ce82e0f6）
+
+- `docs/decisions/saikyo.md`: 2026-10-17（CHAT-1017-SKR-16）の節（決定1・2）。SKR-02 の節の (5) の行に「→ 置き換え」
+- `docs/decisions/operations.md`: 2026-10-17（CHAT-1017-SKR-16）の節（決定3・4）
+- `docs/notes/design.md`「7.」: 「見た目の分かれ目は Claude Code の『自然な方』に委ねず、分かれ目ごとに案を並べる。所属が問われる印は上下・左右との空き（px）を測らせて表に書かせる」（理由に SKR-10・SKR-13 の一句）を足した。あわせて chat-side-operations.md から移した「見た目を変える指示では、マージの可否を聞く前に 375px 相当の明・暗で見て気になる所を先に挙げる」の行を足した
+- `docs/notes/chat-side-operations.md`「確認用 URL」: 「**Code が撮った画像は URL と別で、作業ブランチの `docs/logs/<Chat-Ref>/` に置いてよい**（mj-logs には写らないので REST で読む）」を足し、見た目の確かめ方の一文を design.md「7.」へ移した（「場面ごとに読む文書」の表に design.md「7.」の行があるので参照は足していない）。サイズ: **21,973 → 21,932 バイト**（41 バイト減。上限 28,672 まで 6,740、警告域 26,624 まで 4,692）。純増は無い
+- テスト 全件 OK
+- issue（各コメントの末尾に `Chat-Ref: CHAT-1017-SKR-16`）:
+  - #549（閉じたまま）: 決定1・2 のコメント。本文のチェックリストの「X と LINE の投稿画面でカード表示を確かめる」と、2026-10-16 の残りのチェックリスト（CHAT-1016-SKR-08 のコメント）の「X と LINE のカード」に、取り消し線と「→ #581 へ移した（OGP の確認、2026-10-17）」を付けた（書き換える直前に `updated_at` を取り直した）。「X に投稿する」の項目は本文・チェックリストには無かった（公開の順番は docs/decisions にだけある）
+  - #581: 着手中のコメント（未解除）は無い。本文の論点 (e) の下に「最強戦の卓・対局のページを X・LINE に貼ったときのカードの見え方の確認は、#549 からこちらへ移した」の1行を足し、同じ内容をコメントした
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1017-skr-rec
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1017-SKR-16.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1017-skr-rec
+- 確認用URL: なし
+- マージ: 済（ドキュメントのみ）
+- issue: #549（コメント・本文とチェックリストの直し）、#581（本文に1行・コメント）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 43e4695b）: https://github.com/retroeater/mj-logs/tree/main/guide/43e4695b
+ガイド文書（この版を写した時点の最新、mj c51d8345）: https://github.com/retroeater/mj-logs/tree/main/guide/c51d8345
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/43e4695b/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/43e4695b/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/43e4695b/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/43e4695b/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/43e4695b/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/43e4695b/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/f81b9596.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c51d8345/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c51d8345/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c51d8345/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c51d8345/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c51d8345/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c51d8345/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/c51d8345.md
