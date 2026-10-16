@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-16 17:10 JST
+- 書き出した時刻: 2026-10-16 17:14 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -38,11 +38,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-16 17:13 | check_run | cloudflare | skipped | #60（38872257750） | 0分01秒 |
 | 2026-10-16 16:39 | check_run | cloudflare | skipped | #59（38868593317） | 0分01秒 |
 | 2026-10-16 16:35 | check_run | cloudflare | skipped | #58（38868137966） | 0分09秒 |
 | 2026-10-16 16:32 | check_run | cloudflare | skipped | #57（38867824304） | 0分01秒 |
 | 2026-10-16 16:27 | check_run | cloudflare | skipped | #56（38867372671） | 0分00秒 |
-| 2026-10-16 16:25 | check_run | cloudflare | skipped | #55（38867108358） | 0分01秒 |
 
 ## check-image-links.yml
 
@@ -181,7 +181,7 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-10-16 17:08 | push | cloudflare | in_progress | #346（38871725816） |  |
+| 2026-10-16 17:08 | push | cloudflare | success | #346（38871725816） | 4分23秒 |
 | 2026-10-16 16:19 | push | cloudflare | success | #345（38866518889） | 1分15秒 |
 | 2026-10-16 15:39 | push | cloudflare | success | #344（38862435564） | 0分45秒 |
 | 2026-10-16 15:16 | push | cloudflare | success | #343（38860240993） | 0分59秒 |
