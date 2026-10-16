@@ -58,15 +58,53 @@ Chat-Ref: CHAT-1017-WFL-24
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+- Chat-Ref の重複確認: CHAT-1017-WFL-24 のコミット・ログは無い。`WFL` はこのセッションの識別子
+- 作業ブランチ: work/1017-wfl-dash はローカル・リモートとも無かったので `git checkout -b work/1017-wfl-dash origin/cloudflare`（a4a72a636）
+- 0. 指示欄の末尾は指示文の最後の行と一致。CHAT-1016-ACF-24 の `## 報告` は状態「完了」・マージ済（6e8459065、`get()` の取り直しは origin/cloudflare の actions_status.py にある）。docs/notes/glossary.md を読んだ
+- 雛形の行: Chat-Ref・マージ・貼る時機・共通手順（＋作業ブランチ）は揃っている
+- 未マージの作業ブランチで `scripts/actions_status.py`・`scripts/morning_report.py` を変えるもの: なし
+- 着手 JST 07:51（土曜）
+
+### 手順1: 要確認の確かめ（mj-logs の sync-from-mj.yml、main d04a9fb9 で読んだ）
+
+- 「写す・書き出す・push」のステップは `python3 scripts/actions_status.py --repo retroeater/mj --dest "$GITHUB_WORKSPACE"` の後に `git add -A` する。書き出すファイルを列挙して選んでいないので、`actions/index.html` もそのまま入る。**sync-from-mj.yml を変える必要は無い**
+- 直下の未知のファイルを消すか: 消すのは `sync_all_logs.py` の `logs/` のうち cloudflare で消したログ、`sync_guides.py` の `guide/` の下、`chat_ids.py` の `chat-ids/` の下だけ。直下の `.nojekyll` は消されない（`git add -A` は今あるファイルを足すだけ）。push が拒否されたときの `git reset --hard origin/main` も origin の `.nojekyll` を残す
+- mj-logs の直下に `.nojekyll`・`_config.yml`・`index.html` は無い（`README.md` だけがある）。ログ（`.md`）には `${{ … }}` が多く含まれ、Jekyll の Liquid が `{{` を解釈してビルドが失敗するおそれがあるので、`.nojekyll` を作ってから Pages を有効にするのがよい（手順は `## 報告`）
+
+### 手順1: 実装（a3d324a45）
+
+- `scripts/actions_dashboard.py`（新）: `.github/workflows/*.yml` を行単位で読み（PyYAML を使わない。今のスクリプト〈actions_status.py の cron の読み方〉に合わせた）、`on` のキー・cron・`workflow_run`・ジョブの `needs`・`uses` を取り、`workers/scheduler/schedule.json` と合わせて流れ図を起こす。節は 4 つ: 毎朝の運行（schedule.json の行。run-daily のジョブを needs の段ごとに並べ、各ジョブの下に呼ぶワークフローの入れ子）／cron 実行（毎日・週次・月次。毎朝の運行からも呼ばれるものに注記）／push・イベント／手動実行だけ。最後に一覧表（契機・直近 5 回・最終実行・最終成功・7 日の回数・7 日の失敗・所要の中央値〈直近 20 回の完了した実行〉）
+  - 指示の前提は流れ図 3 つだったが、どこからも呼ばれず手動実行しか無いワークフロー（convert-x-posts・fetch-x-posts・sync-logs）が流れ図から漏れるので、4 つ目の節「手動実行だけ」を足した
+  - 入れ子の箱（呼ばれる側のワークフロー）の結果は、呼んだ側の実行のジョブ名（`live / regenerate / regenerate` の形）を前置きで引いてまとめる（失敗が1つでもあれば失敗）
+  - 箱は `<details>` で、押すと直近 5 回の実行（run へのリンク・開始・契機・ブランチ・結論・所要）と、ワークフローの画面（Run workflow・実行履歴）・失敗した回の一覧（`?query=is:failure`）・失敗した回の run へのリンクが開く
+  - 1 枚の自己完結の HTML。CSS は `<style>` に書き、JS は使わない（CSP を入れるときに script の許可が要らない）。リンク先は github.com だけ。`prefers-color-scheme` でライト・ダーク。コミットの題（display_title）とジョブのログの中身は出さない（status.md と同じ範囲）。`noindex`
+  - 一覧表は今あるワークフローのファイルだけを載せる（API には改名前の `assets-check.yml` が残っていた）
+  - 書き出した時刻の行のほかに違いが無ければ書かない（status.md と同じ。毎分の同期で空のコミットを作らない）
+- `scripts/actions_status.py`: morning.md の後に `actions_dashboard.write()` を呼ぶだけ。ジョブの取得には ACF-24 の `get()` をそのまま渡す。運行表の失敗は `::warning::` を出して続ける（status.md・morning.md と同期を止めない）
+- **API の呼び出しの増加:** 別のワークフローを呼ぶジョブを持つワークフロー（run-daily・fetch-youtube・update-live-channel・update-sns-book・regenerate-saikyo の 5 つ）の直近 5 回のジョブ = 同期 1 回につき最大 25 回（失敗した回で既に取ったものは除く。作業ブランチの実データでは 20 回）
+- テスト `scripts/tests/test_actions_dashboard.py`（15 件）: 例の YAML から辺ができる（schedule.json → run-daily、ジョブ、needs、uses、cron、push、workflow_run）・ジョブ名の前置きが API のジョブ名と合う・needs の段・節の分け方・入れ子の結論・cron の JST・HTML に外部の読み込み（script・img・link・`url(`・`@import`）が無くリンクが github.com だけ・コミットの題を出さない・時刻だけの違いは書かない・ジョブの取得は呼ぶ側だけ（今のワークフローで 5 つ × 5 回）
+  - 途中で1件落ちた（`needs:` の次の行から `- x` で続く書き方を、空のリストを偽と判定して読めていなかった）。直して通した
+- docs/notes/github-actions.md「チャット側」の「実行結果の確かめ方」の次に「運行表」の1行を足した
+
+### 手順2: 作業ブランチでの確かめ
+
+- 公開の API の実データ（`python3 scripts/actions_status.py --repo retroeater/mj --dest <scratchpad>`）で status.md・morning.md・index.html を書き出した（ワークフロー 24 件、ジョブの取得 20 回、所要 48 秒）。index.html のリンク先は `https://github.com` だけ（629 件）
+- headless Chromium（playwright、/opt/pw-browsers）で開いた。PC 幅 1280・スマホ幅 390 とも、横のスクロールは出ない（scrollWidth = 幅）。スクリーンショット（上端の 1400px）: `docs/logs/CHAT-1017-WFL-24/pc-light.png`・`pc-dark.png`・`sp-light.png`・`sp-dark.png`
+- 流れ図の「毎朝の運行」に run-daily の 6 つのジョブ（live・dojo・branches が先頭の段、needs: live → sns、needs: sns → images、needs: images → saikyo）と、入れ子（live の下に regenerate-page・sync-yotei、sns と saikyo の下に regenerate-page）が出た。結果は run-daily の直近 5 回のジョブから引けている（sns の下の regenerate-page は 5 回とも飛ばした、など実物と合う）
+- 1 回目のスクリーンショットで2つ直した: スマホ幅で箱の下に大きな空白が出た（縦並びのときの flex-basis）・ダークの結果の印の白い字の背景が明るく読みにくかった（濃い色にした）
+- テスト: unittest 1294 件 OK。部品の `node --test`（upsert-issue）18 件 pass・Worker（scheduler など）36 件・40 件 pass
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj c51d8345）: https://github.com/retroeater/mj-logs/tree/main/guide/c51d8345
+ガイド文書（この版を写した時点の最新、mj c345618d）: https://github.com/retroeater/mj-logs/tree/main/guide/c345618d
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c51d8345/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c51d8345/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c51d8345/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c51d8345/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c51d8345/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c51d8345/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c345618d/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c345618d/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c345618d/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c345618d/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c345618d/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c345618d/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a4a72a63.md

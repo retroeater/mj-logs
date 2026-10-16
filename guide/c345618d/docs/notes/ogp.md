@@ -5,11 +5,30 @@ OGP 画像・og:title を作る／変えるときに読む。#339（「帰り道
 
 ## 置き場所の決まり
 
-- ページ別の OGP 画像は `img/ogp/<区分>/` 以下に置く。共通の `img/ogp.png` は現行サイトでは動かさない
+- ページ別の OGP 画像は `img/ogp/<区分>/` 以下に置く
   （本文は `docs/notes/static-generation.md`「メンテナンス用スクリプトの詳細」の `build_wayhome_ogp.py` の行と、
   `docs/notes/static-generation.md`「生成スクリプトの構成（lib/page.py）」）
-- `img/ogp.png` を `img/ogp/` へ移すかは、新サイト（#296）で判断する
-- 現在の実例: `img/ogp/wayhome/index-<最新話の公開日>.jpg`（`docs/notes/video-wayhome.md`）、`img/ogp/saikyo/<年度>-<意匠>.png`（`docs/notes/saikyo-page-design.md`、#343）、`img/ogp/title/<slug>-black.png`（`docs/notes/title-pages.md`、#232）、`img/ogp/houou/index-black.png`（houou/ の全ページで1枚。`docs/notes/houou-top.md`「共通」、#540）
+- 全ページ共通の画像（`PageMeta.og_image` の既定）は `img/ogp/site/index-white.png`（白地・黒字の「ryoei.pro」、余白を広くとる。告知動画の締めの画面のイメージ、#581）。
+  旧 `img/ogp.png`（白地、#78）は凍結中の books/ が指したまま残るので消さない
+- 現在の実例（文字ベースの画像は4種類、#581）: 共通の `img/ogp/site/index-white.png`、`img/ogp/title/index-white.png`（title/ の全ページ、`docs/notes/title-pages.md`）、`img/ogp/houou/index-white.png`（houou/ の全ページと旧 `houou_*.html`、`docs/notes/houou-top.md`「共通」）、`img/ogp/saikyo/index-white.png`（最強戦のトップと、卓・カードの代わりの画像、`docs/notes/saikyo-page-design.md`）。ほかに帰り道の一覧の `img/ogp/wayhome/index-<最新話の公開日>.jpg`（`docs/notes/video-wayhome.md`）
+
+## ページの種類ごとの og:image・og:type の規則
+
+2026-10-16 の決定（#581、docs/decisions/seo-bing.md の CHAT-1016-OGR-02・03）。凍結中の books/ と 404.html は対象外。
+
+| ページの種類 | og:image | og:type |
+|---|---|---|
+| 動画1本のページ（YouTube。帰り道・Mつく・女流勉強会の各話、live/ の卓・対局） | その動画のサムネイル（使える最大の画質: maxresdefault、無ければ sddefault、それも無ければ hqdefault。統一はしない） | video.other ＋ og:video（`lib.wayhome.embed_url()` の埋め込みの URL） |
+| 動画の一覧ページ（Mつく・女流勉強会の一覧など） | 最新話のサムネイル。許可を得て合成画像を作れるもの（帰り道の一覧、#340）は合成画像 | website |
+| 最強戦の卓（ABEMA） | ABEMA の回があればその回のサムネイル（ヒーローと同じ）、無ければ作品「麻雀最強戦」の画像 | website（ABEMA は埋め込みの URL を出していない） |
+| 最強戦の年度・対局 | 作品「麻雀最強戦」の画像 | website |
+| title/ の全ページ・houou/ の全ページと旧 `houou_*.html`・saikyo/ のトップ | それぞれ「タイトル戦」「鳳凰戦」「麻雀最強戦」の1枚。共通画像と同じ白地・黒字で、区分名を大きく（幅に合わせ、上限 200px）、その下に「ryoei.pro」（48px）。`build_ogp_image.py --text <区分名> --footer ryoei.pro --color '#212529' --bg '#ffffff' --max-size 200 --tracking -0.03` | website |
+| ほかのページ（下位メニューしか無いグループ〈連盟・女流桜花・WRC・番組・リソース・良栄〉の下のページなど） | 共通の `img/ogp/site/index-white.png`。ページの種類ごとの画像は作らない | website |
+
+文字ベースの画像（サムネイルなどの無いページで使うもの）は、メニューの最上位でそれ自体がページになっているものだけ作る（ryoei.pro・鳳凰戦・麻雀最強戦と、例外のタイトル戦の4種類。サブメニューで細かく分けない、2026-10-16、#581）
+
+- 全ページに og:locale `ja_JP`（#267）。生成のページは `lib/page.py` の `HEAD_TEMPLATE` と `generate_jpml_pros.py`、手書きのページは head に直接書く
+- 規則は「埋め込みできる動画のページ（YouTube）は video.other ＋ og:video、それ以外は website」
 
 ## 中身を差し替える画像はファイル名を変える
 
@@ -22,9 +41,8 @@ OGP 画像・og:title を作る／変えるときに読む。#339（「帰り道
   自動生成（#340）でもこの関数で名前を決め、生成した画像とページを同じコミットに入れる
 - 上書きする設計を決める前にキャッシュ設定を確認すること、404 にも1年のキャッシュが付くため画像とページを同じコミットに入れることは、
   画像の差し替え全般に関わるため `docs/notes/cloudflare.md`「配信設定: html_handling・_redirects・canonical・_headers」に書いた
-- 最強戦の実例（CHAT-0916-SY-07、#343）: `img/ogp/saikyo/<年度>-<意匠>.png`（現在は `<年度>-black.png`）。年度ごとの固定の文字でデータでは中身が変わらないため、
-  名前を変えるのは意匠を作り直すときだけ。接尾辞は `generate_saikyo_pages.py` の `OGP_DESIGN` で決め、変えたら16年度分を新しい名前で作り直して旧ファイルを削除し、画像とページを同じコミットに入れる。
-  背景を白から黒にしたとき、旧 `<年度>.png` を削除して `-black` を付けた
+- 意匠を作り直した実例（#581、2026-10-16）: 区分の画像を黒地から白地にしたとき、接尾辞を `-black` から `-white` に変えて新しい名前で作り、旧ファイルを削除して、画像とページを同じコミットに入れた。
+  最強戦の年度の画像（`<年度>-black.png`、#343）は同じ時に、代わりの画像を「麻雀最強戦」の画像に替えて削除した
 
 ## X のカード（`summary_large_image`）で観察したこと
 
