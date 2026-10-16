@@ -91,7 +91,7 @@ HOU-61 の houou-promo-v3.mp4 への回答で、平野さんは2か所の直し�
 
 ## 報告
 
-- 状態: 判断待ち（送った動画 houou-promo-v4.mp4 で確定してよいかを決める）
+- 状態: 判断待ち（送った動画 houou-promo-v4.mp4 で確定してよいかを決める） / 続き: CHAT-1016-HOU-63
 - ブランチ: work/1015-hou5
 - ログ: https://github.com/retroeater/mj/blob/work/1015-hou5/docs/logs/CHAT-1016-HOU-62.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1015-hou5
