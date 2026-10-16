@@ -30,6 +30,10 @@ ryoei.pro のすべての転送の一覧と、四半期ごとの棚卸しの手�
 | `/video_mtsuku.html` | `/mtsuku/` | `_redirects` 301 | 2026-10-15 | #570 | 未（初回 2027-01 上旬） |
 | `/tanilog.html` | `/resource_logs.html?name=谷岡育夫` | `_redirects` 301 | 2026-09-07 | GitHub Pages からの移行 | 未（初回 2027-01 上旬） |
 | `/houou/ranking/` | `/houou/ranking/total/` | `_redirects` 301（クエリを引き継ぐ。`?division=` は下の「JS の移動」） | 2026-10-14 | #518・#540（通算得点を `total/` に移した開発中の入口） | 未（初回 2027-01 上旬） |
+| `/houou_ranking.html` | `/houou/ranking/total/` | `_redirects` 301（クエリを引き継ぐ。`?division=` は下の「JS の移動」、`?sheet=` は読まれない） | #540 の公開の日 | #540 | 未（初回 2027-01 上旬） |
+| `/houou_leagues.html` | `/houou/leagues/` | `_redirects` 301（`?name=` を引き継ぎ、下の「JS の移動」で個人成績のリーグのタブへ） | #540 の公開の日 | #540 | 未（初回 2027-01 上旬） |
+| `/houou_race.html` | `/houou/race/` | `_redirects` 301 | #540 の公開の日 | #540 | 未（初回 2027-01 上旬） |
+| `/houou_results.html` | `/houou/players/` | `_redirects` 301（`?name=` を引き継ぐ） | #540 の公開の日 | #540 | 未（初回 2027-01 上旬） |
 | `/saikyo/2011.html` | `/saikyo/2011/` | `_redirects` 301 | #549 の公開の日 | #549 | 未（初回 2027-01 上旬） |
 | `/saikyo/2012.html` | `/saikyo/2012/` | `_redirects` 301 | #549 の公開の日 | #549 | 未（初回 2027-01 上旬） |
 | `/saikyo/2013.html` | `/saikyo/2013/` | `_redirects` 301 | #549 の公開の日 | #549 | 未（初回 2027-01 上旬） |
@@ -66,14 +70,13 @@ ryoei.pro のすべての転送の一覧と、四半期ごとの棚卸しの手�
 | 移動元 | 移動先 | 場所 | issue |
 |---|---|---|---|
 | 旧年度ページ（`/saikyo/<年度>.html`、301 で `/saikyo/<年度>/` へ来る）の `#<卓のアンカー>`・`#match-…` | 対局・卓のページ | `assets/saikyo.js`（対応表は `#saikyo_anchor_map`、`generate_saikyo_pages.py` の `anchor_map_json()`） | #425 |
-| `houou/ranking/total/` の `?division=`（`/houou/ranking/?division=` は 301 で `total/` へ来る） | その部門のページ | `assets/houou.js` | #518 |
-| `houou/leagues/` | `houou/players/?view=league`（`?name=` を保つ） | `assets/houou.js`（2026-10-12） | #518 |
+| `houou/ranking/total/` の `?division=`（`/houou/ranking/?division=`・`/houou_ranking.html?division=` は 301 で `total/` へ来る） | その部門のページ | `assets/houou.js` | #518 |
+| `houou/leagues/`（`/houou_leagues.html` は 301 で来る） | `houou/players/?view=league`（`?name=` を保つ） | `assets/houou.js`（2026-10-12） | #518 |
 
 ## 予定（公開時に増える）
 
 | 転送元 | 予定 | issue |
 |---|---|---|
-| 鳳凰戦の旧4ページ | `houou/` の各ページへの 301 | #540 |
 | 最強戦の旧年度ページの `?match=` | `?match=` の Single Redirect ルール（ダッシュボード、#549 の公開の直後に平野さんが作る。テストで拾えない） | #549 |
 
 ## 棚卸しの手順（四半期ごと、1・4・7・10月の上旬）

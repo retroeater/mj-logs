@@ -49,6 +49,36 @@ CHAT-1016-OGR-03 の判断待ち（共通画像の見本・マージの承認）
 
 ## 経過
 
+### 着手前の確認
+
+- `CHAT-1016-OGR-04` のコミット: 無し。作業ブランチ: ローカルの `work/1016-ogr` はリモート（ae42f23fa）と一致、未マージ。`merge-base --is-ancestor origin/cloudflare HEAD` は偽（下で取り込み）
+- 手順0: 「指示」欄の末尾は指示文の最後の行と一致。雛形の行は4行とも有る。OGR-03 の `## 報告` の状態を「判断待ち / 続き: CHAT-1016-OGR-04」にした
+
+### 色の読み取りと告知動画の確かめ
+
+- 旧 `img/ogp.png` の画素の数: `#ffffff` 742,844・`#212529` 10,476（ほかは字の縁の中間色）。**背景 #ffffff・文字 #212529**（`build_ogp_image.py` の `BG_COLOR`・`TEXT_COLOR` と同じ）
+- 告知動画: cloudflare の `scripts/promo_video/dictionary/`・`saikyo/`（と houou/）の `build.sh` が `img/ogp.png` を締めの画面の素材にコピーしている。前提どおり。旧 `img/ogp.png` は変えていない
+
+### 新しい共通画像
+
+- `img/ogp/site/index-white.png`（1200×630、18,431 バイト）: `OGP_FONT=<NotoSansJP-Bold.otf> python3 scripts/build_ogp_image.py --text ryoei.pro --color '#212529' --bg '#ffffff' --max-size 180 --tracking -0.03 --out img/ogp/site/index-white.png`。
+  字体は見本 B と同じ（同じフォントで見本 B を `--check` して「一致」を確かめてから作った）。名前は前提の案のまま
+- 見本 A・B（`index-black.png`・`index-black-b.png`）は `git rm` で消した
+- 参照の置き換え: `PageMeta.og_image`・`generate_jpml_pros.py`・`apply_page_meta.py` の `build_meta()`・手書きの8ページと生成済みの187ページの og:image を `index-white.png` に（名前の置き換えだけ）。
+  docs/notes（ogp.md・static-generation.md・live-page-design.md・title-pages.md・saikyo-page-design.md）の共通画像の名前もそろえ、ogp.md・static-generation.md・`page.py` のコメントの「黒地・白字」を「白地・黒字」に、作り方のコマンドを新しい値にした
+- docs/decisions/seo-bing.md: OGR-03 の (b-2) の行末に「→ 一部置き換え: 2026-10-16（CHAT-1016-OGR-04、共通画像は白地・黒字）」を付け、OGR-04 の節を足した
+
+### 取り込みと再検証
+
+- `git merge origin/cloudflare`（衝突なし）
+- `python3 scripts/regenerate.py all`（凍結中を除く）: 成功。作業ツリーの差分は0（名前を置き換えたページが生成結果と一致）
+- テスト: `python3 -m unittest discover -s scripts/tests` OK、`node --test 'workers/ask/test/*.test.mjs'` 36 pass
+- origin/cloudflare との差（docs/ を除く）:
+  - og:locale の追加 2,352ページ、og:image の置き換え 187ページ（ルート直下 22・live/ 165）。OGR-03 と同じ数で、画像の名前だけが `index-white.png`
+  - シートの変化: houou_leagues.html・resource_dictionary.html の description（691名→690名・1,870語→1,869語）、houou_race/ 13・houou_leagues_data.json・dic/pros.json。OGR-03 と同じ「プロ」シートの1名の削除で、cloudflare 側はまだ再生成していない
+  - 画像 `img/ogp/site/index-white.png`、スクリプト3つ
+  - books/・404.html・旧 `img/ogp.png`: 変化なし
+
 ## 報告
 
 - 状態:
@@ -65,12 +95,12 @@ CHAT-1016-OGR-03 の判断待ち（共通画像の見本・マージの承認）
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 065b75e3）: https://github.com/retroeater/mj-logs/tree/main/guide/065b75e3
+ガイド文書（この版を写した時点の最新、mj b768fb1c）: https://github.com/retroeater/mj-logs/tree/main/guide/b768fb1c
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/065b75e3/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/065b75e3/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/065b75e3/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/065b75e3/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/065b75e3/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/065b75e3/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b768fb1c/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b768fb1c/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b768fb1c/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b768fb1c/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b768fb1c/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b768fb1c/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/91b5dd30.md
