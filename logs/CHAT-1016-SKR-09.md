@@ -52,15 +52,50 @@ Chat-Ref: CHAT-1016-SKR-09
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 着手前の確認
+
+- 指示欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある
+- `git log --all --grep=CHAT-1016-SKR-09` は0件。作業ブランチはローカル・リモートとも無し → `git checkout -b work/1016-skr-build origin/cloudflare`（271498b2a）
+- このセッションは SKR-05〜08 と同じセッション
+
+### 手順1
+
+- 同じ論点の issue: GitHub MCP の `search_issues`（「Workers Builds 本番のビルド 飛ばされ Queued 順番待ち」、クローズ済みを含む）で #561（本番の Workers Builds の失敗を知らせる）・#334（check-run 成功を本番反映の合図にしてよいか）・#363（プレビューを確認用 URL に使う運用）。3件とも closed で、open の同じ論点の issue は無い
+- 追記先の今の内容: 「チャット側が成否を確かめるとき」は「1つのコミットに Worker ごとと本番・プレビューの別で複数付く」「失敗を伝える前に本番かプレビューかを書く（見分け方は『ビルドが Cloning で失敗したとき』）」。その節に「本番かプレビューかは `.output.summary` に `Preview URL` があるかで見分ける（成功した本番には `Version ID` だけ）」がある。成否の項目には「check-run が success になった時点で本番は反映済み」。**飛ばされる挙動と、実行中の check-run を見分けられないことは書かれていない。矛盾は無い**（「success＝反映済み」が本番の check-run に限ることを書き添えた）
+- 未マージの work/ ブランチ: `docs/notes/cloudflare.md`・`docs/decisions/cloudflare.md` を変えているものは無い
+
+### 手順2（f16797478）
+
+- `docs/notes/cloudflare.md`「ビルド成否と本番の確認範囲（check-runs）」の成否の項目（「check-run が success になった時点で本番は反映済み」）の直後に2項目を足した:
+  - 同じコミットにプレビューのビルドの check-run も付く。本番かは完了した check-run の `output.summary` に `Preview URL`・`Preview Alias URL` が無いことで見分ける（「success＝反映済み」は本番の check-run に限る）。実行中は summary にプレビューの URL が出ないので見分けられない
+  - 本番のビルドが順番を待つ間に新しい push が来ると古い本番のビルドは飛ばされ（⏩）、最新だけが走る。待てば反映されるので Retry build は要らない。事例は1行（2026-10-16、1447edda1 の後 → 5bf5d9b0f。⏩ は平野さんの申告値と明記）
+- `docs/decisions/cloudflare.md` に 2026-10-16（CHAT-1016-SKR-09）の節
+- 事例は1行にまとめたので `docs/notes/handover-archive-2026.md` には移していない
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1016-skr-build
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1016-SKR-09.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1016-skr-build
+- 確認用URL: なし
+- マージ: 済（ドキュメントのみ）
+- issue: なし
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 271498b2）: https://github.com/retroeater/mj-logs/tree/main/guide/271498b2
+ガイド文書（この版を写した時点の最新、mj b77586e6）: https://github.com/retroeater/mj-logs/tree/main/guide/b77586e6
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/271498b2/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/271498b2/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/271498b2/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/271498b2/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/271498b2/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/271498b2/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b77586e6/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b77586e6/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b77586e6/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b77586e6/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b77586e6/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b77586e6/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/98839f38.md

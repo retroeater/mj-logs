@@ -82,15 +82,41 @@
 - regenerate-page を `target_page: resource_dictionary` で手動実行: run #339（38841382169）**success**。ジョブ regenerate のうち「楽天の書影を取得」・「帰り道の一覧のOGP画像を作る」・帰り道の知らせの3ステップ・失敗の報告は skipped（`all` ではないので今までと同じ）。生成物の差分は無く、作業ブランチにコミットは入っていない（除くものは無い）
 - fetch-youtube.yml は新しいワークフローなので作業ブランチでは手動実行できない（マージの後に cloudflare で行う）
 
+### 手順3: マージ
+
+- JST 11:39（金曜。時間帯の制限の外）に再 fetch し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真（取り込みは不要）だったので `git push origin work/1016-wfl-s9:cloudflare`（eeb2a5bef..271498b2a）。`workers/` は変えていない
+
+### 手順4: cloudflare での確かめ
+
+- fetch-youtube を cloudflare で手動実行: 実行 #1（38841595184、head 271498b2a）**success**
+  - ジョブ `fetch`: 「YouTubeチャンネル情報を取得」・「帰り道のYouTube情報を取得」とも success。「変更をコミット・push」は差分が無く、コミットしなかった
+  - ジョブ `regenerate / regenerate`（regenerate-page.yml を `all`・`wayhome: true` で呼んだもの）: success。「帰り道の一覧のOGP画像を作る」・「対象ページを再生成」・サイトマップの更新と確認・「帰り道の前回の知らせを読む」・「帰り道の取り込みを調べる」は success。「楽天の書影を取得」（凍結）と「帰り道の知らせを書く」（新しい回が無い）・失敗の報告は skipped
+  - ジョブ `report`: skipped（取得の失敗が無い）
+- 実行の後の cloudflare は 271498b2a のままで、入ったコミットと変わったファイルは無い（データにもページにも差分が無かった）
+- #564 に段③の完了をコメントした（本文は変えていない）: https://github.com/retroeater/mj/issues/564#issuecomment-6206881756
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1016-wfl-s9（マージ済み。削除は cleanup-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1016-WFL-22.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1016-wfl-s9
+- 確認用URL: なし
+- マージ: 済（271498b2a）。cloudflare で fetch-youtube の実行 #1（38841595184）が success（データ・ページの差分なしでコミットなし）
+- issue: #564 に段③の完了をコメント（https://github.com/retroeater/mj/issues/564#issuecomment-6206881756）
+- 判断が必要なこと: なし
+- 未確認の項目: 2026-10-19（月）05:37 JST の fetch-youtube の週次の実行（GitHub の schedule。遅れることがある）。取得→コミット→regenerate-page の `all`→OGP 画像・帰り道の知らせが通るか
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 374ad1fb）: https://github.com/retroeater/mj-logs/tree/main/guide/374ad1fb
+ガイド文書（この版を写した時点の最新、mj b77586e6）: https://github.com/retroeater/mj-logs/tree/main/guide/b77586e6
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/374ad1fb/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/374ad1fb/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/374ad1fb/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/374ad1fb/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/374ad1fb/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/374ad1fb/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b77586e6/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b77586e6/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b77586e6/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b77586e6/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b77586e6/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b77586e6/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/98839f38.md

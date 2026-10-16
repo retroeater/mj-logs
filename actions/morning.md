@@ -40,5 +40,4 @@
 
 ## 5. 未報告のログ（`## 報告` の節が無い）
 
-- CHAT-1016-SKR-09.md（着手 2026-10-16） https://github.com/retroeater/mj-logs/blob/main/logs/CHAT-1016-SKR-09.md
-- CHAT-1016-WFL-22.md（着手 2026-10-16） https://github.com/retroeater/mj-logs/blob/main/logs/CHAT-1016-WFL-22.md
+なし
