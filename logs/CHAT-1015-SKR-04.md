@@ -92,7 +92,7 @@ https://ryoei.pro/saikyo/
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1016-SKR-05
 - ブランチ: work/1015-skr-vid
 - ログ: https://github.com/retroeater/mj/blob/work/1015-skr-vid/docs/logs/CHAT-1015-SKR-04.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1015-skr-vid
