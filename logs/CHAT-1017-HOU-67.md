@@ -73,16 +73,60 @@ houou/ の公開までの指示（HOU-46〜66）の振り返りで出た知見�
 
 - 着手前の確認: 同じ Chat-Ref のコミットなし。origin/work/1017-hou は無いので origin/cloudflare から作った。雛形の行は揃っている。ガイド文（docs/notes）に規則を足す指示で「知見 → 選んだ層 → 理由」の表がある。「指示」欄の末尾は指示文の最後の行と一致
 
+### 手順1 着手の確かめ
+
+- #541・#542・#582 に 2026-10-16 08:00 UTC 以降のコメントは無い（他のセッションの着手中なし）
+- `git branch -r --no-merged origin/cloudflare` の7本（work/1009-swp-526・1011-swp-hnd・1011-swp-nav・1015-skd-notes・1016-amp・1017-hou〈自分〉・1017-skr-rec）は、`scripts/promo_video/houou/`・`docs/notes/ask-worker.md`・`docs/notes/static-generation.md`・`docs/new-page-checklist.md` のどれも変えていない
+
+### 手順2 表の4（check-meibo.yml）の確かめ
+
+- `check-meibo.yml` は毎週月曜 05:07 JST（日曜 20:07 UTC の cron）と手動。`scripts/check_meibo.py` が `meibo.compare(pro_names, members)` で「名簿の『公開』タブにだけいる人」「『プロ』にだけいる人」を出し、常設 issue「名簿と『プロ』シートの不一致」（#445）に書く（一致すれば閉じる）。生成は止めない
+- `lib/meibo.py` の `check_pros()`（生成が使う）は、「公開」タブに加えて英字のタブ「【2】値貼付」にいるか、両タブの人数が想定の範囲か、も見る。`check_meibo.py` はこの2つを見ない
+- 頻度の差: #445 は 2026-09-28 に閉じたまま。HOU-63（2026-10-16 金）で生成が止まった食い違いは、10/12（月）の実行の後に起きたため次の 10/19（月）まで出ない
+- 結論: 同じ検査ではない（英字のタブ・人数を見ない、週1回）ので、表の4は**足した**。`docs/new-page-checklist.md` の段2「着手前」に、準備の指示の着手時に `python3 scripts/regenerate.py --check <ページ名>` を流す1行（`--check` は全ページが持ち、書かずに止まる理由を出す〈#551〉。「関係するページの生成を手元で流す」をこの形にした）
+
+### 手順3 表の1〜3
+
+**1 撮影の枠の検査（`scripts/promo_video/houou/capture.mjs`）**
+
+- `mustFit(page, scene, selectors)` を足した: セレクタに当たる要素すべての `getBoundingClientRect()` を読み、画面（`innerWidth`×`innerHeight`、390×664）からはみ出すか見つからなければ例外で止める。`page.evaluate` で読むだけで、スクロール・ページの時計・待ちは変えない。前からあった通算のグラフの判定（`facts.trend` の比較）はこの関数に置き換えた（`facts.trend` は残す）。場面と要素の対応は README の表
+- 回し方: 撮影の全体は回さず、`FONTCONFIG_FILE=scripts/promo_video/title/fonts.conf node scripts/promo_video/houou/capture.mjs <出力> <ask-answer.json>` だけを本番に対して流した（描画・音は回さない。質問欄は HOU-60 の答えを撮る側で返し、本番へ送ったのは0回。`ask-answer.json` は HOU-65 で作り直したもの、scratchpad）
+- 1回目: 場面7の ▶ の前に `.mj-houou-lg-svg` を見ると、グラフは画面の下（上端 387・下端 867）で止まった。グラフは ▶ を押した後のページの送りで画面に入る作りなので、▶ の前は ▶ のボタン、登り始め（`climb`、送り終えた後）にグラフ、終わりにアイコンを見る形に直した
+- 2回目: **場面8 部門別の表 `.mj-houou-div-list` が画面に入らず止まった（上端 374・下端 886、画面は 664）**。部門別のタブを押した後は送らずに 3.0秒見せる撮り方なので、v5 でも表の下（9行のうち後ろの約4行）が切れている。検査を通すには、タブを押した後に表全体が入るまで送る動きを足す必要がある（撮影の動きが変わる）→ 止まる条件「1 の検査が撮影の動きを変えないと作れない」に当たる
+- 確認のため、部門別の検査だけを外した写し（コミットしない、流した後に消した）で最後まで流した: ほかの検査（トップ・質問欄・選手を開く・通算・リーグ3か所・ランキング3か所）はすべて通り、`scenes.json` は v5 と同じ、コマ数も 1079 で同じ（検査で撮影の動きは変わっていない）
+- 参考: リーグの再生のアイコンは、寄った直後の1コマで中心が画面の下の端を 1px 越える（y 665、`facts.league.outside`。v5 と同じ）。検査はアイコンの終わりの位置だけを見る
+
+**2 固定の問い（`docs/notes/ask-worker.md`）**: 「変更の指示を作るときの前提: 本番で送る固定の問い」の節を足し、5問と見る点を表にした（期待は HOU-58・59 の本番の答え）。chat-side-operations.md は変えていない（変えてよい範囲の外）
+
+**3 在籍者が変わったとき作り直す生成物（`docs/notes/static-generation.md`）**: 一覧は無かったので、「プロ」シートの段落の後に足した。洗い出しは `grep -l "fetch_pros\|meibo\.fetch" scripts/generate_*.py scripts/lib/*.py` と HOU-64 の差から。見込みの5つ（houou_pages・jpml_pros・ask_data・resource_dictionary・houou_leagues）に、`ouka_leagues`（選手の選択肢）と、行が消えると写真・X が外れる側（`hidden=True` で読む houou_race・title_pages・live_pages・saikyo_pages・books_pages・jpml_test・wayhome_episodes・video_wayhome）、ページでない `sync_birthday_calendar.py` を足した
+
+- 文書の大きさ: ask-worker.md 34,615 → 36,135バイト、static-generation.md 72,994 → 74,583バイト（`docs/notes/` は上限なし）。CLAUDE.md・handover.md・chat-side-operations.md は変えていない
+- 決定を `docs/decisions/houou.md` に足した
+- テスト: `python3 -m unittest discover -s scripts/tests` OK、`node --test 'workers/ask/test/*.test.mjs'` 36件 pass
+- コミット 975c8c69c（work/1017-hou、未マージ）
+
+### 手順4 issue（止まる条件に当たったので行っていない）
+
+- ばらつきの issue の重複の検索（読むだけ）: 「質問欄 答えのばらつき 答えられない問い 現在の鳳凰位」で当たるのは #402（/live の鳳凰位決定戦、閉じている、別の主題）だけ。同じ主題の issue は無い
+- #541 へのコメントと、ばらつきの issue の起票は、判断の後の指示で行う（本文の材料は指示文の前提のとおり）
+
+### 手順5 マージ
+
+- していない（止まる条件に当たったため）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち（部門別の表の検査をどうするか）
 - ブランチ: work/1017-hou
 - ログ: https://github.com/retroeater/mj/blob/work/1017-hou/docs/logs/CHAT-1017-HOU-67.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1017-hou
-- 確認用URL: なし
-- マージ: 未
-- issue: なし
-- 判断が必要なこと: なし
+- 確認用URL: なし（撮影のスクリプトと docs だけ。ページは変えていない）
+- マージ: 未（止まる条件「1 の検査が撮影の動きを変えないと作れない」に当たった）
+- issue: なし（#541 へのコメントと、ばらつきの issue の起票はしていない。重複は無かった）
+- 判断が必要なこと:
+  - 部門別の表（場面8）が今の撮り方では画面に収まらない（v5 でも下の約4行が切れている）。どれにするか: (a) 部門別のタブを押した後に表全体が入るまで送る動きを足す（次に撮るときから。v5 は撮り直さない。撮影の動きが変わる）、(b) 部門別は「見せる物」を画面に入る範囲（例: 上の5行）にして今の撮り方のまま通す、(c) 部門別は検査から外す。おすすめは (a)（グラフの見切れと同じ種類の見落としを防ぐのが検査の目的のため）
+  - 表の4は足した（`check-meibo.yml` は週1回で英字のタブと人数を見ないため、同じ検査ではない）。`docs/new-page-checklist.md` に `regenerate.py --check` を流す1行
+  - 判断の後、#541 へのコメントとばらつきの issue の起票、cloudflare へのマージを行う（docs と検査は work/1017-hou にある）
 - 未確認の項目: なし
 - エラー: なし
 
