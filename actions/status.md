@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-16 10:00 JST
+- 書き出した時刻: 2026-10-16 10:04 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -17,6 +17,15 @@
 | 2026-10-16 09:49 | push | work/JBK | success | #3712（38831659201） | 0分24秒 |
 | 2026-10-16 09:47 | push | work/VSH | success | #3711（38831509437） | 0分20秒 |
 | 2026-10-16 09:47 | push | work/1016-acf-retry | success | #3710（38831466289） | 0分21秒 |
+
+## check-assets.yml
+
+- 名前: 公開対象の検査
+- state: active
+
+| 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
+| --- | --- | --- | --- | --- | --- |
+| 2026-10-16 10:02 | push | work/1016-wfl-s8 | success | #1（38832950597） | 0分22秒 |
 
 ## check-image-links.yml
 
@@ -149,11 +158,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-16 10:02 | check_run | cloudflare | skipped | #226（38832886909） | 0分01秒 |
 | 2026-10-16 09:59 | check_run | cloudflare | skipped | #225（38832608458） | 0分01秒 |
 | 2026-10-16 09:56 | check_run | cloudflare | skipped | #224（38832347911） | 0分09秒 |
 | 2026-10-16 09:53 | check_run | cloudflare | skipped | #223（38832083181） | 0分01秒 |
 | 2026-10-16 09:48 | check_run | cloudflare | skipped | #222（38831563222） | 0分01秒 |
-| 2026-10-16 09:45 | check_run | cloudflare | skipped | #221（38831300612） | 0分01秒 |
 
 ## regenerate-page.yml
 
@@ -189,6 +198,7 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-16 10:02 | workflow_dispatch | work/1016-wfl-s8 | in_progress | #4（38832956460） |  |
 | 2026-10-16 04:00 | workflow_dispatch | cloudflare | success | #3（38790317281） | 14分24秒 |
 | 2026-10-15 14:37 | workflow_dispatch | work/1015-wfl-s7 | success | #2（38687819982） | 12分32秒 |
 | 2026-10-15 12:54 | workflow_dispatch | cloudflare | success | #1（38678691802） | 12分03秒 |
@@ -255,11 +265,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-16 10:02 | workflow_dispatch | work/1016-wfl-s8 | pending | #96（38832959472） |  |
 | 2026-10-16 08:53 | schedule | cloudflare | success | #95（38826225277） | 0分10秒 |
 | 2026-10-15 12:17 | workflow_dispatch | work/1015-wfl-s6 | success | #94（38675494908） | 2分54秒 |
 | 2026-10-15 09:07 | schedule | cloudflare | success | #93（38658202969） | 0分09秒 |
 | 2026-10-15 04:01 | workflow_dispatch | cloudflare | success | #92（38620084312） | 7分06秒 |
-| 2026-10-14 09:37 | schedule | cloudflare | success | #91（38491227119） | 0分07秒 |
 
 ## update-sns-book.yml
 
