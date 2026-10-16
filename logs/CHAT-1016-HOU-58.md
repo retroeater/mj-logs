@@ -77,7 +77,7 @@ HOU-54〜57 の変更（ランキング9部門の名前を略称に統一・規�
 
 ## 報告
 
-- 状態: 完了
+- 状態: 完了 / 続き: CHAT-1016-HOU-59
 - ブランチ: work/1016-hou2（マージ済み。削除は `delete-merged-branches.yml` に任せる）
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1016-HOU-58.md
 - 比較URL: https://github.com/retroeater/mj/compare/0112228f3...aabdd8d5f
