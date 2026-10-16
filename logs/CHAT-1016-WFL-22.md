@@ -54,6 +54,34 @@
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+- Chat-Ref の重複確認: CHAT-1016-WFL-22 は未使用
+- 作業ブランチ: work/1016-wfl-s9 はリモート・ローカルとも無かったので origin/cloudflare（eeb2a5bef）から作った
+- 0. 指示欄の末尾は指示文の最後の行と一致。WFL-20・WFL-21 のログの `## 報告` の状態はどちらも「完了」（cloudflare の版）。docs/notes/github-actions.md「ワークフローを変更したとき」（新しいワークフローは既定ブランチに入るまで作業ブランチで手動実行できない・一覧の表を同じコミットで直す）と docs/notes/glossary.md を読んだ。このログは用語集の語で書く
+- 雛形の行: Chat-Ref・マージ・貼る時機・共通手順（＋作業ブランチ）は揃っている
+- 着手は JST 11:33（金曜。03:45〜05:15・月曜 05:15〜06:15 の外）
+- 未マージの作業ブランチで regenerate-page.yml・fetch-gsc.yml・`scripts/fetch_youtube_*.py`・`scripts/build_wayhome_ogp.py`・docs/notes/github-actions.md を変えるもの: なし
+
+### 手順1: 前提の確かめ
+
+- regenerate-page.yml（cloudflare）は前提どおり: 週次は `schedule`（cron `37 20 * * 0`、月曜 05:37 JST）。「YouTubeチャンネル情報を取得」（`fetch_channels`）・「帰り道のYouTube情報を取得」（`fetch_wayhome`）は `github.event_name != 'push'` かつ `all` のときだけ（`fetch_wayhome` はさらに、このファイルを直接実行したとき〈`workflow_ref`〉だけ）で、`continue-on-error`。「帰り道の一覧のOGP画像を作る」の条件は `fetch_wayhome` の結果ではなく、`fetch_wayhome` と同じ式（直接の実行かつ `all`）。帰り道の知らせ（「帰り道の前回の知らせを読む」）は `fetch_wayhome` が skipped でないときに動いていた
+- 「regenerate-page の all で YouTube の情報が取得される」ことを前提にしたもの（`git grep 'youtube_meta|youtube_channels|fetch_youtube'`）: 生成スクリプトは `data/youtube_channels.json`（generate_jpml_pros.py）・`data/youtube_meta.json`（lib/wayhome.py。title_pages・video_wayhome・wayhome_episodes が読む）のファイルを読むだけで、取得は前提にしていない。Mつく（generate_mtsuku.py）・女流勉強会（generate_study.py）は YouTube のデータのファイルを読まない。ほかのワークフローも取得を前提にしていない。前提にしていたのは docs（docs/notes/video-wayhome.md「急ぐときは regenerate-page.yml を all で手動実行」）と `scripts/check_wayhome.py` の常設 issue の本文（新しく作るときの文面）だけで、どちらも直した。止まる条件に当たらない
+
+### 手順1: 変えた所（a3f6cdd75）
+
+- `fetch-youtube.yml`（新、`name:` YouTube の情報の取得）: `workflow_dispatch` と `schedule`（cron `37 20 * * 0`、regenerate-page から移した。フォールバック実行ではなく、段④で Worker の定期実行に移すまでの週次の起動）。ジョブ `fetch`（取得2つは `continue-on-error`、`data/youtube_channels.json`・`data/youtube_meta.json` に差分があれば部品 `commit-push` でコミット・push〈`retry: rebase`〉）→ ジョブ `regenerate`（`!cancelled()`、`uses: regenerate-page.yml`・`target_page: all`・`wayhome: true`・`secrets: inherit`・権限 `contents: write`・`issues: write`）→ ジョブ `report`（取得が失敗した回だけ、生成の後で失敗にする）。`concurrency` は組 `fetch-youtube`
+- `regenerate-page.yml`: 取得の2つのステップ・週次の `schedule`・「YouTubeチャンネル情報の取得失敗を報告」を外した。`workflow_call` に入力 `wayhome`（boolean、既定 false）を足し、「帰り道の一覧のOGP画像を作る」の条件を「`all` かつ（直接の実行 または `wayhome` が真）」にした。帰り道の知らせの読み出しは「OGP 画像の作成が skipped でないとき」に、「帰り道の取り込みの失敗を報告」から取得の結果を外した（取得の失敗は fetch-youtube が報告する）。OGP 画像は今までどおり regenerate-page の中で一覧 `wayhome/index.html` と同じコミットに入る（#340。止まる条件に当たらない）
+- 動きが変わる点: regenerate-page を直接 `all` で手動実行しても YouTube の情報は取得しない（OGP 画像と帰り道の知らせは今までどおり動く）。週次は データのコミット（fetch-youtube）とページのコミット（regenerate-page）の2つに分かれる
+- `fetch-gsc.yml`: `name:` と実行サマリの見出しを「Search Console のエクスポート」にした
+- docs: docs/notes/github-actions.md（一覧の表の regenerate-page の行を直し、fetch-youtube の行を足した・「regenerate-page.yml」の節）、docs/notes/video-wayhome.md（新しい回の手順の3と「仕組み」）。`scripts/check_wayhome.py` の issue の本文の1文
+- テスト: unittest OK・部品の `node --test` 0 fail（一覧の表のテストも通った）
+
+### 手順2: 作業ブランチの確かめ
+
+- regenerate-page を `target_page: resource_dictionary` で手動実行: run #339（38841382169）**success**。ジョブ regenerate のうち「楽天の書影を取得」・「帰り道の一覧のOGP画像を作る」・帰り道の知らせの3ステップ・失敗の報告は skipped（`all` ではないので今までと同じ）。生成物の差分は無く、作業ブランチにコミットは入っていない（除くものは無い）
+- fetch-youtube.yml は新しいワークフローなので作業ブランチでは手動実行できない（マージの後に cloudflare で行う）
+
 <!-- guide-links -->
 ---
 

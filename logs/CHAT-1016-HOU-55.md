@@ -72,7 +72,7 @@ HOU-53 の直し（選手の一覧を AI に渡すときに10人で切り、「�
 
 ## 報告
 
-- 状態: 判断待ち（HOU-54 の見た目の確かめの後に、HOU-54 と一緒にマージの指示で入れる）
+- 状態: 判断待ち（HOU-54 の見た目の確かめの後に、HOU-54 と一緒にマージの指示で入れる） / 続き: CHAT-1016-HOU-56
 - ブランチ: work/1016-hou2
 - ログ: https://github.com/retroeater/mj/blob/work/1016-hou2/docs/logs/CHAT-1016-HOU-55.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1016-hou2
