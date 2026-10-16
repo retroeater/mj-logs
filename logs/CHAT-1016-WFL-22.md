@@ -1,0 +1,68 @@
+# CHAT-1016-WFL-22
+
+- 着手日時: 2026-10-16
+- 対象issue: #564
+- ブランチ: work/1016-wfl-s9
+- 着手時HEAD: eeb2a5bef
+
+## 指示
+
+【Claude作成】Claude Code 向け指示：段③-4 regenerate-page から fetch-youtube.yml を切り出す・fetch-gsc の表示名を揃える Chat-Ref: CHAT-1016-WFL-22 マージ: 承認済み（チャットで。この指示文を貼ることが承認。止まる条件つき）。`workers/` は変えない 貼る時機: CHAT-1016-WFL-21（用語集）の完了後。JST 03:45〜05:15 と、月曜 05:15〜06:15（regenerate-page の週次の定期実行 05:37 の前後）はマージの push と cloudflare での手動実行をしない 作業ブランチ: クラウドセッションで実行する。work/1016-wfl-s9 を使う。リモートに無ければ origin/cloudflare から作る。リモートにあってマージ済み（`git merge-base --is-ancestor origin/work/1016-wfl-s9 origin/cloudflare` が真）なら origin/cloudflare から作る（`checkout -B` は使わない。ローカルにあるときを含め手順は docs/notes/cloud-sessions.md「作業ブランチの用意」）。マージ済みでなければ止まる 共通手順: CLAUDE.md「Chat-Ref」「ブランチ運用」「作業ログ」節のとおり（識別子確認 → origin/cloudflare を起点に work/<識別子>〈クラウドセッションでは worktree を使わず docs/notes/cloud-sessions.md の読み替えに従う〉 → ログ先行push → 最終報告の Chat-Ref の行の直前に「ログ（公開）」の行、最後の行に Chat-Ref）。平野さんは、この指示のための作業ブランチ work/<識別子> の作成と push を許可している（セッションに割り当てられた claude/… のブランチは使わない）。
+
+0. 着手前に、このログの「指示」欄の末尾が、この指示文の末尾（最後の行）と一致しているか確認し、一致しなければ作業せず報告する。CHAT-1016-WFL-20 と CHAT-1016-WFL-21 のログの `## 報告` を読み、どちらかの状態が「完了」でなければ何もせず止まる。着手時に docs/notes/github-actions.md「ワークフローを変更したとき」と docs/notes/glossary.md（WFL-21 で作った用語集）を読み、ログは用語集の語で書く。
+
+目的
+#564 の段③-4。regenerate-page.yml から YouTube の情報の取得を `fetch-youtube.yml` に切り出し、regenerate-page を「ページの再生成」だけにする。あわせて fetch-gsc.yml の表示名を揃える。段③はこれで終わる。
+決定（平野さん）
+
+* `fetch-youtube.yml` は YouTube のチャンネル情報と帰り道の情報の取得とコミットだけを持ち、最後に `regenerate-page` を `all` で呼ぶ。OGP 画像の作成・帰り道の知らせ・凍結中の楽天の書影の取得（`if: false`）は regenerate-page に残す（#340 の「同じコミット」を保つ。2026-10-14、WFL-02）
+* `fetch-gsc.yml` の `name:` を「Search Console のエクスポート」に揃える（空白の直し）。`sync-logs.yml` の `name:` は #298 の予定（10/21）で消すので変えない（2026-10-16、WFL-20 の判断待ちへの回答。推奨のとおり）
+
+前提（チャット側。平野さんの決定ではない）
+
+* 今の regenerate-page.yml（cloudflare、2026-10-16 にチャット側が読んだ。要確認）: 週次の定期実行は GitHub の `schedule`（cron `37 20 * * 0`、月曜 05:37 JST）。ステップ「YouTubeチャンネル情報を取得」（`scripts/fetch_youtube_channels.py`）と「帰り道のYouTube情報を取得」（`scripts/fetch_youtube_meta.py`、id `fetch_wayhome`）は週次の all と手動の all のときだけ動き、失敗しても既存のデータで生成を続ける。「帰り道の一覧のOGP画像を作る」は `fetch_wayhome` の結果を見ている見込み
+* 切り出した後の形（案。実物で検める）: 週次の cron は fetch-youtube.yml に移す（regenerate-page の `schedule` は外す）。fetch-youtube は取得 → 変化があればコミット・push → `regenerate-page` を `all` で呼ぶ。regenerate-page の OGP の作成は、取得の結果ではなく「データのファイルに差分があるか」など、regenerate-page の中だけで決められる条件に直す（直せなければ、fetch-youtube から入力で渡す）。取得が失敗しても regenerate-page は呼ぶ（今の「失敗しても既存のデータで生成を続ける」を保つ）
+* 動きが変わる点: 手動で regenerate-page を `all` で動かしたとき、YouTube の情報を取得しなくなる（取得するときは fetch-youtube を手動実行する）。ほかのワークフロー・スクリプト（Mつく・女流勉強会など、YouTube の情報を使うページの生成）が「regenerate-page の all で取得される」ことを前提にしていないか、`git grep` で確かめる。前提にしていればログに書いて判断待ち（止まる）
+* 週次の定期実行の Worker への移し替えは段④（この指示では Worker・`schedule.json` を変えない）。fetch-youtube の `schedule` はフォールバック実行ではなく、今の regenerate-page の週次の cron をそのまま移したもの（段④で Worker に移すまでの間）
+* fetch-youtube.yml は新しいワークフローなので、作業ブランチでは `workflow_dispatch` できない（404）。作業ブランチでは regenerate-page を軽いページ 1 つ（`target_page`）で手動実行して、切り出した後も生成・コミットが今と同じに動くことを確かめる。マージの後に cloudflare で fetch-youtube を手動実行する（本実行。週次の定期実行と同じ中身で、データとページの生成のコミットが cloudflare に入る）
+* `scripts/actions_status.py`・`scripts/morning_report.py` は変えない（ACF のチャットの CHAT-1016-ACF-24 が変えている）
+* 改名・新しいワークフローを足すので、docs/notes/github-actions.md の一覧の表を同じコミットで直す（`scripts/tests/test_workflows_table.py`）。docs/notes/video-wayhome.md など、YouTube の取得の場所を書いている docs も直す
+
+手順
+
+1. 「前提」の要確認を確かめ、ログに書く。fetch-youtube.yml を作り、regenerate-page.yml から取得のステップと週次の `schedule` を外し、OGP の作成の条件を直す。fetch-gsc.yml の `name:` を直す。docs と一覧の表を直す。テスト（unittest・部品の `node --test`）が通ること
+2. 作業ブランチで regenerate-page を軽いページ 1 つで手動実行し（run の番号と結果をログに書く）、生成・コミットが今と同じに動くことを確かめる（作業ブランチに入った生成物のコミットは、マージの前に WFL-11 と同じ形で除く）
+3. 上の「決定」を `docs/decisions/automation.md` に `## 2026-10-16（CHAT-1016-WFL-22）` として足す。cloudflare へマージする（push 直前に再 fetch と祖先の確認。「貼る時機」の時間帯は push しない）。マージの後に cloudflare で fetch-youtube を手動実行し、取得・コミット・regenerate-page の `all` の呼び出し・OGP の作成が通ることを確かめる（run の番号、cloudflare に入ったコミットと変わったファイル）。#564 に段③の完了をコメントする（本文は変えない）。次の週次の定期実行（2026-10-19〈月〉05:37 JST、fetch-youtube から）を「未確認の項目」に書く
+
+止まる条件
+
+* WFL-20 か WFL-21 のログの状態が「完了」でない
+* ほかのワークフロー・スクリプトが「regenerate-page の all で YouTube の情報が取得される」ことを前提にしている（ログに書いて判断待ち。マージしない）
+* OGP の作成の条件を regenerate-page の中で直せず、fetch-youtube から渡す形でも「同じコミット」（#340）を保てない（判断待ち）
+* テストが失敗する（今回の変更で落ちると分かったテストは直してよい。直したらログに書く）
+* 作業ブランチの手動実行が failure、または選んだページ以外の生成物に差分が出た
+* 取り込みで両立しない衝突がある（両方の変更が両立する衝突〈追記どうし・隣り合う行〉は両方を残して解いてよい。解いた後の該当箇所をログに引用する）
+* （未マージの work/ ブランチとの重なり）未マージの work/ ブランチが regenerate-page.yml・fetch-gsc.yml・`scripts/fetch_youtube_*.py`・`scripts/build_wayhome_ogp.py`・docs/notes/github-actions.md の一覧の表を変えている、または取り込みで衝突する（別の箇所の変更では止まらず、ログに書く）
+* マージの後の cloudflare の fetch-youtube の手動実行が failure: 戻さずに原因と直し方の案を書いて判断待ち（10/19 の週次の定期実行に効くので、報告の先頭に書く）
+* cloudflare への push が権限判定で拒否された（別の手段を試さずに止まる）
+
+完了条件
+
+* ログの「## 報告」を CLAUDE.md「作業ログ」節のとおりに書いて push する（用語集の語で書く）
+* マージは冒頭の「マージ:」の行のとおり
+* ターミナルへの最終報告の Chat-Ref の行の直前に ログ（公開）: https://github.com/retroeater/mj-logs/blob/main/logs/CHAT-1016-WFL-22.md?v=<SHA>（CLAUDE.md「作業ログ」節）を書き、最後の行に Chat-Ref: CHAT-1016-WFL-22 を書く
+
+不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
+
+<!-- guide-links -->
+---
+
+ガイド文書（この版を写した時点の最新、mj 374ad1fb）: https://github.com/retroeater/mj-logs/tree/main/guide/374ad1fb
+
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/374ad1fb/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/374ad1fb/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/374ad1fb/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/374ad1fb/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/374ad1fb/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/374ad1fb/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/98839f38.md
