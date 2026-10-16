@@ -2,7 +2,7 @@
 
 houou/ のトップで鳳凰戦のデータに言葉で質問できる欄。決定は `docs/decisions/houou.md`「2026-10-11（CHAT-1011-AIC-01）」。
 実装は3つに分ける（grill Q13）: (1) データと検索〈済〉、(2) Worker と質問欄〈済、2026-10-11 から本番で動作〉、(3) 週次の cron〈済。ブックへの書き出しの最初の本番の実行は 2026-10-19（月）9:00 JST の見込み〉。
-houou/ は未公開のまま（試行中は全体で1日50問）。
+1日の上限は全体 200・IP ごと 10（2026-10-16。試行中の全体は 50 だった）。公開は #540。
 
 ## 構成
 
@@ -53,7 +53,7 @@ houou/ は未公開のまま（試行中は全体で1日50問）。
 | `final`（決勝の結果） | `term`（必須） | `{rank, name}` | `/title/houou/<期>.html` |
 | `player`（選手の成績） | `name`（必須）・`term` | `{period, league, place, result, total}` | 在籍者は `/houou/players/?name=`、それ以外は最後の期の `/houou/race/?term=&league=` |
 | `league`（リーグの顔ぶれ） | `term`・`league`（必須）・`half`（前/後、1/2） | `{place, name, result, total}`（順位の順） | `/houou/race/?term=<期>-<1|2>&league=<リーグ>` |
-| `ranking`（記録の上位） | `division`（9部門の名前、必須）・`limit` | `{rank, name, value}` | その部門の `/houou/ranking/…/` |
+| `ranking`（記録の上位） | `division`（9部門の名前、必須。houou/ と同じ略称〈通算・期平均…〉で、旧い名前〈通算得点・通算得点/期…〉も `DIVISION_ALIASES` で受ける、2026-10-16）・`limit` | `{rank, name, value}` | その部門の `/houou/ranking/…/`（出典の名前は「鳳凰戦 ランキング（通算）」の形） |
 | `live`（放送対局） | `term` | `{period, stage, date, players, url}` | 各ページ（無ければ `/live/houou/`） |
 
 - 2つの「期」（grill Q2）: 鳳凰戦の期は `term`・`from`・`to`、入会期は `entry`。`assumedTerm: true`（どちらとも取れる「N期」を鳳凰戦の期と読んだ）なら `lead`（答えの冒頭に出す読み方）に「「N期」を鳳凰戦の第N期として答えます」
@@ -84,7 +84,7 @@ POST `/api/ask`（本文 `{"question": "…"}`）の流れ:
 4. Claude（`claude-haiku-5-5`）の1回目: structured outputs（`output_config.format` の JSON schema `PLAN_SCHEMA`）で `{type, assumedTerm, args}` を返させる。型は query.mjs の6つと `none`
 5. `none`、または `runQuery` が見つからない・名前が決まらない・引数が不正なら「答えられません。」（候補があれば添える）。2回目は呼ばない
 6. 2回目: 質問と検索の結果（型・件数・items・注記）だけを渡して文章にさせる。答えの下の注記・時点・出典は Worker が `runQuery` の結果から付け（grill Q6）、Claude には書かせない。
-   指示（`ANSWER_SYSTEM`）に「選手を挙げるときは名前を書く。名前は結果の順のまま10人まで。それより多いときは上位10人の名前と「ほか N人」、全体の人数を書く」（2026-10-15・16。答えの下の選手のカードは文の名前から作るため。文面は `ask.test.mjs` で確かめる）
+   選手の並ぶ結果（`champions`・`final`・`league`・`ranking`）が10人（`NAMES_MAX`）を超えたら、上位10人だけを渡し、残りの人数を `others`（`count` − 10）として添える（`answerInput()`。Claude に人数を数えさせない、2026-10-16）。歴代の鳳凰位（`champions`）は検索では最初に獲った期の古い順に並ぶので、10人を超えて切るときだけ、渡す前に新しい期（最後に獲った期）から並べ替える（10人以下は古い順のまま。期で絞った問いは絞った後の人数で決める。2026-10-16 の HOU-57。切ると最新の鳳凰位が渡らず「現在の鳳凰位は？」に答えられなくなったため、HOU-53 で一度戻した）。ほかの型は検索の順のまま切る。指示（`ANSWER_SYSTEM`）は「items の名前を結果の順のまますべて書く。「ほか N人」と全体の人数（count）は、一覧や人数を聞かれたときだけ添える。人数は自分で数えず、この指示の言葉は答えに書かない」（人数を添える条件は 2026-10-16 の HOU-59。「現在の鳳凰位は？」に聞かれていない人数が付いたため）（答えの下の選手のカードは文の名前から作るため。文面と切り方・並べ方は `ask.test.mjs` で確かめる）
 7. 記録（決定5・grill Q8）: `questions` に日時（JST）・質問文・結果（`answered` / `unanswered`）・型。IP と答えの本文は書かない
 8. Claude の失敗（HTTP エラー・ワークスペースの上限の 400・拒否 `refusal`・打ち切り）は 503（`unavailable`）。この問いは数えたまま、記録は `unanswered`
 
@@ -108,7 +108,7 @@ GET `/api/ask/status`: `{"status": "open", "remaining": n, "max": 200}` か `{"s
 「最高到達 ○○ · 出場 ○期」/ › の1人1行。最初は3人、4人目からは「ほか N名」を押して残りを開く（開いた後は閉じない。ボタンは消え、4人目にフォーカスを移す）。
 押すと個人成績の期別（`players/?name=`、`view` なし）。「答えられません。」・上限・失敗・選手に当たらない答え・名簿が読めないときは出さない。突き合わせは画面の中だけで、新しい送信はしない。
 
-vars（`wrangler.jsonc`。Wrangler のデプロイで上書きされるので、変えるときはこのファイルを直す）: `ALLOWED_ORIGIN`、`DAILY_LIMIT`（試行中は 50。公開の指示で 200 に戻す、grill Q12）、`IP_DAILY_LIMIT`（10）。
+vars（`wrangler.jsonc`。Wrangler のデプロイで上書きされるので、変えるときはこのファイルを直す）: `ALLOWED_ORIGIN`、`DAILY_LIMIT`（200。2026-10-16、試行中は 50）、`IP_DAILY_LIMIT`（10）。
 `ASK_SHEET_ID`（週次の書き出し先のブックの ID。空なら書き出しを飛ばす）。
 Secret（ダッシュボードで登録。デプロイでは消えない）: `ANTHROPIC_API_KEY`・`IP_HASH_SALT`・`GOOGLE_SA_KEY`（C3 で登録）。
 

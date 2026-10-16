@@ -250,7 +250,7 @@ handover.md 5章から移した。ページの一覧は下の「ページの一�
 
 ### ページの一覧
 
-HTMLは24ページ + 書籍の一覧と個別ページ（`books/`、#97、noindex・メニュー未掲載。**2026-09-22 開発凍結、`docs/notes/books-freeze.md`**） + 「帰り道」の一覧とエピソード個別ページ（`wayhome/`、#162・#559） + 最強戦のトップと年度ページ（`saikyo/`、#319/#355、2026-09-21 に公開） + 最強戦の新しい年度・対局・卓のページ（`saikyo/<年度>/`、#425、noindex・メニュー未掲載、公開は #549） + タイトル戦の新構成（`title/`、#222、2026-09-28 に公開、#413） + 放送対局ページ（`live/`、#346、noindex・メニュー未掲載。正式公開は #362） + 鳳凰戦の新ページ（`houou/`、#518、noindex・メニュー未掲載、公開は #540） + Mつくの一覧と各話（`mtsuku/`、#569、2026-10-15 に公開、#570） + 女流勉強会の一覧と各話（`study/`、#575、noindex・メニュー未掲載、公開は #576）。大きく4系統に分かれる。
+HTMLは24ページ + 書籍の一覧と個別ページ（`books/`、#97、noindex・メニュー未掲載。**2026-09-22 開発凍結、`docs/notes/books-freeze.md`**） + 「帰り道」の一覧とエピソード個別ページ（`wayhome/`、#162・#559） + 最強戦のトップと年度ページ（`saikyo/`、#319/#355、2026-09-21 に公開） + 最強戦の新しい年度・対局・卓のページ（`saikyo/<年度>/`、#425、noindex・メニュー未掲載、公開は #549） + タイトル戦の新構成（`title/`、#222、2026-09-28 に公開、#413） + 放送対局ページ（`live/`、#346、noindex・メニュー未掲載。正式公開は #362） + 鳳凰戦の新ページ（`houou/`、#518、公開は #540。`houou/leagues/` だけ noindex） + Mつくの一覧と各話（`mtsuku/`、#569、2026-10-15 に公開、#570） + 女流勉強会の一覧と各話（`study/`、#575、noindex・メニュー未掲載、公開は #576）。大きく4系統に分かれる。
 
 | 系統 | ページ数 | 状態 |
 |---|---|---|
@@ -260,7 +260,7 @@ HTMLは24ページ + 書籍の一覧と個別ページ（`books/`、#97、noinde
 | ビルド時生成（型A'・多列テキスト） | 2 | `rh_results.html` / `rh_results_detail.html`。画像列を持たないため`.mj-table-auto`を使う（#7、完了） |
 | ビルド時生成（型D・静的SVG） | 1 | `resource_efficiency.html`。表を持たないため`render_content()`を使う。外部JS・外部ドメインへの依存が一切ない（#7/#128、完了） |
 | ビルド時生成（型C・積み上げ棒+折れ線） | 2 | `houou_leagues.html` / `ouka_leagues.html`。積み上げ棒と既定選手の折れ線は静的SVG、`?name=`時の折れ線差し替えのみ`leagues.js`が担う（#7/#127、完了） |
-| ビルド時生成（独自: 順位表の数え上げ+期ごとのJSON） | 1 | `houou_race.html`（鳳凰戦 順位変動）。`render_content()`+専用JS`houou_race.js`。データは`houou_race/<期>-<1前・2後>.json`を選んだときに読む。navbar の「鳳凰戦」から辿れる（#507・#508、`docs/notes/houou-race.md`） |
+| ビルド時生成（独自: 順位表の数え上げ+期ごとのJSON） | 1 | `houou_race.html`（鳳凰戦 順位変動）。`render_content()`+専用JS`houou_race.js`。データは`houou_race/<期>-<1前・2後>.json`を選んだときに読む。#540 の公開で `houou/race/` へ 301（ファイルと生成は残す。#507・#508、`docs/notes/houou-race.md`） |
 | ビルド時生成（独自: 全カテゴリをまとめた辞書ファイルを組み立てる） | 1 | `resource_dictionary.html`。`scripts/generate_resource_dictionary.py` が「辞書」タブ（連盟プロ以外と同じブック。「サブカテゴリ」列は読まない）と「プロ」タブから、カテゴリごとのデータ `dic/<スラッグ>.json` とページを書く。カテゴリは 一般用語 `mahjong`・連盟用語 `renmei`・連盟プロ `pros`（「プロ」タブから）・Mリーグ `mleague` の順（保存する行の順）。「辞書」タブに行の無いカテゴリは出さない。ページはカテゴリを選ばせず、形式のボタン（Microsoft IME・Google 日本語入力・Gboard）を押すと、`resource_dictionary.js` が全カテゴリを（読み, 語）が同じ行は先に並ぶカテゴリの行を残してまとめ、Microsoft IME 用（UTF-16LE・BOM 付き・CR+LF）・Google 日本語入力用（UTF-8・LF）・Gboard 用（見出し行 `# Gboard Dictionary version:1` と「読み TAB 語 TAB ja-JP」の `dictionary.txt` を無圧縮の zip に入れる）で保存させる。description と末尾の説明文に、同じ数え方の語数（`{count}`）を生成のたびに入れる（`scripts/apply_page_meta.py` には語数を除いた文言）。見た目は `resource_dictionary.css`（`style.css` には入れない。白いカード1枚に形式のボタンを縦に3つ〈最大 400px で中央〉。保存した後に、押したボタンのすぐ下に「辞書ファイルをダウンロードしました。」とその形式の登録方法を出す〈JS が `#dicDownload` の `data-saved` に形式を入れ、CSS が出し分ける〉、#522）（#377・#515） |
 | ビルド時生成（サブディレクトリ、独自: 全画面ヒーロー+横スクロールカード列） | 1 | `wayhome/index.html`（URL は `/wayhome/`。2026-10-13 に `/video_wayhome.html` から移し、旧 URL は `_redirects` で 301、#559。ページ名は `video_wayhome` のまま）。`render_content()`+専用JS`video_wayhome.js`。新サイトのパイロット（`docs/notes/video-wayhome.md`）。個別ページ（下の行）と同じく、動画のタブをまとめたブック（`lib/video_book.py`、#578）の「帰り道」タブを見出しの名前で読み（`lib/wayhome.py` の `fetch_rows()`）、`data/youtube_meta.json` に無い回は外して生成する（#194） |
 | ビルド時生成（サブディレクトリ、ヒーロー構成のエピソード個別ページ） | 39 | `wayhome/<動画ID>.html`。`scripts/generate_wayhome_episodes.py`（`docs/notes/video-wayhome.md`） |
@@ -269,7 +269,7 @@ HTMLは24ページ + 書籍の一覧と個別ページ（`books/`、#97、noinde
 | ビルド時生成（サブディレクトリ、最強戦のトップ） | 1 | `saikyo/index.html`。`scripts/generate_saikyo_pages.py`。2026-09-21 に一般公開し、navbar・`sitemap-saikyo.xml`・`llms.txt` に載る（#319・#348、`docs/notes/saikyo-page-design.md`）。旧年度ページ `saikyo/<年度>.html` は #549 で下の行へ移し、`_redirects` で 301 |
 | ビルド時生成（サブディレクトリ、最強戦の年度・対局・卓のページ） | 年度数＋対局数＋卓数（878、2026-10-11） | `saikyo/<年度>/index.html`・`saikyo/<年度>/<対局識別子>.html`・`saikyo/<年度>/<卓のアンカー>.html`。`scripts/generate_saikyo_pages.py`（トップと同じスクリプト）。#549 で公開（`sitemap-saikyo.xml`・`llms.txt`。年度ページの URL は `/saikyo/<年度>/`、`_redirects` で `index.html` を返す）（#425、`docs/notes/saikyo-page-design.md`「新しい年度・対局・卓のページ」） |
 | ビルド時生成（サブディレクトリ、タイトル戦の新構成） | 入口1＋大会数＋期数 | `title/index.html`・`title/<slug>/index.html`・`title/<slug>/<期>.html`（入口は年の切り替え〈`?year=`、#277〉を持つ）。`scripts/generate_title_pages.py`。navbar の「連盟 > タイトル」から入口へ（#413、`docs/notes/title-pages.md`） |
-| ビルド時生成（サブディレクトリ、鳳凰戦の新ページ） | 13＋在籍者数（691、2026-10-11） | `houou/index.html`（トップ）・`houou/players/`（個人成績。リーグ推移はそのタブ）・`houou/ranking/`（通算得点）と部門ごとの `houou/ranking/<スラッグ>/` 8ページ・`houou/leagues/`（個人成績のリーグのタブへ移すだけ、2026-10-12）・`houou/race/` の各 `index.html`。データは `houou/search.json`・`houou/players/leagues.json`（期ごとの各段の人数）・`houou/results/<選手名>.json`（在籍者だけ）・`houou/race/<期>-<1|2>.json`。`scripts/generate_houou_pages.py`（集計は `lib/ranking.py`・`lib/results.py`、順位変動は既存の生成スクリプトの部品）＋`assets/houou.js`・`assets/houou_race.js`（順位変動の写し）。noindex・メニュー未掲載、公開は #540（#518・#520、`docs/notes/houou-top.md`） |
+| ビルド時生成（サブディレクトリ、鳳凰戦の新ページ） | 13＋在籍者数（691、2026-10-11） | `houou/index.html`（トップ）・`houou/players/`（個人成績。リーグ推移はそのタブ）・ランキング9部門の `houou/ranking/<スラッグ>/`（通算は `total/`。`houou/ranking/` は `total/` へ 301）・`houou/leagues/`（個人成績のリーグのタブへ移すだけ、2026-10-12）・`houou/race/` の各 `index.html`。データは `houou/search.json`・`houou/players/leagues.json`（期ごとの各段の人数）・`houou/results/<選手名>.json`（在籍者だけ）・`houou/race/<期>-<1|2>.json`。`scripts/generate_houou_pages.py`（集計は `lib/ranking.py`・`lib/results.py`、順位変動は既存の生成スクリプトの部品）＋`assets/houou.js`・`assets/houou_race.js`（順位変動の写し）。公開は #540（`houou/leagues/` だけ noindex・サイトマップ外。旧4ページ〈`houou_*.html`〉は `houou/` へ 301 し、ファイルと生成は残す。#518・#520、`docs/notes/houou-top.md`） |
 | ビルド時生成（サブディレクトリ、放送対局ページ） | 691（2026-09-18） | `live/index.html`・`live/<タイトル戦>/index.html` 以下。`scripts/generate_live_pages.py`。noindex・メニュー未掲載、正式公開は #362（`docs/notes/live-page-design.md`） |
 | ビルド時生成（サブディレクトリ、書籍の一覧と個別ページ） | 一覧1＋190 | `books/index.html`・`books/<ISBN13>.html`。`scripts/generate_books_pages.py`。noindex・メニュー未掲載、`sitemap-books.xml` は `sitemap.xml` から未参照。**2026-09-22 開発凍結（自動生成・自動取得を停止、本番はそのまま残す）。詳細は `docs/notes/books-freeze.md`** |
 | Google Charts依存 | **6** | ブラウザから直接スプレッドシートを読む。#7の対象。型B3・ランキング系A3 |
@@ -351,6 +351,8 @@ HTMLは24ページ + 書籍の一覧と個別ページ（`books/`、#97、noinde
 - マスタのタブとの不整合。キー（大会名など）の欠け、組み立てた値と記録されている値の食い違い、出力の件数と入力の行数の一致検査
 
 **シート由来の止まる理由・警告には、動画ID（か行番号）と列名を含める**（名前だけでは直す側がセルを探し、直しが漏れる。Mつくで1セル漏れた）。
+
+**一般の方の名前（女流勉強会の生徒など）は、生成のログ・警告・止まる理由に出さない。** Actions のログは残るため。Actions（環境変数 `CI`）では件数だけにし、名前の一覧は手元で生成するときだけ出す（`lib/study.py` の `student_report()`、2026-10-16）。公開しているプロの名前は今のまま出してよい
 
 **マスタのタブは、チャットの指示と並行して平野さんが変えることがある。** 読み込んだ現在の値（行数、表示・区分・状態のように
 表示対象が変わる列）を生成の出力に出し、指示文の前提と違えば手を入れずに報告する（CLAUDE.md「Chat-Ref」）。

@@ -59,6 +59,38 @@ HOU-63 で作った公開の変更（旧4ページの 301・jpml_pros のリン�
 
 - 着手前の確認: 同じ Chat-Ref のコミットなし。CHAT-1016-HOU-63 のログの状態は「判断待ち」。origin/work/1016-hou4 はあり、ローカルと一致（42aacbf2b）。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている。「指示」欄の末尾は指示文の最後の行と一致
 
+### 手順1 着手の確かめと取り込み
+
+- CHAT-1016-HOU-63 のログの状態の末尾に ` / 続き: CHAT-1016-HOU-64` を足した
+- #518・#542 に 06:30 UTC 以降のコメントは無い。#540 は自分（HOU-63）の2件だけ。他のセッションの着手中は無い。#540 に着手中のコメントを書いた
+- origin/cloudflare（最強戦の SKR-14・15 など）を `git merge` で取り込んだ。衝突なし
+
+### 手順2 再生成と再検証
+
+`python3 scripts/regenerate.py houou_pages jpml_pros` は通った（名簿の食い違いは解けた）。HOU-63 で当てた生成物との差の種類（すべて退会した1名の分）:
+
+| 種類 | 中身 |
+|---|---|
+| 在籍の人数 | houou/ のトップ・個人成績の説明文（description・og:description・リード）の「在籍する選手691名」→「690名」。`jpml_pros.html` の「麻雀プロ1,099名」→「1,098名」（3か所ずつ） |
+| 退会者の行・ファイル | `jpml_pros.html` の1行、`houou/search.json`・`houou/ask-players.json` の1件（691 → 690件、ほかの件は同じ）、`houou/results/<退会者>.json` を削除 |
+| ランキング（HTML） | 期浮き率 105 → 104行・連続昇級 79 → 78行（退会者の行が抜けた）、節浮き率は退会者が抜けて100位に1名が入った。**値の変わった行は0**、順位の変化は退会者より下の選手が1つ繰り上がっただけ（差は +1 のみ）。ほかの6部門は差なし |
+| 個人成績の部門別の順位 | `houou/results/*.json` 57件の `divisions` の順位が1つ繰り上がった（期浮き率21件・節浮き率35件）、1件は節浮き率に新しく100位が付いた。ほかの項目は差なし |
+| 順位変動の JSON | `houou/race/` の13期分で、退会者の行の写真と X の欄が空に（在籍者だけに付けるため）。名前・順位・成績は過去の記録なので残る |
+
+ランキングの順位は変わったが、値は変わらず、退会者の行が抜けたことだけで説明できる（止まる条件の「説明できない差」には当たらないと判断した）。
+
+あわせて `workers/ask/data.json`（ask_data）も生成し直して含めた。退会者が質問欄のデータに在籍者として残ると、質問欄のランキングの順位がページと1つずれるため（公開に質問欄を含む決定）。差は `people` から退会者1件と、ランキング3部門（期浮き率・節浮き率・連続昇級）で上と同じ（値の変化なし、節浮き率に100位の1名）。指示の再生成の対象（houou_pages・jpml_pros）の外なので報告する。
+
+#### 他のシートの確かめ（変えていない）
+
+- 生成スクリプトの在籍の判定は「プロ」シート（`lib/pro_sheet.py`）。SNS ブックは写真・X などの付け足しで、在籍は決めない（`jpml_pros` は SNS ブック 1,847名を読んでも在籍の 1,098名だけを出した）
+- リポジトリの生成物で退会者がまだ在籍者として出ているのは、今回生成し直していない `dic/pros.json`（辞書の人名）・`houou_leagues.html`／`houou_leagues_data.json`（旧ページの選手の選択肢）だった。比較用に `resource_dictionary`・`houou_leagues` を生成すると退会者は消えた（コミットせずに戻した）。他のシートに在籍者として残っていることによる影響ではなく、次の再生成で直る（週次の all〈月曜〉か、手動の `regenerate-page.yml`）
+- 過去の記録（`houou/race/`・`houou_race/` の順位表、成績の行）に名前が残るのは正しい
+
+決定を `docs/decisions/houou.md` に足した。テスト: `python3 -m unittest discover -s scripts/tests` OK、`node --test 'workers/ask/test/*.test.mjs'` 36件 pass。
+
+動画のテロップの人数: 告知動画（v4）の範囲の字幕は撮ったときのトップの説明文の「691名」で、今は690名。撮り直さない（指示どおり）
+
 ## 報告
 
 - 状態: 作業中
@@ -75,12 +107,12 @@ HOU-63 で作った公開の変更（旧4ページの 301・jpml_pros のリン�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 64ee77ff）: https://github.com/retroeater/mj-logs/tree/main/guide/64ee77ff
+ガイド文書（この版を写した時点の最新、mj 5b362ee3）: https://github.com/retroeater/mj-logs/tree/main/guide/5b362ee3
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/64ee77ff/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/64ee77ff/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/64ee77ff/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/64ee77ff/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/64ee77ff/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/64ee77ff/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b362ee3/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b362ee3/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b362ee3/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b362ee3/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b362ee3/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b362ee3/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/91b5dd30.md
