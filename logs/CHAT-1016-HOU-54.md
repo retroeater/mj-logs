@@ -73,7 +73,7 @@
 
 ## 報告
 
-- 状態: 判断待ち（送った PNG とプレビューで見た目を見て、マージを決める）
+- 状態: 判断待ち（送った PNG とプレビューで見た目を見て、マージを決める） / 続き: CHAT-1016-HOU-55
 - ブランチ: work/1016-hou2
 - ログ: https://github.com/retroeater/mj/blob/work/1016-hou2/docs/logs/CHAT-1016-HOU-54.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1016-hou2
