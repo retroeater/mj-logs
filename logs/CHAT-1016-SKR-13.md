@@ -48,15 +48,82 @@ SKR-11 のプレビューを平野さんが iPhone で見たところ、写真�
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 着手前の確認
+
+- 指示欄の末尾は指示文の最後の行と一致。冒頭の数行は改行なしの1行で届いたので、そのまま写した。雛形の行はすべてある
+- `git log --all --grep=CHAT-1016-SKR-1[23]` は0件。CHAT-1016-SKR-12 は欠番（指示のとおりログは作らない）
+- 作業ブランチ: ローカルの `work/1016-skr-rank` は `origin/work/1016-skr-rank` と同じ（aeeee3d6b）。`origin/cloudflare` が祖先でなかったので、ログの push の後に `git merge origin/cloudflare`（衝突なし。女流勉強会の変更）
+- CHAT-1016-SKR-11 のログの状態に ` / 続き: CHAT-1016-SKR-13` を足した
+- このセッションは SKR-05〜11 と同じセッション
+
+### 手順1 確かめ
+
+- 未マージの work/ ブランチ（work/1016-skr-rank を除く）: `style.css`・`scripts/generate_saikyo_pages.py` を変えているものは無い
+- SKR-10 の ③ 半透明の帯の値を履歴（e0409b030 の `scripts/build_saikyo_rank_compare.py`）から取った: 通過・優勝 `rgba(242, 194, 48, .8)`・文字 `#2b2100`、敗退 `rgba(60, 64, 67, .8)`・文字 `#ffffff`
+
+### 手順2 作ったもの
+
+- `saikyo_pill_compare.html`（直下）と `scripts/build_saikyo_pill_compare.py`。卓のページの生成物（今の SKR-11 の形のピルつき）の「出場者」をそのまま写し、ラジオボタン1組（`body:has(#place-…:checked)`）で置き場所を切り替える。各案の横に一言の説明。noindex・どこからもリンクしない・sitemap に載せない。CSS はページの中だけで、卓のページ・`style.css`・/live と共有の写真カードは変えていない。どの案も最強戦の卓のページだけに当てられる形（`li.mj-saikyo-player` と `.mj-saikyo-card-pill` の規則だけ）で作れた
+- 案の作り:
+  - 0: 今の形（カードの外、名前の下。カードの下端から 6px、下の行のカードまで 8px）
+  - A: カードとピルを1つの枠（角丸 12px）に入れ、写真の角丸は上だけ。**枠の地は真っ黒ではなく卓のページの面の色 `--mj-v-surface`（`#1e1e1e`）にした**（真っ黒 `#000` だとページの地 `#121212` との境目がほぼ見えず、枠に入っていることが分からなかったため。手元で両方を撮って比べた）
+  - B: ピルとカードの間を 6px → 2px、行の間を 8px → 20px
+  - C: **写真の下端の中央**に重ね（下から 6px）、名前をピルの高さだけ上げた（名前の下の余白 6px → 30px）。左下は、名前が中央寄せで幅いっぱいなので、ピルと名前の位置がずれて落ち着かず、中央を選んだ
+  - D: 写真の上端に幅いっぱいの半透明の帯（SKR-10 の ③ の値、文字 13px）
+- 文字と地のコントラスト比（WCAG 2.x の相対輝度の式、`build_saikyo_pill_compare.py` が計算）。4.5:1 未満は無い（比較ページの注にも表で書いた）:
+
+| 組み合わせ | 文字 / 地 | 比 |
+|---|---|---|
+| 0〜C 通過・優勝（ピルは不透明なので写真に左右されない） | `#2b2100` / `#f2c230` | 9.49:1 |
+| 0〜C 敗退（同） | `#aeaeb2` / `#38383a` | 5.29:1 |
+| D 通過・優勝（白い写真の上） | `#2b2100` / `#f5ce59` | 10.49:1 |
+| D 敗退（白い写真の上） | `#ffffff` / `#636669` | 5.78:1 |
+| D 通過・優勝（黒い写真の上） | `#2b2100` / `#c29b26` | 6.07:1 |
+| D 敗退（黒い写真の上） | `#ffffff` / `#303336` | 12.71:1 |
+
+- テスト 全件 OK
+
+### 手順3 プレビューでの確かめ（850bef74a の「Workers Builds: mj」〈プレビュー〉success）
+
+- 比較ページ `/saikyo_pill_compare.html?v=850bef7` は 200、noindex あり
+- headless Chromium（iPhone 13、390×664・3倍、暗）で 5案×2卓を撮り、ピルの位置を計った（撮った画像はセッションの scratchpad にだけ置いた）。下の行のカードとの空きは上の段の2人で計った（下の段の下にはカードが無い）
+
+| 案 | 自分の写真の下端 → ピルの上端 | ピルの下端 → 下の行の写真 | 崩れ・名前とのかぶり・文字の切れ（2卓とも） |
+|---|---|---|---|
+| 0 今の形 | 6px（写真の外） | 8px | 無し |
+| A カードの中 | 6px（枠の中。枠の下端まで 8px、枠から下の行まで 8px） | 16px | 無し |
+| B 上に寄せる | 2px（写真の外） | 20px | 無し |
+| C 写真の下端 | 写真の中（ピルの上端が写真の下端の 28px 上） | 14px（写真の下端から下の行まで 8px） | 無し（名前はピルの上に上がる。2行の「小島レボリューション」は顔のあたりまで上がる） |
+| D 上部の帯 | 写真の中（写真の上端に重なる） | （写真の上端なので対象外） | 無し |
+
+- 0 は自分の写真まで 6px・下の行まで 8px で、空きの差が 2px しかない（平野さんの「どちらのカードの結果か分かりにくい」の数字の裏づけ）。B は 2px / 20px、A は枠で囲む、C・D は写真の中
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1016-skr-rank
+- ログ: https://github.com/retroeater/mj/blob/work/1016-skr-rank/docs/logs/CHAT-1016-SKR-13.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1016-skr-rank
+- 確認用URL: プレビューあり（URL は最終報告）。比較ページは `/saikyo_pill_compare.html`。この版で見える印: 題が「比較: 卓のページの『出場者』のピルの置き場所」で、「0: 今の形」〜「D: 写真の上部の半透明の帯（参考）」の5つのラジオボタンがある
+- マージ: 未（平野さんの判断待ち）
+- issue: なし
+- 判断が必要なこと:
+  - どの置き場所にするか（0・A・B・C・D）。決まったら別の指示で卓のページに本実装し、比較ページ（`saikyo_pill_compare.html`）と `scripts/build_saikyo_pill_compare.py` を消す。卓のページは今 SKR-11 の形（0）のまま
+- 未確認の項目:
+  - iPhone の実機での見え方（headless Chromium の 390px で確かめた）
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj dde77936）: https://github.com/retroeater/mj-logs/tree/main/guide/dde77936
+ガイド文書（この版を写した時点の最新、mj 55ef1c42）: https://github.com/retroeater/mj-logs/tree/main/guide/55ef1c42
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/dde77936/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/dde77936/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/dde77936/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/dde77936/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/dde77936/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/dde77936/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/55ef1c42/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/55ef1c42/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/55ef1c42/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/55ef1c42/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/55ef1c42/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/55ef1c42/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/dde77936.md
