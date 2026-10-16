@@ -73,35 +73,30 @@
   - 本物のタブで `python3 scripts/regenerate.py --check study study_episodes`: 通る。「生徒の写真: 生徒の名前を入れた回はありません」（今は生徒が空）
   - 「使われていない登録」の常設 issue（`check_unused_names.py`）は、使われていない「別名」を「旧名→現名」の形で載せる。生徒のために足した別名でも、その生徒をタブから外すと次の週次で issue に旧名が載る（今の作りの帰結）
 - 手順3 part1〜33: #576 にコメントし、本文の公開の条件の行を直した。`docs/decisions/study.md`（JBK-12 の節）と `docs/notes/video-study.md` に書いた
+- 状態の更新（CHAT-1016-JBK-13）: 案 (a)（ログには件数だけ）に決まり、JBK-13 で直した。生徒の名前の入力は #576 の残り。セルのコメントが gviz で読まれないことは、コメントを入れた状態では確かめていない（追跡しない。外す人の記録は「備考」列を使えば足りる）
 
 ## 報告
 
-- 状態: 判断待ち / 続き: CHAT-1016-JBK-13
+- 状態: 完了 / 続き: CHAT-1016-JBK-13
 - ブランチ: work/JBK
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1016-JBK-12.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/JBK
 - 確認用URL: なし（コード・生成物は変えていない。テストと文書だけ）
 - マージ: 済（a0e215985）。直す箇所が無かったので、指示の「マージ:」の行のとおり入れた（足したのはテスト1件と文書。コード・生成物は変えていない）
 - issue: #576（着手中のコメント、part1〜33 のコメント、本文の公開の条件を直した）
-- 判断が必要なこと:
-  - 確かめの結果: タブに旧名で書いた生徒は、ページ（HTML・検索の文字・JSON-LD）には現在名だけが出て、旧名は出ない。「備考」など知らない列は読まない。直す箇所は無かった（`OldNameTest` を足した）
-  - 生成のログに生徒の名前が出る: `--check` と週次の再生成のログ（Actions）に、生徒の一覧が「タブに書いた名前」のまま出る（旧名を書いた人は旧名）。案: (a) ログには件数だけ（写真入り N人、名前だけ: 登録なし N人・X ID なし N人・写真が読めない N人）を出し、名前の一覧は手元で生成するときだけ出す（環境変数か `CI` の有無で切り替える）。(b) 名前は出すが、登録のある人は現在名で出す（旧名は出ないが、生徒の名前は残る）。(c) 今のまま。おすすめは (a)。どれにするかを決めてほしい（直すのは続きの指示で）
-  - 「使われていない登録」の常設 issue: 生徒のために足した「別名」は、その生徒をタブから外すと「旧名→現名」の形で issue に載る。別名を足すのは、その人をタブに入れると決めてからにする（または外したら別名も消す）
-  - 平野さんの手作業: 生徒の名前をタブ「女流勉強会」の「生徒」列に入れる（「、」区切り）。旧名を掘り起こされたくない人は入れない（外したことは「備考」列に書く。セルのコメントは gviz で読まれない見込みだが、コメントを入れた状態では確かめていない）。上の (a)〜(c) を決めてから入れると、ログに名前が残らない
-  - 公開（#576）の残りの段は #576 の本文のとおり
-- 未確認の項目:
-  - セルのコメントを入れた状態で gviz が読まないこと（今のタブにはコメントが無い）
+- 判断が必要なこと: なし（ログの出し方は CHAT-1016-JBK-13 で直した。残りは #576 に移した）
+- 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj dde77936）: https://github.com/retroeater/mj-logs/tree/main/guide/dde77936
+ガイド文書（この版を写した時点の最新、mj 55ef1c42）: https://github.com/retroeater/mj-logs/tree/main/guide/55ef1c42
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/dde77936/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/dde77936/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/dde77936/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/dde77936/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/dde77936/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/dde77936/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/55ef1c42/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/55ef1c42/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/55ef1c42/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/55ef1c42/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/55ef1c42/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/55ef1c42/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/dde77936.md

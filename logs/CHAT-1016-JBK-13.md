@@ -65,6 +65,28 @@ CHAT-1016-JBK-12 で、`--check` と週次の再生成のログ（Actions）に�
   - 修正前の `lib/study.py` に戻すと2件とも失敗する（`CI=true` でも旧名が出る）。戻して通ることを確かめた。全テスト OK
 - 手順2 生成物: `CI=true python3 scripts/regenerate.py study study_episodes` で差分0。出力は「生徒の写真: 生徒の名前を入れた回はありません」（今のタブは生徒が空）。`lib/study.py` を読むページはこの2つだけなので、ほかのページは変わらない
 - 手順2 文書: `docs/notes/video-study.md`（実装記録）・`docs/notes/static-generation.md`「生成を止める条件の設計」に1行ずつ、`docs/decisions/study.md` に JBK-13 の節
+- 手順2 マージ: `git push origin work/JBK:cloudflare`（55ef1c423、push 直前に `git merge-base --is-ancestor origin/cloudflare HEAD` が真）
+- 手順3 check-run（55ef1c423）: 「Workers Builds: mj」success、「check」2件 success、regenerate success（生成の差分が無くコミットは作られなかった）、notify skipped。regenerate のジョブのログは API で取れなかった（ダウンロードの転送先に届かない）ので、Actions のログの中身は見ていない
+- 手順3 #576 に進み具合をコメントした
+- JBK-12 のログ: この指示で「生成のログに生徒の名前が出る」の判断が出て直したので、状態を「完了」にし、3項目を「なし」にした（残りは #576）
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/JBK
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1016-JBK-13.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/JBK
+- 確認用URL: なし（ページの見た目は変えていない。生成物の差分0）
+- マージ: 済（55ef1c423）
+- issue: #576（着手中のコメント、進み具合のコメント）
+- 判断が必要なこと:
+  - 切り替えは環境変数 `CI` の有無にした（明示のオプションは足していない）。手元の Code のセッションでは `CI` が無いので一覧が出る。作業ログ・issue には件数だけを書く
+  - 平野さんの手作業: 生徒の名前をタブ「女流勉強会」の「生徒」列に入れる（「、」区切り）。旧名を掘り起こされたくない人は入れない（外したことは「備考」列に）。「別名」はタブに入れると決めた人にだけ足す（使われない別名は「使われていない登録」の issue に旧名→現名で載るため）
+  - 入れた後の確かめ: 写真入りの人が本人か。名前の一覧は別の指示で手元に出す（Actions のログには件数だけが出る）
+  - 公開（#576）の残りの段は #576 の本文のとおり
+- 未確認の項目:
+  - Actions のログ（regenerate のジョブ）で生徒の行が件数だけになっていること（今はタブの生徒が空で「生徒の名前を入れた回はありません」になる見込み。名前を入れた後の週次の再生成で分かる）
+- エラー: なし
 
 <!-- guide-links -->
 ---
