@@ -1,6 +1,6 @@
 # 朝の報告用の異常（retroeater/mj）
 
-- 書き出した時刻: 2026-10-16 08:47 JST（見た範囲: 2026-10-15 06:47 JST から）
+- 書き出した時刻: 2026-10-16 09:01 JST（見た範囲: 2026-10-15 07:01 JST から）
 - 書き出した実行の契機: workflow_dispatch（main）
 - 異常だけを書く。全体は actions/status.md。判定は mj の scripts/morning_report.py（各ワークフローの直近 100 回まで）
 
@@ -18,7 +18,6 @@
 
 - 遅れの可能性: delete-merged-branches.yml 予定 2026-10-16 07:53 の後に schedule・workflow_dispatch（cloudflare）の実行なし https://github.com/retroeater/mj/actions/workflows/delete-merged-branches.yml
 - 遅れの可能性: sync-dojo-calendar.yml 予定 2026-10-16 07:12 の後に schedule・workflow_dispatch（cloudflare）の実行なし https://github.com/retroeater/mj/actions/workflows/sync-dojo-calendar.yml
-- 遅れの可能性: update-live-channel.yml 予定 2026-10-16 06:43 の後に schedule・workflow_dispatch（cloudflare）の実行なし https://github.com/retroeater/mj/actions/workflows/update-live-channel.yml
 
 ## 3. 所要時間の異常（直近20回の中央値の3倍以上、または10分以上。skipped は除く）
 
@@ -37,4 +36,4 @@
 
 ## 5. 未報告のログ（`## 報告` の節が無い）
 
-なし
+- CHAT-1016-SKR-05.md（着手 2026-10-15） https://github.com/retroeater/mj-logs/blob/main/logs/CHAT-1016-SKR-05.md
