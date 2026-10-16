@@ -97,18 +97,39 @@ CHAT-1016-OGR-05 の判断待ちへの回答。文字ベースの OGP 画像を�
   saikyo.md（2026-10-15 の 5 に一部置き換え: 年度の画像を消し、代わりの画像は「麻雀最強戦」）に印を付けた。houou.md の 2026-10-14 の黒地・見本 A の2行は OGR-05 で印済み
 - docs/notes: ogp.md（実例の行・規則の表・4種類の原則・意匠を作り直した実例）、title-pages.md（og:image・作り方・新しい大会と改称のとき）、houou-top.md、saikyo-page-design.md（トップ・年度の画像・代わりの画像）、static-generation.md（OGP の段落と `build_ogp_image.py` の行）
 
+### マージと本番の確かめ
+
+- マージ: 直前に cloudflare が1件（docs/logs のみ）進んでいたので取り込み直し、`git push origin work/1016-ogr:cloudflare`（14fe5efea..43e4695b3、直前に `merge-base --is-ancestor origin/cloudflare HEAD` が真）
+- check-run（43e4695b3）: check・sync・regenerate・Workers Builds: mj は success、notify は skipped。自動の再生成（regenerate-page.yml）はコミットを作らなかった（差分なし）
+- 本番の HTML の og:image が新しくなった（デプロイが済んだ）ことを `title/`・`houou/` などで確かめてから画像を開いた。4種類とも **200・image/png、手元のファイルと一致**:
+  `img/ogp/site/index-white.png`（18,431 バイト）・`img/ogp/title/index-white.png`（31,969）・`img/ogp/houou/index-white.png`（27,340）・`img/ogp/saikyo/index-white.png`（36,872）
+- 待ちの確かめに使った `houou_results.html` は、本番では `/houou/players/` への **301** で（`_redirects` の88行目、houou/ の公開で入った転送）、HTML の og:image は返らない。
+  旧 `houou_*.html` 4件の og:image はリポジトリの生成物を直したもので、本番では転送のため見えない
+- 本番の og:image（`?v=ogr06-<時刻>`、5件とも 200）:
+
+```
+title/                          og:image  https://ryoei.pro/img/ogp/title/index-white.png
+title/houou/                    og:image  https://ryoei.pro/img/ogp/title/index-white.png
+houou/                          og:image  https://ryoei.pro/img/ogp/houou/index-white.png
+saikyo/                         og:image  https://ryoei.pro/img/ogp/saikyo/index-white.png
+saikyo/2019/20190223-s1-a.html  og:image  https://image.p-c2-x.abema-tv.com/image/programs/68-38_s19_p1/thumb001.png?height=720&amp;quality=75&amp;width=1280
+                                data-fallback（ABEMA の画像の代わり）15か所  ../../img/ogp/saikyo/index-white.png
+                                （ほかの9か所は選手の写真の代わり ../../img/avatar.svg で変更なし）
+houou_results.html              301 → https://ryoei.pro/houou/players/
+```
+
 ## 報告
 
-- 状態:
-- ブランチ:
-- ログ:
-- 比較URL:
-- 確認用URL:
-- マージ:
-- issue:
-- 判断が必要なこと:
-- 未確認の項目:
-- エラー:
+- 状態: 完了
+- ブランチ: work/1016-ogr
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1016-OGR-06.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1016-ogr
+- 確認用URL: 本番で確かめた。残した文字ベースの画像は4種類（`img/ogp/site/index-white.png`・`img/ogp/title/index-white.png`・`img/ogp/houou/index-white.png`・`img/ogp/saikyo/index-white.png`）。消したのは cloudflare との差で39枚（`## 経過`「消した画像」）と、未公開の大会ごとの白地19枚。この版の印: `title/houou/` の og:image が `…/img/ogp/title/index-white.png`
+- マージ: 済（43e4695b3）
+- issue: #581（決定と残りの課題をコメント）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
