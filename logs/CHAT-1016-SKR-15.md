@@ -68,6 +68,42 @@ CHAT-1016-SKR-10〜14 で作った、最強戦の卓のページの「出場者�
 | 比較ページ（`saikyo_rank_compare.html`・`saikyo_pill_compare.html`）と書き出し用のスクリプト | 残っていない |
 | saikyo/ 以外の生成物・`sitemap-saikyo.xml` | 差なし |
 
+### 手順2 マージと本番のビルド
+
+- push の直前に再 fetch して祖先を確かめ、`git push origin work/1016-skr-rank:cloudflare`（55e02ba7a..64ee77ff5、fast-forward）
+- 64ee77ff5 に付いた「Workers Builds: mj」は `Preview URL` のあるプレビューのもの（06:43:05Z）。マージの後、cloudflare に自動の再生成 `chore: regenerate saikyo/ via GitHub Actions`（7cc4363e4、`sitemap-saikyo.xml` の lastmod 25行だけ。卓のページは帯のまま）が入り、その本番向けの「Workers Builds: mj」（`Preview URL` 無し）が 06:54:26Z に success。64ee77ff5 の本番のビルドは付いておらず、順番待ちの間に新しい push が来て最新の 7cc4363e4 だけが走った形（docs/notes/cloudflare.md の「飛ばされる」挙動）
+- push から本番の反映まで約12分。本番の HTML は 06:54 まで前の版（三角）だった
+
+### 手順3 本番の確かめ（2026-10-16 06:55 UTC、`curl`、クエリ付き）
+
+| パス | 応答 | 帯（文字） | 三角 `.mj-saikyo-rank` | 外のピル `.mj-saikyo-card-pill` |
+|---|---|---|---|---|
+| `/saikyo/2025/20251214-s1.html` | 200 | 1位 優勝・2位 敗退・3位 敗退・4位 敗退 | 0 | 0 |
+| `/saikyo/2019/20191214-s1-a.html` | 200 | 通過・敗退・敗退・敗退 | 0 | 0 |
+| `/saikyo/2026/20261101-s1-a.html` | 200 | なし | 0 | 0 |
+| `/saikyo_rank_compare.html` | 404 | — | — | — |
+| `/saikyo_pill_compare.html` | 404 | — | — | — |
+style.css の .mj-saikyo-result-band: 2
+
+- 帯の文字は SKR-14 のプレビューの表と同じ。本番の HTML と `style.css` に反映したことを確かめた。ブラウザでの見え方（iPhone の実機）は平野さんがプレビューで確かめ済み（申告）で、本番の見え方はここからは確かめていない
+
+### ログの追いの push の前の取り込み
+
+- cloudflare が 7cc4363e4（自動の再生成）まで進んでいたので `git merge origin/cloudflare` で取り込んだが、fast-forward になり、続けて打った `git commit --amend`（マージコミットにトレーラを付けるつもりだった）が 7cc4363e4 のメッセージを書き換えた別のコミット（aa7a77c23、木は同じ）を作ってしまった。push する前に気づき、`git reset --soft 7cc4363e4` でブランチを cloudflare と同じ所へ戻した（木が同じなので作業ツリー・インデックスは変わらず、未コミットのログの変更だけが残った）。書き換えたコミットはどこにも push していない
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1016-skr-rank
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1016-SKR-15.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1016-skr-rank
+- 確認用URL: なし（本番で確かめた）
+- マージ: 済（64ee77ff5。本番に出たビルドは 7cc4363e4）
+- issue: なし
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
