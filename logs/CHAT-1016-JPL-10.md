@@ -95,7 +95,7 @@ JPL-09 でマージした WRC 2大会の新名称の全面反映について、�
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1016-JPL-10.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1016-jpl
 - 確認用URL: なし
-- マージ: 済（SHA は最終報告）
+- マージ: 済（82bde6810）
 - issue: #523（クローズ）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
@@ -104,12 +104,12 @@ JPL-09 でマージした WRC 2大会の新名称の全面反映について、�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 82bde681）: https://github.com/retroeater/mj-logs/tree/main/guide/82bde681
+ガイド文書（この版を写した時点の最新、mj b4879ad7）: https://github.com/retroeater/mj-logs/tree/main/guide/b4879ad7
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/82bde681/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/82bde681/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/82bde681/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/82bde681/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/82bde681/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/82bde681/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/dbb58b89.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b4879ad7/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b4879ad7/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b4879ad7/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b4879ad7/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b4879ad7/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b4879ad7/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/82bde681.md
