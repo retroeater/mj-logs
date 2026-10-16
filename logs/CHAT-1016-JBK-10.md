@@ -54,16 +54,31 @@ JBK-09 の「動画」の洗い出し（表A）に平野さんの判断が出た
 ## 経過
 
 - 0章: 指示欄の末尾が指示文の最後の行と一致することを確かめた。Chat-Ref の重複なし（`git log --all --grep`）。JBK-09 のログの状態に続きを足した
+- 手順1 取り込み: `origin/cloudflare`（0112228f3）を merge した。衝突なし。未マージの work/ ブランチ（work/JBK 以外）で `navbar.js`・`scripts/generate_video_live.py`・`scripts/generate_video_en.py`・`scripts/lib/study.py` を変えているものは無い（各ブランチの merge-base からの差分で確かめた）
+- 手順1 A1〜A3: `generate_video_live.py`・`generate_video_en.py` の META の title と `study.list_page_title()` を「番組」にした（760a425d0）。生成の差分は3ページの `<title>`・og:title の6行だけ（21e1d1e38）
+- 手順1 別名: `study.resolve_people()` は名前の辞書の `resolve()`（「別名」を当てる）を通している（Mつくと同じ）。直す箇所は無かった。本物の辞書で `resolve("山口大和")` → 「大和」を確かめた
+  - テストを足した: `ListPageTest.test_page_title`（一覧の題）、`StudentPhotoTest.test_alias`（講師・生徒に「山口大和」と書いた回が「大和」として各話の写真〈x.com/yamato〉・検索の文字に出て、旧名がどこにも出ない）
+  - 修正前で通らないことの確かめ: 題を元に戻すと `test_page_title` が失敗、`resolve_people` で「山口大和」の解決を外すと `test_alias` が失敗（講師が未登録で止まる）。どちらも戻して通ることを確かめた
+- 手順1 確かめ: 全テスト 1269件 OK。`python3 scripts/regenerate.py --check` 通過（警告11件は既存: /live の手動補正・最強戦の ABEMA URL・帰り道の未登録の写真）。女流勉強会の生成の出力は「生徒の写真: 生徒の名前を入れた回はありません」（タブの生徒列はまだ空）
+- 手順2 帰り道・Mつく・title/: `mtsuku`・`mtsuku_episodes`・`title_pages`・`video_wayhome`・`wayhome_episodes` を再生成して差分0（メニューは `navbar.js` が実行時に描くため、生成物には出ない）
+- 手順2 差分の分類（`git diff --stat origin/cloudflare HEAD`、17ファイル）:
+  - メニューの見出し: `navbar.js`（1行）
+  - A1〜A3 の題: `scripts/generate_video_live.py`・`scripts/generate_video_en.py`・`video_live.html`・`video_en.html`・`study/index.html`（題の行）・`scripts/lib/study.py` の `list_page_title()`
+  - 女流勉強会の生成: `scripts/lib/study.py`（生徒の扱い〈JBK-09〉）。各話 `study/*.html` の差分は無い（生徒列が空のため）
+  - `llms.txt` の節見出し: 「## 動画」→「## 番組」（1行）
+  - 文書・テスト: `scripts/tests/test_study.py`、`docs/notes/video-study.md`・`docs/notes/video-mtsuku.md`（「動画」→「番組」の1語）、`docs/decisions/`（README の行の並び・page-release.md・study.md）、`docs/logs/`（JBK-08・09・10）
+  - それ以外: なし
+- マージ直前に cloudflare が進んでいた（aabdd8d5f、HOU-54〜58 の houou・ask の変更）。もう一度 merge した（衝突なし、こちらのファイルとの重なりなし）。全テスト OK、`origin/cloudflare` との差分は上の17ファイルのまま
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 0112228f）: https://github.com/retroeater/mj-logs/tree/main/guide/0112228f
+ガイド文書（この版を写した時点の最新、mj cde9da6f）: https://github.com/retroeater/mj-logs/tree/main/guide/cde9da6f
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/0112228f/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/0112228f/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/0112228f/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/0112228f/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/0112228f/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/0112228f/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/cde9da6f/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/cde9da6f/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/cde9da6f/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/cde9da6f/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/cde9da6f/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/cde9da6f/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/98839f38.md
