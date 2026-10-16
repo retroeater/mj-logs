@@ -46,6 +46,41 @@ CHAT-1016-SKR-10 の比較ページで平野さんが選んだ形を、最強戦
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 着手前の確認
+
+- 指示欄の末尾は指示文の最後の行と一致。冒頭の数行は改行なしの1行で届いたので、そのまま写した。雛形の行はすべてある
+- `git log --all --grep=CHAT-1016-SKR-11` は0件。作業ブランチ: ローカルの `work/1016-skr-rank` は `origin/work/1016-skr-rank` と同じ（c74340cee）。そのまま続けた
+- `origin/cloudflare` が祖先でなかったので、ログの push の後に `git merge origin/cloudflare`（2086bff0a、衝突なし。houou の ask worker の変更）
+- CHAT-1016-SKR-10 のログの状態に ` / 続き: CHAT-1016-SKR-11` を足した
+- このセッションは SKR-05〜10 と同じセッション
+
+### 手順1 確かめ
+
+- 未マージの work/ ブランチ（work/1016-skr-rank を除く）: `style.css`・`scripts/generate_saikyo_pages.py`・`scripts/tests/test_saikyo_pages.py`・`assets/saikyo.js` を変えているものは無い
+- 三角の CSS の参照（`--mj-saikyo-rank-size`・`.mj-saikyo-rank`・三角の `::before`・名前の `is-pass`/`is-out`）: すべて最強戦の卓のページのためだけのもの。`.mj-saikyo-rank` を出すのは `generate_saikyo_pages.py` の `build_player_html()` だけで、/live・Mつく・女流勉強会の写真カードは三角も名前の結果のクラスも出さない（SKR-10 の洗い出しと同じ）。名前の結果のクラス（`BAND_CLASSES`）も三角の色分けにしか使っていなかった
+- 対局のページのピルの文言の規則（`build_table_section()`）: 文字は `Player.label`（決勝の通過は「優勝」、ほかは「通過」「敗退」）、未対局（卓の全員が空欄）には出さない、敗退は `.is-out`。卓のページのピルも同じ規則に順位を前に付ける形にした（「1位 優勝」「1位 通過」「4位 敗退」、順位が空欄なら結果だけ）。前提と食い違いは無い
+
+### 手順2 作ったもの（3fb9648cb・ccbf00128）
+
+- `scripts/generate_saikyo_pages.py`: `build_player_html()` から三角（`.mj-saikyo-rank`）と名前の結果のクラスを外し、カードの下に `<span class="mj-saikyo-card-pill"><span class="mj-saikyo-n-pill[ is-out]" aria-hidden="true">1位 通過</span></span>` を出す。文字は `Player.pill_text`（`rank_label` を置き換え）。`BAND_CLASSES` を消した。`alt`（「佐藤太郎（1位通過）」）は変えていない。司会・実況・解説のカード（未対局の扱い）にはピルを出さない
+- `style.css`: 三角の規則（`.mj-saikyo-rank`・金の三角・数字の無い三角の `::before`）、`--mj-saikyo-rank-size`（`.mj-saikyo` と卓のページの2か所）、`.mj-saikyo-name.is-out` を消した。`.mj-saikyo-card-pill`（中央寄せ・上 6px）と、卓のページの敗退のピルの色（`#38383a` / `#aeaeb2`、5.29:1）を足した。卓のページは濃色固定で、`.mj-saikyo-n-page` の変数（`--mj-n-line` など）が無いため、暗い配色の値を直に当てた（明の `#e5e5e5` / `#555555` は卓のページでは使わない）。写真カードの説明のコメントの「左上に順位ラベル」を直した
+- 消したもの: `saikyo_rank_compare.html`・`scripts/build_saikyo_rank_compare.py`（比較ページ用の CSS はページの中にあったので一緒に消えた）。参照は残っていない
+- テスト: `test_saikyo_pages.py` に `TablePagePlayerPillTest` を足した（順位あり通過・順位あり敗退・順位空欄・優勝〈順位あり・空欄〉・未対局・三角が無いこと）。変更前のコード（`origin/cloudflare` の `scripts/`）に当てると5件が落ちる（未対局のテストは前も後も通る）。全件 1277件 OK
+- 文書: `docs/notes/saikyo-page-design.md` の「通過・敗退は順位ラベルの色で表す」と「順位ラベル」の節を、ピルの節に置き換え（置き換えた旨と元の決定の番号を書いた）、5章（アクセシビリティ）と写真カードの説明の行を直した。`docs/notes/design.md` に最強戦の三角の行は無い。`docs/decisions/saikyo.md` に決定を足した
+
+### 生成物の差（`python3 scripts/regenerate.py saikyo_pages`）
+
+| 種類 | 件数 |
+|---|---|
+| 卓のページで三角がピルに変わったもの | 633（ピル 2,532 個。数字の三角を消したのは 956 個、数字の無い三角だった卓は 391） |
+| 変わらなかった卓のページ | 10（2026年度の未対局の卓。もともと三角もピルも無い） |
+| それ以外の差 | なし（三角・名前の結果のクラスを消し、ピルを消して比べた残りは0件） |
+| saikyo/ 以外・`sitemap-saikyo.xml` | 変化なし |
+
+- 動画URLのある卓は 614 のまま。取り込んだ時点の cloudflare の生成物からシートの変化は無かった
+
 <!-- guide-links -->
 ---
 
