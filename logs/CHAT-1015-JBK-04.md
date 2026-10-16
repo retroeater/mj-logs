@@ -88,10 +88,10 @@ JBK-02 の報告の仮置き1・3・4 に平野さんの答えが出たので反
 
 - 状態: 判断待ち / 続き: CHAT-1016-JBK-05
 - ブランチ: work/JBK
-- ログ: https://github.com/retroeater/mj/blob/work/JBK/docs/logs/CHAT-1015-JBK-04.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1015-JBK-04.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/JBK
 - 確認用URL: プレビューあり（URL は最終報告）。一覧・最新話 part73・最古の回 part34。この版の印: 一覧のヒーローの見出しが「part73」だけ
-- マージ: 未（平野さんの判断待ち）
+- マージ: 済（CHAT-1016-JBK-08 のマージ 4fdda151b で cloudflare に入った。未公開のまま）
 - issue: #575（作る、進み具合をコメント）、#576（公開）
 - 判断が必要なこと:
   - 平野さんの手作業1（JBK-03 から）: Mつくと同じブックにタブ「女流勉強会」を作り、CHAT-1015-JBK-03 のログの `## 経過`「タブ「女流勉強会」に貼る内容」の見出し＋40行を貼る。貼った後、仮のファイルとタブが無いときの扱いを消す（次の指示で）
@@ -123,12 +123,12 @@ JBK-02 の報告の仮置き1・3・4 に平野さんの答えが出たので反
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 82bde681）: https://github.com/retroeater/mj-logs/tree/main/guide/82bde681
+ガイド文書（この版を写した時点の最新、mj 10ba2aac）: https://github.com/retroeater/mj-logs/tree/main/guide/10ba2aac
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/82bde681/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/82bde681/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/82bde681/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/82bde681/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/82bde681/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/82bde681/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/82bde681.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/10ba2aac/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/10ba2aac/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/10ba2aac/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/10ba2aac/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/10ba2aac/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/10ba2aac/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/98839f38.md

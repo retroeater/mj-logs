@@ -145,10 +145,10 @@ rrBlY_X4lFA	part73	藤島健二郎	三浦智博	阿久津翔太	大和	-	-	-	-	-
 
 - 状態: 判断待ち / 続き: CHAT-1015-JBK-04
 - ブランチ: work/JBK
-- ログ: https://github.com/retroeater/mj/blob/work/JBK/docs/logs/CHAT-1015-JBK-03.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1015-JBK-03.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/JBK
 - 確認用URL: プレビューあり（URL は最終報告）。一覧・最新話 part73・最古の回 part34。この版の印: 一覧のヒーローの文が「…最新話から講師の名前で振り返れます。」（JBK-02 の版は「講師・生徒の名前で」）
-- マージ: 未（平野さんの判断待ち）
+- マージ: 済（CHAT-1016-JBK-08 のマージ 4fdda151b で cloudflare に入った。未公開のまま）
 - issue: #575（作る、進み具合と確かめる項目をコメント）、#576（公開）
 - 判断が必要なこと:
   - 平野さんの手作業1: Mつくと同じブックにタブ「女流勉強会」を作り、`## 経過`「タブ「女流勉強会」に貼る内容」の見出し＋40行を貼る。貼った後、仮のファイルとタブが無いときの扱いを消す（次の指示で）
@@ -185,12 +185,12 @@ rrBlY_X4lFA	part73	藤島健二郎	三浦智博	阿久津翔太	大和	-	-	-	-	-
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 08943b5e）: https://github.com/retroeater/mj-logs/tree/main/guide/08943b5e
+ガイド文書（この版を写した時点の最新、mj 10ba2aac）: https://github.com/retroeater/mj-logs/tree/main/guide/10ba2aac
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/08943b5e/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/08943b5e/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/08943b5e/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/08943b5e/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/08943b5e/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/08943b5e/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/95d46b4d.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/10ba2aac/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/10ba2aac/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/10ba2aac/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/10ba2aac/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/10ba2aac/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/10ba2aac/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/98839f38.md

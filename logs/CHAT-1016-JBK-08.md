@@ -55,30 +55,81 @@
 ## 経過
 
 - Chat-Ref の重複: `git log --all --grep="CHAT-1016-JBK-08"` と `docs/logs/` に無し
-- 作業ブランチ: ローカル work/JBK はリモートと一致（2f70b65a8）。`origin/cloudflare` は祖先でない → 取り込む
+- 0: ログの「指示」欄の末尾が指示文の最後の行と一致。指示文の冒頭の雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- 0: JBK-07 のログの状態の末尾に ` / 続き: CHAT-1016-JBK-08` を足した（b61b1f441）
+
+### 1. 取り込み・名前をそろえる
+
+- `git merge origin/cloudflare`（83334abc9）: `docs/notes/static-generation.md`「ページの一覧」の表で衝突した。女流勉強会の行の追加（work/JBK）と、cloudflare 側の最強戦の2行の書き換え（#549 の公開、CHAT-1016-SKR-06）が隣り合う行の衝突なので、両方を残して解いた。解いた後の該当箇所（先頭だけ）:
+
+```
+| ビルド時生成（サブディレクトリ、女流勉強会の一覧と各話） | 一覧1＋40（2026-10-15） | `study/index.html`（URL は `/study/`）・… |
+| ビルド時生成（サブディレクトリ、最強戦のトップ） | 1 | `saikyo/index.html`。`scripts/generate_saikyo_pages.py`。… |
+| ビルド時生成（サブディレクトリ、最強戦の年度・対局・卓のページ） | 年度数＋対局数＋卓数（878、2026-10-11） | … #549 で公開 … |
+```
+
+  `style.css` は自動で取り込めた（最強戦の箇所）
+- 未マージの work/ ブランチ（work/JBK 以外）: 変えるファイル（`scripts/*study*`・`style.css`・`regenerate.py`・`check_unused_names.py`・`_redirects`・handover.md・static-generation.md・decisions/README.md）を変えるものは無かった
+- `git mv` で名前を変えた: `scripts/generate_benkyokai.py` → `scripts/generate_study.py`、`scripts/generate_benkyokai_episodes.py` → `scripts/generate_study_episodes.py`、`scripts/lib/benkyokai.py` → `scripts/lib/study.py`、
+  `scripts/tests/test_benkyokai.py` → `scripts/tests/test_study.py`、`docs/notes/video-benkyokai.md` → `docs/notes/video-study.md`、`docs/decisions/benkyokai.md` → `docs/decisions/study.md`
+- 中身: モジュール名 `benkyokai` → `study`、`BenkyokaiRow` → `StudyRow`、ページ名 `benkyokai`・`benkyokai_episodes` → `study`・`study_episodes`（`regenerate.py` の `OUTPUT_OVERRIDES`）、CSS のクラス `.mj-benkyokai-en`・`.mj-benkyokai-members-tag` → `.mj-study-en`・`.mj-study-members-tag`、
+  `check_unused_names.py` の import（並びをアルファベット順に）・`NAME_RESOLVERS` のキー（`lib.study.resolve_people`、並びも直した）、handover.md 6章の表・static-generation.md「ページの一覧」・decisions/README.md の表・実装記録と決定の記録の中身
+- テスト: 全件 OK（`test_handover_notes_table` が handover.md の表の名前の変更を拾ったので表を直した）
+- `python3 scripts/regenerate.py --check study study_episodes`: 2ページとも通る
+- `python3 scripts/regenerate.py study study_episodes video_wayhome wayhome_episodes mtsuku mtsuku_episodes title_pages`: 7ページとも成功。帰り道・Mつく・title/ の生成物の差分は0
+- `study/` の生成物の差分: `study/index.html` の1行だけ（`class="mj-benkyokai-en"` → `class="mj-study-en"`）。メンバー限定の札のクラスはメンバー限定の回が無いので生成物に出ない。**名前の変更で説明できない差分（ページの文字・URL・リンク・画像）は無い**
+- 残った `benkyokai`（`git grep -n -i benkyokai`、作業ログを除く）と残した理由:
+  - `docs/decisions/study.md` 11行目（JBK-02 の決定「URL は仮置きの `/benkyokai/` のままでよい」）・38行目（JBK-07「仮置きの `/benkyokai/` を `/study/` に変えた」）・44行目（JBK-08 の決定の文）: 決定の記録は消さない（docs/decisions/README.md の書き方）
+  - `docs/notes/video-study.md` 12行目（消した仮のファイル `data/joryu_benkyokai_provisional.tsv` の名前）・18行目（「仮置きの `/benkyokai/` から変えた」）: 経緯の文
+  - `scripts/lib/study.py` 47行目のコメント（「仮置きの /benkyokai/ から変えた」）: 経緯の文
+- コミット: 0fc8ac05e（コード・CSS・生成物）、c2265bdfe（文書）
+
+### 2. issue
+
+- 同じ主題の issue（女流勉強会の新しい回の知らせ）: open・closed とも無かった（検索に出たのは #575・#576 だけ）
+- #580「女流勉強会の新しい回を常設 issue で知らせる」を起票した（決定、作り方の見込み〈`check_wayhome.py` と同じ形、層1で題名に「女流勉強会」を含みタブに無い動画ID〉、#564 を待つ）
+- #575 に #580 の番号と進み具合をコメントした
+- #576 の本文を確かめた: 「作る issue（#575）を待つ」が済んだことと、残りの段（noindex を外す・navbar の「動画」・サイトマップ・`llms.txt`）があることを確かめ、ファイル名を `scripts/lib/study.py`・`scripts/generate_study_episodes.py`・`docs/notes/video-study.md` に直し、#580 への参照を足した
+
+### 3. マージ・本番
+
+- cloudflare が進んでいた（VSH-03・WFL-19・ACF など）ので再度 `git merge origin/cloudflare`（4fdda151b。衝突なし、生成に関係するファイルの変更は無し）。テスト全件 OK
+- push 直前に再 fetch し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめて `git push origin work/JBK:cloudflare`（8e2d4e5ac..4fdda151b、fast-forward、2026-10-16 00:58 UTC ごろ）
+- マージ後の check-run（4fdda151b）:
+  - 「check」（公開対象を検査する）: success（job 116751782575・116751759925）
+  - 「Workers Builds: mj」: 3件とも success だが、すべて work/JBK のプレビューのビルド（出力の別名 URL が work-jbk、ビルド ID f75cddfa）。**本番向けのビルドの check-run が無い**
+- 本番（2026-10-16 01:18 UTC 時点）: `/study/`・`/study/rrBlY_X4lFA.html`・`/study` が 404（独自の 404 ページ。そのページにも noindex が付く）。`style.css` に `.mj-study-en` が無い（前の版）。navbar.js・llms.txt・sitemap.xml とその子のサイトマップに `study` は無い。
+  10分以上（1分おきに10回）待っても変わらなかった
+- 同じ時間帯の CHAT-1016-SKR-06（fa2791042、00:44 UTC のマージ）でも本番向けの「Workers Builds: mj」が走っておらず、本番が前の版のまま（SKR-06 のログの報告）。今回の変更とは無関係の止まり方とみて、残りの手順を進めた
+- 本番を確かめられないため、#575 はクローズせず、結果と本番の未反映をコメントした
+- JBK-01〜07 のログの「ログ」の URL を `blob/cloudflare/` に、「マージ」を「済（4fdda151b）」に直した（状態は ` / 続き:` のまま）
 
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/JBK
-- ログ: https://github.com/retroeater/mj/blob/work/JBK/docs/logs/CHAT-1016-JBK-08.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1016-JBK-08.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/JBK
-- 確認用URL: 未
-- マージ: 未
-- issue: #575・#576
-- 判断が必要なこと: 未
-- 未確認の項目: 未
-- エラー: なし
+- 確認用URL: なし（未公開のまま本番にマージ。本番は未反映）
+- マージ: 済（4fdda151b、fast-forward）。本番は未反映
+- issue: #575（コメント。本番の確かめが済むまでクローズしない）、#576（本文を直した）、#580（起票）
+- 判断が必要なこと:
+  - **本番向けの「Workers Builds: mj」が 4fdda151b で走っていない**（check-run はプレビューのビルドだけ。SKR-06 の fa2791042 から同じ）。Cloudflare のダッシュボードの Build history で、本番のビルドが順番待ちか起動していないかを確かめ、必要なら「Retry build」か次の cloudflare への push で本番を通してほしい。本番が反映された後に、`/study/`・最新話が 200 で noindex、navbar・サイトマップ・`llms.txt` に載らないことを確かめて #575 をクローズする（続きの指示で行う）
+  - 公開（#576）の残りの段: noindex を外す・navbar の「動画」に載せる・`sitemap-study.xml` を書き出して `sitemap.xml` から参照する・`llms.txt` に足す・`docs/notes/redirects.md` に `/study` の行を足す・文書の「未公開」を直す・公開後の確かめ（平野さんの実機・X と LINE のカード・Search Console）
+  - 平野さんの手作業: part1〜33 が層1に無い件を担当者に確かめる
+- 未確認の項目:
+  - 本番の反映（`/study/`・最新話の 200 と noindex、navbar・サイトマップ・`llms.txt` に載らないこと）
+- エラー: 本番向けの「Workers Builds: mj」が 4fdda151b で走っていない（今回の変更とは無関係とみている。上の「判断が必要なこと」）
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj fa279104）: https://github.com/retroeater/mj-logs/tree/main/guide/fa279104
+ガイド文書（この版を写した時点の最新、mj 10ba2aac）: https://github.com/retroeater/mj-logs/tree/main/guide/10ba2aac
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/fa279104/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/fa279104/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/fa279104/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/fa279104/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/fa279104/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/fa279104/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/10ba2aac/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/10ba2aac/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/10ba2aac/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/10ba2aac/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/10ba2aac/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/10ba2aac/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/98839f38.md
