@@ -96,6 +96,31 @@ Chat-Ref: CHAT-1017-WFL-24
 - 1 回目のスクリーンショットで2つ直した: スマホ幅で箱の下に大きな空白が出た（縦並びのときの flex-basis）・ダークの結果の印の白い字の背景が明るく読みにくかった（濃い色にした）
 - テスト: unittest 1294 件 OK。部品の `node --test`（upsert-issue）18 件 pass・Worker（scheduler など）36 件・40 件 pass
 
+### 手順3: マージと mj-logs での確かめ
+
+- JST 08:02（土曜。03:45〜05:15 の外）に再 fetch し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真だったので `git push origin work/1017-wfl-dash:cloudflare`（a4a72a636..c345618d3）
+- マージの後の mj-logs の同期のコミット 4c96361（「sync: mj c345618d」）に `A actions/index.html`・`M actions/status.md`・`M actions/morning.md` が入った。同期は成功（コミットが push されている）
+- #564 にコメントした: https://github.com/retroeater/mj/issues/564#issuecomment-6226336102
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1017-wfl-dash（マージ済み。削除は cleanup-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1017-WFL-24.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1017-wfl-dash
+- 確認用URL: https://github.com/retroeater/mj-logs/blob/main/actions/index.html （Pages を有効にするまでは HTML のソースとして見える）
+- マージ: 済（c345618d3）。mj-logs の同期 4c96361 で `actions/index.html` が入った
+- issue: #564 にコメント（https://github.com/retroeater/mj/issues/564#issuecomment-6226336102）
+- 判断が必要なこと:
+  1. 平野さんの手作業（mj-logs の GitHub Pages を有効にする）:
+     1. mj-logs の直下に空のファイル `.nojekyll` を作る（GitHub の画面で Add file → Create new file、名前 `.nojekyll`、中身は空のまま main へ Commit）。ログの `${{ … }}` を Jekyll の Liquid が解釈してビルドが失敗するのを防ぐ。sync-from-mj.yml は直下のファイルを消さない
+     2. mj-logs の Settings → Pages → Build and deployment の Source を「Deploy from a branch」、Branch を `main`・`/ (root)` にして Save
+     3. 数分後に https://retroeater.github.io/mj-logs/actions/ を開く（`.nojekyll` があれば `index.html` がそのまま出る）
+     - Pages を有効にすると、mj-logs のログ（`.md`）も同じ URL の下で素の文として読めるようになる（mj-logs は今も public なので、公開の範囲は変わらない）
+  2. 流れ図は前提の 3 つに「手動実行だけ」（どこからも呼ばれず手動実行しか無い convert-x-posts・fetch-x-posts・sync-logs）を足して 4 つにした。不要なら外す
+- 未確認の項目: GitHub Pages で開いたときの見え方（Pages の有効化の後）
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
