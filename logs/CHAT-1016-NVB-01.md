@@ -65,14 +65,17 @@
   - 両ページでハンバーガーを開き WRC の見出しを押すと、ドロップダウンに「ランキング」「成績詳細」が出る。PNG 2枚を SendUserFile で送付
 - 成果物のコミット: cb078db55（`navbar.js`・`scripts/tests/test_navbar.py`・`docs/decisions/title.md`）。決定は title.md の末尾（#523 の節の後）に足した
 
+- マージ: 再fetch後 `git merge-base --is-ancestor origin/cloudflare HEAD` が真、差分は `navbar.js`・`scripts/tests/test_navbar.py`・`docs/decisions/title.md`・`docs/logs/CHAT-1016-NVB-01.md` の4ファイルのみを確かめ、`git push origin work/1016-nvb:cloudflare`（6a497a74f..0bead3344）
+- 本番: 08:46 から30秒ごとに `https://ryoei.pro/navbar.js?v=nvb01-<連番>-<時刻>` を取得し、08:53:40（コンテナの時刻）に `data-short-label="WRC"` と `navLink.dataset.shortLabel || …` を含む版が返った（push から約8分）。本番のブラウザでの見え方は確かめていない（ローカルの headless Chromium で確認済み）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1016-nvb
-- ログ: https://github.com/retroeater/mj/blob/work/1016-nvb/docs/logs/CHAT-1016-NVB-01.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1016-NVB-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1016-nvb
-- 確認用URL: なし
-- マージ: 未
+- 確認用URL: なし（プレビューは使わず、ローカルの headless Chromium で houou/・jpml_pros.html を確認。この版の印: 白地のナビの4番目の項目が「WRC」）
+- マージ: 済（0bead3344）
 - issue: なし
 - 判断が必要なこと: なし
 - 未確認の項目: なし
