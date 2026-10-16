@@ -103,7 +103,7 @@ HOU-48 の初版（houou-promo-v1.mp4）は、質問欄の答えが HIRO柴田�
 
 ## 報告
 
-- 状態: 判断待ち（送った動画 houou-promo-v2.mp4 を見て、確定か直すかを決める）
+- 状態: 判断待ち（送った動画 houou-promo-v2.mp4 を見て、確定か直すかを決める） / 続き: CHAT-1016-HOU-61
 - ブランチ: work/1015-hou5
 - ログ: https://github.com/retroeater/mj/blob/work/1015-hou5/docs/logs/CHAT-1016-HOU-60.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1015-hou5
@@ -121,12 +121,12 @@ HOU-48 の初版（houou-promo-v1.mp4）は、質問欄の答えが HIRO柴田�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 55ef1c42）: https://github.com/retroeater/mj-logs/tree/main/guide/55ef1c42
+ガイド文書（この版を写した時点の最新、mj 371e0036）: https://github.com/retroeater/mj-logs/tree/main/guide/371e0036
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/55ef1c42/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/55ef1c42/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/55ef1c42/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/55ef1c42/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/55ef1c42/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/55ef1c42/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/dde77936.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/371e0036/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/371e0036/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/371e0036/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/371e0036/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/371e0036/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/371e0036/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/91b5dd30.md

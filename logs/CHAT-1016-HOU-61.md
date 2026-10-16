@@ -1,0 +1,70 @@
+# CHAT-1016-HOU-61
+
+- 着手日時: 2026-10-16
+- 対象issue: #540
+- ブランチ: work/1015-hou5
+- 着手時HEAD: f7e674caa
+
+## 指示
+
+【Claude作成】Claude Code 向け指示：CHAT-1016-HOU-60 の続き — 告知動画から ⓘ を押して規定の1行を開く所だけを外し、houou-promo-v3.mp4 を作る（ほかは v2 で確定） Chat-Ref: CHAT-1016-HOU-61 マージ: 判断待ちで止まる（制作のスクリプトのマージは、動画の確定の後、公開〈#540〉の指示で入れる） 貼る時機: いつでも（CHAT-1016-HOU-60 は判断待ち。同じセッションでよい。新しいセッションは任意） 共通手順: CLAUDE.md「Chat-Ref」「ブランチ運用」「作業ログ」節のとおり（識別子確認 → origin/cloudflare を起点に work/<識別子>〈クラウドセッションでは worktree を使わず docs/notes/cloud-sessions.md の読み替えに従う〉 → ログ先行push → 最終報告の Chat-Ref の行の直前に「ログ（公開）」の行、最後の行に Chat-Ref）。平野さんは、この指示のための作業ブランチ work/1015-hou5 の push を許可している（セッションに割り当てられた claude/… のブランチは使わない）。 作業ブランチ: クラウドセッションで実行する。未マージの work/1015-hou5 を続けて使う（HOU-48・HOU-60 の続き）。`git merge-base --is-ancestor origin/cloudflare HEAD` が偽なら merge で取り込んでよい（rebase しない）。リモートに無ければ止まる（手順は docs/notes/cloud-sessions.md「作業ブランチの用意」）。取り込みで生成物でない文書が衝突したときは、両方の変更が両立する衝突（追記どうし・隣り合う行）は両方を残して解いてよい。解いた後の該当箇所をログに引用する。それ以外の衝突は解かずに止まる。
+
+0. 着手前に、このログの「指示」欄の末尾が、この指示文の末尾（最後の行）と一致しているか確かめ、一致しなければ作業せず報告する。CHAT-1016-HOU-60 のログの `## 報告` を読み、状態が判断待ちでなければ何もせず止まる。
+
+目的
+HOU-60 の houou-promo-v2.mp4 への回答で、平野さんは動画を確定とし、ランキングで ⓘ を押して規定の1行を開く所（場面9の終わり、1.6秒）だけを外すことにした。その所だけを外した版を作る。
+決定（2026-10-16、平野さん）
+
+* 告知動画は houou-promo-v2.mp4 で確定とする。ただし ⓘ を押して規定の1行を開く所は外す（HOU-60 の判断 3 → b）
+* 答えの「（23期、第41期・第42期の連続獲得）」はこのままでよい。質問は変えず、撮り直しのために本番の質問欄へ送らない（HOU-60 の判断 2 → a）
+
+前提（チャット側。平野さんの決定ではない）
+
+* 場面9は、「期浮き率」に切り替えるところまでで終える。ⓘ は押さない。規定の1行は場面9にも場面10にも開いた状態で映さない（v2 は開いたまま場面10に残っていた）
+* 質問欄の答えは HOU-60 で取った答えを撮る側で返す（本番の質問欄へは送らない）
+* ほかの場面・テロップ・曲・形は v2 のまま。外した分だけ短くなってよい（30秒以上・60秒以内）
+* 出力のファイル名は `houou-promo-v3.mp4`。動画・連番・素材はコミットしない
+
+手順
+
+1. 着手の確かめ: CHAT-1016-HOU-60 のログの `## 報告` の状態の末尾に `/ 続き: CHAT-1016-HOU-61` を足す。#518・#540・#542 に他のセッションの着手中のコメントが無いか確かめる。
+2. 直しと制作: 前提のとおりに `scripts/promo_video/houou/` を直して作る（撮り直しが要るのは場面9・10だけなら、その場面だけ撮り直してよい。撮り直した範囲をログに書く）。決定を `docs/decisions/houou.md` に足す（CLAUDE.md の判断待ちの決まりのとおり）。
+3. 確かめと送付: mp4 の長さ・解像度・fps・ラウドネスと、場面ごとの秒とテロップの表をログに書く。場面9の終わりと場面10の1コマを PNG にして見て、規定の1行が開いていないことを確かめる。mp4 を `SendUserFile` で送る。
+
+止まる条件
+
+* CHAT-1016-HOU-60 のログの状態が判断待ちでない、または work/1015-hou5 がリモートに無い
+* #518・#540・#542 に他のセッションの着手中のコメントがある
+* 取り込みで、上に書いた解き方で解けない衝突が出た
+* 撮るために本番の質問欄へ送る必要が出た、またはページのコード・生成物・本番の設定を変えないと撮れない（変えずに止まり、何が要るかを報告する）
+
+完了条件
+
+* ログの「## 報告」を CLAUDE.md「作業ログ」節のとおりに書いて push する。「判断が必要なこと」に、v3 で確定してよいか（見る物は送った mp4）を書く
+* マージは冒頭の「マージ:」の行のとおり（判断待ちで止まる）
+* ターミナルへの最終報告の Chat-Ref の行の直前に ログ（公開）: https://github.com/retroeater/mj-logs/blob/main/logs/CHAT-1016-HOU-61.md?v=<SHA>（CLAUDE.md「作業ログ」節）を書き、最後の行に Chat-Ref: CHAT-1016-HOU-61 を書く
+
+不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
+
+## 経過
+
+- 0. 「指示」欄の末尾と指示文の最後の行（「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」）が一致することを確かめた。CHAT-1016-HOU-60 のログの状態は「判断待ち（送った動画 houou-promo-v2.mp4 を見て、確定か直すかを決める）」
+- Chat-Ref の重複なし（`git log --all --grep`）。work/1015-hou5 はリモートにある（f7e674caa、ローカルと同じ）
+- CHAT-1016-HOU-60 のログの状態に ` / 続き: CHAT-1016-HOU-61` を足した
+
+## 報告
+
+- 状態: 作業中
+
+<!-- guide-links -->
+---
+
+ガイド文書（この版を写した時点の最新、mj 371e0036）: https://github.com/retroeater/mj-logs/tree/main/guide/371e0036
+
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/371e0036/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/371e0036/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/371e0036/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/371e0036/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/371e0036/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/371e0036/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/91b5dd30.md
