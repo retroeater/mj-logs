@@ -68,10 +68,10 @@ HOU-50 の PNG で、「ほか N名」は青い字でリンクとは分かるが
 
 - 状態: 判断待ち（送った PNG 3枚で「ほか N名」の印を確かめて決める。マージは 10/20 の試行の判断の後に別の指示で） / 続き: CHAT-1016-HOU-52
 - ブランチ: work/1015-hou6
-- ログ: https://github.com/retroeater/mj/blob/work/1015-hou6/docs/logs/CHAT-1016-HOU-51.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1016-HOU-51.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1015-hou6
 - 確認用URL: なし（見る物は送った PNG 3枚。ask-card-2-light・ask-card-2-dark・ask-card-6-light）
-- マージ: 未（判断待ち）
+- マージ: 済（CHAT-1016-HOU-52 のマージ、82bde6810..f003b3c74）
 - issue: なし（#542 の HOU-49 の着手中が続いている）
 - 判断が必要なこと:
   - 「ほか N名」の印（行の右端、› と同じ線の下向きの矢印）でよいか
@@ -83,12 +83,12 @@ HOU-50 の PNG で、「ほか N名」は青い字でリンクとは分かるが
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 82bde681）: https://github.com/retroeater/mj-logs/tree/main/guide/82bde681
+ガイド文書（この版を写した時点の最新、mj f003b3c7）: https://github.com/retroeater/mj-logs/tree/main/guide/f003b3c7
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/82bde681/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/82bde681/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/82bde681/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/82bde681/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/82bde681/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/82bde681/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f003b3c7/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f003b3c7/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f003b3c7/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f003b3c7/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f003b3c7/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f003b3c7/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/82bde681.md

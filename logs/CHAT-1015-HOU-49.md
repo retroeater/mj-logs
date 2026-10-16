@@ -106,10 +106,10 @@ Chat-Ref: CHAT-1015-HOU-49
 
 - 状態: 判断待ち（見た目と動きをプレビューで見て決める。マージは 10/20 の試行の判断の後に別の指示で） / 続き: CHAT-1016-HOU-50
 - ブランチ: work/1015-hou6
-- ログ: https://github.com/retroeater/mj/blob/work/1015-hou6/docs/logs/CHAT-1015-HOU-49.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1015-HOU-49.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1015-hou6
 - 確認用URL: プレビューあり（URL は最終報告）。見るページ: トップ（質問欄）。プレビューのホストには質問欄の Worker が無く、送ると「いまは答えられません。」になる（本番の答えでの見え方は経過の確かめのとおり）。この版で見える印: トップの HTML の質問欄に `data-players-url="ask-players.json"` がある
-- マージ: 未（判断待ち）
+- マージ: 済（CHAT-1016-HOU-52 のマージ、82bde6810..f003b3c74）
 - issue: #542（着手中のコメント。実装の後に書いた。CLAUDE.md の「コードを触る前に」に遅れた）
 - 判断が必要なこと:
   - カードの見た目と「ほか N名」の開き方（押すと残りに置き換わり、閉じない）でよいか
@@ -121,12 +121,12 @@ Chat-Ref: CHAT-1015-HOU-49
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj a94b0a64）: https://github.com/retroeater/mj-logs/tree/main/guide/a94b0a64
+ガイド文書（この版を写した時点の最新、mj f003b3c7）: https://github.com/retroeater/mj-logs/tree/main/guide/f003b3c7
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a94b0a64/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a94b0a64/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a94b0a64/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a94b0a64/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a94b0a64/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a94b0a64/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a94b0a64.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f003b3c7/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f003b3c7/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f003b3c7/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f003b3c7/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f003b3c7/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f003b3c7/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/82bde681.md
