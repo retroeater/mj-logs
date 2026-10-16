@@ -57,7 +57,7 @@ SNS ブック（【2】の X ID・【3】＋【4】の X画像URL、#514・docs/
   対応不要にするため）
 - 卓は E の昇順（A卓 → B卓）。E が空欄または「-」のステージは見出しを
   ステージ名のみ（例「決勝」）にする
-- 卓内の並びは F の昇順（左が1位）。F が空欄の行はシート順で後ろに置く
+- 卓内の並びは F の昇順（左が1位）。F が空欄の行は後ろに置き、その中は結果が「通過」（決勝は「優勝」）→「敗退」→ 結果なしの順、同じ結果の中はシート順（`player_order()`。2011〜2021 年度の 397 卓が該当。CHAT-1015-SKD-21、未マージ work/1015-skd-top。それまではシート順のまま）
 - **通過・敗退の判定は G で行う。F では判定しない**（決勝は2位でも敗退のため）
 - 優勝者は「D が決勝 かつ G が通過」の行として導出する。バッジは「優勝」
 - 卓の4人全員の G が空欄 → 未対局として扱い、バッジを出さない。
@@ -73,6 +73,8 @@ SNS ブック（【2】の X ID・【3】＋【4】の X画像URL、#514・docs/
 ## 3. ページ構成
 
 ### `saikyo/index.html`（トップ、#355）
+
+**#549 で作り直した。今の形は下の「今の形（#549 で入れた）」。その前までの箇条書きは旧トップ（濃色の固定バー・写真カードの検索結果）の記録。**
 
 - 歴代最強位の一覧と、全期間の選手名検索を1ページに持つ（CHAT-0917-RK-05）。`generate_saikyo_pages.py` が
   引数なしの生成で年度ページと一緒に書き出す。検索は `assets/saikyo.js`、データはページに埋め込んだ JSON
@@ -144,6 +146,20 @@ SNS ブック（【2】の X ID・【3】＋【4】の X画像URL、#514・docs/
   - サイト内からの導線（navbar・`llms.txt`・`sitemap.xml`）は一般公開（#348）で付けた（2026-09-21、CHAT-0921-SG-07）。
     トップページ（`index.html`）は共通の navbar を使わないため、そこからの導線は無いまま（#101 で扱う）
 
+#### 今の形（#549 で入れた。CHAT-1015-SKD-17〜21）
+
+決定は docs/decisions/design-renewal.md の SKD-15・SKD-17〜SKD-21。
+
+- `<body class="mj-saikyo-n-page">`（年度・対局のページと同じ）。ナビは白地の `.mj-nav-new`（「最強戦」に印、`navbar.js` は変えない）。濃色の固定バー（年度プルダウン・検索欄）は無い
+- 本文 `.mj-saikyo-n-top`（`build_top_body()`）: 28px 太字の題名「最強戦」→ 選手名の検索欄（`.mj-saikyo-n-search`、houou/ トップの質問欄と同じ形・虫眼鏡・44px）→ 13px 灰色の「歴代最強位」→ 面の行
+- 歴代最強位（`build_champion_rows()`）: 1枚の面に年度ごとの行（56px）。年度 13px 灰色・写真 40px の丸（写真の無い選手は頭の1字の丸、`build_avatar_html()`）・名前・›。行は年度ページ `<年度>/`（/saikyo/<年度>/）へ。最強位が決まっていない年度は年度と › だけ
+- 検索の結果（`assets/saikyo.js` のトップの節）: 入力がある間は歴代最強位の代わりに出す。選手ごとに見出しの行（写真・名前 太字・出場した卓の数「N卓」・▾、押すと開閉）を置き、
+  開くとその下に**年度ごとに1枚の面**（CHAT-1015-SKD-18）。面の上に 13px 灰色の見出し「麻雀最強戦<年度> ›」（年度ページへのリンク、44px）、
+  面の中は出場した卓の行（1行目に対局名 16px、2行目に「卓名・月日」13px 灰色〈例「決勝・12月14日」。月日は `date_label()` の形から年を外したもの。片方が無ければもう片方だけ、両方無ければ2行目なし。CHAT-1015-SKD-19〉、右端に順位「1位」13px 灰色とピル〈通過・優勝は金、敗退は灰色、CHAT-1015-SKD-20〉・›、新しい卓のページへ）。
+  並びは年度の新しい順、年度の中は対局の新しい順・対局の中は卓の順（対局のページと同じ）。一度に開けるのは1人で、1人だけ当たれば開いた状態で出す。0件は「該当する選手はいません」（13px 灰色）。`?q=`・`/` と Esc の操作は今と同じ
+- 検索のデータ（`build_top_data()`）: `m` は [年度, 対局名, 対局日の表示, 新しいページの識別子]、`p` の卓は [m の添字, 卓のページの名前, 卓の見出し, 順位, ピル]
+- 旧トップ・旧年度ページだけが使っていた CSS（`.mj-saikyo-champion-year`・`.mj-saikyo-result*`・`body.mj-saikyo-page`・濃色の固定バーなど）と JS（年度プルダウン・絞り込み・`?match=`）は #549 で消した。title/ の CSS のコメントの写し元の参照は「#549 で廃止」と書き換えた
+
 ### `/saikyo/` の配信（トップを返す）
 
 - **`_redirects` の `/saikyo  /saikyo/  301` と `/saikyo/  /saikyo/index.html  200`**（CHAT-0918-RK-09）。
@@ -157,11 +173,13 @@ SNS ブック（【2】の X ID・【3】＋【4】の X画像URL、#514・docs/
 - クエリ文字列: 移動先にクエリを書かない行では、元のリクエストのクエリが移動先へ引き継がれる。
   301 でも同じで、本番の `/saikyo?player=<名前>` の応答は `location: /saikyo/?player=<名前>` だった（`?player=` は 2026-09-28 に廃止。今は `?q=`）
   （CHAT-0918-RK-09 で実測。SK-26 では wrangler 同梱の asset-worker の実装で確認していた）
-- **年度ページのOGP画像は年度ごとに要る**（#343）。`python3 scripts/build_ogp_image.py --text 麻雀最強戦 --text <年度> --scale 1 --scale 0.55 --color '#EA5505' --bg '#000000' --max-size 400 --tracking -0.03 --line-gap 0.08 --out img/ogp/saikyo/<年度>-black.png`
+- **年度の OGP 画像**（#343）は、#549 から og:image には使わず（年度・対局・卓の og:image は ABEMA の作品の画像、下の「新しい年度・対局・卓のページ」）、卓のヒーロー・カードの ABEMA の画像が読めないときの代わり（`year_ogp_path()`）にだけ使う。新しい年度の画像の作り方は `python3 scripts/build_ogp_image.py --text 麻雀最強戦 --text <年度> --scale 1 --scale 0.55 --color '#EA5505' --bg '#000000' --max-size 400 --tracking -0.03 --line-gap 0.08 --out img/ogp/saikyo/<年度>-black.png`
   で作ってPNGをコミットしてから、ページを生成する。接尾辞 `black` は `generate_saikyo_pages.py` の `OGP_DESIGN` と揃える（意匠を作り直すときはトップの画像も含めて両方を変える、`docs/notes/ogp.md`）。画像が無いページは共通の `img/ogp.png` を指すだけで、生成は止まらない
 - 全件の表の検索トップ（SK-02〜SK-04）は SK-18 で廃止した（6章）
 
-### `saikyo/<年度>.html`（年度ページ）
+### `saikyo/<年度>.html`（旧年度ページ、#549 で廃止）
+
+**#549 で生成をやめてファイルを消し、`/saikyo/<年度>.html` は `_redirects` で `/saikyo/<年度>/` へ 301 にした。この節と4章は旧年度ページの記録（アンカーの形は新しいページの名前と `#` の移動に今も使う）。**
 
 例: `saikyo/2026.html`
 
@@ -201,24 +219,24 @@ A を埋めると `2015-n3-...` 形式から日付形式へ変わり、未登録
 `sitemap.xml`（インデックス）から参照する。wayhome（#162）と同じ扱いで、
 生成スクリプトは既存URLの lastmod を残し新規URLだけ当日日付にする。lastmod は
 `update_sitemap_lastmod.py --from-git` が各ページの git 最終コミット日にそろえる
-（#265、`docs/notes/sitemap-lastmod.md`）。載せるのはトップ `https://ryoei.pro/saikyo/`（先頭）と
-年度ページで、対局の共有URL（`?match=` 付き、SK-19）は載せない。`/saikyo/` ↔ `saikyo/index.html` の
+（#265、`docs/notes/sitemap-lastmod.md`）。載せるのはトップ `https://ryoei.pro/saikyo/`（先頭）と、年度ごとに
+年度ページ `https://ryoei.pro/saikyo/<年度>/`・対局・卓のページ（#549、`sitemap_urls()`）。`/saikyo/` ↔ `saikyo/index.html` の
 対応は `update_sitemap_lastmod.py` の末尾 `/` を index.html に読み替える汎用の処理が行う（#222 で入ったもの。
 最強戦のための専用の分岐は持たない、CHAT-0918-RK-09）。`sitemap-lastmod.yml` と
 `regenerate-page.yml` の XML 妥当性チェックの対象にも含める（SK-12）
 
-### 新しい年度・対局・卓のページ（#425、未公開）
+### 新しい年度・対局・卓のページ（#425、#549 で公開）
 
 決定は docs/decisions/saikyo.md の 2026-10-11（CHAT-1011-ABM-02・ABM-04）。作ったのは CHAT-1011-ABM-03・ABM-04。
-**2026-10-11 に noindex のまま本番に入れた（段1）。公開は #549**（時期は平野さんが決める）。公開するまで、今のトップ・年度ページ（`saikyo/<年度>.html`）・`sitemap-saikyo.xml` は変えない。
+2026-10-11 に noindex のまま本番に入れ（段1）、#549 で公開した（noindex を外し、サイトマップ・`llms.txt` に載せ、旧年度ページ `saikyo/<年度>.html` を 301 にした）。
 
 - **URL とファイル**（すべて `saikyo/<年度>/` の中。878ページ、2026-10-11）:
-  - 年度ページ `saikyo/<年度>/index.html`（公開後の URL は `/saikyo/<年度>/`）
+  - 年度ページ `saikyo/<年度>/index.html`（URL は `/saikyo/<年度>/`）
   - 対局のページ `saikyo/<年度>/<対局識別子>.html`
   - 卓のページ `saikyo/<年度>/<卓のアンカー>.html`（上の「アンカー」の形で、対局識別子の部分は枝番付き）
-- **公開までの状態**: 全ページに `NOINDEX_TAG`（`generate_saikyo_pages.py`。公開の指示でここを空にする）。サイトマップ・`llms.txt`・navbar に載せず、今のトップ・年度ページからリンクしない。
-  新しいページ同士（年度 → 対局 → 卓、パンくず、年度のシート）はリンクする。`_redirects` の行が無く `/saikyo/<年度>/` は開けないため、
-  年度のシートとパンくずの年度は `../<年度>/index.html` を指す（公開で `/saikyo/<年度>/` へ）。「最強戦」「歴代最強位」は今のトップ `/saikyo/`
+- **年度ページの URL**: `/saikyo/<年度>/`。`html_handling: none` のため、`_redirects` に年度ごとの3行を置く（`/saikyo/<年度>/` → `index.html` の 200、旧 `/saikyo/<年度>.html` と `/saikyo/<年度>` → `/saikyo/<年度>/` の 301。`redirect_lines()`）。
+  `_redirects` は手で書くので、**新しい年度が増えたら3行足す**（足すまで `/saikyo/<年度>/` は 404。生成のログに警告〈`warn_missing_redirects()`〉、`scripts/tests/test_saikyo_redirects.py` が落ちる）。
+  年度ページへのリンクはこの形: トップの歴代最強位と検索の結果は `<年度>/`、年度のシートは `../<年度>/`、対局・卓のページのパンくずは `./`。「最強戦」「歴代最強位」はトップ `/saikyo/`
 - **対局識別子の枝番**: `assign_page_idents()` が年度ページの表示順（`display_order()`）で、同じ識別子の2つ目以降に `-2`（`SECOND_MATCH_SUFFIX`）を付ける（`Match.page_ident`）。
   卓のページの名前は `Match.table_slug()`（卓のアンカーの対局識別子の部分を `page_ident` に置き換える）。今の `ident`・アンカーは変えない
 - **年度・対局のページの見た目**（#566、CHAT-1014-SKD-05。決定は docs/decisions/design-renewal.md の SKD-05）: 新サイトのデザインの基本の形の「面の中の表の行」。
@@ -236,7 +254,7 @@ A を埋めると `2015-n3-...` 形式から日付形式へ変わり、未登録
   開閉は `assets/saikyo.js` の `bindYearSheet()`（Esc・幕・「完了」で閉じる。開くとシートへ、閉じると題名へフォーカス）。`houou_race.js` の開閉は順位変動の画面と結び付いているため共有しない
 - **対局のページ**: 題名は対局名 28px 太字と、2行目に日付 13px 灰色（`.mj-saikyo-n-page-title`）。年度の切り替えは置かない（年度ページへはパンくず）。面の中の対局名の行は題名と重なるので出さず、卓の見出しから始める。
   今の `?match=` の表示と同じく、ステージ順に全卓・各卓4人。卓ごとに見出しの行「ベスト8 A卓 ›」（卓のページへのリンク、押せる 44px）と選手4人の行（`build_table_section()`）。
-  行は左から順位（すべて灰色の数字、通過・優勝も金にしない〈SKD-15 の決定7〉、`build_rank_html()`）・写真・名前・右端に通過／優勝のピル（12px 太字の金）。読み上げは「（1位通過）」などの結果の文字。
+  行は左から順位（すべて灰色の数字、通過・優勝も金にしない〈SKD-15 の決定7〉、`build_rank_html()`）・写真・名前・右端に結果のピル（12px 太字。通過・優勝は金、敗退は灰色〈`--mj-n-line` の地に `--mj-n-muted` の字、`.mj-saikyo-n-pill.is-out`、CHAT-1015-SKD-20、未マージ work/1015-skd-top〉。未対局の卓は出さない。順位が空の行は順位の欄を空のままピルだけ）。読み上げは「（1位通過）」などの結果の文字で、ピルは読み上げない。
   動画の紹介（サムネイル・「ABEMA で見る」）は置かない（動画へは卓のページから、SKD-05 の決定2）
 - **卓のページ**（/live の個別ページと同じ作り。CHAT-1012-ABM-09 で作り、ABM-12 で直し、CHAT-1013-ABM-17 で司会・実況・解説を足した）: `build_table_page_body()` が本文の `<main class="mj-video-page mj-live mj-saikyo-sub mj-saikyo-table-page">` を自分で持ち（/live と同じ濃色。`<body>` に `mj-saikyo-page` を付けず、navbar は /live と同じ sticky）、
   パンくず（ヒーローの上の左上、年度・対局のページと同じ `build_breadcrumb()`・`.mj-saikyo-n-crumb` の 13px の1行。色は濃色の灰色の字 `--mj-v-fg-muted` と白のリンク、左右は下の本文にそろえる。SKD-15 の決定8）→ ヒーロー（`build_table_hero()`、`.mj-video-hero`。ABEMA のサムネイル〈1280×720〉・見出し「麻雀最強戦<年度> <対局名> <卓>」・対局日・「▶ 再生」・隅に「画像: ABEMA」。画像を押しても ABEMA へ行く〈透明なリンク `.mj-saikyo-hero-link`、読み上げ・Tab は「▶ 再生」だけ〉）
@@ -248,12 +266,12 @@ A を埋めると `2015-n3-...` 形式から日付形式へ変わり、未登録
   全年度の卓を現在名で引く `index_tables_by_player()` を `main()` で作って渡す。対局日の無い対局は入らず、日付のある未対局の卓は入る）。
   固定バー（年度プルダウン）は置かない（パンくずがあるため）。スクロール位置は navbar の高さだけ空ける（`html:has(.mj-saikyo-table-page)`、`--mj-nav-h` は `assets/saikyo.js` の `watchHeight()`）。
   カードの文字は4行（`build_related_card()`）: 対局日・「麻雀最強戦<年度>」・対局名・ステージと卓（決勝は「決勝」）。
-  ABEMA の回の URL が無い卓（未対局・未入力）は、ヒーローとカードの画像を年度の OGP 画像（`year_ogp_path()`）にし、「▶ 再生」と出典を出さない（試作。#549 の公開で、ABEMA の作品「麻雀最強戦」〈`https://abema.tv/video/title/68-38`〉の og:image に替える。2026-10-15 の決定、docs/decisions/saikyo.md）。
-  ABEMA の画像が読めないときも同じ OGP 画像に差し替える（`data-fallback`、`assets/saikyo.js`）。未対局の卓は4人の写真だけ（結果のバッジ・順位なし、「未対局」の文字なし）
-- 共有ボタンは個別ページにも新しい年度ページにも付けない。canonical・og:url は自分自身（年度ページは `/saikyo/<年度>/`）。OGP 画像は今は年度の画像（`og_image_for()`）を使い回し、題名と説明はページごと。#549 の公開で、年度・対局・卓のすべての og:image を ABEMA の作品「麻雀最強戦」の og:image（全年度で同じ1枚）に替える（個別の画像は作らない、#546 は閉じた。2026-10-15 の決定）。
-  年度・対局のページは `<body class="mj-saikyo-n-page">`（`mj-saikyo-page` は付けず、navbar の固定と上余白は当てない）。本文の要素は `mj-saikyo mj-saikyo-sub`（`.mj-saikyo-sub` で `assets/saikyo.js` が今の年度ページと分ける）
-- **`#` の移動**: 新しい年度ページは、今の年度ページの id（`#<卓のアンカー>`・`#match-<先頭の卓のアンカー>`）から新しいファイル名への対応表（`#saikyo_anchor_map`、`anchor_map_json()`）を持ち、
-  `assets/saikyo.js` が `location.hash` を引いて `location.replace` で移す。公開後、旧 `/saikyo/<年度>.html#…` が 301 で `/saikyo/<年度>/#…` に着いたときのため（`#` は転送で残る）
+  ABEMA の回の URL が無い卓（未対局・未入力）は、ヒーローとカードの画像を ABEMA の作品「麻雀最強戦」〈`https://abema.tv/video/title/68-38`〉の og:image（`ABEMA_SERIES_IMAGE_URL`・`series_image_url()`）にし、「▶ 再生」は出さず、出典「画像: ABEMA」は出す（2026-10-15 の決定5、#549）。
+  ABEMA の画像（回のサムネイル・作品の画像）が読めないときは年度の OGP 画像に差し替える（`data-fallback`、`year_ogp_path()`、`assets/saikyo.js`）。未対局の卓は4人の写真だけ（結果のバッジ・順位なし、「未対局」の文字なし）
+- 共有ボタンは個別ページにも新しい年度ページにも付けない。canonical・og:url は自分自身（年度ページは `/saikyo/<年度>/`）。og:image は年度・対局・卓のすべてで ABEMA の作品「麻雀最強戦」の og:image（全年度で同じ1枚、1280×720、`series_og()`。`version=` の値は ABEMA 側で変わることがある）。題名と説明はページごと。個別の画像は作らない（#546 は閉じた。2026-10-15 の決定5・6）。トップの og:image は年度の画像のまま（`og_image_for()`）。
+  年度・対局のページは `<body class="mj-saikyo-n-page">`（navbar の固定と上余白は当てない）。本文の要素は `mj-saikyo mj-saikyo-sub`（`assets/saikyo.js` の印）
+- **`#` の移動**: 年度ページは、旧年度ページの id（`#<卓のアンカー>`・`#match-<先頭の卓のアンカー>`）から新しいファイル名への対応表（`#saikyo_anchor_map`、`anchor_map_json()`）を持ち、
+  `assets/saikyo.js` が `location.hash` を引いて `location.replace` で移す。旧 `/saikyo/<年度>.html#…` が 301 で `/saikyo/<年度>/#…` に着いたときのため（`#` は転送で残る）
 - **動画URLの読み方**: `load_videos()` が ABEMA ブック（docs/notes/abema-book.md）の【2】最強戦（機械が毎朝割り当てた卓ごとの回）を【3】手動補正の空でない URL で上書きし、
   （年度, 対局日, 対局, ステージ, 卓）ごとに URL を引く（`abema_book.video_urls()`、#425・2026-10-12 の決定）。「最強戦」シートには動画の列が無い（M「動画URL」は 2026-10-13 に平野さんが列ごと消した。シートは A〜L の12列）。
   年度が4桁の数字で読めない行は警告して飛ばす（セルの書式で日付に読まれると、どの卓にも当たらず動画が静かに消えるため）
@@ -269,6 +287,8 @@ A を埋めると `2015-n3-...` 形式から日付形式へ変わり、未登録
 - テスト: `scripts/tests/test_saikyo_pages.py`
 
 ## 4. 年度ページの表示
+
+**旧年度ページ `saikyo/<年度>.html`（#549 で廃止）の記録。今の年度ページは3章「新しい年度・対局・卓のページ」。**
 
 ```
 [麻雀最強戦2026▼] [🔍 選手名で検索  ]   ← navbar の直下に固定（SK-18/SK-19）
