@@ -360,3 +360,11 @@ ACF のチャットの振り返り（ACF-15〜24）の申送り。3つともガ�
 - `sync-yotei.yml` は update-live-channel の job yotei を `uses:` に置き換えて呼ぶ（run-daily の job にしない。2026-10-15）
 - `fetch-youtube.yml` の切り出しは段③-4
 - 作業中の回答: なし
+
+## 2026-10-16（CHAT-1016-WFL-22）
+
+GitHub Actions の整理の段③-4（#564）。
+
+- `fetch-youtube.yml` は YouTube のチャンネル情報と帰り道の情報の取得とコミットだけを持ち、最後に `regenerate-page` を `all` で呼ぶ。OGP 画像の作成・帰り道の知らせ・凍結中の楽天の書影の取得（`if: false`）は regenerate-page に残す（#340 の「同じコミット」を保つ。2026-10-14、WFL-02）
+- `fetch-gsc.yml` の `name:` を「Search Console のエクスポート」に揃える（空白の直し）。`sync-logs.yml` の `name:` は #298 の予定で消すので変えない（2026-10-16）
+- 作業中の回答: なし

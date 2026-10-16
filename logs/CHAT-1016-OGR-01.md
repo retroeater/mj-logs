@@ -125,28 +125,36 @@ ryoei.pro の各ページの OGP 画像（og:image）を横断的にレビュー
   - saikyo/ の年度・対局・卓（878）は ABEMA の作品の画像1枚で、ページごとの違いは出ない（#549 の決定 5 のとおり）。#343 の年度別の画像は今は使っていない
   - ルート直下の旧ページ（houou_*.html など）と live/ の一覧は共通の `img/ogp.png`。title/・houou/・saikyo/ のトップは黒地・白字の区分画像
 
+### 手順3: 起票
+
+- #581「OGP 画像を横断的にレビューし、ページの種類ごとにそろえる」を起票。ラベル「分野: SEO/AIO」「対象: 全ページ」（既存、#267 と同じ）。期日は書いていない。
+  本文は目的・決定（2026-10-16 の2点）・現状（手順2の表、このログの `## 経過`「手順2」を出典に）・論点 (a)〜(e)（チャット側の案と明記）・関連
+- 「マインドアスリート」の宣材写真の件は記録が見当たらないため、関連ではなく論点の「控え（チャット側）」として書いた
+- #165 に「現行サイトの横断レビューは #581」のコメント（Chat-Ref 付き）。本文・状態・ラベルは変えていない
+- 決定の記録: docs/decisions/seo-bing.md に 2026-10-16 の節を足し、README の一覧の説明に「OGP 画像」「#581」を足した
+
 ## 報告
 
-- 状態:
-- ブランチ:
-- ログ:
-- 比較URL:
-- 確認用URL:
-- マージ:
-- issue:
-- 判断が必要なこと:
-- 未確認の項目:
-- エラー:
+- 状態: 完了
+- ブランチ: work/1016-ogr
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1016-OGR-01.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1016-ogr
+- 確認用URL: なし
+- マージ: 済（このログを含む先頭を cloudflare へ fast-forward。SHA は `git log origin/cloudflare --grep CHAT-1016-OGR-01`）
+- issue: #581（起票）、#165（コメント）
+- 判断が必要なこと: なし（#581 に移した）
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 55ef1c42）: https://github.com/retroeater/mj-logs/tree/main/guide/55ef1c42
+ガイド文書（この版を写した時点の最新、mj 371e0036）: https://github.com/retroeater/mj-logs/tree/main/guide/371e0036
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/55ef1c42/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/55ef1c42/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/55ef1c42/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/55ef1c42/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/55ef1c42/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/55ef1c42/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/371e0036/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/371e0036/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/371e0036/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/371e0036/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/371e0036/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/371e0036/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/91b5dd30.md

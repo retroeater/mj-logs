@@ -39,3 +39,13 @@
 ## 2026-10-16（CHAT-1016-SKR-06）
 
 - 最強戦の告知動画の初版（23.0秒、CHAT-1016-SKR-05）を確定した（平野さん）。制作のスクリプトは `scripts/promo_video/saikyo/`、実例は `docs/notes/page-announcement.md`
+
+## 2026-10-16（CHAT-1016-JBK-09）
+
+- メニューの「動画／Video」を「番組／Program」に改称する（`navbar.js`。項目の中身と並びは変えない。`llms.txt` の節見出しも合わせた）
+- 題・説明文などにある「動画」は、箇所の一覧と置き換え案を見てから決める（この時点ではメニューだけ変えた。一覧は CHAT-1016-JBK-09 のログ）
+
+## 2026-10-16（CHAT-1016-JBK-10）
+
+- ページの題の「動画」は、`video_live.html`・`video_en.html`・女流勉強会の一覧の `<title>`・og:title だけ「番組」にする（「放送対局 | 番組 | ryoei.pro」「English | 番組 | ryoei.pro」「女流勉強会 | 番組 | ryoei.pro」）。各話の題・大見出し・ほかの「動画」は今のまま
+- メニューの改称（JBK-09）と題の変更を cloudflare へマージしてよい
