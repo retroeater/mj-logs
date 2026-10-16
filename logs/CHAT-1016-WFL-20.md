@@ -57,15 +57,69 @@
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+- Chat-Ref の重複確認: CHAT-1016-WFL-20 は未使用
+- 作業ブランチ: work/1016-wfl-s8 はリモート・ローカルとも無かったので origin/cloudflare（4fdda151b）から作った
+- 0. 指示欄の末尾は指示文の最後の行と一致。WFL-19 のログの `## 報告` の状態は「完了」（cloudflare の版）。docs/notes/github-actions.md「ワークフローを変更したとき」を読んだ（改名した本は既定ブランチに無いうちは作業ブランチで `workflow_dispatch` できない・表の行を同じコミットで直す）
+- 雛形の行: Chat-Ref・マージ・貼る時機・共通手順（＋作業ブランチ）は揃っている
+- 着手は JST 09:56（03:45〜05:15 の外）
+- 未マージの work/ ブランチで `.github/workflows/`・CLAUDE.md・docs/notes/github-actions.md を変えるもの: なし
+- ブランチ保護・ルールセット: `GET /repos/retroeater/mj/branches/cloudflare` は `protected: false`・必須の確認（`required_status_checks`）は空、`GET /rulesets` は空。`assets-check` のジョブ名が必須の確認に使われていないので改名してよい（止まる条件に当たらない）
+
+### 手順1: 参照の洗い出しと直し（334c4f924）
+
+改名（`git mv`）と `name:`・run-name:
+
+| 今のファイル（`name:`） | 新しいファイル（`name:`） | ほかに直した所（ワークフローの中） |
+| --- | --- | --- |
+| assets-check.yml（公開対象を検査する） | check-assets.yml（公開対象の検査） | 冒頭の `docs/handover.md「4-x」` → `docs/notes/cloudflare.md「本番反映（デプロイ）の仕組み」`、許可リストのエラーの文言のファイル名 |
+| delete-merged-branches.yml（マージ済みの作業ブランチを削除する） | cleanup-branches.yml（マージ済みブランチの片付け） | run-name の `[scheduled]` の後、`concurrency` の組 `delete-merged-branches` → `cleanup-branches`、`branch-operations.md「ワークフローを変更したとき」` → `github-actions.md` |
+| notify-build-failure.yml（本番ビルドの失敗の通知） | check-build-failure.yml（本番ビルド失敗の検知） | `branch-operations.md「ワークフローを変更したとき」` → `github-actions.md` |
+| sitemap-lastmod.yml（サイトマップのlastmodを同期） | regenerate-sitemap.yml（サイトマップの lastmod の同期） | `concurrency` の組 `sitemap-lastmod-<ref>` → `regenerate-sitemap-<ref>`、コミットの本文のファイル名 |
+| update-live-channel.yml（「連盟ch」の毎日の取り込み） | 同じ（「連盟ch」の取り込み） | run-name・実行サマリの見出し、冒頭コメントの 6・7 を sync-yotei.yml に |
+| sync-dojo-calendar.yml（道場部ゲストのカレンダー同期） | 同じ（道場部ゲストのカレンダーの同期） | run-name・実行サマリの見出し |
+| （新） | sync-yotei.yml（予定表の取り込み） | 下 |
+
+ほかに直した参照（`git grep`。docs/logs・docs/decisions・handover-archive は過去の記録なので直していない）:
+
+| 所 | 直した中身 |
+| --- | --- |
+| run-daily.yml | `uses: ./.github/workflows/cleanup-branches.yml`、冒頭コメント（branches の名前、Worker の表に載っていない旨の古い1行を「Worker の起動の表の1行で毎日 04:00 JST に起動する」に） |
+| regenerate-page.yml | `sitemap-lastmod.yml` → `regenerate-sitemap.yml`、`docs/handover.md「4-x」` → `docs/notes/cloudflare.md「本番反映（デプロイ）の仕組み」` |
+| fetch-gsc.yml | `sitemap-lastmod.yml` → `regenerate-sitemap.yml`、`static-generation.md「ワークフローを手動実行するとき」` → `github-actions.md` |
+| CLAUDE.md | 「CLAUDE.md / handover.md の更新ルール」の `assets-check.yml` → `check-assets.yml`（この1語だけ。23,651 バイト〈上限 28KB・警告域 26KB の内〉） |
+| docs/notes | github-actions.md（一覧の表の4行のファイル名・update-live-channel の行・sync-yotei の行を足す・run-daily の行と節・部品の節・ほか）、cloudflare.md（587・649・710 行）、scheduler-worker.md（例のファイル名・ログの行の例・今の表の説明）、cloud-sessions.md、sitemap-lastmod.md、saikyo-page-design.md、static-generation.md、skills.md、houou-race.md、houou-top.md、video-mtsuku.md、video-study.md、chat-side-operations.md（`assets-check.yml` の1語）、yotei-sheet.md・live-channel-write.md（job yotei が sync-yotei.yml を呼ぶ旨）、docs/new-page-checklist.md |
+| scripts | check_asset_limits.py・check_build_failure.py・delete_merged_branches.py の冒頭のコメントのファイル名だけ（`actions_status.py`・`morning_report.py` は変えていない） |
+| sitemap-pages.xml | 冒頭の XML のコメントのファイル名だけ（lastmod は変えていない） |
+
+直さなかった所: docs/notes/scheduler-worker.md の日付つきの記録（10/6・10/8・10/9 の run の話と「それまでの5行」）、session-network.md の 2026-09-14 の記録、`workers/scheduler/test/scheduler.test.mjs` の例の文字列（`delete-merged-branches.yml`・`[scheduled] マージ済みの作業ブランチを削除する`。`workers/` は変えない。テストは例の文字列として持つだけで、改名しても通る）、`scripts/lib/yotei.py` の issue の本文の「`update-live-channel.yml` のジョブ `yotei`」（ジョブ yotei は残っているので誤りではない。issue の文面を変えないため）。Worker の `schedule.json` は run-daily の1行で、改名する本は載っていない
+
+#492 の古い参照6か所: `assets-check.yml` 7行目・`regenerate-page.yml` 58行目（今は 65 行目）の `docs/handover.md「4-x」`、`delete-merged-branches.yml` 40行目（今は cleanup-branches.yml 54 行目）・`notify-build-failure.yml` 37行目（check-build-failure.yml）の `branch-operations.md「ワークフローを変更したとき」`、`fetch-gsc.yml` 11行目の `static-generation.md「ワークフローを手動実行するとき」` を直した。`check-saikyo-unregistered.yml` 30 行目の分は段①（部品化）で書き直したときに既に無くなっていた
+
+sync-yotei.yml:
+
+- update-live-channel の job yotei のステップをそのまま移し、`workflow_call`（入力 `apply`・`scheduled`・`calendar_apply`・`calendar_max_delete`〈文字列〉）と `workflow_dispatch`（同じ入力、既定は書かない）を持たせた。`permissions` は job yotei と同じ（`contents: read`・`issues: write`）、`concurrency` は組 `sync-yotei`（手動の実行と重ねない。呼ぶ側の組 `update-live-channel` とは名前が違う）、呼ぶ側で `secrets: inherit`
+- env は job yotei と同じ形: `APPLY`（入力 `apply`。呼ぶ側の update-live-channel で `needs.update.outputs.apply == 'true' || inputs.yotei_apply == true` を計算して渡す）・`SCHEDULED`（`github.event_name == 'schedule' || inputs.scheduled == true`）・`CALENDAR_APPLY`（`SCHEDULED` か `calendar_apply`）・`CALENDAR_MAX_DELETE`（入力。呼ぶ側は `format('{0}', inputs.calendar_max_delete)` で渡す。update-live-channel の手動実行は数値の 30 が "30" に、schedule・run-daily からは空になる〈切り出す前と同じ〉）
+- 保険の実行（schedule）のときの動き（コードを読んだ）: 呼ばれる側の `github.event_name` は呼ぶ側のもの（schedule）なので、`SCHEDULED`・`CALENDAR_APPLY` は切り出す前と同じく真。`apply` は呼ぶ側で `needs.update.outputs.apply`（schedule では job update の gate が `APPLY` を真にする）から計算されて真。`calendar_max_delete` は schedule では inputs が空なので空（同期のステップで予約の起動なら空にする処理もそのまま）。ゲートで止まった日は job update の `run` が偽で、yotei（sync-yotei の呼び出し）も今までどおり動かない
+- テスト: unittest 1264 件 OK（改名の途中で `test_workflows_table.py` が落ち、一覧の表の行を直して通した）・部品の `node --test` 0 fail・Worker の `node --test` 0 fail
+
+### 手順2: 作業ブランチの確かめ
+
+- 作業ブランチの push（334c4f924）で check-assets.yml（公開対象の検査）が動いた: run #1（38832950597）success。新しいワークフローとして番号は #1 から
+- run-daily（`scheduled` なし）: run #4（38832956460）**success**、01:02:50Z〜01:16:09Z（JST 10:02:50〜10:16:09）。ジョブは `live / update`・`live / yotei / sync`（sync-yotei.yml。入れ子3段 run-daily → update-live-channel → sync-yotei が通った）・`branches / delete`（cleanup-branches.yml）・`dojo / sync`・`sns / update`・`images / check`・`images / saikyo`・`images / sns_book`・`saikyo / abema`・`saikyo / regenerate / regenerate` が success、`live / regenerate`・`sns / regenerate` は skipped
+- update-live-channel（`apply: false`）: run #96（38832959472、題「「連盟ch」の取り込み」）**success**、01:02:52Z 作成。job update は 01:06:26Z に始まった（run-daily の `live / update`・`live / yotei / sync` が 01:06:23Z に終わるまで待った。呼ばれる側のワークフロー全体の組 `update-live-channel` が、run-daily の中の実行と手動の実行を順に並べた）。`yotei / sync` success（env `APPLY: false`・`SCHEDULED: false`・`CALENDAR_APPLY: false`・`CALENDAR_MAX_DELETE: 30`。WFL-15 の作業ブランチの実行 #94 の job yotei と同じ値）、regenerate は skipped
+- 書く道筋で動いた本は無い: 作業ブランチに bot のコミットは無い。01:02Z 以降の issue のコメントは他セッションの #542 の1件だけで、bot の書き込みは無い
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 4fdda151）: https://github.com/retroeater/mj-logs/tree/main/guide/4fdda151
+ガイド文書（この版を写した時点の最新、mj 8529f02f）: https://github.com/retroeater/mj-logs/tree/main/guide/8529f02f
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/4fdda151/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/4fdda151/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/4fdda151/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/4fdda151/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/4fdda151/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/4fdda151/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/8529f02f/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/8529f02f/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/8529f02f/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8529f02f/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8529f02f/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8529f02f/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/98839f38.md

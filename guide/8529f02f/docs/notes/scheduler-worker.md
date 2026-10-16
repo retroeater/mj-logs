@@ -82,6 +82,7 @@ run-name: ${{ inputs.scheduled && '[scheduled] <ワークフローの name>' || 
 今の表（2026-10-15 から。初回の起動は 2026-10-16 04:00 JST）は1行: `run-daily.yml` 毎日 04:00（毎朝の運行。update-live-channel・update-sns-book・check-image-links・regenerate-saikyo を順に、sync-dojo-calendar・delete-merged-branches を並行に呼ぶ。`docs/notes/github-actions.md`「run-daily.yml」、#564）。それまでの5行（update-live-channel 04:00・update-sns-book 04:10・sync-dojo-calendar 04:15・delete-merged-branches 04:20・check-image-links 04:30）と戻し方は同じ節。`sync-logs.yml` 毎日 05:30 の行は 2026-10-07 に消した（#298）。時刻の案は #504 の本文「起動時刻の案と範囲」。
 
 - 表を変えて `cloudflare` に入ると、Workers Builds の `mj-scheduler` がデプロイする（check-run「Workers Builds: mj-scheduler」）。cron の変更の反映は最大15分。`workers/scheduler/` の外だけを変える push ではビルドされない（2026-10-06 に check-run で確かめた）
+- **`workers/scheduler/` を変えるマージの後は、ダッシュボード（Workers & Pages > `mj-scheduler` > Deployments）で、そのコミットを含むビルドが Ready になったことを確かめる。check-run が無いことだけで「ビルドされていない」と判断しない**（Skipped のビルドには check-run が付かない）。2026-10-15 の段③-2（#564）では、`schedule.json` を変えたマージの push（先頭 a5b7e739d）のビルドが Skipped になり（原因は不明。CHAT-1016-WFL-19 のログ）、約15分後の別の push（06dc3158 を含む）のビルドで Ready になった（チャット側がダッシュボードで見た）。Skipped のままのときは、ダッシュボードからビルドをやり直すか、`workers/scheduler/` を含む次の push を待つ
 - 表に足すワークフローは、先に上の「予約の起動の見分け方」の3つを足しておく。足さないと、`scheduled` が知らない入力として 422 になる
 
 ## テスト

@@ -250,7 +250,7 @@ handover.md 5章から移した。ページの一覧は下の「ページの一�
 
 ### ページの一覧
 
-HTMLは24ページ + 書籍の一覧と個別ページ（`books/`、#97、noindex・メニュー未掲載。**2026-09-22 開発凍結、`docs/notes/books-freeze.md`**） + 「帰り道」の一覧とエピソード個別ページ（`wayhome/`、#162・#559） + 最強戦のトップと年度ページ（`saikyo/`、#319/#355、2026-09-21 に公開） + 最強戦の新しい年度・対局・卓のページ（`saikyo/<年度>/`、#425、noindex・メニュー未掲載、公開は #549） + タイトル戦の新構成（`title/`、#222、2026-09-28 に公開、#413） + 放送対局ページ（`live/`、#346、noindex・メニュー未掲載。正式公開は #362） + 鳳凰戦の新ページ（`houou/`、#518、noindex・メニュー未掲載、公開は #540） + Mつくの一覧と各話（`mtsuku/`、#569、2026-10-15 に公開、#570）。大きく4系統に分かれる。
+HTMLは24ページ + 書籍の一覧と個別ページ（`books/`、#97、noindex・メニュー未掲載。**2026-09-22 開発凍結、`docs/notes/books-freeze.md`**） + 「帰り道」の一覧とエピソード個別ページ（`wayhome/`、#162・#559） + 最強戦のトップと年度ページ（`saikyo/`、#319/#355、2026-09-21 に公開） + 最強戦の新しい年度・対局・卓のページ（`saikyo/<年度>/`、#425、noindex・メニュー未掲載、公開は #549） + タイトル戦の新構成（`title/`、#222、2026-09-28 に公開、#413） + 放送対局ページ（`live/`、#346、noindex・メニュー未掲載。正式公開は #362） + 鳳凰戦の新ページ（`houou/`、#518、noindex・メニュー未掲載、公開は #540） + Mつくの一覧と各話（`mtsuku/`、#569、2026-10-15 に公開、#570） + 女流勉強会の一覧と各話（`study/`、#575、noindex・メニュー未掲載、公開は #576）。大きく4系統に分かれる。
 
 | 系統 | ページ数 | 状態 |
 |---|---|---|
@@ -265,8 +265,9 @@ HTMLは24ページ + 書籍の一覧と個別ページ（`books/`、#97、noinde
 | ビルド時生成（サブディレクトリ、独自: 全画面ヒーロー+横スクロールカード列） | 1 | `wayhome/index.html`（URL は `/wayhome/`。2026-10-13 に `/video_wayhome.html` から移し、旧 URL は `_redirects` で 301、#559。ページ名は `video_wayhome` のまま）。`render_content()`+専用JS`video_wayhome.js`。新サイトのパイロット（`docs/notes/video-wayhome.md`）。個別ページ（下の行）と同じく、動画のタブをまとめたブック（`lib/video_book.py`、#578）の「帰り道」タブを見出しの名前で読み（`lib/wayhome.py` の `fetch_rows()`）、`data/youtube_meta.json` に無い回は外して生成する（#194） |
 | ビルド時生成（サブディレクトリ、ヒーロー構成のエピソード個別ページ） | 39 | `wayhome/<動画ID>.html`。`scripts/generate_wayhome_episodes.py`（`docs/notes/video-wayhome.md`） |
 | ビルド時生成（サブディレクトリ、Mつくの一覧と各話） | 一覧1＋61（2026-10-15） | `mtsuku/index.html`（URL は `/mtsuku/`）・`mtsuku/<動画ID>.html`。`scripts/generate_mtsuku.py`・`scripts/generate_mtsuku_episodes.py`（帰り道と同じ形、`docs/notes/video-mtsuku.md`）。2026-10-15 に公開（navbar・`sitemap-mtsuku.xml`・`llms.txt`、#570）。旧 `/video_mtsuku.html` は `_redirects` で 301 |
-| ビルド時生成（サブディレクトリ、最強戦のトップと年度ページ） | トップ1＋年度数 | `saikyo/index.html`・`saikyo/<年度>.html`。`scripts/generate_saikyo_pages.py`。2026-09-21 に一般公開し、navbar・`sitemap-saikyo.xml`・`llms.txt` に載る（#319・#348、`docs/notes/saikyo-page-design.md`） |
-| ビルド時生成（サブディレクトリ、最強戦の新しい年度・対局・卓のページ） | 年度数＋対局数＋卓数（878、2026-10-11） | `saikyo/<年度>/index.html`・`saikyo/<年度>/<対局識別子>.html`・`saikyo/<年度>/<卓のアンカー>.html`。`scripts/generate_saikyo_pages.py`（今の年度ページと同じスクリプト）。noindex・メニュー未掲載、公開は #549（#425、`docs/notes/saikyo-page-design.md`「新しい年度・対局・卓のページ」） |
+| ビルド時生成（サブディレクトリ、女流勉強会の一覧と各話） | 一覧1＋40（2026-10-15） | `study/index.html`（URL は `/study/`）・`study/<動画ID>.html`。`scripts/generate_study.py`・`scripts/generate_study_episodes.py`（帰り道・Mつくと同じ形、`docs/notes/video-study.md`）。noindex・メニュー未掲載、公開は #576 |
+| ビルド時生成（サブディレクトリ、最強戦のトップ） | 1 | `saikyo/index.html`。`scripts/generate_saikyo_pages.py`。2026-09-21 に一般公開し、navbar・`sitemap-saikyo.xml`・`llms.txt` に載る（#319・#348、`docs/notes/saikyo-page-design.md`）。旧年度ページ `saikyo/<年度>.html` は #549 で下の行へ移し、`_redirects` で 301 |
+| ビルド時生成（サブディレクトリ、最強戦の年度・対局・卓のページ） | 年度数＋対局数＋卓数（878、2026-10-11） | `saikyo/<年度>/index.html`・`saikyo/<年度>/<対局識別子>.html`・`saikyo/<年度>/<卓のアンカー>.html`。`scripts/generate_saikyo_pages.py`（トップと同じスクリプト）。#549 で公開（`sitemap-saikyo.xml`・`llms.txt`。年度ページの URL は `/saikyo/<年度>/`、`_redirects` で `index.html` を返す）（#425、`docs/notes/saikyo-page-design.md`「新しい年度・対局・卓のページ」） |
 | ビルド時生成（サブディレクトリ、タイトル戦の新構成） | 入口1＋大会数＋期数 | `title/index.html`・`title/<slug>/index.html`・`title/<slug>/<期>.html`（入口は年の切り替え〈`?year=`、#277〉を持つ）。`scripts/generate_title_pages.py`。navbar の「連盟 > タイトル」から入口へ（#413、`docs/notes/title-pages.md`） |
 | ビルド時生成（サブディレクトリ、鳳凰戦の新ページ） | 13＋在籍者数（691、2026-10-11） | `houou/index.html`（トップ）・`houou/players/`（個人成績。リーグ推移はそのタブ）・`houou/ranking/`（通算得点）と部門ごとの `houou/ranking/<スラッグ>/` 8ページ・`houou/leagues/`（個人成績のリーグのタブへ移すだけ、2026-10-12）・`houou/race/` の各 `index.html`。データは `houou/search.json`・`houou/players/leagues.json`（期ごとの各段の人数）・`houou/results/<選手名>.json`（在籍者だけ）・`houou/race/<期>-<1|2>.json`。`scripts/generate_houou_pages.py`（集計は `lib/ranking.py`・`lib/results.py`、順位変動は既存の生成スクリプトの部品）＋`assets/houou.js`・`assets/houou_race.js`（順位変動の写し）。noindex・メニュー未掲載、公開は #540（#518・#520、`docs/notes/houou-top.md`） |
 | ビルド時生成（サブディレクトリ、放送対局ページ） | 691（2026-09-18） | `live/index.html`・`live/<タイトル戦>/index.html` 以下。`scripts/generate_live_pages.py`。noindex・メニュー未掲載、正式公開は #362（`docs/notes/live-page-design.md`） |
@@ -290,7 +291,7 @@ HTMLは24ページ + 書籍の一覧と個別ページ（`books/`、#97、noinde
 - `jpml_pros`のYouTubeアイコンだけはシートではなくYouTube Data API（channels.list）から取り、`data/youtube_channels.json`を経由する（#3。キーはActions secret `YOUTUBE_API_KEY`）。
   取得は週次`all`と`target_page`空/`all`の手動実行時のみ。失敗しても既存JSONでアイコンは維持され、ジョブだけ失敗扱いになる
 - `wayhome_episodes`だけは出力が単一ページではなく`wayhome/`配下39枚になる（#162）
-- `saikyo_pages`（`scripts/generate_saikyo_pages.py`）も出力が単一ページではなく、`saikyo/`配下の年度ページと、`sitemap-saikyo.xml`（年度ページのみ）になる（#319、`regenerate.py`の`OUTPUT_OVERRIDES`は`"saikyo/"`）。表を持たず`render_content()`と`assets/saikyo.js`を使う。設計は`docs/notes/saikyo-page-design.md`
+- `saikyo_pages`（`scripts/generate_saikyo_pages.py`）も出力が単一ページではなく、`saikyo/`配下のトップ・年度・対局・卓のページと、`sitemap-saikyo.xml`（全部）になる（#319・#549、`regenerate.py`の`OUTPUT_OVERRIDES`は`"saikyo/"`）。表を持たず`render_content()`と`assets/saikyo.js`を使う。設計は`docs/notes/saikyo-page-design.md`
 - `title_pages`（`scripts/generate_title_pages.py`）は`title/`配下の入口・大会ページ・期ページと、`sitemap-title.xml`を書き出す（#222、`OUTPUT_OVERRIDES`は`"title/"`）。`sitemap-title.xml`は公開（#413、2026-09-28）から`sitemap.xml`が参照する。仕組みは`docs/notes/title-pages.md`
 - **複数のスクリプトが使う定数・関数（シートのクエリ・列の定義など）を変えるときは、その名前を import・参照している所を `git grep` ですべて洗い出し、マージの前に `python3 scripts/regenerate.py all` で全ページを再生成して差分を確かめる。** ほかのスクリプトが借りて列の位置で読んでいると、そちらのページが黙ってずれる
 

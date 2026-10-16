@@ -200,3 +200,9 @@
 - CHAT-1016-VSH-01 の決定はそのまま
 - 同じ決定を `docs/decisions/mtsuku.md` にも書いた
 - 作業中の回答: なし
+
+## 2026-10-16（CHAT-1016-VSH-03、帰り道・Mつくと共通）
+
+- 旧タブ「帰り道」（`scripts/lib/live.py` の `SPREADSHEET_ID` のブック）と「Mつく」（ブック `1y8xBxGpIt-C23cwG7MDjDkebMlpnBufa4_IzYAo2QyQ`）を削除した（#579）
+- 同じ決定を `docs/decisions/mtsuku.md` にも書いた
+- 作業中の回答: なし

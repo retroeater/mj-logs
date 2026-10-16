@@ -41,6 +41,7 @@ GitHub Actions のワークフローの一覧・動き・手動実行と変更�
 
 - `scripts/sync_all_logs.py`（#298）: `origin/cloudflare` と未マージの `origin/work/**` のすべてについて、`sync-logs.yml` の「ログ・ガイド文書を写す・消す」と同じ手順で mj-logs の作業ツリーへ写す（commit・push はしない）。mj-logs 側の `sync-from-mj.yml` から呼ぶ
 - mj-logs の `.github/workflows/sync-from-mj.yml`（#298）: Worker `mj-scheduler` から mj に push があった直後（`pushed_at` が3分以内の毎分の回、`docs/notes/scheduler-worker.md`「動き」）と、手動実行・毎日03:41 JST の予約実行（保険）で起動し、mj を blobless でクローンして `scripts/sync_all_logs.py` と `scripts/actions_status.py --repo retroeater/mj` を動かし、mj-logs 自身へ push する（mj を読むのは mj-logs の Secret `MJ_READ_TOKEN`）。mj の Actions の分を使わない。2026-10-07 から写しはこれだけ（本番。`sync-logs.yml` は停止中）。push が拒否されたら origin/main に戻して写す・書き出すをやり直す（3回まで）
+- `scripts/actions_status.py` の GitHub API の呼び出し（`get()`）は、5xx・タイムアウト（接続の失敗を含む）を5秒・10秒あけて最大3回取り直す。4xx はすぐ失敗にする（CHAT-1016-ACF-24）
 
 ## regenerate-page.yml
 
@@ -128,3 +129,4 @@ GitHub Actions (`.github/workflows/regenerate-page.yml`) が、`scripts/generate
 - **ワークフローを変える指示:** そのワークフローを呼ぶ側（`uses:` で呼ぶワークフロー・schedule・`workflow_dispatch`）を `git grep` で洗って「前提」に列挙し、呼ばれ方ごとの振る舞いを「決定」に入れる（呼び出し元の見落としは、呼ばれた側で初めて出る）
 - **失敗通知メールは1件ずつ扱う。** 本番稼働済みの Actions のエラーは、基本的に Actions のフォローアップのチャットで解決する（2026-10-12 平野さんの決定）。
   原因を調べる前に、その題材（ワークフロー・実行したブランチ）を直し中のチャットがあるかを確かめ、あればそこへ引き継ぐ。並行するチャットで同じ系列の Chat-Ref を出さない
+  朝の確かめで見るのは mj の Actions・**mj-logs の Actions**（「mj の作業ログを写す」。Worker の朝の確かめは mj の行しか見ないので #506 に出ない）・Worker の起動（毎朝の運行が1回だけか）・#506・届いた失敗のメール。work/ ブランチの失敗はその系列のチャットへ伝言し、cloudflare の失敗は ACF のチャットが扱う

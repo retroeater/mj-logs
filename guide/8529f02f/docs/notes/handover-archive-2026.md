@@ -937,6 +937,16 @@ CLAUDE.md:
   「止まる条件と検証の指定」の「/live の【3】・`update-live-channel.yml` に触れる指示の前に live-channel-write.md『チャット側の指示』を読む」、
   「`.claude/` の hook・settings を変える指示」の項の「手順は docs/notes/skills.md『git の hook（mj-git-guard）』」（項の規則は残し、参照を表へ）
 
+### 2026-10-16 に chat-side-operations.md から外した括弧内の事例・経緯（#492）
+
+「他のチャットへの伝言は .md の添付で渡す」の1行を足した分（純増を避けるため）。規則は chat-side-operations.md に残した。
+
+- 「返答の最後に、『未完了の指示』…一覧で出す」の項の末尾「（2026-10-12・10-14 の決定）」
+- 「『マージしてよい』にスクリーンショットが添付されているとき」の項の末尾「（2026-10-12 の決定）」
+- 「コミットSHAを固定して書かない」の項の、既存の特定コミットの参照の例「（`git show <sha>:<path>` など）」
+- 「止まる条件と検証の指定」の「承認済み」の条件の項の、外れる並びの例「〈入口のカードの順・`search.json` の順など〉」
+- 同節の、許すずれを数で書く項の例「例: 直すは ±3件まで、作る・消すは見込みと同じ。」
+
 ## docs/notes/cloudflare.md・chrome-reading.md から（2026-10-13、#304）
 
 規則は `docs/notes/cloudflare.md`「ビルド成否と本番の確認範囲（check-runs）」「Chrome からダッシュボードの API を読む」と `docs/notes/chrome-reading.md`「使い方」、#304 の本文の冒頭（担当）が正。
