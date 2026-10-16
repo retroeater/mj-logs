@@ -53,6 +53,14 @@ HOU-58 の本番の確かめで、「現在の鳳凰位は？」の答えの最�
 - 0. 「指示」欄の末尾と指示文の最後の行（「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」）が一致することを確かめた
 - Chat-Ref の重複なし（`git log --all --grep`）。work/1016-hou3 はリモート・ローカルとも無く、origin/cloudflare（02a00281f）から `git checkout -b` で作った
 - CHAT-1016-HOU-58 のログの状態に ` / 続き: CHAT-1016-HOU-59` を足した
+- 1. 着手の確かめ: #542 の最後の着手中（HOU-57、自セッション）は 03:06 の HOU-58 のマージのコメントで解除済み。他セッションの着手中なし。#542 に着手中のコメントを書いた。`git branch -r --no-merged origin/cloudflare` の8本（1009-swp-526・1011-swp-hnd・1011-swp-nav・1014-wfl-s3・1015-hou5・1015-skd-notes・1016-hou3・1016-skr-rank）はどれも cloudflare との差に `workers/ask/src/ask.mjs` を含まない（`git diff origin/cloudflare...<branch> -- workers/ask/src/ask.mjs` が0行）
+- 2. 直し（ba35bee19）: `ANSWER_SYSTEM` の HOU-53 の行を1行のまま次に直した（行は増やさない。`answerInput()` の切り方・並べ方は変えない）
+  - 前: 「- 選手を挙げるときは名前を書く。items の名前を結果の順のまますべて書き、others があれば「ほか N人」(N は others)と全体の人数(count)を添える。人数は自分で数えず、この指示の言葉は答えに書かない」
+  - 後: 「- 選手を挙げるときは名前を書く。items の名前を結果の順のまますべて書く。「ほか N人」(N は others)と全体の人数(count)は、一覧や人数を聞かれたときだけ添える。人数は自分で数えず、この指示の言葉は答えに書かない」
+  - テスト: 文面の正規表現を新しい文に直し、「others があれば」（無条件に添える書き方）が無いこと・「ほか N人」を含む行が1行だけであることを足した。修正前の文面では新しい正規表現が一致せず「others があれば」も含むため、修正前のコードでは落ちることを確かめた
+  - `node --test 'workers/ask/test/*.test.mjs'` 35件 pass、`python3 -m unittest discover -s scripts/tests` 1271件 OK
+  - `docs/notes/ask-worker.md` の指示の文面を直し、`docs/decisions/houou.md` に HOU-59 の節を足した（HOU-53 の「それより多いときは上位10人と「ほか N人」・全体の人数」の行に置き換えの印）
+
 
 ## 報告
 
@@ -61,12 +69,12 @@ HOU-58 の本番の確かめで、「現在の鳳凰位は？」の答えの最�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj cde9da6f）: https://github.com/retroeater/mj-logs/tree/main/guide/cde9da6f
+ガイド文書（この版を写した時点の最新、mj bd4bff47）: https://github.com/retroeater/mj-logs/tree/main/guide/bd4bff47
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/cde9da6f/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/cde9da6f/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/cde9da6f/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/cde9da6f/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/cde9da6f/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/cde9da6f/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/bd4bff47/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/bd4bff47/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/bd4bff47/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/bd4bff47/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/bd4bff47/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/bd4bff47/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/98839f38.md
