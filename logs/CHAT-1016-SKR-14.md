@@ -47,6 +47,40 @@ CHAT-1016-SKR-13 の比較ページで平野さんが選んだ置き場所を、
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 着手前の確認
+
+- 指示欄の末尾は指示文の最後の行と一致。冒頭の数行は改行なしの1行で届いたので、そのまま写した。雛形の行はすべてある
+- `git log --all --grep=CHAT-1016-SKR-14` は0件。作業ブランチ: ローカルの `work/1016-skr-rank` は `origin/work/1016-skr-rank` と同じ（95ac5dbed）。`origin/cloudflare` が祖先でなかったので、ログの push の後に `git merge origin/cloudflare`（衝突なし。女流勉強会・/live・SEO の変更）
+- CHAT-1016-SKR-13 のログの状態に ` / 続き: CHAT-1016-SKR-14` を足した
+- このセッションは SKR-05〜13 と同じセッション
+
+### 手順1 確かめ
+
+- 未マージの work/ ブランチ（work/1016-skr-rank を除く）: `style.css`・`scripts/generate_saikyo_pages.py` を変えているものは無い
+- カードの外のピル（`.mj-saikyo-card-pill`）の参照: `style.css`（2規則）・`generate_saikyo_pages.py`（`build_player_html()`）・テスト・比較ページだけ。対局のページのピル `.mj-saikyo-n-pill` と `pill_class()` は対局のページ・トップの検索の結果で使うので残した
+
+### 手順2 作ったもの（eea5213a4・106e30fd5・d84284335）
+
+- `scripts/generate_saikyo_pages.py`: `build_player_html()` で、カードの外のピルをやめ、カードの中・名前の前に `<span class="mj-saikyo-result-band[ is-out]" aria-hidden="true">1位 通過</span>` を出す。文字は `Player.result_text`（SKR-11 の `pill_text` を改名。中身は同じ）。未対局と司会・実況・解説には出さない。`alt` は変えていない
+- `style.css`: `.mj-saikyo-card-pill` と卓のページの敗退のピルの色を消し、`.mj-saikyo-result-band`（写真の上端に幅いっぱい、`z-index: 2`、通過・優勝 `rgba(242, 194, 48, .8)` / `#2b2100`、敗退 `rgba(60, 64, 67, .8)` / `#fff`、13px 太字・行の高さ 1.6、折り返さない）を足した。上の角はカードの角丸と `overflow: hidden` が切る（帯がカードの中にあるので、比較ページ D のような別の角丸は要らない）。写真カードの説明のコメントを直した
+- クラス名は最初 `.mj-saikyo-result` にしたが、#549 で廃止した旧トップの `.mj-saikyo-result*` が `style.css` のコメントに残っていて紛らわしいので、`.mj-saikyo-result-band` に改名した（d84284335）
+- 消したもの: `saikyo_pill_compare.html`・`scripts/build_saikyo_pill_compare.py`、`.mj-saikyo-card-pill` の2規則。参照は残っていない
+- テスト: `TablePagePlayerPillTest` を `TablePagePlayerResultBandTest` に置き換えた（順位あり通過・順位あり敗退・順位空欄・優勝〈順位あり・空欄〉・未対局・カードの外のピルと三角が無いこと）。変更前（SKR-11 の形）のコードに当てると5件が落ちる（未対局は前も後も通る）。全件 1280件 OK
+- 文書: `docs/notes/saikyo-page-design.md` の SKR-11 のピルの節を帯の節に置き換え（三角 → ピル → 帯の経緯と、置き換えた理由を書いた）、写真カードの説明と5章を直した。`docs/decisions/saikyo.md` に決定を足した（SKR-11 の置き場所が D に置き換わり、文字は残ることを書いた）
+
+### 生成物の差（`python3 scripts/regenerate.py saikyo_pages`）
+
+| 種類 | 件数 |
+|---|---|
+| 卓のページでピルが帯に変わったもの | 633（2,532 個。帯の文字・順番・敗退の別は元のピルと全件同じ） |
+| 変わらなかった卓のページ | 10（2026年度の未対局の卓） |
+| それ以外の差 | なし（ピルと帯を消して比べた残りは0件） |
+| saikyo/ 以外・`sitemap-saikyo.xml` | 変化なし |
+
+- 動画URLのある卓は 614 のまま
+
 <!-- guide-links -->
 ---
 
