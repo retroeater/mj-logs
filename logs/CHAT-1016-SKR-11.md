@@ -81,15 +81,43 @@ CHAT-1016-SKR-10 の比較ページで平野さんが選んだ形を、最強戦
 
 - 動画URLのある卓は 614 のまま。取り込んだ時点の cloudflare の生成物からシートの変化は無かった
 
+### 手順3 プレビューでの確かめ（4f0fc7193 の「Workers Builds: mj」〈プレビュー〉success）
+
+headless Chromium（iPhone 13、390×664・3倍）で、ブラウザの明・暗（`colorScheme`）ごとに3卓の「出場者」の節を撮り、ピルがカードに重ならないか、文字が切れ・はみ出さないか、三角が残っていないかを計った。撮った画像はセッションの scratchpad にだけ置いた。
+
+| 卓 | 明・暗 | 応答 | ピルの文字 | 三角 | 崩れ・かぶり・切れ |
+|---|---|---|---|---|---|
+| 2025 決勝 `saikyo/2025/20251214-s1.html` | 明・暗 | 200 | 1位 優勝・2位 敗退・3位 敗退・4位 敗退 | 無し（`.mj-saikyo-rank` 0・`::before` 0） | 無し |
+| 2019 `saikyo/2019/20191214-s1-a.html`（順位が空欄） | 明・暗 | 200 | 通過・敗退・敗退・敗退 | 無し | 無し（2行の「小島レボリューション」もピルと重ならない） |
+| 未対局 `saikyo/2026/20261101-s1-a.html` | 明・暗 | 200 | ピル無し | 無し | 無し |
+
+- 色（計った値）: 通過・優勝 `rgb(242, 194, 48)` / `rgb(43, 33, 0)`、敗退 `rgb(56, 56, 58)` / `rgb(174, 174, 178)`。卓のページは明・暗とも地が `rgb(18, 18, 18)`（濃色固定）で、ピルの色も同じ
+- 比較ページ `/saikyo_rank_compare.html` は 404
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1016-skr-rank
+- ログ: https://github.com/retroeater/mj/blob/work/1016-skr-rank/docs/logs/CHAT-1016-SKR-11.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1016-skr-rank
+- 確認用URL: プレビューあり（URL は最終報告）。確認したページは 2025 決勝・2019 ベスト16 A卓・2026 の未対局の卓。この版で見える印: 卓のページの「出場者」の写真の左上の三角が無く、写真の下に「1位 優勝」「2位 敗退」などのピルがある。比較ページ `/saikyo_rank_compare.html` は 404
+- マージ: 未（平野さんの判断待ち）
+- issue: なし
+- 判断が必要なこと:
+  - プレビューのこの形（写真の下の順位つきのピル、三角なし）でマージしてよいか
+- 未確認の項目:
+  - iPhone の実機での見え方（headless Chromium の 390px で確かめた）
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj bd4bff47）: https://github.com/retroeater/mj-logs/tree/main/guide/bd4bff47
+ガイド文書（この版を写した時点の最新、mj dde77936）: https://github.com/retroeater/mj-logs/tree/main/guide/dde77936
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/bd4bff47/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/bd4bff47/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/bd4bff47/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/bd4bff47/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/bd4bff47/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/bd4bff47/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/dde77936/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/dde77936/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/dde77936/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/dde77936/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/dde77936/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/dde77936/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/98839f38.md
