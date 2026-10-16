@@ -41,6 +41,7 @@ GitHub Actions のワークフローの一覧・動き・手動実行と変更�
 
 - `scripts/sync_all_logs.py`（#298）: `origin/cloudflare` と未マージの `origin/work/**` のすべてについて、`sync-logs.yml` の「ログ・ガイド文書を写す・消す」と同じ手順で mj-logs の作業ツリーへ写す（commit・push はしない）。mj-logs 側の `sync-from-mj.yml` から呼ぶ
 - mj-logs の `.github/workflows/sync-from-mj.yml`（#298）: Worker `mj-scheduler` から mj に push があった直後（`pushed_at` が3分以内の毎分の回、`docs/notes/scheduler-worker.md`「動き」）と、手動実行・毎日03:41 JST の予約実行（保険）で起動し、mj を blobless でクローンして `scripts/sync_all_logs.py` と `scripts/actions_status.py --repo retroeater/mj` を動かし、mj-logs 自身へ push する（mj を読むのは mj-logs の Secret `MJ_READ_TOKEN`）。mj の Actions の分を使わない。2026-10-07 から写しはこれだけ（本番。`sync-logs.yml` は停止中）。push が拒否されたら origin/main に戻して写す・書き出すをやり直す（3回まで）
+- `scripts/actions_status.py` の GitHub API の呼び出し（`get()`）は、5xx・タイムアウト（接続の失敗を含む）を5秒・10秒あけて最大3回取り直す。4xx はすぐ失敗にする（CHAT-1016-ACF-24）
 
 ## regenerate-page.yml
 

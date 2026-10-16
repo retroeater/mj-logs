@@ -77,3 +77,4 @@ https://ryoei.pro/houou_race.html
 | 鳳凰戦 順位変動（2026-10-07）。**型の元** | 24秒・白地・操作デモ（第43期前期 B1） | `scripts/promo_video/houou_race/`、`docs/notes/houou-race.md`「告知動画」 |
 | 辞書（2026-10-11） | 25秒・白地・操作デモ（Gboard を押す）とカテゴリの語数 | `scripts/promo_video/dictionary/`（作り直しは同じフォルダの `README.md`） |
 | タイトル戦（2026-10-04） | 約20秒・黒地・数字の動き（大会・期・映像の数）から始まる別の形 | `scripts/promo_video/title/`、`docs/notes/title-pages.md`「告知動画」 |
+| 最強戦（2026-10-16） | 23秒・白地・操作デモ（選手名の検索 → 卓のページ → 「▶ 再生」に印 → 年度の切り替え）。公開前の作業ブランチのプレビューから撮った | `scripts/promo_video/saikyo/`（作り直しは同じフォルダの `README.md`） |
