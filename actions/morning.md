@@ -1,6 +1,6 @@
 # 朝の報告用の異常（retroeater/mj）
 
-- 書き出した時刻: 2026-10-16 09:39 JST（見た範囲: 2026-10-15 07:39 JST から）
+- 書き出した時刻: 2026-10-16 09:40 JST（見た範囲: 2026-10-15 07:40 JST から）
 - 書き出した実行の契機: workflow_dispatch（main）
 - 異常だけを書く。全体は actions/status.md。判定は mj の scripts/morning_report.py（各ワークフローの直近 100 回まで）
 
@@ -29,7 +29,7 @@
 
 ## 4. 初回成功
 
-- 2026-10-15 08:54 assets-check.yml success（push・work/1015-skd-top）それ以前の 0 件に success なし https://github.com/retroeater/mj/actions/runs/38656937351
+- 2026-10-15 09:05 assets-check.yml success（push・work/1015-hou）それ以前の 0 件に success なし https://github.com/retroeater/mj/actions/runs/38657987283
 - 2026-10-15 12:26 fetch-x-posts.yml success（workflow_dispatch・cloudflare）それ以前の 0 件に success なし https://github.com/retroeater/mj/actions/runs/38676252888
 - 2026-10-15 12:54 run-daily.yml success（workflow_dispatch・cloudflare）それ以前の 0 件に success なし https://github.com/retroeater/mj/actions/runs/38678691802
 - 2026-10-15 21:21 convert-x-posts.yml success（workflow_dispatch・cloudflare）それ以前の 0 件に success なし https://github.com/retroeater/mj/actions/runs/38734003614
