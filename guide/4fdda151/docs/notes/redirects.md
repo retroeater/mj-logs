@@ -11,9 +11,9 @@ ryoei.pro のすべての転送の一覧と、四半期ごとの棚卸しの手�
 |---|---|---|---|
 | www → apex（308、クエリを保つ） | Cloudflare の Redirect Rule「www to apex」 | `www.ryoei.pro` の全パス | #115、docs/notes/cloudflare.md「www→apexのRedirect Rule」 |
 | http → https | Always Use HTTPS | 全パス | docs/notes/cloudflare.md |
-| 末尾スラッシュを付ける 301 | `_redirects` | `/saikyo`・`/title`・`/live`・`/books`・`/houou`・`/wayhome`・`/mtsuku` と `/title/<大会>`（20行。`test_title_redirects.py` が検査） | #455 |
+| 末尾スラッシュを付ける 301 | `_redirects` | `/saikyo`・`/title`・`/live`・`/books`・`/houou`・`/wayhome`・`/mtsuku` と `/title/<大会>`（20行。`test_title_redirects.py` が検査）、`/saikyo/<年度>`（16行。`test_saikyo_redirects.py` が検査） | #455・#549 |
 | `/live` の URL 変更の 301 | `_redirects` の `# live: generated` 〜 `# live: end`（`scripts/generate_live_pages.py` が書く） | 2026-10-14 時点で `/live/teiou/3/b16.html`・`/live/teiou/4/b16.html` → 同じ期の `f.html` | docs/notes/live-page-design.md「3-4」。生成物なので行ごとに照らし合わせない。当面は消さない |
-| 内部の書き換え（200） | `_redirects` | 11行（`/`、各ディレクトリの `index.html`、`/title/:slug/` など） | docs/notes/cloudflare.md「配信設定」。転送ではないので棚卸ししない |
+| 内部の書き換え（200） | `_redirects` | 28行（`/`、各ディレクトリの `index.html`、`/saikyo/<年度>/`〈16行〉、`/title/:slug/` など） | docs/notes/cloudflare.md「配信設定」。転送ではないので棚卸ししない |
 
 ダッシュボードのルール: Redirect Rules は「www to apex」1本（Order 1、Active、308）。Bulk Redirects のリストは 0（0 out of 5）。Rules の Overview のほかの種類（URL Rewrite・Configuration・Origin・Request/Response Header Transform・Cache・Cache Response・Custom Error・Compression・Trace）はいずれも 0。Page Rules の欄は Overview に無かった。
 2026-10-14 平野さんの画面で確認（申告値）。セッションからは検証できない。
@@ -30,6 +30,22 @@ ryoei.pro のすべての転送の一覧と、四半期ごとの棚卸しの手�
 | `/video_mtsuku.html` | `/mtsuku/` | `_redirects` 301 | 2026-10-15 | #570 | 未（初回 2027-01 上旬） |
 | `/tanilog.html` | `/resource_logs.html?name=谷岡育夫` | `_redirects` 301 | 2026-09-07 | GitHub Pages からの移行 | 未（初回 2027-01 上旬） |
 | `/houou/ranking/` | `/houou/ranking/total/` | `_redirects` 301（クエリを引き継ぐ。`?division=` は下の「JS の移動」） | 2026-10-14 | #518・#540（通算得点を `total/` に移した開発中の入口） | 未（初回 2027-01 上旬） |
+| `/saikyo/2011.html` | `/saikyo/2011/` | `_redirects` 301 | #549 の公開の日 | #549 | 未（初回 2027-01 上旬） |
+| `/saikyo/2012.html` | `/saikyo/2012/` | `_redirects` 301 | #549 の公開の日 | #549 | 未（初回 2027-01 上旬） |
+| `/saikyo/2013.html` | `/saikyo/2013/` | `_redirects` 301 | #549 の公開の日 | #549 | 未（初回 2027-01 上旬） |
+| `/saikyo/2014.html` | `/saikyo/2014/` | `_redirects` 301 | #549 の公開の日 | #549 | 未（初回 2027-01 上旬） |
+| `/saikyo/2015.html` | `/saikyo/2015/` | `_redirects` 301 | #549 の公開の日 | #549 | 未（初回 2027-01 上旬） |
+| `/saikyo/2016.html` | `/saikyo/2016/` | `_redirects` 301 | #549 の公開の日 | #549 | 未（初回 2027-01 上旬） |
+| `/saikyo/2017.html` | `/saikyo/2017/` | `_redirects` 301 | #549 の公開の日 | #549 | 未（初回 2027-01 上旬） |
+| `/saikyo/2018.html` | `/saikyo/2018/` | `_redirects` 301 | #549 の公開の日 | #549 | 未（初回 2027-01 上旬） |
+| `/saikyo/2019.html` | `/saikyo/2019/` | `_redirects` 301 | #549 の公開の日 | #549 | 未（初回 2027-01 上旬） |
+| `/saikyo/2020.html` | `/saikyo/2020/` | `_redirects` 301 | #549 の公開の日 | #549 | 未（初回 2027-01 上旬） |
+| `/saikyo/2021.html` | `/saikyo/2021/` | `_redirects` 301 | #549 の公開の日 | #549 | 未（初回 2027-01 上旬） |
+| `/saikyo/2022.html` | `/saikyo/2022/` | `_redirects` 301 | #549 の公開の日 | #549 | 未（初回 2027-01 上旬） |
+| `/saikyo/2023.html` | `/saikyo/2023/` | `_redirects` 301 | #549 の公開の日 | #549 | 未（初回 2027-01 上旬） |
+| `/saikyo/2024.html` | `/saikyo/2024/` | `_redirects` 301 | #549 の公開の日 | #549 | 未（初回 2027-01 上旬） |
+| `/saikyo/2025.html` | `/saikyo/2025/` | `_redirects` 301 | #549 の公開の日 | #549 | 未（初回 2027-01 上旬） |
+| `/saikyo/2026.html` | `/saikyo/2026/` | `_redirects` 301 | #549 の公開の日 | #549 | 未（初回 2027-01 上旬） |
 
 `/jpml_titles.html` の行を消すときは `assets/title.js` の `?name=` の受け取りも消す（#485 の「終えるときの作業」）。
 
@@ -49,7 +65,7 @@ ryoei.pro のすべての転送の一覧と、四半期ごとの棚卸しの手�
 
 | 移動元 | 移動先 | 場所 | issue |
 |---|---|---|---|
-| `saikyo/` の年度ページの `#<卓のアンカー>`・`#match-…` | 新しい年度・対局・卓のページ | `assets/saikyo.js`（対応表は `#saikyo_anchor_map`、`generate_saikyo_pages.py` の `anchor_map_json()`） | #425 |
+| 旧年度ページ（`/saikyo/<年度>.html`、301 で `/saikyo/<年度>/` へ来る）の `#<卓のアンカー>`・`#match-…` | 対局・卓のページ | `assets/saikyo.js`（対応表は `#saikyo_anchor_map`、`generate_saikyo_pages.py` の `anchor_map_json()`） | #425 |
 | `houou/ranking/total/` の `?division=`（`/houou/ranking/?division=` は 301 で `total/` へ来る） | その部門のページ | `assets/houou.js` | #518 |
 | `houou/leagues/` | `houou/players/?view=league`（`?name=` を保つ） | `assets/houou.js`（2026-10-12） | #518 |
 
@@ -58,7 +74,7 @@ ryoei.pro のすべての転送の一覧と、四半期ごとの棚卸しの手�
 | 転送元 | 予定 | issue |
 |---|---|---|
 | 鳳凰戦の旧4ページ | `houou/` の各ページへの 301 | #540 |
-| 最強戦の年度ページ・`?match=` | 年度ページの 301 と、`?match=` の Single Redirect ルール（ダッシュボード。テストで拾えない） | #549 |
+| 最強戦の旧年度ページの `?match=` | `?match=` の Single Redirect ルール（ダッシュボード、#549 の公開の直後に平野さんが作る。テストで拾えない） | #549 |
 
 ## 棚卸しの手順（四半期ごと、1・4・7・10月の上旬）
 
