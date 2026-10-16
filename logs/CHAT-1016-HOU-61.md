@@ -51,20 +51,57 @@ HOU-60 の houou-promo-v2.mp4 への回答で、平野さんは動画を確定�
 - 0. 「指示」欄の末尾と指示文の最後の行（「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」）が一致することを確かめた。CHAT-1016-HOU-60 のログの状態は「判断待ち（送った動画 houou-promo-v2.mp4 を見て、確定か直すかを決める）」
 - Chat-Ref の重複なし（`git log --all --grep`）。work/1015-hou5 はリモートにある（f7e674caa、ローカルと同じ）
 - CHAT-1016-HOU-60 のログの状態に ` / 続き: CHAT-1016-HOU-61` を足した
+- 1. 着手の確かめ: #518・#542 の最後の着手中はマージのコメントで解除済み。#540 の最後の着手中は HOU-60（自セッション）で、この指示はその続き。他のセッションの着手中は無い。#540 に着手中のコメントを、コードに触る前に書いた。origin/cloudflare を merge で取り込んだ（衝突なし。入ったのは他の指示の docs/logs など）
+- 2. 直しと制作（b092d4b59）: `capture.mjs` の場面9から、ⓘ に押す印・押す・規定の1行を撮る所（1.0秒＋押す印0.7秒＋1.6秒）を外し、「期浮き率」に切り替えた後の1コマを v1 と同じ 1.6秒に戻した。README の版と撮り方の行を直した。`compose.py`（テロップ）は変えていない
+  - 撮り直した範囲: `capture.mjs` は一続きの撮り方のため、場面2〜10を通しで撮り直した（ページのコードは変えていない）。質問欄は HOU-60 で取った答え（`ask-answer.json`、2026-10-16 05:10:41 UTC に送ったもの。中身が同じことを `cmp` で確かめた）を撮る側で返し、本番の質問欄へは送っていない（撮った1回で送ったのは0回）
+  - リーグの再生のアイコンの座標（画面 390×664、358コマ）: 落ち始め (59, 248)、着地 (127, 286)→顔 (127, 287)、寄った後 (152, 654)、終わり (335, 157)。画面の外に出たのは寄る途中の1コマ（中心 (164, 665)、下の端から 1px 下）で v1・v2 と同じ
+  - 白いままのコマ: デモの部分（2.9〜50.1秒、1416コマ）の枠の中の YAVG は 193〜230、白一色（248 超）のコマは無し
+  - 決定を `docs/decisions/houou.md` に足した
+- 3. 確かめと送付:
+  - mp4: 53.6秒（53.633）・1080×1920・30fps・H.264 High yuv420p・AAC 48kHz 2ch・8.8MB。ラウドネス（ebur128）: I −15.9 LUFS・LRA 0.5 LU（loudnorm の入力 −15.27）
+  - 場面ごとの秒とテロップ（動画の秒。場面1〜8 は v2 と同じ）:
+
+  | 場面 | 秒 | 画面 | テロップ |
+  |---|---|---|---|
+  | 1 タイトル | 0〜2.5 | 白地に「鳳凰戦」「個人成績・ランキング・順位変動」 | なし |
+  | 2 トップ | 2.5〜5.5 | 質問欄 → 3項目に順に枠 | 鳳凰戦のデータをひとつに |
+  | 3 質問欄 | 5.5〜12.4 | 「第42期の鳳凰位は？」を打って送る → 答え → 白鳥翔のカードに枠 | 質問すると、データから答える |
+  | 4 選手を開く | 12.4〜14.5 | カードを押す → 個人成績（期別） | 答えから選手の成績へ |
+  | 5 期別 | 14.5〜19.0 | 名前の面 → 期のカードを送る → 戻す | 全期の成績を一覧で |
+  | 6 通算 | 19.0〜22.7 | 通算のタブ → グラフ | 通算得点の推移 |
+  | 7 リーグ | 22.7〜37.53 | ▶ → 落ちる → 登る（29.6 から3倍）→ 止める | リーグの昇降級を再生 |
+  | 8 部門別 | 37.53〜41.23 | 部門別のタブ → 9部門の値と順位 | ランキング9部門の順位 |
+  | 9 ランキング | 41.23〜47.13 | 通算の行 → 白鳥翔の行（11位 +1124.3、色付き）→ 上へ → 「期浮き率」に切り替える（ⓘ は押さない） | 歴代の記録を9部門で |
+  | 10 範囲 | 47.13〜50.13 | 期浮き率の表（規定の1行は閉じたまま）で止める | 第17期後期〜第43期前期・691名 |
+  | 11 締め | 50.13〜53.63 | 白地に ryoei.pro | なし |
+
+  - PNG で見たコマ（0・11.7・13.5・45.3・46.9・48.5・49.9・52秒）: 場面9の終わり（46.9秒）と場面10（48.5・49.9秒）は期浮き率の表で、見出しは「ⓘ 期浮き率」のまま、規定の1行（「出場10期以上の選手が対象です」）は開いていない。45.3秒は「期浮き率」のチップに押す印。テロップは v2 と同じ位置で、見せたい所を隠していない
+  - mp4 を `SendUserFile` で送った（`houou-promo-v3.mp4`）。作業フォルダは `/home/user/promo-houou/`（v2 は `v2/` へ移した）
+
 
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち（送った動画 houou-promo-v3.mp4 で確定してよいかを決める）
+- ブランチ: work/1015-hou5
+- ログ: https://github.com/retroeater/mj/blob/work/1015-hou5/docs/logs/CHAT-1016-HOU-61.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1015-hou5
+- 確認用URL: なし（見る物は送った mp4。53.6秒・1080×1920・30fps・I −15.9 LUFS。この版の印は場面9・10で規定の1行が開いていないこと）
+- マージ: 未（判断待ち。制作のスクリプトは動画の確定の後、公開〈#540〉の指示で入れる）
+- issue: #540（着手中のコメント）
+- 判断が必要なこと:
+  - houou-promo-v3.mp4 で確定してよいか（見る物は送った mp4）
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 371e0036）: https://github.com/retroeater/mj-logs/tree/main/guide/371e0036
+ガイド文書（この版を写した時点の最新、mj f03198fd）: https://github.com/retroeater/mj-logs/tree/main/guide/f03198fd
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/371e0036/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/371e0036/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/371e0036/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/371e0036/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/371e0036/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/371e0036/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f03198fd/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f03198fd/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f03198fd/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f03198fd/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f03198fd/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f03198fd/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/91b5dd30.md
