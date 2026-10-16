@@ -52,6 +52,18 @@
 - Chat-Ref の確認: 全ブランチのコミット・docs/logs の履歴に `NVB` なし。work/1016-nvb はローカル・リモートとも無く、origin/cloudflare（6a497a74f）から作成
 - 0章: 指示欄の末尾は「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」で、指示文の最後の行と一致
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- 手順1（前提）: `navbar.js` の WRC の見出しは `aria-expanded="false">JPML<br>WRC</a>`、白地のナビは `navLink.innerHTML = navLink.innerHTML.split('<br>')[0]`（白地は houou/ と `mj-saikyo-n-page` の付いたページ）。前提と一致
+- 手順1（未マージのブランチ）: `git branch -r --no-merged origin/cloudflare` は 1009-swp-526・1011-swp-hnd・1011-swp-nav・1015-skd-notes・1016-hou5・1016-nvb（自分）。
+  各ブランチの `git diff --name-only origin/cloudflare...<branch> -- navbar.js scripts/tests/test_navbar.py` はすべて空（1011-swp-nav の差分は docs/logs/CHAT-1011-SWP-14.md のみ）。重なり・衝突なし
+- 焼き込みの確認: `JPML<br>WRC` を含む HTML なし（`wrc_ranking.html` の一致はページ本体の `?sheet=JWRC` の選択肢）。全ページは `navbar.js` を読み込んで描画するので生成し直しは不要
+- 手順2: WRC の見出しに `data-short-label="WRC"` を付け、白地のナビは `navLink.dataset.shortLabel || navLink.innerHTML.split('<br>')[0]` を出す。
+  `scripts/tests/test_navbar.py` に `test_wrc_item_label`（黒地の見出しは `JPML<br>WRC` のまま・`data-short-label` は WRC の1件だけ・白地の式が短い表記を優先）を追加。
+  直す前のコードで実行して失敗（`FAILED (failures=1)`）を確認、直した後 `python3 -m unittest discover -s scripts/tests` は `Ran 1283 tests ... OK`
+- 手順3（ローカルの headless Chromium、`python3 -m http.server`、外部ドメインは遮断、375px・明）: 見出しの innerHTML を修正前（origin/cloudflare の navbar.js を差し込み）と修正後で比べた
+  - houou/（白地 `mj-nav-new`）: 前 `連盟,鳳凰戦,女流桜花,JPML,最強戦,番組,リソース,良栄` → 後 `連盟,鳳凰戦,女流桜花,WRC,最強戦,番組,リソース,良栄`（WRC 以外は同じ）
+  - jpml_pros.html（黒地 `navbar-dark bg-dark`）: 前後とも `連盟<br>JPML,…,JPML<br>WRC,…,良栄<br>Ryoei`（変化なし）
+  - 両ページでハンバーガーを開き WRC の見出しを押すと、ドロップダウンに「ランキング」「成績詳細」が出る。PNG 2枚を SendUserFile で送付
+- 成果物のコミット: cb078db55（`navbar.js`・`scripts/tests/test_navbar.py`・`docs/decisions/title.md`）。決定は title.md の末尾（#523 の節の後）に足した
 
 ## 報告
 
@@ -69,12 +81,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj b768fb1c）: https://github.com/retroeater/mj-logs/tree/main/guide/b768fb1c
+ガイド文書（この版を写した時点の最新、mj 0bead334）: https://github.com/retroeater/mj-logs/tree/main/guide/0bead334
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b768fb1c/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b768fb1c/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b768fb1c/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b768fb1c/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b768fb1c/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b768fb1c/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/0bead334/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/0bead334/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/0bead334/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/0bead334/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/0bead334/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/0bead334/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/6a497a74.md
