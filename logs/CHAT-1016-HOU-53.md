@@ -63,19 +63,44 @@ HOU-52 の本番の10問で、「通算得点の上位15人は？」に名前を
   - `ANSWER_SYSTEM` の HOU-52 の行を「選手を挙げるときは名前を書く。items の名前を結果の順のまますべて書き、others があれば「ほか N人」(N は others)と全体の人数(count)を添える。人数は自分で数えず、この指示の言葉は答えに書かない」に直した（行は増やしていない）
   - テスト（`ask.test.mjs`、3件を足し1件を直した）: 指示の文面、`answerInput` の 15人（10人＋others 5）・10人ちょうど（others なし）・4人（そのまま）・期の並び 23件（切らない）、「鳳凰位になった人は全部で何人？」の偽の fetch で2回目に上位10人と others が渡ること。`node --test 'workers/ask/test/*.test.mjs'` 30件 OK、`python3 -m unittest discover -s scripts/tests` OK
   - `docs/decisions/houou.md` に決定を足し、HOU-52 の「名前は10人まで」の行に置き換え（数え方）の印を付けた。`docs/notes/ask-worker.md` の流れの6の指示の段落を直した
+- 3. push の直前に再 fetch し `git merge-base --is-ancestor origin/cloudflare HEAD` が真。`git push origin work/1016-hou:cloudflare` で入れた（1447edda1..2ae48afbb）。2ae48afbb の check-run: Workers Builds: mj は success（00:39:26 UTC）、Workers Builds: mj-ask は success（00:42:42 UTC）
+  - 本番の質問欄で5問（本番のトップを幅 390px で開いて送った。撮った画面は `/home/user/ask-hou53/shots/`、使い捨て）。IP の残りは 9 → 5:
+    - 1. 00:43:59 UTC（09:43:59 JST）「通算得点の上位15人は？」→ answered「通算得点の上位15人は、1位HIRO柴田(2074.4)、2位佐々木寿人(1729.9)、3位勝又健志(1665.1)、4位前田直哉(1595.3)、5位内川幸太郎(1483.8)、6位藤島健二郎(1472.9)、7位三浦智博(1410.9)、8位山田浩之(1356.2)、9位阿久津翔太(1351.7)、10位福光聖雄(1315.8)の順です。ほか5人を含め、全15人が対象です。」（データ: 鳳凰戦リーグ 第43期前期終了時点、出典: 鳳凰戦 ランキング（通算得点））。カード 3行＋ほか 7名
+    - 2. 00:44:04 UTC（09:44:04 JST）「鳳凰位になった人は全部で何人？」→ answered「鳳凰位になった人は全部で23人です。主な顔ぶれは、島田昭、安藤満、ロッキー堀江、椎名大介、荒正義、伊藤優孝、土田浩翔、前原雄大、森谷健、原田正史などで、ほか13人です。」（データ: 決勝 第42期まで、出典: 鳳凰戦 歴代優勝者）。カード 2行
+    - 3. 00:44:08 UTC（09:44:08 JST）「通算得点の上位5人は？」→ answered「通算得点の上位5人は、1位HIRO柴田(2074.4)、2位佐々木寿人(1729.9)、3位勝又健志(1665.1)、4位前田直哉(1595.3)、5位内川幸太郎(1483.8)です。」（データ: 鳳凰戦リーグ 第43期前期終了時点、出典: 鳳凰戦 ランキング（通算得点））。カード 3行＋ほか 2名
+    - 4. 00:44:12 UTC（09:44:12 JST）「現在の鳳凰位は？」→ answered「検索結果からは現在の鳳凰位は特定できません。鳳凰位の経験者として、島田昭、安藤満、ロッキー堀江、椎名大介、荒正義、伊藤優孝、土田浩翔、前原雄大、森谷健、原田正史の順で挙がっており、ほか13人を含め全23人です。」（データ: 決勝 第42期まで、出典: 鳳凰戦 歴代優勝者）。カード 2行
+    - 5. 00:44:19 UTC（09:44:19 JST）「通算得点の上位30人は？」→ answered「通算得点の上位30人は、1位がHIRO柴田（2074.4）、2位が佐々木寿人（1729.9）、3位が勝又健志（1665.1）、4位が前田直哉（1595.3）、5位が内川幸太郎（1483.8）、6位が藤島健二郎（1472.9）、7位が三浦智博（1410.9）、8位が山田浩之（1356.2）、9位が阿久津翔太（1351.7）、10位が福光聖雄（1315.8）です。ほか20人を含めて30人が該当します。」（データ: 鳳凰戦リーグ 第43期前期終了時点、出典: 鳳凰戦 ランキング（通算得点））。カード 3行＋ほか 7名
+  - 良くなった点: 1「上位15人」は名前10人＋「ほか5人を含め、全15人」で数が合う（HOU-52 では12人書いて ほか5人と誤った）。2「全部で何人？」は「結果の順に上位10人を挙げると」が出なくなった（23人・10人の名前・ほか13人）。5「上位30人」も10人＋「ほか20人」・30人で正しい。3「上位5人」は前と同じ。カードの行と「ほか N名」は5問とも文の在籍の選手と一致
+  - 悪くなった点: 4「現在の鳳凰位は？」が「検索結果からは現在の鳳凰位は特定できません。…ほか13人を含め全23人です。」になった（HOU-49・HOU-52 では白鳥翔と正しく答えた）。原因: この問いは検索条件なしの `champions` で、`query.mjs` は歴代の鳳凰位を最初に獲った期の古い順に並べる。上位10人で切ると、最新の白鳥翔（23人目）が Claude に渡らない。前と同じ問いでの事実の誤り（「悪くなった」の目安）に当たる
+  - 戻し: 直しのコミット b8b439fae と、その説明の `docs/notes/ask-worker.md` の段落を戻すコミット ce1a18240 を作った（`workers/ask/`・`ask-worker.md` は 1447edda1 と同じに戻る）。`docs/decisions/houou.md` の HOU-53 の決定は平野さんの決定なので残した。テスト 28件 OK。cloudflare が他のセッションのマージで進んでいたので merge で取り込み（衝突なし、テスト 28件 OK・`scripts/tests` OK）、再 fetch・祖先の確かめの後に `git push origin work/1016-hou:cloudflare` で入れた（6e8459065..dbdd37c8e）
+  - 戻しの後の check-run: Workers Builds: mj は success（00:53:43 UTC）。**Workers Builds: mj-ask は 01:03 UTC まで（push から18分）走らなかった**（dbdd37c8e にも戻しのコミット ce1a18240 にも `mj-ask` の check-run が無い）。待つ上限の15分を過ぎたので「未確認の項目」に回した。本番の Worker は直しの版（2ae48afbb）のままの見込みで、「現在の鳳凰位は？」が答えられない状態が続く。5問の上限に達したので、本番で確かめる送信はしていない
+- #542 に、マージ・5問の結果・戻し・`mj-ask` が走っていないことのコメントを書き、着手中を解除した
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち（直しは本番の確かめで悪くなったので戻した。戻しの `mj-ask` のビルドが走っておらず、本番の Worker は直しの版のままの見込み）
+- ブランチ: work/1016-hou（マージ済み。削除は `delete-merged-branches.yml` に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1016-HOU-53.md
+- 比較URL: https://github.com/retroeater/mj/compare/1447edda1...dbdd37c8e
+- 確認用URL: なし（本番で確かめた）
+- マージ: 済（直し 1447edda1..2ae48afbb、戻し 6e8459065..dbdd37c8e。この報告の docs/logs のみの追いの push あり）
+- issue: #542（着手中と、結果・戻しのコメント）
+- 判断が必要なこと:
+  - 平野さんに頼みたいこと: Cloudflare のダッシュボード → Workers & Pages → `mj-ask` → Deployments（または Build history）で、cloudflare の最新（dbdd37c8e 以降）のビルドを走らせる。ビルドの画面に再実行のボタンが無ければ、次の `workers/ask/` の変更の push で走る。走るまで本番は「現在の鳳凰位は？」に答えられない
+  - `mj-ask` のビルドが戻しの push で走らなかった理由は、このセッションからは分からない（Build watch paths は `workers/ask/**` で、今回の push は `workers/ask/` を変えている。直しの push では走った）
+  - 直し方の案（次の指示で）: (a) `champions` だけは新しい期から並べ替えてから10人で切る、(b) 10人で切るときに最新の鳳凰位（最後の期の優勝者）を別の値として渡す、(c) `champions` は切らずに渡し、ほかの型だけ切る。(a) は答えの並び（古い順）が変わる、(c) は「全部で何人？」の指示の言葉の漏れが残る。(b) を推す
+- 未確認の項目: 戻しの後の本番の Worker の版（`mj-ask` のビルドが走った後に「現在の鳳凰位は？」で確かめる。1日の IP の上限に数える）
+- エラー: なし（`mj-ask` のビルドが走らなかったのは上のとおり）
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 2ae48afb）: https://github.com/retroeater/mj-logs/tree/main/guide/2ae48afb
+ガイド文書（この版を写した時点の最新、mj 4fdda151）: https://github.com/retroeater/mj-logs/tree/main/guide/4fdda151
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/2ae48afb/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/2ae48afb/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/2ae48afb/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/2ae48afb/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/2ae48afb/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/2ae48afb/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/82bde681.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/4fdda151/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/4fdda151/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/4fdda151/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/4fdda151/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/4fdda151/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/4fdda151/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/98839f38.md
