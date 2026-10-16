@@ -72,10 +72,10 @@ HOU-54 の PNG で、ランキングの表の見出しの ⓘ が部門名の字
 
 - 状態: 判断待ち（送った PNG で見出しの直しを見て、HOU-54・HOU-55・HOU-56 をまとめてマージの指示で入れる） / 続き: CHAT-1016-HOU-57
 - ブランチ: work/1016-hou2
-- ログ: https://github.com/retroeater/mj/blob/work/1016-hou2/docs/logs/CHAT-1016-HOU-56.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1016-HOU-56.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1016-hou2
 - 確認用URL: プレビューあり（URL は最終報告）。見るページ: 期浮き率・通算のランキングとトップ。この版で見える印: 表の見出しが「ⓘ 期浮き率」の順で、トップのランキングの説明が「通算・期最高など9部門」
-- マージ: 未（判断待ち）
+- マージ: 済（CHAT-1016-HOU-58 のマージ、0112228f3..aabdd8d5f）
 - issue: #518（着手中のコメント）
 - 判断が必要なこと:
   - ⓘ の置き場（部門名の左）・高さ・右そろえの見た目でよいか（縦の中心の差は 1px 未満、部門名と値の右端の差は 0px）
@@ -88,12 +88,12 @@ HOU-54 の PNG で、ランキングの表の見出しの ⓘ が部門名の字
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 0112228f）: https://github.com/retroeater/mj-logs/tree/main/guide/0112228f
+ガイド文書（この版を写した時点の最新、mj cde9da6f）: https://github.com/retroeater/mj-logs/tree/main/guide/cde9da6f
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/0112228f/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/0112228f/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/0112228f/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/0112228f/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/0112228f/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/0112228f/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/cde9da6f/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/cde9da6f/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/cde9da6f/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/cde9da6f/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/cde9da6f/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/cde9da6f/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/98839f38.md
