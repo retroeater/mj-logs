@@ -54,18 +54,95 @@ CHAT-1016-OGR-04 で共通の OGP 画像を白地・黒字にしたのに合わ�
 
 ## 経過
 
+### 着手前の確認
+
+- `CHAT-1016-OGR-05` のコミット: 無し（`OGR` は同じセッションの続き）
+- 作業ブランチ: ローカル・リモートとも `work/1016-ogr` はマージ済み。`git merge --ff-only origin/cloudflare`（→ 0bead3344）
+- 手順0: 「指示」欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は4行とも有る
+- 重なり: 未マージの `work/` 5本（1009-swp-526・1011-swp-hnd・1011-swp-nav・1015-skd-notes・1016-hou5）は、`generate_title_pages.py`・`generate_houou_pages.py`・`generate_saikyo_pages.py`・`build_ogp_image.py` を変えていない
+
+### 前提の確かめ
+
+- 今の画像の文字: 各ページの og:image:alt の文字で黒地の画像を作り直すと、title/ の21枚すべてがコミット済みの PNG と**一致**（`--check`）。文字は alt と同じ
+- 意匠の定数: title/ は `OGP_DESIGN`（"black"）と改称した大会の `OGP_DESIGN_BY_SLUG`（jwrc・jwrc-r が "black2"）。houou/ は `OG_IMAGE` に名前を直書き。saikyo/ は `OGP_DESIGN`（"black"）を**トップと年度の画像の両方**に使っていた
+- **saikyo/ の年度の画像16枚は使われている**: `year_ogp_path()` が、卓のページのヒーロー・カードの ABEMA の画像が読めないときの代わり（`data-fallback`）に使う。生成済みの卓のページ 643件が参照している（前提の「どのページも使わない」と違う）。消さずに残し、トップだけの定数 `TOP_OGP_DESIGN = "white"` を分けた（`OGP_DESIGN` を "white" にすると、643件の代わりの画像が `img/ogp.png` に変わり範囲を外れるため）
+
+### 作り方
+
+- `build_ogp_image.py` に `--footer <文字>` を足した: 最後の段を、上の段の大きさに関係なく固定の 48px（`FOOTER_SIZE`）・間隔 40px（`FOOTER_GAP`）で描く。区分名の長さで「ryoei.pro」の大きさが変わらないようにするため（`--scale` は1段目に対する比で、名前が長くて1段目が縮むと ryoei.pro も縮む）。
+  回帰の確かめ: 変更前後の `render()` の出力が、引数なし・2段（最強戦の年度・鳳凰戦）で同じ。houou/ の旧画像と共通画像 `index-white.png` の `--check` も「一致」（引数なしの `--check` は環境の字体の差で変更前から一致しない、docs/notes/static-generation.md の既知）
+- 区分名の大きさ: **名前ごとに幅に合わせ、上限 200px**。いちばん長い「女流プロ麻雀日本シリーズ」（12字）に合わせて全部を同じ大きさにすると約85px になり、3字の名前（鳳凰戦など）が小さすぎるため。上限 200px は共通画像の「ryoei.pro」（`--max-size 180`）と並べて大きすぎない値として試作で決めた（「鳳凰戦」「女流プロ麻雀日本シリーズ」の2枚を見た）
+- コマンド: `OGP_FONT=<NotoSansJP-Bold.otf> python3 scripts/build_ogp_image.py --text <区分名> --footer ryoei.pro --color '#212529' --bg '#ffffff' --max-size 200 --tracking -0.03 --out <名前>`（色・字体は OGR-04 の共通画像と同じ）
+- 名前: `-black`・`-black2` を `-white` に。title/ は `OGP_DESIGN = "white"`・`OGP_DESIGN_BY_SLUG = {}`（全部を作り直したので改称の別名は不要。仕組みは残す）。houou/ は title/ の `houou-white.png` を共用（同じ文字のため）。テスト `test_title_ogp.py` の期待値を新しい名前に直した
+
+### 作った画像（22枚）
+
+| 名前 | 文字（下に「ryoei.pro」） |
+|---|---|
+| `img/ogp/title/index-white.png` | タイトル戦 |
+| `img/ogp/title/gpmax-white.png` | 麻雀グランプリMAX |
+| `img/ogp/title/houou-white.png` | 鳳凰戦（houou/ も共用） |
+| `img/ogp/title/joryu-nihon-series-white.png` | 女流プロ麻雀日本シリーズ |
+| `img/ogp/title/judan-white.png` | 十段戦 |
+| `img/ogp/title/jwrc-r-white.png` | WRC-Rリーグ |
+| `img/ogp/title/jwrc-white.png` | WRCリーグ |
+| `img/ogp/title/kouryu-white.png` | 紅龍戦 |
+| `img/ogp/title/masters-white.png` | 麻雀マスターズ |
+| `img/ogp/title/nihon-series-white.png` | 麻雀日本シリーズ |
+| `img/ogp/title/oui-white.png` | 王位戦 |
+| `img/ogp/title/ouka-white.png` | 女流桜花 |
+| `img/ogp/title/ourai-white.png` | 桜蕾戦 |
+| `img/ogp/title/pro-queen-white.png` | プロクイーン |
+| `img/ogp/title/ranwa-white.png` | 鸞和戦 |
+| `img/ogp/title/shinjinou-white.png` | 新人王戦 |
+| `img/ogp/title/shouryu-white.png` | 昇龍戦 |
+| `img/ogp/title/tatsujin-white.png` | 達人戦 |
+| `img/ogp/title/teiou-white.png` | 小島武夫杯帝王戦 |
+| `img/ogp/title/wakajishi-white.png` | 若獅子戦 |
+| `img/ogp/title/wrc-white.png` | リーチ麻雀世界選手権 |
+| `img/ogp/saikyo/index-white.png` | 麻雀最強戦（橙色をやめて黒） |
+
+### 消した画像（23枚）と残した画像
+
+- 消した: `img/ogp/title/` の黒地21枚（`<slug>-black.png` 19枚・`jwrc-black2.png`・`jwrc-r-black2.png`。入口の `index-black.png` を含む）、`img/ogp/houou/index-black.png`、`img/ogp/saikyo/index-black.png`。
+  消す前の `git grep`（docs/logs・docs/decisions を除く）で参照が残っていたのは docs/notes（ogp.md・title-pages.md・houou-top.md・saikyo-page-design.md）だけで、手順3で新しい名前に直した
+- 残した（参照が残る）: `img/ogp/saikyo/2011-black.png`〜`2026-black.png` の16枚（卓のページ 643件の `data-fallback`）。旧 `img/ogp.png`・`img/ogp/site/index-white.png`・帰り道の画像は変えていない
+
+### 再生成と差分
+
+- `python3 scripts/regenerate.py title_pages houou_pages saikyo_pages`: 成功
+- テスト: `python3 -m unittest discover -s scripts/tests` OK（1283件）
+- 取り込み: push 前に `git merge origin/cloudflare`（docs/logs の1件だけ、衝突なし）
+- origin/cloudflare との差（docs/ を除く）: og:image の行だけが **398ページ**（title/ 384・houou/ 13・saikyo/index.html 1）で見込みと同じ。og:image:alt は変わらない。
+  ほかは画像の追加22・削除23、スクリプト4つ（`build_ogp_image.py`・3つの生成スクリプト）とテスト1つ。シートの変化による差分は無し
+
+### 記録
+
+- #581 に決定の5点をコメントした
+- docs/decisions/seo-bing.md に OGR-05 の節を足し、OGR-04 の2点目に置き換えの印を付けた。title.md（大会ページ・入口の画像の黒地・白字の2行）と houou.md（houou/ 専用の黒地の画像・見本 A の2行）に「→ 置き換え: 2026-10-16（CHAT-1016-OGR-05）」を付けた。
+  saikyo.md には最強戦のトップの画像の色の決定が無く（作り方は docs/notes/saikyo-page-design.md と CHAT-0916-SY-07 の経緯）、印は付けていない
+- docs/notes: ogp.md の規則の節と実例の行、title-pages.md・houou-top.md・saikyo-page-design.md・static-generation.md の名前・作り方を直した
+
+### プレビュー（575147009、Workers Builds: mj success）
+
+- 作った22枚とも、プレビューから取得した中身が手元のファイルと一致
+- 確かめ用のページ: `title/`（`index-white.png`・alt「タイトル戦」）、`title/houou/`（`houou-white.png`・「鳳凰戦」）、`houou/`（`houou-white.png`・「鳳凰戦」）、`saikyo/`（`saikyo/index-white.png`・「麻雀最強戦」）
+- og:image は本番の URL を指すため、プレビューのページを X・LINE に貼っても新しい画像は出ない（マージ前の本番には無い）。画像はプレビューの画像の URL で直接見る
+
 ## 報告
 
-- 状態:
-- ブランチ:
-- ログ:
-- 比較URL:
-- 確認用URL:
-- マージ:
-- issue:
+- 状態: 判断待ち
+- ブランチ: work/1016-ogr
+- ログ: https://github.com/retroeater/mj/blob/work/1016-ogr/docs/logs/CHAT-1016-OGR-05.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1016-ogr
+- 確認用URL: プレビューあり（URL は最終報告）。画像 `img/ogp/title/<slug>-white.png` 21枚・`img/ogp/saikyo/index-white.png`、ページ `title/`・`title/houou/`・`houou/`・`saikyo/`。この版の印: `houou/` の og:image が `…/img/ogp/title/houou-white.png`
+- マージ: 未（平野さんの判断待ち）
+- issue: #581（決定のコメント）
 - 判断が必要なこと:
-- 未確認の項目:
-- エラー:
+  - 22枚の見本（作った画像の一覧は `## 経過`「作った画像」）でマージしてよいか。区分名の大きさは「名前ごとに幅に合わせ、上限 200px」にした
+  - saikyo/ の年度の画像16枚（黒地）は、卓のページの画像が読めないときの代わりに使われているため残した。白地に作り直すか、代わりの画像を `img/ogp/saikyo/index-white.png` などに替えて消すかは、別に決める
+- 未確認の項目: X・LINE での見え方（マージ後）
+- エラー: なし
 
 <!-- guide-links -->
 ---
