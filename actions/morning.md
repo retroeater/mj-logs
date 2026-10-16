@@ -1,17 +1,17 @@
 # 朝の報告用の異常（retroeater/mj）
 
-- 書き出した時刻: 2026-10-17 04:02 JST（見た範囲: 2026-10-16 02:02 JST から）
-- 書き出した実行の契機: workflow_dispatch（main）
+- 書き出した時刻: 2026-10-17 06:43 JST（見た範囲: 2026-10-16 04:43 JST から）
+- 書き出した実行の契機: schedule（main）
 - 異常だけを書く。全体は actions/status.md。判定は mj の scripts/morning_report.py（各ワークフローの直近 100 回まで）
 
 ## 1. 失敗など（結論が success・skipped 以外。実行中を含む）
 
 - 2026-10-16 08:25 assets-check.yml failure（push・work/JBK） https://github.com/retroeater/mj/actions/runs/38823450448
-- 2026-10-17 04:00 run-daily.yml in_progress（workflow_dispatch・cloudflare） https://github.com/retroeater/mj/actions/runs/38951671873
 
 ## 2. 予約実行の未実行（予定から3時間以内は「遅れの可能性」。3時間を超えて始まった実行は「遅れて実行」）
 
 - 遅れて実行: 2026-10-16 11:40 fetch-youtube.yml success（workflow_dispatch・cloudflare）予定 2026-10-12 05:37 → 開始 2026-10-16 11:40（＋102:03） https://github.com/retroeater/mj/actions/runs/38841595184
+- 遅れの可能性: update-live-channel.yml 予定 2026-10-17 06:43 の後に schedule・workflow_dispatch（cloudflare）の実行なし https://github.com/retroeater/mj/actions/workflows/update-live-channel.yml
 
 ## 3. 所要時間の異常（直近20回の中央値の3倍以上、または10分以上。skipped は除く）
 
