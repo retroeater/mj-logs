@@ -111,15 +111,31 @@ sync-yotei.yml:
 - update-live-channel（`apply: false`）: run #96（38832959472、題「「連盟ch」の取り込み」）**success**、01:02:52Z 作成。job update は 01:06:26Z に始まった（run-daily の `live / update`・`live / yotei / sync` が 01:06:23Z に終わるまで待った。呼ばれる側のワークフロー全体の組 `update-live-channel` が、run-daily の中の実行と手動の実行を順に並べた）。`yotei / sync` success（env `APPLY: false`・`SCHEDULED: false`・`CALENDAR_APPLY: false`・`CALENDAR_MAX_DELETE: 30`。WFL-15 の作業ブランチの実行 #94 の job yotei と同じ値）、regenerate は skipped
 - 書く道筋で動いた本は無い: 作業ブランチに bot のコミットは無い。01:02Z 以降の issue のコメントは他セッションの #542 の1件だけで、bot の書き込みは無い
 
+### 手順3: 取り込みとマージ
+
+- `docs/decisions/automation.md` に「## 2026-10-16（CHAT-1016-WFL-20）」（再掲）を足した
+- `git merge --no-edit origin/cloudflare` で docs/decisions/automation.md が衝突した（同じ位置への追記どうし。cloudflare 側は他セッションの「## 2026-10-16（CHAT-1016-ACF-25）」）。両方を残し、ACF-25 の節の後に WFL-20 の節を置いて解いた（6e13c7f16）。解いた後の該当箇所:
+
+  > ## 2026-10-16（CHAT-1016-ACF-25）
+  > （ACF-25 の3項目）
+  > - 作業中の回答: なし
+  >
+  > ## 2026-10-16（CHAT-1016-WFL-20）
+  > これまでの決定の再掲（新しい決定は無い）。#564 の段③-3。
+  > （4項目）
+  > - 作業中の回答: なし
+
+- 取り込んだのは docs（chat-routines.md・chat-side-operations.md・github-actions.md の「チャット側」の1行・handover-archive-2026.md）とログだけ。`.github/` は変わっていない。取り込んだ後も古い名前の参照は残っていない（日付つきの記録を除く）。unittest OK
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 8529f02f）: https://github.com/retroeater/mj-logs/tree/main/guide/8529f02f
+ガイド文書（この版を写した時点の最新、mj 10ba2aac）: https://github.com/retroeater/mj-logs/tree/main/guide/10ba2aac
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/8529f02f/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/8529f02f/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/8529f02f/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8529f02f/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8529f02f/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8529f02f/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/10ba2aac/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/10ba2aac/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/10ba2aac/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/10ba2aac/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/10ba2aac/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/10ba2aac/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/98839f38.md

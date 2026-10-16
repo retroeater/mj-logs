@@ -1,22 +1,9 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-16 10:18 JST
+- 書き出した時刻: 2026-10-16 10:19 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
-
-## assets-check.yml
-
-- 名前: 公開対象を検査する
-- state: active
-
-| 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
-| --- | --- | --- | --- | --- | --- |
-| 2026-10-16 10:17 | push | cloudflare | success | #3718（38834306288） | 0分20秒 |
-| 2026-10-16 10:17 | push | work/1016-acf-notes | success | #3717（38834299311） | 0分22秒 |
-| 2026-10-16 10:12 | push | work/1015-skr-pub | success | #3716（38833842921） | 0分19秒 |
-| 2026-10-16 10:04 | push | work/1016-hou | success | #3715（38833161958） | 0分20秒 |
-| 2026-10-16 09:49 | push | cloudflare | success | #3714（38831721508） | 0分22秒 |
 
 ## check-assets.yml
 
@@ -25,8 +12,18 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-10-16 10:18 | push | work/1016-wfl-s8 | queued | #2（38834387180） |  |
+| 2026-10-16 10:18 | push | cloudflare | success | #3（38834406955） | 0分18秒 |
+| 2026-10-16 10:18 | push | work/1016-wfl-s8 | success | #2（38834387180） | 0分20秒 |
 | 2026-10-16 10:02 | push | work/1016-wfl-s8 | success | #1（38832950597） | 0分22秒 |
+
+## check-build-failure.yml
+
+- 名前: 本番ビルド失敗の検知
+- state: active
+
+| 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
+| --- | --- | --- | --- | --- | --- |
+| 2026-10-16 10:18 | check_run | cloudflare | skipped | #1（38834434679） | 0分04秒 |
 
 ## check-image-links.yml
 
@@ -70,6 +67,16 @@
 | 2026-10-14 12:32 | workflow_dispatch | work/1014-wfl-parts | success | #9（38506817102） | 0分27秒 |
 | 2026-10-12 14:19 | workflow_dispatch | work/1012-snm | success | #8（38207464466） | 0分27秒 |
 
+## cleanup-branches.yml
+
+- 名前: マージ済みブランチの片付け
+- state: active
+- schedule: `53 22 * * *`（UTC） → JST 07:53
+
+| 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
+| --- | --- | --- | --- | --- | --- |
+| 2026-10-16 10:18 | workflow_dispatch | cloudflare | success | #1（38834411797） | 0分20秒 |
+
 ## cleanup-logs.yml
 
 - 名前: 作業ログの片付け
@@ -93,20 +100,6 @@
 | --- | --- | --- | --- | --- | --- |
 | 2026-10-15 21:22 | workflow_dispatch | cloudflare | success | #2（38734109150） | 2分30秒 |
 | 2026-10-15 21:21 | workflow_dispatch | cloudflare | success | #1（38734003614） | 0分30秒 |
-
-## delete-merged-branches.yml
-
-- 名前: マージ済みの作業ブランチを削除する
-- state: active
-- schedule: `53 22 * * *`（UTC） → JST 07:53
-
-| 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
-| --- | --- | --- | --- | --- | --- |
-| 2026-10-16 09:49 | schedule | cloudflare | success | #37（38831711017） | 0分20秒 |
-| 2026-10-15 12:17 | workflow_dispatch | work/1015-wfl-s6 | success | #36（38675502217） | 0分19秒 |
-| 2026-10-15 09:58 | schedule | cloudflare | success | #35（38663072596） | 0分24秒 |
-| 2026-10-15 04:20 | workflow_dispatch | cloudflare | success | #34（38622911946） | 0分40秒 |
-| 2026-10-14 10:26 | schedule | cloudflare | success | #33（38495760735） | 0分22秒 |
 
 ## fetch-gsc.yml
 
@@ -152,19 +145,6 @@
 | 2026-10-15 15:47 | workflow_dispatch | cloudflare | success | #6（38694582217） | 0分19秒 |
 | 2026-10-15 15:47 | workflow_dispatch | cloudflare | success | #5（38694512057） | 0分21秒 |
 
-## notify-build-failure.yml
-
-- 名前: 本番ビルドの失敗の通知
-- state: active
-
-| 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
-| --- | --- | --- | --- | --- | --- |
-| 2026-10-16 10:16 | check_run | cloudflare | skipped | #230（38834203138） | 0分07秒 |
-| 2026-10-16 10:12 | check_run | cloudflare | skipped | #229（38833859404） | 0分01秒 |
-| 2026-10-16 10:09 | check_run | cloudflare | skipped | #228（38833585300） | 0分01秒 |
-| 2026-10-16 10:05 | check_run | cloudflare | skipped | #227（38833253638） | 0分01秒 |
-| 2026-10-16 10:02 | check_run | cloudflare | skipped | #226（38832886909） | 0分01秒 |
-
 ## regenerate-page.yml
 
 - 名前: ページの再生成
@@ -192,6 +172,13 @@
 | 2026-10-14 15:01 | workflow_dispatch | work/1014-wfl-s3 | success | #11（38519804715） | 1分20秒 |
 | 2026-10-14 09:33 | workflow_run | cloudflare | success | #10（38490860171） | 1分14秒 |
 
+## regenerate-sitemap.yml
+
+- 名前: サイトマップの lastmod の同期
+- state: active
+
+実行なし
+
 ## run-daily.yml
 
 - 名前: 毎朝の運行
@@ -203,19 +190,6 @@
 | 2026-10-16 04:00 | workflow_dispatch | cloudflare | success | #3（38790317281） | 14分24秒 |
 | 2026-10-15 14:37 | workflow_dispatch | work/1015-wfl-s7 | success | #2（38687819982） | 12分32秒 |
 | 2026-10-15 12:54 | workflow_dispatch | cloudflare | success | #1（38678691802） | 12分03秒 |
-
-## sitemap-lastmod.yml
-
-- 名前: サイトマップのlastmodを同期
-- state: active
-
-| 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
-| --- | --- | --- | --- | --- | --- |
-| 2026-10-16 09:49 | push | cloudflare | success | #126（38831721479） | 0分17秒 |
-| 2026-10-16 09:39 | push | cloudflare | success | #125（38830687652） | 0分18秒 |
-| 2026-10-16 08:45 | push | cloudflare | success | #124（38825509706） | 0分22秒 |
-| 2026-10-15 16:32 | push | cloudflare | success | #123（38699414393） | 0分19秒 |
-| 2026-10-15 15:21 | push | cloudflare | success | #122（38691909730） | 0分17秒 |
 
 ## sync-birthday-calendar.yml
 
@@ -233,7 +207,7 @@
 
 ## sync-dojo-calendar.yml
 
-- 名前: 道場部ゲストのカレンダー同期
+- 名前: 道場部ゲストのカレンダーの同期
 - state: active
 - schedule: `12 22 * * *`（UTC） → JST 07:12
 
@@ -258,9 +232,16 @@
 | 2026-10-07 17:49 | push | cloudflare | success | #1838（37596340574） | 0分29秒 |
 | 2026-10-07 17:47 | push | cloudflare | success | #1837（37596099511） | 0分59秒 |
 
+## sync-yotei.yml
+
+- 名前: 予定表の取り込み
+- state: active
+
+実行なし
+
 ## update-live-channel.yml
 
-- 名前: 「連盟ch」の毎日の取り込み
+- 名前: 「連盟ch」の取り込み
 - state: active
 - schedule: `43 21 * * *`（UTC） → JST 06:43
 
