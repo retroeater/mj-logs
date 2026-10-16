@@ -63,15 +63,45 @@ mj-logs の「mj の作業ログを写す」（sync-from-mj.yml）が、2026-10-
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+- 0章: ログの「指示」欄の末尾が指示文の最後の行と一致することを確かめた
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- Chat-Ref の重複: `git log --all --grep="CHAT-1016-ACF-24"` は 0 件。`work/1016-acf-retry` はローカル・リモートとも無く、`git checkout -b work/1016-acf-retry origin/cloudflare`（98839f385。指示文の前提の 1447edda より新しい）
+- 手順1: cloudflare の docs/logs を run 番号 38772059290・38556984009 で検索して当たりなし。「502」「Bad Gateway」「actions_status」で当たったログに同じ主題のもの（取り直し）は無い（CHAT-1005-RUN-10 の「check-run の取得で HTTP 502 が1回」は別の件）。mj の issue（更新順の100件）の題・本文にも同じ主題は無い。mj-logs の `logs/` は cloudflare の docs/logs の写しなので、同じ検索で足りるとした
+- 未マージの work/ ブランチ（`git branch -r --no-merged origin/cloudflare`）に `scripts/actions_status.py`・`scripts/morning_report.py` の変更は無い。cloudflare での直近の変更は 6309ec101
+- `scripts/morning_report.py` に `urllib`・`requests` の使用は無く、API を直接呼ばない（URL は表示用の定数だけ）。取り直しは `get()` だけで足りる
+- 手順3（テストを先に書いた）: `scripts/tests/test_actions_status.py` に `GetRetryTest` 5件（502→成功／502が3回で例外・呼び出し3回・待ち [5, 10]／404 は1回で例外／タイムアウト→成功／URLError→成功）。`urlopen` を差し替え、待ちは `sleep` 引数に `list.append` を渡して実際には待たない。標準エラーにパスが出てトークンが出ないことも確かめる。直す前のコードで5件とも落ちる（`FAILED (failures=5)`）ことを確かめた
+- 手順2: `scripts/actions_status.py`
+  - `RETRY_WAITS = (5, 10)` を足した
+  - `retryable(e)`: `HTTPError` は 500〜599 だけ真。ほかは `URLError`・`TimeoutError`（socket.timeout は同じもの）なら真
+  - `get(path, token, sleep=time.sleep)`: 最大3回呼ぶ。取り直すたびに「取り直し N回目の失敗（例外）: パス。W秒後に再び呼ぶ」を標準エラーへ。3回目の失敗と取り直さない例外はそのまま上げる
+- テスト: `python3 -m unittest discover -s scripts/tests` は 1245件 OK。test_actions_status.py・test_morning_report.py も OK。実 API に `get('/repos/retroeater/mj/actions/workflows?per_page=100')` を1回呼んで 21件が返ることも確かめた
+- 手順4: docs/notes/github-actions.md の sync-from-mj.yml の項目の直後に1行（5xx・タイムアウトは5秒・10秒あけて最大3回取り直す。4xx はすぐ失敗）。決定を docs/decisions/automation.md に足した
+- 差分は scripts/actions_status.py・scripts/tests/test_actions_status.py・docs/ だけ（成果物は 45d6811de）
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1016-acf-retry
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1016-ACF-24.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1016-acf-retry
+- 確認用URL: なし
+- マージ: 済（SHA は下の追記）
+- issue: なし
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj fa279104）: https://github.com/retroeater/mj-logs/tree/main/guide/fa279104
+ガイド文書（この版を写した時点の最新、mj 6e845906）: https://github.com/retroeater/mj-logs/tree/main/guide/6e845906
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/fa279104/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/fa279104/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/fa279104/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/fa279104/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/fa279104/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/fa279104/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6e845906/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6e845906/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6e845906/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6e845906/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6e845906/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6e845906/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/98839f38.md

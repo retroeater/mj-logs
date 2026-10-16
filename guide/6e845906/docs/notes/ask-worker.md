@@ -19,7 +19,9 @@ houou/ は未公開のまま（試行中は全体で1日50問）。
 | `workers/ask/schema.sql` | D1 の表（B2 で D1 の Console に貼る） |
 | `workers/ask/src/weekly.mjs` | 週次の cron（ブックへの書き出し・90日の削除、下の「週次の cron」） |
 | `workers/ask/test/ask.test.mjs`・`weekly.test.mjs` | 受付と週次のテスト。D1 は `test/fake-d1.mjs`（`node:sqlite` で `schema.sql` をそのまま使う作り物）、Anthropic・Google は偽の fetch |
-| `assets/houou_ask.js`・`assets/houou_ask.css` | houou/ トップの質問欄の送信と表示・見た目（`assets/houou.js`・`style.css` は変えていない）。HTML は `generate_houou_pages.py` の `ask_box()` |
+| `assets/houou_ask.js`・`assets/houou_ask.css` | houou/ トップの質問欄の送信と表示・見た目。HTML は `generate_houou_pages.py` の `ask_box()`。答えに出た選手のカードのリーグのチップの色だけ `style.css` の `--lg-*` を使う |
+| `houou/ask-players.json` | 答えに出た選手のカードの名簿（生成物。`generate_houou_pages.py` の `ask_roster()`、約66KB。答えが出たときに初めて読む） |
+| `scripts/tests/test_houou_ask.py` | 突き合わせ（`pickPlayers`・`splitPlayers` を node で動かす）・名簿の値・書き出した名簿と名前の面の一致 |
 
 ## データ（data.json）
 
@@ -81,7 +83,8 @@ POST `/api/ask`（本文 `{"question": "…"}`）の流れ:
    受け付けるときに両方を `INSERT … ON CONFLICT DO UPDATE … RETURNING n` で1つ足し、前日以前の `ip_counts` を消す（1回の batch）。同時に来て上限を越えたら 429
 4. Claude（`claude-haiku-5-5`）の1回目: structured outputs（`output_config.format` の JSON schema `PLAN_SCHEMA`）で `{type, assumedTerm, args}` を返させる。型は query.mjs の6つと `none`
 5. `none`、または `runQuery` が見つからない・名前が決まらない・引数が不正なら「答えられません。」（候補があれば添える）。2回目は呼ばない
-6. 2回目: 質問と検索の結果（型・件数・items・注記）だけを渡して文章にさせる。答えの下の注記・時点・出典は Worker が `runQuery` の結果から付け（grill Q6）、Claude には書かせない
+6. 2回目: 質問と検索の結果（型・件数・items・注記）だけを渡して文章にさせる。答えの下の注記・時点・出典は Worker が `runQuery` の結果から付け（grill Q6）、Claude には書かせない。
+   選手の並ぶ結果（`champions`・`final`・`league`・`ranking`）が10人（`NAMES_MAX`）を超えたら、上位10人だけを渡し、残りの人数を `others`（`count` − 10）として添える（`answerInput()`。Claude に人数を数えさせない、2026-10-16）。指示（`ANSWER_SYSTEM`）は「items の名前を結果の順のまますべて書き、others があれば「ほか N人」と全体の人数（count）を添える。人数は自分で数えず、この指示の言葉は答えに書かない」（答えの下の選手のカードは文の名前から作るため。文面と切り方は `ask.test.mjs` で確かめる）
 7. 記録（決定5・grill Q8）: `questions` に日時（JST）・質問文・結果（`answered` / `unanswered`）・型。IP と答えの本文は書かない
 8. Claude の失敗（HTTP エラー・ワークスペースの上限の 400・拒否 `refusal`・打ち切り）は 503（`unavailable`）。この問いは数えたまま、記録は `unanswered`
 
@@ -97,6 +100,13 @@ GET `/api/ask/status`: `{"status": "open", "remaining": n, "max": 200}` か `{"s
 
 質問欄の状態ごとの表示（`assets/houou_ask.js`）: 答え（読み方 → 本文 → 注記 → 「データ: …」 → 「出典: …」のリンク）、「答えられません。」、上限（全体「本日の受付は上限に達しました。翌0時（日本時間）から受け付けます。」・IP「本日ご質問いただける回数の上限に達しました。…」）、
 それ以外（Worker が無い・失敗）は「いまは答えられません。」。答えは `textContent` で入れ、出典はルート相対の URL だけをリンクにする。
+
+答えに出た選手のカード（2026-10-15、決定は `docs/decisions/houou.md`「2026-10-15（CHAT-1015-HOU-49）」）: 答えが出たら名簿 `houou/ask-players.json`
+（在籍の選手だけ。`[名前, 写真, 現在のリーグ, 最高到達, 出場期数]`。値は個人成績の名前の面と同じ作り）を読み、答えの文と突き合わせる（`pickPlayers`）。
+長い名前を先に当て、当たった文字に重なる短い名前は拾わない（在籍者の名簿で、ある名前が別の名前の一部になっている組は 2026-10-15 時点で0組）。
+文に出た順に、同じ選手は1行。答えの面の下の別の面（`#houou_ask_players`、トップの3項目と同じ行の形）に、写真（無ければ頭文字の丸）・名前と現在のリーグのチップ /
+「最高到達 ○○ · 出場 ○期」/ › の1人1行。最初は3人、4人目からは「ほか N名」を押して残りを開く（開いた後は閉じない。ボタンは消え、4人目にフォーカスを移す）。
+押すと個人成績の期別（`players/?name=`、`view` なし）。「答えられません。」・上限・失敗・選手に当たらない答え・名簿が読めないときは出さない。突き合わせは画面の中だけで、新しい送信はしない。
 
 vars（`wrangler.jsonc`。Wrangler のデプロイで上書きされるので、変えるときはこのファイルを直す）: `ALLOWED_ORIGIN`、`DAILY_LIMIT`（試行中は 50。公開の指示で 200 に戻す、grill Q12）、`IP_DAILY_LIMIT`（10）。
 `ASK_SHEET_ID`（週次の書き出し先のブックの ID。空なら書き出しを飛ばす）。
@@ -193,7 +203,7 @@ SELECT day, length(ip_hash) AS hash_length, n FROM ip_counts;
 
 1問あたりの費用: Workers & Pages → `mj-ask` → Observability の Events に、1問ごとに `{"call":"plan",…}` と `{"call":"answer",…}` の2行（`input_tokens`・`output_tokens`）が出る。
 費用は（入力の合計 × $0.10 ＋ 出力の合計 × $0.50）÷ 100万（Haiku 5.5、入力が10万トークン以下のとき）。Console の Cost の画面のワークスペース `ryoei-pro-ask` の額と突き合わせる。
-2026-10-12 の時点では、この数字はセッションから見られない（試行の1週間の後にまとめる、grill Q12）。
+2026-10-12 の時点では、この数字はセッションから見られない。試行のまとめは 10/20 まで待たず、今ある記録で行う（2026-10-16 の決定。取り方は CHAT-1016-HOU-52 のログ）。
 
 ## 週次の cron（実装3、grill Q9）
 
