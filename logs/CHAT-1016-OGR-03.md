@@ -55,28 +55,84 @@
 
 ## 経過
 
+### 着手前の確認
+
+- `CHAT-1016-OGR-03` のコミット: 無し（`OGR` は同じセッションの続き）
+- 作業ブランチ: ローカル・リモートとも `work/1016-ogr` はマージ済みで origin/cloudflare の祖先。`git merge --ff-only origin/cloudflare`（→ 4f9aee6cc）
+- 手順0: 「指示」欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は4行とも有る
+- 重なり（`git branch -r --no-merged origin/cloudflare`、着手時）: `page.py`・`generate_jpml_pros.py`・`apply_page_meta.py` を変えていたのは `work/1016-hou4` の `generate_jpml_pros.py` だけ。
+  鳳凰戦の欄のリンク先（`HOUOU_PLAYERS_URL`、`get_houou_seasons()`・`get_houou_highest_league()`）で、head（`PAGE_TEMPLATE`）とは別の行。止まらない。
+  作業中に hou4 が cloudflare に入った（下の「取り込み」）
+
+### 前提の確かめ
+
+- 既定の画像: `lib/page.py` の `PageMeta.og_image` の既定 `https://ryoei.pro/img/ogp.png`（width 1200・height 630・alt「ryoei.pro」）。前提どおり
+- og:locale を足す先: `HEAD_TEMPLATE`・`generate_jpml_pros.py` の `PAGE_TEMPLATE`・手書きのページ。前提どおり。
+  ただし **`apply_page_meta.py` は実行しない**（#517 のとおり、実行すると多くのページの description が古い文に戻る）。`build_meta()` の og:locale と画像の URL だけを直し（次に使うときに旧画像に戻さないため）、
+  手書きの8ページ（index・jpml_links・houou_ranking・houou_results・ouka_ranking・ouka_results・wrc_ranking・wrc_results）は og:site_name の次に og:locale を入れ、og:image の URL を置き換えた（ほかの行は変えていない）
+- `build_ogp_image.py`: `--text` の和文フォントは `~/.local/share/fonts/NotoSansJP-Bold.otf`（`OGP_FONT` で差し替え）。コンテナに無いため
+  notofonts/noto-cjk の `Sans/SubsetOTF/JP/NotoSansJP-Bold.otf` を scratchpad に取得した。このフォントで houou/ と saikyo/ のトップの画像を作り直すと、
+  コミット済みの PNG と**バイト単位で一致**した（`--check` で「一致」）。title/・houou/ と同じ字体であることを確かめた
+
+### 見本（2案）
+
+置き場所・名前は前提の案のまま `img/ogp/site/`（全ページ共通 = サイト全体の区分）。
+
+- A `img/ogp/site/index-black.png`（19,580 バイト）: `--text ryoei.pro --color '#ffffff' --bg '#000000' --max-size 400 --tracking -0.03`。title/・saikyo/ のトップと同じ指定で、幅いっぱい（1040px）
+- B `img/ogp/site/index-black-b.png`（15,356 バイト）: 同じで `--max-size 180`。余白を広くした形。LINE の中央の正方形の切り抜き（docs/notes/ogp.md、#353）では A は「oei.p」あたりしか残らず、B の方が多く残る（LINE には合わせない決まり〈#353〉なので参考）
+- 既定（`PageMeta.og_image`・jpml_pros・手書き）は A にした。B を選ぶなら、B を `index-black.png` の名前にせず（immutable のため、プレビュー以外で A の URL が使われる前でも混乱を避ける）、参照を `index-black-b.png` に替えて再生成し、使わない方のファイルを消す
+- og:image:width/height/alt は変えていない（1200×630・「ryoei.pro」）
+
+### 再生成と差分
+
+- `python3 scripts/regenerate.py all`（凍結中の books_pages を除く）で成功（失敗・飛ばし無し）。テスト `python3 -m unittest discover -s scripts/tests` OK（1280件）、`workers/ask/data.json` が変わったため `node --test 'workers/ask/test/*.test.mjs'` も OK
+- シートの変化による差分: 「プロ」シートから1名が外れ、鳳凰戦の JSON（houou_race/・houou/results/・houou/search.json 等）・辞書（dic/pros.json）・質問欄のデータ（workers/ask/data.json）と、
+  人数の入った description（691名→690名、1,099名→1,098名、1,870語→1,869語）・houou/ のランキングの行が変わった。JSON だけを別のコミット（9d39f3117）に分けた
+- **取り込み**: push 前に cloudflare に hou4（houou/ の公開）が入ったため `git merge origin/cloudflare`。衝突は生成物の `jpml_pros.html` だけで、
+  branch-operations.md のとおり cloudflare 側を採って（`checkout --theirs`）全ページを生成し直した。生成し直した後の jpml_pros.html の cloudflare との差は og:locale の追加と og:image の2行だけ（hou4 のリンク先の変更は残る）。
+  houou/ の JSON などシートの変化は cloudflare 側の自動の再生成で既に入っていたため、取り込み後の差分から消えた
+- 取り込み後の origin/cloudflare との差（docs/ を除く、HEAD d2c5a4969）:
+  - og:locale の追加: **2,352ページ**（公開の HTML 2,544 − books/ 191 − 404.html 1）。og:locale が無いのは books/ 191 と 404.html だけ
+  - og:image の置き換え: **187ページ**（ルート直下 22・live/ の一覧・大会・期 165）で見込みと同じ。width/height/alt は変化なし
+  - ほか: houou_leagues.html・resource_dictionary.html の description（シートの変化）、houou_race/ 13・houou_leagues_data.json・dic/pros.json（同）、新しい画像2つ、スクリプト3つ
+  - books/・404.html: 変化なし。sitemap: 変化なし（`<lastmod>` はマージ後の自動の再生成で出る）
+- ドキュメント: docs/notes/ogp.md に「ページの種類ごとの og:image・og:type の規則」の節を足し、「置き場所の決まり」の共通画像の記述を置き換えた。
+  static-generation.md・live-page-design.md・title-pages.md・saikyo-page-design.md の「共通の `img/ogp.png`」を新しい画像に置き換え、live-page-design.md の個別ページに og:type video.other（OGR-02 の分）を書いた
+- #581 に決定の6点をコメントした。#267 はこの指示では閉じていない
+
+### プレビュー（d2c5a4969、Workers Builds: mj success）
+
+- 見本 A・B とも 200・image/png、A は手元のファイルと一致
+- 確かめ用のページ（旧ページ `jpml_links.html`、live/ の一覧 `live/index.html`）: og:locale `ja_JP` と og:image `https://ryoei.pro/img/ogp/site/index-black.png` を返す
+- og:image は本番の絶対 URL（`https://ryoei.pro/...`）なので、プレビューのページを X・LINE に貼っても画像は出ない（本番にはまだ無い）。
+  **本番の画像の URL はマージ・デプロイの前に開かない**（404 が immutable で CDN に載る、docs/notes/ogp.md「デプロイ直後の CDN」）。この作業でも開いていない
+- プレビューの URL はターミナルの最終報告にだけ書く
+
 ## 報告
 
-- 状態:
-- ブランチ:
-- ログ:
-- 比較URL:
-- 確認用URL:
-- マージ:
-- issue:
+- 状態: 判断待ち
+- ブランチ: work/1016-ogr
+- ログ: https://github.com/retroeater/mj/blob/work/1016-ogr/docs/logs/CHAT-1016-OGR-03.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1016-ogr
+- 確認用URL: プレビューあり（URL は最終報告）。見本の画像 `img/ogp/site/index-black.png`（A、既定にした方）・`img/ogp/site/index-black-b.png`（B）、確かめ用のページ `jpml_links.html`（旧ページ）・`live/index.html`（live/ の一覧）。この版の印: 確かめ用のページの og:image が `…/img/ogp/site/index-black.png`
+- マージ: 未（平野さんの判断待ち）
+- issue: #581（決定のコメント）、#267（マージの指示で閉じる）
 - 判断が必要なこと:
-- 未確認の項目:
-- エラー:
+  - 見本 A（幅いっぱい）と B（余白を広く）のどちらにするか。A のまま承認ならそのままマージでき、B なら参照を替えて再生成する（`## 経過`「見本（2案）」）
+  - マージの承認（承認後、X と LINE で旧ページ・live/ の卓・最強戦の回のある卓の3つの URL を見る、(e)）
+  - (b-1) によれば live/ のトップ・タイトル戦・期も「動画の一覧」で最新話のサムネイルになるが、この指示では指示の見込みどおり共通の画像にした（LVP の B9 で入る予定、docs/decisions/live.md）
+- 未確認の項目: X・LINE での見え方（マージ後に平野さんが見る）
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 64ee77ff）: https://github.com/retroeater/mj-logs/tree/main/guide/64ee77ff
+ガイド文書（この版を写した時点の最新、mj 065b75e3）: https://github.com/retroeater/mj-logs/tree/main/guide/065b75e3
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/64ee77ff/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/64ee77ff/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/64ee77ff/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/64ee77ff/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/64ee77ff/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/64ee77ff/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/065b75e3/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/065b75e3/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/065b75e3/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/065b75e3/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/065b75e3/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/065b75e3/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/91b5dd30.md
