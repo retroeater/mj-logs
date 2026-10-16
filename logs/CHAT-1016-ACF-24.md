@@ -79,6 +79,8 @@ mj-logs の「mj の作業ログを写す」（sync-from-mj.yml）が、2026-10-
 - テスト: `python3 -m unittest discover -s scripts/tests` は 1245件 OK。test_actions_status.py・test_morning_report.py も OK。実 API に `get('/repos/retroeater/mj/actions/workflows?per_page=100')` を1回呼んで 21件が返ることも確かめた
 - 手順4: docs/notes/github-actions.md の sync-from-mj.yml の項目の直後に1行（5xx・タイムアウトは5秒・10秒あけて最大3回取り直す。4xx はすぐ失敗）。決定を docs/decisions/automation.md に足した
 - 差分は scripts/actions_status.py・scripts/tests/test_actions_status.py・docs/ だけ（成果物は 45d6811de）
+- マージ: push 直前に再 fetch し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真であることを確かめて `git push origin work/1016-acf-retry:cloudflare`（98839f385..6e8459065、2026-10-16T00:44:53Z）
+- 手順5: mj-logs の REST（`add_repo` で mj-logs をこのセッションに付けて読んだ）で、マージ後の最初の「mj の作業ログを写す」は #2490（run 38831291936、2026-10-16T00:45:26Z〜00:46:25Z）で **success**。この回の mj-logs のコミット 3453531ef の題は「sync: mj 6e845906」で、マージ後の mj（取り直しの入った actions_status.py）で動いたことを確かめた
 
 ## 報告
 
@@ -87,7 +89,7 @@ mj-logs の「mj の作業ログを写す」（sync-from-mj.yml）が、2026-10-
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1016-ACF-24.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1016-acf-retry
 - 確認用URL: なし
-- マージ: 済（SHA は下の追記）
+- マージ: 済（6e8459065。テスト 1245件 OK。マージ後の mj-logs「mj の作業ログを写す」#2490〈run 38831291936〉が success）
 - issue: なし
 - 判断が必要なこと: なし
 - 未確認の項目: なし
@@ -96,12 +98,12 @@ mj-logs の「mj の作業ログを写す」（sync-from-mj.yml）が、2026-10-
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 6e845906）: https://github.com/retroeater/mj-logs/tree/main/guide/6e845906
+ガイド文書（この版を写した時点の最新、mj e9019755）: https://github.com/retroeater/mj-logs/tree/main/guide/e9019755
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6e845906/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6e845906/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6e845906/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6e845906/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6e845906/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6e845906/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e9019755/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e9019755/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e9019755/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e9019755/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e9019755/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e9019755/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/98839f38.md

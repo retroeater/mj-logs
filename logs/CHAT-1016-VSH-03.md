@@ -40,28 +40,39 @@
 - 指示欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある
 - VSH-02 のログの状態に ` / 続き: CHAT-1016-VSH-03` を足した（cloudflare にあるログをこの作業ブランチで直した）
 
+### 確かめ
+
+- 旧タブ（生成と同じ `lib/sheets.py` で読む。gviz は無いタブ名に先頭のタブを返すため、`fetch_table()` のタブの有無の確かめ〈`_sheet_gids()`〉で見る）:
+  - `live.SPREADSHEET_ID` のブックの「帰り道」: `ValueError 「帰り道」シートがありません`。タブはリーグ・タイトル・タイトル戦・書籍・辞書
+  - ブック `1y8xBxGpIt…` の「Mつく」: `ValueError 「Mつく」シートがありません`。タブは対局・テスト・英語・ログ（`jpml_test`・`resource_logs`・`video_en` の読むタブは残っている）
+  - 新しいブック（`video_book.SPREADSHEET_ID`）: タブは Mつく・帰り道・女流勉強会。「帰り道」「Mつく」とも読めた
+- `git grep`（scripts・workers・.github・JS）: タブ名「帰り道」「Mつく」を読むのは `scripts/lib/wayhome.py`・`scripts/lib/mtsuku.py` の `SHEET_NAME` だけで、どちらも `SPREADSHEET_ID = video_book.SPREADSHEET_ID`。`check_wayhome.py` は `wayhome.SPREADSHEET_ID`・`SHEET_NAME` を使う。ほかの一致は見出し・題名の語（`WAYHOME_HEADING`・`SERIES_SHORT`・`TITLE_WORDS` など）で、シートを読まない
+- `python3 scripts/regenerate.py --check video_wayhome wayhome_episodes mtsuku mtsuku_episodes title_pages`: 「検査: 通りました」（rc 0、`::error` 0。警告は既知のもの〈jpml_pros に無い選手の写真なし〉）
+- #579 に結果をコメントしてクローズした（「状況:」ラベルは付いていなかった）
+- 決定を `docs/decisions/wayhome.md`・`mtsuku.md` に足した
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/VSH
-- ログ: https://github.com/retroeater/mj/blob/work/VSH/docs/logs/CHAT-1016-VSH-03.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1016-VSH-03.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/VSH
-- 確認用URL:
-- マージ:
-- issue: #579
-- 判断が必要なこと:
-- 未確認の項目:
-- エラー:
+- 確認用URL: なし
+- マージ: 済（ログ・決定のみ）
+- issue: #579（クローズ）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 6e845906）: https://github.com/retroeater/mj-logs/tree/main/guide/6e845906
+ガイド文書（この版を写した時点の最新、mj e9019755）: https://github.com/retroeater/mj-logs/tree/main/guide/e9019755
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6e845906/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6e845906/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6e845906/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6e845906/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6e845906/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6e845906/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e9019755/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e9019755/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e9019755/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e9019755/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e9019755/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e9019755/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/98839f38.md
