@@ -43,15 +43,40 @@ CHAT-1016-SKR-10〜14 で作った、最強戦の卓のページの「出場者�
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 着手前の確認
+
+- 指示欄の末尾は指示文の最後の行と一致。冒頭の数行は改行なしの1行で届いたので、そのまま写した。雛形の行はすべてある
+- `git log --all --grep=CHAT-1016-SKR-15` は0件。作業ブランチ: ローカルの `work/1016-skr-rank` は `origin/work/1016-skr-rank` と同じ（839b47bc3）
+- CHAT-1016-SKR-14 のログの状態に ` / 続き: CHAT-1016-SKR-15` を足した。SKR-14 の決定は `docs/decisions/saikyo.md` に記録済み
+- このセッションは SKR-05〜14 と同じセッション
+
+### 手順1 取り込みと差
+
+- `git merge origin/cloudflare`: 衝突なし。cloudflare 側に、別のセッションの #581（卓のページの og:image を ABEMA の回のサムネイルに、/live の動画1本のページの og:type）の変更（09894e354）と、その再生成で卓のページ・`sitemap-saikyo.xml` が変わっていた。触った関数は別（`table_og()` と `write_sub_pages()` の og の行。こちらは `build_player_html()`）で、生成物も行ごとに別の場所なので自動で合わさった
+- 取り込んだ後に `python3 scripts/regenerate.py saikyo_pages` で生成し直した。差は出なかった（自動で合わさった生成物が、取り込んだ後のスクリプトの出力と同じ）
+- テスト 全件 OK
+- origin/cloudflare との差:
+
+| 種類 | 件数・中身 |
+|---|---|
+| 卓のページ（三角 → 写真の上端の帯） | 633（三角・名前の結果のクラスを消し、帯を消して比べた残りは0件） |
+| `style.css`・`scripts/generate_saikyo_pages.py`・`scripts/tests/test_saikyo_pages.py` | SKR-11・SKR-14 の変更 |
+| 文書 | `docs/notes/saikyo-page-design.md`・`docs/decisions/saikyo.md` |
+| ログ | CHAT-1016-SKR-10・11・13・14・15 |
+| 比較ページ（`saikyo_rank_compare.html`・`saikyo_pill_compare.html`）と書き出し用のスクリプト | 残っていない |
+| saikyo/ 以外の生成物・`sitemap-saikyo.xml` | 差なし |
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 9901aa99）: https://github.com/retroeater/mj-logs/tree/main/guide/9901aa99
+ガイド文書（この版を写した時点の最新、mj 64ee77ff）: https://github.com/retroeater/mj-logs/tree/main/guide/64ee77ff
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9901aa99/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9901aa99/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9901aa99/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9901aa99/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9901aa99/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9901aa99/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/64ee77ff/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/64ee77ff/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/64ee77ff/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/64ee77ff/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/64ee77ff/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/64ee77ff/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/91b5dd30.md

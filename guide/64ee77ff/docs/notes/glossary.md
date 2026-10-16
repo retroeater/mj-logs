@@ -2,6 +2,7 @@
 
 チャット側の指示文・Claude Code の作業ログ・docs で使う語をここに揃える（2026-10-16 平野さんの決定）。
 **新しく書く文はこの語に従う。今ある docs・issue はその箇所を触るときに直す**（一括では置き換えない）。
+**Git・GitHub・開発の用語は原語（英語、またはそのカタカナ）のまま書く**（例: マージ・push・cron・dry run。平野さんがエンジニアのため、和語に言い換えない）。
 チャット側は docs/notes/chat-side-operations.md、Claude Code は CLAUDE.md からここを参照する。
 
 ## GitHub Actions・Worker
@@ -13,12 +14,14 @@
 | 実行 | — | ワークフローを1回動かしたもの。番号（`#3`）と ID で呼ぶ | run（`/actions/runs/<ID>`） |
 | スケジュール | 起動の表 | Worker `mj-scheduler` が毎分見て、決まった時刻にワークフローを起動するための表 | `workers/scheduler/schedule.json` の `rows` |
 | 定期実行 | 予約の起動・予約実行 | Worker がスケジュールの時刻に、入力 `scheduled` を真にして起動する実行。題の先頭に `[scheduled]` が付く | `workflow_dispatch` ＋ 入力 `scheduled: true` |
+| cron 実行 | 予約実行 | GitHub の `schedule`（cron）が本来の起動であるワークフロー（週次の check-meibo・check-saikyo-unregistered・cleanup-logs など）の実行。フォールバック実行ではないもの | `on.schedule`（cron）、契機 `schedule` |
 | フォールバック実行 | 保険の実行・保険の予約実行 | Worker からの定期実行が無かった日に備えて、GitHub の `schedule`（cron）で動く実行。その日の定期実行が成功済みなら何もせずに終わる | `on.schedule`（cron）、契機 `schedule` |
 | 手動実行 | — | 人（またはセッション）が画面・API から起動する実行 | `workflow_dispatch`（`scheduled` なし） |
 | 本実行 | 書く道筋 | スプレッドシート・カレンダー・issue・ブランチに書き込む動かし方 | 入力 `apply: true`・`dry_run: false` |
 | ドライラン | 書かない道筋 | 読んで結果を出すだけで、書き込まない動かし方 | 入力 `apply: false`・`dry_run: true` |
 
 - 「本実行」は書き込むかどうかの区別で、「本番」（`cloudflare` への反映）とは別の語
+- 「定期実行」は Worker からの起動に限る。GitHub の `schedule` で動く実行は、フォールバックなら「フォールバック実行」、本来の起動なら「cron 実行」
 - 毎朝の定期実行は `run-daily.yml`（毎朝の運行）が1回動き、その中で各ワークフローを呼ぶ（docs/notes/github-actions.md「run-daily.yml」）
 
 ## ブランチ・反映
@@ -26,11 +29,10 @@
 | 使う語 | 使わない語 | 意味 | 対応する英語・ファイル・入力 |
 |---|---|---|---|
 | 作業ブランチ | — | セッションごとに切る `work/<識別子>` のブランチ（CLAUDE.md「ブランチ運用」） | `work/<識別子>` |
-| マージ | — | 作業ブランチを `cloudflare` に入れること（`git push origin <作業ブランチ>:cloudflare`）。`cloudflare` に入ると本番反映される | merge（fast-forward の push） |
+| マージ | 取り込み（git の意味） | 作業ブランチを `cloudflare` へマージすること（`git push origin <作業ブランチ>:cloudflare`。`cloudflare` に入ると本番反映される）と、`origin/cloudflare` を作業ブランチにマージすること（`git merge origin/cloudflare`） | merge（fast-forward の push・`git merge`） |
 | 本番反映 | — | `cloudflare` への push を Cloudflare Workers Builds が検知して、サイト（ryoei.pro）や Worker をデプロイすること（docs/notes/cloudflare.md「本番反映（デプロイ）の仕組み」） | deploy、check-run「Workers Builds: mj」など |
-| 取り込み（git） | — | `origin/cloudflare` を作業ブランチに merge すること（`git merge origin/cloudflare`） | merge |
 
-- 「取り込み」は今の docs で、データを外から持ってくる意味（ワークフローの名前「「連盟ch」の取り込み」「予定表の取り込み」、「層1の取り込み」など）にも多く使われている。git の意味にだけ使うかは判断待ち（それまでは、git の意味で書くときは「`origin/cloudflare` の取り込み」と対象を添える）
+- 「取り込み」はデータを外から持ってくる意味（ワークフローの名前「「連盟ch」の取り込み」「予定表の取り込み」、「層1の取り込み」など）にだけ使う。git の意味では「マージ」と書く（例: 「`origin/cloudflare` を作業ブランチにマージする」）
 
 ## Google スプレッドシート
 
