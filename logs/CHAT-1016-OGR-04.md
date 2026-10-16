@@ -79,18 +79,50 @@ CHAT-1016-OGR-03 の判断待ち（共通画像の見本・マージの承認）
   - 画像 `img/ogp/site/index-white.png`、スクリプト3つ
   - books/・404.html・旧 `img/ogp.png`: 変化なし
 
+### マージと本番の確かめ
+
+- マージ: `git push origin work/1016-ogr:cloudflare`（065b75e35..b768fb1cb、直前に `merge-base --is-ancestor origin/cloudflare HEAD` が真）
+- #267: og:locale が入ったことと OGR-03 のログの「og:locale の追加: 2,352ページ」を引用してコメントし、閉じた（「状況:」ラベルは付いていなかった）。#581 に決定の3点をコメントした
+- 自動の再生成（767183c02）: sitemap-pages・saikyo・title・wayhome ほかの `<lastmod>` 741件を 2026-10-16 にしただけ（og:locale を足したページのファイルの変更日から出る。`update_sitemap_lastmod.py --from-git`）。ページの差分は無し。シートの変化（690名など）は本ブランチの生成物で既に入っていた
+- check-run: b768fb1cb の check・sync・regenerate・Workers Builds: mj・mj-ask は success。767183c02 の Workers Builds: mj は success、notify は skipped
+- 本番の HTML の og:image が新しい画像になったことを確かめてから（`jpml_links.html`、cf-cache-status: HIT でも新しい版）、画像を開いた:
+  `https://ryoei.pro/img/ogp/site/index-white.png?v=ogr04-<時刻>` → **200・image/png・18,431 バイト、手元のファイルと一致**
+  （途中の待ちで「まだ旧版」と判定していたのは、確かめの grep の文字列を `og/site/…` と誤っていたため。本番は最初の確かめの時点で新しかった可能性がある）
+- 3つの URL（`?v=ogr04-<時刻>`、3件とも 200）:
+
+`jpml_links.html`:
+
+```
+<meta property="og:locale" content="ja_JP">
+<meta property="og:image" content="https://ryoei.pro/img/ogp/site/index-white.png">
+```
+
+`live/gpmax/10/b16-a.html`:
+
+```
+<meta property="og:locale" content="ja_JP">
+<meta property="og:image" content="https://img.youtube.com/vi/oTObdvrRxuw/maxresdefault.jpg">
+```
+
+`saikyo/2019/20190223-s1-a.html`:
+
+```
+<meta property="og:locale" content="ja_JP">
+<meta property="og:image" content="https://image.p-c2-x.abema-tv.com/image/programs/68-38_s19_p1/thumb001.png?height=720&amp;quality=75&amp;width=1280">
+```
+
 ## 報告
 
-- 状態:
-- ブランチ:
-- ログ:
-- 比較URL:
-- 確認用URL:
-- マージ:
-- issue:
-- 判断が必要なこと:
-- 未確認の項目:
-- エラー:
+- 状態: 完了
+- ブランチ: work/1016-ogr
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1016-OGR-04.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1016-ogr
+- 確認用URL: 本番で確かめた。新しい画像 `img/ogp/site/index-white.png`（白地・黒字、背景 #ffffff・文字 #212529〈旧 `img/ogp.png` の画素から読み取った値〉、見本 B の大きさ）。この版の印: `jpml_links.html` の og:image が `…/img/ogp/site/index-white.png`
+- マージ: 済（b768fb1cb）
+- issue: #267（クローズ）、#581（決定のコメント）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
