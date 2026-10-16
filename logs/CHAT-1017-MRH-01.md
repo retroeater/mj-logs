@@ -54,18 +54,41 @@ Chat-Ref: CHAT-1017-MRH-01
 - 0. 指示欄の末尾は指示文の最後の行（「この行が指示文の最後の行です。」）と一致
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
 
+### 1. issue の確認
+
+- #564「GitHub Actions の整理（統合・共通化・改名・ダッシュボード）」open。WFL の系列で、指示の件と関係する。直近7日のコメントに「改名・sync-yotei 後の初回（10/17）」を確かめたものは無い（最後は 10/16 の WFL-22）→ 足す
+- #563「朝の報告（おはよう）の自動実行を検討する」open（状況: 保留）。OHA の系列で関係する。ただし 2026-10-15 の CHAT-1015-MRF-01 のコメント（https://github.com/retroeater/mj/issues/563#issuecomment-6182773448 ）が同じ趣旨（fetch-redirect-counts.yml について「ワークフローを足す前の予定時刻を数えている」疑い）で、返事はまだ無い → 手順1のとおり #563 には足さない。今回の fetch-youtube.yml の件は同じ疑いの2件目（下の確認のとおり事実は合っている）
+
+### 2. 事実の照合（mj の Actions・git）
+
+- run 38951671873: run-daily.yml #5、workflow_dispatch・cloudflare、success、2026-10-16T19:00:26Z〜19:16:25Z（JST 10/17 04:00:26〜04:16:25、15分59秒）。参照ワークフローに sync-yotei.yml・cleanup-branches.yml を含む → 一致
+- run 38823450448: assets-check.yml、push・work/JBK、failure、10/15 23:25Z（JST 10/16 08:25）→ 一致
+- run 38835926575: assets-check.yml、push・work/1016-hou2、success、10/16 01:35Z（JST 10:35）→ 一致
+- sync-yotei.yml 単独の実行: 0件（`uses:` で呼ばれるだけ）
+- update-live-channel.yml: 07:50 JST 時点で 10/17 の schedule の実行は無い（直近の schedule は run #95、10/16 08:53 JST）
+- run 38841595184: fetch-youtube.yml #1、workflow_dispatch・cloudflare、10/16 02:40Z（JST 11:40）→ 一致。fetch-youtube.yml は a3f6cdd75（2026-10-16 02:37 UTC）で追加。cron `37 20 * * 0`（月曜 05:37 JST）で、10/12（月）05:37 は追加前の予定 → 指示文の疑いと一致
+
+### 3. コメント
+
+- #564: https://github.com/retroeater/mj/issues/564#issuecomment-6226146781 （指示の事実・頼むことに、上の照合で分かった sync-yotei の実行0件と、07:50 時点の update-live-channel の状態を添えた）
+- #563: 足していない（上の理由）
+
+### 4. 決定の記録
+
+- 指示の「決定」はなし、作業中の平野さんの回答もなし → docs/decisions には足さない
+
 ## 報告
 
-- 状態:
-- ブランチ:
-- ログ:
-- 比較URL:
-- 確認用URL:
-- マージ:
-- issue:
-- 判断が必要なこと:
-- 未確認の項目:
-- エラー:
+- 状態: 完了
+- ブランチ: work/1017-mrh
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1017-MRH-01.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1017-mrh
+- 確認用URL: なし
+- マージ: 済（8b8490753、fast-forward。ログのみ）
+- issue: #564（コメント https://github.com/retroeater/mj/issues/564#issuecomment-6226146781 ）、#563（足していない。2026-10-15 の CHAT-1015-MRF-01 のコメントが同じ趣旨〈ワークフロー作成前の予定を数える疑い〉で返事待ちのため。今回の fetch-youtube.yml の件は同じ疑いの2件目として経過に記録）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
