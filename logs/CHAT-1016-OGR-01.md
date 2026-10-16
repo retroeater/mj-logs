@@ -47,6 +47,84 @@ ryoei.pro の各ページの OGP 画像（og:image）を横断的にレビュー
 
 ## 経過
 
+### 着手前の確認
+
+- 識別子 `OGR`: 全ブランチのコミット・`docs/logs/` の履歴とも該当なし。`CHAT-1016-OGR-01` のコミットも無し
+- 作業ブランチ: ローカル・リモートとも `work/1016-ogr` が無いため `git checkout -b work/1016-ogr origin/cloudflare`（着手時 HEAD 91b5dd304）
+- 手順0: このログの「指示」欄の末尾は指示文の最後の行（「不明な点があれば、…この行が指示文の最後の行です。」）と一致
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 4行とも有る
+
+### 手順1: 同じ目的の issue と未マージのブランチ
+
+検索 API（`/search/issues`）はセッションの制限で使えない（repository-scoped のみ）ため、`repos/retroeater/mj/issues?state=all`（579件）と
+`issues/comments`（2,376件）を全件取得し、題・本文・コメントを「OGP」「og:image」「サムネイル」「マインドアスリート」で手元で検索した。
+
+**同じ目的（現行サイトの og:image の横断レビュー）の open issue は無い。** 起票する。
+
+関連する issue（OGP 画像そのものを扱うもの）:
+
+| 番号 | 状態 | 題 |
+|---|---|---|
+| #12 | closed | OGPタグを追加する |
+| #78 | closed | OGP画像を作成して og:image を設定する |
+| #165 | open（保留） | 新サイトでOGP画像をページ別に出し分けるか検討する（選手個別ページが主） |
+| #232 | closed | 大会別ページのOGP画像を出し分ける（#165 から分割） |
+| #267 | open | og:locale を全ページに追加する |
+| #288 | closed | wayhome 個別ページの og:type を video.other にし og:video を併記する |
+| #329 | open（待ち） | 帰り道の各話に twitter:player を入れる（#288 第2段） |
+| #339 | closed | 「帰り道」一覧・個別ページのOGP画像を作る |
+| #340 | closed | 「帰り道」の新しい回に合わせてOGP画像を自動で生成する |
+| #343 | closed | 最強戦の年度ページごとにOGP画像を出し分ける |
+| #353 | closed | LINE のカードで横長の OGP 画像が正方形に切り抜かれ、中央しか見えない |
+| #429 | open（保留） | 書籍ページの公開（booklog からの切替）。本文 8 に「OGP は別途検討」（楽天の書影を使う決定、2026-09-22） |
+| #517 | open | scripts/apply_page_meta.py を消すか、生成スクリプトの説明文と揃えるか決める |
+| #540 | open | 鳳凰戦の新ページ houou/ を公開する（専用 OGP 画像 `img/ogp/houou/index-black.png`） |
+| #546 | closed | 最強戦の個別ページの OGP 画像を検討する |
+| #549 | closed | 最強戦の新しい年度・対局・卓のページを公開する（#425 の段2） |
+| #576 | open | 女流勉強会の一覧・各話（/study/）を公開する（og:image の確認を含む） |
+
+- 「マインドアスリート」: issue では #388（リソース「映画」の一覧の例）と #101（トップの portfolio の候補）に出るだけで、
+  OGP 画像に宣材写真を使う話は issue・コメント・docs のどこにも無い（docs も grep で該当なし）。本文の「関連」には書かず、論点の側に「控え」として書く
+- #267 は上の検索語に当たらない（og:locale の issue）。題は issue_read で確かめた
+
+未マージの `work/` ブランチ（`git branch -r --no-merged origin/cloudflare`、本ブランチを除く7本）で、`docs/logs` 以外の差分に `og:`・`ogp` を含むのは
+`work/1015-hou5` だけ。houou/ の告知動画の制作スクリプト（`scripts/promo_video/houou/`）が締めの画面に `img/ogp.png` を素材として借りるもので、
+ページの OGP は変えていない。OGP を変えているブランチは無し。
+
+### 手順2: 生成済み HTML の og:image（origin/cloudflare 91b5dd304）
+
+方法: 作業ツリー（= origin/cloudflare＋このログ）の `*.html` のうち公開対象（`.assetsignore` の `scripts`・`docs` 等を除く）2,544件の `<head>` の meta を読む
+（スクリプトは scratchpad、使い捨て）。**集められなかったページは無い**（og:image が無いのは 404.html だけ）。リダイレクト用の HTML は無かった。
+
+区分ごと（「noindex」は `robots` が noindex の件数。凍結は `regenerate.py` の `FROZEN_FROM_ALL = {"books_pages"}` で、books/ がこれ）:
+
+| 区分 | og:image | 場所 | ページ数 | noindex | og:type | 代表のページ |
+|---|---|---|---|---|---|---|
+| 共通画像 | `img/ogp.png`（1200×630、alt「ryoei.pro」） | ルート直下の旧ページ | 22 | 0 | website | index.html・jpml_pros.html・houou_results.html |
+| 共通画像 | 同上 | live/ の一覧・大会・期 | 165 | 165 | website | live/index.html・live/gpmax/10.html |
+| 共通画像【凍結】 | 同上 | books/ | 191 | 191 | website | books/9784046013460.html |
+| 区分ごとの画像（黒地・白字） | `img/ogp/title/<大会>-black.png` など21種＋`index-black.png` | title/ | 384 | 0 | website | title/index.html・title/gpmax/10.html |
+| 区分ごとの画像（黒地・白字） | `img/ogp/houou/index-black.png`（全ページ同じ1枚） | houou/ | 13 | 13 | website | houou/index.html |
+| 区分ごとの画像（黒地・白字） | `img/ogp/saikyo/index-black.png` | saikyo/ のトップ | 1 | 0 | website | saikyo/index.html |
+| 区分ごとの画像（合成） | `img/ogp/wayhome/index-20261011-2.jpg` | wayhome/ の一覧 | 1 | 0 | website | wayhome/index.html |
+| YouTube のサムネイル | `maxresdefault.jpg`（1280×720） | wayhome/ の各話 | 42 | 0 | video.other | wayhome/0OPca1Bl5xk.html |
+| YouTube のサムネイル | 同上（一覧は最新話） | mtsuku/ の一覧＋各話 | 62 | 0 | 各話 video.other 61・一覧 website 1 | mtsuku/index.html |
+| YouTube のサムネイル | 同上 | study/ の一覧＋各話 | 39 | 39 | 各話 video.other 38・一覧 website 1 | study/1QVc_wj9T-c.html |
+| YouTube のサムネイル | `hqdefault.jpg`（480×360） | study/ の各話 | 2 | 2 | video.other | study/631Orl1nAcY.html |
+| YouTube のサムネイル | `maxresdefault.jpg`（1280×720） | live/ の卓・対局 | 672 | 672 | website | live/gpmax/10/b16-a.html |
+| YouTube のサムネイル | `sddefault.jpg`（640×480） | live/ の卓・対局 | 71 | 71 | website | live/champions-league/29/f.html |
+| ABEMA の画像 | 作品「麻雀最強戦」の画像（全ページ同じ1枚、alt「麻雀最強戦（ABEMA）」） | saikyo/ の年度・対局・卓 | 878 | 0 | website | saikyo/2011/20110430.html |
+| og:image なし | — | 404.html | 1 | 1 | なし | 404.html |
+| 計 | | | 2,544 | 1,154 | | |
+
+- og:image のある 2,543ページはすべて og:title・og:description・og:image:width/height・og:image:alt・`twitter:card`（summary_large_image）を持つ
+- 区分に入らないもの: 404.html（og 系の meta が無い。noindex）
+- 気づいた点（論点の材料。判断はしない）:
+  - 動画1本のページの og:type が、wayhome・mtsuku・study は video.other、live/ の卓・対局は website と分かれている
+  - YouTube のサムネイルの大きさが maxresdefault・sddefault・hqdefault の3通り（maxres が無い動画の代わりと思われる。未確認）
+  - saikyo/ の年度・対局・卓（878）は ABEMA の作品の画像1枚で、ページごとの違いは出ない（#549 の決定 5 のとおり）。#343 の年度別の画像は今は使っていない
+  - ルート直下の旧ページ（houou_*.html など）と live/ の一覧は共通の `img/ogp.png`。title/・houou/・saikyo/ のトップは黒地・白字の区分画像
+
 ## 報告
 
 - 状態:
