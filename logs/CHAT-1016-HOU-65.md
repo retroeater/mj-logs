@@ -73,12 +73,12 @@ HOU-64 の公開で、退会者1名の分だけ houou/ のトップの在籍の�
 
 ## 報告
 
-- 状態: 判断待ち（v5 で投稿してよいか）
+- 状態: 判断待ち（v5 で投稿してよいか） / 続き: CHAT-1016-HOU-66
 - ブランチ: work/1016-hou5
 - ログ: https://github.com/retroeater/mj/blob/work/1016-hou5/docs/logs/CHAT-1016-HOU-65.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1016-hou5
 - 確認用URL: なし（見る物は送った mp4。56.6秒・1080×1920・30fps・I −15.9 LUFS。この版の印は場面10のテロップ「第17期後期〜第43期前期・690名」）
-- マージ: 未（コードは変えていないのでマージする成果物は無い。このブランチにあるのはログと docs/decisions の1節だけ）
+- マージ: 済（コードの変更は無し。このログと決定の1節は CHAT-1016-HOU-66 で cloudflare へマージした。SHA は CHAT-1016-HOU-66 のログ）
 - issue: なし
 - 判断が必要なこと:
   - houou-promo-v5.mp4 で投稿してよいか（見る物は送った mp4）。投稿文は HOU-63 の案B のまま
@@ -89,12 +89,12 @@ HOU-64 の公開で、退会者1名の分だけ houou/ のトップの在籍の�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj b768fb1c）: https://github.com/retroeater/mj-logs/tree/main/guide/b768fb1c
+ガイド文書（この版を写した時点の最新、mj 18c52275）: https://github.com/retroeater/mj-logs/tree/main/guide/18c52275
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b768fb1c/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b768fb1c/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b768fb1c/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b768fb1c/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b768fb1c/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b768fb1c/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/91b5dd30.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/18c52275/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/18c52275/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/18c52275/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/18c52275/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/18c52275/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/18c52275/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/18c52275.md

@@ -5,11 +5,28 @@ OGP 画像・og:title を作る／変えるときに読む。#339（「帰り道
 
 ## 置き場所の決まり
 
-- ページ別の OGP 画像は `img/ogp/<区分>/` 以下に置く。共通の `img/ogp.png` は現行サイトでは動かさない
+- ページ別の OGP 画像は `img/ogp/<区分>/` 以下に置く
   （本文は `docs/notes/static-generation.md`「メンテナンス用スクリプトの詳細」の `build_wayhome_ogp.py` の行と、
   `docs/notes/static-generation.md`「生成スクリプトの構成（lib/page.py）」）
-- `img/ogp.png` を `img/ogp/` へ移すかは、新サイト（#296）で判断する
+- 全ページ共通の画像（`PageMeta.og_image` の既定）は `img/ogp/site/index-white.png`（白地・黒字の「ryoei.pro」、余白を広くとる。告知動画の締めの画面のイメージ、#581）。
+  旧 `img/ogp.png`（白地、#78）は凍結中の books/ が指したまま残るので消さない
 - 現在の実例: `img/ogp/wayhome/index-<最新話の公開日>.jpg`（`docs/notes/video-wayhome.md`）、`img/ogp/saikyo/<年度>-<意匠>.png`（`docs/notes/saikyo-page-design.md`、#343）、`img/ogp/title/<slug>-black.png`（`docs/notes/title-pages.md`、#232）、`img/ogp/houou/index-black.png`（houou/ の全ページで1枚。`docs/notes/houou-top.md`「共通」、#540）
+
+## ページの種類ごとの og:image・og:type の規則
+
+2026-10-16 の決定（#581、docs/decisions/seo-bing.md の CHAT-1016-OGR-02・03）。凍結中の books/ と 404.html は対象外。
+
+| ページの種類 | og:image | og:type |
+|---|---|---|
+| 動画1本のページ（YouTube。帰り道・Mつく・女流勉強会の各話、live/ の卓・対局） | その動画のサムネイル（使える最大の画質: maxresdefault、無ければ sddefault、それも無ければ hqdefault。統一はしない） | video.other ＋ og:video（`lib.wayhome.embed_url()` の埋め込みの URL） |
+| 動画の一覧ページ（Mつく・女流勉強会の一覧など） | 最新話のサムネイル。許可を得て合成画像を作れるもの（帰り道の一覧、#340）は合成画像 | website |
+| 最強戦の卓（ABEMA） | ABEMA の回があればその回のサムネイル（ヒーローと同じ）、無ければ作品「麻雀最強戦」の画像 | website（ABEMA は埋め込みの URL を出していない） |
+| 最強戦の年度・対局 | 作品「麻雀最強戦」の画像 | website |
+| title/・houou/・saikyo/ のトップ | 区分ごとの黒地・白字の画像（`img/ogp/<区分>/`） | website |
+| ほかのページ | 共通の `img/ogp/site/index-white.png`。ページの種類ごとの画像は作らない | website |
+
+- 全ページに og:locale `ja_JP`（#267）。生成のページは `lib/page.py` の `HEAD_TEMPLATE` と `generate_jpml_pros.py`、手書きのページは head に直接書く
+- 規則は「埋め込みできる動画のページ（YouTube）は video.other ＋ og:video、それ以外は website」
 
 ## 中身を差し替える画像はファイル名を変える
 
