@@ -102,18 +102,50 @@
 
 食い違いは無し。
 
+### マージと本番の確かめ
+
+- マージ: `git push origin work/1016-ogr:cloudflare`（f03198fdf..9901aa994、直前に `merge-base --is-ancestor origin/cloudflare HEAD` が真）。成果物は 09894e354、ログ・決定は 9901aa994
+- 自動の再生成（regenerate-page.yml）: b303739e6「chore: regenerate live/ … saikyo/」は sitemap-saikyo.xml だけで、`<lastmod>` 2026-10-15 → 2026-10-16 の534件。
+  534件はすべて 09894e354 で変えた卓のページ（残りの72件は既に 2026-10-16）。`update_sitemap_lastmod.py --from-git` がファイルの変更日から出すもので、今回の変更で説明がつく。ほかの差分は無し
+- check-run: 9901aa994 の check・sync・regenerate は success、Workers Builds: mj は 9901aa994・b303739e6 とも success。b303739e6 の notify は skipped
+- 本番（Workers Builds の b303739e6 の完了後、2026-10-16 06:3x UTC。URL に `?v=ogr02-<時刻>`）。拡張子なしの URL は 404 になったため `.html` 付きで取得した（3件とも 200）:
+
+回のある卓 `saikyo/2019/20190223-s1-a.html`:
+
+```
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://image.p-c2-x.abema-tv.com/image/programs/68-38_s19_p1/thumb001.png?height=720&amp;quality=75&amp;width=1280">
+```
+
+回の無い卓 `saikyo/2019/20190901-s1-b.html`:
+
+```
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://image.p-c2-x.abema-tv.com/image/series/68-38/thumb.png?height=720&amp;quality=75&amp;version=1762941079&amp;width=1280">
+```
+
+live/ の卓（未公開）`live/gpmax/10/b16-a.html`:
+
+```
+<meta property="og:type" content="video.other">
+<meta property="og:image" content="https://img.youtube.com/vi/oTObdvrRxuw/maxresdefault.jpg">
+<meta property="og:video" content="https://www.youtube.com/embed/oTObdvrRxuw">
+```
+
+- Workers Builds の 9901aa994 の success の直後は本番がまだ旧版で、b303739e6 のビルドの完了後に新しい版になった。X・LINE での見え方は確かめていない（#581 の論点 (e) で扱う）
+
 ## 報告
 
-- 状態:
-- ブランチ:
-- ログ:
-- 比較URL:
-- 確認用URL:
-- マージ:
-- issue:
-- 判断が必要なこと:
-- 未確認の項目:
-- エラー:
+- 状態: 完了
+- ブランチ: work/1016-ogr
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1016-OGR-02.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1016-ogr
+- 確認用URL: 本番で確かめた（live/gpmax/10/b16-a.html の og:type が video.other、saikyo/2019/20190223-s1-a.html の og:image が `/image/programs/68-38_s19_p1/`）
+- マージ: 済（9901aa994。成果物は 09894e354）
+- issue: #581（決定のコメント）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
