@@ -54,17 +54,42 @@ MCK-15 の比較で、Places 込みの変換が使えると分かった。ただ
 
 ## 経過
 
+### 0. 着手前の確認
+
+- 「指示」欄の末尾は指示文の最後の行と一致。CHAT-1017-MCK-15 の `## 報告` の状態は「判断待ち」
+- Chat-Ref の重複: `CHAT-1017-MCK-16` のコミット 0件（`MCK` はこのセッションの MCK-01 で使ったもの）
+- 作業ブランチ: `work/1017-mck-367-all` はローカル・リモートとも無かったため `git checkout -b work/1017-mck-367-all origin/cloudflare`（起点 98ff33c91）
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 4行ともある
+- #367: Open。最後の着手中のコメントはこのセッションのもの（MCK-15）。着手中のコメントを残した: https://github.com/retroeater/mj/issues/367#issuecomment-6228752092
+- 未マージの work/ ブランチで `scripts/convert_x_posts.py` を変えているものは無い
+
+### 1. 「店名」を本文の名前に、「Places の店名」の列を足す（2396d1ea8）
+
+- 【2】の列は 23列: 「店名」の隣に「Places の店名」を足した（`名前・X URL・画像・日付・店名・Places の店名・メニュー・駅・カテゴリ・タグ・店URL・表示・投稿ID・判定・判定の理由・要確認・要確認の理由・店名の出どころ・place_id・駅の候補・カテゴリの新しい案・モデル・変換日時`）。行は列の名前から組み立てる形にし、列の番号の書き間違いが起きないようにした
+- 「店名」は Claude が本文から読んだ名前のまま。Places で店が見つかったら、その名前を「Places の店名」に入れる。店URL・place_id・駅は今までどおり Places から
+- 「店名の出どころ」: 「店名」が本文の名前なので、本文に店名があれば「本文」、無ければ空。本文に店名が無い行は Places で探さないので、「Places の店名」も空（要確認の理由「店名が本文に無い」）
+- 「比較」タブ: 末尾に「出力の Places の店名」「Places の店名」（一致）の2列を足し、店名の一致を本文の名前と Places の名前の両方で数える。今の「比較」タブの見出し（MCK-14 の23列）が新しい見出しの先頭と同じなら、本番で1行目を新しい見出しに書き直してから足す
+- `mode=all` の直し（全件を1回で動かすため）:
+  - 【2】へは 50行ごとに書く（途中で止まっても、それまでの分が残る。同じ投稿 ID は重ねない）
+  - Places の失敗（権限の拒否・割り当ての超過など）と呼び出しの上限は、それ以上どの API も呼ばずに止める（これまでは Places だけ飛ばして Claude を続けていた）。止めたときの説明に、Places の応答の `status` と `message` の要点を出す
+  - 予定の費用は MCK-15 の比較の1件あたり（Sonnet $0.00316）× 件数で出す（実行の中の上限 $3 の判定は今までどおり、次の呼び出しの最大の見込みで行う）
+  - 結果の集計を出す: 判定ごと・要確認と理由ごと・Places で店が見つかった件数・圏内に駅が無い・本文の駅が圏内に無い・カテゴリ（既存の値だけの行・新しい案の種類と件数）・人ごと・Places の呼び出し（Text Search・Nearby Search 別）。本文・店名・メニュー・カテゴリの値は出さない
+- `convert-x-posts.yml`: ジョブの時間の上限を 30分 → 120分（Sonnet で1件2〜3秒、809件で40分ほどの見込み）
+- docs/notes/github-actions.md の convert-x-posts.yml の行に、止まる条件と 50行ごとの書き込みを足した
+- テスト: 「店名」は本文の名前・「Places の店名」は Places の名前・本文に店名が無いとき（探さず、店名・Places の店名・出どころ・店URL は空）・列の数と順（23列、投稿ID は13列目）・Places の失敗と上限で止まる・「比較」の見出しに列を足す・50行ごとに書き見出しは1回だけ・止まってもそれまでの分を書き残りを出す・予定の費用（809件で約 $2.56）・集計に本文と店名を出さない。直す前のコードでは通らない（列が無い・止まらない）。`python3 -m unittest discover -s scripts/tests`: 1309件 OK
+- ワークフローを変えたので、マージ前に作業ブランチで dry-run（run 38997031574、2396d1ea8、success）: 【1】809行（見出し 同じ）、【2】は空（本番で見出しを書く）、ブックのタブ 4個。予定: 809件・Claude 809回・見込み 約 $2.56（上限 $3）・Places 最大 1,618回（上限 2,000回）・50行ごとに書く
+
 ## 報告
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 98ff33c9）: https://github.com/retroeater/mj-logs/tree/main/guide/98ff33c9
+ガイド文書（この版を写した時点の最新、mj c52dc764）: https://github.com/retroeater/mj-logs/tree/main/guide/c52dc764
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/98ff33c9/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/98ff33c9/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/98ff33c9/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/98ff33c9/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/98ff33c9/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/98ff33c9/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/e61b4b99.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c52dc764/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c52dc764/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c52dc764/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c52dc764/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c52dc764/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c52dc764/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/c52dc764.md
