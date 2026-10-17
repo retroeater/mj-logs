@@ -180,15 +180,61 @@
   - C を押すと `?term=42-2&league=C1`・「第42期後期 C1」
 - プレビューの `assets/houou.js` は段3 の版だった（`termShort(ki, half)`）
 
+### 4. マージと本番
+
+- origin/cloudflare を取り込んだ。新しいコミットは docs/logs・docs だけで、`work/1017-amp` ほかのコードの変更は無かったので、生成の比べとテストはやり直していない
+- 83b45e415 を `git push origin work/1017-hou:cloudflare` でマージした（直前に再 fetch し、`merge-base --is-ancestor` を確かめた）
+- `regenerate-page.yml` は success だった。生成物の変更が無く、regenerate のコミットは出なかった
+- Workers Builds: `mj`・`mj-ask` とも 83b45e415 で success
+- 本番の `assets/houou.js` は段3 の版だった
+- 本番の白鳥翔・佐々木寿人の画面（期別・通算・リーグのタブの吹き出し・部門別、トップ・ランキング・順位変動を含む）は、プレビューの文字とすべて同じだった。ページのエラーは 0
+
+**固定の5問（本番の質問欄、2026-10-17 UTC）**:
+
+| 時刻 | 問い | 答え | 期待との比べ |
+|---|---|---|---|
+| 12:34:14 | 現在の鳳凰位は？ | 現在の鳳凰位は白鳥翔さんです(23期、第41期・第42期)。直近の鳳凰位として、第42期の保持者は白鳥翔さんとなっています。 | 期待どおり（聞いていない人数・「ほか N人」は付かない） |
+| 12:34:18 | 第1期から第10期の鳳凰位は？ | 6人。島田昭（1期・4期）、安藤満（2期・5期・6期・10期）、ロッキー堀江（3期）、椎名大介（7期）、荒正義（8期）、伊藤優孝（9期） | 期待どおり（6人、古い期の順、事実は前と同じ） |
+| 12:34:22 | 鳳凰位になった人は全部で何人？ | 23人。白鳥翔、佐々木寿人、HIRO柴田、藤崎智、吉田直、前原雄大、勝又健志、前田直哉、瀬戸熊直樹、荒正義、ほか13人 | 期待どおり |
+| 12:34:25 | 通算得点の上位15人は？ | 1位 HIRO柴田（2074.4）〜10位 福光聖雄（1315.8）、ほか5人を含め全15人。出典「鳳凰戦 ランキング（通算）」 | 期待どおり |
+| 12:34:28 | 白鳥翔の第40期の成績は？ | A2リーグで1位、総合ポイント278.8で昇級 | 期待どおり（期は「第40期」、人数は付かない） |
+
+- issue へのコメント:
+  - #582: 旧ページのつなぎ（`generate_houou_race.legacy_half()`・`generate_houou_leagues.legacy_load()`）が後始末の対象に加わったこと（https://github.com/retroeater/mj/issues/582#issuecomment-6233937245）
+  - #541: 段3 の完了、通期のリーグを「-」で入れること、つなぎは #582 で消すこと（https://github.com/retroeater/mj/issues/541#issuecomment-6233937900）
+- #541 をクローズした。「状況:」ラベルは付いていなかった
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1017-hou
+- ログ: https://github.com/retroeater/mj/blob/work/1017-hou/docs/logs/CHAT-1017-HOU-71.md
+- 比較URL: https://github.com/retroeater/mj/compare/f279caf6a...83b45e415
+- 確認用URL: なし
+- マージ: 済み（83b45e415。regenerate-page.yml は success、Workers Builds の mj・mj-ask は success）
+- issue: #541（クローズ済み）、#582（つなぎの2つの関数をコメントで足した）
+- 判断が必要なこと:
+  - 手順2 で残した、リーグ名で通期を決める所:
+    - `assets/houou.js` の `upcomingTerm()` と `generate_houou_pages.upcoming_last()`。進行中の期の `houou_upcoming` は選手ごとにリーグだけを持ち、通期の印が無いため
+    - 残す理由: 形を変えると生成物が変わるが、段3 は生成物を変えない
+    - 通期の印を持たせるなら、生成物を変える別の指示が要る
+  - `lib/pro_stats.py`（jpml_pros）は、通期のリーグの「後」で止めず、今までどおり合わない値を前後の値のまま読む
+    - 理由: 「鳳凰」の検査は houou/ の生成が受け持ち、そちらは止まる
+  - work/OUK（未マージ、判断待ち）の扱い:
+    - HOU-70 より前に分かれていて、`generate_houou_race.py`・`lib/results.py`・`query.mjs` の同じ関数（`build_periods()`・`pick_default()`・`league()` ほか）を変えている
+    - この作業の取り込みでは衝突しない。work/OUK をマージするときに衝突が出るかは、OUK 側の取り込みで確かめる必要がある
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 83b45e41）: https://github.com/retroeater/mj-logs/tree/main/guide/83b45e41
+ガイド文書（この版を写した時点の最新、mj a9cd733c）: https://github.com/retroeater/mj-logs/tree/main/guide/a9cd733c
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/83b45e41/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/83b45e41/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/83b45e41/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/83b45e41/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/83b45e41/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/83b45e41/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a9cd733c/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a9cd733c/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a9cd733c/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a9cd733c/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a9cd733c/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a9cd733c/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/42c384b5.md
