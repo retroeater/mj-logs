@@ -90,17 +90,57 @@ MCK-15 の比較で、Places 込みの変換が使えると分かった。ただ
 - dry-run（run 38997159868、c52dc7646、success）: 鍵 X 有・Claude 有・Places 有。【1】809行（見出し 同じ）、【2】は空。予定: 809件・Claude 809回・見込み 約 $2.56（上限 $3）・Places 最大 1,618回（上限 2,000回）。止まる条件に当たらない
 - 本番: run 38997199612（cloudflare の 37bcb2687。c52dc7646 を含む）を起動した
 
+- 本番（run 38997199612、success、2026-10-17 03:01〜03:30 UTC、約29分）: エラーなし（認証の失敗・クレジット切れ・レート制限・権限の拒否・割り当ての超過なし。費用・呼び出しの上限にも届いていない）
+
+### 3. 結果の集計（本文・店名・メニュー・カテゴリの値は書かない）
+
+| 見る値 | 件数 |
+|---|---:|
+| 【2】に足した行 | **809**（【1】809行の全件。残り 0） |
+| 判定 | 飲食店 531・飲食店以外 197・不明 81 |
+| 要確認 | **139行** |
+| 要確認の理由（1行に複数あり） | 判定が不明 81・本文の駅が圏内に無い 47・店名が本文に無い 15・圏内に駅が無い 6・店が見つからない 2 |
+| Places で店が見つかった | 514行（飲食店 531行のうち、店名が本文に無い 15行・店が見つからない 2行を除いた全部） |
+| 圏内に駅が無い・本文の駅が圏内に無い | 6行・47行 |
+| カテゴリ | 入った 530行。そのうち既存の値だけ 353行。新しい案 64種類・226件 |
+| 人ごと | 谷岡育夫 642・平野良栄 167 |
+| Claude API | 809回、$2.5346（使用量から計算。上限 $3） |
+| Places API | 932回: Text Search 476・Nearby Search 456（同じ問い合わせは使い回したので、店が見つかった行の数より少ない。どちらも1日の割り当て 1,000回の中） |
+
+- 「表示」は全行 `N`。【1】・【3】・「ログ」タブには書いていない
+- 判定が「飲食店以外」の 197行は要確認にしていない（決定どおり、要確認は「不明」・駅の例外・店が見つからない行）
+
+### 4. 記録
+
+- #367 に結果をコメント: https://github.com/retroeater/mj/issues/367#issuecomment-6229072854（本文は変えていない）
+- CHAT-1017-MCK-15 のログの `## 報告` の状態の末尾に ` / 続き: CHAT-1017-MCK-16` を足した
+- 決定を docs/decisions/operations.md に足した
+
 ## 報告
+- 状態: 判断待ち（【2】の店名の形を直してマージし、【1】の全件 809行を【2】に変換した。要確認 139行の確認と、次の指示は平野さん）
+- ブランチ: work/1017-mck-367-all
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1017-MCK-16.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1017-mck-367-all
+- 確認用URL: なし
+- マージ: 済（c52dc7646。直前に origin/cloudflare を merge で取り込み。この報告は後の docs/logs・docs/decisions のみの追いの push）
+- issue: #367（着手中のコメントと結果のコメント）
+- 判断が必要なこと:
+  - 要確認の行の見方: 【2】自動変換後で「要確認」の列を `Y` で絞る（139行）。理由は「要確認の理由」の列（判定が不明 81・本文の駅が圏内に無い 47・店名が本文に無い 15・圏内に駅が無い 6・店が見つからない 2）。本文の駅が圏内に無い行は「駅の候補」の列（距離つき）と見比べる。直す値は【3】手動補正に書く（店名と Places の店名のどちらを使うかも【3】で）
+  - 判定が「飲食店以外」の 197行は要確認にしていない。中に飲食店が混ざっていないかを見るなら「判定」で絞る
+  - 次の指示の候補: (1)「カテゴリ案」シート（既存の値と新しい案 64種類・226件を件数つきで並べ、採るか・まとめるかを平野さんが決める）、(2) 生成（`generate_resource_logs.py`）が3層のスプレッドシートを読む変更（決定済みの決まり: 「ログ」の既存の行はそのまま、判定が飲食店で投稿 ID が「ログ」に無い行だけ足す、【3】の空でないセルが【2】を上書き、新しい行の「表示」は N）
+- 未確認の項目:
+  - Claude API（$2.5346、使用量からの計算）・Places API（932回）の実際の請求（Claude Console・Google Cloud の請求の画面で平野さんが見る）
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj c52dc764）: https://github.com/retroeater/mj-logs/tree/main/guide/c52dc764
+ガイド文書（この版を写した時点の最新、mj 16fd668c）: https://github.com/retroeater/mj-logs/tree/main/guide/16fd668c
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c52dc764/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c52dc764/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c52dc764/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c52dc764/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c52dc764/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c52dc764/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/c52dc764.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/16fd668c/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/16fd668c/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/16fd668c/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/16fd668c/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/16fd668c/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/16fd668c/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a8c1d96c.md

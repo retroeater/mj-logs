@@ -121,6 +121,10 @@
 
 **「-」に置き換えた入力**: 手元の作業ツリーを scratchpad に写し（`git ls-files`）、「鳳凰」を読んだ直後に通期のリーグの「前後」を「-」に置き換える比較用の経路（`lib/sheets._query` を差し替える、scratchpad、コミットしない）で同じ5本を流した。置き換えは1回の読み込みごとに 768 行。「後」の生成物と比べて、813 ファイルすべて同じ（旧ページを含む）
 
+**テスト**: `python3 -m unittest discover -s scripts/tests` 1307 件 OK、`node --test 'workers/ask/test/*.test.mjs'` 36 件 pass。
+
+**画面の文字（プレビュー 5c56a4a9b と本番）**: headless Chromium で `main` の文字を集めて比べた（scratchpad の screens.cjs）。見た所: houou/ トップ、ランキング3つ（通算得点・期最高得点・節単位浮き率）、順位変動の B1 最新（`?term=43-1&league=B1`）と A1 最新（本番 `?term=42-2`、プレビュー `?term=42`）、個人成績の白鳥翔（鳳凰位）・佐々木寿人（A1）・二階堂亜樹（A2）・一井慎也（B1）の期別（期のカードを1枚ずつ開いた文字も）・通算（推移の吹き出しをマウスで横に押して集めた）・リーグのタブ（矢印キーで全部の期を送った吹き出し。第22期前期・後期と最新の43期〈進行中〉、aria-label を含む）・部門別。違いは順位変動 A1 の URL の形（`?term=42-2` と `?term=42`）だけで、ほかの文字・吹き出しはすべて同じ。ページのエラーは両方 0。プレビューで古い URL `?term=42-2&league=A1` を開くと `?term=42&league=A1` に移り、第42期 A1 を出す（houou-top.md の記述のとおり）
+
 ## 報告
 
 - 状態: 作業中
@@ -137,12 +141,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 14ed9b71）: https://github.com/retroeater/mj-logs/tree/main/guide/14ed9b71
+ガイド文書（この版を写した時点の最新、mj 16fd668c）: https://github.com/retroeater/mj-logs/tree/main/guide/16fd668c
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/14ed9b71/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/14ed9b71/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/14ed9b71/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/14ed9b71/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/14ed9b71/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/14ed9b71/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/16fd668c/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/16fd668c/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/16fd668c/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/16fd668c/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/16fd668c/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/16fd668c/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a8c1d96c.md

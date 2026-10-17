@@ -121,7 +121,7 @@ MCK-14 の比較は Places API の鍵が無く、駅は本文から読んだ値�
 
 ## 報告
 
-- 状態: 判断待ち（Places 込みの比較を Sonnet で動かし、駅・店名・店URL を確かめた。#365 の第18・19期の表示を確かめた。全件の変換に進むかは平野さん）
+- 状態: 判断待ち（Places 込みの比較を Sonnet で動かし、駅・店名・店URL を確かめた。#365 の第18・19期の表示を確かめた。全件の変換に進むかは平野さん） / 続き: CHAT-1017-MCK-16
 - ブランチ: work/1017-mck-367-places
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1017-MCK-15.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1017-mck-367-places
@@ -141,12 +141,12 @@ MCK-14 の比較は Places API の鍵が無く、駅は本文から読んだ値�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 6e1da5ac）: https://github.com/retroeater/mj-logs/tree/main/guide/6e1da5ac
+ガイド文書（この版を写した時点の最新、mj 16fd668c）: https://github.com/retroeater/mj-logs/tree/main/guide/16fd668c
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6e1da5ac/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6e1da5ac/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6e1da5ac/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6e1da5ac/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6e1da5ac/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6e1da5ac/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/0962f9e0.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/16fd668c/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/16fd668c/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/16fd668c/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/16fd668c/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/16fd668c/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/16fd668c/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a8c1d96c.md
