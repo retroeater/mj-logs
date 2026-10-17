@@ -154,28 +154,42 @@ ouka（`generate_ouka_leagues.py`・「桜花」シート）は「前後」が�
 
 チャット側の判断に要る事実: 書き換えは 768 行（43期の33行は表示 N）。シートの式は読めない。「リーグ」シートは未確認。止まるのは houou_pages・houou_race・ask_data、黙って違うのは houou_leagues・pro_stats（jpml_pros）・check_leagues_dropped
 
+
+### 5. 決定と issue
+
+- `docs/decisions/houou.md` に 2026-10-17（CHAT-1017-HOU-69）の決定を足した
+- #541 に、決定と、このログの「4. 直す順序の案」を読む先として示すコメントを書いた（要約は書き写していない）
+- コード・シート・生成物は変えていない（変更は `docs/logs/`・`docs/decisions/houou.md` だけ）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち（#541 の直す順序の案から選ぶ）
 - ブランチ: work/1017-hou
-- ログ: https://github.com/retroeater/mj/blob/work/1017-hou/docs/logs/CHAT-1017-HOU-69.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1017-HOU-69.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1017-hou
 - 確認用URL: なし
-- マージ: 未
-- issue: #541
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- マージ: 済（ドキュメントのみ。SHA は最終報告）
+- issue: #541（着手中のコメントと、決定・読む先のコメント）
+- 判断が必要なこと（詳細は `## 経過`「4. 直す順序の案」）:
+  - (a) 案1（読む所で「-」を今の「後」と同じに扱い、下流を変えない。2本）か、案2（内部も通期として持ち、成績 JSON・順位変動の URL・質問欄・JS を直す。3本以上）か
+  - (b) 旧4ページの後始末（#582）を先にするか（先なら旧 houou_leagues・houou_race などを直さずに済む）
+  - (c) `assets/houou.js` の読み替え（`termShort()`・`termLong()`）を残すか外すか
+  - (d) 平野さんの言う「リーグ」シート（A リーグが「-」）が、読める範囲で見つからなかった。どのブックのどのタブかを教えてほしい
+  - (e) 768 行の書き換えを1回でするか、期ごとに分けるか
+- 未確認の項目:
+  - 「鳳凰」シートを参照するシートの式（このセッションの経路では読めない）
+  - 「リーグ」シート（上の d）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 538ab657）: https://github.com/retroeater/mj-logs/tree/main/guide/538ab657
+ガイド文書（この版を写した時点の最新、mj 98ff33c9）: https://github.com/retroeater/mj-logs/tree/main/guide/98ff33c9
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/538ab657/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/538ab657/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/538ab657/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/538ab657/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/538ab657/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/538ab657/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/98ff33c9/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/98ff33c9/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/98ff33c9/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/98ff33c9/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/98ff33c9/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/98ff33c9/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/e61b4b99.md
