@@ -76,15 +76,55 @@ AMP-01・03・04 で作った、個人成績の期別の進行中の期の行と
 - 前期の B1 で昇級して後期の行が無い選手: 中村毅・吉野敦志の2名
 - 進行中の期（43後）の行のある在籍者 568名・Ampai のリンクが付く 567名（AMP-01 と同じ）
 
+### 2. マージ
+
+- push 直前に再 fetch し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真であることを確かめて `git push origin work/1016-amp:cloudflare`（bd0ffc5..f68f932、fast-forward。権限での拒否なし）
+- f68f932 の自動処理: 「ページの再生成」（regenerate-page.yml）success・「サイトマップの lastmod の同期」success・「公開対象の検査」success ×2・「本番ビルド失敗の検知」skipped。**再生成のコミット（`chore: regenerate ...`）は無かった**（生成物は作業ブランチで生成済みで、シートも変わっていないため差分が無い）
+- f68f932 の「Workers Builds: mj」は1本だけで、プレビュー（work/1016-amp の push、`Preview URL` あり）の success。本番のビルドの check-run は f68f932 には付かず、続けて他のセッションが cloudflare へ入れた 7884f88（f68f932 を含む）で走った（02:08:51 開始）。docs/notes/cloudflare.md の「先頭が docs/ だけのコミットの push ではビルドが走らないことがある」「ビルドがまとめられた可能性」と同じ見え方
+- 本番が新しい `assets/houou.js` を返したのは 02:11:36 UTC（マージの約13分後）。それまでは前の版を返していた
+
+### 3. 本番の確かめ
+
+`https://ryoei.pro/houou/players/?name=<名前>&v=<毎回違う値>` を headless Chromium（375px）で開いた（02:12 UTC ごろ）:
+
+| 選手 | 名前の横のチップ | 期別の先頭の行 | 案内文 |
+|---|---|---|---|
+| 中村毅 | B1 | 43期前期 B1（進行中の期の行ではない） | なし |
+| 末続ヒロトシ | D1 | 43期後期 D1（進行中の期の行。Ampai の 43後 D1 2組 の URL、`target="_blank"`） | なし |
+| 白鳥翔 | 鳳凰位 | 43期 鳳凰位（進行中の期の行。リンクなし） | なし |
+
+- 本番の `houou/players/` に `houou_upcoming` があり、`houou/ask-players.json` のチップは中村毅・吉野敦志 B1、末続ヒロトシ D1、白鳥翔 鳳凰位（名前の面と同じ）
+- 確かめたのは本番の HTML・JS・JSON と headless Chromium での表示。実機のブラウザでの見え方は確かめていない
+- #584 に済んだことのコメントを書いた（閉じていない。状態・ラベルは変えていない）
+
+### 4. 作業ブランチ
+
+- work/1016-amp の先頭はマージの時点で f68f932（cloudflare の祖先）。このログの追いのコミットも cloudflare へ入れるので、追いの後も cloudflare の祖先になる
+- クラウドセッションではリモートのブランチを削除しない（git プロキシが拒否する。docs/notes/cloud-sessions.md「ブランチの削除」）。マージ済みの work/* は `cleanup-branches.yml` が先頭が24時間より前になってから消す（削除の記録はそのワークフローの出力に残る）
+- `docs/decisions/houou.md` に 2026-10-17（AMP-05）の決定を足した
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1016-amp（cloudflare へマージ済み。リモートの削除は cleanup-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1017-AMP-05.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1016-amp
+- 確認用URL: なし（本番 https://ryoei.pro/houou/players/ で確かめた）
+- マージ: 済（f68f932）
+- issue: #584（コメント: 済んだこと。閉じていない）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 4f001e77）: https://github.com/retroeater/mj-logs/tree/main/guide/4f001e77
+ガイド文書（この版を写した時点の最新、mj f528ff5b）: https://github.com/retroeater/mj-logs/tree/main/guide/f528ff5b
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/4f001e77/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/4f001e77/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/4f001e77/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/4f001e77/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/4f001e77/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/4f001e77/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f528ff5b/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f528ff5b/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f528ff5b/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f528ff5b/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f528ff5b/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f528ff5b/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/e61b4b99.md

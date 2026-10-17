@@ -24,15 +24,13 @@
     `jpml_pros.html` の「決勝進出」は `generate_title_pages.final_counts()`（title/ に載る決勝の回数）で数え、`/title/?q=<名前>` へリンクする
   - `/title/<slug>`（末尾スラッシュなし）は `/title/<slug>/` へ 301（#455。下の「URL の解決」）
 - OGP（#232、2026-10-01）: 決定の経緯は `docs/decisions/title.md`（grill Q1〜Q16 と DUP-07〜DUP-11）
-  - og:image: 入口は `img/ogp/title/index-black.png`（「タイトル戦」）、大会ページと期ページは大会の `img/ogp/title/<slug>-black.png`（大会名）。
-    黒地・白字の文字だけで、写真は使わない（肖像権）。`generate_title_pages.py` の `og_image_for()` が画像のある大会だけ差し替え、無ければ共通の画像（`img/ogp/site/index-white.png`、#581）（最強戦と同じ作り）。og:image:alt は大会名（入口は「タイトル戦」）
+  - og:image: 入口・大会ページ・期ページとも `img/ogp/title/index-white.png`（白地・黒字の「タイトル戦」と、その下に小さく「ryoei.pro」。大会ごとの画像は作らない、2026-10-16、#581）。
+    写真は使わない（肖像権）。指定は `generate_title_pages.py` の `OG_IMAGE`。og:image:alt は「タイトル戦」
   - og:title: 入口「タイトル戦 | 日本プロ麻雀連盟 | ryoei.pro」、大会ページ「<大会名> | …」、期ページ「<期の名前> | …」（`Period.title`。「第41期鳳凰戦」「第3回リーチ麻雀世界選手権」「麻雀日本シリーズ2025」のように、期と大会名の間は空けず、数え方は実物のまま）。
     `<title>` は正式名のまま（「… 歴代優勝者（第1期〜第42期）」「… 決勝結果」）。分けるのは `page_meta()` の `og_label`（`PageMeta.og_title`）
-  - 画像は手で作ってコミットする（生成の Actions では作らない）: `python3 scripts/build_ogp_image.py --text <大会名> --color '#ffffff' --bg '#000000' --max-size 400 --tracking -0.03 --out img/ogp/title/<slug>-black.png`。
-    フォントは Noto Sans JP Bold（`~/.local/share/fonts/NotoSansJP-Bold.otf`、クラウドのセッションでは `raw.githubusercontent.com/notofonts/noto-cjk` の `Sans/SubsetOTF/JP/NotoSansJP-Bold.otf` から取得できた）。長い大会名は横幅に収まるまで字が小さくなる（そのままでよい、平野さん 2026-10-01）
-  - **新しい大会を表示するとき**: 上のコマンドで画像を1枚作り、ページの生成し直しと同じコミットに入れる（画像が無い間は共通の画像（`img/ogp/site/index-white.png`、#581） のままで止まらない）。
-    `scripts/tests/test_title_ogp.py` が、表示している大会すべてに画像があること・置いた画像が実在の大会に当たることを確かめる（無ければテストが落ちる）。
-    大会名を変えたときも画像を作り直す。中身を変えるので名前（接尾辞 `OGP_DESIGN`）を変えるか、`docs/notes/ogp.md`「中身を差し替える画像はファイル名を変える」に従う
+  - 画像は手で作ってコミットする（生成の Actions では作らない）: `python3 scripts/build_ogp_image.py --text タイトル戦 --footer ryoei.pro --color '#212529' --bg '#ffffff' --max-size 200 --tracking -0.03 --out img/ogp/title/index-white.png`。
+    フォントは Noto Sans JP Bold（`~/.local/share/fonts/NotoSansJP-Bold.otf`、クラウドのセッションでは `raw.githubusercontent.com/notofonts/noto-cjk` の `Sans/SubsetOTF/JP/NotoSansJP-Bold.otf` から取得できた）。中身を変えるときは名前を変える（`docs/notes/ogp.md`「中身を差し替える画像はファイル名を変える」）
+  - 新しい大会を表示するとき・大会名を変えたときも、画像は作らない。`scripts/tests/test_title_ogp.py` が、画像が入口の1枚だけであることを確かめる
 - 写真カードの処理は `generate_saikyo_pages.py` と重複している（共通化は #222 の未決定）
 - 入口（#358・#364、2026-09-18）: タイトルホルダーを決勝日（日付列）の降順に並べ、カード全体を大会ページへのリンクにする。カードは写真そのもので、
   上端に大会名を帯（色は下の「帯と回戦ラベルの色」）で、下端に選手名を透明になるグラデーションに白文字と影で重ねる（#364。#358 の「大会名の帯と写真を縦に並べる」形はやめた）。
@@ -165,7 +163,7 @@
 - **「タイトル戦」タブだけを改名したときは、旧名→新名を `scripts/lib/taikai_names.py` の `RENAMED` に足す**（#523。シートの旧名の行は書き換えない）。
   `generate_title_pages.py` の `fetch_tab()`（「タイトル」タブの大会名・期の題、「タイトル戦」タブの大会名）、`live_layer3.merge_records()`（/live の【3】【2】の「タイトル戦」。
   title/ の期ページの放送・/live・ask・カレンダー同期が通る）、`wayhome_intake.normalize()`（帰り道の題名）が読んだ直後に新名にそろえる。slug・URL は変えない。
-  画像の文字が変わるので OGP 画像を作り直し、名前を変える（`OGP_DESIGN_BY_SLUG`。2026-10-14 に JPML WRCリーグ → WRCリーグ、JPML WRC-Rリーグ → WRC-Rリーグ）
+  OGP 画像は全ページ「タイトル戦」の1枚なので作り直さない（2026-10-16 から。2026-10-14 の JPML WRCリーグ → WRCリーグ、JPML WRC-Rリーグ → WRC-Rリーグ のときは大会ごとの画像を作り直した）
 - **改称した大会は、過去の分も含めて ryoei.pro の表示をすべて新名にする**（2026-10-15 の決定）。入力（連盟の予定表の件名・YouTube の題名と概要欄・シートの旧名の行）は
   旧名・新名のどちらでも同じ大会に当て（`live_extract` の `KW`・`yotei.EVENTS` の語）、ryoei.pro が書く出力は新名にする（/live と予定表の【2】の大会名、カレンダーの件名〈`live_calendar`〉、
   帰り道〈`wayhome.to_rows()`〉・成績詳細〈`generate_rh_results_detail.py`〉・動画〈`generate_video_live.py`〉の題名、手書きの文言）。読み替えは `taikai_names` に寄せる。
