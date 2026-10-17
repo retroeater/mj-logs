@@ -28,7 +28,7 @@ houou/ のトップで鳳凰戦のデータに言葉で質問できる欄。決�
 `generate_ask_data.py` が次を読んで1つにまとめる。週次の `regenerate.py all` で作り直す（push での作り直しは、この生成スクリプトか `scripts/lib/` が変わったとき）。
 
 - 鳳凰戦リーグの成績: 「鳳凰」タブ（`generate_houou_pages.py` の `load_rows()`・`current_names()` をそのまま使う。改名は「別名」で現在名に名寄せ、HOU-13）。
-  退会者を含む全員。`players` の1行は `[期, 前後(1/2), リーグ, 順位, 結果, 合計]`（`houou/results/<選手名>.json` の rows の先頭6列と同じ）
+  退会者を含む全員。`players` の1行は `[期, 期の番号(前期 1・後期 2・通期 0、#541), リーグ, 順位, 結果, 合計]`（`houou/results/<選手名>.json` の rows の先頭6列と同じ）
 - ランキング9部門: `generate_houou_pages.py` の `build_rankings()`（houou/ranking/ と同じ表示対象・在籍者だけ）
 - 決勝（鳳凰位）: `title/search.json`（`generate_title_pages.py` の生成物）の鳳凰戦の期。**鳳凰位を獲った期はここを正にする。**
   「鳳凰」タブの「鳳凰位」の行は鳳凰位として座っている期で、獲った期の次の期（例: 吉田直は第35期に獲り、第36期の行が「鳳凰位」）
@@ -52,7 +52,7 @@ houou/ のトップで鳳凰戦のデータに言葉で質問できる欄。決�
 | `champions`（鳳凰位の一覧） | `entry`（入会期の数）・`from`・`to`（鳳凰戦の期）・`name` | `{name, entry, terms}`（人ごと、最初に獲った期の順） | `/title/houou/` |
 | `final`（決勝の結果） | `term`（必須） | `{rank, name}` | `/title/houou/<期>.html` |
 | `player`（選手の成績） | `name`（必須）・`term` | `{period, league, place, result, total}` | 在籍者は `/houou/players/?name=`、それ以外は最後の期の `/houou/race/?term=&league=` |
-| `league`（リーグの顔ぶれ） | `term`・`league`（必須）・`half`（前/後、1/2） | `{place, name, result, total}`（順位の順） | `/houou/race/?term=<期>-<1|2>&league=<リーグ>` |
+| `league`（リーグの顔ぶれ） | `term`・`league`（必須）・`half`（前/後、1/2） | `{place, name, result, total}`（順位の順） | `/houou/race/?term=<期>-<1|2>&league=<リーグ>`（通期の A1・A2・鳳凰位は `?term=<期>`、#541） |
 | `ranking`（記録の上位） | `division`（9部門の名前、必須。houou/ と同じ略称〈通算・期平均…〉で、旧い名前〈通算得点・通算得点/期…〉も `DIVISION_ALIASES` で受ける、2026-10-16）・`limit` | `{rank, name, value}` | その部門の `/houou/ranking/…/`（出典の名前は「鳳凰戦 ランキング（通算）」の形） |
 | `live`（放送対局） | `term` | `{period, stage, date, players, url}` | 各ページ（無ければ `/live/houou/`） |
 
