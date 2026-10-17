@@ -106,7 +106,7 @@ OUK-02 の TSV との違い（全件、5行。見込みどおり）:
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1018-OUK-06
 - ブランチ: work/OUK
 - ログ: https://github.com/retroeater/mj/blob/work/OUK/docs/logs/CHAT-1018-OUK-04.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/OUK
