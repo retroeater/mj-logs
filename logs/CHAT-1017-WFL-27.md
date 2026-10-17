@@ -77,7 +77,7 @@ mj-logs の morning.md「2. 予約実行の未実行」に、毎朝「遅れの�
 ### 手順1: 直す前と後の出力の差（公開の API の実データ、同じデータを両方の版に渡した）
 
 - 今の時刻（JST 12:27）: 違いは「2.」の1行だけ。直す前は「遅れて実行: 2026-10-16 11:40 fetch-youtube.yml …予定 2026-10-12 05:37 → 開始 2026-10-16 11:40（＋102:03）」、直した後は「なし」（fetch-youtube は 10/16 に作られ、10/12 の予定はそれより前）
-- 10/17 06:45 JST の模擬（その時刻より後に作られた実行を除いて渡した）: 違いは「2.」の2行だけ。直す前は上の fetch-youtube の行と「遅れの可能性: update-live-channel.yml 予定 2026-10-17 06:43 の後に schedule・workflow_dispatch（cloudflare）の実行なし」、直した後は「なし」（10/17 04:00 の run-daily #4 の `live / update` が success）
+- 10/17 06:45 JST の模擬（その時刻より後に作られた実行を除いて渡した）: 違いは「2.」の2行だけ。直す前は上の fetch-youtube の行と「遅れの可能性: update-live-channel.yml 予定 2026-10-17 06:43 の後に schedule・workflow_dispatch（cloudflare）の実行なし」、直した後は「なし」（10/17 04:00 の run-daily の定期実行 #5〈38951671873〉の `live / update` が success）
 - ほかのワークフローの行の増減は無い（止まる条件に当たらない）
 - 作業ブランチで `actions_status.py` を通しで実行（mj-logs には push しない）: status.md・morning.md・index.html を書き出し、morning.md の「2.」は「なし」
 
@@ -85,15 +85,33 @@ mj-logs の morning.md「2. 予約実行の未実行」に、毎朝「遅れの�
 
 - docs/decisions/automation.md に `## 2026-10-17（CHAT-1017-WFL-27）` を足した
 
+### 手順2: マージと mj-logs での確かめ
+
+- JST 12:31（土曜。03:45〜05:15 の外）に再 fetch し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真だったので `git push origin work/1017-wfl-morning:cloudflare`（14ed9b71a..16fd668c4）
+- マージの後の mj-logs の同期のコミット 3f0b51c（「sync: mj 16fd668c」、`M actions/morning.md`）で、morning.md の「2.」が「なし」になった（それまでの fetch-youtube の「遅れて実行」の行が消えた）。同期は成功（コミットが push されている）
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1017-wfl-morning（マージ済み。削除は cleanup-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1017-WFL-27.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1017-wfl-morning
+- 確認用URL: https://github.com/retroeater/mj-logs/blob/main/actions/morning.md
+- マージ: 済（16fd668c4）。mj-logs の同期 3f0b51c で morning.md の「2.」が「なし」になった
+- issue: なし
+- 判断が必要なこと: なし
+- 未確認の項目: 2026-10-18（日）の朝の morning.md の書き出し（その日の最初の同期。run-daily 04:00 JST の後の mj への push、遅くとも mj-logs のフォールバック実行〈03:41 JST の予定、遅れることがある〉）。update-live-channel の「遅れの可能性」が出ないこと（run-daily の `live` が success の日）
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 16fd668c）: https://github.com/retroeater/mj-logs/tree/main/guide/16fd668c
+ガイド文書（この版を写した時点の最新、mj 6f7b8b94）: https://github.com/retroeater/mj-logs/tree/main/guide/6f7b8b94
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/16fd668c/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/16fd668c/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/16fd668c/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/16fd668c/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/16fd668c/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/16fd668c/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6f7b8b94/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6f7b8b94/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6f7b8b94/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6f7b8b94/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6f7b8b94/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6f7b8b94/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a8c1d96c.md
