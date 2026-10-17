@@ -49,6 +49,64 @@ Chat-Ref: CHAT-1017-WHS-28
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+- Chat-Ref の重複確認: CHAT-1017-WHS-28 のコミット・ログは無い（連番 28 で、チャットの最初の指示ではないので `XXX` の重複の確かめは対象外）
+- 作業ブランチ: work/1017-whs-date はローカル・リモートとも無かったので `git checkout -b work/1017-whs-date origin/cloudflare`（13c870a96）
+- 0. 指示欄の末尾は指示文の最後の行と一致。mj の docs/logs/CHAT-1017-LVP-05.md の `## 報告` は状態「完了」・issue「#592（起票）」。#592 は Open で、コメントは0件（他のセッションの着手中のコメントは無い）。#592 に着手中をコメントした（https://github.com/retroeater/mj/issues/592#issuecomment-6231303643）
+- 雛形の行: Chat-Ref・マージ・貼る時機・共通手順（＋作業ブランチ）は揃っている
+- 未マージの work/ ブランチで `scripts/lib/wayhome.py`・6つの生成スクリプト・3つのページの CSS／JS（`video_wayhome.js`・`wayhome_episodes.js` など）を変えるもの: なし
+- 着手 JST 16:38（土曜）
+
+### 手順1: 呼び出し元と `YYYY-MM-DD` を前提にした処理
+
+- `published_date_text()` の呼び出し元は6つの生成スクリプトだけ（前提どおり）: `generate_video_wayhome.py`（カード・`data-info`）・`generate_wayhome_episodes.py`（前後の回・他の回のカード）・`generate_mtsuku.py`（カード・`data-info`）・`generate_mtsuku_episodes.py`（前後の回・他の回のカード）・`generate_study.py`（カード・`data-info`）・`generate_study_episodes.py`（前後の回）。ほかの使い道は無い（`scripts/lib/mtsuku.py` が使うのはヒーローの `published_date_label()` で、変えていない）
+- ページ側の JS: `video_wayhome.js` の絞り込みは `data-info` を小文字にした部分一致だけで、日付を読んで並べたり比べたりしない。並びは生成のときに `published_at` で決まる（`sorted_by_date_desc()`）。`wayhome_episodes.js` は日付を使わない
+- CSS: `.mj-video-card-date`・`.mj-video-prevnext-date`（style.css）は大きさ・色だけで、幅の指定は無い。`.mj-live … .mj-video-card-date`（live/）は live/ の生成で、`published_date_text()` を使わない
+- テスト: `YYYY-MM-DD` の表示を前提にしたテストは3件（`test_wayhome_prevnext.py` の前後の回の日付、`test_mtsuku.py`・`test_study.py` の `search_text`）。今回の変更で落ちると分かっていたもので、新しい形に直した
+- ほかのページの生成から使われていないので、止まる条件に当たらない
+
+### 手順2: 実装（828f21d3f）と再生成（03f9169f8）
+
+- `scripts/lib/wayhome.py`: `published_date_text()` を「2026年8月27日」（月・日はゼロ詰めしない。ヒーローの `published_date_label()`「…日公開」と同じ書き方）にし、`data-info` 用に `published_date_search_words()`（`YYYY-MM-DD` と年月日の2つ）を足した。一覧の3つのスクリプトの `data-info` はこれを使う。JSON-LD の `uploadDate`・sitemap は変えていない
+- 文書: docs/notes/video-wayhome.md「前後のエピソードの並び・日付と、各話の説明文（2026-10-13）」の `YYYY-MM-DD` を直し、Mつく・女流勉強会も同じ関数であること・`data-info` の両方の形を1行足した。video-mtsuku.md・video-study.md には日付の形の記述が無い（「一覧の検索は 公開日・…」は今も正しい）ので変えていない
+- 決定: docs/decisions/wayhome.md に `## 2026-10-17（CHAT-1017-WHS-28）` を足し、WHS-21 の「日付は `YYYY-MM-DD`」と WHS-22 の同じ記述の行末に「→ 置き換え（日付の形）: 2026-10-17（CHAT-1017-WHS-28）」を付けた（README「書き方」の置き換えの形）。mtsuku.md・study.md は決定が両方の分野にかかるので、同じ見出しで1行と wayhome.md への参照を足した（README「書く時機」の分野のファイルへ足す）
+- 再生成: `python3 scripts/regenerate.py video_wayhome wayhome_episodes mtsuku mtsuku_episodes study study_episodes`。差分は `wayhome/`・`mtsuku/`・`study/` の 146 ファイルだけ（各 42+1・61+1・40+1。新しい回の増減なし）。sitemap の lastmod はこのコミットでは変わらない（cloudflare に入った後の regenerate-sitemap が git から導く）
+- 差分の行の種類（足した行 642 行）:
+
+| 種類 | 行数 | 内訳 |
+|---|---:|---|
+| 一覧のカードの `data-info` | 143 | 帰り道 42・Mつく 61・女流勉強会 40 |
+| カードの日付 `mj-video-card-date` | 219 | 一覧 42・61・40、各話の他の回のカード 54（帰り道 19ページ）・22（Mつく 22ページ） |
+| 前後の回の日付 `mj-video-prevnext-date` | 280 | 帰り道 82（42ページ）・Mつく 120（61ページ）・女流勉強会 78（40ページ） |
+
+- 件数は LVP-05 の表（一覧 42・61・40、前後の回 82・120・78、他の回のカード 54・22）と全部一致
+- 確かめ: 3つのページの日付の span は全件が年月日の形（形の違うもの 0）。HTML から script とタグを除いた本文に `YYYY-MM-DD` は 0 件。一覧のカードの `data-info` は 42・61・40 件で、全件が両方の形を持つ（件数＝カードの数）。差分に `uploadDate` の行は 0 件
+- テスト: unittest 全件 OK
+
+### 手順3: プレビュー（ブランチ名の別名 URL、`?v=03f9169f8` を付けて開いた）
+
+- check-run「Workers Builds: mj」（03f9169f8）success。URL はターミナルへの最終報告に書く
+- headless Chromium で 375px 幅と 1280px 幅で開いた 6 ページ: 帰り道の一覧・各話 `8w7SW0XgX64.html`（前後の回 2・他の回のカード 5）、Mつくの一覧・各話 `2FOsXsIqTAA.html`（前後の回 2・他の回のカード 1）、女流勉強会の一覧・各話 `1QVc_wj9T-c.html`（前後の回 2）
+  - どの幅・ページでも、日付の要素のはみ出し（scrollWidth > clientWidth）0、2 行以上に折り返した日付 0、ページの横のスクロールなし（scrollWidth は幅以下）
+  - 375px の各話の前後の回（「次のエピソード」の下に「2025年12月22日」）と一覧のカード（「2026年10月11日」）を画像で見て、崩れが無いことを確かめた
+- 一覧の検索（375px、`#info_filter` に入力して見えているカードを数えた）: 帰り道 `2026-08` 1件・「2026年8月」1件、Mつく `2025-07` 2件・「2025年7月」2件、女流勉強会 `2026-08` 1件・「2026年8月」1件、`2025-07`・「2025年7月」1件。両方の形で同じ件数に絞り込めた（Mつくの `2026-08` は該当の回が無く 0 件・両方とも同じ）
+
+## 報告
+
+- 状態: 判断待ち（プレビューの確認とマージの可否）
+- ブランチ: work/1017-whs-date
+- ログ: https://github.com/retroeater/mj/blob/work/1017-whs-date/docs/logs/CHAT-1017-WHS-28.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1017-whs-date
+- 確認用URL: ブランチ名の別名 URL（ターミナルへの最終報告に書く）。`?v=03f9169f8` を付けて開く
+- マージ: 未（指示の「マージ: 判断待ちで止まる」のとおり）
+- issue: #592 に着手中をコメント（https://github.com/retroeater/mj/issues/592#issuecomment-6231303643）
+- 判断が必要なこと:
+  1. プレビューの確認とマージの可否。見る所: 帰り道の一覧・各話（例 `wayhome/8w7SW0XgX64.html`）、Mつくの一覧・各話（例 `mtsuku/2FOsXsIqTAA.html`）、女流勉強会の一覧・各話（例 `study/1QVc_wj9T-c.html`）。375px・1280px で崩れは見つけていない。マージしてよければ「マージ: 承認済み」の指示を貼ってほしい（マージの前に `origin/cloudflare` を作業ブランチにマージし、生成物が衝突したら取り込んだ後のスクリプトで作り直す）
+  2. 手順1で見つけた別の使い道: なし（`published_date_text()` は6つの生成スクリプトだけが使う）
+- 未確認の項目: 実機（スマホのブラウザ）での見え方。マージの後の sitemap の lastmod の更新（regenerate-sitemap）
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
