@@ -136,7 +136,7 @@ MCK-15 の比較で、Places 込みの変換が使えると分かった。ただ
 ```
 
 ## 報告
-- 状態: 判断待ち（【2】の店名の形を直してマージし、【1】の全件 809行を【2】に変換した。要確認 139行の確認と、次の指示は平野さん）
+- 状態: 判断待ち（【2】の店名の形を直してマージし、【1】の全件 809行を【2】に変換した。要確認 139行の確認と、次の指示は平野さん） / 続き: CHAT-1017-MCK-17
 - ブランチ: work/1017-mck-367-all
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1017-MCK-16.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1017-mck-367-all
@@ -154,12 +154,12 @@ MCK-15 の比較で、Places 込みの変換が使えると分かった。ただ
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj f80880a6）: https://github.com/retroeater/mj-logs/tree/main/guide/f80880a6
+ガイド文書（この版を写した時点の最新、mj f3633dc8）: https://github.com/retroeater/mj-logs/tree/main/guide/f3633dc8
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f80880a6/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f80880a6/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f80880a6/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f80880a6/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f80880a6/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f80880a6/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f3633dc8/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f3633dc8/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f3633dc8/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f3633dc8/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f3633dc8/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f3633dc8/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a8c1d96c.md

@@ -78,17 +78,58 @@ MCK-16 で【2】自動変換後に 809行を入れた。カテゴリは既存�
 - テスト 10件を追加（単独の値への分け方と件数・既存と新しい案の分け方・Claude に本文を渡さない・案の受け付け方・費用の上限・行の並びと列・「決定」に値があれば止まる・書く先が「カテゴリ案」だけで、あれば中身を消してから書く・dry-run は何も呼ばず書かない・本番の流れ）。直す前のコードには `categories` が無いので通らない。`python3 -m unittest discover -s scripts/tests`: OK
 - ワークフローを変えたので、マージ前に作業ブランチで dry-run（run 39000435570、931ab66cd、success）: 【2】809行、「カテゴリ案」シートは無い（本番で作る）。既存のカテゴリ 20種類（「ログ」で 2,233件・【2】で 470件）、新しい案 64種類・【2】で 226件（MCK-16 の集計と同じ）。予定: Claude 1回（`claude-sonnet-5-5`、上限 $0.5）
 
+### マージ
+
+- `git fetch` 後に `git merge-base --is-ancestor origin/cloudflare HEAD` が真、`git push origin work/1017-mck-367-cat:cloudflare`: 2c104a70f..d8a640236
+- 条件: テスト OK・`dry_run` の既定は真・書く先は「カテゴリ案」シートだけ（【1】【2】【3】・「比較」・「ログ」には書かない）・`scripts/generate_resource_logs.py` は変えていない・Claude の上限は定数 $0.5・止まる条件に当たらない
+
+### 2. cloudflare で dry-run と本番
+
+- dry-run（run 39000500000、d8a640236、success）: 作業ブランチの dry-run と同じ（既存 20種類・新しい案 64種類・226件、「カテゴリ案」シートは無い、Claude 1回・上限 $0.5）
+- 本番（run 39000536781、d8a640236、success）:
+  - Claude API: 1回（`claude-sonnet-5-5`）、費用 **$0.0297**（使用量から計算）。エラー・拒否なし
+  - 「カテゴリ案」シートを作り、見出しと **84行**（既存 20・新しい案 64）を書いた
+
+| 種類 | 種類の数 | 件数 | まとめ先の案の内訳 |
+|---|---:|---|---|
+| 既存 | 20 | 「ログ」で 2,233件・【2】で 470件 | そのまま 18・既存の別の値にまとめる 2 |
+| 新しい案 | 64 | 【2】で 226件 | まとめる（既存の値か、件数の多い新しい案へ） 40・新しく採る 24 |
+
+- 案が空（「案なし」）の行は 0。全部のカテゴリに案が付いた
+- 既存の20種類（「ログ」での件数の多い順）: ラーメン・スイーツ・カレー・ハンバーグ・とんかつ・寿司・バーガー・パスタ・蕎麦・焼肉・牡蠣・かき氷・天ぷら・鰻・うどん・モーニング・オムライス・バンバーグ・ハンバーガー・大判焼き（MCK-14 で数えたものと同じ。「バンバーグ」「ハンバーガー」が既存の別の値へまとめる案の 2件とみられる。どの値にまとめる案かはシートで見る）
+
+### 3. 記録
+
+- #367 に結果をコメント: https://github.com/retroeater/mj/issues/367#issuecomment-6229315727（本文は変えていない）
+- CHAT-1017-MCK-16 のログの `## 報告` の状態の末尾に ` / 続き: CHAT-1017-MCK-17` を足した
+- 決定を docs/decisions/operations.md に足した
+
 ## 報告
+- 状態: 判断待ち（「カテゴリ案」シートを作る処理をマージし、84行のシートを作った。「決定」の列は平野さん）
+- ブランチ: work/1017-mck-367-cat
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1017-MCK-17.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1017-mck-367-cat
+- 確認用URL: なし
+- マージ: 済（d8a640236。この報告は後の docs/logs・docs/decisions のみの追いの push）
+- issue: #367（着手中のコメントと結果のコメント）
+- 判断が必要なこと:
+  - 「カテゴリ案」シートの「決定」の列の書き方（案）: その行のカテゴリを最終的に何にするかを書く。案のとおりなら空のままか同じ値、既存の値にまとめるならその名前、新しく採るなら自分の名前、使わない（カテゴリを空にする）なら「なし」など。**空を「案のとおり」とみなすかは次の指示で決める**（今のシートでは「決定」が全部空）
+  - 一度でも「決定」に書くと、この処理（`mode=categories`）を動かし直しても上書きせずに止まる。作り直したいときは「決定」を消してから
+  - 次の指示の候補: (1) 決まったカテゴリを【2】に当てる（【2】の「カテゴリ」「タグ」を「決定」のとおりに書き直すか、【3】手動補正に書くか）、(2) 生成（`generate_resource_logs.py`）が3層のスプレッドシートを読む変更（決定済みの決まり: 「ログ」の既存の行はそのまま、判定が飲食店で投稿 ID が「ログ」に無い行だけ足す、【3】の空でないセルが【2】を上書き、新しい行の「表示」は N）。決定の順は「カテゴリ案」→ 生成が3層を読む変更
+- 未確認の項目:
+  - Claude API の実際の請求（今回 $0.0297、使用量からの計算）
+  - 「カテゴリ案」シートのまとめ先の案の中身（Code からはシートを読み直していない。既存の別の値へまとめる 2件がどの値かも含めて、シートで見る）
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj d8a64023）: https://github.com/retroeater/mj-logs/tree/main/guide/d8a64023
+ガイド文書（この版を写した時点の最新、mj f3633dc8）: https://github.com/retroeater/mj-logs/tree/main/guide/f3633dc8
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d8a64023/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d8a64023/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d8a64023/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d8a64023/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d8a64023/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d8a64023/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f3633dc8/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f3633dc8/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f3633dc8/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f3633dc8/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f3633dc8/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f3633dc8/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a8c1d96c.md
