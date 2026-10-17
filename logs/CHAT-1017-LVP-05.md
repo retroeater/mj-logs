@@ -51,15 +51,56 @@ Chat-Ref: CHAT-1017-LVP-05
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
 - work/1017-lvp はローカル・リモートとも origin/cloudflare の祖先（LVP-04 でマージ済み）。`git merge --ff-only origin/cloudflare` で 7155f4361 まで進めた
 
+### 手順1: 同じ主題の issue
+
+- REST で全 issue（590件、クローズ済みを含む）を見た。題に「日付」「YYYY-MM-DD」「年月日」を含むもの、帰り道の題で本文に日付の話があるもの: #471・#385・#340・#102（すべてクローズ済み。主題は別）
+- 本文に「YYYY-MM-DD」「年月日」「日付の形・書き方・表記」を含むもの: #515・#506・#504・#408・#269・#222・#412。カードの日付の形を直すものは無い。#412（/live・title/・saikyo/ の UI の平仄、クローズ済み）は関連として本文に挙げた
+- 同じ主題の issue は無いので起票した
+
+### 手順1: 生成物の `YYYY-MM-DD`（7155f4361 で数えた）
+
+本文の表示（タグの中身）で `YYYY-MM-DD` が出る場所を、ページの種類と class ごとに数えた。各話は `index.html` 以外の全ページ。
+
+| ページ | 場所（class） | 件数 |
+|---|---|---|
+| 帰り道 一覧 `wayhome/index.html` | カード `mj-video-card-date` | 42 |
+| 帰り道 各話（42ページ） | 前後の回 `mj-video-prevnext-date` | 82（全42ページ） |
+| 同上 | 「〇〇の他のエピソード」のカード `mj-video-card-date` | 54（19ページ） |
+| Mつく 一覧 `mtsuku/index.html` | カード `mj-video-card-date` | 61 |
+| Mつく 各話（61ページ） | 前後の回 `mj-video-prevnext-date` | 120（全61ページ） |
+| 同上 | 他の回のカード `mj-video-card-date` | 22（22ページ） |
+| 女流勉強会 一覧 `study/index.html` | カード `mj-video-card-date` | 40 |
+| 女流勉強会 各話（40ページ） | 前後の回 `mj-video-prevnext-date` | 78（全40ページ） |
+
+- 前提（チャット側の grep）とほぼ一致。違いは、Mつくの各話にも他の回のカード（22ページ）があること。女流勉強会の各話には他の回のカードは無い
+- 属性: 3つの一覧のカードの `data-info` が `YYYY-MM-DD` だけを持つ（例「2026-10-11 第6期鸞和戦 #2 白鳥翔」）
+- JSON-LD の `uploadDate`（各ページ）は ISO の形。表示ではないので対象外とした
+- ヒーローの日付は全ページ「2026年6月5日公開」の形
+- どれも `scripts/lib/wayhome.py` の `published_date_text()`（`%Y-%m-%d`）から出る。使っているのは `generate_video_wayhome.py`・`generate_wayhome_episodes.py`・`generate_mtsuku.py`・`generate_mtsuku_episodes.py`・`generate_study.py`・`generate_study_episodes.py`（一覧3つは `data-info` にも使う）
+- 指示の「`video_wayhome` の一覧」は、今は `wayhome/index.html`（`generate_video_wayhome.py` が生成）。`video_wayhome.js` は assets ではなくルートにある
+
+### 手順2: 起票
+
+- #592「帰り道・Mつく・女流勉強会のカードと前後の回の日付を「2026年8月27日」の形にする」を起票。ラベル `分野: UI/UX`（付いたことを確認）。本文は経緯・対象（上の表と生成するスクリプト）・直し方の案（表示の書式、`data-info` に両方の形を入れるか〈live-page-design.md「2-8」〉、範囲を3つにするか帰り道だけか）・関連（#362・#553・#412）
+- CHAT-1017-LVP-04 のログの `## 報告` の状態を「判断待ち / 続き: CHAT-1017-LVP-05」にした
+
+### 手順3: 決定の記録
+
+- docs/decisions/live.md に、この指示の「決定」2項目を足した
+
+### マージ
+
+（この後に追記）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1017-lvp
-- ログ: https://github.com/retroeater/mj/blob/work/1017-lvp/docs/logs/CHAT-1017-LVP-05.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1017-LVP-05.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1017-lvp
 - 確認用URL: なし
-- マージ: 未
-- issue: なし
+- マージ: （この後に追記）
+- issue: #592（起票）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
