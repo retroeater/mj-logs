@@ -44,15 +44,70 @@ WHS-28 の変更（帰り道・Mつく・女流勉強会のカード・前後の
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+- Chat-Ref の重複確認: CHAT-1017-WHS-29 のコミット・ログは無い
+- 0. 指示欄の末尾は指示文の最後の行と一致。WHS-28 の `## 報告` の状態は「判断待ち」。origin/work/1017-whs-date の先頭は 0ba90e7d5 で、03f9169f8 より後はログ・決定（docs/logs・docs/decisions）だけのコミット 1 件（食い違いなし）
+- 作業ブランチ: リモート・ローカルの work/1017-whs-date をそのまま使った（ローカルは origin と一致）
+- 雛形の行: Chat-Ref・マージ・貼る時機・共通手順（＋作業ブランチ）は揃っている
+- 着手 JST 17:51（土曜）
+
+### 手順1: WHS-28 のログと取り込み
+
+- WHS-28 のログの状態を「判断待ち（プレビューの確認とマージの可否） / 続き: CHAT-1017-WHS-29」にした
+- `git merge origin/cloudflare`: Already up to date（再 fetch しても origin/cloudflare は 13c870a96 のままで、WHS-28 の起点から進んでいなかった）。衝突なし
+
+### 手順2: 再生成と確かめ
+
+- 6つのページを再生成（`python3 scripts/regenerate.py video_wayhome wayhome_episodes mtsuku mtsuku_episodes study study_episodes`）。件数は 42・61・40 で、差分は出なかった（WHS-28 の生成物のまま）
+- テスト: unittest 全件 OK
+- 本文の表示（script とタグを除いた本文）の `YYYY-MM-DD`: 帰り道 0・Mつく 0・女流勉強会 0
+- 一覧のカードの `data-info`: 42・61・40 件で、カードの数と同じ。全件が両方の形を持つ
+- origin/cloudflare との差分: `uploadDate` の行 0。ファイルは `wayhome/`・`mtsuku/`・`study/` の 146 と、`scripts/lib/wayhome.py`・生成スクリプト 3・テスト 3・docs/notes/video-wayhome.md・docs/decisions 3・ログ 2（WHS-28 の範囲どおり。生成スクリプトの変更は一覧の 3 つだけで、各話の 3 つは `published_date_text()` の変更で直った）
+- JST 17:55 に再 fetch と `git merge-base --is-ancestor origin/cloudflare HEAD` を確かめ、`git push origin work/1017-whs-date:cloudflare`（13c870a96..c859c26c8）
+
+### 手順3: 本番の確かめ
+
+- c859c26c8 の check-run: 「Workers Builds: mj」success、regenerate・sync・check も success
+- 本番の HTML（ryoei.pro、`?v=whs29c859` を付けて取得、どれも 200）の `mj-video-card-date`・`mj-video-prevnext-date` は全部年月日の形（形の違うもの 0）:
+
+| ページ | 日付の数 | 先頭 |
+|---|---:|---|
+| 帰り道 一覧 | 42 | 2026年10月11日 |
+| 帰り道 各話 `8w7SW0XgX64.html` | 7 | 2025年12月22日 |
+| Mつく 一覧 | 61 | 2025年7月22日 |
+| Mつく 各話 `2FOsXsIqTAA.html` | 3 | 2020年2月8日 |
+| 女流勉強会 一覧 | 40 | 2026年10月9日 |
+| 女流勉強会 各話 `1QVc_wj9T-c.html` | 2 | 2023年12月12日 |
+
+- 確かめたのは本番の HTML まで。ブラウザでの見え方は WHS-28 のプレビュー（同じ生成物、headless Chromium の 375px・1280px）で見たもの
+- サイトマップ: `regenerate-sitemap.yml` の run #14（39019162053、head c859c26c8、push）は success で、コミットは作らなかった。lastmod は、同じ push で動いた regenerate-page のコミット 5594305d2（github-actions[bot]、`chore: regenerate …`）が更新した。そのコミットのサイトマップの差分は `sitemap-wayhome.xml`（43）・`sitemap-mtsuku.xml`（62）の lastmod の行だけ（2026-10-16 → 2026-10-17、ほかの行の変化 0）。`study/` はサイトマップに無い（未公開のまま。前提どおり）
+- 5594305d2 のほかの変更（`live/` 62・`data/` 1・`workers/ask/data.json`）は、push を契機に `scripts/lib/wayhome.py` を読むページをまとめて作り直したときに入ったデータの更新で、WHS-28 の日付の変更ではない（`live/` は `published_date_text()` を使わない。`wayhome/`・`mtsuku/`・`study/` の HTML はこのコミットで変わっていない）
+- #592 に結果をコメントしてクローズした（completed）: https://github.com/retroeater/mj/issues/592#issuecomment-6232096884 。ラベルは「分野: UI/UX」だけで、外す「状況:」ラベルは無かった。着手中のコメントは完了のコメントで解いた
+- 作業ブランチの片付け: docs/notes/branch-operations.md「ブランチを削除するとき」を読んだ。このログの追いのコミットを入れたあともマージ済みなので、リモートの削除はマージ済みのブランチを消す cleanup-branches.yml に任せる。手で消さないので、削除の直前の SHA の記録は cleanup-branches.yml の記録に任せる（今の先頭は下のマージの結果）。ローカルのブランチはクラウドのコンテナと一緒に消える
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1017-whs-date（マージ済み。削除は cleanup-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1017-WHS-29.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1017-whs-date
+- 確認用URL: https://ryoei.pro/wayhome/ ・ https://ryoei.pro/mtsuku/ ・ https://ryoei.pro/study/
+- マージ: 済（c859c26c8）
+- issue: #592 をクローズ（https://github.com/retroeater/mj/issues/592#issuecomment-6232096884）
+- 判断が必要なこと: なし
+- 未確認の項目: 実機（スマホのブラウザ）での本番の見え方（このセッションで確かめたのは本番の HTML と、プレビューの headless Chromium まで）
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 13c870a9）: https://github.com/retroeater/mj-logs/tree/main/guide/13c870a9
+ガイド文書（この版を写した時点の最新、mj 95555949）: https://github.com/retroeater/mj-logs/tree/main/guide/95555949
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/13c870a9/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/13c870a9/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/13c870a9/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/13c870a9/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/13c870a9/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/13c870a9/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/95555949/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/95555949/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/95555949/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/95555949/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/95555949/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/95555949/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/13c870a9.md

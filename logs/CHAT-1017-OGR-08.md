@@ -89,18 +89,52 @@ Chat-Ref: CHAT-1017-OGR-08
 - docs/decisions/saikyo.md に OGR-08 の節を足した。docs/notes/saikyo-page-design.md の新しい年度・対局・卓のページの節（「題名と説明はページごと」）に og:title の形を書いた。
   同じファイルの「OGP は年度ページ共通のままで、対局ごとの出し分けはしない」（`?match=` の共有の説明、SK-19）は旧年度ページの対局の共有ボタンの話で、今回の対局のページとは別なので変えていない。docs/notes/ogp.md には最強戦の og:title の形の記述が無い
 
+### マージと本番の確かめ
+
+- マージ: `git push origin work/1017-ogr:cloudflare`（c859c26c8..95555949b、2026-10-17 08:57 UTC。直前に `merge-base --is-ancestor origin/cloudflare HEAD` が真）
+- check-run（95555949b）: check・sync・regenerate・Workers Builds: mj は success、notify は skipped
+- 自動の再生成:
+  - 5c3519939: sitemap-saikyo.xml の `<lastmod>` 862件を 2026-10-17 に（今回の 862ページの分）
+  - 5594305d2: `regenerate-page.yml` の全ページの再生成。saikyo/ の差分は0件。変わったのは live/（新しい放送対局の動画カード〈メンバー限定の回など〉と `data/live_pages.json`・`data/live_thumbs.json`）、sitemap-mtsuku.xml・sitemap-wayhome.xml の `<lastmod>`、`workers/ask/data.json` で、
+    前回の再生成の後のシート・YouTube の情報の変化と、先に cloudflare に入っていた日付の表記の変更（828f21d3f）の分。今回の変更によるものではない
+- 本番（`?v=ogr08-<時刻>`、09:06 UTC に新しい版を確認。3件とも 200）:
+
+卓 `saikyo/2019/20190223-s1-a.html`:
+
+```
+<title>ベスト32 A卓 | 女流プレミアトーナメント 華麗な技（2019年2月23日） | 麻雀最強戦2019 | ryoei.pro</title>
+<meta property="og:title" content="ベスト32 A卓 | 女流プレミアトーナメント 華麗な技 | 麻雀最強戦2019 | ryoei.pro">
+```
+
+その対局 `saikyo/2019/20190223.html`:
+
+```
+<title>女流プレミアトーナメント 華麗な技（2019年2月23日） | 麻雀最強戦2019 | ryoei.pro</title>
+<meta property="og:title" content="女流プレミアトーナメント 華麗な技 | 麻雀最強戦2019 | ryoei.pro">
+```
+
+ほかの年度の卓 `saikyo/2024/20240317-s1-a.html`:
+
+```
+<title>ベスト8 A卓 | 女流新スター決戦（2024年3月17日） | 麻雀最強戦2024 | ryoei.pro</title>
+<meta property="og:title" content="ベスト8 A卓 | 女流新スター決戦 | 麻雀最強戦2024 | ryoei.pro">
+```
+
+- 参考（CHAT-1017-OGR-07 の未確認の項目）: 08:57 UTC に本番の `title/houou/` の og:title が「鳳凰戦 | タイトル戦 | 日本プロ麻雀連盟 | ryoei.pro」になっていることを確かめた
+
 ## 報告
 
-- 状態:
-- ブランチ:
-- ログ:
-- 比較URL:
-- 確認用URL:
-- マージ:
-- issue:
-- 判断が必要なこと:
-- 未確認の項目:
-- エラー:
+- 状態: 完了
+- ブランチ: work/1017-ogr
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1017-OGR-08.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1017-ogr
+- 確認用URL: 本番で確かめた（プレビューは見ない指示）。対局のページ https://ryoei.pro/saikyo/2019/20190223.html
+  この版の印: `saikyo/2019/20190223-s1-a.html` の og:title に日付が無い
+- マージ: 済（95555949b）
+- issue: #581（決定のコメント）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
