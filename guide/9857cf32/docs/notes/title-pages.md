@@ -26,7 +26,7 @@
 - OGP（#232、2026-10-01）: 決定の経緯は `docs/decisions/title.md`（grill Q1〜Q16 と DUP-07〜DUP-11）
   - og:image: 入口・大会ページ・期ページとも `img/ogp/title/index-white.png`（白地・黒字の「タイトル戦」と、その下に小さく「ryoei.pro」。大会ごとの画像は作らない、2026-10-16、#581）。
     写真は使わない（肖像権）。指定は `generate_title_pages.py` の `OG_IMAGE`。og:image:alt は「タイトル戦」
-  - og:title: 入口「タイトル戦 | 日本プロ麻雀連盟 | ryoei.pro」、大会ページ「<大会名> | …」、期ページ「<期の名前> | …」（`Period.title`。「第41期鳳凰戦」「第3回リーチ麻雀世界選手権」「麻雀日本シリーズ2025」のように、期と大会名の間は空けず、数え方は実物のまま）。
+  - og:title: 入口「タイトル戦 | 日本プロ麻雀連盟 | ryoei.pro」、大会ページ「<大会名> | タイトル戦 | …」、期ページ「<期の名前> | タイトル戦 | …」（大会・期は houou/ など同じ名前のページと X のカードで見分けるため「タイトル戦」を入れる、`section_og_label()`、2026-10-17、#581。`Period.title`。「第41期鳳凰戦」「第3回リーチ麻雀世界選手権」「麻雀日本シリーズ2025」のように、期と大会名の間は空けず、数え方は実物のまま）。
     `<title>` は正式名のまま（「… 歴代優勝者（第1期〜第42期）」「… 決勝結果」）。分けるのは `page_meta()` の `og_label`（`PageMeta.og_title`）
   - 画像は手で作ってコミットする（生成の Actions では作らない）: `python3 scripts/build_ogp_image.py --text タイトル戦 --footer ryoei.pro --color '#212529' --bg '#ffffff' --max-size 200 --tracking -0.03 --out img/ogp/title/index-white.png`。
     フォントは Noto Sans JP Bold（`~/.local/share/fonts/NotoSansJP-Bold.otf`、クラウドのセッションでは `raw.githubusercontent.com/notofonts/noto-cjk` の `Sans/SubsetOTF/JP/NotoSansJP-Bold.otf` から取得できた）。中身を変えるときは名前を変える（`docs/notes/ogp.md`「中身を差し替える画像はファイル名を変える」）

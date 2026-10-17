@@ -379,6 +379,14 @@ title/ では「タイトル戦」タブの大会の改名が「タイトル」�
   列記号で「プロ」を読む箇所は無い（`scripts/tests/test_pro_sheet.py` が `WHERE Y = "Y"`・`PRO_QUERY` などの再登場を検査する）。
   **廃止する11列（C・D・E・O〜U・W、`pro_sheet.RETIRED`）はどこも読まない**: 英字の姓名・所属・読みは名簿（`lib/meibo.py`。`check_pros()` が在籍者の欠けと人数を検査して止める）、
   成績の8列は `lib/pro_stats.py`、型C（`houou_leagues`・`ouka_leagues`・`check_leagues_dropped.py`）の選手候補は各ページの `load_candidates()`（「鳳凰」「桜花」タブに1行でもある在籍者）
+- **在籍者（「プロ」シート）が変わったとき（退会・入会・「表示」の切り替え）に作り直す生成物**（2026-10-17、HOU-67。HOU-64 で退会者1名を除いたとき、指示の対象の外の生成物が残った）。
+  ページ名は `regenerate.py` の対象名。読み元は `pro_sheet.fetch_pros()`（`lib/sns.py` の同名を含む）と `lib/meibo.py`。洗い出しは `grep -l "fetch_pros\|meibo\.fetch" scripts/generate_*.py scripts/lib/*.py`
+  - 在籍者だけを出す（行・人数・順位が変わる）: `houou_pages`（`houou/search.json`・`houou/ask-players.json`・`houou/results/`・ランキング・説明文の人数）、`jpml_pros`（行と人数）、
+    `ask_data`（`workers/ask/data.json` の `people`・ランキング）、`resource_dictionary`（`dic/pros.json`）、`houou_leagues`・`ouka_leagues`（選手の選択肢）。
+    `scripts/sync_birthday_calendar.py`（誕生日のカレンダー、ページではない）も在籍者を読む
+  - 登録済みの名前として読む（`hidden=True`。「プロ」から行が消えると写真・X が外れ、/live などでは未登録の名前になる。過去の記録の名前は残る）:
+    `houou_race`・`houou_pages` の順位変動、`title_pages`、`live_pages`・`saikyo_pages`・`books_pages`（`lib/name_book.py`）、`jpml_test`、`wayhome_episodes`・`video_wayhome`
+  - 週次の all（`fetch-youtube.yml` が月曜に呼ぶ）で全部作り直されるので、急ぐときだけ `regenerate-page.yml` を対象名で手動実行する
 - **作業の途中で平野さんがシートを直すことがある。** 最強戦の作業（CHAT-0918-SX）では、SX-08 の「連盟プロ以外」の見出しの改名
   （「備考」→「所属補足」）、SX-09 の「放送対局」の動画の移動があった。見出しの改名は、`lib/live.py` の `OTHER_HEADERS` と
   `generate_title_pages.py` の `EXPECTED_HEADERS` の照合で /live・/title・最強戦（作業ブランチの実装）の生成が止まり、壊れたページを書き出す前に拾えた
