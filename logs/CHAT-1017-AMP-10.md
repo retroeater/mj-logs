@@ -75,15 +75,58 @@ AMP-06（jpml_pros の「鳳凰」の1列）と AMP-09（43期後期が初めて
 | `assets/houou.js` | `NO_FINISHED_NOTE` | 文言を「データがありません」に（OUK の `assets/league.js` にも同じ文言） |
 | `scripts/generate_houou_pages.py` | `outputs()` | トップの人数を `len(site.active_players)` に戻した（AMP-09 の「行のある選手だけ」をやめた。個人成績の説明文と同じ数） |
 
+### 2. マージ
+
+- push 直前に再 fetch し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真であることを確かめて `git push origin work/1017-amp:cloudflare`（b3ad7b4..68d7285、fast-forward。権限での拒否なし。11:59:30 UTC）
+- 68d7285 の自動処理: 「ページの再生成」success・「サイトマップの lastmod の同期」success・「公開対象の検査」success ×2・「本番ビルド失敗の検知」skipped。「Workers Builds: mj」（プレビュー、success）・「mj-scheduler」success・「mj-ask」success
+- 再生成のコミット ae962df（`chore: regenerate … via GitHub Actions`）: 117ファイル。差分は `live/` のページと `sitemap-pages.xml` だけで、houou/・jpml_pros・`workers/ask/data.json` の差分は無い（この変更による再生成の差は無かった）
+- 本番が新しい `assets/houou.js`（「データがありません」）を返したのは 12:11:13 UTC（マージの約12分後）。本番のビルドの check-run は 68d7285 には付かず、続く ae962df 側で走ったと見られる（AMP-05 と同じ見え方）
+
+### 3. 本番の確かめ
+
+`https://ryoei.pro/…?…&v=<毎回違う値>` を headless Chromium（375px）で開いた（12:12 UTC ごろ）:
+
+| ページ | 確かめたこと |
+|---|---|
+| `houou/players/?name=小松崎舞` | 名前の横 E3、期別の先頭「43期後期 E3」で Ampai（43後 E3 の組）へのリンク。`&view=total` で「データがありません」 |
+| `?name=末続ヒロトシ` | D1、「43期後期 D1」（Ampai へのリンク） |
+| `?name=中村毅` | B1、「43期前期 B1」（進行中の期の行なし） |
+| `?name=佐々木寿人` | A1、「43期 A1」（Ampai へのリンク） |
+| `houou/`（トップ）・`houou/players/` | 説明文の人数がどちらも「在籍する選手715名」（description・og:description・本文） |
+| `jpml_pros.html` | 見出しは「名前|所属出身地|X|note|YouTube|鳳凰|桜花出場|桜花21期|桜花最高|最強出場|決勝進出|放送対局」。小松崎舞の「鳳凰」は E3 で `./houou/players/?name=小松崎舞`（新しいタブ） |
+
+- 確かめたのは本番の HTML・JS と headless Chromium での表示。実機のブラウザでの見え方は確かめていない
+- #584 に済んだことのコメントを書き、閉じた（「状況: 対応中」のラベルを外した。残る作業は無い。女流桜花への展開は #519 側）
+- #519 に、cloudflare に入ったことと「OUK への引き継ぎ」（AMP-09・AMP-10 のログ）への案内をコメントした
+- docs/decisions/houou.md に 2026-10-17（AMP-10）の決定を足した（1. のコミット）
+
+### 4. 作業ブランチ
+
+- work/1017-amp の先頭はマージの時点で 68d7285（cloudflare の祖先）。このログの追いのコミットも cloudflare へ入れるので、追いの後も cloudflare の祖先になる
+- クラウドセッションではリモートのブランチを削除しない（docs/notes/cloud-sessions.md「ブランチの削除」）。マージ済みの work/* は `cleanup-branches.yml` が先頭が24時間より前になってから消す
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1017-amp（cloudflare へマージ済み。リモートの削除は cleanup-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1017-AMP-10.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1017-amp
+- 確認用URL: なし（本番 https://ryoei.pro/houou/players/ と https://ryoei.pro/jpml_pros.html で確かめた）
+- マージ: 済（68d7285）
+- issue: #584（済んだことのコメント・クローズ）、#519（OUK への案内のコメント）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 68d72850）: https://github.com/retroeater/mj-logs/tree/main/guide/68d72850
+ガイド文書（この版を写した時点の最新、mj d42c0618）: https://github.com/retroeater/mj-logs/tree/main/guide/d42c0618
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/68d72850/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/68d72850/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/68d72850/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/68d72850/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/68d72850/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/68d72850/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d42c0618/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d42c0618/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d42c0618/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d42c0618/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d42c0618/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d42c0618/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/42c384b5.md
