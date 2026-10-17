@@ -1,6 +1,6 @@
 # 朝の報告用の異常（retroeater/mj）
 
-- 書き出した時刻: 2026-10-17 08:09 JST（見た範囲: 2026-10-16 06:09 JST から）
+- 書き出した時刻: 2026-10-17 09:20 JST（見た範囲: 2026-10-16 07:20 JST から）
 - 書き出した実行の契機: workflow_dispatch（main）
 - 異常だけを書く。全体は actions/status.md。判定は mj の scripts/morning_report.py（各ワークフローの直近 100 回まで）
 
@@ -13,7 +13,6 @@
 - 遅れの可能性: cleanup-branches.yml 予定 2026-10-17 07:53 の後に schedule・workflow_dispatch（cloudflare）の実行なし https://github.com/retroeater/mj/actions/workflows/cleanup-branches.yml
 - 遅れて実行: 2026-10-16 11:40 fetch-youtube.yml success（workflow_dispatch・cloudflare）予定 2026-10-12 05:37 → 開始 2026-10-16 11:40（＋102:03） https://github.com/retroeater/mj/actions/runs/38841595184
 - 遅れの可能性: sync-dojo-calendar.yml 予定 2026-10-17 07:12 の後に schedule・workflow_dispatch（cloudflare）の実行なし https://github.com/retroeater/mj/actions/workflows/sync-dojo-calendar.yml
-- 遅れの可能性: update-live-channel.yml 予定 2026-10-17 06:43 の後に schedule・workflow_dispatch（cloudflare）の実行なし https://github.com/retroeater/mj/actions/workflows/update-live-channel.yml
 
 ## 3. 所要時間の異常（直近20回の中央値の3倍以上、または10分以上。skipped は除く）
 
