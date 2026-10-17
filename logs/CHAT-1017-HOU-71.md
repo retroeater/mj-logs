@@ -110,15 +110,70 @@
   - 着手時の HEAD（コードは origin/cloudflare と同じ。差は docs/logs だけ）で、`regenerate.py` から5本を生成した: houou_pages・houou_race・houou_leagues・jpml_pros・ask_data
   - コミット済みの生成物との差は 0 件（`git status` に生成物の変更が出ない）
 
+### 2. 段3 の直し（b5a2f2a44）
+
+`git grep` で `SPAN_LEAGUES`・`SPAN_MARKS`・リーグ名（「鳳凰位」「A1」「A2」）を探し、通期かを判断している所を洗った（scripts・assets・workers）。
+
+| 所 | 前（段1） | 段3 | 理由 |
+|---|---|---|---|
+| `lib/houou_tab.py` の `term_half()` | 通期のリーグの「-」「後」を SPAN | **「-」だけ**を SPAN にした（`SPAN_MARKS` は `SPAN_MARK = "-"` に）。「後」は None で止まる | シートを読む所。リーグ名の一覧はここに残す（指示の前提のとおり） |
+| `lib/houou_tab.py` の `half_error()`（足した） | — | 止める理由: 「「鳳凰」シートの 期 42・リーグ A1・名前 甲 の行の「前後」が「後」です。通期のリーグ(鳳凰位・A1・A2)の「前後」は「-」で入れてください(#541)」。ほかのリーグは「… B1 の「前後」は「前」か「後」で入れてください」 | 直す行と直し方が分かる文言にする |
+| `generate_houou_pages.load_rows()`・`leagues_data()`、`generate_houou_race.build_periods()` | 「「前後」が不正です(…): {行の辞書}」 | `half_error()` の文言 | 同上 |
+| `lib/results.py` の `standings()` | `SPAN_LEAGUES = ("A1", "A2")` で通期のリーグを決める | その期に通期の行（`(期, SPAN, リーグ)`）があるかで決める。`SPAN_LEAGUES` は消した | データの通期の印で決める |
+| `generate_houou_pages.leagues_data()` | `results.SPAN_LEAGUES` を回して数える | 通期の行（`term_half()` が SPAN の行）のリーグごとに数える。モジュールの `SPAN_LEAGUES` は消した | 同上 |
+| `generate_houou_pages.upcoming_last()` | 進行中の期の前後（後期なら「後」）をそのまま | 通期のリーグは SPAN（検索の候補の期のキー `-0`）。リーグ名で決める | `houou_upcoming` は選手ごとにリーグだけを持ち、通期の印が無い。今のデータで当たる選手はいない（search.json は同じ） |
+| `assets/houou.js` の `termShort()`・`termLong()` | リーグ名（`SPAN_LEAGUES`）で通期 | 期の番号が `SPAN_HALF`（0）なら通期。引数のリーグを外した | 段3 の本体 |
+| `assets/houou.js` のリーグのタブの吹き出し（`tipLines()`） | `p.span` かリーグ名 | `p.row[1] === SPAN_HALF`（前期の側の `span` の印の行も同じ行を持つ） | データの通期の印 |
+| `assets/houou.js` の順位変動の URL（`initRace()` の `state()`） | リーグの頭文字が「A」なら通期 | `data-index` のその期の `"0"` にそのリーグがあれば通期 | 同上 |
+| `assets/houou.js` の `upcomingTerm()` | `half` は進行中の期の前後のまま（期の表示はリーグ名で通期） | **残した**: 通期のリーグなら `half` を `SPAN_HALF` にする（リーグ名で決める） | `houou_upcoming` に通期の印が無い。形を変えると生成物が変わる（段3 は生成物を変えない）。`SPAN_LEAGUES` はここだけで使う |
+| `assets/houou_race.js`（houou/ 側） | リーグの頭文字が「A」なら「通期」と表示・題名に前期・後期を付けない | 選んだ表の期のキーの番号が `'0'`（`SPAN_HALF`）なら | データの通期の印 |
+| `workers/ask/src/query.mjs` の `termLabel()` | リーグ名か期の番号 0 | 期の番号 0 だけ。引数のリーグを外した | 同上 |
+| `workers/ask/src/query.mjs` の `league()` | リーグ名で通期 | データにそのリーグの通期の行（期の番号 0）があるかで決める。`SPAN_LEAGUES` は消し、`LEAGUES` は14リーグを並べた | 同上 |
+| `lib/pro_stats.py` の `fetch_sources()`（jpml_pros） | `term_half(…) or half`（合わない値はそのまま） | **残した**（そのまま） | 「鳳凰」の検査は houou/ の生成（`load_rows()`）が受け持つ。jpml_pros は合わない値を前後の値のまま読み、ほかのページの生成を止めない（段1 と同じ） |
+| `generate_houou_race.legacy_half()`・`generate_houou_leagues.legacy_load()` | 旧ページのつなぎ（「-」→「後」） | **残した**（説明の「段1」の語だけ直した） | 決定のとおり #582 まで残す。`legacy_load()` はリーグ名で「-」を「後」にする（旧ページの入口） |
+| `generate_houou_leagues.py` の `LEAGUES`・`ZERO_LEAGUES`・A1/A2 の写し、`generate_houou_race.py` の `LEAGUES`・`FINAL_LEAGUE`、`assets/houou.js` の `LEAGUE_ORDER`・`TOP_LEAGUE`・`A1_TIER`、`workers/ask/src/ask.mjs` の `LEAGUES`、`query.mjs` の鳳凰位の注記 | — | 変えていない | リーグの並び・鳳凰位の扱いで、通期の判断ではない（旧ページの分は #582） |
+
+テスト:
+
+- 直したもの:
+  - `test_houou_tab.TermHalfTest`: 通期のリーグは「-」だけ。「後」「前」は None
+  - `test_houou_check`:
+    - 止める理由の文言（期・リーグ・名前と直し方）
+    - `test_span_league_half_is_dash`: 「-」は SPAN。A1 の「後」、A2 の「前」、B1 の「-」はそれぞれの文言で止まる
+  - `test_houou_race`:
+    - 通期のリーグの記録を「-」にした
+    - `test_span_league_half_dash_and_back_stops`: 「-」は `42-0`、旧ページは `42-2`。「後」は houou/ と旧ページの両方で止まる
+  - `test_houou_pages.UpcomingTermTest`: シートの行を「-」にした
+- 足したもの:
+  - `test_upcoming_last_marks_span_leagues`
+  - `workers/ask/test/query.test.mjs`:
+    - 通期の A2 は前期の指定があっても通期で答える
+    - データで通期の行を持つ B1 は通期として答える（リーグ名でなくデータで決める）
+- 直す前のコード（origin/cloudflare を scratchpad に展開）で直したテストを回した:
+  - 上の8件（Python 7・node 1）は落ちた
+  - `test_og_image_is_houou_image` も落ちたが、展開したコピーに画像が無いためで、この変更とは関係ない
+- `python3 -m unittest discover -s scripts/tests` は 1357 件 OK、`node --test 'workers/ask/test/*.test.mjs'` は 36 件 pass
+
+ドキュメント:
+
+- `docs/notes/houou-top.md`:
+  - 「通期のリーグ」の節を書き換えた: シートは「-」で入れる（44期以降も）、「後」で止まる、画面・質問欄はデータの通期の印、進行中の期だけリーグ名
+  - 期の書き方の行と「シートの「前後」の直し」の行も直した
+- `docs/notes/houou-race.md`: 「A1・A2 はシート上「後」」の2行を直した
+- `docs/decisions/houou.md`: 2026-10-17（CHAT-1017-HOU-71）の節を足した
+- `git grep "前後"` で、シートの「前後」の入れ方を書いた文書を探した。鳳凰の通期のリーグの入れ方を書いていたのは houou-top.md・houou-race.md だけだった（static-generation.md の pro_stats の説明は最新の期の決め方で、入れ方ではない）
+
+**段3 のコードでの生成**: 同じ5本を生成した。手順1 の生成物（＝コミット済み）との差は 0 件だった
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 68d72850）: https://github.com/retroeater/mj-logs/tree/main/guide/68d72850
+ガイド文書（この版を写した時点の最新、mj d42c0618）: https://github.com/retroeater/mj-logs/tree/main/guide/d42c0618
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/68d72850/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/68d72850/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/68d72850/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/68d72850/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/68d72850/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/68d72850/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d42c0618/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d42c0618/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d42c0618/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d42c0618/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d42c0618/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d42c0618/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/42c384b5.md
