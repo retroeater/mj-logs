@@ -54,17 +54,41 @@ MCK-16 で【2】自動変換後に 809行を入れた。カテゴリは既存�
 
 ## 経過
 
+### 0. 着手前の確認
+
+- 「指示」欄の末尾は指示文の最後の行と一致。CHAT-1017-MCK-16 の `## 報告` の状態は「判断待ち」
+- Chat-Ref の重複: `CHAT-1017-MCK-17` のコミット 0件（`MCK` はこのセッションの MCK-01 で使ったもの）
+- 作業ブランチ: `work/1017-mck-367-cat` はローカル・リモートとも無かったため `git checkout -b work/1017-mck-367-cat origin/cloudflare`（起点 2c104a70f）
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 4行ともある
+- #367: Open。最後の着手中のコメントはこのセッションのもの（MCK-16）。着手中のコメントを残した: https://github.com/retroeater/mj/issues/367#issuecomment-6229266296
+- 未マージの work/ ブランチで `scripts/convert_x_posts.py`・`convert-x-posts.yml` を変えているものは無い
+
+### 1. 「カテゴリ案」シートを作る処理（931ab66cd）
+
+- ワークフローは **既存の `convert-x-posts.yml` に `mode=categories` を足した**。理由: 同じスプレッドシートと同じ Secret（`ANTHROPIC_API_KEY`・`LIVE_SHEETS_SA_KEY`）を使い、書いてよいシートの決まり（【1】【3】・「ログ」に書かない）と Claude の呼び出し・費用の数え方をそのまま使えるため。ワークフローを増やすと、同じ確かめを2か所に持つことになる
+- `scripts/convert_x_posts.py` の `--mode categories`:
+  - 「ログ」シート（生成と同じ gviz の経路）の「カテゴリ」と【2】の「カテゴリ」を「、」で分けて単独の値にし、値ごとの件数を数える。「ログ」にある値が既存、【2】にだけある値が新しい案（【2】の「カテゴリの新しい案」の列は使わず、「カテゴリ」の列から数え直す。変換のときも「ログ」の単独の値と比べて新しい案を決めたので、数え方は同じ）
+  - `claude-sonnet-5-5` を1回呼び、既存と新しい案の一覧（**値と件数だけ**。投稿の本文・店名は渡さない）から、カテゴリごとのまとめ先の案と理由を JSON で返させる。案は「そのまま」（既存）・「新しく採る」（新しい案）か、渡した一覧にあるカテゴリの名前だけを受け付け、それ以外は空（「案なし」）にする
+  - 費用の上限は定数 $0.5。呼ぶ前に、最大の見込み（出力 16,000 トークン）で上限を超えないかを見る
+  - 「カテゴリ案」シートの列: カテゴリ・種類（既存／新しい案）・「ログ」での件数・【2】での件数・まとめ先の案・案の理由・決定（空）。並びは既存（「ログ」での件数の多い順）→ 新しい案（【2】での件数の多い順）
+  - 「カテゴリ案」シートがあり「決定」の列に値があれば、何も呼ばず書かずに止まる（「決定」の列が無いのに中身があるときも止まる）。無いか「決定」が全部空なら、中身を消してから書き直す
+  - 書く先は「カテゴリ案」シートだけ（【2】・「比較」は読むだけ・書かない）
+- `convert-x-posts.yml`: `mode` に `categories` を足し、`models` の説明に「all・categories は1つだけ」を足した（既定は dry-run のまま）
+- docs/notes/github-actions.md の convert-x-posts.yml の行に categories を足した
+- テスト 10件を追加（単独の値への分け方と件数・既存と新しい案の分け方・Claude に本文を渡さない・案の受け付け方・費用の上限・行の並びと列・「決定」に値があれば止まる・書く先が「カテゴリ案」だけで、あれば中身を消してから書く・dry-run は何も呼ばず書かない・本番の流れ）。直す前のコードには `categories` が無いので通らない。`python3 -m unittest discover -s scripts/tests`: OK
+- ワークフローを変えたので、マージ前に作業ブランチで dry-run（run 39000435570、931ab66cd、success）: 【2】809行、「カテゴリ案」シートは無い（本番で作る）。既存のカテゴリ 20種類（「ログ」で 2,233件・【2】で 470件）、新しい案 64種類・【2】で 226件（MCK-16 の集計と同じ）。予定: Claude 1回（`claude-sonnet-5-5`、上限 $0.5）
+
 ## 報告
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 2c104a70）: https://github.com/retroeater/mj-logs/tree/main/guide/2c104a70
+ガイド文書（この版を写した時点の最新、mj d8a64023）: https://github.com/retroeater/mj-logs/tree/main/guide/d8a64023
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c104a70/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c104a70/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c104a70/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c104a70/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c104a70/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c104a70/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d8a64023/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d8a64023/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d8a64023/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d8a64023/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d8a64023/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d8a64023/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a8c1d96c.md
