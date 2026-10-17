@@ -168,28 +168,62 @@ issue:
 - 順位変動のシート: 期の行の下は「A・B・C」の1行（前期・後期の行と A・B の番号の行は出さない）。C を押すと「C1・C2・C3」の行が出て、C2 を選ぶと題名が「第20期 C2」、URL が `?term=20-2&league=C2`
 - リーグのタブの再生（二階堂亜樹、24.5秒）のアイコンの画面内の座標（x, y / 幅・高さの比）: 375px は落ちた直後 (60, 341 / 0.16, 0.42)・寄った後 (90, 476 / 0.24, 0.59)・終わり (317, 342 / 0.84, 0.42)。1920px は (823, 453 / 0.43, 0.42)・(855, 595 / 0.45, 0.55)・(1099, 450 / 0.57, 0.42)。どれも画面の中
 
+
+### 4. 確かめ（続き）と文書
+
+- `python3 scripts/regenerate.py all` を作業ブランチ（9e1a255 の前）と、cloudflare のクローン（8988cc8）で同時に回した。どちらも EXIT 0・作業ツリーの差分0（データは着手時と同じ）。cloudflare との差の生成物は houou/ の13ページの JS を指す14行と、新しい ouka/・`workers/ask/data-ouka.json` だけ（旧 `houou_*`・`ouka_*`・title/・jpml_pros などは差分0）
+- プレビュー（work/OUK の別名）: ouka/ の4ページ・`assets/league.js`・`league_race.js`・houou/ のトップが手元のファイルと一致（`cmp`）。`/ouka` → `/ouka/`、`/ouka/ranking/` → `/ouka/ranking/total/` の 301。個人成績（二階堂亜樹）を headless Chrome で開いて JS のエラー 0。Workers Builds の check-run「Workers Builds: mj」は d8443ed で success（その後のコミットは scripts・workers・docs だけで、ビルドの run は付かなかった。配信のファイルは d8443ed と同じ）
+- check「check」（`check-assets.yml`）は failure: 「許可リストに無い最上位の項目が配信対象として検出されました: ouka」。指示どおりワークフローは変えていない
+- 公開の issue #591 を起票し、#519 に番号をコメントした
+- 文書: `docs/notes/ouka-top.md`（新規、houou/ との違いだけ）、handover.md の6章の表に1行、`docs/notes/static-generation.md`「ページの一覧」に ouka/ の行（noindex・メニュー未掲載、公開は #591）と `ask_data_ouka`、`houou-top.md`（JS の改名・「女流桜花への展開」）・`ask-worker.md`・`ogp.md`・`design.md`・`houou-race.md` の JS の名前、`redirects.md`、`docs/decisions/houou.md` に決定（2026-10-14 の「houou.js は今のまま確定」に置き換えの印）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/OUK
 - ログ: https://github.com/retroeater/mj/blob/work/OUK/docs/logs/CHAT-1017-OUK-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/OUK
-- 確認用URL:
-- マージ: 未
-- issue: #519・#516
+- 確認用URL: プレビューあり（URL は最終報告）。確かめたページ: ouka/ のトップ・個人成績（清水香織・二階堂亜樹）・ランキング（通算・期平均）・順位変動。この版の印: 個人成績の清水香織の名前の横のチップが桜色の「桜花」、期別の一番上が「21期 桜花」
+- マージ: 未（平野さんの判断待ち。プレビューの確かめと仮置きの決定の後、別のマージの指示で）
+- issue: #519（着手中のコメント・#591 の番号）、#516（#519 に取り込むコメント）、#591（公開の issue を起票）
 - 判断が必要なこと:
+  - (1) 見た目の値（プレビューを見れば判断できるもの）
+    - 桜花のチップと帯の色: #be185d（濃い桜色、白字 6.04:1）。ほかの案: 鳳凰位と同じ #9f1239、もっと淡い桜色に黒字
+    - リーグの色: A #fa5d27・B #ef972e（houou/ の A・B の「中」）、帯は C1 #ccaa2d・C2 #e8c133・C3 #eed066、チップの C1〜C3 は C2 の色で1色。ほかの案: houou/ の A1・B1 の濃い側、C の3段もチップで分ける
+    - ランキングの部門の格子は8部門で3段×3列の最後の1マスが空く。ほかの案: 4列×2段、空きに何かを置く
+    - 結果のチップ・通算のグラフの昇級・降級の丸・順位変動の昇級・降級・決定戦の帯が無い（「結果」の列が空のため）。ほかの案: リーグの移り（次の期のリーグ）から昇級・降級を導いて出す
+    - 順位変動の選ぶシートは「A・B・C」の1行と、C のときだけ「C1・C2・C3」の行。前期・後期の行は出さない
+    - 最近見た選手が無いときの1件は「桜花」の印で最新の期の桜花（清水香織）
+    - OGP 画像 `img/ogp/ouka/index-white.png`（白地・黒字の「女流桜花」＋「ryoei.pro」）。ogp.md の「文字ベースの画像は4種類」に5種類目を足した（navbar を1段にする案が前提）
+  - (2) 見ただけでは判断しにくいもの
+    - JS の名前: `assets/league.js`・`assets/league_race.js`。`houou_ask.js`・`houou_ask.css`・CSS のクラス名（`.mj-houou-*`）・要素の id（`houou_search` など）・ページの JSON の id（`houou_current`・`houou_upcoming`）は変えていない（houou/ の生成物の差分を JS の行だけにするため）。ほかの案: これらも `league_*` にそろえる（houou/ のページの差分が増える）
+    - 大会の設定の渡し方: ouka/ のページだけに `<script type="application/json" id="league_contest">`、枠に `is-ouka` のクラス、質問欄に `data-contest="ouka"`。houou/ は何も持たず JS の既定で動く
+    - 生成の作り: `generate_houou_pages.py` の `Contest`（`HOUOU`・`OUKA`）と `using()` でモジュールの `CONTEST`・出力先を切り替え、`generate_ouka_pages.py` は入口だけ。ファイル名は `generate_houou_pages.py` のまま（work/1017-amp が同じファイルに関数を足しているため、名前を変えなかった）
+    - `regenerate.py --changed` は `generate_houou_pages.py` が変わっても `ouka_pages` を選ばない（`scripts/lib/` の変更なら全ページ）。週次の `all` では作り直される
+    - ランキングは8部門（連続昇級回数なし）。表示対象は houou/ と同じ自動ルール（旧の件数の上限 50・30・23・20 は使わない）。規定は 5期・25節（決定どおり）
+    - 前期・後期が無い大会を「全行が後期・全リーグが通期」として扱った（期のキー `21-2`、URL `?term=20-2&league=A`）。ほかの案: 期のキーを `21` にする（JS と生成の分岐が増える）
+    - 順位変動の対象の期は第1期〜第20期（節の成績のある期すべて）
+    - 文言: title「<ページ> | 女流桜花 | 日本プロ麻雀連盟 | ryoei.pro」、トップの h1「女流桜花」、説明文は houou/ の大会名を替えたもの、トップのランキングの説明「通算・期最高など8部門」、質問欄の例「例：20期の女流桜花は？」
+    - 最近見た選手のキー `mj:recent-players:ouka`
+    - 質問欄の範囲: ouka/ の問いは女流桜花のデータ（`data-ouka.json`）と女流桜花の指示だけで答え、鳳凰戦の問いを ouka/ で聞かれても「答えられません」（指示の none）。鳳凰戦の問いへの答え方は変えていない。D1 の記録の型は「ouka:league」の形（答えられなかった問いは「ouka:」）。ほかの案: 表に大会の列を足す（schema の変更が要る）
+    - Worker の決勝の名前は「女流桜花決定戦」、決勝の人数の上限の検査は鳳凰戦と同じ4名（20期とも収まった）
+  - ランキングの突合で違った行: 期浮き率の齋藤麻衣子（旧 0.684・12位、新 0.267）の1件。旧 JS の既知の誤り（1人前の選手の率が入る）で、新を正とした。ほかの7部門は在籍者だけで付け直すと一致。旧は退会者を含む（通算 8件・期平均 3件・期最高 25件・期浮き率 1件・期連続浮き 6件・節最高 25件・節浮き率 2件・節連続浮き 7件）
+  - 要るワークフローの変更: `check-assets.yml` の許可リストに `ouka` を足す（今は作業ブランチの check が失敗する。失敗通知が届くが、この指示では対応不要）。#519 のマージ前に足すか、公開（#591）で足すかの判断
+  - このマージでよいか（プレビューの確かめと上の仮置きの決定の後、別のマージの指示で）
 - 未確認の項目:
-- エラー:
+  - 質問欄の実際の問い（Claude を呼ぶ確かめ）: プレビューには `/api/ask` が無く（Worker のルートは本番の ryoei.pro だけ）、確かめていない。マージ後に本番の ouka/ で1問（例「20期のAリーグは？」）を聞き、答えと D1 の記録の型「ouka:league」を見る。Worker `mj-ask` の Workers Builds が `data-ouka.json` を含めてビルドされるかもマージ後に見る
+  - 平野さんの実機（iPhone の文字の拡大・リーグのタブの再生）での見え方
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 14ed9b71）: https://github.com/retroeater/mj-logs/tree/main/guide/14ed9b71
+ガイド文書（この版を写した時点の最新、mj 6f7b8b94）: https://github.com/retroeater/mj-logs/tree/main/guide/6f7b8b94
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/14ed9b71/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/14ed9b71/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/14ed9b71/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/14ed9b71/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/14ed9b71/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/14ed9b71/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6f7b8b94/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6f7b8b94/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6f7b8b94/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6f7b8b94/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6f7b8b94/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6f7b8b94/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a8c1d96c.md
