@@ -225,28 +225,40 @@ Chat-Ref: CHAT-1017-PAD-01
 - `title/` の入口 390px: フォールバック（バー1行の 61px）とバーの実際（2行 115px）の差で、**毎回** 0.0551 のずれと、JS 無効で本文の先頭 38px がバーの下に隠れる。saikyo/ の #381 と同じ形（年のプルダウンのある入口だけ）。直すなら幅ごとのフォールバックで、2行になる幅の境目を測る必要がある
 - `houou_leagues.html`: `p.mj-lead` が毎回 0.0199（390px）／0.0056（1100px）動く。原因は調べていない
 
+### 4. issue・文書
+
+- #428 に結果をコメントした（範囲を動画のページまで広げたことを冒頭に書いた）。閉じない。ラベルは変えていない
+- 決定を `docs/decisions/site-review.md` に足した（#428 の分野のファイルは saikyo.md もあるが、今回の決定は第3弾の作業の範囲の決定なので site-review.md にした）
+- 変えたファイルは `docs/logs/CHAT-1017-PAD-01.md` と `docs/decisions/site-review.md` だけ
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1017-pad
-- ログ: https://github.com/retroeater/mj/blob/work/1017-pad/docs/logs/CHAT-1017-PAD-01.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1017-PAD-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1017-pad
 - 確認用URL: なし
-- マージ: 未
+- マージ: 済（fast-forward、cloudflare 9e8c4c175）
 - issue: #428
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 判断が必要なこと:
+  - 表のページ（`body:has(.mj-table)`）の `:has()` 待ちのずれを直すか。直すなら案T1（`scripts/lib/page.py` の表のページ専用の `PAGE_TEMPLATE` と `generate_jpml_pros.py` のテンプレートの `<body>` に `class="mj-table-page"`、`style.css` の4規則を置き換え。変わるのは表の9枚だけ）か案T2（9つの生成スクリプトでそれぞれ足す）か。案T1 は全ページ共通の `page.py` を触る
+  - 表のページの `padding-top` のフォールバック 90px と実測（56px／80px）の差による毎回のずれ（0.0041〜0.0376、`:has()` ではない）を #428 で一緒に直すか、別の issue にするか
+  - `title/` の入口の 390px のずれ（毎回 0.0551）と JS 無効で本文の先頭 38px が固定バーの下に隠れる件（フォールバックがバー1行分、`:has()` ではない）を issue にするか
+  - `live/` の入口の 1100px の `:has()` 由来のずれ（5/10、1回 0.0002）を直さないでよいか
+- 未確認の項目:
+  - iPhone の実機（Safari）での見え方は確かめていない（headless Chromium だけ）
+  - `houou_leagues.html` の `p.mj-lead` が毎回動く原因（範囲外。調べていない）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 6e1da5ac）: https://github.com/retroeater/mj-logs/tree/main/guide/6e1da5ac
+ガイド文書（この版を写した時点の最新、mj e61b4b99）: https://github.com/retroeater/mj-logs/tree/main/guide/e61b4b99
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6e1da5ac/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6e1da5ac/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6e1da5ac/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6e1da5ac/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6e1da5ac/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6e1da5ac/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e61b4b99/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e61b4b99/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e61b4b99/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e61b4b99/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e61b4b99/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e61b4b99/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/6e1da5ac.md
