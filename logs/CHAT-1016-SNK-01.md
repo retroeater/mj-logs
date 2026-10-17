@@ -126,29 +126,32 @@ Chat-Ref: CHAT-1016-SNK-01
 - CLAUDE.md「ブランチ運用」（生成されたページ以外が衝突したら止まる。指示文に解き方が無い）に従い、`git merge --abort` で取り込みを取りやめ、マージしていない。work/1016-snk は ee9544de9 のまま
 - 解き方の案: 両方を残し、日付の古い順（docs/decisions/README.md「書き方」）に SNK-01（10-16）を HOU-67・HOU-68（10-17）の前に置く
 
+### 続き（CHAT-1017-SNK-02）
+
+- 衝突は CHAT-1017-SNK-02 で両方を残して日付順に解き（マージコミット 0f55977aa）、cloudflare へマージした。詳細は CHAT-1017-SNK-02 のログ
+
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 完了 / 続き: CHAT-1017-SNK-02
 - ブランチ: work/1016-snk
-- ログ: https://github.com/retroeater/mj/blob/work/1016-snk/docs/logs/CHAT-1016-SNK-01.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1016-SNK-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1016-snk
 - 確認用URL: なし
-- マージ: 未（cloudflare の取り込みで docs/decisions/houou.md が衝突したため止めた）
+- マージ: 済（CHAT-1017-SNK-02 で衝突を解いて cloudflare へ。マージコミット 0f55977aa）
 - issue: #587（起票、状況: 保留）
-- 判断が必要なこと:
-  - cloudflare の取り込みで docs/decisions/houou.md が衝突した（末尾への追記どうし: SNK-01 と HOU-67・HOU-68）。両方を残し、日付順に SNK-01 を HOU-67 の前に置いて解き、cloudflare へマージしてよいか
+- 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj bd0ffc53）: https://github.com/retroeater/mj-logs/tree/main/guide/bd0ffc53
+ガイド文書（この版を写した時点の最新、mj 538ab657）: https://github.com/retroeater/mj-logs/tree/main/guide/538ab657
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/bd0ffc53/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/bd0ffc53/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/bd0ffc53/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/bd0ffc53/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/bd0ffc53/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/bd0ffc53/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/538ab657/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/538ab657/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/538ab657/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/538ab657/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/538ab657/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/538ab657/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/e61b4b99.md
