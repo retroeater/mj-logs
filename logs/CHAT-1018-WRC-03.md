@@ -58,6 +58,11 @@
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている（改行が詰まって1行に続いているが、各行の名前はある）
 - 作業ブランチ: リモート・ローカルとも無いため `git checkout -b work/1018-wrc-result origin/cloudflare`（efdeccaf2）
 
+### 手順1: 記録
+
+- docs/decisions/operations.md に「## 2026-10-18（CHAT-1018-WRC-03）」の節を足し、決定の5件を書いた。置き換える 2026-10-15 の行（「JWRC タブの『結果』の列は今はまだ使わない。…」）の行末に「→ 置き換え: 2026-10-18（CHAT-1018-WRC-03）」を付けた
+- #571 にコメント: https://github.com/retroeater/mj/issues/571#issuecomment-6235786930 （決定の5件、MCK-05 のコメントの「第18・19期は敗退を入れる」は置き換え済みの旨、着手中）
+
 ## 報告
 
 - 状態: 作業中

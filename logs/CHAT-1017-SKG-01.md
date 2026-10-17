@@ -48,6 +48,41 @@
 
 ## 経過
 
+### 着手前の確認
+
+- 0. ログの「指示」欄の末尾は指示文の最後の行（「不明な点があれば、…この行が指示文の最後の行です。」）と一致
+- `git fetch --unshallow origin` の後、`git log --all --grep="SKG"` と `docs/logs/*SKG*` の履歴は0件。`origin/work/1017-skg`・ローカルの `work/1017-skg` は無し → `git checkout -b work/1017-skg origin/cloudflare`
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある
+- 未マージの work/ ブランチ7本のうち、`scripts/generate_saikyo_pages.py`・`scripts/*saikyo*`・`.github/workflows/regenerate-saikyo.yml` を変えているものは0本
+- `regenerate-saikyo.yml` の workflow_dispatch の入力の既定値: abema=`update`、regenerate=`true`（両方を動かす値が既定）
+
+### 手順1: `python3 scripts/regenerate.py --check saikyo_pages`
+
+終了コード 0、「検査: 通りました」。止まる理由は0件。警告 9件:
+
+- 「別名」の行を使いません(変換後が「プロ」にも「連盟プロ以外」にもありません): 柊かえで → 柊木かえで
+- 動画URLが ABEMA の回の URL ではありません(リンクだけ出し、サムネイルは出しません): 2026 超技巧合戦 ベスト8 A卓・B卓、2026 Mの乱 ベスト8 A卓・B卓、2026 団体対抗スペシャル合戦 ベスト8 A卓・B卓、2026 団体分裂合戦 ベスト8 A卓・B卓（各 `abema.tv/channels/mahjong/slots/...` の URL、計8件）
+
+ほか: シート 2576件、年度・対局・卓のページ 879件、写真URLがXのデフォルトアイコンだった行 3件。
+
+### 手順2: `python3 scripts/regenerate.py saikyo_pages`（作業ブランチ）
+
+終了コード 0。`git status`: 変更 52ファイル（saikyo/ 51・sitemap-saikyo.xml 1）、新規 1ファイル（`saikyo/2026/20261011-s2.html`）。`git diff --stat`: 52 files changed, 594 insertions(+), 552 deletions(-)（新規ファイルを除く）。
+
+- (a) 結果が足された対局・卓のページ（6件）:
+  - `saikyo/2026/20261011-s2.html`（新規）: 2026 団体分裂合戦（2026年10月11日）決勝。1位 優勝 下石戟、2位 敗退 宮崎和樹、3位 敗退 河野高志、4位 敗退 瀬戸熊直樹
+  - `saikyo/2026/20261011-s1-a.html`: ベスト8 A卓に順位が付いた。1位 通過 宮崎和樹、2位 通過 下石戟、3位 敗退 堀慎吾、4位 敗退 岩崎啓悟（前は順位なしで 岩崎・下石・堀・宮崎 の並び）
+  - `saikyo/2026/20261011-s1-b.html`: ベスト8 B卓に順位。1位 通過 瀬戸熊直樹、2位 通過 河野高志、3位 敗退 阿部孝則、4位 敗退 藤崎智
+  - `saikyo/2026/20261011.html`（対局）: A卓・B卓の順位と決勝の節が足された
+  - `saikyo/2026/index.html`（年度）・`saikyo/index.html`（トップ）: 団体分裂合戦の行の順位・決勝が足された（トップは埋め込みデータの差 1行）
+  - 補足: 今回足されたのは 2026-10-11 団体分裂合戦のベスト8 A卓・B卓の順位と決勝の1卓とみられる（シートの差は生成物の差から推定。シート自体の前後は見ていない）
+- (a に付随) 出場した8人（下石戟・宮崎和樹・河野高志・瀬戸熊直樹・堀慎吾・岩崎啓悟・阿部孝則・藤崎智）の過去の卓のページ 45件: 「〇〇の他の対局（N件）」の件数が1増え、決勝のカードが足された（例: `saikyo/2011/20111123-s1-a.html` 瀬戸熊直樹 34件→35件）。2011〜2025 の各年に分布
+- (b) 選手写真の URL だけの差: 0件（pbs.twimg の差 12行は、2026 の3ページで選手の並びが順位順に変わったことによる）
+- (c) `sitemap-saikyo.xml`: `saikyo/2026/20261011-s2.html` の `<url>` が1件増えた（lastmod 2026-10-18。Actions の生成と `regenerate-sitemap.yml` が正）
+- (d) その他: 0件
+
+生成物はコミットせず `git checkout -- saikyo/ sitemap-saikyo.xml` と新規ファイルの削除で戻した（`git status --short` が空）。
+
 ## 報告
 
 - 状態: 対応中
