@@ -116,6 +116,58 @@ issue:
 | 表示件数（旧） | 通算得点 50・通算得点/期 30・期単位浮き率 23・節単位浮き率 20・ほか 100 |
 | 部門 | 旧 `ouka_ranking.html` は8部門（「連続昇級回数」が無い。「結果」が空のため） |
 
+着手のコメント: #519（着手中）・#516（#519 に取り込む）に書いた。
+
+### 2. 作ったもの
+
+(a) 共通化と JS の改名（0780ba3）
+
+- `assets/houou.js` → `assets/league.js`、`assets/houou_race.js` → `assets/league_race.js`（`git mv`）。ページの `<script type="application/json" id="league_contest">` があればリーグ・期の書き方・履歴のキー・題名の接尾辞を読み、無ければ鳳凰戦の既定のまま動く。`assets/houou_ask.js` も同じ設定でチップの段を引き、`data-contest` があれば問いに大会を添える
+- `generate_houou_pages.py`: 大会の設定を `Contest`（`HOUOU`・`OUKA`）にし、`using(contest)` で `CONTEST`・出力先を切り替える。前期・後期の無い大会は全行を「後」にして通期のリーグと同じ扱い（画面は「21期」）。work/1017-amp が足す `current_league_table()` が使う関数（`load_rows`・`leagues_data`・`current_leagues`・`upcoming_term`）は鳳凰戦の既定のまま呼べる形に残した
+- `generate_houou_race.py`: `build_periods()` にリーグ・節の見出し、`render_page()`・`pick_default()` に「結果を求めるか」の引数を足した（既定は今のまま）
+- `lib/results.py` の `standings()` にリーグの引数（既定は鳳凰戦）
+- houou/ の生成物の差分は、改名した JS を指す14行だけ（13ページの `league.js`・順位変動の `league_race.js`）。旧 `houou_race.html` は差分0
+- 直したテスト: `test_houou_ask.py` の node への入力を `setEncoding('utf8')` で読む（全員の成績を流すとチャンクの境目で名前が割れ、1回目の全テストで `KeyError: '今村壮吾'` になった。もう一度回すと通る。直した後は3回続けて通った）
+
+(b) ouka/（d8443ed）
+
+- `scripts/generate_ouka_pages.py`（`using(OUKA)` で同じ生成を動かす入口）、`regenerate.py` の `"ouka_pages": "ouka/"`
+- 生成: トップ・個人成績・ランキング8部門・順位変動・`search.json`・`players/leagues.json`・`ask-players.json`・成績 JSON 164ファイル・`race/<期>-2.json` 20ファイル。合計 198ファイル・919,857バイト。全ページ noindex、ページの中に「鳳凰」の字は無い
+- 生成のログ: 選手 248名（在籍 164名）、名寄せ 樫野凪 → かしのなぎ（2行）、進行中の期 21期・在籍者 124名（Ampai のリンクあり 123名。無い1名は桜花の清水香織）、ランキングは「第20期終了時点」
+- ランキングの表示対象（自動ルール）: 通算 100件・期平均 47件（全件）・期最高 100件・期浮き率 94件（全件）・期連続浮き 56件（57〜135位の 2 の群れを外す）・節最高 100件・節浮き率 95件（全件）・節連続浮き 104件（45〜104位の 5 を含める）
+- `style.css` に `.is-ouka` のリーグの色、`img/ogp/ouka/index-white.png`（`build_ogp_image.py`、フォントは noto-cjk から取得。同じ手順で `img/ogp/houou/index-white.png` を `--check` すると「一致」）、`_redirects` に `/ouka`・`/ouka/ranking/` の 301 と 200 の3行、`docs/notes/redirects.md` に `/ouka/ranking/` の行（`test_redirects_inventory.py` が求める）
+
+(c) Worker（e542cdc）
+
+- `scripts/generate_ask_data_ouka.py` → `workers/ask/data-ouka.json`（83,758バイト。選手 248名・決勝 20期・放送対局 9ページ、「contest」に大会の名前・リーグ・部門）。`data.json` は差分0
+- `query.mjs` の文言・リーグを `data.contest`（無ければ鳳凰戦）から、`ask.mjs` は問いの `contest` でデータ・指示・出力の形を選ぶ。知らない大会は 400（数えない）。記録の型は「ouka:league」の形
+- テスト: `python3 -m unittest discover -s scripts/tests` 1311件 OK、`node --test 'workers/ask/test/*.test.mjs'` 42件 OK（鳳凰戦の既存の36件はそのまま通る。桜花は `ouka.test.mjs` の6件）
+
+### 3. 確かめ
+
+ランキングの突合（旧 `ouka_ranking.html` を headless Chrome で開き、Google Charts が出した表を取り出した。8部門）:
+
+旧ページは退会者を含む・表示件数が旧の上限（50・30・23・20・100）。旧の表から在籍者でない選手を除いて順位を付け直し、新の表の先頭と比べた。
+
+| 部門 | 旧の件数 | 在籍者でない（除いた） | 新の先頭と一致 | 不一致 |
+|---|---|---|---|---|
+| 通算 | 50 | 8 | 42 | 0 |
+| 期平均 | 30 | 3 | 27 | 0 |
+| 期最高 | 100 | 25 | 75 | 0 |
+| 期浮き率 | 23 | 1 | 12 | 10（下） |
+| 期連続浮き | 62 | 6 | 56 | 0 |
+| 節最高 | 100 | 25 | 75 | 0 |
+| 節浮き率 | 20 | 2 | 18 | 0 |
+| 節連続浮き | 51 | 7 | 44 | 0 |
+
+期浮き率の不一致は齋藤麻衣子の1件から後ろが1つずつずれたもの: 旧は 0.684（12位）、新は 0.267（15期中4期浮き）。旧 JS の既知の誤り（名前の順で最後の選手に1人前の選手の率が入る。`lib/ranking.py` の先頭の説明）で、直前の黒沢咲の 0.684 が入っていた。新を正とする。名寄せ（樫野凪）で変わった行は無かった。
+
+表示（ローカルの `python3 -m http.server` で ouka/ を開いた。headless Chromium）:
+
+- 375×812・1280×800・1920×1080、375px の字の大きさ 150%・200% で、トップ・個人成績（清水香織の期別、二階堂亜樹のリーグ・部門別）・ランキング（通算）・順位変動の30通り。横のはみ出し 0、JS のエラー 0（質問欄の `/api/ask/status` は手元に無いので 404）
+- 順位変動のシート: 期の行の下は「A・B・C」の1行（前期・後期の行と A・B の番号の行は出さない）。C を押すと「C1・C2・C3」の行が出て、C2 を選ぶと題名が「第20期 C2」、URL が `?term=20-2&league=C2`
+- リーグのタブの再生（二階堂亜樹、24.5秒）のアイコンの画面内の座標（x, y / 幅・高さの比）: 375px は落ちた直後 (60, 341 / 0.16, 0.42)・寄った後 (90, 476 / 0.24, 0.59)・終わり (317, 342 / 0.84, 0.42)。1920px は (823, 453 / 0.43, 0.42)・(855, 595 / 0.45, 0.55)・(1099, 450 / 0.57, 0.42)。どれも画面の中
+
 ## 報告
 
 - 状態: 作業中
@@ -132,12 +184,12 @@ issue:
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj c52dc764）: https://github.com/retroeater/mj-logs/tree/main/guide/c52dc764
+ガイド文書（この版を写した時点の最新、mj 14ed9b71）: https://github.com/retroeater/mj-logs/tree/main/guide/14ed9b71
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c52dc764/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c52dc764/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c52dc764/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c52dc764/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c52dc764/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c52dc764/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/c52dc764.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/14ed9b71/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/14ed9b71/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/14ed9b71/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/14ed9b71/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/14ed9b71/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/14ed9b71/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a8c1d96c.md

@@ -69,6 +69,58 @@
 
 - 着手前の確認: 同じ Chat-Ref のコミットなし。HOU-69 と同じセッション。origin/work/1017-hou はマージ済みで、ローカルの work/1017-hou も origin/cloudflare の祖先なので `git merge --ff-only origin/cloudflare` で進めた（既に最新）。雛形の行は揃っている。「指示」欄の末尾は指示文の最後の行と一致
 
+### 1. 着手の確かめ
+
+- #541 に 2026-10-17 02:30 UTC 以降のコメントは無い（他のセッションの着手中なし）。着手中のコメントを書いた
+- 未マージのブランチ: work/1009-swp-526・1011-swp-hnd・1011-swp-nav・1015-skd-notes は HOU-69 の表のファイルを変えていない。work/1017-pad は `scripts/lib/page.py`（表に無い）だけ。**work/1017-amp（他のセッション、AMP-06、未マージ）が `scripts/generate_houou_pages.py` に新しい関数 `current_league_table()` を足し、jpml_pros の鳳凰戦の列を「現在のリーグ」の1列にしている**。表の関数そのものは変えていない（足すだけ）ので止まる条件には当たらないと判断した。新しい関数は `results.HALF_NUMBERS[r.half]` と `current_league()` を使うので、通期の印を `HALF_NUMBERS` に入れ（通期は 0）、`current_league()` も通期の行に合う形にして、後からマージされても動くようにした（マージの順で取り込みの衝突が出るかは、後でマージする側が確かめる）
+- `docs/notes/ask-worker.md` の固定の5問の節を読んだ
+- CHAT-1017-HOU-69 のログの状態の末尾に ` / 続き: CHAT-1017-HOU-70` を足した
+- `git grep` で HOU-69 の表から増えた所: `generate_houou_pages.py` の `upcoming_term()`（AMP の進行中の期。「前後」で最新の期を決め、Ampai を引く）と `current_league()`・`champion_name()`、`assets/houou.js` の `currentLeague()`・`initRace()`、`assets/houou_race.js` の `normalize()`、`workers/ask/src/query.mjs` の `league()`
+
+### 2. 直した所（5c56a4a9b）
+
+決めた通期の形（`docs/notes/houou-top.md`「通期のリーグ」にも書いた）:
+
+| 場所 | 形 | 理由 |
+|---|---|---|
+| 読む所 | `lib/houou_tab.py` の `term_half(リーグ, 前後)`: 通期のリーグ（鳳凰位・A1・A2）の「-」「後」は `SPAN`（「通」）、ほかは「前」「後」。通期のリーグの「前」・ほかのリーグの「-」などは None で、生成は止まる | 「後」と「-」を1か所で同じ値にする |
+| 成績 JSON・`data.json` | 期の番号は 0（前期 1・後期 2）。`lib/results.py` の `HALF_NUMBERS`。並び（`HALF_ORDER`）は後期と同じ位置 | 1・2 と重ならない。行の順は前と同じ |
+| 順位変動 | 期のキー `<期>-0`（`houou/race/42-0.json`、`data-index` の `"0"`）、URL `?term=42&league=A1` | 前期・後期と分け、URL は期だけで通期を表す |
+| 数え方 | 前期・後期は前期・後期のリーグの行で決め、通期のリーグはその期の前期・後期の両方に数える | 結果は前と同じ |
+
+直した関数:
+
+- `lib/houou_tab.py`: `SPAN_LEAGUES`・`SPAN`・`SPAN_MARKS`・`HALVES`・`term_half()` を足した
+- `lib/results.py`: `HALF_ORDER`・`HALF_NUMBERS` に通期。`standings()` を「通期を前期・後期の両方に数え、通期の行の値はその期の最後の単位（後期）の数」に書き直した（前の「前期に後期の単位を写す」をやめた）
+- `lib/ranking.py`: `HALF_ORDER` に通期、`latest_period()` は通期の行で前期・後期を決めない
+- `lib/pro_stats.py`: `fetch_sources()` で「鳳凰」の前後を `term_half()` に。`in_half()` を足し、`contest_stats()`・`_latest()` は通期の行が最新の期の前期・後期のどちらにも当たる形。`periods()` は通期の行で最新の期を決めない。Ampai は最新の期の前後の行を引く（今は 43後。Ampai のブックは通期のリーグも前・後の2行を持つので、ほかの引き方は要らない）
+- `generate_houou_pages.py`: `load_rows()`（`term_half()`、止める理由の文言）、`load_groups()`、`term_range()`（通期で前期・後期を決めない）、`leagues_data()`（書き直し。`fill_front_half()` を使わず、通期を両方に数える）、`upcoming_term()`（最新の期は前期・後期のリーグの行で決め、通期の行はその期に当たる）、`champion_name()`（期だけで比べる）、`in_term()` を足して `current_league()` に使う、`render_race()`（説明文の期の範囲は通期のキーを除く）、`prepare()` は `load_periods(half_of=race_page.term_half)`
+- `generate_houou_race.py`: `HALVES` に通期（0）。`term_half()`（houou/ 用）と `legacy_half()`（旧ページだけ。「-」を「後」に戻す）を足し、`build_periods()`・`load_periods()` は `half_of` を引数で受ける。`pick_default()` は通期のキーを後期と同じ位置で比べる。旧ページの `main()`・`run_check()` は `legacy_half`
+- `generate_houou_leagues.py`: `legacy_load()`（旧ページだけ。`load()` の通期の「-」を「後」に戻す）を足し、`main()`・`run_check()` が使う。`check_leagues_dropped.py` も houou は `legacy_load`（`analyze()` に `load` の引数）
+- `assets/houou.js`: `SPAN_HALF = 0`、`inTerm()` を足して `currentLeague()` に使う、`leaguePositions()` は通期の行をその期の後期と前期の両方に置く（前期の側は span の印。前の「後期の行を前期にも写す」の書き方を変えた）、`initRace()` は `?term=42` を通期として読み、A リーグの URL は `?term=<期>` にする。`termShort()`・`termLong()` は段3 まで残す（説明の行だけ直した）
+- `assets/houou_race.js`（houou/ 側）: `normalize()` は通期（`'0'`）から前期・後期のリーグへ移るとき後期を先に選ぶ（前と同じ動き）。旧 `houou_race.js` は変えていない
+- `workers/ask/src/query.mjs`: `SPAN_HALF = 0`。`raceUrl()` は通期を `?term=<期>`、`league()` は通期のリーグで前期・後期の推測の注記を出さない。`termLabel()` は前から期の番号 0 で「第42期」と書く。`ANSWER_SYSTEM` は変えていない
+
+テスト（足した・直したもの）: `test_houou_tab.TermHalfTest`（「-」「後」→ SPAN、「前」・ほかは None）、`test_houou_check.PagesCheckTest.test_span_league_half_dash_and_back_are_the_same`（`load_rows()` で「後」と「-」が同じ行、「前」と B1 の「-」は止まる）、`test_houou_race` の `test_span_league_half_dash_and_back_are_the_same`・`test_span_league_front_half_stops`（houou/ は `42-0`、旧ページは `42-2` のまま、「後」と「-」で同じ）、`test_pro_stats.AmpaiTest.test_span_rows_match_any_half`（Ampai のリンク・最新の期のリーグが「後」と同じ）。期待値を直したもの: `test_houou_race` の通期のキー（`42-0`・`43-0`、進行中の止める文言の「第43期 A1」）、`test_houou_pages` の `standings()`（通期の行の値は後期の数）、`workers/ask/test/query.test.mjs`（通期の行の期の番号 0、URL `?term=43&league=A2`、注記なし）。足したテストは直す前のコードには無い関数・引数（`term_half`・`half_of`・SPAN）を使うので、直す前では通らない。
+`python3 -m unittest discover -s scripts/tests` 1307件 OK、`node --test 'workers/ask/test/*.test.mjs'` 36件 pass（全体の1回目で `test_houou_ask.GeneratedRosterTest` が1回だけ ERROR、単独と2回目の全体では通った。生成物の書き出しと並んで node を呼んだときの一時的なものと見ている）
+
+### 3. 確かめ（マージの前）
+
+**「後」の生成と cloudflare の差**: シートの変化を混ぜないよう、origin/cloudflare のコードを scratchpad に展開し（`git archive`）、同じ時刻に生成スクリプト（houou_pages・ask_data・jpml_pros・houou_race・houou_leagues）を直接流した（base）。base と HEAD のコミット済みの生成物の差は 0 件（シートの変化は無かった）。手元の生成と base の比較:
+
+| 種類 | 件数 |
+|---|---|
+| 同じ（旧 houou_race・houou_race/・houou_leagues・houou_leagues_data.json、jpml_pros.html、ランキング9部門、houou/ のトップ・個人成績のページ、players/leagues.json、ask-players.json ほか） | 690 ファイル |
+| `houou/results/*.json`: 通期の行の期の番号 2→0 だけ | 59 |
+| `houou/search.json`: 最後の期が通期の選手の期のキー `-2`→`-0` だけ | 1（30名分） |
+| `workers/ask/data.json`: 通期の行の期の番号 2→0 だけ | 1 |
+| `houou/race/*.json`: `<期>-0` が20ファイル増え（41→61）、`<期>-0` を `<期>-2` の先頭に戻すと base と同じ | — |
+| `houou/race/index.html`: `data-index` の通期の `"0"` だけ（`"0"` を `"2"` に戻すと同じ。`data-default` は同じ `43-1 B1`、ほかの HTML も同じ） | 1 |
+
+旧ページの生成物（houou_race.html・houou_race/・houou_leagues.html・houou_leagues_data.json）と jpml_pros.html（「鳳凰<最新の期>」と Ampai のリンク）は base と同じ。
+
+**「-」に置き換えた入力**: 手元の作業ツリーを scratchpad に写し（`git ls-files`）、「鳳凰」を読んだ直後に通期のリーグの「前後」を「-」に置き換える比較用の経路（`lib/sheets._query` を差し替える、scratchpad、コミットしない）で同じ5本を流した。置き換えは1回の読み込みごとに 768 行。「後」の生成物と比べて、813 ファイルすべて同じ（旧ページを含む）
+
 ## 報告
 
 - 状態: 作業中
@@ -85,12 +137,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 98ff33c9）: https://github.com/retroeater/mj-logs/tree/main/guide/98ff33c9
+ガイド文書（この版を写した時点の最新、mj 14ed9b71）: https://github.com/retroeater/mj-logs/tree/main/guide/14ed9b71
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/98ff33c9/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/98ff33c9/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/98ff33c9/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/98ff33c9/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/98ff33c9/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/98ff33c9/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/e61b4b99.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/14ed9b71/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/14ed9b71/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/14ed9b71/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/14ed9b71/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/14ed9b71/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/14ed9b71/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a8c1d96c.md
