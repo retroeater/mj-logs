@@ -53,6 +53,42 @@ Chat-Ref: CHAT-1017-OGR-08
 
 ## 経過
 
+### 着手前の確認
+
+- `CHAT-1017-OGR-08` のコミット: 無し（`OGR` は同じセッションの続き）
+- 作業ブランチ: ローカル・リモートとも `work/1017-ogr` はマージ済み。`git merge --ff-only origin/cloudflare`（9d9b16c51 → c859c26c8）
+- 手順0: 「指示」欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は4行とも有る
+- 重なり: 未マージの `work/` で `generate_saikyo_pages.py` を変えているものは無い
+
+### 前提の確かめと実装
+
+- 前提どおり: `write_year_sub_pages()`（`generate_saikyo_pages.py`）の対局 `PageMeta(title=f"{title} | {EVENT_NAME}{year} | ryoei.pro")`・卓 `PageMeta(title=f"{table.heading} | {title} | …")`。`title` は `match_title()`（「対局名（日付）」）で、og_title は渡していなかった
+- 対局は `og_title=f"{match.name} | {EVENT_NAME}{year} | ryoei.pro"`、卓は `og_title=f"{table.heading} | {match.name} | {EVENT_NAME}{year} | ryoei.pro"` を足した（`match.name` は日付を含まない対局名）。`<title>`・description・og:image:alt は日付を含むまま
+- テスト: `python3 -m unittest discover -s scripts/tests` OK（og:title の期待値を持つ最強戦のテストは無く、直していない）
+
+### 再生成と差分
+
+- `python3 scripts/regenerate.py saikyo_pages`: 成功
+- 差分（docs/ を除く）: og:title の行だけが **862ページ**（卓 643・対局 219）。年度・トップは変化なし。`<title>`・h1・パンくず・ほかの行は変わらない。シートの変化による差分は無し。スクリプト1つ
+- 重複: 卓・対局 862ページの og:title に同じ文は**無い**（全年度で重複0）
+- og:title が長い順の5件（字数）:
+
+| 字数 | 種類 | ページ | og:title |
+|---|---|---|---|
+| 66 | 卓 | saikyo/2020/20200906-s1-a.html | ベスト8 A卓 \| 女流プロ代表決定戦 タイトルホルダーvsMリーガー最強の女流決戦 \| 麻雀最強戦2020 \| ryoei.pro |
+| 66 | 卓 | saikyo/2020/20200906-s1-b.html | ベスト8 B卓 \| 女流プロ代表決定戦 タイトルホルダーvsMリーガー最強の女流決戦 \| 麻雀最強戦2020 \| ryoei.pro |
+| 61 | 卓 | saikyo/2020/20200906-s2.html | 決勝 \| 女流プロ代表決定戦 タイトルホルダーvsMリーガー最強の女流決戦 \| 麻雀最強戦2020 \| ryoei.pro |
+| 60 | 卓 | saikyo/2017/20170520-s1-a.html | ベスト32 A卓 \| 女流プレミアトーナメント代表決定戦 真・女王決定戦 \| 麻雀最強戦2017 \| ryoei.pro |
+| 60 | 卓 | saikyo/2017/20170520-s1-b.html | ベスト32 B卓 \| 女流プレミアトーナメント代表決定戦 真・女王決定戦 \| 麻雀最強戦2017 \| ryoei.pro |
+
+- 例: `saikyo/2019/20190223-s1-a.html` 「ベスト32 A卓 | 女流プレミアトーナメント 華麗な技（2019年2月23日） | 麻雀最強戦2019 | ryoei.pro」→「ベスト32 A卓 | 女流プレミアトーナメント 華麗な技 | 麻雀最強戦2019 | ryoei.pro」
+
+### 記録
+
+- #581 に決定の5点をコメントした
+- docs/decisions/saikyo.md に OGR-08 の節を足した。docs/notes/saikyo-page-design.md の新しい年度・対局・卓のページの節（「題名と説明はページごと」）に og:title の形を書いた。
+  同じファイルの「OGP は年度ページ共通のままで、対局ごとの出し分けはしない」（`?match=` の共有の説明、SK-19）は旧年度ページの対局の共有ボタンの話で、今回の対局のページとは別なので変えていない。docs/notes/ogp.md には最強戦の og:title の形の記述が無い
+
 ## 報告
 
 - 状態:
@@ -69,12 +105,12 @@ Chat-Ref: CHAT-1017-OGR-08
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj c859c26c）: https://github.com/retroeater/mj-logs/tree/main/guide/c859c26c
+ガイド文書（この版を写した時点の最新、mj 95555949）: https://github.com/retroeater/mj-logs/tree/main/guide/95555949
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c859c26c/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c859c26c/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c859c26c/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c859c26c/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c859c26c/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c859c26c/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/95555949/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/95555949/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/95555949/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/95555949/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/95555949/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/95555949/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/13c870a9.md
