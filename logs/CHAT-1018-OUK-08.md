@@ -55,28 +55,98 @@ OUK-01 で作った ouka/ を、cloudflare に入った鳳凰戦の変更（#541
 
 ## 経過
 
+### 0章
+
+- 「指示」欄の末尾は指示文の最後の行と一致。CHAT-1018-OUK-06 のログの状態に `/ 続き: CHAT-1018-OUK-08` を足した
+- 貼る時機: 「桜花」の「結果」列を生成と同じ経路（`fetch_records`）で読み、OUK-06 の `ouka_results.tsv` と行ごとに比べた。違いは第6期 B の5行（8位 赤司美奈子 降級→残留、32位・33位・35位 空欄→残留、42位 空欄→降級）だけ
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- 未マージの work/ ブランチ（work/OUK 以外）で、変えるファイルの同じ行・同じ関数を変えているものは無かった
+
+### 1. 取り込みと通期
+
+origin/cloudflare（280c2852a）を merge（rebase しない）。マージのコミット 464b78f1e。衝突と解き方:
+
+- `assets/league.js`（work/OUK で `houou.js` から改名）: cloudflare の `assets/houou.js` を土台にし（`NO_FINISHED_NOTE`・`renderPlayer()`・`SPAN_HALF`・`inTerm()` などはそのまま）、OUK-01 の大会の設定（`league_contest` の JSON、接尾辞・リーグ・通期のリーグ・`HALVES`・最上位・最近見た選手のキー・`SKIP_BACK_HALF`）を載せ直した。前期・後期の無い大会は期の表記を「20期」、順位変動の `?term=<期>` と旧形式 `?term=<期>-2` をどちらも通期（`SPAN_HALF`）として読む
+- `assets/league_race.js`（同 `houou_race.js`）: cloudflare の `houou_race.js` を土台に、大会のリーグ・リーグの番号・`HALVES` を載せ直した。前期・後期の無い大会は前期・後期・通期の行を出さず、リーグの番号が無い（A・B）ときは番号の行を出さない
+- `scripts/generate_houou_pages.py`: cloudflare 版を土台に OUK-01 のパラメータ化を手で入れ直した。新しく `headers()`・`term_half(league, half)`（`OUKA.halves` が偽なら全行 `houou_tab.SPAN`、真なら `houou_tab.term_half()`）・`latest_term()`。`load_rows`・`load_groups`・`upcoming_term`（全部が通期の大会は期だけで進行中の期を決める）・`upcoming_last`（`CONTEST.span_leagues`）・`render_race`・`load_race`（`half_of` は常に SPAN）・`final_by_result`（`CONTEST.leagues[0]`）を大会の設定で動かす。OUK-01 の `NO_HALF`（全行を後期）と、8部門にする部門の絞り込みはやめた。`current_league_table`（jpml_pros の列、鳳凰戦だけ）は cloudflare のまま
+- `scripts/generate_houou_race.py`: cloudflare 版に `build_periods(..., leagues=, round_headers=)`・`pick_default(periods, leagues)`・`render_page(..., leagues=)` の引数だけ足した（既定は鳳凰戦の値）
+- `scripts/lib/results.py`: `standings(rows, groups, leagues, whole_terms=False)`。`whole_terms` が真なら通期（SPAN）の期も数える
+- `workers/ask/src/query.mjs`: cloudflare 版に大会の設定（`HOUOU`・`contestOf(data)`・`seatNote`）を載せ直した
+- `workers/ask/src/ask.mjs`（衝突なし、手で直した）: 桜花の部門を鳳凰戦と同じ9部門に戻した
+- `scripts/tests/test_houou_ask.py`: cloudflare 版に JS の名前と、ouka/ の確かめ（`check(folder, contest)`）を載せ直した
+- `houou/race/index.html`（生成物）: cloudflare 版を置き、生成し直した
+- 文書の衝突（両方を残した）:
+  - `docs/notes/houou-top.md`「通期のリーグ」の表: cloudflare の行のまま、JS の名前だけ改名後にした。解いた後の該当箇所: 「| 画面・質問欄 | 通期かはデータの通期の印で決める（成績 JSON・`data.json` の期の番号 0、順位変動の期のキー `<期>-0`）。`assets/league.js` の `termShort()`・`termLong()`…」「| 進行中の期 | `houou_upcoming` は選手ごとにリーグだけを持つ（通期の印が無い）。`assets/league.js` の `upcomingTerm()` と `generate_houou_pages.py` の `upcoming_last()` だけがリーグ名で通期にする |…」
+  - `docs/decisions/houou.md`: 末尾の追記どうし。cloudflare 側の節（HOU-70・71・AMP など）の後に、OUK-01〜06 の節（「## 2026-10-17（CHAT-1017-OUK-01）」〜「## 2026-10-18（CHAT-1018-OUK-06）」）を日付順のまま残した
+- テスト: `test_houou_pages.py` の桜花のテストを通期（SPAN・期のキー `20-0`・成績 JSON の前後 0・9部門）に、`workers/ask/test/ouka.test.mjs` を9部門・`?term=20` に合わせた。cloudflare で入った `test_og_image.py`（#581）が ouka/ の画像で落ちたので、許可の一覧に `img/ogp/ouka/index-white.png` を足し（2026-10-17 の決定、#591）、「新しい区分の画像は落ちる」の例を架空の `wrc/` に替えた
+- `generate_ask_data.py` が桜花で落ちた（`ranking.latest_period` が通期の行を見ないため空）→ `generate_houou_pages.latest_term()` を使うようにした
+- `regenerate.py --changed`: `SHARED_GENERATORS` を足し、`generate_houou_pages.py`・`generate_houou_race.py` の変更で `ouka_pages`、`generate_ask_data.py`・`generate_houou_pages.py` の変更で `ask_data_ouka` も選ぶ。テストを足した
+
+### 2. 「結果」列と OGP
+
+- 「結果」列は houou/ と同じ読み方で、結果のチップ・順位変動の帯・連続昇級が出る。第20期: A は決定戦3名・降級3名の帯、B 昇級3・降級6、C1 昇級4・降級5、C2 昇級4・降級6、C3 昇級7
+- 旧 `ouka_results.html`・`ouka_ranking.html`（手書き）と `ouka_leagues.html`（`generate_ouka_leagues.py` の META に `OUKA.og_image`）の og:image と og:image:alt を「女流桜花」に
+- 名寄せ: 「桜花」の 樫野凪 の行は3行（第19期・第20期 C3 は「表示」Y、第21期 C3 は進行中の期で N）。生成は「表示」Y の行だけを成績にするので2行。MCK の3行との違いは第21期の行。`ouka/players/?name=樫野凪` は URL が `?name=かしのなぎ` に変わり、かしのなぎ（2期、チップ C3）が開く。順位変動の表は houou/race/ と同じくその期のシートの名前（樫野凪）のまま
+- `python3 -m unittest discover -s scripts/tests`: 1,369件 OK。`node --test 'workers/ask/test/*.test.mjs'`: 42件 pass
+- `python3 scripts/regenerate.py all` を作業ブランチと cloudflare のクローン（280c2852a）で続けて回した（どちらも飛ばしたページ0）。`diff -r` の結果:
+  - houou/ の13ファイル: 差分は `assets/houou.js`→`league.js`・`houou_race.js`→`league_race.js` を指す行だけ（名前を置き換えて比べると差分0行）
+  - 旧 `ouka_*`: og:image・og:image:alt の行だけ
+  - 旧 `houou_*`・title/・jpml_pros.html・`workers/ask/data.json` などほかの生成物: 差分0
+  - 生成物でない差分は work/OUK の変更（JS・CSS・Worker・`_redirects` の ouka の行・`share.js` のコメント）
+  - jpml_pros.html・resource_logs.html・`workers/ask/data.json` はコミット済みの版からシートの更新で変わっていた（cloudflare のクローンでも同じ）ため、この作業ブランチには入れていない
+
+### 3. 確かめ
+
+- headless Chrome（手元のサーバ）で 375px・1280px・1920×1080・375px の字 150%・200% × トップ・個人成績（清水香織・二階堂亜樹〈期別・リーグ〉・中村優花〈進行中の期だけ〉・杉浦まゆ〈特別昇級〉・`?name=樫野凪`）・ランキング（通算・連続昇級）・順位変動（`?term=20&league=A`、旧形式 `?term=20-2&league=A`）の55画面:
+  - 横のはみ出し 0、JS のエラー 0（出たのは X の画像の読み込み失敗と、トップの質問欄の `/api/ask/status` の 404〈手元に Worker が無いため〉だけ）
+  - 清水香織: 名前の横のチップ「桜花」、期のカードに「決定戦」「昇級」のチップ。二階堂亜樹: チップ A、「残留」のチップ
+  - 中村優花: チップ C3、期別は「21期 C3」の行だけ、リーグ・部門別は「データがありません」
+  - 杉浦まゆ: 期別に「15期 C2 +145.2 1位 昇級」の次が「16期 A」（特別昇級はリーグの成績の結果のまま）
+  - ランキング: 部門の格子に9部門（連続昇級あり）、題名「第20期終了時点」
+  - 順位変動: どちらの URL も「第20期 A」が開き、決定戦・入替戦・降級の帯
+- リーグのタブの再生のアイコンの座標（二階堂亜樹、x, y / 画面の幅・高さの比）: 375×812 は 落ちた直後 (60, 344 / 0.16, 0.42)・寄った後 (90, 476 / 0.24, 0.59)・終わり (317, 342 / 0.84, 0.42)。1920×1080 は (822, 448 / 0.43, 0.41)・(855, 595 / 0.45, 0.55)・(1099, 450 / 0.57, 0.42)。どれも画面の中。再生は約24.5秒
+- プレビュー（work/OUK の別名、64c9c8ef5 の Workers Builds: mj は success）: ouka/ のトップ・個人成績・順位変動・`20-0.json`・連続昇級のランキング・`assets/league.js`・`league_race.js`・houou/ のトップ・旧 `ouka_results.html` が手元のファイルと一致（`cmp`）。`/ouka/ranking/` → `/ouka/ranking/total/` の 301
+- check-assets（公開対象の検査）は 64c9c8ef5 で失敗。手元で同じ手順を回すと、許可リストに無い最上位の項目は `ouka` だけ（2026-10-17 の決定どおり、マージの指示で足す）。ほかの手順（ガイド文書のサイズ・配信の上限・共通の部品のテスト）は手元で通る
+- issue へのコメント: #597・#519・#141
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/OUK
 - ログ: https://github.com/retroeater/mj/blob/work/OUK/docs/logs/CHAT-1018-OUK-08.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/OUK
-- 確認用URL:
-- マージ: 未
-- issue:
+- 確認用URL: プレビューあり（URL は最終報告）。確かめたページ: ouka/ のトップ・個人成績（清水香織・二階堂亜樹・中村優花・杉浦まゆ・樫野凪）・ランキング（通算・連続昇級）・順位変動（第20期 A）。この版の印: 順位変動の URL が `?term=20&league=A` で、A に「決定戦」の帯がある
+- マージ: 未（平野さんがプレビューで確かめてから、別のマージの指示で）
+- issue: #597・#519・#141 にコメント（Chat-Ref 付き）
 - 判断が必要なこと:
+  - (1) 見た目の値（プレビューを見れば判断できるもの）
+    - 新しい仮置き: 桜花の期の表記は「20期」「第20期」（前期・後期・通期の語を付けない）。順位変動の選ぶシートに前期・後期・通期の行を出さない
+    - 新しい仮置き: 帯は houou/ と同じ出し方（A の上は「決定戦」の人数、下は降級。B〜C3 は昇級・降級、入替戦があれば入替戦の帯）。結果のチップの色・形は houou/ と同じ
+    - 新しい仮置き: ランキングは9部門で3段×3列が埋まる
+    - OUK-01 から残るもの: 桜花のチップと帯の色 #be185d、リーグの色（A #fa5d27・B #ef972e・C1 #ccaa2d・C2 #e8c133・C3 #eed066、チップの C1〜C3 は1色）、最近見た選手が無いときの1件（最新の期の桜花）、OGP 画像 `img/ogp/ouka/index-white.png`
+  - (2) 見ただけでは判断しにくいもの
+    - 新しい仮置き: 通期の作り。`Contest.halves` が偽の大会は `term_half()` が全行 SPAN を返し、cloudflare の通期の仕組み（期の番号 0・期のキー `<期>-0`）にそのまま乗せた。JS は `HALVES` が偽のとき `?term=<期>-<数字>` も通期として読む
+    - 新しい仮置き: 「終了時点」の期を `latest_term()` に寄せた（鳳凰戦は今までどおり `ranking.latest_period`）
+    - 新しい仮置き: `regenerate.py --changed` の `SHARED_GENERATORS`（ouka_pages ← houou_pages・houou_race、ask_data_ouka ← ask_data・houou_pages）
+    - 新しい仮置き: 旧 `ouka_*` は og:image に合わせて og:image:alt も「女流桜花」にした
+    - 新しい仮置き: `test_og_image.py` の許可の一覧に ouka の画像を足した（2026-10-17 の決定を根拠にした。#581 の「足すときは決定を取る」に当たる）
+    - 名寄せ: 順位変動の表は houou/race/ と同じくその期のシートの名前（樫野凪）で出る。今の名前で出すなら houou/race/ も変わる
+    - OUK-01 から残るもの: JS の名前（`league.js`・`league_race.js`。`houou_ask.js`・CSS のクラス・JSON の id は変えていない）、大会の設定の渡し方（`league_contest`・`is-ouka`・`data-contest`）、生成のファイル名は `generate_houou_pages.py` のまま、表示対象は houou/ と同じ自動ルール、順位変動の対象の期（第1〜20期）、文言（title・h1・トップの「通算・期最高など9部門」・質問欄の例）、最近見た選手のキー、質問欄の範囲と記録の型「ouka:…」、Worker の決勝の名前「女流桜花決定戦」
+    - 要るワークフローの変更: `check-assets.yml` の許可リストに `ouka`（マージの指示で行う決定どおり。今は作業ブランチの check が失敗する）
 - 未確認の項目:
-- エラー:
+  - 質問欄の実際の問い（プレビューからは Worker に届かない。マージ後に）
+  - プレビューのブラウザでの見え方（このセッションは手元のサーバで見た。プレビューはファイルの一致だけ確かめた）
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj c7ecedbb）: https://github.com/retroeater/mj-logs/tree/main/guide/c7ecedbb
+ガイド文書（この版を写した時点の最新、mj caa02d6b）: https://github.com/retroeater/mj-logs/tree/main/guide/caa02d6b
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c7ecedbb/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c7ecedbb/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c7ecedbb/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c7ecedbb/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c7ecedbb/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c7ecedbb/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/e2580c91.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/caa02d6b/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/caa02d6b/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/caa02d6b/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/caa02d6b/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/caa02d6b/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/caa02d6b/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/280c2852.md
