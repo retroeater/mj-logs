@@ -102,6 +102,235 @@ ryoei.pro（静的配信＋ Worker `mj-ask`・`mj-scheduler` ＋ Secret を持�
 - 登録の hook（`hooks/hooks.json`）: SessionStart（`ensure_agent_sdk.py`）、UserPromptSubmit、PostToolUse（`Edit|Write|MultiEdit|NotebookEdit` と、Bash の `git commit`・`git push` 等で非同期の再起動つきレビュー）、Stop（非同期のレビュー）
 - ログの push 時（Write と git commit/push）: hook は呼ばれたが、警告・再プロンプトは出なかった（`shown_warnings: []`）。コミットの LLM レビューは「LLM review disabled or no API credentials」で動かなかった。環境に `ANTHROPIC_API_KEY`・`ANTHROPIC_AUTH_TOKEN` が無い（`llm.py` は どちらかか 3P プロバイダを要する）
 - 結論（暫定）: **claude.ai のプラグイン一覧で有効にしたものはクラウドセッションに同期され、hook のパターン照合の部分は動く。LLM によるコミット・停止時のレビューは鍵が無く動かない**
+- 手順2の間（Write・Edit・git commit・push を複数回）も、hook の警告・再プロンプトは一度も出なかった（ログとドキュメントの編集だけで、パターンに当たる編集が無かったため。パターン照合が実際に警告を出すかは確かめていない）
+
+### 2. 固有の攻撃面の点検
+
+道具の入れ方: scratchpad に `python3 -m venv` を作り `pip install zizmor pip-audit detect-secrets`（pypi.org に届き、数十秒で入った）。版: zizmor 1.31.1、pip-audit 2.10.1、detect-secrets 1.5.0。
+外部 API: `observatory-api.mdn.mozilla.net` と `api.osv.dev` はプロキシが拒否（`CONNECT tunnel failed, response 403`、`connect_rejected`）。
+OSV の代わりに、(c) の確認で `registry.npmjs.org` の npm audit の照会口（`/-/npm/v1/security/advisories/bulk`、元は GitHub Advisory Database）に届いた（bootstrap 3.3.7 で既知の GHSA が返ることで照会口の正しさを確認）。pip-audit の既定の照会先（PyPI）は届いた。
+
+#### (a) Worker `mj-ask`
+
+- `node --test 'workers/ask/test/*.test.mjs'`: 36 pass / 0 fail。`workers/scheduler` も 40 pass / 0 fail
+- 本番（各1回、User-Agent 指定）: `GET /api/ask/status` → 200、`content-type: application/json; charset=utf-8`・`cache-control: no-store`・`server: cloudflare` のみ（`_headers` の `X-Content-Type-Options` 等は付かない＝Worker の応答に `_headers` は効かないことを確認）。`POST /api/ask`（`Origin: https://example.invalid`、本文なし）→ 403 `{"status":"forbidden"}`、ヘッダは同じ
+- 読んだ結果:
+  - 入力: `String(body.question ?? '').trim()`、空は 400、200 字（コードポイント）超は 400。型は文字列に寄せる。文字種の制限は無い（Claude に渡すだけなので実害は無い）。本文の大きさの上限は Worker 側に無い（Cloudflare の既定の上限まで `request.json()` で読む）
+  - 費用の守り: `Origin` の一致（curl で偽装できる）→ D1 の全体 200／日・IP 10／日。IP は `CF-Connecting-IP`（偽装できない）を日ごとの塩でハッシュ。ほかの層（WAF の Rate Limiting・Turnstile〈#543 で見送り〉）はコード側には無い。ダッシュボードのルールは見えない。費用の上限は 200 問×2 呼び出し／日で抑えられるが、IP を替えられる相手（IPv6 は1契約で大量のアドレス）なら全体の 200 を朝のうちに使い切り、その日は利用者が使えない
+  - プロンプトインジェクション: 1回目は system に指示、user に質問文だけ。出力は structured outputs（`PLAN_SCHEMA`、enum と型で固定）で、検索は Worker 内の `runQuery`（data.json）なので、注入しても引けるのは公開データだけ。2回目は user に `JSON.stringify({question, result})`。質問文の注入で答えの文を任意の文にできる（見えるのは質問した本人だけ。答えの検証は無い）
+  - 描画（`assets/houou_ask.js`）: lead・answer・notes・asof は `textContent`。`insertAdjacentHTML` は定数の SVG だけ。出典は `startsWith('/') && !startsWith('//')` のときだけリンク（`/\evil` は外へ出られるが、出典は data.json 由来で外から届かない）
+  - D1: すべて `prepare(...).bind(...)`（引数化）。週次のブックへの書き出しは `valueInputOption=RAW`（質問文の `=` が式にならない）
+  - エラー・status: 503 `{"status":"unavailable"}`、429 は `scope`・`resetAt`。内部の情報（例外の文）は返さない。`status` は残り回数だけ（Origin を見ない。害は無い）
+  - Workers Logs: 呼び出しごとのトークン数と、失敗時の `e.message`（HTTP の状態コードなど）。質問文・IP は書かない
+  - `mj-scheduler`: fetch の入口なし（`workers_dev: false`）。トークンは mj の dispatch・runs の読み・#506 へのコメント、**mj-logs の `sync-from-mj.yml` の dispatch** に使う（`scheduler.mjs:29`・`:220`）。前提の「`actions: write` だけ」では足りず、issues の書き込みと mj-logs も要る（平野さんの確認の項目を直した）
+
+#### (b) 生成スクリプト（XSS）・(c) フロントの JS
+
+サブエージェント2つに分けて読んだ（読むだけ）。主な指摘は自分で該当行を開いて確かめた（books:463、saikyo:775-777、houou.js:809）。
+
+- エスケープ: `scripts/lib/page.py:22` と `generate_jpml_pros.py:142` の `esc()` は `html.escape`（quote=True）。`quote=False` は無い。値を入れる属性はすべて二重引用符
+- **URL の scheme を確かめる箇所はリポジトリに1つも無い**。シートの URL 列を `esc()` だけで `href` に入れるもの: `page.py:128`（`build_image_cell`、6ページ）、`generate_saikyo_pages.py:777`、`lib/wayhome.py:90`（`[?&]v=` を含めば通る）、`generate_resource_logs.py:196`、`generate_rh_paifu.py:66`、`generate_rh_results_detail.py:72`、`generate_jpml_pros.py:248`（Ampai）、JS 側 `assets/houou.js:809`（Ampai）
+- `<script>` の JSON: `generate_books_pages.py:463` の JSON-LD は `<` を逃がしていない（タイトルに `</script>` があれば実行される）。`generate_houou_pages.py:221` ほか3か所は `</` だけ逃がし `<!--` は残る（XSS ではない）。saikyo（:696・:1040）は `<` で安全
+- フロント: URL のクエリ・ハッシュ・localStorage から HTML・URL の書き込み口に届く経路は無い（DOM XSS なし）。`innerHTML`・`insertAdjacentHTML` はすべて定数の SVG。`eval`・`new Function`・文字列の `setTimeout`・`postMessage` は無い。navbar.js の `document.write`（#254）は定数だけ
+- その他（低）: `assets/saikyo.js:73` の `decodeURIComponent(location.hash…)` が try なし（壊れたハッシュで JS が止まる）、`assets/houou_race.js:233・316` の CSS `url("${p.img}")`、`generate_jpml_pros.py:178` のクエリの名前を URL エンコードしていない、`generate_houou_pages.py:761` が選手名をそのままファイル名にする（`/`・`..` で出力先の外へ）
+- `assets/vendor/`: bootstrap 5.3.8、glightbox 3.1.0、isotope-layout 3.0.6、@srexi/purecounterjs 1.5.0、waypoints 4.0.1、aos 3.0.0-beta.6、typed.js 2.0.16〜2.1.0。npm audit の照会口で該当なし。glightbox は動画スライドで `cdn.plyr.io` を読む（CSP のとき注意。読み込みは index.html だけ）
+
+#### (d) GitHub Actions
+
+- `.github/dependabot.yml` は無い。ワークフロー22本＋composite action 4つ
+- `pull_request_target`・`workflow_run` は使っていない。`workflow_dispatch` の入力は env 経由（#132 の対処済み）。`set -x`・Secret の `echo`・`toJSON(secrets)` は無い。`upload-artifact` は無い（artipacked の実害は小さい）
+- top レベルの `permissions` が無いもの: `check-assets.yml`・`regenerate-page.yml`（リポジトリの既定の権限になる）
+- `zizmor --offline .github/workflows`（0.14 秒、rc=14）: 258 件（107 件は抑止済み）。抑止を除いた内訳: unpinned-uses 54、self-repository 45、artipacked 25、secrets-inherit 11、template-injection 10（High 4・Info 6）、excessive-permissions 6。`.github/actions` は unpinned-uses 2。SHA 固定の無い action: `actions/checkout@v4`（24）、`actions/setup-python@v5`（10）、`google-github-actions/auth@v2`（10）、`actions/github-script@v7`（3）
+- template-injection の High 4件は `${{ github.ref_name }}`・`${{ github.server_url }}` 等を `run:` に直接埋めたもの（`fetch-gsc.yml:95`・`regenerate-sitemap.yml:68`・`update-live-channel.yml:236`）。ブランチ名を作れるのは書き込み権限のある人だけ
+
+zizmor の結果（抑止分を除く全件、self-repository を含む）:
+
+| 重大度 | 監査 | 場所 | 該当 | 注記 |
+|---|---|---|---|---|
+| High | excessive-permissions | check-image-links.yml:55 | `issues: write` | issues: write is overly broad at the workflow level |
+| High | excessive-permissions | check-meibo.yml:36 | `issues: write` | issues: write is overly broad at the workflow level |
+| High | excessive-permissions | regenerate-saikyo.yml:45 | `contents: write` | contents: write is overly broad at the workflow level |
+| High | excessive-permissions | update-live-channel.yml:112 | `contents: write` | contents: write is overly broad at the workflow level |
+| High | template-injection | fetch-gsc.yml:95 | `-m "Generated by .github/workflows/fetch-gsc.yml (run: ${{ github.server_url }}/${{ github` | this step |
+| High | template-injection | regenerate-sitemap.yml:68 | `BRANCH="${{ github.ref_name }}"` | this step |
+| High | template-injection | update-live-channel.yml:236 | `-m "Generated by .github/workflows/update-live-channel.yml (run: ${{ github.server_url }}/` | this step |
+| High | template-injection | update-live-channel.yml:236 | `-m "Generated by .github/workflows/update-live-channel.yml (run: ${{ github.server_url }}/` | this step |
+| High | unpinned-uses | check-assets.yml:46 | `uses: actions/checkout@v4` | this step |
+| High | unpinned-uses | check-assets.yml:52 | `uses: actions/setup-python@v5` | this step |
+| High | unpinned-uses | check-build-failure.yml:57 | `uses: actions/checkout@v4` | this step |
+| High | unpinned-uses | check-image-links.yml:62 | `uses: actions/checkout@v4` | this step |
+| High | unpinned-uses | check-image-links.yml:126 | `uses: actions/checkout@v4` | this step |
+| High | unpinned-uses | check-image-links.yml:190 | `uses: actions/checkout@v4` | this step |
+| High | unpinned-uses | check-meibo.yml:42 | `uses: actions/checkout@v4` | this step |
+| High | unpinned-uses | check-meibo.yml:89 | `uses: actions/checkout@v4` | this step |
+| High | unpinned-uses | check-saikyo-unregistered.yml:37 | `uses: actions/checkout@v4` | this step |
+| High | unpinned-uses | cleanup-branches.yml:72 | `uses: actions/checkout@v4` | this step |
+| High | unpinned-uses | cleanup-branches.yml:78 | `uses: actions/setup-python@v5` | this step |
+| High | unpinned-uses | cleanup-logs.yml:38 | `uses: actions/checkout@v4` | this step |
+| High | unpinned-uses | convert-x-posts.yml:49 | `uses: actions/checkout@v4` | this step |
+| High | unpinned-uses | convert-x-posts.yml:59 | `uses: google-github-actions/auth@v2` | this step |
+| High | unpinned-uses | fetch-gsc.yml:62 | `uses: actions/checkout@v4` | this step |
+| High | unpinned-uses | fetch-gsc.yml:66 | `uses: actions/setup-python@v5` | this step |
+| High | unpinned-uses | fetch-gsc.yml:82 | `uses: google-github-actions/auth@v2` | this step |
+| High | unpinned-uses | fetch-redirect-counts.yml:65 | `uses: actions/checkout@v4` | this step |
+| High | unpinned-uses | fetch-x-posts.yml:53 | `uses: actions/checkout@v4` | this step |
+| High | unpinned-uses | fetch-x-posts.yml:62 | `uses: google-github-actions/auth@v2` | this step |
+| High | unpinned-uses | fetch-youtube.yml:33 | `uses: actions/checkout@v4` | this step |
+| High | unpinned-uses | regenerate-page.yml:58 | `uses: actions/checkout@v4` | this step |
+| High | unpinned-uses | regenerate-page.yml:72 | `uses: actions/setup-python@v5` | this step |
+| High | unpinned-uses | regenerate-page.yml:244 | `if: ${{ !cancelled() && steps.build_wayhome_ogp.outcome != 'skipped' }}` | this step |
+| High | unpinned-uses | regenerate-page.yml:273 | `if: ${{ !cancelled() && steps.wayhome_check.outputs.notify == 'true' }}` | this step |
+| High | unpinned-uses | regenerate-saikyo.yml:59 | `uses: actions/checkout@v4` | this step |
+| High | unpinned-uses | regenerate-saikyo.yml:64 | `uses: actions/setup-python@v5` | this step |
+| High | unpinned-uses | regenerate-saikyo.yml:73 | `uses: google-github-actions/auth@v2` | this step |
+| High | unpinned-uses | regenerate-sitemap.yml:34 | `uses: actions/checkout@v4` | this step |
+| High | unpinned-uses | regenerate-sitemap.yml:41 | `uses: actions/setup-python@v5` | this step |
+| High | unpinned-uses | sync-birthday-calendar.yml:48 | `uses: actions/checkout@v4` | this step |
+| High | unpinned-uses | sync-birthday-calendar.yml:68 | `uses: google-github-actions/auth@v2` | this step |
+| High | unpinned-uses | sync-dojo-calendar.yml:85 | `if: ${{ steps.gate.outputs.run == 'true' }}` | this step |
+| High | unpinned-uses | sync-dojo-calendar.yml:89 | `if: ${{ steps.gate.outputs.run == 'true' }}` | this step |
+| High | unpinned-uses | sync-dojo-calendar.yml:107 | `if: ${{ steps.gate.outputs.run == 'true' }}` | this step |
+| High | unpinned-uses | sync-dojo-calendar.yml:115 | `if: ${{ steps.gate.outputs.run == 'true' }}` | this step |
+| High | unpinned-uses | sync-dojo-calendar.yml:158 | `if: ${{ always() && steps.gate.outputs.run == 'true' }}` | this step |
+| High | unpinned-uses | sync-logs.yml:55 | `uses: actions/checkout@v4` | this step |
+| High | unpinned-uses | sync-logs.yml:61 | `uses: actions/checkout@v4` | this step |
+| High | unpinned-uses | sync-logs.yml:68 | `uses: actions/setup-python@v5` | this step |
+| High | unpinned-uses | sync-yotei.yml:82 | `uses: actions/checkout@v4` | this step |
+| High | unpinned-uses | sync-yotei.yml:87 | `uses: actions/setup-python@v5` | this step |
+| High | unpinned-uses | sync-yotei.yml:95 | `uses: google-github-actions/auth@v2` | this step |
+| High | unpinned-uses | sync-yotei.yml:106 | `uses: google-github-actions/auth@v2` | this step |
+| High | unpinned-uses | sync-yotei.yml:122 | `uses: actions/github-script@v7` | this step |
+| High | unpinned-uses | sync-yotei.yml:172 | `uses: google-github-actions/auth@v2` | this step |
+| High | unpinned-uses | sync-yotei.yml:188 | `uses: actions/github-script@v7` | this step |
+| High | unpinned-uses | update-live-channel.yml:194 | `uses: actions/checkout@v4` | this step |
+| High | unpinned-uses | update-live-channel.yml:198 | `uses: actions/setup-python@v5` | this step |
+| High | unpinned-uses | update-live-channel.yml:268 | `uses: google-github-actions/auth@v2` | this step |
+| High | unpinned-uses | update-live-channel.yml:311 | `uses: actions/github-script@v7` | this step |
+| High | unpinned-uses | update-sns-book.yml:66 | `uses: actions/checkout@v4` | this step |
+| High | unpinned-uses | update-sns-book.yml:71 | `uses: actions/setup-python@v5` | this step |
+| High | unpinned-uses | update-sns-book.yml:80 | `uses: google-github-actions/auth@v2` | this step |
+| Medium | artipacked | check-assets.yml:46 | `uses: actions/checkout@v4` | does not set persist-credentials: false |
+| Medium | artipacked | check-build-failure.yml:57 | `uses: actions/checkout@v4` | does not set persist-credentials: false |
+| Medium | artipacked | check-image-links.yml:62 | `uses: actions/checkout@v4` | does not set persist-credentials: false |
+| Medium | artipacked | check-image-links.yml:126 | `uses: actions/checkout@v4` | does not set persist-credentials: false |
+| Medium | artipacked | check-image-links.yml:190 | `uses: actions/checkout@v4` | does not set persist-credentials: false |
+| Medium | artipacked | check-meibo.yml:42 | `uses: actions/checkout@v4` | does not set persist-credentials: false |
+| Medium | artipacked | check-meibo.yml:89 | `uses: actions/checkout@v4` | does not set persist-credentials: false |
+| Medium | artipacked | check-saikyo-unregistered.yml:37 | `uses: actions/checkout@v4` | does not set persist-credentials: false |
+| Medium | artipacked | cleanup-branches.yml:72 | `uses: actions/checkout@v4` | does not set persist-credentials: false |
+| Medium | artipacked | cleanup-logs.yml:38 | `uses: actions/checkout@v4` | does not set persist-credentials: false |
+| Medium | artipacked | convert-x-posts.yml:49 | `uses: actions/checkout@v4` | does not set persist-credentials: false |
+| Medium | artipacked | fetch-gsc.yml:62 | `uses: actions/checkout@v4` | does not set persist-credentials: false |
+| Medium | artipacked | fetch-redirect-counts.yml:65 | `uses: actions/checkout@v4` | does not set persist-credentials: false |
+| Medium | artipacked | fetch-x-posts.yml:53 | `uses: actions/checkout@v4` | does not set persist-credentials: false |
+| Medium | artipacked | fetch-youtube.yml:33 | `uses: actions/checkout@v4` | does not set persist-credentials: false |
+| Medium | artipacked | regenerate-page.yml:58 | `uses: actions/checkout@v4` | does not set persist-credentials: false |
+| Medium | artipacked | regenerate-saikyo.yml:59 | `uses: actions/checkout@v4` | does not set persist-credentials: false |
+| Medium | artipacked | regenerate-sitemap.yml:34 | `uses: actions/checkout@v4` | does not set persist-credentials: false |
+| Medium | artipacked | sync-birthday-calendar.yml:48 | `uses: actions/checkout@v4` | does not set persist-credentials: false |
+| Medium | artipacked | sync-dojo-calendar.yml:85 | `if: ${{ steps.gate.outputs.run == 'true' }}` | does not set persist-credentials: false |
+| Medium | artipacked | sync-logs.yml:55 | `uses: actions/checkout@v4` | does not set persist-credentials: false |
+| Medium | artipacked | sync-logs.yml:61 | `uses: actions/checkout@v4` | does not set persist-credentials: false |
+| Medium | artipacked | sync-yotei.yml:82 | `uses: actions/checkout@v4` | does not set persist-credentials: false |
+| Medium | artipacked | update-live-channel.yml:194 | `uses: actions/checkout@v4` | does not set persist-credentials: false |
+| Medium | artipacked | update-sns-book.yml:66 | `uses: actions/checkout@v4` | does not set persist-credentials: false |
+| Medium | excessive-permissions | check-assets.yml:43 | `uses: actions/checkout@v4` | this job |
+| Medium | excessive-permissions | regenerate-page.yml:48 | `group: regenerate-page-${{ github.ref }}` | this job |
+| Medium | secrets-inherit | fetch-youtube.yml:72 | `./.github/workflows/regenerate-page.yml` | this reusable workflow |
+| Medium | secrets-inherit | regenerate-saikyo.yml:104 | `./.github/workflows/regenerate-page.yml` | this reusable workflow |
+| Medium | secrets-inherit | run-daily.yml:36 | `./.github/workflows/update-live-channel.yml` | this reusable workflow |
+| Medium | secrets-inherit | run-daily.yml:47 | `./.github/workflows/update-sns-book.yml` | this reusable workflow |
+| Medium | secrets-inherit | run-daily.yml:60 | `./.github/workflows/check-image-links.yml` | this reusable workflow |
+| Medium | secrets-inherit | run-daily.yml:71 | `./.github/workflows/regenerate-saikyo.yml` | this reusable workflow |
+| Medium | secrets-inherit | run-daily.yml:81 | `./.github/workflows/sync-dojo-calendar.yml` | this reusable workflow |
+| Medium | secrets-inherit | run-daily.yml:90 | `./.github/workflows/cleanup-branches.yml` | this reusable workflow |
+| Medium | secrets-inherit | update-live-channel.yml:391 | `./.github/workflows/regenerate-page.yml` | this reusable workflow |
+| Medium | secrets-inherit | update-live-channel.yml:404 | `./.github/workflows/sync-yotei.yml` | this reusable workflow |
+| Medium | secrets-inherit | update-sns-book.yml:119 | `./.github/workflows/regenerate-page.yml` | this reusable workflow |
+| Low | self-repository | check-image-links.yml:69 | `name: 書くかどうかを決める` | this step |
+| Low | self-repository | check-image-links.yml:76 | `name: Pythonをセットアップ` | this step |
+| Low | self-repository | check-image-links.yml:94 | `name: 今の issue の本文を読む` | this step |
+| Low | self-repository | check-image-links.yml:108 | `name: 結果をissueに反映` | this step |
+| Low | self-repository | check-image-links.yml:131 | `name: 書くかどうかを決める` | this step |
+| Low | self-repository | check-image-links.yml:138 | `name: Pythonをセットアップ` | this step |
+| Low | self-repository | check-image-links.yml:169 | `name: 結果をissueに反映` | this step |
+| Low | self-repository | check-image-links.yml:195 | `name: 書くかどうかを決める` | this step |
+| Low | self-repository | check-image-links.yml:202 | `name: Pythonをセットアップ` | this step |
+| Low | self-repository | check-image-links.yml:220 | `name: 今の issue の本文を読む` | this step |
+| Low | self-repository | check-image-links.yml:233 | `name: 結果をissueに反映` | this step |
+| Low | self-repository | check-meibo.yml:48 | `name: dry-run かどうかを決める` | this step |
+| Low | self-repository | check-meibo.yml:55 | `name: Pythonをセットアップ` | this step |
+| Low | self-repository | check-meibo.yml:76 | `name: 結果をissueに反映` | this step |
+| Low | self-repository | check-meibo.yml:94 | `name: dry-run かどうかを決める` | this step |
+| Low | self-repository | check-meibo.yml:102 | `name: Pythonをセットアップ` | this step |
+| Low | self-repository | check-meibo.yml:122 | `name: 結果をissueに反映` | this step |
+| Low | self-repository | check-saikyo-unregistered.yml:44 | `name: dry-run かどうかを決める` | this step |
+| Low | self-repository | check-saikyo-unregistered.yml:51 | `name: Pythonをセットアップ` | this step |
+| Low | self-repository | check-saikyo-unregistered.yml:71 | `name: 結果をissueに反映` | this step |
+| Low | self-repository | cleanup-logs.yml:48 | `name: dry-run かどうかを決める` | this step |
+| Low | self-repository | cleanup-logs.yml:55 | `name: Pythonをセットアップ` | this step |
+| Low | self-repository | cleanup-logs.yml:79 | `name: 削除をコミット・push` | this step |
+| Low | self-repository | cleanup-logs.yml:88 | `name: 条件外のログを常設issueに通知` | this step |
+| Low | self-repository | convert-x-posts.yml:53 | `name: Pythonをセットアップ` | this step |
+| Low | self-repository | fetch-redirect-counts.yml:70 | `name: dry-run かどうかを決める` | this step |
+| Low | self-repository | fetch-redirect-counts.yml:90 | `name: Pythonをセットアップ` | this step |
+| Low | self-repository | fetch-redirect-counts.yml:124 | `name: コミットしてpush` | this step |
+| Low | self-repository | fetch-redirect-counts.yml:132 | `name: '#568 にコメント'` | this step |
+| Low | self-repository | fetch-x-posts.yml:56 | `name: Pythonをセットアップ` | this step |
+| Low | self-repository | fetch-youtube.yml:39 | `name: Pythonをセットアップ` | this step |
+| Low | self-repository | fetch-youtube.yml:58 | `name: 変更をコミット・push` | this step |
+| Low | self-repository | fetch-youtube.yml:66 | `regenerate` | this job |
+| Low | self-repository | regenerate-saikyo.yml:100 | `regenerate` | this job |
+| Low | self-repository | run-daily.yml:31 | `live` | this job |
+| Low | self-repository | run-daily.yml:42 | `sns` | this job |
+| Low | self-repository | run-daily.yml:54 | `images` | this job |
+| Low | self-repository | run-daily.yml:66 | `saikyo` | this job |
+| Low | self-repository | run-daily.yml:77 | `dojo` | this job |
+| Low | self-repository | run-daily.yml:87 | `branches` | this job |
+| Low | self-repository | sync-birthday-calendar.yml:52 | `name: 書くかどうかを決める` | this step |
+| Low | self-repository | sync-birthday-calendar.yml:59 | `name: Pythonをセットアップ` | this step |
+| Low | self-repository | update-live-channel.yml:388 | `regenerate` | this job |
+| Low | self-repository | update-live-channel.yml:398 | `yotei` | this job |
+| Low | self-repository | update-sns-book.yml:114 | `regenerate` | this job |
+| Informational | template-injection | check-image-links.yml:102 | `--old-body "${{ steps.current.outputs.body-path }}" --new-body issue/body.md --close-comme` | this step |
+| Informational | template-injection | check-image-links.yml:227 | `--old-body "${{ steps.current.outputs.body-path }}" --new-body issue/body.md --close-comme` | this step |
+| Informational | template-injection | cleanup-logs.yml:69 | `echo "## 作業ログの片付け（dry_run: ${{ steps.mode.outputs.dry-run }}）"` | this step |
+| Informational | template-injection | fetch-redirect-counts.yml:142 | `if: ${{ always() && steps.gate.outputs.run == 'true' }}` | this step |
+| Informational | template-injection | sync-birthday-calendar.yml:86 | `if: ${{ always() }}` | this step |
+| Informational | template-injection | update-live-channel.yml:375 | `echo "apply: $APPLY / verify: ${{ steps.gate.outputs.verify }}"` | this step |
+
+#### (e) 公開されるファイル
+
+- `wrangler.jsonc`: `assets.directory: "./"`、`html_handling: none`、`not_found_handling: 404-page`
+- `.assetsignore`: `.youtube_api_key`・`data`・`docs`・`scripts`・`.assetsignore`・`.claude`・`.git`・`.github`・`.gitignore`・`.python-version`・`.devcontainer`・`.vscode`・`.wrangler`・`CLAUDE.md`・`wrangler.jsonc`・`workers`
+- 追跡されているファイルからこれを除くと 3453 件。拡張子が web 用でないのは `_headers`・`_redirects` だけ。`*.md`・`*.py`・`*.mjs`・`*.sql`・`.env`・鍵は無い（`jpml_test.html` は「プロテスト」のページで、テストではない）
+- 本番（各1回）: `/docs/handover.md`・`/scripts/regenerate.py`・`/workers/ask/wrangler.jsonc`・`/.assetsignore`・`/wrangler.jsonc` はすべて 404（text/html）
+
+#### (f) 秘密の混入
+
+- `detect-secrets scan --all-files`（作業ツリー、1分20秒）: 2658 件。Hex High Entropy 2637 件は生成ページ（live/・saikyo/・title/・books/ など）の Cloudflare Web Analytics のトークン（HTML に載せる前提の公開値、#299）と動画 ID 等。ほか: Secret Keyword 12（`secrets: inherit` の行、文書の `GITHUB_TOKEN` の語、skill の例）、Base64 6（`data/youtube_channels.json` の ID、テストのブック ID）、Private Key 2（`workers/ask/test/weekly.test.mjs:18` は実行時に作る鍵の PEM の枠、もう1つはこのログの指示欄の文字列）、Artifactory 1（`data/live_channel_raw.jsonl` の概要欄）。**有効な鍵と思われるものは無い**
+- 履歴（`git log -p --all` を Python の正規表現で走査、19 秒）: `AIza` が `4d8f987e3`（`birthplaces.js`）・`a00c94d16`（`_site/birthplaces.js`）、`PRIVATE KEY` が `54a0a0989`（`workers/ask/test/weekly.test.mjs`、上と同じ枠）と `428d57a2c`（このログ）。`AIza` は #299 で確認済みの Google Maps のキー（2020-08 のコミット。現在有効なものは無いと平野さんが確認、2026-09-14）で、新しい事実ではない。`sk-ant-`・`AKIA`・`ghp_`・`github_pat_`・Bearer は0件 → 止まる条件に当たらない
+
+#### (g) 配信のヘッダ
+
+`_headers` は前提の「5件」ではなく9ブロック（`/img/*`・`/favicon.ico`・`/apple-touch-icon.png`・`/assets/vendor/*`・`/houou_leagues_data.json`・`/ouka_leagues_data.json`・workers.dev の `X-Robots-Tag`・`/llms.txt`・`/*`）。セキュリティのヘッダは `/*` の5つ。
+
+| ヘッダ | `_headers` の `/*` | 本番 `/` | 本番 `/houou/` | 本番 `/api/ask/status` |
+|---|---|---|---|---|
+| Strict-Transport-Security | max-age=31536000; includeSubDomains | 同じ | 同じ | 無し |
+| X-Content-Type-Options | nosniff | 同じ | 同じ | 無し |
+| X-Frame-Options | SAMEORIGIN | 同じ | 同じ | 無し |
+| Referrer-Policy | strict-origin-when-cross-origin | 同じ | 同じ | 無し |
+| Permissions-Policy | geolocation=(), microphone=(), camera=() | 同じ | 同じ | 無し |
+| Content-Security-Policy | 無い（#9） | 無い | 無い | 無い |
+| Cache-Control | — | public, max-age=0, must-revalidate | 同じ | no-store |
+
+Observatory: 到達できず（未確認）。
+
+#### (h) 依存
+
+- `requirements*.txt` は無い。CI は `pip install google-auth requests`・`Pillow`・`'anthropic==1.7.0'` を版の指定なしで入れる（`.github/actions/setup-python/action.yml:34` ほか）。この組を scratchpad の requirements にして `pip-audit -r`（9 秒）: **No known vulnerabilities found**
+- Worker は `package.json` が無く、`import` は相対パスと `../data.json` だけ（npm の依存なし）。リポジトリ直下にも `package.json` は無い
 
 ## 報告
 
