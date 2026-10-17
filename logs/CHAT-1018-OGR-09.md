@@ -52,6 +52,37 @@ OGP の横断レビュー（#581）の締めくくり。OGP に関わる残り�
 
 ## 経過
 
+### 着手前の確認
+
+- `CHAT-1018-OGR-09` のコミット: 無し（`OGR` は同じセッションの続き）
+- 作業ブランチ: ローカル・リモートとも `work/1018-ogr` が無いため `git checkout -b work/1018-ogr origin/cloudflare`（着手時 HEAD efdeccaf2）
+- 手順0: 「指示」欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は4行とも有る
+- 重なり: 未マージの `work/` で `scripts/apply_page_meta.py` を変えているものは無い
+- issue の状態（REST）: #362・#591・#576・#329・#517・#581 はすべて open
+
+### apply_page_meta.py の参照と削除
+
+`git grep apply_page_meta`（docs/logs・docs/decisions を除く）:
+
+- 呼び出し元: **無し**（`.github/workflows/`・`regenerate.py`・ほかのスクリプト・テストのどれからも呼ばれていない）。前提どおり
+- 参照: `scripts/generate_resource_dictionary.py`・`scripts/generate_video_wayhome.py` の「apply_page_meta.py の PAGES と同じ文言にする（崩すと差し戻る）」のコメント、
+  `docs/notes/static-generation.md` の2か所（resource_dictionary の行の「apply_page_meta.py には語数を除いた文言」と、メンテナンス用スクリプトの一覧の1行）、`docs/review-followup-instructions.md` の1行
+- 直したこと: スクリプトを `git rm`。2つの生成スクリプトのコメントを「正はこの META(#517)」に、static-generation.md の一覧の行を「`<title>`・meta description・OGP の正は、生成ページは各生成スクリプトの `META`、手書きのページは HTML そのもの。apply_page_meta.py は 2026-10-18 に消した（#517）」に、
+  resource_dictionary の行の括弧書きは削除。`docs/review-followup-instructions.md` は過去のレビューの指示文（当時の作業の記録）なので変えていない。CLAUDE.md・handover.md には参照が無い
+- テスト: このスクリプトを読むテストは無し。`python3 -m unittest discover -s scripts/tests` OK
+
+### 再生成
+
+- `python3 scripts/regenerate.py all`（凍結中を除く）: 成功。生成物の差分は 59ファイル＋新しい1ファイル（`saikyo/2026/20261011-s2.html`）で、中身は「最強戦」シートの新しい卓（2026-10-11 の決勝、関連カードの件数 34→35 など）と、
+  「プロ」シートの別名の追加（「さくらやよい」→「山口やよい」）による houou/・jpml_pros・質問欄のデータの変化。今回の変更（スクリプトの削除とコメント）はどのページの生成にも関わらないので、すべてシートの変化
+- これらの生成物は今回の作業と無関係なのでコミットに入れず、自分で生成したファイルだけを `git restore --pathspec-from-file` と1ファイルの `rm` で戻した（マージ後の自動の再生成が入れる）。コミットの差分（docs/ を除く）はスクリプトの削除と2つのコメントだけ
+
+### 記録
+
+- docs/decisions/seo-bing.md に OGR-09 の節（決定の5点）を足した
+- docs/notes/ogp.md の規則の節に「残りの作業の行き先」（#362・#591・#576）を1行足した
+- 「女流桜花」の OGP 画像の決定（2026-10-17）はリポジトリの docs/decisions にはまだ無い（OUK のチャットへの伝言のみ）。#591 のコメントは指示文の書き方のまま書く
+
 ## 報告
 
 - 状態:
@@ -68,12 +99,12 @@ OGP の横断レビュー（#581）の締めくくり。OGP に関わる残り�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj efdeccaf）: https://github.com/retroeater/mj-logs/tree/main/guide/efdeccaf
+ガイド文書（この版を写した時点の最新、mj e0cb58b1）: https://github.com/retroeater/mj-logs/tree/main/guide/e0cb58b1
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/efdeccaf/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/efdeccaf/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/efdeccaf/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/efdeccaf/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/efdeccaf/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/efdeccaf/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e0cb58b1/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e0cb58b1/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e0cb58b1/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e0cb58b1/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e0cb58b1/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e0cb58b1/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/efdeccaf.md
