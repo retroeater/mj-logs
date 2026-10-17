@@ -75,9 +75,64 @@
 
 - 検索欄: `PAGE_TEMPLATE` の `league_filter`（placeholder「鳳凰43後」、label「鳳凰戦43期後期の所属リーグで検索」）。行の `data-league`（`houou_latest`）を `jpml_pros.js` が部分一致で絞る（URL の `?league=` も）
 - 並べ替え: `jpml_pros.js` は列の位置（`headerCells.indexOf`）で並べ、`data-sort`（`get_sort_key()`）を比べる。並べない列は 2〜4（X・note・YouTube）で、鳳凰の列より前なので列を消しても変わらない
-- CSS: `style.css` の `#pros_table` は `table-layout: fixed`、幅は `--mj-pros-table-width: 934px`（名前 150px + 13列 × 56px。コメントは「15列」「14列」と書いてあるが、今は14列）
+- CSS: `style.css` の `#pros_table` は `table-layout: fixed`、幅は `--mj-pros-table-width: 934px`（コメントは「15列」「名前 150px + それ以外14列 × 56px」。今の列は14列で、幅の式は15列の時のまま）
 - 説明文（`DESCRIPTION`）には期の名前は無い
 - 表の幅（`scrollWidth`、headless Chromium、ローカルの生成物）: 375px・1280px とも表 934px（14列）。375px ではページが 934px で横にはみ出す
+
+### 2. 直し
+
+実装（007fcf4）:
+
+- `scripts/generate_houou_pages.py`: `current_league_table(names, book, ampai_table, stop, warn)` を足した。houou/ の生成と同じ読み方（`load_rows()`・`current_names()`・`upcoming_term()`・`leagues_data()`→`league_json()`→`current_leagues()`）で、名前ごとに `current_league()` を当てる。対象は「プロ」の名前のうち「表示」Y の行がある選手（個人成績のページがある選手）で、それ以外は空
+- `scripts/generate_jpml_pros.py`: 見出しを「鳳凰」の1列にし（`HEADERS`）、値は `current_league_table()` の現在のリーグ（行の末尾 `houou_now`）、行き先は `HOUOU_PLAYERS_URL?name=`（`get_houou_now()`）。消した列の関数（`get_houou_seasons`・`get_houou_latest_league`・`get_houou_highest_league`）は消した。`data-league`（検索欄の絞り込み）も現在のリーグにした。並べ替えのキーは前の「鳳凰43後」と同じ `get_sort_key(リーグ)`
+- 検索欄（`PAGE_TEMPLATE` の `league_filter`）: placeholder「鳳凰43後」→「鳳凰」、label「鳳凰戦43期後期の所属リーグで検索」→「鳳凰戦の現在のリーグで検索」。説明文（`DESCRIPTION`）には期の名前が無いので変えていない
+- `style.css`: `--mj-pros-table-width` を 934px → 766px（名前 150px + 11列 × 56px、12列）、コメントも直した
+- `lib/pro_stats.py` の鳳凰の3項目（`Stats`）と鳳凰戦の Ampai の URL（`ampai_urls()`）は数えたまま使わない（桜花の分と `check_ampai.py` が同じ部品を使うため、この指示では消していない）
+- テスト: `test_jpml_pros.py` の列の位置・行のテストを「鳳凰」の1列に直し、現在のリーグが無い在籍者は空欄でリンクなしのテストと、書き出した `jpml_pros.html` の「鳳凰」の値が `houou/ask-players.json` のチップと一致するかのテスト（`GeneratedHououColumnTest`）を足した。全体 1304件 OK（6回続けて OK。その前の1回だけ `test_houou_ask` の `test_matches_name_card` が ERROR になったが、内容を取る前に消え、以後は再現しなかった）
+
+「鳳凰」の列の値（前の「鳳凰43後」→ 直した後。行 1,098（退会者を含む「プロ」の全員）・値のある行 593 → 570）:
+
+- 値が変わる 0名: 
+- 空欄から付く 2名: 中村毅（B1）、吉野敦志（B1）
+- 空欄になる 25名: 中村朝海（E3）、中村泰詩（E3）、中馬雄志（E3）、久野智子（E3）、内山藤次朗（E3）、和田聡一隆（E3）、大島琉雅（E3）、大崎菜緒（E3）、安井駿（E3）、安部みゆ（E3）、寺下達規（E3）、小倉慶一郎（E3）、小川慈瑛（E3）、小松崎舞（E3）、小松心音（E3）、小笠原樹（E3）、山本駿（E3）、朝比奈優斗（E3）、木村圭吾（E3）、田中羚（E3）、田辺ゆい（E3）、白石ひより（E3）、神代陽向（E3）、船田大斗（E3）、鈴木駿平（E3）
+- 前の「鳳凰43後」も 43後（「表示」を問わない最新の期）の行のリーグだったため、43前→43後 で値が変わる選手はいない
+- 空欄になる25名は、43後が初めての期の選手（「表示」Y の行が無く、個人成績のページ〈`houou/results/`〉も質問欄の名簿も無い）。リンク先の個人成績に出ないため、この形にした（判断が必要なことに挙げた）
+- 最初の版は「プロ」の全員を対象にしたため、この25名に E3 が付いて名簿と食い違った（593名）。個人成績のページのある選手に絞って 568名（AMP-01 と同じ）にした
+- `houou/ask-players.json` との食い違い: 0名（`GeneratedHououColumnTest`）
+
+生成物の差分: `jpml_pros.html` だけ（列・検索欄・値）。`regenerate.py houou_pages` も回して houou/ の差分なし。`workers/ask/data.json` は変わっていない
+
+表の幅（ローカル・プレビューとも）: 375px・1280px とも 934px → 766px（12列）。375px ではまだ横にはみ出す（ページ 766px）
+
+### 3. プレビュー
+
+- 007fcf4 の「Workers Builds: mj」success（02:44 開始 → 02:48 に完了を確認）。別名 URL（`?v=007fcf4`）で placeholder「鳳凰」の版が返る
+- headless Chromium・375px の明・暗と 1280px: 見出し「名前|所属出身地|X|note|YouTube|鳳凰|桜花出場|桜花21期|桜花最高|最強出場|決勝進出|放送対局」。中村毅 B1・末続ヒロトシ D1・白鳥翔 鳳凰位で、リンクは `./houou/players/?name=<名前>`・`target="_blank"`
+- 1280px で末続ヒロトシの「鳳凰」の D1 を押すと、新しいタブで `houou/players/?name=末続ヒロトシ` が開き、期別のタブ・名前の横 D1・先頭の行「43期後期 D1」
+- PNG（1280px の表の先頭と3人の行、375px の明・暗の表の先頭）はセッションのチャットに送った。375px では「鳳凰」の列は横に送ると見える位置（表 766px）
+- #584 に直した点のコメントを書いた
+
+### 4. 文書
+
+- docs/notes/static-generation.md: jpml_pros の「鳳凰」の列（値・行き先・検索欄・テスト）を足し、成績の8項目の行に鳳凰の3項目は表に出していないことを書いた
+- docs/notes/houou-top.md: jpml_pros からのリンクを「鳳凰」の列に直した
+- docs/decisions/pros.md: 2026-10-17（AMP-06）の決定を足した。2026-10-16 の決定（鳳凰出場・鳳凰最高を消す、行き先を期別へ、表を減らす方針）は AMP-01 で記録済みだったので足していない
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1017-amp
+- ログ: https://github.com/retroeater/mj/blob/work/1017-amp/docs/logs/CHAT-1017-AMP-06.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1017-amp
+- 確認用URL: プレビューあり（URL は最終報告）。確認したページは `jpml_pros.html`（中村毅・末続ヒロトシ・白鳥翔の行）。この版の印: 表の見出しに「鳳凰」の1列があり、「鳳凰43後」「鳳凰出場」「鳳凰最高」が無い
+- マージ: 未（平野さんの判断待ち）
+- issue: #584（コメント2件: 着手中・直した点）
+- 判断が必要なこと:
+  - この見え方でマージしてよいか
+  - 43後が初めての期の25名（全員 E3）は、個人成績のページがまだ無いため「鳳凰」を空欄にした（前は E3 と Ampai へのリンク）。E3 を文字だけ（リンクなし）で出す形にもできる
+  - マージの順: work/1017-pad（未マージ）も `jpml_pros.html`・`style.css`・`generate_jpml_pros.py` の別の箇所を変えている。後に入る側で `jpml_pros.html` を生成し直す
+- 未確認の項目: 実機での見え方
+- エラー: なし
 
 <!-- guide-links -->
 ---
