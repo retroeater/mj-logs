@@ -61,16 +61,23 @@ CHAT-1017-PAD-05 の本番の計測で出た、`rh_results_detail.html` の 1100
 - 雛形の行: Chat-Ref・マージ・貼る時機・共通手順の4つとも有る
 - 0. 「指示」欄の末尾は指示文の最後の行と一致
 - PAD-05 のログの引用する箇所（`## 経過` の計測の表の `rh_results_detail.html` の2行、その下の 1100px の `tr` 0.3816 ×3 と 390px の `#text` 0.0017 の項）はある
+- CHAT-1017-PAD-05 のログの状態を「判断待ち / 続き: CHAT-1017-PAD-06」にした
+- 同じ主題の issue の検索: REST の `repos/retroeater/mj/issues?state=all` で全591件（#1〜#592）を取り、題名と open の本文を語で探した（「rh_results_detail」「CLS」「レイアウトシフト」「layout-shift」「ずれ」）。同じ目的の issue は無い（近いもの: #588〈title/ の入口の上余白〉、#262〈Core Web Vitals の月次記録〉、#381〈最強戦の CLS、閉じている〉。どれも目的が違う）
+- ラベル: `対象: rh_results_detail` は無く、`rh_` で始まる `対象:` のラベルも無い（近いものが無い）。作らずに `分野: パフォーマンス` だけを付けた
+- 起票: #593「rh_results_detail の 1100px で表の行が大きく動くずれ（0.3816）の原因を調べる」。本文は PAD-05 のログの表の2行と、その下の 1100px の `tr`・390px の `#text` の2項を引用した。期日は付けていない
+  - 起票の直後に、本文の「出た3回の t は FCP の 150〜200ms 後」を計測の生データで確かめ直し、「t（503・516・544ms）は、それぞれの回の FCP（328〜348ms）の 155〜212ms 後」に直した（REST の PATCH、本文のその1行だけ）
+- #428（閉じたまま）に #593 の番号をコメントした
+- 決定 1 を `docs/decisions/site-review.md` に足した
 
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1017-pad
-- ログ: https://github.com/retroeater/mj/blob/work/1017-pad/docs/logs/CHAT-1017-PAD-06.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1017-PAD-06.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1017-pad
 - 確認用URL: なし
-- マージ: 未
-- issue: #428
+- マージ: 済（fast-forward、cloudflare 4bbaef9f4）
+- issue: #593（起票）・#428（コメント）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
@@ -78,12 +85,12 @@ CHAT-1017-PAD-05 の本番の計測で出た、`rh_results_detail.html` の 1100
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj d7551b96）: https://github.com/retroeater/mj-logs/tree/main/guide/d7551b96
+ガイド文書（この版を写した時点の最新、mj 13c870a9）: https://github.com/retroeater/mj-logs/tree/main/guide/13c870a9
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d7551b96/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d7551b96/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d7551b96/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d7551b96/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d7551b96/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d7551b96/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/13c870a9/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/13c870a9/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/13c870a9/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/13c870a9/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/13c870a9/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/13c870a9/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a8c1d96c.md
