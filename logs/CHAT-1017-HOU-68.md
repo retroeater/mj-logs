@@ -63,6 +63,28 @@ CHAT-1017-HOU-67 が止まった点（撮影の枠の検査で、場面8 部門�
 
 - 着手前の確認: 同じ Chat-Ref のコミットなし。このセッションは HOU-67 と同じセッションの続き（新しく始めたものではない）。work/1017-hou はリモートにあり、ローカルと一致（0dee9eda7）、HOU-67 のコミット 975c8c69c を含む。雛形の行は揃っている。「指示」欄の末尾は指示文の最後の行と一致
 
+### 手順1 着手の確かめ
+
+- #541・#542 に 2026-10-16 08:00 UTC 以降のコメントは無い（他のセッションの着手中なし）
+- `git branch -r --no-merged origin/cloudflare`（自分を除く5本）: `scripts/promo_video/houou/` を変えている枝は無い。work/1016-amp が `docs/decisions/houou.md` の末尾に AMP-01・03・04 の節を足している（HOU-67・68 の節とは別の節）。後でマージする側で末尾の追記どうしの衝突になる見込み（両方を残して解ける形）
+- origin/cloudflare（23コミット先）を `git merge` で取り込んだ。衝突なし
+
+### 手順2 場面8の送り（dbd782bbe）
+
+- `capture.mjs` の場面8: タブを押して `settle` の後、0.6秒見せる → 表 `.mj-houou-div-list` の矩形から送る量を計算（下の端が画面の下の端の 8px 上に来るまで、表の上の端は画面から出さない。通算のグラフと同じ式）→ `scrollBy(page, 量, 700)`（通算と同じ 0.7秒）→ `mustFit` → 1.7秒見せる。場面の長さは 0.6 + 0.7 + 1.7 = 3.0秒で前と同じ
+- 回し方は HOU-67 と同じ（`FONTCONFIG_FILE=scripts/promo_video/title/fonts.conf node scripts/promo_video/houou/capture.mjs <出力> <ask-answer.json>`、描画・音は回さない。質問欄は撮る側で答えを返し、本番へ送ったのは0回）
+- 結果: 全場面の検査（top・ask・open・total・league・climb・league-end・division・ranking・ranking-total-per-term・ranking-term-high）が通った。`scenes.json` は HOU-67 の確認の流し（v5 と同じ）と**全部同じ**（division 35.733・ranking 39.433・range 47.633・end 50.633 など。撮影の秒で、動画では +2.5）
+- 場面8 の表（送った後）: 送り 230px、上端 144・下端 656（画面 664）。送る前は上端 374・下端 886
+- コマ: `frames.txt` のファイルの数 540 → 562（送りの 21コマと、送る前の見せるコマ 1つが増えた）。動画の長さは変わらない
+- README の対応の表の場面8 を「送った後に表全体を見る」に直した。決定を `docs/decisions/houou.md` に足した
+- テスト: `python3 -m unittest discover -s scripts/tests` OK、`node --test 'workers/ask/test/*.test.mjs'` 36件 pass
+
+### 手順3 issue とマージ
+
+- ばらつきの issue: 起票の直前の検索（「質問欄 データ・コンシェルジュ 答えのばらつき 答えられない種類」）で当たったのは #542（機能そのもの）だけ。**#586 を起票**（ラベルは #542 と同じ「分野: UI/UX」）。中身: 答えられなかった2種類（放送対局の回数・あるリーグの人数。HOU-49 の本番の問い）、「現在の鳳凰位は？」の答えの3回の違い（HOU-49・58・59、HOU-59 ではカードが2人分）、告知動画では「第42期の鳳凰位は？」に替えたこと、告知の投稿文が「現鳳凰位は？」を例にしていること、対応の時期は未定、確かめ方は ask-worker.md の固定の5問
+- #541 にコメントした（平野さんの認識、公開は済んで進め方を決める段階、進め方は 2026-10-17 にチャットで決める）
+- CHAT-1017-HOU-67 のログの状態の末尾に ` / 続き: CHAT-1017-HOU-68` を足した
+
 ## 報告
 
 - 状態: 作業中
@@ -79,12 +101,12 @@ CHAT-1017-HOU-67 が止まった点（撮影の枠の検査で、場面8 部門�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj e61b4b99）: https://github.com/retroeater/mj-logs/tree/main/guide/e61b4b99
+ガイド文書（この版を写した時点の最新、mj bd0ffc53）: https://github.com/retroeater/mj-logs/tree/main/guide/bd0ffc53
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e61b4b99/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e61b4b99/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e61b4b99/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e61b4b99/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e61b4b99/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e61b4b99/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/6e1da5ac.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/bd0ffc53/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/bd0ffc53/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/bd0ffc53/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/bd0ffc53/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/bd0ffc53/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/bd0ffc53/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/e61b4b99.md

@@ -128,6 +128,7 @@ GitHub Actions (`.github/workflows/regenerate-page.yml`) が、`scripts/generate
 `docs/notes/chat-side-operations.md` から移した（#492）。
 
 - **実行結果の確かめ方:** mj-logs の `actions/status.md`（各ワークフローの直近5回。冒頭の書き出した時刻を見る、#498）。予約実行は2〜3時間遅れる（#504）。動いたかは契機・開始時刻で見て、ジョブのログは Code に確かめさせる。ジョブのサマリ（`GITHUB_STEP_SUMMARY`）は API に無いため Chrome で実行のページを開いて読む（annotations は Code が check-run の API で読める）
+- **運行表:** mj-logs の `actions/index.html`（全ワークフローのつながり〈Worker・cron・push → ワークフロー → ジョブ → 呼ぶワークフロー〉と直近5回の結果。`.github/workflows/` と `schedule.json` から機械的に起こし、status.md と同じ同期で書く。`scripts/actions_dashboard.py`、#564 の段⑤）
 - **ワークフローを変える指示:** そのワークフローを呼ぶ側（`uses:` で呼ぶワークフロー・schedule・`workflow_dispatch`）を `git grep` で洗って「前提」に列挙し、呼ばれ方ごとの振る舞いを「決定」に入れる（呼び出し元の見落としは、呼ばれた側で初めて出る）
 - **失敗通知メールは1件ずつ扱う。** 本番稼働済みの Actions のエラーは、基本的に Actions のフォローアップのチャットで解決する（2026-10-12 平野さんの決定）。
   原因を調べる前に、その題材（ワークフロー・実行したブランチ）を直し中のチャットがあるかを確かめ、あればそこへ引き継ぐ。並行するチャットで同じ系列の Chat-Ref を出さない
