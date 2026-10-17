@@ -69,15 +69,23 @@ CHAT-1017-PAD-01 の計測と 2026-10-17 の iPhone の実機確認で見つか�
 - 0. 「指示」欄の末尾は指示文の最後の行と一致
 - 番号: この指示は PAD-03 で、PAD-02 は後に貼られる予定（指示文の「貼る時機」）。PAD-02 のコミットはまだ無い
 
+- 同じ主題の issue の検索: GitHub の検索 API はセッションから使えない（「sessions are bound to their configured repositories」）ため、REST の `repos/retroeater/mj/issues?state=all` で全586件（#1〜#587）を取り、題名と open の本文を語で探した（「title 入口」「入口」「フォールバック」「年のプルダウン」「絞り込み」「検索欄」「文字を大きく」「filterbar」「文字の拡大」「ぁあ」「文字サイズ」）。同じ目的の open issue は無い
+  - 近いもの: #428（`:has()` の成立待ち。範囲外の件を移す元）、#417（共通ナビの position をそろえる方針、保留。issue B の「固定をやめる」案と関わるので本文から参照した）、#364・#358（title/ の入口の改修、閉じている）、#248（型A の検索欄の常時表示）
+- PAD-01 のログの引用する節（「2. 計測」の表の `title/` の行・「他」の `title/` の項・「JS 無効」の表・「3. まとめ」の「別件」の `title/` の項）はある。issue A に引用した（ログは cloudflare にマージ済みで、リンクは版 e61b4b998 に固定した）
+- ラベル（`repos/…/labels` で確かめた）: `対象: live` は無い。/live の既存の issue（#490・#446・#404 など）が使う `対象: video_live` にした。ほかは案のとおり
+- 起票: #588（issue A、`分野: パフォーマンス`・`分野: UI/UX`・`対象: title`）、#589（issue B、`分野: UI/UX`・`対象: video_live`）。期日は付けていない
+- コメント: #428（範囲外の `title/` の入口の件を #588 に移した）、#525（閉じたまま。決定 3 と、#589 を起票したこと）
+- 決定 1〜3 を `docs/decisions/site-review.md` に足した
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1017-pad-iss
-- ログ: https://github.com/retroeater/mj/blob/work/1017-pad-iss/docs/logs/CHAT-1017-PAD-03.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1017-PAD-03.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1017-pad-iss
 - 確認用URL: なし
-- マージ: 未
-- issue: #428・#525
+- マージ: 済（origin/cloudflare を取り込んだうえで fast-forward、cloudflare 7884f8827）
+- issue: #588（起票）・#589（起票）・#428（コメント）・#525（コメント）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
@@ -85,12 +93,12 @@ CHAT-1017-PAD-01 の計測と 2026-10-17 の iPhone の実機確認で見つか�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 4f001e77）: https://github.com/retroeater/mj-logs/tree/main/guide/4f001e77
+ガイド文書（この版を写した時点の最新、mj 35b8a1bd）: https://github.com/retroeater/mj-logs/tree/main/guide/35b8a1bd
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/4f001e77/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/4f001e77/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/4f001e77/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/4f001e77/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/4f001e77/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/4f001e77/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/35b8a1bd/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/35b8a1bd/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/35b8a1bd/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/35b8a1bd/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/35b8a1bd/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/35b8a1bd/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/e61b4b99.md
