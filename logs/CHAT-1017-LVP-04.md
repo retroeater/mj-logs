@@ -56,29 +56,73 @@
 - 0. 「指示」欄の末尾は指示文の最後の行と一致
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
 - work/1017-lvp はローカル・リモートともあり、どちらも origin/cloudflare の祖先（LVP-03 でマージ済み）。`git merge --ff-only origin/cloudflare` で 0d31d5ca4 まで進めた
+- #362 のコメント（40件）に他セッションの着手中は無し。着手中のコメントを書いた
+
+### 手順1: 読み込み
+
+- LVP-01 と同じ読み方。2回読んで行数は同じ: 【2】14,200行（候補 4,331）、【3】4,334行
+- LVP-02 の時点（【2】14,197行・【3】4,333行）から、【3】は毎日の追記で1行増えた（行4335 `nbTUjxDbkgw`、追加日 2026-10-17、掲載は空欄）
+
+### 手順2: 照合
+
+- 86行の動画IDは LVP-02 で読んだ【3】（保存してあった読み込み結果）の行番号から引いた。86行とも、LVP-02 の時点では掲載が空欄
+- 86行とも今の【3】に動画IDがあり、行番号も変わっていない（LVP-02 の範囲の 4,333 行は動画IDの並びが同じ）
+- 掲載: Y の55行・N の31行とも表のとおり。違う行は0
+- まとめ単位: 行3755 `MDx0S4_qRfM`・行4197 `yjX-3duubqU` とも「ベスト16C、ベスト16D」（LVP-02 の時点は空欄）
+- LVP-02 の範囲の掲載の件数: Y 2,973・N 610・除外 0・空欄 750。見込み（2,973・610・750）と一致
+- 範囲の外（後で足された行）: 1行（空欄 1）
+- ほかの列の変化: 生成が読む列（動画ID・掲載・タイトル戦〜対局日の補正の14列・追加日・備考・冒頭）を、LVP-02 の範囲の全行で LVP-02 の時点と比べた。掲載の86行とまとめ単位の2行のほかに変わった値は0。生成が読まない列（見出しが「参考:」の列など）は読み込んでいないので比べられない
+
+### 手順3: `python3 scripts/regenerate.py --check live_pages`
+
+- 検査は通った（ページ 921。作業ツリーは戻った）。「【3】手動補正」4,334行、「表示 Y のうち公開する動画: 2,971本（2,971行）」
+- 警告 2件:
+  1. 公開しなかった【3】の行 753件 = 掲載が空欄 751（「表示の値が想定外「」」として行ごとに出る。範囲の 750＋追記の 1）＋ Y で落ちる 2
+  2. **「URL が同じになる期・まとめ単位があるためページを作りません: live/judan/43/f.html（第43期十段位決定戦、第43期決定戦）」**
+- Y にした55行のうち、行として公開の条件で落ちるのは2行:
+  - 行4316 `-K8QmXaw8uU`（【メンバー限定】第24期プロクイーン決定戦~二日目~）: 配信予定（配信が始まっていない）
+  - 行4320 `VeNmTHHuYZI`（【メンバー限定】第24期プロクイーン決定戦~初日~）: 同上
+  - 2,973 − 2 = 2,971 が公開の本数と一致
+- **ページ単位で落ちるもの（第43期十段位決定戦のページ）:**
+  - 今回 Y にした行3955 `eOXTZ93geGI`（【メンバー限定】第43期十段位決定戦~最終日~）と行4166 `wZfDqW3dMh4`（同 ~二日目~）は、【3】に補正が無く、【2】の値のステージ「決定戦」・まとめ単位「決定戦」になる
+  - 同じ期の既存の行433 `dxmDlj61m1c`・434 `5RHZTOEAVIE`・3118 `xDw5CYnCJ4I` は、【3】でステージ「十段位決定戦」・ステージの並び「8」・まとめ単位「十段位決定戦」に補正してある
+  - 「決定戦」と「十段位決定戦」は同じ URL（`live/judan/43/f.html`）になるため、生成はそのページを作らない（`build_pages()`）。既存の3本も、今回の2本も /live に出ない
+  - 直し方の見込み: 行3955・4166 の【3】のステージ・ステージの並び・まとめ単位を、行433・434 と同じ「十段位決定戦」「8」「十段位決定戦」にする（直すのは平野さん。この指示ではシートを変えない）
+- **本番への影響:** 平野さんの入力の後の再生成のコミット 0d31d5ca4（2026-10-17 03:39 UTC、cloudflare）で `live/judan/43/f.html` が削除されている（`_redirects` に転送は足されていない）。03:45 UTC の時点では、本番はまだ前の版を返していた（`f.html` は 200、同じコミットで足された `live/houou/42/f.html` などは 404。Workers Builds の check-run は未報告）。反映されると、このページは 404 になる
+- これは LVP-02 の判定の漏れでもある: LVP-02 の「Y にしたとき」は行ごとの `build_video()` だけで見ていて、ページ単位の URL の重なり（`build_pages()`）を見ていなかった
+- 3755・4197 のページ: 生成と同じ `load()` で組んだページで、`MDx0S4_qRfM` は `live/wakajishi/12/b16-c.html`・`b16-d.html` の両方、`yjX-3duubqU` は `live/ourai/12/b16-c.html`・`b16-d.html` の両方に出る（0d31d5ca4 の生成物には b16-c だけがある。まとめ単位の入力より前に生成したためとみる）
+- docs/decisions/live.md に、この指示の「決定」2項目を足した
+
+### マージ
+
+- push 直前に再 fetch し、cloudflare が祖先。差分はこのログと docs/decisions/live.md だけ。`git push origin work/1017-lvp:cloudflare` で 0d31d5ca4..989331c7f
+- マージの直後（03:50 UTC 頃）も、本番の `live/judan/43/f.html` は 200、`live/houou/42/f.html` は 404（0d31d5ca4 はまだ本番に出ていない）
 
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1017-lvp
-- ログ: https://github.com/retroeater/mj/blob/work/1017-lvp/docs/logs/CHAT-1017-LVP-04.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1017-LVP-04.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1017-lvp
 - 確認用URL: なし
-- マージ: 未
-- issue: #362
-- 判断が必要なこと: なし
+- マージ: 済（989331c7f。この追記は docs/logs のみの追いの push）
+- issue: #362（着手中のコメントのみ）
+- 判断が必要なこと:
+  - 【急ぎ】第43期十段位決定戦のページ `live/judan/43/f.html` が生成されなくなった。今回 Y にした行3955 `eOXTZ93geGI`・4166 `wZfDqW3dMh4` が【2】のままのまとめ単位「決定戦」で、既存の行（433・434・3118、【3】で「十段位決定戦」に補正済み）と URL が重なるため。0d31d5ca4 で生成物から削除済みで、本番に反映されると 404 になる（転送なし）。行3955・4166 の【3】のステージ・ステージの並び・まとめ単位を「十段位決定戦」「8」「十段位決定戦」にして再生成すれば戻る見込み。LVP-02 の表はページ単位の重なりを見ていなかった
+  - Y でも落ちる行: 行4316・4320（第24期プロクイーン決定戦のメンバー限定版）が配信予定のため。配信が始まった後の再生成で載る
+  - 表と違った行・見込みとのずれ: なし（掲載86行・まとめ単位2行とも表のとおり。件数は Y 2,973・N 610・空欄 750 で見込みどおり。追記で増えた1行は空欄）
 - 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj f80880a6）: https://github.com/retroeater/mj-logs/tree/main/guide/f80880a6
+ガイド文書（この版を写した時点の最新、mj 2c104a70）: https://github.com/retroeater/mj-logs/tree/main/guide/2c104a70
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f80880a6/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f80880a6/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f80880a6/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f80880a6/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f80880a6/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f80880a6/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c104a70/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c104a70/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c104a70/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c104a70/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c104a70/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c104a70/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a8c1d96c.md
