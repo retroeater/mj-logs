@@ -155,7 +155,7 @@ CHAT-1017-PAD-04 のマージ（cloudflare `2922a7222`）の後、本番のビ�
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1017-PAD-09
 - ブランチ: work/1017-pad-bld
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1017-PAD-08.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1017-pad-bld
@@ -178,12 +178,12 @@ CHAT-1017-PAD-04 のマージ（cloudflare `2922a7222`）の後、本番のビ�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj b3ad7b4c）: https://github.com/retroeater/mj-logs/tree/main/guide/b3ad7b4c
+ガイド文書（この版を写した時点の最新、mj f919327c）: https://github.com/retroeater/mj-logs/tree/main/guide/f919327c
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b3ad7b4c/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b3ad7b4c/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b3ad7b4c/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b3ad7b4c/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b3ad7b4c/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b3ad7b4c/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f919327c/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f919327c/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f919327c/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f919327c/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f919327c/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f919327c/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/42c384b5.md

@@ -66,7 +66,8 @@ OGP画像やタイトルを変えたあと X で確認するときは、URLに `
 ### 前後のエピソードの並び・日付と、各話の説明文（2026-10-13）
 
 - 各話の前後のエピソードは、下の「〇〇の他のエピソード」（左ほど新しい）に合わせて、左（DOM の先）に「次のエピソード」（新しい回）、右に「前のエピソード」（古い回）。スマホ幅で縦に積むと上が次。最新話（「前」だけ）は右の列、最古の回（「次」だけ）は左の列に置き、もう片方は空ける（576px 以上で2列の格子。リンクの `is-next`・`is-prev`）。575px 以下は1枚が全幅
-- 方向の文字のすぐ下にその回の公開日（`YYYY-MM-DD`、下のカードと同じ書き方・大きさ・色、`.mj-video-prevnext-date`）
+- 方向の文字のすぐ下にその回の公開日（「2026年8月27日」の形、下のカードと同じ書き方・大きさ・色、`.mj-video-prevnext-date`）。
+  カードと前後の回の日付は `scripts/lib/wayhome.py` の `published_date_text()` で、Mつく・女流勉強会も同じ。一覧のカードの `data-info` には `2026-08-27` と「2026年8月27日」の両方を入れる（`published_date_search_words()`、live/ と同じ、#592）
 - 各話はページ末尾の説明文（`.mj-lead`）を出さない（ヒーローの紹介文と同じ文のため。`render_content(..., has_lead=False)`）。meta description・og:description・`VideoObject.description` はそのまま
 - 一覧の説明文は、上のカードの並び（`.mj-fullbleed`）と同じ左右の余白（`clamp(12px, 3vw, 48px)`）で画面幅に合わせて折り返す（`body:has(.mj-video-list) .mj-lead`）
 
