@@ -50,7 +50,7 @@
 - 共有ボタンは置かない（スマホではブラウザの共有とほぼ同じため。2026-10-10）。表示中の状態（`?name=`・`?term=&league=`）は URL に入れ、ブラウザの共有で伝わる
 - 説明文の期の範囲は「第17期後期〜第43期前期」の形（最初と最後の (期, 前後) をデータから。順位変動は順位変動の期で「第23期前期〜第43期前期」、ランキングは「第43期前期終了時点」）
 - 数字: プラスは「+」、マイナスは「▲」、小数1桁（順位変動と同じ）
-- OGP: 全ページで houou/ 専用の画像 `img/ogp/houou/index-black.png`（title/ と同じ黒地・白字の「鳳凰戦」＋「個人成績・ランキング・順位変動」＋「ryoei.pro」。見本 A、2026-10-14）。og:image:alt は「鳳凰戦」、og:title は `<title>` と同じ。生成の `OG_IMAGE`（`generate_houou_pages.py`）。画像は `python3 scripts/build_ogp_image.py --text 鳳凰戦 --text 個人成績・ランキング・順位変動 --text ryoei.pro --scale 1 --scale 0.2 --scale 0.16 --line-gap 0.18 --color '#ffffff' --bg '#000000' --max-size 400 --tracking -0.03 --out img/ogp/houou/index-black.png` で手で作ってコミットする（中身を変えるときは名前を変える、docs/notes/ogp.md）
+- OGP: 全ページと旧 `houou_*.html` で `img/ogp/houou/index-white.png`（白地・黒字の「鳳凰戦」＋「ryoei.pro」。副題は無い。2026-10-16、#581。作り方は docs/notes/ogp.md の規則の節）。og:image:alt は「鳳凰戦」、og:title は `<title>` と同じ。指定は `generate_houou_race.py` の `OG_IMAGE`（`generate_houou_pages.py`・`generate_houou_leagues.py` が使う。手書きの `houou_results.html`・`houou_ranking.html` は head に直接）
 
 ### 選手を探す部品（個人成績・リーグ推移）
 
@@ -198,7 +198,7 @@
 - OGP は houou/ 専用の画像（上の「共通」）。og:title は `<title>` と同じ文言のまま
 - 質問欄（#542）の1日の上限は全体 200・IP ごと 10（2026-10-16。試行中の全体は 50）
 - 公開後の Search Console の比較の基準は `docs/gsc/2026-10-09/`（公開前の取り直しはしない、2026-10-14）
-- 旧4ページのファイルと生成は公開の後もしばらく残す。生成の停止・ファイルの削除・共有の関数の整理は別の issue（公開のマージの指示で起票する、2026-10-14）
+- 旧4ページのファイルと生成は公開の後もしばらく残す。生成の停止・ファイルの削除・共有の関数の整理は #582（2026-10-14 の決定）
 - 公開と X での告知は同時に行う。告知動画は `houou-promo-v4.mp4`（制作は `scripts/promo_video/houou/`、2026-10-16）
 - シートの「前後」の直し（#541）は公開の後に回す
 

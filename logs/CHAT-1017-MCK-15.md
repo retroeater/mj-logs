@@ -74,17 +74,79 @@ MCK-14 の比較は Places API の鍵が無く、駅は本文から読んだ値�
 - Enterprise の段になる項目（`currentOpeningHours`・`nationalPhoneNumber`・`priceLevel`・`rating`・`websiteUri`・`transitStation` など）は返していない。**コードは変えない**（ドキュメントのみの指示として扱う）
 - 1回の呼び出しは、FieldMask の中で一番上の段で数えられる。Text Search で店名・住所・位置を返すので Pro（`places.id` だけにすれば無料の Essentials になるが、駅を探す位置〈`location`〉と【県】に使う住所が要るため Pro のまま）
 
+### 2. cloudflare で比較（Sonnet だけ、Places 込み）
+
+- dry-run（run 38985894683、0962f9e0c、success）: 比べる投稿 30件（it_uesama 15・retroeater 15）。予定: X 30件（$0.150、上限 40件）・Claude 30回（`claude-sonnet-5-5`、最大 $1.35、上限 $3）・Places 最大 60回（Places の鍵が有るときだけ回数が出る）
+- 本番（run 38985966701、0962f9e0c、success）:
+  - 鍵: X 有・Claude 有・**Places 有**。ブックのタブ 4個（【1】【2】【3】・比較）。「比較」は見出し 同じ・既存 60行（MCK-14 の分）
+  - X API: 1回、30件（見込み $0.150）。【1】には混ぜていない
+  - Claude API: 30回、費用 $0.0949（使用量から計算）。エラー・拒否なし
+  - Places API: 54回、エラーなし（権限の拒否・認証の失敗・割り当ての超過なし）。内訳は Text Search 27回・Nearby Search 27回（判定が飲食店の 27件で、Text Search で店がすべて見つかり、見つかった店ごとに Nearby Search 1回。ジョブの出力は合計だけなので、要確認の理由〈店が見つからない 0〉と合わせて割った）
+  - 「比較」に 30行を足した（計 90行）。【1】【2】【3】・「ログ」には書いていない
+
+| 見る値 | MCK-14 の Sonnet（Places なし） | 今回の Sonnet（Places あり） |
+|---|---:|---:|
+| 店名 完全一致（「ログ」の店名と【2】の店名） | 24（80%） | 7（23%） |
+| 店名 部分一致まで | 26（86%） | 26（86%） |
+| 駅（「ログ」の駅のどれかが出力の駅に入る） | 27（90%、本文から読んだ駅） | 27（90%、店から 800m 以内の駅） |
+| 店URL（Places で店が見つかった件数） | 0 | 27（判定が飲食店の 27件すべて） |
+| カテゴリ | 21（70%） | 20（66%） |
+| メニュー 完全／部分まで | 24（80%）／25（83%） | 24（80%）／25（83%） |
+| 判定が飲食店 | 27（90%） | 27（90%） |
+| 要確認 | 30（Places 未実行 27・判定が不明 3） | **3**（判定が不明 3） |
+| 本文の駅が圏内に無い | —（Places なし） | 0 |
+| 圏内に駅が無い・店が見つからない | — | 0・0 |
+| Claude の費用（30件） | $0.0950 | $0.0949 |
+
+- 店名の完全一致が 80% → 23% に下がったのは、【2】の店名を Places の名前（`displayName`。支店名や表記の違いを含む）にしているため。部分一致まで（片方が他方を含む）は 86% で変わらない
+- 店URL の「同じ店か」: 「ログ」の店URL は共有のリンク（`maps.app.goo.gl`）で place_id を持たないので、place_id では比べていない。店名が部分一致まで 26件（86%）で、店名で見る限り多くは同じ店とみられる（残りの4件は「比較」タブで見られる）
+- 全件（【1】809行）で見込まれる回数・費用:
+  - Claude（Sonnet）: 約 $2.56（30件の1件あたり $0.00316 × 809）
+  - Places: Text Search は判定が飲食店で店名がある行ごとに1回、Nearby Search は店が見つかった行ごとに1回（同じ問い合わせは使い回す）。多くて各 809回、計 1,618回（スクリプトの上限 2,000回の中）。どちらも Pro の段で、毎月 5,000回の無料の枠の中なら $0（超えると 1,000回あたり $32、チャット側の確認）
+  - 要確認: 今回の割合（3/30＝10%）なら約 80件。ただし【1】には飲食店以外の投稿も混ざる（MCK-08 の timeline を含む）ので、判定が「不明」の数は変わりうる
+
+### 3. #365 の第18・19期の表示
+
+- JWRC タブ（gviz、2026-10-17）: 第18期 77行・第19期 93行とも「表示」が全行 `Y`（第18期以降の「表示」の値は `Y` 170行だけ）
+- `wrc_results.js` と同じ読み方: 見出しで列の英字を引き直すと `SELECT A,B,C,E,F,G,H,I,J WHERE K = "Y"`（「表示」は K 列）。この問い合わせで 1,677行が返り、第18期 77行（1位 末続ヒロトシ 307.6 〜 77位 天音まこと ▲150）・第19期 93行（1位 真鍋明広 350.8 〜 93位 長谷川夏音 ▲168.6）を含む。名前の絞り込み（`?name=末続ヒロトシ` と同じ `AND A = "…" ORDER BY B`）でも第17〜19期が返る
+- ブラウザでの見え方（Google Charts の描画）は Code からは確かめていない
+- #365 にコメント: https://github.com/retroeater/mj/issues/365#issuecomment-6227285877（本文・状態・ラベルは変えていない）
+
+### 4. 記録
+
+- #367 に結果をコメント: https://github.com/retroeater/mj/issues/367#issuecomment-6227286896（本文は変えていない）
+- CHAT-1015-MCK-14・CHAT-1015-MCK-13 のログの `## 報告` の状態の末尾に ` / 続き: CHAT-1017-MCK-15` を足した
+- 決定を docs/decisions/operations.md に足した
+- コードは変えていないので、ドキュメントのみとして cloudflare へ入れる
+
 ## 報告
+
+- 状態: 判断待ち（Places 込みの比較を Sonnet で動かし、駅・店名・店URL を確かめた。#365 の第18・19期の表示を確かめた。全件の変換に進むかは平野さん）
+- ブランチ: work/1017-mck-367-places
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1017-MCK-15.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1017-mck-367-places
+- 確認用URL: なし
+- マージ: 済（591ee110b、ドキュメントのみ。コードは変えていない。この行の追記はマージ後の docs/logs のみの追いの push）
+- issue: #367（着手中のコメントと結果のコメント）、#365（表示のコメント）
+- 判断が必要なこと:
+  - 全件の変換（`mode=all`・`claude-sonnet-5-5`）に進むか。判断材料: 駅 90%・店名 部分一致まで 86%・メニュー 部分一致まで 83%・カテゴリ 66%・判定が飲食店 90%、Places は店が 27件すべてで見つかり、本文の駅の例外 0。要確認は 30件中 3件（判定が不明）で、809行なら約 80件の見込み。費用は Claude 約 $2.56（1回の実行の上限 $3 の中）、Places は各 809回以下で無料の枠の中の見込み
+  - 【2】の「店名」を Places の正式な名前にするか、本文の名前（「ログ」タブの書き方に近い）にするか。今は Places の名前で、「ログ」との完全一致は 23%（本文の名前なら 80%）。本文の名前にして Places の名前を別の列に置く形もある（コードの変更）
+  - カテゴリの一致 66% は低め。全件の後の「カテゴリ案」タブ（別の指示）でまとめる前提で進めてよいか
+- 未確認の項目:
+  - Places の実際の請求（今回 54回。Google Cloud の請求の画面で平野さんが見る）。Text Search・Nearby Search の Pro の段と無料の枠（毎月 5,000回）はチャット側の料金表の確認による
+  - Claude（$0.0949）・X（30件、$0.150 の見込み）の実際の請求
+  - WRC のページ（`wrc_results.html`）のブラウザでの見え方
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 0962f9e0）: https://github.com/retroeater/mj-logs/tree/main/guide/0962f9e0
+ガイド文書（この版を写した時点の最新、mj 6e1da5ac）: https://github.com/retroeater/mj-logs/tree/main/guide/6e1da5ac
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/0962f9e0/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/0962f9e0/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/0962f9e0/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/0962f9e0/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/0962f9e0/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/0962f9e0/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6e1da5ac/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6e1da5ac/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6e1da5ac/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6e1da5ac/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6e1da5ac/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6e1da5ac/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/0962f9e0.md
