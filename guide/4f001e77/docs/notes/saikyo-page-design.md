@@ -137,8 +137,8 @@ SNS ブック（【2】の X ID・【3】＋【4】の X画像URL、#514・docs/
   RK-12 で、それまでの `?match=` の解除用の項目「麻雀最強戦」はこれに統合した。4章）。
   先頭の項目が選択中として出るのはトップだけ（年度ページは年度、`?match=` 中は同じ年度の文字の hidden の項目）
 - 公開状態は年度ページとそろえる: canonical・og:url は `https://ryoei.pro/saikyo/`。OGP画像は
-  `python3 scripts/build_ogp_image.py --text 麻雀最強戦 --color '#EA5505' --bg '#000000' --max-size 400 --tracking -0.03 --out img/ogp/saikyo/index-black.png`
-  （年度ページの意匠から年度の段を除いたもの）
+  `python3 scripts/build_ogp_image.py --text 麻雀最強戦 --footer ryoei.pro --color '#212529' --bg '#ffffff' --max-size 200 --tracking -0.03 --out img/ogp/saikyo/index-white.png`
+  （白地・黒字＋ryoei.pro、#581。名前の接尾辞は `TOP_OGP_DESIGN`。卓・カードの ABEMA の画像が読めないときの代わりにも使う）
 
 - 残っている確認事項（2026-09-18、CHAT-0918-RK-14。追う先の案は #355 のコメント）:
   - 2024・2025年度の最強位（どちらも桑田憲汰）: 平野さんが確認済み（2026-10-10）
@@ -173,8 +173,7 @@ SNS ブック（【2】の X ID・【3】＋【4】の X画像URL、#514・docs/
 - クエリ文字列: 移動先にクエリを書かない行では、元のリクエストのクエリが移動先へ引き継がれる。
   301 でも同じで、本番の `/saikyo?player=<名前>` の応答は `location: /saikyo/?player=<名前>` だった（`?player=` は 2026-09-28 に廃止。今は `?q=`）
   （CHAT-0918-RK-09 で実測。SK-26 では wrangler 同梱の asset-worker の実装で確認していた）
-- **年度の OGP 画像**（#343）は、#549 から og:image には使わず（年度・対局・卓の og:image は ABEMA の作品の画像、下の「新しい年度・対局・卓のページ」）、卓のヒーロー・カードの ABEMA の画像が読めないときの代わり（`year_ogp_path()`）にだけ使う。新しい年度の画像の作り方は `python3 scripts/build_ogp_image.py --text 麻雀最強戦 --text <年度> --scale 1 --scale 0.55 --color '#EA5505' --bg '#000000' --max-size 400 --tracking -0.03 --line-gap 0.08 --out img/ogp/saikyo/<年度>-black.png`
-  で作ってPNGをコミットしてから、ページを生成する。接尾辞 `black` は `generate_saikyo_pages.py` の `OGP_DESIGN` と揃える（意匠を作り直すときはトップの画像も含めて両方を変える、`docs/notes/ogp.md`）。画像が無いページは共通の画像（`img/ogp/site/index-white.png`、#581） を指すだけで、生成は止まらない
+- **年度の OGP 画像**（#343、`img/ogp/saikyo/<年度>-black.png`）は 2026-10-16 に消した（#581）。卓・カードの代わりの画像はトップの `img/ogp/saikyo/index-white.png` に替えた（`year_ogp_path()`）
 - 全件の表の検索トップ（SK-02〜SK-04）は SK-18 で廃止した（6章）
 
 ### `saikyo/<年度>.html`（旧年度ページ、#549 で廃止）
@@ -267,8 +266,8 @@ A を埋めると `2015-n3-...` 形式から日付形式へ変わり、未登録
   固定バー（年度プルダウン）は置かない（パンくずがあるため）。スクロール位置は navbar の高さだけ空ける（`html:has(.mj-saikyo-table-page)`、`--mj-nav-h` は `assets/saikyo.js` の `watchHeight()`）。
   カードの文字は4行（`build_related_card()`）: 対局日・「麻雀最強戦<年度>」・対局名・ステージと卓（決勝は「決勝」）。
   ABEMA の回の URL が無い卓（未対局・未入力）は、ヒーローとカードの画像を ABEMA の作品「麻雀最強戦」〈`https://abema.tv/video/title/68-38`〉の og:image（`ABEMA_SERIES_IMAGE_URL`・`series_image_url()`）にし、「▶ 再生」は出さず、出典「画像: ABEMA」は出す（2026-10-15 の決定5、#549）。
-  ABEMA の画像（回のサムネイル・作品の画像）が読めないときは年度の OGP 画像に差し替える（`data-fallback`、`year_ogp_path()`、`assets/saikyo.js`）。未対局の卓は4人の写真だけ（結果のバッジ・順位なし、「未対局」の文字なし）
-- 共有ボタンは個別ページにも新しい年度ページにも付けない。canonical・og:url は自分自身（年度ページは `/saikyo/<年度>/`）。og:image は年度・対局・卓のすべてで ABEMA の作品「麻雀最強戦」の og:image（全年度で同じ1枚、1280×720、`series_og()`。`version=` の値は ABEMA 側で変わることがある）。題名と説明はページごと。個別の画像は作らない（#546 は閉じた。2026-10-15 の決定5・6）。トップの og:image は年度の画像のまま（`og_image_for()`）。
+  ABEMA の画像（回のサムネイル・作品の画像）が読めないときは「麻雀最強戦」の OGP 画像（`img/ogp/saikyo/index-white.png`）に差し替える（`data-fallback`、`year_ogp_path()`、`assets/saikyo.js`、#581）。未対局の卓は4人の写真だけ（結果のバッジ・順位なし、「未対局」の文字なし）
+- 共有ボタンは個別ページにも新しい年度ページにも付けない。canonical・og:url は自分自身（年度ページは `/saikyo/<年度>/`）。og:image は年度・対局・卓のすべてで ABEMA の作品「麻雀最強戦」の og:image（全年度で同じ1枚、1280×720、`series_og()`。`version=` の値は ABEMA 側で変わることがある）。題名と説明はページごと。個別の画像は作らない（#546 は閉じた。2026-10-15 の決定5・6）。トップの og:image は「麻雀最強戦」の画像（`og_image_for()`、#581）。
   年度・対局のページは `<body class="mj-saikyo-n-page">`（navbar の固定と上余白は当てない）。本文の要素は `mj-saikyo mj-saikyo-sub`（`assets/saikyo.js` の印）
 - **`#` の移動**: 年度ページは、旧年度ページの id（`#<卓のアンカー>`・`#match-<先頭の卓のアンカー>`）から新しいファイル名への対応表（`#saikyo_anchor_map`、`anchor_map_json()`）を持ち、
   `assets/saikyo.js` が `location.hash` を引いて `location.replace` で移す。旧 `/saikyo/<年度>.html#…` が 301 で `/saikyo/<年度>/#…` に着いたときのため（`#` は転送で残る）

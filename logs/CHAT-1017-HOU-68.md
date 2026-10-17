@@ -84,29 +84,31 @@ CHAT-1017-HOU-67 が止まった点（撮影の枠の検査で、場面8 部門�
 - ばらつきの issue: 起票の直前の検索（「質問欄 データ・コンシェルジュ 答えのばらつき 答えられない種類」）で当たったのは #542（機能そのもの）だけ。**#586 を起票**（ラベルは #542 と同じ「分野: UI/UX」）。中身: 答えられなかった2種類（放送対局の回数・あるリーグの人数。HOU-49 の本番の問い）、「現在の鳳凰位は？」の答えの3回の違い（HOU-49・58・59、HOU-59 ではカードが2人分）、告知動画では「第42期の鳳凰位は？」に替えたこと、告知の投稿文が「現鳳凰位は？」を例にしていること、対応の時期は未定、確かめ方は ask-worker.md の固定の5問
 - #541 にコメントした（平野さんの認識、公開は済んで進め方を決める段階、進め方は 2026-10-17 にチャットで決める）
 - CHAT-1017-HOU-67 のログの状態の末尾に ` / 続き: CHAT-1017-HOU-68` を足した
+- マージ: push の直前に再 fetch して `git merge-base --is-ancestor origin/cloudflare HEAD` が真、cloudflare との差は撮影のスクリプト・README・docs・ログの8ファイルだけ。`git push origin work/1017-hou:cloudflare` → `e61b4b998..bd0ffc531`
+- check-run（bd0ffc531）: `check` success、`Workers Builds: mj` success（01:58:49 UTC。配信するファイルは変わらない）。`regenerate-page.yml` の対象のパス（生成スクリプト・`scripts/lib/`・ルートの `*.js`）に当たらないので、ページの再生成は走っていない。マージの後の cloudflare には他のセッション（AMP-05）のコミットだけが続いた
 
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1017-hou
-- ログ: https://github.com/retroeater/mj/blob/work/1017-hou/docs/logs/CHAT-1017-HOU-68.md
+- 状態: 完了
+- ブランチ: work/1017-hou（cloudflare へマージ済み）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1017-HOU-68.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1017-hou
-- 確認用URL: なし
-- マージ: 未
-- issue: なし
-- 判断が必要なこと: なし
+- 確認用URL: なし（撮影のスクリプトと docs だけ。ページは変えていない）
+- マージ: 済（e61b4b998..bd0ffc531。HOU-67 の分を含む。この報告の docs/logs のみの追いの push あり）
+- issue: #586（起票、質問欄の答えられない種類とばらつき）、#541（コメント）
+- 判断が必要なこと: なし（ばらつきは #586 に、#541 の進め方はチャットに移した）
 - 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj bd0ffc53）: https://github.com/retroeater/mj-logs/tree/main/guide/bd0ffc53
+ガイド文書（この版を写した時点の最新、mj 4f001e77）: https://github.com/retroeater/mj-logs/tree/main/guide/4f001e77
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/bd0ffc53/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/bd0ffc53/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/bd0ffc53/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/bd0ffc53/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/bd0ffc53/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/bd0ffc53/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/4f001e77/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/4f001e77/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/4f001e77/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/4f001e77/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/4f001e77/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/4f001e77/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/e61b4b99.md
