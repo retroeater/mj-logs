@@ -68,6 +68,56 @@ Chat-Ref: CHAT-1017-PAD-01
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 揃っている
 - 0. 「指示」欄の末尾は指示文の最後の行（「不明な点があれば…この行が指示文の最後の行です。」）と一致
 
+### 1. 確かめたこと
+
+- #428: 本文とコメント6件（最後は 2026-10-15 の CHAT-1015-SKR-01）を読んだ。他セッションの未解除の着手中コメントは無い。着手中のコメントを書いた（本文・題・ラベルは変えていない）
+- 未マージの work/ ブランチ（`1009-swp-526`・`1011-swp-hnd`・`1011-swp-nav`・`1015-skd-notes`・`1016-amp`・`1017-hou`）は、どれも `style.css` を変えていない（`git diff --stat origin/cloudflare...<branch> -- style.css` が空）
+- 本番と origin/cloudflare（6e1da5ac7）: `style.css`・`assets/title.js`・計測する HTML の数枚を `curl` で取って比べ、同一
+
+#### `style.css` の `:has()` の一覧（origin/cloudflare、82行に出る）
+
+目印のクラスを持つ HTML（クラスの語で数えた。`docs/`・`scripts/` を除く）: `.mj-table` 9枚（`rh_results`・`rh_results_detail`・`rh_paifu`・`jpml_pros`・`jpml_test`・`resource_logs`・`saikyo_mens`・`video_live`・`video_en`）、`.mj-title` 384枚（title/）、`.mj-live` 1551枚（live/ 908・saikyo/ の対局 643）、`.mj-video-page` 1888枚（live/ 908・saikyo/ 643・books/ 191・mtsuku/ 62・wayhome/ 43・study/ 41）、`.mj-video-list` 3枚（wayhome/・mtsuku/・study/ の入口）、`#pros_table` 1枚（jpml_pros）、`.mj-bar-chart-*` 1枚（resource_efficiency）、`.mj-league-chart-*` 2枚（houou_leagues・ouka_leagues）、`.mj-houou`/`.mj-houou-race` 13枚（houou/）、`.mj-saikyo` 236枚（saikyo/）
+
+**レイアウトを変える（上余白・固定・幅・並び）**
+
+| 種類 | セレクタ（行） | 当てる値 | JS が後から入れる値 |
+|---|---|---|---|
+| 表 | `body:has(.mj-table) nav.navbar`（383） | `position: fixed`（固定） | なし |
+| 表 | `body:has(.mj-table)`（455） | `padding-top: var(--content-offset, 90px)`（上余白） | `table.js`・`jpml_pros.js` が `--content-offset`（navbar＋検索欄の実測）を入れる |
+| 表 | `body:has(.mj-table) .mj-lead`（865） | `max-width: none`（幅） | なし |
+| 表 | `body:has(#pros_table)`（569）・`body:has(#pros_table) .mj-lead`（869） | `--mj-pros-table-width: 934px`・`max-width`（幅。jpml_pros のみ） | なし |
+| 表 | `body:has(.mj-table) nav.navbar .navbar-collapse.show`（409、991px 以下） | メニューを開いたときの `max-height` | なし（開いたときだけ） |
+| タイトル戦 | `body:has(.mj-title) nav.navbar`（2470） | `position: fixed` | なし |
+| タイトル戦 | `body:has(.mj-title)`（2478・2487） | `padding-top: calc(var(--mj-title-nav-h, 80px/56px) + var(--mj-title-filter-h, 61px))` | `assets/title.js` が `--mj-title-nav-h`・`--mj-title-filter-h` を入れる |
+| タイトル戦 | `body:has(.mj-title) .mj-filterbar`（2505・2523） | `position: fixed`・`top`・flex・padding | `top` は同上の変数 |
+| タイトル戦 | `body:has(.mj-title) main`（2419） | `max-width: 960px`・`margin: 0 auto`・padding（幅） | なし |
+| タイトル戦 | `body:has(.mj-title) .mj-lead`（2425）・`.mj-filterbar-count:empty`（2575） | `max-width: none`・`position: absolute` | なし |
+| live・動画一覧 | `body:has(.mj-video-list, .mj-live) .mj-filterbar`（1422） | `position: sticky`・`top: var(--mj-nav-h, 56px)`・flex・padding | `assets/live.js`・`video_wayhome.js` が `--mj-nav-h`・`--mj-filter-h` |
+| live・動画一覧 | `html:has(.mj-video-list, .mj-live)`（1388） | `scroll-padding-top`・`scrollbar-gutter: stable`（gutter は幅に効きうる） | 同上 |
+| live | `body:has(.mj-live) .mj-lead`（3193）・`.mj-filterbar-count:empty`（3218） | `max-width: 1100px`・margin・padding／`position: absolute` | なし |
+| 動画一覧 | `body:has(.mj-video-list) .mj-lead`（970）・`.mj-fullbleed`（1485）・`.mj-video-grid`（1542）・`.mj-video-episodes-summary`（1493）・`.mj-filterbar-count:empty`（1474） | 幅・全幅化・grid・flex・`display: none` | なし |
+| 動画のページ | `body:has(.mj-video-page) nav.navbar`（1393） | `position: sticky`・`top: 0` | なし |
+| 動画のページ | `body:has(.mj-video-page) nav.navbar .navbar-collapse.show`（1412） | メニューを開いたときの `max-height` | なし（開いたときだけ） |
+| 動画のページ | `.mj-video-hero:has(> a.mj-video-back) .mj-video-hero-content`（1572） | `padding-top`（文字を大きくしてヒーローが伸びたときだけ見た目が変わる） | なし |
+| 共通（data-search が off でないページ） | `.navbar:has(> a.btn[data-bs-toggle="collapse"])` ほか（422〜449、991px 以下） | navbar の中の並び（虫眼鏡を1行目に） | 目印は navbar 自身の子で、同じ `document.write` で入る |
+| 範囲外: グラフ | `body:has(.mj-bar-chart-desktop)`（200）・`body:has(.mj-league-chart-desktop)`（237）・それぞれの `.mj-lead`（876〜889） | 変数・`.mj-lead` の `max-width` | なし |
+| 範囲外: 鳳凰戦 | `body:has(.mj-houou) .mj-lead`・`body:has(.mj-houou-race) .mj-lead`（3837）・`body:has(.mj-houou, .mj-houou-race) .mj-lead`（5339） | `max-width: 400px`・margin・padding | なし |
+| 範囲外: 最強戦 | `body:has(.mj-saikyo) .mj-lead`（1706） | `max-width`・padding | なし（10/15 に対象から外した） |
+
+- `.mj-lead` はどのページも本文の末尾（`</main>` の手前）にあり、目印（表・`.mj-title`・`.mj-live`・グラフ・`.mj-houou`）より後ろで出る。幅を `:has()` で決める規則は、`.mj-lead` が現れる前に `:has()` が成立している並び
+
+**レイアウトを変えない（対象外）**
+
+`a:has(> img)`（63、下線）、`body:has(.mj-video-page) .visually-hidden-focusable:focus`（401、色）、`html:has(.mj-video-page)`（918 `color-scheme`・1384 `scroll-padding-top`。スクロール位置だけ）、`body:has(.mj-video-page)`（922、色の変数と背景色・文字色）、`body:has(.mj-video-page) .mj-filter-input`・`.mj-lead`（946・964、色）、`body:has(.mj-video-list) .mj-video-hero`（1363、`isolation`・`z-index`）、`html:has(.mj-table)`・`html:has(.mj-title)`（467・2482・2491、`scroll-padding-top`）、`html:has(.mj-saikyo-table-page)`（2249、同）、`body:has(.mj-title) .mj-filterbar .mj-filter-input`（2528、色）、`:root:has(.mj-houou, .mj-houou-race)`・`body:has(.mj-houou, .mj-houou-race)`（5180・5202・5225、色）、`.mj-houou-term:has(.mj-houou-term-hit:active)`（4200・4625・5599、押したとき）、`.mj-houou-suggest-item.is-recent:has(.mj-houou-recent-badge)`（5485、目印が同じ項目の子）
+
+**前提との食い違い**
+
+- `body:has(.mj-video-page)` は動画の3つ（帰り道・Mつく・女流勉強会）のほか、live/・saikyo/ の対局ページ・books/ にも付いている（books/ 191枚は前提に無い）。books/ も1枚を参考に測る
+- `.mj-live` は saikyo/ の対局ページ（643枚、`.mj-saikyo-table-page`）にも付いている。最強戦は 10/15 に対象から外したが、この形は live/ と同じ CSS なので、参考に1枚測る
+- `video_wayhome.html` は無い（帰り道の一覧は `wayhome/index.html`）
+- 前提に無い `:has()` で幅を当てる規則: グラフ（型C・型D）と鳳凰戦（houou/）の `.mj-lead`。決定の範囲（4種類）の外なので一覧に「範囲外」として載せ、参考に測る
+- そのほかは前提のとおり
+
 ## 報告
 
 - 状態: 作業中
