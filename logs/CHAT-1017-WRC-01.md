@@ -59,18 +59,39 @@ Chat-Ref: CHAT-1017-WRC-01
 - 識別子 WRC: `git fetch --unshallow origin` の後、全ブランチの `Chat-Ref:` トレーラと `docs/logs/` の履歴に `CHAT-*-WRC-*` は無い（件名・本文の「WRC-」の一致は「WRC-R」などで Chat-Ref ではない）。未使用
 - 指示文の冒頭の雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
 - 作業ブランチ: `origin/work/1017-wrc-survey` もローカルも無いため `git checkout -b work/1017-wrc-survey origin/cloudflare`（711d4a480）
+- 手順0: ログの「指示」欄の末尾は指示文の最後の行（「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」）と一致
+- 手順1の着手で issue の状態を REST（`GET /issues/{n}`）で読んだ（2026-10-17）:
+
+  | issue | 状態 | 題 | ラベル | コメント数 |
+  |---|---|---|---|---|
+  | #365 | Open | WRC リーグの第18期以降の成績を反映する | 分野: データ・対象: wrc_results・対象: wrc_ranking | 6 |
+  | #571 | Open | JWRC・女流桜花の予選の通過・敗退をサイトに載せる | 状況: 保留・分野: UI/UX・対象: wrc_results | 1 |
+  | #141 | **Closed**（completed、2026-10-16T07:38:15Z、retroeater） | ランキング3ページ（houou_ranking / ouka_ranking / wrc_ranking）を Python の生成に移す（#7 から分割） | 分野: SEO/AIO・分野: パフォーマンス・対象: 全ページ | 16 |
+  | #523 | Closed | タイトル戦名「JPML WRC-Rリーグ」「JPML WRCリーグ」から「JPML」を外す | 分野: データ | 14 |
+
+- #141 の最後のコメント（2026-10-16T07:37:57Z）の引用:
+
+  > 鳳凰戦のランキングは houou/ranking/（9部門）へ移し、#540 で公開した（2026-10-16、cloudflare 5b362ee36。旧 houou_ranking.html は 301）ので、#540 の本文のとおり閉じる。
+  >
+  > Chat-Ref: CHAT-1016-HOU-64
+
+  その前のコメント（2026-10-15、CHAT-1015-MCK-09）に、案C（WRC・桜花の成績とランキングを houou/ と同じ Python の生成に移す、「この issue の続き」）の決定が記録されている。#141 は鳳凰の分の完了で閉じられ、案C の WRC・桜花の分を受ける Open の issue はこの時点で確かめていない
+- **止まる条件「#365・#571・#141 のどれかが見つからない、またはクローズ済み」に当たったため、ここで止まる。** 3つの issue への着手中のコメントは書いていない。手順1の残り（本文・コメントの引用、関係の issue）・手順2・手順3は行っていない。マージもしない（CLAUDE.md「ブランチ運用」: 止まる条件に当たったときはマージせずに報告する）
+- 「決定」節は新しい決定なし、作業中の平野さんの回答もなしのため、docs/decisions には足していない
 
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1017-wrc-survey
 - ログ: https://github.com/retroeater/mj/blob/work/1017-wrc-survey/docs/logs/CHAT-1017-WRC-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1017-wrc-survey
 - 確認用URL: なし
-- マージ: 未
-- issue: #365・#571・#141
-- 判断が必要なこと: 作業中
-- 未確認の項目: 作業中
+- マージ: 未（止まる条件に当たったため入れていない）
+- issue: #365・#571・#141（いずれも書き込みなし）
+- 判断が必要なこと:
+  - #141 は 2026-10-16 に鳳凰の分の完了（CHAT-1016-HOU-64、#540）でクローズ済み（completed）。止まる条件に当たったので止めた。案C の WRC 側をどの issue で扱うか（#141 を開き直す／新しい issue を起票する／#365 など既存の issue で扱う）を決め、続きの指示で手順1〜3を出し直す。起票なら、起票の前の重複の確認（クローズ済みを含む issue と未マージの work/ ブランチ）も指示に入れる
+  - この調べを続けるときは、続きの Chat-Ref（例: CHAT-1017-WRC-02）で出す。このログは状態の末尾に「 / 続き: …」を足す
+- 未確認の項目: 手順1の残り（#365・#571 の本文・コメント、関係の issue）・手順2（第20期の公式の成績表・日程・JWRC タブ）・手順3（案C で変わるファイル・未マージのブランチ・FROZEN_FROM_ALL）はすべて未実施
 - エラー: なし
 
 <!-- guide-links -->
