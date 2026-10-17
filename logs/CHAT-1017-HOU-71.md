@@ -165,15 +165,30 @@
 
 **段3 のコードでの生成**: 同じ5本を生成した。手順1 の生成物（＝コミット済み）との差は 0 件だった
 
+### 3. 確かめ（マージの前）
+
+**画面の文字**（プレビュー b5a2f2a44 と本番。本番は HOU-70 の後の cloudflare）:
+
+- headless Chromium で `main` の文字を比べた（scratchpad の screens.cjs と latest.cjs）。見た所は HOU-70 と同じ:
+  - houou/ トップ
+  - ランキング3つ
+  - 順位変動の B1 最新（`?term=43-1&league=B1`）と A1 最新（`?term=42&league=A1`）
+  - 白鳥翔・佐々木寿人・二階堂亜樹・一井慎也の期別（カードを1枚ずつ開いた文字も）・通算（推移の吹き出し）・リーグのタブ（矢印キーで全部の期を送った吹き出し、最新の期の吹き出しと aria-label）・部門別
+- 文字はすべて同じだった。違いは順位変動 A1 の URL のホスト名だけ（パスと `?term=42&league=A1` は同じ）。ページのエラーは両方 0
+- 順位変動で B1（`?term=42-2`）から A → A2 → C と押したときの URL・選ぶ部品・題名も、本番と同じだった:
+  - A を押すと `?term=42&league=A1`・「通期」・「第42期 A1」
+  - C を押すと `?term=42-2&league=C1`・「第42期後期 C1」
+- プレビューの `assets/houou.js` は段3 の版だった（`termShort(ki, half)`）
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj d42c0618）: https://github.com/retroeater/mj-logs/tree/main/guide/d42c0618
+ガイド文書（この版を写した時点の最新、mj 83b45e41）: https://github.com/retroeater/mj-logs/tree/main/guide/83b45e41
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d42c0618/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d42c0618/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d42c0618/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d42c0618/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d42c0618/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d42c0618/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/83b45e41/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/83b45e41/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/83b45e41/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/83b45e41/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/83b45e41/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/83b45e41/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/42c384b5.md
