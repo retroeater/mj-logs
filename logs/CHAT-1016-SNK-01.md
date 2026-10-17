@@ -53,28 +53,102 @@ Chat-Ref: CHAT-1016-SNK-01
 
 ## 経過
 
+### 着手前の確認
+
+- 0.: 「指示」欄の末尾は指示文の最後の行「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」と一致
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある
+- 識別子 `SNK`: `git fetch --unshallow` の後、`git log --all -E --grep 'CHAT-[0-9]{4}-SNK-'` と `docs/logs/CHAT-*-SNK-*.md` の履歴とも 0件。同じ Chat-Ref のコミットも 0件
+- ブランチ: ローカル・リモートとも `work/1016-snk` が無かったので `git checkout -b work/1016-snk origin/cloudflare`（e61b4b998）
+
+### 手順1: 同じ目的の issue・作業の確認
+
+- `gh` が無く、セッションでは REST の `search/issues` が使えない（「sessions are bound to their configured repositories」）。`repos/retroeater/mj/issues?state=all` で全 584件（PR を除く、最大 #585）を取り、題と本文を「進行中」「途中経過」「途中成績」「速報」「Ampai」「43期後期」「最新の期」「リアルタイム」で照合した
+- 当たったもののうち関係するもの:
+  - #584（open、状況: 対応中）「鳳凰戦 個人成績の期別に進行中の期を出し、Ampai へリンクする」: 進行中の期の行は期・リーグだけで、得点・順位・結果は出さず Ampai へリンクする（2026-10-16 の決定）。他セッション（work/1016-amp、AMP-01〜04）が着手中・未マージ。**成績を出さない側の決定なので目的は違う**（今回は成績そのものを出すかの検討）。止まる条件の候補（#221・#223・#548）には入っていない
+  - #221（open）Ampai 取得基盤: 取得・保存の共通化と利用規約の確認。目的が違う（基盤）
+  - #223（open）大会期間中の速報再生成: 再生成の契機・頻度（対局日の判定）。進行中の期をページに出すか・どう見せるかは決めていないため、目的は違うと判断した。「更新の頻度」の候補は重なる
+  - #548（closed）Ampai の URL の管理: 目的が違う
+  - #376（open、保留）昇降級ボーダーの節ごとの予想: 節ごとの途中成績を使う点が共通、目的は違う
+  - #219・#224・#225・#231・#233・#416・#541・#547 は語の一致のみで主題が違う
+- #221・#223・#548 の本文とコメント: #221・#223 に着手中コメントは無い。#548 の着手中コメント（SNM-06〜14）はすべて完了・クローズ済み
+- 未マージの `work/` ブランチ: 1009-swp-526・1011-swp-hnd・1011-swp-nav（報告のログのみ）、1015-skd-notes（ABEMA の検知の起票、#425）、1016-amp（#584）、1017-hou（#541・#542 の撮影の検査）。同じ目的のものは無い
+- ラベル: 「状況: 保留」はある。houou/ 専用の対象ラベルは無いため、#541 と同じく旧ページの名前のラベルで、候補のページ（個人成績・ランキング・jpml_pros）に当たる `対象: houou_results`・`対象: houou_ranking`・`対象: jpml_pros` を選んだ（順位変動に当たるラベルは無い）。分野は `分野: データ`・`分野: UI/UX`。ラベルは作っていない
+- 背景の出典は実物で確かめた: docs/decisions/houou.md 2026-10-07（CHAT-1007-LGR-13）、docs/notes/houou-race.md「進行中の表は『表示』を N にしておく運用」、docs/notes/static-generation.md（houou_leagues の型C の節。積み上げ棒からの除外は「リーグ推移」のこと）、docs/notes/houou-top.md（名前の面・吹き出し）。#584 の扱い（未マージ）を背景に足した
+
+### 手順2: 起票
+
+- 番号: #587
+- 題: 鳳凰戦: 進行中の期の成績を反映するか検討する（Ampai 参照など）
+- ラベル: 状況: 保留・分野: データ・分野: UI/UX・対象: houou_results・対象: houou_ranking・対象: jpml_pros（起票後に REST で確かめた）
+- 本文:
+
+> ## 目的
+>
+> 鳳凰戦でいま進行中の期（例: 第43期後期）の途中成績を、ryoei.pro のページに反映するかを検討する。範囲は鳳凰戦（平野さんの指定）。
+>
+> ## 背景（今の扱い）
+>
+> - 進行中の表は「鳳凰」シートに入力しないか、入力しても「表示」を N にしておく運用（docs/decisions/houou.md 2026-10-07: 「進行中の表は平野さんが入力しないか、入力しても『表示』を N にしておく。そうでなければ（選ばれた表が進行中なら）生成が止まってよい」）。順位変動は「選ばれた表が進行中（『結果』が空欄）なら生成を止める」（docs/notes/houou-race.md）
+> - リーグ推移（houou_leagues）: 「最新の進行中の期は積み上げ棒からも除外する」。そのため「新しい期が始まるたびに、その期が初参加の選手が一時的にスキップされる現象は毎期発生する」（docs/notes/static-generation.md）
+> - houou/ の個人成績: 通算のグラフの吹き出しで進行中の期は「43期」「鳳凰位（進行中）」と出す。名前の面の現在のリーグは、最新の期が前期で A1・A2・鳳凰位にいる選手（後期の行は進行中で成績 JSON に無い）は `houou_current.span`（docs/notes/houou-top.md）
+> - #584（対応中・未マージ）で、個人成績の「期別」タブに進行中の期の行を「期」「リーグ」だけで出し、Ampai の該当ページへリンクする。得点・順位・結果は出さない（2026-10-16 の決定）。名前の面のチップも進行中の期のリーグにする
+> - Ampai の成績表の URL は「ryoei.pro_Ampai」に期・リーグ・組ごとに持っている（#548）。Ampai の成績表から節ごとの途中成績を読めるか、読んでよいか（利用条件）は未確認
+>
+> ## 検討すること（候補）
+>
+> - 途中成績の出どころ: Ampai を参照（#221 の取得基盤を使う）・手入力・ほか
+> - どのページのどこに出すか: houou/ の個人成績（#584 の進行中の期の行に得点・順位を足すか）・ランキング・順位変動、jpml_pros の「鳳凰<最新の期>」など
+> - 確定前の数字であることの示し方
+> - 更新の頻度
+>
+> ## 関連
+>
+> - #584: 進行中の期の行と Ampai へのリンク（成績は出さず Ampai に任せる）。この issue は、成績そのものを ryoei.pro に出すかを決める
+> - #221: Ampai の取得基盤（取得・保存の共通化、利用規約の確認）。出どころを Ampai にするならその出力を使う
+> - #223: 大会期間中の速報再生成（再生成の契機と頻度）。この issue は、進行中の期を出すか・どう見せるかを決める
+> - #376: 昇降級ボーダーの節ごとの予想（保留）。節ごとの途中成績を使う点が共通
+> - #548: Ampai の URL の管理（クローズ済み）
+>
+> ## 保留の理由
+>
+> 当面は対応予定が無い（2026-10-16、平野さん）。
+>
+> Chat-Ref: CHAT-1016-SNK-01
+
+### 手順3
+
+- docs/decisions/houou.md に「2026-10-16（CHAT-1016-SNK-01）」を足した（末尾に追記。未マージの work/1016-amp・work/1017-hou も同じ末尾に追記しているため、両者のマージ時に追記どうしの衝突が起きうる）
+
+### cloudflare へのマージ（止まった）
+
+- ee9544de9 を push した後、マージの直前に `git fetch origin cloudflare` すると cloudflare が進んでいて（work/1017-hou の HOU-67・HOU-68 がマージ済み、先頭 bd0ffc531）、`git merge-base --is-ancestor origin/cloudflare HEAD` が偽
+- `git merge origin/cloudflare` で docs/decisions/houou.md が衝突した（生成物ではない）。こちらの末尾の「2026-10-16（CHAT-1016-SNK-01）」と、cloudflare 側の末尾の「2026-10-17（CHAT-1017-HOU-67）」「2026-10-17（CHAT-1017-HOU-68）」が同じ位置への追記どうし
+- CLAUDE.md「ブランチ運用」（生成されたページ以外が衝突したら止まる。指示文に解き方が無い）に従い、`git merge --abort` で取り込みを取りやめ、マージしていない。work/1016-snk は ee9544de9 のまま
+- 解き方の案: 両方を残し、日付の古い順（docs/decisions/README.md「書き方」）に SNK-01（10-16）を HOU-67・HOU-68（10-17）の前に置く
+
 ## 報告
 
-- 状態:
-- ブランチ:
-- ログ:
-- 比較URL:
-- 確認用URL:
-- マージ:
-- issue:
+- 状態: 判断待ち
+- ブランチ: work/1016-snk
+- ログ: https://github.com/retroeater/mj/blob/work/1016-snk/docs/logs/CHAT-1016-SNK-01.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1016-snk
+- 確認用URL: なし
+- マージ: 未（cloudflare の取り込みで docs/decisions/houou.md が衝突したため止めた）
+- issue: #587（起票、状況: 保留）
 - 判断が必要なこと:
-- 未確認の項目:
-- エラー:
+  - cloudflare の取り込みで docs/decisions/houou.md が衝突した（末尾への追記どうし: SNK-01 と HOU-67・HOU-68）。両方を残し、日付順に SNK-01 を HOU-67 の前に置いて解き、cloudflare へマージしてよいか
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj e61b4b99）: https://github.com/retroeater/mj-logs/tree/main/guide/e61b4b99
+ガイド文書（この版を写した時点の最新、mj bd0ffc53）: https://github.com/retroeater/mj-logs/tree/main/guide/bd0ffc53
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e61b4b99/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e61b4b99/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e61b4b99/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e61b4b99/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e61b4b99/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e61b4b99/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/bd0ffc53/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/bd0ffc53/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/bd0ffc53/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/bd0ffc53/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/bd0ffc53/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/bd0ffc53/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/e61b4b99.md
