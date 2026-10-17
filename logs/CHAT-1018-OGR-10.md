@@ -58,28 +58,69 @@ OGR 系列（#581、2026-10-16〜18、CHAT-1016-OGR-01〜CHAT-1018-OGR-09）の�
 
 ## 経過
 
+### 着手前の確認
+
+- `CHAT-1018-OGR-10` のコミット: 無し（`OGR` は同じセッションの続き）
+- 作業ブランチ: ローカル・リモートとも `work/1018-ogr` はマージ済み。`git merge --ff-only origin/cloudflare`（→ b57102f6d）
+- 手順0: 「指示」欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は4行とも有る。ガイド文に足す知見には「知見 → 選んだ層 → 理由」の表が有る
+- 重なり: 未マージの `work/OUK` が docs/notes/ogp.md の「置き場所の決まり」の実例の行・規則の表の行・文字ベースの画像の原則の行（ouka/ の5種類目、仮置き）を変えている。
+  今回の追記は「X のカード」「LINE」の節の各1行の書き足しと、規則の節の末尾の3行で、同じ行には触れない。docs/notes/cloudflare.md を変えている未マージのブランチは無い
+
+### 1. テスト `scripts/tests/test_og_image.py`
+
+- 公開対象の HTML（`.assetsignore` のディレクトリを除く。404.html は除く）の og:image が次のどれかであることを確かめる:
+  文字ベースの4種類（`TEXT_IMAGES`: `img/ogp/site/index-white.png`・`img/ogp/title/index-white.png`・`img/ogp/houou/index-white.png`・`img/ogp/saikyo/index-white.png`）、
+  YouTube のサムネイル（`img.youtube.com/vi/<11字>/{maxres,sd,hq}default.jpg`）、ABEMA の画像（`image.p-c2-x.abema-tv.com/image/…`）、帰り道の一覧の合成画像（`img/ogp/wayhome/index-<8桁>(-n).jpg`）、books/ だけの旧 `img/ogp.png`。
+  前提の一覧どおりで、実物と違うものは無かった（帰り道の今の画像は `index-20261011-2.jpg` で、`-2` の付く形も許した）
+- `TEXT_IMAGES` には「足すときは docs/notes/ogp.md の規則に照らして平野さんの決定を取る」コメントを付けた
+- 今の cloudflare（b57102f6d）で **2,558ページ**（live 922・saikyo 880・title 384・books 191・mtsuku 62・wayhome 43・study 41・ルート直下 22・houou 13）を見て通った。
+  落ちることの確かめ: `jpml_links.html` の og:image を一時的に `img/ogp/renmei/index-white.png` に書き換えると落ち、戻した（ほかに旧画像が books/ 以外で落ちること・`img/ogp/ouka/…` が落ちることもテストに入れた）
+- 全テスト（`python3 -m unittest discover -s scripts/tests`）OK。生成物の差分は無し（テストの追加だけ）
+- #591 に「ouka/ の画像を足すときは `TEXT_IMAGES` に `img/ogp/ouka/…` を足す」とコメントした。**未マージの `work/OUK` は `img/ogp/ouka/index-white.png` を使うので、マージのときにこのテストが落ちる**（許可の一覧を直す必要がある。意図どおり）
+
+### 2. docs/notes/ogp.md
+
+- 書く前: 83行・9,661バイト。書いた後: 86行・10,682バイト（**純増3行**、2行は既存の行への書き足し）
+- 「X のカード」の og:title の帯の行に「帯は PC の X で確かめる（iPhone の X アプリの投稿画面には出ない）」、「LINE」の最初の行に「画像は遅れて出ることがあり、出ていないと決める前に少し待って見直す」を書き足した
+- 規則の節の末尾に3行: テスト `scripts/tests/test_og_image.py` が許した形を全ページで確かめること（区分の画像を足すときは決定を取り、許可の一覧も直す）、区分の選択肢を出す前に navbar.js でそれ自体がページかを確かめること、チャット側でも `build_ogp_image.py` で見本を作れること（`OGP_FONT` の差し替え、見本の用途に限る）
+
+### 3. 本番の反映の遅れ（起票しなかった）
+
+- 同じ論点の issue: #334「Workers Buildsのcheck-run成功を本番反映の合図にしてよいか確認する」（closed、2026-10-03）。
+  docs/notes/cloudflare.md「ビルド成否と本番の確認範囲（check-runs）」に「check-run が success になった時点で本番は反映済み。success の後に古い内容が返る事例が出たら起票する」「同じコミットにプレビューのビルドの check-run も付く。本番かは完了した check-run の summary に Preview URL が無いことで見分ける」「本番のビルドが順番を待つ間に新しい push が来ると、古い本番のビルドは飛ばされる」が既にある
+- 3回の check-run の `output.summary` を見直した（REST）:
+  - 9901aa994（OGR-02）: Workers Builds: mj success 2026-10-16T06:26:25Z、**Preview URL あり**。次の b303739e6 の Workers Builds: mj（2026-10-16T06:30:41Z）は Preview URL なし（本番）
+  - b768fb1cb（OGR-04）: Workers Builds: mj success 2026-10-16T08:13:24Z、**Preview URL あり**。次の 767183c02 の Workers Builds: mj（2026-10-16T08:19:26Z）は本番
+  - 9857cf32e（OGR-07）: Workers Builds: mj success 2026-10-17T03:18:53Z、**Preview URL あり**
+  - （参考）95555949b（OGR-08）も Preview URL ありだけ
+  - 4つのマージのコミットとも、mj の本番の check-run は付いていなかった（b768fb1cb には mj-ask の check-run も付いている）
+- 原因: 作業ブランチ（push でプレビューのビルドが走る）を fast-forward で cloudflare へ入れ、直後に自動の再生成のコミットが push されたため、マージのコミットの本番のビルドが飛ばされ、プレビューの success だけが残った。
+  OGR 系列ではこのプレビューの success を本番のものと読み違えていた。既存の記述で説明がつくので**新しい issue は起票しない**
+- docs/notes/cloudflare.md の同じ項目（新しい push で古い本番のビルドが飛ばされる）に1行足した: マージ直後に自動の再生成の push が続くと、マージのコミットにはプレビューの check-run だけが付き、本番は次のコミットのビルドで反映される。本番の確かめは本番の check-run が付いたコミットか本番の HTML で行う
+- #334 に上の見直しの結果をコメントした（閉じたまま。本番の check-run の success の後に旧版が返った例は無いため）
+
 ## 報告
 
-- 状態:
-- ブランチ:
-- ログ:
-- 比較URL:
-- 確認用URL:
-- マージ:
-- issue:
-- 判断が必要なこと:
-- 未確認の項目:
-- エラー:
+- 状態: 完了
+- ブランチ: work/1018-ogr
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1018-OGR-10.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1018-ogr
+- 確認用URL: なし（テストと docs だけで、ページの差分は無い）
+- マージ: 済（マージのコミットは `git log origin/cloudflare --grep CHAT-1018-OGR-10` の先頭）
+- issue: 起票なし（同じ論点の #334 と docs/notes/cloudflare.md の記述で説明がついた）。コメント: #591（テストの許可の一覧）、#334（3回の check-run の見直し）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj fb3a43e9）: https://github.com/retroeater/mj-logs/tree/main/guide/fb3a43e9
+ガイド文書（この版を写した時点の最新、mj e2580c91）: https://github.com/retroeater/mj-logs/tree/main/guide/e2580c91
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/fb3a43e9/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/fb3a43e9/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/fb3a43e9/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/fb3a43e9/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/fb3a43e9/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/fb3a43e9/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/efdeccaf.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2580c91/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2580c91/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2580c91/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2580c91/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2580c91/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2580c91/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/e2580c91.md
