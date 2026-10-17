@@ -51,6 +51,34 @@
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 0. 着手前の確認
+
+- 指示欄の末尾は指示文の最後の行と一致。`CHAT-1017-AMP-06` のコミットは無い。識別子 AMP はこのセッションのもの
+- 雛形の行はあるが、冒頭の行（題〜作業ブランチ）が改行なしの1段落で貼られていた（指示欄はそのまま写した）
+- work/1017-amp はローカル・リモートとも無かったため `git checkout -b work/1017-amp origin/cloudflare`（98ff33c）
+
+### 1. 検査・今の作り
+
+- `python3 scripts/regenerate.py --check jpml_pros`: 通る
+- #584 に着手中のコメントを書いた。他セッションの着手中コメントは無し
+- 未マージの work/ ブランチ: work/1017-pad が `scripts/generate_jpml_pros.py` の `PAGE_TEMPLATE`（`<body>` に `class="mj-table-page"` を足す）と `jpml_pros.html`・`style.css` を変えている。この指示で直す関数（`HEADERS`・`build_row_html()`・`build_page()`）とは別の箇所なので止まらない。マージの順によっては `jpml_pros.html`（生成物）が衝突しうる（生成し直して解く）
+
+今の鳳凰戦の3列の作り:
+
+| 列 | 生成（`scripts/generate_jpml_pros.py`） | 値の元 | リンク |
+|---|---|---|---|
+| 鳳凰出場 | `HEADERS`・`build_row_html()` の `get_houou_seasons()` | `lib/pro_stats.py` の `Stats.houou_seasons`（「表示」Y の行数） | `HOUOU_PLAYERS_URL?name=`（個人成績の期別） |
+| 鳳凰43後 | 見出しは `HEADERS` の `{houou_period}`（`pro_stats.periods()` の最新の期）。値は `get_houou_latest_league()` | `Stats.houou_latest`（「表示」を問わない最新の (期, 前後) の行のリーグ） | Ampai（`pro_stats.ampai_urls()`。合う行が無ければリンクなし） |
+| 鳳凰最高 | `get_houou_highest_league()` | `Stats.houou_highest` | `HOUOU_PLAYERS_URL?name=` |
+
+- 検索欄: `PAGE_TEMPLATE` の `league_filter`（placeholder「鳳凰43後」、label「鳳凰戦43期後期の所属リーグで検索」）。行の `data-league`（`houou_latest`）を `jpml_pros.js` が部分一致で絞る（URL の `?league=` も）
+- 並べ替え: `jpml_pros.js` は列の位置（`headerCells.indexOf`）で並べ、`data-sort`（`get_sort_key()`）を比べる。並べない列は 2〜4（X・note・YouTube）で、鳳凰の列より前なので列を消しても変わらない
+- CSS: `style.css` の `#pros_table` は `table-layout: fixed`、幅は `--mj-pros-table-width: 934px`（名前 150px + 13列 × 56px。コメントは「15列」「14列」と書いてあるが、今は14列）
+- 説明文（`DESCRIPTION`）には期の名前は無い
+- 表の幅（`scrollWidth`、headless Chromium、ローカルの生成物）: 375px・1280px とも表 934px（14列）。375px ではページが 934px で横にはみ出す
+
 <!-- guide-links -->
 ---
 
