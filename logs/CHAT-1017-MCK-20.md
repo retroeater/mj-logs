@@ -80,17 +80,44 @@ CHAT-1017-PAD-08 の「判断が必要なこと」への回答:
 
 - ほかの衝突は無かった
 
+### マージの条件の確かめ
+
+- 取り込んだ後の `git diff origin/cloudflare HEAD --stat`: 5ファイル（docs/decisions/operations.md +5・docs/logs/CHAT-1017-MCK-19.md・docs/logs/CHAT-1017-MCK-20.md・docs/notes/chat-routines.md 3+/1-・docs/notes/chat-side-operations.md +1）。docs/notes/ の変更は MCK-19 の3箇所（「平野さんの判断とマージの許可」の1文・「期日とカレンダー」の1つ目の項・「ほかのセッションへの共有」の最後の項）だけ、docs/decisions/operations.md は MCK-19 の節の追記だけ
+- docs/notes/chat-side-operations.md: 22,155 バイト（上限 28,672・警告域 26,624 を超えない）
+- `git merge-base --is-ancestor origin/cloudflare HEAD` が真、`git push origin work/1017-mck-handoff:cloudflare`: 83b45e415..a9cd733c3
+
+### 2. マージで動いた自動処理
+
+- mj の Actions: マージの push（a9cd733c3）で動いたのは `check-assets.yml`（公開対象の検査）だけ。run 39033046203・39033047996、どちらも success（作業ブランチへの push と cloudflare への push の2回）。ページの再生成（`regenerate-page.yml`）は動いていない（見込みどおり）
+- mj-logs のガイド文書の写し: `guide/HISTORY` の末尾に `a9cd733c` が足され、`guide/a9cd733c/docs/notes/chat-routines.md` に「系列の目的から外れた指示が3本続いたら…」、`guide/a9cd733c/docs/notes/chat-side-operations.md` に「マージの可否は、ほかの問いと分けて単独で聞く…」が入っていることを raw で確かめた（mj-logs 側の写しのワークフローの run はこのセッションからは見られない〈mj-logs の API はこのセッションで許可されていない〉）
+- CHAT-1017-MCK-19 のログの `## 報告` の状態の末尾に ` / 続き: CHAT-1017-MCK-20` を足した。決定を docs/decisions/operations.md に足した
+
+### 3. 作業ブランチの片付け
+
+- **リモートの work/1017-mck-handoff は削除していない。** docs/notes/cloud-sessions.md「ブランチの削除」に「セッションの git プロキシがブランチの削除を拒否する（`git push origin --delete` が HTTP 403）。削除はしない。マージ済みの `work/*` は `cleanup-branches.yml` が毎日、先頭が24時間より前のものを削除する」とあり、指示文の手順3（削除）より文書の規則を優先した（CLAUDE.md「Chat-Ref」の「指示文の記述同士が食い違ったときは…前提・ルールの側を優先し、その旨を報告する」）
+- 削除の判断の記録（docs/notes/branch-operations.md「ブランチを削除するとき」、issue が無いのでここに書く）: 先頭は、このログを書いた最後の追いの push のコミット（同じコミットを cloudflare へも push するので、push 後は `git merge-base --is-ancestor origin/work/1017-mck-handoff origin/cloudflare` が真＝マージ済み。コミット自身の SHA はその中に書けないため、SHA は `git log -1 origin/work/1017-mck-handoff` で引く）
+
 ## 報告
+- 状態: 完了（申送りの3つの規則を cloudflare へマージした。作業ブランチの削除は cleanup-branches.yml に任せる）
+- ブランチ: work/1017-mck-handoff
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1017-MCK-20.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1017-mck-handoff
+- 確認用URL: なし
+- マージ: 済（a9cd733c3。この報告は後の docs/logs・docs/decisions のみの追いの push）
+- issue: なし
+- 判断が必要なこと: なし（指示文の手順3〈リモートのブランチの削除〉は、docs/notes/cloud-sessions.md「ブランチの削除」の規則〈セッションからは削除しない。cleanup-branches.yml が消す〉を優先して行わなかった。`## 経過`「3. 作業ブランチの片付け」）
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj a9cd733c）: https://github.com/retroeater/mj-logs/tree/main/guide/a9cd733c
+ガイド文書（この版を写した時点の最新、mj 66cd4dd6）: https://github.com/retroeater/mj-logs/tree/main/guide/66cd4dd6
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a9cd733c/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a9cd733c/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a9cd733c/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a9cd733c/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a9cd733c/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a9cd733c/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/66cd4dd6/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/66cd4dd6/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/66cd4dd6/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/66cd4dd6/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/66cd4dd6/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/66cd4dd6/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/42c384b5.md
