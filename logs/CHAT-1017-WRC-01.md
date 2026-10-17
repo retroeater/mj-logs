@@ -81,7 +81,7 @@ Chat-Ref: CHAT-1017-WRC-01
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1017-WRC-02
 - ブランチ: work/1017-wrc-survey
 - ログ: https://github.com/retroeater/mj/blob/work/1017-wrc-survey/docs/logs/CHAT-1017-WRC-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1017-wrc-survey
