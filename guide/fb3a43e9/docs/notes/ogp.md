@@ -29,6 +29,7 @@ OGP 画像・og:title を作る／変えるときに読む。#339（「帰り道
 
 - 全ページに og:locale `ja_JP`（#267）。生成のページは `lib/page.py` の `HEAD_TEMPLATE` と `generate_jpml_pros.py`、手書きのページは head に直接書く
 - 規則は「埋め込みできる動画のページ（YouTube）は video.other ＋ og:video、それ以外は website」
+- 残りの作業の行き先（#581 を 2026-10-18 に閉じた）: live/ のトップ・大会・期の og:image を最新話のサムネイルにする件（LVP の B9）は #362、ouka/ の「女流桜花」の OGP 画像（2026-10-17 の決定）は #591、女流勉強会の og:title・og:image の確かめは #576 のチェックリスト
 
 ## 中身を差し替える画像はファイル名を変える
 
