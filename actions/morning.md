@@ -1,6 +1,6 @@
 # 朝の報告用の異常（retroeater/mj）
 
-- 書き出した時刻: 2026-10-17 11:59 JST（見た範囲: 2026-10-16 09:59 JST から）
+- 書き出した時刻: 2026-10-17 12:00 JST（見た範囲: 2026-10-16 10:00 JST から）
 - 書き出した実行の契機: workflow_dispatch（main）
 - 異常だけを書く。全体は actions/status.md。判定は mj の scripts/morning_report.py（各ワークフローの直近 100 回まで）
 
@@ -18,6 +18,7 @@
 - 2026-10-16 14:16 regenerate-page.yml success（push・cloudflare）所要 4分26秒（直近20回の中央値 1分17秒） https://github.com/retroeater/mj/actions/runs/38854891438
 - 2026-10-16 17:08 regenerate-page.yml success（push・cloudflare）所要 4分23秒（直近20回の中央値 1分17秒） https://github.com/retroeater/mj/actions/runs/38871725816
 - 2026-10-16 18:20 regenerate-page.yml success（push・cloudflare）所要 4分04秒（直近20回の中央値 1分17秒） https://github.com/retroeater/mj/actions/runs/38879812800
+- 2026-10-17 09:21 convert-x-posts.yml success（workflow_dispatch・cloudflare）所要 1分43秒（直近20回の中央値 0分34秒） https://github.com/retroeater/mj/actions/runs/38985966701
 
 ## 4. 初回成功
 

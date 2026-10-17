@@ -46,15 +46,38 @@
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+- Chat-Ref の重複確認: CHAT-1017-WFL-25 のコミット・ログは無い。`WFL` はこのセッションの識別子
+- 作業ブランチ: work/1017-wfl-legend はローカル・リモートとも無かったので `git checkout -b work/1017-wfl-legend origin/cloudflare`（98ff33c91）
+- 0. 指示欄の末尾は指示文の最後の行と一致。WFL-24 の `## 報告` は状態「完了」・マージ済（c345618d3）。運行表の生成（a3d324a45）は origin/cloudflare の祖先
+- 雛形の行: Chat-Ref・マージ・貼る時機・共通手順（＋作業ブランチ）は揃っている
+- 着手 JST 11:57（土曜）
+
+### 手順1: 並び順の確かめと凡例
+
+- 並び順: 実行の一覧は GitHub API（`/actions/workflows/<id>/runs`）の順で、新しい回が先（作成の降順）。流れ図の箱の印（`Page.dots`）・入れ子の箱の印（`node_card`）・一覧表の「直近 5 回」の列（同じ `Page.dots`）は、どれもこの順のまま左から並べる。**左が新しい回**で、凡例と実物は合う。表も同じ並びなので凡例の 1 か所に足した
+- `scripts/actions_dashboard.py` の凡例の行の末尾に `<span>（左が新しい回）</span>` を足した（成果物のコミット）
+- テスト `test_legend_states_order`（`scripts/tests/test_actions_dashboard.py`）: 凡例の文言があること、新しい回（run 10）のリンクが古い回（run 9）より前に出ること。直す前のモジュール（origin/cloudflare の版）では落ち、直した後は通ることを確かめた。unittest は全件 OK
+- 作業ブランチで公開の API の実データから生成した（ジョブの取得 20 回）。HTML の該当行（50 行目）:
+
+```
+<p class="legend"><span>✓ 成功</span><span>✗ 失敗</span><span>⊘ 取り消し</span><span>– 飛ばした</span><span>… 実行中</span><span>（左が新しい回）</span></p>
+```
+
+### 手順2: 決定
+
+- docs/decisions/automation.md に `## 2026-10-17（CHAT-1017-WFL-25）` を足した
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 98ff33c9）: https://github.com/retroeater/mj-logs/tree/main/guide/98ff33c9
+ガイド文書（この版を写した時点の最新、mj 8988cc86）: https://github.com/retroeater/mj-logs/tree/main/guide/8988cc86
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/98ff33c9/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/98ff33c9/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/98ff33c9/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/98ff33c9/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/98ff33c9/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/98ff33c9/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/8988cc86/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/8988cc86/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/8988cc86/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8988cc86/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8988cc86/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8988cc86/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/e61b4b99.md
