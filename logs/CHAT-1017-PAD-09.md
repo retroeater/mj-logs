@@ -66,7 +66,7 @@ CHAT-1017-PAD-08 の「判断が必要なこと」2点への平野さんの回�
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1017-PAD-09.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1017-pad-bld
 - 確認用URL: なし
-- マージ: 済（マージ後に追記）
+- マージ: 済（fast-forward、cloudflare f919327c5）
 - issue: なし
 - 判断が必要なこと: なし
 - 未確認の項目: なし
