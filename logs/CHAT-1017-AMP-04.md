@@ -51,6 +51,77 @@ AMP-03 のプレビューへの平野さんの回答（2026-10-17）を入れる
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 0. 着手前の確認
+
+- 指示欄の末尾は指示文の最後の行と一致。Chat-Ref: `CHAT-1017-AMP-04` のコミットは無い。識別子 AMP はこのセッションのもの
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はあるが、指示文の冒頭の行（題・Chat-Ref・マージ・貼る時機・共通手順・作業ブランチ）が改行なしの1段落で貼られていた（指示欄はそのまま写した）
+- ローカルの work/1016-amp は origin と一致（6e4edb9）。`git merge-base --is-ancestor origin/cloudflare HEAD` が偽のため `git merge origin/cloudflare`（4b62c77。docs と `scripts/actions_dashboard.py`・`actions_status.py`・そのテスト。衝突なし）
+- CHAT-1017-AMP-03 のログの状態を「判断待ち / 続き: CHAT-1017-AMP-04」にした
+
+### 1. 検査・着手
+
+- `python3 scripts/regenerate.py --check houou_pages`: 通る
+- 未マージの work/ ブランチで docs 以外を変えているのは work/1017-hou（`scripts/promo_video/houou/` のみ）。対象ファイルとの重なり無し
+- #584 に着手中のコメント（続き）を書いた。他セッションの着手中コメントは無し
+
+### 2. 直し
+
+前期の B1 で昇級して後期の行が無い選手（成績 JSON の最後の行が 43前 で、43後の行が無い在籍者 7名のうち、B1・昇級のもの）:
+
+| 名前 | 43前 | 結果 |
+|---|---|---|
+| 中村毅 | B1 2位 | 昇級 |
+| 吉野敦志 | B1 1位 | 昇級 |
+
+- 残る5名（井上泰秀 E1 降級・伊藤優孝 B2 降級・山宮雅之 E2 昇級・島崎涼 D1 降級・後藤真帆 E2 降級）は B1 でないためチップを出さないまま（前提の見込みどおり。止まる条件に当たらない）
+
+実装（040cd4c）:
+
+- `scripts/generate_houou_pages.py`: `current_league(name, rows, current, upcoming)` を足し、`ask_roster()` がそれを使う（`upcoming_term()` の結果を渡す）。決め方: 進行中の期の行があればそのリーグ／行が無く最後の行が進行中の後期の直前の前期の B1 で「昇級」なら B1（`SKIP_BACK_HALF`）／それ以外は出さない／進行中の期が無ければ前の決め方
+- `assets/houou.js`: `currentLeague()` に B1 の分を足した（Python と同じ決め方）。期別の案内文（`UPCOMING_NOTE`）をやめ、`termView()` は進行中の期の行を一覧の先頭に足すだけにした
+- 片方の決め方をもう片方から使う形（ページに全員のチップを焼き込む）は、個人成績のページに在籍者 690名分の表が増えるため取らず、JS と Python の2か所に置いてテストで一致を確かめる形にした
+- テスト: `CurrentLeagueTest`（JS）に B1 昇級の場合・B1 でない昇級・別の期の B1 昇級・Python の `current_league()` との一致を足した。`test_houou_ask.py` の `GeneratedRosterTest` は、前の決め方を Python で書き写して比べていたのを、生成したページの JSON で名前の面の JS（`currentLeague()`）を node で動かして比べる形に直した。全体 1302件 OK
+- 直す前の確かめ: AMP-03 の `houou/ask-players.json`（HEAD の版）を新しいテストの比べ方で見ると、名前の面と 239名で食い違う（AMP-03 で報告した 241名から、もとから B1 だった中村毅・吉野敦志の2名を引いた数）。直した後は 0名
+
+AMP-03 から変わる選手:
+
+- 名前の面: 2名（中村毅 なし → B1、吉野敦志 なし → B1）
+- 質問欄のカード: 239名（AMP-03 の作業ログ「2. 直し」の「値が変わる 228名」「新しく付く 6名」と、「消える 7名」のうち中村毅・吉野敦志を除く5名。いずれも AMP-03 で名前の面が変わった選手と同じで、値も名前の面と同じ）
+- 名前の面と質問欄のカードの食い違い: 0名（在籍者 690名）
+
+生成物の差分（`regenerate.py houou_pages`）: `houou/ask-players.json` だけ（チップの値）。`houou/players/index.html` は変わらない（`houou_upcoming` は前と同じ。案内文は JS の側）。`jpml_pros.html`・`workers/ask/data.json` は変わっていない
+
+### 3. プレビュー（止まった）
+
+- 040cd4c の「Workers Builds: mj」が **failure**（Build ID 792ef623-bc7f-48cc-8fa0-51b078eaeeb0）。check-run は1本だけで、`started_at` と `completed_at` が同じ 2026-10-17T00:34:44Z（開始時の `in_progress` の check-run が無く、すぐに失敗した）。本番かプレビューか・失敗の段階・エラー文は check-run に出ない（docs/notes/cloudflare.md「ビルドが Cloning で失敗したとき」）
+- 原因はセッションからは読めない。手元で確かめたこと: 配信の上限（`check_asset_limits.py`）は全項目 OK。このコミットで配信されるものの変更は `assets/houou.js` と `houou/ask-players.json` だけで、取り込んだ cloudflare の変更は `scripts/`・`docs/`（配信対象外）
+- 別名 URL は前の版（AMP-03 の e48ef21。案内文があり、中村毅・吉野敦志のチップが無い）を返す。止まる条件のとおり、ここで止めた（ビルドをやり直す手段は、cloudflare 以外への push の後の自動ビルドか、ダッシュボードの「Retry build」。docs だけの push ではビルドは走らない）
+- 参考（ローカルの生成物、`python3 -m http.server`・headless Chromium、375px の明・暗と 1280px）: 中村毅・吉野敦志のチップ B1、期別の先頭は「43期前期 B1」（進行中の期の行なし）。末続ヒロトシ D1・白鳥翔 鳳凰位、東幸一郎はチップなし。5人とも案内文なし
+- #584 に直した点とビルドの失敗のコメントを書いた
+
+### 4. 文書
+
+- docs/notes/houou-top.md: 名前の面のチップの B1 の分、質問欄のカードも同じ決め方、案内文をやめたことを書いた
+- docs/notes/ask-worker.md: 選手カードの現在のリーグの決め方とテストを書いた
+- docs/decisions/houou.md: 2026-10-17（AMP-04）の決定を足し、AMP-03 の案内文の決定に置き換えの印を付けた
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1016-amp
+- ログ: https://github.com/retroeater/mj/blob/work/1016-amp/docs/logs/CHAT-1017-AMP-04.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1016-amp
+- 確認用URL: プレビューのビルドが失敗し、別名 URL は前の版（AMP-03）を返す。この版の印（ビルドが通れば）: 中村毅の名前の横のチップが「B1」で、期別のタブに案内文が無い
+- マージ: 未（平野さんの判断待ち）
+- issue: #584（コメント2件: 着手中・直した点とビルドの失敗）
+- 判断が必要なこと:
+  - 040cd4c のプレビューのビルドが失敗した（Build ID 792ef623-bc7f-48cc-8fa0-51b078eaeeb0、開始と同時に失敗）。ダッシュボードの Build history で失敗の段階を確かめ、「Retry build」でやり直すか、続きの指示で作業ブランチへ push し直してビルドを走らせるか
+  - ビルドが通った後、直した後の見え方でマージしてよいか
+- 未確認の項目: プレビューでの見え方（ローカルの生成物では確かめた）
+- エラー: プレビューの「Workers Builds: mj」が failure（040cd4c。原因はセッションから読めない）
+
 <!-- guide-links -->
 ---
 
