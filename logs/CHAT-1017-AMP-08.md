@@ -57,6 +57,56 @@ AMP-07 は、未マージだった HOU-70 と同じ関数に当たるため止�
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 0. 着手前の確認
+
+- 指示欄の末尾は指示文の最後の行と一致。`CHAT-1017-AMP-08` のコミットは無い。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある
+- CHAT-1017-HOU-70 のコミット（5c56a4a「feat: hold Houou span leagues as a full term internally (#541 step 1)」ほか、7155f43「docs: report CHAT-1017-HOU-70 (merged, prod checked)」）が origin/cloudflare に入っていることを確かめた（work/1017-hou の先頭は cloudflare の祖先）
+- ローカルの work/1017-amp は origin と一致（b535ca9）。CHAT-1017-AMP-07 のログの状態を「判断待ち / 続き: CHAT-1017-AMP-08」にした
+
+### 1. 取り込み・直す前の確かめ
+
+- `git merge origin/cloudflare`（0d591edb8）: **衝突なし**（`scripts/generate_houou_pages.py`・`docs/notes/houou-top.md` は自動で合わさった）。合わさった後の `current_league_table()` は AMP-06 のまま（`results.HALF_NUMBERS[r.half]` で成績の行を作る）で、HOU-70 で `HALF_NUMBERS` に通期（`SPAN`: 0）が足され、`current_league()` が `in_term()` を使う形になっているので、そのまま動く
+- `python3 scripts/regenerate.py --check houou_pages`・`--check jpml_pros`: 通る
+- テスト全体: 1352件 OK
+- `regenerate.py houou_pages jpml_pros`: 生成物の差分なし（進行中の期 43後・在籍者 568名・Ampai のリンク 567名）
+- AMP-06 の「鳳凰」の列と `houou/ask-players.json` の食い違い: 0名。質問欄の名簿と名前の面（`currentLeague()` を node で動かす）の食い違い: 0名
+- 直す前の値（jpml_pros の「鳳凰」・質問欄の名簿・名前の面）:
+
+| 選手 | 値 | 成績 JSON の最後の行 | 進行中の期（houou_upcoming） |
+|---|---|---|---|
+| 中村毅 | B1 | 43前 B1 2位 昇級 | なし |
+| 吉野敦志 | B1 | 43前 B1 1位 昇級 | なし |
+| 末続ヒロトシ | D1 | 43前 C3 42位 降級 | D1 |
+| 白鳥翔 | 鳳凰位 | 42 通期（期の番号 0） 鳳凰位 | 鳳凰位（リンクなし） |
+| 佐々木寿人 | A1 | 42 通期 A1 3位 決定戦 | A1 |
+
+- #584 に着手中のコメント（再開）を書いた。他セッションの着手中コメントは無し
+
+### 2. 止まった理由
+
+- **未マージの work/OUK（CHAT-1017-OUK-01「女流桜花の新ページ ouka/ を未公開で生成する」、d8443ed ほか、先頭 d41bed9、2026-10-17 03:36 UTC、判断待ち）が `scripts/generate_houou_pages.py` を大きく変えている**（大会ごとの部品にする。`CONTEST` の切り替え・`using()`・`load_tab()` など）。変わる関数: `load_rows()` まわり、`render_top()`・`render_players()`（人数の文言）・`build_rankings()`・`player_divisions()`・`leagues_data()`・`current_leagues()`・`upcoming_term()`・`result_files()`・`current_league()`・`ask_roster()`・`prepare()`・`outputs()` ほか。`scripts/lib/results.py`・`scripts/tests/test_houou_pages.py`・`test_houou_ask.py` も変えている（`assets/houou.js`・`scripts/generate_jpml_pros.py` は変えていない）
+- 25名を載せるには、少なくとも `prepare()`（載せる選手の集め方。今は「表示」Y の行から選手を集める）・`outputs()`（成績 JSON と名簿）・`render_players()`（人数の文言）に触れる。止まる条件「未マージの work/ ブランチ（work/1017-amp 以外）が `scripts/generate_houou_pages.py`…の同じ関数を変えている」に当たるため、取り込み以外のコードは変えずに止めた
+- 他の未マージの work/ ブランチ（1009-swp-526・1011-swp-hnd・1011-swp-nav・1015-skd-notes）は対象のファイルを変えていない
+- 取り込みのコミットは work/1017-amp に push した
+- #584 に中断のコメントを書いた
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1017-amp
+- ログ: https://github.com/retroeater/mj/blob/work/1017-amp/docs/logs/CHAT-1017-AMP-08.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1017-amp
+- 確認用URL: なし（取り込みのほかはコードを変えていない。プレビューは確かめていない）
+- マージ: 未（平野さんの判断待ち）
+- issue: #584（コメント2件: 着手中〈再開〉・中断）
+- 判断が必要なこと:
+  - 未マージの work/OUK（OUK-01、ouka/）が `generate_houou_pages.py` の `prepare()`・`outputs()`・`render_players()`・`upcoming_term()` などを変えている。25名を載せる直し（AMP-07・08）は、work/OUK が cloudflare に入った後に取り込んで行うか、先に AMP-08 を行って work/OUK 側で取り込むか
+  - AMP-06（jpml_pros の「鳳凰」の1列）を、25名が空欄のまま先に入れるか、引き続き待つか
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
