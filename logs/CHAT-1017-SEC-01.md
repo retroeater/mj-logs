@@ -349,7 +349,7 @@ Observatory: 到達できず（未確認）。
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1017-SEC-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1017-sec
 - 確認用URL: なし
-- マージ: 未（このあと cloudflare へ入れる。結果は追いの push で書く）
+- マージ: 済（c7ecedbbb。push 直前に cloudflare が進んでいたため `git merge origin/cloudflare` で取り込み〈衝突なし〉、unittest 1357 件 OK、`git merge-base --is-ancestor origin/cloudflare HEAD` を確かめて `git push origin work/1017-sec:cloudflare`）
 - issue: #598（起票）、#9（コメント）
 - 判断が必要なこと:
   - 重大度 高: なし
