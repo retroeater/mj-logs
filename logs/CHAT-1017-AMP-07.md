@@ -51,6 +51,41 @@ AMP-06 のプレビューでは、43期後期が初めての期の在籍者25名
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 0. 着手前の確認
+
+- 指示欄の末尾は指示文の最後の行と一致。`CHAT-1017-AMP-07` のコミットは無い。冒頭の行（題〜作業ブランチ）は改行なしの1段落で貼られていた（指示欄はそのまま写した）
+- ローカルの work/1017-amp は origin と一致（3fc934f）。CHAT-1017-AMP-06 のログの状態を「判断待ち / 続き: CHAT-1017-AMP-07」にした
+- `git merge-base --is-ancestor origin/cloudflare HEAD` が偽のため `git merge origin/cloudflare`（2623c56）。work/1017-pad の分（`jpml_pros.html`・`scripts/generate_jpml_pros.py`・`style.css` ほか）が入ったが自動で合わさり、衝突なし（`jpml_pros.html` は直しの後に生成し直す予定だった）
+
+### 1. 検査・止まった理由
+
+- `python3 scripts/regenerate.py --check houou_pages`・`--check jpml_pros`: 通る
+- #584 に着手中のコメントを書いた。他セッションの着手中コメントは無し
+- 進行中の期（43後）だけの在籍者（AMP-06 の前の `jpml_pros.html` で「鳳凰43後」に値があり、`houou/results/` に成績 JSON が無い選手）: 25名、全員 E3。中村朝海・中村泰詩・中馬雄志・久野智子・内山藤次朗・和田聡一隆・大島琉雅・大崎菜緒・安井駿・安部みゆ・寺下達規・小倉慶一郎・小川慈瑛・小松崎舞・小松心音・小笠原樹・山本駿・朝比奈優斗・木村圭吾・田中羚・田辺ゆい・白石ひより・神代陽向・船田大斗・鈴木駿平
+- **未マージの work/1017-hou（CHAT-1017-HOU-70「hold Houou span leagues as a full term internally (#541 step 1)」、5c56a4a、2026-10-17 03:06 UTC）が、この直しで触る関数を変えている**:
+  - `scripts/generate_houou_pages.py`: `prepare()`（順位変動の読み込み）、`upcoming_term()`（進行中の期の決め方を前後・通期の内部の値で作り直す）、`current_league()`（`in_term()` を使う）、`load_rows()`・`load_groups()`・`leagues_data()` ほか
+  - `assets/houou.js`: `currentLeague()`（`inTerm()` を使う）ほか
+  - ほかに `scripts/lib/results.py`・`scripts/lib/pro_stats.py`・`houou/results/*.json`・`workers/ask/data.json` など
+- 25名を載せるには、少なくとも `prepare()`（載せる選手の集め方。今は「表示」Y の行から選手を集める）と、成績の行が無い選手の描画（`assets/houou.js` の名前の面・タブ）を変える必要があり、`upcoming_term()` と `current_league_table()` の対象の決め方にも触れる。止まる条件「未マージの work/ ブランチが `scripts/generate_houou_pages.py`・`assets/houou.js` の同じ関数を変えている」に当たるため、コードは変えずに止めた
+- #584 に中断のコメントを書いた
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1017-amp
+- ログ: https://github.com/retroeater/mj/blob/work/1017-amp/docs/logs/CHAT-1017-AMP-07.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1017-amp
+- 確認用URL: なし（コードを変えていない。AMP-06 のプレビューのまま）
+- マージ: 未（平野さんの判断待ち）
+- issue: #584（コメント2件: 着手中・中断）
+- 判断が必要なこと:
+  - 未マージの work/1017-hou（HOU-70、#541 の段1）が `generate_houou_pages.py` の `prepare()`・`upcoming_term()`・`current_league()` と `assets/houou.js` の `currentLeague()` を変えている。25名を載せる直し（AMP-07）は、work/1017-hou が cloudflare に入った後に取り込んでから行うか、先に AMP-07 を入れて work/1017-hou 側で取り込むか
+  - AMP-06（jpml_pros の「鳳凰」の1列）を、25名が空欄のまま先に入れるか、AMP-07 を待って一緒に入れるか
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
