@@ -1,6 +1,6 @@
 # 朝の報告用の異常（retroeater/mj）
 
-- 書き出した時刻: 2026-10-18 08:50 JST（見た範囲: 2026-10-17 06:50 JST から）
+- 書き出した時刻: 2026-10-18 08:52 JST（見た範囲: 2026-10-17 06:52 JST から）
 - 書き出した実行の契機: workflow_dispatch（main）
 - 異常だけを書く。全体は actions/status.md。判定は mj の scripts/morning_report.py（各ワークフローの直近 100 回まで）
 
@@ -9,7 +9,7 @@
 - 2026-10-17 12:19 check-assets.yml failure（push・work/OUK） https://github.com/retroeater/mj/actions/runs/38998306192
 - 2026-10-17 12:24 check-assets.yml failure（push・work/OUK） https://github.com/retroeater/mj/actions/runs/38998660380
 - 2026-10-17 12:30 check-assets.yml failure（push・work/OUK） https://github.com/retroeater/mj/actions/runs/38999071147
-- 2026-10-18 02:57 check-assets.yml failure（push・work/OUK）ジョブ「check」 https://github.com/retroeater/mj/actions/runs/39055991711
+- 2026-10-18 02:57 check-assets.yml failure（push・work/OUK） https://github.com/retroeater/mj/actions/runs/39055991711
 - 2026-10-18 03:35 check-assets.yml failure（push・work/WRC）ジョブ「check」 https://github.com/retroeater/mj/actions/runs/39058733366
 - 2026-10-18 03:38 check-assets.yml failure（push・work/WRC）ジョブ「check」 https://github.com/retroeater/mj/actions/runs/39059005500
 - 2026-10-18 03:45 check-assets.yml failure（push・work/WRC）ジョブ「check」 https://github.com/retroeater/mj/actions/runs/39059506583
@@ -29,4 +29,4 @@
 
 ## 5. 未報告のログ（`## 報告` の節が無い）
 
-- CHAT-1018-HOU-73.md（着手 2026-10-18） https://github.com/retroeater/mj-logs/blob/main/logs/CHAT-1018-HOU-73.md
+なし

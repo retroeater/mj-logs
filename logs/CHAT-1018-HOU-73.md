@@ -60,15 +60,85 @@ HOU 系列 2026-10-17（CHAT-1017-HOU-67〜72）の振り返りと Fable 5.1 の
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 0〜1. 着手の確かめ
+
+- `## 指示` 欄の末尾は、指示文の最後の行と一致する
+- Chat-Ref の重複: `git log --all --grep="CHAT-1018-HOU-73"` は 0 件、ログのファイルも無かった
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある
+- 知見 → 選んだ層 → 理由 の表はある
+- ブランチ: work/1018-hou はローカルにもリモートにも無かった。`git checkout -b work/1018-hou origin/cloudflare` で作った（f218a9a26）
+- 未マージの work/ ブランチ（1009-swp-526・1011-swp-hnd・1011-swp-nav・1015-skd-notes・1017-lvp・1018-log-367-station・OUK・WRC）は、どれも `docs/notes/glossary.md`・`docs/instruction-template.md` を変えていない
+- #541 の HOU-68 のコメント（https://github.com/retroeater/mj/issues/541#issuecomment-6228182387、2026-10-17）に、引用と同じ文「シートの「リーグ」タブで、A リーグ（A1・A2）の「-」を前期・後期に埋める必要があり、それをしても読み替え（A1・A2・鳳凰位は通期として「第42期」と読む）は残る。」があった
+
+### 2. A・B と決定
+
+**A（用語集）**:
+
+- `docs/notes/glossary.md`「Google スプレッドシート」の節の表で、「シート｜タブ」の行のすぐ下に1行足した。足した行は次のとおり:
+
+  > | <ページ>の「<名前>」タブ（例: houou/ の「リーグ」タブ） | 「<名前>」タブ（ページ名なし） | サイトのページの中の切り替え。スプレッドシートの1枚は「「<名前>」シート」と書き、「タブ」だけで書かない（#541 でシートと読み違えた） | ページのパスと `?view=` など |
+
+- 既存の行と矛盾しない:
+  - 「シート」の行は、スプレッドシートの1枚を「タブ」と書かないとしている
+  - 対応の表には「「辞書」タブ → 「辞書」シート」がある
+  - 足した行は、ページの中のタブの書き方だけを決める
+- 大きさ: 6,044 → 6,409 バイト
+
+**B（数の報告の規則）**:
+
+- CLAUDE.md「作業ログ」節: 数を全件で書かせる規則は無かった。あるのは `## 報告` の10項目を省かない規則で、表の中の数のことではない
+- `docs/instruction-template.md`: 「該当者の数を報告させるときは、名前の一覧も書かせる」があった
+  - これは人の数と名前の一覧の規則で、「表を求められた数を略さない」までは読めない
+  - そのため、この行を拡張した（新しい行は足していない）
+- 拡張した後の行（1行目）と、前の行（2行目）:
+
+  > - **数を報告させるときは、名前の一覧も書かせる。後で照合の基準にする数は「略」にさせない（表を全件で書かせる）**（残りを後で探すことになる）
+  > - 前: **該当者の数を報告させるときは、名前の一覧も書かせる**（数と例だけだと、残りを平野さんが探すことになる）
+
+- 大きさ: 14,274 → 14,325 バイト
+  - 警告域は 14,336 バイトで、その手前で止めた（`check-assets.yml` の上限は 14,336 / 16,384）
+  - 理由の括弧を前のまま残すと 14,358 バイトで警告域に入るため、括弧を「残りを後で探すことになる」に縮めた
+- CLAUDE.md は変えていない
+
+**決定**: `docs/decisions/houou.md` に 2026-10-18（CHAT-1018-HOU-73）の節を足した。
+
+### 3. D（#541 の訂正）
+
+- #541 に訂正のコメントを書いた（https://github.com/retroeater/mj/issues/541#issuecomment-6243352151）。書いたことは次のとおり:
+  - HOU-68 のコメントの「シートの「リーグ」タブ」は、houou/ のページの「リーグ」タブの誤りだった
+  - 正しい認識: 通期のリーグを前期・後期の両方に描き、シートを「-」にしてもその描き方は残る。HOU-70 で前期・後期の両方に数える形にした
+  - 決定に変わりは無い
+- #541 はクローズのまま。`docs/decisions/houou.md` の HOU-67〜72 の節は変えていない
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1018-hou
+- ログ: https://github.com/retroeater/mj/blob/work/1018-hou/docs/logs/CHAT-1018-HOU-73.md
+- 比較URL: なし（ドキュメントのみ）
+- 確認用URL: なし
+- マージ: 済み（ドキュメントのみ。glossary.md・instruction-template.md・decisions/houou.md・docs/logs）
+- issue: #541（訂正のコメントのみ。クローズのまま）
+- 判断が必要なこと:
+  - B: 規則を足した。`docs/instruction-template.md` の「該当者の数を報告させるときは…」の行を、後で照合の基準にする数を「略」にさせない形に拡張した
+  - B で拡張した後、instruction-template.md は 14,325 バイトになった。警告域（14,336）まで残り 11 バイト
+    - 次に足すときは、先に整理が要る（CLAUDE.md「CLAUDE.md / handover.md の更新ルール」）
+    - 収めるため、行の理由の括弧を短くした
+  - D のコメントの URL: https://github.com/retroeater/mj/issues/541#issuecomment-6243352151
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj caa02d6b）: https://github.com/retroeater/mj-logs/tree/main/guide/caa02d6b
+ガイド文書（この版を写した時点の最新、mj 82a05e9a）: https://github.com/retroeater/mj-logs/tree/main/guide/82a05e9a
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/caa02d6b/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/caa02d6b/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/caa02d6b/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/caa02d6b/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/caa02d6b/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/caa02d6b/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/82a05e9a/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/82a05e9a/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/82a05e9a/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/82a05e9a/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/82a05e9a/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/82a05e9a/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/f218a9a2.md
