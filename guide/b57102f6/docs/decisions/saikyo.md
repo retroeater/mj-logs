@@ -400,3 +400,8 @@ CHAT-1011-ABM-06 の続き。
 - 年度のページ・トップの og:title は変えない
 - プレビューを見ずにマージしてよい
 - 作業中の回答: なし
+
+## 2026-10-17（CHAT-1017-SKG-01）
+
+- 「最強戦」シートに足した試合結果（今回の分）は、検査（`regenerate.py --check saikyo_pages`）で止まる理由が無く、差分が見込み（saikyo/ と sitemap*.xml だけ）の範囲なら、毎朝の自動実行を待たずに cloudflare で `regenerate-saikyo.yml` を手動実行して本番へ反映してよい
+- 作業中の回答: なし
