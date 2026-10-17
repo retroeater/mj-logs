@@ -52,6 +52,28 @@ MCK-14 の比較は Places API の鍵が無く、駅は本文から読んだ値�
 
 ## 経過
 
+### 0. 着手前の確認
+
+- 「指示」欄の末尾は指示文の最後の行と一致。CHAT-1015-MCK-14・CHAT-1015-MCK-13 の `## 報告` の状態はどちらも「判断待ち」
+- Chat-Ref の重複: `CHAT-1017-MCK-15` のコミット 0件（`MCK` はこのセッションの MCK-01 で使ったもの）
+- 作業ブランチ: `work/1017-mck-367-places` はローカル・リモートとも無かったため `git checkout -b work/1017-mck-367-places origin/cloudflare`（起点 0962f9e0c）
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 4行ともある（1行に続けて書かれている）
+
+### 1. issue と Places の料金の段
+
+- #367: Open。最後の着手中のコメントはこのセッションのもの（MCK-14）。着手中のコメントを残した: https://github.com/retroeater/mj/issues/367#issuecomment-6227243250
+- #365: Open。着手中のコメントはこのセッションのもの（MCK-05・MCK-13）だけ
+- `scripts/convert_x_posts.py` の FieldMask と、Places の文書（Text Search (New)・Nearby Search (New) の英語版、2026-10-17 に取得）の SKU の説明:
+
+| 呼び出し | 今の FieldMask | 文書でその項目が入る段 | この呼び出しの段 |
+|---|---|---|---|
+| Text Search | `places.id` | Text Search Essentials ID Only | |
+| | `places.displayName`・`places.formattedAddress`・`places.location` | Text Search Pro | **Text Search Pro** |
+| Nearby Search | `places.displayName`・`places.location` | Nearby Search Pro（Nearby Search に Essentials の段は無く、`places.id` も Pro） | **Nearby Search Pro** |
+
+- Enterprise の段になる項目（`currentOpeningHours`・`nationalPhoneNumber`・`priceLevel`・`rating`・`websiteUri`・`transitStation` など）は返していない。**コードは変えない**（ドキュメントのみの指示として扱う）
+- 1回の呼び出しは、FieldMask の中で一番上の段で数えられる。Text Search で店名・住所・位置を返すので Pro（`places.id` だけにすれば無料の Essentials になるが、駅を探す位置〈`location`〉と【県】に使う住所が要るため Pro のまま）
+
 ## 報告
 
 <!-- guide-links -->
