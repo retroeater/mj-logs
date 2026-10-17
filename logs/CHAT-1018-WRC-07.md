@@ -73,6 +73,59 @@ WRC リーグの旧ページ（`wrc_results.html`・`wrc_ranking.html`）を、�
 - 0. 指示欄の末尾は指示文の最後の行（「この行が指示文の最後の行です。」）と一致
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
 
+### 1. 調べたこと
+
+- #594: open、コメント0件（他のセッションの着手中なし）。ラベル「状況: 待ち」・本文の「着手の条件: #519 の共通化のマージを待つ」は、平野さんの決定（2026-10-18、work/OUK から分けて先に進める）で置き換わったものとして進めた。題名と本文の URL は `wrc/` のまま（決定で `jwrc/`）。着手中のコメントを書いた（https://github.com/retroeater/mj/issues/594#issuecomment-6238419624 ）
+- 同じ主題の issue（「WRC」「jwrc」、クローズ済みも）: #594・#571（関係）・#365（関係）・#366（WRC-R の成績表で別の主題）・#567・#523（クローズ済み）。#594 以外に同じ主題の open issue は無い
+- 未マージの work/ ブランチで触るファイルと重なるもの: work/OUK（起点。共通化の全体）、work/1017-lvp（style.css。LVP の見た目の変更で、houou/・jwrc/ の節とは別の箇所）、work/1018-log-367-station（static-generation.md の1行）。目的の重なり（WRC のページを作る）は無い
+- work/OUK の状態: 先頭 5d46a10c8（CHAT-1018-OUK-08 の報告まで）。共通化の部品は `generate_houou_pages.py` の `Contest`・`using()`・`HOUOU`・`OUKA`・`headers()`・`term_half()`・`load_tab()`・`leagues_data_whole_terms()`・`load_race()`・`contest_class()`・`head()`（`#league_contest`）、`generate_houou_race.py` の `build_periods(half_of, leagues, round_headers)`、`lib/results.py` の `standings(whole_terms)`、`generate_ask_data.py` の `OTHERS`・`target()`・`contest_data()`、JS の `assets/league.js`・`league_race.js`（改名）・`houou_ask.js` の `CONTEST`、Worker の `contestOf()`・`PLAN_SYSTEMS`・`contests`、`regenerate.py` の `SHARED_GENERATORS`
+- 作業中に origin/cloudflare が WRC-05・06 のログと決定（docs のみ）で進んでいたので merge で取り込んだ（衝突なし）。origin/work/OUK は着手時から進んでいない
+
+#### 「JWRC」タブ（生成と同じ `lib/sheets.fetch_records()` で2回読んだ。2回とも同じ内容）
+
+- 行数 1,677（2回とも）。見出し 12列: 名前・期・順位・結果・合計・第1節〜第5節・表示・備考（前提どおり）
+- 期 1〜19（第20期は0行）。「表示」は全行 Y。「結果」は通過 620・敗退 1,057。合計・順位の空欄は0行。節の空欄のある行（途中敗退など）は158行
+- 「備考」: 退会済 5・関西本部 1・東北 1・「2021-08-18時点」1・「第5節の成績が謎」1（集計には使わない）
+- 名寄せ（「別名」）: 樫野凪 → かしのなぎ（5行）の1件
+- 選手 357名（うち「プロ」の在籍者 320名）。ページ・ランキングは在籍者だけ
+- 予選の順位が通過者の数より下で「通過」の行は1行だけ（第19期 小川尚哉 55位。第19期の通過者は30名）
+
+| 期 | 行数 | 通過 | うち在籍者の行 | 在籍者の通過 |
+|---:|---:|---:|---:|---:|
+| 1 | 101 | 35 | 90 | 30 |
+| 2 | 88 | 35 | 80 | 32 |
+| 3 | 80 | 34 | 77 | 33 |
+| 4 | 92 | 36 | 90 | 34 |
+| 5 | 87 | 34 | 84 | 33 |
+| 6 | 92 | 34 | 87 | 34 |
+| 7 | 86 | 34 | 81 | 31 |
+| 8 | 81 | 31 | 73 | 28 |
+| 9 | 96 | 34 | 94 | 34 |
+| 10 | 109 | 34 | 103 | 33 |
+| 11 | 95 | 32 | 85 | 28 |
+| 12 | 92 | 30 | 85 | 28 |
+| 13 | 89 | 33 | 83 | 32 |
+| 14 | 79 | 30 | 75 | 28 |
+| 15 | 79 | 31 | 77 | 31 |
+| 16 | 80 | 33 | 77 | 31 |
+| 17 | 81 | 30 | 79 | 29 |
+| 18 | 77 | 30 | 77 | 30 |
+| 19 | 93 | 30 | 93 | 30 |
+| 計 | 1,677 | 620 | 1,590 | 589 |
+
+#### 規定（旧 `league_ranking.js` の JWRC の分岐と `lib/ranking.py` の `CONTESTS["JWRC"]`）
+
+- `getMinimumSeasons()`: 鳳凰以外は 5、`getMinimumSections()`: 鳳凰以外は 25。期連続浮き 3・節連続浮き 5。`CONTESTS["JWRC"]` と一致（テスト `test_jwrc_pages.py` の `test_old_thresholds`）
+- 旧ページの表示件数の上限（通算 50・期平均 30・期浮き率 22・節浮き率 27）は使わず、houou/・ouka/ と同じ自動ルール（100件・同点の群れ110件まで）
+- 旧 `wrc_results.js`・`league_ranking.js` は「表示」が Y の行だけを読む（`WHERE V = "Y"`）。新も同じ（全行 Y なので差は無い）
+
+### 2. 作ったもの（節目のコミット e631b7659・ff4217d01・以降）
+
+- (a) `generate_houou_pages.py` に大会の設定 `JWRC` と `Contest.no_leagues`（リーグの列が無い大会）を足した。全行を1つのリーグ「予選」の通期として扱う（`league_of()`）。`lib/ranking.py` に `PASS`・`PASS_DIVISIONS` と3部門（`pass_count`・`pass_rate`・`consecutive_passes`）を足した。houou/・ouka/ の生成物は差分0（`regenerate.py houou_pages ouka_pages ask_data ask_data_ouka` の後で `git status` に出たのは `workers/ask/data.json` だけで、着手前に同じコマンドを回したときのデータの変化と同じバイト列）
+- (b) `jwrc/` を生成（353ファイル）。入口は `scripts/generate_jwrc_pages.py`、`regenerate.py` の `jwrc_pages`（`OUTPUT_OVERRIDES` は `jwrc/`、`SHARED_GENERATORS` に登録）。OGP 画像 `img/ogp/jwrc/index-white.png`（`build_ogp_image.py`。同じ字体で ouka の画像を作り直すとコミット済みのものと同じバイト列になることを確かめた）。`_redirects` に5行
+- (c) Worker: `data-jwrc.json`（`scripts/generate_ask_data_jwrc.py`、`regenerate.py` の `ask_data_jwrc`）、`ask.mjs` の `JWRC_PLAN_SYSTEM`・`JWRC_DIVISIONS`、`index.mjs` の `contests.jwrc`。`query.mjs` の時点の文言が「WRCリーグリーグ」になるので、名前が「リーグ」で終わるときは足さない `leagueName()` にした（鳳凰戦・女流桜花の文言は変わらない）
+- テスト: `scripts/tests/test_jwrc_pages.py`（13件）、`test_regenerate.py` に2行、`workers/ask/test/jwrc.test.mjs`（4件）。`python3 -m unittest discover -s scripts/tests` 1,382件 OK、`node --test 'workers/ask/test/*.test.mjs'` 46件 OK（鳳凰戦・女流桜花の既存のテストを含む）
+
 ## 報告
 
 - 状態: 作業中
