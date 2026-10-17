@@ -332,28 +332,47 @@ Observatory: 到達できず（未確認）。
 - `requirements*.txt` は無い。CI は `pip install google-auth requests`・`Pillow`・`'anthropic==1.7.0'` を版の指定なしで入れる（`.github/actions/setup-python/action.yml:34` ほか）。この組を scratchpad の requirements にして `pip-audit -r`（9 秒）: **No known vulnerabilities found**
 - Worker は `package.json` が無く、`import` は相対パスと `../data.json` だけ（npm の依存なし）。リポジトリ直下にも `package.json` は無い
 
+### 3. 文書と issue
+
+- 未マージの work/ ブランチとの重なり: `docs/notes/security.md`・`docs/decisions/security.md`・`docs/decisions/README.md` を変えるものは無い。`docs/handover.md` は `work/OUK` が6章の表の `houou-top.md` の次に1行足している。こちらは表の末尾（`handover-archive-2026.md` の次）に足したので同じ行ではない
+- 親 issue #598「ryoei.pro のセキュリティ点検と対策（2026-10）」を起票（ラベル `分野: セキュリティ`）。結果の表（中5・低9、高なし）・問題の無かったもの・平野さんの確認・SEC-02 の候補・#9 の後の再点検
+- 前提の「平野さんの確認」の `mj-scheduler` のトークンは「`actions: write` だけか」から「mj と mj-logs の Actions の書き込みと Issues の書き込みだけか」に直した（(a) のコードの読みによる）。Workflow permissions の既定と Anthropic の使用額の上限を足した
+- #9 に「SEC 系列のスコープ外、#9 の後に再点検」をコメント（glightbox の `cdn.plyr.io` と画像の `src` を添えた）
+- `docs/notes/security.md` を新設（観点・道具と入れ方・届いた外部 API・本番に送ってよい要求・プラグインの確かめ方・次回の手順。結果の表は書かない）
+- `docs/decisions/security.md` を新設し「決定」を写した。`docs/decisions/README.md` の表に1行、handover.md 6章の表に1行（`docs/notes/security.md`、親 #598）
+- `python3 -m unittest discover -s scripts/tests`: 1357 件 OK。handover.md 23423 バイト（警告域 26KB の下）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1017-sec
-- ログ: https://github.com/retroeater/mj/blob/work/1017-sec/docs/logs/CHAT-1017-SEC-01.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1017-SEC-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1017-sec
 - 確認用URL: なし
-- マージ: 未
-- issue: 未定
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- マージ: 未（このあと cloudflare へ入れる。結果は追いの push で書く）
+- issue: #598（起票）、#9（コメント）
+- 判断が必要なこと:
+  - 重大度 高: なし
+  - 重大度 中（#598 の番号）: 中-1 `/api/ask` の守りが `Origin`（偽装できる）と D1 の回数だけで、IP を替える相手に全体の 200 を使い切られる／中-2 書籍ページの JSON-LD が `<` を逃がしていない（`generate_books_pages.py:463`）／中-3 シートの URL を scheme を確かめずに `href` に入れている（8 か所、検査が1つも無い）／中-4 第三者 action を SHA で固定していない（56 か所、`dependabot.yml` なし）／中-5 `secrets: inherit` 11 か所とワークフロー全体の書き込み権限・`permissions` の無いワークフロー
+  - プラグインの動作確認の結論: **動いた（一部）**。根拠: `claude plugin list` に `security-guidance@synced` Version 2.0.13「√ loaded」、`~/.claude/security/log.txt` に UserPromptSubmit・PostToolUse（Write・Bash）の呼び出しが記録された。ただし LLM によるコミット・停止時のレビューは「LLM review disabled or no API credentials」で動かない（環境に `ANTHROPIC_API_KEY` 等が無い）。点検中に警告・再プロンプトは一度も出なかった（パターンに当たる編集をしていないため、警告を出す部分は未確認）。Claude Security プラグインに進むかの判断材料になる
+  - SEC-02 に入れる道具の推奨: zizmor と pip-audit を入れる（zizmor は中-4・中-5・低-1・低-2 を全部拾い1秒未満、pip-audit は依存の固定と組み合わせて効く。どちらも pip で入る）。detect-secrets は生成ページのトークンで誤検出が数千件出るためベースラインが前提で、GitHub の Secret scanning／Push protection が使えるならそちらを優先（#300）。履歴の鍵の走査（約 20 秒）は #300 の代替として足してよい。月1回＋手動で 10〜20 分／月の見込み
+  - #598 の「平野さんの確認」（ダッシュボード側 12 項目）
+- 未確認の項目:
+  - Mozilla HTTP Observatory の採点（API にプロキシで届かない。平野さんが https://developer.mozilla.org/en-US/observatory/analyze?host=ryoei.pro を開いて確かめる）
+  - OSV（`api.osv.dev`）での照合（届かない。npm の照会口で代わりに確かめた）
+  - Security Guidance のパターン照合が実際に警告を出すか（当たる編集をしていない）
+  - Cloudflare の `/api/ask` への Rate Limiting ルールの有無ほか、ダッシュボード側の設定（#598「平野さんの確認」）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj e2580c91）: https://github.com/retroeater/mj-logs/tree/main/guide/e2580c91
+ガイド文書（この版を写した時点の最新、mj c7ecedbb）: https://github.com/retroeater/mj-logs/tree/main/guide/c7ecedbb
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2580c91/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2580c91/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2580c91/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2580c91/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2580c91/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2580c91/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c7ecedbb/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c7ecedbb/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c7ecedbb/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c7ecedbb/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c7ecedbb/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c7ecedbb/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/e2580c91.md
