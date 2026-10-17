@@ -116,6 +116,25 @@ MCK-15 の比較で、Places 込みの変換が使えると分かった。ただ
 - CHAT-1017-MCK-15 のログの `## 報告` の状態の末尾に ` / 続き: CHAT-1017-MCK-16` を足した
 - 決定を docs/decisions/operations.md に足した
 
+### 追いの push の前の取り込み
+
+- origin/cloudflare が進んでいたので `git merge origin/cloudflare` で取り込んだ。docs/decisions/operations.md が衝突した（このブランチの MCK-16 の節と、他セッションの CHAT-1017-WFL-26 の節が、同じ末尾に追記されていた。共通の最後の行「- 作業中の回答: なし」を両方が使っていた）。追記どうしなので両方を残して解いた（WFL-26 の節 → MCK-16 の節の順、それぞれに「作業中の回答」の行）。解いた後の該当箇所:
+
+```
+## 2026-10-17（CHAT-1017-WFL-26）
+
+- WFL（Actions の整理）の振り返り（…）の後、「申送り」として知見を残す。（…）の 2 項目を足した
+- 作業中の回答: なし
+
+## 2026-10-17（CHAT-1017-MCK-16）
+
+- #367 の【2】の「店名」は本文の名前（Claude が本文から読んだ名前）にする。（…）
+- 全件の変換（`mode=all`・`claude-sonnet-5-5`）に進む
+- カテゴリは、全件の後の「カテゴリ案」シート（別の指示）でまとめる前提で進める
+- 店を探す Text Search は今のまま本文の店名と地名で行う（Text Search Pro・Nearby Search Pro のまま）
+- 作業中の回答: なし
+```
+
 ## 報告
 - 状態: 判断待ち（【2】の店名の形を直してマージし、【1】の全件 809行を【2】に変換した。要確認 139行の確認と、次の指示は平野さん）
 - ブランチ: work/1017-mck-367-all
@@ -135,12 +154,12 @@ MCK-15 の比較で、Places 込みの変換が使えると分かった。ただ
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 16fd668c）: https://github.com/retroeater/mj-logs/tree/main/guide/16fd668c
+ガイド文書（この版を写した時点の最新、mj f80880a6）: https://github.com/retroeater/mj-logs/tree/main/guide/f80880a6
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/16fd668c/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/16fd668c/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/16fd668c/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/16fd668c/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/16fd668c/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/16fd668c/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f80880a6/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f80880a6/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f80880a6/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f80880a6/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f80880a6/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f80880a6/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a8c1d96c.md
