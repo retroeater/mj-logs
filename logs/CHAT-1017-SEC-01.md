@@ -57,6 +57,52 @@ ryoei.pro（静的配信＋ Worker `mj-ask`・`mj-scheduler` ＋ Secret を持�
 
 ## 経過
 
+### 0. 着手前の確認
+
+- 「指示」欄の最後の行は「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」で、指示文の最後の行と一致
+- 識別子 `SEC`: `git log --all -E --grep 'CHAT-[0-9]{4}-SEC-'` と `docs/logs/CHAT-*-SEC-*.md` の履歴とも0件（`--unshallow` の後）
+- 作業ブランチ: ローカル・リモートとも `work/1017-sec` が無く、`git checkout -b work/1017-sec origin/cloudflare`（fb3a43e94）で作成
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- 未マージの work/ ブランチ: 1009-swp-526・1011-swp-hnd・1011-swp-nav・1015-skd-notes・1017-lvp・1018-ogr・OUK（触るファイルとの重なりは手順3の前に見る）
+
+### 1. プラグインの動作確認
+
+関係する issue（タイトル・本文のキーワード一致。REST の `/search/issues` はセッションから使えず〈「sessions are bound to their configured repositories」〉、`/repos/retroeater/mj/issues?state=all` 全596件を取得して grep）:
+
+| issue | 状態 | 件名 | 親 issue での扱い |
+|---|---|---|---|
+| #9 | open | CSP(Content-Security-Policy)を設定する | スコープ外（再点検の起点） |
+| #300 | open | 秘密のコミットを検知する仕組みを入れる | (f) と SEC-02 が重なる。参照する |
+| #543 | open | データ・コンシェルジュに Turnstile（ボット判定）を入れるか検討する | (a) の費用の守りで参照 |
+| #554 | open | AI クローラーへの 403 の原因を調べる | 関係薄（WAF 側） |
+| #555 | open | 月次チェック（#304）の取得を自動化する | 関係薄 |
+| #304 | open | 月次運用チェックリスト | 「平野さんの確認」の置き場の候補 |
+| #278 | open | 埋め込み用の選手カード（分野: セキュリティ） | 関係薄 |
+| #564 | open | GitHub Actions の整理（WFL） | (d)・SEC-02 の前提 |
+| #36・#110・#124・#132・#299・#116・#91・#120・#130・#447 | closed | セキュリティヘッダ・メソッド遮断・Rate Limiting rules・workflow_dispatch 入力の直展開・公開期間の露出評価・SPF/DMARC 等 | 必要に応じて参照 |
+
+`zizmor`・`pip-audit`・`Dependabot`・`プロンプトインジェクション`・`innerHTML` は0件。
+
+プラグインの状態（2026-10-17 17:0x、このセッション）:
+
+- `~/.claude/security/` あり。`log.txt`（658バイト）と `security_warnings_state_cse_<セッションID>.json` がある。venv は無い（`~/.claude/plugins/data/security-guidance-synced/` も空）
+- `log.txt` の先頭:
+  ```
+  [2026-10-17 16:59:23.153] Hook called with args: ['/root/.claude/plugins/synced/<org>_<…>/30660c6c-…/hooks/security_reminder_hook.py']
+  [2026-10-17 16:59:23.155] Processing: hook_event=UserPromptSubmit, tool=
+  [2026-10-17 16:59:23.234] Captured git baseline: fb3a43e9487e
+  [2026-10-17 17:00:40.108] Processing: hook_event=PostToolUse, tool=Write
+  [2026-10-17 17:00:46.483] Processing: hook_event=PostToolUse, tool=Bash
+  [2026-10-17 17:00:46.489] Commit review: detected git commit in command
+  [2026-10-17 17:00:46.496] Commit review: LLM review disabled or no API credentials
+  ```
+- `~/.claude/settings.json` は無い。`~/.claude/launcher-settings.json` に Stop hook（`stop-hook-git-check.sh`）だけ。`enabledPlugins` はどこにも無い
+- `~/.claude/plugins/synced/<org>_<…>/` に claude.ai から同期されたプラグインがある（`*.meta.json` の `marketplace_name` は `anthropic-plugin-directory`）
+- `claude plugin list` は「Synced from claude.ai:」として engineering・searchfit-seo・design・mobbin・product-management・**security-guidance@synced（Version 2.0.13、Status: √ loaded）** を表示
+- 登録の hook（`hooks/hooks.json`）: SessionStart（`ensure_agent_sdk.py`）、UserPromptSubmit、PostToolUse（`Edit|Write|MultiEdit|NotebookEdit` と、Bash の `git commit`・`git push` 等で非同期の再起動つきレビュー）、Stop（非同期のレビュー）
+- ログの push 時（Write と git commit/push）: hook は呼ばれたが、警告・再プロンプトは出なかった（`shown_warnings: []`）。コミットの LLM レビューは「LLM review disabled or no API credentials」で動かなかった。環境に `ANTHROPIC_API_KEY`・`ANTHROPIC_AUTH_TOKEN` が無い（`llm.py` は どちらかか 3P プロバイダを要する）
+- 結論（暫定）: **claude.ai のプラグイン一覧で有効にしたものはクラウドセッションに同期され、hook のパターン照合の部分は動く。LLM によるコミット・停止時のレビューは鍵が無く動かない**
+
 ## 報告
 
 - 状態: 作業中
