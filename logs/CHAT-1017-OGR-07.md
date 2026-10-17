@@ -75,28 +75,47 @@ CHAT-1016-OGR-06 で title/ の全ページの OGP 画像が「タイトル戦�
 - docs/decisions/title.md: 2026-10-01 の og:title の形の行（grill Q3）に「→ 置き換え: 2026-10-17（CHAT-1017-OGR-07）」を付け、OGR-07 の節を足した
 - docs/notes/title-pages.md の og:title の形を直した。docs/notes/ogp.md には title/ の og:title の形の記述が無いので変えていない
 
+### マージと本番の確かめ
+
+- 取り込み: push 前に cloudflare が進んでいた（work/1017-pad の表のページの余白の変更など）ので `git merge origin/cloudflare`（衝突なし）。取り込み後に title/ を再生成して差分0、テスト OK。cloudflare との差は og:title の 383ページとスクリプト・テストだけ
+- マージ: `git push origin work/1017-ogr:cloudflare`（2922a7222..9857cf32e、2026-10-17 03:07 UTC。直前に `merge-base --is-ancestor origin/cloudflare HEAD` が真）
+- 自動の再生成: d3a5c45c0（sitemap-title.xml の `<lastmod>` 383件を 2026-10-17 に。今回の分）と ef7dae5ab（sitemap-pages.xml の8件。同じ頃に入った表のページの変更〈work/1017-pad〉の分）。ページの差分は無し。範囲内
+- check-run（9857cf32e）: check・sync・regenerate は success、Workers Builds: mj は 03:19 頃に success。d3a5c45c0 以降のコミットの Workers Builds は 03:22 の時点でまだ出ていない
+- 本番（`?v=ogr07-<時刻>`、03:22 UTC）は **まだ旧版**:
+
+```
+title/houou/        og:title  鳳凰戦 | 日本プロ麻雀連盟 | ryoei.pro
+title/houou/1.html  og:title  第1期鳳凰戦 | 日本プロ麻雀連盟 | ryoei.pro
+title/              og:title  タイトル戦 | 日本プロ麻雀連盟 | ryoei.pro（入口、変えないもの）
+```
+
+- origin/cloudflare の `title/houou/index.html` は「鳳凰戦 | タイトル戦 | 日本プロ麻雀連盟 | ryoei.pro」で、生成物は正しい。
+  OGR-02・OGR-04 でも、マージのコミットの Workers Builds の success の後、本番が新しい版になるのは次のコミットのビルドの後だった。待ちの上限（15分、CLAUDE.md「判断・作業の原則」）を超えたため、本番の og:title の確かめは未確認の項目に回す
+
 ## 報告
 
-- 状態:
-- ブランチ:
-- ログ:
-- 比較URL:
-- 確認用URL:
-- マージ:
-- issue:
+- 状態: 判断待ち
+- ブランチ: work/1017-ogr
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1017-OGR-07.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1017-ogr
+- 確認用URL: なし（プレビューは見ない指示）。この版の印: `title/houou/` の og:title が「鳳凰戦 | タイトル戦 | 日本プロ麻雀連盟 | ryoei.pro」
+- マージ: 済（9857cf32e）
+- issue: #581（決定のコメント）
 - 判断が必要なこと:
+  - 本番の og:title の確かめ（下の未確認の項目）を、次の指示で行うか、平野さんが X で見るか
 - 未確認の項目:
-- エラー:
+  - 本番の `title/houou/`・`title/houou/1.html` の og:title が新しい形になったこと（2026-10-17 03:22 UTC の時点で旧版。後続のコミットの Workers Builds の後に反映される見込み）
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 2922a722）: https://github.com/retroeater/mj-logs/tree/main/guide/2922a722
+ガイド文書（この版を写した時点の最新、mj 14ed9b71）: https://github.com/retroeater/mj-logs/tree/main/guide/14ed9b71
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/2922a722/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/2922a722/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/2922a722/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/2922a722/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/2922a722/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/2922a722/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/2922a722.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/14ed9b71/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/14ed9b71/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/14ed9b71/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/14ed9b71/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/14ed9b71/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/14ed9b71/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a8c1d96c.md
