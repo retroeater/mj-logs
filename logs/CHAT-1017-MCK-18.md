@@ -102,22 +102,50 @@ Chat-Ref: CHAT-1017-MCK-18
 - 2026-10-17T04:44:32Z に、その時点の origin/cloudflare の `generate_resource_logs.py`（直す前）と直した後を続けて動かし、`resource_logs.html` の出力を比べた（04:3x にも1回同じ比較をして同じ結果）
 - 読んだ行: 「ログ」の表示する行 2,630件、3層から足した行 **0件**（【2】の 809行は「表示」が全部 N、【3】は空）、カテゴリの読み替え 84種類
 - 差分: 2,715行のうち **2行だけ**。どちらも既存の「ログ」の行のカテゴリ・タグの読み替えで説明できる。それ以外の差分は無い。ページの説明（件数）も同じ
-  - 1行: カテゴリ「オムライス、バンバーグ」→「オムライス、ハンバーグ」・タグ「武蔵関、バンバーグ」→「武蔵関、ハンバーグ」（「カテゴリ案」の案: バンバーグ → ハンバーグ）
+  - 1行: カテゴリ「バンバーグ」→「ハンバーグ」・タグ「武蔵関、バンバーグ」→「武蔵関、ハンバーグ」（「カテゴリ案」の案: バンバーグ → ハンバーグ）
   - 1行: カテゴリ「ハンバーガー」→「バーガー」・タグ「笹塚、ハンバーガー」→「笹塚、バーガー」（案: ハンバーガー → バーガー）
 - シートの変化: 直す前の出力は、今コミットされている `resource_logs.html` と同じ（前の生成から「ログ」は変わっていない）
 - マージの条件の「差分がカテゴリ（とタグ）の読み替えとシートの変化だけで説明できる」を満たす
 
+### マージと再生成
+
+- `git fetch` 後に `git merge-base --is-ancestor origin/cloudflare HEAD` が真（比較の直前にも確かめ、origin/cloudflare に生成まわりの変更は無かった）、`git push origin work/1017-mck-367-gen:cloudflare`: 212bd9a1a..59a3229a3
+- 条件: テスト OK・同じ時点の比較の差分は読み替えだけ・生成はどのシートにも書かない・止まる条件に当たらない
+- push で `regenerate-page.yml`（run 39003735921、success）が動き、`chore: regenerate resource_logs.html via GitHub Actions`（a9674b01b）をコミットした。差分は上の比較と同じ2行だけ（2 insertions・2 deletions）
+- ブラウザでの見え方は確かめていない
+
+### 4. 記録
+
+- #367 に結果をコメント: https://github.com/retroeater/mj/issues/367#issuecomment-6229873584（本文は変えていない）
+- CHAT-1017-MCK-17 のログの `## 報告` の状態の末尾に ` / 続き: CHAT-1017-MCK-18` を足した
+- 決定を docs/decisions/operations.md に足した
+
 ## 報告
+- 状態: 判断待ち（生成が3層と「カテゴリ案」を読むようにしてマージした。【3】の用意と「表示」を Y にするのは平野さん）
+- ブランチ: work/1017-mck-367-gen
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1017-MCK-18.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1017-mck-367-gen
+- 確認用URL: なし
+- マージ: 済（59a3229a3。再生成のコミット a9674b01b。この報告は後の docs/logs・docs/decisions のみの追いの push）
+- issue: #367（着手中のコメントと結果のコメント）
+- 判断が必要なこと:
+  - **【3】の見出しの用意が要る**: 【3】手動補正は今は空（見出しも無い）。使い始めるときに【2】の1行目（見出し）を【3】の1行目に写す。生成は【3】の「投稿ID」の列で【2】と突き合わせ、ほかは列の名前で上書きするので、使う列だけを残してもよい（「投稿ID」の列は要る）
+  - 【3】で直して「表示」を Y にする流れ: (1)【2】で「要確認」や「判定」で絞って見る、(2) ページに出したい行を【2】から【3】へ行ごと写す（「投稿ID」を手で打つと19桁の数値になって桁が落ちるので、写す）、(3)【3】で直したいセル（店名・駅・カテゴリなど）だけを書き換え、「表示」を `Y` にする（直さないセルは消して空にしてよい。空のセルは【2】の値が使われる）、(4) 次の再生成（`regenerate-page.yml` の手動実行か、週次・毎朝の再生成）でページに出る。判定が「飲食店」でない行は、【3】の「判定」を「飲食店」にすると出せる
+  - 「カテゴリ案」の「決定」: 空なら案のとおり（今のページでは「バンバーグ → ハンバーグ」「ハンバーガー → バーガー」の2行が変わった）。案を変えたい・使わないカテゴリ（「なし」）は「決定」に書く。次の再生成で当たる
+- 未確認の項目:
+  - ログのページ（`resource_logs.html`）のブラウザでの見え方（読み替えた2行のタグの表示）
+  - テストの最初の1回の 1件のエラー（出力を残せず、続けて3回 OK。一時的な失敗とみている）
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 212bd9a1）: https://github.com/retroeater/mj-logs/tree/main/guide/212bd9a1
+ガイド文書（この版を写した時点の最新、mj d7551b96）: https://github.com/retroeater/mj-logs/tree/main/guide/d7551b96
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/212bd9a1/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/212bd9a1/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/212bd9a1/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/212bd9a1/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/212bd9a1/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/212bd9a1/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d7551b96/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d7551b96/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d7551b96/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d7551b96/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d7551b96/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d7551b96/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a8c1d96c.md
