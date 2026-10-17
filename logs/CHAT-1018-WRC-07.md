@@ -125,18 +125,70 @@ WRC リーグの旧ページ（`wrc_results.html`・`wrc_ranking.html`）を、�
 - (b) `jwrc/` を生成（353ファイル）。入口は `scripts/generate_jwrc_pages.py`、`regenerate.py` の `jwrc_pages`（`OUTPUT_OVERRIDES` は `jwrc/`、`SHARED_GENERATORS` に登録）。OGP 画像 `img/ogp/jwrc/index-white.png`（`build_ogp_image.py`。同じ字体で ouka の画像を作り直すとコミット済みのものと同じバイト列になることを確かめた）。`_redirects` に5行
 - (c) Worker: `data-jwrc.json`（`scripts/generate_ask_data_jwrc.py`、`regenerate.py` の `ask_data_jwrc`）、`ask.mjs` の `JWRC_PLAN_SYSTEM`・`JWRC_DIVISIONS`、`index.mjs` の `contests.jwrc`。`query.mjs` の時点の文言が「WRCリーグリーグ」になるので、名前が「リーグ」で終わるときは足さない `leagueName()` にした（鳳凰戦・女流桜花の文言は変わらない）
 - テスト: `scripts/tests/test_jwrc_pages.py`（13件）、`test_regenerate.py` に2行、`workers/ask/test/jwrc.test.mjs`（4件）。`python3 -m unittest discover -s scripts/tests` 1,382件 OK、`node --test 'workers/ask/test/*.test.mjs'` 46件 OK（鳳凰戦・女流桜花の既存のテストを含む）
+- 文書: `docs/notes/jwrc-top.md`（houou/・ouka/ との違いだけ）、handover.md の6章の表に1行、static-generation.md の「ページの一覧」（noindex・メニュー未掲載、公開は #599）、ask-worker.md、redirects.md（`/jwrc/ranking/` の 301）。決定は docs/decisions/houou.md に足した
+- 公開の issue: #599（段2のチェックリスト・旧2ページの 301 の行き先の案・navbar の案〈未決〉・告知・「#594 を待つ」「#519 のマージを待つ」）。#594 に番号をコメントした
+
+### 3. 確かめ
+
+- 生成物の差分: 着手前（コードを変える前）に `python3 scripts/regenerate.py all` を回し、差分が出た3ファイル（`jpml_pros.html`・`resource_logs.html`・`workers/ask/data.json`。シートのデータの変化）を控えてから戻した。変更後に `regenerate.py all`（rc=0）を回すと、jwrc/ 以外で差分が出たのは同じ3ファイルだけで、控えと同じバイト列。houou/・ouka/・旧 `wrc_*`・title/・jpml_pros の生成物はコードの変更による差分0（3ファイルは戻した）
+- `generate_jwrc_pages.py --check`・`generate_ask_data_jwrc.py --check` は通る
+- ランキングの6部門を旧 `wrc_ranking.html`（ローカルで開いた Google Charts の表を headless Chrome で読んだ）と突き合わせた。旧の表から在籍者でない選手を除いて順位を付け直すと、新の先頭と一致する。違いは次だけ:
+
+| 部門 | 旧の件数 | 在籍者でないので新に無い選手 | 同じ値の並びの違い（同順位） | 件数の違い |
+|---|---:|---|---|---|
+| 通算 | 50 | 荒井裕太 | なし | 新は自動ルールで100件 |
+| 期平均 | 30 | なし | なし | 新は87件（規定に届く全員） |
+| 期最高 | 100 | 長井梨世・荒井裕太・中山将太・戸部弘次・吉高正悟 | 38位 武田裕希／小笠原奈央、60位 藤島健二郎／新谷翔平、77位 菅原千瑛／小林正和（新は名前の順） | 新は100件 |
+| 節最高 | 100 | 元木伸明・長井梨世・宮内崇成（2件）・山嵜竜丸・中山将太・日高志穂 | なし | 新は100件 |
+| 節浮き率 | 27 | 吉高正悟 | なし | 新は100件 |
+| 節連続浮き | 100 | 荒井裕太・つばきりょう・吉高正悟（2件）・宮内崇成 | なし | 新は69件（70〜136位が同じ5節で、自動ルールで群れごと外す） |
+
+  名寄せ（樫野凪 → かしのなぎ）は旧の6部門の表示の範囲に出てこない。浮動小数による値の違いは無い
+- 新しい3部門を「JWRC」タブから別のスクリプトで数えた上位10人と突き合わせ、全部一致: 通過回数 石立岳大 11回・客野直／山脇千文美／末続ヒロトシ 10回…、通過率 三浦智博 1.000（7期）・客野直／中村慎吾 0.833…、連続通過 客野直 6期・椎名健太 5期・土井悟ほか 4期
+- 画面（ローカルの静的サーバーと headless Chrome。`/api/ask/status` の 404 だけはローカルに Worker が無いため）: 375px・1280px・1920×1080、字の大きさ 150%・200%（375px）、ダーク表示で、トップ・個人成績の4タブ・ランキング・順位変動を見た。端のデータ: 通過の多い選手（石立岳大）・出場1期（光岡舞織）・途中敗退の期（高橋智也 第19期は第4節まで）・名寄せ（`?name=樫野凪` で かしのなぎ が開く）・予選の下位で通過（小川尚哉 第19期 55位: 「順位」のタブでラインより下の紺の点、順位変動で名前の後ろに「通過」）。ダーク表示で出場者数の柱と敗退の点が地に埋もれたので、柱の色を替え、敗退の点を白抜きにした
+- 順位変動の URL: `?term=15`・`?term=15&league=予選`・旧形式 `?term=12-2` がそれぞれ第15期・第15期・第12期を開き、期を送ると `?term=18` に直る。houou/race/・ouka/race/ の `?term=…&league=…` の動きは変わらない
+- プレビュー（19d69d505 の Workers Builds: mj は success）: jwrc/ のトップ・個人成績・ランキング（total・pass-rate）・順位変動が 200、`/jwrc`・`/jwrc/ranking/` は 301、noindex あり、CSS は今の版。`/api/ask/status` は 404（プレビューから Worker には届かない。ouka/ と同じ）
+- 作業ブランチの check（公開対象の検査）は「許可リストに無い最上位の項目: jwrc ouka」で失敗する（想定どおり。`.github/workflows/` は変えない指示）
 
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/WRC
+- 状態: 判断待ち
+- ブランチ: work/WRC（起点 origin/work/OUK。指示文のとおり。作業中に origin/cloudflare〈WRC-05・06 の docs〉を merge で取り込んだ）
 - ログ: https://github.com/retroeater/mj/blob/work/WRC/docs/logs/CHAT-1018-WRC-07.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/WRC
-- 確認用URL: 未
-- マージ: 未
-- issue: #594
-- 判断が必要なこと: 作業中
-- 未確認の項目: 作業中
+- 確認用URL: プレビューあり（URL は最終報告）。確認したページ: jwrc/ のトップ・個人成績（石立岳大・高橋智也・小川尚哉）・ランキングの通算と通過率・順位変動。この版で見える印: 個人成績の4つ目のタブの左が「順位」で、順位変動の題名が「第19期 ▾」
+- マージ: 未（平野さんの判断待ち）。マージの順番の案: work/OUK を先に cloudflare へ入れ、その後に work/WRC（work/WRC は work/OUK を含む）。OUK が先に進んだら work/WRC に merge で取り込む
+- issue: #594（着手中のコメント・#599 の番号のコメント）、#599（起票。jwrc/ の公開）
+- 判断が必要なこと:
+  - 仮置きの一覧 (1) 見た目の値（プレビューを見れば判断できるもの）
+    - h1・title の名前: h1「WRCリーグ」、title「<ページ> | WRCリーグ | 日本プロ麻雀連盟 | ryoei.pro」、パンくず「WRCリーグ」（ほかの案: 「WRCリーグ 予選」）
+    - 「通過」「敗退」のチップの色: 通過は紺（強調色、白字 8.92:1・ダーク 7.70:1）、敗退は残留と同じ灰色（13.91:1）（ほかの案: 通過を昇級の橙）
+    - 名前の面の2行目（最高到達の代わり）: 「通過 5回」。質問欄の選手のカードも同じ（ほかの案: 「最高順位 3位」、両方）
+    - 期別のカード: リーグの欄を出さない（期・得点・順位・結果のチップ）
+    - 「順位」のタブのグラフ: 縦は1〜125位（25位ごとの目盛り）、期ごとに出場者数の灰色の柱、通過ラインは橙の短い線、選手の点は通過が紺の丸・敗退が白抜きの丸、出なかった期で線を切る、期のラベルは1つおき、点を押すと下に「第19期 8位（93人中・通過ライン 30位）」とチップ。最初は最新の出場期を選んだ状態（ほかの案: 縦を「順位÷人数」の割合にして期ごとの人数の違いをならす）
+    - 順位変動: 帯は「通過ライン」1本（その期の通過者の数の位置）。ラインより下で通過の選手は名前の後ろに紺の「通過」。選ぶシートは期だけ、題名は「第19期 ▾」
+    - 最近見た選手が無いときの1件: 最新の期の予選の順位がいちばん上の在籍者（今は 真鍋明広）、印は「予選1位」
+    - 検索の候補の右端: 「19期 通過」（リーグの代わりに最後の期の結果）
+    - トップの3項目の説明: 「選手ごとの期別・通算・順位の推移」「通算・通過率など9部門」「期ごとの節単位の予選の順位」。質問欄の例「例：19期の予選1位は？」
+    - OGP 画像: `img/ogp/jwrc/index-white.png`（白地・黒字の「WRCリーグ」＋「ryoei.pro」）。文字ベースの画像の6種類目になる（docs/notes/ogp.md の規則では、メニューの最上位でそれ自体がページのものだけ。navbar を `/jwrc/` の1段にするかと合わせて決める）
+  - 仮置きの一覧 (2) 見ただけでは判断しにくいもの
+    - 新しい3部門のスラッグと略称: `pass-count/`「通過回数」、`pass-rate/`「通過率」、`pass-streak/`「連続通過」（内部の部門名は「通過回数」「通過率」「連続通過回数」）
+    - 通過回数: 「結果」が通過の期の数。0回の選手は載せない（219名が対象、表示は自動ルールで86件）
+    - 通過率: 通過の期の数 ÷ 出場期数（合計のある行）。規定は出場5期以上。同じ率は出場期数の多い順（期浮き率と同じ）
+    - 連続通過: 出場しなかった期（行の無い期）で途切れる。シードで予選に出なかった期も途切れる（ほかの案: 出なかった期は飛ばして続ける）。1人が複数の連続で載る（期連続浮きと同じ）
+    - 内部のリーグ名「予選」: 成績 JSON・質問欄のデータと答え（「第19期 予選の順位変動」など）に出る
+    - 「表示」が N の行: 旧 `wrc_results.js`・`league_ranking.js` と同じく読まない（今は全行 Y）
+    - 進行中の期（第20期）: 「JWRC」タブに「表示」N の行が入ると、houou/・ouka/ と同じく期別の先頭に進行中の期の行が出る。Ampai のブックに WRC の行が無いので読まず、リンクは付かない（生成のログに警告が出る）
+    - 説明文（meta description）: トップ「…在籍する選手320名の期ごとの予選の成績・ランキング・順位の推移・順位変動をまとめています。」、個人成績「…期ごと・節ごとの予選の成績と順位の推移を検索できます。」
+    - 質問欄の範囲: WRC リーグの予選の成績・予選の顔ぶれ・ランキング9部門・優勝者と決勝（title/search.json の「WRCリーグ」）・放送対局（/live の「WRCリーグ」）。世界麻雀（World Riichi Championship）は答えない。決勝の名前は「WRCリーグ決勝」、記録の型は「jwrc:league」の形。時点は「WRCリーグ 第19期終了時点」（Worker の文言が「WRCリーグリーグ」にならないよう `leagueName()` を足した）
+    - 最近見た選手のキー `mj:recent-players:jwrc`
+  - ランキングの突合で違った行: 経過の「3. 確かめ」の表（在籍者でない選手の除外・同じ値の並びの名前順・件数の自動ルールだけ）
+  - 要るワークフローの変更: `check-assets.yml` の許可リストに `jwrc`（と work/OUK の `ouka`）。作業ブランチの check はこれだけで失敗する（失敗の通知が届くが対応不要。#599 のチェックリストに入れた）
+  - OUK への引き継ぎ（work/WRC で変えた共通の部分。work/OUK のファイルは直していない）: `generate_houou_pages.py`（`Contest.no_leagues`・`JWRC`・`league_of()`・`headers()`・`load_tab()`・`menu()`・説明文・`render_players(terms)`・`rank_terms()`・部門の略称／スラッグ／単位・`player_divisions()` と `ranking_floor()` の通過率・`leagues_data()`・`champion_name()`・順位変動の説明文と `load_race()`・`final_by_result()` の通過ライン・`ask_roster()`・`pass_text()`・`search_label()`・Ampai を読まない大会・`outputs()` の leagues.json）、`lib/ranking.py`（`PASS`・`PASS_DIVISIONS`・3部門）、`lib/results.py`（`search_index(last_label)`）、`generate_ask_data.py`（`OTHERS["jwrc"]`）、`regenerate.py`、`assets/league.js`・`league_race.js`・`houou_ask.js`（`noLeagues`・`pass`・`championLabel`。鳳凰戦・女流桜花の動きは変えていない）、`style.css`（jwrc/ の節を足しただけ）、Worker の `ask.mjs`・`index.mjs`・`query.mjs`（`leagueName()`）。OUK がこれらを変えたら、work/WRC に取り込むときに衝突しうる
+  - #594 の題名・本文の URL は `wrc/` のまま（決定は `jwrc/`）。直すかは平野さんの判断
+- 未確認の項目:
+  - 質問欄の実際の問い（Claude を呼ぶ確かめ）。プレビューからは Worker に送れない見込みで、マージ後に本番の jwrc/ で確かめる（#599 の公開の条件に入れた）
+  - 平野さんの実機での見え方（字の大きさの設定・ダーク表示・「順位」のタブの点を押す操作）
 - エラー: なし
 
 <!-- guide-links -->
