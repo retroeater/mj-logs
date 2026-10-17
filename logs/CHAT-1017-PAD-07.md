@@ -70,14 +70,47 @@ Chat-Ref: CHAT-1017-PAD-07
 - 0. 「指示」欄の末尾は指示文の最後の行と一致
 - ガイド文に規則を足す指示で、「知見 → 選んだ層 → 理由」の表がある（CLAUDE.md「Chat-Ref」の止まる条件に当たらない）
 
+### 1. 確かめたこと
+
+- 同じ論点の issue: REST の `repos/retroeater/mj/issues?state=all` で全592件（#1〜#593）を取り、題名と open の本文を語で探した（「実機確認」「スクショ」「ラベル」「通知」「リマインダー」）。題名で当たったのは #525（閉、第3弾の実機確認）・#214・#180（閉、ページのラベルの文言）・#503・#432・#431・#395・#118（通知の仕組み）で、どれもチャット側の頼み方・起票の書き方・カレンダーの通知の論点ではない。open の本文の当たり（実機確認: #589・#529・#528・#527・#235、スクショ: #589・#555・#262 など）も別の論点。同じ論点の open issue は無い
+- 追記先の今の内容:
+  - `docs/notes/design.md`「7. チャット側の決め方」: 実機確認の頼み方の記述は無い（見た目の決め方・比較ページ・プレビューの見方など）。新しい行として足した
+  - `docs/notes/chat-routines.md`「指示の種類ごとの確かめ」の「起票・方針の提案…」の項: ラベルの記述は無い。同じ項の続きの行として足した
+  - 同「期日とカレンダー」の【済】の行: 通知の記述は無い。同じ行を拡張した
+  - 「待つ確認を予約（send_later）にする」は同「期日とカレンダー」に既にある（前提のとおり）。足していない
+  - 矛盾する記述は無い
+- 未マージの work/ ブランチ: `origin/work/OUK` が `docs/notes/design.md` の 76 行目・103 行目付近（「3. 文字・寸法」「4. 部品」の表の行）を変えている。追記した「7. チャット側の決め方」とは別の節で、重ならない。ほかのブランチは3つのファイルを変えていない
+- `docs/instruction-template.md` の大きさ（作業した版、42c384b5d）: **14,274 バイト**（警告域 14,336 バイトまで 62 バイト。変えていない）。参考: CLAUDE.md 23,801・handover.md 23,289・chat-side-operations.md 21,932 バイト（どれも変えていない）
+
+### 2. 足したもの
+
+- `docs/notes/design.md`「7. チャット側の決め方」:
+
+  > - **平野さんに実機確認（スクショ）を頼むときは、ページごとに、画面に入れる要素・スクロールの位置・文字の大きさの段階を書く**（「〇〇のスクショ」だけでは別の部分が写り、撮り直しになる）
+
+- `docs/notes/chat-routines.md`「指示の種類ごとの確かめ」の起票の項の続き:
+
+  > 起票の指示でラベルを案として書くときは、案のラベルが無ければ「付けずに報告に書く（作るかは判断待ち）」とする（近いもので代えさせると、別のページを指すラベルが付く）
+
+- 同「期日とカレンダー」の【済】の行（拡張）:
+
+  > - **予定が済んだら・issue のクローズを知ったら、消さずに件名の冒頭に【済】を付けてグラファイトにし、通知（リマインダー）が残っていればオフにする。** 説明欄の残課題は行き先の予定へ移す
+
+- 書き方: writing-for-agents の skill に沿い、規則（肯定形の行動）と理由の一句だけにした。事例（PAD-0x の経緯）は書いていない
+- 決定 1・2 を `docs/decisions/operations.md` に足した（README の分野の一覧で「運用（チャット側と Claude Code のやり取り・指示文の書き方）」の分野）
+
+### 3. テスト
+
+- `python3 -m unittest discover -s scripts/tests` を4回回した: 1回目だけ `FAILED (errors=1)`、2〜4回目は 1350 件 OK。1回目の出力を残しておらず、どのテストかは分からない（変えたのは docs の3ファイルだけで、繰り返しで再現しないため、この変更によるものではないと見ている。推測）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1017-pad-doc
-- ログ: https://github.com/retroeater/mj/blob/work/1017-pad-doc/docs/logs/CHAT-1017-PAD-07.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1017-PAD-07.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1017-pad-doc
 - 確認用URL: なし
-- マージ: 未
+- マージ: 済（fast-forward、cloudflare 80f33a566）
 - issue: なし
 - 判断が必要なこと: なし
 - 未確認の項目: なし
@@ -86,12 +119,12 @@ Chat-Ref: CHAT-1017-PAD-07
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 95555949）: https://github.com/retroeater/mj-logs/tree/main/guide/95555949
+ガイド文書（この版を写した時点の最新、mj 9dcbfcac）: https://github.com/retroeater/mj-logs/tree/main/guide/9dcbfcac
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/95555949/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/95555949/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/95555949/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/95555949/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/95555949/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/95555949/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9dcbfcac/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9dcbfcac/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9dcbfcac/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9dcbfcac/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9dcbfcac/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9dcbfcac/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/42c384b5.md
