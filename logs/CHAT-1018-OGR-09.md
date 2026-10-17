@@ -83,28 +83,37 @@ OGP の横断レビュー（#581）の締めくくり。OGP に関わる残り�
 - docs/notes/ogp.md の規則の節に「残りの作業の行き先」（#362・#591・#576）を1行足した
 - 「女流桜花」の OGP 画像の決定（2026-10-17）はリポジトリの docs/decisions にはまだ無い（OUK のチャットへの伝言のみ）。#591 のコメントは指示文の書き方のまま書く
 
+### マージと issue
+
+- 取り込み: push 前に cloudflare が2回進んでいた（saikyo/ の自動の再生成と、CHAT-1017-SKG-01 のログ）ので `git merge origin/cloudflare`（衝突なし）。テスト OK。cloudflare との差（docs/ を除く）はスクリプトの削除と2つのコメントだけ
+- マージ: `git push origin work/1018-ogr:cloudflare`（e0cb58b1d..61798a0a0、直前に `merge-base --is-ancestor origin/cloudflare HEAD` が真）
+- check-run（61798a0a0）: check・regenerate は success。自動の再生成のコミットは出なかった（ページの差分なし）。`scripts/` は公開対象外（`.assetsignore`）なので本番のページは変わらない
+- コメントした issue: #362（B9 は 2026-10-16 の LVP の決定のまま、docs/notes/ogp.md の規則と矛盾しない）、#591（「女流桜花」の OGP 画像の決定と docs/notes/ogp.md の参照）
+- 閉じた issue: #329（not planned。「状況: 待ち」を外した）、#517（completed。「状況:」ラベルは無し）、#581（completed。「状況:」ラベルは無し）。それぞれ決定のコメントを書いてから閉じた
+- #576 はコメント不要（指示どおり。チェックリストに og:title・og:image の確かめが既にある）
+
 ## 報告
 
-- 状態:
-- ブランチ:
-- ログ:
-- 比較URL:
-- 確認用URL:
-- マージ:
-- issue:
-- 判断が必要なこと:
-- 未確認の項目:
-- エラー:
+- 状態: 完了
+- ブランチ: work/1018-ogr
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1018-OGR-09.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1018-ogr
+- 確認用URL: なし（スクリプトとコメント・docs だけで、ページの差分は無い）
+- マージ: 済（61798a0a0）
+- issue: #329・#517・#581（閉じた）、#362・#591（移した作業をコメント）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj e0cb58b1）: https://github.com/retroeater/mj-logs/tree/main/guide/e0cb58b1
+ガイド文書（この版を写した時点の最新、mj 61798a0a）: https://github.com/retroeater/mj-logs/tree/main/guide/61798a0a
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e0cb58b1/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e0cb58b1/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e0cb58b1/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e0cb58b1/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e0cb58b1/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e0cb58b1/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/61798a0a/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/61798a0a/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/61798a0a/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/61798a0a/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/61798a0a/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/61798a0a/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/efdeccaf.md
