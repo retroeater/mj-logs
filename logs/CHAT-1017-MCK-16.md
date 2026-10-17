@@ -79,6 +79,17 @@ MCK-15 の比較で、Places 込みの変換が使えると分かった。ただ
 - テスト: 「店名」は本文の名前・「Places の店名」は Places の名前・本文に店名が無いとき（探さず、店名・Places の店名・出どころ・店URL は空）・列の数と順（23列、投稿ID は13列目）・Places の失敗と上限で止まる・「比較」の見出しに列を足す・50行ごとに書き見出しは1回だけ・止まってもそれまでの分を書き残りを出す・予定の費用（809件で約 $2.56）・集計に本文と店名を出さない。直す前のコードでは通らない（列が無い・止まらない）。`python3 -m unittest discover -s scripts/tests`: 1309件 OK
 - ワークフローを変えたので、マージ前に作業ブランチで dry-run（run 38997031574、2396d1ea8、success）: 【1】809行（見出し 同じ）、【2】は空（本番で見出しを書く）、ブックのタブ 4個。予定: 809件・Claude 809回・見込み 約 $2.56（上限 $3）・Places 最大 1,618回（上限 2,000回）・50行ごとに書く
 
+### マージ
+
+- push の前の確かめで origin/cloudflare が進んでいた（他セッションの 3コミット、`scripts/tests/test_actions_dashboard.py` ほか。このブランチの変更と重ならない）ので `git merge origin/cloudflare` で取り込んだ（衝突なし）。取り込んだ後もテスト 1309件 OK
+- `git merge-base --is-ancestor origin/cloudflare HEAD` が真、`git push origin work/1017-mck-367-all:cloudflare`: 8988cc865..c52dc7646
+- 条件: テスト OK・`dry_run` の既定は真・「ログ」タブ・【1】・【3】には書かない（書く先は【2】と「比較」だけ）・`scripts/generate_resource_logs.py` は変えていない・変えたのは `scripts/convert_x_posts.py`・そのテスト・`convert-x-posts.yml`（時間の上限）・docs だけ・止まる条件に当たらない
+
+### 2. cloudflare で全件の dry-run と本番
+
+- dry-run（run 38997159868、c52dc7646、success）: 鍵 X 有・Claude 有・Places 有。【1】809行（見出し 同じ）、【2】は空。予定: 809件・Claude 809回・見込み 約 $2.56（上限 $3）・Places 最大 1,618回（上限 2,000回）。止まる条件に当たらない
+- 本番: run 38997199612（cloudflare の 37bcb2687。c52dc7646 を含む）を起動した
+
 ## 報告
 
 <!-- guide-links -->
