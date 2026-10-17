@@ -48,15 +48,42 @@ AMP-06（jpml_pros の「鳳凰」の1列）と AMP-09（43期後期が初めて
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 0. 着手前の確認
+
+- 指示欄の末尾は指示文の最後の行と一致。`CHAT-1017-AMP-10` のコミットは無い。冒頭の行（題〜作業ブランチ）は改行なしの1段落で貼られていた（指示欄はそのまま写した）
+- ローカルの work/1017-amp は origin と一致（2fa29ca）。CHAT-1017-AMP-09 のログの状態を「判断待ち / 続き: CHAT-1017-AMP-10」にした
+
+### 1. 取り込み・直し
+
+- `git merge origin/cloudflare`（45f46d1）: 衝突なし。取り込んだのは他の作業の docs・`live/`・`mtsuku/`・`study/`・`wayhome/`・`saikyo/` などの生成物とそのスクリプト・`workers/ask/data.json`（cloudflare 側の変更）。houou/ と jpml_pros に関わる変更は無い
+- 未マージの work/ ブランチで対象のファイルを変えているのは work/OUK だけ（指示のとおり止まらない）
+- `regenerate.py --check houou_pages`・`--check jpml_pros`: 通る。#584 に着手中のコメントを書いた
+- 直した2か所（見込みのとおり）:
+  - `assets/houou.js` の `NO_FINISHED_NOTE`: 「まだ終わった期の成績はありません」→「データがありません」
+  - `scripts/generate_houou_pages.py` の `outputs()` のトップ: `render_top(sum(1 for rs in site.active_players.values() if rs), …)` → `render_top(len(site.active_players), …)`（AMP-09 の前の形に戻し、コメントに進行中の期だけの選手も数えることを書いた）
+- テスト全体: 1356件 OK
+- 生成し直した差分（AMP-09 から）: `houou/index.html` の説明文の人数 690 → 715名（description・og:description・本文の3か所）だけ。3つのタブの文言は `assets/houou.js` の中（生成物ではない）。ランキング・順位変動・`workers/ask/data.json`（この変更では）・jpml_pros は変わらない
+- `jpml_pros` の「鳳凰」と `houou/ask-players.json` の食い違い: 0名（715名。名簿と名前の面も 0名）
+- 文書: docs/notes/houou-top.md（文言・トップの人数）と docs/decisions/houou.md（2026-10-17 AMP-10 の決定）を直した
+
+### OUK への引き継ぎ（AMP-09 の表に足す分）
+
+| ファイル | 関数・名前 | 変更 |
+|---|---|---|
+| `assets/houou.js` | `NO_FINISHED_NOTE` | 文言を「データがありません」に（OUK の `assets/league.js` にも同じ文言） |
+| `scripts/generate_houou_pages.py` | `outputs()` | トップの人数を `len(site.active_players)` に戻した（AMP-09 の「行のある選手だけ」をやめた。個人成績の説明文と同じ数） |
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj b3ad7b4c）: https://github.com/retroeater/mj-logs/tree/main/guide/b3ad7b4c
+ガイド文書（この版を写した時点の最新、mj 68d72850）: https://github.com/retroeater/mj-logs/tree/main/guide/68d72850
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b3ad7b4c/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b3ad7b4c/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b3ad7b4c/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b3ad7b4c/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b3ad7b4c/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b3ad7b4c/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/68d72850/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/68d72850/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/68d72850/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/68d72850/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/68d72850/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/68d72850/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/42c384b5.md
