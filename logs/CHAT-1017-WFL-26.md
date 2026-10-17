@@ -54,15 +54,54 @@ WFL（Actions の整理、CHAT-1014-WFL-01〜CHAT-1017-WFL-25）の振り返り�
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+- Chat-Ref の重複確認: CHAT-1017-WFL-26 のコミット・ログは無い。`WFL` はこのセッションの識別子
+- 作業ブランチ: work/1017-wfl-handoff はローカル・リモートとも無かったので `git checkout -b work/1017-wfl-handoff origin/cloudflare`（d3a5c45c0）
+- 0. 指示欄の末尾は指示文の最後の行と一致。指示に「知見 → 選んだ層 → 理由」の表がある（CLAUDE.md「Chat-Ref」の止まる条件に当たらない）
+- 雛形の行: Chat-Ref・マージ・貼る時機・共通手順（＋作業ブランチ）は揃っている
+- 着手 JST 12:19（土曜）
+
+### 手順1: chat-routines.md（成果物のコミット）
+
+- 上限: chat-routines.md は CLAUDE.md「CLAUDE.md / handover.md の更新ルール」の上限の 4 文書に入っていない。`check-assets.yml`・`scripts/` にもこのファイルの大きさを測るものは無い（`grep chat-routines`）。止まる条件に当たらない
+- 同じ趣旨の項目: 「起票・方針の提案、運用ルールや文書整理」の項は同じ論点の issue を確かめるもので、ガイド文の規則を読むこととは別。外部への手動実行の止まる条件を書く項目は無い。どちらも統合せずに新しい項目として足した
+- 足した 2 項目（前提の文面をほぼそのまま。CLAUDE.md の節の名前を実物に合わせ、「ブランチを削除するとき」を「『ブランチ運用』のブランチの削除」に、「『Chat-Ref』のガイド文の規則」を「『Chat-Ref』のガイド文に規則を足す指示の表」にした）:
+  1. 「インフラやデプロイの提案」の前に「ガイド文（CLAUDE.md・handover.md・docs/notes/ のチャット側の文書・用語集）・運用ルール・ブランチ（削除・入れ直し）に触れる指示: 書く前に chat-side-operations.md「場面ごとに読む文書」の表と、CLAUDE.md の該当節を読む（受け手の止まる条件に当たると往復が増えるため）」
+  2. 「一覧の行の形…を決める指示」の前に「外のサイト・API に触れるワークフローの手動実行を確かめに入れる指示: 止まる条件に『一時的な接続の失敗は、失敗したジョブだけを 1 回再実行して success なら止まらない』を添える（一時的な失敗で止まると往復が増えるため）」
+- 大きさ（バイト）: chat-routines.md 13,104 → 13,916（+812）。CLAUDE.md・chat-side-operations.md・handover.md は変えていない
+
+### 手順2: #565
+
+- #565 は Open。コメントした（本文は変えていない）: https://github.com/retroeater/mj/issues/565#issuecomment-6228970137
+- 書く前に確かめたこと: WFL-20 のログに改名の表と参照の洗い出しがある。cloudflare（d3a5c45c0）で旧ファイル名（assets-check・delete-merged-branches・notify-build-failure）を `git grep` すると、CLAUDE.md・`.github/`・docs/notes で残るのは handover-archive-2026.md と scheduler-worker.md の日付つきの経過（過去の記録）だけ
+
+### 手順3: 決定
+
+- docs/decisions/operations.md（WFL-21・WFL-23 と同じ文書）に `## 2026-10-17（CHAT-1017-WFL-26）` を足した
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1017-wfl-handoff（マージ済み。削除は cleanup-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1017-WFL-26.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1017-wfl-handoff
+- 確認用URL: なし
+- マージ: 済（ドキュメントのみ）
+- issue: #565 にコメント（https://github.com/retroeater/mj/issues/565#issuecomment-6228970137）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 9857cf32）: https://github.com/retroeater/mj-logs/tree/main/guide/9857cf32
+ガイド文書（この版を写した時点の最新、mj a8c1d96c）: https://github.com/retroeater/mj-logs/tree/main/guide/a8c1d96c
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9857cf32/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9857cf32/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9857cf32/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9857cf32/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9857cf32/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9857cf32/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/2922a722.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a8c1d96c/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a8c1d96c/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a8c1d96c/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a8c1d96c/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a8c1d96c/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a8c1d96c/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a8c1d96c.md

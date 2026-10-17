@@ -59,28 +59,66 @@ CHAT-1017-PAD-02 の直し（表のページの `<body class="mj-table-page">` �
 - 雛形の行: Chat-Ref・マージ・貼る時機・共通手順の4つとも有る
 - 0. 「指示」欄の末尾は指示文の最後の行と一致
 
+### 1. マージ
+
+- CHAT-1017-PAD-02 のログの状態を「判断待ち / 続き: CHAT-1017-PAD-04」にした
+- `git merge --no-edit origin/cloudflare`（37bcb2687 まで）: 衝突なし。取り込んだコミットは `scripts/lib/page.py`・`scripts/generate_jpml_pros.py`・`style.css`・`table.js`・`jpml_pros.js`・`navbar.js` を変えていない
+- `python3 -m unittest discover -s scripts/tests`: OK
+- `python3 scripts/regenerate.py` で表の9枚（`jpml_pros`・`jpml_test`・`resource_logs`・`rh_paifu`・`rh_results`・`rh_results_detail`・`saikyo_mens`・`video_en`・`video_live`）を1枚ずつ作り直した: 作業ツリーに差分なし。origin/cloudflare との差分は `<body>` → `<body class="mj-table-page">` 7行と `<body data-search="off">` → `<body class="mj-table-page" data-search="off">` 2行だけ。シートの変化による差分は無し
+- マージで入る差分（`git diff --name-only origin/cloudflare...HEAD`）: `scripts/lib/page.py`・`scripts/generate_jpml_pros.py`・`scripts/tests/test_page_body.py`・`style.css`・表の9枚・`docs/decisions/site-review.md`・`docs/logs/CHAT-1017-PAD-01.md`・`PAD-02.md`・`PAD-04.md`。見込みのとおり
+- push の直前に再 fetch し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真であることを確かめて `git push origin work/1017-pad:cloudflare`（37bcb2687..2922a7222、03:05 UTC）
+
+### 2. マージ後に動いたもの
+
+| 対象 | 結果 |
+|---|---|
+| `regenerate-page.yml`（ページの再生成。`scripts/lib/**` の変更で起動） | success（03:05〜03:09 UTC）。結果のコミット ef7dae5ab は `sitemap-pages.xml` の `<lastmod>` 8行（2026-10-16 → 2026-10-17）だけ。表のページの HTML は変わっていない（作業ブランチと同じ生成物）。見込みの差分で説明できる |
+| `regenerate-sitemap.yml`（サイトマップの lastmod の同期）・`check-assets.yml`（公開対象の検査） | success |
+| 2922a7222 の check-run | 「Workers Builds: mj」（プレビュー）success・「check」success・「regenerate」success・「sync」success・「notify」skipped |
+| 本番の Workers Builds | **03:20 UTC の時点で本番のビルドの check-run が無い**。2922a7222 と 9857cf32e（他セッション OGR のマージ）に付いたのはプレビューのビルドだけ。後から入った ef7dae5ab・d3a5c45c0（Actions の再生成）にはまだ何も付いていない。同時1本のビルドの順番待ちとみられる（推測） |
+
+- マージの後に他セッションの OGR（`work/1017-ogr`、title/ の og:title）が cloudflare に入り、Actions の再生成（d3a5c45c0、`sitemap-title.xml`）が続いた。この指示の変更とは別のファイル
+
+### 3. 本番の確かめ
+
+- 03:06〜03:20 UTC（15分）、30秒ごとに本番の `style.css` と `rh_results.html` を取得した（キャッシュ回避のクエリ付き）。**最後まで古い版**だった（`style.css` に `body.mj-table-page` が無く、表の9枚の `<body>` はクラス無し）。03:20:41 にもう一度取って同じ
+- CLAUDE.md の待機の上限（15分）に当たったので、**本番の CLS の計測はしていない**（古い版を測っても意味が無いため）。未確認の項目に回した
+- そのため #428 は閉じていない。#428 にマージしたことと、本番が未反映で計測していないことをコメントした
+
+### 4. issue
+
+- #428: 上のとおりコメント（閉じない。「状況:」ラベルは付いていない）
+- #589: `repos/…/labels` の `対象:` のラベルは、`/live`（`live/` のページ群）だけを指すものが無い（`対象: video_live` の説明は「放送対局(YouTube)」、ほかは `video_mtsuku`・`video_wayhome`・`title`・`saikyo` など）。付け替えず、「`対象: live` を新しく作るか」を判断が必要なことに書いた。#589 にはコメントしていない
+- 決定 1〜3 を `docs/decisions/site-review.md` に足した
+- 作業ブランチ `work/1017-pad` は cloudflare に入ったので、`cleanup-branches.yml` の自動削除（先頭が24時間より前のマージ済みの `work/*`）に任せる。削除はしていない
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1017-pad
-- ログ: https://github.com/retroeater/mj/blob/work/1017-pad/docs/logs/CHAT-1017-PAD-04.md
+- 状態: 判断待ち
+- ブランチ: work/1017-pad（cloudflare にマージ済み。削除は `cleanup-branches.yml` に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1017-PAD-04.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1017-pad
-- 確認用URL: なし
-- マージ: 未
-- issue: #428・#589
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 確認用URL: なし（本番を確かめる作業。本番は 03:20 UTC の時点で未反映）
+- マージ: 済（fast-forward、cloudflare 2922a7222）
+- issue: #428（コメント、閉じていない）・#589（ラベルは変えていない）
+- 判断が必要なこと:
+  - #589 の対象のラベル: `/live` に合う `対象:` のラベルが無い。`対象: live`（説明の案「放送対局のページ群 live/」）を新しく作って #589 に付けるか
+  - `jpml_pros` に残る表のセル（`td`）のずれ（CHAT-1017-PAD-02 の経過。上余白とは別の原因で未調査）を新しい issue にするか
+  - 本番の CLS の計測と #428 を閉じる作業を、本番に出た後の指示でするか（#428 の閉じる時のコメントには、#382 の入れ直しが不要になったこと〈#382 は 2026-10-16 に #549 の公開で閉じた〉とセルのずれのことを書く予定）
+- 未確認の項目:
+  - 本番の HTML・CSS への反映（03:20 UTC の時点で未反映。本番のビルドの check-run が付いていない）
+  - 本番の CLS（表の5枚・390px／1100px・各10回）。ブラウザでの見え方
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj c52dc764）: https://github.com/retroeater/mj-logs/tree/main/guide/c52dc764
+ガイド文書（この版を写した時点の最新、mj a8c1d96c）: https://github.com/retroeater/mj-logs/tree/main/guide/a8c1d96c
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c52dc764/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c52dc764/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c52dc764/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c52dc764/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c52dc764/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c52dc764/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/c52dc764.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a8c1d96c/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a8c1d96c/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a8c1d96c/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a8c1d96c/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a8c1d96c/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a8c1d96c/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a8c1d96c.md
