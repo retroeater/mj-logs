@@ -23,12 +23,19 @@ houou/ のトップで鳳凰戦のデータに言葉で質問できる欄。決�
 | `houou/ask-players.json` | 答えに出た選手のカードの名簿（生成物。`generate_houou_pages.py` の `ask_roster()`、約66KB。答えが出たときに初めて読む） |
 | `scripts/tests/test_houou_ask.py` | 突き合わせ（`pickPlayers`・`splitPlayers` を node で動かす）・名簿の値・書き出した名簿と名前の面の一致 |
 
+## 女流桜花（ouka/、#519。未公開）
+
+- `scripts/generate_ask_data_ouka.py`（`ask_data_ouka`）が `generate_ask_data.py` を設定 `OUKA` で動かし、`workers/ask/data-ouka.json` を書く（並びは data.json と同じ。決勝は title/search.json の「女流桜花」、放送対局は /live の「女流桜花」。大会の名前・リーグ・部門を `contest` に足す）。data.json には `contest` が無く、Worker は鳳凰戦の既定（`query.mjs` の `HOUOU`）で読む
+- ouka/ の質問欄（`ask_box()` が `data-contest="ouka"`）は問いに `contest: "ouka"` を添える。`ask.mjs` は `deps.contests.ouka` のデータと女流桜花の指示（`OUKA_PLAN_SYSTEM`、出力の形のリーグ・部門も女流桜花）で答える。知らない `contest` は 400（数えない）。`contest` の無い問い（houou/）の答え方は変えない
+- 1日の上限・IP ごとの上限は鳳凰戦と共有（2026-10-17）。記録の型は「ouka:league」の形（答えられなかった問いは「ouka:」。仮置き）
+- テストは `workers/ask/test/ouka.test.mjs`。違いの全体は docs/notes/ouka-top.md
+
 ## データ（data.json）
 
 `generate_ask_data.py` が次を読んで1つにまとめる。週次の `regenerate.py all` で作り直す（push での作り直しは、この生成スクリプトか `scripts/lib/` が変わったとき）。
 
 - 鳳凰戦リーグの成績: 「鳳凰」タブ（`generate_houou_pages.py` の `load_rows()`・`current_names()` をそのまま使う。改名は「別名」で現在名に名寄せ、HOU-13）。
-  退会者を含む全員。`players` の1行は `[期, 期の番号(前期 1・後期 2・通期 0、#541), リーグ, 順位, 結果, 合計]`（`houou/results/<選手名>.json` の rows の先頭6列と同じ）
+  退会者を含む全員。`players` の1行は `[期, 期の番号(前期 1・後期 2・通期 0、#541), リーグ, 順位, 結果, 合計(, 入替戦に出た印 1)]`（最後の 1 は「入替戦」列が Y で「結果」が入替戦の後の結果の行だけ、2026-10-18）（`houou/results/<選手名>.json` の rows の先頭6列と同じ）
 - ランキング9部門: `generate_houou_pages.py` の `build_rankings()`（houou/ranking/ と同じ表示対象・在籍者だけ）
 - 決勝（鳳凰位）: `title/search.json`（`generate_title_pages.py` の生成物）の鳳凰戦の期。**鳳凰位を獲った期はここを正にする。**
   「鳳凰」タブの「鳳凰位」の行は鳳凰位として座っている期で、獲った期の次の期（例: 吉田直は第35期に獲り、第36期の行が「鳳凰位」）
@@ -51,7 +58,7 @@ houou/ のトップで鳳凰戦のデータに言葉で質問できる欄。決�
 |---|---|---|---|
 | `champions`（鳳凰位の一覧） | `entry`（入会期の数）・`from`・`to`（鳳凰戦の期）・`name` | `{name, entry, terms}`（人ごと、最初に獲った期の順） | `/title/houou/` |
 | `final`（決勝の結果） | `term`（必須） | `{rank, name}` | `/title/houou/<期>.html` |
-| `player`（選手の成績） | `name`（必須）・`term` | `{period, league, place, result, total}` | 在籍者は `/houou/players/?name=`、それ以外は最後の期の `/houou/race/?term=&league=` |
+| `player`（選手の成績） | `name`（必須）・`term` | `{period, league, place, result, total}`（入替戦に出た期は `playoff: true`。答えの指示で「result はその入替戦の後の結果」と伝える） | 在籍者は `/houou/players/?name=`、それ以外は最後の期の `/houou/race/?term=&league=` |
 | `league`（リーグの顔ぶれ） | `term`・`league`（必須）・`half`（前/後、1/2） | `{place, name, result, total}`（順位の順） | `/houou/race/?term=<期>-<1|2>&league=<リーグ>`（通期の A1・A2・鳳凰位は `?term=<期>`、#541） |
 | `ranking`（記録の上位） | `division`（9部門の名前、必須。houou/ と同じ略称〈通算・期平均…〉で、旧い名前〈通算得点・通算得点/期…〉も `DIVISION_ALIASES` で受ける、2026-10-16）・`limit` | `{rank, name, value}` | その部門の `/houou/ranking/…/`（出典の名前は「鳳凰戦 ランキング（通算）」の形） |
 | `live`（放送対局） | `term` | `{period, stage, date, players, url}` | 各ページ（無ければ `/live/houou/`） |

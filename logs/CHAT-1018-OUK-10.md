@@ -69,7 +69,7 @@ OUK-08 のプレビューの動作確認と仮置きの確認で決まったこ�
 
 ## 報告
 
-- 状態: 中断（0章の確かめが合わないため、作業を始めずに止まった） / 続き: CHAT-1018-OUK-11
+- 状態: 完了（CHAT-1018-OUK-12 でマージ。判断待ちの論点は OUK-12 までに決定） / 続き: CHAT-1018-OUK-11
 - ブランチ: work/OUK
 - ログ: https://github.com/retroeater/mj/blob/work/OUK/docs/logs/CHAT-1018-OUK-10.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/OUK
@@ -85,12 +85,12 @@ OUK-08 のプレビューの動作確認と仮置きの確認で決まったこ�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 5a267bc8）: https://github.com/retroeater/mj-logs/tree/main/guide/5a267bc8
+ガイド文書（この版を写した時点の最新、mj 8165a7bd）: https://github.com/retroeater/mj-logs/tree/main/guide/8165a7bd
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/5a267bc8/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/5a267bc8/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/5a267bc8/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/5a267bc8/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/5a267bc8/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/5a267bc8/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/8165a7bd/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/8165a7bd/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/8165a7bd/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8165a7bd/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8165a7bd/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8165a7bd/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/0ae083e4.md
