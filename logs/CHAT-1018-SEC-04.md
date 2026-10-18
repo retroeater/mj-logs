@@ -287,18 +287,41 @@ run-daily のドライランで呼ばれて確かめたもの: `update-live-chan
 
 この4本の変更は `permissions` の明示（job に移しただけで中身は同じ）・`run:` の env 化・SHA 固定・`secrets: inherit` の削除。
 
+
+### 5. マージと後の確かめ
+
+- マージ: `git push origin work/1018-sec4:cloudflare`（push 直前に再 fetch し `git merge-base --is-ancestor origin/cloudflare HEAD` が真）→ cloudflare d114d132c（12:39 UTC = 21:39 JST。止める時間帯の外）。直前に cloudflare（OUK のマージ 3b0b2c60d）を merge で取り込んだ（71c9725c9、衝突なし。handover.md の sheets-reader の行は同一の変更として1行にまとまった）
+- d114d132c の check-run: Workers Builds の mj・mj-ask・mj-scheduler は success（ビルドの成否。本番の Worker の振る舞いは見ていない）
+- cloudflare で run-daily を `scheduled` なしで手動実行: [39128209359](https://github.com/retroeater/mj/actions/runs/39128209359) success（全12ジョブ。live / regenerate・sns / regenerate は条件で skipped）
+- cloudflare で security-check を手動実行: 39128211193 success。zizmor は抑止を除き 58 件（High 3・Medium 10・Low 45。手元と同じ）、pip-audit 既知の脆弱性なし、履歴の走査 当たり4・新規0
+- Dependabot: `dependabot.yml` が入った直後に初回の実行（dependabot-updates、success）が走り、PR を6本作った（#602 auth 3.0.0、#603 github-script 9.0.0、#604 cache 6.1.0、#605 checkout 7、#606 setup-python 7、#607 upsert-issue の github-script 9.0.0）。どれもメジャー版の上げ。マージしていない。#605・#606 は題が「from 4」「from 5」で、SHA に固定していない sync-logs.yml の分を含むとみられる（中身は見ていない）
+- #598: 本文の表の中-4・中-5・低-1・低-2 の重大度の欄に「済（CHAT-1018-SEC-04）」を足した（REST の PATCH。直前に updated_at が取得時と同じことを確かめた）。結果のコメントを足した
+- #557: 新しい Secret を足すときの渡し方をコメントした
+- docs/decisions/security.md に「決定」を足した（d114d132c に含む）
+
+全ワークフローの `permissions` の明示（Settings の既定を読み取りだけにする前の確かめ、WFL の注意5）: `.github/workflows/` の23本すべてでトップレベルが `permissions: {}`（sync-logs は `contents: read`・`actions: read`）、job は全部が明示（fetch-youtube の report は `{}`）。`workflow_call` だけで動く sync-yotei も明示。PR を作るワークフロー（`gh pr`・`pulls.create`・`pull-requests:`）は無い。
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1018-sec4
-- ログ: https://github.com/retroeater/mj/blob/work/1018-sec4/docs/logs/CHAT-1018-SEC-04.md
+- 状態: 判断待ち
+- ブランチ: work/1018-sec4（cloudflare にマージ済み）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1018-SEC-04.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1018-sec4
-- 確認用URL:
-- マージ:
-- issue:
+- 確認用URL: なし（ワークフローと Worker の変更。ページの見た目は変えていない）
+- マージ: 済（d114d132c）
+- issue: #598（着手中・結果のコメント、本文の表を更新）・#557（コメント）・Dependabot の PR #602〜#607（作られた。未マージ）
 - 判断が必要なこと:
+  - 平野さんの手作業: [mj の Actions の設定](https://github.com/retroeater/mj/settings/actions) の Workflow permissions を「Read repository contents and packages permissions」にし、「Allow GitHub Actions to create and approve pull requests」のチェックを外して Save。全ワークフローに `permissions` の明示があることは確かめた（経過の「5.」）。切り替えた後の確かめは翌朝の run-daily（mj-logs の morning.md）
+  - 外したもの: `assets/houou_ask.js` の (c)（work/OUK・work/WRC が同じファイルを変えていた。OUK はこの作業中に cloudflare にマージ済み。WRC は未マージ）。`sync-logs.yml`（範囲外。zizmor の 5 件が残る）
+  - `dependabot.yml` を指示の `directory: "/"` から `directories: ["/", "/.github/actions/*"]` に広げ、`cooldown: default-days: 7` を足した（`"/"` だけでは composite action が対象外。実際に #607 が upsert-issue の分として出た）。戻すかどうか
+  - Dependabot の PR #602〜#607（メジャー版の上げ6本）の扱い。マージの仕方は案のまま（docs/notes/github-actions.md「Dependabot」:「チャット経由で Code に確かめさせてからマージする」。確かめる点は差分が SHA と版のコメントだけか・SHA が上流のタグを指すか・リリースノート・zizmor の件数・PR のブランチでの run-daily のドライラン）
+  - ドライランが無く手動実行で確かめていないワークフロー: `fetch-gsc.yml`・`regenerate-sitemap.yml`・`fetch-youtube.yml`・`regenerate-page.yml`（直接の起動。`workflow_call` は run-daily で確かめた）。中身の変更は permissions を job に移したこと・env 化・SHA 固定・`secrets: inherit` の削除だけ。次の予約実行（fetch-youtube は月曜 05:37 JST、fetch-gsc は 11/1 06:00 JST）と、cloudflare への push（regenerate-page・regenerate-sitemap）で動く
+  - cloudflare のテストの失敗（PRV-02 の sheets-reader.md が handover.md の表に無い）を、work/OUK と同じ1行でこの指示の中で直した（892bde4ae）。指示の範囲の外の変更
 - 未確認の項目:
-- エラー:
+  - 翌朝 2026-10-19 04:00 JST の run-daily の定期実行（`[scheduled]`、書き込みあり）が、明示した Secret・permissions で success になるか（mj-logs の morning.md）。Settings を読み取りだけにした後も同じく翌朝の run-daily で見る
+  - `mj-scheduler` の直し（書き手の検査・`validRows`）の本番の振る舞い。Workers Builds のビルドは success。次に効くのは 06:15・06:30 JST の書き直しの回（06:00 の回が抜けた日だけ）
+  - 初回の予約実行: Dependabot の月1回の実行（初回は今日 21:39 JST に走った。次は 2026-11 の同じころの見込み。日時は GitHub が決める）
+- エラー: なし
 
 <!-- guide-links -->
 ---
