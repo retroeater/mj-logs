@@ -102,8 +102,8 @@ CHAT-1018-PRV-01（#557）の判断待ちへの回答。平野さんの決定を
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1018-PRV-02.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1018-prv
 - 確認用URL: なし
-- マージ: 未（docs のみ。この push の後に cloudflare へ入れる）
-- issue: #557（着手中のコメントと、決定・手順書・次の段取りのコメント）
+- マージ: 済（26135eaa5、fast-forward。承認済み・docs のみ）
+- issue: #557（着手中のコメント issuecomment-6249653783、決定・手順書・次の段取りのコメント issuecomment-6249687779）
 - 判断が必要なこと:
   - 平野さんの手作業（手順書 docs/notes/sheets-reader.md の順）:
     1. Google Cloud Console で `live-channel-writer` と同じプロジェクトを選び、Google Sheets API が有効なことを確かめる
@@ -126,12 +126,12 @@ CHAT-1018-PRV-01（#557）の判断待ちへの回答。平野さんの決定を
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj c614fb14）: https://github.com/retroeater/mj-logs/tree/main/guide/c614fb14
+ガイド文書（この版を写した時点の最新、mj 1cd1d6f2）: https://github.com/retroeater/mj-logs/tree/main/guide/1cd1d6f2
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c614fb14/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c614fb14/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c614fb14/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c614fb14/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c614fb14/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c614fb14/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/1cd1d6f2/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/1cd1d6f2/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/1cd1d6f2/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/1cd1d6f2/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/1cd1d6f2/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/1cd1d6f2/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/0ae083e4.md
