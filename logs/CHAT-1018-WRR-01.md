@@ -143,6 +143,21 @@ WRC-R リーグの第1〜7期の成績を、平野さんがスプレッドシー
 - https://github.com/retroeater/mj/issues/366#issuecomment-6248583070
   （行数・期ごとの通過・敗退・第8期は完了後・表示の issue は未起票・決定の記録の場所。選手名は書いていない）
 
+### マージ
+
+- push 直前の fetch で `origin/cloudflare` が c80a0c4b4（CHAT-1018-BIL-01）に進んでいた。`git merge origin/cloudflare` で docs/decisions/operations.md の末尾が追記どうしで衝突（生成物でない文書。指示の「両方を残して解いてよい」に当たる）
+- BIL-01 の節の後に WRR-01 の節を置いて解いた（マージコミット dd16e3198）。衝突のときに git が共通の末尾として外に出した BIL-01 の「- 作業中の回答: なし」は BIL-01 の節に戻した。解いた後の該当箇所:
+
+  > - 案 A は作業ブランチで確かめた後に cloudflare へマージしてよい
+  > - 作業中の回答: なし
+  >
+  > ## 2026-10-18（CHAT-1018-WRR-01）
+  >
+  > - WRC-R の成績は「R_タイトル戦_成績」の「WRCR」シートに置く。…
+
+- 解いた後の `git diff --stat origin/cloudflare` は、触ってよい5ファイル（docs/logs・docs/decisions の2つ・chat-routines.md・chrome-reading.md）だけで、operations.md は WRR-01 の節の 27行の追加だけ
+- `git push origin work/1018-wrr:cloudflare`（fast-forward）。cloudflare の先頭はこのログを含むコミット
+
 ## 報告
 
 - 状態: 完了
@@ -150,7 +165,7 @@ WRC-R リーグの第1〜7期の成績を、平野さんがスプレッドシー
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1018-WRR-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1018-wrr
 - 確認用URL: なし
-- マージ: 済（cloudflare へ fast-forward。SHA は経過の末尾）
+- マージ: 済（マージコミット dd16e3198 を含む作業ブランチを cloudflare へ fast-forward。cloudflare の先頭はこのログを含むコミット）
 - issue: #366
 - 判断が必要なこと: なし
 - 未確認の項目: なし
@@ -159,12 +174,12 @@ WRC-R リーグの第1〜7期の成績を、平野さんがスプレッドシー
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj c80a0c4b）: https://github.com/retroeater/mj-logs/tree/main/guide/c80a0c4b
+ガイド文書（この版を写した時点の最新、mj 66741d7a）: https://github.com/retroeater/mj-logs/tree/main/guide/66741d7a
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c80a0c4b/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c80a0c4b/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c80a0c4b/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c80a0c4b/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c80a0c4b/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c80a0c4b/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/66741d7a/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/66741d7a/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/66741d7a/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/66741d7a/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/66741d7a/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/66741d7a/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/f5956855.md
