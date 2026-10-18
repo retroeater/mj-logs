@@ -80,28 +80,98 @@ CHAT-1018-LOG-02 で docs/decisions/operations.md に記録した 2026-10-18 の
 - docs/notes/github-actions.md の mode の行と `convert-x-posts.yml` の stations の説明を直した
 - ワークフローの dry-run（run 39116484402、a0a1208b0、success）: 手元の試算と同じ（下の表）
 
+### 【2】の3列の削除と計算し直し
+
+- 本番（run 39116562821、5e33c8540、`mode=stations`・dry_run 偽、success）: 書く前に読み直して同じことを確かめ、カテゴリの3列（I「カテゴリ」・J「タグ」・U「カテゴリの新しい案」）を列ごと消し、読み直して3列以外のセルが消す前と同じことを確かめてから、212セル（駅 70・要確認 70・要確認の理由 72）を書いた。Places・Claude・X は呼んでいない
+- 作業の後に CSV で読み直して控えと比べた: 【2】809行・20列・見出しは新しい `OUT_HEADER` と同じ。控えから3列を除いた値と違うのは「駅」70・「要確認」70・「要確認の理由」72 だけで、手元の試算（`l2_expected`）と全セルが一致。もう一度計算すると書くセルは 0。【1】【3】・「比較」・「カテゴリ案」・旧「ログ」は作業の前と同じ
+
+| 要確認の理由 | 前 | 後 |
+|---|---:|---:|
+| （要確認の行） | 176 | 106 |
+| 判定が不明 | 81 | 81 |
+| 最寄り駅が本文の駅と違う | 72 | 0 |
+| 店名が本文に無い | 15 | 15 |
+| 圏内に駅が無い | 6 | 6 |
+| 店が見つからない | 2 | 2 |
+| 本文の駅が圏内に無い | 0 | 2 |
+
+本文の駅が圏内に無い: 2行
+
+| 行 | 名前 | 日付 | 本文の駅 | 最寄り駅 |
+|---:|---|---|---|---|
+| 236 | 谷岡育夫 | 2026-08-16 | 駒澤大学 | 駒沢大学 |
+| 529 | 谷岡育夫 | 2026-03-29 | 多摩センター | 小田急多摩センター |
+
+
+出す駅が変わった行: 70行（すべて LOG-01 で「最寄り駅が本文の駅と違う」だった行で、最寄り駅 → 圏内の本文の駅）。例の10行:
+
+| 行 | 名前 | 日付 | 前 | 後 |
+|---:|---|---|---|---|
+| 2 | 谷岡育夫 | 2025-12-09 | 新宿西口 | 新宿 |
+| 12 | 平野良栄 | 2025-12-30 | 春日 | 後楽園 |
+| 13 | 平野良栄 | 2025-12-28 | 神保町 | 水道橋 |
+| 14 | 平野良栄 | 2025-12-27 | 有楽町 | 東京 |
+| 126 | 谷岡育夫 | 2026-10-05 | 西武新宿 | 新宿西口 |
+| 134 | 谷岡育夫 | 2026-10-02 | 西武新宿 | 新宿 |
+| 138 | 谷岡育夫 | 2026-09-30 | 水道橋 | 後楽園 |
+| 154 | 谷岡育夫 | 2026-09-21 | 神泉 | 渋谷 |
+| 165 | 谷岡育夫 | 2026-09-16 | 二重橋前 | 東京 |
+| 170 | 谷岡育夫 | 2026-09-14 | 神泉 | 渋谷 |
+
+- 429行（【北海道】さっぽろ → 【北海道】札幌）は、本文の「札幌」が圏内（645m）の候補にあったため本文の駅になった。657行（九段下 → 市ケ谷）も本文の「市ヶ谷」が圏内（772m）にあった
+- 「本文の駅が圏内に無い」の2行は、表記の違い（236 駒澤大学・駒沢大学）と、名前の違い（529 多摩センター・小田急多摩センター）。決定 3 のとおり対応表は持たない
+
+### 決定 4 の当てはまり
+
+- 末尾の「駅」を除くと名前が空になる値は、今のデータに無い（テストで「駅」「【千葉】駅」は元のままにすることを確かめた）
+- 旧「ログ」の表示 Y の行の先頭の駅には「駅」で終わる名前・括弧を含む名前が無く、意味が変わる例は無い。【2】の候補には「都電雑司ヶ谷駅（東京）（東京さくらトラム・下り）」のような名前があり、出すときは「都電雑司ヶ谷」になる（今は「駅」に出ている行は無い）
+- 検索用の文字列も表示と同じ名前にしたので、括弧の中（「清水橋」「原宿〈〉」）では検索に当たらない
+
+### ページの再生成とプレビュー（8935c3a52）
+
+- `python3 scripts/regenerate.py resource_logs`: 「ログ」2630件・3層から 483件、計 3113行。`?tag=` 0
+- Workers Builds: mj が success。プレビュー（別名 URL）の `resource_logs.html` は手元の生成物とバイト単位で同じ
+- 確かめた行（概要の最後の行。プレビューの HTML と、ヘッドレス Chromium での絞り込み）:
+  - 本文の駅に戻った行: 【2】134行（谷岡育夫 2026-10-02）「新宿」（`?name=谷岡育夫&tag=2026-10-02` で1行）、126行（2026-10-05）「新宿西口」。【2】2行（谷岡育夫 2025-12-09）は投稿が旧「ログ」にあるので、ページには旧「ログ」の行が出る（【2】の駅は「新宿」になった）
+  - 2026-09-04 の行（【2】195行）・2026-02-24 の行（629行）: 「西新宿五丁目」（括弧と「駅」を除いた）
+  - 2026-08-11 の2行（【2】246・247行）: 「明治神宮前」。`?tag=明治神宮前` で2行
+  - 旧「ログ」の駅が「、」で複数の行: 2025-06-08 の谷岡育夫の行が「東府中」のまま（2つ目の「府中競馬正門前駅」は出ない）。旧「ログ」の先頭の駅が「駅」で終わる行は無い
+  - 印のある行: 495行（【千葉】浦安 398 など）。【2】429行（2026-05-23）は「【北海道】札幌」で印が残る
+  - 【3】で駅を直した行（池袋など）: 値に括弧・「駅」が無いので変わらない
+  - 最後の行に括弧（「（」）が残る6行は、駅が空で最後が店名のリンク（読み上げ用の「（新しいタブで開く）」）の行で、駅名ではない
+- 見た目の印: 2026-09-04 の谷岡育夫の行が「西新宿五丁目」で終わる（LOG-02 の本番では「西新宿五丁目駅（清水橋）」）
+
+### 決定の記録
+
+- この指示の「決定」は docs/decisions/operations.md の「2026-10-18（CHAT-1018-LOG-02）」の節にあるもの（正はそちら）で、新しい決定は無い。作業中の平野さんの回答も無い。重ねて書かないよう、LOG-03 の節には実装した旨だけを書いた
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1018-log-367-rule
 - ログ: https://github.com/retroeater/mj/blob/work/1018-log-367-rule/docs/logs/CHAT-1018-LOG-03.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1018-log-367-rule
-- 確認用URL: なし
-- マージ: 未
+- 確認用URL: プレビューあり（URL は最終報告）。確認したページは resource_logs.html。この版の印: 2026-09-04 の谷岡育夫の行が「西新宿五丁目」で終わる（本番は「西新宿五丁目駅（清水橋）」）
+- マージ: 未（平野さんの判断待ち）
 - issue: #367
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 判断が必要なこと:
+  - マージするか（プレビューを見てから）。【2】のシートはすでに書き換えた（3列を消し、駅・要確認を計算し直した）ので、マージ前でも本番の次の再生成（毎週月曜の `all` など）は今の cloudflare のコードで【2】を読む。cloudflare の生成は【2】を見出しの名前で読むため列を消しても動くが、本番のページでは駅名の括弧がマージまで残る
+  - 【3】手動補正の見出しにカテゴリの3列（カテゴリ・タグ・カテゴリの新しい案）が残っている（23列）。【2】は 20列になったので、【2】から行ごと写すと列がずれる。【3】の見出しを【2】に合わせて3列を消すか（平野さんの手作業。生成は見出しの名前で読むので、消しても消さなくても動く）
+  - 「比較」タブのカテゴリの3列（正解のカテゴリ・出力のカテゴリ・カテゴリ）と「カテゴリ案」シートは残っている（平野さんの手作業）
+  - 「本文の駅が圏内に無い」2行（236・529）は【3】で直す（決定 3）
+- 未確認の項目:
+  - スマートフォンの実機・通常のブラウザでの見え方（ヘッドレス Chromium の DOM と HTML でだけ確かめた）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 6a2b5b89）: https://github.com/retroeater/mj-logs/tree/main/guide/6a2b5b89
+ガイド文書（この版を写した時点の最新、mj d368dd1d）: https://github.com/retroeater/mj-logs/tree/main/guide/d368dd1d
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6a2b5b89/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6a2b5b89/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6a2b5b89/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6a2b5b89/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6a2b5b89/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6a2b5b89/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d368dd1d/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d368dd1d/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d368dd1d/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d368dd1d/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d368dd1d/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d368dd1d/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/8c038f0d.md
