@@ -57,7 +57,7 @@ GitHub Actions (`.github/workflows/regenerate-page.yml`) が、`scripts/generate
 毎朝の本を1本にまとめたワークフロー（#564 の段③。設計は CHAT-1015-WFL-14 のログ）。2026-10-15 に Worker の起動の表（`workers/scheduler/schedule.json`）を5行から run-daily の1行に切り替えた（初回は 2026-10-16 04:00 JST）。
 
 - 並び: `live`（update-live-channel）→ `sns`（update-sns-book）→ `images`（check-image-links）→ `saikyo`（regenerate-saikyo）を `needs` で直列にし、後の3つは前が失敗しても `!cancelled()` で動く。`dojo`（sync-dojo-calendar）・`branches`（cleanup-branches）は並行。入れ子は最大3段（run-daily → update-live-channel・update-sns-book・regenerate-saikyo → regenerate-page）
-- 権限は `permissions: {}` と job ごと（呼ばれる側は呼ぶ側の job を超えられない）、各 job に `secrets: inherit`。`concurrency` の組は `run-daily`（呼ばれる側の組とは名前が違い、詰まらないことを 2026-10-15 の手動実行で確かめた）
+- 権限は `permissions: {}` と job ごと（呼ばれる側は呼ぶ側の job を超えられない）、Secret は job ごとに呼ぶ本（入れ子の下を含む）が使うものだけを明示して渡す（下の「権限と Secret の渡し方」）。`concurrency` の組は `run-daily`（呼ばれる側の組とは名前が違い、詰まらないことを 2026-10-15 の手動実行で確かめた）
 - 手動実行（`scheduled` なし）は書かない道筋だけ。各本に件数だけ・dry-run の入力を渡す（`regenerate-saikyo` だけは再生成し、差分があれば実行ブランチにコミットする）。書く手動実行は各本の画面で行う
 - 呼ばれた本の実行は run-daily の実行の中のジョブ（`live / update` など）になり、各本のファイルには実行が付かない。各本の run-name・保険の `schedule` は、各本の手動実行・保険の実行のために残す（保険の `schedule` を外すのは段④）
 - update-live-channel の保険のゲートは、当日・cloudflare・`[scheduled]` の (1) update-live-channel.yml の success の実行か、(2) run-daily.yml の実行のジョブ `live / update` の success のどちらかがあれば、保険の実行は何もしない（run-daily 全体の結論は見ない。ほかの本が落ちた日に保険が二重に動かないため）
@@ -89,6 +89,50 @@ GitHub Actions (`.github/workflows/regenerate-page.yml`) が、`scripts/generate
 - `commit-push`: 入力 `paths`（`git add -A --` に渡す）・`message`・`body`・`message-file`（渡したら件名と本文の全体）・`retry`（`none` / `rebase`〈`pull --rebase` で3回まで〉）・`autostash`、出力 `committed`・`sha`。bot の名前でコミットし、**実行ブランチ（`github.ref_name`）にだけ push する**（push 先を選ぶ入力は持たない）。差分が無ければ何もしない
 
 寄せられない点（各本に残す）: checkout の入力（`ref`・`fetch-depth`）、update-live-channel の保険のゲート・水曜の verify・予約の起動で外す `ALLOW_*`、update-sns-book の `mode` の上書き、sync-dojo-calendar の `--auto-update`、fetch-gsc の「JST で1日か」、regenerate-page の Pillow と `test_title_redirects.py`、sitemap-lastmod の push の再試行（rebase せず作り直す。`commit-push` の `retry` に無い）、regenerate-page の `img/ogp/wayhome` を足すかの判定（`paths` を呼ぶ側で組む）。
+
+## 権限と Secret の渡し方
+
+2026-10-18 から（#598 の中-4・中-5・低-1・低-2）。zizmor（`security-check.yml`）がこの形から外れたものを拾う。
+
+- **`permissions`**: どのワークフローもトップレベルは `permissions: {}`、job ごとに必要な最小を書く（読むだけは `contents: read`、push は `contents: write`、issue を書くなら `issues: write`、実行の一覧を引くなら `actions: read`）。
+  リポジトリの既定（Settings → Actions → Workflow permissions）は読み取りだけにする前提なので、**新しいワークフロー・job にも必ず書く**（書かないと push・issue の書き込みが 403 で落ちる）
+- **入れ子**: `workflow_call` で呼ばれる側の job は、呼ぶ側の job の権限を超えられない（超えると起動の時点で失敗する）。呼ぶ側の job には、呼ばれる側のどの job よりも広い権限を与える。
+  `regenerate-page.yml` の job は `contents: write`・`issues: write`（帰り道の知らせ）なので、呼ぶ側の job はすべて両方を持つ（ほかの本からの呼び出しでは知らせは動かない）
+- **Secret**: `secrets: inherit` は使わない。呼ばれる側は `on.workflow_call.secrets` に受け取るものを宣言し、呼ぶ側は `NAME: ${{ secrets.NAME }}` で1つずつ渡す。入れ子の下で使う Secret は途中の段でも渡し直す
+- **`run:`**: `${{ }}` を直接書かない。`github.*` は既定の環境変数（`$GITHUB_EVENT_NAME`・`$GITHUB_REF_NAME`・`$GITHUB_SHA`・`$GITHUB_SERVER_URL`・`$GITHUB_REPOSITORY`・`$GITHUB_RUN_ID`）、それ以外（`inputs.*`・`steps.*`・`github.event.*`）はステップの `env:` で受ける（#132）
+- **`actions/checkout`**: push しない job は `persist-credentials: false`。push する job（checkout の認証で `git push` する）は付けない
+- **第三者の action**: 40桁の SHA で固定し、`# v4.4.0` の形で版をコメントに残す。版を上げるのは下の「Dependabot」の PR（手で上げるときも同じ形。SHA は `git ls-remote --tags https://github.com/<owner>/<repo>` の、そのタグの行〈注釈付きタグは `^{}` の行〉）
+
+今の渡し方（job → 権限 / Secret）:
+
+| 呼ぶ側の job | 呼ぶ本（その下） | 権限 | 渡す Secret |
+|---|---|---|---|
+| `run-daily` の `live` | `update-live-channel`（→ `regenerate-page`・`sync-yotei`） | contents: write・issues: write・actions: read | `YOUTUBE_API_KEY`・`LIVE_SHEETS_SA_KEY`・`GCP_SA_KEY`（`GCP_SA_KEY` は `sync-yotei` の分） |
+| `run-daily` の `sns` | `update-sns-book`（→ `regenerate-page`） | contents: write・issues: write | `LIVE_SHEETS_SA_KEY`・`X_BEARER_TOKEN` |
+| `run-daily` の `images` | `check-image-links` | contents: read・issues: write | なし（`X_BEARER_TOKEN` は手動実行の確かめ用だけ） |
+| `run-daily` の `saikyo` | `regenerate-saikyo`（→ `regenerate-page`） | contents: write・issues: write | `LIVE_SHEETS_SA_KEY` |
+| `run-daily` の `dojo` | `sync-dojo-calendar` | contents: read・issues: write | `ANTHROPIC_API_KEY`・`GCP_SA_KEY` |
+| `run-daily` の `branches` | `cleanup-branches` | contents: write | なし |
+| `update-live-channel` の `regenerate`・`update-sns-book` の `regenerate`・`regenerate-saikyo` の `regenerate`・`fetch-youtube` の `regenerate` | `regenerate-page` | contents: write・issues: write | なし（楽天の2つは宣言だけ。取得の再開のときに `fetch-youtube` から渡す） |
+| `update-live-channel` の `yotei` | `sync-yotei` | contents: read・issues: write | `GCP_SA_KEY`・`LIVE_SHEETS_SA_KEY` |
+
+**呼ばれるワークフローに新しい Secret を足すとき**（例: #557 の読み取り用サービスアカウントを `regenerate-page.yml` で使う）:
+
+1. 使うワークフローの `on.workflow_call.secrets` に宣言する（手動実行・push で直接動くときはリポジトリの Secret がそのまま見える）
+2. 上の表で、そのワークフローを呼ぶ job を全部たどり、各段の `secrets:` に `NAME: ${{ secrets.NAME }}` を足す。`regenerate-page.yml` なら `update-live-channel`・`update-sns-book`・`regenerate-saikyo`・`fetch-youtube` の `regenerate` と、その上の `run-daily` の `live`・`sns`・`saikyo`
+3. 新しい権限が要るなら、呼ぶ側の各段の job にも足す
+4. この表を直し、作業ブランチで `run-daily.yml` を `scheduled` なしで手動実行して（ドライラン）確かめる
+
+## Dependabot
+
+`.github/dependabot.yml` が、ワークフローと `.github/actions/*/action.yml` の action の版の更新を月1回、`cloudflare` 向けの PR で出す（`package-ecosystem: github-actions`、公開から7日は待つ `cooldown`）。
+**受けるのはマイナー版・パッチ版だけ**（`ignore` の `update-types: version-update:semver-major`、2026-10-18 の平野さんの決定）。メジャー版の上げは、認証情報の台帳の四半期の棚卸し（#601）でまとめて見る（初回の実行が出したメジャー版の PR #602〜#608 は閉じた）。
+PR は SHA と版のコメントを書き換える。Dependabot security updates（Settings）は Off のまま（2026-10-18）。
+
+- PR のブランチは `dependabot/github_actions/…`。`work/*` ではないので、`cleanup-branches.yml`（マージ済みの `work/*` だけを消す）は触らない。Dependabot は閉じた PR のブランチを消す（手で閉じた #602〜#607 のブランチも数分のうちに消えた、2026-10-18）。マージした PR のブランチが残るかはリポジトリの「Automatically delete head branches」の設定しだい（未確認）。残ったら平野さんが消す（セッションからは削除が拒否される）
+- PR のマージは `cloudflare` へのマージ（＝本番反映）なので、CLAUDE.md「ブランチ運用」の承認の規則に従う。セッションは PR のブランチへ push しない
+- Dependabot が起こすワークフローの実行は Actions の Secret ではなく Dependabot の Secret を使う（今は無い）。`check-assets.yml` は `work/**` の push だけで動くので、PR では走らない
+- **マイナー版・パッチ版の PR のマージの仕方（案。決めていない）**: Dependabot の PR はチャット経由で Code に確かめさせてからマージする。確かめる点は、差分が `uses:` の SHA と版のコメントだけか、新しい SHA が上流のそのタグを指すか（`git ls-remote`）、リリースノートに破壊的な変更が無いか、`security-check.yml` の zizmor の件数が増えないか、PR のブランチで `run-daily.yml` を `scheduled` なしで手動実行して全ジョブが success か
 
 ## ワークフローを手動実行するとき
 

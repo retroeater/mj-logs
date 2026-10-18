@@ -41,3 +41,39 @@ Cloudflare の Security Overview の提案（security.txt など）の見送り�
 - GitHub の Secret scanning／Push protection は、個人の private リポジトリでは使えないので見送る。代わりは `security-check.yml` の履歴の走査（#300）
 - Actions の Workflow permissions の既定は、SEC-04 で各ワークフローに `permissions` を明示し、PR を作るワークフローが無いことを確かめてから、平野さんが読み取りだけにし、PR の作成・承認の許可を外す（先に変えると `permissions` の無い `regenerate-page.yml` の push が止まる）
 - GitHub と Cloudflare のアカウントの 2FA は認証アプリにそろえた（GitHub は SMS を外し、Cloudflare はメールの 2FA を外した）
+
+## 2026-10-18（CHAT-1018-SEC-08）
+
+- 認証情報の台帳（#601）の項目に、各認証情報の期限を含める
+- 台帳の棚卸しは四半期に1回行う（毎月にはしない）
+
+## 2026-10-18（CHAT-1018-PRV-01）
+
+- ryoei.pro のスプレッドシートは、すべて非公開（一般的なアクセスを「制限付き」）にして、非公開のフォルダへ移す（#557。2026-10-13 の「基本は非公開のフォルダに置く」の続き）
+- 非公開への切り替えで開発の進め方に問題が出る点は、先に手当てする（その調べを CHAT-1018-PRV-01 で始めた）
+
+## 2026-10-18（CHAT-1018-SEC-09）
+
+- #300（秘密のコミットの検知）をクローズする（Secret scanning／Push protection は使えず、代替は `security-check.yml` の履歴の走査）
+- 将来の見直しは、#9 の後の再点検で「Secret scanning／Push protection が個人の private リポジトリで使えるようになっていないか」を確かめる形で拾う
+
+## 2026-10-18（CHAT-1018-PRV-02）
+
+- 生成のシートの読み取りは、gviz・htmlview・CSV エクスポートをやめ、すべて Sheets API に替える（URL にトークンを付ける形は採らない。#557）
+- 読むアカウントは、読み取り専用のサービスアカウントを新しく作る（`live-channel-writer` は使い回さない）。手順は docs/notes/sheets-reader.md
+- Google Charts 依存の4ページ（ouka_ranking・ouka_results・wrc_ranking・wrc_results）は、ouka/（#591）・jwrc/（#599）の公開で転送して廃止する。静的な生成には作り直さない。「R_タイトル戦_成績」を非公開にするのは、その転送の後
+- Claude Code の環境でシートを直接読めなくなった後の確かめは、読むだけのワークフローで行う（`regenerate-page.yml` に dry_run・check の入力を足す。値はジョブのログに出さない）。Claude Code の環境に鍵は置かない
+
+## 2026-10-18（CHAT-1018-SEC-04）
+
+- SEC-04 は WFL（#564）の段④より先に、別の指示で行う。段④は SEC-04 のマージを待ってから着手する
+- #598 の中-4（第三者 action の SHA 固定と `.github/dependabot.yml`）・中-5（`secrets: inherit` を明示に、書き込み権限を job 単位に、`permissions` の無いワークフローに明示）・低-1（`run:` の `${{ }}` を env 経由に）・低-2（push しない checkout に `persist-credentials: false`）を直す
+- `.github/dependabot.yml` は SHA 固定と同時に入れる。Dependabot security updates は Off のまま
+- Workflow permissions の既定（Read and write・PR の作成と承認の許可あり）は、SEC-04 のマージの後に平野さんが手で読み取りだけにし、許可のチェックを外す
+- `mj-scheduler` の参考（CHAT-1018-SEC-05）も一緒に直す
+
+## 2026-10-18（CHAT-1018-SEC-10）
+
+- Settings → Actions の Workflow permissions の既定を読み取りだけにする（PR の作成・承認の許可も外す）のは、2026-10-19 04:00 JST の run-daily の定期実行が success になったのを確かめてから、平野さんが手で行う（SEC-04 の Secret・permissions の確かめと、既定の切り替えの確かめを混ぜないため）
+- Dependabot のメジャー版の上げの PR（初回の #602〜#607）は閉じる。`.github/dependabot.yml` でメジャー版を対象外にし、マイナー版・パッチ版だけを受ける。メジャー版は認証情報の台帳の四半期の棚卸し（#601）でまとめて見る
+- SEC-04 で Code が指示から変えた点（`dependabot.yml` の `directories: ["/", "/.github/actions/*"]`、`cooldown: default-days: 7`、範囲外のテストの1行の直し 892bde4ae）はそのまま受け入れる

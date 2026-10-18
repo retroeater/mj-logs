@@ -170,7 +170,7 @@ GitHub Issues（Open）に全件あるが、着手可能な主なものは以下
 | #141 | ランキング3ページを Python の生成に移す | 2026-10-05 に移植と決定。#371・#228・#234 と、`select#selectbox` のラベル・選択と同時の遷移（#180 の残り）はこの移植の中で扱う |
 | #486 | Bing の Recommendations | h1 は8ページに付けた（2026-10-06）。残りのランキング3ページは #141 の移植で付ける。title の長さ（短いページの共通の末尾）は #5 |
 | #9 | CSP設定 | #7の後にやると強いポリシーが書ける |
-| #550 | アクセス解析の導入の検討（利用者の画面幅・Cloudflare Pro の要否） | `docs/notes/design.md` の最小の画面幅（375px、仮置き）を見直す材料。外部ドメインへの依存（#9）に注意 |
+| #550 | アクセス解析の導入の検討（利用者の画面幅・Cloudflare Pro の要否） | `docs/notes/design.md` の最小の画面幅（360px、2026-10-18）を見直す材料。外部ドメインへの依存（#9）に注意 |
 | #4 | SentryでJSエラー検知 | 外部サービスの登録が必要 |
 | #96 | カレンダーの参照・更新を自動化 | スコープ未定。決めるべき項目が4つある |
 | #390 | 道場部ゲストの書き込み済みの月の自動更新（本番で未稼働。サービスアカウントの削除の権限も未確認） | 随時: 差し替えで #426 に「自動で更新しました」か「自動では更新していません」が出たら、カレンダーの当日以降が画像と合っているかを確かめる |
@@ -232,6 +232,9 @@ GitHub Issues（Open）に全件あるが、着手可能な主なものは以下
 | `docs/notes/title-pages.md` | タイトル戦の新構成（`title/`、#222） |
 | `docs/notes/houou-race.md` | 鳳凰戦の順位変動（`houou_race.html`、#507） |
 | `docs/notes/houou-top.md` | 鳳凰戦の新ページ `houou/` の仕様（トップ＋検索・ランキング・リーグ推移・順位変動、#518） |
+| `docs/notes/ouka-top.md` | 女流桜花の新ページ `ouka/` の houou/ との違い（#519、未公開。公開は #591） |
+| `docs/notes/jwrc-top.md` | WRC リーグの新ページ `jwrc/` の houou/・ouka/ との違い（#594、未公開。公開は #599） |
+| `docs/notes/league-pages-compare.md` | houou/・ouka/・jwrc/ の3大会の差（意図した差と、公開でそろえる差）。大会の設定や共通の部品を変える前 |
 | `docs/notes/ask-worker.md` | データ・コンシェルジュの Worker（`mj-ask`、#542） |
 | `docs/notes/live-page-design.md` | 放送対局ページ（`live/`、#346）。掲載範囲の拡大は「3-5」（残りは #490） |
 | `docs/notes/birthday-calendar.md` | 誕生日カレンダーの同期（#379） |
@@ -244,3 +247,4 @@ GitHub Issues（Open）に全件あるが、着手可能な主なものは以下
 | `docs/notes/decisions-2026-09-13-review.md` | #219〜#289 の重複・統合の判断 |
 | `docs/notes/handover-archive-2026.md` | 過去の事故・経緯（作業の前提にはしない） |
 | `docs/notes/security.md` | セキュリティ点検の観点・道具・手順（結果は親 #598。CSP #9 の後に再点検） |
+| `docs/notes/sheets-reader.md` | スプレッドシートを非公開にするための読み取り用サービスアカウントの用意（#557） |
