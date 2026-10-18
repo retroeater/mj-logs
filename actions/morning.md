@@ -1,6 +1,6 @@
 # 朝の報告用の異常（retroeater/mj）
 
-- 書き出した時刻: 2026-10-18 21:19 JST（見た範囲: 2026-10-17 19:19 JST から）
+- 書き出した時刻: 2026-10-18 21:22 JST（見た範囲: 2026-10-17 19:22 JST から）
 - 書き出した実行の契機: workflow_dispatch（main）
 - 異常だけを書く。全体は actions/status.md。判定は mj の scripts/morning_report.py（各ワークフローの直近 100 回まで）
 
@@ -19,6 +19,15 @@
 - 2026-10-18 20:30 check-assets.yml failure（push・work/OUK） https://github.com/retroeater/mj/actions/runs/39123515850
 - 2026-10-18 20:36 check-assets.yml failure（push・work/OUK） https://github.com/retroeater/mj/actions/runs/39123907689
 - 2026-10-18 21:14 run-daily.yml in_progress（workflow_dispatch・work/1018-sec4） https://github.com/retroeater/mj/actions/runs/39126490232
+- 2026-10-18 21:22 run-daily.yml pending（workflow_dispatch・work/1018-sec4） https://github.com/retroeater/mj/actions/runs/39126984203
+- 2026-10-18 21:22 check-meibo.yml in_progress（workflow_dispatch・work/1018-sec4） https://github.com/retroeater/mj/actions/runs/39127010573
+- 2026-10-18 21:22 check-saikyo-unregistered.yml in_progress（workflow_dispatch・work/1018-sec4） https://github.com/retroeater/mj/actions/runs/39127012342
+- 2026-10-18 21:22 cleanup-logs.yml in_progress（workflow_dispatch・work/1018-sec4） https://github.com/retroeater/mj/actions/runs/39127013901
+- 2026-10-18 21:22 convert-x-posts.yml in_progress（workflow_dispatch・work/1018-sec4） https://github.com/retroeater/mj/actions/runs/39127015537
+- 2026-10-18 21:22 fetch-x-posts.yml in_progress（workflow_dispatch・work/1018-sec4） https://github.com/retroeater/mj/actions/runs/39127017543
+- 2026-10-18 21:22 fetch-redirect-counts.yml in_progress（workflow_dispatch・work/1018-sec4） https://github.com/retroeater/mj/actions/runs/39127019361
+- 2026-10-18 21:22 sync-birthday-calendar.yml queued（workflow_dispatch・work/1018-sec4） https://github.com/retroeater/mj/actions/runs/39127020986
+- 2026-10-18 21:22 security-check.yml in_progress（workflow_dispatch・work/1018-sec4） https://github.com/retroeater/mj/actions/runs/39127022577
 
 ## 2. 予約実行の未実行（予定から3時間以内は「遅れの可能性」。3時間を超えて始まった実行は「遅れて実行」）
 
@@ -31,6 +40,7 @@
 ## 4. 初回成功
 
 - 2026-10-18 13:54 security-check.yml success（workflow_dispatch・cloudflare）それ以前の 0 件に success なし https://github.com/retroeater/mj/actions/runs/39098697779
+- 2026-10-18 21:22 check-build-failure.yml success（workflow_dispatch・work/1018-sec4）それ以前の 99 件に success なし https://github.com/retroeater/mj/actions/runs/39127008886
 
 ## 5. 未報告のログ（`## 報告` の節が無い）
 
