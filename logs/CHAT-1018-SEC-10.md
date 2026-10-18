@@ -49,28 +49,50 @@ CHAT-1018-SEC-04 の「判断が必要なこと」への平野さんの決定を
 
 ## 経過
 
+### 0. 着手前の確認（2026-10-18 22:15 JST）
+
+- 同じ Chat-Ref のコミット: なし。`origin/work/1018-sec10` は無い → `git checkout -b work/1018-sec10 origin/cloudflare`（54ff173a9）
+- 指示欄の末尾が指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- 時間帯: 止める時間帯の外
+- 未マージの work/ ブランチとの重なり: `work/1018-log-367-migrate` が docs/notes/github-actions.md の「ワークフローの一覧」の表（convert-x-posts・fetch-x-posts の行）を変えている。「Dependabot」の節・`.github/dependabot.yml`・docs/decisions/security.md を変えているブランチは無い → 進める
+
+### 1. 調べ
+
+- PR #602〜#607: すべて open・未マージ（head は ed1522231・f6f615ba5・118d0f9ad・d2fb4c203・b60e629fa・f6fd40123）
+- **指示の一覧に無い PR #608**（`actions/setup-python` 5.6.0 → 7.0.0 in `/.github/actions/setup-python`、12:41:59Z 作成、ブランチ先頭 5956b08f2）が open だった。#602〜#607 と同じ初回の実行で出たメジャー版の上げ。SEC-04 の報告の時点で数え漏らしていた
+- 書式: 公式の文書（github/docs の `content/code-security/reference/supply-chain-security/dependabot-options-reference.md`、main）で、`ignore` の項目に `dependency-name`（`*` 可）・`update-types`（`version-update:semver-major` など）が書けること、`directories`・`cooldown` と同じ `updates` の項目の中の別の設定であることを確かめた。zizmor（1.31.1）は `dependabot.yml` に指摘なし
+
+### 2. 直す
+
+- `.github/dependabot.yml` に `ignore: [{dependency-name: "*", update-types: ["version-update:semver-major"]}]`（b33277ee8）
+- PR #602〜#607 にコメント（指示の案の文面）して閉じた。#608 も決定2（メジャー版は受けない）にそのまま当たるので、同じ文面に「#602〜#607 と同じ初回の実行で作られたもの」を足して閉じた。7本とも closed・未マージ
+- ブランチ: 閉じた数分のうちに Dependabot が `dependabot/…` のブランチを全部消した（`git ls-remote origin 'refs/heads/dependabot/*'` が空）。セッションからは削除していない（削除直前の先頭 SHA は上の「1.」のとおり）
+- docs/notes/github-actions.md「Dependabot」: マイナー版・パッチ版だけを受けること、メジャー版は #601 の四半期の棚卸しで見ること、閉じた PR のブランチを Dependabot が消したこと、マージの仕方の案はマイナー版・パッチ版の PR に当てはめること
+- docs/decisions/security.md に「2026-10-18（CHAT-1018-SEC-10）」の節（決定の3点）
+- #598 に決定の3点をコメント。#601 に四半期の棚卸しでメジャー版を見ることと、今出ているメジャー版の一覧をコメント
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1018-sec10
-- ログ: https://github.com/retroeater/mj/blob/work/1018-sec10/docs/logs/CHAT-1018-SEC-10.md
+- 状態: 完了
+- ブランチ: work/1018-sec10（cloudflare にマージ済み）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1018-SEC-10.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1018-sec10
-- 確認用URL:
-- マージ:
-- issue:
-- 判断が必要なこと:
-- 未確認の項目:
-- エラー:
+- 確認用URL: なし
+- マージ: 済（マージの SHA は経過の「3.」）
+- issue: #598・#601（コメント）、PR #602〜#608（閉じた。#608 は指示の一覧に無かったもの）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj d114d132）: https://github.com/retroeater/mj-logs/tree/main/guide/d114d132
+ガイド文書（この版を写した時点の最新、mj 46ef8691）: https://github.com/retroeater/mj-logs/tree/main/guide/46ef8691
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d114d132/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d114d132/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d114d132/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d114d132/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d114d132/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d114d132/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/46ef8691/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/46ef8691/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/46ef8691/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/46ef8691/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/46ef8691/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/46ef8691/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/0ae083e4.md

@@ -282,6 +282,25 @@ PowerShell 5.1 の既定が UTF-16LE のため、日本語部分が文字化け�
 - 戻すときは Security rules の一覧でトグルを Off
 - workers.dev・プレビューはゾーンを通らないので対象外
 
+#### Rate limiting rules: `/api/ask`（2026-10-18 に導入、#598 中-1）
+
+平野さんが 2026-10-18 にダッシュボードで入れた。値は平野さんの申告で、セッションからは検証できない。
+
+| 項目 | 値 |
+|---|---|
+| Rule name | `Throttle /api/ask (#598)` |
+| 条件式 | `(http.request.uri.path eq "/api/ask" and http.request.method eq "POST")` |
+| 数える単位（characteristics） | IP |
+| 閾値 | 5 requests / 1 minute |
+| アクション | Block（10分）。応答は Cloudflare 既定の 429 |
+| Execution order / Status | Last / Active |
+| 本数 | 入れた後は 2/2（上の #124 と合わせて Pro の枠が埋まった） |
+
+- 応答を既定のままにしたのは、`assets/houou_ask.js` が上限の JSON（`status: "limit"`）を「翌0時（日本時間）から受け付けます」と表示し、10分で解ける Block と食い違うため（既定の HTML なら「いまは答えられません。」になる）
+- Worker の D1 の回数（全体・IP ごとの1日の上限、`docs/notes/ask-worker.md`）はそのまま。これは短い時間の連打を止める層
+- Pro では数える単位が IP だけで、IPv6 を /64 でまとめて数えることはできない
+- 3本目を足すには、既存のどちらかを外すかプランを上げる
+
 #### カスタムルール「Block non-GET/HEAD methods」（2026-10-11 に記録）
 
 ryoei.pro の WAF のカスタムルール（Security rules）。GET・HEAD 以外のメソッドを遮断する。いつ・どの issue で入れたかはリポジトリに記録が無い（2026-10-11 の時点）。

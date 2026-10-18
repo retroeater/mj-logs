@@ -32,7 +32,7 @@ GitHub Actions のワークフローの一覧・動き・手動実行と変更�
 | `sync-birthday-calendar.yml` | 毎週月曜05:17 JST。名簿の誕生日をGoogleカレンダーへ同期する（#379、`docs/notes/birthday-calendar.md`） |
 | `fetch-gsc.yml` | 毎月1日06:00 JST。Search Console の検索パフォーマンスを `docs/gsc/` に取り出し、robots.txt の差分を #304 に知らせる（#269） |
 | `fetch-redirect-counts.yml` | 毎月1日06:30 JST（`fetch-gsc.yml` の後）と手動（入力 `dry_run` 既定真・`month`）。`docs/notes/redirects.md`「棚卸しの対象」の転送元ごとの件数を Cloudflare の GraphQL Analytics API から前月分だけ取り、`docs/redirect-counts/<YYYY-MM>.csv` にコミットして #568 にコメントする（`scripts/fetch_redirect_counts.py`、Secret `CF_ANALYTICS_TOKEN`・変数 `CF_ZONE_ID`）。ファイル冒頭の `ENABLED` が `'true'` でないあいだは予約実行も dry-run |
-| `convert-x-posts.yml` | 手動だけ（schedule を持たず、Worker の起動の表にも載せない）。3層のブックの【1】元データ（X の投稿）から【2】自動変換後を作る（#367、`scripts/convert_x_posts.py`、Secret `ANTHROPIC_API_KEY`・`X_BEARER_TOKEN`・`GOOGLE_PLACES_API_KEY`〈無ければ Places を飛ばす〉・`LIVE_SHEETS_SA_KEY`）。入力 `mode`（compare: 「ログ」にある30件を ID で取り直してモデルごとに答えと比べ「比較」タブへ／all: 【1】のうち【2】に無い投稿を【2】へ／stations: 【2】の既存の行の「駅」「要確認」「要確認の理由」だけを今の規則〈駅は最寄り駅1つ、本文の駅と違えば要確認〉で書き換える〈どの API も呼ばない〉）・`models`・`limit`・`dry_run`（既定真: どの API も呼ばず、シートにも書かず、鍵・タブ・見出しと予定の回数・費用だけを出す）。上限はスクリプトの定数（Claude $3・X 40件・Places 150回／2,000回）で、届くか Places が失敗したら止まる。all は50行ごとに【2】へ書く。「ログ」タブと【1】【3】には書かない。本文はジョブのログに出さない |
+| `convert-x-posts.yml` | 手動だけ（schedule を持たず、Worker の起動の表にも載せない）。3層のブックの【1】元データ（X の投稿）から【2】自動変換後を作る（#367、`scripts/convert_x_posts.py`、Secret `ANTHROPIC_API_KEY`・`X_BEARER_TOKEN`・`GOOGLE_PLACES_API_KEY`〈無ければ Places を飛ばす〉・`LIVE_SHEETS_SA_KEY`）。入力 `mode`（compare: 「ログ」にある30件を ID で取り直してモデルごとに答えと比べ「比較」タブへ／all: 【1】のうち【2】に無い投稿を【2】へ／stations: 【2】の既存の行の「駅」「要確認」「要確認の理由」だけを今の規則〈駅は1つ。本文の駅が圏内ならそのうち最も近い駅、圏外なら最寄り駅で要確認〉で書き換える〈どの API も呼ばない。【2】にカテゴリの3列が残っていれば先に列ごと消す〉）・`models`・`limit`・`dry_run`（既定真: どの API も呼ばず、シートにも書かず、鍵・タブ・見出しと予定の回数・費用だけを出す）。上限はスクリプトの定数（Claude $3・X 40件・Places 150回／2,000回）で、届くか Places が失敗したら止まる。all は50行ごとに【2】へ書く。「ログ」タブと【1】【3】には書かない。本文はジョブのログに出さない |
 | `fetch-x-posts.yml` | 手動だけ（schedule を持たず、Worker の起動の表にも載せない）。「ログ」の未反映期間の投稿を X API で試し取りし、書き込み先のブック（3層）の【1】元データに API の値のまま足す（同じ投稿 ID は足さない。X API を呼ぶ前に見出しを書いて権限を確かめる）（#367、`scripts/fetch_x_posts.py`、Secret `X_BEARER_TOKEN`・`LIVE_SHEETS_SA_KEY`）。入力 `mode`（ids / timeline / both / search: 全期間検索 `from:<handle> has:images -is:retweet -is:reply` を `next_token` が無くなるまで、`end_time` は now 可）・`handles`（search は `handle@YYYY-MM-DD` で人ごとの期間の初め）・`start_time`・`end_time`・`dry_run`（既定真: X API を呼ばず、シートにも書かず、鍵・ブック・【1】の見出しと予定の件数・費用だけを出す）。件数・費用の上限はスクリプトの定数（250件・$1.25。search は 1,200件・$6、次のページは残りの件数までに縮める）。【2】【3】と生成が読む「ログ」タブには書かない。本文はジョブのログに出さない |
 | `security-check.yml` | 手動だけ（schedule を持たず、Worker の起動の表にもまだ載せない。月1回の起動は #564 の段④の後に足す）。zizmor（ワークフローの設定）・pip-audit（CI の Python の依存。組は `scripts/ci_requirements.py` がワークフローの `packages:`・`pip install` の行から集める）・履歴の鍵の走査（`scripts/scan_secret_history.py`、既知の当たりは `data/security/known-history-hits.txt`）を Job summary に書く。読むだけで Secret を使わない。履歴に新しい当たりがあるときだけ失敗にする（値は出さない）（#598、`docs/notes/security.md`） |
 | `sync-dojo-calendar.yml` | 毎朝 `run-daily.yml` から（入力 `scheduled`、2026-10-16 から。それまでは Worker から 04:15 JST）と、保険の予約実行（毎日07:12 JST）。道場部ゲストの告知画像を読み、カレンダーへの追加分と新規ゲスト・当月誕生日を #426 に知らせる（同期が失敗したとき・最新の月に道場部ゲストの見出しが無いときもその旨を知らせる、#472・#390）。新しい月の書き込みは手動実行のときだけで、保存した読み取り結果を使う。書き込み済みの月の画像が差し替わったときは、当日以降を自動で直して知らせる（変更3件以上・照合できない名前があれば通知だけ）（#390、`docs/notes/dojo-guest-calendar.md`） |
@@ -57,7 +57,7 @@ GitHub Actions (`.github/workflows/regenerate-page.yml`) が、`scripts/generate
 毎朝の本を1本にまとめたワークフロー（#564 の段③。設計は CHAT-1015-WFL-14 のログ）。2026-10-15 に Worker の起動の表（`workers/scheduler/schedule.json`）を5行から run-daily の1行に切り替えた（初回は 2026-10-16 04:00 JST）。
 
 - 並び: `live`（update-live-channel）→ `sns`（update-sns-book）→ `images`（check-image-links）→ `saikyo`（regenerate-saikyo）を `needs` で直列にし、後の3つは前が失敗しても `!cancelled()` で動く。`dojo`（sync-dojo-calendar）・`branches`（cleanup-branches）は並行。入れ子は最大3段（run-daily → update-live-channel・update-sns-book・regenerate-saikyo → regenerate-page）
-- 権限は `permissions: {}` と job ごと（呼ばれる側は呼ぶ側の job を超えられない）、各 job に `secrets: inherit`。`concurrency` の組は `run-daily`（呼ばれる側の組とは名前が違い、詰まらないことを 2026-10-15 の手動実行で確かめた）
+- 権限は `permissions: {}` と job ごと（呼ばれる側は呼ぶ側の job を超えられない）、Secret は job ごとに呼ぶ本（入れ子の下を含む）が使うものだけを明示して渡す（下の「権限と Secret の渡し方」）。`concurrency` の組は `run-daily`（呼ばれる側の組とは名前が違い、詰まらないことを 2026-10-15 の手動実行で確かめた）
 - 手動実行（`scheduled` なし）は書かない道筋だけ。各本に件数だけ・dry-run の入力を渡す（`regenerate-saikyo` だけは再生成し、差分があれば実行ブランチにコミットする）。書く手動実行は各本の画面で行う
 - 呼ばれた本の実行は run-daily の実行の中のジョブ（`live / update` など）になり、各本のファイルには実行が付かない。各本の run-name・保険の `schedule` は、各本の手動実行・保険の実行のために残す（保険の `schedule` を外すのは段④）
 - update-live-channel の保険のゲートは、当日・cloudflare・`[scheduled]` の (1) update-live-channel.yml の success の実行か、(2) run-daily.yml の実行のジョブ `live / update` の success のどちらかがあれば、保険の実行は何もしない（run-daily 全体の結論は見ない。ほかの本が落ちた日に保険が二重に動かないため）
@@ -89,6 +89,50 @@ GitHub Actions (`.github/workflows/regenerate-page.yml`) が、`scripts/generate
 - `commit-push`: 入力 `paths`（`git add -A --` に渡す）・`message`・`body`・`message-file`（渡したら件名と本文の全体）・`retry`（`none` / `rebase`〈`pull --rebase` で3回まで〉）・`autostash`、出力 `committed`・`sha`。bot の名前でコミットし、**実行ブランチ（`github.ref_name`）にだけ push する**（push 先を選ぶ入力は持たない）。差分が無ければ何もしない
 
 寄せられない点（各本に残す）: checkout の入力（`ref`・`fetch-depth`）、update-live-channel の保険のゲート・水曜の verify・予約の起動で外す `ALLOW_*`、update-sns-book の `mode` の上書き、sync-dojo-calendar の `--auto-update`、fetch-gsc の「JST で1日か」、regenerate-page の Pillow と `test_title_redirects.py`、sitemap-lastmod の push の再試行（rebase せず作り直す。`commit-push` の `retry` に無い）、regenerate-page の `img/ogp/wayhome` を足すかの判定（`paths` を呼ぶ側で組む）。
+
+## 権限と Secret の渡し方
+
+2026-10-18 から（#598 の中-4・中-5・低-1・低-2）。zizmor（`security-check.yml`）がこの形から外れたものを拾う。
+
+- **`permissions`**: どのワークフローもトップレベルは `permissions: {}`、job ごとに必要な最小を書く（読むだけは `contents: read`、push は `contents: write`、issue を書くなら `issues: write`、実行の一覧を引くなら `actions: read`）。
+  リポジトリの既定（Settings → Actions → Workflow permissions）は読み取りだけにする前提なので、**新しいワークフロー・job にも必ず書く**（書かないと push・issue の書き込みが 403 で落ちる）
+- **入れ子**: `workflow_call` で呼ばれる側の job は、呼ぶ側の job の権限を超えられない（超えると起動の時点で失敗する）。呼ぶ側の job には、呼ばれる側のどの job よりも広い権限を与える。
+  `regenerate-page.yml` の job は `contents: write`・`issues: write`（帰り道の知らせ）なので、呼ぶ側の job はすべて両方を持つ（ほかの本からの呼び出しでは知らせは動かない）
+- **Secret**: `secrets: inherit` は使わない。呼ばれる側は `on.workflow_call.secrets` に受け取るものを宣言し、呼ぶ側は `NAME: ${{ secrets.NAME }}` で1つずつ渡す。入れ子の下で使う Secret は途中の段でも渡し直す
+- **`run:`**: `${{ }}` を直接書かない。`github.*` は既定の環境変数（`$GITHUB_EVENT_NAME`・`$GITHUB_REF_NAME`・`$GITHUB_SHA`・`$GITHUB_SERVER_URL`・`$GITHUB_REPOSITORY`・`$GITHUB_RUN_ID`）、それ以外（`inputs.*`・`steps.*`・`github.event.*`）はステップの `env:` で受ける（#132）
+- **`actions/checkout`**: push しない job は `persist-credentials: false`。push する job（checkout の認証で `git push` する）は付けない
+- **第三者の action**: 40桁の SHA で固定し、`# v4.4.0` の形で版をコメントに残す。版を上げるのは下の「Dependabot」の PR（手で上げるときも同じ形。SHA は `git ls-remote --tags https://github.com/<owner>/<repo>` の、そのタグの行〈注釈付きタグは `^{}` の行〉）
+
+今の渡し方（job → 権限 / Secret）:
+
+| 呼ぶ側の job | 呼ぶ本（その下） | 権限 | 渡す Secret |
+|---|---|---|---|
+| `run-daily` の `live` | `update-live-channel`（→ `regenerate-page`・`sync-yotei`） | contents: write・issues: write・actions: read | `YOUTUBE_API_KEY`・`LIVE_SHEETS_SA_KEY`・`GCP_SA_KEY`（`GCP_SA_KEY` は `sync-yotei` の分） |
+| `run-daily` の `sns` | `update-sns-book`（→ `regenerate-page`） | contents: write・issues: write | `LIVE_SHEETS_SA_KEY`・`X_BEARER_TOKEN` |
+| `run-daily` の `images` | `check-image-links` | contents: read・issues: write | なし（`X_BEARER_TOKEN` は手動実行の確かめ用だけ） |
+| `run-daily` の `saikyo` | `regenerate-saikyo`（→ `regenerate-page`） | contents: write・issues: write | `LIVE_SHEETS_SA_KEY` |
+| `run-daily` の `dojo` | `sync-dojo-calendar` | contents: read・issues: write | `ANTHROPIC_API_KEY`・`GCP_SA_KEY` |
+| `run-daily` の `branches` | `cleanup-branches` | contents: write | なし |
+| `update-live-channel` の `regenerate`・`update-sns-book` の `regenerate`・`regenerate-saikyo` の `regenerate`・`fetch-youtube` の `regenerate` | `regenerate-page` | contents: write・issues: write | なし（楽天の2つは宣言だけ。取得の再開のときに `fetch-youtube` から渡す） |
+| `update-live-channel` の `yotei` | `sync-yotei` | contents: read・issues: write | `GCP_SA_KEY`・`LIVE_SHEETS_SA_KEY` |
+
+**呼ばれるワークフローに新しい Secret を足すとき**（例: #557 の読み取り用サービスアカウントを `regenerate-page.yml` で使う）:
+
+1. 使うワークフローの `on.workflow_call.secrets` に宣言する（手動実行・push で直接動くときはリポジトリの Secret がそのまま見える）
+2. 上の表で、そのワークフローを呼ぶ job を全部たどり、各段の `secrets:` に `NAME: ${{ secrets.NAME }}` を足す。`regenerate-page.yml` なら `update-live-channel`・`update-sns-book`・`regenerate-saikyo`・`fetch-youtube` の `regenerate` と、その上の `run-daily` の `live`・`sns`・`saikyo`
+3. 新しい権限が要るなら、呼ぶ側の各段の job にも足す
+4. この表を直し、作業ブランチで `run-daily.yml` を `scheduled` なしで手動実行して（ドライラン）確かめる
+
+## Dependabot
+
+`.github/dependabot.yml` が、ワークフローと `.github/actions/*/action.yml` の action の版の更新を月1回、`cloudflare` 向けの PR で出す（`package-ecosystem: github-actions`、公開から7日は待つ `cooldown`）。
+**受けるのはマイナー版・パッチ版だけ**（`ignore` の `update-types: version-update:semver-major`、2026-10-18 の平野さんの決定）。メジャー版の上げは、認証情報の台帳の四半期の棚卸し（#601）でまとめて見る（初回の実行が出したメジャー版の PR #602〜#608 は閉じた）。
+PR は SHA と版のコメントを書き換える。Dependabot security updates（Settings）は Off のまま（2026-10-18）。
+
+- PR のブランチは `dependabot/github_actions/…`。`work/*` ではないので、`cleanup-branches.yml`（マージ済みの `work/*` だけを消す）は触らない。Dependabot は閉じた PR のブランチを消す（手で閉じた #602〜#607 のブランチも数分のうちに消えた、2026-10-18）。マージした PR のブランチが残るかはリポジトリの「Automatically delete head branches」の設定しだい（未確認）。残ったら平野さんが消す（セッションからは削除が拒否される）
+- PR のマージは `cloudflare` へのマージ（＝本番反映）なので、CLAUDE.md「ブランチ運用」の承認の規則に従う。セッションは PR のブランチへ push しない
+- Dependabot が起こすワークフローの実行は Actions の Secret ではなく Dependabot の Secret を使う（今は無い）。`check-assets.yml` は `work/**` の push だけで動くので、PR では走らない
+- **マイナー版・パッチ版の PR のマージの仕方（案。決めていない）**: Dependabot の PR はチャット経由で Code に確かめさせてからマージする。確かめる点は、差分が `uses:` の SHA と版のコメントだけか、新しい SHA が上流のそのタグを指すか（`git ls-remote`）、リリースノートに破壊的な変更が無いか、`security-check.yml` の zizmor の件数が増えないか、PR のブランチで `run-daily.yml` を `scheduled` なしで手動実行して全ジョブが success か
 
 ## ワークフローを手動実行するとき
 
