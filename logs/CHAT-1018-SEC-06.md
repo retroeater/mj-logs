@@ -53,28 +53,56 @@
 
 ## 経過
 
+### 着手
+
+- Chat-Ref の重複: `git log --all --grep="CHAT-1018-SEC-06"` は0件。`work/1018-sec6` はローカル・リモートとも無し → `git checkout -b work/1018-sec6 origin/cloudflare`
+- 0章: 指示欄の末尾は指示文の最後の行と一致。冒頭の雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある
+- 止まる条件: #298 は open、`.github/workflows/sync-logs.yml` はある → 当たらない
+
+### 手順1: 同じ論点の issue の検索
+
+`/repos/retroeater/mj/issues?state=all`（599件、PR を除く）の題・本文の先頭 3000 字を「トークン|token|サービスアカウント|secret|認証情報|credential」（大小無視）で探した。当たり（題で当たったもの）: #555（open、月次チェックの取得の自動化。読み取り専用の Cloudflare トークン）・#360（closed、トークン使用量の削減）・#309（closed、Codespace の GITHUB_TOKEN の 403）・#270（open、デザイントークン）。本文で当たったもの: #598・#578・#561・#557・#554・#542・#537・#529・#528・#514・#506・#504・#496・#458・#448・#430・#404・#361・#308・#302・#301・#300・#299・#269・#212・#211・#201・#194・#192・#169・#164・#102・#96・#93・#62・#29・#3。
+
+近いもの: #430（静的な鍵を ID 連携に置き換えるかの検討）・#300（秘密のコミットの検知）・#555（Cloudflare の別名トークン）・#29（選手のログインの認証方式で別の話）。どれも一覧・棚卸しを主題にしていないので起票した。
+
+### 手順2: 起票とコメント
+
+- 起票: #601「認証情報（トークン・サービスアカウント・API キー）の一覧を作り、棚卸しする」（ラベル `分野: セキュリティ`）。本文は目的・決定・論点（置き場所 A/B/C、載せる項目、棚卸しの間隔と確かめ方、最初の一覧の材料）・関係（#598・#298・#300・#430・#555）
+- `MJ_LOGS_TOKEN` の grep（cloudflare 3e8f36f56、`docs/logs/` を除く）: `.github/workflows/sync-logs.yml:22`（コメント）・`.github/workflows/sync-logs.yml:65`（`token: ${{ secrets.MJ_LOGS_TOKEN }}`）。`scripts/`・`workers/` は0件。文書は `docs/notes/github-actions.md:39`・`docs/decisions/operations.md:272`。mj-logs 側は削除のときに確かめる（この指示では見ていない）
+- #298 にコメント（issuecomment-6248507466）: 削除のときの確かめと平野さんの手作業、grep の結果、`MJ_LOGS_TOKEN` が `mj-logs-sync` かは見込み
+- #598 にコメント（issuecomment-6248508048）: GitHub の分（2FA・トークン3本）と #601。チェックは付けていない
+
+### 決定の記録
+
+CLAUDE.md「作業ログ」の規則（完了時に「決定」節を `docs/decisions/` に足す）に従い、`docs/decisions/security.md` に `## 2026-10-18（CHAT-1018-SEC-06）` を足した。指示の「マージ:」の行は「ログ」だけを挙げるが、docs/decisions は禁止の列挙（コード・生成物・`.github/`・Worker・docs/notes）に無く、ルールの側を優先した
+
+### マージ
+
+- push 直前に再 fetch し `git merge-base --is-ancestor origin/cloudflare HEAD` が真。差分は `docs/decisions/security.md`・`docs/logs/CHAT-1018-SEC-06.md` だけ
+- `git push origin work/1018-sec6:cloudflare`: 7ca189ca1..4d6630c3a（fast-forward）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1018-sec6
-- ログ: https://github.com/retroeater/mj/blob/work/1018-sec6/docs/logs/CHAT-1018-SEC-06.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1018-SEC-06.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1018-sec6
 - 確認用URL: なし
-- マージ: 未
-- issue: #298・#598
-- 判断が必要なこと: なし
+- マージ: 済（4d6630c3a）
+- issue: #601（起票）・#298・#598（コメント）
+- 判断が必要なこと: なし（起票した #601 に論点を移した。`MJ_LOGS_TOKEN` の参照は `.github/workflows/sync-logs.yml:22`・`:65` の2か所で、`scripts/` は0件）
 - 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj d368dd1d）: https://github.com/retroeater/mj-logs/tree/main/guide/d368dd1d
+ガイド文書（この版を写した時点の最新、mj b56305ec）: https://github.com/retroeater/mj-logs/tree/main/guide/b56305ec
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d368dd1d/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d368dd1d/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d368dd1d/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d368dd1d/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d368dd1d/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d368dd1d/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b56305ec/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b56305ec/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b56305ec/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b56305ec/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b56305ec/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b56305ec/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/8c038f0d.md
