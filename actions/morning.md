@@ -1,15 +1,11 @@
 # 朝の報告用の異常（retroeater/mj）
 
-- 書き出した時刻: 2026-10-19 04:02 JST（見た範囲: 2026-10-18 02:02 JST から）
-- 書き出した実行の契機: workflow_dispatch（main）
+- 書き出した時刻: 2026-10-19 06:02 JST（見た範囲: 2026-10-18 04:02 JST から）
+- 書き出した実行の契機: schedule（main）
 - 異常だけを書く。全体は actions/status.md。判定は mj の scripts/morning_report.py（各ワークフローの直近 100 回まで）
 
 ## 1. 失敗など（結論が success・skipped 以外。実行中を含む）
 
-- 2026-10-18 02:57 check-assets.yml failure（push・work/OUK） https://github.com/retroeater/mj/actions/runs/39055991711
-- 2026-10-18 03:35 check-assets.yml failure（push・work/WRC） https://github.com/retroeater/mj/actions/runs/39058733366
-- 2026-10-18 03:38 check-assets.yml failure（push・work/WRC） https://github.com/retroeater/mj/actions/runs/39059005500
-- 2026-10-18 03:45 check-assets.yml failure（push・work/WRC） https://github.com/retroeater/mj/actions/runs/39059506583
 - 2026-10-18 17:09 check-assets.yml failure（push・work/WRC） https://github.com/retroeater/mj/actions/runs/39110332920
 - 2026-10-18 17:18 check-assets.yml failure（push・work/WRC） https://github.com/retroeater/mj/actions/runs/39110962540
 - 2026-10-18 17:24 check-assets.yml failure（push・work/WRC） https://github.com/retroeater/mj/actions/runs/39111333144
@@ -19,11 +15,12 @@
 - 2026-10-18 20:30 check-assets.yml failure（push・work/OUK） https://github.com/retroeater/mj/actions/runs/39123515850
 - 2026-10-18 20:36 check-assets.yml failure（push・work/OUK） https://github.com/retroeater/mj/actions/runs/39123907689
 - 2026-10-18 21:14 run-daily.yml cancelled（workflow_dispatch・work/1018-sec4）ジョブ「live / update」「dojo / sync」「saikyo / abema」 https://github.com/retroeater/mj/actions/runs/39126490232
-- 2026-10-19 04:00 run-daily.yml in_progress（workflow_dispatch・cloudflare） https://github.com/retroeater/mj/actions/runs/39156749487
 
 ## 2. 予約実行の未実行（予定から3時間以内は「遅れの可能性」。3時間を超えて始まった実行は「遅れて実行」）
 
-- 遅れの可能性: check-image-links.yml 予定 2026-10-19 03:00 の後に schedule・workflow_dispatch（cloudflare）の実行なし https://github.com/retroeater/mj/actions/workflows/check-image-links.yml
+- 遅れの可能性: check-meibo.yml 予定 2026-10-19 05:07 の後に schedule・workflow_dispatch（cloudflare）の実行なし https://github.com/retroeater/mj/actions/workflows/check-meibo.yml
+- 遅れの可能性: fetch-youtube.yml 予定 2026-10-19 05:37 の後に schedule・workflow_dispatch（cloudflare）の実行なし https://github.com/retroeater/mj/actions/workflows/fetch-youtube.yml
+- 遅れの可能性: sync-birthday-calendar.yml 予定 2026-10-19 05:17 の後に schedule・workflow_dispatch（cloudflare）の実行なし https://github.com/retroeater/mj/actions/workflows/sync-birthday-calendar.yml
 
 ## 3. 所要時間の異常（直近20回の中央値の3倍以上、または10分以上。skipped は除く）
 
