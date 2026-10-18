@@ -12,7 +12,7 @@ ryoei.pro 固有の攻撃面を8つに分けて見る。
 | (a) | Worker `mj-ask`（`workers/ask/`、`assets/houou_ask.js`） | 入力の検査、`Origin` が偽装できる前提での費用の守り（回数の上限・IP の取り方）、プロンプトインジェクション（system と user の分け方、検索条件の型の固定、答えの検証）、答えの描画（`textContent` か）、D1 の引数化、エラー応答と `/api/ask/status` が返す情報、レスポンスヘッダ（`_headers` は Worker の応答に効かない）、Workers Logs に書く内容。`mj-scheduler` はトークンの使い道 |
 | (b) | 生成スクリプト（`scripts/*.py`・`scripts/lib/*.py`） | シートの値を HTML に入れる箇所の `esc()`、`href` に入る URL の scheme（`javascript:`）、`<script>` に入れる JSON の `<` の逃がし方、属性の引用符 |
 | (c) | フロントの JS（`assets/*.js`・ルート直下の `*.js`。`assets/vendor/` を除く） | `innerHTML`・`insertAdjacentHTML`・`document.write`・`eval`・`new Function` と、そこに入る値の出所（生成 JSON・localStorage・URL のクエリ）。`assets/vendor/` は名前と版を一覧にして既知の脆弱性を照合 |
-| (d) | GitHub Actions（`.github/workflows/`・`.github/actions/`） | zizmor の結果、第三者 action の SHA 固定、`pull_request_target`・`workflow_run`、`permissions` の粒度、Secret がログに出る経路、`secrets: inherit`、`workflow_dispatch` の入力や `${{ }}` を `run:` に直接埋めていないか、`dependabot.yml` |
+| (d) | GitHub Actions（`.github/workflows/`・`.github/actions/`） | zizmor の結果（2026-10-18 に直した後は 58 件。残りは self-repository 45・push する job の artipacked 8・`sync-logs.yml` の 5）。今の形から外れていないか: 第三者 action が SHA で固定され `dependabot.yml` の対象か、トップレベルが `permissions: {}` で job ごとに最小か、`secrets: inherit` が無く Secret を明示して渡しているか、`run:` に `${{ }}` を直接書いていないか、push しない checkout が `persist-credentials: false` か（形は `docs/notes/github-actions.md`「権限と Secret の渡し方」）。ほかに `pull_request_target`・`workflow_run`、Secret がログに出る経路、Settings の Workflow permissions の既定が読み取りだけか |
 | (e) | 公開されるファイル | `.assetsignore` と `wrangler.jsonc`（`assets.directory: "./"`）から配信対象を一覧にし、`docs/`・`scripts/`・`workers/`・テスト・鍵・`.env`・ログが無いか。本番で代表の URL が 404 か |
 | (f) | 秘密の混入 | 作業ツリー（detect-secrets）と全履歴（`git log -p --all` の正規表現）。見つけたら値は書かず SHA とファイル名だけ |
 | (g) | 配信のヘッダ | `_headers` の内容と、本番の `/`・`/houou/`・`/api/ask/status` の応答ヘッダ |
@@ -20,6 +20,25 @@ ryoei.pro 固有の攻撃面を8つに分けて見る。
 
 重大度は 高（外から到達でき、費用・改ざん・情報漏えいにつながる）／中（前提が重なれば到達する、または防御の層が1つしか無い）／低（衛生・推奨設定）の3段。
 ダッシュボード側（GitHub・Cloudflare・Google・Anthropic の設定）はセッションから見えないので、点検せず親 issue の「平野さんの確認」に並べる。
+
+## ダッシュボード側の確認（年1回か大きな変更の後）
+
+平野さんが画面で確かめる観点。結果は親 issue に書き、名前・値・権限の詳細は private の issue（認証情報の一覧は #601）に置く（この文書は public の mj-logs に写る）。
+
+| | どこ | 見ること |
+|---|---|---|
+| 1 | GitHub のアカウント | 2FA が認証アプリなど SMS 以外か、リカバリーコードを控えているか |
+| 2 | GitHub のトークン | fine-grained か、対象のリポジトリ・権限が使う分だけか、期限があるか、使っていないものが無いか |
+| 3 | GitHub の Code security | Secret scanning／Push protection が使えるか（2026-10 時点で個人の private リポジトリでは使えない） |
+| 4 | GitHub の Dependabot | alerts が On か |
+| 5 | GitHub の Actions の設定 | Workflow permissions の既定が読み取りだけか、PR の作成・承認の許可が外れているか |
+| 6 | Cloudflare の API トークン | 一覧に不要なもの・権限の広すぎるものが無いか、Global API Key を使っていないか |
+| 7 | Cloudflare の Rate limiting rules | `/api/ask` と HTML の取得のルールが Active か（`docs/notes/cloudflare.md`） |
+| 8 | Cloudflare の Workers の Secret | 鍵が Variable に入っていないか、使っていない Secret が無いか |
+| 9 | Cloudflare のアカウント | 2FA が認証アプリか、バックアップコードを控えているか |
+| 10 | Google のサービスアカウント | 鍵の数（使っていない鍵が無いか） |
+| 11 | Google のブックの共有 | サービスアカウントの権限が使う分だけか（読むだけなら閲覧者） |
+| 12 | Anthropic | 組織とワークスペースの使用額の上限、キーの期限、使っていないキーが無いか |
 
 ## 道具と入れ方（クラウドセッション、2026-10-17 に実測）
 
@@ -76,6 +95,7 @@ claude.ai のプラグイン一覧で有効にすると、クラウドセッシ�
 - 結果の置き場所: 結果のディレクトリ（`CLAUDE-SECURITY-<時刻>/`）は作業ツリーの外（scratchpad）に作れる。`render_report.py` に `--products-dir` で渡す。中に `.gitignore`（`*`）が付く
 - 所要（2026-10-18、medium、56 ファイル）: 約 12 分、エージェント 15、サブエージェントのトークン約 109 万（Max の使用量から出る）。指摘 0 件、`verification.status: verified`
 - 注意: 「Suggest patches」は指摘を見てからチャットで決める。結果に秘密の値が出たら値を写さない。結果は毎回同じとは限らない（非決定的）
+- 回し方（2026-10-18 の決定）: 定期では回さない。`workers/` を大きく変えたときに差分だけの診断（Scan changes）を回し、#9（CSP）の後の再点検で1回回す。そのときの使用量を見て、今後の間隔を決め直す
 
 ## 次回の手順
 
@@ -83,3 +103,4 @@ claude.ai のプラグイン一覧で有効にすると、クラウドセッシ�
 2. (a)〜(h) を順に見る（(b)・(c) は量が多いので、読むだけのサブエージェントに分け、主な指摘は該当行を自分で開いて確かめる）
 3. 前回の親 issue の表と比べ、直ったもの・新しいものを分けて、新しい親 issue（または前回の issue へのコメント）にする
 4. (d)・(f)・(h) は `security-check.yml` の実行結果（Job summary とジョブのログ）を起点にし、前回の件数と比べる
+5. 「ダッシュボード側の確認」の 3 で、Secret scanning／Push protection が個人の private リポジトリで使えるようになっていないかを確かめる（使えるなら有効にし、`security-check.yml` の履歴の走査との分担を決める。#300 はクローズ済み）

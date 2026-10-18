@@ -71,6 +71,11 @@ CHAT-1018-SEC-04 の「判断が必要なこと」への平野さんの決定を
 - docs/decisions/security.md に「2026-10-18（CHAT-1018-SEC-10）」の節（決定の3点）
 - #598 に決定の3点をコメント。#601 に四半期の棚卸しでメジャー版を見ることと、今出ているメジャー版の一覧をコメント
 
+### 3. マージと後の確かめ
+
+- マージ: 再 fetch して `git merge-base --is-ancestor origin/cloudflare HEAD` が真のうえ `git push origin work/1018-sec10:cloudflare` → 46ef8691a（13:24 UTC = 22:24 JST。止める時間帯の外）
+- Dependabot が設定を読み込んだか: マージの直後に、46ef8691a で Dependabot の更新の実行「github_actions in /., /.github/actions/* - Update #1634215920」（run 39131446560、契機 dynamic）が走り success。新しい PR は出ず、`dependabot/…` のブランチも無い（マイナー版・パッチ版の上げが今は無い）。Insights → Dependency graph → Dependabot の画面はセッションからは見えないので見ていないが、読み込んだことは Actions の実行で確かめられたので「未確認の項目」には置かない（指示は「未確認の項目に書く」としていたが、`_template.md` は完了のログの「未確認の項目」を「なし」だけにする規則のため、規則の側に合わせてここに書いた）
+
 ## 報告
 
 - 状態: 完了
@@ -78,7 +83,7 @@ CHAT-1018-SEC-04 の「判断が必要なこと」への平野さんの決定を
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1018-SEC-10.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1018-sec10
 - 確認用URL: なし
-- マージ: 済（マージの SHA は経過の「3.」）
+- マージ: 済（46ef8691a）
 - issue: #598・#601（コメント）、PR #602〜#608（閉じた。#608 は指示の一覧に無かったもの）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
@@ -87,12 +92,12 @@ CHAT-1018-SEC-04 の「判断が必要なこと」への平野さんの決定を
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 46ef8691）: https://github.com/retroeater/mj-logs/tree/main/guide/46ef8691
+ガイド文書（この版を写した時点の最新、mj 32e499af）: https://github.com/retroeater/mj-logs/tree/main/guide/32e499af
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/46ef8691/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/46ef8691/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/46ef8691/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/46ef8691/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/46ef8691/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/46ef8691/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/32e499af/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/32e499af/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/32e499af/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/32e499af/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/32e499af/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/32e499af/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/0ae083e4.md

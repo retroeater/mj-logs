@@ -1,0 +1,46 @@
+# 女流桜花の新ページ `ouka/`（houou/ との違い）
+
+女流桜花のページ群を、鳳凰戦の `houou/`（`docs/notes/houou-top.md`）と同じ作りで `ouka/` に作る（#519。順位変動 #516 を取り込んだ）。
+**ここには houou/ と違うことだけを書く。** 書いていないこと（画面・部品・数え方・確かめ方・字の大きさへの連動・在籍者だけ・名寄せ）は houou-top.md のとおり。
+決定は docs/decisions/houou.md（2026-10-17〜18）。2026-10-18 に cloudflare に入った（CHAT-1018-OUK-12）。未公開（段1、全ページ noindex・navbar／サイトマップ／`llms.txt` に載せない）で、公開は #591。
+
+## 構成と生成
+
+- URL は houou/ と同じ並び: `ouka/`（トップ・質問欄）・`ouka/players/`・`ouka/ranking/<スラッグ>/`（連続昇級を除いた8部門、2026-10-18。`ouka/ranking/` は `total/` へ 301）・`ouka/race/`。`ouka/leagues/`（旧 URL から移すだけのページ）は無い
+- 生成は `scripts/generate_ouka_pages.py`（`regenerate.py` の `ouka_pages`、出力 `ouka/`）。中身は `generate_houou_pages.py` を大会の設定 `OUKA` で動かすだけ（`using(OUKA)`。設定は `Contest`）。共有の部品は複製しない。`regenerate.py --changed` は `generate_houou_pages.py`・`generate_houou_race.py` の変更でも `ouka_pages` を選ぶ（`ask_data_ouka` は `generate_ask_data.py`・`generate_houou_pages.py` の変更でも。`SHARED_GENERATORS`）
+- JS は houou/ と共有の `assets/league.js`・`assets/league_race.js`（2026-10-17 に `houou.js`・`houou_race.js` から改名）と `assets/houou_ask.js`。ページの `<script type="application/json" id="league_contest">`（`OUKA.script`）でリーグ・期の書き方・題名の接尾辞・最近見た選手のキー・順位変動のリーグの番号を渡す。houou/ のページには無く、JS は鳳凰戦の既定で動く
+- CSS は houou/ の節のまま。ページの枠に `is-ouka` を付け、`style.css` の `.is-ouka` でリーグの色だけを替える
+- 集計元は正本の「桜花」タブ（見出しで読む。名前・期・リーグ・リーグキー・順位・結果・入替戦・合計・第1〜8節・表示・備考の18列）。「表示」が Y の行の数が 1,000〜4,000 の外なら止める（`OUKA.rows`）
+- 質問欄の検索データは `workers/ask/data-ouka.json`（`scripts/generate_ask_data_ouka.py`、`regenerate.py` の `ask_data_ouka`）。仕組みは docs/notes/ask-worker.md
+
+## データの違い
+
+- 前期・後期が無い（「前後」の列が無い）。全リーグを houou/ の通期（#541、`houou_tab.SPAN`）として扱う（`OUKA.halves` が偽のとき `term_half()` が全行 SPAN を返す）。成績 JSON の前後は 0、順位変動の期のキーは `<期>-0`、URL は `ouka/race/?term=20&league=A`（旧形式 `?term=20-2` も受ける）。画面の期は「21期」「第21期」、リーグのタブの期は「20期」
+- リーグは 桜花・A・B・C1・C2・C3（C1 は第7期〜、C2 は第15期〜、C3 は第19期〜）。組は無い
+- 「桜花」の行は前の期の優勝者が座っている期（鳳凰位と同じ扱い: 順位・合計・節は空、行を開かない、全体の順位に数えない、出場の期数に数えない）
+- 「結果」の列は平野さんが埋めた（#597。値は 昇級・降級・残留・決定戦・空欄。入替戦に出た人は入替戦の後の結果で、出たかは「入替戦」列〈G列、Y/N〉。特別昇級はリーグの成績での結果）。houou/ と同じく、結果のチップ（期のカード・吹き出し・通算のグラフの丸）と「入替戦」の印、順位変動の昇級・降級・入替戦の帯と A の「決定戦」の人数の帯（houou/ の A1 と同じ）を出す。C の1〜3位が入替戦に出る期は入替戦の帯が昇級の帯の上に来る。ランキングの「連続昇級」は出さない（8部門、2026-10-18。部門の格子は houou/ と同じ3段×3列で、1枠空く）。空欄の行は結果なし（チップなし）
+- 節は第1〜8節（第1〜8期は6節、第9〜14期は7節、第15期〜は8節）。節の成績の無い期は無い
+- 進行中の期（第21期。「表示」が全行 N）は houou/ と同じく期別の一番上の行・名前の面のチップ・質問欄の選手カードのチップ。進行中の期だけに出ている選手も個人成績に載せる（ほかのタブは「データがありません」）。Ampai のブックは「女流桜花」・前後は空で引く。前期の B1 で昇級して後期に出ない扱い（houou/ の `skip_back_half`）は無い
+- 名寄せは houou/ と同じ（「別名」で今の登録名に直して表示・集計し、`?name=<旧名>` でも今の名前の1人が開く）。順位変動の表の名前も今の登録名（houou/race/ と同じ、2026-10-18）
+
+## 画面の違い
+
+- 文言は大会名を「女流桜花」にしたもの（title は「<ページ> | 女流桜花 | 日本プロ麻雀連盟 | ryoei.pro」）。トップのランキングの説明は「通算・期最高など8部門」、質問欄の例は「例：20期の女流桜花は？」
+- 最近見た選手は localStorage の `mj:recent-players:ouka`（houou/ と分ける、2026-10-17）。履歴が無いときの1件は最新の期の「桜花」の行の選手（2026-10-17 は清水香織）、印は「桜花」
+- リーグの色（仮置き）: 桜花 #be185d（白字 6.04:1）、A #fa5d27・B #ef972e（houou/ の A・B の「中」の色）、C1 #ccaa2d・C2 #e8c133・C3 #eed066（houou/ の C1〜C3）。チップは同じ字のリーグを1色（C1〜C3 は C2 の色）
+- 規定（出場の下限）は旧 `ouka_ranking.html` の値: 期平均・期浮き率は5期以上、節浮き率は25節以上（`lib/ranking.py` の `CONTESTS["桜花"]`）。表示対象は houou/ と同じ自動ルール（`ranking.auto_cut()`）で、上限を50件・同点の群れは55件までにする（`OUKA.rank_cut`。houou/ は100件・110件。人数が少なくマイナスの人が入るのを避ける、2026-10-18）。2026-10-18 は8部門とも50件以下でマイナスの値は無い
+- 順位変動の選ぶシートは、期の下に「A・B・C」の1行と、C のときだけ「C1・C2・C3」の行（前期・後期の行は無い）。対象の期は第1期〜第20期（節の成績のある期すべて）
+- OGP は `img/ogp/ouka/index-white.png`（白地・黒字の「女流桜花」＋「ryoei.pro」、docs/notes/ogp.md の規則）。旧 `ouka_results.html`・`ouka_ranking.html`・`ouka_leagues.html` も転送で消えるまで同じ画像（2026-10-17）
+
+## 質問欄
+
+- Worker `mj-ask` を鳳凰戦と共有し、1日の上限（全体 200・IP ごと 10）も共有する（2026-10-17）
+- ouka/ の質問欄は問いに `contest: "ouka"` を添え、Worker は `data-ouka.json` と女流桜花の指示（`ask.mjs` の `OUKA_PLAN_SYSTEM`）で答える。鳳凰戦の問い（`contest` 無し）の答え方は変えない
+- 記録の型は「ouka:league」の形（答えられなかった問いは「ouka:」。仮置き）
+
+## 確かめ方
+
+houou-top.md の「確かめ方」に加えて:
+
+- `python3 scripts/regenerate.py all` を作業ブランチと cloudflare のクローンで回し、houou/ の生成物の差分が JS の名前（`league.js`・`league_race.js`）の行だけで、ほかの houou の生成物が差分0であること（大会の設定の共通化で鳳凰戦が変わっていない）
+- ランキングは旧 `ouka_ranking.html`（Google Charts）の表から在籍者でない選手を除いて順位を付け直すと、7部門は一致する。期浮き率は旧 JS の誤り（名前の順で最後の選手に1人前の選手の率が入る）で齋藤麻衣子が 0.684 になっていた（新は 0.267、2026-10-17）
