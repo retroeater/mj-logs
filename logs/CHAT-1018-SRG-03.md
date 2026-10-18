@@ -90,15 +90,21 @@ CHAT-1018-SRG-02 の判断待ちへの回答。scripts/ のコメントに残る
 
 - docs の差分は docs/notes/static-generation.md 290 行の2か所（「その他マスタ」→「R_タイトル戦_マスタ」、SRG-02 の 45dae6f）と docs/decisions/pros.md の末尾の節（SRG-02・SRG-03）
 
+### 手順3
+
+- push 直前に再 fetch し `git merge-base --is-ancestor origin/cloudflare HEAD` が真であることを確かめ、`git push origin work/1018-srg:cloudflare`（577ba0f..8ab126e、fast-forward）
+- check-run（8ab126e）: check・regenerate・Workers Builds: mj が success、notify は skipped
+- #600 に SRG-01・02・03 の結果をコメントし、本文の手作業のチェックボックスを済にして閉じた（completed。「状況:」ラベルは付いていなかった）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1018-srg
-- ログ: https://github.com/retroeater/mj/blob/work/1018-srg/docs/logs/CHAT-1018-SRG-03.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1018-SRG-03.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1018-srg
 - 確認用URL: なし
-- マージ: 未
-- issue: #600
+- マージ: 済（8ab126e）
+- issue: #600（クローズ）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
