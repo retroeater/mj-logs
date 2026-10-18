@@ -111,7 +111,7 @@ origin/cloudflare（280c2852a）を merge（rebase しない）。マージの�
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1018-OUK-09
 - ブランチ: work/OUK
 - ログ: https://github.com/retroeater/mj/blob/work/OUK/docs/logs/CHAT-1018-OUK-08.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/OUK
