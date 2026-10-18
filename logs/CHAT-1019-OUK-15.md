@@ -58,7 +58,43 @@
 
 ## 経過
 
-## 報告
+### 0章
+
+- Chat-Ref の重複なし。「指示」欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- work/1017-lvp は origin/cloudflare に入っていない（未マージ）。前提のとおり `navbar.js` は origin/cloudflare の形に足すだけにした
+- 未マージの work/ ブランチのうち、変えるファイルに触るのは work/1017-lvp の `navbar.js`・`style.css` だけ。`navbar.js` は同じ if 連鎖の別の分岐（最強戦の後に「番組」）、`style.css` は最強戦・動画の節で、どちらも今回の行と別。`git merge-tree` で今回の先頭と work/1017-lvp を合わせると `navbar.js` は衝突しない（衝突するのは `docs/decisions/live.md`・`live/` の3ファイルで、origin/cloudflare と work/1017-lvp の間でも同じく衝突する。今回の変更とは無関係）
+
+### 1. 作る
+
+- `navbar.js`: 「女流桜花」の段（旧3ページ）を `/ouka/` への1段にした（鳳凰戦と同じ形）。新しいナビを当てる判定に `/ouka/` を鳳凰戦の次に足した。jwrc/ の項目と判定には触れていない
+- 白地のナビ・noindex: `Contest` に `leagues_moved` を足し、`OUKA` の `noindex=True` を外して `leagues_moved=True` にした（鳳凰戦も `leagues_moved=True`。旧データ・旧入口の後始末の2つは鳳凰戦だけのまま）
+- 301: `_redirects` に3行（`/ouka_ranking.html` → `/ouka/ranking/total/`、`/ouka_leagues.html` → `/ouka/leagues/`、`/ouka_results.html` → `/ouka/players/`）。Cloudflare の `_redirects` は転送先にクエリが無ければ元のクエリを引き継ぐ（`docs/notes/redirects.md` の houou/ の行と同じ）ので、`?name=` は残る
+- リーグのタブ: houou/ の前例（`houou_leagues.html` → `houou/leagues/` → JS で `players/?view=league`）に合わせ、`ouka/leagues/`（移すだけ、noindex、サイトマップ外）を作った。`_redirects` で直接 `ouka/players/?view=league` へ送ると、転送先にクエリがあるため `?name=` が落ちる。`ouka/players/` の既定のタブの指定は `?view=league`（`docs/new-page-checklist.md` の URL パラメータの規約）
+- 旧ページのファイル・生成（`ouka_*.html`・`generate_ouka_leagues.py` など）は houou/ と同じく残した（後始末は houou/ の #582 と同じ扱い）
+- サイトマップ: `sitemap-pages.xml` の旧3ページを ouka/ の11ページ（トップ・個人成績・ランキング8部門・順位変動）に替え、冒頭のコメントに除外（`ouka/leagues/`・旧3ページ）を足した。lastmod は `update_sitemap_lastmod.py --from-git` が出す値と同じ（書き換え0件）。`xml.etree.ElementTree` で parse できる
+- `llms.txt`: 「女流桜花」の節を ouka/ の4行（鳳凰戦の節と同じ形）にした
+- サイト内リンク: 旧3ページへのリンクは `jpml_pros.html`（生成）だけで、今回の列の変更で無くなった。旧3ページ同士のリンクは旧ページのまま（転送される）
+- jpml_pros: 桜花の3列（出場・21期・最高）を「桜花<br>21期」の1列にし、値は `current_league_table` を `using(OUKA)` で呼んだ現在のリーグ（ouka/ の名前の面のチップと同じ）、リンクは `./ouka/players/?name=<名前>`。鳳凰の見出しは「鳳凰<br>43後」。見出しの期は `pro_stats.periods()`（データの最新の期）から `header_texts()` で入れる。表の幅は 766px → 654px（`style.css` の `--mj-pros-table-width`）
+- テスト: navbar の1段・`/ouka/` の判定、ouka/ に noindex が無く `leagues/` だけにあること、転送の3行と転送先のファイル、`promotion-streak/` に転送が無いこと、jpml_pros の桜花の列（値・リンク・空欄）、見出しの期がデータで決まること、書き出した jpml_pros の桜花の列が `ouka/ask-players.json` のチップと一致すること。前のコード（origin/cloudflare）では新しいテストはどれも落ちる（確かめた）
+- `python3 -m unittest discover -s scripts/tests` 1,424件 OK、`node --test 'workers/ask/test/*.test.mjs'` 47件 pass
+- 文書: `docs/notes/ouka-top.md`・`static-generation.md`（「ページの一覧」の件数 12→13）・`redirects.md`（棚卸しの対象に3行、JS の移動に1行）・`league-pages-compare.md`（公開・ナビの行）・`handover.md`（参照の表の「未公開」）・生成スクリプトの docstring の「未公開」を直した
+- 質問欄: Worker の変更は要らない（1日の上限は鳳凰戦と共有のまま）
+- `regenerate.py --check ouka_pages jpml_pros` は通る
+
+### 2. 確かめる
+
+- `python3 scripts/regenerate.py all` を作業ブランチと cloudflare のクローン（8c9ed13cb）で同時に回した（どちらも exit 0）。`diff -r` の差は次だけ:
+  - ouka/ の noindex を外した行: 11ページ（トップ・個人成績・ランキング8・順位変動）で `<meta name="robots" content="noindex">` の1行ずつ。ほかの差は無い。`ouka/leagues/index.html` は新しく増えた
+  - jpml_pros の列: `jpml_pros.html` の見出し1行と1,098行（全行）。行ごとに桜花の列を除いて比べると差は0、表の外の差も0
+  - navbar を読み込むページの変化: 生成物の差は無い（`navbar.js` だけ）
+  - サイトマップ・`llms.txt`: `sitemap-pages.xml`・`llms.txt`
+  - ほかは手で直したファイル（`_redirects`・`navbar.js`・`style.css`）だけ。houou/ の生成物は差分0
+- headless Chrome（手元）375px・1280px:
+  - navbar: どのページでも「女流桜花」は `/ouka/` への1段（段の印なし）。ouka/ のトップ・個人成績・ランキング・順位変動は白地のナビ（`.mj-nav-new`）で「女流桜花」に印。houou/・houou/players/ は白地のナビで「鳳凰戦」に印、saikyo/ は「最強戦」に印（変える前と同じ）。jpml_pros・index は前と同じ（濃色のナビ／ナビ無し）。JS のエラー 0
+  - ouka/ のページに robots の meta が無い。`ouka/leagues/?name=二階堂亜樹` は `ouka/players/?name=二階堂亜樹&view=league` へ移る
+  - jpml_pros: 見出しは「鳳凰<br>43後」「桜花<br>21期」。二階堂亜樹の行は鳳凰「A2 → ./houou/players/?name=二階堂亜樹」・桜花「A → ./ouka/players/?name=二階堂亜樹」。表の幅 654px。桜花の検索欄（placeholder「桜花21期」）で C1 は24行。桜花の列の並べ替えは変える前と同じ順（降順で 桜花・C3…）
+  - 横のはみ出しは jpml_pros の 375px だけで、変える前も同じ（表が画面より広い）
+
 
 - 状態: 作業中
 - ブランチ: work/1019-ouk15
