@@ -65,6 +65,54 @@ Chat-Ref: CHAT-1019-WRC-12
 
 不明な点は仮置きで進め、報告の「判断が必要なこと」に書いてください。この行が指示文の最後の行です。
 
+## 経過
+
+### 0章・着手前の確認
+
+- 「指示」欄の末尾は指示文の最後の行（「不明な点は仮置きで進め、…この行が指示文の最後の行です。」）と一致
+- CHAT-1018-WRC-11 の `## 報告` の状態は「判断待ち（jwrc/ は未公開のまま cloudflare に入った。公開は #599）」。末尾に ` / 続き: CHAT-1019-WRC-12` を足した
+- `git log origin/cloudflare --grep="CHAT-1019-OUK-16" --oneline` は 6fb75aab7・6054a3feb など（空でない）
+- `git log --all --grep="CHAT-1019-WRC-12"` は空。`WRC` はこのセッションの続き（WRC-07〜11）で使っている識別子
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある
+- 作業ブランチ: origin/cloudflare（921dbe0ad。6054a3feb を含む）から work/1019-wrc12 を作った
+- #599 に着手中のコメント（issuecomment-6256368803）。他セッションの着手中コメントは無い
+- 未マージの work/ ブランチで、変えるファイル（navbar.js・_redirects・llms.txt・sitemap-pages.xml・generate_houou_pages.py・generate_jwrc_pages.py・テスト2つ・docs 6つ）を変えているのは work/1017-lvp の `navbar.js` だけ。lvp は if 連鎖の最強戦の分岐の後に「番組」の分岐を足し、こちらは女流桜花の分岐の後に `/jwrc/` の分岐を足す（別の行）。`git merge-tree --write-tree f2b85a071 origin/work/1017-lvp` で `navbar.js` は衝突なしで合わさる（並びは 鳳凰戦 → 女流桜花 → WRC → 最強戦 → 番組）。衝突は `docs/decisions/live.md`・`live/index.html`・`live/pro-queen/24.html`・`live/pro-queen/index.html` の4つで、どれも origin/cloudflare と lvp の merge-tree でも同じく出る lvp 自身の衝突（この作業とは関係ない）
+
+### 直し（f2b85a071）
+
+- `navbar.js`: 「WRC」のドロップダウン（旧2ページへのリンク）を `<li class="nav-item"><a class="nav-link" href="/jwrc/" data-short-label="WRC">JPML<br>WRC</a></li>` の1段に。判定の if 連鎖で女流桜花の後に `/jwrc/` の分岐（`newNavCurrent = 'WRC'`。白地のナビの項目名は data-short-label の「WRC」なので、印もそれで付く）
+- `scripts/tests/test_navbar.py`: `test_jwrc_is_single_item_to_top`（1段の項目・旧2ページへのリンクが無い・`/jwrc/` の分岐がある）
+- `scripts/generate_houou_pages.py`: `JWRC` の `noindex=True` を外し、コメントの「未公開」を「公開は #599」に。`generate_jwrc_pages.py` の docstring も
+- `scripts/tests/test_jwrc_pages.py`: noindex が付くことを確かめていたテストを、付かないことを確かめる形に（`test_pages_indexed_without_houou_words`）
+- `_redirects`: `/jwrc/ranking/` の行の後に `/wrc_ranking.html  /jwrc/ranking/total/  301`・`/wrc_results.html  /jwrc/players/  301`（ouka の旧3ページと同じ形。クエリは Cloudflare が引き継ぐ）
+- `sitemap-pages.xml`: 旧2ページの行を外し、jwrc/ の12行（トップ・players・ランキング9部門・race）を足した。冒頭の除外の説明に `wrc_*.html` の行。lastmod は `update_sitemap_lastmod.py --from-git`（3c555c085）で 2026-10-19
+- `llms.txt`: 「WRCリーグ」の節を jwrc/ のトップ・個人成績・ランキング・順位変動の4行に（ouka/ の書き方に倣う）
+- `docs/notes/redirects.md`: 「棚卸しの対象」に旧2ページの2行（`test_redirects_inventory.py` が求める）、「JS の移動」の `?division=` の行に `/ouka_ranking.html`・`/wrc_ranking.html`、`/jwrc/ranking/` の行の「未公開」を直した
+- ほかのページから旧2ページへのリンク: `wrc_ranking.html`・`wrc_results.html` を参照するのは自分自身・サイトマップ・`llms.txt` だけ（docs を除く全ファイルを grep）。jpml_pros は変えない
+
+### テスト
+
+- `python3 -m unittest discover -s scripts/tests`: 直しの前（noindex を外しただけの状態）に2件落ちた（`test_jwrc_pages` の noindex の期待、`test_redirects_inventory` の棚卸しの行）。直した後 1,427件 OK
+- `node --test 'workers/ask/test/*.test.mjs'`: 47件 OK
+
+### 全ページの生成と差分（`python3 scripts/regenerate.py all`）
+
+- 作業ブランチ（f2b85a071）と cloudflare のクローン（921dbe0ad、scratchpad）で並べて回した。どちらも exit 0
+- cloudflare のクローンは生成し直しても差分0（データはマージ後から変わっていない）
+- 両者の差（.git・docs を除く `diff -rq`）20件:
+  - jwrc/ の HTML 12件: どれも `<meta name="robots" content="noindex">` の1行が消えただけ（12行削除、ほかの差は無い）
+  - 手で変えたもの 8件: `_redirects`・`llms.txt`・`navbar.js`・`sitemap-pages.xml`・scripts 4件（生成スクリプト2・テスト2）
+  - houou/・ouka/・jpml_pros・成績 JSON・`workers/ask/data*.json`: 差分0
+- 生成物は 2a4a0e46d、文書は fe23dff49
+
+### 文書
+
+- `docs/notes/jwrc-top.md`: 冒頭を公開済みの形（2026-10-19 に公開、公開の形、旧2ページの 301、後始末は #582 と同じ扱い、告知は後日）
+- `docs/notes/static-generation.md`: 冒頭の列挙と表の jwrc/ の行の「noindex・メニュー未掲載」を外した（ouka/ の冒頭の列挙の「noindex・メニュー未掲載」も古いが、この作業の範囲外なので触っていない）
+- `docs/notes/league-pages-compare.md`: 「公開・noindex」の jwrc/ を公開に。「公開でそろえる差」は共通ナビが揃ったので「なし」
+- `docs/handover.md`: 文書の一覧の jwrc-top.md の「未公開」を外した
+- `docs/decisions/houou.md`: 2026-10-19（CHAT-1019-WRC-12）の節
+
 <!-- guide-links -->
 ---
 
@@ -76,4 +124,4 @@ Chat-Ref: CHAT-1019-WRC-12
 - docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6054a3fe/docs/notes/chat-side-operations.md
 - docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6054a3fe/docs/notes/cloudflare.md
 - docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6054a3fe/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/921dbe0a.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/f0204bea.md
