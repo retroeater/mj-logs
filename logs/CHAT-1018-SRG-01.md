@@ -122,28 +122,41 @@
 
 書籍の読み手: `sync_books_calendar.py` を引数なし（カレンダーを読まず書かない計画だけの形）で実行すると、新しいスプレッドシートを読んだ後 `check_rows` の「「書籍」シートの行数が想定外です(95行)」で止まる。origin/cloudflare のコードでも同じ所で止まる（凍結中の既知の状態。`MIN_BOOKS` 150 は books-freeze.md「再開するときに戻す手順」1で見直す）。読めることは、読み手のモジュールの `fetch_records` を記録する関数に差し替えて呼び、`(1WpSXlEKHw5-…, 書籍)` に問い合わせて95行（先頭 ISBN13 9784801994904）が返ることで確かめた。`fetch_rakuten_books.py` は楽天の鍵が要り、コンテナでは動かしていない（読み手の行は上のテストで確かめた）
 
+### マージ
+
+- origin/cloudflare が 8c038f0（CHAT-1018-LOG-02 のログのみ）に進んでいたため `git merge origin/cloudflare`（衝突なし）。push 直前に再 fetch し `git merge-base --is-ancestor origin/cloudflare HEAD` が真であることを確かめ、`git push origin work/1018-srg:cloudflare`（8c038f0..d368dd1、fast-forward）
+- 前提の題（「ryoei.pro_その他マスタ」）と実物（「R_タイトル戦_マスタ」）の違いは、ID がコードの `live.SPREADSHEET_ID` と一致し、決定（新しいスプレッドシートから読む）の判断に影響しないため、止まる条件に当たらないと判断した
+- check-run: d368dd1 は check・regenerate・Workers Builds: mj が success（notify は skipped）。regenerate が push した 7ca189c（`chore: regenerate ...`。houou/players・resource_logs・sitemap-pages・workers/ask/data.json の4ファイル。「別名」シートの追加などで、今回の変更と無関係。dic/・resource_dictionary.html は含まれない）は Workers Builds: mj・mj-ask が success
+- 本番の `https://ryoei.pro/resource_dictionary.html` を取得: 語数の表記は「1,869語」（`--check` の保存の語数と一致）、リポジトリの `resource_dictionary.html` とバイト一致。ブラウザでの見え方は確かめていない
+- issue #600 に結果をコメント。平野さんの手作業（元の2シートの削除）が残るため open のまま
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1018-srg
-- ログ: https://github.com/retroeater/mj/blob/work/1018-srg/docs/logs/CHAT-1018-SRG-01.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1018-SRG-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1018-srg
-- 確認用URL: なし
-- マージ: 未
-- issue: なし
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 確認用URL: なし（生成物の変更なし。本番の resource_dictionary.html で 1,869語を確認）
+- マージ: 済（d368dd1）
+- issue: #600（起票、open）
+- 判断が必要なこと:
+  - 平野さんの手作業: 元のスプレッドシート（`10g_Xub35Od6vg8zFlKuB-9Kwgyg-HapWWsnfMur7J34`）の「辞書」「書籍」シートを消す。時機は今（このマージと本番の確かめは済んだ）。消した後に `--check` を回して確かめる指示をチャット側が出す
+  - 元のスプレッドシートの題は今「R_タイトル戦_マスタ」で、指示文の「ryoei.pro_その他マスタ」と違う（ID は一致）。docs/notes/static-generation.md の「リーグ」の「その他マスタ」の記述と docs/decisions/pros.md の名前は直していない。直すかはチャット側の判断
+  - issue の起票・着手コメントが、シートの比較とコードの編集の後になった（CLAUDE.md「issueの着手ルール」からの逸脱。コミット・push は起票の後）
+- 未確認の項目:
+  - 本番のブラウザでの見え方（HTML の取得までで確認）
+  - `fetch_rakuten_books.py` の実行（楽天の鍵が要る。読む先の行はテストで確認）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj d368dd1d）: https://github.com/retroeater/mj-logs/tree/main/guide/d368dd1d
+ガイド文書（この版を写した時点の最新、mj b56305ec）: https://github.com/retroeater/mj-logs/tree/main/guide/b56305ec
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d368dd1d/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d368dd1d/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d368dd1d/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d368dd1d/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d368dd1d/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d368dd1d/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b56305ec/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b56305ec/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b56305ec/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b56305ec/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b56305ec/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b56305ec/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/8c038f0d.md
