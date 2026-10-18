@@ -132,7 +132,7 @@
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1018-SRG-02
 - ブランチ: work/1018-srg
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1018-SRG-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1018-srg
@@ -151,12 +151,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj b56305ec）: https://github.com/retroeater/mj-logs/tree/main/guide/b56305ec
+ガイド文書（この版を写した時点の最新、mj 66741d7a）: https://github.com/retroeater/mj-logs/tree/main/guide/66741d7a
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b56305ec/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b56305ec/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b56305ec/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b56305ec/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b56305ec/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b56305ec/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/8c038f0d.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/66741d7a/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/66741d7a/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/66741d7a/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/66741d7a/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/66741d7a/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/66741d7a/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/f5956855.md

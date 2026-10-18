@@ -54,16 +54,49 @@ CHAT-1018-SRG-01（#600）の続き。元の「辞書」「書籍」シートが
 - 0. 指示欄の末尾は「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」で一致。元のスプレッドシート（`live.SPREADSHEET_ID`）のシート名は `lib/sheets.py` の `_sheet_gids` で「リーグ・タイトル・タイトル戦」。「辞書」「書籍」は無い（平野さんの削除済み）
 - 作業ブランチ: ローカルの work/1018-srg（f595685）が origin/cloudflare の祖先で、origin/work/1018-srg もマージ済み。`git merge --ff-only origin/cloudflare` で d322bfe へ進めた
 
+### 手順1
+
+- SRG-01 のログの `## 報告` の状態を「判断待ち / 続き: CHAT-1018-SRG-02」にした（最後の `## 報告` の中だけを置換）
+- #600 に着手中のコメントを残した
+- 題とシート名（`lib/sheets.py` の `_get`〈htmlview の title〉と `_sheet_gids`）。前提と一致:
+
+| ID | 題 | シート名 |
+|---|---|---|
+| `1WpSXlEKHw5-GUIxH0G9eSW2TUHRh6oc56FX57jRNqOM` | R_その他 | 辞書・書籍 |
+| `10g_Xub35Od6vg8zFlKuB-9Kwgyg-HapWWsnfMur7J34`（`live.SPREADSHEET_ID`） | R_タイトル戦_マスタ | リーグ・タイトル・タイトル戦（辞書・書籍は削除済み） |
+
+### 手順2
+
+- `python3 scripts/generate_resource_dictionary.py --check`: 終了コード0、止まる理由なし。一般用語 583・連盟用語 137・連盟プロ 1098・Mリーグ 71、保存の語数 1869。SRG-01 の値と同じ（「辞書」791行）
+- `python3 scripts/regenerate.py all`: 終了コード0。origin/cloudflare のコミット済みの生成物（d322bfe 時点）との差は無し（`git status` で生成物の変更が0件）
+- 書籍の読み手: SRG-01 と同じく `sync_books_calendar.fetch_books()` を `fetch_records` を記録する関数に差し替えて呼び、`(1WpSXlEKHw5-…, 書籍)` に問い合わせて95行（先頭 ISBN13 9784801994904）が返った。その後 `check_rows` の行数（95 < `MIN_BOOKS` 150）で止まるのは凍結中の既知の状態で SRG-01 と同じ
+
+### 手順3: 古い題の洗い出し
+
+`git grep -n "その他マスタ"`（docs/logs を除く。ほかに「ryoei.pro_その他」「R_タイトル戦」も見た。.github/・CLAUDE.md・docs/handover.md には無し）:
+
+| ファイル | 行 | 直したか | 理由 |
+|---|---|---|---|
+| docs/notes/static-generation.md | 290（2か所: 「その他マスタの「リーグ」タブ」「「リーグ」タブ（その他マスタ。…）」） | 直した（「R_タイトル戦_マスタ」。後者に `live.SPREADSHEET_ID` を添えた） | 今の状態を書く文 |
+| docs/decisions/pros.md | 99・103・104・107・131・148・158 | 直さない（末尾に 2026-10-18（CHAT-1018-SRG-02）の節を足し、題が変わったことを書いた） | 過去の決定の文は書き換えない（docs/decisions/README.md「書き方」） |
+| scripts/lib/pro_stats.py | 6（docstring）・26（コメント） | **直していない** | docs の外（コード）。止まる条件 |
+| scripts/tests/test_pro_stats.py | 106（テストの docstring） | **直していない** | 同上 |
+
+- 未マージの work/ ブランチ: OUK・WRC が docs/notes/static-generation.md の 253・272・278 行付近を変えている。今回の 290 行とは別の箇所で、docs/decisions/pros.md はどれも変えていない
+- **止まる条件に当たった**: 古い題が scripts/ のコメント・docstring（3か所）にも出ており、「文書の直しが docs の外（コード）に及ぶ」。scripts/ は直さず、docs の直し（45dae6f）は作業ブランチにだけ push した。cloudflare へはマージしていない。#600 は閉じていない
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1018-srg
 - ログ: https://github.com/retroeater/mj/blob/work/1018-srg/docs/logs/CHAT-1018-SRG-02.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1018-srg
 - 確認用URL: なし
-- マージ: 未
-- issue: #600
-- 判断が必要なこと: なし
+- マージ: 未（止まる条件「docs の外に及ぶ」に当たったため）
+- issue: #600（open のまま）
+- 判断が必要なこと:
+  - 古い題「その他マスタ」が scripts/ のコメントにも3か所ある（`scripts/lib/pro_stats.py` 6行目の docstring・26行目のコメント、`scripts/tests/test_pro_stats.py` 106行目のテストの docstring）。どれも文言だけで、動作は変わらない。これも「R_タイトル戦_マスタ」に直すか（直すなら docs と一緒にマージしてよいか）、直さずに docs だけマージするか
+  - docs の直し（static-generation.md 290行・decisions/pros.md の末尾の節、45dae6f）は作業ブランチにある。上の答えの後に、マージと #600 のクローズを行う
 - 未確認の項目: なし
 - エラー: なし
 
