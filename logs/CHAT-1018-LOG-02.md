@@ -58,6 +58,37 @@ CHAT-1018-LOG-01 で作った「駅は最寄り駅1つ・本文の駅と違う�
 
 ## 経過
 
+### 着手前の確認
+
+- 0: 「指示」欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- Chat-Ref: CHAT-1018-LOG-02 の既存コミット無し（LOG は LOG-01 と同じ系列の続き）
+- LOG-01 の `## 報告` の状態は「判断待ち」、work/1018-log-367-station（b0324c381、ローカルとリモートが一致）は cloudflare に未マージ。LOG-01 の状態の末尾に ` / 続き: CHAT-1018-LOG-02` を足した
+- #367: 他セッションの着手中のまま残ったコメントは無い。着手中のコメントを残した
+
+### 取り込み
+
+- `git merge-base --is-ancestor origin/cloudflare HEAD` が偽（cloudflare が 26コミット先）。`git merge origin/cloudflare` で取り込んだ
+- 衝突は `resource_logs.html`（生成物）だけ。自分の側を置いてから、取り込んだ後のスクリプトで `python3 scripts/regenerate.py resource_logs` を実行して解いた（「ログ」2630件・3層から 483件。`?tag=` 0、衝突の印 0）。生成物でない文書の衝突は無かった
+- テスト `python3 -m unittest discover -s scripts/tests`: 1373件 OK。`python3 scripts/regenerate.py --check resource_logs`: 通る
+
+### cloudflare との差分（取り込み後、`git diff --stat origin/cloudflare HEAD`）
+
+| 種類 | ファイル |
+|---|---|
+| LOG-01 で変えたもの | `scripts/convert_x_posts.py`・`scripts/generate_resource_logs.py`・`scripts/tests/test_convert_x_posts.py`・`scripts/tests/test_generate_resource_logs.py`・`.github/workflows/convert-x-posts.yml` |
+| 生成物 | `resource_logs.html` |
+| ログ・決定 | `docs/logs/CHAT-1018-LOG-01.md`・`docs/logs/CHAT-1018-LOG-02.md`・`docs/decisions/operations.md` |
+| LOG-01 で変えた docs/notes | `docs/notes/github-actions.md`（mode の行）・`docs/notes/static-generation.md`（タグリンクの語） |
+
+見込みの外の種類は無い。
+
+### docs/decisions（3fe5524e1）
+
+- docs/decisions/operations.md に「2026-10-18（CHAT-1018-LOG-02）」の節を足した（決定 1〜6・マージ・旧「ログ」の移行の決まり）。同じ日に決めたこと（LOG-01 の決定）は LOG-01 の節にすでにあるので、重ねて書かない
+- 置き換えになる記述の末尾に「→ 置き換え: …」を付けた（この文書の書き方に合わせた）: 2026-10-15（CHAT-1015-MCK-12）の X の上限 $6、2026-10-15（CHAT-1015-MCK-14）の駅を近い順に並べる・カテゴリの案、2026-10-17（MCK-16）のカテゴリ案の前提、MCK-17 のカテゴリ案シート、MCK-18 のカテゴリの3項、LOG-01 の「【3】で決めるまで Google の最寄り駅」
+- LOG-01 の節の「移す指示（LOG-02 以降）」を「後の指示」に直した（LOG-02 は移行ではなかったため）
+- 矛盾して判断が要る記述は無かった
+
 ## 報告
 
 - 状態: 作業中
@@ -74,12 +105,12 @@ CHAT-1018-LOG-01 で作った「駅は最寄り駅1つ・本文の駅と違う�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj d9a2b309）: https://github.com/retroeater/mj-logs/tree/main/guide/d9a2b309
+ガイド文書（この版を写した時点の最新、mj 6a2b5b89）: https://github.com/retroeater/mj-logs/tree/main/guide/6a2b5b89
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d9a2b309/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d9a2b309/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d9a2b309/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d9a2b309/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d9a2b309/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d9a2b309/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6a2b5b89/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6a2b5b89/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6a2b5b89/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6a2b5b89/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6a2b5b89/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6a2b5b89/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/f218a9a2.md
