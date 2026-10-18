@@ -113,28 +113,35 @@ cloudflare での check-assets の check-run を条件に使うもの: 無し
 
 - 決定を docs/decisions/operations.md に足し、2026-10-07（RVW-18）の「予算は今日は上げない」に置き換えの印を付けた
 
+### 3. マージと確かめ
+
+- push 直前に再 fetch し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真のことを確かめて `git push origin work/1018-bil:cloudflare`（f59568553..c80a0c4b4）
+- 3分後、c80a0c4b4 の Actions の実行は0件（check-assets.yml は起動していない）。cloudflare の check-assets の最新の実行は変更前の 39116703068（09:47Z）のまま
+- c80a0c4b4 の check-run も0件（変更は `.github/` と `docs/` だけ。Workers Builds の watch paths から外れていると見られる。サイトのファイルは変えていない）
+- #298 に実測・決定・案 A を入れたことをコメントした（issuecomment-6248615171）。本文・ラベル・状態は変えていない
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1018-bil
-- ログ: https://github.com/retroeater/mj/blob/work/1018-bil/docs/logs/CHAT-1018-BIL-01.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1018-BIL-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1018-bil
-- 確認用URL:
-- マージ:
+- 確認用URL: なし
+- マージ: 済（c80a0c4b4。fast-forward）
 - issue: #298
-- 判断が必要なこと:
-- 未確認の項目:
-- エラー:
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj c80a0c4b）: https://github.com/retroeater/mj-logs/tree/main/guide/c80a0c4b
+ガイド文書（この版を写した時点の最新、mj 66741d7a）: https://github.com/retroeater/mj-logs/tree/main/guide/66741d7a
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c80a0c4b/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c80a0c4b/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c80a0c4b/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c80a0c4b/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c80a0c4b/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c80a0c4b/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/66741d7a/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/66741d7a/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/66741d7a/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/66741d7a/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/66741d7a/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/66741d7a/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/f5956855.md
