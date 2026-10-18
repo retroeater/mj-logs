@@ -106,7 +106,7 @@
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1019-OUK-16
 - ブランチ: work/1019-ouk15
 - ログ: https://github.com/retroeater/mj/blob/work/1019-ouk15/docs/logs/CHAT-1019-OUK-15.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1019-ouk15

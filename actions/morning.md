@@ -1,7 +1,7 @@
 # 朝の報告用の異常（retroeater/mj）
 
-- 書き出した時刻: 2026-10-19 06:02 JST（見た範囲: 2026-10-18 04:02 JST から）
-- 書き出した実行の契機: schedule（main）
+- 書き出した時刻: 2026-10-19 07:33 JST（見た範囲: 2026-10-18 05:33 JST から）
+- 書き出した実行の契機: workflow_dispatch（main）
 - 異常だけを書く。全体は actions/status.md。判定は mj の scripts/morning_report.py（各ワークフローの直近 100 回まで）
 
 ## 1. 失敗など（結論が success・skipped 以外。実行中を含む）
@@ -18,9 +18,9 @@
 
 ## 2. 予約実行の未実行（予定から3時間以内は「遅れの可能性」。3時間を超えて始まった実行は「遅れて実行」）
 
-- 遅れの可能性: check-meibo.yml 予定 2026-10-19 05:07 の後に schedule・workflow_dispatch（cloudflare）の実行なし https://github.com/retroeater/mj/actions/workflows/check-meibo.yml
+- 遅れの可能性: check-saikyo-unregistered.yml 予定 2026-10-19 06:50 の後に schedule・workflow_dispatch（cloudflare）の実行なし https://github.com/retroeater/mj/actions/workflows/check-saikyo-unregistered.yml
+- 遅れの可能性: cleanup-logs.yml 予定 2026-10-19 06:23 の後に schedule・workflow_dispatch（cloudflare）の実行なし https://github.com/retroeater/mj/actions/workflows/cleanup-logs.yml
 - 遅れの可能性: fetch-youtube.yml 予定 2026-10-19 05:37 の後に schedule・workflow_dispatch（cloudflare）の実行なし https://github.com/retroeater/mj/actions/workflows/fetch-youtube.yml
-- 遅れの可能性: sync-birthday-calendar.yml 予定 2026-10-19 05:17 の後に schedule・workflow_dispatch（cloudflare）の実行なし https://github.com/retroeater/mj/actions/workflows/sync-birthday-calendar.yml
 
 ## 3. 所要時間の異常（直近20回の中央値の3倍以上、または10分以上。skipped は除く）
 
