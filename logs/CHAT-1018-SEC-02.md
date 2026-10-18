@@ -118,17 +118,37 @@ CHAT-1017-SEC-01 の点検（#598）のうち、すぐ直せる中-2（書籍の
 - 運行表: `scripts/actions_dashboard.py` の `groups()` に今のワークフローと `schedule.json` を渡すと、`security-check.yml` は「手動実行だけ」（convert-x-posts・sync-logs・fetch-x-posts と同じ区分）に入る。mj-logs の実物はマージ後の次の写しで出る
 - `python3 -m unittest discover -s scripts/tests`: すべて OK。コミット b5669c8df
 
+### 5. マージと初回の実行・記録
+
+- 「決定」を `docs/decisions/security.md` に足した（2026-10-18 の見出し）
+- マージ前: cloudflare は着手時（82a05e9a1）から進んでおらず、`git merge-base --is-ancestor origin/cloudflare HEAD` が真。`git push origin work/1018-sec:cloudflare` → **b2e1d729b**
+- `actions_run_trigger`（ref `cloudflare`、入力なし）で起動できた。run 39098697779、job 117590339250、**success、51 秒**（checkout 11 秒〈全履歴〉・道具 5 秒・zizmor 1 秒・pip-audit 9 秒・履歴の走査 18 秒）。Actions の予算への影響は1回1分（Linux）
+- ジョブのログ: pip-audit「No known vulnerabilities found」、履歴の走査「当たり 4 件(既知 4・新規 0)」で表は手元と同じ。zizmor の件数は Job summary にだけ書くため、セッションからは読めない（Job summary を返す API が無い）。同じ木を手元で数えた値は 153 件
+- 警告: `actions/checkout@v4.4.0`・`setup-python@v5.6.0` は Node.js 20 を対象にしていて Node.js 24 で強制実行された（`##[warning]Node.js 20 is deprecated`）。他のワークフローの `@v4`・`@v5` も同じ。SEC-04 で版を選ぶときの材料として #598 に書いた
+- #598 にコメント（直したもの・外したもの・初回の結果・決定）。本文の表には状態の列が無いため、本文は書き換えなかった
+- #300 にコメント（履歴の走査を手動実行のワークフローにした。push のたびの検知は #598 の平野さんの確認待ち）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1018-sec
-- ログ: https://github.com/retroeater/mj/blob/work/1018-sec/docs/logs/CHAT-1018-SEC-02.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1018-SEC-02.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1018-sec
-- 確認用URL: なし
-- マージ: 未
-- issue: #598
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 確認用URL: なし（生成物の差分0。表示は変わらない）
+- マージ: 済（b2e1d729b）
+- issue: #598（着手・結果のコメント）、#300（コメント）
+- 判断が必要なこと:
+  - 中-3 で外した箇所: `assets/houou.js:809`（Ampai。`work/OUK`・`work/WRC` が改名する）と `generate_resource_logs.py:196`（restaurant_url。`work/1018-log-367-station` が同じ関数を変える）。どちらもそれぞれのマージ後に当てる。値の出どころ（`lib/ampai.py`）と同じページの X の URL（`build_image_cell`）は守ってある
+  - 中-3 で増えた箇所: `generate_books_pages.py` の楽天の URL（API の応答由来）に同じ関数を当てた
+  - 書籍のページ: `books_pages` は「書籍」シートが 95 行（`MIN_BOOKS` 150）で止まり、再生成できなかった。今の `books/` の JSON-LD に `<` は無く、直しの差分は0の見込み。シートの 95 行が意図どおりか（凍結中の貼り替えか）の確認が要る
+  - pip-audit の組の置き場所: ワークフローの各行のまま（`scripts/ci_requirements.py` が `packages:`・`pip install` の行から集める）。一覧のファイルは持たず、二重管理なし。security-check.yml 自身の道具の版も対象に入る
+  - 運行表: `actions_dashboard.py` の区分の関数で「手動実行だけ」に入ることを確かめた（mj-logs の実物は次の写しから）
+  - `security-check.yml` の初回の結果: zizmor 153 件（High 64・Medium 38・Low 45・Info 6、すべて SEC-04 の範囲）、pip-audit 既知の脆弱性なし、履歴の走査 4 件すべて既知・新規0。所要 51 秒
+  - houou・wayhome・mtsuku の `<script>` 内 JSON（`</` だけ逃がす）はそろえなかった（#598 の低-6 のまま）
+  - #598 の平野さんの確認（ダッシュボード側）と、`/api/ask` への Rate limiting rule（中-1）は平野さんの手作業待ち
+- 未確認の項目:
+  - `security-check.yml` の Job summary の表示（セッションから Job summary を読めない。zizmor の件数は手元の値。平野さんが https://github.com/retroeater/mj/actions/runs/39098697779 で見られる）
+  - mj-logs の運行表（actions/index.html）に「手動実行だけ」として出ること（次の写しの後）
 - エラー: なし
 
 <!-- guide-links -->
