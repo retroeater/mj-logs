@@ -49,6 +49,42 @@ CHAT-1018-LOG-03 の変更（本文の駅が圏内なら本文の駅・駅名の
 
 ## 経過
 
+### 着手前の確認
+
+- 0: 「指示」欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- Chat-Ref: CHAT-1018-LOG-04 の既存コミット無し（LOG の系列の続き）
+- LOG-03 の `## 報告` の状態は「判断待ち」、work/1018-log-367-rule（b10b6219c、ローカルとリモートが一致）は cloudflare に未マージ。LOG-03 の状態の末尾に ` / 続き: CHAT-1018-LOG-04` を足した
+- #367: 最後のコメントは LOG-03 の結果の報告で、他セッションの着手中は無い。着手中のコメントを残した
+
+### 取り込み
+
+- `git merge-base --is-ancestor origin/cloudflare HEAD` が偽（cloudflare が 20コミット先）。`git merge origin/cloudflare` で取り込んだ
+- 衝突は2つ:
+  - `resource_logs.html`（生成物）: 自分の側を置き、取り込んだ後のスクリプトで `python3 scripts/regenerate.py resource_logs` を実行して解いた（「ログ」2630件・3層から 483件、3113行）。LOG-03 の生成物とバイト単位で同じ（シートの変化でページの行は変わっていない）
+  - `docs/decisions/operations.md`（生成物でない文書）: 末尾への追記どうし（cloudflare 側に「2026-10-18（CHAT-1018-BIL-01）」「2026-10-18（CHAT-1018-WRR-01）」、こちらに「2026-10-18（CHAT-1018-LOG-03）」）。両方を残し、cloudflare 側の節を先、LOG-03 の節を後にした。解いた後の該当箇所（WRR-01 の節の末尾から）:
+
+```
+- チャット側の読み取り（断定できる資料は無い）: 第5期の1次トーナメント3卓に、予備予選で敗れた會田亮介が入っている（黒木真生の欠場の繰り上げとみられる。結果の画像からの読み取り）。會田亮介は第5期の予選に出ていないので、シートに変わる行は無い
+- 作業中の回答: なし
+
+## 2026-10-18（CHAT-1018-LOG-03）
+
+- 2026-10-18（CHAT-1018-LOG-02）の節の決定 2・4・5 を実装した（新しい決定は無い）。【2】のカテゴリの3列は列ごと消し、既存の 809行の駅・要確認を計算し直した
+- 作業中の回答: なし
+```
+
+- テスト `python3 -m unittest discover -s scripts/tests`: 1382件 OK。`python3 scripts/regenerate.py --check resource_logs`: 通る
+
+### cloudflare との差分（取り込み後、`git diff --stat origin/cloudflare HEAD`）
+
+| 種類 | ファイル |
+|---|---|
+| LOG-03 で変えたもの | `scripts/convert_x_posts.py`・`scripts/generate_resource_logs.py`・`scripts/tests/test_convert_x_posts.py`・`scripts/tests/test_generate_resource_logs.py`・`.github/workflows/convert-x-posts.yml`・`docs/notes/github-actions.md` |
+| 生成物 | `resource_logs.html`（8行。cloudflare の版はすでに LOG-03 の後の【2】で生成されていて、違いは駅名の括弧と「駅」を除いた4行〈2026-09-04・2026-02-24 の「西新宿五丁目」、2026-08-11 の2行の「明治神宮前」〉だけ） |
+| ログ・決定 | `docs/logs/CHAT-1018-LOG-03.md`・`docs/logs/CHAT-1018-LOG-04.md`・`docs/decisions/operations.md` |
+
+見込みの外の種類は無い。
+
 ## 報告
 
 - 状態: 作業中
@@ -65,12 +101,12 @@ CHAT-1018-LOG-03 の変更（本文の駅が圏内なら本文の駅・駅名の
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 66741d7a）: https://github.com/retroeater/mj-logs/tree/main/guide/66741d7a
+ガイド文書（この版を写した時点の最新、mj 577ba0fb）: https://github.com/retroeater/mj-logs/tree/main/guide/577ba0fb
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/66741d7a/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/66741d7a/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/66741d7a/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/66741d7a/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/66741d7a/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/66741d7a/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/577ba0fb/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/577ba0fb/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/577ba0fb/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/577ba0fb/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/577ba0fb/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/577ba0fb/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/f5956855.md
