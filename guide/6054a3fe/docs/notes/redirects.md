@@ -11,7 +11,7 @@ ryoei.pro のすべての転送の一覧と、四半期ごとの棚卸しの手�
 |---|---|---|---|
 | www → apex（308、クエリを保つ） | Cloudflare の Redirect Rule「www to apex」 | `www.ryoei.pro` の全パス | #115、docs/notes/cloudflare.md「www→apexのRedirect Rule」 |
 | http → https | Always Use HTTPS | 全パス | docs/notes/cloudflare.md |
-| 末尾スラッシュを付ける 301 | `_redirects` | `/saikyo`・`/title`・`/live`・`/books`・`/houou`・`/wayhome`・`/mtsuku` と `/title/<大会>`（20行。`test_title_redirects.py` が検査）、`/saikyo/<年度>`（16行。`test_saikyo_redirects.py` が検査） | #455・#549 |
+| 末尾スラッシュを付ける 301 | `_redirects` | `/saikyo`・`/title`・`/live`・`/books`・`/houou`・`/ouka`・`/jwrc`・`/wayhome`・`/mtsuku` と `/title/<大会>`（20行。`test_title_redirects.py` が検査）、`/saikyo/<年度>`（16行。`test_saikyo_redirects.py` が検査） | #455・#549 |
 | `/live` の URL 変更の 301 | `_redirects` の `# live: generated` 〜 `# live: end`（`scripts/generate_live_pages.py` が書く） | 2026-10-14 時点で `/live/teiou/3/b16.html`・`/live/teiou/4/b16.html` → 同じ期の `f.html` | docs/notes/live-page-design.md「3-4」。生成物なので行ごとに照らし合わせない。当面は消さない |
 | 内部の書き換え（200） | `_redirects` | 28行（`/`、各ディレクトリの `index.html`、`/saikyo/<年度>/`〈16行〉、`/title/:slug/` など） | docs/notes/cloudflare.md「配信設定」。転送ではないので棚卸ししない |
 
@@ -30,10 +30,15 @@ ryoei.pro のすべての転送の一覧と、四半期ごとの棚卸しの手�
 | `/video_mtsuku.html` | `/mtsuku/` | `_redirects` 301 | 2026-10-15 | #570 | 未（初回 2027-01 上旬） |
 | `/tanilog.html` | `/resource_logs.html?name=谷岡育夫` | `_redirects` 301 | 2026-09-07 | GitHub Pages からの移行 | 未（初回 2027-01 上旬） |
 | `/houou/ranking/` | `/houou/ranking/total/` | `_redirects` 301（クエリを引き継ぐ。`?division=` は下の「JS の移動」） | 2026-10-14 | #518・#540（通算得点を `total/` に移した開発中の入口） | 未（初回 2027-01 上旬） |
+| `/ouka/ranking/` | `/ouka/ranking/total/` | `_redirects` 301（クエリを引き継ぐ。houou/ と同じ入口の形） | 2026-10-17（未公開。#519） | #519 | 未（初回 2027-01 上旬） |
+| `/jwrc/ranking/` | `/jwrc/ranking/total/` | `_redirects` 301（クエリを引き継ぐ。houou/ と同じ入口の形） | 2026-10-18（未公開。#594） | #594 | 未（初回 2027-01 上旬） |
 | `/houou_ranking.html` | `/houou/ranking/total/` | `_redirects` 301（クエリを引き継ぐ。`?division=` は下の「JS の移動」、`?sheet=` は読まれない） | #540 の公開の日 | #540 | 未（初回 2027-01 上旬） |
 | `/houou_leagues.html` | `/houou/leagues/` | `_redirects` 301（`?name=` を引き継ぎ、下の「JS の移動」で個人成績のリーグのタブへ） | #540 の公開の日 | #540 | 未（初回 2027-01 上旬） |
 | `/houou_race.html` | `/houou/race/` | `_redirects` 301 | #540 の公開の日 | #540 | 未（初回 2027-01 上旬） |
 | `/houou_results.html` | `/houou/players/` | `_redirects` 301（`?name=` を引き継ぐ） | #540 の公開の日 | #540 | 未（初回 2027-01 上旬） |
+| `/ouka_ranking.html` | `/ouka/ranking/total/` | `_redirects` 301（クエリを引き継ぐ） | 2026-10-19 | #591 | 未（初回 2027-01 上旬） |
+| `/ouka_leagues.html` | `/ouka/leagues/` | `_redirects` 301（`?name=` を引き継ぎ、下の「JS の移動」で個人成績のリーグのタブへ） | 2026-10-19 | #591 | 未（初回 2027-01 上旬） |
+| `/ouka_results.html` | `/ouka/players/` | `_redirects` 301（`?name=` を引き継ぐ） | 2026-10-19 | #591 | 未（初回 2027-01 上旬） |
 | `/saikyo/2011.html` | `/saikyo/2011/` | `_redirects` 301 | #549 の公開の日 | #549 | 未（初回 2027-01 上旬） |
 | `/saikyo/2012.html` | `/saikyo/2012/` | `_redirects` 301 | #549 の公開の日 | #549 | 未（初回 2027-01 上旬） |
 | `/saikyo/2013.html` | `/saikyo/2013/` | `_redirects` 301 | #549 の公開の日 | #549 | 未（初回 2027-01 上旬） |
@@ -70,8 +75,9 @@ ryoei.pro のすべての転送の一覧と、四半期ごとの棚卸しの手�
 | 移動元 | 移動先 | 場所 | issue |
 |---|---|---|---|
 | 旧年度ページ（`/saikyo/<年度>.html`、301 で `/saikyo/<年度>/` へ来る）の `#<卓のアンカー>`・`#match-…` | 対局・卓のページ | `assets/saikyo.js`（対応表は `#saikyo_anchor_map`、`generate_saikyo_pages.py` の `anchor_map_json()`） | #425 |
-| `houou/ranking/total/` の `?division=`（`/houou/ranking/?division=`・`/houou_ranking.html?division=` は 301 で `total/` へ来る） | その部門のページ | `assets/houou.js` | #518 |
-| `houou/leagues/`（`/houou_leagues.html` は 301 で来る） | `houou/players/?view=league`（`?name=` を保つ） | `assets/houou.js`（2026-10-12） | #518 |
+| `houou/ranking/total/`・`ouka/ranking/total/`・`jwrc/ranking/total/` の `?division=`（`/houou/ranking/?division=`・`/houou_ranking.html?division=` は 301 で `total/` へ来る） | その部門のページ | `assets/league.js` | #518・#519・#594 |
+| `houou/leagues/`（`/houou_leagues.html` は 301 で来る） | `houou/players/?view=league`（`?name=` を保つ） | `assets/league.js`（2026-10-12） | #518 |
+| `ouka/leagues/`（`/ouka_leagues.html` は 301 で来る） | `ouka/players/?view=league`（`?name=` を保つ） | `assets/league.js`（houou/ と同じ。生成は #591） | #591 |
 
 ## 予定（公開時に増える）
 

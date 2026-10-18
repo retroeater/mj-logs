@@ -59,6 +59,21 @@ Chat-Ref: CHAT-1019-OUK-16
 
 ## 経過
 
+### 0章
+
+- Chat-Ref の重複なし。「指示」欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- work/1019-ouk15 はリモートとローカルが同じ（62e22db82）。CHAT-1019-OUK-15 のログの状態に ` / 続き: CHAT-1019-OUK-16` を足した
+- origin/cloudflare（4ad6e57cf、Actions の再生成3件）は HEAD の祖先でなかったので merge で取り込んだ（c8f68165f）。衝突なし
+- 未マージの work/ ブランチで変えるファイルに触るのは work/1017-lvp の `navbar.js`・`style.css` だけ（OUK-15 と同じ。別の箇所）
+
+### 1. 直し
+
+- `generate_jpml_pros.py`: `filter_placeholders()` を足し、鳳凰・桜花の検索欄の placeholder を見出しの `<br>` を空白にした表記（「鳳凰 43後」「桜花 21期」）にした。期は見出しと同じ `pro_stats.periods()` の値。視覚に出ないラベル（「鳳凰戦の現在のリーグで検索」「女流桜花21期の所属リーグで検索」）は変えていない
+- テスト `test_filter_placeholders_match_headers`（期が変われば「鳳凰 44前」「桜花 22期」）。前のコードには関数が無いので落ちる
+- `python3 -m unittest discover -s scripts/tests` 1,425件 OK、`node --test 'workers/ask/test/*.test.mjs'` 47件 pass
+- `python3 scripts/regenerate.py all` を作業ブランチと cloudflare のクローン（4ad6e57cf）で同時に回した（どちらも exit 0）。差は OUK-15 と同じ種類だけ: ouka/ の11ページの noindex の1行ずつ・`ouka/leagues/` が増える・`jpml_pros.html`（見出し1行・全1,098行の桜花の列〈ほかの列の差0〉・検索欄の2行）・`navbar.js`・`style.css`・`_redirects`・`sitemap-pages.xml`・`llms.txt`。houou/ の生成物は差分0
+- 文書: `docs/notes/redirects.md` の ouka の3行の入れた日を 2026-10-19 に、`docs/notes/ouka-top.md` に公開の日と後始末（#582）を書いた。`docs/decisions/houou.md` に 2026-10-19（OUK-16）の節を足した
+
 ## 報告
 
 - 状態: 作業中
@@ -75,12 +90,12 @@ Chat-Ref: CHAT-1019-OUK-16
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 0f18afda）: https://github.com/retroeater/mj-logs/tree/main/guide/0f18afda
+ガイド文書（この版を写した時点の最新、mj 6054a3fe）: https://github.com/retroeater/mj-logs/tree/main/guide/6054a3fe
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/0f18afda/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/0f18afda/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/0f18afda/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/0f18afda/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/0f18afda/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/0f18afda/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6054a3fe/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6054a3fe/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6054a3fe/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6054a3fe/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6054a3fe/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6054a3fe/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/4afe5cd1.md

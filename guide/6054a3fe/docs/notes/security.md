@@ -12,7 +12,7 @@ ryoei.pro 固有の攻撃面を8つに分けて見る。
 | (a) | Worker `mj-ask`（`workers/ask/`、`assets/houou_ask.js`） | 入力の検査、`Origin` が偽装できる前提での費用の守り（回数の上限・IP の取り方）、プロンプトインジェクション（system と user の分け方、検索条件の型の固定、答えの検証）、答えの描画（`textContent` か）、D1 の引数化、エラー応答と `/api/ask/status` が返す情報、レスポンスヘッダ（`_headers` は Worker の応答に効かない）、Workers Logs に書く内容。`mj-scheduler` はトークンの使い道 |
 | (b) | 生成スクリプト（`scripts/*.py`・`scripts/lib/*.py`） | シートの値を HTML に入れる箇所の `esc()`、`href` に入る URL の scheme（`javascript:`）、`<script>` に入れる JSON の `<` の逃がし方、属性の引用符 |
 | (c) | フロントの JS（`assets/*.js`・ルート直下の `*.js`。`assets/vendor/` を除く） | `innerHTML`・`insertAdjacentHTML`・`document.write`・`eval`・`new Function` と、そこに入る値の出所（生成 JSON・localStorage・URL のクエリ）。`assets/vendor/` は名前と版を一覧にして既知の脆弱性を照合 |
-| (d) | GitHub Actions（`.github/workflows/`・`.github/actions/`） | zizmor の結果、第三者 action の SHA 固定、`pull_request_target`・`workflow_run`、`permissions` の粒度、Secret がログに出る経路、`secrets: inherit`、`workflow_dispatch` の入力や `${{ }}` を `run:` に直接埋めていないか、`dependabot.yml` |
+| (d) | GitHub Actions（`.github/workflows/`・`.github/actions/`） | zizmor の結果（2026-10-18 に直した後は 58 件。残りは self-repository 45・push する job の artipacked 8・`sync-logs.yml` の 5）。今の形から外れていないか: 第三者 action が SHA で固定され `dependabot.yml` の対象か、トップレベルが `permissions: {}` で job ごとに最小か、`secrets: inherit` が無く Secret を明示して渡しているか、`run:` に `${{ }}` を直接書いていないか、push しない checkout が `persist-credentials: false` か（形は `docs/notes/github-actions.md`「権限と Secret の渡し方」）。ほかに `pull_request_target`・`workflow_run`、Secret がログに出る経路、Settings の Workflow permissions の既定が読み取りだけか |
 | (e) | 公開されるファイル | `.assetsignore` と `wrangler.jsonc`（`assets.directory: "./"`）から配信対象を一覧にし、`docs/`・`scripts/`・`workers/`・テスト・鍵・`.env`・ログが無いか。本番で代表の URL が 404 か |
 | (f) | 秘密の混入 | 作業ツリー（detect-secrets）と全履歴（`git log -p --all` の正規表現）。見つけたら値は書かず SHA とファイル名だけ |
 | (g) | 配信のヘッダ | `_headers` の内容と、本番の `/`・`/houou/`・`/api/ask/status` の応答ヘッダ |
@@ -103,3 +103,4 @@ claude.ai のプラグイン一覧で有効にすると、クラウドセッシ�
 2. (a)〜(h) を順に見る（(b)・(c) は量が多いので、読むだけのサブエージェントに分け、主な指摘は該当行を自分で開いて確かめる）
 3. 前回の親 issue の表と比べ、直ったもの・新しいものを分けて、新しい親 issue（または前回の issue へのコメント）にする
 4. (d)・(f)・(h) は `security-check.yml` の実行結果（Job summary とジョブのログ）を起点にし、前回の件数と比べる
+5. 「ダッシュボード側の確認」の 3 で、Secret scanning／Push protection が個人の private リポジトリで使えるようになっていないかを確かめる（使えるなら有効にし、`security-check.yml` の履歴の走査との分担を決める。#300 はクローズ済み）
