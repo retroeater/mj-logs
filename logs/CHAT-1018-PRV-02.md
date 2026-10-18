@@ -57,17 +57,70 @@ CHAT-1018-PRV-01（#557）の判断待ちへの回答。平野さんの決定を
 - 0. 「指示」欄の末尾の行は指示文の最後の行と一致
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
 
+### 手順1
+
+- #557: open。コメントは PRV-01 の2件だけで、他のセッションの着手中のコメントは無い。着手中のコメントを残した（issuecomment-6249653783）
+- PRV-01 のログの `## 報告` の状態を「判断待ち / 続き: CHAT-1018-PRV-02」にした
+- 決定の記録先: `docs/decisions/security.md`（PRV-01 の決定と同じ分野。README の一覧に「データ」の分野は無い）に「2026-10-18（CHAT-1018-PRV-02）」を足した
+- 既存の決定との関係: 次の6行は個別のブックの共有を「リンクを知っている全員」と書いていて、PRV-01 の「すべて非公開」と食い違う。
+  平野さんの判断は要らない（PRV-01 の決定が後で、全部を覆う）ため、README の形で行末に置き換えの印を付けた:
+  - `houou.md`「Ampai の URL は…ryoei.pro_Ampai…」・`pros.md` の同じ行
+  - `pros.md`「ryoei.pro_選手 の3タブは…共有は『リンクを知っている全員が閲覧可』」
+  - `pros.md`「『辞書』『書籍』シートは…R_その他…」
+  - `mtsuku.md`・`wayhome.md`「新しいブックの『一般的なアクセス』を『リンクを知っている全員（閲覧者）』にした」
+  - あわせて `houou.md`「ryoei.pro のブックの公開範囲の整理は別の issue にする（#557）…gviz の公開読み取りの扱いもあわせて決める」に、PRV-01・PRV-02 で決まった印を付けた
+  - 付けた形（例）: `…（共有は → 置き換え: 2026-10-18（CHAT-1018-PRV-01）。すべて非公開にする）`
+- Google Charts の据え置きの古い決定（`features.md`「#111 は据え置く」・`houou.md`「女流桜花・WRC は据え置き」）は、`operations.md` の案C（WRC・桜花を Python の生成に移す）と #591・#599 で既に先へ進んでおり、今回の (b) と食い違わないので触っていない
+
+### 手順2: 手順書
+
+- 新しい文書 `docs/notes/sheets-reader.md`（live-channel-write.md「設定手順」の形に合わせた。既存の文書は書き込み用で、節を足すと用途が混ざるため別にした）
+- 名前の案: サービスアカウント `sheets-reader`、Secret `SHEETS_READER_SA_KEY`、スコープ `spreadsheets.readonly`（コードの側）。ロールは付けない（権限はブックの閲覧者の共有で与える）
+- プロジェクト: `live-channel-writer`・`mj-ask` と同じ（Google Sheets API は有効。ask-worker.md「C1」の平野さんの申告）。有効化は「確かめるだけ」にした
+- 公式の文書で確かめた画面の名前と出典:
+  - サービスアカウントの作成: 「作成して続行」「続行」「完了」、ロールは任意、ID は後から変えられない（https://docs.cloud.google.com/iam/docs/service-accounts-create?hl=ja ）
+  - 鍵: 「[キー] タブ」「[鍵を追加]」「[新しい鍵を作成]」「[JSON]」「[作成]」、再ダウンロードできない、`iam.disableServiceAccountKeyCreation`（https://docs.cloud.google.com/iam/docs/keys-create-delete?hl=ja ）
+  - 鍵の扱い: ダウンロード フォルダに残さない、リポジトリに送ったら IAM で速やかに削除、ローテーション（https://docs.cloud.google.com/iam/docs/best-practices-for-managing-service-account-keys?hl=ja ）
+  - API の有効化: 「API ライブラリ」で選び「有効にする」（https://docs.cloud.google.com/apis/docs/getting-started?hl=ja ）。「API とサービス」のメニュー名は文書に無い
+  - Drive の共有: 「閲覧者」「閲覧者（コメント可）」「編集者」、通知のチェックボックス、「送信」または「共有」、「一般的なアクセス」の「制限付き」（https://support.google.com/drive/answer/2494822?hl=ja ）
+  - Workspace の外部共有: 「アプリ」→「Google Workspace」→「ドライブとドキュメント」→「共有設定」→「共有オプション」、「許可リスト登録済みドメイン」（https://knowledge.workspace.google.com/admin/drive/manage-external-sharing-for-your-organization?hl=ja ）。ユーザーの共有画面に出る文言は文書に無い
+  - Sheets API のスコープ `spreadsheets.readonly`（https://developers.google.com/workspace/sheets/api/scopes ）
+  - GitHub の Secret: docs.github.com はセッションのネットワークで拒否される（`CONNECT tunnel failed, response 403`、WebFetch も名前解決できない）。検索結果の抜粋（Settings →「Secrets and variables」→「Actions」→「Secrets」タブ →「New repository secret」→「Name」「Secret」→「Add secret」）で確かめた
+- 既存の手順との違い（手順書の末尾の表）: 公式の文書は「キー」タブ、既存の手順は「鍵」タブ（画面の表記は要確認）／共有は編集者ではなく閲覧者／通知のチェックを外す／プロジェクトの書き方が live-channel-write.md（My First Project）と birthday-calendar.md（新しく作ったプロジェクト）で違う
+- 気づいたこと（今回は直していない）: `docs/handover.md` の「スプレッドシート」の段落は「生成スクリプトが読むブックは7つ」と書いているが、PRV-01 の洗い出しでは16冊（＋AIボット）
+
+### 取り込みとの重なり
+
+- 未マージの `work/OUK`・`work/WRC` が `docs/decisions/houou.md` を変えている（719行目の1行と、1038行目以降への追記）。この作業の変更（641・665行目の行末）とは同じ行・隣の行ではない
+- `git merge-tree` で、この作業のコミットと `origin/work/OUK`・`origin/work/WRC` の取り込みがどちらも衝突しないことを確かめた
+- 差分は docs だけ（`docs/decisions/` 5ファイル・`docs/notes/sheets-reader.md`・`docs/logs/` 2ファイル）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1018-prv
-- ログ: https://github.com/retroeater/mj/blob/work/1018-prv/docs/logs/CHAT-1018-PRV-02.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1018-PRV-02.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1018-prv
 - 確認用URL: なし
-- マージ: 未
-- issue: #557
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- マージ: 未（docs のみ。この push の後に cloudflare へ入れる）
+- issue: #557（着手中のコメントと、決定・手順書・次の段取りのコメント）
+- 判断が必要なこと:
+  - 平野さんの手作業（手順書 docs/notes/sheets-reader.md の順）:
+    1. Google Cloud Console で `live-channel-writer` と同じプロジェクトを選び、Google Sheets API が有効なことを確かめる
+    2. サービスアカウント `sheets-reader` を作る（ロールは付けない）。メールアドレスを控える
+    3. 「キー」タブで JSON の鍵を作る（作れないと出たら止めて伝える）
+    4. GitHub の Secret `SHEETS_READER_SA_KEY` に JSON の中身を登録する
+    5. ダウンロードした JSON を PC から消し、ごみ箱も空にする。鍵の期限・差し替えを認証情報の台帳（#601）に載せる
+    6. 「20210430_「孤立牌」と「1メンツ+1」の比較」の1冊だけを `sheets-reader@…` に**閲覧者**で共有する（通知のチェックを外す。一般的なアクセスはまだ変えない）
+    7. 共有できないときは止めて、表示の文言かスクリーンショットをチャットに渡す（Workspace の外部共有の設定。勝手に緩めない）
+    8. 済んだら、`sheets-reader` の名前・Secret の登録・1冊の共有が済んだことをチャットに伝える（プロジェクト ID・鍵の中身は伝えない）
+  - 名前の案（`sheets-reader`・`SHEETS_READER_SA_KEY`）でよいか（変えるなら手順書とコードを合わせる）
+  - 切り替えの順番（PRV-01 の (d)、段0〜段6）は案のまま。平野さんの判断をもらう
+  - 名簿（PRV-01 の表の 16）の持ち主と、題の「R_…」への付け替えが意図どおりか（チャットで聞いている分。未回答）
+- 未確認の項目:
+  - 手順書の画面の表記で要確認のもの: 鍵のタブ（公式の文書は「キー」、既存の手順は「鍵」）・Google Sheets API が有効なときのボタンの表記（「管理」）・Workspace で外部共有が止められたときの共有画面の文言
+  - GitHub の Secret の画面の名前は、docs.github.com を開けず検索結果の抜粋で確かめた
+  - `live-channel-writer`・`mj-ask` と同じプロジェクトで Google Sheets API が有効なこと（平野さんの申告。ここからは検証できない）
 - エラー: なし
 
 <!-- guide-links -->

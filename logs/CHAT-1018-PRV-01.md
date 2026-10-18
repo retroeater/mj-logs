@@ -150,7 +150,7 @@ ryoei.pro が読むスプレッドシートを、すべて非公開（一般的�
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1018-PRV-02
 - ブランチ: work/1018-prv
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1018-PRV-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1018-prv
@@ -201,12 +201,12 @@ ryoei.pro が読むスプレッドシートを、すべて非公開（一般的�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 5a267bc8）: https://github.com/retroeater/mj-logs/tree/main/guide/5a267bc8
+ガイド文書（この版を写した時点の最新、mj c614fb14）: https://github.com/retroeater/mj-logs/tree/main/guide/c614fb14
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/5a267bc8/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/5a267bc8/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/5a267bc8/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/5a267bc8/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/5a267bc8/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/5a267bc8/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c614fb14/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c614fb14/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c614fb14/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c614fb14/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c614fb14/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c614fb14/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/0ae083e4.md
