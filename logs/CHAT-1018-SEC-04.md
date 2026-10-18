@@ -207,6 +207,36 @@ fetch-youtube ─ fetch / regenerate → regenerate-page / report
 
 直し方: `github.*` は既定の環境変数（`GITHUB_EVENT_NAME`・`GITHUB_SERVER_URL`・`GITHUB_REPOSITORY`・`GITHUB_RUN_ID`・`GITHUB_REF_NAME`・`GITHUB_SHA`。`workflow_call` でも `github.*` と同じく呼ぶ側の値）を使い、`github.event.before`・`inputs.*`・`steps.*` はステップの `env:` で受ける。
 
+### 2. 直す
+
+| 段 | コミット | 内容 |
+|---|---|---|
+| (a) | f6cfb0dca | 全ワークフロー（sync-logs を除く）のトップレベルを `permissions: {}`、job ごとに上の表の権限。`secrets: inherit` 11か所を明示に。呼ばれる側の `on.workflow_call.secrets` に宣言（update-live-channel: YOUTUBE_API_KEY・LIVE_SHEETS_SA_KEY・GCP_SA_KEY／sync-yotei: GCP_SA_KEY・LIVE_SHEETS_SA_KEY／update-sns-book: LIVE_SHEETS_SA_KEY・X_BEARER_TOKEN／regenerate-saikyo: LIVE_SHEETS_SA_KEY／sync-dojo-calendar: ANTHROPIC_API_KEY・GCP_SA_KEY は required: true。regenerate-page の楽天2つと check-image-links の X_BEARER_TOKEN は required: false で渡さない）。regenerate-page を呼ぶ job と run-daily の sns・saikyo に issues: write を足した。fetch-youtube の report は `permissions: {}` |
+| (b) | 8428d00c3 | `run:` の `${{ }}` を env に（上の表の全箇所）。push しない job の checkout 15か所に `persist-credentials: false` |
+| (c) | 33535dd68 | 第三者の action 53か所を SHA に固定（上の SHA の表）。`.github/dependabot.yml` を足した。security-check.yml の注釈の「ほかの本の固定は SEC-04」「150 件を超える」を消した |
+| (d) | b47b24e8f | `mj-scheduler`: (a) `checkMorningRetry` は書き手が `retroeater`・`github-actions[bot]`（`TRUSTED_COMMENTERS`）のコメントだけを数える、(b) `validRows()` で `^[a-z0-9-]+\.ya?ml$` に合わない行を捨てて `console.error`（index.mjs で schedule.rows に通す）。docs/notes/scheduler-worker.md の2か所を直した。(c) `houou_ask.js` は外した（work/OUK・work/WRC が同じファイルを変えている） |
+| — | 892bde4ae | handover.md 6章の表に `docs/notes/sheets-reader.md` の行（下の「3.」） |
+| 文書 | b46f832df | docs/notes/github-actions.md に「権限と Secret の渡し方」「Dependabot」、run-daily の節の `secrets: inherit` の記述を直した。security.md の (d) の観点を今の形に |
+
+`persist-credentials`:
+
+| 付けた（push しない） | 付けなかった（checkout の認証で push する） |
+|---|---|
+| check-assets・check-build-failure・check-image-links（check・saikyo・sns_book）・check-meibo（meibo・ampai）・check-saikyo-unregistered・convert-x-posts・fetch-x-posts・regenerate-saikyo（abema）・sync-birthday-calendar・sync-dojo-calendar・sync-yotei・update-sns-book（update）・security-check（SEC-02 で済） | cleanup-branches（`git push` で削除）・cleanup-logs（commit-push）・fetch-gsc・fetch-redirect-counts（commit-push）・fetch-youtube（fetch、commit-push）・regenerate-page・regenerate-sitemap・update-live-channel（update）。sync-logs は触らない |
+
+`dependabot.yml` は指示の `directory: "/"` を `directories: ["/", "/.github/actions/*"]` にした（`"/"` は `.github/workflows/` だけを見るため、composite action の `actions/setup-python`・`actions/github-script` が対象から漏れる）。zizmor の dependabot-cooldown（Medium）に合わせて `cooldown: default-days: 7` を足した。
+
+`mj-scheduler` のテストは、先に足したテストが直す前のコードで落ちることを確かめてから直した（#310。catchup の「ほかの人が書いた当日の題のコメントは数えず」が fail、scheduler.test の `validRows` が import で fail → 直した後 44 件 pass）。#506 の最近のコメントの書き手は全部 `retroeater`（Worker のトークンの持ち主）であることを API で確かめた。
+
+### 3. cloudflare のテストの失敗（この指示の変更ではない）
+
+1回目の run-daily のドライラン（[run 39126490232](https://github.com/retroeater/mj/actions/runs/39126490232)、(a) の版 f6cfb0dca）で、`live / update` と `dojo / sync` の「テスト」の段が落ちた。`test_handover_notes_table` が `docs/notes/sheets-reader.md`（5fbb636e5、CHAT-1018-PRV-02 が cloudflare に入れた）が handover.md 6章の表に無いことで fail。origin/cloudflare の 1cd1d6f2b で同じく落ちる（この指示の差分は handover.md もテストも変えていなかった）。
+
+- このままだと明朝 04:00 の run-daily の `live / update`（連盟 ch の取り込み）と `dojo / sync` が落ちる
+- work/OUK に同じ1行（同じ文面）があったので、そのまま 892bde4ae で入れた（同一の変更なので、後の取り込みで衝突しない）。直した後 unittest 1382 件 OK
+- 副作用: 1回目のドライランの `dojo / sync` の「結果をissueに知らせる」（`always()`）が、同期の段が skipped のため「道場部ゲストの取り込みが失敗しました（同期: skipped）…書き込んでいません」を常設 issue「道場部ゲストの取り込み」に書いた（既存の動き。ドライランでも失敗は知らせる作り）
+- 起動の検証は通った（呼ばれる側の permissions が呼ぶ側を超えると起動の時点で失敗するが、10ジョブが起動した）。`images / check`・`images / saikyo`・`sns / update`・`branches / delete` は success
+
 ## 報告
 
 - 状態: 作業中
@@ -223,12 +253,12 @@ fetch-youtube ─ fetch / regenerate → regenerate-page / report
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 1cd1d6f2）: https://github.com/retroeater/mj-logs/tree/main/guide/1cd1d6f2
+ガイド文書（この版を写した時点の最新、mj 8165a7bd）: https://github.com/retroeater/mj-logs/tree/main/guide/8165a7bd
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/1cd1d6f2/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/1cd1d6f2/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/1cd1d6f2/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/1cd1d6f2/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/1cd1d6f2/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/1cd1d6f2/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/8165a7bd/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/8165a7bd/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/8165a7bd/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8165a7bd/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8165a7bd/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8165a7bd/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/0ae083e4.md
