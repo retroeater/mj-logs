@@ -92,7 +92,7 @@ Chat-Ref: CHAT-1019-WRC-12
 
 ### テスト
 
-- `python3 -m unittest discover -s scripts/tests`: 直しの前（noindex を外しただけの状態）に2件落ちた（`test_jwrc_pages` の noindex の期待、`test_redirects_inventory` の棚卸しの行）。直した後 1,427件 OK
+- `python3 -m unittest discover -s scripts/tests`: 直しの前（noindex を外しただけの状態）に2件落ちた（`test_jwrc_pages` の noindex の期待、`test_redirects_inventory` の棚卸しの行）。直した後 1,426件 OK
 - `node --test 'workers/ask/test/*.test.mjs'`: 47件 OK
 
 ### 全ページの生成と差分（`python3 scripts/regenerate.py all`）
@@ -116,12 +116,12 @@ Chat-Ref: CHAT-1019-WRC-12
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 6054a3fe）: https://github.com/retroeater/mj-logs/tree/main/guide/6054a3fe
+ガイド文書（この版を写した時点の最新、mj 06f1203b）: https://github.com/retroeater/mj-logs/tree/main/guide/06f1203b
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6054a3fe/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6054a3fe/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6054a3fe/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6054a3fe/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6054a3fe/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6054a3fe/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/06f1203b/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/06f1203b/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/06f1203b/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/06f1203b/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/06f1203b/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/06f1203b/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/f0204bea.md

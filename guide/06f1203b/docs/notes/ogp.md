@@ -10,7 +10,7 @@ OGP 画像・og:title を作る／変えるときに読む。#339（「帰り道
   `docs/notes/static-generation.md`「生成スクリプトの構成（lib/page.py）」）
 - 全ページ共通の画像（`PageMeta.og_image` の既定）は `img/ogp/site/index-white.png`（白地・黒字の「ryoei.pro」、余白を広くとる。告知動画の締めの画面のイメージ、#581）。
   旧 `img/ogp.png`（白地、#78）は凍結中の books/ が指したまま残るので消さない
-- 現在の実例（文字ベースの画像は4種類、#581）: 共通の `img/ogp/site/index-white.png`、`img/ogp/title/index-white.png`（title/ の全ページ、`docs/notes/title-pages.md`）、`img/ogp/houou/index-white.png`（houou/ の全ページと旧 `houou_*.html`、`docs/notes/houou-top.md`「共通」）、`img/ogp/saikyo/index-white.png`（最強戦のトップと、卓・カードの代わりの画像、`docs/notes/saikyo-page-design.md`）。ほかに帰り道の一覧の `img/ogp/wayhome/index-<最新話の公開日>.jpg`（`docs/notes/video-wayhome.md`）
+- 現在の実例（文字ベースの画像は4種類と未公開の ouka/ の1枚、#581・#519）: 共通の `img/ogp/site/index-white.png`、`img/ogp/title/index-white.png`（title/ の全ページ、`docs/notes/title-pages.md`）、`img/ogp/houou/index-white.png`（houou/ の全ページと旧 `houou_*.html`、`docs/notes/houou-top.md`「共通」）、`img/ogp/saikyo/index-white.png`（最強戦のトップと、卓・カードの代わりの画像、`docs/notes/saikyo-page-design.md`）。ほかに帰り道の一覧の `img/ogp/wayhome/index-<最新話の公開日>.jpg`（`docs/notes/video-wayhome.md`）
 
 ## ページの種類ごとの og:image・og:type の規則
 
@@ -22,10 +22,10 @@ OGP 画像・og:title を作る／変えるときに読む。#339（「帰り道
 | 動画の一覧ページ（Mつく・女流勉強会の一覧など） | 最新話のサムネイル。許可を得て合成画像を作れるもの（帰り道の一覧、#340）は合成画像 | website |
 | 最強戦の卓（ABEMA） | ABEMA の回があればその回のサムネイル（ヒーローと同じ）、無ければ作品「麻雀最強戦」の画像 | website（ABEMA は埋め込みの URL を出していない） |
 | 最強戦の年度・対局 | 作品「麻雀最強戦」の画像 | website |
-| title/ の全ページ・houou/ の全ページと旧 `houou_*.html`・saikyo/ のトップ | それぞれ「タイトル戦」「鳳凰戦」「麻雀最強戦」の1枚。共通画像と同じ白地・黒字で、区分名を大きく（幅に合わせ、上限 200px）、その下に「ryoei.pro」（48px）。`build_ogp_image.py --text <区分名> --footer ryoei.pro --color '#212529' --bg '#ffffff' --max-size 200 --tracking -0.03` | website |
+| title/ の全ページ・houou/ の全ページと旧 `houou_*.html`・ouka/ の全ページ・saikyo/ のトップ | それぞれ「タイトル戦」「鳳凰戦」「女流桜花」「麻雀最強戦」の1枚。共通画像と同じ白地・黒字で、区分名を大きく（幅に合わせ、上限 200px）、その下に「ryoei.pro」（48px）。`build_ogp_image.py --text <区分名> --footer ryoei.pro --color '#212529' --bg '#ffffff' --max-size 200 --tracking -0.03` | website |
 | ほかのページ（下位メニューしか無いグループ〈連盟・女流桜花・WRC・番組・リソース・良栄〉の下のページなど） | 共通の `img/ogp/site/index-white.png`。ページの種類ごとの画像は作らない | website |
 
-文字ベースの画像（サムネイルなどの無いページで使うもの）は、メニューの最上位でそれ自体がページになっているものだけ作る（ryoei.pro・鳳凰戦・麻雀最強戦と、例外のタイトル戦の4種類。サブメニューで細かく分けない、2026-10-16、#581）
+文字ベースの画像（サムネイルなどの無いページで使うもの）は、メニューの最上位でそれ自体がページになっているものだけ作る（ryoei.pro・鳳凰戦・麻雀最強戦と、例外のタイトル戦の4種類。サブメニューで細かく分けない、2026-10-16、#581）。女流桜花の ouka/ は、公開で navbar「女流桜花」を `/ouka/` への1段にする案（#591）に合わせて5種類目を作った（`img/ogp/ouka/index-white.png`、2026-10-17、仮置き。#519）
 
 - 全ページに og:locale `ja_JP`（#267）。生成のページは `lib/page.py` の `HEAD_TEMPLATE` と `generate_jpml_pros.py`、手書きのページは head に直接書く
 - 規則は「埋め込みできる動画のページ（YouTube）は video.other ＋ og:video、それ以外は website」
