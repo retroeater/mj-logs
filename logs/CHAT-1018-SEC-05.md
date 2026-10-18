@@ -107,6 +107,11 @@ CHAT-1017-SEC-01 の点検（#598）は観点を決めて読む形だった。An
 
 完了条件は「判断が必要なこと」に指摘の一覧・直す指示の案・定期実行の所見を書くよう求め、`_template.md` は「完了」なら「なし」だけとする。前提・ルールの側を優先し、判断の要る「定期的に回すか」を残すので状態を「判断待ち」にして、そこに書いた（指摘の一覧と直す指示の案は「なし」の理由を1行で添えた）。
 
+### マージ
+
+- push 直前に再 fetch し `git merge-base --is-ancestor origin/cloudflare HEAD` が真。差分は docs のみ（`docs/decisions/security.md`・`docs/logs/CHAT-1018-SEC-03.md`・`docs/logs/CHAT-1018-SEC-05.md`・`docs/notes/security.md`）
+- `git push origin work/1018-sec3:cloudflare`: 689940af0..d9a2b309b（fast-forward）
+
 ## 報告
 
 - 状態: 判断待ち
@@ -114,7 +119,7 @@ CHAT-1017-SEC-01 の点検（#598）は観点を決めて読む形だった。An
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1018-SEC-05.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1018-sec3
 - 確認用URL: なし
-- マージ: 済（cloudflare へ fast-forward。SHA は経過の末尾）
+- マージ: 済（d9a2b309b）
 - issue: #598
 - 判断が必要なこと:
   - 新しい指摘: なし（Claude Security の診断は指摘0件、`verified`）。直す指示は要らない。SEC-04（Actions）はこの結果と関係なく予定どおりでよい
