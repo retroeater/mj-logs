@@ -54,6 +54,27 @@ CHAT-1017-SEC-01 の点検（#598）は観点を決めて読む形だった。An
 
 ## 経過
 
+### 着手（0章・手順1）
+
+- Chat-Ref の重複: `git log --all --grep="CHAT-1018-SEC-05"` は0件（`git fetch --unshallow origin` の後）。`SEC` は同じチャットの続き番号
+- 作業ブランチ: ローカルに無く、`origin/work/1018-sec3` は未マージ（cloudflare の祖先でない）→ `git checkout -b work/1018-sec3 origin/work/1018-sec3`。`git merge-base --is-ancestor origin/cloudflare HEAD` は真（取り込み不要）
+- 0章: 指示欄の末尾は指示文の最後の行（「不明な点があれば、…この行が指示文の最後の行です。」）と一致。SEC-03 のログの状態を「中断（エラー） / 続き: CHAT-1018-SEC-05」にしてコミット
+- 指示文冒頭の雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある
+- `claude plugin list`: `claude-security@synced` Version 0.11.0 `√ loaded`（ほかに security-guidance 2.0.13 など）。`~/.claude/plugins/synced/` は組織の1ディレクトリ
+- `python3 --version`: Python 3.13.16
+- 未マージの work/ ブランチで `docs/notes/security.md`・`docs/decisions/security.md` を変えているものは無い（`git diff origin/cloudflare...<各ブランチ>` が空）
+- #598 の本文と SEC-02 の結果のコメントを読み、着手中のコメントを書いた
+
+### 診断の起動（手順2）
+
+- skill `claude-security` は `disable-model-invocation: true` でモデルからは呼べないため、skill の手順書（`jobs/scan-codebase.md`）どおりに自分で進めた（Security Lead の役）。メニューの問い: ジョブ＝Scan codebase、形＝Scoped scan、確認（時間・トークンを使う）＝指示文が承認を兼ねる（「費用は Max の使用量から出る」と費用を受け入れている）ので「Yes」として扱った
+- 対象（`--scope`）: `workers,scripts/lib,assets/houou_ask.js`（追跡ファイル 56。workers/ask 11・workers/scheduler 4・scripts/lib 38・assets 1 前後）。リポジトリ全体は 5208 ファイル
+- 段: `medium`（既定。inventory → 脅威モデル → 部品×分類ごとの調査 → 広域の走査 → 3票の検証パネル〈2/3〉）。メニューは費用の数値の見込みを出さない（手順書の確認文は固定で、件数・費用・時間を書かない仕様）
+- focus: `attack-surface`（リポジトリが数百ファイルを超えるため手順書の規則どおり）。テスト・生成物（`data.json`）は調査の対象でなく参照扱いになり、秘密の走査は別に1回走る
+- 結果の置き場所: scratchpad の `CLAUDE-SECURITY-20261018-081255/`（作業ツリーの外。コミットされない）
+- 対象の revision: f29d6167c（`write_scan_meta.py` が記録）
+- 起動: 2026-10-18 08:12 UTC（17:12 JST）、Workflow `claude-security:scan`
+
 ## 報告
 
 - 状態: 作業中
