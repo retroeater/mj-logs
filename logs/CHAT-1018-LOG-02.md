@@ -89,14 +89,26 @@ CHAT-1018-LOG-01 で作った「駅は最寄り駅1つ・本文の駅と違う�
 - LOG-01 の節の「移す指示（LOG-02 以降）」を「後の指示」に直した（LOG-02 は移行ではなかったため）
 - 矛盾して判断が要る記述は無かった
 
+### マージ
+
+- push 直前に再 fetch し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真であることを確かめて `git push origin work/1018-log-367-station:cloudflare`（3e8f36f56..6a2b5b89b）
+- 6a2b5b89b の check-run: Workers Builds: mj success・Workers Builds: mj-ask success・sync / check / regenerate success・notify skipped。失敗は無い
+- 本番の `https://ryoei.pro/resource_logs.html?v=6a2b5b89b`: `?tag=` 0件、3113行、手元の生成物とバイト単位で同じ。概要の最後の行は駅1つ（先頭の3行が「渋谷」「広尾」「【栃木】小山」、2025-06-08 の行が「東府中」）。確かめたのは本番の HTML で、ブラウザでの見え方は確かめていない
+- #367 に結果のコメントを残した（LOG-01・LOG-02 のログへのリンク、次は LOG-03 で決定 2・4・5）
+
+### 作業ブランチの片付け
+
+- work/1018-log-367-station: マージ済み（cloudflare の祖先）。この報告の push の後の先頭は cloudflare と同じ SHA にする（docs/logs のみの追いの push を cloudflare にも入れる）
+- クラウドセッションではリモートのブランチを削除できない（docs/notes/cloud-sessions.md「ブランチの削除」）。マージ済みの work/* は `cleanup-branches.yml` が先頭が24時間より前になってから削除する（削除の記録はワークフローの出力に残る）。ローカルのブランチはセッションのクローンの中だけなので消していない
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1018-log-367-station
-- ログ: https://github.com/retroeater/mj/blob/work/1018-log-367-station/docs/logs/CHAT-1018-LOG-02.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1018-LOG-02.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1018-log-367-station
-- 確認用URL: なし
-- マージ: 未
+- 確認用URL: 本番の resource_logs.html（URL は最終報告）。印: カテゴリのリンクが無く、2026-10-13 の行が「【栃木】小山」で終わる
+- マージ: 済（6a2b5b89b）
 - issue: #367
 - 判断が必要なこと: なし
 - 未確認の項目: なし
