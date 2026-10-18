@@ -70,28 +70,61 @@ Claude Security プラグインの回し方
 
 ## 経過
 
+### 着手
+
+- Chat-Ref の重複: `git log --all --grep="CHAT-1018-SEC-07"` は0件。`work/1018-sec7` はローカル・リモートとも無し → `git checkout -b work/1018-sec7 origin/cloudflare`
+- 0章: 指示欄の末尾は指示文の最後の行と一致。冒頭の雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある
+- 未マージの work/ ブランチで `docs/notes/cloudflare.md`・`docs/notes/security.md`・`docs/decisions/security.md` を変えているものは無い
+
+### 手順1: 読んだものと食い違い
+
+- #598 の「平野さんの確認」は12項目で、指示の 1〜12 と順に1対1で対応した（止まる条件に当たらない）。指示の題の「11項目」は12の誤りと見て、12項目として扱った
+- 文面の違い: 項目2は本文が「Actions の書き込みと Issues の書き込み」、指示は「Metadata 読み取り・Actions と Issues の読み書き」。同じ趣旨なので、本文の問いは残し、結果に指示の文面を書いた。項目5の本文は `check-assets.yml`・`regenerate-page.yml` を挙げ、指示は `regenerate-page.yml` だけを挙げる（push するのは後者）。問いはそのまま残した
+- #300 は open。SEC-02 のコメントが「#598 の結果を待つ」と書いていた
+- `docs/notes/cloudflare.md` の「Rate limiting rules（2026-09-29 に導入、#124）」の表の形に合わせた
+
+### 手順2: issue
+
+- #598 本文: 「平野さんの確認」節だけを書き換えた（`updated_at` 2026-10-18T09:59:12Z を確かめてから REST の PATCH。節の外が変わっていないことを書き込み前に確かめた）。11項目にチェックを付け、5（Workflow permissions）は「SEC-04 待ち」でチェックなし。各行の末尾に結果と「（2026-10-18、CHAT-1018-SEC-07）」。トークン・サービスアカウントの名前は本文に書かず「#601」にした
+- #598 コメント（issuecomment-6249004210）: 結果の要約と残り（SEC-04・中-3 の2か所）
+- #601 コメント（issuecomment-6249005490）: 2・6・8・10・11・12 の現状の表（名前・置き場所・権限の範囲・期限。値は書かない）。`mj-read-for-mj-logs` が mj-logs の `MJ_READ_TOKEN` であることは「見込む」と書いた
+- #300 コメント（issuecomment-6249005858）: 見送りと代替。クローズはしていない
+
+### 手順3: docs
+
+- `docs/notes/cloudflare.md`: 「Rate limiting rules: `/api/ask`（2026-10-18 に導入、#598 中-1）」を #124 の節の後に足した（申告値で検証できない旨・2/2）
+- `docs/notes/security.md`: 「ダッシュボード側の確認（年1回か大きな変更の後）」を「点検の観点」の後に足した（12の観点だけ。名前・値・権限は書かない）。「Claude Security プラグイン」の節に回し方を1行足した
+- `docs/decisions/security.md`: `## 2026-10-18（CHAT-1018-SEC-07）` を足した（方針にあたる6項目）
+
+### マージ
+
+- push 直前に再 fetch し `git merge-base --is-ancestor origin/cloudflare HEAD` が真。差分は docs のみ（`docs/decisions/security.md`・`docs/logs/CHAT-1018-SEC-07.md`・`docs/notes/cloudflare.md`・`docs/notes/security.md`）
+- `git push origin work/1018-sec7:cloudflare`: 0930b969d..748e8ef01（fast-forward）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1018-sec7
-- ログ: https://github.com/retroeater/mj/blob/work/1018-sec7/docs/logs/CHAT-1018-SEC-07.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1018-SEC-07.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1018-sec7
 - 確認用URL: なし
-- マージ: 未
+- マージ: 済（748e8ef01）
 - issue: #598・#601・#300
-- 判断が必要なこと: なし
+- 判断が必要なこと:
+  - #300 をクローズしてよいか（Secret scanning／Push protection は使えず見送り、代替は `security-check.yml` の履歴の走査。完了条件の「使えない場合はなぜ使えないかと代替の判断を記録」は満たした）
+  - #598 に残った項目: SEC-04（#564 の段④の後。中-4・中-5・低-1・`dependabot.yml`、そのうえで Workflow permissions の既定の切り替え＝項目5）と、中-3 で外した2か所（`assets/houou.js` の Ampai・`generate_resource_logs.py` の restaurant_url。OUK・WRC・LOG のマージ後）
 - 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 8ab126e4）: https://github.com/retroeater/mj-logs/tree/main/guide/8ab126e4
+ガイド文書（この版を写した時点の最新、mj ed495d4c）: https://github.com/retroeater/mj-logs/tree/main/guide/ed495d4c
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/8ab126e4/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/8ab126e4/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/8ab126e4/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8ab126e4/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8ab126e4/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8ab126e4/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ed495d4c/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ed495d4c/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ed495d4c/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ed495d4c/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ed495d4c/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/ed495d4c/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/f5956855.md
