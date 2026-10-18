@@ -69,6 +69,42 @@ CHAT-1017-SEC-01 の点検（#598）のうち、すぐ直せる中-2（書籍の
 
 ## 経過
 
+### 0. 着手前の確認
+
+- 「指示」欄の最後の行は指示文の最後の行（「不明な点があれば、…この行が指示文の最後の行です。」）と一致
+- `CHAT-1018-SEC-02` のコミットは無し。識別子 `SEC` はこのセッションの SEC-01 で使ったもの（続きの指示なので重複確認の対象外）
+- `work/1018-sec` はローカル・リモートとも無く、`git checkout -b work/1018-sec origin/cloudflare`（82a05e9a1）で作成
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+
+### 1. 調べる
+
+- issue: #598 open（コメント0 → 着手中を書いた）、#9 open（10/17 に SEC-01 のコメント）、#300 open（コメント0）、#564 open（10/16 に段⑤まで。段④は未）
+- 未マージの work/ ブランチと触るファイルの重なり（`git diff --name-only origin/cloudflare...<b>`）:
+  - `work/OUK`・`work/WRC`: `assets/houou.js` を削除（2158 行すべて。改名）→ **`assets/houou.js` の直しは外す**（#598 に書く）。ただし Ampai の URL は `scripts/lib/ampai.py` の取り込みで弾くので、houou の生成 JSON 経由で JS に届く値も守られる
+  - `work/1018-log-367-station`: `scripts/generate_resource_logs.py` の `get_info_cell`（restaurant_url を href に入れる関数）の引数と本体を変えている → **`generate_resource_logs.py:196` の restaurant_url は外す**。同じページの `x_url` は `build_image_cell`（page.py）を通るので守られる。`docs/notes/github-actions.md` は `convert-x-posts.yml` の行を変えている（別の行。止まらない）
+  - ほかのブランチ（1009-swp-526・1011-swp-hnd・1011-swp-nav・1015-skd-notes・1017-lvp）は重なり無し
+- 中-3 の対象を実物で確かめた（行番号は SEC-01 のとおり）。grep（`href="{…}"`）で増えた箇所: `generate_books_pages.py:383` の楽天の URL（API の応答のキャッシュ由来）→ 同じ扱いにした。ほかの変数の href は内部のパス・固定のホスト（`https://x.com/`・`WATCH_URL` など）＋ID・`rel()` で、対象外。mtsuku・study は `WATCH_URL.format(video_id)` で組み直しているので安全
+
+### 2. 直す
+
+- `scripts/lib/url.py` に `safe_url(value) -> str | None`（前後の空白を除き、scheme が http・https で netloc があるときだけ返す）。page.py ではなく別ファイルにしたのは、`lib/ampai.py` から page.py を読むと依存が増えるため
+- 当てた箇所:
+  - `scripts/lib/page.py` `build_image_cell`（video_live・video_en・jpml_test・rh_paifu の動画・resource_logs の X・saikyo_mens の6ページ）
+  - `scripts/lib/ampai.py` `build`（`safe_url(text(url)) or ""`。jpml_pros と houou の生成 JSON の両方）
+  - `scripts/lib/wayhome.py` `video_id_from_watch_url`（http・https でなければ動画 ID 無し＝今までの「視聴URLから動画IDを取り出せません」で生成が止まる。帰り道の「再生」・JSON-LD の contentUrl はすべてこの検査を通った URL）
+  - `scripts/generate_saikyo_pages.py` `build_table_hero` の `elif`（回の URL の形でない値）。回の URL の分岐は `https://abema.tv/video/episode/` の前方一致で守られている
+  - `scripts/generate_rh_paifu.py` の牌譜、`scripts/generate_rh_results_detail.py` の X、`scripts/generate_books_pages.py` の楽天
+- 中-2: `generate_books_pages.py` の `build_json_ld` で `json.dumps(...).replace("<", "\\u003c")`（saikyo と同じ形）。houou・wayhome・mtsuku の3＋1か所（`</` だけ逃がす）はそろえなかった（範囲外で、触る行を増やさないため。#598 の低-6 のまま）
+- テスト: `scripts/tests/test_safe_url.py`（7件）と `test_books_pages.py` に `SecurityTest`（2件）。**修正前のコードでは呼び出し側の6件が失敗し**（cloudflare の scripts を scratchpad に展開し、新しいテストと url.py だけを置いて実行）、修正後はすべて通る
+- `python3 -m unittest discover -s scripts/tests`: 1369 件 OK。`node --test 'workers/ask/test/*.test.mjs'`: 36 pass
+- コミット e9860c291
+
+### 3. 再生成の確かめ（1回目）
+
+- `python3 scripts/regenerate.py all`（5分33秒、rc=0）の後、差分は `jpml_pros.html`（瀬戸熊さんの最強戦 35→36回、宮内さんの桜花 20→21回）・`ouka_leagues_data.json`・`resource_logs.html`（489 行の追加）・`workers/ask/data.json` の4つ
+- 原因の切り分け: origin/cloudflare の木を scratchpad に展開し、**修正前のコードで同じ4ページを生成**（`generate_jpml_pros.py`・`generate_ouka_leagues.py`・`generate_resource_logs.py`・`generate_ask_data.py`）→ 4ファイルとも作業ツリー（修正後のコード）の出力とバイト単位で一致。**差分はシート側の更新によるもので、修正による差分は0**。リンクが消えた箇所は無い。4ファイルは `git checkout -- <ファイル>` で戻した（この指示の範囲外。予約の再生成が拾う）
+- `python3 scripts/regenerate.py books_pages`: 「書籍」シートの行数が想定外（95 行。`MIN_BOOKS` 150〜`MAX_BOOKS` 300）で止まり、生成できなかった（途中の出力は戻された）。今の `books/*.html` の JSON-LD に `<` を含むものは0件なので、直しを当てても差分は出ない見込み。`books/` はコミットしない（スクリプトの直しだけ）
+
 ## 報告
 
 - 状態: 作業中
