@@ -21,6 +21,25 @@ ryoei.pro 固有の攻撃面を8つに分けて見る。
 重大度は 高（外から到達でき、費用・改ざん・情報漏えいにつながる）／中（前提が重なれば到達する、または防御の層が1つしか無い）／低（衛生・推奨設定）の3段。
 ダッシュボード側（GitHub・Cloudflare・Google・Anthropic の設定）はセッションから見えないので、点検せず親 issue の「平野さんの確認」に並べる。
 
+## ダッシュボード側の確認（年1回か大きな変更の後）
+
+平野さんが画面で確かめる観点。結果は親 issue に書き、名前・値・権限の詳細は private の issue（認証情報の一覧は #601）に置く（この文書は public の mj-logs に写る）。
+
+| | どこ | 見ること |
+|---|---|---|
+| 1 | GitHub のアカウント | 2FA が認証アプリなど SMS 以外か、リカバリーコードを控えているか |
+| 2 | GitHub のトークン | fine-grained か、対象のリポジトリ・権限が使う分だけか、期限があるか、使っていないものが無いか |
+| 3 | GitHub の Code security | Secret scanning／Push protection が使えるか（2026-10 時点で個人の private リポジトリでは使えない） |
+| 4 | GitHub の Dependabot | alerts が On か |
+| 5 | GitHub の Actions の設定 | Workflow permissions の既定が読み取りだけか、PR の作成・承認の許可が外れているか |
+| 6 | Cloudflare の API トークン | 一覧に不要なもの・権限の広すぎるものが無いか、Global API Key を使っていないか |
+| 7 | Cloudflare の Rate limiting rules | `/api/ask` と HTML の取得のルールが Active か（`docs/notes/cloudflare.md`） |
+| 8 | Cloudflare の Workers の Secret | 鍵が Variable に入っていないか、使っていない Secret が無いか |
+| 9 | Cloudflare のアカウント | 2FA が認証アプリか、バックアップコードを控えているか |
+| 10 | Google のサービスアカウント | 鍵の数（使っていない鍵が無いか） |
+| 11 | Google のブックの共有 | サービスアカウントの権限が使う分だけか（読むだけなら閲覧者） |
+| 12 | Anthropic | 組織とワークスペースの使用額の上限、キーの期限、使っていないキーが無いか |
+
 ## 道具と入れ方（クラウドセッション、2026-10-17 に実測）
 
 **zizmor・pip-audit・履歴の走査は GitHub Actions の `security-check.yml`（手動実行のみ）にまとめてある**（#598。月1回の起動は #564 の段④の後）。
@@ -76,6 +95,7 @@ claude.ai のプラグイン一覧で有効にすると、クラウドセッシ�
 - 結果の置き場所: 結果のディレクトリ（`CLAUDE-SECURITY-<時刻>/`）は作業ツリーの外（scratchpad）に作れる。`render_report.py` に `--products-dir` で渡す。中に `.gitignore`（`*`）が付く
 - 所要（2026-10-18、medium、56 ファイル）: 約 12 分、エージェント 15、サブエージェントのトークン約 109 万（Max の使用量から出る）。指摘 0 件、`verification.status: verified`
 - 注意: 「Suggest patches」は指摘を見てからチャットで決める。結果に秘密の値が出たら値を写さない。結果は毎回同じとは限らない（非決定的）
+- 回し方（2026-10-18 の決定）: 定期では回さない。`workers/` を大きく変えたときに差分だけの診断（Scan changes）を回し、#9（CSP）の後の再点検で1回回す。そのときの使用量を見て、今後の間隔を決め直す
 
 ## 次回の手順
 
