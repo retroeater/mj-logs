@@ -25,6 +25,7 @@
 | [pros.md](pros.md) | プロ一覧（jpml_pros.html） |
 | [publishing.md](publishing.md) | 配信の対象（`.assetsignore`・`assets-check.yml`、#133・#331） |
 | [saikyo.md](saikyo.md) | 最強戦（saikyo/、選手写真のリンク切れ #499 系） |
+| [security.md](security.md) | セキュリティ（点検・診断・道具・Security Guidance プラグイン、#598 系） |
 | [seo-bing.md](seo-bing.md) | SEO・Bing（Bing Webmaster Tools・Search Console・title・h1・description・OGP 画像、#126・#486・#5・#457・#581 系） |
 | [site-review.md](site-review.md) | サイト全体の横断レビューと DESIGN.md（#296 の要件の洗い出し） |
 | [study.md](study.md) | 女流勉強会（一覧 /study/・各話 study/、帰り道と同じ形、#575 系） |

@@ -92,14 +92,65 @@ WRC-R リーグの第1〜7期の成績を、平野さんがスプレッドシー
 - 0. 「指示」欄の末尾は指示文の最後の行（「不明な点があれば、…この行が指示文の最後の行です。」）と一致
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
 
+### 手順1: issue の確かめ
+
+- 検索は REST の search が使えない（セッションはリポジトリ単位の API に限られる）ため、`repos/retroeater/mj/issues?state=all` の全件（PR を除き 600件）の題・本文を語で絞った
+  - 「WRC-R」: #594 open「WRC を houou/・ouka/ と同じ形の jwrc/ に作り直す（案C の WRC 側）」〔本文〕、#523 closed「タイトル戦名「JPML WRC-Rリーグ」「JPML WRCリーグ」から「JPML」を外す」〔題〕、#479 closed「予定表の【3】を予定IDで結び付け、件名の変化を知らせる」〔本文〕、#452 closed「title/ の期ページに載らなくなった「決勝動画」タブの8本の扱いを決める」〔本文〕、#385 closed「タイトル戦の検索で、日付の無い古い期も年で探せるようにする」〔本文〕、#366 open「WRC-R リーグの成績表を追加する」〔題〕、#222 closed「タイトル戦の新構成（title/ 配下の現タイトルホルダー一覧・大会ページ・期ページ）を生成する」〔本文〕
+  - 「wrcr」「WRCR」: #366 のみ（本文の公式 URL）
+- #366: Open。ラベル「状況: 待ち」「分野: データ」「対象: wrc_results」「対象: wrc_ranking」。本文の冒頭:
+
+  > **方針: #111 は据え置き（Google Charts のまま）に決まった（2026-10-05、CHAT-1005-RUN-06）。載せ方は未決**
+  >
+  > **データ: シートは未作成。平野さんが連盟の公式サイトの成績表（https://www.ma-jan.or.jp/category/result-jpmlwrcr 、第1期〜第8期。第8期は進行中）から作る予定（2026-10-05、CHAT-1005-RUN-07）**
+  >
+  > ### 何をしたいか
+  > JPML WRC-R リーグの成績表を新たに載せる。
+  >
+  > ### 未定のこと
+  > - 載せ方（既存の `wrc_*` ページのシート切替に足すか、別ページにするか）は未定
+
+  コメント3件（RUN-05: #111 と同時に決める・「状況: 待ち」を付けた／RUN-06: #111 は据え置き、載せ方は未決／RUN-07: シートは未作成、平野さんが作る予定）。他セッションの着手中のコメントは無い
+- WRC-R の表示（ページの作り直し・「結果」の表示）の Open の issue: 無い（#594 は JWRC 側で、#366 を関係に挙げるだけ）。載せ方は #366 の「未定のこと」のまま
+
+### 0章ゲート相当（触るファイルの重なり）
+
+- 未マージの work/ ブランチのうち、触る4ファイルを変えているのは `origin/work/1018-log-367-rule` だけで、`docs/decisions/operations.md` の末尾に「## 2026-10-18（CHAT-1018-LOG-03）」の節（5行）を足している
+- 今の `origin/cloudflare` には入っていないので、この作業ブランチの取り込みでは衝突しない（止まる条件には当たらないと判断して進めた）。ただし、こちらが先に cloudflare へ入ると、LOG-03 側の取り込み・マージで operations.md の末尾が追記どうしの衝突になる（両方を残せば解ける）
+
+### 手順2: 「WRCR」シートの確かめ（読むだけ）
+
+- `fetch_records(houou_tab.SPREADSHEET_ID, "WRCR", 12列の見出し)` で読んだ（スクリプトは scratchpad、リポジトリには入れていない）。名前は `lib/name_book.load()`（生成と同じ別名の処理）で `NameBook.resolve()` に通した
+- 行数 572（指示の値と一致）
+- 期ごとの通過・敗退: 1期 32・57／2期 32・39／3期 30・47／4期 28・60／5期 27・57／6期 28・49／7期 27・59（指示の表と全期一致）。「通過」「敗退」以外の値 0
+- 空の「結果」0。「表示」が Y 以外 0。「合計」が数値でない行 0
+- 「プロ」「連盟プロ以外」のどちらにも無い名前 0（異なる名前 196、うち「プロ」187・「連盟プロ以外」9、別名を通して名前が変わるもの 6）。名前の辞書の警告 0
+
+### 手順3: 記録
+
+- docs/decisions/operations.md の末尾に「## 2026-10-18（CHAT-1018-WRR-01）」を足した。「決定」の9項目と、前提の1〜3点目を「チャット側のみなし」「チャット側の読み取り」と頭に付けて3行
+- docs/decisions/features.md の「#366（WRC-R の成績表）のデータのシートは未作成…」の行末に「→ 済: 2026-10-18（CHAT-1018-WRR-01、「WRCR」シート）」を付けた
+  - README の「実装が済んだかどうかの追記はしない」とは、指示の明示と既存の「→ 済」の書き方（README・broadcast-calendar.md・operations.md に各1件）に合わせて、指示どおりにした
+
+### 手順4: ガイド文
+
+- docs/notes/chat-routines.md: 15,016 → 15,393 バイト。「ほかのセッションへの共有」の「共有文を受け取ったら…」の項を拡張し、2文目として案の文面をそのまま足した（同じ趣旨の既存の記述は無い。矛盾も無い）
+- docs/notes/chrome-reading.md: 4,953 → 5,213 バイト。「上の方法で読めないとき」の前に節「公式サイトなどのページの画像を読むとき」を立て、案の文面を1項目で足した。既存の記述は GitHub の mj を読む手順だけで、同じ趣旨・矛盾する記述は無い（chat-side-operations.md の本番の表の「届かない・読めないと書く前に WebFetch と Chrome の両方を試す」は同じ方向で、矛盾しない）
+- `python3 -m unittest discover -s scripts/tests`: 1375件 OK
+- コミット 8a37412a5 を push
+
+### 手順5: #366 へのコメント
+
+- https://github.com/retroeater/mj/issues/366#issuecomment-6248583070
+  （行数・期ごとの通過・敗退・第8期は完了後・表示の issue は未起票・決定の記録の場所。選手名は書いていない）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1018-wrr
-- ログ: https://github.com/retroeater/mj/blob/work/1018-wrr/docs/logs/CHAT-1018-WRR-01.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1018-WRR-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1018-wrr
 - 確認用URL: なし
-- マージ: 未
+- マージ: 済（cloudflare へ fast-forward。SHA は経過の末尾）
 - issue: #366
 - 判断が必要なこと: なし
 - 未確認の項目: なし
@@ -108,12 +159,12 @@ WRC-R リーグの第1〜7期の成績を、平野さんがスプレッドシー
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj b56305ec）: https://github.com/retroeater/mj-logs/tree/main/guide/b56305ec
+ガイド文書（この版を写した時点の最新、mj c80a0c4b）: https://github.com/retroeater/mj-logs/tree/main/guide/c80a0c4b
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b56305ec/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b56305ec/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b56305ec/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b56305ec/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b56305ec/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b56305ec/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c80a0c4b/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c80a0c4b/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c80a0c4b/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c80a0c4b/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c80a0c4b/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c80a0c4b/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/f5956855.md

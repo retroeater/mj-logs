@@ -71,6 +71,48 @@ GitHub の Actions の使用量が 10月に 90%（2,700 / 3,000 分）に達し�
 - 0. 指示欄の末尾は指示文の最後の行（「不明な点があれば…この行が指示文の最後の行です。」）と一致
 - work/1018-bil はローカル・リモートとも無し → `git checkout -b work/1018-bil origin/cloudflare`
 
+### 1. issue の確認
+
+- #298: open。最新のコメントは CHAT-1018-SEC-06（MJ_LOGS_TOKEN の後始末、09:59 UTC）。他セッションの着手中コメントは無い。案 A はまだ入っていない（check-assets.yml の `on.push.branches` に cloudflare があった）
+- 検索「check-assets Actions の使用量 cloudflare push」: #555・#293（closed）・#331（closed）・#308。どれも別の論点
+- #298 に着手中のコメントを書いた（issuecomment-6248573254）
+
+### 0章ゲート
+
+- 未マージの work/ ブランチで check-assets.yml を変えているものは無い。触るほかのファイルでは work/1018-log-367-rule が docs/notes/github-actions.md（convert-x-posts.yml の行）と docs/decisions/operations.md（末尾への追記）を変えている。check-assets の行とは別の箇所（止まる条件に当たらない）。operations.md の末尾は、後からマージする側で衝突しうる
+- CLAUDE.md・handover.md は触らない
+
+### 2. 変更と洗い出し
+
+check-assets.yml の中で cloudflare での実行でしか動かない検査は無い:
+- 最上位の項目・サイズ・上限との比・部品のテストは、ブランチによらない
+- chat-side-operations.md の純増は、比較元が push の `github.event.before`（無ければ origin/cloudflare との merge-base）。work/** の push でも同じに動く
+
+cloudflare での check-assets の check-run を条件に使うもの: 無し
+- `check-build-failure.yml` は `check_run` の completed で起動するが、`scripts/check_build_failure.py` が「Workers Builds:」で始まる名前だけを見る
+- `scripts/actions_status.py`・`actions_dashboard.py`（mj-logs の status.md・運行表）は、ブランチで分けず `on:` の種類で区分する。運行表の「push・イベント」に残るので直しは要らない（mj-logs は sources に無いため、mj 側のスクリプトで確かめた）
+- `scripts/`・`workers/` に check-assets を条件にする箇所は無い（`check_asset_limits.py` の docstring は呼び出し元の説明のみ）
+
+直したもの（コミット ea3b3954e）:
+- `.github/workflows/check-assets.yml`: `on.push.branches` から `cloudflare` を外した。冒頭のコメントの「作業ブランチ(work/**)へのpushでも走らせ」を、work/** だけで走らせる理由と失うものに置き換えた
+- `docs/notes/github-actions.md`: 一覧の表の check-assets.yml の起動条件、`upsert-issue` のテストの「push ごとに回す」
+- `docs/notes/skills.md`: 「`.claude/` の変更を含む push では走る」→ 作業ブランチへの push
+
+直さなかったもの（食い違わない）: cloudflare.md の check-assets.yml の節（起動条件を書いていない）・622行付近の 2026-09-13 の観測記録・chat-side-operations.md 冒頭（「警告する」は work/** で成り立つ）・new-page-checklist.md・houou-race.md・video-*.md（許可リストの話）・docs/decisions の過去の決定
+
+- `python3 -m unittest discover -s scripts/tests`: 1375件 OK（`test_workflows_table.py` を含む）
+
+### 作業ブランチでの確かめ（ea3b3954e）
+
+| 起動 | run | 結果 |
+| --- | --- | --- |
+| push（work/1018-bil） | 39117971863 | success |
+| 手動実行（ref work/1018-bil） | 39117972836 | success |
+
+変更前の cloudflare の push では起動していた（例: 39116703068、d368dd1d8、2026-10-18T09:47Z、success）。
+
+- 決定を docs/decisions/operations.md に足し、2026-10-07（RVW-18）の「予算は今日は上げない」に置き換えの印を付けた
+
 ## 報告
 
 - 状態: 作業中
@@ -87,12 +129,12 @@ GitHub の Actions の使用量が 10月に 90%（2,700 / 3,000 分）に達し�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj b56305ec）: https://github.com/retroeater/mj-logs/tree/main/guide/b56305ec
+ガイド文書（この版を写した時点の最新、mj c80a0c4b）: https://github.com/retroeater/mj-logs/tree/main/guide/c80a0c4b
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b56305ec/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b56305ec/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b56305ec/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b56305ec/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b56305ec/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b56305ec/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c80a0c4b/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c80a0c4b/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c80a0c4b/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c80a0c4b/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c80a0c4b/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c80a0c4b/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/f5956855.md
