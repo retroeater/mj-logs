@@ -98,28 +98,64 @@ work/OUK（ouka/）が cloudflare に入ったので、それを含む work/WRC�
 - JWRC の `Contest` に `playoff=False`・`rank_cut=(50, 55)` を入れた
 - `python3 -m unittest discover -s scripts/tests` 1,417件 OK、`node --test 'workers/ask/test/*.test.mjs'` 47件 OK
 
+### 2. 確かめ
+
+- `python3 scripts/regenerate.py all`（rc=0）の後、origin/cloudflare（取り込んだ時点）との差分を種類に分けた（作業ツリーと比べるスクリプト）:
+
+| 種類 | 件数 | 例 |
+|---|---:|---|
+| (a) 期別のカードの配置 | `style.css` 1件（コードに数えた） | `.mj-houou-term-bar` ほか（生成物は変わらない） |
+| (b) 部門別の規定未達の値だけ（houou/・ouka/ の成績 JSON。値が `None` から値になり、ほかのキー・出場の数・順位・規定の状態は同じ） | 356 | `houou/results/かしのなぎ.json`、`houou/results/こうちゃん.json`、`ouka/results/一森かな.json` |
+| (c) シートの変化 | 0 | — |
+| jwrc/（`workers/ask/data-jwrc.json`・`img/ogp/jwrc/` を含む） | 355 | `jwrc/index.html`、`jwrc/players/index.html` |
+| コード | 21 | `_redirects`、`assets/league.js`、`scripts/generate_houou_pages.py`、`style.css`、`workers/ask/src/*.mjs` |
+| `.github/workflows/check-assets.yml` | 1 | `allowed()` に `jwrc` |
+| docs | 15 | `docs/decisions/houou.md`、`docs/notes/jwrc-top.md` |
+| houou/・ouka/・ほかの生成物のその他の差分 | 0 | — |
+
+- jwrc/race の JSON の差分（jwrc/ に数えた）は、OUK-10 の決定（順位変動の表の名前を今の登録名に）が jwrc/ にも効いたもの（第15〜19期の樫野凪 → かしのなぎ）
+- jwrc/ のランキング9部門の件数（上限 50・55）: 通算 50、期平均 50、期最高 50、通過回数 34、通過率 51、連続通過 31、節最高 50、節浮き率 52、節連続浮き 39
+- jwrc/ の HTML 12枚はすべて noindex。`navbar.js`・`llms.txt`・`sitemap*.xml` に `/jwrc/` は無い（`sitemap-title.xml` の `title/jwrc/` は既存のタイトル戦のページ）
+- 作業ブランチの check: bf8bfcd5d（生成し直した版）で Workers Builds: mj success・check（公開対象の検査、check-assets.yml）success。その後 origin/cloudflare が SEC-10（Dependabot の設定と docs）で進んだので merge で取り込み（32e499af7、衝突なし）、その版でも Workers Builds: mj・.github/dependabot.yml・check がすべて success。docs/notes/github-actions.md「ワークフローを変更したとき」を読み、check-assets.yml の変更は push で走る作業ブランチの実行で確かめた（WRC-10 の 8f094678e から success）
+
+### 3. マージと本番の確かめ
+
+- push 直前に再 fetch し `git merge-base --is-ancestor origin/cloudflare HEAD` が真であることを確かめて、`git push origin work/WRC:cloudflare`（46ef8691a..32e499af7）
+- check-run: 32e499af7 で Workers Builds: mj success・mj-scheduler success、cloudflare の regenerate・sync も success。mj-ask はこの版では出ず、次の cloudflare の版 8735ca5ef（今回の変更を含む、SEC-10 のマージ）で success
+- 本番（https://ryoei.pro）: jwrc/ のトップ・個人成績・ランキング（通過率）・順位変動は 200 で noindex。headless Chrome（360px）で jwrc/ の個人成績（石立岳大「最高到達 優勝 2回（12期・11期）」「出場 15期（通過11回）」、紺野真太郎「最高到達 優勝 1回（19期）」「出場 9期（通過1回）」）、トップ・ランキング・順位変動、houou/ の個人成績の期別（瀬戸熊直樹。1行に収まり崩れていない）を見た
+- 本番の質問欄: POST /api/ask（contest: "jwrc"）「19期の予選1位は？」→ status answered、答え「19期の予選1位は真鍋明広さんです。通過で、合計は350.8ポイントでした。」、時点「WRCリーグ 第19期終了時点」、出典「第19期 予選の順位変動」（/jwrc/race/?term=19&league=予選）
+- #594 にマージの SHA・本番の確かめ・公開は #599 をコメントした（https://github.com/retroeater/mj/issues/594#issuecomment-6250766704 ）
+- docs/decisions/houou.md に「2026-10-18（CHAT-1018-WRC-11）」の節。docs/notes/jwrc-top.md のランキングの上限・未公開のまま入ったこと・確定した仮置きを直した
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/WRC
-- ログ: https://github.com/retroeater/mj/blob/work/WRC/docs/logs/CHAT-1018-WRC-11.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/WRC
-- 確認用URL: 未
-- マージ: 未
-- issue: #594
-- 判断が必要なこと: 作業中
-- 未確認の項目: 作業中
+- 状態: 判断待ち（jwrc/ は未公開のまま cloudflare に入った。公開は #599）
+- ブランチ: work/WRC → cloudflare（マージのコミット 32e499af7）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1018-WRC-11.md
+- 比較URL: https://github.com/retroeater/mj/compare/46ef8691a...32e499af7
+- 確認用URL: 本番（https://ryoei.pro/jwrc/ 、noindex）。この版で見える印: jwrc/ の個人成績を選手を選ばずに開くと「現タイトルホルダー」の印で紺野真太郎
+- マージ: 済（32e499af7）
+- issue: #594（コメント）、#599（公開）
+- 判断が必要なこと（#599 の公開で決めること）:
+  - navbar の形（WRC を `/jwrc/` への1段の項目にするか。houou/・ouka/ に合わせる案、チャット側の案で未決）
+  - 旧 `wrc_results.html`・`wrc_ranking.html` の 301 の行き先（案: `jwrc/players/`〈`?name=` を引き継ぐ〉・`jwrc/ranking/total/`〈`?division=` は total/ の JS が部門のページへ。旧の期単位浮き率・期連続浮き回数は jwrc/ に無いので total/ のまま〉）
+  - noindex を外す（`JWRC` の `noindex=True` の1か所）・`sitemap-pages.xml` に jwrc/ を足して旧2ページを外す・`llms.txt` の WRC の行を jwrc/ に
+  - `jpml_pros` の WRC の欄のリンク先（あれば jwrc/players/?name= へ）
+  - 告知（公開と X の告知を同時にするか、動画を作るか）
+- 未確認の項目:
+  - 平野さんの実機（Android の 360px 前後の端末）での見え方
+  - 進行中の期（第20期）の行と公式の成績表のリンク（JWRC タブに第20期の行が入ってから）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj d114d132）: https://github.com/retroeater/mj-logs/tree/main/guide/d114d132
+ガイド文書（この版を写した時点の最新、mj 4afe5cd1）: https://github.com/retroeater/mj-logs/tree/main/guide/4afe5cd1
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d114d132/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d114d132/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d114d132/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d114d132/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d114d132/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d114d132/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/4afe5cd1/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/4afe5cd1/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/4afe5cd1/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/4afe5cd1/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/4afe5cd1/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/4afe5cd1/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/0ae083e4.md
