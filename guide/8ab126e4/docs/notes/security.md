@@ -23,7 +23,11 @@ ryoei.pro 固有の攻撃面を8つに分けて見る。
 
 ## 道具と入れ方（クラウドセッション、2026-10-17 に実測）
 
-scratchpad に venv を作って入れる（pypi.org に届く。数十秒）。
+**zizmor・pip-audit・履歴の走査は GitHub Actions の `security-check.yml`（手動実行のみ）にまとめてある**（#598。月1回の起動は #564 の段④の後）。
+cloudflare で「Run workflow」（https://github.com/retroeater/mj/actions/workflows/security-check.yml ）を押すか、セッションから `actions_run_trigger` で起動し、Job summary を読む。
+zizmor と pip-audit は見つかっても失敗にしない。履歴の走査は `data/security/known-history-hits.txt` に無い当たりがあれば失敗にする（有効な鍵でないと確かめたものだけを、理由を添えて一覧に足す）。
+
+セッションの中で動かすときは、scratchpad に venv を作って入れる（pypi.org に届く。数十秒）。
 
 ```
 python3 -m venv <scratchpad>/venv
@@ -33,9 +37,9 @@ python3 -m venv <scratchpad>/venv
 | 道具 | 使い方 | 所要 | 注意 |
 |---|---|---|---|
 | zizmor（1.31.1） | `zizmor --offline .github/workflows` と `.github/actions`。一覧にするときは `--format json` | 1 秒未満 | `--offline` でもワークフローの検査は全部動く（オンラインの監査は action の既知の脆弱性など） |
-| pip-audit（2.10.1） | `requirements*.txt` が無いので、CI が `pip install` する組（`.github/actions/setup-python` と各ワークフロー）を requirements に書いて `pip-audit -r` | 約 10 秒 | 照会先は既定の PyPI（届く） |
+| pip-audit（2.10.1） | `requirements*.txt` が無いので、`python3 scripts/ci_requirements.py > <scratchpad>/req.txt`（ワークフローの `packages:`・`pip install` の行から集める）を `pip-audit -r` に渡す | 約 10 秒 | 照会先は既定の PyPI（届く）。組の正はワークフローの各行で、一覧は持たない |
 | detect-secrets（1.5.0） | `detect-secrets scan --all-files --exclude-files '^\.git/'` | 約 1 分半 | 生成ページの Cloudflare Web Analytics のトークン（公開値）で Hex High Entropy が数千件出る。種類別に数え、Hex 以外を1件ずつ見る |
-| 履歴の走査 | `git log -p --all --format='COMMIT %H'` を Python の正規表現（`AIza`・`sk-ant-`・`AKIA`・`-----BEGIN … PRIVATE KEY`・`ghp_`・`github_pat_`・`Bearer AAAA`）で読む。追加行だけを見て、種類・SHA・ファイル名を出す | 約 20 秒 | 先に `git fetch --unshallow origin`（浅いクローンでは履歴を判定できない、#299）。mawk は `{n}` を使えないので awk ではなく Python |
+| 履歴の走査 | `python3 scripts/scan_secret_history.py`。`git log -p --all` の追加行を正規表現（`AIza`・`sk-ant-`・`AKIA`・`-----BEGIN … PRIVATE KEY`・`ghp_`・`github_pat_`・`Bearer AAAA`）で読み、種類・SHA・ファイル名だけを出す（値は出さない） | 約 25 秒 | 先に `git fetch --unshallow origin`（浅いと終了コード2で止まる、#299） |
 | npm の照会口 | `https://registry.npmjs.org/-/npm/v1/security/advisories/bulk` に `{"<名前>": ["<版>"]}` を POST | 数秒 | OSV の代わり。元は GitHub Advisory Database |
 | Worker のテスト | `node --test 'workers/ask/test/*.test.mjs'`・`'workers/scheduler/test/*.test.mjs'` | 1 秒未満 | |
 
@@ -59,12 +63,23 @@ python3 -m venv <scratchpad>/venv
 claude.ai のプラグイン一覧で有効にすると、クラウドセッションの開始時に `~/.claude/plugins/synced/` へ同期され、`claude plugin list` に `security-guidance@synced … √ loaded` と出る（2026-10-17、`.claude/settings.json` の `enabledPlugins` は使っていない）。
 
 - hook（SessionStart・UserPromptSubmit・PostToolUse・Stop）が動き、`~/.claude/security/log.txt` に記録が残る
-- 編集のパターン照合は鍵なしで動く。コミット・停止時の LLM のレビューは `ANTHROPIC_API_KEY` などが無いため動かない（`log.txt` に「LLM review disabled or no API credentials」）
+- 編集のパターン照合は鍵なしで動く（2026-10-18、`.github/workflows/` のファイルを Write したときに Actions のインジェクションの注意が PostToolUse の追加の文脈として出た）。コミット・停止時の LLM のレビューは `ANTHROPIC_API_KEY` などが無いため動かない（`log.txt` に「LLM review disabled or no API credentials」）
 - 動いているかの確かめ方: `ls ~/.claude/security/`、`cat ~/.claude/security/log.txt`、`claude plugin list`
+
+## Claude Security プラグイン（Anthropic 公式、深い診断）
+
+多エージェントで inventory → 脅威モデル → 部品×分類ごとの調査 → 広域の走査・秘密の走査 → 3票の検証パネル（2/3）を行う。コードを読むだけで、実行・外部への要求はしない（2026-10-18 の実行で確認）。
+
+- 入れ方: claude.ai のプラグイン一覧で有効にする。**有効にした後に始めたセッション**でだけ `claude plugin list` に `claude-security@synced … √ loaded` と出る（前から開いていたセッションには同期されない）。Python 3.9 以上が要る
+- 使い方: skill `claude-security` は `disable-model-invocation: true` で、指示文からは呼べない。平野さんが `/claude-security` を打つか、Claude Code が skill の手順書（プラグインの `skills/claude-security/jobs/scan-codebase.md`）を読んで、その手順どおりに `write_scan_meta.py` → Workflow `claude-security:scan` → `save_result.py` → `render_report.py` を自分で進める（2026-10-18 は後者）。時間とトークンを使うことへの承認が要り、指示文に費用の受け入れがあればそれで足りる
+- 対象の絞り方: リポジトリ全体（5千ファイル超、大半が生成物）は選ばない。`--scope` にディレクトリ・ファイルをカンマ区切りで渡す（例: `workers,scripts/lib,assets/houou_ask.js` で 56 ファイル）。大きいリポジトリでは focus `attack-surface` になり、テスト・生成物は参照扱いになる
+- 結果の置き場所: 結果のディレクトリ（`CLAUDE-SECURITY-<時刻>/`）は作業ツリーの外（scratchpad）に作れる。`render_report.py` に `--products-dir` で渡す。中に `.gitignore`（`*`）が付く
+- 所要（2026-10-18、medium、56 ファイル）: 約 12 分、エージェント 15、サブエージェントのトークン約 109 万（Max の使用量から出る）。指摘 0 件、`verification.status: verified`
+- 注意: 「Suggest patches」は指摘を見てからチャットで決める。結果に秘密の値が出たら値を写さない。結果は毎回同じとは限らない（非決定的）
 
 ## 次回の手順
 
 1. `git fetch --unshallow origin` のうえ、上の道具を scratchpad に入れる
 2. (a)〜(h) を順に見る（(b)・(c) は量が多いので、読むだけのサブエージェントに分け、主な指摘は該当行を自分で開いて確かめる）
 3. 前回の親 issue の表と比べ、直ったもの・新しいものを分けて、新しい親 issue（または前回の issue へのコメント）にする
-4. CI の検査ワークフロー（#598 の「次の指示（SEC-02）の候補」）が入った後は、その実行結果を (d)・(f)・(h) の起点にする
+4. (d)・(f)・(h) は `security-check.yml` の実行結果（Job summary とジョブのログ）を起点にし、前回の件数と比べる

@@ -125,7 +125,7 @@ Bash のコマンド文字列を `&&`・`||`・`;`・`|`・改行で区切り、
 - **実機で確認済み（2026-09-29、平野さんのスマホの Code タブ、環境 Claude-iPhone）:** 新しいクラウドセッションで `/grill-me` を打つと起動し、
   内部で `grilling` が実行された。skill はリポジトリ内の複写なので、再導入なしに効く
 - 同じセッションの途中で `.claude/skills/` や `.claude/settings.json` を変えると、次の手番から反映された（skill 一覧・hook とも）
-- `.claude/` は `.assetsignore` にあり配信されない。`.claude/` の変更を含む push では `check-assets.yml` が走る（`paths: '**'`）
+- `.claude/` は `.assetsignore` にあり配信されない。`.claude/` の変更を含む作業ブランチへの push では `check-assets.yml` が走る（`paths: '**'`）
 
 ## コンテキストの負荷
 

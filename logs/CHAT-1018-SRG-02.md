@@ -87,7 +87,7 @@ CHAT-1018-SRG-01（#600）の続き。元の「辞書」「書籍」シートが
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1018-SRG-03
 - ブランチ: work/1018-srg
 - ログ: https://github.com/retroeater/mj/blob/work/1018-srg/docs/logs/CHAT-1018-SRG-02.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1018-srg
@@ -103,12 +103,12 @@ CHAT-1018-SRG-01（#600）の続き。元の「辞書」「書籍」シートが
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 66741d7a）: https://github.com/retroeater/mj-logs/tree/main/guide/66741d7a
+ガイド文書（この版を写した時点の最新、mj 8ab126e4）: https://github.com/retroeater/mj-logs/tree/main/guide/8ab126e4
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/66741d7a/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/66741d7a/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/66741d7a/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/66741d7a/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/66741d7a/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/66741d7a/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/8ab126e4/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/8ab126e4/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/8ab126e4/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8ab126e4/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8ab126e4/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8ab126e4/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/f5956855.md
