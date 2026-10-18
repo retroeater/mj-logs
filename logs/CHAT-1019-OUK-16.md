@@ -74,18 +74,39 @@ Chat-Ref: CHAT-1019-OUK-16
 - `python3 scripts/regenerate.py all` を作業ブランチと cloudflare のクローン（4ad6e57cf）で同時に回した（どちらも exit 0）。差は OUK-15 と同じ種類だけ: ouka/ の11ページの noindex の1行ずつ・`ouka/leagues/` が増える・`jpml_pros.html`（見出し1行・全1,098行の桜花の列〈ほかの列の差0〉・検索欄の2行）・`navbar.js`・`style.css`・`_redirects`・`sitemap-pages.xml`・`llms.txt`。houou/ の生成物は差分0
 - 文書: `docs/notes/redirects.md` の ouka の3行の入れた日を 2026-10-19 に、`docs/notes/ouka-top.md` に公開の日と後始末（#582）を書いた。`docs/decisions/houou.md` に 2026-10-19（OUK-16）の節を足した
 
+### 2. マージ
+
+- push 直前に再 fetch し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真。`git push origin work/1019-ouk15:cloudflare`（4ad6e57cf..6054a3feb、早送り）
+- Workers Builds の mj は 6054a3feb で success（regenerate・sync・check も success）
+- 本番の配信が新しい版になるまで数分かかった（その間は古い `navbar.js`・旧ページの 200 が返った。OUK-14 と同じ）
+
+### 3. 本番の確かめ（新しい版になった後）
+
+- ouka/ の11ページ（トップ・個人成績・ランキング8部門・順位変動）: どれも 200、robots の meta 無し、`x-robots-tag` 無し。`ouka/leagues/` は 200 で noindex の meta あり（意図どおり）
+- `navbar.js`: 「女流桜花」は `/ouka/` への1段。headless Chrome 375px・1280px で、ouka/ のトップ・個人成績・ランキング・順位変動は白地のナビで「女流桜花」に印、houou/・houou/players/ は「鳳凰戦」に印、saikyo/ は「最強戦」に印、jpml_pros は濃色のナビ・index はナビ無し（どれも前と同じ）。JS のエラー 0
+- サイトマップ: `sitemap-pages.xml` に ouka/ の11行（`ouka/leagues/`・旧3ページはコメントの除外の行だけ）。`llms.txt` に ouka/ の4行
+- 旧3ページの 301: `ouka_results.html?name=二階堂亜樹` → `https://ryoei.pro/ouka/players/?name=二階堂亜樹`、`ouka_ranking.html` → `https://ryoei.pro/ouka/ranking/total/`、`ouka_leagues.html?name=二階堂亜樹` → `https://ryoei.pro/ouka/leagues/?name=二階堂亜樹` → JS で `/ouka/players/?name=二階堂亜樹&view=league`（指示文の `?view=league&name=` と引数の順が逆。中身は同じ）
+- jpml_pros: 見出し「鳳凰<br>43後」「桜花<br>21期」、検索欄の placeholder「鳳凰 43後」「桜花 21期」、桜花の列のリンク `./ouka/players/?name=二階堂亜樹`
+- ouka/ の質問欄: 「20期の女流桜花は？」に「20期の女流桜花の決勝の顔ぶれは、1位の清水香織、2位の古谷知美、3位の吾妻さおり、4位の山脇千文美です。」（データ: 決勝 第20期まで）が返った
+- issue: #582 に女流桜花の旧3ページも同じ扱いにする旨をコメント（#582 は開いている）。#591 に結果をコメントしてクローズし、「状況: 待ち」のラベルを外した
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
+- **女流桜花（ouka/）を公開した**（マージのコミット 6054a3feb）
 - ブランチ: work/1019-ouk15
-- ログ: https://github.com/retroeater/mj/blob/work/1019-ouk15/docs/logs/CHAT-1019-OUK-16.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1019-ouk15
-- 確認用URL:
-- マージ: 未
-- issue:
-- 判断が必要なこと:
-- 未確認の項目:
-- エラー:
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1019-OUK-16.md
+- 比較URL: https://github.com/retroeater/mj/compare/4ad6e57cf...6054a3feb
+- 確認用URL: 本番 https://ryoei.pro/ouka/ （navbar の「女流桜花」が1段、ouka/ のナビが白地。jpml_pros の検索欄が「鳳凰 43後」「桜花 21期」）
+- マージ: 済み（6054a3feb。Workers Builds の mj は success）
+- issue: #591 をクローズ、#582 にコメント
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
+
+LVP への引き継ぎ（6054a3feb）: `navbar.js` の新しいナビの判定の if 連鎖で、鳳凰戦の分岐の直後に `} else if (location.pathname.indexOf('/ouka/') === 0) {` と `newNavCurrent = '女流桜花' // 鳳凰戦と同じ白地のナビ(2026-10-19、#591)` を足した。work/1017-lvp の「番組」の分岐（最強戦の後）とは行が離れており、`git merge-tree` では衝突しない。取り込むと連鎖は 鳳凰戦・女流桜花・最強戦・番組 の順になる。ほかに「女流桜花」の段を `<li class="nav-item"><a class="nav-link" href="/ouka/">女流桜花<br>Ouka</a></li>` の1行に替えた。
+
+WRC への引き継ぎ（6054a3feb）: `navbar.js` で変えた行は、判定の if 連鎖の女流桜花の分岐（鳳凰戦の直後）、「女流桜花」の項目の1行、上の説明のコメント（「女流桜花の ouka/ も同じ(#591)。」）。jwrc/ の公開（#599）では、女流桜花の分岐の後に `/jwrc/` の分岐を足し、WRC の段を1段にする。`scripts/tests/test_navbar.py` に `test_ouka_is_single_item_to_top` がある。`Contest.leagues_moved` は jwrc/ では要らない（リーグのタブが無い）。公開は `JWRC` の `noindex=True` を外す。jpml_pros の見出しの期は `header_texts()`・`filter_placeholders()`（鳳凰・桜花だけ）。
 
 <!-- guide-links -->
 ---
