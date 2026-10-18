@@ -95,17 +95,34 @@
   - jpml_pros: 見出しは「鳳凰<br>43後」「桜花<br>21期」。二階堂亜樹の行は鳳凰「A2 → ./houou/players/?name=二階堂亜樹」・桜花「A → ./ouka/players/?name=二階堂亜樹」。表の幅 654px。桜花の検索欄（placeholder「桜花21期」）で C1 は24行。桜花の列の並べ替えは変える前と同じ順（降順で 桜花・C3…）
   - 横のはみ出しは jpml_pros の 375px だけで、変える前も同じ（表が画面より広い）
 
+### 3. 記録
 
-- 状態: 作業中
+- 成果物のコミット 50f5a1fe8 を push。Workers Builds の mj は success（プレビューあり、URL は最終報告）
+- プレビュー（50f5a1fe8 の版）で確かめた転送: `/ouka_results.html?name=二階堂亜樹` → 301 `/ouka/players/?name=二階堂亜樹`、`/ouka_ranking.html` → 301 `/ouka/ranking/total/`、`/ouka_leagues.html?name=二階堂亜樹` → 301 `/ouka/leagues/?name=二階堂亜樹` → JS で `/ouka/players/?name=二階堂亜樹&view=league`。`/ouka/ranking/promotion-streak/` は 404 のまま。houou/ の旧ページの転送は変わらない
+- プレビューの ouka/ の HTML に robots の meta は無い（`leagues/` だけにある）。応答ヘッダの `x-robots-tag: noindex` はプレビューの別名だけに付くもの（houou/ にも付く。`_headers`）。本番で無いことはマージ後に確かめる
+- プレビューでの headless Chrome（375px）の navbar の見え方は手元と同じ。jpml_pros の見出しは「鳳凰<br>43後」「桜花<br>21期」
+- #591 に進み具合を1件コメントした。`docs/decisions/houou.md` に 2026-10-19（OUK-15）の節を足した
+- 途中で、経過を書いた Edit が `## 報告` の見出しを消していたので書き直した（`## 指示` 欄は変わっていない）
+
+## 報告
+
+- 状態: 判断待ち
 - ブランチ: work/1019-ouk15
 - ログ: https://github.com/retroeater/mj/blob/work/1019-ouk15/docs/logs/CHAT-1019-OUK-15.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1019-ouk15
-- 確認用URL:
-- マージ: 未
-- issue:
+- 確認用URL: プレビューあり（URL は最終報告）。ouka/ のトップ・ouka/players/・jpml_pros.html・houou/ を確かめた。この版で見えるはずの印: navbar の「女流桜花」が段（▼）でなく1段で、ouka/ のナビが白地。jpml_pros の見出しが「鳳凰 43後」「桜花 21期」
+- マージ: 未（平野さんの判断待ち。プレビューで確かめてから別のマージの指示で）
+- issue: #591 にコメント
 - 判断が必要なこと:
+  - マージしてよいか（navbar・転送・jpml_pros が本番で変わる）
+  - 仮置き (1) 見た目の値: jpml_pros の桜花の検索欄の placeholder は「桜花21期」のまま、鳳凰の検索欄は「鳳凰」のまま（見出しの期は付けていない）。桜花の列の値の字は ouka/ のチップと同じ（「桜花」「A」「B」「C1」〜「C3」）。jpml_pros の表の幅は 654px（10列）
+  - 仮置き (2) 見ただけでは判断しにくいもの: リーグのタブへの転送は houou/ と同じ2段（`ouka_leagues.html` → 301 `ouka/leagues/` → JS で `ouka/players/?view=league`。`_redirects` で直接 `?view=league` へ送ると `?name=` が落ちるため）。`ouka/leagues/` は noindex・サイトマップ外。旧3ページのファイルと生成（`generate_ouka_leagues.py` など）は houou/ と同じく残した（後始末を houou/ の #582 と同じ扱いにするか）。jpml_pros の桜花の列は女流桜花の進行中の期に出ていない人を空欄にし、桜花Ampai へのリンクは付けない（鳳凰と同じく個人成績の期別から行く）。サイトマップの新しい行の lastmod は `--from-git` の値（2026-10-18）
+  - LVP への引き継ぎ: `navbar.js` の新しいナビの判定の if 連鎖で、鳳凰戦の分岐の直後に `} else if (location.pathname.indexOf('/ouka/') === 0) {` と `newNavCurrent = '女流桜花' // 鳳凰戦と同じ白地のナビ(2026-10-19、#591)` を足した。work/1017-lvp の「番組」の分岐（最強戦の後）とは行が離れており、`git merge-tree` では衝突しない。取り込むと連鎖は 鳳凰戦・女流桜花・最強戦・番組 の順になる。ほかに「女流桜花」の段を `<li class="nav-item"><a class="nav-link" href="/ouka/">女流桜花<br>Ouka</a></li>` の1行に替えた
+  - WRC への引き継ぎ: `navbar.js` で今回変えた行は、判定の if 連鎖の女流桜花の分岐（鳳凰戦の直後）、「女流桜花」の項目の1行、上の説明のコメント（「女流桜花の ouka/ も同じ(#591)。」）。jwrc/ の公開（#599）では、女流桜花の分岐の後に `/jwrc/` の分岐を足し、WRC の段を1段にする。`scripts/tests/test_navbar.py` に `test_ouka_is_single_item_to_top` を足した。`Contest.leagues_moved` は jwrc/ では要らない（リーグのタブが無い）。公開は `JWRC` の `noindex=True` を外す
 - 未確認の項目:
-- エラー:
+  - 本番での確かめ（マージ後）: ouka/ が 200 で robots の meta・`x-robots-tag` が無い、本番の `navbar.js`・サイトマップ・`llms.txt` に ouka/ がある、旧3ページの 301
+  - 平野さんの実機での見え方（セッションから確かめられるのはプレビューの HTML と headless Chrome まで）
+- エラー: なし
 
 <!-- guide-links -->
 ---
