@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-18 13:54 JST
+- 書き出した時刻: 2026-10-18 13:55 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -25,7 +25,7 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-10-18 13:54 | push | cloudflare | in_progress | #168（39098688507） |  |
+| 2026-10-18 13:54 | push | cloudflare | success | #168（39098688507） | 0分22秒 |
 | 2026-10-18 13:52 | push | work/1018-sec | success | #167（39098622867） | 0分20秒 |
 | 2026-10-18 13:40 | push | work/1018-sec | success | #166（39097899739） | 0分19秒 |
 | 2026-10-18 08:50 | push | cloudflare | success | #165（39080560477） | 0分25秒 |
@@ -186,11 +186,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-18 13:54 | push | cloudflare | in_progress | #360（39098688526） |  |
 | 2026-10-18 00:39 | push | cloudflare | success | #359（39046016709） | 0分40秒 |
 | 2026-10-17 21:26 | push | cloudflare | success | #358（39032557946） | 4分34秒 |
 | 2026-10-17 20:59 | push | cloudflare | success | #357（39030772139） | 4分47秒 |
 | 2026-10-17 17:57 | push | cloudflare | success | #356（39019308844） | 2分52秒 |
-| 2026-10-17 17:55 | push | cloudflare | success | #355（39019162064） | 4分44秒 |
 
 ## regenerate-saikyo.yml
 
@@ -230,6 +230,15 @@
 | 2026-10-16 10:02 | workflow_dispatch | work/1016-wfl-s8 | success | #4（38832956460） | 13分19秒 |
 | 2026-10-16 04:00 | workflow_dispatch | cloudflare | success | #3（38790317281） | 14分24秒 |
 | 2026-10-15 14:37 | workflow_dispatch | work/1015-wfl-s7 | success | #2（38687819982） | 12分32秒 |
+
+## security-check.yml
+
+- 名前: セキュリティ検査
+- state: active
+
+| 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
+| --- | --- | --- | --- | --- | --- |
+| 2026-10-18 13:54 | workflow_dispatch | cloudflare | success | #1（39098697779） | 0分51秒 |
 
 ## sync-birthday-calendar.yml
 

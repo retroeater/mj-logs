@@ -105,6 +105,19 @@ CHAT-1017-SEC-01 の点検（#598）のうち、すぐ直せる中-2（書籍の
 - 原因の切り分け: origin/cloudflare の木を scratchpad に展開し、**修正前のコードで同じ4ページを生成**（`generate_jpml_pros.py`・`generate_ouka_leagues.py`・`generate_resource_logs.py`・`generate_ask_data.py`）→ 4ファイルとも作業ツリー（修正後のコード）の出力とバイト単位で一致。**差分はシート側の更新によるもので、修正による差分は0**。リンクが消えた箇所は無い。4ファイルは `git checkout -- <ファイル>` で戻した（この指示の範囲外。予約の再生成が拾う）
 - `python3 scripts/regenerate.py books_pages`: 「書籍」シートの行数が想定外（95 行。`MIN_BOOKS` 150〜`MAX_BOOKS` 300）で止まり、生成できなかった（途中の出力は戻された）。今の `books/*.html` の JSON-LD に `<` を含むものは0件なので、直しを当てても差分は出ない見込み。`books/` はコミットしない（スクリプトの直しだけ）
 
+### 4. 履歴の走査と security-check.yml
+
+- `scripts/scan_secret_history.py`: `git log -p --all` の追加行を SEC-01 と同じ7つの正規表現で読み、種類・SHA（9桁）・ファイルの Markdown の表を出す（値は出さない）。既知の一覧 `data/security/known-history-hits.txt`（`data/` は `.assetsignore` で公開しない）に無い当たりがあれば終了コード1、浅いクローンなら2。テスト `scripts/tests/test_scan_secret_history.py`（5件。鍵の形の文字列は連結で作り、テスト自身が当たらない）
+- 既知の一覧: `AIza` 4d8f987e3 `birthplaces.js`・a00c94d16 `_site/birthplaces.js`（#299）、`PRIVATE KEY` 54a0a0989 `workers/ask/test/weekly.test.mjs`（テストの PEM の枠）・428d57a2c `docs/logs/CHAT-1017-SEC-01.md`（指示欄の文字列）
+- pip-audit の組: `scripts/ci_requirements.py` がワークフローの `packages:`（`.github/actions/setup-python` の入力）と `pip install` の行から集める（テスト2件）。**組の正はワークフローの各行のままで、一覧のファイルは持たない（二重管理なし）**。security-check.yml 自身の `pip install zizmor==1.31.1 pip-audit==2.10.1` も拾うので、道具の版も検査の対象になる
+- `.github/workflows/security-check.yml`: `workflow_dispatch` だけ、トップレベル `permissions: {}`、ジョブは `contents: read`、Secret なし。`actions/checkout@11d5960a326750d5838078e36cf38b85af677262`（v4.4.0、`v4` と同じ）・`actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065`（v5.6.0、`v5` と同じ。SHA は `git ls-remote` で取得、軽量タグ）。`persist-credentials: false`・`fetch-depth: 0`。Python は `.python-version`（3.12）。`.github/actions/setup-python` は中で `setup-python@v5` を SHA で固定していないので使わず、直接呼んだ
+- zizmor をこのファイルだけに当てて指摘0件（2件は抑止）
+- **Security Guidance の警告が初めて出た**: このファイルを Write した直後、PostToolUse の追加の文脈として「GitHub Actions のワークフローを編集している。`${{ github.event.* }}` を run: に直接入れない」などの注意が出た（パターン照合が動くことを確認。SEC-01 の未確認の項目が解けた）。このファイルは `${{ }}` を使っていない
+- 手元でワークフローと同じ組を1回（scratchpad の venv、31 秒）: zizmor 153 件（High unpinned-uses 56・excessive-permissions 4・template-injection 4、Medium secrets-inherit 11・artipacked 25・excessive-permissions 2、Low self-repository 45、Info template-injection 6）、pip-audit（anthropic==1.7.0・google-auth・Pillow・pip-audit==2.10.1・requests・zizmor==1.31.1）既知の脆弱性なし、履歴の走査 4 件すべて既知・新規0（rc=0）
+- `docs/notes/github-actions.md` の表に1行（`fetch-x-posts.yml` の次。1018-log-367 が変える `convert-x-posts.yml` の行とは別）、`docs/notes/security.md` の「道具と入れ方」「Security Guidance プラグイン」「次回の手順」を更新
+- 運行表: `scripts/actions_dashboard.py` の `groups()` に今のワークフローと `schedule.json` を渡すと、`security-check.yml` は「手動実行だけ」（convert-x-posts・sync-logs・fetch-x-posts と同じ区分）に入る。mj-logs の実物はマージ後の次の写しで出る
+- `python3 -m unittest discover -s scripts/tests`: すべて OK。コミット b5669c8df
+
 ## 報告
 
 - 状態: 作業中
@@ -121,12 +134,12 @@ CHAT-1017-SEC-01 の点検（#598）のうち、すぐ直せる中-2（書籍の
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 82a05e9a）: https://github.com/retroeater/mj-logs/tree/main/guide/82a05e9a
+ガイド文書（この版を写した時点の最新、mj b2e1d729）: https://github.com/retroeater/mj-logs/tree/main/guide/b2e1d729
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/82a05e9a/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/82a05e9a/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/82a05e9a/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/82a05e9a/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/82a05e9a/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/82a05e9a/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b2e1d729/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b2e1d729/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b2e1d729/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b2e1d729/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b2e1d729/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b2e1d729/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/f218a9a2.md
