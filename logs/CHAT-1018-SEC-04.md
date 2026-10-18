@@ -75,6 +75,138 @@ WFL のチャットからの注意（2026-10-18 の伝言。そのまま守る�
 
 ## 経過
 
+### 0. 着手前の確認（2026-10-18 21:06 JST）
+
+- 同じ Chat-Ref のコミット: なし（`git log --all --grep="CHAT-1018-SEC-04"`、unshallow の後）。識別子 SEC は同じチャットの系列（SEC-01〜09）で、この指示は最初の指示ではない
+- `origin/work/1018-sec4`: リモートにもローカルにも無い → `git checkout -b work/1018-sec4 origin/cloudflare`（1cd1d6f2b）
+- 指示欄の末尾が指示文の最後の行（「不明な点があれば…この行が指示文の最後の行です。」）と一致することを確かめた
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 揃っている
+- 時間帯: 着手 21:06 JST。止める時間帯（03:45〜05:15、月曜 05:00〜07:00）の外
+- 文書のサイズ（バイト）: CLAUDE.md 23801・handover.md 23423・chat-side-operations.md 22155・instruction-template.md 14325（警告域 14336 の手前。今回は触らない）
+
+### 1. 調べ
+
+#### issue の状態
+
+| issue | 状態 | 他セッションの着手中 |
+|---|---|---|
+| #598 | open（最終更新 10-18 10:57Z、SEC-07 の確認結果）。着手中のコメントを足した | なし |
+| #564 | open（段⑤まで。段④は SEC-04 のマージ待ち） | なし |
+| #557 | open（PRV-02 が 12:03Z に完了のコメント。読み取り用サービスアカウントの手順書。ワークフローは未変更） | PRV-02 は完了済み |
+| #504 | open（10-14 以降の更新なし） | なし |
+
+#### 未マージの work/ ブランチとの重なり（`.github/`・`workers/scheduler/`・`assets/houou_ask.js`）
+
+| ブランチ | 変えている行 | 扱い |
+|---|---|---|
+| `work/1018-log-367-migrate` | `convert-x-posts.yml`・`fetch-x-posts.yml` の冒頭の注釈と `on.workflow_dispatch.inputs`（mode の説明と選択肢） | `permissions`・`secrets`・`uses:`・env 化する `run:` と同じ行ではない。触る行（`permissions:`・checkout）とは離れているので進める |
+| `work/WRC` | `check-assets.yml` の79行（`allowed()` の case） | 同じ行ではない（触るのは `jobs.check` の `permissions` と checkout）。進める |
+| `work/OUK`・`work/WRC` | `assets/houou_ask.js`（冒頭の注釈・`LEAGUE_ORDER`・facts・`fetch` の body） | 指示どおり (c) を外す |
+| `workers/scheduler/` | どのブランチも変えていない | (a)(b) は進める |
+
+#### zizmor（1.31.1、`--offline .github/`、直す前）
+
+| 監査 | 重大度 | 件数 |
+|---|---|---|
+| unpinned-uses | High | 56 |
+| self-repository | Low | 45 |
+| artipacked | Medium | 25 |
+| secrets-inherit | Medium | 11 |
+| excessive-permissions | High | 4 |
+| excessive-permissions | Medium | 2 |
+| template-injection | High | 4 |
+| template-injection | Informational | 6 |
+| 合計 | | 153 |
+
+#### SHA（`git ls-remote --tags https://github.com/<owner>/<repo>`。github.com に届いた。どれも軽量タグで `^{}` の行は無い）
+
+| action | 今のタグが指すコミット | 同じコミットの版 |
+|---|---|---|
+| `actions/checkout@v4` | `11d5960a326750d5838078e36cf38b85af677262` | v4.4.0（`security-check.yml` と同じ） |
+| `actions/setup-python@v5` | `a26af69be951a213d495a4c3e4e4022e16d87065` | v5.6.0（`security-check.yml` と同じ） |
+| `actions/github-script@v7` | `f28e40c7f34bde8b3046d885e986cb6290c5673b` | v7.1.0 |
+| `actions/cache@v4` | `0057852bfaa89a56745cba8c7296529d2fc39830` | v4.3.0 |
+| `google-github-actions/auth@v2` | `c200f3691d83b41bf9bbd8638997a462592937ed` | v2.1.13 |
+
+#### 入れ子
+
+```
+run-daily ─ live     → update-live-channel ─ update     （自分のジョブ）
+           │                               ├ regenerate → regenerate-page
+           │                               └ yotei      → sync-yotei
+           ├ sns      → update-sns-book    ─ update / regenerate → regenerate-page
+           ├ images   → check-image-links  ─ check / saikyo / sns_book
+           ├ saikyo   → regenerate-saikyo  ─ abema / regenerate → regenerate-page
+           ├ dojo     → sync-dojo-calendar ─ sync
+           └ branches → cleanup-branches   ─ delete
+fetch-youtube ─ fetch / regenerate → regenerate-page / report
+```
+
+#### job ごとの必要な権限と Secret（実物の使い方から）
+
+| ワークフロー / job | 書き込みに使うもの | 必要な権限 | 使う Secret（入れ子の下を含む） |
+|---|---|---|---|
+| check-assets / check | なし（読むだけ） | contents: read | なし |
+| check-build-failure / notify | `gh api` の読み（check-runs・compare） | checks: read, contents: read | なし |
+| check-image-links / check・saikyo・sns_book | `upsert-issue`（github-script で issue の作成・更新・コメント） | contents: read, issues: write | X_BEARER_TOKEN（saikyo の `saikyo_resolve_test` だけ。手動実行のみで、run-daily からは使わない） |
+| check-meibo / meibo・ampai | `upsert-issue` | contents: read, issues: write | なし |
+| check-saikyo-unregistered / check | `upsert-issue` | contents: read, issues: write | なし |
+| cleanup-branches / delete | `git push --force-with-lease … :refs/heads/<branch>`（checkout の認証） | contents: write | なし |
+| cleanup-logs / cleanup | `commit-push`（git push）・`upsert-issue` | contents: write, issues: write | なし |
+| convert-x-posts / convert | なし | contents: read | LIVE_SHEETS_SA_KEY・X_BEARER_TOKEN・ANTHROPIC_API_KEY・GOOGLE_PLACES_API_KEY |
+| fetch-gsc / fetch | git push・`gh issue comment` | contents: write, issues: write | GSC_SERVICE_ACCOUNT_JSON |
+| fetch-redirect-counts / fetch | `commit-push`・`upsert-issue`（comment） | contents: write, issues: write | CF_ANALYTICS_TOKEN |
+| fetch-x-posts / fetch | なし | contents: read | LIVE_SHEETS_SA_KEY・X_BEARER_TOKEN |
+| fetch-youtube / fetch | `commit-push` | contents: write | YOUTUBE_API_KEY |
+| fetch-youtube / regenerate | （regenerate-page） | contents: write, issues: write | なし（下の注） |
+| fetch-youtube / report | なし（checkout もしない） | なし | なし |
+| regenerate-page / regenerate | git push・github-script（帰り道の知らせ: issue の一覧・作成・コメント） | contents: write, issues: write | RAKUTEN_APPLICATION_ID・RAKUTEN_ACCESS_KEY（`if: false` のステップだけ。今は使わない） |
+| regenerate-saikyo / abema | なし | contents: read | LIVE_SHEETS_SA_KEY |
+| regenerate-saikyo / regenerate | （regenerate-page） | contents: write, issues: write | なし |
+| regenerate-sitemap / sync | git push | contents: write | なし |
+| run-daily / live | （update-live-channel） | contents: write, issues: write, actions: read | YOUTUBE_API_KEY・LIVE_SHEETS_SA_KEY・GCP_SA_KEY（sync-yotei の分） |
+| run-daily / sns | （update-sns-book） | contents: write, issues: write | LIVE_SHEETS_SA_KEY・X_BEARER_TOKEN |
+| run-daily / images | （check-image-links） | contents: read, issues: write | なし |
+| run-daily / saikyo | （regenerate-saikyo） | contents: write, issues: write | LIVE_SHEETS_SA_KEY |
+| run-daily / dojo | （sync-dojo-calendar） | contents: read, issues: write | ANTHROPIC_API_KEY・GCP_SA_KEY |
+| run-daily / branches | （cleanup-branches） | contents: write | なし |
+| security-check / check | なし | contents: read（SEC-02 で済） | なし |
+| sync-birthday-calendar / sync | なし | contents: read | GCP_SA_KEY |
+| sync-dojo-calendar / sync | github-script（issue の作成・コメント）。`actions/cache` は GITHUB_TOKEN の権限を使わない | contents: read, issues: write | ANTHROPIC_API_KEY・GCP_SA_KEY |
+| sync-yotei / sync | github-script（issue の作成・コメント） | contents: read, issues: write | GCP_SA_KEY・LIVE_SHEETS_SA_KEY |
+| update-live-channel / update | git push・github-script（issue）・ゲートの `curl` で Actions の実行の一覧・`check_unused_names.py`（GITHUB_TOKEN で issue のコメントを読む） | contents: write, issues: write, actions: read | YOUTUBE_API_KEY・LIVE_SHEETS_SA_KEY |
+| update-live-channel / regenerate | （regenerate-page） | contents: write, issues: write | なし |
+| update-live-channel / yotei | （sync-yotei） | contents: read, issues: write | GCP_SA_KEY・LIVE_SHEETS_SA_KEY |
+| update-sns-book / update | なし | contents: read | LIVE_SHEETS_SA_KEY・X_BEARER_TOKEN |
+| update-sns-book / regenerate | （regenerate-page） | contents: write, issues: write | なし |
+| sync-logs（触らない） | — | 既に `contents: read`・`actions: read` を明示 | — |
+
+注:
+
+- **regenerate-page の issues: write**: 帰り道の知らせ（github-script）は fetch-youtube からと直接の `all` のときだけ動くが、job の `permissions` は呼ぶ側の job を超えられない（超えると起動の時点で失敗する）。regenerate-page の job に `issues: write` を書くので、呼ぶ側の job（update-sns-book・regenerate-saikyo・update-live-channel の regenerate と、run-daily の sns・saikyo）にも `issues: write` を足す。呼ばれる側の他の job（update-sns-book の update、regenerate-saikyo の abema）は自分の `permissions` で絞るので広がらない
+- 楽天の2つは `on.workflow_call.secrets` に任意（required: false）で宣言し、どこからも渡さない（ステップは `if: false`。再開するときに fetch-youtube から渡す。注釈に書く）
+- check-image-links の X_BEARER_TOKEN も任意で宣言し、run-daily からは渡さない
+- スクリプトが環境変数から読む Secret はワークフローの `env:` に書いたものだけ（`scripts/` の `os.environ`・`getenv` を grep）。暗に読むものは無い
+
+#### `run:` に `${{ }}` を直接埋めている箇所（直す前）
+
+| ファイル:行 | 埋めているもの | zizmor |
+|---|---|---|
+| check-build-failure.yml:47・66 | `github.event_name` | （出ない） |
+| check-image-links.yml:106・231 | `steps.current.outputs.body-path` | Informational |
+| check-meibo.yml:65・111 | `github.server_url`・`github.repository`・`github.run_id` | （出ない） |
+| cleanup-branches.yml:62・70 | `github.event_name` | （出ない） |
+| cleanup-logs.yml:72 | `steps.mode.outputs.dry-run` | Informational |
+| fetch-gsc.yml:51・108・109 | `github.event_name`・`server_url` ほか・`github.ref_name` | High 1 |
+| fetch-redirect-counts.yml:54・148 | `github.event_name`・`steps.apply.outputs.apply` | Informational |
+| regenerate-page.yml:271 | `server_url` ほか | （出ない） |
+| regenerate-sitemap.yml:52・53・60・73・97 | `github.event.before`・`event_name`・`sha`・`ref_name`・`server_url` ほか | High 1 |
+| sync-birthday-calendar.yml:92 | `steps.mode.outputs.apply` | Informational |
+| sync-dojo-calendar.yml:149 | `inputs.apply` | （出ない） |
+| update-live-channel.yml:190・259・262・263・381 | `inputs.verify`・`server_url` ほか・`github.ref_name`・`steps.gate.outputs.verify` | High 2・Informational 1 |
+
+直し方: `github.*` は既定の環境変数（`GITHUB_EVENT_NAME`・`GITHUB_SERVER_URL`・`GITHUB_REPOSITORY`・`GITHUB_RUN_ID`・`GITHUB_REF_NAME`・`GITHUB_SHA`。`workflow_call` でも `github.*` と同じく呼ぶ側の値）を使い、`github.event.before`・`inputs.*`・`steps.*` はステップの `env:` で受ける。
+
 ## 報告
 
 - 状態: 作業中
