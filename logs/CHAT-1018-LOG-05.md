@@ -87,28 +87,84 @@
 - テスト: 区分の数え方・行番号・上限・dry-run は何も呼ばない・本番で【1】に足し取れなかった投稿を出す。`python3 -m unittest discover -s scripts/tests`: 1386件 OK
 - dry-run（run 39121657176、503262780、success）: 旧「ログ」2708行・表示 Y 2630・【1】と重なる 17・取り直す 2609・取り出せない 1・投稿 ID が重なる ID 3。予定 X API の呼び出し 27回、読む投稿 最大 2609件、見込みの費用 最大 $13.045（上限 3000件・$15.0）
 
+### 取り直しの本番（手順2）
+
+- 本番（run 39121728662、483ec7f62、`mode=log`・dry_run 偽、success）: X API の呼び出し 27回（100件ずつ）、読んだ投稿 **2609件**、**費用 $13.045**（読んだ件数 × $0.005 で計算。上限 $15 の内）。認証の失敗・クレジット切れ・レート制限・権限の拒否は無し
+- 【1】に 2609行を足した（区分「log」）。**取れなかった投稿は 0件**（削除・非公開の投稿は無かった）
+- 読み直した【1】: 3418行（809 + 2609）、投稿 ID の重なり無し、前からの 809行は変わっていない。アカウント別に足した行 it_uesama 1494・takehirosan1209 601・retroeater 514。【2】【3】・旧「ログ」は変わっていない
+- X から取れない行（旧「ログ」から投稿 ID が取り出せない）: **1行**だけ。旧「ログ」744行 平野良栄 2024-10-10（X URL の列が画像の URL）。扱いは平野さんの判断待ち（下の「判断が必要なこと」）
+- 実際の請求は X の開発者画面で確かめる必要がある（ここからは見られない）
+
+### 【3】へ書く処理（手順3、e6a8aef5b）
+
+- `scripts/convert_x_posts.py` に `mode=log-layer3` を足した（`convert-x-posts.yml` は既存なので作業ブランチで起動できる。Claude・Places・X は呼ばない）。旧「ログ」の移行のためだけの一度きりの処理で、LOG-06 で旧「ログ」を読む処理と一緒に外す、とコード・ワークフロー・docs/notes/github-actions.md に書いた
+  - 旧「ログ」は CSV で読む（gviz は 2706行しか返さず、行番号が合わないため）。値の前後の空白は除く（2431行の日付「2022-07-05 」のような行があった）
+  - 移す値: 店名・メニュー・店URL・表示（空でない値だけ）、判定「飲食店」、日付（【1】の投稿日と違う行だけ）、投稿ID。駅・カテゴリ・タグは移さない
+  - 【3】に同じ投稿 ID の行があれば、そのセルを旧「ログ」の値で上書きする（値が同じセルは書かない）。無ければ末尾に足す。【3】へは見出しの名前で書き、書いてよい列（投稿ID・日付・判定・店名・メニュー・店URL・表示）の外には書かない。投稿 ID は `valueInputOption=RAW` の文字列で書く
+  - 同じ投稿 ID の行が旧「ログ」に2つ以上あれば、上の行の値を使う
+  - 書く前に【3】を読み直し、読んだときと違えば書かずに止まる
+- テスト: 足す・上書き・空の値は書かない・日付は違うときだけ・重なりは上の行・表示 N と URL の無い行は数えない・【1】に無い投稿・見出しに要る列が無ければ止まる・書く列の制限・投稿 ID を RAW で書く・dry-run は書かない・読み直して違えば止まる。`python3 -m unittest discover -s scripts/tests`: 1392件 OK。新しいテストを修正前のコードに当てるとエラー10
+- dry-run（run 39121975818）: 【3】531行・見出し 23列。足す 2609行・すでにあって上書き 17行（変わるセル 51個: 店名 17・メニュー 17・店URL 17）・【1】に無い 0行・日付が違う 13行。手元の試算と同じ
+- 本番（run 39122046168、e6a8aef5b、success）: 「【3】手動補正」に **2609行を足し、51セルを上書きした**
+- 読み直した【3】: 3140行（531 + 2609）、見出しは同じ。前からの 531行で変わったのは店名 17・メニュー 17・店URL 17 だけ（重なる 17行）。足した 2609行は投稿ID（19桁の文字列のまま、重なり無し）・判定・店名・メニュー・表示が全行、店URL 2556行、日付 13行。もう一度計画すると書くものは 0。【1】【2】・旧「ログ」は変わっていない
+- 【3】で上書きした17行は、LOG-01 の前に平野さんが【3】に「表示」Y にした行のうち、投稿が旧「ログ」にもあった行（店名・メニュー・店URL が旧「ログ」の値になった）
+
+日付が X の投稿日と違って【3】へ移した行: 13行（例の10行。行は旧「ログ」の行番号）
+
+| 行 | 名前 | 旧「ログ」の日付 | 【1】の投稿日 |
+|---:|---|---|---|
+| 182 | 谷岡育夫 | 2025-09-01 | 2025-09-02 |
+| 582 | 平野良栄 | 2024-12-31 | 2024-12-29 |
+| 1282 | 平野良栄 | 2024-04-17 | 2024-04-16 |
+| 1283 | 平野良栄 | 2024-04-17 | 2024-04-16 |
+| 1344 | 石立岳大 | 2024-03-27 | 2024-03-28 |
+| 1398 | 平野良栄 | 2024-03-10 | 2024-03-11 |
+| 1678 | 平野良栄 | 2023-11-27 | 2023-11-28 |
+| 1879 | 平野良栄 | 2023-09-13 | 2023-09-14 |
+| 1880 | 平野良栄 | 2023-09-13 | 2023-09-14 |
+| 1991 | 平野良栄 | 2023-08-01 | 2023-08-02 |
+
+残りの3行: 2462 平野良栄 2022-06-10 / 2022-06-11、2464 平野良栄 2022-06-09 / 2022-06-11、2599 谷岡育夫 2022-01-19 / 2022-01-18。2431行（谷岡育夫）は日付の末尾の空白だけの違いで、移していない。
+
+- 投稿 ID が重なる3組は上の行の値を移した。930・931行（2024-08-14・2024-08-13）は上の 930行の日付が【1】の投稿日（2024-08-14）と同じなので日付は移していない。1104・1105行、1739・1740行は日付も同じ
+
+### 生成への影響（再生成）
+
+- 今の生成（`generate_resource_logs.py` の `layer_rows`）は【2】の行を起点に【3】で上書きするので、【2】に行が無い投稿の【3】の行は無視する（止まらない）。旧「ログ」はまだ読んでいる
+- `python3 scripts/regenerate.py --check resource_logs`: 通る（「ログ」2630件、3層から 483件、3113件）。`python3 scripts/regenerate.py resource_logs`: 3113行で、生成物は cloudflare の `resource_logs.html` とバイト単位で同じ（コミットする差分が無い）
+- LOG-06 で【1】の 2609行を【2】へ変換し、旧「ログ」を読む処理を外すと、これらの行は【2】+【3】から出る
+
+### 決定の記録
+
+- この指示の「決定」は docs/decisions/operations.md の「2026-10-18（CHAT-1018-LOG-02）」の節の移行の決まりと同じものに、【3】の判定・日付・既存の【3】の行の上書きの決まりが加わる。加わった3つを LOG-05 の節に書いた。作業中の平野さんの回答は無い
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1018-log-367-migrate
 - ログ: https://github.com/retroeater/mj/blob/work/1018-log-367-migrate/docs/logs/CHAT-1018-LOG-05.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1018-log-367-migrate
-- 確認用URL: なし
-- マージ: 未
+- 確認用URL: なし（生成物は cloudflare と同じで、ページは変わっていない）
+- マージ: 未（平野さんの判断待ち）
 - issue: #367
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 判断が必要なこと:
+  - X から取れない行 1行（旧「ログ」744行 平野良栄 2024-10-10、X URL の列が画像の URL）の扱い。投稿の URL が分かれば旧「ログ」を直して取り直せる。分からなければ、移さずに捨てるか、【3】だけの行として持つか（今の流れでは【2】に行が無いとページに出ない）
+  - マージするか（取り直しの `mode=log`・【3】へ移す `mode=log-layer3` のコード。シートへの書き込みはすでに済んでいる。どちらも LOG-06 で外す前提）
+  - LOG-06 で旧「ログ」を読む処理を外すと、変換の名前の対応（アカウント → 名前。今は旧「ログ」から作る）が無くなる。対応（it_uesama 谷岡育夫・takehirosan1209 石立岳大・retroeater 平野良栄）をコードの定数か別のシートに持つ必要がある
+  - 【3】の見出しはカテゴリの3列が残ったまま（23列）。移した行はその見出しの名前で書いた
+- 未確認の項目:
+  - X の実際の請求（開発者画面。見込みは $13.045）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj ed495d4c）: https://github.com/retroeater/mj-logs/tree/main/guide/ed495d4c
+ガイド文書（この版を写した時点の最新、mj 0ae083e4）: https://github.com/retroeater/mj-logs/tree/main/guide/0ae083e4
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ed495d4c/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ed495d4c/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ed495d4c/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ed495d4c/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ed495d4c/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/ed495d4c/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/0ae083e4/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/0ae083e4/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/0ae083e4/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/0ae083e4/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/0ae083e4/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/0ae083e4/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/f5956855.md
