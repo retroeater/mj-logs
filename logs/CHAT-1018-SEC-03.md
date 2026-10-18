@@ -73,7 +73,7 @@ CHAT-1017-SEC-01 の点検（#598）は観点を決めて読む形だった。An
 
 ## 報告
 
-- 状態: 中断（エラー）
+- 状態: 中断（エラー） / 続き: CHAT-1018-SEC-05
 - ブランチ: work/1018-sec3
 - ログ: https://github.com/retroeater/mj/blob/work/1018-sec3/docs/logs/CHAT-1018-SEC-03.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1018-sec3
