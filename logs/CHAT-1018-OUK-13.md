@@ -65,18 +65,53 @@ houou/・ouka/・jwrc/ は同じ作り（`generate_houou_pages.py`・`assets/lea
 
 ## 経過
 
+### 0章
+
+- Chat-Ref の重複なし（`git log --all --grep`）。work/1018-ouk13 はリモートに無かったので、origin/cloudflare（4afe5cd11）から `git checkout -b` で作った（追跡先は外した）
+- 「指示」欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- 貼る時機: `git merge-base --is-ancestor origin/work/WRC origin/cloudflare` が真（origin/work/WRC は 4afe5cd11 で、cloudflare の先頭と同じ。CHAT-1018-WRC-11 でマージ済み）
+
+### 1. 比べる
+
+- 画面（headless Chrome、手元のサーバで cloudflare の生成物）: houou/・ouka/・jwrc/ それぞれ、トップ・個人成績（選手を選ばない画面・期別・通算・リーグ・部門別、進行中の期だけの選手〈houou/ 中村朝海・ouka/ 中村優花。jwrc/ は該当者なし〉）・ランキング（通算・期平均）・順位変動（既定の表）の11〜13画面 × 375px・1280px・1920×1080・375px の字 150%・200%（計155画面）。選手は houou/・ouka/ が二階堂亜樹、jwrc/ が紺野真太郎。3大会の 375px の画面は横に並べた画像で見比べた
+  - はみ出し 0、JS のエラー 0（全画面）。期別のカードの行の高さは3大会とも同じ（375px・1280px・1920px 52px、字 150% 78px、200% 104px）。期の欄は3大会とも右揃え
+- コード: `Contest` の3つの設定、`generate_houou_pages.py` で大会を名指しする所（`CONTEST is HOUOU` は大会の印〈`is-<大会>`・`data-contest`〉と旧 URL の後始末だけ）、`style.css` の `.is-ouka`・`.is-jwrc`（大会の色と期の欄の幅だけ）、`league.js` の設定（`#league_contest`）、`navbar.js`
+- 差の一覧は `docs/notes/league-pages-compare.md` の表（意図した差 23行・判断待ち 2行）。要点:
+  - 意図した差（残す）: 公開・noindex、OGP、大会の印、期の表記、リーグ、リーグの色、結果の語、入替戦の印・帯、最近見た選手の1件とキー、トップの3項目の説明、質問欄の例、個人成績のタブ、名前の面、期の欄の幅、進行中の期の行のリンク、節の成績の無い期、ランキングの部門・上限・時点、順位変動の選ぶ画面・帯・節のラベル。よりどころはそれぞれ表に書いた
+  - 決定の「期別の期の右揃え」: WRC-08（817698430）で `style.css` の `.mj-houou-term-bar`・`.mj-houou-term-ki` を3大会共通の規則として入れていた。houou/ もすでに右揃えで、そろえる所は無かった
+  - 差に見えて同じ規則だったもの: パンくずの「鳳凰戦」の後の空きが広い（リンクの押せる幅の最小 44px による。3大会で同じ規則で、3文字の「鳳凰戦」だけ幅が足りずに空く）、順位変動の節のラベルが ouka/ だけ数字（`WIDE_NODE`。8節の表は 375px で「第n節」が入らない。houou/ も節の多い表は数字）
+- 判断待ち（直していない差）:
+  1. 共通ナビの形: houou/ は白地のナビ（`navbar.js` が `/houou/` だけに `.mj-nav-new` を当てる、2026-10-13〈#107〉。最強戦の新ページも）、ouka/・jwrc/ は濃色のナビ。よりどころは「新しい形は houou/ から当てる」（`docs/decisions/design-renewal.md` の #296 の残り）だけで、ouka/・jwrc/ に当てない理由は見つからない。ただし `navbar.js` の同じ分岐（新しいナビを当てるページの判定）を、未マージの work/1017-lvp（放送対局のページを足す）が変えているので、止まる条件に当たるため直していない
+  2. 個人成績の通算のグラフの目印の丸: houou/・ouka/ は昇級・決定戦・降級の期に色の丸（`league.js` の `mark`）。jwrc/ の「通過」の期には丸が無い。通過を目印にするかのよりどころが無い
+
+### 2. そろえる
+
+- 「そろえる」にした差は0件（上の判断待ちの2件のほかに意図しない差が無かった）。生成のコード・CSS・JS・生成物は変えていない
+- `python3 -m unittest discover -s scripts/tests` 1,417件 OK、`node --test 'workers/ask/test/*.test.mjs'` 47件 pass
+- 生成のコードを変えていないので、`regenerate.py all` の比較は行っていない（生成物の差分は0）
+
+### 3. 記録
+
+- `docs/notes/league-pages-compare.md` を足した（3大会の意図した差と判断待ちの差の表、比べ方）。`houou-top.md`（「女流桜花への展開」）・`ouka-top.md`・`jwrc-top.md`（冒頭）から参照し、`docs/handover.md` の関連文書の表に1行足した
+- issue: #591・#594 にコメント
+- 文書だけの変更なので Workers Builds は走らない（プレビューは cloudflare と同じ）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1018-ouk13
 - ログ: https://github.com/retroeater/mj/blob/work/1018-ouk13/docs/logs/CHAT-1018-OUK-13.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1018-ouk13
-- 確認用URL:
-- マージ: 未
-- issue:
+- 確認用URL: 直した画面は無い（文書だけ）。判断待ちの差が見える本番の画面: https://ryoei.pro/houou/players/?name=二階堂亜樹 と https://ryoei.pro/ouka/players/?name=二階堂亜樹 （ナビの地色）、https://ryoei.pro/jwrc/players/?name=紺野真太郎&view=total （通過の期の丸）
+- マージ: 未（文書だけの変更。指示の「マージ:」の行のとおり判断待ち）
+- issue: #591・#594 にコメント
 - 判断が必要なこと:
-- 未確認の項目:
-- エラー:
+  - 差の一覧の要約: そろえた差 0件、意図した差として残した差 23件（`docs/notes/league-pages-compare.md` の表）、判断待ち 2件（下）
+  - 判断待ち1: 共通ナビの形。ouka/・jwrc/ にも houou/ と同じ白地のナビを当てるか（`navbar.js` の判定に `/ouka/`・`/jwrc/` を足す）。未マージの work/1017-lvp が同じ分岐を変えているため、その系列のマージの後か、公開（#591・#599）の navbar の項目の変更と一緒に入れる案
+  - 判断待ち2: jwrc/ の通算のグラフで「通過」の期に目印の丸を付けるか（付けるなら色。houou/・ouka/ の昇級は暖色・降級は寒色、通過のチップは金）
+  - 新しく仮置きしたこと: なし（差の扱いは、よりどころのある差を「意図した差」、ないものを「判断待ち」とした）
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
