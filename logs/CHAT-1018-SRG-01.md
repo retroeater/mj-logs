@@ -63,6 +63,65 @@
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 4行とも揃っている
 - 0. 指示欄の末尾は「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」で、指示文の最後の行と一致
 
+### 手順1: 同じ主題の issue・未マージのブランチ
+
+- issue の検索（「辞書 書籍 シート 新しいスプレッドシートへ移す 移行」「スプレッドシート 再編 その他マスタ」）: #337（open、シートと生成ページの対応を引く。主題が違う）・#578（closed、帰り道・Mつくのタブ）・#544（closed）・#522（closed）・#445（closed）。同じ主題の open issue は無い
+- 未マージの work/ ブランチ（自分以外）: 1009-swp-526・1011-swp-hnd・1011-swp-nav・1015-skd-notes（ログのみ）、1017-lvp（live/ の見た目）、OUK・WRC（houou/ouka/jwrc）。同じ目的のものは無い
+- 変えるファイル（読み手4本・`scripts/lib/`・`scripts/tests/`・docs/notes の4文書）との重なり: 1017-lvp が `scripts/lib/study.py` と tests 3本、OUK・WRC が tests 数本を変えているが、いずれも今回触るファイルではない（新しく足すファイルとも重ならない）
+- issue #600 を起票し、着手中のコメントを残した。**順序の逸脱**: 起票と着手コメントは、手順2のシートの比較・読み手の洗い出し・コードの編集の後になった（CLAUDE.md「issueの着手ルール」の「コードを触る前に」に反する。コミット・push は起票の後）
+
+### 手順2: 新しいスプレッドシートの確かめ
+
+`lib/sheets.py` の `_get`（htmlview の title）と `_sheet_gids` で題とシート名を引いた:
+
+| | ID | 題 | シート名 |
+|---|---|---|---|
+| 新 | `1WpSXlEKHw5-GUIxH0G9eSW2TUHRh6oc56FX57jRNqOM` | R_その他 | 辞書・書籍 |
+| 元（`live.SPREADSHEET_ID`） | `10g_Xub35Od6vg8zFlKuB-9Kwgyg-HapWWsnfMur7J34` | R_タイトル戦_マスタ | リーグ・タイトル・タイトル戦・書籍・辞書 |
+
+- 前提の「元は ryoei.pro_その他マスタ（`live.SPREADSHEET_ID`）」は、ID はコードの `live.SPREADSHEET_ID` と一致し「辞書」「書籍」もあるが、題は今「R_タイトル戦_マスタ」（改名されたとみられる）。読む先の判断には影響しないため止まらずに進めた。docs/notes/static-generation.md の「リーグ」の「その他マスタ」の記述と docs/decisions/pros.md の名前は今回の対象外で直していない
+
+生成と同じ経路（`fetch_table` で全列、`fetch_records` で生成の見出し）で読み、2回ずつ比べた:
+
+| シート | 見出しの並び | 行数（1回目 / 2回目） | 値の違い | `fetch_records` |
+|---|---|---|---|---|
+| 辞書 | 一致（カテゴリ・サブカテゴリ・よみ・単語・品詞） | 元791・新791 / 元791・新791 | 0件 | 元791・新791、一致 |
+| 書籍 | 一致（ISBN13・原題・タイトル・著者・出版社・発売日・紙ASIN・Kindle ASIN・校正・備考） | 元95・新95 / 元95・新95 | 0件 | 元95・新95、一致 |
+
+読み手（`fetch_records` に「辞書」「書籍」を渡す箇所。`grep` で `DICT_SHEET_NAME`・`SHEET_NAME`・`books.SHEET_NAME` とシート名の文字列を洗った）:
+
+| シート | ファイル | 箇所 |
+|---|---|---|
+| 辞書 | `scripts/generate_resource_dictionary.py` | `fetch()`（`--check` も同じ関数） |
+| 書籍 | `scripts/generate_books_pages.py` | `main()`（凍結中、`FROZEN_FROM_ALL`。凍結は解いていない） |
+| 書籍 | `scripts/sync_books_calendar.py` | `fetch_books()`（ワークフローは削除済み） |
+| 書籍 | `scripts/fetch_rakuten_books.py` | `main()` |
+
+- workers/・.github/ に「辞書」「書籍」シートを読む箇所は無い
+- 切り替え: `scripts/lib/other_book.py`（`SPREADSHEET_ID`、`lib/video_book.py` と同じ形）を足し、4か所を `other_book.SPREADSHEET_ID` にした。`live.SPREADSHEET_ID` は変えていない（「タイトル戦」「リーグ」などはそのまま）
+- テスト `scripts/tests/test_other_book.py`: ID と、4本の読み手が `other_book.SPREADSHEET_ID` で読み `live.SPREADSHEET_ID` で読まないこと。origin/cloudflare のコード（`git archive` で scratchpad に展開）では4件とも失敗し、作業ブランチで通る。全体 `python3 -m unittest discover -s scripts/tests` は1375件 OK
+- 文書: docs/notes/static-generation.md「ページの一覧」の辞書の行（「連盟プロ以外と同じブック」→「R_その他」）と書籍の行（置き場所を追記）。books-freeze.md・books-calendar.md・books-covers.md はスプレッドシートの名前・ID を書いておらず（「書籍」タブとだけ書く）、直す箇所は無かった
+
+### 手順3: 確かめ
+
+`python3 scripts/generate_resource_dictionary.py --check`（作業ブランチ）: 終了コード0、止まる理由なし。
+
+| カテゴリ | 語数 |
+|---|---|
+| 一般用語 | 583 |
+| 連盟用語 | 137 |
+| 連盟プロ | 1098 |
+| Mリーグ | 71 |
+| 保存の語数（まとめた後） | 1869 |
+
+`python3 scripts/regenerate.py all`: origin/cloudflare のコード（scratchpad の展開、5分26秒）→ 作業ブランチ（5分15秒）の順に実行。
+
+- 2つの生成物（`scripts/`・`docs/` 以外の全ファイル）を `diff -rq` で比べ、差なし
+- どちらも origin/cloudflare のコミット済みの生成物とは `houou/players/index.html`・`workers/ask/data.json` の2ファイルで差があった（「別名」シートに「ガースネルソン → ガース」が足されたため。今回の変更と無関係で、両方のコードで同じ）。コミットに含めず元に戻した
+- `dic/`・`resource_dictionary.html` はコミット済みのものと差なし
+
+書籍の読み手: `sync_books_calendar.py` を引数なし（カレンダーを読まず書かない計画だけの形）で実行すると、新しいスプレッドシートを読んだ後 `check_rows` の「「書籍」シートの行数が想定外です(95行)」で止まる。origin/cloudflare のコードでも同じ所で止まる（凍結中の既知の状態。`MIN_BOOKS` 150 は books-freeze.md「再開するときに戻す手順」1で見直す）。読めることは、読み手のモジュールの `fetch_records` を記録する関数に差し替えて呼び、`(1WpSXlEKHw5-…, 書籍)` に問い合わせて95行（先頭 ISBN13 9784801994904）が返ることで確かめた。`fetch_rakuten_books.py` は楽天の鍵が要り、コンテナでは動かしていない（読み手の行は上のテストで確かめた）
+
 ## 報告
 
 - 状態: 作業中
@@ -79,12 +138,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 6a2b5b89）: https://github.com/retroeater/mj-logs/tree/main/guide/6a2b5b89
+ガイド文書（この版を写した時点の最新、mj d368dd1d）: https://github.com/retroeater/mj-logs/tree/main/guide/d368dd1d
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6a2b5b89/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6a2b5b89/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6a2b5b89/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6a2b5b89/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6a2b5b89/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6a2b5b89/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d368dd1d/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d368dd1d/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d368dd1d/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d368dd1d/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d368dd1d/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d368dd1d/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/8c038f0d.md

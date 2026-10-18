@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-18 18:47 JST
+- 書き出した時刻: 2026-10-18 18:49 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -25,14 +25,13 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-10-18 18:46 | push | work/1018-srg | in_progress | #179（39116682639） |  |
+| 2026-10-18 18:47 | push | cloudflare | success | #180（39116703068） | 0分23秒 |
+| 2026-10-18 18:46 | push | work/1018-srg | success | #179（39116682639） | 0分20秒 |
 | 2026-10-18 18:46 | push | work/1018-log-367-rule | success | #178（39116653268） | 0分21秒 |
 | 2026-10-18 18:43 | push | work/1018-log-367-rule | success | #177（39116480254） | 0分19秒 |
 | 2026-10-18 18:41 | push | work/WRC | failure | #176（39116299694） | 0分19秒 |
-| 2026-10-18 18:34 | push | work/WRC | failure | #175（39115852769） | 0分19秒 |
 
 - #176 failure: ジョブ「check」 ステップ「公開対象の最上位を確認」
-- #175 failure: ジョブ「check」 ステップ「公開対象の最上位を確認」
 
 ## check-build-failure.yml
 
@@ -189,11 +188,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-18 18:47 | push | cloudflare | in_progress | #362（39116702954） |  |
 | 2026-10-18 18:19 | push | cloudflare | success | #361（39114894376） | 0分37秒 |
 | 2026-10-18 13:54 | push | cloudflare | success | #360（39098688526） | 5分11秒 |
 | 2026-10-18 00:39 | push | cloudflare | success | #359（39046016709） | 0分40秒 |
 | 2026-10-17 21:26 | push | cloudflare | success | #358（39032557946） | 4分34秒 |
-| 2026-10-17 20:59 | push | cloudflare | success | #357（39030772139） | 4分47秒 |
 
 ## regenerate-saikyo.yml
 
