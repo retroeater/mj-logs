@@ -56,6 +56,48 @@ work/OUK（ouka/）が cloudflare に入ったので、それを含む work/WRC�
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
 - 着手時: origin/work/WRC は 1e634bfad（ローカルと同じ）。origin/cloudflare は祖先でないので merge で取り込む
 
+### 1. 取り込みと直し
+
+- OUK-11・12 の「WRC への引き継ぎ」を読んだ（`check-assets.yml` の `allowed()`、`Contest.rank_cut`・`Contest.playoff`、`RESULT_CLASS`、`FINAL_RESULT`・`PLAYOFF_RESULT`、`load_rows()` の `ResultRow` の12個目、`load_race()` の `fetch_records`、`test_houou_pages.py` の桜花の部門の数、`data-ouka.json`、docs）
+- `git merge origin/cloudflare`（fa9c9b776）の衝突と解き方（どれも両方の変更が両立する衝突。指示の「作業ブランチ」の行の解き方の範囲）:
+  - `.github/workflows/check-assets.yml` の `allowed()`: 両方の追加を1行に
+
+```
+              assets|books|dic|houou|houou_race|img|jwrc|live|mtsuku|ouka|saikyo|study|title|wayhome) return 0 ;;
+```
+
+  - `assets/league.js`: WRC の `RESULT_CLASS`（通過・敗退）と OUK の入替戦の定数を両方残した
+
+```
+	const RESULT_CLASS = { 昇級: 'is-up', 降級: 'is-down', 残留: 'is-stay', 入替戦: 'is-playoff', 決定戦: 'is-final', 通過: 'is-pass', 敗退: 'is-out' }
+	// 成績の行の12個目は入替戦に出た印(「入替戦」列が Y、2026-10-18。scripts/lib/results.py の playoff_mark())
+	const ROW_PLAYOFF = 11
+	const PLAYOFF_LABEL = '入替戦'
+```
+
+  - `scripts/generate_houou_pages.py`: 定数（OUK の `FINAL_RESULT`・`PLAYOFF_RESULT` に WRC の `PASS_LINE` を足した）、`headers()`（OUK の「入替戦」列を `Contest.playoff` のときだけ読む形に、WRC のリーグの無い大会の「リーグ」を読まない形を足した）、`load_rows()` の `ResultRow`（WRC の `league` と OUK の12個目 `playoff`）、`load_race()` の `fetch_records`（WRC の `league`・`league_of()` と OUK の `playoff`）
+
+```
+    headers = HEADERS if CONTEST.playoff else tuple(h for h in HEADERS if h != race_page.PLAYOFF_HEADER)
+    if CONTEST.halves:
+        return headers
+    skip = ("前後", "リーグ") if CONTEST.no_leagues else ("前後",)
+    return tuple(h for h in headers if h not in skip and h not in ROUND_HEADERS) + CONTEST.round_headers
+```
+
+```
+    league = () if CONTEST.no_leagues else ("リーグ",)
+    playoff = (race_page.PLAYOFF_HEADER,) if CONTEST.playoff else ()
+    records = fetch_records(SPREADSHEET_ID, CONTEST.sheet, ("名前", "期", "結果", "表示") + league + playoff + CONTEST.round_headers)
+    records = [dict(r, 前後="", リーグ=league_of(r)) for r in records if r["期"] != ""]
+```
+
+  - `scripts/tests/test_houou_pages.py`: 桜花の乙の規定未達の値（WRC の `["+20.0", None, 0]`）と部門の数（OUK の 8）の両方
+  - `docs/decisions/houou.md`: 追記どうし（WRC-07〜10 の節と OUK-10〜12・HOU-73 の節）を両方残した。`docs/notes/static-generation.md`: OUK の ouka/ の行（8部門・12＋在籍者数）と WRC の jwrc/ の行を両方残した
+  - 生成物（`ouka/results/*.json` 71件・`workers/ask/data-ouka.json`）: cloudflare 側を入れてから生成し直した（下）
+- JWRC の `Contest` に `playoff=False`・`rank_cut=(50, 55)` を入れた
+- `python3 -m unittest discover -s scripts/tests` 1,417件 OK、`node --test 'workers/ask/test/*.test.mjs'` 47件 OK
+
 ## 報告
 
 - 状態: 作業中
