@@ -113,6 +113,50 @@ Chat-Ref: CHAT-1019-WRC-12
 - `docs/handover.md`: 文書の一覧の jwrc-top.md の「未公開」を外した
 - `docs/decisions/houou.md`: 2026-10-19（CHAT-1019-WRC-12）の節
 
+### マージ
+
+- 1回目の push 直前の再 fetch で cloudflare が f0204bea8（chore: remove completed logs。完了済みのログの削除だけ）に進んでいたため `git merge-base --is-ancestor` が偽。merge で取り込み（06f1203bd、衝突なし。WRC・OUK-15/16 のログは消えていない）、再 fetch → 祖先の確認が真 → `git push origin work/1019-wrc12:cloudflare`（f0204bea8..06f1203bd）
+- 06f1203bd の check-runs: Workers Builds: mj success、sync success、regenerate success、notify skipped。`mj-ask` は workers/ に変更が無くビルドされていない（WRC-11 の 8735ca5ef の版のまま）
+- 作業ブランチの 1bbd39770 でも Workers Builds: mj・check（公開対象の検査）は success
+
+### 本番の確かめ（curl と headless Chrome 1280px、2026-10-19）
+
+- jwrc/ の12ページ（トップ・players・ランキング9部門・race）: すべて 200、robots の meta 0件・`x-robots-tag` 0件
+- 本番の `navbar.js`: 「WRC」は `href="/jwrc/" data-short-label="WRC"` の1段の項目、`wrc_ranking`・`wrc_results` への参照0件、`/jwrc/` の分岐あり
+- ナビ（headless Chrome）: jwrc/ の4ページは白地で「WRC」に印。houou/・houou/players/ は白地で「鳳凰戦」に印、ouka/・ouka/players/ は白地で「女流桜花」に印、saikyo/ は白地で「最強戦」に印（変わらない）。jpml_pros.html・title/ は濃色で項目名は2行（変わらない）。トップ（/）は独自のメニューで navbar.js の項目なし（変わらない）。どのページも JS のエラー0件
+- サイトマップ: jwrc/ の行12、旧2ページの行0。`llms.txt`: jwrc/ の行4、旧2ページ0
+- 301（curl）: `wrc_results.html?name=紺野真太郎` → `jwrc/players/?name=紺野真太郎`、`wrc_ranking.html` → `jwrc/ranking/total/`、`?division=…` はクエリを引き継いで `jwrc/ranking/total/` へ
+- 301 の後の JS（headless Chrome）: `wrc_results.html?name=紺野真太郎` → 個人成績に紺野真太郎（「最高到達 優勝 1回（19期）」「出場 9期（通過1回）」）。`wrc_ranking.html?sheet=JWRC&division=通算得点/期` → `jwrc/ranking/total-per-term/`、`division=節最高得点` → `jwrc/ranking/round-high/`、jwrc/ に無い `division=期単位浮き率` → `jwrc/ranking/total/` のまま
+- 質問欄（jwrc/）「通過回数がいちばん多いのは？」→「通過回数がいちばん多いのは石立岳大で、11回です。2位は客野直、山脇千文美、末続ヒロトシの3名で10回、5位は大和、新谷翔平の2名で9回です。」（データ: WRCリーグ 第19期終了時点、出典: WRCリーグ ランキング（通過回数））
+
+### issue
+
+- #582: WRC の旧2ページも同じ扱いにする旨（生成は無くファイルを消すだけ、`league_ranking.js` は旧ランキング3ページが消えた後、`_redirects` の2行は残す）をコメント（issuecomment-6256616261）。#582 は開いている
+- #599: 公開の結果と本番の確かめをコメント（issuecomment-6256618368）し、クローズ（「状況: 待ち」を外した）。告知はチャット側で後日と書いた
+- #594: 残り（3大会の比べの判断待ち2件）は済んだ（共通ナビは今回、通過の金の丸は CHAT-1019-OUK-14）ので、コメント（issuecomment-6256619396）してクローズ（「状況: 待ち」を外した）
+- CHAT-1018-WRC-11 のログの状態を「完了（CHAT-1019-WRC-12 で公開…） / 続き: CHAT-1019-WRC-12」、判断が必要なことを「なし（…）」にした
+
+## 報告
+
+- **WRCリーグ（jwrc/）を公開した**（マージのコミット 06f1203bd）。告知はしていない
+- 状態: 判断待ち（公開は完了。告知の形がチャット側の後日の判断）
+- ブランチ: work/1019-wrc12 → cloudflare（マージのコミット 06f1203bd）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1019-WRC-12.md
+- 比較URL: https://github.com/retroeater/mj/compare/921dbe0ad...06f1203bd
+- 確認用URL: 本番（https://ryoei.pro/jwrc/ ）。この版で見える印: どのページでも navbar の「WRC」が下の項目を持たず jwrc/ へ行き、jwrc/ ではナビが白地で「WRC」に印
+- マージ: 済（06f1203bd）
+- issue: #599（クローズ）、#594（クローズ）、#582（コメント。WRC の旧2ページの後始末も扱う）
+- 判断が必要なこと:
+  - 告知（X・動画をするか、その形）はチャット側で後日決める
+  - #571（「結果」の列の扱い）を、jwrc/ に「結果」（通過・敗退）を載せたことを書いて閉じるか（#599 の本文の「公開した後に閉じる issue」の項目。この指示では触っていない）
+  - 本番の確かめで合わなかった所: なし
+- 未確認の項目:
+  - X と LINE の投稿画面でのカード表示（セッションから確かめられない）
+  - 平野さんの実機での見え方（navbar から開けるか）
+  - Search Console での `sitemap.xml` の再送信と jwrc/ の URL 検査（平野さんの作業）
+  - `mj-ask` は今回ビルドされていない（workers/ に変更が無い）。質問欄の答えは本番で返ることを確かめた
+- エラー: なし（1回目の push 直前に cloudflare が進んでいたため取り込んでから push した。経過の「マージ」）
+
 <!-- guide-links -->
 ---
 

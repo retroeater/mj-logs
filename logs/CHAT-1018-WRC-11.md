@@ -129,19 +129,14 @@ work/OUK（ouka/）が cloudflare に入ったので、それを含む work/WRC�
 
 ## 報告
 
-- 状態: 判断待ち（jwrc/ は未公開のまま cloudflare に入った。公開は #599） / 続き: CHAT-1019-WRC-12
+- 状態: 完了（CHAT-1019-WRC-12 で公開。マージのコミット 06f1203bd） / 続き: CHAT-1019-WRC-12
 - ブランチ: work/WRC → cloudflare（マージのコミット 32e499af7）
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1018-WRC-11.md
 - 比較URL: https://github.com/retroeater/mj/compare/46ef8691a...32e499af7
 - 確認用URL: 本番（https://ryoei.pro/jwrc/ 、noindex）。この版で見える印: jwrc/ の個人成績を選手を選ばずに開くと「現タイトルホルダー」の印で紺野真太郎
 - マージ: 済（32e499af7）
 - issue: #594（コメント）、#599（公開）
-- 判断が必要なこと（#599 の公開で決めること）:
-  - navbar の形（WRC を `/jwrc/` への1段の項目にするか。houou/・ouka/ に合わせる案、チャット側の案で未決）
-  - 旧 `wrc_results.html`・`wrc_ranking.html` の 301 の行き先（案: `jwrc/players/`〈`?name=` を引き継ぐ〉・`jwrc/ranking/total/`〈`?division=` は total/ の JS が部門のページへ。旧の期単位浮き率・期連続浮き回数は jwrc/ に無いので total/ のまま〉）
-  - noindex を外す（`JWRC` の `noindex=True` の1か所）・`sitemap-pages.xml` に jwrc/ を足して旧2ページを外す・`llms.txt` の WRC の行を jwrc/ に
-  - `jpml_pros` の WRC の欄のリンク先（あれば jwrc/players/?name= へ）
-  - 告知（公開と X の告知を同時にするか、動画を作るか）
+- 判断が必要なこと: なし（navbar・301・noindex・サイトマップ・`llms.txt` は CHAT-1019-WRC-12 で案のとおりに決めて公開した。jpml_pros は変えない。告知は CHAT-1019-WRC-12 の報告に移した）
 - 未確認の項目:
   - 平野さんの実機（Android の 360px 前後の端末）での見え方
   - 進行中の期（第20期）の行と公式の成績表のリンク（JWRC タブに第20期の行が入ってから）
@@ -150,12 +145,12 @@ work/OUK（ouka/）が cloudflare に入ったので、それを含む work/WRC�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 6054a3fe）: https://github.com/retroeater/mj-logs/tree/main/guide/6054a3fe
+ガイド文書（この版を写した時点の最新、mj 06f1203b）: https://github.com/retroeater/mj-logs/tree/main/guide/06f1203b
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6054a3fe/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6054a3fe/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6054a3fe/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6054a3fe/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6054a3fe/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6054a3fe/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/06f1203b/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/06f1203b/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/06f1203b/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/06f1203b/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/06f1203b/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/06f1203b/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/f0204bea.md
