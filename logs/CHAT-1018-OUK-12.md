@@ -55,28 +55,113 @@ OUK-01〜11 で作った ouka/ と、共通の部分の直し（「入替戦」�
 
 ## 経過
 
+### 0章
+
+- Chat-Ref の重複なし。work/OUK はリモートとローカルが同じ（c23b104fb）。「指示」欄の末尾は指示文の最後の行と一致。CHAT-1018-OUK-11 のログの状態に ` / 続き: CHAT-1018-OUK-12` を足した。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- 貼る時機（生成と同じ経路 `lib/sheets.fetch_table` で読んだ）:
+  - 「鳳凰」16,011行。「結果」に「入替戦」0行（残留 9,690・降級 2,487・昇級 3,138・決定戦 78・空欄 618）。「結果」は OUK-09 の `houou_results.tsv` と全行一致、「入替戦」（I列）は `houou_playoff.tsv` と全行一致（Y 12: 昇級3・残留7・降級2）
+  - 「桜花」1,719行。「結果」に「入替戦」0行、「入替戦」Y 49。OUK-09 の TSV と全行一致
+- 未マージの work/ ブランチ（work/OUK・work/WRC 以外）: 変えるファイルに触るのは work/1017-lvp の `style.css` だけで、最強戦・動画の節（houou の節と別の箇所）
+
+### 1. 取り込みと直し
+
+- origin/cloudflare（1cd1d6f2b、docs だけ: CHAT-1018-PRV-01・02、SEC-08・09）を merge。衝突なし（マージのコミット 4ef15bb08）
+- 50位・最大55人: 鳳凰戦の「最大100人」は `lib/ranking.py` の `auto_cut(entries, cap=AUTO_CAP=100, slack=AUTO_SLACK=110)`（上限100件。100件目の値の同点の群れが110件以内なら群れごと出し、超えるなら群れごと外す）。`Contest.rank_cut`（既定は鳳凰戦の (100, 110)）を足し、`OUKA` を (50, 55) にした。`build_rankings()` が `auto_cut(..., *CONTEST.rank_cut)` を呼び、`prepare()` の件数の検査も `CONTEST.rank_cut[1]` で見る。同点が55件を超えるときは鳳凰戦と同じく群れごと外す
+- 部門の格子: OUK-11 の `@media (min-width: 768px) { .is-ouka .mj-houou-chipnav { grid-template-columns: repeat(4, 1fr) } }` を消した（どの幅でも3列）
+- check-assets: `.github/workflows/check-assets.yml` の `allowed()` の行を次にした（`docs/notes/github-actions.md`「ワークフローを変更したとき」を読んだ。このワークフローは work/** への push で走るので、作業ブランチの push〈e6f7e755a〉で実行し、`check` が success）:
+  `              assets|books|dic|houou|houou_race|img|live|mtsuku|ouka|saikyo|study|title|wayhome) return 0 ;;`
+- テスト: `OukaRankCutTest`（桜花は50件で切れる・鳳凰戦は100・110 のまま）を足した
+- `test_handover_notes_table` が落ちた: cloudflare で足された `docs/notes/sheets-reader.md`（PRV-02）が `docs/handover.md` 6章の表に無い。cloudflare のクローン（1cd1d6f2b）でも同じく落ちる（この作業が原因ではない）。直しを持つブランチは無かったので、表に1行足した（「`docs/notes/sheets-reader.md` | スプレッドシートを非公開にするための読み取り用サービスアカウントの用意（#557）」。コミット 912d76ced、成果物と別）
+- `python3 -m unittest discover -s scripts/tests` 1,401件 OK、`node --test 'workers/ask/test/*.test.mjs'` 43件 pass
+
+### 2. マージ前の確かめ
+
+- `python3 scripts/regenerate.py all` を作業ブランチと cloudflare のクローン（1cd1d6f2b）で同時に回した（どちらも飛ばしたページ0）。`diff -r` の結果:
+  - houou/ の差分は24ファイル:
+    - 改名した JS を指す行: 13ファイル（トップ・players・leagues・race・ranking の9部門）。名前を置き換えて比べると差分0行
+    - 順位変動の名前の変わった行: 7表（今里之彦→今里邦彦 2表、樫野凪→かしのなぎ 5表）。各表の選手の `name`・`short` だけ
+    - 入替戦のチップ: 4名の成績 JSON（仁平宣明 18期 A2 残留・19期 A2 昇級、吉田幸雄 18期 A1 残留、沢崎誠 17期 A1 残留、藤原隆弘 18期 A2 昇級）。行の12個目に印 1 が付くだけで、ほかの値は同じ（「結果」の値は cloudflare 側も同じく直った値）
+    - 連続昇級の値: 変わらない（ランキングのページは JS の行だけ）
+  - `workers/ask/data.json`: 12行の最後に印 1（`players` だけ）
+  - 旧 `ouka_*`: og:image・og:image:alt の行だけ（ほかの差分0）。旧 `houou_*`・`houou_race.html`・title/・jpml_pros.html などほかの生成物: 差分0
+  - 「鳳凰」の12セルの直しは cloudflare 側でも同じ4名と `data.json` を変える（cloudflare のクローンの生成でも差分が出た）
+- ouka/ のランキング（50件・55件）:
+
+| 部門 | 件数 | 全件 | 切り方 |
+|---|---:|---:|---|
+| 通算 | 50 | 164 | 上限で切れる |
+| 期平均 | 47 | 47 | 全件（規定 5期以上） |
+| 期最高 | 50 | 1,234 | 上限で切れる |
+| 期浮き率 | 50 | 94 | 上限で切れる |
+| 期連続浮き | 31 | 328 | 同点の群れを外す（32〜57位が 3） |
+| 節最高 | 50 | 3,198 | 上限で切れる |
+| 節浮き率 | 50 | 95 | 上限で切れる |
+| 節連続浮き | 44 | 1,678 | 同点の群れを外す（45〜104位が 5） |
+
+  マイナスの値が残る部門は無い（期平均の最後は +2.1）
+- check-assets を手元で回した: 公開対象の最上位は許可リストに収まる、配信の上限 OK、共通の部品のテスト 18件 pass。ガイド文書のサイズは handover.md 23,705 バイト（上限 28KB）
+- headless Chrome（手元）: 375px・1280px とも ouka/ のランキングの格子は8部門・3列（3・3・2）、表は50行。houou/ の仁平宣明は 19期「昇級＋入替戦」・18期「残留＋入替戦」（印は結果のチップの真下、行 55px）。はみ出し・JS のエラー 0
+
+### 3. マージと本番
+
+- push 直前に再 fetch し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真。`git push origin work/OUK:cloudflare`（1cd1d6f2b..8165a7bd1、早送り）
+- push の後、cloudflare の自動の再生成（regenerate）が `sitemap-pages.xml` の lastmod だけを変えるコミット f4a76dfd8 を乗せた
+- Workers Builds: `mj-ask`（質問欄の Worker）は 8165a7bd1 で success（Workers Builds が push で自動でデプロイする。docs/notes/ask-worker.md の B1）、`mj` は f4a76dfd8 で success（2026-10-18 12:34 UTC）
+- 本番（https://ryoei.pro、headless Chrome 375px）。どれも 200・JS のエラー 0:
+  - ouka/ のトップ: title「女流桜花 | 日本プロ麻雀連盟 | ryoei.pro」、noindex
+  - ouka/ のランキング（通算）: 50行、格子 8部門・3列
+  - ouka/ の個人成績 天音まこと: 20期・16期が「昇級＋入替戦」
+  - ouka/ の順位変動 第20期 C1: 帯は「入替戦」→「昇級」→「降級」
+  - houou/ の個人成績 仁平宣明: 19期「昇級＋入替戦」・18期「残留＋入替戦」
+  - houou/ の順位変動 第26期 A2: 表に「今里邦彦」
+  - houou/ のトップ: 200
+  - 「本番の HTML」と headless Chrome での見え方を確かめた。平野さんのブラウザでの見え方は確かめていない
+- 質問欄（本番の `/api/ask`、各1問）:
+  - ouka/（`contest: "ouka"`）「天音まことの第20期の結果は？」→「天音まことの第20期はC1で1位となり、昇級しています。この期は入替戦に出場しており、入替戦後の結果も昇級でした。」（出典: 天音まことの成績）
+  - houou/「仁平宣明の第19期の成績は？」→「仁平宣明の第19期はA2リーグで3位、総合186.2ポイントでした。この期は入替戦に出場し、その結果は昇級です。」（出典: 仁平宣明の成績）
+- issue: #597・#519・#516 にコメントしてクローズ（「状況:」ラベルを外した）。公開は #591
+- ログの状態: CHAT-1017-OUK-01・02、CHAT-1018-OUK-03・04・06・08・09・10・11 を「完了（CHAT-1018-OUK-12 でマージ。判断待ちの論点は OUK-12 までに決定） / 続き: …」にした（`## 報告` の状態の行だけを替え、「判断が必要なこと」の箇条は残した）
+- 文書: `docs/notes/ouka-top.md`（50件・55件、3×3 の格子、マージ済み）、`docs/decisions/houou.md`（OUK-12 の決定）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち（マージは済んだ。下の「判断が必要なこと」は #591 で決めること）
+- work/OUK を cloudflare に入れた（早送りで cloudflare の先頭 8165a7bd1。作業ブランチの取り込みのマージのコミットは 4ef15bb08）
 - ブランチ: work/OUK
-- ログ: https://github.com/retroeater/mj/blob/work/OUK/docs/logs/CHAT-1018-OUK-12.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/OUK
-- 確認用URL:
-- マージ: 未
-- issue:
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1018-OUK-12.md
+- 比較URL: https://github.com/retroeater/mj/compare/1cd1d6f2b...8165a7bd1
+- 確認用URL: 本番（ouka/ は未公開・noindex）: https://ryoei.pro/ouka/ ・https://ryoei.pro/ouka/ranking/total/ ・https://ryoei.pro/houou/players/?name=仁平宣明
+- マージ: 済み（8165a7bd1。Workers Builds の mj・mj-ask とも success）
+- issue: #597・#519・#516 をクローズ。公開は #591
 - 判断が必要なこと:
+  - 質問欄の実際の答え: ouka/・houou/ とも「入替戦に出場」と答えた（上の経過のとおり）。この答え方でよいか
+  - ランキングでマイナスの値が残る部門: なし
+  - `docs/handover.md` 6章の表に、ほかの系列（PRV-02）の `docs/notes/sheets-reader.md` の行を足した（cloudflare でもテストが落ちていたため）。文言を PRV の系列で直してよい
+  - #591（公開）で決めること:
+    - navbar の「女流桜花」を `/ouka/` への1段にするか（houou/ と同じ形の案）
+    - 旧3ページの 301 の行き先（例: `ouka_results.html` → `ouka/players/`〈`?name=` を引き継ぐ〉、`ouka_ranking.html` → `ouka/ranking/total/`、`ouka_leagues.html` → `ouka/players/?view=league`）
+    - noindex を外す・サイトマップと `llms.txt` に載せる・`docs/new-page-checklist.md` の段2
+    - jpml_pros の「桜花」の列のリンク先を ouka/ に替えるか
+    - 消した `ouka/ranking/promotion-streak/` に転送を足さないこと（決定済み）の確かめ
+    - 告知
+  - WRC への引き継ぎ（work/WRC の取り込みで衝突・重なる所）:
+    - `.github/workflows/check-assets.yml` の `allowed()` の行（こちら: `assets|books|dic|houou|houou_race|img|live|mtsuku|ouka|saikyo|study|title|wayhome) return 0 ;;`。WRC は `ouka`・`jwrc` を足している）
+    - `scripts/generate_houou_pages.py`: `Contest` に `rank_cut`（ランキングの上限、既定 (100, 110)）を足した。`build_rankings()` の `auto_cut()` の呼び方と、`prepare()` の件数の検査を変えた。JWRC の上限を変えるなら `rank_cut` で
+    - `style.css`: OUK-11 で足した `.is-ouka .mj-houou-chipnav` の 768px の規則を消した
+    - OUK-11 の引き継ぎ（`RESULT_CLASS` の行、`FINAL_RESULT`・`PLAYOFF_RESULT`、`load_rows()` の `ResultRow`、`load_race()` の `fetch_records`、`Contest.playoff`、`test_houou_pages.py` の桜花の部門の数、`data-ouka.json`、`docs/decisions/houou.md`・`docs/notes/static-generation.md`）はそのまま
 - 未確認の項目:
-- エラー:
+  - 平野さんのブラウザでの本番の見え方（headless Chrome では確かめた）
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 1cd1d6f2）: https://github.com/retroeater/mj-logs/tree/main/guide/1cd1d6f2
+ガイド文書（この版を写した時点の最新、mj 8165a7bd）: https://github.com/retroeater/mj-logs/tree/main/guide/8165a7bd
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/1cd1d6f2/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/1cd1d6f2/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/1cd1d6f2/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/1cd1d6f2/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/1cd1d6f2/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/1cd1d6f2/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/8165a7bd/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/8165a7bd/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/8165a7bd/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8165a7bd/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8165a7bd/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8165a7bd/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/0ae083e4.md
