@@ -33,7 +33,7 @@ GitHub Actions の予約実行（`schedule`）は予定より2時間半〜5時�
 3. **朝の確かめ（#504 の「層1」）**: 06:00 JST の回（時刻どおりの回だけ）に、当日の有効な行のうち予定が 06:00 より前のものごとに、当日（JST）に作られた実行の一覧を引く（`created>=<当日 0 時>`）。
    すべて success なら何もしない。それ以外は #506 に1件コメントする。実行の一覧は `event=workflow_dispatch` で絞る（sync-logs は push の実行が1日に100件を超えることがあり、絞らないと1ページ目に予約の起動が載らない）。
    `head_branch` では絞らないので、作業ブランチで `scheduled` を付けた試験の成功も当日の success に数える。**直さない（2026-10-08 の決定）**: 困るのは JST 0:00〜06:00 に作業ブランチで `scheduled` を付けて試験した日だけで、日中の試験はその日の 06:00 の確かめの後になり、翌日の分にも数えない。保険のゲート（下）は `head_branch` で絞るので影響を受けない
-   **06:15・06:30 の回で書き直す（2026-10-14 から）**: 06:00 の回が抜けた日のため、`GET /issues/506/comments?since=<当日 0 時>` を1回引き、「<日付> の朝の予約実行」で始まるコメントが無ければ同じ確かめを行う（すべて success なら書かない。REST は1日 最大 2×〈1+行の数〉回）
+   **06:15・06:30 の回で書き直す（2026-10-14 から）**: 06:00 の回が抜けた日のため、`GET /issues/506/comments?since=<当日 0 時>` を1回引き、「<日付> の朝の予約実行」で始まるコメント（書き手が `retroeater`〈Worker のトークンの持ち主〉か `github-actions[bot]` のもの。`TRUSTED_COMMENTERS`、CHAT-1018-SEC-04）が無ければ同じ確かめを行う（すべて success なら書かない。REST は1日 最大 2×〈1+行の数〉回）
 4. **mj-logs の同期（#298）**: 毎回 `GET /repos/retroeater/mj` の `pushed_at` を読み、この回の予定時刻から3分以内なら、mj-logs の `sync-from-mj.yml` を `workflow_dispatch`（ref `main`、inputs なし）で起動する（`dispatchSync()`、行き先は `scheduler.mjs` の定数 `SYNC`）。
    1回の push で後の2〜3回が起動するが、mj-logs 側は concurrency で1本ずつ動き、写すものが無ければコミットしない。失敗は `console.error` に書くだけで #506 には書かない（毎分の回で通知が増えるため）。朝の確かめの対象にも入れない。
    起動の表（`schedule.json`）の行ではない。トークンは同じ `GITHUB_TOKEN`（対象に mj-logs を足してある）
@@ -73,7 +73,7 @@ run-name: ${{ inputs.scheduled && '[scheduled] <ワークフローの name>' || 
 
 | キー | 中身 |
 |---|---|
-| `workflow` | ワークフローのファイル名（例 `run-daily.yml`） |
+| `workflow` | ワークフローのファイル名（例 `run-daily.yml`）。`^[a-z0-9-]+\.ya?ml$` に合わない行は捨てて Observability に書く（API のパスに入れるため。`validRows()`） |
 | `time` | JST の時刻 `HH:MM`（毎分の回で、その分に起動する） |
 | `weekdays` | 省略可。JST の曜日の配列（0=日曜〜6=土曜）。省略は毎日 |
 | `monthdays` | 省略可。JST の日の配列（例 `[1]`）。省略は毎日 |

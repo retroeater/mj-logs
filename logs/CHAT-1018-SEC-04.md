@@ -236,6 +236,56 @@ fetch-youtube ─ fetch / regenerate → regenerate-page / report
 - work/OUK に同じ1行（同じ文面）があったので、そのまま 892bde4ae で入れた（同一の変更なので、後の取り込みで衝突しない）。直した後 unittest 1382 件 OK
 - 副作用: 1回目のドライランの `dojo / sync` の「結果をissueに知らせる」（`always()`）が、同期の段が skipped のため「道場部ゲストの取り込みが失敗しました（同期: skipped）…書き込んでいません」を常設 issue「道場部ゲストの取り込み」に書いた（既存の動き。ドライランでも失敗は知らせる作り）
 - 起動の検証は通った（呼ばれる側の permissions が呼ぶ側を超えると起動の時点で失敗するが、10ジョブが起動した）。`images / check`・`images / saikyo`・`sns / update`・`branches / delete` は success
+- この実行は2回目の起動の後に取り消した（古い版で、結論は出ていたため）
+
+### 4. 確かめ（マージの前）
+
+#### zizmor（1.31.1、`--offline .github/`）
+
+| 監査 | 直す前 | 直した後 | 残りの理由 |
+|---|---|---|---|
+| unpinned-uses（High） | 56 | 3 | `sync-logs.yml` の3か所（触らない。#298 で 10/21 に削除の予定） |
+| excessive-permissions（High 4・Medium 2） | 6 | 0 | |
+| secrets-inherit（Medium） | 11 | 0 | |
+| template-injection（High 4・Informational 6） | 10 | 0 | |
+| artipacked（Medium） | 25 | 10 | push する job の checkout 8（認証を使う）と `sync-logs.yml` の2 |
+| self-repository（Low） | 45 | 45 | 範囲外（ローカルの composite action・reusable workflow の `uses: ./…`。#598 の項目に無い） |
+| dependabot-cooldown（Medium） | — | 0 | `dependabot.yml` を足すと出たので `cooldown` を足した |
+| 合計 | 153 | 58 | |
+
+#### テスト
+
+- `python3 -m unittest discover -s scripts/tests`: 1382 件 OK（cloudflare の取り込み後 71c9725c9 でも OK。直す前は上の「3.」の1件が cloudflare 由来で fail）
+- `node --test 'workers/scheduler/test/*.test.mjs'`: 44 件 pass（直す前 40 件。足したテスト 4）
+- `node --test 'workers/ask/test/*.test.mjs'`: 36 件 pass（取り込み後は OUK の分を含め 43 件 pass）
+- `node --test .github/actions/upsert-issue/test/*.test.js`: 18 件 pass
+
+#### 手動実行（作業ブランチ、b46f832df）
+
+| ワークフロー | 入力 | 結果 |
+|---|---|---|
+| `run-daily.yml` | `scheduled` なし（ドライラン） | [39126984203](https://github.com/retroeater/mj/actions/runs/39126984203) success。12ジョブ（live / update・live / yotei / sync・sns / update・images / check・saikyo・sns_book・saikyo / abema・saikyo / regenerate / regenerate〈入れ子3段〉・dojo / sync・branches / delete が success、live / regenerate・sns / regenerate は条件で skipped）。12:22〜12:36 UTC |
+| `check-build-failure.yml` | dry_run・check_run_id（mj の Workers Builds の success の check-run） | 39127008886 success |
+| `check-meibo.yml` | dry_run | 39127010573 success |
+| `check-saikyo-unregistered.yml` | dry_run | 39127012342 success |
+| `cleanup-logs.yml` | dry_run | 39127013901 success |
+| `convert-x-posts.yml` | dry_run（既定の compare） | 39127015537 success |
+| `fetch-x-posts.yml` | dry_run | 39127017543 success |
+| `fetch-redirect-counts.yml` | dry_run | 39127019361 success |
+| `sync-birthday-calendar.yml` | apply なし | 39127020986 success |
+| `security-check.yml` | なし（読むだけ） | 39127022577 success（pip-audit 既知の脆弱性なし、履歴の走査 当たり4・新規0） |
+| `check-assets.yml` | 作業ブランチへの push | f6cfb0dca〜71c9725c9 の各 push で success |
+
+run-daily のドライランで呼ばれて確かめたもの: `update-live-channel`・`sync-yotei`・`update-sns-book`・`check-image-links`・`regenerate-saikyo`・`regenerate-page`（`workflow_call` の道筋）・`sync-dojo-calendar`・`cleanup-branches`。
+
+`workflow_dispatch` はあるがドライランの入力が無く、手動実行しなかったもの（書き込む・API を呼ぶため）:
+
+- `fetch-gsc.yml`（入力 `commit` は外せるが、Search Console を読み、robots.txt に差分があれば #304 にコメントする）
+- `regenerate-sitemap.yml`（差分があれば実行ブランチに push）
+- `fetch-youtube.yml`（YouTube API を呼んでコミットし、`regenerate-page` を `all` で呼ぶ）
+- `regenerate-page.yml` を直接（push・手動の道筋。`workflow_call` の道筋は run-daily で確かめた。job の `permissions` は同じ）
+
+この4本の変更は `permissions` の明示（job に移しただけで中身は同じ）・`run:` の env 化・SHA 固定・`secrets: inherit` の削除。
 
 ## 報告
 
@@ -253,12 +303,12 @@ fetch-youtube ─ fetch / regenerate → regenerate-page / report
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 8165a7bd）: https://github.com/retroeater/mj-logs/tree/main/guide/8165a7bd
+ガイド文書（この版を写した時点の最新、mj d114d132）: https://github.com/retroeater/mj-logs/tree/main/guide/d114d132
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/8165a7bd/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/8165a7bd/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/8165a7bd/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8165a7bd/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8165a7bd/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8165a7bd/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d114d132/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d114d132/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d114d132/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d114d132/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d114d132/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d114d132/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/0ae083e4.md
