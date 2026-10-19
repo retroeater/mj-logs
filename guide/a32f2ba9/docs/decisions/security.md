@@ -83,3 +83,10 @@ Cloudflare の Security Overview の提案（security.txt など）の見送り�
 - Google Charts を読むページが0になったことを確かめて、#7 を閉じる（#582 で旧ページを消したため）
 - #9（CSP）には、`www.gstatic.com` が不要になったことと、外部から読んでいるドメインの一覧をコメントで残す。CSP を書く作業は SEC のチャットが行う
 - 作業中の回答: なし
+
+## 2026-10-19（CHAT-1019-SEC-11）
+
+- #9（CSP）は SEC のチャットで進める（#7 が閉じて、待つものが無くなったため）
+- 2段で進める: 段1 で `Content-Security-Policy-Report-Only` を入れて違反を実測し、違反が無いのを確かめてから段2 で本番の CSP に切り替える。段2 の後に、予定していたセキュリティの再点検と Claude Security の1回の実行を行う（docs/notes/security.md「次回の手順」）
+- #9 の「状況: 待ち」のラベルは外す
+- 作業中の回答: なし
