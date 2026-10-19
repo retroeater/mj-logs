@@ -116,6 +116,21 @@ default-src 'self'; script-src 'self' https://static.cloudflareinsights.com; sty
 - issue: #9 の「状況: 待ち」を外し、着手をコメントした https://github.com/retroeater/mj/issues/9#issuecomment-6263669042
 - docs: docs/notes/cloudflare.md「配信設定」に2行、docs/notes/security.md の冒頭に1句、docs/decisions/security.md に「2026-10-19（CHAT-1019-SEC-11）」の節
 - テスト: `python3 -m unittest discover -s scripts/tests` 1433件 OK
+- プレビュー（982774b85 の「Workers Builds: mj」success）で `/`・`/houou/`・`/title/houou/1.html` に Report-Only のヘッダが出るのを確かめた（URL は最終報告だけ）
+
+### マージ（18:15 JST）
+
+- 再 fetch で origin/cloudflare が進んでいた（WRC-17・WRR-05 の6ファイル。`_headers` は含まない）ので `git merge origin/cloudflare` で取り込んだ（衝突なし）。テストはこの差に `scripts/` が無いので再実行していない
+- 再 fetch のうえ `git merge-base --is-ancestor origin/cloudflare HEAD` が真。`git push origin work/1019-sec11:cloudflare`（d0e2538d4..7b7fe6f57、早送り）
+- 本番のビルド（7b7fe6f57 の「Workers Builds: mj」）は 09:23 UTC に始まり、18:27 JST に本番の `/`・`/houou/` で `content-security-policy-report-only` が出たのを確かめた（値は上と同じ。ほかのセキュリティヘッダも残っている）
+
+### 4. 実測（本番）
+
+sitemap の 1,608 URL と、sitemap に無い型の代表 29 URL（404.html・houou/leagues/・ouka/leagues/・live/ の各大会1ページ・saikyo_mens.html・study/ の1ページ・wrcr/ の4ページ）を Playwright（Chromium 141、`/opt/node-tools` の playwright 1.56.1）で開き、`securitypolicyviolation`（document で捕捉）とコンソールの CSP の警告を集めた。
+HTML のレート制限（IP あたり 30回/分）に当たらないよう、開く間隔を 2.6 秒以上にした（約 23回/分）。
+
+- 組1（sitemap-pages の 47 + 代表 29）: 画像・Web Analytics もそのまま読み、操作を行う（index のライトボックス、houou/ の質問欄を開いて入力〈送信しない〉、フロアの切り替え、ナビの検索欄、最下部までのスクロール）
+- 組2（残りの 1,561）: 画像と Web Analytics の要求を Playwright 側で止めた（CSP の判定は要求を出す前に行われるので違反は拾える。Web Analytics の数字を汚さないため）
 
 ## 報告
 
@@ -133,12 +148,12 @@ default-src 'self'; script-src 'self' https://static.cloudflareinsights.com; sty
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 2da08c0f）: https://github.com/retroeater/mj-logs/tree/main/guide/2da08c0f
+ガイド文書（この版を写した時点の最新、mj 7b7fe6f5）: https://github.com/retroeater/mj-logs/tree/main/guide/7b7fe6f5
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/2da08c0f/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/2da08c0f/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/2da08c0f/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/2da08c0f/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/2da08c0f/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/2da08c0f/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/7b7fe6f5/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/7b7fe6f5/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/7b7fe6f5/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/7b7fe6f5/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/7b7fe6f5/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/7b7fe6f5/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/58fa24ff.md
