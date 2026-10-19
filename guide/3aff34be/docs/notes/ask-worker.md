@@ -35,6 +35,11 @@ houou/ のトップで鳳凰戦のデータに言葉で質問できる欄。決�
 - 女流桜花と同じ形: `scripts/generate_ask_data_jwrc.py`（`ask_data_jwrc`）が `workers/ask/data-jwrc.json` を書き、jwrc/ の質問欄は `contest: "jwrc"` を添える。`ask.mjs` は `deps.contests.jwrc` と `JWRC_PLAN_SYSTEM`（リーグは「予選」だけ、部門は `JWRC_DIVISIONS`）で答える。記録の型は「jwrc:league」の形
 - 決勝は title/search.json の「WRCリーグ」、放送対局は /live の「WRCリーグ」。テストは `workers/ask/test/jwrc.test.mjs`。違いの全体は docs/notes/jwrc-top.md
 
+## WRC-R リーグ（wrcr/、#366。未公開）
+
+- WRC リーグと同じ形: `scripts/generate_ask_data_wrcr.py`（`ask_data_wrcr`）が `workers/ask/data-wrcr.json` を書き、wrcr/ の質問欄は `contest: "wrcr"` を添える。`ask.mjs` は `deps.contests.wrcr` と `WRCR_PLAN_SYSTEM`（部門は `JWRC_DIVISIONS`）で答える。記録の型は「wrcr:league」の形
+- 決勝は title/search.json の「WRC-Rリーグ」、放送対局は /live の「WRC-Rリーグ」。テストは `workers/ask/test/wrcr.test.mjs`。違いの全体は docs/notes/wrcr-top.md
+
 ## データ（data.json）
 
 `generate_ask_data.py` が次を読んで1つにまとめる。週次の `regenerate.py all` で作り直す（push での作り直しは、この生成スクリプトか `scripts/lib/` が変わったとき）。
@@ -97,11 +102,11 @@ POST `/api/ask`（本文 `{"question": "…"}`）の流れ:
 2. 空・200字（`QUESTION_MAX`、コードポイントで数える）を超える問いは 400（`invalid`）。数えない
 3. 回数（grill Q7）: JST の暦日を鍵に、全体（`daily_counts`）と IP（`ip_counts`。IP は「Secret の塩・日付・IP」の SHA-256 だけ）を読み、上限なら 429（`limit`、`scope` は `daily` か `ip`、`resetAt` は翌0時 JST）。
    受け付けるときに両方を `INSERT … ON CONFLICT DO UPDATE … RETURNING n` で1つ足し、前日以前の `ip_counts` を消す（1回の batch）。同時に来て上限を越えたら 429
-4. Claude（`claude-haiku-5-5`）の1回目: structured outputs（`output_config.format` の JSON schema `PLAN_SCHEMA`）で `{type, assumedTerm, args}` を返させる。型は query.mjs の6つ（鳳凰戦は `entry` を足した7つ）と `none`。鳳凰戦の指示の最後に、「現在」「今」をデータのある最新の期（`latestPeriod()`）で読ませる一文（`currentLine()`）を足す（2026-10-19）
+4. Claude（`claude-haiku-5-5`）の1回目: structured outputs（`output_config.format` の JSON schema `PLAN_SCHEMA`）で `{type, assumedTerm, args}` を返させる。型は query.mjs の6つ（鳳凰戦は `entry` を足した7つ）と `none`。鳳凰戦の指示の最後に、「現在」「今」をデータのある最新の期（`latestPeriod()`）で読ませる一文（`currentLine()`）を足す（2026-10-19）。WRC リーグの指示の最後には、「現タイトルホルダー」「今のチャンピオン」などを最新の決勝の期の `champions`（from・to にその期）で読ませる一文（`holderLine()`）を足す（2026-10-19。`PLAN_LINES`）
 5. `none`、または `runQuery` が見つからない・名前が決まらない・引数が不正なら「答えられません。」（候補があれば添える）。2回目は呼ばない。
    鳳凰戦で名前が決まらない（名字だけ・名前の一部）ときは、プログラムが「「堀」に当たる選手はN人います: …（10人まで、ほか N人）。名前を足して、もう一度聞いてください。」と書き、`answered` で返す（記録の結果は `candidates`、2026-10-19）
 6. 2回目: 質問と検索の結果（型・件数・items・注記）だけを渡して文章にさせる。答えの下の注記・時点・出典は Worker が `runQuery` の結果から付け（grill Q6）、Claude には書かせない。
-   選手の並ぶ結果（`champions`・`final`・`league`・`ranking`）が10人（`NAMES_MAX`）を超えたら、上位10人だけを渡し、残りの人数を `others`（`count` − 10）として添える（`answerInput()`。Claude に人数を数えさせない、2026-10-16）。歴代の鳳凰位（`champions`）は検索では最初に獲った期の古い順に並ぶので、10人を超えて切るときだけ、渡す前に新しい期（最後に獲った期）から並べ替える（10人以下は古い順のまま。期で絞った問いは絞った後の人数で決める。2026-10-16 の HOU-57。切ると最新の鳳凰位が渡らず「現在の鳳凰位は？」に答えられなくなったため、HOU-53 で一度戻した）。ほかの型は検索の順のまま切る。指示（`ANSWER_SYSTEM`）は「items の名前を結果の順のまますべて書く。「ほか N人」と全体の人数（count）は、一覧や人数を聞かれたときだけ添える。人数は自分で数えず、この指示の言葉は答えに書かない」（人数を添える条件は 2026-10-16 の HOU-59。「現在の鳳凰位は？」に聞かれていない人数が付いたため）（答えの下の選手のカードは文の名前から作るため。文面と切り方・並べ方は `ask.test.mjs` で確かめる）
+   選手の並ぶ結果（`champions`・`final`・`league`・`ranking`）が10人（`NAMES_MAX`）を超えたら、上位10人だけを渡し、残りの人数を `others`（`count` − 10）として添える（`answerInput()`。Claude に人数を数えさせない、2026-10-16）。歴代の鳳凰位（`champions`）は検索では最初に獲った期の古い順に並ぶので、10人を超えて切るときだけ、渡す前に新しい期（最後に獲った期）から並べ替える（10人以下は古い順のまま。期で絞った問いは絞った後の人数で決める。2026-10-16 の HOU-57。切ると最新の鳳凰位が渡らず「現在の鳳凰位は？」に答えられなくなったため、HOU-53 で一度戻した）。ほかの型は検索の順のまま切る。指示（`ANSWER_SYSTEM`）は「items の名前を結果の順のまますべて書く。「ほか N人」と全体の人数（count）は、一覧や人数を聞かれたときだけ添える。人数は自分で数えず、この指示の言葉は答えに書かない」（人数を添える条件は 2026-10-16 の HOU-59。「現在の鳳凰位は？」に聞かれていない人数が付いたため）。指示の最後には大会ごとに、`champions` の読み方の一文（`ANSWER_LINES`。terms は優勝した期・回数は terms の個数・entry は入会期で優勝の期ではない）を足す。WRC リーグで「通算19期の獲得」と答えたため足し（2026-10-19）、質問欄をサイト全体で1つにする予定に合わせて鳳凰戦・女流桜花・WRC-R リーグにも同じ型で置く（鳳凰戦は決定戦が期ごとに1回で前期・後期が無いことも書く。文面は `jwrc.test.mjs`・`wrcr.test.mjs` で確かめる）（答えの下の選手のカードは文の名前から作るため。文面と切り方・並べ方は `ask.test.mjs` で確かめる）
 7. 記録（決定5・grill Q8 を 2026-10-19 に置き換え）: `questions` に日時（JST）・質問文・結果（`answered` / `unanswered` / `candidates`）・型・答えの本文（`answer`、返した文言）・型の引数（`args`、null を除いた JSON の文字列。型が無い・引数が無いときは空）。IP は書かない。
    答えの本文は `max_tokens` 2048 で数千字までなので、ブックのセルの上限（5万字）に収まる
 8. Claude の失敗（HTTP エラー・ワークスペースの上限の 400・拒否 `refusal`・打ち切り）は 503（`unavailable`）。この問いは数えたまま、記録は `unanswered`、答えの本文は「失敗: 」と理由（例「失敗: Claude plan: HTTP 529」）。

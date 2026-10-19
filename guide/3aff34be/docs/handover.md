@@ -6,9 +6,9 @@
 **この文書は現状・ルール・次にやることだけを書く。** 実装記録は `docs/notes/`、issue単位の経緯は GitHub Issues、過去の履歴は
 `docs/notes/handover-archive-2026.md`。容量の上限と退避方法は CLAUDE.md「CLAUDE.md / handover.md の更新ルール」。
 
-最終更新: 2026-10-16
+最終更新: 2026-10-19
 
-- **鳳凰戦の新ページ `houou/` を公開した（#540、旧4ページは 301。後始末は #582）**
+- **鳳凰戦・女流桜花・WRC の旧ページを消し（#582）、Google Charts に依存するページは0になった（#7 を閉じた）**
 - **5章の期日の表を消した。期日はカレンダー「ryoei.pro」が正**
 - **アクセス解析の導入の検討（#550）を「次にやること」に足した**
 
@@ -140,7 +140,7 @@ hook の判定は deny（実行させない）だけで、確認（ask）は出�
 
 方針は CLAUDE.md「判断・作業の原則」（CSP〈#9〉のため）。残る外部依存は Cloudflare Web Analytics（`static.cloudflareinsights.com`。
 CSPでは `script-src` にのみ必要で、送信先は自ドメインの `/cdn-cgi/rum`）・画像12ドメインと `image.p-c2-x.abema-tv.com`（最強戦の卓のページの ABEMA のサムネイル〈#502〉と、年度・対局・卓の og:image・回の無い卓のヒーローの作品の画像〈#549〉。やむをえない依存として 2026-10-11 に足した）。
-Google Charts（`www.gstatic.com` / `docs.google.com`）は 2026-10-19 に依存するページが0になった（#582）。詳細は `docs/notes/handover-archive-2026.md`「外部ドメイン依存の詳細」と
+Google Charts（`www.gstatic.com` / `docs.google.com`）は 2026-10-19 に依存するページが0になった（#582、#7 は閉じた）。詳細は `docs/notes/handover-archive-2026.md`「外部ドメイン依存の詳細」と
 `docs/notes/site-findings.md`（画像ドメインの実測）、#9 でCSPの`img-src`を書くときの指針は #9 のコメント。
 
 ### 表の色とアクセシビリティ
@@ -165,11 +165,8 @@ GitHub Issues（Open）に全件あるが、着手可能な主なものは以下
 
 | # | 内容 | 備考 |
 |---|---|---|
-| **#7** | Google Charts依存の解消 | 依存するページは 2026-10-19 に0（#582）。閉じるかは平野さんの判断。下の「#7 の進め方」 |
-| #582 | 鳳凰戦の旧4ページ（`houou_*.html`）の生成の停止とファイルの削除 | houou/ は #540 で公開済み（2026-10-16、旧4ページは 301）。旧4ページへの流入が 301 に移ったことを Search Console で見てから。本文にチェックリスト |
-| #141 | ランキング3ページを Python の生成に移す | 2026-10-05 に移植と決定。#371・#228・#234 と、`select#selectbox` のラベル・選択と同時の遷移（#180 の残り）はこの移植の中で扱う |
-| #486 | Bing の Recommendations | h1 は8ページに付けた（2026-10-06）。残りのランキング3ページは #141 の移植で付ける。title の長さ（短いページの共通の末尾）は #5 |
-| #9 | CSP設定 | #7の後にやると強いポリシーが書ける |
+| #486 | Bing の Recommendations | h1 は8ページに付けた（2026-10-06）。旧ランキング3ページは houou/・ouka/・jwrc/ へ移って消えた（#582）。title の長さ（短いページの共通の末尾）は #5 |
+| #9 | CSP設定 | Google Charts の依存は0（#7 は閉じた）。許可に `www.gstatic.com` は要らない（外部のドメインの一覧は #9 のコメント） |
 | #550 | アクセス解析の導入の検討（利用者の画面幅・Cloudflare Pro の要否） | `docs/notes/design.md` の最小の画面幅（360px、2026-10-18）を見直す材料。外部ドメインへの依存（#9）に注意 |
 | #4 | SentryでJSエラー検知 | 外部サービスの登録が必要 |
 | #96 | カレンダーの参照・更新を自動化 | スコープ未定。決めるべき項目が4つある |
@@ -179,13 +176,6 @@ GitHub Issues（Open）に全件あるが、着手可能な主なものは以下
 | #490 | /live 層2の残りの規則と掲載範囲 | 残りは U1〜U4（ライブの無い組の対局日・紅龍戦のステージの並び・件数の少ない列・「プレイヤー解説：」）・候補の判別・公開版の掲載・複数卓・達人戦／昇龍戦／鳳匠戦の扱い（#437・#477 から集約。済んだものと件数は #490 の本文） |
 | #475 | /live の未登録の名前（2026-10-03 に0名） | 常設。毎日の取り込みが増減の日だけコメントする。出たら実在の人は「連盟プロ以外」、誤記は「別名」に `訂正` で平野さんが登録し、概要欄の読み違いは層2の規則で直す（#490） |
 | — | 現行サイトで小さく作れるもの | 次は #388・#389（上の「待ち」）。#425 も現行サイトで作る（#501・#502）。#366 は載せ方が未決、#378 は新サイト（#296）送り。未決: #365・#367 のデータを誰がいつ入力するか。決定は `docs/decisions/features.md` |
-
-### #7 の進め方（検討済み）
-
-**現状**: Google Charts 依存のページは0（成績・ランキングの旧6ページは houou/・ouka/・jwrc/ へ移り、#582 で消した、2026-10-19）。
-共通部品は出そろっている（`docs/notes/static-generation.md`、型別の進捗表は `docs/notes/handover-archive-2026.md`「#7 の型別の進捗表」）。
-移行しても速くはならず、目的は外部依存とインラインハンドラの解消（static-generation.md「#7 の期待値」）。
-テーブル描画ライブラリの選定（#95）は #7 の前提から外し、新サイトのスタック（#21）と併せて検討する。型Aの表の方針は static-generation.md「型Aの表の方針」。
 
 ---
 
@@ -223,6 +213,7 @@ GitHub Issues（Open）に全件あるが、着手可能な主なものは以下
 | `docs/notes/video-wayhome.md` | 「帰り道」の一覧・個別ページ、新しい回の追加 |
 | `docs/notes/video-mtsuku.md` | 「Mつく」の一覧 `/mtsuku/`・各話（帰り道と同じ形、2026-10-15 に公開、#570） |
 | `docs/notes/video-study.md` | 「女流勉強会」の一覧 `/study/`・各話（帰り道・Mつくと同じ形、未公開、#575・公開は #576） |
+| `docs/notes/video-exam.md` | 「プロテスト」の一覧 `/exam/`・各話（女流勉強会と同じ形、未公開、#612・公開は #613） |
 | `docs/notes/site-findings.md` | 現行サイトの実測値（パフォーマンス・画像ドメイン・SEO・配色） |
 | `docs/notes/design.md` | 見た目の既決の値（色・文字・寸法・部品・濃色の例外）。ページや部品を作る・直す前。チャット側の決め方（比較ページ・見本・コントラスト比） |
 | `docs/notes/a11y-manual-check.md` | アクセシビリティの実機確認（#186） |
@@ -234,7 +225,8 @@ GitHub Issues（Open）に全件あるが、着手可能な主なものは以下
 | `docs/notes/houou-top.md` | 鳳凰戦の新ページ `houou/` の仕様（トップ＋検索・ランキング・リーグ推移・順位変動、#518） |
 | `docs/notes/ouka-top.md` | 女流桜花の新ページ `ouka/` の houou/ との違い（#519。公開は #591） |
 | `docs/notes/jwrc-top.md` | WRC リーグの新ページ `jwrc/` の houou/・ouka/ との違い（#594。公開は #599） |
-| `docs/notes/league-pages-compare.md` | houou/・ouka/・jwrc/ の3大会の差（意図した差と、公開でそろえる差）。大会の設定や共通の部品を変える前 |
+| `docs/notes/wrcr-top.md` | WRC-R リーグの新ページ `wrcr/` の jwrc/ との違い（#366。noindex・メニュー未掲載、公開は #611） |
+| `docs/notes/league-pages-compare.md` | houou/・ouka/・jwrc/・wrcr/ の大会の差（意図した差と、公開でそろえる差）。大会の設定や共通の部品を変える前 |
 | `docs/notes/ask-worker.md` | データ・コンシェルジュの Worker（`mj-ask`、#542） |
 | `docs/notes/live-page-design.md` | 放送対局ページ（`live/`、#346）。掲載範囲の拡大は「3-5」（残りは #490） |
 | `docs/notes/birthday-calendar.md` | 誕生日カレンダーの同期（#379） |

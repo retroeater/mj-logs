@@ -45,15 +45,44 @@
 
 不明な点は仮置きで進め、報告の「判断が必要なこと」に書いてください。この行が指示文の最後の行です。
 
+## 経過
+
+- 「指示」欄の末尾は指示文の最後の行（「不明な点は仮置きで進め、…この行が指示文の最後の行です。」）と一致
+- `git log --all --grep="CHAT-1019-WRC-19"` は空。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある（冒頭の数行が1行につながって貼られていた）
+- 作業ブランチ: origin/cloudflare（4f73f4036）から work/1019-wrc19
+- 同じ趣旨の issue の検索（クラウドセッションに `gh` が無いので GitHub の issue 検索で。クローズ済みを含む）: 「連続通過」「連続通過 シード 予選」「pass-streak WRC ranking consecutive pass seed tournament」「JPMLリーグ」。同じ趣旨のものは無かった（近いのは #365〈WRC リーグの第18期以降の成績〉・#366〈WRC-R リーグの成績表〉・#497〈JPMLリーグをタイトル戦に追加、クローズ〉で、どれも別の主題）
+- 今の仕様の場所（grep で確かめた）:
+  - 集計: `scripts/lib/ranking.py` の `consecutive_passes()`（194行目。行の無い期で途切れる。docstring「2026-10-18 の仮置き」）。部門は `PASS_DIVISIONS` の「連続通過回数」、スラッグ `pass-streak`（`generate_houou_pages.py`）
+  - 文書: `docs/notes/jwrc-top.md`「画面の違い」の連続通過の行。WRC-R は `docs/notes/wrcr-top.md`（連続通過の行は無く、jwrc/ と同じ作り）
+  - 決定: `docs/decisions/houou.md`「2026-10-18（CHAT-1018-WRC-09）」の WRC-07 の仮置きの確定の項
+- JPMLリーグ: リポジトリの中ではタイトル戦（#497、`scripts/lib/yotei.py` など）と navbar のコメントにだけ出る。予選のリーグの成績のページは無い
+- シードの見分け方の見立て: 今のシートで予選の表に行が無い期の出場が分かるのは「タイトル」タブの決勝（1〜4位）だけ。決勝に届かなかったシード選手を見分けるデータは無い見込み（issue の「直すときに決めること」の1）
+- **起票: #615**（https://github.com/retroeater/mj/issues/615 ）「ランキング「連続通過」で、シードで予選に出なかった期を途切れにしない（WRC・WRC-R・JPMLリーグ）」。ラベルは「状況: 保留」（優先度が低いため）。本文は決定（例を含む）・今の仕様と場所・直すときに決めること（見分け方・WRC-R と JPMLリーグの担当）・優先度。末尾に Chat-Ref
+- docs/decisions/houou.md に「2026-10-19（CHAT-1019-WRC-19）」の節（#615 を参照する1項目）
+- コード・生成物・シートは変えていない（変えたのは docs/logs と docs/decisions だけ）
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1019-wrc19 → cloudflare（マージ済み）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1019-WRC-19.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1019-wrc19
+- 確認用URL: なし（docs のみ）
+- マージ: 済（docs/logs と docs/decisions だけ。下の最終報告の SHA）
+- issue: #615（起票。状況: 保留）
+- 判断が必要なこと: なし（#615 の「直すときに決めること」は着手時に決める）
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 4f73f403）: https://github.com/retroeater/mj-logs/tree/main/guide/4f73f403
+ガイド文書（この版を写した時点の最新、mj 3aff34be）: https://github.com/retroeater/mj-logs/tree/main/guide/3aff34be
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/4f73f403/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/4f73f403/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/4f73f403/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/4f73f403/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/4f73f403/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/4f73f403/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/3aff34be/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/3aff34be/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/3aff34be/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/3aff34be/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/3aff34be/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/3aff34be/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/58fa24ff.md
