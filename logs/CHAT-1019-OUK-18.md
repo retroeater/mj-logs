@@ -45,28 +45,34 @@
 - `python3 -m unittest discover -s scripts/tests` 1,427件 OK
 - 容量の検査（`check-assets.yml` の「ガイド文書のサイズを確認」と同じ判定を手元で）: CLAUDE.md 23,801・handover.md 24,006・chat-side-operations.md 22,155（警告域 26,624 / 上限 28,672）、instruction-template.md 14,325（警告域 14,336 / 上限 16,384）。4文書とも警告域の手前。chat-side-operations.md の純増は 0（origin/cloudflare の 22,155 → 22,155）
 
+### 2. マージ
+
+- push 直前に再 fetch し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真。`git push origin work/1019-ouk17:cloudflare`（7445d0bbf..4fd73851d、早送り）
+- Workers Builds の mj は 4fd73851d で success
+- check-assets（「公開対象の検査」）は `work/**` への push で走る作り（cloudflare への push では走らない）。成果物のコミット e03d632fe で success（run 39180153330）。注記は Node.js 20 の非推奨と ubuntu-latest の移行の2件だけで、ガイド文書のサイズの警告は無い。その後の push（ログと cloudflare の取り込みだけ）では paths の条件に当たらず走っていない
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1019-ouk17
-- ログ: https://github.com/retroeater/mj/blob/work/1019-ouk17/docs/logs/CHAT-1019-OUK-18.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1019-ouk17
-- 確認用URL:
-- マージ: 未
-- issue:
-- 判断が必要なこと:
-- 未確認の項目:
-- エラー:
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1019-OUK-18.md
+- 比較URL: https://github.com/retroeater/mj/compare/7445d0bbf...4fd73851d
+- 確認用URL: なし（テストと docs のみ）
+- マージ: 済み（4fd73851d。Workers Builds の mj は success、check-assets は e03d632fe で success）
+- issue: なし
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 4fd73851）: https://github.com/retroeater/mj-logs/tree/main/guide/4fd73851
+ガイド文書（この版を写した時点の最新、mj 59680946）: https://github.com/retroeater/mj-logs/tree/main/guide/59680946
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/4fd73851/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/4fd73851/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/4fd73851/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/4fd73851/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/4fd73851/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/4fd73851/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/59680946/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/59680946/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/59680946/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/59680946/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/59680946/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/59680946/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/fbae687e.md
