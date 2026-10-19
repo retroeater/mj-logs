@@ -146,28 +146,41 @@ CHAT-1019-ACF-27 で、`docs/logs/`・`docs/decisions/` 以外のファイルが
 | CHAT-1006-LGR-05 | 完了 | なし | a | 出場なしの選手の扱いは CHAT-1006-LGR-07 で置き換え（docs/decisions/houou.md 2026-10-06）。ページは #540 で公開し houou/race/ へ 301（static-generation.md「ページの一覧」）。#507 closed |
 | CHAT-1006-PHT-06 | 判断待ち（続き: CHAT-1007-PHT-09） | なし | a | 診断と表示（案 A・B）は CHAT-1007-PHT-09 で入れ、その後 X 公式 API への切り替えとヘッドレス Chromium の解決の削除を決定（docs/decisions/saikyo.md 2026-10-09〜10 CHAT-1010-XAP-02）。今の scripts/・.github に解決用の headless Chrome は無い（git grep）。残りの経過は open の #514 が追う |
 
+### 手順2・3: 書き写し・削除・マージ
+
+- permalink の SHA（issue のコメント）: 0c15a02f6（仕分けの表を書いたコミット。削除のコミット 3d7a412e6 の親）。23件の中身は 0122413ee から 0c15a02f6 まで変わっていない（`git diff --stat` が空）ので、docs/notes の書き換えに使った 0122413ee の版とも同じ
+- (b) のコメント（本文・状態・ラベルは変えていない）:
+  - #390（CHAT-1002-DOJ-03）: https://github.com/retroeater/mj/issues/390#issuecomment-6258187171 （書いた直後に、前置きの1文の誤り「上の CHAT-0930… ではなく」を直した）
+  - #496（CHAT-1002-INV-02）: https://github.com/retroeater/mj/issues/496#issuecomment-6258187729
+- (c) は0件で、#610 には書いていない
+- 削除: 3d7a412e6「chore: remove remaining 23 old-format work logs」（23ファイル。書き換えの c33418c98 とは別のコミット）。メッセージに閉じるキーワードと `#番号` の並びが無いことを grep で確かめた。削除の後のテストは 1427件 OK。`is_new_rule_log` が偽のログは0件になった
+- マージ: 11:13 JST ごろ（03:45〜05:15・月曜 06:00〜09:00 の外）。push 直前に `git fetch origin cloudflare` と `git merge-base --is-ancestor origin/cloudflare HEAD`（真）を確かめ、`git push origin work/1019-acf-old2:cloudflare`（0122413ee..3d7a412e6、fast-forward）
+- マージ後: テストは OK。mj-logs の raw で CHAT-1002-INV-01・CHAT-1006-PHT-06・CHAT-1004-VID-03・CHAT-0930-CAL-15 が 404 になった（写しが消えた）
+- #513 に削除の件数のコメント（23件、ACF-27 と合わせて144件）: https://github.com/retroeater/mj/issues/513#issuecomment-6258272732
+- docs/decisions: 指示の「決定」節（2026-10-19）を docs/decisions/operations.md の ACF-27 の節の後に足した
+
 ## 報告
 
-- 状態:
-- ブランチ:
-- ログ:
-- 比較URL:
-- 確認用URL:
-- マージ:
-- issue:
-- 判断が必要なこと:
-- 未確認の項目:
-- エラー:
+- 状態: 完了
+- ブランチ: work/1019-acf-old2
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1019-ACF-28.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1019-acf-old2
+- 確認用URL: なし
+- マージ: 済（3d7a412e6。cloudflare へ fast-forward。docs/notes 3か所の書き換え〈c33418c98〉と docs/logs の削除。このログと決定は追いの push）
+- issue: コメント #390・#496・#513（削除の件数）。#610 への追記なし
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 0122413e）: https://github.com/retroeater/mj-logs/tree/main/guide/0122413e
+ガイド文書（この版を写した時点の最新、mj 7c82be63）: https://github.com/retroeater/mj-logs/tree/main/guide/7c82be63
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/0122413e/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/0122413e/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/0122413e/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/0122413e/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/0122413e/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/0122413e/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/7c82be63/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/7c82be63/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/7c82be63/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/7c82be63/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/7c82be63/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/7c82be63/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/8593ce34.md

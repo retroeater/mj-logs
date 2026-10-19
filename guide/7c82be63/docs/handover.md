@@ -232,8 +232,9 @@ GitHub Issues（Open）に全件あるが、着手可能な主なものは以下
 | `docs/notes/title-pages.md` | タイトル戦の新構成（`title/`、#222） |
 | `docs/notes/houou-race.md` | 鳳凰戦の順位変動（`houou_race.html`、#507） |
 | `docs/notes/houou-top.md` | 鳳凰戦の新ページ `houou/` の仕様（トップ＋検索・ランキング・リーグ推移・順位変動、#518） |
-| `docs/notes/ouka-top.md` | 女流桜花の新ページ `ouka/` の houou/ との違い（#519、未公開。公開は #591） |
-| `docs/notes/jwrc-top.md` | WRC リーグの新ページ `jwrc/` の houou/・ouka/ との違い（#594、未公開。公開は #599） |
+| `docs/notes/ouka-top.md` | 女流桜花の新ページ `ouka/` の houou/ との違い（#519。公開は #591） |
+| `docs/notes/jwrc-top.md` | WRC リーグの新ページ `jwrc/` の houou/・ouka/ との違い（#594。公開は #599） |
+| `docs/notes/league-pages-compare.md` | houou/・ouka/・jwrc/ の3大会の差（意図した差と、公開でそろえる差）。大会の設定や共通の部品を変える前 |
 | `docs/notes/ask-worker.md` | データ・コンシェルジュの Worker（`mj-ask`、#542） |
 | `docs/notes/live-page-design.md` | 放送対局ページ（`live/`、#346）。掲載範囲の拡大は「3-5」（残りは #490） |
 | `docs/notes/birthday-calendar.md` | 誕生日カレンダーの同期（#379） |
