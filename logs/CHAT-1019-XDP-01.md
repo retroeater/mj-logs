@@ -76,15 +76,61 @@ jpml_pros で早川健太（X: MJ_hayaken）と早川航平（X: saikou0611）�
 - 【3】の X画像URL がある行の (X状態, 数値ID の有無): 解決・数値ID 空 986、解決・数値ID あり 67、既定のアイコン・空 11、既定のアイコン・あり 1。**数値ID が空の「解決」986 行は、今回の直しで状態の表示が「シートから写した」に変わる**（値は変わらない）
 - RESOLVED（「解決」）・X状態を見ている箇所: `update_sns_book.py` の中だけが分岐に使う（`x_cell()` の `PARTIAL` の判定のみ。「解決」では分岐しない）。`lib/sns.py` の `X_PENDING_STATES`（未入力・未取得・上限で未取得・未取得(トークンなし)）と `collect_saikyo_images.py` の `UPDATE_STUCK_STATUSES` は完全一致で見ており「解決」も「シートから写した」も含まない。`collect_saikyo_images.report_targets()` は状態を「【3】<X状態>」として issue に写すだけ。`check_sns_book_images.py`・`.github/`・`workers/` は X状態を読まない。ページの生成（`lib/sns.build()`）は状態を読まない。`page_values_changed()` は ID と画像URL の列だけを比べるので、状態の変化では再生成されない → **表示が変わるだけで挙動は変わらない**
 
+### 手順2: 判定と状態の直し（110467a3c・e5c968f8c）
+- `update_sns_book.py`:
+  - `shared_images(prev)`: 【3】の前の値で、X画像URL を `with_size(..., _400x400)` にそろえた値ごとに X ID を小文字で集め、2つ以上なら重複。既定アイコン（`default_profile`）・URL か X ID が空の行は除く。状態「一覧に無い」の行も数える（一覧から消えた人と同じ画像を指していても疑わしいため。その行自体は今までどおり取り直さない）。大きさの末尾を外す処理は既存の `lib/x_images.with_size()` を使った（新しい正規表現は足していない）
+  - `x_cell()` に引数 `shared` を足し、前の画像が重複なら、届いても・「一部の大きさが取得できない」でも残さず `fetcher.get()` に回す
+  - 前の値を残した行（届く・既定アイコンでない）で X数値ID が空なら状態 `COPIED`「シートから写した」（既存の文言。init が使っていた。数値ID があれば今までどおり「解決」）。X API で取れば数値ID が入り「解決」になる
+  - 重複の行が上限・トークンなしで取り直せなかったら、状態「別の X ID と同じ画像・上限で未取得」（「…・未取得(トークンなし)」）。**前の値は残す。** 理由: 2人のうち片方は本人の画像の見込みが高く、空にすると両方が代替アバターになりページが今より悪くなる。残せばページは今と同じで、翌日以降の更新で取り直す。今回は X API の予定が 6 件で上限 30 に届かないため、この状態になる見込みは無い
+  - `run_update()` に、重複で取り直す行の名前と X ID を出す1行を足した（dry-run で確かめるため）
+- テスト（`scripts/tests/test_sns_book.py`）を6件足した: 重複の2行が取り直しに回る（`update_images()` を通す）・同じ X ID の大文字小文字違いは重複にしない・既定アイコンは対象外・別の X ID 2つで重複になる・数値ID が空で残した行は「シートから写した」・上限を超えた重複の行の状態と前の値。**直す前のコード（cloudflare 9903e2209 の `update_sns_book.py`）で6件とも通らないことを確かめた**（5件は関数・定数・引数が無いエラー、`update_images()` を通す1件は取り直しが呼ばれず失敗）
+- 既存のテスト `test_not_listed_keeps_previous_and_new_sns_is_not_fetched` は「甲」の前の値に X数値ID が無く、件数の「解決」を数えていたため、前の値に X数値ID「9」を足した（確かめる内容は「一覧に無い」の行のまま）
+- `python3 -m unittest discover -s scripts/tests`: 1450 件 OK
+- 「解決」を見ている箇所の挙動は変わらない（手順1の洗い出し）。`collect_saikyo_images.py`（`report_targets()`・`resolution_summary()`）・`lib/sns.py`（`X_PENDING_STATES`）・`check_sns_book_images.py` は変えていない
+
+### 手順3: dry-run の手動実行
+- docs/notes/github-actions.md「ワークフローを手動実行するとき」を読んだ（`update-sns-book.yml` の入力 `scheduled` は付けない。dry-run では `regenerate` は動かない）
+- 作業ブランチ（110467a3c。この後のコミットはコメントと文書だけ）: run 39261094317（mode update、dry_run 真）success、ジョブ update 約15秒、regenerate は skipped
+  - X API を呼ぶ予定の件数: **6**（上限 30）
+  - 別の X ID と同じ画像の行（取り直す）: **早川健太(MJ_hayaken)、早川航平(saikou0611)** → 手順1の一覧（1組2行）と一致
+  - X状態: シートから写した 982、未入力 776、解決 68、既定のアイコン 12、アカウントなし(確認済み) 10、dry-run(呼ぶ予定) 6
+- 比べるために同じ時刻に cloudflare（19fa8d378）でも同じ入力で実行: run 39261099815 success
+  - X API を呼ぶ予定の件数: **4**。X状態: 解決 1052、未入力 776、既定のアイコン 12、アカウントなし(確認済み) 10、dry-run(呼ぶ予定) 4
+  - 差は重複の2件だけ（6 − 4 = 2）。作業ブランチの 解決 68 + シートから写した 982 + 重複で呼ぶ予定 2 = 1052 で cloudflare の「解決」と合う
+- 両方とも「【1】元データ を書き直します(プロ 1098・連盟プロ以外 755)」「ページが使う値が変わった人: 10」。今日「プロ」「連盟プロ以外」が変わったためで、今回の変更とは関係が無い（cloudflare でも同じ数）
+- 重複の組は 1 組（15 組以下）。止まる条件には当たらない
+
+### 文書
+- docs/notes/sns-book.md「毎日の更新」の X の取り直しの条件に重複の判定と「シートから写した」を足し、上限の行の状態と「状態の文言」の一覧を直した（規則は足していない）
+- docs/decisions/saikyo.md に 2026-10-19（CHAT-1019-XDP-01）の節を足した
+- 取り込み: origin/cloudflare（19fa8d378）とは衝突しない（`git merge-tree` で確かめた）。未マージの work/ ブランチで同じファイルを変えているものは 0（着手時に確かめた）
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1019-xdp
+- ログ: https://github.com/retroeater/mj/blob/work/1019-xdp/docs/logs/CHAT-1019-XDP-01.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1019-xdp
+- 確認用URL: なし（変えたのは公開されない `scripts/` と docs だけで、ページの生成物は変えていない）
+- マージ: 未（平野さんの判断待ち）
+- issue: #514（着手中と結果のコメントを書いた。本文・ラベルは変えていない）
+- 判断が必要なこと:
+  - cloudflare へのマージの可否（指示文の「マージ: 判断待ちで止まる」のとおり止まった）
+  - マージすると、【3】の X状態のうち数値ID が空の「解決」982 行（dry-run の時点）が「シートから写した」に変わる（値・ページは変わらない）。案C（数値ID が空の行をすべて取り直す）を決める材料: 重複は 1 組 2 行だけだった
+- 未確認の項目:
+  - マージ後最初の毎日の更新（04:10 JST）で、早川健太・早川航平の【3】の X画像URL が別々になり、X数値ID が入って状態が「解決」になったか（X API の結果は dry-run では確かめられない。2人のどちらかが本当に今の画像の持ち主なら、その人は同じ URL のまま数値ID だけが入る）
+  - 同じ回で【3】の数値ID が空の行の状態が「シートから写した」になったか、ページが使う値が変わった日の再生成で jpml_pros の2人の写真が別々になったか
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 19fa8d37）: https://github.com/retroeater/mj-logs/tree/main/guide/19fa8d37
+ガイド文書（この版を写した時点の最新、mj d0930563）: https://github.com/retroeater/mj-logs/tree/main/guide/d0930563
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/19fa8d37/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/19fa8d37/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/19fa8d37/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/19fa8d37/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/19fa8d37/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/19fa8d37/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d0930563/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d0930563/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d0930563/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d0930563/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d0930563/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d0930563/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/19fa8d37.md

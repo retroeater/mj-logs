@@ -74,7 +74,7 @@ ENG のチャットの振り返り（2026-10-19）の知見のうち、手順に
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1019-ENG-04
 - ブランチ: work/1019-eng
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1019-ENG-03.md
 - 比較URL: https://github.com/retroeater/mj/compare/9903e2209...work/1019-eng
@@ -90,12 +90,12 @@ ENG のチャットの振り返り（2026-10-19）の知見のうち、手順に
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 19fa8d37）: https://github.com/retroeater/mj-logs/tree/main/guide/19fa8d37
+ガイド文書（この版を写した時点の最新、mj d0930563）: https://github.com/retroeater/mj-logs/tree/main/guide/d0930563
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/19fa8d37/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/19fa8d37/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/19fa8d37/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/19fa8d37/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/19fa8d37/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/19fa8d37/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d0930563/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d0930563/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d0930563/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d0930563/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d0930563/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d0930563/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/19fa8d37.md
