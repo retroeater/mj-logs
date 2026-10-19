@@ -37,7 +37,7 @@ Cloudflare の Security Overview の提案（security.txt など）の見送り�
 
 - `/api/ask` に Cloudflare の Rate limiting rule「Throttle /api/ask (#598)」を足した: POST `/api/ask`、IP ごと、1分に5回を超えたら Block 10分、順序 Last（#598 中-1。Pro の枠は 2/2 で埋まった）
 - その応答は Cloudflare 既定の 429 のままにする（`assets/houou_ask.js` は上限の JSON を「翌0時から受け付けます」と出し、10分で解ける Block と食い違うため）
-- Claude Security プラグインは定期では回さない。`workers/` を大きく変えたときに Scan changes、#9 の後の再点検で1回回し、その時点の使用量を見て今後の間隔を決め直す
+- Claude Security プラグインは定期では回さない。`workers/` を大きく変えたときに Scan changes、#9 の後の再点検で1回回し、その時点の使用量を見て今後の間隔を決め直す → 置き換え: 2026-10-20（CHAT-1020-SEC-15）
 - GitHub の Secret scanning／Push protection は、個人の private リポジトリでは使えないので見送る。代わりは `security-check.yml` の履歴の走査（#300）
 - Actions の Workflow permissions の既定は、SEC-04 で各ワークフローに `permissions` を明示し、PR を作るワークフローが無いことを確かめてから、平野さんが読み取りだけにし、PR の作成・承認の許可を外す（先に変えると `permissions` の無い `regenerate-page.yml` の push が止まる）
 - GitHub と Cloudflare のアカウントの 2FA は認証アプリにそろえた（GitHub は SMS を外し、Cloudflare はメールの 2FA を外した）
@@ -97,4 +97,31 @@ Cloudflare の Security Overview の提案（security.txt など）の見送り�
 - SRI（Observatory −5、Web Analytics の `beacon.min.js` に `integrity` が無いこと）は直さない。Cloudflare は同じ URL で中身を更新し、版を固定すると全ページの作り直しが要り、配信元の Cloudflare 自身から守ることにしかならないため。読み込み先は CSP の `script-src` で絞る
 - `img-src` は `'self' data: https:` にする（選手の写真の URL はシートから来るので、列挙すると新しいドメインの写真が黙って表示されなくなる。画像はスクリプトとして動かない）
 - 段2 はすぐ行う。切り替えの後に、平野さんが iPhone の Safari でトップ・大会のページ1つ・jpml_pros.html の表示を確かめる。崩れていたら CSP の行を外して戻す
+- 作業中の回答: なし
+
+## 2026-10-19（CHAT-1019-SEC-13）
+
+- 平野さんが iPhone の Safari で本番（トップ・大会のページ・jpml_pros.html）を確かめ、表示の崩れは無かった。#9 を閉じる
+- cloudflare/security-audit-skill（ https://github.com/cloudflare/security-audit-skill ）は導入しない。Claude Security プラグインと役割が重なり（多エージェントの監査と検証。2026-10-18 の実行で指摘0件）、ryoei.pro の攻撃面（`workers/`・`scripts/lib/`・`assets/houou_ask.js`）には重すぎ（1回のトークンが Claude Security 以上で、作者が複数回の実行を勧める）、実行に OS レベルのサンドボックスが要りクラウドセッションでは満たせないため。2026-10-17 の「コミュニティ製のセキュリティ系プラグインは入れない（公式2つで足りる）」の範囲内
+- 作業中の回答: なし
+
+## 2026-10-19（CHAT-1019-SEC-14）
+
+- #9 の後の再点検と Claude Security の1回の実行を、2026-10-19 にすぐ行う。2026-10-19 に (a)〜(h) の再点検（`security-check.yml` の zizmor 58 件・pip-audit 0・履歴の新規 0）と、Claude Security を `workers`・`scripts/lib`・`assets/houou_ask.js`（67 ファイル）に medium で1回実行した（指摘0件、約8分。結果は #598）
+- cloudflare/security-audit-skill はこの再点検でも使わない（2026-10-19 の CHAT-1019-SEC-13 のとおり）
+- 作業中の回答: なし
+
+## 2026-10-20（CHAT-1020-SEC-15）
+
+- 再点検（CHAT-1019-SEC-14）の直しは2本に分ける: (1) Worker（低-10・低-4）＝CHAT-1020-SEC-15、(2) 生成とフロント（中-3 の残り・低-6・低-7・低-8 後半）＝次の指示（SEC-16）。低-3（CI の `packages:` の版の固定）は #564 か Dependabot の扱いと合わせて別に行う。低-5（答えの文の検証）は直さない（影響が質問した本人の画面だけのため）（#598）
+- Claude Security は定期では回さない。`workers/` を大きく変えたときの Scan changes に加え、再点検（年1回か大きな変更の後）のときに1回回す。使用量はセッションから見えないので、次に回すときは平野さんが直前・直後に claude.ai の Settings → Usage のスクリーンショットを撮り、%の差で量る（2026-10-18 の CHAT-1018-SEC-07 を置き換える）
+- CHAT-1020-SEC-15 のマージは承認済み（条件付き）
+- 確認の結果（決定ではない。平野さんの画面での確認、2026-10-20）: Mozilla HTTP Observatory の取り直しは 105 点（前回 B 70/100）。GitHub の Settings → Advanced Security に Secret scanning／Push protection の項目は無い（個人の private リポジトリではまだ使えない。代わりは引き続き `security-check.yml` の履歴の走査）。Actions の Workflow permissions の既定は 2026-10-19 12:59 に読み取りだけにし、PR の作成・承認の許可を外した（CHAT-1018-SEC-10 の予定の実施）
+- 作業中の回答: なし
+
+## 2026-10-20（CHAT-1020-SEC-16）
+
+- 低-8 後半（`scripts/generate_jpml_pros.py` の選手リンクの `?name=`）は、`&`・`#`・`%`・`+`・空白だけを逃がし、日本語はそのまま残す（全部を `%E6…` の形にはしない。jpml_pros.html の 671 件のリンクを変えないため）（#598）
+- `workers/ask/src/index.mjs` の 404・405 の応答に `x-content-type-options: nosniff` が無い件は、次に `workers/ask` を変える指示で一緒に直す（#598）
+- CHAT-1020-SEC-16 のマージは承認済み（条件付き。直す前と直した後の全ページの生成物の差分が0件であること）
 - 作業中の回答: なし
