@@ -79,6 +79,21 @@ Chat-Ref: CHAT-1019-SEC-14
   - 新しい指摘（低）: `workers/ask/src/ask.mjs:375` の `deps.contests?.[body.contest]` は通常のオブジェクトを添字で引くので、`contest` に `__proto__`・`constructor`・`toString` を送ると「知らない大会は受けない」の検査（`if (!data)`）を通る。手元で `ask()` を模擬の D1 で呼んで確かめた: 3つとも 1問と数えられたうえで 503 `{"status":"unavailable"}`、Claude API（fetch）は呼ばれない（`nope` は 400）。費用は増えず、数えられるのは送った本人の IP の回数と全体の 200 の1つ。直し方: `Object.hasOwn(deps.contests, body.contest)` で引く＋テスト1本（1行＋テスト）
 - Claude Security: 2026-10-19 14:37 UTC に起動（対象 `workers,scripts/lib,assets/houou_ask.js`、追跡ファイル 67〈前回 56〉、medium、focus attack-surface、revision 9ed74fce4、結果は scratchpad の `CLAUDE-SECURITY-20261019-143647/`）
 - (b)・(c) は読むだけのサブエージェント（Explore）2つに分けて実行中
+- (f) detect-secrets 1.5.0（作業ツリー、scratchpad の venv、1分40秒）: Hex High Entropy 2650（Web Analytics のトークンなど）、ほか 18 件を1件ずつ見た（値は写さない）。Secret Keyword 7（`.claude/skills/cloudflare/references/` の例の文〈`SECRET_NAME`・`your_global_api_key` など〉、`data/live_thumbs.json` の動画 ID、`docs/logs/CHAT-1018-SEC-07.md`・`docs/notes/scheduler-worker.md` の Secret の名前）、Base64 High Entropy 8（`data/youtube_channels.json` のチャンネル ID、テストのブック ID、SEC-11 のログの CSP のハッシュ）、Artifactory Credentials 1（`data/live_channel_raw.jsonl` の概要欄の URL の文字列）、Private Key 2（`workers/ask/test/weekly.test.mjs` のテスト用の鍵と SEC-01 のログ。どちらも履歴の走査で既知）。有効な鍵は無い
+- (c) サブエージェントの報告を、主なものは該当行を開いて確かめた:
+  - 低-7: `assets/houou_ask.js:229` の出典リンクの判定（`/\evil` を通す）・`assets/saikyo.js:73` の `decodeURIComponent` の try なし・`assets/league_race.js:338`（旧 houou_race.js）の CSS の `url("${p.img}")` は残っている
+  - 中-3 の JS 側: `assets/league.js:854-856`（旧 houou.js の Ampai）は `if (up.url)` だけで `href` に入れる。生成側は `scripts/lib/ampai.py:50` の `safe_url()` で弾くので、生成 JSON 経由では届かない（防御は生成側の1層）
+  - 参考: `assets/houou_ask.js:133` の `image.src = thumb` は残る（`img` なので実行されない）
+  - innerHTML 等に入るのは定数か数値・`Math.random` の ID だけ。`eval`・`new Function`・文字列の `setTimeout` は無い。fetch 先はすべて同一オリジン。サイトの HTML に on* 属性・インラインの `<script>`（JSON-LD 以外）・`javascript:` は無い
+  - `assets/vendor/`: bootstrap 5.3.8・isotope-layout 3.0.6・purecounter 1.5.0・waypoints 4.0.1。aos・glightbox・typed.js はファイルに版の記載が無い（前回 SEC-01 で npm の照会口に照合済みの7つと同じファイルかは未確認）
+- Claude Security の結果（Workflow `claude-security:scan`、run wf_e4ee3604-bcb）:
+  - 段: inventory（部品3: worker-ask・worker-scheduler・scripts-lib。`workers/*/test` は「テストとフェイクで背景」として対象外）→ 脅威モデル → 調査（部品×分類。memory-and-unsafe は3部品とも省かれた）→ 広域の走査・秘密の走査 → 検証パネル。調査のエージェント 11 が返った
+  - 所要: 498 秒（約 8 分、14:37〜14:45 UTC）、エージェント 15（エラー 0、空の結果 2）、ツールの使用 238、サブエージェントのトークン 1,081,793。Max の使用量の数値はセッションからは見えない
+  - **結果: 指摘 0 件**（候補 0、票 0）。`render_report.py` の stamp は `verification.status: verified`（`CLAUDE-SECURITY-REVISION-9ed74fce4b52.json`）。結果は scratchpad の `CLAUDE-SECURITY-20261019-143647/`（コミットしない）
+  - 外部への要求: 調査のエージェントの Bash のコマンド 70 に `curl`・`wget`・`ryoei.pro`・URL は無かった（記録の grep）
+  - 調査が読んでいないと申告したもの: `workers/ask/data*.json`（生成物。キーと URL の頭だけ）、テスト、`scripts/generate_*.py`（scripts/lib の外。一部だけ）
+  - 調査が分類の外として書き残したもの（候補にはしていない）: `scripts/check_wayhome.py` は wayhome-state の印を含む最新の issue コメントを書き手を問わず読む（mj は private で、コメントできるのは共同編集者だけ。影響は通知を出すかどうかまで）
+  - 上の (a) の新しい低（`contest` の `__proto__`）は Claude Security では候補にならなかった
 - Secret scanning／Push protection（ダッシュボードの 3）: `api.github.com/repos/retroeater/mj` の `security_and_analysis` は null（管理者の権限でないと返らない）でセッションからは確かめられない。平野さんに頼む
 
 ## 報告
