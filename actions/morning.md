@@ -1,12 +1,11 @@
 # 朝の報告用の異常（retroeater/mj）
 
-- 書き出した時刻: 2026-10-19 19:01 JST（見た範囲: 2026-10-18 17:01 JST から）
+- 書き出した時刻: 2026-10-19 19:10 JST（見た範囲: 2026-10-18 17:10 JST から）
 - 書き出した実行の契機: workflow_dispatch（main）
 - 異常だけを書く。全体は actions/status.md。判定は mj の scripts/morning_report.py（各ワークフローの直近 100 回まで）
 
 ## 1. 失敗など（結論が success・skipped 以外。実行中を含む）
 
-- 2026-10-18 17:09 check-assets.yml failure（push・work/WRC） https://github.com/retroeater/mj/actions/runs/39110332920
 - 2026-10-18 17:18 check-assets.yml failure（push・work/WRC） https://github.com/retroeater/mj/actions/runs/39110962540
 - 2026-10-18 17:24 check-assets.yml failure（push・work/WRC） https://github.com/retroeater/mj/actions/runs/39111333144
 - 2026-10-18 18:34 check-assets.yml failure（push・work/WRC） https://github.com/retroeater/mj/actions/runs/39115837863
