@@ -57,7 +57,7 @@
 
 ## 2026-10-06（CHAT-1005-RVW-08）
 
-- RVW-06 の h1 の8ページ（houou_leagues・ouka_leagues・houou_results・ouka_results・wrc_results・jpml_links・rh_links・resource_dictionary）をマージしてよい
+- RVW-06 の h1 の8ページ（houou_leagues・ouka_leagues・houou_results・ouka_results・wrc_results・jpml_links・rh_links・resource_dictionary）をマージしてよい（`jpml_links` の分は済（廃止）: 2026-10-19（CHAT-1019-LNK-01、#616））
 - h1 の無い残り3ページ（houou_ranking・ouka_ranking・wrc_ranking）は、#141 の移植で h1 を付ける（今の手書きの HTML には足さない）。それまで Bing の Recommendations に3ページが残る。10/30 の見直しで #141 が終わっていなければ、その時点で判断する
 - resource_dictionary の h1「リソース 辞書」は、#377 の実装（CHAT-1005-RVW-07）で作り直すときに見直す
 

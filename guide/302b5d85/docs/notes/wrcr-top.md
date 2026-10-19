@@ -2,7 +2,7 @@
 
 WRC-R リーグの成績とランキングを、WRC リーグの `jwrc/`（`docs/notes/jwrc-top.md`）と同じ作りで `wrcr/` に作る（#366。2026-10-19 の決定で、jwrc/ とは別のページ）。
 **ここには jwrc/ と違うことだけを書く。** 書いていないこと（画面・部品・数え方・確かめ方・最高到達・通過の3部門・規定・表示の上限・順位変動の通過ライン）は jwrc-top.md のとおり。大会の差の一覧は `docs/notes/league-pages-compare.md`。
-2026-10-19 に未公開の形で作った（work/WRR。全ページ noindex、navbar・サイトマップ・`llms.txt`・既存のページからのリンクは無い）。公開は #611（navbar は「WRC-R」を「WRC」の隣の独立の1段の項目にする。2026-10-19 の決定）。旧ページは無い（WRC-R の成績表はこれまで無かった）ので、301 の転送は無い。
+2026-10-19 に未公開の形で cloudflare に入り、同じ日に公開した（#611）。公開は jwrc/ と同じ形: noindex なし、navbar に「WRC-R」を「WRC」の隣の独立の1段の項目（`/wrcr/` へ。黒地のナビは「JPML / WRC-R」の2行、白地のナビは「WRC-R」）、wrcr/ の下は白地のナビ（`.mj-nav-new`）、サイトマップ・`llms.txt` に載せる。旧ページは無い（WRC-R の成績表はこれまで無かった）ので、301 の転送は無い。
 
 ## 構成と生成
 
@@ -24,7 +24,6 @@ WRC-R リーグの成績とランキングを、WRC リーグの `jwrc/`（`docs
 - 文言は大会名を「WRC-Rリーグ」にしたもの（title は「<ページ> | WRC-Rリーグ | 日本プロ麻雀連盟 | ryoei.pro」）。トップの3項目の説明は jwrc/ と同じ。質問欄の例は「例：現タイトルホルダーは？」（2026-10-19）
 - 大会の印は `is-wrcr`・`data-contest="wrcr"`。最近見た選手は localStorage の `mj:recent-players:wrcr`
 - OGP は `img/ogp/wrcr/index-white.png`（白地・黒字の「WRC-Rリーグ」＋「ryoei.pro」、docs/notes/ogp.md の規則）
-- 未公開の間は共通ナビの形（白地の `.mj-nav-new`）を当てない（jwrc/ も公開で当てた。`navbar.js` は公開の issue で変える）
 
 ## 質問欄
 

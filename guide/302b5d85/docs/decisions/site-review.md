@@ -34,8 +34,8 @@
 
 ## 2026-10-09（CHAT-1009-SWP-05）
 
-- `404.html` の右の余白（G3-10）は第2弾（`style.css` を触る段）で直す。`style.css` に `.mj-margin-text` の右の余白を足す形で、`404`・`jpml_links`・`rh_links`・`resource_dictionary` をまとめて直す
-- `jpml_links.html` のアイコンの `alt` は空にする（どの団体の「公式サイト」かは見出しで分かる）
+- `404.html` の右の余白（G3-10）は第2弾（`style.css` を触る段）で直す。`style.css` に `.mj-margin-text` の右の余白を足す形で、`404`・`jpml_links`・`rh_links`・`resource_dictionary` をまとめて直す（`jpml_links` の分は済（廃止）: 2026-10-19（CHAT-1019-LNK-01、#616））
+- `jpml_links.html` のアイコンの `alt` は空にする（どの団体の「公式サイト」かは見出しで分かる） → 済（廃止）: 2026-10-19（CHAT-1019-LNK-01、#616）
 - `rh_links.html` に残すリンクは Bootstrap・Google Search Console・Google Sheets・PageSpeed Insights の4本だけ。ほかの11本は消す
 - 作業中の回答: なし
 
@@ -192,4 +192,11 @@ CHAT-1017-PAD-04 の「判断が必要なこと」への回答:
 CHAT-1017-PAD-05 の「判断が必要なこと」への回答:
 
 - `rh_results_detail.html` の 1100px で表の行（`tr`）が大きく動くずれ（0.3816）は、調べる issue を起こす（#593）。優先度は低く、すぐには着手しない（原因が分からないまま値が大きいので、記録を残し、再び出たときにたどれるようにする）
+- 作業中の回答: なし
+
+## 2026-10-19（CHAT-1019-LNK-01）
+
+- メニュー「連盟 > リンク」（`jpml_links.html`）を廃止する。理由: 連盟公式サイトがその役割を担う予定で、現状もあまりメンテしていないため（#616）
+- 旧 URL `/jpml_links.html` は転送せず、ページを消して 404 にする（公式サイトのトップ・サイトのトップへの 301 は採らない）
+- cloudflare へのマージまで任せてよい（今すぐ）
 - 作業中の回答: なし

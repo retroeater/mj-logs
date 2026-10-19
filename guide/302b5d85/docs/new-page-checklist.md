@@ -17,7 +17,7 @@
 - 手書きの HTML は、追加する前に `docs/notes/static-generation.md`「navbar.js と検索欄」を読む（href はルート相対〈#162〉、`data-search="off"`〈#163〉）
 - リンクの形は `html_handling: none` を前提にする（`docs/notes/cloudflare.md`「配信設定: html_handling・_redirects・canonical・_headers」）。`_redirects` に行が要るか（末尾スラッシュの有無の 301 など）を決める
 - 新しいファイル・ディレクトリを公開してよいか確かめ、公開しないものは `.assetsignore` に足す（#133）。最上位に新しい項目を配信するときは `check-assets.yml` の許可リストも直す（#331）
-- 外部ドメインへの依存を増やさない（CSP、#9）
+- 外部ドメインへの依存を増やさない（CSP、#9）。外部のスクリプト・iframe・フォント・`fetch` の先・`<style>` 要素・`style` 属性以外のインラインを足すときは `_headers` の `Content-Security-Policy` を直す（`docs/notes/cloudflare.md`「配信設定」）
 - アクセシビリティ: #178〜#185 の指摘（select のラベルなど）を最初から避ける
 - 表の上の説明文（#229）・更新日の表示（#239）を置くか決める
 - ページとメニューの名前は、同じメニューの既存の項目と並べて、紛らわしくないかを確かめてから決める（houou_race は公開の翌日に「リーグ別成績推移」から「順位変動」へ改めた。隣が「リーグ推移」）
@@ -80,9 +80,11 @@
 公開後の確かめ
 - [ ] Workers Builds の check-run が success（これだけで本番反映とはしない、`docs/notes/cloudflare.md`「ビルド成否と本番の確認範囲（check-runs）」）
 - [ ] 本番の HTML（`curl`）: ページが 200 で robots の noindex が無い（応答ヘッダの `x-robots-tag` も）。本番の `navbar.js`・サイトマップ・`llms.txt` に URL がある。`_redirects` の転送が期待どおり
+- [ ] 質問欄のある大会のページ: 本番の質問欄に、トップの例の文の問いと「現タイトルホルダー（その大会の呼び方。現鳳凰位・現女流桜花など）は？」を聞き、答えが返ることを確かめる（答えの要旨をログに書く。答えは Claude を呼ばないと確かめられず、テストにできないため。CHAT-1019-WRC-15）
 - [ ] X と LINE の投稿画面に URL を貼り、カード表示（画像・og:title）を確かめる。X は `?x=<未使用の数字>` を付け、デプロイ直後の1〜2分は避ける（`docs/notes/ogp.md`）
 - [ ] 平野さんの実機: navbar から開けて、見え方・操作が崩れていない（セッションから確かめられるのは本番の HTML まで）
 - [ ] 平野さんの作業: Search Console で `sitemap.xml` を再送信し、入口を URL 検査でインデックス登録をリクエスト
+- [ ] チャット側: 登録の結果を確かめる予定（1週間後、終日、件名【R#公開の issue】）をカレンダー「ryoei.pro」に作る。結果を待つ作業は issue にしない
 - [ ] 親の issue・作る issue に、公開した日とマージの SHA をコメントする
 - [ ] X で告知するときは `docs/notes/page-announcement.md` の型で（投稿文と告知動画）
 
