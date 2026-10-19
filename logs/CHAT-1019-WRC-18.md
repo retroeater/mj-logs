@@ -53,15 +53,66 @@ https://ryoei.pro/jwrc/
 
 不明な点は仮置きで進め、報告の「判断が必要なこと」に書いてください。この行が指示文の最後の行です。
 
+## 経過
+
+### 0章・取り込み
+
+- 「指示」欄の末尾は指示文の最後の行（「不明な点は仮置きで進め、…この行が指示文の最後の行です。」）と一致
+- `git log --all --grep="CHAT-1019-WRC-18"` は空。work/1019-wrc14 はリモートにある（b3bee0adb）
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある（冒頭の数行が1行につながって貼られていた）
+- `git merge origin/cloudflare`（7b7fe6f57）: `docs/decisions/houou.md` だけが衝突（末尾への追記どうし。こちらは「CHAT-1019-WRC-16」の節、cloudflare 側は「CHAT-1019-WRR-02」「WRR-03」「WRR-02〜04」「WRR-05」「CHAT-1019-WRC-17」の節）。指示の解き方のとおり両方を残した（8ba3b2aa0）。解いた後の末尾の見出しの並び:
+  - `## 2026-10-19（CHAT-1019-AIC-07）`
+  - `## 2026-10-19（CHAT-1019-OUK-25）`
+  - `## 2026-10-19（CHAT-1019-WRC-15）`
+  - `## 2026-10-19（CHAT-1019-WRC-16）`
+  - `## 2026-10-19（CHAT-1019-WRR-02）`
+  - `## 2026-10-19（CHAT-1019-WRR-03）`
+  - `## 2026-10-19（CHAT-1019-WRR-02〜04）`
+  - `## 2026-10-19（CHAT-1019-WRR-05）`
+  - `## 2026-10-19（CHAT-1019-WRC-17）`
+  - （この指示で末尾に `## 2026-10-19（CHAT-1019-WRC-18）` を足した）
+- 取り込んだ後の cloudflare との差分: `scripts/promo_video/jwrc/`（6ファイル）・`docs/logs/`（WRC-13〜16・18）・`docs/decisions/houou.md` だけ。生成物・ページのコードの差分は無い
+- `python3 -m unittest discover -s scripts/tests`: OK
+- CHAT-1019-WRC-16 のログの状態に ` / 続き: CHAT-1019-WRC-18` を足した
+
+### 文書
+
+- `docs/notes/page-announcement.md`（8,163 → 9,383 バイト。上限の対象ではない）: 投稿文の実例に jwrc/ の投稿（URL・本文、入力したとおり）、「告知動画の型」に「表の途中の線（通過ライン・降級ラインなど）を見せたいときは、早送りの途中で一度その線まで送って見せ、上位が映る位置に戻してから止める」、実例の表に jwrc/ の行（44.3秒・2版で確定・18:00 に投稿）
+- `docs/notes/jwrc-top.md`（10,358 → 12,858 バイト。上限の対象ではない）: 「告知動画」の節（長さ・曲調・見本の選手と理由・質問と答え・ランキングの切り替え・通過ラインの見せ方・場面と秒と字幕の表〈WRC-16 のログのとおり〉・投稿の URL）を「確かめ方」の前に足した
+- `docs/decisions/houou.md`: 「2026-10-19（CHAT-1019-WRC-18）」の節
+- 容量の検査（`check-assets.yml` の「ガイド文書のサイズを確認」と同じ値）: CLAUDE.md 24,786（警告域 26,624 まで 1,838・上限 28,672 まで 3,886）、docs/handover.md 22,811（警告域まで 3,813・上限まで 5,861）、docs/notes/chat-side-operations.md 22,155（警告域まで 4,469・上限まで 6,517）、docs/instruction-template.md 14,325（警告域 14,336 まで 11・上限 16,384 まで 2,059）。この4つは今回変えていない（前後とも同じ）。instruction-template.md は警告域の手前 11 バイト
+- 配信の上限（`scripts/check_asset_limits.py`）: ファイル数 4,182（20.9%）ほか、どれも OK
+- CHAT-1019-WRC-13〜16 のログの状態を「完了（…CHAT-1019-WRC-18…）」に、判断が必要なことを「なし（…）」に、WRC-14・16 のマージの項を「済」に直した（この作業ブランチで）
+
+### マージ
+
+- 作業ブランチの check（ce06729b9）: Workers Builds: mj・check（公開対象の検査）とも success
+- 再 fetch・`git merge-base --is-ancestor origin/cloudflare HEAD` が真 → `git push origin work/1019-wrc14:cloudflare`（7b7fe6f57..ce06729b9、早送り）
+- ce06729b9 の check-runs: Workers Builds: mj success・Workers Builds: mj-ask success・check success・sync success（notify は skipped）
+- #599（クローズ済み）に告知の完了をコメントした（issuecomment-6264271347）
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1019-wrc14 → cloudflare（マージ済み）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1019-WRC-18.md
+- 比較URL: https://github.com/retroeater/mj/compare/7b7fe6f57...ce06729b9
+- 確認用URL: なし（制作のスクリプトと文書のみ）
+- マージ: 済（ce06729b9。Workers Builds の mj・mj-ask と check-assets は success）
+- issue: #599 にコメント（告知の完了）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし（取り込みの `docs/decisions/houou.md` の衝突は指示の解き方のとおりに解いた）
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 7b7fe6f5）: https://github.com/retroeater/mj-logs/tree/main/guide/7b7fe6f5
+ガイド文書（この版を写した時点の最新、mj ce06729b）: https://github.com/retroeater/mj-logs/tree/main/guide/ce06729b
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/7b7fe6f5/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/7b7fe6f5/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/7b7fe6f5/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/7b7fe6f5/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/7b7fe6f5/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/7b7fe6f5/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce06729b/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce06729b/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce06729b/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce06729b/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce06729b/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce06729b/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/58fa24ff.md

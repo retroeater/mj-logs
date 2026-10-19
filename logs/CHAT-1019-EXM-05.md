@@ -48,6 +48,54 @@ EXM-01〜04 で作った `/exam/`（プロテストの動画12本の一覧と各
 
 - 識別子の確認: `git log --all --grep=CHAT-1019-EXM-05` と `docs/logs/` の履歴に無い
 - 作業ブランチ: ローカルの `work/1019-exm` は `origin/work/1019-exm`（4b55f29c9）と一致、作業ツリーはきれい。cloudflare（7b7fe6f57）は祖先でないため、この後 merge で取り込む
+- 0章: ログの「指示」欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- EXM-04 のログの状態の末尾に ` / 続き: CHAT-1019-EXM-05` を足した
+
+### 手順1: 取り込みと差分
+
+cloudflare（7b7fe6f57）を `git merge origin/cloudflare` で取り込んだ（4d26179c6）。衝突なし。`git diff --stat origin/cloudflare...HEAD -- . ':!docs/logs'`（全件）:
+
+```
+ .github/workflows/check-assets.yml |   2 +
+ _redirects                         |   2 +
+ docs/decisions/README.md           |   1 +
+ docs/decisions/exam.md             |  26 ++++
+ docs/handover.md                   |   1 +
+ docs/notes/static-generation.md    |   3 +
+ docs/notes/video-exam.md           |  35 ++++++
+ exam/-PoeE0Bm2sE.html              |  71 +++++++++++
+ exam/98GKK3KKYNk.html              |  65 ++++++++++
+ exam/Esz7Mloebaw.html              |  72 +++++++++++
+ exam/JTOTffVFqTg.html              |  72 +++++++++++
+ exam/Lp8m7sAWT_k.html              |  72 +++++++++++
+ exam/RfZxTnSGnBw.html              |  72 +++++++++++
+ exam/eKMCpGQKTYk.html              |  72 +++++++++++
+ exam/gyYpx9xfrLA.html              |  72 +++++++++++
+ exam/index.html                    | 164 +++++++++++++++++++++++++
+ exam/ix9xGkF5pJs.html              |  72 +++++++++++
+ exam/jal-jnnwJb4.html              |  72 +++++++++++
+ exam/kzKMbbNvAcQ.html              |  64 ++++++++++
+ exam/lGPjKHDAlzw.html              |  72 +++++++++++
+ scripts/check_unused_names.py      |   7 +-
+ scripts/generate_exam.py           | 147 ++++++++++++++++++++++
+ scripts/generate_exam_episodes.py  | 171 ++++++++++++++++++++++++++
+ scripts/lib/exam.py                | 242 +++++++++++++++++++++++++++++++++++++
+ scripts/regenerate.py              |   6 +
+ scripts/tests/test_exam.py         | 149 +++++++++++++++++++++++
+ style.css                          |   4 +-
+ 27 files changed, 1804 insertions(+), 4 deletions(-)
+```
+
+前提の範囲と一致（`navbar.js`・サイトマップ・`llms.txt`・`jpml_test.html`・`generate_jpml_test.py` は変えていない）
+
+### 手順2: 取り込んだ後の木での再検証
+
+- `python3 -m unittest discover -s scripts/tests`: 1445件 OK
+- `python3 scripts/regenerate.py --check exam exam_episodes`: 2ページとも通る
+- `python3 scripts/regenerate.py exam exam_episodes`: `exam/` の差分0（シートは EXM-04 から変わっていない）
+- 容量（`scripts/check_asset_limits.py`）: 配信ファイル数 4,195・最大のファイル 2,363,334 バイト・`_redirects` 静的 115・動的 10・`_headers` 7、どれも OK。最上位の許可リストの検査（`check-assets.yml` の手順を手元で）も通った。ガイド文書は handover.md 22,962・CLAUDE.md 24,786・chat-side-operations.md 22,155・instruction-template.md 14,325 バイト（どれも警告域未満）
+- マージ後の自動再生成の見積もり: `regenerate-page.yml` は `scripts/lib/**`・`scripts/generate_*.py` の変更で動き、`regenerate.py --changed` は `scripts/lib/exam.py` が変わるので全ページ（30、`exam`・`exam_episodes`・`jpml_test` を含む）を選ぶ。
+  取り込んだ後の木で `python3 scripts/regenerate.py all` を回した結果、**変わったファイルは0**（前回の自動再生成以後のシートの変化は、この時点では無い）。マージから自動再生成までにシートが変われば、その分は本番に出る
 
 ## 報告
 
@@ -65,12 +113,12 @@ EXM-01〜04 で作った `/exam/`（プロテストの動画12本の一覧と各
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 7b7fe6f5）: https://github.com/retroeater/mj-logs/tree/main/guide/7b7fe6f5
+ガイド文書（この版を写した時点の最新、mj ce06729b）: https://github.com/retroeater/mj-logs/tree/main/guide/ce06729b
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/7b7fe6f5/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/7b7fe6f5/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/7b7fe6f5/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/7b7fe6f5/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/7b7fe6f5/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/7b7fe6f5/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce06729b/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce06729b/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce06729b/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce06729b/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce06729b/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce06729b/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/58fa24ff.md
