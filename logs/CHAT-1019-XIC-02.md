@@ -45,28 +45,69 @@ CHAT-1019-XIC-01 の dry-run の検知で、Mつく の「X の ID が無い」�
 
 ## 経過
 
+### 着手前の確認
+
+- Chat-Ref の重複: `git log --all --grep="CHAT-1019-XIC-02"` なし
+- 作業ブランチ: ローカル `work/1019-xic` は `origin/work/1019-xic` と一致（25fa61508、未マージ）。そのまま続けて使う
+- 手順0: ログの「指示」欄の末尾が指示文の最後の行と一致。指示文の冒頭の雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- XIC-01 のログの状態を「判断待ち / 続き: CHAT-1019-XIC-02」にした（ログ先行の push に含めた）
+- `git merge-base --is-ancestor origin/cloudflare HEAD` が偽 → ログ先行の push の後に `git merge origin/cloudflare`（衝突なし。取り込んだのは saikyo/ の生成物と sitemap-saikyo.xml だけ）
+- #609 のコメント: XIC-01 の着手中は解除済み（issuecomment-6260228572）。他セッションの着手中なし。着手中を書いた: https://github.com/retroeater/mj/issues/609#issuecomment-6260371686
+
+### 手順1: dry_run 真で手動実行
+
+- run: https://github.com/retroeater/mj/actions/runs/39204776634 （cloudflare、4e223c8f3、2026-10-19T05:28:53Z 起動、成功）
+- 「登録漏れを確認」の出力（引用）:
+
+```
+SNS ブック: 1853名(【4】手動補正 0行)
+出場者440名を確認し、0名が「プロ」「連盟プロ以外」から引けませんでした。
+  登録が無い: 0名 / 重複などで使われない: 0名
+対局日が空の対局（個別ページを作っていません）: 0件
+Mつく: 作る人と指名選手132名のうち、登録が無い 0名 / 重複などで使われない 0名 / X ID が無い 0名
+```
+
+- upsert-issue: `close: true`、`[dry-run] #609(open) を閉じる:` 「出場者440名を確認し、引けない人・対局日が空の対局はありませんでした。」
+- すべて0 → 手順2へ
+
+### 手順2: dry_run 偽で手動実行
+
+- run: https://github.com/retroeater/mj/actions/runs/39204974094 （cloudflare、45ff921d7、2026-10-19T05:31:06Z 起動、成功）
+- #609: state `closed`（state_reason `completed`）、closed_at 2026-10-19T05:31:40Z、closed_by github-actions[bot]
+- 閉じたときのコメント（github-actions[bot]、issuecomment-6260405960、引用）: 「出場者440名を確認し、引けない人・対局日が空の対局はありませんでした。」
+- ラベルは「種類: 常設」のみで、「状況:」ラベルは無い（外す操作なし）
+
+### 手順3
+
+- #609 に着手中の解除のコメント（末尾に `Chat-Ref: CHAT-1019-XIC-02`）を書いた
+
+### マージ
+
+- docs/logs・docs/decisions のみの変更（cloudflare を取り込んだ merge コミットを除く）。指示の「マージ:」の行のとおり cloudflare へ入れる
+- `git push origin work/1019-xic:cloudflare` で 45ff921d7..10d495bd3（push 直前に再 fetch し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真、差分は docs/logs の2ファイルと docs/decisions/mtsuku.md だけ）
+
 ## 報告
 
-- 状態: 対応中
+- 状態: 完了
 - ブランチ: work/1019-xic
-- ログ: https://github.com/retroeater/mj/blob/work/1019-xic/docs/logs/CHAT-1019-XIC-02.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1019-XIC-02.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1019-xic
 - 確認用URL: なし
-- マージ: 未
-- issue: #609
-- 判断が必要なこと:
-- 未確認の項目:
+- マージ: 済（10d495bd3、cloudflare へ fast-forward）
+- issue: #609（ワークフローが閉じた）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 45ff921d）: https://github.com/retroeater/mj-logs/tree/main/guide/45ff921d
+ガイド文書（この版を写した時点の最新、mj af238f10）: https://github.com/retroeater/mj-logs/tree/main/guide/af238f10
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/45ff921d/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/45ff921d/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/45ff921d/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/45ff921d/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/45ff921d/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/45ff921d/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/af238f10/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/af238f10/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/af238f10/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/af238f10/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/af238f10/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/af238f10/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/4e223c8f.md
