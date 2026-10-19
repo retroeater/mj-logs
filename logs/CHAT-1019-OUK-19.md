@@ -56,28 +56,84 @@
 
 ## 経過
 
+### 0章
+
+- Chat-Ref の重複なし。「指示」欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- `git checkout -b work/1019-ouk19 origin/cloudflare`（596809461）で作業ブランチを作った
+
+### 1. 読んだもの・構成
+
+- houou/ の告知動画（`scripts/promo_video/houou/` の README・capture.mjs・compose.py・build.sh・雛形）と順位変動の告知（`scripts/promo_video/houou_race/capture.mjs`）を読んだ
+- **使い回さず `scripts/promo_video/ouka/` に分けた**（houou/ の capture.mjs は大会名・URL・選手・質問・トップの説明文の読み方〈前期・後期のある期〉を直書きしており、大会の設定で切り替える作りになっていないため。順位変動の場面も足すので、写して直した方が houou/ の作り直しを壊さない）。houou/・houou_race/・title/ のスクリプトは変えていない（origin/cloudflare との差 0）
+- 順位変動の表: 清水香織は第20期 A の表にいない（第20期はシードで決定戦から。表の16人に名前が無い）ので、指示のとおりページの既定の表（第20期 A、8節・16人）を撮った
+- ouka/race/ は houou_race と違い、期・リーグを「期・リーグを選ぶ」のシートで選ぶ形（見出しの「第20期 A ∨」を押すと下から出る）。シートを開いて期の送り（第20期）とリーグ（A・B・C）に枠を出し、「完了」を押してから ▶ を押す形にした
+
+### 2. 撮影と調整
+
+- 環境: `title/setup.sh` が `fonts-noto-cjk` を見つけられず止まったので、`apt-get update` の後に入れ直して通した（スクリプトは変えていない）
+- 質問欄の答え: 2026-10-19 00:59:52Z（UTC）に本番の `/api/ask` へ1回だけ送った（`{"question":"第20期の女流桜花は？","contest":"ouka"}`）。答え「第20期の女流桜花は清水香織さんです。清水さんは13期の選手です。」（データ: 決勝 第20期まで、出典: 女流桜花 歴代優勝者）。カードは清水香織の1行（現在のリーグ 桜花・最高到達 桜花・出場 16期）。撮る側は本番へ送らず、この答えを返した（送った回数 1）
+- 1回目: 67.8秒で上限（60秒）を超えて止まった。リーグの登る間が 7.9秒（女流桜花は期が多い）、順位変動が 16.6秒
+- 2回目: リーグの登る間の早送りを3倍 → 7倍（順位変動の残りの節は指示のとおり3倍のまま）、枠 0.6 → 0.5秒、押す印 0.7 → 0.6秒、「調べています…」1.0 → 0.7秒、答えの2コマ 1.6 → 1.2秒ずつ、期別の送りと止め・通算の止め 2.0 → 1.5秒・順位変動の最終結果 3.0 → 2.6秒に詰めた。「答えから選手の成績へ」の字幕が 1.6秒になり最短 2.0秒に届かず止まった
+- 3回目: 選手を開く場面の止めを 1.0 → 1.4秒に戻して完成（59.6秒）
+- 撮影の枠の検査（`mustFit()`）はすべて通った。通算のグラフは上端 97・下端 577（画面 664）、部門別の表は上端 201・下端 656。リーグのアイコンが画面の外に出たコマは 0
+- 順位変動の最終結果: 表の下端が 696（画面 664）で、16位の行が画面の下で切れる（▶ を押した後のページのスクロールで節の番号の段が上端 0 に来るため。ページのコードは変えていない）
+
+### 3. 出来上がり
+
+- 出力: 1080×1920・30fps・H.264（High、yuv420p）・AAC 48kHz 2ch、59.63秒、11.6MB。曲調 b。音量 -15.9 LUFS（integrated）
+- 最初のコマ: 白地に「女流桜花」と「個人成績・ランキング・順位変動」（フェードなし）
+- 字幕の位置: 上端から 80〜210px（雛形の `.cap` の top 80・高さ 130）。画面の枠の下端は 1690px で、下端から 230px（12%）
+- 白いままのコマ: 白に近いコマはタイトル（0〜2.5秒、字あり）と締め（56.1秒〜、ryoei.pro が1秒で現れる）だけ。デモの間には無い
+- mp4 を SendUserFile で送った（動画はリポジトリに入れていない）
+- 制作のスクリプト: `scripts/promo_video/ouka/`（README.md・setup.sh・build.sh・capture.mjs・compose.py・composition/index.html）を作業ブランチに push（ca0414b3f・ea7aff7df・bea7cf234）
+
+場面ごとの秒（動画の秒。デモはタイトルの 2.5秒の後から）:
+
+| 場面 | 秒 | 長さ | 画面 | 字幕 |
+|---|---|---|---|---|
+| タイトル | 0〜2.5 | 2.5 | 白地に「女流桜花」「個人成績・ランキング・順位変動」 | なし |
+| トップ | 2.5〜5.0 | 2.5 | 質問欄と3項目に順に枠 | 女流桜花のデータをひとつに |
+| 質問欄 | 5.0〜10.69 | 5.69 | 「第20期の女流桜花は？」を打って送る → 答え → 清水香織のカードに枠 | 質問すると、データから答える |
+| 選手を開く | 10.69〜12.69 | 2.0 | カードを押して個人成績（期別） | 答えから選手の成績へ |
+| 期別 | 12.69〜15.59 | 2.9 | 期の行を送って戻す | 全期の成績を一覧で |
+| 通算 | 15.59〜19.39 | 3.8 | 通算のタブ → グラフ全体が映るまで送る | 通算得点の推移 |
+| リーグ | 19.39〜30.36 | 10.97 | ▶ → 実際の速さ 5.4秒 → 登る間を7倍 → 終わり | リーグの昇降級を再生 |
+| 部門別 | 30.36〜32.46 | 2.1 | 部門別のタブ → 表の下まで送る | ランキング8部門の順位 |
+| ランキング | 32.46〜37.46 | 5.0 | 通算の行 → ランキング（清水香織の行 6位 +607.9 が色付き）→ 「期最高」に切り替え | 歴代の記録を8部門で |
+| 順位変動 | 37.46〜53.52 | 16.07 | 第20期 A を開く → 「第20期 A ∨」を押す → 期とリーグに枠 → 完了 → ▶ → 第1節を実際の速さ → 残り7節を3倍 | 節ごとの順位の変動を再生 |
+| 範囲 | 53.52〜56.12 | 2.6 | 順位変動の最終結果で止めたまま | 第1期〜第20期・178名 |
+| 締め | 56.12〜59.63 | 3.5 | 白地に ryoei.pro（1秒で現れて止まる） | なし |
+
+字幕の全文（順に）: 女流桜花のデータをひとつに／質問すると、データから答える／答えから選手の成績へ／全期の成績を一覧で／通算得点の推移／リーグの昇降級を再生／ランキング8部門の順位／歴代の記録を8部門で／節ごとの順位の変動を再生／第1期〜第20期・178名（期と人数は撮ったときの本番のトップの説明文から読んだ）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1019-ouk19
 - ログ: https://github.com/retroeater/mj/blob/work/1019-ouk19/docs/logs/CHAT-1019-OUK-19.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1019-ouk19
-- 確認用URL:
-- マージ: 未
-- issue:
+- 確認用URL: なし（動画は SendUserFile で送った。59.6秒）
+- マージ: 未（平野さんが動画を見て確定してから、別の指示で制作のスクリプトと文書をマージする）
+- issue: なし
 - 判断が必要なこと:
-- 未確認の項目:
-- エラー:
+  - 動画を確定するか直すか（平野さんが見て決める）
+  - 仮置き: 各場面の秒（`## 経過` の表）。60秒に収めるため、リーグの登る間を houou/ の3倍より速い7倍にし、部門別は短く、ランキングの切り替えは「期最高」だけ（houou/ は期平均 → 期最高）、範囲の字幕は順位変動の最終結果で止めている間に出した
+  - 仮置き: 字幕の文言（houou/ の文言を女流桜花・8部門に置き換え、順位変動の場面に「節ごとの順位の変動を再生」を足した）
+  - 仮置き: 質問の文「第20期の女流桜花は？」（houou/ の「第42期の鳳凰位は？」の形）
+  - 仮置き: 順位変動の表は第20期 A（清水香織が出ていないため、ページの既定の表）。最終結果の画面で16位の行が下で切れる。ランキングから順位変動へは本番の URL を開いて切り替えた（操作は撮っていない）
+  - 仮置き: 制作のスクリプトは houou/ を使い回さず `scripts/promo_video/ouka/` に分けた（houou/ は変えていない）。マージのときに `docs/notes/page-announcement.md` の告知動画の一覧へ ouka/ を足す
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 59680946）: https://github.com/retroeater/mj-logs/tree/main/guide/59680946
+ガイド文書（この版を写した時点の最新、mj 0122413e）: https://github.com/retroeater/mj-logs/tree/main/guide/0122413e
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/59680946/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/59680946/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/59680946/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/59680946/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/59680946/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/59680946/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/fbae687e.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/0122413e/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/0122413e/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/0122413e/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/0122413e/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/0122413e/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/0122413e/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/8593ce34.md
