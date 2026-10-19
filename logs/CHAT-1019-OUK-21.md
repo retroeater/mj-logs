@@ -116,7 +116,7 @@
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1019-OUK-23
 - 前半: **順位変動の PO の直しを cloudflare にマージした**（d1ca57938。Workers Builds の mj は success）。本番で ouka/race/ 第20期 A の最後の節が「PO」・9〜16位が順位付きで残ること、第15期 A の赤司美奈子と鳳凰戦 第42期 A1 の前原雄大が今のままであることを確かめた
 - ブランチ: work/1019-ouk20（前半・このログ）・work/1019-ouk19（後半、482714d60）
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1019-OUK-21.md

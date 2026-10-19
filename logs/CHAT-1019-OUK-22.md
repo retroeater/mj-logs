@@ -57,7 +57,7 @@ Chat-Ref: CHAT-1019-OUK-22
 
 ## 報告
 
-- 状態: 中断（origin/cloudflare の取り込みで docs/decisions/houou.md が衝突）
+- 状態: 中断（origin/cloudflare の取り込みで docs/decisions/houou.md が衝突） / 続き: CHAT-1019-OUK-23
 - ブランチ: work/1019-ouk19
 - ログ: https://github.com/retroeater/mj/blob/work/1019-ouk19/docs/logs/CHAT-1019-OUK-22.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1019-ouk19
