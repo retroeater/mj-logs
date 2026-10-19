@@ -139,7 +139,7 @@ Chat-Ref: CHAT-1019-WRC-12
 ## 報告
 
 - **WRCリーグ（jwrc/）を公開した**（マージのコミット 06f1203bd）。告知はしていない
-- 状態: 判断待ち（公開は完了。告知の形がチャット側の後日の判断）
+- 状態: 判断待ち（公開は完了。告知の形がチャット側の後日の判断） / 続き: CHAT-1019-WRC-13
 - ブランチ: work/1019-wrc12 → cloudflare（マージのコミット 06f1203bd）
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1019-WRC-12.md
 - 比較URL: https://github.com/retroeater/mj/compare/921dbe0ad...06f1203bd
@@ -168,4 +168,4 @@ Chat-Ref: CHAT-1019-WRC-12
 - docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/06f1203b/docs/notes/chat-side-operations.md
 - docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/06f1203b/docs/notes/cloudflare.md
 - docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/06f1203b/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/f0204bea.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/fbae687e.md
