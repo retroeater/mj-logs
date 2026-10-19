@@ -77,3 +77,9 @@ Cloudflare の Security Overview の提案（security.txt など）の見送り�
 - Settings → Actions の Workflow permissions の既定を読み取りだけにする（PR の作成・承認の許可も外す）のは、2026-10-19 04:00 JST の run-daily の定期実行が success になったのを確かめてから、平野さんが手で行う（SEC-04 の Secret・permissions の確かめと、既定の切り替えの確かめを混ぜないため）
 - Dependabot のメジャー版の上げの PR（初回の #602〜#607）は閉じる。`.github/dependabot.yml` でメジャー版を対象外にし、マイナー版・パッチ版だけを受ける。メジャー版は認証情報の台帳の四半期の棚卸し（#601）でまとめて見る
 - SEC-04 で Code が指示から変えた点（`dependabot.yml` の `directories: ["/", "/.github/actions/*"]`、`cooldown: default-days: 7`、範囲外のテストの1行の直し 892bde4ae）はそのまま受け入れる
+
+## 2026-10-19（CHAT-1019-OUK-26）
+
+- Google Charts を読むページが0になったことを確かめて、#7 を閉じる（#582 で旧ページを消したため）
+- #9（CSP）には、`www.gstatic.com` が不要になったことと、外部から読んでいるドメインの一覧をコメントで残す。CSP を書く作業は SEC のチャットが行う
+- 作業中の回答: なし

@@ -58,6 +58,22 @@ WRR-04 のプレビューへの平野さんの回答（最高到達の書き方�
 - 0. 「指示」欄の末尾は指示文の最後の行と一致。WRR-04 の `## 報告` の状態は「判断待ち」→ 末尾に「 / 続き: CHAT-1019-WRR-05」を足した
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
 
+### 手順1: 最高到達の書き方
+
+- 最高到達の文字を作るのは `generate_houou_pages.py` の `best_reach()` だけ（成績 JSON の `best`。名前の面〈`assets/league.js`〉と質問欄の選手のカード〈`assets/houou_ask.js`、`ask-players.json`〉はその文字をそのまま出す）。`best_reach()` を、期が4期以上で「等」を付けるときだけ回数を書く形に直した。JS 2つは例のコメントだけ直した。houou/・ouka/ の「最高到達 A2」はリーグの段で別の作りなので変わらない
+- テスト: `test_jwrc_pages.py` に境界（1・2・3・4期: 「2位（7期）」「2位（7期・6期）」「2位（7期・6期・5期）」「2位 4回（7期・6期・5期 等）」）、既存の期待値を新しい形に直した（`test_wrcr_pages.py` も）
+- 文書: jwrc-top.md（名前の面の例・最高到達の規則・予選の行が無い決勝進出者の例）、league-pages-compare.md（名前の面の例）
+- コミット abd55fd82
+
+### 手順2: マージの前の確かめ
+
+- origin/cloudflare（7コミット。WRC-15 の続き〈2回目の指示に優勝の期の読み方 `ANSWER_LINES`〉・OUK-26・handover など）を取り込んだ（マージコミット 929f18af0）。衝突なし。Worker の `ask.mjs` と `jwrc.test.mjs` は自動で合わさり、wrcr の `PLAN_LINES`（`holderLine`）は残っていた
+- jwrc/ の `ANSWER_LINES` を wrcr/ にも当てた（大会名を WRC-R に。「現タイトルホルダー」の答えで優勝の期を回数と取り違えないため）。`wrcr.test.mjs` の例の問いのテストに、2回目の指示の末尾がその一文であることを足した（コミット fdd308856）
+- `python3 scripts/regenerate.py all`（終了コード 0）: 差分は jwrc/・wrcr/ の成績 JSON の `best`（jwrc/ 189・wrcr/ 114）と `ask-players.json` の最高到達の欄だけ（ほかの項目・ほかの選手の行は同じことを JSON で比べた）。houou/・ouka/・ほかの生成物は差分 0（コミット b4a4fe67a）
+- `python3 -m unittest discover -s scripts/tests`: OK。`node --test 'workers/ask/test/*.test.mjs'`: 72件 pass。jwrc/（`jwrc.test.mjs` の「現タイトルホルダー」）と wrcr/（`wrcr.test.mjs` の例の問い）の両方で、1回目の指示に `holderLine` が付き champions に振り分けられることを確かめた
+- cloudflare との差分（`git diff --stat origin/cloudflare HEAD`、444ファイル）: wrcr/ 一式 212・jwrc/ の成績 JSON 189（4人の追加と最高到達の書き方）と `search.json`・`ask-players.json`・トップ・個人成績・ouka/ のランキング2ページと成績 JSON 3つ（下限）・`data-wrcr.json`・`data-ouka.json`・Worker の `ask.mjs`・`index.mjs`・`wrcr.test.mjs`・生成と集計（`generate_houou_pages.py`・`lib/ranking.py`・`generate_ask_data.py`・入口2つ・`regenerate.py`）・テスト4つ・`style.css`・`assets/league.js`・`assets/houou_ask.js`（コメントのみ）・`_redirects`・`img/ogp/wrcr/`・`check-assets.yml`・文書（notes 8・handover の表の1行・decisions）・ログ4つ。WRR-02〜05 で説明できないものは無い
+- 作業ブランチの check: fdd308856 と b4a4fe67a の「check」が success（`check-assets.yml` を含む）。「Workers Builds: mj」も success。プレビューの `wrcr/results/白鳥翔.json` の `best` が「2位（7期）」
+
 ## 報告
 
 - 状態: 作業中
@@ -74,12 +90,12 @@ WRR-04 のプレビューへの平野さんの回答（最高到達の書き方�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj b209d841）: https://github.com/retroeater/mj-logs/tree/main/guide/b209d841
+ガイド文書（この版を写した時点の最新、mj 58fa24ff）: https://github.com/retroeater/mj-logs/tree/main/guide/58fa24ff
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b209d841/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b209d841/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b209d841/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b209d841/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b209d841/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b209d841/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/58fa24ff/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/58fa24ff/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/58fa24ff/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/58fa24ff/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/58fa24ff/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/58fa24ff/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/10e55a48.md
