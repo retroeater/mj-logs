@@ -65,28 +65,81 @@
 
 ## 経過
 
+### 0章
+
+- Chat-Ref の重複なし。「指示」欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- work/1019-ouk20（5dcbb7f40）・work/1019-ouk19（65c676a62）はリモートとローカルが同じ。CHAT-1019-OUK-20・OUK-19 のログの状態に ` / 続き: CHAT-1019-OUK-21` を足した（OUK-19 のログは work/1019-ouk19 にある）
+
+### 前半: work/1019-ouk20 のマージ
+
+- 着手時は origin/cloudflare（7c82be638）が HEAD の祖先だった。`python3 -m unittest discover -s scripts/tests` 1,430件 OK、`node --test 'workers/ask/test/*.test.mjs'` 47件 pass
+- `python3 scripts/regenerate.py all` を作業ブランチと cloudflare のクローン（7c82be638）で同時に回した（どちらも exit 0）。差は `assets/league_race.js` と `ouka/race/` の JSON 20件だけ（OUK-20 と同じ）。houou/ の生成物は差分0。手元の生成でシートの更新により変わったファイルはコミットせずに戻した
+- push の直前の再 fetch で cloudflare が進んでいた（CHAT-1019-MRO-01 のログ4件、docs/ だけ）ので merge で取り込んだ（d1ca57938。衝突なし。生成物・コードの変化は無いので再生成の比較は取り直していない）
+- `git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめ、`git push origin work/1019-ouk20:cloudflare`（b385e6e77..d1ca57938、早送り）
+- Workers Builds の mj は d1ca57938 で success（regenerate も success）。本番の `assets/league_race.js` が新しい版になるまで数分かかった
+- 本番の確かめ（新しい版になった後、headless Chrome 375px・1280px、JS のエラー 0）:
+  - ouka/race/ 第20期 A: 節のラベルの最後が「PO」（375px で 41px、1280px で 44px、他の節と同じ幅）。再生の最後は 1〜8位が PO に出た選手、9〜16位（白銀紗希 ▲2.3 … 廣岡璃奈 ▲177.8）が順位付きで残る。本番の `20-0.json` の A は `po: 1`、`sat` 8人
+  - ouka/race/ 第15期 A: 「PO」。赤司美奈子は順位「–」・「第2節まで」のまま
+  - houou/race/ 第42期 A1: ラベルは1〜13のまま、前原雄大は順位「–」・「第8節まで」のまま
+
+### 後半: 告知動画の撮り直し（work/1019-ouk19）
+
+- `scripts/promo_video/ouka/` の直し（482714d60、work/1019-ouk19 に push、マージしない）:
+  - 字幕: ランキングの場面「期最高など歴代の記録」、順位変動の場面「昇降級ボーダーの攻防を再現」
+  - 順位変動の最終結果: 早送りが終わった後、表の下の端が画面の下の端の少し上に来るまで 0.4 秒かけて送ってから止める（ページのコードは変えない）。送った後の表の下端 656（画面 664）。止めたコマで全行が画面に入ることを `mustFit()` で確かめる
+  - 送る 0.4 秒で60秒を超えるため、最終結果で止める秒を 2.6 → 2.4 秒にした（範囲の字幕は 2.4 秒。最短 2.0 秒より長い）
+- 質問欄の答えは OUK-19 で保存した答え（2026-10-19 00:59:52Z に本番へ1回送ったもの）を使い、本番へは送っていない（撮る側の送った回数 1 は、保存した答えを返したもの）
+- 範囲の字幕は撮ったときの本番のトップの説明文から「第1期〜第20期・178名」（OUK-19 と同じ）
+- 本番 https://ryoei.pro/ouka/ （PO の直しの後）で撮った。出力: 1080×1920・30fps・H.264（High、yuv420p）・AAC 48kHz 2ch、59.83秒、12.0MB、曲調 b、音量 -16.0 LUFS
+- 最初のコマは白地に「女流桜花」「個人成績・ランキング・順位変動」。字幕は上端から 80〜210px、画面の枠の下端から 230px（12%）。白に近いコマはタイトル（0〜2.5秒）と締め（56.3秒〜）だけ
+- 最終結果の画面: 16位（廣岡璃奈 ▲177.8）まで映る。節のラベルの段は画面の上端に貼り付いたまま残り（ページの作り）、その下に入る1位の行（古谷知美 +97.9）が段に隠れる。2位〜16位と「PO」のラベルが映る
+- mp4 を SendUserFile で送った
+
+場面ごとの秒（動画の秒）:
+
+| 場面 | 秒 | 長さ | 字幕 |
+|---|---|---|---|
+| タイトル | 0〜2.5 | 2.5 | なし（「女流桜花」「個人成績・ランキング・順位変動」） |
+| トップ | 2.5〜5.0 | 2.5 | 女流桜花のデータをひとつに |
+| 質問欄 | 5.0〜10.69 | 5.69 | 質問すると、データから答える |
+| 選手を開く | 10.69〜12.69 | 2.0 | 答えから選手の成績へ |
+| 期別 | 12.69〜15.59 | 2.9 | 全期の成績を一覧で |
+| 通算 | 15.59〜19.39 | 3.8 | 通算得点の推移 |
+| リーグ | 19.39〜30.36 | 10.97 | リーグの昇降級を再生 |
+| 部門別 | 30.36〜32.46 | 2.1 | ランキング8部門の順位 |
+| ランキング | 32.46〜37.46 | 5.0 | 期最高など歴代の記録 |
+| 順位変動 | 37.46〜53.92 | 16.47 | 昇降級ボーダーの攻防を再現 |
+| 範囲 | 53.92〜56.32 | 2.4 | 第1期〜第20期・178名 |
+| 締め | 56.32〜59.83 | 3.5 | なし（ryoei.pro） |
+
+字幕の全文（順に）: 女流桜花のデータをひとつに／質問すると、データから答える／答えから選手の成績へ／全期の成績を一覧で／通算得点の推移／リーグの昇降級を再生／ランキング8部門の順位／期最高など歴代の記録／昇降級ボーダーの攻防を再現／第1期〜第20期・178名
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1019-ouk20（前半）・work/1019-ouk19（後半）
-- ログ: https://github.com/retroeater/mj/blob/work/1019-ouk20/docs/logs/CHAT-1019-OUK-21.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1019-ouk20
-- 確認用URL:
-- マージ: 未
-- issue:
+- 状態: 判断待ち
+- 前半: **順位変動の PO の直しを cloudflare にマージした**（d1ca57938。Workers Builds の mj は success）。本番で ouka/race/ 第20期 A の最後の節が「PO」・9〜16位が順位付きで残ること、第15期 A の赤司美奈子と鳳凰戦 第42期 A1 の前原雄大が今のままであることを確かめた
+- ブランチ: work/1019-ouk20（前半・このログ）・work/1019-ouk19（後半、482714d60）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1019-OUK-21.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1019-ouk19
+- 確認用URL: なし（動画は SendUserFile で送った。59.8秒）
+- マージ: 前半は済み（d1ca57938）。後半（work/1019-ouk19）は未（平野さんが動画を見て確定してから）
+- issue: なし
 - 判断が必要なこと:
-- 未確認の項目:
-- エラー:
+  - 動画を確定するか直すか（平野さんが見て決める）
+  - 新しい仮置き: 順位変動の最終結果で、節のラベルの段が画面の上端に貼り付くため、16位まで映すと1位の行（古谷知美）が段の下に隠れる（指示の「節の番号の段が少し上に隠れてよい」と違う隠れ方）。1位も映すには、止める画面の高さが足りないので、行を詰めるなど撮り方以外の変更が要る
+  - 新しい仮置き: 60秒に収めるため、順位変動の最終結果で止める秒（範囲の字幕）を 2.6 → 2.4 秒にした
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 7c82be63）: https://github.com/retroeater/mj-logs/tree/main/guide/7c82be63
+ガイド文書（この版を写した時点の最新、mj 8ea27fb3）: https://github.com/retroeater/mj-logs/tree/main/guide/8ea27fb3
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/7c82be63/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/7c82be63/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/7c82be63/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/7c82be63/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/7c82be63/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/7c82be63/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/7c82be63.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/8ea27fb3/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/8ea27fb3/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/8ea27fb3/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8ea27fb3/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8ea27fb3/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8ea27fb3/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/d1ca5793.md

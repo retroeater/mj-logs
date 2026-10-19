@@ -103,31 +103,26 @@
 
 ## 報告
 
-- 状態: 判断待ち / 続き: CHAT-1019-OUK-21
+- 状態: 完了（CHAT-1019-OUK-21 でマージ） / 続き: CHAT-1019-OUK-21
 - ブランチ: work/1019-ouk20
-- ログ: https://github.com/retroeater/mj/blob/work/1019-ouk20/docs/logs/CHAT-1019-OUK-20.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1019-OUK-20.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1019-ouk20
-- 確認用URL: プレビューあり（URL は最終報告）。ouka/race/ の第20期 A（既定の表）・第15期 A（途中休場）、houou/race/ の第42期 A1（前原雄大）。この版で見えるはずの印: 女流桜花の A の節のラベルの最後が「PO」
-- マージ: 未（平野さんがプレビューで確かめてから、別のマージの指示で）
+- 確認用URL: プレビューあり（OUK-20 の最終報告に書いた）
+- マージ: 済み（CHAT-1019-OUK-21 で d1ca57938）
 - issue: なし
-- 判断が必要なこと:
-  - マージしてよいか（houou/ と共有の `assets/league_race.js` と生成を変える。houou/ の生成物は差分0）
-  - 対象の表: 女流桜花の A の第1〜20期の全20表（`## 経過`「対象の表の見分け」の表）。B・C には無い。鳳凰戦の 24前 D2・28後 D2 は1人だけの途中休場で、直していない
-  - 並びとシートの「順位」: 20表すべてで「PO に出た選手 → 出なかった選手」の並びがシートの順位と一致。食い違いは無い
-  - 仮置き (1) 見た目の値: ラベルは狭い幅でも広い幅でも「PO」（広い幅で「第8節」の代わりも「PO」）。PO の節に入った時点で、出なかった選手が出た選手の下へ動く（第7節の終わりから PO の節への切り替わりで行が入れ替わる）。出なかった選手の行の色・帯は今の決め方のまま
-  - 仮置き (2) 見ただけでは判断しにくいもの: 判定は大会の設定 `Contest.race_po`（女流桜花だけ）と、シートの節の値（節の値のある節が第1節〜最後の1つ前の節とちょうど同じ選手）で決める。表の JSON に `po`、選手に `sat` と最後の節の `end` を持たせ、並びとラベルは JS で決める。読み上げは節のラベルが「プレーオフの終わりへ」、順位は今と同じ「n位」。1期 A は39人中20人が PO（最後の節）を打った表で、ほかの期（8人）と人数が違うが、同じ扱いにした。PO に出た選手が途中休場（PO の前の節を休んだ）の場合は想定していない（今のデータには無い）
-- 未確認の項目: なし
+- 判断が必要なこと: なし（2026-10-19 に平野さんがプレビューで確かめ、第1期 A も PO として扱うことと、ほかの仮置きを今のままにすることを決めた）
+- 未確認の項目: なし（本番の確かめは CHAT-1019-OUK-21 で済ませた）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 7c82be63）: https://github.com/retroeater/mj-logs/tree/main/guide/7c82be63
+ガイド文書（この版を写した時点の最新、mj 8ea27fb3）: https://github.com/retroeater/mj-logs/tree/main/guide/8ea27fb3
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/7c82be63/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/7c82be63/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/7c82be63/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/7c82be63/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/7c82be63/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/7c82be63/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/7c82be63.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/8ea27fb3/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/8ea27fb3/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/8ea27fb3/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8ea27fb3/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8ea27fb3/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8ea27fb3/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/d1ca5793.md
