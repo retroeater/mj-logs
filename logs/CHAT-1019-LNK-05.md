@@ -45,15 +45,43 @@ CHAT-1019-LNK-04 で判断待ちにした「連盟プロ」（`jpml_pros.html`�
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+- 0章: 指示欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている。`git log --all --grep=CHAT-1019-LNK-05` は0件
+- ブランチ: ローカル・リモートとも `work/1019-lnk` が 1e4566f30 で一致（未マージ。LNK-04 の続き）。cloudflare は先へ進んでいた（955553564）
+- 手順1: LNK-04 のログの `## 報告`（最後の一致）の状態を「判断待ち / 続き: CHAT-1019-LNK-05」にした。決定を `docs/decisions/seo-bing.md` の LNK-04 の節の後に「2026-10-19（CHAT-1019-LNK-05）」として足した
+- 手順2: `git merge origin/cloudflare`（955553564）は衝突なし
+- `git diff --stat origin/cloudflare...HEAD`（全件）:
+
+```
+ docs/decisions/seo-bing.md           |  15 +++++-
+ docs/logs/CHAT-1019-LNK-04.md        |  94 +++++++++++++++++++++++++++++++++++
+ docs/logs/CHAT-1019-LNK-04/houou.png | Bin 0 -> 27340 bytes
+ docs/logs/CHAT-1019-LNK-04/pros.png  | Bin 0 -> 18578 bytes
+ docs/logs/CHAT-1019-LNK-04/title.png | Bin 0 -> 31969 bytes
+ docs/logs/CHAT-1019-LNK-05.md        |  46 +++++++++++++++++
+ docs/notes/ogp.md                    |   6 +--
+ docs/notes/static-generation.md      |   2 +-
+ img/ogp/pros/index-white.png         | Bin 0 -> 18578 bytes
+ jpml_pros.html                       |   4 +-
+ scripts/generate_jpml_pros.py        |   4 +-
+ scripts/tests/test_og_image.py       |   1 +
+ 12 files changed, 162 insertions(+), 10 deletions(-)
+```
+
+- 見込み（jpml_pros.html・img/ogp/pros/index-white.png・generate_jpml_pros.py・test_og_image.py・ogp.md・static-generation.md・seo-bing.md・docs/logs/）と違うファイルは無い。`jpml_pros.html` の差は og:image と og:image:alt の2行だけ
+- `python3 scripts/regenerate.py jpml_pros`（`--list` に `jpml_pros` がある）: rc=0、作業ツリーの差は0件（コミットした `jpml_pros.html` と生成の出力が一致。データの変化も無い）
+- テスト: `python3 -m unittest discover -s scripts/tests` 1444件 OK
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 95555356）: https://github.com/retroeater/mj-logs/tree/main/guide/95555356
+ガイド文書（この版を写した時点の最新、mj ec8c5cbc）: https://github.com/retroeater/mj-logs/tree/main/guide/ec8c5cbc
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/95555356/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/95555356/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/95555356/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/95555356/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/95555356/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/95555356/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ec8c5cbc/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ec8c5cbc/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ec8c5cbc/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ec8c5cbc/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ec8c5cbc/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/ec8c5cbc/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/19fa8d37.md
