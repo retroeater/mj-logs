@@ -58,6 +58,29 @@ Chat-Ref: CHAT-1019-SEC-14
 - Chat-Ref 重複なし（`git log --all --grep`）。`origin/work/1019-sec14` は無し → `git checkout -b work/1019-sec14 origin/cloudflare`。
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている。
 
+### 手順1（確かめ）
+
+- `claude plugin list`: `claude-security@synced` 0.11.0 `√ loaded`（ほかに security-guidance 2.0.13）。`python3 --version`: 3.13.16。`git fetch --unshallow origin` 済み（shallow でない）
+- #9: closed（2026-10-19T13:50:56Z、completed）。本番 `/` の応答に `content-security-policy`（Report-Only でない）がある
+- 未マージの work/ ブランチで `docs/notes/security.md`・`docs/decisions/security.md` を変えているものは無い（`git diff origin/cloudflare...<各ブランチ>` が空）
+- #598 に着手中のコメント（issuecomment-6269810785）
+
+### 手順2（再点検の途中経過）
+
+- `security-check.yml` を cloudflare（a24406d86）で手動実行: run 39270491080、success、約 50 秒
+  - (d) zizmor 1.31.1: 58 件（High 3・Medium 10・Low 45、抑止 67）。前回（d114d132c）と同数。内訳は unpinned-uses 3（sync-logs.yml）・artipacked 10（push する job 8・sync-logs.yml 2）・self-repository 45
+  - (h) pip-audit: 既知の脆弱性なし
+  - (f) 履歴の鍵の走査: 当たり 4（既知 4・新規 0）。止まる条件に当たらない
+  - Node.js 20 の非推奨の警告（checkout・setup-python が Node 24 で強制実行）。SEC-02 のときと同じ
+- (d) 形の確かめ（grep）: トップレベルの `permissions: {}` が無いのは sync-logs.yml だけ（#298 で削除予定、既知）。`secrets: inherit`・`pull_request_target`・`workflow_run` の使用は無し（regenerate-saikyo.yml のコメントと update-live-channel.yml の jq の文字列だけ）。`run:` に `${{ }}` は無し（update-live-channel.yml:133 は job の `outputs:` の `run:` キーで誤検出）。タグ参照の第三者 action は sync-logs.yml の3か所だけ
+- (g) 本番のヘッダ（User-Agent を付けて各1回）: `/`・`/houou/` は CSP（本番）・HSTS・nosniff・X-Frame-Options・Referrer-Policy・Permissions-Policy。`/api/ask/status` は 200、`content-type`・`cache-control: no-store` だけ（低-4 は残る）。`POST /api/ask`（`Origin: https://example.invalid`・本文なし）は 403
+- (e) 本番の 404: `/docs/handover.md`・`/scripts/regenerate.py`・`/workers/ask/wrangler.jsonc`・`/.assetsignore`・`/wrangler.jsonc`・`/CLAUDE.md`・`/data/security/known-history-hits.txt`・`/.claude/settings.json`・`/.gitignore` は 404。`/.github/workflows/security-check.yml` は 403（配信されていない）。公開される側に `.py`・`.md`・`.mjs`・`.env`・テストの類は無い（`git ls-files` から `.assetsignore` の対象を除いて grep）
+- (a) Worker のテスト: ask 81・scheduler 44 件すべて通る。2026-10-17 以降に ask.mjs・query.mjs・houou_ask.js が大きく変わった（大会 ouka・jwrc・wrcr の追加、#519・#594・#366）
+  - 新しい指摘（低）: `workers/ask/src/ask.mjs:375` の `deps.contests?.[body.contest]` は通常のオブジェクトを添字で引くので、`contest` に `__proto__`・`constructor`・`toString` を送ると「知らない大会は受けない」の検査（`if (!data)`）を通る。手元で `ask()` を模擬の D1 で呼んで確かめた: 3つとも 1問と数えられたうえで 503 `{"status":"unavailable"}`、Claude API（fetch）は呼ばれない（`nope` は 400）。費用は増えず、数えられるのは送った本人の IP の回数と全体の 200 の1つ。直し方: `Object.hasOwn(deps.contests, body.contest)` で引く＋テスト1本（1行＋テスト）
+- Claude Security: 2026-10-19 14:37 UTC に起動（対象 `workers,scripts/lib,assets/houou_ask.js`、追跡ファイル 67〈前回 56〉、medium、focus attack-surface、revision 9ed74fce4、結果は scratchpad の `CLAUDE-SECURITY-20261019-143647/`）
+- (b)・(c) は読むだけのサブエージェント（Explore）2つに分けて実行中
+- Secret scanning／Push protection（ダッシュボードの 3）: `api.github.com/repos/retroeater/mj` の `security_and_analysis` は null（管理者の権限でないと返らない）でセッションからは確かめられない。平野さんに頼む
+
 ## 報告
 
 - 状態: 作業中
