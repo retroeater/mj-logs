@@ -73,7 +73,7 @@
 | ナビのフォーカス枠 | 白 `#ffffff` 2px、offset 2px（ナビ `#212529` の上で 15.43:1。濃色の領域の既決の枠と同じ）。項目と虫眼鏡に付ける。ロゴ・ハンバーガー・ドロップダウン項目はブラウザ既定の枠のまま | 共通ナビ | `style.css` の「ナビの項目と虫眼鏡のフォーカス枠」、#524（2026-10-11） |
 | ナビの虫眼鏡 | 992px 未満はハンバーガーの左に同じ行（右寄せ）。ナビは56px、虫眼鏡は44×44px。`.container-fluid` を `display:contents` にして `order` で並べる。検索欄を持たないページ（`data-search="off"`）は虫眼鏡が無く、並べ方も変えない。992px 以上は従来どおり右端 | 共通ナビ | `style.css` の「折りたたみ時…虫眼鏡」、#524（2026-10-11、案A） |
 | 開いた固定ナビのメニューの高さ | 992px 未満で `max-height: calc(100dvh - 60px)`（`100vh` を先に書く）・`overflow-y:auto`。上の行 56px＋余裕 4px。navbar の実測の高さ（`--mj-*-nav-h`）は使わない（開いたナビの高さが入って縮む循環になる） | 固定ナビの型A・A'（`body:has(.mj-table)`）・`title/`・`saikyo/` の年度ページ | `style.css` の「固定ナビを開いたとき」と `title/`・`saikyo/` の節、#524・#525（2026-10-11）。動画系は 80vh（WH-17） |
-| `.mj-margin-text` の余白 | 左右 32px、上 24px。見える h1（`.mj-page-heading`）も同じ左右 32px・上 24px（下 0.5rem） | `404`・`jpml_links`・`resource_efficiency` | `style.css` の `.mj-margin-text`・`.mj-page-heading`、#524・#525（2026-10-11） |
+| `.mj-margin-text` の余白 | 左右 32px、上 24px。見える h1（`.mj-page-heading`）も同じ左右 32px・上 24px（下 0.5rem） | `404`・`resource_efficiency` | `style.css` の `.mj-margin-text`・`.mj-page-heading`、#524・#525（2026-10-11） |
 | 新サイトの文字の4段 | 大 28px 太字（題名・要約の数字）／本文 16px（名前・行の数字）／小 13px 灰色（説明・注記）／極小 12px 太字（ピル・リーグの印）。強弱は大きさと灰色かどうかだけ | houou/ のみ | `style.css` の「新サイトのデザインの基本の形…を houou/ に当てはめる」の節、grill Q9 |
 | 新サイトの面 | 角丸 12px・影なし・枠なし。行は 1px の区切り線、押せる行は高さ 44px 以上・左右 16px。題名は枠なし・左寄せ・下に 16px。ページの左右 16px | houou/ のみ | 同上、grill Q1・Q10-4・Q10-5 |
 | 新サイトのグラフ | リーグ・通算とも 380×540 の SVG（375px の幅で B1・B2 の段に名前が入る高さ）。段の名前 12・灰色。触れたときの情報（13px・3行）はグラフの下の決まった場所 | houou/ のみ | 同上、`assets/league.js` の `LG`・`TREND` |

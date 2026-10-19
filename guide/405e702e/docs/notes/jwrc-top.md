@@ -2,7 +2,7 @@
 
 WRC リーグの成績とランキング（旧 `wrc_results.html`・`wrc_ranking.html`）を、鳳凰戦の `houou/`（`docs/notes/houou-top.md`）・女流桜花の `ouka/`（`docs/notes/ouka-top.md`）と同じ作りで `jwrc/` に作る（#594。案C の WRC 側、#141）。
 **ここには houou/・ouka/ と違うことだけを書く。** 書いていないこと（画面・部品・数え方・確かめ方・字の大きさへの連動・在籍者だけ・名寄せ）は houou-top.md と ouka-top.md のとおり（ouka/ が houou/ から変えた所〈大会ごとの設定・最近見た選手のキー・質問欄の大会・通期の期〉は ouka/ に倣う）。 3大会の差の一覧は `docs/notes/league-pages-compare.md`。
-2026-10-18 に未公開のまま cloudflare に入り、2026-10-19 に公開した（#599）。公開は houou/・ouka/ と同じ形: noindex なし（`leagues/` は無い）、navbar の「WRC」は `/jwrc/` への1段（白地のナビ `.mj-nav-new`、項目名は「WRC」）、サイトマップ・`llms.txt` に載せる。旧2ページ（`wrc_ranking.html` → `jwrc/ranking/total/`、`wrc_results.html` → `jwrc/players/`）は `_redirects` で 301 し、ファイルと生成は残す（後始末は houou/ の #582 と同じ扱い。転送の一覧は `docs/notes/redirects.md`）。告知は後日（チャット側）。URL は本家の世界麻雀（World Riichi Championship）と混ざらないよう `jwrc/`（2026-10-18）。
+2026-10-18 に未公開のまま cloudflare に入り、2026-10-19 に公開した（#599）。公開は houou/・ouka/ と同じ形: noindex なし（`leagues/` は無い）、navbar の「WRC」は `/jwrc/` への1段（白地のナビ `.mj-nav-new`、項目名は「WRC」）、サイトマップ・`llms.txt` に載せる。旧2ページ（`wrc_ranking.html` → `jwrc/ranking/total/`、`wrc_results.html` → `jwrc/players/`）は `_redirects` で 301 する（ファイルと生成は #582 で消した、2026-10-19。転送の一覧は `docs/notes/redirects.md`）。告知は後日（チャット側）。URL は本家の世界麻雀（World Riichi Championship）と混ざらないよう `jwrc/`（2026-10-18）。
 
 ## 構成と生成
 

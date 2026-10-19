@@ -3,7 +3,9 @@
 日本プロ麻雀連盟チャンネルのプロテストの案内と、受験したプロへのインタビューの動画（12本）の一覧と各話。
 旧 `jpml_test.html`（メニュー「連盟 > プロテスト」、型Aの表）の YouTube の動画だけを、女流勉強会（`docs/notes/video-study.md`）と同じ形で作り直した（#612、2026-10-19）。
 連盟サイト（ma-jan.or.jp）の記事22行は載せない（平野さんの決定）。
-**未公開**（全ページ noindex。navbar・サイトマップ・`llms.txt` に載せず、どこからもリンクしない）。公開と旧 `jpml_test.html` の 301 は #613。
+**2026-10-19 に公開した（#613）。** navbar の「番組」の「帰り道」の下（放送対局・帰り道・プロテスト・Mつく。English は 2026-10-19 に廃止、#617）・`sitemap-exam.xml`（`sitemap.xml` から参照）・`llms.txt` に載る。
+旧 `jpml_test.html`（「連盟」のメニューにあった）と旧生成 `generate_jpml_test.py`・そのテストは消し、`/jpml_test.html` は `/exam/` へ 301（クエリは Cloudflare の既定で付いたまま転送されるが、`/exam/` は `?name=` を読まない）。
+旧ページが読んでいた「テスト」シート（`resource_logs` と同じブック。廃止した `video_en` もこのブックの「英語」シートを読んでいた）は、今はどこからも読まれない（シートは消していない。消すかは平野さんが決める）
 
 ## 構成
 
@@ -14,8 +16,8 @@
 - 生成: 一覧 `scripts/generate_exam.py`（ページ名 `exam`、出力 `exam/index.html`）、各話 `scripts/generate_exam_episodes.py`（`exam_episodes`、`exam/`。データに無い動画IDのファイルを消す。`index.html` は除く）。
   読み方と止める範囲は `lib/exam.py` の `prepare()`（動画IDの重複・空・層1に無い・層1のタイトルが空・再生時間が読めない・メンバー限定・サムネイル・登録が無い人・写真が読めない人で止める。X ID が無い人は止めない）。`--check` あり
 - 共有: サムネイル・再生時間・カード・固定の検索バー・戻る矢印は `lib/wayhome.py`、サムネイルの選び方・Xの写真の引き方・名前の辞書・JSON-LD は `lib/mtsuku.py`、層1の読み方は `lib/study.py`、写真カードは `generate_study_episodes.py` の `build_cast_html()` を呼ぶ（帰り道・Mつく・女流勉強会のコードは変えていない。`regenerate.py` の `SHARED_GENERATORS` で、`generate_study_episodes.py` が変わったら各話も作り直す）。JS は `video_wayhome.js`（一覧）・`wayhome_episodes.js`（各話）
-- URL: `/exam/`（2026-10-19 平野さんの決定）。`_redirects` に `/exam  /exam/  301`・`/exam/  /exam/index.html  200`。サイトマップは書き出さない（公開のときに足す）
-- 「使われていない登録」の検査（`check_unused_names.py`）はプロテストの出演者を利用先として数える（旧「テスト」シートも今は数えている）
+- URL: `/exam/`（2026-10-19 平野さんの決定）。`_redirects` に `/exam  /exam/  301`・`/exam/  /exam/index.html  200`・`/jpml_test.html  /exam/  301`。サイトマップは各話の生成が `sitemap-exam.xml`（一覧が先頭、続いて各話）を書く。新しい URL の lastmod は当日、既にある URL は残し、`update_sitemap_lastmod.py --from-git` が最終コミット日にそろえる（Mつくと同じ。`regenerate-page.yml` の XML の確かめにも入れた）
+- 「使われていない登録」の検査（`check_unused_names.py`）はプロテストの出演者を利用先として数える（旧「テスト」シートは 2026-10-19 に外した）
 - `check-assets.yml` の最上位の許可リストに `exam` を足した（未マージの work/WRR が同じ行を変えているため、別の case の行にした）
 - テストは `scripts/tests/test_exam.py`
 
@@ -29,7 +31,7 @@
 - 一覧の題は「プロテスト | 番組 | ryoei.pro」、大見出しは「プロテスト」に英語名「Pro Test」を小さく添える（`.mj-exam-en`。`.mj-study-en` と同じ規則）
 - 一覧の数え方は「動画（全12本）」、前後のリンクは「次の動画」「前の動画」、ヒーローの札は「最新」（女流勉強会は「エピソード」「最新話」）
 - 紹介文は自動: 「日本プロ麻雀連盟のプロテストの動画「<見出し>」。<出演者>プロ・…が出演しています。」（出演者の無い回は前半だけ）
-- 一覧の検索は 公開日・見出し・出演者。検索欄は「選手名で検索」、読み上げのラベルは「出演者の名前で絞り込み」。`?name=` は読まない（公開のときに旧ページの `?name=` を引き継ぐかを決める、#613）
+- 一覧の検索は 公開日・見出し・出演者。検索欄は「選手名で検索」、読み上げのラベルは「出演者の名前で絞り込み」。`?name=` は読まない（旧ページの `?name=` は引き継がない。2026-10-19 の決定、#613）
 - メンバー限定の回は無い（12本とも公開）。メンバー限定の回をタブに足すと止まる（札の表示を作っていない。`簡略化:` のコメント）
 - 新しい回の検知は作らない（タブに行を足せば週次の再生成で反映。Mつくと同じ）
 - 再生時間は40秒〜26分（Mつくの「1分未満・1時間以上は読み違い」の確かめは使わない）

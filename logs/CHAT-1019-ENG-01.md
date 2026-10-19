@@ -90,6 +90,16 @@
 - 7cea96680: 上の表のとおり。テスト 1442件 OK
 - #576 の本文: 「メニューの位置」の項と段2のチェックリストの navbar の行を「公開のときに決める（#617）」に直した（REST で部分置換。直前の `updated_at` 2026-10-19T11:11:28Z が取得時と同じことを確かめた）
 
+### 手順3: 確かめ
+
+- `python3 scripts/regenerate.py all` を作業ブランチ（03890bc16）と cloudflare（f0a1e266e。この間の cloudflare の変化は WRR-06 のログだけ）のクローンで回した。どちらも終了コード 0、どちらの木も HEAD から変わったファイルは0（データの変化なし）。
+  2つの木の違い（`diff -rq`、docs・scripts・data を除く）: `navbar.js`・`llms.txt`・`sitemap-pages.xml`・`video_en.html`（cloudflare だけ）。見込みのとおりで、ほかの種類は無い（navbar はページに焼き込まれない）
+- 容量（`scripts/check_asset_limits.py`）: 配信ファイル数 4,195 → 4,194、ほかは変わらず、どれも OK。ガイド文書は CLAUDE.md 24,883・handover.md 22,922・chat-side-operations.md 22,155・instruction-template.md 14,325 バイト（警告域未満）
+- `git merge-tree`: 未マージの work/ ブランチ6本で、cloudflare との組より増えた衝突は0
+- LNK-01（work/1019-lnk）が cloudflare にマージされたので `git merge origin/cloudflare` で取り込んだ（7a49c3754、衝突なし）。そのうえで「ページの一覧」の冒頭の件数を 22→21 にした（4eed7a505）。テスト 1442件 OK
+- プレビュー（4eed7a505 の「Workers Builds: mj」success）: `/video_en.html` 404（`?name=` 付きも 404）、`navbar.js` の「番組」は 放送対局・帰り道・プロテスト・Mつく、`llms.txt`・`sitemap-pages.xml` に `video_en` 無し。
+  メニュー（PC 1280px・スマホ 390px、headless Chromium で番組を開いた状態）と `/video_en.html` の 404 の画像は `docs/logs/CHAT-1019-ENG-01/`（`menu-program-*`・`video-en-404-*`）
+
 ## 報告
 
 - 状態: 作業中
@@ -106,12 +116,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj b8020e17）: https://github.com/retroeater/mj-logs/tree/main/guide/b8020e17
+ガイド文書（この版を写した時点の最新、mj 405e702e）: https://github.com/retroeater/mj-logs/tree/main/guide/405e702e
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b8020e17/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b8020e17/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b8020e17/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b8020e17/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b8020e17/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b8020e17/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/405e702e/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/405e702e/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/405e702e/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/405e702e/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/405e702e/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/405e702e/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/f0a1e266.md

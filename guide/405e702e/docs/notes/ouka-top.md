@@ -2,7 +2,7 @@
 
 女流桜花のページ群を、鳳凰戦の `houou/`（`docs/notes/houou-top.md`）と同じ作りで `ouka/` に作る（#519。順位変動 #516 を取り込んだ）。
 **ここには houou/ と違うことだけを書く。** 書いていないこと（画面・部品・数え方・確かめ方・字の大きさへの連動・在籍者だけ・名寄せ）は houou-top.md のとおり。 3大会の差の一覧は `docs/notes/league-pages-compare.md`。
-決定は docs/decisions/houou.md（2026-10-17〜18）。2026-10-18 に cloudflare に入った。2026-10-19 に公開した（#591）。houou/ の公開（#540）と同じ形: noindex は `ouka/leagues/` だけ、navbar の「女流桜花」は `/ouka/` への1段（白地のナビ `.mj-nav-new`）、サイトマップ・`llms.txt` に載せる（`ouka/leagues/` は除く）。旧3ページ（`ouka_*.html`）は `_redirects` で ouka/ へ 301 し、ファイルと生成は残す（後始末は houou/ の旧ページと同じく #582。転送の一覧は `docs/notes/redirects.md`）。
+決定は docs/decisions/houou.md（2026-10-17〜18）。2026-10-18 に cloudflare に入った。2026-10-19 に公開した（#591）。houou/ の公開（#540）と同じ形: noindex は `ouka/leagues/` だけ、navbar の「女流桜花」は `/ouka/` への1段（白地のナビ `.mj-nav-new`）、サイトマップ・`llms.txt` に載せる（`ouka/leagues/` は除く）。旧3ページ（`ouka_*.html`）は `_redirects` で ouka/ へ 301 する（ファイルと生成は #582 で消した、2026-10-19。転送の一覧は `docs/notes/redirects.md`）。
 
 ## 構成と生成
 
