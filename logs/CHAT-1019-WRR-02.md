@@ -96,6 +96,25 @@ WRC-R リーグの成績表（#366）を、WRC リーグの `jwrc/`（公開済�
 - 「タイトル」タブの WRC-R の決勝: 大会名「JPML WRC-Rリーグ」で32行（第8期の4行は名前が空・「表示」が空。第1〜7期の28行は「表示」Y）。「WRC-Rリーグ」の行は無い。優勝: 1期 仲田加南・2期 角谷陽介・3期 勝又健志・4期 小車祥・5期 覚野陽生・6期 猿渡輝也・7期 小川尚哉
   - → jwrc/ と同じく最高到達の優勝〜4位と現タイトルホルダー（第7期の優勝者）に使う。大会名は「JPML WRC-Rリーグ」と #523 の後の「WRC-Rリーグ」の両方を受ける
 
+### 手順2: 作る
+
+- (a) 大会の設定（コミット 7c2a2b94d）:
+  - `lib/ranking.py` の `CONTESTS["WRCR"]`（`CONTESTS["JWRC"]` と同じ値）
+  - `generate_houou_pages.py` に `WRCR`（`JWRC` と同じ形で、`noindex=True`・`rows=(400, 2000)`・`final_titles=("WRC-Rリーグ", "JPML WRC-Rリーグ")`・`result_urls={8: 公式の第8期の成績表}`・`result_index=大会のページ`・`script` の suffix と `recentKey`）。共通の関数は変えていない
+  - 入口 `generate_wrcr_pages.py`・`generate_ask_data_wrcr.py`（jwrc の入口の写しで、設定だけ替えた）。`regenerate.py` の `SHARED_GENERATORS`・`OUTPUT_OVERRIDES` に `wrcr_pages`・`ask_data_wrcr`
+  - `generate_ask_data.py` の `OTHERS` に `wrcr`（決勝・放送対局の大会名「WRC-Rリーグ」、`/title/jwrc-r/`・`/live/jwrc-r/`、`final_name`「WRC-Rリーグ決勝」）
+  - `_redirects` に jwrc/ と同じ5行（`/wrcr`・`/wrcr/`・`/wrcr/ranking/`・`/wrcr/:slug/`・`/wrcr/ranking/:slug/`）
+  - `style.css`: 期別のカードの期の欄の幅の規則の選択子に `.is-wrcr .mj-houou-term-bar` を足した（1行。ouka・jwrc の値と同じ）
+  - `check-assets.yml` の最上位の許可に `wrcr`。作業ブランチへの push で動き、dffc79e5c（wrcr/ を含む）の check-run「check」が success
+  - OGP 画像 `img/ogp/wrcr/index-white.png`（`build_ogp_image.py --text WRC-Rリーグ --footer ryoei.pro --color '#212529' --bg '#ffffff' --max-size 200 --tracking -0.03`。字体 NotoSansJP-Bold を `~/.local/share/fonts/` に置き、同じ引数で jwrc・ouka の画像を作り直すとコミット済みのものと同じバイト列になることを先に確かめた）。`test_og_image.py` の `TEXT_IMAGES` に足した
+  - 文書のテスト（`test_league_pages_compare.py`・`test_redirects_inventory.py`）が落ちたので、`league-pages-compare.md` に wrcr/ の列、`redirects.md` に `/wrcr/ranking/` の行と末尾スラッシュ・`?division=` の行の `wrcr` を足した
+- (b) 生成（コミット dffc79e5c）: `wrcr/` 205ファイル（選手ごとの成績 184、ランキングは第7期終了時点）。ランキングの表示件数: 通算 50・期平均 27・期最高 50・通過回数 51（29〜51位が2回の同点）・通過率 41・連続通過 34・節最高 50・節浮き率 39・節連続浮き 39。現タイトルホルダー 小川尚哉（在籍）
+- (c) Worker: `ask.mjs` に `WRCR_PLAN_SYSTEM`（jwrc の写しで大会名を WRC-R に。`none` に「R の付かない WRC リーグ」を足した）、`PLAN_SYSTEMS.wrcr`。`index.mjs` に `data-wrcr.json`。`data-wrcr.json` は 59,095 バイト（選手 192名、決勝 7期、放送対局 47ページ）
+- テスト: `scripts/tests/test_wrcr_pages.py`（設定が jwrc と同じ形・ページの noindex と大会の印・進行中の期のリンク・質問欄のデータの行き先・regenerate の登録・生成物の全 HTML が noindex）、`workers/ask/test/wrcr.test.mjs`（データの形・WRC と WRC-R のデータが混ざらない・予選・選手〈旧名〉・優勝者・9部門・contest の振り分け・jwrc の指示に WRC-R が入らない）
+- `python3 -m unittest discover -s scripts/tests`: 1438件 OK。`node --test 'workers/ask/test/*.test.mjs'`: 53件 pass（既存の3大会のテストを含む）
+- 公開の issue: #611 を起票し、#366 にコメントした（https://github.com/retroeater/mj/issues/366#issuecomment-6260453474 ）
+- 文書（コミット後述）: `docs/notes/wrcr-top.md`、handover.md の表に1行（24,006 → 24,167 バイト、警告域 26KB の下）、static-generation.md「ページの一覧」、ask-worker.md に WRC-R の節
+
 ## 報告
 
 - 状態: 作業中
@@ -112,12 +131,12 @@ WRC-R リーグの成績表（#366）を、WRC リーグの `jwrc/`（公開済�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 8ea27fb3）: https://github.com/retroeater/mj-logs/tree/main/guide/8ea27fb3
+ガイド文書（この版を写した時点の最新、mj af238f10）: https://github.com/retroeater/mj-logs/tree/main/guide/af238f10
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/8ea27fb3/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/8ea27fb3/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/8ea27fb3/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8ea27fb3/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8ea27fb3/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8ea27fb3/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/af238f10/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/af238f10/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/af238f10/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/af238f10/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/af238f10/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/af238f10/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/4e223c8f.md
