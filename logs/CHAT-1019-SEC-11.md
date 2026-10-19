@@ -132,28 +132,51 @@ HTML のレート制限（IP あたり 30回/分）に当たらないよう、�
 - 組1（sitemap-pages の 47 + 代表 29）: 画像・Web Analytics もそのまま読み、操作を行う（index のライトボックス、houou/ の質問欄を開いて入力〈送信しない〉、フロアの切り替え、ナビの検索欄、最下部までのスクロール）
 - 組2（残りの 1,561）: 画像と Web Analytics の要求を Playwright 側で止めた（CSP の判定は要求を出す前に行われるので違反は拾える。Web Analytics の数字を汚さないため）
 
+結果（18:27〜19:35 JST）:
+
+- 1,637 URL すべて 200、すべてに Report-Only のヘッダあり。`securitypolicyviolation` の事件・コンソールの CSP の警告・ページの読み込みのエラーは**0件**
+- 陽性対照: 本番の `/title/houou/1.html` に `<style>` を足すと `style-src-elem`（disposition `report`）が出た。同じページの `ul.mj-title-holders` の `style` 属性の `--mj-title-taikai-em` は `2` で効いている（表示に影響なし）
+- 本番に送った要求は通常の GET だけ。`/api/ask` には送っていない（質問欄は入力だけで送信のボタンを押していない）
+
+追い（19:45 JST）: ログの追いの push の前に origin/cloudflare を取り込んだ（83ファイル、衝突なし、`_headers` は含まない）。増えた未公開の exam/（13ページ）を含めて洗い出しをやり直し、新しい種類・ドメインは無かった（HTML 2,601）。本番の `/exam/`・`/exam/98GKK3KKYNk.html` も違反0
+
+### 5. 違反の分け方
+
+違反が無いので、値の直し・再実測はしていない（0回）。
+
+### 6. issue
+
+- #9 に結果と段2 の方針の案をコメントした https://github.com/retroeater/mj/issues/9#issuecomment-6265319803
+- #9 は開いたまま（段2 が残る）
+
 ## 報告
 
-- 状態:
-- ブランチ:
-- ログ:
-- 比較URL:
-- 確認用URL:
-- マージ:
-- issue:
+- 状態: 判断待ち
+- ブランチ: work/1019-sec11
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1019-SEC-11.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1019-sec11
+- 確認用URL: プレビューあり（URL は最終報告）。`/`・`/houou/`・`/title/houou/1.html` の応答ヘッダに `content-security-policy-report-only` が出ることを確かめた（見た目は変えていない）
+- マージ: 済（7b7fe6f57。`_headers` の1行と docs。本番で Report-Only のヘッダを確認）
+- issue: #9（「状況: 待ち」を外した。着手と結果・段2 の案をコメント。開いたまま）
 - 判断が必要なこと:
+  - 段2（本番の CSP）のインラインの実行スクリプト: 0件なので hash もファイルへの移動も要らない（選ぶことは無い）
+  - 段2 のスタイル: (a) 段1 の値のまま（`style-src-elem` に typed.js の `<style>` のハッシュ、`style-src-attr 'unsafe-inline'`）、(b) typed.js のカーソルの CSS を index.css に移し、その `<link>` に `data-typed-js-cursor-css` を付けて typed.js に `<style>` を足させない（ハッシュが不要になる。index.html・index.css を変える）、(c) `style-src 'self' 'unsafe-inline'` にまとめる。推奨は (b)。`style-src-attr 'unsafe-inline'` は残す（title/ の384ファイルはクラスに移せるが、glightbox の `style` 属性は vendor を変えないと消せない）。古いブラウザ向けに `style-src` に `'unsafe-inline'` を予備で置くかも合わせて決める
+  - 段2 の SRI（Observatory −5、原因は Web Analytics の `beacon.min.js` に `integrity` が無いこと）: (a) 据え置き、(b) 版付きの URL に `integrity` を付けて全ページを生成し直す（Cloudflare の更新に追従しない）、(c) 手動のスニペットをやめ Cloudflare の自動の差し込みにする（付く属性は未確認）。推奨は (a)
+  - 段2 に進む時期（違反0なので、いつでも切り替えられる）
 - 未確認の項目:
-- エラー:
+  - シートの値で変わるプロフィール画像のドメインは、今のデータの全ページで違反が出なかったが、シートに新しいドメインが入れば `img-src` の違反になる（段2 で本番の CSP にすると表示されなくなる）
+  - Chromium 以外（Safari・Firefox）での違反は測っていない
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 7b7fe6f5）: https://github.com/retroeater/mj-logs/tree/main/guide/7b7fe6f5
+ガイド文書（この版を写した時点の最新、mj a91c3d04）: https://github.com/retroeater/mj-logs/tree/main/guide/a91c3d04
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/7b7fe6f5/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/7b7fe6f5/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/7b7fe6f5/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/7b7fe6f5/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/7b7fe6f5/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/7b7fe6f5/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a91c3d04/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a91c3d04/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a91c3d04/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a91c3d04/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a91c3d04/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a91c3d04/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/58fa24ff.md
