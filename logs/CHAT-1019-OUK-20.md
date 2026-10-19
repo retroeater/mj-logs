@@ -1,0 +1,78 @@
+# CHAT-1019-OUK-20
+
+- 着手日時: 2026-10-19
+- 対象issue: なし（女流桜花の順位変動のプレーオフの扱い）
+- ブランチ: work/1019-ouk20（origin/cloudflare から作成）
+- 着手時HEAD: 7c82be638
+
+## 指示
+
+【Claude作成】Claude Code 向け指示：女流桜花の順位変動で、A リーグのプレーオフ（最後の節）に出ない選手を休場扱いにせず順位を残し、最後の節のラベルを「PO」にする。プレビューで止まる Chat-Ref: CHAT-1019-OUK-20 マージ: 判断待ちで止まる（houou/ と共有の `assets/league_race.js`・生成を変えるため、平野さんがプレビューで確かめてから、別のマージの指示で cloudflare へ入れる） 貼る時機: いつでも（CHAT-1019-OUK-19 とは別のセッションでよい） 共通手順: CLAUDE.md「Chat-Ref」「ブランチ運用」「作業ログ」節のとおり（識別子確認 → origin/cloudflare を起点に work/<識別子>〈クラウドセッションでは worktree を使わず docs/notes/cloud-sessions.md の読み替えに従う〉 → ログ先行push → 最終報告の Chat-Ref の行の直前に「ログ（公開）」の行、最後の行に Chat-Ref）。平野さんは、この指示のための作業ブランチ work/1019-ouk20 の作成と push を許可している（セッションに割り当てられた claude/… のブランチは使わない）。 作業ブランチ: クラウドセッションで実行する。work/1019-ouk20 を origin/cloudflare から作る。手順は docs/notes/cloud-sessions.md「作業ブランチの用意」。rebase・force push はしない。
+
+0. 着手前に、このログの「指示」欄の末尾が、この指示文の末尾（最後の行）と一致しているか確認し、一致しなければ作業せず報告する。 自律開発の続き。着手後は質問せず、不明な点は仮置きで進めて報告の「判断が必要なこと」に書く。止まるのは「止まる条件」に当たるときだけ。
+
+目的
+女流桜花の A リーグは、最後の節（今は第8節）を上位の選手だけで打つプレーオフの形の期がある。今の順位変動（docs/notes/houou-race.md「帯・降級の枠・順位」）は、第n節まで打った選手を第n+1節の開始で表の下へ移し「–」「第n節まで」にするため、プレーオフに出ない選手が全員休場と同じ見た目になる（第20期 A では9〜16位の8人）。これを直す。告知動画（CHAT-1019-OUK-19）は、この直しのマージの後に撮り直す。
+決定（2026-10-19、平野さん）
+
+* A リーグで、プレーオフ（最後の節）に出ず、その直前の節まで全部打った選手は、途中休場ではないので順位を表示する（下へ移さない。「第n節まで」も出さない）
+* その直前の節より前に打ち終えた選手（例: 第1〜6節まで）は、今の仕様のまま順位「–」で下へ移す（鳳凰戦の前原雄大と同じ）
+* 「プレーオフ進出」の帯は出さない。代わりに、プレーオフの節のラベルを「PO」にする（「プレーオフ」ではなく「PO」。ラベルの幅は他の節と同じ）
+
+前提（チャット側。平野さんの決定ではない。実物に合わせて変えてよい）
+
+* 対象の表の見分け: 記憶や期の番号で決め打ちせず、データから見分ける。条件の案は「女流桜花の A の表で、最後の節を打った選手が一部だけで、それ以外の選手のうち直前の節まで全部打った選手がいる」。見分けた表の一覧（期・人数・最後の節を打った人数）をログに書く。B・C や鳳凰戦にも同じ形の表が見つかったら、直さずに一覧に書く（直すのは女流桜花の A だけ）
+* 判定を JSON に持たせるか JS で決めるかは実物から決める（大会の設定 `Contest` に持たせるなど。houou/ の JSON・表示が変わらない形にする）
+* 並び: プレーオフに出た選手は、累計にかかわらず、出なかった選手より上に並ぶのが正しいはず。プレーオフの後に、出た選手の累計が出なかった選手の誰かを下回る表があるかを確かめ、シートの「順位」の列と並びが一致するかを全部の対象の表で書く。食い違いがあれば、シートの「順位」に合わせる形を仮置きし、表の一覧を書く
+* プレーオフに出なかった選手の再生中の動き: 最後の節の間は数えず、順位と色（帯の内側・外側）はそのまま。帯（決定戦・降級・入替戦）の人数・位置の決め方は今のまま
+* 「PO」のラベル: 節のラベルの行・節のラベルを押してその節の終わりへ飛ぶ所・読み上げ（aria-label などがあれば「プレーオフ」）で同じ扱い。対象でない表のラベルは今のまま
+* docs/notes/houou-race.md（または ouka-top.md）の「帯・降級の枠・順位」に、この例外を1〜2行で足す
+
+手順
+
+1. 作る: 上の直しとテスト（対象の表の見分け、プレーオフに出なかった選手の順位が残ること、第1〜6節までの選手は今のまま「–」、「PO」のラベル、houou/ の出力が変わらないこと）。`python3 -m unittest discover -s scripts/tests` と、JS のテストがあればそれを回す
+2. 確かめる: `python3 scripts/regenerate.py all` を作業ブランチと cloudflare のクローンで回し、差分が ouka/race/ の JSON・`league_race.js`（と文書）だけで、houou/ の生成物（houou/race/ を含む）が差分0であることを書く。第20期 A を 375px・1280px で headless Chrome で再生し、第7節の終わり・第8節の途中・最終結果のスクリーンショットで、9〜16位が順位付きで残ること、「PO」が他の節と同じ幅で収まることを見て書く。途中休場の選手がいる女流桜花の表（あれば1つ）と houou/race/ の前原雄大の表も同じく見て、今のままであることを書く
+3. 記録: プレビュー（確認用 URL: ouka/race/ の第20期 A、途中休場のある表、houou/race/ の前原雄大の表）を出す
+
+止まる条件
+
+* houou/ の生成物に差分が出て直しで消せない
+* テストが落ちて直せない
+* 未マージの work/ ブランチ（work/1019-ouk19 を除く。あちらは scripts/promo_video/ouka/ だけ）が `assets/league_race.js`・順位変動の生成の同じ関数を変えている（同じファイルの別の箇所では止まらず、ログに書く）
+* cloudflare への push はしない
+
+完了条件
+
+* ログの「## 報告」を CLAUDE.md「作業ログ」節のとおりに書いて push する。「判断が必要なこと」に、対象の表の一覧、並びとシートの「順位」の食い違い（あれば）、仮置きしたこと（判定の置き場所、プレーオフの節の間の動き、読み上げの文言など）を、(1) 見た目の値 と (2) 見ただけでは判断しにくいもの に分けて書く
+* マージは冒頭の「マージ:」の行のとおり（判断待ちで止まる）。最終報告に確認用の URL を書く
+* ターミナルへの最終報告の Chat-Ref の行の直前に ログ（公開）: https://github.com/retroeater/mj-logs/blob/main/logs/CHAT-1019-OUK-20.md?v=<SHA>（CLAUDE.md「作業ログ」節）を書き、最後の行に Chat-Ref: CHAT-1019-OUK-20 を書く
+
+着手後は質問せず、不明な点は仮置きで進めて報告の「判断が必要なこと」に書いてください。この行が指示文の最後の行です。
+
+## 経過
+
+## 報告
+
+- 状態: 作業中
+- ブランチ: work/1019-ouk20
+- ログ: https://github.com/retroeater/mj/blob/work/1019-ouk20/docs/logs/CHAT-1019-OUK-20.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1019-ouk20
+- 確認用URL:
+- マージ: 未
+- issue:
+- 判断が必要なこと:
+- 未確認の項目:
+- エラー:
+
+<!-- guide-links -->
+---
+
+ガイド文書（この版を写した時点の最新、mj 7c82be63）: https://github.com/retroeater/mj-logs/tree/main/guide/7c82be63
+
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/7c82be63/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/7c82be63/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/7c82be63/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/7c82be63/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/7c82be63/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/7c82be63/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/8593ce34.md
