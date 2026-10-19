@@ -54,6 +54,70 @@
 
 ## 経過
 
+### 着手時
+
+- Chat-Ref・識別子 `MRO` の重複: `git fetch --unshallow origin` の後、全ブランチのコミット・`docs/logs/` の履歴とも0件
+- 作業ブランチ: `work/1019-mro` はローカル・リモートとも無し → `git checkout -b work/1019-mro origin/cloudflare`（7c82be638）
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- 手順0: 「指示」欄の末尾は指示文の最後の行「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」と一致
+- issue の状態（REST、2026-10-19 12:5x JST）: #564 open「GitHub Actions の整理（統合・共通化・改名・ダッシュボード）」／**#569 closed**「Mつくを帰り道と同じ形に作り直す（/mtsuku/）」（題は Mつく で関係あり。閉じているので指示のとおり #569 の分は #564 へまとめる）／#542 open「鳳凰戦のデータ・コンシェルジュ（houou/ のトップで AI に言葉で質問できる欄）を作る」
+- 着手中のコメント: #564（6259300240）・#542（6259300617）。#569 は閉じていて結果も #564 へまとめるため書いていない（指示は「各 issue」。閉じた issue に解除の要る着手中を残さないための判断）
+- 他セッションの着手中: #564・#542 の直近のコメントに未解除の着手中は無い（#542 の HOU-59 は 10/16 に解除済み）
+
+### run の照合
+
+前提の run ID・時刻はすべて実物と一致（REST `actions/runs/<id>`）。予約は GitHub の schedule で、どれも cron から約2時間遅れて始まった（失敗ではない。参考）。
+
+| ワークフロー | run | event / branch | 開始（JST） | cron（JST） | 結果 | ジョブ |
+|---|---|---|---|---|---|---|
+| check-meibo.yml | 39171945710 | schedule / cloudflare | 07:22 | 05:07 | success | meibo success・ampai success |
+| sync-birthday-calendar.yml | 39172249264 | schedule / cloudflare | 07:26 | 05:17 | success | sync success |
+| fetch-youtube.yml | 39172875765 | schedule / cloudflare | 07:35 | 05:37 | success | fetch success・regenerate / regenerate success・report skipped |
+| cleanup-logs.yml | 39176286283 | schedule / cloudflare | 08:23 | 06:23 | success | cleanup success |
+| check-saikyo-unregistered.yml | 39177742395 | schedule / cloudflare | 08:44 | 06:50 | success | check success |
+| regenerate-page.yml | 39173475366 | push / cloudflare | 07:43 | — | success | regenerate success |
+| regenerate-page.yml | 39177207321 | push / cloudflare | 08:36 | — | success | regenerate success |
+
+ジョブのログは MCP の `get_job_logs` で読んだ（curl はログの保存先へのリダイレクトがプロキシで 403）。読むのはサブエージェント2つに分け、要の行（`対象:`・`変更なし`・`知らせる:`・push・#357 のコメント・`video_mtsuku` の件数）は保存したログを grep して確かめ直した。
+
+### #564: 書き直したワークフローの初回の予約実行
+
+| 項目 | 結果 | 根拠（run・ジョブ・ログの行） |
+|---|---|---|
+| check-meibo: 名簿・Ampai の2ジョブ | 確かめた（両方 success、不一致なし） | 39171945710 meibo: `#445(closed) は閉じるものが無い`／ampai: `event: schedule / scheduled: true / apply: true`・`最新の期の行は Ampai のブックにあります。`・`「Ampai の URL が無い期」(無い) は閉じるものが無い` |
+| check-meibo: 不一致なら #445 を開き直す | 確かめた（不一致なし。#445 は closed のまま） | 同上。#445「名簿と「プロ」シートの不一致」closed（最終更新 2026-10-14） |
+| sync-birthday-calendar: サマリ・書き込み件数 | 確かめた | 39172249264 sync: `event: schedule / scheduled: true / apply: true`・`引数: --compare --apply`・`書き込みました: 追加 0 / 更新 0 / 削除 1` |
+| fetch-youtube: 取得 | 確かめた（チャンネル77件・帰り道42件） | 39172875765 fetch: `…youtube_channels.json に77件を書き出しました。`・`…youtube_meta.json に42件を書き出しました。` |
+| fetch-youtube: コミット | 確かめた（差分なしでコミットなし） | fetch の commit-push: `変更なし` |
+| fetch-youtube: regenerate-page の all | 確かめた（29ページ、失敗なし） | regenerate / regenerate: `対象: all`・`対象: ask_data, …, mtsuku, mtsuku_episodes, …, wayhome_episodes`・`変更なし`（コミットなし） |
+| fetch-youtube: OGP 画像 | 確かめた（作成は成功。全体が変更なしなのでコミットなし） | 同: `img/ogp/wayhome/index-20261011-2.jpg: 175,936バイト` |
+| fetch-youtube: 帰り道の知らせ | 確かめた（知らせる回なし） | 同: `新しい回 0件・JSON に無い回 0件・見られなくなった回 0件 / 知らせる: False / 失敗にする: False` |
+| fetch-youtube: report ジョブ | 確かめた（skipped は条件どおり） | `if: … needs.fetch.outputs.channels == 'failure' \|\| needs.fetch.outputs.wayhome == 'failure'`。両方成功 |
+| regenerate-page の concurrency の待ち | 確かめた（待ちなし） | 設定は `group: regenerate-page-${{ github.ref }}`・`cancel-in-progress: false`・`queue: max`。3本（07:35〜07:40・07:43〜07:45・08:36〜08:38）は重ならず、`Waiting`・`Canceling` の行なし。push の 39173475366 は `[cloudflare 7b538db02] chore: regenerate …`（実際に変わったのは sitemap-pages.xml）、39177207321 は `変更なし` |
+| cleanup-logs: 削除のコミット・#357 | 確かめた（CHAT-1019-ACF-26 のログと一致） | 39176286283 cleanup: `[cloudflare f0204bea8] chore: remove completed logs`・`cloudflare へ push しました(f0204bea8)`・`#357 にコメントする:`。f0204bea8 は origin/cloudflare の祖先。#357 のコメント 6256460147（23:23:43Z、条件外 212件・削除 130件）。#513 の計測は CHAT-1019-ACF-26 で済み（削除130件がコミットと一致） |
+| check-saikyo-unregistered: issue の扱い | 確かめた（登録漏れ0名。Mつく の X ID が無い10名で、常設 issue #609 が新しく開いた） | 39177742395 check: `出場者440名を確認し、0名が「プロ」「連盟プロ以外」から引けませんでした。`・`Mつく: … 登録が無い 0名 / 重複などで使われない 0名 / X ID が無い 10名`・`issue #609 を作成しました` |
+
+- 「最強戦の出場者の登録漏れ」の issue: **#609（open、2026-10-18T23:44:32Z に github-actions[bot] が作成、ラベル「種類: 常設」、コメント0）**。同じ題の過去の issue は無い（issue 一覧〈state=all〉の題で照合）。
+  作られたのは仕様どおり: `check-saikyo-unregistered.yml` は `close: ${{ hashFiles('issue/body.md') == '' }}` で、`scripts/check_saikyo_unregistered.py` は Mつく の節（引けない人・X ID が無い人）があれば本文を書く（X ID が無い人は写真が代わりの絵になるだけ）。失敗ではないが、10名の X ID を足すか（MTK の系列・SNS ブック）は #609 で扱う
+- #445: closed のまま（開き直していない）
+
+### #569（closed のため #564 へまとめる）: 週次の all の video_mtsuku
+
+| 項目 | 結果 | 根拠 |
+|---|---|---|
+| 週次の all に旧 video_mtsuku の失敗が出ていないか | 確かめた（出ていない） | 39172875765 regenerate / regenerate のログ全体（3818行）に `video_mtsuku` は0件。対象の29ページに無く、`mtsuku`・`mtsuku_episodes` は `…/mtsuku/index.html を更新しました。`・`61件のエピソードページを …/mtsuku に書き出しました。`。`python3 scripts/regenerate.py --list` にも無い。push の regenerate 2本にも0件 |
+
+参考（失敗ではない警告）: `警告: /live: 公開しなかった「【3】手動補正」の行 754件`（ask_data 系・live_pages）、saikyo_pages の ABEMA でない動画 URL 8件、wayhome_episodes の `jpml_prosに該当する選手がいないため、Xの写真を出しません: <1名>`（名前は略）。
+
+### #542: データ・コンシェルジュの週次の cron の初回
+
+| 項目 | 結果 | 根拠 |
+|---|---|---|
+| (1) Cron Triggers の曜日 | 確かめた（月曜 0:00 UTC = 月曜 9:00 JST） | `workers/ask/wrangler.jsonc` の `"crons": ["0 0 * * 2"]`（Cloudflare は 1 = 日曜・2 = 月曜、docs/notes/ask-worker.md「週次の cron」）。最後の変更は 860201a95（10/13）。`mj-ask` の最新の Workers Builds は 7ca189ca1 で success（2026-10-18T09:57:55Z）、その後 wrangler.jsonc の差分なし。ダッシュボードの Cron Triggers の表示そのものは見ていない |
+| (4) `DAILY_LIMIT` が 200 | 確かめた | `wrangler.jsonc` の `"DAILY_LIMIT": "200"`（edcbe3ba2、7ca189ca1 の祖先）。本番の GET `/api/ask/status` → 200 `{"status":"open","remaining":10,"max":200}`（2026-10-19 03:57 UTC。Claude は呼ばない） |
+| (2) ブックに見出しと前の週の行が入ったか | このセッションでは確かめられない（平野さんの目視が要る） | ブック「ryoei.pro_AIボット」は共有が平野さんとサービスアカウントだけ（ask-worker.md の C2）で、コンテナに鍵が無い |
+| (3) Workers Logs の「週次:」の行 | このセッションでは確かめられない（平野さんの目視が要る） | ask-worker.md「本番の確かめ」: D1・Workers Logs はセッションから届かない。見る行は `週次: {cutoff, until, sheet, d1Deleted}`（`sheet` が `{appended, sheetDeleted}`。`null` なら `週次: ブックへの書き出しに失敗: …`） |
+
 ## 報告
 
 - 状態:
