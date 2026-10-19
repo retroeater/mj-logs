@@ -48,29 +48,72 @@ CHAT-1019-EXM-03 は「タイトル（補正分）」がチャット側の見込
 
 - 識別子の確認: `git log --all --grep=CHAT-1019-EXM-04` と `docs/logs/` の履歴に無い
 - 作業ブランチ: ローカルの `work/1019-exm` は `origin/work/1019-exm`（3e5d690f5）と一致、作業ツリーはきれい。EXM-02 の 2507314e7・EXM-03 の取り込み c754260dc を含む。cloudflare（58fa24fff）は祖先でないため、この後 merge で取り込む
+- 0章: ログの「指示」欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- cloudflare（58fa24fff）を `git merge origin/cloudflare` で取り込んだ（31b34e54b）。衝突なし。work/WRR は cloudflare に入っていた
+
+### 手順1: シートの読み直し
+
+`lib/sheets.fetch_table()`（生成と同じ経路）で読んだ。見出し `動画ID`・`出演者`・`タイトル（補正分）`、12行。
+12行とも EXM-03 の `## 経過`「手順1」の表（動画ID・出演者・タイトル（補正分））と一致し、出演者は EXM-01 の `exam_cast_column.tsv` とも一致（スクリプトで全件照合、違う行0）。EXM-03 のログの状態の末尾に ` / 続き: CHAT-1019-EXM-04` を足した（b349ae5ab）
+
+### 手順2: EXM-02 の手順2の残り
+
+- 済んでいたもの（確かめた結果）: 2507314e7 に、仮の TSV を読む・照合するコードとテストの削除、「出演者」の列が無ければ止める、「タイトル（補正分）」の読み取り（前後の空白を除き、空・空白だけ・「-」なら自動の見出し）とそのテストがある。`data/exam_provisional.tsv` は 5f5da2d93 で消えている。自動の見出しのコードとテストは残してある
+- 今回済ませたもの（542bdf18c）: `docs/notes/video-exam.md`（仮のファイルの記述を外し、読む列・補正の扱い・98GKK3KKYNk の公開日・期を出さないことを書いた。「4本が同じ見出し」の行は年度で見分けられるようになったので消した）、`docs/decisions/exam.md`（EXM-02 の決定 (1)〜(8) と、この指示の決定）、`exam/` の生成し直し
+
+### 手順3: 確かめ
+
+- `python3 -m unittest discover -s scripts/tests`: 1445件 OK
+- `python3 scripts/regenerate.py all` を作業ブランチ（b349ae5ab）と cloudflare（58fa24fff）のクローンで同時に回した。どちらも終了コード 0。**どちらの木も HEAD から変わったファイルは0**（今回はデータの変化も無かった）。2つの木の違い（`diff -rq`、docs・scripts・data を除く）は `exam/` と手で直した `_redirects`・`style.css`・`check-assets.yml` だけ
+- `exam/` の EXM-01 の版（a97973c28）からの差分: 13ファイル・170行。足した行はすべて新しい見出し（「【20xx年度前期/後期】」）を含む行（`<title>`・description・og:title・og:description・og:image:alt・JSON-LD・大見出し・紹介文・前後の動画・カード）。見出しの変化（12本全件）:
+
+  | 動画ID | EXM-01 の見出し（自動） | 今の見出し（補正分） |
+  |---|---|---|
+  | -PoeE0Bm2sE | Mリーガー本田朋広プロにプロテストのことを聞きました！ | 【2026年度前期】Mリーガー本田朋広プロにプロテストのことを聞きました！ |
+  | eKMCpGQKTYk | 日本プロ麻雀連盟プロテストを受けてみて【プロ雀士にインタビュー】 | 【2025年度後期】日本プロ麻雀連盟プロテストを受けてみて |
+  | Lp8m7sAWT_k | 日本プロ麻雀連盟プロテストを受けてみて【プロ雀士にインタビュー】 | 【2025年度前期】日本プロ麻雀連盟プロテストを受けてみて |
+  | jal-jnnwJb4 | 日本プロ麻雀連盟プロテストを受けてみて【プロ雀士にインタビュー】 | 【2024年度後期】日本プロ麻雀連盟プロテストを受けてみて |
+  | RfZxTnSGnBw | 日本プロ麻雀連盟プロテストを受けてみて【プロ雀士にインタビュー】 | 【2024年度前期】日本プロ麻雀連盟プロテストを受けてみて |
+  | lGPjKHDAlzw | プロテストについて新人連盟員に聞いてみた | 【2023年度後期】プロテストについて新人連盟員に聞いてみた |
+  | 98GKK3KKYNk | 日本プロ麻雀連盟のプロテストを受験される方へ【ルール・マナーなど】 | 【2021年度前期】日本プロ麻雀連盟のプロテストを受験される方へ |
+  | ix9xGkF5pJs | 第34期後期プロテスト募集受付中！ | 【2017年度後期】第34期後期プロテスト募集受付中！ |
+  | gyYpx9xfrLA | 第34期プロテスト募集受付中！－職業 麻雀プロ編－ | 【2017年度前期】第34期プロテスト募集受付中！－職業 麻雀プロ編－ |
+  | Esz7Mloebaw | 第34期プロテスト募集受付中！－強くなりたい編－ | 【2017年度前期】第34期プロテスト募集受付中！－強くなりたい編－ |
+  | JTOTffVFqTg | 第33期後期プロテスト募集受付開始！（2017年2月28日まで） | 【2016年度後期】第33期後期プロテスト募集受付開始！ |
+  | kzKMbbNvAcQ | 第33期プロテスト募集受付開始！（2016年8月31日まで） | 【2016年度前期】第33期プロテスト募集受付開始！ |
+
+- `git merge-tree`: 未マージの全ブランチ8本（work/1009-swp-526・1011-swp-hnd・1011-swp-nav・1015-skd-notes・1017-lvp・1018-log-367-migrate・1019-wrc14・1019-wrc17）と回し、cloudflare との組より増えた衝突は0
+- 容量（`scripts/check_asset_limits.py`）: 配信ファイル数 4,182 → 4,195（+13）、`_redirects` 静的 113 → 115（+2）、最大のファイルは変わらず。`exam/` は 108,218 バイト。ガイド文書は handover.md 22,962・CLAUDE.md 24,786 バイト（どれも警告域未満。この指示では変えていない）
+- プレビュー: b349ae5ab の「Workers Builds: mj」は報告の時点で `in_progress` のまま（docs/notes/cloud-sessions.md の既知の止まり方）。ブランチの別名 URL に `?v=b349ae5ab` を付けて取得し、`/exam/` に新しい見出し（「2026年度前期」）があること、各話が 200 であることで新しい版を確かめた
+- headless Chromium で PC（1280×800）とスマホ（390×844）の全体の画像を `docs/logs/CHAT-1019-EXM-04/` に置いた（JPEG、計 2.2MB。一覧 `list-*`・出演者の多い回 lGPjKHDAlzw `most-cast-*`・出演者「-」の回 98GKK3KKYNk `no-cast-*`・いちばん古い回 kzKMbbNvAcQ `oldest-*`・最新の回 -PoeE0Bm2sE `latest-*`）。JS のエラー0、横のはみ出し無し
+- 見出しの長さの見え方（画像で確かめた）: 切れ（省略・はみ出し）は無い。折り返しは、PC のヒーローで3行（例「【2026年度前期】Mリーガー本田朋広プロにプロテストのことを聞きました！」）、スマホのヒーローで3行、一覧のカードの題名は PC・スマホとも2行、前後の動画のカードは2行。EXM-01 の版と比べて1行増える所がある
 
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1019-exm
 - ログ: https://github.com/retroeater/mj/blob/work/1019-exm/docs/logs/CHAT-1019-EXM-04.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1019-exm
-- 確認用URL: なし
-- マージ: 未
+- 確認用URL: プレビューあり（URL は最終報告）。確認したページ: `/exam/` と各話5枚（PC・スマホ）。この版の印: 一覧の最新の動画の見出しが「【2026年度前期】Mリーガー本田朋広プロにプロテストのことを聞きました！」
+- マージ: 未（平野さんの判断待ち。プレビューを見て決める）
 - issue: #612
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 判断が必要なこと:
+  - プレビューを見て、cloudflare へのマージ（未公開のまま入れる）を決めてほしい
+  - 見出しの折り返し: 【年度】が付いた分、ヒーローは PC・スマホとも最大3行、カードと前後の動画は2行になる（切れは無い）。今のままでよいか。ほかの案: カードだけ【年度】を小さく別の行に出す（実装が増える）。推奨は今のまま
+- 未確認の項目:
+  - 平野さんの実機での見え方
+  - b349ae5ab の「Workers Builds: mj」の check-run の完了（報告の時点で `in_progress`。別名 URL で新しい版が返ることは確かめた）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 58fa24ff）: https://github.com/retroeater/mj-logs/tree/main/guide/58fa24ff
+ガイド文書（この版を写した時点の最新、mj 7b7fe6f5）: https://github.com/retroeater/mj-logs/tree/main/guide/7b7fe6f5
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/58fa24ff/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/58fa24ff/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/58fa24ff/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/58fa24ff/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/58fa24ff/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/58fa24ff/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/10e55a48.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/7b7fe6f5/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/7b7fe6f5/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/7b7fe6f5/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/7b7fe6f5/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/7b7fe6f5/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/7b7fe6f5/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/58fa24ff.md
