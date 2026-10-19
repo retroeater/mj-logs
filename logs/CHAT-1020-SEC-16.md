@@ -59,6 +59,34 @@ Chat-Ref: CHAT-1020-SEC-16
 - 0: 「指示」欄の末尾は指示文の最後の行（「不明な点があれば、…この行が指示文の最後の行です。」）と一致。
 - Chat-Ref 重複なし（`git log --all --grep`）。`work/1020-sec16` はローカル・リモートとも無し → `git checkout -b work/1020-sec16 origin/cloudflare`。
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている。着手 2026-10-20 08:15 JST（push を止める時間帯の外）。
+- SEC-15 のログの状態を「判断待ち / 続き: CHAT-1020-SEC-16」にしてコミット（ecdc6c16d）。
+
+### 手順1（確かめ）
+
+- 対象の今の行は SEC-15 の下調べと一致: `scripts/generate_resource_logs.py:165`・`assets/league.js:856`・`scripts/generate_houou_pages.py:369`・`scripts/generate_video_wayhome.py:190`・`scripts/generate_wayhome_episodes.py:184`・`scripts/lib/mtsuku.py:426`・`assets/houou_ask.js:229`・`assets/saikyo.js:73`・`assets/league_race.js:338`・`scripts/generate_jpml_pros.py:178-182`。どれもまだ直っていない
+- `<` を `<` にする共通の関数は無かった（`generate_books_pages.py:465`・`generate_saikyo_pages.py:697,1041` はその場で `.replace`）
+- 未マージの work/ ブランチで対象のファイル（上の10と `scripts/lib/url.py`）を変えているものは無い（`git diff --name-only origin/cloudflare...<各ブランチ>` が空）
+- #598 に着手中のコメント（issuecomment-6279562947）
+- このセッションからシートを読めるかを `regenerate.py resource_logs` で確かめた（8 秒、成功）。`docs/notes/sheets-reader.md` の Sheets API への切り替えの後もまだ読めている
+- 直す前の生成: ecdc6c16d で `python3 scripts/regenerate.py all`（約 7 分、終了コード 0）。`git status` は空（生成物が HEAD と一致）。`books_pages` は凍結中で `all` から外れる（`FROZEN_FROM_ALL`。今回の直しは books に触れない）。ログの「表示の値が想定外」の警告 3770 行は既存のデータの警告（ask_data・live_pages）。作業ツリー全体（`.git` を除く、152 MB）を scratchpad の `sec16/before/` に退避した
+
+### 手順2（直し）
+
+- 低-6: `scripts/lib/page.py` に `script_json(data, separators=None)`（`json.dumps(…, ensure_ascii=False)` の後 `<` をすべて `<`）を置き、`generate_houou_pages.py` の `json_script()`・`generate_video_wayhome.py`・`generate_wayhome_episodes.py`・`lib/mtsuku.py` の `json_ld_html()` から使う。4ファイルとも既に `lib.page` を読み込んでいた。使われなくなった `import json` を3ファイルから外した
+- 中-3 の残り: `generate_resource_logs.py` の `get_info_cell()` で `restaurant_url = safe_url(restaurant_url)`（http・https 以外はリンクにせず店名だけ）。`assets/league.js` は `if (up.url)` を `if (/^https?:\/\//i.test(up.url || ''))` に（外れれば今までの「URL が無い」側の表示）
+- 低-7: `assets/houou_ask.js` に `sameOrigin()`（`new URL(url, location.origin).origin === location.origin`、例外は false）を足し、出典の判定を `startsWith('/') && sameOrigin(…)` に。`assets/saikyo.js` の `decodeURIComponent(location.hash…)` を try で囲む（壊れたハッシュは移さない）。`assets/league_race.js` の `url("${p.img}")` を `url(${JSON.stringify(p.img)})` に
+- 低-8 後半: `generate_jpml_pros.py` に `QUERY_ESCAPES`（`str.maketrans`、`%`・`&`・`#`・`+`・空白・タブ・改行を `%XX` に）を置き、`get_internal_link()` の `?{param_name}=` の値に当てる。日本語は変えない（`會田亮介` はそのまま、`A&B #1 50%+x` は `A%26B%20%231%2050%25%2Bx`）
+- テストを足した: `scripts/tests/test_script_json.py`（新規。`</script>`・`<!--<script>`・`a<b`・日本語で `<` が残らず `json.loads` で同じ値に戻ること、separators、`json_script()`・`json_ld_html()` の出力）、`test_safe_url.py` に resource_logs の `javascript:` をリンクにしない／https はリンクにするテスト、`test_jpml_pros.py` に `InternalLinkTest`（日本語はそのまま・`&#%+空白` を逃がす・HTML の逃がしは残る）
+- 直す前のコードで新しいテストを回した（退避した `before/scripts` に新しいテストを写して実行）: test_script_json は `script_json` が無く読み込みで失敗、resource_logs と jpml_pros の `&#` のテストは値が違って失敗。直した後は通る
+- テスト: `python3 -m unittest discover -s scripts/tests` 1457 件 OK、`node --test 'workers/ask/test/*.test.mjs'` 83 件すべて通る。JS 4ファイルは `node --check` で構文 OK
+- 直した後の生成: `regenerate.py all`（約 6 分、終了コード 0）。退避した直す前の作業ツリーと `diff -rq` で比べ、違うのは自分が変えたスクリプト・JS・テストの14ファイルと新しいテスト1つだけ。**生成物の差分は0件**（`git status` も変えたソースだけ）
+- headless Chrome（Playwright 1.56.1、`/opt/pw-browsers/chromium-1194`）で、直す前の写し（127.0.0.1:8801）と直した後（:8802）を `python3 -m http.server` で配り、同じページを開いてコンソールのエラーを数えた。外部への要求は Playwright で止め（abort）、`/api/ask`・`/api/ask/status` は Playwright の中で偽の応答を返した（本番には送っていない）
+  - エラーの数（前 → 後）: `/houou/` 1→1・`/ouka/` 1→1・`/jwrc/` 1→1・`/wrcr/` 1→1・`/houou/race/` 16→16・`/ouka/race/` 17→17・`/saikyo/2026/20260816-s1-a.html` 24→24・同じページの `#%E0%A4%A`（壊れたハッシュ）25→24（`pageerror: URI malformed` が消えた）・`/jpml_pros.html` 44→44・`/resource_logs.html` 27→27。増えたものは無い（残りは止めた外部の画像・スクリプトの読み込みの失敗で、前後で同じ文）
+  - 出典の表示（質問欄に偽の答えを返し、出典に `/houou/`・`/\evil.example/`・`//evil.example/`・`javascript:alert(1)` を入れた）: 直す前は `/houou/` と `/\evil.example/` の2つがリンクになり、直した後は `/houou/` だけ（4大会とも同じ）
+  - league.js の Ampai のリンク（`houou/players/?name=HIRO柴田`・`阿久津翔太`）: 前後とも `a.mj-houou-term-hit` が1つで `https://app.ampai.jp/…` を指し、エラーは前後とも2
+  - Security Guidance の hook が確かめの scratchpad の script（Playwright の `page.evaluate`）に eval の注意を出したが、ブラウザの中でテストの手順を動かす API でリポジトリのコードではない
+- docs: `docs/notes/security.md` の (b) に `safe_url()`・`script_json()`・クエリの名前の逃がし方を、(c) にデータ由来の URL の確かめ方と `decodeURIComponent` の try を一句ずつ足した。`docs/decisions/security.md` に `## 2026-10-20（CHAT-1020-SEC-16）` を足した
+- コミット: f12d67359（fix）・9f0913d70（docs）
 
 ## 報告
 
