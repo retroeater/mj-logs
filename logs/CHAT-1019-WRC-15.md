@@ -72,15 +72,31 @@
 - `python3 scripts/regenerate.py all` を作業ブランチ（コードのコミットの後）と cloudflare のクローン（6f0d999b1）で回した（どちらも exit 0）。cloudflare のクローンは差分0。両者の差は `jwrc/index.html` の例の文の1行と、手で変えた `generate_houou_pages.py`・`ask.mjs`・`jwrc.test.mjs` だけ。houou/・ouka/・jpml_pros・`workers/ask/data*.json` は差分0
 - サイトマップの lastmod（`--from-git`）は変わらない（jwrc/ はすでに 2026-10-19）
 
+### 前半: マージと本番
+
+- 作業ブランチの check（9eec11972）: Workers Builds: mj・check（公開対象の検査）とも success
+- 1回目の push 直前の再 fetch で cloudflare が 34b3934e8（CHAT-1019-OUK-25 のログ、docs/logs だけ）に進んでいたため merge で取り込み（9b965c143、衝突なし）、祖先の確認が真 → `git push origin work/1019-wrc15:cloudflare`（34b3934e8..9b965c143）。Workers Builds: mj・mj-ask とも success
+- 本番の確かめ（1回目）: jwrc/ の例の文は「例：現タイトルホルダーは？」（本番の HTML）。質問欄（本番の Worker に3回）:
+  - 「現タイトルホルダーは？」→「現在のタイトルホルダーは、16期の紺野真太郎選手です。通算19期の獲得となっています。」
+  - 「今のチャンピオンは？」→「現在のチャンピオンは紺野真太郎選手です。16期の選手で、これまでに19期にわたりチャンピオンを務めています。」
+  - 「前回の優勝者は？」→「前回の優勝者は紺野真太郎さん（16期）です。」
+  - 3つとも紺野真太郎（データ: 決勝 第19期まで、出典: WRCリーグ 歴代優勝者）だが、2つで優勝した期（`terms: [19]`）を回数・在位の長さと読み、入会期（16期）とも混ざる誤りが出た
+- 直し（5c2333f99）: 2回目の指示（答えを書く側）の最後に、WRC リーグだけ「champions の terms は優勝した WRC リーグの期(第N期)。優勝の回数は terms の個数。entry は入会期(N期生)で、優勝の期ではない」を足した（`ANSWER_LINES`）。鳳凰戦・女流桜花の2回目の指示は変えない（テストで確かめる）。直す前の `ask.mjs` で新しいテストが落ちることを確かめた。Worker のテスト 65件 OK、scripts のテスト OK
+- 作業ブランチの check（5c2333f99）: Workers Builds: mj・check とも success → 再 fetch・祖先の確認が真 → `git push origin work/1019-wrc15:cloudflare`（9b965c143..5c2333f99）。Workers Builds: mj・mj-ask とも success
+- 本番の確かめ（2回目、本番の Worker に2回）:
+  - 「現タイトルホルダーは？」→「紺野真太郎が現タイトルホルダーです。優勝は第19期で、入会は16期生です。」
+  - 「今のチャンピオンは？」→「紺野真太郎さんが現在のチャンピオンです。WRCリーグで第19期に優勝しています。」
+  - 本番の Worker に送ったのは前半で計5回
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj d5b59e67）: https://github.com/retroeater/mj-logs/tree/main/guide/d5b59e67
+ガイド文書（この版を写した時点の最新、mj 9b965c14）: https://github.com/retroeater/mj-logs/tree/main/guide/9b965c14
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d5b59e67/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d5b59e67/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d5b59e67/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d5b59e67/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d5b59e67/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d5b59e67/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9b965c14/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9b965c14/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9b965c14/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9b965c14/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9b965c14/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9b965c14/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/10e55a48.md
