@@ -1,6 +1,6 @@
 # 朝の報告用の異常（retroeater/mj）
 
-- 書き出した時刻: 2026-10-19 23:45 JST（見た範囲: 2026-10-18 21:45 JST から）
+- 書き出した時刻: 2026-10-20 00:13 JST（見た範囲: 2026-10-18 22:13 JST から）
 - 書き出した実行の契機: workflow_dispatch（main）
 - 異常だけを書く。全体は actions/status.md。判定は mj の scripts/morning_report.py（各ワークフローの直近 100 回まで）
 
