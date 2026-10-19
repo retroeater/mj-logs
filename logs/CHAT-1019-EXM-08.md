@@ -55,15 +55,34 @@ EXM 系列（/exam/ の作成と公開、CHAT-1019-EXM-01〜07）の振り返り
 
 - 識別子の確認: `git log --all --grep=CHAT-1019-EXM-08` と `docs/logs/` の履歴に無い
 - 作業ブランチ: ローカル・リモートの `work/1019-exm` は cloudflare にマージ済み。`git merge --ff-only origin/cloudflare` で進めた（a33a81859）
+- 0章: ログの「指示」欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている。ガイド文への追記の「知見 → 選んだ層 → 理由」の表は指示文にある
+
+### 手順1: 追記先の確かめ
+
+- `docs/new-page-checklist.md` 段2「公開後の確かめ」の86行目に「平野さんの作業: Search Console で `sitemap.xml` を再送信し、入口を URL 検査でインデックス登録をリクエスト」がある（前提と一致）。同じ趣旨（登録の結果の確かめ・カレンダー）の行は無い
+- サイズ: 13,916 バイト（追記後 14,121 バイト）。`check-assets.yml` が上限を見る4文書（CLAUDE.md・handover.md・chat-side-operations.md・instruction-template.md）には入っておらず、上限は無い
+- `docs/decisions/mtsuku.md` 2026-10-15（CHAT-1015-MTK-11）に「#570 をクローズし、Search Console の登録の結果を待つ作業は作らない」がある
+- `docs/decisions/exam.md` 2026-10-19（CHAT-1019-EXM-07）にも「登録の結果を待つ作業は作らない。Mつく〈#570〉と同じ」がある（EXM-07 の決定をそのまま写したもの）。今回の決定で同じく置き換わるため、こちらにも置き換えの注記を付けた（指示文は mtsuku.md だけを挙げていた。判断の要る矛盾ではなく、同じ決定の置き換えとして扱った）
+
+### 手順2: 追記
+
+- `docs/new-page-checklist.md`: 86行目の直後に「- [ ] チャット側: 登録の結果を確かめる予定（1週間後、終日、件名【R#公開の issue】）をカレンダー「ryoei.pro」に作る。結果を待つ作業は issue にしない」（決定の文面のまま。周りの行に合わせてチェックボックスを付けた）
+- `docs/decisions/mtsuku.md`・`docs/decisions/exam.md`（EXM-07）の該当行の末尾に「→ 置き換え: 2026-10-19（CHAT-1019-EXM-08）」（docs/decisions/README.md の書き方）
+- `docs/decisions/exam.md` にこの指示の決定3つを足した
+
+### cloudflare の取り込み
+
+- 最初は追記の後に `git merge origin/cloudflare` で取り込もうとして、`docs/decisions/exam.md` が衝突した。別のセッション（CHAT-1019-ENG-02、596a114d4、#617）が EXM-07 の節の2行目（「テスト」シートの行）に「英語」シートの削除を書き足していて、こちらの置き換えの注記（1行目）と隣り合っていた
+- 末尾への追記どうしではないので衝突は解かずに `git merge --abort` で戻した。追記の2コミットは push 前だったので `git reset --keep` で push 済みのログのコミット（ec7e1f947）まで戻し、先に cloudflare を取り込んで（2b09343da、衝突なし）、取り込んだ後の文書に同じ3つの追記をやり直した。ENG-02 の書き足しはそのまま残っている
 
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1019-exm
-- ログ: https://github.com/retroeater/mj/blob/work/1019-exm/docs/logs/CHAT-1019-EXM-08.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1019-exm
+- 状態: 完了
+- ブランチ: work/1019-exm（docs のみ。cloudflare へ入れた）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1019-EXM-08.md
+- 比較URL: なし（docs のみ）
 - 確認用URL: なし
-- マージ: 未
+- マージ: 済（docs のみ）
 - issue: なし
 - 判断が必要なこと: なし
 - 未確認の項目: なし
@@ -72,12 +91,12 @@ EXM 系列（/exam/ の作成と公開、CHAT-1019-EXM-01〜07）の振り返り
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 89ca81e0）: https://github.com/retroeater/mj-logs/tree/main/guide/89ca81e0
+ガイド文書（この版を写した時点の最新、mj 43121c2a）: https://github.com/retroeater/mj-logs/tree/main/guide/43121c2a
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/89ca81e0/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/89ca81e0/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/89ca81e0/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/89ca81e0/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/89ca81e0/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/89ca81e0/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/43121c2a/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/43121c2a/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/43121c2a/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/43121c2a/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/43121c2a/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/43121c2a/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/f0a1e266.md

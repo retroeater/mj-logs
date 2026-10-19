@@ -857,3 +857,9 @@ CHAT-1017-PAD-08 の「判断が必要なこと」への回答:
 
 - OUK 後半（OUK-18〜26）の振り返りの知見を、docs/notes/chat-routines.md「申送り」の手順で残す（平野さんが「申送り」と指示）
 - 作業中の回答: なし
+
+## 2026-10-19（CHAT-1019-OUK-29）
+
+- CHAT-1019-OUK-27 の申送りで足した行（テスト2本・比較の文書・branch-operations.md・CLAUDE.md・chat-routines.md・page-announcement.md・7ファイルの手直し）をマージする。置き場所を指示の表から変えたこと（C・D を chat-routines.md へ、A の許す一覧を大会・リーグごとに）もそのままでよい
+- `docs/notes/page-announcement.md` の衝突（WRC-18 が延ばした「順位の表を止める画面は…」の行と、OUK-27 の次の行）は、cloudflare 側の行を採り、そのすぐ下に OUK-27 の1行を置いて解く
+- 作業中の回答: なし
