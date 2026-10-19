@@ -61,6 +61,28 @@ CHAT-1019-XDP-01 の変更（`scripts/update_sns_book.py` の重複の判定と�
 - docs/decisions/saikyo.md の 2026-10-19（CHAT-1019-XDP-01）の節: 「案C は今回はやらない。案B で重複が何件出たかを見てから決める」の行を、見送りの決定と理由に置き換え、マージしてよいことを1行足した
 - CHAT-1019-XDP-01 のログの `## 報告` の状態を「判断待ち / 続き: CHAT-1019-XDP-02」にした
 
+### 手順3: マージと check-run
+- push 直前に再 fetch し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真であることを確かめて `git push origin work/1019-xdp:cloudflare`（f4fee5953..7249a1de6、2026-10-19 13:57 UTC ごろ）
+- cloudflare との差（マージ前）: `scripts/update_sns_book.py`・`scripts/tests/test_sns_book.py`・`docs/notes/sns-book.md`・`docs/decisions/saikyo.md`・ログ2本。ページの生成物は無い。マージの push で再生成のワークフローは起動していない（同じコミットで動いたのは「本番ビルド失敗の検知」3回で、いずれも skipped）
+- 7249a1de6 の check-run: `check` success（13:57）。**「Workers Builds: mj」（118107731342）は 14:10:49 UTC に始まり、14:13 の時点でも in_progress**。待機の上限15分に達したため打ち切った
+- 本番の `jpml_pros.html` を取得して比べると、7249a1de6 より前に入った他セッションの変更（5c296ca5b、13:19 UTC、og:image を `img/ogp/pros/index-white.png` に）もまだ本番に出ていない。Workers Builds の遅れは今回の変更より前からで、今回の変更は公開対象外の `scripts/` と docs だけなので、本番の見え方には関係しない
+- #514 にマージの結果と、明朝の毎日の更新で確かめることをコメントした
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1019-xdp（マージ済み）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1019-XDP-02.md
+- 比較URL: https://github.com/retroeater/mj/compare/f4fee5953...7249a1de6
+- 確認用URL: なし（変えたのは公開されない `scripts/` と docs だけで、ページの生成物は変えていない）
+- マージ: 済（7249a1de6）
+- issue: #514（マージの結果をコメントした。本文・ラベルは変えていない）
+- 判断が必要なこと: なし
+- 未確認の項目:
+  - 2026-10-20 04:10 JST の毎日の更新で、早川健太・早川航平の【3】の X画像URL が別々になり X数値ID が入ったか。ページが使う値が変わったときの再生成で、jpml_pros の2人の写真が別々になったか（チャット側が確かめる）
+  - 7249a1de6 の「Workers Builds: mj」の成否（14:13 UTC の時点で in_progress。他セッションの 13:19 UTC の変更も本番に未反映で、今回の変更より前からの遅れ）
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
