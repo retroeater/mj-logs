@@ -74,15 +74,14 @@
 
 ## 報告
 
-- 状態: 判断待ち（#571 は閉じた。告知の形がチャット側の後日の判断） / 続き: CHAT-1019-WRC-14
+- 状態: 完了（告知は CHAT-1019-WRC-18。2026-10-19 18:00 に X へ投稿） / 続き: CHAT-1019-WRC-14
 - ブランチ: work/1019-wrc13 → cloudflare（マージのコミット abc03a51b）
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1019-WRC-13.md
 - 比較URL: https://github.com/retroeater/mj/compare/fbae687ec...abc03a51b
 - 確認用URL: なし（docs のみ）
 - マージ: 済（abc03a51b）
 - issue: #571（題を「JWRC の予選の通過・敗退をサイトに載せる」に直し、コメントしてクローズ。「状況: 保留」を外した）
-- 判断が必要なこと:
-  - 告知（X・動画をするか、その形）はチャット側で後日決める
+- 判断が必要なこと: なし（告知の形は CHAT-1019-WRC-14〜18 で決め、投稿した）
 - 未確認の項目:
   - X と LINE の投稿画面でのカード表示（告知のときに確かめる）
   - 平野さんの実機と Search Console の項目（CHAT-1019-WRC-12 の未確認の項目）は平野さんが済ませた（申告値。経過の「記録」）
@@ -91,12 +90,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 10e55a48）: https://github.com/retroeater/mj-logs/tree/main/guide/10e55a48
+ガイド文書（この版を写した時点の最新、mj 7b7fe6f5）: https://github.com/retroeater/mj-logs/tree/main/guide/7b7fe6f5
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/10e55a48/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/10e55a48/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/10e55a48/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/10e55a48/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/10e55a48/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/10e55a48/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/4e223c8f.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/7b7fe6f5/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/7b7fe6f5/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/7b7fe6f5/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/7b7fe6f5/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/7b7fe6f5/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/7b7fe6f5/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/58fa24ff.md

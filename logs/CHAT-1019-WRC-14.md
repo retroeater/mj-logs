@@ -131,22 +131,14 @@ WRCリーグ（jwrc/）は 2026-10-19 に公開した（CHAT-1019-WRC-12）。X 
 
 ## 報告
 
-- 状態: 判断待ち（告知動画の初版を送った。確定か直しかは平野さんが見て決める） / 続き: CHAT-1019-WRC-15 / 続き: CHAT-1019-WRC-16
+- 状態: 完了（CHAT-1019-WRC-18 でマージ） / 続き: CHAT-1019-WRC-15 / 続き: CHAT-1019-WRC-16
 - ブランチ: work/1019-wrc14（マージしない）
 - ログ: https://github.com/retroeater/mj/blob/work/1019-wrc14/docs/logs/CHAT-1019-WRC-14.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1019-wrc14
 - 確認用URL: なし（動画は SendUserFile で送った。44.3秒・曲調 b。この版の印: 順位変動の最終結果は第19期の1〜18位で止まる）
-- マージ: 未（確定の後、別の指示で制作のスクリプトと文書をマージする）
+- マージ: 済（CHAT-1019-WRC-18 で work/1019-wrc14 を cloudflare にマージ）
 - issue: なし（#599 はクローズ済み。告知の後に記録する先は指示で決める）
-- 判断が必要なこと:
-  - 動画の確定か直しか（平野さんが見て決める）
-  - 通過ライン（第19期は29人目の下）が画面に映らない。字幕「通過ボーダーの攻防を再現」のままにするか、字幕を変えるか（例「各節の結果で、順位が入れ替わる」）、通過ラインが映る位置まで送るか（ただし1位の行は外れる。上位が映る位置で止める決定との兼ね合い）
-  - 仮置きしたこと:
-    - 各場面の秒（ouka/ の配分のまま。リーグの再生の場面が無いぶん短く44.3秒。60秒に余裕がある）
-    - 字幕の文言（上の全文。特に「全期の成績と通過・敗退」「通過回数など歴代の記録」「通過ボーダーの攻防を再現」）
-    - 質問の文「通算成績の1位は？」（答え「石立岳大さんが通算成績の1位で、値は1587.3です。」）
-    - ランキングの切り替え先は通過回数（石立岳大が1位。通過率は4位、連続通過は3位）
-  - 告知の投稿文と投稿の時機（チャット側）
+- 判断が必要なこと: なし（CHAT-1019-WRC-16 の動画で確定し、CHAT-1019-WRC-18 でマージ）
 - 未確認の項目:
   - X に上げたときの見え方（サムネイル・再生の操作部との重なり）
 - エラー: なし（setup.sh は `apt-get update` の後に通した。ouka/ のときと同じ）
@@ -154,12 +146,12 @@ WRCリーグ（jwrc/）は 2026-10-19 に公開した（CHAT-1019-WRC-12）。X 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj b209d841）: https://github.com/retroeater/mj-logs/tree/main/guide/b209d841
+ガイド文書（この版を写した時点の最新、mj 7b7fe6f5）: https://github.com/retroeater/mj-logs/tree/main/guide/7b7fe6f5
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b209d841/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b209d841/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b209d841/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b209d841/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b209d841/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b209d841/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/10e55a48.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/7b7fe6f5/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/7b7fe6f5/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/7b7fe6f5/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/7b7fe6f5/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/7b7fe6f5/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/7b7fe6f5/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/58fa24ff.md
