@@ -405,3 +405,14 @@ CHAT-1011-ABM-06 の続き。
 
 - 「最強戦」シートに足した試合結果（今回の分）は、検査（`regenerate.py --check saikyo_pages`）で止まる理由が無く、差分が見込み（saikyo/ と sitemap*.xml だけ）の範囲なら、毎朝の自動実行を待たずに cloudflare で `regenerate-saikyo.yml` を手動実行して本番へ反映してよい
 - 作業中の回答: なし
+
+## 2026-10-19（CHAT-1019-SKG-02）
+
+- 「最強戦」シートで再度更新した試合結果（今回の分）は、検査（`regenerate.py --check saikyo_pages`）で止まる理由が無く、差分が見込み（saikyo/ と sitemap*.xml だけ）の範囲なら、毎朝の自動実行を待たずに cloudflare で `regenerate-saikyo.yml` を手動実行して本番へ反映してよい
+- 作業中の回答: なし
+
+## 2026-10-19（CHAT-1019-SKG-03）
+
+- 団体分裂合戦（2026年10月11日）の卓別動画（A卓・B卓・決勝卓）の反映は、検査で止まる理由が無く、差分が見込みの範囲なら、毎朝の自動実行を待たずに cloudflare で `regenerate-saikyo.yml` を手動実行して本番へ反映してよい
+- 団体対抗スペシャル合戦（2026年10月18日）の卓別動画はまだ ABEMA に出ていない（ライブ枠のままで正しい）
+- 作業中の回答: なし

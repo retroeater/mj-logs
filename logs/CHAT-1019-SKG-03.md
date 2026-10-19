@@ -89,14 +89,34 @@ ABEMA に団体分裂合戦（2026年10月11日）の卓別動画（A卓・B卓�
 
 生成物はコミットせず `git checkout -- saikyo/` で戻した（`git status --short` が空）。
 
+### 手順3: cloudflare で `regenerate-saikyo.yml` を手動実行
+
+- 先に docs/notes/github-actions.md「ワークフローを手動実行するとき」を読んだ（checkout と push 先は実行ブランチ）
+- `actions_run_trigger`（run_workflow、ref `cloudflare`、入力 abema=`update`・regenerate=`true`）で起動。応答 204
+- run 17（id 39207340711、2026-10-19T05:59:05Z 開始、head af238f10f）: 結論 success。ジョブ `abema` success、`regenerate / regenerate` success
+- ジョブ abema のログ: 「【2】最強戦: 712 行(卓 645・なし 67)」「回が当たった卓: 609 / 645」「2026 24/33」「【2】最強戦 を書きました。【3】手動補正: 入力あり(書いていません)」
+- cloudflare に入ったコミット: `36722566226d77c48b9ba0bc6c64ae20ca7987e7`「chore: regenerate saikyo/ via GitHub Actions」（github-actions[bot]）。`--stat`: 99 files changed, 283 insertions(+), 275 deletions(-)。saikyo/ と `sitemap-saikyo.xml` 以外の変更は無し。ファイル:
+  - 団体分裂合戦の卓 3件: `saikyo/2026/20261011-s1-a.html`（17行）・`20261011-s1-b.html`（17行）・`20261011-s2.html`（24行）
+  - 過去の卓のページ 95件（2011〜2025。`saikyo/2011/20110716-s1-b.html` 〜 `saikyo/2025/20251214-2-s1-a.html`。一覧は `git show --stat 36722566226`）: 差はすべて「他の対局」の団体分裂合戦のカードのサムネイルの src だけ（154行の削除と154行の追加が src を除いて一致）。シリーズの画像 `image/series/68-38/thumb.png` → 回の画像 `image/programs/68-38_s26_p22|p23|p24/thumb001.png`
+  - `sitemap-saikyo.xml`（192行）: lastmod の更新だけ（`<url>` の増減なし）
+- 手順2の見込み（団体分裂合戦の2ページの削除）とは違い、【2】の作り直しで卓別の回が当たったため、3ページに回の URL と司会・実況・解説が入り、過去のページのサムネイルも変わった。種類は (a) とそれに付随する saikyo/ のページで、(e) は無し
+- Workers Builds の check-run（36722566）: 「Workers Builds: mj」completed / success（2026-10-19T06:05:52Z）。ほかに「notify」skipped
+- 本番の確かめ（`?v=skg03a`、3ページとも HTTP 200、コミットの同じファイルとバイト単位で一致）。ABEMA へのリンクはすべて卓の回の URL で、`slots/` は0件:
+  - `saikyo/2026/20261011-s1-a.html`: サムネイルのリンク・「▶ 再生」とも `https://abema.tv/video/episode/68-38_s26_p22`。司会・実況・解説: 司会 小山剛志・実況 日吉辰哉・解説 沢崎誠
+  - `saikyo/2026/20261011-s1-b.html`: サムネイルのリンク・「▶ 再生」とも `https://abema.tv/video/episode/68-38_s26_p23`。同じ3人
+  - `saikyo/2026/20261011-s2.html`: サムネイルのリンク・「▶ 再生」とも `https://abema.tv/video/episode/68-38_s26_p24`。同じ3人
+  - 卓別の回になったため、ボタンの文言はライブ枠のときの「ABEMA で見る」でなく「▶ 再生」
+- 確かめたのは本番の HTML まで。ブラウザでの見え方は見ていない
+- docs/decisions/saikyo.md に今回の決定を足した
+
 ## 報告
 
-- 状態: 対応中
+- 状態: 完了
 - ブランチ: work/1019-skg
-- ログ: https://github.com/retroeater/mj/blob/work/1019-skg/docs/logs/CHAT-1019-SKG-03.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1019-SKG-03.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1019-skg
 - 確認用URL: なし
-- マージ: 未
+- マージ: 済（0de901edb。ログと docs/decisions のみ。本番反映は Actions のコミット 36722566）
 - issue: なし
 - 判断が必要なこと: なし
 - 未確認の項目: なし
@@ -105,12 +125,12 @@ ABEMA に団体分裂合戦（2026年10月11日）の卓別動画（A卓・B卓�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj af238f10）: https://github.com/retroeater/mj-logs/tree/main/guide/af238f10
+ガイド文書（この版を写した時点の最新、mj 268fdb4e）: https://github.com/retroeater/mj-logs/tree/main/guide/268fdb4e
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/af238f10/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/af238f10/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/af238f10/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/af238f10/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/af238f10/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/af238f10/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/268fdb4e/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/268fdb4e/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/268fdb4e/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/268fdb4e/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/268fdb4e/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/268fdb4e/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/4e223c8f.md
