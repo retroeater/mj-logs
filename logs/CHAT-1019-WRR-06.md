@@ -76,28 +76,55 @@
 - 決定を docs/decisions/houou.md に「## 2026-10-19（CHAT-1019-WRR-06）」として足した（jwrc/ の公開〈WRC-12〉と同じファイル）
 - コミット: 直し（navbar・設定・テスト・サイトマップ・llms.txt・文書）と生成物（wrcr/）
 
+### 手順2: マージ
+
+- origin/cloudflare が進んでいた（EXM-06〈プロテスト exam/ の公開。navbar・サイトマップ・llms.txt〉・SEC-12〈CSP を本番の Content-Security-Policy に〉など15コミット）。`git merge origin/cloudflare` で `navbar.js`・`sitemap-pages.xml` は自動で合わさり、`docs/notes/static-generation.md`「ページの一覧」の冒頭の行だけが衝突（隣り合う変更）。cloudflare の版を取り、wrcr/ の括弧を公開の形にして解いた。解いた後の該当箇所:
+
+  > … + WRC-R リーグの新ページ（`wrcr/`、#366、公開は #611）…
+
+- 取り込んだ後もテスト（1449件 OK・Worker 73件 pass）と `python3 scripts/regenerate.py all`（終了コード 0、差分 0）
+- push 直前に再 fetch して祖先を確かめ、`git push origin work/1019-wrr06:cloudflare`（4b0cd407b..6bb0f617c）
+- Workers Builds: mj（id 118043762802）は本番で success（summary に Preview URL が無い）。mj-ask は Worker を変えていないのでビルドが付かない（前の版のまま）
+
+### 手順3: 本番の確かめ
+
+- `curl`（`?v=` 付き）: wrcr/ のトップ・個人成績・ランキング9部門・順位変動の12ページがすべて 200 で、`<meta name="robots">` と `x-robots-tag` ヘッダが無い
+- 本番の `sitemap-pages.xml` に wrcr/ が12件、`llms.txt` に4件（`sitemap.xml` は索引で、sitemap-pages.xml を束ねる）
+- headless Chrome（本番）: wrcr/（トップ・個人成績・順位変動）・jwrc/・houou/・ouka/・saikyo/・title/・jpml_pros・トップを 360・375・1280px で開いた
+  - ナビの項目は「連盟|鳳凰戦|女流桜花|WRC|WRC-R|最強戦|番組|リソース|良栄」で、「WRC-R」は「WRC」の隣の `/wrcr/` への1段。wrcr/ の下は白地のナビで「WRC-R」に印。ほかのページは「WRC-R」の項目のほかは前と同じ（白地のページの印もそれぞれ）
+  - 1280px で1行（白地 61px・黒地 80px）、360・375px は折りたたみ。横はみ出しは jpml_pros の 360・375px だけで、マージ前の本番でも同じ（表の幅）
+  - JS のエラー・CSP の拒否は無し。読み込みの失敗は `static.cloudflareinsights.com/beacon.min.js` だけ（セッションのプロキシが通さない外部のドメイン。ページの表示には関わらない）
+  - `wrcr/players/?name=白鳥翔` の名前の面は「最高到達 2位（7期）」
+- 本番の質問欄（wrcr/）「通過回数がいちばん多いのは？」→「大和さんの通過回数が4回で最も多いです。」（出典 WRC-Rリーグ ランキング（通過回数） `/wrcr/ranking/pass-count/`、時点 第7期終了時点）。通過回数は4回の9人が同率1位なので、「最も多い」と1人だけを挙げたのは言い過ぎ（判断が必要なことに書いた）
+- issue: #611 に公開のコメントをして閉じた（https://github.com/retroeater/mj/issues/611#issuecomment-6266589650 ）。#366 も目的が済んだので閉じ、「状況: 待ち」ラベルを外した（第8期は完了後に「WRCR」シートへ「表示」Y で入れることをコメントに書いた。https://github.com/retroeater/mj/issues/366#issuecomment-6266591980 ）
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1019-wrr06
-- ログ: https://github.com/retroeater/mj/blob/work/1019-wrr06/docs/logs/CHAT-1019-WRR-06.md
+- 状態: 判断待ち
+- 要約: WRC-Rリーグ（wrcr/）を公開した（マージのコミット 6bb0f617c）
+- ブランチ: work/1019-wrr06（cloudflare へマージ済み）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1019-WRR-06.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1019-wrr06
-- 確認用URL: なし
-- マージ: 未
-- issue: #611・#366
-- 判断が必要なこと: なし
+- 確認用URL: 本番 https://ryoei.pro/wrcr/ 。この版で見える印: ナビの「WRC」の隣の「WRC-R」
+- マージ: 済（6bb0f617c）
+- issue: #611（公開のコメントをしてクローズ）、#366（クローズ。「状況: 待ち」を外した）
+- 判断が必要なこと:
+  - 本番の質問欄の答え: 「通過回数がいちばん多いのは？」に「大和さんの通過回数が4回で最も多いです。」と1人だけを挙げた（通過回数4回は9人の同率1位）。jwrc/ も同じ作りで、同率の扱いの直し（2回目の指示に「同率の人が複数いれば人数を添える」など）をするかどうか
+  - navbar の仮置き: なし（項目が1つ増えても 992px 以上で1行に収まり、直しは要らなかった）
+  - 告知（X の投稿と告知動画）は別の指示で行う
+  - `title/jwrc-r/`（WRC-R の歴代優勝者）から wrcr/ へのリンクは今は無い（jwrc/ も同じ。別の課題）
 - 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 5f8dc791）: https://github.com/retroeater/mj-logs/tree/main/guide/5f8dc791
+ガイド文書（この版を写した時点の最新、mj b8020e17）: https://github.com/retroeater/mj-logs/tree/main/guide/b8020e17
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/5f8dc791/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/5f8dc791/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/5f8dc791/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/5f8dc791/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/5f8dc791/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/5f8dc791/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/58fa24ff.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b8020e17/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b8020e17/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b8020e17/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b8020e17/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b8020e17/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b8020e17/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/f0a1e266.md
