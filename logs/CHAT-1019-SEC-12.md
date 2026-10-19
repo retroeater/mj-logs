@@ -84,18 +84,39 @@ Content-Security-Policy: default-src 'self'; script-src 'self' https://static.cl
 - プレビュー（2826364ae の「Workers Builds: mj」success。URL は最終報告）: 応答に `content-security-policy` が出る。`/`・`/title/houou/1.html`・`/jpml_pros.html`・`/houou/` を操作つき（ライトボックス・質問欄〈送信しない〉・検索欄・スクロール）で開き、違反・コンソールの CSP のエラーは0
 - 表示の比べ（本番〈Report-Only〉とプレビュー、幅 1280・390、動きを減らす設定）: `/`・`/title/houou/1.html` は差0。`/houou/` は閾値以下の数画素。`/jpml_pros.html` はアイコンの列に差があったが、本番を撮り直すと差の量が変わり、両方で `assets.st-note.com`（20件）・`yt3.ggpht.com`（7件）の要求が通信の段階で失敗していた（`requestfailed`。セッションのプロキシの許可ドメインに無いため。CSP の違反ではない）。読み込みの揺れで、変更による差ではない
 
+### 4. マージ（20:21 JST）
+
+- 再 fetch で origin/cloudflare が10コミット進んでいた（exam/ の公開など。`_headers`・index.html・index.css は含まない）ので `git merge origin/cloudflare` で取り込んだ（衝突なし）。テスト OK
+- 再 fetch のうえ `git merge-base --is-ancestor origin/cloudflare HEAD` が真。`git push origin work/1019-sec12:cloudflare`（a32f2ba98..c1700d3d1、早送り）
+- 20:29 JST に本番の `/`・`/houou/` で `content-security-policy` が出て、Report-Only が無いこと、`/` の `<link href="index.css" ... data-typed-js-cursor-css>` を確かめた
+
+### 5. 本番の実測
+
+- SEC-11 の組1（sitemap-pages の 47 と代表 29）と `/exam/`（今回の取り込みで公開された）の 77 URL を、操作つきで開いた（画像・Web Analytics もそのまま読む。開く間隔 2.6 秒以上）。すべて 200、`securitypolicyviolation`・コンソールの CSP のエラー・読み込みのエラーは0件。`/api/ask` には送っていない
+- トップの typed.js: 1.2 秒後「Mahjong P」、4.5 秒後「Min」とスクリーンショットで文字が打たれ、カーソル「|」が出ている。0.5 秒ごとに8秒見ると、止まっている間はクラス `typed-cursor--blink` と `typedjsBlink` が付き、打っている間は外れる（typed.js の動きどおり）。`<style>` は0個。本番の index.css に `typedjsBlink` がある
+- 陽性対照: 本番のトップに `<style>` を足すと `style-src-elem`（disposition `enforce`）で止まった
+- 本番で CSP のエラー・表示の崩れは無かったので、戻していない
+
+### 6. issue
+
+- #9 に結果をコメントした https://github.com/retroeater/mj/issues/9#issuecomment-6266240538 （本番の値、実測、SRI を直さない理由、`img-src https:` の理由）。#9 は開いたまま
+
 ## 報告
 
-- 状態:
-- ブランチ:
-- ログ:
-- 比較URL:
-- 確認用URL:
-- マージ:
-- issue:
+- 状態: 判断待ち
+- ブランチ: work/1019-sec12
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1019-SEC-12.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1019-sec12
+- 確認用URL: プレビューあり（URL は最終報告）。`/`・`/title/houou/1.html`・`/jpml_pros.html`・`/houou/` を確かめた。この版で見える印: 応答ヘッダが `content-security-policy`（Report-Only でない）で、トップの `<link href="index.css">` に `data-typed-js-cursor-css` が付いている（見た目は変えていない）
+- マージ: 済（c1700d3d1。本番で CSP のヘッダと違反0を確認）
+- issue: #9（着手と結果をコメント。開いたまま。閉じるのは平野さんの確認の後の次の SEC の指示）
 - 判断が必要なこと:
+  - 平野さんの確認（下の未確認の項目）の後に #9 を閉じるか
 - 未確認の項目:
-- エラー:
+  - 平野さんの iPhone の Safari での表示（トップ・大会のページ1つ・jpml_pros.html）。崩れていたら `_headers` の CSP の行を外して戻す
+  - Mozilla Observatory の再測定（平野さんが行う。セッションからは届かない）。SRI の −5 は決定どおり残る
+  - Chromium 以外（Safari・Firefox）での違反は測っていない
+- エラー: なし
 
 <!-- guide-links -->
 ---
