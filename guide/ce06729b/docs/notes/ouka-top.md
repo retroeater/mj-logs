@@ -7,7 +7,7 @@
 ## 構成と生成
 
 - URL は houou/ と同じ並び: `ouka/`（トップ・質問欄）・`ouka/players/`・`ouka/ranking/<スラッグ>/`（連続昇級を除いた8部門、2026-10-18。`ouka/ranking/` は `total/` へ 301）・`ouka/race/`・`ouka/leagues/`（旧 `ouka_leagues.html` の転送先。個人成績のリーグのタブ `?view=league` へ JS で移すだけ、noindex、#591。`Contest.leagues_moved`）
-- 生成は `scripts/generate_ouka_pages.py`（`regenerate.py` の `ouka_pages`、出力 `ouka/`）。中身は `generate_houou_pages.py` を大会の設定 `OUKA` で動かすだけ（`using(OUKA)`。設定は `Contest`）。共有の部品は複製しない。`regenerate.py --changed` は `generate_houou_pages.py`・`generate_houou_race.py` の変更でも `ouka_pages` を選ぶ（`ask_data_ouka` は `generate_ask_data.py`・`generate_houou_pages.py` の変更でも。`SHARED_GENERATORS`）
+- 生成は `scripts/generate_ouka_pages.py`（`regenerate.py` の `ouka_pages`、出力 `ouka/`）。中身は `generate_houou_pages.py` を大会の設定 `OUKA` で動かすだけ（`using(OUKA)`。設定は `Contest`）。共有の部品は複製しない。`regenerate.py --changed` は `generate_houou_pages.py` の変更でも `ouka_pages` を選ぶ（`scripts/lib/houou_race.py` などの `lib/` の変更では全ページ）（`ask_data_ouka` は `generate_ask_data.py`・`generate_houou_pages.py` の変更でも。`SHARED_GENERATORS`）
 - JS は houou/ と共有の `assets/league.js`・`assets/league_race.js`（2026-10-17 に `houou.js`・`houou_race.js` から改名）と `assets/houou_ask.js`。ページの `<script type="application/json" id="league_contest">`（`OUKA.script`）でリーグ・期の書き方・題名の接尾辞・最近見た選手のキー・順位変動のリーグの番号を渡す。houou/ のページには無く、JS は鳳凰戦の既定で動く
 - CSS は houou/ の節のまま。ページの枠に `is-ouka` を付け、`style.css` の `.is-ouka` でリーグの色だけを替える
 - 集計元は正本の「桜花」タブ（見出しで読む。名前・期・リーグ・リーグキー・順位・結果・入替戦・合計・第1〜8節・表示・備考の18列）。「表示」が Y の行の数が 1,000〜4,000 の外なら止める（`OUKA.rows`）
@@ -30,7 +30,7 @@
 - リーグの色（仮置き）: 桜花 #be185d（白字 6.04:1）、A #fa5d27・B #ef972e（houou/ の A・B の「中」の色）、C1 #ccaa2d・C2 #e8c133・C3 #eed066（houou/ の C1〜C3）。チップは同じ字のリーグを1色（C1〜C3 は C2 の色）
 - 規定（出場の下限）は旧 `ouka_ranking.html` の値: 期平均・期浮き率は5期以上、節浮き率は25節以上（`lib/ranking.py` の `CONTESTS["桜花"]`）。表示対象は houou/ と同じ自動ルール（`ranking.auto_cut()`）で、上限を50件・同点の群れは55件までにする（`OUKA.rank_cut`。houou/ は100件・110件。人数が少なくマイナスの人が入るのを避ける、2026-10-18）。2026-10-18 は8部門とも50件以下でマイナスの値は無い
 - 順位変動の選ぶシートは、期の下に「A・B・C」の1行と、C のときだけ「C1・C2・C3」の行（前期・後期の行は無い）。対象の期は第1期〜第20期（節の成績のある期すべて）
-- OGP は `img/ogp/ouka/index-white.png`（白地・黒字の「女流桜花」＋「ryoei.pro」、docs/notes/ogp.md の規則）。旧 `ouka_results.html`・`ouka_ranking.html`・`ouka_leagues.html` も転送で消えるまで同じ画像（2026-10-17）
+- OGP は `img/ogp/ouka/index-white.png`（白地・黒字の「女流桜花」＋「ryoei.pro」、docs/notes/ogp.md の規則）。旧 `ouka_results.html`・`ouka_ranking.html`・`ouka_leagues.html` も同じ画像だった（2026-10-17。旧3ページは #582 で消した、2026-10-19）
 
 ## 質問欄
 
