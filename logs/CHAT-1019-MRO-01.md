@@ -118,28 +118,38 @@
 | (2) ブックに見出しと前の週の行が入ったか | このセッションでは確かめられない（平野さんの目視が要る） | ブック「ryoei.pro_AIボット」は共有が平野さんとサービスアカウントだけ（ask-worker.md の C2）で、コンテナに鍵が無い |
 | (3) Workers Logs の「週次:」の行 | このセッションでは確かめられない（平野さんの目視が要る） | ask-worker.md「本番の確かめ」: D1・Workers Logs はセッションから届かない。見る行は `週次: {cutoff, until, sheet, d1Deleted}`（`sheet` が `{appended, sheetDeleted}`。`null` なら `週次: ブックへの書き出しに失敗: …`） |
 
+### 仕上げ
+
+- コメント: #564（6259344664。#569 の分を含む）・#542（6259345929）。直近7日に同じ趣旨（10/19 の確かめ）のコメントは無かった（#564 の 10/17 の MRH-01 は 10/17 の run-daily の分）。着手中は、このコメントで解除とする
+- 失敗の原因を直す変更が要るものは無かった（止まる条件に当たらない）
+- 決定を docs/decisions/operations.md に足した
+- 指示の「完了条件」は「判断が必要なこと」に未確認の項目の一覧を書くとし、_template.md は「完了」なら「なし」だけとする。#542 の (2)(3) が平野さんの目視待ちで残るため、状態は「判断待ち」にして一覧を書いた（両方を満たす）
+
 ## 報告
 
-- 状態:
-- ブランチ:
-- ログ:
-- 比較URL:
-- 確認用URL:
-- マージ:
-- issue:
+- 状態: 判断待ち
+- ブランチ: work/1019-mro
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1019-MRO-01.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1019-mro
+- 確認用URL: なし
+- マージ: 済（a4fe6c938、cloudflare へ fast-forward。docs/logs・docs/decisions のみ）
+- issue: #564・#542（コメント）、#569（closed のため #564 へまとめた）、#609（check-saikyo-unregistered が 10/19 に作った常設 issue。仕様どおり）、#445・#357（状態の確認のみ）
 - 判断が必要なこと:
-- 未確認の項目:
-- エラー:
+  - #542 (2) ブック「ryoei.pro_AIボット」に見出しと前の週の行が入ったか — 平野さんの目視（ブック）。直しが要れば HOU の系列
+  - #542 (3) Workers Logs の `週次:` の行 — 平野さんの目視（Cloudflare のダッシュボード）。直しが要れば HOU の系列
+  - #564・#569 の分は失敗・未確認なし（WFL・MTK の系列に頼むことなし）
+- 未確認の項目: #542 の (2)(3)（上と同じ。このセッションから届かない）。(1) はダッシュボードの Cron Triggers の表示そのものは見ていない（wrangler.jsonc と mj-ask の最新ビルドの成功で確かめた）
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 7c82be63）: https://github.com/retroeater/mj-logs/tree/main/guide/7c82be63
+ガイド文書（この版を写した時点の最新、mj b385e6e7）: https://github.com/retroeater/mj-logs/tree/main/guide/b385e6e7
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/7c82be63/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/7c82be63/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/7c82be63/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/7c82be63/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/7c82be63/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/7c82be63/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b385e6e7/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b385e6e7/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b385e6e7/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b385e6e7/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b385e6e7/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b385e6e7/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/7c82be63.md

@@ -206,6 +206,7 @@
 
 ## 女流桜花への展開
 
+- 3大会（houou/・ouka/・jwrc/）の差は `docs/notes/league-pages-compare.md`（意図した差と、公開でそろえる差の表、2026-10-18〜19）
 - 同じ生成・JS で `ouka/` を作った（#519、未公開。公開は #591）。大会ごとに違う値は `generate_houou_pages.py` の `Contest`（`HOUOU`・`OUKA`）に集め、違いは docs/notes/ouka-top.md に書く。WRC は対象外のまま
 
 ## 通期のリーグ（#541、2026-10-17）

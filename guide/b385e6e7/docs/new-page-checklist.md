@@ -25,6 +25,7 @@
 - 1行に収める部品は、`docs/notes/design.md`「3. 文字・寸法」の最小の画面幅（360px）・字体の見込み・余白の下限で確かめる
 - 見え方は、スマホの幅と PC の幅に加えて、高さのある PC 画面（1920×1080）でも確かめる（houou_race の再生ボタンは、画面の高さが約980px を超える PC でだけ、表を切り替えた直後に表の外へはみ出した。#508）
 - 規約（下の3つ）に合わせる。新しい URL パラメータは表に足してから作る
+- 大会のページを横展開する（`generate_houou_pages.py` の `Contest` を足す・変える）ときは `docs/notes/league-pages-compare.md` を読み、差を表に足す（表の列に全大会があるかは `scripts/tests/test_league_pages_compare.py` が確かめる）
 
 ### URL パラメータの規約
 
