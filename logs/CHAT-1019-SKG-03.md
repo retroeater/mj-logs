@@ -52,6 +52,43 @@ ABEMA に団体分裂合戦（2026年10月11日）の卓別動画（A卓・B卓�
 
 ## 経過
 
+### 着手前の確認
+
+- 0. ログの「指示」欄の末尾は指示文の最後の行と一致
+- `git fetch --unshallow origin` の後、`git log --all --grep="CHAT-1019-SKG-03"` と `docs/logs/CHAT-1019-SKG-03*` の履歴は0件。SKG は同じセッションの SKG-01・02 で使ったもの
+- `origin/work/1019-skg`（45ff921d7）は `origin/cloudflare` の祖先（マージ済み）。ローカルの `work/1019-skg` も祖先なので、docs/notes/cloud-sessions.md「作業ブランチの用意」のとおり `git merge --ff-only origin/cloudflare` で進めた（af238f10f）
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある
+- 未マージの work/ ブランチで `scripts/generate_saikyo_pages.py`・`scripts/update_abema_book.py`・`scripts/*saikyo*`・`scripts/lib/*abema*`・`.github/workflows/regenerate-saikyo.yml` を変えているものは0本
+- `regenerate-saikyo.yml` の workflow_dispatch の既定値は abema=`update`・regenerate=`true` のまま
+- 前提の確かめ: docs/notes/abema-book.md を読んだ。【1】元データ・【2】最強戦（機械が毎朝作り直す）・【3】手動補正（空でない URL が【2】を上書き。卓ごとの動画が無い卓にライブ枠を入れ、出たら消す）の流れは指示文の前提と一致
+
+### 手順1: ABEMA ブックの【1】【3】（読むだけ）と `--check`
+
+`scripts/update_abema_book.py` の `read_source()` と同じ `lib.sheets.fetch_table()`（gviz、読むだけ）で読んだ。書き込みの道筋は通っていない。
+
+- (i) 【1】（676行）にある 2026 団体分裂合戦の回: 3回すべてある
+  - `68-38_s26_p22` 「麻雀最強戦2026 団体分裂合戦 A卓」（`abema.tv/video/episode/68-38_s26_p22`）
+  - `68-38_s26_p23` 「麻雀最強戦2026 団体分裂合戦 B卓」（`abema.tv/video/episode/68-38_s26_p23`）
+  - `68-38_s26_p24` 「麻雀最強戦2026 団体分裂合戦 決勝卓」（`abema.tv/video/episode/68-38_s26_p24`）
+- (ii) 【3】（6行）に団体分裂合戦の行は無い。残っている6行は 団体対抗スペシャル合戦（10-18）・Mの乱（10-25）・超技巧合戦（11-01）の各 A卓・B卓で、すべてライブ枠（slots）
+
+`python3 scripts/regenerate.py --check saikyo_pages`: 終了コード 0、「検査: 通りました」。止まる理由は0件。警告 6件、すべて想定どおりの種類（2026 のベスト8 の卓の動画URLが slots）: 超技巧合戦・Mの乱・団体対抗スペシャル合戦の各 A卓・B卓。団体分裂合戦の A卓・B卓の警告は既に消えた（【3】の行が消えたため）。それ以外の警告は無し。
+ほか: シート 2580件、動画URLのある卓 612（SKG-01 の時点は 614）、司会・実況・解説のある卓 605（同 607）、年度・対局・卓のページ 880件。
+
+### 手順2: `python3 scripts/regenerate.py saikyo_pages`（作業ブランチ）
+
+終了コード 0。`git status`: 変更 2ファイル、新規 0。`git diff --stat`: 2 files changed, 10 deletions(-)。
+
+- (a) 団体分裂合戦のページ 2件:
+  - `saikyo/2026/20261011-s1-a.html`・`saikyo/2026/20261011-s1-b.html`: 前 = 「ABEMA で見る」（`abema.tv/channels/mahjong/slots/DH8JMAKRUUTVZq`）と「司会・実況・解説」の節（司会 小山剛志 ほか）→ 後 = どちらも無い（各5行の削除）
+  - 理由: 【3】のライブ枠の行が消え、今の【2】にはまだ卓別の回が無いため（【2】の作り直しは手順3のジョブ abema が行う。指示文の見込みどおり）
+- (b) 選手写真の URL だけの差: 0件
+- (c) sitemap*.xml: 0件
+- (d) その他の saikyo/ のページ: 0件
+- (e) saikyo/ と sitemap*.xml 以外: 0件
+
+生成物はコミットせず `git checkout -- saikyo/` で戻した（`git status --short` が空）。
+
 ## 報告
 
 - 状態: 対応中
