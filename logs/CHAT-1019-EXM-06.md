@@ -105,28 +105,42 @@ CHAT-1019-EXM-05 で未公開のまま本番に入れた `/exam/`（プロテス
 - プレビュー（e40840212 の「Workers Builds: mj」success）: `/exam/` 200・noindex なし、`sitemap.xml` が `sitemap-exam.xml` を参照し、`sitemap-exam.xml` は 200、`/jpml_test.html` → `/exam/` の 301、`/jpml_test.html?name=部谷幸則` → `/exam/?name=部谷幸則` で12本すべて表示。
   メニュー（PC・スマホ、headless Chromium）: 連盟 = プロ・タイトル戦・リンク、番組 = 放送対局・帰り道・Mつく・プロテスト・English。画像は `docs/logs/CHAT-1019-EXM-06/`（`menu-jpml-*`・`menu-program-*`・`redirect-name-*`、PC とスマホ）
 
+### マージと本番の確かめ
+
+- push 直前の確かめで cloudflare が進んでいた（WRC-20 の docs だけ）。`git merge origin/cloudflare` で取り込み（a32f2ba98、衝突なし、docs 外の変更なし）、テスト 1441件 OK をやり直した
+- 再 fetch して `git merge-base --is-ancestor origin/cloudflare HEAD` が真であることを確かめ、`git push origin work/1019-exm:cloudflare`（b48ac4d18..a32f2ba98、fast-forward）
+- a32f2ba98: 「ページの再生成」（run 39243851759）success、「サイトマップの lastmod の同期」（run 39243851762）success（5f8dc7911 で lastmod を git の履歴にそろえた）、「Workers Builds: mj」success
+- 本番（`https://ryoei.pro`）:
+  - `/exam/` と `/exam/lGPjKHDAlzw.html` が 200 で noindex なし
+  - `/jpml_test.html` → `https://ryoei.pro/exam/` の 301。`?name=部谷幸則` を付けると `/exam/?name=部谷幸則` へ（クエリは付いたまま。`/exam/` は読まない）
+  - `navbar.js` の並び: 連盟 = プロ・タイトル戦・リンク、番組 = 放送対局・帰り道・Mつく・プロテスト・English
+  - `sitemap.xml` が `sitemap-exam.xml` を参照し、`sitemap-exam.xml` は13 URL。`llms.txt` に `/exam/` があり `jpml_test` は無い。`sitemap-pages.xml` に `jpml_test` は無い
+  - 同じ時間に別のセッション（SEC-12）が CSP を本番の Content-Security-Policy に切り替えていた。`/exam/` の応答の `img-src` に `img.youtube.com`・`pbs.twimg.com` が入っていることを確かめた
+- #613 に結果と平野さんの手作業（Search Console の `sitemap.xml` の再送信、`/exam/` の URL 検査とインデックス登録のリクエスト、スマホの実機でメニューから開く）を書き、「状況: 待ち」を付けた。クローズはしていない
+- 決定は EXM-06 の作業の途中で `docs/decisions/exam.md` に足した（e40840212）
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1019-exm
-- ログ: https://github.com/retroeater/mj/blob/work/1019-exm/docs/logs/CHAT-1019-EXM-06.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1019-exm
-- 確認用URL: なし
-- マージ: 未
-- issue: #613
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 状態: 完了
+- ブランチ: work/1019-exm（マージ済み。削除は cleanup-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1019-EXM-06.md
+- 比較URL: https://github.com/retroeater/mj/compare/b48ac4d18...a32f2ba98
+- 確認用URL: なし（本番で確かめた）
+- マージ: 済（a32f2ba98）
+- issue: #613（公開済み、「状況: 待ち」で平野さんの手作業を待つ）・#576（本文の navbar の位置を直した）
+- 判断が必要なこと: なし（平野さんの手作業3つは #613 に移した）
+- 未確認の項目: なし（スマホの実機での見え方と Search Console は #613 に移した）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj a32f2ba9）: https://github.com/retroeater/mj-logs/tree/main/guide/a32f2ba9
+ガイド文書（この版を写した時点の最新、mj 5f8dc791）: https://github.com/retroeater/mj-logs/tree/main/guide/5f8dc791
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a32f2ba9/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a32f2ba9/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a32f2ba9/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a32f2ba9/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a32f2ba9/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a32f2ba9/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/5f8dc791/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/5f8dc791/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/5f8dc791/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/5f8dc791/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/5f8dc791/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/5f8dc791/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/58fa24ff.md
