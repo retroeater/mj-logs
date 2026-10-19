@@ -44,18 +44,49 @@
 
 ## 経過
 
+### 0章・取り込み
+
+- Chat-Ref の重複なし。「指示」欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている（1段落にまとまって貼られた）
+- work/1019-ouk19 はリモートとローカルが同じ（3d42a9100）。`git merge-base --is-ancestor origin/cloudflare HEAD` が偽なので `origin/cloudflare` を merge で取り込んだ
+- 衝突は `docs/decisions/houou.md` だけ（指示の想定どおり）。指示の解き方で、両方の節を残して「## 2026-10-19（CHAT-1019-OUK-19）」→「（CHAT-1019-OUK-20）」→「（CHAT-1019-OUK-21）」の順に並べた。節の中身は変えていない（衝突の外にあった末尾の「- 作業中の回答: なし」の行はもともと両側の節の最後の行で、OUK-19 の節の最後にも同じ行を置いた）
+- 解いた後: `git diff --check` は何も出さず（終了コード 0）、`docs/decisions/houou.md` の `<<<<<<<`・`=======`・`>>>>>>>` の行は 0。取り込みのコミット 8f92de1df
+- 取り込んだ後に、CHAT-1019-OUK-21・OUK-22 のログの状態の末尾に ` / 続き: CHAT-1019-OUK-23` を足した（8f4ee8215）
+
+### 撮り直し
+
+- `scripts/promo_video/ouka/capture.mjs`（1801f6ecf）: OUK-21 で足した「最終結果の前に表を送る 0.4 秒」と、全行が画面に入ることの検査をやめた。代わりに、止めたコマで1位の行が節の番号の段（画面の上端に貼り付く）の下にあり、画面の中に収まることを確かめる（外れたら止まる）。最終結果で止める秒は 2.6 秒に戻した（合計 59.6 秒で60秒以内）。README の撮り方の行も直した
+- 質問欄の答えは OUK-19 で保存した答え（2026-10-19 00:59:52Z に本番へ1回送ったもの）を使い、本番へは送っていない
+- 本番 https://ryoei.pro/ouka/ で撮った（範囲の字幕は本番のトップの説明文から「第1期〜第20期・178名」）
+- 出力: 1080×1920・30fps・H.264（yuv420p）・AAC 48kHz 2ch、59.63秒、11.6MB、曲調 b、音量 -15.9 LUFS
+- 最初のコマは白地に「女流桜花」「個人成績・ランキング・順位変動」。字幕は上端から 80〜210px、画面の枠の下端から 230px（12%）。白に近いコマはタイトル（0〜2.5秒）と締め（56.1秒〜）だけ
+- 最終結果の画面: 節の番号の段（「1〜7・PO」）の下端 50px、1位の行（古谷知美 +97.9）は上端 50・下端 84px で隠れていない。画面に全部映る行は1位〜15位（朝比奈ゆり ▲112.7）の15行。16位（廣岡璃奈）は画面の下で切れる（表の下端 696、画面 664）
+- mp4 を SendUserFile で送った
+
+変わった所の秒（動画の秒。ほかは OUK-21 の版と同じ）:
+
+| 場面 | OUK-21 の版 | この版 |
+|---|---|---|
+| 順位変動 | 37.46〜53.92（16.47、最後に表を送る 0.4 秒を含む） | 37.46〜53.52（16.07） |
+| 範囲（最終結果で止める） | 53.92〜56.32（2.4） | 53.52〜56.12（2.6） |
+| 締め | 56.32〜59.83 | 56.12〜59.63 |
+| 全体 | 59.83 | 59.63 |
+
+字幕は OUK-21 の版と同じ（女流桜花のデータをひとつに／質問すると、データから答える／答えから選手の成績へ／全期の成績を一覧で／通算得点の推移／リーグの昇降級を再生／ランキング8部門の順位／期最高など歴代の記録／昇降級ボーダーの攻防を再現／第1期〜第20期・178名）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1019-ouk19
 - ログ: https://github.com/retroeater/mj/blob/work/1019-ouk19/docs/logs/CHAT-1019-OUK-23.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1019-ouk19
-- 確認用URL:
-- マージ: 未
-- issue:
+- 確認用URL: なし（動画は SendUserFile で送った。59.6秒）
+- マージ: 未（平野さんが動画を見て確定してから、別の指示で制作のスクリプトと文書をマージする）
+- issue: なし
 - 判断が必要なこと:
-- 未確認の項目:
-- エラー:
+  - 動画を確定するか直すか（平野さんが見て決める）。最終結果の画面は1位〜15位が映り、16位は下で切れる
+  - 新しい仮置き: なし
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
@@ -68,4 +99,4 @@
 - docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8ea27fb3/docs/notes/chat-side-operations.md
 - docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8ea27fb3/docs/notes/cloudflare.md
 - docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8ea27fb3/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/d1ca5793.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/8ea27fb3.md
