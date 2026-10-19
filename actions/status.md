@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-19 20:11 JST
+- 書き出した時刻: 2026-10-19 20:13 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -25,7 +25,7 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-10-19 20:11 | push | work/1019-exm | in_progress | #261（39242785280） |  |
+| 2026-10-19 20:11 | push | work/1019-exm | success | #261（39242785280） | 0分21秒 |
 | 2026-10-19 20:10 | push | work/1019-exm | success | #260（39242759173） | 0分22秒 |
 | 2026-10-19 20:08 | push | work/1019-sec12 | success | #259（39242473739） | 0分20秒 |
 | 2026-10-19 20:06 | push | work/1019-exm | success | #258（39242227791） | 0分25秒 |
@@ -38,11 +38,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-19 20:11 | check_run | cloudflare | skipped | #306（39242813263） | 0分01秒 |
 | 2026-10-19 19:47 | check_run | cloudflare | skipped | #305（39239930081） | 0分01秒 |
 | 2026-10-19 19:44 | check_run | cloudflare | skipped | #304（39239579593） | 0分01秒 |
 | 2026-10-19 19:06 | check_run | cloudflare | skipped | #303（39235020063） | 0分01秒 |
 | 2026-10-19 19:02 | check_run | cloudflare | skipped | #302（39234524366） | 0分01秒 |
-| 2026-10-19 18:54 | check_run | cloudflare | skipped | #301（39233576580） | 0分00秒 |
 
 ## check-image-links.yml
 
@@ -187,11 +187,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-19 20:11 | workflow_dispatch | work/1019-exm | success | #374（39242849915） | 0分42秒 |
 | 2026-10-19 18:43 | push | cloudflare | failure | #373（39232196280） | 5分29秒 |
 | 2026-10-19 17:48 | push | cloudflare | success | #372（39225440280） | 5分39秒 |
 | 2026-10-19 16:28 | push | cloudflare | success | #371（39216222076） | 1分48秒 |
 | 2026-10-19 16:03 | push | cloudflare | success | #370（39213571384） | 4分56秒 |
-| 2026-10-19 13:02 | push | cloudflare | success | #369（39197532675） | 1分55秒 |
 
 - #373 failure: ジョブ「regenerate」 ステップ「飛ばしたページを報告」
 
