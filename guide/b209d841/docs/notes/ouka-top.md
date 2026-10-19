@@ -7,7 +7,7 @@
 ## 構成と生成
 
 - URL は houou/ と同じ並び: `ouka/`（トップ・質問欄）・`ouka/players/`・`ouka/ranking/<スラッグ>/`（連続昇級を除いた8部門、2026-10-18。`ouka/ranking/` は `total/` へ 301）・`ouka/race/`・`ouka/leagues/`（旧 `ouka_leagues.html` の転送先。個人成績のリーグのタブ `?view=league` へ JS で移すだけ、noindex、#591。`Contest.leagues_moved`）
-- 生成は `scripts/generate_ouka_pages.py`（`regenerate.py` の `ouka_pages`、出力 `ouka/`）。中身は `generate_houou_pages.py` を大会の設定 `OUKA` で動かすだけ（`using(OUKA)`。設定は `Contest`）。共有の部品は複製しない。`regenerate.py --changed` は `generate_houou_pages.py`・`generate_houou_race.py` の変更でも `ouka_pages` を選ぶ（`ask_data_ouka` は `generate_ask_data.py`・`generate_houou_pages.py` の変更でも。`SHARED_GENERATORS`）
+- 生成は `scripts/generate_ouka_pages.py`（`regenerate.py` の `ouka_pages`、出力 `ouka/`）。中身は `generate_houou_pages.py` を大会の設定 `OUKA` で動かすだけ（`using(OUKA)`。設定は `Contest`）。共有の部品は複製しない。`regenerate.py --changed` は `generate_houou_pages.py` の変更でも `ouka_pages` を選ぶ（`scripts/lib/houou_race.py` などの `lib/` の変更では全ページ）（`ask_data_ouka` は `generate_ask_data.py`・`generate_houou_pages.py` の変更でも。`SHARED_GENERATORS`）
 - JS は houou/ と共有の `assets/league.js`・`assets/league_race.js`（2026-10-17 に `houou.js`・`houou_race.js` から改名）と `assets/houou_ask.js`。ページの `<script type="application/json" id="league_contest">`（`OUKA.script`）でリーグ・期の書き方・題名の接尾辞・最近見た選手のキー・順位変動のリーグの番号を渡す。houou/ のページには無く、JS は鳳凰戦の既定で動く
 - CSS は houou/ の節のまま。ページの枠に `is-ouka` を付け、`style.css` の `.is-ouka` でリーグの色だけを替える
 - 集計元は正本の「桜花」タブ（見出しで読む。名前・期・リーグ・リーグキー・順位・結果・入替戦・合計・第1〜8節・表示・備考の18列）。「表示」が Y の行の数が 1,000〜4,000 の外なら止める（`OUKA.rows`）
@@ -30,7 +30,7 @@
 - リーグの色（仮置き）: 桜花 #be185d（白字 6.04:1）、A #fa5d27・B #ef972e（houou/ の A・B の「中」の色）、C1 #ccaa2d・C2 #e8c133・C3 #eed066（houou/ の C1〜C3）。チップは同じ字のリーグを1色（C1〜C3 は C2 の色）
 - 規定（出場の下限）は旧 `ouka_ranking.html` の値: 期平均・期浮き率は5期以上、節浮き率は25節以上（`lib/ranking.py` の `CONTESTS["桜花"]`）。表示対象は houou/ と同じ自動ルール（`ranking.auto_cut()`）で、上限を50件・同点の群れは55件までにする（`OUKA.rank_cut`。houou/ は100件・110件。人数が少なくマイナスの人が入るのを避ける、2026-10-18）。2026-10-18 は8部門とも50件以下でマイナスの値は無い
 - 順位変動の選ぶシートは、期の下に「A・B・C」の1行と、C のときだけ「C1・C2・C3」の行（前期・後期の行は無い）。対象の期は第1期〜第20期（節の成績のある期すべて）
-- OGP は `img/ogp/ouka/index-white.png`（白地・黒字の「女流桜花」＋「ryoei.pro」、docs/notes/ogp.md の規則）。旧 `ouka_results.html`・`ouka_ranking.html`・`ouka_leagues.html` も転送で消えるまで同じ画像（2026-10-17）
+- OGP は `img/ogp/ouka/index-white.png`（白地・黒字の「女流桜花」＋「ryoei.pro」、docs/notes/ogp.md の規則）。旧 `ouka_results.html`・`ouka_ranking.html`・`ouka_leagues.html` も同じ画像だった（2026-10-17。旧3ページは #582 で消した、2026-10-19）
 
 ## 質問欄
 
@@ -44,3 +44,26 @@ houou-top.md の「確かめ方」に加えて:
 
 - `python3 scripts/regenerate.py all` を作業ブランチと cloudflare のクローンで回し、houou/ の生成物の差分が JS の名前（`league.js`・`league_race.js`）の行だけで、ほかの houou の生成物が差分0であること（大会の設定の共通化で鳳凰戦が変わっていない）
 - ランキングは旧 `ouka_ranking.html`（Google Charts）の表から在籍者でない選手を除いて順位を付け直すと、7部門は一致する。期浮き率は旧 JS の誤り（名前の順で最後の選手に1人前の選手の率が入る）で齋藤麻衣子が 0.684 になっていた（新は 0.267、2026-10-17）
+
+## 告知動画
+
+2026-10-19 に確定し、15:00 に X へ投稿した（https://x.com/retroeater/status/2112061183469535406 。投稿文は `docs/notes/page-announcement.md` の実例）。作り直しは `scripts/promo_video/ouka/README.md`。
+1080×1920・30fps・59.6秒・曲調 b。公開後の本番（順位変動の PO の直しの後）で撮った。houou/ の告知と同じ流れに順位変動を足し、60秒に収めるためリーグの推移の早送りを7倍にした。
+
+- 質問欄: 「第20期の女流桜花は？」→「第20期の女流桜花は清水香織さんです。清水さんは13期の選手です。」（データ: 決勝 第20期まで、出典: 女流桜花 歴代優勝者）。答えのカードから清水香織の個人成績へ進む
+- 順位変動は第20期 A（ページの既定の表）。最終結果は1位が映る位置で止める（1位〜15位が映り、16位は下で切れる。下位の行で止めない）
+
+| 場面 | 秒 | 字幕 |
+|---|---|---|
+| タイトル | 0〜2.5 | なし（「女流桜花」「個人成績・ランキング・順位変動」） |
+| トップ | 2.5〜5.0 | 女流桜花のデータをひとつに |
+| 質問欄 | 5.0〜10.69 | 質問すると、データから答える |
+| 選手を開く | 10.69〜12.69 | 答えから選手の成績へ |
+| 期別 | 12.69〜15.59 | 全期の成績を一覧で |
+| 通算 | 15.59〜19.39 | 通算得点の推移 |
+| リーグ | 19.39〜30.36 | リーグの昇降級を再生 |
+| 部門別 | 30.36〜32.46 | ランキング8部門の順位 |
+| ランキング（期最高へ切り替え） | 32.46〜37.46 | 期最高など歴代の記録 |
+| 順位変動 | 37.46〜53.52 | 昇降級ボーダーの攻防を再現 |
+| 範囲（最終結果で止める） | 53.52〜56.12 | 第1期〜第20期・178名 |
+| 締め | 56.12〜59.63 | なし（ryoei.pro） |

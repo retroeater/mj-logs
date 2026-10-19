@@ -174,11 +174,11 @@
 
 ## 報告
 
-- 状態: 完了
+- 状態: 判断待ち / 続き: CHAT-1019-OUK-26
 - ブランチ: work/1019-ouk25
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1019-OUK-25.md
 - 比較URL: https://github.com/retroeater/mj/compare/4bd3592b8...d5b59e675
-- 確認用URL: https://ryoei.pro/houou/ ・ https://ryoei.pro/ouka/ ・ https://ryoei.pro/jwrc/ （旧 URL の例: https://ryoei.pro/houou_results.html ）
+- 確認用URL: 本番の houou/・ouka/・jwrc/ と旧9ページの URL で確かめた（URL は最終報告）
 - マージ: 済み（d5b59e675。Workers Builds の mj は本番 6f0d999b1〈再生成のコミット〉で success、check-assets は success）。消したファイルは60件:
   - 鳳凰戦: `houou_ranking.html`・`houou_leagues.html`・`houou_race.html`・`houou_results.html`、`houou_leagues_data.json`、`houou_race/`（41ファイル）、`houou_results.js`・`houou_race.js`
   - 女流桜花: `ouka_results.html`・`ouka_ranking.html`・`ouka_leagues.html`、`ouka_leagues_data.json`、`ouka_results.js`
@@ -204,12 +204,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj d5b59e67）: https://github.com/retroeater/mj-logs/tree/main/guide/d5b59e67
+ガイド文書（この版を写した時点の最新、mj b209d841）: https://github.com/retroeater/mj-logs/tree/main/guide/b209d841
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d5b59e67/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d5b59e67/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d5b59e67/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d5b59e67/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d5b59e67/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d5b59e67/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b209d841/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b209d841/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b209d841/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b209d841/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b209d841/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b209d841/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/10e55a48.md
