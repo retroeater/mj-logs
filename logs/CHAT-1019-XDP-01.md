@@ -57,6 +57,25 @@ jpml_pros で早川健太（X: MJ_hayaken）と早川航平（X: saikou0611）�
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 着手前の確認
+- 0: 「指示」欄の末尾は指示文の最後の行（「不明な点があれば、…この行が指示文の最後の行です。」）と一致
+- Chat-Ref: `git fetch --unshallow` の後、`CHAT-1019-XDP-01` のコミット・`XDP` の識別子（全ブランチのコミット・`docs/logs/` の履歴）とも 0 件。`work/1019-xdp` はローカル・リモートとも無く、origin/cloudflare（9903e2209）から作った
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある
+- 0章ゲート: #514 に他セッションの着手中のコメントは無い（最後は CHAT-1014-ACF-20 の完了報告）。CLAUDE.md 24,883・handover.md 22,922 バイト（警告域 26KB の手前、今回は触らない）。未マージの work/ ブランチで `scripts/update_sns_book.py`・`scripts/lib/sns_book.py`・SNS 関係のテスト・`docs/notes/sns-book.md`・`docs/decisions/saikyo.md`・`collect_saikyo_images.py`・`check_sns_book_images.py` を変えているものは 0
+- #514 に着手中のコメントを書いた
+
+### 手順1: 原因と【3】の実物
+- `x_cell()`（cloudflare 9903e2209）: ID が前と同じで前の URL が `CHECK_SIZES` の3つとも HEAD で取れれば X API を呼ばず、前の X数値ID・URL・取得日を残して状態 `RESOLVED`（既定アイコンなら `DEFAULT_AVATAR`）にする。数値ID が空かは見ない。チャット側の読みのとおり
+- init が書いた状態「シートから写した」（`COPIED`）は b556c68bd で init と一緒に消えた。init の翌日以降の更新が上の経路で `RESOLVED` に置き換えた
+- 【3】を gviz で読んだ（読むだけ、2026-10-19）: 1,854 行。2人の行はチャット側の確認と同じ（X数値ID 空・`profile_images/1954527509758001152/Yky8lHAu_400x400.jpg`・X取得日 2026-10-10・X状態「解決」）。【4】は 0 行（2人の行は無い）。【2】の X は MJ_hayaken・saikou0611、状態は空（一覧にいる）
+- 重複の判定（X画像URL を `_400x400` にそろえた値ごとに、X ID を小文字にして集める。既定アイコン・空は除く。状態「一覧に無い」の行も含めた）: **1組2行**
+  - `profile_images/1954527509758001152/Yky8lHAu`: 早川健太（MJ_hayaken）・早川航平（saikou0611）
+  - 同じ X ID で同じ画像の組は 0
+- 【3】の X画像URL がある行の (X状態, 数値ID の有無): 解決・数値ID 空 986、解決・数値ID あり 67、既定のアイコン・空 11、既定のアイコン・あり 1。**数値ID が空の「解決」986 行は、今回の直しで状態の表示が「シートから写した」に変わる**（値は変わらない）
+- RESOLVED（「解決」）・X状態を見ている箇所: `update_sns_book.py` の中だけが分岐に使う（`x_cell()` の `PARTIAL` の判定のみ。「解決」では分岐しない）。`lib/sns.py` の `X_PENDING_STATES`（未入力・未取得・上限で未取得・未取得(トークンなし)）と `collect_saikyo_images.py` の `UPDATE_STUCK_STATUSES` は完全一致で見ており「解決」も「シートから写した」も含まない。`collect_saikyo_images.report_targets()` は状態を「【3】<X状態>」として issue に写すだけ。`check_sns_book_images.py`・`.github/`・`workers/` は X状態を読まない。ページの生成（`lib/sns.build()`）は状態を読まない。`page_values_changed()` は ID と画像URL の列だけを比べるので、状態の変化では再生成されない → **表示が変わるだけで挙動は変わらない**
+
 <!-- guide-links -->
 ---
 

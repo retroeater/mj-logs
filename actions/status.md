@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-19 22:32 JST
+- 書き出した時刻: 2026-10-19 22:34 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -25,11 +25,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-19 22:32 | push | work/1019-xdp | success | #288（39261077390） | 0分20秒 |
 | 2026-10-19 22:28 | push | work/1019-eng | success | #287（39260399613） | 0分22秒 |
 | 2026-10-19 22:27 | push | work/1019-wrr10 | success | #286（39260355669） | 0分24秒 |
 | 2026-10-19 22:22 | push | work/1019-log-367-src | success | #285（39259631900） | 0分25秒 |
 | 2026-10-19 22:22 | push | work/1018-log-367-migrate | success | #284（39259565324） | 0分23秒 |
-| 2026-10-19 22:19 | push | work/1019-lnk | success | #283（39259150573） | 0分23秒 |
 
 ## check-build-failure.yml
 
@@ -38,11 +38,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-19 22:33 | check_run | cloudflare | skipped | #342（39261176618） | 0分04秒 |
 | 2026-10-19 22:30 | check_run | cloudflare | skipped | #341（39260794352） | 0分02秒 |
 | 2026-10-19 22:26 | check_run | cloudflare | skipped | #340（39260221169） | 0分01秒 |
 | 2026-10-19 22:23 | check_run | cloudflare | skipped | #339（39259803021） | 0分01秒 |
 | 2026-10-19 22:22 | check_run | cloudflare | skipped | #338（39259564087） | 0分00秒 |
-| 2026-10-19 22:21 | check_run | cloudflare | skipped | #337（39259449643） | 0分01秒 |
 
 ## check-image-links.yml
 
@@ -316,13 +316,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-19 22:32 | workflow_dispatch | cloudflare | in_progress | #31（39261099815） |  |
+| 2026-10-19 22:32 | workflow_dispatch | work/1019-xdp | success | #30（39261094317） | 0分42秒 |
 | 2026-10-15 16:05 | workflow_dispatch | cloudflare | success | #29（38696400299） | 5分11秒 |
 | 2026-10-15 14:42 | workflow_dispatch | cloudflare | success | #28（38688263060） | 0分34秒 |
 | 2026-10-15 12:17 | workflow_dispatch | work/1015-wfl-s6 | success | #27（38675497590） | 0分25秒 |
-| 2026-10-15 04:10 | workflow_dispatch | cloudflare | failure | #26（38621492985） | 4分24秒 |
-| 2026-10-14 11:55 | workflow_dispatch | work/1014-acf-refetch | success | #25（38503614780） | 1分07秒 |
-
-- #26 failure: ジョブ「regenerate / regenerate」 ステップ「飛ばしたページを報告」
 
 ## dependabot-updates
 
