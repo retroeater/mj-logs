@@ -48,6 +48,80 @@ CHAT-1019-LNK-01（#616）で「連盟 > リンク」を廃止し、メニュー
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 0章・ブランチ
+
+- 指示欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- `git log --all --grep=CHAT-1019-LNK-02` は0件。`LNK` はこのセッションの LNK-01 で使ったもの（同じセッションの2つ目の指示なので重複には当たらない）
+- `work/1019-lnk` はローカルにあり `origin/cloudflare` の祖先（LNK-01 でマージ済み）。cloud-sessions.md「作業ブランチの用意」のとおり `git merge --ff-only origin/cloudflare` で a33a81859 へ進めた
+
+### 手順1
+
+- 未マージのブランチで `navbar.js` を変えているのは `origin/work/1017-lvp` だけ。変えているのは `newNavCurrent` の分岐（`mj-live-n-page`）で、今回の `document.write` のメニューの行とは別の箇所。
+  `git merge-tree` で navbar.js は自動で合わさる（衝突は `live/` の3つと `docs/decisions/live.md` の4件で、cloudflare と 1017-lvp の間にもともとある4件と同じ。今回の変更によるものではない）
+- 前提の確かめ: メニュー「連盟」の項目は「プロ」（`/jpml_pros.html`）・「タイトル戦」（`/title/`）の2つだけ。行き先は前提どおり
+- 今いるページの印: 実物では印（`aria-current` と白地のナビ）は houou/・ouka/・jwrc/・wrcr/・最強戦の新ページにだけ付き、`jpml_pros.html`・`title/` には今も「連盟」にも印が無い（黒地のナビのまま）。
+  そのため「今の付け方に合わせる」＝印を足さない、とした（足すなら白地のナビにするかを含め判断が要る）
+
+「連盟」のメニューを指す記述（`git grep`、docs/logs・docs/gsc を除く。検索語: 「連盟」・連盟 >・連盟<br>・連盟のメニュー など）:
+
+| 場所 | 中身 | 扱い |
+|---|---|---|
+| `navbar.js:31-36` | メニュー「連盟<br>JPML」と下の2項目 | 直す |
+| `scripts/tests/test_navbar.py` | 「タイトル戦」の項目名のテスト（`</a>` の直前を見ていた） | 直す（`<br>` の前を見る）。並びのテストを足す |
+| `docs/notes/static-generation.md:273` | 「navbar の「連盟 > タイトル」から入口へ」 | 直す（「タイトル戦」から） |
+| `docs/notes/title-pages.md:21` | 公開（#413）のときに「連盟 > タイトル」を差し替えた経緯 | 変えない（経緯の記録） |
+| `docs/notes/video-exam.md:4・7` | 旧 `jpml_test.html` が「連盟」のメニューにあった説明 | 変えない（旧ページの記録） |
+| `docs/decisions/exam.md:36`・`houou.md:1215`・`page-release.md:55`・`site-review.md:199` | 過去の決定 | 変えない（記録） |
+| `docs/decisions/seo-bing.md:130` | 文字の OGP 画像は「メニューの最上位でそれ自体がページになっているもの」だけ作り、タイトル戦は「メニューでは「連盟」の下だが」例外 | 変えない（判断が要る。下の「判断が必要なこと」） |
+
+- ページの見出し・パンくず・og:title・`llms.txt` に「連盟 >」の形の表記は無い（`jpml_pros.html` は title・og:title「プロ | 日本プロ麻雀連盟 | ryoei.pro」、`apple-mobile-web-app-title` は既に「連盟プロ」。`title/` は「タイトル戦 | 日本プロ麻雀連盟 | ryoei.pro」）。変えていない
+
+### 手順2
+
+- `navbar.js`: 「連盟」のドロップダウンを消し、`連盟プロ<br>Pros`（`/jpml_pros.html`）・`タイトル戦<br>Title`（`/title/`）の1段の項目を「鳳凰戦」の前に置いた。
+  黒地のナビはほかの項目と同じ「日本語<br>英語」の2行にした（英語の行は指示に無いので仮。下の「判断が必要なこと」）。白地のナビ（houou/ など）では `<br>` の前の「連盟プロ」「タイトル戦」になる
+- テスト: 1443件 OK。足した・直したテストは cloudflare の `navbar.js` では FAIL・ERROR になることを確かめた（#310）
+- 決定を `docs/decisions/site-review.md` に「2026-10-19（CHAT-1019-LNK-02）」として足した
+- 成果物のコミット 5c4063e4b
+
+### 手順3: 撮影（`docs/logs/CHAT-1019-LNK-02/`）
+
+- プレビュー（5c4063e4b の「Workers Builds: mj」success。URL は最終報告だけ）: `preview-<ページ>-<幅>.png`（ページ: jpml_pros・title・houou、幅: 1280・1024・375〈メニューを開いた状態〉）。PC は上の160px、スマホは800pxを撮った
+- 本番（cloudflare、今の版）: `prod-<ページ>-<幅>.png`（同じ9枚）
+- 計測（ヘッドレス Chromium。ナビの項目の行数・ナビの高さ・横のはみ出し）:
+
+| ページ | 幅 | 本番: 行数・ナビ高さ・最後の項目の右端 | プレビュー: 同 | 印 |
+|---|---|---|---|---|
+| jpml_pros | 1280 | 1行・80px・702px | 1行・80px・812px | なし（両方） |
+| jpml_pros | 1024 | 1行・80px・702px | 1行・80px・812px | なし |
+| jpml_pros | 375 | 9項目・640px | 10項目・704px | なし |
+| title/ | 1280・1024 | 1行・80px・702px | 1行・80px・812px | なし |
+| title/ | 375 | 9項目・640px | 10項目・704px | なし |
+| houou/ | 1280・1024 | 1行・61px・649px | 1行・61px・767px | 鳳凰戦（両方） |
+| houou/ | 375 | 9項目・461px | 10項目・505px | 鳳凰戦 |
+
+- PC 幅（1280・1024）で折り返し・はみ出しは無い（ナビの項目は1行、`nav` の `scrollWidth` は `clientWidth` を超えない、ナビの高さは本番と同じ）。スマホ幅は並びが「連盟プロ」「タイトル戦」「鳳凰戦」…の順で、項目が1つ増えた分だけ縦に伸びる
+- `jpml_pros` の375px で本文の横はみ出し（`documentElement.scrollWidth > innerWidth`）があるが、本番でも同じ（表の幅。ナビの変更とは関係しない）
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1019-lnk
+- ログ: https://github.com/retroeater/mj/blob/work/1019-lnk/docs/logs/CHAT-1019-LNK-02.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1019-lnk
+- 確認用URL: プレビューあり（URL は最終報告）。確認したページは `jpml_pros.html`・`title/`・`houou/`。この版で見える印: トップメニューの左端が「連盟プロ / Pros」「タイトル戦 / Title」で、「連盟」が無い
+- マージ: 未（平野さんの判断待ち）
+- issue: なし（#616 の続き）
+- 判断が必要なこと:
+  - プレビューを見て cloudflare へマージしてよいか
+  - 黒地のナビの英語の行を「Pros」「Title」にした（指示に英語の行の指定が無いため仮。ほかの項目は「日本語<br>英語」の2行）。この語でよいか
+  - 今いるページの印は、`jpml_pros.html`・`title/` には今も付いていない（印は白地のナビのページだけ）ので足していない。2つのページにも印を付けるか（付けるなら白地のナビにするかも）
+  - `docs/decisions/seo-bing.md`（2026-10 の OGP の決定）の「文字の OGP 画像はメニューの最上位でそれ自体がページになっているものだけ作る」に、「連盟プロ」が当てはまるようになった。`jpml_pros.html` に専用の画像を作るか（タイトル戦は既に専用の画像がある）
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
