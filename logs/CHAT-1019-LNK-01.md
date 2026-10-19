@@ -97,6 +97,15 @@
 - テスト: `python3 -m unittest discover -s scripts/tests` 1442件 OK
 - 成果物のコミット fc2798f31。その後 origin/cloudflare（b8020e176、docs のみ2コミット）を取り込んだ（衝突なし）
 
+### 手順3: 確かめ
+
+- 再生成: スクラッチのクローン2つ（a = 作業ブランチ fc2798f31、b = origin/cloudflare の 6bb0f617c）で `python3 scripts/regenerate.py all`。どちらも rc=0
+- `git status --short` は a・b とも0件（データの変化なし。navbar はページに焼き込まれず実行時に描くので、生成ページの変化も無い）
+- a と b の木の差（`diff -rq -x .git`）: `jpml_links.html`（b のみ）・`navbar.js`・`sitemap-pages.xml`・`llms.txt`・`docs/notes/` の3つ・`docs/decisions/` の2つ・このログ、と `scripts/**/__pycache__/*.pyc`（実行で作られたバイトコード。追跡外）だけ。説明できない差は無い
+- プレビュー（d2964cf9c の「Workers Builds: mj」success。URL は最終報告だけ）: `/jpml_links.html` が 404、`navbar.js` に `jpml_links` 0件。
+  ヘッドレス Chromium で `jpml_pros.html` のメニュー「連盟」を開いて撮影: PC（1280px）・スマホ幅（375px）とも項目は「プロ」「タイトル戦」の2件。
+  `docs/logs/CHAT-1019-LNK-01/menu-pc.png`・`menu-sp.png`
+
 <!-- guide-links -->
 ---
 
@@ -108,4 +117,4 @@
 - docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b8020e17/docs/notes/chat-side-operations.md
 - docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b8020e17/docs/notes/cloudflare.md
 - docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b8020e17/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b8020e17.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/f0a1e266.md

@@ -1,7 +1,7 @@
 # CHAT-1019-ENG-01
 
 - 着手日時: 2026-10-19
-- 対象issue: 未定（手順1で検索・起票）
+- 対象issue: #617
 - ブランチ: work/1019-eng
 - 着手時HEAD: b8020e176
 
@@ -56,6 +56,39 @@
 - 作業ブランチ: ローカル・リモートとも work/1019-eng 無し → `git checkout -b work/1019-eng origin/cloudflare`
 - 0. 指示欄の末尾は指示文の最後の行（「この行が指示文の最後の行です。」）と一致
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+
+### 手順1: issue と参照の洗い出し
+
+- issue の検索（REST で全 issue の題を取得し `English`・`video_en`・`英語`・`番組`・`メニュー`・`navbar`・`ナビ` で照合、クローズ済みを含む）: 同じ論点のものは無い（#226 は英語版 /en/ の作成で別の論点）。#617 を起票し、着手中コメントを書いた
+- 前提の確かめ: origin/cloudflare の `navbar.js` の「番組」は 放送対局・帰り道・Mつく・プロテスト（`/exam/`）・English。`scripts/generate_video_en.py` はブック `1y8xBxGp…`（`generate_resource_logs.py` と同じ）の「英語」シートを読む。どちらも前提のとおり
+- 未マージの work/ ブランチで、この作業のファイルを変えているもの:
+  - work/1017-lvp: `navbar.js` の現在地の判定（93行目付近、`mj-live-n-page`）と `style.css`。こちらは「番組」の項目（44〜49行目）だけで別の箇所。`style.css` は触らない
+  - work/1019-lnk（LNK-01、作業中）: `navbar.js` の「連盟」のリンク（35行目）・`llms.txt` の「リンク」の行・`sitemap-pages.xml` の `jpml_links` の項・`docs/notes/static-generation.md` の「ページの一覧」の冒頭の行（「HTMLは23ページ」→22）など。**冒頭の行はこちらも件数を変えるので同じ行になる**。このため冒頭の行は LNK-01 のマージを待ってから、取り込んだ上で直す（ほかは別の箇所）
+- `video_en`・`generate_video_en`・English のメニュー項目の参照（`git grep`、docs/logs と data を除く）と扱い:
+
+  | 参照 | 種類 | 扱い |
+  |---|---|---|
+  | `video_en.html` | 旧ページ | 消した（`_redirects` には足さない＝404） |
+  | `scripts/generate_video_en.py` | 旧ページの生成（`regenerate.py` は `generate_*.py` の有無で対象を決めるので、消すだけで外れる。`--list` は 29件で `video_en` 無し） | 消した |
+  | `scripts/tests/test_simple_pages_check.py` | `--check` のテスト。`GENERATE_PAGES` の一覧と、`page.check_rows` のテストの題材に `video_en` を使っていた | 一覧から外し、題材を `generate_video_live`（同じ `page.generate()` の2列ページ）に替えた。docstring の件数「8ページ」とテスト名の `eight` は件数を外した |
+  | `navbar.js` の「番組」 | メニュー | English を外し、放送対局・帰り道・プロテスト・Mつく に並べ替えた |
+  | `llms.txt` の English の行 | 索引 | 消した。「番組」の節の並びもメニューに合わせた（プロテストを Mつく の前へ） |
+  | `sitemap-pages.xml` の `video_en.html` | サイトマップ | 消した |
+  | `docs/notes/static-generation.md`「ページの一覧」 | 文書 | 型A・2列/3列の行を 5→4 にし、廃止を書いた。冒頭の「HTMLは23ページ」は LNK-01 のマージ後に直す。22行目の移行の記録（`video_wayhome` / `video_en` …）は当時の記録として残した |
+  | `docs/decisions/exam.md` の36行目 | 決定 | メニューの位置の記述を今回の決定で置き換えた（並びの変更と English の廃止、女流勉強会の位置は公開のとき） |
+  | `docs/decisions/page-release.md` の50行目（「English \| 番組 \| ryoei.pro」） | 決定 | 「`video_en.html` は 2026-10-19 に廃止、#617」を添えた。今回の決定を末尾に足した |
+  | `docs/notes/video-exam.md`（メニューの位置・同じブックの説明） | 文書 | 今の並びに直し、`video_en` は廃止した旨にした |
+  | `style.css` の `#en_table` の規則とコメント | 共有の CSS | 残した（指示のとおり。work/1017-lvp が `style.css` を大きく変えているので触らない） |
+  | `docs/decisions/automation.md`・`docs/lighthouse-baseline.md`・`docs/gsc/`・`docs/notes/site-findings.md`・`handover-archive-2026.md` | 過去の記録 | 残した |
+  | `scripts/lib/meibo.py` などの `english_names` | 名簿の英語名（別物） | 対象外 |
+  | `.github/workflows/`・`check_unused_names.py` | — | 名指しは無い |
+
+- 「英語」シートを読む所は無くなった（シートは消していない）
+
+### 手順2: 廃止と並べ替え
+
+- 7cea96680: 上の表のとおり。テスト 1442件 OK
+- #576 の本文: 「メニューの位置」の項と段2のチェックリストの navbar の行を「公開のときに決める（#617）」に直した（REST で部分置換。直前の `updated_at` 2026-10-19T11:11:28Z が取得時と同じことを確かめた）
 
 ## 報告
 
