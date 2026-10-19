@@ -89,14 +89,38 @@
 - `python3 -m unittest discover -s scripts/tests`: 1444件 OK。`python3 scripts/regenerate.py --check resource_logs`: 通る（「ログ」2630件・3層から 483件、3113件）。生成し直した `resource_logs.html` は cloudflare のものとバイト単位で同じ（差分なし）
 - cloudflare との差分: `scripts/generate_resource_logs.py`・`scripts/tests/test_generate_resource_logs.py`・`docs/notes/video-exam.md`・`docs/decisions/operations.md`・`docs/logs/CHAT-1019-LOG-01.md`。見込みの外は無い
 
+### マージ（手順2）
+
+- 取り込み: cloudflare が2コミット先に進んでいた（他セッションの docs/logs のみ）。`git merge origin/cloudflare` で取り込み（衝突なし）、テスト 1444件 OK・`--check resource_logs` が通る・生成し直した `resource_logs.html` は cloudflare とバイト単位で同じ、を確かめ直した
+- push 直前に再 fetch し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真であることを確かめて `git push origin work/1019-log-367-src:cloudflare`（330192d66..c9f649d56）
+- c9f649d56 の check-run: regenerate success。**Workers Builds の check-run は c9f649d56 には出なかった**（20分ほど見ていた間に、他セッションが cloudflare に 70d14cc9f などを push し、その Workers Builds: mj は in_progress、mj-ask は success）。失敗の check-run は無い
+- 本番の `https://ryoei.pro/resource_logs.html?v=c9f649d56`: 手元の生成物とバイト単位で同じ。ただし生成物はマージの前と同じ内容なので、この版が配信されたかどうかは HTML からは区別できない（変わる見込みのある出力は無い）
+
+### work/1018-log-367-migrate（手順3）
+
+- `git checkout work/1018-log-367-migrate`（ローカルとリモートが一致）のうえ `git merge origin/cloudflare`。衝突は `docs/decisions/operations.md`（生成物でない文書）だけで、末尾への追記どうし（このブランチの「2026-10-18（CHAT-1018-LOG-05）」と、cloudflare 側の「2026-10-19（CHAT-1019-OUK-17）」〜「2026-10-19（CHAT-1019-LOG-01）」）。両方を残し、LOG-05 の節を先、cloudflare 側の節を後にした。解いた後の該当箇所:
+
+```
+- 移す投稿がすでに【3】にある行は、旧「ログ」の空でない値で【3】のセルを上書きする
+- X から取れない行は数と一覧を報告し、扱いは後で決める。決めるまで旧「ログ」は消さない
+- 作業中の回答: なし
+
+## 2026-10-19（CHAT-1019-OUK-17）
+```
+
+- このブランチの旧「ログ」を読む処理（`fetch_x_posts.py` の `mode=log` と `preflight`、`convert_x_posts.py` の `mode=log-layer3` と `preflight`〈名前の対応 `names_by_handle` の元〉）は、どれも `fetch_x_posts.LOG_BOOK`（= `generate_resource_logs.SPREADSHEET_ID`）を通す。取り込みでこれが3層のスプレッドシートになったので、コードの変更は要らなかった（`LOG_BOOK` と3層の ID が同じことを確かめた）。書かないタブの守り（`FORBIDDEN_TABS` の「ログ」）は、同じスプレッドシートになっても名前で効く
+- テスト 1454件 OK、`--check resource_logs` が通る（3113件）。マージコミット a1d8c1e1c を push した（cloudflare へはマージしていない）
+- `git grep`（scripts・.github・workers）で旧スプレッドシートの ID: cloudflare・work/1018-log-367-migrate とも 0件。残っているのは docs/decisions/mtsuku.md・wayhome.md の過去の記録の文中だけ（読む処理ではない）
+- #367 に結果のコメントを残した
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1019-log-367-src
-- ログ: https://github.com/retroeater/mj/blob/work/1019-log-367-src/docs/logs/CHAT-1019-LOG-01.md
+- 状態: 完了
+- ブランチ: work/1019-log-367-src（あわせて work/1018-log-367-migrate に cloudflare を取り込んで push。こちらは未マージのまま）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1019-LOG-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1019-log-367-src
-- 確認用URL: なし
-- マージ: 未
+- 確認用URL: 本番の resource_logs.html（URL は最終報告）。出力は変わらない作業なので、見た目の印は無い
+- マージ: 済（c9f649d56）
 - issue: #367
 - 判断が必要なこと: なし
 - 未確認の項目: なし
@@ -105,12 +129,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj c9f649d5）: https://github.com/retroeater/mj-logs/tree/main/guide/c9f649d5
+ガイド文書（この版を写した時点の最新、mj 70d14cc9）: https://github.com/retroeater/mj-logs/tree/main/guide/70d14cc9
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c9f649d5/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c9f649d5/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c9f649d5/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c9f649d5/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c9f649d5/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c9f649d5/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/70d14cc9/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/70d14cc9/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/70d14cc9/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/70d14cc9/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/70d14cc9/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/70d14cc9/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a253293d.md
