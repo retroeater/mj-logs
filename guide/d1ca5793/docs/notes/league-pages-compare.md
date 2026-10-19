@@ -2,13 +2,13 @@
 
 3大会のページは同じ作り（`scripts/generate_houou_pages.py` を大会の設定 `Contest`〈`HOUOU`・`OUKA`・`JWRC`〉で動かす。JS は `assets/league.js`・`league_race.js`・`houou_ask.js`、CSS は `style.css` の houou の節）。
 ここには、3大会で**違うところ**と、その差が意図したものか（よりどころ）を書く。同じところは書かない。それぞれの仕様は `docs/notes/houou-top.md`・`ouka-top.md`・`jwrc-top.md`。
-2026-10-18 に CHAT-1018-OUK-13 で横に比べた（比べた画面は下の「比べ方」）。**大会の設定や共通の部品を変えたら、この表と照らし、意図しない差を作らない。**
+2026-10-18 に CHAT-1018-OUK-13 で横に比べた（比べた画面は下の「比べ方」）。**大会の設定や共通の部品を変えたら、この表と照らし、意図しない差を作らない。**（表の列に全大会があるかは `scripts/tests/test_league_pages_compare.py`）
 
 ## 意図した差（残す）
 
 | ページ・タブ | 観点 | houou/ | ouka/ | jwrc/ | よりどころ |
 |---|---|---|---|---|---|
-| 共通 | 公開・noindex | 公開（noindex なし） | 未公開（noindex） | 未公開（noindex） | ouka-top.md（公開は #591）・jwrc-top.md（公開は #599） |
+| 共通 | 公開・noindex | 公開（noindex は `leagues/` だけ） | 公開（同じ。#591） | 公開（noindex なし。`leagues/` が無い。#599） | ouka-top.md・jwrc-top.md |
 | 共通 | OGP 画像 | `img/ogp/houou/` | `img/ogp/ouka/` | `img/ogp/jwrc/` | docs/notes/ogp.md の規則（2026-10-17・18） |
 | 共通 | 大会の印 | なし（JS の既定） | `is-ouka`・`data-contest="ouka"`・`#league_contest` | `is-jwrc`・`data-contest="jwrc"`・`#league_contest` | 大会の設定（`Contest.script`） |
 | 共通 | 期の表記 | 「43期後期」「第43期前期」（通期のリーグは「42期」） | 「20期」「第20期」（全リーグ通期） | 「19期」「第19期」（全行通期） | #541・ouka-top.md・jwrc-top.md |
@@ -35,9 +35,7 @@
 
 ## 公開でそろえる差（決定済み・まだ入れていない）
 
-| ページ・タブ | 観点 | houou/ | ouka/ | jwrc/ | 決定と入れる時 |
-|---|---|---|---|---|---|
-| 共通 | 共通ナビの形 | 白地のナビ（`.mj-nav-new`、項目名は日本語1行、今の項目に印） | 濃色のナビ（旧の形） | 濃色のナビ | ouka/・jwrc/ にも白地のナビを当てる（2026-10-19、平野さん）。`navbar.js` の判定に `/ouka/`・`/jwrc/` を足すのは、公開（#591・#599）の navbar の項目の変更と一緒（未マージの work/1017-lvp が同じ分岐を変えているため） |
+なし（共通ナビの形〈白地のナビ `.mj-nav-new`、項目名は日本語1行、今の項目に印〉は ouka/ の公開〈#591〉と jwrc/ の公開〈#599〉で入れ、3大会でそろった）。
 
 ## 比べ方
 
