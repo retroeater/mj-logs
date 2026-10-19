@@ -47,15 +47,29 @@ CHAT-1019-XDP-01 の変更（`scripts/update_sns_book.py` の重複の判定と�
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 着手前の確認
+- 0: 「指示」欄の末尾は指示文の最後の行と一致。`CHAT-1019-XDP-02` のコミットは 0 件。CHAT-1019-XDP-01 のログの状態は「判断待ち」、`origin/work/1019-xdp`（3f94dc6a5）は cloudflare に未マージで、ローカルと一致
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある
+
+### 手順1: 取り込みとテスト
+- `git merge origin/cloudflare`（f4fee5953）: 衝突なし。取り込んだのは他セッションの docs・ログ・`jpml_pros.html`・`scripts/generate_jpml_pros.py`・`workers/ask/` など（`update_sns_book.py`・SNS ブック関係のテスト・`docs/notes/sns-book.md` を変えるものは無い）
+- `python3 -m unittest discover -s scripts/tests`: 1450 件 OK（取り込んだ `workers/ask/` は今回変えていないので `node --test` は回していない）
+
+### 手順2: 決定と XDP-01 のログ
+- docs/decisions/saikyo.md の 2026-10-19（CHAT-1019-XDP-01）の節: 「案C は今回はやらない。案B で重複が何件出たかを見てから決める」の行を、見送りの決定と理由に置き換え、マージしてよいことを1行足した
+- CHAT-1019-XDP-01 のログの `## 報告` の状態を「判断待ち / 続き: CHAT-1019-XDP-02」にした
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj f4fee595）: https://github.com/retroeater/mj-logs/tree/main/guide/f4fee595
+ガイド文書（この版を写した時点の最新、mj 7249a1de）: https://github.com/retroeater/mj-logs/tree/main/guide/7249a1de
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f4fee595/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f4fee595/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f4fee595/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f4fee595/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f4fee595/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f4fee595/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/7249a1de/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/7249a1de/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/7249a1de/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/7249a1de/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/7249a1de/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/7249a1de/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/19fa8d37.md
