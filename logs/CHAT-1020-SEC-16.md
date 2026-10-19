@@ -88,28 +88,39 @@ Chat-Ref: CHAT-1020-SEC-16
 - docs: `docs/notes/security.md` の (b) に `safe_url()`・`script_json()`・クエリの名前の逃がし方を、(c) にデータ由来の URL の確かめ方と `decodeURIComponent` の try を一句ずつ足した。`docs/decisions/security.md` に `## 2026-10-20（CHAT-1020-SEC-16）` を足した
 - コミット: f12d67359（fix）・9f0913d70（docs）
 
+
+### 手順3（マージと本番の確かめ）
+
+- `git fetch origin cloudflare`: cloudflare は着手時の 768cd082e のまま（取り込みは不要。`merge-base --is-ancestor` は真）
+- マージ前にやり直した: `scripts/tests` 1457 件 OK・`workers/ask` 83 件すべて通る。`regenerate.py all`（終了コード 0）の後 `git status` は空（生成物の差分0）。cloudflare との差分は、変えたスクリプト・JS 11・テスト3・docs 4（`docs/decisions/security.md`・`docs/notes/security.md`・`docs/logs/CHAT-1020-SEC-15.md`・`docs/logs/CHAT-1020-SEC-16.md`）だけ。データの変化による生成物の差分は0件
+- 2026-10-20 08:43 JST に `git push origin work/1020-sec16:cloudflare`（768cd082e..87b60a760、fast-forward）
+- check-runs（87b60a760）: 「Workers Builds: mj」completed・success（summary に Preview の URL 無し＝本番）、`regenerate` success（自動の再生成のコミットは続かなかった）、`notify` skipped
+- 本番（User-Agent を付けて各1回）: `/houou/?v=87b60a760`・`/jpml_pros.html?v=87b60a760`・`/resource_logs.html?v=87b60a760` はどれも 200。`/assets/houou_ask.js` に `sameOrigin`、`/assets/saikyo.js` に壊れたハッシュの try があり、今回の版が配信されている
+- #598 に結果のコメント（issuecomment-6279901425）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1020-sec16
-- ログ: https://github.com/retroeater/mj/blob/work/1020-sec16/docs/logs/CHAT-1020-SEC-16.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1020-SEC-16.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1020-sec16
-- 確認用URL: なし
-- マージ: 未
-- issue: #598
-- 判断が必要なこと: なし
+- 確認用URL: なし（生成物は変わらない。JS はローカルの HTTP サーバと headless Chrome で、直す前と後を比べた。見た目は変わらない）
+- マージ: 済（87b60a760）
+- issue: #598（結果のコメント issuecomment-6279901425）
+- 判断が必要なこと:
+  - #598 を閉じてよいか: SEC-14 の表で、このリポジトリで直すものとして残るのは2つだけで、どちらも行き先がある。低-3（CI の `packages:` の版の固定、#564 か Dependabot と合わせる）と、`workers/ask/src/index.mjs` の 404・405 の nosniff（次に `workers/ask` を変える指示で、docs/decisions に記録済み）。zizmor の sync-logs.yml の分は #298 で消える。案: 低-3 を #564（または新しい issue）に移してから #598 を閉じる。閉じていない
 - 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 768cd082）: https://github.com/retroeater/mj-logs/tree/main/guide/768cd082
+ガイド文書（この版を写した時点の最新、mj 87b60a76）: https://github.com/retroeater/mj-logs/tree/main/guide/87b60a76
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/768cd082/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/768cd082/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/768cd082/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/768cd082/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/768cd082/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/768cd082/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/87b60a76/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/87b60a76/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/87b60a76/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/87b60a76/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/87b60a76/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/87b60a76/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/e7c8d9e0.md
