@@ -113,19 +113,53 @@ WRC-R リーグの成績表（#366）を、WRC リーグの `jwrc/`（公開済�
 - テスト: `scripts/tests/test_wrcr_pages.py`（設定が jwrc と同じ形・ページの noindex と大会の印・進行中の期のリンク・質問欄のデータの行き先・regenerate の登録・生成物の全 HTML が noindex）、`workers/ask/test/wrcr.test.mjs`（データの形・WRC と WRC-R のデータが混ざらない・予選・選手〈旧名〉・優勝者・9部門・contest の振り分け・jwrc の指示に WRC-R が入らない）
 - `python3 -m unittest discover -s scripts/tests`: 1438件 OK。`node --test 'workers/ask/test/*.test.mjs'`: 53件 pass（既存の3大会のテストを含む）
 - 公開の issue: #611 を起票し、#366 にコメントした（https://github.com/retroeater/mj/issues/366#issuecomment-6260453474 ）
-- 文書（コミット後述）: `docs/notes/wrcr-top.md`、handover.md の表に1行（24,006 → 24,167 バイト、警告域 26KB の下）、static-generation.md「ページの一覧」、ask-worker.md に WRC-R の節
+- 文書（コミット 65a284195）: `docs/notes/wrcr-top.md`、handover.md の表に1行（24,006 → 24,167 バイト、警告域 26KB の下）、static-generation.md「ページの一覧」、ask-worker.md に WRC-R の節
+
+### 手順3: 確かめと文書
+
+- `python3 scripts/regenerate.py all`（終了コード 0。全31ページ）: houou/・ouka/・jwrc/・`workers/ask/data*.json`（wrcr を含む）・ほかの大会の生成物に差分なし。wrcr/ も生成済みと同じ（差分なし）
+  - 差分が出たのは 43ファイル＋新規1つ（`jpml_pros.html`・`live/masters/24/`・`mtsuku/` 6・`saikyo/` 約30〈2026-10-18 の新しい対局 `saikyo/2026/20261018-s2.html` を含む〉・`sitemap-saikyo.xml`・`title/masters/24.html`・`title/nihon-series/`）。中身は対局の回数・件数（例「14回」→「15回」、「他の対局（13件）」→「（14件）」）と新しい対局の行で、この作業で変えていない生成（saikyo・mtsuku・live・title・jpml_pros）の元データの変化。作業ブランチには入れず、ファイル名を挙げて `git restore` で戻した（cloudflare の定期の再生成で入る。取り込んだ cloudflare にも同じ 2026-10-18 の対局がすでに入っていた）
+- 突き合わせ（「WRCR」シートを `fetch_records` で読み、別名を通し「プロ」の在籍者だけで、生成のコードを使わずに数え直した上位10人と `wrcr/ranking/` の表）: 通過回数・通過率・連続通過・通算・期平均の5部門とも名前・値が一致。違いは期平均の9位の同点3人（新谷翔平・小川尚哉・ポロリ、+76.7）の並びだけ（ページは名前の順）
+- 画面（ローカルの静的サーバーと headless Chrome〈playwright〉）: トップ・個人成績（選手を選ばない画面、藤本哲也の期別・通算・部門別、黒田良、葉山唯一、`?name=樫野凪`、`?name=椿椋`、小川尚哉）・ランキング（通算・通過率）・順位変動（第7期・第1期）を、375px・360px・1280px・1920×1080 と 375px の字 150%・200% で 84枚。はみ出し 0、JS のエラー 0（404 はローカルに Worker が無い `/api/ask/status` と、在籍者でない `椿椋` の成績 JSON だけ）。ダーク表示（375px、黒田良・順位変動）も見た
+  - 端のデータ: 通過の多い選手（藤本哲也 通過4回・通過率 0.667 で1位。黒田良 通過4回）・出場1期（葉山唯一。WRC リーグにも出ている）・途中敗退の期（黒田良 第3期 第2節まで。第1期の 88位 木原翼・89位 山脇千文美は順位変動で「–」「第4節まで」）・名寄せ（`?name=樫野凪` で かしのなぎ が開く）・連盟プロ以外（`?name=椿椋` は「椿椋 の成績は見つかりません（「プロ」に在籍する選手だけを載せています）」。houou/ と同じ扱い）・現タイトルホルダー（選手を選ばない画面の1件は 小川尚哉、印「現タイトルホルダー」、名前の面は「最高到達 優勝 1回（7期）」）
+  - WRC と WRC-R の両方に出ている選手は 170人（在籍者 184人のうち）。最近見た選手のキーが別（`mj:recent-players:wrcr`）なので、jwrc/ の履歴は wrcr/ に出ない
+- プレビュー: dffc79e5c の check-run「Workers Builds: mj」は 2026-10-19T05:41 から `in_progress` のまま（docs/notes/cloud-sessions.md の「報告が止まったまま残ることがある」）。プレビューの別名 URL（URL は最終報告にだけ書く）で、`/wrcr/`・`/wrcr/ranking/total/`・`pass-rate/`・`race/`・`search.json`・成績 JSON・OGP 画像が 200、`/wrcr` と `/wrcr/ranking/` が 301、トップの title「WRC-Rリーグ | 日本プロ麻雀連盟 | ryoei.pro」と noindex を確かめた
+- 取り込み: 作業の最後に origin/cloudflare（13コミット進んでいた。saikyo・mtsuku の生成物と文書・ログ）を `git merge` で取り込んだ。衝突なし。この作業で触ったファイルとの重なりなし
+- 決定の記録: docs/decisions/houou.md に「## 2026-10-19（CHAT-1019-WRR-02）」（jwrc/ の決定と同じファイル）
 
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/WRR
 - ログ: https://github.com/retroeater/mj/blob/work/WRR/docs/logs/CHAT-1019-WRR-02.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/WRR
-- 確認用URL: なし
-- マージ: 未
-- issue: #366
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 確認用URL: プレビューあり（URL は最終報告）。トップ・個人成績（藤本哲也・黒田良・`?name=樫野凪`）・ランキング（通算・通過率）・順位変動。この版で見える印: トップの h1「WRC-Rリーグ」と質問欄の例「例：7期の予選1位は？」
+- マージ: 未（平野さんの判断待ち。プレビューと仮置きを確かめた後の別の指示）
+- issue: #366（着手中のコメント・本文の「方針」「データ」の行を直した・公開の issue の番号のコメント）、#611（公開の issue を起票）
+- 判断が必要なこと:
+  - プレビューで動作を確かめ、下の仮置きを決めて、cloudflare へのマージの指示を出す
+  - 仮置き (1) 見た目の値（プレビューで判断できる）:
+    - h1・題名の大会名「WRC-Rリーグ」（title「<ページ> | WRC-Rリーグ | 日本プロ麻雀連盟 | ryoei.pro」。#523 の後の名前）。ほかの案: 「WRC-R リーグ」（空白あり）
+    - 質問欄の例「例：7期の予選1位は？」（jwrc/ の「例：19期の予選1位は？」に倣った）
+    - トップの3項目の説明は jwrc/ と同じ（「選手ごとの期別・通算・最高到達」「通算・通過率など9部門」「期ごとの節単位の予選の順位」）
+    - OGP 画像 `img/ogp/wrcr/index-white.png`（白地・黒字の「WRC-Rリーグ」＋「ryoei.pro」）。文字ベースの画像の7種類目（docs/notes/ogp.md の規則〈メニューの最上位でそれ自体がページ〉には、navbar を独立の項目にする決定で当たる）
+    - 期別のカード・結果のチップ・通算のグラフの金の丸・順位変動の通過ラインの帯は jwrc/ と同じ色と形
+    - 未公開の間の共通ナビは黒地の旧ナビのまま（白地の `.mj-nav-new` は公開の #611 で当てる。jwrc/ も公開で当てた）
+  - 仮置き (2) 見ただけでは判断しにくいもの:
+    - 大会の設定の名前と印: 設定 `WRCR`・シート名「WRCR」、`is-wrcr`・`data-contest="wrcr"`・最近見た選手のキー `mj:recent-players:wrcr`・質問欄の `contest: "wrcr"`・記録の型「wrcr:league」
+    - 行数の止める範囲 400〜2,000（`WRCR.rows`。2026-10-19 は 572行。第8期以降も毎期 90行前後の見込みで当面収まる）
+    - 規定・表示の上限は jwrc/ と同じ（`CONTESTS["WRCR"]` は `CONTESTS["JWRC"]` の写し、`rank_cut` (50, 55)）。WRC-R は人数が少なく、期平均は27人・通過率は41人・節浮き率は39人で全件が出る
+    - 最高到達と現タイトルホルダーの元データは「タイトル」タブの「JPML WRC-Rリーグ」（第1〜7期の28行。第8期の4行は名前が空で読まない）。#523 の後の「WRC-Rリーグ」も受ける。現タイトルホルダーは第7期の優勝者 小川尚哉。第5期の優勝者 覚野陽生は在籍者でないので wrcr/ に出ない（名前の面・ランキング・最近見た選手の1件の対象外。決勝の質問欄の答えには出る）
+    - 質問欄の答えの範囲: WRC-R の予選の成績・ランキング・決勝（title/search.json の「WRC-Rリーグ」、`/title/jwrc-r/`）・放送対局（/live の「WRC-Rリーグ」、`/live/jwrc-r/`、47ページ）。WRC リーグ（R の付かない方）と世界麻雀は `none`（`WRCR_PLAN_SYSTEM` に明記）。決勝の名前「WRC-Rリーグ決勝」（`OTHERS.wrcr.final_name`、jwrc の「WRCリーグ決勝」に倣った）
+    - jwrc/ の質問欄の指示（`JWRC_PLAN_SYSTEM`）は変えていない（WRC-R を名指しで `none` にする文は無い。WRC リーグ以外の大会として `none` に入る想定）。ほかの案: jwrc 側にも「WRC-R リーグ」を `none` の例に足す（jwrc/ の挙動が変わるので今回はしない）
+    - 進行中の期のリンク: 第8期は公式の成績表 `result-jpmlwrcr/118085.html`（第3節の時点のページ）、ほかの期は大会のページ `title-fight/jpmlwrcr.html`。第8期の行は「WRCR」シートに無いので今は出ない。第8期が完了して行を入れるときは「表示」Y で入れる（進行中の行としては出ない）
+    - 連盟プロ以外の選手（つばきりょう など8人）は個人成績・ランキングに出ず、順位変動には出る（jwrc/ と同じ）
+  - 共通の部品で変えた所: `style.css` の期の欄の幅の規則に選択子 `.is-wrcr` を1つ足しただけ（jwrc/・ouka/ は同じ値のまま）。`generate_houou_pages.py`・`generate_ask_data.py`・`lib/ranking.py`・`regenerate.py`・`ask.mjs`・`index.mjs` は設定・辞書の項目を足しただけで関数は変えていない。`regenerate.py all` で houou/・ouka/・jwrc/・data*.json の差分 0 を確かめた
+  - 突き合わせで違った行: なし（期平均の9位の同点3人の並びだけ。ページは名前の順）
+- 未確認の項目:
+  - 質問欄の実際の問い（Anthropic を呼ぶ）。ローカル・プレビューには Worker が無いので、マージ後の本番で wrcr/ の質問欄から1〜2問（例「7期の予選1位は？」「WRC-Rの歴代優勝者は？」）を送り、WRC リーグの答えが混ざらないこと、jwrc/ の質問欄の答えが変わらないことを確かめる
+  - 実機（iPhone など）での見え方・字の大きさの連動は、平野さんがプレビューで確かめる
+  - Workers Builds の check-run（dffc79e5c）は `in_progress` のまま（プレビューの別名 URL は新しい版を返した）
 - エラー: なし
 
 <!-- guide-links -->
