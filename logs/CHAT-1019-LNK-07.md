@@ -66,7 +66,7 @@ CHAT-1019-LNK-05 のマージ（ec8c5cbca）が本番に約43分反映されな�
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1019-LNK-08
 - ブランチ: work/1019-lnk
 - ログ: https://github.com/retroeater/mj/blob/work/1019-lnk/docs/logs/CHAT-1019-LNK-07.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1019-lnk
@@ -81,12 +81,12 @@ CHAT-1019-LNK-05 のマージ（ec8c5cbca）が本番に約43分反映されな�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 2270cdf2）: https://github.com/retroeater/mj-logs/tree/main/guide/2270cdf2
+ガイド文書（この版を写した時点の最新、mj e7c8d9e0）: https://github.com/retroeater/mj-logs/tree/main/guide/e7c8d9e0
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/2270cdf2/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/2270cdf2/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/2270cdf2/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/2270cdf2/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/2270cdf2/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/2270cdf2/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e7c8d9e0/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e7c8d9e0/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e7c8d9e0/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e7c8d9e0/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e7c8d9e0/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e7c8d9e0/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/bb56c356.md

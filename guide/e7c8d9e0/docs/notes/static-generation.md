@@ -398,13 +398,13 @@ title/ では「タイトル戦」タブの大会の改名が「タイトル」�
   （SX-08 で判明、/live・/title は SX-09、最強戦は SX-10 で見出しを合わせた）。
   平野さんはシートを直したらチャットに伝える運用にした（2026-09-19）
 
-#### 平野さんがシートを用意した・直したと言ったときのチャット側の指示
+#### 平野さんがシートを用意した・直した・移した・消したと言ったときのチャット側の指示
 
 `docs/notes/chat-side-operations.md`「書く前に実物で確かめる」から移した（2026-10-13）。
 
 - 平野さんがシート（タブ）を用意した・直したと言ったとき: 実装の指示の前に、生成と同じ経路で読ませ、見出し・件数・既存の公開物との差を報告させる（差は止まる条件にせず、どちらを正とするかを平野さんに聞いてから書く）。生成で止まるかどうかだけなら、先に `python3 scripts/regenerate.py --check <ページ>` を流させる（ファイルを書かず止まる理由と警告を全部出す。static-generation.md）。
   消す・直すを頼むときは済んだ後の状態（ブックごとのタブの数など）を書き、平野さんに数を返してもらってから次の指示を作る（申告だけで作ると、残りがあって止まる）
-- タブ・列を変えたと言われたら、そのタブを読む処理（凍結中のページ・検査を含む）を `git grep` で洗わせる手順を次の指示に入れる（読む処理が残っていると本番の再生成で失敗する。2026-10-15 に旧 Mつくの生成が失敗した）
+- タブ・列を変えた、シート・スプレッドシートを移した・消した・廃止すると言われたら、答える前に、それを読む処理（凍結中のページ・検査を含む）を `git grep`（スプレッドシートの定数名・シート名）で洗わせ、移したならコピーか移動か（旧い側に残っているか）も確かめさせる。読む処理が残っているうちは消すのを待ってもらう（読む処理が残っていると本番の再生成で失敗する。2026-10-15 に旧 Mつくの生成が失敗した。#337 の一覧ができたら `git grep` をそれに置き換える）
 
 ### 新しいページを作るとき（/live の実例、CHAT-0916-LV-33）
 
@@ -482,7 +482,7 @@ Google の API（`lib/gcal.py`・`lib/sheets_write.py`・`sync_birthday_calendar
 - `generate_resource_dictionary.py --check` — 「辞書」タブと「プロ」タブを生成と同じ経路で読み、生成と同じ検査（見出し・知らないカテゴリ・品詞・不正な文字・読みと語の組の重複）を止めずに行い、止まる理由をすべてとカテゴリごとの語数を出す。ファイルは書かない（止まる理由があれば終了コード1。出力の形は `scripts/lib/check.py`）。シートを直した後、指示を書く前に回す
 - `check_asset_limits.py` — 配信ファイル数・最大のファイル・`_redirects`（静的・動的）・`_headers`のルール数を Cloudflare の上限（Workers Free）との比で表にし、80% 以上で警告、100% 超でエラー終了する（#387）。`regenerate.py`の最後と`check-assets.yml`から呼ばれ、Actions ではジョブのサマリにも出す
 - `<title>`・meta description・OGP の正は、生成ページは各生成スクリプトの `META`（`PageMeta`）、手書きのページは HTML そのもの（直すときは HTML を直接直す）。一括で書き換える `apply_page_meta.py`（#5）は 2026-10-18 に消した（#517）
-- `build_ogp_image.py` — OGP画像を生成（#78、手動実行）。Pillowが必要。全ページ共通の1枚は `img/ogp/site/index-white.png`（白地・黒字の「ryoei.pro」、#581。作り方は `--text ryoei.pro --color '#212529' --bg '#ffffff' --max-size 180 --tracking -0.03`。色は旧 `img/ogp.png` と同じ）で、`lib/page.py` の `PageMeta` の既定・`generate_jpml_pros.py` のテンプレート・手書きのページの `og:image` に入っている。引数なしで書き出す旧 `img/ogp.png`（背景#ffffff）は凍結中の books/ だけが使う。生成したPNGもコミットする（生成環境のフォント差で再生成のたびに差分が出るのを避けるため）。`--check`でコミット済みのPNGと一致するか確認できる。`--text` と `--out` で任意の文字列・出力先の1枚も作れる（#343）。和文は `~/.local/share/fonts/NotoSansJP-Bold.otf`（`OGP_FONT`で差し替え可、無ければ失敗）を使い、横幅1040pxに収まるまで文字を小さくする。段を重ねるときは `--text` を繰り返し、`--scale`（1段目に対する比）・`--color`・`--max-size`・`--tracking`・`--line-gap` で調整する。背景は `--bg`（既定#ffffff）。`--footer <文字>` は最後に固定の大きさ（`FOOTER_SIZE` 48px・間隔 `FOOTER_GAP` 40px）の段を足す（区分の画像の「ryoei.pro」、#581）。文字ベースの画像は4種類だけで（`docs/notes/ogp.md`、#581）、年度・大会が増えても作らない。**引数なしの `--check` は、コミット時と環境のフォントが違うと、スクリプトを変える前から一致しない**（2026-09-16 の Codespace では FONT_CANDIDATES のうち DejaVuSans が使われ、変更前のスクリプトでも一致しなかった）。スクリプトを変えたときの回帰確認は、変更前後のスクリプトの `render()` の出力同士を比べる（CHAT-0916-SY-07/08）
+- `build_ogp_image.py` — OGP画像を生成（#78、手動実行）。Pillowが必要。全ページ共通の1枚は `img/ogp/site/index-white.png`（白地・黒字の「ryoei.pro」、#581。作り方は `--text ryoei.pro --color '#212529' --bg '#ffffff' --max-size 180 --tracking -0.03`。色は旧 `img/ogp.png` と同じ）で、`lib/page.py` の `PageMeta` の既定・手書きのページの `og:image` に入っている（`generate_jpml_pros.py` のテンプレートは 2026-10-19 から区分の画像 `img/ogp/pros/index-white.png`）。引数なしで書き出す旧 `img/ogp.png`（背景#ffffff）は凍結中の books/ だけが使う。生成したPNGもコミットする（生成環境のフォント差で再生成のたびに差分が出るのを避けるため）。`--check`でコミット済みのPNGと一致するか確認できる。`--text` と `--out` で任意の文字列・出力先の1枚も作れる（#343）。和文は `~/.local/share/fonts/NotoSansJP-Bold.otf`（`OGP_FONT`で差し替え可、無ければ失敗）を使い、横幅1040pxに収まるまで文字を小さくする。段を重ねるときは `--text` を繰り返し、`--scale`（1段目に対する比）・`--color`・`--max-size`・`--tracking`・`--line-gap` で調整する。背景は `--bg`（既定#ffffff）。`--footer <文字>` は最後に固定の大きさ（`FOOTER_SIZE` 48px・間隔 `FOOTER_GAP` 40px）の段を足す（区分の画像の「ryoei.pro」、#581）。文字ベースの画像の種類は `docs/notes/ogp.md` の規則で決まり（#581）、年度・大会が増えても作らない。**引数なしの `--check` は、コミット時と環境のフォントが違うと、スクリプトを変える前から一致しない**（2026-09-16 の Codespace では FONT_CANDIDATES のうち DejaVuSans が使われ、変更前のスクリプトでも一致しなかった）。スクリプトを変えたときの回帰確認は、変更前後のスクリプトの `render()` の出力同士を比べる（CHAT-0916-SY-07/08）
 
 - `build_wayhome_ogp.py` — 「帰り道」一覧ページのOGP画像`img/ogp/wayhome/index-<最新話の公開日 YYYYMMDD>.jpg`（1200×630、JPEG品質88）を書き出す（#339。週次の再生成〈`regenerate-page.yml`〉が作り直す、#340）。必要なのはPillowだけ（文字を描かないためフォントは要らない）。最新4本のサムネイルを2×2に並べ、切り抜かずに収める（全体が16:9なので高さが先に埋まり、左右の余りは`--mj-v-bg`=#121212のまま。サムネイル同士の区切りは8px）。実行のたびに作り直すが、最新4本が同じなら同じ名前・同じJPEGになり差分は出ない。ほかの`index*.jpg`は削除する。最新話と同じ公開日の回が2本以上なら名前に連番を付け（`index-<日付>-N.jpg`）、同じ名前で中身が変わる場合は上書きせず今のファイルを残す。生成したJPEGもコミットする。個別ページの og:image はYouTubeのサムネイルのまま。**ページ別のOGP画像は `img/ogp/<区分>/` 以下に置く。共通の `img/ogp.png` は動かさない。** 新しい回を足したときの手順は`docs/notes/video-wayhome.md`「新しい回を追加する手順」
 - `check_wayhome.py` — 「帰り道」の取り込みの知らせ（新しい回・YouTube の情報が無い回・見られなくなった回・決勝動画IDが空の回）を組み立てる（#194、週次の再生成が呼び、常設 issue「帰り道の新しい回」にコメントする）。判定は `lib/wayhome_intake.py`。手順は`docs/notes/video-wayhome.md`「新しい回を追加する手順」

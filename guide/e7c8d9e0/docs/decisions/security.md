@@ -98,3 +98,15 @@ Cloudflare の Security Overview の提案（security.txt など）の見送り�
 - `img-src` は `'self' data: https:` にする（選手の写真の URL はシートから来るので、列挙すると新しいドメインの写真が黙って表示されなくなる。画像はスクリプトとして動かない）
 - 段2 はすぐ行う。切り替えの後に、平野さんが iPhone の Safari でトップ・大会のページ1つ・jpml_pros.html の表示を確かめる。崩れていたら CSP の行を外して戻す
 - 作業中の回答: なし
+
+## 2026-10-19（CHAT-1019-SEC-13）
+
+- 平野さんが iPhone の Safari で本番（トップ・大会のページ・jpml_pros.html）を確かめ、表示の崩れは無かった。#9 を閉じる
+- cloudflare/security-audit-skill（ https://github.com/cloudflare/security-audit-skill ）は導入しない。Claude Security プラグインと役割が重なり（多エージェントの監査と検証。2026-10-18 の実行で指摘0件）、ryoei.pro の攻撃面（`workers/`・`scripts/lib/`・`assets/houou_ask.js`）には重すぎ（1回のトークンが Claude Security 以上で、作者が複数回の実行を勧める）、実行に OS レベルのサンドボックスが要りクラウドセッションでは満たせないため。2026-10-17 の「コミュニティ製のセキュリティ系プラグインは入れない（公式2つで足りる）」の範囲内
+- 作業中の回答: なし
+
+## 2026-10-19（CHAT-1019-SEC-14）
+
+- #9 の後の再点検と Claude Security の1回の実行を、2026-10-19 にすぐ行う。2026-10-19 に (a)〜(h) の再点検（`security-check.yml` の zizmor 58 件・pip-audit 0・履歴の新規 0）と、Claude Security を `workers`・`scripts/lib`・`assets/houou_ask.js`（67 ファイル）に medium で1回実行した（指摘0件、約8分。結果は #598）
+- cloudflare/security-audit-skill はこの再点検でも使わない（2026-10-19 の CHAT-1019-SEC-13 のとおり）
+- 作業中の回答: なし
