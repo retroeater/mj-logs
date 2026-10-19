@@ -72,6 +72,12 @@ CHAT-1019-WRR-06 の報告の「判断が必要なこと」2件への平野さ�
 - 作業ブランチ: work/1019-wrr08 はローカル・リモートとも無し → `git checkout -b work/1019-wrr08 origin/cloudflare`（a33a81859）
 - 0. 「指示」欄の末尾は指示文の最後の行と一致
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- 1. issue #618 を起票（同率の件も同じ issue に含めた。仮置き）。着手コメントを付けた
+- 未マージの work/ ブランチの重なり: work/1019-wrr07 が docs/decisions/houou.md を変える（末尾への追記どうしで、同じ行・同じ関数ではない）。workers/ask/src・generate_title_pages.py を変えるブランチは無し
+- 2. 同率: `query.mjs` の `rankingQuery` に `tie`（先頭の順位に2人以上が並ぶときだけ。rank・value・count・names〈先頭3人、TIE_NAMES〉）、`ask.mjs` の `answerInput` が `tie` を渡し、`answerSystem`（4大会共通）に1行足した（5ec551204）。テスト `workers/ask/test/tie.test.mjs`（6件）。修正前の src で同じテストを回すと、同率を見る4件が落ち、形が変わらないことを見る2件（1人だけの1位・champions）は通る
+- 3. リンク: houou/・ouka/ の大会ページにも成績へのリンクは無かったので、4大会そろえた（`generate_title_pages.py` の `RESULTS_PATHS`、写真の下に節「成績」、48369b9d7）。テスト `test_title_check.py` の `ResultsLinkTest`
+- 文書: docs/notes/ask-worker.md（2回目の節）・title-pages.md（大会ページ）を直した（5b19a2336）
+- 文書 ask-worker.md「本番で送る固定の問い」は、`ANSWER_SYSTEM` を変える指示ではマージ後に固定の5問を送るとする。指示文の4問と食い違うため、ルールの側を優先して5問も送る（1日の IP の上限10問に当たれば、残りは未確認に回す）
 
 ## 報告
 
@@ -89,12 +95,12 @@ CHAT-1019-WRR-06 の報告の「判断が必要なこと」2件への平野さ�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 405e702e）: https://github.com/retroeater/mj-logs/tree/main/guide/405e702e
+ガイド文書（この版を写した時点の最新、mj 43121c2a）: https://github.com/retroeater/mj-logs/tree/main/guide/43121c2a
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/405e702e/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/405e702e/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/405e702e/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/405e702e/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/405e702e/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/405e702e/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/43121c2a/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/43121c2a/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/43121c2a/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/43121c2a/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/43121c2a/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/43121c2a/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/f0a1e266.md
