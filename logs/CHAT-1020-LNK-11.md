@@ -44,15 +44,57 @@ CHAT-1020-LNK-09 は、docs/instruction-template.md が容量の警告域まで�
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+- 0章: 指示欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている。`git log --all --grep=CHAT-1020-LNK-11` は0件。ガイド文に規則を足す指示で、「知見 → 層 → 理由」の表は LNK-09 の指示文の「前提」にある（この指示で参照）
+- ブランチ: ローカル・リモートとも `work/1020-lnk` が c9d6875f2 で一致（未マージ。LNK-09 の続き）。cloudflare が祖先でなかったので `git merge origin/cloudflare`（衝突なし）
+- 手順1: LNK-09 のログの `## 報告`（最後の一致）の状態を「判断待ち / 続き: CHAT-1020-LNK-11」にした
+
+追記先の2行（変える前）:
+
+- `docs/notes/chat-routines.md:81`（「指示の種類ごとの確かめ」）: 「- マージ・クローズの指示: issue の Open/Closed と比較（`/compare/cloudflare...<ブランチ>`）。別のチャットが並行して進めていることがある」
+- `docs/notes/chat-routines.md:48`（「振り返り」の観点）: 「- 前回の振り返り・レビューで立てた約束（「次からこうする」）が守られたか。守られなかったなら、約束のほうが過剰でなかったか」
+
+矛盾は無い（同じ趣旨の記述も無い。109行の send_later の規則は「チャット側が自分で確かめられる後での確認」の一般則で、指示文に書く中身ではない）。
+
+### 手順2・3: 変えた後
+
+`docs/notes/chat-routines.md`（容量の上限なし。取り込み後の 17,165 bytes から 17,706 bytes）:
+
+```
+- 前回の振り返り・レビューで立てた約束（「次からこうする」）が守られたか。守られなかったなら、約束のほうが過剰でなかったか。約束は `docs/decisions/operations.md` の直近の振り返り・申送りの節で確かめる（会話をまたいで残り、手元の会話には無いことが多い）
+```
+
+```
+- マージ・クローズの指示: issue の Open/Closed と比較（`/compare/cloudflare...<ブランチ>`）。別のチャットが並行して進めていることがある。
+  本番の確かめが要るマージでは、15分で本番が古いままなら判断待ちにせず「未確認の項目」に回して完了にする、と指示文に書き、チャット側が send_later で確かめる（本番の反映は他のセッションの push 次第で遅れ、書き落とすと Code が判断待ちで止まる。PAD-09）
+```
+
+- 決定: `docs/decisions/operations.md` の末尾に「2026-10-20（CHAT-1020-LNK-09・LNK-11）」を足した（申送りの2つと置き場所の決定。雛形に置かない理由として容量を書いた）
+- `docs/instruction-template.md` は変えていない
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1020-lnk
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1020-LNK-11.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1020-lnk
+- 確認用URL: なし
+- マージ: 済（ドキュメントのみ。最終報告の SHA）
+- issue: なし
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 2ec24f23）: https://github.com/retroeater/mj-logs/tree/main/guide/2ec24f23
+ガイド文書（この版を写した時点の最新、mj 768cd082）: https://github.com/retroeater/mj-logs/tree/main/guide/768cd082
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/2ec24f23/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/2ec24f23/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/2ec24f23/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/2ec24f23/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/2ec24f23/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/2ec24f23/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/768cd082/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/768cd082/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/768cd082/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/768cd082/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/768cd082/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/768cd082/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/e7c8d9e0.md
