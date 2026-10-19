@@ -87,29 +87,47 @@ CHAT-1019-WRR-08 の本番の確かめで合わなかった所2件と、仮置�
 - 文書: docs/notes/ask-worker.md（検索の表の rank・鳳凰戦だけの型・1回目の指示の一文・同率の言い回しと rank の無い問い）。決定は docs/decisions/houou.md「## 2026-10-19（CHAT-1019-WRR-10）」
 - 3. `python3 scripts/regenerate.py all`（終了コード0）の後の差分は0件（4大会・jpml_pros の生成物、`workers/ask/data*.json` を含め、作業ツリーに変更なし）。`python3 -m unittest discover -s scripts/tests`: OK。`node --test 'workers/ask/test/*.test.mjs'`: 81件 pass
 - origin/cloudflare を merge で取り込んだ（docs のみ〈ENG-03〉。衝突なし）
+- 4. マージ: push 直前に再 fetch して祖先を確かめ `git push origin work/1019-wrr10:cloudflare`（19fa8d378..d09305637）。d09305637 の「Workers Builds: mj-ask」success
+- 5. 本番（2026-10-19 22:48 JST ごろ、`POST https://ryoei.pro/api/ask`、9問。どれも答えた）。固定の5問（鳳凰戦）:
+  - 「現在の鳳凰位は？」→「白鳥翔さんが現在の鳳凰位です。鳳凰位になったのは第42期の鳳凰戦です。」（出典 鳳凰戦 歴代優勝者、時点 決勝 第42期まで）。第42期の鳳凰位になった
+  - 「第1期から第10期の鳳凰位は？」→「第1期から第10期までの鳳凰位は、島田昭さん（第1期・第4期）、安藤満さん（第2期・第5期・第6期・第10期）、ロッキー堀江さん（第3期）、椎名大介さん（第7期）、荒正義さん（第8期）、伊藤優孝さん（第9期）の6人です。」
+  - 「鳳凰位になった人は全部で何人？」→「鳳凰位になった人は全部で23人です。上位は白鳥翔さん、佐々木寿人さん、HIRO柴田さん、藤崎智さん、吉田直さん、前原雄大さん、勝又健志さん、前田直哉さん、瀬戸熊直樹さん、荒正義さんで、ほか13人います。」
+  - 「通算得点の上位15人は？」→「通算得点の上位は、1位がHIRO柴田さん（2074.4）、2位が佐々木寿人さん（1729.9）、3位が勝又健志さん（1665.1）です。以下、前田直哉さん、内川幸太郎さん、藤島健二郎さん、三浦智博さん、山田浩之さん、阿久津翔太さん、福光聖雄さんと続き、ほか5人を含めて15人です。」（出典 鳳凰戦 ランキング（通算））
+  - 「白鳥翔の第40期の成績は？」→「白鳥翔さんの第40期は、A2リーグで1位となり、昇級しています。通算ポイントは278.8です。」
+- 追加の4問:
+  - jwrc/「通過回数が2番目に多いのは？」→「通過回数が2番目に多いのは10回で、3人が並んでいます（客野直さん・山脇千文美さん・末続ヒロトシさん）。」（出典 WRCリーグ ランキング（通過回数））
+  - wrcr/「通過回数がいちばん多いのは？」→「通過回数がいちばん多いのは4回で、9人が並んでいます（大和さんほか）。」
+  - wrcr/「現タイトルホルダーは？」→「小川尚哉さんが現タイトルホルダーです。第7期に優勝しており、入会は22期生です。」（出典 WRC-Rリーグ 歴代優勝者。小川尚哉・第7期で変わらない）
+  - ouka/「現女流桜花は？」→「現在の女流桜花は清水香織さんで、直近の第20期に女流桜花となりました。清水さんは第5期、第19期、第20期の計3回女流桜花になっています。」
 
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1019-wrr10
-- ログ: https://github.com/retroeater/mj/blob/work/1019-wrr10/docs/logs/CHAT-1019-WRR-10.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1019-WRR-10.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1019-wrr10
-- 確認用URL: なし
-- マージ: 未
-- issue: #618
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 確認用URL: 本番 https://ryoei.pro/houou/ の質問欄（「現在の鳳凰位は？」）
+- マージ: 済（d09305637）
+- issue: #618（クローズ済みのまま）
+- 判断が必要なこと:
+  - 3の原因（確かめた結果）: 鳳凰戦の1回目の指示の `currentLine()` が「現在」を第43期前期と読ませ、43を使うどの読み方（champions の from・to が43、final・league の term が43）でも決勝の無い期なので見つからない（ローカルの `runQuery`）。決勝の最大の期42なら見つかる。本番の Claude が出した引数は D1 で、見ていない。直した後の本番は「白鳥翔さんが現在の鳳凰位です。鳳凰位になったのは第42期の鳳凰戦です。」
+  - 本番の答えの全文: 固定の5問「現在の鳳凰位は？」→「白鳥翔さんが現在の鳳凰位です。鳳凰位になったのは第42期の鳳凰戦です。」／「第1期から第10期の鳳凰位は？」→「第1期から第10期までの鳳凰位は、島田昭さん（第1期・第4期）、安藤満さん（第2期・第5期・第6期・第10期）、ロッキー堀江さん（第3期）、椎名大介さん（第7期）、荒正義さん（第8期）、伊藤優孝さん（第9期）の6人です。」／「鳳凰位になった人は全部で何人？」→「鳳凰位になった人は全部で23人です。上位は白鳥翔さん、佐々木寿人さん、HIRO柴田さん、藤崎智さん、吉田直さん、前原雄大さん、勝又健志さん、前田直哉さん、瀬戸熊直樹さん、荒正義さんで、ほか13人います。」／「通算得点の上位15人は？」→「通算得点の上位は、1位がHIRO柴田さん（2074.4）、2位が佐々木寿人さん（1729.9）、3位が勝又健志さん（1665.1）です。以下、前田直哉さん、内川幸太郎さん、藤島健二郎さん、三浦智博さん、山田浩之さん、阿久津翔太さん、福光聖雄さんと続き、ほか5人を含めて15人です。」／「白鳥翔の第40期の成績は？」→「白鳥翔さんの第40期は、A2リーグで1位となり、昇級しています。通算ポイントは278.8です。」。追加 jwrc「通過回数が2番目に多いのは？」→「通過回数が2番目に多いのは10回で、3人が並んでいます（客野直さん・山脇千文美さん・末続ヒロトシさん）。」／wrcr「通過回数がいちばん多いのは？」→「通過回数がいちばん多いのは4回で、9人が並んでいます（大和さんほか）。」／wrcr「現タイトルホルダーは？」→「小川尚哉さんが現タイトルホルダーです。第7期に優勝しており、入会は22期生です。」／ouka「現女流桜花は？」→「現在の女流桜花は清水香織さんで、直近の第20期に女流桜花となりました。清水さんは第5期、第19期、第20期の計3回女流桜花になっています。」
+  - 本番で合わなかった所: 同率の言い回しが文例どおりでない（「4回が最多で」でなく「いちばん多いのは4回で」、「2位は10回で」でなく「2番目に多いのは10回で」）。人数・名前・全角の括弧は文例どおり。問いの言葉をなぞっている。さらに寄せるなら、文例を「必ずこの形で書く」と強める（案）
+  - 前提との違い: jwrc/ の通過回数の2位は2人でなく3人（客野直・山脇千文美・末続ヒロトシ、10回）。答えは3人とも挙げた
+  - 仮置き: rank の無い問い（limit の切れ目に同率が続く）は今のまま（何も添えない）／言い回しの文例は1位「4回が最多で、9人が並んでいます（大和さんほか）」、ほかの順位「2位は10回で、3人が並んでいます（客野直さん・山脇千文美さん・末続ヒロトシさん）」（実在の値の例）／女流桜花は直していない（直す前の本番で「現女流桜花は？」に答えられた）／鳳凰戦の一文に「現タイトルホルダー」も入れた
+- 未確認の項目:
+  - 「現在の鳳凰位は？」で本番の Claude が出した型の引数（直す前・後とも D1 の記録。平野さんに見てもらう）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj d0930563）: https://github.com/retroeater/mj-logs/tree/main/guide/d0930563
+ガイド文書（この版を写した時点の最新、mj ec8c5cbc）: https://github.com/retroeater/mj-logs/tree/main/guide/ec8c5cbc
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d0930563/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d0930563/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d0930563/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d0930563/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d0930563/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d0930563/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ec8c5cbc/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ec8c5cbc/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ec8c5cbc/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ec8c5cbc/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ec8c5cbc/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/ec8c5cbc/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/19fa8d37.md
