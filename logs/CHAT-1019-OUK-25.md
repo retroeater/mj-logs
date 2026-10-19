@@ -121,6 +121,24 @@
 - `docs/handover.md`: ページ構成の系統、外部依存（Google Charts は依存するページが0）、#7 の行と「#7 の進め方」の現状を直した
 - `docs/decisions/houou.md`: 今日の決定の節を足し、2026-10-14（公開の後もしばらく残す）・2026-10-16（2026-10-23 の Search Console の後）・OUK・WRC の「旧ページを残す」の行に「→ 置き換え」を付けた
 
+### 2. テスト・再生成の比較・容量
+
+- `python3 -m unittest discover -s scripts/tests` 1,423件 OK、`node --test 'workers/ask/test/*.test.mjs'` 47件 pass（取り込みの後は 63件 pass。増えたのは cloudflare の AIC-07 のテスト）
+- `python3 scripts/regenerate.py all` を作業ブランチ（b545ff9b5 の後）と cloudflare のクローン（d8b213689）で同時に回した（どちらも終了コード 0）。2つの作業ツリーを `diff -rq` で比べた差は、消したファイル（旧9ページ・旧 JS・旧 JSON・`houou_race/` の41ファイル）と、手で直した `CLAUDE.md`・`_headers`・`style.css`（と `docs/`・`scripts/`）だけ。houou/・ouka/・jwrc/・jpml_pros・workers/ask の data*.json ほか、生成物の差は0。サイトマップ・`llms.txt` の差も0（旧ページの行はもともと無い）
+- 再生成で作業ブランチに出た差（jpml_pros・live・mtsuku・title の12ファイル）は cloudflare のクローンでも同じに出たシートの取得時点の差で、この作業の差ではないため戻した
+- 容量の検査（`check-assets.yml` の「ガイド文書のサイズを確認」と同じ判定）: CLAUDE.md 24,972 → 24,786、handover.md 24,006 → 23,900、chat-side-operations.md 22,155（変えていない）、instruction-template.md 14,325（変えていない）。どれも警告域の手前。`check_asset_limits.py` は配信ファイル数 3,965（19.8%）ほか全部 OK
+
+### 3. プレビュー
+
+- Workers Builds の作業ブランチのビルドは、この作業の push（06:45Z）だけでなく work/1019-aic（05:56Z）・work/WRR（06:24Z）の push も queued のまま進まず、15分の上限を超えた（07:01Z 時点。cloudflare の push は 06:21Z に success）。プレビューでの確かめは「未確認の項目」に回した
+- 代わりに、作業ブランチの作業ツリーをローカルの HTTP で配信し、headless Chrome（375px）で houou/・ouka/・jwrc/ のトップ・個人成績・ランキング（通算）・順位変動、`houou/players/?name=`、`ouka/leagues/`、`jpml_pros.html` を開いた。JS のページのエラー（pageerror）は全ページ0。コンソールのエラーは、外部の画像など手元から届かないもの（ERR_TUNNEL_CONNECTION_FAILED）と、手元に無い質問欄の Worker（`/api/ask/status` の 404）だけ
+- 判断（仮置き）: 新しいページの生成物の差が0で、本番の確かめ（手順5）で同じ確かめを行い、壊れていれば戻す前提で、プレビューを待たずにマージへ進めた
+
+### 4. 取り込み・マージ
+
+- push 直前の再 fetch で origin/cloudflare が 4bd3592b8 に進んでいた（AIC-07: `workers/ask/` と docs）。`docs/decisions/houou.md` の末尾が AIC-07 の節と同じ位置への追記で衝突するため、衝突を解かず、こちらの OUK-25 の節を先に外してから（1コミット）merge で取り込み（衝突なし、563d67955）、AIC-07 の節の後ろに同じ節を足し直した（中身は変えていない。衝突の印 0）
+- 取り込んだ変更は `workers/ask/`（コードとテスト）と docs だけで、`scripts/`・生成物は変わらないため、再生成の比較はそのまま使える。取り込み後のテスト: unittest 1,423件 OK、node 63件 pass
+
 ## 報告
 
 - 状態: 作業中
@@ -137,12 +155,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 10e55a48）: https://github.com/retroeater/mj-logs/tree/main/guide/10e55a48
+ガイド文書（この版を写した時点の最新、mj d5b59e67）: https://github.com/retroeater/mj-logs/tree/main/guide/d5b59e67
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/10e55a48/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/10e55a48/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/10e55a48/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/10e55a48/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/10e55a48/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/10e55a48/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/4e223c8f.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d5b59e67/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d5b59e67/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d5b59e67/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d5b59e67/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d5b59e67/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d5b59e67/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/10e55a48.md

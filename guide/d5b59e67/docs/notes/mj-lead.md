@@ -13,9 +13,7 @@
 該当が見込まれるもの:
 
 - Google Charts の6ページ（`houou_results` / `ouka_results` / `wrc_results` /
-  `houou_ranking` / `ouka_ranking` / `wrc_ranking`）。現在は説明文を持たない。
-  説明文を手書きで入れる #266、静的化する #111・#141 の時点で該当する
-  （Google Charts が描く表は `.mj-table` を持たない）
+  `houou_ranking` / `ouka_ranking` / `wrc_ranking`）は houou/・ouka/・jwrc/ へ移り、#582 で消した（2026-10-19）
 - 新サイト（#296）と選手個別ページ（#219）。CSSを引き継ぐなら同じ罠がある
 
 表やグラフを追加するときは、説明文の幅が表・SVGの幅と一致するかを
