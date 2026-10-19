@@ -71,3 +71,9 @@ Cloudflare の Security Overview の提案（security.txt など）の見送り�
 - `.github/dependabot.yml` は SHA 固定と同時に入れる。Dependabot security updates は Off のまま
 - Workflow permissions の既定（Read and write・PR の作成と承認の許可あり）は、SEC-04 のマージの後に平野さんが手で読み取りだけにし、許可のチェックを外す
 - `mj-scheduler` の参考（CHAT-1018-SEC-05）も一緒に直す
+
+## 2026-10-18（CHAT-1018-SEC-10）
+
+- Settings → Actions の Workflow permissions の既定を読み取りだけにする（PR の作成・承認の許可も外す）のは、2026-10-19 04:00 JST の run-daily の定期実行が success になったのを確かめてから、平野さんが手で行う（SEC-04 の Secret・permissions の確かめと、既定の切り替えの確かめを混ぜないため）
+- Dependabot のメジャー版の上げの PR（初回の #602〜#607）は閉じる。`.github/dependabot.yml` でメジャー版を対象外にし、マイナー版・パッチ版だけを受ける。メジャー版は認証情報の台帳の四半期の棚卸し（#601）でまとめて見る
+- SEC-04 で Code が指示から変えた点（`dependabot.yml` の `directories: ["/", "/.github/actions/*"]`、`cooldown: default-days: 7`、範囲外のテストの1行の直し 892bde4ae）はそのまま受け入れる

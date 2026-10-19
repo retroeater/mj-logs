@@ -230,28 +230,62 @@ Chat-Ref: CHAT-1019-ACF-27
 | CHAT-1007-PHT-12 | 完了 | なし | a | scripts/ の2か所は docs/decisions/operations.md「2026-10-07（CHAT-1007-PHT-15）」で承認・実施（scripts/lib/yotei.py は permalink、HC-02・ZK-01 は削除済み）。リンクでない文字列・クローズ済み issue は同「CHAT-1007-PHT-12」の決定で書き換えない |
 | CHAT-1007-WKR-09 | 完了 | なし | a | 10/8 の朝の起動とキャッシュの範囲は docs/notes/scheduler-worker.md「動いた記録（2026-10-08 の時点）」で確認（予定 2・success 2、cloudflare から作業ブランチのキャッシュは見えない） |
 
+### 手順2・3: 書き写し・削除・マージ
+
+- permalink の SHA は 4db85e095（削除のコミットの親。cloudflare へ fast-forward で入った）
+- (b) のコメント（本文・状態・ラベルは変えていない）:
+  - #308（CHAT-0930-ACT-01）: https://github.com/retroeater/mj/issues/308#issuecomment-6257502868
+  - #390（CHAT-1002-DOJ-04）: https://github.com/retroeater/mj/issues/390#issuecomment-6257503440
+  - #492（CHAT-1005-RVW-02）: https://github.com/retroeater/mj/issues/492#issuecomment-6257504207
+  - #298（CHAT-1005-RVW-22）: https://github.com/retroeater/mj/issues/298#issuecomment-6257505257
+  - #504（CHAT-1006-WKR-07）: https://github.com/retroeater/mj/issues/504#issuecomment-6257505916
+- (c) の起票: #610「旧い作業ログから移した未済事項（2026-10-19）」（ラベルなし。CHAT-0930-BNG-06 の1行）: https://github.com/retroeater/mj/issues/610
+- 削除: 8593ce348「chore: remove 121 old-format work logs」（121ファイル、親 4db85e095）。メッセージに閉じるキーワードと `#番号` の並びが無いことを grep で確かめた
+- マージ: 10:10 JST（月曜 06:00〜09:00・03:45〜05:15 の外）。push 直前に `git fetch origin cloudflare` と `git merge-base --is-ancestor origin/cloudflare HEAD`（真）を確かめ、`git push origin work/1019-acf-old:cloudflare`（596809461..8593ce348、fast-forward）
+- mj-logs の写し: CHAT-0929-SH-18・CHAT-1005-RVW-22・CHAT-1007-WKR-09・CHAT-1002-CLD-15 の raw が 404 になった（消えた）。対象から外した CHAT-1002-INV-01 は 200 のまま
+- #513 に削除の件数のコメント: https://github.com/retroeater/mj/issues/513#issuecomment-6257510638
+- docs/decisions: 指示の「決定」節（2026-10-19）を docs/decisions/operations.md に足した
+
+カレンダーが名指ししているログ:
+
+| ログ | 今の状態 | permalink |
+| --- | --- | --- |
+| CHAT-1005-RVW-22 | 今回削除 | https://github.com/retroeater/mj/blob/4db85e095f2bef0a559b0d24246f7318c3b0e3f9/docs/logs/CHAT-1005-RVW-22.md |
+| CHAT-1005-RUN-06 | 今回削除 | https://github.com/retroeater/mj/blob/4db85e095f2bef0a559b0d24246f7318c3b0e3f9/docs/logs/CHAT-1005-RUN-06.md |
+| CHAT-1005-RUN-08 | 今回削除 | https://github.com/retroeater/mj/blob/4db85e095f2bef0a559b0d24246f7318c3b0e3f9/docs/logs/CHAT-1005-RUN-08.md |
+| CHAT-1005-RUN-10 | 今回削除 | https://github.com/retroeater/mj/blob/4db85e095f2bef0a559b0d24246f7318c3b0e3f9/docs/logs/CHAT-1005-RUN-10.md |
+| CHAT-1006-WKR-07 | 今回削除 | https://github.com/retroeater/mj/blob/4db85e095f2bef0a559b0d24246f7318c3b0e3f9/docs/logs/CHAT-1006-WKR-07.md |
+| CHAT-1005-RVW-04 | 今回削除 | https://github.com/retroeater/mj/blob/4db85e095f2bef0a559b0d24246f7318c3b0e3f9/docs/logs/CHAT-1005-RVW-04.md |
+| CHAT-0930-DUP-03 | 今回削除 | https://github.com/retroeater/mj/blob/4db85e095f2bef0a559b0d24246f7318c3b0e3f9/docs/logs/CHAT-0930-DUP-03.md |
+| CHAT-1002-INV-01 | 残っている（`docs/notes/handover-archive-2026.md:966` が名指ししているため対象から外した） | https://github.com/retroeater/mj/blob/4db85e095f2bef0a559b0d24246f7318c3b0e3f9/docs/logs/CHAT-1002-INV-01.md |
+| CHAT-0924-TQ-28 | 既に無い（dddb1568d で削除） | https://github.com/retroeater/mj/blob/d1f0d6efbe21ef302802242665bc6449e7fa9e38/docs/logs/CHAT-0924-TQ-28.md （参考: 削除の直前の版） |
+| CHAT-0928-SC-04 | 既に無い（b2581dfdf で削除） | https://github.com/retroeater/mj/blob/347eeeca19a7d76661845c6685dbf3f7ae51e1e5/docs/logs/CHAT-0928-SC-04.md （参考: 削除の直前の版） |
+| CHAT-0928-SC-08 | 既に無い（55e218fc3 で削除） | https://github.com/retroeater/mj/blob/53c718beba0889de9f73b43560bb4d94cb71ffcb/docs/logs/CHAT-0928-SC-08.md （参考: 削除の直前の版） |
+| CHAT-1007-PHT-14 | 既に無い（f0204bea8 で削除） | https://github.com/retroeater/mj/blob/921dbe0ad2a077f0d2fb88b8c1f0aeb604028aba/docs/logs/CHAT-1007-PHT-14.md （参考: 削除の直前の版） |
+
 ## 報告
 
-- 状態:
-- ブランチ:
-- ログ:
-- 比較URL:
-- 確認用URL:
-- マージ:
-- issue:
+- 状態: 判断待ち
+- ブランチ: work/1019-acf-old
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1019-ACF-27.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1019-acf-old
+- 確認用URL: なし
+- マージ: 済（8593ce348。cloudflare へ fast-forward、docs/logs の削除のみ。このログと決定は追いの push）
+- issue: コメント #308・#390・#492・#298・#504・#513（着手中・削除の件数）、起票 #610
 - 判断が必要なこと:
-- 未確認の項目:
-- エラー:
+  - `docs/logs/`・`docs/decisions/` 以外で名指しされていたため残した旧いログ23件（`## 経過`「手順1: 対象の一覧」の表）の扱い。名指しの多くは出典としての Chat-Ref（コードのコメント・テストの文字列・docs/notes の事例）で、ログを読む先として指しているのは `docs/notes/handover-archive-2026.md:966`（INV-01〜04）・`docs/notes/saikyo-page-design.md:649`（PHT-06）など一部。案: 出典だけのものは名指しとみなさず次の指示で仕分けて削除し、読む先として指すものは permalink に書き換えてから削除する（docs/notes・scripts を変えるので別の指示）。残すと 10/26 以後も #357 の②・①に出続ける
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 59680946）: https://github.com/retroeater/mj-logs/tree/main/guide/59680946
+ガイド文書（この版を写した時点の最新、mj 0122413e）: https://github.com/retroeater/mj-logs/tree/main/guide/0122413e
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/59680946/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/59680946/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/59680946/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/59680946/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/59680946/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/59680946/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/0122413e/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/0122413e/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/0122413e/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/0122413e/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/0122413e/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/0122413e/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/8593ce34.md

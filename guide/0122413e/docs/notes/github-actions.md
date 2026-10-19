@@ -126,12 +126,13 @@ GitHub Actions (`.github/workflows/regenerate-page.yml`) が、`scripts/generate
 ## Dependabot
 
 `.github/dependabot.yml` が、ワークフローと `.github/actions/*/action.yml` の action の版の更新を月1回、`cloudflare` 向けの PR で出す（`package-ecosystem: github-actions`、公開から7日は待つ `cooldown`）。
+**受けるのはマイナー版・パッチ版だけ**（`ignore` の `update-types: version-update:semver-major`、2026-10-18 の平野さんの決定）。メジャー版の上げは、認証情報の台帳の四半期の棚卸し（#601）でまとめて見る（初回の実行が出したメジャー版の PR #602〜#608 は閉じた）。
 PR は SHA と版のコメントを書き換える。Dependabot security updates（Settings）は Off のまま（2026-10-18）。
 
-- PR のブランチは `dependabot/github_actions/…`。`work/*` ではないので、`cleanup-branches.yml`（マージ済みの `work/*` だけを消す）は触らない。Dependabot は自分が閉じた PR のブランチを消す。マージした PR のブランチが残るかはリポジトリの「Automatically delete head branches」の設定しだい（未確認）。残ったら平野さんが消す（セッションからは削除が拒否される）
+- PR のブランチは `dependabot/github_actions/…`。`work/*` ではないので、`cleanup-branches.yml`（マージ済みの `work/*` だけを消す）は触らない。Dependabot は閉じた PR のブランチを消す（手で閉じた #602〜#607 のブランチも数分のうちに消えた、2026-10-18）。マージした PR のブランチが残るかはリポジトリの「Automatically delete head branches」の設定しだい（未確認）。残ったら平野さんが消す（セッションからは削除が拒否される）
 - PR のマージは `cloudflare` へのマージ（＝本番反映）なので、CLAUDE.md「ブランチ運用」の承認の規則に従う。セッションは PR のブランチへ push しない
 - Dependabot が起こすワークフローの実行は Actions の Secret ではなく Dependabot の Secret を使う（今は無い）。`check-assets.yml` は `work/**` の push だけで動くので、PR では走らない
-- **マージの仕方（案。決めていない）**: Dependabot の PR はチャット経由で Code に確かめさせてからマージする。確かめる点は、差分が `uses:` の SHA と版のコメントだけか、新しい SHA が上流のそのタグを指すか（`git ls-remote`）、リリースノートに破壊的な変更が無いか、`security-check.yml` の zizmor の件数が増えないか、PR のブランチで `run-daily.yml` を `scheduled` なしで手動実行して全ジョブが success か
+- **マイナー版・パッチ版の PR のマージの仕方（案。決めていない）**: Dependabot の PR はチャット経由で Code に確かめさせてからマージする。確かめる点は、差分が `uses:` の SHA と版のコメントだけか、新しい SHA が上流のそのタグを指すか（`git ls-remote`）、リリースノートに破壊的な変更が無いか、`security-check.yml` の zizmor の件数が増えないか、PR のブランチで `run-daily.yml` を `scheduled` なしで手動実行して全ジョブが success か
 
 ## ワークフローを手動実行するとき
 
