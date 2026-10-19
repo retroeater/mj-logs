@@ -74,28 +74,48 @@ WRR-04 のプレビューへの平野さんの回答（最高到達の書き方�
 - cloudflare との差分（`git diff --stat origin/cloudflare HEAD`、444ファイル）: wrcr/ 一式 212・jwrc/ の成績 JSON 189（4人の追加と最高到達の書き方）と `search.json`・`ask-players.json`・トップ・個人成績・ouka/ のランキング2ページと成績 JSON 3つ（下限）・`data-wrcr.json`・`data-ouka.json`・Worker の `ask.mjs`・`index.mjs`・`wrcr.test.mjs`・生成と集計（`generate_houou_pages.py`・`lib/ranking.py`・`generate_ask_data.py`・入口2つ・`regenerate.py`）・テスト4つ・`style.css`・`assets/league.js`・`assets/houou_ask.js`（コメントのみ）・`_redirects`・`img/ogp/wrcr/`・`check-assets.yml`・文書（notes 8・handover の表の1行・decisions）・ログ4つ。WRR-02〜05 で説明できないものは無い
 - 作業ブランチの check: fdd308856 と b4a4fe67a の「check」が success（`check-assets.yml` を含む）。「Workers Builds: mj」も success。プレビューの `wrcr/results/白鳥翔.json` の `best` が「2位（7期）」
 
+### 手順3: マージと本番の確かめ
+
+- push 直前に再 fetch し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真であることを確かめて `git push origin work/WRR:cloudflare`（b209d8415..58fa24fff）
+- Workers Builds（58fa24fff）: mj（id 117975110656）・mj-ask（117973528679）とも success で、summary に Preview URL が無い本番のビルド。push から約6分で本番の `/wrcr/` が 200 になった
+- 本番の HTML（`?v=` を付けて取得）:
+  - `/wrcr/`・`/wrcr/players/`・`/wrcr/ranking/round-plus-rate/`・`/wrcr/race/` が 200 で、どれも noindex あり。節浮き率の表は 26行（下限の後）
+  - `/wrcr/results/白鳥翔.json` の `best` は「2位（7期）」。`/jwrc/results/伊藤優孝.json` が 200
+  - `/ouka/ranking/term-plus-rate/` に二階堂瑠美・王政芳が無い
+  - `navbar.js`・`sitemap.xml`・`sitemap-pages.xml`・`llms.txt` に「wrcr」が無い
+  - 画面の見え方（ブラウザ）は確かめていない（HTML と JSON まで）
+- 本番の質問欄（`POST https://ryoei.pro/api/ask`、3問）:
+  - wrcr/「現タイトルホルダーは？」→「小川尚哉さんが現タイトルホルダーです。優勝した期は第7期の1回です。」（出典 WRC-Rリーグ 歴代優勝者 `/title/jwrc-r/`、時点「決勝 第7期まで」）
+  - wrcr/「7期の予選1位は？」→「7期の予選1位は手塚紗掬です。合計は434.3ポイントで、通過しています。」（出典 第7期 予選の順位変動 `/wrcr/race/?term=7…`、時点「WRC-Rリーグ 第7期終了時点」）
+  - jwrc/「現タイトルホルダーは？」→「紺野真太郎さんが現タイトルホルダーです。WRCリーグの優勝は第19期で、入会は16期生です。」（出典 WRCリーグ 歴代優勝者 `/title/jwrc/`）
+  - WRC-R の答えに WRC リーグの内容は混ざっていない。jwrc/ の答えは WRC リーグのまま
+- コメント: #366 https://github.com/retroeater/mj/issues/366#issuecomment-6263572601 、#611 https://github.com/retroeater/mj/issues/611#issuecomment-6263573522
+- 決定の記録: docs/decisions/houou.md に「## 2026-10-19（CHAT-1019-WRR-05）」
+- 公開（#611）の前に要ること: 平野さんの実機での確かめ・告知の時期を決めること、#611 の「変更」の項目（`WRCR` の `noindex=True` を外す・navbar に「WRC-R」の1段の項目〈白地のナビ〉・サイトマップ・`llms.txt`・文書）。#611 のコメントに書いた
+- 「判断が必要なこと」: 指示の完了条件は3問の答えの要旨と公開の前に要ることを「判断が必要なこと」に書くよう求めているが、`_template.md` の「状態が完了なら『なし』だけ」に従い、上に書いて「判断が必要なこと」は「なし（#611 に移した）」にした（指示とルールが食い違うときはルールを優先）
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/WRR
-- ログ: https://github.com/retroeater/mj/blob/work/WRR/docs/logs/CHAT-1019-WRR-05.md
+- 状態: 完了
+- ブランチ: work/WRR（cloudflare へマージ済み）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1019-WRR-05.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/WRR
-- 確認用URL: なし
-- マージ: 未
-- issue: #366・#611
-- 判断が必要なこと: なし
+- 確認用URL: 本番（wrcr/ は未公開・noindex）。この版で見える印: wrcr/ の `?name=白鳥翔` の名前の面「最高到達 2位（7期）」
+- マージ: 済（58fa24fff）
+- issue: #366（マージのコメント）、#611（公開の前の状態のコメント）
+- 判断が必要なこと: なし（#611 に移した）
 - 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 58fa24ff）: https://github.com/retroeater/mj-logs/tree/main/guide/58fa24ff
+ガイド文書（この版を写した時点の最新、mj 2da08c0f）: https://github.com/retroeater/mj-logs/tree/main/guide/2da08c0f
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/58fa24ff/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/58fa24ff/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/58fa24ff/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/58fa24ff/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/58fa24ff/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/58fa24ff/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/10e55a48.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/2da08c0f/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/2da08c0f/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/2da08c0f/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/2da08c0f/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/2da08c0f/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/2da08c0f/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/58fa24ff.md
