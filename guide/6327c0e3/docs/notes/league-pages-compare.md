@@ -8,7 +8,7 @@
 
 | ページ・タブ | 観点 | houou/ | ouka/ | jwrc/ | wrcr/ | よりどころ |
 |---|---|---|---|---|---|---|
-| 共通 | 公開・noindex | 公開（noindex は `leagues/` だけ） | 公開（同じ。#591） | 公開（noindex なし。`leagues/` が無い。#599） | 未公開（全ページ noindex・メニュー未掲載。公開は別の issue） | ouka-top.md・jwrc-top.md |
+| 共通 | 公開・noindex | 公開（noindex は `leagues/` だけ） | 公開（同じ。#591） | 公開（noindex なし。`leagues/` が無い。#599） | 公開（noindex なし。`leagues/` が無い。#611） | ouka-top.md・jwrc-top.md |
 | 共通 | OGP 画像 | `img/ogp/houou/` | `img/ogp/ouka/` | `img/ogp/jwrc/` | `img/ogp/wrcr/` | docs/notes/ogp.md の規則（2026-10-17・18） |
 | 共通 | 大会の印 | なし（JS の既定） | `is-ouka`・`data-contest="ouka"`・`#league_contest` | `is-jwrc`・`data-contest="jwrc"`・`#league_contest` | `is-wrcr`・`data-contest="wrcr"`・`#league_contest` | 大会の設定（`Contest.script`） |
 | 共通 | 期の表記 | 「43期後期」「第43期前期」（通期のリーグは「42期」） | 「20期」「第20期」（全リーグ通期） | 「19期」「第19期」（全行通期） | 「7期」「第7期」（全行通期） | #541・ouka-top.md・jwrc-top.md |
