@@ -35,7 +35,7 @@ houou/ のトップで鳳凰戦のデータに言葉で質問できる欄。決�
 - 女流桜花と同じ形: `scripts/generate_ask_data_jwrc.py`（`ask_data_jwrc`）が `workers/ask/data-jwrc.json` を書き、jwrc/ の質問欄は `contest: "jwrc"` を添える。`ask.mjs` は `deps.contests.jwrc` と `JWRC_PLAN_SYSTEM`（リーグは「予選」だけ、部門は `JWRC_DIVISIONS`）で答える。記録の型は「jwrc:league」の形
 - 決勝は title/search.json の「WRCリーグ」、放送対局は /live の「WRCリーグ」。テストは `workers/ask/test/jwrc.test.mjs`。違いの全体は docs/notes/jwrc-top.md
 
-## WRC-R リーグ（wrcr/、#366。未公開）
+## WRC-R リーグ（wrcr/、#366。公開は #611）
 
 - WRC リーグと同じ形: `scripts/generate_ask_data_wrcr.py`（`ask_data_wrcr`）が `workers/ask/data-wrcr.json` を書き、wrcr/ の質問欄は `contest: "wrcr"` を添える。`ask.mjs` は `deps.contests.wrcr` と `WRCR_PLAN_SYSTEM`（部門は `JWRC_DIVISIONS`）で答える。記録の型は「wrcr:league」の形
 - 決勝は title/search.json の「WRC-Rリーグ」、放送対局は /live の「WRC-Rリーグ」。テストは `workers/ask/test/wrcr.test.mjs`。違いの全体は docs/notes/wrcr-top.md

@@ -160,7 +160,7 @@ Bing 側に IndexNow の送信の記録は無く、効果は確認できてい�
 #### Synthetic monitoring の定期実行（2026-09-29、#125）
 
 Lighthouse の定期実行は、Observatory ではなく **Speed → Synthetic monitoring（Beta）の Browser tests** にある（2026-09-29 の画面。平野さんのスクリーンショットによる）。
-URL は **`https://` を付けない形**（例 `ryoei.pro/houou_results.html`）で入れる。付けると「Invalid URL」になる。
+URL は **`https://` を付けない形**（例 `ryoei.pro/jpml_pros.html`）で入れる。付けると「Invalid URL」になる。
 
 | URL | 最初のスコア（2026-09-29） |
 |---|---|
@@ -490,8 +490,9 @@ title/descriptionの出し分けは新サイト（#296）で解く（#79も同�
 
 `_headers` はセキュリティヘッダ5件に加えて、
 キャッシュ制御を持つ（#92）。
-`/*` には `Content-Security-Policy-Report-Only` もある（2026-10-19、#9 の段1。何も止めない。報告先は持たず、違反は Playwright で本番を開いて集める）。
-値を変えたら、本番の CSP（段2）に切り替える前に全ページを測り直す（測り方と結果は #9）。
+`/*` には `Content-Security-Policy` もある（2026-10-19、#9。報告先は持たない）。外部は `script-src` の Web Analytics（`static.cloudflareinsights.com`）だけを許し、
+`img-src` は `'self' data: https:`、`style-src-attr 'unsafe-inline'`（title/ の CSS 変数・glightbox）。typed.js のカーソルの CSS は index.css に置く（`<link data-typed-js-cursor-css>`）。
+**外部のスクリプト・iframe・フォント・`fetch` の先・`<style>` 要素を足すときは、このヘッダの値も直す**（直さないと黙って読み込まれない。測り方と値の理由は #9）。
 
 | 対象 | Cache-Control |
 |---|---|

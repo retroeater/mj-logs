@@ -8,7 +8,7 @@
 
 | ページ・タブ | 観点 | houou/ | ouka/ | jwrc/ | wrcr/ | よりどころ |
 |---|---|---|---|---|---|---|
-| 共通 | 公開・noindex | 公開（noindex は `leagues/` だけ） | 公開（同じ。#591） | 公開（noindex なし。`leagues/` が無い。#599） | 未公開（全ページ noindex・メニュー未掲載。公開は別の issue） | ouka-top.md・jwrc-top.md |
+| 共通 | 公開・noindex | 公開（noindex は `leagues/` だけ） | 公開（同じ。#591） | 公開（noindex なし。`leagues/` が無い。#599） | 公開（noindex なし。`leagues/` が無い。#611） | ouka-top.md・jwrc-top.md |
 | 共通 | OGP 画像 | `img/ogp/houou/` | `img/ogp/ouka/` | `img/ogp/jwrc/` | `img/ogp/wrcr/` | docs/notes/ogp.md の規則（2026-10-17・18） |
 | 共通 | 大会の印 | なし（JS の既定） | `is-ouka`・`data-contest="ouka"`・`#league_contest` | `is-jwrc`・`data-contest="jwrc"`・`#league_contest` | `is-wrcr`・`data-contest="wrcr"`・`#league_contest` | 大会の設定（`Contest.script`） |
 | 共通 | 期の表記 | 「43期後期」「第43期前期」（通期のリーグは「42期」） | 「20期」「第20期」（全リーグ通期） | 「19期」「第19期」（全行通期） | 「7期」「第7期」（全行通期） | #541・ouka-top.md・jwrc-top.md |
@@ -33,8 +33,40 @@
 | 順位変動 | 帯 | 昇級・降級・入替戦（A1 は決定戦） | 同じ（A は決定戦） | 「通過ライン」1本 | 「通過ライン」1本 | jwrc-top.md |
 | 個人成績 | 通算のグラフの目印の丸 | 昇級・決定戦は暖色、降級は寒色 | 同じ | 予選の通過は金（「通過」のチップと同じ #f2c230）。敗退は目印なし | jwrc/ と同じ | 2026-10-19 の決定（`league.js` の `trendMark()`） |
 | 順位変動 | 節のラベル | 「第n節」（狭くて入らなければ数字） | 同じ（8節の表は 375px で数字） | 同じ | 同じ | `league_race.js` の `WIDE_NODE`（共通の決まり） |
+| 順位変動 | 最後の節 | 全員が打つ | A は上位だけのプレーオフ（出ない選手も順位に残し、節のラベルは「PO」） | 全員が打つ（途中敗退は「第n節まで」） | jwrc/ と同じ | `Contest.race_po`・houou-race.md「例外（女流桜花の A）」（2026-10-19） |
 
 ランキングの載せる下限（`lib/ranking.py` の `above_floor()`、2026-10-19。規則は houou-top.md）は4大会で同じで、差は無い。
+
+## 大会の設定（`Contest`）の項目
+
+`generate_houou_pages.py` の `Contest` の項目ごとの4大会の値（houou/・ouka/・jwrc/・wrcr/ の順）。項目を足したらここに行を足す（項目の名前がこの文書に無いと `scripts/tests/test_league_pages_compare.py` が落ちる）。差の意図は上の表とその行の「よりどころ」。
+
+| 項目 | 値 | 上の表の行 |
+|---|---|---|
+| `sheet` | 鳳凰・桜花・JWRC・WRCR | — |
+| `name` | 鳳凰戦・女流桜花・WRCリーグ・WRC-Rリーグ | — |
+| `dir` | houou・ouka・jwrc・wrcr | — |
+| `top` | 鳳凰位・桜花・なし・なし | 共通「リーグ」 |
+| `leagues` | A1〜E3・A〜C3・予選・予選 | 共通「リーグ」 |
+| `halves` | あり・なし・なし・なし | 共通「期の表記」 |
+| `span_leagues` | 鳳凰位・A1・A2／全リーグ／予選／予選 | 共通「期の表記」 |
+| `rounds` | 13・8・5・5 | — |
+| `rows` | 14,000〜20,000・1,000〜4,000・1,000〜4,000・400〜2,000 | —（シートの読み違いの検知） |
+| `ampai` | 鳳凰戦・女流桜花・なし・なし | 個人成績「進行中の期の行のリンク」 |
+| `og_image` | `img/ogp/<dir>/index-white.png` | 共通「OGP 画像」 |
+| `ask_placeholder` | 大会ごとの例 | トップ「質問欄の例」 |
+| `noindex` | なし・なし・なし・あり | 共通「公開・noindex」 |
+| `leagues_moved` | あり・あり・なし・なし | 共通「公開・noindex」（`leagues/` の有無） |
+| `race_po` | なし・あり・なし・なし | 順位変動「最後の節」 |
+| `skip_back_half` | B1 の昇級・なし・なし・なし | —（名前の面のチップ、#584） |
+| `divisions` | 9部門・8部門・9部門（通過）・9部門（通過） | ランキング「部門」 |
+| `playoff` | あり・あり・なし・なし | 共通「入替戦の印・帯」 |
+| `rank_cut` | 100・110／50・55／50・55／50・55 | ランキング「表示の上限」 |
+| `script` | なし（JS の既定）・大会ごと | 共通「大会の印」 |
+| `no_leagues` | なし・なし・あり・あり | 共通「リーグ」 |
+| `final_titles` | なし・なし・WRCリーグ・WRC-Rリーグ | 個人成績「名前の面」「予選の行が無い決勝進出者」 |
+| `result_urls` | なし・なし・公式の成績表・公式の成績表 | 個人成績「進行中の期の行のリンク」 |
+| `result_index` | なし・なし・大会のページ・大会のページ | 個人成績「進行中の期の行のリンク」 |
 
 ## 公開でそろえる差（決定済み・まだ入れていない）
 
