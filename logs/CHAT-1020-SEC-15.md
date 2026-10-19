@@ -86,16 +86,35 @@ Chat-Ref: CHAT-1020-SEC-15
 - cloudflare との差分: `docs/decisions/security.md`・`docs/logs/CHAT-1019-SEC-14.md`・`docs/logs/CHAT-1020-SEC-15.md`・`docs/notes/security.md`・`workers/ask/src/ask.mjs`・`workers/ask/test/ask.test.mjs` だけ（範囲内）
 - テストを回し直して ask 83・scheduler 44・unittest 1450 件すべて通る
 
+
+### 手順3（マージと本番の確かめ）
+
+- 2026-10-20 01:44 JST に `git push origin work/1020-sec15:cloudflare`（e7c8d9e08..2ec24f239、fast-forward。push 直前に再 fetch して `merge-base --is-ancestor` が真、差分は上の6ファイル）
+- check-runs（`gh api repos/retroeater/mj/commits/2ec24f239…/check-runs`）: 「Workers Builds: mj-ask」completed・success（summary に Preview の URL 無し＝本番）。「Workers Builds: mj」は success だが summary に Preview の URL があり、作業ブランチの push のプレビューのもの（サイトの静的ファイルは変えていない）。`check` success、`notify` skipped
+- 本番（User-Agent を付けて各1回、01:54 JST）: `GET /api/ask/status` は 200・`content-type: application/json; charset=utf-8`・`x-content-type-options: nosniff`。`POST /api/ask`（`Origin: https://example.invalid`・本文なし）は 403・同じく nosniff が付く。`/api/ask` に質問や `__proto__` は送っていない
+- #598 に結果のコメント（issuecomment-6272528897）
+
+### SEC-16 のための下調べ（今の行と再生成の差分の見込み）
+
+- 中-3 の残り: `scripts/generate_resource_logs.py:165`（`get_info_cell` の `esc(restaurant_url)`）。今の `resource_logs.html` の店名のリンク 3042 件はすべて `https:` なので、`safe_url()` を通しても差分0の見込み。`assets/league.js:856`（`hit.href = up.url`）は JS だけの変更で生成物は変わらない
+- 低-6: `scripts/generate_houou_pages.py:369`（`json_script()`、houou/・ouka/・jwrc/・wrcr/ の `<script type="application/json">`）・`scripts/generate_video_wayhome.py:190`・`scripts/generate_wayhome_episodes.py:184`・`scripts/lib/mtsuku.py:426`（JSON-LD）。今の配信対象の HTML で、埋め込みの JSON（`application/json`・`ld+json`）に `<` を含むものは0件（全 HTML を走査）→ `<` を `\u003c` にそろえても差分0の見込み
+- 低-7: `assets/houou_ask.js:229`（出典の判定）・`assets/saikyo.js:73`（`decodeURIComponent` の try なし）・`assets/league_race.js:338`（CSS の `url("${p.img}")`）。JS だけ
+- 低-8 後半: `scripts/generate_jpml_pros.py:178-180`（`get_internal_link` の `?{param_name}={esc(param)}`）。リンクは 671 件で名前は日本語（例 `./houou/players/?name=會田亮介`）。`urllib.parse.quote` にすると全件が `%E6…` の形に変わり、jpml_pros.html の差分が大きくなる。`&`・`#`・`%`・`+`・空白を含む名前は今は0件。差分を避けるなら、それらの文字だけを逃がす（`quote(name, safe=…)` で日本語を残す）形を選ぶ
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1020-sec15
-- ログ: https://github.com/retroeater/mj/blob/work/1020-sec15/docs/logs/CHAT-1020-SEC-15.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1020-SEC-15.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1020-sec15
-- 確認用URL: なし
-- マージ: 未
-- issue: #598
-- 判断が必要なこと: なし
+- 確認用URL: なし（Worker `mj-ask` の変更。本番の `/api/ask/status` と 403 の応答で確かめた）
+- マージ: 済（2ec24f239）
+- issue: #598（結果のコメント issuecomment-6272528897）
+- 判断が必要なこと:
+  - SEC-16（生成とフロント）を作るときの点（詳細は `## 経過` の「SEC-16 のための下調べ」）:
+    - 対象の今の行: `scripts/generate_resource_logs.py:165`・`assets/league.js:856`（中-3 の残り）、`scripts/generate_houou_pages.py:369`・`scripts/generate_video_wayhome.py:190`・`scripts/generate_wayhome_episodes.py:184`・`scripts/lib/mtsuku.py:426`（低-6）、`assets/houou_ask.js:229`・`assets/saikyo.js:73`・`assets/league_race.js:338`（低-7）、`scripts/generate_jpml_pros.py:178-180`（低-8 後半）
+    - 再生成の差分の見込み: 中-3・低-6 は今のデータで差分0（店名の URL はすべて https、埋め込みの JSON に `<` は0件）。低-8 後半は `urllib.parse.quote` そのままだと jpml_pros.html の 671 件のリンクが全部変わる。日本語を残して `&`・`#`・`%`・`+`・空白だけを逃がすか、全件の変化を受け入れるかを決める
+    - 範囲の外として残したもの: `workers/ask/src/index.mjs` の 405・404 の応答に nosniff が無い（SEC-16 に入れるか、そのままにするか）
 - 未確認の項目: なし
 - エラー: なし
 
