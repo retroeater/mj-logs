@@ -1,7 +1,7 @@
 # CHAT-1019-EXM-01
 
 - 着手日時: 2026-10-19
-- 対象issue: 未定（手順1で起票）
+- 対象issue: #612（作る）・#613（公開）
 - ブランチ: work/1019-exm
 - 着手時HEAD: 10e55a48e612baaa82e26b6597ff251a2e32e085
 
@@ -66,6 +66,39 @@
 
 - 識別子の確認: `git fetch --unshallow origin` の後、`git log --all --grep=EXM` と `docs/logs/` の履歴に EXM は無い
 - 作業ブランチ: ローカル・リモートとも `work/1019-exm` は無く、`git checkout -b work/1019-exm origin/cloudflare` で作成
+- 0章: ログの「指示」欄の末尾は指示文の最後の行（「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」）と一致
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+
+### 手順1の確かめ
+
+- issue: 全 issue（603件、#611 まで）と全コメント（2598件）を REST で取り、`jpml_test`・`プロテスト`・`/exam` で照合（検索 API はセッションで使えない）。
+  当たったのは #579・#567・#552・#533・#524・#517・#486・#451・#328・#147・#145・#144・#108・#103・#9 とコメントのみで、どれも別の主題（写真の基準・フィルタの検知・列見出しなど）。同じ作業の open issue・着手中コメントは無い
+- 起票: 作る #612・公開 #613（Mつくの #569・#570 の形。ラベルは #569・#570 に合わせ「分野: UI/UX」と、`video_mtsuku` に当たる「対象: jpml_test」。親は #569・#570 に無いので付けない）。#612 に着手中コメント
+- 未マージのブランチ（`git branch -r --no-merged origin/cloudflare`）でこの作業が触るファイルを変えているもの:
+  - `work/1017-lvp`: `scripts/lib/study.py`（メンバー限定の札を `lib/members.py` に移す）・`navbar.js`・`style.css`。study.py は読むだけで変えない（関数を import する）。navbar は触らない
+  - `work/1019-ouk25`: `scripts/regenerate.py`（SHARED_GENERATORS の上のコメント）・`scripts/check_unused_names.py`（NAME_RESOLVERS の houou の行・page_names の import）・`docs/notes/static-generation.md`・`style.css`
+  - `work/WRR`: `.github/workflows/check-assets.yml`（許可リストの行に `wrcr` を足す）・`_redirects`（jwrc の後と末尾）・`docs/notes/static-generation.md`（「ページの一覧」の冒頭の段落の行・表に行を足す）・`scripts/regenerate.py`（SHARED_GENERATORS・OUTPUT_OVERRIDES の jwrc の後）
+  - 同じ行になるのは、WRR の `check-assets.yml` の許可リストの行と static-generation.md「ページの一覧」の冒頭の段落の行。**この2つは同じ行を変えず、別の行に足す**（許可リストは `exam` を別の case の行に、ページの一覧は段落の後に1行）。実装の後に3ブランチとの `git merge-tree` で衝突しないことを確かめる
+- 旧ページのデータ（`generate_jpml_test.py` と同じ `lib/page.fetch_sheet()`・`SELECT A,F,G,H,I WHERE J = "Y"`）: 34行。YouTube 12行・ma-jan.or.jp 22行（前提と一致）。YouTube の12行:
+
+  | 動画ID | 公開日（シート） | タイトル（シート） | 出演者（シート） |
+  |---|---|---|---|
+  | -PoeE0Bm2sE | 2026-06-30 | Mリーガー本田朋広プロにプロテストのことを聞きました！ | 本田朋広（28期）、部谷幸則（31期） |
+  | eKMCpGQKTYk | 2026-01-05 | 日本プロ麻雀連盟プロテストを受けてみて | 内川幸太郎（22期）、部谷幸則（31期）、安本きらり（41期） |
+  | Lp8m7sAWT_k | 2025-06-25 | 日本プロ麻雀連盟プロテストを受けてみて | 朝比奈ゆり（40期）、部谷幸則（31期）、三浦智博（28期） |
+  | jal-jnnwJb4 | 2025-01-01 | 日本プロ麻雀連盟プロテストを受けてみて | 鴨舞（38期）、田中祐（37期）、部谷幸則（31期） |
+  | RfZxTnSGnBw | 2024-07-02 | 日本プロ麻雀連盟プロテストを受けてみて | 曽篠春成（36期）、部谷幸則（31期）、御子柴佑梨（38期） |
+  | lGPjKHDAlzw | 2023-12-05 | プロテストについて新人連盟員に聞いてみた | 内村翠（39期）、貝原香（35期）、部谷幸則（31期）、林源（38期） |
+  | 98GKK3KKYNk | 2021-07-31 | 日本プロ麻雀連盟のプロテストを受験される方へ【ルール・マナーなど】 | - |
+  | ix9xGkF5pJs | 2018-02-05 | 第34期後期プロテスト募集受付中！ | 東城りお（29期） |
+  | gyYpx9xfrLA | 2017-08-12 | 第34期プロテスト募集受付中！－職業 麻雀プロ編－ | 山脇千文美（29期） |
+  | Esz7Mloebaw | 2017-08-12 | 第34期プロテスト募集受付中！－強くなりたい編－ | 山脇千文美（29期） |
+  | JTOTffVFqTg | 2017-01-30 | 第33期後期プロテスト募集受付開始！ | 小笠原奈央（28期） |
+  | kzKMbbNvAcQ | 2016-08-08 | 第33期プロテスト募集受付開始！ | - |
+
+- 層1（`data/live_channel_raw.jsonl`）: 12本とも最新の行がある。タイトル・公開日時・長さがあり、配信開始日時は全部空（ライブではない）、メンバー限定 0本。
+  層1のタイトルは「【2026年度前期プロテスト応募受付中！】Mリーガー本田朋広プロに…」のように【】の札が付く。
+  **公開日の食い違い1件: `98GKK3KKYNk` はシート 2021-07-31、層1の公開日時 2021-07-21T11:26:24Z（JST 7月21日）**。ほかの11本はシートと層1（JST）が一致
 
 ## 報告
 
