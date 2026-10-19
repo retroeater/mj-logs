@@ -100,15 +100,23 @@
 - プレビュー（4eed7a505 の「Workers Builds: mj」success）: `/video_en.html` 404（`?name=` 付きも 404）、`navbar.js` の「番組」は 放送対局・帰り道・プロテスト・Mつく、`llms.txt`・`sitemap-pages.xml` に `video_en` 無し。
   メニュー（PC 1280px・スマホ 390px、headless Chromium で番組を開いた状態）と `/video_en.html` の 404 の画像は `docs/logs/CHAT-1019-ENG-01/`（`menu-program-*`・`video-en-404-*`）
 
+### マージと本番の確かめ
+
+- push 直前に再 fetch して `git merge-base --is-ancestor origin/cloudflare HEAD` が真であることを確かめ、`git push origin work/1019-eng:cloudflare`（de6f0f672..405e702ea、fast-forward）
+- 405e702ea: 「Workers Builds: mj」・regenerate・sync すべて success（notify は skipped）。後続の自動コミットは無し
+- 本番（`https://ryoei.pro`）: `/video_en.html` は 404（クエリ付きも 404）。`navbar.js` の「番組」は 放送対局・帰り道・プロテスト・Mつく。`llms.txt`・`sitemap-pages.xml`・`sitemap.xml` に `video_en` は無い。`llms.txt` の「番組」の節も同じ並び
+- #617 に結果を書いてクローズした（ラベルは無し）。残る作業は無い（「英語」シートを消すかは平野さんが後で決める〈決定に書いた〉）
+- 決定は手順2で `docs/decisions/page-release.md` に足し、`exam.md` を置き換えた。作業中の平野さんの回答は無い
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1019-eng
-- ログ: https://github.com/retroeater/mj/blob/work/1019-eng/docs/logs/CHAT-1019-ENG-01.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1019-eng
-- 確認用URL: なし
-- マージ: 未
-- issue: なし
+- 状態: 完了
+- ブランチ: work/1019-eng（マージ済み。削除は cleanup-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1019-ENG-01.md
+- 比較URL: https://github.com/retroeater/mj/compare/de6f0f672...405e702ea
+- 確認用URL: なし（プレビューと本番で確かめた。印: メニュー「番組」に English が無く、プロテストが Mつく の上）
+- マージ: 済（405e702ea）
+- issue: #617（起票・クローズ）・#576（本文の navbar の位置を「公開のときに決める」に直した）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
