@@ -82,14 +82,28 @@
 
 生成物はコミットせず `git checkout -- saikyo/ sitemap-saikyo.xml` と新規ファイルの削除で戻した（`git status --short` が空）。
 
+### 手順3: cloudflare で `regenerate-saikyo.yml` を手動実行
+
+- 先に docs/notes/github-actions.md「ワークフローを手動実行するとき」を読んだ（checkout と push 先は実行ブランチ）
+- `actions_run_trigger`（run_workflow、ref `cloudflare`、入力 abema=`update`・regenerate=`true`）で起動。応答 204
+- run 16（id 39204322369、2026-10-19T05:23:40Z 開始、head 8ea27fb30）: 結論 success。ジョブ `abema` success、`regenerate / regenerate` success
+- cloudflare に入ったコミット: `4e223c8f338a70294cf9ec71e76f7c889ae7c5ea`「chore: regenerate saikyo/ via GitHub Actions」（github-actions[bot]）。`--stat`: 32 files changed, 489 insertions(+), 259 deletions(-)。新規は `saikyo/2026/20261018-s2.html`。saikyo/ と `sitemap-saikyo.xml` 以外の変更は無し（sitemap の差 63行は新しい `<url>` 1件と lastmod の更新）
+- 手順2の見込み（31ファイル＋新規1）とファイル数は一致
+- Workers Builds の check-run（4e223c8f）: 「Workers Builds: mj」completed / success（2026-10-19T05:28:40Z）
+- 本番の確かめ: `https://ryoei.pro/saikyo/2026/20261018-s2.html?v=skg02a` を取得して HTTP 200。コミットの同じファイルとバイト単位で一致。引用:
+  - title: 「決勝 | 団体対抗スペシャル合戦（2026年10月18日） | 麻雀最強戦2026 | ryoei.pro」
+  - 選手: 「1位 優勝 清水香織」「2位 敗退 奥村知美」「3位 敗退 石原真人」「4位 敗退 西村雄一郎」
+- 確かめたのは本番の HTML まで。ブラウザでの見え方は見ていない
+- docs/decisions/saikyo.md に今回の決定を足した
+
 ## 報告
 
-- 状態: 対応中
+- 状態: 完了
 - ブランチ: work/1019-skg
-- ログ: https://github.com/retroeater/mj/blob/work/1019-skg/docs/logs/CHAT-1019-SKG-02.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1019-SKG-02.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1019-skg
 - 確認用URL: なし
-- マージ: 未
+- マージ: 済（63484b778。ログと docs/decisions のみ。本番反映は Actions のコミット 4e223c8f）
 - issue: なし
 - 判断が必要なこと: なし
 - 未確認の項目: なし
@@ -98,12 +112,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 8ea27fb3）: https://github.com/retroeater/mj-logs/tree/main/guide/8ea27fb3
+ガイド文書（この版を写した時点の最新、mj 45ff921d）: https://github.com/retroeater/mj-logs/tree/main/guide/45ff921d
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/8ea27fb3/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/8ea27fb3/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/8ea27fb3/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8ea27fb3/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8ea27fb3/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8ea27fb3/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/8ea27fb3.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/45ff921d/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/45ff921d/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/45ff921d/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/45ff921d/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/45ff921d/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/45ff921d/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/4e223c8f.md
