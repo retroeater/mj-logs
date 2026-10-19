@@ -30,6 +30,11 @@ houou/ のトップで鳳凰戦のデータに言葉で質問できる欄。決�
 - 1日の上限・IP ごとの上限は鳳凰戦と共有（2026-10-17）。記録の型は「ouka:league」の形（答えられなかった問いは「ouka:」。仮置き）
 - テストは `workers/ask/test/ouka.test.mjs`。違いの全体は docs/notes/ouka-top.md
 
+## WRC リーグ（jwrc/、#594。未公開）
+
+- 女流桜花と同じ形: `scripts/generate_ask_data_jwrc.py`（`ask_data_jwrc`）が `workers/ask/data-jwrc.json` を書き、jwrc/ の質問欄は `contest: "jwrc"` を添える。`ask.mjs` は `deps.contests.jwrc` と `JWRC_PLAN_SYSTEM`（リーグは「予選」だけ、部門は `JWRC_DIVISIONS`）で答える。記録の型は「jwrc:league」の形
+- 決勝は title/search.json の「WRCリーグ」、放送対局は /live の「WRCリーグ」。テストは `workers/ask/test/jwrc.test.mjs`。違いの全体は docs/notes/jwrc-top.md
+
 ## データ（data.json）
 
 `generate_ask_data.py` が次を読んで1つにまとめる。週次の `regenerate.py all` で作り直す（push での作り直しは、この生成スクリプトか `scripts/lib/` が変わったとき）。
