@@ -646,7 +646,7 @@ python3 scripts/collect_saikyo_images.py --resolve-test 104307  # 1件だけ解�
   その場合の新しいURLは手で読み、SNS ブックの【4】に入れる: X にログイン済みのブラウザで `https://x.com/<X ID>/photo` を開き、写真の `_400x400` の URL を読む
   （`[aria-modal="true"] img` に出る）
 - **以前の解決（ヘッドレスChromiumで `https://x.com/<handle>/photo` を開く）は、2026-09-28 朝から X が403を返して1件も働かなくなったため消した**
-  （最後の成功は 2026-09-20、#423。調査は #514・CHAT-1006-PHT-06・CHAT-1007-PHT-09）
+  （最後の成功は 2026-09-20、#423。調査は #514・作業ログ [CHAT-1006-PHT-06](https://github.com/retroeater/mj/blob/0122413eefeacea52e5f7fe959601d3df1e0162b/docs/logs/CHAT-1006-PHT-06.md)・[CHAT-1007-PHT-09](https://github.com/retroeater/mj/blob/921dbe0ad2a077f0d2fb88b8c1f0aeb604028aba/docs/logs/CHAT-1007-PHT-09.md)〈削除前の版〉）
 - **当初は unavatar.io を使っていたが、1日25件（APIキー登録で50件）の制限があり16件程度でも枠を使い切るためやめた**
   （CHAT-0916-SK-36）
 - CSVは「選手名 / シート / X ID / 現在のURL / 新しいURL（空） / 状態 / 最強戦の行数」。直すのは SNS ブック（X ID は【2】、写真の URL は【4】）

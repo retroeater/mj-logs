@@ -65,14 +65,61 @@ Claude Code の自律開発で、不要な抽象化・新しい依存・雛形�
 
 ## 経過
 
+### 着手前の確認
+
+- 0章: ログの「指示」欄の末尾が指示文の最後の行（「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」）と一致
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: すべてある
+- `git fetch --unshallow origin` の後、`git log --all --grep=PNY` と `docs/logs/` の履歴に PNY の使用なし
+- `work/1019-pny` はローカル・リモートとも無し → `git checkout -b work/1019-pny origin/cloudflare`（起点 d1ca57938）
+
+### 手順1: 同じ論点の issue・未マージブランチ
+
+- GitHub MCP `search_issues`（意味検索。状態を問わず）: 「ponytail plugin」「コード規約 不要な抽象化 YAGNI 雛形」「新規依存 依存を足さない パッケージ 追加禁止」「簡略化 コメント 印 上限 次の一手」「テストの規則 検査を残す 分岐 パーサー unittest」「コード規約 ルール追加」「外部依存 増やさない」は0件。
+  「Claude Code プラグイン 導入」は #311（応答言語の固定）、「テストを書く規則」は #565（文書参照の検査テスト）の各1件で、どちらも別の論点。
+  検索自体が動くことは「作業ログ Chat-Ref」で41件返ることで確かめた。REST の `/search/issues` はセッションの制限で使えない（repo スコープ外の API）
+- `git branch -r --no-merged origin/cloudflare` の各ブランチ（work/1009-swp-526・1011-swp-hnd・1011-swp-nav・1015-skd-notes・1017-lvp・1018-log-367-migrate・1019-ouk19）は、いずれも CLAUDE.md を変えていない（`git diff --stat origin/cloudflare...<b> -- CLAUDE.md` が空）
+
+### 手順2: CLAUDE.md「コード規約」
+
+- サイズ: 前 23,801 バイト → 後 24,972 バイト（+1,171。見込みの500バイトより多いが、警告域 26,624 バイト未満）
+- 既存の行との関係:
+  - 「変更行数は最小にする」（同じ節の先頭行）: 変えずに残し、すぐ後に「既存の形を使う」を置いた（趣旨は近いが、変更の量と形の増やし方で別の規則）
+  - 「判断・作業の原則」の「外部ドメインへの依存を増やさない（CSP導入を予定しているため）」: 変えずに残した。handover.md・new-page-checklist.md などが同じ見出しで参照しており、動かすと参照が切れるため。新しい行はパッケージ・CDN・外部API・ワークフローへ範囲を広げ、「止まって報告」を足した
+  - 「判断・作業の原則」の「テストは`scripts/tests/`」: 置き場所と実行の規則はそちらに残し、新しい行からは参照だけにした（同じ内容を2箇所に書かない）
+- `python3 -m unittest discover -s scripts/tests`: 1430件 OK
+
+足した後の「コード規約」節の全文:
+
+```
+## コード規約
+- 着手中のissueと無関係なコードは触らない。自分が書いた・変更した箇所以外にコメントを足さない。変更行数は最小にする
+- 書く前に、既存の形（同じ型のページ・`scripts/`の共通関数・定数・生成の仕組み）で足りるか確かめ、あれば使う。
+  実装が1つだけの抽象化・「後のため」の雛形・変わらない値の設定化は作らない（増えた形が次の作業の読む量になる）
+- 新しい依存（npm・pipのパッケージ、CDN、外部API、新しいワークフロー）は足さない。要るときは足さずに止まって報告する（判断は平野さん）
+- 上限を分かって選んだ簡略化（素朴な走査・固定値・一部の場合だけの対応など）には、`簡略化:`のコメントで上限と次の一手を1行残す
+  （例: `# 簡略化: 全件を線形に走査。選手が1万人を超えたら索引にする`。`grep 簡略化:`で台帳にするため語を変えない）
+- 分岐・ループ・解析（文字列・日付・HTMLの読み取り）・金銭・セキュリティに関わるロジックを足す・変えるときは、検査を1本残す
+  （置き場所と実行は「判断・作業の原則」のテストの行）。自明な一行には要らない
+- 繰り返し使う値・意味のある値（列番号、画像サイズ、URL、閾値）は定数にする。一度きりで自明な値はインラインでよい
+- ネストを深くしない。早期return / continueを使う
+- JSのif文は1行でも必ず`{}`を付ける
+- コメントは「何を・なぜ」を短く。「どうやって」はコードに語らせる
+- 人が読む文章（コメント、コミットメッセージ、応答）は最小限の語数で。賞賛・相槌は不要
+- スプレッドシートのファイルは「スプレッドシート」、タブは「シート」と書く。ほかの語（ワークフロー・定期実行・本実行など）も docs/notes/glossary.md に従う（新しく書く文から）
+```
+
+### 手順3: 記録
+
+- 「決定」を docs/decisions/operations.md に `## 2026-10-19（CHAT-1019-PNY-01）` として足した
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1019-pny
-- ログ: https://github.com/retroeater/mj/blob/work/1019-pny/docs/logs/CHAT-1019-PNY-01.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1019-PNY-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1019-pny
 - 確認用URL: なし
-- マージ: 未
+- マージ: 済（cloudflare へ fast-forward。SHA は作業ブランチの先頭と同じ）
 - issue: なし
 - 判断が必要なこと: なし
 - 未確認の項目: なし
@@ -81,12 +128,12 @@ Claude Code の自律開発で、不要な抽象化・新しい依存・雛形�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj d1ca5793）: https://github.com/retroeater/mj-logs/tree/main/guide/d1ca5793
+ガイド文書（この版を写した時点の最新、mj 52eae621）: https://github.com/retroeater/mj-logs/tree/main/guide/52eae621
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d1ca5793/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d1ca5793/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d1ca5793/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d1ca5793/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d1ca5793/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d1ca5793/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/52eae621/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/52eae621/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/52eae621/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/52eae621/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/52eae621/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/52eae621/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/d1ca5793.md
