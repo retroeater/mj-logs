@@ -65,15 +65,38 @@
   - Search Console での `sitemap.xml` の再送信（成功）と `https://ryoei.pro/jwrc/` の URL 検査でのインデックス登録のリクエスト（2026-10-19）
 - WRC-12 の未確認の項目の残り: X と LINE のカード表示（告知のときに確かめる）
 
+### マージ
+
+- 変更は `docs/decisions/houou.md`・`docs/logs/CHAT-1019-WRC-12.md`・`docs/logs/CHAT-1019-WRC-13.md` の3つだけ（止まる条件に当たらない）
+- テスト: `python3 -m unittest discover -s scripts/tests` OK（Worker のコードは変えていない）
+- 作業ブランチの check: docs だけの push なので、`check-assets.yml`（`paths` で `docs/**` を除く）も Workers Builds（Build watch paths で `docs/**` を除外）も走らない（d6dcd80 に check-runs は0件、work/1019-wrc13 の workflow run も0件）。設計どおり
+- 1回目の push 直前の再 fetch で cloudflare が 7dd86381a（CHAT-1019-ACF-26 のログ3コミット。docs/logs だけ）に進んでいたため祖先の確認が偽。merge で取り込み（abc03a51b、衝突なし）、再 fetch → 祖先の確認が真 → `git push origin work/1019-wrc13:cloudflare`（7dd86381a..abc03a51b）
+
+## 報告
+
+- 状態: 判断待ち（#571 は閉じた。告知の形がチャット側の後日の判断）
+- ブランチ: work/1019-wrc13 → cloudflare（マージのコミット abc03a51b）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1019-WRC-13.md
+- 比較URL: https://github.com/retroeater/mj/compare/fbae687ec...abc03a51b
+- 確認用URL: なし（docs のみ）
+- マージ: 済（abc03a51b）
+- issue: #571（題を「JWRC の予選の通過・敗退をサイトに載せる」に直し、コメントしてクローズ。「状況: 保留」を外した）
+- 判断が必要なこと:
+  - 告知（X・動画をするか、その形）はチャット側で後日決める
+- 未確認の項目:
+  - X と LINE の投稿画面でのカード表示（告知のときに確かめる）
+  - 平野さんの実機と Search Console の項目（CHAT-1019-WRC-12 の未確認の項目）は平野さんが済ませた（申告値。経過の「記録」）
+- エラー: なし（push 直前に cloudflare が進んでいたため取り込んでから push した。経過の「マージ」）
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 06f1203b）: https://github.com/retroeater/mj-logs/tree/main/guide/06f1203b
+ガイド文書（この版を写した時点の最新、mj 7445d0bb）: https://github.com/retroeater/mj-logs/tree/main/guide/7445d0bb
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/06f1203b/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/06f1203b/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/06f1203b/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/06f1203b/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/06f1203b/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/06f1203b/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/7445d0bb/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/7445d0bb/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/7445d0bb/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/7445d0bb/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/7445d0bb/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/7445d0bb/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/fbae687e.md
