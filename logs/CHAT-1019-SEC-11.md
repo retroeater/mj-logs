@@ -56,6 +56,67 @@
 
 ## 経過
 
+### 0章（2026-10-19 18:00 JST ごろ）
+
+- Chat-Ref の重複なし（`git log --all --grep`、`docs/logs/` の履歴）。SEC はこのチャットの系列で、SEC-11 は最初の指示ではない
+- 「指示」欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている（1段落にまとまって貼られた）
+- work/1019-sec11 はローカル・リモートとも無かったので origin/cloudflare（58fa24fff）から作った
+- #9: オープン、他セッションの着手中コメントなし。ラベルは「状況: 待ち」「分野: セキュリティ」「対象: 全ページ」
+- 未マージの work/ ブランチで `_headers`・docs/decisions/security.md・docs/notes/security.md・docs/notes/cloudflare.md を変えているもの: なし
+- 容量: CLAUDE.md 24,786、handover.md 22,811、chat-side-operations.md 22,155、instruction-template.md 14,325（警告域 14,336 の手前。この指示では触らない）
+
+### 2. 洗い出し（origin/cloudflare 58fa24fff、配信されるファイル 4,210、うち HTML 2,588）
+
+`.assetsignore` の外の `git ls-files` を HTMLParser で読んだ（scratchpad の使い捨てのスクリプト）。生成のテンプレートは生成物の HTML に出るので、生成物で数えた。
+
+| 項目 | 件数 |
+|---|---|
+| インラインの実行スクリプト（`src` なし、type が空・`text/javascript`・`module`） | 0 |
+| `type="application/ld+json"`（対象外） | 482件 / 336ファイル |
+| `type="application/json"`（データ。実行されない） | 67件 / 54ファイル |
+| `on*=` 属性 | 0 |
+| `javascript:` の URL | 0 |
+| `<style>` 要素 | 0 |
+| `style` 属性 | 384件 / 384ファイル。すべて `title/` の大会ページで、値は `--mj-title-taikai-em: 2` などの CSS 変数1つ |
+| `<iframe>`・`<object>`・`<embed>`・`<base>`・`<meta http-equiv="Content-Security-Policy">` | 0 |
+| `<form>` | 927ファイル。`action` はすべて無し（自ドメイン） |
+
+外部の読み込み先:
+
+- `<script src>`: `static.cloudflareinsights.com`（2,588ファイル。トークンだけの手動のスニペット、`integrity` なし）。ほかは自ドメイン
+- `<link>`（stylesheet・icon）: すべて自ドメイン。`canonical` の `ryoei.pro` は読み込みではない
+- 画像（HTML の `src`）: `img.youtube.com`（1,221ファイル）、`pbs.twimg.com`（2,309）、`image.p-c2-x.abema-tv.com`（645）、`thumbnail.image.rakuten.co.jp`（171）、`jpml_pros.html` だけの `assets.st-note.com`・`yt3.ggpht.com`・`d2l930y2yx77uc.cloudfront.net`・`abs.twimg.com`・`stat.profile.ameba.jp`、`index.html` だけの `i.ytimg.com`・`www.icualumni.com`。JSON（JS で描く分）の外部 URL は `pbs.twimg.com` だけ。CSS の `url()` は自ドメインと `data:`（Bootstrap の SVG）
+- フォント: `assets/vendor` にフォントファイルは無い
+- 自前の JS（`assets/vendor` 以外）: 外部の読み込みなし（`x.com` はリンク先）。`style="` を含む HTML を描く所、`<style>` を作る所は無い（`element.style` の CSSOM は CSP の対象外）
+- vendor: `typed.js` が `<style>`（カーソルのアニメーション）を1つ足す。`glightbox` はライトボックスの HTML に `style` 属性を持つ。`glightbox.min.js` の `cdn.plyr.io` は動画のスライドのときだけ読む既定値で、index.html のライトボックス4件はすべて画像（`i.ytimg.com`・`img.youtube.com`・`www.icualumni.com`・`img/`）なので使っていない（下の事前測定でも要求が出ない）
+- iframe の埋め込み: 無い（`frame-src 'none'` にした）。`/embed/`（#278）はまだ無い
+
+### Observatory の SRI −5 の原因
+
+外部の `<script>` は Cloudflare Web Analytics の `https://static.cloudflareinsights.com/beacon.min.js` だけで、`integrity` が無い（`<link>` の外部は無い）。−5 は「外部のスクリプトに SRI が無い（HTTPS では読んでいる）」の減点。直すのは段2（案は「報告」の判断が必要なこと）
+
+### 事前測定（本番のヘッダは変えずに、Playwright 側で Report-Only を足して試した）
+
+本番の HTML を `route.fetch()` で受け、応答に候補のヘッダを足して表示した（本番への要求は通常の GET だけ）。代表12ページ（`/`・`/houou/`・`/houou/ranking/total-per-term/`・`/jpml_pros.html`・`/title/houou/1.html`・`/saikyo/2011/20110430-s1.html`・`/books/9784046015259.html`・`/wayhome/`・`/live/champions-league/29.html`・`/resource_dictionary.html`・`/video_live.html`・`/houou/players/`）と操作（index のライトボックス4件を開閉、houou/ の質問欄の注意書きを開き入力欄に文字を入れる〈送信しない〉、フロアの切り替え、ナビの検索欄）。
+
+- 1回目（`style-src 'self'` だけ）: 違反は index の `style-src-attr`（glightbox）11件・`style-src-elem`（typed.js）1件、`title/houou/1.html` の `style-src-attr` 1件。ほかの指令の違反なし（`connect-src 'self'` でも Web Analytics の送信は違反にならない）
+- typed.js の `<style>` の中身の SHA-256 は `sha256-ESwzs/pwk6xVxIZH3YCxHKVRV9YGR02+QzCza+PCibs=`（本番の index で取った）
+- 2回目（下の値）: 違反0
+
+### 3. Report-Only の値と導入
+
+`_headers` の `/*` の末尾に1行（`Content-Security-Policy-Report-Only:`）を足した。値（662文字）:
+
+```
+default-src 'self'; script-src 'self' https://static.cloudflareinsights.com; style-src 'self'; style-src-elem 'self' 'sha256-ESwzs/pwk6xVxIZH3YCxHKVRV9YGR02+QzCza+PCibs='; style-src-attr 'unsafe-inline'; img-src 'self' data: https://pbs.twimg.com https://abs.twimg.com https://img.youtube.com https://i.ytimg.com https://yt3.ggpht.com https://image.p-c2-x.abema-tv.com https://thumbnail.image.rakuten.co.jp https://assets.st-note.com https://d2l930y2yx77uc.cloudfront.net https://stat.profile.ameba.jp https://www.icualumni.com; font-src 'self'; connect-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'
+```
+
+- 出発点の案から変えた点: `style-src` を `'self'` のまま、`style-src-elem` に typed.js の `<style>` のハッシュを足し、`style-src-attr 'unsafe-inline'` で `style` 属性（title/ の384ファイル・glightbox）を許した（`style-src 'self' 'unsafe-inline'` より狭く、`<style>` が増えたら報告に出る）。`connect-src` に Cloudflare Web Analytics の送信先は要らなかった。`frame-src` は埋め込みが無いので `'none'`。`img-src` は静的な検索の11ドメインと `data:`
+- 報告先（`report-uri`・`report-to`）は付けていない
+- issue: #9 の「状況: 待ち」を外し、着手をコメントした https://github.com/retroeater/mj/issues/9#issuecomment-6263669042
+- docs: docs/notes/cloudflare.md「配信設定」に2行、docs/notes/security.md の冒頭に1句、docs/decisions/security.md に「2026-10-19（CHAT-1019-SEC-11）」の節
+- テスト: `python3 -m unittest discover -s scripts/tests` 1433件 OK
+
 ## 報告
 
 - 状態:
@@ -72,12 +133,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 58fa24ff）: https://github.com/retroeater/mj-logs/tree/main/guide/58fa24ff
+ガイド文書（この版を写した時点の最新、mj 2da08c0f）: https://github.com/retroeater/mj-logs/tree/main/guide/2da08c0f
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/58fa24ff/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/58fa24ff/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/58fa24ff/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/58fa24ff/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/58fa24ff/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/58fa24ff/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/2da08c0f/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/2da08c0f/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/2da08c0f/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/2da08c0f/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/2da08c0f/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/2da08c0f/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/58fa24ff.md
