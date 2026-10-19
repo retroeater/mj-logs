@@ -1,0 +1,83 @@
+# CHAT-1020-SEC-15
+
+- 着手日時: 2026-10-20
+- 対象issue: #598
+- ブランチ: work/1020-sec15
+- 着手時HEAD: e7c8d9e08
+
+## 指示
+
+【Claude作成】Claude Code 向け指示：再点検（SEC-14）の Worker の指摘（低-10・低-4）を直し、SEC-14 の後の決定を記録する
+Chat-Ref: CHAT-1020-SEC-15
+マージ: 承認済み（チャットで）。条件は「止まる条件」「手順3」のとおり。変えるのは `workers/ask/src/`（低-10・低-4 の箇所だけ）、`workers/ask/test/`（足すテスト）、docs（`docs/decisions/security.md`・`docs/notes/security.md`・`docs/logs/`）。生成スクリプト・生成物・`assets/`・`_headers`・`.github/`・`workers/scheduler/` は変えない
+貼る時機: いつでも（CHAT-1019-SEC-14 はマージ済み）。JST 03:45〜05:15 と月曜 05:00〜07:00 は cloudflare への push をしない（当たったら終わるまで待ってよい。CLAUDE.md の15分の上限の例外）。新しいセッション: 任意（SEC-14 の続きでも可）
+共通手順: CLAUDE.md「Chat-Ref」「ブランチ運用」「作業ログ」節のとおり（識別子確認 → origin/cloudflare を起点に work/<識別子>〈クラウドセッションでは worktree を使わず docs/notes/cloud-sessions.md の読み替えに従う〉 → ログ先行push → 最終報告の Chat-Ref の行の直前に「ログ（公開）」の行、最後の行に Chat-Ref）。平野さんは、この指示のための作業ブランチ work/1020-sec15 の作成と push を許可している（セッションに割り当てられた claude/… のブランチは使わない）。
+作業ブランチ: クラウドセッションで実行する。work/1020-sec15 を使う。リモートに無ければ origin/cloudflare から作る。リモートにあってマージ済み（`git merge-base --is-ancestor origin/work/1020-sec15 origin/cloudflare` が真）なら origin/cloudflare から作る（`checkout -B` は使わない。ローカルにあるときを含め手順は docs/notes/cloud-sessions.md「作業ブランチの用意」）。マージ済みでなければ止まる。
+
+0. 着手前に、このログの「指示」欄の末尾が、この指示文の末尾（最後の行）と一致しているか確認し、一致しなければ作業せず報告する。続いて CHAT-1019-SEC-14 のログ（`docs/logs/CHAT-1019-SEC-14.md`）の `## 報告` の状態の末尾に ` / 続き: CHAT-1020-SEC-15` を足してコミットする（この指示は SEC-14 の判断待ちへの回答を含む）。
+
+## 目的
+再点検（CHAT-1019-SEC-14、#598 の issuecomment-6270152890）で出た Worker `mj-ask` の指摘2件（低-10・低-4）を直す。あわせて SEC-14 の「判断が必要なこと」への平野さんの回答と、ダッシュボード側の確認の結果を docs/decisions に記録する。生成とフロントの直し（中-3 の残り・低-6・低-7・低-8 後半）は次の指示（SEC-16）で行う。
+
+### 決定（2026-10-20、平野さん）
+- 直しは2本に分ける: (1) Worker（低-10・低-4）＝この指示、(2) 生成とフロント（中-3 の残り・低-6・低-7・低-8 後半）＝次の指示。低-3（CI の `packages:` の版の固定）は #564 か Dependabot の扱いと合わせて別に行う。低-5（答えの文の検証）は直さない（影響が質問した本人の画面だけのため）
+- Claude Security は定期では回さない。`workers/` を大きく変えたときの Scan changes に加え、再点検（年1回か大きな変更の後）のときに1回回す。使用量はセッションから見えないので、次に回すときは平野さんが直前・直後に claude.ai の Settings → Usage のスクリーンショットを撮り、%の差で量る
+- この指示のマージは承認済み（条件付き。下の止まる条件・手順3）
+
+### 前提（チャット側。平野さんの決定ではない。実物に合わせて変えてよい）
+- 平野さんのダッシュボード側の確認（2026-10-20）: Mozilla HTTP Observatory の取り直しは 105 点（前回 B 70/100、2026-10-18）。GitHub の Settings → Advanced Security の画面に Secret scanning／Push protection の項目は無い（個人の private リポジトリではまだ使えない。代わりは引き続き `security-check.yml` の履歴の走査）。Actions の Workflow permissions の既定は 2026-10-19 12:59 に読み取りだけにし、PR の作成・承認の許可を外した（平野さん。CHAT-1018-SEC-10 の予定の実施）。これらは決定ではなく確認の結果として decisions に書く
+- 低-10（要確認、場所は SEC-14 のログ。WRR 系列が同じファイルを変えているので行番号はずれている見込み）: `workers/ask/src/ask.mjs` の「知らない大会」の検査で、`contest` に `__proto__` などを送ると検査を通る。大会の表を `Object.hasOwn` で引く（またはプロトタイプの無い表にする）。テストは `__proto__`・`constructor`・`toString` が「知らない大会」として扱われ、回数に数えず Claude API を呼ばないこと（今の挙動で1問と数えているなら、直した後は数えないことも確かめる）
+- 低-4（要確認）: `ask.mjs` の `json()` が返す応答に `x-content-type-options: nosniff` を付ける（`_headers` は Worker の応答に効かない、`docs/notes/security.md` の (a)）。テストはヘッダが付くこと
+- 本番で確かめるのは `docs/notes/security.md`「本番に送ってよい要求」の2つだけ。`/api/ask` に質問や `__proto__` を送らない（1問と数えるため）
+- `docs/notes/security.md` は、Claude Security の「回し方」の行を上の決定に合わせて直し、(a) の行に低-10 の観点（大会名などの表をプロトタイプ経由で引かない）を一句足す
+
+## 手順
+1. 確かめる: #598 が Open、SEC-14 のログの `## 報告` の低-10・低-4 の記述。`git branch -r --no-merged origin/cloudflare` の各ブランチが `workers/ask/src/ask.mjs` の同じ関数（大会名の検査・`json()`）を変えているか（変えていれば止まる。同じファイルの別の関数ならログに書いて進む）。#598 に着手中のコメントを書く
+2. 直す: 低-10・低-4 を直し、テストを `workers/ask/test/` に足す。直す前の src で足したテストが落ち、直した後に通ることを確かめる。`node --test 'workers/ask/test/*.test.mjs'`・`node --test 'workers/scheduler/test/*.test.mjs'`・`python3 -m unittest discover -s scripts/tests` を回す。docs（上の決定・前提の記録、`docs/notes/security.md` の2か所、`docs/notes/ask-worker.md` に応答のヘッダの記述があればそこも）を直す
+3. マージと確かめ: origin/cloudflare を取り込み直してテストを回し直し、cloudflare との差分が `workers/ask/src/` の2か所・足したテスト・docs だけであることを確かめてマージする。Workers Builds の成否（`docs/notes/cloudflare.md`「ビルド成否と本番の確認範囲（check-runs）」）を確かめ、本番の `GET /api/ask/status` が 200 で `x-content-type-options: nosniff` が付くこと、`POST /api/ask`（`Origin: https://example.invalid`・本文なし）が 403 でそのヘッダが付くことを確かめる。#598 に結果（直した2件・テスト・本番の確かめ）をコメントする
+
+## 止まる条件
+- 手順1の前提が食い違う（#598 が Closed、SEC-14 のログに低-10・低-4 が無い、指摘の箇所がもう直っている）
+- 未マージの work/ ブランチが `workers/ask/src/ask.mjs` の同じ関数（大会名の検査・`json()`）を変えている、または取り込みで衝突する（`docs/decisions/*.md`・`docs/logs/` の末尾の追記どうしは両方を残して解いてよく、解いた後の該当箇所をログに引用する。それ以外の衝突は解かずに止まる）
+- テストが1つでも落ちる（自分の変更で落ちると分かっている既存のテストは、直す理由をログに書いて直してよい）、または cloudflare との差分に上の範囲の外のものがある（マージせずに止まる）
+- マージ後の Workers Builds が失敗した、または本番の確かめで 200／403 以外の状態コードが返った: 今回の変更による失敗なら、マージのコミットを revert して push・マージし（承認済み）、止まる。無関係な失敗なら原因をログに書いて残りの手順を進めてよい
+- cloudflare への push が権限判定で拒否された（別の手段を試さずに止まる）
+
+## 完了条件
+- ログの「## 報告」を CLAUDE.md「作業ログ」節のとおりに書いて push する。「判断が必要なこと」に、次の指示（SEC-16: 生成とフロント）を作るのに要る点（対象の箇所の今の行・再生成で差分が出そうなページの見込み）を書く
+- マージは冒頭の「マージ:」の行のとおり
+- ターミナルへの最終報告の Chat-Ref の行の直前に ログ（公開）: https://github.com/retroeater/mj-logs/blob/main/logs/CHAT-1020-SEC-15.md?v=<SHA>（CLAUDE.md「作業ログ」節）を書き、最後の行に Chat-Ref: CHAT-1020-SEC-15 を書く
+
+不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
+
+## 経過
+
+- 0: 「指示」欄の末尾は指示文の最後の行（「不明な点があれば、…この行が指示文の最後の行です。」）と一致。
+- Chat-Ref 重複なし（`git log --all --grep`）。`work/1020-sec15` はローカル・リモートとも無し → `git checkout -b work/1020-sec15 origin/cloudflare`。
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている。着手 2026-10-20 01:39 JST（push を止める時間帯の外）。
+
+## 報告
+
+- 状態: 作業中
+- ブランチ: work/1020-sec15
+- ログ: https://github.com/retroeater/mj/blob/work/1020-sec15/docs/logs/CHAT-1020-SEC-15.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1020-sec15
+- 確認用URL: なし
+- マージ: 未
+- issue: #598
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
+
+<!-- guide-links -->
+---
+
+ガイド文書（この版を写した時点の最新、mj e7c8d9e0）: https://github.com/retroeater/mj-logs/tree/main/guide/e7c8d9e0
+
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e7c8d9e0/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e7c8d9e0/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e7c8d9e0/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e7c8d9e0/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e7c8d9e0/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e7c8d9e0/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/e7c8d9e0.md
