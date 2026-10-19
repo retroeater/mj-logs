@@ -1,12 +1,11 @@
 # 朝の報告用の異常（retroeater/mj）
 
-- 書き出した時刻: 2026-10-19 22:29 JST（見た範囲: 2026-10-18 20:29 JST から）
+- 書き出した時刻: 2026-10-19 22:32 JST（見た範囲: 2026-10-18 20:32 JST から）
 - 書き出した実行の契機: workflow_dispatch（main）
 - 異常だけを書く。全体は actions/status.md。判定は mj の scripts/morning_report.py（各ワークフローの直近 100 回まで）
 
 ## 1. 失敗など（結論が success・skipped 以外。実行中を含む）
 
-- 2026-10-18 20:30 check-assets.yml failure（push・work/OUK） https://github.com/retroeater/mj/actions/runs/39123515850
 - 2026-10-18 20:36 check-assets.yml failure（push・work/OUK） https://github.com/retroeater/mj/actions/runs/39123907689
 - 2026-10-18 21:14 run-daily.yml cancelled（workflow_dispatch・work/1018-sec4）ジョブ「live / update」「dojo / sync」「saikyo / abema」 https://github.com/retroeater/mj/actions/runs/39126490232
 - 2026-10-19 18:43 regenerate-page.yml failure（push・cloudflare） https://github.com/retroeater/mj/actions/runs/39232196280
@@ -25,4 +24,4 @@
 
 ## 5. 未報告のログ（`## 報告` の節が無い）
 
-なし
+- CHAT-1019-XDP-01.md（着手 2026-10-19） https://github.com/retroeater/mj-logs/blob/main/logs/CHAT-1019-XDP-01.md
