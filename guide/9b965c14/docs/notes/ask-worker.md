@@ -10,7 +10,7 @@ houou/ のトップで鳳凰戦のデータに言葉で質問できる欄。決�
 |---|---|
 | `scripts/generate_ask_data.py` | 検索データ `workers/ask/data.json` を書く（`regenerate.py` の対象名は `ask_data`。ページは書かない） |
 | `workers/ask/data.json` | 生成物。Worker に同梱する。`workers/` は `.assetsignore` にあり、サイト `mj` では配信しない（grill Q5） |
-| `workers/ask/src/query.mjs` | 6つの型の検索（`runQuery(data, request)`）。数える・並べる・時点と出典と注記を付けるのはここ |
+| `workers/ask/src/query.mjs` | 6つの型（鳳凰戦は `entry` を足した7つ）の検索（`runQuery(data, request)`）。数える・並べる・時点と出典と注記を付けるのはここ |
 | `workers/ask/test/query.test.mjs` | `node --test 'workers/ask/test/*.test.mjs'`（Claude は呼ばない） |
 | `scripts/tests/test_ask_data.py` | 生成のうちシートを読まない部分（`build()`・`finals_data()`）のテスト |
 | `workers/ask/wrangler.jsonc` | Worker `mj-ask` の設定（ルート `ryoei.pro/api/*`、D1 `mj-ask`、vars） |
@@ -46,7 +46,7 @@ houou/ のトップで鳳凰戦のデータに言葉で質問できる欄。決�
   「鳳凰」タブの「鳳凰位」の行は鳳凰位として座っている期で、獲った期の次の期（例: 吉田直は第35期に獲り、第36期の行が「鳳凰位」）
 - 放送対局: `generate_live_pages.py` の読み込み（`load_titles()`・`load_videos()`・`build_pages()`）で、タイトル戦が鳳凰戦のページ
 - 読み・入会期: 名簿と「プロ」。**在籍者だけ**（grill Q3）。データに出てくる人の分だけ持つ
-- 名前の辞書は「プロ」「連盟プロ以外」「別名」から作り、SNS ブック（X の画像）は読まない（`generate_houou_race.py` の `load_name_book()` から X を除いた形）
+- 名前の辞書は「プロ」「連盟プロ以外」「別名」から作り、SNS ブック（X の画像）は読まない（`lib/houou_race.py` の `load_name_book()` から X を除いた形）
 - 時点 `asof`: リーグは成績の最後の期（「第43期前期終了時点」）、決勝は最後の期（「第42期まで」）、放送対局は最後の配信日
 
 `title/search.json` は `regenerate.py all` の中で `ask_data` より後に作られる（名前の順）。決勝の反映が1回遅れることがあるが、`title/` は毎日作り直されるので、次の週次で追いつく。
@@ -64,13 +64,17 @@ houou/ のトップで鳳凰戦のデータに言葉で質問できる欄。決�
 | `champions`（鳳凰位の一覧） | `entry`（入会期の数）・`from`・`to`（鳳凰戦の期）・`name` | `{name, entry, terms}`（人ごと、最初に獲った期の順） | `/title/houou/` |
 | `final`（決勝の結果） | `term`（必須） | `{rank, name}` | `/title/houou/<期>.html` |
 | `player`（選手の成績） | `name`（必須）・`term` | `{period, league, place, result, total}`（入替戦に出た期は `playoff: true`。答えの指示で「result はその入替戦の後の結果」と伝える） | 在籍者は `/houou/players/?name=`、それ以外は最後の期の `/houou/race/?term=&league=` |
-| `league`（リーグの顔ぶれ） | `term`・`league`（必須）・`half`（前/後、1/2） | `{place, name, result, total}`（順位の順） | `/houou/race/?term=<期>-<1|2>&league=<リーグ>`（通期の A1・A2・鳳凰位は `?term=<期>`、#541） |
-| `ranking`（記録の上位） | `division`（9部門の名前、必須。houou/ と同じ略称〈通算・期平均…〉で、旧い名前〈通算得点・通算得点/期…〉も `DIVISION_ALIASES` で受ける、2026-10-16）・`limit` | `{rank, name, value}` | その部門の `/houou/ranking/…/`（出典の名前は「鳳凰戦 ランキング（通算）」の形） |
-| `live`（放送対局） | `term` | `{period, stage, date, players, url}` | 各ページ（無ければ `/live/houou/`） |
+| `league`（リーグの顔ぶれ・人数・順位） | `term`・`league`（必須）・`half`（前/後、1/2）・`rank`（鳳凰戦だけ。その順位の選手だけ、2026-10-19） | `{place, name, result, total}`（順位の順） | `/houou/race/?term=<期>-<1|2>&league=<リーグ>`（通期の A1・A2・鳳凰位は `?term=<期>`、#541） |
+| `ranking`（記録の上位） | `division`（9部門の名前、必須。houou/ と同じ略称〈通算・期平均…〉で、旧い名前〈通算得点・通算得点/期…〉も `DIVISION_ALIASES` で受ける、2026-10-16）・`limit`・`rank`（鳳凰戦だけ。「N番目」の位置の順位の選手〈同率は全員〉、2026-10-19） | `{rank, name, value}` | その部門の `/houou/ranking/…/`（出典の名前は「鳳凰戦 ランキング（通算）」の形） |
+| `live`（放送対局の一覧・回数） | `term` | `{period, stage, date, players, url}`（/live に載っている対局だけ。鳳凰戦は決定戦のページだけなので、回数は決定戦の数） | 各ページ（無ければ `/live/houou/`） |
+| `entry`（入会期の在籍選手の一覧、鳳凰戦だけ、2026-10-19） | `entry`（必須） | `{name, league, period}`（最後に出た期のリーグ。上のリーグから、同じリーグは読みの順） | `/houou/players/` |
 
 - 2つの「期」（grill Q2）: 鳳凰戦の期は `term`・`from`・`to`、入会期は `entry`。`assumedTerm: true`（どちらとも取れる「N期」を鳳凰戦の期と読んだ）なら `lead`（答えの冒頭に出す読み方）に「「N期」を鳳凰戦の第N期として答えます」
 - 注記: 入会期を使ったら「入会期が分かるのは在籍中の選手だけです」（grill Q3）、「鳳凰位」の行が出たら座った期の説明、規定のある部門は「※出場10期以上のみ」など
-- 名前: 完全一致 → 「別名」 → 正規化して一致（NFKC・空白なし・小文字・カタカナはひらがな、読みも見る） → 部分一致。複数なら `ambiguous_name` と候補（5名まで）
+- 名前: 完全一致 → 「別名」 → 正規化して一致（NFKC・空白なし・小文字・カタカナはひらがな、読みも見る） → 部分一致。複数なら `ambiguous_name` と候補（5名まで）。
+  鳳凰戦は、候補を `nameCandidates()`（頭から一致 → 途中に含む、それぞれ在籍者が先、読みの順）で全員出して答える（下の「Worker」の5、2026-10-19）
+- 鳳凰戦だけの型・引数（`entry`・`rank`）は `HOUOU.types` と `planSchema()` の `HOUOU_ARGS` に置き、ほかの大会の検索条件の形は変えない（`typesOf()`）
+- 第43期の A1・A2・鳳凰位（通期のリーグ）は、期が終わるまで行が無く「答えられません」になる（2026-10-19 の時点。#586）
 
 ## 仮置き（実装2・週次のまとめを見て決め直す）
 
@@ -93,12 +97,15 @@ POST `/api/ask`（本文 `{"question": "…"}`）の流れ:
 2. 空・200字（`QUESTION_MAX`、コードポイントで数える）を超える問いは 400（`invalid`）。数えない
 3. 回数（grill Q7）: JST の暦日を鍵に、全体（`daily_counts`）と IP（`ip_counts`。IP は「Secret の塩・日付・IP」の SHA-256 だけ）を読み、上限なら 429（`limit`、`scope` は `daily` か `ip`、`resetAt` は翌0時 JST）。
    受け付けるときに両方を `INSERT … ON CONFLICT DO UPDATE … RETURNING n` で1つ足し、前日以前の `ip_counts` を消す（1回の batch）。同時に来て上限を越えたら 429
-4. Claude（`claude-haiku-5-5`）の1回目: structured outputs（`output_config.format` の JSON schema `PLAN_SCHEMA`）で `{type, assumedTerm, args}` を返させる。型は query.mjs の6つと `none`
-5. `none`、または `runQuery` が見つからない・名前が決まらない・引数が不正なら「答えられません。」（候補があれば添える）。2回目は呼ばない
+4. Claude（`claude-haiku-5-5`）の1回目: structured outputs（`output_config.format` の JSON schema `PLAN_SCHEMA`）で `{type, assumedTerm, args}` を返させる。型は query.mjs の6つ（鳳凰戦は `entry` を足した7つ）と `none`。鳳凰戦の指示の最後に、「現在」「今」をデータのある最新の期（`latestPeriod()`）で読ませる一文（`currentLine()`）を足す（2026-10-19）。WRC リーグの指示の最後には、「現タイトルホルダー」「今のチャンピオン」などを最新の決勝の期の `champions`（from・to にその期）で読ませる一文（`holderLine()`）を足す（2026-10-19。`PLAN_LINES`）
+5. `none`、または `runQuery` が見つからない・名前が決まらない・引数が不正なら「答えられません。」（候補があれば添える）。2回目は呼ばない。
+   鳳凰戦で名前が決まらない（名字だけ・名前の一部）ときは、プログラムが「「堀」に当たる選手はN人います: …（10人まで、ほか N人）。名前を足して、もう一度聞いてください。」と書き、`answered` で返す（記録の結果は `candidates`、2026-10-19）
 6. 2回目: 質問と検索の結果（型・件数・items・注記）だけを渡して文章にさせる。答えの下の注記・時点・出典は Worker が `runQuery` の結果から付け（grill Q6）、Claude には書かせない。
    選手の並ぶ結果（`champions`・`final`・`league`・`ranking`）が10人（`NAMES_MAX`）を超えたら、上位10人だけを渡し、残りの人数を `others`（`count` − 10）として添える（`answerInput()`。Claude に人数を数えさせない、2026-10-16）。歴代の鳳凰位（`champions`）は検索では最初に獲った期の古い順に並ぶので、10人を超えて切るときだけ、渡す前に新しい期（最後に獲った期）から並べ替える（10人以下は古い順のまま。期で絞った問いは絞った後の人数で決める。2026-10-16 の HOU-57。切ると最新の鳳凰位が渡らず「現在の鳳凰位は？」に答えられなくなったため、HOU-53 で一度戻した）。ほかの型は検索の順のまま切る。指示（`ANSWER_SYSTEM`）は「items の名前を結果の順のまますべて書く。「ほか N人」と全体の人数（count）は、一覧や人数を聞かれたときだけ添える。人数は自分で数えず、この指示の言葉は答えに書かない」（人数を添える条件は 2026-10-16 の HOU-59。「現在の鳳凰位は？」に聞かれていない人数が付いたため）（答えの下の選手のカードは文の名前から作るため。文面と切り方・並べ方は `ask.test.mjs` で確かめる）
-7. 記録（決定5・grill Q8）: `questions` に日時（JST）・質問文・結果（`answered` / `unanswered`）・型。IP と答えの本文は書かない
-8. Claude の失敗（HTTP エラー・ワークスペースの上限の 400・拒否 `refusal`・打ち切り）は 503（`unavailable`）。この問いは数えたまま、記録は `unanswered`
+7. 記録（決定5・grill Q8 を 2026-10-19 に置き換え）: `questions` に日時（JST）・質問文・結果（`answered` / `unanswered` / `candidates`）・型・答えの本文（`answer`、返した文言）・型の引数（`args`、null を除いた JSON の文字列。型が無い・引数が無いときは空）。IP は書かない。
+   答えの本文は `max_tokens` 2048 で数千字までなので、ブックのセルの上限（5万字）に収まる
+8. Claude の失敗（HTTP エラー・ワークスペースの上限の 400・拒否 `refusal`・打ち切り）は 503（`unavailable`）。この問いは数えたまま、記録は `unanswered`、答えの本文は「失敗: 」と理由（例「失敗: Claude plan: HTTP 529」）。
+   2026-10-18 までは失敗も `none` も型が空で記録され、区別できなかった（「23期生の鳳凰位は？」が 2026-10-16 22:10 JST ごろに2回続けて答えられなかった原因を記録から決められなかった。CHAT-1019-AIC-07）
 
 Claude の呼び出しの設定（公式の文書と claude-api skill で確かめた。2026-10-11）:
 
@@ -202,16 +209,16 @@ CHAT-1011-AIC-03 で、マージの後に本番へ POST すると Worker に届�
 - POST `/api/ask`（Origin 付き、空の質問）→ 400 `{"status":"invalid","reason":"empty"}`（数えない）
 - GET `/api/x` → 404
 
-セッションからは届かないもの（D1・Workers Logs・Console の使用額）は、平野さんに見てもらう。D1 の Console で次を実行すると、記録に IP と答えの本文が無いことを確かめられる:
+セッションからは届かないもの（D1・Workers Logs・Console の使用額）は、平野さんに見てもらう。D1 の Console で次を実行すると、記録に IP が無いこと・答えの本文と型の引数が入ったことを確かめられる:
 
 ```sql
 SELECT name FROM pragma_table_info('questions');
-SELECT id, asked_at, question, result, type FROM questions ORDER BY id;
+SELECT id, asked_at, question, result, type, answer, args FROM questions ORDER BY id DESC LIMIT 20;
 SELECT day, n FROM daily_counts ORDER BY day;
 SELECT day, length(ip_hash) AS hash_length, n FROM ip_counts;
 ```
 
-期待する結果: `questions` の列は `id`・`asked_at`・`question`・`result`・`type` の5つだけ。行は試した問いの数で、`result` は `answered` か `unanswered`。`ip_counts` の `hash_length` は 64（IP そのものではない）。
+期待する結果: `questions` の列は `id`・`asked_at`・`question`・`result`・`type`・`answer`・`args` の7つ（`answer`・`args` は 2026-10-19 に ALTER TABLE で足した。前の行は空）。`result` は `answered`・`unanswered`・`candidates`。`ip_counts` の `hash_length` は 64（IP そのものではない）。
 
 1問あたりの費用: Workers & Pages → `mj-ask` → Observability の Events に、1問ごとに `{"call":"plan",…}` と `{"call":"answer",…}` の2行（`input_tokens`・`output_tokens`）が出る。
 費用は（入力の合計 × $0.10 ＋ 出力の合計 × $0.50）÷ 100万（Haiku 5.5、入力が10万トークン以下のとき）。Console の Cost の画面のワークスペース `ryoei-pro-ask` の額と突き合わせる。
@@ -239,9 +246,9 @@ AI への指示（`ANSWER_SYSTEM`）・一覧の切り方・並べ替えを変�
 2026-10-11〜13 は誤って `0 0 * * 1`（日曜 9:00 JST）になっていた（CHAT-1013-AIC-05 で直した）。Cron Triggers はアカウントで5本まで（Free）で、`mj-scheduler`（毎分）と合わせて2本。
 入口は `index.mjs` の `scheduled`、本体は `src/weekly.mjs`。
 
-1. **ブックへの書き出し**（`GOOGLE_SA_KEY` と `ASK_SHEET_ID` があるとき）: 専用のブックの最初のシートに、1行目の見出し（日時・質問文・結果・型。空のブックなら最初に書く）に続けて、
+1. **ブックへの書き出し**（`GOOGLE_SA_KEY` と `ASK_SHEET_ID` があるとき）: 専用のブックの最初のシートに、1行目の見出し（日時・質問文・結果・型・答え・引数。空のブックなら最初に足し、行があれば毎回書き直す〈4列だったブックを6列にする、2026-10-19〉）に続けて、
    D1 の `questions` のうち「ブックの最後の行の日時より後」かつ「今週の月曜 0 時（JST）より前」かつ「90日以内」の行を日時の順に足す（`values:append`、`valueInputOption=RAW` で質問文を式として扱わせない）。
-   前の週の行が足され、取りこぼした週があれば次の回に拾い、同じ回が2度動いても同じ行を二度足さない。結果は「答えた」「答えられなかった」、型が無ければ空
+   前の週の行が足され、取りこぼした週があれば次の回に拾い、同じ回が2度動いても同じ行を二度足さない。結果は「答えた」「答えられなかった」「候補を出した」、型・答え・引数が無ければ空
 2. **ブックの90日を過ぎた行の削除**: 2行目から日時の古い順に並んでいる前提で、先頭から続く90日より前の行を消す（`batchUpdate` の `deleteDimension`）。ブックの行を手で並べ替えると、古い行が残ることがある
 3. **D1 の90日を過ぎた行の削除**: `DELETE FROM questions WHERE asked_at < <90日前>`。鍵が無いときや Google の呼び出しが失敗したときも行う
 4. 鍵かブックの ID が無ければ、Workers Logs に「週次: 鍵(GOOGLE_SA_KEY)かブックの ID(ASK_SHEET_ID)が無いため、ブックへの書き出しを飛ばす」と書き、1・2 を飛ばして正常に終わる。最後に `週次: {cutoff, until, sheet, d1Deleted}` の1行を書く
