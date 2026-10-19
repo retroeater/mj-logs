@@ -61,6 +61,21 @@
 - 0. 「指示」欄の末尾は指示文の最後の行と一致
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
 
+### 手順1: 直し
+
+- navbar（`navbar.js`）: 「WRC」の後に `<li class="nav-item"><a class="nav-link" href="/wrcr/" data-short-label="WRC-R">JPML<br>WRC-R</a></li>` を足した（黒地のナビは「JPML / WRC-R」の2行、白地のナビは `data-short-label` の「WRC-R」。jwrc/ の「WRC」と同じ形）。白地のナビの判定に `/wrcr/` の分岐（`newNavCurrent = 'WRC-R'`）
+  - テスト: `test_navbar.py` に「WRC-R は WRC の隣・最強戦の前、`/wrcr/` の分岐がある」を1件。既存の `test_wrc_item_label` は「`data-short-label` は1つ」を前提にしていたので、WRC-R を含めて2つに直した
+  - ローカル（静的サーバーと headless Chrome）で、wrcr/・jwrc/・houou/・ouka/・saikyo/（白地）と jpml_pros・title/（黒地）を 360・375・992・1280・1920px で開いた。992px 以上は9項目が1行（折り返し・はみ出しなし、白地のナビの高さ 61px・黒地 80px は前と同じ）、360・375px は折りたたみ（ハンバーガー）。wrcr/ で「WRC-R」に印（`aria-current`）。JS のエラーなし。jpml_pros の 360・375px の横はみ出しは本番の今の版でも同じ（表の幅。ナビによるものでない）。仮置きの直しは要らなかった
+- `WRCR` の `noindex=True` を外した（`generate_houou_pages.py`）。テスト（`test_wrcr_pages.py`）を「noindex が無い」に直した
+- `sitemap-pages.xml` に wrcr/ の12ページ（トップ・個人成績・ランキング9部門・順位変動）を jwrc/ の後に足し、冒頭の説明に wrcr/（#611）。`update_sitemap_lastmod.py --from-git` の後も lastmod は 2026-10-19 のまま
+- `llms.txt` に「## WRC-Rリーグ」の節（jwrc/ の4行と同じ書き方）
+- 文書: wrcr-top.md（公開の形）、static-generation.md「ページの一覧」、league-pages-compare.md（公開・noindex の欄）、ask-worker.md・redirects.md・handover.md の「未公開」を直した
+- `python3 -m unittest discover -s scripts/tests`: 1449件 OK。`node --test 'workers/ask/test/*.test.mjs'`: 73件 pass
+- `python3 scripts/regenerate.py all`（終了コード 0）: 生成物の差分は wrcr/ の12ページの `<meta name="robots" content="noindex">` を消した12行だけ（例 `wrcr/index.html`）。houou/・ouka/・jwrc/・jpml_pros・ほかの生成物は差分 0。手で直したのは navbar.js・sitemap-pages.xml・llms.txt・テスト2・生成の設定2・文書
+- 未マージの work/ ブランチ: `work/1017-lvp` が navbar.js の白地のナビの判定の if 連鎖に `mj-live-n-page` の分岐を足している（最強戦の分岐の後）。この作業の `/wrcr/` の分岐（jwrc/ の分岐の後）とは別の箇所で、同じ行ではない
+- 決定を docs/decisions/houou.md に「## 2026-10-19（CHAT-1019-WRR-06）」として足した（jwrc/ の公開〈WRC-12〉と同じファイル）
+- コミット: 直し（navbar・設定・テスト・サイトマップ・llms.txt・文書）と生成物（wrcr/）
+
 ## 報告
 
 - 状態: 作業中
@@ -77,12 +92,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj b48ac4d1）: https://github.com/retroeater/mj-logs/tree/main/guide/b48ac4d1
+ガイド文書（この版を写した時点の最新、mj 5f8dc791）: https://github.com/retroeater/mj-logs/tree/main/guide/5f8dc791
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b48ac4d1/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b48ac4d1/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b48ac4d1/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b48ac4d1/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b48ac4d1/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b48ac4d1/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/5f8dc791/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/5f8dc791/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/5f8dc791/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/5f8dc791/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/5f8dc791/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/5f8dc791/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/58fa24ff.md
