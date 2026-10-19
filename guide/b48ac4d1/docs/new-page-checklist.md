@@ -80,6 +80,7 @@
 公開後の確かめ
 - [ ] Workers Builds の check-run が success（これだけで本番反映とはしない、`docs/notes/cloudflare.md`「ビルド成否と本番の確認範囲（check-runs）」）
 - [ ] 本番の HTML（`curl`）: ページが 200 で robots の noindex が無い（応答ヘッダの `x-robots-tag` も）。本番の `navbar.js`・サイトマップ・`llms.txt` に URL がある。`_redirects` の転送が期待どおり
+- [ ] 質問欄のある大会のページ: 本番の質問欄に、トップの例の文の問いと「現タイトルホルダー（その大会の呼び方。現鳳凰位・現女流桜花など）は？」を聞き、答えが返ることを確かめる（答えの要旨をログに書く。答えは Claude を呼ばないと確かめられず、テストにできないため。CHAT-1019-WRC-15）
 - [ ] X と LINE の投稿画面に URL を貼り、カード表示（画像・og:title）を確かめる。X は `?x=<未使用の数字>` を付け、デプロイ直後の1〜2分は避ける（`docs/notes/ogp.md`）
 - [ ] 平野さんの実機: navbar から開けて、見え方・操作が崩れていない（セッションから確かめられるのは本番の HTML まで）
 - [ ] 平野さんの作業: Search Console で `sitemap.xml` を再送信し、入口を URL 検査でインデックス登録をリクエスト

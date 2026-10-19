@@ -57,15 +57,49 @@ Chat-Ref: CHAT-1019-WRC-20
 
 不明な点は仮置きで進め、報告の「判断が必要なこと」に書いてください。この行が指示文の最後の行です。
 
+## 経過
+
+- 「指示」欄の末尾は指示文の最後の行（「不明な点は仮置きで進め、…この行が指示文の最後の行です。」）と一致
+- `git log --all --grep="CHAT-1019-WRC-20"` は空。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある
+- ガイド文に規則を足す指示の「知見 → 選んだ層 → 理由」の表がある（2件とも推論的センサー）
+- 作業ブランチ: origin/cloudflare（77431408e）から work/1019-wrc20
+- 同じ趣旨の行の有無: `docs/new-page-checklist.md`「段2 公開する」の「公開後の確かめ」に質問欄の問いの行は無い。`docs/notes/page-announcement.md`「告知動画の型」のテロップの行（上端から 80〜210px・下端から10%）と表の止め方の行に、テロップが名指すものが映るかの確かめは無い。どちらも足した
+- 語: page-announcement.md の「告知動画の型」は「テロップ」と書いているので、指示の案の「字幕」を「テロップ」にした。理由の一句（checklist は「テストにできないため」、page-announcement は「撮った後にコマを見て」）を添え、事例は CHAT-1019-WRC-15・16 の括弧書きだけにした
+- 足した2行（全文）:
+  - `docs/new-page-checklist.md`「公開後の確かめ」の、本番の HTML（`curl`）の項の次:
+    `- [ ] 質問欄のある大会のページ: 本番の質問欄に、トップの例の文の問いと「現タイトルホルダー（その大会の呼び方。現鳳凰位・現女流桜花など）は？」を聞き、答えが返ることを確かめる（答えの要旨をログに書く。答えは Claude を呼ばないと確かめられず、テストにできないため。CHAT-1019-WRC-15）`
+  - `docs/notes/page-announcement.md`「告知動画の型」の、テロップの項の次:
+    `- テロップが名指すもの（線・選手・数字）は、そのテロップが出ている間に画面に映るコマがあることを、撮った後にコマを見て確かめる。止め方の決定で映らないときは、テロップを変えるか、途中で一度見せる（CHAT-1019-WRC-16）`
+- 容量:
+  - 直した2文書（`check-assets.yml` の上限の対象ではない）: `docs/new-page-checklist.md` 13,264 → 13,669 バイト、`docs/notes/page-announcement.md` 9,716 → 10,029 バイト
+  - `check-assets.yml` の4文書（前後とも同じ。今回は変えていない）: CLAUDE.md 24,883（警告域 26,624 まで 1,741・上限 28,672 まで 3,789）、docs/handover.md 22,962（警告域まで 3,662・上限まで 5,710）、docs/notes/chat-side-operations.md 22,155（警告域まで 4,469・上限まで 6,517）、docs/instruction-template.md 14,325（警告域 14,336 まで 11・上限 16,384 まで 2,059）
+- docs/decisions: 決定（申送りとして知見を文書に残す）は、この指示の止まる条件「変更が上の3か所のほかに出る」に当たるので docs/decisions に足していない（CLAUDE.md「作業ログ」の決定を足す規則と食い違う。報告の判断が必要なことに書いた）
+- マージ: 再 fetch・祖先の確認が真 → `git push origin work/1019-wrc20:cloudflare`（77431408e..07643e3ea、早送り）。ドキュメントだけの push なので Workers Builds・check-assets は走らない（`docs/**` を除外）
+
+## 報告
+
+- 状態: 判断待ち（2行を足してマージ済み。docs/decisions への決定の追記だけが、止まる条件との食い違いで残っている）
+- ブランチ: work/1019-wrc20 → cloudflare（マージ済み）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1019-WRC-20.md
+- 比較URL: https://github.com/retroeater/mj/compare/77431408e...07643e3ea
+- 確認用URL: なし（docs のみ）
+- マージ: 済（07643e3ea）
+- issue: なし
+- 判断が必要なこと:
+  - この指示の決定（振り返りの後に「申送り」として知見を文書に残す）を docs/decisions に足すか。CLAUDE.md「作業ログ」は完了時に決定を docs/decisions に足すとするが、この指示の止まる条件「変更が上の3か所（new-page-checklist.md・page-announcement.md・docs/logs）のほかに出る」に当たるため足していない。足すなら次の指示で docs/decisions に1項目足す
+  - 仮置き: page-announcement.md では指示の案の「字幕」を、その文書の語に合わせて「テロップ」と書いた
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj a91c3d04）: https://github.com/retroeater/mj-logs/tree/main/guide/a91c3d04
+ガイド文書（この版を写した時点の最新、mj b48ac4d1）: https://github.com/retroeater/mj-logs/tree/main/guide/b48ac4d1
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a91c3d04/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a91c3d04/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a91c3d04/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a91c3d04/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a91c3d04/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a91c3d04/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b48ac4d1/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b48ac4d1/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b48ac4d1/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b48ac4d1/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b48ac4d1/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b48ac4d1/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/58fa24ff.md
