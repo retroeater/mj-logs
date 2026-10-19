@@ -69,16 +69,19 @@ https://ryoei.pro/wrcr/
 - `python3 -m unittest discover -s scripts/tests`: OK。cloudflare との差分は docs/decisions/houou.md・docs/logs/CHAT-1019-WRR-07.md・CHAT-1019-WRR-09.md・scripts/promo_video/wrcr/ の6ファイルだけ（生成物・ページのコード・scripts/promo_video/jwrc/ は差分なし）
 - 2. 文書: page-announcement.md に投稿文の実例（wrcr/）と「実例」の表の1行、wrcr-top.md に節「告知動画」（長さ・見本の選手と理由・質問と答え・ランキングと順位変動の止め方・場面と秒と字幕の表・投稿の URL）、docs/decisions/houou.md に「## 2026-10-19（CHAT-1019-WRR-09）」。投稿文はチャット側の最終案のまま（平野さんが投稿で直したかはセッションから見られない）
 - 容量（バイト）: page-announcement.md 10029 → 11153、wrcr-top.md 4627 → 7062、docs/decisions/houou.md 151465 → 152726（3つとも上限・警告域の対象外）。check-assets の「ガイド文書のサイズ」の4文書は変えていない: CLAUDE.md 24883（警告域 26624 まで 1741・上限 28672 まで 3789）、handover.md 22922（3702・5750）、chat-side-operations.md 22155（4469・6517）、instruction-template.md 14325（警告域 14336 まで 11・上限 16384 まで 2059。今回は触っていない）。`scripts/check_asset_limits.py` はすべて OK
+- 3. マージ: 取り込みの間に他セッションのマージが2回入ったので、その都度 origin/cloudflare を merge（d62311795 ほか。衝突なし、取り込み後もテスト OK・差分は promo_video/wrcr と docs だけ）。push 直前に再 fetch して祖先を確かめ、`git push origin work/1019-wrr07:cloudflare`（c9f649d56..70d14cc9f）
+- 70d14cc9f の check-runs: Workers Builds: mj success、check（check-assets.yml「公開対象の検査」）success、sync success、regenerate-sitemap success
+- #611 に告知の完了をコメントした（https://github.com/retroeater/mj/issues/611#issuecomment-6268036566 ）
 
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1019-wrr07
-- ログ: https://github.com/retroeater/mj/blob/work/1019-wrr07/docs/logs/CHAT-1019-WRR-09.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1019-WRR-09.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1019-wrr07
 - 確認用URL: なし
-- マージ: 未
-- issue: #611
+- マージ: 済（70d14cc9f）
+- issue: #611（コメント）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
@@ -86,12 +89,12 @@ https://ryoei.pro/wrcr/
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj c9f649d5）: https://github.com/retroeater/mj-logs/tree/main/guide/c9f649d5
+ガイド文書（この版を写した時点の最新、mj 70d14cc9）: https://github.com/retroeater/mj-logs/tree/main/guide/70d14cc9
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c9f649d5/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c9f649d5/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c9f649d5/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c9f649d5/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c9f649d5/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c9f649d5/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/70d14cc9/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/70d14cc9/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/70d14cc9/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/70d14cc9/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/70d14cc9/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/70d14cc9/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a253293d.md
