@@ -164,6 +164,8 @@
   SVGを両方埋め込み、`@media (max-width: 480px)`で表示を切り替える形に
   した。詳細な経緯は`scripts/lib/chart.py`のモジュールdocstring参照
 
+〔2026-10-19: 型C の2ページと生成・`leagues.js` は #582 で消した。この節は移行当時の記録〕
+
 **2026-09-11、型C(積み上げ棒+選手1名の折れ線)として`houou_leagues` /
 `ouka_leagues`を移行した。** 方針は(c)静的SVG+折れ線だけクライアント描画の
 ハイブリッド（ECharts等の導入は見送り）。着手前の事前調査で
@@ -247,10 +249,13 @@ egressポリシーに阻まれ実データを見られない状態が一度あ�
 この節は完了記録ではなく、現行の仕様。CLAUDE.md「構成」「データの流れ」「メンテナンス用スクリプト」と
 handover.md 5章から移した。ページの一覧は下の「ページの一覧」、件数の正は
 `python3 scripts/regenerate.py --list`。
+**2026-10-19 に鳳凰戦・女流桜花・WRC の旧9ページ（型C の2・順位変動の1・Google Charts 依存の6）を消し、下の「HTMLは24ページ」は15ページになった**（#582。旧 URL は `_redirects` で新しいページへ 301）。
 
 ### ページの一覧
 
-HTMLは24ページ + 書籍の一覧と個別ページ（`books/`、#97、noindex・メニュー未掲載。**2026-09-22 開発凍結、`docs/notes/books-freeze.md`**） + 「帰り道」の一覧とエピソード個別ページ（`wayhome/`、#162・#559） + 最強戦のトップと年度ページ（`saikyo/`、#319/#355、2026-09-21 に公開） + 最強戦の新しい年度・対局・卓のページ（`saikyo/<年度>/`、#425、noindex・メニュー未掲載、公開は #549） + タイトル戦の新構成（`title/`、#222、2026-09-28 に公開、#413） + 放送対局ページ（`live/`、#346、noindex・メニュー未掲載。正式公開は #362） + 鳳凰戦の新ページ（`houou/`、#518、公開は #540。`houou/leagues/` だけ noindex） + Mつくの一覧と各話（`mtsuku/`、#569、2026-10-15 に公開、#570） + 女流勉強会の一覧と各話（`study/`、#575、noindex・メニュー未掲載、公開は #576） + 女流桜花の新ページ（`ouka/`、#519、noindex・メニュー未掲載、公開は #591） + WRC リーグの新ページ（`jwrc/`、#594、公開は #599）。大きく4系統に分かれる。
+HTMLは24ページ + 書籍の一覧と個別ページ（`books/`、#97、noindex・メニュー未掲載。**2026-09-22 開発凍結、`docs/notes/books-freeze.md`**） + 「帰り道」の一覧とエピソード個別ページ（`wayhome/`、#162・#559） + 最強戦のトップと年度ページ（`saikyo/`、#319/#355、2026-09-21 に公開） + 最強戦の新しい年度・対局・卓のページ（`saikyo/<年度>/`、#425、noindex・メニュー未掲載、公開は #549） + タイトル戦の新構成（`title/`、#222、2026-09-28 に公開、#413） + 放送対局ページ（`live/`、#346、noindex・メニュー未掲載。正式公開は #362） + 鳳凰戦の新ページ（`houou/`、#518、公開は #540。`houou/leagues/` だけ noindex） + Mつくの一覧と各話（`mtsuku/`、#569、2026-10-15 に公開、#570） + 女流勉強会の一覧と各話（`study/`、#575、noindex・メニュー未掲載、公開は #576） + 女流桜花の新ページ（`ouka/`、#519、noindex・メニュー未掲載、公開は #591） + WRC リーグの新ページ（`jwrc/`、#594、公開は #599） + WRC-R リーグの新ページ（`wrcr/`、#366、noindex・メニュー未掲載、公開は #611）。大きく4系統に分かれる。
+
+ほかに、プロテストの一覧と各話（`exam/`、#612、noindex・メニュー未掲載、公開は #613）がある。
 
 | 系統 | ページ数 | 状態 |
 |---|---|---|
@@ -259,25 +264,24 @@ HTMLは24ページ + 書籍の一覧と個別ページ（`books/`、#97、noinde
 | ビルド時生成（型A・2列/3列） | 6 | `jpml_test.html` / `resource_logs.html` / `video_live.html` / `video_en.html` / `rh_paifu.html` / `saikyo_mens.html`。`scripts/lib/page.py` + 共有JS `table.js` を使う（#7）。3列だった旧 `video_mtsuku.html` は廃止し `/mtsuku/` へ 301（2026-10-15、#570。下の節の `video_mtsuku` の記述は移行当時の記録）。旧表 `jpml_titles.html` は廃止し `/title/` へ 301（#441） |
 | ビルド時生成（型A'・多列テキスト） | 2 | `rh_results.html` / `rh_results_detail.html`。画像列を持たないため`.mj-table-auto`を使う（#7、完了） |
 | ビルド時生成（型D・静的SVG） | 1 | `resource_efficiency.html`。表を持たないため`render_content()`を使う。外部JS・外部ドメインへの依存が一切ない（#7/#128、完了） |
-| ビルド時生成（型C・積み上げ棒+折れ線） | 2 | `houou_leagues.html` / `ouka_leagues.html`。積み上げ棒と既定選手の折れ線は静的SVG、`?name=`時の折れ線差し替えのみ`leagues.js`が担う（#7/#127、完了） |
-| ビルド時生成（独自: 順位表の数え上げ+期ごとのJSON） | 1 | `houou_race.html`（鳳凰戦 順位変動）。`render_content()`+専用JS`houou_race.js`。データは`houou_race/<期>-<1前・2後>.json`を選んだときに読む。#540 の公開で `houou/race/` へ 301（ファイルと生成は残す。#507・#508、`docs/notes/houou-race.md`） |
 | ビルド時生成（独自: 全カテゴリをまとめた辞書ファイルを組み立てる） | 1 | `resource_dictionary.html`。`scripts/generate_resource_dictionary.py` が「辞書」タブ（スプレッドシート「R_その他」、`lib/other_book.py`。「サブカテゴリ」列は読まない）と「プロ」タブから、カテゴリごとのデータ `dic/<スラッグ>.json` とページを書く。カテゴリは 一般用語 `mahjong`・連盟用語 `renmei`・連盟プロ `pros`（「プロ」タブから）・Mリーグ `mleague` の順（保存する行の順）。「辞書」タブに行の無いカテゴリは出さない。ページはカテゴリを選ばせず、形式のボタン（Microsoft IME・Google 日本語入力・Gboard）を押すと、`resource_dictionary.js` が全カテゴリを（読み, 語）が同じ行は先に並ぶカテゴリの行を残してまとめ、Microsoft IME 用（UTF-16LE・BOM 付き・CR+LF）・Google 日本語入力用（UTF-8・LF）・Gboard 用（見出し行 `# Gboard Dictionary version:1` と「読み TAB 語 TAB ja-JP」の `dictionary.txt` を無圧縮の zip に入れる）で保存させる。description と末尾の説明文に、同じ数え方の語数（`{count}`）を生成のたびに入れる。見た目は `resource_dictionary.css`（`style.css` には入れない。白いカード1枚に形式のボタンを縦に3つ〈最大 400px で中央〉。保存した後に、押したボタンのすぐ下に「辞書ファイルをダウンロードしました。」とその形式の登録方法を出す〈JS が `#dicDownload` の `data-saved` に形式を入れ、CSS が出し分ける〉、#522）（#377・#515） |
 | ビルド時生成（サブディレクトリ、独自: 全画面ヒーロー+横スクロールカード列） | 1 | `wayhome/index.html`（URL は `/wayhome/`。2026-10-13 に `/video_wayhome.html` から移し、旧 URL は `_redirects` で 301、#559。ページ名は `video_wayhome` のまま）。`render_content()`+専用JS`video_wayhome.js`。新サイトのパイロット（`docs/notes/video-wayhome.md`）。個別ページ（下の行）と同じく、動画のタブをまとめたブック（`lib/video_book.py`、#578）の「帰り道」タブを見出しの名前で読み（`lib/wayhome.py` の `fetch_rows()`）、`data/youtube_meta.json` に無い回は外して生成する（#194） |
 | ビルド時生成（サブディレクトリ、ヒーロー構成のエピソード個別ページ） | 39 | `wayhome/<動画ID>.html`。`scripts/generate_wayhome_episodes.py`（`docs/notes/video-wayhome.md`） |
 | ビルド時生成（サブディレクトリ、Mつくの一覧と各話） | 一覧1＋61（2026-10-15） | `mtsuku/index.html`（URL は `/mtsuku/`）・`mtsuku/<動画ID>.html`。`scripts/generate_mtsuku.py`・`scripts/generate_mtsuku_episodes.py`（帰り道と同じ形、`docs/notes/video-mtsuku.md`）。2026-10-15 に公開（navbar・`sitemap-mtsuku.xml`・`llms.txt`、#570）。旧 `/video_mtsuku.html` は `_redirects` で 301 |
 | ビルド時生成（サブディレクトリ、女流勉強会の一覧と各話） | 一覧1＋40（2026-10-15） | `study/index.html`（URL は `/study/`）・`study/<動画ID>.html`。`scripts/generate_study.py`・`scripts/generate_study_episodes.py`（帰り道・Mつくと同じ形、`docs/notes/video-study.md`）。noindex・メニュー未掲載、公開は #576 |
+| ビルド時生成（サブディレクトリ、プロテストの一覧と各話） | 一覧1＋12（2026-10-19） | `exam/index.html`（URL は `/exam/`）・`exam/<動画ID>.html`。`scripts/generate_exam.py`・`scripts/generate_exam_episodes.py`（女流勉強会と同じ形、`docs/notes/video-exam.md`）。旧 `jpml_test.html` の YouTube の動画だけを移す（旧ページは公開のときに 301）。noindex・メニュー未掲載、公開は #613 |
 | ビルド時生成（サブディレクトリ、最強戦のトップ） | 1 | `saikyo/index.html`。`scripts/generate_saikyo_pages.py`。2026-09-21 に一般公開し、navbar・`sitemap-saikyo.xml`・`llms.txt` に載る（#319・#348、`docs/notes/saikyo-page-design.md`）。旧年度ページ `saikyo/<年度>.html` は #549 で下の行へ移し、`_redirects` で 301 |
 | ビルド時生成（サブディレクトリ、最強戦の年度・対局・卓のページ） | 年度数＋対局数＋卓数（878、2026-10-11） | `saikyo/<年度>/index.html`・`saikyo/<年度>/<対局識別子>.html`・`saikyo/<年度>/<卓のアンカー>.html`。`scripts/generate_saikyo_pages.py`（トップと同じスクリプト）。#549 で公開（`sitemap-saikyo.xml`・`llms.txt`。年度ページの URL は `/saikyo/<年度>/`、`_redirects` で `index.html` を返す）（#425、`docs/notes/saikyo-page-design.md`「新しい年度・対局・卓のページ」） |
 | ビルド時生成（サブディレクトリ、タイトル戦の新構成） | 入口1＋大会数＋期数 | `title/index.html`・`title/<slug>/index.html`・`title/<slug>/<期>.html`（入口は年の切り替え〈`?year=`、#277〉を持つ）。`scripts/generate_title_pages.py`。navbar の「連盟 > タイトル」から入口へ（#413、`docs/notes/title-pages.md`） |
 | ビルド時生成（サブディレクトリ、鳳凰戦の新ページ） | 13＋在籍者数（691、2026-10-11） | `houou/index.html`（トップ）・`houou/players/`（個人成績。リーグ推移はそのタブ）・ランキング9部門の `houou/ranking/<スラッグ>/`（通算は `total/`。`houou/ranking/` は `total/` へ 301）・`houou/leagues/`（個人成績のリーグのタブへ移すだけ、2026-10-12）・`houou/race/` の各 `index.html`。データは `houou/search.json`・`houou/players/leagues.json`（期ごとの各段の人数）・`houou/results/<選手名>.json`（在籍者だけ）・`houou/race/<期>-<1|2>.json`。`scripts/generate_houou_pages.py`（集計は `lib/ranking.py`・`lib/results.py`、順位変動は既存の生成スクリプトの部品）＋`assets/league.js`・`assets/league_race.js`（順位変動の写し。ouka/ と共有、2026-10-17 に改名）。公開は #540（`houou/leagues/` だけ noindex・サイトマップ外。旧4ページ〈`houou_*.html`〉は `houou/` へ 301 し、ファイルと生成は残す。#518・#520、`docs/notes/houou-top.md`） |
 | ビルド時生成（サブディレクトリ、女流桜花の新ページ） | 13＋在籍者数（178、進行中の期だけの選手を含む、2026-10-18） | `ouka/index.html`（トップ）・`ouka/players/`・ランキング8部門の `ouka/ranking/<スラッグ>/`（`ouka/ranking/` は `total/` へ 301）・`ouka/leagues/`（リーグのタブへ移すだけ）・`ouka/race/`。データは houou/ と同じ並び。`scripts/generate_ouka_pages.py`（`generate_houou_pages.py` を設定 `OUKA` で動かす入口）＋`assets/league.js`・`assets/league_race.js`（houou/ と共有）。公開は #591（houou/ と同じく `ouka/leagues/` だけ noindex・サイトマップ外。旧3ページ〈`ouka_*.html`〉は `ouka/` へ 301 し、ファイルと生成は残す。#519・#516、`docs/notes/ouka-top.md`） |
 | ビルド時生成（サブディレクトリ、WRC リーグの新ページ） | 13＋在籍者数（320、2026-10-18） | `jwrc/index.html`（トップ）・`jwrc/players/`（「リーグ」のタブが無く、期別・通算・部門別の3つ。名前の面に最高到達〈「タイトル」タブの決勝〉）・ランキング9部門の `jwrc/ranking/<スラッグ>/`（`jwrc/ranking/` は `total/` へ 301）・`jwrc/race/`。データは houou/ と同じ並び（`players/leagues.json` は無い）。`scripts/generate_jwrc_pages.py`（`generate_houou_pages.py` を設定 `JWRC` で動かす入口）＋`assets/league.js`・`assets/league_race.js`（houou/・ouka/ と共有）。公開は #599（noindex なし。旧2ページ〈`wrc_ranking.html`・`wrc_results.html`〉は `jwrc/` へ 301 し、ファイルと生成は残す。#594、`docs/notes/jwrc-top.md`） |
+| ビルド時生成（サブディレクトリ、WRC-R リーグの新ページ） | 13＋在籍者数（184、2026-10-19） | `wrcr/index.html`（トップ）・`wrcr/players/`・ランキング9部門の `wrcr/ranking/<スラッグ>/`（`wrcr/ranking/` は `total/` へ 301）・`wrcr/race/`。jwrc/ と同じ並び。`scripts/generate_wrcr_pages.py`（`generate_houou_pages.py` を設定 `WRCR` で動かす入口）。noindex・メニュー未掲載、公開は #611（#366、`docs/notes/wrcr-top.md`） |
 | ビルド時生成（サブディレクトリ、放送対局ページ） | 691（2026-09-18） | `live/index.html`・`live/<タイトル戦>/index.html` 以下。`scripts/generate_live_pages.py`。noindex・メニュー未掲載、正式公開は #362（`docs/notes/live-page-design.md`） |
 | ビルド時生成（サブディレクトリ、書籍の一覧と個別ページ） | 一覧1＋190 | `books/index.html`・`books/<ISBN13>.html`。`scripts/generate_books_pages.py` が「書籍」シート（「辞書」と同じ「R_その他」、`lib/other_book.py`）から書く。noindex・メニュー未掲載、`sitemap-books.xml` は `sitemap.xml` から未参照。**2026-09-22 開発凍結（自動生成・自動取得を停止、本番はそのまま残す）。詳細は `docs/notes/books-freeze.md`** |
-| Google Charts依存 | **6** | ブラウザから直接スプレッドシートを読む。#7の対象。型B3・ランキング系A3 |
 | 静的なページ | 2 | `404.html` / `jpml_links.html` |
 
-ページを書かない生成対象が3つある: `ask_data`（`scripts/generate_ask_data.py`）と `ask_data_ouka`（`scripts/generate_ask_data_ouka.py`、女流桜花の分、#519）・`ask_data_jwrc`（`scripts/generate_ask_data_jwrc.py`、WRC リーグの分、#594）は Worker `mj-ask` が同梱する検索データ `workers/ask/data.json`・`data-ouka.json`・`data-jwrc.json` だけを書く（配信しない。#542、`docs/notes/ask-worker.md`）。
+ページを書かない生成対象が4つある: `ask_data`（`scripts/generate_ask_data.py`）と `ask_data_ouka`（`scripts/generate_ask_data_ouka.py`、女流桜花の分、#519）・`ask_data_jwrc`（`scripts/generate_ask_data_jwrc.py`、WRC リーグの分、#594）・`ask_data_wrcr`（`scripts/generate_ask_data_wrcr.py`、WRC-R リーグの分、#366）は Worker `mj-ask` が同梱する検索データ `workers/ask/data.json`・`data-ouka.json`・`data-jwrc.json`・`data-wrcr.json` だけを書く（配信しない。#542、`docs/notes/ask-worker.md`）。
 
 ### 生成スクリプトの構成（lib/page.py）
 
@@ -381,14 +385,14 @@ title/ では「タイトル戦」タブの大会の改名が「タイトル」�
   SNS の見出し（`X_ID` など `pro_sheet.SNS_HEADERS`）を渡すと止める（列は 2026-10-12 に廃止。値は `lib/sns.fetch_pros()` が SNS ブックから入れる、#514）。
   列記号で「プロ」を読む箇所は無い（`scripts/tests/test_pro_sheet.py` が `WHERE Y = "Y"`・`PRO_QUERY` などの再登場を検査する）。
   **廃止する11列（C・D・E・O〜U・W、`pro_sheet.RETIRED`）はどこも読まない**: 英字の姓名・所属・読みは名簿（`lib/meibo.py`。`check_pros()` が在籍者の欠けと人数を検査して止める）、
-  成績の8列は `lib/pro_stats.py`、型C（`houou_leagues`・`ouka_leagues`・`check_leagues_dropped.py`）の選手候補は各ページの `load_candidates()`（「鳳凰」「桜花」タブに1行でもある在籍者）
+  成績の8列は `lib/pro_stats.py`、鳳凰戦の選手候補は `lib/houou_leagues.py` の `load_candidates()`（「鳳凰」タブに1行でもある在籍者）
 - **在籍者（「プロ」シート）が変わったとき（退会・入会・「表示」の切り替え）に作り直す生成物**（2026-10-17、HOU-67。HOU-64 で退会者1名を除いたとき、指示の対象の外の生成物が残った）。
   ページ名は `regenerate.py` の対象名。読み元は `pro_sheet.fetch_pros()`（`lib/sns.py` の同名を含む）と `lib/meibo.py`。洗い出しは `grep -l "fetch_pros\|meibo\.fetch" scripts/generate_*.py scripts/lib/*.py`
   - 在籍者だけを出す（行・人数・順位が変わる）: `houou_pages`（`houou/search.json`・`houou/ask-players.json`・`houou/results/`・ランキング・説明文の人数）、`jpml_pros`（行と人数）、
-    `ask_data`（`workers/ask/data.json` の `people`・ランキング）、`resource_dictionary`（`dic/pros.json`）、`houou_leagues`・`ouka_leagues`（選手の選択肢）。
+    `ask_data`（`workers/ask/data.json` の `people`・ランキング）、`resource_dictionary`（`dic/pros.json`）。
     `scripts/sync_birthday_calendar.py`（誕生日のカレンダー、ページではない）も在籍者を読む
   - 登録済みの名前として読む（`hidden=True`。「プロ」から行が消えると写真・X が外れ、/live などでは未登録の名前になる。過去の記録の名前は残る）:
-    `houou_race`・`houou_pages` の順位変動、`title_pages`、`live_pages`・`saikyo_pages`・`books_pages`（`lib/name_book.py`）、`jpml_test`、`wayhome_episodes`・`video_wayhome`
+    `houou_pages`・`ouka_pages`・`jwrc_pages` の順位変動（部品は `lib/houou_race.py`）、`title_pages`、`live_pages`・`saikyo_pages`・`books_pages`（`lib/name_book.py`）、`jpml_test`、`wayhome_episodes`・`video_wayhome`
   - 週次の all（`fetch-youtube.yml` が月曜に呼ぶ）で全部作り直されるので、急ぐときだけ `regenerate-page.yml` を対象名で手動実行する
 - **作業の途中で平野さんがシートを直すことがある。** 最強戦の作業（CHAT-0918-SX）では、SX-08 の「連盟プロ以外」の見出しの改名
   （「備考」→「所属補足」）、SX-09 の「放送対局」の動画の移動があった。見出しの改名は、`lib/live.py` の `OTHER_HEADERS` と
@@ -418,13 +422,10 @@ title/ では「タイトル戦」タブの大会の改名が「タイトル」�
 
 `sitemap.xml`（インデックス）が`sitemap-pages.xml`（24ページ、旧sitemap.xml。26ページのうち`404.html`〈noindex〉と`saikyo_mens.html`〈年1回の単発企画〉を意図的に除外）と`sitemap-wayhome.xml`（wayhome/39ページ、`generate_wayhome_episodes.py`が生成）と`sitemap-saikyo.xml`（saikyo/配下、`generate_saikyo_pages.py`が生成、#319）と`sitemap-title.xml`（title/配下、`generate_title_pages.py`が生成、#413）を束ねる方式（#162）。`robots.txt`のSitemap行は`sitemap.xml`のまま変更していない。lastmodは生成・非生成を区別せずgitの最終コミット日（JST）で、`scripts/update_sitemap_lastmod.py --from-git`が導出する。HTMLを含むpushでは`regenerate-sitemap.yml`、再生成では`regenerate-page.yml`が呼ぶ（#265）。手で書き換えない（`docs/notes/sitemap-lastmod.md`）
 
-### ページ側のJS（jpml_pros.js / table.js / video_wayhome.js / leagues.js）
+### ページ側のJS（jpml_pros.js / table.js / video_wayhome.js）
 
 - 生成後の絞り込み・並び替え・ページ送りはページ側の軽量JSに委譲する。`jpml_pros.js`は絞り込みと並び替え（ページ送りなし・全行表示）専用。型A・型A'の10ページは共通の`table.js`（絞り込み・ページ送り、並び替えなし）を使う。設定は`<table>`要素のdata属性（`data-page-size` / `data-name-mode` / `data-filter-param`）で渡し、属性省略時はページ送りなし・完全一致フィルターなしになる。ページ固有のUI（`resource_logs.html`の名前セレクトボックス等）はtable.jsとは別の小さなJSで補う。`video_wayhome.html`は`.mj-table`を持たないため`table.js`は読み込まず、専用の`video_wayhome.js`が絞り込み・画像フォールバック等を担う（#102第2段。共有ボタンは #530 で外した）
-- 型Cの2ページは`leagues.js`（共通JS）を使う。積み上げ棒と既定選手の折れ線は静的SVGに焼き込み済みで、`leagues.js`は`?name=`に応じて選手1名分の`<polyline>`と凡例ラベルだけを差し替える（選手ごとの折れ線データは`houou_leagues_data.json`/`ouka_leagues_data.json`をfetchして取得）。選手選択リストは「プロ」シートの「表示」が Y かつ鳳凰/桜花シートに1行でもある選手が対象（#127/#133。旧「鳳凰最高/桜花最高列に値がある」と同じ意味で、その列は 2026-10-11 に廃止、#536）。**退会済みの選手は鳳凰/桜花シートにリーグの実データが残っていても選択リストに出ない。これは正しい挙動**（「表示」= Y が在籍・公開対象を表す。#168）
-- Google Charts 依存の `houou_results.js`・`league_ranking.js`（houou_ranking）は「鳳凰」を見出しの名前で読む（#548）。問い合わせ文は今の並びの英字（A「名前」〜V「表示」、`HOUOU_HEADERS`）で書き、送る前に `resolveHououQuery()` が `SELECT * LIMIT 1` の応答の見出しから今の英字に引き直す（同じ見出しが2つあれば左。見出しが無いときは `console.error` に出してその英字のまま問い合わせる）。列の挿入・削除（F 列「組」の挿入、X〜AA の削除）で表示は変わらない（ヘッドレス Chrome で確かめた）。
-  `ouka_results.js`・`wrc_results.js`・`league_ranking.js` の「桜花」「JWRC」も同じ形で読み（`COLUMN_HEADERS`・`resolveQuery()`、#567）、消す列（前後・結果・使わない節〈桜花は第9節以降、JWRC は第6節以降〉・プロ、JWRC はリーグ・リーグキーも）を問い合わせに含めない。
-  タブごとの列は `league_ranking.js` の `SHEET_COLUMNS`。`generate_ouka_leagues.py`・`lib/pro_stats.py` も「桜花」を見出しで読み、「前後」を読まない
+- 鳳凰戦・女流桜花・WRC の旧ページの JS（型C の `leagues.js`、Google Charts 依存の `houou_results.js`・`ouka_results.js`・`wrc_results.js`・`league_ranking.js`、順位変動の `houou_race.js`）は #582 で消した（2026-10-19）。新しいページの JS は `assets/league.js`・`assets/league_race.js`
 
 ### regenerate-page.yml
 
@@ -452,10 +453,10 @@ title/ では「タイトル戦」タブの大会の改名が「タイトル」�
   生成物は `lib/page.py` が `_render_search_boxes()` の結果から自動で出す
   （`render_content()` を使うページだけ `has_search_boxes=False` を明示）。
   現在の対象は1521ページ（2026-09-29、`git grep -l 'data-search="off"' -- '*.html'`）。
-  トップ階層の8ページ（`404` / `houou_race` / `jpml_links` / `resource_dictionary` /
+  トップ階層の7ページ（`404` / `jpml_links` / `resource_dictionary` /
   `resource_efficiency` / `rh_results` / `rh_results_detail` /
   `video_wayhome`）と、`title/`・`live/`・`saikyo/`・`books/`・`wayhome/` の全ページ。
-  トップ階層の生成物6ページ（`houou_race` / `resource_dictionary` / `resource_efficiency` / `rh_results` /
+  トップ階層の生成物5ページ（`resource_dictionary` / `resource_efficiency` / `rh_results` /
   `rh_results_detail` / `video_wayhome`）とサブディレクトリの生成物は
   `has_search_boxes=False`の明示で自動的に出る（サブディレクトリの系統は
   絞り込み欄を本文の`.mj-filterbar`に持つか、検索欄を持たない）。`video_wayhome`は虫眼鏡アイコンで開閉する`#searchBoxes`を
@@ -483,7 +484,6 @@ Google の API（`lib/gcal.py`・`lib/sheets_write.py`・`sync_birthday_calendar
 - `generate_resource_dictionary.py --check` — 「辞書」タブと「プロ」タブを生成と同じ経路で読み、生成と同じ検査（見出し・知らないカテゴリ・品詞・不正な文字・読みと語の組の重複）を止めずに行い、止まる理由をすべてとカテゴリごとの語数を出す。ファイルは書かない（止まる理由があれば終了コード1。出力の形は `scripts/lib/check.py`）。シートを直した後、指示を書く前に回す
 - `check_asset_limits.py` — 配信ファイル数・最大のファイル・`_redirects`（静的・動的）・`_headers`のルール数を Cloudflare の上限（Workers Free）との比で表にし、80% 以上で警告、100% 超でエラー終了する（#387）。`regenerate.py`の最後と`check-assets.yml`から呼ばれ、Actions ではジョブのサマリにも出す
 - `<title>`・meta description・OGP の正は、生成ページは各生成スクリプトの `META`（`PageMeta`）、手書きのページは HTML そのもの（直すときは HTML を直接直す）。一括で書き換える `apply_page_meta.py`（#5）は 2026-10-18 に消した（#517）
-- `check_leagues_dropped.py` — 型C（`houou_leagues` / `ouka_leagues`）で、リーグの実データがあるのに選手選択リストから漏れている選手を検知（#168、手動実行）。**出力は警告ではなく参考情報。退会者が並ぶのは正常で、在籍中の選手が現れたときだけ「プロ」シートの入力漏れを疑う。**`generate_*_leagues.py` から定数と `period_of()` / `fill_front_half()` をimportし、集計は `lib/leagues.py` を生成時と同じ引数で呼ぶ。生成側で `build_player_series()` の引数を変えたときはこちらも直すこと。ワークフロー `check-leagues-dropped.yml` は削除した（2026-10-14、#564。使うときは git の履歴から戻す）
 - `build_ogp_image.py` — OGP画像を生成（#78、手動実行）。Pillowが必要。全ページ共通の1枚は `img/ogp/site/index-white.png`（白地・黒字の「ryoei.pro」、#581。作り方は `--text ryoei.pro --color '#212529' --bg '#ffffff' --max-size 180 --tracking -0.03`。色は旧 `img/ogp.png` と同じ）で、`lib/page.py` の `PageMeta` の既定・`generate_jpml_pros.py` のテンプレート・手書きのページの `og:image` に入っている。引数なしで書き出す旧 `img/ogp.png`（背景#ffffff）は凍結中の books/ だけが使う。生成したPNGもコミットする（生成環境のフォント差で再生成のたびに差分が出るのを避けるため）。`--check`でコミット済みのPNGと一致するか確認できる。`--text` と `--out` で任意の文字列・出力先の1枚も作れる（#343）。和文は `~/.local/share/fonts/NotoSansJP-Bold.otf`（`OGP_FONT`で差し替え可、無ければ失敗）を使い、横幅1040pxに収まるまで文字を小さくする。段を重ねるときは `--text` を繰り返し、`--scale`（1段目に対する比）・`--color`・`--max-size`・`--tracking`・`--line-gap` で調整する。背景は `--bg`（既定#ffffff）。`--footer <文字>` は最後に固定の大きさ（`FOOTER_SIZE` 48px・間隔 `FOOTER_GAP` 40px）の段を足す（区分の画像の「ryoei.pro」、#581）。文字ベースの画像は4種類だけで（`docs/notes/ogp.md`、#581）、年度・大会が増えても作らない。**引数なしの `--check` は、コミット時と環境のフォントが違うと、スクリプトを変える前から一致しない**（2026-09-16 の Codespace では FONT_CANDIDATES のうち DejaVuSans が使われ、変更前のスクリプトでも一致しなかった）。スクリプトを変えたときの回帰確認は、変更前後のスクリプトの `render()` の出力同士を比べる（CHAT-0916-SY-07/08）
 
 - `build_wayhome_ogp.py` — 「帰り道」一覧ページのOGP画像`img/ogp/wayhome/index-<最新話の公開日 YYYYMMDD>.jpg`（1200×630、JPEG品質88）を書き出す（#339。週次の再生成〈`regenerate-page.yml`〉が作り直す、#340）。必要なのはPillowだけ（文字を描かないためフォントは要らない）。最新4本のサムネイルを2×2に並べ、切り抜かずに収める（全体が16:9なので高さが先に埋まり、左右の余りは`--mj-v-bg`=#121212のまま。サムネイル同士の区切りは8px）。実行のたびに作り直すが、最新4本が同じなら同じ名前・同じJPEGになり差分は出ない。ほかの`index*.jpg`は削除する。最新話と同じ公開日の回が2本以上なら名前に連番を付け（`index-<日付>-N.jpg`）、同じ名前で中身が変わる場合は上書きせず今のファイルを残す。生成したJPEGもコミットする。個別ページの og:image はYouTubeのサムネイルのまま。**ページ別のOGP画像は `img/ogp/<区分>/` 以下に置く。共通の `img/ogp.png` は動かさない。** 新しい回を足したときの手順は`docs/notes/video-wayhome.md`「新しい回を追加する手順」
@@ -496,7 +496,7 @@ Google の API（`lib/gcal.py`・`lib/sheets_write.py`・`sync_birthday_calendar
 - **「移行済みだから速い」は成り立たない。データ件数（DOM要素数）に依存する。** 件数の少ないページは改善し、多いページ（`jpml_pros` 等）は移行しても解決しない
 - 件数の多いページの根本解決は表示件数を絞ること（#24の五十音タブ、新サイトで対応）
 - #7 の目的は外部ドメイン依存の解消（#9 の前提）とインラインハンドラの排除でもあるため、件数に関わらず続ける
-- DOM規模の最大の懸念は `houou_results`（15,416行。自前の `row.hidden` 方式に置き換えると全行がDOMに乗る）
+- DOM規模の最大の懸念は `houou_results`（15,416行。自前の `row.hidden` 方式に置き換えると全行がDOMに乗る）〔2026-10-19: houou/players/ の選手ごとのJSONへ移し、旧ページは #582 で消した〕
 - 実測値・行数調査は `docs/lighthouse-baseline.md`、経緯の全文は `docs/notes/handover-archive-2026.md`
 
 ### 型Aの表の方針

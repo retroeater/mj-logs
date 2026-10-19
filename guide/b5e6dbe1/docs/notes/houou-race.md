@@ -1,20 +1,22 @@
 # 鳳凰戦 順位変動（houou_race.html、#507）
 
+**旧 `houou_race.html`・`houou_race.js`・`houou_race/` と単独の生成は #582 で消した（2026-10-19。旧 URL は `houou/race/` へ 301）。** 今のページは `houou/race/`・`ouka/race/`・`jwrc/race/`（`generate_houou_pages.py` の `render_race()`、JS は `assets/league_race.js`、データは各 `race/<期>-<1|2|0>.json`）。部品（読み込み・累計・帯・`render_page()`）は `scripts/lib/houou_race.py` に移した。下の記述のうち旧ページについてのものは当時の記録。
+
 期・リーグを選び、▶で全員ゼロから節ごとに累計ポイントを数え上げ、追い越しで並びが入れ替わる順位表だけのページ。
 スマホの幅（400px まで）に収める。navbar「鳳凰戦」の「リーグ推移」と「成績詳細」の間の「順位変動」・`sitemap-pages.xml`・`llms.txt` に載る（公開は #508）。
 ページの名前は「順位変動」（2026-10-07 に「リーグ別成績推移」から改めた。隣の「リーグ推移」と紛らわしいため）。URL・ファイル名・クラス名の race はそのまま。
 説明文（meta description・og:description・ページ末尾の段落）の期の範囲（「第23期〜第43期」）は、書き出す期の最初と最後から生成スクリプトの `describe()` が入れる
-`houou_race/` の JSON はページが読むので配信の対象（`check-assets.yml` の allowed）。
+`<大会>/race/` の JSON はページが読むので配信の対象。
 
 ## ファイル
 
 | ファイル | 役割 |
 |---|---|
-| `scripts/generate_houou_race.py` | 「鳳凰」と名前の辞書（「プロ」「連盟プロ以外」「別名」）を読み、ページと期ごとのJSONを書き出す。累計・帯の人数・順位が付く最後の節はここで決める |
-| `houou_race.html` | 生成。選べる組み合わせ（期・前後・リーグ・組）と既定の表示（`pick_default()` がデータから選ぶ。下の「既定の表示」）を script の data 属性に焼き込む |
-| `houou_race/<期>-<1|2>.json` | 生成。1は前期、2は後期。期を選んだときに読む（表ごとに分けると445ファイルになるため期ごと） |
-| `houou_race.js` | 選ぶ部品・数え上げ・並べ替え・帯。計算はしない |
-| `style.css`「鳳凰戦 順位変動」 | 見た目。行の高さ `--mj-race-row` は JS も読む |
+| `scripts/lib/houou_race.py` | 「鳳凰」と名前の辞書（「プロ」「連盟プロ以外」「別名」）を読み、期ごとのデータとページの骨組みを作る部品。累計・帯の人数・順位が付く最後の節はここで決める。書き出しは `generate_houou_pages.py` |
+| `<大会>/race/index.html` | 生成。選べる組み合わせ（期・前後・リーグ・組）と既定の表示（`pick_default()` がデータから選ぶ。下の「既定の表示」）を script の data 属性に焼き込む |
+| `<大会>/race/<期>-<1|2|0>.json` | 生成。1は前期、2は後期、0は通期。期を選んだときに読む（表ごとに分けると445ファイルになるため期ごと） |
+| `assets/league_race.js` | 選ぶ部品・数え上げ・並べ替え・帯。計算はしない |
+| `style.css`「順位変動の土台」 | 見た目。行の高さ `--mj-race-row` は JS も読む |
 | `scripts/tests/test_houou_race.py` | 累計・帯・降級の枠・組の分け方・「表示」・画像と X の引き方のテスト |
 
 ## JSON の項目
@@ -83,7 +85,7 @@
   リーグを選んだとき（最初の表示を含む）は最終成績と帯の状態（最後の節の終わり。節のラベルで最後の節を押したときと同じ）を出し、再生のボタン（「再生」）で第1節の 0.0 から動かす（2026-10-13 の DSN-09。動き・数え方・節の時間は変えない。動きを減らす設定では今までどおり最終の状態だけ）。
   題名の文字は選ぶたびに JS が作る（A は前後を付けない、組のあるリーグは「D1 1組」）。押すと下からシートが出て期・前後期・リーグ・組を選ぶ（選ぶと表はすぐ切り替わる。「完了」・背景・Esc で閉じ、フォーカスは題名に戻る）。
   生成の `race_layout()`（`generate_houou_pages.py`）が骨組みを、`assets/league_race.js` の `setSheet()` が開閉を受け持つ。写真の無い選手は名前の頭の1字の灰色の丸。見た目の値は docs/notes/design.md の各表の適用範囲「houou/ のみ」の行
-- 選手のアイコンは、X の ID があれば `https://x.com/<ID>` を新しいタブで開く（`target="_blank" rel="noopener"`、title/・saikyo/ と同じ）。リンク先は `houou_race.js` の `playerUrl()` 1か所（将来、選手ページに差し替える）
+- 選手のアイコンは、X の ID があれば `https://x.com/<ID>` を新しいタブで開く（`target="_blank" rel="noopener"`、title/・saikyo/ と同じ）。リンク先は `assets/league_race.js` の `playerUrl()` 1か所（将来、選手ページに差し替える）
 
 ## 告知動画（2026-10、X 向け）
 
