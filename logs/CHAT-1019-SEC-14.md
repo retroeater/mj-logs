@@ -116,7 +116,7 @@ Chat-Ref: CHAT-1019-SEC-14
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1019-SEC-14.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1019-sec14
 - 確認用URL: なし
-- マージ: 未（この後 push する）
+- マージ: 済（2270cdf29。`origin/cloudflare`〈e5c6f9ce9〉を取り込んだ後に fast-forward）
 - issue: #598（結果のコメント issuecomment-6270152890）
 - 判断が必要なこと:
   - 高は無し（止まる条件に当たらない）。新しい指摘と残っている指摘（重大度・場所・推奨・直す規模）:
