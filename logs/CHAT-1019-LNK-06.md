@@ -38,6 +38,43 @@ CHAT-1019-LNK-05 は、マージの約20分後も本番に反映されていな�
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+- 0章: 指示欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている。`git log --all --grep=CHAT-1019-LNK-06` は0件
+- ブランチ: `work/1019-lnk` はローカル・リモートとも 4a4d5937f で cloudflare と一致（LNK-05 のログを入れたマージ済みの状態）。`git merge --ff-only origin/cloudflare` は「Already up to date」
+- 手順1: LNK-05 のログの `## 報告`（最後の一致）の状態を「判断待ち / 続き: CHAT-1019-LNK-06」にした
+
+### 手順2: 本番（2026-10-19 14:31 UTC、セッションから curl）
+
+| URL | 結果 |
+|---|---|
+| `/img/ogp/pros/index-white.png`（クエリ無し・`?v=l6a91`） | 200・image/png・18,578 bytes。中身はリポジトリの `img/ogp/pros/index-white.png` とバイト単位で一致（`?v=l6a92`） |
+| `/jpml_pros.html`（クエリ無し・`?v=l6a91`） | og:image `https://ryoei.pro/img/ogp/pros/index-white.png`、og:image:alt「連盟プロ」 |
+
+チャット側の前提（23:30 JST ごろの読み）と同じ値。ブラウザでの見え方（SNS のカード）は確かめていない。
+
+### check-run（GitHub API、`commits/<SHA>/check-runs`）
+
+- ec8c5cbca（LNK-05 のマージ。コミット 13:44:38 UTC）: 「Workers Builds: mj」は1件だけで、summary は作業ブランチのプレビューのもの（13:56:33 完了）。**本番のビルドの check-run は後からも付いていない**。「Workers Builds: mj-ask」は 14:01:38 に success で完了していた（LNK-05 の時点では `in_progress`）
+- ec8c5cbca より後に cloudflare に入ったコミットの「Workers Builds: mj」: e5c968f8c（13:43:43）・1682e060c（14:07:14）・640683f3a（14:10:48）・7249a1de6（14:13:30）はどれもプレビュー。**本番のビルドが付いていたのは 4a4d5937f（LNK-05 のログを cloudflare に入れたマージ。14:27:57 UTC 完了）**だけ
+- 本番に反映されたのは、この 4a4d5937f の本番のビルドとみられる（ec8c5cbca を含む）。マージ（13:45 ごろ）から反映まで約43分。LNK-05 の `## 経過` の push の時刻「13:55 UTC ごろ」は誤りで、コミットと check-run の時刻からは 13:45 ごろ
+- 原因（本番のビルドが ec8c5cbca で走らなかったのか、遅れて 4a4d5937f にまとめられたのか）は、指示どおり調べていない
+
+- 手順3: #616（クローズ済みのまま）に結果をコメントした
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1019-lnk
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1019-LNK-06.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1019-lnk
+- 確認用URL: なし
+- マージ: 済（ログのみ。下の最終報告の SHA）
+- issue: #616（クローズ済み。結果をコメント）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 

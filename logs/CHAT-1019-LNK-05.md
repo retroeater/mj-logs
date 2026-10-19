@@ -83,7 +83,7 @@ CHAT-1019-LNK-04 で判断待ちにした「連盟プロ」（`jpml_pros.html`�
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1019-LNK-06
 - ブランチ: work/1019-lnk
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1019-LNK-05.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1019-lnk
