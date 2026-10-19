@@ -44,6 +44,47 @@ Chat-Ref: CHAT-1019-XDP-03
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 着手前の確認
+- 0: 「指示」欄の末尾は指示文の最後の行と一致。`CHAT-1019-XDP-03` のコミットは 0 件。`origin/work/1019-xdp` は cloudflare にマージ済みで、ローカルの work/1019-xdp も cloudflare の祖先だったため、`git merge --ff-only origin/cloudflare` で進めた（4a4d5937f。docs/notes/cloud-sessions.md「作業ブランチの用意」）。origin/cloudflare の `update_sns_book.py` に `shared_images()` がある
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある
+
+### 手順1: 前提の確かめ
+- docs/notes/github-actions.md「ワークフローを手動実行するとき」・docs/notes/sns-book.md「手動実行」を読んだ。`update-sns-book.yml` は ref の `github.ref` を checkout し、mode `update`・dry_run 偽なら `--dry-run` なしで `update_sns_book.py` を実行する。ジョブ `regenerate` は `pages_changed` が真のとき `regenerate-page.yml`（all）を呼び、実行ブランチ（cloudflare）にコミットする。チャット側の前提と一致
+- `update-sns-book.yml`・`regenerate-page.yml` に実行中の run は無かった（直近はどちらも completed）
+
+### 手順2: 本実行
+- cloudflare（4a4d5937f）で mode `update`・dry_run `false`（scheduled なし）: run 39269516177 success（14:30 UTC 起動）
+  - X API を呼んだ件数: 6（上限 30）
+  - 別の X ID と同じ画像の行（取り直す）: 早川健太(MJ_hayaken)、早川航平(saikou0611)
+  - X状態: シートから写した 982、未入力 776、解決 74、既定のアイコン 12、アカウントなし(確認済み) 10
+  - 【1】【2】【3】を書き直した。ページが使う値（ID・画像URL）が変わった人: 12（dry-run の 10 に、取り直した2人が加わった数）
+- 【3】を gviz で読み直した（読むだけ）:
+  - 早川健太（MJ_hayaken）: X数値ID 1170661098543910913、`profile_images/1540323014054936576/zsQbiniR`、取得日 2026-10-19、解決
+  - 早川航平（saikou0611）: X数値ID 1692901328551624704、`profile_images/1954527509758001152/Yky8lHAu`、取得日 2026-10-19、解決
+  - 前の同じ画像（`1954527509758001152/Yky8lHAu`）は早川航平のものだった。早川健太だけが新しい画像になった
+- ジョブ `regenerate / regenerate` success。cloudflare に再生成のコミット dbf2a4375（14:37 UTC、131 ファイル）。単語の差分の内訳: 早川健太の画像の置き換え（`_400x400` 33か所・`_80x80` 8か所など）、ほかに【3】の値が変わった人の写真の置き換え（`2083208964687441920/YL5kgRzb` → `2112078592196870144/VfkYoaE3` など）、代替アバター（`avatar.svg`・頭文字）から写真への置き換え、sitemap の lastmod（2026-10-17 → 2026-10-19）。今回の取り直しと、【2】【3】の他の人の変化によるもの
+
+### 手順3: 本番の確かめ
+- 本番の `jpml_pros.html`（`?v=` にキャッシュよけの値）: 14:36 UTC は再生成の前の版（`Yky8lHAu` 2か所、`zsQbiniR` 0）。14:40 UTC に新しい版になり、cloudflare（dbf2a4375 以降）の `jpml_pros.html` とバイト単位で一致。早川健太のカードは `zsQbiniR`、早川航平のカードは `Yky8lHAu`（名前の前後どちらで見ても同じ組）で、**2人の画像は別々**
+- check-run「Workers Builds: mj」: dbf2a4375 は 14:40 UTC の時点でも in_progress（本番は新しい版を返しているので、報告が止まる既知の事象。docs/notes/cloud-sessions.md「ローカル確認の代わりにプレビュー」）。7249a1de6（XDP-02 のマージ）は「Workers Builds: mj」「Workers Builds: mj-ask」とも success になっていた
+- 本番の見え方（ブラウザでの写真の表示）は確かめていない。確かめたのは本番の HTML
+- #514 に結果をコメントした
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1019-xdp（マージ済み）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1019-XDP-03.md
+- 比較URL: https://github.com/retroeater/mj/compare/4a4d5937f...cloudflare
+- 確認用URL: なし（コードは変えていない。生成物は regenerate-page.yml が cloudflare に直接コミットした dbf2a4375。本番の jpml_pros.html で、早川健太は `zsQbiniR`、早川航平は `Yky8lHAu`）
+- マージ: 済（ログのみ。再生成のコミットは dbf2a4375）
+- issue: #514（結果をコメントした。本文・ラベルは変えていない）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
