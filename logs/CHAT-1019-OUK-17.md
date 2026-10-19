@@ -56,18 +56,117 @@ Chat-Ref: CHAT-1019-OUK-17
 
 ## 経過
 
+### 0章
+
+- Chat-Ref の重複なし。「指示」欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- `git checkout -b work/1019-ouk17 origin/cloudflare`（fbae687ec）で作業ブランチを作った
+
+### 追記先の容量
+
+- `docs/instruction-template.md`: 14,325 bytes。警告域 14,336・上限 16,384（`check-assets.yml`）。警告域まで 11 bytes しか無く、B の1句（100 bytes 超）を足すと警告域に入る（CLAUDE.md の規則では警告が出たら4文書の整理が要る）。**B はここに足さず**、`instruction-template.md` の冒頭が正と指す `docs/notes/chat-side-operations.md`「止まる条件と検証の指定」の、許す差分の種類を書く項目に足した
+- `docs/notes/chat-side-operations.md`: 22,155 → 22,155 bytes（警告域 26,624・上限 28,672）。冒頭の「純増したら同じ量を docs/notes/ へ移す」に合わせ、場面限定の1行（画像やページから値を読み取らせるとき）を `chat-routines.md`「指示の種類ごとの確かめ」へ移し、足した句を詰めて純増0にした
+- `docs/new-page-checklist.md`: 12,978 → 13,264 bytes（上限・警告域なし）
+- `docs/notes/chat-routines.md`: 15,393 → 15,831 bytes（上限・警告域なし）
+- `docs/notes/league-pages-compare.md`: テストへの参照を1句足した（上限なし）
+- 事例（OUK-05・07・10 の経緯）は archive に書かなかった（指示の「書かない」を選んだ。経緯は各ログと docs/decisions/houou.md にある）
+
+### 1. A のテスト
+
+- 大会の設定の一覧は `generate_houou_pages.py` のモジュールの属性のうち `Contest` のもの（`HOUOU`・`OUKA`・`JWRC`。`CONTEST` は今の大会の別名なので出力先 `dir` の集合で数える）。突き合わせのキーは `Contest.dir` + `/`（比較の文書の表の列見出し `houou/`・`ouka/`・`jwrc/` と同じ形）。文書の列見出しは変えていない
+- 比較の文書の2つの表（「意図した差」「公開でそろえる差」）の両方で、列が大会の集合と一致することを確かめる
+- 今の cloudflare（fbae687ec）で通る。試しに `generate_houou_pages.py` の末尾に `TEST_EXTRA = dataclasses.replace(OUKA, dir="extra")` を足すと `AssertionError: Lists differ: ['houou/', 'jwrc/', 'ouka/'] != ['extra/', 'houou/', 'jwrc/', 'ouka/']` で落ちた（確かめた後に元へ戻した。`git status` で差が無いことを確かめた）
+- `python3 -m unittest discover -s scripts/tests` 1,427件 OK
+
+足したテストの全文（`scripts/tests/test_league_pages_compare.py`）:
+
+```python
+"""3大会の比較の文書(docs/notes/league-pages-compare.md)の表の列に、generate_houou_pages.py の大会の設定(Contest)が
+すべてあるかのテスト。大会を足すと落ちるので、比較の文書の更新を忘れない(2026-10-19 の申送り)。ネットワークには出ない。
+
+    python3 -m unittest discover -s scripts/tests
+"""
+import pathlib
+import re
+import sys
+import unittest
+
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
+import generate_houou_pages as pages  # noqa: E402
+
+COMPARE_DOC = pages.REPO_ROOT / "docs" / "notes" / "league-pages-compare.md"
+TABLE_HEAD = re.compile(r"^\| ページ・タブ \| 観点 \|(.*)\| よりどころ \|$|^\| ページ・タブ \| 観点 \|(.*)\| 決定と入れる時 \|$")
+
+
+def contest_dirs():
+    """モジュールにある大会の設定の出力先("houou" など)。CONTEST は今の大会を指す別名なので集合にする"""
+    return {v.dir for v in vars(pages).values() if isinstance(v, pages.Contest)}
+
+
+def table_columns(text):
+    """比較の文書の表ごとの大会の列("houou/" など)"""
+    tables = []
+    for line in text.splitlines():
+        m = TABLE_HEAD.match(line)
+        if m:
+            tables.append([c.strip() for c in (m.group(1) or m.group(2)).split("|")])
+    return tables
+
+
+class LeaguePagesCompareTest(unittest.TestCase):
+    def test_every_contest_is_a_column(self):
+        tables = table_columns(COMPARE_DOC.read_text(encoding="utf-8"))
+        self.assertTrue(tables, "比較の文書に大会の列のある表が無い")
+        expected = sorted(f"{d}/" for d in contest_dirs())
+        for columns in tables:
+            self.assertEqual(sorted(columns), expected,
+                             "大会の設定を足した・変えたら、docs/notes/league-pages-compare.md の表に列を足し、差を書く")
+
+
+if __name__ == "__main__":
+    unittest.main()
+```
+
+### 2. 足した行の全文
+
+`docs/new-page-checklist.md`「作る段の確かめ」（「規約（下の3つ）に合わせる…」の次）:
+
+> - 大会のページを横展開する（`generate_houou_pages.py` の `Contest` を足す・変える）ときは `docs/notes/league-pages-compare.md` を読み、差を表に足す（表の列に全大会があるかは `scripts/tests/test_league_pages_compare.py` が確かめる）
+
+`docs/notes/league-pages-compare.md` の冒頭の太字の文の後に足した句:
+
+> （表の列に全大会があるかは `scripts/tests/test_league_pages_compare.py`）
+
+`docs/notes/chat-side-operations.md`「止まる条件と検証の指定」の「マージ・止まる条件は、見込みで説明できる差分の範囲として書く。」の項目に足した行（B）:
+
+> 許す行は焼き付けず、比べる相手（前の TSV・ログ）を指して想定外の行を全部書かせる（決定が変わると無効になる）。
+
+同じ節から消した行（`chat-routines.md` へ移した）:
+
+> - **画像やページから値を読み取らせるときは、元の資料に書かれている値と、こちら側が持つ値を項目ごとに分けて書く**
+
+`docs/notes/chat-routines.md`「指示の種類ごとの確かめ」の末尾（「平野さんがシート（タブ）を用意した・直したと言ったとき」の次）に足した2行（C と移した行）:
+
+> - 平野さんにシートへ貼ってもらう手順: 1列1行で書き、どのセルから貼るかと、貼った後の件数（例: Y 列が49行）を添える（1文にまとめると2か所のうち1か所だけ貼られる）
+> - 画像やページから値を読み取らせる指示: 元の資料に書かれている値と、こちら側が持つ値を項目ごとに分けて書く（chat-side-operations.md から移した）
+
+- 成果物のコミット e03d632fe（work/1019-ouk17 に push。cloudflare には push していない）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1019-ouk17
 - ログ: https://github.com/retroeater/mj/blob/work/1019-ouk17/docs/logs/CHAT-1019-OUK-17.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1019-ouk17
-- 確認用URL:
-- マージ: 未
-- issue:
+- 確認用URL: なし（テストと docs のみ）
+- マージ: 未（平野さんが足した行を読み比べてから、別のマージの指示で）
+- issue: なし
 - 判断が必要なこと:
-- 未確認の項目:
-- エラー:
+  - マージしてよいか。足した行の要約: A はテスト `test_league_pages_compare.py`（比較の文書の2つの表の列が大会の設定と一致するか）と `new-page-checklist.md` の1行・`league-pages-compare.md` の参照の1句。B は許す差分の行を焼き付けず比べる相手を指す1句。C はシートに貼る手順を1列1行で件数を添える1行。全文は `## 経過`「2. 足した行の全文」
+  - 追記先の前後のサイズ: `instruction-template.md` 14,325（変えていない。警告域 14,336 まで 11 bytes）、`chat-side-operations.md` 22,155 → 22,155、`new-page-checklist.md` 12,978 → 13,264、`chat-routines.md` 15,393 → 15,831
+  - 表から変えたこと: B の追記先を `docs/instruction-template.md` の0章の注記から `docs/notes/chat-side-operations.md`「止まる条件と検証の指定」に変えた（テンプレートが警告域の手前 11 bytes で、足すと警告域に入るため。テンプレートの冒頭は止まる条件の規則の正をこの節としている）。純増0にするため、同じ節の「画像やページから値を読み取らせるとき」の1行を `chat-routines.md` へ移した（場面限定の手順と判断した。移すのが不適切なら戻す）。B の句は字数を詰めたため「止まらせる」を前の文の「ほかが出たら止める」に任せた
+  - 事例を archive に書かなかった（指示の選択肢の「書かない」）
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
