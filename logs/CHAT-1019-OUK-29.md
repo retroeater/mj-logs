@@ -36,28 +36,60 @@
 
 ## 経過
 
+### 0章
+
+- Chat-Ref の重複なし。「指示」欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている（1段落にまとまって貼られた）
+- work/1019-ouk27 はリモートとローカルが同じ（6c75515b8）。CHAT-1019-OUK-27・OUK-28 のログの状態の末尾に ` / 続き: CHAT-1019-OUK-29` を足した
+
+### 1. 決定の確かめ
+
+- `docs/decisions/houou.md` に「## 2026-10-19（CHAT-1019-OUK-28）」の節（内部名は公開後に別の issue でそろえる。決めたのは 2026-10-17、起票は #614）があることを確かめた（OUK-28 で足した。足し直していない）
+
+### 2. 取り込み（2回）
+
+1回目（origin/cloudflare 4f73f4036、865ea2489）: 衝突は次の2つで、どちらも解いてよいもの。ほかのファイルは自動で混ざった。
+- `docs/decisions/houou.md`: 末尾への追記どうし（こちらは OUK-28 の節、cloudflare は WRC-17・WRC-18 の節）。OUK-27 で足した既定の規則を初めて当てて解いた
+  - 両方の節を残した。順は cloudflare 側の WRC-17 → WRC-18 → こちらの OUK-28。日付はどれも 2026-10-19 で、Chat-Ref の系列が違う。先に cloudflare に入った方を先にした
+  - 衝突の外にあった共通の末尾の行「- 作業中の回答: なし」は、両側の節の最後の行だったので、WRC-18 と OUK-28 のそれぞれの最後に置いた。節の中身は変えていない
+- `docs/notes/page-announcement.md`: 指示の解き方のとおり、cloudflare 側の行（WRC-18 が延ばした「順位の表を止める画面は…（WRC リーグ jwrc/ の告知、2026-10-19）」）を採り、そのすぐ下にこちらの1行（「止める位置・送る量を変えるときは、撮る前に…測ってから決める（…OUK-21）」）を置いた。両方の行が、それぞれの側の版と1字も違わないことを確かめた
+- 解いた後: `git diff --check` は何も出さない（終了コード0）。2ファイルとも `<<<<<<<`・`=======`・`>>>>>>>` の行は0
+
+2回目: push の直前の再 fetch で、origin/cloudflare が f9d114220 に進んでいた（WRC-19 のログと決定）。もう一度取り込んだ（3aff34be1）。
+- 衝突は `docs/decisions/houou.md` の末尾だけ（こちらの OUK-28 と cloudflare の WRC-19）。同じ規則で WRC-19 → OUK-28 の順に並べた。末尾の行の扱いは1回目と同じ
+- 解いた後: `git diff --check` は何も出さない。衝突の印は0
+- 並びの結果（末尾の5節）: WRR-05 → WRC-17 → WRC-18 → WRC-19 → OUK-28
+
+### 3. テスト・容量・マージ
+
+- テスト（取り込みの後）: `python3 -m unittest discover -s scripts/tests` は 1,448件 OK、`node --test 'workers/ask/test/*.test.mjs'` は 73件 pass（2回目の取り込みの後にも unittest を回して OK）
+- 容量: CLAUDE.md 24,883、handover.md 22,962、chat-side-operations.md 22,155（警告域 26,624・上限 28,672）、instruction-template.md 14,325（警告域 14,336・上限 16,384）。どれも警告域の手前
+- push 直前の再 fetch で `git merge-base --is-ancestor origin/cloudflare HEAD` が真。`git push origin work/1019-ouk27:cloudflare`（f9d114220..3aff34be1、早送り）
+- check-assets（公開対象の検査）は 3aff34be1 で success
+- Workers Builds の mj は本番 3aff34be1 で success（10:06Z）。変えたのはテストと docs だけで、ページの生成物は変わっていない
+- CHAT-1019-OUK-27・OUK-28 のログの状態を「完了（CHAT-1019-OUK-29 でマージ）」にし、判断が必要なこと・未確認の項目・エラーを「なし」にした。決定は `docs/decisions/operations.md` に OUK-29 の節を足した
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1019-ouk27
-- ログ: https://github.com/retroeater/mj/blob/work/1019-ouk27/docs/logs/CHAT-1019-OUK-29.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1019-ouk27
-- 確認用URL:
-- マージ: 未
-- issue:
-- 判断が必要なこと:
-- 未確認の項目:
-- エラー:
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1019-OUK-29.md
+- 比較URL: https://github.com/retroeater/mj/compare/f9d114220...3aff34be1
+- 確認用URL: なし（テストと docs のみ）
+- マージ: 済み（3aff34be1。Workers Builds の mj は success、check-assets は success。取り込みの末尾追記の衝突は既定の規則で解いた。並べた順は経過の2）
+- issue: なし（#614 は OUK-27 で起票済み）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 4f73f403）: https://github.com/retroeater/mj-logs/tree/main/guide/4f73f403
+ガイド文書（この版を写した時点の最新、mj a91c3d04）: https://github.com/retroeater/mj-logs/tree/main/guide/a91c3d04
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/4f73f403/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/4f73f403/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/4f73f403/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/4f73f403/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/4f73f403/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/4f73f403/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a91c3d04/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a91c3d04/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a91c3d04/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a91c3d04/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a91c3d04/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a91c3d04/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/58fa24ff.md

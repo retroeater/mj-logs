@@ -271,40 +271,26 @@ import dataclasses
 
 ## 報告
 
-- 状態: 判断待ち / 続き: CHAT-1019-OUK-28 / 続き: CHAT-1019-OUK-29
+- 状態: 完了（CHAT-1019-OUK-29 でマージ） / 続き: CHAT-1019-OUK-28 / 続き: CHAT-1019-OUK-29
 - ブランチ: work/1019-ouk27
-- ログ: https://github.com/retroeater/mj/blob/work/1019-ouk27/docs/logs/CHAT-1019-OUK-27.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1019-OUK-27.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1019-ouk27
 - 確認用URL: なし（テストと docs のみ。生成物・ページは変えていない）
-- マージ: 未（指示の「マージ:」の行のとおり判断待ち。足した行の全文は `## 経過` の1〜4）
+- マージ: 済み（CHAT-1019-OUK-29 で cloudflare へ。3aff34be1）
 - issue: #614 を起票（houou/ と共有する内部の名前をそろえる）
-- 判断が必要なこと:
-  - 足した行の読み比べとマージの可否
-    - A: 新しいテスト `test_race_stopped.py`。3人以上が途中で終わる表は、PO か許す一覧にあること
-    - B: `Contest` の24項目がすべて比較の文書にあること。文書に項目の表と、順位変動「最後の節」の行を足した
-    - C: branch-operations.md と CLAUDE.md に、`docs/decisions`・`docs/logs` の末尾への追記どうしの衝突は両方を残して解く、を足した。chat-routines.md に、長く続くブランチの指示には解き方を書く、を足した
-    - D: chat-routines.md に、後始末の指示では docs 全体を検索させる、を足した
-    - E: page-announcement.md に、止める位置を変える前に貼り付く要素と行数を測る、を足した
-    - 文書の手直し: 7ファイル
-  - 追記先の前後のサイズ: CLAUDE.md 24,786 → 24,883（警告域まで 1,741）、branch-operations.md 21,783 → 22,351、chat-routines.md 15,831 → 16,761、page-announcement.md 8,163 → 8,496、league-pages-compare.md 7,633 → 10,535。上限のある残りの3文書は変えていない
-  - A の閾値と許す一覧: 3人（仮置きのまま。houou/・ouka/ は PO を除いて最大1人）。許す一覧は (jwrc, 予選)・(wrcr, 予選)（途中敗退）
-  - 指示の表から変えたこと:
-    - A の許す一覧を、表ごとではなく大会・リーグごとにした（予選は毎期同じ形のため）
-    - C のチャット側と D の置き場所を、chat-side-operations.md から chat-routines.md「指示の種類ごとの確かめ」に変えた（場面を限った手順のため。上限のある文書は増えていない）
-    - C の受け手側に合わせて、CLAUDE.md「ブランチ運用」の衝突の要約にも1句足した
-  - 指示の「2026-10-17 の決定『公開後に別 issue でそろえる』」は decisions に見当たらなかった。#614 には、実際にある出典（CHAT-1017-OUK-01 の仮置きと 2026-10-16 の study の方針）を書いた
+- 判断が必要なこと: なし（2026-10-19 に平野さんが足した行を確かめ、置き場所の変更も含めてマージを許可した）
 - 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 3aff34be）: https://github.com/retroeater/mj-logs/tree/main/guide/3aff34be
+ガイド文書（この版を写した時点の最新、mj a91c3d04）: https://github.com/retroeater/mj-logs/tree/main/guide/a91c3d04
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/3aff34be/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/3aff34be/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/3aff34be/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/3aff34be/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/3aff34be/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/3aff34be/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a91c3d04/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a91c3d04/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a91c3d04/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a91c3d04/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a91c3d04/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a91c3d04/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/58fa24ff.md
