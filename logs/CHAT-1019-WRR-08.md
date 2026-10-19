@@ -80,31 +80,51 @@ CHAT-1019-WRR-06 の報告の「判断が必要なこと」2件への平野さ�
 - 文書 ask-worker.md「本番で送る固定の問い」は、`ANSWER_SYSTEM` を変える指示ではマージ後に固定の5問を送るとする。指示文の4問と食い違うため、ルールの側を優先して5問も送る（1日の IP の上限10問に当たれば、残りは未確認に回す）
 - 3. `python3 scripts/regenerate.py all`（終了コード0）の後の差分は `title/` の4ファイルだけ（houou・ouka・jwrc・jwrc-r の index.html、各1行。例 `<section class="mj-title-section" aria-labelledby="title_results_link"><h2 id="title_results_link">成績</h2><p><a href="/wrcr/">WRC-Rリーグの個人成績・ランキング・順位変動</a></p></section>`）。houou/・ouka/・jwrc/・wrcr/・jpml_pros.html と workers/ask/data*.json は差分0。コミット d74191e33（chore: regenerate title pages）
 - ローカル（http.server）で title/jwrc-r/ を幅375px で表示: 横スクロールなし（scrollWidth 375）、節「成績」とリンクは2行に折り返して収まる
-- 4. `python3 -m unittest discover -s scripts/tests`: OK（1444件）。`node --test 'workers/ask/test/*.test.mjs'`: 79件 pass
+- 4. `python3 -m unittest discover -s scripts/tests`: OK（1443件）。`node --test 'workers/ask/test/*.test.mjs'`: 79件 pass
 - origin/cloudflare を merge で取り込んだ（a5c4a7c9a。衝突なし。入ったのは docs のみ〈EXM-08・ENG-02〉）。取り込み後もテストは通る
+- 5. マージ: push 直前に再 fetch して `git merge-base --is-ancestor origin/cloudflare HEAD` が真 → `git push origin work/1019-wrr08:cloudflare`（43121c2a2..ae3c0db6c）。check-runs: ae3c0db6c の「Workers Builds: mj-ask」success・regenerate success・sync success。「Workers Builds: mj」は ae3c0db6c には付かず、直後に入った他セッションのコミット（ae3c0db6c を含む 302b5d856 など）で success
+- 6. 本番（2026-10-19 21:58 JST ごろ、`POST https://ryoei.pro/api/ask`）。指示の4問:
+  - wrcr/「通過回数がいちばん多いのは？」→「通過回数が最多の値は4回で、9人が並んでいます(大和さんほか)。」（出典 WRC-Rリーグ ランキング（通過回数）`/wrcr/ranking/pass-count/`、時点 WRC-Rリーグ 第7期終了時点）
+  - wrcr/「現タイトルホルダーは？」→「現タイトルホルダーは小川尚哉さんです。優勝したWRC-Rリーグは第7期でした。」（出典 WRC-Rリーグ 歴代優勝者 `/title/jwrc-r/`、時点 決勝 第7期まで。形は WRR-05 と同じ〈1人・期〉）
+  - jwrc/「通過回数が2番目に多いのは？」（実データ: 2位は客野直・山脇千文美の10回の同率）→「通過回数が2番目に多いのは客野直さんで、10回です。1番多いのは石立岳大さんの11回です。」。山脇千文美が出ない（下の「判断が必要なこと」）
+  - houou/「通算得点の上位15人は？」（1位は HIRO柴田 だけ。固定の問いの4問目を兼ねた）→「通算得点の上位15人は、1位がHIRO柴田（2074.4）、2位が佐々木寿人（1729.9）、3位が勝又健志（1665.1）、4位が前田直哉（1595.3）、5位が内川幸太郎（1483.8）、6位が藤島健二郎（1472.9）、7位が三浦智博（1410.9）、8位が山田浩之（1356.2）、9位が阿久津翔太（1351.7）、10位が福光聖雄（1315.8）です。ほか5人が続きます。」（出典 鳳凰戦 ランキング（通算）。同率の文言は付かない）
+- docs/notes/ask-worker.md「本番で送る固定の問い」の残り4問（鳳凰戦）:
+  - 「現在の鳳凰位は？」→「答えられません。」（unanswerable。2回送って2回とも）。この変更（ranking の結果と2回目の指示）より前の段で止まっている。1回目の指示の `currentLine`（864811c3c、今日の改善 c）が「現在」を第43期と読ませ、champions の from・to が43になり、決勝は第42期までなので見つからない、と見込む（ローカルで `runQuery` champions {from:43,to:43} は found false、{from:42,to:42} は1人）。本番の Claude の型の引数は D1 の記録にあり、セッションからは見ていない
+  - 「第1期から第10期の鳳凰位は？」→「第1期から第10期の鳳凰位は、6人が獲得しています。順に、島田昭さん(第1期・第4期)、安藤満さん(第2期・第5期・第6期・第10期)、ロッキー堀江さん(第3期)、椎名大介さん(第7期)、荒正義さん(第8期)、伊藤優孝さん(第9期)です。」
+  - 「鳳凰位になった人は全部で何人？」→「鳳凰位になった人は全部で23人です。上位は白鳥翔さん、佐々木寿人さん、HIRO柴田さん、藤崎智さん、吉田直さん、前原雄大さん、勝又健志さん、前田直哉さん、瀬戸熊直樹さん、荒正義さんほか13人です。」
+  - 「白鳥翔の第40期の成績は？」→「白鳥翔さんの第40期は、A2リーグで1位となり、昇級しています。通算ポイントは278.8です。」
+- title/: 本番の HTML で4大会のページに節「成績」とリンク（/houou/・/ouka/・/jwrc/・/wrcr/）があり、リンク先は4つとも 200。title/jwrc-r/・title/jwrc/ を幅375px（Playwright）で表示し、横スクロールなし・リンクは2行に折り返して収まる（ブラウザでの見え方はこの1回の描画まで）
+- issue #618 に結果をコメントしてクローズした（ラベルは無し）
 
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1019-wrr08
-- ログ: https://github.com/retroeater/mj/blob/work/1019-wrr08/docs/logs/CHAT-1019-WRR-08.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1019-WRR-08.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1019-wrr08
-- 確認用URL: なし
-- マージ: 未
-- issue: （起票する）
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 確認用URL: 本番 https://ryoei.pro/wrcr/ と https://ryoei.pro/title/jwrc-r/ （title/ の大会ページの写真の下に節「成績」とリンク「WRC-Rリーグの個人成績・ランキング・順位変動」）
+- マージ: 済（ae3c0db6c）
+- issue: #618（起票・クローズ）
+- 判断が必要なこと:
+  - 質問欄の4問の答え（全文は経過）: wrcr「通過回数がいちばん多いのは？」→「通過回数が最多の値は4回で、9人が並んでいます(大和さんほか)。」／wrcr「現タイトルホルダーは？」→「現タイトルホルダーは小川尚哉さんです。優勝したWRC-Rリーグは第7期でした。」／jwrc「通過回数が2番目に多いのは？」→「通過回数が2番目に多いのは客野直さんで、10回です。1番多いのは石立岳大さんの11回です。」／houou「通算得点の上位15人は？」→ 1位 HIRO柴田〜10位 福光聖雄と「ほか5人が続きます。」
+  - 本番で合わなかった所1: jwrc/ の「2番目に多いのは？」で、同率2位の山脇千文美が出ない。「問われた順位」の引数（rank）は鳳凰戦だけで、jwrc/ では Claude が limit で上から切るため、Worker は2位を問われたと分からず tie を付けない。直すなら（案）先頭だけでなく、limit で切った最後の順位に表の続きの同率がいるときも人数を添える、か、rank 引数を4大会に広げる
+  - 本番で合わなかった所2（この変更の前から）: 鳳凰戦の固定の問い「現在の鳳凰位は？」が「答えられません。」。今日の改善 c の `currentLine` が「現在」を第43期と読ませ、champions の期が決勝の無い第43期になると見込む（経過）。今回の変更の範囲外なので戻していない
+  - 仮置き: 同率の書き方（指示の例「4回が最多で、9人が並んでいます(大和さんほか)」。本番の文は「最多の値は4回で」）／名前は先頭3人まで渡す（TIE_NAMES。本番の答えは1人＋「ほか」）／同率を見るのは結果の先頭の順位だけ（1位か rank）／リンクは写真の下の節「成績」に「<大会名>の個人成績・ランキング・順位変動」／houou/・ouka/ にもリンクが無かったので4大会そろえた／同率の件もリンクと同じ issue（#618）に含めた
+  - 指示の「4問」と docs/notes/ask-worker.md の「固定の5問」が食い違ったので、ルールの側を優先して5問も送った（1問は指示の houou の問いと兼ねた）
+- 未確認の項目:
+  - 実機のブラウザでの title/ のページと質問欄の見え方（セッションは HTML・API と Playwright の1回の描画まで）
+  - 「現在の鳳凰位は？」で本番の Claude が出した型の引数（D1 の記録。平野さんに見てもらう）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 302b5d85）: https://github.com/retroeater/mj-logs/tree/main/guide/302b5d85
+ガイド文書（この版を写した時点の最新、mj 6327c0e3）: https://github.com/retroeater/mj-logs/tree/main/guide/6327c0e3
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/302b5d85/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/302b5d85/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/302b5d85/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/302b5d85/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/302b5d85/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/302b5d85/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6327c0e3/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6327c0e3/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6327c0e3/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6327c0e3/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6327c0e3/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6327c0e3/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/f0a1e266.md
