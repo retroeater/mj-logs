@@ -97,15 +97,31 @@ cloudflare（7b7fe6f57）を `git merge origin/cloudflare` で取り込んだ（
 - マージ後の自動再生成の見積もり: `regenerate-page.yml` は `scripts/lib/**`・`scripts/generate_*.py` の変更で動き、`regenerate.py --changed` は `scripts/lib/exam.py` が変わるので全ページ（30、`exam`・`exam_episodes`・`jpml_test` を含む）を選ぶ。
   取り込んだ後の木で `python3 scripts/regenerate.py all` を回した結果、**変わったファイルは0**（前回の自動再生成以後のシートの変化は、この時点では無い）。マージから自動再生成までにシートが変われば、その分は本番に出る
 
+### 手順3: マージと本番の確かめ
+
+- 1回目の push 直前の確かめで cloudflare が進んでいた（work/1019-wrc14 のマージ、908e3c08d）。もう一度 `git merge origin/cloudflare` で取り込んだ（b5e6dbe14、衝突なし）。
+  新しく入ったのは `scripts/promo_video/jwrc/` と docs だけで、ページの生成には関係しない。`origin/cloudflare...HEAD` の差分は1回目と同じ27ファイル。テスト（1445件 OK）と `regenerate.py --check exam exam_episodes`（通る）をやり直した
+- push 直前に再 fetch し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真であることを確かめて `git push origin work/1019-exm:cloudflare`（908e3c08d..b5e6dbe14、fast-forward）
+- 「ページの再生成」（run 39232196280）: **失敗。今回の変更とは関係しない。** `saikyo_pages` だけが飛ばされた。原因は「最強戦」シートを読んだときの Google Sheets の HTTP 502（`urllib.error.HTTPError: HTTP Error 502: Bad Gateway`、`lib/sheets.py` の `_query()`）。
+  `exam`・`exam_episodes` を含むほかの29ページは正常に生成されたが、どのページも変わらず、コミットはされなかった（「変更なし」）。手元の `--check saikyo_pages` は通る。最強戦のページは次の再生成で作り直される（手元の全ページの再生成では差分0だったので、本番の中身に影響は無い）
+- 「Workers Builds: mj」: b5e6dbe14 で最初に出た success（09:45:55）は work ブランチのプレビューのビルド（プレビューの URL 付き）。本番のビルドは 09:54:39 に success。それまでの約10分は本番の `/exam/` が 404 だった
+- 本番の確かめ（09:55 以降）:
+  - `https://ryoei.pro/exam/` と `https://ryoei.pro/exam/lGPjKHDAlzw.html` が 200 で `<meta name="robots" content="noindex">` 付き。中身はリポジトリの生成物と同じ
+  - `/exam` は `https://ryoei.pro/exam/` へ 301
+  - `https://ryoei.pro/jpml_test.html` は 200 で、マージ前（908e3c08d）のファイルと同じ
+  - 本番の `navbar.js` はマージ前と同じ（「プロテスト」の行き先は `/jpml_test.html` のまま）。`sitemap.xml`・`llms.txt` に `exam` は無い。`style.css` に `.mj-exam-en` がある
+- #612 に完了のコメントを書いてクローズした（「状況:」のラベルは付いていなかった）。#613 は開いたまま
+- 決定（プレビューの確認・未公開のままマージ、見出しの折り返しは今のまま）を `docs/decisions/exam.md` に足した
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1019-exm
-- ログ: https://github.com/retroeater/mj/blob/work/1019-exm/docs/logs/CHAT-1019-EXM-05.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1019-exm
-- 確認用URL: なし
-- マージ: 未
-- issue: #612
+- 状態: 完了
+- ブランチ: work/1019-exm（マージ済み。削除は cleanup-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1019-EXM-05.md
+- 比較URL: https://github.com/retroeater/mj/compare/908e3c08d...b5e6dbe14
+- 確認用URL: なし（本番で確かめた。`/exam/` は未公開・noindex）
+- マージ: 済（b5e6dbe14）
+- issue: #612（クローズ）・#613（公開、開いたまま）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
@@ -113,12 +129,12 @@ cloudflare（7b7fe6f57）を `git merge origin/cloudflare` で取り込んだ（
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj ce06729b）: https://github.com/retroeater/mj-logs/tree/main/guide/ce06729b
+ガイド文書（この版を写した時点の最新、mj 4f73f403）: https://github.com/retroeater/mj-logs/tree/main/guide/4f73f403
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce06729b/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce06729b/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce06729b/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce06729b/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce06729b/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce06729b/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/4f73f403/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/4f73f403/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/4f73f403/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/4f73f403/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/4f73f403/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/4f73f403/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/58fa24ff.md
