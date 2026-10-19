@@ -139,18 +139,67 @@
 - push 直前の再 fetch で origin/cloudflare が 4bd3592b8 に進んでいた（AIC-07: `workers/ask/` と docs）。`docs/decisions/houou.md` の末尾が AIC-07 の節と同じ位置への追記で衝突するため、衝突を解かず、こちらの OUK-25 の節を先に外してから（1コミット）merge で取り込み（衝突なし、563d67955）、AIC-07 の節の後ろに同じ節を足し直した（中身は変えていない。衝突の印 0）
 - 取り込んだ変更は `workers/ask/`（コードとテスト）と docs だけで、`scripts/`・生成物は変わらないため、再生成の比較はそのまま使える。取り込み後のテスト: unittest 1,423件 OK、node 63件 pass
 
+- push 直前の再 fetch で `git merge-base --is-ancestor origin/cloudflare HEAD` が真。`git push origin work/1019-ouk25:cloudflare`（4bd3592b8..d5b59e675、早送り）
+- check-assets（「公開対象の検査」）は d5b59e675 で success（run 39213568587）。「ページの再生成」（run 39213571384、`scripts/lib/` の変更で全ページ）は success で、6f0d999b1 を push した。差はシートの取得時点の12ファイル（jpml_pros・live・mtsuku・title）と sitemap の lastmod だけで、houou/・ouka/・jwrc/・`_redirects` の差は無い
+- Workers Builds の mj: d5b59e675 の success（07:07Z）は作業ブランチのプレビューのビルド（遅れて動いた）。本番は 6f0d999b1 で success（07:16Z）。その前（07:07〜07:16Z）の本番は、消したファイルが 200・style.css も前の版のままだった（本番のビルドの前だったため）
+
+### 5. 本番の確かめ（6f0d999b1 の本番のビルドの後）
+
+- 旧9ページの URL は 301 で新しいページへ移る（`?name=` を引き継ぐ）:
+
+| 旧 URL | 行き先 |
+|---|---|
+| `/houou_ranking.html` | `/houou/ranking/total/` |
+| `/houou_leagues.html?name=白鳥翔` | `/houou/leagues/?name=白鳥翔` |
+| `/houou_race.html` | `/houou/race/` |
+| `/houou_results.html?name=白鳥翔` | `/houou/players/?name=白鳥翔` |
+| `/ouka_ranking.html` | `/ouka/ranking/total/` |
+| `/ouka_leagues.html?name=清水香織` | `/ouka/leagues/?name=清水香織`（JS で `/ouka/players/?name=清水香織&view=league` へ移ることも確かめた） |
+| `/ouka_results.html?name=清水香織` | `/ouka/players/?name=清水香織` |
+| `/wrc_ranking.html` | `/jwrc/ranking/total/` |
+| `/wrc_results.html?name=紺野真太郎` | `/jwrc/players/?name=紺野真太郎` |
+
+- 消したファイル（`/league_ranking.js`・`/leagues.js`・`/houou_race.js`・`/houou_race/43-1.json`・`/houou_leagues_data.json`・`/ouka_results.js`・`/wrc_results.js`）は 404。`style.css` は新しい版（旧型C の規則が無い）
+- houou/・ouka/・jwrc/ のトップ・個人成績（`?name=` 付きを含む）・ランキング（通算）・順位変動は 200。375px の headless Chrome で JS のページのエラー（pageerror）は全ページ0。コンソールのエラーは Cloudflare Web Analytics（`static.cloudflareinsights.com`、このセッションの proxy で届かない）だけ。遅れて動いたプレビューでも同じく pageerror 0（質問欄の Worker の `/api/ask/status` だけ 404）
+
+### 6. issue
+
+- #582 に結果をコメントしてクローズした（completed。「状況:」ラベルは付いていなかった）
+
+## WRC への引き継ぎ
+
+- WRC の旧2ページ（`wrc_results.html`・`wrc_ranking.html`）と `wrc_results.js`、`league_ranking.js`（JWRC の分岐を含む）を消した（b545ff9b5、cloudflare へは d5b59e675 でマージ）。旧 URL は `_redirects` で jwrc/ へ 301 のまま
+- `generate_houou_race.py`・`generate_houou_leagues.py` は `scripts/lib/houou_race.py`・`scripts/lib/houou_leagues.py` に移った（import は `from lib import houou_race as race_page` の形）。work/WRR の `regenerate.py` の `SHARED_GENERATORS` の `wrcr_pages` にある `"houou_race"` は対象でなくなったので、取り込むときに外す（`ouka_pages`・`jwrc_pages` は `("houou_pages",)` にした）
+- work/WRR を取り込むとき、`docs/decisions/houou.md` の末尾が衝突する（cloudflare の AIC-07・OUK-25 の節と WRR の節、どちらも末尾への追記）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1019-ouk25
-- ログ: https://github.com/retroeater/mj/blob/work/1019-ouk25/docs/logs/CHAT-1019-OUK-25.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1019-ouk25
-- 確認用URL:
-- マージ: 未
-- issue:
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1019-OUK-25.md
+- 比較URL: https://github.com/retroeater/mj/compare/4bd3592b8...d5b59e675
+- 確認用URL: https://ryoei.pro/houou/ ・ https://ryoei.pro/ouka/ ・ https://ryoei.pro/jwrc/ （旧 URL の例: https://ryoei.pro/houou_results.html ）
+- マージ: 済み（d5b59e675。Workers Builds の mj は本番 6f0d999b1〈再生成のコミット〉で success、check-assets は success）。消したファイルは60件:
+  - 鳳凰戦: `houou_ranking.html`・`houou_leagues.html`・`houou_race.html`・`houou_results.html`、`houou_leagues_data.json`、`houou_race/`（41ファイル）、`houou_results.js`・`houou_race.js`
+  - 女流桜花: `ouka_results.html`・`ouka_ranking.html`・`ouka_leagues.html`、`ouka_leagues_data.json`、`ouka_results.js`
+  - WRC: `wrc_results.html`・`wrc_ranking.html`・`wrc_results.js`
+  - 共有: `league_ranking.js`・`leagues.js`
+  - スクリプト: `scripts/generate_ouka_leagues.py`・`scripts/check_leagues_dropped.py`
+  - 止めた生成: `houou_race`・`houou_leagues`・`ouka_leagues`（`regenerate.py --list` は27ページ）
+  - 移した部品: `generate_houou_race.py` → `scripts/lib/houou_race.py`、`generate_houou_leagues.py` → `scripts/lib/houou_leagues.py`（入口とつなぎ〈`legacy_half()`・`legacy_load()`〉を消すと部品だけになり、`regenerate.py` が `generate_*.py` をページとして数えるため）。旧型C だけの `lib/leagues.py`・`lib/chart.py` の関数を消した
+  - 残したもの: `_redirects` の旧9ページの行、`ouka/leagues/` などの中継のページ、`check-assets.yml` の allowed の旧名（ワークフローは変えない）、`assets/league.js`・`league_race.js` と `scripts/promo_video/houou_race/` の由来のコメント、`style.css` の `.mj-race` の節（新しい順位変動が使う）
+  - 本番の確かめ: 旧9ページの URL（`?name=` 付きを含む）は 301 で新しいページへ移る。消したファイルは 404。houou/・ouka/・jwrc/ のトップ・個人成績・ランキング・順位変動は 200 で、375px の JS のエラーは0
+- issue: #582 にコメントしてクローズ
 - 判断が必要なこと:
-- 未確認の項目:
+  - 仮置き: `check_leagues_dropped.py` は消した（旧型C の選手選択リストにしか意味が無く、新しいページの生成物で同じ確かめをするには新しいコードが要るため）。残すべきだったなら git の履歴から戻せる
+  - 仮置き: 部品を `scripts/lib/houou_race.py`・`scripts/lib/houou_leagues.py` へ移した（理由は上）。`lib/` の変更は `--changed` で全ページを選ぶので、今後この2つを直すと再生成が全ページになる
+  - 仮置き: 作業ブランチのプレビューが Workers Builds で15分を超えて動かなかった（ほかのブランチも同じ）ため、手元での headless の確かめで代え、プレビューを待たずにマージした。プレビュー（遅れて動いた）と本番でも同じ確かめが通った
+  - Google Charts に依存するページが0になった。#7（Google Charts 依存の解消）を閉じるか、#9（CSP）を gstatic なしで書けるかの判断（handover.md の #7 の行と「外部ドメインへの依存」は事実だけ直した）
+  - `CLAUDE.md`「データの流れ」の型C の選択リストと Google Charts 依存の6ページの行を消した（ページが無くなったため。指示の文書の一覧には無かった）
+- 未確認の項目: なし
 - エラー:
+  - 着手時に #582 へ「着手中」のコメントを残していなかった（完了のコメントだけ）
+  - 誤って `git stash create` を1回実行した（stash の参照・作業ツリーは変わっていない。直後の `git stash list` は hook が止めた）。1回、コミットメッセージを `git commit -m` の二重引用符で渡した（85f6c1831。`$` やバッククォートは含まない）
 
 <!-- guide-links -->
 ---
