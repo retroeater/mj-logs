@@ -95,29 +95,59 @@ Chat-Ref: CHAT-1019-SEC-14
   - 調査が分類の外として書き残したもの（候補にはしていない）: `scripts/check_wayhome.py` は wayhome-state の印を含む最新の issue コメントを書き手を問わず読む（mj は private で、コメントできるのは共同編集者だけ。影響は通知を出すかどうかまで）
   - 上の (a) の新しい低（`contest` の `__proto__`）は Claude Security では候補にならなかった
 - Secret scanning／Push protection（ダッシュボードの 3）: `api.github.com/repos/retroeater/mj` の `security_and_analysis` は null（管理者の権限でないと返らない）でセッションからは確かめられない。平野さんに頼む
+- (b) サブエージェントの報告を、主なものは該当行を開いて確かめた:
+  - 中-3 の残り: `scripts/generate_resource_logs.py:165` の restaurant_url は `safe_url()` なしで `href`（SEC-02 で外したまま）
+  - 中-2 は直った（`generate_books_pages.py:465`、saikyo も `<` 全体を逃がす）。低-6 は4か所とも `</` だけのまま。低-8 前半（ファイル名）は直り、後半（`generate_jpml_pros.py:180` の URL エンコード）は残る
+  - サブエージェントが「上流の検査が未確認」とした `episode.url`（study・exam・mtsuku）は `WATCH_URL.format(動画ID)` で https 固定（`lib/study.py:330`・`lib/exam.py:174`・`lib/mtsuku.py:319`）。`lib/mtsuku.py:126` の `video_id()` は URL でない値をそのまま返し、一覧の `href="{動画ID}.html"` に入るが、同じ箇所の `thumbnails[row.video_id]`（YouTube API で取ったキー）で実在しない ID は生成が止まる → 参考に留める
+  - 属性の引用符・テキストの `esc()` に問題は見つからなかった（抜き取り）
+- 低-3（`packages:` の版）: `google-auth requests` の行が5つ、`anthropic==1.7.0` だけ固定のまま
+- 低-9: `index.html` は glightbox を読み続けるが、`cdn.plyr.io` は CSP の `script-src` で止まる（平野さんの表示の確認は SEC-13 で済み）
+
+### 手順3（まとめ）
+
+- 突き合わせの表（(i) 直ったもの (ii) 残っているもの (iii) 新しいもの）は #598 のコメント（issuecomment-6270152890）に書いた。要点: 高 0。新しいものは低-10（`contest` の `__proto__`）1件と参考3件。中-3 の残り2か所は、CSP が `href` の `javascript:` を止めるので低に下げた
+- `docs/notes/security.md`: 冒頭の「この後に点検を再度行う（まだ。#598）」を、行った日付と #598 のコメントへの参照に直した。(d) の行の件数を「2026-10-19 の再点検で 58 件」に、Claude Security の所要の行に今回の数を足した
+- `docs/decisions/security.md`: `## 2026-10-19（CHAT-1019-SEC-14）` を足した（指示の「決定」2つと、実行したこと）。2026-10-18（CHAT-1018-SEC-07）の「#9 の後の再点検で1回回し、使用量を見て間隔を決め直す」は、間隔の決定がまだなので置き換えていない
 
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1019-sec14
-- ログ: https://github.com/retroeater/mj/blob/work/1019-sec14/docs/logs/CHAT-1019-SEC-14.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1019-SEC-14.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1019-sec14
 - 確認用URL: なし
-- マージ: 未
-- issue: #598
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- マージ: 未（この後 push する）
+- issue: #598（結果のコメント issuecomment-6270152890）
+- 判断が必要なこと:
+  - 高は無し（止まる条件に当たらない）。新しい指摘と残っている指摘（重大度・場所・推奨・直す規模）:
+    - 低-10（新）`workers/ask/src/ask.mjs:375`: `contest` に `__proto__` 等を送ると「知らない大会」の検査を通る（1問と数えて 503、Claude API は呼ばない）。`Object.hasOwn` で引く＋テスト。1行＋テスト
+    - 中-3 の残り（低に下げた）`scripts/generate_resource_logs.py:165`・`assets/league.js:854-856`: `safe_url()` を通す／JS 側で `https?:` を確かめる。小（resource_logs の再生成で差分0の確かめ込み）
+    - 低-4 `workers/ask/src/ask.mjs:184-189`: `json()` に `x-content-type-options: nosniff`。1行
+    - 低-6 4か所: `<` 全体を `<` に。各1行＋再生成
+    - 低-7 `assets/houou_ask.js:229`・`assets/saikyo.js:73`・`assets/league_race.js:338`: `new URL(u, location.origin).origin` で判定・try で囲む・`JSON.stringify` で埋める。小
+    - 低-8 後半 `scripts/generate_jpml_pros.py:180`: `urllib.parse.quote`。小
+    - 低-3 CI の `packages:`: 版の固定（requirements 化）。小
+    - 低-5 答えの文の検証: 小〜中。今は直さない案（見えるのは質問した本人だけ）
+  - 直す指示のまとめ方の案: (1) Worker（低-10・低-4）を1本〈`workers/ask` だけ、テスト込み。WRR などの質問欄の作業ブランチと重ならない時機に〉 (2) 生成とフロント（中-3 の残り・低-6・低-7・低-8 後半）を1本〈全ページの再生成で差分を確かめる〉 (3) 低-3 は #564 の続きか Dependabot の扱いと合わせて別に。低-5 は見送りでよいかを決める
+  - 平野さんに頼むダッシュボード側の確認:
+    - GitHub の Secret scanning／Push protection が個人の private リポジトリで使えるようになっていないか https://github.com/retroeater/mj/settings/security_analysis
+    - Workflow permissions の既定を読み取りだけにし、PR の作成・承認の許可を外したか（CHAT-1018-SEC-10 の予定） https://github.com/retroeater/mj/settings/actions
+    - Mozilla HTTP Observatory の採点の取り直し（前回 B 70/100） https://developer.mozilla.org/en-US/observatory/analyze?host=ryoei.pro
+  - Claude Security の今後の間隔の案: 定期では回さず、今の決定（`workers/` を大きく変えたときに Scan changes）に「再点検（年1回か大きな変更の後）のときに1回」を足す。根拠: 2回とも同じ対象で約8〜12分・サブエージェントのトークン約108万で指摘0件、今回の唯一の新しい指摘（低-10）は手の再点検で見つかり Claude Security では出なかった。再点検と重ねれば (b)(c)(d) と役割を分けられ、別に回す分の使用量に見合う指摘が出ていない。Max の使用量の数値はセッションからは見えないので、平野さんの画面で今回の使用量（2026-10-19 23:37〜23:45 JST）を確かめて決める
+- 未確認の項目:
+  - Max の使用量に今回の診断がどれだけ効いたか（セッションからは見えない）
+  - `assets/vendor/` の aos・glightbox・typed.js の版（ファイルに記載なし。前回 SEC-01 で照合済みのファイルと同じかは未確認）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 7249a1de）: https://github.com/retroeater/mj-logs/tree/main/guide/7249a1de
+ガイド文書（この版を写した時点の最新、mj 2270cdf2）: https://github.com/retroeater/mj-logs/tree/main/guide/2270cdf2
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/7249a1de/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/7249a1de/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/7249a1de/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/7249a1de/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/7249a1de/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/7249a1de/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/2270cdf2/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/2270cdf2/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/2270cdf2/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/2270cdf2/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/2270cdf2/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/2270cdf2/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/19fa8d37.md
