@@ -51,6 +51,27 @@
 
 着手後は質問せず、不明な点は仮置きで進めて報告の「判断が必要なこと」に書いてください。この行が指示文の最後の行です。
 
+## 経過
+
+### 0章
+
+- 「指示」欄の末尾は指示文の最後の行（「着手後は質問せず、…この行が指示文の最後の行です。」）と一致
+- `git log --all --grep="CHAT-1019-WRC-15"` は空。`WRC` はこのセッションの続きで使っている識別子
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある（冒頭の数行が1行につながって貼られていた）
+- work/1019-wrc14 はリモートにある（4db2ed8a2）。WRC-14 のログの状態への ` / 続き: CHAT-1019-WRC-15` は後半で work/1019-wrc14 に足す
+- 前半の作業ブランチ: origin/cloudflare（6f0d999b1）から work/1019-wrc15
+
+### 前半: 質問欄
+
+- 原因: 鳳凰戦は1回目の指示の最後に `currentLine()`（「現在」「今」をデータのある最新の期で読ませる一文）を足しているが、WRC リーグの指示にはそれに当たる一文が無く、「現タイトルホルダー」を `champions` に結び付けられず `none`（答えられません）になっていた
+- 直し（`workers/ask/src/ask.mjs`）: `holderLine(data)` を足し、WRC リーグの1回目の指示の最後に「「現タイトルホルダー」「現在の優勝者」「今のチャンピオン」「前回の優勝者」「最新の優勝者」は、データのある最新の決勝の第19期の優勝者として、champions の from と to に19を入れる。」を付ける。期は `data-jwrc.json` の決勝（`finals`。「タイトル」タブの決勝から生成）の最大の期で、決め打ちしない。`champions` は予選の行を見ないので、シード枠からの優勝（紺野真太郎）でも引ける。大会ごとの一文は `PLAN_LINES`（`houou: currentLine`、`jwrc: holderLine`）にまとめ、鳳凰戦の指示の作りは変えていない
+  - 現タイトルホルダーの出どころ: ページの「最近見た選手が無いときの1件」（`title_holder()`）は「タイトル」タブを読む。質問欄の `finals` も同じ「タイトル」タブの決勝から作られている（第19期 紺野真太郎）
+- 例の文: `generate_houou_pages.py` の `JWRC` の質問欄の例を「例：現タイトルホルダーは？」に。docs（jwrc-top.md・league-pages-compare.md）もそろえた。ask-worker.md に `holderLine()` を書いた。`grep -rn "19期の予選1位"` の残りは `workers/ask/test/jwrc.test.mjs` の予選の検索のテストの問い（例の文ではなく、予選の順位を引く問いを確かめるもの）だけで、そのままにした
+- テスト（`workers/ask/test/jwrc.test.mjs`）: 1回目の指示が `holderLine()` で終わり、`champions`（from・to=19）の結果が紺野真太郎だけになること、鳳凰戦・女流桜花の1回目の指示に「現タイトルホルダー」が入らないことを確かめる2本。直す前のコードでは `holderLine` が無く落ちることを確かめた
+- `node --test 'workers/ask/test/*.test.mjs'`: 65件 OK（鳳凰戦の `currentLine()` のテストを含む）。`python3 -m unittest discover -s scripts/tests`: OK
+- `python3 scripts/regenerate.py all` を作業ブランチ（コードのコミットの後）と cloudflare のクローン（6f0d999b1）で回した（どちらも exit 0）。cloudflare のクローンは差分0。両者の差は `jwrc/index.html` の例の文の1行と、手で変えた `generate_houou_pages.py`・`ask.mjs`・`jwrc.test.mjs` だけ。houou/・ouka/・jpml_pros・`workers/ask/data*.json` は差分0
+- サイトマップの lastmod（`--from-git`）は変わらない（jwrc/ はすでに 2026-10-19）
+
 <!-- guide-links -->
 ---
 
