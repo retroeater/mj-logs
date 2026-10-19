@@ -1,7 +1,7 @@
 # CHAT-1019-LNK-01
 
 - 着手日時: 2026-10-19
-- 対象issue: 未定（手順1で起票）
+- 対象issue: #616
 - ブランチ: work/1019-lnk
 - 着手時HEAD: 6bb0f617c
 
@@ -106,15 +106,35 @@
   ヘッドレス Chromium で `jpml_pros.html` のメニュー「連盟」を開いて撮影: PC（1280px）・スマホ幅（375px）とも項目は「プロ」「タイトル戦」の2件。
   `docs/logs/CHAT-1019-LNK-01/menu-pc.png`・`menu-sp.png`
 
+### マージと本番
+
+- push 直前に再 fetch して `git merge-base --is-ancestor origin/cloudflare HEAD` を確かめ（途中で cloudflare が e6b5408a2・f0a1e266e〈docs/logs のみ〉進んだので取り込み直した）、`git push origin work/1019-lnk:cloudflare`（f0a1e266e..15b721870）
+- 15b721870 の check-run: Workers Builds: mj success・regenerate success・sync success・notify skipped
+- 本番の HTML（クエリ無しと `?v=lnk01q9`）: `/jpml_links.html` 404、`navbar.js` に `jpml_links` 0件でメニュー「連盟」は「プロ」「タイトル戦」、`sitemap-pages.xml`・`llms.txt` に `jpml_links` 0件。ブラウザでの本番の見え方は確かめていない（プレビューで撮影済み）
+- #616 に結果を書いてクローズ（「状況:」ラベルは付いていない）
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1019-lnk
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1019-LNK-01.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1019-lnk
+- 確認用URL: プレビューあり（URL は最終報告）。確認したページは `jpml_pros.html` のメニュー「連盟」と `/jpml_links.html`。この版で見える印: メニュー「連盟」の項目が「プロ」「タイトル戦」の2件だけ
+- マージ: 済（15b721870）
+- issue: #616（起票・クローズ）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj b8020e17）: https://github.com/retroeater/mj-logs/tree/main/guide/b8020e17
+ガイド文書（この版を写した時点の最新、mj 15b72187）: https://github.com/retroeater/mj-logs/tree/main/guide/15b72187
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b8020e17/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b8020e17/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b8020e17/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b8020e17/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b8020e17/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b8020e17/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/15b72187/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/15b72187/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/15b72187/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/15b72187/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/15b72187/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/15b72187/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/f0a1e266.md
