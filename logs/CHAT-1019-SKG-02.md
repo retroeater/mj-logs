@@ -49,6 +49,39 @@
 
 ## 経過
 
+### 着手前の確認
+
+- 0. ログの「指示」欄の末尾は指示文の最後の行と一致
+- `git log --all --grep="CHAT-1019-SKG-02"` と `docs/logs/CHAT-1019-SKG*` の履歴は0件。SKG は同じセッションの CHAT-1017-SKG-01 で使ったもので、02 は最初の指示ではない。`origin/work/1019-skg`・ローカルの `work/1019-skg` は無し → `git checkout -b work/1019-skg origin/cloudflare`
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある
+- 未マージの work/ ブランチ（自分のを含め9本）で `scripts/generate_saikyo_pages.py`・`scripts/*saikyo*`・`.github/workflows/regenerate-saikyo.yml` を変えているものは0本
+- `regenerate-saikyo.yml` の workflow_dispatch の既定値は abema=`update`・regenerate=`true` のまま（指示の値と同じ）
+
+### 手順1: `python3 scripts/regenerate.py --check saikyo_pages`
+
+終了コード 0、「検査: 通りました」。止まる理由は0件。警告 8件。すべて想定どおりの種類（2026 のベスト8 の卓の動画URLが ABEMA の放送枠〈slots〉）: 超技巧合戦・Mの乱・団体対抗スペシャル合戦・団体分裂合戦の各 A卓・B卓。それ以外の警告は無し（前回あった「柊かえで → 柊木かえで」の警告は今回は出なかった）。
+
+ほか: シート 2580件（前回 2576件）、年度・対局・卓のページ 880件（前回 879件）、写真URLがXのデフォルトアイコンだった行 3件。
+
+### 手順2: `python3 scripts/regenerate.py saikyo_pages`（作業ブランチ）
+
+終了コード 0。`git status`: 変更 31ファイル（saikyo/ 30・sitemap-saikyo.xml 1）、新規 1ファイル（`saikyo/2026/20261018-s2.html`）。`git diff --stat`: 31 files changed, 278 insertions(+), 230 deletions(-)（新規ファイルを除く）。
+
+- (a) 結果が変わった対局・卓のページ（6件）。2026 団体対抗スペシャル合戦（2026年10月18日）:
+  - `saikyo/2026/20261018-s1-a.html` ベスト8 A卓: 前 = 順位なし（石原真人・白鳥翔・西村雄一郎・牧野伸彦）→ 後 = 1位 通過 石原真人、2位 通過 西村雄一郎、3位 敗退 白鳥翔、4位 敗退 牧野伸彦
+  - `saikyo/2026/20261018-s1-b.html` ベスト8 B卓: 前 = 順位なし（浅見真紀・奥村知美・角葉子・清水香織）→ 後 = 1位 通過 奥村知美、2位 通過 清水香織、3位 敗退 浅見真紀、4位 敗退 角葉子
+  - `saikyo/2026/20261018-s2.html` 決勝（新規）: 前 = ページ無し → 後 = 1位 優勝 清水香織、2位 敗退 奥村知美、3位 敗退 石原真人、4位 敗退 西村雄一郎
+  - `saikyo/2026/20261018.html`（対局）・`saikyo/2026/index.html`（年度）・`saikyo/index.html`（トップ、埋め込みデータ 1行）: 団体対抗スペシャル合戦の順位と決勝が足された
+- (a に付随) 出場した8人の過去の卓のページ 17件: 「〇〇の他の対局（N件）」が1増え、決勝のカードが足された（例: `saikyo/2011/20110430-s1.html` 清水香織 13件→14件）
+- (b) 選手写真の URL だけの差: 0件
+- (b') 選手カードにリンクが付いた差 8件（写真の URL は同じ。カードが `<div>` から X へのリンク `<a>` に変わった。今回の対局とは無関係で、SNS ブック等の側の変更によるとみられる）:
+  - 平賀聡彦 → `x.com/makko_samurai`: `saikyo/2017/20170416-s1-a.html`・`2017/20171210-s1-c.html`・`2018/20180217-s1-a.html`・`2018/20180217-s2.html`・`2019/20190526-s1-b.html`・`2019/20190526-s2.html`
+  - 坂本大志 → `x.com/saikouimasashi`: `saikyo/2019/20191214-s1-a.html`・`2020/20200802-s1-a.html`
+- (c) `sitemap-saikyo.xml`: `saikyo/2026/20261018-s2.html` の `<url>` が1件増えた
+- (d) その他: 0件
+
+生成物はコミットせず `git checkout -- saikyo/ sitemap-saikyo.xml` と新規ファイルの削除で戻した（`git status --short` が空）。
+
 ## 報告
 
 - 状態: 対応中
