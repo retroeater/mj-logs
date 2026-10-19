@@ -54,6 +54,21 @@ https://ryoei.pro/ouka/
 
 ## 経過
 
+### 0章・取り込み
+
+- Chat-Ref の重複なし。「指示」欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている（1段落にまとまって貼られた）
+- work/1019-ouk19 はリモートとローカルが同じ（7d13e463b）。CHAT-1019-OUK-23 のログの状態に ` / 続き: CHAT-1019-OUK-24` を足した
+- `origin/cloudflare` が HEAD の祖先でなかったので merge で取り込んだ（b019b1e5b）。衝突なし
+- `python3 -m unittest discover -s scripts/tests` 1,430件 OK
+- 取り込んだ後の origin/cloudflare との差: `scripts/promo_video/ouka/` の6ファイル（README.md・setup.sh・build.sh・capture.mjs・compose.py・composition/index.html）、`docs/logs/` の OUK-19・21〜24、`docs/decisions/houou.md`（OUK-19・OUK-23 の節）だけ。生成物・ページのコードの差は無い
+
+### 文書
+
+- `docs/notes/page-announcement.md`（6,902 → 8,163 bytes。上限・警告域なし）: 投稿文の型に女流桜花の投稿の実例（URL・本文、入力したとおり）を足した。「告知動画の型」に「順位の表を止める画面は上位が映る位置にする。下位・最下位の行だけを映す送り方はしない」の1行を足した。実例の表に ouka/ の行（59.6秒、houou/ の告知の流れ＋順位変動、`scripts/promo_video/ouka/`）を足した
+- `docs/notes/ouka-top.md`（8,533 → 10,415 bytes。上限・警告域なし）: 「告知動画」の節（投稿の URL、長さ・曲、質問と答え、順位変動の止め方、場面・秒・字幕の表）を足した
+- 容量の検査（`check-assets.yml` の「ガイド文書のサイズを確認」と同じ判定）: CLAUDE.md 24,972・handover.md 24,006・chat-side-operations.md 22,155（警告域 26,624 / 上限 28,672）、instruction-template.md 14,325（警告域 14,336 / 上限 16,384）。どれも警告域の手前で、今回は変えていない
+- CHAT-1019-OUK-19・21・22・23 のログの状態を「完了（CHAT-1019-OUK-24 でマージ）」にし、判断が必要なこと・未確認の項目・エラーを「なし」にした（cloudflare にある OUK-21 のログも、取り込んだこの作業ブランチ側で直した）
+
 ## 報告
 
 - 状態: 作業中
@@ -70,12 +85,12 @@ https://ryoei.pro/ouka/
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj af238f10）: https://github.com/retroeater/mj-logs/tree/main/guide/af238f10
+ガイド文書（この版を写した時点の最新、mj ff5acfce）: https://github.com/retroeater/mj-logs/tree/main/guide/ff5acfce
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/af238f10/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/af238f10/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/af238f10/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/af238f10/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/af238f10/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/af238f10/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ff5acfce/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ff5acfce/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ff5acfce/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ff5acfce/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ff5acfce/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/ff5acfce/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/4e223c8f.md

@@ -963,7 +963,7 @@ Open 221件を4段で再編成した。INV-01 で全件の本文・コメント�
 チャット側はカレンダーに予定がある issue 番号を INV-01 に渡し、閉じた9件の予定を消した。一括の書き換えは1件ごとに `updated_at` を取り直してから書き、
 他セッションが途中で更新した #448 は表から外した。INV-03 で check-meibo.yml の作業ブランチの dry-run がテストで落ち、修正前の cloudflare でも同じだったため、
 #472 の `test_net_retry.py`（requests を import）が入った後、`pip install` の無い check-meibo.yml だけが落ちる状態だったと分かった（予約実行の前に 661b42b3 で修正）。
-経過は作業ログ CHAT-1002-INV-01・CHAT-1002-INV-02・CHAT-1003-INV-03・CHAT-1003-INV-04。
+経過は作業ログ [CHAT-1002-INV-01](https://github.com/retroeater/mj/blob/0122413eefeacea52e5f7fe959601d3df1e0162b/docs/logs/CHAT-1002-INV-01.md)・[CHAT-1002-INV-02](https://github.com/retroeater/mj/blob/0122413eefeacea52e5f7fe959601d3df1e0162b/docs/logs/CHAT-1002-INV-02.md)・[CHAT-1003-INV-03](https://github.com/retroeater/mj/blob/908a41d5e620e0210e35e80fa586e3a27fb8515b/docs/logs/CHAT-1003-INV-03.md)・[CHAT-1003-INV-04](https://github.com/retroeater/mj/blob/0122413eefeacea52e5f7fe959601d3df1e0162b/docs/logs/CHAT-1003-INV-04.md)（削除前の版）。
 
 ## `/titles` 統合の検討と中止（#435、2026-09-22）
 
