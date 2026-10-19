@@ -100,28 +100,77 @@
   層1のタイトルは「【2026年度前期プロテスト応募受付中！】Mリーガー本田朋広プロに…」のように【】の札が付く。
   **公開日の食い違い1件: `98GKK3KKYNk` はシート 2021-07-31、層1の公開日時 2021-07-21T11:26:24Z（JST 7月21日）**。ほかの11本はシートと層1（JST）が一致
 
+### 実装（手順2）
+
+- **タブ「プロテスト」は平野さんが既に作っていた**（動画のブックのタブ: Mつく・帰り道・女流勉強会・プロテスト。列は 動画ID・公開日・再生時間、12行。動画IDの並びは旧ページと同じ。公開日は旧「テスト」シートの値、再生時間は空。出演者の列は無い）。
+  指示文の前提「タブができるまで（仮の TSV）」とは形が違うが、決定（タブは平野さんが作る）とは食い違わないため止まらず、次の形にした
+  - 生成はタブを見出しの名前で読み、使う列は 動画ID・出演者だけ。公開日・再生時間は層1から引く（女流勉強会と同じ）。タブの「公開日」「再生時間」は読まない
+  - タブに「出演者」の列が無い間は、出演者を `data/exam_provisional.tsv`（動画ID・出演者、12行）から読み警告を出す。タブと仮のファイルの動画IDが食い違えば止める。外すトリガは `docs/notes/video-exam.md`「構成」
+  - 平野さんがタブに貼る出演者の列: `docs/logs/CHAT-1019-EXM-01/exam_cast_column.tsv`（見出し「出演者」＋12行の1列。タブの今の行の並びと同じ）
+- 作ったもの: `scripts/lib/exam.py`・`scripts/generate_exam.py`（ページ名 `exam`）・`scripts/generate_exam_episodes.py`（`exam_episodes`）・`scripts/tests/test_exam.py`（11本）・`exam/index.html`＋各話12枚・`docs/notes/video-exam.md`・`docs/decisions/exam.md`（新しい分野のファイル）
+- 直したもの: `scripts/regenerate.py`（OUTPUT_OVERRIDES に2行、各話が `generate_study_episodes.py` の `build_cast_html()` を使うので SHARED_GENERATORS に1つ）・`_redirects`（`/exam` の 301 と `/exam/` の 200）・`check-assets.yml`（許可リストに `exam`）・`style.css`（`.mj-study-en` の規則に `.mj-exam-en` を足す）・`scripts/check_unused_names.py`（利用先にプロテストの出演者）・`docs/notes/static-generation.md`「ページの一覧」・`docs/handover.md` の関連文書の表・`docs/decisions/README.md`
+- 旧 `jpml_test.html` とその生成には触れていない。navbar・サイトマップ・`llms.txt` にも載せていない（noindex）
+- `--check`: 出演者16人とも名前の辞書で引け、X の写真が全員読めた（代わりの絵になる人はいない）。止まる理由なし（警告は仮のファイルの1件）
+- 未マージのブランチとの衝突を避けるための置き方（同じ行・隣の行を変えない）:
+  - `check-assets.yml`: work/WRR が許可リストの行に `wrcr` を足すため、`exam` は別の case の行にした
+  - `docs/notes/static-generation.md`: work/WRR が「ページの一覧」の冒頭の段落の行を変えるため、段落の後に「ほかに、プロテストの…がある」の1行を置いた（後で段落にまとめる）
+  - `scripts/regenerate.py`: 最初は SHARED_GENERATORS の辞書の先頭に足したが、work/1019-ouk25 が隣の `ouka_pages` の行を変えていて `git merge-tree` で衝突した。辞書の後で `SHARED_GENERATORS["exam_episodes"] = ...` と足す形に直した（fec91bcbb）
+  - 直した後、未マージの全ブランチ（8本）と `git merge-tree` を回し、cloudflare との組で出る衝突（各ブランチの docs/decisions など、元からのもの）より増えた衝突は0
+
+### 確かめ（手順3）
+
+- `python3 -m unittest discover -s scripts/tests`: 1441件 OK（fec91bcbb の後に再実行）
+- `python3 scripts/regenerate.py all` を作業ブランチ（a97973c28）と cloudflare（10e55a48e）のクローンで同時に回した。どちらも終了コード 0
+  - 2つの木の生成物の比較（`diff -rq`、docs・scripts・data を除く）: 違いは `exam/`（作業ブランチだけ）と手で直した `_redirects`・`style.css`・`check-assets.yml` だけ
+  - 両方の木で同じ12ファイルが HEAD から変わった（データの変化。この作業と関係しない）。種類: (1) SNS ブックに X ID が入った人（平賀聡彦・坂本大志・三原孝博など）の写真カードが X へのリンクになる（`live/masters/24/b8-a.html`・`live/masters/24/f.html`・`mtsuku/` の6枚・`title/masters/24.html`・`title/nihon-series/2018.html`・`2020.html`）、(2) `jpml_pros.html` の1人の回数 14回→15回。作業ブランチではこの12ファイルを個別に戻した（コミットしない）
+  - `exam/` は生成し直しても差分なし
+- 容量（`scripts/check_asset_limits.py`、`check-assets.yml` と同じもの）: 配信ファイル数 4,023 → 4,036（+13）、`_redirects` 静的 110 → 112（+2）、最大のファイルは変わらず。`exam/` は 107,842 バイト。ガイド文書: handover.md 24,006 → 24,157 バイト（警告域 26KB 未満）、CLAUDE.md・chat-side-operations.md・instruction-template.md は変えていない。最上位の許可リストの検査をワークフローの手順のとおり手元で回して通った。work/ への push で走った「check」も success
+- プレビュー: e0df62e03 の「Workers Builds: mj」が success。`/exam/`・各話が 200、`/exam` は `/exam/` へ 301。一覧のカード12枚、`style.css` に `.mj-exam-en` がある
+- headless Chromium（Playwright）で PC（1280×800）とスマホ（390×844）の全体の画像を撮り、`docs/logs/CHAT-1019-EXM-01/` に置いた（JPEG、計 2.2MB）: 一覧 `list-*`・出演者の多い回 lGPjKHDAlzw `most-cast-*`・出演者「-」の回 98GKK3KKYNk `no-cast-*`・いちばん古い回 kzKMbbNvAcQ `oldest-*`（これも出演者「-」）・最新の回 -PoeE0Bm2sE `latest-*`。
+  JS のエラー0、横のはみ出し無し（scrollWidth が画面の幅以下）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1019-exm
 - ログ: https://github.com/retroeater/mj/blob/work/1019-exm/docs/logs/CHAT-1019-EXM-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1019-exm
-- 確認用URL: なし
-- マージ: 未
-- issue: なし
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 確認用URL: プレビューあり（URL は最終報告）。確認したページ: `/exam/` と各話5枚（PC・スマホ）。この版の印: 一覧の大見出しが「プロテスト Pro Test」、カードの上の見出しが「動画（全12本）」
+- マージ: 未（平野さんの判断待ち。プレビューを見て決める）
+- issue: #612（作る。着手中コメント済み）・#613（公開・301・メニュー・サイトマップ・`llms.txt`）を起票。ラベルは「分野: UI/UX」「対象: jpml_test」、親なし（#569・#570 に合わせた）
+- 判断が必要なこと:
+  - **平野さんに頼む手作業（1つ）**:
+
+    | 作業 | どこへ | 貼った後 |
+    |---|---|---|
+    | タブ「プロテスト」の D1 セルに `docs/logs/CHAT-1019-EXM-01/exam_cast_column.tsv` を貼る（見出し「出演者」＋12行の1列。行の並びはタブの今の並びと同じ新しい順） | 動画のブックのタブ「プロテスト」の D1 | 見出し1行＋12行（A〜D列）。D8 と D13 は「-」 |
+
+    貼った後に生成がタブから読めたら、仮のファイル `data/exam_provisional.tsv` と読み替えのコードを消す（次の指示で。`docs/notes/video-exam.md`「構成」）
+  - (1) タブの「公開日」「再生時間」の列（仮置き: 読まない。公開日・再生時間は層1から）。ほかの案: タブの公開日を正にする（手で直せるが、層1と二重になる）。推奨は今のまま（列は消しても残してもよい）
+  - (2) 98GKK3KKYNk「…受験される方へ【ルール・マナーなど】」の公開日（仮置き: 層1〈YouTube〉の 2021年7月21日。旧ページとタブは 2021-07-31）。推奨は層1
+  - (3) 見出し（仮置き: YouTube の題名から先頭の【】の札〈「【2025年度プロテスト応募受付中！】」など〉と【日本プロ麻雀連盟】を外す）。4本が「日本プロ麻雀連盟プロテストを受けてみて【プロ雀士にインタビュー】」で同じになる。ほかの案: (a) 先頭の札を残す（年度で見分けられるが長い）、(b) タブに「見出し」の列を足して手で書く（旧ページの題に近くできるが手間）。推奨は今のまま
+  - (4) 英語名（仮置き: 「Pro Test」。指示文の案のまま）。ほかの案: 「Pro Exam」（URL の exam と合う）
+  - (5) 期（「28期」）を出さない（仮置き。名前の辞書の現在名だけ）。ほかの案: カードの名前の下に出す（旧ページに近いが、タブに期を持つか「プロ」から引く手間）
+  - (6) 人の節は「出演者」の1つ（部谷幸則さんも分けない。指示文の案のまま）。出演者「-」の回は節を出さず、カードの名前の行も出さない
+  - (7) 言い方（仮置き）: 一覧「動画（全12本）」、ヒーローの札「最新」、前後「次の動画」「前の動画」（女流勉強会は「エピソード（全N回）」「最新話」「次のエピソード」）。回の番号が無い単発の動画のため。ほかの案: 女流勉強会にそろえる
+  - (8) 紹介文（仮置き）: 「日本プロ麻雀連盟のプロテストの動画「<見出し>」。<名前>プロ・…が出演しています。」。一覧のヒーローの文「連盟のプロテストの案内と、受験したプロへのインタビューの動画。出演者の名前で振り返れます。」
+  - (9) 一覧の題「プロテスト | 番組 | ryoei.pro」（指示文の案のまま）。メニューを「連盟」から「番組」へ移すかは公開（#613）で決める
+  - (10) メンバー限定の回をタブに足すと止まる（仮置き。今の12本は0本で、札の表示を作っていない）
+  - (11) 一覧は `?name=` を読まない（旧 `jpml_test.html?name=` からの 301 で検索欄に入れるかは #613 で決める）
+- 未確認の項目:
+  - 平野さんの実機での見え方
+  - 出演者の列を足した後に、生成がタブから読めること（貼った後に `python3 scripts/generate_exam.py --check` で警告が消えるか）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 10e55a48）: https://github.com/retroeater/mj-logs/tree/main/guide/10e55a48
+ガイド文書（この版を写した時点の最新、mj d5b59e67）: https://github.com/retroeater/mj-logs/tree/main/guide/d5b59e67
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/10e55a48/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/10e55a48/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/10e55a48/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/10e55a48/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/10e55a48/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/10e55a48/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d5b59e67/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d5b59e67/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d5b59e67/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d5b59e67/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d5b59e67/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d5b59e67/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/10e55a48.md
