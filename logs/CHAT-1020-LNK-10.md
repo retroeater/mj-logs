@@ -43,6 +43,43 @@ CHAT-1019-LNK-04 で、`build_ogp_image.py --text WRC-R …` の `--check` が�
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+- 0章: 指示欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている。`git log --all --grep=CHAT-1020-LNK-10` は0件
+- ブランチ: `work/1020-lnk-ogp` はローカルにもリモートにも無かったので `git checkout -b work/1020-lnk-ogp origin/cloudflare`（a6d196709）
+
+### 手順1: 作ったときの文字と引数（記録）
+
+| 画像 | 入れたコミット | 文書の記述 | ログの記述 |
+|---|---|---|---|
+| `img/ogp/wrcr/index-white.png` | 7c2a2b94d（2026-10-19、CHAT-1019-WRR-02） | `docs/notes/wrcr-top.md:26`「白地・黒字の「WRC-Rリーグ」＋「ryoei.pro」」 | CHAT-1019-WRR-02 のログ（3f53fbf4f の版）109行: `build_ogp_image.py --text WRC-Rリーグ --footer ryoei.pro --color '#212529' --bg '#ffffff' --max-size 200 --tracking -0.03`、字体 NotoSansJP-Bold |
+| `img/ogp/jwrc/index-white.png` | e631b7659（2026-10-17、CHAT-1018-WRC-07） | `docs/notes/jwrc-top.md:38`「白地・黒字の「WRCリーグ」＋「ryoei.pro」」 | CHAT-1018-WRC-07 のログ（5e61c90c5 の版）125行: `build_ogp_image.py` で作ったとだけあり、引数は書かれていない（文字は jwrc-top.md による） |
+
+### 手順2: `--check`
+
+字体はこのセッションで LNK-04 のときに取得した `~/.local/share/fonts/NotoSansJP-Bold.otf`（sha256 の先頭 1b0edfb500b73a4f、docs/notes/title-pages.md の取得元）。引数は共通で `--footer ryoei.pro --color '#212529' --bg '#ffffff' --max-size 200 --tracking -0.03`。
+
+| `--text` | `--out` | 結果 |
+|---|---|---|
+| `WRC-Rリーグ` | `img/ogp/wrcr/index-white.png` | **一致**（rc=0） |
+| `WRCリーグ` | `img/ogp/jwrc/index-white.png` | **一致**（rc=0） |
+| `WRC-R`（LNK-04 で試した指定） | `img/ogp/wrcr/index-white.png` | 不一致（rc=1） |
+
+**記録どおり再現できる。LNK-04 の不一致は文字の指定違い**（LNK-04 は `--text WRC-R` で試したが、実際の画像の文字は「WRC-Rリーグ」）。手順3（作り直しの候補）は当たらないので行っていない。`img/ogp/` は変えていない
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1020-lnk-ogp
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1020-LNK-10.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1020-lnk-ogp
+- 確認用URL: なし
+- マージ: 済（ログのみ。最終報告の SHA）
+- issue: なし
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
