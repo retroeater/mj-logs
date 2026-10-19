@@ -57,6 +57,33 @@ CHAT-1019-SEC-11（段1）の「判断が必要なこと」への平野さんの
 
 ## 経過
 
+### 0章（2026-10-19 20:06 JST）
+
+- Chat-Ref の重複なし（`git log --all --grep`）。SEC はこのチャットの系列で、SEC-12 は最初の指示ではない。SEC-11 と同じクラウドセッションで続けた
+- 「指示」欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- work/1019-sec12 はローカル・リモートとも無かったので origin/cloudflare（77431408e）から作った
+- #9: オープン。着手中のコメントは SEC-11（このセッション、段1 は結果をコメント済み）だけ。着手をコメントした https://github.com/retroeater/mj/issues/9#issuecomment-6265794501
+- 未マージの work/ ブランチで `_headers`・index.html・index.css を変えているもの: なし
+
+### 2. typed.js と `_headers`
+
+- 使っている typed.js（`assets/vendor/typed.js/typed.umd.js`）は、`showCursor` が真で `[data-typed-js-cursor-css]` の要素が無いときだけ `<style>` を足す。`autoInsertCss` の設定もあるが index.js を変える必要があり、この指示の範囲（`_headers`・index.html・index.css）の外なので使わなかった。`fadeOut` は既定の偽で、その `<style>` は足されない
+- index.html の `<link href="index.css">` に `data-typed-js-cursor-css` を付け、typed.js が足していた CSS（`.typed-cursor` の `opacity: 1`、`.typed-cursor--blink` の `animation: typedjsBlink 0.7s infinite`、`@keyframes typedjsBlink { 50% { opacity: 0 } }`）を index.css の `#hero p span` の後に置いた。`-webkit-` 付きの重複は落とした
+- `_headers` の Report-Only の行を次の1行に置き換えた（Report-Only は残していない）:
+
+```
+Content-Security-Policy: default-src 'self'; script-src 'self' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; style-src-elem 'self'; style-src-attr 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'
+```
+
+### 3. 確かめ
+
+- 修正前と後（Playwright で本番の応答に新しい CSP を強制で付け、index.html・index.css だけ手元の版に差し替えた）:
+  - 修正前の index: `style-src-elem` の違反1件（disposition `enforce`）。カーソルの `animationName` が `none`（点滅が止まる）
+  - 修正後: 違反0、`<style>` 0個、カーソルは `typedjsBlink 0.7s`。スクリーンショットで「I'm Mahjong Pro|」とカーソルが出ている
+- テスト: `python3 -m unittest discover -s scripts/tests` OK
+- プレビュー（2826364ae の「Workers Builds: mj」success。URL は最終報告）: 応答に `content-security-policy` が出る。`/`・`/title/houou/1.html`・`/jpml_pros.html`・`/houou/` を操作つき（ライトボックス・質問欄〈送信しない〉・検索欄・スクロール）で開き、違反・コンソールの CSP のエラーは0
+- 表示の比べ（本番〈Report-Only〉とプレビュー、幅 1280・390、動きを減らす設定）: `/`・`/title/houou/1.html` は差0。`/houou/` は閾値以下の数画素。`/jpml_pros.html` はアイコンの列に差があったが、本番を撮り直すと差の量が変わり、両方で `assets.st-note.com`（20件）・`yt3.ggpht.com`（7件）の要求が通信の段階で失敗していた（`requestfailed`。セッションのプロキシの許可ドメインに無いため。CSP の違反ではない）。読み込みの揺れで、変更による差ではない
+
 ## 報告
 
 - 状態:
@@ -73,12 +100,12 @@ CHAT-1019-SEC-11（段1）の「判断が必要なこと」への平野さんの
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj b48ac4d1）: https://github.com/retroeater/mj-logs/tree/main/guide/b48ac4d1
+ガイド文書（この版を写した時点の最新、mj 5f8dc791）: https://github.com/retroeater/mj-logs/tree/main/guide/5f8dc791
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b48ac4d1/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b48ac4d1/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b48ac4d1/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b48ac4d1/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b48ac4d1/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b48ac4d1/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/5f8dc791/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/5f8dc791/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/5f8dc791/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/5f8dc791/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/5f8dc791/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/5f8dc791/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/58fa24ff.md

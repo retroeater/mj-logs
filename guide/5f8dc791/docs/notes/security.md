@@ -1,7 +1,7 @@
 # セキュリティ点検の方法
 
 ryoei.pro のセキュリティ点検の観点・道具・手順。**結果（見つかったことの表）は issue に置き、ここには書かない**（初回は #598）。
-CSP は #9 の対象で、#9 の後に点検を再度行う。決定は `docs/decisions/security.md`。
+CSP は #9 の対象で、#9 の後に点検を再度行う（2026-10-19 に本番の `Content-Security-Policy` を入れた。`docs/notes/cloudflare.md`「配信設定」）。決定は `docs/decisions/security.md`。
 
 ## 点検の観点
 
