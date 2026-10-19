@@ -73,15 +73,38 @@ CHAT-1019-LNK-04 で判断待ちにした「連盟プロ」（`jpml_pros.html`�
 - `python3 scripts/regenerate.py jpml_pros`（`--list` に `jpml_pros` がある）: rc=0、作業ツリーの差は0件（コミットした `jpml_pros.html` と生成の出力が一致。データの変化も無い）
 - テスト: `python3 -m unittest discover -s scripts/tests` 1444件 OK
 
+### 手順3: マージと本番
+
+- push 直前に再 fetch して `git merge-base --is-ancestor origin/cloudflare HEAD` を確かめ、`git push origin work/1019-lnk:cloudflare`（955553564..ec8c5cbca、13:55 UTC ごろ）
+- ec8c5cbca の check-run: check・regenerate・sync は success、notify は skipped。「Workers Builds: mj」は success だが summary は作業ブランチのプレビューのもの（同じコミットを先に work/1019-lnk へ push したため）。本番のビルドの check-run は出ていない。「Workers Builds: mj-ask」は 13:56 から `in_progress`
+- 本番（クエリ無しと `?v=l5x31`・`?v=n1`・`?v=n2`）: 14:15 UTC の時点で `/img/ogp/pros/index-white.png` は 404（text/html）、`/jpml_pros.html` の og:image は旧 `https://ryoei.pro/img/ogp/site/index-white.png`・og:image:alt「ryoei.pro」のまま。待機の上限（15分）を超えたので、ここで止めて未確認の項目にした
+- 後から cloudflare に入ったコミット（7249a1de6 など）も、付いた「Workers Builds: mj」はプレビューだけだった。本番のビルドが走っていないか遅れている（原因はセッションから確かめられない。ダッシュボードの Workers Builds の履歴で確かめられる）
+- #616（クローズ済みのまま）に、マージしたことと本番が未確認であることを書いた
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1019-lnk
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1019-LNK-05.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1019-lnk
+- 確認用URL: なし（LNK-04 のプレビューを平野さんが確認済み）
+- マージ: 済（ec8c5cbca）
+- issue: #616（クローズ済み。結果をコメント）
+- 判断が必要なこと:
+  - 本番に反映されていない（マージの約20分後も `/img/ogp/pros/index-white.png` が 404、`jpml_pros.html` の og:image が旧のまま）。Workers Builds の本番のビルドが ec8c5cbca 以降で走ったか、ダッシュボードの履歴で確かめてほしい。走っていなければ再実行が要る
+- 未確認の項目:
+  - 本番で `/img/ogp/pros/index-white.png` が 200（image/png）、`/jpml_pros.html` の og:image がその画像・og:image:alt が「連盟プロ」であること（クエリ付きを含む）
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj ec8c5cbc）: https://github.com/retroeater/mj-logs/tree/main/guide/ec8c5cbc
+ガイド文書（この版を写した時点の最新、mj 7249a1de）: https://github.com/retroeater/mj-logs/tree/main/guide/7249a1de
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ec8c5cbc/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ec8c5cbc/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ec8c5cbc/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ec8c5cbc/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ec8c5cbc/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/ec8c5cbc/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/7249a1de/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/7249a1de/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/7249a1de/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/7249a1de/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/7249a1de/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/7249a1de/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/19fa8d37.md
