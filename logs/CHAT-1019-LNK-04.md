@@ -46,6 +46,53 @@ Chat-Ref: CHAT-1019-LNK-04
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 0章・ブランチ
+
+- 指示欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている。`git log --all --grep=CHAT-1019-LNK-04` は0件
+- 貼る時機の前提: origin/cloudflare の `navbar.js` に `連盟プロ<br>Pros` が1件、`連盟<br>JPML` が0件
+- `work/1019-lnk` はローカル・リモートとも cloudflare の祖先（LNK-03 でマージ済み）。cloud-sessions.md のとおり `git merge --ff-only origin/cloudflare` で 0e0523963 へ進めた
+
+### 手順1
+
+- 未マージのブランチで `scripts/generate_jpml_pros.py`・`scripts/tests/test_og_image.py`・`docs/notes/ogp.md`（と `docs/decisions/seo-bing.md`）を変えているものは無い
+- `jpml_pros.html` の今の og:image: `https://ryoei.pro/img/ogp/site/index-white.png`（og:image:alt「ryoei.pro」、1200×630）。出しているのは前提どおり `generate_jpml_pros.py` のテンプレート（直書きの meta の4行。`lib/page.py` の `PageMeta` は使っていない）
+
+### 手順2
+
+- 字体: コンテナに `~/.local/share/fonts/NotoSansJP-Bold.otf` が無かったので、docs/notes/title-pages.md のとおり `raw.githubusercontent.com/notofonts/noto-cjk` の `Sans/SubsetOTF/JP/NotoSansJP-Bold.otf` を取得した（スクラッチ外のホームの字体の置き場。リポジトリには入れない）
+- 作り方の確かめ: 同じ引数（`--footer ryoei.pro --color '#212529' --bg '#ffffff' --max-size 200 --tracking -0.03`）の `--check` で、鳳凰戦・タイトル戦・女流桜花の画像はコミット済みの PNG と一致した（ogp.md の作り方どおり）。WRC-R（`--text WRC-R`）は一致しなかった（作ったときの文字が別だった可能性。今回の範囲ではないので調べていない）
+- 画像: `python3 scripts/build_ogp_image.py --text 連盟プロ --footer ryoei.pro --color '#212529' --bg '#ffffff' --max-size 200 --tracking -0.03 --out img/ogp/pros/index-white.png`（1200×630、18,578 bytes）。区分のディレクトリ名は `pros`（ページ名 `jpml_pros` の区分。既存は site・title・houou・ouka・jwrc・wrcr・saikyo）
+- 収まり: 字の範囲（黒の外接矩形）は 連盟プロ x 215–967・y 176–454、鳳凰戦 x 311–891・y 176–455、タイトル戦 x 125–1085・y 176–455。上限 200px のまま幅に収まり、高さ・位置はほかの区分と同じ
+- `generate_jpml_pros.py` の og:image を `https://ryoei.pro/img/ogp/pros/index-white.png`、og:image:alt を「連盟プロ」にした（ほかの区分の画像の alt は区分名）。`jpml_pros.html` の同じ2行も同じにした（下の再生成で、生成の出力と一致することを確かめた）
+- テスト: `test_og_image.py` の `TEXT_IMAGES` に足した。1444件 OK
+- 文書: `docs/notes/ogp.md` の表（区分の画像の行に `jpml_pros.html`「連盟プロ」を足す、下位メニューしか無いグループを今のメニューの「番組・リソース・良栄」に）と文字の画像の段落（「例外のタイトル戦」の経緯と連盟プロを足した）。`docs/notes/static-generation.md` の `build_ogp_image.py` の説明（共通画像を使う所から `generate_jpml_pros.py` を外し、「4種類だけ」を ogp.md の規則の参照に）
+- 決定: `docs/decisions/seo-bing.md` に「2026-10-19（CHAT-1019-LNK-04）」を足し、2026-10-16（OGR-06）の「例外のタイトル戦（メニューでは「連盟」の下）」と「下位メニューしか無いグループ（連盟・…）」の2行に置き換えの注記を付けた（消していない）
+- 成果物のコミット 5c296ca5b
+- 再生成: スクラッチのクローン2つ（a = 5c296ca5b、b = origin/cloudflare の 0e0523963）で `python3 scripts/regenerate.py all`。どちらも rc=0、`git status --short` は両方0件（データの変化なし。a ではコミットした `jpml_pros.html` と生成の出力が一致）
+- a と b の木の差（`diff -rq`、`.git`・`__pycache__` を除く）: `jpml_pros.html`（16行の og:image と19行の og:image:alt の2行だけ）・`img/ogp/pros/`・`scripts/generate_jpml_pros.py`・`scripts/tests/test_og_image.py`・`docs/notes/ogp.md`・`docs/notes/static-generation.md`・`docs/decisions/seo-bing.md`・このログ。説明できない差は無い
+
+### 手順3
+
+- `docs/logs/CHAT-1019-LNK-04/`: `pros.png`（作った画像）・`houou.png`・`title.png`（比べるための既存の画像の写し）
+- プレビュー（5c296ca5b の「Workers Builds: mj」success。URL は最終報告だけ）: `/img/ogp/pros/index-white.png` は 200（image/png、中身はコミットしたファイルと一致）。`/jpml_pros.html` の og:image は `https://ryoei.pro/img/ogp/pros/index-white.png`、og:image:alt は「連盟プロ」
+- og:image の URL は本番のドメイン（ryoei.pro）を指すので、マージして本番に反映されるまで、SNS のカードには新しい画像が出ない（ほかの区分の画像と同じ）
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1019-lnk
+- ログ: https://github.com/retroeater/mj/blob/work/1019-lnk/docs/logs/CHAT-1019-LNK-04.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1019-lnk
+- 確認用URL: プレビューあり（URL は最終報告）。確認したのは `/jpml_pros.html` の og:image と `/img/ogp/pros/index-white.png`。この版で見える印: `jpml_pros.html` の og:image が `img/ogp/pros/index-white.png`（白地に黒字の「連盟プロ」と「ryoei.pro」）
+- マージ: 未（平野さんの判断待ち）
+- issue: なし（#616 の続き）
+- 判断が必要なこと:
+  - 画像（`docs/logs/CHAT-1019-LNK-04/pros.png`。鳳凰戦・タイトル戦と並べてある）を見て、cloudflare へマージしてよいか
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
