@@ -55,6 +55,36 @@ Chat-Ref: CHAT-1020-SEC-15
 - 0: 「指示」欄の末尾は指示文の最後の行（「不明な点があれば、…この行が指示文の最後の行です。」）と一致。
 - Chat-Ref 重複なし（`git log --all --grep`）。`work/1020-sec15` はローカル・リモートとも無し → `git checkout -b work/1020-sec15 origin/cloudflare`。
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている。着手 2026-10-20 01:39 JST（push を止める時間帯の外）。
+- SEC-14 のログの状態を「判断待ち / 続き: CHAT-1020-SEC-15」にしてコミット（63292249e）。
+
+### 手順1（確かめ）
+
+- #598: Open。SEC-14 のログの `## 報告` に低-10（`ask.mjs:375`）・低-4（`ask.mjs:184-189` の `json()`）がある。今の行は `json()` が 185〜190、大会の検査が 375（まだ直っていない）
+- `git branch -r --no-merged origin/cloudflare` の work/ ブランチで `workers/ask/src/ask.mjs` を変えているものは無い（`git diff origin/cloudflare...<各ブランチ> -- workers/ask/src/ask.mjs` が空）
+- #598 に着手中のコメント（issuecomment-6272235817）
+
+### 手順2（直し）
+
+- テストを先に `workers/ask/test/ask.test.mjs` に2本足した:
+  - 「大会名がプロトタイプの名前(__proto__ など)なら知らない大会として受け付けず、数えない」: `__proto__`・`constructor`・`toString`・`hasOwnProperty` が 400 `{"status":"invalid","reason":"bad_request"}`、`daily_counts` が空（数えない）、fetch（Claude API）が0回
+  - 「応答に x-content-type-options: nosniff が付く」: `status()` の 200 と `ask()` の 403
+- 直す前の src で回すと2本とも落ちた（83 件中 81 通過・2 失敗。nosniff は `null !== 'nosniff'`）
+- 直し（`workers/ask/src/ask.mjs`）:
+  - 低-10: `deps.contests?.[body.contest]` を、`body.contest === undefined` なら `deps.data`、そうでなければ `deps.contests && Object.hasOwn(deps.contests, body.contest)` のときだけ `deps.contests[body.contest]` に。外れれば `data` が undefined のまま、既存の `if (!data)` で 400（回数を数える前）
+  - 低-4: `json()` の headers に `'x-content-type-options': 'nosniff'`
+- 直した後: ask 83・scheduler 44 件、`python3 -m unittest discover -s scripts/tests` 1450 件すべて通る
+- 範囲の外として残したもの: `workers/ask/src/index.mjs` の 405・404 の応答（`new Response(null, …)`・`'Not Found'`）にも nosniff は無い（本文が空か短い文字列。指示の範囲は `json()` だけ）
+- docs:
+  - `docs/notes/security.md`: (a) の「入力の検査」に「大会名などの表をプロトタイプ経由で引かない、#598 低-10」を足し、Claude Security の「回し方」を 2026-10-20 の決定に直した
+  - `docs/decisions/security.md`: `## 2026-10-20（CHAT-1020-SEC-15）` を足した（決定3つ＋確認の結果）。2026-10-18（CHAT-1018-SEC-07）の Claude Security の行に「→ 置き換え: 2026-10-20（CHAT-1020-SEC-15）」を付けた
+  - `docs/notes/ask-worker.md` に応答のヘッダの記述は無い（`_headers` の語は Routes の説明だけ）ので変えていない
+- コミット: 26b3804ea（fix）・310a707e3（docs）
+
+### 手順3（マージ前）
+
+- `git fetch origin cloudflare` の後 `git merge origin/cloudflare` は変化なし（cloudflare は e7c8d9e08 のまま）。`git merge-base --is-ancestor origin/cloudflare HEAD` は真
+- cloudflare との差分: `docs/decisions/security.md`・`docs/logs/CHAT-1019-SEC-14.md`・`docs/logs/CHAT-1020-SEC-15.md`・`docs/notes/security.md`・`workers/ask/src/ask.mjs`・`workers/ask/test/ask.test.mjs` だけ（範囲内）
+- テストを回し直して ask 83・scheduler 44・unittest 1450 件すべて通る
 
 ## 報告
 
@@ -72,12 +102,12 @@ Chat-Ref: CHAT-1020-SEC-15
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj e7c8d9e0）: https://github.com/retroeater/mj-logs/tree/main/guide/e7c8d9e0
+ガイド文書（この版を写した時点の最新、mj 2ec24f23）: https://github.com/retroeater/mj-logs/tree/main/guide/2ec24f23
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e7c8d9e0/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e7c8d9e0/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e7c8d9e0/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e7c8d9e0/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e7c8d9e0/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e7c8d9e0/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/2ec24f23/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/2ec24f23/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/2ec24f23/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/2ec24f23/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/2ec24f23/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/2ec24f23/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/e7c8d9e0.md
