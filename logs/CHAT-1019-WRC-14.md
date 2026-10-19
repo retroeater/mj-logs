@@ -55,15 +55,111 @@ WRCリーグ（jwrc/）は 2026-10-19 に公開した（CHAT-1019-WRC-12）。X 
 
 着手後は質問せず、不明な点は仮置きで進めて報告の「判断が必要なこと」に書いてください。この行が指示文の最後の行です。
 
+## 経過
+
+### 0章
+
+- 「指示」欄の末尾は指示文の最後の行（「着手後は質問せず、…この行が指示文の最後の行です。」）と一致
+- CHAT-1019-WRC-13 の `## 報告` の状態「判断待ち（#571 は閉じた。告知の形がチャット側の後日の判断）」の末尾に ` / 続き: CHAT-1019-WRC-14` を足した
+- `git log --all --grep="CHAT-1019-WRC-14"` は空。`WRC` はこのセッションの続きで使っている識別子
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある（冒頭の数行が1行につながって貼られていた。中身はそろっている）
+- 作業ブランチ: origin/cloudflare（d8b213689）から work/1019-wrc14
+
+### 1. 読んだもの・構成
+
+- 読んだもの: `scripts/promo_video/ouka/`（README・setup.sh・build.sh・capture.mjs・compose.py・composition/index.html）、docs/notes/page-announcement.md「告知動画の型」、docs/notes/ouka-top.md「告知動画」、CHAT-1019-OUK-19・21〜24 のログ
+- **使い回さず `scripts/promo_video/jwrc/` に分けた**（ouka/ の capture.mjs は大会名・URL・選手・質問・リーグの再生の場面を直書きしており、jwrc/ には「リーグ」のタブが無いため。写して直した方が ouka/ の作り直しを壊さない）。ouka/・houou/・title/ のスクリプトは変えていない（origin/cloudflare との差 0）
+- ouka/ との違い:
+  - リーグの再生の場面（ouka/ で約11秒）を外した。そのぶん短くなり44.3秒（ほかの場面の秒は ouka/ のまま）
+  - ランキングの切り替え先は通過回数（`pass-count/`。石立岳大が1位〈11回〉。通過率は4位、連続通過は3位）
+  - 順位変動の選ぶ所の枠は期（ステッパー）だけ（リーグの行が無い）。表は既定の第19期
+  - 名前の面に「最高到達」と「出場 n期（通過n回）」があることを撮るときに確かめる（無ければ止まる）
+- 秒・画面・字幕の表（撮る前の仮置き。撮った後の実際の秒は下の「3. 出来上がり」）:
+
+| 場面 | 画面 | 字幕 |
+|---|---|---|
+| タイトル | 白地に「WRCリーグ」「個人成績・ランキング・順位変動」（最初のコマから出す） | なし |
+| トップ | 質問欄と3項目に枠 | WRCリーグのデータをひとつに |
+| 質問欄 | 「通算成績の1位は？」を打つ → 送る → 調べています… → 答えと石立岳大のカードに枠 | 質問すると、データから答える |
+| 選手を開く | カードを押す → 個人成績（名前の面に最高到達・出場 15期〈通過11回〉） | 答えから選手の成績へ |
+| 期別 | 期の行（結果のチップ「通過」金・「敗退」灰色）を送って戻す | 全期の成績と通過・敗退 |
+| 通算 | 通算のタブ → グラフ（通過の期の金の丸） | 通算得点の推移 |
+| 部門別 | 部門別のタブ → 9部門の表 | ランキング9部門の順位 |
+| ランキング | 通算の行 → ランキング（石立岳大の行が色付き）→ 通過回数へ切り替え | 通過回数など歴代の記録 |
+| 順位変動 | 第19期。期の選ぶ所に枠 → 完了 → ▶ → 1節を実際の速さ → 残りを3倍 → 1位が映る位置で止める | 通過ボーダーの攻防を再現 |
+| 範囲 | 最終結果で止めたまま | 第1期〜第19期・320名（トップの説明文から読む） |
+| 締め | 白地に `img/ogp.png` の「ryoei.pro」が1秒で現れる | なし |
+
+### 2. 撮影と描画
+
+- 環境: `scripts/promo_video/jwrc/setup.sh`（title/setup.sh を呼ぶ）が `fonts-noto-cjk` を見つけられず止まったので、`apt-get update` の後にもう一度実行して通した（ouka/ のときと同じ。スクリプトは変えていない）
+- 質問欄の答え: 2026-10-19 06:37:59Z（UTC）に本番の `/api/ask` へ1回だけ送った（`{"question":"通算成績の1位は？","contest":"jwrc"}`）。返った JSON（撮り直しで `ask-answer.json` に置く）:
+  `{"status": "answered", "lead": "", "answer": "石立岳大さんが通算成績の1位で、値は1587.3です。", "notes": [], "asof": ["WRCリーグ 第19期終了時点"], "sources": [{"label": "WRCリーグ ランキング（通算）", "url": "/jwrc/ranking/total/"}], "remaining": 9}`
+  カードは石立岳大の1行（「最高到達 優勝 2回（12期・11期） · 出場 15期（通過11回）」）。撮る側は本番へ送らず、この答えを返した（送った回数 1）
+- 撮影は本番 https://ryoei.pro/jwrc/ （iPhone 13、390×664・3倍）で1回で通った（`mustFit()` の検査はすべて通過）
+- 作業フォルダは scratchpad（使い捨て。撮り直しは README のとおり setup.sh から作り直せる。質問欄の答えは上の JSON）
+
+### 3. 出来上がり
+
+- 出力: 1080×1920・30fps・H.264（High、yuv420p）・AAC 48kHz 2ch・**44.3秒**・10.0MB・曲調 b。音量 -16.0 LUFS（loudnorm の測定、true peak -3.8 dBTP）
+- 場面ごとの秒（動画の時刻）:
+
+| 場面 | 秒 | 字幕 |
+|---|---|---|
+| タイトル | 0〜2.5 | なし（「WRCリーグ」「個人成績・ランキング・順位変動」） |
+| トップ | 2.5〜5.0 | WRCリーグのデータをひとつに |
+| 質問欄 | 5.0〜10.51 | 質問すると、データから答える |
+| 選手を開く | 10.51〜12.51 | 答えから選手の成績へ |
+| 期別 | 12.51〜15.41 | 全期の成績と通過・敗退 |
+| 通算 | 15.41〜19.21 | 通算得点の推移 |
+| 部門別 | 19.21〜21.31 | ランキング9部門の順位 |
+| ランキング（通過回数へ切り替え） | 21.31〜26.31 | 通過回数など歴代の記録 |
+| 順位変動 | 26.31〜38.18 | 通過ボーダーの攻防を再現 |
+| 範囲（最終結果で止める） | 38.18〜40.78 | 第1期〜第19期・320名 |
+| 締め | 40.78〜44.28 | なし（ryoei.pro） |
+
+- 字幕の全文（順に）: 「WRCリーグのデータをひとつに」「質問すると、データから答える」「答えから選手の成績へ」「全期の成績と通過・敗退」「通算得点の推移」「ランキング9部門の順位」「通過回数など歴代の記録」「通過ボーダーの攻防を再現」「第1期〜第19期・320名」（画面のタイトルは「WRCリーグ」「個人成績・ランキング・順位変動」）
+- 確かめたこと:
+  - 最初のコマ（0秒）からタイトルの2行がはっきり出ている
+  - 字幕は上端から 80〜210px（雛形の `.cap` の top 80px・高さ 130px、ouka/ と同じ）。下端から10%以上離れている（字幕は上だけ。電話の枠の下端は 1690px）
+  - 白いままのコマ: 電話の枠（846×1440）の中の明るさの平均が 250 を超えるコマは0件（全コマを測った）
+  - 順位変動の結果の画面: **1位〜18位が映る**（1位の行の上端 50px は節の番号の段の下端 50px と同じで、隠れていない。19位は下で切れる）
+  - ランキング: 通算で石立岳大（1位 +1587.3）の行が色付き → 通過回数で石立岳大が1位（11回）
+- **通過ライン（第19期は29人目の下）は、順位変動のどの場面にも映らない**: 最初の画面は1〜13位、▶ を押した後と最終結果は1〜18位までで、29位は画面の下の外。1位から映す止め方（決定）では、29位までは1画面に入らない（行の高さ約33px×29行）。字幕の「通過ボーダーの攻防を再現」は、ボーダーが画面に出ないまま出ている（判断が必要なこと）
+- 制作のスクリプト: `scripts/promo_video/jwrc/`（README.md・setup.sh・build.sh・capture.mjs・compose.py・composition/index.html）を作業ブランチに push（31a8b16bf。マージしない）
+- mp4 を `SendUserFile` で平野さんに送った（jwrc-promo-b.mp4）
+
+## 報告
+
+- 状態: 判断待ち（告知動画の初版を送った。確定か直しかは平野さんが見て決める）
+- ブランチ: work/1019-wrc14（マージしない）
+- ログ: https://github.com/retroeater/mj/blob/work/1019-wrc14/docs/logs/CHAT-1019-WRC-14.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1019-wrc14
+- 確認用URL: なし（動画は SendUserFile で送った。44.3秒・曲調 b。この版の印: 順位変動の最終結果は第19期の1〜18位で止まる）
+- マージ: 未（確定の後、別の指示で制作のスクリプトと文書をマージする）
+- issue: なし（#599 はクローズ済み。告知の後に記録する先は指示で決める）
+- 判断が必要なこと:
+  - 動画の確定か直しか（平野さんが見て決める）
+  - 通過ライン（第19期は29人目の下）が画面に映らない。字幕「通過ボーダーの攻防を再現」のままにするか、字幕を変えるか（例「各節の結果で、順位が入れ替わる」）、通過ラインが映る位置まで送るか（ただし1位の行は外れる。上位が映る位置で止める決定との兼ね合い）
+  - 仮置きしたこと:
+    - 各場面の秒（ouka/ の配分のまま。リーグの再生の場面が無いぶん短く44.3秒。60秒に余裕がある）
+    - 字幕の文言（上の全文。特に「全期の成績と通過・敗退」「通過回数など歴代の記録」「通過ボーダーの攻防を再現」）
+    - 質問の文「通算成績の1位は？」（答え「石立岳大さんが通算成績の1位で、値は1587.3です。」）
+    - ランキングの切り替え先は通過回数（石立岳大が1位。通過率は4位、連続通過は3位）
+  - 告知の投稿文と投稿の時機（チャット側）
+- 未確認の項目:
+  - X に上げたときの見え方（サムネイル・再生の操作部との重なり）
+- エラー: なし（setup.sh は `apt-get update` の後に通した。ouka/ のときと同じ）
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 268fdb4e）: https://github.com/retroeater/mj-logs/tree/main/guide/268fdb4e
+ガイド文書（この版を写した時点の最新、mj 10e55a48）: https://github.com/retroeater/mj-logs/tree/main/guide/10e55a48
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/268fdb4e/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/268fdb4e/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/268fdb4e/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/268fdb4e/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/268fdb4e/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/268fdb4e/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/10e55a48/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/10e55a48/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/10e55a48/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/10e55a48/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/10e55a48/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/10e55a48/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/4e223c8f.md
