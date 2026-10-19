@@ -114,6 +114,38 @@ CHAT-1019-ACF-27 で、`docs/logs/`・`docs/decisions/` 以外のファイルが
 - permalink の SHA: 指示の「削除のコミットの親」は、書き換えのコミットが削除のコミットより前にあるため、書き換えの中には書けない（親は書き換えの後のコミットになる）。代わりに、書き換えの前の cloudflare の 0122413ee を使った。23件の中身は 4db85e095（ACF-27 の親）から 0122413ee まで変わっていない（`git diff --stat` が空）。削除の直前にも変わっていないことを確かめる（下）
 - 全リンクの先が、その SHA にファイルとしてあることを `git cat-file -e` で確かめた（9件）。テスト `python3 -m unittest discover -s scripts/tests` は 1427件 OK
 
+### 手順1: 仕分け
+
+- ACF-27 と同じく、読むだけのサブエージェント2つ（12件・11件）で1本ずつ読んで仕分け、結果を受け取った
+- 件数: **a 21件・b 2件（#390〈CHAT-1002-DOJ-03〉・#496〈CHAT-1002-INV-02〉）・c 0件**（#610 への追記なし）
+- 判断が分かれうる1本: CHAT-1002-CLD-03 の未確認「v8I76nBJHyc が『直す』になった理由」は理由そのものは分かっていないが、続く CLD-04 で説明欄を調べ、CLD-06 で予定を直してマージ済み・#448 も closed のため a にした
+
+| ログ | 状態 | 未済事項の要約 | 区分 | 根拠または書き写し先 |
+| --- | --- | --- | --- | --- |
+| CHAT-0930-BNG-05 | 完了（docs のみ、マージ済み） | なし | a | 任意とされた BNG-01〜04 の決定の遡り追記は docs/decisions/seo-bing.md に BNG-02〜04 の節として入っている。#126 は closed。未確認の項目・エラーは「なし」 |
+| CHAT-0930-CAL-15 | 完了（97d0b4f5 でマージ済み） | なし | a | #479 は closed。未確認だったマージ後の毎日の実行は、その後も run-daily.yml（毎朝の運行）が 10-18 まで success で続いている（グリッドは超えると自動で足す実装）。判断が必要なことは事後報告のみ |
+| CHAT-0930-OLT-01 | 完了（調査のみ、ログをマージ済み） | なし | a | 廃止の論点は docs/decisions/title.md「旧表 jpml_titles.html は廃止する。/title/ へ301で転送し…?name= も受け取る（案 c2）」で決定。今のコードは _redirects に `/jpml_titles.html /title/ 301` があり旧ファイルは削除済み。#441・#269 は closed |
+| CHAT-1002-CLD-02 | 完了（案(1)で32件削除済み。続き CHAT-1002-CLD-03） | なし | a | 32件の削除は状態欄のとおり 10-03 の同期で済み。10-08 鳳匠戦ベスト16 C卓・D卓の確認は docs/decisions/broadcast-calendar.md 2026-10-09（CHAT-1002-CLD-19）で済み、#448 は closed |
+| CHAT-1002-CLD-03 | 完了（docs のみ、f35729a7 でマージ済み） | なし | a | 10-08 C卓・D卓は CHAT-1002-CLD-19 で確認済み（#448 closed）。v8I76nBJHyc は続く CLD-04 で説明欄の差（9人目）を調べ、CLD-06 で予定を【3】の値に直してマージ済み（broadcast-calendar.md 2026-10-03 CLD-06） |
+| CHAT-1002-CLD-04 | 完了（判断: 【3】に値がある見出しは【3】だけ。続き CLD-06） | なし | a | 直し方は CLD-05 で決定・CLD-06 で実装（broadcast-calendar.md 2026-10-03）。別件の「◎B卓 関本幸樹」は 31b59136b（#490 見出しの接頭辞除去）の後、CHAT-1002-CLD-20 で FXtYzZBEtXA の対局者が8名の正しい名前だけと確認済み。#448 closed |
+| CHAT-1002-CLD-05 | 完了（判断: 【3】の値だけを使う。続き CLD-06） | なし | a | jt4E_u--mxg の扱いは broadcast-calendar.md 2026-10-03（CLD-06）で決定し実装・マージ（c42c8735）。さらに CLD-09 で【4】カレンダー非掲載に。#448 closed |
+| CHAT-1002-CLD-06 | 完了（c42c8735 でマージ済み） | なし | a | 残った未確認の 10-08 C卓・D卓は CHAT-1002-CLD-19 で確認して #448 を closed（broadcast-calendar.md 2026-10-09）。v8I76nBJHyc・jt4E_u--mxg はその後の CLD-09・CLD-20 の確認の対象で、後者は【4】で非掲載 |
+| CHAT-1002-CLD-07 | 完了（判断: 【3】3147行を案Bに書き換え。続き CLD-08） | なし | a | jt4E_u--mxg は broadcast-calendar.md 2026-10-04（CHAT-1002-CLD-09）で「【4】カレンダー非掲載」に入れ予定は全編だけになったため、件名に南場を出す論点は消えた。/live の見出しは live.md（CLD-13・14 の続き）で【3】の枝番「4回戦 南場」で決定 |
+| CHAT-1002-DOJ-01 | 完了（マージ済み） | なし | a | 22件の書き込みと手段は docs/decisions/dojo-guest.md 2026-10-02（DOJ-02: 読み取り結果を保存して書き込む）で決定・実施、10月分は平野さんが確認済み（DOJ-03 の節）。B1 の見出しは DOJ-03 の報告で直っていたと確認 |
+| CHAT-1002-DOJ-03 | 完了（dcc5cf21 でマージ済み） | 道場部ゲストの書き込み済みの月の画像差し替え時の自動更新（予定の書き換え・削除、サービスアカウントの権限を含む）が本番で未確認。翌月分の掲載後に当月の差し替えを検知できるかも本番で未確認 | b | #390（open）。この実装の issue で、#390 のコメントに同じ未済事項（本番でまだ一度も動いていない）が既に書かれている |
+| CHAT-1002-INV-01 | 完了（論点は #221 に移した。CHAT-1012-ACF-05） | なし | a | 論点（「親: #n」と sub-issue の不一致）は CHAT-1012-ACF-05 で #221 に移し済み（docs/decisions/operations.md の CHAT-1012-ACF-04 の移し先の行）。報告の判断・未確認は「なし（#221 に移した）」 |
+| CHAT-1002-INV-02 | 完了 | #496（issue のクローズでカレンダー「ryoei.pro」の予定を自動で済みにする）を進めるには、既存のサービスアカウント（GCP_SA_KEY）をカレンダー「ryoei.pro」に「予定の変更」権限で共有する平野さんの作業が要る。 | b | 書き写し先 #496（open。本文の「決めること」「前提作業」に同じ論点がある）。ほかの項目は済み: INV-03 の範囲は CHAT-1003-INV-03（ee771096 ほか）で処理し、.github・birthday-calendar.md に #370 を通知先とする記述は今は無い（git grep）。#491・#482 は closed。Projects ボードは今は使わない（CLAUDE.md） |
+| CHAT-1003-INV-04 | 完了 | なし | a | 10-05 の check-meibo の予約実行は success（#472 の 2026-10-05 のクローズのコメント、CHAT-1005-RUN-07）、#472 closed。blocked by の向きは #382・#428 とも closed で論点が消えた。#124 closed |
+| CHAT-1003-RUN-01 | 完了 | なし | a | #457 は 2026-10-04 にクローズ（CHAT-1004-RUN-04。CSV はリポジトリに置かない、残る作業は無いと決定）。404・5xx の今の状態は #11（closed）につないだ |
+| CHAT-1004-VID-03 | 完了（CHAT-1004-VID-04 で cloudflare へマージ） | なし | a | 動画は CHAT-1004-VID-07 で標準版に確定（d82931aa、docs/decisions/title.md 2026-10-04 VID-07）。マージ済み。docs/notes/title-pages.md「告知動画」に確定版・作り直しの手順がある。「全行で一致」の記述は「2026-09-28 時点で」と日付つきで書かれている |
+| CHAT-1004-VID-05 | 完了（CHAT-1004-VID-07 で cloudflare へマージ。確定は標準版） | なし | a | どれを投稿するかは CHAT-1004-VID-07 で標準版・音楽 B に確定（docs/decisions/title.md 2026-10-04 VID-07、d82931aa）。title-pages.md「告知動画」の節も直っている。X への投稿は平野さんが行う |
+| CHAT-1004-VID-06 | 完了（CHAT-1004-VID-07 で cloudflare へマージ。確定は標準版） | なし | a | 標準版で確定し比較版は採らない（docs/decisions/title.md 2026-10-04 VID-07、d82931aa）。title-pages.md「告知動画」に VARIANT・曲調・字幕の自動の時刻が書かれている |
+| CHAT-1005-RVW-07 | 中断（続きは CHAT-1005-RVW-09） | なし | a | 「辞書」タブを正とし625語、「備考」は出さないと決定（docs/decisions/features.md 2026-10-06 CHAT-1005-RVW-09）。#377 closed |
+| CHAT-1005-RVW-10 | 中断（続きは CHAT-1005-RVW-11） | なし | a | 続きの CHAT-1005-RVW-11 で実装、RVW-13 でマージ（docs/decisions/features.md 2026-10-07 RVW-10・RVW-12）。static-generation.md「ページの一覧」に辞書と houou_race の行が両方ある。#377 closed |
+| CHAT-1005-UNR-10 | 判断待ち | なし | a | 続きの CHAT-1005-UNR-11〜13 で13名・277名・RMU を処理し、残り295行は今のままと決めて #500 を閉じた（#500 の締めのコメント、docs/decisions/live.md 2026-10-05 UNR-12・UNR-13）。#500 closed |
+| CHAT-1006-LGR-05 | 完了 | なし | a | 出場なしの選手の扱いは CHAT-1006-LGR-07 で置き換え（docs/decisions/houou.md 2026-10-06）。ページは #540 で公開し houou/race/ へ 301（static-generation.md「ページの一覧」）。#507 closed |
+| CHAT-1006-PHT-06 | 判断待ち（続き: CHAT-1007-PHT-09） | なし | a | 診断と表示（案 A・B）は CHAT-1007-PHT-09 で入れ、その後 X 公式 API への切り替えとヘッドレス Chromium の解決の削除を決定（docs/decisions/saikyo.md 2026-10-09〜10 CHAT-1010-XAP-02）。今の scripts/・.github に解決用の headless Chrome は無い（git grep）。残りの経過は open の #514 が追う |
+
 ## 報告
 
 - 状態:
