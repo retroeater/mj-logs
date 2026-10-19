@@ -1,0 +1,761 @@
+# Cloudflare 関連の実装記録
+
+このファイルは完了済み作業の記録。現状とルールは docs/handover.md。
+
+---
+
+### 配信まわりの整理（2026年9月10日に完了）
+
+9月9日〜10日で以下を実施し、配信まわりが一区切りついた。
+
+| # | 内容 | 効果 |
+|---|---|---|
+| #94 | アイコンフォント2種を廃止しSVG化 | 使用は19種類のみだったのにフォント2セットを全ページで配信していた |
+| #93 | Google Fonts の廃止 | index.html のみが Open Sans / Poppins / Raleway を読んでいた。外部2ドメインが消えた |
+| #99 | Bootstrapのソースマップ参照を削除 | `.map` への404が24時間で28件発生していた |
+| #92 | 静的アセットのキャッシュヘッダ | 画像に1年、vendorに30日 |
+| #98 | php-email-form の削除 | PHPが動かない環境でPHP用フォーム検証を配信していた |
+| #100 | フッターの著作権表示を修正 | テンプレートのプレースホルダが残っていた |
+
+#### 配信の実測（2026-09-11 に確認）
+
+| 確認項目 | 結果 | 意味 |
+|---|---|---|
+| `curl -sI https://www.ryoei.pro/jpml_pros.html` | **200** | www と apex の両方が同じ内容を配信していた。**Redirect Ruleで解消済み（下記）** |
+| `curl -sI https://ryoei.pro/jpml_pros.html` の `cf-cache-status` | **HIT** | HTML はすでにエッジキャッシュから配信されている |
+
+**HTML はすでにキャッシュされているため、Cache Rules で HTML のエッジキャッシュを
+足す余地はない。** 「Initial server response time 400ms」の原因はキャッシュ不足では
+なく、Workers 静的アセット配信そのものの応答時間である、という当初の記録が
+実測で裏付けられた。同じ検討を繰り返さないこと。
+
+副次的に、Speed Brain の動作条件のひとつ「キャッシュ適格であること」は
+満たされていることも確認できた。
+
+#### www→apexのRedirect Rule（#115、2026-09-11対応完了）
+
+| 項目 | 値 |
+|---|---|
+| 一致条件 | Wildcard pattern |
+| Request URL | `https://www.ryoei.pro/*` |
+| Target URL | `https://ryoei.pro/${1}` |
+| Status code | 308 |
+| Preserve query string | 有効 |
+| Place at | First |
+
+`_redirects` ではなく Redirect Rule を使ったのは、`_redirects` がパスでしか
+分岐できずホスト名で条件を書けないため。
+
+**Preserve query string は必須。** `?name=` 付きURLが検索流入の主力（検索結果に
+出た22URLのうち14件、SEO節）で、無効にすると www 経由の流入が全件表示ページに
+着地してしまう。エンコード済みURLで308とクエリ文字列保持済みの`location`を確認済み。
+
+#### Cloudflareの機能が「効くかどうか」の判定について
+
+Workers 静的アセット配信にはオリジンサーバーが存在しないため、
+オリジンを前提とする機能は効かない（#71 / Polish / Mirage / Argo）。
+2026-09-11 に Speed Brain も同じ理由で効かないことが確認された。
+
+**判定は「設定が有効か」ではなく「実際の動作」で見ること。**
+Speed Brain の場合、有効化すると `Speculation-Rules` ヘッダは正常に付与される。
+しかし実際の prefetch リクエストは全件拒否される。
+
+    curl -sI -H "sec-purpose: prefetch" https://ryoei.pro/jpml_pros.html | head -1
+
+    HTTP/2 503
+    cf-speculation-refused: prefetch refused: disabled for worker requests
+
+結果は 2026-09-11 に当時の `/jpml_titles.html`（#441 で廃止）で実測したもの。2026-09-30 に上のコマンドを実行すると
+`HTTP/2 200`（`cf-speculation-refused` なし）だった。Speed Brain の今の設定はこの環境からは確かめられない。
+
+ヘッダの有無だけを見ると「機能している」と誤判定する。
+今後 Cloudflare の新機能を検討するときは、同じ落とし穴に注意すること。
+
+**ダッシュボードの表示は外部記事より優先する（#130、2026-09-13）。**
+Cloudflareの仕様変更について外部記事を根拠にhandoverの記述を
+書き換えたが、実際のダッシュボードと食い違っていた。設定画面で
+確認できることは、平野さんにスクリーンショットを依頼してから
+判断すること。
+
+#### 日本語を含むURLをcurlで検証すると400が返る（curl固有の挙動、実害なし）
+
+curl は URL の非ASCIIバイトをそのまま送るため、HTTP リクエストラインの
+パース段階でエッジが 400 を返す。ブラウザは href を解釈してリクエストを送る
+時点で自動的にパーセントエンコードするため、実際のクリック遷移では起きない。
+apex へ直接投げても同じ 400 になることを確認済みで、www リダイレクト（#115）とは
+無関係。
+
+生成ページの内部リンクは `?name=夏目一花` のように日本語をそのまま HTML 属性値に
+埋め込んでいるが、これは仕様上問題ない。
+
+検証するときは URL エンコード済みの形を使うこと:
+
+    curl -sI "https://www.ryoei.pro/jpml_pros.html?name=%E5%B9%B3%E9%87%8E%E8%89%AF%E6%A0%84" | head -5
+
+### Cloudflare
+
+- **charsetが付くかどうかは拡張子ではなく配信経路で決まる。** Workersの
+  静的アセットとしてそのまま返るファイル（例: `/llms.txt`）はCloudflare側で
+  charsetが付かず`text/plain`のみになり、日本語環境のブラウザがShift_JISと
+  誤認して文字化けする。`_headers`に`Content-Type: text/plain; charset=utf-8`
+  のようなルールを足せば上書きできることを`/llms.txt`で実証した（#161、
+  平野さんが本番確認済み）。`_headers`でのContent-Type上書きがWorkers静的
+  アセットに効くこと自体はこれで実証済み。日本語を含むテキストファイルを
+  新たに公開するときはこの方法を使う
+- **AI Crawl Control が管理 robots.txt を自動で前置する。** そのため自作の
+  `robots.txt` は `Sitemap:` の宣言のみにしている。前置されたrobots.txtは
+  Cloudflare側でcharset込みの`Content-Type: text/plain; charset=utf-8`が
+  組み立てられるため、`llms.txt`と違い`_headers`での明示は不要（#175で
+  本番確認済み。文字化けの疑いはなかった）
+- AI学習用クローラー（GPTBot/ClaudeBot等）は学習を拒否（Training = `Disallow`）、検索エンジンとAIの検索・回答は許可
+  （詳細は下記「AIクローラーの扱い」参照。移行は#130で行い 2026-09-28 にクローズ）
+- Tiered Cache は**効果がない**（Workersの静的アセットにはオリジンサーバーがないため）
+- **Web Analytics のビーコンは `/cdn-cgi/rum` への POST。**
+  HTTPメソッドやパスで遮断するルールを書くときは `/cdn-cgi/` を
+  除外すること（#110）
+- **Managed Ruleset の Block / Log は Security rules の一覧画面では
+  判別できない。** 一覧の Action 列に出る `Execute` はルールセットを
+  実行するというデプロイ段階のアクションで、ルールセット内部の
+  Block / Log とは別物。確認するにはルールセット名をクリックして
+  Deploy managed ruleset の画面まで入り、Ruleset action を見る（#76）
+
+#### Speed 設定の現状（2026-09-11 時点。Early Hints は 2026-09-29 に更新）
+
+Speed → Recommendations（Site Recommendations）の一覧と、それぞれの判断。
+
+| 項目 | 状態 | 判断理由 |
+|---|---|---|
+| Web Analytics (RUM) | 有効 | #32 で GA4 から移行済み |
+| Speed Brain | **無効** | 有効化して実測した結果、prefetch が拒否された（#119）。Off に戻した |
+| Polish / WebP | 無効 | #71 のとおり。Workers 静的アセットにオリジンがなく効果がない。加えて `<img>` をエッジで書き換えるため #9 と競合する |
+| Image Transformations | 未購入 | Cloudflare Images の別課金。自前画像は11枚178KB、選手画像1,985枚は外部7ドメインにあり対象外 |
+| Rocket Loader | 無効 | 全ページで `defer` を付けているため効果がない。CSP（#9）とも競合する |
+| HTTP/2 | 有効 | 既定 |
+| HTTP/3 | **有効化(2026-09-11)** | モバイル回線で効く。リスクなし |
+| HTTP/2 to Origin | 有効 | オリジンが存在しないため実質無効。害もないので触らない |
+| Enhanced HTTP/2 Prioritization | 有効 | 同上 |
+| 0-RTT Connection Resumption | **有効化(2026-09-11)** | GET・HEAD・OPTIONS にしか適用されず、POST には使われない（公式の 0-RTT Connection Resumption のページ、2026-10-11 に確認）。状態を変えるのは `/api/ask`（POST、#542）だけなので、リプレイの実害がない。GET の `/api/ask/status` は読むだけ |
+| Always use HTTPS | **有効化(2026-09-11)** | 下記参照 |
+| TLS 1.3 | 有効 | 既定 |
+| Early Hints | **無効（2026-09-29 に Off に戻した）** | 応答に `Link:` が無く、103 も出ていなかった（2026-09-28 の実測）。下記参照（#129） |
+
+**「Enable all settings」ボタンは押さないこと。** Polish が一括で有効になり、
+#71 と #9 の判断が覆る。個別に切り替える。
+
+**Always use HTTPS が無効だったのは穴だった。** `_headers` に HSTS
+（`max-age=31536000; includeSubDomains`）は入っていたが、HSTS が効くのは
+一度 HTTPS で訪問済みのブラウザだけ。初回訪問者が `http://` で叩いた場合、
+リダイレクトされずに HTTP のまま配信される状態だった。2026-09-11 に解消。
+
+**Early Hints は 2026-09-29 に Off に戻した（#129）。** Cloudflare の実装は
+レスポンスの `Link: ...; rel=preload` / `rel=preconnect` ヘッダをキャッシュして
+103 で先出しする仕組みで、HTML 内の `<link>` タグは見ない。2026-09-11 に有効化したが、
+2026-09-28 の実測（`/`・`/jpml_pros.html`・`/title/` を各2回）で `Link:` は自動で付かず、103 も返らなかった。
+`_headers` に `Link:` を書く設計はせずに終えた。Smart Hints（クローズドベータ）は申し込んでいない
+（2026-09-29 の画面は「Sign up」のまま。平野さんのスクリーンショットによる）。
+
+**Crawler Hints: On**（2026-09-28〜、平野さんの申告でセッションからは検証できない）。IndexNow への自動通知の試行。
+Bing 側に IndexNow の送信の記録は無く、効果は確認できていない（#126、2026-09-30）。On のままにする。自前の送信（キーのファイル＋Actions）は行わない。
+
+#### Synthetic monitoring の定期実行（2026-09-29、#125）
+
+Lighthouse の定期実行は、Observatory ではなく **Speed → Synthetic monitoring（Beta）の Browser tests** にある（2026-09-29 の画面。平野さんのスクリーンショットによる）。
+URL は **`https://` を付けない形**（例 `ryoei.pro/jpml_pros.html`）で入れる。付けると「Invalid URL」になる。
+
+| URL | 最初のスコア（2026-09-29） |
+|---|---|
+| `ryoei.pro/title/` | 100 |
+| `ryoei.pro/live/` | 99 |
+| `ryoei.pro/` | 98 |
+| `ryoei.pro/jpml_pros.html` | 88 |
+| `ryoei.pro/houou_results.html` | 61（#7・#111 の型B の移行の前後を比べる基準） |
+
+- 5本とも Region Tokyo（asia-northeast1）・Repeats Daily。**Pro の定期実行の枠（5本）を使い切っている**ので、対象を足すには1本外す
+- 結果の通知は無い見込み（未確認）。月次の #304 (11) で見る
+
+#### DNS・メール・通知の設定（2026-09-11）
+
+DNS レコードは元々3件だった（Search Console の所有権確認 TXT、
+apex と www の Worker レコード）。**MX は未設定。**
+
+| 項目 | 状態 |
+|---|---|
+| DNSSEC | 有効化済み（#117）。Registrar も DNS も Cloudflare のため DS 登録まで自動 |
+| SPF | `v=spf1 -all`（#116） |
+| DMARC | `v=DMARC1; p=reject; sp=reject; adkim=s; aspf=s;`（#116） |
+| DKIM | `*._domainkey` に空ポリシー（#116） |
+| 通知 | Universal SSL Alert のみ（#118）。宛先は別事業者のドメイン |
+
+**Cloudflare の通知には Registrar 用の Alert Type が存在しない。**
+Billing の2種類も「支出がしきい値を超えたら通知」で、
+支払い失敗による失効は検知できない。ドメイン失効対策は
+Domain Registration 画面で Auto renew と期限を直接確認する方法に切り替えた
+（2026-09-11 時点: Active / 期限 2028-03-20 / Auto renew On）。
+
+**#17（Email Routing）に着手するときは SPF の書き換えが必須。**
+`v=spf1 -all` のままだと `@ryoei.pro` からの送信が拒否される。
+
+**www.ryoei.pro の Worker レコードは削除しないこと。**
+削除すると www が名前解決できなくなり、#115 で設定した
+www → apex の Redirect Rule に到達する前に失敗する。
+Redirect Rules は Workers より前に評価されるため、
+レコードを残したままで正しく308が返る。
+
+#### robots.txt の取得
+
+**robots.txt の実測は Claude Code のセッションから `curl` でできる（2026-09-21 に確認）。**
+`curl -sS https://ryoei.pro/robots.txt` で普通に取得できる（CHAT-0921-GC-15・GC-17。
+`https://ryoei.pro/` 自体も GC-06・GC-08 で取得している）。以前ここには「チャットセッションからも
+Claude Code のセッション環境からも到達できない」と書いていたが、実態と違っていた。
+#269 の月次取得でも `docs/gsc/<取得日>/robots.txt` として保存している。
+
+平野さんが Windows / PowerShell で取るときは `>` リダイレクトを使わないこと。
+PowerShell 5.1 の既定が UTF-16LE のため、日本語部分が文字化けする（#130の1回目の取得で実際に発生し、
+本番の不具合と誤認しかけた）。`curl.exe` の `-o` を使えばバイト列が
+そのまま書かれる。
+
+    curl.exe -s -o robots-YYYYMMDD.txt https://ryoei.pro/robots.txt
+    Get-Content robots-YYYYMMDD.txt -Encoding UTF8
+
+#### AIクローラーの扱い（現在の設定）
+
+出典はいずれも #130 のコメント（2026-09-21・2026-09-28）。2026-09-13 までの経緯は `docs/notes/handover-archive-2026.md`「AIクローラーの扱い（2026-09-13時点）」。
+ダッシュボードの値は平野さんの画面の確認によるもので、セッションからは検証できない。
+
+- **旧トグル `Block AI bots` は廃止済み**（Security → Settings → Bot traffic の一覧に行が無い）
+- **現在の設定（Configure AI bot policies）**: Search = Allow (do not block)、Agent = Allow (do not block)、
+  **Training = `Disallow`**。Enable Bot Preference Sync（robots.txt への付け足し）は **ON**
+- **Training の `Block` は選んではいけない。** 2026-09-15 以降の選択肢の意味は次のとおりで、
+  方針（検索は許可・学習は拒否）に当たるのは **`Disallow`**:
+  - `Disallow AI Training`: 「Bot Preference Sync publishes the applicable no-training preference in robots.txt.
+    **Accountable mixed-use crawlers remain allowed for search.**」
+  - `Block`: 「**All crawlers, including mixed-use crawlers, are blocked.**」（WAF ルールでの遮断）
+  - 出典: https://blog.cloudflare.com/accountable-mixed-use-ai-crawlers/ （2026-09-15）。
+    Applebot・Bingbot・Googlebot が "Accountable mixed-use crawlers" に当たる
+- **2026-09-21 に一度 `Block` にして、同じ日に `Disallow` へ戻した。** 2026-09-13 に「Training = Block」と決めたときの
+  `Block`（旧トグル＋混在クローラーのオプトアウト）と、2026-09-15 以降の `Block` の意味が違っていたため
+- **`Disallow` でも `Block` でも、robots.txt の付け足しは同じ内容で出る**（142行、うち管理セクション103行、
+  `Content-Signal: search=yes,ai-train=no,use=reference`、`Disallow: /` の対象の UA は32、`Disallow: /` の行は31。
+  `AwarioSmartBot` と `AwarioRssBot` が1グループのため。09-21〜10-10 で一覧は変わっていない、#304 (4)）。
+  **設定の違いは robots.txt では見分けられない。** CHAT-0921-GC-15 の時点で付け足しが無かった理由は分かっていない
+- `Baiduspider`・`PetalBot` が Cloudflare の管理リストで `Disallow` されている。**許容する**（2026-09-21、平野さんの判断）
+- `Content-Signal` に **`ai-input` の宣言は無い**（`search` / `ai-train` / `use` の3つだけ）
+- **検索用クローラーが弾かれていないことを確認した（2026-09-28、#130 のクローズ条件4・5）。** GSC のクロールの統計情報に 403 の行は無く、
+  4XX の例は 9/21 が最後。Security Events の「Googlebot」を名乗るブロックは、Google Cloud（AS396982）から `.env` を探るスキャンを
+  Managed rules が止めたもので、本物の Googlebot（AS15169）ではない。**UA だけで判断せず ASN と Service を見る**
+- AI Labyrinth は使わない（2026-10-12、平野さんの決定。#447 をクローズ）。得が小さく（学習拒否を守らないクローラーにしか効かない）、注入の対象から検証済みボットを除くかが公式に書かれておらず、クラウドの Claude Code・GitHub Actions が取得する HTML が乱れるおそれがあるため。2026-09-25 のスクショではオフに見えた（未検証）。**ボット系の設定は1つずつ変える**
+
+##### #304 の (8) で 403 が見つかったとき
+
+月次の手作業 (8)（Search Console のクロールの統計情報〈レスポンス別〉で 403 を見る）で 403 が出ていたら、次の順で確かめる。
+設定が `Block` に変わると検索用クローラーも遮断されるが、robots.txt では見分けられないため、結果の側から追う。
+
+1. **Configure AI bot policies の Training を確かめる**（Security → Settings の一覧を **Bot traffic** で絞り込み、
+   その**一番上の行**が Configure AI bot policies。2026-09-21、平野さんのスクショによる）。
+   **`Block` になっていたら `Disallow` に戻す**
+2. robots.txt を取って、検索用クローラー（Googlebot / Bingbot / Applebot）が `Disallow` されていないことを確かめる
+   （`curl -sS https://ryoei.pro/robots.txt`。上の「robots.txt の取得」のとおりセッションから取れる）
+3. **AI Crawl Control の Overview** で、Google / Microsoft / Apple の「許可」と「失敗」の数を見る
+   （AI Crawl Control は**左メニューの項目**。2026-09-21、平野さんのスクショによる。
+   失敗の内訳が 403 か 404 かは画面からは分からない）
+4. 結果を #304 のその月の「YYYY-MM 実施」のコメントに書く
+5. **Training が `Disallow` のままなのに 403 が出ている場合は、原因が別にある。** issue を起票して追う
+
+#### Rate limiting rules（2026-09-29 に導入、#124）
+
+平野さんが 2026-09-29 にダッシュボード（Security rules → Create rule → Rate limiting rules）で入れた。値は平野さんの申告で、セッションからは検証できない。
+
+| 項目 | 値 |
+|---|---|
+| Rule name | `Throttle rapid HTML fetches (#124)` |
+| 条件式 | `(ends_with(http.request.uri.path, ".html") or ends_with(http.request.uri.path, "/")) and not cf.client.bot and not starts_with(http.request.uri.path, "/cdn-cgi/")` |
+| 数える単位（characteristics） | IP |
+| 閾値 | 30 requests / 1 minute（2026-09-29 の導入時は 60。2026-10-02 に下げた） |
+| アクション | Managed Challenge |
+| Execution order / Status | First / Active |
+| 本数 | 入れる前は0本、入れた後は 1/2（Pro の上限は2本） |
+
+- 検証済みボット（`cf.client.bot`）を外すのは、検索エンジンのクローラを数えないため。`/cdn-cgi/` は Web Analytics のビーコン（#110 と同じ注意）
+- Pro の制約: **Log のアクションは使えない**（Enterprise のみ）ため、高めの閾値の Managed Challenge で当たった相手を Security Events で見てから閾値を下げる。**チャレンジ系は Duration を選べず**、上限を超えたリクエストだけにかかる。数える単位は IP のみ、期間は1分まで。
+  調べた経緯と公式ドキュメントの URL は #124 のコメントと https://github.com/retroeater/mj/blob/1ad5d8be5a7b06ddd53620c536034cd78acddfdb/docs/logs/CHAT-0928-CX-05.md
+- 2026-10-02 に Security Events（Service「Rate limiting rules」）を見て、閾値を 60 → 30 に下げた（アクション・条件式・順序は変えていない。10/1〜10/2 の当たりは Oracle Cloud〈AS31898〉の2 IP・26件のみ）。2026-10-09 に1週間分を見て #124 のクローズを判断する
+- 戻すときは Security rules の一覧でトグルを Off
+- workers.dev・プレビューはゾーンを通らないので対象外
+
+#### Rate limiting rules: `/api/ask`（2026-10-18 に導入、#598 中-1）
+
+平野さんが 2026-10-18 にダッシュボードで入れた。値は平野さんの申告で、セッションからは検証できない。
+
+| 項目 | 値 |
+|---|---|
+| Rule name | `Throttle /api/ask (#598)` |
+| 条件式 | `(http.request.uri.path eq "/api/ask" and http.request.method eq "POST")` |
+| 数える単位（characteristics） | IP |
+| 閾値 | 5 requests / 1 minute |
+| アクション | Block（10分）。応答は Cloudflare 既定の 429 |
+| Execution order / Status | Last / Active |
+| 本数 | 入れた後は 2/2（上の #124 と合わせて Pro の枠が埋まった） |
+
+- 応答を既定のままにしたのは、`assets/houou_ask.js` が上限の JSON（`status: "limit"`）を「翌0時（日本時間）から受け付けます」と表示し、10分で解ける Block と食い違うため（既定の HTML なら「いまは答えられません。」になる）
+- Worker の D1 の回数（全体・IP ごとの1日の上限、`docs/notes/ask-worker.md`）はそのまま。これは短い時間の連打を止める層
+- Pro では数える単位が IP だけで、IPv6 を /64 でまとめて数えることはできない
+- 3本目を足すには、既存のどちらかを外すかプランを上げる
+
+#### カスタムルール「Block non-GET/HEAD methods」（2026-10-11 に記録）
+
+ryoei.pro の WAF のカスタムルール（Security rules）。GET・HEAD 以外のメソッドを遮断する。いつ・どの issue で入れたかはリポジトリに記録が無い（2026-10-11 の時点）。
+値は平野さんのスクリーンショットの申告値（チャット側が確認）で、セッションからは検証できない。
+
+| 項目 | 値 |
+|---|---|
+| Rule name | `Block non-GET/HEAD methods` |
+| 式（2026-10-11 23:30 JST 以降） | `(not http.request.method in {"GET" "HEAD"}) and (not starts_with(http.request.uri.path, "/cdn-cgi/")) and not (http.request.uri.path eq "/api/ask")` |
+| アクション | Block（遮断のページ「Attention Required! \| Cloudflare」、HTTP 403） |
+
+- `/cdn-cgi/` を外すのは Web Analytics のビーコン（POST、#110）のため
+- 末尾の `and not (http.request.uri.path eq "/api/ask")` は、データ・コンシェルジュ（#542）の質問の POST を通すために 2026-10-11 に平野さんが足した。足す前は Worker `mj-ask` に届く前に 403 になっていた（CHAT-1011-AIC-03 で発見。Security Events では直近24時間で POST 123件を遮断していた）。経緯は `docs/notes/ask-worker.md`
+- POST を受けるパスを増やすときは、この式に例外を足す必要がある（足さないと Worker に届かない）
+
+### 公開期間の露出評価（#299、2026-09-14）
+
+2026-09-14 にリポジトリを private へ切り替えた（#211）。それ以前は Public で、
+認証なしで clone でき Issues も未ログインで読めた。
+
+**確認済みの事実（Claude Code 側で全履歴を走査）**
+
+- Google Maps の API キー（`AIza…`）が履歴に残っている。
+  2020-08〜2021-06 の `4d8f987`〜`1ffeab4`、`birthplaces.js` / `jpml_birthplaces.js`
+- **このキーは `gh-pages` 経由でブラウザに配信される JS に載っていた。**
+  GitHub の可視性と無関係に誰でも読めた状態で、**private 化では取り消せない**
+- 現在の `cloudflare` / `gh-pages` の先頭には無い（機能ごと削除済み）。
+  履歴の書き換えは行わない
+- `.youtube_api_key` は `.gitignore` にあり、コミットされたことは一度もない
+- ほかに見つかったのは Cloudflare Web Analytics のトークンのみ（HTML に載せる前提の公開値）
+- **`CLOUDFLARE_API_TOKEN` は登録されていない（2026-09-14、`gh secret list` で確認）。**
+  登録済みの Secret は `YOUTUBE_API_KEY` のみ。当初は Codespace 既定のトークンで 403 に
+  なり確認できなかったが、Codespaces シークレット `GH_TOKEN` の設定後に実行できた
+  （`docs/notes/session-network.md`「gh の認証」）
+
+**キーの状態（2026-09-14、平野さんが Google Cloud Console で目視確認。セッションからは検証不能）**
+
+- 組織 `ryoei.net` 配下のプロジェクトは `My First Project`（`<Google Cloud のプロジェクト ID>`。値は Google Cloud Console で確かめる）と `ryoei-pro` の2つ
+- 有効な API キーは `My First Project` の `youtube-data-api-for-ryoei-pro`
+  （2026/09/13 作成、YouTube Data API v3 に制限済み）1本のみ
+- `ryoei-pro` プロジェクトには認証情報が1つも無い
+- 両プロジェクトとも、削除済み一覧に Maps 系は無い
+
+**判断: 現在有効な Maps キーは存在しないため、ローテーション・再設定は行わない。**
+
+留保: 削除済み一覧は30日以内しか表示されず、2021年の削除は現れない。
+根拠は「有効な一覧に無い」ことの方。当時別の Google アカウントで作成して
+いた場合はこの組織から追えないが、追跡手段が無いためここで打ち切った。
+
+**誤りの構造:** 当初案（CHAT-0914-HE-02 の指示文）は作業ツリーの一部と浅いクローンだけを
+見て「資格情報のコミットは無い」と結論づけていた。浅いクローンでは履歴を
+判定できない点で #209 と同じ型。再発防止のセンサー化（Secret scanning /
+Push protection の可否確認、不可なら #292 に履歴走査を足す）は別issueで扱う。
+
+### Cloudflare Pro でできること・できないこと
+
+**HTTP Traffic 分析（Analytics → Traffic）**
+
+- パス別の内訳が出る（Freeでは出ない）
+- **Query string をフィルタ条件に使える。** ただし値ごとの
+  内訳は出ないため、「どの選手名が多いか」は
+  Search Console 側で見る
+- 他の軸: Cache status / Source browser / Source device type /
+  Data center / Source ASN / Edge status code など
+- Download data は表示中の上位5系列を15分刻みで出すのみ。
+  生ログではない
+- Bot score はこの画面にはない。Bot Report は
+  Security → Bots の別画面
+
+**オリジンを前提とする機能は効かない**
+
+Workers静的アセットにはオリジンサーバーが存在しないため、
+以下はいずれも効果がないか対象がない。#71（Tiered Cache）を
+見送ったのと同じ理由。
+
+| 機能 | 判断 |
+|---|---|
+| Polish | 不採用。自前画像は11枚178KBで、主要3枚はすでにWebP。選手画像の外部ドメイン依存は同上 |
+| Mirage | 不採用。同上に加え、`<img>`をエッジで書き換えるため #9 と競合 |
+| Argo Smart Routing | 不採用。Proに含まれず別課金（月$5＋$0.10/GB） |
+| Load Balancing | 不採用。別課金かつ分散対象がない |
+
+### トラフィックの実測値（2026年9月9日）
+
+**ドメイン切替が同日12時頃のため、以下は約10時間分。
+1日分の数字ではない。**
+
+| 出所 | 数値 |
+|---|---|
+| エッジ / 総リクエスト | 3,030（キャッシュ済み2,430・未キャッシュ602） |
+| エッジ / ユニーク訪問者 | 197 |
+| Web Analytics / ページビュー | 114 |
+| Web Analytics / 訪問 | 75 |
+
+ユニーク197に対し訪問75。**#90で確認済み（2026-09-09時点）**: ボットが
+約7割（Likely Automated 41% + Automated 26%）。Verified Botはわずか3%で、
+実体は素性の分からないデータセンター由来の自動化トラフィックだった。
+
+サーバーサイド計測を自前で作る場合（#19で検討・見送り）も、
+この規模なら Analytics Engine の Free 枠（1日10万書き込み）に
+十分収まる。
+
+### 検討して見送った技術(2026-09-09〜10)
+
+| 項目 | 判断 | 理由 |
+|---|---|---|
+| PWA化 | 却下 | オフライン利用の場面がない |
+| iOSアプリ / Androidアプリ化 | 却下 | Webサイトを包んだだけのアプリは審査で弾かれる。年$99の登録と審査対応が恒久的に発生する |
+| minify / mangling | 却下 | 自前JS・CSSは小さく、Brotliが効けば削減幅はさらに縮む。ビルド工程を持たない構成を崩す対価に見合わない |
+| Tree shaking | 却下 | バンドラを前提とする最適化のため、現行構成では適用できない |
+| stale-if-error | 却下 | オリジンサーバーが存在せず、守る対象がない |
+| CodeRabbit | 却下 | PR運用が前提だが、現在は cloudflare ブランチへ直接pushしている |
+| GitHub Copilot | 却下 | Claude Code と役割が重複する |
+| X API | 却下 | 無料枠が実質廃止され有料プランは月$100から。APIを必要とする機能がない |
+| Super Bot Fight Mode | 却下 | Proで遮断できるのは Definitely automated のみ。実測で最大の塊は Likely automated（41%）で手が出ない（#91）。2026-10-12 に再確認して却下のまま: Cloudflare の「Unexpected increase in bot traffic」のメール（10/9 に自動化された通信が 82.0%、平常は 61.0%）と Security Overview の提案を受けたが、平野さんのスクショ（10/5〜10/12）では Likely Human 57.63k / 96.72k が最多で、送信元の上位は国内の ISP。#91 の再検討の条件（スクレイピングの実害・Business への移行）に当たらない |
+| Polish / Mirage / Argo Smart Routing | 却下 | Workers静的アセットにはオリジンが存在しないため効果がない（#71と同じ理由） |
+
+### 検討して見送った技術(2026-09-11)
+
+| 項目 | 判断 | 理由 |
+|---|---|---|
+| JWTのHttpOnly Cookie | 対象外 | 認証機能もログインもユーザーデータもない静的サイト。将来SDPに管理画面を作る場合もCloudflare Accessのほうが適切 |
+| IWA（Isolated Web Apps） | 却下 | 署名済みバンドルの配布が前提のエンタープライズ向け技術。PWA化を却下した理由がそのまま当てはまる |
+| workbox.precaching | 却下 | PWA却下済み、かつビルド工程を持たない構成 |
+| `<link rel="prerender">` | 却下 | Chrome独自で非推奨。Speculation Rules APIに置き換わっている（要否は#105で判断） |
+| CSS @function / if() | 却下 | if()はChrome 137以降のみでFirefox・Safari未実装。@functionも同様。Baselineに遠い |
+| @supports at-rule() | 却下 | 上2つを安全に使うための道具。使わないなら不要 |
+| CSS text-fit | 却下 | 提案段階で実装がない |
+| `<meta name="text-scale">` | 却下 | Chrome 146以降のみでFirefox・Safari未対応。使う場合は最大300%超の拡大に耐えるかのテストが必要で、対価に見合わない |
+| スクロールバーを考慮したビューポート単位 | 見送り | .mj-table-2col を width: 100% にしたため当面出番がない |
+| Reduce unused CSS（Bootstrap CSSの削減） | 見送り | Lighthouseの改善提案1位（mobile合計約1,090ms）だが、ビルド工程を持たない構成を崩す対価に見合わない。minifyを却下したのと同じ理由。Bootstrapをやめるかどうかは新サイト（#101）で判断する |
+| Initial server response time の改善 | 対処不可 | 全6ページで指摘（最大 resource_logs 400ms）。Cloudflare Workers の静的アセット配信そのものの応答時間で、ページ側の対処手段がない |
+| Zaraz | 却下 | 第三者スクリプトが1本もない。タグマネージャの対象がない |
+| Turnstile | 却下 | `<form>` が27ページに0個。保護する送信経路がない |
+| Waiting Room | 却下 | 同時接続を制限する必要がある場面がない。別課金 |
+| Cache Reserve | 却下 | R2の課金が発生する。アセット総量が小さく見合わない |
+| Logpush | 対象外 | Enterprise限定 |
+| Hotlink Protection | 却下 | 自前画像は11枚178KB。守る対象が小さい。選手画像の外部ドメイン依存は同上 |
+| HSTS preload | 見送り | `_headers` の `max-age=31536000; includeSubDomains` で実用上は十分。preloadリストへの登録は実質不可逆で、将来サブドメインをHTTPで使う自由を失う |
+| Speed Brain | 却下 | 有効化して実測したところ、prefetch が `HTTP 503` / `cf-speculation-refused: prefetch refused: disabled for worker requests` で拒否された。Workers 静的アセット配信では機能しない。#71・Polish・Mirage と同じ理由 |
+| Cache Rules による HTML のエッジキャッシュ | 却下 | `cf-cache-status: HIT` を実測。HTML はすでにキャッシュから配信されており伸びしろがない（#123） |
+| Image Transformations / Cloudflare Images | 却下 | 別課金。自前画像は11枚178KBで主要3枚はすでにWebP。選手画像の外部ドメイン依存は同上 |
+| Prefetch URLs（Cloudflare） | 対象外 | Enterprise プラン限定。Speed Brain が拒否される件と合わせて、Cloudflare 側で prefetch を実現する手段は残っていない |
+| Cloudflare Fonts | 不採用 | #93 で Google Fonts を廃止しシステムフォントに統一済み。最適化する外部フォントが存在しない |
+| Automatic Platform Optimization for WordPress | 対象外 | WordPress サイトではない。ダッシュボードにも「The WordPress plugin was not detected on ryoei.pro」と表示される |
+| Shared Dictionary Compression | 見送り | Passthrough はオリジンが辞書圧縮を処理する前提。Workers 静的アセットは対応しないため Off のまま |
+| Smart Hints | 見送り | クローズドベータ。Early Hints の対象を Cloudflare が自動選択する機能。申し込まないまま Early Hints を Off に戻し、#129 を閉じた（2026-09-29） |
+| security.txt | 見送り | 2026-10-12、Security Overview の提案（Low）を見送った。置くと連絡先を公開することになるうえ、認証・ユーザーデータの無い静的な個人サイトで、受ける報告の場面がほとんど無い |
+| Mantis（Google のAIセキュリティ用ハーネス） | 却下 | パイプラインの中核が「サンドボックスでクラッシュを再現 → パッチが再現を止めることで検証」のため、実行体を持たない静的サイトでは空回りする。Worker スクリプトなし・フォーム0・認証なし・DBなしで、自前コードは約6,200行（JS 3,237行 + Python 2,966行）。加えて Docker + gVisor と専用の隔離VMが前提で、`gh` 認証済みの Codespace で回すのは「本番に触れる環境で実行するな」という README の要件に反する。Google 自身も「公式サポート製品ではない」「本番利用を意図しない」と明記。再評価は新サイト（#101/#21）でサーバーサイド（#28/#29/#30）が入ってから |
+
+**すでに対応済みだったもの**
+
+- HTML5 doctype: 27ページ全部に入っている
+- OWASP推奨対策: 静的サイトで該当するヘッダ系は `_headers` に導入済み（X-Frame-Options / X-Content-Type-Options / Referrer-Policy / Permissions-Policy / HSTS）。残るのはCSPのみで、それが #9
+- 入力値の検証とサニタイズ: `<form>` は27ページに0個。入力経路はURLパラメータのみで、移行済みページは生成時に esc() を通し、絞り込みは textContent 比較のためXSSの経路がない。innerHTML は index.js に1箇所（アイコン切替の定数）だけ
+
+---
+
+## 現行の設定と手順（docs/handover.md・CLAUDE.md から移管、#336）
+
+この節は完了記録ではなく、現行の設定・手順。handover.md 2章「配信」と「4-x」、CLAUDE.md「構成」から移した。
+
+### 配信設定: html_handling・_redirects・canonical・_headers
+
+`html_handling` は `"none"` を明示している（#89）。
+既定の `auto-trailing-slash` だと `/file.html` が `/file` へ
+307リダイレクトされ、og:url・sitemap がすべてリダイレクト先を
+指す状態になるため。
+
+**この設定はディレクトリインデックスの解決も無効にする。**
+そのため `_redirects` の先頭にある次の1行が必須で、
+これを消すとトップページが404になる。
+
+```
+/  /index.html  200
+```
+
+**canonicalは原則付けない。** **#113で「現行サイトには
+canonicalを付けない（Googleの正規化に任せる）」と決定した（2026-09-11）。**
+単純に付けるとSearch Console実測の`?name=`付き14URL（`docs/notes/site-findings.md` のSEO節）が
+正規化で検索結果から消えるため。選手個別ページと
+title/descriptionの出し分けは新サイト（#296）で解く（#79も同時にクローズ）。
+**例外は帰り道の各話（`wayhome/<動画ID>.html`、#162）と一覧（`/wayhome/`、2026-10-13）だけ。**
+例外の基準は「URL の別形（`?name=` などのクエリで中身が変わる URL）を持たず、Search Console にも `?` 付きの URL が
+出ていないページ」。値は`lib/page.py`の`PageMeta.canonical`（既定`None`）で渡し、html_handling の影響を受けない
+正規の URL（一覧は末尾スラッシュ付きの`https://ryoei.pro/wayhome/`）にする。基準に当てはまるほかのページは、ページごとに確かめてから付ける。
+
+`_headers` はセキュリティヘッダ5件に加えて、
+キャッシュ制御を持つ（#92）。
+`/*` には `Content-Security-Policy` もある（2026-10-19、#9。報告先は持たない）。外部は `script-src` の Web Analytics（`static.cloudflareinsights.com`）だけを許し、
+`img-src` は `'self' data: https:`、`style-src-attr 'unsafe-inline'`（title/ の CSS 変数・glightbox）。typed.js のカーソルの CSS は index.css に置く（`<link data-typed-js-cursor-css>`）。
+**外部のスクリプト・iframe・フォント・`fetch` の先・`<style>` 要素を足すときは、このヘッダの値も直す**（直さないと黙って読み込まれない。測り方と値の理由は #9）。
+
+| 対象 | Cache-Control |
+|---|---|
+| `/img/*` | 1年・immutable |
+| `/favicon.ico` `/apple-touch-icon.png` | 1日（#174でimmutableから緩和） |
+| `/assets/vendor/*` | 30日 |
+| HTML・ルート直下の `.css` / `.js` | 既定のまま（毎回再検証）。200 の応答も `public, max-age=0, must-revalidate`（2026-09-28 実測、#258） |
+
+ファイル名にハッシュを持たないため、HTMLとルート直下の
+スクリプトには意図的にTTLを付けていない。
+**HTML には ETag も Last-Modified も付かない**ため、再検証しても 304 にならず毎回全体を再取得する（`.css` / `.js` は ETag があり 304 になる）。**Workers の静的アセットの配信で HTML に付かない**（ゾーンの機能でも `html_handling` でもない。公式の記述と食い違うが仕様として受け入れた。2026-09-28 の実験、#449）。
+Email Address Obfuscation は 2026-09-11 に Off と記録したが（#120）2026-09-28 にオンになっていたので Off に戻した（平野さんの申告）。ETag とは無関係（#449）。
+
+**`assets/vendor` 配下を更新した場合、ブラウザには最大30日
+キャッシュが残る。** Cloudflareのキャッシュパージでは消えない。
+即座に反映させたい場合はファイルのパスを変えること。
+
+**同じ名前で上書きする設計を決める前に、この表で対象パスのキャッシュ設定を確認する。**
+`/img/*` は同じURLで中身を変えると、CDN・ブラウザ・X などが最長1年古いものを使いうる（`/assets/vendor/*` は30日）。
+#339 では一覧用OGP画像 `index.jpg` を同じ名前で作り直す設計を先に決め、あとから日付入りの名前に直した（CHAT-0916-XC-06）。
+
+**404 の応答にも同じ Cache-Control が付く**（2026-09-16、本番で実測、CHAT-0916-XC-07）。存在しないパスで
+`/img/*` は `public, max-age=31536000, immutable`、`/assets/vendor/*` は `public, max-age=2592000`、
+それ以外（HTML、`/assets/` 直下など）は `public, max-age=0, must-revalidate` が返り、いずれも `cf-cache-status: HIT`。
+参照するページが画像より先に公開されて一時的に 404 になると、その 404 が長く残りうるため、
+**生成した画像と、それを参照するページは同じコミットに入れる。**
+（1日の行はファイルが存在するため 404 を測っていない）
+
+### ローカル確認（wrangler dev）
+
+`wrangler dev` を素のオプションで起動すると、`.wrangler/` への書き込みをアセット変更と
+誤検知しリロードが無限に続き、作業不能になる（#153）。必ず `--persist-to` でリポジトリ外に
+状態を保存する:
+
+    npx wrangler dev --port 8789 --ip 127.0.0.1 --persist-to /tmp/wrangler-state
+
+`--persist-to` で退避されるのはstate（KV/D1/R2/observability）のみで、`.wrangler/tmp`・`.wrangler/cache`は
+起動時にリポジトリ直下へ作られるが、これは正常で無限リロードの原因ではない（#155）。
+
+## 本番反映（デプロイ）の仕組み
+
+handover.md「4-x」から移した。結論は handover.md 2章「配信」の「本番反映（旧「4-x」）」に残している。
+
+### 平野さんがCloudflareダッシュボードで確認した設定値（2026-09-12時点、2026-10-06 に一部更新）
+
+**以下はセッションからは検証できない。平野さんが目視で確認した時点の値
+としてそのまま記録する。** 今後この値が変わってもセッションからは気づけない。
+
+Workers & Pages → `mj` → Settings → Builds:
+
+| 項目 | 値 |
+|---|---|
+| Git repository | `retroeater/mj`（接続済み） |
+| Build command | なし |
+| Deploy command | `npx wrangler deploy` |
+| Version command | `npx wrangler versions upload` |
+| Root directory | `/` |
+| Production branch | `cloudflare` |
+| Builds for non-production branches | チェックあり（2026-10-06 の申告値。2026-09-12 の時点は OFF。プレビューは #38 で有効化、下の「work/ ブランチのプレビュー」） |
+| Build watch paths: Include | `*` |
+| Build watch paths: Exclude（本番のトリガー、branch `cloudflare`・`npx wrangler deploy`） | `.git/`・`docs/**`・`node_modules/**`・`workers/**`（`docs/**`は2026-09-12に追加、#171。2026-10-05 の深夜に足した `workers/*` を 2026-10-06 11:20 に `workers/**` に置き換えた、#504。申告値） |
+| Build watch paths: Exclude（非本番のトリガー「Deploy non-production branches」・`npx wrangler versions upload`） | `.git/`・`docs/**`・`node_modules/**`（2026-10-12 のチャット側の読み〈ダッシュボードと同じ画面の API を GET〉）。**`workers/**` は効かない**: ダッシュボードの Build watch paths の画面は1つで本番の値を表示し、平野さんが `workers/**` を消して足し直して保存しても（2026-10-12、申告値）、`workers/` だけの作業ブランチの push に「Workers Builds: mj」が付いた（2026-10-12、check-run で確認）。**画面からは非本番の除外を直せない。害はプレビューのビルドが1回増えることだけなので受け入れる**（平野さんの決定。API で直すことは今はしない） |
+| API token | `mj build token` |
+| Cache | Disabled |
+
+- Production branchが`cloudflare`のため、**このブランチへのpushは
+  （`regenerate-page.yml`が押す`chore: regenerate ...`コミットも含めて）
+  即座に本番へ反映される。** ワンクッションを置く仕組みは無い
+  （ゲートを設けるかどうかは#170で検討中、保留）
+- Build watch pathsのIncludeが`*`のため、ドキュメントのみのコミットでも
+  ビルドが走っていた（`docs/**`をExcludeに追加する案は#171、平野さんが
+  2026-09-12にExclude pathsへ`docs/**`を追加し完了。設定値自体はセッション
+  からは検証できないため申告の記録として残す）
+
+- **2つ目の Worker `mj-scheduler`**（#504）: 予約実行を起動する Worker。コードは `workers/scheduler/`（`.assetsignore` で配信から外す）。2026-10-05 の夜に、同じリポジトリを Path `/workers/scheduler` で Workers Builds につないだ。check-run は「Workers Builds: mj-scheduler」。設定値（申告値）と watch paths の未確認の点は `docs/notes/scheduler-worker.md`
+- Cron Triggers: `mj` は静的アセットだけなので持てない（画面の表示「Triggers cannot be added to a Worker that only has static assets.」）。アカウントの Cron Triggers は `mj-scheduler` の1本（Free は5本まで）
+
+### Chrome からダッシュボードの API を読む（#304 の (9) の照合）
+
+月次の (9)（設定と記録の照合）は、ダッシュボード（dash.cloudflare.com）にログインした Chrome のタブで、チャット側が
+`javascript_tool` から `fetch('/api/v4/<path>', {credentials:'include', headers:{'x-cross-site-security':'dash'}})` を呼んで読める（2026-10-12 に実施）。
+
+- **GET だけ。書き込み（POST・PUT・PATCH・DELETE）はしない**
+- 戻り値の `?` `&` `=` は別の文字に置き換えて返す（`docs/notes/chrome-reading.md` の注意と同じ）
+- ゾーン ID・アカウント ID はこの文書・ログに書かない（mj-logs は public）。ダッシュボードの URL から毎回取る
+- 読めたもの（`zones/{id}/` か `accounts/{id}/` の下）:
+
+| パス | 中身 |
+|---|---|
+| `zones/{id}/settings` | HTTP/3・0-RTT・Always use HTTPS・Rocket Loader・Early Hints・Email Obfuscation・Polish など |
+| `zones/{id}/settings/speed_brain` | Speed Brain |
+| `zones/{id}/bot_management` | AI bot policies・AI Labyrinth（`crawler_protection`）・Super Bot Fight Mode |
+| `zones/{id}/rulesets/phases/http_ratelimit/entrypoint`・`.../http_request_firewall_custom/entrypoint` | レート制限・カスタムルール |
+| `zones/{id}/flags/products/cache/changes` | Crawler Hints の適用の履歴（`zones/{id}/settings/crawlhints` は 400。設定名が違う） |
+| `accounts/{id}/registrar/domains/ryoei.pro` | ドメインの自動更新・期限（公式にはこの旧パスは 2026-09-27 で end of life、#555） |
+| `accounts/{id}/workers/scripts`・`accounts/{id}/builds/workers/{tag}/triggers` | Workers Builds のトリガー（本番・非本番の2つ。除外は上の表） |
+| `accounts/{id}/builds/builds/<Build ID>`・同 `/logs` | 1回のビルドの段階・所要時間とログ（Build ID は check-run の `.output.summary`。2026-10-13 にチャット側が読んだ） |
+
+### APIトークンの棚卸し（2026-09-12）
+
+現役は平野さんのアカウント（`<平野さんのメールアドレス>`）に紐づく **User API Token 1本**（`mj build token`。Workers Builds が自動発行するため Account Token は選べない）。**このユーザーのアカウントが使えなくなると本番反映が止まる。****権限は手で絞らず触らないこと**（次のビルドが壊れうる）。リポジトリを接続し直すと同名トークンが増えるので、古いものは削除する。4本→1本に整理した経緯は `docs/notes/handover-archive-2026.md`
+
+2026-10-06 も1本（申告値。期限なし）。`mj-scheduler` は同じ `mj build token` を使い、接続でトークンは増えなかった。
+
+### ビルド成否と本番の確認範囲（check-runs）
+
+セッションから Cloudflare・本番に到達できるかの実測は `docs/notes/session-network.md`（#328）。
+
+**チャット側が成否を確かめるとき**（2026-10-14 に `docs/notes/chat-side-operations.md`「読み方」の表から移した、#492）: check-run（`gh api repos/retroeater/mj/commits/<sha>/check-runs`）。1つのコミットに Worker ごと（`mj`・`mj-ask`・`mj-scheduler`）と本番・プレビューの別で複数付く。**失敗を平野さんに伝える前に、失敗した check-run の Worker 名・Build ID・本番かプレビューかを書く**（見分け方は下の「ビルドが Cloning で失敗したとき」）
+
+- **到達できても、セッションから `wrangler deploy` は行わない。** 本番反映は
+  Workers Builds（`cloudflare`へのpushで自動実行）に一本化しているため。
+  `CLOUDFLARE_API_TOKEN` を GitHub Secret に登録しない方針（二重デプロイの防止）
+  と同じ理由。`check-assets.yml`は検査専用でデプロイは行わない
+
+**「本番のHTMLがどうなっているか」と「ブラウザでどう見えるか」は別物であり、確認できる
+範囲が違う。この2つを混同しないこと。**
+
+- **ビルドが成功したかどうかは check-runs で確認できる。** Workers Builds は
+  結果をGitHubにチェックとして書き戻すため、ダッシュボードに入らずに済む。
+  `gh api repos/retroeater/mj/commits/<sha>/check-runs` で
+  「Workers Builds: mj」のcheck-runを見れば、`conclusion`（success/failure）と
+  実行ログへのリンクが取得できる（#153で実例、2026-09-12の#169後始末
+  （`1f7f76d`）でも`success`を確認済み）。**check-run が success になった時点で本番は反映済み。確認の手順は今のままで変えない。
+  success の後に古い内容が返る事例が出たら起票する**（#334、2026-10-03 にクローズ）
+- **同じコミットにプレビューのビルドの check-run「Workers Builds: mj」も付く**（作業ブランチへ push したコミットを fast-forward で `cloudflare` に入れたときなど）。
+  本番のものかは、**完了した** check-run の `output.summary` に `Preview URL`・`Preview Alias URL` が無いことで見分ける（上の「success になった時点で本番は反映済み」は本番の check-run に限る）。
+  **実行中（`in_progress`）の check-run の summary にはプレビューの URL が出ないので、完了するまで本番かどうかを見分けられない**
+- **本番のビルドが順番を待つ間に `cloudflare` へ新しい push が来ると、古い本番のビルドは飛ばされ（Build history の印は ⏩）、最新のものだけが走る。**
+  多くの作業ブランチが同時に push してプレビューのビルドが詰まると起きる。待てば最新が反映されるので「Retry build」は要らない。
+  作業ブランチを `cloudflare` へマージした直後に自動の再生成の push が続くと、マージのコミットにはプレビューの check-run（success）だけが付き、本番は次のコミットのビルドで反映される。本番の確かめは、本番の check-run が付いたコミットか本番の HTML で行う
+  マージ後に本番の check-run が付かないまま本番が古いときは、壊れたと判断する前にこれを疑う
+  （2026-10-16: 1447edda1〈09:19 JST〉の後の本番のビルドが続けて飛ばされ、5bf5d9b0f〈10:33 JST〉で反映。⏩ は平野さんの Build history の申告値）
+- **check-run は push の先頭コミットにしか付かない（2026-09-13）。**
+  複数コミットをまとめて push した場合、Workers Builds の check-run が
+  記録されるのは先頭の1つだけで、それ以外のコミットには何も付かない。
+  実例: #26 の実装コミット `c002bd1` には check-run が無く、同じ push に
+  含まれる `9780f83` に `Workers Builds: mj = success` が付いていた。
+  **check-run が無いことを「反映されていない」と読まないこと。**
+  1回のビルドは check-run を2つ残す（始まりの `in_progress` と完了。`external_id` が同じ）。`commits/<SHA>/check-runs` は既定（`filter=latest`）で名前ごとに最新の1つしか返さないので、同じコミットのプレビューと本番の両方を見るときは `filter=all` を付けて `external_id` ごとにまとめる
+  確認するときは、そのコミットではなく push の先頭（＝そのとき branch の
+  HEAD になったコミット）の SHA で引くこと。到達できないことと存在しない
+  ことは別、という #169 の教訓と同じ型の誤りになる。
+- **`docs/**` のみのコミットには Workers Builds の check-run が付かない
+  （2026-09-13、#171の裏付け）。** #171 で平野さんが Build watch paths の
+  Exclude paths に `docs/**` を追加したが、ダッシュボードの設定値は
+  セッションから検証できないため申告の記録として残していた。実際に
+  check-runs を引くと、ドキュメントのみの `c4083c4` / `8466d08` には
+  GitHub Actions の `check` だけが付き `Workers Builds: mj` が無い。
+  **設定値そのものは見られなくても、結果は check-runs から観測できる。**
+  逆に言えば、push の範囲全体が `docs/**` のみなのに `Workers Builds` が現れたら
+  設定が外れた合図になる。
+- **判定は push 全体のファイルで行われる**（公式: https://developers.cloudflare.com/workers/ci-cd/builds/build-watch-paths/ 「For each path in a push event」。
+  0ファイル、または 3000 ファイル以上か 20 コミット以上の push は判定を飛ばして必ずビルド）。
+  ログだけのコミットが先頭でも、同じ push に docs 以外の変更が入るとビルドされる。よくあるのは、
+  作業ブランチに cloudflare を取り込む・マージ済みの作業ブランチを cloudflare から作り直して push する・
+  cloudflare へ他セッションの成果物ごとマージする、の3つ（2026-09-28 の実測。新しいブランチへの docs だけの push はビルドされなかった）
+- **ビルドが走るかを試す push は、前の push の「Workers Builds: mj」が completed になってから次を push する。付くまで15分は待つ**（Workers Builds は順番待ちで遅れる。push の4分後には付いていないように見えて、後から付いた例がある。事例は `docs/notes/handover-archive-2026.md`「docs/notes/cloudflare.md・chrome-reading.md から」）
+- **本番のHTMLは取得して確認できるが、ブラウザでの見え方は確認できない。**
+  `curl https://ryoei.pro/<パス>` で配信中のHTMLに変更が入ったかは見られる。
+  レイアウト・CSSの効き・JSの動作は見られず、反映後の目視確認は平野さんの作業のまま変わらない
+- **この区別を曖昧にしないこと。** check-runsの`success`だけを根拠に
+  「本番反映を確認しました」と報告しないこと。本番HTMLを取得した場合も
+  「本番のHTMLに反映を確認した。ブラウザでの見え方は未確認」の粒度で書く
+- **headless Chromium のスマホ幅の計測は、実機と違うことがある（2026-09-19、#414、CHAT-0919-HG-06）。**
+  `Emulation.setDeviceMetricsOverride` を `mobile: true` にして測ると、内容が画面より広いページ（jpml_pros の 934px 固定の表）では、
+  レイアウトビューポート（`innerWidth`）が内容の幅まで広がる。固定ナビも同じ幅になってメニューボタンが画面外に出て、
+  横送りでは `scrollX` が動かないため `left: 0` の sticky も効かない。iPhone の Safari の実機ではこうならなかった
+  （`mobile: false` にすると実機と同じ振る舞いになる。比較は https://github.com/retroeater/mj/blob/4be965e22e7e64c4ba0db6400a943ffcd17a99f2/docs/logs/CHAT-0919-HG-06.md 「手順2」）。
+  内容が画面幅に収まるページ、ナビの高さ、要素の大きさには差が出ない。
+  **スマホ幅の異常をエミュレーションだけで見つけたら、起票の前に平野さんの実機で確かめる**
+
+#### ビルドが Cloning で失敗したとき（2026-10-13）
+
+- **見分け方（check-runs で読める範囲）**: 1つのコミットに Workers Builds の check-run が Worker ごとに付く（`mj`・`mj-ask`・`mj-scheduler`）。
+  本番かプレビューかは `.output.summary` に `Preview URL` があるかで見分ける（本番には無い。成功した本番には `Version ID` だけが出る）。
+  **見分けられるのは成功したビルドだけ。** 失敗したビルドは本番もプレビューも `Build ID` と `Script` の2行だけで同じ。
+  `check_suite.head_branch` はそのコミットを最初に push したブランチなので、これも使えない（本番で失敗した 5cbc83eb でも `work/1013-snm-check`、#561）。
+  **1回のビルドで check-run が2本できる**: 開始時の `in_progress`（`started_at` が開始時刻。更新されずに残る）と、完了時に別に作られる `completed`
+  （`started_at` と `completed_at` が同じ完了時刻）。2本は `.output.summary` の `Build ID` が同じ。**所要時間はこの2本の差で概算できる**。
+  `in_progress` が残っていても、同じ Build ID の `completed` があれば止まってはいない
+- 失敗の段階・エラー文・段階ごとの秒数は check-run に出ない。ダッシュボードの Build history（平野さん）か、チャット側が Chrome で
+  ダッシュボードの API（下の「Chrome からダッシュボードの API を読む」の `builds/builds`）で読む。Build ID は check-run の `.output.summary` にある
+- **対処: 設定は変えない。** 次の `cloudflare` への push か、ダッシュボードの「Retry build」で通る。通るまで本番は前の版のまま（失敗で壊れはしない）。
+  **失敗の通知は `check-build-failure.yml`（#561）**: check-run の完了（`check_run`）で起動し、名前が「Workers Builds:」で始まる failure（`mj`・`mj-ask`・`mj-scheduler`）で、
+  コミットが `cloudflare` に入っていれば（compare の status が identical・behind）ジョブを失敗させ、GitHub の失敗通知メールで知らせる。
+  失敗は本番とプレビューを見分けられないため、同じコミットのプレビューだけが失敗したときも知らせる（受け入れた近似）。
+  起動は Workers Builds の check-run の完了ごと（1日約100回）で、失敗以外はジョブが skipped の実行として Actions の一覧に残る。
+  mj-logs の `actions/status.md` はワークフローごとの直近5回なので、この行はほぼ skipped で埋まり、失敗の回はすぐ表から外れる（気づくのはメール）。
+  2026-10-13 に有効化した（確かめた run は docs/notes/github-actions.md「ワークフローの一覧」）。Cloudflare 側の通知は Universal SSL Alert だけ（上の「DNS・メール・通知の設定」）
+- 事例（2026-10-13 13:15〜14:20 JST、本番向け `mj` が5回続けて失敗）:
+
+| コミット | check-run（UTC、in_progress → completed） | 結果 |
+|---|---|---|
+| `5cbc83eb` | 04:15:57 → 04:23:11（約434秒） | failure。同じコミットのプレビューは success |
+| `9bba7d55` | 04:26:58 → 04:33:41（約403秒） | failure。同じコミットのプレビューは success |
+| `acb5aa04` | 04:57:33 → 05:05:20（約467秒）、Retry 05:12:57 → 05:19:47（約410秒） | 2回とも failure |
+| `023175b4` | 05:10:18 → 05:12:56（約158秒） | failure。同じコミットの本番の `mj-ask` は success |
+| `86979e3d` | プレビュー 05:20:43 → 05:21:06、`mj-scheduler` 05:21:06 → 05:32:50（約704秒）、本番 `mj` 05:34:19 → 05:34:44 | `mj` は本番・プレビューとも success、`mj-scheduler` は failure |
+
+  - 上の時刻と成否は check-runs で確かめた（2026-10-13）。ビルドは同時1本なので、`86979e3d` の本番 `mj` は `mj-scheduler` の失敗を待ってから走った
+  - チャット側の読み（ダッシュボードの API、2026-10-13）: 5回とも Initializing は成功し、Cloning で「Failed: error occurred while fetching repository」。
+    `86979e3d` の本番 `mj` は Cloning 6 秒で成功（Version `88bdd84b`）、`mj-scheduler` も Cloning で失敗。10/9〜10/13 の `mj` の約400回のうち本番の失敗はこの5回だけで、
+    成功した本番は1回 19〜102 秒（大半は 20〜40 秒）。失敗までの時間はばらばらで、決まった上限で切れてはいない
+  - 失敗は `cloudflare` 向け（`mj`・`mj-scheduler`）に限られ、同じコミットのプレビューは通った。原因は不明。本番のトリガーの設定は失敗の前後で同じ（チャット側の読み）
+  - 10/12 の `f09571e4` は check-run で 07:46:18Z → 08:17:18Z（約31分）の failure を確かめた。本番かどうかは check-run からは決まらない（申告値では本番）。
+    10/12 にはほかに `19b99cc9`・`b0ee350e`・`7ac2439e` の failure もあり、どれが本番かは同じく決まらない（#561）
+- プレビューにも、Cloning の同じエラー文で数秒で落ちる例がある（2026-09-29、`work/0928-cx` の `668fdc0`。ブランチを作り直した直後に古いコミットを取りにいった可能性。推測）
+
+### work/ ブランチのプレビュー（2026-09-18、CHAT-0918-TH-07・TH-08）
+
+非本番ブランチへの push でも Workers Builds がプレビューを作る（#38 で有効化、#114 で `*.workers.dev` に noindex）。本番（`cloudflare`）への影響とビルド回数は、今のままでよいと決めた（2026-09-29、#363）。材料は下の「ビルド時間の見積もり」。
+
+- check-run「Workers Builds: mj」の出力（`gh api repos/retroeater/mj/commits/<SHA>/check-runs` の `.output.summary`）に次の2つが出る
+  - `Preview URL: https://<バージョンIDの先頭8桁>-mj.<アカウントのサブドメイン>.workers.dev`（そのバージョン固定。サブドメインの実際の値はこの check-run の出力で確かめる）
+  - `Preview Alias URL: https://<ブランチ名>-mj.<アカウントのサブドメイン>.workers.dev`（ブランチ名の `/` を `-` にした形。例: `work/0918-th` → `work-0918-th-mj…`）。2026-09-12〜18 の work/ ブランチ24本で同じ形を確認。`.` や大文字を含む名前は未確認
+- ログイン不要で誰でも開ける。`x-robots-tag: noindex` が付く。ブランチを削除した後も開ける
+- 別名の URL は前の版を返すことがある（2026-10-12、CHAT-1012-DSN-03: HTML と CSS が前の版で返り、クエリを付けると新しい版が返った。キャッシュと見られる）。版を確かめるときは、版ごとの URL を使うか、別名にクエリ（`?v=<SHA>`）を付けてログの「確認用URL」の印（`docs/logs/_template.md`）を見る
+- この URL は非公開として扱い、作業ログには書かず、ターミナルへの最終報告にだけ書く（CLAUDE.md「作業ログ」節、ログの書き方は `docs/logs/_template.md`）
+- **本番のビルドが走るかは、push の先頭のコミットでは決まらない**（2026-10-17、cloudflare への push 32件の check-run で確かめた。CHAT-1017-PAD-08）。
+  先頭が docs/ だけでも、同じ push のほかのコミットが docs 外を変えていれば本番のビルドが走った（538ab6575・d8a640236・c859c26c8）。
+  docs 外を含む push で本番のビルドが付かなかったのは、どれも本番のビルドが始まる前に、次の docs 外を含む push が cloudflare に来ていたとき（上の「古い本番のビルドは飛ばされ」）。
+  docs/ だけの push は前の本番のビルドを飛ばさなかった（7884f8827・538ab6575・0d31d5ca4・d8a640236 は、後に docs だけの push が続いても走った）
+
+#### ビルド時間の見積もり（2026-09-29、#363）
+
+- Workers Builds のプランは Free: **ビルド時間 月3,000分・同時に走るビルド1本**（公式の Limits & pricing）。同時1本なので、プレビューのビルド中は本番のビルドが待つ
+- 本番のビルド1回は **33 秒**（cloudflare `b5e28a0`、初期化 10 秒・clone 4 秒・install 0.2 秒・deploy 約 18 秒。平野さんのスクリーンショットによる）。Build history の総数は 1,175 回（2026-09-29 時点）
+- 2026-09-28〜29 の24時間のビルドは63回（プレビュー46・本番17。GitHub のイベント記録から数えたもので少なめの可能性あり）。すべて33秒なら1日35分ほど、**月1,000〜1,100分**の見込みで、枠の3分の1程度。枠の数え方に準備の時間が入るかは未確認（33秒は準備を含む）
+- 枠の集計期間は暦の月ではなく課金の期間（2026-10-05 の Usage の画面で「September 9 - October 9」、641 / 3,000 分。申告値）
+- `mj-scheduler` のビルド1回は 34 秒（2026-10-05 の最初のビルド。申告値）。watch paths が効いていない疑いがあり（`docs/notes/scheduler-worker.md`「未確認」）、効くまでは cloudflare への push ごとに1回増える
+- 上限を超えたときの動きは公式のページに書かれていない。ビルドが大きく増えたら（毎日の再生成を増やすなど）見直す
+- `Cloning` の段階の失敗はビルド時間の上限とは関係ない（事例と見分け方は上の「ビルドが Cloning で失敗したとき」）
+
+### check-run が queued のまま・見当たらない場合（2026-09-13）
+
+短時間に連続して push すると、Workers Builds は複数コミットを1回のビルドにまとめる。まとめられた側のコミットには check-run が付かず、`queued` のまま・結果が無いように見えるが、ビルドの失敗でも遅延でもない。
+
+判定の手順:
+
+0. 変更が `docs/**` のみなら、check-run が無いのが正常。以下は不要
+1. 自分のコミットに check-run が無い／queued のままでも、**その後に push された後続コミットの check-run を見る。** success なら自分の変更もそのビルドに含まれてデプロイ済み
+2. それでも不明なら、Cloudflare ダッシュボードの Build history を見る（平野さんの作業）
+3. サイトのファイルを変更した場合は、本番の該当ページで反映を直接確認するのが最も確実
+
+**「check-run が queued のまま」を「デプロイが詰まっている」と報告しないこと。** 実際に誤報が出た経緯（#211 / AR-18）は `docs/notes/handover-archive-2026.md`
+
+### `.github/workflows/check-assets.yml`（旧 deploy.yml）
+
+デプロイ前に「除外後に配信される最上位の項目」をログに出し、
+`.assetsignore` の漏れ（#133 の再発）を検知する。ワークフロー内の許可リスト（`allowed`）に
+無い最上位の項目が出たらジョブを失敗させる（#331）。Cloudflareへのアクセスは一切必要としない。
+
+- 公開ディレクトリ・最上位の新しい種類のファイルを足したときは `allowed` への追加が要る。
+  `*.json` はパターンにせず個別に列挙している（新しい json は一度落として公開してよいか判断する）
+- git で追跡されていない項目（`.youtube_api_key`・`.git`・`.wrangler` 等）はこの検査では見えない。
+  追跡されていなければ Workers Builds が取得しないため本番にも載らない
+
+- これは**「防止」ではなく「検知」。** Workers BuildsはGitHub Actionsと
+  独立に動くため、このワークフローが失敗しても本番反映は止まらない。
+  止めたい場合はゲート（#170）が必要
+- この検査は `git -c core.quotePath=false ls-files` を使う必要がある。
+  既定では非ASCIIを含むパスが `"docs/..."` と引用符ごと出力され、先頭が
+  `"docs` になって `.assetsignore` の `docs` と一致せず誤検出する
+  （`docs/gsc` 配下にSearch Consoleの日本語名CSVがある）
+
