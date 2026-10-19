@@ -59,6 +59,68 @@
 
 ## 経過
 
+### 0章
+
+- Chat-Ref の重複なし（`git log --all --grep`・`docs/logs/`）。「指示」欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている（1段落にまとまって貼られた）
+- work/1019-ouk25 を origin/cloudflare（d8b213689）から作った
+- 未マージの work/ ブランチ（`git branch -r --no-merged origin/cloudflare`）と、この作業で消す・直すファイルの重なり:
+
+| ブランチ | 重なるファイル | 同じ行・同じ関数か |
+|---|---|---|
+| work/WRR | `scripts/regenerate.py`・`scripts/generate_houou_pages.py`・`scripts/generate_ask_data.py`・`style.css`・`docs/handover.md`・`docs/notes/static-generation.md`・`docs/notes/ask-worker.md`（ほかに `docs/decisions/houou.md`） | コードは別の箇所（`git merge-tree` で自動で混ざる）。`static-generation.md` の「ページの一覧」の件数の段落だけ同じ行に WRR が追記していたため、その行は変えず、件数の注記を見出しの前の段落に置いた（下の「文書」）。`docs/decisions/houou.md` の末尾の衝突は origin/cloudflare と WRR の間ですでにある（この作業とは別） |
+| work/1017-lvp | `style.css` | 別の箇所（saikyo/・video の節）。自動で混ざる |
+| ほか6本 | なし | — |
+
+- WRR とは意味の上の重なりがある: WRR の `regenerate.py` の `SHARED_GENERATORS` の `wrcr_pages` に `"houou_race"` が入っている。この作業で `houou_race` は生成の対象でなくなる（部品は `scripts/lib/houou_race.py`）ので、WRR を取り込むときに直す必要がある（報告の「WRC への引き継ぎ」）
+
+### 1. 消す前の grep（ファイル → 読んでいた所 → どうしたか）
+
+| ファイル | 読んでいた所 | どうしたか |
+|---|---|---|
+| `houou_ranking.html`・`houou_results.html` | `_redirects`（301 の行）、文書、`docs/gsc/` の CSV。`houou_results.html` は `generate_houou_pages.py`・`lib/results.py` のコメント | 消した。`_redirects` の行は残す |
+| `houou_leagues.html` | `check_leagues_dropped.py`・`generate_houou_leagues.py`・`regenerate.py`、`test_jpml_pros.py`（無いことの確かめ）、`style.css` | 消した。生成と `regenerate.py` の対象を消した |
+| `houou_race.html` | `assets/league_race.js`（コメント）、`generate_houou_pages.py`・`generate_houou_race.py`、`scripts/promo_video/houou_race/`、`regenerate.py`、`style.css`（コメント） | 消した。`assets/*.js` のコメントは変えない（ページの参照のハッシュが変わり、新しいページの生成物に差分が出るため）。告知動画の制作のスクリプトは当時の記録として残した |
+| `houou_leagues_data.json`・`ouka_leagues_data.json` | `check-assets.yml` の allowed、`_headers`、生成、`regenerate.py` | 消した。`_headers` の Cache-Control の規則を消した。`check-assets.yml` の allowed の行は許すだけで害が無く、ワークフローは変えない指示のため残した |
+| `houou_race/`（41ファイル） | `generate_houou_race.py`・`regenerate.py`、告知動画の撮影のコメント | 消した |
+| `houou_results.js` | `generate_houou_pages.py` のコメント（由来） | 消した。コメントは由来として残した |
+| `houou_race.js` | `assets/league.js`・`assets/league_race.js`・`style.css` のコメント、`generate_houou_race.py` の `render_page()` の既定値 | 消した。`style.css` のコメントは `assets/league_race.js` に直した。`render_page()` の既定値は呼ぶ側が必ず渡すので残した |
+| `ouka_results.html`・`ouka_ranking.html`・`ouka_leagues.html`・`ouka_results.js` | `_redirects`、文書、`test_houou_pages.py`（`_redirects` の行の確かめ） | 消した |
+| `generate_ouka_leagues.py` | `regenerate.py`・`test_simple_pages_check.py`・`test_ouka_columns.py`・`test_league_candidates.py` | 消した（新しい ouka/ の生成は使っていない）。テストの該当の分を消した |
+| `wrc_results.html`・`wrc_ranking.html`・`wrc_results.js` | `_redirects`、文書 | 消した |
+| `league_ranking.js` | 旧ランキングの3ページだけが読む。`lib/ranking.py`・`generate_houou_pages.py`・テストのコメント（移植の由来） | 消した（JWRC の分岐も一緒に消えた）。コメントは由来として残した |
+| `leagues.js` | `houou_leagues.html`・`ouka_leagues.html`、生成、`lib/chart.py` のコメント。新しいページは読まない（grep の当たりは `players/leagues.json`） | 消した |
+| `check_leagues_dropped.py` | 手動実行だけ（ワークフローは前に削除済み） | 消した（下の「判断」） |
+| `scripts/apply_page_meta.py` | — | 53d574b0d（#517）で消してあった。対象なし |
+
+### 部品の移動・つなぎ
+
+- `generate_houou_race.py` は `main()`・`legacy_half()`・`write_data()`・`run_check()` と出力先の定数を消すと部品（読み込み・累計・帯・`render_page()`・名前の辞書）だけになるため、`scripts/lib/houou_race.py` へ移した（`git mv`、R088）
+- `generate_houou_leagues.py` は `main()`・`legacy_load()`・SVG の組み立てを消すと部品（`period_of`・`period_label`・`load`・`current_name`・`current_rows`・`load_candidates`）だけになるため、`scripts/lib/houou_leagues.py` へ移した
+- 移した理由: `regenerate.py` の `known_pages()` は `scripts/generate_*.py` をページとして数えるため、部品だけのファイルを残すと `--list`・`all` に出る。`lib/` の変更は全ページを選ぶ（`SHARED`）ので `--changed` の取りこぼしも無い
+- import を直した: `generate_houou_pages.py`・`generate_jpml_pros.py`・`generate_jwrc_pages.py`・`generate_ouka_pages.py`・`check_unused_names.py`（`NAME_RESOLVERS` のキーも `lib.houou_leagues.current_name` などに）とテスト5本
+- `lib/leagues.py` の `upper_counts()`・`build_player_series()`、`lib/chart.py` の `stacked_column_chart()`・`render_legend()`（旧型C だけが使う）を消した
+- 「プロ」タブの列記号の読み方の件は触っていない（指示のとおり）
+
+### 生成を止めた・regenerate.py
+
+- 対象から消した: `houou_race`・`houou_leagues`・`ouka_leagues`（`--list` は27ページ）。`OUTPUT_OVERRIDES` の3件を消し、`SHARED_GENERATORS` の `ouka_pages`・`jwrc_pages` から `houou_race` を外した（部品は `lib/` にあり全ページが選ばれる）
+
+### style.css・テスト・サイト内のリンク
+
+- `style.css`: 旧型C の節（`.mj-league-chart-*`・`.mj-chart-legend*`）と、説明文の幅を合わせる `body:has(.mj-league-chart-*) .mj-lead` を消した（サイトの HTML・JS のどこにも無いことを確かめた）
+- `.mj-race` の節は消していない: 節の中のクラスはすべて `houou/race/`・`ouka/race/`・`jwrc/race/` か `assets/league_race.js` が使っている（旧ページだけが使う規則は見つからなかった。`.mj-houou-race` で上書きされる規則の整理は見た目の確かめが要るため今回はしない）。旧ページを指すコメントだけ直した
+- テスト: 旧ページの生成のテスト（`LeaguesCheckTest`・`OukaCheckTest`・`OukaLeaguesTest`、`test_leagues_data_json_is_committed` など）を消し、`test_regenerate.py` の `--changed` の確かめを新しい形にした
+- サイトマップ・`llms.txt` に旧ページの行は無かった（公開の時点で外してあった）。サイト内の HTML から旧ページへのリンクも無かった
+
+### 文書
+
+- `docs/notes/static-generation.md`: ページの一覧の行（型C・順位変動・Google Charts 依存）を消し、件数（24 → 15ページ）は見出しの前の段落に書いた（WRR が件数の段落に追記しているため。上の0章）。「ページ側のJS」の旧 JS の記述を1行にまとめ、`check_leagues_dropped.py` の行を消した。型C の移行の記録の節は冒頭に「当時の記録」の1行を足した
+- `docs/notes/houou-race.md`: 冒頭に旧ページを消したことと今の置き場所を書き、ファイルの表を今の形にした
+- `docs/notes/ouka-top.md`・`houou-top.md`・`ask-worker.md`・`mj-lead.md`・`a11y-manual-check.md`: 旧ファイル名・旧ページの記述を直した
+- `CLAUDE.md`「データの流れ」: 型C の選択リストと Google Charts 依存の6ページの行を消した（どちらのページも無くなったため）
+- `docs/handover.md`: ページ構成の系統、外部依存（Google Charts は依存するページが0）、#7 の行と「#7 の進め方」の現状を直した
+- `docs/decisions/houou.md`: 今日の決定の節を足し、2026-10-14（公開の後もしばらく残す）・2026-10-16（2026-10-23 の Search Console の後）・OUK・WRC の「旧ページを残す」の行に「→ 置き換え」を付けた
+
 ## 報告
 
 - 状態: 作業中
@@ -75,12 +137,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 268fdb4e）: https://github.com/retroeater/mj-logs/tree/main/guide/268fdb4e
+ガイド文書（この版を写した時点の最新、mj 10e55a48）: https://github.com/retroeater/mj-logs/tree/main/guide/10e55a48
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/268fdb4e/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/268fdb4e/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/268fdb4e/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/268fdb4e/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/268fdb4e/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/268fdb4e/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/10e55a48/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/10e55a48/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/10e55a48/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/10e55a48/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/10e55a48/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/10e55a48/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/4e223c8f.md

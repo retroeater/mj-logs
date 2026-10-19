@@ -96,15 +96,72 @@
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 0. 着手前の確認（2026-10-19）
+
+- 指示欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある
+- `git log --all --grep="CHAT-1019-AIC-07"` は0件。`AIC` はこのチャットの系列（AIC-01〜06）
+- 30a83d63 は origin/cloudflare の祖先。AIC-06 のログの `## 報告` は「判断待ち」で、差分はログ2つだけ（コードは変えていない）。状態の末尾に ` / 続き: CHAT-1019-AIC-07` を足した
+- `origin/work/1019-aic` は未マージ（cdacf8d5）で、ローカルと一致。`origin/cloudflare` が祖先でなかったので `git merge origin/cloudflare` で取り込んだ（衝突なし）
+- #542・#586 に他セッションの着手中は無い（#542 の最後は MRO-01 の報告〈04:00Z〉、#586 はコメント0件）。両方に着手中のコメントを書いた
+- 未マージの `origin/work/WRR`（CHAT-1019-WRR-02）が `ask.mjs`（`WRCR_PLAN_SYSTEM` の追加と `PLAN_SYSTEMS` の行）と `index.mjs` を変えている。同じファイルの別の箇所なので止まらない。`PLAN_SYSTEMS` の行と `index.mjs` は触らなかった。
+  実装の後、`git merge-tree` で WRR と衝突しないこと、合わせた木で `node --test` が70件通ることを確かめた
+
+### 1. 記録の追加
+
+- `ask.mjs` の `record()` が `answer`・`args` も書く（INSERT は列を名指し）
+  - 答えた: 2回目の Claude の答えの本文。答えられなかった: 返した文言（「答えられません。」と候補）。候補を出した（下の a）: その文
+  - Claude の失敗: 返す文言が無いので「失敗: <理由>」（例「失敗: Claude plan: HTTP 529」）。f の原因を後から分けるため
+  - `args`: 1回目の Claude が返した引数のうち null でないものの JSON（例 `{"entry":23}`）。型が `none`・失敗・引数が無いときは空（NULL）
+- `weekly.mjs`: 見出しを `['日時', '質問文', '結果', '型', '答え', '引数']` にし、ブックに行があれば毎回1行目を書き直す（`values` の PUT、RAW）。4列のブックは次の回で6列になる。結果のラベルに「候補を出した」を足した
+- `schema.sql` を7列に（`answer TEXT`・`args TEXT`）
+- セルの上限: 答えの本文は `ANSWER_MAX_TOKENS` 2048 で数千字まで、質問は200字、引数は数十字なので、5万字に収まる（切る処理は足していない）
+- IP を残さないことは `ask.test.mjs`「記録には…IP は残らない」で確かめ続ける
+
+### 2. 改善 a・b・c・f と放送対局の回数
+
+型と引数の決め方: 鳳凰戦だけに足し、ほかの大会（`ouka:`・`jwrc:`）の型と検索条件の形は変えない（`HOUOU.types`・`typesOf()`・`planSchema()` の `HOUOU_ARGS`。ほかの大会の data の `contest` は `types` を持たないので6つの型のまま。テスト「鳳凰戦だけの型(entry)と引数(rank)は…」で確かめる）。
+
+- a（名字だけ・名前の一部）: 1週間の例をデータに当てると、「本田」「瀬戸」「堀」は候補が複数で `ambiguous_name`、「松澤」も松澤悠介と退会した松澤賢一の2人で `ambiguous_name`。今までは「答えられません。」と候補5人だった。
+  鳳凰戦は、プログラムが「「堀」に当たる選手はN人います: …。名前を足して、もう一度聞いてください。」と書き、`answered` で返す（2回目の Claude は呼ばない。記録の結果は `candidates`、ブックでは「候補を出した」）。
+  並びは頭から一致 → 途中に含む、それぞれ在籍者が先、読みの順（`nameCandidates()`）。10人まで書き、残りは「ほか N人」。答えの下の選手のカードは画面が文の名前から作る。
+  1回目の指示に「名前・名字・名前の一部だけの質問(「松澤」「堀」)も player」を足した（名前だけの問いが none になるのを防ぐ）
+- b（入会期だけ）: 新しい型 `entry`（鳳凰戦だけ）。その入会期の在籍選手を、最後に出た期のリーグの上から並べる（37期生は62人）。10人を超えたら上位10人と「ほか N人」を渡す（`PLAYER_LISTS` に足した）。注記「入会期が分かるのは在籍中の選手だけです」
+- c（N番目・リーグの人数と順位）: 引数 `rank` を足した（鳳凰戦だけ）。`ranking` は「N番目」の位置の順位の選手（同率は全員）、`league` はその順位の選手だけ。
+  「現在」「今」は、1回目の指示の最後に「データのある最新の第43期前期として term に43、half に「前」」の一文をデータから作って足す（`currentLine()`）。「生涯」「これまでの合計」は「通算」と読ませる。リーグの人数は前から `count` で答えられ、指示に「人数」の語を足した
+  - **第43期前期のA1の人数は、データに無いので答えられない**: A1 は通期のリーグ（#541）で、第43期の行は期が終わるまで無い（data.json の第43期は前期の B2 以下だけ）。指示の例の問いの失敗は、型の外れではなくデータの無さによる。テストは「第43期前期のB1の人数」（16人）と「第42期のA1の人数」（15人）で確かめた。#586 に残す
+- 放送対局の回数: 指示の `live` を「一覧・回数」にした。/live に載る鳳凰戦は決定戦のページだけなので、「第40期の放送対局は何回？」は1回（決定戦）と答える
+- f（「23期生の鳳凰位は？」が 2026-10-16 22:10 JST ごろに2回続けて答えられなかった）:
+  - 当時の版（fdbb26b1e、2026-10-16 07:18Z の data.json と、その日の ask.mjs）で `champions` `{entry: 23}` を当てると吉田直・白鳥翔の2人が返る。検索とデータは正しかった
+  - 型が空で記録されるのは、1回目の Claude が `none` を返したときと、Claude の呼び出しが失敗したとき（HTTP エラー・25秒の待ちの超過・`stop_reason` が `end_turn` でない・JSON の読み取り失敗。`request_` が null のまま）の両方。記録からはどちらか決められない。Workers Logs（「答えの作成に失敗: …」の行）はセッションから読めず、Anthropic の状況のページ（status.claude.com）もセッションのプロキシで拒否された
+  - 画面は、失敗なら「いまは答えられません。」、none なら「答えられません。」を出す（`assets/houou_ask.js`）。どちらが出たかも分からない
+  - 直したこと: (1) 1回目の指示の champions に「「23期生の鳳凰位は？」「23期生で鳳凰位になった人」は entry が23」を足した（「N期の鳳凰位」は term という読み分けの行と取り違えて none にする筋を消す）。(2) 失敗の記録の答えに「失敗: <理由>」を書くようにした（次に起きたら、記録だけで none か失敗かを分けられる）
+  - 直していないこと: 失敗のときの再試行。原因が確かめられないまま呼び出しを増やさない。(2) の記録で失敗が続くと分かったら考える
+
+テスト: `node --test 'workers/ask/test/*.test.mjs'` 63件通過（ask 39 を含む。新しく足したテスト〈候補の4問・候補の並び・ouka は今までどおり・b・c・放送対局・f の各問・指示の文・ほかの大会の形・記録の答えと引数・見出しの書き直し〉は、修正前のコード〈origin/cloudflare の src〉に新しいテストを当てると ask.test.mjs が読み込めず失敗、weekly の2件が失敗することを確かめた）。
+`python3 -m unittest discover -s scripts/tests` 1430件通過。
+
+成果物のコミット: 下の「マージ」の節に SHA を書く。
+
+### 3. #586 の本文
+
+- 本文に「2026-10-19 から #542 の後継」、「1週間の試行からの改善」の表（記録・a・b・c・f の内容と状況）、入れないもの（d・e）を足した。「答えられない種類の問い」の2問に2026-10-19 の扱いを書き（第43期の A1 は今も答えられない）、「答えのばらつき」は直していないと書いた。末尾に `Chat-Ref: CHAT-1019-AIC-07` を足した
+- docs/decisions/houou.md に「2026-10-19（CHAT-1019-AIC-07）」の節を足し、2026-10-11 の grill Q8 の行に置き換えの印を付けた
+
+### 4. マージ
+
+- push の直前に再 fetch し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真であることを確かめて `git push origin work/1019-aic:cloudflare`
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 268fdb4e）: https://github.com/retroeater/mj-logs/tree/main/guide/268fdb4e
+ガイド文書（この版を写した時点の最新、mj 10e55a48）: https://github.com/retroeater/mj-logs/tree/main/guide/10e55a48
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/268fdb4e/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/268fdb4e/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/268fdb4e/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/268fdb4e/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/268fdb4e/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/268fdb4e/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/10e55a48/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/10e55a48/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/10e55a48/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/10e55a48/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/10e55a48/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/10e55a48/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/4e223c8f.md
