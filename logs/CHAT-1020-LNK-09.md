@@ -55,6 +55,47 @@ LNK 系列（CHAT-1019-LNK-01〜08、「連盟 > リンク」の廃止とメニ�
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+- 0章: 指示欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている。`git log --all --grep=CHAT-1020-LNK-09` は0件。ガイド文に規則を足す指示で、「知見 → 選んだ層 → 理由」の表がある
+- ブランチ: `work/1020-lnk` はローカルにもリモートにも無かったので `git checkout -b work/1020-lnk origin/cloudflare`（2ec24f239）
+
+### 手順1
+
+- 同じ論点の issue の検索（「指示文の雛形 本番の確かめ 未確認の項目 send_later 振り返り 前回の約束」、open・closed とも）: 0件
+- 追記先の今の内容:
+  - `docs/instruction-template.md:30`: 「- 待機の上限15分と、共有の定数・関数を変えるときの全ページ再生成は CLAUDE.md「判断・作業の原則」が受け手に課す。指示文には例外だけ書く」
+  - `docs/notes/chat-routines.md:48`（「振り返り」の観点のチェックリスト）: 「- 前回の振り返り・レビューで立てた約束（「次からこうする」）が守られたか。守られなかったなら、約束のほうが過剰でなかったか」
+  - 根拠の決定 `docs/decisions/operations.md`「2026-10-17（CHAT-1017-PAD-09）」: 「本番の確かめが要るマージの後に本番が古いままなら、今までどおり Code は15分で待つのをやめて『未確認の項目』に回し、チャット側が予約（send_later）で後から確かめる」（矛盾は無い）
+- 容量（作業ブランチ 2ec24f239 の上で `wc -c`）:
+
+| 文書 | 今 | 警告域 | 上限 | check-assets.yml の対象 |
+|---|---|---|---|---|
+| `docs/instruction-template.md` | **14,325 bytes** | 14,336 bytes（14KB） | 16,384 bytes（16KB） | 対象（`check "docs/instruction-template.md" "$TEMPLATE" 14336 16384`） |
+| `docs/notes/chat-routines.md` | 17,165 bytes | なし | なし | 対象外 |
+
+- **`docs/instruction-template.md` は警告域まで残り 11 bytes。** 30行の末尾に1句（例: 「。マージ後の本番の確かめが15分で済まないときは、判断待ちにせず「未確認の項目」に回して完了にする（チャット側が send_later で確かめる、PAD-09）」）を足すだけで 203 bytes 増え、14,528 bytes で警告域に入る。止まる条件「追記で警告域に入る」に当たるので、2つの文書とも変えず、`docs/decisions/operations.md` にも書かずに止めた（片方だけ書くと申送りが半分になるため）
+- CLAUDE.md の更新ルールでは、警告域に近づいたら足す前に `docs/notes/` へ移す（警告が出たら4文書とも整理する）。どこを移すかは判断が要る
+
+### 手順2・3
+
+- 行っていない（止まる条件）
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1020-lnk
+- ログ: https://github.com/retroeater/mj/blob/work/1020-lnk/docs/logs/CHAT-1020-LNK-09.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1020-lnk
+- 確認用URL: なし
+- マージ: 未（止まる条件に当たったので、ログも cloudflare へ入れていない）
+- issue: なし
+- 判断が必要なこと:
+  - `docs/instruction-template.md` が 14,325 bytes で、警告域（14,336 bytes）まで 11 bytes しかない。1行目の申送り（本番の確かめを「未確認の項目」に回す）を書くには、先に同じ文書から同じ量以上を `docs/notes/` へ移すか（どの行を移すか）、置き場所を雛形以外（`docs/notes/chat-side-operations.md` の指示文の書き方の節など）にするかを決めてほしい
+  - 2行目（`docs/notes/chat-routines.md` の振り返りの行、容量の上限なし）は単独でも書けるが、申送りを分けずに1度で入れるため書いていない。分けて先に入れてよいか
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
