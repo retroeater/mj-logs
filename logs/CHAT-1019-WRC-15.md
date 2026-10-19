@@ -1,0 +1,65 @@
+# CHAT-1019-WRC-15
+
+- 着手日時: 2026-10-19
+- 対象issue: なし（関係: #594・#599）
+- ブランチ: 前半 work/1019-wrc15 → cloudflare へマージ。後半 work/1019-wrc14（マージしない）
+- 着手時HEAD: 6f0d999b1
+
+## 指示
+
+【Claude作成】Claude Code 向け指示：jwrc/ の質問欄で「現タイトルホルダーは？」に答えられるようにし、例の文を変えてマージする（前半）。その後、告知動画の順位変動の場面と字幕を直して撮り直す（後半、判断待ちで止まる） Chat-Ref: CHAT-1019-WRC-15 マージ: 前半（質問欄・例の文）は、下の確かめが通れば cloudflare にマージする（2026-10-19、平野さんが直しを依頼）。後半（告知動画の制作のスクリプト）は判断待ちで止まる（平野さんが動画を見て確定してから、別の指示でマージする。動画はリポジトリに入れない） 貼る時機: いつでも（CHAT-1019-WRC-14 と同じセッションでよい） 共通手順: CLAUDE.md「Chat-Ref」「ブランチ運用」「作業ログ」節のとおり（識別子確認 → origin/cloudflare を起点に work/<識別子>〈クラウドセッションでは worktree を使わず docs/notes/cloud-sessions.md の読み替えに従う〉 → ログ先行push → 最終報告の Chat-Ref の行の直前に「ログ（公開）」の行、最後の行に Chat-Ref）。平野さんは、この指示のための作業ブランチ work/1019-wrc15 の作成・push・cloudflare へのマージと、work/1019-wrc14 の push を許可している（セッションに割り当てられた claude/… のブランチは使わない）。 作業ブランチ: クラウドセッションで実行する。前半は work/1019-wrc15 を origin/cloudflare から作る（このログもここに置く）。後半は未マージの work/1019-wrc14 を続けて使い、前半のマージの後に `git merge-base --is-ancestor origin/cloudflare HEAD` が偽なら merge で取り込む。rebase・force push はしない。リモートに無ければ止まる。
+
+0. 着手前に、このログの「指示」欄の末尾が、この指示文の末尾（最後の行）と一致しているか確認し、一致しなければ作業せず報告する。あわせて CHAT-1019-WRC-14 のログの `## 報告` の状態の末尾に `/ 続き: CHAT-1019-WRC-15` を足す（WRC-14 のログは work/1019-wrc14 にあるので、後半でそちらに足す）。 自律開発の続き。着手後は質問せず、不明な点は仮置きで進めて報告の「判断が必要なこと」に書く。
+
+目的
+平野さんが本番の jwrc/ の質問欄で「現タイトルホルダーは？」と聞いたら「答えられません。」が返った（2026-10-19）。これに答えられるようにし、質問欄の例の文もこの質問にする。告知動画（CHAT-1019-WRC-14 の初版、44.3秒）は、順位変動の場面で通過ラインが映らなかったので直して撮り直す。トップの質問欄が動画に映るので、撮り直しは前半のマージの後に行う。
+決定（2026-10-19、平野さん）
+
+* jwrc/ の質問欄の例の文「例：19期の予選1位は？」を「例：現タイトルホルダーは？」に変える
+* 「現タイトルホルダーは？」に答えられるようにする
+* 告知動画の質問は「通算成績の1位は？」のまま（WRC-14 で保存した答えを使う）
+* 告知動画の順位変動の場面は、次の2つを両方入れる（チャットの案 A と B）:
+   * 字幕を「通過ボーダーの攻防を再現」から、ボーダーが映らなくても合う文に変える（案「各節の結果で順位が入れ替わる」）
+   * 再生の途中で一度、表を通過ラインまで送ってラインを見せ、最後は1位が映る位置に戻して止める（最終結果は上位が映る位置で止める決定のまま）
+* ほかは WRC-14 の版のまま
+
+前提（チャット側。平野さんの決定ではない。実物に合わせて変えてよい）
+
+* 現タイトルホルダーは、WRC-10・11 で決めた「最近見た選手が無いときの1件」と同じ（「タイトル」タブの WRC リーグの最新の期の優勝者。WRC-11 の時点で紺野真太郎）。答えは同じ経路のデータから作り、値を記憶や期の番号で決め打ちしない。予選に出た期が少ない選手でも答える（シード枠からの優勝でよい）
+* 鳳凰戦・女流桜花の質問欄が「現鳳凰位は？」「現女流桜花は？」に答える仕組み（docs/notes/ask-worker.md・Worker の該当の箇所）に倣う。言い換え（「現WRCリーグ優勝者は？」「前回の優勝者は？」「今のチャンピオンは？」など）も答えられるかを確かめ、ログに書く。houou/・ouka/ の答えが変わらないことを Worker のテストで確かめる
+* 例の文は、生成物・Worker の文言・docs（jwrc/ の仕様・ask-worker.md）・テストに出るものをすべてそろえる（`grep -rn "19期の予選1位"` で探す）
+* 通過ラインまで送る動き（仮置き）: 実際の速さの1節の後、早送りの途中で表を通過ライン（第19期は29人目の下）が映る位置まで送り、1〜1.5秒見せてから上へ戻し、最終結果で1位が映る位置で止める。字幕の切り替えの位置は実物に合わせる。長さは60秒以内（WRC-14 は44.3秒）
+* 字幕の文言は仮置き（「各節の結果で順位が入れ替わる」）。通過ラインを見せる間だけ別の字幕（例「通過ライン」）を出すかは、見え方で決めて仮置きする
+
+手順
+
+1. 前半（質問欄）: 「現タイトルホルダーは？」に答える直しと例の文の変更を入れ、テストを足す。`python3 -m unittest discover -s scripts/tests` と `node --test 'workers/ask/test/*.test.mjs'` を回す。`python3 scripts/regenerate.py all` の後、差分が jwrc/ の例の文（と Worker・docs・テスト）だけであることを確かめる。CLAUDE.md「ブランチ運用」節のとおり cloudflare にマージし、Workers Builds（mj・mj-ask）の成否を書く。本番の jwrc/ で、例の文が変わったことと、「現タイトルホルダーは？」と言い換え2つを聞いた答え（要旨）を書く（本番の Worker に送るのは数回に抑える）。上の「決定」を docs/decisions の WRC の決定と同じ置き場所に足す
+2. 後半（動画）: work/1019-wrc14 に cloudflare を取り込み、`scripts/promo_video/jwrc/` を直して本番で撮り直す（1080×1920・30fps・mp4〈H.264・yuv420p、AAC〉・loudnorm -16 LUFS 前後・曲調 b・30〜60秒）。最初のコマ・字幕の位置（上端から 80〜210px、下端から10%以上）・白いままのコマが無いこと・通過ラインが映るコマがあること・最終結果で1位の行が隠れず映ることを確かめる
+3. mp4 を `SendUserFile` で平野さんに送る。動画の長さ、場面ごとの秒（変わった所）、字幕の全文、通過ラインが映る時刻と画面の順位の範囲、最終結果の画面の順位の範囲をログに書く。制作のスクリプトは work/1019-wrc14 に push する（マージしない）
+
+止まる条件
+
+* 前半: テスト（scripts と Worker）が落ちて直せない。houou/・ouka/ の生成物や答えが変わって直しで消せない。cloudflare への push が権限判定で拒否された（別の手段を試さずに止まる）
+* 前半で本番の質問欄が「現タイトルホルダーは？」に答えない（答えを書いて止まる。後半は進めない）
+* 後半: 本番の jwrc/ が開けない。work/1019-wrc14 への取り込みで衝突する（解かずに止まる）。work/1019-wrc14 を cloudflare に push しない
+
+完了条件
+
+* ログの「## 報告」を CLAUDE.md「作業ログ」節のとおりに書いて push する。状態は判断待ち（動画）。前半のマージの SHA を書く。「判断が必要なこと」に、動画の確定か直しかと、新しく仮置きしたこと（字幕の文言、通過ラインを見せる秒と動き）を書く
+* マージは冒頭の「マージ:」の行のとおり
+* ターミナルへの最終報告の Chat-Ref の行の直前に ログ（公開）: https://github.com/retroeater/mj-logs/blob/main/logs/CHAT-1019-WRC-15.md?v=<SHA>（CLAUDE.md「作業ログ」節）を書き、最後の行に Chat-Ref: CHAT-1019-WRC-15 を書く
+
+着手後は質問せず、不明な点は仮置きで進めて報告の「判断が必要なこと」に書いてください。この行が指示文の最後の行です。
+
+<!-- guide-links -->
+---
+
+ガイド文書（この版を写した時点の最新、mj d5b59e67）: https://github.com/retroeater/mj-logs/tree/main/guide/d5b59e67
+
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d5b59e67/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d5b59e67/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d5b59e67/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d5b59e67/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d5b59e67/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d5b59e67/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/10e55a48.md
