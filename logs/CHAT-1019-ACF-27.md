@@ -60,6 +60,45 @@ Chat-Ref: CHAT-1019-ACF-27
 
 ## 経過
 
+- Chat-Ref の重複確認: `CHAT-1019-ACF-27` のコミット無し（fetch の後）。雛形の行は揃っている。着手は 09:58 JST（月曜 06:00〜09:00 の外）
+- 作業ブランチ: ローカル・リモートとも `work/1019-acf-old` は無く、`git checkout -b work/1019-acf-old origin/cloudflare`（596809461）で作った
+- 0. 指示欄の末尾は指示文の最後の行と一致。#513 の着手中コメント: https://github.com/retroeater/mj/issues/513#issuecomment-6257405802
+
+### 手順1: 対象の一覧
+
+- origin/cloudflare（596809461）の `docs/logs/CHAT-*.md` のうち、`cleanup_logs.is_new_rule_log(path, "2026-10-08")` が偽のもの: **144件**。見込み 139件との差 +5 は、ACF-05 で 10/12 に完了にした5件（CHAT-0930-BNG-01・DUP-03・DUP-10・OLT-09・CHAT-1002-INV-01。最終コミットが 10/12 のため 10/19 は7日の条件に届かず、139件に入っていなかった）。139件の残りとは名前の集合が一致した（ACF-26 の再現の結果と照合）。差は10件以内なので進めた
+- 今日（2026-10-19 JST）のコミットで対象のログを変えたものは無い（`git log --all --since=2026-10-18T15:00Z -- docs/logs/`）。未マージの `work/*` で対象のログを変えているものも無い（`git branch -r --no-merged origin/cloudflare` の各ブランチの merge-base からの差分）
+- `docs/logs/`・`docs/decisions/` 以外で名指ししているログ（`git grep`）: **23件を対象から外した**。多くは出典としての Chat-Ref（コードのコメント・テストの文字列・docs/notes の事例）だが、指示のとおり外した。対象は **121件**
+  - docs/decisions の中で、出典でなくログを読む先として名指ししているのは「CHAT-1006-PHT-06 のログ」（`docs/decisions/saikyo.md:16`）だけで、PHT-06 は下の表で外している。`docs/decisions/operations.md:85`「CHAT-1003-CLF-01 のログと docs/decisions は cloudflare へマージしてよい」は決定の出典なので外していない
+
+外したログと名指ししている所:
+
+| ログ | 名指ししている所 |
+| --- | --- |
+| CHAT-0930-BNG-05 | `docs/notes/handover-archive-2026.md:853` |
+| CHAT-0930-CAL-15 | `docs/notes/handover-archive-2026.md:858`・`docs/notes/live-channel-write.md:76`・`scripts/lib/sheets_write.py:20`・`scripts/tests/test_sheets_write.py:244` |
+| CHAT-0930-OLT-01 | `docs/gsc/2026-10-01/jpml-titles-landing.md:16` |
+| CHAT-1002-CLD-02 | `docs/notes/yotei-sheet.md:90`・`docs/notes/yotei-sheet.md:131`・`scripts/lib/yotei.py:181`・`scripts/lib/yotei.py:214`・`scripts/tests/test_cleanup_logs.py:240`・`scripts/tests/test_yotei.py:136` |
+| CHAT-1002-CLD-03 | `docs/notes/yotei-sheet.md:131` |
+| CHAT-1002-CLD-04 | `docs/notes/handover-archive-2026.md:654` |
+| CHAT-1002-CLD-05 | `docs/notes/handover-archive-2026.md:656` |
+| CHAT-1002-CLD-06 | `docs/notes/yotei-sheet.md:112`・`scripts/lib/live_calendar.py:126`・`scripts/lib/live_layer3.py:34`・`scripts/tests/test_live_calendar.py:114`・`scripts/tests/test_live_layer3.py:74` |
+| CHAT-1002-CLD-07 | `docs/notes/handover-archive-2026.md:687`・`docs/notes/handover-archive-2026.md:704` |
+| CHAT-1002-DOJ-01 | `scripts/tests/test_dojo_guest.py:27`・`scripts/tests/test_dojo_guest.py:384` |
+| CHAT-1002-DOJ-03 | `scripts/tests/test_dojo_guest.py:424` |
+| CHAT-1002-INV-01 | `docs/notes/handover-archive-2026.md:966` |
+| CHAT-1002-INV-02 | `docs/notes/handover-archive-2026.md:966` |
+| CHAT-1003-INV-04 | `docs/notes/handover-archive-2026.md:854`・`docs/notes/handover-archive-2026.md:966` |
+| CHAT-1003-RUN-01 | `docs/gsc/2026-10-03/README.md:8` |
+| CHAT-1004-VID-03 | `scripts/promo_video/title/build.sh:2`・`scripts/promo_video/title/capture.mjs:1`・`scripts/promo_video/title/composition/index.html:2`・`scripts/promo_video/title/composition/index.html:44`・`scripts/promo_video/title/setup.sh:2` |
+| CHAT-1004-VID-05 | `scripts/promo_video/title/music.py:1` |
+| CHAT-1004-VID-06 | `scripts/promo_video/title/capture.mjs:3`・`scripts/promo_video/title/compose.py:1` |
+| CHAT-1005-RVW-07 | `docs/notes/handover-archive-2026.md:657` |
+| CHAT-1005-RVW-10 | `docs/notes/handover-archive-2026.md:708` |
+| CHAT-1005-UNR-10 | `docs/notes/live-page-design.md:100` |
+| CHAT-1006-LGR-05 | `scripts/tests/test_cleanup_logs.py:235`・`scripts/tests/test_cleanup_logs.py:236` |
+| CHAT-1006-PHT-06 | `docs/notes/saikyo-page-design.md:649` |
+
 ## 報告
 
 - 状態:
