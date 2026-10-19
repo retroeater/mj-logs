@@ -152,6 +152,49 @@
 ### 4. マージ
 
 - push の直前に再 fetch し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真であることを確かめて `git push origin work/1019-aic:cloudflare`
+- マージ: d8b213689..10e55a48e（成果物 864811c3c とログ・決定の記録を含む）
+- check-run（10e55a48e）: Workers Builds: mj-ask success（06:50:39Z、Version b4d5e9cf）、Workers Builds: mj success（06:53:21Z）、notify は skipped
+- `/api/ask/status` → `{"status":"open","remaining":10,"max":200}`
+
+### 5. 本番の10問（2026-10-19 06:53:49〜06:54:19 UTC、セッションから POST）
+
+| 問い | 状態 | 答え（要旨） | 注記・時点・出典 |
+|---|---|---|---|
+| 堀 | answered | 「「堀」に当たる選手は11人います: 堀慎吾、堀田翔平、堀場康平、堀部雄太、堀口精一、堀江貴太、堀田恵、堀田裕之、堀内正人、ロッキー堀江、ほか1人。名前を足して、もう一度聞いてください。」 | なし |
+| 本田さんの成績は？ | answered | 「「本田」に当たる選手は2人います: 本田知己、本田朋広。…」 | なし |
+| 37期生 | answered | 在籍62人、10人の名前、ほか52人 | 入会期の注記・第43期前期終了時点・選手の成績 |
+| 2番目に生涯成績スコアが高い選手は？ | answered | 佐々木寿人、1729.9 | ランキング（通算） |
+| 現在のB2リーグの2位は？ | answered | 菊田政俊、昇級 | 第43期前期 B2 の順位変動 |
+| 第43期前期のB1の人数は？ | answered | 16人、10人の名前、ほか6人 | 第43期前期 B1 の順位変動 |
+| 第40期の放送対局は何回？ | answered | 1回、2024-01-10 の決定戦 | 第40期鳳凰戦 決定戦 |
+| 23期生の鳳凰位は？ | answered | 吉田直（第35期）・白鳥翔（第41期・第42期） | 入会期の注記・歴代優勝者 |
+| 23期生で鳳凰位になった人は？ | answered | 同じ2名 | 同 |
+| 37期生で一覧 | answered | 62人、10人の名前、ほか52人。「いずれも第43期前期の所属です」が付いた | 同「37期生」 |
+
+- 気になる点（直していない。#586 にコメント）: 「37期生で一覧」の「いずれも第43期前期の所属です」（渡した `period`〈最後に出た期〉を所属と読んだ）。「生涯成績スコア」を「通算」と読み、答えにも利用者の言葉で「生涯成績スコアは1729.9」と書いた
+- `remaining` が 9・9・9・9・8・9・8・8・7・6 と単調でない。セッションの出口の IP が問いごとに変わるため（IP ごとの数が分かれる）と見ている。答えには影響しない
+- D1 の `answer`・`args` はセッションから読めない（Cloudflare の認証が無い）。平野さんに SQL を頼む（報告の「判断が必要なこと」）
+
+### 6. issue
+
+- #586: 本文を書き足し（上の3）、本番の結果と気になる点をコメントし、着手中を解除
+- #542: 1週間の実績と #586 へのリンクをコメントして閉じた（completed）。ラベルは「分野: UI/UX」だけで「状況:」は無かった
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1019-aic
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1019-AIC-07.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1019-aic
+- 確認用URL: なし（画面は変えていない。本番の `/api/ask` へ10問送って確かめた）
+- マージ: 済（10e55a48e。d8b213689..10e55a48e）
+- issue: #542（コメントして閉じた）・#586（後継。本文を書き足し、結果をコメント）
+- 判断が必要なこと:
+  - D1 の `mj-ask` の Console で次を実行し、2026-10-19 15:53〜15:55 JST の10行に `answer`・`args` が入っているか見てほしい（「堀」「本田さんの成績は？」は `result` が `candidates`、`args` は `{"name":"堀"}` の形。ほかは `answered`）: `SELECT id, asked_at, question, result, type, answer, args FROM questions WHERE asked_at >= '2026-10-19T15:50:00+09:00' ORDER BY id;`
+- 未確認の項目:
+  - D1 の `answer`・`args` に入ったか（上の SQL）
+  - 次の週次の書き出し（2026-10-26（月）9:00 JST）で、ブックの見出しが6列（日時・質問文・結果・型・答え・引数）に書き直され、2026-10-19 以降の行に「答え」「引数」が入るか
+- エラー: なし
 
 <!-- guide-links -->
 ---
@@ -164,4 +207,4 @@
 - docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/10e55a48/docs/notes/chat-side-operations.md
 - docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/10e55a48/docs/notes/cloudflare.md
 - docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/10e55a48/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/4e223c8f.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/10e55a48.md
