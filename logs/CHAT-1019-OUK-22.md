@@ -44,18 +44,31 @@ Chat-Ref: CHAT-1019-OUK-22
 
 ## 経過
 
+### 0章
+
+- Chat-Ref の重複なし。「指示」欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- work/1019-ouk19 はリモートとローカルが同じ（482714d60）
+- `git merge-base --is-ancestor origin/cloudflare HEAD` が偽だったので、指示のとおり `origin/cloudflare`（8ea27fb30）を merge で取り込もうとした。`docs/decisions/houou.md` の末尾が衝突した:
+  - こちら（work/1019-ouk19）: 「## 2026-10-19（CHAT-1019-OUK-19）」の節（告知動画の決定）
+  - cloudflare: 「## 2026-10-19（CHAT-1019-OUK-20）」「## 2026-10-19（CHAT-1019-OUK-21）」の節（PO の直しと動画の決定）
+  - どちらも同じ位置への追記どうしで、両方を日付・番号の順（OUK-19 → OUK-20 → OUK-21）に並べれば両立する
+- docs/notes/branch-operations.md「生成物を含む作業ブランチを取り込む・マージするとき」の規則（生成物以外の衝突は、指示文が解き方を書いていなければ解かずに止まる）に当たるため、`git merge --abort` で取り込みを取り消して止まった（作業ツリーは取り込み前のまま。未コミットの変更は無かった）
+- このため、CHAT-1019-OUK-21 のログ（cloudflare にある）の状態への ` / 続き: CHAT-1019-OUK-22` の追記と、撮り直しは行っていない
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 中断（origin/cloudflare の取り込みで docs/decisions/houou.md が衝突）
 - ブランチ: work/1019-ouk19
 - ログ: https://github.com/retroeater/mj/blob/work/1019-ouk19/docs/logs/CHAT-1019-OUK-22.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1019-ouk19
-- 確認用URL:
+- 確認用URL: なし
 - マージ: 未
-- issue:
+- issue: なし
 - 判断が必要なこと:
-- 未確認の項目:
-- エラー:
+  - `docs/decisions/houou.md` の衝突の解き方（案: 両方の節を残し、OUK-19 → OUK-20 → OUK-21 の順に並べる）を指示文に書いて貼り直してもらえれば、その形で解いて撮り直しへ進む
+  - CHAT-1019-OUK-21 のログの状態への ` / 続き: CHAT-1019-OUK-22` は、取り込みの後に足す（今は未）
+- 未確認の項目: なし
+- エラー: origin/cloudflare の取り込みで `docs/decisions/houou.md` が衝突した（取り込みは取り消した）
 
 <!-- guide-links -->
 ---
