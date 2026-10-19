@@ -54,6 +54,41 @@
 
 ## 経過
 
+### 着手前の確認
+
+- 0: 「指示」欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- Chat-Ref: CHAT-1019-LOG-01 の既存コミット無し。`1019` の `LOG` は LOG の系列の続き（同じチャット）
+- work/1019-log-367-src はローカル・リモートとも無かったので `git checkout -b work/1019-log-367-src origin/cloudflare`（a253293d4）
+- #367: 最後のコメントは LOG-05 の結果の報告で、他セッションの着手中は無い。着手中のコメントを残した
+- `git grep`（scripts・.github・workers）: 旧スプレッドシートの ID を持つのは `scripts/generate_resource_logs.py` の `SPREADSHEET_ID` だけ。cloudflare の `scripts/fetch_x_posts.py`（`LOG_BOOK = generate_resource_logs.SPREADSHEET_ID`）と `scripts/convert_x_posts.py`（`fx.LOG_BOOK`）は同じ定数を使う。ほかに docs/decisions/mtsuku.md・wayhome.md に旧スプレッドシートの ID が文字で書かれている（読むためのコードではない。変えていない）
+- work/1018-log-367-migrate の旧「ログ」を読む処理（`fetch_x_posts.py` の `mode=log`、`convert_x_posts.py` の `mode=log-layer3`・`names_by_handle`）も `fx.LOG_BOOK` を使い、別の ID は持っていない
+
+### 平野さんへの質問と回答（このセッション）
+
+- 移した先の ID を尋ねた（ID はコードの定数にだけ書く。ここには書かない）
+- 回答: 移した先は **LOG の3層のスプレッドシート**（【1】【2】【3】と同じファイル。コードの `LAYER_SPREADSHEET_ID` と同じ）、シートの名前は「ログ」のまま、移したときに値を直した箇所は無い
+
+### 照合（旧スプレッドシートと移した先の「ログ」、同じ経路で読んだ）
+
+| 読み方 | 旧 | 移した先 | 結果 |
+|---|---:|---:|---|
+| CSV エクスポート（`fetch_csv`、見出しを含む） | 2709 | 2709 | 全セル同じ（違うセル 0） |
+| gviz `QUERY`（表示 Y、A〜J） | 2630 | 2630 | 同じ |
+| gviz `ID_QUERY`（B） | 2706 | 2706 | 同じ |
+| gviz `SELECT A,B,D`（formatted、`fetch_x_posts` の読み方） | 2706 | 2706 | 同じ |
+| gviz `SELECT A〜K`（formatted、`convert_x_posts` の読み方） | 2706 | 2706 | 同じ |
+
+- 移した先は今の生成と同じ経路（gviz・CSV エクスポート）で読める。共有の設定の追加は要らなかった
+- 744行（平野良栄 2024-10-10、X URL の列が画像の URL）も同じ値。移し方はコピーで、値は変わっていない
+
+### 読み先の変更（cloudflare 側）
+
+- `scripts/generate_resource_logs.py`: `SPREADSHEET_ID = LAYER_SPREADSHEET_ID`（旧「ログ」は 2026-10-19 に3層へ移した、とコメント）。`fetch_x_posts.LOG_BOOK` もこれを通して移した先になる
+- `scripts/tests/test_generate_resource_logs.py`: `SPREADSHEET_ID` と `fetch_x_posts.LOG_BOOK` が3層のスプレッドシートであることを確かめる行を足した（修正前のコードでは失敗1）
+- `docs/notes/video-exam.md`: 「`resource_logs` と同じブック」を「旧「ログ」シートがあったブック」に直した（読み先が変わり、意味が合わなくなるため）
+- `python3 -m unittest discover -s scripts/tests`: 1444件 OK。`python3 scripts/regenerate.py --check resource_logs`: 通る（「ログ」2630件・3層から 483件、3113件）。生成し直した `resource_logs.html` は cloudflare のものとバイト単位で同じ（差分なし）
+- cloudflare との差分: `scripts/generate_resource_logs.py`・`scripts/tests/test_generate_resource_logs.py`・`docs/notes/video-exam.md`・`docs/decisions/operations.md`・`docs/logs/CHAT-1019-LOG-01.md`。見込みの外は無い
+
 ## 報告
 
 - 状態: 作業中
@@ -70,12 +105,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 6327c0e3）: https://github.com/retroeater/mj-logs/tree/main/guide/6327c0e3
+ガイド文書（この版を写した時点の最新、mj c9f649d5）: https://github.com/retroeater/mj-logs/tree/main/guide/c9f649d5
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6327c0e3/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6327c0e3/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6327c0e3/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6327c0e3/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6327c0e3/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6327c0e3/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c9f649d5/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c9f649d5/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c9f649d5/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c9f649d5/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c9f649d5/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c9f649d5/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a253293d.md

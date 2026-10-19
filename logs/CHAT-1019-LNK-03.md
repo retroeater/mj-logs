@@ -86,15 +86,35 @@ CHAT-1019-LNK-02 で判断待ちにした変更（メニュー「連盟」をや
 - 見込み（navbar.js・test_navbar.py・static-generation.md・site-review.md・docs/logs/）と違うファイルは無い
 - テスト: `python3 -m unittest discover -s scripts/tests` 1444件 OK
 
+### 手順3: マージと本番
+
+- push 直前に再 fetch して `git merge-base --is-ancestor origin/cloudflare HEAD` を確かめ、`git push origin work/1019-lnk:cloudflare`（302b5d856..6327c0e3b）
+- 6327c0e3b の check-run: check・regenerate・Workers Builds: mj-ask は success、notify は skipped。「Workers Builds: mj」は push から約13分後に始まり、しばらく `in_progress` だったが、後で success になった
+- 本番の `navbar.js`（クエリ無しと `?v=l3z77`）: トップメニューは「R」（`navbar-brand`）の後に `連盟プロ<br>Pros`（`/jpml_pros.html`）・`タイトル戦<br>Title`（`/title/`）・`鳳凰戦<br>Houou`… の順。`連盟<br>JPML` は0件（ドロップダウンは無い）。ブラウザでの本番の見え方は確かめていない（LNK-02 のプレビューで撮影済み）
+- #616（クローズ済みのまま）に結果を書いた
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1019-lnk
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1019-LNK-03.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1019-lnk
+- 確認用URL: なし（LNK-02 のプレビューを平野さんが確認済み。本番の `navbar.js` で確かめた）
+- マージ: 済（6327c0e3b）
+- issue: #616（クローズ済み。結果をコメント）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 6327c0e3）: https://github.com/retroeater/mj-logs/tree/main/guide/6327c0e3
+ガイド文書（この版を写した時点の最新、mj c9f649d5）: https://github.com/retroeater/mj-logs/tree/main/guide/c9f649d5
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6327c0e3/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6327c0e3/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6327c0e3/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6327c0e3/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6327c0e3/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6327c0e3/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/f0a1e266.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c9f649d5/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c9f649d5/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c9f649d5/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c9f649d5/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c9f649d5/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c9f649d5/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a253293d.md

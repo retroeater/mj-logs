@@ -90,3 +90,11 @@ Cloudflare の Security Overview の提案（security.txt など）の見送り�
 - 2段で進める: 段1 で `Content-Security-Policy-Report-Only` を入れて違反を実測し、違反が無いのを確かめてから段2 で本番の CSP に切り替える。段2 の後に、予定していたセキュリティの再点検と Claude Security の1回の実行を行う（docs/notes/security.md「次回の手順」）
 - #9 の「状況: 待ち」のラベルは外す
 - 作業中の回答: なし
+
+## 2026-10-19（CHAT-1019-SEC-12）
+
+- スタイル: typed.js のカーソルの CSS を index.css に移し、typed.js に `<style>` を足させない（`style-src-elem` のハッシュを無くす）。`style-src-attr 'unsafe-inline'` は残す。古いブラウザ向けの予備として `style-src` に `'unsafe-inline'` を置く
+- SRI（Observatory −5、Web Analytics の `beacon.min.js` に `integrity` が無いこと）は直さない。Cloudflare は同じ URL で中身を更新し、版を固定すると全ページの作り直しが要り、配信元の Cloudflare 自身から守ることにしかならないため。読み込み先は CSP の `script-src` で絞る
+- `img-src` は `'self' data: https:` にする（選手の写真の URL はシートから来るので、列挙すると新しいドメインの写真が黙って表示されなくなる。画像はスクリプトとして動かない）
+- 段2 はすぐ行う。切り替えの後に、平野さんが iPhone の Safari でトップ・大会のページ1つ・jpml_pros.html の表示を確かめる。崩れていたら CSP の行を外して戻す
+- 作業中の回答: なし

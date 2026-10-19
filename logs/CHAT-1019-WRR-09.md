@@ -63,6 +63,12 @@ https://ryoei.pro/wrcr/
 
 - 識別子確認: 同じ Chat-Ref のコミットは 0 件。WRR は同じセッションの続きの番号
 - 作業ブランチ: origin/work/1019-wrr07 あり（未マージ、fe171ed99）→ ローカルの work/1019-wrr07 に切り替え（リモートと同じ）
+- 0. 「指示」欄の末尾は指示文の最後の行と一致。CHAT-1019-WRR-07 のログの状態を「判断待ち / 続き: CHAT-1019-WRR-09」にした
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- 1. `git merge-base --is-ancestor origin/cloudflare HEAD` が偽 → origin/cloudflare を merge（0c76ce7c0）。docs/decisions/houou.md の末尾の追記どうし（WRR-07 と WRR-08）が衝突 → 両方を残して番号の順に並べた。解いた後の末尾の見出しの並び: 「## 2026-10-19（CHAT-1019-WRR-06）」「## 2026-10-19（CHAT-1019-WRR-07）」「## 2026-10-19（CHAT-1019-WRR-08）」。ほかの衝突は無し
+- `python3 -m unittest discover -s scripts/tests`: OK。cloudflare との差分は docs/decisions/houou.md・docs/logs/CHAT-1019-WRR-07.md・CHAT-1019-WRR-09.md・scripts/promo_video/wrcr/ の6ファイルだけ（生成物・ページのコード・scripts/promo_video/jwrc/ は差分なし）
+- 2. 文書: page-announcement.md に投稿文の実例（wrcr/）と「実例」の表の1行、wrcr-top.md に節「告知動画」（長さ・見本の選手と理由・質問と答え・ランキングと順位変動の止め方・場面と秒と字幕の表・投稿の URL）、docs/decisions/houou.md に「## 2026-10-19（CHAT-1019-WRR-09）」。投稿文はチャット側の最終案のまま（平野さんが投稿で直したかはセッションから見られない）
+- 容量（バイト）: page-announcement.md 10029 → 11153、wrcr-top.md 4627 → 7062、docs/decisions/houou.md 151465 → 152726（3つとも上限・警告域の対象外）。check-assets の「ガイド文書のサイズ」の4文書は変えていない: CLAUDE.md 24883（警告域 26624 まで 1741・上限 28672 まで 3789）、handover.md 22922（3702・5750）、chat-side-operations.md 22155（4469・6517）、instruction-template.md 14325（警告域 14336 まで 11・上限 16384 まで 2059。今回は触っていない）。`scripts/check_asset_limits.py` はすべて OK
 
 ## 報告
 
@@ -80,12 +86,12 @@ https://ryoei.pro/wrcr/
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 6327c0e3）: https://github.com/retroeater/mj-logs/tree/main/guide/6327c0e3
+ガイド文書（この版を写した時点の最新、mj c9f649d5）: https://github.com/retroeater/mj-logs/tree/main/guide/c9f649d5
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6327c0e3/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6327c0e3/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6327c0e3/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6327c0e3/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6327c0e3/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6327c0e3/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c9f649d5/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c9f649d5/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c9f649d5/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c9f649d5/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c9f649d5/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c9f649d5/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a253293d.md
