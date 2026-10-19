@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-19 18:12 JST
+- 書き出した時刻: 2026-10-19 18:14 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -25,11 +25,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-10-19 18:12 | push | work/1019-ouk27 | in_progress | #251（39228306567） |  |
+| 2026-10-19 18:14 | push | work/1019-sec11 | in_progress | #252（39228582023） |  |
+| 2026-10-19 18:12 | push | work/1019-ouk27 | success | #251（39228306567） | 0分24秒 |
 | 2026-10-19 18:07 | push | work/1019-sec11 | success | #250（39227723642） | 0分20秒 |
 | 2026-10-19 17:57 | push | work/1019-exm | success | #249（39226525235） | 0分24秒 |
 | 2026-10-19 17:55 | push | work/1019-wrc17 | success | #248（39226190364） | 0分23秒 |
-| 2026-10-19 17:37 | push | work/WRR | success | #247（39224146900） | 0分21秒 |
 
 ## check-build-failure.yml
 
@@ -38,11 +38,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-19 18:13 | check_run | cloudflare | skipped | #289（39228478525） | 0分01秒 |
 | 2026-10-19 18:10 | check_run | cloudflare | skipped | #288（39228028451） | 0分01秒 |
 | 2026-10-19 18:06 | check_run | cloudflare | skipped | #287（39227543390） | 0分10秒 |
 | 2026-10-19 18:03 | check_run | cloudflare | skipped | #286（39227221437） | 0分00秒 |
 | 2026-10-19 18:00 | check_run | cloudflare | skipped | #285（39226858997） | 0分01秒 |
-| 2026-10-19 17:56 | check_run | cloudflare | skipped | #284（39226374383） | 0分08秒 |
 
 ## check-image-links.yml
 
