@@ -52,6 +52,51 @@
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 0章
+
+- 指示欄の末尾は指示文の最後の行（「不明な点があれば…この行が指示文の最後の行です。」）と一致
+- 貼る時機の前提: origin/cloudflare（6bb0f617c）の `_redirects` 111行目に `/jpml_test.html  /exam/  301` がある
+- Chat-Ref の重複: `git log --all --grep` で `CHAT-1019-LNK` も `LNK` も無し（unshallow 後）。`docs/logs/` の履歴にも `-LNK-` は無い
+- 作業ブランチ: ローカルにもリモートにも `work/1019-lnk` は無かったので `git checkout -b work/1019-lnk origin/cloudflare`
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+
+### 手順1
+
+- issue の検索（「jpml_links リンク ページ 廃止」「連盟 リンク集 メニュー 残す 転送」、クローズ済みを含む）: 別の方針の決定は無い。
+  関係するのは #313（クローズ。リンクの入れ替え）と #531（クローズ。`rh_links.html` の廃止＝先例）だけ
+- 起票: #616「連盟 > リンク（jpml_links.html）の廃止」。ラベルは #531 と同じ「分野: 整理・保守」「対象: 全ページ」。着手中のコメントを書いた
+- 未マージのブランチ（7本）と cloudflare の差で、手順2のファイル（jpml_links.html・navbar.js・sitemap-pages.xml・llms.txt・static-generation.md・design.md・video-wayhome.md・site-review.md・seo-bing.md ほか）を変えているもの:
+  `origin/work/1017-lvp` が `navbar.js` の91行付近（`newNavCurrent` の分岐に `mj-live-n-page` を足す）を変えている。今回は35行のメニュー項目で、同じ行・同じ関数ではなく、取り込みでも衝突しない（止まらない）
+
+### 手順2: `jpml_links` の検索結果（`git grep`、docs/logs・docs/gsc を除く）
+
+| 場所 | 中身 | 扱い |
+|---|---|---|
+| `jpml_links.html` | ページ本体（13行目 og:url） | 削除 |
+| `navbar.js:35` | メニュー「連盟」の項目「リンク」 | 削除 |
+| `sitemap-pages.xml:40` | `<url>` | 削除（lastmod は手で書き換えていない） |
+| `llms.txt:18` | 「リンク」の行 | 削除 |
+| `docs/notes/static-generation.md:280` | 「静的なページ」2件 | 1件・`404.html` だけに。256行の「HTMLは23ページ」も先例（#531）にならい 22 に |
+| `docs/notes/static-generation.md:454・463` | `data-search="off"` のトップ階層7ページ・手書き2ページ | 6ページ・手書き1ページ（`404`）に |
+| `docs/notes/design.md:76` | `.mj-margin-text` を使うページ | `404`・`resource_efficiency` に（`style.css` の規則は2ページで使うので残す） |
+| `docs/notes/video-wayhome.md:335` | `data-search="off"` の手書き6ページ | 5ページに |
+| `docs/decisions/site-review.md:37・38` | 右の余白・アイコンの `alt` | 「済（廃止）」の注記 |
+| `docs/decisions/seo-bing.md:60` | h1 の8ページ | `jpml_links` の分に「済（廃止）」の注記 |
+| `docs/lighthouse-baseline.md:116・498` | 計測時点の記録 | 変えない（過去の計測の記録） |
+| `docs/notes/handover-archive-2026.md:550・553` | 事例の退避先 | 変えない（記録） |
+| `docs/review-followup-instructions.md:177` | 過去の指示文の写し | 変えない（記録） |
+
+- スクリプト・テスト・`_redirects`・`_headers`・`.assetsignore`・`workers/` には出ない（`apply_page_meta.py` は既に削除済み）。`jpml_links.html` は手書きで、生成にも他ページの生成にも使われていない（前提どおり）
+- 他ページ（HTML）の本文から `jpml_links.html` へのリンクは無い
+- 前提の「`jpml_links.html` の【龍龍】リンクは残す」の決定は `docs/decisions/` に見つからなかった（`grep 龍龍` は pros.md・title.md の列の削除だけ）。注記する対象なし
+- 決定の記録先: 先例（`rh_links.html` の廃止）と同じ `docs/decisions/site-review.md` に「2026-10-19（CHAT-1019-LNK-01）」を足した
+- `docs/notes/static-generation.md`「navbar.js と検索欄」の「27本のページhref…実ページ25本」は今回の前から実数（22本）と合っていない。今回の項目ではないので触らない
+- 外した後のメニュー「連盟」の項目: 「プロ」（`/jpml_pros.html`）・「タイトル戦」（`/title/`）の2件（0件ではない）
+- テスト: `python3 -m unittest discover -s scripts/tests` 1442件 OK
+- 成果物のコミット fc2798f31。その後 origin/cloudflare（b8020e176、docs のみ2コミット）を取り込んだ（衝突なし）
+
 <!-- guide-links -->
 ---
 
