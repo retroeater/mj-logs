@@ -133,32 +133,26 @@ URL を足すだけなら lastmod を書かずに足し、導出はスクリプ�
 
 ## 報告
 
-- 状態: 判断待ち / 続き: CHAT-1020-PLG-09
+- 状態: 完了
 - ブランチ: work/1020-plg
-- ログ: https://github.com/retroeater/mj/blob/work/1020-plg/docs/logs/CHAT-1020-PLG-08.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1020-PLG-08.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1020-plg
 - 確認用URL: なし
-- マージ: 未
+- マージ: 済（PR #621、242764f。平野さんの手作業）
 - issue: なし
-- 判断が必要なこと:
-  - 止まる条件に当たった。docs/new-page-checklist.md の公開の段では `sitemap.xml`・`sitemap-pages.xml` を手で編集する（URL を足す・参照をコメントで外す）のが正しい作業で、Claude Code では Edit・Write を使う。決定の文面（「sitemap.xml を Edit・Write で書き換えたら注意」）のままでは、正しい作業のたびに注意が出る。また lastmod を持つのは `sitemap-*.xml` の側で、`sitemap.xml`（インデックス）には lastmod が無い（#335 が未対応）
-  - 代わりの案（`## 経過` の 2.）: 対象を `sitemap*.xml` の全部に広げ、書く内容に `<lastmod>` を含むときだけ注意する（`.claude/hookify.warn-sitemap-lastmod.local.md`）。hookify の判定に渡して、lastmod の手書きでは出て、公開の段の URL 追加・インデックスへの参照追加・スクリプトの実行では出ないことを確かめた。
-    この案でよいか、または決定の文面のまま（sitemap.xml の Edit・Write 全部に注意）にするかを決めてほしい
-  - 決まったら続きの指示で、手順 3（docs/notes/skills.md「hook の層の分け方」の節、規則の一覧）と平野さんの手作業の手順（作業ブランチを開くリンク、「Add file → Create new file」、ファイル名、全文、「Commit directly to the work/… branch」、PR の「Create a merge commit」）をまとめる。
-    作業ブランチは PLG-01〜08 で使った `work/1020-plg`（マージ済み）を使い回すより、続きの指示で cloudflare から切り直す方が、平野さんのコミットと PR の差分が規則ファイル1つになって確かめやすい
-  - 参考: hookify は規則をカレントディレクトリからの相対パス（`.claude/hookify.*.local.md`）で探す。skill は `.claude/*.local.md` を `.gitignore` に足すよう勧めるが、mj では共有するため足さない（今の `.gitignore` は無視していない）
+- 判断が必要なこと: なし（CHAT-1020-PLG-09 で回答し、平野さんが PR #621 でマージした）
 - 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 03eef856）: https://github.com/retroeater/mj-logs/tree/main/guide/03eef856
+ガイド文書（この版を写した時点の最新、mj 33a5608e）: https://github.com/retroeater/mj-logs/tree/main/guide/33a5608e
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/03eef856/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/03eef856/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/03eef856/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/03eef856/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/03eef856/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/03eef856/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/03eef856.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/33a5608e/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/33a5608e/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/33a5608e/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/33a5608e/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/33a5608e/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/33a5608e/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/33a5608e.md

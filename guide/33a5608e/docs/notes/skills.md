@@ -5,7 +5,7 @@ mj で使う skill と hook の置き場所・入れ方・更新方法。実測�
 
 ## 入れている skill
 
-すべてリポジトリの `.claude/skills/<skill名>/` に複写して置く（plugin は使わない。下の「plugin と MCP を使わない理由」）。
+すべてリポジトリの `.claude/skills/<skill名>/` に複写して置く（mj の skill は plugin で入れない。下の「plugin の扱い」）。
 
 | skill | 呼び出し | モデルが自動で使うか | 出典 |
 |---|---|---|---|
@@ -46,13 +46,18 @@ mj で使う skill と hook の置き場所・入れ方・更新方法。実測�
 
 skill を追加するときも同じ手順。追加すると description が毎セッション読み込まれる（下の「コンテキストの負荷」）。
 
-## plugin と MCP を使わない理由
+## plugin の扱い
 
-2026-09-29 に plugin（project スコープ）で入れて試し、平野さんの判断で複写に切り替えた。
+claude.ai のアカウントで追加した plugin は、クラウドセッションに `~/.claude/plugins/synced/` として同期されて使える
+（`claude plugin list` の「Synced from claude.ai」に `Status: √ loaded` で出る。2026-10-20、Claude Code 2.1.304）。
+アカウントから外した plugin は、同じセッションの途中でも同期先から消え、`claude plugin list` に出なくなった（同日）。
+セッションの画面の `/plugin` は「この環境ではプラグインをご利用いただけません」と出る（平野さんの申告）が、同期された plugin は動く。
+どの plugin が入るかはアカウント側で決まり、リポジトリからは決められないため、mj の規則・手順は plugin が無くても回るように書く。
+アカウントに残している plugin と採否の経緯は docs/decisions/operations.md（2026-10-20）。
 
-- plugin の本体は `~/.claude/plugins/cache/` に置かれ、クラウドセッションでは `~/.claude` が起動のたびに作り直される。
-  `.claude/settings.json` に `enabledPlugins` を宣言しても、空の HOME で起動した `claude -p` ではマーケットプレイスが登録されるだけで plugin は入らなかった
-  （ワークスペースを信頼済みにしても同じ）。毎セッション入れ直しが要る
+- マーケットプレイスから project スコープで入れる方法（2026-09-29 に試した）は、本体が `~/.claude/plugins/cache/` に置かれ、
+  `~/.claude` が起動のたびに作り直されるため毎セッション入れ直しが要る（`.claude/settings.json` の `enabledPlugins` を宣言しても、
+  空の HOME の `claude -p` では入らなかった）。mj の skill はリポジトリへの複写で持つ（アカウントに依らず残る）
 - plugin は要らない skill もまとめて入る（`mattpocock-skills` は25本、`code-review`・`triage` など組み込みや mj の運用と重なるものを含む。`cloudflare` は14本）
 - `cloudflare` plugin は MCP サーバ `https://mcp.cloudflare.com/mcp` を持つ。認証すればデプロイ系の操作に届き得るため、
   「`wrangler deploy` しない」（CLAUDE.md「禁止事項」）の趣旨から持ち込まない。複写した `cloudflare` skill に MCP の設定は含まれない
@@ -111,6 +116,24 @@ Bash のコマンド文字列を `&&`・`||`・`;`・`|`・改行で区切り、
 
 同梱の git-guardrails-claude-code（mattpocock/skills の `skills/misc/`）は `git push` をすべて止め、ログ先行 push もできなくなるため使わない。
 
+## hook の層の分け方
+
+- **止める**規則はリポジトリの hook（mj-git-guard と同じ Python・テスト付き）かテスト・CI に置く。**注意を出す**規則は hookify に置く
+  （hookify はアカウント側の plugin で、外すと規則ファイルが残っていても効かなくなるため、止める規則を任せない。2026-10-20）
+- hookify の規則は `.claude/hookify.<名前>.local.md`。hookify はカレントディレクトリからの相対パス（`.claude/hookify.*.local.md`）で探し、次のツール呼び出しから効く。
+  hookify の skill は `.claude/*.local.md` を `.gitignore` に足すよう勧めるが、mj では規則を共有するので足さない。`.claude/` の下なので、足すのも直すのも平野さんの手作業（上の `[Self-Modification]`）
+- 規則の書式は skill `hookify:writing-rules`。file の条件の field は、Write の全文も見るなら `content`（`new_text` は Edit の `new_string` だけを見る）
+- 規則の試験は、規則ファイルを一時ディレクトリの `.claude/` に置き、そこをカレントにして hookify の `hooks/pretooluse.py`（同期先 `~/.claude/plugins/synced/` の下）に
+  `{"tool_name":…,"tool_input":{…}}` をファイル経由で渡し、出力の `systemMessage` を見る（リポジトリの `.claude/` には置かない）
+
+| 規則 | 対象・条件 | 動作 | 振り返り |
+|---|---|---|---|
+| `hookify.warn-sitemap-lastmod.local.md` | `sitemap*.xml` の Edit・Write で、書く内容に `<lastmod>` を含むとき（公開の段の URL の手追加〈docs/new-page-checklist.md〉には出ない） | warn | 2026-11-04 |
+
+- 足す目安: CLAUDE.md の規則のうち、ツールの入力（ファイル名・書く内容・コマンド）の文字列で当たりが取れ、正しい作業で出ないもの。正しい作業でも出るなら条件を絞るか足さない
+- 止める規則へ格上げする目安: 振り返りで、warn が出ても守られなかった・誤検知が無かった、のとき。格上げ先はリポジトリの hook かテスト・CI で、
+  格上げしたら hookify の規則を消し、CLAUDE.md の該当の行は参照だけにする（CLAUDE.md「テスト・hook・ワークフローで確かめるようにした規則は…」）
+
 ## 置き場所と永続性
 
 | 何 | どこ | 次のセッションに |
@@ -119,6 +142,7 @@ Bash のコマンド文字列を `&&`・`||`・`;`・`|`・改行で区切り、
 | hook の設定と本体 | リポジトリの `.claude/settings.json`・`.claude/hooks/` | 残る（git） |
 | user スコープの設定・plugin | `~/.claude/`（起動時に作り直される） | 残らない |
 | claude.ai のアカウントの skill | `~/.claude/skills/synced/`（起動時に同期される） | 残る（アカウント側） |
+| claude.ai のアカウントの plugin | `~/.claude/plugins/synced/`（起動時に同期され、外すと途中でも消える） | 残る（アカウント側） |
 
 - 空の HOME で `claude -p` を起動すると、plugin・マーケットプレイスは0件、skill 一覧に `grilling`・`domain-modeling`・`writing-for-agents`・`cloudflare` が出て、
   hook は `git stash list` を deny した（ワークスペース未信頼の状態。`permissions.allow` は無視されたが hook は効いた）
@@ -132,3 +156,4 @@ Bash のコマンド文字列を `&&`・`||`・`;`・`|`・改行で区切り、
 モデルが自動で使う skill の description は毎セッション読み込まれる（`disable-model-invocation: true` のものは除く）。
 今の4本（grilling・domain-modeling・writing-for-agents・cloudflare）で合わせて約300トークン（plugin の `claude plugin details` の見積もりから）。
 本文は呼ばれたときだけ読まれる（`cloudflare` は約8,700トークン、`writing-for-agents` は約3,700トークン）。
+アカウントの plugin の skill・slash command・agent の description も毎セッション読み込まれる（2026-10-20 は plugin 8件で skill 5本・slash command 6本・agent 10本）。

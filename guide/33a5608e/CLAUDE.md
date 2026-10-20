@@ -20,7 +20,7 @@
 - Bootstrap 5.3.8 をローカル配信（assets/vendor）。CDNは使わない
 - ページ本体（例: `jpml_pros.html`）とロジック（同名の `.js`）は分ける。ページ末尾で navbar.js を読み込んで共通ナビを描画する
 - **手書きHTMLを新規に追加する前に**docs/notes/static-generation.md「navbar.js と検索欄」を読む（hrefはルート相対〈#162〉、`data-search="off"`〈#163〉）
-- skill（`.claude/skills/`、plugin は使わない）と git の hook（`.claude/hooks/`）の導入・入れ直しはdocs/notes/skills.md
+- skill（`.claude/skills/`）と git の hook（`.claude/hooks/`）の導入・入れ直し、claude.ai のアカウントの plugin の扱いはdocs/notes/skills.md
 
 ### データの流れ
 - 選手データ・成績データはすべてGoogleスプレッドシートが正本。ビルド時生成のページは`scripts/generate_<ページ名>.py`が読んで焼き込む
@@ -57,9 +57,7 @@
 - `wrangler dev` は必ず `npx wrangler dev --port 8789 --ip 127.0.0.1 --persist-to /tmp/wrangler-state` で起動する（素だと無限リロード。docs/notes/cloudflare.md「ローカル確認（wrangler dev）」）
 - assets/vendor 配下に `sourceMappingURL` コメントを残さない（#99）。更新時はファイルのパスを変える（30日キャッシュ、#92）
 - sitemap の lastmod を手で書き換えない（`scripts/update_sitemap_lastmod.py --from-git`が導出する。docs/notes/sitemap-lastmod.md、#265）
-- `git stash` を使わない
-- 未コミットの変更がある作業ツリーで、`git checkout HEAD -- .`・`git reset --hard`・`git clean` などまとめて消すコマンドを使わない
-  （docs/notes/branch-operations.md「未コミットの変更を戻すとき」）
+- `git stash`・`reset --hard`・`clean`・`checkout .` は mj-git-guard が止める（docs/notes/skills.md「git の hook」。戻し方は docs/notes/branch-operations.md「未コミットの変更を戻すとき」）
 
 ## ブランチ運用
 
@@ -189,6 +187,6 @@
 - 上限はファイルごとに **CLAUDE.md・handover.md・docs/notes/chat-side-operations.md 各28KB（警告域26KB）・docs/instruction-template.md 16KB（警告域14KB）**
   （`check-assets.yml`、1KB=1024バイト。**作業する worktree の上で測る**）。
   警告域に近づいたら、足す前に `docs/notes/` へ移す。**警告が出たら、上限を上げずに4文書とも整理する**（同じ趣旨の記述をまとめ、
-  事例は `handover-archive-2026.md` へ、場面限定の手順は `docs/notes/` へ。退避先には上限を置かない、#421）。
+  事例は `docs/notes/handover-archive-2026.md` へ、場面限定の手順は `docs/notes/` へ。退避先には上限を置かない、#421）。
   上限は下げる方向にだけ動かし、上げるのは平野さんの判断。最終目標は CLAUDE.md 20KB・handover.md 24KB 前後（#292・#301 が進んだ時点で見直す、#492）
 - **CLAUDE.md・handover.md・chat-side-operations.md には出典としてのChat-Refを書かない**（ログは定期削除で消え、行き先の無い参照になる。issue番号は書いてよい）
