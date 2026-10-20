@@ -88,7 +88,7 @@
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1020-SEC-17.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1020-sec17
 - 確認用URL: なし
-- マージ: 済
+- マージ: 済（82a0e192d。差分は docs のみ: `docs/decisions/security.md`・`docs/notes/security.md`・`docs/handover.md`〈#598 を指す1行〉・`docs/logs/` の2つ）
 - issue: #619（起票）、#598（クローズ）
 - 判断が必要なこと: なし
 - 未確認の項目: なし

@@ -43,6 +43,18 @@
 
 - Chat-Ref の重複確認（`git fetch --unshallow` 後、`git log --all --grep`・トレーラ・docs/logs の履歴）: CHAT-1020-MRA・`-MRA-` とも該当なし
 - work/1020-mra はローカル・リモートとも無し → `git checkout -b work/1020-mra origin/cloudflare`
+- 0章: 「指示」欄の末尾は指示文の最後の行（「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」）と一致。
+  run 39307312990（run-daily.yml #11、cloudflare 218ab5d1、2026-10-19T19:00:26Z 開始・19:17:22Z 更新）は completed / success
+- #538: 題「Actions: ubuntu-latest の Ubuntu 26.04 への移行（2026-10-19〜）への対応」、open（reopened）。前提と一致するので新規起票はしない。
+  コメント5件はすべて 2026-10-10〜12 で、直近7日（10/13〜）に同じ趣旨のものは無い。
+  着手中のコメント（RGN-05・RGN-08）はどちらも後続の報告・コミットで済んでおり、未解除のものは無いと判断した。
+  着手中のコメントを書いた（https://github.com/retroeater/mj/issues/538#issuecomment-6280081796 ）
+- 対象の run: `GET /actions/runs?created>=2026-10-18T15:00:00Z`（JST 10/19 0:00 以降）で284件。
+  skipped 137件（すべて check-build-failure.yml。ジョブが動かずランナーは割り当てられない）を除く147件のジョブ181件のうち、動いたジョブは173件（skipped 8件）
+- ランナーの版はジョブのログ冒頭の「Operating System」「Runner Image」の group にしか出ない。ジョブの API の `labels` は全件 `ubuntu-latest`。
+  check-run の annotations の移行の注記（"The ubuntu-latest label will migrate to Ubuntu 26 beginning October 19, 2026..."）は173件すべてに出ており、版の区別に使えない。
+  ログの本体は `productionresultssa16.blob.core.windows.net` へのリダイレクトでプロキシに拒否される（`CONNECT tunnel failed, response 403`）ため、
+  GitHub MCP の `get_job_logs` で読む（サブエージェント5本に分けて読ませた）
 
 ## 報告
 
@@ -60,12 +72,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 87b60a76）: https://github.com/retroeater/mj-logs/tree/main/guide/87b60a76
+ガイド文書（この版を写した時点の最新、mj 82a0e192）: https://github.com/retroeater/mj-logs/tree/main/guide/82a0e192
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/87b60a76/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/87b60a76/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/87b60a76/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/87b60a76/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/87b60a76/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/87b60a76/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/82a0e192/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/82a0e192/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/82a0e192/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/82a0e192/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/82a0e192/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/82a0e192/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/9a00b59e.md
