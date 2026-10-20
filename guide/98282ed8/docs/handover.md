@@ -238,5 +238,5 @@ GitHub Issues（Open）に全件あるが、着手可能な主なものは以下
 | `docs/notes/books-covers.md` | 書籍の書影（楽天ブックス書籍検索API）の仕組みと規約（#97、凍結時点の記録） |
 | `docs/notes/decisions-2026-09-13-review.md` | #219〜#289 の重複・統合の判断 |
 | `docs/notes/handover-archive-2026.md` | 過去の事故・経緯（作業の前提にはしない） |
-| `docs/notes/security.md` | セキュリティ点検の観点・道具・手順（結果は親 #598。CSP #9 の後に再点検） |
+| `docs/notes/security.md` | セキュリティ点検の観点・道具・手順（結果は #598〈2026-10-20 に閉じた〉、残りは #619） |
 | `docs/notes/sheets-reader.md` | スプレッドシートを非公開にするための読み取り用サービスアカウントの用意（#557） |
