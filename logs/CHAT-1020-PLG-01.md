@@ -110,29 +110,111 @@ plugin ごとの中身（plugin のディレクトリの `skills/`・`commands/`
 - `.claude/skills/` の6本のうち、セッションの skill 一覧に出るのは cloudflare・domain-modeling・grilling・writing-for-agents の4本（grill-me・grill-with-docs は `disable-model-invocation: true` のため一覧に出ない。docs/notes/skills.md のとおり）
 - 動作の観察: このセッションで Write（ログの作成）・Bash を行った時点で、security-guidance・hookify の hook からの出力はターミナル上に見えていない
   （hookify は規則が0件なら何もしない作り。security-guidance は警告の条件に当たっていない、と読める。hook が呼ばれたかどうかはここからは確かめていない）
+- security-guidance の README では、層2（ターン終了時の差分の LLM レビュー）・層3（`git commit` 時のエージェントのレビュー）は API の資格情報が要る。
+  docs/decisions/security.md（2026-10-17）の「クラウド環境に `ANTHROPIC_API_KEY` を置かない」のとおりなら、効くのは層1（編集ごとのパターン照合）だけ（環境変数の有無はここでは確かめていない）
+
+### 2. claude-code-setup:claude-automation-recommender の提案
+
+skill はセッションの一覧に `claude-code-setup:claude-automation-recommender` の名前で出ており、Skill ツールで呼べた（指示の skill 名は正しかった。接頭辞が付く）。
+引数は「mj リポジトリ全体（/home/user/mj）を対象に提案する。読み取り専用。ファイルは変えない。」。
+
+- skill の本文は「読み取り専用。ファイルを作らず変えない」と明記し、手順は Phase 1（`ls`・`cat` による調査）→ Phase 2（参照表から選ぶ）→ Phase 3（カテゴリごとに1〜2件の報告）
+- 本文は「参照表を超えてウェブ検索で探す」とするが、ウェブ検索は使わなかった（mj は外部の依存を足さない方針で、検索で探す対象〈フレームワーク・ライブラリ〉がほぼ無いため）
+- 実行後の `git status --short` は空（差分なし）。止まる条件には当たらない
+- skill の出力のカテゴリは MCP・Skills・Hooks・Subagents・Plugins。指示の「Slash Command」は、今の Claude Code では skill と同じもの（`/<skill名>` で呼ぶ。skill の本文の「invoked by Claude or user via `/skill-name`」）なので、
+  利用者が呼ぶ専用（`disable-model-invocation: true`）の提案を Slash Command の表に分けた。Plugins は表を足した
+
+Phase 1 で見た mj の特徴（skill の「Key Indicators」に沿って）:
+
+- 言語・フレームワーク: 静的 HTML＋素の JS（Bootstrap 5.3.8 をローカル配信）。`package.json`・`pyproject.toml` は無し。生成は Python 標準ライブラリ（`scripts/` に73本、テスト96本）。`workers/`（ask・scheduler）は Node のテスト
+- CI: GitHub Actions のワークフロー23本。issue 管理は GitHub Issues。DB・外部 SDK・UI テストの設定は無し
+- 既存の Claude Code の設定: `.claude/skills/`（6本）、`.claude/hooks/mj-git-guard.py`（PreToolUse・Bash）、`.claude/agents/Explore.md`（読み取り専用の探索、haiku）、`.claude/settings.json`（許可ルール2つ）。`.mcp.json` は無し。ファイル数は約5,900
+
+提案（skill の出力の全件。要約していない。「重なり」は mj にある同等物）:
+
+#### MCP
+
+| 提案名 | 根拠 | 既に mj にある同等物との重なり |
+|---|---|---|
+| GitHub MCP | GitHub のリポジトリで、issue・Actions・check-runs を日常的に使う（skill の表「GitHub repository → GitHub MCP」） | 全部重なる。クラウドセッションは GitHub MCP（`mcp__github__*`）を最初から持つ（docs/notes/cloud-sessions.md「gh の代わりに GitHub MCP」）。足すものは無い |
+| Playwright MCP | 静的 HTML のサイトで、CLAUDE.md が「HTML/JS の変更はブラウザで直接確認する」とする。表の「Frontend with UI testing needs → Playwright」 | 部分的に重なる。セッションには Chromium と Playwright が入っている（MCP なしで `node`＋Playwright のスクリプトで画面を確かめられる）。MCP として足すと CLAUDE.md「新しい依存（…外部API）は足さない」に当たる。mj には同等の文書・skill は無い |
+
+（context7・DB・Supabase 等は、ライブラリ・DB が無いので出さなかった）
+
+#### Skill（モデルも呼べるもの）
+
+| 提案名 | 根拠 | 既に mj にある同等物との重なり |
+|---|---|---|
+| `regenerate-page`（両方から呼ぶ） | ページの再生成（`python3 scripts/regenerate.py <ページ名>`・`--changed`・`all`）と、共有の関数を変えたときの全ページ再生成＋差分の確認＋`python3 -m unittest discover -s scripts/tests` が、作業のたびに繰り返される（CLAUDE.md「メンテナンス用スクリプト」「判断・作業の原則」） | `.claude/skills/` に同等物は無し。手順は docs/notes/static-generation.md「メンテナンス用スクリプトの詳細」「生成スクリプトの構成」に文章としてある。skill にすると同じ内容を2か所に持つ（CLAUDE.md「同じ内容を2箇所に書かず」）ので、作るなら文書の側を参照にする必要がある |
+| `mj-conventions`（Claude 専用、`user-invocable: false`） | コード規約（JS の if に `{}`、`簡略化:` のコメント、定数化、早期 return）とコミットの規則（閉じるキーワードを書かない、トレーラの並び）を、編集時に背景知識として読ませる（skill の表「Code style → project-conventions」） | 全部重なる。CLAUDE.md「コード規約」「コミットのルール」が毎セッション読み込まれている。skill にする利点は無い（提案はするが mj では不要、と skill の判断基準から読める） |
+
+#### Slash Command（利用者が呼ぶ専用の skill）
+
+| 提案名 | 根拠 | 既に mj にある同等物との重なり |
+|---|---|---|
+| `/chat-ref-start`（`disable-model-invocation: true`） | Chat-Ref の指示ごとに、重複確認（`git log --all --grep`・`docs/logs/` の履歴）→ `git fetch --unshallow` → 作業ブランチの用意 → ログのひな形の作成 → `[sync-logs]` 付きの先行 push、を毎回同じ順で行う（CLAUDE.md「Chat-Ref」「作業ログ」、docs/notes/cloud-sessions.md「作業ブランチの用意」） | `.claude/skills/` に同等物は無し。手順は CLAUDE.md・docs/notes/branch-operations.md「Chat-Ref の着手前の確認」・cloud-sessions.md・`docs/logs/_template.md` に分かれてある。ブランチの作成は「単独のコマンドで」実行する規則があり（分類器の拒否、#298）、skill の中のスクリプトにまとめると分類器の判定が変わり得る |
+| `/merge-to-cloudflare`（`disable-model-invocation: true`） | 「マージ: 承認済み」のときの手順（再 fetch → `git merge-base --is-ancestor origin/cloudflare HEAD` → `git push origin <作業ブランチ>:cloudflare` → ログの追い push）が定型（CLAUDE.md「ブランチ運用」） | 同等物は無し。手順は docs/notes/branch-operations.md「マージするとき」。mj-git-guard が cloudflare への force・削除を止めるので、安全側の重なりはある |
+
+#### Hook
+
+| 提案名 | 根拠 | 既に mj にある同等物との重なり |
+|---|---|---|
+| PreToolUse（Edit・Write）: 手で書き換えないファイルの編集を止める | CLAUDE.md「禁止事項」の、sitemap の lastmod を手で書き換えない（`scripts/update_sitemap_lastmod.py --from-git` が導出、#265）・assets/vendor に `sourceMappingURL` を残さない（#99）・生成されたページを手で直さない（生成スクリプトが正本）。表の「Lock files present → block lock file edits」の mj 版 | 一部重なる。mj-git-guard は Bash の git コマンドだけを見る（docs/notes/skills.md「git の hook」）。Edit・Write を見る hook は無い。hookify の規則（`.claude/hookify.*.local.md`）でも書ける |
+| PostToolUse（Edit・Write、`scripts/**/*.py`）: 関係するテストを回す | `scripts/tests/` に unittest が96本あり、CLAUDE.md が「分岐・ループ・解析…を変えるときは検査を1本残す」「テストは `python3 -m unittest discover -s scripts/tests`」とする（表の「Tests directory exists → run related tests」） | 重なる hook は無し。CI（`check-meibo.yml` 等）と CLAUDE.md の手作業の規則で担っている。全件を毎回回すと遅いので、変えたファイルに対応する `test_<名前>.py` だけを回す形になる |
+
+#### Subagent
+
+| 提案名 | 根拠 | 既に mj にある同等物との重なり |
+|---|---|---|
+| `log-report-checker`（`.claude/agents/`） | `## 報告` の10項目を省かない・完了なら「なし」だけ・URL の直後に全角文字を続けない・`## 指示` 欄を変えない、などの規則が多く（`docs/logs/_template.md`）、作業の最後に毎回確かめる | 一部重なる。`scripts/tests/test_cleanup_logs.py`・`test_chat_ids.py` などログの一部の規則はテストで確かめているが、`## 報告` の書式を見る agent は無い。CLAUDE.md「テスト・hook・ワークフローで確かめるようにした規則は…ガイド文から消し」のとおり、作るならテストの方が mj の方針に合う |
+| `generated-diff-reviewer`（`.claude/agents/`） | 共有の定数・関数を変えたときに全ページを再生成して差分を確かめる（CLAUDE.md「判断・作業の原則」）。差分は大きくなりやすく、本体の文脈を使わずに読ませたい（表の「Large codebase (>500 files) → code-reviewer」） | 一部重なる。`.claude/agents/Explore.md` は読み取り専用の探索で、差分の評価はしない。組み込みの `code-review` skill・code-review plugin・`engineering:code-review` も差分のレビューはできる（生成物の意図との照合は mj 固有） |
+
+#### Plugin
+
+| 提案名 | 根拠 | 既に mj にある同等物との重なり |
+|---|---|---|
+| frontend-design | 静的 HTML のサイトでデザインの刷新（新サイト #296、docs/decisions/design-renewal.md）を進めている | 既にアカウントに入っている（手順1）。mj に同等の skill は無い。DESIGN.md の基本の形（docs/decisions/design-renewal.md）と食い違う提案をし得るので、使うときは基本の形を先に読ませる |
+| hookify | 上の Hook の提案（Edit・Write の禁止）を、Python を書かずに規則のファイルで足せる | 既にアカウントに入っている。mj-git-guard と役割が重なる（git の deny）。規則のファイルは `.claude/` の下に置く |
+
+skill の最後の案内（原文の趣旨）: 「特定のカテゴリでもっと提案が欲しければ頼めばよい。実装の手伝いも頼めばよい」。
 
 ## 報告
 
-- 状態: 対応中
+- 状態: 判断待ち
 - ブランチ: work/1020-plg
-- ログ: https://github.com/retroeater/mj/blob/work/1020-plg/docs/logs/CHAT-1020-PLG-01.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1020-PLG-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1020-plg
 - 確認用URL: なし
-- マージ: 未
+- マージ: 済（fb6c49d48。cloudflare の進みを取り込んだマージコミットを fast-forward で push。ドキュメントのみ）
 - issue: なし
-- 判断が必要なこと: 未記入
-- 未確認の項目: 未記入
+- 判断が必要なこと:
+  - (a) docs/notes/skills.md「plugin と MCP を使わない理由」は今の実測と食い違うので、直すべきと考える。2026-09-29 の実測（マーケットプレイスから入れた plugin はセッションごとに消える）は正しいが、claude.ai のアカウントで追加した plugin は起動時に `~/.claude/plugins/synced/` へ同期され、`claude plugin list` で loaded になる（2026-10-20、2.1.304）。直す案の文面（この指示では直していない）:
+    - 見出しを「## plugin の扱い」に改め、先頭に「claude.ai のアカウントで追加した plugin は、クラウドセッションの起動時に `~/.claude/plugins/synced/` へ同期されて使える（`claude plugin list` の「Synced from claude.ai」、2026-10-20、Claude Code 2.1.304）。セッションの画面の `/plugin` が『この環境ではプラグインをご利用いただけません』と出るのは、その画面から入れられないという意味で、同期された plugin は動く。どの plugin が入るかはアカウント側で決まり、リポジトリからは決められないため、mj の規則・手順は plugin が無くても回るように書く」
+    - 既存の1つ目の箇条を「マーケットプレイスから project スコープで入れる方法（2026-09-29 の実測）は、`~/.claude` が起動のたびに作り直されるため毎セッション入れ直しが要る。mj の skill はリポジトリへの複写で持つ（アカウントに依らず残る）」に置き換える。2〜4つ目（まとめて入る・cloudflare の MCP・`/setup-matt-pocock-skills`）は残す
+    - 「置き場所と永続性」の表に「claude.ai のアカウントの plugin | `~/.claude/plugins/synced/`（起動時に同期される） | 残る（アカウント側）」の行を足す。冒頭の「plugin は使わない」（「入れている skill」節）は「mj の skill は plugin で入れない」に直す
+    - 「コンテキストの負荷」に、アカウントの plugin の skill・agent の description も毎セッション読み込まれる（今は14件の plugin で skill 約60本・agent 約13本）ことを1行足す
+  - (b) 提案・plugin のうち mj の運用と矛盾するもの・重なるもの:
+    - 矛盾: commit-commands の `/commit`・`/commit-push-pr` は、mj のトレーラ（Chat-Ref・Claude-Session）・閉じるキーワードの禁止・ログと成果物のコミットの分離・PR を作らず `git push origin <作業ブランチ>:cloudflare` でマージする運用を知らない。`/clean_gone` はブランチと worktree を消すため、CLAUDE.md「ブランチを削除する前に…読む」とクラウドの git プロキシの削除拒否（docs/notes/cloud-sessions.md「ブランチの削除」）に反する（`branch -D` なら mj-git-guard が止める）。使わないのがよい
+    - 矛盾: claude-md-management の `/revise-claude-md`・`claude-md-improver` は CLAUDE.md を書き換える。mj では規則を足す指示に「知見 → 選んだ層 → 理由」の表が要り（#492）、容量の上限（28KB、警告域26KB。今の CLAUDE.md は 24,883 bytes）もある。使うなら監査の報告だけにして書き換えさせない
+    - 矛盾: 提案の Playwright MCP は「新しい依存（…外部API）は足さない」に当たる。Chromium＋Playwright のスクリプトで足りる
+    - 矛盾（作り方）: 提案の Hook 2件・hookify の規則（`.claude/hookify.*.local.md`）・Subagent 2件・Skill 2件は、いずれも `.claude/` を変える。セッションからの `.claude/` の変更は分類器が `[Self-Modification]` として拒否し、平野さんの手のコミットと PR が要る（docs/notes/skills.md「git の hook」）。hookify の hook はアカウント側で全ツールに掛かっており、規則のファイルが置かれた時点で mj-git-guard と並んで効く
+    - 重なり: GitHub MCP（セッションに既にある）、`mj-conventions`（CLAUDE.md と同じ）、`log-report-checker`（テストで確かめる方が mj の方針〈#492〉に合う）、`regenerate-page`（docs/notes/static-generation.md と同じ内容を2か所に持つ）、code-review が3つ（組み込みの `code-review` skill、code-review plugin、`engineering:code-review`）
+    - 指示の7つの外で同期されている plugin（design・engineering・product-management・mobbin・searchfit-seo・security-guidance・claude-security）: design・engineering・product-management・mobbin の MCP は Network access の外で接続に失敗している。mj で使わないもの（design・engineering・product-management・mobbin・searchfit-seo）はアカウントから外すと、毎セッションの description の読み込みと MCP の接続失敗が減る（外すかは平野さんの判断）
+  - (c) 次に試す候補の順への意見: claude-md-management の監査を先にするのは賛成。ただし `claude-md-improver` は報告の後に書き換えまで進む作りなので、指示文で「品質の報告だけ。ファイルを変えない」と書き、止まる条件（差分が出たら `git checkout -- <ファイル>` で捨てて止まる）を付ける。
+    hookify は後に回す方がよい。規則のファイルを置くのが `.claude/` で、セッションからは作れず平野さんの手作業になること、mj-git-guard との役割分担（git は mj-git-guard、Edit・Write の禁止は hookify、など）を先に決める必要があることから。
+    間に、読み取り専用で試せる code-review plugin（`/code-review:code-review` を未マージの `work/` ブランチの差分に当てる）か code-simplifier（agent。変更を書くので差分を捨てる前提）を挟む案もある。順はチャット側の案（claude-md-management の監査 → hookify）のままでもよいが、hookify の前に「hook の層をどう分けるか」の判断を1回置くのを勧める
+- 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 82a0e192）: https://github.com/retroeater/mj-logs/tree/main/guide/82a0e192
+ガイド文書（この版を写した時点の最新、mj 930c334b）: https://github.com/retroeater/mj-logs/tree/main/guide/930c334b
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/82a0e192/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/82a0e192/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/82a0e192/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/82a0e192/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/82a0e192/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/82a0e192/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a414a4a6.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/930c334b/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/930c334b/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/930c334b/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/930c334b/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/930c334b/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/930c334b/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/98282ed8.md
