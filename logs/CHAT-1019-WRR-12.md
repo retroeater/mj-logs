@@ -81,29 +81,38 @@ WRC-R リーグ（wrcr/）の作成・公開・告知・質問欄の直し（CHA
 
 - 識別子確認: 同じ Chat-Ref のコミットは 0 件
 - 作業ブランチ: work/1019-wrr12 はローカル・リモートとも無し → `git checkout -b work/1019-wrr12 origin/cloudflare`（991a26522）
+- 0. 「指示」欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている。ガイド文に規則を足す指示で「知見 → 選んだ層 → 理由」の表がある
+- 未マージの work/ ブランチで ask-worker.md・page-announcement.md・league-pages-compare.md を変えるものは無し
+- 1. docs/notes/ask-worker.md「変更の指示を作るときの前提: 本番で送る固定の問い」: 範囲の文を「`workers/ask/src/` を変える指示（1回目・2回目の指示、型と引数、検索、一覧の切り方・並べ替えを含む）では」に置き換え（理由を括弧で）。節の末尾に「大会ごとの問い」の段落と表（5行）と、1日の上限（IP 10問）に入りきらないときは自分の確かめの問いを減らす1行を足した。WRC の「現タイトルホルダーは？」の期待は data-jwrc.json の決勝の最大の期（第19期）の優勝者 紺野真太郎（WRR-05 の本番の答えと同じ）。女流桜花の見る点は WRR-10 の本番の答え（清水香織・第5・19・20期）。矛盾する記述は無し
+- 2. docs/notes/page-announcement.md:「進め方」の6の後に「提案（2026-10-20、振り返り WRR-12。平野さんの決定ではない）: 告知の投稿の前後は…」の1行。「投稿文の型」の箇条に「案は、前の大会で平野さんが実際に投稿した文（下の実例）から書き始め、違う所だけ替える」の1行
+- 3. 確かめの観点の置き場所: 新しい大会を足すときの観点を集めた節は見つからなかった（houou-top.md・jwrc-top.md・wrcr-top.md の「確かめ方」は大会ごと、static-generation.md はページの生成の仕組み）。大会の差の一覧の docs/notes/league-pages-compare.md の末尾（「比べ方」の箇条）に1行足した
+- 4. バイト数: ask-worker.md 45434 → 46851、page-announcement.md 11153 → 11735、league-pages-compare.md 10508 → 10856（3つとも check-assets の上限・警告域の対象外）。対象の4文書は変えていない: CLAUDE.md 24883（警告域 26624 まで 1741・上限 28672 まで 3789）、handover.md 22937（3687・5735）、chat-side-operations.md 21976（4648・6696）、instruction-template.md 14325（警告域 14336 まで 11・上限 16384 まで 2059）。`scripts/check_asset_limits.py` はすべて OK
+- 5. 変更は docs/logs と docs/notes の3文書だけ。push 直前に再 fetch して祖先を確かめ `git push origin work/1019-wrr12:cloudflare`（f2ff236cf..b7212ecfa）。check-assets（`check-assets.yml`）は走らない: push の paths で `docs/**` を外していて（handover.md・chat-side-operations.md・instruction-template.md だけ戻す）、今回の変更はどれにも当たらない
 
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1019-wrr12
-- ログ: https://github.com/retroeater/mj/blob/work/1019-wrr12/docs/logs/CHAT-1019-WRR-12.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1019-WRR-12.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1019-wrr12
 - 確認用URL: なし
-- マージ: 未
+- マージ: 済（b7212ecfa）
 - issue: なし
-- 判断が必要なこと: なし
+- 判断が必要なこと:
+  - docs/notes/page-announcement.md「進め方」の「提案（2026-10-20、振り返り WRR-12。平野さんの決定ではない）: 告知の投稿の前後は、告知で挙げる機能（質問欄など）を変えるマージを入れない。直しが要れば投稿の翌日以降に回す」を、決まりとして確定するか（確定なら「提案」の印を外し、docs/decisions に足す）
+  - 仮置き: 新しい大会の確かめの観点の置き場所を league-pages-compare.md の末尾（「比べ方」）にした（観点を集めた節が見つからなかった）
 - 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj f2ff236c）: https://github.com/retroeater/mj-logs/tree/main/guide/f2ff236c
+ガイド文書（この版を写した時点の最新、mj eddf9d00）: https://github.com/retroeater/mj-logs/tree/main/guide/eddf9d00
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f2ff236c/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f2ff236c/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f2ff236c/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f2ff236c/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f2ff236c/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f2ff236c/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/eddf9d00/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/eddf9d00/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/eddf9d00/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/eddf9d00/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/eddf9d00/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/eddf9d00/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/98282ed8.md

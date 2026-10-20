@@ -1,7 +1,7 @@
 # セキュリティ点検の方法
 
 ryoei.pro のセキュリティ点検の観点・道具・手順。**結果（見つかったことの表）は issue に置き、ここには書かない**（初回は #598）。
-CSP は #9 で本番の `Content-Security-Policy` を入れて閉じた（2026-10-19。`docs/notes/cloudflare.md`「配信設定」）。その後の再点検と Claude Security の1回の実行は 2026-10-19 に行った（結果は #598 のコメント、CHAT-1019-SEC-14）。決定は `docs/decisions/security.md`。
+CSP は #9 で本番の `Content-Security-Policy` を入れて閉じた（2026-10-19。`docs/notes/cloudflare.md`「配信設定」）。その後の再点検と Claude Security の1回の実行は 2026-10-19 に行った（結果は #598 のコメント、CHAT-1019-SEC-14）。#598 は直すものを直して 2026-10-20 に閉じ、残りの3件は #619。決定は `docs/decisions/security.md`。
 
 ## 点検の観点
 
@@ -9,9 +9,9 @@ ryoei.pro 固有の攻撃面を8つに分けて見る。
 
 | | 対象 | 見ること |
 |---|---|---|
-| (a) | Worker `mj-ask`（`workers/ask/`、`assets/houou_ask.js`） | 入力の検査、`Origin` が偽装できる前提での費用の守り（回数の上限・IP の取り方）、プロンプトインジェクション（system と user の分け方、検索条件の型の固定、答えの検証）、答えの描画（`textContent` か）、D1 の引数化、エラー応答と `/api/ask/status` が返す情報、レスポンスヘッダ（`_headers` は Worker の応答に効かない）、Workers Logs に書く内容。`mj-scheduler` はトークンの使い道 |
-| (b) | 生成スクリプト（`scripts/*.py`・`scripts/lib/*.py`） | シートの値を HTML に入れる箇所の `esc()`、`href` に入る URL の scheme（`javascript:`）、`<script>` に入れる JSON の `<` の逃がし方、属性の引用符 |
-| (c) | フロントの JS（`assets/*.js`・ルート直下の `*.js`。`assets/vendor/` を除く） | `innerHTML`・`insertAdjacentHTML`・`document.write`・`eval`・`new Function` と、そこに入る値の出所（生成 JSON・localStorage・URL のクエリ）。`assets/vendor/` は名前と版を一覧にして既知の脆弱性を照合 |
+| (a) | Worker `mj-ask`（`workers/ask/`、`assets/houou_ask.js`） | 入力の検査（大会名などの表をプロトタイプ経由で引かない、#598 低-10）、`Origin` が偽装できる前提での費用の守り（回数の上限・IP の取り方）、プロンプトインジェクション（system と user の分け方、検索条件の型の固定、答えの検証）、答えの描画（`textContent` か）、D1 の引数化、エラー応答と `/api/ask/status` が返す情報、レスポンスヘッダ（`_headers` は Worker の応答に効かない）、Workers Logs に書く内容。`mj-scheduler` はトークンの使い道 |
+| (b) | 生成スクリプト（`scripts/*.py`・`scripts/lib/*.py`） | シートの値を HTML に入れる箇所の `esc()`、`href` に入る URL の scheme（`javascript:`。`lib/url.py` の `safe_url()` を通す）、`<script>` に入れる JSON の `<` の逃がし方（`lib/page.py` の `script_json()` で `<` をすべて `\u003c` に）、クエリに入れる名前（`&`・`#`・`%`・`+`・空白を逃がす）、属性の引用符 |
+| (c) | フロントの JS（`assets/*.js`・ルート直下の `*.js`。`assets/vendor/` を除く） | `innerHTML`・`insertAdjacentHTML`・`document.write`・`eval`・`new Function` と、そこに入る値の出所（生成 JSON・localStorage・URL のクエリ）。データ由来の URL は `https?:` か同じ origin（`new URL(u, location.origin).origin`）を確かめてから `href` に入れ、`decodeURIComponent` は try で囲む（#598 低-7）。`assets/vendor/` は名前と版を一覧にして既知の脆弱性を照合 |
 | (d) | GitHub Actions（`.github/workflows/`・`.github/actions/`） | zizmor の結果（2026-10-19 の再点検で 58 件〈2026-10-18 に直した後と同数〉。残りは self-repository 45・push する job の artipacked 8・`sync-logs.yml` の 5）。今の形から外れていないか: 第三者 action が SHA で固定され `dependabot.yml` の対象か、トップレベルが `permissions: {}` で job ごとに最小か、`secrets: inherit` が無く Secret を明示して渡しているか、`run:` に `${{ }}` を直接書いていないか、push しない checkout が `persist-credentials: false` か（形は `docs/notes/github-actions.md`「権限と Secret の渡し方」）。ほかに `pull_request_target`・`workflow_run`、Secret がログに出る経路、Settings の Workflow permissions の既定が読み取りだけか |
 | (e) | 公開されるファイル | `.assetsignore` と `wrangler.jsonc`（`assets.directory: "./"`）から配信対象を一覧にし、`docs/`・`scripts/`・`workers/`・テスト・鍵・`.env`・ログが無いか。本番で代表の URL が 404 か |
 | (f) | 秘密の混入 | 作業ツリー（detect-secrets）と全履歴（`git log -p --all` の正規表現）。見つけたら値は書かず SHA とファイル名だけ |
@@ -95,7 +95,7 @@ claude.ai のプラグイン一覧で有効にすると、クラウドセッシ�
 - 結果の置き場所: 結果のディレクトリ（`CLAUDE-SECURITY-<時刻>/`）は作業ツリーの外（scratchpad）に作れる。`render_report.py` に `--products-dir` で渡す。中に `.gitignore`（`*`）が付く
 - 所要（medium、同じ対象）: 2026-10-18 は 56 ファイルで約 12 分・エージェント 15・トークン約 109 万、2026-10-19 は 67 ファイルで約 8 分・エージェント 15・トークン約 108 万（サブエージェントの分。Max の使用量から出る）。どちらも指摘 0 件、`verification.status: verified`
 - 注意: 「Suggest patches」は指摘を見てからチャットで決める。結果に秘密の値が出たら値を写さない。結果は毎回同じとは限らない（非決定的）
-- 回し方（2026-10-18 の決定）: 定期では回さない。`workers/` を大きく変えたときに差分だけの診断（Scan changes）を回し、#9（CSP）の後の再点検で1回回す。そのときの使用量を見て、今後の間隔を決め直す
+- 回し方（2026-10-20 の決定）: 定期では回さない。`workers/` を大きく変えたときに差分だけの診断（Scan changes）を回し、再点検（年1回か大きな変更の後）のときに1回回す。使用量はセッションから見えないので、平野さんが直前・直後に claude.ai の Settings → Usage のスクリーンショットを撮り、%の差で量る
 
 ## 次回の手順
 
