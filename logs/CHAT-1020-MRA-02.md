@@ -47,15 +47,22 @@
 - Chat-Ref の重複確認: CHAT-1020-MRA-02 のコミット・ログは無し。MRA は同じセッションの 01 で使ったもので、02 は最初の指示ではないため識別子の重複の確認は対象外
 - 「貼る時機: いつでも（新しいセッション）」だが、MRA-01 と同じセッションに貼られた。そのまま続けた
 - work/1020-mra: リモートはマージ済み（cloudflare の祖先）、ローカルも origin/cloudflare の祖先 → `git merge --ff-only origin/cloudflare`（cloud-sessions.md「作業ブランチの用意」）
+- 0章: 「指示」欄の末尾は指示文の最後の行（「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」）と一致
+- #514: 題「最強戦の選手写真の自動解決が働いていない（診断と表示の直し、その後の方針）」、open。コメント29件のうち 2026-10-19 の XDP-01〜03 が SNS ブックの X 画像・ID の件で、前提（X の画像・ID の件、XDP-02・03 の対象）と食い違わないので #514 に書く。
+  直近7日（10/13〜）のコメントは ACF-20・XDP-01〜03 で、吉田彩乃さんのアカウントの扱いのものは無い。着手中のコメント（XDP-01 など）はどれも後続の報告で済んでおり、未解除のものは無いと判断した
+- 着手中のコメント: https://github.com/retroeater/mj/issues/514#issuecomment-6280688151
+- 決定のコメント: https://github.com/retroeater/mj/issues/514#issuecomment-6280689564 （本文・状態・ラベルは変えていない）
+- 決定は docs/decisions/saikyo.md に「2026-10-20（CHAT-1020-MRA-02）」として足した（SNS ブックの決定は同じファイルの XAP・XDP の節にある。吉田彩乃さんの件の既存の記述は無かった）
+- 指示文の冒頭の雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある
 
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1020-mra
-- ログ: https://github.com/retroeater/mj/blob/work/1020-mra/docs/logs/CHAT-1020-MRA-02.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1020-MRA-02.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1020-mra
 - 確認用URL: なし
-- マージ: 未
+- マージ: 済（ログと docs/decisions のみ。このコミットを cloudflare へ push）
 - issue: #514
 - 判断が必要なこと: なし
 - 未確認の項目: なし
@@ -64,12 +71,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj b562d89f）: https://github.com/retroeater/mj-logs/tree/main/guide/b562d89f
+ガイド文書（この版を写した時点の最新、mj f2ff236c）: https://github.com/retroeater/mj-logs/tree/main/guide/f2ff236c
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b562d89f/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b562d89f/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b562d89f/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b562d89f/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b562d89f/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b562d89f/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f2ff236c/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f2ff236c/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f2ff236c/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f2ff236c/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f2ff236c/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f2ff236c/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/98282ed8.md
