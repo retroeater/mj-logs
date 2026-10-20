@@ -55,17 +55,76 @@ CHAT-1020-PLG-08 の判断待ちへの回答の続き。hookify の最初の規�
 
 ## 経過
 
+### 0. 着手前の確認
+
+- 「指示」欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべて揃っている
+- `git log --all --grep="CHAT-1020-PLG-09"` は0件、`docs/logs/` にも無し
+- CHAT-1020-PLG-08 のログの `## 報告`: 状態「判断待ち」。`work/1020-plg`（先頭 be1570fae、ローカルとリモートが一致）は cloudflare に未マージ（`git merge-base --is-ancestor origin/work/1020-plg origin/cloudflare` が偽）。
+  `git merge-base --is-ancestor origin/cloudflare HEAD` は真で、取り込みは不要だった
+- ほかの未マージの `work/` ブランチ: `origin/work/1018-log-367-migrate` が docs/decisions/operations.md を変えているが、中ほど（2026-10-18〈CHAT-1018-LOG-05〉の節の追加）で、今回変える PLG-08・PLG-09 の節（末尾）とは別の行。docs/notes/skills.md を変えているものは無し
+
+### 1. docs/notes/skills.md と docs/decisions/operations.md
+
+- docs/notes/skills.md の「plugin の扱い」「git の hook（mj-git-guard）」「置き場所と永続性」を読み、「git の hook」の節の直後（「置き場所と永続性」の前）に「## hook の層の分け方」の節を足した。内容:
+  決定の1つ目の箇条、hookify の規則の置き場所（`.claude/hookify.<名前>.local.md`、カレントディレクトリからの相対パスで探す、`.gitignore` に足さない、足す・直すのは平野さんの手作業）、
+  書式の注意（Write の全文も見るなら field は `content`）、規則の試験のしかた、規則の一覧の表（この1本。対象・条件・warn・振り返り 2026-11-04）、足す目安と止める規則へ格上げする目安
+- 同じ趣旨の記述: 「git の hook」の節の「hook の変更は…`[Self-Modification]` として拒否する」の箇条は、hookify の規則にも当てはまるので、新しい節から参照した（重ねて書いていない）。矛盾は無し
+- 「git の hook」の節の「平野さんは GitHub の画面で作業ブランチにコミットする（「Create a new branch」が選ばれているかを確かめてもらう。外れると cloudflare に直接入る）」は、
+  cloudflare の画面から始める場合の注意。今回の手順は work/1020-plg の画面から始め、「Commit directly to the work/1020-plg branch」を選ぶ（下の報告の手順）。どちらも「cloudflare へ直接コミットしない」で両立する。文面は変えていない
+- docs/decisions/operations.md: PLG-08 の節の2つ目の箇条（規則の対象）を今回の決定で置き換え、置き換えた旨（CHAT-1020-PLG-09 の決定で置き換えた、元の文面と理由）を同じ箇条に書いた。PLG-09 の節を末尾に足した
+- CHAT-1020-PLG-08 のログの `## 報告`（ファイルの最後の一致）の状態を「判断待ち / 続き: CHAT-1020-PLG-09」にした
+
+### 2. 平野さんがコミットする規則ファイル
+
+PLG-08 のログ `## 経過` 2. と同じ全文（変えていない）。ファイル名: `.claude/hookify.warn-sitemap-lastmod.local.md`
+
+```markdown
+---
+name: warn-sitemap-lastmod
+enabled: true
+event: file
+action: warn
+conditions:
+  - field: file_path
+    operator: regex_match
+    pattern: (^|/)sitemap[^/]*\.xml$
+  - field: content
+    operator: contains
+    pattern: <lastmod>
+---
+
+⚠️ sitemap の lastmod を手で書こうとしています。
+
+lastmod は `python3 scripts/update_sitemap_lastmod.py --from-git` が git の最終コミット日から導出する。手で直さない（CLAUDE.md「禁止事項」、docs/notes/sitemap-lastmod.md、#265）。
+URL を足すだけなら lastmod を書かずに足し、導出はスクリプトとワークフローに任せる（docs/new-page-checklist.md）。
+```
+
+- 試験の結果は PLG-08 のログ `## 経過` 2. の表（lastmod の手書きの Edit・Write で warn、公開の段の URL 追加・インデックスへの参照追加・別のファイル・Bash では出ない）
+
 ## 報告
 
-- 状態: 対応中
+- 状態: 判断待ち
 - ブランチ: work/1020-plg
 - ログ: https://github.com/retroeater/mj/blob/work/1020-plg/docs/logs/CHAT-1020-PLG-09.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1020-plg
 - 確認用URL: なし
-- マージ: 未
+- マージ: 未（平野さんの PR でマージする）
 - issue: なし
-- 判断が必要なこと: 未記入
-- 未確認の項目: 未記入
+- 判断が必要なこと:
+  - 平野さんの手作業（規則ファイルのコミットと PR のマージ）。手順:
+    1. work/1020-plg の `.claude/` を開く: https://github.com/retroeater/mj/tree/work/1020-plg/.claude
+       画面の左上のブランチの表示が `work/1020-plg` であることを確かめる（`cloudflare` なら閉じて、このリンクから開き直す）
+    2. 「Add file → Create new file」を押す（または、ファイル名を入れた新規作成の画面を直接開く: https://github.com/retroeater/mj/new/work/1020-plg/.claude?filename=hookify.warn-sitemap-lastmod.local.md ）。
+       ファイル名の欄が `.claude/` の中で `hookify.warn-sitemap-lastmod.local.md` になっていることを確かめ、本文にこのログの `## 経過` 2. のコードブロックの中身（`---` から最後の行まで。前後の ``` は含めない）を貼る
+    3. 「Commit changes...」を押し、「Commit directly to the `work/1020-plg` branch」を選んでコミットする（「Create a new branch」や `cloudflare` は選ばない。選択肢の表示が `cloudflare` なら、コミットせずに手順1からやり直す）
+    4. cloudflare への PR を作る: https://github.com/retroeater/mj/compare/cloudflare...work/1020-plg?expand=1
+       （base が `cloudflare`、compare が `work/1020-plg` であることを確かめる）
+    5. PR の「Files changed」に出るのが次の5つだけであることを確かめる。ほかのファイルが出たらマージせずに知らせてほしい:
+       `.claude/hookify.warn-sitemap-lastmod.local.md`・`docs/notes/skills.md`・`docs/decisions/operations.md`・`docs/logs/CHAT-1020-PLG-08.md`・`docs/logs/CHAT-1020-PLG-09.md`
+    6. 「Create a merge commit」でマージする（Squash・Rebase は選ばない）
+  - マージ後は、次のセッション（リポジトリ直下で動くもの）から規則が効く。振り返りは 2026-11-04
+- 未確認の項目:
+  - 規則ファイルを `.claude/` に置いた状態での実際の warn の表示（試験は一時ディレクトリで hookify の判定に直接渡したもの。平野さんのコミット後のセッションで、sitemap に lastmod を書く Edit が起きたときに確かめる）
 - エラー: なし
 
 <!-- guide-links -->
@@ -79,4 +138,4 @@ CHAT-1020-PLG-08 の判断待ちへの回答の続き。hookify の最初の規�
 - docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/03eef856/docs/notes/chat-side-operations.md
 - docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/03eef856/docs/notes/cloudflare.md
 - docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/03eef856/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/98282ed8.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/03eef856.md
