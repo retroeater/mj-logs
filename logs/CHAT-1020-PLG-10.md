@@ -77,10 +77,10 @@ CHAT-1020-PLG-09 の続き。平野さんが規則ファイル `.claude/hookify.
 
 - 状態: 判断待ち
 - ブランチ: work/1020-plg
-- ログ: https://github.com/retroeater/mj/blob/work/1020-plg/docs/logs/CHAT-1020-PLG-10.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1020-PLG-10.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1020-plg
 - 確認用URL: なし
-- マージ: 未
+- マージ: 済（33a5608ed。cloudflare の進み〈WRR-14・15 のログ〉を取り込んだマージコミットを fast-forward で push。ログ・決定のみ）
 - issue: なし
 - 判断が必要なこと:
   - 指示の手順3（実際の warn の表示を、このログの「未確認の項目」に書く）と docs/logs/_template.md の規則（「完了」は未確認の項目が「なし」のときだけ）が両立しないため、規則の側を優先してこのログは「判断待ち」にした。
