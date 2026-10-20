@@ -57,17 +57,97 @@ Chat-Ref: CHAT-1020-PLG-08
 
 ## 経過
 
+### 0. 着手前の確認
+
+- 「指示」欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべて揃っている
+- PLG-01〜07 と同じ会話の8つ目の指示（この指示の前にセッションの再開があり、CLAUDE.md が読み直された。Claude-Session の URL は同じ）
+- `git log --all --grep="CHAT-1020-PLG-08"` は0件、`docs/logs/` にも無し。`work/1020-plg` はマージ済みで、`git merge --ff-only origin/cloudflare` で進めた（着手時HEAD e18c2138a）
+
+### 1. issue の検索・hookify の書式・.gitignore・sitemap の経路
+
+- issue の検索（GitHub MCP の `search_issues`、retroeater/mj、open・closed とも）:
+  - 「hookify hook 層 注意 warn」: 0件
+  - 「sitemap lastmod 手編集 検出」: open #335（サイトマップインデックスに lastmod を入れる）・#224（最近の変更ページ）、closed #121・#427・#265
+  - 判断: 同じ論点ではない（#335 はインデックスへの lastmod の追加、#224 はページの追加。手編集の検出・hook の層を主題にしたものは無い）。hook 系では PLG-07 の検索で #556（閉じるキーワードを mj-git-guard で止める）・#293（closed）が出ているが、層の分け方ではない
+- skill `hookify:writing-rules`（同期先 `skills/writing-rules/SKILL.md`）と判定部分（`hooks/pretooluse.py`・`core/config_loader.py`・`core/rule_engine.py`）を読んだ。要約:
+  - 置き場所・ファイル名: `.claude/hookify.<名前>.local.md`（前提のとおり）。`config_loader.load_rules()` は `glob('.claude/hookify.*.local.md')` で、**カレントディレクトリからの相対パス**で探す（Claude Code がリポジトリ直下で動いているときに効く）。次のツール呼び出しから効く（読み直しは毎回）
+  - 書式: YAML の frontmatter（`name`・`enabled`・`event`・`action`・`pattern` または `conditions`）＋本文（Claude に見せるメッセージ）
+  - event: `bash`・`file`（Edit・Write・MultiEdit）・`stop`・`prompt`・`all`
+  - 条件: `pattern`（単純形。file では `new_text` に当てる）か `conditions`（`field`: file では `file_path`・`new_text`・`old_text`・`content`。`operator`: `regex_match`・`contains`・`equals`・`not_contains`・`starts_with`・`ends_with`。すべて満たすと発火）。
+    `rule_engine.py` では、Edit の `new_text` は `new_string` だけを見て、Write の `content` は見ない。`content` は Write の `content` と Edit の `new_string` の両方を見る
+  - action: `warn`（既定。メッセージを出して通す）・`block`。warn は PreToolUse の出力の `systemMessage` に `**[<name>]**` ＋本文が入る
+  - hook の失敗では必ず通す（`sys.exit(0)`）
+  - skill は「`.claude/*.local.md` を `.gitignore` に足す」を勧めている（規則を個人用とみなす作り）。mj では規則をリポジトリで共有するので足さない
+- `.gitignore`: `_site`・`Gemfile.lock`・`__pycache__/`・`.wrangler/`・`.youtube_api_key` の5行。`*.local.md` は無視されていない（GitHub の画面で足したファイルはそのまま追跡される）
+- sitemap を書き換える経路:
+  - lastmod: `python3 scripts/update_sitemap_lastmod.py --from-git`（Bash。`regenerate-sitemap.yml`・`regenerate-page.yml` からも呼ぶ）。生成スクリプト（`generate_wayhome_episodes.py`・`generate_saikyo_pages.py`・`generate_title_pages.py`・`generate_books_pages.py`・`generate_mtsuku_episodes.py`・`generate_exam_episodes.py`）が `sitemap-<名前>.xml` を書き出す（Bash）
+  - **lastmod を持つのは `sitemap-*.xml`（pages 58・wayhome 45・saikyo 883・title 386・books 191・mtsuku 64・exam 15 件）で、`sitemap.xml`（インデックス）には lastmod が0件**（#335 が未対応）
+  - **公開の段では、`sitemap.xml`・`sitemap-pages.xml` を手で編集するのが正しい手順**（docs/new-page-checklist.md「サイトマップに載せる（`sitemap.xml` から専用のサイトマップを参照する、または `sitemap-pages.xml` に足す）。lastmod は手で書かない」、段1 の「`sitemap.xml` の参照をコメントで無効化」）。
+    この手編集は Claude Code では Edit・Write で行う
+  - → **止まる条件「sitemap.xml の正しい経路が Edit・Write を使っていると分かったとき」に当たる。** 決定の文面どおり「sitemap.xml を Edit・Write で書き換えたら注意」にすると、ページの公開・未公開化のたびに正しい作業へ注意が出る。また lastmod を持つ `sitemap-*.xml` は対象にならない
+
+### 2. 判断の材料として試した代わりの規則（確定ではない。`.claude/` には置いていない）
+
+止まる前に、判断の材料として「sitemap 系のファイルに `<lastmod>` を書くときだけ注意する」案を作り、hookify の判定（同期先の `hooks/pretooluse.py`）に scratchpad の一時ディレクトリで渡した。
+ファイル名: `.claude/hookify.warn-sitemap-lastmod.local.md`
+
+```markdown
+---
+name: warn-sitemap-lastmod
+enabled: true
+event: file
+action: warn
+conditions:
+  - field: file_path
+    operator: regex_match
+    pattern: (^|/)sitemap[^/]*\.xml$
+  - field: content
+    operator: contains
+    pattern: <lastmod>
+---
+
+⚠️ sitemap の lastmod を手で書こうとしています。
+
+lastmod は `python3 scripts/update_sitemap_lastmod.py --from-git` が git の最終コミット日から導出する。手で直さない（CLAUDE.md「禁止事項」、docs/notes/sitemap-lastmod.md、#265）。
+URL を足すだけなら lastmod を書かずに足し、導出はスクリプトとワークフローに任せる（docs/new-page-checklist.md）。
+```
+
+試験（入力は `{"hook_event_name":"PreToolUse","tool_name":…,"tool_input":{…}}` をファイル経由で渡し、出力の `systemMessage` を見た）:
+
+| 入力 | 結果 |
+|---|---|
+| Edit `sitemap-pages.xml`（`<lastmod>` の日付を書き換える） | warn |
+| Write `sitemap-exam.xml`（`<lastmod>` を含む全文） | warn |
+| Edit `sitemap.xml`（`<sitemap><loc>…</loc></sitemap>` を足す。公開の段の正しい作業） | 出ない |
+| Edit `sitemap-pages.xml`（lastmod なしの `<url><loc>…</loc></url>` を足す。公開の段の正しい作業） | 出ない |
+| Edit `index.html`（本文に `<lastmod>`） | 出ない |
+| Bash `python3 scripts/update_sitemap_lastmod.py --from-git` | 出ない |
+
+- 最初は条件の field を `new_text` にしたが、Write の全文に当たらず出なかった（`rule_engine.py` の作り）。`content` に替えて上の結果になった
+- 誤検知になり得る場面: 既存の `<url>` の塊を lastmod ごと移す・消すときの Edit（`new_string` に既存の `<lastmod>` が残る）。warn なので作業は止まらない
+- 試験の後の `git status --short` は空（リポジトリは変えていない）
+
+### 3. 行わなかったこと
+
+止まる条件に当たったため、規則の確定、docs/notes/skills.md への「hook の層の分け方」の節の追加は行っていない。docs/decisions/operations.md には、この指示の決定を記録した（CLAUDE.md「作業ログ」節。判断待ちでも決定は書く）
+
 ## 報告
 
-- 状態: 対応中
+- 状態: 判断待ち
 - ブランチ: work/1020-plg
 - ログ: https://github.com/retroeater/mj/blob/work/1020-plg/docs/logs/CHAT-1020-PLG-08.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1020-plg
 - 確認用URL: なし
 - マージ: 未
 - issue: なし
-- 判断が必要なこと: 未記入
-- 未確認の項目: 未記入
+- 判断が必要なこと:
+  - 止まる条件に当たった。docs/new-page-checklist.md の公開の段では `sitemap.xml`・`sitemap-pages.xml` を手で編集する（URL を足す・参照をコメントで外す）のが正しい作業で、Claude Code では Edit・Write を使う。決定の文面（「sitemap.xml を Edit・Write で書き換えたら注意」）のままでは、正しい作業のたびに注意が出る。また lastmod を持つのは `sitemap-*.xml` の側で、`sitemap.xml`（インデックス）には lastmod が無い（#335 が未対応）
+  - 代わりの案（`## 経過` の 2.）: 対象を `sitemap*.xml` の全部に広げ、書く内容に `<lastmod>` を含むときだけ注意する（`.claude/hookify.warn-sitemap-lastmod.local.md`）。hookify の判定に渡して、lastmod の手書きでは出て、公開の段の URL 追加・インデックスへの参照追加・スクリプトの実行では出ないことを確かめた。
+    この案でよいか、または決定の文面のまま（sitemap.xml の Edit・Write 全部に注意）にするかを決めてほしい
+  - 決まったら続きの指示で、手順 3（docs/notes/skills.md「hook の層の分け方」の節、規則の一覧）と平野さんの手作業の手順（作業ブランチを開くリンク、「Add file → Create new file」、ファイル名、全文、「Commit directly to the work/… branch」、PR の「Create a merge commit」）をまとめる。
+    作業ブランチは PLG-01〜08 で使った `work/1020-plg`（マージ済み）を使い回すより、続きの指示で cloudflare から切り直す方が、平野さんのコミットと PR の差分が規則ファイル1つになって確かめやすい
+  - 参考: hookify は規則をカレントディレクトリからの相対パス（`.claude/hookify.*.local.md`）で探す。skill は `.claude/*.local.md` を `.gitignore` に足すよう勧めるが、mj では共有するため足さない（今の `.gitignore` は無視していない）
+- 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
