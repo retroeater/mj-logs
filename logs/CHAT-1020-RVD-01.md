@@ -1274,7 +1274,7 @@ index 5ecc58a2e..a064bcf0c 100644
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1020-RVD-02
 - ブランチ: work/1020-rvd
 - ログ: https://github.com/retroeater/mj/blob/work/1020-rvd/docs/logs/CHAT-1020-RVD-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1020-rvd
