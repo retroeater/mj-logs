@@ -52,29 +52,32 @@ Chat-Ref: CHAT-1019-WRR-14
 - 2. chat-side-operations.md「平野さんの判断とマージの許可」の箇条（「判断待ち」で止めた報告…の次、`.claude/` の hook…の前）に1行足した。矛盾する記述は無し
 - 3. docs/decisions/houou.md の WRR-13 の節の後（末尾）に「## 2026-10-20（CHAT-1019-WRR-14）」
 - 4. バイト数: page-announcement.md 12612 → 12737、chat-side-operations.md 21976 → 22349（警告域 26624 まで 4275・上限 28672 まで 6323。純増の警告の床 24576 の下）、docs/decisions/houou.md 156021 → 156805。ほかの3文書は変えていない: CLAUDE.md 24859（1765・3813）、handover.md 22937（3687・5735）、instruction-template.md 14325（警告域まで 11・上限まで 2059）。`scripts/check_asset_limits.py` はすべて OK
+- check-assets: 作業ブランチの push（256f317b0、chat-side-operations.md を含む）で「公開対象の検査」が走り success（run 39407129736）。注記は Node.js 20 の非推奨と ubuntu-latest の移行の通知だけで、ガイド文書のサイズの警告は無し
+- マージ: push 直前に再 fetch して祖先を確かめ `git push origin work/1019-wrr14:cloudflare`（e18c2138a..256f317b0）
 
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1019-wrr14
-- ログ: https://github.com/retroeater/mj/blob/work/1019-wrr14/docs/logs/CHAT-1019-WRR-14.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1019-WRR-14.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1019-wrr14
 - 確認用URL: なし
-- マージ: 未
+- マージ: 済（256f317b0）
 - issue: なし
-- 判断が必要なこと: なし
+- 判断が必要なこと:
+  - ガイド文（chat-side-operations.md）に規則を足す指示に「知見 → 選んだ層 → 理由」の表が無かった（CLAUDE.md「Chat-Ref」節では着手せず止まる条件）。WRR-12 の表の続きで、指示の「決定」に層と理由が書かれていたので止まらずに進めた。この扱いでよいか（よくなければ、chat-side-operations.md の1行を戻す）
 - 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj e18c2138）: https://github.com/retroeater/mj-logs/tree/main/guide/e18c2138
+ガイド文書（この版を写した時点の最新、mj 03eef856）: https://github.com/retroeater/mj-logs/tree/main/guide/03eef856
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e18c2138/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e18c2138/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e18c2138/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e18c2138/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e18c2138/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e18c2138/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/03eef856/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/03eef856/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/03eef856/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/03eef856/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/03eef856/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/03eef856/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/98282ed8.md

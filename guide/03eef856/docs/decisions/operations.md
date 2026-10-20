@@ -901,3 +901,33 @@ LNK 系列（CHAT-1019-LNK-01〜08）の振り返り・レビューの申送り:
 - 本番の確かめが要るマージの指示には、15分で本番が古いままなら判断待ちにせず「未確認の項目」に回して完了にする、と書き、チャット側が send_later で確かめる（PAD-09 の決定を指示文に書き落とさないため）。置き場所は `docs/notes/chat-routines.md`「指示の種類ごとの確かめ」の「マージ・クローズの指示」の行（雛形 `docs/instruction-template.md` は容量の警告域まで残り 11 bytes のため置かない。雛形の整理はしない。LNK-09 の判断待ちへの回答）
 - 振り返りの「前回の約束が守られたか」は、この文書の直近の振り返り・申送りの節で確かめる。置き場所は `docs/notes/chat-routines.md`「振り返り」の観点の「前回の振り返り・レビューで立てた約束…」の行
 - 作業中の回答: なし
+
+## 2026-10-20（CHAT-1020-PLG-01）
+
+- claude.ai から公式プラグイン7つ（claude-md-management・code-review・claude-code-setup・hookify・frontend-design・commit-commands・code-simplifier）を追加した。順に試す最初は claude-code-setup（読み取り専用）とする
+- 作業中の回答: なし
+
+## 2026-10-20（CHAT-1020-PLG-02）
+
+- 公式プラグインは claude-code-setup → claude-md-management の監査 の順で試す
+- 作業中の回答: なし
+
+## 2026-10-20（CHAT-1020-PLG-07）
+
+PLG-03〜06（手順0で止まった。PLG-05・06 は欠番）の貼り直し:
+
+- docs/notes/skills.md「plugin と MCP を使わない理由」を今の実測に合わせて直す（文面は CHAT-1020-PLG-01 の判断待ち (a) の案）
+- mj で使わない plugin（design・engineering・product-management・mobbin・searchfit-seo）と commit-commands を claude.ai のアカウントから外した（平野さんの手作業）。残す: frontend-design・security-guidance・claude-security・code-review・claude-md-management・hookify・code-simplifier・claude-code-setup
+- CLAUDE.md の監査（CHAT-1020-PLG-02）の指摘1（禁止事項の git の項目と mj-git-guard の重複）・2（「plugin は使わない」）・3（`handover-archive-2026.md` のパス）を適用する。指摘5・「User Tips」は採らない。指摘4は何もしない。追加候補3（場面限定の手順を docs/notes/ へ移す）は後日、容量の整理の指示で行う
+- PLG-03・PLG-04 の貼り直しは1本にまとめる（チャット側の案を平野さんが承認）
+- 作業中の回答: なし
+
+## 2026-10-20（CHAT-1020-SEC-18）
+
+SEC 系列（CHAT-1019-SEC-13〜CHAT-1020-SEC-17）の振り返り・レビューの申送り:
+
+- 申送りを行う（平野さんが「申送り」と言った。中身はチャット側の案）
+- スケジュールのジョブに効く設定（権限・Secret・ランナー）を変えたら各周期の初回の結果を見る、はガイド文に足さない。`scripts/morning_report.py` の「1. 失敗など」が mj の全ワークフロー（各直近100回）の success・skipped 以外を26時間の窓で毎朝拾い、mj-logs の actions/morning.md に出るため（週次・月次も対象）。2026-10-26・11-02 のカレンダーの予定は念のための重ねで、規則にはしない
+- 低-8 後半（jpml_pros の選手リンクで日本語を逃がさず残す形）の外すきっかけは、ガイド文ではなく #619 に書いた（jpml_pros.html を作り直すとき、#219・#296）
+- Observatory の採点（申告の 105 点）は、レポートの PDF を確かめた結果に `security.md` の 2026-10-20（CHAT-1020-SEC-15）の節で置き換えた
+- 作業中の回答: なし
