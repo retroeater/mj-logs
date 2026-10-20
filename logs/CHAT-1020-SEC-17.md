@@ -55,15 +55,41 @@
 - Chat-Ref 重複なし（`git log --all --grep`）。`work/1020-sec17` はローカル・リモートとも無し → `git checkout -b work/1020-sec17 origin/cloudflare`。
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている（指示文では冒頭の行が改行なしで1行につながっていたが、項目はある）。着手 2026-10-20 09:04 JST（push を止める時間帯の外）。
 
+- SEC-16 のログの状態を「判断待ち / 続き: CHAT-1020-SEC-17」にしてコミット（`## 報告` の状態の行、103 行目）
+
+### 手順1（確かめ）
+
+- #598: Open（`gh api repos/retroeater/mj/issues/598`）。ラベルは「分野: セキュリティ」だけ（「状況:」のラベルは無い）
+- SEC-16 のログの `## 報告` に「#598 を閉じてよいか」がある（残りは低-3 と `index.mjs` の nosniff、案は低-3 を #564 か新しい issue に移してから閉じる）
+- 同じ題の issue: `/repos/retroeater/mj/issues?state=all&per_page=100&page=N` を7ページ取った（`gh api --paginate` は次のページの URL が数字の ID の形でプロキシに 403 で拒まれたので、`page=` を指定して取り直した）。#1〜#618 の 618 件（PR を含む）に「#598 の残り」や同じ主題の題は無い。セキュリティ系の題は #598・#464・#36・#9 だけでどれも別の主題
+- 未マージの work/ ブランチで `docs/notes/security.md`・`docs/decisions/security.md` を変えているものは無い
+- `docs/decisions/security.md` に決定と食い違う記述は無い（2026-10-20 の SEC-15・SEC-16 の節と同じ趣旨）
+- 各項目の今の行: `assets/houou_ask.js:133`（`image.src = thumb`）、`workers/ask/src/index.mjs:18,21`（405）・`:23`（404）、CI の `packages:` は6行・`pip install` は7行（`google-auth`・`requests`・`Pillow` が版なし、`anthropic==1.7.0` だけ固定）
+
+### 手順2（起票と記録）
+
+- `gh issue create` は GraphQL を使い、このセッションでは 403（「GitHub GraphQL is not available from Claude Code sessions」）。REST の `POST /repos/retroeater/mj/issues` で起票した → **#619**「#598 の残り（CI の依存の版・mj-ask の 404/405 の nosniff・質問欄の写真の scheme）」、ラベル「分野: セキュリティ」（#598 と同じ）。本文は3件の表（何が・今の行・重大度・外すきっかけ・根拠のログの節）と閉じる条件（1・2 を直したとき）
+- docs で 598 を検索（`docs/logs/`・`docs/gsc/` を除く）して出た所を全部見た:
+  - 直した: `docs/notes/security.md` の冒頭（「#598 は直すものを直して 2026-10-20 に閉じ、残りの3件は #619」を足した）、`docs/handover.md` の文書の表の `docs/notes/security.md` の行（「結果は親 #598。CSP #9 の後に再点検」→「結果は #598〈2026-10-20 に閉じた〉、残りは #619」）
+  - そのまま: `docs/notes/security.md` の「初回は #598」・(a)(c) の「#598 低-10」「#598 低-7」・`security-check.yml` の「#598」、`docs/notes/github-actions.md:37,95`、`docs/notes/cloudflare.md:285,291`（どれも出典としての番号で、閉じても正しい）、`docs/notes/handover-archive-2026.md:125`（行番号の 598 で issue ではない）、`docs/decisions/*.md`（過去の決定の記録）
+  - handover.md の「最終更新」は、表の1行の参照を直しただけなので変えていない
+- `docs/decisions/security.md` に `## 2026-10-20（CHAT-1020-SEC-17）` を足した
+- コミット: docs（`#598 を閉じ、残りを #619 に移したことを記録する`）
+
+### 手順3（閉じる）
+
+- #598 に閉じるコメント（issuecomment-6280121092。SEC-01〜SEC-16 の要約、SEC-14・SEC-15・SEC-16 の結果のコメントへのリンク、#619 の3件、#601・#298・カレンダーの 10/26・11/2 の確認の3行、本文の未チェックの「Workflow permissions の既定」が済んだこと）
+- #598 を閉じた（`PATCH state=closed state_reason=completed`、2026-10-20 09:07 JST）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1020-sec17
-- ログ: https://github.com/retroeater/mj/blob/work/1020-sec17/docs/logs/CHAT-1020-SEC-17.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1020-SEC-17.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1020-sec17
 - 確認用URL: なし
-- マージ: 未
-- issue: #598
+- マージ: 済
+- issue: #619（起票）、#598（クローズ）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
@@ -71,12 +97,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 87b60a76）: https://github.com/retroeater/mj-logs/tree/main/guide/87b60a76
+ガイド文書（この版を写した時点の最新、mj 82a0e192）: https://github.com/retroeater/mj-logs/tree/main/guide/82a0e192
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/87b60a76/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/87b60a76/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/87b60a76/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/87b60a76/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/87b60a76/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/87b60a76/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/82a0e192/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/82a0e192/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/82a0e192/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/82a0e192/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/82a0e192/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/82a0e192/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/9a00b59e.md
