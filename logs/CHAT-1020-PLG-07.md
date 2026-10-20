@@ -62,28 +62,91 @@ CHAT-1020-PLG-03・CHAT-1020-PLG-04 は、貼る時機の条件を「前の指�
 
 ## 経過
 
+### 0. 着手前の確認
+
+- 「指示」欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべて揃っている
+- **このセッションは新しく始めたものではない**（Claude-Session の URL は PLG-01〜06 と同じ）。この指示は新しくなくても止まらない
+- `git log --all --grep="CHAT-1020-PLG-07"` は0件、`docs/logs/` にも無し。`work/1020-plg` はマージ済みで、`git merge --ff-only origin/cloudflare` で進めた（着手時HEAD 25c71322a）
+- PLG-03〜06: いずれも `## 報告` の状態「判断待ち」・マージ済み（44a5b233f・ead0c1b6c・6f35bc31f・0c87eeee1）。各 Chat-Ref のコミットが変えたファイルは `docs/logs/CHAT-1020-PLG-0[3-6].md` だけ（`git log --name-only --grep`）。CLAUDE.md・docs/notes/skills.md の最終変更はそれより前のコミット（9c57a5ce3・ea3b3954e）
+
+### 1. issue の検索・docs/notes/skills.md の直し・plugin の一覧
+
+- issue の検索（GitHub MCP の `search_issues`、retroeater/mj、open・closed とも）:
+  - 「plugin skills.md プラグイン」: 0件
+  - 「CLAUDE.md 禁止事項 hook 重複 mj-git-guard」: open #556（閉じるキーワードを mj-git-guard で止める）・#301（CLAUDE.md の一部を Skill として切り出せるか）・#493（分類器の拒否）・#292（機械判定できる規約を check_conventions.py に集約）・#176（ブランチ運用の監視）、closed #336・#212・#293・#297・#326
+  - 「CLAUDE.md 容量 整理 上限」: open #301・#292、closed #336・#297
+  - 判断: 同じ論点ではないとして進めた。#292 は新しい検査スクリプトによるセンサー化（hook の既存の deny とガイド文の重複を外す今回の直しとは別）、#301 は Skill への切り出しの採否の検討、#556 は閉じるキーワードの hook 化、#493・#176 は分類器・ブランチ運用の監視。
+    いずれも「plugin の扱い」「禁止事項と mj-git-guard の重複」を主題にしていない。容量の整理の本体（追加候補3）は決定で後日の別指示とされ、CLAUDE.md 自身も #292・#301 を長期の目標として挙げている
+- 未マージの `work/` ブランチで CLAUDE.md・docs/notes/skills.md を変えているものは無し（`git branch -r --no-merged origin/cloudflare` の各ブランチと cloudflare の差分）
+- `claude plugin list`（このセッションで実行。「Synced from claude.ai:」の下に8件、すべて `Status: √ loaded`）:
+
+```
+Synced from claude.ai:
+  > claude-md-management@synced  √ loaded
+  > claude-code-setup@synced     √ loaded
+  > claude-security@synced       √ loaded
+  > code-review@synced           √ loaded
+  > code-simplifier@synced       √ loaded
+  > hookify@synced               √ loaded
+  > frontend-design@synced       √ loaded
+  > security-guidance@synced     √ loaded
+```
+
+  - **同じセッションでも、外した後の一覧が出た。** 外した6件（design・engineering・product-management・mobbin・searchfit-seo・commit-commands）は無い。
+    同期先 `~/.claude/plugins/synced/<アカウントの識別子>/` には plugin のディレクトリが8つだけ残り、ディレクトリの更新時刻は 02:32（UTC。セッション開始時の各 plugin は 00:17）、`manifest.json` は 02:52。セッションの途中で同期し直されたと読める
+  - セッションの側でも、searchfit-seo の agent 3つが「使えなくなった」と途中で通知された。skill の一覧（セッションの開始時に渡されたもの）がどこまで更新されたかは確かめていない
+  - 残る8件の中身（同期先の `skills/`・`commands/`・`agents/`・`hooks/hooks.json` を数えた）: skill 5本（frontend-design・hookify・claude-md-management・claude-code-setup・claude-security が各1）、slash command 6本（code-review 1・hookify 4・claude-md-management 1）、agent 10本（code-simplifier 1・hookify 1・claude-security 8）、hook を持つもの3件（security-guidance・hookify・claude-security）
+- docs/notes/skills.md の直し（PLG-01 の (a) の4点。語は docs/notes/glossary.md に plugin の項目が無いので、既存の skills.md の語〈plugin・同期〉に合わせた）:
+  1. 見出し「plugin と MCP を使わない理由」を「plugin の扱い」に改め、先頭の「2026-09-29 に plugin（project スコープ）で入れて試し、平野さんの判断で複写に切り替えた。」を、同期の説明（同期先・`claude plugin list` の表示・外すと途中でも消える・`/plugin` の文言・規則は plugin に依存させない・採否は docs/decisions/operations.md）に置き換えた。
+     「途中でも消える」は案に無かった今回の実測で、足した
+  2. 1つ目の箇条（cache に置かれ毎セッション入れ直しが要る）を「マーケットプレイスから project スコープで入れる方法（2026-09-29）は…毎セッション入れ直しが要る…mj の skill はリポジトリへの複写で持つ」に置き換えた（同じ趣旨の記述の置き換え）。2〜4つ目の箇条は残した
+  3. 「置き場所と永続性」の表に「claude.ai のアカウントの plugin | `~/.claude/plugins/synced/`（起動時に同期され、外すと途中でも消える） | 残る（アカウント側）」を足した
+  4. 「コンテキストの負荷」に、アカウントの plugin の description も毎セッション読み込まれる（plugin 8件で skill 5本・slash command 6本・agent 10本）の1行を足した
+  - あわせて「入れている skill」節の冒頭の「（plugin は使わない。下の「plugin と MCP を使わない理由」）」を「（mj の skill は plugin で入れない。下の「plugin の扱い」）」に直した（PLG-01 の (a) の案の4つ目の箇条にある。旧い見出しへの参照は skills.md 内のこの1か所だけ〈`grep -rn`、docs/logs を除く〉）
+  - (a) の案と skills.md の記述に矛盾は無かった（旧い記述は 2026-09-29 の方法についての実測で、今回の同期の実測と両立する）
+
+### 2. CLAUDE.md の3か所
+
+- 直す前の該当行は前提のとおり（「構成」の skill の行〈23行目〉、「禁止事項」の `git stash` の行〈60行目〉と「未コミットの変更がある…」の2行〈61〜62行目〉、更新ルールの `handover-archive-2026.md` の行〈192行目〉）
+- 直した内容（PLG-02 の Phase 4 の差分から、ディレクトリの行を除いたもの）:
+  - 指摘2: 「skill（`.claude/skills/`、plugin は使わない）と git の hook…の導入・入れ直しは」→「skill（`.claude/skills/`）と git の hook（`.claude/hooks/`）の導入・入れ直し、claude.ai のアカウントの plugin の扱いは」docs/notes/skills.md
+  - 指摘1: `git stash` の行と「未コミットの変更がある…」の行（2行目の参照を含む）を
+    「`git stash`・`reset --hard`・`clean`・`checkout .` は mj-git-guard が止める（docs/notes/skills.md「git の hook」。戻し方は docs/notes/branch-operations.md「未コミットの変更を戻すとき」）」の1行にした。`gh-pages` の行は残した。
+    旧い行にあった `git checkout HEAD -- .` は列挙から外れたが、mj-git-guard は deny する（PLG-02 で試験済み）
+  - 指摘3: `handover-archive-2026.md` → `docs/notes/handover-archive-2026.md`
+- `wc -c CLAUDE.md`: 直す前 24,883 → 直した後 24,859（−24 bytes。増えていない）
+- 参照先の実在: docs/notes/skills.md「## git の hook（mj-git-guard）」（67行目）、docs/notes/branch-operations.md「## 未コミットの変更を戻すとき（2026-09-27）」（138行目）、`docs/notes/handover-archive-2026.md` とも実在
+- `python3 -m unittest discover -s scripts/tests`: 1457件 OK（10.2秒）
+- 成果物のコミット: 「docs: update plugin notes and trim CLAUDE.md duplicates」（CLAUDE.md・docs/notes/skills.md の2ファイル。ログとは別のコミット）
+- 書き方の記録: docs/notes/skills.md の直しと各ログの状態の追記は、引用符付きヒアドキュメントの Python で文字列を置き換えた（展開は起きない。差分で確かめた）。CLAUDE.md・docs/decisions/・このログは Edit で書いた
+
+### 3. 各ログの続きと決定
+
+- PLG-01〜06 の `## 報告`（ファイルの最後の一致）の状態を「判断待ち / 続き: CHAT-1020-PLG-07」にした（6ファイルとも1行の変更）
+- docs/decisions/operations.md に「2026-10-20（CHAT-1020-PLG-07）」の節を足した（PLG-01・02 の決定と同じ分野）
+
 ## 報告
 
-- 状態: 対応中
+- 状態: 完了
 - ブランチ: work/1020-plg
-- ログ: https://github.com/retroeater/mj/blob/work/1020-plg/docs/logs/CHAT-1020-PLG-07.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1020-PLG-07.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1020-plg
 - 確認用URL: なし
-- マージ: 未
+- マージ: 済（4693f3c23 を fast-forward で push）
 - issue: なし
-- 判断が必要なこと: 未記入
-- 未確認の項目: 未記入
+- 判断が必要なこと: なし
+- 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 25c71322）: https://github.com/retroeater/mj-logs/tree/main/guide/25c71322
+ガイド文書（この版を写した時点の最新、mj 9321bdc1）: https://github.com/retroeater/mj-logs/tree/main/guide/9321bdc1
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/25c71322/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/25c71322/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/25c71322/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/25c71322/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/25c71322/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/25c71322/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9321bdc1/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9321bdc1/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9321bdc1/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9321bdc1/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9321bdc1/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9321bdc1/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/98282ed8.md
