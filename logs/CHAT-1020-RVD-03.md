@@ -45,15 +45,72 @@ RVD-01（古い事実・重複・場面限定の手順の移動）と RVD-02（C
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 着手前の確認
+
+- 0章: ログの「指示」欄の末尾は指示文の最後の行と一致した。RVD-01・RVD-02 の `## 報告` の状態は「判断待ち」（RVD-01 は「判断待ち / 続き: CHAT-1020-RVD-02」）。6de55b38a の後の work/1020-rvd のコミットは 607a1fecf（docs/decisions/operations.md と RVD-01・02 のログだけ）で、成果物のコミットは無い
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある。貼られた指示文は、題の行から「作業ブランチ」の行までが1行につながって届いた（中身は欠けていない）
+- Chat-Ref の重複: `git log --all --grep="CHAT-1020-RVD-03"` は0件
+- 起動時の CLAUDE.md: `git log HEAD..origin/cloudflare -- CLAUDE.md` は0件（cloudflare 側は CLAUDE.md を変えていない）
+
+### 手順1: 取り込みと検査
+
+- origin/cloudflare（ecaedb7a9）は、着手時の work/1020-rvd との分岐から 13 コミット進んでいた（指示文の見込みの7より多い。WRR-14・WRR-15・PLG-10 のログのコミットも入っていた）。変わったファイルは `.claude/hookify.warn-sitemap-lastmod.local.md`・docs/decisions/operations.md・docs/logs/CHAT-1019-WRR-14.md・CHAT-1019-WRR-15.md・CHAT-1020-PLG-08.md・PLG-09.md・PLG-10.md・docs/notes/skills.md。4文書は含まない
+- `git merge origin/cloudflare` で docs/decisions/operations.md の末尾が衝突した（RVD-01・RVD-02 の節と PLG-10 の節の追記どうし）。両方を残し、RVD の2節の後に PLG-10 の節を置いた。git が共通の最後の行「- 作業中の回答: なし」を PLG-10 の側にだけ残したため、RVD-02 の節に同じ行を戻した。解いた後の該当箇所:
+
+```
+## 2026-10-20（CHAT-1020-RVD-02）
+
+- Code の実行環境は 2026-10-14 からクラウドセッションのみで、Codespace は使っていない。CLAUDE.md・docs/handover.md・docs/instruction-template.md・docs/notes/chat-side-operations.md の Codespace の記述（worktree の手順、Codespace 用の「作業ブランチ」の文面）は外してよい（#492）
+- 作業中の回答: なし
+
+## 2026-10-20（CHAT-1020-PLG-10）
+
+- PR #621 をマージした（規則ファイル `.claude/hookify.warn-sitemap-lastmod.local.md`・docs/notes/skills.md・docs/decisions/operations.md・PLG-08/09 のログの5件。平野さんの手作業、マージコミット 242764f）
+- 作業中の回答: なし
+```
+
+- 取り込みのコミット: ce3023899
+- 4文書のサイズ（ce3023899、`wc -c`）: CLAUDE.md 23,129・handover.md 22,108・chat-side-operations.md 21,980・instruction-template.md 11,978。RVD-02 の報告の値と同じ
+- `python3 scripts/check_asset_limits.py`: すべて OK。`python3 -m unittest discover -s scripts/tests`: Ran 1457 tests、OK
+- 4文書の `grep -i "codespace\|worktree\|/workspaces/mj"`: 残ったのは handover.md 6章の2行（session-network.md・branch-operations.md の行の「旧 Codespace の記録」）だけ
+
+### 手順2: マージ
+
+- push の直前に `git fetch origin cloudflare` のうえ `git merge-base --is-ancestor origin/cloudflare HEAD` は真。`git push origin work/1020-rvd:cloudflare` で ecaedb7a9..ce3023899（fast-forward）
+- ce3023899 の check-run: 「Workers Builds: mj」completed success（118712997035）、「check」completed success（118711104242）
+
+### 手順3: #492・ログの状態・片付け
+
+- #492 にコメントした（https://github.com/retroeater/mj/issues/492#issuecomment-6294362729 。指定の行を引用。本文・状態・ラベルは変えていない）
+- RVD-01・RVD-02 のログの `## 報告` の状態を「完了 / 続き: CHAT-1020-RVD-03」に、マージを「済（ce3023899、CHAT-1020-RVD-03）」に、ログの URL を `blob/cloudflare/` に直した。
+  「判断が必要なこと」は完了のため「なし（…）」の1行にし、元の項目は各ログの `## 経過` の末尾「マージ前の判断が必要なこと（CHAT-1020-RVD-03 で解消）」に移した（子の行があると完了のログが自動で削除されないため、`_template.md`）
+- work/1020-rvd は削除しない（cloud-sessions.md「ブランチの削除」のとおり、マージ済みの `work/*` は `cleanup-branches.yml` が削除する）
+- 決定（2026-10-21、RVD-01・RVD-02 の整理のマージ）を docs/decisions/operations.md に足した（このログと同じコミット）
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1020-rvd
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1020-RVD-03.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1020-rvd
+- 確認用URL: なし
+- マージ: 済（ce3023899）
+- issue: #492（結果のコメント。閉じていない）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj ce302389）: https://github.com/retroeater/mj-logs/tree/main/guide/ce302389
+ガイド文書（この版を写した時点の最新、mj 67bded83）: https://github.com/retroeater/mj-logs/tree/main/guide/67bded83
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce302389/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce302389/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce302389/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce302389/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce302389/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce302389/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/67bded83/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/67bded83/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/67bded83/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/67bded83/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/67bded83/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/67bded83/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/ce302389.md

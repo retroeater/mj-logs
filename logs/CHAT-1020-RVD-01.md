@@ -1272,16 +1272,8 @@ index 5ecc58a2e..a064bcf0c 100644
  規則は `docs/notes/cloudflare.md`「ビルド成否と本番の確認範囲（check-runs）」「Chrome からダッシュボードの API を読む」と `docs/notes/chrome-reading.md`「使い方」、#304 の本文の冒頭（担当）が正。
 ~~~~
 
-## 報告
+### マージ前の判断が必要なこと（CHAT-1020-RVD-03 で解消）
 
-- 状態: 判断待ち / 続き: CHAT-1020-RVD-02
-- ブランチ: work/1020-rvd
-- ログ: https://github.com/retroeater/mj/blob/work/1020-rvd/docs/logs/CHAT-1020-RVD-01.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1020-rvd
-- 確認用URL: なし
-- マージ: 未（平野さんの判断待ち）
-- issue: #492（着手中のコメント。本文・状態・ラベルは変えていない）
-- 判断が必要なこと:
   - マージの可否（整理後の全文と差分は `## 経過` の「整理後の4文書の全文」「4文書と移した先の差分」）。成果物は 2d9ca2383、docs のみ（docs/decisions/operations.md の追記を含む）
   - a1: CLAUDE.md の型C・Google Charts の行は #582 のコミット（b545ff9b5）で既に消えており、直すものが無かった。#168 の規則は今のページでも同じ形（在籍者だけを出す）で docs/notes/houou-top.md・static-generation.md にあり、CLAUDE.md には足していない
   - a2: CLAUDE.md は「CSP〈`_headers`〉の許可を足すことになるため」に直した。handover 4章は許可の正を `_headers` とし、img-src は実物の `https:`、外部の script-src は `static.cloudflareinsights.com` だけと書いた
@@ -1289,18 +1281,30 @@ index 5ecc58a2e..a064bcf0c 100644
   - a6: #296 の sub-issue は REST で 38件（指示文の 30件とも違う）。件数は消した
   - 目安に届かなかったもの: CLAUDE.md 23,446（目安 22,500）。残りは規則のため削っていない。chat-side-operations.md 22,240（目安 22,200）は、着手時の cloudflare が e18c2138 より 373 バイト増えていた（80cbffe5）ため。着手時からは −109 で純増なし
   - c5 は新しい行を足さず、同じ参照先の既存の行の「場面」の列に足した
+
+
+## 報告
+
+- 状態: 完了 / 続き: CHAT-1020-RVD-03
+- ブランチ: work/1020-rvd
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1020-RVD-01.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1020-rvd
+- 確認用URL: なし
+- マージ: 済（ce3023899、CHAT-1020-RVD-03）
+- issue: #492（着手中のコメント。本文・状態・ラベルは変えていない）
+- 判断が必要なこと: なし（CHAT-1020-RVD-03 で承認されマージした。マージ前の項目は `## 経過` の「マージ前の判断が必要なこと」）
 - 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 03eef856）: https://github.com/retroeater/mj-logs/tree/main/guide/03eef856
+ガイド文書（この版を写した時点の最新、mj 67bded83）: https://github.com/retroeater/mj-logs/tree/main/guide/67bded83
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/03eef856/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/03eef856/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/03eef856/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/03eef856/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/03eef856/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/03eef856/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/03eef856.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/67bded83/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/67bded83/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/67bded83/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/67bded83/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/67bded83/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/67bded83/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/ce302389.md
