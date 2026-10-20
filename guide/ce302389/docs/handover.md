@@ -6,11 +6,11 @@
 **この文書は現状・ルール・次にやることだけを書く。** 実装記録は `docs/notes/`、issue単位の経緯は GitHub Issues、過去の履歴は
 `docs/notes/handover-archive-2026.md`。容量の上限と退避方法は CLAUDE.md「CLAUDE.md / handover.md の更新ルール」。
 
-最終更新: 2026-10-19
+最終更新: 2026-10-20
 
-- **鳳凰戦・女流桜花・WRC の旧ページを消し（#582）、Google Charts に依存するページは0になった（#7 を閉じた）**
-- **5章の期日の表を消した。期日はカレンダー「ryoei.pro」が正**
-- **アクセス解析の導入の検討（#550）を「次にやること」に足した**
+- **4文書の整理（#492）: CSP の導入済み（`_headers`）に合わせて4章「外部ドメインへの依存を増やさない」を直した**
+- **5章の表から閉じた #9・#523・#425・#366 を外した**
+- **3章「タスク管理」を CLAUDE.md「issueの着手ルール」の参照先にした**
 
 ---
 
@@ -56,14 +56,14 @@ GitHub Pages からの移行の相談に始まり、Cloudflare への移行の�
 公開したくないファイルは `.assetsignore` に列挙している（追加時のルールは CLAUDE.md「方針」、#133）。
 
 `html_handling`・`_redirects` の先頭行の規則は CLAUDE.md「禁止事項」。canonical は付けない（#113）。例外は `wayhome/` の個別ページで、URL変種を持たないため canonical を持つ（#162）。
-`_headers` はセキュリティヘッダ5件とキャッシュ制御（#92）。設定値と経緯は `docs/notes/cloudflare.md`「配信設定: html_handling・_redirects・canonical・_headers」
+`_headers` はセキュリティヘッダ（CSP を含む）とキャッシュ制御（#92）。設定値と経緯は `docs/notes/cloudflare.md`「配信設定: html_handling・_redirects・canonical・_headers」
 
-**本番反映**は CLAUDE.md「構成」（ゲートは #170）。設定値・確認範囲は `docs/notes/cloudflare.md`「本番反映（デプロイ）の仕組み」、セッションからの到達は `docs/notes/session-network.md`（#328）。
+**本番反映**は CLAUDE.md「構成」（ゲートは #170）。設定値・確認範囲は `docs/notes/cloudflare.md`「本番反映（デプロイ）の仕組み」、セッションからの到達は `docs/notes/cloud-sessions.md`「ネットワーク」（#328）。
 
 ### ページ構成
 
 系統は `index.html`（テンプレート由来）・ビルド時生成（型A/A'/D と、`wayhome/`・`saikyo/`・`title/`・`live/`・`books/`・`houou/`・`ouka/`・`jwrc/` などのサブディレクトリ）・
-静的なページ の3つ（Google Charts 依存の旧6ページと型C の2ページは #582 で消した）。**件数の正は `python3 scripts/regenerate.py --list`。**
+静的なページ の3つ。**件数の正は `python3 scripts/regenerate.py --list`。**
 ページの一覧（ページ数・生成スクリプト・公開状態）は `docs/notes/static-generation.md`「ページの一覧」。
 **`books/`は2026-09-22開発凍結（自動生成・自動取得を停止、本番はそのまま残す）。`docs/notes/books-freeze.md`。**
 
@@ -95,7 +95,7 @@ GitHub Pages からの移行の相談に始まり、Cloudflare への移行の�
 | **Claudeとのチャット** | 設計の相談、調査、原因の切り分け、実装案・指示文の作成 |
 | **Claude Code** | ファイルの編集、issue操作、コミット・push。コミットの到達確認・差分・マージ判定も行い、結果をログで報告する |
 
-Claude Code の実行環境は Codespace（`/workspaces/mj` で `claude`、`gh` 認証済み。Rebuild・gh の認証は `docs/notes/session-network.md`）かクラウドセッション（`docs/notes/cloud-sessions.md`）。
+Claude Code の実行環境はクラウドセッション（`docs/notes/cloud-sessions.md`）。
 Chat-Ref・並行作業の規則は CLAUDE.md「Chat-Ref」「ブランチ運用」、決まるまでの経緯は archive。
 
 ### skill と hook
@@ -105,14 +105,14 @@ hook の判定は deny（実行させない）だけで、確認（ask）は出�
 
 ### タスク管理
 
-**GitHub Issues** で管理する（Projects のボードは 2026-10-03 から使わない。着手中コメントなどの規則は CLAUDE.md「issueの着手ルール」、#157）。
+**GitHub Issues** で管理する（優先順位と状況は本文・ラベル。Projects のボードは使わない。期日はカレンダー「ryoei.pro」〈5章〉。着手中コメントなどの規則は CLAUDE.md「issueの着手ルール」、#157）。
 
 - ラベルは3系統。コロンの後に半角空白が入る（例: `分野: 整理・保守`。正は`gh label list`）:
   `状況:`（対応中、保留、待ち。未着手はラベルなし）、
   `分野:`（SEO/AIO、パフォーマンス、自動化、セキュリティ、整理・保守、インフラ、UI/UX）、
   `対象:`（ページ名。jpml_pros、index、全ページ など）
 - 完了分もcloseした状態で残す（判断の経緯を後から追えるように）。エクスポートファイルは廃止（#210）
-- **新サイト全体の親 issue は #296（sub-issue 21件）。** #101 はトップページの作り直しに限る。新サイト送りの手順は #296 の本文
+- **新サイト全体の親 issue は #296（sub-issue の一覧も #296）。** #101 はトップページの作り直しに限る。新サイト送りの手順は #296 の本文
   「新サイト送りにするとき・やめるとき」
 - ユーザ登録（サーバ側のアカウント）が前提の機能は #394（保留）に blocked by で依存させる
 - 月次の手作業（AI言及・Core Web Vitals・デバイス比率・robots.txt差分・Cloudflare の設定と記録の照合）は
@@ -138,10 +138,9 @@ hook の判定は deny（実行させない）だけで、確認（ask）は出�
 
 ### 外部ドメインへの依存を増やさない
 
-方針は CLAUDE.md「判断・作業の原則」（CSP〈#9〉のため）。残る外部依存は Cloudflare Web Analytics（`static.cloudflareinsights.com`。
-CSPでは `script-src` にのみ必要で、送信先は自ドメインの `/cdn-cgi/rum`）・画像12ドメインと `image.p-c2-x.abema-tv.com`（最強戦の卓のページの ABEMA のサムネイル〈#502〉と、年度・対局・卓の og:image・回の無い卓のヒーローの作品の画像〈#549〉。やむをえない依存として 2026-10-11 に足した）。
-Google Charts（`www.gstatic.com` / `docs.google.com`）は 2026-10-19 に依存するページが0になった（#582、#7 は閉じた）。詳細は `docs/notes/handover-archive-2026.md`「外部ドメイン依存の詳細」と
-`docs/notes/site-findings.md`（画像ドメインの実測）、#9 でCSPの`img-src`を書くときの指針は #9 のコメント。
+方針は CLAUDE.md「判断・作業の原則」。許可の正は `_headers` の CSP（外部の `script-src` は Cloudflare Web Analytics の `static.cloudflareinsights.com` だけで、送信先は自ドメインの `/cdn-cgi/rum`。`img-src` は `https:`）。
+残る外部依存は画像12ドメインと `image.p-c2-x.abema-tv.com`（最強戦の ABEMA のサムネイル・og:image、#502・#549）。詳細は `docs/notes/handover-archive-2026.md`「外部ドメイン依存の詳細」と
+`docs/notes/site-findings.md`（画像ドメインの実測）。
 
 ### 表の色とアクセシビリティ
 
@@ -156,7 +155,7 @@ Google Charts（`www.gstatic.com` / `docs.google.com`）は 2026-10-19 に依存
 
 ## 5. 次にやること
 
-**次の会話の順番（2026-10-09）:** (1) 待ち: #388（平野さんが「映画」のタブを作ってから）・#389（平野さんの校正した書籍の一覧の整備）・#523（WRC 2大会の改称の残り。手書きのページ・メタの「JPML WRC」と、過去の期の表記を新名で出すかの決定。残りは本文の「残り」の節）。
+**次の会話の順番（2026-10-09）:** (1) 待ち: #388（平野さんが「映画」のタブを作ってから）・#389（平野さんの校正した書籍の一覧の整備）。
 (2) 期日待ちはカレンダーの順。決定は `docs/decisions/features.md`・`operations.md`。
 
 **期日のあるタスクはカレンダー「ryoei.pro」が正（件名【R#番号】…、作るのはチャット側）。handover に日付は書かない。**
@@ -165,17 +164,16 @@ GitHub Issues（Open）に全件あるが、着手可能な主なものは以下
 
 | # | 内容 | 備考 |
 |---|---|---|
-| #486 | Bing の Recommendations | h1 は8ページに付けた（2026-10-06）。旧ランキング3ページは houou/・ouka/・jwrc/ へ移って消えた（#582）。title の長さ（短いページの共通の末尾）は #5 |
-| #9 | CSP設定 | Google Charts の依存は0（#7 は閉じた）。許可に `www.gstatic.com` は要らない（外部のドメインの一覧は #9 のコメント） |
-| #550 | アクセス解析の導入の検討（利用者の画面幅・Cloudflare Pro の要否） | `docs/notes/design.md` の最小の画面幅（360px、2026-10-18）を見直す材料。外部ドメインへの依存（#9）に注意 |
+| #486 | Bing の Recommendations | 残りは #486 の本文。title の長さ（短いページの共通の末尾）は #5 |
+| #550 | アクセス解析の導入の検討（利用者の画面幅・Cloudflare Pro の要否） | `docs/notes/design.md` の最小の画面幅（360px、2026-10-18）を見直す材料。外部ドメインへの依存（4章）に注意 |
 | #4 | SentryでJSエラー検知 | 外部サービスの登録が必要 |
 | #96 | カレンダーの参照・更新を自動化 | スコープ未定。決めるべき項目が4つある |
 | #390 | 道場部ゲストの書き込み済みの月の自動更新（本番で未稼働。サービスアカウントの削除の権限も未確認） | 随時: 差し替えで #426 に「自動で更新しました」か「自動では更新していません」が出たら、カレンダーの当日以降が画像と合っているかを確かめる |
 | #186 | アクセシビリティの実機での通し確認 | 静的レビュー（#178〜#185）の残り。チェックリストは `docs/notes/a11y-manual-check.md`。**Lighthouse のスコアを到達点として扱わない**（根拠は #186） |
 | #408 | タイトル戦の対局日を確定させる | `YYYY-XX-XX` の大半は決勝ライブが無く【2】【3】から直せない（外の資料が要る）。書式は `docs/notes/title-pages.md`「日付列の書式」 |
-| #490 | /live 層2の残りの規則と掲載範囲 | 残りは U1〜U4（ライブの無い組の対局日・紅龍戦のステージの並び・件数の少ない列・「プレイヤー解説：」）・候補の判別・公開版の掲載・複数卓・達人戦／昇龍戦／鳳匠戦の扱い（#437・#477 から集約。済んだものと件数は #490 の本文） |
-| #475 | /live の未登録の名前（2026-10-03 に0名） | 常設。毎日の取り込みが増減の日だけコメントする。出たら実在の人は「連盟プロ以外」、誤記は「別名」に `訂正` で平野さんが登録し、概要欄の読み違いは層2の規則で直す（#490） |
-| — | 現行サイトで小さく作れるもの | 次は #388・#389（上の「待ち」）。#425 も現行サイトで作る（#501・#502）。#366 は載せ方が未決、#378 は新サイト（#296）送り。未決: #365・#367 のデータを誰がいつ入力するか。決定は `docs/decisions/features.md` |
+| #490 | /live 層2の残りの規則と掲載範囲 | 残りは U1〜U4（ライブの無い組の対局日・紅龍戦のステージの並び・件数の少ない列・「プレイヤー解説：」）・候補の判別・公開版の掲載・複数卓・達人戦／昇龍戦／鳳匠戦の扱い（済んだものと件数は #490 の本文） |
+| #475 | /live の未登録の名前 | 常設（増減の日だけコメント。`docs/notes/live-channel-write.md`「7. 毎日の取り込み」）。実在の人は「連盟プロ以外」、誤記は「別名」に `訂正` で平野さんが登録し、読み違いは層2の規則で直す（#490） |
+| — | 現行サイトで小さく作れるもの | 次は #388・#389（上の「待ち」）。#378 は新サイト（#296）送り。未決: #365・#367 のデータを誰がいつ入力するか。決定は `docs/decisions/features.md` |
 
 ---
 
@@ -195,15 +193,15 @@ GitHub Issues（Open）に全件あるが、着手可能な主なものは以下
 | `docs/gsc/` | Search Console の数値（#142） |
 | `docs/notes/cloudflare.md` | Cloudflare の設定・配信（`_headers`・`_redirects`・`wrangler dev`）・本番反映と確認範囲（チャット側の check-run の確かめ方を含む）・設定の照合（Chrome） |
 | `docs/notes/redirects.md` | 転送（リダイレクト）の一覧と四半期の棚卸しの手順・流入の測り方（#568）。旧 URL の 301 やダッシュボードのルールを足す・消すとき |
-| `docs/notes/session-network.md` | セッションから外部に届くか、gh の認証、Rebuild、シートの行番号、作業ファイルの置き場所 |
-| `docs/notes/cloud-sessions.md` | クラウドセッション（Claude Code on the web）での CLAUDE.md の読み替え（ブランチの用意・GitHub MCP・ネットワーク・プレビュー） |
+| `docs/notes/session-network.md` | シートの行番号の取り方、`ryoei.pro` の User-Agent。外部への到達・gh の認証・Rebuild・Codespace の確認用 URL・作業ファイルの置き場所の節は旧 Codespace の記録 |
+| `docs/notes/cloud-sessions.md` | クラウドセッション（Claude Code の実行環境）の手順（起動時の CLAUDE.md の確かめ・作業ファイルの置き場所・ブランチの用意・GitHub MCP・ネットワーク・プレビュー） |
 | `docs/notes/chat-side-operations.md` | チャット側が指示文を書く前（ログの読み方・場面ごとに読む文書の表もここ） |
 | `docs/notes/glossary.md` | 用語集（チャット側・Claude Code・docs で使う語。ワークフロー・定期実行・本実行・スプレッドシートなど） |
 | `docs/notes/chat-routines.md` | チャット側が「レビュー」「振り返り」「申送り」を行う前。指示の種類ごとの確かめ・期日とカレンダー・外部サービスの設定を頼むとき・ほかのセッションへの共有 |
 | `docs/notes/chrome-reading.md` | チャット側が PC で Claude for Chrome を使い mj を直接読む前 |
 | `docs/notes/skills.md` | skill の追加・更新、git の hook の判定を変える・確かめる前（`.claude/` を変える指示を書く前も） |
-| `docs/notes/branch-operations.md` | ブランチの削除・作業ログの寿命・Chat-Ref の着手前の確認（入口の規則は CLAUDE.md） |
-| `docs/notes/static-generation.md` | ページの一覧・生成スクリプト・ページ側のJS・メンテナンス用スクリプト、#7 の残り |
+| `docs/notes/branch-operations.md` | ブランチの削除・作業ログの寿命・Chat-Ref の着手前の確認（入口の規則は CLAUDE.md）。「（Codespace）」の節と `/workspaces/mj` の pull は旧 Codespace の記録 |
+| `docs/notes/static-generation.md` | ページの一覧・生成スクリプト・ページ側のJS・メンテナンス用スクリプト |
 | `docs/notes/github-actions.md` | GitHub Actions のワークフローの一覧・`regenerate-page.yml`・手動実行と変更の前・チャット側の扱い（実行結果の確かめ方・失敗通知） |
 | `docs/notes/sitemap-lastmod.md` | sitemap の lastmod（#265） |
 | `docs/notes/scheduler-worker.md` | 予約実行を起動する Worker（`mj-scheduler`、#504）。起動の表の直し方・通知（#506）・トークンの期限と差し替え・ダッシュボードの設定と作り直す手順・未確認の点 |
@@ -238,5 +236,5 @@ GitHub Issues（Open）に全件あるが、着手可能な主なものは以下
 | `docs/notes/books-covers.md` | 書籍の書影（楽天ブックス書籍検索API）の仕組みと規約（#97、凍結時点の記録） |
 | `docs/notes/decisions-2026-09-13-review.md` | #219〜#289 の重複・統合の判断 |
 | `docs/notes/handover-archive-2026.md` | 過去の事故・経緯（作業の前提にはしない） |
-| `docs/notes/security.md` | セキュリティ点検の観点・道具・手順（結果は #598〈2026-10-20 に閉じた〉、残りは #619） |
+| `docs/notes/security.md` | セキュリティ点検の観点・道具・手順（結果は #598〈closed〉、残りは #619） |
 | `docs/notes/sheets-reader.md` | スプレッドシートを非公開にするための読み取り用サービスアカウントの用意（#557） |

@@ -1,7 +1,8 @@
 # ブランチ運用の場面ごとの手順
 
 CLAUDE.md「ブランチ運用」「Chat-Ref」「作業ログ」から、特定の場面でしか使わない手順を移した（#297、CHAT-0919-LW-04・CHAT-0928-DC-01）。
-入口の規則（いつこの文書を読むか）は CLAUDE.md に残している。クラウドセッションでの読み替えは `docs/notes/cloud-sessions.md`。
+入口の規則（いつこの文書を読むか）は CLAUDE.md に残している。クラウドセッションの手順は `docs/notes/cloud-sessions.md`。
+見出しに「（Codespace）」のある節と「`/workspaces/mj` を pull するとき」は旧 Codespace の記録（2026-10-14 からクラウドセッションだけ）。
 
 ## 起動時に読み込んだ CLAUDE.md が古くないか確かめる（Codespace）
 
@@ -30,7 +31,7 @@ CLAUDE.md「ブランチ運用」「Chat-Ref」「作業ログ」から、特定
 
 ### セッション識別子（`XXX`）の重複
 
-そのセッションの最初の指示で、次の2つを見る。1件でもあれば着手せず、見つかった Chat-Ref とブランチを報告する。
+そのセッションの最初の指示（撤回の欠番があれば `02` 以降）で、次の2つを見る（`MMDD` が違っても重複させない）。1件でもあれば着手せず、見つかった Chat-Ref とブランチを報告する。
 使用中の識別子の一覧が要るときも同じ2つで集める。`XXX` は確かめる識別子に置き換える（既存の2文字なども同じ形で引ける）。
 使用済みの一覧は mj-logs の `sync-from-mj.yml`（#298）が実行のたびに全ブランチの履歴から集め直し、mj-logs の `chat-ids/` に写す（チャット側向け、#474。仕組みは docs/notes/cloud-sessions.md「作業ログ」）。受け手側はこの一覧でなく上の2つで確かめる。
 
@@ -42,7 +43,7 @@ CLAUDE.md「ブランチ運用」「Chat-Ref」「作業ログ」から、特定
 
 ### 同じ Chat-Ref と雛形の行（CLAUDE.md「Chat-Ref」から移した）
 
-- 到達確認は`git log --all --grep="CHAT-MMDD-XXX-nn" --oneline`
+- 到達確認は`git log --all --grep="CHAT-MMDD-XXX-nn" --oneline`。あれば着手せず止まる（同じ指示文が再度貼られることがあり、追記は冪等でないため）。issue操作のみの作業は対象issueの既存コメントも見る
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）の欠けをログに書くのは、チャット側の写し漏らしを知らせるため
 
 ### 作業を再開するとき
@@ -134,6 +135,12 @@ CLAUDE.md「ブランチ運用」「Chat-Ref」「作業ログ」から、特定
 - **マージの手順:** 作業ブランチから`git push origin <作業ブランチ>:cloudflare`とし、cloudflareはチェックアウトしない。
   **push直前に必ず再fetchし、`git merge-base --is-ancestor origin/cloudflare HEAD`で push 先が自分のHEADの祖先であることを確認すること**
   （他セッションのfetchで`origin/cloudflare`が進むため、取り込み時点を前提にすると他セッションのコミットを巻き戻す）
+
+## 文章をコマンドに渡すとき（CLAUDE.md「コミットのルール」から移した）
+
+- ヒアドキュメントは必ず引用符付き（`<<'EOF'`。変数が要っても外さない）。引用符なしや `"..."` ではバッククォートと `$` が展開される
+- issue の本文・コメントは `gh` なら `--body-file`（クラウドセッションの GitHub MCP は引数の文字列で渡す。docs/notes/cloud-sessions.md「gh の代わりに GitHub MCP」）
+- コミットメッセージは `git commit -F - <<'EOF'`
 
 ## 未コミットの変更を戻すとき（2026-09-27）
 
