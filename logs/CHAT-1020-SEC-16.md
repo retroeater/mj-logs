@@ -100,7 +100,7 @@ Chat-Ref: CHAT-1020-SEC-16
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1020-SEC-17
 - ブランチ: work/1020-sec16
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1020-SEC-16.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1020-sec16
@@ -123,4 +123,4 @@ Chat-Ref: CHAT-1020-SEC-16
 - docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/87b60a76/docs/notes/chat-side-operations.md
 - docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/87b60a76/docs/notes/cloudflare.md
 - docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/87b60a76/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/e7c8d9e0.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/9a00b59e.md
