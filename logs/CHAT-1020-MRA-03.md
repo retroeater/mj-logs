@@ -48,29 +48,44 @@ Search Console の検証の結果と平野さんの対応方針を issue に残�
 - CHAT-1020-MRA-02 は完了（cloudflare f2ff236cf、ログの状態「完了」）
 - work/1020-mra: リモートはマージ済み、ローカルは origin/cloudflare の祖先 → `git merge --ff-only origin/cloudflare`
 - 0章: 「指示」欄の末尾は指示文の最後の行と一致
+- 手順1（issue の検索。MCP `search_issues`、クローズ済みを含む）: 「mtsuku 動画再生ページに動画がありません VideoObject 構造化データ Search Console」で3件。
+  #268（open「動画一覧3ページに VideoObject 構造化データを入れる」、コメント0件。旧 video_live・video_en・video_mtsuku に**入れる**案で、今回とは論点・向きが違う）、
+  #583（closed、uploadDate のタイムゾーン）、#462（closed、GSC のレポートの記録）。同じ論点の open の issue は無い → 新規起票
+- 未マージの `work/` ブランチ（`git branch -r --no-merged origin/cloudflare`）のコミットの件名に mtsuku・VideoObject・JSON-LD・構造化・MTK を含むものは無い
+- 手順2（読むだけ。cloudflare 22da14a72）:
+  - `mtsuku/index.html` 26行目: `<script type="application/ld+json">{"@context": "https://schema.org", "@type": "VideoObject", "name": "「どこでも行けます。」 和泉由希子", ... "contentUrl": "https://www.youtube.com/watch?v=ZeFtFG2ov_Q", "uploadDate": "2025-07-22T00:00:00+09:00", "embedUrl": "https://www.youtube.com/embed/ZeFtFG2ov_Q", "duration": "PT12M37S"}</script>`。27行目は `ItemList`（ListItem 61件）
+  - 生成: `scripts/generate_mtsuku.py` の `build_json_ld()`（92行目、docstring「VideoObject(最新話) + ItemList(各話の URL)」）→ `mtsuku.json_ld_html(mtsuku.build_video_object(sorted_episodes[0], hero_thumb_url), item_list)`。134行目で `<head>` に入れる。`build_video_object()` は `scripts/lib/mtsuku.py` 403行目（各話のページと共用）
+  - og:video 系のメタ・`<iframe>`・microdata（`itemtype`）は一覧ページに無い。og は description・image（alt・width・height）・locale・title・type・url
+  - 本番 `https://ryoei.pro/mtsuku/`（キャッシュよけの値付き、HTTP 200）: `@type` は VideoObject 1・ItemList 1・ListItem 61、26行目はリポジトリの版と一致、og:video・iframe・itemtype は 0
+  - 前提の「プレーヤーを埋め込んでいない」は正しい（ヒーローは `<h2 class="mj-video-hero-player">` の作る人の名前・写真と、サムネイル・YouTube へのリンク）
+  - 参考: wayhome/・study/・exam/ の一覧も VideoObject 1・ItemList 1 を持つ（`generate_video_wayhome.py`・`generate_study.py` の `build_json_ld()` が同じ形）。各話 `mtsuku/ZeFtFG2ov_Q.html` は VideoObject 1 と `og:video`（embed の URL）を持つが、`<iframe>` は 0（サムネイルと `https://www.youtube.com/watch?v=ZeFtFG2ov_Q` へのリンク）。直す範囲は決定のとおり /mtsuku/ だけとし、これらの扱いは #620 で MTK の系列に渡した
+- 手順3: #620 を起票した（ラベルなし）https://github.com/retroeater/mj/issues/620
+  #583 に参照のコメントを1行書いた（状態は変えていない）https://github.com/retroeater/mj/issues/583#issuecomment-6282004563
+- 決定は docs/decisions/mtsuku.md に「2026-10-20（CHAT-1020-MRA-03）」として足した
+- 指示文の冒頭の雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある
 
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1020-mra
-- ログ: https://github.com/retroeater/mj/blob/work/1020-mra/docs/logs/CHAT-1020-MRA-03.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1020-MRA-03.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1020-mra
 - 確認用URL: なし
-- マージ: 未
-- issue: #583
-- 判断が必要なこと: なし
+- マージ: 済（ログと docs/decisions のみ。このコミットを cloudflare へ push）
+- issue: #620（起票）、#583（参照のコメント）
+- 判断が必要なこと: なし（直す指示と、ほかの一覧・各話のページ・#268 の扱いは #620 に移した）
 - 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj eddf9d00）: https://github.com/retroeater/mj-logs/tree/main/guide/eddf9d00
+ガイド文書（この版を写した時点の最新、mj 25c71322）: https://github.com/retroeater/mj-logs/tree/main/guide/25c71322
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/eddf9d00/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/eddf9d00/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/eddf9d00/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/eddf9d00/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/eddf9d00/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/eddf9d00/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/25c71322/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/25c71322/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/25c71322/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/25c71322/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/25c71322/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/25c71322/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/98282ed8.md
