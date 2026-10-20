@@ -116,7 +116,7 @@ Cloudflare の Security Overview の提案（security.txt など）の見送り�
 - 再点検（CHAT-1019-SEC-14）の直しは2本に分ける: (1) Worker（低-10・低-4）＝CHAT-1020-SEC-15、(2) 生成とフロント（中-3 の残り・低-6・低-7・低-8 後半）＝次の指示（SEC-16）。低-3（CI の `packages:` の版の固定）は #564 か Dependabot の扱いと合わせて別に行う。低-5（答えの文の検証）は直さない（影響が質問した本人の画面だけのため）（#598）
 - Claude Security は定期では回さない。`workers/` を大きく変えたときの Scan changes に加え、再点検（年1回か大きな変更の後）のときに1回回す。使用量はセッションから見えないので、次に回すときは平野さんが直前・直後に claude.ai の Settings → Usage のスクリーンショットを撮り、%の差で量る（2026-10-18 の CHAT-1018-SEC-07 を置き換える）
 - CHAT-1020-SEC-15 のマージは承認済み（条件付き）
-- 確認の結果（決定ではない。平野さんの画面での確認、2026-10-20）: Mozilla HTTP Observatory の取り直しは 105 点（前回 B 70/100）。GitHub の Settings → Advanced Security に Secret scanning／Push protection の項目は無い（個人の private リポジトリではまだ使えない。代わりは引き続き `security-check.yml` の履歴の走査）。Actions の Workflow permissions の既定は 2026-10-19 12:59 に読み取りだけにし、PR の作成・承認の許可を外した（CHAT-1018-SEC-10 の予定の実施）
+- 確認の結果（決定ではない。平野さんの画面での確認、2026-10-20）: Mozilla HTTP Observatory の取り直しは A+（105/100、12項目中11合格。前回 B 70/100）。スキャンは 2026-10-19 12:20 GMT（本番の CSP を入れた後）。不合格は Subresource Integrity（−5、直さない決定のまま〈2026-10-19 の CHAT-1019-SEC-12〉）だけ。CSP の分析で ✕ が付いたのは「style-src に 'unsafe-inline'」と「default-src が 'none' でない」の2つで、点数には効かず、どちらも SEC-12 で意図して残した形（平野さんが渡したレポートの PDF をチャット側が読んで確かめた、CHAT-1020-SEC-18）。GitHub の Settings → Advanced Security に Secret scanning／Push protection の項目は無い（個人の private リポジトリではまだ使えない。代わりは引き続き `security-check.yml` の履歴の走査）。Actions の Workflow permissions の既定は 2026-10-19 12:59 に読み取りだけにし、PR の作成・承認の許可を外した（CHAT-1018-SEC-10 の予定の実施）
 - 作業中の回答: なし
 
 ## 2026-10-20（CHAT-1020-SEC-16）
@@ -124,4 +124,10 @@ Cloudflare の Security Overview の提案（security.txt など）の見送り�
 - 低-8 後半（`scripts/generate_jpml_pros.py` の選手リンクの `?name=`）は、`&`・`#`・`%`・`+`・空白だけを逃がし、日本語はそのまま残す（全部を `%E6…` の形にはしない。jpml_pros.html の 671 件のリンクを変えないため）（#598）
 - `workers/ask/src/index.mjs` の 404・405 の応答に `x-content-type-options: nosniff` が無い件は、次に `workers/ask` を変える指示で一緒に直す（#598）
 - CHAT-1020-SEC-16 のマージは承認済み（条件付き。直す前と直した後の全ページの生成物の差分が0件であること）
+- 作業中の回答: なし
+
+## 2026-10-20（CHAT-1020-SEC-17）
+
+- #598 の残りを新しい issue（#619）に起票してから、#598 を閉じる（案A。低-3 を #564 に移す案は採らない）
+- #619 に入れるのは3件: (1) 低-3 CI の `packages:` の版の固定（requirements 化。#564 か Dependabot の扱いと合わせる）、(2) `workers/ask/src/index.mjs` の 404・405 の応答の `x-content-type-options: nosniff`（次に `workers/ask` を変える指示で一緒に直す）、(3) 参考: `assets/houou_ask.js` の `image.src = thumb` が scheme を確かめない（`img` なので実行されず CSP の `img-src` でも制限される。直すなら (2) か `assets/houou_ask.js` を触る指示のついでに）
 - 作業中の回答: なし

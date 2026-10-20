@@ -1,7 +1,7 @@
 # セキュリティ点検の方法
 
 ryoei.pro のセキュリティ点検の観点・道具・手順。**結果（見つかったことの表）は issue に置き、ここには書かない**（初回は #598）。
-CSP は #9 で本番の `Content-Security-Policy` を入れて閉じた（2026-10-19。`docs/notes/cloudflare.md`「配信設定」）。その後の再点検と Claude Security の1回の実行は 2026-10-19 に行った（結果は #598 のコメント、CHAT-1019-SEC-14）。決定は `docs/decisions/security.md`。
+CSP は #9 で本番の `Content-Security-Policy` を入れて閉じた（2026-10-19。`docs/notes/cloudflare.md`「配信設定」）。その後の再点検と Claude Security の1回の実行は 2026-10-19 に行った（結果は #598 のコメント、CHAT-1019-SEC-14）。#598 は直すものを直して 2026-10-20 に閉じ、残りの3件は #619。決定は `docs/decisions/security.md`。
 
 ## 点検の観点
 
