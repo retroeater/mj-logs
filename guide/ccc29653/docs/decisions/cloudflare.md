@@ -75,3 +75,24 @@
 
 - 本番のビルドが順番待ちの間に `cloudflare` へ新しい push が来ると古い本番のビルドは飛ばされ最新だけが走ること、同じコミットにプレビューの check-run も付き、本番かどうかは完了後の `output.summary` のプレビューの URL の有無で見分けること（実行中は見分けられない）を、`docs/notes/cloudflare.md`「ビルド成否と本番の確認範囲（check-runs）」に足す（CHAT-1016-SKR-08 の判断待ちへの回答）
 - 作業中の回答: なし
+
+## 2026-10-21（CHAT-1021-BIL-03）
+
+- Cloudflare のアカウントを Workers Paid（月 $5）に切り替えた（平野さんの手作業。Workers Builds の枠が Free の月3,000分に近づいたため、#363）
+- ビルドを減らす案（`mj-ask`・`mj-scheduler` のプレビューのビルドを止める、watch paths を直す）は今は採らない。Workers Paid の枠（月6,000分）に迫ったら検討する
+- 作業中の回答: なし
+
+## 2026-10-21（CHAT-1021-WKP-01）
+
+- Free の値のまま残っている記述・コメントを Paid の値に直す
+- `mj-scheduler` のログ（Workers Logs）を構造化（1 行 1 JSON、`event` の鍵で種類を分ける）にする
+- 月次チェック（#304）に「Cloudflare の Billing で Workers の使用量（Builds のビルド分・Workers Logs の件数など、超過課金になりうる項目）を見る」を足す
+- Paid で使えるようになる製品（Logpush・Tail Workers・Queues・Durable Objects・Smart Placement・KV・Cron Triggers の増設）は採らない。製品を増やさず、上限が外れた分を使うだけにする
+- 週次・月次の定期実行を Worker の起動の表へ移す作業（段④）は、この指示の後に別の指示（CHAT-1021-WKP-02）で行う
+- 作業中の回答: なし
+
+## 2026-10-21（CHAT-1021-WKP-03）
+
+- `scripts/check_asset_limits.py` の `MAX_FILES`（20,000。Workers Free の上限）を Paid の上限 100,000 に直す。コメントの「プランは Free」も直す（WKP-01 の判断待ちへの回答）
+- Workers Observability の新しい料金（月 2,000 万件まで含む・超過 $0.60/100 万件）への同意（ダッシュボードの「Agree」）は行わず「Review later」のままにする。同意しないと超過時は課金されずサンプリングになる（頭打ち）。今の量（月 5 万件程度）では差が出ない。2026-12-01 の切り替えで扱いが変わるかは 11/25 にダッシュボードで見る
+- 作業中の回答: なし

@@ -51,28 +51,57 @@
 - 0. 指示欄の末尾は指示文の最後の行と一致
 - work/1021-bil はローカル・リモートとも 5175e9bd0 で origin/cloudflare の祖先（マージ済み）→ `git merge --ff-only origin/cloudflare`（db51eb83b）
 
+### 1. 回答の記録
+
+- CHAT-1021-BIL-04 の `## 報告` の状態を「判断待ち / 続き: CHAT-1021-BIL-05」にした
+- docs/decisions/operations.md に「2026-10-21（CHAT-1021-BIL-05）」を足した（fd30038fc）
+
+### 2. 数え方と結果
+
+数え方を指示の案から変えた点: docs/notes/cloudflare.md に「判定は push 全体のファイルで行われる」とあるため、コミット単位でなく push 単位で数えた（ビルドの check-run は push の先頭に付く）。
+
+- push の一覧: `GET /repos/retroeater/mj/activity`（repository activities）を新しい順に全ページ読み、2026-10-14 00:00 JST より前の行で打ち切った（打ち切りの行は 2026-10-13T14:40:59Z の cloudflare）。`work/**` の push 1,288件・ブランチの作成 194件・削除 225件
+- 前後のファイル: ローカルの git で before..after の差分（コミットが無い2件は API の compare）。ブランチの作成は before が無いので、先頭のコミット1つの変更で近似した
+- check-run: push の先頭の SHA の「Workers Builds: mj」を `filter=all` で引き、`external_id` ごとにまとめて、完了したものの `output.summary` に `Preview URL` があればプレビュー
+- 途中の注意: Python の urllib はプロキシで 403、repository activities の次のページの URL（`repositories/<数値ID>/…`）はプロキシが通さないため `repos/retroeater/mj/…` に置き換えた（どちらも解決済み）
+
+結果（#298 のコメント issuecomment-6308250731 に表で書いた）:
+- docs だけの push 840件: プレビューあり 30・なし 810（うち 38件は本番のビルドだけ）
+  - マージのコミットを含まない（20コミット未満）741件: プレビュー 0
+  - マージのコミットを含む 98件: プレビュー 29。push の各コミットの変更（マージは1つ目の親との差分）の和に docs 外がある 30件のうち 29件にプレビュー、和も docs だけの 68件には 0。残る1件（90a83020e、work/1016-wfl-s8）は約2分後の次の push（0835017c8）のビルドにまとめられたと見られる
+  - 20コミット以上 1件（1547fd5a2、21コミット）: プレビューあり（公式の「20コミット以上は必ずビルド」）
+- docs 外を含む push 448件: プレビュー 404・なし 42・本番だけ 1・未完了 1
+- ブランチの作成 194件（近似でどれも docs だけ）: プレビュー 0
+- 判定できなかったもの: docs だけの2件（30fc41b50・3433fb8b2）はコミットがローカルに無くマージの有無を確かめていない（どちらもビルド無し。「マージを含まない」に入れた）
+- スクリーンショットの3件（70bf0db15・dfabfdcc7・0b519499b）は、同じ push に docs 外の変更を含んでいた（docs 外 24・35・2 ファイル。cloudflare の取り込みなど）
+- 作業ファイル（スクリプトと中間データ）は scratchpad の bil05/（collect.py・analyze.py・events.json・rows.json）。後の指示では使わない見込みで、リポジトリには置いていない
+
+cloudflare.md との突き合わせ: 「Build watch paths」の非本番の Exclude に `docs/**`（2026-10-12 の読み）、「判定は push 全体のファイルで行われる」「作業ブランチに cloudflare を取り込む…とビルドされる」と矛盾しない（止まる条件に当たらない。cloudflare.md は変えていない）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1021-bil
-- ログ: https://github.com/retroeater/mj/blob/work/1021-bil/docs/logs/CHAT-1021-BIL-05.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1021-BIL-05.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1021-bil
-- 確認用URL:
-- マージ:
+- 確認用URL: なし
+- マージ: 済（ドキュメントのみ）
 - issue: #298、#304
 - 判断が必要なこと:
-- 未確認の項目:
-- エラー:
+  - 結果から言えること: 非本番のトリガーの `docs/**` の除外は効いている。docs だけ（差分）の push でプレビューが付いたのは、cloudflare を取り込んだマージのコミットを含む push（取り込んだコミットが docs 外を変えている）と 20コミット以上の push だけで、8日で 30回（60〜150分ほど）。ログの push（マージを含まない docs だけ）は 741件でプレビュー 0
+  - 次の手の案（実施していない）: (a) 何もしない（推す。docs だけの push の分は小さく、非本番の Exclude を直しても減らない。減らない理由は判定がコミットごとの変更の和で、取り込みのマージが docs 外を運ぶため）／(b) プレビューの回数を減らすなら、効くのは docs 外を含む push の 404回。案は BIL-03 の決定で保留にした `mj-ask`・`mj-scheduler` のプレビューを止める・watch paths を直す、のほか、作業ブランチへの cloudflare の取り込みを要るときだけにする（取り込みの push がプレビューを1回起こす）／(c) docs/notes/cloudflare.md「判定は push 全体のファイルで行われる」に「マージのコミットは1つ目の親との差分で数えられ、差分の全体が docs だけでもビルドされる」を足す（この指示では cloudflare.md を変えない指定のため未実施）
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj db51eb83）: https://github.com/retroeater/mj-logs/tree/main/guide/db51eb83
+ガイド文書（この版を写した時点の最新、mj ccc29653）: https://github.com/retroeater/mj-logs/tree/main/guide/ccc29653
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/db51eb83/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/db51eb83/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/db51eb83/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/db51eb83/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/db51eb83/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/db51eb83/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ccc29653/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ccc29653/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ccc29653/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ccc29653/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ccc29653/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/ccc29653/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/0b519499.md
