@@ -116,15 +116,20 @@
 
 docs/decisions/cloudflare.md に「2026-10-21（CHAT-1021-WKP-01）」を足した。
 
+### マージ
+
+push 直前に再 fetch し、`origin/cloudflare`（495cef69e）が HEAD の祖先であることを確かめて `git push origin work/1021-wkp:cloudflare`（495cef69e..035e59847）。
+#363 に直した箇所・ログの新しい形・平野さんの手作業をコメントした（https://github.com/retroeater/mj/issues/363#issuecomment-6306384303 ）。#363 は閉じていない。
+
 ## 報告
 
 - 状態: 判断待ち
 - ブランチ: work/1021-wkp
-- ログ: https://github.com/retroeater/mj/blob/work/1021-wkp/docs/logs/CHAT-1021-WKP-01.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1021-WKP-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1021-wkp
 - 確認用URL: なし（`mj` の配信物は変えていない。`mj-scheduler`・`mj-ask` はプレビューのビルドを持たない）
-- マージ: 未
-- issue: #363（着手コメント）、#304（追加の項目のコメント）
+- マージ: 済（035e59847。fast-forward）
+- issue: #363（着手・結果のコメント。閉じていない）、#304（追加の項目のコメント）
 - 判断が必要なこと:
   - `scripts/check_asset_limits.py` の `MAX_FILES = 20000`（Workers Free の上限）とコメント「アカウントの Workers のプランは Free」を Paid の 100,000 に直すか。指示の前提の一覧に無く、コメントだけでなく `check-assets.yml`・`regenerate.py` の警告・エラーのしきい値が変わるため直していない（20,000 のままでも厳しい側に倒れるだけ）
 - 未確認の項目:
