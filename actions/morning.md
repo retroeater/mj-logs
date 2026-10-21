@@ -1,6 +1,6 @@
 # 朝の報告用の異常（retroeater/mj）
 
-- 書き出した時刻: 2026-10-21 13:33 JST（見た範囲: 2026-10-20 11:33 JST から）
+- 書き出した時刻: 2026-10-21 13:35 JST（見た範囲: 2026-10-20 11:35 JST から）
 - 書き出した実行の契機: workflow_dispatch（main）
 - 異常だけを書く。全体は actions/status.md。判定は mj の scripts/morning_report.py（各ワークフローの直近 100 回まで）
 
@@ -8,6 +8,7 @@
 
 - 2026-10-21 09:51 convert-x-posts.yml failure（workflow_dispatch・work/1018-log-367-migrate）ジョブ「convert」 https://github.com/retroeater/mj/actions/runs/39523831303
 - 2026-10-21 09:56 check-build-failure.yml failure（check_run・cloudflare） https://github.com/retroeater/mj/actions/runs/39524306758
+- 2026-10-21 13:32 regenerate-page.yml in_progress（workflow_dispatch・cloudflare） https://github.com/retroeater/mj/actions/runs/39544643170
 
 ## 2. 予約実行の未実行（予定から3時間以内は「遅れの可能性」。3時間を超えて始まった実行は「遅れて実行」）
 
@@ -19,9 +20,9 @@
 - 2026-10-21 09:51 convert-x-posts.yml failure（workflow_dispatch・work/1018-log-367-migrate）所要 26分36秒（直近20回の中央値 0分28秒） https://github.com/retroeater/mj/actions/runs/39523831303
 - 2026-10-21 10:18 convert-x-posts.yml success（workflow_dispatch・work/1018-log-367-migrate）所要 33分35秒（直近20回の中央値 0分28秒） https://github.com/retroeater/mj/actions/runs/39526586569
 - 2026-10-21 10:53 convert-x-posts.yml success（workflow_dispatch・work/1018-log-367-migrate）所要 3分59秒（直近20回の中央値 0分28秒） https://github.com/retroeater/mj/actions/runs/39529855218
-- 2026-10-21 11:34 regenerate-page.yml success（workflow_dispatch・work/1021-prv）所要 15分20秒（直近20回の中央値 2分16秒） https://github.com/retroeater/mj/actions/runs/39533792334
-- 2026-10-21 12:04 regenerate-page.yml success（push・cloudflare）所要 8分56秒（直近20回の中央値 2分16秒） https://github.com/retroeater/mj/actions/runs/39536568633
-- 2026-10-21 12:28 regenerate-page.yml success（workflow_dispatch・cloudflare）所要 10分27秒（直近20回の中央値 2分16秒） https://github.com/retroeater/mj/actions/runs/39538797360
+- 2026-10-21 11:34 regenerate-page.yml success（workflow_dispatch・work/1021-prv）所要 15分20秒（直近20回の中央値 2分13秒） https://github.com/retroeater/mj/actions/runs/39533792334
+- 2026-10-21 12:04 regenerate-page.yml success（push・cloudflare）所要 8分56秒（直近20回の中央値 2分13秒） https://github.com/retroeater/mj/actions/runs/39536568633
+- 2026-10-21 12:28 regenerate-page.yml success（workflow_dispatch・cloudflare）所要 10分27秒（直近20回の中央値 2分13秒） https://github.com/retroeater/mj/actions/runs/39538797360
 
 ## 4. 初回成功
 
