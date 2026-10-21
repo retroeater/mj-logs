@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-21 11:34 JST
+- 書き出した時刻: 2026-10-21 11:36 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -25,11 +25,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-10-21 11:34 | push | work/1021-prv | in_progress | #321（39533765626） |  |
+| 2026-10-21 11:34 | push | work/1021-prv | success | #323（39533786042） | 0分21秒 |
+| 2026-10-21 11:34 | push | work/1021-wkp | success | #322（39533785927） | 0分23秒 |
+| 2026-10-21 11:34 | push | work/1021-prv | success | #321（39533765626） | 0分28秒 |
 | 2026-10-21 11:19 | push | work/1021-wkp | success | #320（39532335676） | 0分20秒 |
 | 2026-10-21 10:29 | push | work/1021-bil | success | #319（39527651609） | 0分20秒 |
-| 2026-10-21 10:24 | push | work/1021-prv | success | #318（39527130229） | 0分23秒 |
-| 2026-10-21 09:38 | push | work/1021-bil | success | #317（39522514621） | 0分18秒 |
 
 ## check-build-failure.yml
 
@@ -38,11 +38,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-21 11:36 | check_run | cloudflare | skipped | #393（39533924067） | 0分01秒 |
 | 2026-10-21 11:21 | check_run | cloudflare | skipped | #392（39532552753） | 0分01秒 |
 | 2026-10-21 11:21 | check_run | cloudflare | skipped | #391（39532548834） | 0分00秒 |
 | 2026-10-21 11:21 | check_run | cloudflare | skipped | #390（39532526014） | 0分01秒 |
 | 2026-10-21 10:32 | check_run | cloudflare | skipped | #389（39527932111） | 0分01秒 |
-| 2026-10-21 10:30 | check_run | cloudflare | skipped | #388（39527742661） | 0分01秒 |
 
 ## check-image-links.yml
 
@@ -66,11 +66,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-21 11:34 | workflow_dispatch | work/1021-wkp | success | #18（39533791028） | 0分39秒 |
 | 2026-10-19 07:22 | schedule | cloudflare | success | #17（39171945710） | 0分55秒 |
 | 2026-10-18 21:22 | workflow_dispatch | work/1018-sec4 | success | #16（39127010573） | 0分46秒 |
 | 2026-10-14 13:08 | workflow_dispatch | work/1014-wfl-s1 | success | #15（38509891436） | 0分37秒 |
 | 2026-10-14 13:07 | workflow_dispatch | work/1014-wfl-s1 | success | #14（38509758929） | 0分37秒 |
-| 2026-10-13 01:36 | workflow_dispatch | work/1012-snm-ampai | success | #13（38278633405） | 0分43秒 |
 
 ## check-saikyo-unregistered.yml
 
@@ -80,11 +80,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-21 11:34 | workflow_dispatch | work/1021-wkp | success | #18（39533798396） | 0分29秒 |
 | 2026-10-19 14:31 | workflow_dispatch | cloudflare | success | #17（39204974094） | 0分38秒 |
 | 2026-10-19 14:28 | workflow_dispatch | cloudflare | success | #16（39204776634） | 0分31秒 |
 | 2026-10-19 14:15 | workflow_dispatch | cloudflare | success | #15（39203609157） | 0分28秒 |
 | 2026-10-19 08:44 | schedule | cloudflare | success | #14（39177742395） | 0分36秒 |
-| 2026-10-18 21:22 | workflow_dispatch | work/1018-sec4 | success | #13（39127012342） | 0分32秒 |
 
 ## check-sheets-reader.yml
 
@@ -118,11 +118,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-21 11:34 | workflow_dispatch | work/1021-wkp | success | #14（39533795984） | 0分39秒 |
 | 2026-10-19 08:23 | schedule | cloudflare | success | #13（39176286283） | 0分43秒 |
 | 2026-10-18 21:22 | workflow_dispatch | work/1018-sec4 | success | #12（39127013901） | 0分59秒 |
 | 2026-10-14 14:15 | workflow_dispatch | work/1014-wfl-s2 | success | #11（38515683088） | 0分38秒 |
 | 2026-10-14 14:13 | workflow_dispatch | work/1014-wfl-s2 | success | #10（38515522199） | 0分45秒 |
-| 2026-10-14 14:04 | workflow_dispatch | work/1014-wfl-s2 | success | #9（38514659595） | 0分37秒 |
 
 ## convert-x-posts.yml
 
@@ -147,11 +147,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-21 11:34 | workflow_dispatch | work/1021-wkp | success | #9（39533801092） | 0分31秒 |
 | 2026-10-09 10:22 | workflow_dispatch | work/1007-pht-gsc | success | #8（37869497652） | 0分29秒 |
 | 2026-10-01 09:13 | schedule | cloudflare | success | #7（36795074558） | 0分24秒 |
 | 2026-09-30 08:59 | schedule | cloudflare | success | #6（36647998515） | 0分08秒 |
 | 2026-09-29 09:40 | schedule | cloudflare | success | #5（36504217917） | 0分09秒 |
-| 2026-09-21 15:10 | workflow_dispatch | cloudflare | success | #4（35567344666） | 0分21秒 |
 
 ## fetch-redirect-counts.yml
 
@@ -161,13 +161,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-21 11:34 | workflow_dispatch | work/1021-wkp | success | #7（39533803420） | 0分30秒 |
 | 2026-10-18 21:22 | workflow_dispatch | work/1018-sec4 | success | #6（39127019361） | 0分40秒 |
 | 2026-10-15 03:01 | workflow_dispatch | cloudflare | success | #5（38611570265） | 0分32秒 |
 | 2026-10-15 02:59 | workflow_dispatch | cloudflare | success | #4（38611403811） | 0分30秒 |
 | 2026-10-15 02:58 | workflow_dispatch | cloudflare | success | #3（38611255688） | 0分25秒 |
-| 2026-10-15 02:58 | workflow_dispatch | cloudflare | failure | #2（38611141347） | 0分25秒 |
-
-- #2 failure: ジョブ「fetch」 ステップ「取得」
 
 ## fetch-x-posts.yml
 
@@ -200,11 +198,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-21 11:34 | workflow_dispatch | work/1021-prv | in_progress | #384（39533792334） |  |
 | 2026-10-20 08:43 | push | cloudflare | success | #383（39343294432） | 6分09秒 |
 | 2026-10-19 22:44 | push | cloudflare | success | #382（39262762146） | 1分14秒 |
 | 2026-10-19 22:10 | push | cloudflare | success | #381（39257885892） | 0分35秒 |
 | 2026-10-19 21:53 | push | cloudflare | success | #380（39255552992） | 0分23秒 |
-| 2026-10-19 21:47 | push | cloudflare | success | #379（39254839233） | 0分48秒 |
 
 ## regenerate-saikyo.yml
 
@@ -265,11 +263,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-21 11:34 | workflow_dispatch | work/1021-wkp | success | #15（39533793678） | 0分37秒 |
 | 2026-10-19 07:26 | schedule | cloudflare | success | #14（39172249264） | 0分51秒 |
 | 2026-10-18 21:22 | workflow_dispatch | work/1018-sec4 | success | #13（39127020986） | 0分47秒 |
 | 2026-10-14 12:37 | workflow_dispatch | work/1014-wfl-parts | success | #12（38507211408） | 0分33秒 |
 | 2026-10-14 12:32 | workflow_dispatch | work/1014-wfl-parts | success | #11（38506819071） | 0分33秒 |
-| 2026-10-12 08:41 | schedule | cloudflare | success | #10（38185202120） | 0分33秒 |
 
 ## sync-dojo-calendar.yml
 
