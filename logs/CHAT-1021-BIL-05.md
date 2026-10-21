@@ -80,7 +80,7 @@ cloudflare.md との突き合わせ: 「Build watch paths」の非本番の Excl
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1021-BIL-06
 - ブランチ: work/1021-bil
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1021-BIL-05.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1021-bil
@@ -96,12 +96,12 @@ cloudflare.md との突き合わせ: 「Build watch paths」の非本番の Excl
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj ccc29653）: https://github.com/retroeater/mj-logs/tree/main/guide/ccc29653
+ガイド文書（この版を写した時点の最新、mj 10798599）: https://github.com/retroeater/mj-logs/tree/main/guide/10798599
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ccc29653/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ccc29653/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ccc29653/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ccc29653/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ccc29653/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/ccc29653/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/10798599/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/10798599/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/10798599/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/10798599/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/10798599/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/10798599/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/0b519499.md
