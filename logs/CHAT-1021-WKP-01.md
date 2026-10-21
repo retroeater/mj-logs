@@ -59,28 +59,88 @@
 
 ## 経過
 
+### 着手前の確認
+
+- 指示欄の末尾: ログの「## 指示」の最後の行が指示文の最後の行（「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」）と一致することを確かめた
+- 同じ Chat-Ref のコミット・`WKP` の重複: `git log --all -E --grep 'CHAT-[0-9]{4}-WKP-'`・`docs/logs/CHAT-*-WKP-*.md` の履歴ともに 0 件
+- 雛形の行: Chat-Ref・マージ・貼る時機・共通手順の4行ともあり。欠けなし
+- 作業ブランチ: `work/1021-wkp` はローカル・リモートとも無かったので `git checkout -b work/1021-wkp origin/cloudflare`（起点 495cef69e）
+- 0章ゲート: CLAUDE.md 22,913 バイト・handover.md 22,108 バイト（警告域 26KB 未満。どちらも変えていない）。未マージの work/ ブランチのうち、触るファイル（`workers/scheduler`・`workers/ask`・docs/notes の 5 文書・docs/decisions/cloudflare.md）を変えているのは `work/1017-lvp` の docs/notes/live-page-design.md だけで、変更は「2-10. 見た目」の節の追加。今回直した 525 行目の表とは別の箇所なので止まらずに進めた。`workers/scheduler/src/`・`test/` を変える未マージのブランチは無い
+- #363: 他セッションの着手中コメントは無かった。着手中のコメントを書いた（https://github.com/retroeater/mj/issues/363#issuecomment-6306346169 ）
+
+### (a) Free の値の洗い直し
+
+`grep -rn "20,000\|5本\|3日保存\|10 *ms" workers/ docs/notes/ CLAUDE.md docs/handover.md` に加え、`Free`・`20万件`・`CPU`・`10万` でも洗い直した。前提に書かれた値は実物と一致した。
+
+直した箇所:
+
+| ファイル | 箇所 | 変更 |
+|---|---|---|
+| `workers/scheduler/wrangler.jsonc` | `observability` のコメント | Free は1日20万件・3日 → Workers Paid で月2,000万件・7日（Free の値は「2026-10-21 まで」として残す） |
+| `workers/ask/wrangler.jsonc` | `triggers` のコメント | Cron Triggers 5本 → 250本 |
+| docs/notes/scheduler-worker.md | 「ログ（Workers Logs）」 | 保存3日・1日20万件 → 7日・月2,000万件・超過 $0.60/100万件 |
+| docs/notes/scheduler-worker.md | 「ダッシュボードの設定」の Cron Triggers の行 | Free は5本まで → Paid で 250 本（本数「`mj-scheduler` の1本」は申告値の表なので変えない） |
+| docs/notes/ask-worker.md | 「週次の cron」 | 5本（Free） → 250 本（Paid） |
+| docs/notes/cloudflare.md | 「本番反映」の Cron Triggers の行 | `mj-scheduler` の1本（Free は5本まで） → `mj-scheduler`・`mj-ask` の2本（Paid で 250 本）。`mj-ask` の週次の cron は `workers/ask/wrangler.jsonc` と ask-worker.md にあり、1本は古かったので同じ趣旨として置き換えた |
+| docs/notes/cloudflare.md | 「ビルド成否と本番の確認範囲（check-runs）」の飛ばされるビルドの項 | 「（ビルドが同時1本だった 2026-10-20 までの観察。Workers Paid の同時6本でどう変わるかは未観察）」を添えた |
+| docs/notes/static-generation.md | 「Free で 20,000 ファイル」 | Paid で 100,000（Free の 20,000 は 2026-10-21 まで） |
+| docs/notes/live-page-design.md | 未確認の表の「Cloudflare Workers のプラン」の行 | 日付つきの記録なので「当時は Free。2026-10-21 から Paid で上限 100,000」を添えただけ |
+
+直さなかった箇所:
+
+- docs/notes/cloudflare.md「ビルドが Cloning で失敗したとき」の「同時1本（当時は Free）」: BIL-03 で直っている（指示どおり）
+- docs/notes/cloudflare.md の Analytics Engine の「Free 枠（1日10万書き込み）」（403 行）・「パス別の内訳が出る（Freeでは出ない）」（362 行）: Workers のプランでなく別製品・ゾーンのプランの話
+- docs/notes/ask-worker.md の Worker の大きさ「Free・Paid とも 64 MiB」: 両方の値で正しい
+- docs/notes/scheduler-worker.md「動作の記録」の 10/7〜10/9 の「朝の確かめ: …」の行: 過去の観察（申告値）
+- docs/notes/cloudflare.md 173 行「Pro の定期実行の枠（5本）」: Synthetic monitoring（ゾーンの Pro）の話で Workers と無関係
+- docs/notes/skills.md・live-channel-write.md・live-page-design.md 312 行・league-pages-compare.md の「5本」「20,000」: 別の数
+- docs/decisions/・docs/logs/・handover-archive の過去の行: 指示どおり直さない
+- **`scripts/check_asset_limits.py` の `MAX_FILES = 20000` とそのコメント「アカウントの Workers のプランは Free(平野さん、2026-09-28)。Paid はファイル数 100,000」**: grep の範囲外（scripts/）で、指示の前提に無かった。コメントだけでなく検査のしきい値（`check-assets.yml`・`regenerate.py` の最後で 80% 警告・100% 超でエラー）を変えることになり、テスト（`scripts/tests/test_check_asset_limits.py`）もあるため、直さずに判断を仰ぐ（20,000 のままでも厳しい側に倒れるだけで害は無い）。docs/notes/static-generation.md「メンテナンス用スクリプトの詳細」の「Cloudflare の上限（Workers Free）との比」はスクリプトの説明として今も正しいので変えていない
+
+### (b) mj-scheduler のログの構造化
+
+- `scheduler.mjs` に `logEvent(fields)`（`console.log(JSON.stringify(fields))`）と `logError(kind, message, fields)`（`console.error` に `{"event":"error","kind":…,…,"message":…}`）を足し、`console.log`・`console.error` をすべて置き換えた。`index.mjs` の Secret なしも `logError('no_secret', …)`
+- 形: `dispatch`（`workflow`・`status`）、`catchup`（`planned`・`workflow`・`status`。埋め合わせの起動は `dispatch` の行を書かず `catchup` の1行だけにした。前は「埋め合わせ: …」と「起動: …」の2行）、`sync`（`workflow`・`status`）、`morning_check`（`date`・`planned`・`success`・`other`・`notified`）、`invalid_row`（`workflow`、`console.error`）、`error`（`kind` は `dispatch`・`catchup_check`・`sync_check`・`sync`・`morning_check`・`morning_retry_check`・`comment`・`no_secret`）
+- トークン・issue のコメントの本文は書かない（コメントの失敗は GitHub の `message` と `status` だけ）
+- テスト: ログの行を JSON として読み比べる形に直し、`catchup`・`error`（`sync_check`・`dispatch`）・`invalid_row` の検査を足した
+  - 修正前の `scheduler.mjs` を scratchpad に写して新しいテストを当てると 7 件失敗（埋め合わせ・起動・朝の確かめ・同期・同期の判定の失敗・起動の失敗・捨てた行）。修正後は `node --test 'workers/scheduler/test/*.test.mjs'` 46 件すべて成功（前は 44 件）
+  - `node --test 'workers/ask/test/*.test.mjs'` 83 件成功、`python3 -m unittest discover -s scripts/tests` 1,469 件成功
+- docs/notes/scheduler-worker.md「ログ（Workers Logs）」の行の一覧を新しい形に置き換え、Observability で `event` を絞って数える使い方を足した。「起動の判定」の節の「埋め合わせ: <ファイル>（予定 HH:MM）」も新しい形への参照に直した
+- 成果物のコミット: 875f4d24d
+
+### #304
+
+本文のチェック項目の一覧（(1)〜(12)）があるので、本文・ラベル・状態は変えずにコメントで追加の項目を書いた（https://github.com/retroeater/mj/issues/304#issuecomment-6306369107 ）。
+
+### 決定の記録
+
+docs/decisions/cloudflare.md に「2026-10-21（CHAT-1021-WKP-01）」を足した。
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1021-wkp
 - ログ: https://github.com/retroeater/mj/blob/work/1021-wkp/docs/logs/CHAT-1021-WKP-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1021-wkp
-- 確認用URL:
-- マージ:
-- issue:
+- 確認用URL: なし（`mj` の配信物は変えていない。`mj-scheduler`・`mj-ask` はプレビューのビルドを持たない）
+- マージ: 未
+- issue: #363（着手コメント）、#304（追加の項目のコメント）
 - 判断が必要なこと:
+  - `scripts/check_asset_limits.py` の `MAX_FILES = 20000`（Workers Free の上限）とコメント「アカウントの Workers のプランは Free」を Paid の 100,000 に直すか。指示の前提の一覧に無く、コメントだけでなく `check-assets.yml`・`regenerate.py` の警告・エラーのしきい値が変わるため直していない（20,000 のままでも厳しい側に倒れるだけ）
 - 未確認の項目:
-- エラー:
+  - マージ後の Workers Builds の `mj-scheduler`・`mj-ask` のデプロイが Ready か（ダッシュボードで平野さん）
+  - デプロイ後の `mj-scheduler` の Observability に `{"event":…}` の形の行が出るか（平野さんの画面）
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 4f3d9d74）: https://github.com/retroeater/mj-logs/tree/main/guide/4f3d9d74
+ガイド文書（この版を写した時点の最新、mj 035e5984）: https://github.com/retroeater/mj-logs/tree/main/guide/035e5984
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/4f3d9d74/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/4f3d9d74/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/4f3d9d74/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/4f3d9d74/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/4f3d9d74/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/4f3d9d74/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/035e5984/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/035e5984/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/035e5984/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/035e5984/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/035e5984/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/035e5984/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/495cef69.md

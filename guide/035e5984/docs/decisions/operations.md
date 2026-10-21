@@ -922,6 +922,20 @@ PLG-03〜06（手順0で止まった。PLG-05・06 は欠番）の貼り直し:
 - PLG-03・PLG-04 の貼り直しは1本にまとめる（チャット側の案を平野さんが承認）
 - 作業中の回答: なし
 
+## 2026-10-20（CHAT-1020-PLG-08）
+
+- hook の層の分け方: 止める規則はリポジトリの hook（mj-git-guard と同じ Python・テスト付き）かテスト・CI に置く。注意を出す規則は hookify に置く（hookify はアカウント側の plugin で、外すと規則ファイルが残っていても効かなくなるため、止める規則を任せない）
+- hookify で最初に試す規則は1本: `sitemap*.xml` のどれかを Edit・Write するとき、書く内容に `<lastmod>` を含むときだけ注意を出す（warn。lastmod は `scripts/update_sitemap_lastmod.py --from-git` が導出する、#265）。ファイル名 `.claude/hookify.warn-sitemap-lastmod.local.md`（2026-10-20 の CHAT-1020-PLG-09 の決定で置き換えた。元は「sitemap.xml を Edit・Write で書き換えたら注意」で、公開の段の `sitemap.xml`・`sitemap-pages.xml` の手編集〈正しい作業〉と重なった）
+- 1〜2週間使って振り返る（予定はチャット側がカレンダー「ryoei.pro」の 2026-11-04 に作成済み）
+- 作業中の回答: なし
+
+## 2026-10-20（CHAT-1020-PLG-09）
+
+- hook の層の分け方は PLG-08 の決定のまま（止める規則はリポジトリの hook かテスト・CI、注意を出す規則は hookify）
+- hookify の最初の規則は PLG-08 のログ `## 経過` 2. の案とする（`sitemap*.xml` に `<lastmod>` を書くときだけ warn）。PLG-08 の決定の規則の対象を置き換えた（上の節に反映）
+- 1〜2週間使って振り返る（カレンダー「ryoei.pro」の 2026-11-04、作成済み）
+- 作業中の回答: なし
+
 ## 2026-10-20（CHAT-1020-SEC-18）
 
 SEC 系列（CHAT-1019-SEC-13〜CHAT-1020-SEC-17）の振り返り・レビューの申送り:
@@ -930,4 +944,32 @@ SEC 系列（CHAT-1019-SEC-13〜CHAT-1020-SEC-17）の振り返り・レビュ�
 - スケジュールのジョブに効く設定（権限・Secret・ランナー）を変えたら各周期の初回の結果を見る、はガイド文に足さない。`scripts/morning_report.py` の「1. 失敗など」が mj の全ワークフロー（各直近100回）の success・skipped 以外を26時間の窓で毎朝拾い、mj-logs の actions/morning.md に出るため（週次・月次も対象）。2026-10-26・11-02 のカレンダーの予定は念のための重ねで、規則にはしない
 - 低-8 後半（jpml_pros の選手リンクで日本語を逃がさず残す形）の外すきっかけは、ガイド文ではなく #619 に書いた（jpml_pros.html を作り直すとき、#219・#296）
 - Observatory の採点（申告の 105 点）は、レポートの PDF を確かめた結果に `security.md` の 2026-10-20（CHAT-1020-SEC-15）の節で置き換えた
+- 作業中の回答: なし
+
+## 2026-10-20（CHAT-1020-RVD-01）
+
+- 「レビュー」は、容量制限のある文書を包括的に見直し（妥当性・重複・冗長・不整合）、サイズを削減する。人間向けの可読性は下がってよく、Claude チャット／Code として問題がなければ表現等を圧縮してよい。文書の変更は判断待ちで止め、整理後の全文をログに貼らせて読み比べてからマージする（2026-09-29 の決定の再掲、#492）
+- CLAUDE.md の場面限定の手順（最終報告の形・Chat-Ref の受け取る側の細目）を docs/notes/ へ移すのは、容量の整理の指示で行う（CHAT-1020-PLG-07 の決定の再掲）
+- 作業中の回答: なし
+
+## 2026-10-20（CHAT-1020-RVD-02）
+
+- Code の実行環境は 2026-10-14 からクラウドセッションのみで、Codespace は使っていない。CLAUDE.md・docs/handover.md・docs/instruction-template.md・docs/notes/chat-side-operations.md の Codespace の記述（worktree の手順、Codespace 用の「作業ブランチ」の文面）は外してよい（#492）
+- 作業中の回答: なし
+
+## 2026-10-20（CHAT-1020-PLG-10）
+
+- PR #621 をマージした（規則ファイル `.claude/hookify.warn-sitemap-lastmod.local.md`・docs/notes/skills.md・docs/decisions/operations.md・PLG-08/09 のログの5件。平野さんの手作業、マージコミット 242764f）
+- 作業中の回答: なし
+
+## 2026-10-21（CHAT-1020-RVD-03）
+
+- RVD-01（2d9ca2383）・RVD-02（6de55b38a）のガイド4文書の整理をマージしてよい（チャット側が両ログの全文と差分を整理前と読み比べて確かめた、#492）
+- 作業中の回答: なし
+
+## 2026-10-21（CHAT-1021-BIL-02）
+
+- #298 の実装4の後半を行う（mj の `sync-logs.yml` と目印 `[sync-logs]` の規則を消す）。Worker `mj-scheduler` の同期の判定の窓を3分から6分に広げる変更も同じ指示に入れる
+- マージまで進めてよい
+- Secret `MJ_LOGS_TOKEN` と PAT `mj-logs-sync` は、参照が残っていないことを Code が確かめて報告した後に平野さんが手で消す（2026-10-18 の決定のとおり）
 - 作業中の回答: なし
