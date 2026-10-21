@@ -87,6 +87,9 @@
 |---|---|---:|---:|---:|---:|---:|---|---:|
 | 1 | 39520139651（2d4f74fab、success） | 900 | 900 | 900回・$2.3820 | 625 | 598 | 飲食店 812・不明 87・飲食店以外 1 | 210 |
 | 2 | 39523831303（2d4f74fab、failure） | 900 | 722 | 723回・$1.8341 | 298 | 284 | 飲食店 529・不明 191・飲食店以外 2 | 427 |
+| 3（再実行） | 39526586569（837d8349b、success） | 900 | 900 | 900回・$2.3371 | 523 | 495 | 飲食店 688・不明 207・飲食店以外 5 | 325 |
+| 4 | 39529855218（837d8349b、success） | 0（残り全件） | 87 | 87回・$0.2399 | 85 | 84 | 飲食店 87 | 4 |
+| 計 | | | **2609** | **2610回・$6.7931** | **1531** | **1461** | 飲食店 2116・不明 485・飲食店以外 8 | 966 |
 
 - 1回目の要確認の理由（1行に複数あり）: 店名が本文に無い 96・判定が不明 87・圏内に駅が無い 14・本文の駅が圏内に無い 9・店が見つからない 4。Places で店が見つかった 712行。人ごと: 谷岡育夫 521・平野良栄 230・石立岳大 149
 - 1回目の後の10月の Places の見込みの合計: Text Search 1128・Nearby Search 1081（4,800回の内）
@@ -95,29 +98,67 @@
 - 2回目の要確認の理由: 店名が本文に無い 208・判定が不明 191・圏内に駅が無い 12・本文の駅が圏内に無い 11・店が見つからない 5。Places で店が見つかった 316行。人ごと: 石立岳大 322・谷岡育夫 294・平野良栄 106
 - 503 は割り当て・認証・課金のエラーではなく、Places 側の一時的な障害の応答。止まる条件の「1回だけ再実行して同じなら止まる」に合わせ、1回だけ再実行する
 - ここまでの合計: Claude $4.2161（上限 $10 の内）。10月の Places の見込み: Text Search 1426・Nearby Search 1365。残りの変換は 987件
+- 再実行（3回目）は 503 にならず、900行を足した。残り 87件を4回目で足し、残り 0件になった。Places の割り当て・認証・課金のエラーは出なかった
+- Claude の費用の合計 **$6.7931**（使用量から計算。上限 $10 の内）。Places の今回の合計 Text Search **1531回**・Nearby Search **1461回**（今日の分。1日の割り当て 3,000回の内）。10月の合計の見込み: Text Search 2034回・Nearby Search 1944回（これまでの 503・483 を足した値。4,800回の内。実際の数は Google Cloud の画面で確かめる必要がある）
+
+### 変換の後の確かめ（CSV で読み直した）
+
+- 【2】: **3418行**（809 + 2609）、見出しは同じ、**もとの 809行は全セル変わっていない**、投稿 ID の重なり無し、【1】の 3418件と1対1で対応する。足した 2609行はすべて【1】の区分「log」（旧「ログ」から移した投稿）
+- 【1】3418行・【3】3140行・「ログ」2708行は、作業の前と同じ
+
+要確認の数（1行に複数の理由がありうる）:
+
+| 要確認の理由 | もとの 809行 | 移した 2609行 |
+|---|---:|---:|
+| （要確認の行） | 106 | 966 |
+| 判定が不明 | 81 | 485 |
+| 店名が本文に無い | 15 | 392 |
+| 本文の駅が圏内に無い | 2 | 42 |
+| 圏内に駅が無い | 6 | 37 |
+| 店が見つからない | 2 | 10 |
+
+- 判定（Claude）: もとの 809行は 飲食店 531・飲食店以外 197・不明 81。移した 2609行は 飲食店 2116・不明 485・飲食店以外 8。移した 2609行は【3】の判定がすべて「飲食店」なので、Claude の判定にかかわらずページに出る（旧「ログ」を読む処理を外した後）
+- 移した行で「店名が本文に無い」が多い（392）。旧「ログ」の店名は【3】に移してあるので、ページの店名は旧「ログ」の値になる。ただしこの行は Places を呼んでいないため店URL・駅が【2】に無い（店URL は【3】に移した旧「ログ」の値が出る。駅は空）
+
+### ページ（手順3）
+
+- `python3 scripts/regenerate.py --check resource_logs`: 通る（「ログ」2630件・3層から 483件、3113件）。再生成しても **3113行のまま**
+- ただし生成物は cloudflare の `resource_logs.html` と **2行違った**（駅だけ）。原因は【3】の「駅」で、LOG-05 の後に入った値:
+  - 【3】236行（【2】340行、谷岡育夫 2026-07-01）の駅が「駒沢大学」になり、ページの駅が 新高円寺 → 駒沢大学
+  - 【3】529行（【2】735行、谷岡育夫 2026-01-10）の駅が「多摩センター」になり、ページの駅が 表参道 → 多摩センター
+  - この2つの値は、LOG-03 で「本文の駅が圏内に無い」と報告した【2】236行（谷岡育夫 2026-08-16、駒澤大学）・【2】529行（谷岡育夫 2026-03-29、多摩センター）の直しとみられる。その投稿の【3】の行は 150行と 379行で、【3】の同じ番号の行（別の投稿）に入っている（下の「判断が必要なこと」）。シートは直していない
+- このページの差分はシートの値によるもので、この作業ブランチのコードの変更によるものではない（cloudflare のコードで生成しても同じになる見込み）。生成物はコミットしていない
+
+### 決定の記録
+
+- この指示の「決定」（744行の扱い・名前の対応を SNS ブックから引く・まとめてマージ・Places の割り当て）を docs/decisions/operations.md に「2026-10-19（CHAT-1019-LOG-02）」として書いた。作業中の平野さんの回答は無い
 
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1018-log-367-migrate
 - ログ: https://github.com/retroeater/mj/blob/work/1018-log-367-migrate/docs/logs/CHAT-1019-LOG-02.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1018-log-367-migrate
-- 確認用URL: なし
-- マージ: 未
+- 確認用URL: なし（ページの行は変わらない。生成物はコミットしていない）
+- マージ: 未（次の指示で旧「ログ」を読む処理と一度きりの処理を外してから、まとめてマージする）
 - issue: #367
-- 判断が必要なこと: なし
-- 未確認の項目: なし
-- エラー: なし
+- 判断が必要なこと:
+  - 【3】236行・529行の「駅」（駒沢大学・多摩センター）が、意図した投稿（【3】150行 = 2026-08-16、379行 = 2026-03-29）とは別の投稿（2026-07-01・2026-01-10）の行に入っている。次の再生成（毎週月曜の `all` など）で本番のページの2行の駅が変わる。【3】を直すかどうか（LOG-03・LOG-05 の報告で【2】の行番号を書いたのが紛れのもと。今後の報告では【3】の行番号も書く）
+  - 旧「ログ」744行（平野良栄 2024-10-10）の X URL はまだ画像の URL のままで、取り直しは飛ばした。直った後に `mode=log`・`mode=log-layer3`・`mode=all` を1件ずつ動かす（次の指示でまとめて行うか）
+  - Places の1日の割り当てを 1,000 に戻す（平野さんの手作業。変換は済んだ）
+- 未確認の項目:
+  - Places の10月の実際の使用回数（Google Cloud の画面。見込みは Text Search 2034・Nearby Search 1944）と Claude の実際の請求（見込み $6.7931）
+- エラー: なし（2回目の実行の Places の HTTP 503 は、1回だけの再実行で解消した）
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 7e9eb252）: https://github.com/retroeater/mj-logs/tree/main/guide/7e9eb252
+ガイド文書（この版を写した時点の最新、mj 4f3d9d74）: https://github.com/retroeater/mj-logs/tree/main/guide/4f3d9d74
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/7e9eb252/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/7e9eb252/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/7e9eb252/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/7e9eb252/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/7e9eb252/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/7e9eb252/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/7e9eb252.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/4f3d9d74/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/4f3d9d74/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/4f3d9d74/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/4f3d9d74/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/4f3d9d74/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/4f3d9d74/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/107699e7.md

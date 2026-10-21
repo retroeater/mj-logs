@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-21 10:33 JST
+- 書き出した時刻: 2026-10-21 11:00 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -131,11 +131,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-10-21 10:18 | workflow_dispatch | work/1018-log-367-migrate | in_progress | #21（39526586569） |  |
+| 2026-10-21 10:53 | workflow_dispatch | work/1018-log-367-migrate | success | #22（39529855218） | 3分59秒 |
+| 2026-10-21 10:18 | workflow_dispatch | work/1018-log-367-migrate | success | #21（39526586569） | 33分35秒 |
 | 2026-10-21 09:51 | workflow_dispatch | work/1018-log-367-migrate | failure | #20（39523831303） | 26分36秒 |
 | 2026-10-21 09:14 | workflow_dispatch | work/1018-log-367-migrate | success | #19（39520139651） | 35分56秒 |
 | 2026-10-21 09:13 | workflow_dispatch | work/1018-log-367-migrate | success | #18（39520020195） | 0分28秒 |
-| 2026-10-18 21:22 | workflow_dispatch | work/1018-sec4 | success | #17（39127015537） | 0分24秒 |
 
 - #20 failure: ジョブ「convert」 ステップ「実行」
 
