@@ -59,6 +59,57 @@ GitHub の `schedule` に残る週次・月次のワークフローは予定よ�
 
 ## 経過
 
+### 着手前の確認
+
+- 指示欄の末尾: ログの「## 指示」の最後の行が指示文の最後の行と一致することを確かめた
+- 貼る時機: CHAT-1021-WKP-01 の成果物（875f4d24d）とログ（857dc254e）が origin/cloudflare に入っていることを確かめた
+- 同じ Chat-Ref のコミット: 0 件。`WKP` は同じセッションの続きの指示（02）なので識別子の重複の確認は対象外
+- 雛形の行: Chat-Ref・マージ・貼る時機・共通手順の4行ともあり。欠けなし
+- 作業ブランチ: `work/1021-wkp` はローカル・リモートとも origin/cloudflare の祖先（マージ済み）。ローカルにあるので `git merge --ff-only origin/cloudflare`（Already up to date、857dc254e）
+- #564・#504: 着手中のまま残るコメントは無い（5件の着手中にはどれも完了の報告がある）。#564 に着手中のコメントを書いた（https://github.com/retroeater/mj/issues/564#issuecomment-6306532886 ）。#564・#504 に run-weekly・run-monthly の語は無く、同じ目的の作業は無い
+- 未マージの work/ ブランチ: 同じ目的のコミットは無い。触るファイルを変えているのは `work/1018-log-367-migrate`（docs/notes/github-actions.md の表の `convert-x-posts.yml`・`fetch-x-posts.yml` の行。今回の行・節とは別）と `work/1017-lvp`・`work/1018-log-367-migrate` の scripts/tests の別ファイルだけ。止まらずに進めた
+
+### 前提と実物の照合
+
+- GitHub の `schedule` に残る 11 本は前提のとおり（cron と JST の時刻も一致）。check-image-links は run-daily の `images`
+- `workflow_call` は対象の 7 本とも無かった（前提のとおり）
+- `scheduled` と `run-name` は check-meibo・sync-birthday-calendar・cleanup-logs・check-saikyo-unregistered にあり、fetch-youtube・fetch-gsc・fetch-redirect-counts に無かった（前提のとおり）
+- 前提と違った点（判断は要らない）: fetch-gsc は入力 `commit`（既定は偽。偽なら取得だけ）、fetch-redirect-counts は入力 `dry_run`（既定は真）を持っていた。ただし fetch-gsc は `commit` を外しても、robots.txt に差分があれば #304 にコメントする（コメントのステップに `commit` の条件が無い）。そのため run-monthly の手動実行では fetch-gsc を飛ばし、fetch-redirect-counts は dry-run で動かす形にした
+- 起動の表の `weekdays`・`monthdays` は `runsOn()` で見ている。朝の確かめ（`morningRows`）・起動（`dueRows`）・埋め合わせはどれも `runsOn` を通る
+
+### fetch-youtube を外した
+
+fetch-youtube には書かない道筋が無い（入力なし。手動実行でも取得結果をコミットし、regenerate-page を all で呼ぶ。regenerate-page は wayhome を真にして呼ばれると、帰り道の新しい回を issue に知らせることがある）。作業ブランチで手動実行すると issue へ書きうるため、止まる条件「手動で安全に試せる道筋が無く、作業ブランチで確かめられない（その本だけ外して進めてよい）」に当てはめた。fetch-youtube.yml は変えず、run-weekly に入れず、GitHub の `schedule`（月曜 05:37）のまま。
+所要時間は過去 2 回とも約 5〜6 分（#1 手動 5分10秒、#2 予約 5分44秒）で、02:00 に入れても 2 時間を超える心配は無い。
+
+### 変更（7627e1cca）
+
+- (a) 6 本に `workflow_call` を足した（入力は各本の書くかの入力〈`dry_run`・`apply`・`commit`〉と `scheduled`、Secret は使う本だけ: sync-birthday-calendar に `GCP_SA_KEY`、fetch-gsc に `GSC_SERVICE_ACCOUNT_JSON`、fetch-redirect-counts に `CF_ANALYTICS_TOKEN`）。fetch-gsc・fetch-redirect-counts に `scheduled` と `run-name` を足した。fetch-gsc はコミットの判定を `schedule || scheduled || commit` に、fetch-redirect-counts は resolve-mode に `scheduled` を渡す形にした。ほかの 4 本は run-name の上のコメントを「run-weekly.yml から呼ぶ」に直した
+- (b) `run-weekly.yml`（meibo・birthday・logs・saikyo を並行。手動実行は dry-run・差分だけ）と `run-monthly.yml`（gsc → redirects、redirects は `!cancelled()`。手動実行は gsc を飛ばし redirects は dry-run）を作った。`permissions: {}` と job ごと、Secret は1つずつ、`concurrency` は `run-weekly`・`run-monthly`
+- (c) `schedule.json` に `run-weekly.yml`（02:00、`weekdays: [1]`）・`run-monthly.yml`（03:00、`monthdays: [1]`）を足した。テストに「月曜 02:00・1日 03:00 に起動し、その日だけ朝の確かめの対象に入る」（2026-10-26 月曜・2026-11-01 日曜で1日・2027-02-01 月曜で1日）と、ふつうの日の 02:00・03:00 に起動しないことを足した。前の schedule.json に新しいテストを当てると 1 件失敗、新しい表では 47 件すべて成功
+- (d) docs/notes/github-actions.md: 表の 6 本の契機を直し、run-weekly・run-monthly の行を足し、run-daily の行の「Worker の起動の表の行はこの1行だけ」を消した。「権限と Secret の渡し方」の表に 6 行を足した。「run-weekly.yml・run-monthly.yml」の節（戻し方を含む）を足した。docs/notes/scheduler-worker.md「起動の表の直し方」の今の表を 3 行に直した
+- `scripts/morning_report.py` は直していない。`daily_callers()` が起動の表のすべての行のワークフローの `uses:` を読むので、run-weekly・run-monthly もそのまま読む（呼ばれる本の cron の予定は、同じ JST の日の `[scheduled]` の実行のジョブが success なら数えない）
+- `python3 -m unittest discover -s scripts/tests` 1,469 件成功（`test_workflows_table.py` を含む）、`node --test 'workers/scheduler/test/*.test.mjs'` 47 件成功
+
+### 作業ブランチでの手動実行（書かない道筋）
+
+6 本とも work/1021-wkp（7627e1cca）で手動実行し、すべて success。どれも書いていない（作業ブランチのコミットも増えていない）。
+
+| 本 | 実行 | 入力 | 結果 |
+|---|---|---|---|
+| check-meibo | 39533791028 | dry_run | success。`apply: false`、upsert-issue は dry-run |
+| sync-birthday-calendar | 39533793678 | apply なし | success。`--compare` だけ、追加・更新・削除 0 件 |
+| cleanup-logs | 39533795984 | dry_run | success。削除のコミットは skipped、#357 は dry-run |
+| check-saikyo-unregistered | 39533798396 | dry_run | success。upsert-issue は dry-run |
+| fetch-gsc | 39533801092 | commit なし | success。`robots.txt: 前回(2026-10-09)との差分なし`（実行前に本番の robots.txt と docs/gsc/2026-10-09/robots.txt が同じことを確かめてから実行した）。コミットは skipped |
+| fetch-redirect-counts | 39533803420 | dry_run | success。`apply: false`、#568 は dry-run |
+
+fetch-redirect-counts のログに「トークンの確認(/user/tokens/verify)は通らなかった: HTTP 401」が出るが、続く取得は成功している（今回の変更と無関係。未調査）。
+
+### 保険の `schedule` が残るあいだに起きること
+
+GitHub の `schedule` は次の指示（WKP-03）まで残すので、10/26（月）は run-weekly（02:00）と各本の保険（05:07〜06:50、遅れて動く）の両方が動く。check-meibo・check-saikyo-unregistered は常設 issue の状態を合わせるだけ、sync-birthday-calendar は差分が無ければ何もしないので害は無い。cleanup-logs は 2 回目の時点で条件外のログがあれば #357 に 2 回目の通知を書く。11/1 も WKP-03 より前なら fetch-redirect-counts が #568 に同じ集計を 2 回コメントし（同じ CSV の 2 回目のコミットは差分なし）、robots.txt に差分があれば fetch-gsc が #304 に 2 回コメントする。
+
 ## 報告
 
 - 状態: 作業中
@@ -75,12 +126,12 @@ GitHub の `schedule` に残る週次・月次のワークフローは予定よ�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 035e5984）: https://github.com/retroeater/mj-logs/tree/main/guide/035e5984
+ガイド文書（この版を写した時点の最新、mj 9032b793）: https://github.com/retroeater/mj-logs/tree/main/guide/9032b793
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/035e5984/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/035e5984/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/035e5984/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/035e5984/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/035e5984/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/035e5984/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9032b793/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9032b793/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9032b793/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9032b793/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9032b793/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9032b793/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/495cef69.md

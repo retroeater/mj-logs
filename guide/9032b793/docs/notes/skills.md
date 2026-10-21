@@ -116,6 +116,24 @@ Bash のコマンド文字列を `&&`・`||`・`;`・`|`・改行で区切り、
 
 同梱の git-guardrails-claude-code（mattpocock/skills の `skills/misc/`）は `git push` をすべて止め、ログ先行 push もできなくなるため使わない。
 
+## hook の層の分け方
+
+- **止める**規則はリポジトリの hook（mj-git-guard と同じ Python・テスト付き）かテスト・CI に置く。**注意を出す**規則は hookify に置く
+  （hookify はアカウント側の plugin で、外すと規則ファイルが残っていても効かなくなるため、止める規則を任せない。2026-10-20）
+- hookify の規則は `.claude/hookify.<名前>.local.md`。hookify はカレントディレクトリからの相対パス（`.claude/hookify.*.local.md`）で探し、次のツール呼び出しから効く。
+  hookify の skill は `.claude/*.local.md` を `.gitignore` に足すよう勧めるが、mj では規則を共有するので足さない。`.claude/` の下なので、足すのも直すのも平野さんの手作業（上の `[Self-Modification]`）
+- 規則の書式は skill `hookify:writing-rules`。file の条件の field は、Write の全文も見るなら `content`（`new_text` は Edit の `new_string` だけを見る）
+- 規則の試験は、規則ファイルを一時ディレクトリの `.claude/` に置き、そこをカレントにして hookify の `hooks/pretooluse.py`（同期先 `~/.claude/plugins/synced/` の下）に
+  `{"tool_name":…,"tool_input":{…}}` をファイル経由で渡し、出力の `systemMessage` を見る（リポジトリの `.claude/` には置かない）
+
+| 規則 | 対象・条件 | 動作 | 振り返り |
+|---|---|---|---|
+| `hookify.warn-sitemap-lastmod.local.md` | `sitemap*.xml` の Edit・Write で、書く内容に `<lastmod>` を含むとき（公開の段の URL の手追加〈docs/new-page-checklist.md〉には出ない） | warn | 2026-11-04 |
+
+- 足す目安: CLAUDE.md の規則のうち、ツールの入力（ファイル名・書く内容・コマンド）の文字列で当たりが取れ、正しい作業で出ないもの。正しい作業でも出るなら条件を絞るか足さない
+- 止める規則へ格上げする目安: 振り返りで、warn が出ても守られなかった・誤検知が無かった、のとき。格上げ先はリポジトリの hook かテスト・CI で、
+  格上げしたら hookify の規則を消し、CLAUDE.md の該当の行は参照だけにする（CLAUDE.md「テスト・hook・ワークフローで確かめるようにした規則は…」）
+
 ## 置き場所と永続性
 
 | 何 | どこ | 次のセッションに |

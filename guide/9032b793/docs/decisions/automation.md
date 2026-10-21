@@ -388,3 +388,11 @@ GitHub Actions の整理の段③-4（#564）。
 
 - 振り返りの申送りとして、mj-logs の morning.md「2. 予約実行の未実行」に毎朝出る行（run-daily で済んだ update-live-channel のフォールバック実行の「遅れの可能性」）を今直す（段④〈フォールバック実行を外す〉まで待たない。Fable 5.1 のレビューの推奨）
 - 作業中の回答: なし
+
+## 2026-10-21（CHAT-1021-WKP-02）
+
+- 段④を「#504 の観察の後」から今に前倒しする（Workers Paid で cron 1 回の CPU 時間が 30 秒になったため、#564）
+- 週次・月次は 1 本ずつ起動の表の行にせず、`run-weekly.yml`・`run-monthly.yml` に束ねる（起動の表は run-daily と合わせて 3 行）
+- GitHub 側の `schedule`（週次・月次・毎日の保険）は、Worker からの起動が 1 回成功した後に外す（run-daily と同じ手順。次の指示 CHAT-1021-WKP-03 で外す）
+- Cron Triggers を Worker ごとに増やす形は採らない（起動の表 1 か所のままにする）
+- 作業中の回答: なし
