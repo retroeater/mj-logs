@@ -54,6 +54,17 @@ CHAT-1021-PRV-06（#557）の続き。生成の読み取りは Sheets API（shee
 - 0. 「指示」欄の末尾の行は指示文の最後の行と一致
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
 
+- 0. の確かめ: `other_book.SPREADSHEET_ID`（R_その他）をログインせずに読むと、gviz・htmlview とも HTTP 401。平野さんの「制限付き」は済んでいる
+
+### 手順1
+
+- #557 に着手中のコメント（issuecomment-6308057359）
+- PRV-06 のログの状態を「判断待ち / 続き: CHAT-1021-PRV-07」にした
+- `scripts/check_sheets_reader.py` の `FOLDER_PUBLIC` を偽にした。テストに「今は偽」の確かめを足した。`python3 -m unittest discover -s scripts/tests` は通った
+- コンテナから、ログインなしの部分だけを事前に確かめた（値は読んでいない）: 専用フォルダの15冊と検証用は gviz・htmlview とも HTTP 401、名簿は読める。17冊とも判定は期待どおり
+- 決定を `docs/decisions/security.md`「2026-10-21（CHAT-1021-PRV-07）」に足し、`docs/notes/sheets-reader.md` の段取りの節を「段取りと今の状態」に直した（3 を済み、4 に残り〈翌朝の定期実行の確かめ・429 の様子見〉、戻し方のコミット番号）
+- 未マージの work/ ブランチで、変えるファイルを変えているものは無い
+
 ## 報告
 
 - 状態: 作業中
@@ -70,12 +81,12 @@ CHAT-1021-PRV-06（#557）の続き。生成の読み取りは Sheets API（shee
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 80000815）: https://github.com/retroeater/mj-logs/tree/main/guide/80000815
+ガイド文書（この版を写した時点の最新、mj db51eb83）: https://github.com/retroeater/mj-logs/tree/main/guide/db51eb83
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/80000815/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/80000815/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/80000815/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/80000815/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/80000815/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/80000815/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/db51eb83/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/db51eb83/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/db51eb83/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/db51eb83/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/db51eb83/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/db51eb83/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/0b519499.md

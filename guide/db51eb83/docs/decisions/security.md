@@ -131,3 +131,36 @@ Cloudflare の Security Overview の提案（security.txt など）の見送り�
 - #598 の残りを新しい issue（#619）に起票してから、#598 を閉じる（案A。低-3 を #564 に移す案は採らない）
 - #619 に入れるのは3件: (1) 低-3 CI の `packages:` の版の固定（requirements 化。#564 か Dependabot の扱いと合わせる）、(2) `workers/ask/src/index.mjs` の 404・405 の応答の `x-content-type-options: nosniff`（次に `workers/ask` を変える指示で一緒に直す）、(3) 参考: `assets/houou_ask.js` の `image.src = thumb` が scheme を確かめない（`img` なので実行されず CSP の `img-src` でも制限される。直すなら (2) か `assets/houou_ask.js` を触る指示のついでに）
 - 作業中の回答: なし
+
+## 2026-10-21（CHAT-1021-PRV-04）
+
+- 連盟員名簿（`meibo.SPREADSHEET_ID`、題「20261016_連盟員名簿0.75」）は連盟公式のもので平野さんの持ち物ではなく、非公開化の対象外。今の共有（リンクを知っている全員が閲覧可）のまま読み取りを続ける（2026-10-18 の決定）
+- スプレッドシートの題の「R_…」への付け替えは意図したもの（「ryoei.pro_」が長いため）。コードのコメントに残る旧名は、切り替えの作業の中で今の題に直す（2026-10-18 の決定）
+- 手順書（docs/notes/sheets-reader.md）の手作業は済んだ: Google Sheets API は有効、サービスアカウント `sheets-reader` を作成（ロールなし）、Secret `SHEETS_READER_SA_KEY` を登録。名前は手順書の案のまま。「20210430_「孤立牌」と「1メンツ+1」の比較」を `sheets-reader` に閲覧者で共有（一般的なアクセスは変えていない）
+- 本番に影響を出さないため、検証は本番のシートではなく別の非公開のシートで行う。検証用のスプレッドシート「R_検証_sheets-reader」を Private のフォルダに作り、一般的なアクセスは「制限付き」、`sheets-reader` に閲覧者で共有した（ID は `scripts/check_sheets_reader.py` の `VERIFY_ONLY_SPREADSHEET_ID`）
+- 確かめのための手動実行だけのワークフロー（`check-sheets-reader.yml`）を cloudflare へマージしてよい
+
+## 2026-10-21（CHAT-1021-SEC-19）
+
+- mj の Actions の Secret `MJ_LOGS_TOKEN` と GitHub の fine-grained PAT `mj-logs-sync` を削除した（平野さんの手作業。2026-10-18〈CHAT-1018-SEC-06〉の「`sync-logs.yml` の削除〈#298〉のときに一緒に消す」が済んだ。参照0件は CHAT-1021-BIL-02 で確かめた）。認証情報の台帳 #601 から外した。残っている GitHub の PAT は `mj-read-for-mj-logs`・`mj-scheduler` の2つ
+- 作業中の回答: なし
+
+## 2026-10-21（CHAT-1021-PRV-05）
+
+- 本番のブックを sheets-reader に共有する方法は、フォルダごと。ただし「Public」「Private」ではなく専用のフォルダを用意する
+- 専用フォルダ「【本番環境】」を用意し、一般的なアクセスを「リンクを知っている全員（閲覧者）」、`sheets-reader` を閲覧者にした。すべてのブックをこのフォルダへ移した（平野さん、09:58 に完了の連絡）
+- 切り替えの進め方は「一括＋差分0」: `lib/sheets.py` の中身を Sheets API に替え、全ページの再生成で差分0を確かめてマージする。最後に専用フォルダの一般的なアクセスを「制限付き」にして、中のブックをまとめて非公開にする
+- PRV-04 の手動実行のワークフロー（`check-sheets-reader.yml`）を、コードが読む全ブックを対象に広げて cloudflare へマージしてよい
+
+## 2026-10-21（CHAT-1021-PRV-06）
+
+- 生成の読み取りは gviz・htmlview・CSV エクスポートをやめ、すべて Sheets API に替える。読むアカウントは読み取り専用の `sheets-reader`。Claude Code の環境に鍵は置かず、確かめは読むだけのワークフロー（`regenerate-page.yml` の dry_run・check）で行い、値はジョブのログに出さない（2026-10-18 の決定の再掲）
+- 切り替えは「一括＋差分0」。`lib/sheets.py` の中身を Sheets API に替え、全ページの再生成で差分0を確かめてマージする。最後に専用フォルダ「【本番環境】」の一般的なアクセスを「制限付き」にして、中のブックをまとめて非公開にする（平野さんの手作業）
+- 新旧のコードで同じ時点に全ページを生成して差分が0なら、cloudflare へマージしてよい
+- 「R_AIボット」（`ASK_SHEET_ID`）には質問の本文などのセンシティブな内容は入っていないので、専用フォルダに置いたまま、他のブックと同時に非公開にする（CHAT-1021-PRV-05 の報告の「急ぎでフォルダの外へ戻す」を置き換える）
+- 連盟員名簿（`meibo.SPREADSHEET_ID`）は専用フォルダへ移していない（連盟公式のファイルで、平野さんの管理ではない）。今の共有（リンクを知っている全員）のまま、sheets-reader で読む
+
+## 2026-10-21（CHAT-1021-PRV-07）
+
+- 専用フォルダ「【本番環境】」の一般的なアクセスを「制限付き」にした（平野さん）
+- check-sheets-reader の期待値・テスト・docs の変更を cloudflare へマージしてよい

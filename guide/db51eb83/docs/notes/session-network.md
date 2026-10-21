@@ -138,17 +138,10 @@ Python かどうかでは決まらない。`requests` の既定 User-Agent で�
 
 ## シートの行番号を取る手順
 
-issue に行番号を書くときなどは、gviz ではなくシート単位の CSV エクスポートを使う。
-gviz の結果は行番号を持たない。CSV エクスポートはグリッドをそのまま出すため、
-レコードの順番（ヘッダを1行目として数える）がシートの行番号と一致する。
-
-```
-https://docs.google.com/spreadsheets/d/<SPREADSHEET_ID>/export?format=csv&gid=<gid>
-```
-
-gid は `https://docs.google.com/spreadsheets/d/<SPREADSHEET_ID>/htmlview` の HTML に
-`{name: "<シート名>", pageUrl: "...gid=<数字>"` の形で載っている
-（2026-09-14 時点で「最強戦」は `1323657235`）。
+2026-10-21 から、スプレッドシートは Sheets API（`sheets-reader` の鍵）で読む（#557、docs/notes/static-generation.md「シートの読み方（Sheets API）」）。
+専用フォルダ「【本番環境】」を「制限付き」にした後は、ログインなしの gviz・CSV エクスポート・htmlview では読めない。Claude Code の環境には鍵が無いので、
+行番号はワークフロー（`regenerate-page.yml` の dry_run・`check-sheets-reader.yml` など）の出力で取る。`values.get` の行の順番（見出しを1行目として数える）がシートの行番号と一致する
+（`fetch_sheet()`・`fetch_table()` の行は完全に空の行を除くので、行番号とはずれうる）。
 
 ## 作業ファイルの置き場所（2026-09-19、CHAT-0916-LV-33・LV-34）
 

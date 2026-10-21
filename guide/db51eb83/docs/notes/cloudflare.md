@@ -568,7 +568,7 @@ Workers & Pages → `mj` → Settings → Builds:
   からは検証できないため申告の記録として残す）
 
 - **2つ目の Worker `mj-scheduler`**（#504）: 予約実行を起動する Worker。コードは `workers/scheduler/`（`.assetsignore` で配信から外す）。2026-10-05 の夜に、同じリポジトリを Path `/workers/scheduler` で Workers Builds につないだ。check-run は「Workers Builds: mj-scheduler」。設定値（申告値）と watch paths の未確認の点は `docs/notes/scheduler-worker.md`
-- Cron Triggers: `mj` は静的アセットだけなので持てない（画面の表示「Triggers cannot be added to a Worker that only has static assets.」）。アカウントの Cron Triggers は `mj-scheduler` の1本（Free は5本まで）
+- Cron Triggers: `mj` は静的アセットだけなので持てない（画面の表示「Triggers cannot be added to a Worker that only has static assets.」）。アカウントの Cron Triggers は `mj-scheduler`・`mj-ask` の2本（Workers Paid で 250 本まで。2026-10-21 までの Free は5本）
 
 ### Chrome からダッシュボードの API を読む（#304 の (9) の照合）
 
@@ -626,6 +626,7 @@ Workers & Pages → `mj` → Settings → Builds:
   作業ブランチを `cloudflare` へマージした直後に自動の再生成の push が続くと、マージのコミットにはプレビューの check-run（success）だけが付き、本番は次のコミットのビルドで反映される。本番の確かめは、本番の check-run が付いたコミットか本番の HTML で行う
   マージ後に本番の check-run が付かないまま本番が古いときは、壊れたと判断する前にこれを疑う
   （2026-10-16: 1447edda1〈09:19 JST〉の後の本番のビルドが続けて飛ばされ、5bf5d9b0f〈10:33 JST〉で反映。⏩ は平野さんの Build history の申告値）
+  （ビルドが同時1本だった 2026-10-20 までの観察。Workers Paid の同時6本でどう変わるかは未観察）
 - **check-run は push の先頭コミットにしか付かない（2026-09-13）。**
   複数コミットをまとめて push した場合、Workers Builds の check-run が
   記録されるのは先頭の1つだけで、それ以外のコミットには何も付かない。
@@ -693,7 +694,7 @@ Workers & Pages → `mj` → Settings → Builds:
 | `023175b4` | 05:10:18 → 05:12:56（約158秒） | failure。同じコミットの本番の `mj-ask` は success |
 | `86979e3d` | プレビュー 05:20:43 → 05:21:06、`mj-scheduler` 05:21:06 → 05:32:50（約704秒）、本番 `mj` 05:34:19 → 05:34:44 | `mj` は本番・プレビューとも success、`mj-scheduler` は failure |
 
-  - 上の時刻と成否は check-runs で確かめた（2026-10-13）。ビルドは同時1本なので、`86979e3d` の本番 `mj` は `mj-scheduler` の失敗を待ってから走った
+  - 上の時刻と成否は check-runs で確かめた（2026-10-13）。ビルドは同時1本（当時は Free）なので、`86979e3d` の本番 `mj` は `mj-scheduler` の失敗を待ってから走った
   - チャット側の読み（ダッシュボードの API、2026-10-13）: 5回とも Initializing は成功し、Cloning で「Failed: error occurred while fetching repository」。
     `86979e3d` の本番 `mj` は Cloning 6 秒で成功（Version `88bdd84b`）、`mj-scheduler` も Cloning で失敗。10/9〜10/13 の `mj` の約400回のうち本番の失敗はこの5回だけで、
     成功した本番は1回 19〜102 秒（大半は 20〜40 秒）。失敗までの時間はばらばらで、決まった上限で切れてはいない
@@ -717,14 +718,23 @@ Workers & Pages → `mj` → Settings → Builds:
   docs 外を含む push で本番のビルドが付かなかったのは、どれも本番のビルドが始まる前に、次の docs 外を含む push が cloudflare に来ていたとき（上の「古い本番のビルドは飛ばされ」）。
   docs/ だけの push は前の本番のビルドを飛ばさなかった（7884f8827・538ab6575・0d31d5ca4・d8a640236 は、後に docs だけの push が続いても走った）
 
-#### ビルド時間の見積もり（2026-09-29、#363）
+#### ビルド時間の見積もり（2026-10-21、#363）
 
-- Workers Builds のプランは Free: **ビルド時間 月3,000分・同時に走るビルド1本**（公式の Limits & pricing）。同時1本なので、プレビューのビルド中は本番のビルドが待つ
-- 本番のビルド1回は **33 秒**（cloudflare `b5e28a0`、初期化 10 秒・clone 4 秒・install 0.2 秒・deploy 約 18 秒。平野さんのスクリーンショットによる）。Build history の総数は 1,175 回（2026-09-29 時点）
-- 2026-09-28〜29 の24時間のビルドは63回（プレビュー46・本番17。GitHub のイベント記録から数えたもので少なめの可能性あり）。すべて33秒なら1日35分ほど、**月1,000〜1,100分**の見込みで、枠の3分の1程度。枠の数え方に準備の時間が入るかは未確認（33秒は準備を含む）
-- 枠の集計期間は暦の月ではなく課金の期間（2026-10-05 の Usage の画面で「September 9 - October 9」、641 / 3,000 分。申告値）
-- `mj-scheduler` のビルド1回は 34 秒（2026-10-05 の最初のビルド。申告値）。watch paths が効いていない疑いがあり（`docs/notes/scheduler-worker.md`「未確認」）、効くまでは cloudflare への push ごとに1回増える
-- 上限を超えたときの動きは公式のページに書かれていない。ビルドが大きく増えたら（毎日の再生成を増やすなど）見直す
+- **プランは Workers Paid（月 $5）。2026-10-21 に Free から切り替えた**（平野さんの手作業。Subscriptions の「Workers Paid — Renews on Nov 9, 2026」はスクリーンショットによる申告値）。
+  Workers Builds の枠は **ビルド時間 月6,000分・超過は1分 $0.005・同時に走るビルド6本**（公式の Limits & pricing。Free は月3,000分・同時1本）
+- 枠の集計期間は暦の月ではなく課金の期間（October 9 - November 9）
+- Workers Observability（Workers Logs）の新しい料金（月 2,000 万件まで含む・超過は 100 万件ごとに $0.60）には同意していない（ダッシュボードの「Review later」のまま、2026-10-21 の平野さんの決定）。同意しないあいだ、超過時は課金されずサンプリングになる（頭打ち）。2026-12-01 の切り替えで扱いが変わるかは 11/25 にダッシュボードで見る
+- Budget Alert（$5）を付けた（2026-10-21、平野さんの手作業。申告値）
+- 2026-10-21 の実測（**申告値。平野さんのスクリーンショットで、セッションからは検証できない**）:
+  - 切り替え前の Usage: Workers build minutes 2,312 / 3,000（10/9〜21）
+  - Analytics の Build minutes: 直近30日で 2.74k。1日のビルド時間は 10/14 ごろまで数十分、10/15〜19 は1日 約250〜450分
+  - Deployments の画面のビルド1回: 2分47秒〜4分15秒（2026-09-29 は本番1回 33 秒〈初期化 10 秒・clone 4 秒・install 0.2 秒・deploy 約 18 秒〉）
+- 2026-10-21 の回数（**チャット側の集計**。10/9 以降の push の SHA ごとに check-run「Workers Builds: *」を数えた）: 10/9〜21 で `mj` のプレビュー 573回・`mj` の本番 230回・`mj-ask` 51回・`mj-scheduler` 28回。1日の回数は 10/10〜19 で 70〜100回と大きく変わっていない
+- 1回の所要時間は check-run からも取れる。1回のビルドは同じ `external_id` の check-run を2つ残し（上の「ビルド成否と本番の確認範囲（check-runs）」）、`in_progress` の `started_at` から `completed` の `completed_at` までが所要時間（`completed` の方は `started_at` と `completed_at` が同じ値）。
+  `filter=all` で引いて `external_id` ごとにまとめる。2026-10-21 00:27〜01:28 UTC の `mj` の success 6回は 2分19秒〜5分23秒、`mj-scheduler` 1回は 2分45秒（Code が check-run で確かめた）
+- 見立て（**チャット側の推測。Cloudflare のビルドのログでは確かめていない**）: 増えたのは回数ではなくビルド1回の時間。配信の対象のファイルが増えたため（2026-10-21 の cloudflare で追跡しているファイル 約5,900、リポジトリ 182MB。`saikyo/` 881・`live/` 923・`houou/` 約790 など）と見る
+- **見直しの目安: 月6,000分に迫ったら、ビルドを減らす案（`mj-ask`・`mj-scheduler` のプレビューのビルドを止める、watch paths を直す）を検討する**（2026-10-21 の決定、`docs/decisions/cloudflare.md`）
+- 上限を超えたときの動きは公式のページに書かれていない
 - `Cloning` の段階の失敗はビルド時間の上限とは関係ない（事例と見分け方は上の「ビルドが Cloning で失敗したとき」）
 
 ### check-run が queued のまま・見当たらない場合（2026-09-13）

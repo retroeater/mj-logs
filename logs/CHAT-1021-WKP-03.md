@@ -54,28 +54,64 @@ CHAT-1021-WKP-01・02 の「判断が必要なこと」への回答。WKP-02 で
 
 ## 経過
 
+### 着手前の確認
+
+- 指示欄の末尾: ログの「## 指示」の最後の行が指示文の最後の行と一致することを確かめた
+- 同じ Chat-Ref のコミット: 0 件。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は4行ともあり
+- 作業ブランチ: `work/1021-wkp` はローカル・リモートとも origin/cloudflare の祖先（マージ済み）。`git merge --ff-only origin/cloudflare` で 0b519499b に進めた（他セッションの PRV-06 などが入っていた。run-weekly の各ジョブに `SHEETS_READER_SA_KEY` が足されていた）
+- #564: 着手中のまま残るコメントは無い（WKP-02 の着手中には結果のコメントがある）。着手中のコメントを書いた（https://github.com/retroeater/mj/issues/564#issuecomment-6308016749 ）
+- 未マージの work/ ブランチ: 触るファイルを変えているのは `work/1018-log-367-migrate` の docs/notes/github-actions.md だけ（表の `convert-x-posts.yml`・`fetch-x-posts.yml` の行。今回の行・節とは別）。同じ目的の作業は無い
+
+### 前提との照合
+
+- fetch-youtube.yml には `workflow_call`・入力 `scheduled`・`run-name` が無かった（前提の「不明」の確認）。入力をまったく持たず、`inputs` も `github.event_name` も読んでいないので、`workflow_call` 化しても手動実行・保険の `schedule` の動きは変わらない（止まる条件に当たらない）
+- 前提の「docs/notes/cloudflare.md の Workers Logs の記述（WKP-01 で直した箇所）」: WKP-01 で Workers Logs の値を直したのは docs/notes/scheduler-worker.md「ログ（Workers Logs）」で、cloudflare.md には Workers Logs の記述が無かった。料金の話なので、cloudflare.md の Workers Paid の項（「ビルド時間の見積もり（2026-10-21、#363）」）に1行を足し、scheduler-worker.md の「超過は 100 万件ごとに $0.60」（同意していないので当たらなくなった）をその参照に置き換えた
+
+### 変更
+
+- ad8e374b3（`chore: raise static asset file limit to Workers Paid`）: `scripts/check_asset_limits.py` の `MAX_FILES` を 100,000 にし、コメントを「2026-10-21 から Paid」に直した。警告（80%）・エラー（100% 超）は `WARN_RATIO` の割合なのでしきい値はそのまま比で動く。`scripts/tests/test_check_asset_limits.py` の境界を 79,999／80,000／100,001 に直した（前の 20,000 では 79,999 がエラーになり、このテストは落ちる）。docs/notes/static-generation.md「メンテナンス用スクリプトの詳細」の「（Workers Free）」を「（Workers Paid。ファイル数 100,000）」に直した。`grep -rn "20,000\|20000" scripts/ docs/notes/ .github/` の残りは鳳凰戦の行数（`generate_houou_pages.py`・`test_houou_check.py`）と WKP-01 で直した行・過去の記録だけ
+- bb61b668b（`feat: run fetch-youtube from run-weekly`）:
+  - fetch-youtube.yml に `run-name`・`workflow_dispatch` の入力 `scheduled`・`workflow_call`（入力 `scheduled`、Secret `YOUTUBE_API_KEY` 必須・`SHEETS_READER_SA_KEY` 任意）を足した。`schedule`（`37 20 * * 0`）は残した
+  - run-weekly.yml にジョブ `youtube` を足した: `needs: [meibo, birthday, logs, saikyo]`・`if: ${{ !cancelled() && inputs.scheduled }}`、権限 contents: write・issues: write（regenerate-page の job が求める）、Secret は `YOUTUBE_API_KEY`（fetch-youtube の取得）と `SHEETS_READER_SA_KEY`（入れ子の regenerate-page）。入れ子は run-weekly → fetch-youtube → regenerate-page の3段
+  - docs/notes/github-actions.md: 表の fetch-youtube・run-weekly の行、「run-weekly.yml・run-monthly.yml」の節（youtube のジョブ）、「権限と Secret の渡し方」の表に youtube の行
+  - docs/notes/cloudflare.md・scheduler-worker.md: Observability の料金に同意していない（超過時はサンプリング）
+- 決定: docs/decisions/automation.md・cloudflare.md に「2026-10-21（CHAT-1021-WKP-03）」を足した（27894c29a）
+- `python3 -m unittest discover -s scripts/tests` 成功。`python3 scripts/check_asset_limits.py` の配信ファイル数は 4,194 / 100,000（4.2%）
+
+### 作業ブランチでの確かめ（bb61b668b）
+
+- run-weekly の手動実行（`scheduled` なし）39544116557: success、約44秒。meibo・ampai・birthday・saikyo・cleanup は success（`scheduled: false / apply: false`、issue は dry-run、cleanup の削除のコミットは skipped、birthday は `--compare` だけで 0 件）。**youtube は skipped**。作業ブランチにコミットは増えていない。`gh workflow run` の代わりに GitHub MCP の `actions_run_trigger` で作業ブランチから起動できた
+- check-assets（push）39544114021: success。配信ファイル数の行は `4,194 | 100,000 | 4.2% | OK`。`::error::` は無く、警告は GitHub の Node.js 20 の非推奨だけ
+- fetch-youtube 単体の手動実行は行っていない（本番に書くため。指示どおり）
+
+### マージ
+
+push の直前に再 fetch したところ、origin/cloudflare が 80000815a（他セッションの MCK-21 のログと decisions/operations.md）に進んでいた。HEAD の祖先ではなかったので `git merge origin/cloudflare` で取り込んだ（衝突なし）。もう一度 fetch して祖先であることを確かめ、`git push origin work/1021-wkp:cloudflare`（80000815a..a4cc4483d）でマージした。
+#564 に、youtube のジョブ・初回 10/26 で確かめること・`schedule` を外す時機をコメントした（https://github.com/retroeater/mj/issues/564#issuecomment-6308077347 ）。#564 は閉じていない。
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1021-wkp
-- ログ: https://github.com/retroeater/mj/blob/work/1021-wkp/docs/logs/CHAT-1021-WKP-03.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1021-WKP-03.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1021-wkp
-- 確認用URL:
-- マージ:
-- issue:
-- 判断が必要なこと:
+- 確認用URL: なし（配信物は変えていない）
+- マージ: 済（a4cc4483d）
+- issue: #564（着手・結果のコメント。閉じていない）
+- 判断が必要なこと: なし
 - 未確認の項目:
-- エラー:
+  - 予約実行の初回: run-weekly の youtube は 2026-10-26（月）02:00 JST（Worker からの run-weekly の中。success か、fetch のコミットと regenerate-page の all が通るか）
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 5175e9bd）: https://github.com/retroeater/mj-logs/tree/main/guide/5175e9bd
+ガイド文書（この版を写した時点の最新、mj db51eb83）: https://github.com/retroeater/mj-logs/tree/main/guide/db51eb83
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/5175e9bd/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/5175e9bd/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/5175e9bd/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/5175e9bd/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/5175e9bd/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/5175e9bd/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/495cef69.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/db51eb83/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/db51eb83/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/db51eb83/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/db51eb83/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/db51eb83/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/db51eb83/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/0b519499.md
