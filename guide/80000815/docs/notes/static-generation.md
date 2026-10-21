@@ -100,9 +100,9 @@
   これが走らないとstickyヘッダーとbodyの`padding-top`が既定値90pxのまま
   固定されるため。`jpml_pros.html`は`table.js`を読み込まず`jpml_pros.js`を
   使うため、この変更の影響を受けない
-- **`fetch_sheet()`に`formatted: bool = False`を追加した。** gvizの
-  レスポンスは生の数値(`v`)とは別に表示用文字列(`f`)を持ち、シートの
-  表示形式(`#,##0.0`等)が反映されている。旧Google Charts版の`Table`は
+- **`fetch_sheet()`に`formatted: bool = False`を追加した。** シートは
+  生の数値とは別に表示用文字列を持ち、表示形式(`#,##0.0`等)が反映されている
+  (gviz の`f`、今は Sheets API の`FORMATTED_VALUE`)。旧Google Charts版の`Table`は
   `f`をそのまま描画していたため、`rh_results`のような小数・桁区切りを
   持つ数値列は`v`だけでは見た目が変わってしまう(`1861.4000000000012`の
   ような生の浮動小数になる)。`formatted=True`にすると、セルに`f`が
@@ -118,7 +118,7 @@
   `SELECT A,B,...V`のように全列を取得してから`view.setColumns([...])`で
   表示列を間引くことが多いが、Python移行では22列取得して後から捨てるより
   `SELECT A,C,E,G,I,R,S,T,V WHERE W = "Y"`のように必要な列だけを最初から
-  クエリする。gvizのWHERE句はSELECTに含めない列も参照できるため、絞り込み
+  クエリする。WHERE句はSELECTに含めない列も参照できるため、絞り込み
   専用の列(旧`W`列)をSELECTに含める必要はない(`rh_results_detail`で適用)
 - **テキストの後ろにアイコンを添えるセルは`build_image_cell()`を使わない。**
   `build_image_cell()`は画像セル1つを丸ごと作る関数で、`rh_results_detail`の
@@ -283,7 +283,7 @@ HTMLは21ページ + 書籍の一覧と個別ページ（`books/`、#97、noinde
 
 ### 生成スクリプトの構成（lib/page.py）
 
-- `jpml_pros.html`は独自の`scripts/generate_jpml_pros.py`のまま。型A/A'の9ページは`scripts/lib/page.py`（HTMLテンプレート・行組み立て・画像セル・エスケープの共通処理）を使い、各`scripts/generate_<ページ名>.py`は「設定(`PageMeta`/`TableConfig`) + 行組み立て関数」だけを持つ（#7の共通化）。型C・型D・`video_wayhome.html`・`wayhome/`のエピソード個別ページは表を持たないため`lib/page.py`の`render_content()`を使う。いずれも`scripts/lib/sheets.py`経由でスプレッドシートのgvizエンドポイント（`google.visualization.Query`と同じSELECT構文）を叩く
+- `jpml_pros.html`は独自の`scripts/generate_jpml_pros.py`のまま。型A/A'の9ページは`scripts/lib/page.py`（HTMLテンプレート・行組み立て・画像セル・エスケープの共通処理）を使い、各`scripts/generate_<ページ名>.py`は「設定(`PageMeta`/`TableConfig`) + 行組み立て関数」だけを持つ（#7の共通化）。型C・型D・`video_wayhome.html`・`wayhome/`のエピソード個別ページは表を持たないため`lib/page.py`の`render_content()`を使う。いずれも`scripts/lib/sheets.py`経由でスプレッドシートを読む（Sheets API、`google.visualization.Query`と同じSELECT構文の一部を再現する。下の「シートの読み方（Sheets API）」）
 - `lib/page.py`はサブディレクトリのページ（`wayhome/`配下）向けに`asset_prefix`引数を持つ（既定は空文字、#162）。head内のアセット参照（`style.css`・`assets/vendor/*`・`favicon.ico`・`navbar.js`・`table.js`）にこの接頭辞を付ける。`wayhome/`配下のページは`"../"`を渡す。あわせて`PageMeta`に`og_image`/`og_image_width`/`og_image_height`/`og_image_alt`/`canonical`を持たせ、ページごとに差し替えられるようにした（既定はそれぞれ`img/ogp/site/index-white.png`（#581）・1200×630・`"ryoei.pro"`・`None`=canonicalなし。#113の判断どおり）。サブディレクトリを増やす場合はこの仕組みを再利用できる
 - **ページ別のOGP画像は`img/ogp/<区分>/`以下に置く（#339）。** 全ページ共通の画像は`PageMeta.og_image`の既定`img/ogp/site/index-white.png`（白地・黒字、#581。旧`img/ogp.png`は凍結中の books/ が使うため残す）。「帰り道」は一覧ページの`img/ogp/wayhome/index-<最新話の公開日>.jpg`1枚だけで、`scripts/build_wayhome_ogp.py`が書き出す。名前は`lib/wayhome.py`の`list_og_image_name()`で決め（immutable配信のため中身が変わるときは名前を変える、`docs/notes/ogp.md`）、参照は`resolve_list_og_image()`を通す。今の最新話の画像が未生成なら共通の画像に戻るためページ生成は止まらない。**個別39ページの`og:image`はYouTubeのサムネイル（`resolve_hero_thumb()`、幅・高さはAPIの実寸）をそのまま使う。** 一度はページ別に焼いた画像を使ったが、サムネイルにシリーズ名・大会名・選手名が焼き込まれており、Xのカードでは`og:title`も画像に重なるため二重になる。2026-09-16に取りやめた。最強戦のトップは`img/ogp/saikyo/index-white.png`（`og_image_for()`、卓・カードの代わりの画像も同じ、#343・#581）。title/ は全ページ`img/ogp/title/index-white.png`（`OG_IMAGE`、#232・#581）、houou/ と旧`houou_*.html`は`img/ogp/houou/index-white.png`。4枚とも共通画像と同じ白地・黒字（#212529・#ffffff）で、作り方は`docs/notes/ogp.md`「ページの種類ごとの og:image・og:type の規則」（2026-10-16 に最強戦の橙色・黒地〈CHAT-0916-SY-07〉と大会ごとの画像をやめた、#581）
 - `PageMeta`は`og_title`（既定`None`＝`<title>`と同じ）を持つ。SNSのカード見出しだけを短くしたいページで指定する。「帰り道」の個別ページは`<title>`にシリーズの正式名を残したまま、og:titleを「<大会名> <選手名> | 帰り道 | ryoei.pro」にしている（#339。短縮形は`lib/wayhome.py`の`SERIES_SHORT`）
@@ -291,7 +291,7 @@ HTMLは21ページ + 書籍の一覧と個別ページ（`books/`、#97、noinde
 - `lib/page.py`はh1直後・`#searchBoxes`手前にページ固有のHTMLを差し込む`content_before`スロット（#102第1段で追加）を持つが、現在どのページも使っていない。ページ固有HTMLをh1直後に差し込む汎用スロットとして残している
 - `jpml_pros`の英字の姓名・所属は「プロ」シート（C・D・E列）ではなく連盟員名簿のブック（`lib/meibo.py`。英字の姓名は「【2】値貼付」タブの「登録名英字姓」「登録名英字名」、所属は「公開」タブ）から登録名で引く。在籍者が名簿のどちらかのタブにいない・名簿の人数が1,000〜1,300を外れるときは生成を止める（#536 の段2。「プロ」の C・D・E 列は段4で消すまで残る）
 - `jpml_pros`の鳳凰戦の列は「鳳凰」の1列（2026-10-17、#584。前の「鳳凰出場」「鳳凰<最新の期>」「鳳凰最高」の3列を置き換えた）。値は個人成績の名前の面のチップと同じ現在のリーグ（`generate_houou_pages.current_league_table()` が `current_league()` を当てる。進行中の期だけに出ている選手も個人成績に載せるので同じく値が付く、2026-10-17。個人成績のページの無い選手は空欄）で、行き先は個人成績の期別（`HOUOU_PLAYERS_URL`。鳳凰戦の Ampai へは期別の進行中の期の行から行く）。検索欄は placeholder「鳳凰」・label「鳳凰戦の現在のリーグで検索」。`houou/ask-players.json` との一致は `test_jpml_pros.py` の `GeneratedHououColumnTest` で確かめる
-- `jpml_pros`の成績の列の元の8項目（鳳凰出場・鳳凰<最新の期>・鳳凰最高・桜花出場・桜花<最新の期>・桜花最高・最強出場・放送対局。鳳凰の3項目は表に出していない）は「プロ」シートの O〜U・W 列（数式）ではなく、`lib/pro_stats.py` が集計元のタブ（「鳳凰」「桜花」「リーグ」「最強戦」、旧「対局」）から生成時に数える。定義は数式と同じ（鳳凰出場は表示 Y の行数、桜花出場は表示を問わない行数、最高は全行のリーグキーの最小を「R_タイトル戦_マスタ」の「リーグ」タブでリーグ名に戻す、最強出場は表示 Y の対局の行数、放送対局は旧「対局」の対局者・実況・解説で登録名を部分一致で含むセルの数。#536 の段3）。最新の期は「鳳凰」の最大の (期, 前後)・「桜花」の最大の期で、見出し・検索欄の placeholder・aria の文言も生成時の期から作る。最新の期のリーグの Ampai の URL は「ryoei.pro_Ampai」ブック（`lib/ampai.py`。1行＝タイトル戦・期・前後・リーグ・組、「-」は空）から、選手の最新の期のタイトル戦・期・前後・リーグ・組（組は「鳳凰」の「組」の列、`lib/houou_tab.py`。どちらも 1・2・3…の数字で、「-」・空欄は組なし。それ以外は止める。Ampai の「組」は gviz が数の列とみなして数でない値を空で返すため、CSV エクスポートでも確かめる）で引く。合う行が無ければリンクを付けない（鳳凰位・桜花も付かない）。最新の期の行がブックに1行も無いときは生成のログに警告を出し、`check-meibo.yml` の週次の実行（`scripts/check_ampai.py`）が issue「Ampai の URL が無い期」に書く（#548。「プロ」の鳳凰Ampai・桜花Ampai 列と「鳳凰Ampai」「桜花Ampai」タブは読まない）。「リーグ」タブ（スプレッドシート「R_タイトル戦_マスタ」、`live.SPREADSHEET_ID`。2026-10-13 に正本から移した）は1行が タイトル戦・リーグ名・リーグID で、見出しで読む（`league_maps()`）。`generate_ouka_leagues.py` の選手候補も「桜花」タブに1行でもある在籍者で判定する（旧「桜花最高」が空でない人と同じ）
+- `jpml_pros`の成績の列の元の8項目（鳳凰出場・鳳凰<最新の期>・鳳凰最高・桜花出場・桜花<最新の期>・桜花最高・最強出場・放送対局。鳳凰の3項目は表に出していない）は「プロ」シートの O〜U・W 列（数式）ではなく、`lib/pro_stats.py` が集計元のタブ（「鳳凰」「桜花」「リーグ」「最強戦」、旧「対局」）から生成時に数える。定義は数式と同じ（鳳凰出場は表示 Y の行数、桜花出場は表示を問わない行数、最高は全行のリーグキーの最小を「R_タイトル戦_マスタ」の「リーグ」タブでリーグ名に戻す、最強出場は表示 Y の対局の行数、放送対局は旧「対局」の対局者・実況・解説で登録名を部分一致で含むセルの数。#536 の段3）。最新の期は「鳳凰」の最大の (期, 前後)・「桜花」の最大の期で、見出し・検索欄の placeholder・aria の文言も生成時の期から作る。最新の期のリーグの Ampai の URL は「ryoei.pro_Ampai」ブック（`lib/ampai.py`。1行＝タイトル戦・期・前後・リーグ・組、「-」は空）から、選手の最新の期のタイトル戦・期・前後・リーグ・組（組は「鳳凰」の「組」の列、`lib/houou_tab.py`。どちらも 1・2・3…の数字で、「-」・空欄は組なし。それ以外は止める。Ampai の「組」は gviz と同じく数の列とみなして数でない値を空で返すため、表示の値〈`fetch_csv()`〉でも確かめる）で引く。合う行が無ければリンクを付けない（鳳凰位・桜花も付かない）。最新の期の行がブックに1行も無いときは生成のログに警告を出し、`check-meibo.yml` の週次の実行（`scripts/check_ampai.py`）が issue「Ampai の URL が無い期」に書く（#548。「プロ」の鳳凰Ampai・桜花Ampai 列と「鳳凰Ampai」「桜花Ampai」タブは読まない）。「リーグ」タブ（スプレッドシート「R_タイトル戦_マスタ」、`live.SPREADSHEET_ID`。2026-10-13 に正本から移した）は1行が タイトル戦・リーグ名・リーグID で、見出しで読む（`league_maps()`）。`generate_ouka_leagues.py` の選手候補も「桜花」タブに1行でもある在籍者で判定する（旧「桜花最高」が空でない人と同じ）
 - `jpml_pros`ほかの X・note・YouTube の ID と画像の URL は「プロ」「連盟プロ以外」の列ではなく SNS ブックから `lib/sns.py` で引く（2026-10-11、#514、`docs/notes/sns-book.md`。旧列は数日後に空にする）。
 - `jpml_pros`のYouTubeアイコンだけはシートではなくYouTube Data API（channels.list）から取り、`data/youtube_channels.json`を経由する（#3。キーはActions secret `YOUTUBE_API_KEY`）。
   取得は週次`all`と`target_page`空/`all`の手動実行時のみ。失敗しても既存JSONでアイコンは維持され、ジョブだけ失敗扱いになる
@@ -300,47 +300,31 @@ HTMLは21ページ + 書籍の一覧と個別ページ（`books/`、#97、noinde
 - `title_pages`（`scripts/generate_title_pages.py`）は`title/`配下の入口・大会ページ・期ページと、`sitemap-title.xml`を書き出す（#222、`OUTPUT_OVERRIDES`は`"title/"`）。`sitemap-title.xml`は公開（#413、2026-09-28）から`sitemap.xml`が参照する。仕組みは`docs/notes/title-pages.md`
 - **複数のスクリプトが使う定数・関数（シートのクエリ・列の定義など）を変えるときは、その名前を import・参照している所を `git grep` ですべて洗い出し、マージの前に `python3 scripts/regenerate.py all` で全ページを再生成して差分を確かめる。** ほかのスクリプトが借りて列の位置で読んでいると、そちらのページが黙ってずれる
 
-### シートのフィルタの検知（#432）
+### シートの読み方（Sheets API、#557）
 
-**gviz はフィルタで隠れた行を返さない。** `status` は `ok` のままで、応答（`version` / `reqId` / `status` / `sig` /
-`table.cols` / `table.rows` / `table.parsedNumHeaders`）に隠れた行があることを示すものは無い。
-気付かずに再生成すると、隠れた行の選手・対局がページから静かに消える
-（2026-09-21、「連盟プロ以外」が732行のうち460行しか読めず、最強戦の選手154名が未登録に見えた。CHAT-0921-MT-04）。
+2026-10-21 から、`lib/sheets.py` は読み取り専用のサービスアカウント `sheets-reader` の鍵（環境変数 `SHEETS_READER_SA_KEY`、GitHub Actions のシークレットにだけ置く）で Sheets API を読む。
+それまではログインせずに gviz・htmlview・CSV エクスポートで読んでいた。鍵の用意と、専用フォルダ「【本番環境】」の非公開化の段取りは `docs/notes/sheets-reader.md`。
 
-**CSVエクスポートはフィルタの影響を受けない。** これを使って `lib/sheets.py` の `check_not_filtered()` が
-タブごとに1回だけ行数を比べ、食い違えば `FilteredSheetError`（`ValueError` の派生）で生成を止める。
-`fetch_sheet()`・`fetch_records()` の入口で呼ぶので、シートを読むスクリプトはすべてこの検査を通る。
+- **gviz の返し方をそのまま再現する**（`_select()`。生成物を変えないため。2026-10-21 に全タブで gviz と CSV エクスポートを突き合わせて規則を確かめ、全ページの新旧の生成の差分0でマージした）:
+  見出しは1行目の表示の文字、列はグリッドの列数まで、完全に空の行は返さない、列ごとに空でないセルの型（数・文字・真偽）の多い方を列の型にして型の違うセルは空（None）にする（#548 の Ampai の「組」もこれ）。
+  日付は表示の文字で返す（gviz は `Date(y,m,d)` だったが、日付の列は `formatted=True` でしか読んでいない）
+- **SELECT 文は生成が使う形だけを読む**: `SELECT 列,…`（または `*`）・`WHERE 列 = "値"`（生の値と比べる。前後の空白は落とさない）・`ORDER BY 列 [DESC]`（空は小さい値、同じ値は元の順）・`LIMIT`。ほかの形は止める
+- **読む回数**: ブックごとに `spreadsheets.get` 1回（タブ・gid・グリッドの列数・隠れた行）、タブごとに `values.get` 2回（生の値と表示の文字）。プロセスの中ではキャッシュする。
+  読み取りの上限（1分あたり）の 429 と 5xx は待って繰り返す（最大7回、64秒まで）。タイムアウト・接続の失敗は `lib/net_retry.py`
+- **止める**: 鍵が無い、認証・権限の失敗（401・403）、無いブック。警告で通さない（非公開の後に検査が黙って省かれないように）。Claude Code の環境には鍵を置かないので、
+  コンテナではシートを読む生成は動かない。確かめは `regenerate-page.yml` の手動実行（入力 `dry_run`・`check`、`docs/notes/github-actions.md`「regenerate-page.yml」）と `check-sheets-reader.yml` で行う
 
-- **数え方をそろえる**: gviz は `SELECT COUNT(A)`、CSV は「見出しを除き、A列が空でない行」。
-  2026-09-21 に生成・検知が読む23タブすべてで一致を確認した（`SELECT *` の行数とは、A列が空の行があるタブでずれる。
-  例: 「タイトル」は `SELECT *` 3,271行・`COUNT(A)` 3,122行）
-- **gid が要る**: CSVエクスポート（`export?format=csv&gid=<GID>`）はタブを gid で指定する。`&sheet=<タブ名>` は効かず、
-  別のタブが返る。gid は `htmlview` の `items.push({name: "...", pageUrl: "...gid=..."})` から読む（`_sheet_gids()`、
-  スプレッドシートごとに1回）
-- **gid が引けない・CSVを取れないときは、警告を出して通す。** 検査は事故を拾う追加の網で、
-  外部の一時的な不調で今まで通っていた生成を止めないため。フィルタは人の操作で起きるまれな事故で、
-  見逃しても次の実行で拾える
-- **通知は生成の失敗そのもの**（常設issueは作らない）。見出しの照合・置換文字の検査と同じ「生成を止める条件」の扱いで、
-  止まったページだけが飛ばされ（ほかのページは生成・コミットされる）、`regenerate-page.yml` が失敗して GitHub から通知が届く
-  （飛ばしたページと理由はジョブのサマリ。`docs/notes/github-actions.md`「regenerate-page.yml」、#533）。フィルタは解除すれば直る一時的な状態なので、
-  issue を残す意味が薄い
-- **増える時間**: タブごとに CSV 1回＋`COUNT(A)` 1回、スプレッドシートごとに `htmlview` 1回。
-  2026-09-21 の実測（Codespace から、1回ずつ）:
-- **フィルタ以外で隠れた行も、gviz は返さない（2026-10-09 実測、#510）。** 手で非表示にした行も、折りたたんだグループの行も、
-  フィルタと同じく gviz の `SELECT *`・`SELECT COUNT(A)` から消え、CSV には全行が出る。そのため `check_not_filtered()` が
-  行数の食い違いで `FilteredSheetError` を出して生成を止める（メッセージは「フィルタ、または非表示・折りたたみの行があります」で、
-  この3つのどれでも同じ。#510 の実測の後に文面を直した）。新しい検知は要らない。解くには、行の再表示（グループの展開）かフィルタの解除
-  （平野さんが用意したテスト用タブでの実測。表は #510 のコメント）
+### シートのフィルタ・隠れた行の検知（#432・#510）
 
-  | 生成 | 検査あり | 検査なし |
-  | --- | --- | --- |
-  | `generate_jpml_pros.py` | 2.3 / 2.4秒 | 0.7秒 |
-  | `generate_saikyo_pages.py` | 9.1 / 9.2秒 | 3.5秒 |
-  | `generate_live_pages.py` | 17.5 / 16.6秒 | 9.3秒 |
-  | `generate_title_pages.py` | 18.9 / 19.2秒 | 14.6秒 |
+gviz はフィルタで隠れた行・手で非表示にした行・折りたたんだグループの行を返さなかった（2026-09-21、「連盟プロ以外」が732行のうち460行しか読めず、
+最強戦の選手154名が未登録に見えた。CHAT-0921-MT-04。#510 で非表示・折りたたみも同じと実測）。Sheets API は隠れた行も返すが、
+シートの見た目と生成物が食い違わないよう、今までどおり止める。
 
-  キャッシュはプロセス内だけなので、`regenerate.py all` のようにスクリプトごとにプロセスが分かれる実行では、
-  同じタブでも読み直す
+- `check_not_filtered()` が、ブックのメタデータの `rowMetadata` の `hiddenByFilter`・`hiddenByUser` と、`rowGroups` の折りたたみ（`collapsed`）から隠れた行を引き、
+  A列が空でない行が1行でも隠れていれば `FilteredSheetError`（`ValueError` の派生）で生成を止める（メッセージは「フィルタ、または非表示・折りたたみの行があります」）。
+  `fetch_sheet()`・`fetch_records()`・`fetch_table()` の入口で呼ぶので、シートを読むスクリプトはすべてこの検査を通る。タブごとに1回
+- **通知は生成の失敗そのもの**（常設issueは作らない）。止まったページだけが飛ばされ（ほかのページは生成・コミットされる）、`regenerate-page.yml` が失敗して GitHub から通知が届く
+  （飛ばしたページと理由はジョブのサマリ。`docs/notes/github-actions.md`「regenerate-page.yml」、#533）。解くには、フィルタの解除か行の再表示（グループの展開）
 
 ### 生成を止める条件の設計（#222 の実例）
 
@@ -348,10 +332,9 @@ HTMLは21ページ + 書籍の一覧と個別ページ（`books/`、#97、noinde
 止まるのはそのページだけで、`regenerate.py` が途中の出力を戻して飛ばし、ほかのページは続ける（`docs/notes/github-actions.md`「regenerate-page.yml」、#533）。
 `generate_title_pages.py` はこの形で、title/ の第1段（CHAT-0916-TT-07〜TT-16）で止まったのはすべて実際の食い違いだった。新しい生成スクリプトでも同じ形にする。
 
-- 読むタブの見出しの照合。gviz は存在しないタブ名でも先頭のタブを黙って返すため、これが無いと誤ったタブを読んだまま生成が通る
-- タブのフィルタ。gviz の `SELECT COUNT(A)` と CSV エクスポートの A列が空でない行数を比べ、食い違えば止める
-  （上の「シートのフィルタの検知」。`lib/sheets.py` が共通の入口で行うので、生成スクリプト側の実装は要らない。
-  CSV を取れないときは警告を出して通す）
+- 読むタブの見出しの照合。列の並べ替え・改名で別の列を読んだまま生成が通らないように
+- タブのフィルタ・隠れた行。A列が空でない行が隠れていれば止める
+  （上の「シートのフィルタ・隠れた行の検知」。`lib/sheets.py` が共通の入口で行うので、生成スクリプト側の実装は要らない）
 - 置換文字（U+FFFD）・制御文字。取り込みでの文字化けをページに出る前に捕まえる
 - マスタのタブとの不整合。キー（大会名など）の欠け、組み立てた値と記録されている値の食い違い、出力の件数と入力の行数の一致検査
 
@@ -367,10 +350,8 @@ title/ では「タイトル戦」タブの大会の改名が「タイトル」�
 - **読んでいる最中に平野さんがタブを貼り替えていることがある。** 貼り替えの途中を読むと、行数が急に減った状態が返る
   （CHAT-0916-LV-17 で「放送対局」3,115行が 1,254行に見えて中断。LV-23 も編集の途中の可能性で中断）。
   シートを読む作業では、行数が想定と違う・読み直すたびに変わるときに止める。大量の貼り替えを伴う作業では、平野さんが貼り終えたと伝えてから読む
-- **タブの有無は gviz では判定できない。** 存在しないタブ名にも先頭のタブを黙って返す（CHAT-0916-LV-11 で判明）。
-  タブ名の一覧はスプレッドシートの `htmlview` で確かめ、生成では見出しの照合を必ず行う。`lib/sheets.py` の `fetch_records()`・`fetch_table()` は、
-  タブの一覧（`htmlview`、`check_sheet_exists()`）に無いタブ名なら止める。先頭のタブの名前には頼らないので、先頭のタブを消す・並べ替えても止まらない。
-  一覧が読めないときだけ、先頭のタブと同じ中身が返ったら止める（2026-10-13）
+- **無いタブ名は止める。** `lib/sheets.py` は Sheets API のタブの一覧（`check_sheet_exists()`）に無いタブ名なら止める（gviz は先頭のタブを黙って返していた、CHAT-0916-LV-11）。
+  生成では見出しの照合も必ず行う
 - **列は見出しの名前で読む。** タブ名・列名・列順はシート側で変わる（LV-11「プロ以外」→「連盟プロ以外」、
   LV-29「全動画」→「連盟ch」・列「候補」→「放送対局」・列の並べ替え）。`fetch_records()` のように、生成に使う列の見出しが
   欠けている・重複しているときだけ止め、知らない列が増えても止まらない形にする（列記号の `SELECT A,I,J` は並べ替えで無言に別の列を読む）
@@ -410,7 +391,7 @@ title/ では「タイトル戦」タブの大会の改名が「タイトル」�
 
 - **作る段の確かめ・未公開で本番に入れる手順・公開の手順は `docs/new-page-checklist.md`（#243）。** 公開は作る issue と別の issue で行う
 - **件数・容量・配信ファイル数を先に見積もる。** /live は、1回戦1ページなら約3,300ページという見積もり（CHAT-0916-LV-03）から、
-  個別ページの単位を「同一ステージの同一卓」に変えた（LV-04、約960ページ）。Workers の静的アセットの上限（Free で 20,000 ファイル）、
+  個別ページの単位を「同一ステージの同一卓」に変えた（LV-04、約960ページ）。Workers の静的アセットの上限（Workers Paid で 100,000 ファイル。2026-10-21 までの Free は 20,000）、
   `_redirects` の上限（静的 2,000行）、埋め込むページの大きさも同時に見る
 - **検査で外れる行の一覧を平野さんに返す流れを、最初から組む。** データを構造化すると、表のページでは表に出なかった誤りが出る。
   /live では動画IDの重複、卓の取り違え、対局者の欠落（他団体の選手を抜いていた時期がある）、概要欄の誤記が多数見つかった。
@@ -466,9 +447,8 @@ title/ では「タイトル戦」タブの大会の改名が「タイトル」�
 
 `scripts/`は公開対象外（`.assetsignore` でCloudflareへの配信から除外）。多くは GitHub Actions から定期実行され、結果をissueに書き出す。
 依存は、特記の無いものは標準ライブラリのみ（実行例: `python3 scripts/check_image_links.py --json result.json`）。
-外部からの読み取り（`lib/sheets.py` のスプレッドシート〈gviz〉、`lib/dojo_guest.py` の連盟サイト、YouTube Data API の取得）は、タイムアウト・接続の失敗を `lib/net_retry.py` で2回まで繰り返す（5秒・15秒おき、HTTP の応答は繰り返さない）。
-フィルタの検知の CSV の取得（`lib/sheets.py` の `_get`）は、失敗しても警告で生成を続けるため繰り返さない（CSV だけが長く落ちた日に再生成が延びないように）。
-Google の API（`lib/gcal.py`・`lib/sheets_write.py`・`sync_birthday_calendar.py`）には接続10秒・読み取り60秒のタイムアウトを渡し、読み取り（GET）だけ同じく繰り返す。書き込みは、届いたかが分からず重複しうるため繰り返さない（#472）。
+外部からの読み取り（`lib/sheets.py` のスプレッドシート〈Sheets API〉、`lib/dojo_guest.py` の連盟サイト、YouTube Data API の取得）は、タイムアウト・接続の失敗を `lib/net_retry.py` で2回まで繰り返す（5秒・15秒おき、HTTP の応答は繰り返さない。`lib/sheets.py` は 429・5xx を別に待って繰り返す）。
+Google の API（`lib/sheets.py`・`lib/gcal.py`・`lib/sheets_write.py`・`sync_birthday_calendar.py`）には接続10秒・読み取り60秒のタイムアウトを渡し、読み取り（GET）だけ同じく繰り返す。書き込みは、届いたかが分からず重複しうるため繰り返さない（#472）。
 
 - `check_image_links.py` — `jpml_pros.html` 内の画像URL全件にHEADリクエストを送りリンク切れを検知（毎日 04:30 JST、保険で毎週月曜03:00 JST）
 - `collect_saikyo_images.py` — 最強戦の選手写真（SNS ブックの実効の値、#514）で取得できなくなった画像URLを見つけ、SNS ブックでの状態（【3】の X状態・【4】の有無）と一緒にCSV・検知の issue に出す（#333、手動実行＋`check-image-links.yml`から毎日`--json`実行）。X API は呼ばない（取り直しは `update_sns_book.py`）。`--resolve-test <X ID>`で X API を1件だけ呼んで診断を出す。使い方は`docs/notes/saikyo-page-design.md`「選手写真の更新」
