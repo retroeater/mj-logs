@@ -1,7 +1,7 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-21 06:52 JST
-- 書き出した実行の契機: schedule（main）
+- 書き出した時刻: 2026-10-21 09:34 JST
+- 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
 
@@ -25,11 +25,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-10-21 00:16 | push | work/1020-rvd | success | #311（39446903012） | 0分26秒 |
-| 2026-10-21 00:07 | push | work/1020-plg | success | #310（39445579226） | 0分25秒 |
-| 2026-10-20 23:36 | push | work/1020-plg | success | #309（39440815156） | 0分21秒 |
-| 2026-10-20 20:07 | push | work/1020-rvd | success | #308（39412673635） | 0分23秒 |
-| 2026-10-20 19:27 | push | work/1020-rvd | success | #307（39408084364） | 0分29秒 |
+| 2026-10-21 09:32 | push | work/1021-prv | success | #316（39521928376） | 0分20秒 |
+| 2026-10-21 09:27 | push | work/1021-bil | success | #315（39521446081） | 0分24秒 |
+| 2026-10-21 09:27 | push | work/1021-prv | success | #314（39521392599） | 0分20秒 |
+| 2026-10-21 09:13 | push | work/1018-log-367-migrate | success | #313（39520007708） | 0分25秒 |
+| 2026-10-21 09:11 | push | work/1018-log-367-migrate | success | #312（39519814753） | 0分29秒 |
 
 ## check-build-failure.yml
 
@@ -38,11 +38,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-21 09:31 | check_run | cloudflare | skipped | #380（39521877583） | 0分01秒 |
+| 2026-10-21 09:20 | check_run | cloudflare | skipped | #379（39520697991） | 0分07秒 |
+| 2026-10-21 09:15 | check_run | cloudflare | skipped | #378（39520237425） | 0分01秒 |
 | 2026-10-21 00:26 | check_run | cloudflare | skipped | #377（39448428294） | 0分01秒 |
 | 2026-10-21 00:20 | check_run | cloudflare | skipped | #376（39447453626） | 0分01秒 |
-| 2026-10-21 00:14 | check_run | cloudflare | skipped | #375（39446551747） | 0分01秒 |
-| 2026-10-20 23:59 | check_run | cloudflare | skipped | #374（39444240381） | 0分09秒 |
-| 2026-10-20 23:46 | check_run | cloudflare | skipped | #373（39442230451） | 0分01秒 |
 
 ## check-image-links.yml
 
@@ -86,6 +86,15 @@
 | 2026-10-19 08:44 | schedule | cloudflare | success | #14（39177742395） | 0分36秒 |
 | 2026-10-18 21:22 | workflow_dispatch | work/1018-sec4 | success | #13（39127012342） | 0分32秒 |
 
+## check-sheets-reader.yml
+
+- 名前: sheets-reader の確かめ
+- state: active
+
+| 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
+| --- | --- | --- | --- | --- | --- |
+| 2026-10-21 09:32 | workflow_dispatch | cloudflare | success | #1（39521938139） | 0分27秒 |
+
 ## cleanup-branches.yml
 
 - 名前: マージ済みブランチの片付け
@@ -121,11 +130,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-21 09:14 | workflow_dispatch | work/1018-log-367-migrate | in_progress | #19（39520139651） |  |
+| 2026-10-21 09:13 | workflow_dispatch | work/1018-log-367-migrate | success | #18（39520020195） | 0分28秒 |
 | 2026-10-18 21:22 | workflow_dispatch | work/1018-sec4 | success | #17（39127015537） | 0分24秒 |
 | 2026-10-18 20:08 | workflow_dispatch | work/1018-log-367-migrate | success | #16（39122046168） | 0分29秒 |
 | 2026-10-18 20:07 | workflow_dispatch | work/1018-log-367-migrate | success | #15（39121975818） | 0分28秒 |
-| 2026-10-18 18:45 | workflow_dispatch | work/1018-log-367-rule | success | #14（39116562821） | 0分32秒 |
-| 2026-10-18 18:43 | workflow_dispatch | work/1018-log-367-rule | success | #13（39116484402） | 0分25秒 |
 
 ## fetch-gsc.yml
 
@@ -267,24 +276,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-21 09:33 | schedule | cloudflare | queued | #55（39522080460） |  |
 | 2026-10-20 10:03 | schedule | cloudflare | success | #54（39351291092） | 0分35秒 |
 | 2026-10-19 09:10 | schedule | cloudflare | success | #53（39179567227） | 0分45秒 |
 | 2026-10-18 08:59 | schedule | cloudflare | success | #52（39081063219） | 0分44秒 |
 | 2026-10-17 09:23 | schedule | cloudflare | success | #51（38986122559） | 0分36秒 |
-| 2026-10-16 09:19 | schedule | cloudflare | success | #50（38828844127） | 0分50秒 |
-
-## sync-logs.yml
-
-- 名前: 作業ログを mj-logs へ写す
-- state: active
-
-| 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
-| --- | --- | --- | --- | --- | --- |
-| 2026-10-07 18:52 | workflow_dispatch | work/1007-rvw-sync4 | success | #1841（37603600355） | 0分30秒 |
-| 2026-10-07 18:50 | push | work/1007-rvw-sync4 | success | #1840（37603340132） | 0分28秒 |
-| 2026-10-07 17:49 | push | work/1007-lgr | success | #1839（37596343687） | 0分58秒 |
-| 2026-10-07 17:49 | push | cloudflare | success | #1838（37596340574） | 0分29秒 |
-| 2026-10-07 17:47 | push | cloudflare | success | #1837（37596099511） | 0分59秒 |
 
 ## sync-yotei.yml
 
@@ -301,11 +297,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-21 09:09 | schedule | cloudflare | success | #101（39519559111） | 0分12秒 |
 | 2026-10-20 09:40 | schedule | cloudflare | success | #100（39349069181） | 0分10秒 |
 | 2026-10-19 08:41 | schedule | cloudflare | success | #99（39177551040） | 0分11秒 |
 | 2026-10-18 08:27 | schedule | cloudflare | success | #98（39079075125） | 0分09秒 |
 | 2026-10-17 08:54 | schedule | cloudflare | success | #97（38983840950） | 0分11秒 |
-| 2026-10-16 10:02 | workflow_dispatch | work/1016-wfl-s8 | success | #96（38832959472） | 6分33秒 |
 
 ## update-sns-book.yml
 

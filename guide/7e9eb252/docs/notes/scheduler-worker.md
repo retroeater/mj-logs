@@ -31,11 +31,11 @@ GitHub Actions の予約実行（`schedule`）は予定より2時間半〜5時�
    - 起動は表の順。一覧を引けなかった行は起動しない（次のチェックポイントで確かめ直す）。REST は1行1日4回（5行で20回）増える
 2. **起動の失敗**: API が 2xx 以外を返したら（つながらなかったときも）、その場で #506 にコメントする
 3. **朝の確かめ（#504 の「層1」）**: 06:00 JST の回（時刻どおりの回だけ）に、当日の有効な行のうち予定が 06:00 より前のものごとに、当日（JST）に作られた実行の一覧を引く（`created>=<当日 0 時>`）。
-   すべて success なら何もしない。それ以外は #506 に1件コメントする。実行の一覧は `event=workflow_dispatch` で絞る（sync-logs は push の実行が1日に100件を超えることがあり、絞らないと1ページ目に予約の起動が載らない）。
+   すべて success なら何もしない。それ以外は #506 に1件コメントする。実行の一覧は `event=workflow_dispatch` で絞る（push の実行が1日に100件を超えるワークフローでは、絞らないと1ページ目に予約の起動が載らない）。
    `head_branch` では絞らないので、作業ブランチで `scheduled` を付けた試験の成功も当日の success に数える。**直さない（2026-10-08 の決定）**: 困るのは JST 0:00〜06:00 に作業ブランチで `scheduled` を付けて試験した日だけで、日中の試験はその日の 06:00 の確かめの後になり、翌日の分にも数えない。保険のゲート（下）は `head_branch` で絞るので影響を受けない
    **06:15・06:30 の回で書き直す（2026-10-14 から）**: 06:00 の回が抜けた日のため、`GET /issues/506/comments?since=<当日 0 時>` を1回引き、「<日付> の朝の予約実行」で始まるコメント（書き手が `retroeater`〈Worker のトークンの持ち主〉か `github-actions[bot]` のもの。`TRUSTED_COMMENTERS`、CHAT-1018-SEC-04）が無ければ同じ確かめを行う（すべて success なら書かない。REST は1日 最大 2×〈1+行の数〉回）
-4. **mj-logs の同期（#298）**: 毎回 `GET /repos/retroeater/mj` の `pushed_at` を読み、この回の予定時刻から3分以内なら、mj-logs の `sync-from-mj.yml` を `workflow_dispatch`（ref `main`、inputs なし）で起動する（`dispatchSync()`、行き先は `scheduler.mjs` の定数 `SYNC`）。
-   1回の push で後の2〜3回が起動するが、mj-logs 側は concurrency で1本ずつ動き、写すものが無ければコミットしない。失敗は `console.error` に書くだけで #506 には書かない（毎分の回で通知が増えるため）。朝の確かめの対象にも入れない。
+4. **mj-logs の同期（#298）**: 毎回 `GET /repos/retroeater/mj` の `pushed_at` を読み、この回の予定時刻から6分以内なら（2026-10-21 に3分から広げた。配備し直しの後に起動しない回の取りこぼしに備える、#298）、mj-logs の `sync-from-mj.yml` を `workflow_dispatch`（ref `main`、inputs なし）で起動する（`dispatchSync()`、行き先は `scheduler.mjs` の定数 `SYNC`）。
+   1回の push で後の5〜6回が起動するが、mj-logs 側は concurrency で1本ずつ動き、写すものが無ければコミットしない。失敗は `console.error` に書くだけで #506 には書かない（毎分の回で通知が増えるため）。朝の確かめの対象にも入れない。
    起動の表（`schedule.json`）の行ではない。トークンは同じ `GITHUB_TOKEN`（対象に mj-logs を足してある）
 
 ## 予約の起動の見分け方
@@ -81,7 +81,7 @@ run-name: ${{ inputs.scheduled && '[scheduled] <ワークフローの name>' || 
 
 今の表（2026-10-15 から。初回の起動は 2026-10-16 04:00 JST）は1行: `run-daily.yml` 毎日 04:00（毎朝の運行。update-live-channel・update-sns-book・check-image-links・regenerate-saikyo を順に、sync-dojo-calendar・cleanup-branches を並行に呼ぶ。`docs/notes/github-actions.md`「run-daily.yml」、#564）。それまでの5行（update-live-channel 04:00・update-sns-book 04:10・sync-dojo-calendar 04:15・delete-merged-branches 04:20・check-image-links 04:30）と戻し方は同じ節。`sync-logs.yml` 毎日 05:30 の行は 2026-10-07 に消した（#298）。時刻の案は #504 の本文「起動時刻の案と範囲」。
 
-- 表を変えて `cloudflare` に入ると、Workers Builds の `mj-scheduler` がデプロイする（check-run「Workers Builds: mj-scheduler」）。cron の変更の反映は最大15分。`workers/scheduler/` の外だけを変える push ではビルドされない（2026-10-06 に check-run で確かめた）
+- 表を変えて `cloudflare` に入ると、Workers Builds の `mj-scheduler` がデプロイする（check-run「Workers Builds: mj-scheduler」）。cron の変更の反映は15分を超えることがある（2026-10-07 は配備〈09:56 UTC〉から約28分後の 10:24 まで mj-logs の同期が起動しなかった。チャット側の記録では古い cron が約1時間残った。リポジトリからは検証できない、#298）。`workers/scheduler/` の外だけを変える push ではビルドされない（2026-10-06 に check-run で確かめた）
 - **`workers/scheduler/` を変えるマージの後は、ダッシュボード（Workers & Pages > `mj-scheduler` > Deployments）で、そのコミットを含むビルドが Ready になったことを確かめる。check-run が無いことだけで「ビルドされていない」と判断しない**（Skipped のビルドには check-run が付かない）。2026-10-15 の段③-2（#564）では、`schedule.json` を変えたマージの push（先頭 a5b7e739d）のビルドが Skipped になり（原因は不明。CHAT-1016-WFL-19 のログ）、約15分後の別の push（06dc3158 を含む）のビルドで Ready になった（チャット側がダッシュボードで見た）。Skipped のままのときは、ダッシュボードからビルドをやり直すか、`workers/scheduler/` を含む次の push を待つ
 - 表に足すワークフローは、先に上の「予約の起動の見分け方」の3つを足しておく。足さないと、`scheduled` が知らない入力として 422 になる
 
