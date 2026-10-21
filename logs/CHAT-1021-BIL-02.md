@@ -109,18 +109,29 @@ Chat-Ref: CHAT-1021-BIL-02
 - 削除したワークフローは手動実行できない（docs/notes/github-actions.md「ワークフローを変更したとき」の確かめの対象が無い）。ほかのワークフローは変えていない
 - 決定を docs/decisions/operations.md に足した
 
+### 3. マージと確かめ
+
+- push 直前に再 fetch し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真のことを確かめて `git push origin work/1021-bil:cloudflare`（b0aa6dca5..40ee43ce3、fast-forward）
+- 40ee43ce3 の check-run（`filter=all`、マージから約8分）: `notify` が skipped の1件だけ。「Workers Builds: mj-scheduler」は出ていない。docs/notes/scheduler-worker.md のとおり、check-run が無いことだけでビルドされていないとは判断しない（平野さんにダッシュボードで確かめてもらう）
+- マージ後、このログ（2(c) の節を含む版）が mj-logs の raw で返った（Worker → sync-from-mj の写しは動いている）
+- #298 にコメントした（issuecomment-6305049062）。本文・ラベル・状態は変えていない
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1021-bil
-- ログ: https://github.com/retroeater/mj/blob/work/1021-bil/docs/logs/CHAT-1021-BIL-02.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1021-BIL-02.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1021-bil
-- 確認用URL:
-- マージ:
+- 確認用URL: なし
+- マージ: 済（40ee43ce3。fast-forward）
 - issue: #298
 - 判断が必要なこと:
+  - 平野さんの手作業: mj の Secret `MJ_LOGS_TOKEN` と PAT `mj-logs-sync` の削除（参照は mj の .github/・scripts/・workers/ と mj-logs で0件を確認済み）
+  - 指示文の「10/7 に古い cron が約1時間残った」はリポジトリ・issue の記録に見つからなかった。scheduler-worker.md にはチャット側の記録として「検証できない」と添えて書いた
 - 未確認の項目:
-- エラー:
+  - mj-scheduler のデプロイ: Cloudflare の Workers & Pages → `mj-scheduler` → Deployments で 40ee43ce3 を含むビルドが Ready か（平野さん。マージから約8分の時点で check-run は出ていない）
+  - 窓を6分にした Worker が配備された後、push 1回あたりの mj-logs の同期の起動が5〜6回になるか（mj-logs の Actions の実行一覧で見られる）
+- エラー: なし
 
 <!-- guide-links -->
 ---
