@@ -58,6 +58,52 @@ CHAT-1021-PRV-04（#557）の続き。平野さんが本番のブックを専用
 - 0. 「指示」欄の末尾の行は指示文の最後の行と一致
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
 
+
+### 手順1
+
+- #557 のコメントは PRV 系列と SEC-04 の注意だけで、他のセッションの着手中のコメントは無い。着手中のコメントを残した（issuecomment-6305645412）
+- PRV-04 のログの状態を「判断待ち / 続き: CHAT-1021-PRV-05」にした
+- 決定を `docs/decisions/security.md`「2026-10-21（CHAT-1021-PRV-05）」に足した
+- `docs/notes/sheets-reader.md`「この後の段取り」を専用フォルダの段取り（移動は済み → Sheets API への一括の切り替え → フォルダを「制限付き」）に書き直した。「Public」フォルダの節は、平野さんの画面で見た記録として残し、段取りの節に「置き換わった」と書いた
+
+### 手順2: ID の洗い出し（PRV-01 の調べ方）
+
+`docs/`・`tests` を除く `*.py`・`*.js`・`*.mjs`・`*.jsonc` から44文字の ID を拾った（前後に英数字が続かないもの。`lib/live_calendar.py` のカレンダーの ID は外れる）。**17冊**:
+
+| # | 題（PRV-01 の題） | ID の定数（読む元のファイル） | 同じ値を持つ所 |
+|---|---|---|---|
+| 1 | R_タイトル戦_成績 | `houou_tab.SPREADSHEET_ID` | `lib/houou_race.py`・`lib/pro_stats.py`・`generate_saikyo_pages.py`・`generate_video_live.py` |
+| 2 | R_タイトル戦_マスタ | `live.SPREADSHEET_ID` | |
+| 3 | R_選手 | `pro_sheet.SPREADSHEET_ID` | |
+| 4 | R_選手_SNS | `sns_book.SPREADSHEET_ID` | |
+| 5 | R_連盟_YouTube | `live_layer3.SPREADSHEET_ID` | |
+| 6 | R_連盟_予定表 | `yotei.SPREADSHEET_ID` | |
+| 7 | R_ABEMA_最強戦 | `abema_book.SPREADSHEET_ID` | |
+| 8 | R_番組 | `video_book.SPREADSHEET_ID` | |
+| 9 | R_その他 | `other_book.SPREADSHEET_ID` | |
+| 10 | R_Ampai | `ampai.SPREADSHEET_ID` | |
+| 11 | R_ログ | `fetch_x_posts.SPREADSHEET_ID` | `generate_resource_logs.LAYER_SPREADSHEET_ID` |
+| 12 | mj_ryoei | `generate_rh_results.SPREADSHEET_ID` | `generate_rh_paifu.py`・`generate_rh_results_detail.py` |
+| 13 | mj_saikyo_mens | `generate_saikyo_mens.SPREADSHEET_ID` | |
+| 14 | 20210430_「孤立牌」と「1メンツ+1」の比較 | `generate_resource_efficiency.SPREADSHEET_ID` | |
+| 15 | 20261016_連盟員名簿0.75（連盟のもの） | `meibo.SPREADSHEET_ID` | |
+| 16 | ryoei.pro_AIボット | `ASK_SHEET_ID`（`workers/ask/wrangler.jsonc`） | |
+| 17 | R_検証_sheets-reader | `check_sheets_reader.VERIFY_ONLY_SPREADSHEET_ID` | |
+
+- PRV-01 の表との違い: 12 の **mj_resource は、コードに ID が無くなった**（`jpml_test.html` は /exam/ へ移り〈3fb048f0b〉、`video_en.html` は廃止〈7cea96680〉、`generate_resource_logs.py` は「ログ」を R_ログから読む形になった〈f9da0388c〉）。対象から外した
+- ブラウザの JS からも ID が無くなった（Google Charts のページは `ouka_ranking`・`ouka_results`・`wrc_ranking`・`wrc_results` とも `_redirects` で ouka/・jwrc/ へ 301 済み。`google.visualization` を使うページは残っていない）
+
+### 手順2: 作り
+
+- `scripts/check_sheets_reader.py`: 対象を `BOOKS`（題・ID の定数のあるファイル・定数名・ログインなしで読めるはずか）に広げた。ID は各ファイルの定数を `ast`（`.jsonc` は正規表現）で読む（生成のスクリプトを import すると重い依存を読むため）。
+  各ブックで、ログインなしの gviz（`SELECT * LIMIT 0`、`setResponse` と `"status":"ok"` があれば読める）・htmlview（タブの一覧の定義 `items.push({name:` があれば読める）・sheets-reader の `spreadsheets.get`（題・タブ・グリッド）と各タブの `values.get`（行数・列数を数えるだけ）を呼ぶ。`values.get` の間を 1.1 秒あける（読み取りの上限に掛からないため）
+- 判定の列: 生成が読むブック（1〜15）は「ログインなしで gviz・htmlview とも読める」、非公開のはずのブック（16・17）は「どちらも読めない」が期待。外れたら「要対処: …」と書く。sheets-reader で読めなければその旨
+- 結果にかかわらず成功で終わる（全件を書き切るため。認証の情報を読めないときだけ失敗）。ワークフローの `timeout-minutes` を 10 に上げた
+- 題が今の題（API の `properties.title`）と違えば「（今の題: …）」を添える（題は値ではないので出す）
+- テスト（`scripts/tests/test_check_sheets_reader.py`）: コードの ID の集合と `BOOKS` の集合が一致すること（ブックを足して `BOOKS` に足し忘れたら落ちる。mj_resource を残したままでは定数が読めず落ちることを確かめた）、定数の読み取り、非公開のはずのブックが2冊であること、判定、gviz・htmlview の見分け。`python3 -m unittest discover -s scripts/tests` は通った
+- 事前の確かめ（コンテナから、ログインなしの部分だけ。値は読んでいない）: 1〜15 は gviz・htmlview とも読める。**16「ryoei.pro_AIボット」がログインなしで gviz・htmlview とも読める**。17 の検証用は HTTP 401
+- 取り込みとの重なり: 未マージの work/ ブランチとの `git merge-tree` で、この作業による新しい衝突は無い（`work/1017-lvp` は cloudflare との間ですでに衝突している、この作業と無関係）
+
 ## 報告
 
 - 状態: 作業中
@@ -74,12 +120,12 @@ CHAT-1021-PRV-04（#557）の続き。平野さんが本番のブックを専用
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 7e9eb252）: https://github.com/retroeater/mj-logs/tree/main/guide/7e9eb252
+ガイド文書（この版を写した時点の最新、mj 107699e7）: https://github.com/retroeater/mj-logs/tree/main/guide/107699e7
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/7e9eb252/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/7e9eb252/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/7e9eb252/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/7e9eb252/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/7e9eb252/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/7e9eb252/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/7e9eb252.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/107699e7/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/107699e7/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/107699e7/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/107699e7/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/107699e7/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/107699e7/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/107699e7.md

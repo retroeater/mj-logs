@@ -131,3 +131,16 @@ Cloudflare の Security Overview の提案（security.txt など）の見送り�
 - #598 の残りを新しい issue（#619）に起票してから、#598 を閉じる（案A。低-3 を #564 に移す案は採らない）
 - #619 に入れるのは3件: (1) 低-3 CI の `packages:` の版の固定（requirements 化。#564 か Dependabot の扱いと合わせる）、(2) `workers/ask/src/index.mjs` の 404・405 の応答の `x-content-type-options: nosniff`（次に `workers/ask` を変える指示で一緒に直す）、(3) 参考: `assets/houou_ask.js` の `image.src = thumb` が scheme を確かめない（`img` なので実行されず CSP の `img-src` でも制限される。直すなら (2) か `assets/houou_ask.js` を触る指示のついでに）
 - 作業中の回答: なし
+
+## 2026-10-21（CHAT-1021-PRV-04）
+
+- 連盟員名簿（`meibo.SPREADSHEET_ID`、題「20261016_連盟員名簿0.75」）は連盟公式のもので平野さんの持ち物ではなく、非公開化の対象外。今の共有（リンクを知っている全員が閲覧可）のまま読み取りを続ける（2026-10-18 の決定）
+- スプレッドシートの題の「R_…」への付け替えは意図したもの（「ryoei.pro_」が長いため）。コードのコメントに残る旧名は、切り替えの作業の中で今の題に直す（2026-10-18 の決定）
+- 手順書（docs/notes/sheets-reader.md）の手作業は済んだ: Google Sheets API は有効、サービスアカウント `sheets-reader` を作成（ロールなし）、Secret `SHEETS_READER_SA_KEY` を登録。名前は手順書の案のまま。「20210430_「孤立牌」と「1メンツ+1」の比較」を `sheets-reader` に閲覧者で共有（一般的なアクセスは変えていない）
+- 本番に影響を出さないため、検証は本番のシートではなく別の非公開のシートで行う。検証用のスプレッドシート「R_検証_sheets-reader」を Private のフォルダに作り、一般的なアクセスは「制限付き」、`sheets-reader` に閲覧者で共有した（ID は `scripts/check_sheets_reader.py` の `VERIFY_ONLY_SPREADSHEET_ID`）
+- 確かめのための手動実行だけのワークフロー（`check-sheets-reader.yml`）を cloudflare へマージしてよい
+
+## 2026-10-21（CHAT-1021-SEC-19）
+
+- mj の Actions の Secret `MJ_LOGS_TOKEN` と GitHub の fine-grained PAT `mj-logs-sync` を削除した（平野さんの手作業。2026-10-18〈CHAT-1018-SEC-06〉の「`sync-logs.yml` の削除〈#298〉のときに一緒に消す」が済んだ。参照0件は CHAT-1021-BIL-02 で確かめた）。認証情報の台帳 #601 から外した。残っている GitHub の PAT は `mj-read-for-mj-logs`・`mj-scheduler` の2つ
+- 作業中の回答: なし
