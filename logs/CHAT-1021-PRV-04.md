@@ -88,17 +88,41 @@ CHAT-1018-PRV-02（#557）の続き。CHAT-1021-PRV-03 は送る前に差し替�
 - 新しいワークフローは既定ブランチに無いと `workflow_dispatch` で起動できない（docs/notes/github-actions.md「ワークフローを変更したとき」、CHAT-0918-HT-06）。副作用が無い（シートに書かない・手動だけ）ので、マージしてから cloudflare で起動する
 - 取り込みとの重なり: 未マージの work/ ブランチとの `git merge-tree`（この作業のコミットとの取り込み）で、最初は `work/1018-log-367-migrate` が `github-actions.md` の表で衝突した（あちらが変えた `convert-x-posts.yml`・`fetch-x-posts.yml` の行のすぐ下に行を足したため）。行を `sync-dojo-calendar.yml` の上（`security-check.yml` の次）へ移して衝突を無くした。`work/1017-lvp` は cloudflare との間ですでに衝突している（`docs/decisions/live.md`・live/ の生成物。この作業と関係ない）
 
+
+### マージと手順3
+
+- マージの前に `origin/cloudflare` が進んでいた（CHAT-1021-BIL-02 の3コミット。`sync-logs.yml` の削除と `[sync-logs]` の規則の削除を含む）ため、`git merge origin/cloudflare` で取り込んだ（衝突なし）。テスト（`python3 -m unittest discover -s scripts/tests`）は取り込み後も通った
+- 作業ブランチの先頭 79ab9cdf3 の check-run: 「Workers Builds: mj」success・「check」（check-assets）success
+- `git push origin work/1021-prv:cloudflare`（7e9eb252f、fast-forward）。差分は新しいワークフロー・スクリプト・テストと docs だけ
+- `actions_run_trigger`（ref `cloudflare`、入力なし）で起動: run 39521938139（job 118967581879）、success、所要約23秒
+
+| ブック | sheets-reader（Sheets API） | ログインなし（gviz） | タブ（グリッドの行数・列数 → values.get で取れた行数・列数） |
+|---|---|---|---|
+| 検証用（制限付き・閲覧者で共有） | 読める（spreadsheets.get 成功、タブ 1） | 読めない（HTTP 401） | シート1（1000・26 → 6行・2列） |
+| 連盟員名簿（リンクを知っている全員・共有なし） | 読める（spreadsheets.get 成功、タブ 5） | 読める（HTTP 200、status ok） | 公開（2000・6 → 1099行・6列）／【4】変換後（2000・6 → 1099行・6列）／【3】変換表（11・2 → 11行・2列）／【2】値貼付（2000・11 → 1099行・11列）／【1】0.75（2000・11 → 1099行・11列） |
+
+- 期待どおり: 検証用は sheets-reader で読め、ログインなしでは読めない。名簿は sheets-reader で読め（共有を受けていない「リンクを知っている全員」のブックも Sheets API で読める）、ログインなしでも読める
+- ジョブのログを読み、セルの値・見出しの文字・メールアドレス・プロジェクト ID が出ていないことを確かめた（認証のステップの env の欄にもプロジェクトの変数は出ていない。出ているのは資格情報のファイルのパスだけ）
+- 気づいたこと: `export_environment_variables: false` にすると、認証の action の後片付けが「Skipping credential cleanup - $GOOGLE_GHA_CREDS_PATH is not set.」で資格情報のファイルを消さない。GitHub のランナーは使い捨てなので今回は害が無いが、生成のワークフロー（コミットする job）で同じ形を使うときは、ファイルをチェックアウトの外に置くか消すステップを足し、`git add -A` で拾わないようにする必要がある
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1021-prv
-- ログ: https://github.com/retroeater/mj/blob/work/1021-prv/docs/logs/CHAT-1021-PRV-04.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1021-PRV-04.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1021-prv
 - 確認用URL: なし
-- マージ: 未
-- issue: #557・#601
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- マージ: 済（7e9eb252f、fast-forward。承認済み・新しい手動実行のワークフローとスクリプト・テスト・docs だけ）
+- issue: #557（着手中のコメント issuecomment-6304857541・結果のコメント issuecomment-6304995872）、#601（台帳に sheets-reader を追加 issuecomment-6304858466）
+- 判断が必要なこと:
+  - 次の段（`lib/sheets.py` の Sheets API への置き換え）に進む前に:
+    - 切り替えの順番（PRV-01 の (d) を、2026-10-21 の「Public フォルダから受け継いでいる」に合わせて直した案: 残り14冊を sheets-reader に閲覧者で共有 → 生成を Sheets API に切り替えて差分0を確かめる → 1冊ずつ Private フォルダへ移す。docs/notes/sheets-reader.md「この後の段取り」の4）でよいか
+    - 残り14冊の閲覧者での共有をいつ行うか（切り替えの実装の前に済ませると、作業ブランチの dry_run で本番のブックを Sheets API で読んで新旧の生成物を比べられる。共有しても一般的なアクセスは変わらないので本番に影響しない）
+    - 置き換えの実装を1回で全部にするか、読み手の少ないブックから段に分けるか（推奨: `lib/sheets.py` の関数の中身だけを替え、全ページの再生成の差分0で確かめる1回。差分が出たページだけ個別に直す）
+- 未確認の項目:
+  - 本番のブックが全部「Public」フォルダから「リンクを知っている全員」を受け継いでいるか（平野さんの画面で見た1冊の例だけ。Drive の画面で確かめる）
+  - 「Public」の中の1冊だけを非公開にする手段がフォルダの移動しか無いか
+  - `sheets-reader` の鍵の期限（サービスアカウントの鍵の既定は期限なしと見込み、#601 に「期限なし」と書いた。組織のポリシーで期限が付いていないかは Google Cloud Console の鍵の一覧で確かめる）
 - エラー: なし
 
 <!-- guide-links -->
