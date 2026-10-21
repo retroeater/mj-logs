@@ -265,7 +265,7 @@ SELECT day, length(ip_hash) AS hash_length, n FROM ip_counts;
 ## 週次の cron（実装3、grill Q9）
 
 `wrangler.jsonc` の `triggers.crons` に `0 0 * * 2`（UTC の月曜 0:00 = **月曜 9:00 JST**）。**Cloudflare の Cron Triggers の曜日は 1 = 日曜・2 = 月曜**（公式の Cron Triggers のページ「Days of the week go from 1 = Sunday to 7 = Saturday」。ほかの cron の 0 = 日曜と違う）。
-2026-10-11〜13 は誤って `0 0 * * 1`（日曜 9:00 JST）になっていた（CHAT-1013-AIC-05 で直した）。Cron Triggers はアカウントで5本まで（Free）で、`mj-scheduler`（毎分）と合わせて2本。
+2026-10-11〜13 は誤って `0 0 * * 1`（日曜 9:00 JST）になっていた（CHAT-1013-AIC-05 で直した）。Cron Triggers はアカウントで 250 本まで（Workers Paid。2026-10-21 までの Free は5本）で、`mj-scheduler`（毎分）と合わせて2本。
 入口は `index.mjs` の `scheduled`、本体は `src/weekly.mjs`。
 
 1. **ブックへの書き出し**（`GOOGLE_SA_KEY` と `ASK_SHEET_ID` があるとき）: 専用のブックの最初のシートに、1行目の見出し（日時・質問文・結果・型・答え・引数。空のブックなら最初に足し、行があれば毎回書き直す〈4列だったブックを6列にする、2026-10-19〉）に続けて、

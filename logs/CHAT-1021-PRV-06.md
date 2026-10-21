@@ -97,6 +97,33 @@ CHAT-1021-PRV-05（#557）の続き。生成・検査が読むスプレッドシ
 - `regenerate-page.yml` の入力: `dry_run`（生成して変わったファイルの名前と行数だけを実行サマリに。サイトマップ・コミット・帰り道の知らせはしない）・`compare_ref`（dry_run のとき、そのコードでも同じジョブで続けて生成し、中身の違うファイルの名前と行数を出し、違えば失敗）・`check`（`regenerate.py --check`）
 - docs: static-generation.md（「シートの読み方（Sheets API）」を足し、フィルタの検知・止める条件・タブの有無・再試行の記述を今の形に）、sheets-reader.md「この後の段取り」、cloud-sessions.md（許可ドメインの用途と「鍵」）、session-network.md（行番号の取り方）、github-actions.md（表の行・regenerate-page の入力・Secret の渡し方の表）。CLAUDE.md・chat-side-operations.md・handover.md にはシートの読み方に触れる箇所が無かった
 
+
+### 手順3: 新旧の比べ（Actions 上、同じジョブ）
+
+- 作業ブランチに cloudflare（857dc254e）を取り込んでから（生成物の出発点をそろえるため）、`regenerate-page.yml` を ref `work/1021-prv`・入力 `target_page: all`・`dry_run: true`・`compare_ref: 857dc254e` で起動: run 39533792334（job 119005594759、head 832d03dad）、success
+  - 「対象ページを再生成」（新しいコード、Sheets API）: 02:35:08〜02:45:03、全ページ成功（飛ばしたページ無し。`all` は `FROZEN_FROM_ALL` の books_pages を除く28ページ: ask_data・ask_data_jwrc・ask_data_ouka・ask_data_wrcr・exam・exam_episodes・houou_pages・jpml_pros・jwrc_pages・live_pages・mtsuku・mtsuku_episodes・ouka_pages・resource_dictionary・resource_efficiency・resource_logs・rh_paifu・rh_results・rh_results_detail・saikyo_mens・saikyo_pages・study・study_episodes・title_pages・video_live・video_wayhome・wayhome_episodes・wrcr_pages）
+  - 「生成物の差を実行サマリに出す」（857dc254e の旧いコード〈gviz〉で同じ `all` を `git worktree` で続けて生成）: 02:45:03〜02:49:58、旧いコードの生成の終了コード 0、**中身の違うファイルの一覧は空（差分0）**。違いがあればこのステップが失敗する作り
+  - 実行サマリの件数（変わったファイルの数）は API で読めないため未確認。差分0の判定はジョブのログの `cat /tmp/compare.txt` が空で、ステップが成功したことによる
+  - 気づいたこと: `wayhome_episodes` の SNS ブックの読み取りに約70秒かかった（02:43:41〜02:44:51）。Sheets API の読み取りの上限（1分あたり）で 429 を受けて待ったと見られる（再試行の表示は値を出さないので未確認）。全体の所要は旧いコードの約2倍（新10分・旧5分）
+- 比べの後に cloudflare が進んでいた（CHAT-1021-WKP-02、`run-weekly.yml`・`run-monthly.yml` を足し、`check-meibo`・`sync-birthday-calendar`・`check-saikyo-unregistered` を `workflow_call` で呼ぶ形に）。生成のコードの変更は無い（`scripts/` の変更なし）ので、比べの結果はそのまま使える
+  - `git merge origin/cloudflare` で `docs/notes/github-actions.md` の「今の渡し方」の表が衝突。両方の行を残して解いた（run-weekly・run-monthly の6行のあとに、この作業の2行）。解いた後の該当箇所:
+
+    ```
+    | `run-weekly` の `meibo` | `check-meibo` | contents: read・issues: write | `SHEETS_READER_SA_KEY` |
+    | `run-weekly` の `birthday` | `sync-birthday-calendar` | contents: read | `GCP_SA_KEY`・`SHEETS_READER_SA_KEY` |
+    | `run-weekly` の `logs` | `cleanup-logs` | contents: write・issues: write | なし |
+    | `run-weekly` の `saikyo` | `check-saikyo-unregistered` | contents: read・issues: write | `SHEETS_READER_SA_KEY` |
+    | `run-monthly` の `gsc` | `fetch-gsc` | contents: write・issues: write | `GSC_SERVICE_ACCOUNT_JSON` |
+    | `run-monthly` の `redirects` | `fetch-redirect-counts` | contents: write・issues: write | `CF_ANALYTICS_TOKEN` |
+    | `update-live-channel` の `regenerate`・… | `regenerate-page` | contents: write・issues: write | `SHEETS_READER_SA_KEY`（楽天の2つは宣言だけ。…） |
+    | `update-live-channel` の `yotei` | `sync-yotei` | contents: read・issues: write | `GCP_SA_KEY`・`LIVE_SHEETS_SA_KEY`・`SHEETS_READER_SA_KEY` |
+    ```
+  - run-weekly の経路にも Secret を通した（`check-meibo`・`check-saikyo-unregistered`・`sync-birthday-calendar` の `workflow_call.secrets` に宣言、`run-weekly` の3段から渡す）。テストと `node --test 'workers/scheduler/test/*.test.mjs'` は通った
+- マージ前の作業ブランチでの手動実行（095f36810、予約でない＝書かない道筋）:
+  - `run-daily.yml` run 39535345543: success。12ジョブ（live / update・live / yotei / sync・sns / update・images / check・images / saikyo・images / sns_book・saikyo / abema・saikyo / regenerate / regenerate・dojo / sync・branches / delete が success、live / regenerate・sns / regenerate は条件で skipped）
+  - `run-weekly.yml` run 39535347747: success。5ジョブ（meibo / meibo・meibo / ampai・birthday / sync・logs / cleanup・saikyo / check）
+  - `saikyo / regenerate` は差分が無く、作業ブランチへのコミットは無かった
+
 ## 報告
 
 - 状態: 作業中
@@ -113,12 +140,12 @@ CHAT-1021-PRV-05（#557）の続き。生成・検査が読むスプレッドシ
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 035e5984）: https://github.com/retroeater/mj-logs/tree/main/guide/035e5984
+ガイド文書（この版を写した時点の最新、mj 961d20a2）: https://github.com/retroeater/mj-logs/tree/main/guide/961d20a2
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/035e5984/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/035e5984/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/035e5984/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/035e5984/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/035e5984/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/035e5984/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/961d20a2/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/961d20a2/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/961d20a2/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/961d20a2/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/961d20a2/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/961d20a2/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/495cef69.md

@@ -945,3 +945,31 @@ SEC 系列（CHAT-1019-SEC-13〜CHAT-1020-SEC-17）の振り返り・レビュ�
 - 低-8 後半（jpml_pros の選手リンクで日本語を逃がさず残す形）の外すきっかけは、ガイド文ではなく #619 に書いた（jpml_pros.html を作り直すとき、#219・#296）
 - Observatory の採点（申告の 105 点）は、レポートの PDF を確かめた結果に `security.md` の 2026-10-20（CHAT-1020-SEC-15）の節で置き換えた
 - 作業中の回答: なし
+
+## 2026-10-20（CHAT-1020-RVD-01）
+
+- 「レビュー」は、容量制限のある文書を包括的に見直し（妥当性・重複・冗長・不整合）、サイズを削減する。人間向けの可読性は下がってよく、Claude チャット／Code として問題がなければ表現等を圧縮してよい。文書の変更は判断待ちで止め、整理後の全文をログに貼らせて読み比べてからマージする（2026-09-29 の決定の再掲、#492）
+- CLAUDE.md の場面限定の手順（最終報告の形・Chat-Ref の受け取る側の細目）を docs/notes/ へ移すのは、容量の整理の指示で行う（CHAT-1020-PLG-07 の決定の再掲）
+- 作業中の回答: なし
+
+## 2026-10-20（CHAT-1020-RVD-02）
+
+- Code の実行環境は 2026-10-14 からクラウドセッションのみで、Codespace は使っていない。CLAUDE.md・docs/handover.md・docs/instruction-template.md・docs/notes/chat-side-operations.md の Codespace の記述（worktree の手順、Codespace 用の「作業ブランチ」の文面）は外してよい（#492）
+- 作業中の回答: なし
+
+## 2026-10-20（CHAT-1020-PLG-10）
+
+- PR #621 をマージした（規則ファイル `.claude/hookify.warn-sitemap-lastmod.local.md`・docs/notes/skills.md・docs/decisions/operations.md・PLG-08/09 のログの5件。平野さんの手作業、マージコミット 242764f）
+- 作業中の回答: なし
+
+## 2026-10-21（CHAT-1020-RVD-03）
+
+- RVD-01（2d9ca2383）・RVD-02（6de55b38a）のガイド4文書の整理をマージしてよい（チャット側が両ログの全文と差分を整理前と読み比べて確かめた、#492）
+- 作業中の回答: なし
+
+## 2026-10-21（CHAT-1021-BIL-02）
+
+- #298 の実装4の後半を行う（mj の `sync-logs.yml` と目印 `[sync-logs]` の規則を消す）。Worker `mj-scheduler` の同期の判定の窓を3分から6分に広げる変更も同じ指示に入れる
+- マージまで進めてよい
+- Secret `MJ_LOGS_TOKEN` と PAT `mj-logs-sync` は、参照が残っていないことを Code が確かめて報告した後に平野さんが手で消す（2026-10-18 の決定のとおり）
+- 作業中の回答: なし
