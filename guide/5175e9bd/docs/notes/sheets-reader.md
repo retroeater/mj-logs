@@ -19,7 +19,7 @@ ryoei.pro のスプレッドシートをすべて非公開（一般的なアク�
 - 鍵は GitHub Actions のシークレットにだけ置き、Claude Code の環境（コンテナ）には置かない（2026-10-18 の決定 (c)、`docs/notes/cloud-sessions.md`「鍵」）
 - プロジェクトは `live-channel-writer`・`mj-ask` と同じもの（Google Sheets API は有効にしてある。平野さんの申告、`docs/notes/ask-worker.md`「C1」）
 
-## 設定手順（平野さん、Windows のブラウザで）
+## 設定手順（平野さん、Windows のブラウザで。1〜6 は 2026-10-21 に済み、名前は下の表の案のまま。平野さんの申告）
 
 画面の名前は Google・GitHub の公式の文書で確かめた（出典は各手順の末尾）。既存の `live-channel-write.md`・`birthday-calendar.md` の手順との違いは「既存の手順との違い」に書いた。
 
@@ -67,7 +67,7 @@ ryoei.pro のスプレッドシートをすべて非公開（一般的なアク�
 ### 6. 最初の1冊だけを閲覧者で共有する
 
 最初に共有するのは、影響の小さい「20210430_「孤立牌」と「1メンツ+1」の比較」（`scripts/generate_resource_efficiency.py` の `SPREADSHEET_ID`、読み手は1ページだけで更新されない）の1冊だけ。
-残りの15冊（名簿を含む）は、Claude Code がこの1冊を Sheets API で読めることをワークフローの手動実行で確かめてから共有する（`docs/notes/chat-routines.md`「外部サービスの設定を頼むとき」）。
+残りの14冊は、Claude Code が Sheets API で読めることをワークフローの手動実行で確かめてから共有する（`docs/notes/chat-routines.md`「外部サービスの設定を頼むとき」。確かめは検証用の非公開のブックで行う、下の「この後の段取り」の1）。連盟員名簿は持ち主が連盟で、非公開化の対象外（共有もしない。2026-10-18 の決定）。
 **一般的なアクセス（今の「リンクを知っている全員」）は、この段では変えない。**
 
 1. Google ドライブでそのスプレッドシートを開き、右上の「共有」
@@ -92,15 +92,34 @@ ryoei.pro のスプレッドシートをすべて非公開（一般的なアク�
 サービスアカウントのメールアドレスのうち `@` より前（`sheets-reader`）と、Secret を登録したこと、手順6の1冊を共有したことをチャットに伝える。
 プロジェクト ID・鍵の中身は伝えない（要らない）。
 
-## この後の段取り（Claude Code。2026-10-18 時点の案）
+## 本番のブックの公開は「Public」フォルダから受け継いでいる（2026-10-21）
 
-1. **1冊だけ読む手動実行の確かめ**: `SHEETS_READER_SA_KEY` で Sheets API を呼び、手順6の1冊のタブの一覧・行数・見出しだけを出す（値は出さない）手動のワークフローを作業ブランチから起動する。
-   一般的なアクセスを「制限付き」にした後にもう一度起動し、認証で読めていることを確かめる（公開のままでは、認証が効いているかを見分けられないため）
-2. **`lib/sheets.py` の置き換え**: gviz・htmlview・CSV エクスポートをやめ、Sheets API（`values.get`・`spreadsheets.get`）で読む（2026-10-18 の決定 (a)）。
-   `generate_title_pages.fetch_tab()` も同じ。SELECT 文の書き直し・フィルタの検知・数と日付の扱い・存在しないタブの扱いは、PRV-01 のログの「Sheets API に替えたときの差の見込み」
-3. **読むだけのワークフロー**: `regenerate-page.yml` に dry_run・check の入力を足す（決定 (c)。値はジョブのログに出さない）
-4. **切り替えの順番（案。平野さんの判断はまだ）**: 残りのブックを閲覧者で共有 → 1冊ずつ「制限付き」にして、次の実行の成功を見てから次へ。
-   順番の案と止める条件は #557 のコメント（PRV-01 の (d)）。「R_タイトル戦_成績」は、Google Charts の4ページを ouka/（#591）・jwrc/（#599）へ転送した後（決定 (b)）
+平野さんの画面で見た1冊の例: 「20210430_「孤立牌」と「1メンツ+1」の比較」の一般的なアクセスを「制限付き」にしようとしたとき、
+「親フォルダからアクセス権を削除しますか？ このアイテムのリンクを削除すると、親フォルダのリンクも削除されます」という確認が出て、
+親の「Public」フォルダが「リンクを知っている全員 → 制限付き」と表示された（平野さんは取り消した）。
+この1冊の「リンクを知っている全員」はファイルの設定ではなく、「Public」フォルダから受け継いでいる。ほかのブックも同じかは確かめていない（要確認）。
+
+- ファイルを「Private」のフォルダへ移すと公開リンクで読めなくなり、**移した時点で今の生成（gviz・htmlview・CSV エクスポート）が止まる**
+- そのため、**フォルダへの移動も Sheets API への切り替えが済むまで行わない**（PRV-01 の段取りの「フォルダへの移動は各段の『制限付き』の後でよい（ID・共有は変わらない見込み）」を置き換える。2026-10-18 にチャット側が「移動では外れない」と伝えたのは誤りだった）
+- 「Public」フォルダの中で1冊だけを「制限付き」にしようとすると、上の確認のとおりフォルダごとの公開が外れる。1冊ずつ非公開にするときは、ファイルの共有ではなくフォルダの移動で行う形になる見込み（要確認）
+
+## この後の段取り（Claude Code。2026-10-21 時点、専用フォルダ「【本番環境】」）
+
+2026-10-21 の平野さんの決定: sheets-reader への共有はフォルダごと。専用フォルダ「【本番環境】」（一般的なアクセスは「リンクを知っている全員（閲覧者）」、`sheets-reader@…` は閲覧者）を用意し、本番のブックをすべて移した（09:58）。
+上の節の「Public」「Private」のフォルダと「1冊ずつ Private へ移す」案は、この段取りに置き換わった。
+
+1. **移動は済み**。読めるかの確かめは `check-sheets-reader.yml`（`scripts/check_sheets_reader.py`）。コードが ID を持つ全ブック（`BOOKS`。ブックを足したら `BOOKS` にも足す。`scripts/tests/test_check_sheets_reader.py` がコードの ID と突き合わせる）について、
+   ログインなしの gviz・htmlview と、sheets-reader の `spreadsheets.get`・各タブの `values.get` の成否を実行サマリーに表で出す（題・タブ名・行数・列数と成否だけ）。
+   起動は https://github.com/retroeater/mj/actions/workflows/check-sheets-reader.yml の「Run workflow」（ブランチは `cloudflare`。入力なし）、Claude Code は `actions_run_trigger`（method `run_workflow`、ref `cloudflare`）。結果は #557
+2. **Sheets API への一括の切り替え**（「一括＋差分0」、2026-10-21 の決定）: CHAT-1021-PRV-06 で行った。`lib/sheets.py` の中身と `generate_title_pages.fetch_tab()` を Sheets API に替え、
+   シートを読むワークフローすべてに `SHEETS_READER_SA_KEY` を渡した。`regenerate-page.yml` の `dry_run`・`compare_ref` で、同じジョブの中の新旧の全ページの生成の差分0を確かめてマージした。
+   読み方の規則は docs/notes/static-generation.md「シートの読み方（Sheets API）」
+3. **専用フォルダを「制限付き」にする**（平野さん）: 中のブックがまとめて非公開になる。その後に、
+   - `scripts/check_sheets_reader.py` の `FOLDER_PUBLIC` を偽にして（Claude Code）、`check-sheets-reader.yml` を手動実行し、専用フォルダのブックが「ログインなし: 読めない」「sheets-reader: 成功」になることを確かめる
+   - 次の毎朝 04:00 JST の `run-daily.yml` と、週次の生成（月曜 05:37 JST の `fetch-youtube.yml`）・検査（`check-meibo.yml` など）の成功を確かめる
+   - 戻し方: フォルダの一般的なアクセスを「リンクを知っている全員」に戻す（生成は Sheets API で読むので、戻しても止まらない）。コードを戻すとき（gviz に戻す）は、切り替えのコミットを revert する（フォルダが公開に戻っていることが前提）
+- 連盟員名簿は対象外（2026-10-18 の決定）。今の共有のまま読む
+- 「ryoei.pro_AIボット」と検証用のブックは、ログインなしで読めてはいけない（`BOOKS` の4つ目の値が偽）
 
 ## 既存の手順との違い
 

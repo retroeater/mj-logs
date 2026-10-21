@@ -64,28 +64,48 @@ BIL 系列（CHAT-1018-BIL-01〜CHAT-1021-BIL-03、Actions・Workers Builds の�
 - 0. 指示欄の末尾は指示文の最後の行と一致
 - work/1021-bil はローカル・リモートとも 4f3d9d747 で origin/cloudflare の祖先（マージ済み）→ `git merge --ff-only origin/cloudflare`（4aceb9c1a）
 
+### 1. 確認
+
+- #304: 他セッションの着手中コメントは無い。本文の確認項目に Workers Builds のビルド時間を見る項目は無い（(9) は Build watch paths などの設定の照合だけ）
+- ただし #304 には同日 02:18 UTC に CHAT-1021-WKP-01 のコメント「追加の項目（2026-10-21 の平野さんの決定。本文への取り込みは担当のチャットで）」があり、「Cloudflare の Billing で Workers Paid の使用量を見る: Workers Builds のビルド分（月 6,000 分）…枠の 8 割を超えた項目があれば #363 にコメントする」を含む。docs/decisions/cloudflare.md「2026-10-21（CHAT-1021-WKP-01）」にも「月次チェック（#304）に…足す」の決定がある
+  - 指示の (d) の2項目のうち「期間のビルド時間の使用量 / 6,000 分」はこの追加項目と重なり、「直近のビルド1回の所要時間」は新しい
+  - WKP-01 は本文への取り込みを担当（MCK 系列）に任せている。BIL-04 が本文を直すと、WKP-01 の項目が本文に入る前に別の形で同じ趣旨が入り、取り込みの際に重複・食い違いになる
+  - 前提（指示文）がこのコメントを踏まえていないため、(d) は行わずに報告する（CLAUDE.md「Chat-Ref」の、前提と実物が食い違ったら手を入れず報告する）。#304 には着手中・完了のコメントも書いていない
+- docs/notes/github-actions.md に Actions の使用量・Billing の記述は無かった → 節「Actions の使用量（2026-10 の実測、#298）」を「ワークフローを変更したとき」と「チャット側」の間に作った
+- docs/notes/cloudflare.md「ビルド時間の見積もり」は BIL-03 の版のまま（WKP-01 は同じファイルの別の節〈Cron Triggers の本数、⏩ の観察の注記〉を変えた）。前提との矛盾は無い
+- 未マージの work/ ブランチ: work/1018-log-367-migrate が docs/notes/github-actions.md（一覧の表の convert-x-posts・fetch-x-posts の行）と docs/decisions/operations.md（819行付近と末尾）を変えている。別の節（止まる条件に当たらない）。operations.md の末尾は後からマージする側で衝突しうる
+
+### 2・3. 書いたもの
+
+- (a) docs/notes/github-actions.md「Actions の使用量（2026-10 の実測、#298）」（実測として。申告値と書いた）
+- (b) docs/notes/cloudflare.md「ビルド時間の見積もり」に Budget Alert（$5、2026-10-21、申告値）を1行
+- (c) #298 にコメント（issuecomment-6307190711）。本文・ラベル・状態は変えていない
+- (d) 行っていない（上の 1.）
+- 3. docs/decisions/operations.md に申送りの節（1c806ec37）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1021-bil
-- ログ: https://github.com/retroeater/mj/blob/work/1021-bil/docs/logs/CHAT-1021-BIL-04.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1021-BIL-04.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1021-bil
-- 確認用URL:
-- マージ:
+- 確認用URL: なし
+- マージ: 済（ドキュメントのみ）
 - issue: #298、#304
 - 判断が必要なこと:
-- 未確認の項目:
-- エラー:
+  - #304 の (d) を行っていない。同日の CHAT-1021-WKP-01 が #304 に「追加の項目」のコメント（Workers Builds のビルド分 / 6,000 分を含む Billing の確認。本文への取り込みは担当のチャットで）を置いており、指示の2項目のうち使用量の方と重なるため。案: (1) MCK 系列が WKP-01 の項目を本文へ取り込むときに「直近のビルド1回の所要時間」も同じ項目の子に入れる（推す。本文を1回で直せる）／(2) BIL の続きの指示で #304 に「直近のビルド1回の所要時間」だけを WKP-01 と同じ形の追加項目としてコメントする
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 961d20a2）: https://github.com/retroeater/mj-logs/tree/main/guide/961d20a2
+ガイド文書（この版を写した時点の最新、mj 5175e9bd）: https://github.com/retroeater/mj-logs/tree/main/guide/5175e9bd
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/961d20a2/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/961d20a2/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/961d20a2/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/961d20a2/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/961d20a2/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/961d20a2/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/5175e9bd/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/5175e9bd/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/5175e9bd/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/5175e9bd/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/5175e9bd/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/5175e9bd/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/495cef69.md
