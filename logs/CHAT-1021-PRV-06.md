@@ -124,28 +124,65 @@ CHAT-1021-PRV-05（#557）の続き。生成・検査が読むスプレッドシ
   - `run-weekly.yml` run 39535347747: success。5ジョブ（meibo / meibo・meibo / ampai・birthday / sync・logs / cleanup・saikyo / check）
   - `saikyo / regenerate` は差分が無く、作業ブランチへのコミットは無かった
 
+
+### マージとマージ後の手動実行
+
+- `git push origin work/1021-prv:cloudflare`（961d20a24、fast-forward）。push の直前に、作業ブランチの先頭 095f36810 の check-run がすべて success（Workers Builds・check と、作業ブランチの run-daily・run-weekly の各ジョブ）であることを確かめた
+- `scripts/lib/**` の変更で `regenerate-page.yml`（push）が新しいコードで動いた: run 39536568633、success。コミット 4aceb9c1a（resource_logs.html の2行と sitemap-pages.xml の lastmod）。
+  **この2行はシートの値の更新によるもの**: マージの前の cloudflare（08e776f89、gviz）のコードで、コンテナからログインなしで同じページを生成したら 4aceb9c1a と同じ出力になった（コードの差ではない。値は書かない）
+- マージ後に cloudflare で手動実行した読むワークフロー（書くものは書かない入力で）:
+
+| ワークフロー | 起動の仕方 | run | 結果 |
+|---|---|---|---|
+| `run-daily.yml`（予約でない＝書かない道筋） | 手動 | 39537463560 | success |
+| └ `update-live-channel.yml`（update） | run-daily の live | 同上 | success（regenerate は条件で skipped） |
+| └ `sync-yotei.yml` | update-live-channel の yotei | 同上 | success |
+| └ `update-sns-book.yml`（mode check・dry_run） | run-daily の sns | 同上 | success（regenerate は skipped） |
+| └ `check-image-links.yml`（dry_run） | run-daily の images | 同上 | check・saikyo・sns_book すべて success |
+| └ `regenerate-saikyo.yml`（abema dry_run） | run-daily の saikyo | 同上 | abema・regenerate（`regenerate-page.yml`）success |
+| └ `sync-dojo-calendar.yml`（apply false） | run-daily の dojo | 同上 | success |
+| `run-weekly.yml`（予約でない） | 手動 | 39538611156 | success |
+| └ `check-meibo.yml`（dry_run） | run-weekly の meibo | 同上 | meibo・ampai success |
+| └ `sync-birthday-calendar.yml`（apply false） | run-weekly の birthday | 同上 | success |
+| └ `check-saikyo-unregistered.yml`（dry_run） | run-weekly の saikyo | 同上 | success |
+| `check-sheets-reader.yml` | 手動 | 39538613845 | success（17冊とも sheets-reader で読めた） |
+| `fetch-x-posts.yml`（dry_run） | 手動 | 39538792233 | success |
+| `convert-x-posts.yml`（dry_run） | 手動 | 39538794735 | success |
+| `regenerate-page.yml`（dry_run・all） | 手動 | 39538797360 | success |
+| `fetch-youtube.yml`（週次と同じ。YouTube の取得と all の再生成） | 手動 | 39539783113 | success（fetch・regenerate とも成功。データ・ページの変化なし、コミットなし） |
+
+- 読む全ワークフローで失敗は無かった。sheets-reader で読めないブックは無かった
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1021-prv
-- ログ: https://github.com/retroeater/mj/blob/work/1021-prv/docs/logs/CHAT-1021-PRV-06.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1021-PRV-06.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1021-prv
 - 確認用URL: なし
-- マージ: 未
-- issue: #557
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- マージ: 済（961d20a24、fast-forward。新旧の全ページの生成の差分0〈run 39533792334〉を確かめてから）
+- issue: #557（着手中のコメント issuecomment-6306361817・結果のコメント issuecomment-6307577429）
+- 判断が必要なこと:
+  - 平野さんの手作業: **専用フォルダ「【本番環境】」の一般的なアクセスを「制限付き」にする**（中のブックがまとめて非公開になる。sheets-reader の閲覧者の共有は残す）
+  - その後に確かめること:
+    1. Claude Code に伝える → `scripts/check_sheets_reader.py` の `FOLDER_PUBLIC` を偽にしてから `check-sheets-reader.yml` を手動実行し、専用フォルダの15冊（R_AIボットを含む）が「ログインなし: 読めない」「sheets-reader: 成功」、名簿が「ログインなし: 読める」になることを確かめる
+    2. 次の毎朝 04:00 JST の `run-daily.yml`（Worker からの予約の起動）が成功すること。週次の `run-weekly.yml`・`fetch-youtube.yml`（月曜）も
+  - 戻し方: (1) フォルダの一般的なアクセスを「リンクを知っている全員」に戻す（生成は Sheets API で読むので、戻しても止まらない）。(2) コードを gviz に戻すときは、切り替えのコミット 8bcb3a6e2（feat: read spreadsheets via Sheets API with sheets-reader）と 095f36810（run-weekly の経路の Secret。マージコミット）を revert する。gviz に戻すときはフォルダが「リンクを知っている全員」であることが前提
+- 未確認の項目:
+  - フォルダを「制限付き」にした後の `check-sheets-reader.yml` と、毎朝 04:00 JST の `run-daily.yml`（初回は平野さんの手作業の後の朝）
+  - Sheets API の読み取りの上限（1分あたり）: 全ページの生成で待ちが出る（新しいコードの all は約10分、gviz の約2倍）。予約実行が重なる朝（04:00 の run-daily と月曜の週次）に 429 の待ちで長引かないか
+  - `regenerate-page.yml` の dry_run の実行サマリの件数（API で読めないため、差分0の判定はジョブのログとステップの成否による）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 961d20a2）: https://github.com/retroeater/mj-logs/tree/main/guide/961d20a2
+ガイド文書（この版を写した時点の最新、mj 5175e9bd）: https://github.com/retroeater/mj-logs/tree/main/guide/5175e9bd
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/961d20a2/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/961d20a2/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/961d20a2/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/961d20a2/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/961d20a2/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/961d20a2/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/5175e9bd/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/5175e9bd/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/5175e9bd/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/5175e9bd/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/5175e9bd/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/5175e9bd/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/495cef69.md
