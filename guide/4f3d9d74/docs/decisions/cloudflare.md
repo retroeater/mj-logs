@@ -75,3 +75,9 @@
 
 - 本番のビルドが順番待ちの間に `cloudflare` へ新しい push が来ると古い本番のビルドは飛ばされ最新だけが走ること、同じコミットにプレビューの check-run も付き、本番かどうかは完了後の `output.summary` のプレビューの URL の有無で見分けること（実行中は見分けられない）を、`docs/notes/cloudflare.md`「ビルド成否と本番の確認範囲（check-runs）」に足す（CHAT-1016-SKR-08 の判断待ちへの回答）
 - 作業中の回答: なし
+
+## 2026-10-21（CHAT-1021-BIL-03）
+
+- Cloudflare のアカウントを Workers Paid（月 $5）に切り替えた（平野さんの手作業。Workers Builds の枠が Free の月3,000分に近づいたため、#363）
+- ビルドを減らす案（`mj-ask`・`mj-scheduler` のプレビューのビルドを止める、watch paths を直す）は今は採らない。Workers Paid の枠（月6,000分）に迫ったら検討する
+- 作業中の回答: なし

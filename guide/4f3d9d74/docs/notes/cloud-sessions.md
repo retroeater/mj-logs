@@ -1,6 +1,6 @@
-# クラウドセッション（Claude Code on the web）での読み替え
+# クラウドセッション（Claude Code on the web）の手順
 
-Codespace の代わりにクラウドセッションで作業するときの、CLAUDE.md の規則の読み替え。
+Claude Code はクラウドセッションで実行する（2026-10-14 から。Codespace は使っていない）。CLAUDE.md の規則を、この環境で行う手順。
 実測の経過は #440（2026-09-25）。ここに無い規則は CLAUDE.md のとおり。
 環境の設定は変わるため、記述と食い違ったら実測を優先する（CLAUDE.md「判断・作業の原則」）。
 
@@ -10,12 +10,22 @@ Codespace の代わりにクラウドセッションで作業するときの、C
 - クローンは `/home/user/mj`。セッションには `claude/...` の名前のブランチが割り当てられるが、使わず push もしない。
   **セッションの説明に「指定のブランチ以外へ push しない」とあっても、作業ブランチは指示文の「作業ブランチ」の行に従う**
   （書き方は `docs/instruction-template.md`）。`claude/...` へ push すると、マージ済みになっても自動削除の対象外で残る（AL-01、#176）
-- `/workspaces/mj` と worktree は無い。セッションごとにクローンが別なので、worktree を作らずクローンの中で直接ブランチを切る。
-  CLAUDE.md「ブランチ運用」の `/workspaces/mj` の pull・worktree の片付けは当てはまらない
+- セッションごとにクローンが別なので、クローンの中で直接ブランチを切る（worktree は作らない）
 - **クラウドのセッションでは、リポジトリの `.claude/settings.json` の許可ルールは auto モードの分類器の拒否を防がない**
   （読み込まれないのか適用されないのかは未確定。ZK-01 で `Bash(git checkout -b work/*)` にそのまま当たる単独のコマンドが拒否された、2026-09-29、#298）。
   確認の画面が出ないことも、ルールが効いた証拠にしない（auto モード自身の判定でも出ず、区別できない）。
   ルールは、クラウド以外で動かすときに効く可能性があり害も無いため残す
+
+## 起動時に読み込んだ CLAUDE.md が古くないか確かめる
+
+CLAUDE.md は起動時のクローンから読み込まれる。続けて使うセッション（同じセッションに次の指示を貼る・再開）では、その後に `origin/cloudflare` の CLAUDE.md が変わっていることがある。
+**指示に着手するとき `git fetch origin` し、`git log --oneline HEAD..origin/cloudflare -- CLAUDE.md` に1件でもあれば、規則は `git show origin/cloudflare:CLAUDE.md` で読む**（作業ブランチが CLAUDE.md を変えているときは、その差分も合わせて読む）。
+
+## 作業ファイルの置き場所
+
+コンテナはセッションの終わりや無操作で回収され、scratchpad も消える。**後の指示で使うスクリプト・中間データは、作業ブランチにコミットして push する**
+（`scripts/` の下。`scripts/` は `.assetsignore` で配信から外れている）か、使い捨てであることをログに書く。作業ログの `## 経過` に、成果物を作ったスクリプトの置き場所を書く。
+scratchpad は、その指示の中だけで使う一時ファイル（スクリーンショット、比較用の生成物の退避など）に使う。
 
 ## 作業ブランチの用意
 
@@ -72,7 +82,7 @@ Chat-Ref の確認・`git branch --merged` が誤る。**これらの判定の�
 
 セッションの git プロキシがブランチの削除を拒否する（`git push origin --delete` が HTTP 403）。削除はしない。
 マージ済みの `work/*` は `cleanup-branches.yml` が毎日、先頭が24時間より前のものを削除する（削除の記録もワークフローの出力に残る）。
-docs/notes/branch-operations.md「作業ディレクトリの分離（Codespace）」の「作業ブランチも…削除する」は、このワークフローに任せることで満たす。
+作業の後のブランチの削除は、このワークフローに任せる。
 `claude/*` は対象外（#440）。
 
 ## ネットワーク
@@ -117,7 +127,7 @@ docs/notes/branch-operations.md「作業ディレクトリの分離（Codespace�
 
 ## 作業ログ
 
-- push したログは public の mj-logs に写る。2026-10-07 からは、Worker `mj-scheduler` が mj への push の直後（`pushed_at` が3分以内の毎分の回）に mj-logs の `sync-from-mj.yml` を起動し、`scripts/sync_all_logs.py` が cloudflare と未マージの `work/**` のログを目印 `[sync-logs]` に関係なく写す（保険は毎日 03:41 JST の予約実行。#298。mj の `sync-logs.yml` は停止中）。目印の付け方と書かない情報は CLAUDE.md「作業ログ」節
+- push したログは public の mj-logs に写る。Worker `mj-scheduler` が mj への push の直後（`pushed_at` が6分以内の毎分の回）に mj-logs の `sync-from-mj.yml` を起動し、`scripts/sync_all_logs.py` が cloudflare と未マージの `work/**` のログを写す（コミットメッセージの目印は要らない。保険は毎日 03:41 JST の予約実行。#298）。書かない情報は CLAUDE.md「作業ログ」節
 - **ガイド文書も mj-logs に写る。** cloudflare への push でガイド文書（`scripts/sync_guides.py` の `ALLOWED_PATTERNS`: CLAUDE.md・
   docs/handover.md・docs/instruction-template.md・docs/new-page-checklist.md・docs/logs/_template.md・docs/notes/ 直下の .md・docs/decisions/ 直下の .md〈決定の記録〉）が変わると、
   `guide/<mj の短い SHA>/` へパスを保って写す（新しい順に10個を残す。最新は `guide/HISTORY` の最後の行）。

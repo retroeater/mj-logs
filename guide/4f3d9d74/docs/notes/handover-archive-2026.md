@@ -947,6 +947,53 @@ CLAUDE.md:
 - 「止まる条件と検証の指定」の「承認済み」の条件の項の、外れる並びの例「〈入口のカードの順・`search.json` の順など〉」
 - 同節の、許すずれを数で書く項の例「例: 直すは ±3件まで、作る・消すは見込みと同じ。」
 
+### 2026-10-20 の整理で4文書から外した記述（#492）
+
+規則は各文書に残すか移した先に置き、括弧内の事例・経緯と済んだことだけを外した。
+
+CLAUDE.md:
+
+- 「コード規約」の簡略化の例「`# 簡略化: 全件を線形に走査。選手が1万人を超えたら索引にする`」
+- 「構成」の本番反映の「設定はダッシュボード側」（同じ項の「ダッシュボードのGit連携」と同じ）
+- 「判断・作業の原則」の「CSP導入を予定しているため」は、CSP の導入（2026-10-19、`_headers`、#9 は closed）で「CSP〈`_headers`〉の許可を足すことになるため」に直した
+
+docs/handover.md:
+
+- 「最終更新: 2026-10-19」の3行（旧ページの削除と Google Charts 依存の解消〈#582・#7〉、5章の期日の表の削除、#550 の追加）
+- 2章「ページ構成」の「（Google Charts 依存の旧6ページと型C の2ページは #582 で消した）」
+- 3章「タスク管理」の「Projects のボードは 2026-10-03 から使わない」の日付。「新サイト全体の親 issue は #296（sub-issue 21件）」の件数（2026-10-20 の REST では 38件）
+- 4章「外部ドメインへの依存を増やさない」の「CSP〈#9〉のため」「CSPでは `script-src` にのみ必要」「#9 でCSPの`img-src`を書くときの指針は #9 のコメント」（#9 は closed。許可の正は `_headers`）、
+  「Google Charts（`www.gstatic.com` / `docs.google.com`）は 2026-10-19 に依存するページが0になった（#582、#7 は閉じた）」、
+  ABEMA の画像の「卓のページの」「年度・対局・卓の」「回の無い卓のヒーローの作品の画像」「やむをえない依存として 2026-10-11 に足した」
+- 5章「次の会話の順番」の #523（WRC 2大会の改称の残り。closed）
+- 5章の表の #9 の行（CSP設定。closed）。#486 の行の「h1 は8ページに付けた（2026-10-06）。旧ランキング3ページは houou/・ouka/・jwrc/ へ移って消えた（#582）」。
+  #490 の行の「#437・#477 から集約」。#475 の行の「（2026-10-03 に0名）」。
+  「現行サイトで小さく作れるもの」の「#425 も現行サイトで作る（#501・#502）。#366 は載せ方が未決」（4件とも closed。#366 は wrcr/ として公開、#611）
+- 6章の表の static-generation.md の行の「#7 の残り」（#7 は closed）、security.md の行の「2026-10-20 に閉じた」
+
+docs/notes/chat-side-operations.md:
+
+- 「指示文の書き方・渡し方」の語の項の例「ワークフローを「本」、定期実行を「予約の起動」などと書かない」（glossary.md にある）
+- 既定モデルの項の「（それまでは Opus 5.5）」（同じ項の「既定モデルは Opus 5.5」と同じ）
+
+docs/instruction-template.md:
+
+- 追記の止まる条件の項の「受け手は CLAUDE.md の「同じ内容を2箇所に書かず」「古い記述を消して置き換える」に従う」（受け手の規則は CLAUDE.md が正）
+
+Codespace 前提の記述（Code の実行環境は 2026-10-14 からクラウドセッションだけ。平野さんの決定、2026-10-20）:
+
+- CLAUDE.md「ブランチ運用」の「**Codespace: `/workspaces/mj`は全セッションが共有する。`origin/cloudflare`を明示して作った worktree の中で作業し、`/workspaces/mj`自身では`git checkout`/`git switch`を行わない**（手順・片付けは同「作業ディレクトリの分離（Codespace）」）。**クラウドセッション（`/workspaces/mj`・worktree・`gh`が無い）の読み替えはdocs/notes/cloud-sessions.md**」。
+  冒頭の「セッションごとに作業ブランチと作業ディレクトリを分ける」の「作業ディレクトリ」（Codespace の共有の作業ツリーの話）
+- CLAUDE.md「引き継ぎ」の確かめ方の参照先「docs/notes/branch-operations.md『起動時に読み込んだ CLAUDE.md が古くないか確かめる（Codespace）』」（cloud-sessions.md の同名の節へ）。
+  「作業ログ」の作業ファイルの置き場所の参照先「docs/notes/session-network.md『作業ファイルの置き場所』（scratchpad は再起動で消える）」（`/workspaces/` 以下に置く Codespace の手順。cloud-sessions.md の同名の節へ）。
+  「更新ルール」の「作業する worktree の上で測る」
+- docs/handover.md 3章「Claude Code の実行環境は Codespace（`/workspaces/mj` で `claude`、`gh` 認証済み。Rebuild・gh の認証は `docs/notes/session-network.md`）かクラウドセッション」。2章「セッションからの到達は `docs/notes/session-network.md`」（cloud-sessions.md「ネットワーク」へ）
+- docs/instruction-template.md「作業ブランチ」の行の文面「Codespace で既存の作業ブランチを続ける: 『作業ブランチ: origin/cloudflare を起点に切った既存の work/<識別子> を続けて使う（〜のため）。着手時と作業中に origin/cloudflare が進んでいたら merge で取り込んでよい（push 済みなので rebase しない）』。取り込みの可否を書かないと、祖先確認だけで中断する」。
+  雛形の「共通手順」の行の「〈クラウドセッションでは worktree を使わず docs/notes/cloud-sessions.md の読み替えに従う〉」（「〈手順は docs/notes/cloud-sessions.md〉」にした）
+- docs/notes/chat-side-operations.md「確認用 URL」の「ビルドが走らなかったときは Codespace の確認用 URL（GitHub ログイン必須。`docs/notes/session-network.md`『Codespace の確認用 URL』）」。
+  「場面ごとに読む文書」の表の「`/workspaces/mj` の操作」と「`docs/notes/session-network.md`（Codespace）」
+- docs/notes/cloud-sessions.md の読み替えの文「`/workspaces/mj` と worktree は無い。…CLAUDE.md『ブランチ運用』の `/workspaces/mj` の pull・worktree の片付けは当てはまらない」「docs/notes/branch-operations.md『作業ディレクトリの分離（Codespace）』の『作業ブランチも…削除する』は、このワークフローに任せることで満たす」
+
 ## docs/notes/cloudflare.md・chrome-reading.md から（2026-10-13、#304）
 
 規則は `docs/notes/cloudflare.md`「ビルド成否と本番の確認範囲（check-runs）」「Chrome からダッシュボードの API を読む」と `docs/notes/chrome-reading.md`「使い方」、#304 の本文の冒頭（担当）が正。
