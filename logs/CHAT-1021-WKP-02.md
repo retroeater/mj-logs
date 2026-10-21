@@ -110,18 +110,33 @@ fetch-redirect-counts のログに「トークンの確認(/user/tokens/verify)�
 
 GitHub の `schedule` は次の指示（WKP-03）まで残すので、10/26（月）は run-weekly（02:00）と各本の保険（05:07〜06:50、遅れて動く）の両方が動く。check-meibo・check-saikyo-unregistered は常設 issue の状態を合わせるだけ、sync-birthday-calendar は差分が無ければ何もしないので害は無い。cleanup-logs は 2 回目の時点で条件外のログがあれば #357 に 2 回目の通知を書く。11/1 も WKP-03 より前なら fetch-redirect-counts が #568 に同じ集計を 2 回コメントし（同じ CSV の 2 回目のコミットは差分なし）、robots.txt に差分があれば fetch-gsc が #304 に 2 回コメントする。
 
+### マージと cloudflare での手動実行
+
+push の直前に再 fetch した。`origin/cloudflare`（857dc254e）が HEAD の祖先であることを確かめてから、`git push origin work/1021-wkp:cloudflare`（857dc254e..9032b793f）でマージした。
+続いて cloudflare で run-weekly・run-monthly を手動実行した（`scheduled` なし）。
+
+- run-weekly 39534074313: success、約45秒。5ジョブとも `scheduled: false / apply: false`。upsert-issue は dry-run、cleanup-logs の削除のコミットは skipped、sync-birthday-calendar は `--compare` だけ（0件）
+- run-monthly 39534076694: success、約37秒。gsc は skipped。redirects は `apply: false`、コミットは skipped、#568 は dry-run
+- cloudflare の先頭は 9032b793f のままで、2本の実行によるコミットは無い
+
+#564 に、作った本・起動の表・初回の日時・次の指示の前提をコメントした（https://github.com/retroeater/mj/issues/564#issuecomment-6306646960 ）。#564 は閉じていない。
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1021-wkp
-- ログ: https://github.com/retroeater/mj/blob/work/1021-wkp/docs/logs/CHAT-1021-WKP-02.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1021-WKP-02.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1021-wkp
-- 確認用URL:
-- マージ:
-- issue:
+- 確認用URL: なし（配信物は変えていない）
+- マージ: 済（9032b793f。fast-forward）
+- issue: #564（着手・結果のコメント。閉じていない）
 - 判断が必要なこと:
+  - fetch-youtube.yml を外した。書かない道筋が無く、作業ブランチで確かめられないため（止まる条件の「その本だけ外す」）。GitHub の `schedule`（月曜 05:37、遅れて動く）のまま。移すなら案は2つ: (1) dry-run の入力を足す（取得だけしてコミットと regenerate を飛ばす）。そのうえで run-weekly に入れる (2) 確かめを cloudflare での予約の起動に任せて、そのまま run-weekly に入れる。どちらにするか、WKP-03 で `schedule` を外すときに fetch-youtube の分をどう扱うかを決めてほしい
+  - 保険の `schedule` が残るあいだは、保険の回でも書く。10/26 は cleanup-logs が #357 に2回目の通知を書くことがある。11/1 が WKP-03 より前なら、fetch-redirect-counts が #568 に2回コメントする（robots.txt に差分があれば、fetch-gsc も #304 に2回）。WKP-03 をいつ入れるか
 - 未確認の項目:
-- エラー:
+  - 予約実行の初回: run-weekly 2026-10-26（月）02:00 JST、run-monthly 2026-11-01（日）03:00 JST（Worker から。題が `[scheduled]` の実行が success か）
+  - Workers Builds の `mj-scheduler` のデプロイ（9032b793f を含むビルド）が Ready か（ダッシュボードで平野さん）
+- エラー: なし
 
 <!-- guide-links -->
 ---
