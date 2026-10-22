@@ -40,6 +40,73 @@
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 0. 着手前の確認
+
+- 指示欄の末尾は指示文の最後の行（「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」）と一致
+- Chat-Ref: 同じ Chat-Ref のコミット無し。`MRB` は初出（最初の指示）。実装を含まない調査の指示のため0章ゲートは対象外
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- work/1022-mrb はローカル・リモートとも無く、origin/cloudflare（275376a）から作った
+
+### 1. 重複の確認と #561
+
+- #561 の題「本番の Workers Builds の失敗を知らせる」、状態 closed（completed、2026-10-14 00:01:49Z）。触っていない
+- 2026-10-15 以降に更新された issue（106件、本文・題）とコメント（422件）を `ae0f849`・`39524306758`・`0fb2b321`・`118975244318` で引いて一致なし。意味検索（Workers Builds の失敗）でも #334・#561・#291・#363 だけ（いずれも別件）。同じ趣旨の起票・コメントは無い → 新規起票
+
+### 2. run と check-run
+
+run 39524306758（「本番ビルド失敗の検知」、event `check_run`、head_branch `cloudflare`、head_sha `ae0f84931cda24737d7cbb66ab28dcbc0fce3b21`、created 2026-10-21T00:56:11Z = 09:56:11 JST、conclusion failure）。ジョブ `notify`（118975258973）のログから:
+
+```
+compare/cloudflare...ae0f84931cda24737d7cbb66ab28dcbc0fce3b21: identical
+**本番に入っているコミットの Workers Builds が失敗した**(#561。対処は docs/notes/cloudflare.md「ビルドが Cloning で失敗したとき」)
+- check-run: Workers Builds: mj(id 118975244318)
+- 結論: failure
+- コミット: ae0f84931cda24737d7cbb66ab28dcbc0fce3b21(compare/cloudflare...: identical)
+- Build ID: 0fb2b321-bfbd-4b71-b481-a606513e4349
+##[error]Process completed with exit code 1.
+```
+
+ae0f84931 の check-run（`commits/ae0f849…/check-runs?filter=all`、Workers Builds だけ）:
+
+| check-run ID | 状態 | started_at（UTC / JST） | completed_at | Build ID | summary |
+|---|---|---|---|---|---|
+| 118970817196 | in_progress | 00:42:26 / 09:42:26 | — | 0fb2b321 | Build ID・Script の2行 |
+| 118975244318 | completed failure | 00:56:09 / 09:56:09 | 00:56:09 | 0fb2b321 | Build ID・Script の2行 |
+| 118975252500 | in_progress | 00:56:11 / 09:56:11 | — | 7f0896dc | Build ID・Script の2行 |
+| 118976788653 | completed success | 01:00:57 / 10:00:57 | 01:00:57 | 7f0896dc | Version ID `b5161fc8…` あり、Preview URL 無し |
+
+(a) 失敗した check-run: 「Workers Builds: mj」118975244318、コミット ae0f84931（`Merge remote-tracking branch 'origin/cloudflare' into work/1021-bil`）、開始 2026-10-21 00:42:26 UTC（09:42:26 JST）→ 完了 00:56:09 UTC（09:56:09 JST）、約13分43秒。BIL-03 の報告の時刻は UTC 表記で、run の 09:56 は JST。**本番かプレビューかは check-run からは決まらない**:
+- 失敗したビルドの summary は本番もプレビューも Build ID・Script の2行（docs/notes/cloudflare.md「ビルドが Cloning で失敗したとき」）。`details_url` も同じ形で、プレビューの例（work/1021-wkp の db51eb83b、119040030570、Preview URL あり）でも `.../mj/production/builds/<ID>` だった
+- 4本とも同じ check suite 107104915215（`head_branch` は work/1021-bil）で、push 先を見分けられない
+- 状況からの推定（未確認）: ae0f84931 は work/1021-bil（check-assets の push の run 39522514621、00:38:16Z）と cloudflare の両方へ push され、ビルドは2回。2回目の 7f0896dc は success で Preview URL が無いので本番。2回目は1回目の失敗の2秒後に始まっており、1回目＝先に push された work/1021-bil のプレビュー、本番は順番待ちだった、と読める。ただし同じコミットの本番の Retry でも同じ並びになり得る。確かめるには Cloudflare の Build history で Build ID 0fb2b321 のブランチを見る（平野さん、または Chrome でダッシュボードの API）
+
+(b) 失敗の理由: **読めず。** check-run の output は Build ID・Script の2行だけで、段階・エラー文は出ない（text は null）。ビルドのログは Cloudflare のダッシュボードにあり、セッションからは届かない（Cloudflare の読み取りのトークンを持たない）
+
+(c) その後: 同じコミットの次のビルド 7f0896dc が 01:00:57 UTC（10:00:57 JST）に success、Preview URL 無し（本番）。以降の cloudflare の先頭でも、be1733f8d（118986241053、01:30:41Z）と 275376a7e（119431823424、19:18:28Z）の「Workers Builds: mj」が success で Preview URL 無し。docs/notes/cloudflare.md の規則（本番の check-run が success になった時点で本番は反映済み）では、本番は ae0f84931 以降で出ている。本番の HTML は確かめていない
+
+(d) 既知の失敗に当たるか: **決められない。** 「ビルドが Cloning で失敗したとき」の事例は、失敗まで 158〜467 秒（10/12 の1件は約31分）で時間がばらばら、本番だけが落ちた。今回の約13分43秒はこの幅の中で矛盾はしないが、段階が読めないため Cloning とは言えない。ビルド時間の伸び（同節の下「ビルド時間の見積もり」、10/21 の本番 success は 2分19秒〜5分23秒）とも区別できない
+
+### 3. 起票
+
+- #622「本番の Workers Builds の失敗（2026-10-21、ae0f84931）の原因の確かめ」を起票（ラベル無し）。事実（上の2）・頼むこと（Build ID 0fb2b321 のブランチと失敗の段階を Build history で見る、閉じるか・再発防止の判断を ACF または BIL の系列へ）・「返事はこの issue に。朝のチャットは追わない」。詳細のリンクは blob/cloudflare のログ
+- #561 には触っていない
+- docs/decisions/: 指示文に「決定」節が無く、作業中の平野さんの回答も無いため足していない
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1022-mrb
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1022-MRB-01.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1022-mrb
+- 確認用URL: なし
+- マージ: 済（ログのみ。fast-forward で、このログの最後のコミットが cloudflare に入る）
+- issue: #622（新規起票）
+- 判断が必要なこと: なし（#622 に移した）
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
