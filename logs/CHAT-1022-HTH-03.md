@@ -55,6 +55,24 @@ CHAT-1022-HTH-02 のプレビューを見た平野さんの判断で、仮置き
 
 ## 経過
 
+### 着手前の確かめ（2026-10-22）
+
+- 0. ログの「指示」欄の末尾は指示文の最後の行と一致
+- 識別子: `git log --all --grep 'CHAT-1022-HTH-03'` は0件。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）の欠けなし
+- 作業ブランチ: work/1022-hth はローカル・リモートとも 2d91d8914 で一致。`git merge-base --is-ancestor origin/cloudflare HEAD` は真（取り込み不要）
+- origin/cloudflare に `saikyo/vs.html`・`saikyo/vs/` は無い（`git ls-tree` で空）。転送は要らない
+- 未マージの work/ ブランチで `_redirects`・`generate_saikyo_pages.py` を変えるものは無い
+- 手順1: CHAT-1022-HTH-02 の `## 報告` の状態を「判断待ち / 続き: CHAT-1022-HTH-03」にした
+
+### 直したこと
+
+- URL を `/saikyo/vs/`（`saikyo/vs/index.html`）に: 定数 `VS_PAGE` を `VS_DIR = "vs"` に替え、`_redirects` に2行（`/saikyo/vs/  /saikyo/vs/index.html  200`・`/saikyo/vs  /saikyo/vs/  301`、`VS_REDIRECT_LINES`）。資産のパスは `../../`、パンくずの「最強戦」は `../`、ページの中の `?name=` のリンクは `./?name=…`、JS の卓のページへのリンクは `../<年度>/…`、canonical・og:url は `https://ryoei.pro/saikyo/vs/`、トップの入口（`VS_PUBLIC` のとき）は `vs/`、公開時のサイトマップの行も `/saikyo/vs/`
+- 片付け: `remove_stale_sub_pages()` に `vs` を渡して消さないようにした。saikyo/ 直下の `*.html` はトップだけに戻した（`vs.html` は次の再生成で消える）
+- 代替アバターの URL は階層で変わるため、埋め込みのデータでは空にして頭の1字の丸で出す（`data-avatar-fallback` は `../../img/avatar.svg`）
+- 2人の記録の並び: `vs_tables()` が対局の中の卓を `stage_desc()`（ステージの進んだ順、同じステージは A卓 → B卓）で並べる
+- テスト: `test_saikyo_vs.py` に並びの検査2件、`test_saikyo_redirects.py` に `/saikyo/vs/` の2行の検査を足し、年度の3行の検査から `vs` を外した。新しい並びの検査は HTH-02 のコード（2d91d8914）では落ちることを確かめた（修正前のコードで通らない）
+- docs: `vs.html` で docs（`docs/logs/` を除く）を検索し、出た4か所（saikyo-page-design.md 2・static-generation.md 2）を直した。#623 の題と本文の URL を `/saikyo/vs/` に直した
+
 ## 報告
 
 - 状態: 作業中
