@@ -396,3 +396,29 @@ GitHub Actions の整理の段③-4（#564）。
 - GitHub 側の `schedule`（週次・月次・毎日の保険）は、Worker からの起動が 1 回成功した後に外す（run-daily と同じ手順。次の指示 CHAT-1021-WKP-03 で外す）
 - Cron Triggers を Worker ごとに増やす形は採らない（起動の表 1 か所のままにする）
 - 作業中の回答: なし
+
+## 2026-10-21（CHAT-1021-WKP-03）
+
+- fetch-youtube は dry-run の入力を足さず、そのまま run-weekly に入れる。確かめは 2026-10-26（月）02:00 JST の予約の起動に任せる（手動実行の run-weekly では飛ばす）。失敗したときは #506 の通知と、GitHub に残る `schedule`（月曜 05:37 JST）が保険になる（WKP-02 の判断待ちへの回答）
+- GitHub の `schedule`（週次 6 本・月次 2 本・毎日の保険 3 本）と update-live-channel の保険のゲートは、run-weekly（10/26）と run-monthly（11/1）の初回の成功を見てから、別の指示（CHAT-1021-WKP-04）で 1 回で外す。保険が残る間に #357・#568（差分があれば #304）へコメントが 2 回出ることは受け入れる
+- 作業中の回答: なし
+
+## 2026-10-21（CHAT-1021-BIL-07）
+
+- `.python-version` を `.github/` の下へ移し、`.github/actions/setup-python/action.yml` の `python-version-file` をそこへ向ける。Python の版を1か所で決める形（#564 段①・#539）は残す（Workers Builds が直下の版のファイルで毎回 Python を入れていたため）
+- マージまで進めてよい（作業ブランチのプレビューのビルドで Installing の段が消えたことを確かめた後）
+- 作業中の回答: なし（BIL-07 は `security-check.yml` も直下の `.python-version` を読んでいたため、止まる条件に当たって変更せずに止めた）
+
+## 2026-10-21（CHAT-1021-BIL-08）
+
+- BIL-07 の決定（`.python-version` を `.github/` の下へ移し、setup-python の参照をそこへ向ける。マージは確かめの後）はそのまま
+- `.github/workflows/security-check.yml` の `python-version-file` も移し先へ向ける（BIL-07 の案 (1)。共通の部品への置き換えはしない）。作業ブランチで security-check.yml も手動実行して確かめる
+- リポジトリ直下に置かないようテストで禁じるファイルは、Cloudflare の公式の build image の Runtime の表にある5つ（`.nvmrc`・`.node-version`・`.python-version`・`runtime.txt`・`.ruby-version`）だけにする
+- マージまで進めてよい（プレビューのビルドで Installing の段が消えたことを確かめた後）
+- 作業中の回答: なし
+
+## 2026-10-22（CHAT-1022-BIL-09）
+
+- 平野さんがビルドのログで確かめた（申告値）: work/1021-bil の 83eabc682 のビルドに「Installing python」の行が無い（1つ前の push のビルドには Installing python 3.12.15 が約1分47秒あった）。BIL-07・08 の決定どおりマージしてよい
+- #622（Build #0fb2b321、2026-10-21）はプレビューの失敗で本番ではない。原因は直下の `.python-version` による Python のインストールの段の失敗で、BIL-07・08 で直した。コメントしてマージの後に閉じる
+- 作業中の回答: なし
