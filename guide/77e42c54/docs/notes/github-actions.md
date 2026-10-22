@@ -19,7 +19,7 @@ GitHub Actions のワークフローの一覧・動き・手動実行と変更�
 | ワークフロー | 内容 |
 |---|---|
 | `regenerate-page.yml` | 生成スクリプト・対応する`.js`・`scripts/lib/**`の変更のpushと、手動実行・ほかのワークフローからの呼び出し（毎週月曜05:37 JST の `all` は `fetch-youtube.yml` から）。ページを再生成してコミットする。シートは Sheets API（Secret `SHEETS_READER_SA_KEY`、#557）で読み、手動実行の入力 `dry_run`・`compare_ref`・`check` で書かずに確かめる（詳細は下の「regenerate-page.yml」） |
-| `fetch-youtube.yml` | 毎週月曜05:37 JST（GitHub の `schedule`。2026-10-16 に `regenerate-page.yml` から移した、#564 の段③-4）と手動実行。YouTube のチャンネル情報（`scripts/fetch_youtube_channels.py`→`data/youtube_channels.json`、#3）と帰り道の動画の情報（`scripts/fetch_youtube_meta.py`→`data/youtube_meta.json`、#194）を取得してコミットし、`regenerate-page.yml` を `all`（入力 `wayhome` を真）で呼ぶ。取得が失敗しても既存のデータで生成し、最後のジョブで失敗にする。帰り道の一覧の OGP 画像と帰り道の知らせは `regenerate-page.yml` が行う（#340） |
+| `fetch-youtube.yml` | 毎週月曜02:00 JST に `run-weekly.yml` から（入力 `scheduled`、2026-10-26 から。ほかの4本の後）と、保険の予約実行（毎週月曜05:37 JST。2026-10-16 に `regenerate-page.yml` から移した、#564 の段③-4）と手動実行（書かない道筋は無い）。YouTube のチャンネル情報（`scripts/fetch_youtube_channels.py`→`data/youtube_channels.json`、#3）と帰り道の動画の情報（`scripts/fetch_youtube_meta.py`→`data/youtube_meta.json`、#194）を取得してコミットし、`regenerate-page.yml` を `all`（入力 `wayhome` を真）で呼ぶ。取得が失敗しても既存のデータで生成し、最後のジョブで失敗にする。帰り道の一覧の OGP 画像と帰り道の知らせは `regenerate-page.yml` が行う（#340） |
 | `regenerate-saikyo.yml` | 毎朝 `run-daily.yml` から `check-image-links` の後に（`workflow_call`、2026-10-16 から。それまでは検知の完了の `workflow_run`）と手動。`regenerate-page.yml` を `workflow_call` で呼び、saikyo_pages だけを再生成する。差分が無ければコミットしない（#537）。再生成の前にジョブ `abema` が ABEMA ブックの【2】を作り直す（`scripts/update_abema_book.py`、失敗しても再生成は動く。手動実行の入力 abema・regenerate、#425・`docs/notes/abema-book.md`） |
 | `update-live-channel.yml` | 毎朝 `run-daily.yml` から（入力 `scheduled`、2026-10-16 から。それまでは Worker `mj-scheduler` から 04:00 JST）と、保険の予約実行（毎日06:43 JST。当日の予約の起動〈run-daily のジョブ `live / update`、または update-live-channel.yml を直接起動した実行〉が成功済みなら動かないゲート付き、`docs/notes/scheduler-worker.md`「保険の予約実行のゲート（update-live-channel）」）と手動。/live の3層（#438）を毎日更新し、`regenerate-page.yml` を `workflow_call` で呼んで /live・title/ を作り直し、最後に `sync-yotei.yml` を呼んで予定表と放送対局の公開カレンダーを更新する（#404。手順・入力は `docs/notes/live-channel-write.md`「7. 毎日の取り込み」「チャット側の指示」） |
 | `sync-yotei.yml` | `update-live-channel.yml` から層1の取り込みの後に（`workflow_call`、毎朝の run-daily と保険の実行の両方。2026-10-16 に update-live-channel の job yotei を切り出した、#564 の段③-3）と手動（入力 `apply`・`calendar_apply`・`calendar_max_delete`、既定は書かない）。連盟の予定表を予定表のスプレッドシートの【1】【2】【3】へ取り込み、放送対局の公開カレンダーへ同期する（#448、`docs/notes/yotei-sheet.md`。カレンダーに書くのは予約の起動と `calendar_apply` のときだけ） |
@@ -41,7 +41,7 @@ GitHub Actions のワークフローの一覧・動き・手動実行と変更�
 | `check-build-failure.yml` | Workers Builds の check-run の完了（`check_run`、既定ブランチのファイルだけが働く）と手動（入力 check_run_id・dry_run）。名前が「Workers Builds:」で始まる failure で、コミットが cloudflare に入っていればジョブを失敗させて失敗通知メールで知らせる（`scripts/check_build_failure.py`、#561、`docs/notes/cloudflare.md`「ビルドが Cloning で失敗したとき」）。それ以外の起動はジョブが skipped で残る（1日約100回）。2026-10-13 に有効化（`NOTIFY_ENABLED: 'true'`。cloudflare での手動実行 run 38415024219・38415113000・38415117501 で判定とジョブの失敗を確かめた） |
 | `update-sns-book.yml` | 毎朝 `run-daily.yml` から `update-live-channel` の後に（入力 `scheduled`、2026-10-16 から。それまでは Worker から 04:10 JST）と手動（mode: check / init / update、dry_run 既定）。SNS ブックの【1】【2】【3】を書き、【3】のページが使う値が変わった日は `regenerate-page.yml`（all）を呼ぶ（`scripts/update_sns_book.py`、#514、`docs/notes/sns-book.md`） |
 | `run-daily.yml` | 毎日04:00 JST に Worker `mj-scheduler` から（入力 `scheduled`、2026-10-16 の朝から）と手動（`scheduled` は Worker 用で、手では付けない）。毎朝の本を1本にまとめ、`update-live-channel` → `update-sns-book` → `check-image-links` → `regenerate-saikyo` を `needs` で順に（後の3つは前が失敗しても `!cancelled()` で動く）、`sync-dojo-calendar`・`cleanup-branches` を並行に `workflow_call` で呼ぶ（#564 の段③）。手動実行は書かない道筋だけ（各本に件数だけ・dry-run の入力を渡す。`regenerate-saikyo` だけは再生成し、差分があればコミットする）。どれか1本が失敗すると run-daily 全体が failure になり、Worker の朝の確かめ（#506）は run-daily の1行で知らせる（どの本かは mj-logs の status.md・morning.md のジョブ名で見る）。詳細と戻し方は下の「run-daily.yml」 |
-| `run-weekly.yml` | 毎週月曜02:00 JST に Worker `mj-scheduler` から（入力 `scheduled`、2026-10-26 から）と手動（`scheduled` は手では付けない）。週次の本を1本にまとめ、`check-meibo`・`sync-birthday-calendar`・`cleanup-logs`・`check-saikyo-unregistered` を並行に `workflow_call` で呼ぶ（#564 の段④）。手動実行は書かない道筋だけ。`fetch-youtube.yml` は入れていない。詳細と戻し方は下の「run-weekly.yml・run-monthly.yml」 |
+| `run-weekly.yml` | 毎週月曜02:00 JST に Worker `mj-scheduler` から（入力 `scheduled`、2026-10-26 から）と手動（`scheduled` は手では付けない）。週次の本を1本にまとめ、`check-meibo`・`sync-birthday-calendar`・`cleanup-logs`・`check-saikyo-unregistered` を並行に、その後に `fetch-youtube` を `workflow_call` で呼ぶ（#564 の段④）。手動実行は書かない道筋だけ（`fetch-youtube` は飛ばす）。詳細と戻し方は下の「run-weekly.yml・run-monthly.yml」 |
 | `run-monthly.yml` | 毎月1日03:00 JST に Worker `mj-scheduler` から（入力 `scheduled`、2026-11-01 から）と手動（`scheduled` は手では付けない）。月次の本を1本にまとめ、`fetch-gsc` → `fetch-redirect-counts` を `needs` で順に `workflow_call` で呼ぶ（後は前が失敗しても `!cancelled()` で動く、#564 の段④）。手動実行は `fetch-gsc` を飛ばし、`fetch-redirect-counts` を dry-run で動かす。詳細と戻し方は下の「run-weekly.yml・run-monthly.yml」 |
 
 - `scripts/sync_all_logs.py`（#298）: `origin/cloudflare` と未マージの `origin/work/**` のすべてについて、ログ・ガイド文書を mj-logs の作業ツリーへ写す・消す（commit・push はしない）。mj-logs 側の `sync-from-mj.yml` から呼ぶ
@@ -84,7 +84,7 @@ GitHub Actions (`.github/workflows/regenerate-page.yml`) が、`scripts/generate
 
 - `run-weekly`: `meibo`（check-meibo）・`birthday`（sync-birthday-calendar）・`logs`（cleanup-logs）・`saikyo`（check-saikyo-unregistered）を並行に呼ぶ（互いに依存しない）。手動実行は各本に dry-run（sync-birthday-calendar は差分だけ）を渡す
 - `run-monthly`: `gsc`（fetch-gsc）→ `redirects`（fetch-redirect-counts）。手動実行では `gsc` を飛ばす（commit を外しても robots.txt に差分があれば #304 にコメントするため）。`redirects` は dry-run
-- `fetch-youtube.yml` は入れていない（書かない道筋が無く作業ブランチで確かめられないため。GitHub の `schedule` のまま。CHAT-1021-WKP-02 のログ）
+- `run-weekly` の `youtube`（fetch-youtube → regenerate-page）: 4本の後に `!cancelled()` で動く（最後に regenerate-page を all で呼び重いため）。fetch-youtube に書かない道筋が無いので、手動実行（`scheduled` なし）では飛ばす。確かめは 2026-10-26 の予約の起動（CHAT-1021-WKP-03）
 - 呼ばれる本の GitHub の `schedule` は保険として残る（外すのは CHAT-1021-WKP-03）。残るあいだは Worker からの回と保険の回の両方が動く。cleanup-logs の #357 への通知・fetch-redirect-counts の #568 へのコメント・fetch-gsc の robots.txt の差分の #304 へのコメントは2回になりうる
 - `concurrency` の組は `run-weekly`・`run-monthly`（呼ばれる側の組と名前が違う）
 
@@ -95,7 +95,7 @@ GitHub Actions (`.github/workflows/regenerate-page.yml`) が、`scripts/generate
 繰り返しの書き方を寄せた composite action（#564 の段①）。ローカルの部品は checkout の後でないと読めないため、checkout は各本に残し、部品はその後で呼ぶ。
 今は `check-saikyo-unregistered.yml`・`sync-birthday-calendar.yml`・`check-meibo.yml`・`check-image-links.yml`・`cleanup-logs.yml` が使う（残りの本への展開は #564）。
 
-- `setup-python`: `.python-version`（リポジトリ直下、`.assetsignore` で公開しない）の版で `actions/setup-python` を呼ぶ。入力 `packages`（pip で入れるもの）・`test`（`'true'` で `scripts/tests` の unittest）、出力 `python-version`。Python の版を上げるときは `.python-version` の1行を変える（#539）
+- `setup-python`: `.github/.python-version`（リポジトリ直下に置くと Workers Builds が毎回 Python を入れるため、#298。`scripts/tests/test_root_runtime_files.py`）の版で `actions/setup-python` を呼ぶ。入力 `packages`（pip で入れるもの）・`test`（`'true'` で `scripts/tests` の unittest）、出力 `python-version`。Python の版を上げるときは `.python-version` の1行を変える（#539）
 - `resolve-mode`: 予約の起動（`schedule` か入力 `scheduled` が真）は書く、手動実行は入力 `manual-apply` に従う（`apply` はそのまま、`dry_run` は `!inputs.dry_run` を渡す）。出力 `scheduled`・`apply`・`dry-run`。ログと実行サマリに「event / scheduled / apply」の1行を出す。
   予約の起動の有効・無効は Worker の起動の表の `enabled` に任せ、`SCHEDULE_ENABLED` は使わない（部品に移した本から外す）。本ごとの判定（保険のゲート・曜日・予約の起動で外す入力）は出力 `scheduled` を使って各本に残す
 - `upsert-issue`（中身は `upsert.js`）: 常設 issue を題（PR を除く・全ページ）か番号で探して書く。
@@ -137,6 +137,7 @@ GitHub Actions (`.github/workflows/regenerate-page.yml`) が、`scripts/generate
 | `run-weekly` の `birthday` | `sync-birthday-calendar` | contents: read | `GCP_SA_KEY`・`SHEETS_READER_SA_KEY` |
 | `run-weekly` の `logs` | `cleanup-logs` | contents: write・issues: write | なし |
 | `run-weekly` の `saikyo` | `check-saikyo-unregistered` | contents: read・issues: write | `SHEETS_READER_SA_KEY` |
+| `run-weekly` の `youtube` | `fetch-youtube`（→ `regenerate-page`） | contents: write・issues: write | `YOUTUBE_API_KEY`・`SHEETS_READER_SA_KEY` |
 | `run-monthly` の `gsc` | `fetch-gsc` | contents: write・issues: write | `GSC_SERVICE_ACCOUNT_JSON` |
 | `run-monthly` の `redirects` | `fetch-redirect-counts` | contents: write・issues: write | `CF_ANALYTICS_TOKEN` |
 | `update-live-channel` の `regenerate`・`update-sns-book` の `regenerate`・`regenerate-saikyo` の `regenerate`・`fetch-youtube` の `regenerate` | `regenerate-page` | contents: write・issues: write | `SHEETS_READER_SA_KEY`（楽天の2つは宣言だけ。取得の再開のときに `fetch-youtube` から渡す） |

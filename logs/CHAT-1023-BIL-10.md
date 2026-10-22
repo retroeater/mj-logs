@@ -62,28 +62,41 @@ Chat-Ref: CHAT-1023-BIL-10
 - 0. 指示欄の末尾は指示文の最後の行と一致
 - work/1023-bil はローカル・リモートとも無し → `git checkout -b work/1023-bil origin/cloudflare`（66afe3b40）
 
+### 1. 前提との照合
+
+- docs/notes/cloudflare.md「ビルド時間の見積もり」・docs/decisions/cloudflare.md（BIL-03・WKP-01・WKP-03・BIL-06）・`scripts/check_asset_limits.py`・cloudflare.md の Cron Triggers の行と照らした。同時6本／1本、月6,000分・$0.005／3,000分、ファイル数の上限 100,000／20,000、Cron Triggers 250／5 本（使うのは2本）は記録と同じ
+- Workers Logs の 7日・月2,000万件／3日・1日20万件: docs には Paid の月2,000万件だけがあり、保存日数と Free の値は無かった。公式の Workers Logs のページ（2026-10-23 に WebFetch）で同じ値を確かめた
+- 配信のファイル数「2026-10-22 で 6,442」: docs には記録が無い（出どころは BIL-07 の指示のビルドのログの「Read 6436 files」と見られる）。2026-10-23 の `python3 scripts/check_asset_limits.py` の配信ファイル数は 4,195（`.assetsignore` を除いた数。git の追跡は 5,960）。docs と食い違う記録ではないため止まらず、表には 4,195 と書き、ビルドのログの値は数え方が違う申告値として添えた
+- 未マージの work/ ブランチで docs/notes/cloudflare.md・docs/decisions/cloudflare.md を変えているものは無い
+
+### 2・3. 書いたもの
+
+- docs/notes/cloudflare.md「ビルド時間の見積もり」の Workers Paid の行の後に、続ける決定・比較の表（5行）・理由（f5d14ef94）。前提の表の「戻す作業」の行は理由の文に入れた
+- docs/decisions/cloudflare.md「2026-10-23（CHAT-1023-BIL-10）」に決定と見直しの目安
+- #298 にコメントした。本文・ラベル・状態は変えていない
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1023-bil
-- ログ: https://github.com/retroeater/mj/blob/work/1023-bil/docs/logs/CHAT-1023-BIL-10.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1023-BIL-10.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1023-bil
-- 確認用URL:
-- マージ:
+- 確認用URL: なし
+- マージ: 済（ドキュメントのみ）
 - issue: #298
-- 判断が必要なこと:
-- 未確認の項目:
-- エラー:
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj c274791e）: https://github.com/retroeater/mj-logs/tree/main/guide/c274791e
+ガイド文書（この版を写した時点の最新、mj 77e42c54）: https://github.com/retroeater/mj-logs/tree/main/guide/77e42c54
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c274791e/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c274791e/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c274791e/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c274791e/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c274791e/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c274791e/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/66afe3b4.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/77e42c54/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/77e42c54/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/77e42c54/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/77e42c54/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/77e42c54/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/77e42c54/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/77e42c54.md
