@@ -73,17 +73,42 @@ CHAT-1022-HTH-02 のプレビューを見た平野さんの判断で、仮置き
 - テスト: `test_saikyo_vs.py` に並びの検査2件、`test_saikyo_redirects.py` に `/saikyo/vs/` の2行の検査を足し、年度の3行の検査から `vs` を外した。新しい並びの検査は HTH-02 のコード（2d91d8914）では落ちることを確かめた（修正前のコードで通らない）
 - docs: `vs.html` で docs（`docs/logs/` を除く）を検索し、出た4か所（saikyo-page-design.md 2・static-generation.md 2）を直した。#623 の題と本文の URL を `/saikyo/vs/` に直した
 
+### 再生成と差分
+
+- `regenerate-page.yml` の `dry_run`・`compare_ref: 2d91d8914`（HTH-02 の最後のコミット）で実行（run 39741104321）: 違うファイルは `saikyo/vs.html`（片方にだけある）と `saikyo/vs/index.html`（片方にだけある）の2件だけ。トップ・年度・対局・卓のページと `sitemap-saikyo.xml` は同じ中身（ジョブは「違いがある」で失敗の扱い）
+- 書く実行で `chore: regenerate saikyo/ via GitHub Actions`（cf71bbf4d）が積まれた: `saikyo/vs.html` の削除と `saikyo/vs/index.html` の追加だけ
+- 旧 `vs.html` と新 `vs/index.html` の中身の違い（手元で比べた）:
+  - 階層: `../` → `../../`（資産・navbar・favicon・写真の代わりの画像）、パンくずの「最強戦」`./` → `../`、候補の行の `vs.html?name=` → `./?name=`、canonical・og:url `…/saikyo/vs.html` → `…/saikyo/vs/`
+  - 並び: 埋め込みのデータの卓の並び（同じ対局の中で決勝が上）。勝敗・同卓の回数・相手ごとの卓の集合は全5,674組で同じ（並びだけ変わった）
+  - 写真が代替アバターの2人（データの写真が `../img/avatar.svg` → 空）。見え方はどちらも頭の1字の丸で変わらない。階層が変わって相対パスが合わなくなるのを避けるための変更で、上の3種類（削除・追加・並び）の追加の中に含まれると判断した
+- `python3 -m unittest discover -s scripts/tests`: 1498件 OK（再生成の後。前は `saikyo/vs.html` が残っていて「saikyo/ 直下はトップだけ」が落ちていた）
+
+### プレビュー（cf71bbf4d の Workers Builds: mj は success）
+
+| URL | 応答 |
+|---|---|
+| `/saikyo/vs` | 301 → `/saikyo/vs/`（`?name=` は引き継がれる） |
+| `/saikyo/vs/` | 200、`x-robots-tag: noindex`、中身は作業ブランチの `saikyo/vs/index.html` と同じ |
+| `/saikyo/vs/index.html` | 200 |
+| `/saikyo/vs.html` | 404（本番に入っていないので転送なし） |
+| `/saikyo/`・`/saikyo/2025/` | 200（トップは作業ブランチと同じ中身、入口の行なし） |
+
+headless Chromium（360px、プレビュー）: `?name=井出洋介,森山茂和` は2024年度「男の花道」が「決勝」→「ベスト8 A卓」の順、`?name=清水香織,奥村知美` は「決勝（勝ち）」→「ベスト8 B卓（引き分け）」の順。横のはみ出し0・JS のエラー0。行を押すと `/saikyo/2026/20261018-s2.html`（卓のページ）、パンくずの「最強戦」は `/saikyo/` へ。画像は `docs/logs/CHAT-1022-HTH-03/` の2枚
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1022-hth
 - ログ: https://github.com/retroeater/mj/blob/work/1022-hth/docs/logs/CHAT-1022-HTH-03.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1022-hth
-- 確認用URL: なし
-- マージ: 未
-- issue: #372、#623
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 確認用URL: プレビューあり（URL は最終報告）。確認したページは `/saikyo/vs/`（`?name=井出洋介,森山茂和`・`?name=清水香織,奥村知美`）・`/saikyo/vs`（301）・`/saikyo/`（変化なし）。この版の印: `/saikyo/vs/?name=井出洋介,森山茂和` の対戦の記録の先頭が「男の花道 / 2024年度・決勝・7月14日」（HTH-02 の版は「ベスト8 A卓」が先頭）
+- マージ: 未（平野さんの判断待ち。プレビューを確かめた後にチャットで決める）
+- issue: #372、#623（題と本文の URL を `/saikyo/vs/` に直した）
+- 判断が必要なこと:
+  - マージしてよいか（段1: noindex・どこからも辿れない形で本番に入る。`_redirects` に `/saikyo/vs/` の2行が足される）
+  - 代替アバターの2人のデータの写真を空にした変更（見え方は同じ）を、指示の3種類の差分に含めて進めた。問題があれば知らせてほしい
+- 未確認の項目:
+  - 実機（iPhone の Safari など）での見え方と操作。確かめたのは headless Chromium（プレビュー）まで
 - エラー: なし
 
 <!-- guide-links -->
