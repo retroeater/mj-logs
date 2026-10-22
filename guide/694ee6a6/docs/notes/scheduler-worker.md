@@ -79,7 +79,7 @@ run-name: ${{ inputs.scheduled && '[scheduled] <ワークフローの name>' || 
 | `monthdays` | 省略可。JST の日の配列（例 `[1]`）。省略は毎日 |
 | `enabled` | `false` の行は起動もしないし、朝の確かめでも見ない |
 
-今の表（2026-10-15 から。初回の起動は 2026-10-16 04:00 JST）は1行: `run-daily.yml` 毎日 04:00（毎朝の運行。update-live-channel・update-sns-book・check-image-links・regenerate-saikyo を順に、sync-dojo-calendar・cleanup-branches を並行に呼ぶ。`docs/notes/github-actions.md`「run-daily.yml」、#564）。それまでの5行（update-live-channel 04:00・update-sns-book 04:10・sync-dojo-calendar 04:15・delete-merged-branches 04:20・check-image-links 04:30）と戻し方は同じ節。`sync-logs.yml` 毎日 05:30 の行は 2026-10-07 に消した（#298）。時刻の案は #504 の本文「起動時刻の案と範囲」。
+今の表は3行: `run-daily.yml` 毎日 04:00（毎朝の運行。2026-10-16 から。update-live-channel・update-sns-book・check-image-links・regenerate-saikyo を順に、sync-dojo-calendar・cleanup-branches を並行に呼ぶ。`docs/notes/github-actions.md`「run-daily.yml」、#564）、`run-weekly.yml` 月曜 02:00（週次の運行。初回は 2026-10-26）、`run-monthly.yml` 1日 03:00（月次の運行。初回は 2026-11-01。2つは `docs/notes/github-actions.md`「run-weekly.yml・run-monthly.yml」、#564 の段④）。それまでの5行（update-live-channel 04:00・update-sns-book 04:10・sync-dojo-calendar 04:15・delete-merged-branches 04:20・check-image-links 04:30）と戻し方は同じ節。`sync-logs.yml` 毎日 05:30 の行は 2026-10-07 に消した（#298）。時刻の案は #504 の本文「起動時刻の案と範囲」。
 
 - 表を変えて `cloudflare` に入ると、Workers Builds の `mj-scheduler` がデプロイする（check-run「Workers Builds: mj-scheduler」）。cron の変更の反映は15分を超えることがある（2026-10-07 は配備〈09:56 UTC〉から約28分後の 10:24 まで mj-logs の同期が起動しなかった。チャット側の記録では古い cron が約1時間残った。リポジトリからは検証できない、#298）。`workers/scheduler/` の外だけを変える push ではビルドされない（2026-10-06 に check-run で確かめた）
 - **`workers/scheduler/` を変えるマージの後は、ダッシュボード（Workers & Pages > `mj-scheduler` > Deployments）で、そのコミットを含むビルドが Ready になったことを確かめる。check-run が無いことだけで「ビルドされていない」と判断しない**（Skipped のビルドには check-run が付かない）。2026-10-15 の段③-2（#564）では、`schedule.json` を変えたマージの push（先頭 a5b7e739d）のビルドが Skipped になり（原因は不明。CHAT-1016-WFL-19 のログ）、約15分後の別の push（06dc3158 を含む）のビルドで Ready になった（チャット側がダッシュボードで見た）。Skipped のままのときは、ダッシュボードからビルドをやり直すか、`workers/scheduler/` を含む次の push を待つ
@@ -101,7 +101,7 @@ Node 22 で、引数にディレクトリを渡すと失敗する。パターン
 ## ログ（Workers Logs）
 
 `wrangler.jsonc` の `observability` を `{"enabled": true}` にしている（2026-10-06、#504）。`head_sampling_rate` は省略で、既定は 1（すべての起動を残す）。
-見る場所はダッシュボードの Workers & Pages > `mj-scheduler` > Observability。Events の一覧に時刻（JST）・Level・Message が並ぶ。毎回の起動は Message が cron の式（2026-10-07 までは `*/5 * * * *`）・Level が info で、Worker の書いた行は Level が空・Message に本文が出る（2026-10-07 の平野さんの画面。申告値）。保存は7日、上限は月 2,000 万件（超過は 100 万件ごとに $0.60。2026-10-21 に Workers Paid にした。それまでの Free は3日・1日 20 万件）。この Worker は1日 1,440 回（月 4.5 万回ほど）の起動で、Worker の書く行は起動した回だけなので、合わせても上限より十分小さい。
+見る場所はダッシュボードの Workers & Pages > `mj-scheduler` > Observability。Events の一覧に時刻（JST）・Level・Message が並ぶ。毎回の起動は Message が cron の式（2026-10-07 までは `*/5 * * * *`）・Level が info で、Worker の書いた行は Level が空・Message に本文が出る（2026-10-07 の平野さんの画面。申告値）。保存は7日、上限は月 2,000 万件（2026-10-21 に Workers Paid にした。それまでの Free は3日・1日 20 万件。新しい料金に同意していないので超過時はサンプリング。`docs/notes/cloudflare.md`「ビルド時間の見積もり（2026-10-21、#363）」）。この Worker は1日 1,440 回（月 4.5 万回ほど）の起動で、Worker の書く行は起動した回だけなので、合わせても上限より十分小さい。
 
 Worker が書く行は1行1 JSON で、`event` の鍵で種類を分ける（2026-10-21 から。それまでは日本語の文。何もしない回は書かない。トークン・issue のコメントの本文は書かない）:
 

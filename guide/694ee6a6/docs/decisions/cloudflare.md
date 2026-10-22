@@ -90,3 +90,15 @@
 - Paid で使えるようになる製品（Logpush・Tail Workers・Queues・Durable Objects・Smart Placement・KV・Cron Triggers の増設）は採らない。製品を増やさず、上限が外れた分を使うだけにする
 - 週次・月次の定期実行を Worker の起動の表へ移す作業（段④）は、この指示の後に別の指示（CHAT-1021-WKP-02）で行う
 - 作業中の回答: なし
+
+## 2026-10-21（CHAT-1021-WKP-03）
+
+- `scripts/check_asset_limits.py` の `MAX_FILES`（20,000。Workers Free の上限）を Paid の上限 100,000 に直す。コメントの「プランは Free」も直す（WKP-01 の判断待ちへの回答）
+- Workers Observability の新しい料金（月 2,000 万件まで含む・超過 $0.60/100 万件）への同意（ダッシュボードの「Agree」）は行わず「Review later」のままにする。同意しないと超過時は課金されずサンプリングになる（頭打ち）。今の量（月 5 万件程度）では差が出ない。2026-12-01 の切り替えで扱いが変わるかは 11/25 にダッシュボードで見る
+- 作業中の回答: なし
+
+## 2026-10-21（CHAT-1021-BIL-06）
+
+- CHAT-1021-BIL-05 の次の手は案 (a)（何もしない）と案 (c)（docs/notes/cloudflare.md に1行足す）。非本番のトリガーの `docs/**` の除外は効いていて、減らせる無駄が小さいため
+- 案 (b)（`mj-ask`・`mj-scheduler` のプレビューを止める、cloudflare の取り込みを要るときだけにする など）は、2026-11-20 の使用量の確認（#298）で Workers Builds が月 6,000 分に迫っていたら検討する
+- 作業中の回答: なし

@@ -95,8 +95,8 @@ Chat-Ref の確認・`git branch --merged` が誤る。**これらの判定の�
 
 環境に追加した許可ドメイン（2026-09-25、MD-14・MD-15 で通ることを確認）:
 
-- `docs.google.com`（スプレッドシートの読み込み。再生成に必須）
-- `*.googleusercontent.com`（CSV エクスポートのリダイレクト先。フィルタ検知 #432 に要る）
+- `docs.google.com`（スプレッドシートの gviz・htmlview。2026-10-21 からの生成は Sheets API〈`sheets.googleapis.com`〉で読むので使わない。`check-sheets-reader.yml` のログインなしの比べと、非公開にする前の確かめだけ）
+- `*.googleusercontent.com`（CSV エクスポートのリダイレクト先。2026-10-21 までのフィルタ検知 #432 が使っていた）
 - `www.ma-jan.or.jp`、`x.com`、`pbs.twimg.com`、`www.youtube.com`、`img.youtube.com`、`ryoei.pro`、`thumbnail.image.rakuten.co.jp`
   （`ron2.jp` は 2026-09-28 に外した。龍龍への依存の廃止で、生成・検査が接続しなくなったため）
 - `*.cloudflare.com`（2026-09-28。公式ドキュメント `developers.cloudflare.com` と公式ブログ `blog.cloudflare.com` を読むため。CW-11 で両方 200 を確認）
@@ -110,7 +110,9 @@ Chat-Ref の確認・`git branch --merged` が誤る。**これらの判定の�
 
 ## 鍵
 
-鍵（`YOUTUBE_API_KEY`・楽天・`ANTHROPIC_API_KEY`・スプレッドシート書き込みの認証など）は環境の変数に置かない。
+鍵（`YOUTUBE_API_KEY`・楽天・`ANTHROPIC_API_KEY`・スプレッドシートの読み書きの認証など）は環境の変数に置かない。
+**スプレッドシートの読み取りも 2026-10-21 から鍵（`SHEETS_READER_SA_KEY`）が要るため、コンテナではシートを読む生成・検査は動かない**（`lib/sheets.py` が「環境変数 SHEETS_READER_SA_KEY がありません」で止まる、#557）。
+生成の確かめは `regenerate-page.yml` の手動実行（入力 `dry_run`〈変わったファイルの名前と行数だけ〉・`check`〈止まるかだけ〉、作業ブランチを ref にする）で行う。
 **GitHub Actions のシークレットにだけ置き、鍵の要る処理はワークフローを `actions_run_trigger` で起動して行う。**
 **直す前後の確かめも同じで、鍵の要るスクリプトはコンテナで直接動かさず、ワークフローを書き込まない入力（dry-run）で起動して run のログを読む**
 （例: `update-sns-book.yml` の mode `update`・dry_run 真。docs/notes/sns-book.md「手動実行」）。コンテナには鍵が無く、直接動かすと確かめられないまま終わるため（2026-10-13 に起きた）。

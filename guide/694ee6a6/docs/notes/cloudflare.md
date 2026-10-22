@@ -651,6 +651,7 @@ Workers & Pages → `mj` → Settings → Builds:
   ログだけのコミットが先頭でも、同じ push に docs 以外の変更が入るとビルドされる。よくあるのは、
   作業ブランチに cloudflare を取り込む・マージ済みの作業ブランチを cloudflare から作り直して push する・
   cloudflare へ他セッションの成果物ごとマージする、の3つ（2026-09-28 の実測。新しいブランチへの docs だけの push はビルドされなかった）
+  push のファイルは各コミットの変更の和で、マージのコミットは1つ目の親との差分で数えられる。そのため cloudflare を取り込んだマージを含む push は、作業ブランチ自身の差分が docs だけでもプレビューをビルドする（2026-10-14〜21 の work/** の push で 30回。マージを含まない docs だけの push 741件はビルドされなかった、#298）
 - **ビルドが走るかを試す push は、前の push の「Workers Builds: mj」が completed になってから次を push する。付くまで15分は待つ**（Workers Builds は順番待ちで遅れる。push の4分後には付いていないように見えて、後から付いた例がある。事例は `docs/notes/handover-archive-2026.md`「docs/notes/cloudflare.md・chrome-reading.md から」）
 - **本番のHTMLは取得して確認できるが、ブラウザでの見え方は確認できない。**
   `curl https://ryoei.pro/<パス>` で配信中のHTMLに変更が入ったかは見られる。
@@ -723,6 +724,8 @@ Workers & Pages → `mj` → Settings → Builds:
 - **プランは Workers Paid（月 $5）。2026-10-21 に Free から切り替えた**（平野さんの手作業。Subscriptions の「Workers Paid — Renews on Nov 9, 2026」はスクリーンショットによる申告値）。
   Workers Builds の枠は **ビルド時間 月6,000分・超過は1分 $0.005・同時に走るビルド6本**（公式の Limits & pricing。Free は月3,000分・同時1本）
 - 枠の集計期間は暦の月ではなく課金の期間（October 9 - November 9）
+- Workers Observability（Workers Logs）の新しい料金（月 2,000 万件まで含む・超過は 100 万件ごとに $0.60）には同意していない（ダッシュボードの「Review later」のまま、2026-10-21 の平野さんの決定）。同意しないあいだ、超過時は課金されずサンプリングになる（頭打ち）。2026-12-01 の切り替えで扱いが変わるかは 11/25 にダッシュボードで見る
+- Budget Alert（$5）を付けた（2026-10-21、平野さんの手作業。申告値）
 - 2026-10-21 の実測（**申告値。平野さんのスクリーンショットで、セッションからは検証できない**）:
   - 切り替え前の Usage: Workers build minutes 2,312 / 3,000（10/9〜21）
   - Analytics の Build minutes: 直近30日で 2.74k。1日のビルド時間は 10/14 ごろまで数十分、10/15〜19 は1日 約250〜450分
