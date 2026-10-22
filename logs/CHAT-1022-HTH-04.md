@@ -59,15 +59,33 @@ CHAT-1022-HTH-03 で判断待ちにした work/1022-hth（`/saikyo/vs/`、noinde
 - `python3 scripts/regenerate.py --check saikyo_pages`: コンテナでは「SHEETS_READER_SA_KEY がありません」で止まる（鍵はコンテナに置かない、docs/notes/cloud-sessions.md「鍵」）。同じ検査を `regenerate-page.yml` の `check`（work/1022-hth、run 39749583778）で行い、**通る（警告6件、2026 年度の3対局の動画 URL が ABEMA の回の形でない既知のもの）**。ログの集計は HTH-02・03 と同じ（対局済みの卓 639・ペア 2837組・延べ 3834回・引き分け 1535回、`saikyo/vs/index.html: 255056バイト`、年度・対局・卓のページ 880件）
 - origin/cloudflare との差分（`git diff origin/cloudflare HEAD`）: 生成物は `saikyo/vs/index.html` の追加（A）だけ。`saikyo/` のほかのページ・`sitemap-saikyo.xml`・`sitemap.xml`・`llms.txt`・`navbar.js` は変わらない。docs 以外の変更は `_redirects`・`assets/saikyo.js`・`scripts/generate_saikyo_pages.py`・`scripts/tests/test_saikyo_redirects.py`・`scripts/tests/test_saikyo_vs.py`・`style.css`
 
+### 手順3: マージと本番の確かめ
+
+- push 直前に `git fetch origin cloudflare` し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真（origin/cloudflare は 6a274c07d のまま）
+- `git push origin work/1022-hth:cloudflare`: `6a274c07d..694ee6a69`（fast-forward。マージコミットは作らない）
+- 694ee6a69 の check-run: 「Workers Builds: mj」success（08:45:25Z）、regenerate success（push で動いた再生成。新しいコミットは無し＝生成物の差分なし）、sync success、notify skipped
+- 本番（`curl`、`?v=694ee6a69` を付けて）:
+
+| URL | 結果 |
+|---|---|
+| `https://ryoei.pro/saikyo/vs/` | 200。`<meta name="robots" content="noindex">` あり、応答ヘッダに `x-robots-tag` は無い。canonical `https://ryoei.pro/saikyo/vs/`。中身は作業ブランチの `saikyo/vs/index.html` と同じ（`cmp`） |
+| `https://ryoei.pro/saikyo/vs` | 301 → `https://ryoei.pro/saikyo/vs/`（クエリは引き継がれる） |
+| `https://ryoei.pro/saikyo/` | 作業ブランチの `saikyo/index.html` と同じ（= マージ前と同じ、入口の行なし） |
+
+- 確かめたのは本番の HTML まで。ブラウザでの見え方は HTH-03 のプレビュー（同じ中身）で見た
+- #372 にマージしたこと（公開は #623）をコメントした（ラベルは「状況: 対応中」のまま）
+- 決定を docs/decisions/saikyo.md に足した（2026-10-22 CHAT-1022-HTH-04）
+- ブランチの片付け: work/1022-hth（マージ時の先頭 694ee6a69、origin/cloudflare の祖先＝マージ済み）。この後にログだけのコミットを積むため、今は消さない。リモートはクラウドのセッションからは消せず、`cleanup-branches.yml` がマージ済みで先頭が24時間より前の `work/*` を消す（docs/notes/github-actions.md）。ローカルはコンテナと一緒に消える
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1022-hth
-- ログ: https://github.com/retroeater/mj/blob/work/1022-hth/docs/logs/CHAT-1022-HTH-04.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1022-hth
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1022-HTH-04.md
+- 比較URL: https://github.com/retroeater/mj/compare/6a274c07d...694ee6a69
 - 確認用URL: なし
-- マージ: 未
-- issue: #372
+- マージ: 済（694ee6a69、fast-forward）
+- issue: #372（マージのコメント）、#623（公開、未着手）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
