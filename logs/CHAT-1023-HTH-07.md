@@ -59,15 +59,34 @@ CHAT-1022-HTH-05（FIFA の形の作り直し）と CHAT-1023-HTH-06（勝敗の
 - `--check`（コンテナは鍵が無いので `regenerate-page.yml` の `check`、run 39873393452）: 通る（警告6件、2026 年度の動画 URL の既知のもの）
 - origin/cloudflare との差分（docs を除く）: `assets/saikyo.js`・`saikyo/vs/index.html`（1行）・`scripts/generate_saikyo_pages.py`（`build_vs_card()`・`build_vs_body()` の1か所、HTH-05）・`scripts/tests/test_saikyo_vs.py`・`style.css`（対戦成績の節の2か所: 節の見出しのコメント1行と節の中身）。前提の一覧に生成スクリプトは無いが、HTH-05 のログに書いた変更で説明できる。生成物は `saikyo/vs/index.html` だけで、トップ・年度・対局・卓と `sitemap-saikyo.xml` は変わらない
 
+### 手順3: マージと本番の確かめ
+
+- push 直前に `git fetch origin cloudflare` し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真
+- `git push origin work/1022-hth:cloudflare`: `77e42c54f..49b9ce27c`（fast-forward）
+- 49b9ce27c の check-run: 「Workers Builds: mj」success（23:44:33Z）、regenerate success（新しいコミットは無し＝生成物の差分なし）、sync success、notify skipped
+- 本番（`curl`、`?v=49b9ce27c` を付けて）:
+
+| URL | 結果 |
+|---|---|
+| `https://ryoei.pro/saikyo/vs/` | 200。`<meta name="robots" content="noindex">` あり。中身は作業ブランチの `saikyo/vs/index.html` と同じ（`cmp`） |
+| `https://ryoei.pro/assets/saikyo.js`・`https://ryoei.pro/style.css` | 作業ブランチと同じ（新しい版） |
+| `https://ryoei.pro/saikyo/` | 作業ブランチの `saikyo/index.html` と同じ（= マージ前と同じ） |
+| `https://ryoei.pro/saikyo/vs` | 301 → `/saikyo/vs/` |
+
+- 確かめたのは本番の HTML・JS・CSS まで。ブラウザでの見え方は HTH-05・HTH-06 のプレビュー（同じ中身）で見た
+- #372 にマージしたこと（公開は #623）をコメントした（ラベルは「状況: 対応中」のまま）
+- 決定を docs/decisions/saikyo.md に足した（2026-10-23 CHAT-1023-HTH-07）
+- ブランチの片付け: work/1022-hth（マージ時の先頭 49b9ce27c、origin/cloudflare の祖先＝マージ済み）。この後にログだけのコミットを積むため今は消さない。リモートは `cleanup-branches.yml` がマージ済みで先頭が24時間より前の `work/*` を消す（クラウドのセッションからは消せない）。ローカルはコンテナと一緒に消える
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1022-hth
-- ログ: https://github.com/retroeater/mj/blob/work/1022-hth/docs/logs/CHAT-1023-HTH-07.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1022-hth
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1023-HTH-07.md
+- 比較URL: https://github.com/retroeater/mj/compare/77e42c54f...49b9ce27c
 - 確認用URL: なし
-- マージ: 未
-- issue: #372
+- マージ: 済（49b9ce27c、fast-forward）
+- issue: #372（マージのコメント）、#623（公開、未着手）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
