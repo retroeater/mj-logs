@@ -53,15 +53,22 @@ CHAT-1022-PRV-08 の続き。2026-10-22 04:00 JST の毎朝の運行の失敗は
 - 0. 「指示」欄の末尾の行は指示文の最後の行と一致
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
 
+- #557: open、最後のコメントは PRV-08 のもので、他のセッションの着手中は無い。着手中のコメント（issuecomment-6332259674）
+- PRV-08 のログの状態を「判断待ち / 続き: CHAT-1022-PRV-09」にした
+- 決定を `docs/decisions/security.md`「2026-10-22（CHAT-1022-PRV-09）」に足した。元の「Public」フォルダの削除は PRV-08 の節に記録済みなので重ねず、参照の1行だけにした
+- `docs/notes/sheets-reader.md`「段取りと今の状態」を完了の状態に直した（4 を完了〈初回の毎朝の運行でシートを読むジョブは成功、dojo の失敗は無関係〉、5 に残り〈429 の様子見だけ。長引いたら起票、待ちの有無は所要時間で見る〉）
+- 未マージの work/ ブランチで、変える文書を変えているものは無い
+- #557 にまとめのコメント（issuecomment-6332265690）を残し、閉じた（state_reason completed）。ラベルは「分野: セキュリティ」「分野: データ」だけで、「状況:」ラベルは無かった
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1022-prv
-- ログ: https://github.com/retroeater/mj/blob/work/1022-prv/docs/logs/CHAT-1022-PRV-09.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1022-PRV-09.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1022-prv
 - 確認用URL: なし
-- マージ: 未
-- issue: #557
+- マージ: 済（この push で cloudflare へ。docs のみ）
+- issue: #557（着手中 issuecomment-6332259674・まとめ issuecomment-6332265690、閉じた）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
@@ -69,12 +76,12 @@ CHAT-1022-PRV-08 の続き。2026-10-22 04:00 JST の毎朝の運行の失敗は
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 9a6a81cc）: https://github.com/retroeater/mj-logs/tree/main/guide/9a6a81cc
+ガイド文書（この版を写した時点の最新、mj 6a274c07）: https://github.com/retroeater/mj-logs/tree/main/guide/6a274c07
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a6a81cc/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a6a81cc/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a6a81cc/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a6a81cc/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a6a81cc/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a6a81cc/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6a274c07/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6a274c07/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6a274c07/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6a274c07/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6a274c07/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6a274c07/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/eef12711.md

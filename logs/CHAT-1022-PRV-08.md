@@ -116,7 +116,7 @@ urllib.error.HTTPError: HTTP Error 403: Forbidden
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1022-PRV-09
 - ブランチ: work/1022-prv
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1022-PRV-08.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1022-prv
@@ -143,12 +143,12 @@ urllib.error.HTTPError: HTTP Error 403: Forbidden
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 9a6a81cc）: https://github.com/retroeater/mj-logs/tree/main/guide/9a6a81cc
+ガイド文書（この版を写した時点の最新、mj 6a274c07）: https://github.com/retroeater/mj-logs/tree/main/guide/6a274c07
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a6a81cc/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a6a81cc/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a6a81cc/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a6a81cc/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a6a81cc/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a6a81cc/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6a274c07/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6a274c07/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6a274c07/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6a274c07/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6a274c07/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6a274c07/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/eef12711.md

@@ -568,7 +568,7 @@ Workers & Pages → `mj` → Settings → Builds:
   からは検証できないため申告の記録として残す）
 
 - **2つ目の Worker `mj-scheduler`**（#504）: 予約実行を起動する Worker。コードは `workers/scheduler/`（`.assetsignore` で配信から外す）。2026-10-05 の夜に、同じリポジトリを Path `/workers/scheduler` で Workers Builds につないだ。check-run は「Workers Builds: mj-scheduler」。設定値（申告値）と watch paths の未確認の点は `docs/notes/scheduler-worker.md`
-- Cron Triggers: `mj` は静的アセットだけなので持てない（画面の表示「Triggers cannot be added to a Worker that only has static assets.」）。アカウントの Cron Triggers は `mj-scheduler` の1本（Free は5本まで）
+- Cron Triggers: `mj` は静的アセットだけなので持てない（画面の表示「Triggers cannot be added to a Worker that only has static assets.」）。アカウントの Cron Triggers は `mj-scheduler`・`mj-ask` の2本（Workers Paid で 250 本まで。2026-10-21 までの Free は5本）
 
 ### Chrome からダッシュボードの API を読む（#304 の (9) の照合）
 
@@ -626,6 +626,7 @@ Workers & Pages → `mj` → Settings → Builds:
   作業ブランチを `cloudflare` へマージした直後に自動の再生成の push が続くと、マージのコミットにはプレビューの check-run（success）だけが付き、本番は次のコミットのビルドで反映される。本番の確かめは、本番の check-run が付いたコミットか本番の HTML で行う
   マージ後に本番の check-run が付かないまま本番が古いときは、壊れたと判断する前にこれを疑う
   （2026-10-16: 1447edda1〈09:19 JST〉の後の本番のビルドが続けて飛ばされ、5bf5d9b0f〈10:33 JST〉で反映。⏩ は平野さんの Build history の申告値）
+  （ビルドが同時1本だった 2026-10-20 までの観察。Workers Paid の同時6本でどう変わるかは未観察）
 - **check-run は push の先頭コミットにしか付かない（2026-09-13）。**
   複数コミットをまとめて push した場合、Workers Builds の check-run が
   記録されるのは先頭の1つだけで、それ以外のコミットには何も付かない。
@@ -650,6 +651,7 @@ Workers & Pages → `mj` → Settings → Builds:
   ログだけのコミットが先頭でも、同じ push に docs 以外の変更が入るとビルドされる。よくあるのは、
   作業ブランチに cloudflare を取り込む・マージ済みの作業ブランチを cloudflare から作り直して push する・
   cloudflare へ他セッションの成果物ごとマージする、の3つ（2026-09-28 の実測。新しいブランチへの docs だけの push はビルドされなかった）
+  push のファイルは各コミットの変更の和で、マージのコミットは1つ目の親との差分で数えられる。そのため cloudflare を取り込んだマージを含む push は、作業ブランチ自身の差分が docs だけでもプレビューをビルドする（2026-10-14〜21 の work/** の push で 30回。マージを含まない docs だけの push 741件はビルドされなかった、#298）
 - **ビルドが走るかを試す push は、前の push の「Workers Builds: mj」が completed になってから次を push する。付くまで15分は待つ**（Workers Builds は順番待ちで遅れる。push の4分後には付いていないように見えて、後から付いた例がある。事例は `docs/notes/handover-archive-2026.md`「docs/notes/cloudflare.md・chrome-reading.md から」）
 - **本番のHTMLは取得して確認できるが、ブラウザでの見え方は確認できない。**
   `curl https://ryoei.pro/<パス>` で配信中のHTMLに変更が入ったかは見られる。
@@ -722,6 +724,8 @@ Workers & Pages → `mj` → Settings → Builds:
 - **プランは Workers Paid（月 $5）。2026-10-21 に Free から切り替えた**（平野さんの手作業。Subscriptions の「Workers Paid — Renews on Nov 9, 2026」はスクリーンショットによる申告値）。
   Workers Builds の枠は **ビルド時間 月6,000分・超過は1分 $0.005・同時に走るビルド6本**（公式の Limits & pricing。Free は月3,000分・同時1本）
 - 枠の集計期間は暦の月ではなく課金の期間（October 9 - November 9）
+- Workers Observability（Workers Logs）の新しい料金（月 2,000 万件まで含む・超過は 100 万件ごとに $0.60）には同意していない（ダッシュボードの「Review later」のまま、2026-10-21 の平野さんの決定）。同意しないあいだ、超過時は課金されずサンプリングになる（頭打ち）。2026-12-01 の切り替えで扱いが変わるかは 11/25 にダッシュボードで見る
+- Budget Alert（$5）を付けた（2026-10-21、平野さんの手作業。申告値）
 - 2026-10-21 の実測（**申告値。平野さんのスクリーンショットで、セッションからは検証できない**）:
   - 切り替え前の Usage: Workers build minutes 2,312 / 3,000（10/9〜21）
   - Analytics の Build minutes: 直近30日で 2.74k。1日のビルド時間は 10/14 ごろまで数十分、10/15〜19 は1日 約250〜450分
