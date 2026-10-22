@@ -61,28 +61,78 @@
 
 ## 経過
 
+### 着手前の確かめ（2026-10-22）
+
+- 0. ログの「指示」欄の末尾は指示文の最後の行と一致
+- 識別子: `git log --all --grep 'CHAT-1022-HTH-05'` は0件。雛形の行の欠けなし
+- 作業ブランチ: ローカル・リモートの work/1022-hth は 504547c56 で origin/cloudflare の祖先（マージ済み）。ローカルにあり祖先のため、docs/notes/cloud-sessions.md「作業ブランチの用意」どおり `git merge --ff-only origin/cloudflare`（Already up to date）で続けた
+- #372: 本文・コメントを読んだ。他セッションの着手中コメントなし。着手中のコメントを書いた（ラベルは「状況: 対応中」のまま）
+- 未マージの work/ ブランチ: `generate_saikyo_pages.py`・`assets/saikyo.js` を変えるものは無い。`style.css` は work/1017-lvp が最強戦の節のセレクタ（`body.mj-saikyo-n-page …` → `body:is(…)`）を変えているが、今回変えたのは対戦成績の節（`.mj-saikyo-n-vs*`）だけで、同じ行は触らない
+- `--check`（コンテナは鍵が無いので `regenerate-page.yml` の `check`、run 39770474078）: 通る（警告6件、2026 年度の動画 URL の既知のもの）
+- 年度ページの実物（`saikyo/2024/index.html`）: 対局ごとの面 `.mj-saikyo-n-match` の先頭が対局名の行（`h2.mj-saikyo-n-title` > `a.mj-saikyo-n-title-link`、名前 16px 太字・2行目に日付・右に ›）で、**› の行き先は対局のページ（`20241215.html`）**。その下に勝ち上がり者の行（写真・名前・右端に「A卓 1位」か金のピル、行は押せない）。決定の文「『>』を押すと卓別に移動する」と行き先が違うため、3段目は面を卓ごとにして対局名の行の › を卓のページへ向けた（仮置き3）
+
+### 作ったもの
+
+- 1段目（`build_vs_card()` と `assets/saikyo.js` の `fillCard()`）: 左右のカードと丸の「VS」。右の候補は `vsRightChoices()`（左の選手の同卓者だけ、同卓の多い順）
+- 2段目（`buildStats()`）: 見出し「勝敗」、2人の名前と色の丸、1本の横棒（`vsBarSegments()` の数を flex-grow に入れる。0 の区間は出さない）、「1勝 / 引き分け 5 / 2勝」、「Aから見て 1勝2敗5分（8回）」
+- 3段目（`buildHistory()`）: 見出し「対局の記録」、年度の見出し「麻雀最強戦2024 ›」、卓ごとの面（対局名の行〈2行目「決勝・7月14日」〉→ 卓のページ、2人の行）
+- 左だけのとき・同卓したことの無い2人（「同卓したことはありません」）・知らない名前（「該当する選手はいません」）
+- CSS は `style.css` の対戦成績の節だけ（`.mj-saikyo-n-vs-*` を足し、HTH-02 の `.mj-saikyo-n-vs-head` を消した）。共有の規則は変えていない
+- テスト: `test_saikyo_vs.py` に `VsScriptTest` 2件（`assets/saikyo.js` の `normalize`・`vsBarSegments`・`vsRightChoices` を切り出して node で呼ぶ。node が無ければ飛ばす）。横棒の区間の数と並び、右の選択肢が同卓者だけで同卓の多い順・絞り込み。前のコード（504547c56 の saikyo.js）には関数が無く落ちる
+- `python3 -m unittest discover -s scripts/tests`: 1500件 OK（origin/cloudflare を取り込んだ後も OK）
+
+### 生成と差分
+
+- `dry_run`・`compare_ref: origin/cloudflare`（run 39771190352）: 違うファイルは **`saikyo/vs/index.html`（2行）だけ**（数え方は diff の削除と追加の行の合計で、検索欄の1行がカードの1行に替わった差。トップ・年度・対局・卓・サイトマップは同じ中身）
+- 書く実行で `chore: regenerate saikyo/ via GitHub Actions`（2bc40ebc9、`saikyo/vs/index.html` だけ）
+- その後 origin/cloudflare（c274791e7、work/1021-bil の `.python-version` の移動・`test_root_runtime_files.py`・docs）を merge で取り込んだ（衝突なし、be7d80da3）。saikyo の生成物には関係しない
+
+### 見え方（headless Chromium）
+
+- 手元（生成された `saikyo/vs/index.html`）: 初期画面・左だけ（佐々木寿人）・左だけで右のカードに入った候補・左の入力中・井出洋介–森山茂和・清水香織–奥村知美・しゅんしゅんクリニックP–虫眼鏡・井出洋介–小川光（同卓なし）を 360・390・PC 1280・1920×1080 で。横のはみ出し0、JS のエラー0。画像は `docs/logs/CHAT-1022-HTH-05/`（10枚、JPEG）
+- 気になった点と直したこと: 名前が2行になるカード（しゅんしゅんクリニックP）だけ背が高く、左右のカードの高さがそろわなかった → 2枚を同じ高さに伸ばし、VS は縦の中央にした
+- 井出洋介–森山茂和: 「1勝 / 引き分け 5 / 2勝」、記録は2024「男の花道」の決勝 → ベスト8 A卓 → 2023 … の順。清水香織–奥村知美: 決勝（清水 1位 優勝・奥村 2位 敗退）→ ベスト8 B卓（2人とも通過）
+- 暗い配色（390px、手元）: 初期画面と井出洋介–森山茂和で、カード・VS・横棒（左は明るい紺、引き分けは濃い灰、右は白に近い色）・記録の面が読める色で出る
+- 1920×1080: 面はトップと同じ幅（960px、左寄せは今の最強戦のページと同じ）
+- プレビュー（be7d80da3 の Workers Builds: mj は success）: `saikyo/vs/index.html`・`/saikyo/vs/`・`saikyo/index.html`・`assets/saikyo.js`・`style.css` は作業ブランチと同じ中身。390px で「井出」と打って候補を押す → `?name=井出洋介`（カードの下は空）→ 右のカードに入ると候補が「森山茂和 8回・新津潔 7回・前原雄大 4回 …」→「森山」で選ぶ → `?name=井出洋介,森山茂和`、横棒の区間の flex-grow が 1・5・2 → 記録の先頭の › で `/saikyo/2024/20240714-s2.html`（決勝の卓のページ）→ 戻って左の「変更」で検索欄に戻りフォーカス。JS・CSP のエラー0
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1022-hth
 - ログ: https://github.com/retroeater/mj/blob/work/1022-hth/docs/logs/CHAT-1022-HTH-05.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1022-hth
-- 確認用URL: なし
-- マージ: 未
-- issue: #372
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 確認用URL: プレビューあり（URL は最終報告）。確認したページは `/saikyo/vs/`（初期画面・`?name=井出洋介`・`?name=井出洋介,森山茂和`）と `/saikyo/`（変化なし）。この版の印: `/saikyo/vs/?name=井出洋介,森山茂和` で左右のカードの間に丸の「VS」があり、その下に見出し「勝敗」と横棒
+- マージ: 未（平野さんの判断待ち。プレビューを確かめた後にチャットで決める）
+- issue: #372（着手中のコメント）
+- 判断が必要なこと:
+  - マージしてよいか（`/saikyo/vs/` は未公開のまま。変わるのは `saikyo/vs/index.html`・`assets/saikyo.js`・`style.css` の対戦成績の節・テスト・docs）
+  - 仮置きの一覧（何をどう置いたか → 別案）:
+    1. カードの形: 選んでいないカードは検索欄だけ（左「選手名」、右「対戦相手」、右は左を選ぶまで薄く使えない）。選んだカードは写真 40px・名前 太字・「変更」を縦に並べる → 別案 写真を大きく（卓のページの写真カードの形）・名前の下に出場の回数
+    2. スマホ（360px・390px）でも左右に並べたまま。長い名前はカードの中で折り返し、2枚の高さはそろえる → 別案 狭い画面は上下に並べる
+    3. 3段目: 年度ページの › は対局のページへ行くが、決定の文に合わせて対局名の行の › を卓のページへ向けた。そのため面は対局ごとでなく卓ごと（同じ対局の決勝とベスト8 は2つの面。対局名の行の2行目に「決勝・7月14日」）→ 別案 対局ごとの面で、対局名の行の › は対局のページ、中に卓の見出しの行「決勝 ›」（卓のページ）を置く（対局のページの形）
+    4. 3段目の2人の行: 左の選手を上、右を下（卓の順位順ではない）。左に順位の数字（灰色）、右端に結果のピル（通過・優勝は金、敗退は灰色）→ 別案 順位順
+    5. 3段目の年度の見出し「麻雀最強戦2024 ›」（年度ページへ）は、トップの検索の結果と同じ形 → 別案 見出しなし（日付だけ）
+    6. 色: 左の勝ち・左の丸は紺（`--mj-n-navy`）、引き分けは灰（`--mj-n-avatar`）、右の勝ち・右の丸は本文の色（`--mj-n-text`、暗い配色では白に近い）。FIFA の青・灰・黒に合わせた → 別案 右を金（ピルの `#f2c230`）
+    7. 横棒の下の数: 「1勝」「引き分け 5」「2勝」（左の勝ち・引き分け・右の勝ち）と、その下に決定の形「井出洋介から見て 1勝2敗5分（8回）」も残した → 別案 「3勝1敗2分」の行を外す
+    8. 右の候補: 入力の前から同卓の多い順に8人、右端に同卓の回数（「8回」）。入力すると絞る → 別案 同卓者を全員（佐々木寿人は66人）並べる・回数を出さない
+    9. 左を選び直すと右は空に戻る（`?name=<新しい左>`）→ 別案 新しい左とも同卓していれば右を残す
+    10. 「変更」はカードを検索欄に戻すだけ（URL は選ぶまで変わらない）→ 別案 押すとそのカードを外したページへ移る
+    11. 同卓したことの無い2人（URL で直接指定したとき）は「同卓したことはありません」だけ（右の候補は同卓者だけなので、画面の操作ではこの状態にならない）
+    12. 2段目・3段目の見出しは「勝敗」「対局の記録」（FIFA の「スタッツ」「試合履歴」）→ 別案「対戦成績」「対戦の記録」
+- 未確認の項目:
+  - 実機（iPhone の Safari など）での見え方と操作。確かめたのは headless Chromium（手元とプレビュー）まで
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 0d88684b）: https://github.com/retroeater/mj-logs/tree/main/guide/0d88684b
+ガイド文書（この版を写した時点の最新、mj c274791e）: https://github.com/retroeater/mj-logs/tree/main/guide/c274791e
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/0d88684b/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/0d88684b/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/0d88684b/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/0d88684b/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/0d88684b/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/0d88684b/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c274791e/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c274791e/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c274791e/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c274791e/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c274791e/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c274791e/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/6a274c07.md
