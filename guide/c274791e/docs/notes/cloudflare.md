@@ -651,6 +651,7 @@ Workers & Pages → `mj` → Settings → Builds:
   ログだけのコミットが先頭でも、同じ push に docs 以外の変更が入るとビルドされる。よくあるのは、
   作業ブランチに cloudflare を取り込む・マージ済みの作業ブランチを cloudflare から作り直して push する・
   cloudflare へ他セッションの成果物ごとマージする、の3つ（2026-09-28 の実測。新しいブランチへの docs だけの push はビルドされなかった）
+  push のファイルは各コミットの変更の和で、マージのコミットは1つ目の親との差分で数えられる。そのため cloudflare を取り込んだマージを含む push は、作業ブランチ自身の差分が docs だけでもプレビューをビルドする（2026-10-14〜21 の work/** の push で 30回。マージを含まない docs だけの push 741件はビルドされなかった、#298）
 - **ビルドが走るかを試す push は、前の push の「Workers Builds: mj」が completed になってから次を push する。付くまで15分は待つ**（Workers Builds は順番待ちで遅れる。push の4分後には付いていないように見えて、後から付いた例がある。事例は `docs/notes/handover-archive-2026.md`「docs/notes/cloudflare.md・chrome-reading.md から」）
 - **本番のHTMLは取得して確認できるが、ブラウザでの見え方は確認できない。**
   `curl https://ryoei.pro/<パス>` で配信中のHTMLに変更が入ったかは見られる。
@@ -723,6 +724,8 @@ Workers & Pages → `mj` → Settings → Builds:
 - **プランは Workers Paid（月 $5）。2026-10-21 に Free から切り替えた**（平野さんの手作業。Subscriptions の「Workers Paid — Renews on Nov 9, 2026」はスクリーンショットによる申告値）。
   Workers Builds の枠は **ビルド時間 月6,000分・超過は1分 $0.005・同時に走るビルド6本**（公式の Limits & pricing。Free は月3,000分・同時1本）
 - 枠の集計期間は暦の月ではなく課金の期間（October 9 - November 9）
+- Workers Observability（Workers Logs）の新しい料金（月 2,000 万件まで含む・超過は 100 万件ごとに $0.60）には同意していない（ダッシュボードの「Review later」のまま、2026-10-21 の平野さんの決定）。同意しないあいだ、超過時は課金されずサンプリングになる（頭打ち）。2026-12-01 の切り替えで扱いが変わるかは 11/25 にダッシュボードで見る
+- Budget Alert（$5）を付けた（2026-10-21、平野さんの手作業。申告値）
 - 2026-10-21 の実測（**申告値。平野さんのスクリーンショットで、セッションからは検証できない**）:
   - 切り替え前の Usage: Workers build minutes 2,312 / 3,000（10/9〜21）
   - Analytics の Build minutes: 直近30日で 2.74k。1日のビルド時間は 10/14 ごろまで数十分、10/15〜19 は1日 約250〜450分
@@ -730,7 +733,7 @@ Workers & Pages → `mj` → Settings → Builds:
 - 2026-10-21 の回数（**チャット側の集計**。10/9 以降の push の SHA ごとに check-run「Workers Builds: *」を数えた）: 10/9〜21 で `mj` のプレビュー 573回・`mj` の本番 230回・`mj-ask` 51回・`mj-scheduler` 28回。1日の回数は 10/10〜19 で 70〜100回と大きく変わっていない
 - 1回の所要時間は check-run からも取れる。1回のビルドは同じ `external_id` の check-run を2つ残し（上の「ビルド成否と本番の確認範囲（check-runs）」）、`in_progress` の `started_at` から `completed` の `completed_at` までが所要時間（`completed` の方は `started_at` と `completed_at` が同じ値）。
   `filter=all` で引いて `external_id` ごとにまとめる。2026-10-21 00:27〜01:28 UTC の `mj` の success 6回は 2分19秒〜5分23秒、`mj-scheduler` 1回は 2分45秒（Code が check-run で確かめた）
-- 見立て（**チャット側の推測。Cloudflare のビルドのログでは確かめていない**）: 増えたのは回数ではなくビルド1回の時間。配信の対象のファイルが増えたため（2026-10-21 の cloudflare で追跡しているファイル 約5,900、リポジトリ 182MB。`saikyo/` 881・`live/` 923・`houou/` 約790 など）と見る
+- **原因: リポジトリ直下の `.python-version`**（2026-10-14 の 3d7fa4db2 で入った。中身 `3.12`）。ビルドの環境は直下の版のファイル（公式の build image の Runtime の表: `.nvmrc`・`.node-version`・`.python-version`・`runtime.txt`・`.ruby-version`）を読み、既定と違う版ならビルドのたびにインストールする。2026-10-21 のビルドのログ（平野さんの申告値）で Installing の段（`Installing python 3.12.15`）が 2分3秒〜2分31秒、アセットの読み込みは数秒で、ファイルの数は原因ではなかった。2026-10-22 に `.github/.python-version` へ移した（#298）。直下に置かないことは `scripts/tests/test_root_runtime_files.py` が確かめる
 - **見直しの目安: 月6,000分に迫ったら、ビルドを減らす案（`mj-ask`・`mj-scheduler` のプレビューのビルドを止める、watch paths を直す）を検討する**（2026-10-21 の決定、`docs/decisions/cloudflare.md`）
 - 上限を超えたときの動きは公式のページに書かれていない
 - `Cloning` の段階の失敗はビルド時間の上限とは関係ない（事例と見分け方は上の「ビルドが Cloning で失敗したとき」）
