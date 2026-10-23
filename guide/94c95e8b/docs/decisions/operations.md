@@ -995,3 +995,16 @@ BIL 系列（CHAT-1018-BIL-01〜CHAT-1021-BIL-03、Actions・Workers Builds の�
 - CHAT-1021-BIL-04 の判断待ち（#304 の (d)）は案 (1): MCK 系列が #304 の本文に CHAT-1021-WKP-01 の追加の項目（Workers Builds のビルド分 / 6,000 分）を取り込むとき、同じ項目の子として「直近のビルド1回の所要時間」も入れる（平野さんが MCK のチャットに伝言済み）。BIL 側は #304 を直さない
 - SEC のチャットへの伝言（`MJ_LOGS_TOKEN`・`mj-logs-sync` を削除したこと。#601 から外す）は平野さんが貼った
 - 作業中の回答: なし
+
+## 2026-10-23（CHAT-1023-WKP-04）
+
+- WKP 系列（CHAT-1021-WKP-01〜03）の振り返りの申送りを行う（中身はチャット側の案）。次の3点を書いた
+  - Code の着手前の確認に「指示文の issue の state」を足す（閉じていれば着手せず報告。CLAUDE.md「Chat-Ref」・docs/notes/branch-operations.md）
+  - 常設 issue（#304・#506・#568 など）に項目やコメントを足す指示は、その issue の担当の系列のチャットで作る（docs/notes/chat-side-operations.md）
+  - 同じ値の洗い直しを指示するときは `git grep` でリポジトリ全体を範囲にし、除外だけを書く（docs/instruction-template.md）
+- 作業中の回答: なし
+
+## 2026-10-23（CHAT-1023-MCK-22）
+
+- #304 の (13)（Workers Paid の使用量の確認）の行き先を #363（2026-09-29 に Closed）から #298（Actions の使用量の監視と削減）に直す。2か所（本行と子の「直近のビルド1回の所要時間」）。WKP のチャットからの伝言で、WKP 側では #304 を直さない（担当は MCK）
+- 作業中の回答: なし

@@ -192,7 +192,7 @@
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1023-OHA-09
 - ブランチ: work/1023-oha
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1023-OHA-08.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1023-oha
@@ -209,12 +209,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj dcced8d5）: https://github.com/retroeater/mj-logs/tree/main/guide/dcced8d5
+ガイド文書（この版を写した時点の最新、mj 94c95e8b）: https://github.com/retroeater/mj-logs/tree/main/guide/94c95e8b
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/dcced8d5/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/dcced8d5/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/dcced8d5/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/dcced8d5/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/dcced8d5/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/dcced8d5/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/67a3af2b.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/94c95e8b/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/94c95e8b/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/94c95e8b/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/94c95e8b/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/94c95e8b/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/94c95e8b/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/bb98660e.md

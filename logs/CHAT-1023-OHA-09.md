@@ -52,6 +52,57 @@ CHAT-1023-OHA-08 の判断待ち（mj-logs の `MJ_READ_TOKEN` では check-run 
 
 ## 経過
 
+### 着手前の確認（手順0・1）
+
+- 手順0: このログの `## 指示` の最後の行は「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」で、指示文の最後の行と一致
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 欠けなし
+- Chat-Ref: `CHAT-1023-OHA-09` のコミットは全ブランチに無い。OHA は続きの番号
+- issue の state: #563 は open。着手中のコメントは OHA-08 の自分のもの（完了・判断待ちのコメントを後に書いた）だけで、ほかのセッションのものは無い。着手中のコメントを書いた（issuecomment-6355892059）
+- ブランチ: `origin/work/1023-oha` は origin/cloudflare の祖先（マージ済み）、ローカルの `work/1023-oha` も祖先。cloud-sessions.md「作業ブランチの用意」の「ローカルにあり origin/cloudflare の祖先」に当たるので、`git merge --ff-only origin/cloudflare` で進めた（e4e914965）
+- 未マージの `work/` ブランチ: `scripts/morning_report.py`・`scripts/actions_status.py`・`scripts/tests/test_morning_report.py` を変えたものは無い
+- CHAT-1023-OHA-08 のログの `## 報告` の状態を「判断待ち / 続き: CHAT-1023-OHA-09」にした
+
+### run 39877120835 のジョブのログ（前提の1つ目）
+
+- このセッションから `GET /repos/retroeater/mj/actions/jobs/120165303934/logs` を引くと、API は 302 で `productionresultssa4.blob.core.windows.net`（署名付きの URL）へ送り、その接続はセッションの proxy が 403 で拒んだ（環境のネットワークの設定による。GitHub の runner で動く mj-logs の同期では関係ない）
+- 同じログを GitHub MCP の `get_job_logs` で読んだ。該当の行（MCP の表示では `{`・`}` が `***` に置き換わる）:
+
+```
+2026-10-23T00:16:51.7899756Z ##[group]Run echo "::error::生成に失敗したページを飛ばしました: $***SKIPPED_PAGES***（理由はジョブのサマリ、#533）%0A成功したページだけをコミットしました。"
+2026-10-23T00:16:51.7900526Z \u001b[36;1mecho "::error::生成に失敗したページを飛ばしました: $***SKIPPED_PAGES***（理由はジョブのサマリ、#533）%0A成功したページだけをコミットしました。"\u001b[0m
+2026-10-23T00:16:51.7966913Z   SKIPPED_PAGES: resource_efficiency, resource_logs
+2026-10-23T00:16:51.7967282Z ##[endgroup]
+2026-10-23T00:16:51.8076248Z ##[error]生成に失敗したページを飛ばしました: resource_efficiency, resource_logs（理由はジョブのサマリ、#533）
+成功したページだけをコミットしました。
+2026-10-23T00:16:51.8088428Z ##[error]Process completed with exit code 1.
+```
+
+- 前提のとおり、`echo` の行（`##[group]Run echo …` と色付きの行。どちらも展開前の変数のまま）と結果の行の両方がある。2行目（`成功したページだけ…`）は時刻の欄の無い続きの行
+- 拾い方: 行を最初の空白で分け（時刻の欄を外す）、残りが `##[error]生成に失敗したページを飛ばしました:` で始まる最初の行の `##[error]` の後ろを取る。`echo` の行は残りが `##[group]Run echo` か色の符号で始まるので当たらない。先頭の行に BOM が付いていても、時刻の欄と一緒に外れる
+
+### 実装（59eccdb1c）
+
+- `morning_report.py`: `skip_note()` は注釈の一覧ではなくログのテキストを受け、上の形で行を拾う（定数 `LOG_ERROR = '##[error]'`）。`fetch_skip_notes()`・`write()` の引数を `fetch_annotations` から `fetch_log` に替えた。引くのは今までどおり失敗したステップに「飛ばしたページを報告」を含むジョブだけ。例外は `::warning::ジョブ … のログを引けなかった` を出して添えない
+- `actions_status.py`: annotations の呼び出しを消し、`get_log()`（`/repos/{repo}/actions/jobs/{job_id}/logs`）にした。API は 302 で署名付きの blob の URL へ送り、urllib は付けた見出しを転送先にも送るので、`Authorization` は `add_unredirected_header` で付けて転送先へ渡さない（`log_request()`）。取り直しはしない（引けなければ添えないだけ）
+- `grep -rn "check-runs\|annotations" scripts/ --include=*.py` の結果: morning.md の経路には無い（`morning_report.py` の docstring の「annotations の API は…ためログから読む」の説明だけ）。ほかに当たるのは `check_build_failure.py`（check-build-failure.yml が mj の中で読む check-run の JSON の説明）と `check_asset_limits.py`（変数名）で、mj-logs の同期は通らない
+- 検査: test_morning_report.py の `SkipNoteTest` をログの形に替えた（run 39877120835 の形の echo の行・結果の行・続きの行・`Process completed` の行を含む例で結果の行だけを拾う／echo の行だけで結果の行が無いときは添えない／取得失敗〈例外〉は添えない／ほかのステップの失敗ではログを引かない）。annotations の例の検査は消した。test_actions_status.py に、`log_request()` の要求を `HTTPRedirectHandler.redirect_request()` で転送したとき `Authorization` が付かないことの検査（ネットワークには出ない）
+- `python3 -m unittest discover -s scripts/tests`: 1,512 件 OK
+- 修正前のコード（origin/cloudflare を `git archive` で展開し、新しい2つのテストのファイルだけ差し替え）: 5件が ERROR（`SkipNoteTest` の4件は `write()` が `fetch_log` を受けない、`LogRequestTest` は `log_request` が無い）
+- docs/notes/github-actions.md の morning.md の項の「Checks の Read が要る…判断待ち」の文を、ジョブのログから読む形に置き換えた
+
+### 確かめ: actions_status.py を新旧のコードで回す
+
+- 2026-10-23 11:27〜11:28 JST に、作業ブランチのコードと origin/cloudflare（OHA-08 の後、e4e914965）のコードで `actions_status.py --dest <作業ファイルの置き場所>` を1回ずつ（mj-logs には書いていない）
+- 差は書き出した時刻の行と、run 39877120835 の行だけ。このセッションのトークンには Checks があるので旧のコード（annotations）では添え書きが付き、新のコードはログの取得が proxy に拒まれて（`::warning::ジョブ 120165303934 のログを引けなかった: <urlopen error Tunnel connection failed: 403 Forbidden>`）添えずに今の行で出た。引けないときに書き出しを止めないことも、これで確かめた
+- 補いとして、ログの取得だけを上の MCP で読んだログの抜き出しに差し替えて（作業用の `run_with_mcp_log.py`。ほかの API は実物）作業ブランチのコードを回した。run 39877120835 の行は次のとおりで、旧のコードの行と同じ文になった:
+
+```
+- 2026-10-23 09:16 regenerate-page.yml failure（workflow_dispatch・work/1023-oha）ジョブ「regenerate」：生成に失敗したページを飛ばしました: resource_efficiency, resource_logs（理由はジョブのサマリ、#533） https://github.com/retroeater/mj/actions/runs/39877120835
+```
+
+  （この回は1分後に回したので、間に始まった実行〈work/1023-skp の regenerate-page の in_progress〉の行と、3節の中央値〈0分50秒 → 0分48秒〉も変わった。どちらも API の応答が変わったためで、コードの差ではない）
+- 本当のログの取得（blob からの読み出し）は、マージの後の mj-logs の同期（GitHub の runner）で確かめる
+
 ## 報告
 
 - 状態:
@@ -68,12 +119,12 @@ CHAT-1023-OHA-08 の判断待ち（mj-logs の `MJ_READ_TOKEN` では check-run 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj e4e91496）: https://github.com/retroeater/mj-logs/tree/main/guide/e4e91496
+ガイド文書（この版を写した時点の最新、mj 94c95e8b）: https://github.com/retroeater/mj-logs/tree/main/guide/94c95e8b
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e4e91496/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e4e91496/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e4e91496/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e4e91496/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e4e91496/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e4e91496/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/94c95e8b/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/94c95e8b/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/94c95e8b/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/94c95e8b/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/94c95e8b/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/94c95e8b/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/bb98660e.md
