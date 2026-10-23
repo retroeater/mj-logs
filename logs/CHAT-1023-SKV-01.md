@@ -50,6 +50,52 @@
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 着手前の確認
+
+- 手順0: ログの「指示」欄の末尾は指示文の最後の行（「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」）と一致
+- 識別子: `git log --all -E --grep 'CHAT-[0-9]{4}-SKV-'` と `docs/logs/CHAT-*-SKV-*.md` の追加履歴はどちらも0件。同じ Chat-Ref のコミットも0件
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 欠けなし
+- issue: 指示文が着手・クローズの対象にする issue は無い
+- 作業ブランチ: work/1023-skv はローカル・リモートとも無し → `git checkout -b work/1023-skv origin/cloudflare`（起点 ee47bdb）
+  - 補足: 最初の `git fetch origin cloudflare` が「forced update」と出たが、浅いクローンの見かけで、`--unshallow` 後は旧 495cef6 が origin/cloudflare の祖先と確認
+- 未マージの work/ ブランチ（9本）のうち、対象4ファイルに触れるのは2本で、どちらも `scripts/generate_saikyo_pages.py` の動画の関数（`load_videos` 等）・卓のページの ABEMA のリンクの箇所ではない。止まらない
+  - origin/work/1022-hth: 対戦成績（vs）の関数（`top_pairs`・`upcoming_pairs`・`build_vs_section`・`build_vs_body` 付近）
+  - origin/work/1023-skp: 年度・選手・ランキング・トップ（`find_champions`・`build_top_data`・`write_vs` の後への追加・`main`）
+  - どちらも saikyo/ の生成物を含むので、手順3のコミットの後に取り込むと saikyo/ の生成物で衝突しうる（取り込む側で生成し直して解く。CLAUDE.md「ブランチ運用」）
+- 前提の照合:
+  - docs/notes/abema-book.md の流れ（【1】→ジョブ abema が【2】→【3】の空でない URL が上書き）と、`regenerate-saikyo.yml` の workflow_dispatch の入力 abema（update / dry_run / check、choice）・regenerate（boolean）は指示文どおり
+  - 文書の食い違い（止まる理由にしない）: abema-book.md「毎朝の作り直し」は「毎朝 04:30 JST の写真の検知…の後」「【1】は gviz で読み」と書くが、今は run-daily.yml（04:00 JST 起動）の中で images の後に動き、読みは Sheets API（`SHEETS_READER_SA_KEY`）。流れ自体は同じ
+  - 今朝の run 39836300389 のジョブ saikyo / abema（job 120036825252）は success、`MODE: update`（run-daily.yml の `inputs.scheduled && 'update'`）
+
+### 手順1 (i) origin/cloudflare（ee47bdb）の saikyo/2026 のライブ枠の卓
+
+| ファイル | 卓 | URL |
+|---|---|---|
+| 20261018-s1-a.html | 団体対抗スペシャル合戦 ベスト8 A卓 | https://abema.tv/channels/mahjong/slots/Eb6zsVg3yhjfCT |
+| 20261018-s1-b.html | 団体対抗スペシャル合戦 ベスト8 B卓 | https://abema.tv/channels/mahjong/slots/Eb6zsVg3yhjfCT |
+| 20261025-s1-a.html | Mの乱 ベスト8 A卓 | https://abema.tv/channels/mahjong/slots/ECDbhVJBh7Dykb |
+| 20261025-s1-b.html | Mの乱 ベスト8 B卓 | https://abema.tv/channels/mahjong/slots/ECDbhVJBh7Dykb |
+| 20261101-s1-a.html | 超技巧合戦 ベスト8 A卓 | https://abema.tv/channels/mahjong/slots/9CHRCzeorA4sL3 |
+| 20261101-s1-b.html | 超技巧合戦 ベスト8 B卓 | https://abema.tv/channels/mahjong/slots/9CHRCzeorA4sL3 |
+
+- ほかの 2026 の卓: 0816〜1011 の8対局×3卓（24卓）は卓の回（`/video/episode/68-38_s26_p1`〜`p24`）。ABEMA のリンクが無い卓は 20261018-s2（決勝）・20261108-s1-a・20261108-s1-b
+- 一覧の取り方: `grep -o 'https://abema[^"]*'` を saikyo/2026/2026*.html に
+
+### 手順1 (ii) 今朝の run 39836300389 のジョブ saikyo / abema（引用）
+
+```
+- 【2】最強戦: 712 行(卓 645・なし 67)
+- 回が当たった卓: 609 / 645
+  - 年度ごと(当たった / 卓): 2011 14/23・2012 20/23・2013 20/27・2014 29/29・2015 26/26・2016 38/39・2017 42/42・2018 55/55・2019 50/52・2020 48/51・2021 47/49・2022 49/49・2023 49/49・2024 49/49・2025 49/49・2026 24/33
+- なしの理由: 当たる卓なし 62・卓でない回 3・1回戦 1・2回戦 1
+- 当たった卓のうち 司会・実況・解説 のある卓: 司会 590・実況 556・解説 559
+- 【2】最強戦 を書きました。【3】手動補正: 入力あり(書いていません)
+```
+
+2026 の当たった 24 卓は (i) の卓の回の 24 卓と数が合う（今朝の時点で 1018 以降は未反映）。
+
 <!-- guide-links -->
 ---
 

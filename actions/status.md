@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-23 12:01 JST
+- 書き出した時刻: 2026-10-23 13:20 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -202,11 +202,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-23 13:17 | workflow_dispatch | cloudflare | success | #410（39899567457） | 0分29秒 |
 | 2026-10-23 11:56 | workflow_dispatch | work/1022-hth | success | #409（39892323454） | 0分50秒 |
 | 2026-10-23 11:55 | workflow_dispatch | work/1022-hth | failure | #408（39892214978） | 0分45秒 |
 | 2026-10-23 11:49 | workflow_dispatch | work/1022-hth | success | #407（39891667293） | 0分29秒 |
 | 2026-10-23 11:29 | workflow_dispatch | work/1023-skp | success | #406（39889866367） | 1分18秒 |
-| 2026-10-23 11:28 | workflow_dispatch | work/1023-skp | success | #405（39889772810） | 0分47秒 |
 
 - #408 failure: ジョブ「regenerate」 ステップ「生成物の差を実行サマリに出す」
 
@@ -217,11 +217,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-23 13:19 | workflow_dispatch | cloudflare | queued | #19（39899739516） |  |
+| 2026-10-23 13:18 | workflow_dispatch | cloudflare | success | #18（39899631956） | 0分25秒 |
 | 2026-10-19 14:59 | workflow_dispatch | cloudflare | success | #17（39207340711） | 1分11秒 |
 | 2026-10-19 14:23 | workflow_dispatch | cloudflare | success | #16（39204322369） | 1分08秒 |
 | 2026-10-18 00:30 | workflow_dispatch | cloudflare | success | #15（39045350879） | 1分10秒 |
-| 2026-10-16 09:18 | workflow_dispatch | cloudflare | success | #14（38828752868） | 1分13秒 |
-| 2026-10-15 12:17 | workflow_dispatch | work/1015-wfl-s6 | success | #13（38675506956） | 0分38秒 |
 
 ## regenerate-sitemap.yml
 
