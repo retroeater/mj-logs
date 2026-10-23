@@ -63,6 +63,58 @@ CHAT-1024-VOD-01 で止めた変更（動画の一覧4ページ /mtsuku/・/exam
 - `python3 -m unittest discover -s scripts/tests`: 1563件 OK
 - origin/cloudflare との差: 4つの生成スクリプト・テスト4本・4つの index.html の各1行・sitemap-exam・mtsuku・wayhome の lastmod・docs/decisions 4本・ログ2本（前提どおり）
 
+### マージ
+
+- push 直前に再 fetch: origin/cloudflare は e5dd45967（`git ls-remote` と一致）。`git merge-base --is-ancestor origin/cloudflare HEAD` は真
+- `git push origin work/1024-vod:cloudflare`: e5dd45967..0a91c1251（fast-forward）
+
+### マージ後の自動再生成
+
+- regenerate-page.yml（push、run 40027498348）: success。対象は exam・mtsuku・study・video_wayhome（スクリプトの変更から判定）。4ページとも生成し直したが「変更なし」でコミットは無し。無関係なページの変更: なし
+- サイトマップの lastmod の同期（run 40027498391）・公開対象の検査（run 40027478374）: success
+- Workers Builds: mj（0a91c1251 の本番のビルド）: success（2026-10-23T21:33:09Z）
+
+### 本番の確かめ
+
+`https://ryoei.pro/<一覧>/?v=0a91c125` を curl で取得（4つともリポジトリの index.html とバイト一致）。
+
+| ページ | VideoObject | ItemList | BreadcrumbList | `<iframe>` |
+|---|---|---|---|---|
+| /mtsuku/ | 0 | 1 | 0 | なし |
+| /exam/ | 0 | 1 | 0 | なし |
+| /wayhome/ | 0 | 1 | 0 | なし |
+| /study/ | 0 | 1 | 0 | なし |
+| mtsuku/ZeFtFG2ov_Q.html | 1 | 0 | 1 | なし |
+| exam/-PoeE0Bm2sE.html | 1 | 0 | 1 | なし |
+
+見込みどおり。確かめたのは本番の HTML まで（ブラウザでの見え方・Search Console の再クロールは確かめていない）。
+
+### issue
+
+- #620: 本番に入ったこと（マージ・上の表）と「平野さんが Search Console で修正を検証を押す。検証が通ったら閉じる」をコメントした（閉じていない）
+- #629: 決定（案 b、作業は CHAT-1024-VOD-03）を1行コメントした
+
+### 作業ブランチの片付け
+
+- work/1024-vod はこのログの push の後に cloudflare へ fast-forward で入れるので、マージ済みになる。リモートのブランチは cleanup-branches.yml（毎日、マージ済みを削除）に任せ、このセッションでは削除しない。削除の直前の先頭 SHA はこのログを含むコミット（最終報告の `?v=` の SHA）
+
+### 決定
+
+- `docs/decisions/mtsuku.md` に 2026-10-24（CHAT-1024-VOD-02）の見出しで、マージの承認と #629 の案 b を足した
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1024-vod（マージ済み。リモートの削除は cleanup-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1024-VOD-02.md
+- 比較URL: https://github.com/retroeater/mj/compare/e5dd45967...0a91c1251
+- 確認用URL: なし（本番 https://ryoei.pro/mtsuku/ ほか4ページの HTML で確かめた）
+- マージ: 済（0a91c1251。取り込みのマージコミットは ec78792b3）
+- issue: #620（本番に入ったことをコメント。Search Console の検証が通ってから閉じる）、#629（決定をコメント。作業は CHAT-1024-VOD-03）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
