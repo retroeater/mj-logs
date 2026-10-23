@@ -240,7 +240,7 @@ CHAT-1023-SKP-01 の仮置き（一覧の1〜29）を確定する。そのうち
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1023-SKP-03
 - ブランチ: work/1023-skp
 - ログ: https://github.com/retroeater/mj/blob/work/1023-skp/docs/logs/CHAT-1023-SKP-02.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1023-skp
@@ -256,12 +256,12 @@ CHAT-1023-SKP-01 の仮置き（一覧の1〜29）を確定する。そのうち
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 7fc3dce1）: https://github.com/retroeater/mj-logs/tree/main/guide/7fc3dce1
+ガイド文書（この版を写した時点の最新、mj 067eacf2）: https://github.com/retroeater/mj-logs/tree/main/guide/067eacf2
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/7fc3dce1/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/7fc3dce1/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/7fc3dce1/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/7fc3dce1/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/7fc3dce1/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/7fc3dce1/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/067eacf2/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/067eacf2/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/067eacf2/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/067eacf2/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/067eacf2/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/067eacf2/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/c49be44e.md
