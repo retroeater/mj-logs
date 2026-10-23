@@ -50,18 +50,38 @@ CHAT-1023-SRG-04（#624）の続き。読む先を「R_タイトル戦_マスタ
 - Chat-Ref `CHAT-1023-SRG-05` のコミットは 0 件。`SRG` は SRG-04 の続き
 - 作業ブランチ: ローカルの `work/1023-srg`（da6c84b0d）は origin/cloudflare の祖先なので `git merge --ff-only origin/cloudflare` で e4e914965 へ進めた
 
+- 着手前の確認: #624 は open。他のセッションの着手中のコメントは無い。着手中のコメント（issuecomment-6355872064）。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている。0. 「指示」欄の末尾の行は指示文の最後の行と一致
+
+### 0章: 旧ブックを読めないことの確かめ
+- 旧ブックの ID は `git show 7234543d6^:scripts/lib/ampai.py`（SRG-04 の切り替えの前）から引いた（値はログに書かない）
+- 一時のコミット aec177614 で `check_sheets_reader.py` に旧ブックを「R_Ampai（廃止の確かめ）」として足し（期待は「ログインなしで読めない」）、作業ブランチを ref に `check-sheets-reader.yml` を手動実行: run 39889326545（job 120205018402、成功、2026-10-23 11:25 JST ごろ）
+- 結果（ジョブのログの写し）:
+
+```
+| 17 | R_Ampai（廃止の確かめ）（`check_sheets_reader.RETIRED_AMPAI_ID`） | 読めない（HTTP 401） | 読めない（HTTP 401） | 成功 | 1 | 期待どおり |
+### 17. R_Ampai（廃止の確かめ）
+| 成績表 | 44 | 7 | 44行・7列 |
+```
+
+  sheets-reader の spreadsheets.get・values.get は成功し、「成績表」44行・7列を読めた＝旧ブックはまだ読める（404・403 にならない）。ほかの16冊は表のとおりすべて「期待どおり」
+- 止まる条件「0章で旧ブックを読めた」に当たったので、手順1〜3は行わず止まった。一時のコミットは 5b0edd7e4 で戻した（cloudflare とのコード・ワークフローの差は0）。SRG-04 のログの「続き」の追記・grep の直し・check-meibo・決定の記録・#624 のクローズ・マージはしていない
+- 途中で、`git revert` の書き方を誤って失敗した直後の `git commit --amend` が、push 済みの一時のコミットのメッセージだけを書き換えた（ab761b049、中身は同じ・未 push）。`git reset --soft aec177614` で push 済みのコミットに戻し、`git revert --no-commit` で戻し直した。リモートの履歴は書き換えていない
+- 参考（読めた理由の見込み。ここからは検証できない）: Google ドライブでゴミ箱に入れただけのファイルは、完全に削除されるまで共有先から ID で読めることがある。「ゴミ箱を空にする」か「完全に削除」の後なら 404 になる見込み
+- 手順1の grep は着手の前に一度だけ見た（参考。止まったので直していない）: 旧ブックの ID は docs/decisions/・docs/logs/ を除くと一時のコミットの `check_sheets_reader.py` だけ（戻した後は0）。「R_Ampai」は docs/notes/static-generation.md と `scripts/lib/ampai.py` の docstring の「2026-10-23 に『R_Ampai』の『成績表』から移した」（経緯の記述）だけ。「ryoei.pro_Ampai」は0
+- 決定（「R_Ampai をブックごと廃止した」）は、0章で前提が成り立たなかったため docs/decisions/ には記録していない
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 中断（0章で「R_Ampai」をまだ sheets-reader で読めた）
 - ブランチ: work/1023-srg
 - ログ: https://github.com/retroeater/mj/blob/work/1023-srg/docs/logs/CHAT-1023-SRG-05.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1023-srg
 - 確認用URL: なし
-- マージ: 未
-- issue: #624
-- 判断が必要なこと: なし
+- マージ: 未（止まる条件に当たったため。作業ブランチの cloudflare との差はこのログだけ）
+- issue: #624（着手中 issuecomment-6355872064・中断のコメントを残した。開いたまま）
+- 判断が必要なこと: 「R_Ampai」の廃止の状態の確かめ。run 39889326545（2026-10-23 11:25 JST ごろ）では sheets-reader で「成績表」44行・7列を読めた。ゴミ箱に入れただけなら完全に削除（ゴミ箱を空にする）してから、同じ指示を貼り直してほしい
 - 未確認の項目: なし
-- エラー: なし
+- エラー: なし（`git revert` の書き方の誤りと直し方は経過に書いた。リモートへの影響なし）
 
 <!-- guide-links -->
 ---
