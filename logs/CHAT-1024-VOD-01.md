@@ -91,6 +91,56 @@ Search Console の「動画再生ページに動画がありません」を直�
 - テスト: 4つの一覧のテストに「VideoObject を含まない・ItemList が1つ」を1本ずつ足した（`test_mtsuku.py`・`test_exam.py`・`test_study.py`・`test_wayhome_prevnext.py`）。修正前のコード（origin/cloudflare の worktree に新しいテストを写した）では4本とも FAIL、修正後は全件 OK
 - 手元ではシートの鍵（`SHEETS_READER_SA_KEY`）が無く生成できない（regenerate.py が全8ページを飛ばした）ので、生成は `regenerate-page.yml` の手動実行で行う
 
+### 生成と確かめ
+
+- `regenerate-page.yml` を work/1024-vod で手動実行（dry_run・compare_ref `origin/cloudflare`、対象は一覧4つと各話4つ）: run 39980236794。新旧で中身の違うファイルは `exam/index.html`・`mtsuku/index.html`・`study/index.html`・`wayhome/index.html` の各1行だけ（違いがあるとジョブを失敗にする作りなので結論は failure。想定どおり）。各話のページは新旧のコードで同じ
+- 同じワークフローを書く道筋で手動実行（対象は一覧4つ）: run 39981042542 が success、687018dea「chore: regenerate mtsuku/index.html exam/index.html study/index.html wayhome/index.html via GitHub Actions」を push した（4つの index.html の各1行の削除と、sitemap-exam・mtsuku・wayhome の lastmod〈ワークフローが導出〉）
+- 変更後（687018dea）の JSON-LD（@type ごとの件数）:
+
+| 一覧 | 変更前 | 変更後 | 差分 |
+|---|---|---|---|
+| /mtsuku/ | VideoObject 1・ItemList 1 | ItemList 1 | 1行削除 |
+| /exam/ | VideoObject 1・ItemList 1 | ItemList 1 | 1行削除 |
+| /wayhome/ | VideoObject 1・ItemList 1 | ItemList 1 | 1行削除 |
+| /study/ | VideoObject 1・ItemList 1 | ItemList 1 | 1行削除 |
+
+- 各話のページ（`git diff origin/cloudflare HEAD -- mtsuku exam wayhome study` は4つの index.html だけ）:
+
+| 一覧 | 各話のページ | VideoObject を持つ | og:video | `<iframe>` | 変更前との差分 |
+|---|---|---|---|---|---|
+| mtsuku/ | 61 | 61 | 61 | 0 | なし |
+| exam/ | 12 | 12 | 12 | 0 | なし |
+| wayhome/ | 42 | 42 | 42 | 0 | なし |
+| study/ | 40 | 40 | 40 | 0 | なし |
+
+- プレビュー（Workers Builds、687018dea、success）: 4つの一覧は ItemList 1 だけ。各話の `mtsuku/ZeFtFG2ov_Q.html`・`exam/-PoeE0Bm2sE.html` はリポジトリの版とバイト一致（VideoObject 1・BreadcrumbList 1）
+- テスト: `python3 -m unittest discover -s scripts/tests` は OK
+
+### issue
+
+- #620: 範囲を4ページに広げた決定と変更の要約・比較 URL をコメントした（閉じるのはマージ後の本番確認のとき）
+- #268: 「CHAT-1024-VOD-01 の決定（一覧ページには VideoObject を持たせない）により不要」とコメントし、not planned で閉じた（「状況:」ラベルは付いていなかった）
+- #629 を起票（ラベルなし）: 「動画の各話ページにプレーヤーを埋め込むか VideoObject を外すか（Search Console: 動画再生ページに動画がありません の予防）」。案（埋め込む／外す／今のまま様子を見る）と各話の数（mtsuku 61・exam 12・wayhome 42・study 40）。(a) では CSP の `frame-src 'none'` を緩めることになる点も書いた
+
+### 決定
+
+- `docs/decisions/mtsuku.md` に 2026-10-24（CHAT-1024-VOD-01）の見出しで決定を足し、exam.md・wayhome.md・study.md に参照1行を足した
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1024-vod
+- ログ: https://github.com/retroeater/mj/blob/work/1024-vod/docs/logs/CHAT-1024-VOD-01.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1024-vod
+- 確認用URL: プレビューあり（URL は最終報告）。確認したページは /mtsuku/・/exam/・/wayhome/・/study/ と各話2件。印: 4つの一覧の `<head>` に `"@type": "VideoObject"` が無い（ItemList の1行だけ）
+- マージ: 未（平野さんの判断待ち）
+- issue: #620（コメント。マージ後の本番確認で閉じる）、#268（not planned で閉じた）、#629（起票、各話のページの扱い）
+- 判断が必要なこと:
+  - work/1024-vod を cloudflare にマージしてよいか。マージ後に平野さんが Search Console（動画のインデックス登録 > 動画再生ページに動画がありません）で「修正を検証」を押す
+  - #629（各話のページにプレーヤーを埋め込む／VideoObject を外す／様子を見る）の案の選択
+- 未確認の項目: 本番への反映（マージ前のため）と Search Console の検証の結果
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
