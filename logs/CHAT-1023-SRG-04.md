@@ -1,7 +1,7 @@
 # CHAT-1023-SRG-04
 
 - 着手日時: 2026-10-23
-- 対象issue: 未定（手順1で起票）
+- 対象issue: #624
 - ブランチ: work/1023-srg
 - 着手時HEAD: 8255bdad8
 
@@ -56,6 +56,40 @@
 - Chat-Ref `CHAT-1023-SRG-04` のコミットは 0 件。`SRG` は CHAT-1018-SRG-01〜03 の続き（重複ではない）
 - 作業ブランチ: `work/1023-srg` はローカル・リモートとも無く、origin/cloudflare（8255bdad8）から作った
 
+- 0. 「指示」欄の末尾の行は指示文の最後の行と一致
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- 指示文の前提「docs/notes/static-generation.md にも『ryoau.pro_Ampai』ブック」は、実物では「ryoei.pro_Ampai」（チャット側の書き誤りとみなし、実物の表記で直す）
+
+### 手順1
+- 同じ主題の issue: 「Ampai シート 移す」「R_Ampai 廃止」「スプレッドシート 再編 シートを移す」で検索（クローズ済みを含む）。#600（「辞書」「書籍」、クローズ）・#587・#221・#223・#547 などで、同じ主題は無い
+- 未マージの work/ ブランチ（1009-swp-526・1011-swp-hnd・1011-swp-nav・1015-skd-notes・1017-lvp・1018-log-367-migrate・1023-oha）: 同じ目的のもの・変えるファイル（ampai・check_sheets_reader・static-generation.md など）を変えているものは無い
+- issue #624 を起票（本文に決定とマージ後の平野さんの手作業）。着手中のコメント（issuecomment-6354198221）
+- 読み手（`ampai.SPREADSHEET_ID`・`ampai.SHEET_NAME` を通して「成績表」を読むもの。2026-10-23 に grep で洗い出し）:
+
+| 読み手 | 経路 | いつ |
+|---|---|---|
+| `scripts/generate_jpml_pros.py`（jpml_pros） | `ampai.fetch()` | 生成 |
+| `scripts/generate_houou_pages.py`（鳳凰戦・女流桜花。`CONTEST.ampai` が空の WRC リーグ系は読まない） | `ampai.fetch()` | 生成 |
+| `scripts/check_ampai.py` | `ampai.fetch()`・編集リンクに `ampai.SPREADSHEET_ID` | `check-meibo.yml` の週次 |
+| `scripts/check_sheets_reader.py` | `BOOKS` の「R_Ampai」（ID を ast で読む） | `check-sheets-reader.yml`（手動） |
+
+  `scripts/lib/pro_stats.py` は `ampai.key`・`ampai.HOUOU` などの定数・関数だけで、シートは読まない。テスト（test_houou_tab・test_safe_url）もネットワークに出ない。文書は docs/notes/static-generation.md（jpml_pros の8項目の段落）・`check-meibo.yml` の冒頭のコメント・`ampai.py`・`check_ampai.py` の docstring と issue の文
+
+### 手順2（照合）
+- 一時のスクリプト `scripts/compare_ampai_sheets.py` を足し、`check-sheets-reader.yml` の実行の段の後に一時の行で呼ぶ形にした（607090219。切り替えのコミットで両方消す）。値・見出しの文字は出さず、件数と違うセルの位置だけを出す
+- 作業ブランチを ref に `check-sheets-reader.yml` を手動実行: run 39876749570（成功、2026-10-23 09:14 JST ごろ）。結果（ジョブのログの写し）:
+
+```
+- 旧: グリッドの列数 7・隠れた行 0
+- 新: グリッドの列数 7・隠れた行 0
+- UNFORMATTED_VALUE: 行数 旧 44・新 44 / 列数(最大) 旧 7・新 7 / 見出しの違い 0 / 違うセル 0
+- FORMATTED_VALUE: 行数 旧 44・新 44 / 列数(最大) 旧 7・新 7 / 見出しの違い 0 / 違うセル 0
+- 読み直した行数: 旧 44・新 44(変わらない)
+- 結果: 一致
+```
+
+  同じ実行の check_sheets_reader の表は 3〜17 が「期待どおり」（1・2 は取り出したログの範囲の外。「タブごと」の節では R_タイトル戦_マスタの「Ampai」は 44行・7列、R_Ampai の「成績表」も 44行・7列）
+
 ## 報告
 
 - 状態: 作業中
@@ -64,7 +98,7 @@
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1023-srg
 - 確認用URL: なし
 - マージ: 未
-- issue: 未定
+- issue: #624
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
