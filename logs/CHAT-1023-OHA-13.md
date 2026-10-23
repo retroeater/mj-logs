@@ -55,6 +55,38 @@
 
 ## 経過
 
+### 着手前の確認（手順0・1）
+
+- 手順0: このログの `## 指示` の最後の行は「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」で、指示文の最後の行と一致
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 欠けなし
+- Chat-Ref: `CHAT-1023-OHA-11`〜`13` のコミットは全ブランチに無い（11・12 は欠番と指示文にある）
+- Secret `MJ_LOGS_DISPATCH_TOKEN`（0章）: `GET /repos/retroeater/mj/actions/secrets` はこのセッションの proxy が通さなかった（「Access to this GitHub Actions path is not permitted through this proxy.」）。到達できないことを「無い」の根拠にしないため、代わりに、足すジョブの最初にトークンが空なら `::error::` で止まる手順を入れ、作業ブランチの手動実行で確かめることにした（下の「確かめ」で、空でなく起動が成功した＝Secret はある）。Secret の値・作成日時は見ていない
+- issue: #563 は open（OHA-08〜10 の後、ほかのセッションのコメントは無い）。着手中のコメントを書いた（issuecomment-6363073255）。#564 の最後の着手中は CHAT-1021-WKP-03 で、完了のコメントが後にある。ほかのセッションの着手中は無い
+- ブランチ: `origin/work/1023-oha`・ローカルとも origin/cloudflare の祖先。`git merge --ff-only origin/cloudflare` で進めた（fe3d9966e）
+- 未マージの `work/` ブランチ: `.github/workflows/run-daily.yml` を変えたものは無い
+- 前提の1つ目: `workers/scheduler/src/scheduler.mjs` の `SYNC = { repository: 'retroeater/mj-logs', workflow: 'sync-from-mj.yml', ref: 'main' }` と `dispatchSync()`（`POST …/actions/workflows/sync-from-mj.yml/dispatches`、body `{ref}`）。食い違いなし
+- docs/notes/github-actions.md「ワークフローを変更したとき」を読んだ。run-daily.yml は `workflow_dispatch` を持ち、作業ブランチから手動実行できる
+- `.github/actions/` の部品（commit-push・resolve-mode・setup-python・upsert-issue）にワークフローを起動するものは無いので、`run:` の curl 1回で書いた
+
+### 実装（3fbd42260）
+
+- run-daily.yml にジョブ `logs` を足した: `needs: [saikyo, dojo, branches]`（saikyo の前の live・sns・images はその先にあるので、ほかの本すべての後）、`if: ${{ !cancelled() }}`（どれかが失敗しても動く）、`permissions: {}`、`timeout-minutes: 5`
+- ステップ「mj-logs の同期を起動」: `env: TOKEN: ${{ secrets.MJ_LOGS_DISPATCH_TOKEN }}` で受け（`run:` に直接展開しない、#132）、空なら `::error::Secret MJ_LOGS_DISPATCH_TOKEN がありません` で失敗。`curl -sS --fail-with-body -X POST … /repos/retroeater/mj-logs/actions/workflows/sync-from-mj.yml/dispatches -d '{"ref":"main"}'`（2xx 以外は失敗）
+- 起動する範囲（要確認の件）: cloudflare に限らず、手動実行（作業ブランチを含む）でも起動する。同期は mj の cloudflare を読んで写すだけで、何度動いても同じ結果になり、作業ブランチから起動しても害が無いため。作業ブランチでも確かめられる
+- 起動が失敗したときはこのジョブだけが failure になる（ほかのジョブの結論は変わらない）。run-daily 全体の結論は failure になるので、Worker の朝の確かめ（#506）は run-daily の1行で知らせる
+- Worker（mj-scheduler）のコードは変えていない
+- `python3 -m unittest discover -s scripts/tests`: 1,534 件 OK（運行表・morning_report の run-daily の読み取りのテストを含む）
+- docs（fc49cf840）: docs/notes/github-actions.md の一覧の表の run-daily.yml の行・「run-daily.yml」の節・「権限と Secret の渡し方」の表に `logs` を足し、docs/notes/scheduler-worker.md の mj-logs の同期の項に「毎朝の運行の後の書き直しは run-daily の `logs`」を足した
+
+### 確かめ: 作業ブランチの手動実行
+
+- run-daily #17（39941143302、ref `work/1023-oha`、head 3fbd42260、`scheduled` なし＝書かない道筋）: success（10:43:46Z〜10:56:50Z、約13分）
+- 足したジョブ `logs`（job 120377532857）: success、10:56:46Z〜10:56:50Z。ログの最後に `mj-logs の sync-from-mj.yml を起動しました`（10:56:49.22Z）
+- ほかのジョブの結論は、直前の手動実行（#14、39537463560、cloudflare、2026-10-21）と同じ: dojo / sync・live / update・branches / delete・live / yotei / sync・sns / update・images / saikyo・images / check・images / sns_book・saikyo / abema・saikyo / regenerate / regenerate は success、live / regenerate・sns / regenerate は skipped
+- トークンの値: ジョブのログでは env の行が `TOKEN: ***`、curl の行も `***` に伏せられていた。値はログ・このログ・docs のどれにも出ていない
+- mj-logs の起動: mj-logs を session に足して（add_repo）REST で読んだ。`sync-from-mj.yml` の run 39942641876（#4480）が `workflow_dispatch`・triggering_actor retroeater・created 10:56:49Z で起動された（Worker の起動は毎分 :26 秒ごろで、10:56:26・10:57:26 の回とは別。時刻がジョブの起動の行と合う）
+- ただし #4480 は始まる前に cancelled になった。mj-logs の同期は `concurrency: {group: sync, cancel-in-progress: false}` で、そのとき #4479（10:55:26Z、Worker）が動いていて #4480 は待ちになり、次の Worker の起動 #4481（10:57:26Z、ほかのセッションの mj への push による）が待ちを置き換えた（GitHub の concurrency は待ちを1本だけ残す）。#4481 が同じ同期を後で行うので、書き直しは失われない。毎朝 04:25 ごろは mj への push が少なく、置き換えが起きても後の回が同じことをする
+
 ## 報告
 
 - 状態:
@@ -71,12 +103,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj b4b933ba）: https://github.com/retroeater/mj-logs/tree/main/guide/b4b933ba
+ガイド文書（この版を写した時点の最新、mj 560a6f35）: https://github.com/retroeater/mj-logs/tree/main/guide/560a6f35
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b4b933ba/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b4b933ba/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b4b933ba/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b4b933ba/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b4b933ba/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b4b933ba/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/560a6f35/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/560a6f35/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/560a6f35/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/560a6f35/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/560a6f35/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/560a6f35/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/c49be44e.md
