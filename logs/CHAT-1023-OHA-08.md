@@ -167,28 +167,43 @@
 
 - 試験のコミットは revert 78c8a1f82 で戻した（push 済みのブランチなので履歴は書き換えない）。`git diff origin/cloudflare HEAD -- scripts/generate_resource_efficiency.py scripts/generate_resource_logs.py` は空で、origin/cloudflare との差分に試験の変更は残っていない。cloudflare への push の差分（before..after）にもこの2ファイルは出ないので、マージの push で regenerate-page がこの2ページを再生成することも無い
 
+### マージ
+
+- push の直前に再 fetch したら origin/cloudflare が bb0562901 まで進んでいた（WKP-04 の docs のみ: CLAUDE.md・docs/decisions/operations.md・docs/instruction-template.md・docs/logs/CHAT-1023-WKP-04.md・docs/notes/branch-operations.md・docs/notes/chat-side-operations.md）。今回のファイルと重ならないので `git merge origin/cloudflare` で取り込み（衝突なし、5520ac167 → トレーラを付けて 67a3af2bb）、テスト 1,511 件 OK
+- `git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめ、`git push origin work/1023-oha:cloudflare`（bb0562901..67a3af2bb）
+- 67a3af2bb の check-run: check success、Workers Builds: mj success（完了の2件。in_progress の2件は始まりの記録）、notify は skipped（本番ビルドの失敗の通知）。check-assets（push、run 39877388648）success。regenerate-page は push で動いていない（生成スクリプトの差分が before..after に無い）
+- origin/cloudflare との差分に試験のコミットの変更が残っていないことは「確かめ2」のとおり
+
+### 結果
+
+- morning.md の3節は cloudflare の実行だけを見て、比の判定は「直近20回の中央値の3倍以上」かつ「中央値＋5分以上」のときだけ出す（「10分以上」はそのまま）。10/15〜の実行で比べると 43 行 → 8 行で、消えた 35 行はすべて A（中央値＋5分未満）か B（作業ブランチ）で説明できた
+- regenerate-page の「飛ばしたページを報告」の注釈の1行目は「生成に失敗したページを飛ばしました: <ページ名>, …（理由はジョブのサマリ、#533）」になり、morning.md の失敗の行はそのジョブの後に「：<1行目>」を添える。作業ブランチの試験（run 39877120835）で、注釈の1行目と添え書きの行を確かめた
+- cloudflare にマージした（67a3af2bb）。check-run・check-assets は success
+
+指示の「`## 報告` の「結果」」: `_template.md` の `## 報告` に「結果」の項目は無いため、項目を増やさずにこの節に書き、#563 へはこの節を引用した
+
 ## 報告
 
-- 状態:
-- ブランチ:
-- ログ:
-- 比較URL:
-- 確認用URL:
-- マージ:
-- issue:
-- 判断が必要なこと:
-- 未確認の項目:
-- エラー:
+- 状態: 完了
+- ブランチ: work/1023-oha
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1023-OHA-08.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1023-oha
+- 確認用URL: なし（ページ・見た目の変更は無い。Actions のスクリプトとワークフローだけ）
+- マージ: 済（67a3af2bb）
+- issue: #563（着手中・結果のコメント。閉じていない）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 67a3af2b）: https://github.com/retroeater/mj-logs/tree/main/guide/67a3af2b
+ガイド文書（この版を写した時点の最新、mj 9f33b997）: https://github.com/retroeater/mj-logs/tree/main/guide/9f33b997
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/67a3af2b/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/67a3af2b/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/67a3af2b/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/67a3af2b/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/67a3af2b/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/67a3af2b/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9f33b997/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9f33b997/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9f33b997/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9f33b997/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9f33b997/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9f33b997/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/67a3af2b.md
