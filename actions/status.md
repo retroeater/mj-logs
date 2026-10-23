@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-23 09:23 JST
+- 書き出した時刻: 2026-10-23 09:39 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -25,11 +25,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-23 09:38 | push | work/1023-srg | success | #349（39879273417） | 0分20秒 |
 | 2026-10-23 09:19 | push | work/1023-mck-304 | success | #348（39877475739） | 0分19秒 |
 | 2026-10-23 09:19 | push | work/1023-oha | success | #347（39877388648） | 0分23秒 |
 | 2026-10-23 09:18 | push | work/1023-oha | success | #346（39877331974） | 0分22秒 |
 | 2026-10-23 09:18 | push | work/1023-wkp | success | #345（39877306344） | 0分22秒 |
-| 2026-10-23 09:16 | push | work/1023-srg | success | #344（39877137567） | 0分23秒 |
 
 ## check-build-failure.yml
 
@@ -38,11 +38,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-23 09:38 | check_run | cloudflare | skipped | #438（39879336287） | 0分01秒 |
+| 2026-10-23 09:38 | check_run | cloudflare | skipped | #437（39879330826） | 0分01秒 |
 | 2026-10-23 09:21 | check_run | cloudflare | skipped | #436（39877618423） | 0分01秒 |
 | 2026-10-23 09:20 | check_run | cloudflare | skipped | #435（39877549611） | 0分00秒 |
 | 2026-10-23 09:20 | check_run | cloudflare | skipped | #434（39877543024） | 0分01秒 |
-| 2026-10-23 09:19 | check_run | cloudflare | skipped | #433（39877458554） | 0分01秒 |
-| 2026-10-23 09:19 | check_run | cloudflare | skipped | #432（39877453997） | 0分10秒 |
 
 ## check-image-links.yml
 
@@ -66,11 +66,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-23 09:38 | workflow_dispatch | cloudflare | success | #20（39879280082） | 0分38秒 |
 | 2026-10-23 09:16 | workflow_dispatch | work/1023-srg | success | #19（39877151487） | 0分38秒 |
 | 2026-10-21 11:34 | workflow_dispatch | work/1021-wkp | success | #18（39533791028） | 0分39秒 |
 | 2026-10-19 07:22 | schedule | cloudflare | success | #17（39171945710） | 0分55秒 |
 | 2026-10-18 21:22 | workflow_dispatch | work/1018-sec4 | success | #16（39127010573） | 0分46秒 |
-| 2026-10-14 13:08 | workflow_dispatch | work/1014-wfl-s1 | success | #15（38509891436） | 0分37秒 |
 
 ## check-saikyo-unregistered.yml
 
@@ -202,11 +202,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-10-23 09:16 | workflow_dispatch | work/1023-srg | in_progress | #403（39877148386） |  |
+| 2026-10-23 09:38 | push | cloudflare | in_progress | #404（39879277297） |  |
+| 2026-10-23 09:16 | workflow_dispatch | work/1023-srg | success | #403（39877148386） | 20分22秒 |
 | 2026-10-23 09:16 | workflow_dispatch | work/1023-oha | failure | #402（39877120835） | 0分31秒 |
 | 2026-10-23 08:43 | push | cloudflare | success | #401（39873694853） | 0分46秒 |
 | 2026-10-23 08:41 | workflow_dispatch | work/1022-hth | success | #400（39873393452） | 2分23秒 |
-| 2026-10-23 08:03 | workflow_dispatch | work/1022-hth | success | #399（39869197172） | 1分51秒 |
 
 - #402 failure: ジョブ「regenerate」 ステップ「飛ばしたページを報告」
 
@@ -307,11 +307,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-23 09:36 | schedule | cloudflare | success | #57（39879086236） | 0分33秒 |
 | 2026-10-22 09:38 | schedule | cloudflare | failure | #56（39700900041） | 0分35秒 |
 | 2026-10-21 09:33 | schedule | cloudflare | success | #55（39522080460） | 0分40秒 |
 | 2026-10-20 10:03 | schedule | cloudflare | success | #54（39351291092） | 0分35秒 |
 | 2026-10-19 09:10 | schedule | cloudflare | success | #53（39179567227） | 0分45秒 |
-| 2026-10-18 08:59 | schedule | cloudflare | success | #52（39081063219） | 0分44秒 |
 
 - #56 failure: ジョブ「sync」 ステップ「同期」
 

@@ -90,6 +90,14 @@
 
   同じ実行の check_sheets_reader の表は 3〜17 が「期待どおり」（1・2 は取り出したログの範囲の外。「タブごと」の節では R_タイトル戦_マスタの「Ampai」は 44行・7列、R_Ampai の「成績表」も 44行・7列）
 
+- 一致したので切り替えた（7234543d6）: `scripts/lib/ampai.py` の `SPREADSHEET_ID = live.SPREADSHEET_ID`（値を重ねて持たない）・`SHEET_NAME = "Ampai"`。`check_sheets_reader.py` の `BOOKS` から「R_Ampai」を外し、テストの専用フォルダの冊数を 15 → 14。一時のスクリプトと `check-sheets-reader.yml` の一時の行を消した（このワークフローは cloudflare との差が無くなった）。文書: docs/notes/static-generation.md（jpml_pros の8項目の段落）・`check-meibo.yml` の冒頭のコメント・`ampai.py`・`check_ampai.py` の docstring と issue の文（「ryoei.pro_Ampai」→「R_タイトル戦_マスタ」の「Ampai」シート）
+- `python3 -m unittest discover -s scripts/tests`: 1501 件 OK
+- `check-meibo.yml` のコメントを変えたので、作業ブランチで dry_run を手動実行: run 39877151487（成功。ampai・meibo の両ジョブ成功、「Ampai の URL が無い期」は「閉じるものが無い」＝最新の期の行は新しいシートにある）
+
+### 手順3（新旧の生成の比べ）
+- `regenerate-page.yml` を ref `work/1023-srg`（7234543d6）・`target_page: all`・`dry_run: true`・`compare_ref: 8255bdad8`（着手時の cloudflare、作業ブランチの祖先）で起動: run 39877148386（job 120165397778）、success（09:16〜09:37 JST）。中身の違うファイルの一覧は空で、compare_ref のコードの生成も失敗していない（違いがあれば失敗する形）＝差分0。新しいコードの生成のログに「Ampai のブックを取得中...」があり、新しいシートから読めている
+- 決定を `docs/decisions/pros.md`「2026-10-23（CHAT-1023-SRG-04）」に足した
+
 ## 報告
 
 - 状態: 作業中
@@ -106,12 +114,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 49b9ce27）: https://github.com/retroeater/mj-logs/tree/main/guide/49b9ce27
+ガイド文書（この版を写した時点の最新、mj e27f8625）: https://github.com/retroeater/mj-logs/tree/main/guide/e27f8625
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/49b9ce27/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/49b9ce27/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/49b9ce27/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/49b9ce27/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/49b9ce27/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/49b9ce27/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/8255bdad.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e27f8625/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e27f8625/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e27f8625/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e27f8625/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e27f8625/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e27f8625/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/dcced8d5.md
