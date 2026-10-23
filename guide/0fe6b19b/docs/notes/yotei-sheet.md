@@ -80,7 +80,7 @@
 
 `sync-yotei.yml` の最後のステップ（`scripts/sync_live_calendar.py`、組み立てと比較は `scripts/lib/live_calendar.py`）。
 書き込み先はカレンダー ID `live_calendar.CALENDAR_ID`（公開カレンダーの ID のため、GitHub の変数ではなくコードの定数に置く）。
-カレンダーの読み書きは `GCP_SA_KEY`（カレンダー用のサービスアカウント。平野さんが「予定の変更」で共有済み）。スプレッドシートは gviz で読む。
+カレンダーの読み書きは `GCP_SA_KEY`（カレンダー用のサービスアカウント。平野さんが「予定の変更」で共有済み）。スプレッドシートは `lib/sheets.py` の `fetch_records()`（Sheets API、`sheets-reader`）で読む。
 サイトからの導線は「リソース > カレンダー」（`_redirects` の `/resource_calendar.html` の埋め込みに `src`・`color` を1組、#480）。
 
 - **予定は2種類**。どちらも私的拡張プロパティ `ryoei=live` と `key` を持ち、`key` で今の予定と結び付ける（手で足した予定には触らない）
@@ -140,7 +140,7 @@
 
 1. スプレッドシート「ryoei.pro_日本プロ麻雀連盟_予定表」を開き、右上の「共有」
 2. `live-channel-writer` のサービスアカウントのメールアドレス（/live の3層のスプレッドシートの共有に出ているものと同じ）を、権限「**編集者**」で追加する
-3. 「リンクを知っている全員が閲覧可」は今のまま（読むだけなら共有が無くても読める）
+3. 一般的なアクセスは変えない（専用フォルダ「【本番環境】」にあり、一般的なアクセスは「制限付き」（2026-10-21〜。読むのは `sheets-reader`、docs/notes/sheets-reader.md「段取りと今の状態」））
 4. タブ名は「【1】元データ」「【2】自動変換後」「【3】手動補正」（変えるときは `scripts/lib/yotei.py` も直す）
 
 2026-09-28 の最初の書き込みは `403 The caller does not have permission` で拒否された（読み取りは通った）。シートが誕生日カレンダーのサービスアカウントに

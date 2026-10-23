@@ -12,23 +12,23 @@
 - ページの生成は SNS の値をすべて `lib/sns.py` から読み、列の位置を持たない。`sns.fetch_pros()` は `pro_sheet.fetch_pros()` と同じ形で返し、SNS の見出し（XID・X画像・noteID・note画像・YouTubeID・YouTube画像）の値だけを SNS ブックから入れる。`sns.others()` は「連盟プロ以外」の行に X の値を入れて `NameBook` の形にする。title/ は「連盟プロ以外」の X ID・X画像URL を `sns.lookup()` の値で置き換える
 - 通るもの: jpml_pros・saikyo・live・books・houou_race（`houou/` も）・title・wayhome・誕生日・道場部・jpml_test・`fetch_youtube_channels.py`・写真の検知
 - 引く値: ID は【2】、画像の URL は【3】に【4】の空でないセルを重ねたもの（【4】の ID の列は使わない）。【2】の「-」は空と同じ（リンクもアイコンも出さない・代替アバター）。ID が空の SNS は画像も出さない。状態「一覧に無い」の行は使わない
-- gviz で読む（ログインなし）。1回の実行で1度だけ読む。【2】で名前が重複していたら生成を止める
+- `lib/sheets.py` の `fetch_table()`（Sheets API、`sheets-reader`）で読む。1回の実行で1度だけ読む。【2】で名前が重複していたら生成を止める
 - **【3】【4】の X画像URL は `_400x400`**（#558）。毎日の更新が前の値を残すときも `_400x400` に直して書く（下の「毎日の更新」）。ページで出す大きさは各生成スクリプトの定数で決め、`lib/x_images.with_size()` でシートの末尾によらず書き換える（books/ は凍結中で対象外。鳳凰戦の順位変動の丸〈28px〉とランキングの表のアイコン〈40px〉は `_80x80`〈2026-10-14〉、houou/ の選手の写真は `_200x200`。`generate_houou_race.py` の `IMAGE_SIZE` は houou/ の選手の写真にも効くので、丸は `CHIP_IMAGE_SIZE`、表は `generate_houou_pages.py` の `RANKING_ICON_SIZE` で小さくしている）
 - 帰り道の写真の確かめ（`lib/wayhome.py` の `check_player_photos()`）は、この値（`_400x400`）に効く。読めなければ生成を止める（直す先は【2】の X ID か【4】）
 
 ## 検知と更新の役割
 
-- **毎日 04:30 の検知（`check-image-links.yml`）は3つのジョブで画像を見る。** ジョブ `check` は `jpml_pros.html` の `<img>`（X・note・YouTube）、ジョブ `saikyo` は最強戦の写真（2026-10-13 から両方とも毎日。それまで `check` は週1回）、ジョブ `sns_book` はこのブックの実効の値（【3】に【4】を重ねた全行。ページに出ない行も見る）の画像（`scripts/check_sns_book_images.py`、2026-10-13 から）
+- **毎朝の検知（`check-image-links.yml`。`run-daily.yml` が `update-sns-book` の後に呼ぶ）は3つのジョブで画像を見る。** ジョブ `check` は `jpml_pros.html` の `<img>`（X・note・YouTube）、ジョブ `saikyo` は最強戦の写真（2026-10-13 から両方とも毎日。それまで `check` は週1回）、ジョブ `sns_book` はこのブックの実効の値（【3】に【4】を重ねた全行。ページに出ない行も見る）の画像（`scripts/check_sns_book_images.py`、2026-10-13 から）
   - `sns_book` が見る X の画像はシートの値の大きさ（`_400x400`）だけ。【3】に `_80x80` が残っていても `_400x400` に直して確かめる（#558）。既定アイコンは見ない。note・YouTube はシートの値のまま。ページで使う `_80x80` は `check`、`_200x200` は `saikyo` が見る
   - 結果は常設 issue「画像リンク切れの検知結果」（#352）の「SNS ブック」の節（`check` の節と別。各ジョブは自分の節だけを書き換え、全節で切れが無いと閉じる。閉じた後に切れが出たら、新しく作らずに #352 を開き直す〈2026-10-14 から〉）。所要は約4〜5分（1,313種類、2026-10-13）
-- **X API を呼ぶのは SNS ブックの毎日の更新（04:10）だけ。** 写真の検知（`collect_saikyo_images.py`、04:30）は X API を呼ばず、最強戦の写真（SNS ブックの実効の値）を HEAD で確かめ、取得できない選手の状態を【3】の X状態と【4】の有無で検知の issue に出す
+- **X API を呼ぶのは SNS ブックの毎日の更新（`update-sns-book.yml`）だけ。** 写真の検知（`collect_saikyo_images.py`、更新の後）は X API を呼ばず、最強戦の写真（SNS ブックの実効の値）を HEAD で確かめ、取得できない選手の状態を【3】の X状態と【4】の有無で検知の issue に出す
 - 【4】の値が取れない行は、状態「【4】手動補正の値が取れない(自動では直さない)」（2026-10-10 の決定）。それ以外は「【3】<X状態>」（上限で未取得・リンク切れ などは翌日以降の更新で取り直す）
 - 更新が X API を呼べていない（認証の失敗・クレジット切れ・レート制限・トークンなし）行があるときは、issue に「自動解決は働いていません」の1行が出る
 - **更新で【3】のページが使う値（SNS の ID・画像URL）が変わった日だけ、全ページを再生成する**（`update-sns-book.yml` のジョブ `regenerate` が `regenerate-page.yml` を `all` で呼ぶ）。【4】を直しただけの日は再生成されない（`regenerate-page.yml` を手動で `all`、または翌週月曜の定期の再生成）
 
 ## ブック
 
-- ID は `scripts/lib/sns_book.py` の `SPREADSHEET_ID`。持ち主は平野さん。`live-channel-writer` を編集者で共有し、「リンクを知っている全員」の閲覧者にしてある（生成が gviz で読むため）
+- ID は `scripts/lib/sns_book.py` の `SPREADSHEET_ID`。持ち主は平野さん。`live-channel-writer` を編集者で共有している。専用フォルダ「【本番環境】」にあり、一般的なアクセスは「制限付き」（2026-10-21〜。読むのは `sheets-reader`、docs/notes/sheets-reader.md「段取りと今の状態」）
 - 書くのは `live-channel-writer`（Secret `LIVE_SHEETS_SA_KEY`）。docs/notes/live-channel-write.md の「使い回さない」の例外（2026-10-10 の決定）
 - 書いてよい先は `scripts/lib/sheets_write.py` の `WRITABLE` で【1】【2】【3】だけ。【4】は空のときに見出しの1行だけ（`HEADER_ONLY`）
 
