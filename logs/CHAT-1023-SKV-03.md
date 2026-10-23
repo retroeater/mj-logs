@@ -47,15 +47,71 @@
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 着手前の確認
+
+- 手順0: ログの「指示」欄の末尾は指示文の最後の行と一致
+- 同じ Chat-Ref のコミット: 0件（`SKV` はこのセッションの識別子、3本目）。雛形の行: 欠けなし
+- 作業ブランチ: work/1023-skv-play はローカル・リモートとも無し → `git checkout -b work/1023-skv-play origin/cloudflare`（c49be44e0）
+- #577: open（ラベル 分野: 自動化・分野: UI/UX・対象: saikyo）。本文の「理由」のとおり、`abema_episode_id()` が `/video/episode/<回のID>` だけを回とみなし、`build_table_hero()` の `elif` の枝で「ABEMA で見る」（`VIDEO_LABEL`）になる。前提と一致。着手中のコメントを書いた（https://github.com/retroeater/mj/issues/577#issuecomment-6360726168 ）
+- 未マージの work/ ブランチで `scripts/generate_saikyo_pages.py` を変えているのは work/1022-hth（vs の関数: `top_pairs`・`build_vs_row` 付近・`build_vs_body`、定数 159 行付近）と work/1023-skp（import・定数 162 行付近への追加・`find_champions`・`build_top_data`・`write_vs` の後・`main`）。どちらも `build_table_hero`・`VIDEO_LABEL`・`ABEMA_EPISODE_*` の行に触れない。止まらない
+
+### 手順1 出し分けのコード
+
+- `scripts/generate_saikyo_pages.py` の `build_table_hero()`（775 行〜）: `abema_episode_id(table.video)` が空でなければ「▶ 再生」（`PLAY_LABEL`）と画像のリンク（`mj-saikyo-hero-link`）、空で `safe_url()` が通れば `VIDEO_LABEL`「ABEMA で見る」のボタンだけ
+- `build_table_hero()` を呼ぶのは saikyo/ の卓のページ（`build_table_page_body()`）だけ。/live・帰り道は別のスクリプト（`generate_live_pages.py` 等）で自前のヒーローを組むので、saikyo/ 以外の見た目は変わらない。CSS（`mj-video-btn`）は変えない
+
+### 手順2 変更（コミット 51aeb8bc9）
+
+- 定数 `ABEMA_SLOT_URL`（`https://abema.tv/channels/<ch>/slots/<id>`、後ろに `?`・`#` があってもよい）を足し、`elif` の枝でこれに当たるときだけ文言を `<span aria-hidden="true">▶</span> 再生` にする。行き先（ライブ枠の URL）・新しいタブ・`NEW_TAB_HINT`・ヒーローの画像・出典は同じ。画像のリンクは出さない（今のまま）
+- 短縮 URL（`abema.go.link`）・ほかの回でない URL は今のまま「ABEMA で見る」（決定は「ライブ枠の URL の卓」。#577 には短縮 URL もライブ枠として入れた例があるが、今の【3】は slots の形。短縮 URL の扱いは #577 に残すとコメントに書いた）
+- 検査: `scripts/tests/test_saikyo_pages.py` に `test_live_slot_url_gets_play_button` を足した（slots の URL で「▶ 再生」・`VIDEO_LABEL` なし・画像のリンクなし、`/channels/mahjong` だけなら「ABEMA で見る」）
+- 修正前の `generate_saikyo_pages.py`（HEAD の版を一時的に置いた）で `test_saikyo_pages` を流すと新しい検査だけが失敗（Ran 50, failures=1）、修正後は `python3 -m unittest discover -s scripts/tests` で Ran 1513 OK
+
+### 手順3 regenerate-page.yml（ref work/1023-skv-play、saikyo_pages）
+
+- 作業ブランチに入ったコミット: ab2c880c9「chore: regenerate saikyo/ via GitHub Actions」（5 files changed, 8 insertions(+), 8 deletions(-)）
+  - (a) ライブ枠の卓のページ（4）: saikyo/2026/20261025-s1-a.html・20261025-s1-b.html・20261101-s1-a.html・20261101-s1-b.html（各 1行）
+  - (b) それ以外の saikyo/ のページ: なし
+  - (c) sitemap*.xml（1）: sitemap-saikyo.xml（8。上の4ページの lastmod が 2026-10-19／2026-10-17 → 2026-10-23。ページが変わったため）
+  - (d) その他: なし
+- (a) のボタンの前後（20261025-s1-a.html の行の全文。ほかの3ページは行き先の URL だけが違う）:
+
+```
+-		<div class="mj-video-hero-actions"><a class="mj-video-btn mj-video-btn-primary" href="https://abema.tv/channels/mahjong/slots/ECDbhVJBh7Dykb" target="_blank" rel="noopener">ABEMA で見る<span class="visually-hidden">（新しいタブで開く）</span></a></div>
++		<div class="mj-video-hero-actions"><a class="mj-video-btn mj-video-btn-primary" href="https://abema.tv/channels/mahjong/slots/ECDbhVJBh7Dykb" target="_blank" rel="noopener"><span aria-hidden="true">▶</span> 再生<span class="visually-hidden">（新しいタブで開く）</span></a></div>
+```
+
+  - 20261025-s1-b.html: 行き先 https://abema.tv/channels/mahjong/slots/ECDbhVJBh7Dykb 「ABEMA で見る」→「▶ 再生」
+  - 20261101-s1-a.html・20261101-s1-b.html: 行き先 https://abema.tv/channels/mahjong/slots/9CHRCzeorA4sL3 「ABEMA で見る」→「▶ 再生」
+- プレビュー: ab2c880c9 の「Workers Builds: mj」（プレビュー）completed / success。プレビューの 20261025-s1-a.html（200）に「▶ 再生」が出ていることを HTML で確かめた（URL は最終報告にだけ書く。ブラウザでの見え方は確かめていない）
+- docs/decisions/saikyo.md に今回の決定を足した
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1023-skv-play
+- ログ: https://github.com/retroeater/mj/blob/work/1023-skv-play/docs/logs/CHAT-1023-SKV-03.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1023-skv-play
+- 確認用URL: プレビューあり（URL は最終報告）。確認するページ: saikyo/2026/20261025-s1-a.html（ほかに 20261025-s1-b・20261101-s1-a・20261101-s1-b）。この版の印: ヒーローのボタンが「▶ 再生」（本番は「ABEMA で見る」）
+- マージ: 未（平野さんの判断待ち。プレビューを見て決める）
+- issue: #577（着手中のコメント。ボタンの文言だけで、残りは #577 に残す）
+- 判断が必要なこと:
+  - プレビューを見て、cloudflare へマージしてよいか
+  - 短縮 URL（`abema.go.link`）の卓は今のまま「ABEMA で見る」にした（決定の「ライブ枠の URL」を slots の形と読んだ。今の【3】に短縮 URL の卓は無い）。短縮 URL も「▶ 再生」にするなら別の指示（または #577）で
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj c49be44e）: https://github.com/retroeater/mj-logs/tree/main/guide/c49be44e
+ガイド文書（この版を写した時点の最新、mj d043813b）: https://github.com/retroeater/mj-logs/tree/main/guide/d043813b
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c49be44e/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c49be44e/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c49be44e/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c49be44e/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c49be44e/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c49be44e/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/ee47bdbe.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d043813b/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d043813b/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d043813b/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d043813b/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d043813b/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d043813b/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/c49be44e.md

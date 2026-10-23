@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-23 17:28 JST
+- 書き出した時刻: 2026-10-23 17:30 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -25,11 +25,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-23 17:30 | push | work/1023-oha | in_progress | #371（39925145974） |  |
+| 2026-10-23 17:29 | push | work/1022-hth | success | #370（39924966198） | 0分28秒 |
 | 2026-10-23 17:26 | push | work/1023-acf | success | #369（39924609521） | 0分22秒 |
 | 2026-10-23 17:24 | push | work/1023-skv-play | success | #368（39924411113） | 0分20秒 |
 | 2026-10-23 17:04 | push | work/1022-hth | success | #367（39922028323） | 0分23秒 |
-| 2026-10-23 17:01 | push | work/1022-hth | success | #366（39921710774） | 0分23秒 |
-| 2026-10-23 13:23 | push | work/1023-skv | success | #365（39900093861） | 0分21秒 |
 
 ## check-build-failure.yml
 
@@ -202,11 +202,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-10-23 17:28 | workflow_dispatch | work/1022-hth | in_progress | #416（39924835242） |  |
+| 2026-10-23 17:29 | workflow_dispatch | work/1022-hth | success | #417（39924968660） | 0分38秒 |
+| 2026-10-23 17:28 | workflow_dispatch | work/1022-hth | success | #416（39924835242） | 0分33秒 |
 | 2026-10-23 17:24 | workflow_dispatch | work/1023-skv-play | success | #415（39924429301） | 0分59秒 |
 | 2026-10-23 17:05 | workflow_dispatch | work/1022-hth | success | #414（39922145755） | 0分46秒 |
 | 2026-10-23 17:04 | workflow_dispatch | work/1022-hth | failure | #413（39922029210） | 0分45秒 |
-| 2026-10-23 17:01 | workflow_dispatch | work/1022-hth | success | #412（39921724067） | 0分38秒 |
 
 - #413 failure: ジョブ「regenerate」 ステップ「生成物の差を実行サマリに出す」
 
