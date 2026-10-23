@@ -182,28 +182,39 @@
 
 指示の「`## 報告` の「結果」」: `_template.md` の `## 報告` に「結果」の項目は無いため、項目を増やさずにこの節に書き、#563 へはこの節を引用した
 
+### マージ後の mj-logs の書き出し
+
+- ログの追いの push（9f33b9975、途中で cloudflare が ba8f9f54f〈MCK-22 の docs のみ〉に進んでいたので取り込み直した）の後の同期で、mj-logs の actions/morning.md が 2026-10-23 09:23 JST に書き出された。3節の見出しは新しい文（「cloudflare の実行だけ。…かつ中央値＋5分以上…」）で、新しいコードで動いた
+- ただし1節の試験の実行の行は `ジョブ「regenerate」` だけで、添え書きが付いていない（同じ時点の API の応答で、作業ブランチの同じコードをこのセッションのトークンで回したときは付いた）
+- 見込みの原因: mj-logs の `sync-from-mj.yml` は mj を Secret `MJ_READ_TOKEN`（ワークフローのコメントでは mj の Contents・Actions が Read-only）で読む。`GET /repos/{repo}/check-runs/{id}/annotations` は Checks の Read が要るので、この呼び出しが拒否され、作りどおり添えずに今の行で出したと見られる（ジョブ名の行が出ているので、ジョブの一覧〈Actions の権限〉は引けている）。mj-logs の Actions の実行のログはこのセッションから読めず（API は 403、add_repo は git の読み取りだけ）、`::warning::ジョブ … の注釈を引けなかった` の行は確かめていない
+- 書き出しは止まっていない（失敗は警告にして続ける作り）
+- docs/notes/github-actions.md の morning.md の項に、Checks の Read が要ることと今の状態を書いた
+
 ## 報告
 
-- 状態: 完了
+- 状態: 判断待ち
 - ブランチ: work/1023-oha
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1023-OHA-08.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1023-oha
 - 確認用URL: なし（ページ・見た目の変更は無い。Actions のスクリプトとワークフローだけ）
-- マージ: 済（67a3af2bb）
+- マージ: 済（67a3af2bb。ログの追いの push 9f33b9975 とその後の docs）
 - issue: #563（着手中・結果のコメント。閉じていない）
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 判断が必要なこと:
+  - 本番の morning.md では飛ばしたページ名の添え書きが付かない見込み。mj-logs の同期が使う `MJ_READ_TOKEN`（mj の Contents・Actions の Read-only）では check-run の annotations（Checks の Read が要る）を引けないと見られる（「経過」の「マージ後の mj-logs の書き出し」）。(a) 平野さんが `MJ_READ_TOKEN` に mj の Checks の Read を足す（推奨。コードの変更は不要。2026-10-24 09:16 JST までの同期なら、試験の実行 39877120835 の行で添え書きを確かめられる）、(b) 足さずに今のまま（ジョブ名だけの行で、ページ名は注釈かジョブのサマリを見る）
+- 未確認の項目:
+  - 権限を足した後の mj-logs の morning.md で、失敗の行に「：生成に失敗したページを飛ばしました: …」が付くこと
+  - mj-logs の同期の実行のログに `::warning::ジョブ … の注釈を引けなかった` が出ているか（原因の裏付け。このセッションからは読めない）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 9f33b997）: https://github.com/retroeater/mj-logs/tree/main/guide/9f33b997
+ガイド文書（この版を写した時点の最新、mj dcced8d5）: https://github.com/retroeater/mj-logs/tree/main/guide/dcced8d5
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9f33b997/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9f33b997/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9f33b997/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9f33b997/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9f33b997/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9f33b997/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/dcced8d5/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/dcced8d5/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/dcced8d5/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/dcced8d5/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/dcced8d5/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/dcced8d5/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/67a3af2b.md
