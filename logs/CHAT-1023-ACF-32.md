@@ -52,28 +52,102 @@
 
 ## 経過
 
+### 着手前の確認
+
+- 同じ Chat-Ref のコミット: なし。ACF は既存の識別子。実装を含まないため0章ゲートは対象外
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 4行とも欠けなし
+- 0.（指示欄の末尾と指示文の最後の行の一致）: 一致
+- #352: open（2026-10-22 19:18 UTC に「images / check」が開き直した）。着手中のコメントは ACF-06・ACF-09・ACF-21（2026-10-13〜14）のもので、どれも完了済みの作業。着手中のコメントを残した
+- 作業ブランチ: `origin/work/1023-acf`・ローカルとも cloudflare の祖先だったため `git merge --ff-only origin/cloudflare`（94c95e8bb）。ログ先行 push 済み
+
+### 手順1: run 39836300389 のログ
+
+「sns / update」（job 120028233218、19:06:14〜19:06:33 UTC、mode update・dry_run false）の出力は集計だけで、行ごとの出力は無い:
+
+```
+- 【2】ID: 1854 行(一覧に無い 1)、変わらない
+- X API を呼んだ件数: 1(上限 30)
+- 別の X ID と同じ画像の行(取り直す): 
+- X状態: シートから写した 979、未入力 776、解決 77、既定のアイコン 12、アカウントなし(確認済み) 10
+- 【3】画像取得 を書き直します
+- ページが使う値(ID・画像URL)が変わった人: 1
+```
+
+上限（30）には当たっていない。X API のエラーも無い。状態「解決(一部の大きさが取得できない)」の行は 0。
+
+「images / check」（job 120032680583、19:15:10〜19:17:59 UTC）:
+
+```
+確認: 1140件 / 失敗: 1件
+  [404] 瀬戸麻衣 X — https://pbs.twimg.com/profile_images/2015763328854044672/nI4jg7Q8_80x80.jpg
+```
+
+その後「#352(closed) を開き直して本文を書き換える」。10-21 の検知までは切れが無く、#352 は閉じていた。
+
+### 手順1: dry_run の update（run 39890617104、2026-10-23 02:38 UTC、mode update・dry_run 真）
+
+```
+- X API を呼ぶ予定の件数: 1(上限 30)
+- X状態: シートから写した 978、未入力 776、解決 77、既定のアイコン 12、アカウントなし(確認済み) 10、dry-run(呼ぶ予定) 1
+- ページが使う値(ID・画像URL)が変わった人: 0
+- dry-run のため書きません
+```
+
+X API は呼んでいない（`XFetcher.get` は dry_run では呼ばずに状態「dry-run(呼ぶ予定)」を返す）。dry_run では `pages_changed` を出さないため、再生成も走っていない。
+
+今、取り直しの対象は1行で、その行は今朝の本実行では「シートから写した」と数えられていた（979 → 978＋1）。どの行かはログに出ないが、jpml_pros.html の 1140件で切れが出ているのは瀬戸さんの1件だけなので、瀬戸さんの行である見込みが高い（未確定）。
+
+### 手順2: 今の値と HEAD の結果
+
+- jpml_pros.html（66afe3b40）の瀬戸さんの X の img: `https://pbs.twimg.com/profile_images/2015763328854044672/nI4jg7Q8_80x80.jpg`。この URL は 2026-09-07（aff2316fe）から変わっていない。houou/ranking/round-plus-streak/index.html も同じ画像の `_80x80` を使う
+- コンテナから pbs.twimg.com に届いた（2026-10-23 02:30〜02:40 UTC ごろ、HEAD）:
+  - `_400x400` 200（6回中6回）・`_200x200` 200・`_normal` 200・`_mini` 200・`_bigger` 404
+  - `_80x80` は**揺れる**: 1回目 200、続く5回 404、5秒おきの12回では 404 が10回・200 が2回。GET は 200 が1回
+  - 404 のときの見出しは `x-served-by: t4_a`・`x-cache: EXPIRED`（オリジン側の応答）。200 のときは `x-cache: HIT, HIT`・`x-served-by: t4_a, cache-pdk-…, cache-chi-…`（CDN のキャッシュ）・`last-modified: Mon, 26 Jan 2026 12:24:43 GMT`
+- 【3】・【4】の値: コンテナには鍵が無く、SNS ブックを直接は読めない。ログにも行ごとの値は出ないため、【3】の X画像URL・X状態・取得日と【4】の有無は**確かめられなかった**。分かるのは次のことだけ:
+  - 実効の値（【3】に【4】を重ねたもの）は `nI4jg7Q8` の画像。「SNS ブック」の節（`_400x400` だけを見る）で切れが無く、jpml_pros.html もこの画像を使っている
+  - dry_run の取り直しの1行が瀬戸さんなら、【3】の状態は「シートから写した」（X数値ID が空のまま前の値を残した行）。【4】に値があれば `update_sns_book.py` は【3】だけを直すので、取り直しても実効の値は変わらない
+
+### 手順3: どの見立てに当たるか
+
+- 起きていること: 画像は 2026-01-26 から変わっていない。X のオリジンが、この画像の `_80x80`（と `_bigger`）に 404 を返すようになった。CDN の一部のキャッシュには前の 200 が残っていて、取るたびに 200 と 404 が入れ替わる。`_400x400`・`_200x200` は取れる
+- 今朝自動で直らなかった理由（推定）: 19:06 の「sns / update」は、瀬戸さんの `_80x80` の HEAD でたまたま 200 を受けて「取れる」と判断し、前の値を残した。そう考える根拠は次の2つ。(i) 状態の件数の内訳が dry_run の1行（呼ぶ予定）を除けば本実行と同じで、本実行ではその行が「シートから写した」のまま数えられている。(ii) 取り直していれば、同じ URL が返って `_80x80` だけ取れず、状態「解決(一部…)」が1件出るはずだが、0 件だった。本実行の X API の1件は別の行（その行は「ページが使う値が変わった人: 1」にあたる）とみられる。9分後の 19:15 の「images / check」は 404 を受けた
+- 見立て (1)〜(4) との対応:
+  - (1) 取り直したが `_80x80` だけ取れない: 今朝は取り直していない見込み。ただ、次に update が 404 を受けて取り直すと、X API は同じ画像の URL を返すので、(1) の状態（「解決(一部の大きさが取得できない)」、以後7日ごと）になる。**取り直しても jpml_pros.html の `_80x80` は直らない**（ページは大きさを `_80x80` に書き換えて使うため）
+  - (2) 【4】の値: 確かめられなかった。ただ、【4】に何が入っていても、画像そのものの `_80x80` がオリジンに無いので結果は同じ
+  - (3) 画像の変更が今朝の更新より後: 当たらない（last-modified は 2026-01-26。URL は 09-07 から同じ）
+  - (4) 30件の上限・X API のエラー: 当たらない（呼んだのは 1/30、エラーなし）
+- 自動で直る見込み: **無い**。直るのは、本人がアイコンを変えて新しい URL になったときか、X 側が `_80x80` を出し直したときだけ。それまでは、update が 404 を受けた日に取り直し（X API 1件）をして状態「解決(一部…)」になる。check も受けた応答しだいで、#352 は開いたり閉じたりを繰り返す見込み
+
 ## 報告
 
-- 状態:
-- ブランチ:
-- ログ:
-- 比較URL:
-- 確認用URL:
-- マージ:
-- issue:
+- 状態: 判断待ち
+- ブランチ: work/1023-acf
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1023-ACF-32.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1023-acf
+- 確認用URL: なし
+- マージ: 済（work/1023-acf を cloudflare へ fast-forward。ログと docs/decisions/automation.md のみ）
+- issue: #352（コメント。本文・状態・ラベルは変えていない）
 - 判断が必要なこと:
+  - 結論: 瀬戸麻衣さんの X の画像（2026-01-26 から同じ）は、X のオリジンが `_80x80` に 404 を返すようになっていた。CDN のキャッシュが前の 200 を返すことがあるため、取るたびに結果が揺れる（コンテナからの12回では 404 が10回・200 が2回。`_400x400`・`_200x200` は常に 200）。今朝の「sns / update」は HEAD でたまたま 200 を受けて取り直さなかった見込みで、9分後の「images / check」は 404 を受けた。見立て (3)・(4) は当たらない。(2)【4】の有無は鍵が無く確かめられなかったが、結果は変わらない。取り直しても X API は同じ画像の URL を返すため、(1)「解決(一部の大きさが取得できない)」になるだけで、ページの `_80x80` は**自動では直らない**
+  - 直し方の案（どれにするか）:
+    - (a) 何もしない（本人がアイコンを変えるか、X 側が直すのを待つ）。メリット: 作業なし。デメリット: jpml_pros.html と houou のランキングの表で、閲覧者によってアイコンが出ない。#352 が開いたり閉じたりを繰り返す
+    - (b) 状態が「解決(一部の大きさが取得できない)」の行は、ページで `_80x80` の代わりに `_200x200` を使う（推奨）。変えるのは jpml_pros.html と houou のランキング・順位変動の丸の生成スクリプト（`lib/x_images.with_size()` を呼ぶ所）と、そのテスト。メリット: 今ある状態をそのまま使え、取れない人だけが少し大きい画像になる。デメリット: その状態になるには、update が HEAD で 404 を受けて取り直す（X API 1件）必要がある。揺れのため、何日かかるかは分からない
+    - (c) ページの JS で、画像が読めなかったら `_200x200` に差し替える（jpml_pros.js など）。あわせて check を「`_80x80` が切れていても `_200x200` が取れれば切れとしない」に変える。メリット: 揺れに左右されず、今日から直る。デメリット: JS と検知スクリプトの2か所を変える。houou/ の生成ページは JS を持たないものもあり、全部には効かない
 - 未確認の項目:
-- エラー:
+  - 瀬戸さんの行の【3】の X画像URL・X状態・取得日と【4】の値の有無（鍵が無いため。dry_run の取り直しの1行が瀬戸さんかも、ログからは確定できない）
+  - 平野さんのブラウザで、jpml_pros.html の瀬戸さんのアイコンが出ているか（CDN のどのキャッシュに当たるかで変わる）
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 94c95e8b）: https://github.com/retroeater/mj-logs/tree/main/guide/94c95e8b
+ガイド文書（この版を写した時点の最新、mj 96d8464b）: https://github.com/retroeater/mj-logs/tree/main/guide/96d8464b
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/94c95e8b/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/94c95e8b/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/94c95e8b/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/94c95e8b/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/94c95e8b/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/94c95e8b/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/96d8464b/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/96d8464b/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/96d8464b/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/96d8464b/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/96d8464b/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/96d8464b/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/bb98660e.md
