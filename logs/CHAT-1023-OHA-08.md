@@ -61,6 +61,20 @@
 
 ## 経過
 
+### 着手前の確認（手順0・1）
+
+- 手順0: このログの `## 指示` の最後の行は「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」で、指示文の最後の行と一致
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 欠けなし
+- Chat-Ref: `CHAT-1023-OHA-08` のコミットは全ブランチに無い。OHA は 1014-OHA-02〜07 の続きの番号で、最初の指示ではない
+- ブランチ: `origin/work/1023-oha` もローカルも無かったので `git checkout -b work/1023-oha origin/cloudflare`（8255bda）
+- #563: open、着手中のコメントは無し（コメントは CHAT-1015-MRF-01 の1件だけ）。着手中のコメントを書いた（issuecomment-6354149068）
+- #564: 最後の着手中は CHAT-1021-WKP-03 で、同じ人がその後に完了のコメントを書いている。着手中のものは無し
+- 未マージの `work/` ブランチ（7本）: `scripts/morning_report.py`・`scripts/actions_status.py`・`scripts/regenerate.py`・`.github/workflows/regenerate-page.yml`・`scripts/tests/test_morning_report.py` のどれも変えていない（`git diff --name-only origin/cloudflare...<b>` で0件）
+- 前提1つ目: origin/cloudflare の `morning_report.py` に `failed_jobs_note()`（ジョブ名）・`render()` の `too_long`（ほかの実行の中央値が10分未満の本だけ絶対値で見る）・`covered_by_daily()` がある。食い違いなし
+- 前提2つ目: 「飛ばしたページを報告」の `::error::` は固定の文で、ページ名は `regenerate.py` の `report_skipped()` がジョブのサマリにだけ書く。食い違いなし
+- reusable のときのステップ名（要確認の件）: 過去の実行で「飛ばしたページを報告」が failure のジョブを API で探した。regenerate-page の push（`regenerate`）のほか、update-sns-book の `regenerate / regenerate`（run 38621492985・38335781712）でも同じステップ名。注釈は check-run（ジョブの id）の annotations に、`Process completed with exit code 1.` やほかのステップの warning と並んで出る。選ぶ注釈は message の先頭で見分ける
+- `dry_run` の道筋（要確認の件）: 「飛ばしたページを報告」の `if` は `!cancelled() && steps.regen.outputs.skipped == 'true'` で、`dry_run` を見ていない。`dry_run: true` でも再生成のステップは動き、飛ばしがあれば報告のステップも動く（コミット・サイトマップの3ステップは `inputs.dry_run != true` で止まる）
+
 ## 報告
 
 - 状態:

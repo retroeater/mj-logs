@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-23 09:12 JST
+- 書き出した時刻: 2026-10-23 09:14 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -25,11 +25,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-23 09:12 | push | work/1023-srg | success | #342（39876738972） | 0分31秒 |
 | 2026-10-23 08:03 | push | work/1022-hth | success | #341（39869197060） | 0分21秒 |
 | 2026-10-23 08:02 | push | work/1022-hth | success | #340（39869115028） | 0分22秒 |
 | 2026-10-22 20:33 | push | work/1022-hth | success | #339（39771486067） | 0分25秒 |
 | 2026-10-22 20:31 | push | work/1022-hth | success | #338（39771189521） | 0分23秒 |
-| 2026-10-22 20:25 | push | work/1021-bil | success | #337（39770410697） | 0分26秒 |
 
 ## check-build-failure.yml
 
@@ -38,11 +38,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-23 09:13 | check_run | cloudflare | skipped | #426（39876806697） | 0分01秒 |
 | 2026-10-23 08:44 | check_run | cloudflare | skipped | #425（39873771470） | 0分01秒 |
 | 2026-10-23 08:03 | check_run | cloudflare | skipped | #424（39869266186） | 0分01秒 |
 | 2026-10-23 08:02 | check_run | cloudflare | skipped | #423（39869185453） | 0分01秒 |
 | 2026-10-22 20:34 | check_run | cloudflare | skipped | #422（39771545819） | 0分06秒 |
-| 2026-10-22 20:33 | check_run | cloudflare | skipped | #421（39771482693） | 0分10秒 |
 
 ## check-image-links.yml
 
@@ -93,6 +93,7 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-23 09:12 | workflow_dispatch | work/1023-srg | in_progress | #5（39876749570） |  |
 | 2026-10-21 13:30 | workflow_dispatch | cloudflare | success | #4（39544427647） | 2分00秒 |
 | 2026-10-21 12:26 | workflow_dispatch | cloudflare | success | #3（39538613845） | 1分46秒 |
 | 2026-10-21 10:28 | workflow_dispatch | cloudflare | success | #2（39527526499） | 2分13秒 |
