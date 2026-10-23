@@ -55,6 +55,47 @@ CHAT-1023-SKP-02 は、読みの無い出場者が124名いて止まる条件に
 - 0章: 指示欄の末尾は指示文の最後の行と一致
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 欠け無し
 
+### 手順1
+
+- CHAT-1023-SKP-02 のログの状態を「判断待ち / 続き: CHAT-1023-SKP-03」にした。docs/decisions/saikyo.md に「2026-10-23（CHAT-1023-SKP-03）」を足した
+- #627 に、公開の前に平野さんが「連盟プロ以外」の「名前かな」を124名分入れること（名前は CHAT-1023-SKP-02 のログ）をコメントした
+
+### 手順2
+
+- 未マージの work/ ブランチ: `generate_saikyo_pages.py`・`assets/saikyo.js`・`assets/houou_ask.js`・`workers/ask/` を変えるものは無し（1009-swp-526・1011-swp-hnd・1011-swp-nav・1015-skd-notes・1017-lvp・1018-log-367-migrate）
+- origin/cloudflare の取り込み（merge 69c2c0816、12コミット）: cloudflare 側の `generate_saikyo_pages.py`（対戦成績の定数と `build_vs_section()`）・`style.css`（対戦成績の行）は自動で取り込めた（この作業で変えた箇所とは別）。衝突は `docs/decisions/saikyo.md` の末尾の追記どうしだけで、両方を残して解いた。解いた後の該当箇所:
+
+```
+（CHAT-1023-HTH-13 の節）
+- マージしてよい（条件: 「もっと見る」で出るのが同卓5回以上の…
+- 作業中の回答: なし
+
+（CHAT-1023-SKP-01 の節）
+- 最強戦の「個人成績」「ランキング」「AIコンシェルジュ」を自律開発で作る。…
+…（CHAT-1023-SKP-02・SKP-03 の節が続く）
+```
+
+- テスト: `python3 -m unittest discover -s scripts/tests` OK・`node --test 'workers/ask/test/*.test.mjs'` 91件 pass（生成し直した data-saikyo.json で）
+- check（regenerate-page.yml、run 39948866228）: saikyo_pages・ask_data_saikyo とも「通る」（警告4件は ABEMA の回の URL でない卓。今回と無関係）。「最強戦」シートは 2580件
+- 生成し直し（regenerate-page.yml）がコミット 35291cf5a を作った（12ファイル。部門名「ファイナル」・「最強位」のピル・出典の名前の直しの分。ランキングの件数・上位は SKP-01・02 と同じ）
+- 読みの無い人: 124名（全員「連盟プロ以外」で名前かなが空欄。名前は SKP-02 のログの表と同じ）。SKP-02 の124名との差: 増えた人 0名・減った人 0名（名前の並びが同じ）
+- origin/cloudflare との差分（種類ごと）:
+
+| 種類 | 数 | ファイル |
+|---|---|---|
+| saikyo/ の生成物（新しいページ） | 13 | `saikyo/ask-players.json`・`next/`・`players/`・`years/`・`ranking/` の9部門（すべて追加。シートの変化による差分は無し） |
+| スクリプト | 3 | `scripts/generate_ask_data_saikyo.py`（追加）・`generate_saikyo_pages.py`・`regenerate.py` |
+| テスト（Python） | 3 | `test_saikyo_menu.py`（追加）・`test_saikyo_check.py`・`test_saikyo_redirects.py` |
+| Worker | 4 | `workers/ask/data-saikyo.json`（追加）・`src/ask.mjs`・`src/index.mjs`・`src/query.mjs` |
+| テスト（Worker） | 1 | `workers/ask/test/saikyo.test.mjs`（追加） |
+| JS | 2 | `assets/saikyo.js`・`assets/houou_ask.js` |
+| その他 | 2 | `_redirects`・`style.css` |
+| docs（notes・decisions） | 5 | `docs/decisions/saikyo.md`・`docs/notes/ask-worker.md`・`redirects.md`・`saikyo-page-design.md`・`static-generation.md` |
+| docs/logs | 35 | SKP-01〜03 のログと SKP-01 の画面32枚 |
+
+- 公開済みのページ（`saikyo/index.html`・年度・対局・卓・`saikyo/vs/`）と `sitemap-saikyo.xml` は差分に無い
+- マージの後の自動の生成: 毎朝の `regenerate-saikyo.yml` は saikyo_pages を生成し直すので、新しいページ（`saikyo/` の下）も毎朝作り直される。`workers/ask/data-saikyo.json`（ask_data_saikyo）は毎朝の対象ではなく、`regenerate.py all`（週次）と、`generate_saikyo_pages.py`・`generate_ask_data_saikyo.py`・`scripts/lib/` が変わった push（`SHARED_GENERATORS`）で作り直される
+
 ## 報告
 
 - 状態: 中断（作業中）
@@ -71,12 +112,12 @@ CHAT-1023-SKP-02 は、読みの無い出場者が124名いて止まる条件に
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 067eacf2）: https://github.com/retroeater/mj-logs/tree/main/guide/067eacf2
+ガイド文書（この版を写した時点の最新、mj c0589404）: https://github.com/retroeater/mj-logs/tree/main/guide/c0589404
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/067eacf2/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/067eacf2/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/067eacf2/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/067eacf2/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/067eacf2/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/067eacf2/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c0589404/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c0589404/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c0589404/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c0589404/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c0589404/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c0589404/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/c49be44e.md
