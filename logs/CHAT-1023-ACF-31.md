@@ -51,28 +51,65 @@ CHAT-1023-ACF-30 で、毎朝の運行のジョブのサマリに出る「配信
 
 ## 経過
 
+### 着手前の確認
+
+- 同じ Chat-Ref のコミット: なし。ACF は既存の識別子（最初の指示ではない）
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 4行とも欠けなし
+- 0.（指示欄の末尾と指示文の最後の行の一致）: 一致
+- 作業ブランチ: `origin/work/1023-acf` は cloudflare へマージ済み。ローカルの `work/1023-acf` も `origin/cloudflare` の祖先だったため、docs/notes/cloud-sessions.md「作業ブランチの用意」のとおり `git merge --ff-only origin/cloudflare`（Already up to date、bb98660ed）。ログ先行 push 済み
+- #625: open。着手中のコメントは ACF-30（このセッション）のものだけ。着手中のコメントを残した
+- 0章ゲート: 未マージの work/ ブランチ8本のどれも `scripts/tests/test_check_asset_limits.py` を変えていない（`git diff --stat origin/cloudflare...<branch> -- <ファイル>` が空）。CLAUDE.md 22,945 バイト・handover.md 22,108 バイトで警告域（26KB）の外。#625 の本文・コメントと指示文の範囲に食い違いなし
+- 行番号: `test_main_exit_code` は ACF-30 の記録どおり 43〜47行にあった
+
+### 手順1
+
+- ACF-30 のログの `## 報告` の状態を「判断待ち / 続き: CHAT-1023-ACF-31」にした
+
+### 手順2: 直した箇所
+
+`scripts/tests/test_check_asset_limits.py`（c4c195fc4）:
+
+- `import os` を足した
+- `test_main_exit_code` に `@mock.patch.dict(os.environ)` を付け（テストの後で環境変数を元に戻す）、最初に `os.environ.pop("GITHUB_STEP_SUMMARY", None)` を呼ぶ。理由のコメントを1行付けた
+- 確かめていること（終了コード 1・0）は変えていない。本体（`scripts/check_asset_limits.py`）とワークフローは変えていない
+
+### 手順2: 確かめ
+
+`GITHUB_STEP_SUMMARY=<scratchpad の空のファイル> python3 -m unittest discover -s scripts/tests` を、直す前と後で回した:
+
+| | 件数 | 結果 | サマリのファイル |
+|---|---:|---|---:|
+| 直す前（bb98660ed + ログのみ） | 1511 | OK | 293 バイト（「x」101/100 エラー、80/100 警告の2つの表） |
+| 直した後（c4c195fc4） | 1511 | OK | 0 バイト |
+
+### 手順3: マージ
+
+- マージの前に `git diff --stat origin/cloudflare` で変わるファイルを確かめた（下の「報告」のマージ欄）。見込みの3種（`scripts/tests/test_check_asset_limits.py`・`docs/logs/`・`docs/decisions/`）だけ
+- `scripts/tests/` は `.assetsignore` の対象（`scripts/`）で配信されないため、Workers Builds の表示は変わらない
+- 閉じる時点で残る作業: なし（案 A の残る弱みは平野さんが受け入れ済み。Actions の次の実行でサマリに出ないことは、次の毎朝の運行で目で確かめられるが、追跡の issue は作らない）
+
 ## 報告
 
-- 状態:
-- ブランチ:
-- ログ:
-- 比較URL:
-- 確認用URL:
-- マージ:
-- issue:
-- 判断が必要なこと:
-- 未確認の項目:
-- エラー:
+- 状態: 完了
+- ブランチ: work/1023-acf
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1023-ACF-31.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1023-acf
+- 確認用URL: なし
+- マージ: 済（work/1023-acf を cloudflare へ fast-forward。直したコミットは c4c195fc4）
+- issue: #625（クローズ）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj bb98660e）: https://github.com/retroeater/mj-logs/tree/main/guide/bb98660e
+ガイド文書（この版を写した時点の最新、mj e4e91496）: https://github.com/retroeater/mj-logs/tree/main/guide/e4e91496
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/bb98660e/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/bb98660e/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/bb98660e/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/bb98660e/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/bb98660e/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/bb98660e/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e4e91496/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e4e91496/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e4e91496/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e4e91496/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e4e91496/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e4e91496/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/bb98660e.md
