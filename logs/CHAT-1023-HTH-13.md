@@ -116,9 +116,26 @@
 3. 360px で名前が切れない: 名前の欄・名前の単位（`.mj-saikyo-n-unit`）の右端のはみ出しと `scrollWidth > clientWidth` は 0件。「二階堂亜樹 – 魚谷侑未」など5組は名前の区切りで2行に折り返す（1920px では折り返さない）→ 満たす
 4. テストが通る → 満たす
 
+### マージと本番
+
+- push 直前に再 fetch して `git merge-base --is-ancestor origin/cloudflare HEAD` が真（origin/cloudflare は 7fc3dce1c）。`git push origin work/1022-hth:cloudflare`: 7fc3dce1c..067eacf20（fast-forward）
+- check-runs（067eacf20）: Workers Builds 成功・regenerate 成功・sync 成功
+- 本番: `https://ryoei.pro/saikyo/vs/?v=067eacf20` は 200・noindex を含み、作業ブランチの `saikyo/vs/index.html` とバイト単位で同じ。`assets/saikyo.js`・`style.css` も作業ブランチと同じ（新しい版）。`/saikyo/` は作業ブランチの `saikyo/index.html` と同じ（今のまま）。確かめたのは本番の HTML・CSS・JS で、ブラウザでの見え方はプレビュー（fbebce1b0）で確かめた範囲
+- #372 にマージしたこと（公開は #623）をコメントした。ラベルは変えていない
+- ブランチの片付け: work/1022-hth（マージ時の先頭 067eacf20、origin/cloudflare の祖先＝マージ済み）。この後にログだけのコミットを積むため今は消さない。リモートは `cleanup-branches.yml` がマージ済みで先頭が24時間より前の `work/*` を消す。ローカルはコンテナと一緒に消える
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
+- ブランチ: work/1022-hth
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1023-HTH-13.md
+- 比較URL: https://github.com/retroeater/mj/compare/560a6f351...067eacf20
+- 確認用URL: なし
+- マージ: 済（067eacf20、fast-forward）
+- issue: #372（着手中・マージのコメント）、#623（公開、未着手）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
