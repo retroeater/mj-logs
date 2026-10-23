@@ -96,18 +96,39 @@
 
 - work/1022-hth の5件に添え書きが無いのは、失敗したステップが「生成物の差を実行サマリに出す」（dry_run の新旧の比べ）で、「飛ばしたページを報告」ではないため（貯めた応答のジョブで確かめた）
 
+### マージ
+
+- push の直前に origin/cloudflare が f78ca35de（HTH-10 の saikyo の作業）まで進んでいた。今回のファイルと重ならないので `git merge origin/cloudflare` で取り込み（衝突なし）、テスト OK のうえ、`git merge-base --is-ancestor origin/cloudflare HEAD` を確かめて `git push origin work/1023-oha:cloudflare`（f78ca35de..d71c454f3）
+- d71c454f3 の check-run: check success、Workers Builds: mj success（完了の2件。in_progress の2件は始まりの記録）、notify は skipped。check-assets（push、run 39925552076）success
+
+### 結果
+
+- morning.md の1節は、見る範囲（26時間）に出る実行のうちジョブを引いていないものを `morning_report.write()` が引き、各ワークフローの直近5回に入らない失敗にもジョブ名と飛ばしたページの添え書きが付くようにした（status.md・運行表は変わらない。同じ API の応答での新旧の比べで差なし）
+- マージ後の mj-logs の同期の書き出し（actions/morning.md、2026-10-23 17:37 JST）の1節で、regenerate-page の失敗6行すべてにジョブ名「regenerate」が付き、run 39877120835 の行には添え書きも付いた:
+
+```
+- 2026-10-22 15:53 regenerate-page.yml failure（workflow_dispatch・work/1022-hth）ジョブ「regenerate」 https://github.com/retroeater/mj/actions/runs/39736761040
+- 2026-10-22 16:31 regenerate-page.yml failure（workflow_dispatch・work/1022-hth）ジョブ「regenerate」 https://github.com/retroeater/mj/actions/runs/39741104321
+- 2026-10-22 20:31 regenerate-page.yml failure（workflow_dispatch・work/1022-hth）ジョブ「regenerate」 https://github.com/retroeater/mj/actions/runs/39771190352
+- 2026-10-23 09:16 regenerate-page.yml failure（workflow_dispatch・work/1023-oha）ジョブ「regenerate」：生成に失敗したページを飛ばしました: resource_efficiency, resource_logs（理由はジョブのサマリ、#533） https://github.com/retroeater/mj/actions/runs/39877120835
+- 2026-10-23 11:55 regenerate-page.yml failure（workflow_dispatch・work/1022-hth）ジョブ「regenerate」 https://github.com/retroeater/mj/actions/runs/39892214978
+- 2026-10-23 17:04 regenerate-page.yml failure（workflow_dispatch・work/1022-hth）ジョブ「regenerate」 https://github.com/retroeater/mj/actions/runs/39922029210
+```
+
+- work/1022-hth の5行は失敗したステップが「生成物の差を実行サマリに出す」なので、添え書きは付かない（作りどおり）
+
 ## 報告
 
-- 状態:
-- ブランチ:
-- ログ:
-- 比較URL:
-- 確認用URL:
-- マージ:
-- issue:
-- 判断が必要なこと:
-- 未確認の項目:
-- エラー:
+- 状態: 完了
+- ブランチ: work/1023-oha
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1023-OHA-10.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1023-oha
+- 確認用URL: なし（ページ・見た目の変更は無い。Actions のスクリプトだけ）
+- マージ: 済（d71c454f3）
+- issue: #563
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
