@@ -58,19 +58,42 @@ HTH 系列（CHAT-1022-HTH-01〜CHAT-1023-HTH-13、#372・#623）の振り返り
 
 ## 経過
 
+### 着手前の確かめ
+
+- 指示欄の末尾は指示文の最後の行と一致。Chat-Ref の重複なし（`git log --all --grep` 0件）。冒頭の雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は欠けなし。ガイド文に規則を足す指示で「知見 → 選んだ層 → 理由」の表あり
+- 作業ブランチ: work/1023-hth-retro はローカルにもリモートにも無かったため `git checkout -b work/1023-hth-retro origin/cloudflare`（0ee9af3f0）。追跡先が origin/cloudflare になったので外した（push 先を誤らないように）
+- 同じ論点の issue（クローズ済みを含む）: 「参考にしたい画面 サイト grill」「条件つきのマージ プレビューを見ずにマージ 承認済み」「マージの許可 プレビュー 判断待ち 承認」「参考 画面 作り直し 手本」で検索。該当なし（#414・#420 が出たが別の主題）
+- 未マージの work/ ブランチ: 追記先の3ファイルを変えているのは work/1018-log-367-migrate の `docs/decisions/operations.md` だけ（末尾の追記どうし。止まる条件の外）。docs/new-page-checklist.md・docs/notes/chat-side-operations.md を変えるブランチは無い
+
+### 追記（d7fabeb7a）
+
+- A: docs/new-page-checklist.md「作る段の確かめ」の grill の最初の問いの行を拡張した（同じ行に3つ目の問いとして足した。同じ趣旨の記述はほかに無い）
+- C: docs/notes/chat-side-operations.md「平野さんの判断とマージの許可」の「プレビューを見て決める変更は…」の行の直後に、例外の行を足した。同じ節の「止めた報告のマージ」の3条件（(1)〜(3)）は判断待ちで止めた後のマージの話で、この例外（直しとマージを1本にする）とは場面が別のため、矛盾しないと判断した。CLAUDE.md・handover.md・docs/instruction-template.md に同じ趣旨の記述は無い
+- docs/notes/chat-side-operations.md の大きさ（作業ブランチの上、`wc -c`）: 22,166 → 22,590 バイト（21.6KB → 22.1KB。警告域 26KB の手前）
+- docs/decisions/operations.md に 2026-10-23（CHAT-1023-HTH-14）の節を足した（決定と、残す2点・残さない3点）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
+- ブランチ: work/1023-hth-retro
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1023-HTH-14.md
+- 比較URL: https://github.com/retroeater/mj/compare/0ee9af3f0...work/1023-hth-retro
+- 確認用URL: なし
+- マージ: 済（ドキュメントのみ。SHA は push の結果のとおり、fast-forward）
+- issue: なし（#372・#623 は振り返りの対象で、コメントはしていない）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj c0589404）: https://github.com/retroeater/mj-logs/tree/main/guide/c0589404
+ガイド文書（この版を写した時点の最新、mj d8536d37）: https://github.com/retroeater/mj-logs/tree/main/guide/d8536d37
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c0589404/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c0589404/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c0589404/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c0589404/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c0589404/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c0589404/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d8536d37/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d8536d37/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d8536d37/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d8536d37/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d8536d37/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d8536d37/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/c49be44e.md

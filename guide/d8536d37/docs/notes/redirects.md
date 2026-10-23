@@ -34,6 +34,7 @@ ryoei.pro のすべての転送の一覧と、四半期ごとの棚卸しの手�
 | `/ouka/ranking/` | `/ouka/ranking/total/` | `_redirects` 301（クエリを引き継ぐ。houou/ と同じ入口の形） | 2026-10-17（未公開。#519） | #519 | 未（初回 2027-01 上旬） |
 | `/jwrc/ranking/` | `/jwrc/ranking/total/` | `_redirects` 301（クエリを引き継ぐ。houou/ と同じ入口の形） | 2026-10-18（公開は 2026-10-19、#599） | #594 | 未（初回 2027-01 上旬） |
 | `/wrcr/ranking/` | `/wrcr/ranking/total/` | `_redirects` 301（クエリを引き継ぐ。jwrc/ と同じ入口の形） | 2026-10-19（公開は同じ日、#611） | #366 | 未（初回 2027-01 上旬） |
+| `/saikyo/ranking/` | `/saikyo/ranking/champion/` | `_redirects` 301（クエリを引き継ぐ。houou/ と同じ入口の形。段1 は noindex のページ） | 2026-10-23（未公開、公開は #627） | #626 | 未（初回 2027-01 上旬） |
 | `/houou_ranking.html` | `/houou/ranking/total/` | `_redirects` 301（クエリを引き継ぐ。`?division=` は下の「JS の移動」、`?sheet=` は読まれない） | #540 の公開の日 | #540 | 未（初回 2027-01 上旬） |
 | `/houou_leagues.html` | `/houou/leagues/` | `_redirects` 301（`?name=` を引き継ぎ、下の「JS の移動」で個人成績のリーグのタブへ） | #540 の公開の日 | #540 | 未（初回 2027-01 上旬） |
 | `/houou_race.html` | `/houou/race/` | `_redirects` 301 | #540 の公開の日 | #540 | 未（初回 2027-01 上旬） |

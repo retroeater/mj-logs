@@ -994,6 +994,12 @@ Codespace 前提の記述（Code の実行環境は 2026-10-14 からクラウ�
   「場面ごとに読む文書」の表の「`/workspaces/mj` の操作」と「`docs/notes/session-network.md`（Codespace）」
 - docs/notes/cloud-sessions.md の読み替えの文「`/workspaces/mj` と worktree は無い。…CLAUDE.md『ブランチ運用』の `/workspaces/mj` の pull・worktree の片付けは当てはまらない」「docs/notes/branch-operations.md『作業ディレクトリの分離（Codespace）』の『作業ブランチも…削除する』は、このワークフローに任せることで満たす」
 
+### 2026-10-23 の申送り（ACF 系列、#352・#625）で足した規則の経緯と、移した記述
+
+- 「平野さんの手作業…先に頼む」に、外部のデータが「変わっていない」という報告で判断を出す前も同じ、を足した。ACF-32 で、Code が古い画像の last-modified から「アイコンは変わっていない」と結論し、チャット側も見抜けなかった。平野さんが新しい画像の URL を1つ貼って解けた
+- instruction-template.md に「見込みが外れたときに測る候補」と「禁止には理由」を足した。ACF-32 は X API の呼び出しを理由なしに禁じており、1人を引けば分かった。ACF-33 は見込み（クエリでキャッシュを避ける）が外れ、次の案の材料（大きさごとの HEAD）は Code が自分の判断で測った
+- 純増を避けるため移した記述: 「告知の期間…『マージ:』の行に『告知の期間中の変更を承認（<日付>、平野さん）』と書く」→ docs/notes/page-announcement.md「進め方」（場面の表に行を足した）。「`.claude/` の hook・settings を変える指示は…『判断待ちで止まる』」→ 同じ規則が docs/notes/skills.md「git の hook（mj-git-guard）」にあるので消し、場面の表の行に「（『マージ:』は判断待ちで止まる）」を添えた
+
 ## docs/notes/cloudflare.md・chrome-reading.md から（2026-10-13、#304）
 
 規則は `docs/notes/cloudflare.md`「ビルド成否と本番の確認範囲（check-runs）」「Chrome からダッシュボードの API を読む」と `docs/notes/chrome-reading.md`「使い方」、#304 の本文の冒頭（担当）が正。
