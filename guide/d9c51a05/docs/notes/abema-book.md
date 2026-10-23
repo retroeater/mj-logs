@@ -5,7 +5,7 @@
 
 ## ブック
 
-- ID は `scripts/lib/abema_book.py` の `SPREADSHEET_ID`。持ち主は平野さん。`live-channel-writer` を編集者で共有し、「リンクを知っている全員」の閲覧者にしてある（生成が gviz で読むため）
+- ID は `scripts/lib/abema_book.py` の `SPREADSHEET_ID`。持ち主は平野さん。`live-channel-writer` を編集者で共有している。ほかの本番のブックと同じく専用フォルダ「【本番環境】」にあり、一般的なアクセスは「制限付き」、`sheets-reader` はフォルダの閲覧者（2026-10-21〜、docs/notes/sheets-reader.md「段取りと今の状態」）
 - 書くのは `live-channel-writer`（Secret `LIVE_SHEETS_SA_KEY`）。docs/notes/live-channel-write.md の「使い回さない」の例外（SNS ブックと同じ。2026-10-12 の決定）
 - 書いてよい先は `scripts/lib/sheets_write.py` の `WRITABLE` で【2】だけ。【3】は空のときに見出しの1行だけ（`HEADER_ONLY`）。【1】は書かない
 
@@ -23,9 +23,17 @@
 
 ## 毎朝の作り直し（`scripts/update_abema_book.py`）
 
-- `regenerate-saikyo.yml` のジョブ `abema` が、最強戦の再生成（ジョブ `regenerate`）の前に動く（毎朝 04:30 JST の写真の検知が cloudflare で終わった後など。新しい予約実行は持たない）。`abema` が失敗しても再生成は今の【2】のまま動く
-- 【1】は生成と同じ gviz（`fetch_table()`）で読み、「最強戦」シートは生成と同じ読み方（`generate_saikyo_pages.load_rows()`・`build_matches()`、名前は現在名）。書く直前に【2】を読み直して、読んだときから変わっていれば書かない。書いた後に読み直して同じことを確かめる
+- `regenerate-saikyo.yml` のジョブ `abema` が、最強戦の再生成（ジョブ `regenerate`）の前に動く（毎朝 04:00 JST に起動する `run-daily.yml` が、写真のリンク切れ検知〈ジョブ `images`〉の後に呼ぶ。新しい予約実行は持たない）。`abema` が失敗しても再生成は今の【2】のまま動く
+- 【1】は生成と同じ `lib/sheets.py` の `fetch_table()`（Sheets API、`sheets-reader`）で読み、「最強戦」シートは生成と同じ読み方（`generate_saikyo_pages.load_rows()`・`build_matches()`、名前は現在名）。書く直前に【2】を読み直して、読んだときから変わっていれば書かない。書いた後に読み直して同じことを確かめる
 - 手動実行の入力: abema（update〈書く〉/ dry_run〈書かずに件数だけ〉/ check〈読むだけ。タブ・編集者か・【1】の見出しと行数〉）、regenerate（最強戦のページを再生成するか）。作業ブランチで実行すると再生成の差分は作業ブランチにコミットされる（`regenerate-page.yml`）
+
+## 新しい回の検知（`update_abema_book.py --detect`、#572）
+
+- ジョブ `abema` の最後に動く。予約の起動（`run-daily.yml` が `scheduled` を渡す）は JST の土曜だけ、手動実行は曜日に関係なく動く。【1】にも【2】にも書かない
+- 【1】の最新の年度で最も多い作品の、番号が最大の回のID（例 `68-38_s26_p27`）と、その次から `DETECT_AHEAD`（6）件の回のサムネイル（`image.p-c2-x.abema-tv.com`）を取り、200 なら「ある」、404 なら「無い」とする。回のページ（abema.tv）は国外から読めないので使わない（#501）。題は取れない
+- 最大の回が「ある」と出ないか、確かめた回に 200・404 以外があれば「確かめられない」とする
+- 予約の起動で新しい回があったとき・確かめられなかったときだけ、#572 にコメントする（回のIDと URL、取り込みの一文）。手動実行は知らせず、実行サマリに出す
+- 取り込み（PC のスクリプトの CSV を【1】へ）と【3】のライブ枠の行を消すのは平野さん
 
 ## 割り当ての規則（`scripts/lib/abema_book.py`、CHAT-1012-ABM-10 の案）
 
@@ -47,7 +55,7 @@
 
 ## 生成の読み方
 
-`generate_saikyo_pages.load_videos()` が【2】と【3】を gviz で読み、`abema_book.video_urls()` が【2】の URL を【3】の空でない URL で上書きする（卓の鍵は 年度・対局日・対局・ステージ・卓の英字）。年度が4桁の数字で読めない行は警告して飛ばす（`abema_book.table_cells()` が URL と司会・実況・解説を同じ鍵でまとめ、【3】は空でないセルだけ上書きする）。
+`generate_saikyo_pages.load_videos()` が【2】と【3】を `lib/sheets.py` の `fetch_table()`（Sheets API）で読み、`abema_book.video_urls()` が【2】の URL を【3】の空でない URL で上書きする（卓の鍵は 年度・対局日・対局・ステージ・卓の英字）。年度が4桁の数字で読めない行は警告して飛ばす（`abema_book.table_cells()` が URL と司会・実況・解説を同じ鍵でまとめ、【3】は空でないセルだけ上書きする）。
 
 司会・実況・解説は卓のページに出す（docs/notes/saikyo-page-design.md「卓のページ」）。セルの名前の読み方（`abema_book.cast_names()`、CHAT-1013-ABM-17）:
 

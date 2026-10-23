@@ -51,6 +51,35 @@
 
 ## 経過
 
+### 着手前の確かめ
+
+- 指示欄の末尾は指示文の最後の行と一致。Chat-Ref・`HTH` の重複なし（HTH の続き）。冒頭の雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は欠けなし
+- #372: open。他セッションの着手中コメントなし。着手中のコメントを書いた
+- `--check`（regenerate-page.yml、check、caeb32416）: 成功（生成で止まらない）
+- 未マージの work/ ブランチ: work/1023-skp が `generate_saikyo_pages.py`・`assets/saikyo.js`・`style.css` の最強戦の節を変えている。
+  この指示では対戦成績の関数（`build_vs_row()`・`build_vs_section()`・`build_vs_initial()`・`build_upcoming_section()` の文書文字列）・JS の対戦成績の節・CSS の `.mj-saikyo-n-pair` だけを変え、`build_vs_entry()`・`VS_PUBLIC`・`latest_photos()` と `assets/saikyo.js` の末尾3行（SKP が後ろに足す箇所）は変えていない
+- `git merge-tree` で成果物のコミット（3009ee04d）と origin/work/1023-skp を試した: 衝突は `docs/decisions/saikyo.md` だけ（末尾の追記どうし。止まる条件の外）。`assets/saikyo.js`・`generate_saikyo_pages.py`・`style.css`・`docs/notes/saikyo-page-design.md` は自動で混ざる。origin/cloudflare（0a3f94ab9）とも衝突なし
+
+### 実装（3009ee04d）
+
+1. `VS_UPCOMING_LABEL` を「注目の対戦カード」に。コメント・docstring・テストの語も直した（行の上限 `VS_LIST_LIMIT` 10 はそのまま）
+2. `.mj-saikyo-n-pair` の写真を重ねない: 負のマージンと縁取りをやめ、写真を 32px（頭文字の丸は 14px の字）・間 4px に。2人分の幅は 68px で、重ねていたときの 70px（40+40−10）より 2px 狭く、名前の幅は 2px 広がる（360px の実測で名前の欄 163.8px、写真の幅 32・間 4・計 68）。注目の対戦カードの行も同じ
+3. 対戦回数の多いペア: 生成は `VS_PAIRS_LIMIT`（30、仮置き）行まで書き、6行目からは `<li hidden>`。面の下に「もっと見る」ボタン（`data-vs-more="5"`、5行以下なら出さない）。
+   `assets/saikyo.js` の `vsRevealMore()` が隠れた行を先頭から5行出し、足した最初の行のリンクへフォーカスを移す（Tab・読み上げが追加した行から続く）。出し切ったらボタンを隠す（仮置き）
+- テスト: `test_pairs_show_first_rows_and_more_button`・`test_pairs_without_more_rows_have_no_button`・`test_reveal_more_adds_step_rows` を足し、語の検査を直した。`python3 -m unittest discover -s scripts/tests` 1530件 OK。
+  修正前のコード（HEAD の generator と saikyo.js）では新しい3件と語の2件が落ちることを確かめた（JS の既存の3件も、切り出す関数 `vsRevealMore` が無いため落ちる）
+
+### ページの大きさ（手元の生成、本番の saikyo/index.html の埋め込みデータから）
+
+- `saikyo/vs/index.html`: 247,855 → 267,362 バイト（+19,507、+7.9%。gzip 57,943 → 59,244、+1,301）。行が 10 → 30 になった分（1行あたり約 780 バイト）とボタン
+- 全 2,837 組を書くと +200 万バイト前後になる見込みのため、上限を置いた。4回以上の組は 68組、5回以上は 23組
+
+### 画面（手元、Playwright）
+
+- `docs/logs/CHAT-1023-HTH-11/`: before-{360,1920}-{light,dark}.jpg（押す前）、after2-…（2回押した後、追加した行の写真の読み込みを待って撮影）
+- 押すごとに 5 → 10 → 15 → 20 → 25 → 30 行。1回目の後のフォーカスは6行目（村上淳 – 鈴木達也）、2回目の後は11行目（佐々木寿人 – 猿川真寿）。30行でボタンが消える。ページのエラーなし
+- 1回目の撮影でボタンが面に重なった（面の `ol` の下の余白が 0 で、ボタンの上の −8px がそのまま効いた）。上の余白を 8px に直して撮り直した
+
 ## 報告
 
 - 状態: 作業中
@@ -67,12 +96,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 5bb0e235）: https://github.com/retroeater/mj-logs/tree/main/guide/5bb0e235
+ガイド文書（この版を写した時点の最新、mj d9c51a05）: https://github.com/retroeater/mj-logs/tree/main/guide/d9c51a05
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/5bb0e235/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/5bb0e235/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/5bb0e235/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/5bb0e235/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/5bb0e235/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/5bb0e235/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d9c51a05/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d9c51a05/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d9c51a05/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d9c51a05/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d9c51a05/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d9c51a05/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/c49be44e.md

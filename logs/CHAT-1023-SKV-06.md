@@ -52,15 +52,56 @@ CHAT-1023-SKV-03・SKV-04 の判断待ちに答え、2本を cloudflare へマ�
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 着手前の確認
+
+- 手順0: ログの「指示」欄の末尾は指示文の最後の行と一致
+- 同じ Chat-Ref のコミット: 0件（`SKV` はこのセッションの識別子、6本目）。雛形の行: 欠けなし
+- #577・#572: どちらも open（SKV-03・SKV-04 で確かめた。コメントの対象）
+- SKV-03 のログ（origin/work/1023-skv-play）の状態「判断待ち」、ブランチの先頭 f9758350c は報告のコミット。SKV-04 のログ（origin/work/1023-skv-detect）の状態「判断待ち」、先頭 b46885ed6 は報告のコミット。どちらも報告の後に変わっていない
+- 作業ブランチ: どちらもローカルとリモートが一致（未マージの作業を続ける）。`git checkout work/1023-skv-play`
+
+### 手順1 work/1023-skv-play のマージ
+
+- origin/cloudflare を merge で取り込んだ。衝突は docs/decisions/saikyo.md の末尾への追記どうし（cloudflare 側の HTH-08・HTH-09・HTH-10・SKV-05 の節と、こちらの SKV-03 の節）だけで、両方を残して解いた（cloudflare 側の節を先、SKV-03 の節を後）。解いた後の見出しの並び:
+
+```
+## 2026-10-23（CHAT-1023-HTH-08）
+## 2026-10-23（CHAT-1023-HTH-09）
+## 2026-10-23（CHAT-1023-HTH-10）
+## 2026-10-23（CHAT-1023-SKV-05）
+## 2026-10-23（CHAT-1023-SKV-03）
+```
+
+  - 生成物（saikyo/2026/20261025-s1-a.html・sitemap-saikyo.xml）と scripts/generate_saikyo_pages.py は自動で合わさった
+- 未マージの work/ ブランチ: `build_table_hero`・`VIDEO_LABEL`・`ABEMA_*`・`test_non_episode_url_gets_link_only` に触れるものは無い。work/1023-skp との `git merge-tree` は docs/decisions/saikyo.md だけが衝突し、origin/cloudflare との間でも同じ（今回の変更による衝突ではない）
+- テスト: `python3 -m unittest discover -s scripts/tests` OK
+- `git push origin work/1023-skv-play:cloudflare`（84b8816a1..0fe6b19b3。直前に再fetch・`merge-base --is-ancestor origin/cloudflare HEAD` が真）
+- マージの push の `regenerate-page.yml`: run 39937645154（#420）success。変更されたファイルから対象は saikyo_pages、生成の結果は「変更なし」（4ページは SKV-03 の作業ブランチで ab2c880c9 として生成済みで、マージで入っていた）。生成のコミットは無い
+  - 生成のログの数: 動画URLのある卓 616、司会・実況・解説のある卓 609、警告はライブ枠の4卓（1101 の A・B、1025 の A・B）だけ
+- Workers Builds の check-run（0fe6b19b3）: 「Workers Builds: mj」completed / success（summary に Preview URL が無い＝本番）。続けて別のセッションの push（0a3f94ab9、work/1023-acf のマージ）が入った（そちらに付いたのはプレビューの check-run）
+- 本番の HTML（`?v=skv06a`、ブラウザでの見え方は確かめていない）:
+
+```
+20261025-s1-a <a href="https://abema.tv/channels/mahjong/slots/ECDbhVJBh7Dykb" target="_blank" rel="noopener"><span aria-hidden="true">▶</span> 再生
+20261025-s1-b <a href="https://abema.tv/channels/mahjong/slots/ECDbhVJBh7Dykb" target="_blank" rel="noopener"><span aria-hidden="true">▶</span> 再生
+20261101-s1-a <a href="https://abema.tv/channels/mahjong/slots/9CHRCzeorA4sL3" target="_blank" rel="noopener"><span aria-hidden="true">▶</span> 再生
+20261101-s1-b <a href="https://abema.tv/channels/mahjong/slots/9CHRCzeorA4sL3" target="_blank" rel="noopener"><span aria-hidden="true">▶</span> 再生
+```
+
+  4ページとも「▶ 再生」で行き先はライブ枠の URL
+- #577 にマージの結果をコメントした（https://github.com/retroeater/mj/issues/577 の最新のコメント）
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 0fe6b19b）: https://github.com/retroeater/mj-logs/tree/main/guide/0fe6b19b
+ガイド文書（この版を写した時点の最新、mj d9c51a05）: https://github.com/retroeater/mj-logs/tree/main/guide/d9c51a05
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/0fe6b19b/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/0fe6b19b/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/0fe6b19b/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/0fe6b19b/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/0fe6b19b/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/0fe6b19b/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d9c51a05/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d9c51a05/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d9c51a05/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d9c51a05/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d9c51a05/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d9c51a05/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/c49be44e.md
