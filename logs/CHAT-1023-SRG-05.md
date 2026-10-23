@@ -72,7 +72,7 @@ CHAT-1023-SRG-04（#624）の続き。読む先を「R_タイトル戦_マスタ
 
 ## 報告
 
-- 状態: 中断（0章で「R_Ampai」をまだ sheets-reader で読めた）
+- 状態: 中断（0章で「R_Ampai」をまだ sheets-reader で読めた） / 続き: CHAT-1023-SRG-06
 - ブランチ: work/1023-srg
 - ログ: https://github.com/retroeater/mj/blob/work/1023-srg/docs/logs/CHAT-1023-SRG-05.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1023-srg
@@ -86,12 +86,12 @@ CHAT-1023-SRG-04（#624）の続き。読む先を「R_タイトル戦_マスタ
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj e4e91496）: https://github.com/retroeater/mj-logs/tree/main/guide/e4e91496
+ガイド文書（この版を写した時点の最新、mj ee47bdbe）: https://github.com/retroeater/mj-logs/tree/main/guide/ee47bdbe
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e4e91496/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e4e91496/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e4e91496/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e4e91496/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e4e91496/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e4e91496/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ee47bdbe/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ee47bdbe/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ee47bdbe/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ee47bdbe/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ee47bdbe/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/ee47bdbe/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/bb98660e.md
