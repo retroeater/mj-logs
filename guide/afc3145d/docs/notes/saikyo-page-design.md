@@ -307,6 +307,22 @@ A を埋めると `2015-n3-...` 形式から日付形式へ変わり、未登録
 - **3段目 対局の記録**: 年度ページの形。年度の見出し「麻雀最強戦2024 ›」（年度ページへ）の下に、卓ごとの面（対局名の行〈2行目に「卓名・月日」〉と2人の行〈順位・写真・名前・結果のピル〉）。**2人の並びは年度ページ・対局のページと同じ卓の中の順**（`player_order()`: 順位順、順位が空なら通過〈決勝は優勝〉→ 敗退、同じ結果はシート順。2026-10-23 の決定4）。**対局名の行の › は卓のページへ**（決定の文。年度ページの › は対局のページ）。同じ対局の2卓（ベスト8 と決勝）は2つの面に分ける。並びは新しい順、同じ対局の中は決勝が上（`stage_desc()`）
 - **段1**（docs/new-page-checklist.md）: `VS_PUBLIC = False` で noindex を付け、トップの入口の行（`build_vs_entry()`、題名「対戦成績」・2行目「出場者同士の勝敗と同卓の記録」・›、検索欄の直下）とサイトマップに載せない。公開は `VS_PUBLIC = True` と `llms.txt` の行。navbar には載せない（2026-10-22 の決定）
 
+### 年度別・個人成績・ランキングと新しいトップ（#626。段1: 未公開、公開は #627）
+
+決定は docs/decisions/saikyo.md の 2026-10-23（CHAT-1023-SKP-01・SKP-02。SKP-01 の仮置きは SKP-02 で確定）。公開（#627）で入れることの一覧は #627 のコメント。
+houou/・jwrc/ と同じ形にし、部品（質問欄・メニューの面・選手を探す部品・名前の面・タブ・部門別・ランキングの表）は houou/ の HTML の形と CSS（`.mj-houou-*`）を使う。`generate_saikyo_pages.py` が `generate_houou_pages.py` の雛形（`ASK_TEMPLATE`・`TOP_TEMPLATE`・`RANKING_TEMPLATE`・`search_box()` など）を読む（`regenerate.py` の `SHARED_GENERATORS`）。
+
+- **段1**（`MENU_PUBLIC = False`）: 年度別 `/saikyo/years/`・個人成績 `/saikyo/players/`・ランキング `/saikyo/ranking/<スラッグ>/`（`/saikyo/ranking/` は先頭の部門へ 301）に noindex を付け、サイトマップに載せない。新しいトップは仮の URL `/saikyo/next/`（noindex）に書き、今のトップ `saikyo/index.html`（歴代最強位＋選手名検索）は変えない。公開（#627、対戦成績の公開と同時）で `True` にすると、新しいトップを `saikyo/index.html` に書き、`next/` は片付けで消える（`_redirects` の next の2行は手で消す）
+- `_redirects` の行は `MENU_REDIRECT_LINES`（`scripts/tests/test_saikyo_redirects.py`）。年度でないディレクトリは `MENU_DIRS`
+- **新しいトップ**（`build_new_top_body()`）: 題名「最強戦」→ 質問欄（`data-contest="saikyo"`）→ メニューの面（年度別・個人成績・ランキング。対戦成績の行は `VS_PUBLIC` のときだけ）→ 説明文
+- **年度別**（`build_years_body()`）: 今のトップの歴代最強位の面だけ（選手名検索は個人成績へ移した）。行は年度ページ `../<年度>/`
+- **個人成績**（`build_players_body()`・`players_data()`、描くのは `assets/saikyo.js` の末尾の節）: 選手を探す部品（候補は先頭一致 → 部分一致、それぞれ最後に出た年度の新しい順。連盟の在籍者は名簿の読み・ローマ字でも引け、候補に「（東京・30期）」。連盟の外の人は「連盟プロ以外」の「名前かな」で引ける〈2026-10-23 の決定、`load_profiles()`〉。読みの無い人は名前だけ）→ 名前の面（写真・名前と、名前の下の1行〈`career_lines()`、2026-10-24 の決定〉: 最強位の経験がある人は「16回出場（2022・2021最強位）」〈年度は新しい順〉、最強位は無いがファイナルに出た人は「16回出場（ファイナル 5回）」、どちらも無い人は「3回出場」、未対局の卓だけの人は出さない。回数は予選出場と同じ年度の数）→ タブ「年度別」（トップの検索の結果と同じ年度ごとの面、卓のページへ。ファイナルの決勝の通過のピルは「優勝」でなく「最強位」〈`champion_pill()`、2026-10-23 の決定。予選の決勝の通過は「優勝」。公開済みの年度・対局・卓のページと対戦成績は公開のときにそろえる〉）・「部門別」（9部門の値と順位、ランキングと同じ並び、行からランキングへ。`?view=division`）。`?name=` は「別名」で現在名に直す。最近見た選手は localStorage の `mj:recent-players:saikyo`、無ければ最新の最強位の1件。データはページに焼き込む（`saikyo_players_data`）。未対局の卓だけの選手は部門別が「データがありません」
+- **ランキング**（`build_division_rankings()`・`build_ranking_body()`、行を押す動きは `assets/league.js` の `initRanking()`）: 9部門（`DIVISIONS`）。対象は全出場者。数えるのは結果（G列）のある人の卓だけ（未対局の卓は数えない）。同じ値（表示の値）は同じ順位で名前の文字コード順。載せる下限は houou/ の `above_floor()` の考え方（回数は1以上、連続出場は2以上、通過率は0より大きい）、表示の上限は50件・同率は55件まで（jwrc/ と同じ、`RANK_CUT`）。時点は対局済みの卓のある最新の対局日（「2026年10月18日の対局まで」）
+  - 部門（2026-10-24 の決定。並びは選ぶ部品の3×3 の格子・部門別のタブ・質問欄で同じ、値の単位は通過率のほか「回」。`ranking/` の下のスラッグは括弧の中）: 最強位（`champion`。`FINAL_MATCH_NAME` の決勝を通過した年度の数、`find_champions()` と同じ判定）・ファイナル（`final`。名前が「ファイナル」で始まる対局〈`FINAL_PREFIX`。1st・2nd Stage を含む〉に出た年度の数）・予選優勝（`qualifier-win`。ファイナル以外の対局の決勝の通過の回数）／予選決勝（`qualifier-final`。ファイナル以外の対局のステージ「決勝」の対局済みの卓の数）・予選出場（`appearances`。出場した年度の数）・連続出場（`streak`。続けて出場した年度の最大、出場しなかった年度で途切れる）／対局数（`games`。対局済みの卓の数、ファイナルを含む）・予選通過（`qualifier-pass`。ファイナル以外の対局の卓の通過の回数）・通過率（`pass-rate`。ファイナルを含む全卓の通過 ÷ 対局数、対局数10回以上〈`PASS_RATE_MIN_TABLES`〉）。スラッグを付け直したときの古いページは `remove_stale_rankings()` が消す
+- **質問欄の名簿** `saikyo/ask-players.json`（`ask_roster()`）: 名前の面と同じ名前の下の行を持ち、`assets/houou_ask.js` はページの `#league_contest` の `facts` でそれをそのまま出す。カードの行き先は `data-players-page`（仮のトップからは `../players/`）
+- 質問欄の Worker の分は docs/notes/ask-worker.md「最強戦」
+- テスト: `scripts/tests/test_saikyo_menu.py`（集計・下限・同率・質問欄のデータとページの一致）
+
 ## 4. 年度ページの表示
 
 **旧年度ページ `saikyo/<年度>.html`（#549 で廃止）の記録。今の年度ページは3章「新しい年度・対局・卓のページ」。**

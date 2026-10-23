@@ -51,15 +51,48 @@ Chat-Ref: CHAT-1024-SHR-01
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+- 0: 指示欄の末尾は指示文の最後の行「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」と一致
+- 着手前の確認: `CHAT-1024-SHR` のコミットは全リモートに無し。`SHR` の重複無し。0章ゲートは実装を含まないため対象外。#530・#362 は Open（#526 は Closed だが、G3-07・G4-09 は #530 に移し済みで止まる条件に当たらない）。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は欠け無し
+- ブランチ: `work/1024-shr` はローカル・リモートとも無し → `git checkout -b work/1024-shr origin/cloudflare`（066dfde）
+- 手順1（前提の確認、origin/cloudflare 066dfde）:
+  - `git grep -l 'mj-share\|share\.js' -- '*.html'` は live/ の923件だけ（title/・wayhome/・saikyo/ ほかは0件）
+  - `assets/league.js` 2行目「share.js より先に実行されるため、共有ボタンの差し込みはここで済ませる。」（変えない）
+  - work/1017-lvp の docs/decisions/live.md 177行目「共有ボタンを live/ から外す（#530。共通部品 `scripts/lib/share.py`・`assets/share.js` の扱いは #530 で決める）」
+  - #530 のコメント: title/（本文）・帰り道（2026-10-10）・最強戦（2026-10-10、対局ごとは #549 で 2026-10-16）の外し済みを確認。他セッションの着手中コメントは CHAT-1010-WHS-01 の1件で、帰り道の分（完了済み）。重ならない
+  - 未マージの work/ ブランチのうち、今回触る4ファイル（docs/decisions/README.md・site-review.md・docs/handover.md・docs/notes/design.md）を変えているものは無し。work/1017-lvp は docs/notes/live-page-design.md の共有ボタンの記述を変えるので、そのファイルは触らなかった
+  - #530 に着手中コメント（issuecomment-6376528076）
+- 手順2: 書き場所は分野表の site-review.md（G3-07・G4-09 の出どころで、#530 の「サイト全体」の分野に当たる）。分野表の site-review.md の行に「サイト全体の共有ボタンの見直し（#530）」を足した。直した箇所:
+  - docs/handover.md 4章「現行サイトに作り込みすぎない」: 「見直しは #530。books/ は凍結中で旧実装」→「共通の部品は #362 のマージで live/ から外れた後に消す（#530、docs/decisions/site-review.md）。books/ は凍結中で旧実装のまま残す」
+  - docs/notes/design.md の共有ボタンの行: 「が絞り込み欄の右と最強戦の帯（帰り道のヒーローの形は #530 で外した）」→「が live/ の絞り込み欄の右（帰り道・最強戦からは #530、title/ からは #277 で外した）」、末尾に「部品は #362 のマージで live/ から外れた後に消す（#530）」（最強戦の帯は #549 で無くなっていたため、あわせて直した）
+  - そのまま残したもの: docs/notes/title-pages.md「共有ボタンのサイト全体の見直しは #530」（参照として正しい）、docs/decisions/wayhome.md の「#530 で別に扱う」（決定の記録は書き換えない）、docs/new-site-design.md（docs/notes の外で、共通部品を残すとは書いていない）
+  - `python3 -m unittest discover -s scripts/tests`: 1563件 OK。handover.md 22,221 バイト（上限内）
+  - コミット c916d0838
+- 手順3: #530 に決定3件と「残りは #362 のマージ後に共通部品を消す指示で行い、そのときに閉じる」をコメント（issuecomment-6376539876）。閉じていない。本文・ラベルは変えていない
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1024-shr
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1024-SHR-01.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1024-shr
+- 確認用URL: なし
+- マージ: 済（fast-forward。cloudflare の先頭はこのログを含むコミット）
+- issue: #530（コメントのみ。閉じていない）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 066dfde6）: https://github.com/retroeater/mj-logs/tree/main/guide/066dfde6
+ガイド文書（この版を写した時点の最新、mj afc3145d）: https://github.com/retroeater/mj-logs/tree/main/guide/afc3145d
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/066dfde6/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/066dfde6/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/066dfde6/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/066dfde6/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/066dfde6/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/066dfde6/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/afc3145d/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/afc3145d/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/afc3145d/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/afc3145d/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/afc3145d/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/afc3145d/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/066dfde6.md
