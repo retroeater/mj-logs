@@ -1,6 +1,6 @@
 # 朝の報告用の異常（retroeater/mj）
 
-- 書き出した時刻: 2026-10-23 19:12 JST（見た範囲: 2026-10-22 17:12 JST から）
+- 書き出した時刻: 2026-10-23 19:14 JST（見た範囲: 2026-10-22 17:14 JST から）
 - 書き出した実行の契機: workflow_dispatch（main）
 - 異常だけを書く。全体は actions/status.md。判定は mj の scripts/morning_report.py（各ワークフローの直近 100 回まで）
 
@@ -11,6 +11,8 @@
 - 2026-10-23 11:55 regenerate-page.yml failure（workflow_dispatch・work/1022-hth）ジョブ「regenerate」 https://github.com/retroeater/mj/actions/runs/39892214978
 - 2026-10-23 17:04 regenerate-page.yml failure（workflow_dispatch・work/1022-hth）ジョブ「regenerate」 https://github.com/retroeater/mj/actions/runs/39922029210
 - 2026-10-23 19:06 check-image-links.yml in_progress（workflow_dispatch・cloudflare） https://github.com/retroeater/mj/actions/runs/39936774087
+- 2026-10-23 19:14 check-assets.yml in_progress（push・work/1023-skv-play） https://github.com/retroeater/mj/actions/runs/39937639780
+- 2026-10-23 19:14 regenerate-sitemap.yml in_progress（push・cloudflare） https://github.com/retroeater/mj/actions/runs/39937645115
 
 ## 2. 予約実行の未実行（予定から3時間以内は「遅れの可能性」。3時間を超えて始まった実行は「遅れて実行」）
 
