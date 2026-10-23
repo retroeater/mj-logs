@@ -1,6 +1,6 @@
 # 朝の報告用の異常（retroeater/mj）
 
-- 書き出した時刻: 2026-10-23 18:52 JST（見た範囲: 2026-10-22 16:52 JST から）
+- 書き出した時刻: 2026-10-23 18:54 JST（見た範囲: 2026-10-22 16:54 JST から）
 - 書き出した実行の契機: workflow_dispatch（main）
 - 異常だけを書く。全体は actions/status.md。判定は mj の scripts/morning_report.py（各ワークフローの直近 100 回まで）
 
@@ -21,7 +21,7 @@
 
 ## 4. 初回成功
 
-なし
+- 2026-10-23 18:53 check-build-failure.yml success（check_run・cloudflare）それ以前の 98 件に success なし https://github.com/retroeater/mj/actions/runs/39935094873
 
 ## 5. 未報告のログ（`## 報告` の節が無い）
 
