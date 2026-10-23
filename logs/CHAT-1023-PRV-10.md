@@ -57,28 +57,64 @@ SRG 系列（CHAT-1018-SRG-01〜CHAT-1023-SRG-06）と PRV 系列（CHAT-1018-PR
 - Chat-Ref `CHAT-1023-PRV-10` のコミットは 0 件。`PRV` は同じセッションの PRV-09 の続き
 - 作業ブランチ: `work/1023-prv` はローカル・リモートとも無く、origin/cloudflare（c49be44e0）から作った
 
+- 0. 「指示」欄の末尾の行は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている。ガイド文に規則を足す指示で「知見 → 選んだ層 → 理由」の表がある
+- #557 は closed（PRV-09 で閉じた。この指示は閉じた issue への申送りで、着手中のコメントを残すよう指示されているので進めた）。着手中のコメント（issuecomment-6360728928）
+
+### 手順1
+- 同じ論点の issue（クローズ済みを含む）: 「regenerate.py --check 鍵 Code の環境 手動実行」→ #533・#439・#326（いずれも closed、別の論点）。「ゴミ箱 完全に削除 スプレッドシート 廃止」→ 0件。「スプレッドシートの ID 検知 mj-logs 公開 ログ 伏せる」→ #512（open、未マージのブランチのログが残る件）・#601（open、認証情報の棚卸し）などで、同じ論点は無い
+- 追記先の大きさ（作業ブランチの上、バイト）: docs/notes/chat-routines.md 19,838・docs/notes/static-generation.md 77,030。どちらも上限の対象外（上限は CLAUDE.md・handover.md・chat-side-operations.md・instruction-template.md の4文書）。参考: chat-side-operations.md 22,290（上限 28,672・警告域 26,624）は変えていない
+- 未マージの work/ ブランチで変える文書に触れるもの: `work/1023-skp`（static-generation.md の「ページの一覧」の行と表）・`work/1018-log-367-migrate`（decisions/operations.md の途中の節）。どちらも別の行・節で、重ならない
+
+### 手順2
+- A: `git grep -n "regenerate.py --check"`（docs/decisions/・docs/logs/ を除く）の当たりのうち、Code の環境で回す前提の手順を5か所置き換えた（入口は `regenerate-page.yml` の作業ブランチの ref・入力 `check`・`target_page`。参照は github-actions.md「regenerate-page.yml」）:
+
+| 文書 | 箇所 |
+|---|---|
+| docs/notes/chat-routines.md | 「指示の種類ごとの確かめ」のデータが変わった後の生成の行 |
+| docs/notes/static-generation.md | 「平野さんがシートを用意した・直した…」の1つ目の行 |
+| docs/new-page-checklist.md | 準備の指示の着手時の確かめ |
+| docs/notes/video-mtsuku.md | 止まる理由を全部見るとき |
+| docs/notes/video-wayhome.md | シートや SNS ブックを直した後 |
+
+  除いたもの: `--check` の機能の説明（static-generation.md「メンテナンス用スクリプトの詳細」の `regenerate.py --check` の項、github-actions.md の入力 `check` の説明、`scripts/regenerate.py`・`scripts/lib/check.py`・テストの docstring、`regenerate-page.yml`）
+- B: static-generation.md「タブ・列を変えた、シート・スプレッドシートを移した・消した・廃止すると言われたら」の行の末尾に、廃止の確かめ（旧 ID を一時的に `check-sheets-reader.yml` の対象に足して手動実行し、404・403 を確かめる。読めたら止めてゴミ箱からの完全な削除を頼む。理由: ゴミ箱にある間は sheets-reader から読める）を足した。事例は書いていない
+- 増えた量（バイト）: chat-routines.md +201・static-generation.md +466・new-page-checklist.md +148・video-mtsuku.md +102・video-wayhome.md +104。どれも上限の対象外の docs/notes/ 側の文書で、chat-side-operations.md 冒頭の「純増したら docs/notes/ の各文書へ移す」は上限のある文書の規則なので、移す先が無く当てはまらない
+- 矛盾ではないが気づいたこと（直していない。`--check` の機能の説明で、指示の対象外）: static-generation.md「メンテナンス用スクリプトの詳細」の `regenerate.py --check` の項の「ワークフローからは呼ばない」は、`regenerate-page.yml` の入力 `check`（#551 の後に足された）と食い違う。また static-generation.md の「生成と同じ経路で読ませ、見出し・件数…を報告させる」も Code の環境で読む前提だが、`--check` の記述ではないので変えていない
+- 成果物のコミット: 2ad4f5131
+
+### 手順3（C の調べ）
+- `security-check.yml` の履歴の走査（`scripts/scan_secret_history.py`）: 正規表現は AIza・sk-ant・AKIA・PRIVATE KEY・ghp_・github_pat_・Bearer AAAA の7種で、スプレッドシートの ID の形は無い（検知しない）
+- ログを mj-logs へ写す仕組み: mj-logs の `sync-from-mj.yml` が mj の `scripts/sync_all_logs.py`（→ `sync_logs.py`・`sync_guides.py`）を呼ぶ。中身はファイルの写しで、値を検知・伏せる処理は無い（検知しない）
+- 既存の ID の形の正規表現: `scripts/tests/test_check_sheets_reader.py` の `BOOK_ID`（`(?<![A-Za-z0-9_-])1[A-Za-z0-9_-]{43}(?![A-Za-z0-9_-])`、1で始まる44文字）。コードの中の ID の網羅の確かめに使っている
+- 案は `## 報告` の「判断が必要なこと」に書いた。決定は `docs/decisions/operations.md`「2026-10-23（CHAT-1023-PRV-10）」に足した
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1023-prv
-- ログ: https://github.com/retroeater/mj/blob/work/1023-prv/docs/logs/CHAT-1023-PRV-10.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1023-PRV-10.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1023-prv
 - 確認用URL: なし
-- マージ: 未
-- issue: #557
-- 判断が必要なこと: なし
+- マージ: 済（この push で cloudflare へ。docs のみ）
+- issue: #557（着手中 issuecomment-6360728928。closed のまま）
+- 判断が必要なこと:
+  - C（ログ・ガイド文書に写ったスプレッドシートの ID の検知）を足すか。今はどこも検知しない（`scan_secret_history.py` にも mj-logs への写しにも無い）。ID の形は既存の `BOOK_ID`（1で始まる44文字、前後が英数字・`_`・`-` でない）を使う。YouTube の動画 ID（11文字）・チャンネル ID（24文字）・再生リスト（34文字）・カレンダーの ID（64文字＋`@`）・git の SHA（40文字）は長さで外れる。Google ドキュメントの ID も同じ形で当たるが、これも非公開にしたいものなので当たってよい
+    - 案1（推奨）: 写す側（`scripts/sync_all_logs.py` が呼ぶ `sync_logs.py`・`sync_guides.py`）で、写す前に当たりを `<ID>` に置き換え、件数だけを出す。良い点: public に出る前で止まり、写しは止まらない。チャット側の書き誤りでも効く。悪い点: mj と mj-logs の中身が食い違い、突き合わせ（#454）が毎回「違う」と見て写し直すので、比べる前に同じ置き換えを掛ける必要がある。mj-logs の git の履歴にある既出の ID（CHAT-1018-SRG-01 のログ）は消えない
+    - 案2: 写す前に当たりがあればそのログだけ写さず、ワークフローを失敗にする（通知が届く）。良い点: 書き直しが mj 側の1か所で済み、中身が食い違わない。悪い点: 直すまでそのログが mj-logs に出ず、チャット側が読めない。直すのに Code の指示が1本要る
+    - 案3: `scan_secret_history.py` に種類を足し、docs/logs/・ガイド文書のパスに限って当てる（コードの中の ID は正当なので除く）。良い点: 足す行が少ない。悪い点: 手動実行の後追いで、public に出た後にしか分からない
+    - 既に出た ID（CHAT-1018-SRG-01 のログ）は、ブックが 2026-10-21 から「制限付き」で、ログインなしでは読めない（PRV-07）ので、今すぐの害は小さい見込み
 - 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj c49be44e）: https://github.com/retroeater/mj-logs/tree/main/guide/c49be44e
+ガイド文書（この版を写した時点の最新、mj d043813b）: https://github.com/retroeater/mj-logs/tree/main/guide/d043813b
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c49be44e/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c49be44e/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c49be44e/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c49be44e/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c49be44e/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c49be44e/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d043813b/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d043813b/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d043813b/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d043813b/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d043813b/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d043813b/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/c49be44e.md

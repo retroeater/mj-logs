@@ -33,7 +33,7 @@ SNS ブックの更新・/live の取り込みから呼ばれた再生成では�
   古い `index*.jpg` は削除する（`/img/*` は immutable 配信のため同じURLで中身を変えない、`docs/notes/ogp.md`）。同じ名前で中身が違う（サムネイルの差し替えなど）ときは上書きせず今のファイルを残す。
   **作るのはこの1枚だけで、個別ページ用の画像は作らない**（個別の `og:image` はYouTubeのサムネイルをそのまま使う）
 - 手元で動かすときは `YOUTUBE_API_KEY=... python3 scripts/fetch_youtube_meta.py`・`python3 scripts/build_wayhome_ogp.py`・`python3 scripts/regenerate.py video_wayhome wayhome_episodes`
-- シートや SNS ブックを直した後は、再生成の前に `python3 scripts/regenerate.py --check video_wayhome wayhome_episodes` で、止まる理由（動画IDとして読めない行・読めない写真など）を最初の1つでなく全部確かめられる。ファイルは書かない。写真の HEAD は生成と同じに回り、JSON に無い回・「プロ」に居ない選手は警告（#551）
+- シートや SNS ブックを直した後は、再生成の前に `regenerate.py --check video_wayhome wayhome_episodes`（Code では `regenerate-page.yml` の入力 `check` の手動実行で、github-actions.md「regenerate-page.yml」）で、止まる理由（動画IDとして読めない行・読めない写真など）を最初の1つでなく全部確かめられる。ファイルは書かない。写真の HEAD は生成と同じに回り、JSON に無い回・「プロ」に居ない選手は警告（#551）
 
 ## 紹介文と title/ の期のページ（#173・#553、2026-10-12）
 
