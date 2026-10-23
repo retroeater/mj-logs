@@ -63,28 +63,68 @@ ACF 系列（CHAT-1023-ACF-29〜34。「x」の表〈#625〉と、瀬戸麻衣�
 
 ## 経過
 
+### 着手前の確認
+
+- 同じ Chat-Ref のコミット: なし。ACF は既存の識別子。実装を含まないため0章ゲートは対象外
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 4行とも欠けなし
+- 0.（指示欄の末尾と指示文の最後の行の一致）: 一致
+- ガイド文に規則を足す指示の「知見 → 選んだ層 → 理由」の表: あり（(a)・(b) の2行）
+- 作業ブランチ: `origin/work/1023-acf`・ローカルとも cloudflare の祖先だったため `git merge --ff-only origin/cloudflare`（9623fbd44）。ログ先行 push 済み
+
+### 手順1: 追記先の今の内容と残り容量
+
+- docs/notes/chat-side-operations.md: 22,290 バイト。`check-assets.yml` の純増の警告域（`FLOOR=24576`。24,576 バイトを超えて、かつ純増のときに警告）まで 2,286 バイト。上限の警告域 26,624・上限 28,672 の手前
+- (a) の追記先「書く前に実物で確かめる」の項「**平野さんの手作業（画面を見るだけ等）が安価で結論を左右するなら、記録・文書の指示より先に頼む**」は、括弧の無い1行だった。矛盾する記述は無い。近い趣旨の項「仮説を確かめるときは、当たり外れを一発で分ける確認を先に行い…」は別の規則なので、そのまま
+- docs/instruction-template.md: 12,352 バイト（警告域 14,336・上限 16,384 の手前）。(b) の追記先はファイル冒頭の注意の箇条（「作業ブランチ」の行の文面〜「続きの指示…」）。禁止の理由・外れたときの候補を扱う記述は無く、矛盾も無い
+
+### 手順2: 足したもの（6ed91516b）
+
+- (a): chat-side-operations.md の上の項の末尾に「（外部のデータ〈X のアイコン・連盟サイトなど〉が『変わっていない』という報告で判断を出す前も同じ。今の正〈プロフィールのページ・API〉を見ていなければ、それを頼むか確かめる手順を先に指示する）」を足した
+- (b): instruction-template.md の注意の「数を報告させるときは、名前の一覧も書かせる…」の次に1行を足した: 「**見込みを確かめる手順には、外れたときに次の案を選ぶために測る候補も書く。調べるだけの指示で外部 API の呼び出しなどを禁じるときは、禁じる理由（費用・書き込み・副作用）を書く。書けない禁止は入れない**（受け手は禁止の妥当性を判断できず、理由の無い禁止が一発で分かる確かめを塞ぐ）」。12,352 → 12,766 バイト
+- 経緯: docs/notes/handover-archive-2026.md「docs/notes/chat-side-operations.md から」の後に「2026-10-23 の申送り（ACF 系列、#352・#625）で足した規則の経緯と、移した記述」を足した（経緯を2行と、移した記述を1行）
+
+### 手順2: 純増を避けるため移したもの
+
+(a) で増える分より多く、chat-side-operations.md の場面限定の記述を移した。
+
+- 「平野さんの判断とマージの許可」の「**告知の期間（…）に、告知に挙げるページ・機能を変える指示では、『マージ:』の行に『告知の期間中の変更を承認（<日付>、平野さん）』と書く。** 書いていなければ Code はマージせずに止まる」を移した
+  - 移し先: docs/notes/page-announcement.md「進め方」の決定の「期間」の項。今まで「承認の書き方は docs/notes/chat-side-operations.md『平野さんの判断とマージの許可』」としていた所に、書き方の文面を入れた（Code の側の守り方は前からその節にある）
+  - chat-side-operations.md「場面ごとに読む文書」の表に「告知の期間に、告知に挙げるページ・機能を変える → `docs/notes/page-announcement.md`『進め方』」の行を足した
+- 同じ節の「**`.claude/` の hook・settings を変える指示は平野さんの手作業を前提に組み、『マージ:』は『判断待ちで止まる』**（Code は試験と文書まで。手順は上の表）」を消した
+  - 同じ規則が docs/notes/skills.md「git の hook（mj-git-guard）」に全部ある（「チャット側の指示はこの手作業を前提に組み、『マージ:』は『判断待ちで止まる』にする〈`.claude/` の settings を変える指示も同じ〉」）。skills.md は変えていない
+  - 場面の表の既存の行を「`.claude/` の hook・settings を変える（『マージ:』は判断待ちで止まる）」にした
+- 結果: chat-side-operations.md 22,290 → 22,166 バイト（-124、純増なし）
+
+### 手順3
+
+- docs/decisions/operations.md に「2026-10-23（CHAT-1023-ACF-35）」の節を足した（足した2点・足さなかったもの〈閉じた issue の規則。Code の state の確認が働いたため〉）
+
+### マージ
+
+- 変わったのは docs/ 配下だけ（docs/decisions/operations.md・docs/instruction-template.md・docs/logs/CHAT-1023-ACF-35.md・docs/notes/chat-side-operations.md・docs/notes/handover-archive-2026.md・docs/notes/page-announcement.md）
+
 ## 報告
 
-- 状態:
-- ブランチ:
-- ログ:
-- 比較URL:
-- 確認用URL:
-- マージ:
-- issue:
-- 判断が必要なこと:
-- 未確認の項目:
-- エラー:
+- 状態: 完了
+- ブランチ: work/1023-acf
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1023-ACF-35.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1023-acf
+- 確認用URL: なし
+- マージ: 済（work/1023-acf を cloudflare へ fast-forward。docs のみ）
+- issue: なし
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj b4b933ba）: https://github.com/retroeater/mj-logs/tree/main/guide/b4b933ba
+ガイド文書（この版を写した時点の最新、mj cc768b5f）: https://github.com/retroeater/mj-logs/tree/main/guide/cc768b5f
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b4b933ba/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b4b933ba/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b4b933ba/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b4b933ba/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b4b933ba/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b4b933ba/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/cc768b5f/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/cc768b5f/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/cc768b5f/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/cc768b5f/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/cc768b5f/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/cc768b5f/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/c49be44e.md

@@ -106,7 +106,7 @@ Node 22 で、引数にディレクトリを渡すと失敗する。パターン
 Worker が書く行は1行1 JSON で、`event` の鍵で種類を分ける（2026-10-21 から。それまでは日本語の文。何もしない回は書かない。トークン・issue のコメントの本文は書かない）:
 
 - 予定の回の起動: `{"event":"dispatch","workflow":"run-daily.yml","status":204}`
-- 取りこぼしの埋め合わせの起動: `{"event":"catchup","planned":"04:30","workflow":"check-image-links.yml","status":204}`（`dispatch` の行は書かない）
+- 取りこぼしの埋め合わせの起動: `{"event":"catchup","planned":"04:00","workflow":"run-daily.yml","status":204}`（`dispatch` の行は書かない）
 - mj-logs の同期の起動: `{"event":"sync","workflow":"sync-from-mj.yml","status":204}`（起動しない回は書かない）
 - 朝の確かめ（06:00、抜けたら 06:15・06:30）: `{"event":"morning_check","date":"2026-10-06","planned":1,"success":1,"other":0,"notified":false}`（`notified` は #506 に書いたか）
 - 起動の表から捨てた行（`console.error`）: `{"event":"invalid_row","workflow":"…"}`

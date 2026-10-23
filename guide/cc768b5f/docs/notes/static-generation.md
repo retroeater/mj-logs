@@ -451,7 +451,7 @@ title/ では「タイトル戦」タブの大会の改名が「タイトル」�
 外部からの読み取り（`lib/sheets.py` のスプレッドシート〈Sheets API〉、`lib/dojo_guest.py` の連盟サイト、YouTube Data API の取得）は、タイムアウト・接続の失敗を `lib/net_retry.py` で2回まで繰り返す（5秒・15秒おき、HTTP の応答は繰り返さない。`lib/sheets.py` は 429・5xx を別に待って繰り返す）。
 Google の API（`lib/sheets.py`・`lib/gcal.py`・`lib/sheets_write.py`・`sync_birthday_calendar.py`）には接続10秒・読み取り60秒のタイムアウトを渡し、読み取り（GET）だけ同じく繰り返す。書き込みは、届いたかが分からず重複しうるため繰り返さない（#472）。
 
-- `check_image_links.py` — `jpml_pros.html` 内の画像URL全件にHEADリクエストを送りリンク切れを検知（毎日 04:30 JST、保険で毎週月曜03:00 JST）
+- `check_image_links.py` — `jpml_pros.html` 内の画像URL全件にHEADリクエストを送りリンク切れを検知（毎朝 `run-daily.yml` から〈04:00 JST 起動、`update-sns-book` の後〉、保険で毎週月曜03:00 JST）
 - `collect_saikyo_images.py` — 最強戦の選手写真（SNS ブックの実効の値、#514）で取得できなくなった画像URLを見つけ、SNS ブックでの状態（【3】の X状態・【4】の有無）と一緒にCSV・検知の issue に出す（#333、手動実行＋`check-image-links.yml`から毎日`--json`実行）。X API は呼ばない（取り直しは `update_sns_book.py`）。`--resolve-test <X ID>`で X API を1件だけ呼んで診断を出す。使い方は`docs/notes/saikyo-page-design.md`「選手写真の更新」
 - `update_sns_book.py` — SNS ブック（選手の X・note・YouTube の ID と画像の URL、#514）の【1】元データ・【2】ID・【3】画像取得を書く（`--check`・`--init`・毎日の更新・`--dry-run`。`update-sns-book.yml`から毎日）。X の画像を X API で取り直すのはここだけ。ページの生成は SNS の値を `lib/sns.py` から読む（2026-10-11 から）。仕組みは`docs/notes/sns-book.md`
 - `cleanup_logs.py` — `docs/logs/`の作業ログのうち、7日を過ぎて片付けてよいもの（完了で3項目「なし」・取り下げ・続き先が完了／取り下げ／削除済み・論点の無い旧形式）を削除し、条件外のものを種類別（判断待ち・中断／書き方の違反／読めない）に一覧にする（`cleanup-logs.yml`から週1で実行、`--dry-run`で一覧のみ、`--new-rule-date`で規則を入れた日を試せる）。条件は`docs/notes/branch-operations.md`「作業ログの寿命」
