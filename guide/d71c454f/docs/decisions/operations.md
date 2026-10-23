@@ -1008,3 +1008,11 @@ BIL 系列（CHAT-1018-BIL-01〜CHAT-1021-BIL-03、Actions・Workers Builds の�
 
 - #304 の (13)（Workers Paid の使用量の確認）の行き先を #363（2026-09-29 に Closed）から #298（Actions の使用量の監視と削減）に直す。2か所（本行と子の「直近のビルド1回の所要時間」）。WKP のチャットからの伝言で、WKP 側では #304 を直さない（担当は MCK）
 - 作業中の回答: なし
+
+## 2026-10-23（CHAT-1023-PRV-10）
+
+- SRG 系列（CHAT-1018-SRG-01〜CHAT-1023-SRG-06）と PRV 系列（CHAT-1018-PRV-01〜CHAT-1022-PRV-09）の振り返りとレビューの申送りを行う（中身はチャット側の案）。次の2点を書いた
+  - Code の環境にはシートの鍵が無いので、`regenerate.py --check` は `regenerate-page.yml` の入力 `check` の手動実行で回す（chat-routines.md・static-generation.md・new-page-checklist.md・video-mtsuku.md・video-wayhome.md の手順を置き換えた）
+  - ブックの廃止は、旧ブックを sheets-reader で読めない（404・403）ことを手動実行で確かめる。読めたらゴミ箱からの完全な削除を頼む（static-generation.md）
+- ログ・ガイド文書に写ったスプレッドシートの ID を検知する仕組みは作らず、案を出して平野さんの判断を待つ（CHAT-1023-PRV-10 のログ「判断が必要なこと」）
+- 作業中の回答: なし

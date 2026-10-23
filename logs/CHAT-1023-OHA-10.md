@@ -48,6 +48,54 @@
 
 ## 経過
 
+### 着手前の確認（手順0・1）
+
+- 手順0: このログの `## 指示` の最後の行は「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」で、指示文の最後の行と一致
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 欠けなし
+- Chat-Ref: `CHAT-1023-OHA-10` のコミットは全ブランチに無い
+- issue の state: #563 は open。コメント6件はどれも CHAT-1015-MRF-01 か OHA-08・09 のもので、ほかのセッションの着手中は無い。着手中のコメントを書いた（issuecomment-6360826477）
+- ブランチ: `origin/work/1023-oha`・ローカルとも origin/cloudflare の祖先（OHA-09 でマージ済み）。`git merge --ff-only origin/cloudflare` で進めた（d043813bf）
+- 未マージの `work/` ブランチ: `scripts/morning_report.py`・`scripts/actions_status.py`・`scripts/actions_dashboard.py`・`scripts/tests/test_morning_report.py` を変えたものは無い
+- 原因（前提の1つ目）を origin/cloudflare のコードで確かめた: `actions_status.py` の `main()` は、各ワークフローの `all_runs[:RUNS_PER_WORKFLOW]`（5回）のうち失敗の実行のジョブだけを引く。`morning_report.write()` が `fetch_jobs` で足すのは、Worker の表のワークフローの今日・昨日の定期実行だけ。食い違いなし
+- 運行表（前提の3つ目）: `actions_dashboard.write()` は受け取った `jobs_by_run` をコピーし、呼ぶワークフローを持つ本の直近 `RUNS_SHOWN`（5）回のジョブを足して引く。ジョブを表示に使うのは `node_card()` の、呼ぶ側の直近 `RUNS_SHOWN` 回の実行だけ。morning.md が足して引くそれより古い実行のジョブは、運行表の表示に入らない見込み（下で実物を比べた）
+
+### 実装（928989966）
+
+- `morning_report.write()`: 見た範囲（`WINDOW`、26時間）で1節に出る実行（`render()` の1節と同じ条件: 結論が success・skipped 以外。実行中を含む）を `listed` にまとめ、`fetch_jobs` があれば、ジョブの無いものを引いて足す。飛ばしたページのログを引く対象も同じ `listed`（そのうち失敗したステップに「飛ばしたページを報告」を含むジョブだけ）。`actions_status.py`・status.md・運行表のコードは変えていない
+- `fetch_jobs` は `actions_status.py` の `jobs_by_run` に貯めるので、後の運行表も同じ実行を二度引かない
+- 検査（test_morning_report.py の `WindowJobsTest`）: 新しい5回が success で6回目が見た範囲の中の失敗のときも、ジョブを引いてジョブ名と添え書きが付く／見た範囲の外の失敗のジョブは引かない／もう引いてある実行は引き直さない
+- `python3 -m unittest discover -s scripts/tests`: 1,515 件 OK
+- 修正前のコード（origin/cloudflare を `git archive` で展開し、test_morning_report.py だけ差し替え）: `test_old_failure_in_window_gets_job_and_note` が FAIL。ほかの2件は修正前でも通る（今の動きを守る検査）
+- docs/notes/github-actions.md の morning.md の項に、1節の実行のジョブを `morning_report.write()` が引くことを足した
+
+### 確かめ: 同じ API の応答で新旧のコードを回す
+
+- 2026-10-23 17:32 JST（08:32:02Z）の API の応答を作業ファイルの置き場所に貯め、作業ブランチのコードと origin/cloudflare（d043813bf）のコードで `actions_status.py` を1回ずつ回した（作業用の `run_cached.py`。`get()` を貯めた応答に差し替え、書き出した時刻を揃えた。mj-logs には書いていない）
+- API の呼び出し: 新のコード 65 回、旧のコード 59 回（差の6回が、1節の regenerate-page の失敗6件のジョブ）
+- ジョブのログ（blob）はこのセッションの proxy で引けない（OHA-09 の経過）ので、飛ばしたページのジョブ 120165303934 だけ、OHA-09 で GitHub MCP から読んだログの抜き出しを渡した（新のコードだけが使う。旧のコードは引く対象に入らない）
+- status.md: 差なし
+- 運行表（actions/index.html）: 差なし
+- morning.md の差（全行。1節のジョブ名・添え書きだけ）:
+
+```
+9,14c9,14
+< - 2026-10-22 15:53 regenerate-page.yml failure（workflow_dispatch・work/1022-hth） https://github.com/retroeater/mj/actions/runs/39736761040
+< - 2026-10-22 16:31 regenerate-page.yml failure（workflow_dispatch・work/1022-hth） https://github.com/retroeater/mj/actions/runs/39741104321
+< - 2026-10-22 20:31 regenerate-page.yml failure（workflow_dispatch・work/1022-hth） https://github.com/retroeater/mj/actions/runs/39771190352
+< - 2026-10-23 09:16 regenerate-page.yml failure（workflow_dispatch・work/1023-oha） https://github.com/retroeater/mj/actions/runs/39877120835
+< - 2026-10-23 11:55 regenerate-page.yml failure（workflow_dispatch・work/1022-hth） https://github.com/retroeater/mj/actions/runs/39892214978
+< - 2026-10-23 17:04 regenerate-page.yml failure（workflow_dispatch・work/1022-hth） https://github.com/retroeater/mj/actions/runs/39922029210
+---
+> - 2026-10-22 15:53 regenerate-page.yml failure（workflow_dispatch・work/1022-hth）ジョブ「regenerate」 https://github.com/retroeater/mj/actions/runs/39736761040
+> - 2026-10-22 16:31 regenerate-page.yml failure（workflow_dispatch・work/1022-hth）ジョブ「regenerate」 https://github.com/retroeater/mj/actions/runs/39741104321
+> - 2026-10-22 20:31 regenerate-page.yml failure（workflow_dispatch・work/1022-hth）ジョブ「regenerate」 https://github.com/retroeater/mj/actions/runs/39771190352
+> - 2026-10-23 09:16 regenerate-page.yml failure（workflow_dispatch・work/1023-oha）ジョブ「regenerate」：生成に失敗したページを飛ばしました: resource_efficiency, resource_logs（理由はジョブのサマリ、#533） https://github.com/retroeater/mj/actions/runs/39877120835
+> - 2026-10-23 11:55 regenerate-page.yml failure（workflow_dispatch・work/1022-hth）ジョブ「regenerate」 https://github.com/retroeater/mj/actions/runs/39892214978
+> - 2026-10-23 17:04 regenerate-page.yml failure（workflow_dispatch・work/1022-hth）ジョブ「regenerate」 https://github.com/retroeater/mj/actions/runs/39922029210
+```
+
+- work/1022-hth の5件に添え書きが無いのは、失敗したステップが「生成物の差を実行サマリに出す」（dry_run の新旧の比べ）で、「飛ばしたページを報告」ではないため（貯めた応答のジョブで確かめた）
+
 ## 報告
 
 - 状態:
@@ -64,12 +112,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj d043813b）: https://github.com/retroeater/mj-logs/tree/main/guide/d043813b
+ガイド文書（この版を写した時点の最新、mj d71c454f）: https://github.com/retroeater/mj-logs/tree/main/guide/d71c454f
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d043813b/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d043813b/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d043813b/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d043813b/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d043813b/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d043813b/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d71c454f/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d71c454f/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d71c454f/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d71c454f/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d71c454f/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d71c454f/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/c49be44e.md

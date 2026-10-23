@@ -16,7 +16,7 @@ YouTube チャンネル「麻雀遊戯王」の企画「Mリーグチームを�
   **登録が無い人、X ID があって写真が読めない・写真の URL が無い・既定の卵型の人がいれば、全員を一覧にして生成を止める**（帰り道と同じく代わりの画像に逃がさない。理由には動画IDと列名〈「名前」「名前1」〜「名前4」〉）。
   X ID が無い人は止めず、ヒーローでは名前だけ、指名選手のカードでは代わりの絵（`img/avatar.svg`）。SNS ブックがまだ写真を取っていない人（`lib/sns.x_pending()`、帰り道と同じ例外、2026-10-15）も止めず、警告してヒーロー・カードとも代わりの絵（X へのリンクは付ける）
 - 生成: 一覧 `scripts/generate_mtsuku.py`（ページ名 `mtsuku`、出力 `mtsuku/index.html`）、各話 `scripts/generate_mtsuku_episodes.py`（`mtsuku_episodes`、`mtsuku/`。シートに無い動画IDのファイルを消す。`index.html` は除く）。
-  どちらも読み方と止める範囲は `lib/mtsuku.py` の `prepare()`。止まる理由を全部見るのは `python3 scripts/regenerate.py --check mtsuku mtsuku_episodes`（各スクリプトの `--check`）
+  どちらも読み方と止める範囲は `lib/mtsuku.py` の `prepare()`。止まる理由を全部見るのは `regenerate.py --check mtsuku mtsuku_episodes`（各スクリプトの `--check`。Code では `regenerate-page.yml` の入力 `check` の手動実行で、github-actions.md「regenerate-page.yml」）
 - 共有: サムネイル・再生時間・カードのサムネイル・Xの写真の確かめ・固定の検索バー・戻る矢印は `lib/wayhome.py` の関数。JS は帰り道と同じ `video_wayhome.js`（一覧）・`wayhome_episodes.js`（各話）。
   指名選手のカードは最強戦の写真カード（`.mj-saikyo-players`・`.mj-live-players`・`.mj-saikyo-card`）、「N巡目」の札は `style.css` の `.mj-mtsuku-round`（title/ の決勝ライブの札と同じ置き方）
 - 転送: `_redirects` に `/video_mtsuku.html  /mtsuku/  301`・`/mtsuku  /mtsuku/  301`・`/mtsuku/  /mtsuku/index.html  200`。`check-assets.yml` の許可リストに `mtsuku`
