@@ -96,15 +96,24 @@ CHAT-1023-SKP-02 は、読みの無い出場者が124名いて止まる条件に
 - 公開済みのページ（`saikyo/index.html`・年度・対局・卓・`saikyo/vs/`）と `sitemap-saikyo.xml` は差分に無い
 - マージの後の自動の生成: 毎朝の `regenerate-saikyo.yml` は saikyo_pages を生成し直すので、新しいページ（`saikyo/` の下）も毎朝作り直される。`workers/ask/data-saikyo.json`（ask_data_saikyo）は毎朝の対象ではなく、`regenerate.py all`（週次）と、`generate_saikyo_pages.py`・`generate_ask_data_saikyo.py`・`scripts/lib/` が変わった push（`SHARED_GENERATORS`）で作り直される
 
+### 手順3（マージと本番の確かめ）
+
+- 再 fetch して `git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめ、`git push origin work/1023-skp:cloudflare` でマージした（7c1c0c3ba..c05894045、fast-forward）
+- c05894045 の check-run: 「Workers Builds: mj」（本番）success・「Workers Builds: mj-ask」（本番）success・regenerate・sync success（notify 2件は skipped）
+- 本番（`?v=c05894045`）: `/saikyo/next/`・`/saikyo/players/`・`/saikyo/ranking/champion/`・`/saikyo/ranking/final/` が 200 で `<meta name="robots" content="noindex">` を含む。`/saikyo/ranking/final/` の title は「ファイナル | ランキング | 最強戦 | ryoei.pro」、題名の読み上げの部門名は「（ファイナル）」。`/saikyo/` の応答はマージ前の作業ブランチの `saikyo/index.html` とバイト単位で同じ（`cmp`）
+- 確かめたのは本番の HTML だけ（ブラウザでの見え方は SKP-01 の画面とプレビューで確かめた版のまま）
+- #626 にマージしたこと（公開は #627）をコメントした。閉じていない
+- 作業ブランチ work/1023-skp: 先頭 c05894045 は origin/cloudflare の祖先（マージ済み）。このログの追いの push の後もマージ済みのまま。リモートのブランチは毎日の `cleanup-branches.yml`（マージ済みの work/ ブランチを消す）に任せ、ここでは消していない（ローカルは今いるブランチなので残す）
+
 ## 報告
 
-- 状態: 中断（作業中）
-- ブランチ: work/1023-skp
-- ログ: https://github.com/retroeater/mj/blob/work/1023-skp/docs/logs/CHAT-1023-SKP-03.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1023-skp
-- 確認用URL: なし
-- マージ: 未
-- issue: #626・#627
+- 状態: 完了
+- ブランチ: work/1023-skp（cloudflare にマージ済み）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1023-SKP-03.md
+- 比較URL: https://github.com/retroeater/mj/compare/7c1c0c3ba...c05894045
+- 確認用URL: 本番 /saikyo/next/・/saikyo/players/・/saikyo/ranking/champion/・/saikyo/ranking/final/（noindex）。この版で見える印: /saikyo/ranking/final/ の title が「ファイナル | ランキング | 最強戦 | ryoei.pro」
+- マージ: 済（c05894045）
+- issue: #626（マージのコメント、開いたまま）・#627（名前かなの入力をコメント）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
