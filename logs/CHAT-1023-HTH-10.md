@@ -76,15 +76,35 @@ CHAT-1023-HTH-09 の仮置き（`## 報告` の「判断が必要なこと」の
 - origin/cloudflare との差分（docs を除く）: `assets/saikyo.js`・`saikyo/vs/index.html`（生成物はこの1件だけ）・`scripts/generate_saikyo_pages.py`・`scripts/tests/test_saikyo_vs.py`・`style.css`。HTH-08〜10 の変更で説明できる
 - work/1023-skp（e0d42a804）との `git merge-tree`: コードのファイルは衝突しない。`docs/decisions/saikyo.md` の末尾の追記どうしだけが衝突する（止まる条件の対象外。後からマージする SKP の側が両方を残して解く）
 
+### 手順3: マージと本番の確かめ
+
+- 経過の記録を push した直後に origin/cloudflare が d043813bf（CHAT-1023-PRV-10、docs だけ）に進んだので、merge で取り込み（衝突なし）、テスト 1520件 OK と `saikyo/`・`assets/saikyo.js`・`style.css` が HTH-09 の版と同じことを確かめ直した
+- push 直前に `git fetch origin cloudflare` し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真
+- `git push origin work/1022-hth:cloudflare`: `d043813bf..10fc70fa6`（fast-forward）
+- 10fc70fa6 の check-run: 「Workers Builds: mj」success（08:32:38Z）、「Workers Builds: mj-ask」「Workers Builds: mj-scheduler」も success、regenerate success（新しいコミットは無し＝生成物の差分なし）、sync success、notify skipped
+- 本番（`curl`、`?v=10fc70fa6` を付けて）:
+
+| URL | 結果 |
+|---|---|
+| `https://ryoei.pro/saikyo/vs/` | 200。`<meta name="robots" content="noindex">` あり。中身は作業ブランチの `saikyo/vs/index.html` と同じ（`cmp`） |
+| `https://ryoei.pro/assets/saikyo.js`・`https://ryoei.pro/style.css` | 作業ブランチと同じ（新しい版） |
+| `https://ryoei.pro/saikyo/` | 作業ブランチの `saikyo/index.html` と同じ（= マージ前と同じ） |
+| `https://ryoei.pro/saikyo/vs` | 301 → `/saikyo/vs/` |
+
+- 確かめたのは本番の HTML・JS・CSS まで。ブラウザでの見え方は手元の画素の比べ（HTH-09 の画像と同じ）まで
+- #372 にマージしたこと（公開は #623）をコメントした（ラベルは「状況: 対応中」のまま）
+- 決定を docs/decisions/saikyo.md に足した（2026-10-23 CHAT-1023-HTH-10。HTH-09 の見出しの決定に置き換えの注記）
+- ブランチの片付け: work/1022-hth（マージ時の先頭 10fc70fa6、origin/cloudflare の祖先＝マージ済み）。この後にログだけのコミットを積むため今は消さない。リモートは `cleanup-branches.yml` がマージ済みで先頭が24時間より前の `work/*` を消す（クラウドのセッションからは消せない）。ローカルはコンテナと一緒に消える
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1022-hth
-- ログ: https://github.com/retroeater/mj/blob/work/1022-hth/docs/logs/CHAT-1023-HTH-10.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1022-hth
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1023-HTH-10.md
+- 比較URL: https://github.com/retroeater/mj/compare/d043813bf...10fc70fa6
 - 確認用URL: なし
-- マージ: 未
-- issue: #372
+- マージ: 済（10fc70fa6、fast-forward。HTH-08・HTH-09・HTH-10 の変更）
+- issue: #372（マージのコメント）、#623（公開、未着手）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
@@ -92,12 +112,12 @@ CHAT-1023-HTH-09 の仮置き（`## 報告` の「判断が必要なこと」の
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj d043813b）: https://github.com/retroeater/mj-logs/tree/main/guide/d043813b
+ガイド文書（この版を写した時点の最新、mj f78ca35d）: https://github.com/retroeater/mj-logs/tree/main/guide/f78ca35d
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d043813b/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d043813b/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d043813b/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d043813b/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d043813b/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d043813b/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f78ca35d/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f78ca35d/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f78ca35d/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f78ca35d/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f78ca35d/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f78ca35d/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/c49be44e.md
