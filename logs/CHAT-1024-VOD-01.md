@@ -128,7 +128,7 @@ Search Console の「動画再生ページに動画がありません」を直�
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1024-VOD-02
 - ブランチ: work/1024-vod
 - ログ: https://github.com/retroeater/mj/blob/work/1024-vod/docs/logs/CHAT-1024-VOD-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1024-vod
@@ -144,12 +144,12 @@ Search Console の「動画再生ページに動画がありません」を直�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj d53626ec）: https://github.com/retroeater/mj-logs/tree/main/guide/d53626ec
+ガイド文書（この版を写した時点の最新、mj 0a91c125）: https://github.com/retroeater/mj-logs/tree/main/guide/0a91c125
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d53626ec/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d53626ec/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d53626ec/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d53626ec/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d53626ec/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d53626ec/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/0a91c125/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/0a91c125/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/0a91c125/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/0a91c125/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/0a91c125/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/0a91c125/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/c8aed737.md

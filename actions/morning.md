@@ -1,6 +1,6 @@
 # 朝の報告用の異常（retroeater/mj）
 
-- 書き出した時刻: 2026-10-24 06:32 JST（見た範囲: 2026-10-23 04:32 JST から）
+- 書き出した時刻: 2026-10-24 06:34 JST（見た範囲: 2026-10-23 04:34 JST から）
 - 書き出した実行の契機: workflow_dispatch（main）
 - 異常だけを書く。全体は actions/status.md。判定は mj の scripts/morning_report.py（各ワークフローの直近 100 回まで）
 
@@ -12,8 +12,6 @@
 - 2026-10-23 19:17 regenerate-page.yml failure（workflow_dispatch・work/1022-hth）ジョブ「regenerate」 https://github.com/retroeater/mj/actions/runs/39938042998
 - 2026-10-23 20:00 regenerate-page.yml failure（workflow_dispatch・work/1022-hth）ジョブ「regenerate」 https://github.com/retroeater/mj/actions/runs/39943091865
 - 2026-10-24 00:40 regenerate-page.yml failure（workflow_dispatch・work/1024-vod）ジョブ「regenerate」 https://github.com/retroeater/mj/actions/runs/39980236794
-- 2026-10-24 06:32 check-assets.yml in_progress（push・work/1024-vod） https://github.com/retroeater/mj/actions/runs/40027478374
-- 2026-10-24 06:32 regenerate-sitemap.yml in_progress（push・cloudflare） https://github.com/retroeater/mj/actions/runs/40027498391
 
 ## 2. 予約実行の未実行（予定から3時間以内は「遅れの可能性」。3時間を超えて始まった実行は「遅れて実行」）
 
@@ -21,13 +19,13 @@
 
 ## 3. 所要時間の異常（cloudflare の実行だけ。直近20回の中央値の3倍以上かつ中央値＋5分以上、または10分以上。skipped は除く）
 
-- 2026-10-23 09:38 regenerate-page.yml success（push・cloudflare）所要 9分31秒（直近20回の中央値 0分51秒） https://github.com/retroeater/mj/actions/runs/39879277297
+- 2026-10-23 09:38 regenerate-page.yml success（push・cloudflare）所要 9分31秒（直近20回の中央値 0分52秒） https://github.com/retroeater/mj/actions/runs/39879277297
 - 2026-10-23 18:54 update-sns-book.yml success（workflow_dispatch・cloudflare）所要 10分48秒（直近20回の中央値 0分55秒） https://github.com/retroeater/mj/actions/runs/39935314394
-- 2026-10-23 19:18 regenerate-page.yml success（push・cloudflare）所要 7分51秒（直近20回の中央値 0分51秒） https://github.com/retroeater/mj/actions/runs/39938178156
+- 2026-10-23 19:18 regenerate-page.yml success（push・cloudflare）所要 7分51秒（直近20回の中央値 0分52秒） https://github.com/retroeater/mj/actions/runs/39938178156
 
 ## 4. 初回成功
 
-- 2026-10-23 18:53 check-build-failure.yml success（check_run・cloudflare）それ以前の 61 件に success なし https://github.com/retroeater/mj/actions/runs/39935094873
+- 2026-10-23 18:53 check-build-failure.yml success（check_run・cloudflare）それ以前の 58 件に success なし https://github.com/retroeater/mj/actions/runs/39935094873
 
 ## 5. 未報告のログ（`## 報告` の節が無い）
 
