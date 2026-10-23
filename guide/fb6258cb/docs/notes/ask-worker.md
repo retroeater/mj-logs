@@ -40,6 +40,15 @@ houou/ のトップで鳳凰戦のデータに言葉で質問できる欄。決�
 - WRC リーグと同じ形: `scripts/generate_ask_data_wrcr.py`（`ask_data_wrcr`）が `workers/ask/data-wrcr.json` を書き、wrcr/ の質問欄は `contest: "wrcr"` を添える。`ask.mjs` は `deps.contests.wrcr` と `WRCR_PLAN_SYSTEM`（部門は `JWRC_DIVISIONS`）で答える。記録の型は「wrcr:league」の形
 - 決勝は title/search.json の「WRC-Rリーグ」、放送対局は /live の「WRC-Rリーグ」。テストは `workers/ask/test/wrcr.test.mjs`。違いの全体は docs/notes/wrcr-top.md
 
+## 最強戦（saikyo/、#626。未公開、公開は #627）
+
+- `scripts/generate_ask_data_saikyo.py`（`ask_data_saikyo`）が `workers/ask/data-saikyo.json` を書く。最強戦のページと同じ読み方・同じ集計（ランキングは `generate_saikyo_pages.py` の `build_division_rankings()`）。対象は全出場者。読み・入会期は名簿にいる在籍者だけ
+- 期ではなく年度で数える大会なので、`contest.yearly` が真。`query.mjs` は term・from・to を年度（上限 9999）として読み、型 `player` は年度ごとの卓と結果（`yearlyPlayer()`）、最強戦だけの型 `year`（ある年度の対局と勝ち上がり者、`yearMatches()`）を使う。型は champions・final・player・year・ranking（`contest.types`）。リーグ・前期後期は無い（1回目の出力の形の league は null だけ）。決勝は `FINAL_MATCH_NAME` の決勝の卓
+- 指示は `ask.mjs` の `SAIKYO_PLAN_SYSTEM`（部門は `SAIKYO_DIVISIONS`）と、最後に足す `saikyoLines()`（「現最強位」は決勝のある最新の年度、「今年」は対局のある最新の年度）。2回目は「日本プロ麻雀連盟の」を付けない（連盟の大会ではないため）。記録の型は「saikyo:champions」の形
+- 出典の名前は、歴代最強位（champions）が「麻雀最強戦 歴代最強位」、決勝（final）が「麻雀最強戦<年度> 決勝結果」。player の結果は個人成績と同じ（ファイナルの決勝の通過は「最強位」、ほかの決勝の通過は「優勝」）
+- 新しいトップの質問欄（段1 は仮の URL `/saikyo/next/`）が `contest: "saikyo"` を添える。Worker の変更はマージで本番に入るが、この問いを送るのは noindex の仮のトップだけ（公開まで辿れない）。work/ ブランチのプレビューからは `/api/ask` に届かない（`ALLOWED_ORIGIN` が本番のため）ので、本番の質問欄での試しは公開の前の指示で行う
+- テストは `workers/ask/test/saikyo.test.mjs`
+
 ## データ（data.json）
 
 `generate_ask_data.py` が次を読んで1つにまとめる。週次の `regenerate.py all` で作り直す（push での作り直しは、この生成スクリプトか `scripts/lib/` が変わったとき）。
