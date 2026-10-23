@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-24 00:38 JST
+- 書き出した時刻: 2026-10-24 00:41 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -25,11 +25,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-24 00:39 | push | work/1024-vod | success | #403（39980216614） | 0分20秒 |
 | 2026-10-24 00:37 | push | work/1024-skp | success | #402（39979861955） | 0分22秒 |
 | 2026-10-24 00:01 | push | work/1023-skp | success | #401（39974630962） | 0分23秒 |
 | 2026-10-23 21:10 | push | work/1023-hth-retro | success | #400（39951279502） | 0分22秒 |
 | 2026-10-23 20:50 | push | work/1023-skp | success | #399（39948866258） | 0分23秒 |
-| 2026-10-23 20:05 | push | work/1022-hth | success | #398（39943642315） | 0分23秒 |
 
 ## check-build-failure.yml
 
@@ -202,11 +202,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-24 00:40 | workflow_dispatch | work/1024-vod | in_progress | #439（39980236794） |  |
+| 2026-10-24 00:38 | workflow_dispatch | work/1024-skp | success | #438（39980006873） | 0分58秒 |
 | 2026-10-24 00:37 | workflow_dispatch | work/1024-skp | success | #437（39979862030） | 0分44秒 |
 | 2026-10-24 00:12 | workflow_dispatch | work/1023-skp | success | #436（39976245824） | 0分41秒 |
 | 2026-10-23 20:52 | push | cloudflare | success | #435（39949209612） | 0分57秒 |
-| 2026-10-23 20:51 | workflow_dispatch | work/1023-skp | success | #434（39948989707） | 0分52秒 |
-| 2026-10-23 20:50 | workflow_dispatch | work/1023-skp | success | #433（39948866228） | 0分42秒 |
 
 ## regenerate-saikyo.yml
 
@@ -228,11 +228,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-24 00:40 | push | cloudflare | in_progress | #44（39980331516） |  |
 | 2026-10-23 20:52 | push | cloudflare | success | #43（39949209614） | 0分22秒 |
 | 2026-10-23 20:07 | push | cloudflare | success | #42（39943854960） | 0分20秒 |
 | 2026-10-23 19:43 | push | cloudflare | success | #41（39941053216） | 0分20秒 |
 | 2026-10-23 19:14 | push | cloudflare | success | #40（39937645115） | 0分20秒 |
-| 2026-10-23 17:31 | push | cloudflare | success | #39（39925239187） | 0分22秒 |
 
 ## run-daily.yml
 
