@@ -298,7 +298,7 @@
 | 連続出場 | 43 | 1位 二階堂亜樹 16回、1位 佐々木寿人 16回、1位 瀬戸熊直樹 16回、1位 藤崎智 16回、5位 森山茂和 15回、5位 鈴木たろう 15回、7位 前原雄大 14回、7位 沢崎誠 14回、7位 猿川真寿 14回、7位 荒正義 14回、7位 魚谷侑未 14回 |
 
 - 数え方を変えた2部門の上位の変化（SKP-01 の表から）:
-  - 予選決勝（前は決勝進出、ファイナルの決勝を含む）: 1位は佐々木寿人 13回・森山茂和 13回の同率 → 佐々木寿人 12回の単独1位、森山茂和 11回で2位。瀬戸熊直樹・猿川真寿・近藤誠一・鈴木大介（前は11回で3位）は、瀬戸熊直樹・猿川真寿が9回で3位、近藤誠一・鈴木大介は上位10から外れた（ファイナルの決勝の卓が多い選手が下がった）。件数 42 → 40
+  - 予選決勝（前は決勝進出、ファイナルの決勝を含む）: 1位は佐々木寿人 13回・森山茂和 13回の同率 → 佐々木寿人 12回の単独1位、森山茂和 11回で2位。瀬戸熊直樹・猿川真寿・近藤誠一・鈴木大介（前は11回で3位）は、瀬戸熊直樹・猿川真寿が9回で3位、鈴木大介が8回で10位、近藤誠一は6回で21位と上位10から外れた（ファイナルの決勝の卓が多い選手が下がった）。件数 42 → 40
   - 予選通過（前は通過回数、ファイナルの通過を含む）: 1位は瀬戸熊直樹 20回 → 猿川真寿 16回。瀬戸熊直樹は14回で2位（佐々木寿人・森山茂和と同率）、近藤誠一（前は18回で4位）は上位10から外れた。件数 45 → 51（同率の群れの切れ方が変わった）
 - ページと質問欄: 9部門とも、生成した `saikyo/ranking/<スラッグ>/index.html` の表の行（順位・名前・値）と `workers/ask/data-saikyo.json` の `rankings` の entries が一致した（同率・上限の境目を含む全行）
 
@@ -325,15 +325,25 @@
 
 - 公開済みのページ（`saikyo/index.html`・年度・対局・卓・`saikyo/vs/`）と `sitemap-saikyo.xml` は差分に無い。シートの変化による差分も無い
 
+### 手順3（マージと本番の確かめ）
+
+- 再 fetch して `git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめ、`git push origin work/1024-skp:cloudflare` でマージした（c8aed7377..d53626ec3、fast-forward）
+- d53626ec3 の check-run: 「Workers Builds: mj」success・「Workers Builds: mj-ask」success
+- 本番（`?v=d53626ec3`）: ランキングの9ページ（champion・final・qualifier-win・qualifier-final・appearances・streak・games・qualifier-pass・pass-rate）と `/saikyo/players/`・`/saikyo/next/` が 200 で noindex を含む。title は新しい部門名（例「予選決勝 | ランキング | 最強戦 | ryoei.pro」）。個人成績のデータに「16回出場（2022・2021最強位）」がある。`/saikyo/` の応答は作業ブランチの `saikyo/index.html`（マージ前と同じ）とバイト単位で同じ。古いスラッグ（例 `/saikyo/ranking/tables/`）は 404
+- 確かめたのは本番の HTML だけ（ブラウザでの見え方は確かめていない）
+- #626 にマージしたことをコメントした。閉じていない
+- 作業ブランチ work/1024-skp は origin/cloudflare の祖先（マージ済み）。リモートのブランチは毎日の `cleanup-branches.yml` に任せ、ここでは消していない（ローカルは今いるブランチなので残す）
+- 経過の訂正: 予選決勝の上位の変化の文で、はじめ「鈴木大介も上位10から外れた」と書いたが、鈴木大介は8回で10位に残っている（外れたのは近藤誠一だけ）。上の文を直した
+
 ## 報告
 
-- 状態: 中断（作業中）
-- ブランチ: work/1024-skp
-- ログ: https://github.com/retroeater/mj/blob/work/1024-skp/docs/logs/CHAT-1024-SKP-06.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1024-skp
-- 確認用URL: なし
-- マージ: 未
-- issue: #626
+- 状態: 完了
+- ブランチ: work/1024-skp（cloudflare にマージ済み）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1024-SKP-06.md
+- 比較URL: https://github.com/retroeater/mj/compare/c8aed7377...d53626ec3
+- 確認用URL: 本番 /saikyo/ranking/qualifier-final/ ほか9部門・/saikyo/players/・/saikyo/next/（noindex）。この版で見える印: ランキングの格子の2段目の先頭が「予選決勝」
+- マージ: 済（d53626ec3）
+- issue: #626（マージのコメント、開いたまま）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
