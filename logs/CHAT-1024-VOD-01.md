@@ -46,15 +46,60 @@ Search Console の「動画再生ページに動画がありません」を直�
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 着手前の確認
+
+- 0. 指示欄の末尾は指示文の最後の行（「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」）と一致
+- 識別子: `git log --all -E --grep 'CHAT-[0-9]{4}-VOD-'` と `docs/logs/CHAT-*-VOD-*.md` の履歴とも0件。同じ Chat-Ref のコミットも0件
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 4つともあり（欠けなし）
+- issue の state: #620 open・コメント0件（他セッションの着手中なし）、#268 open。#620 に着手中のコメントを残した
+- 作業ブランチ: ローカル・リモートとも work/1024-vod は無かったので `git checkout -b work/1024-vod origin/cloudflare`（c8aed73）
+- 同じ論点の issue（クローズ済みを含めて検索）: #620・#268 のほか、#173（open、帰り道シートの列を個別ページと VideoObject に反映。各話の側で今回は触らない）。各話のプレーヤー埋め込みを扱う issue は無い（#288・#329 は closed、og:video・twitter:player）
+- 0章ゲート: 未マージの work/ ブランチのうち、触るファイル（4つの生成スクリプト・`scripts/lib/{mtsuku,exam,study,wayhome}.py`・4つの index.html・`scripts/tests/`）を変えているのは2本
+  - work/1017-lvp: `scripts/lib/study.py`（397〜408行、カードの画像の alt。`build_video_object()` は415行で、JSON-LD を組む関数は変えていない）と `scripts/tests/test_study.py`（4行）。同じファイルの別の箇所なので止まらない
+  - work/1018-log-367-migrate: `scripts/tests/test_convert_x_posts.py`・`test_fetch_x_posts.py` だけ（重ならない）
+  - 4つの `build_json_ld()` を変えているブランチは無い
+
+### 生成箇所
+
+| 一覧 | 生成スクリプト | VideoObject を組む関数 |
+|---|---|---|
+| /mtsuku/ | `scripts/generate_mtsuku.py` の `build_json_ld()` | `lib/mtsuku.build_video_object()` |
+| /exam/ | `scripts/generate_exam.py` の `build_json_ld()` | `lib/exam.build_video_object()` |
+| /wayhome/ | `scripts/generate_video_wayhome.py` の `build_json_ld()` | `lib/wayhome.build_video_object()` |
+| /study/ | `scripts/generate_study.py` の `build_json_ld()` | `lib/study.build_video_object()` |
+
+各 `build_video_object()` は各話の生成スクリプト（`generate_*_episodes.py`）と共用なので触らない。
+
+### 変更前の JSON-LD（@type ごとの件数）
+
+本番は `https://ryoei.pro/<一覧>/` を curl で取得（2026-10-23）、リポジトリは cloudflare c8aed73。
+
+| 一覧 | 本番 | リポジトリ | `<iframe>` |
+|---|---|---|---|
+| /mtsuku/ | VideoObject 1・ItemList 1 | VideoObject 1・ItemList 1 | なし |
+| /exam/ | VideoObject 1・ItemList 1 | VideoObject 1・ItemList 1 | なし |
+| /wayhome/ | VideoObject 1・ItemList 1 | VideoObject 1・ItemList 1 | なし |
+| /study/ | VideoObject 1・ItemList 1 | VideoObject 1・ItemList 1 | なし |
+
+4ページとも前提どおり。
+
+### 変更
+
+- 4つの `build_json_ld()` から VideoObject を外し、ItemList だけを返す（引数 `hero_thumb_url` は VideoObject にだけ使っていたので外した。wayhome の `build_page()` の `hero_thumb_url` の行も同じ理由で消した。ヒーローは `build_hero_html()` が自分で `resolve_hero_thumb()` を呼ぶ）
+- テスト: 4つの一覧のテストに「VideoObject を含まない・ItemList が1つ」を1本ずつ足した（`test_mtsuku.py`・`test_exam.py`・`test_study.py`・`test_wayhome_prevnext.py`）。修正前のコード（origin/cloudflare の worktree に新しいテストを写した）では4本とも FAIL、修正後は全件 OK
+- 手元ではシートの鍵（`SHEETS_READER_SA_KEY`）が無く生成できない（regenerate.py が全8ページを飛ばした）ので、生成は `regenerate-page.yml` の手動実行で行う
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj c8aed737）: https://github.com/retroeater/mj-logs/tree/main/guide/c8aed737
+ガイド文書（この版を写した時点の最新、mj d53626ec）: https://github.com/retroeater/mj-logs/tree/main/guide/d53626ec
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c8aed737/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c8aed737/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c8aed737/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c8aed737/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c8aed737/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c8aed737/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d53626ec/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d53626ec/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d53626ec/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d53626ec/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d53626ec/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d53626ec/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/c8aed737.md
