@@ -1,7 +1,7 @@
 # CHAT-1023-SKP-04
 
 - 着手日時: 2026-10-23
-- 対象issue: #627（公開）・新しい issue（起票する）
+- 対象issue: #628（起票）・#627（公開）
 - ブランチ: work/1023-skp（マージ済みのため origin/cloudflare まで進めて使う）
 - 着手時HEAD: d8536d379
 
@@ -186,16 +186,21 @@ Chat-Ref: CHAT-1023-SKP-04
 - 0章: 指示欄の末尾は指示文の最後の行と一致
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 欠け無し
 - 表の確かめ: 124行。名前は CHAT-1023-SKP-02 のログの表の124名と一致（差 0）。確度の内訳は確実 29・ウィキ 54・推定 41（指示文の前提と同じ）
+- 同じ論点の issue: 検索（クローズ済みを含む）で、最強戦の名前かなだけを扱う issue は無し。近いのは #397「「連盟プロ以外」の全員分のかな・所属団体・X を埋める」（open、/live 向けに「連盟プロ以外」の全員〈2026-09-19 で723名〉の名前かな・所属団体・X ID・X画像URL）。範囲が広く、中身（全員を埋める）は今回の決定（124名を別の issue にする・空欄があっても公開を止めない・出典で確かめてから入れる）と食い違わないので、止まらずに決定どおり新しい issue を起票し、#628 の本文から #397 にリンクした（重ねて入力しないよう。#397 のコメントに残る小川稜太・上平茉実の値の確かめも本文に書いた）
+- #627 に他セッションの着手中コメントは無し
+- 起票: #628「最強戦: 連盟外の出場者124名の「名前かな」を入れる」。本文は目的・決定・進め方・読みの案の説明と表（指示文の表をそのまま。起票後に本文を読み直し、表が一字一句含まれていることを確かめた）。ラベルは「対象: saikyo」と「分野: データ」（前提の見込みは「整理・保守」だったが、シートの値を埋める作業で、同じ種類の #397 が「分野: データ」なので、こちらにそろえた）
+- #626 から #628 へリンクするコメント、#627 に「名前かなの入力は #628 に移した・空欄が残っても公開は止めない」のコメント。#627 の本文のチェックリストに名前かなの項目は無かった（項目は CHAT-1023-SKP-03 のコメントにだけあった）ので、本文は変えていない
+- docs/decisions/saikyo.md に「2026-10-23（CHAT-1023-SKP-04）」を足した（SKP-03 の決定「入力は公開までに行う」を置き換えることを書いた）。シートは読み書きしていない
 
 ## 報告
 
-- 状態: 中断（作業中）
-- ブランチ: work/1023-skp
-- ログ: https://github.com/retroeater/mj/blob/work/1023-skp/docs/logs/CHAT-1023-SKP-04.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1023-skp
+- 状態: 完了
+- ブランチ: work/1023-skp（cloudflare にマージ済み）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1023-SKP-04.md
+- 比較URL: https://github.com/retroeater/mj/compare/d8536d379...work/1023-skp
 - 確認用URL: なし
-- マージ: 未
-- issue: #627
+- マージ: 済（docs/logs・docs/decisions のみ）
+- issue: #628（起票）・#627（コメント）・#626（コメント）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
@@ -203,12 +208,12 @@ Chat-Ref: CHAT-1023-SKP-04
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj d8536d37）: https://github.com/retroeater/mj-logs/tree/main/guide/d8536d37
+ガイド文書（この版を写した時点の最新、mj 0dd9194b）: https://github.com/retroeater/mj-logs/tree/main/guide/0dd9194b
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d8536d37/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d8536d37/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d8536d37/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d8536d37/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d8536d37/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d8536d37/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/0dd9194b/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/0dd9194b/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/0dd9194b/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/0dd9194b/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/0dd9194b/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/0dd9194b/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/d8536d37.md
