@@ -1008,3 +1008,20 @@ BIL 系列（CHAT-1018-BIL-01〜CHAT-1021-BIL-03、Actions・Workers Builds の�
 
 - #304 の (13)（Workers Paid の使用量の確認）の行き先を #363（2026-09-29 に Closed）から #298（Actions の使用量の監視と削減）に直す。2か所（本行と子の「直近のビルド1回の所要時間」）。WKP のチャットからの伝言で、WKP 側では #304 を直さない（担当は MCK）
 - 作業中の回答: なし
+
+## 2026-10-23（CHAT-1023-PRV-10）
+
+- SRG 系列（CHAT-1018-SRG-01〜CHAT-1023-SRG-06）と PRV 系列（CHAT-1018-PRV-01〜CHAT-1022-PRV-09）の振り返りとレビューの申送りを行う（中身はチャット側の案）。次の2点を書いた
+  - Code の環境にはシートの鍵が無いので、`regenerate.py --check` は `regenerate-page.yml` の入力 `check` の手動実行で回す（chat-routines.md・static-generation.md・new-page-checklist.md・video-mtsuku.md・video-wayhome.md の手順を置き換えた）
+  - ブックの廃止は、旧ブックを sheets-reader で読めない（404・403）ことを手動実行で確かめる。読めたらゴミ箱からの完全な削除を頼む（static-generation.md）
+- ログ・ガイド文書に写ったスプレッドシートの ID の検知は案3で実装する（2026-10-23、平野さん。CHAT-1023-PRV-11）: `scan_secret_history.py`（`security-check.yml` の履歴の走査）に種類を足し、docs/logs/・ガイド文書のパスに限ってスプレッドシートの ID の形を当てる（コードの中の ID は正当なので除く）。案1（写す前に伏せる）・案2（写さず失敗にする）は採らない → 取り下げ: 2026-10-23（CHAT-1023-PRV-12）
+  - すでに CHAT-1018-SRG-01 のログ（public の mj-logs）に出ているブックの ID は、そのままにする（伏せない）。ブックは 2026-10-21 から非公開で、ログを直しても mj-logs の git の履歴に残るため
+  - テストが通り、今のリポジトリで走査して見つかるのが既知のものだけなら、cloudflare へマージしてよい
+  - PRV-11 は、走査の当たりが SRG-01 のログのほかにも docs/decisions/・docs/notes/ と多数のログにあったため、実装の前に止まった（PRV-11 のログ）
+- 作業中の回答: なし
+
+## 2026-10-23（CHAT-1023-PRV-12）
+
+- 申送りの C（ログ・ガイド文書に書かれたスプレッドシートの ID の検知）を取り下げる。`scan_secret_history.py` に種類を足さない（PRV-11 の案A・B・C のどれも採らない）。理由: これまで ID を docs/decisions/ などに記録するのが普通で、許す一覧が44〜81行になり持ち続ける負担のほうが大きい。ブックはすべて非公開（2026-10-21〜）で、ID が出ても中身は読めない（2026-10-23 の CHAT-1023-PRV-11 の決定〈C は案3で実装〉を置き換える）
+- 作業ブランチの差（PRV-11 のログと docs/decisions/operations.md）だけをマージして終える
+- 作業中の回答: なし

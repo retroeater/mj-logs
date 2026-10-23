@@ -90,12 +90,12 @@
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1023-SKV-06
 - ブランチ: work/1023-skv-play
 - ログ: https://github.com/retroeater/mj/blob/work/1023-skv-play/docs/logs/CHAT-1023-SKV-03.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1023-skv-play
 - 確認用URL: プレビューあり（URL は最終報告）。確認するページ: saikyo/2026/20261025-s1-a.html（ほかに 20261025-s1-b・20261101-s1-a・20261101-s1-b）。この版の印: ヒーローのボタンが「▶ 再生」（本番は「ABEMA で見る」）
-- マージ: 未（平野さんの判断待ち。プレビューを見て決める）
+- マージ: 済（0fe6b19b3、CHAT-1023-SKV-06）
 - issue: #577（着手中のコメント。ボタンの文言だけで、残りは #577 に残す）
 - 判断が必要なこと:
   - プレビューを見て、cloudflare へマージしてよいか
@@ -106,12 +106,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj d043813b）: https://github.com/retroeater/mj-logs/tree/main/guide/d043813b
+ガイド文書（この版を写した時点の最新、mj fe3d9966）: https://github.com/retroeater/mj-logs/tree/main/guide/fe3d9966
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d043813b/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d043813b/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d043813b/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d043813b/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d043813b/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d043813b/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/fe3d9966/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/fe3d9966/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/fe3d9966/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/fe3d9966/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/fe3d9966/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/fe3d9966/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/c49be44e.md

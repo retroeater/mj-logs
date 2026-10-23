@@ -93,15 +93,60 @@ CHAT-1023-SKV-03・SKV-04 の判断待ちに答え、2本を cloudflare へマ�
   4ページとも「▶ 再生」で行き先はライブ枠の URL
 - #577 にマージの結果をコメントした（https://github.com/retroeater/mj/issues/577 の最新のコメント）
 
+### 手順2 work/1023-skv-detect のマージ
+
+- `git checkout work/1023-skv-detect`（ローカルとリモートが b46885ed6 で一致）のうえ origin/cloudflare を merge で取り込んだ。衝突は docs/decisions/saikyo.md の末尾への追記どうし（cloudflare 側の SKV-05・SKV-03 の節と、こちらの SKV-04 の節）だけで、両方を残して解いた。解いた後の末尾の見出し:
+
+```
+## 2026-10-23（CHAT-1023-HTH-10）
+## 2026-10-23（CHAT-1023-SKV-05）
+## 2026-10-23（CHAT-1023-SKV-03）
+## 2026-10-23（CHAT-1023-SKV-04）
+```
+
+- テスト OK。ほかの未マージの work/ ブランチとの `git merge-tree` は、origin/cloudflare との間と同じ結果（新しい衝突なし）
+- 1回目の push の前の再fetchで origin/cloudflare が進んでいた（別のセッションの work/1023-prv のマージ、9d26e3939 まで）ので、もう一度 merge で取り込み（衝突なし）、テスト OK のうえ `git push origin work/1023-skv-detect:cloudflare`（9d26e3939..d9c51a05b）
+- マージの push の `regenerate-page.yml`: run 39938178156（#423）success。`scripts/lib/abema_book.py` などの変更で対象が広く（workers/ask/data*.json・exam/・houou/・jpml_pros.html・jwrc/・live/・ouka/・saikyo/・title/・wayhome/・wrcr/ ほか）、約7分生成して「変更なし」。生成のコミットは無い
+- Workers Builds の check-run（d9c51a05b）: 「Workers Builds: mj」completed / success だが、summary に Preview URL があるプレビューのもの。17分待っても本番の check-run は付かなかった（作業ブランチに先に push したコミットを fast-forward で入れたときの形、docs/notes/cloudflare.md「ビルド成否と本番の確認範囲」）。0fe6b19b3..d9c51a05b の差は docs/・scripts/・.github/ だけで、どれも `.assetsignore` にあり配信物は変わらないので、本番への影響は無い
+- #572 に、マージしたことと初回が 2026-10-24（土）04:00 JST の毎朝の運行であることをコメントした（https://github.com/retroeater/mj/issues/572#issuecomment-6362985728 ）
+
+### 手順3 ログ・決定・片付け
+
+- CHAT-1023-SKV-03・SKV-04 のログの `## 報告` の状態に ` / 続き: CHAT-1023-SKV-06` を足し、マージの行を「済（0fe6b19b3）」「済（d9c51a05b）」に直した
+- docs/decisions/saikyo.md に今回の決定を足した
+- この指示のログを置く work/1023-skv-play に origin/cloudflare を merge で取り込んだ（手順1のログのコミットが cloudflare に無かったため fast-forward でなく merge。衝突なし）
+- ブランチの片付け（docs/notes/branch-operations.md「ブランチを削除するとき」）: 完全な履歴で `git branch --merged origin/cloudflare` を確かめ、HEAD を work/1023-skv-play に置いて `git branch -d` でローカルを消した
+  - work/1023-skv-detect d9c51a05b マージ済み（ローカルを削除）
+  - work/1023-skv 5bb0e235b マージ済み（ローカルを削除）
+  - リモートの work/1023-skv・work/1023-skv-detect・work/1023-skv-play は消していない（マージ済みで先頭が24時間より前になると毎朝の `cleanup-branches` が消す、#440）。work/1023-skv-play はこのログを置くので、最後の push の後もローカル・リモートとも残す
+
+### マージ（この指示のログ）
+
+- 変更は docs/logs・docs/decisions のみ
+- 再fetch・`git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめて `git push origin work/1023-skv-play:cloudflare`（d9c51a05b..23d3480cb、fast-forward）
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1023-skv-play（ログ）・work/1023-skv-detect
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1023-SKV-06.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1023-skv-play
+- 確認用URL: なし（本番で確かめた。saikyo/2026/20261025-s1-a.html ほか3ページのボタンが「▶ 再生」）
+- マージ: 済（SKV-03 0fe6b19b3・SKV-04 d9c51a05b。ログ 23d3480cb）
+- issue: #577（マージの結果のコメント）・#572（マージと初回のコメント）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj d9c51a05）: https://github.com/retroeater/mj-logs/tree/main/guide/d9c51a05
+ガイド文書（この版を写した時点の最新、mj fe3d9966）: https://github.com/retroeater/mj-logs/tree/main/guide/fe3d9966
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d9c51a05/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d9c51a05/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d9c51a05/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d9c51a05/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d9c51a05/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d9c51a05/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/fe3d9966/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/fe3d9966/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/fe3d9966/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/fe3d9966/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/fe3d9966/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/fe3d9966/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/c49be44e.md

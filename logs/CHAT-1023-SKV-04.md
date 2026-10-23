@@ -110,12 +110,12 @@ ABEMA の最強戦の卓別動画は毎週金曜ごろに出る見込みで、�
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1023-SKV-06
 - ブランチ: work/1023-skv-detect
 - ログ: https://github.com/retroeater/mj/blob/work/1023-skv-detect/docs/logs/CHAT-1023-SKV-04.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1023-skv-detect
 - 確認用URL: なし（ページは変わらない。確かめは手動実行の run 39934617712）
-- マージ: 未（平野さんの判断待ち。作業ブランチでの手動実行の結果を見て決める）
+- マージ: 済（d9c51a05b、CHAT-1023-SKV-06）
 - issue: #572（着手中と結果のコメント）
 - 判断が必要なこと:
   - 手動実行の結果（既にある回 p27 は「ある」、p28〜p33 は「無い」）を見て、cloudflare へマージしてよいか
@@ -127,12 +127,12 @@ ABEMA の最強戦の卓別動画は毎週金曜ごろに出る見込みで、�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj d71c454f）: https://github.com/retroeater/mj-logs/tree/main/guide/d71c454f
+ガイド文書（この版を写した時点の最新、mj fe3d9966）: https://github.com/retroeater/mj-logs/tree/main/guide/fe3d9966
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d71c454f/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d71c454f/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d71c454f/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d71c454f/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d71c454f/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d71c454f/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/fe3d9966/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/fe3d9966/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/fe3d9966/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/fe3d9966/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/fe3d9966/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/fe3d9966/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/c49be44e.md
