@@ -103,18 +103,34 @@ CHAT-1023-OHA-08 の判断待ち（mj-logs の `MJ_READ_TOKEN` では check-run 
   （この回は1分後に回したので、間に始まった実行〈work/1023-skp の regenerate-page の in_progress〉の行と、3節の中央値〈0分50秒 → 0分48秒〉も変わった。どちらも API の応答が変わったためで、コードの差ではない）
 - 本当のログの取得（blob からの読み出し）は、マージの後の mj-logs の同期（GitHub の runner）で確かめる
 
+### マージ
+
+- push の直前に再 fetch し、origin/cloudflare（e4e914965）が HEAD の祖先であることを確かめて `git push origin work/1023-oha:cloudflare`（e4e914965..94c95e8bb）。取り込みは要らなかった
+- 94c95e8bb の check-run: check success、Workers Builds: mj success（完了の2件。in_progress の2件は始まりの記録）、notify は skipped。check-assets（push、run 39889919362）success
+
+### 結果
+
+- morning.md の飛ばしたページ名の添え書きを、check-run の annotations（Checks の権限が要る）から、ジョブのログ（Actions の Read）の `##[error]生成に失敗したページを飛ばしました:` の行を拾う形に替えた。annotations を引くコードとその検査は消した
+- マージ後の mj-logs の同期の書き出し（actions/morning.md、2026-10-23 11:33 JST）で、run 39877120835 の行に添え書きが付いた:
+
+```
+- 2026-10-23 09:16 regenerate-page.yml failure（workflow_dispatch・work/1023-oha）ジョブ「regenerate」：生成に失敗したページを飛ばしました: resource_efficiency, resource_logs（理由はジョブのサマリ、#533） https://github.com/retroeater/mj/actions/runs/39877120835
+```
+
+- `MJ_READ_TOKEN` の権限（Contents・Actions の Read）のままで動いた。ログの取得の 302 の先へ Authorization を渡さない形も、GitHub の runner の上で通った
+
 ## 報告
 
-- 状態:
-- ブランチ:
-- ログ:
-- 比較URL:
-- 確認用URL:
-- マージ:
-- issue:
-- 判断が必要なこと:
-- 未確認の項目:
-- エラー:
+- 状態: 完了
+- ブランチ: work/1023-oha
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1023-OHA-09.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1023-oha
+- 確認用URL: なし（ページ・見た目の変更は無い。Actions のスクリプトだけ）
+- マージ: 済（94c95e8bb）
+- issue: #563
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---

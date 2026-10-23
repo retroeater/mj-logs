@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-23 11:37 JST
+- 書き出した時刻: 2026-10-23 11:39 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -25,11 +25,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-23 11:39 | push | work/1023-srg | in_progress | #361（39890756744） |  |
 | 2026-10-23 11:36 | push | work/1023-srg | success | #360（39890528039） | 0分20秒 |
 | 2026-10-23 11:35 | push | work/1023-acf | success | #359（39890369663） | 0分24秒 |
 | 2026-10-23 11:30 | push | work/1023-oha | success | #358（39889919362） | 0分21秒 |
 | 2026-10-23 11:28 | push | work/1023-skp | success | #357（39889767774） | 0分22秒 |
-| 2026-10-23 11:26 | push | work/1023-srg | success | #356（39889594513） | 0分20秒 |
 
 ## check-build-failure.yml
 
@@ -93,7 +93,7 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-10-23 11:36 | workflow_dispatch | work/1023-srg | in_progress | #7（39890529981） |  |
+| 2026-10-23 11:36 | workflow_dispatch | work/1023-srg | success | #7（39890529981） | 2分10秒 |
 | 2026-10-23 11:23 | workflow_dispatch | work/1023-srg | success | #6（39889326545） | 2分09秒 |
 | 2026-10-23 09:12 | workflow_dispatch | work/1023-srg | success | #5（39876749570） | 2分08秒 |
 | 2026-10-21 13:30 | workflow_dispatch | cloudflare | success | #4（39544427647） | 2分00秒 |
@@ -343,11 +343,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-23 11:37 | workflow_dispatch | cloudflare | success | #33（39890617104） | 0分48秒 |
 | 2026-10-19 23:30 | workflow_dispatch | cloudflare | success | #32（39269516177） | 7分14秒 |
 | 2026-10-19 22:32 | workflow_dispatch | cloudflare | success | #31（39261099815） | 1分11秒 |
 | 2026-10-19 22:32 | workflow_dispatch | work/1019-xdp | success | #30（39261094317） | 0分42秒 |
 | 2026-10-15 16:05 | workflow_dispatch | cloudflare | success | #29（38696400299） | 5分11秒 |
-| 2026-10-15 14:42 | workflow_dispatch | cloudflare | success | #28（38688263060） | 0分34秒 |
 
 ## dependabot-updates
 
