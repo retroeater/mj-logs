@@ -1003,3 +1003,8 @@ BIL 系列（CHAT-1018-BIL-01〜CHAT-1021-BIL-03、Actions・Workers Builds の�
   - 常設 issue（#304・#506・#568 など）に項目やコメントを足す指示は、その issue の担当の系列のチャットで作る（docs/notes/chat-side-operations.md）
   - 同じ値の洗い直しを指示するときは `git grep` でリポジトリ全体を範囲にし、除外だけを書く（docs/instruction-template.md）
 - 作業中の回答: なし
+
+## 2026-10-23（CHAT-1023-MCK-22）
+
+- #304 の (13)（Workers Paid の使用量の確認）の行き先を #363（2026-09-29 に Closed）から #298（Actions の使用量の監視と削減）に直す。2か所（本行と子の「直近のビルド1回の所要時間」）。WKP のチャットからの伝言で、WKP 側では #304 を直さない（担当は MCK）
+- 作業中の回答: なし
