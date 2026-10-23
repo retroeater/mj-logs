@@ -67,9 +67,26 @@ CHAT-1023-HTH-11 で判断待ちにした work/1022-hth を本番に入れる。
 - `git diff --stat origin/cloudflare HEAD`（fe3d9966e との差）: 17ファイル。`assets/saikyo.js`・`style.css`・`scripts/generate_saikyo_pages.py`・`scripts/tests/test_saikyo_vs.py`・`docs/notes/saikyo-page-design.md`・`docs/decisions/saikyo.md`・生成物 `saikyo/vs/index.html`（1ファイル）と、HTH-11・HTH-12 のログ（画像8枚を含む）。前提の外のものなし。既存の saikyo/ のページ（トップ・年度・対局・卓）は差分なし
 - 決定を docs/decisions/saikyo.md に足した
 
+### マージと本番
+
+- push 直前に再 fetch して `git merge-base --is-ancestor origin/cloudflare HEAD` が真（origin/cloudflare は fe3d9966e のまま）。`git push origin work/1022-hth:cloudflare`: fe3d9966e..b4b933baf（fast-forward）
+- check-runs（b4b933baf）: Workers Builds 成功・sync 成功・regenerate 成功・notify は skipped
+- 本番: `https://ryoei.pro/saikyo/vs/?v=b4b933baf` は 200・noindex を含み、作業ブランチの `saikyo/vs/index.html` とバイト単位で同じ。`assets/saikyo.js`・`style.css` も作業ブランチと同じ（新しい版）。`/saikyo/` は作業ブランチの `saikyo/index.html` と同じ（取り込み後に差分なし＝今のまま）。`/saikyo/vs` は `/saikyo/vs/` へ 301。確かめたのは本番の HTML・CSS・JS で、ブラウザでの見え方は HTH-11 のプレビューで確かめた範囲
+- #372 にマージしたこと（公開は #623）をコメントした。ラベルは変えていない
+- ブランチの片付け: work/1022-hth（マージ時の先頭 b4b933baf、origin/cloudflare の祖先＝マージ済み）。この後にログだけのコミットを積むため今は消さない。リモートは `cleanup-branches.yml` がマージ済みで先頭が24時間より前の `work/*` を消す。ローカルはコンテナと一緒に消える
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
+- ブランチ: work/1022-hth
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1023-HTH-12.md
+- 比較URL: https://github.com/retroeater/mj/compare/fe3d9966e...b4b933baf
+- 確認用URL: なし
+- マージ: 済（b4b933baf、fast-forward。HTH-11 の変更）
+- issue: #372（マージのコメント）、#623（公開、未着手）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
