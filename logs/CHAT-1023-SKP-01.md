@@ -1,7 +1,7 @@
 # CHAT-1023-SKP-01
 
 - 着手日時: 2026-10-23
-- 対象issue: （確認中）
+- 対象issue: #626（作成）・#627（公開）
 - ブランチ: work/1023-skp
 - 着手時HEAD: bb98660ed
 
@@ -63,6 +63,13 @@ Chat-Ref: CHAT-1023-SKP-01
 - 0章: 指示欄の末尾は指示文の最後の行「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」と一致
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 欠け無し
 
+### 手順1（issue・未マージのブランチ・踏襲の元）
+
+- 同じ論点の issue: 検索（クローズ済みを含む）で無し。近いのは #372・#623（対戦成績、HTH の系列）、#355・#549（今のトップ）。作成 #626・公開 #627 を起票し、#626 に着手中のコメント
+- 未マージの work/ ブランチ（`git branch -r --no-merged origin/cloudflare`）: 1009-swp-526・1011-swp-hnd・1011-swp-nav・1015-skd-notes・1018-log-367-migrate はログ・docs のみ。1017-lvp が `style.css` の最強戦の節の既存の行（`body.mj-saikyo-n-page` のセレクタを `body:is(.mj-saikyo-n-page, .mj-live-n-page)` に）を変えている。この指示では最強戦の節の既存の行は変えず、新しい規則を別の場所に足す（同じファイルの別の箇所なので止まらない）。`scripts/generate_saikyo_pages.py`・`assets/saikyo.js`・`workers/ask/` を変えるブランチは無し
+- 踏襲の元: league-pages-compare.md・wrcr-top.md・houou-top.md（構成・個人成績・ランキング）・ask-worker.md（構成・Worker）・saikyo-page-design.md（1〜3章）と、生成物の jwrc/ のトップ・個人成績・ランキングの HTML、`assets/league.js`・`houou_ask.js`、`workers/ask/src/` を読んだ
+- シートはこのセッションから読めない（鍵 `SHEETS_READER_SA_KEY` が無い）。開発は今の `saikyo/index.html` に焼き込まれた検索のデータ（219対局・440名）から行を組み立てて行い、実データの生成と2回の読み込みは作業ブランチでワークフロー（`regenerate-page.yml`）を動かして確かめる
+
 ## 報告
 
 - 状態: 中断（作業中）
@@ -79,12 +86,12 @@ Chat-Ref: CHAT-1023-SKP-01
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj bb98660e）: https://github.com/retroeater/mj-logs/tree/main/guide/bb98660e
+ガイド文書（この版を写した時点の最新、mj e4e91496）: https://github.com/retroeater/mj-logs/tree/main/guide/e4e91496
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/bb98660e/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/bb98660e/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/bb98660e/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/bb98660e/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/bb98660e/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/bb98660e/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e4e91496/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e4e91496/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e4e91496/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e4e91496/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e4e91496/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e4e91496/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/bb98660e.md
