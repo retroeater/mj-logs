@@ -75,6 +75,98 @@
 - reusable のときのステップ名（要確認の件）: 過去の実行で「飛ばしたページを報告」が failure のジョブを API で探した。regenerate-page の push（`regenerate`）のほか、update-sns-book の `regenerate / regenerate`（run 38621492985・38335781712）でも同じステップ名。注釈は check-run（ジョブの id）の annotations に、`Process completed with exit code 1.` やほかのステップの warning と並んで出る。選ぶ注釈は message の先頭で見分ける
 - `dry_run` の道筋（要確認の件）: 「飛ばしたページを報告」の `if` は `!cancelled() && steps.regen.outputs.skipped == 'true'` で、`dry_run` を見ていない。`dry_run: true` でも再生成のステップは動き、飛ばしがあれば報告のステップも動く（コミット・サイトマップの3ステップは `inputs.dry_run != true` で止まる）
 
+### 実装（c0a8ebd57）
+
+- `morning_report.py`: 定数 `SLOW_MARGIN = 300`。3節は `head_branch` が `cloudflare` の実行だけを見て（1節の失敗の行は今までどおり全ブランチ）、比の判定は「中央値の3倍以上」かつ「中央値＋`SLOW_MARGIN` 以上」。「10分以上」の判定（`too_long`）は変えていない。見出しを「3. 所要時間の異常（cloudflare の実行だけ。直近20回の中央値の3倍以上かつ中央値＋5分以上、または10分以上。skipped は除く）」にした
+- 添え書き: `fetch_skip_notes()` が、見た範囲（26時間）の失敗した実行のジョブのうち、失敗したステップに「飛ばしたページを報告」（`SKIP_STEP`）を含むものだけ `GET /repos/{repo}/check-runs/{job id}/annotations?per_page=100` を引く。注釈には `Process completed with exit code 1.` やほかのステップの warning も並ぶので、message の1行目が「生成に失敗したページを飛ばしました:」（`SKIP_PREFIX`）で始まるものを選ぶ。`failed_jobs_note()` はそのジョブ名の後に「：<1行目>」を添える。引けない（例外）・該当の注釈が無いときは添えずに今の行のまま。API の呼び出しは `actions_status.py` の `get()`（5xx の取り直しつき）
+- 失敗した実行のジョブは今までどおり `actions_status.py` が各ワークフローの直近5回（`RUNS_PER_WORKFLOW`）の失敗の分だけ引く。それより古い失敗はジョブ名も添え書きも出ない（今の動きのまま。regenerate-page は1日に5回を超えることがある）
+- `regenerate.py` の `report_skipped()`: ページ名を「, 」でつないでステップの出力 `skipped_pages` に書く（`GITHUB_OUTPUT` があるとき）
+- `regenerate-page.yml` の「飛ばしたページを報告」: `env: SKIPPED_PAGES` で受け、`::error::生成に失敗したページを飛ばしました: ${SKIPPED_PAGES}（理由はジョブのサマリ、#533）%0A成功したページだけをコミットしました。`
+- 検査: test_morning_report.py に、A の境界（3倍以上でも中央値＋5分未満〈359秒／中央値60秒〉は出さない、中央値＋5分以上でも3倍未満〈479秒／中央値160秒〉は出さない、両方満たす〈360秒〉は出す）、B（作業ブランチの実行は3節に出ず1節には出る）、添え書き（注釈あり・該当の注釈なし・取得失敗・ほかのステップの失敗では API を呼ばない）。既存の `test_three_times_median` は 200秒（中央値60秒）から 400秒にした（200秒は A で出なくなる）。test_regenerate.py に `skipped_pages=b` の出力
+- `python3 -m unittest discover -s scripts/tests`: 1,511 件 OK
+- 修正前のコード（origin/cloudflare を `git archive` で作業ファイルの置き場所に展開し、新しいテストだけ差し替え）: 7件が落ちた（FAIL 2: `test_three_times_but_under_margin_not_listed`・`test_work_branch_run_not_listed`、ERROR 5: 添え書きの4件と `test_skipped_pages_in_step_output`）。境界の「出さない」2件のうち `test_margin_but_under_three_times_not_listed` と、出る側の2件は修正前でも通る（今の挙動を守る検査）
+- docs/notes/github-actions.md: 「regenerate-page.yml」の #533 の段落に注釈の1行目を、「run-daily.yml」の morning.md の項に3節の判定と添え書きを足した
+
+### 確かめ1: 今の API の応答で morning.md を新旧のコードで作る
+
+- 2026-10-23 09:13〜09:14 JST に、`actions_status.py --dest <作業ファイルの置き場所> --repo retroeater/mj` を作業ブランチのコードと origin/cloudflare のコード（`git archive`）で1回ずつ。mj-logs には書いていない
+- 差は書き出した時刻・契機の行と3節の見出しだけ。3節は新旧とも「なし」（見た範囲 10/22 07:13〜 に、旧の判定でも出る行が無かった）
+- 1節は新旧とも同じ5行（sync-dojo-calendar の schedule の failure、work/1022-hth の regenerate-page の failure 3件、実行中の check-sheets-reader）。work/1022-hth の3件は「飛ばしたページを報告」で落ちた回かを見るジョブが引かれていない（直近5回より古い）ため、添え書きは無い
+
+今日の分だけでは判定の違いが見えないため、同じ API の応答（各ワークフローの直近100回）で見る範囲だけを 2026-10-15 00:00 JST からに広げ、新旧の `render()` で3節を作って比べた（作業用の `wide.py`。中央値は今の直近20回で、その朝の書き出しの中央値とは違う。チャット側の試算〈5行〉と数が違うのはこのため）。旧 43 行 → 新 8 行。新に出た行はすべて旧にもある。
+
+残った 8 行（どれも cloudflare で、3倍以上かつ中央値＋5分以上）:
+
+- 2026-10-15 04:01 update-live-channel.yml success（workflow_dispatch・cloudflare）所要 7分06秒（直近20回の中央値 0分10秒）
+- 2026-10-17 12:01 convert-x-posts.yml success（workflow_dispatch・cloudflare）所要 28分46秒（直近20回の中央値 0分28秒）
+- 2026-10-18 22:35 regenerate-page.yml success（push・cloudflare）所要 6分05秒（直近20回の中央値 0分53秒）
+- 2026-10-19 23:30 update-sns-book.yml success（workflow_dispatch・cloudflare）所要 7分14秒（直近20回の中央値 0分42秒）
+- 2026-10-20 08:43 regenerate-page.yml success（push・cloudflare）所要 6分09秒（直近20回の中央値 0分53秒）
+- 2026-10-21 12:04 regenerate-page.yml success（push・cloudflare）所要 8分56秒（直近20回の中央値 0分53秒）
+- 2026-10-21 12:28 regenerate-page.yml success（workflow_dispatch・cloudflare）所要 10分27秒（直近20回の中央値 0分53秒）
+- 2026-10-21 13:32 regenerate-page.yml success（workflow_dispatch・cloudflare）所要 11分01秒（直近20回の中央値 0分53秒）
+
+消えた 35 行（A: cloudflare の実行で、3倍以上だが中央値＋5分未満。B: cloudflare 以外の実行）:
+
+| 行 | 理由 |
+|---|---|
+| 2026-10-15 04:10 update-sns-book.yml failure（workflow_dispatch・cloudflare）所要 4分24秒（直近20回の中央値 0分42秒） | A（中央値＋5分 = 5分42秒 未満） |
+| 2026-10-15 12:17 update-live-channel.yml success（workflow_dispatch・work/1015-wfl-s6）所要 2分54秒（直近20回の中央値 0分10秒） | B（work/1015-wfl-s6） |
+| 2026-10-15 12:21 regenerate-page.yml success（push・cloudflare）所要 3分19秒（直近20回の中央値 0分53秒） | A（中央値＋5分 = 5分53秒 未満） |
+| 2026-10-15 14:58 regenerate-page.yml success（push・cloudflare）所要 3分39秒（直近20回の中央値 0分53秒） | A（中央値＋5分 = 5分53秒 未満） |
+| 2026-10-15 16:05 update-sns-book.yml success（workflow_dispatch・cloudflare）所要 5分11秒（直近20回の中央値 0分42秒） | A（中央値＋5分 = 5分42秒 未満） |
+| 2026-10-15 16:32 regenerate-page.yml success（push・cloudflare）所要 3分25秒（直近20回の中央値 0分53秒） | A（中央値＋5分 = 5分53秒 未満） |
+| 2026-10-15 21:22 convert-x-posts.yml success（workflow_dispatch・cloudflare）所要 2分30秒（直近20回の中央値 0分28秒） | A（中央値＋5分 = 5分28秒 未満） |
+| 2026-10-15 21:27 regenerate-page.yml success（push・cloudflare）所要 4分25秒（直近20回の中央値 0分53秒） | A（中央値＋5分 = 5分53秒 未満） |
+| 2026-10-16 02:10 regenerate-page.yml success（push・cloudflare）所要 3分33秒（直近20回の中央値 0分53秒） | A（中央値＋5分 = 5分53秒 未満） |
+| 2026-10-16 09:49 regenerate-page.yml success（push・cloudflare）所要 4分55秒（直近20回の中央値 0分53秒） | A（中央値＋5分 = 5分53秒 未満） |
+| 2026-10-16 10:02 update-live-channel.yml success（workflow_dispatch・work/1016-wfl-s8）所要 6分33秒（直近20回の中央値 0分10秒） | B（work/1016-wfl-s8） |
+| 2026-10-16 12:02 regenerate-page.yml success（push・cloudflare）所要 4分54秒（直近20回の中央値 0分53秒） | A（中央値＋5分 = 5分53秒 未満） |
+| 2026-10-16 14:16 regenerate-page.yml success（push・cloudflare）所要 4分26秒（直近20回の中央値 0分53秒） | A（中央値＋5分 = 5分53秒 未満） |
+| 2026-10-16 17:08 regenerate-page.yml success（push・cloudflare）所要 4分23秒（直近20回の中央値 0分53秒） | A（中央値＋5分 = 5分53秒 未満） |
+| 2026-10-16 18:20 regenerate-page.yml success（push・cloudflare）所要 4分04秒（直近20回の中央値 0分53秒） | A（中央値＋5分 = 5分53秒 未満） |
+| 2026-10-17 09:21 convert-x-posts.yml success（workflow_dispatch・cloudflare）所要 1分43秒（直近20回の中央値 0分28秒） | A（中央値＋5分 = 5分28秒 未満） |
+| 2026-10-17 12:05 regenerate-page.yml success（push・cloudflare）所要 4分14秒（直近20回の中央値 0分53秒） | A（中央値＋5分 = 5分53秒 未満） |
+| 2026-10-17 12:35 regenerate-page.yml success（push・cloudflare）所要 4分13秒（直近20回の中央値 0分53秒） | A（中央値＋5分 = 5分53秒 未満） |
+| 2026-10-17 17:55 regenerate-page.yml success（push・cloudflare）所要 4分44秒（直近20回の中央値 0分53秒） | A（中央値＋5分 = 5分53秒 未満） |
+| 2026-10-17 17:57 regenerate-page.yml success（push・cloudflare）所要 2分52秒（直近20回の中央値 0分53秒） | A（中央値＋5分 = 5分53秒 未満） |
+| 2026-10-17 20:59 regenerate-page.yml success（push・cloudflare）所要 4分47秒（直近20回の中央値 0分53秒） | A（中央値＋5分 = 5分53秒 未満） |
+| 2026-10-17 21:26 regenerate-page.yml success（push・cloudflare）所要 4分34秒（直近20回の中央値 0分53秒） | A（中央値＋5分 = 5分53秒 未満） |
+| 2026-10-18 13:54 regenerate-page.yml success（push・cloudflare）所要 5分11秒（直近20回の中央値 0分53秒） | A（中央値＋5分 = 5分53秒 未満） |
+| 2026-10-18 18:47 regenerate-page.yml success（push・cloudflare）所要 4分45秒（直近20回の中央値 0分53秒） | A（中央値＋5分 = 5分53秒 未満） |
+| 2026-10-18 19:44 regenerate-page.yml success（push・cloudflare）所要 4分54秒（直近20回の中央値 0分53秒） | A（中央値＋5分 = 5分53秒 未満） |
+| 2026-10-18 21:23 regenerate-page.yml success（push・cloudflare）所要 5分03秒（直近20回の中央値 0分53秒） | A（中央値＋5分 = 5分53秒 未満） |
+| 2026-10-19 16:03 regenerate-page.yml success（push・cloudflare）所要 4分56秒（直近20回の中央値 0分53秒） | A（中央値＋5分 = 5分53秒 未満） |
+| 2026-10-19 17:48 regenerate-page.yml success（push・cloudflare）所要 5分39秒（直近20回の中央値 0分53秒） | A（中央値＋5分 = 5分53秒 未満） |
+| 2026-10-19 18:43 regenerate-page.yml failure（push・cloudflare）所要 5分29秒（直近20回の中央値 0分53秒） | A（中央値＋5分 = 5分53秒 未満） |
+| 2026-10-19 20:19 regenerate-page.yml success（push・cloudflare）所要 4分55秒（直近20回の中央値 0分53秒） | A（中央値＋5分 = 5分53秒 未満） |
+| 2026-10-21 09:14 convert-x-posts.yml success（workflow_dispatch・work/1018-log-367-migrate）所要 35分56秒（直近20回の中央値 0分28秒） | B（work/1018-log-367-migrate） |
+| 2026-10-21 09:51 convert-x-posts.yml failure（workflow_dispatch・work/1018-log-367-migrate）所要 26分36秒（直近20回の中央値 0分28秒） | B（work/1018-log-367-migrate） |
+| 2026-10-21 10:18 convert-x-posts.yml success（workflow_dispatch・work/1018-log-367-migrate）所要 33分35秒（直近20回の中央値 0分28秒） | B（work/1018-log-367-migrate） |
+| 2026-10-21 10:53 convert-x-posts.yml success（workflow_dispatch・work/1018-log-367-migrate）所要 3分59秒（直近20回の中央値 0分28秒） | B（work/1018-log-367-migrate） |
+| 2026-10-21 11:34 regenerate-page.yml success（workflow_dispatch・work/1021-prv）所要 15分20秒（直近20回の中央値 0分53秒） | B（work/1021-prv） |
+
+チャット側の試算で残るとした5行（10/17 convert-x-posts 28分46秒・10/19 update-sns-book 7分14秒・10/21 regenerate-page 3件）はすべて残った。ほかに残った3行（10/15 04:01 update-live-channel 7分06秒〈中央値10秒〉・10/18 22:35 / 10/20 08:43 regenerate-page 6分05秒 / 6分09秒〈中央値53秒、閾値 5分53秒〉）も A の両方の条件を満たす。決定 A・B で説明できない違いは無い
+
+### 確かめ2: 作業ブランチの手動実行で注釈を確かめる
+
+- `docs/notes/github-actions.md`「ワークフローを変更したとき」: regenerate-page.yml は `workflow_dispatch` を持ち、作業ブランチから起動できる。同じステップ（「飛ばしたページを報告」）の初回だけ違う手順は無い
+- 試験のコミット d3b067bed: `generate_resource_efficiency.py`・`generate_resource_logs.py` の import の直後に `sys.exit("試験: …")` を足した（生成を止めるだけ）
+- 手動実行: regenerate-page.yml、ref `work/1023-oha`、`target_page: resource_dictionary resource_efficiency resource_logs`、`dry_run: true` → run 39877120835（#402、head d3b067bed）failure
+  - 失敗したステップは「飛ばしたページを報告」だけ（試験で飛ばした2ページによる。ほかの理由の failure は無い）。resource_dictionary は生成できた
+  - `dry_run` なのでコミット・サイトマップ・push のステップは動かず、実行の後も origin/work/1023-oha の先頭は d3b067bed のまま（ワークフローからのコミットは無い）
+  - ステップの env: `SKIPPED_PAGES: resource_efficiency, resource_logs`
+  - `GET /repos/retroeater/mj/check-runs/120165303934/annotations` の failure の注釈:
+    - `Process completed with exit code 1.`
+    - `生成に失敗したページを飛ばしました: resource_efficiency, resource_logs（理由はジョブのサマリ、#533）\n成功したページだけをコミットしました。`（`%0A` が改行になり、1行目と2行目に分かれた）
+- 作業ブランチのコードで `actions_status.py` を回し直した（書き出し先は作業ファイルの置き場所）。morning.md の1節のこの実行の行:
+
+```
+- 2026-10-23 09:16 regenerate-page.yml failure（workflow_dispatch・work/1023-oha）ジョブ「regenerate」：生成に失敗したページを飛ばしました: resource_efficiency, resource_logs（理由はジョブのサマリ、#533） https://github.com/retroeater/mj/actions/runs/39877120835
+```
+
+- 試験のコミットは revert 78c8a1f82 で戻した（push 済みのブランチなので履歴は書き換えない）。`git diff origin/cloudflare HEAD -- scripts/generate_resource_efficiency.py scripts/generate_resource_logs.py` は空で、origin/cloudflare との差分に試験の変更は残っていない。cloudflare への push の差分（before..after）にもこの2ファイルは出ないので、マージの push で regenerate-page がこの2ページを再生成することも無い
+
 ## 報告
 
 - 状態:
@@ -91,12 +183,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 49b9ce27）: https://github.com/retroeater/mj-logs/tree/main/guide/49b9ce27
+ガイド文書（この版を写した時点の最新、mj 67a3af2b）: https://github.com/retroeater/mj-logs/tree/main/guide/67a3af2b
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/49b9ce27/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/49b9ce27/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/49b9ce27/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/49b9ce27/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/49b9ce27/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/49b9ce27/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/8255bdad.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/67a3af2b/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/67a3af2b/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/67a3af2b/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/67a3af2b/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/67a3af2b/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/67a3af2b/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/67a3af2b.md
