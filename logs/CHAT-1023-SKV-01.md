@@ -125,15 +125,75 @@
 - 新しく「なし」になった回: なしの数と理由の内訳が同じで、増えていない（回ごとの一覧はログに出ない）
 - 2026 の「回が当たった卓」が増えたので手順3へ進む
 
+### 手順3 regenerate-saikyo.yml の update（run 39899739516、#19、ref cloudflare＝ee47bdb、abema=update、regenerate=true）
+
+- 先に docs/notes/github-actions.md「ワークフローを手動実行するとき」を読んだ（regenerate-page.yml の push 先は実行ブランチ＝cloudflare）
+- 結論: success（ジョブ abema success・regenerate / regenerate success）
+- ジョブ abema の数（引用）:
+
+```
+- 【2】最強戦: 712 行(卓 645・なし 67)
+- 回が当たった卓: 612 / 645
+  - 年度ごと(当たった / 卓): 2011 14/23・2012 20/23・2013 20/27・2014 29/29・2015 26/26・2016 38/39・2017 42/42・2018 55/55・2019 50/52・2020 48/51・2021 47/49・2022 49/49・2023 49/49・2024 49/49・2025 49/49・2026 27/33
+- なしの理由: 当たる卓なし 62・卓でない回 3・1回戦 1・2回戦 1
+- 当たった卓のうち 司会・実況・解説 のある卓: 司会 593・実況 559・解説 562
+- 【2】最強戦 を書きました。【3】手動補正: 入力あり(書いていません)
+```
+
+- cloudflare に入ったコミット: 2582fabc85b46ebbe11128db0916325e5d899cae「chore: regenerate saikyo/ via GitHub Actions」（ee47bdb の直後。51 files changed, 147 insertions(+), 139 deletions(-)）
+  - (a) 卓別動画が当たった卓のページ（3）: saikyo/2026/20261018-s1-a.html（17）・20261018-s1-b.html（17）・20261018-s2.html（24）
+    - s1-a → `/video/episode/68-38_s26_p25`、s1-b → `p26`（どちらも前はライブ枠 `slots/Eb6zsVg3yhjfCT`）、s2（決勝）→ `p27`（前は ABEMA のリンクなし。今回「▶ 再生」と司会・実況・解説の節が増えた）。og:image・ヒーローの画像が回のサムネイルに
+  - (b) 付随する saikyo/ のページ（47）: 「他の対局」のカードのサムネイルだけが変わった（変わった行はすべて `mj-video-card-thumb` の行。1018 の3卓へのカードの画像がシリーズの画像 → `68-38_s26_p25`〜`p27` の回の画像）
+    - saikyo/2011/20110430-s1.html（4）・2012/20120414-s1-b.html（2）・2013/20130916-s1-b.html（2）・2015/20150613-s1-a.html（4）・2016/20160312-s1-a.html（4）・2016/20160428-s1-b.html（2）・2017/20170520-s1-a.html（2）・2017/20170520-s2.html（2）・2017/20170624-2-s1-b.html（4）・2017/20170708-s1-a.html（2）・2017/20170924-s1-b.html（4）・2017/20170924-s2.html（4）・2018/20180430-s1-a.html（4）・2018/20180617-s1-a.html（2）・2018/20180714-s1-a.html（4）・2018/20180714-s2.html（4）・2019/20190420-2-s1-b.html（4）・2019/20190420-2-s2.html（4）・2019/20190825-s1-b.html（2）・2019/20190825-s2.html（2）・2019/20191214-s1-b.html（2）・2020/20200510-s1-b.html（2）・2020/20200510-s2.html（2）・2020/20201206-s1-a.html（2）・2020/20201206-s2.html（2）・2021/20210522-s1-b.html（2）・2021/20210522-s2.html（2）・2021/20211114-s1-a.html（2）・2022/20220605-s1-b.html（2）・2022/20220605-s2.html（2）・2022/20220717-s1-a.html（2）・2022/20220717-s2.html（2）・2022/20220917-s1-b.html（4）・2022/20220917-s2.html（4）・2023/20230709-s1-b.html（4）・2023/20230723-s1-b.html（2）・2024/20240421-s1-a.html（2）・2024/20240602-s1-a.html（2）・2024/20240602-s2.html（2）・2024/20240804-s1-b.html（2）・2024/20240804-s2.html（2）・2025/20250816-s1-a.html（2）・2025/20250920-s1-a.html（4）・2025/20250920-s2.html（4）・2025/20251108-s1-b.html（2）・2025/20251108-s2.html（2）・2025/20251213-s1-c.html（4）
+  - (c) sitemap*.xml（1）: sitemap-saikyo.xml（100。上の50ページの lastmod が 2026-10-17／2026-10-19 → 2026-10-23）
+  - (d) saikyo/ と sitemap*.xml 以外: なし
+- Workers Builds の check-run（2582fabc8）: 「Workers Builds: mj」completed / success（2026-10-23T04:22:29Z、summary に Preview URL が無い＝本番のビルド）
+- (i) を作り直した表（origin/cloudflare＝2582fabc8 の saikyo/2026 のライブ枠の卓）:
+
+| ファイル | 卓 | URL |
+|---|---|---|
+| 20261025-s1-a.html | Mの乱 ベスト8 A卓 | https://abema.tv/channels/mahjong/slots/ECDbhVJBh7Dykb |
+| 20261025-s1-b.html | Mの乱 ベスト8 B卓 | https://abema.tv/channels/mahjong/slots/ECDbhVJBh7Dykb |
+| 20261101-s1-a.html | 超技巧合戦 ベスト8 A卓 | https://abema.tv/channels/mahjong/slots/9CHRCzeorA4sL3 |
+| 20261101-s1-b.html | 超技巧合戦 ベスト8 B卓 | https://abema.tv/channels/mahjong/slots/9CHRCzeorA4sL3 |
+
+  1025・1101 はまだ対局前（【3】のライブ枠のまま。想定どおり）
+
+- 本番の HTML（`curl https://ryoei.pro/saikyo/2026/<ファイル>?v=skv01a`、すべて 200。ブラウザでの見え方は確かめていない）:
+  - 20261018-s1-a.html: 「▶ 再生」 https://abema.tv/video/episode/68-38_s26_p25 ／ヒーローの画像 https://image.p-c2-x.abema-tv.com/image/programs/68-38_s26_p25/thumb001.png?height=720&amp;quality=75&amp;width=1280
+  - 20261018-s1-b.html: 「▶ 再生」 https://abema.tv/video/episode/68-38_s26_p26 ／ヒーローの画像 https://image.p-c2-x.abema-tv.com/image/programs/68-38_s26_p26/thumb001.png?height=720&amp;quality=75&amp;width=1280
+  - 20261018-s2.html（ライブ枠からではなくリンクなしから）: 「▶ 再生」 https://abema.tv/video/episode/68-38_s26_p27 ／ヒーローの画像 https://image.p-c2-x.abema-tv.com/image/programs/68-38_s26_p27/thumb001.png?height=720&amp;quality=75&amp;width=1280
+  - 対照: 20261025-s1-a.html・20261101-s1-a.html は「ABEMA で見る」（ライブ枠）のまま
+- 【2】に新しく回が当たったのに本番がライブ枠のままの卓: なし（増えた3卓はすべて「▶ 再生」に変わった。手順1 の check の読み取りどおり、【3】の 1018 の行は既に消されていた見込み）
+- docs/decisions/saikyo.md に今回の決定を足した
+
+### マージ
+
+- 作業ブランチの変更は docs/logs と docs/decisions のみ（指示の「マージ: 承認済み」どおり cloudflare へ入れる）
+- origin/cloudflare（2582fabc8）を取り込み、再fetch・`git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめて `git push origin work/1023-skv:cloudflare`（2582fabc8..b98a6bce7）。docs のみなので Workers Builds は走らない見込み（#171）
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1023-skv
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1023-SKV-01.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1023-skv
+- 確認用URL: なし（作業ブランチは docs のみ。本番の反映は Actions のコミット 2582fabc8 で、Workers Builds の本番の check-run が success。本番の HTML で 20261018 の3卓が「▶ 再生」になったことを確かめた）
+- マージ: 済（b98a6bce7）
+- issue: なし
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj ee47bdbe）: https://github.com/retroeater/mj-logs/tree/main/guide/ee47bdbe
+ガイド文書（この版を写した時点の最新、mj 2b6e0de9）: https://github.com/retroeater/mj-logs/tree/main/guide/2b6e0de9
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ee47bdbe/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ee47bdbe/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ee47bdbe/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ee47bdbe/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ee47bdbe/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/ee47bdbe/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/2b6e0de9/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/2b6e0de9/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/2b6e0de9/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/2b6e0de9/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/2b6e0de9/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/2b6e0de9/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/ee47bdbe.md
