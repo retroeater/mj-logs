@@ -54,6 +54,68 @@
 
 ## 経過
 
+### 着手前の確かめ
+
+- 指示欄の末尾は指示文の最後の行と一致。Chat-Ref の重複なし。冒頭の雛形の行は欠けなし
+- 作業ブランチ: origin/work/1022-hth（9623fbd44）は origin/cloudflare の祖先（マージ済み）。ローカルの work/1022-hth も同じ先頭だったため、docs/notes/cloud-sessions.md「作業ブランチの用意」の「ローカルにあり origin/cloudflare の祖先」のとおり `git merge --ff-only origin/cloudflare` で 560a6f351 に進めた
+- #372: open。他セッションの着手中コメントなし。着手中のコメントを書いた
+- `--check`（regenerate-page.yml、check、7dcb3432f）: 成功
+- 未マージの work/ ブランチ: work/1023-skp は対戦成績の行（`.mj-saikyo-n-pair`・`VS_PAIRS_*`・`build_vs_initial()`・`top_pairs()`・`vsRevealMore`・`.mj-saikyo-n-more`）を変えていない（merge-base からの差分に該当なし）。成果物のコミット（64d9cd9b9）との `git merge-tree` の衝突は `docs/decisions/saikyo.md` だけ（末尾の追記どうし。止まる条件の外）。ほかの未マージの work/ ブランチは saikyo/ に関係しない
+- 同卓5回以上の組（生成と同じ `vs_tables()` → `vs_records()` → `pair_counts()` → `top_pairs()` の経路、本番の saikyo/index.html の埋め込みデータから）: 23組（8回1・7回1・6回6・5回15）。前提と一致
+
+| 順 | 組 | 同卓 |
+|---|---|---|
+| 1 | 井出洋介 – 森山茂和 | 8回 |
+| 2 | 井出洋介 – 新津潔 | 7回 |
+| 3 | 二階堂亜樹 – 魚谷侑未 | 6回 |
+| 4 | 前原雄大 – 瀬戸熊直樹 | 6回 |
+| 5 | 前原雄大 – 金子正輝 | 6回 |
+| 6 | 村上淳 – 鈴木達也 | 6回 |
+| 7 | 滝沢和典 – 鈴木達也 | 6回 |
+| 8 | 瀬戸熊直樹 – 藤崎智 | 6回 |
+| 9 | 二階堂亜樹 – 石井あや | 5回 |
+| 10 | 井出康平 – 山井弘 | 5回 |
+| 11 | 佐々木寿人 – 猿川真寿 | 5回 |
+| 12 | 宮内こずえ – 高宮まり | 5回 |
+| 13 | 小島武夫 – 森山茂和 | 5回 |
+| 14 | 新津潔 – 森山茂和 | 5回 |
+| 15 | 森山茂和 – 沢崎誠 | 5回 |
+| 16 | 森山茂和 – 荒正義 | 5回 |
+| 17 | 森山茂和 – 藤崎智 | 5回 |
+| 18 | 森山茂和 – 金子正輝 | 5回 |
+| 19 | 滝沢和典 – 鈴木優 | 5回 |
+| 20 | 石井あや – 魚谷侑未 | 5回 |
+| 21 | 茅森早香 – 高宮まり | 5回 |
+| 22 | 茅森早香 – 魚谷侑未 | 5回 |
+| 23 | 荒正義 – 藤崎智 | 5回 |
+
+### 写真の大きさ（実物の CSS の値）
+
+- 歴代最強位の行（今の `saikyo/` トップ、と work/1023-skp の `saikyo/years/index.html`）: どちらも `<img class="mj-saikyo-n-avatar" width="40" height="40">` で、`style.css` の `.mj-saikyo-n-avatar` は `width: 40px; height: 40px; flex: 0 0 40px`
+- 対戦成績のカードと対局の記録の写真: すでに `.mj-saikyo-n-avatar` の 40px（`?name=井出洋介,森山茂和` で実測 40×40）
+- ペアの行: HTH-11 の 32px の上書き（`.mj-saikyo-n-pair > .mj-saikyo-n-avatar`）を消し、`.mj-saikyo-n-avatar` の 40px のまま、間 4px（`gap`）で並べる
+
+### 実装（64d9cd9b9）
+
+1. `VS_PAIRS_LIMIT`（30）を `VS_PAIRS_MORE_MIN = 5` に替えた。`build_vs_initial()` は全組を回数の多い順に並べ、初めの5行（5回未満でも出す）と、その後ろの5回以上の組を `<li hidden>` で書く。5回以上が5組以下ならボタンを出さない（行の数が5を超えないため）
+2. `style.css` のペアの写真の 32px の上書きを消した（間 4px はそのまま）
+- テスト: `test_pairs_show_first_rows_and_more_button`（同卓6回の6組を足した表で、5行の後ろに6回の1組だけが hidden・3回の組は出ない・ボタンあり）と `test_pairs_without_more_rows_have_no_button`（5回以上が0組なら hidden もボタンも無い。4人の卓1つなら5行だけ）を直した。`python3 -m unittest discover -s scripts/tests` 1537件 OK。修正前のコード（HEAD の generator）では2件とも落ちることを確かめた
+- `docs/notes/saikyo-page-design.md` を直し、決定を docs/decisions/saikyo.md に足した（CHAT-1023-HTH-12 の確定の行に置き換えの注記）
+
+### 生成物と差分
+
+- dry-run（compare_ref: origin/cloudflare〈7fc3dce1c〉、64d9cd9b9）: 新旧で違うのは `saikyo/vs/index.html` だけ（差があると失敗扱いになる仕様のため結果は failure）
+- 本生成: `chore: regenerate saikyo/ via GitHub Actions`（`saikyo/vs/index.html` の1ファイル、259,659 バイト。HTH-12 の 267,362 から −7,703。隠れた行 18）。手元の生成と同じ大きさ
+- 進んだ origin/cloudflare（7fc3dce1c）を取り込んだ（fbebce1b0、衝突なし、最強戦のファイルは変わらない）。取り込んだ後の `git diff --stat origin/cloudflare HEAD`: `saikyo/vs/index.html`・`style.css`・`scripts/generate_saikyo_pages.py`・`scripts/tests/test_saikyo_vs.py`・`docs/notes/saikyo-page-design.md`・ログ。シートの変化による saikyo/ の差分は 0件。既存の saikyo/ のページは変わらない
+
+### マージの条件（手元と、プレビュー〈fbebce1b0 の Workers Builds、成功〉で同じ結果）
+
+- `docs/logs/CHAT-1023-HTH-13/`: before-{360,1920}-{light,dark}.jpg（押す前）・all-…（出し切った後）
+1. 「もっと見る」で出るのは同卓5回以上の組だけ: 押す前は5行（8・7・6・6・6回）、4回押して23行で出し切りボタンが消える。23行の回数はすべて5回以上（最後は5回）→ 満たす
+2. ペアの写真が歴代最強位の行と同じ大きさで重ならない: ペアの写真はすべて 40×40（トップの歴代最強位も 40×40）。2枚目の左端は1枚目の右端より右（重なり 0件、間 4px）→ 満たす
+3. 360px で名前が切れない: 名前の欄・名前の単位（`.mj-saikyo-n-unit`）の右端のはみ出しと `scrollWidth > clientWidth` は 0件。「二階堂亜樹 – 魚谷侑未」など5組は名前の区切りで2行に折り返す（1920px では折り返さない）→ 満たす
+4. テストが通る → 満たす
+
 ## 報告
 
 - 状態: 作業中
@@ -61,12 +123,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 560a6f35）: https://github.com/retroeater/mj-logs/tree/main/guide/560a6f35
+ガイド文書（この版を写した時点の最新、mj 067eacf2）: https://github.com/retroeater/mj-logs/tree/main/guide/067eacf2
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/560a6f35/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/560a6f35/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/560a6f35/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/560a6f35/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/560a6f35/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/560a6f35/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/067eacf2/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/067eacf2/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/067eacf2/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/067eacf2/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/067eacf2/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/067eacf2/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/c49be44e.md
