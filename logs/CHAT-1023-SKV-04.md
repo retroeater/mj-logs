@@ -50,6 +50,80 @@ ABEMA の最強戦の卓別動画は毎週金曜ごろに出る見込みで、�
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 着手前の確認
+
+- 手順0: ログの「指示」欄の末尾は指示文の最後の行と一致
+- 同じ Chat-Ref のコミット: 0件（`SKV` はこのセッションの識別子、4本目）。雛形の行: 欠けなし
+- 作業ブランチ: work/1023-skv-detect はローカル・リモートとも無し → `git checkout -b work/1023-skv-detect origin/cloudflare`（8193cdb39）
+- #572: open（ラベル 分野: 自動化・対象: saikyo、コメント0件）。本文の背景「ABEMA は日本国外からの取得に地域のエラーページを返す（#501）」。着手中のコメントを書いた（https://github.com/retroeater/mj/issues/572#issuecomment-6362165465 ）
+- 0章ゲート: CLAUDE.md 22,945 バイト・handover.md 22,108 バイト（警告域 26KB の下）。未マージの work/ ブランチで対象のファイルを変えているのは work/1018-log-367-migrate の docs/notes/github-actions.md だけ（ワークフローの一覧の regenerate-saikyo の行ではない見込み。取り込みの衝突は手順の後で確かめる）。regenerate-saikyo.yml・run-daily.yml・update_abema_book.py・abema_book.py を変えている未マージのブランチは無い
+- 呼ばれ方（`git grep -n regenerate-saikyo -- .github workers scripts`）: run-daily.yml のジョブ `saikyo`（`uses: ./.github/workflows/regenerate-saikyo.yml`）だけ。ほかに workflow_dispatch（入力 abema・regenerate）
+- **前提との食い違い（小さいので進めた）**: 前提は「run-daily.yml の `saikyo` から `workflow_call`（入力 `scheduled`）」だが、実物の regenerate-saikyo.yml の workflow_call の入力は abema・regenerate だけで、run-daily は `abema: ${{ inputs.scheduled && 'update' || 'dry_run' }}` で予約の起動を伝えていた（`scheduled` の入力は無い）。前提は「要確認」と書かれており、新しいワークフロー・予約実行を足さずに workflow_call の入力 `scheduled` を1つ足せば入るので、止めずにそうした（判断が必要なことに書く）
+- docs/notes/github-actions.md「ワークフローを変更したとき」を読んだ（作業ブランチで手動実行して確かめる。新しいワークフローではないので `--ref` の実行ができる）
+
+### ランナーから ABEMA に届くか（このコンテナ〈国外〉での実測、2026-10-23 13時台 JST）
+
+| 回のID | サムネイル（image.p-c2-x.abema-tv.com …/thumb001.png?height=360&quality=75&width=640） | 回のページ（abema.tv/video/episode/…） |
+|---|---|---|
+| 68-38_s26_p27（既にある） | 200 image/jpeg 42219 バイト | プロキシで拒否（CONNECT 403） |
+| 68-38_s26_p28 | 404 text/plain 87 バイト | 同じ |
+| 68-38_s26_p29 | 404 | 同じ |
+| 68-38_s26_p30 | 404 | 同じ |
+| 68-38_s25_p1（既にある） | 200 | — |
+
+- サムネイルなら国外から有り無しを見分けられる。回のページはこのセッションでは届かず、#501 の実測でも国外は地域のエラーページなので、検知はサムネイルにした（題〈og:title〉は取れない）
+- 簡略化の上限: サムネイルが回の公開より先に置かれる場合は「ある」が早く出る（確かめる手段が無い）
+
+### 手順2 実装（コミット 52cc541ed）
+
+- `scripts/lib/abema_book.py`: `latest_episode_ids()`（【1】の最新の年度で最も多い作品の番号が最大の回と、その次から `DETECT_AHEAD`=6 件）、`thumb_state()`（200 → ある、404 → 無い、ほか → 分からない）、`detect_result()`（最大の回が「ある」でない・分からない回があれば確かめられないとみなす）
+- `scripts/update_abema_book.py`: `--detect`（`--notify-file` に知らせる本文。新しい回があったとき・確かめられなかったときだけ書く）。シートには書かない（書き込みのセッションも作らない）
+- `.github/workflows/regenerate-saikyo.yml`: workflow_call に入力 `scheduled`（boolean、既定 false）、ジョブ abema に `issues: write` とステップ「ABEMA の新しい回を確かめる」（`!cancelled()`。予約の起動で JST の土曜でなければ確かめない。予約の起動で本文があれば `gh issue comment 572`。出力は summary.md に足して実行サマリに出る）
+- `.github/workflows/run-daily.yml`: ジョブ saikyo に `scheduled: ${{ inputs.scheduled == true }}`（ジョブ saikyo は `issues: write` を既に持つ）
+- docs/notes/abema-book.md に「新しい回の検知」の節、docs/notes/github-actions.md の一覧の regenerate-saikyo の行に一文
+- 検査: `scripts/tests/test_abema_book.py` に `DetectTest`（番号を数で比べる・作品の選び方・状態・届かない判定）と `RunDetectTest`（新しい回で本文・無ければ書かない・届かなければ本文）。`python3 -m unittest discover -s scripts/tests` で Ran 1529 OK。足した関数は修正前に無いので、修正前のコードでは新しい検査はすべて失敗する（関数が無い）
+
+### 手順3 作業ブランチでの手動実行（run 39934617712、#20、ref work/1023-skv-detect＝52cc541ed、abema=check・regenerate=false）
+
+- 結論: success（ジョブ abema success、regenerate は skipped）。土曜でなくても、手動実行（`scheduled` なし＝`SCHEDULED: false`）なら検知が動く（入力は足していない）
+- ジョブ abema のログの検知の行（全部。実行サマリにも同じ行が出る）:
+
+```
+- 新しい回の確かめ: 既にある回 68-38_s26_p27 200(ある)
+  - 68-38_s26_p28: 404(無い)
+  - 68-38_s26_p29: 404(無い)
+  - 68-38_s26_p30: 404(無い)
+  - 68-38_s26_p31: 404(無い)
+  - 68-38_s26_p32: 404(無い)
+  - 68-38_s26_p33: 404(無い)
+- 新しい回: 無し
+```
+
+- 同じジョブの check の行: 【1】元データ 679 行（2026 は 27）、【2】712 行、【3】4 行、編集者か: はい
+- 既にある回が「ある」、まだ無い回が「無い」と、ランナー（国外）からも見分けられた。知らせない道筋なので #572 へのコメントは出ていない（手動のため `gh issue comment` は動かない）
+- 試していない道筋: 予約の起動（`scheduled` 真）の土曜の判定と `gh issue comment 572`。run-daily を `scheduled` で手で起動すると各本が書くため試していない。マージ後の最初の土曜の 04:00 JST の run-daily が初回
+- #572 に結果のコメントを書いた
+- 取り込みの衝突: work/1018-log-367-migrate は docs/notes/github-actions.md と docs/decisions/operations.md で衝突するが、origin/cloudflare とも同じ2ファイルで既に衝突している（`git merge-tree` で確かめた。向こうの hunk は 32 行付近、こちらは 23 行の regenerate-saikyo の行）。今回の変更による衝突ではない
+- docs/decisions/saikyo.md に今回の決定を足した
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1023-skv-detect
+- ログ: https://github.com/retroeater/mj/blob/work/1023-skv-detect/docs/logs/CHAT-1023-SKV-04.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1023-skv-detect
+- 確認用URL: なし（ページは変わらない。確かめは手動実行の run 39934617712）
+- マージ: 未（平野さんの判断待ち。作業ブランチでの手動実行の結果を見て決める）
+- issue: #572（着手中と結果のコメント）
+- 判断が必要なこと:
+  - 手動実行の結果（既にある回 p27 は「ある」、p28〜p33 は「無い」）を見て、cloudflare へマージしてよいか
+  - 前提との違い2点を受け入れるか: (1) regenerate-saikyo.yml には入力 `scheduled` が無かった（run-daily は abema の値で予約の起動を伝えていた）ので、workflow_call の入力 `scheduled` を足して run-daily から渡した (2) 回のページは国外から読めないので、題（og:title）は出さず、サムネイルの有り無しで回のIDと URL だけを知らせる
+- 未確認の項目:
+  - 予約の起動の道筋（JST の土曜の判定と #572 へのコメント）。初回はマージ後の最初の土曜の 04:00 JST の run-daily（今日マージすれば 2026-10-24（土）04:00 JST）
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
