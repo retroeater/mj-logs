@@ -118,7 +118,7 @@ Chat-Ref: CHAT-1024-SKP-07
 
 ## 報告
 
-- 状態: 中断（判断待ち。手順1の止まる条件に当たった）
+- 状態: 中断（判断待ち。手順1の止まる条件に当たった） / 続き: CHAT-1024-SKP-10
 - ブランチ: work/1024-skp-vid（ログだけ。成果物なし）
 - ログ: docs/logs/CHAT-1024-SKP-07.md
 - 比較URL: なし
@@ -132,12 +132,12 @@ Chat-Ref: CHAT-1024-SKP-07
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj d53626ec）: https://github.com/retroeater/mj-logs/tree/main/guide/d53626ec
+ガイド文書（この版を写した時点の最新、mj afc3145d）: https://github.com/retroeater/mj-logs/tree/main/guide/afc3145d
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d53626ec/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d53626ec/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d53626ec/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d53626ec/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d53626ec/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d53626ec/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/c8aed737.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/afc3145d/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/afc3145d/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/afc3145d/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/afc3145d/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/afc3145d/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/afc3145d/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/066dfde6.md
