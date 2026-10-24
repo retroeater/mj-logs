@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-24 08:11 JST
+- 書き出した時刻: 2026-10-24 10:13 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -107,11 +107,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-24 10:11 | schedule | cloudflare | success | #9（40048673566） | 0分28秒 |
 | 2026-10-23 10:01 | schedule | cloudflare | success | #8（39881581598） | 0分20秒 |
 | 2026-10-22 09:58 | schedule | cloudflare | success | #7（39702873094） | 0分23秒 |
 | 2026-10-21 10:02 | schedule | cloudflare | success | #6（39524993950） | 0分29秒 |
 | 2026-10-20 10:18 | schedule | cloudflare | success | #5（39352702477） | 0分35秒 |
-| 2026-10-19 09:33 | schedule | cloudflare | success | #4（39181283933） | 0分23秒 |
 
 ## cleanup-logs.yml
 
@@ -305,11 +305,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-24 09:34 | schedule | cloudflare | success | #58（40045647377） | 0分35秒 |
 | 2026-10-23 09:36 | schedule | cloudflare | success | #57（39879086236） | 0分33秒 |
 | 2026-10-22 09:38 | schedule | cloudflare | failure | #56（39700900041） | 0分35秒 |
 | 2026-10-21 09:33 | schedule | cloudflare | success | #55（39522080460） | 0分40秒 |
 | 2026-10-20 10:03 | schedule | cloudflare | success | #54（39351291092） | 0分35秒 |
-| 2026-10-19 09:10 | schedule | cloudflare | success | #53（39179567227） | 0分45秒 |
 
 - #56 failure: ジョブ「sync」 ステップ「同期」
 
@@ -328,11 +328,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-24 09:02 | schedule | cloudflare | success | #104（40042986546） | 0分09秒 |
 | 2026-10-23 09:10 | schedule | cloudflare | success | #103（39876524265） | 0分10秒 |
 | 2026-10-22 09:14 | schedule | cloudflare | success | #102（39698521711） | 0分08秒 |
 | 2026-10-21 09:09 | schedule | cloudflare | success | #101（39519559111） | 0分12秒 |
 | 2026-10-20 09:40 | schedule | cloudflare | success | #100（39349069181） | 0分10秒 |
-| 2026-10-19 08:41 | schedule | cloudflare | success | #99（39177551040） | 0分11秒 |
 
 ## update-sns-book.yml
 
