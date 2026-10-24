@@ -55,6 +55,58 @@ CHAT-1024-SKP-07 は、本番の質問欄の5問のうち3問の答えに誤り�
 
 ## 経過
 
+### 着手前の確認
+
+- 0章: 指示欄の末尾は指示文の最後の行と一致
+- 同じ Chat-Ref のコミット: なし。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 欠けなし
+- ブランチ: origin/work/1024-skp-ask が無いため origin/cloudflare（afc3145d4）から作った
+- 未マージの work/ ブランチで `workers/ask/`・`scripts/generate_saikyo_pages.py`・`scripts/generate_ask_data_saikyo.py` を変えているもの: なし
+- CLAUDE.md 22945 バイト・handover.md 22221 バイト（警告域 26KB の下）
+- #626・#627 に着手中のコメントを書いた（他セッションの着手中コメントは無かった）
+- 告知の期間中（SKP-07 の着手から）。冒頭の「マージ:」の行に「告知の期間中の変更を承認（2026-10-24、平野さん）」がある
+
+### 手順1
+
+- CHAT-1024-SKP-07 のログは未マージの work/1024-skp-vid にだけある。そのブランチで `## 報告` の状態の末尾に ` / 続き: CHAT-1024-SKP-10` を足して push した（63fbada1d。別の作業ツリーで行い、終わってから外した）。このブランチには持ち込んでいない（skp-vid を後でマージするときに衝突させないため）
+- docs/decisions/saikyo.md に「2026-10-24（CHAT-1024-SKP-10）」を足した
+- 3点の原因（コードを読んで確かめた）:
+  - (1) Q1「2025年度の最強位は？」の「1回」: `query.mjs` の `champions()` は from・to で決勝の年度を絞り、`terms` には絞った範囲の年度だけが入る（2025〜2025 なら `[2025]`）。2回目の指示 `ANSWER_LINES.saikyo` が「最強位の回数は terms の個数」と書いていたので、範囲の個数1を通算として書いた
+  - (2) Q2「最強位をいちばん多く取ったのは？」の「ほかに2人の選手も名前が挙がっています」: 出典が「歴代最強位」なので引いたのは champions（全年度、12人）。`answerInput()` は10人（NAMES_MAX）を超えると新しい年度から10人に切り、残りの人数を `others: 2` で渡す。その2人（渡さなかった古い年度の2人）を「ほかに2人」と書いた。1回の10人には触れなかった
+  - (3) Q4「予選出場がいちばん多いのは？」の3人: `tieOf()` は同率の名前を `TIE_NAMES = 3` 人までしか渡さない（count は4）。答えの共通の指示「人数より少なければ最後に「ほか」」に従わず、「ほか」を付けなかった。4人目の藤崎智は名前が渡っていなかった
+
+### 手順2: 直し
+
+- `workers/ask/src/query.mjs`（最強戦〈`contest.yearly`〉だけ）:
+  - `champions()`: 各人に通算の回数 `total`（決勝の全年度で1位の数）を足す。年度で絞っても通算
+  - `tieOf()`: 名前を `YEARLY_TIE_NAMES = 10` 人まで渡し、超えた人数を `tie.others` に入れる。ほかの大会は `TIE_NAMES` の3人のままで、`others` のキーも付けない
+- `workers/ask/src/ask.mjs`:
+  - `ANSWER_LINES.saikyo`: 回数は total を書き terms の個数を通算にしない・others は「渡さなかった人数で、下の人という意味ではない。一覧や人数を聞かれたときのほかは書かない」・tie.others があれば「ほか tie.others名」、無ければ全員を挙げて「ほか」を付けない
+  - `SAIKYO_DIVISIONS` の「予選出場」→「出場」。1回目の指示の言い換えを「「出場回数」「出場年度」「予選出場」は 出場」にした
+- `scripts/generate_saikyo_pages.py`: `DIVISIONS` の「予選出場」→「出場」（数え方・スラッグ `appearances` は変えない。スラッグはそのまま使えるので `_redirects` は変えない）。`career_lines()` の docstring
+- テスト: `workers/ask/test/saikyo.test.mjs` に3本（通算の total・鳳凰戦には付かない／同率の全員と others／2回目の指示の3行と渡す total）。`scripts/tests/test_saikyo_menu.py` の部門名の並び。足した3本は、直す前の `src/`（origin/cloudflare）では3本とも落ちることを確かめた（scratchpad に写して実行）
+- 文書: docs/notes/saikyo-page-design.md（部門の行と名前の下の行の説明）・docs/notes/ask-worker.md（最強戦の節に足した結果と指示）
+- 生成し直し: `regenerate-page.yml`（saikyo_pages ask_data_saikyo、run 40054890975）が作業ブランチに 429b1c1e0 を書いた（11ファイル）
+- 確かめ: `python3 -m unittest discover -s scripts/tests` は 1563件 OK。`node --test 'workers/ask/test/*.test.mjs'` は 94件 pass（ほかの大会の同率のテスト〈tie.test.mjs の WRC-R の3人、deepEqual〉もそのまま通る）。`regenerate-page.yml` の check（saikyo_pages・ask_data_saikyo、run 40055009393、8451611c3）は2ページとも「通る」（警告4件は ABEMA のライブ枠の URL の卓で、今回と無関係）。シートは 2580件
+- ローカルの確かめ（セッションに Anthropic の鍵が無いので、答えの文は作れない。runQuery と answerInput が2回目に渡す結果を見た）:
+  - Q1（champions 2025〜2025）: 桑田憲汰 `terms: [2025]`・`total: 3`
+  - Q2（champions 全年度）: 12人のうち10人と `others: 2`。各人に total（桑田憲汰 3・瀬戸熊直樹 2・ほか1）。ranking 最強位なら 桑田憲汰 3回・瀬戸熊直樹 2回・3位に1回の人
+  - Q3（ranking 通過率）: 1位 桑田憲汰 1.000（前と同じ）
+  - Q4（ranking 出場）: `tie.names` が 二階堂亜樹・佐々木寿人・瀬戸熊直樹・藤崎智 の4人、count 4、others なし
+  - Q5（player 瀬戸熊直樹）: 前と同じ（36行）
+  - 答えの文が合うかは、マージ後の本番の5問で確かめる（止まる条件）
+
+### 手順3: マージ前の差分（origin/cloudflare...HEAD、20ファイル）
+
+| 種類 | ファイル数 | 中身 |
+|---|---|---|
+| Worker のコード・テスト | 3 | `query.mjs`・`ask.mjs`・`test/saikyo.test.mjs` |
+| Worker のデータ | 1 | `data-saikyo.json`（部門の名前「予選出場」→「出場」だけ） |
+| 生成スクリプト・テスト | 2 | `generate_saikyo_pages.py`・`test_saikyo_menu.py` |
+| saikyo/ の生成物（未公開） | 10 | `players/index.html`（部門の名前）・ランキング9ページ（3×3 の格子の「出場」、`appearances/` は題名・説明・見出しも） |
+| docs | 4 | `docs/decisions/saikyo.md`・`docs/notes/ask-worker.md`・`docs/notes/saikyo-page-design.md`・このログ |
+
+公開済みのページ（`saikyo/index.html`・年度・対局・卓・`saikyo/vs/`）・`sitemap-saikyo.xml`・`saikyo/ask-players.json`・`saikyo/next/index.html` は変わっていない。
+
 ## 報告
 
 - 状態: 作業中
@@ -71,12 +123,12 @@ CHAT-1024-SKP-07 は、本番の質問欄の5問のうち3問の答えに誤り�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj afc3145d）: https://github.com/retroeater/mj-logs/tree/main/guide/afc3145d
+ガイド文書（この版を写した時点の最新、mj 96fdc103）: https://github.com/retroeater/mj-logs/tree/main/guide/96fdc103
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/afc3145d/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/afc3145d/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/afc3145d/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/afc3145d/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/afc3145d/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/afc3145d/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/96fdc103/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/96fdc103/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/96fdc103/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/96fdc103/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/96fdc103/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/96fdc103/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/066dfde6.md
