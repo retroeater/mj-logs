@@ -51,28 +51,56 @@ CHAT-1025-SKV-08 の判断待ちに答え、work/1025-skv を cloudflare へマ�
 
 ## 経過
 
+### 着手前の確認
+
+- 0章: 指示欄の末尾は指示文の最後の行と一致
+- 同じ Chat-Ref のコミット: なし。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 欠けなし
+- CHAT-1025-SKV-08 のログの `## 報告` は「状態: 判断待ち」。origin/work/1025-skv の先頭は SKV-08 の報告のコミット 62f89dd7b のまま（止まる条件に当たらない）
+- 未マージのほかの work/ ブランチで `regenerate-saikyo.yml`・`scripts/update_abema_book.py`・`scripts/lib/abema_book.py` を変えているもの: なし
+
+### 手順1: マージ
+
+- origin/cloudflare（070c0aa98）は HEAD の祖先で、取り込みは要らなかった（衝突なし）
+- `python3 -m unittest discover -s scripts/tests`: OK
+- マージ: `git push origin work/1025-skv:cloudflare`（070c0aa98..1814645ea。push 直前に再 fetch して `git merge-base --is-ancestor origin/cloudflare HEAD` を確かめた）。入ったのは8ファイル（`regenerate-saikyo.yml`・`scripts/lib/abema_book.py`・`scripts/update_abema_book.py`・`scripts/tests/test_abema_book.py`・`docs/notes/abema-book.md`・`docs/decisions/operations.md`・SKV-08 と SKV-09 のログ）
+- マージの push で動いた `regenerate-page.yml`: run 40185765407、success（job 121146093428、10:40〜10:52 UTC、約11分）。対象はほぼ全ページ（`scripts/lib/**` の変更のため）。「変更をコミット・push」のステップは「変更なし」で、生成のコミットは無い
+- 1814645ea の check-run: 「Workers Builds: mj」success・「regenerate」success・「notify」skipped（mj-ask は動いていない。Worker は変えていない）
+- マージの後の origin/cloudflare には、ほかのセッション（VOD 系列）のコミットが続いて入った（3b42da42f まで）。この指示とは無関係
+
+### 手順2: #572
+
+本文の1か所だけを直した（状態 open・題・ラベル〈分野: 自動化・対象: saikyo・種類: 常設〉は変えていない）。直した行:
+
+> - 何も無い週は書かない。毎回の結果の1行は、ジョブ `abema` の check-run の注釈にも出る（例「新しい回: 無し（既にある回 68-38_s26_p27 200、p28 404・…）」。確かめられないときは警告。2026-10-31（土）の運行から）
+
+### 手順3
+
+- CHAT-1025-SKV-08 のログの `## 報告`: 状態の末尾に ` / 続き: CHAT-1025-SKV-09`、ブランチとマージの行を「SKV-09 で cloudflare にマージ（070c0aa98..1814645ea）」に直した
+- docs/decisions/operations.md に「2026-10-25（CHAT-1025-SKV-09）」を足した
+- 作業ブランチの片付け: work/1025-skv はこのログの push の後に cloudflare へ入れるのでマージ済みになるが、削除しない。docs/notes/branch-operations.md「ブランチを削除するとき」はローカルの削除の手順で（リモートの削除の手順は書かれていない）、ローカルのブランチはコンテナとともに消えるため。リモートの work/1025-skv は残す（先頭はこのログの最後のコミット）
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1025-skv
+- 状態: 完了
+- ブランチ: work/1025-skv（cloudflare にマージ済み）
 - ログ: docs/logs/CHAT-1025-SKV-09.md
 - 比較URL: なし
-- 確認用URL: なし
-- マージ: なし
-- issue: なし
+- 確認用URL: なし（ページは変わらない）
+- マージ: cloudflare にマージ済み（070c0aa98..1814645ea）。マージの push の再生成（run 40185765407）は success・変更なし。Workers Builds: mj は success
+- issue: #572 の本文の1行を直した（「2026-10-31（土）の運行から」）
 - 判断が必要なこと: なし
-- 未確認の項目: なし
+- 未確認の項目: 注釈が予約の起動で出るのは 2026-10-31（土）の毎朝の運行から（run-daily.yml は手で起動していない）。土曜でない日の注釈（「土曜でないので確かめません」）は 2026-10-26（月）の運行から出る見込み
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 96fdc103）: https://github.com/retroeater/mj-logs/tree/main/guide/96fdc103
+ガイド文書（この版を写した時点の最新、mj 1c42d743）: https://github.com/retroeater/mj-logs/tree/main/guide/1c42d743
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/96fdc103/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/96fdc103/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/96fdc103/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/96fdc103/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/96fdc103/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/96fdc103/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/1c42d743/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/1c42d743/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/1c42d743/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/1c42d743/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/1c42d743/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/1c42d743/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/070c0aa9.md
