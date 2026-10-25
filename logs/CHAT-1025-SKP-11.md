@@ -50,6 +50,44 @@ CHAT-1024-SKP-10 の本番の5問のうち、Q5「瀬戸熊直樹の最強戦の
 
 ## 経過
 
+### 着手前の確認
+
+- 0章: 指示欄の末尾は指示文の最後の行と一致
+- 同じ Chat-Ref のコミット: なし。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 欠けなし
+- ブランチ: origin/work/1024-skp-ask は origin/cloudflare の祖先（SKP-10 でマージ済み）。ローカルの work/1024-skp-ask も祖先だったので、`git checkout work/1024-skp-ask` のうえ `git merge --ff-only origin/cloudflare` で c30435985 へ進めた（docs/notes/cloud-sessions.md「作業ブランチの用意」）
+- 未マージの work/ ブランチで `workers/ask/` を変えているもの: なし
+- #626・#627 に着手中のコメントを書いた
+- 告知の期間中。冒頭の「マージ:」の行に「告知の期間中の変更を承認（2026-10-25、平野さん）」がある
+
+### 手順1
+
+- CHAT-1024-SKP-10 のログの `## 報告` の状態の末尾に ` / 続き: CHAT-1025-SKP-11` を足した
+- docs/decisions/saikyo.md に「2026-10-25（CHAT-1025-SKP-11）」を足した
+
+### 手順2: 直し
+
+- 出場・対局数を Worker の中で数え直さず、ページと同じ集計の値を渡すことにした（`data-saikyo.json` に `totals` を足す）。前提の案（出場と対局数を別に渡す）を、個人成績の部門別のタブの9部門の値に広げた。最強位・ファイナルの回数も同じ値で渡り、Worker に「ファイナル」の判定などを二重に持たない
+- `scripts/generate_ask_data_saikyo.py`: `totals_data()`（`player_divisions()` の値。規定に届かない通過率は入れない）を `totals` に書く
+- `workers/ask/src/query.mjs`: `yearlyPlayer()`（最強戦だけの型）が `totals: data.totals[name]` を添える（年度で絞っても通算）。`data.totals` の無い大会には付けない
+- `workers/ask/src/ask.mjs`: `answerInput()` が `totals` をそのまま渡す（持つのは最強戦の player だけ）。`ANSWER_LINES.saikyo` に「player の count は卓の行の数(対局数)で、出場の回数ではない。回数は totals の値をそのまま書く」を足した
+- テスト: `scripts/tests/test_saikyo_menu.py` に `totals` と部門別のタブが同じであること（1本）。`workers/ask/test/saikyo.test.mjs` に、player の totals（年度で絞っても同じ、鳳凰戦の player には付かない）と2回目の指示の行・渡す totals（2本）。足した2本は直す前の `src/`（origin/cloudflare）では落ちることを確かめた
+- 生成し直し: `regenerate-page.yml`（ask_data_saikyo、run 40192633513）が 5c9a88309 を書いた。`data-saikyo.json` は `totals` のキーが足されただけ（ほかのキーは同じ。438名）
+- 確かめ: `node --test 'workers/ask/test/*.test.mjs'` 96件 pass（ほかの大会の player・同率のテストも通る）。`python3 -m unittest discover -s scripts/tests` OK。check（saikyo_pages・ask_data_saikyo、run 40192755679、5c9a88309）success
+- ローカルの確かめ（セッションに Anthropic の鍵が無いので、答えの文ではなく渡す結果を見た）:
+  - 瀬戸熊直樹: totals 出場 16回・対局数 36回・最強位 2回・ファイナル 9回（ランキング「出場」1位 16回・「対局数」2位 36回・「最強位」2位 2回・「ファイナル」1位 9回、名前の下の行「16回出場（2022・2021最強位）」と合う）。count は 36（卓の行）
+  - 佐々木寿人: totals 出場 16回・対局数 38回・最強位 0回・ファイナル 5回（ランキング「出場」1位 16回・「対局数」1位 38回・「ファイナル」6位 5回、名前の下の行「16回出場（ファイナル 5回）」と合う）
+
+### 手順3: マージ前の差分（origin/cloudflare...HEAD、10ファイル）
+
+| 種類 | ファイル |
+|---|---|
+| Worker のコード・テスト | `workers/ask/src/ask.mjs`・`workers/ask/src/query.mjs`・`workers/ask/test/saikyo.test.mjs` |
+| Worker のデータ | `workers/ask/data-saikyo.json`（`totals` を足した） |
+| 生成スクリプト・テスト | `scripts/generate_ask_data_saikyo.py`・`scripts/tests/test_saikyo_menu.py` |
+| docs | `docs/notes/ask-worker.md`・`docs/decisions/saikyo.md`・`docs/logs/CHAT-1024-SKP-10.md`・このログ |
+
+ページ（saikyo/ ほか）は変わらない。
+
 ## 報告
 
 - 状態: 作業中
@@ -66,12 +104,12 @@ CHAT-1024-SKP-10 の本番の5問のうち、Q5「瀬戸熊直樹の最強戦の
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj c3043598）: https://github.com/retroeater/mj-logs/tree/main/guide/c3043598
+ガイド文書（この版を写した時点の最新、mj baa438f6）: https://github.com/retroeater/mj-logs/tree/main/guide/baa438f6
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c3043598/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c3043598/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c3043598/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c3043598/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c3043598/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c3043598/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/baa438f6/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/baa438f6/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/baa438f6/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/baa438f6/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/baa438f6/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/baa438f6/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/c3043598.md

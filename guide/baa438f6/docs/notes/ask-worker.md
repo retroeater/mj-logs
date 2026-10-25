@@ -45,6 +45,8 @@ houou/ のトップで鳳凰戦のデータに言葉で質問できる欄。決�
 - `scripts/generate_ask_data_saikyo.py`（`ask_data_saikyo`）が `workers/ask/data-saikyo.json` を書く。最強戦のページと同じ読み方・同じ集計（ランキングは `generate_saikyo_pages.py` の `build_division_rankings()`）。対象は全出場者。読み・入会期は名簿にいる在籍者だけ
 - 期ではなく年度で数える大会なので、`contest.yearly` が真。`query.mjs` は term・from・to を年度（上限 9999）として読み、型 `player` は年度ごとの卓と結果（`yearlyPlayer()`）、最強戦だけの型 `year`（ある年度の対局と勝ち上がり者、`yearMatches()`）を使う。型は champions・final・player・year・ranking（`contest.types`）。リーグ・前期後期は無い（1回目の出力の形の league は null だけ）。決勝は `FINAL_MATCH_NAME` の決勝の卓
 - 指示は `ask.mjs` の `SAIKYO_PLAN_SYSTEM`（部門は `SAIKYO_DIVISIONS`）と、最後に足す `saikyoLines()`（「現最強位」は決勝のある最新の年度、「今年」は対局のある最新の年度）。2回目は「日本プロ麻雀連盟の」を付けない（連盟の大会ではないため）。記録の型は「saikyo:champions」の形
+- 最強戦だけ渡す結果を足す（2026-10-24、CHAT-1024-SKP-10。本番の5問で、年度で絞った最強位を「1回」、渡さなかった人数〈others〉を「ほかに2人」、3人まで渡した同率を全員と書いたため）: champions の各人に通算の回数 `total`（年度で絞っても通算）、ランキングの同率 `tie.names` は `YEARLY_TIE_NAMES`（10人）まで渡し、超えた人数を `tie.others`。2回目の指示（`ANSWER_LINES.saikyo`）に total・others・tie.others の読み方を書く。ほかの大会の結果は変えない（同率の名前は `TIE_NAMES` の3人のまま）
+- 選手の成績（player）には、部門ごとの通算の値 `totals`（`data-saikyo.json` の `totals`。`generate_ask_data_saikyo.py` の `totals_data()` が個人成績の部門別のタブと同じ値で書く。規定に届かない通過率は入れない）を添える。`count` は卓の行の数（対局数）なので、2回目の指示で「出場の回数ではない。回数は totals を書く」とする（2026-10-25、CHAT-1025-SKP-11。「出場は36回」と答えたため）
 - 出典の名前は、歴代最強位（champions）が「麻雀最強戦 歴代最強位」、決勝（final）が「麻雀最強戦<年度> 決勝結果」。player の結果は個人成績と同じ（ファイナルの決勝の通過は「最強位」、ほかの決勝の通過は「優勝」）
 - 新しいトップの質問欄（段1 は仮の URL `/saikyo/next/`）が `contest: "saikyo"` を添える。Worker の変更はマージで本番に入るが、この問いを送るのは noindex の仮のトップだけ（公開まで辿れない）。work/ ブランチのプレビューからは `/api/ask` に届かない（`ALLOWED_ORIGIN` が本番のため）ので、本番の質問欄での試しは公開の前の指示で行う
 - テストは `workers/ask/test/saikyo.test.mjs`
