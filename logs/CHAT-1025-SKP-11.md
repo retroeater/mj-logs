@@ -88,28 +88,50 @@ CHAT-1024-SKP-10 の本番の5問のうち、Q5「瀬戸熊直樹の最強戦の
 
 ページ（saikyo/ ほか）は変わらない。
 
+### 手順3: マージと本番の2問
+
+- マージ: `git push origin work/1024-skp-ask:cloudflare`（c30435985..baa438f60。push 直前に origin/cloudflare が HEAD の祖先であることを確かめた）
+- baa438f60 の check-run: 「Workers Builds: mj-ask」「Workers Builds: mj」「regenerate」success、「notify」skipped。マージの push の再生成は生成のコミットを作らなかった（cloudflare に後続のコミットが無い）
+- 本番の2問（2026-10-25、`contest: "saikyo"`、各1回。2問とも 200・`status: answered`、残りは9）。カードは答えの文を `saikyo/ask-players.json` に当てた計算
+
+**「瀬戸熊直樹の最強戦の成績は？」** — 合う
+- 答え: 「瀬戸熊直樹さんの最強戦の通算成績は、出場16回、最強位2回です。ファイナルトーナメントは9回、予選優勝は5回、予選通過は14回で、連続出場は16回となっています。」
+- 出典: 瀬戸熊直樹の成績（/saikyo/players/?name=瀬戸熊直樹）。時点: 麻雀最強戦 2026年10月18日の対局まで
+- カード: 瀬戸熊直樹「16回出場（2022・2021最強位）」
+- 突き合わせ: 出場 16回（名前の下の行・ランキング「出場」）、最強位 2回、ファイナル 9回（ランキング「ファイナル」1位）、予選優勝 5回（「予選優勝」2位）、予選通過 14回（「予選通過」2位）、連続出場 16回 とも合う。「ファイナルトーナメントは9回」は部門「ファイナル」（ファイナルに出た年度の数）の言い換え
+
+**「佐々木寿人の最強戦の成績は？」** — 合う
+- 答え: 「佐々木寿人さんは2011年度から2026年度までの最強戦に16回出場しています。通算では予選優勝3回、ファイナル5回、最強位は0回です。」
+- 出典: 佐々木寿人の成績（/saikyo/players/?name=佐々木寿人）
+- カード: 佐々木寿人「16回出場（ファイナル 5回）」
+- 突き合わせ: 出場 16回（2011〜2026 の16年度。連続出場 16回と同じ）、予選優勝 3回（「予選優勝」5位）、ファイナル 5回（「ファイナル」6位）、最強位 なし とも合う
+
+- docs/notes/ask-worker.md「本番で送る固定の問い」の大会ごとの表に、最強戦の5問（SKP-07 の5問）と見込みを足した（コミットはこのログと同じ）
+- #626・#627 にマージと本番の結果をコメントした
+- 作業ブランチの片付け: work/1024-skp-ask は削除しない。docs/notes/branch-operations.md「ブランチを削除するとき」はローカルの削除の手順で、ローカルのブランチはコンテナとともに消える。リモートの work/1024-skp-ask は残す（先頭はこのログの最後のコミット。マージ済み）
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1024-skp-ask
+- 状態: 完了
+- ブランチ: work/1024-skp-ask（cloudflare にマージ済み）
 - ログ: docs/logs/CHAT-1025-SKP-11.md
 - 比較URL: なし
-- 確認用URL: なし
-- マージ: なし
-- issue: なし
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 確認用URL: なし（ページは変わらない。本番の質問欄は未公開の /saikyo/next/）
+- マージ: cloudflare にマージ済み（c30435985..baa438f60）。Workers Builds の mj・mj-ask とも success
+- issue: #626・#627 に着手中と、マージ・本番の結果のコメント
+- 判断が必要なこと: なし（CHAT-1024-SKP-07 の5問はすべて合うので、告知動画は次の指示で撮れる）
+- 未確認の項目: カードは名簿からの計算で、本番の画面では見ていない
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj baa438f6）: https://github.com/retroeater/mj-logs/tree/main/guide/baa438f6
+ガイド文書（この版を写した時点の最新、mj 0d1ef6e5）: https://github.com/retroeater/mj-logs/tree/main/guide/0d1ef6e5
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/baa438f6/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/baa438f6/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/baa438f6/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/baa438f6/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/baa438f6/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/baa438f6/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/0d1ef6e5/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/0d1ef6e5/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/0d1ef6e5/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/0d1ef6e5/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/0d1ef6e5/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/0d1ef6e5/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/c3043598.md

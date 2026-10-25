@@ -27,7 +27,7 @@
 | [saikyo.md](saikyo.md) | 最強戦（saikyo/、選手写真のリンク切れ #499 系） |
 | [security.md](security.md) | セキュリティ（点検・診断・道具・Security Guidance プラグイン、#598 系） |
 | [seo-bing.md](seo-bing.md) | SEO・Bing（Bing Webmaster Tools・Search Console・title・h1・description・OGP 画像、#126・#486・#5・#457・#581 系） |
-| [site-review.md](site-review.md) | サイト全体の横断レビューと DESIGN.md（#296 の要件の洗い出し） |
+| [site-review.md](site-review.md) | サイト全体の横断レビューと DESIGN.md（#296 の要件の洗い出し）、サイト全体の共有ボタンの見直し（#530） |
 | [study.md](study.md) | 女流勉強会（一覧 /study/・各話 study/、帰り道と同じ形、#575 系） |
 | [exam.md](exam.md) | プロテスト（一覧 /exam/・各話 exam/、女流勉強会と同じ形、旧 jpml_test.html の動画、#612 系） |
 | [title.md](title.md) | タイトル戦（title/、「タイトル」タブのデータ・公開後の残件、#222 系） |

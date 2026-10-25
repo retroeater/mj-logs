@@ -101,3 +101,19 @@
 
 - 動画の一覧4ページ（/mtsuku/・/exam/・/wayhome/・/study/）から VideoObject を外す。ItemList は残す（案 A。2026-10-20〈CHAT-1020-MRA-03〉の「一覧ページから動画の構造化データを外す。一覧ページにプレーヤーは埋め込まない」を4ページに広げる。#620。未マージ）
 - 作業中の回答: なし
+
+## 2026-10-24（CHAT-1024-VOD-02）
+
+- work/1024-vod（動画の一覧4ページから VideoObject を外す）を cloudflare にマージしてよい（CHAT-1024-VOD-01 の報告を読んだうえでの承認）
+- 各話のページ（#629）は案 b「各話からも VideoObject を外す」にする（作業は CHAT-1024-VOD-03。未実装）
+- 作業中の回答: なし
+
+## 2026-10-24（CHAT-1024-VOD-03）
+
+- 動画の各話のページ（mtsuku・exam・wayhome・study）からも VideoObject を外す。プレーヤーは埋め込まない（#629 の案 b。BreadcrumbList・og:type〈video.other〉・og:video は残す。未マージ）
+- 作業中の回答: なし
+
+## 2026-10-25（CHAT-1025-VOD-04）
+
+- work/1024-vod（動画の各話ページから VideoObject を外す、#629）を cloudflare にマージしてよい（CHAT-1024-VOD-03 の報告を読んだうえでの承認）
+- 作業中の回答: なし

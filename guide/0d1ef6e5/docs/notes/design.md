@@ -87,7 +87,7 @@
 
 | 部品 | 決まっていること | 出典 |
 |---|---|---|
-| 共有ボタン | 丸（44×44px、`border-radius:50%`、透明地）が絞り込み欄の右と最強戦の帯（帰り道のヒーローの形は #530 で外した）。トーストは `rgba(20,20,20,.92)`・角丸 6px・2秒程度。部品は `scripts/lib/share.py`・`assets/share.js`・`style.css` | `style.css:1035-1096`、`docs/new-site-design.md` §12「共有ボタン」、#409・#191 |
+| 共有ボタン | 丸（44×44px、`border-radius:50%`、透明地）が live/ の絞り込み欄の右（帰り道・最強戦からは #530、title/ からは #277 で外した）。トーストは `rgba(20,20,20,.92)`・角丸 6px・2秒程度。部品は `scripts/lib/share.py`・`assets/share.js`・`style.css`。部品は #362 のマージで live/ から外れた後に消す（#530） | `style.css:1035-1096`、`docs/new-site-design.md` §12「共有ボタン」、#409・#191 |
 | ボタン（動画系） | 角丸 6px、`min-height:44px`、文字 0.9rem・600。主ボタンは白地 `#1a1a1a`、副ボタンは `rgba(0,0,0,.3)` 地＋`rgba(255,255,255,.7)` 枠 | `style.css:999-1034` |
 | 最強戦の見た目 | Material Design 3 寄り。影 elev-1/2/3、角丸 12px／8px、8px グリッド。本文 `#212529`・リンク `#14459b` は共通のまま。**今の年度ページ・トップ（と写真カードを共有する卓のページ・live/）の値** | `style.css:1542-1544`・`1572-1574`、`docs/notes/saikyo-page-design.md`（SK-09） |
 | 最強戦の対局のまとまり | `1px #a8adb3`・角丸 12px・間隔 24px（今の年度ページ） | `style.css:1575-1646`（SK-31） |
