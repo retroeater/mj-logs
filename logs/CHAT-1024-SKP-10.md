@@ -150,7 +150,7 @@ CHAT-1024-SKP-07 は、本番の質問欄の5問のうち3問の答えに誤り�
 
 ## 報告
 
-- 状態: 中断（判断待ち。マージ後の本番の5問のうち Q5 が食い違った）
+- 状態: 中断（判断待ち。マージ後の本番の5問のうち Q5 が食い違った） / 続き: CHAT-1025-SKP-11
 - ブランチ: work/1024-skp-ask（cloudflare にマージ済み）
 - ログ: docs/logs/CHAT-1024-SKP-10.md
 - 比較URL: なし
@@ -164,12 +164,12 @@ CHAT-1024-SKP-07 は、本番の質問欄の5問のうち3問の答えに誤り�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 96fdc103）: https://github.com/retroeater/mj-logs/tree/main/guide/96fdc103
+ガイド文書（この版を写した時点の最新、mj c3043598）: https://github.com/retroeater/mj-logs/tree/main/guide/c3043598
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/96fdc103/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/96fdc103/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/96fdc103/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/96fdc103/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/96fdc103/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/96fdc103/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/066dfde6.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c3043598/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c3043598/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c3043598/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c3043598/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c3043598/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c3043598/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/c3043598.md
