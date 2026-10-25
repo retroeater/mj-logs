@@ -134,12 +134,12 @@ notice | "The ubuntu-latest label will migrate to Ubuntu 26 beginning October 19
 
 ## 報告
 
-- 状態: 判断待ち（マージは作業ブランチの手動実行の結果を見て平野さんが決める）
-- ブランチ: work/1025-skv（未マージ）
+- 状態: 判断待ち（マージは作業ブランチの手動実行の結果を見て平野さんが決める） / 続き: CHAT-1025-SKV-09
+- ブランチ: work/1025-skv（CHAT-1025-SKV-09 で cloudflare にマージ済み）
 - ログ: docs/logs/CHAT-1025-SKV-08.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1025-skv
 - 確認用URL: なし（ページは変わらない）
-- マージ: なし（冒頭の「マージ:」の行のとおり）
+- マージ: CHAT-1025-SKV-09 で cloudflare にマージした（070c0aa98..1814645ea）
 - issue: #572 の題・ラベル・本文を直した
 - 判断が必要なこと: work/1025-skv（`regenerate-saikyo.yml`・`update_abema_book.py`・`lib/abema_book.py`・テスト・docs）を cloudflare へマージするか。手動実行（run 40144694342）で注釈「新しい回: 無し（既にある回 68-38_s26_p27 200、p28 404・…・p33 404）」が check-run の annotations の API で読めた。#572 の本文の「注釈は…マージの後の運行から」は、マージしたら次の土曜（2026-10-31）から当たる
 - 未確認の項目: 予約の起動の道筋（土曜でない日の注釈・#572 へのコメント）は、マージ後の運行でしか通らない。知らせる経路が初めて動くのは新しい回が出たとき（チャット側の 2026-11-07 の予定）
@@ -148,12 +148,12 @@ notice | "The ubuntu-latest label will migrate to Ubuntu 26 beginning October 19
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 96fdc103）: https://github.com/retroeater/mj-logs/tree/main/guide/96fdc103
+ガイド文書（この版を写した時点の最新、mj 1814645e）: https://github.com/retroeater/mj-logs/tree/main/guide/1814645e
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/96fdc103/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/96fdc103/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/96fdc103/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/96fdc103/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/96fdc103/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/96fdc103/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/1814645e/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/1814645e/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/1814645e/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/1814645e/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/1814645e/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/1814645e/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/070c0aa9.md
