@@ -561,7 +561,7 @@
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1026-UBU-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1026-ubu
 - 確認用URL: なし
-- マージ: 済（SHA は追いの push で書く）
+- マージ: 済（7c9a53bb9）
 - issue: #538（コメントのみ）
 - 判断が必要なこと:
   - Ubuntu 26.04 で動いたジョブは0件（2026-10-25T23:37Z 開始のジョブまでの403件すべて 24.04）。次の確認の時期の案: 2026-11-09 ごろ（移行は11月中に終わる見込み）
