@@ -182,7 +182,7 @@
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1026-AIC-08
 - ブランチ: work/1019-aic
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1019-AIC-07.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1019-aic
@@ -192,19 +192,19 @@
 - 判断が必要なこと:
   - D1 の `mj-ask` の Console で次を実行し、2026-10-19 15:53〜15:55 JST の10行に `answer`・`args` が入っているか見てほしい（「堀」「本田さんの成績は？」は `result` が `candidates`、`args` は `{"name":"堀"}` の形。ほかは `answered`）: `SELECT id, asked_at, question, result, type, answer, args FROM questions WHERE asked_at >= '2026-10-19T15:50:00+09:00' ORDER BY id;`
 - 未確認の項目:
-  - D1 の `answer`・`args` に入ったか（上の SQL）
-  - 次の週次の書き出し（2026-10-26（月）9:00 JST）で、ブックの見出しが6列（日時・質問文・結果・型・答え・引数）に書き直され、2026-10-19 以降の行に「答え」「引数」が入るか
+  - D1 の `answer`・`args` に入ったか（上の SQL） → 済: 2026-10-19 に平野さんが D1 の Console で確認（CHAT-1026-AIC-08 の決定）
+  - 次の週次の書き出し（2026-10-26（月）9:00 JST）で、ブックの見出しが6列（日時・質問文・結果・型・答え・引数）に書き直され、2026-10-19 以降の行に「答え」「引数」が入るか → 済: 2026-10-26 9:00 の書き出しで見出しが6列になり、10/19 以降の行に「答え」「引数」が入った（平野さんのスクリーンショットと CSV、CHAT-1026-AIC-08 の決定）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 10e55a48）: https://github.com/retroeater/mj-logs/tree/main/guide/10e55a48
+ガイド文書（この版を写した時点の最新、mj 9ca2970d）: https://github.com/retroeater/mj-logs/tree/main/guide/9ca2970d
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/10e55a48/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/10e55a48/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/10e55a48/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/10e55a48/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/10e55a48/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/10e55a48/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/10e55a48.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9ca2970d/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9ca2970d/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9ca2970d/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9ca2970d/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9ca2970d/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9ca2970d/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/9ca2970d.md
