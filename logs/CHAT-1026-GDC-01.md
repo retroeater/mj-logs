@@ -85,6 +85,9 @@ CLAUDE.md・docs/notes/ の記述が今のコードと食い違っていると�
 - docs/decisions/operations.md に「2026-10-26（CHAT-1026-GDC-01）」を足した（出典の URL・知見の要点・文面と置き場所の決定）。README の分け方で「運用（チャット側と Claude Code のやり取り・指示文の書き方）」が合う
 - 追記はシェルの引用符付きヒアドキュメント（`<<'EOF'`、展開なし）で行った。CLAUDE.md「コミットのルール」はファイルの文章を Write / Edit で書くとしているため、手段として外れた（内容は展開されておらず、`tail` で確かめた）
 
+### マージ
+- push 直前の fetch で origin/cloudflare が f9a809f1d（CHAT-1026-AIC-09）へ進んでいたため `git merge origin/cloudflare` で取り込んだ（衝突なし。取り込み後の差分は CLAUDE.md・docs/decisions/operations.md・本ログの3ファイルだけ）。再 fetch して `git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめ、`git push origin work/1026-gdc:cloudflare`（f9a809f1d..19774e9ad）
+
 ## 報告
 
 - 状態: 完了
@@ -92,7 +95,7 @@ CLAUDE.md・docs/notes/ の記述が今のコードと食い違っていると�
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1026-GDC-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1026-gdc
 - 確認用URL: なし
-- マージ: 済（cloudflare へ fast-forward。SHA は直後の追いの push で書く）
+- マージ: 済（19774e9ad。origin/cloudflare〈AIC-09 のマージ f9a809f1d〉を作業ブランチに取り込んだマージコミットで、cloudflare へ fast-forward）
 - issue: なし
 - 判断が必要なこと: なし
 - 未確認の項目: なし
@@ -101,12 +104,12 @@ CLAUDE.md・docs/notes/ の記述が今のコードと食い違っていると�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj f9a809f1）: https://github.com/retroeater/mj-logs/tree/main/guide/f9a809f1
+ガイド文書（この版を写した時点の最新、mj 99920159）: https://github.com/retroeater/mj-logs/tree/main/guide/99920159
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f9a809f1/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f9a809f1/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f9a809f1/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f9a809f1/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f9a809f1/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f9a809f1/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/99920159/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/99920159/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/99920159/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/99920159/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/99920159/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/99920159/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/f9a809f1.md

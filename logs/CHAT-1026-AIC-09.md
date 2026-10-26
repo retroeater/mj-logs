@@ -86,15 +86,49 @@ AIC-08 の「判断が必要なこと」への回答。
 - `node --test 'workers/ask/test/*.test.mjs'` 109件通過、`python3 -m unittest discover -s scripts/tests` 通過
 - docs/notes/ask-worker.md の byTimes の説明に、渡すのは回数の語のある問いだけと書いた
 
+### 2. マージと本番
+
+- push の直前に再 fetch し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめて `git push origin work/1026-aic:cloudflare`（2cd2cffc0..f9a809f1d）
+- check-run（f9a809f1d）: Workers Builds: mj-ask success（02:35:54Z、Version 0afae878）、Workers Builds: mj success（02:35:39Z）、check success、notify は skipped
+- `/api/ask/status` → `{"status":"open","remaining":10,"max":200}`（出口の IP が AIC-08 の時と違った）
+
+本番の6問（2026-10-26 02:36:24〜02:36:45 UTC、指示の順。すべて answered、上限には当たらなかった）:
+
+| 問い | 答え（要旨） | AIC-08 との違い |
+|---|---|---|
+| 第1期から第10期の鳳凰位は？ | 6人。島田昭（第1・4期）・安藤満（第2・5・6・10期）・ロッキー堀江・椎名大介・荒正義・伊藤優孝 | 聞いていない「回数が最多なのは…」が付かなくなった |
+| 鳳凰位になった人は全部で何人？ | 23人。直近に獲った10人（白鳥翔から）と「ほか13人」 | 回数の段の代わりに、固定の問いの見る点どおりの形に戻った。「上位」とは書かない |
+| 鳳凰位戴冠回数が最多なのは？ | 安藤満・前原雄大の4回。次いで3回は古川孝次・阿部孝則・瀬戸熊直樹・佐々木寿人の4人 | 同じ（AIC-08 の直しが崩れていない） |
+| 現在の鳳凰位は？ | 白鳥翔。「鳳凰位になったのは第42期」 | 同じ（第41期は出ない。989d8f383 からの動き） |
+| 通算得点の上位15人は？ | 10人・ほか5人・全15人 | 「ほか5人が並んでいます」と同率のような言い方になった（事実は正しい。直していない） |
+| 白鳥翔の第40期の成績は？ | A2 1位・昇級・278.8 | 同じ |
+
+- #586 に結果をコメントし、着手中を解除した
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1026-aic
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1026-AIC-09.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1026-aic
+- 確認用URL: なし（画面は変えていない。本番の `/api/ask` へ6問送って確かめた）
+- マージ: 済（f9a809f1d。2cd2cffc0..f9a809f1d）
+- issue: #586（着手中と結果をコメント）
+- 判断が必要なこと:
+  - HTTP 403 の手がかり（平野さんが Observability で見る、失敗の時刻の行と拠点）の結果を、次の指示で渡してほしい（AIC-08 の決定のとおり。placement はそれを見て決める）
+- 未確認の項目:
+  - 次の週次の書き出し（2026-11-02（月）9:00 JST）で、呼び出しの失敗があれば「答え」に応答の本文（error.type・message・request-id）と拠点（colo・国）が入るか。結果「ほかの大会を案内した」が入るか（AIC-08 から写した）
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj f9a809f1）: https://github.com/retroeater/mj-logs/tree/main/guide/f9a809f1
+ガイド文書（この版を写した時点の最新、mj 99920159）: https://github.com/retroeater/mj-logs/tree/main/guide/99920159
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f9a809f1/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f9a809f1/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f9a809f1/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f9a809f1/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f9a809f1/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f9a809f1/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/99920159/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/99920159/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/99920159/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/99920159/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/99920159/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/99920159/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/f9a809f1.md
