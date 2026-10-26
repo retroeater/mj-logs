@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-26 20:31 JST
+- 書き出した時刻: 2026-10-26 20:33 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -134,13 +134,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-26 20:32 | workflow_dispatch | work/1018-log-367-migrate | in_progress | #26（40315875143） |  |
+| 2026-10-26 20:31 | workflow_dispatch | work/1018-log-367-migrate | success | #25（40315758475） | 0分29秒 |
+| 2026-10-26 20:30 | workflow_dispatch | work/1018-log-367-migrate | success | #24（40315645976） | 0分30秒 |
 | 2026-10-21 12:28 | workflow_dispatch | cloudflare | success | #23（39538794735） | 0分28秒 |
 | 2026-10-21 10:53 | workflow_dispatch | work/1018-log-367-migrate | success | #22（39529855218） | 3分59秒 |
-| 2026-10-21 10:18 | workflow_dispatch | work/1018-log-367-migrate | success | #21（39526586569） | 33分35秒 |
-| 2026-10-21 09:51 | workflow_dispatch | work/1018-log-367-migrate | failure | #20（39523831303） | 26分36秒 |
-| 2026-10-21 09:14 | workflow_dispatch | work/1018-log-367-migrate | success | #19（39520139651） | 35分56秒 |
-
-- #20 failure: ジョブ「convert」 ステップ「実行」
 
 ## fetch-gsc.yml
 
