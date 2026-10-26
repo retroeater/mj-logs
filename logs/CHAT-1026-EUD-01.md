@@ -50,15 +50,47 @@
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+- 着手前の確認: 同じ Chat-Ref・`EUD` のコミット／ログは全ブランチに無し。`work/1026-eud` はローカル・リモートとも無く、origin/cloudflare（1467b6ddb 時点）から作成。指示欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）の欠けは無し
+- 手順1の生成物調べ: `git grep -l 'uploadDate' origin/cloudflare -- '*.html'` は **0件**。`uploadDate` を含むのは docs（11件）と scripts（3件。コメント・docstring のみ）だけ
+
+  | 系統 | 日付だけの uploadDate を出すページ | 件数 |
+  |---|---|---|
+  | exam/ | なし（VideoObject 自体が無い） | 0 |
+  | study/ | なし（同上） | 0 |
+  | mtsuku/ | なし（同上） | 0 |
+  | wayhome/ | なし（同上） | 0 |
+
+- 理由: 一覧4ページの VideoObject は #620（4bc070eb5、2026-10-23）、各話は #629（3d9491f76、2026-10-25）で外されている。`scripts/generate_exam.py`・`generate_study.py` の `build_json_ld()` は ItemList のみ、`generate_exam_episodes.py`・`generate_study_episodes.py` は BreadcrumbList のみ（docstring「VideoObject は置かない(#629)」）。docs/notes/video-exam.md・video-study.md の「構造化データ」の行も同じ
+- 本番（`?v=` 付き、2026-10-26）: `https://ryoei.pro/exam/` は ItemList＋ListItem 12、`/exam/-PoeE0Bm2sE.html` は BreadcrumbList、`/study/` は ItemList＋ListItem 40、`/study/rrBlY_X4lFA.html` は BreadcrumbList。どれも `uploadDate`・`VideoObject` を含まない
+- 判断: 指示文の前提（/exam/ に日付だけの uploadDate が残る）が実物と食い違う。Search Console の結果は #620 のデプロイ（2026-10-23）より前のクロールを見ていると見られる（ここからは検証できない）。CLAUDE.md「Chat-Ref」の #319 の規則により、起票・実装・マージをせず中断した。#629 は closed、#620 は open
+- docs/decisions/exam.md・study.md に、決定と未実施の旨を足した
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1026-eud
+- ログ: https://github.com/retroeater/mj/blob/work/1026-eud/docs/logs/CHAT-1026-EUD-01.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1026-eud
+- 確認用URL: なし
+- マージ: 未（前提が崩れたため中断。差分はログと docs/decisions のみ）
+- issue: なし（起票していない。参照: #620 open、#629 closed）
+- 判断が必要なこと:
+  - /exam/・/study/ は #620・#629 で VideoObject を外し済みで、origin/cloudflare の生成物にも本番にも `uploadDate` が無い（`## 経過`）。直すものが無いため、この指示を取り下げるか決めてほしい。Search Console の指摘は古いクロールの可能性が高く、平野さんが URL 検査で「公開 URL をテスト」または再クロールを依頼して消えるかを見るのが次の一手の案
+  - 作業ブランチ work/1026-eud（ログと docs/decisions の追記のみ）をマージするか
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 0d1ef6e5）: https://github.com/retroeater/mj-logs/tree/main/guide/0d1ef6e5
+ガイド文書（この版を写した時点の最新、mj f611ccc8）: https://github.com/retroeater/mj-logs/tree/main/guide/f611ccc8
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/0d1ef6e5/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/0d1ef6e5/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/0d1ef6e5/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/0d1ef6e5/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/0d1ef6e5/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/0d1ef6e5/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f611ccc8/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f611ccc8/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f611ccc8/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f611ccc8/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f611ccc8/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f611ccc8/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/bdf27d95.md
