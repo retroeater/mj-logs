@@ -46,6 +46,21 @@
 
 ## 経過
 
+- Chat-Ref の重複確認（`git fetch --unshallow` 後、`git log --all -E --grep 'CHAT-[0-9]{4}-UBU-'`・docs/logs の履歴）: 該当なし
+- work/1026-ubu はローカル・リモートとも無し → `git checkout -b work/1026-ubu origin/cloudflare`（bdf27d95b）
+- 0章: 「指示」欄の末尾は指示文の最後の行（「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」）と一致
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある
+- 手順1: #538 は open。最後のコメントは CHAT-1020-MRA-01（2026-10-20T00:13:39Z）で前提と一致。2026-10-20 より後の着手中のコメントは無い。
+  着手中のコメントを書いた（https://github.com/retroeater/mj/issues/538#issuecomment-6405277660 ）
+- 対象の run: `GET /repos/retroeater/mj/actions/runs?created=>=2026-10-19T23:43:00Z`（`page` を手で回した。`gh api --paginate` は次ページの URL が
+  `repositories/<id>/...` になりプロキシに拒否される）で445件。うち run 39343294432（2026-10-19T23:43:14Z 開始、CHAT-1020-MRA-01 の最後の run）を除く444件が対象。
+  skipped 169件、skipped でないもの275件（success 261・failure 14）。ジョブは skipped でない run の275件から `filter=all` で437件、skipped でないもの403件。
+  いずれもチャット側の数（444・275・約403）と一致。failure の run 14件も前提の一覧と一致
+- ジョブのログ: `gh api .../actions/jobs/<id>/logs` は `productionresultssa13.blob.core.windows.net` へのリダイレクトがプロキシに拒否される（Forbidden、
+  proxy status に `connect_rejected`）。GitHub MCP の `get_job_logs`（`return_content`）では読めた（job 118377584004 で確認）。403件をサブエージェント8本に分けて読ませた
+- mj-logs の `sync-from-mj.yml` の run: `gh api repos/retroeater/mj-logs/actions/runs` は「GitHub access to this repository is not enabled for this session」（403）。
+  `add_repo`（read）は「public なので git の読み取りだけ可。API には push の権限で付ける必要がある」と返した。書き込みの権限は付けずに見送った（読めなかった）
+
 ## 報告
 
 - 状態:
@@ -62,12 +77,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 0d1ef6e5）: https://github.com/retroeater/mj-logs/tree/main/guide/0d1ef6e5
+ガイド文書（この版を写した時点の最新、mj 8771a412）: https://github.com/retroeater/mj-logs/tree/main/guide/8771a412
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/0d1ef6e5/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/0d1ef6e5/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/0d1ef6e5/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/0d1ef6e5/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/0d1ef6e5/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/0d1ef6e5/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/8771a412/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/8771a412/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/8771a412/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8771a412/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8771a412/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8771a412/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/bdf27d95.md

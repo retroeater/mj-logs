@@ -50,6 +50,36 @@ CHAT-1025-SKP-12 の告知動画の初版では、対戦成績の対局の記録
 
 ## 経過
 
+### 着手前の確認
+
+- 0章: 指示欄の末尾は指示文の最後の行と一致
+- 同じ Chat-Ref のコミット: なし。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 欠けなし（指示文は改行の無い1行で貼られた。そのまま写した）
+- ブランチ: origin/work/1026-skp-pill が無いため origin/cloudflare（bdf27d95b）から作った
+- 未マージの work/ ブランチで `scripts/generate_saikyo_pages.py`・`assets/saikyo.js`・`style.css` を変えているもの: origin/work/1017-lvp が `style.css`（最強戦の節を含む、155行足し・120行消し）を変えている。この直しは `style.css` を変えないので重ならない（同じファイルの別の箇所に当たらず、止まる条件に当たらない）
+
+### 手順2: ピルの直し（work/1026-skp-pill）
+
+- 判定を `Player` に1つにした: `Player.is_champion_table`（`build_matches()` で「対局名が `FINAL_MATCH_NAME`〈ファイナルトーナメント〉× ステージが決勝」。`find_champions()` と同じ判定）を足し、`Player.label` は決勝の通過を、その卓なら「最強位」（`RESULT_CHAMPION`）、ほかは「優勝」にする。`badge_text`（バッジ・alt）・`result_text`（卓のページの写真の帯）・年度ページの勝ち上がり者の行（`build_winner_rows()`）・対局のページのピル・対戦成績のデータ・今のトップの検索のデータは、どれも `label` から作るので同じ判定で変わる。卓のページの帯は同じ判定（`label`）なので「1位 最強位」になる
+- 新しいページだけに当てていた `champion_pill()` は要らなくなったので消した（`players_data()` の置き換えと `generate_ask_data_saikyo.py` の呼び出し）。新しいページ・質問欄のデータの値は変わらない
+- テスト: `scripts/tests/test_saikyo_menu.py` の `PillTest` を書き直した（label・バッジ・帯の3つ、予選の決勝・ファイナルのほかの卓・「ファイナル 2nd Stage」の決勝は変わらないこと、年度ページ・対局のページの卓・個人成績のデータ・今のトップの検索のデータが「最強位」）。`scripts/tests/test_saikyo_pages.py` のトップの検索のデータのテスト（ファイナルトーナメントの決勝の通過を「優勝」と見ていた1か所）を「最強位」に直した。`python3 -m unittest discover -s scripts/tests` は 1569件 OK
+- 文書: docs/notes/saikyo-page-design.md（年度ページの右端・卓のページの帯・alt・個人成績の年度別の4か所）。docs/decisions/saikyo.md に「2026-10-26（CHAT-1026-SKP-13）」を足した（SKP-02 の決定24の「公開のときにそろえる」を置き換える）
+- 生成し直し: `regenerate-page.yml`（saikyo_pages ask_data_saikyo、run 40248175868、2d38c34a0）が b5996fab1 を書いた（48ファイル）
+
+### 手順2: 差分（生成のコミット b5996fab1）
+
+変わった行は、どれも前の行の「優勝」の一部を「最強位」に替えると後の行と同じになる（47ファイルの全行を機械で突き合わせた。それ以外の変更は0件）。「最強位」に変わった卓は、各年度の「ファイナルトーナメント」の決勝の1卓で **15卓**（2011〜2025年度）。
+
+| ページ | ファイル数 | 1ファイルあたりの「優勝」→「最強位」 | 中身 |
+|---|---|---|---|
+| 卓のページ（決勝の卓。2011〜2019 は `…-s2.html`、2020〜2025 は `…-s1.html`） | 15 | 2 | バッジの alt「（最強位）」と写真の帯「1位 最強位」（または「最強位」） |
+| 対局のページ（ファイナルトーナメント） | 15 | 2 | 決勝の卓の行のピルと alt |
+| 年度のページ（`saikyo/<年度>/index.html`） | 15 | 1 | 勝ち上がり者の行の右端のピル |
+| 今のトップ（`saikyo/index.html`）の検索のデータ | 1 | 15 | 15卓の最強位の行 |
+| 対戦成績（`saikyo/vs/index.html`）のデータ | 1 | 15 | 15卓の最強位の行 |
+| `sitemap-saikyo.xml` | 1 | — | 変わった46ページの lastmod が 2026-10-26（ワークフローの `update_sitemap_lastmod.py`。lastmod の行だけ） |
+
+`workers/ask/data-saikyo.json`・`saikyo/players/`・ランキング・新トップは変わらない（もともと「最強位」）。
+
 ## 報告
 
 - 状態: 作業中
@@ -66,12 +96,12 @@ CHAT-1025-SKP-12 の告知動画の初版では、対戦成績の対局の記録
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 0d1ef6e5）: https://github.com/retroeater/mj-logs/tree/main/guide/0d1ef6e5
+ガイド文書（この版を写した時点の最新、mj 8771a412）: https://github.com/retroeater/mj-logs/tree/main/guide/8771a412
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/0d1ef6e5/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/0d1ef6e5/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/0d1ef6e5/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/0d1ef6e5/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/0d1ef6e5/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/0d1ef6e5/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/8771a412/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/8771a412/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/8771a412/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8771a412/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8771a412/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8771a412/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/bdf27d95.md

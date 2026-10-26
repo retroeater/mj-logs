@@ -37,7 +37,7 @@ SNS ブックの更新・/live の取り込みから呼ばれた再生成では�
 
 ## 紹介文と title/ の期のページ（#173・#553、2026-10-12）
 
-- 紹介文（各話のヒーローの文・meta description・`VideoObject.description` の3か所で同じ文）は自動で組む:
+- 紹介文（各話のヒーローの文・meta description の2か所で同じ文）は自動で組む:
   「日本プロ麻雀連盟「帰り道ついていってイイっすか」。<期の題>を終えた<名前>への密着インタビュー動画です。」。期の題はタイトル列から末尾の「 #N」を外したもの。
   同じ期・同じ選手で番号の付いた回が複数あれば「（全2回の1回目）」を添える（`lib/wayhome.py` の `episode_descriptions()`）
 - **「帰り道」タブの「紹介文（補正用）」列に書いた回は、その文で上書きする。空の回は自動の文。** 自動の文を直したいときは、ページに出ている文を写して直し、この列に書く。
@@ -68,7 +68,8 @@ OGP画像やタイトルを変えたあと X で確認するときは、URLに `
 - 各話の前後のエピソードは、下の「〇〇の他のエピソード」（左ほど新しい）に合わせて、左（DOM の先）に「次のエピソード」（新しい回）、右に「前のエピソード」（古い回）。スマホ幅で縦に積むと上が次。最新話（「前」だけ）は右の列、最古の回（「次」だけ）は左の列に置き、もう片方は空ける（576px 以上で2列の格子。リンクの `is-next`・`is-prev`）。575px 以下は1枚が全幅
 - 方向の文字のすぐ下にその回の公開日（「2026年8月27日」の形、下のカードと同じ書き方・大きさ・色、`.mj-video-prevnext-date`）。
   カードと前後の回の日付は `scripts/lib/wayhome.py` の `published_date_text()` で、Mつく・女流勉強会も同じ。一覧のカードの `data-info` には `2026-08-27` と「2026年8月27日」の両方を入れる（`published_date_search_words()`、live/ と同じ、#592）
-- 各話はページ末尾の説明文（`.mj-lead`）を出さない（ヒーローの紹介文と同じ文のため。`render_content(..., has_lead=False)`）。meta description・og:description・`VideoObject.description` はそのまま
+- 各話はページ末尾の説明文（`.mj-lead`）を出さない（ヒーローの紹介文と同じ文のため。`render_content(..., has_lead=False)`）。meta description・og:description はそのまま
+- 構造化データ（JSON-LD）: 一覧は `ItemList`、各話は `BreadcrumbList` だけ。プレーヤーを埋め込まないので `VideoObject` は一覧（#620）・各話（#629）とも置かない（2026-10-24 の決定、docs/decisions/mtsuku.md）。og:type（video.other）・og:video は残す
 - 一覧の説明文は、上のカードの並び（`.mj-fullbleed`）と同じ左右の余白（`clamp(12px, 3vw, 48px)`）で画面幅に合わせて折り返す（`body:has(.mj-video-list) .mj-lead`）
 
 ### 件数の表示を消し、ヒーローの X・note を X の写真1つにした（2026-10-10）
