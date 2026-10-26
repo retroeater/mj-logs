@@ -106,28 +106,52 @@
 
 シートの変化による差は無かった（年度・対局・卓のページの差はすべて2つの行き先で説明できた）。
 
+### 手順3: マージと本番
+
+- マージ: `git push origin work/1026-skp-pub:cloudflare`（d2b314056..872c20543。push 直前に origin/cloudflare が HEAD の祖先であることを確かめた）
+- 872c20543 の check-run: 「Workers Builds: mj」「regenerate」「sync」success、「notify」skipped。マージの push の再生成は変更なし（cloudflare に後続の生成のコミットが無い）
+- 本番（`?v=872c20543`、2026-10-26 11:15 UTC ごろ）:
+
+| URL | 結果 |
+|---|---|
+| `/saikyo/` | 200・noindex なし。新しいトップ（質問欄 `data-contest="saikyo"`・メニュー4行 `years/`・`players/`・`ranking/champion/`・`vs/`・`saikyo.js` を読む） |
+| `/saikyo/next/` | 404 |
+| `/saikyo/years/`・`/saikyo/players/?name=桑田憲汰`・`/saikyo/ranking/champion/`・`/saikyo/vs/` | 200・noindex なし |
+| `/saikyo/?q=桑田憲汰` | ブラウザ（Chromium、iPhone 13 の幅）で `/saikyo/players/?name=桑田憲汰` へ移る |
+| 個人成績の「対戦成績を見る ›」 | ブラウザで `../vs/?name=桑田憲汰` があり、押すと対戦成績の左に桑田憲汰 |
+| jpml_pros の最強戦の列 | `./saikyo/players/?name=<名前>` |
+| 卓のページ（2025 決勝）の「すべて見る」 | `../players/?name=<名前>` |
+| 年度ページ（2025）の年度の選択の先頭 | `../years/`「歴代最強位」 |
+| `sitemap-saikyo.xml` | `/saikyo/vs/`・`/saikyo/years/`・`/saikyo/players/`・`/saikyo/ranking/<部門>/` がある |
+| `llms.txt` | 最強戦の5行（`/saikyo/`・`years/`・`players/`・`ranking/champion/`・`vs/`） |
+
+- 本番の質問欄（`contest: "saikyo"`）に「2025年度の最強位は？」を1回: 「2025年度の最強位は桑田憲汰さんです。桑田さんの最強位の回数は通算3回です。」（出典 麻雀最強戦 歴代最強位）。今日の残り 8
+- issue: #623 の本文の古い2点（「入口の位置」の `build_vs_entry()` の行と、`VS_PUBLIC` の項目）を公開した形に直し、済んだ項目に印を付けた。#372・#623 に公開したことを書いて閉じた（「状況:」ラベルを外した）。#627 の本文のチェックリストに印を付け、公開したことと残り（#628・#630）を書いて閉じた。#626 も同じく閉じた
+- docs/decisions/saikyo.md に「2026-10-26（CHAT-1026-SKP-14）」を足した
+- 作業ブランチの片付け: work/1026-skp-pub・work/1024-skp-vid は消していない。docs/notes/branch-operations.md「ブランチを削除するとき」はローカルの削除の手順で、ローカルのブランチはコンテナとともに消えるため。どちらも cloudflare にマージ済み
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1026-skp-pub
+- 状態: 完了
+- ブランチ: work/1024-skp-vid・work/1026-skp-pub（どちらも cloudflare にマージ済み）
 - ログ: docs/logs/CHAT-1026-SKP-14.md
 - 比較URL: なし
-- 確認用URL: なし
-- マージ: なし
-- issue: なし
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 確認用URL: https://ryoei.pro/saikyo/?v=872c20543
+- マージ: 動画の制作のスクリプト 7202705d5..d2b314056、公開 d2b314056..872c20543。Workers Builds: mj は success
+- issue: #372・#623・#626・#627 を閉じた（#623・#627 の本文を直した）。残りは #628（名前かな）・#630（順位）
+- 判断が必要なこと: なし（X への投稿は平野さん）
+- 未確認の項目: X・LINE のカード表示、平野さんの実機での見え方、Search Console の再送信（平野さんの作業）。取り込みのマージのコミット 8d1a1e149 は既定のメッセージのまま push した（トレーラ無し、書き換えていない）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 872c2054）: https://github.com/retroeater/mj-logs/tree/main/guide/872c2054
+ガイド文書（この版を写した時点の最新、mj 5fa2b3bd）: https://github.com/retroeater/mj-logs/tree/main/guide/5fa2b3bd
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/872c2054/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/872c2054/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/872c2054/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/872c2054/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/872c2054/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/872c2054/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/5fa2b3bd/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/5fa2b3bd/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/5fa2b3bd/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/5fa2b3bd/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/5fa2b3bd/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/5fa2b3bd/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/f9a809f1.md
