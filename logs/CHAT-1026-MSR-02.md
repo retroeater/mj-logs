@@ -144,6 +144,28 @@ Chat-Ref: CHAT-1026-MSR-02
 - docs/decisions/operations.md に「2026-10-26（CHAT-1026-MSR-02）」として決定の 2026-10-26 の3行を足した（マージに含める）
 - push 直前の再 fetch で origin/cloudflare が3コミット進んでいた（51e9cf8cb。変わったのは docs/decisions/automation.md・docs/logs/CHAT-1026-OHA-14.md・docs/notes/github-actions.md・scripts/morning_report.py・scripts/tests/test_morning_report.py で、この作業のファイルと重ならない）。`git merge origin/cloudflare` で取り込んだ（8bc1d5f77、衝突なし）
 - 取り込んだ後に確かめ直した: テスト全件 OK。origin/cloudflare 51e9cf8cb の直す前の版と作業ブランチの直した後の版で dry-run をやり直し、削除 22→53・通知 148→117・くり返し10回。増えた名前は上の表の31件と同じ集合で、減った名前・説明できない名前は0件（対象外 181/182 は新しいログ OHA-14 と MSR-02 のログの分）。手動実行（run 40252184800）は取り込む前の 94b43cbcb のもので、取り込みで cleanup_logs.py・cleanup-logs.yml は変わっていないため、やり直していない
+- `git push origin work/1026-msr:cloudflare` の直前に再 fetch し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめた。cloudflare 51e9cf8cb..9ca2970dd（fast-forward）
+
+### 手順3: 起票と #513 のクローズ
+
+- 同じ主題の issue（`作業ログ 自動削除率 判断待ち 連鎖 違反` で検索、クローズ済みを含む）と、未マージの work/ ブランチのコミットの件名に同じ目的のものは無かった
+- 起票: #631「作業ログの自動削除率を 80% に近づける追加の手の検討」（ラベルは #513 と同じ「分野: 自動化」「分野: 整理・保守」）。本文は目的・MSR-01 の198件の内訳の表（名前は permalink dbe61c815 で指した）・直した後の dry-run の件数・検討の対象。解決の案は書いていない
+- #513 にマージのコミット（9ca2970dd、実装 94b43cbcb）と #631 を書いたコメントを付けて閉じた（completed）: https://github.com/retroeater/mj/issues/513#issuecomment-6405936043 。#513 に「状況:」ラベルは無かった
+
+## 報告
+
+- 状態: 判断待ち（実装・マージ・起票・#513 のクローズは済み。下の1点が残る）
+- ブランチ: work/1026-msr
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1026-MSR-02.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1026-msr
+- 確認用URL: なし（ページは変えていない。プレビューの確認なしでマージしてよい決定のとおり）
+- マージ: 済（9ca2970dd）
+- issue: #513（クローズ）、#631（起票）
+- 判断が必要なこと:
+  - #357 の本文に「続きが何段も続くときは、続き先が完了・取り下げ・削除済みになった次の実行で消える」が残っていて、案A で古くなった（同じ実行で消える）。本文を直すかは指示に無いので変えていない
+- 未確認の項目:
+  - 次の週次の片付け（2026-11-02、run-weekly.yml の logs と cleanup-logs.yml の schedule の2回）が案A の判定で動くこと（初回の実行）
+- エラー: なし
 
 <!-- guide-links -->
 ---
