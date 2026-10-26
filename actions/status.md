@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-26 20:42 JST
+- 書き出した時刻: 2026-10-26 20:53 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -25,11 +25,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-26 20:51 | push | work/1018-log-367-migrate | success | #444（40318220850） | 0分19秒 |
 | 2026-10-26 20:38 | push | work/1018-log-367-migrate | success | #443（40316515318） | 0分20秒 |
 | 2026-10-26 20:36 | push | work/1018-log-367-migrate | success | #442（40316342401） | 0分25秒 |
 | 2026-10-26 20:28 | push | work/1018-log-367-migrate | success | #441（40315298653） | 0分20秒 |
 | 2026-10-26 20:12 | push | work/1026-skp-pub | success | #440（40313264827） | 0分22秒 |
-| 2026-10-26 20:11 | push | work/1026-skp-pub | success | #439（40313234520） | 0分25秒 |
 
 ## check-build-failure.yml
 
@@ -38,11 +38,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-26 20:52 | check_run | cloudflare | skipped | #581（40318282413） | 0分01秒 |
 | 2026-10-26 20:38 | check_run | cloudflare | skipped | #580（40316574752） | 0分09秒 |
 | 2026-10-26 20:37 | check_run | cloudflare | skipped | #579（40316402356） | 0分01秒 |
 | 2026-10-26 20:28 | check_run | cloudflare | skipped | #578（40315360984） | 0分01秒 |
 | 2026-10-26 20:15 | check_run | cloudflare | skipped | #577（40313731788） | 0分01秒 |
-| 2026-10-26 20:12 | check_run | cloudflare | skipped | #576（40313321370） | 0分01秒 |
 
 ## check-image-links.yml
 
@@ -134,11 +134,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-26 20:52 | workflow_dispatch | work/1018-log-367-migrate | success | #30（40318236225） | 0分25秒 |
 | 2026-10-26 20:38 | workflow_dispatch | work/1018-log-367-migrate | success | #29（40316515379） | 3分48秒 |
 | 2026-10-26 20:36 | workflow_dispatch | work/1018-log-367-migrate | success | #28（40316342939） | 0分29秒 |
 | 2026-10-26 20:33 | workflow_dispatch | work/1018-log-367-migrate | success | #27（40316003311） | 0分33秒 |
 | 2026-10-26 20:32 | workflow_dispatch | work/1018-log-367-migrate | success | #26（40315875143） | 0分28秒 |
-| 2026-10-26 20:31 | workflow_dispatch | work/1018-log-367-migrate | success | #25（40315758475） | 0分29秒 |
 
 ## fetch-gsc.yml
 
@@ -175,11 +175,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-26 20:52 | workflow_dispatch | work/1018-log-367-migrate | success | #16（40318240424） | 0分25秒 |
 | 2026-10-26 20:30 | workflow_dispatch | work/1018-log-367-migrate | success | #15（40315552082） | 0分27秒 |
 | 2026-10-26 20:29 | workflow_dispatch | work/1018-log-367-migrate | success | #14（40315434531） | 0分20秒 |
 | 2026-10-21 12:28 | workflow_dispatch | cloudflare | success | #13（39538792233） | 0分20秒 |
 | 2026-10-18 21:22 | workflow_dispatch | work/1018-sec4 | success | #12（39127017543） | 0分21秒 |
-| 2026-10-18 20:03 | workflow_dispatch | work/1018-log-367-migrate | success | #11（39121728662） | 0分34秒 |
 
 ## fetch-youtube.yml
 
@@ -201,11 +201,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-26 20:52 | workflow_dispatch | work/1018-log-367-migrate | success | #462（40318263281） | 0分32秒 |
 | 2026-10-26 20:15 | push | cloudflare | success | #461（40313661608） | 2分06秒 |
 | 2026-10-26 20:13 | workflow_dispatch | work/1026-skp-pub | success | #460（40313484540） | 0分41秒 |
 | 2026-10-26 20:12 | workflow_dispatch | work/1026-skp-pub | success | #459（40313272234） | 1分12秒 |
 | 2026-10-26 09:13 | push | cloudflare | success | #458（40248336102） | 0分53秒 |
-| 2026-10-26 09:11 | workflow_dispatch | work/1026-skp-pill | success | #457（40248175868） | 1分01秒 |
 
 ## regenerate-saikyo.yml
 
