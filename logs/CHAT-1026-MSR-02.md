@@ -132,15 +132,28 @@ Chat-Ref: CHAT-1026-MSR-02
 
 - CHAT-1018-WRC-11 は直す前は violation（完了だが3項目が「なし」でない）で、続き先 CHAT-1019-WRC-12 が同じ実行で消えるので削除になった（条件4は3項目に関わらない）。このため violation は44→43件
 
+### 手順1: 作業ブランチでの手動実行
+
+- `cleanup-logs.yml` を work/1026-msr（94b43cbcb）で `dry_run=true` で手動実行した: run 40252184800（workflow_dispatch、2026-10-26T01:01:50Z、success）
+- job「cleanup」: 「削除をコミット・push」は skipped。「条件外のログを常設issueに通知」は success で、ログは `[dry-run] #357 にコメントする:` のあとに本文を出しただけ（「通知 117件・削除 53件・① 74件・② 43件」。手元の直した後の dry-run と同じ数）
+- #357 への 2026-10-26T00:30Z 以後のコメントは0件（REST で確かめた）。work/1026-msr に bot のコミットは無い
+- マージの3つの条件（テストがすべて通る／手動実行が success で削除・コメント無し／dry-run の差がすべて同じ実行で消える続き先で説明できる）をすべて満たした。くり返しは10回で、10回を超えていない
+
+### 手順2: マージ
+
+- docs/decisions/operations.md に「2026-10-26（CHAT-1026-MSR-02）」として決定の 2026-10-26 の3行を足した（マージに含める）
+- push 直前の再 fetch で origin/cloudflare が3コミット進んでいた（51e9cf8cb。変わったのは docs/decisions/automation.md・docs/logs/CHAT-1026-OHA-14.md・docs/notes/github-actions.md・scripts/morning_report.py・scripts/tests/test_morning_report.py で、この作業のファイルと重ならない）。`git merge origin/cloudflare` で取り込んだ（8bc1d5f77、衝突なし）
+- 取り込んだ後に確かめ直した: テスト全件 OK。origin/cloudflare 51e9cf8cb の直す前の版と作業ブランチの直した後の版で dry-run をやり直し、削除 22→53・通知 148→117・くり返し10回。増えた名前は上の表の31件と同じ集合で、減った名前・説明できない名前は0件（対象外 181/182 は新しいログ OHA-14 と MSR-02 のログの分）。手動実行（run 40252184800）は取り込む前の 94b43cbcb のもので、取り込みで cleanup_logs.py・cleanup-logs.yml は変わっていないため、やり直していない
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 51e9cf8c）: https://github.com/retroeater/mj-logs/tree/main/guide/51e9cf8c
+ガイド文書（この版を写した時点の最新、mj 9ca2970d）: https://github.com/retroeater/mj-logs/tree/main/guide/9ca2970d
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/51e9cf8c/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/51e9cf8c/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/51e9cf8c/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/51e9cf8c/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/51e9cf8c/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/51e9cf8c/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/bdf27d95.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9ca2970d/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9ca2970d/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9ca2970d/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9ca2970d/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9ca2970d/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9ca2970d/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/9ca2970d.md
