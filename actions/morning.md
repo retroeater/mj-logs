@@ -1,7 +1,7 @@
 # 朝の報告用の異常（retroeater/mj）
 
-- 書き出した時刻: 2026-10-27 04:27 JST（見た範囲: 2026-10-26 02:27 JST から）
-- 書き出した実行の契機: workflow_dispatch（main）
+- 書き出した時刻: 2026-10-27 07:53 JST（見た範囲: 2026-10-26 05:53 JST から）
+- 書き出した実行の契機: schedule（main）
 - 異常だけを書く。全体は actions/status.md。判定は mj の scripts/morning_report.py（各ワークフローの直近 100 回まで）
 
 ## 1. 失敗など（結論が success・skipped 以外。実行中を含む）
