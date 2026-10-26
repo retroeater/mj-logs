@@ -191,7 +191,7 @@ Chat-Ref: CHAT-1026-AIC-08
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1026-AIC-09
 - ブランチ: work/1026-aic
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1026-AIC-08.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1026-aic
@@ -199,10 +199,10 @@ Chat-Ref: CHAT-1026-AIC-08
 - マージ: 済（41a6f99b0。e9f638fc6..41a6f99b0）
 - issue: #586（本文に「2週目の改善」を書き足し、結果をコメント）
 - 判断が必要なこと:
-  - HTTP 403 の直し: `workers/ask/wrangler.jsonc` に `placement`（Smart Placement、または Anthropic の対応地域のクラウドの region を指す Placement Hints）を足すか。Workers は既定で利用者に近い拠点で動き、Anthropic の対応地域に無い香港などに近い利用者の問いがそこから呼ばれる見込み（未確認）。本番の動き（D1 との距離・待ち時間）と費用に関わるので入れていない
-  - 403 の手がかりを見てほしい所: Cloudflare のダッシュボードの `mj-ask` → Observability で、2026-10-19 20:46・10-21 23:54・10-24 13:46 JST ごろの `答えの作成に失敗: …` の行と、その要求の colo・国。Anthropic の Console の Logs で、同じ時刻の 403 の行と理由
-  - 2回目の指示の byTimes（回数の段）の行を「回数を聞かれたときだけ使い、ほかの問いでは書かない」に絞るか。本番で「第1期から第10期の鳳凰位は？」に聞いていない回数が付き、「鳳凰位になった人は全部で何人？」が名前10人と「ほか13人」の代わりに回数の段を挙げた（事実は正しい）。絞るなら、次の指示で固定の5問と一緒に本番で確かめる
-  - D1 の `mj-ask` の Console で次を実行し、今回の10行の `result` と `answer` を見てほしい（「佐々木寿人」は `guided`・型 `jwrc:player`、「菅原」は `candidates`・型 `ouka:player`）: `SELECT id, asked_at, question, result, type, answer, args FROM questions WHERE asked_at >= '2026-10-26T10:17:00+09:00' ORDER BY id;`
+  - HTTP 403 の直し: `workers/ask/wrangler.jsonc` に `placement`（Smart Placement、または Anthropic の対応地域のクラウドの region を指す Placement Hints）を足すか。Workers は既定で利用者に近い拠点で動き、Anthropic の対応地域に無い香港などに近い利用者の問いがそこから呼ばれる見込み（未確認）。本番の動き（D1 との距離・待ち時間）と費用に関わるので入れていない → 回答（2026-10-26、平野さん）: 今は入れない。平野さんが Observability で失敗の時刻の行と拠点を見て、結果はチャット側から次の指示で渡す
+  - 403 の手がかりを見てほしい所: Cloudflare のダッシュボードの `mj-ask` → Observability で、2026-10-19 20:46・10-21 23:54・10-24 13:46 JST ごろの `答えの作成に失敗: …` の行と、その要求の colo・国。Anthropic の Console の Logs で、同じ時刻の 403 の行と理由 → 回答: 上のとおり平野さんが見る
+  - 2回目の指示の byTimes（回数の段）の行を「回数を聞かれたときだけ使い、ほかの問いでは書かない」に絞るか。本番で「第1期から第10期の鳳凰位は？」に聞いていない回数が付き、「鳳凰位になった人は全部で何人？」が名前10人と「ほか13人」の代わりに回数の段を挙げた（事実は正しい）。絞るなら、次の指示で固定の5問と一緒に本番で確かめる → 回答: いま行う（CHAT-1026-AIC-09）
+  - D1 の `mj-ask` の Console で次を実行し、今回の10行の `result` と `answer` を見てほしい（「佐々木寿人」は `guided`・型 `jwrc:player`、「菅原」は `candidates`・型 `ouka:player`）: `SELECT id, asked_at, question, result, type, answer, args FROM questions WHERE asked_at >= '2026-10-26T10:17:00+09:00' ORDER BY id;` → 回答: 実行しない（2026-11-02 の週次の書き出しで見る）
 - 未確認の項目:
   - 次の週次の書き出し（2026-11-02（月）9:00 JST）で、呼び出しの失敗があれば「答え」に応答の本文（error.type・message・request-id）と拠点（colo・国）が入るか。結果「ほかの大会を案内した」が入るか
   - D1 の今回の10行（上の SQL）
@@ -211,12 +211,12 @@ Chat-Ref: CHAT-1026-AIC-08
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 5191f9b8）: https://github.com/retroeater/mj-logs/tree/main/guide/5191f9b8
+ガイド文書（この版を写した時点の最新、mj f9a809f1）: https://github.com/retroeater/mj-logs/tree/main/guide/f9a809f1
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/5191f9b8/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/5191f9b8/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/5191f9b8/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/5191f9b8/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/5191f9b8/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/5191f9b8/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/9ca2970d.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f9a809f1/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f9a809f1/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f9a809f1/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f9a809f1/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f9a809f1/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f9a809f1/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/f9a809f1.md

@@ -64,15 +64,37 @@ AIC-08 の「判断が必要なこと」への回答。
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 0. 着手前の確認（2026-10-26）
+
+- 指示欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある
+- `git log --all --grep="CHAT-1026-AIC-09"` は0件。`AIC` はこのチャットの系列（AIC-01〜08）
+- 41a6f99b0 は origin/cloudflare の祖先。`origin/work/1026-aic`（5191f9b8）はマージ済み（cloudflare の祖先）で、ローカルの `work/1026-aic` も同じ。docs/notes/cloud-sessions.md「作業ブランチの用意」の「ローカルにあり origin/cloudflare の祖先」に当たるので、`git merge --ff-only origin/cloudflare` で進めた（2cd2cffc）
+- AIC-08 のログの `## 報告` の状態に ` / 続き: CHAT-1026-AIC-09` を足し、「判断が必要なこと」4つの後ろに平野さんの回答（決定）を「→ 回答: …」で書き足した
+- #586 に他セッションの着手中は無い（最後は AIC-08 の解除のコメント）。着手中のコメントを書いた
+- 未マージの work/ ブランチで `workers/ask/` を変えているものは無い
+
+### 1. 直し方（コミット 4b26893ad）
+
+- 選んだ方: (b) に近い形。ただし1回目の検索条件（`planSchema()`）には回数の問いを表す引数が無く、足すと5大会の検索条件の形が変わるので、**質問の語でプログラムが決める**（`asksTimes()`。最多・最も多・いちばん多・一番多・次いで・何回・N回・回数・多い順・多く）。語が無ければ `answerInput()` が `byTimes` を2回目に渡さない
+  - 理由: AI の読みに頼らない（AIC-08 の本番では、指示の行に条件を書いていても回数の段を使った）。`簡略化:` のコメントに、取りこぼしが記録に出たら語を足すと書いた
+- あわせて (a): 2回目の共通の指示の byTimes の行を「(回数を聞かれた問いにだけ付く)。…「何回」を聞かれたら byTimes を使い、その段の names を全員書く。聞かれていない回数・段は書かない」にした
+- 5大会とも `answerInput()`・`answerSystem()` の共通の部分なので同じ形
+- テスト: `cross.test.mjs` に、2問（「第1期から第10期の鳳凰位は？」「鳳凰位になった人は全部で何人？」）で渡さないこと、回数の語の判定（渡す8問・渡さない5問）、4大会の最多の問いで渡し「歴代の優勝者は？」で渡さないことを足した。最多の問い（安藤満・前原雄大の4回、3回は4人）は今までどおり通る。`tie.test.mjs` の「渡す形は変わらない」は、質問なしでは byTimes が無い形（AIC-08 の前と同じ）と、回数の問いでは付く形の両方にした
+- 直す前のコード（origin/cloudflare の `workers/ask/`）に新しいテストを当てると、2問の「渡さない」の2件・最多の指示の文の1件・tie.test の1件が落ちることを確かめた（`asksTimes` を読むテストは除いて当てた）
+- `node --test 'workers/ask/test/*.test.mjs'` 109件通過、`python3 -m unittest discover -s scripts/tests` 通過
+- docs/notes/ask-worker.md の byTimes の説明に、渡すのは回数の語のある問いだけと書いた
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 5cc96828）: https://github.com/retroeater/mj-logs/tree/main/guide/5cc96828
+ガイド文書（この版を写した時点の最新、mj f9a809f1）: https://github.com/retroeater/mj-logs/tree/main/guide/f9a809f1
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/5cc96828/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/5cc96828/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/5cc96828/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/5cc96828/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/5cc96828/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/5cc96828/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/9ca2970d.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f9a809f1/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f9a809f1/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f9a809f1/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f9a809f1/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f9a809f1/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f9a809f1/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/f9a809f1.md

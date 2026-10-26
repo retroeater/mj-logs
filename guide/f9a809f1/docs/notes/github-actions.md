@@ -71,7 +71,8 @@ GitHub Actions (`.github/workflows/regenerate-page.yml`) が、`scripts/generate
 - 呼ばれた本の実行は run-daily の実行の中のジョブ（`live / update` など）になり、各本のファイルには実行が付かない。各本の run-name・保険の `schedule` は、各本の手動実行・保険の実行のために残す（保険の `schedule` を外すのは段④）
 - update-live-channel の保険のゲートは、当日・cloudflare・`[scheduled]` の (1) update-live-channel.yml の success の実行か、(2) run-daily.yml の実行のジョブ `live / update` の success のどちらかがあれば、保険の実行は何もしない（run-daily 全体の結論は見ない。ほかの本が落ちた日に保険が二重に動かないため）
 - mj-logs の morning.md は、失敗の行に失敗したジョブ名を書き（見る範囲の26時間に1節へ出る実行は、`actions_status.py` が引く各ワークフローの直近5回に入らなくても `morning_report.write()` がジョブを引く。#563）、所要時間の絶対値（600 秒）の判定は、ほかの実行の中央値が 600 秒未満の本だけに効かせる（run-daily は中央値との比で見る。`scripts/morning_report.py`）
-- morning.md の「3. 所要時間の異常」は cloudflare の実行だけを見る。比の判定は「直近20回の中央値の3倍以上」と「中央値＋5分（`SLOW_MARGIN`）以上」の両方を満たすときだけ出す（中央値1分前後の本の3〜5分を出さない、#563）
+- morning.md の「4. 初回成功」は cloudflare の実行だけで、それ以前の cloudflare の実行に success が無いものを出す（作業ブランチで成功してからマージした本も、cloudflare での最初の成功が出る、#563）
+- morning.md の「3. 所要時間の異常」は cloudflare の実行だけを見る。中央値の基準（比・絶対値とも）は、判定する実行と同じ種類（cloudflare で、予約の実行〈題の先頭が `[scheduled]` か `event` が `schedule`〉かどうかがそろったもの）の直近20回だけから取る（手動の試しや作業ブランチの実行で予約の実行の基準が下がらないように、#563）。比の判定は「直近20回の中央値の3倍以上」と「中央値＋5分（`SLOW_MARGIN`）以上」の両方を満たすときだけ出す（中央値1分前後の本の3〜5分を出さない、#563）
 - 失敗の行のジョブのうち、失敗したステップが regenerate-page の「飛ばしたページを報告」のものは、そのジョブのログ（`GET /repos/{repo}/actions/jobs/{job_id}/logs`、Actions の Read）から `##[error]生成に失敗したページを飛ばしました:` で始まる行（注釈の1行目。`echo` の行は拾わない）を引いて「：」の後に添える（ほかのジョブでは API を呼ばない。引けなければ添えない、#563）。check-run の annotations は Checks の権限が要り、mj-logs の `sync-from-mj.yml` の `MJ_READ_TOKEN`（fine-grained、Checks を選べない）では引けないため使わない
 - morning.md の「2. 予約実行の未実行」は、その日の run-daily の定期実行（題が `[scheduled]`）で呼ぶジョブ（`live` など。呼ぶ関係は run-daily.yml の `uses:` から読む）が success のワークフローの cron の予定を数えない（フォールバック実行はゲートで止まるだけ）。ワークフローが作られる前（API の `created_at`）の予定も見ない（CHAT-1017-WFL-27）
 
