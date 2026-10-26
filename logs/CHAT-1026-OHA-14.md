@@ -123,28 +123,54 @@
 - OHA-08（c0a8ebd57）で、3節を cloudflare の実行だけにするために `render()` のループに入れた `if r.get('head_branch') != SCHEDULED_BRANCH: continue` が、4節「初回成功」の判定より前にある。そのため、作業ブランチの実行の初回成功が4節に出なくなっている（決定 B は3節だけの話だった）。テストの形で確かめた: 作業ブランチの「failure の後の success」は4節が「なし」、同じ形の cloudflare の実行は4節に出る
 - 今回の条件「4節に差が無いこと」に合わせて直していない。直すなら `continue` を4節の判定の後ろへ移す（3節の判定だけを飛ばす）1か所の変更で済む。#563 に書いた
 
+### マージ
+
+- push の直前に再 fetch し、origin/cloudflare（59f3c4838）が HEAD の祖先であることを確かめて `git push origin work/1026-oha:cloudflare`（59f3c4838..51e9cf8cb）。取り込みは要らなかった
+- 51e9cf8cb の check-run: check success、Workers Builds: mj success（完了の2件。in_progress の2件は始まりの記録）、notify は skipped。check-assets（push、run 40252208053）success、check-build-failure は skipped
+
+### 結果
+
+- 決定（2026-10-26、平野さん）: MRP-01 の「頼むこと」1 は、3節の中央値（比・絶対値の両方）の基準を、判定する実行と同じ種類（cloudflare で、予約の実行かどうかがそろったもの）の実行だけにする。「頼むこと」2 は、run-weekly などの週次の束ねも3節の対象のままにし、基準値をワークフローごとに変える仕組みは作らない
+- 実装: 予約の実行は「題の先頭が `[scheduled]`（Worker からの起動）か、`event` が `schedule`（GitHub の予約）」とした。基準は、取得済みの直近100回から、同じ種類の直近20回を判定する実行ごとに選ぶ。3節に載せる実行（cloudflare の実行）と、既存の判定（中央値＋5分以上、10分以上）は変えていない
+- 同じ API の応答（2026-10-26 09:59 JST）での新旧の比べ: 3節に載る4行は新旧で同じ。違うのは中央値の表示と見出しだけで、どれも基準から作業ブランチ・手動の実行を外したためだった。1節・2節・4節・5節と status.md・運行表に差は無い
+- run-weekly（run 40214364620、12分21秒）の行は、新しいコードでも「10分以上」で3節に残る（同じ種類のほかの実行が無いため。来週からは予約の実行どうしで比べる）
+- マージ後の mj-logs の同期の最初の書き出し（actions/morning.md、2026-10-26 10:06 JST）の3節:
+
+```
+## 3. 所要時間の異常（cloudflare の実行だけ。基準は同じ種類〈cloudflare・予約の実行か手動か〉の直近20回。その中央値の3倍以上かつ中央値＋5分以上、または10分以上。skipped は除く）
+
+- 2026-10-25 19:40 regenerate-page.yml success（push・cloudflare）所要 11分11秒（直近20回の中央値 0分57秒） https://github.com/retroeater/mj/actions/runs/40185765407
+- 2026-10-25 19:42 regenerate-page.yml success（push・cloudflare）所要 18分05秒（直近20回の中央値 0分57秒） https://github.com/retroeater/mj/actions/runs/40185846374
+- 2026-10-26 02:00 run-weekly.yml success（workflow_dispatch・cloudflare）所要 12分21秒（直近20回の中央値 12分21秒） https://github.com/retroeater/mj/actions/runs/40214364620
+- 2026-10-26 07:47 fetch-youtube.yml success（schedule・cloudflare）所要 10分06秒（直近20回の中央値 7分55秒） https://github.com/retroeater/mj/actions/runs/40241832250
+```
+
+- 別件: OHA-08 の変更で、作業ブランチの実行の初回成功が4節に出なくなっていた（「気づいたこと」）。今回の条件に合わせて直していない
+
 ## 報告
 
-- 状態:
-- ブランチ:
-- ログ:
-- 比較URL:
-- 確認用URL:
-- マージ:
-- issue:
+- 状態: 判断待ち
+- ブランチ: work/1026-oha
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1026-OHA-14.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1026-oha
+- 確認用URL: なし（ページ・見た目の変更は無い。Actions のスクリプトだけ）
+- マージ: 済（51e9cf8cb）
+- issue: #563
 - 判断が必要なこと:
-- 未確認の項目:
-- エラー:
+  - OHA-08（c0a8ebd57）で、morning.md の4節「初回成功」に作業ブランチの実行が出なくなっている（3節のための `continue` が4節の判定より前にある。決定 B は3節だけの話だった）。直すなら、`continue` を4節の判定の後ろへ移す1か所の変更（推奨。テストを1本足す）。今回は「4節に差が無いこと」がマージの条件だったので直していない（「経過」の「気づいたこと」）
+  - 指示文の記述の食い違い: 前提では見出しを「cloudflare の予約の実行だけ」の趣旨にするとあったが、決定は基準の範囲を絞るだけで、3節に載せる実行（cloudflare の手動・push を含む）は変えていない。見出しは決定と実物に合わせた（「経過」の「実装」）
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 51e9cf8c）: https://github.com/retroeater/mj-logs/tree/main/guide/51e9cf8c
+ガイド文書（この版を写した時点の最新、mj 9ca2970d）: https://github.com/retroeater/mj-logs/tree/main/guide/9ca2970d
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/51e9cf8c/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/51e9cf8c/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/51e9cf8c/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/51e9cf8c/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/51e9cf8c/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/51e9cf8c/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/bdf27d95.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9ca2970d/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9ca2970d/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9ca2970d/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9ca2970d/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9ca2970d/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9ca2970d/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/9ca2970d.md
