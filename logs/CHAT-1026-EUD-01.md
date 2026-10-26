@@ -69,28 +69,26 @@
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 取り下げ / 続き: CHAT-1026-EUD-02
 - ブランチ: work/1026-eud
-- ログ: https://github.com/retroeater/mj/blob/work/1026-eud/docs/logs/CHAT-1026-EUD-01.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1026-EUD-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1026-eud
 - 確認用URL: なし
-- マージ: 未（前提が崩れたため中断。差分はログと docs/decisions のみ）
+- マージ: 済（CHAT-1026-EUD-02 のマージで cloudflare に入れた）
 - issue: なし（起票していない。参照: #620 open、#629 closed）
-- 判断が必要なこと:
-  - /exam/・/study/ は #620・#629 で VideoObject を外し済みで、origin/cloudflare の生成物にも本番にも `uploadDate` が無い（`## 経過`）。直すものが無いため、この指示を取り下げるか決めてほしい。Search Console の指摘は古いクロールの可能性が高く、平野さんが URL 検査で「公開 URL をテスト」または再クロールを依頼して消えるかを見るのが次の一手の案
-  - 作業ブランチ work/1026-eud（ログと docs/decisions の追記のみ）をマージするか
+- 判断が必要なこと: なし（2026-10-26 に平野さんが取り下げと決めた、CHAT-1026-EUD-02）
 - 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj f611ccc8）: https://github.com/retroeater/mj-logs/tree/main/guide/f611ccc8
+ガイド文書（この版を写した時点の最新、mj 59f3c483）: https://github.com/retroeater/mj-logs/tree/main/guide/59f3c483
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f611ccc8/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f611ccc8/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f611ccc8/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f611ccc8/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f611ccc8/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f611ccc8/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/59f3c483/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/59f3c483/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/59f3c483/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/59f3c483/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/59f3c483/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/59f3c483/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/bdf27d95.md

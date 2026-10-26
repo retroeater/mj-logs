@@ -42,15 +42,36 @@ CHAT-1026-EUD-01 は、/exam/・/study/ の VideoObject が #620・#629 で外�
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+- 着手前の確認: `CHAT-1026-EUD-02` のコミット・ログは無し。指示欄の末尾は指示文の最後の行と一致。雛形の行の欠けは無し。work/1026-eud はリモートにあり、ローカルと一致（193ca0e40）
+- `git merge-base --is-ancestor origin/cloudflare HEAD` が偽だったため `git merge origin/cloudflare`（de3692393）。衝突なし
+- 手順1: docs/decisions/exam.md・study.md の「## 2026-10-26（CHAT-1026-EUD-01）」節の1行（EUD-01 の行だけで、他の決定と同じ行ではない）を、取り下げの1行に置き換えた。この決定（取り下げ）の記録を兼ねる
+- 手順2: EUD-01 のログの `## 報告` の「状態」「判断が必要なこと」を指示どおりに直し、マージ後の「ログ」の URL と「マージ」も直した
+- 手順3: `git diff --stat origin/cloudflare...HEAD` は docs/decisions/exam.md・study.md、docs/logs/CHAT-1026-EUD-01.md・EUD-02.md の4件だけ
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1026-eud
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1026-EUD-02.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1026-eud
+- 確認用URL: なし
+- マージ: 済（このコミットを cloudflare へ push）
+- issue: なし
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 8771a412）: https://github.com/retroeater/mj-logs/tree/main/guide/8771a412
+ガイド文書（この版を写した時点の最新、mj 59f3c483）: https://github.com/retroeater/mj-logs/tree/main/guide/59f3c483
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/8771a412/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/8771a412/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/8771a412/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8771a412/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8771a412/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8771a412/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/59f3c483/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/59f3c483/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/59f3c483/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/59f3c483/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/59f3c483/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/59f3c483/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/bdf27d95.md
