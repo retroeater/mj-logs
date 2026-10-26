@@ -191,7 +191,7 @@ Chat-Ref: CHAT-1026-AIC-08
 
 ## 報告
 
-- 状態: 判断待ち / 続き: CHAT-1026-AIC-09
+- 状態: 判断待ち / 続き: CHAT-1026-AIC-09 / 続き: CHAT-1026-AIC-10
 - ブランチ: work/1026-aic
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1026-AIC-08.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1026-aic
@@ -211,12 +211,12 @@ Chat-Ref: CHAT-1026-AIC-08
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj f9a809f1）: https://github.com/retroeater/mj-logs/tree/main/guide/f9a809f1
+ガイド文書（この版を写した時点の最新、mj 99920159）: https://github.com/retroeater/mj-logs/tree/main/guide/99920159
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f9a809f1/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f9a809f1/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f9a809f1/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f9a809f1/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f9a809f1/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f9a809f1/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/99920159/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/99920159/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/99920159/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/99920159/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/99920159/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/99920159/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/f9a809f1.md

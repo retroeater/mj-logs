@@ -107,7 +107,7 @@ AIC-08 の「判断が必要なこと」への回答。
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1026-AIC-10
 - ブランチ: work/1026-aic
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1026-AIC-09.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1026-aic

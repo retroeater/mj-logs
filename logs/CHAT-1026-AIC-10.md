@@ -63,6 +63,53 @@ AIC-08 で調べた質問欄の HTTP 403 の原因は、Anthropic の API の対
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 0. 着手前の確認（2026-10-26）
+
+- 指示欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある
+- `git log --all --grep="CHAT-1026-AIC-10"` は0件。`AIC` はこのチャットの系列（AIC-01〜09）
+- `git log origin/cloudflare --grep="CHAT-1026-AIC-09"` に 4b26893ad（成果物）・f9a809f1d・b2de4d693 がある
+- `origin/work/1026-aic`（99920159）は cloudflare の祖先で、ローカルも同じ。cloudflare と一致していたのでそのまま使った（docs/notes/cloud-sessions.md「作業ブランチの用意」の「ローカルにあり origin/cloudflare の祖先」）
+- 続きの印: 指示は「AIC-08 のログの状態の末尾に足す（AIC-09 の分が既にあれば、その後ろに足す）」。`_template.md`「状態」は前のログ（AIC-09）に足す決まりなので、**AIC-09 のログに ` / 続き: CHAT-1026-AIC-10` を足し、指示どおり AIC-08 のログにも AIC-09 の印の後ろに足した**（`scripts/cleanup_logs.py` の `CONTINUATION_RE` は最初の印を読むので、AIC-08 は AIC-09 を続き先として扱い続ける）
+- #586 に他セッションの着手中は無い（最後は AIC-09 の解除）。未マージの work/ ブランチで `workers/ask/`・`assets/houou_ask.js` を変えているものは無い
+- 止まったので #586 には着手中のコメントを書いていない（コードは変えていない）
+
+### 1. 見分け方の調べ → 止まる条件に当たった
+
+- 公式の API のエラー（https://platform.claude.com/docs/en/api/errors.md 、2026-10-26 に読んだ）: 403 は `permission_error`「Your API key does not have permission to use the specified resource. Check your organization's access and workspace settings in the Claude Console.」だけ。**地域の制限で断るときの応答（状態・`error.type`・`message`）は書かれていない**
+- 公式の Supported regions（https://platform.claude.com/docs/en/api/supported-regions.md ）: 「countries, regions, and territories Anthropic can support access from」の175の一覧。香港は無い。一覧の外からの要求にどう応えるかは書かれていない
+- 実物: 2026-10-21 23:54 JST の失敗は、AIC-08 で応答の本文を記録するようにする前なので、記録は「失敗: Claude plan: HTTP 403」だけで `error.type` が分からない（拠点 HKG・国 HK は平野さんが Observability で確認）
+- したがって、**応答（403 と `error.type`）だけでは、地域の制限とキーの権限（文書の `permission_error`）を見分けられない**。止まる条件「公式の文書で、地域の制限の 403 を `permission_error` など応答から見分けられない、と分かった（見分けられる範囲を書いて止まる）」に当たるので、実装（手順1〜3）に入らずに止まった
+
+見分けられる範囲:
+
+| 手がかり | 見分けられるか | 中身 |
+|---|---|---|
+| 応答の状態 403 | 見分けられない | 文書では 403 はキーの権限（`permission_error`）。地域の制限の応答は書かれていない |
+| 応答の `error.type`・`message` | 今は分からない | 地域の制限の本文はまだ記録が無い。AIC-08 の直し（2026-10-26 01:16Z のデプロイ）から、次の失敗で `答え` に本文と request-id が入る |
+| `request.cf.country`（Worker が受けた要求の国） | 見分けられる（コード側の一覧で） | 公式の Supported regions の一覧に無い国なら、Anthropic の対応地域の外。応答に頼らない。ただし一覧をコードに持つと保守が要る（一覧は Anthropic が変える） |
+| 拠点（`request.cf.colo`） | 補助 | HKG など。国と組で記録に残す（AIC-08 から） |
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1026-aic
+- ログ: https://github.com/retroeater/mj/blob/work/1026-aic/docs/logs/CHAT-1026-AIC-10.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1026-aic
+- 確認用URL: なし（コードは変えていない）
+- マージ: 未（止まる条件に当たったため）
+- issue: なし（#586 には書いていない。コードを変えずに止まったため）
+- 判断が必要なこと:
+  - 地域の制限の 403 の見分け方。公式の文書では 403 は `permission_error`（キーの権限）だけで、地域の制限の応答は書かれていないので、応答だけでは見分けられない（経過の「1.」の表）。次のどれにするか
+    - 案1: `request.cf.country` が公式の Supported regions の一覧（175）に無く、かつ Anthropic が 403 を返したときに「地域で使えない」とする（応答の中身に頼らない。一覧をコードに持ち、`簡略化:` のコメントで出典と見直しの時機を残す）
+    - 案2: 次に 403 が起きて、AIC-08 の記録で応答の `error.type`・`message` が分かるまで待ち、その中身で見分ける（一覧を持たない。分かるまで今の「いまは答えられません。」のまま）
+    - 案3: 案1 で入れ、記録で応答の中身が分かったら中身で見分ける形に移す
+  - 続きの印の場所: 指示は AIC-08 のログに足すとしていたが、`_template.md` の決まり（前のログに足す）に合わせて AIC-09 のログにも足した（AIC-08 にも指示どおり足した）
+- 未確認の項目:
+  - 次の週次の書き出し（2026-11-02（月）9:00 JST）で、呼び出しの失敗があれば「答え」に応答の本文（error.type・message・request-id）と拠点（colo・国）が入るか（AIC-08・09 から写した。地域で断られた問いの新しい結果は、見分け方が決まって入れてからの確かめ）
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
