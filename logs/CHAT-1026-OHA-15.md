@@ -98,18 +98,36 @@ CHAT-1026-OHA-14 の「判断が必要なこと」1つ目（OHA-08〈c0a8ebd57�
 - 消えた行は無い（見込みのとおり。旧で出ていた行は、それ以前のどのブランチにも success が無いので、cloudflare だけで見ても無い）
 - マージの条件: テストはすべて通る／差は4節（見出し）だけで、1節・2節・3節・5節と status.md・運行表に差は無い／4節の差（範囲を広げた比べを含む）はすべて「それ以前の success を cloudflare の実行だけで見る」ことで説明できる。すべて満たした
 
+### マージ
+
+- push の直前に origin/cloudflare が 5191f9b81 まで進んでいた（docs/logs/CHAT-1026-AIC-08.md だけ）。`git merge origin/cloudflare` で取り込み（衝突なし）、テスト OK のうえ、`git merge-base --is-ancestor origin/cloudflare HEAD` を確かめて `git push origin work/1026-oha:cloudflare`（5191f9b81..5cc96828c）
+- 5cc96828c の check-run: Workers Builds: mj success（`external_id` が同じ in_progress の1件は始まりの記録）、notify は skipped、check-build-failure は skipped。check-assets は `work/**` への push だけで動き、実装を含む作業ブランチの push（81be356ca、run 40253860679）で success。マージのコミットの push は差が docs だけで、paths から外れるため動いていない
+
+### 結果
+
+- 決定（2026-10-26、平野さん）: morning.md の4節「初回成功」は cloudflare の実行だけを対象にし、「それ以前に success が無い」も cloudflare の実行だけで見る（作業ブランチで成功してからマージした本も、cloudflare での最初の成功が4節に出る）。OHA-14 で入れた3節の見出しはそのまま
+- 実装: 4節は「それ以前の success」を cloudflare の実行だけで見る。注記は「それ以前の cloudflare の実行 N 件に success なし」、見出しは「4. 初回成功（cloudflare の実行だけ。それ以前の cloudflare の実行に success が無いもの）」
+- 同じ API の応答（2026-10-26 10:20 JST）での新旧の比べ: 差は4節の見出しだけ。1節・2節・3節・5節と status.md・運行表に差は無い。見る範囲を 10/15 からに広げた比べでは、assets-check.yml の 10/15 12:26 の1行が増えた（それ以前の success が作業ブランチの1件だけだったため）。ほかの14行は注記の文だけが変わり、消えた行は無い
+- マージ後の mj-logs の同期の最初の書き出し（actions/morning.md、2026-10-26 10:25 JST）の4節:
+
+```
+## 4. 初回成功（cloudflare の実行だけ。それ以前の cloudflare の実行に success が無いもの）
+
+なし
+```
+
 ## 報告
 
-- 状態:
-- ブランチ:
-- ログ:
-- 比較URL:
-- 確認用URL:
-- マージ:
-- issue:
-- 判断が必要なこと:
-- 未確認の項目:
-- エラー:
+- 状態: 完了
+- ブランチ: work/1026-oha
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1026-OHA-15.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1026-oha
+- 確認用URL: なし（ページ・見た目の変更は無い。Actions のスクリプトだけ）
+- マージ: 済（5cc96828c）
+- issue: #563
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
