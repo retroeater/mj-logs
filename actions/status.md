@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-26 13:08 JST
+- 書き出した時刻: 2026-10-26 20:07 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -25,11 +25,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-26 20:06 | push | work/1024-skp-vid | success | #438（40312575835） | 0分26秒 |
 | 2026-10-26 11:37 | push | work/1026-aic | success | #437（40260022233） | 0分21秒 |
 | 2026-10-26 11:36 | push | work/1026-gdc | success | #436（40259971279） | 0分19秒 |
 | 2026-10-26 11:36 | push | work/1026-gdc | success | #435（40259961396） | 0分21秒 |
 | 2026-10-26 11:35 | push | work/1026-aic | success | #434（40259812127） | 0分22秒 |
-| 2026-10-26 11:32 | push | work/1026-aic | success | #433（40259609877） | 0分25秒 |
 
 ## check-build-failure.yml
 
@@ -38,11 +38,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-26 20:07 | check_run | cloudflare | skipped | #572（40312634294） | 0分01秒 |
 | 2026-10-26 13:07 | check_run | cloudflare | skipped | #571（40267387975） | 0分01秒 |
 | 2026-10-26 11:38 | check_run | cloudflare | skipped | #570（40260075773） | 0分01秒 |
 | 2026-10-26 11:38 | check_run | cloudflare | skipped | #569（40260070406） | 0分01秒 |
 | 2026-10-26 11:37 | check_run | cloudflare | skipped | #568（40260038028） | 0分01秒 |
-| 2026-10-26 11:37 | check_run | cloudflare | skipped | #567（40260024646） | 0分01秒 |
 
 ## check-image-links.yml
 
@@ -229,11 +229,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-26 20:06 | push | cloudflare | in_progress | #49（40312579549） |  |
 | 2026-10-26 09:13 | push | cloudflare | success | #48（40248336105） | 0分21秒 |
 | 2026-10-25 19:42 | push | cloudflare | success | #47（40185846324） | 0分19秒 |
 | 2026-10-24 11:40 | push | cloudflare | success | #46（40055126696） | 0分24秒 |
 | 2026-10-24 06:32 | push | cloudflare | success | #45（40027498391） | 0分22秒 |
-| 2026-10-24 00:40 | push | cloudflare | success | #44（39980331516） | 0分23秒 |
 
 ## run-daily.yml
 
