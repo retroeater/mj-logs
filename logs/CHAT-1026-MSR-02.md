@@ -154,7 +154,7 @@ Chat-Ref: CHAT-1026-MSR-02
 
 ## 報告
 
-- 状態: 判断待ち（実装・マージ・起票・#513 のクローズは済み。下の1点が残る）
+- 状態: 判断待ち（実装・マージ・起票・#513 のクローズは済み。下の1点が残る） / 続き: CHAT-1026-MSR-03
 - ブランチ: work/1026-msr
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1026-MSR-02.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1026-msr
@@ -170,12 +170,12 @@ Chat-Ref: CHAT-1026-MSR-02
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 9ca2970d）: https://github.com/retroeater/mj-logs/tree/main/guide/9ca2970d
+ガイド文書（この版を写した時点の最新、mj 5191f9b8）: https://github.com/retroeater/mj-logs/tree/main/guide/5191f9b8
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9ca2970d/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9ca2970d/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9ca2970d/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9ca2970d/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9ca2970d/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9ca2970d/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/5191f9b8/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/5191f9b8/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/5191f9b8/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/5191f9b8/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/5191f9b8/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/5191f9b8/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/9ca2970d.md

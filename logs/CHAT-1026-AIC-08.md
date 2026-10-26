@@ -164,15 +164,59 @@ Chat-Ref: CHAT-1026-AIC-08
 - 新しいテスト `workers/ask/test/cross.test.mjs`（1週間の記録の問い: 鳳凰位戴冠回数の最多・5大会の最多・菅原・永井/本田/黒田・佐々木寿人・東城りお/黒沢咲/寿人/二階堂/堀慎吾/滝沢/庄田・森山/山田真武/和田健一・403・37期生・40期後期生・指示の文）。直す前のコード（origin/cloudflare の `workers/ask/`）に当てると、cross.test.mjs は新しい関数が無く読み込めずに失敗、ask.test.mjs の「どの大会にも…」と tie.test.mjs の1件が失敗することを確かめた
 - テスト: `node --test 'workers/ask/test/*.test.mjs'` 106件通過、`python3 -m unittest discover -s scripts/tests` 通過
 
+### 3. issue・マージ・本番
+
+- #586: 本文に「2週目の改善」の表を足し、a の行に「2026-10-26 に全大会」を書き、末尾に `Chat-Ref: CHAT-1026-AIC-08`。1週間の数・「答えのばらつき」・本番の結果をコメントし、着手中を解除
+- マージ: push の直前に origin/cloudflare が進んでいた（OHA-14・MSR-02 のログと `scripts/cleanup_logs.py`）ので `git merge origin/cloudflare`（衝突なし）。取り込んだ後も `node --test` 106件・`scripts/tests` 通過。再 fetch して `git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめ、`git push origin work/1026-aic:cloudflare`（e9f638fc6..41a6f99b0）
+- check-run（41a6f99b0）: Workers Builds: mj-ask success（01:16:06Z、Version 708dde25）、Workers Builds: mj success（01:16:05Z）、check success、notify は skipped
+- `/api/ask/status` → `{"status":"open","remaining":10,"max":200}`
+
+本番の10問（2026-10-26 01:17:05〜01:17:39 UTC、セッションから POST、すべて answered）:
+
+| 大会 | 問い | 冒頭 | 答え（要旨） | 出典 |
+|---|---|---|---|---|
+| 鳳凰戦 | 鳳凰位戴冠回数が最多なのは？ | | 4回で安藤満・前原雄大の2人。次いで3回は古川孝次・阿部孝則・瀬戸熊直樹・佐々木寿人の4人 | 歴代優勝者 |
+| WRC | 佐々木寿人 | | 「WRCリーグの記録に「佐々木寿人」に当たる選手はいません。記録があるのは鳳凰戦（佐々木寿人）です。そのページの質問欄で聞けます。」 | 佐々木寿人の成績（鳳凰戦） |
+| 女流桜花 | 菅原 | | 「「菅原」に当たる選手は2人います: 菅原千瑛、菅原夏実。…」 | なし |
+| WRC | 永井 | 「永井」を永井勝晴として答えます | 第4期 71位敗退・第10期 23位通過・第11期 89位敗退 | 永井勝晴の成績 |
+| 鳳凰戦 | 37期生で一覧 | | 62人。10人を最後に出た期のリーグ別に、ほか52人。「所属」とまとめない | 選手の成績 |
+| 鳳凰戦 | 現在の鳳凰位は？ | | 白鳥翔。「鳳凰位になったのは第42期」（第41期は出ない。決勝のある最新の期で引くため、989d8f383 からの動き） | 歴代優勝者 |
+| 鳳凰戦 | 第1期から第10期の鳳凰位は？ | | 6人（前と同じ事実）。**聞いていない「回数が最多なのは安藤満さんの4回、次いで島田昭さんが2回」が付いた** | 歴代優勝者 |
+| 鳳凰戦 | 鳳凰位になった人は全部で何人？ | | 23人。**名前10人と「ほか13人」の代わりに、回数の段（4回の2人・3回の4人）を挙げた**（事実は正しい） | 歴代優勝者 |
+| 鳳凰戦 | 通算得点の上位15人は？ | | 名前10人・ほか5人・全15人（前と同じ） | ランキング（通算） |
+| 鳳凰戦 | 白鳥翔の第40期の成績は？ | | A2 1位・昇級・278.8（前と同じ） | 白鳥翔の成績 |
+
+- 事実の誤りは無いので戻していない（HOU-53 の目安）。2問の変化は、2回目の指示の byTimes の行が「回数を聞かれたら」でも使われたため。行を「回数を聞かれたときだけ使い、ほかの問いでは書かない」に絞る案を「判断が必要なこと」に書いた（本番の確かめが1日10問までなので、今日は入れていない）
+- 403 の本文と拠点が記録に入るかは、次に失敗が起きるまで確かめられない
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1026-aic
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1026-AIC-08.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1026-aic
+- 確認用URL: なし（画面は変えていない。本番の `/api/ask` へ10問送って確かめた）
+- マージ: 済（41a6f99b0。e9f638fc6..41a6f99b0）
+- issue: #586（本文に「2週目の改善」を書き足し、結果をコメント）
+- 判断が必要なこと:
+  - HTTP 403 の直し: `workers/ask/wrangler.jsonc` に `placement`（Smart Placement、または Anthropic の対応地域のクラウドの region を指す Placement Hints）を足すか。Workers は既定で利用者に近い拠点で動き、Anthropic の対応地域に無い香港などに近い利用者の問いがそこから呼ばれる見込み（未確認）。本番の動き（D1 との距離・待ち時間）と費用に関わるので入れていない
+  - 403 の手がかりを見てほしい所: Cloudflare のダッシュボードの `mj-ask` → Observability で、2026-10-19 20:46・10-21 23:54・10-24 13:46 JST ごろの `答えの作成に失敗: …` の行と、その要求の colo・国。Anthropic の Console の Logs で、同じ時刻の 403 の行と理由
+  - 2回目の指示の byTimes（回数の段）の行を「回数を聞かれたときだけ使い、ほかの問いでは書かない」に絞るか。本番で「第1期から第10期の鳳凰位は？」に聞いていない回数が付き、「鳳凰位になった人は全部で何人？」が名前10人と「ほか13人」の代わりに回数の段を挙げた（事実は正しい）。絞るなら、次の指示で固定の5問と一緒に本番で確かめる
+  - D1 の `mj-ask` の Console で次を実行し、今回の10行の `result` と `answer` を見てほしい（「佐々木寿人」は `guided`・型 `jwrc:player`、「菅原」は `candidates`・型 `ouka:player`）: `SELECT id, asked_at, question, result, type, answer, args FROM questions WHERE asked_at >= '2026-10-26T10:17:00+09:00' ORDER BY id;`
+- 未確認の項目:
+  - 次の週次の書き出し（2026-11-02（月）9:00 JST）で、呼び出しの失敗があれば「答え」に応答の本文（error.type・message・request-id）と拠点（colo・国）が入るか。結果「ほかの大会を案内した」が入るか
+  - D1 の今回の10行（上の SQL）
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 9ca2970d）: https://github.com/retroeater/mj-logs/tree/main/guide/9ca2970d
+ガイド文書（この版を写した時点の最新、mj 5191f9b8）: https://github.com/retroeater/mj-logs/tree/main/guide/5191f9b8
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9ca2970d/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9ca2970d/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9ca2970d/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9ca2970d/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9ca2970d/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9ca2970d/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/5191f9b8/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/5191f9b8/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/5191f9b8/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/5191f9b8/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/5191f9b8/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/5191f9b8/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/9ca2970d.md

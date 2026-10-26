@@ -112,3 +112,8 @@
 
 - 動画の各話のページ（mtsuku・exam・wayhome・study）からも VideoObject を外す。プレーヤーは埋め込まない（#629 の案 b。BreadcrumbList・og:type〈video.other〉・og:video は残す。未マージ）
 - 作業中の回答: なし
+
+## 2026-10-25（CHAT-1025-VOD-04）
+
+- work/1024-vod（動画の各話ページから VideoObject を外す、#629）を cloudflare にマージしてよい（CHAT-1024-VOD-03 の報告を読んだうえでの承認）
+- 作業中の回答: なし

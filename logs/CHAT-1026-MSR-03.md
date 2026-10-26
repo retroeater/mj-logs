@@ -42,15 +42,54 @@ CHAT-1026-MSR-02 の判断待ち（#357 の本文に案A の前の説明が残�
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+- Chat-Ref の重複確認: `git log --all --grep="CHAT-1026-MSR-03"` とログの追加履歴は0件。識別子 MSR は同じチャットの MSR-01・02 で使ったもので、最初の指示ではない
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- 作業ブランチ: ローカルの `work/1026-msr`（7528917ee）は `origin/cloudflare` の祖先、リモートもマージ済み。`git merge --ff-only origin/cloudflare`（41a6f99b0）で進めた
+- 0. 指示欄の末尾は指示文の最後の行と一致。9ca2970dd は origin/cloudflare の祖先（案A は入っている）。#357 の最新のコメントは 10/25 の片付けの通知2件で、他セッションの着手中コメントは無い（最後の着手中は 2026-10-12 の ACF-05 のもの）
+- 指示文はチャットから改行が一部つながった形で貼られた（冒頭の雛形の行が1行になっている）。`## 指示` にはその形のまま写した
+
+### 手順1
+
+- CHAT-1026-MSR-02 のログの `## 報告`（ファイルの最後の見出し）の状態を「判断待ち（実装・マージ・起票・#513 のクローズは済み。下の1点が残る） / 続き: CHAT-1026-MSR-03」にした（`## 指示` 欄は変えていない）
+
+### 手順2
+
+- #357 の本文（REST、1050文字、CR なし、末尾は改行）に前提の文はちょうど1か所。直す前の該当の行（そのまま）:
+
+> - 「状態」に ` / 続き: CHAT-…` があり、続き先が「完了」「取り下げ」または削除済み（3項目に関わらず。続き先が判断待ち・中断・読めない・存在しないなら削除しない。続きが何段も続くときは、続き先が完了・取り下げ・削除済みになった次の実行で消える）。` / 続き:` のほか、すでにあるログの `（続き: CHAT-…）`・`→ 続き: CHAT-…` も続きとして読む
+
+- 取った本文の前提の文だけを「続きが何段も続くときは、同じ実行で消える続き先も削除済みとみなすので、途中のログが消えれば同じ実行で前のログも消える」に置き換えた本文を作り、GitHub MCP の `issue_write`（update、body だけ）で書いた（2026-10-26T01:17:10Z）
+- 取り直した本文（REST、1068文字）は、作った本文とバイト単位で一致（直した1文以外の差は無く、署名の行も足されていない）。題「作業ログ: 自動削除の条件外のログ」・状態 open・ラベル「分野: 自動化」「種類: 常設」は変わっていない。#357・#631 にはコメントしていない
+- 直した後の該当の行（そのまま）:
+
+> - 「状態」に ` / 続き: CHAT-…` があり、続き先が「完了」「取り下げ」または削除済み（3項目に関わらず。続き先が判断待ち・中断・読めない・存在しないなら削除しない。続きが何段も続くときは、同じ実行で消える続き先も削除済みとみなすので、途中のログが消えれば同じ実行で前のログも消える）。` / 続き:` のほか、すでにあるログの `（続き: CHAT-…）`・`→ 続き: CHAT-…` も続きとして読む
+
+- docs/decisions/operations.md に「2026-10-26（CHAT-1026-MSR-03）」を足した
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1026-msr
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1026-MSR-03.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1026-msr
+- 確認用URL: なし
+- マージ: 済（cloudflare へ fast-forward）
+- issue: #357（本文の1文を直した。コメントなし）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 41a6f99b）: https://github.com/retroeater/mj-logs/tree/main/guide/41a6f99b
+ガイド文書（この版を写した時点の最新、mj 5191f9b8）: https://github.com/retroeater/mj-logs/tree/main/guide/5191f9b8
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/41a6f99b/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/41a6f99b/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/41a6f99b/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/41a6f99b/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/41a6f99b/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/41a6f99b/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/5191f9b8/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/5191f9b8/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/5191f9b8/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/5191f9b8/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/5191f9b8/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/5191f9b8/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/9ca2970d.md
