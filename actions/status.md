@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-26 08:23 JST
+- 書き出した時刻: 2026-10-26 09:02 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -80,11 +80,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-26 08:37 | schedule | cloudflare | success | #19（40245574722） | 0分31秒 |
 | 2026-10-21 11:34 | workflow_dispatch | work/1021-wkp | success | #18（39533798396） | 0分29秒 |
 | 2026-10-19 14:31 | workflow_dispatch | cloudflare | success | #17（39204974094） | 0分38秒 |
 | 2026-10-19 14:28 | workflow_dispatch | cloudflare | success | #16（39204776634） | 0分31秒 |
 | 2026-10-19 14:15 | workflow_dispatch | cloudflare | success | #15（39203609157） | 0分28秒 |
-| 2026-10-19 08:44 | schedule | cloudflare | success | #14（39177742395） | 0分36秒 |
 
 ## check-sheets-reader.yml
 
@@ -328,11 +328,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-26 08:34 | schedule | cloudflare | success | #106（40245383856） | 0分08秒 |
 | 2026-10-25 08:44 | schedule | cloudflare | success | #105（40143974736） | 0分09秒 |
 | 2026-10-24 09:02 | schedule | cloudflare | success | #104（40042986546） | 0分09秒 |
 | 2026-10-23 09:10 | schedule | cloudflare | success | #103（39876524265） | 0分10秒 |
 | 2026-10-22 09:14 | schedule | cloudflare | success | #102（39698521711） | 0分08秒 |
-| 2026-10-21 09:09 | schedule | cloudflare | success | #101（39519559111） | 0分12秒 |
 
 ## update-sns-book.yml
 
