@@ -61,15 +61,86 @@ Chat-Ref: CHAT-1026-MSR-02
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+- Chat-Ref の重複確認: `git log --all --grep="CHAT-1026-MSR-02"` とログの追加履歴は0件。識別子 MSR は同じチャットの MSR-01 で使ったもので、最初の指示ではない
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- 作業ブランチ: ローカルに `work/1026-msr`（f611ccc89）があり `origin/cloudflare` の祖先、リモートの `origin/work/1026-msr` もマージ済み。docs/notes/cloud-sessions.md「作業ブランチの用意」の「ローカルにあり origin/cloudflare の祖先」に当たるので、`git checkout work/1026-msr` のうえ `git merge --ff-only origin/cloudflare`（59f3c4838）で進めた（`checkout -B` は使っていない）
+- 0. 指示欄の末尾は指示文の最後の行と一致。CHAT-1026-MSR-01 のログは cloudflare にある（`git cat-file -e origin/cloudflare:docs/logs/CHAT-1026-MSR-01.md`）。#513 は open で、他セッションの着手中コメントは無し（最新は MSR-01 の計測のコメント）。着手中コメント: https://github.com/retroeater/mj/issues/513#issuecomment-6405868442
+- 未マージの work/ ブランチ（`git branch -r --no-merged origin/cloudflare`）のうち、`scripts/cleanup_logs.py`・`scripts/tests/test_cleanup_logs.py`・`docs/notes/branch-operations.md`・`.github/workflows/cleanup-logs.yml` を変えているものは0件
+
+### 手順1: 案A の実装
+
+- 直す場所は前提の見込みどおり `main()` の判定。判定のくり返しは関数 `judge_all(texts, read_log, was_deleted)` に分けた（テストから呼ぶため）。同じ実行で消える候補を `gone` に入れ、`read_log` は None、`was_deleted` は真を返す形で残りを判定し直し、新しく消えるものが無くなるまでくり返す。くり返した回数を返し、`main()` が「判定のくり返し: N回」を出力に出す。`judge`・`resolve_continuation` は変えていない。モジュールの docstring の条件の行に「同じ実行で消える続き先も削除済みとみなす」を足した
+- 止まること: `gone` は増える一方で候補は有限なので必ず止まる。循環（A→B→A）は、どちらも消えなければ1回目で新しい削除が無く止まる
+- テスト（`scripts/tests/test_cleanup_logs.py` の `JudgeAllTest`、5本）: 2段（3回で止まる）・3段（取り下げで終わる）が同じ実行で前のログまで消える／末端が判断待ちの連鎖は残り1回で止まる／循環で1回で止まる／候補の外（7日に届かない）続き先はそのまま読む
+- 直す前のコードでの確かめ:
+  - 直す前の `cleanup_logs.py`（origin/cloudflare の版）では `judge_all` が無いので、足した5本はすべて AttributeError でエラー（`FAILED (errors=5)`）
+  - 動きでも確かめた: 直す前の版に、直す前の動き（1回だけ判定）を `judge_all` の形で呼ぶ検証用の写しを付けて（scratchpad の使い捨て。リポジトリには入れない）足したテストを流すと、2段・3段の2本が失敗（`FAILED (failures=2)`）。末端が判断待ち・循環・候補の外の3本は通る（止まること・残ることの確かめなので、1回だけ判定する直す前の動きでも成り立つ。止まる条件の「直す前のコードで失敗しない」には、直す前のコードではエラーになるので当たらないと読んだ）
+- 直した後: `python3 -m unittest discover -s scripts/tests` は 1574件すべて OK。既存のテストは直していない（`test_two_step_chain_waits_for_the_middle` は `judge` 単体の確かめで、案A でも成り立つので変えていない）
+- docs/notes/branch-operations.md「作業ログの寿命」条件4の括弧書きを「（同じ実行で消える続き先も削除済みとみなすので、途中のログが消えれば同じ実行で前のログも消える）」に直した。ほかに「次の実行で前のログが消える」趣旨の文は CLAUDE.md・handover.md・docs/notes に無い（`grep`）。`.github/workflows/cleanup-logs.yml` の冒頭のコメントは条件の言い方のままで古くならないので変えていない
+- #357 の本文に「続きが何段も続くときは、続き先が完了・取り下げ・削除済みになった次の実行で消える」が残っている（issue の本文。指示に無いので変えていない。「判断が必要なこと」に書いた）
+- 実装のコミット: 94b43cbcb
+
+### 手順1: 直す前と後の dry-run（その時点の origin/cloudflare のログ）
+
+- origin/cloudflare 59f3c4838 を `git worktree add --detach` で取り出して直す前の版を、作業ブランチ（59f3c4838＋このログ＋実装）で直した後の版を、続けて `--dry-run --json` で手元で実行した（時刻は実行時の現在時刻。2つの間に7日の境目を越えたログは無い）
+
+| 項目 | 直す前（origin/cloudflare 59f3c4838 の cleanup_logs.py） | 直した後（94b43cbcb） |
+| --- | --- | --- |
+| 7日以内のため対象外 | 180件 | 181件（差の1件は作業ブランチにだけある CHAT-1026-MSR-02 のログ。判定の対象外） |
+| 判定のくり返し | （1回） | 10回（削除が増えたのは1〜9回目、10回目は増えず止まった） |
+| 削除 | 22件 | 53件（完了3・続き先が解決50） |
+| 通知 | 148件（pending 104・violation 44・unreadable 0） | 117件（pending 74・violation 43・unreadable 0） |
+
+- 減った名前（直す前に削除で、直した後に削除でないもの）: 0件。直す前と後で削除の理由が変わったもの: 0件。通知に増えた名前: 0件
+- 増えた名前（直した後にだけ削除）: 31件。すべて理由が「続き先 … が削除済み」で、その続き先は同じ実行（直した後）で削除されるもの。「同じ実行で消える続き先」で説明できない名前は0件
+
+| 増えたログ | 続き先（同じ実行で削除） | 直す前の通知の種類 | 段（直す前でも消える続き先からの段数） |
+| --- | --- | --- | --- |
+| CHAT-1008-DIC-02 | CHAT-1008-DIC-03 | pending | 8 |
+| CHAT-1008-DIC-03 | CHAT-1008-DIC-04 | pending | 7 |
+| CHAT-1008-DIC-04 | CHAT-1008-DIC-05 | pending | 6 |
+| CHAT-1008-DIC-05 | CHAT-1008-DIC-06 | pending | 5 |
+| CHAT-1008-DIC-06 | CHAT-1008-DIC-07 | pending | 4 |
+| CHAT-1008-DIC-07 | CHAT-1008-DIC-08 | pending | 3 |
+| CHAT-1008-DIC-08 | CHAT-1008-DIC-09 | pending | 2 |
+| CHAT-1008-DIC-09 | CHAT-1008-DIC-10 | pending | 1 |
+| CHAT-1008-HOU-02 | CHAT-1008-HOU-03 | pending | 5 |
+| CHAT-1008-HOU-03 | CHAT-1009-HOU-04 | pending | 4 |
+| CHAT-1009-HOU-04 | CHAT-1009-HOU-05 | pending | 3 |
+| CHAT-1009-HOU-05 | CHAT-1009-HOU-06 | pending | 2 |
+| CHAT-1009-HOU-06 | CHAT-1010-HOU-07 | pending | 1 |
+| CHAT-1009-NEN-08 | CHAT-1009-NEN-09 | pending | 1 |
+| CHAT-1012-DSN-01 | CHAT-1012-DSN-02 | pending | 4 |
+| CHAT-1012-DSN-02 | CHAT-1012-DSN-03 | pending | 3 |
+| CHAT-1012-DSN-03 | CHAT-1013-DSN-04 | pending | 2 |
+| CHAT-1013-DSN-04 | CHAT-1013-DSN-05 | pending | 1 |
+| CHAT-1014-MTK-01 | CHAT-1015-MTK-04 | pending | 1 |
+| CHAT-1014-PLB-01 | CHAT-1014-PLB-02 | pending | 1 |
+| CHAT-1015-JBK-01 | CHAT-1015-JBK-02 | pending | 3 |
+| CHAT-1015-JBK-02 | CHAT-1015-JBK-03 | pending | 2 |
+| CHAT-1015-JBK-03 | CHAT-1015-JBK-04 | pending | 1 |
+| CHAT-1016-HOU-54 | CHAT-1016-HOU-55 | pending | 1 |
+| CHAT-1016-SKR-10 | CHAT-1016-SKR-11 | pending | 1 |
+| CHAT-1017-AMP-06 | CHAT-1017-AMP-07 | pending | 1 |
+| CHAT-1017-PAD-01 | CHAT-1017-PAD-02 | pending | 1 |
+| CHAT-1017-WRC-01 | CHAT-1017-WRC-02 | pending | 2 |
+| CHAT-1017-WRC-02 | CHAT-1018-WRC-03 | pending | 1 |
+| CHAT-1018-WRC-07 | CHAT-1018-WRC-08 | pending | 1 |
+| CHAT-1018-WRC-11 | CHAT-1019-WRC-12 | violation | 1 |
+
+- CHAT-1018-WRC-11 は直す前は violation（完了だが3項目が「なし」でない）で、続き先 CHAT-1019-WRC-12 が同じ実行で消えるので削除になった（条件4は3項目に関わらない）。このため violation は44→43件
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 59f3c483）: https://github.com/retroeater/mj-logs/tree/main/guide/59f3c483
+ガイド文書（この版を写した時点の最新、mj 51e9cf8c）: https://github.com/retroeater/mj-logs/tree/main/guide/51e9cf8c
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/59f3c483/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/59f3c483/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/59f3c483/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/59f3c483/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/59f3c483/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/59f3c483/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/51e9cf8c/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/51e9cf8c/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/51e9cf8c/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/51e9cf8c/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/51e9cf8c/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/51e9cf8c/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/bdf27d95.md
