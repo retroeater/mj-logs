@@ -44,6 +44,30 @@
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+- 着手前の確認: Chat-Ref・`MRP` の重複なし（全ブランチのコミットと docs/logs の履歴）。`work/1026-mrp` はローカル・リモートとも無く、`origin/cloudflare`（b733d6526）から作成。#563 は open、OHA-13 より後の他セッションの着手中コメントなし、同じ趣旨のコメントなし。題・中身は朝の報告の判定に関係する。0 の確認（ログの指示欄の末尾＝指示文の最後の行）は一致
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）の欠けなし
+- #563 に着手中のコメント: https://github.com/retroeater/mj/issues/563#issuecomment-6405205005
+- (a) `scripts/morning_report.py` の `write()`: 中央値は `runs[:MEDIAN_RUNS]` をブランチで絞らずに取る（対象の実行自身も含む）。`head_branch != SCHEDULED_BRANCH` で飛ばすのは3節に出す側だけ。絶対値の判定の `others` も絞っていない
+- run-weekly.yml の実行は API で5件（#5 cloudflare 12分21秒 / #4 work/1021-wkp 0分44秒 / #3 cloudflare 0分38秒 / #2 work/1021-prv 0分41秒 / #1 cloudflare 0分45秒）。指示文の前提「status.md の行は2件だけ」と違い、中央値 0分44秒は5件の中央値。cloudflare だけなら 0分45秒で、どちらでも今回の行は出る
+- (b) run 40214364620 のジョブ: 並行5ジョブ 33〜47秒、youtube / fetch 53秒、youtube / regenerate / regenerate 10分31秒（「対象ページを再生成」9分49秒）、youtube / report skipped。fetch-youtube と再生成が動いたのは #5 が初めて
+- #563 にフォローのコメント: https://github.com/retroeater/mj/issues/563#issuecomment-6405211668 （投稿後、「直近20回が埋まるまで毎週出る」の見込みを「新構成が旧構成の件数を超えるまで（約4週、cloudflare に絞れば約2週）」に直した）
+- 決定: なし（docs/decisions への追記なし）
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1026-mrp
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1026-MRP-01.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1026-mrp
+- 確認用URL: なし
+- マージ: 済（このコミットを fast-forward で cloudflare へ）
+- issue: #563
+- 判断が必要なこと: なし（#563 に移した）
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
