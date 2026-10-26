@@ -61,6 +61,51 @@
 
 ## 経過
 
+### 着手前の確認
+
+- 0章: 指示欄の末尾は指示文の最後の行と一致
+- 同じ Chat-Ref のコミット: なし。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 欠けなし（指示文は改行の無い1行で貼られた。そのまま写した）
+- ブランチ: origin/work/1026-skp-pub が無いため origin/cloudflare（7202705d5）から作った
+- 未マージのほかの work/ ブランチで `scripts/generate_saikyo_pages.py`・`assets/saikyo.js`・`_redirects`・`llms.txt`・`scripts/generate_jpml_pros.py` を変えているもの: なし
+- CLAUDE.md 23488 バイト・handover.md 22221 バイト（警告域 26KB の下）
+- #627・#623 に着手中のコメントを書いた
+
+### 手順1: 動画の制作のスクリプトのマージ（work/1024-skp-vid）
+
+- work/1024-skp-vid に origin/cloudflare を取り込み（衝突なし）、docs/notes/page-announcement.md の「実例」の表に最強戦のリニューアルの行、docs/notes/saikyo-page-design.md に「9. 告知動画（リニューアル）」の節を足した。CHAT-1026-SKP-13 のログの `## 報告` の状態の末尾に ` / 続き: CHAT-1026-SKP-14` を足した
+- origin/cloudflare との差分（12ファイル）: `scripts/promo_video/saikyo_renewal/` の6ファイル（README.md・build.sh・capture.mjs・compose.py・composition/index.html・setup.sh）と docs だけ（docs/decisions/saikyo.md〈SKP-07 の決定〉・docs/logs の CHAT-1024-SKP-07・CHAT-1025-SKP-12・CHAT-1026-SKP-13・docs/notes/page-announcement.md・docs/notes/saikyo-page-design.md）
+- マージ: `git push origin work/1024-skp-vid:cloudflare`（7202705d5..d2b314056）
+
+### 手順2: 公開の変更（work/1026-skp-pub）
+
+- 決定1: 新しいトップを `saikyo/index.html` に書く。仮の URL `saikyo/next/` を消し、`_redirects` の next の2行を消した。段1 の定数 `MENU_PUBLIC`・`VS_PUBLIC`・`NEXT_DIR`・`NOINDEX_TAG` は、公開で分岐が要らなくなったので消した
+- 今までのトップ（歴代最強位＋選手名検索）の生成（`write_top()`・`build_top_body()`・`build_top_data()`）と `assets/saikyo.js` のトップの節、`build_vs_entry()`（検索欄の直下に置く予定だった対戦成績の入口。新しいトップのメニューの4行目と重なるので消した）を消した。検索のデータの形（`top_data()`）は個人成績のデータの元として残した
+- 決定2: 新しいトップのメニューの4行目に対戦成績（「出場者同士の勝敗と同卓の記録」）
+- 決定5: 年度・対局・卓のページの年度の選択の先頭「歴代最強位」の行き先を `../years/` に（`SUB_YEARS_HREF`）
+- 決定6: 卓のページの「すべて見る」を `../players/?name=<名前>` に（`SUB_PLAYERS_HREF`）、jpml_pros の「最強」の列を `./saikyo/players/?name=<名前>` に（`generate_jpml_pros.py` の `SAIKYO_PLAYERS_URL`）。外で共有された `/saikyo/?q=<名前>` は、新しいトップの `assets/saikyo.js` が `players/?name=<名前>` へ `location.replace` する（新しいトップに `saikyo.js` を読み込んだ）。外す条件はコードのコメント（`簡略化:`）と docs/notes/redirects.md「JS の移動」の行に書いた（公開から3か月後〈2027-01 上旬〉の棚卸しで `/saikyo/?q=` の流入が無いと確かめたら、その行・JS の節・`saikyo.js` の読み込みを外す）
+- 決定19: 個人成績の名前の面の下に「対戦成績を見る ›」（`../vs/?name=<選手名>`）。対局済みの卓が無い人（名前の下の行が空）は対戦成績に載らないので出さない
+- noindex: 年度別・個人成績・ランキング9部門・対戦成績から外した。サイトマップに新しいトップのほか12ページ（対戦成績・年度別・個人成績・ランキング9部門）が載る。`llms.txt` の「麻雀最強戦」の節を、入口・年度別・個人成績・ランキング・対戦成績の5行にした
+- canonical・og:url は各ページ自身（新しいトップは `https://ryoei.pro/saikyo/`）。navbar の「最強戦」は `/saikyo/` のまま（`navbar.js` は変えていない）。title は「麻雀最強戦 | 最強戦 | ryoei.pro」（前のトップと同じ）
+- 文書: docs/notes/static-generation.md「ページの一覧」（最強戦の3行）・docs/notes/saikyo-page-design.md（対戦成績・年度別・個人成績・ランキングと新しいトップの節、今までのトップの節）・docs/notes/redirects.md（ランキングの入口の行、JS の移動の行）。docs/handover.md に最強戦の「未公開」の記述は無かった
+- テスト: `test_saikyo_pages.py` の `TopTest` を新しいトップ（メニューの4行・質問欄）・年度別の歴代最強位・検索のデータに書き直し、「すべて見る」（`../players/?name=`）・年度の選択の先頭（`../years/`）を直した。`test_saikyo_vs.py` の段1 のテストを、トップのメニューの4行目に対戦成績があるテストにした。`test_jpml_pros.py` のリンクを直した。`python3 -m unittest discover -s scripts/tests` 1579件 OK、`node --test 'workers/ask/test/*.test.mjs'` 109件 pass
+- 生成し直し: `regenerate-page.yml`（saikyo_pages jpml_pros、run 40313272234）が ee4f994df を書いた。check（saikyo_pages、run 40313484540、ee4f994df）は success
+- コミット: ec32f7876（公開の変更）。なお、その前の origin/cloudflare の取り込みのマージのコミット 8d1a1e149 は既定のメッセージのまま（トレーラ無し）で push してしまった（共有済みなので書き換えていない）
+
+### 手順2: 差分（生成のコミット ee4f994df、677ファイル）
+
+| 種類 | ファイル数 | 中身 |
+|---|---|---|
+| 年度ページ（`saikyo/<年度>/index.html`） | 16 | 年度の選択の先頭「歴代最強位」の行き先 `../` → `../years/` だけ |
+| 対局・卓のページ | 645 | 年度の選択の先頭の行き先と、卓のページの「すべて見る」の行き先 `../?q=` → `../players/?name=` だけ（全行を機械で突き合わせ、ほかの変更は0件） |
+| 新しいトップ `saikyo/index.html` | 1 | 新しいトップに置き換え（質問欄・メニュー4行・`saikyo.js`。noindex なし） |
+| 年度別・個人成績・ランキング9部門・対戦成績 | 12 | noindex の行を消しただけ |
+| `saikyo/next/index.html` | 1 | 消した（ec32f7876） |
+| `jpml_pros.html` | 1 | 最強戦の列のリンク 156行 `./saikyo/?q=` → `./saikyo/players/?name=` だけ |
+| `sitemap-saikyo.xml` | 1 | 12ページの URL を足し、変わったページの lastmod が 2026-10-26（ワークフローが付けた） |
+| `sitemap-pages.xml` | 1 | `jpml_pros.html` の lastmod |
+
+シートの変化による差は無かった（年度・対局・卓のページの差はすべて2つの行き先で説明できた）。
+
 ## 報告
 
 - 状態: 作業中
@@ -77,12 +122,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 7202705d）: https://github.com/retroeater/mj-logs/tree/main/guide/7202705d
+ガイド文書（この版を写した時点の最新、mj 872c2054）: https://github.com/retroeater/mj-logs/tree/main/guide/872c2054
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/7202705d/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/7202705d/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/7202705d/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/7202705d/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/7202705d/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/7202705d/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/872c2054/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/872c2054/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/872c2054/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/872c2054/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/872c2054/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/872c2054/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/f9a809f1.md
