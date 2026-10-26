@@ -149,7 +149,7 @@
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1026-OHA-15
 - ブランチ: work/1026-oha
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1026-OHA-14.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1026-oha
@@ -165,12 +165,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 9ca2970d）: https://github.com/retroeater/mj-logs/tree/main/guide/9ca2970d
+ガイド文書（この版を写した時点の最新、mj 5cc96828）: https://github.com/retroeater/mj-logs/tree/main/guide/5cc96828
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9ca2970d/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9ca2970d/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9ca2970d/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9ca2970d/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9ca2970d/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9ca2970d/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/5cc96828/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/5cc96828/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/5cc96828/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/5cc96828/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/5cc96828/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/5cc96828/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/9ca2970d.md

@@ -1,6 +1,6 @@
 # 朝の報告用の異常（retroeater/mj）
 
-- 書き出した時刻: 2026-10-26 10:21 JST（見た範囲: 2026-10-25 08:21 JST から）
+- 書き出した時刻: 2026-10-26 10:25 JST（見た範囲: 2026-10-25 08:25 JST から）
 - 書き出した実行の契機: workflow_dispatch（main）
 - 異常だけを書く。全体は actions/status.md。判定は mj の scripts/morning_report.py（各ワークフローの直近 100 回まで）
 
@@ -19,7 +19,7 @@
 - 2026-10-26 02:00 run-weekly.yml success（workflow_dispatch・cloudflare）所要 12分21秒（直近20回の中央値 12分21秒） https://github.com/retroeater/mj/actions/runs/40214364620
 - 2026-10-26 07:47 fetch-youtube.yml success（schedule・cloudflare）所要 10分06秒（直近20回の中央値 7分55秒） https://github.com/retroeater/mj/actions/runs/40241832250
 
-## 4. 初回成功
+## 4. 初回成功（cloudflare の実行だけ。それ以前の cloudflare の実行に success が無いもの）
 
 なし
 
