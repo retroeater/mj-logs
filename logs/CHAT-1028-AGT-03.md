@@ -75,16 +75,126 @@ AGT-02 の整合性レビューの指摘のうち、チャット側の再レビ�
 
 ## 経過
 
+### 0章・着手前（17:10 UTC）
+
+- 「指示」欄の末尾は「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」で、指示文の最後の行と一致
+- 同じ Chat-Ref のコミット: 0件
+- `git show origin/cloudflare:docs/logs/CHAT-1028-AGT-02.md` の `## 報告` の状態: 「判断待ち」（origin/cloudflare にある）
+- `echo "$CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS"` → 空（値なし）
+- 新しいセッションか: いいえ。AGT-01・AGT-02 と同じ会話の続きに貼られた。ただし環境変数が AGT-02 のときの `1` から空に変わっていたので、セッションの実行環境（プロセス）は貼られる前に起動し直されたとみられる（AGT-02 の直後に GitHub MCP の切断と再接続も出た）
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 4行とも有る
+- 「知見 → 選んだ層 → 理由」の表: この指示は規則を足さない（誤った参照・古い記述の直しと記録の移動）ので、要らないと判断した
+- 作業ブランチ: origin/work/1028-agt はマージ済み、ローカルの work/1028-agt も origin/cloudflare の祖先だったので、docs/notes/cloud-sessions.md「作業ブランチの用意」のとおり `git merge --ff-only origin/cloudflare`（dd51fd5a5..3c141c6d4）。衝突なし
+- ログを先行 push（d44906cae）
+- 未マージの work/ ブランチ（`git branch -r --no-merged origin/cloudflare`）で対象のファイルを変えているもの: work/1017-lvp（docs/decisions/design-renewal.md・live.md）と work/1026-aic（docs/decisions/houou.md）だけ。この指示が変える docs/decisions/operations.md とは別のファイルで、重なりは無い
+
+### 前提の確かめ
+
+- #4（GitHub MCP の issue_read）: open。本文の冒頭が「新サイト（#296）送り（2026-10-10…）。現行サイトには入れない」、ラベル「状況: 保留」。前提のとおり
+- #96: open。本文の「次のアクション」が「上記1〜4を決める。決まるまでは着手しない。」、ラベル「状況: 保留」。前提のとおり
+- 3・4・6・7・8 の文面: 前提の引用と一致した（handover.md 58行・80行・158行、chat-side-operations.md 120行・132行）
+- 4: `.github/workflows/run-weekly.yml` の9行目「youtube(fetch-youtube。最後に regenerate-page を all で呼び…)」と github-actions.md の表（毎週月曜02:00 JST に run-weekly.yml から、05:37 は保険）で確かめた
+
+### 手順1（docs/handover.md）
+
+- AGT-02 のログの状態を「判断待ち / 続き: CHAT-1028-AGT-03」にした
+- 1・2: 5章の表から #4・#96 の行を外した
+- 3: 2章を「`_redirects` の先頭行の規則は CLAUDE.md「禁止事項」、`html_handling` は `docs/notes/cloudflare.md`「配信設定: html_handling・_redirects・canonical・_headers」。」にした
+- 4: 2章を「週次（#103）は毎週月曜02:00 JST の `run-weekly.yml` が `fetch-youtube.yml` の最後に`all`を呼ぶ。05:37 JST は保険の予約実行（`docs/notes/github-actions.md`）。」にした
+- 6: 「**次の会話の順番（2026-10-09）:**」を「**次の会話の順番:**」にした
+- 「最終更新」を 2026-10-28 にし、直近の変更を3行に保った（この指示の2行を足し、古い2行〈#9・#523・#425・#366 を外した／3章「タスク管理」〉を消した）
+- handover.md のバイト数: 22,566（警告域 26KB の内）
+
+### 手順2（docs/notes/chat-side-operations.md）
+
+- 8: 「CLAUDE.md「未マージのブランチは削除しない」の例外であることを明記する」→「CLAUDE.md「ブランチ運用」の『未マージのブランチは削除しない』の例外と明記する」
+- 7: 「（`work/<MMDD>-<識別子>-<短い名前>` など）」→「（`work/<識別子>-<短い名前>`）」。CLAUDE.md「ブランチ運用」の `work/<識別子>`（識別子は `0913-qmx` の形で MMDD を含む）に接尾辞を足したものだと、同じ語で読めるようにした。指示文の例の形 `work/<MMDD>-<xxx>-<短い名前>` と例 `work/1027-skp-vid` を入れた版は 22,629 バイト（39 バイト増）になったので、純増を避けるため、CLAUDE.md の語 `<識別子>` に寄せて例を省いた。8 の「であることを」も「と」に詰めた
+- バイト数: 直す前 22,590 → 直した後 22,588（2 バイト減）
+- 成果物のコミット: b5740b139（handover.md と chat-side-operations.md）
+
+### 手順3（16・17）: 止まる条件に当たった
+
+見出しの一覧と判定（docs/notes/branch-operations.md 26,034B・234行、docs/notes/session-network.md 11,948B・154行。判定は指示文の3分類）:
+
+| 文書 | 行 | 見出し | 判定 | 理由 |
+|---|---|---|---|---|
+| branch-operations.md | 7 | ## 起動時に読み込んだ CLAUDE.md が古くないか確かめる（Codespace） | Codespace だけ | `/workspaces/mj` の HEAD での確かめ |
+| branch-operations.md | 13 | ## 作業ディレクトリの分離（Codespace） | Codespace だけ | 共有の `/workspaces/mj` と worktree |
+| branch-operations.md | 30 | ## Chat-Ref の着手前の確認 | 無関係 | Chat-Ref の確かめ |
+| branch-operations.md | 32 | ### セッション識別子（`XXX`）の重複 | 無関係 | 同上 |
+| branch-operations.md | 44 | ### 同じ Chat-Ref と雛形の行（CLAUDE.md「Chat-Ref」から移した） | 無関係 | 同上 |
+| branch-operations.md | 49 | ### 指示文の issue の state | 無関係 | 同上 |
+| branch-operations.md | 53 | ### 作業を再開するとき | 無関係 | 同上 |
+| branch-operations.md | 58 | ### 0章ゲート（指示文に実装が含まれるとき） | 無関係 | 同上 |
+| branch-operations.md | 68 | ## `/workspaces/mj` を pull するとき（CHAT-0915-NT-04） | Codespace だけ | 共有の作業ツリーの pull |
+| branch-operations.md | 82 | ## ブランチを削除するとき（#209、2026-09-13決定） | 混在 | 1項目だけ `/workspaces/mj` の HEAD に触れる（87行） |
+| branch-operations.md | 102 | ## ワークフローを変更したとき | 無関係 | 参照のみ |
+| branch-operations.md | 106 | ## 生成物を含む作業ブランチを取り込む・マージするとき（CHAT-0918-SX-16） | 混在 | 1項目だけ Codespace での生成の差に触れる（119行） |
+| branch-operations.md | 127 | ## 同じ系列で2本の指示を並行させるとき | 無関係 | ブランチの分け方 |
+| branch-operations.md | 132 | ## マージするとき（CLAUDE.md「ブランチ運用」から移した） | 無関係 | マージの手順 |
+| branch-operations.md | 144 | ## マージを戻すとき | 無関係 | revert の手順 |
+| branch-operations.md | 161 | ## 文章をコマンドに渡すとき（CLAUDE.md「コミットのルール」から移した） | 無関係 | 引用符の扱い |
+| branch-operations.md | 167 | ## 未コミットの変更を戻すとき（2026-09-27） | 無関係 | hook の代わりの手順 |
+| branch-operations.md | 179 | ## 作業ログの寿命（cleanup-logs.yml） | 無関係 | ログの削除 |
+| branch-operations.md | 184 | ### 書き方（ログを書く側の規則） | 無関係 | 同上 |
+| branch-operations.md | 194 | ### 自動で削除される条件 | 無関係 | 同上 |
+| branch-operations.md | 210 | ### #357 の通知（削除しないもの） | 無関係 | 同上 |
+| branch-operations.md | 221 | ### 効果の確かめ方 | 無関係 | 同上 |
+| branch-operations.md | 226 | ## 過去の作業ログを直す・参照するとき（2026-09-20、CHAT-0919-HG-08） | 無関係 | ログの直し方 |
+| session-network.md | 8 | ## Rebuild と Claude Code（#212、2026-09-14 に Rebuild 2回で検証済み） | Codespace だけ | Rebuild と `.devcontainer/` |
+| session-network.md | 20 | ## 2026-09-14（CHAT-0914-WF-03） | Codespace だけ | codespace 上の到達の実測 |
+| session-network.md | 35 | ## 2026-09-14 追加分（CHAT-0914-WF-05） | Codespace だけ | 同上 |
+| session-network.md | 46 | ## 2026-09-19 追加分（CHAT-0918-TP-06） | Codespace だけ | 同上 |
+| session-network.md | 54 | ## Codespace の確認用 URL | Codespace だけ | ポート転送 |
+| session-network.md | 64 | ## gh の認証（2026-09-14） | Codespace だけ | Codespaces のシークレット `GH_TOKEN` |
+| session-network.md | 66 | ### 現在の設定 | Codespace だけ | 同上 |
+| session-network.md | 76 | ### 確認結果（環境変数を外さずに実行） | Codespace だけ | 同上 |
+| session-network.md | 87 | ### 以前の運用（廃止）と経緯 | Codespace だけ | 同上 |
+| session-network.md | 98 | ### PAT が失効・削除されたとき | Codespace だけ | 同上 |
+| session-network.md | 106 | ## `ryoei.pro` は `urllib` の既定 User-Agent のときだけ 403 になる（2026-09-15 実測） | 混在 | 実測は codespace だが、User-Agent の規則は今も有効 |
+| session-network.md | 139 | ## シートの行番号を取る手順 | 無関係 | Sheets API とワークフローの出力 |
+| session-network.md | 146 | ## 作業ファイルの置き場所（2026-09-19、CHAT-0916-LV-33・LV-34） | Codespace だけ | `/workspaces/` に置く規則（今の正は cloud-sessions.md） |
+
+移す候補の見出しへの参照（`git grep -n -F '<見出しの語>' -- . ':!docs/logs' ':!docs/decisions'`。handover-archive の過去の行は対象外なので、下には載せるが直さない）:
+
+| 移す節 | 参照の場所 | 直しの要否 |
+|---|---|---|
+| 起動時に読み込んだ…（Codespace） | CLAUDE.md:12 は cloud-sessions.md の同名の節を指す（Codespace の節ではない） | 要らない |
+| 起動時に読み込んだ…（Codespace） | handover-archive-2026.md:987（過去の行） | 対象外 |
+| 作業ディレクトリの分離（Codespace） | branch-operations.md:77「上の「作業ディレクトリの分離」」（移す `/workspaces/mj` の pull の節の中） | 一緒に移るので要らない |
+| 作業ディレクトリの分離（Codespace） | branch-operations.md:177「上の「作業ディレクトリの分離」」（残る「未コミットの変更を戻すとき」の中） | 要る（branch-operations.md の中なので変えてよい） |
+| 作業ディレクトリの分離（Codespace） | handover-archive-2026.md:447・886・985・995（過去の行） | 対象外 |
+| `/workspaces/mj` を pull するとき | branch-operations.md:5（冒頭の注記）・24（移す節の中） | 冒頭の注記は手順3で直す。24行は一緒に移る |
+| Rebuild と Claude Code | 参照なし | — |
+| 2026-09-14（WF-03）・追加分2つ（到達の実測） | 見出しの語での参照なし。ただし **docs/notes/cloudflare.md:602「セッションから Cloudflare・本番に到達できるかの実測は `docs/notes/session-network.md`（#328）」** がこの3節を指す | **要る。cloudflare.md は対象外の文書** |
+| Codespace の確認用 URL | handover.md:196（6章の表の注記）、handover-archive-2026.md:827・993（過去の行） | handover は手順3で直す。archive は対象外 |
+| gh の認証 | **docs/notes/cloudflare.md:337「（`docs/notes/session-network.md`「gh の認証」）」** | **要る。cloudflare.md は対象外の文書** |
+| gh の認証 | handover.md:196、session-network.md:3（冒頭）、handover-archive-2026.md:917・990（過去の行） | handover・session-network は変えてよい。archive は対象外 |
+| 作業ファイルの置き場所（session-network） | CLAUDE.md:125・handover.md:197・cloud-sessions.md:24 は cloud-sessions.md の同名の節を指す | 要らない |
+| 作業ファイルの置き場所（session-network） | handover.md:196、session-network.md:3、handover-archive-2026.md:988（過去の行） | handover・session-network は変えてよい |
+
+- ほかに session-network.md をファイル単位で指す行: docs/notes/cloudflare.md:602（上）、docs/notes/security.md:69「`ryoei.pro`（User-Agent を付ける。docs/notes/session-network.md）」（残る「混在」の節を指すので、直す必要は無い）
+- **止まる条件「手順3の参照の直しで他の文書を変える必要が出たとき」に当たった。** 「gh の認証」と到達の実測3節を移すと、docs/notes/cloudflare.md:337・602 の参照先が無くなる。cloudflare.md は変えてよいファイルの一覧に無いので、変えずに止まった。branch-operations.md・session-network.md・handover-archive-2026.md と handover.md 6章の注記は、まだ変えていない（移動は全く行っていない）
+- 移した後に branch-operations.md・session-network.md の中身が無くなるかどうか: どちらも「無関係」「混在」の節が残るので、無くならない（止まる条件には当たらない見込み）
+- 参考: session-network.md 59〜62行の「以下の3節は…この文書に移したもの」の注記は「gh の認証」の直前にあり、3節のうち「gh の認証」だけが Codespace だけの記録。移すときは注記の扱いも決める必要がある
+
+### マージ
+
+- 止まる条件に当たったので、cloudflare へはマージしていない。手順1・2のコミット（b5740b139）は作業ブランチにある
+
 ## 報告
 
-- 状態: 対応中
+- 状態: 判断待ち
 - ブランチ: work/1028-agt
 - ログ: https://github.com/retroeater/mj/blob/work/1028-agt/docs/logs/CHAT-1028-AGT-03.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1028-agt
 - 確認用URL: なし
-- マージ: 未
+- マージ: 未（止まる条件に当たったため）
 - issue: なし
-- 判断が必要なこと: なし
+- 判断が必要なこと:
+  - 16・17（Codespace の旧記録の archive への移動）で止まった。session-network.md の「gh の認証」と到達の実測3節（2026-09-14 WF-03・同 追加分 WF-05・2026-09-19 追加分 TP-06）を移すと、対象外の docs/notes/cloudflare.md の2か所（337行「gh の認証」、602行「到達できるかの実測は session-network.md」）の参照先が無くなる。参照の一覧は経過「手順3」。次のどれにするか:（a）cloudflare.md の2行も直してよいことにして移動を続ける（b）この4節は移さず、残りの Codespace だけの節（branch-operations.md の3節、session-network.md の Rebuild・確認用 URL・作業ファイルの置き場所）だけを移す（c）16・17 はやめる
+  - 手順1・2（1・2・3・4・6・7・8）は作業ブランチで済んでいる（b5740b139）。16・17 の判断とあわせてマージする、または 1〜8 だけ先にマージするか
+  - 7 は、純増を避けるため、指示文の例の形 `work/<MMDD>-<xxx>-<短い名前>` と例 `work/1027-skp-vid` を入れずに `work/<識別子>-<短い名前>` とした（入れると 39 バイト増）。この形でよいか
 - 未確認の項目: なし
 - エラー: なし
 

@@ -172,7 +172,7 @@ AGT-01 でクラウドセッションではエージェントチームが作ら�
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1028-AGT-03
 - ブランチ: work/1028-agt（AGT-01 と同じ。削除は cleanup-branches.yml に任せる）
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1028-AGT-02.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1028-agt
@@ -210,12 +210,12 @@ AGT-01 でクラウドセッションではエージェントチームが作ら�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj dd51fd5a）: https://github.com/retroeater/mj-logs/tree/main/guide/dd51fd5a
+ガイド文書（この版を写した時点の最新、mj 3c141c6d）: https://github.com/retroeater/mj-logs/tree/main/guide/3c141c6d
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/dd51fd5a/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/dd51fd5a/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/dd51fd5a/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/dd51fd5a/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/dd51fd5a/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/dd51fd5a/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/3c141c6d/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/3c141c6d/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/3c141c6d/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/3c141c6d/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/3c141c6d/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/3c141c6d/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/ef29ee9e.md
