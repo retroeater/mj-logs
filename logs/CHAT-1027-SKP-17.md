@@ -89,15 +89,108 @@ Chat-Ref: CHAT-1027-SKP-17
 - テスト: `test_saikyo_menu.py`（6部門の並び、勝率の「.xxx」、予選の数の検査を外した）、`saikyo.test.mjs`（6部門・出場数・勝率の値の形・外した部門の読み替えの指示）
 - 文書: docs/notes/saikyo-page-design.md・ask-worker.md（「本番で送る固定の問い」の最強戦の3行の部門名も）・redirects.md・static-generation.md（「ページの一覧」の件数 11 → 8）・llms.txt
 
+### 手順2: 検査
+
+- `python3 -m unittest discover -s scripts/tests`: 1579件 OK
+- `node --test 'workers/ask/test/*.test.mjs'`: 生成し直した data-saikyo.json で 109件 pass・0 fail（生成前は data の6件が落ちる。指示の読み替えの検査は生成前から通る）
+- `regenerate-page.yml`（作業ブランチ）: check（saikyo_pages・ask_data_saikyo）は success（run 40496334983）。続けて生成（run 40496338899）が 79b1a22ae をコミットした
+- 勝率・出場数と今の通過率・出場の比べ: cloudflare（4f4346ace）の data-saikyo.json の「通過率」「出場」と、生成し直した「勝率」「出場数」の表（順位・名前・数値）を全件比べて一致（53件・45件）。ほかの4部門も一致。選手ごとの通算（totals）の出場 → 出場数・通過率 → 勝率も全員一致。違うのは勝率の表示（「0.704」→「.704」）だけ
+- ページ: ランキングの選ぶ部品のリンクは「最強位 ファイナル 勝率 出場数 連続出場 対局数」の6つ。個人成績のデータの部門（`"d"`）も同じ6つ・同じ順
+
+6部門の件数と上位10人（同率は全員）:
+
+#### 最強位（12件）
+
+| 順位 | 選手 | 値 |
+|---:|---|---|
+| 1 | 桑田憲汰 | 3回 |
+| 2 | 瀬戸熊直樹 | 2回 |
+| 3 | 前田直哉・多井隆晴・板川和俊・水沼利晃・沢崎誠・藤田晋・近藤千雄・近藤誠一・金太賢・鈴木大介 | 1回 |
+
+#### ファイナル（53件）
+
+| 順位 | 選手 | 値 |
+|---:|---|---|
+| 1 | 瀬戸熊直樹 | 9回 |
+| 2 | 近藤誠一 | 8回 |
+| 3 | 猿川真寿・鈴木たろう・鈴木大介 | 6回 |
+| 6 | 佐々木寿人・前原雄大・藤崎智 | 5回 |
+| 9 | 多井隆晴・片山まさゆき | 4回 |
+
+#### 勝率（53件、対局数10回以上）
+
+| 順位 | 選手 | 値 |
+|---:|---|---|
+| 1 | 桑田憲汰 | 1.000 |
+| 2 | 鈴木大介 | .704 |
+| 3 | 水口美香 | .636 |
+| 4 | 小宮悠 | .615 |
+| 5 | 渡辺洋香・近藤千雄 | .600 |
+| 7 | 藤田晋 | .583 |
+| 8 | 猿川真寿 | .576 |
+| 9 | 醍醐大 | .571 |
+| 10 | 瀬戸熊直樹 | .556 |
+
+#### 出場数（45件）
+
+| 順位 | 選手 | 値 |
+|---:|---|---|
+| 1 | 二階堂亜樹・佐々木寿人・瀬戸熊直樹・藤崎智 | 16回 |
+| 5 | 森山茂和・鈴木たろう | 15回 |
+| 7 | 前原雄大・村上淳・沢崎誠・猿川真寿・茅森早香・荒正義・魚谷侑未 | 14回 |
+
+#### 連続出場（43件）
+
+| 順位 | 選手 | 値 |
+|---:|---|---|
+| 1 | 二階堂亜樹・佐々木寿人・瀬戸熊直樹・藤崎智 | 16回 |
+| 5 | 森山茂和・鈴木たろう | 15回 |
+| 7 | 前原雄大・沢崎誠・猿川真寿・荒正義・魚谷侑未 | 14回 |
+
+#### 対局数（53件）
+
+| 順位 | 選手 | 値 |
+|---:|---|---|
+| 1 | 佐々木寿人 | 38回 |
+| 2 | 瀬戸熊直樹 | 36回 |
+| 3 | 森山茂和・猿川真寿・藤崎智・近藤誠一 | 33回 |
+| 7 | 鈴木たろう | 32回 |
+| 8 | 二階堂亜樹 | 29回 |
+| 9 | 前原雄大 | 28回 |
+| 10 | 滝沢和典・茅森早香・鈴木優・鈴木大介・高宮まり | 27回 |
+
+### 手順3: マージ前の差分
+
+origin/cloudflare は作業ブランチの祖先で、取り込みは要らなかった。cloudflare との差分 26ファイル（+305 −469）を種類ごとに:
+
+- コード・テスト: 5（`generate_saikyo_pages.py`・`ask.mjs`・テスト3本）
+- 配信設定: 1（`_redirects` の301 3行）
+- 生成物: 13（saikyo/index.html・players/index.html の文言の「9部門」→「6部門」とデータ、ランキング6ページの選ぶ部品・題名・説明、外した3部門のページの削除、sitemap-saikyo.xml の3URLの削除と lastmod、data-saikyo.json）
+- 文書: 7（docs/notes 4本・llms.txt・docs/decisions・このログ）
+- 年度・対局・卓のページと対戦成績（saikyo/<年度>/・saikyo/vs/）は変わっていない
+
+### 手順3: マージと本番
+
+- `git push origin work/1027-skp-rank6:cloudflare`（直前に再 fetch して `merge-base --is-ancestor` を確かめた）: 4f4346ace..f7a71cb0c
+- check-runs（f7a71cb0c）: Workers Builds: mj・mj-ask・regenerate・sync は success、notify 2件は skipped。失敗なし
+- 本番（`?v=f7a71cb0c`）: 6部門のページ（champion・final・pass-rate・appearances・streak・games）が 200。`qualifier-win/`・`qualifier-final/`・`qualifier-pass/` は 301 で `/saikyo/ranking/champion/?v=f7a71cb0c` へ
+- 格子（Chromium で本番を開いて測った。幅 390px・1280px）: 選ぶ部品のリンクの上端が「最強位・ファイナル・勝率」で同じ高さ、「出場数・連続出場・対局数」で次の高さ。2段×3列。個人成績（桑田憲汰、`?view=division`）の部門別のタブは6行（最強位 3回 1位・ファイナル 3回 11位・勝率 1.000 1位・出場数 3回・連続出場 3回・対局数 11回）
+- 本番の質問欄（mj-ask のビルド成功の後、1回ずつ）:
+  - 「勝率がいちばん高いのは？」→「勝率がいちばん高いのは桑田憲汰さんで、勝率は1.000です。対象は対局数10回以上の選手です。」（出典「麻雀最強戦 ランキング（勝率）」/saikyo/ranking/pass-rate/、注記「※対局数10回以上のみ」）。ページの勝率1位 桑田憲汰 1.000 と一致
+  - 「出場数がいちばん多いのは？」→「出場数がいちばん多いのは16回で、4人が並んでいます（二階堂亜樹さん・佐々木寿人さん・瀬戸熊直樹さん・藤崎智さん）。」（出典「麻雀最強戦 ランキング（出場数）」/saikyo/ranking/appearances/）。ページの出場数1位の4人・16回と一致
+- docs/notes/ask-worker.md「本番で送る固定の問い」の最強戦の行は、手順2のコミット（922d5d905）で直した（通過率 → 勝率、予選出場 → 出場数、成績の問いの「出場16回」→「出場数16回」）
+- 告知動画のスクリプト（`scripts/promo_video/saikyo_renewal/capture.mjs`）は、部門の並びを9部門のまま持ち、撮るときに決定と違えば止まる作り。撮り直しは別の指示（決定「告知動画はこの後に撮り直す」）なので、この指示では変えていない
+- 作業ブランチ: 最後のログの push と cloudflare への追いの push の後、`origin/cloudflare` の祖先であることを確かめてリモートの work/1027-skp-rank6 を消す。消す直前の先頭 SHA とマージ済みの判定は #633 のコメントに書く
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1027-skp-rank6
-- ログ: docs/logs/CHAT-1027-SKP-17.md
-- 比較URL: なし
-- 確認用URL: なし
-- マージ: なし
-- issue: #633
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1027-SKP-17.md
+- 比較URL: https://github.com/retroeater/mj/compare/4f4346ace...f7a71cb0c
+- 確認用URL: なし（本番で確かめた。勝率の表示が「.704」の形〈2位 鈴木大介〉なら、この版）
+- マージ: 済（cloudflare f7a71cb0c）
+- issue: #633（本文の更新・コメント）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
@@ -105,12 +198,12 @@ Chat-Ref: CHAT-1027-SKP-17
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 4f4346ac）: https://github.com/retroeater/mj-logs/tree/main/guide/4f4346ac
+ガイド文書（この版を写した時点の最新、mj f4f690aa）: https://github.com/retroeater/mj-logs/tree/main/guide/f4f690aa
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/4f4346ac/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/4f4346ac/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/4f4346ac/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/4f4346ac/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/4f4346ac/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/4f4346ac/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f4f690aa/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f4f690aa/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f4f690aa/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f4f690aa/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f4f690aa/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f4f690aa/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/99cac160.md
