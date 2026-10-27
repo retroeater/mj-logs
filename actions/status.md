@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-28 00:03 JST
+- 書き出した時刻: 2026-10-28 00:06 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -134,7 +134,7 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-10-28 00:02 | workflow_dispatch | cloudflare | in_progress | #38（40526977540） |  |
+| 2026-10-28 00:02 | workflow_dispatch | cloudflare | success | #38（40526977540） | 1分40秒 |
 | 2026-10-28 00:01 | workflow_dispatch | cloudflare | success | #37（40526818710） | 0分40秒 |
 | 2026-10-27 22:08 | workflow_dispatch | cloudflare | success | #36（40509422052） | 0分31秒 |
 | 2026-10-27 18:37 | workflow_dispatch | work/1018-log-367-migrate | success | #35（40482194195） | 0分29秒 |
@@ -202,11 +202,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-28 00:04 | workflow_dispatch | cloudflare | success | #482（40527324486） | 0分50秒 |
 | 2026-10-27 22:35 | workflow_dispatch | work/1027-ntf-regen | success | #481（40513285543） | 2分44秒 |
 | 2026-10-27 22:35 | workflow_dispatch | work/1027-ntf-regen | success | #480（40513280101） | 2分08秒 |
 | 2026-10-27 22:34 | workflow_dispatch | work/1027-ntf-regen | success | #479（40513274719） | 1分02秒 |
 | 2026-10-27 22:08 | push | cloudflare | success | #478（40509399083） | 0分42秒 |
-| 2026-10-27 22:06 | workflow_dispatch | work/1018-log-367-migrate | success | #477（40509139120） | 0分40秒 |
 
 ## regenerate-saikyo.yml
 
