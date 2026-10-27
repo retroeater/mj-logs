@@ -57,6 +57,41 @@
 
 ## 経過
 
+### 着手前の確認
+
+- 0: 「指示」欄の末尾は指示文の最後の行と一致（指示文は1段落につながって貼られていたので、そのまま写した）。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- 同じ Chat-Ref のコミットは無かった。`work/1028-log-367-weekly` はリモートにもローカルにも無かったので `origin/cloudflare`（235fc4d99）から作った
+- docs/notes/github-actions.md「ワークフローを変更したとき」「run-weekly.yml・run-monthly.yml」・docs/notes/scheduler-worker.md を読んだ。`schedule.json` は run-weekly の1行のまま（変えない）
+- #367: open。他セッションの着手中は無い（最後は LOG-05 の結果のコメント）。着手中のコメントを残した
+- 重なり: `git branch -r --no-merged origin/cloudflare` の各ブランチは、`run-weekly.yml`・`fetch-x-posts.yml`・`convert-x-posts.yml`・`workers/scheduler/schedule.json`・`scripts/fetch_x_posts.py` を変えていない
+- ジョブ名を持つコード（朝の報告・運行表）を `git grep` で探したが、run-weekly のジョブ名を列挙する所は無かった（mj-logs の運行表の元になるものの変更は要らない）
+
+### 作り（手順1、2fd5f7a14）
+
+- `run-weekly.yml` に `xfetch`（`fetch-x-posts.yml`）と `xconvert`（`convert-x-posts.yml`、`needs: xfetch`・`if: !cancelled()`）を足した。**案の `xposts` の1ジョブではなく2ジョブにした**（1つのジョブから `workflow_call` で呼べる本は1本だけのため）。`youtube` の `needs` に2つを足した（`!cancelled()` のまま）。手動実行では `dry_run: !inputs.scheduled` を渡す（ほかの本と同じ）
+- 呼ばれる2本に `workflow_call`（入力 `dry_run`・`scheduled`、Secret）と、`workflow_dispatch` の入力 `scheduled` を足し、`resolve-mode`（予約の起動は書く・手動は入力 dry_run に従う）で書くかを決めるようにした。判定の結果は `resolve-mode` が実行サマリに1行出し、実行のステップも `apply:` を出す
+- `fetch_x_posts.py` に `--since-latest` を足した（期間の初めを【1】のアカウントごとの最も新しい投稿日〈投稿日(JST)の列〉にする。行が無ければ `--start`）。`workflow_call` は handles・start_time・end_time を持たないので、既定の2人（`DEFAULT_HANDLES` = it_uesama・retroeater）・`--since-latest`・`--end now` になる。手動実行にも入力 `since_latest` を足した
+- `convert-x-posts.yml` は `workflow_call` のとき `mode=all`・`claude-sonnet-5-5`・全件
+- テスト: `--since-latest` が人ごとの最も新しい投稿日から呼ぶ（大文字小文字を同じアカウントに数える・対象外の takehirosan1209 の行は見ない）・既定の2人・`latest_dates`（日付でない値・短い行は数えない）。足したテストは修正前のコードには無い関数・引数を使うので通らない。`python3 -m unittest discover -s scripts/tests`: OK（Worker は変えていない）
+- docs/notes/github-actions.md の表の3行・run-weekly の節・権限と Secret の表に2行を足した
+
+### 作業ブランチでの手動実行（手順2）
+
+- `fetch-x-posts.yml`（run 40535181116、`since_latest` 真・dry-run）: success
+- `convert-x-posts.yml`（run 40535186608、all・dry-run）: success
+- `run-weekly.yml`（run 40535192703、`scheduled` なし）: success。ジョブの順と結果:
+
+| ジョブ | 開始〜終了（UTC） | 結果 |
+|---|---|---|
+| meibo / meibo・ampai、birthday、saikyo、logs | 15:51:54〜15:52:37 | success（並行） |
+| xfetch / fetch | 15:52:27〜15:53:54 | success（並行に始まった） |
+| xconvert / convert | 15:53:56〜15:54:19 | success（xfetch の後） |
+| youtube | 15:54:19 | skipped（手動実行では飛ばす。ほかの本の後） |
+
+  - `xfetch`: 期間の初め「【1】元データ」のアカウントごとの最も新しい投稿日（it_uesama 2026-10-27・retroeater 2026-10-28）〜now。dry-run で X API は呼ばず、シートにも書いていない
+  - `xconvert`: `apply: false`。【1】3451行・【2】3451行、【2】に無い投稿 0件（Claude・Places は 0回）。シートに書いていない
+  - 予約の起動の分岐（`scheduled` が真で書く）は `resolve-mode` の既存の判定のまま（ほかの週次の本と同じ）。手動実行で判定が `apply: false` になることを確かめた
+
 ## 報告
 
 - 状態: 作業中
@@ -73,12 +108,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj aee13b91）: https://github.com/retroeater/mj-logs/tree/main/guide/aee13b91
+ガイド文書（この版を写した時点の最新、mj 62751b7a）: https://github.com/retroeater/mj-logs/tree/main/guide/62751b7a
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/aee13b91/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/aee13b91/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/aee13b91/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/aee13b91/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/aee13b91/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/aee13b91/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/235fc4d9.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/62751b7a/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/62751b7a/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/62751b7a/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/62751b7a/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/62751b7a/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/62751b7a/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/62751b7a.md

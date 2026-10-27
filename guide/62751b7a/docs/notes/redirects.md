@@ -35,6 +35,9 @@ ryoei.pro のすべての転送の一覧と、四半期ごとの棚卸しの手�
 | `/jwrc/ranking/` | `/jwrc/ranking/total/` | `_redirects` 301（クエリを引き継ぐ。houou/ と同じ入口の形） | 2026-10-18（公開は 2026-10-19、#599） | #594 | 未（初回 2027-01 上旬） |
 | `/wrcr/ranking/` | `/wrcr/ranking/total/` | `_redirects` 301（クエリを引き継ぐ。jwrc/ と同じ入口の形） | 2026-10-19（公開は同じ日、#611） | #366 | 未（初回 2027-01 上旬） |
 | `/saikyo/ranking/` | `/saikyo/ranking/champion/` | `_redirects` 301（クエリを引き継ぐ。houou/ と同じ入口の形） | 2026-10-23（公開は 2026-10-26、#627） | #626 | 未（初回 2027-01 上旬） |
+| `/saikyo/ranking/qualifier-win/` | `/saikyo/ranking/champion/` | `_redirects` 301（2026-10-27 に外した部門「予選優勝」。`:slug` の 200 より上に置く。`test_saikyo_redirects.py` が検査） | 2026-10-27 | #633 | 未（初回 2027-01 上旬。`/saikyo/?q=` の棚卸しと一緒に、流入が無ければ外す） |
+| `/saikyo/ranking/qualifier-final/` | `/saikyo/ranking/champion/` | `_redirects` 301（同じく「予選決勝」） | 2026-10-27 | #633 | 未（同上） |
+| `/saikyo/ranking/qualifier-pass/` | `/saikyo/ranking/champion/` | `_redirects` 301（同じく「予選通過」） | 2026-10-27 | #633 | 未（同上） |
 | `/houou_ranking.html` | `/houou/ranking/total/` | `_redirects` 301（クエリを引き継ぐ。`?division=` は下の「JS の移動」、`?sheet=` は読まれない） | #540 の公開の日 | #540 | 未（初回 2027-01 上旬） |
 | `/houou_leagues.html` | `/houou/leagues/` | `_redirects` 301（`?name=` を引き継ぎ、下の「JS の移動」で個人成績のリーグのタブへ） | #540 の公開の日 | #540 | 未（初回 2027-01 上旬） |
 | `/houou_race.html` | `/houou/race/` | `_redirects` 301 | #540 の公開の日 | #540 | 未（初回 2027-01 上旬） |
