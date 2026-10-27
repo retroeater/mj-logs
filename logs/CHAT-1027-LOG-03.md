@@ -52,6 +52,22 @@
 
 ## 経過
 
+### 着手前の確認
+
+- 0: 「指示」欄の末尾は指示文の最後の行と一致（指示文は1段落につながって貼られていたので、そのまま写した）。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- 同じ Chat-Ref のコミットは無かった。LOG-02（1027）の `## 報告` の状態は「判断待ち」（続きの追記は完了時に行う）
+- #367: open。他セッションの着手中は無い（最後は LOG-02〈1027〉の結果のコメント）。着手中のコメントを残した
+
+### 取り込みと確かめ（手順1）
+
+- 作業ブランチは `origin/cloudflare` の祖先でなかったので `git merge origin/cloudflare` で取り込んだ（09d00645c）。衝突は無かった
+- `python3 -m unittest discover -s scripts/tests`: OK
+- `regenerate-page.yml` の `check`（run 40509038422）: 通る（3層から 3140件）。再生成（run 40509139120、success）: 生成物は作業ブランチの版（LOG-02〈1027〉の 7b9ed62e3）と同じで、コミットは出なかった（【2】【3】の変化なし）
+- **ページは 3140行（見込み 3140）**
+- cloudflare との差分のファイル（`docs/logs/` を除く）: `.github/workflows/convert-x-posts.yml`・`fetch-x-posts.yml`、`docs/decisions/operations.md`、`docs/notes/github-actions.md`・`video-exam.md`、`resource_logs.html`、`scripts/convert_x_posts.py`・`fetch_x_posts.py`・`generate_resource_logs.py` と3つのテスト。**見込みの外は無い**（sitemap の lastmod は差分に無い）
+- resource_logs.html の差分の内訳は LOG-02（1027）と同じ: 後だけの行 30（2025-12）・前だけの行 0・画像 2627・駅 179（旧「ログ」の別の駅か本文の駅 110・表示の整え方 45・【県】が付いた 24）・店URL 56・日付 1
+- `git grep`（scripts・.github・workers）: 旧「ログ」シート・「比較」タブを読む所は無い（「ログ」の名前は、書かないことを確かめるテスト2か所だけ。「比較」は別の意味の語だけ）
+
 ## 報告
 
 - 状態: 作業中
