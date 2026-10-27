@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-27 21:00 JST
+- 書き出した時刻: 2026-10-27 21:02 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -25,11 +25,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-10-27 21:00 | push | work/1027-skp-data | in_progress | #452（40500348333） |  |
+| 2026-10-27 21:02 | push | work/1027-skp-data | success | #453（40500608968） | 0分25秒 |
+| 2026-10-27 21:00 | push | work/1027-skp-data | success | #452（40500348333） | 0分27秒 |
 | 2026-10-27 20:27 | push | work/1027-skp-rank6 | success | #451（40496312083） | 0分22秒 |
 | 2026-10-27 18:41 | push | work/1027-skp | success | #450（40482658134） | 0分21秒 |
 | 2026-10-27 18:37 | push | work/1018-log-367-migrate | success | #449（40482184090） | 0分25秒 |
-| 2026-10-27 18:36 | push | work/1027-skp | success | #448（40482068401） | 0分23秒 |
 
 ## check-build-failure.yml
 
@@ -38,11 +38,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-27 21:00 | check_run | cloudflare | skipped | #592（40500436909） | 0分01秒 |
 | 2026-10-27 20:31 | check_run | cloudflare | skipped | #591（40496824432） | 0分01秒 |
 | 2026-10-27 20:31 | check_run | cloudflare | skipped | #590（40496822050） | 0分01秒 |
 | 2026-10-27 20:28 | check_run | cloudflare | skipped | #589（40496368741） | 0分01秒 |
 | 2026-10-27 18:41 | check_run | cloudflare | failure | #588（40482759522） | 0分12秒 |
-| 2026-10-27 18:41 | check_run | cloudflare | skipped | #587（40482729801） | 0分02秒 |
 
 - #588 failure: ジョブ「notify」 ステップ「判定する(該当すればジョブを失敗させる)」
 
@@ -204,11 +204,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-27 21:02 | workflow_dispatch | work/1027-skp-data | in_progress | #474（40500615095） |  |
+| 2026-10-27 21:00 | workflow_dispatch | work/1027-skp-data | success | #473（40500359988） | 1分18秒 |
+| 2026-10-27 21:00 | workflow_dispatch | work/1027-skp-data | success | #472（40500355428） | 0分34秒 |
 | 2026-10-27 20:31 | push | cloudflare | success | #471（40496761656） | 0分54秒 |
 | 2026-10-27 20:27 | workflow_dispatch | work/1027-skp-rank6 | success | #470（40496338899） | 2分00秒 |
-| 2026-10-27 20:27 | workflow_dispatch | work/1027-skp-rank6 | success | #469（40496334983） | 0分44秒 |
-| 2026-10-27 18:37 | workflow_dispatch | work/1018-log-367-migrate | success | #468（40482197619） | 0分40秒 |
-| 2026-10-27 18:36 | workflow_dispatch | work/1027-skp | success | #467（40482074367） | 0分33秒 |
 
 ## regenerate-saikyo.yml
 

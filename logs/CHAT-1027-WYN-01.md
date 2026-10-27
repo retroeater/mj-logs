@@ -72,18 +72,48 @@
 ### 手順2 起動
 
 - 2026-10-27T11:50Z、`actions_run_trigger` で `fetch-youtube.yml` を ref cloudflare・入力なしで起動（204）
+- run 40499085851（workflow_dispatch、head be0fd36f9）: **success**。11:49:59Z〜11:59:39Z（約9分40秒、上限内）
+  - `fetch`: success（11:50:03〜11:50:26、約23秒）
+  - `regenerate / regenerate`: success（11:50:29〜11:59:38、約9分9秒。うち「対象ページを再生成」8分21秒）。「帰り道の一覧のOGP画像を作る」「帰り道の前回の知らせを読む」「帰り道の取り込みを調べる」は success、「帰り道の知らせを書く」「帰り道の取り込みの失敗を報告」「飛ばしたページを報告」は skipped
+  - `report`: skipped
+- cloudflare に入ったコミット
+  - 954de2fa3 `chore: fetch YouTube channel and wayhome data via GitHub Actions`: `data/youtube_meta.json` のみ（`video_count_requested`/`fetched` 42→43、`aNSsJicbMlM` の項目を追加。publishedAt 2026-10-26T06:21:41Z、PT19M40S）
+  - 4ecbad419 `chore: regenerate …`（69ファイル）
+    - `wayhome/` 追加: `wayhome/aNSsJicbMlM.html`
+    - `wayhome/` 変更: `wayhome/index.html`、`wayhome/OkKAh8yP8Uk.html`（「最新話」の印が外れ、次の回へのリンクが付いた）
+    - `img/ogp/wayhome/`: 追加 `index-20261026.jpg`、削除 `index-20261011-2.jpg`
+    - サイトマップ: `sitemap-wayhome.xml`・`sitemap-saikyo.xml`・`sitemap-title.xml`
+    - 帰り道以外のページ（前回の生成の後のシートの変化等。止める理由にしない）:
+      - `title/tatsujin/3.html`（帰り道の節が増え、`aNSsJicbMlM` へのリンク。新しい回の結び付き）
+      - `jpml_pros.html`
+      - `saikyo/`: 追加 `saikyo/2026/20261025-s2.html`。変更 `saikyo/2026/20261025.html`・`20261025-s1-a.html`・`20261025-s1-b.html`・`saikyo/2026/index.html`・`saikyo/ask-players.json`・`saikyo/players/index.html`・`saikyo/vs/index.html`・`saikyo/ranking/{appearances,champion,final,games,pass-rate,streak}/index.html`、ほか 2014〜2025 年の各回 44件（`saikyo/2014/20140216-s1-a.html` 〜 `saikyo/2025/20251213-s1-d.html`）
+    - 件名に並ぶ `workers/ask/data*.json` は変更無し
+
+### 手順3 確かめ
+
+- (a) `wayhome/` に足された各話: **`aNSsJicbMlM`（「第3期達人戦 森山茂和」、2026-10-26 公開）の1件**。
+  手順1の常設 #545 の最新コメントの動画ID は**空**（`"new": []`）で、照合すると食い違う:
+  - 足されたが #545 の最新コメントに無い: `aNSsJicbMlM`
+  - #545 の最新コメントにあって足されていない: なし
+  - 参考: #545 のどのコメントにも `aNSsJicbMlM` は無い。公開（2026-10-26T06:21Z）は直近の週次の fetch-youtube（2026-10-25T22:47Z）より後なので、週次の知らせが出る前に平野さんがシートに足したと見込む（推測。シートは見ていない）
+- (b) 一覧の最新の回: `aNSsJicbMlM`（続いて `OkKAh8yP8Uk`・`Yjp_PKHvldw`・`2Bn3SktouP4`）。各話は「決勝戦を見る」あり、og:image は YouTube の maxresdefault
+- (d) 実行の後の #545: 新しいコメント無し（コメント数3のまま。「帰り道の知らせを書く」が skipped）
+- **止まる条件「足された各話が、手順1の常設 issue の動画ID と食い違う」に当たったため、ここで止まる。** ページは戻していない。(c) 本番の確認は行っていない。マージしない（CLAUDE.md「ブランチ運用」: 止まる条件に当たったらマージせずに報告）
 
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1027-wyn
 - ログ: https://github.com/retroeater/mj/blob/work/1027-wyn/docs/logs/CHAT-1027-WYN-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1027-wyn
 - 確認用URL: なし
-- マージ: 未
-- issue: なし
-- 判断が必要なこと: 未記入
-- 未確認の項目: 未記入
+- マージ: 未（止まる条件に当たったため。ページの生成物は run 40499085851 が cloudflare に直接コミット済み: 954de2fa3・4ecbad419）
+- issue: なし（#545 は読んだだけ）
+- 判断が必要なこと:
+  - 足された回は `aNSsJicbMlM`（第3期達人戦 森山茂和、2026-10-26 公開）の1件。#545 の最新コメントには動画ID が無く（新しい回の知らせが出る前にシートに足したためと見込む）、止まる条件の「食い違い」に当たった。これが平野さんの足した回か
+  - 足した回で合っていれば、(c) 本番の確認と、このログ・docs/decisions の cloudflare へのマージを続けてよいか（続きの指示で）
+- 未確認の項目:
+  - (c) 本番の一覧 https://ryoei.pro/wayhome/ と各話 https://ryoei.pro/wayhome/aNSsJicbMlM の見え方（Workers Builds の反映後）
 - エラー: なし
 
 <!-- guide-links -->
