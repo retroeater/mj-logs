@@ -34,7 +34,7 @@ ryoei.pro のすべての転送の一覧と、四半期ごとの棚卸しの手�
 | `/ouka/ranking/` | `/ouka/ranking/total/` | `_redirects` 301（クエリを引き継ぐ。houou/ と同じ入口の形） | 2026-10-17（未公開。#519） | #519 | 未（初回 2027-01 上旬） |
 | `/jwrc/ranking/` | `/jwrc/ranking/total/` | `_redirects` 301（クエリを引き継ぐ。houou/ と同じ入口の形） | 2026-10-18（公開は 2026-10-19、#599） | #594 | 未（初回 2027-01 上旬） |
 | `/wrcr/ranking/` | `/wrcr/ranking/total/` | `_redirects` 301（クエリを引き継ぐ。jwrc/ と同じ入口の形） | 2026-10-19（公開は同じ日、#611） | #366 | 未（初回 2027-01 上旬） |
-| `/saikyo/ranking/` | `/saikyo/ranking/champion/` | `_redirects` 301（クエリを引き継ぐ。houou/ と同じ入口の形。段1 は noindex のページ） | 2026-10-23（未公開、公開は #627） | #626 | 未（初回 2027-01 上旬） |
+| `/saikyo/ranking/` | `/saikyo/ranking/champion/` | `_redirects` 301（クエリを引き継ぐ。houou/ と同じ入口の形） | 2026-10-23（公開は 2026-10-26、#627） | #626 | 未（初回 2027-01 上旬） |
 | `/houou_ranking.html` | `/houou/ranking/total/` | `_redirects` 301（クエリを引き継ぐ。`?division=` は下の「JS の移動」、`?sheet=` は読まれない） | #540 の公開の日 | #540 | 未（初回 2027-01 上旬） |
 | `/houou_leagues.html` | `/houou/leagues/` | `_redirects` 301（`?name=` を引き継ぎ、下の「JS の移動」で個人成績のリーグのタブへ） | #540 の公開の日 | #540 | 未（初回 2027-01 上旬） |
 | `/houou_race.html` | `/houou/race/` | `_redirects` 301 | #540 の公開の日 | #540 | 未（初回 2027-01 上旬） |
@@ -83,6 +83,7 @@ ryoei.pro のすべての転送の一覧と、四半期ごとの棚卸しの手�
 | `houou/ranking/total/`・`ouka/ranking/total/`・`jwrc/ranking/total/`・`wrcr/ranking/total/` の `?division=`（`/houou/ranking/?division=`・`/houou_ranking.html?division=`・`/ouka_ranking.html?division=`・`/wrc_ranking.html?division=` は 301 で `total/` へ来る） | その部門のページ | `assets/league.js` | #518・#519・#594・#599 |
 | `houou/leagues/`（`/houou_leagues.html` は 301 で来る） | `houou/players/?view=league`（`?name=` を保つ） | `assets/league.js`（2026-10-12） | #518 |
 | `ouka/leagues/`（`/ouka_leagues.html` は 301 で来る） | `ouka/players/?view=league`（`?name=` を保つ） | `assets/league.js`（houou/ と同じ。生成は #591） | #591 |
+| `/saikyo/?q=<名前>`（今までのトップの検索の URL。外で共有されたもの） | `/saikyo/players/?name=<名前>` | `assets/saikyo.js`（新しいトップ、2026-10-26。サイト内のリンク〈jpml_pros・卓のページの「すべて見る」〉は個人成績へ直接張り替えた）。**期限つき: 公開から3か月後（2027-01 上旬）の棚卸しで、Cloudflare の集計で `/saikyo/?q=` の流入が無いと確かめたら、この行・JS の節・新しいトップの `saikyo.js` の読み込みを外す**（2026-10-23 の決定6。JS の移動は集計に出ないので、`/saikyo/` の流入のクエリつきの件数で見る） | #627 |
 
 ## 予定（公開時に増える）
 

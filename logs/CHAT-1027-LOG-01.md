@@ -123,7 +123,7 @@ CHAT-1021-LOG-01 で、生成を3層のスプレッドシートだけから作�
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1027-LOG-02
 - ブランチ: work/1018-log-367-migrate
 - ログ: https://github.com/retroeater/mj/blob/work/1018-log-367-migrate/docs/logs/CHAT-1027-LOG-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1018-log-367-migrate
@@ -144,12 +144,12 @@ CHAT-1021-LOG-01 で、生成を3層のスプレッドシートだけから作�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 5fa2b3bd）: https://github.com/retroeater/mj-logs/tree/main/guide/5fa2b3bd
+ガイド文書（この版を写した時点の最新、mj 4f4346ac）: https://github.com/retroeater/mj-logs/tree/main/guide/4f4346ac
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/5fa2b3bd/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/5fa2b3bd/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/5fa2b3bd/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/5fa2b3bd/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/5fa2b3bd/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/5fa2b3bd/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/4f4346ac/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/4f4346ac/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/4f4346ac/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/4f4346ac/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/4f4346ac/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/4f4346ac/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/99cac160.md

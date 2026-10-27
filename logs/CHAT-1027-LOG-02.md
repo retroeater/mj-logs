@@ -55,28 +55,116 @@ CHAT-1027-LOG-01 の dry-run の結果に平野さんが答えたので、一度
 
 ## 経過
 
+### 着手前の確認
+
+- 0: 「指示」欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- 同じ Chat-Ref のコミットは無かった。LOG-01（1027）の `## 報告` の状態は「判断待ち」。末尾に ` / 続き: CHAT-1027-LOG-02` を足した
+- #367: open。他セッションの着手中は無い（最後は LOG-01〈1027〉の結果のコメント）。着手中のコメントを残した
+- 作業ブランチはリモートと一致（4e9a17592）、`origin/cloudflare` は祖先（取り込みは不要）
+
+### log-fix の直し（手順1、286458e41）
+
+- (a): 旧「ログ」で表示 N の投稿だけ【3】の「表示」を N にする。表示が空の投稿は書かずに数と一覧だけ出す（止めない）
+- (b): 【2】の3列の決め直しに加えて、決め直した【2】の駅を【3】の「駅」が空の行にだけ書く（`layer3_station_plan`）。【3】の駅に値がある行は書かずに一覧にし、区分 log の行で【3】に行が無い投稿があれば本番で止まる。【3】に書くのは「表示」「駅」だけ（外なら止まる）
+- テスト（【3】の駅の書き方・表示が空でも止めない・【3】に行が無ければ止まる・【3】の書いてよい列）を足し直した。1583件 OK
+
+### dry-run と本番（手順1・2、run 40481844986・40481961385）
+
+- dry-run: 旧「ログ」2708行・投稿 ID 2692件。【1】3419行・【2】3419行・【3】3141行。**(a) 1件**（谷岡育夫 2025-12-09、【3】2行）・表示が空 30件（旧「ログ」25〜29行・32〜56行、書かない）。**(b) 2610行・【2】の書き換え 681セル（駅 385・要確認 54・要確認の理由 242）**（LOG-01〈1027〉の見込みと同じ）。旧「ログ」の駅が候補にあった 2374・候補に無い 99・候補が空 137。【3】の駅に書く 2610行・駅に値があって書かない 0行・決め直した駅が空 0行・【3】に行が無い 0行
+- 【3】の駅に値があって書かない行は0行だった（平野さんが直した【3】150・236・379・529行は、区分 log の行ではない）
+- 本番: 書く前に【2】【3】を読み直して同じだった。書いたセル:
+
+| シート | 列 | セル |
+|---|---|---:|
+| 【3】手動補正 | 表示 | 1 |
+| 【3】手動補正 | 駅 | 2610 |
+| 【2】自動変換後 | 駅 | 385 |
+| 【2】自動変換後 | 要確認 | 54 |
+| 【2】自動変換後 | 要確認の理由 | 242 |
+
+- 要確認の数（【2】、理由ごと。1行に複数あり）:
+
+| 要確認の理由 | 移した行 前 | 移した行 後 | もとの行（変えない） |
+|---|---:|---:|---:|
+| （要確認の行） | 621 | 663 | 106 |
+| 判定が不明 | 486 | 486 | 81 |
+| 旧「ログ」の駅が圏内に無い | 0 | 236 | 0 |
+| 圏内に駅が無い | 134 | 134 | 6 |
+| 本文の駅が圏内に無い | 42 | 35 | 2 |
+| 店が見つからない | 3 | 3 | 2 |
+| 店名が本文に無い | 0 | 0 | 15 |
+
+### 一度きりの処理の削除（手順2、2135b970f）
+
+- `mode=log-fix`（旧「ログ」を読む処理・【3】に書く処理）と、ワークフローの選択肢 `log-fix` を消した。`scripts/` と `.github/` は log-fix を足す前（5cc5e0d29）と比べて、`convert_x_posts.py` の `LOG_STATION_OUTSIDE` と `reason_kind` の2か所だけが違う（【2】に残る文面の数え方）。そのテストを足した（stations で計算し直しても、旧「ログ」の駅の理由は消さない）
+- `python3 -m unittest discover -s scripts/tests`: 1573件 OK
+- `git grep`（scripts・.github）: 旧「ログ」を読む所（`LOG_TAB`・`LOG_BOOK`・「ログ」シートの名前・`log_by_id`・`log-fix`）は無い。残るのは「ログ」に書かないことを確かめるテスト2か所だけ
+- ワークフローを変えたので、作業ブランチで `convert-x-posts.yml` の `mode=all` の dry-run を回した（run 40482194195、success）
+
+### 再生成と前後の比べ（手順3、run 40482197619 → 7b9ed62e3）
+
+- **ページは 3140行（見込み 3140）。** cloudflare の resource_logs.html（2026-10-26 19:16 の生成、3113行）と投稿 ID で突き合わせた
+  - 後だけにある行: 30行（2025-12、平野良栄 25・谷岡育夫 5。旧「ログ」で表示が空だった投稿）
+  - 前だけにある行: 0行。谷岡育夫 2025-12-09（(a) の1件）は前後どちらにも無い
+  - 前の投稿 ID の重なり3組（2行ずつ）は、後では1行ずつ
+- 共通の行の値の違い:
+
+| 種類 | 行 | 例（名前・日付: 前 → 後） |
+|---|---:|---|
+| 画像 | 2627 | 谷岡育夫 2025-11-30: `…?format=jpg&name=…` → `….jpg`（旧「ログ」の手書きの URL から【1】の API の URL へ。同じ画像）／谷岡育夫 2025-11-30／平野良栄 2025-11-30 |
+| 駅 | 179 | 下の表 |
+| 店URL（増えた） | 56 | 石立岳大 2024-10-25: なし → Google マップ／石立岳大 2024-10-12／石立岳大 2024-09-15 |
+| 日付 | 1 | 石立岳大: 2024-08-13 → 2024-08-14 |
+| 店名・メニュー | 3 | 石立岳大 2024-08-14・2024-06-16・2023-11-01（前の投稿 ID の重なりで、比べた相手の行が違うため。値の変化ではない） |
+| 並び | 1937 | 共通の行の並びの位置が違う行の数（同じ日の中で投稿 ID の大きい順にしたため） |
+
+- 駅の違い 179行（前は旧「ログ」の駅の先頭の1つ、後は決め直した駅）:
+
+| 種類 | 行 | 例（名前・日付: 前 → 後） |
+|---|---:|---|
+| 旧「ログ」の駅が複数あって候補の中のより近い駅（か本文の駅）を出した行 | 110 | 谷岡育夫 2025-10-11: 新宿 → 大久保／谷岡育夫 2025-06-08: 東府中 → 府中競馬正門前／谷岡育夫 2022-12-27: 曙橋 → 四谷三丁目 |
+| 表示の整え方（「ヶ」と「ケ」・括弧・末尾の「駅」） | 45 | 平野良栄 2025-11-03: 市ヶ谷 → 市ケ谷／谷岡育夫 2025-07-13: 南阿佐ヶ谷 → 南阿佐ケ谷／谷岡育夫 2025-07-25: 笹塚 → 笹塚（見た目は同じで、文字の違い） |
+| そのほか: 【県】が付いた | 24 | 谷岡育夫 2025-11-06: 新横浜 → 【神奈川】新横浜／平野良栄 2025-08-08: 仙台 → 【宮城】仙台（旧「ログ」は【県】を付けていなかった駅に、Places の住所の都道府県で【県】が付いた） |
+| 【3】で直した行 | 0 | （【3】150・236・379・529行は区分 log の行でなく、前後とも【3】の値） |
+
+  - 110行の分け方: 前の駅と後の駅の名前が違う行。決め直しの規則は、候補の駅のうち旧「ログ」の駅か本文の駅と同じ名前のものしか出さないので、後の駅は旧「ログ」の2つ目以降の駅か本文の駅（旧「ログ」の駅の並びはページに出ないので、行ごとには確かめていない）
+- プレビュー（7b9ed62e3、Workers Builds success）の HTML は作業ブランチの生成物と同じ（3140行）。確かめた行:
+  - 谷岡育夫 2025-06-08（市場ラーメンわた、旧「ログ」の駅が府中本町）: 府中本町（【2】1046行。候補が空で、旧「ログ」の駅を出して要確認）
+  - 【2】871行 平野良栄 2025-09-29（目白旬香亭）: 東京（旧「ログ」の駅。候補〈目白の店〉に無く要確認）
+  - 石立岳大の行: 2024-10-31 和市 新橋・2024-10-31 らあめん花月嵐 【千葉】浦安 など
+  - 744行（平野良栄 2024-10-10）: 矢場とん・ダブルトールカフェの2行とも【愛知】名古屋で出る
+  - 2025-12 の30件のうち1行: 平野良栄 2025-12-30 BAKERY RESTAURANT C 後楽園
+  - 谷岡育夫 2025-12-09（(a)）: 出ない
+  - ブラウザでの見え方は確かめていない（HTML だけ）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1018-log-367-migrate
 - ログ: https://github.com/retroeater/mj/blob/work/1018-log-367-migrate/docs/logs/CHAT-1027-LOG-02.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1018-log-367-migrate
-- 確認用URL: なし
+- 確認用URL: プレビューあり（URL は最終報告）。7b9ed62e3 の生成物で、ページは 3140行。見えるはずの印: 谷岡育夫 2025-06-08 の市場ラーメンわたの駅が「府中本町」、2025-12-09 の谷岡育夫の行が無い
 - マージ: 未
 - issue: #367
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 判断が必要なこと:
+  - マージ（LOG-05 からの作業ブランチをまとめて1回。プレビューを見てから）
+  - 駅の違いのうち「【県】が付いた」24行（例: 新横浜 → 【神奈川】新横浜）は、指示の「違ってよい」の種類に無い。旧「ログ」は【県】を付けていなかった駅に、決め直しで Places の住所の都道府県が付いた。このままでよいか
+  - 【3】の「駅」に、移した 2610行すべての駅が入った（【2】を後で変えても、【3】を消すまでは【3】の駅が出る）
+  - 旧「ログ」シートは読まなくなった（消してよい。平野さん）。「比較」シートの削除・Places の1日の割り当てを 1,000 に戻すことも残っている
+- 未確認の項目:
+  - ブラウザでのプレビューの見え方（HTML だけ確かめた）
+  - 駅名が違う 110行が、旧「ログ」の2つ目以降の駅か本文の駅かの行ごとの別（旧「ログ」の駅の並びはページに出ないため）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 5fa2b3bd）: https://github.com/retroeater/mj-logs/tree/main/guide/5fa2b3bd
+ガイド文書（この版を写した時点の最新、mj 4f4346ac）: https://github.com/retroeater/mj-logs/tree/main/guide/4f4346ac
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/5fa2b3bd/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/5fa2b3bd/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/5fa2b3bd/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/5fa2b3bd/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/5fa2b3bd/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/5fa2b3bd/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/4f4346ac/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/4f4346ac/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/4f4346ac/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/4f4346ac/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/4f4346ac/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/4f4346ac/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/99cac160.md
