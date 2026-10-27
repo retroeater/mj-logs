@@ -107,15 +107,197 @@ Anthropic の Claude Code チームのコードレビューの記事（Addy Osma
 - 前の SHA はマージの push の出力（`235fc4d99..62751b7a0` の形）にだけ出る。LOG-01 のログはこれを書いていたが、SKP-22 のログは後の SHA だけだった。節に「push の出力の範囲をログに書く」を入れた
 - `regenerate-page.yml` は cloudflare への push で生成スクリプト・ページの JS が変わると動く（`on.push.paths`）。戻しの push でも同じく再生成が走る
 
+### 手順3: 文書に足した（コミット 5040b675c）
+
+追記先の今の内容を読み、同じ趣旨の記述が無いことを確かめて、どれも新しく足した（置き換えは無し）。
+
+- (1) CLAUDE.md「判断・作業の原則」: 「修正の検証は…」の行の次に1行。`docs/notes/self-review.md` を新規作成。`docs/handover.md` 6章の表に `self-review.md` の行を足した（`static-generation.md` の行の前）
+- (1) の案からの変更: `/code-review` の行は手順2の結果で外し、代わりに「使わない理由」の節を置いた。サブエージェントは fork でなく新しい文脈のもの（`general-purpose` など）と書いた（fork は作業の文脈を引き継ぐため）。自分の結論を渡さない、を足した。対象に「手書きの HTML・CSS」を明記した。判断待ちで止まる指示でも差分があれば行う、を足した
+- (2) `docs/notes/branch-operations.md`: 「マージするとき」の後に節「マージを戻すとき」を新設。あわせて「マージするとき」に「push の出力の範囲 `<前>..<後>` をログに書く」の1項目を足した（戻すときに前の SHA が要るため）。`docs/handover.md` 6章の `branch-operations.md` の行の「開く場面」に「マージを戻すとき」を足した
+- (2) の案からの変更: 案の「マージコミットなら `git revert -m 1`、fast-forward なら `git revert <base>..<head>`」は、上の「(2) の前提を実物で確かめた」のとおり mj では失敗する・他の作業を戻すので、前後の版の差分を逆向きに当てる形にした。作業ログは戻さない（`:(exclude)docs/logs/`）。戻しのコミットの件名を `revert:` にした（既存の接頭辞に `revert:` の例は無い。`git log --format=%s origin/cloudflare | grep -c '^revert'` は0件。判断が必要なことに書いた）
+- (3) `docs/notes/chat-routines.md`「指示の種類ごとの確かめ」: 「後始末・削除の指示」の前に1項目。案の文面の「記事の 59%」は、出典が分かるように「Claude Code チームのレビューの記事では、繰り返された指摘の約59%が最初の版からあったコードだった」に言い換えた。`/grill-me` は `.claude/skills/grill-me` にある
+- `docs/decisions/operations.md` に「2026-10-28（CHAT-1028-CRV-01）」の節を足した（指示文の「決定」節。作業中の回答は無し）
+
+容量（作業ブランチ上、`wc -c`。上限 28KB=28672・警告域 26KB=26624、instruction-template は 16KB=16384・警告域 14KB=14336）:
+
+| 文書 | 変更前 | 変更後 |
+|---|---|---|
+| CLAUDE.md | 23488 | 23786 |
+| docs/handover.md | 22221 | 22464 |
+| docs/notes/chat-side-operations.md | 22590 | 22590（変更なし） |
+| docs/instruction-template.md | 12766 | 12766（変更なし） |
+
+確かめ: `python3 -m unittest discover -s scripts/tests` → `Ran 1597 tests … OK`（docs のみの変更なので参考）。`docs` は `.assetsignore` の7行目にあり、`docs/notes/self-review.md` は公開されない
+
+足した・変えた文面の全文（`git diff HEAD~1 HEAD`、5040b675c）:
+
+```diff
+diff --git a/CLAUDE.md b/CLAUDE.md
+index cc1263cdd..68f91dec1 100644
+--- a/CLAUDE.md
++++ b/CLAUDE.md
+@@ -44,6 +44,7 @@
+   見つけた食い違いは、同じ指示で直せる記述（docs のみ）は成果物と別のコミットで直し、残りは `## 報告` の「判断が必要なこと」に列挙する。指示文の前提との食い違いは「Chat-Ref」節のとおり止まる
+ - **check-runsの成功だけで「本番反映を確認した」と報告しない**（「本番のHTML」と「ブラウザでの見え方」は確認できる範囲が違う。docs/notes/cloudflare.md「ビルド成否と本番の確認範囲（check-runs）」）
+ - **修正の検証は、先に「修正前のコードでも通らないか」を確かめる**（#310）。実データに依存する検証は、実施時点で前提を確かめる
++- **コード・生成物・ワークフロー・配信設定を変えた指示では、最終報告の前に新しい文脈のサブエージェントに差分をレビューさせる**（往復は2回まで。対象・観点・結果と検証の証跡の書き方は docs/notes/self-review.md）
+ - 外部ドメインへの依存を増やさない（CSP〈`_headers`〉の許可を足すことになるため）
+ - `.assetsignore` に開発用ファイルを列挙。公開対象を増やさない。新しいディレクトリ・ファイルは公開してよいか確認し、公開しないものは追加する（#133）
+ - ビルド・lint の自動化コマンドはなし。HTML/JSの変更はブラウザで直接確認する
+diff --git a/docs/decisions/operations.md b/docs/decisions/operations.md
+index 43115fb53..271f722b5 100644
+--- a/docs/decisions/operations.md
++++ b/docs/decisions/operations.md
+@@ -1149,3 +1149,7 @@ BIL 系列（CHAT-1018-BIL-01〜CHAT-1021-BIL-03、Actions・Workers Builds の
+ - マージは、テストと作業ブランチでの手動実行（dry-run）の確かめが通れば行ってよい
+ - 作業中の回答: なし
+ 
++## 2026-10-28（CHAT-1028-CRV-01）
++
++- Claude Code チームのコードレビューの記事のうち有用な部分を mj の運用に取り入れる。何を取り入れるかはチャット側の案で、文書の変更はマージせず判断待ちで止め、平野さんが差分を読んでから決める
++- 作業中の回答: なし
+diff --git a/docs/handover.md b/docs/handover.md
+index 8424c8716..6faea816a 100644
+--- a/docs/handover.md
++++ b/docs/handover.md
+@@ -200,7 +200,8 @@ GitHub Issues（Open）に全件あるが、着手可能な主なものは以下
+ | `docs/notes/chat-routines.md` | チャット側が「レビュー」「振り返り」「申送り」を行う前。指示の種類ごとの確かめ・期日とカレンダー・外部サービスの設定を頼むとき・ほかのセッションへの共有 |
+ | `docs/notes/chrome-reading.md` | チャット側が PC で Claude for Chrome を使い mj を直接読む前 |
+ | `docs/notes/skills.md` | skill の追加・更新、git の hook の判定を変える・確かめる前（`.claude/` を変える指示を書く前も） |
+-| `docs/notes/branch-operations.md` | ブランチの削除・作業ログの寿命・Chat-Ref の着手前の確認（入口の規則は CLAUDE.md）。「（Codespace）」の節と `/workspaces/mj` の pull は旧 Codespace の記録 |
++| `docs/notes/branch-operations.md` | ブランチの削除・マージを戻すとき・作業ログの寿命・Chat-Ref の着手前の確認（入口の規則は CLAUDE.md）。「（Codespace）」の節と `/workspaces/mj` の pull は旧 Codespace の記録 |
++| `docs/notes/self-review.md` | コード・生成物・ワークフロー・配信設定を変えた指示の最終報告の前（サブエージェントに差分をレビューさせる。往復は2回まで） |
+ | `docs/notes/static-generation.md` | ページの一覧・生成スクリプト・ページ側のJS・メンテナンス用スクリプト |
+ | `docs/notes/github-actions.md` | GitHub Actions のワークフローの一覧・`regenerate-page.yml`・手動実行と変更の前・チャット側の扱い（実行結果の確かめ方・失敗通知） |
+ | `docs/notes/sitemap-lastmod.md` | sitemap の lastmod（#265） |
+diff --git a/docs/notes/branch-operations.md b/docs/notes/branch-operations.md
+index fc188c71c..894a20aca 100644
+--- a/docs/notes/branch-operations.md
++++ b/docs/notes/branch-operations.md
+@@ -139,6 +139,24 @@ CLAUDE.md「ブランチ運用」「Chat-Ref」「作業ログ」から、特定
+ - **マージの手順:** 作業ブランチから`git push origin <作業ブランチ>:cloudflare`とし、cloudflareはチェックアウトしない。
+   **push直前に必ず再fetchし、`git merge-base --is-ancestor origin/cloudflare HEAD`で push 先が自分のHEADの祖先であることを確認すること**
+   （他セッションのfetchで`origin/cloudflare`が進むため、取り込み時点を前提にすると他セッションのコミットを巻き戻す）
++- **push の出力に出る範囲（`<前>..<後>` の形）をログの `## 経過` に書く**（下の「マージを戻すとき」で使う。前の SHA は push の出力にしか出ない）
++
++## マージを戻すとき
++
++上の手順のマージは cloudflare へ fast-forward で入るが、範囲に作業ブランチが cloudflare を取り込んだマージコミットが入ることがある。
++そのため `git revert <前>..<後>` は失敗し（`is a merge but no -m option was given`）、`-m 1` を付けると取り込んだ他の作業まで戻す。
++戻しは、前後の版の差分を逆向きに当てたコミット1つで行う（`<前>` は `<後>` の祖先なので、この差分がちょうどそのマージで入った変更になる）。
++
++1. 戻すマージの範囲 `<前>..<後>` をログ（上の「マージするとき」）か push の出力から取る。分からなければ推測せず止まって報告する
++2. 作業ブランチを `origin/cloudflare` から作り（docs/notes/cloud-sessions.md「作業ブランチの用意」）、
++   `git diff --binary <後> <前> -- . ':(exclude)docs/logs/' | git apply --index` を当てる（作業ログは記録なので戻さない）。
++   当たらなければ（その後のコミットが同じ行を変えている）止まって報告する
++3. コミットの件名は `revert: <戻すマージの内容>`、本文に範囲 `<前>..<後>` と理由を書き、通常の手順（上の「マージするとき」）で cloudflare へ push する
++4. 生成スクリプト・ページの JS が戻れば、push で `regenerate-page.yml` が動いて生成物も作り直される。マージの後に `chore: regenerate` が乗っていたときは、
++   戻した後に対象のページの生成物が戻った版のスクリプトの出力と一致するか（再生成のコミットか「変更なし」）を確かめる
++5. 戻したことと、戻しのコミットの SHA・範囲を issue にコメントする
++
++cloudflare への force push は mj-git-guard が止める（docs/notes/skills.md「git の hook」）ので、履歴を書き換えて戻すことはしない。
+ 
+ ## 文章をコマンドに渡すとき（CLAUDE.md「コミットのルール」から移した）
+ 
+diff --git a/docs/notes/chat-routines.md b/docs/notes/chat-routines.md
+index 71d6c3384..4cf35a192 100644
+--- a/docs/notes/chat-routines.md
++++ b/docs/notes/chat-routines.md
+@@ -98,6 +98,7 @@ issue や資料に書き残す Claude Code 向けの指示文。
+ - **シートの行・カレンダーの予定は動画ID（または行番号）で一意に指す。値の食い違いを調べさせるときは、その値がどの層（【2】か【3】）から来たかを行ごとに書かせる**（chat-side-operations.md から移した）
+ - 画像やページから値を読み取らせる指示: 元の資料に書かれている値と、こちら側が持つ値を項目ごとに分けて書く（chat-side-operations.md から移した）
+ - 長く続く作業ブランチ（cloudflare を何度も取り込む）の指示: `docs/decisions/*.md`・`docs/logs/` の末尾の追記どうしの衝突は受け手が既定で解く（`docs/notes/branch-operations.md`「生成物を含む作業ブランチを取り込む・マージするとき」）。ほかに衝突しそうな文書があれば、解き方（どちらを残し、どの順に並べるか）を最初の指示に書く（書かないと止まり、解き方だけの指示が1本増える。OUK-22）
++- 同じ論点で続きの指示が3本を超えたとき（判断待ち・中断・差し替えが続く）: 次を書く前に進め方を見直す。前提を実物で確かめ直させる、`/grill-me` で論点を詰め直す、指示を分ける、のどれかを選び、選んだ理由をチャット本文に書く（往復を重ねても新しい問題はほとんど見つからず、古い論点が繰り返される。Claude Code チームのレビューの記事では、繰り返された指摘の約59%が最初の版からあったコードだった）
+ - 後始末・削除の指示: 直す文書を名指しせず、issue 番号と消すファイル名・関数名で docs 全体（`docs/logs/`・`docs/gsc/` などの記録を除く）を検索させ、出た所を全部直させる（名指しすると、名指ししなかった文書に「残す」などの古い記述が残る。#582 の後始末で `houou-top.md`・`jwrc-top.md` に残った）
+ - 計測・試運転・本番へ書き込むワークフローの試し・データ更新後の生成を含む指示（docs/instruction-template.md から移した）:
+   - **計測を伴う指示は、環境・回数・判定を最初の指示で決めて書く**
+diff --git a/docs/notes/self-review.md b/docs/notes/self-review.md
+new file mode 100644
+index 000000000..545ac53aa
+--- /dev/null
++++ b/docs/notes/self-review.md
+@@ -0,0 +1,53 @@
++# 差分の自己レビュー（サブエージェント）
++
++最終報告の前に、作業の文脈を持たないサブエージェントに差分を読ませる手順（入口は CLAUDE.md「判断・作業の原則」）。
++mj は PR を使わず、`work/` から `cloudflare` への push で本番に出るため、人のレビューの前に入る確かめはこれと自分の検証だけになる。
++
++## 対象
++
++- コード（`scripts/`・`workers/`・ページの JS・手書きの HTML・CSS）・生成物・`.github/workflows/`・`_headers`・`_redirects`・`wrangler.jsonc` を変えた指示
++- docs のみ・ログのみの指示は対象外
++
++## 時機
++
++自分の検証（テスト・生成・差分の確認）が済み、最終報告を書く前に1回。判断待ちで止まる指示でも、差分があれば行う。
++
++## 渡すもの
++
++Agent ツールで新しいサブエージェント（`general-purpose` など。fork は作業の文脈を引き継ぐので使わない）に次を渡す。自分の結論（「問題ない」など）は渡さない。
++
++- 指示文の「目的」と「決定」
++- `git diff origin/cloudflare...HEAD`（生成物の差分は、変わったファイルの数と代表の数ファイルに絞ってよい）
++- CLAUDE.md「コード規約」
++
++観点:
++
++- 目的を満たしているか
++- 既存の形（`scripts/lib/` の共通関数・定数・同じ型のページ）を使っているか
++- ほかのページ・ワークフローを壊さないか（共有の定数・関数なら参照元）
++- `簡略化:` の印と、分岐・解析を足した箇所の検査があるか
++- バグの修正なら、根本の原因を直しているか
++- `_headers`・`workers/`・ワークフローを変えたときは、`docs/notes/security.md`「点検の観点」
++
++## 結果の扱い
++
++指摘ごとに次の表を作業ログの `## 経過` に書く。`## 報告` の項目は増やさない（`scripts/cleanup_logs.py` の判定を変えないため）。
++
++| 指摘 | 扱い |
++|---|---|
++| （要点と場所） | 直した（コミット）／意図どおり（理由）／見送り（issue 番号） |
++
++## 収束
++
++- 往復は2回まで。2回目は1回目の後の新しい差分だけを見せ、1回目の指摘を再報告させない
++- 2回で収まらなければ、残った指摘を `## 報告` の「判断が必要なこと」に移して止まる
++- 同じ種類の指摘が別の指示でも出たら、`## 報告` の「判断が必要なこと」に層（文書・テスト・hook）の候補を書く。層を決める指示はチャット側が知見→層→理由の表で作る（CLAUDE.md「Chat-Ref」）
++
++## 検証の証跡
++
++検証は「確認した」と書かず、実行したコマンドと出力の要点（件数・テストの成否・HTTP の状態など）を `## 経過` に書く。
++
++## `/code-review` を使わない理由
++
++Claude Code の `/code-review` をクラウドセッションで試したところ（2026-10-27、直近のコード変更のコミットを `low` で指定）、約11秒で返り値が空（指摘も「指摘なし」も無し）だった。
++ログに証跡として残せないので、サブエージェントのレビューで行う。
+```
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1028-crv
+- ログ: https://github.com/retroeater/mj/blob/work/1028-crv/docs/logs/CHAT-1028-CRV-01.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1028-crv
+- 確認用URL: なし
+- マージ: 未（平野さんの判断待ち）
+- issue: なし
+- 判断が必要なこと:
+  - 3点の文面（`## 経過`「手順3」の差分）を採ってマージするか。マージの指示が来たら `git push origin work/1028-crv:cloudflare` で入れる
+  - (2) は指示文の案（`git revert -m 1` / `git revert <base>..<head>`）が mj の実物では失敗する・他の作業まで戻すため、前後の版の差分を逆向きに当てる形に変えた（`## 経過`「(2) の前提を実物で確かめた」）。この形でよいか
+  - 戻しのコミットの件名の接頭辞を `revert:` にした（cloudflare に前例なし）。ほかの接頭辞（`fix:` など）にするか
+  - `/code-review` はクラウドセッションで返り値が空だったため (1) から外した。手元（Codespace 等）で試し直すか
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 03a7e5d7）: https://github.com/retroeater/mj-logs/tree/main/guide/03a7e5d7
+ガイド文書（この版を写した時点の最新、mj dd51fd5a）: https://github.com/retroeater/mj-logs/tree/main/guide/dd51fd5a
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/03a7e5d7/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/03a7e5d7/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/03a7e5d7/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/03a7e5d7/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/03a7e5d7/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/03a7e5d7/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/dd51fd5a/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/dd51fd5a/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/dd51fd5a/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/dd51fd5a/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/dd51fd5a/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/dd51fd5a/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/ef29ee9e.md

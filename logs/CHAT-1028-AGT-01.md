@@ -109,10 +109,10 @@ Claude Code のエージェントチーム（experimental）がクラウドセ�
 
 - 状態: 判断待ち / 続き: CHAT-1028-AGT-02
 - ブランチ: work/1028-agt
-- ログ: https://github.com/retroeater/mj/blob/work/1028-agt/docs/logs/CHAT-1028-AGT-01.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1028-AGT-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1028-agt
 - 確認用URL: なし
-- マージ: 未（止まる条件に当たったため、CLAUDE.md「ブランチ運用」により docs のみでもマージしない）
+- マージ: この指示ではマージしなかった（止まる条件に当たったため）。CHAT-1028-AGT-02 と一緒に cloudflare へ入れた
 - issue: なし
 - 判断が必要なこと:
   - 止まる条件「手順1でチームメイトが起動していない」に当たった。環境変数 `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` は効いているが、チーム用のツールが出ず `~/.claude/teams` も作られず、名前付きの Agent は通常のサブエージェントとして動いた（経過「手順1」）。クラウドセッションでのエージェントチームの試行を続けるか（例: ローカルの対話モードの Claude Code で試す）、やめるか
@@ -124,12 +124,12 @@ Claude Code のエージェントチーム（experimental）がクラウドセ�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 03a7e5d7）: https://github.com/retroeater/mj-logs/tree/main/guide/03a7e5d7
+ガイド文書（この版を写した時点の最新、mj dd51fd5a）: https://github.com/retroeater/mj-logs/tree/main/guide/dd51fd5a
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/03a7e5d7/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/03a7e5d7/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/03a7e5d7/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/03a7e5d7/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/03a7e5d7/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/03a7e5d7/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/62751b7a.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/dd51fd5a/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/dd51fd5a/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/dd51fd5a/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/dd51fd5a/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/dd51fd5a/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/dd51fd5a/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/ef29ee9e.md
