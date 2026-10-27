@@ -1,0 +1,91 @@
+# CHAT-1027-SKP-17
+
+- 着手日時: 2026-10-27
+- 対象issue: #633
+- ブランチ: work/1027-skp-rank6
+- 着手時HEAD: 4f4346ace
+
+## 指示
+
+【Claude作成】Claude Code 向け指示：最強戦のランキングを6部門（最強位・ファイナル・勝率／出場数・連続出場・対局数）に変えて本番にマージする（#633）
+Chat-Ref: CHAT-1027-SKP-17
+マージ: 承認済み（チャットで。条件は「止まる条件」）。告知の期間中の変更を承認（2026-10-27、平野さん）
+貼る時機: いつでも（新しいセッションでも、前の SKP のセッションの続きでもよい）
+共通手順: CLAUDE.md「Chat-Ref」「ブランチ運用」「作業ログ」節のとおり（識別子確認 → origin/cloudflare を起点に work/<識別子>〈手順は docs/notes/cloud-sessions.md〉 → ログ先行push → 最終報告の Chat-Ref の行の直前に「ログ（公開）」の行、最後の行に Chat-Ref）。平野さんは、この指示のための作業ブランチ work/1027-skp-rank6 の作成と push を許可している（セッションに割り当てられた claude/… のブランチは使わない）。
+作業ブランチ: クラウドセッションで実行する。work/1027-skp-rank6 を使う。リモートに無ければ origin/cloudflare から作る。リモートにあってマージ済み（`git merge-base --is-ancestor origin/work/1027-skp-rank6 origin/cloudflare` が真）なら origin/cloudflare から作る（`checkout -B` は使わない。手順は docs/notes/cloud-sessions.md「作業ブランチの用意」）。マージ済みでなければ止まる
+
+0. 着手前に、このログの「指示」欄の末尾が、この指示文の末尾（最後の行）と一致しているか確認し、一致しなければ作業せず報告する。
+
+## 目的
+最強戦のランキングの部門を、平野さんが決めた6部門に今変える（公開済みのランキング・個人成績の部門別のタブ・質問欄）。8〜9部門にするのは、過去の対局の順位を入れた後の見直し（#633）で行う。CHAT-1027-SKP-16 は送る前に取り下げたため欠番。
+
+### 決定（2026-10-27、平野さん）
+- ランキングは6部門にする。並び（2段×3列。個人成績の部門別のタブの行の順も同じ）:
+  - 1段目: 最強位（回）・ファイナル（回）・勝率（.xxx）
+  - 2段目: 出場数（回）・連続出場（回）・対局数（回）
+- 各部門の数え方（今の実装のまま、名前と表示だけ変わるものがある）:
+  - 最強位: 今の「最強位」のまま
+  - ファイナル: 今の「ファイナル」のまま（ファイナルに出た年度の数）
+  - 勝率: 今の「通過率」と同じ数え方（金のピル〈最強位・優勝・通過〉の数 ÷ 対局数、ファイナルを含む全卓）。規定は対局数10回以上のまま。表示は「.xxx」
+  - 出場数: 今の「出場」と同じ（年度の数。ファイナルだけの年度も数える。最大16）
+  - 連続出場: 今のまま（年度の数、最大16）
+  - 対局数: 今のまま（対局した卓の数）
+- 外す部門: 予選優勝・予選決勝・予選通過（内容が重なる、または数え方が分かりにくいため）
+- 8〜9部門（SKP-15 の候補の連続通過・ファイナル到達率〈出場5回以上〉や、トップ率など順位を使う部門）は、過去の対局の順位を入れてから #633 で決める
+- 告知の期間中に、この変更を本番へマージしてよい。告知動画はこの後に撮り直す
+
+### 前提（チャット側。平野さんの決定ではない）
+- 外す3部門の URL（`/saikyo/ranking/qualifier-win/`・`qualifier-final/`・`qualifier-pass/`）は、ランキングの先頭（最強位 `/saikyo/ranking/champion/`）へ 301 で送る（公開済みで共有されている可能性があるため）。この転送は 2027-01-26 の `?q=` の転送の棚卸し（カレンダーにある）と一緒に、流入が無ければ外す
+- スラッグの名前: 通過率 `pass-rate/` を「勝率」に合わせて付け直すなら、旧 URL を新しい URL へ 301 にする（付け直さなくてもよい。どちらにしたかをログに書く）。出場 `appearances/` は変えない
+- 質問欄（Worker、最強戦だけ）の部門名と問いの言い換えをそろえる（「通過率」→ 勝率、「出場」「出場年度」→ 出場数、外した3部門を聞かれたら「その部門はありません」と近い部門を答える形）。ほかの大会の答えは変えない
+- 載せる下限・上限（回数1以上・連続出場2以上・勝率0より大きい、上限50件・同率は55件まで）は今のまま
+
+## 手順
+1. #633 に、上の決定（今は6部門・8〜9部門は順位を入れてから）をコメントし、本文の「未決」をそれに合わせて直す。上の「決定」を docs/decisions/saikyo.md に足す（CHAT-1024-SKP-06・SKP-10 の部門の決定のうち置き換えるものを書く）
+2. 直す: ランキング（格子を 2段×3列に）・個人成績の部門別のタブ・質問欄（データ・Worker の部門名・言い換え）・`_redirects`（外す3部門の 301）・テスト・文書（docs/notes/saikyo-page-design.md・ask-worker.md・redirects.md）。`python3 -m unittest discover -s scripts/tests`・`node --test 'workers/ask/test/*.test.mjs'`・`regenerate-page.yml` の check（saikyo_pages・ask_data_saikyo）を流し、6部門の件数と上位10人（同率は全員）を表にする（勝率・出場数の値が、今の通過率・出場と同じであること）
+3. origin/cloudflare を取り込み（要れば）、生成し直して差分を種類ごとに数え、`git push origin work/1027-skp-rank6:cloudflare` でマージする。本番（`?v=<マージのSHA>`）で: 6部門のページが 200、外した3部門の URL が champion へ 301、格子が2段×3列、個人成績の部門別のタブが6行。Worker `mj-ask` のビルドが成功したら、本番の質問欄に「勝率がいちばん高いのは？」「出場数がいちばん多いのは？」を1回ずつ送り、ページの値と合うことを確かめる（答えの全文を引用）。docs/notes/ask-worker.md の「本番で送る固定の問い」の最強戦の行で、部門名が変わったものを直す。作業ブランチの片付けは docs/notes/branch-operations.md「ブランチを削除するとき」に従う
+
+## 止まる条件
+- テスト・check が通らない
+- 勝率・出場数の値や順位が、今の通過率・出場と違う（数え方を変えていないのに違うので、原因を書いて止まる）
+- origin/cloudflare との差分に、この変更で説明できないものがある。年度・対局・卓のページと対戦成績が、シートの変化以外の理由で変わっていたら止まる
+- 質問欄の直しで、ほかの大会（houou/・ouka/・jwrc/・wrcr/）の答えが変わる
+- 未マージの work/ ブランチが `scripts/generate_saikyo_pages.py`・`assets/saikyo.js`・`workers/ask/`・`_redirects` の同じ行・同じ関数を変えている、または取り込みで衝突する（同じファイルの別の箇所の変更では止まらず、ログに書く）
+- cloudflare への push が権限判定で拒否された（別の手段を試さずに止まる）
+- マージ後の本番の2問のどちらかがページの値と食い違う（どこがを書いて止まる。マージは戻さない）。1日の上限に当たったら「未確認の項目」に回す
+- マージ後の check-run の失敗: 今回の変更による失敗なら止まる。無関係な失敗なら原因を報告に書いたうえで、残りの手順を進めてよい
+
+## 完了条件
+- ログの「## 報告」を CLAUDE.md「作業ログ」節のとおりに書いて push する
+- マージは冒頭の「マージ:」の行のとおり
+- ターミナルへの最終報告の Chat-Ref の行の直前に ログ（公開）: https://github.com/retroeater/mj-logs/blob/main/logs/CHAT-1027-SKP-17.md?v=<SHA>（CLAUDE.md「作業ログ」節）を書き、最後の行に Chat-Ref: CHAT-1027-SKP-17 を書く
+
+不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
+
+## 経過
+
+## 報告
+
+- 状態: 作業中
+- ブランチ: work/1027-skp-rank6
+- ログ: docs/logs/CHAT-1027-SKP-17.md
+- 比較URL: なし
+- 確認用URL: なし
+- マージ: なし
+- issue: #633
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
+
+<!-- guide-links -->
+---
+
+ガイド文書（この版を写した時点の最新、mj 4f4346ac）: https://github.com/retroeater/mj-logs/tree/main/guide/4f4346ac
+
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/4f4346ac/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/4f4346ac/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/4f4346ac/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/4f4346ac/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/4f4346ac/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/4f4346ac/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/99cac160.md
