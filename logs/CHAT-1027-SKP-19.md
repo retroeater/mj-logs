@@ -121,7 +121,7 @@ Chat-Ref: CHAT-1027-SKP-19
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1027-SKP-20
 - ブランチ: work/1027-skp-data
 - ログ: https://github.com/retroeater/mj/blob/work/1027-skp-data/docs/logs/CHAT-1027-SKP-19.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1027-skp-data
