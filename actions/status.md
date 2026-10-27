@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-27 20:28 JST
+- 書き出した時刻: 2026-10-27 20:30 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -38,11 +38,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-27 20:28 | check_run | cloudflare | skipped | #589（40496368741） | 0分01秒 |
 | 2026-10-27 18:41 | check_run | cloudflare | failure | #588（40482759522） | 0分12秒 |
 | 2026-10-27 18:41 | check_run | cloudflare | skipped | #587（40482729801） | 0分02秒 |
 | 2026-10-27 18:38 | check_run | cloudflare | skipped | #586（40482276968） | 0分01秒 |
 | 2026-10-27 18:37 | check_run | cloudflare | skipped | #585（40482135006） | 0分11秒 |
-| 2026-10-27 18:35 | check_run | cloudflare | skipped | #584（40481923561） | 0分01秒 |
 
 - #588 failure: ジョブ「notify」 ステップ「判定する(該当すればジョブを失敗させる)」
 
@@ -203,13 +203,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-27 20:27 | workflow_dispatch | work/1027-skp-rank6 | in_progress | #470（40496338899） |  |
+| 2026-10-27 20:27 | workflow_dispatch | work/1027-skp-rank6 | success | #469（40496334983） | 0分44秒 |
 | 2026-10-27 18:37 | workflow_dispatch | work/1018-log-367-migrate | success | #468（40482197619） | 0分40秒 |
 | 2026-10-27 18:36 | workflow_dispatch | work/1027-skp | success | #467（40482074367） | 0分33秒 |
 | 2026-10-27 18:35 | workflow_dispatch | work/1027-skp | success | #466（40481921805） | 1分11秒 |
-| 2026-10-27 18:35 | workflow_dispatch | work/1027-skp | success | #465（40481917407） | 0分40秒 |
-| 2026-10-26 21:04 | workflow_dispatch | work/1018-log-367-migrate | failure | #464（40319743097） | 0分30秒 |
-
-- #464 failure: ジョブ「regenerate」 ステップ「生成物の差を実行サマリに出す」
 
 ## regenerate-saikyo.yml
 
