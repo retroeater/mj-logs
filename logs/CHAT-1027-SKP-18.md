@@ -98,7 +98,7 @@ SKP-17 の決定のとおりで、止まる条件に当たらない。対戦成�
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1027-SKP-21
 - ブランチ: work/1027-skp-vid
 - ログ: https://github.com/retroeater/mj/blob/work/1027-skp-vid/docs/logs/CHAT-1027-SKP-18.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1027-skp-vid
@@ -114,12 +114,12 @@ SKP-17 の決定のとおりで、止まる条件に当たらない。対戦成�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 8030de19）: https://github.com/retroeater/mj-logs/tree/main/guide/8030de19
+ガイド文書（この版を写した時点の最新、mj ccadb236）: https://github.com/retroeater/mj-logs/tree/main/guide/ccadb236
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/8030de19/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/8030de19/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/8030de19/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8030de19/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8030de19/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8030de19/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ccadb236/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ccadb236/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ccadb236/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ccadb236/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ccadb236/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/ccadb236/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/8030de19.md
