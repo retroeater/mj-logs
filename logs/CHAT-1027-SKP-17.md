@@ -64,6 +64,31 @@ Chat-Ref: CHAT-1027-SKP-17
 
 ## 経過
 
+### 着手前の確認
+
+- 0章: ログの「指示」欄の末尾が、指示文の最後の行と一致
+- 同じ Chat-Ref のコミット: なし。`SKP` は最初の指示ではない（CHAT-1027-SKP-15 の続き。SKP-16 は欠番と指示文にある）
+- 0章ゲート: 未マージの `work/` ブランチ（1009-swp-526・1011-swp-hnd・1011-swp-nav・1015-skd-notes・1017-lvp・1018-log-367-migrate・1026-aic・1027-skp）に、`scripts/generate_saikyo_pages.py`・`assets/saikyo.js`・`workers/ask/`・`_redirects` を変えるものは無い
+- 指示文の issue の state: #633 は open。他セッションの着手中コメントは無い。着手中のコメントを残した
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 4行ともある
+- 作業ブランチ: origin/work/1027-skp-rank6 は無かったので、origin/cloudflare（4f4346ace）から作った
+
+### 手順1
+
+- #633 の本文を直した（決定に「6部門は今入れる・8〜9部門は順位を入れてから」を足し、「未決」から「6部門の実装の時機」を外した）。決定をコメントした（issuecomment-6440767949）
+- docs/decisions/saikyo.md に「2026-10-27（CHAT-1027-SKP-17）」を足した（CHAT-1024-SKP-06 の部門名・並び、SKP-10 の「出場」・9部門の並びを置き換える）
+
+### 手順2: 直したところ（922d5d905）
+
+- `scripts/generate_saikyo_pages.py`: `DIVISIONS` を6部門（最強位・ファイナル・勝率／出場数・連続出場・対局数）に。勝率は数え方・規定・スラッグ（`pass-rate`）を変えず、表示だけ「.xxx」（1 は「1.000」。`division_text()`）。使わなくなった `Career` の予選の3つの数（`qualifier_passes`・`qualifier_wins`・`qualifier_finals`）を消した。外した3部門のスラッグを `REMOVED_RANKING_SLUGS` にし、`MENU_REDIRECT_LINES` に 301 の3行を足した。古いページは既存の `remove_stale_rankings()` が消す
+- 格子: ランキングの選ぶ部品は style.css の3列の格子（houou/ 系と共有）なので、6つ並べると2段×3列になる。CSS は変えていない
+- 個人成績の部門別のタブ: `assets/saikyo.js` は生成のデータ（`DIVISIONS` の順）を描くだけなので、JS は変えていない
+- スラッグ: 通過率の `pass-rate/` は付け直さなかった（指示文の「付け直さなくてもよい」。301 を増やさないため）。`appearances/` も変えない
+- `_redirects`: `/saikyo/ranking/qualifier-win/`・`qualifier-final/`・`qualifier-pass/` → `/saikyo/ranking/champion/` 301 を、`/saikyo/ranking/:slug/` の 200 より上に置いた（下だと 200 が先に当たる）。`test_saikyo_redirects.py` に順序の検査を足した。docs/notes/redirects.md の「棚卸しの対象」に3行を足した（`test_redirects_inventory.py` が要求）
+- 質問欄（`workers/ask/src/ask.mjs`、最強戦だけ）: `SAIKYO_DIVISIONS` を6部門に。外した部門は `SAIKYO_REMOVED`（予選優勝 → ファイナル、予選決勝 → ファイナル、予選通過 → 勝率）に持ち、1回目の指示でその部門を近い部門に読み替え、2回目の指示（`ANSWER_LINES.saikyo`）で「その部門はありません。」を頭に書かせる。言い換えは「出場」「出場回数」「出場年度」「予選出場」→ 出場数、「通過率」「通過回数」→ 勝率、「決勝進出」→ ファイナル。ほかの大会の指示・データは変えていない
+- テスト: `test_saikyo_menu.py`（6部門の並び、勝率の「.xxx」、予選の数の検査を外した）、`saikyo.test.mjs`（6部門・出場数・勝率の値の形・外した部門の読み替えの指示）
+- 文書: docs/notes/saikyo-page-design.md・ask-worker.md（「本番で送る固定の問い」の最強戦の3行の部門名も）・redirects.md・static-generation.md（「ページの一覧」の件数 11 → 8）・llms.txt
+
 ## 報告
 
 - 状態: 作業中
