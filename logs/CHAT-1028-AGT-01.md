@@ -59,17 +59,66 @@ Claude Code のエージェントチーム（experimental）がクラウドセ�
 
 ## 経過
 
+### 着手前の確認（15:53 UTC 前後）
+
+- Chat-Ref の重複: `git fetch --unshallow origin` の後、`git log --all -E --grep 'CHAT-[0-9]{4}-AGT-'` と `docs/logs/CHAT-*-AGT-*.md` の追加履歴はどちらも0件。同じ Chat-Ref のコミットも0件
+- 作業ブランチ: ローカル・リモートとも `work/1028-agt` が無かったので `git checkout -b work/1028-agt origin/cloudflare`（235fc4d99）。拒否はされなかった
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 4行とも有る
+- ログを先行 push（ヘッダと `## 指示` のみ）
+
+### 0章
+
+- 「指示」欄の末尾: 「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」で、指示文の最後の行と一致
+- (a) 新しいセッションか: はい。この指示文がセッションの最初の入力
+- (b) `echo "$CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS"` → `1`（`env` でも `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`）
+- Claude Code のバージョン: `claude --version` → 2.1.311
+- 起動前の `~/.claude/teams`・`~/.claude/tasks`: どちらも無い（`ls: cannot access ... No such file or directory`）
+
+### 手順1: チームの作成（止まる条件に当たった）
+
+- チームを作る専用のツール（公式ドキュメントの TeamCreate・TeamDelete 相当）は、このセッションの道具に無かった。ToolSearch の `select:TeamCreate,TeamDelete,SendMessage,TaskList` では SendMessage と TaskList だけが返った。Agent ツールの説明には「team_name: Deprecated; ignored. The session has a single implicit team.」とあり、チームは暗黙に1つという記述
+- そこで、Agent ツールに `name`（reviewer-a / reviewer-b / reviewer-c）と `model: sonnet` を付け、読み取り専用の指示・担当（A: CLAUDE.md、B: docs/handover.md、C: chat-side-operations.md と instruction-template.md）・相互検証の流れ（A→B、B→C、C→A。SendMessage で直接やり取り）を書いて3人を同時に起動した（15:54:50 UTC 前後）
+- 起動の結果: 3人とも「Async agent launched successfully」（task_type は `local_agent`）。チームメイトとしての起動の表示ではなかった
+- 起動直後（15:55:19 UTC）の確認:
+  - `ls -la ~/.claude/teams ~/.claude/tasks` → どちらも `No such file or directory`。受信箱のファイルも無い
+  - ListAgents → 3人は「Subagents (3)」の欄に `general-purpose · running` として並んだ（チームメイトの欄は無い）
+- 以上から「チームメイトが起動していない（ディレクトリが無い、通常のサブエージェントとして動いている）」に当たると判断し、通常のサブエージェントで続行せず、TaskStop で3人を止めた（15:55:30 UTC 前後、3人とも status killed）。止めた後の `~/.claude/teams`・`~/.claude/tasks` も無いまま
+- 同じエラーの繰り返しは無い（試したのは1回）。別の手段は試していない
+
+### 手順3: 片付けと記録
+
+- `git status --porcelain`（15:55:33 UTC）: 空。作業ツリーの変更は無かった（この後このログと docs/decisions/operations.md を書いた）
+- 止める前に3人が使った道具（各サブエージェントの記録から抽出）: Bash の読み取り（`wc -c`・`grep -n "^#"`・`cat`・`sed -n`・`grep -o` で参照先ファイルの有無を見るループ）と ToolSearch（`select:SendMessage`、1人は `mcp__github__issue_read` も）だけ。ファイルの変更・git の使用・issue の操作は無かった
+- 指摘の一覧: 無い（30秒ほどで止めたので、どのチームメイトも指摘を出していない。SendMessage も送っていない）。文書は直していない
+
+### 仕組みの実測
+
+- チームの作成から shut down までの所要時間: 起動から停止まで約40秒（15:54:50〜15:55:30 UTC 前後）。チームとしては作られなかった
+- タスク数・往復: タスク0（`~/.claude/tasks` は作られない）、メッセージの往復0
+- 各エージェントが動いたモデル: 3人とも `claude-sonnet-5-5`（記録の message.model。A 5回・B 5回・C 6回の応答）
+- トークン（記録の usage の合計。費用の値は取れなかった。`/cost` はリーダーのセッションの中から呼べるツールが無い）:
+  - A: input 10・cache_read 114,566・cache_creation 190,909・output 1,063
+  - B: input 10・cache_read 114,578・cache_creation 206,341・output 2,326
+  - C: input 12・cache_read 171,921・cache_creation 223,818・output 792
+  - 停止までの40秒でも1人あたり 19万〜22万トークンのキャッシュ作成が出ている（題材の文書を読み込んだ分が大きい）
+- 指示に反してファイルを変えた・git を使った事象: 無し
+- リーダーに出た権限の確認（permission prompt）: 0回
+- エラー・想定外の挙動: 環境変数が `1` でも、チーム用のツールが出ず、`~/.claude/teams` も作られなかった。名前付きの Agent は通常のバックグラウンドのサブエージェントとして動いた（指示文の前提「名前付きサブエージェントが黙って通常のサブエージェントになる」の状態が、環境変数が `1` でも起きた）。考えられる原因（未検証）: クラウドセッションの実行の形（対話モード扱いでない、in-process 表示が使えないなど）でチーム機能が無効になる、またはこの版の Claude Code ではチームの仕組みが変わった（Agent ツールの「single implicit team」の記述）。どちらかはここから検証できない
+
 ## 報告
 
-- 状態: 対応中
+- 状態: 判断待ち
 - ブランチ: work/1028-agt
 - ログ: https://github.com/retroeater/mj/blob/work/1028-agt/docs/logs/CHAT-1028-AGT-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1028-agt
 - 確認用URL: なし
-- マージ: 未
+- マージ: 未（止まる条件に当たったため、CLAUDE.md「ブランチ運用」により docs のみでもマージしない）
 - issue: なし
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 判断が必要なこと:
+  - 止まる条件「手順1でチームメイトが起動していない」に当たった。環境変数 `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` は効いているが、チーム用のツールが出ず `~/.claude/teams` も作られず、名前付きの Agent は通常のサブエージェントとして動いた（経過「手順1」）。クラウドセッションでのエージェントチームの試行を続けるか（例: ローカルの対話モードの Claude Code で試す）、やめるか
+  - 指摘の一覧は出ていない。ガイド4文書の整合性レビューを、チームでなく通常のサブエージェント（またはリーダー単独）で行うか
+- 未確認の項目:
+  - クラウドセッションでエージェントチームが動かない原因（実行の形によるのか、版による仕組みの変更か）。公式ドキュメントはこのセッションでは読んでいない
 - エラー: なし
 
 <!-- guide-links -->
