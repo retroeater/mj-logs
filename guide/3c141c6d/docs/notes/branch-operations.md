@@ -139,6 +139,24 @@ CLAUDE.md「ブランチ運用」「Chat-Ref」「作業ログ」から、特定
 - **マージの手順:** 作業ブランチから`git push origin <作業ブランチ>:cloudflare`とし、cloudflareはチェックアウトしない。
   **push直前に必ず再fetchし、`git merge-base --is-ancestor origin/cloudflare HEAD`で push 先が自分のHEADの祖先であることを確認すること**
   （他セッションのfetchで`origin/cloudflare`が進むため、取り込み時点を前提にすると他セッションのコミットを巻き戻す）
+- **push の出力に出る範囲（`<前>..<後>` の形）をログの `## 経過` に書く**（下の「マージを戻すとき」で使う。前の SHA は push の出力にしか出ない）
+
+## マージを戻すとき
+
+上の手順のマージは cloudflare へ fast-forward で入るが、範囲に作業ブランチが cloudflare を取り込んだマージコミットが入ることがある。
+そのため `git revert <前>..<後>` は失敗し（`is a merge but no -m option was given`）、`-m 1` を付けると取り込んだ他の作業まで戻す。
+戻しは、前後の版の差分を逆向きに当てたコミット1つで行う（`<前>` は `<後>` の祖先なので、この差分がちょうどそのマージで入った変更になる）。
+
+1. 戻すマージの範囲 `<前>..<後>` をログ（上の「マージするとき」）か push の出力から取る。分からなければ推測せず止まって報告する
+2. 作業ブランチを `origin/cloudflare` から作り（docs/notes/cloud-sessions.md「作業ブランチの用意」）、
+   `git diff --binary <後> <前> -- . ':(exclude)docs/logs/' | git apply --index` を当てる（作業ログは記録なので戻さない）。
+   当たらなければ（その後のコミットが同じ行を変えている）止まって報告する
+3. コミットの件名は `revert: <戻すマージの内容>`、本文に範囲 `<前>..<後>` と理由を書き、通常の手順（上の「マージするとき」）で cloudflare へ push する
+4. 生成スクリプト・ページの JS が戻れば、push で `regenerate-page.yml` が動いて生成物も作り直される。マージの後に `chore: regenerate` が乗っていたときは、
+   戻した後に対象のページの生成物が戻った版のスクリプトの出力と一致するか（再生成のコミットか「変更なし」）を確かめる
+5. 戻したことと、戻しのコミットの SHA・範囲を issue にコメントする
+
+cloudflare への force push は mj-git-guard が止める（docs/notes/skills.md「git の hook」）ので、履歴を書き換えて戻すことはしない。
 
 ## 文章をコマンドに渡すとき（CLAUDE.md「コミットのルール」から移した）
 

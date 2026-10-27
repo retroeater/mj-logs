@@ -50,15 +50,76 @@ CHAT-1028-CRV-01 で work/1028-crv に足したガイド文書の変更（コミ
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 着手前の確認
+
+- 0. ログの「指示」欄の末尾は指示文の最後の行と一致
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 4行ともある
+- 同じ Chat-Ref のコミット: `git log --all --grep=CHAT-1028-CRV-02` 0件（続きの指示なので `XXX` の重複確認は対象外）
+- 起動時の CLAUDE.md: `git log HEAD..origin/cloudflare -- CLAUDE.md` 0件
+- `origin/work/1028-crv` はリモートにあり（2acf2fbec）、`git merge-base --is-ancestor origin/work/1028-crv origin/cloudflare` は偽（未マージ）。ローカルの `work/1028-crv` は origin と一致していたので、そのまま使った
+- 指示文が対象にする issue: なし
+
+### 手順1・2
+
+- `docs/logs/CHAT-1028-CRV-01.md` の `## 報告`（277行、ファイルの最後の `## 報告` の下）の状態を「判断待ち / 続き: CHAT-1028-CRV-02」にした。`## 指示` 欄は変えていない
+- CRV-01 のログのヘッダの着手日時は「2026-10-27」。手順2のとおり `docs/notes/self-review.md` の「2026-10-27」は直さなかった
+  - 補足: CRV-01 の最初のコミット（aa789f8b3）は 2026-10-27 16:16 UTC＝2026-10-28 01:16 JST。CRV-01 のヘッダは UTC の日付で書いていた（前提の見立てのとおり）。手順2の条件に従い、ヘッダも self-review.md も変えていない
+
+### 取り込み（origin/cloudflare dd51fd5a5）
+
+- `git merge origin/cloudflare` で `docs/decisions/operations.md` だけが衝突した（末尾への追記どうし: cloudflare 側が「2026-10-28（CHAT-1028-AGT-01）」「2026-10-28（CHAT-1028-AGT-02）」、こちらが「2026-10-28（CHAT-1028-CRV-01）」）。branch-operations.md の既定のとおり、両方の節を残し、日付が同じなので Chat-Ref の順（AGT-01 → AGT-02 → CRV-01）に並べた。共通の末尾行として切り出された AGT-02 の「- 作業中の回答: なし」も AGT-02 の節に残した（`git diff origin/cloudflare -- docs/decisions/operations.md` が CRV-01 の節の追加5行だけであることで確かめた）。衝突の印は0（`git diff --check` 空、`<<<<<<<` の検索0件）。マージコミット f1ecc6da3
+- 解いた後の該当箇所（末尾）:
+
+```
+## 2026-10-28（CHAT-1028-AGT-02）
+
+- エージェントチームの試行は打ち切る（…）
+- ガイド4文書の整合性レビューは、通常のサブエージェント3人（…）で行う
+- この指示で文書は直さない。（…）
+- 作業中の回答: なし
+
+## 2026-10-28（CHAT-1028-CRV-01）
+
+- Claude Code チームのコードレビューの記事のうち有用な部分を mj の運用に取り入れる。（…）
+- 作業中の回答: なし
+```
+
+### マージ前の確認
+
+- `git diff --stat origin/cloudflare...HEAD`: CLAUDE.md・docs/decisions/operations.md・docs/handover.md・docs/notes/branch-operations.md・docs/notes/chat-routines.md・docs/notes/self-review.md と docs/logs/ の2ファイルだけ（8 files, 421 insertions, 1 deletion）
+- `python3 -m unittest discover -s scripts/tests` → `Ran 1597 tests` OK
+- 容量（作業ブランチ上、`wc -c`）: CLAUDE.md 23786・docs/handover.md 22464・chat-side-operations.md 22590・instruction-template.md 12766（警告域 26624／14336 未満）
+
+### マージ
+
+- 決定の節「2026-10-28（CHAT-1028-CRV-02）」を `docs/decisions/operations.md` の末尾に足した（コミット後、`git diff --stat origin/cloudflare...HEAD` は 8 files, 470 insertions, 1 deletion で、ファイルは上と同じ8つ）
+- push 直前に `git fetch origin` し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真であることを確かめて `git push origin work/1028-crv:cloudflare` → `dd51fd5a5..ada51ddec  work/1028-crv -> cloudflare`（fast-forward）
+- 作業ブランチの片付け: `work/1028-crv` はマージ済み。リモートの削除は `cleanup-branches.yml`（マージ済みで先頭が24時間より前の `work/*` を毎日削除し、記録はワークフローの出力に残る）に任せる。ローカルのブランチはクラウドセッションのコンテナとともに消えるので削除しない。このログの追いの push の後の先頭 SHA は最終報告のログ URL の `?v=` と同じ
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1028-crv（マージ済み。リモートの削除は cleanup-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1028-CRV-02.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1028-crv
+- 確認用URL: なし
+- マージ: 済（ada51ddec）
+- issue: なし
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj dd51fd5a）: https://github.com/retroeater/mj-logs/tree/main/guide/dd51fd5a
+ガイド文書（この版を写した時点の最新、mj 3c141c6d）: https://github.com/retroeater/mj-logs/tree/main/guide/3c141c6d
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/dd51fd5a/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/dd51fd5a/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/dd51fd5a/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/dd51fd5a/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/dd51fd5a/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/dd51fd5a/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/3c141c6d/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/3c141c6d/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/3c141c6d/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/3c141c6d/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/3c141c6d/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/3c141c6d/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/ef29ee9e.md

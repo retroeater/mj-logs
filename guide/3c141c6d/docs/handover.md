@@ -200,7 +200,8 @@ GitHub Issues（Open）に全件あるが、着手可能な主なものは以下
 | `docs/notes/chat-routines.md` | チャット側が「レビュー」「振り返り」「申送り」を行う前。指示の種類ごとの確かめ・期日とカレンダー・外部サービスの設定を頼むとき・ほかのセッションへの共有 |
 | `docs/notes/chrome-reading.md` | チャット側が PC で Claude for Chrome を使い mj を直接読む前 |
 | `docs/notes/skills.md` | skill の追加・更新、git の hook の判定を変える・確かめる前（`.claude/` を変える指示を書く前も） |
-| `docs/notes/branch-operations.md` | ブランチの削除・作業ログの寿命・Chat-Ref の着手前の確認（入口の規則は CLAUDE.md）。「（Codespace）」の節と `/workspaces/mj` の pull は旧 Codespace の記録 |
+| `docs/notes/branch-operations.md` | ブランチの削除・マージを戻すとき・作業ログの寿命・Chat-Ref の着手前の確認（入口の規則は CLAUDE.md）。「（Codespace）」の節と `/workspaces/mj` の pull は旧 Codespace の記録 |
+| `docs/notes/self-review.md` | コード・生成物・ワークフロー・配信設定を変えた指示の最終報告の前（サブエージェントに差分をレビューさせる。往復は2回まで） |
 | `docs/notes/static-generation.md` | ページの一覧・生成スクリプト・ページ側のJS・メンテナンス用スクリプト |
 | `docs/notes/github-actions.md` | GitHub Actions のワークフローの一覧・`regenerate-page.yml`・手動実行と変更の前・チャット側の扱い（実行結果の確かめ方・失敗通知） |
 | `docs/notes/sitemap-lastmod.md` | sitemap の lastmod（#265） |
