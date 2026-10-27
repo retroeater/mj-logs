@@ -60,6 +60,35 @@ Chat-Ref: CHAT-1028-LPR-01
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 着手前の確認（2026-10-27 21:49 UTC 〜）
+- 0章: 「指示」欄の末尾は指示文の最後の行「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」と一致（指示文をそのまま貼った）
+- 同じ Chat-Ref・`LPR` の重複: `git log --all -E --grep 'CHAT-[0-9]{4}-LPR-'` と docs/logs の履歴ともに0件
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 欠けなし
+- 指示文が着手・クローズの対象にする issue は無い（#296・#186・#530 は参照のみ）ため、issue の state の確認と着手中のコメントは対象外
+- 作業ブランチ: work/1028-lpr はローカル・リモートとも無し → `git checkout -b work/1028-lpr origin/cloudflare`（着手時 HEAD cfad705）
+
+### 手順1: 対象のページ
+`python3 scripts/regenerate.py --list` に houou_pages・ouka_pages・jwrc_pages・wrcr_pages・saikyo_pages があり、`OUTPUT_OVERRIDES` の出力先は順に houou/・ouka/・jwrc/・wrcr/・saikyo/。生成は4大会が scripts/generate_houou_pages.py、最強戦が scripts/generate_saikyo_pages.py（ほか generate_ask_data_saikyo.py）。5大会とも外さない。
+
+代表のページ（個人成績は4大会と最強戦の全部に成績がある 仲田加南。URL の `N` は `%E4%BB%B2%E7%94%B0%E5%8A%A0%E5%8D%97`）。全22件とも `curl`（`?v=lpr1028a` 付き）で 200。headless Chrome でも https://ryoei.pro/houou/ が 200 で開けた（375px で scrollWidth 375）。
+
+| 大会 | トップ | 個人成績 | ランキング（1部門） | 順位変動／対戦成績・年度別 |
+|---|---|---|---|---|
+| 鳳凰戦 | https://ryoei.pro/houou/ | https://ryoei.pro/houou/players/?name=N | https://ryoei.pro/houou/ranking/total/ | https://ryoei.pro/houou/race/ |
+| 女流桜花 | https://ryoei.pro/ouka/ | https://ryoei.pro/ouka/players/?name=N | https://ryoei.pro/ouka/ranking/total/ | https://ryoei.pro/ouka/race/ |
+| WRC リーグ | https://ryoei.pro/jwrc/ | https://ryoei.pro/jwrc/players/?name=N | https://ryoei.pro/jwrc/ranking/total/ | https://ryoei.pro/jwrc/race/ |
+| WRC-R リーグ | https://ryoei.pro/wrcr/ | https://ryoei.pro/wrcr/players/?name=N | https://ryoei.pro/wrcr/ranking/total/ | https://ryoei.pro/wrcr/race/ |
+| 最強戦 | https://ryoei.pro/saikyo/ | https://ryoei.pro/saikyo/players/?name=N | https://ryoei.pro/saikyo/ranking/appearances/ | https://ryoei.pro/saikyo/vs/ ・ https://ryoei.pro/saikyo/years/ |
+
+（curl の確認では https://ryoei.pro/saikyo/2025/ も 200。代表には含めない）
+
+サブエージェントに渡す読む文書: docs/notes/league-pages-compare.md（全部）、houou-top.md（66KB のため grep）・ouka-top.md・jwrc-top.md・wrcr-top.md、saikyo-page-design.md の「3. ページ構成」（77〜331行、うち対戦成績 294行〜・年度別ほか 316〜331行）と「5. アクセシビリティ」（536〜555行）、docs/decisions/saikyo.md の末尾3節（735行〜、6部門の決定）、③は handover.md「4. 押さえておくべき方針」。共通の前提は scratchpad の brief.md に書いて3人に渡した（コミットしない）。
+
+### 手順2: サブエージェントの起動（2026-10-27 22:0x UTC）
+3人とも general-purpose・モデル sonnet（Sonnet 5.5）でバックグラウンド起動。読み取り専用の約束は brief で指定（Explore 型は Bash が無く Playwright を使えないため general-purpose にした）。
+
 <!-- guide-links -->
 ---
 
