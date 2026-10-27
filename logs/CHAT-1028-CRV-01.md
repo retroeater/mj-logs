@@ -71,6 +71,42 @@ Anthropic の Claude Code チームのコードレビューの記事（Addy Osma
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 着手前の確認
+
+- 0. ログの「指示」欄の末尾は指示文の最後の行（「不明な点があれば、…この行が指示文の最後の行です。」）と一致
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 4行ともある
+- 同じ Chat-Ref のコミット: `git log --all --grep=CHAT-1028-CRV-01` 0件。`CRV` の重複: `git log --all -E --grep 'CHAT-[0-9]{4}-CRV-'` 0件、`docs/logs/CHAT-*-CRV-*.md` の追加履歴 0件
+- 指示文が着手・クローズの対象にする issue: なし（#492 は経緯の参照）
+- 起動時の CLAUDE.md: `git log HEAD..origin/cloudflare -- CLAUDE.md` 0件（古くない）
+- 作業ブランチ: ローカル・リモートとも `work/1028-crv` が無かったので `git checkout -b work/1028-crv origin/cloudflare`（ef29ee9）
+- 未マージの work/ ブランチ（`git branch -r --no-merged origin/cloudflare`、自分を除き7本: 1009-swp-526・1011-swp-hnd・1011-swp-nav・1015-skd-notes・1017-lvp・1026-aic・1028-agt）: どれも CLAUDE.md・`docs/handover.md`・`docs/notes/branch-operations.md`・`docs/notes/chat-routines.md`・`docs/notes/self-review.md` を変えていない（各ブランチの `git diff --stat origin/cloudflare...<branch> -- <5ファイル>` が空）。目的の重なり: 1028-agt はチームメイト（エージェント）の起動の試し、1026-aic は 403 の調べで、レビューの手順ではない
+
+### 手順1: 同じ論点の issue と戻し方の記述
+
+- GitHub MCP の `search_issues`（retroeater/mj、state を問わない）で「レビュー」「code review」「サブエージェント」「revert」「戻し」「往復」と、組み合わせ（「code review サブエージェント」「revert 戻し マージを戻す」「往復 続きの指示 判断待ち 繰り返し」）を検索した。出たのは #634（closed、本番ビルド失敗の通知からプレビューの失敗を除く）・#636（open、/live のログの要確認の行）・#545（open、帰り道の新しい回）・#569（closed、Mつくの作り直し）で、どれも同じ論点ではない。open の同じ論点の issue は無い
+- `git grep -n -i revert -- docs/ CLAUDE.md`（`docs/logs/`・`docs/decisions/`・handover-archive を除く）: `docs/notes/sheets-reader.md:122`（gviz に戻すときに切り替えのコミットを revert する、という個別の戻し方）の1件だけ。マージ一般の戻し方の節は無いので、(2) は新設にした
+- 関連の記述: `docs/notes/chat-routines.md` に「往復が増える」理由の項目が複数ある（同じ論点の続きの本数で見直す、という項目は無い）。`docs/notes/security.md`「次回の手順」が読むだけのサブエージェントに分ける形を使っている。どれも矛盾しない
+
+### 手順2: `/code-review` を試した
+
+- 呼び方: Skill `code-review`、引数 `low 623005b5a`（直近の cloudflare のコード変更 `refactor: read the saikyo sheet by header names`、6ファイル +121/-26。`--comment`・`--fix` は付けない）
+- 結果: 16:17:09 に呼び、16:17:20 に返った（約11秒）。返り値は「Skill "code-review" completed (forked execution). Result: (none)」で、指摘も「指摘なし」の文も返らなかった。レビューが実際に走ったかは返り値から見分けられない
+- 外への書き込み: 無し（`git status --short` 空、HEAD は変わらず、PR も無い）
+- 判断: 結果がログに残せる形で返らず、検証の証跡にならないので、(1) の文面から `/code-review` の行を外した（サブエージェントのレビューだけにする）
+
+### (2) の前提を実物で確かめた
+
+- マージは `git push origin <作業ブランチ>:cloudflare`（push 直前に `merge-base --is-ancestor` を確かめる）なので、cloudflare には**常に fast-forward で入り、マージのためのマージコミットはできない**。ただし範囲には作業ブランチが cloudflare を取り込んだマージコミット（「Merge remote-tracking branch 'origin/cloudflare' into work/…」）が入ることがある（`git log --first-parent --merges origin/cloudflare` の直近5件はすべてこの形）
+- 実際の2回のマージで確かめた:
+  - CHAT-1028-LOG-01（`235fc4d99..62751b7a0`、コミット3・マージコミット0）
+  - CHAT-1028-SKP-22（`9c304e330..03a7e5d70`、コミット7・マージコミット1）
+- `git revert --no-commit 9c304e330..03a7e5d70` → `error: commit 03a7e5d70… is a merge but no -m option was given.` で失敗（`git revert --quit` で抜け、作業ツリーは変わっていないことを `git status` で確かめた）。`-m 1` を付けると、取り込みのマージコミットについては cloudflare 側から入った他の作業を戻すことになる。指示文の案（「マージコミットなら `-m 1`、fast-forward なら `git revert <base>..<head>`」）は mj の実物に合わない
+- 代わりに、前後の版の差分を逆向きに当てる形を確かめた: `git diff --binary <後> <前> -- . ':(exclude)docs/logs/' | git apply --check -v` を今の cloudflare（ef29ee9 ＋このログ）の上で2範囲とも実行し、どちらもエラーなし（LOG-01: 7ファイル +26/-198、SKP-22: 8ファイル +28/-133）。前が後の祖先なので、`<後>` と `<前>` の差分がちょうどそのマージで入った変更になる
+- 前の SHA はマージの push の出力（`235fc4d99..62751b7a0` の形）にだけ出る。LOG-01 のログはこれを書いていたが、SKP-22 のログは後の SHA だけだった。節に「push の出力の範囲をログに書く」を入れた
+- `regenerate-page.yml` は cloudflare への push で生成スクリプト・ページの JS が変わると動く（`on.push.paths`）。戻しの push でも同じく再生成が走る
+
 <!-- guide-links -->
 ---
 
