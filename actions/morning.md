@@ -1,13 +1,12 @@
 # 朝の報告用の異常（retroeater/mj）
 
-- 書き出した時刻: 2026-10-28 00:53 JST（見た範囲: 2026-10-26 22:53 JST から）
+- 書き出した時刻: 2026-10-28 00:55 JST（見た範囲: 2026-10-26 22:55 JST から）
 - 書き出した実行の契機: workflow_dispatch（main）
 - 異常だけを書く。全体は actions/status.md。判定は mj の scripts/morning_report.py（各ワークフローの直近 100 回まで）
 
 ## 1. 失敗など（結論が success・skipped 以外。実行中を含む）
 
 - 2026-10-27 18:41 check-build-failure.yml failure（check_run・cloudflare）ジョブ「notify」 https://github.com/retroeater/mj/actions/runs/40482759522
-- 2026-10-28 00:51 run-weekly.yml in_progress（workflow_dispatch・work/1028-log-367-weekly） https://github.com/retroeater/mj/actions/runs/40535192703
 
 ## 2. 予約実行の未実行（予定から3時間以内は「遅れの可能性」。3時間を超えて始まった実行は「遅れて実行」）
 
