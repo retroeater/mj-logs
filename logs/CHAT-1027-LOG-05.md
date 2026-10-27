@@ -55,15 +55,57 @@
 
 ## 経過
 
+### 着手前の確認
+
+- 0: 「指示」欄の末尾は指示文の最後の行と一致（指示文は1段落につながって貼られていたので、そのまま写した）。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- 同じ Chat-Ref のコミットは無かった。LOG-04 は欠番（指示文のとおり）。CHAT-1027-LOG-03 のマージ（0ba822efd）は `origin/cloudflare` の祖先
+- `work/1027-log-367-import` はリモートにもローカルにも無かったので、`origin/cloudflare`（b56fe9c0f）から作った
+- #367: open。他セッションの着手中は無い（最後は LOG-03 の結果のコメント）。着手中のコメントを残した。同じ目的の未マージの work/ ブランチは無い
+
+### 表示の自動の決め方（手順1、aee13b911）
+
+- `convert_x_posts.build_row` が【2】に足す新しい行の「表示」を、判定が「飲食店」で要確認でなければ Y、ほかは N にした（前は常に N）。既存の【2】の行・【3】には書かない（`mode=all` は【2】に無い投稿だけを足す。`mode=stations` が書くのは駅・要確認・要確認の理由の3列だけで、表示は変えない）
+- テスト: 飲食店で要確認なし → Y、店名が本文に無い・判定が不明・飲食店以外・Places 未実行 → N。修正前のコードでは2件が失敗し、直した後は `python3 -m unittest discover -s scripts/tests` が OK
+- `docs/notes/github-actions.md` の convert の行に足す行の表示の決め方を書き、決定を docs/decisions/operations.md に書いた
+- cloudflare との差分は `scripts/convert_x_posts.py`・そのテスト・`docs/notes/github-actions.md`・`docs/decisions/operations.md`・`docs/logs/` だけ（見込みのとおり）。push の直前に再 fetch して祖先を確かめ、`git push origin work/1027-log-367-import:cloudflare` でマージした（b56fe9c0f..aee13b911）
+
+### 取り込み（手順2、cloudflare で）
+
+- 期間の初め: このセッションからはシートを読めないので、前回の全期間検索の本番（2026-10-15 の run 38705289157）の結果で決めた。取れた投稿の範囲は 谷岡育夫 2026-01-07〜2026-10-15・平野良栄 2025-12-31〜2026-10-13 で、その後の取得（mode=log）は旧「ログ」の古い投稿だけなので、【1】の人ごとの最も新しい投稿日は 谷岡育夫 2026-10-15・平野良栄 2026-10-13。`handles` は `it_uesama@2026-10-15,retroeater@2026-10-13`、`end_time` は now
+- 取得の dry-run（run 40526527903）: 【1】3419行。予定の表示は「最大 1200件・$6.0」（スクリプトは上限をそのまま出す）。前回の頻度（谷岡育夫 1日 2.24件・平野良栄 0.26件）からの見込みは 約33件・約 $0.17 で、上限に届く見込みではないので進めた
+- 取得の本番（run 40526687892）: X API の呼び出し 4回、読んだ投稿 34件（谷岡育夫 29・平野良栄 5、投稿日 谷岡育夫 2026-10-15〜10-27・平野良栄 2026-10-13〜10-28）、**費用 $0.17**（1件 $0.005）。【1】に 32行を足した（すでにあった 2件は足さない）
+- 書き込み先のスプレッドシートのシートは 3つ（【1】【2】【3】）になっていた（旧「ログ」・「比較」は平野さんが消した）
+- 変換の dry-run（run 40526818710）: 【1】3451行・【2】3419行。【2】に無い投稿 32件、Claude 32回・見込み 約 $0.10、Places 最大 64回。既存の行には書かない（足すだけ）
+- 変換の本番（run 40526977540）: 【2】に 32行を足した（残り 0件）。**Claude 32回 $0.0851**（使用量から計算）、**Places 41回（Text Search 21・Nearby Search 20）**
+
+| | 谷岡育夫 | 平野良栄 | 計 |
+|---|---:|---:|---:|
+| 足した行 | 28 | 4 | 32 |
+| 表示 Y | 19 | 0 | 19 |
+| 表示 N | 9 | 4 | 13 |
+
+- 判定: 飲食店 21・飲食店以外 7・不明 4（人ごとの内訳は出力に無い）。要確認 6行（判定が不明 4・店が見つからない 1・圏内に駅が無い 1）。表示 Y は 飲食店 21 から要確認の 2 を除いた 19（人ごとの Y/N はページの差分から数えた）
+- 再生成（cloudflare の `regenerate-page.yml`、run 40527324486）: 520b0ff41 をコミット。Workers Builds success。本番の `https://ryoei.pro/resource_logs.html?v=520b0ff41` の HTML は 520b0ff41 の生成物と同じで **3159行**（見込み 3140 ＋ 19）。前の版（3140行）と投稿 ID で比べて、増えた 19行・減った 0行
+- 新しい行の例:
+  - 谷岡育夫 2026-10-27 イマダミナコ 新宿
+  - 谷岡育夫 2026-10-26 和食さと 西大島
+  - 谷岡育夫 2026-10-25 二代目五衛門 【千葉】西千葉
+
+### 起票（手順3）
+
+- 同じ主題の issue（クローズ済みを含む）と、同じ目的の未マージの work/ ブランチは無かった
+- #636「ログ: 【2】の要確認の行を【3】で直す」を起票した（ラベル: 分野: 整理・保守・対象: resource_logs・状況: 待ち）。本文に要確認の理由ごとの数（LOG-02〈1027〉の表に今回の 6行を足したもの）と【3】を直すときの注意
+- #367 に結果のコメントを残した（取り込んだ件数・費用・#636・次は定期実行の指示）
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1027-log-367-import
-- ログ: https://github.com/retroeater/mj/blob/work/1027-log-367-import/docs/logs/CHAT-1027-LOG-05.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1027-log-367-import
-- 確認用URL: なし
-- マージ: 未
-- issue: #367
+- 状態: 完了
+- ブランチ: work/1027-log-367-import（マージ済み。リモートの削除は cleanup-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1027-LOG-05.md
+- 比較URL: https://github.com/retroeater/mj/compare/b56fe9c0f...aee13b911
+- 確認用URL: 本番 https://ryoei.pro/resource_logs.html?v=520b0ff41 で 3159行を確かめた（HTML だけ）
+- マージ: 済（aee13b911。再生成は 520b0ff41）
+- issue: #367・#636（起票）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
@@ -71,12 +113,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj ccadb236）: https://github.com/retroeater/mj-logs/tree/main/guide/ccadb236
+ガイド文書（この版を写した時点の最新、mj aee13b91）: https://github.com/retroeater/mj-logs/tree/main/guide/aee13b91
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ccadb236/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ccadb236/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ccadb236/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ccadb236/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ccadb236/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/ccadb236/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/8030de19.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/aee13b91/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/aee13b91/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/aee13b91/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/aee13b91/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/aee13b91/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/aee13b91/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/235fc4d9.md
