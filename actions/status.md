@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-28 01:02 JST
+- 書き出した時刻: 2026-10-28 01:05 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -25,11 +25,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-28 01:04 | push | work/1028-skp-col | in_progress | #469（40537351714） |  |
+| 2026-10-28 01:03 | push | work/1028-skp-col | success | #468（40537184237） | 0分23秒 |
 | 2026-10-28 00:58 | push | work/1028-skp-col | success | #467（40536237802） | 0分21秒 |
 | 2026-10-28 00:51 | push | work/1028-log-367-weekly | success | #466（40535166159） | 0分31秒 |
 | 2026-10-28 00:10 | push | work/1027-log-367-import | success | #465（40528259891） | 0分18秒 |
-| 2026-10-27 23:58 | push | work/1027-log-367-import | success | #464（40526342166） | 0分23秒 |
-| 2026-10-27 22:46 | push | work/1027-skp-vid | success | #463（40515056016） | 0分25秒 |
 
 ## check-build-failure.yml
 
@@ -38,11 +38,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-28 01:02 | check_run | cloudflare | skipped | #622（40537040641） | 0分01秒 |
 | 2026-10-28 00:59 | check_run | cloudflare | skipped | #621（40536509346） | 0分01秒 |
 | 2026-10-28 00:55 | check_run | cloudflare | skipped | #620（40535814155） | 0分02秒 |
 | 2026-10-28 00:12 | check_run | cloudflare | skipped | #619（40528670875） | 0分01秒 |
 | 2026-10-27 23:59 | check_run | cloudflare | skipped | #618（40526543624） | 0分01秒 |
-| 2026-10-27 23:59 | check_run | cloudflare | skipped | #617（40526542957） | 0分01秒 |
 
 ## check-image-links.yml
 
@@ -202,7 +202,7 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-10-28 01:01 | workflow_dispatch | work/1028-skp-col | in_progress | #485（40536736472） |  |
+| 2026-10-28 01:01 | workflow_dispatch | work/1028-skp-col | success | #485（40536736472） | 2分00秒 |
 | 2026-10-28 00:58 | workflow_dispatch | work/1028-skp-col | success | #484（40536255320） | 1分53秒 |
 | 2026-10-28 00:58 | workflow_dispatch | work/1028-skp-col | success | #483（40536249000） | 1分13秒 |
 | 2026-10-28 00:04 | workflow_dispatch | cloudflare | success | #482（40527324486） | 0分50秒 |
