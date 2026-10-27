@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-28 00:00 JST
+- 書き出した時刻: 2026-10-28 00:03 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -134,11 +134,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-28 00:02 | workflow_dispatch | cloudflare | in_progress | #38（40526977540） |  |
+| 2026-10-28 00:01 | workflow_dispatch | cloudflare | success | #37（40526818710） | 0分40秒 |
 | 2026-10-27 22:08 | workflow_dispatch | cloudflare | success | #36（40509422052） | 0分31秒 |
 | 2026-10-27 18:37 | workflow_dispatch | work/1018-log-367-migrate | success | #35（40482194195） | 0分29秒 |
 | 2026-10-27 18:35 | workflow_dispatch | work/1018-log-367-migrate | success | #34（40481961385） | 0分37秒 |
-| 2026-10-27 18:34 | workflow_dispatch | work/1018-log-367-migrate | success | #33（40481844986） | 0分31秒 |
-| 2026-10-27 10:40 | workflow_dispatch | work/1018-log-367-migrate | success | #32（40433934010） | 0分27秒 |
 
 ## fetch-gsc.yml
 
@@ -175,11 +175,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-28 00:00 | workflow_dispatch | cloudflare | success | #18（40526687892） | 0分31秒 |
 | 2026-10-27 23:59 | workflow_dispatch | cloudflare | success | #17（40526527903） | 0分27秒 |
 | 2026-10-26 20:52 | workflow_dispatch | work/1018-log-367-migrate | success | #16（40318240424） | 0分25秒 |
 | 2026-10-26 20:30 | workflow_dispatch | work/1018-log-367-migrate | success | #15（40315552082） | 0分27秒 |
 | 2026-10-26 20:29 | workflow_dispatch | work/1018-log-367-migrate | success | #14（40315434531） | 0分20秒 |
-| 2026-10-21 12:28 | workflow_dispatch | cloudflare | success | #13（39538792233） | 0分20秒 |
 
 ## fetch-youtube.yml
 
