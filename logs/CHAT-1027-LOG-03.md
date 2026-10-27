@@ -79,12 +79,12 @@
 
 - LOG-05 からのログの状態: CHAT-1018-LOG-05 → 1019-LOG-02 → 1021-LOG-01 → 1027-LOG-01 → 1027-LOG-02 → このログ、の順に ` / 続き: ` でつながっている（LOG-02〈1027〉の末尾に ` / 続き: CHAT-1027-LOG-03` を足した）。このログを「完了」にしたので、前の5つは `cleanup-logs.yml` の規則（続き先が完了）で片付く
 - 残っている作業は #367 のコメントに移した: 旧「ログ」シートと「比較」タブの削除・Places の1日の割り当てを 1,000 に戻すこと（平野さん）、定期的な取り込みにするかの判断
-- 作業ブランチ `work/1018-log-367-migrate` は、このログの push の後に削除する（マージ済みの判定と削除直前の先頭 SHA は #367 のコメント）
+- 作業ブランチ `work/1018-log-367-migrate`: `git branch -r --merged origin/cloudflare` でマージ済み（先頭 699b4233b は `origin/cloudflare` の祖先）。リモートの削除はセッションの git プロキシに拒まれた（`git push origin --delete` が切断）ので、docs/notes/cloud-sessions.md「ブランチの削除」のとおり `cleanup-branches.yml`（毎日、先頭が24時間より前のマージ済みの `work/*`）に任せる。ローカルは `git branch -d` で消した。判定と先頭 SHA は #367 のコメントにも書く
 
 ## 報告
 
 - 状態: 完了
-- ブランチ: work/1018-log-367-migrate（マージ後に削除）
+- ブランチ: work/1018-log-367-migrate（マージ済み。リモートの削除は cleanup-branches.yml に任せる）
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1027-LOG-03.md
 - 比較URL: https://github.com/retroeater/mj/compare/cd2e819d3...0ba822efd
 - 確認用URL: 本番 https://ryoei.pro/resource_logs.html?v=0ba822efd で 3140行と、谷岡育夫 2025-06-08 の市場ラーメンわたの駅「府中本町」を確かめた
@@ -97,12 +97,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 0ba822ef）: https://github.com/retroeater/mj-logs/tree/main/guide/0ba822ef
+ガイド文書（この版を写した時点の最新、mj 8030de19）: https://github.com/retroeater/mj-logs/tree/main/guide/8030de19
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/0ba822ef/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/0ba822ef/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/0ba822ef/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/0ba822ef/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/0ba822ef/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/0ba822ef/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/8030de19/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/8030de19/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/8030de19/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8030de19/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8030de19/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8030de19/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/954de2fa.md
