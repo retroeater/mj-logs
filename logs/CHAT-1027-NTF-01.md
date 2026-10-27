@@ -78,16 +78,18 @@ Chat-Ref: CHAT-1027-NTF-01
   - トークンが無い・使えないとき: 手動実行ではなく検査で確かめた（`LookupTest.test_unknown_when_no_token`・`test_unknown_when_http_error`、`MainTest.test_notify_fails_job` は環境変数 `CF_BUILDS_TOKEN` を外してスクリプトを実行し終了コード 1〈知らせる〉を確かめる）
 - 文書（別コミット）: docs/notes/cloudflare.md「ビルドが Cloning で失敗したとき」の「受け入れた近似」の文を置き換え、「ビルド成否と本番の確認範囲」の `CLOUDFLARE_API_TOKEN` の方針の直後に、読み取りだけのトークン（`CF_ANALYTICS_TOKEN`・`CF_BUILDS_TOKEN`）が当たらない理由を1行足した（同じ趣旨の記述は cloudflare.md には無かった）。docs/notes/github-actions.md「ワークフローの一覧」の行を直し、「権限と Secret の渡し方」の表に `check-build-failure` の行を足した（表は呼ぶ側の job ごとの形のため、「なし（直接起動）」として足した）
 - docs/decisions/cloudflare.md に決定を足した
+- マージ: `git push origin work/1027-ntf:cloudflare`（fast-forward、baa00969c）。push 直前に再 fetch して `merge-base --is-ancestor` を確かめた
+- マージ後: cloudflare で手動実行（dry_run、check_run_id 122116895714）→ 知らせない判定と `##[notice]` の注釈を確認。マージコミットの Workers Builds: mj は success。#634 に結果を書いてクローズした（状況ラベルは付いていない）
 
 ## 報告
 
 - 状態: 完了
 - ブランチ: work/1027-ntf
-- ログ: https://github.com/retroeater/mj/blob/work/1027-ntf/docs/logs/CHAT-1027-NTF-01.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1027-NTF-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1027-ntf
 - 確認用URL: なし（ワークフロー・スクリプト・docs の変更でページは変わらない）
-- マージ: 未（この後マージする）
-- issue: #634（起票）
+- マージ: 済（baa00969c）
+- issue: #634（起票・クローズ）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
