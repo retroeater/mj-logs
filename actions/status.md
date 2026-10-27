@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-27 10:34 JST
+- 書き出した時刻: 2026-10-27 10:39 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -25,11 +25,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-27 10:38 | push | work/1018-log-367-migrate | in_progress | #445（40433797083） |  |
 | 2026-10-26 20:51 | push | work/1018-log-367-migrate | success | #444（40318220850） | 0分19秒 |
 | 2026-10-26 20:38 | push | work/1018-log-367-migrate | success | #443（40316515318） | 0分20秒 |
 | 2026-10-26 20:36 | push | work/1018-log-367-migrate | success | #442（40316342401） | 0分25秒 |
 | 2026-10-26 20:28 | push | work/1018-log-367-migrate | success | #441（40315298653） | 0分20秒 |
-| 2026-10-26 20:12 | push | work/1026-skp-pub | success | #440（40313264827） | 0分22秒 |
 
 ## check-build-failure.yml
 
@@ -107,11 +107,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-27 10:38 | schedule | cloudflare | success | #12（40433747753） | 0分28秒 |
 | 2026-10-26 09:45 | schedule | cloudflare | success | #11（40250899502） | 0分24秒 |
 | 2026-10-25 09:34 | schedule | cloudflare | success | #10（40147230229） | 0分22秒 |
 | 2026-10-24 10:11 | schedule | cloudflare | success | #9（40048673566） | 0分28秒 |
 | 2026-10-23 10:01 | schedule | cloudflare | success | #8（39881581598） | 0分20秒 |
-| 2026-10-22 09:58 | schedule | cloudflare | success | #7（39702873094） | 0分23秒 |
 
 ## cleanup-logs.yml
 
@@ -134,11 +134,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-27 10:38 | workflow_dispatch | work/1018-log-367-migrate | in_progress | #31（40433803701） |  |
 | 2026-10-26 20:52 | workflow_dispatch | work/1018-log-367-migrate | success | #30（40318236225） | 0分25秒 |
 | 2026-10-26 20:38 | workflow_dispatch | work/1018-log-367-migrate | success | #29（40316515379） | 3分48秒 |
 | 2026-10-26 20:36 | workflow_dispatch | work/1018-log-367-migrate | success | #28（40316342939） | 0分29秒 |
 | 2026-10-26 20:33 | workflow_dispatch | work/1018-log-367-migrate | success | #27（40316003311） | 0分33秒 |
-| 2026-10-26 20:32 | workflow_dispatch | work/1018-log-367-migrate | success | #26（40315875143） | 0分28秒 |
 
 ## fetch-gsc.yml
 
