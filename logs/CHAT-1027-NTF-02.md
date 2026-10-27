@@ -62,28 +62,66 @@ Chat-Ref: CHAT-1027-NTF-02
 
 ## 経過
 
+- 着手前の確認: 同じ Chat-Ref のコミット無し（`NTF` は同じセッションの続き〈01 の次〉で、ほかのブランチの使用は無し）。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は欠け無し。指示欄の末尾は指示文の最後の行と一致。work/1027-ntf-regen はローカル・リモートとも無く、`git checkout -b work/1027-ntf-regen origin/cloudflare` で作成
+- 手順1: issue の検索（「ページの再生成 dry_run 失敗通知 compare_ref」）で同じ論点の進行中の issue は無し（近いのは #456〈差分をコードとデータに分ける、open・別論点〉、#533・#551〈closed〉）。#635 を起票し、着手中のコメントを書いた
+- 2026-10-20 以降の「ページの再生成」の失敗の run（`actions/workflows/regenerate-page.yml/runs`、全 95 件のうち failure 11 件。`workflow_call` で呼ばれた回の失敗は呼ぶ側のワークフローの run に数えられるため、ここには出ない）。入力はジョブのログの env から読んだ（dry_run の値はログに出ないが、dry_run のときだけ動く「生成物の差を実行サマリに出す」が11件すべてで動いた）:
+
+| run | 起動 | ブランチ | target_page | dry_run | check | compare_ref | 失敗したステップ | 原因 |
+|---|---|---|---|---|---|---|---|---|
+| 40319743097 | 手動 | work/1018-log-367-migrate | resource_logs | 真 | 偽 | `cloudflare` | 生成物の差を実行サマリに出す | `fatal: invalid reference: cloudflare`（exit code 128、下） |
+| 40145130087 | 手動 | work/1024-vod | mtsuku exam study video_wayhome mtsuku_episodes exam_episodes study_episodes wayhome_episodes | 真 | 偽 | origin/cloudflare | 同上 | 差分あり（各話 155 件が各1行） |
+| 39980236794 | 手動 | work/1024-vod | 同上の8ページ | 真 | 偽 | origin/cloudflare | 同上 | 差分あり（4つの index.html が各1行） |
+| 39943091865 | 手動 | work/1022-hth | saikyo_pages | 真 | 偽 | origin/cloudflare | 同上 | 差分あり（saikyo/vs/index.html 2行） |
+| 39938042998 | 手動 | work/1022-hth | saikyo_pages | 真 | 偽 | origin/cloudflare | 同上 | 同上 |
+| 39922029210 | 手動 | work/1022-hth | saikyo_pages | 真 | 偽 | 3601cf444 | 同上 | 同上 |
+| 39892214978 | 手動 | work/1022-hth | saikyo_pages | 真 | 偽 | origin/cloudflare | 同上 | 同上 |
+| 39877120835 | 手動 | work/1023-oha | resource_dictionary resource_efficiency resource_logs | 真 | 偽 | （空） | 飛ばしたページを報告 | わざと失敗させた試験（CHAT-1023-OHA-08 の「飛ばしたページの注釈」の確かめ）で2ページを飛ばした |
+| 39771190352 | 手動 | work/1022-hth | saikyo_pages | 真 | 偽 | origin/cloudflare | 生成物の差を実行サマリに出す | 差分あり（saikyo/vs/index.html 2行） |
+| 39741104321 | 手動 | work/1022-hth | saikyo_pages | 真 | 偽 | 2d91d8914 | 同上 | 差分あり（vs.html → vs/index.html の移行の前後、片方にだけある2件） |
+| 39736761040 | 手動 | work/1022-hth | saikyo_pages | 真 | 偽 | origin/cloudflare | 同上 | 差分あり（saikyo/vs.html が片方にだけある） |
+
+  - 11件とも手動実行の dry_run で、10件が compare の差分（または compare_ref の誤り）、1件が試験で飛ばしたページ。check の失敗は無かった
+  - exit code 128（run 40319743097）の原因: `compare_ref` に素のブランチ名 `cloudflare` を渡していた。actions/checkout はブランチを `refs/remotes/origin/*` に取り、ローカルの `cloudflare` は作らないため、`git worktree add --detach /tmp/base cloudflare` が `fatal: invalid reference: cloudflare` で落ちた（比べる生成には進んでいない）。`origin/cloudflare` を渡せば起きない。入力の誤りなので「確かめ以前の段階の失敗」として今までどおり失敗のままにした（docs/notes/github-actions.md に例として書いた）
+- 呼ばれ方（`git grep -n regenerate-page`）: push（cloudflare の生成スクリプト等）、手動、`workflow_call` は `fetch-youtube.yml`（all・wayhome）・`regenerate-saikyo.yml`（saikyo_pages）・`update-live-channel.yml`（live_pages title_pages）・`update-sns-book.yml`（all）の4つ。どれも `with:` は `target_page`（と `wayhome`）だけで、`workflow_call` の入力に `dry_run`・`check`・`compare_ref` は無い（呼ぶ側から確かめの経路に入る道筋は無い）。`scripts/morning_report.py` は失敗したジョブの「飛ばしたページを報告」の `##[error]` 行を読むだけで、失敗しない dry_run の回は読まない
+- 実装（fe2676f6e）: 案のとおり。`scripts/regen_annotations.py` を足し、注釈の組み立て（1行目の形・`%`と改行の書き方・先頭 50 行で切る）と check の出力の読み取りを持たせた
+  - check: `regenerate.py --check` の出力を読んで、止まる理由の一覧があれば「check: 止まるページ N 件: …」の警告、通れば「check: 止まるページなし」の notice で成功。一覧が出ない失敗（ページ名の誤りなど）は終了コードを返して失敗のまま
+  - compare_ref: 差分・compare_ref 側の生成の失敗は「compare: 差分あり N 件」（＋終了コード）の警告、無ければ「compare: 差分なし」の notice。ジョブは成功。worktree が作れないなどの失敗は今までどおり
+  - 「飛ばしたページを報告」: dry_run のときだけ警告で返して成功。dry_run でない経路は変えていない（差分は `if [ "$DRY_RUN" = "true" ]` の分岐の追加だけ）
+  - 検査 `scripts/tests/test_regen_annotations.py`（7件）。`python3 -m unittest discover -s scripts/tests` は全件 OK
+- 作業ブランチでの手動実行（fe2676f6e）:
+  - run 40513274719（saikyo_pages、dry_run、compare_ref 2d91d89140754d9c663cd9073dc241e06a382c9e）→ success、警告「compare: 差分あり 98 件」とファイル名。選んだ理由: 10/22 の run 39741104321 で saikyo の生成物が変わると分かっている過去のコミット（saikyo/vs.html → vs/index.html の移行の前）
+  - run 40513280101（saikyo_pages、dry_run、compare_ref origin/cloudflare）→ success、notice「compare: 差分なし」
+  - run 40513285543（saikyo_pages title_pages、check）→ success、notice「check: 止まるページなし」。生成が止まるページは今のデータでは作れないため、止まるページの注釈（ページ名・理由）は検査 `CheckTest.test_stops` で代えた
+  - 注釈は `gh api repos/retroeater/mj/check-runs/<job_id>/annotations` で読めた
+- 修正前のコードで通らないこと: 上の表の 10 件が、同じ形の入力（差分の出る compare_ref）で修正前に失敗していた
+- 文書（aceebf9b8）: docs/notes/github-actions.md「regenerate-page.yml」の `compare_ref` の行から「違いがあればジョブを失敗にする」を消し、注釈の形と読み方の段落を足した。「飛ばしたページを報告」の扱いに dry_run の例外を足した。`.claude/skills/` には `compare_ref`・`dry_run` の記述は無かった。CLAUDE.md の全ページ再生成の行の参照先（「ワークフローを手動実行するとき」「生成スクリプトの構成」）にはジョブの失敗で差分を知る記述は無かった。docs/new-page-checklist.md・chat-routines.md の check の記述は結果の読み方を書いていないため変えていない
+- 0章ゲート: 未マージの work/ ブランチで regenerate-page.yml・github-actions.md・regen_annotations.py を変えているものは無し
+- docs/decisions/automation.md に決定を足した
+- マージ: `git push origin work/1027-ntf-regen:cloudflare`（fast-forward、3ab53e43c）。push 直前に再 fetch して `merge-base --is-ancestor` を確かめた
+- マージ後: 3ab53e43c の Workers Builds: mj は success。push の paths（`scripts/generate_*.py`・`scripts/lib/**`・`*.js`）に当たらないため自動の再生成は起動していない。#635 に結果を書いてクローズした（状況ラベルは付いていない）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1027-ntf-regen
-- ログ: https://github.com/retroeater/mj/blob/work/1027-ntf-regen/docs/logs/CHAT-1027-NTF-02.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1027-NTF-02.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1027-ntf-regen
-- 確認用URL:
-- マージ:
-- issue:
-- 判断が必要なこと:
-- 未確認の項目:
-- エラー:
+- 確認用URL: なし（ワークフロー・スクリプト・docs の変更でページは変わらない）
+- マージ: 済（3ab53e43c）
+- issue: #635（起票・クローズ）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj baa00969）: https://github.com/retroeater/mj-logs/tree/main/guide/baa00969
+ガイド文書（この版を写した時点の最新、mj 0d846263）: https://github.com/retroeater/mj-logs/tree/main/guide/0d846263
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/baa00969/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/baa00969/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/baa00969/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/baa00969/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/baa00969/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/baa00969/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/0d846263/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/0d846263/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/0d846263/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/0d846263/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/0d846263/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/0d846263/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/8030de19.md
