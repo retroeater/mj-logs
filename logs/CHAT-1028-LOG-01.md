@@ -92,14 +92,27 @@
   - `xconvert`: `apply: false`。【1】3451行・【2】3451行、【2】に無い投稿 0件（Claude・Places は 0回）。シートに書いていない
   - 予約の起動の分岐（`scheduled` が真で書く）は `resolve-mode` の既存の判定のまま（ほかの週次の本と同じ）。手動実行で判定が `apply: false` になることを確かめた
 
+### マージ（手順2・3）
+
+- cloudflare との差分（`.github/workflows/` の3本・`scripts/fetch_x_posts.py` とそのテスト・`docs/notes/github-actions.md`・`docs/decisions/operations.md`・`docs/logs/`）は見込みのとおり。push の直前に再 fetch して祖先を確かめ、`git push origin work/1028-log-367-weekly:cloudflare` でマージした（235fc4d99..62751b7a0）
+- マージ後の check-run（62751b7a0）: Workers Builds: mj success、notify・本番ビルド失敗の検知は skipped
+- #367 に結果のコメント（作り・初回 2026-11-02・費用の見込み・確かめ方）を残した
+
+### 初回の予約の起動（2026-11-02 月曜 02:00 JST）の確かめ方
+
+- mj-logs の `actions/status.md` の run-weekly の行が success か（失敗なら 06:00 の朝の確かめ〈#506〉にも出る）
+- run-weekly の run の `xfetch / fetch` の実行サマリ: 「期間の初め」の行（2人の最も新しい投稿日）・読んだ投稿の数・【1】に足した行の数・費用。`xconvert / convert` の実行サマリ: 【2】に足した行の数・判定・要確認・Claude の費用・Places の回数
+- 【1】【2】の行数（今は 3451行ずつ）が、足した行の数だけ増えている
+- 本番の `resource_logs.html` の行数（今は 3159行）が、表示 Y の新しい行の数だけ増えている（`youtube` の全ページの再生成の後）
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1028-log-367-weekly
-- ログ: https://github.com/retroeater/mj/blob/work/1028-log-367-weekly/docs/logs/CHAT-1028-LOG-01.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1028-log-367-weekly
-- 確認用URL: なし
-- マージ: 未
+- 状態: 完了
+- ブランチ: work/1028-log-367-weekly（マージ済み。リモートの削除は cleanup-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1028-LOG-01.md
+- 比較URL: https://github.com/retroeater/mj/compare/235fc4d99...62751b7a0
+- 確認用URL: なし（ワークフローとスクリプトの変更。作業ブランチの手動実行で確かめた）
+- マージ: 済（62751b7a0）
 - issue: #367
 - 判断が必要なこと: なし
 - 未確認の項目: なし
