@@ -184,12 +184,12 @@ AGT-02 の整合性レビューの指摘のうち、チャット側の再レビ�
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1028-AGT-04
 - ブランチ: work/1028-agt
-- ログ: https://github.com/retroeater/mj/blob/work/1028-agt/docs/logs/CHAT-1028-AGT-03.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1028-AGT-03.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1028-agt
 - 確認用URL: なし
-- マージ: 未（止まる条件に当たったため）
+- マージ: この指示ではマージしなかった（止まる条件に当たったため）。手順1・2のコミット b5740b139 は CHAT-1028-AGT-04 と一緒に cloudflare へ入れた
 - issue: なし
 - 判断が必要なこと:
   - 16・17（Codespace の旧記録の archive への移動）で止まった。session-network.md の「gh の認証」と到達の実測3節（2026-09-14 WF-03・同 追加分 WF-05・2026-09-19 追加分 TP-06）を移すと、対象外の docs/notes/cloudflare.md の2か所（337行「gh の認証」、602行「到達できるかの実測は session-network.md」）の参照先が無くなる。参照の一覧は経過「手順3」。次のどれにするか:（a）cloudflare.md の2行も直してよいことにして移動を続ける（b）この4節は移さず、残りの Codespace だけの節（branch-operations.md の3節、session-network.md の Rebuild・確認用 URL・作業ファイルの置き場所）だけを移す（c）16・17 はやめる
@@ -201,12 +201,12 @@ AGT-02 の整合性レビューの指摘のうち、チャット側の再レビ�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 3c141c6d）: https://github.com/retroeater/mj-logs/tree/main/guide/3c141c6d
+ガイド文書（この版を写した時点の最新、mj f5ac6f94）: https://github.com/retroeater/mj-logs/tree/main/guide/f5ac6f94
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/3c141c6d/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/3c141c6d/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/3c141c6d/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/3c141c6d/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/3c141c6d/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/3c141c6d/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f5ac6f94/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f5ac6f94/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f5ac6f94/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f5ac6f94/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f5ac6f94/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f5ac6f94/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/ef29ee9e.md
