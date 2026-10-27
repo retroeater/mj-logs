@@ -180,7 +180,7 @@ origin/cloudflare は作業ブランチの祖先で、取り込みは要らな�
   - 「出場数がいちばん多いのは？」→「出場数がいちばん多いのは16回で、4人が並んでいます（二階堂亜樹さん・佐々木寿人さん・瀬戸熊直樹さん・藤崎智さん）。」（出典「麻雀最強戦 ランキング（出場数）」/saikyo/ranking/appearances/）。ページの出場数1位の4人・16回と一致
 - docs/notes/ask-worker.md「本番で送る固定の問い」の最強戦の行は、手順2のコミット（922d5d905）で直した（通過率 → 勝率、予選出場 → 出場数、成績の問いの「出場16回」→「出場数16回」）
 - 告知動画のスクリプト（`scripts/promo_video/saikyo_renewal/capture.mjs`）は、部門の並びを9部門のまま持ち、撮るときに決定と違えば止まる作り。撮り直しは別の指示（決定「告知動画はこの後に撮り直す」）なので、この指示では変えていない
-- 作業ブランチ: 最後のログの push と cloudflare への追いの push の後、`origin/cloudflare` の祖先であることを確かめてリモートの work/1027-skp-rank6 を消す。消す直前の先頭 SHA とマージ済みの判定は #633 のコメントに書く
+- 作業ブランチ: f4f690aa0 が `origin/cloudflare` の祖先（`git branch -r --merged origin/cloudflare` に入る）と確かめ、リモートの work/1027-skp-rank6 を消そうとしたが、`git push origin --delete` はセッションの git の中継に切られて消えなかった（`fatal: the remote end hung up unexpectedly`。別の手段は試していない）。ローカルのブランチは `git branch -d` で消した後、このログの直しのために作り直した。リモートはマージ済みのまま残る（先頭 SHA と判定は #633 のコメント）。消すなら平野さんが GitHub の画面で
 
 ## 報告
 
