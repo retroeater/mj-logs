@@ -102,7 +102,7 @@
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1027-WYN-02
 - ブランチ: work/1027-wyn
 - ログ: https://github.com/retroeater/mj/blob/work/1027-wyn/docs/logs/CHAT-1027-WYN-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1027-wyn

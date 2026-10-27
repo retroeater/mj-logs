@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-27 21:48 JST
+- 書き出した時刻: 2026-10-27 21:51 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -25,11 +25,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-27 21:49 | push | work/1027-skp-data | success | #458（40506850053） | 0分20秒 |
+| 2026-10-27 21:49 | push | work/1027-wyn | success | #457（40506821343） | 0分22秒 |
+| 2026-10-27 21:48 | push | work/1027-wyn | success | #456（40506745443） | 0分28秒 |
 | 2026-10-27 21:46 | push | work/1027-skp-data | success | #455（40506491513） | 0分24秒 |
 | 2026-10-27 21:04 | push | work/1027-skp-data | success | #454（40500868571） | 0分20秒 |
-| 2026-10-27 21:02 | push | work/1027-skp-data | success | #453（40500608968） | 0分25秒 |
-| 2026-10-27 21:00 | push | work/1027-skp-data | success | #452（40500348333） | 0分27秒 |
-| 2026-10-27 20:27 | push | work/1027-skp-rank6 | success | #451（40496312083） | 0分22秒 |
 
 ## check-build-failure.yml
 
@@ -38,11 +38,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-10-27 21:47 | check_run | cloudflare | skipped | #595（40506620411） | 0分01秒 |
-| 2026-10-27 21:05 | check_run | cloudflare | skipped | #594（40501025148） | 0分10秒 |
-| 2026-10-27 21:02 | check_run | cloudflare | skipped | #593（40500695666） | 0分01秒 |
-| 2026-10-27 21:00 | check_run | cloudflare | skipped | #592（40500436909） | 0分01秒 |
-| 2026-10-27 20:31 | check_run | cloudflare | skipped | #591（40496824432） | 0分01秒 |
+| 2026-10-27 21:50 | check_run | cloudflare | skipped | #602（40506995586） | 0分11秒 |
+| 2026-10-27 21:50 | check_run | cloudflare | skipped | #601（40506944878） | 0分01秒 |
+| 2026-10-27 21:50 | check_run | cloudflare | skipped | #600（40506927843） | 0分09秒 |
+| 2026-10-27 21:49 | check_run | cloudflare | skipped | #599（40506879315） | 0分08秒 |
+| 2026-10-27 21:49 | check_run | cloudflare | skipped | #598（40506855086） | 0分02秒 |
 
 ## check-image-links.yml
 
@@ -215,7 +215,7 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-10-27 21:47 | workflow_dispatch | cloudflare | in_progress | #22（40506498244） |  |
+| 2026-10-27 21:47 | workflow_dispatch | cloudflare | success | #22（40506498244） | 1分44秒 |
 | 2026-10-25 08:55 | workflow_dispatch | work/1025-skv | success | #21（40144694342） | 0分26秒 |
 | 2026-10-23 18:49 | workflow_dispatch | work/1023-skv-detect | success | #20（39934617712） | 0分26秒 |
 | 2026-10-23 13:19 | workflow_dispatch | cloudflare | success | #19（39899739516） | 1分21秒 |
