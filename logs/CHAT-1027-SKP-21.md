@@ -43,15 +43,38 @@ CHAT-1027-SKP-18 で作った告知動画の第3版のうち、v3b（場面2〜4
 
 ## 経過
 
+### 着手前の確認
+
+- 0章: ログの「指示」欄の末尾が、指示文の最後の行と一致
+- 同じ Chat-Ref のコミット: なし
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 4行ともある（貼られた指示文は改行の一部が詰まっていた。ログには貼られたまま写した）
+- 作業ブランチ: origin/work/1027-skp-vid はあり、未マージ（f22bddc20、SKP-18 のログとスクリプトの直し）。続けて使った
+
+### 手順1
+
+- CHAT-1027-SKP-18 のログの状態を「判断待ち / 続き: CHAT-1027-SKP-21」にした
+- docs/decisions/saikyo.md に「2026-10-27（CHAT-1027-SKP-21）」を足した
+- docs/notes/page-announcement.md の実例の最強戦のリニューアルの行を第3版 v3b に直した（日付 2026-10-27、ランキングの切り替え先を勝率に、「場面2〜4を公開後の本番から撮り直し、場面1・5〜7は第2版のコマのまま、場面の始まりの秒でつないだ第3版 v3b で確定」）
+- docs/notes/saikyo-page-design.md「9. 告知動画（リニューアル）」も同じく第3版 v3b で確定に直し、「公開の後に撮るときは URL を替える」を「`capture.mjs` は公開後の `/saikyo/` から撮る」に直した
+- スクリプトの既定: `build.sh` は既定で全部を本番から撮る（v3a のような場面の一部のつなぎ替えは README に書いた手作業で、既定ではない）。全部を撮り直すと、場面2〜4は v3b と同じ画面、場面5〜7は撮る日の本番になる。v3a を作る形にはなっていないので、スクリプトは直していない
+
+### 手順2
+
+- origin/cloudflare は祖先でなかったので `git merge origin/cloudflare` で取り込んだ（衝突なし。マージコミットは既定の件名のまま）
+- origin/cloudflare との差分（7ファイル）: `scripts/promo_video/saikyo_renewal/README.md`・`capture.mjs`（スクリプト）、`docs/decisions/saikyo.md`・`docs/logs/CHAT-1027-SKP-18.md`・`docs/logs/CHAT-1027-SKP-21.md`・`docs/notes/page-announcement.md`・`docs/notes/saikyo-page-design.md`（docs）。スクリプトと docs だけで、止まる条件に当たらない。動画はリポジトリに入れていない
+- `git push origin work/1027-skp-vid:cloudflare`（直前に再 fetch して祖先を確かめた）: 0d8462632..ccadb2362
+- #633 に動画の確定とマージをコメントした（issuecomment-6443486681）
+- 作業ブランチの片付け: ccadb2362 が `origin/cloudflare` の祖先（マージ済み）と確かめ、`git push origin --delete work/1027-skp-vid` を1回試したが、セッションの git の中継に切られて消えなかった（`fatal: the remote end hung up unexpectedly`。CHAT-1027-SKP-17 と同じ。別の手段は試していない）。リモートはマージ済みのまま残る。消すなら平野さんが GitHub の画面で
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1027-skp-vid
-- ログ: docs/logs/CHAT-1027-SKP-21.md
-- 比較URL: なし
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1027-SKP-21.md
+- 比較URL: https://github.com/retroeater/mj/compare/0d8462632...ccadb2362
 - 確認用URL: なし
-- マージ: なし
-- issue: #633
+- マージ: 済（cloudflare ccadb2362）
+- issue: #633（コメント）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
