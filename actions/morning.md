@@ -1,7 +1,7 @@
 # 朝の報告用の異常（retroeater/mj）
 
-- 書き出した時刻: 2026-10-27 07:53 JST（見た範囲: 2026-10-26 05:53 JST から）
-- 書き出した実行の契機: schedule（main）
+- 書き出した時刻: 2026-10-27 10:34 JST（見た範囲: 2026-10-26 08:34 JST から）
+- 書き出した実行の契機: workflow_dispatch（main）
 - 異常だけを書く。全体は actions/status.md。判定は mj の scripts/morning_report.py（各ワークフローの直近 100 回まで）
 
 ## 1. 失敗など（結論が success・skipped 以外。実行中を含む）
@@ -14,7 +14,7 @@
 
 ## 3. 所要時間の異常（cloudflare の実行だけ。基準は同じ種類〈cloudflare・予約の実行か手動か〉の直近20回。その中央値の3倍以上かつ中央値＋5分以上、または10分以上。skipped は除く）
 
-- 2026-10-26 07:47 fetch-youtube.yml success（schedule・cloudflare）所要 10分06秒（直近20回の中央値 7分55秒） https://github.com/retroeater/mj/actions/runs/40241832250
+なし
 
 ## 4. 初回成功（cloudflare の実行だけ。それ以前の cloudflare の実行に success が無いもの）
 
