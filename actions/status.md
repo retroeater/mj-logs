@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-27 18:37 JST
+- 書き出した時刻: 2026-10-27 18:39 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -25,11 +25,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-10-27 18:36 | push | work/1027-skp | in_progress | #448（40482068401） |  |
+| 2026-10-27 18:37 | push | work/1018-log-367-migrate | success | #449（40482184090） | 0分25秒 |
+| 2026-10-27 18:36 | push | work/1027-skp | success | #448（40482068401） | 0分23秒 |
 | 2026-10-27 18:34 | push | work/1018-log-367-migrate | success | #447（40481837551） | 0分21秒 |
 | 2026-10-27 10:40 | push | work/1018-log-367-migrate | success | #446（40433930123） | 0分21秒 |
 | 2026-10-27 10:38 | push | work/1018-log-367-migrate | success | #445（40433797083） | 0分21秒 |
-| 2026-10-26 20:51 | push | work/1018-log-367-migrate | success | #444（40318220850） | 0分19秒 |
 
 ## check-build-failure.yml
 
@@ -38,11 +38,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-27 18:38 | check_run | cloudflare | skipped | #586（40482276968） | 0分01秒 |
+| 2026-10-27 18:37 | check_run | cloudflare | skipped | #585（40482135006） | 0分11秒 |
 | 2026-10-27 18:35 | check_run | cloudflare | skipped | #584（40481923561） | 0分01秒 |
 | 2026-10-27 10:40 | check_run | cloudflare | skipped | #583（40433978632） | 0分01秒 |
 | 2026-10-27 10:40 | check_run | cloudflare | skipped | #582（40433952353） | 0分01秒 |
-| 2026-10-26 20:52 | check_run | cloudflare | skipped | #581（40318282413） | 0分01秒 |
-| 2026-10-26 20:38 | check_run | cloudflare | skipped | #580（40316574752） | 0分09秒 |
 
 ## check-image-links.yml
 
@@ -134,11 +134,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-27 18:37 | workflow_dispatch | work/1018-log-367-migrate | success | #35（40482194195） | 0分29秒 |
 | 2026-10-27 18:35 | workflow_dispatch | work/1018-log-367-migrate | success | #34（40481961385） | 0分37秒 |
 | 2026-10-27 18:34 | workflow_dispatch | work/1018-log-367-migrate | success | #33（40481844986） | 0分31秒 |
 | 2026-10-27 10:40 | workflow_dispatch | work/1018-log-367-migrate | success | #32（40433934010） | 0分27秒 |
 | 2026-10-27 10:38 | workflow_dispatch | work/1018-log-367-migrate | success | #31（40433803701） | 0分29秒 |
-| 2026-10-26 20:52 | workflow_dispatch | work/1018-log-367-migrate | success | #30（40318236225） | 0分25秒 |
 
 ## fetch-gsc.yml
 
@@ -201,11 +201,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-10-27 18:35 | workflow_dispatch | work/1027-skp | in_progress | #466（40481921805） |  |
+| 2026-10-27 18:37 | workflow_dispatch | work/1018-log-367-migrate | success | #468（40482197619） | 0分40秒 |
+| 2026-10-27 18:36 | workflow_dispatch | work/1027-skp | success | #467（40482074367） | 0分33秒 |
+| 2026-10-27 18:35 | workflow_dispatch | work/1027-skp | success | #466（40481921805） | 1分11秒 |
 | 2026-10-27 18:35 | workflow_dispatch | work/1027-skp | success | #465（40481917407） | 0分40秒 |
 | 2026-10-26 21:04 | workflow_dispatch | work/1018-log-367-migrate | failure | #464（40319743097） | 0分30秒 |
-| 2026-10-26 20:53 | workflow_dispatch | work/1018-log-367-migrate | success | #463（40318405214） | 0分35秒 |
-| 2026-10-26 20:52 | workflow_dispatch | work/1018-log-367-migrate | success | #462（40318263281） | 0分32秒 |
 
 - #464 failure: ジョブ「regenerate」 ステップ「生成物の差を実行サマリに出す」
 
