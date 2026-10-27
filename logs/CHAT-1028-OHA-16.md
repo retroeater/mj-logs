@@ -119,28 +119,34 @@ mj-logs の actions/morning.md の書き出し（mj-logs の `git log origin/mai
 - 朝の報告のタスクは5日とも成功（10/24・25・27 は平野さんがスマホの通知で確認、10/26・28 はチャット側がタスクの記録で 06:02〜06:04 を確認。Code のセッションからはタスクの記録は見えない）
 - 本文の「検討する点」と、コメントの「判断待ち」「頼むこと」には、どれも答えが出ている。残る作業は無く、新しい issue は立てていない
 
+### #563 へのコメントとクローズ
+
+- 結果と5日分の表、項目ごとの答えた先を #563 にコメントした（issuecomment-6454174736）
+- #563 を閉じた（state_reason: completed、2026-10-27T21:35:43Z〈JST 10/28 06:35〉）。「状況: 保留」を外し、ラベルは「分野: 自動化」だけ（REST で確かめた）
+- docs は直していない（手順3）。このログと docs/decisions/automation.md だけの変更なので、完了報告のうえ cloudflare へ入れる
+
 ## 報告
 
-- 状態:
-- ブランチ:
-- ログ:
-- 比較URL:
-- 確認用URL:
-- マージ:
-- issue:
-- 判断が必要なこと:
-- 未確認の項目:
-- エラー:
+- 状態: 完了
+- ブランチ: work/1028-oha
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1028-OHA-16.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1028-oha
+- 確認用URL: なし
+- マージ: 済（0d467a311。docs のみ）
+- issue: #563（結果をコメントしてクローズ、「状況: 保留」を外した）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj f5ac6f94）: https://github.com/retroeater/mj-logs/tree/main/guide/f5ac6f94
+ガイド文書（この版を写した時点の最新、mj cfad705f）: https://github.com/retroeater/mj-logs/tree/main/guide/cfad705f
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f5ac6f94/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f5ac6f94/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f5ac6f94/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f5ac6f94/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f5ac6f94/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f5ac6f94/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/cfad705f/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/cfad705f/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/cfad705f/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/cfad705f/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/cfad705f/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/cfad705f/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/f5ac6f94.md
