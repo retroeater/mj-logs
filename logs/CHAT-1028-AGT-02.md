@@ -62,6 +62,45 @@ AGT-01 でクラウドセッションではエージェントチームが作ら�
 
 ## 経過
 
+### 0章・着手前（16:11 UTC）
+
+- 「指示」欄の末尾は「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」で、指示文の最後の行と一致
+- 同じ Chat-Ref のコミット: 0件（`git log --all --grep 'CHAT-1028-AGT-02'`）
+- docs/logs/CHAT-1028-AGT-01.md の `## 報告` の状態: 「判断待ち」
+- `git merge-base --is-ancestor origin/work/1028-agt origin/cloudflare` → 偽（未マージ）。ローカルの work/1028-agt は origin/work/1028-agt と同じ 21b10f794
+- `echo "$CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS"` → `1`
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 4行とも有る
+- ログを先行 push（84149b0af）
+
+### 取り込み（origin/cloudflare）
+
+- `git merge-base --is-ancestor origin/cloudflare HEAD` が偽だったので `git merge origin/cloudflare`。docs/decisions/operations.md の末尾への追記どうし（cloudflare 側 CHAT-1028-LOG-01 の節、作業ブランチ側 CHAT-1028-AGT-01 の節）が衝突。両立する追記どうしなので両方を残して解いた（cloudflare 側を先、AGT-01 を後）。マージコミット 7347d268c。解いた後の該当箇所:
+
+```
+## 2026-10-28（CHAT-1028-LOG-01）
+
+- #367 の「ログ」は週に1回、月曜の朝（全ページの再生成の前）に自動で取り込む。（略）
+- 取り込みの対象は平野良栄（retroeater）・谷岡育夫（it_uesama）の2人。石立岳大は対象外
+- マージは、テストと作業ブランチでの手動実行（dry-run）の確かめが通れば行ってよい
+- 作業中の回答: なし
+
+## 2026-10-28（CHAT-1028-AGT-01）
+
+- エージェントチーム（experimental）を試す。初回のテーマはガイド4文書の整合性レビュー（コードは書かない）
+（以下 AGT-01 の節の4行はそのまま）
+```
+
+- 取り込み後、`git diff --name-only origin/cloudflare...HEAD` は docs/decisions/operations.md・docs/logs/CHAT-1028-AGT-01.md・docs/logs/CHAT-1028-AGT-02.md の3つだけ
+
+### 手順1
+
+- AGT-01 のログの `## 報告` の状態を「判断待ち / 続き: CHAT-1028-AGT-02」にした
+
+### 手順2（起動）
+
+- 16:13 UTC ごろ、Agent ツールで rev-a（CLAUDE.md）・rev-b（handover.md）・rev-c（chat-side-operations.md と instruction-template.md）を `model: sonnet`・バックグラウンドで同時に起動。3人とも起動できた
+- 進め方: 1段目で各自が指摘の一覧を返す。最初に SendMessage で次の担当へ1回だけ到達テストを送らせ、結果を返させる。2段目の相互検証は、到達テストの結果によらず、リーダーが一覧を検証役に渡す（リーダー経由）。止まった担当には SendMessage で再開させる
+
 ## 報告
 
 - 状態: 対応中

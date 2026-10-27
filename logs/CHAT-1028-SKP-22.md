@@ -110,7 +110,9 @@ L が最後の列。I・J は全行空。前提の「K 表示・L 備考が I・
 ### 手順3
 
 - docs/notes/saikyo-page-design.md「1. データ源」の表の下に、見出しの名前で読む列と、I・J を列ごと消してよいことを書いた（b1a997382）
-- マージは下の報告のとおり
+- origin/cloudflare（9c304e330）を取り込んだ（衝突なし。マージコミットは既定の件名）。取り込んだ後も `unittest` は OK。cloudflare との差分はスクリプト・テスト・docs の9ファイル
+- `git push origin work/1028-skp-col:cloudflare`（直前に再 fetch して祖先を確かめた）: 9c304e330..03a7e5d70
+- マージの push で動いた `regenerate-page.yml`（run 40537362659、success）は、`scripts/lib/` が変わったため全ページ（FILES に saikyo/・houou/・title/ ほか全部）を生成し直し、「変更なし」でコミットしなかった。共有の関数（`lib/sheets.py` の `fetch_records()` の見出しの検査を `header_indexes()` に切り出した）を変えたが、全ページの生成物は変わらない。全ページの生成し直しはマージの前に作業ブランチで回すべきだった（CLAUDE.md「判断・作業の原則」）。マージの後の全ページの生成で差分が0だったことで代えた
 
 ## 報告
 
@@ -119,7 +121,7 @@ L が最後の列。I・J は全行空。前提の「K 表示・L 備考が I・
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1028-SKP-22.md
 - 比較URL: https://github.com/retroeater/mj/compare/235fc4d99...work/1028-skp-col
 - 確認用URL: なし（生成物の差分は0）
-- マージ: 済（cloudflare へ push。SHA はターミナルの最終報告の「ログ（公開）」の行）
+- マージ: 済（cloudflare 03a7e5d70）
 - issue: なし
 - 判断が必要なこと: なし（結論: I・J 列は消してよい。消した後の確かめは、翌朝の `regenerate-saikyo.yml` の成功で見る）
 - 未確認の項目: なし
