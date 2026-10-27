@@ -45,14 +45,55 @@ CHAT-1027-SKP-19 は、見込みに無い差分（45ページ）があって止�
 
 ## 経過
 
+### 着手前の確認
+
+- 0章: ログの「指示」欄の末尾が、指示文の最後の行と一致
+- 同じ Chat-Ref のコミット: なし
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 4行ともある
+- 作業ブランチ: origin/work/1027-skp-data はあり（0aa9d77b1、SKP-19 のログ）。`origin/cloudflare` は祖先でなかったので、ログを push した後に `git merge origin/cloudflare` で取り込んだ（baa0baed7。衝突なし。マージコミットは既定の件名のままでトレーラは無い）
+
+### 着手時に分かったこと（前提との違い）
+
+指示文は「SKP-19 の手順3（cloudflare での手動実行）から再開する」としているが、saikyo/ にはもう Mの乱が入っていた:
+
+- cloudflare の 4ecbad419（2026-10-27 11:59 UTC、github-actions）は、cloudflare で手動起動された「YouTube の情報の取得」（run 40499085851、11:49 UTC。このセッションからではない）に続く全ページの再生成のコミットで、saikyo/ と sitemap-saikyo.xml の60ファイルを変えていた
+- その60ファイルは、SKP-19 の見込みと種類・件数が同じ: (a) saikyo/2026/ の5件、(b) 個人成績・ランキング6ページ・対戦成績・ask-players.json の9件、(d) sitemap-saikyo.xml の1件、(f) 2014〜2025年度の卓のページ45件。(c) 写真の URL だけの差は0件。Workers Builds: mj は success
+- `workers/ask/data-saikyo.json` は、このコミットでは変わっておらず「2026年10月18日の対局まで」のままだった（全ページの再生成の対象外）
+
+手動実行は冪等で、決定（反映してよい）とも食い違わないので、止まらずに指示の手順2のとおり2本とも動かした。
+
+### 手順1
+
+- CHAT-1027-SKP-19 のログの状態を「判断待ち / 続き: CHAT-1027-SKP-20」にした
+- docs/decisions/saikyo.md に「2026-10-27（CHAT-1027-SKP-20）」を足した（0c0204a65）
+
+### 手順2: cloudflare での手動実行
+
+先に docs/notes/github-actions.md「ワークフローを手動実行するとき」を読んだ（checkout と push 先は実行ブランチ）。
+
+| ワークフロー | 入力 | run | 結論 | コミット |
+|---|---|---|---|---|
+| `regenerate-saikyo.yml`（最強戦の再生成） | abema=update・regenerate=true | 22（id 40506498244） | success（ジョブ abema success、regenerate / regenerate success） | なし（4ecbad419 で反映済みのため、差分が無くコミットしない） |
+| `regenerate-page.yml`（ページの再生成） | target_page=ask_data_saikyo | 475（id 40506501845） | success | be2a6b5cf |
+
+be2a6b5cf の `--stat`: `workers/ask/data-saikyo.json | 2 +-`（1ファイル）。種類は (e) だけで、見込みの範囲。中身: 時点「2026年10月25日の対局まで」、選手 439名、出場数のランキング 46件、菅原拓也の 2026年度に「Mの乱 決勝 1位 優勝」「Mの乱 ベスト8 B卓 1位 通過」。
+
+Workers Builds: mj-ask（be2a6b5cf）success。mj（4ecbad419、saikyo/ の反映）success。
+
+### 手順3: 本番の確かめ（`?v=skp20a`）
+
+- saikyo/2026/20261025.html（200）: ベスト8 A卓「1 勝又健志（1位通過）・2 瀬戸麻衣（2位通過）・3 竹内元太（3位敗退）・4 望月琴乃（4位敗退）」、ベスト8 B卓「1 菅原拓也（1位通過）・2 岡田紗佳（2位通過）・3 浅井堂岐（3位敗退）・4 平良将太（4位敗退）」、決勝「1 菅原拓也（優勝）・2 瀬戸麻衣（2位敗退）・3 勝又健志（3位敗退）・4 岡田紗佳（4位敗退）」
+- saikyo/2026/20261025-s2.html（決勝の卓、200）: 「1位 優勝 菅原拓也・2位 敗退 瀬戸麻衣・3位 敗退 勝又健志・4位 敗退 岡田紗佳」
+- saikyo/2026/（200）: 先頭の行が「Mの乱 2026年10月25日 菅原拓也 優勝」
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1027-skp-data
-- ログ: docs/logs/CHAT-1027-SKP-20.md
-- 比較URL: なし
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1027-SKP-20.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1027-skp-data
 - 確認用URL: なし
-- マージ: なし
+- マージ: 済（saikyo/ は 4ecbad419〈別の実行〉、質問欄のデータは be2a6b5cf。ログは cloudflare へ入れる）
 - issue: なし
 - 判断が必要なこと: なし
 - 未確認の項目: なし
@@ -61,12 +102,12 @@ CHAT-1027-SKP-19 は、見込みに無い差分（45ページ）があって止�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj f4f690aa）: https://github.com/retroeater/mj-logs/tree/main/guide/f4f690aa
+ガイド文書（この版を写した時点の最新、mj cd2e819d）: https://github.com/retroeater/mj-logs/tree/main/guide/cd2e819d
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f4f690aa/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f4f690aa/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f4f690aa/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f4f690aa/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f4f690aa/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f4f690aa/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/cd2e819d/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/cd2e819d/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/cd2e819d/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/cd2e819d/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/cd2e819d/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/cd2e819d/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/954de2fa.md

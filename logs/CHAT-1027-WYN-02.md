@@ -73,6 +73,18 @@ WYN-01 で cloudflare に入った帰り道の新しい回の確認を終え、W
 
 - docs/decisions/wayhome.md に「2026-10-27（CHAT-1027-WYN-02）」を足した
 
+### マージ
+
+- push 直前に再 fetch したところ origin/cloudflare が be2a6b5cf（`chore: regenerate workers/ask/data-saikyo.json`）に進んでいたため、もう一度 `git merge origin/cloudflare` で取り込んだ（衝突無し）
+- 再 fetch のうえ `git merge-base --is-ancestor origin/cloudflare HEAD` が真、`git diff --name-only origin/cloudflare...HEAD` は docs/decisions/wayhome.md・docs/logs/CHAT-1027-WYN-01.md・docs/logs/CHAT-1027-WYN-02.md のみを確かめて、`git push origin work/1027-wyn:cloudflare` → be2a6b5cf..d48d0e9bd
+- この追記は docs/logs のみの追いの push
+
+### ブランチの片付け
+
+- docs/notes/branch-operations.md「ブランチを削除するとき」と docs/notes/cloud-sessions.md「ブランチの削除」を読んだ。リモートの work/1027-wyn は、セッションのプロキシが削除を拒否するため削除しない（マージ済みの `work/*` は cleanup-branches.yml が先頭から24時間後に削除）
+- ローカルの work/1027-wyn も消さない（コンテナとともに消える。消すには HEAD を移す操作が要り、得るものが無い）
+- 判定: work/1027-wyn はマージ済み（追いの push の後、先頭は origin/cloudflare と一致する予定。マージ時の先頭 d48d0e9bd）
+
 ## 報告
 
 - 状態: 完了
@@ -80,7 +92,7 @@ WYN-01 で cloudflare に入った帰り道の新しい回の確認を終え、W
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1027-WYN-02.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1027-wyn
 - 確認用URL: なし
-- マージ: 済（`git push origin work/1027-wyn:cloudflare`。SHA は `## 経過`「マージ」）
+- マージ: 済（`git push origin work/1027-wyn:cloudflare`。d48d0e9bd）
 - issue: なし
 - 判断が必要なこと: なし
 - 未確認の項目: なし
@@ -89,12 +101,12 @@ WYN-01 で cloudflare に入った帰り道の新しい回の確認を終え、W
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj f4f690aa）: https://github.com/retroeater/mj-logs/tree/main/guide/f4f690aa
+ガイド文書（この版を写した時点の最新、mj cd2e819d）: https://github.com/retroeater/mj-logs/tree/main/guide/cd2e819d
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f4f690aa/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f4f690aa/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f4f690aa/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f4f690aa/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f4f690aa/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f4f690aa/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/cd2e819d/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/cd2e819d/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/cd2e819d/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/cd2e819d/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/cd2e819d/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/cd2e819d/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/954de2fa.md
