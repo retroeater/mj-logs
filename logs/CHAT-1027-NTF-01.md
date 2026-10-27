@@ -63,28 +63,44 @@ Chat-Ref: CHAT-1027-NTF-01
 
 ## 経過
 
+- 着手前の確認: 同じ Chat-Ref のコミット・`NTF` の重複（全ブランチのコミットと docs/logs の履歴）とも無し。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は欠け無し。work/1027-ntf はローカル・リモートとも無かったため `git checkout -b work/1027-ntf origin/cloudflare` で作成
+- 0章: 指示欄の末尾は指示文の最後の行と一致。`gh secret list` はセッションのプロキシで HTTP 403（Actions の secrets のパスを通さない）で確かめられなかった。到達できないことを根拠に「無い」とせず、手順1の作業ブランチでの手動実行（dry_run）で、Secret を使った API の呼び出しが通ることをもって登録ありと確かめた（下）
+- 0章ゲート: 未マージの work/ ブランチで `check-build-failure.yml`・`scripts/check_build_failure.py`・その検査・`docs/notes/cloudflare.md`・`docs/notes/github-actions.md` を変えているものは無し。CLAUDE.md 23,488 バイト・handover.md 22,221 バイト（警告域の外）
+- 手順1: issue の検索（「本番ビルド失敗の通知 プレビュー」など）で同じ論点の進行中の issue は無し（#561・#622 は閉じている）。#634 を起票し、着手中のコメントを書いた。`git grep -n check-build-failure -- .github` で、ほかのワークフローから `uses:` で呼ばれていないことを確かめた
+- 実装（eb159f943）:
+  - `scripts/check_build_failure.py`: check-run の `details_url` からアカウント ID と Build ID を取り、`accounts/<id>/builds/builds/<Build ID>` を `CF_BUILDS_TOKEN` で読む。`build_trigger_metadata.branch == "cloudflare"` なら本番（第一の案のまま。実物の答えで本番のトリガー名は人の読める名前でなく ID 風の値だったため、トリガー名でなくブランチで判定する案が妥当）。本番でないと確かめられたら知らせず、`::notice::` に理由（トリガー名・ブランチ）を出す。Secret が無い・details_url が想定外・HTTP エラー（状態と Cloudflare の code を出す）・通信の失敗・答えの形の違いはすべて「確かめられない」として知らせる。問い合わせは、Workers Builds の失敗で cloudflare に入ったコミットのときだけ行う
+  - `.github/workflows/check-build-failure.yml`: 判定のステップの `env:` で `CF_BUILDS_TOKEN` を受ける。冒頭の説明を直した
+  - `scripts/tests/test_check_build_failure.py`: API の答えを固定値で与える検査 `LookupTest`（プレビュー・本番・トークン無し・details_url 想定外・HTTP 403・通信の失敗・答えの形の違い・judge への反映・問い合わせない場合）を足した。`MainTest` は Secret を外して実行し、知らせる（安全側）ことを確かめる。修正前のコードでは `lookup_production` などが無く `LookupTest` は通らない
+  - `python3 -m unittest discover -s scripts/tests`: 1582 件 OK
+- 作業ブランチでの手動実行（dry_run、eb159f943）:
+  - run 40511445712（check_run_id 122116895714）: 「本番のトリガーのビルドではない(トリガー: Deploy non-production branches、ブランチ: work/1027-skp)ため知らせない」→ 期待どおり（通知しない）。これが手順1の「1件だけ呼んで通る」確かめも兼ねる（HTTP 200 で答えが読めた）
+  - run 40511450666（check_run_id 115128041224）: 「Cloudflare のビルド: トリガー: <ID 風の値>、ブランチ: cloudflare」で知らせる判定（dry-run のためジョブは成功）→ 期待どおり（通知する）。10/13 の失敗が本番のトリガーのものであることも API で確かめられた
+  - トークンが無い・使えないとき: 手動実行ではなく検査で確かめた（`LookupTest.test_unknown_when_no_token`・`test_unknown_when_http_error`、`MainTest.test_notify_fails_job` は環境変数 `CF_BUILDS_TOKEN` を外してスクリプトを実行し終了コード 1〈知らせる〉を確かめる）
+- 文書（別コミット）: docs/notes/cloudflare.md「ビルドが Cloning で失敗したとき」の「受け入れた近似」の文を置き換え、「ビルド成否と本番の確認範囲」の `CLOUDFLARE_API_TOKEN` の方針の直後に、読み取りだけのトークン（`CF_ANALYTICS_TOKEN`・`CF_BUILDS_TOKEN`）が当たらない理由を1行足した（同じ趣旨の記述は cloudflare.md には無かった）。docs/notes/github-actions.md「ワークフローの一覧」の行を直し、「権限と Secret の渡し方」の表に `check-build-failure` の行を足した（表は呼ぶ側の job ごとの形のため、「なし（直接起動）」として足した）
+- docs/decisions/cloudflare.md に決定を足した
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1027-ntf
 - ログ: https://github.com/retroeater/mj/blob/work/1027-ntf/docs/logs/CHAT-1027-NTF-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1027-ntf
-- 確認用URL:
-- マージ:
-- issue:
-- 判断が必要なこと:
-- 未確認の項目:
-- エラー:
+- 確認用URL: なし（ワークフロー・スクリプト・docs の変更でページは変わらない）
+- マージ: 未（この後マージする）
+- issue: #634（起票）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 8030de19）: https://github.com/retroeater/mj-logs/tree/main/guide/8030de19
+ガイド文書（この版を写した時点の最新、mj baa00969）: https://github.com/retroeater/mj-logs/tree/main/guide/baa00969
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/8030de19/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/8030de19/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/8030de19/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8030de19/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8030de19/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8030de19/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/baa00969/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/baa00969/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/baa00969/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/baa00969/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/baa00969/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/baa00969/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/8030de19.md

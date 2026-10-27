@@ -607,6 +607,7 @@ Workers & Pages → `mj` → Settings → Builds:
   Workers Builds（`cloudflare`へのpushで自動実行）に一本化しているため。
   `CLOUDFLARE_API_TOKEN` を GitHub Secret に登録しない方針（二重デプロイの防止）
   と同じ理由。`check-assets.yml`は検査専用でデプロイは行わない
+- 読み取りだけのトークン（`CF_ANALYTICS_TOKEN`〈Account Analytics Read〉・`CF_BUILDS_TOKEN`〈Workers CI Read〉）は、`CLOUDFLARE_API_TOKEN` と別の名前・別の権限でデプロイできないため、上の方針に当たらない
 
 **「本番のHTMLがどうなっているか」と「ブラウザでどう見えるか」は別物であり、確認できる
 範囲が違う。この2つを混同しないこと。**
@@ -680,8 +681,9 @@ Workers & Pages → `mj` → Settings → Builds:
   ダッシュボードの API（下の「Chrome からダッシュボードの API を読む」の `builds/builds`）で読む。Build ID は check-run の `.output.summary` にある
 - **対処: 設定は変えない。** 次の `cloudflare` への push か、ダッシュボードの「Retry build」で通る。通るまで本番は前の版のまま（失敗で壊れはしない）。
   **失敗の通知は `check-build-failure.yml`（#561）**: check-run の完了（`check_run`）で起動し、名前が「Workers Builds:」で始まる failure（`mj`・`mj-ask`・`mj-scheduler`）で、
-  コミットが `cloudflare` に入っていれば（compare の status が identical・behind）ジョブを失敗させ、GitHub の失敗通知メールで知らせる。
-  失敗は本番とプレビューを見分けられないため、同じコミットのプレビューだけが失敗したときも知らせる（受け入れた近似）。
+  コミットが `cloudflare` に入っていて（compare の status が identical・behind）、Cloudflare のビルドの API（`accounts/<id>/builds/builds/<Build ID>`、Secret `CF_BUILDS_TOKEN`）で
+  ビルドのブランチ（`build_trigger_metadata.branch`）が `cloudflare` ならジョブを失敗させ、GitHub の失敗通知メールで知らせる（check-run では本番とプレビューを見分けられないため、#634）。
+  プレビューと確かめられた失敗は知らせず、理由（トリガー名・ブランチ）を注釈に出す。確かめられないとき（Secret が無い・API が答えない・答えの形が違う）は知らせる。
   起動は Workers Builds の check-run の完了ごと（1日約100回）で、失敗以外はジョブが skipped の実行として Actions の一覧に残る。
   mj-logs の `actions/status.md` はワークフローごとの直近5回なので、この行はほぼ skipped で埋まり、失敗の回はすぐ表から外れる（気づくのはメール）。
   2026-10-13 に有効化した（確かめた run は docs/notes/github-actions.md「ワークフローの一覧」）。Cloudflare 側の通知は Universal SSL Alert だけ（上の「DNS・メール・通知の設定」）
