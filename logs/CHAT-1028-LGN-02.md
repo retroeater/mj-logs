@@ -82,6 +82,20 @@ CHAT-1028-LGN-01 は、#378（現在地から探す）が既にあったため�
   - 起票: 作る issue #639「log/ を作る（「ログ」の作り直し。検索・駅名・現在地から探す）」（状況: 対応中・分野: UI/UX・対象: resource_logs）、公開の issue #640「log/ を公開する（#639 の段2、resource_logs.html からの転送）」（状況: 待ち・分野: UI/UX・対象: resource_logs。段2を写し、#255 を閉じること・301・`?tag=` の引き継ぎを書いた）。#639 に公開の issue の番号と着手中のコメント
   - #378: 取り消しのコメント、#296 の sub-issue から外した（#296 の sub-issue は 38→37、#378 が無いことを REST で確かめた）、「状況: 保留」を外した。#296 の本文の「子 issue」の表から #378 の行を外し、「親の対象外」の表に #97 と同じ形で足した（書き換え直前に `updated_at` が取得時と同じことを確かめた）
   - #255: 「log/ の公開で閉じる」とコメント（閉じていない）
+- 未マージのブランチとの重なり（共通の部品）: 1017-lvp だけが `style.css`（saikyo・live の節）と `navbar.js`（白地のナビの if/else の末尾、saikyo の後に live の分岐を足す）を変えている。こちらは style.css の末尾に新しい節を足し、navbar.js は if/else の先頭に log/ の分岐を足したので、同じ行・同じ関数の同じ箇所ではない（1017-lvp の取り込みでは隣り合わない）。`_headers`・`_redirects`・`scripts/lib/`・`convert_x_posts.py`・`convert-x-posts.yml`・`assets/` の houou/ の JS を変えている未マージのブランチは無い
+- 手順3（変換）: `scripts/convert_x_posts.py`（3e9179843）
+  - 【2】の見出しの末尾に「緯度」「経度」（`COORD_COLUMNS`）。all は Text Search の応答の location を書く（呼び出しは増えない）。座標の2列を足す前の見出し `PRE_COORD_HEADER` のままでも all・stations・coords は止めない（`header_state()` の 'prefix' は all で既に通り、書くときに見出しを足す。stations は見出しの完全一致だったので `PRE_COORD_HEADER` も通すようにした）
+  - all の 'prefix' で2回目に書く前の読み直しが「変わっていた」で止まる不具合があった（`write_rows` が見出しを足した後も手元の見出しが古いまま）。直し、テスト `test_all_on_pre_coord_header_adds_columns_once` が直す前のコードで落ち、直した後に通ることを確かめた（CLAUDE.md「修正の検証」）
+  - 新しい mode `coords`: place_id があり座標が空の行を place_id ごとに1回、Place Details（GET `places/{id}`、FieldMask `location`）で引き、「緯度」「経度」だけを書く（見出しが無ければ先に足す、グリッドの列を足す、書く前に読み直して変わっていれば書かない、鍵が無ければ呼ばない）。上限は all と同じ `PLACES_MAX_CALLS`（2,000回）
+  - `convert-x-posts.yml` の mode の選択肢に `coords`。docs/notes/github-actions.md の表の行を直した
+- dry-run の手動実行（作業ブランチ、3e9179843）:
+  - mode coords（run 40714825265、成功）: 「【2】自動変換後」: 見出し 先頭が同じ（緯度・経度の列が無い）、3451行。**place_id があり座標が空の 3141行（place_id 1895個）。Place Details の呼び出し 1895回、見込みの費用 約 $9.47**（1件 $0.005 で置いた値。無料の枠は引いていない。料金表・無料の枠・1日の割り当ては確かめていない）
+  - mode all（run 40714841303、成功）: 【1】の 3451行のうち【2】に無い投稿 0件。見出しは「先頭が同じ」で止まらない
+- 手順2（log/）: 27b2e651e。`scripts/generate_log_pages.py`・`assets/log.js`・`style.css` の末尾の節・`navbar.js`（`/log/` で白地のナビ、「リソース」に印）・`_headers`（`/log/*` だけ `geolocation=(self)`）・`_redirects`（`/log` 301・`/log/` 200）・`check-assets.yml`（最上位の `log` を許可）・`regenerate.py`（`OUTPUT_OVERRIDES`・`SHARED_GENERATORS`）・テスト `scripts/tests/test_log_pages.py`・仕様 `docs/notes/log-page.md`・docs/notes/static-generation.md「ページの一覧」・docs/new-page-checklist.md の URL パラメータの表（`station`・`shop`）・docs/handover.md 6章の表
+  - `generate_resource_logs.py` の `layer_rows()` から行の選び方を `merged_rows()` に分け、log/ も同じ行を使う（resource_logs.html の出力は変わらない。既存のテストはそのまま通る）
+  - `_headers` の `! Permissions-Policy` の当たり方は、Workers の静的アセットの実装（cloudflare/workers-sdk の `asset-worker/src/utils/headers.ts`: 規則はファイル順、1つの規則の中は外す→付けるの順）を読んで確かめた。`/log/*` は `/*` の後に置く
+  - 手元の確かめ（仮のデータ 159件・66店で log/ を組み、`python3 -m http.server` とヘッドレス Chromium）: 375px・360px・1920×1080 で見え方、360px で横のはみ出し無し（scrollWidth 360）。検索語・駅の候補（「新宿駅の近く（16店）」→ `?station=`）・人の絞り込み（`?name=` と組み合わせ）・現在地（位置を許可した状態で近い順・距離の表示）・`?shop=`・`?tag=` がそれぞれ動き、ページのエラーは無い（外部の解析スクリプト等の読み込みの失敗だけ）。写真の無い・読めないときは灰色の地だけにした（最初は resource_logs と同じ矢印の画像で、大きく切り抜かれていた）
+  - 全テスト `python3 -m unittest discover -s scripts/tests`: 1623件 OK
 
 ## 報告
 
