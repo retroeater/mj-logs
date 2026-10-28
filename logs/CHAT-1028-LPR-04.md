@@ -140,14 +140,23 @@ LPR-01（docs/logs/CHAT-1028-LPR-01.md）の指摘のうち、最強戦（saikyo
 | S13 は 44px を当てたので、名前の面の文字の段が約29px 高くなる（任意） | 意図どおり（押せる大きさのサイトの慣例。4大会には当たらない。計測で4大会の大きさが同じことを確かめた） |
 | S17 の DOMContentLoaded の中の2か所（key・query）はテストで見ていない（任意） | 意図どおり（同じ関数への置き換え。プレビューの (d) で確かめた） |
 
+### マージ
+- push 直前に `git fetch origin` のうえ `git merge-base --is-ancestor origin/cloudflare HEAD` が真。変えたファイルは指示の一覧の内（assets/saikyo.js・saikyo/vs/index.html・saikyo/years/index.html・scripts/generate_saikyo_pages.py・scripts/tests/test_saikyo_vs.py・style.css・docs/decisions/site-review.md・docs/logs/CHAT-1028-LPR-04.md）
+- `git push origin work/1028-lpr-sk:cloudflare` の出力の範囲: `bf4ef24c8..546e4052b`
+- マージの後の check-run（546e4052b）: Workers Builds: mj success・sync success・notify skipped・regenerate success（06:40〜06:42 UTC）
+- regenerate-page.yml のコミット 7f9e605cb（chore: regenerate workers/ask/data-saikyo.json saikyo/）の差分は sitemap-saikyo.xml の2行だけ（saikyo/vs/ の lastmod 2026-10-27 → 2026-10-28、saikyo/years/ 2026-10-26 → 2026-10-28。h1 を変えたことによる）。HTML・data-saikyo.json の差は無し
+- 本番の (a)（`?v=lpr4prod<ページ>` 付きで curl）: saikyo/years/ の h1「最強戦 年度別」、saikyo/vs/ の h1「最強戦 対戦成績」。本番の assets/saikyo.js に `playerKey(entry` が1件（新しい版）
+- 作業ブランチの片付け（docs/notes/branch-operations.md「ブランチを削除するとき」を読んだ）: この追記を cloudflare へ入れた後、`git branch --merged origin/cloudflare` に含まれることを確かめ、HEAD を origin/cloudflare（detached）へ移して `git branch -d work/1028-lpr-sk` でローカルだけ消す。削除直前の先頭はこの追記のコミット（最終報告の「ログ（公開）」の `?v=` と同じ）。リモートの origin/work/1028-lpr-sk は消さない（文書にリモートの削除の手順が無い。cloudflare の祖先）
+- 生成の比べと失敗の確かめに使った origin/cloudflare の worktree（scratchpad）は `git worktree remove` で外した
+
 ## 報告
 
 - 状態: 完了
-- ブランチ: work/1028-lpr-sk
+- ブランチ: work/1028-lpr-sk（マージ後にローカルを削除、リモートは残す）
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1028-LPR-04.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1028-lpr-sk
 - 確認用URL: プレビューあり（URL は最終報告）。確認したページは saikyo/ のトップ・個人成績・ランキング・対戦成績・年度別と4大会の個人成績。この版で見える印: saikyo/years/ の題名が「最強戦 年度別」
-- マージ: 未
+- マージ: 済（546e4052b）
 - issue: なし
 - 判断が必要なこと: なし
 - 未確認の項目: なし
