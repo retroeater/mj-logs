@@ -48,14 +48,39 @@ Chat-Ref: CHAT-1028-SKP-23
 
 ## 経過
 
+### 着手前の確認
+
+- 0章: ログの「指示」欄の末尾が、指示文の最後の行と一致
+- 同じ Chat-Ref のコミット: なし
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 4行ともある
+- 作業ブランチ: origin/work/1028-skp-title は無かったので、origin/cloudflare（40afec4ff）から作った
+- 0章ゲート: 未マージの `work/` ブランチに `scripts/generate_saikyo_pages.py` を変えるものは無い
+
+### 手順1
+
+- 組み立てている所: `scripts/generate_saikyo_pages.py` の `write_menu()` の最後（新トップ `saikyo/index.html` を書く `menu_meta(f"{EVENT_NAME} | {SECTION_NAME} | ryoei.pro", …)`）の1か所。前提の「`MENU_PUBLIC` で /saikyo/ に書く部分」という名前の定数は今は無い（公開で `saikyo/index.html` へ直接書く形になっている）。同じ文字列を使うのは `<title>` と og:title だけ（twitter:title は出していない。`og:image:alt` は「麻雀最強戦」で別の文字列）
+- 直した（fbeaa30a4）: `TOP_TITLE = f"{EVENT_NAME} | ryoei.pro"` を足し、トップの `menu_meta()` に渡す。h1「最強戦」・パンくず・ほかのページの題名は変えていない
+- テスト: `test_saikyo_menu.py` に `TopTitleTest` を足した（`TOP_TITLE` が「麻雀最強戦 | ryoei.pro」、生成済みの `saikyo/index.html` の `<title>` と og:title がそれ、年度別は「年度別 | 最強戦 | ryoei.pro」のまま）。生成し直す前のトップではこのテストが落ちることを確かめた（`<title>麻雀最強戦 | 最強戦 | ryoei.pro</title>`）
+- `regenerate-page.yml` check（saikyo_pages、run 40653586317）: success
+- 作業ブランチで生成（run 40653589761、success）→ 49b3b29c3「chore: regenerate saikyo/ via GitHub Actions」: `saikyo/index.html`（2行）と `sitemap-saikyo.xml`（1行）
+  - `saikyo/index.html`: `<title>` と og:title の2行だけ（「麻雀最強戦 | 最強戦 | ryoei.pro」→「麻雀最強戦 | ryoei.pro」）
+  - `sitemap-saikyo.xml`: トップの `<lastmod>` 2026-10-27 → 2026-10-28（ワークフローの `update_sitemap_lastmod.py --from-git` がトップのページの変更から導いた値。手では書いていない）
+  - シートの変化で出た差分: 0
+- 生成の後に `python3 -m unittest discover -s scripts/tests`: OK（全件）
+
+### 手順2
+
+- docs/decisions/saikyo.md に「2026-10-28（CHAT-1028-SKP-23）」を足した。docs/notes/saikyo-page-design.md の「新しいトップ」の行に、トップの `<title>`・og:title が「麻雀最強戦 | ryoei.pro」（`TOP_TITLE`）であることを書いた（今までトップの title の記述は無かった）
+- origin/cloudflare は作業ブランチの祖先で、取り込みは要らなかった。cloudflare との差分: スクリプト1・テスト1・生成物2（`saikyo/index.html`・`sitemap-saikyo.xml`）・docs 3
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1028-skp-title
-- ログ: docs/logs/CHAT-1028-SKP-23.md
-- 比較URL: なし
-- 確認用URL: なし
-- マージ: なし
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1028-SKP-23.md
+- 比較URL: https://github.com/retroeater/mj/compare/40afec4ff...work/1028-skp-title
+- 確認用URL: なし（本番で確かめる）
+- マージ: 済（cloudflare へ push。SHA と本番の確かめは追いの push で書く）
 - issue: なし
 - 判断が必要なこと: なし
 - 未確認の項目: なし
@@ -64,12 +89,12 @@ Chat-Ref: CHAT-1028-SKP-23
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 40afec4f）: https://github.com/retroeater/mj-logs/tree/main/guide/40afec4f
+ガイド文書（この版を写した時点の最新、mj 1242ae11）: https://github.com/retroeater/mj-logs/tree/main/guide/1242ae11
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/40afec4f/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/40afec4f/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/40afec4f/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/40afec4f/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/40afec4f/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/40afec4f/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/1242ae11/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/1242ae11/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/1242ae11/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/1242ae11/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/1242ae11/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/1242ae11/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/cfad705f.md
