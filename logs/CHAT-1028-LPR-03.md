@@ -62,6 +62,31 @@ LPR-01（docs/logs/CHAT-1028-LPR-01.md）の指摘のうち、4大会（houou/�
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 着手前の確認
+- 0章: 「指示」欄の末尾は指示文の最後の行と一致
+- 同じ Chat-Ref のコミット: 0件（`git log --all --grep="CHAT-1028-LPR-03"`）。`LPR` は同じセッションの続き
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 欠けなし。「貼る時機」は「別のセッションに貼る」としているが、LPR-01・02 と同じセッションに貼られた。LPR-02（work/1028-lpr-iss、判断待ち）とはファイルが重ならない（LPR-02 は docs/logs と docs/decisions/site-review.md だけ）ため、このまま進めた
+- 作業ブランチ: work/1028-lpr-fix はローカル・リモートとも無し → `git checkout -b work/1028-lpr-fix origin/cloudflare`（2c57b6ae0）
+- 指示文が着手・クローズの対象にする issue は無い
+- 未マージの work/ ブランチとの重なり（`git branch -r --no-merged origin/cloudflare` の各ブランチと `git diff --name-only origin/cloudflare...<branch>`、対象は変える予定のファイル）: origin/work/1017-lvp が style.css を変えている。範囲は 1540〜3232行付近（saikyo・動画の節）で、S9 で消す 4094〜6012行付近とは離れている（同じ行・同じ規則ではない）。止まらずに進める
+
+### 手順1: S4・S5・S9 の確かめ
+
+| 件 | 確かめ | 結果 |
+|---|---|---|
+| S4 `DEFAULT_DIVISION` | `git grep` で scripts/・workers/・assets/ の .py・.js・.mjs | ranking.py:22 の定義だけ。進める |
+| S5 `rank(limit=True)` の経路 | `ranking.rank(` の呼び出し | 本番は generate_houou_pages.py:588・620・621 の3か所で全部 `limit=False`。`limit` を既定のまま呼ぶのは test_houou_pages.py の `table()` だけ。進める |
+| S5 `Contest.limits`・`DEFAULT_RANK_LIMIT` | `git grep` | ranking.py の定義と `rank()` の `limit` の分岐、テスト（test_houou_pages.py:84・134）だけ |
+| S5 `MIN_CONSECUTIVE_PROMOTIONS` | `git grep` | ranking.py の定義・`consecutive_promotions()` の既定値・`rank()` の `limit` の分岐だけ |
+| S5 `CONTESTS["特昇"]` | `git grep 特昇` | ranking.py:57 の定義だけ |
+| S4・S5 の saikyo/ からの利用 | generate_saikyo_pages.py の `ranking.` | `ranking.to_fixed`（1436行）・`ranking.Entry`（1458行）・`ranking.auto_cut`（1459行）だけ。消す対象は使っていない |
+| S9 クラス名の組み立て | league.js・league_race.js・houou_ask.js・saikyo.js・生成スクリプトで `'mj-houou-…' +`・テンプレート文字列・f 文字列・`className = 変数`・`classList.add(変数)` を grep | 組み立ては `'mj-houou-lg-' + pt.move`（league.js:1570。`mj-houou-lg-up`/`-down` を作る。消す `mj-houou-up`/`-down` とは別の名前）、`'mj-houou-div-rank' + ' is-short'` などの別のトークンの足し算、`'mj-houou-trend-dot ' + mark`（mark は `is-up`・`is-down`・`is-pass`）、`'mj-houou-trend-label ' + cls`（`is-top` など）、league_race.js の `mj-race-band ${b.cls}`（`up`/`down`。`mj-houou-` は付かない）、生成スクリプトの `mj-houou{cls}`（cls は ` is-<dir>`）。`className = 変数`（houou_ask.js:84・league.js:85・league_race.js:305）は `el()` の引数の受け渡しで、渡す値は上の文字列。6種を組み立てる箇所は無い |
+| S9 ほかの参照 | 6種の名前でリポジトリ全体を `git grep`（style.css を除く） | docs/logs の LPR-01・LPR-03 だけ（scripts/promo_video・workers にも無い） |
+
+外す件は無し。プレビューの DOM での出現（操作の後を含む）は手順3の (c) で確かめる。
+
 <!-- guide-links -->
 ---
 
