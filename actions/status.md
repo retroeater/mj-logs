@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-28 16:58 JST
+- 書き出した時刻: 2026-10-28 17:01 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -25,11 +25,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-28 16:58 | push | work/1028-skp-title | success | #480（40653581247） | 0分26秒 |
 | 2026-10-28 16:51 | push | work/1028-lpr-iss | success | #479（40652779809） | 0分23秒 |
 | 2026-10-28 15:42 | push | work/1028-lpr-sk | success | #478（40645485053） | 0分25秒 |
 | 2026-10-28 15:36 | push | work/1028-lpr-sk | success | #477（40644895588） | 0分22秒 |
 | 2026-10-28 13:31 | push | work/1028-lpr-fix | success | #476（40632760280） | 0分24秒 |
-| 2026-10-28 12:56 | push | work/1028-lpr-fix | success | #475（40629523979） | 0分25秒 |
 
 ## check-build-failure.yml
 
@@ -202,11 +202,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-28 16:59 | workflow_dispatch | work/1028-skp-title | success | #492（40653589761） | 1分21秒 |
+| 2026-10-28 16:59 | workflow_dispatch | work/1028-skp-title | success | #491（40653586317） | 0分37秒 |
 | 2026-10-28 15:40 | push | cloudflare | success | #490（40645289620） | 1分02秒 |
 | 2026-10-28 15:36 | workflow_dispatch | work/1028-lpr-sk | success | #489（40644899870） | 0分47秒 |
 | 2026-10-28 13:20 | push | cloudflare | success | #488（40631738128） | 9分37秒 |
-| 2026-10-28 12:56 | workflow_dispatch | work/1028-lpr-fix | success | #487（40629533497） | 21分00秒 |
-| 2026-10-28 01:04 | push | cloudflare | success | #486（40537362659） | 8分48秒 |
 
 ## regenerate-saikyo.yml
 
