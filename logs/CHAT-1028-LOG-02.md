@@ -58,15 +58,36 @@ LOG 系列（CHAT-1018-LOG-01〜CHAT-1028-LOG-01、#367）の振り返りと Fab
 
 ## 経過
 
+### 着手前の確認
+
+- 0: 「指示」欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
+- 同じ Chat-Ref のコミットは無かった。`work/1028-log-retro` はリモートにもローカルにも無かったので `origin/cloudflare`（ee6ddfa61）から作った
+- #367: open。他セッションの着手中は無い（最後は CHAT-1028-LOG-01 の結果のコメント）。着手中のコメントを残した
+- 同じ論点の issue（「行番号」「層」「申送り」「一意に指す」などで、クローズ済みも含めて検索）: 当たるものは無かった（#467〈「プロ」シートの見出し、closed〉は別の論点）
+
+### 追記先と容量（手順2）
+
+- 容量の検査（`check-assets.yml`）の対象は CLAUDE.md・handover.md・chat-side-operations.md（各28KB、警告域26KB）・instruction-template.md（16KB）の4つだけで、追記先の2文書には上限が無い。大きさ: `docs/notes/chat-routines.md` 20,609 → 20,890 バイト、`docs/decisions/operations.md` 126,743 → 127,311 バイト
+- B: `docs/notes/chat-routines.md`「申送り」の「成果物の形」の「シートの行・カレンダーの予定は動画ID（または行番号）で一意に指す。…どの層（【2】か【3】）から来たかを行ごとに書かせる」の項の末尾に、「平野さんにシートのセルを直してもらうときは、直す層（【3】など）の行番号と、キー（投稿ID・動画ID）を並べて書く。別の層の行番号を使わない（【2】の行番号で【3】を頼み、別の行が直された。#367）」を足した（同じ項を拡張。矛盾は無い）
+- D: `docs/decisions/operations.md` の「2026-10-27（CHAT-1027-LOG-05）」の1行目（毎週月曜 05:37 JST の全ページの再生成の前）の末尾に「 → 置き換え: 2026-10-28（CHAT-1028-LOG-01）」を足した（本文は変えていない）。`docs/decisions/README.md` の書き方（新しい決定の側に「（YYYY-MM-DD の〜を置き換える）」と書く）に合わせて、「2026-10-28（CHAT-1028-LOG-01）」の1行目の末尾にも「（2026-10-27 の「毎週月曜 05:37 JST の全ページの再生成の前」を置き換える。05:37 は fetch-youtube の保険の起動で、X の取り込みを含まない）」を足した（指示に無い点）
+- 決定: `docs/decisions/operations.md` の末尾に「2026-10-28（CHAT-1028-LOG-02）」の節を足した（申送りを行う・#367 を閉じる条件）
+- 残さないもの2点（Code の推定を見込みに使った件・送る前の差し替え2本）は、指示文の理由のとおり書いていない
+- `python3 -m unittest discover -s scripts/tests`: OK
+
+### マージ（手順3）
+
+- cloudflare との差分は `docs/notes/chat-routines.md`・`docs/decisions/operations.md`・`docs/logs/CHAT-1028-LOG-02.md` だけ。push の直前に再 fetch して祖先を確かめ、`git push origin work/1028-log-retro:cloudflare` で入れた（ee6ddfa61..022c03439）
+- #367 に、申送りで書いたことと「2026-11-02 の初回を確かめて閉じる（0件でも閉じる）」をコメントで残した（閉じていない）
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1028-log-retro
-- ログ: https://github.com/retroeater/mj/blob/work/1028-log-retro/docs/logs/CHAT-1028-LOG-02.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1028-log-retro
+- 状態: 完了
+- ブランチ: work/1028-log-retro（マージ済み。リモートの削除は cleanup-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1028-LOG-02.md
+- 比較URL: https://github.com/retroeater/mj/compare/ee6ddfa61...022c03439
 - 確認用URL: なし
-- マージ: 未
-- issue: #367
+- マージ: 済（022c03439）
+- issue: #367（閉じる条件を記録。閉じていない）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
@@ -74,12 +95,12 @@ LOG 系列（CHAT-1018-LOG-01〜CHAT-1028-LOG-01、#367）の振り返りと Fab
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj ee6ddfa6）: https://github.com/retroeater/mj-logs/tree/main/guide/ee6ddfa6
+ガイド文書（この版を写した時点の最新、mj 2c57b6ae）: https://github.com/retroeater/mj-logs/tree/main/guide/2c57b6ae
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ee6ddfa6/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ee6ddfa6/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ee6ddfa6/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ee6ddfa6/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ee6ddfa6/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/ee6ddfa6/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c57b6ae/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c57b6ae/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c57b6ae/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c57b6ae/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c57b6ae/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c57b6ae/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/cfad705f.md

@@ -212,7 +212,7 @@ CLAUDE.md「判断・作業の原則」のとおり、記述の食い違いは d
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1028-LPR-02
 - ブランチ: work/1028-lpr（マージ後にローカルを削除、リモートは残す）
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1028-LPR-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1028-lpr
@@ -238,12 +238,12 @@ CLAUDE.md「判断・作業の原則」のとおり、記述の食い違いは d
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj ee6ddfa6）: https://github.com/retroeater/mj-logs/tree/main/guide/ee6ddfa6
+ガイド文書（この版を写した時点の最新、mj 2c57b6ae）: https://github.com/retroeater/mj-logs/tree/main/guide/2c57b6ae
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ee6ddfa6/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ee6ddfa6/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ee6ddfa6/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ee6ddfa6/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ee6ddfa6/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/ee6ddfa6/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c57b6ae/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c57b6ae/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c57b6ae/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c57b6ae/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c57b6ae/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c57b6ae/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/cfad705f.md

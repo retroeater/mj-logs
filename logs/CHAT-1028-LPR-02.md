@@ -49,15 +49,59 @@ LPR-01 の指摘のうち、今は直さないものを issue に残して忘れ
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 着手前の確認
+- 0章: 「指示」欄の末尾は指示文の最後の行と一致（貼られた指示文をそのまま写した）。docs/logs/CHAT-1028-LPR-01.md は origin/cloudflare にあり、`## 報告` の状態は「判断待ち」（215行）
+- 同じ Chat-Ref のコミット: `git log --all --grep="CHAT-1028-LPR-02"` で0件。`LPR` は同じセッションの続き（01 の次）のため識別子の重複の確認は対象外
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 欠けなし
+- 作業ブランチ: work/1028-lpr-iss はローカル・リモートとも無し → `git checkout -b work/1028-lpr-iss origin/cloudflare`（着手時 HEAD ee6ddfa61）
+- issue の state（GitHub MCP の issue_read）: #296 open、#614 open
+
+### 手順1: 同じ主題の issue の検索（GitHub MCP の search_issues、クローズ済みを含む）
+- 「canonical」「canonical saikyo players name」: 0件。canonical の方針の issue は #113（closed、「canonicalの方針を決める（#79と一体で判断する）」、全ページの方針。saikyo/ の個別の扱いは無い）だけで、同じ主題とは見ない
+- 「新サイト 成績ページ 要件 …」: **#529（open、「新サイトの要件: 表のリンクの大きさ・画像失敗・並べ替えの表示・読み込み中・ページ送り（横断レビューの材料）」、#296 の sub-issue、「親: #296」のコメントあり）** が見つかった
+  - 本文の範囲は「新サイト（#296）で満たす要件のうち、既存の issue に置き場所が無いものを集める」（2026-10-06 のサイト全体の横断レビュー CHAT-1006-SWP-01 の出典）
+  - 後から別のレビューの分もコメントで足している（2026-10-11、CHAT-1011-SWP-16 で #525 の G2-11 を「新サイトの要件に回す」として追記）
+  - 中身も一部重なる: #529 の G2-08（表の中のリンクの高さ 15〜20px）と LPR-01 の D7（ランキングの選手名リンクの高さ24px、③-3）、#529 の G3-04（画像の失敗の表示）と N8（race の chip の画像が無いときの表示、③-8）
+  - 横断レビューの新サイトの要件を集める先として同じ目的の issue と判断し、止まる条件「手順1で同じ主題の issue が見つかった」に当たるとして、**起票・コメントはしていない**
+- 共通化（#614 の関係）: 「共通化 重複 …」の検索では、共通化そのものの issue は見つからなかった（#614・#220・#530 など。#530 は共有ボタン）
+  - #614 の題・本文・状態を読んだ: open。題「houou/・ouka/・jwrc/・wrcr/ で共有する内部の名前（houou_ask・.mj-houou-*・houou_* の id など）を大会に依らない名前にそろえる」。中身は**名前の付け替え**（ファイル名・CSS のクラス・id・data 属性）で、重複のまとめ・共通化の issue ではない
+  - 前提の「要確認」の分かれ目（共通化の issue でなければ、コメントせず S7・S8・S15・S18 を3件目として起票）に当たる。S7（Contest.script を Contest から導く）・S8（CSS の大会の列挙を1つのクラスに）・S15（saikyo 側の未使用 CSS を消す）・S18（crumbs_html を houou と共通に）は、どれも名前の付け替えではない
+- #296 の本文「新サイト送りにするとき・やめるとき」を読んだ: 「親: #296」のコメントと sub-issue の登録の両方を行う（登録は `gh api graphql` の `addSubIssue`）。この指示の前提（両方を行う）と食い違いは無い。登録の手段は GitHub MCP の sub_issue_write を使うことになる（`gh` が無いため。手段の違いで中身は同じ）。あわせて、#296 の本文の「子 issue」の表には過去の起票で行を足している（「2026-10-09 に表へ追加」など）が、この指示は表への追加に触れていない
+
+### 止まった時点の作業
+- issue の起票・コメント・sub-issue の登録は何もしていない（#296・#529・#614 は読んだだけ）
+- 規則どおり、LPR-01 のログの `## 報告` の状態に ` / 続き: CHAT-1028-LPR-02` を足し、この指示の「決定」を docs/decisions/site-review.md に足した（判断待ちの最後の push に含める）
+- 止まる条件に当たったため cloudflare へはマージしない。作業ブランチ work/1028-lpr-iss は未マージのため消さない
+- この節と `## 経過`・`## 報告` は引用符付きのヒアドキュメントで追記した（CLAUDE.md「文章をシェル経由で書かない」に反する。引用符付きのため展開は起きていない）
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1028-lpr-iss
+- ログ: https://github.com/retroeater/mj/blob/work/1028-lpr-iss/docs/logs/CHAT-1028-LPR-02.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1028-lpr-iss
+- 確認用URL: なし
+- マージ: 未（止まる条件「手順1で同じ主題の issue が見つかった」に当たったため）
+- issue: なし（起票・コメントはしていない。読んだもの: #296・#529・#614・#113）
+- 判断が必要なこと:
+  - Q1 新サイトの要件（N1〜N10・D1〜D8・W1・W2）の置き場所: #529（open、#296 の sub-issue、「新サイトの要件: 表のリンクの大きさ・画像失敗・…（横断レビューの材料）」）が、横断レビューの新サイトの要件の集め先として同じ目的に当たる（後から別のレビューの分もコメントで足している。D7 と G2-08、N8 と G3-04 は中身も重なる）。(a) 新しく起票せず #529 にコメントで足す (b) 成績ページ群の分として別に起票し、#529 との重なり（D7・N8）を本文に書く、のどちらにするか
+  - Q2 共通化の件（S7・S8・S15・S18）: #614 は名前の付け替え（houou_* などを大会に依らない名前に）の issue で、共通化の issue ではない。前提の分かれ目どおり3件目として起票してよいか（#614 にはコメントしない）
+  - Q3 canonical（S19）の1件目は、検索で同じ主題が無かった（#113 は closed の全ページの方針）。次の指示で Q1・Q2 と一緒に起票してよいか
+  - Q4 #296 の本文の「子 issue」の表に、新しく #296 の sub-issue にする issue の行を足すか（過去の起票では足している。この指示は表に触れていない）
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj ee6ddfa6）: https://github.com/retroeater/mj-logs/tree/main/guide/ee6ddfa6
+ガイド文書（この版を写した時点の最新、mj 2c57b6ae）: https://github.com/retroeater/mj-logs/tree/main/guide/2c57b6ae
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ee6ddfa6/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ee6ddfa6/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ee6ddfa6/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ee6ddfa6/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ee6ddfa6/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/ee6ddfa6/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c57b6ae/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c57b6ae/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c57b6ae/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c57b6ae/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c57b6ae/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c57b6ae/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/cfad705f.md
