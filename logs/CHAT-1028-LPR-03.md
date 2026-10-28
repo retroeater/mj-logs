@@ -184,14 +184,23 @@ league_race.js は読み込み時に DOM を組み立てて動く即時関数で
 - 変えたファイル（`git diff --name-only origin/cloudflare...HEAD`）が、指示の止まる条件の一覧に収まる: assets/league_race.js・docs/notes/league-pages-compare.md・jwrc/race/index.html・scripts/generate_houou_pages.py・scripts/lib/ranking.py・scripts/tests/test_houou_pages.py・scripts/tests/test_jwrc_pages.py・style.css・wrcr/race/index.html・docs/decisions/site-review.md・docs/logs/CHAT-1028-LPR-03.md。saikyo/ の生成物は変えていない
 - docs/decisions/site-review.md: LPR-02（work/1028-lpr-iss、未マージ・判断待ち）も同じファイルの末尾に節を足している。マージするときは末尾への追記どうしの衝突になり、CLAUDE.md「ブランチ運用」のとおり両方を残して解ける
 
+### マージ
+- push 直前に `git fetch origin` のうえ `git merge-base --is-ancestor origin/cloudflare HEAD` が真。未マージの work/ ブランチで変えるファイルが重なるのは origin/work/1017-lvp の style.css だけで、`git merge-tree --write-tree HEAD origin/work/1017-lvp` の衝突は6件（docs/decisions/live.md・live/ の生成物）で、origin/cloudflare との間の衝突の数（6件）と同じ。style.css には衝突なし
+- `git push origin work/1028-lpr-fix:cloudflare` の出力の範囲: `2c57b6ae0..7e8e5a5af`
+- マージの後の check-run（7e8e5a5af）: Workers Builds: mj success・sync success・notify skipped・regenerate success（04:20〜04:30 UTC）
+- regenerate-page.yml のコミット 1d027461f（chore: regenerate …）の差分は sitemap-pages.xml の2行だけ（jwrc/race/・wrcr/race/ の lastmod が 2026-10-19 → 2026-10-28。このページを変えたことによる）。生成物の HTML の差は無し
+- 本番の (a)（`?v=lpr3prod<大会>` 付きで curl）: houou/race・ouka/race はボタンの初めの文字・シートの題とも「期・リーグを選ぶ」、jwrc/race・wrcr/race は両方「期を選ぶ」。本番の assets/league_race.js に `setBackInert` が2件（新しい版）
+- 作業ブランチの片付け（docs/notes/branch-operations.md「ブランチを削除するとき」を読んだ）: この追記を cloudflare へ入れた後、`git branch --merged origin/cloudflare` に含まれることを確かめ、HEAD を origin/cloudflare（detached）へ移して `git branch -d work/1028-lpr-fix` でローカルだけ消す。削除直前の先頭はこの追記のコミット（最終報告の「ログ（公開）」の `?v=` と同じ）。リモートの origin/work/1028-lpr-fix は消さない（文書にリモートの削除の手順が無い。cloudflare の祖先）
+- 生成の比べに使った origin/cloudflare の worktree（scratchpad）は `git worktree remove` で外した
+
 ## 報告
 
 - 状態: 完了
-- ブランチ: work/1028-lpr-fix
+- ブランチ: work/1028-lpr-fix（マージ後にローカルを削除、リモートは残す）
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1028-LPR-03.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1028-lpr-fix
 - 確認用URL: プレビューあり（URL は最終報告）。確認したページは4大会の /race/・トップ・個人成績・ランキング（total/）。この版で見える印: jwrc/race・wrcr/race の期の選択シートの題が「期を選ぶ」
-- マージ: 未
+- マージ: 済（7e8e5a5af）
 - issue: なし
 - 判断が必要なこと: なし
 - 未確認の項目: なし
