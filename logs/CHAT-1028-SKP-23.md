@@ -72,6 +72,9 @@ Chat-Ref: CHAT-1028-SKP-23
 
 - docs/decisions/saikyo.md に「2026-10-28（CHAT-1028-SKP-23）」を足した。docs/notes/saikyo-page-design.md の「新しいトップ」の行に、トップの `<title>`・og:title が「麻雀最強戦 | ryoei.pro」（`TOP_TITLE`）であることを書いた（今までトップの title の記述は無かった）
 - origin/cloudflare は作業ブランチの祖先で、取り込みは要らなかった。cloudflare との差分: スクリプト1・テスト1・生成物2（`saikyo/index.html`・`sitemap-saikyo.xml`）・docs 3
+- `git push origin work/1028-skp-title:cloudflare`（直前に再 fetch して祖先を確かめた）: 40afec4ff..1242ae11c
+- 本番 `https://ryoei.pro/saikyo/?v=1242ae11c-6`（マージの約2分後）: `<title>麻雀最強戦 | ryoei.pro</title>`、`<meta property="og:title" content="麻雀最強戦 | ryoei.pro">`
+- 作業ブランチの片付け: 1242ae11c が `origin/cloudflare` の祖先（マージ済み）と確かめ、`git push origin --delete work/1028-skp-title` を1回試したが消えなかった（リモートに残っている。CHAT-1027-SKP-17・SKP-21 と同じくセッションの git の中継で通らない。別の手段は試していない）。消すなら平野さんが GitHub の画面で
 
 ## 報告
 
@@ -80,7 +83,7 @@ Chat-Ref: CHAT-1028-SKP-23
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1028-SKP-23.md
 - 比較URL: https://github.com/retroeater/mj/compare/40afec4ff...work/1028-skp-title
 - 確認用URL: なし（本番で確かめる）
-- マージ: 済（cloudflare へ push。SHA と本番の確かめは追いの push で書く）
+- マージ: 済（cloudflare 1242ae11c）
 - issue: なし
 - 判断が必要なこと: なし
 - 未確認の項目: なし
