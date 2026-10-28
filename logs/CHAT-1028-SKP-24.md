@@ -59,14 +59,47 @@ SKP 系列（CHAT-1023-SKP-01〜CHAT-1028-SKP-23、最強戦の個人成績・�
 
 ## 経過
 
+### 着手前の確認
+
+- 0章: ログの「指示」欄の末尾が、指示文の最後の行と一致
+- 同じ Chat-Ref のコミット: なし
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 4行ともある
+- ガイド文に規則を足す指示の「知見 → 選んだ層 → 理由」の表: ある（前提の表）
+- 作業ブランチ: origin/work/1028-skp-handoff は無かったので、origin/cloudflare（c6bd0e38f）から作った
+
+### 手順1: 書く先の今の内容
+
+| # | 書く先 | 今の内容 | 処理 |
+|---|---|---|---|
+| 1 | docs/notes/league-pages-compare.md「比べ方」の「新しい大会を足すとき」（WRR-12、同率・境目の値の確かめ） | 部門の決め方の記述は無い | 同じ箇条書きの次に1行足した（拡張。矛盾なし） |
+| 2 | docs/notes/ask-worker.md「変更の指示を作るときの前提: 本番で送る固定の問い」 | 固定の5問（鳳凰戦）と大会ごとの問いの表。`workers/ask/src/` を変える指示で送る、関わる大会の問いも送る | 表の後（「1日の上限」の段落の前）に1段落足した。送り直す時機を「部門の名前・集まりを変える指示（src を変えない生成だけの変更も含む）」に広げ、選手の成績を含める・束ねないを足した（拡張。矛盾なし） |
+| 3 | docs/notes/saikyo-page-design.md「1. データ源」（シートの更新の反映の段落） | 毎朝の再生成と手動実行の説明だけ。見込みの差分の記述は無い | 段落の後に1文足した |
+| 4 | docs/notes/page-announcement.md「告知動画の型」 | 撮った後にテロップが名指すものが映るかを確かめる規則（WRC-16）はある。撮る前の確かめは無い | その次に1行足した |
+
+- 4文書とも容量の上限は無い（`check-assets.yml` の上限は CLAUDE.md・handover.md・chat-side-operations.md・instruction-template.md だけ）
+- 2 の規則に照らすと、今の大会ごとの問いの表で「選手の成績」の問いがあるのは鳳凰戦（固定の5問の「白鳥翔の第40期の成績は？」）と最強戦（「瀬戸熊直樹の最強戦の成績は？」）だけで、女流桜花・WRC・WRC-R には無い。期待の値は本番の答えから決めるため、この指示（docs のみ）では足していない。それぞれの大会の質問欄を次に変える指示で足す材料になる
+
+### 手順2
+
+- 4点を規則と理由の一句で書いた（日付 2026-10-28 だけを添え、Chat-Ref の事例は書いていない）
+- 事例は docs/notes/handover-archive-2026.md に節「2026-10-28 の申送り（SKP 系列、#633）で足した規則の経緯」を足して書いた（直前の「2026-10-23 の申送り（ACF 系列…）」の節の後）
+- chat-side-operations.md・CLAUDE.md・handover.md には足していない（4点とも場面限定の手順で、書く先の資料で足りる）
+
+### 手順3
+
+- docs/decisions/operations.md に「2026-10-28（CHAT-1028-SKP-24）」を足した（直近の申送りの節〈CHAT-1023-ACF-35〉の形: 決定・4点と書いた先・足さなかったもの・作業中の回答）
+- `python3 -m unittest discover -s scripts/tests`: OK
+- `python3 scripts/check_asset_limits.py`（`check-assets.yml` の配信の上限の検査）: すべて OK
+- 容量の上限のある4文書（この指示では変えていない）: CLAUDE.md 23,786・handover.md 22,477・chat-side-operations.md 22,588 バイト（上限 28,672・警告域 26,624）、instruction-template.md 12,766 バイト（上限 16,384・警告域 14,336）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1028-skp-handoff
-- ログ: docs/logs/CHAT-1028-SKP-24.md
-- 比較URL: なし
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1028-SKP-24.md
+- 比較URL: https://github.com/retroeater/mj/compare/c6bd0e38f...work/1028-skp-handoff
 - 確認用URL: なし
-- マージ: なし
+- マージ: 済（docs のみ。cloudflare へ入れた SHA はターミナルの最終報告の「ログ（公開）」の行）
 - issue: なし
 - 判断が必要なこと: なし
 - 未確認の項目: なし
@@ -75,12 +108,12 @@ SKP 系列（CHAT-1023-SKP-01〜CHAT-1028-SKP-23、最強戦の個人成績・�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 1242ae11）: https://github.com/retroeater/mj-logs/tree/main/guide/1242ae11
+ガイド文書（この版を写した時点の最新、mj 5b39b154）: https://github.com/retroeater/mj-logs/tree/main/guide/5b39b154
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/1242ae11/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/1242ae11/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/1242ae11/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/1242ae11/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/1242ae11/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/1242ae11/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b39b154/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b39b154/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b39b154/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b39b154/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b39b154/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b39b154/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/c6bd0e38.md

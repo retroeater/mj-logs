@@ -334,7 +334,7 @@ ryoei.pro の WAF のカスタムルール（Security rules）。GET・HEAD 以�
 - **`CLOUDFLARE_API_TOKEN` は登録されていない（2026-09-14、`gh secret list` で確認）。**
   登録済みの Secret は `YOUTUBE_API_KEY` のみ。当初は Codespace 既定のトークンで 403 に
   なり確認できなかったが、Codespaces シークレット `GH_TOKEN` の設定後に実行できた
-  （`docs/notes/session-network.md`「gh の認証」）
+  （`docs/notes/handover-archive-2026.md`「Codespace の旧記録（2026-10-28 に移動、CHAT-1028-AGT-04）」の「gh の認証」）
 
 **キーの状態（2026-09-14、平野さんが Google Cloud Console で目視確認。セッションからは検証不能）**
 
@@ -599,7 +599,7 @@ Workers & Pages → `mj` → Settings → Builds:
 
 ### ビルド成否と本番の確認範囲（check-runs）
 
-セッションから Cloudflare・本番に到達できるかの実測は `docs/notes/session-network.md`（#328）。
+セッションから Cloudflare・本番への到達は `docs/notes/cloud-sessions.md`「ネットワーク」（#328）。Codespace の時の実測は `docs/notes/handover-archive-2026.md`「Codespace の旧記録（2026-10-28 に移動、CHAT-1028-AGT-04）」。
 
 **チャット側が成否を確かめるとき**（2026-10-14 に `docs/notes/chat-side-operations.md`「読み方」の表から移した、#492）: check-run（`gh api repos/retroeater/mj/commits/<sha>/check-runs`）。1つのコミットに Worker ごと（`mj`・`mj-ask`・`mj-scheduler`）と本番・プレビューの別で複数付く。**失敗を平野さんに伝える前に、失敗した check-run の Worker 名・Build ID・本番かプレビューかを書く**（見分け方は下の「ビルドが Cloning で失敗したとき」）
 
