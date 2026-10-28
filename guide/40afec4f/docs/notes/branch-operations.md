@@ -2,30 +2,7 @@
 
 CLAUDE.md「ブランチ運用」「Chat-Ref」「作業ログ」から、特定の場面でしか使わない手順を移した（#297、CHAT-0919-LW-04・CHAT-0928-DC-01）。
 入口の規則（いつこの文書を読むか）は CLAUDE.md に残している。クラウドセッションの手順は `docs/notes/cloud-sessions.md`。
-見出しに「（Codespace）」のある節と「`/workspaces/mj` を pull するとき」は旧 Codespace の記録（2026-10-14 からクラウドセッションだけ）。
-
-## 起動時に読み込んだ CLAUDE.md が古くないか確かめる（Codespace）
-
-**会話の開始時に `git -C /workspaces/mj fetch origin` し、`/workspaces/mj` の HEAD が `origin/cloudflare` より遅れていたら、
-起動時に読み込まれた CLAUDE.md は古い版とみなし、規則は `git show origin/cloudflare:CLAUDE.md` で読む。**
-`/workspaces/mj` を pull しても読み込み済みの内容は変わらないため、読み直しは要る。
-
-## 作業ディレクトリの分離（Codespace）
-
-`/workspaces/mj` は全セッションが共有しており、ブランチを分けても作業ツリーは分離されない（#198）。
-
-- **`git -C /workspaces/mj fetch origin` のうえ、`origin/cloudflare` を明示して worktree を作り、その中で作業する**
-  （`/workspaces/mj` の HEAD は遅れていることがあるため、指示文に書かれていなくても常に行う）:
-  `git -C /workspaces/mj worktree add /workspaces/mj-<識別子> -b work/<識別子> origin/cloudflare`
-- ブランチの作成・切り替え・進める操作は、`cd`・`;`・`|`・`&&` を付けない単独のコマンドで実行する（場所は `git -C <パス>` で指定する）。
-  既存のブランチを付け替える `checkout -B`・`branch -f`・`reset --hard` は使わず、進めるときは `git merge --ff-only origin/cloudflare` を使う（#298）
-- 分岐元が `cloudflare` であることを `git merge-base --is-ancestor origin/cloudflare HEAD` で確認する（work/0913-hv）
-- `/workspaces/mj` 自身では `git checkout` / `git switch` を行わない。常に他セッションが使用中とみなす。
-  pull してよいのは下の「`/workspaces/mj` を pull するとき」の3条件をすべて満たすときだけ
-- 身に覚えのない未コミット変更を見つけたら、捨てる前に `git diff` で中身を確認し、他セッションの作業でないか疑う
-- コミットを分割するときは `git add -p`、または `git diff` で切り出したハンクを `git apply --cached` で部分ステージする
-  （`git stash` は共有パスの他セッションの未コミット編集を無言で消しうる、#198）
-- 作業完了後は `git worktree remove` で片付け、作業ブランチも（下の「ブランチを削除するとき」の手順で）削除する
+Codespace の旧記録の節は `docs/notes/handover-archive-2026.md`「Codespace の旧記録（2026-10-28 に移動、CHAT-1028-AGT-04）」へ移した（2026-10-14 からクラウドセッションだけ）。
 
 ## Chat-Ref の着手前の確認
 
@@ -64,20 +41,6 @@ CLAUDE.md「ブランチ運用」「Chat-Ref」「作業ログ」から、特定
 - `origin/cloudflare` の直近のコミットと、触る予定の issue の最近の更新を見て、他セッションの作業と重なっていないか（#265）
 - 触る予定のファイルを、未マージの work/ ブランチが変更していないか（`git branch -r --no-merged origin/cloudflare`
   で列挙し、各ブランチとの `git diff --stat origin/cloudflare...<branch> -- <ファイル>` で確認）（#336）
-
-## `/workspaces/mj` を pull するとき（CHAT-0915-NT-04）
-
-`/workspaces/mj` は全セッションが共有する作業ツリーで、原則として触らない。**次の3条件をすべて満たすときに限り、
-セッションの判断で `git -C /workspaces/mj pull --ff-only` を行ってよい。**
-
-1. ブランチが `cloudflare` であること
-2. `git -C /workspaces/mj status --porcelain` が空であること
-3. HEAD が `origin/cloudflare` の祖先であること
-
-1つでも満たさなければ触らず、状態を報告する（未コミット変更の扱いは上の「作業ディレクトリの分離」）。
-**`--ff-only` 以外の pull（merge・rebase を伴うもの）・merge・reset はしない。**
-
-- 理由: 放っておくと起動時の CLAUDE.md が遅れる。切り替え・未コミット変更の破壊（WH-22）は3条件で防げる
 
 ## ブランチを削除するとき（#209、2026-09-13決定）
 
@@ -139,6 +102,24 @@ CLAUDE.md「ブランチ運用」「Chat-Ref」「作業ログ」から、特定
 - **マージの手順:** 作業ブランチから`git push origin <作業ブランチ>:cloudflare`とし、cloudflareはチェックアウトしない。
   **push直前に必ず再fetchし、`git merge-base --is-ancestor origin/cloudflare HEAD`で push 先が自分のHEADの祖先であることを確認すること**
   （他セッションのfetchで`origin/cloudflare`が進むため、取り込み時点を前提にすると他セッションのコミットを巻き戻す）
+- **push の出力に出る範囲（`<前>..<後>` の形）をログの `## 経過` に書く**（下の「マージを戻すとき」で使う。前の SHA は push の出力にしか出ない）
+
+## マージを戻すとき
+
+上の手順のマージは cloudflare へ fast-forward で入るが、範囲に作業ブランチが cloudflare を取り込んだマージコミットが入ることがある。
+そのため `git revert <前>..<後>` は失敗し（`is a merge but no -m option was given`）、`-m 1` を付けると取り込んだ他の作業まで戻す。
+戻しは、前後の版の差分を逆向きに当てたコミット1つで行う（`<前>` は `<後>` の祖先なので、この差分がちょうどそのマージで入った変更になる）。
+
+1. 戻すマージの範囲 `<前>..<後>` をログ（上の「マージするとき」）か push の出力から取る。分からなければ推測せず止まって報告する
+2. 作業ブランチを `origin/cloudflare` から作り（docs/notes/cloud-sessions.md「作業ブランチの用意」）、
+   `git diff --binary <後> <前> -- . ':(exclude)docs/logs/' | git apply --index` を当てる（作業ログは記録なので戻さない）。
+   当たらなければ（その後のコミットが同じ行を変えている）止まって報告する
+3. コミットの件名は `revert: <戻すマージの内容>`、本文に範囲 `<前>..<後>` と理由を書き、通常の手順（上の「マージするとき」）で cloudflare へ push する
+4. 生成スクリプト・ページの JS が戻れば、push で `regenerate-page.yml` が動いて生成物も作り直される。マージの後に `chore: regenerate` が乗っていたときは、
+   戻した後に対象のページの生成物が戻った版のスクリプトの出力と一致するか（再生成のコミットか「変更なし」）を確かめる
+5. 戻したことと、戻しのコミットの SHA・範囲を issue にコメントする
+
+cloudflare への force push は mj-git-guard が止める（docs/notes/skills.md「git の hook」）ので、履歴を書き換えて戻すことはしない。
 
 ## 文章をコマンドに渡すとき（CLAUDE.md「コミットのルール」から移した）
 
@@ -156,7 +137,7 @@ CLAUDE.md「ブランチ運用」「Chat-Ref」「作業ログ」から、特定
 
 - 戻す前に `git status --short` で未コミットの変更を見て、残したいもの（ログ等）は先にコミットする
 - 別のコミットの中身を確かめたいだけなら、作業ツリーに展開せず `git show <コミット>:<パス>` や `git diff <A> <B> -- <パス>` で読む
-- 退避に `git stash` は使わない（CLAUDE.md「禁止事項」、上の「作業ディレクトリの分離」）
+- 退避に `git stash` は使わない（CLAUDE.md「禁止事項」）
 
 ## 作業ログの寿命（cleanup-logs.yml）
 
