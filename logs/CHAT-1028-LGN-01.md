@@ -1,7 +1,7 @@
 # CHAT-1028-LGN-01
 
 - 着手日時: 2026-10-28
-- 対象issue: 起票予定（作る issue・公開の issue・現在地から探す issue）
+- 対象issue: なし（起票せずに止まった。同じ目的・近い目的として #378・#255 を確認）
 - ブランチ: work/1028-lgn
 - 着手時HEAD: c6bd0e3
 
@@ -67,17 +67,37 @@ Chat-Ref: CHAT-1028-LGN-01
 
 ## 経過
 
+- 着手前の確認: `CHAT-1028-LGN-01` のコミット無し。識別子 `LGN` のコミット・ログ無し（`git fetch --unshallow` の後に全ブランチで確認）。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は欠け無し。CLAUDE.md は起動時のものと `origin/cloudflare` で同じ
+- 0（指示欄の末尾）: ログの「指示」欄の末尾は指示文の最後の行「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」と一致
+- 作業ブランチ: `work/1028-lgn` はローカル・リモートとも無かったので `git checkout -b work/1028-lgn origin/cloudflare`（c6bd0e3）で作った
+- 前提の確かめ（コードを読んだ範囲。シートは読んでいない）:
+  - `scripts/convert_x_posts.py` の `OUT_HEADER`（【2】の見出し）に「place_id」「駅」「駅の候補」「判定」「表示」「投稿ID」がある。緯度・経度の列は無い。`PLACE_FIELDS` は `places.id,places.displayName,places.formattedAddress,places.location`（店の座標は応答にあるがシートに書いていない）。前提どおり
+  - `scripts/generate_resource_logs.py` の行の条件は「【2】を【3】の空でないセルで上書き → 判定が飲食店・表示が Y」。前提どおり。今は place_id・駅の候補を読んでいない
+  - `?tag=` は `TableConfig(filter_param="tag")` で絞り込み欄の初期値。docs/decisions/operations.md の 2026-10-18（CHAT-1018-LOG-02）の節に「`?tag=` は、絞り込み欄の初期値として残す」。前提どおり
+  - 名前のセレクトボックスの選択肢は `NAME_OPTIONS = ["石立岳大", "谷岡育夫", "平野良栄"]`（3人。前提の「2人とも行った店」は平野良栄・谷岡育夫の2人）
+  - 【3】の見出しはコードからは分からない（`records()` が見出しの名前で読むため、【3】に無い列は【2】の値が使われる）
+- 手順1 の検索（issue はクローズ済みを含む意味検索3回: 「ログ resource_logs log/ 飲食店 ページ 作り直し」「飲食店 駅名 検索 店 place_id 現在地」「ログ トップ 検索 カテゴリ 最近追加 掲載回数 店ごと」）:
+  - **#378「「ログ」で位置情報から近い店を探せるようにする」（open、状況: 保留、親 #296 の sub-issue、対象: resource_logs）**: 利用者の位置情報（GPS）で直線距離の近い店を探す。起票する予定の「現在地から探す issue」と同じ目的
+  - #255「resource_logs を分割する」（open）: resource_logs（2.1MB）の DOM 要素数の問題で、年別・選手別に分ける案（判断待ち）。目的は表示速度で log/ とは違うが、log/ が置き換えれば解決の道が変わる（jpml_titles・video_live・saikyo_results は「構成変更で置き換える」として対象から外した前例がある）
+  - #636（open、【2】の要確認の行を【3】で直す）: 関係する issue として本文に挙げる予定のもの。同じ目的ではない
+  - 「log/ を作る」「公開」と同じ目的の issue は無かった
+- 未マージの `work/` ブランチ（`git branch -r --no-merged origin/cloudflare`）: 1009-swp-526・1011-swp-hnd・1011-swp-nav（ログのみ）、1015-skd-notes（ログのみ）、1017-lvp（live/ の作り直し、935ファイル）、1026-aic（ログと4ファイル）。同じ目的のものは無い。共通の部品（`style.css` など）の重なりは、手順2 に入っていないので見ていない
+- 止まる条件「同じ目的の issue がある」（#378）に当たったので、issue の起票（3件）・着手中のコメント・log/ の実装・ワークフローの実行はしていない。決定節は docs/decisions/operations.md に足した
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1028-lgn
 - ログ: https://github.com/retroeater/mj/blob/work/1028-lgn/docs/logs/CHAT-1028-LGN-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1028-lgn
 - 確認用URL: なし
-- マージ: 未
-- issue: なし
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- マージ: 未（平野さんの判断待ち）
+- issue: #378・#255（同じ目的・近い目的として見つけたもの。触っていない）。起票は無し
+- 判断が必要なこと:
+  - 手順1 の検索で、「現在地から探す issue」と同じ目的の #378（open、状況: 保留、親 #296）が見つかったので止まった。案: 新しく起票せず #378 を使い、指示文の本文に書く内容（座標の列が無いこと・`PLACE_FIELDS`・`geolocation=()`・既存の行は place_id から座標を引き直す要ること）を #378 にコメントで足す。#378 は新サイト送り（#296）なので、扱いを変えるなら #296 の本文「新サイト送りにするとき・やめるとき」に従う
+  - #255（resource_logs を分割する、open）: log/ が resource_logs.html を置き換えると、分割の論点は log/ の公開（段2）の 301 で片付く見込み。対象外にする・log/ の公開で閉じる・そのまま残す、のどれにするか
+  - 上の2つが決まれば、残り（「log/ を作る」「公開」の2件の起票と log/ の実装、または3件）は新しい Chat-Ref で貼り直す（この Chat-Ref のコミットがあるので同じ番号では再開できない、docs/notes/branch-operations.md「作業を再開するとき」）。同じ作業ブランチ work/1028-lgn を続けて使える
+- 未確認の項目: 【3】手動補正の見出しに「place_id」「駅の候補」があるか（シートを読めないため。【3】に無くても【2】の値で読める）
 - エラー: なし
 
 <!-- guide-links -->
