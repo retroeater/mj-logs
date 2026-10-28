@@ -1,0 +1,63 @@
+# CHAT-1028-LPR-02
+
+- 着手日時: 2026-10-28
+- 対象issue: #296・#614（起票した issue は `## 報告`）
+- ブランチ: work/1028-lpr-iss
+- 着手時HEAD: ee6ddfa61
+
+## 指示
+
+【Claude作成】Claude Code 向け指示：成績ページ群の横断レビュー（LPR-01）の残りを issue に起票する（canonical・新サイトの要件）。共通化の件は #614 にコメントする Chat-Ref: CHAT-1028-LPR-02 マージ: ドキュメントのみ（ログ）なので完了報告のうえ cloudflare へ入れてよい（変えるのは docs/logs と docs/decisions だけ） 貼る時機: いつでも（CHAT-1028-LPR-01 はマージ済み） 共通手順: CLAUDE.md「Chat-Ref」「ブランチ運用」「作業ログ」節のとおり（識別子確認 → origin/cloudflare を起点に work/1028-lpr-iss〈手順は docs/notes/cloud-sessions.md〉 → ログ先行push → 最終報告の Chat-Ref の行の直前に「ログ（公開）」の行、最後の行に Chat-Ref）。平野さんは、この指示のための作業ブランチ work/1028-lpr-iss の作成と push を許可している（セッションに割り当てられた claude/… のブランチは使わない）。 作業ブランチ: クラウドセッションで実行する。work/1028-lpr-iss を使う。リモートに無ければ origin/cloudflare から作る。リモートにあってマージ済み（`git merge-base --is-ancestor origin/work/1028-lpr-iss origin/cloudflare` が真）なら origin/cloudflare から作る（`checkout -B` は使わない。ローカルにあるときを含め手順は docs/notes/cloud-sessions.md「作業ブランチの用意」）。マージ済みでなければ止まる
+
+0. 着手前に、このログの「指示」欄の末尾が、この指示文の末尾（最後の行）と一致しているか確認し、一致しなければ作業せず報告する。あわせて、docs/logs/CHAT-1028-LPR-01.md が origin/cloudflare にあり、`## 報告` の状態が「判断待ち」であることを確かめ、食い違えば何もせず止まる。
+
+目的
+LPR-01 の指摘のうち、今は直さないものを issue に残して忘れないようにする。canonical の方針（S19）を1件、新サイトの要件（N1〜N10・D1〜D8）を #296 の sub-issue として1件起票し、共通化の件（S7・S8・S15・S18）は #614 にコメントする。ページ・コードは変えない。
+決定（2026-10-28、平野さん）
+
+* LPR-01 の指摘のうち現行で直すのは S1・S2・S3・S4・S5・S6・S9・S10・S11・S12・S13・S14・S16・S17（直すのは別の指示）。最強戦（saikyo/）は告知済みとみなしてよい（告知の期間の守り方は当てない）
+* S19（canonical）の方針: `saikyo/players/`（`?name=` で中身が変わるページ）には canonical を付けない（docs/notes/cloudflare.md、#113 に合わせる）。年度・対局・卓の個別ページは docs/decisions/saikyo.md の決定のまま（自分自身）。直すのは後で、忘れないよう issue に起票する
+* saikyo/ の指摘と新サイトの要件は issue に起票する（新サイトの要件は #296 の sub-issue）
+
+前提（チャット側。平野さんの決定ではない）
+
+* 起票の材料は docs/logs/CHAT-1028-LPR-01.md。issue には、`## 報告` の「判断が必要なこと」の該当の行と、`## 経過`「指摘の一覧」の元の番号の行（証拠の欄を含む）を引用する（要約で置き換えない）。ログの URL（blob/cloudflare/docs/logs/CHAT-1028-LPR-01.md）を添える
+* canonical の issue（1件目）に入れるもの: S19（①-5）の内容と証拠、上の決定の方針。canonical が付いている saikyo/ のほかのページ（トップ・`ranking/`・`vs/`・`years/`）をどうするかは決まっていない（「未決」として書く。#113 の原則は「付けない」）
+* 新サイトの要件の issue（2件目）に入れるもの: N1〜N10・D1〜D8 と W1・W2（W1 は #630、W2 は #633 で扱っている旨を添える）。sub-issue の付け方は #296 の本文「新サイト送りにするとき・やめるとき」を読んでそのとおりにする（コメント「親: #296」と sub-issue の登録を片方だけにしない、CLAUDE.md「新サイト送りの issue（親 #296）」）
+* #614 は 4大会の共通化の issue と見ている（要確認: GitHub MCP で題・本文・状態を読み、共通化の issue でない、または閉じていれば、コメントせず S7・S8・S15・S18 を3件目の issue として起票する）。コメントに入れるもの: S7（②-5。相互検証の「条件つき同意」の理由〈top の空文字が JS で「鳳凰位」に戻る〉を含める）・S8（②-7）・S15（②-8 の saikyo 側の後半。`-hit-toggle` は scripts/promo_video/saikyo/capture.mjs が参照している旨と、消す前に JS での組み立てと本番の DOM での出現を確かめる要があることを含める）・S18（②-12 の前半）
+* ラベルは `gh label list` の正（GitHub MCP で読めなければ既存の issue のラベルから）で、`分野:`・`対象:` を付ける。`状況:` は付けない（未着手）
+
+手順
+
+1. 同じ主題の issue をクローズ済みも含めて検索する（canonical・saikyo の canonical・新サイトの成績ページの要件・#614 の関係）。見つかれば起票せず止まって報告する。#296 の本文「新サイト送りにするとき・やめるとき」と #614 を読む
+2. 1件目（canonical）と2件目（新サイトの要件、#296 の sub-issue）を起票し、#614 にコメントする（前提の要確認に当たれば3件目を起票）。各 issue・コメントの末尾に `Chat-Ref: CHAT-1028-LPR-02` を書く
+3. LPR-01 のログの `## 報告` の状態の末尾に `/ 続き: CHAT-1028-LPR-02` を足す。上の「決定」を docs/decisions/README.md の書き方に従って分野のファイルに足す（LPR-01 の決定の続き）。起票した issue の番号・題・ラベルと、#614 のコメントの URL をログに書き、ログを仕上げて `git push origin work/1028-lpr-iss:cloudflare` で入れる（push 直前の確かめは CLAUDE.md「ブランチ運用」）。作業ブランチの片付けは docs/notes/branch-operations.md「ブランチを削除するとき」を読んでから、そのとおりに行う
+
+止まる条件
+
+* 0章の確かめが食い違う
+* 手順1で同じ主題の issue が見つかった
+* #296 の本文の手順と、この指示の前提（sub-issue の付け方）が食い違う
+* 作業ブランチに docs/logs・docs/decisions 以外の変更がある
+* cloudflare への push が権限判定で拒否された（別の手段を試さずに止まる）
+
+完了条件
+
+* ログの「## 報告」を CLAUDE.md「作業ログ」節のとおりに書いて push する
+* マージは冒頭の「マージ:」の行のとおり
+* ターミナルへの最終報告の Chat-Ref の行の直前に ログ（公開）: https://github.com/retroeater/mj-logs/blob/main/logs/CHAT-1028-LPR-02.md?v=<SHA>（CLAUDE.md「作業ログ」節）を書き、最後の行に Chat-Ref: CHAT-1028-LPR-02 を書く
+
+不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
+
+<!-- guide-links -->
+---
+
+ガイド文書（この版を写した時点の最新、mj ee6ddfa6）: https://github.com/retroeater/mj-logs/tree/main/guide/ee6ddfa6
+
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ee6ddfa6/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ee6ddfa6/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ee6ddfa6/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ee6ddfa6/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ee6ddfa6/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/ee6ddfa6/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/cfad705f.md
