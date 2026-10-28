@@ -1,7 +1,7 @@
 # 鳳凰戦・女流桜花・WRC リーグ・WRC-R リーグの新ページの比較（houou/・ouka/・jwrc/・wrcr/）
 
 4大会のページは同じ作り（`scripts/generate_houou_pages.py` を大会の設定 `Contest`〈`HOUOU`・`OUKA`・`JWRC`・`WRCR`〉で動かす。JS は `assets/league.js`・`league_race.js`・`houou_ask.js`、CSS は `style.css` の houou の節）。
-ここには、大会で**違うところ**と、その差が意図したものか（よりどころ）を書く。同じところは書かない。それぞれの仕様は `docs/notes/houou-top.md`・`ouka-top.md`・`jwrc-top.md`・`wrcr-top.md`（wrcr/ は jwrc/ と同じ形で、2026-10-19 に未公開で足した。#366）。
+ここには、大会で**違うところ**と、その差が意図したものか（よりどころ）を書く。同じところは書かない。それぞれの仕様は `docs/notes/houou-top.md`・`ouka-top.md`・`jwrc-top.md`・`wrcr-top.md`（wrcr/ は jwrc/ と同じ形で、2026-10-19 に足し〈#366〉、#611 で公開した）。
 2026-10-18 に CHAT-1018-OUK-13 で横に比べた（比べた画面は下の「比べ方」）。**大会の設定や共通の部品を変えたら、この表と照らし、意図しない差を作らない。**（表の列に全大会があるかは `scripts/tests/test_league_pages_compare.py`）
 
 ## 意図した差（残す）
@@ -55,7 +55,7 @@
 | `ampai` | 鳳凰戦・女流桜花・なし・なし | 個人成績「進行中の期の行のリンク」 |
 | `og_image` | `img/ogp/<dir>/index-white.png` | 共通「OGP 画像」 |
 | `ask_placeholder` | 大会ごとの例 | トップ「質問欄の例」 |
-| `noindex` | なし・なし・なし・あり | 共通「公開・noindex」 |
+| `noindex` | なし・なし・なし・なし | 共通「公開・noindex」 |
 | `leagues_moved` | あり・あり・なし・なし | 共通「公開・noindex」（`leagues/` の有無） |
 | `race_po` | なし・あり・なし・なし | 順位変動「最後の節」 |
 | `skip_back_half` | B1 の昇級・なし・なし・なし | —（名前の面のチップ、#584） |
