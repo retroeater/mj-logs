@@ -96,6 +96,31 @@ CHAT-1028-LGN-01 は、#378（現在地から探す）が既にあったため�
   - `_headers` の `! Permissions-Policy` の当たり方は、Workers の静的アセットの実装（cloudflare/workers-sdk の `asset-worker/src/utils/headers.ts`: 規則はファイル順、1つの規則の中は外す→付けるの順）を読んで確かめた。`/log/*` は `/*` の後に置く
   - 手元の確かめ（仮のデータ 159件・66店で log/ を組み、`python3 -m http.server` とヘッドレス Chromium）: 375px・360px・1920×1080 で見え方、360px で横のはみ出し無し（scrollWidth 360）。検索語・駅の候補（「新宿駅の近く（16店）」→ `?station=`）・人の絞り込み（`?name=` と組み合わせ）・現在地（位置を許可した状態で近い順・距離の表示）・`?shop=`・`?tag=` がそれぞれ動き、ページのエラーは無い（外部の解析スクリプト等の読み込みの失敗だけ）。写真の無い・読めないときは灰色の地だけにした（最初は resource_logs と同じ矢印の画像で、大きく切り抜かれていた）
   - 全テスト `python3 -m unittest discover -s scripts/tests`: 1623件 OK
+- regenerate-page.yml（作業ブランチ、target_page `resource_logs log_pages`）:
+  - 入力 `check`（run 40716774336、成功）: resource_logs「3層から 3159件」通る、log_pages「3159件・1914店（座標のある店 0店）」通る
+  - 入力無し（run 40717006456、成功）: 094e3b750「chore: regenerate resource_logs.html log/」（log/index.html・log/search.json。resource_logs.html は変わらず）
+  - **件数の照合（同じ実行の生成物）: log/ の投稿 3159件・resource_logs.html の行 3159件。X の URL の集合の差 0件**（止まる条件に当たらない）
+  - レビューの直しの後にもう1回（run 40717863047、成功）: 5a77fcf34。同じく 3159件・3159行・差 0件、店の要素は9個（突き合わせ用の駅）
+  - 生成物の大きさ: log/index.html 約15KB、log/search.json 910,716バイト（gzip 282,432バイト。検索欄に触れたときに初めて読む）。内訳は X の URL・画像の URL・駅の候補・メニューがほぼ同じ割合。`簡略化:` のコメントで上限と次の一手を残した（659080fa2）
+  - 実データのカテゴリの行: 掲載回数の多い店の上位は「日高屋 【千葉】浦安 · 60件」「松屋 【千葉】浦安 · 57件」など。チェーン店は Places が同じ支店（place_id）に当てた投稿がまとまっている見込み（同じ place_id の 60件。データの直しは #636 の範囲）。「（店名非公開）」の店もカテゴリに出る
+- check-assets.yml（作業ブランチの push で自動で動く）: 3e9179843・27b2e651e・4b353523c・659080fa2・37f92d076 で成功
+- 差分のレビュー（docs/notes/self-review.md、新しい文脈のサブエージェント、2回）:
+
+| 指摘 | 扱い |
+|---|---|
+| 1回目・中: 店の「駅」が【県】付き（【千葉】船橋）のままで、駅の候補（船橋）と別の駅になる（`generate_log_pages.py` の `build_posts`、`assets/log.js` の `shop.stations`） | 直した（37f92d076。search.json の店に突き合わせ用の駅を9番目に足した。検査 `test_station_key_matches_candidates`） |
+| 1回目・低: `?name=` に一覧に無い名前で、人の空の投稿（-1）だけが出る | 直した（37f92d076） |
+| 1回目・低: カテゴリの `?shop=` のリンクを URL エンコードしていない（docs/notes/security.md の観点 (b)） | 直した（37f92d076。検査 `test_shop_link_is_encoded`） |
+| 1回目・低: 現在地の使えない端末で検索欄へ移らない | 直した（37f92d076） |
+| 1回目・低: 投稿の写真の width/height が 160×90（CSS は 120×68） | 直した（37f92d076） |
+| 1回目・低: 「さらに表示」で状態の欄が「読み込んでいます…」に戻り、フォーカスが消える | 直した（37f92d076。読み込み済みなら出さない、足した最初の店へフォーカス） |
+| 1回目・低: coords が読み直しで止まったときの出力が Text Search の回数 | 直した（37f92d076） |
+| 1回目・判断: マージ後の週次の all が【2】に「緯度」「経度」の見出しを足す | 報告の「判断が必要なこと」へ |
+| 1回目・手順: convert-x-posts.yml を作業ブランチで手動実行 | 済み（mode coords・all の dry-run、上の run 40714825265・40714841303） |
+| 1回目・確かめの勧め: `_headers` の `! Permissions-Policy` を実測 | プレビューで確かめる（下） |
+| 2回目・中: ブランチの search.json が8要素のまま（JS は9番目を読む） | 意図どおり（レビューの時点で再生成の実行中。5a77fcf34 で9要素になったことを確かめた） |
+| 2回目・軽: 一覧に無い `?name=` は無視ではなく0件になる | 意図どおり（resource_logs.html の `?name=` も完全一致で、一覧に無い名前は0件。コミットメッセージの「ignore」は言い過ぎ） |
+| 2回目・軽: JS の分岐（`forPerson` の -1、フォーカス）に検査が無い | 見送り（ページの JS の検査の置き場所がリポジトリに無い。報告の「判断が必要なこと」へ） |
 
 ## 報告
 
