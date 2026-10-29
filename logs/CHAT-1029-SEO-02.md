@@ -104,7 +104,7 @@ CHAT-1029-SEO-01 のログ（`## 報告` の「判断が必要なこと」）の
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1029-SEO-05
 - ブランチ: work/1029-seo2
 - ログ: https://github.com/retroeater/mj/blob/work/1029-seo2/docs/logs/CHAT-1029-SEO-02.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1029-seo2
@@ -113,9 +113,9 @@ CHAT-1029-SEO-01 のログ（`## 報告` の「判断が必要なこと」）の
 - issue: #264（S1）・#227（S4）・#560・#568（S5 で参照）
 - 判断が必要なこと:
   - マージしてよいか（S1・S4・S5 の (a)〜(d)・(f)。差分は index.html・llms.txt・docs/notes の3文書）
-  - S3 は直していない: title が「「チーム名」 作る人」にならないのは、シートの「Mつく」のタブの列「チーム名」が空の5回（nLeGJz-nt-E 2019-12-03 園田賢・CtDQ5NjWSN0 2020-01-02 多井隆晴・2FOsXsIqTAA 2020-02-04 滝沢和典・f7__Vg7EUNE 2020-04-29 沢崎誠・vSduV7-kLls 2024-08-10 滝沢和典）とみられる（生成はチーム名が空なら作る人だけにする作り。シートは鍵が無く直接は未確認）。チーム名を入れるか、空のままにするか
-  - S5(e) は外した: work/1028-lgn（未マージ）が `docs/notes/static-generation.md` の同じ前文の行と `scripts/regenerate.py` の `OUTPUT_OVERRIDES` の隣の行を変えていて、取り込みで衝突するため。work/1028-lgn のマージ後に別の指示で直すか
-  - 指示の範囲外で見つけた食い違い（直していない）: docs/handover.md 2章「配信」の「canonical は付けない（#113）。例外は `wayhome/` の個別ページ」も、S5(b) と同じく実態（title/・saikyo/・mtsuku/・exam/ にも付く）と合わない
+  - S3 は直していない: title が「「チーム名」 作る人」にならないのは、シートの「Mつく」のタブの列「チーム名」が空の5回（nLeGJz-nt-E 2019-12-03 園田賢・CtDQ5NjWSN0 2020-01-02 多井隆晴・2FOsXsIqTAA 2020-02-04 滝沢和典・f7__Vg7EUNE 2020-04-29 沢崎誠・vSduV7-kLls 2024-08-10 滝沢和典）とみられる（生成はチーム名が空なら作る人だけにする作り。シートは鍵が無く直接は未確認）。チーム名を入れるか、空のままにするか → #5 に移した（CHAT-1029-SEO-05）
+  - S5(e) は外した: work/1028-lgn（未マージ）が `docs/notes/static-generation.md` の同じ前文の行と `scripts/regenerate.py` の `OUTPUT_OVERRIDES` の隣の行を変えていて、取り込みで衝突するため。work/1028-lgn のマージ後に別の指示で直すか → #560 に移した（CHAT-1029-SEO-05）
+  - 指示の範囲外で見つけた食い違い（直していない）: docs/handover.md 2章「配信」の「canonical は付けない（#113）。例外は `wayhome/` の個別ページ」も、S5(b) と同じく実態（title/・saikyo/・mtsuku/・exam/ にも付く）と合わない → #560 に移した（CHAT-1029-SEO-05）
 - 未確認の項目:
   - シートの「チーム名」の値そのもの（セッションに鍵が無い）
   - ETag の付いた HTML の再検証で 304 になるか（S5(c) の記述は「未確認」と書いた）
@@ -124,12 +124,12 @@ CHAT-1029-SEO-01 のログ（`## 報告` の「判断が必要なこと」）の
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 0f7636bb）: https://github.com/retroeater/mj-logs/tree/main/guide/0f7636bb
+ガイド文書（この版を写した時点の最新、mj a8bca67b）: https://github.com/retroeater/mj-logs/tree/main/guide/a8bca67b
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/0f7636bb/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/0f7636bb/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/0f7636bb/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/0f7636bb/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/0f7636bb/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/0f7636bb/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/74d7dc08.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a8bca67b/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a8bca67b/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a8bca67b/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a8bca67b/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a8bca67b/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a8bca67b/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/4aa1e3f2.md

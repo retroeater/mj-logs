@@ -51,28 +51,72 @@ CHAT-1029-SEO-02 の変更（S1・S4・S5 の (a)〜(d)・(f)）を cloudflare �
 
 ## 経過
 
+### 着手前の確認（2026-10-29）
+
+- 0章: ログの「指示」欄の末尾が指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 欠けなし
+- 同じ Chat-Ref のコミット: なし。CLAUDE.md は起動時から変わっていない
+- work/1029-seo2: リモートにあり（c5b9e665c、ローカルと一致）。`git merge-base --is-ancestor origin/cloudflare HEAD` が偽なので merge で取り込む（指示どおり）
+
+### 手順1 取り込み
+
+- `git merge --no-edit origin/cloudflare`（4aa1e3f28）: `docs/decisions/seo-bing.md` の末尾の追記どうしが衝突（SEO-02 の節と SEO-03 の節）。両方を残して解いた（解いた後の該当箇所の引用）:
+
+```
+## 2026-10-29（CHAT-1029-SEO-02）
+
+- SEO-01 の推奨どおりに進める: 現行で直す小さいもののうち S1・S3・S4・S5 を直す。S2（ランキングの description）は #5 の生成の型の直しとまとめる
+- 作業中の回答: なし
+
+## 2026-10-29（CHAT-1029-SEO-03）
+
+- SEO-01 の推奨どおりに進める: U1〜U13 をすべて行う（#266・#246・#532 を閉じ、ほかは本文の直しとコメント）
+- K1（最強戦の旧年度ページの `?match=` に他のクエリが付くと、存在しない URL へ転送される）は #568 に記録し、次の転送の棚卸しで直す
+- K2（`sitemap-books.xml` が本番で公開されている）は #429 に記録するだけにする（books/ は凍結中なので変えない）
+- 作業中の回答: なし
+```
+
+- ほかの衝突は無し（docs/logs/CHAT-1029-SEO-01.md・CHAT-1029-SEO-03.md は自動で入った）
+- 取り込んだ後の `git diff origin/cloudflare...HEAD --stat`: docs/decisions/seo-bing.md・docs/logs/CHAT-1029-SEO-02.md・docs/logs/CHAT-1029-SEO-05.md・docs/notes/cloudflare.md・docs/notes/ogp.md・docs/notes/redirects.md・index.html（1行）・llms.txt（2行）の8ファイル。前提の範囲に収まる
+- テスト: CLAUDE.md の手順（`python3 -m unittest discover -s scripts/tests`。指示の `pytest` の代わり）で 1600 件 OK
+
+### 手順2 issue へ移した
+
+- #5（S3）: https://github.com/retroeater/mj/issues/5#issuecomment-6495754867 （SEO-02 の S3 の行の引用、チーム名が空の5回はチーム名の無い回という決定、title の形〈チャット側の案「作る人（公開日）」〉は判断待ち）
+- #560（S5(e) と handover 2章の canonical の記述）: https://github.com/retroeater/mj/issues/560#issuecomment-6495755374 （SEO-02 の2行の引用、work/1028-lgn のマージの後に直すという決定）
+- SEO-02 のログの `## 報告`: 状態を「判断待ち / 続き: CHAT-1029-SEO-05」に、S3・S5(e)・handover 2章の行の末尾に「→ #5 / #560 に移した（CHAT-1029-SEO-05）」を足した
+
+### 手順3 決定・マージ
+
+- docs/decisions/seo-bing.md に「2026-10-29（CHAT-1029-SEO-05）」を足した
+- push 直前に `git fetch origin cloudflare`、`git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめて `git push origin work/1029-seo2:cloudflare`。範囲: `4aa1e3f28..7b0253107`
+- check-run（7b0253107）: 「Workers Builds: mj」completed / success、「sync」completed / success
+- マージで動いたワークフロー: 「サイトマップの lastmod の同期」だけ（success）。535795771「chore: sync sitemap lastmod with git history」で sitemap-pages.xml の1行（`/` の lastmod）が変わった。生成スクリプトに触れていないので「ページの再生成」は動いていない
+- 本番（`?v=seo05a`）: `https://ryoei.pro/` の2行目は `<html lang="ja">`。`https://ryoei.pro/llms.txt` の77〜79行に帰り道・Mつく・プロテストの各話の URL の形（`mtsuku/<YouTube動画ID>.html`・`exam/<YouTube動画ID>.html`）。ブラウザでの見え方は確かめていない
+- この記録を足すため、work/1029-seo2 を `git merge --ff-only origin/cloudflare`（535795771）で進め、同じ手順で cloudflare へ入れる
+- ブランチ（docs/notes/branch-operations.md「ブランチを削除するとき」を読んだ）: work/1029-seo2 はこの記録のコミット（535795771 の次）を cloudflare へ入れた後、マージ済みを確かめてローカルを `git branch -d` で消す。リモートは git プロキシが削除を拒否する（docs/notes/cloud-sessions.md「ブランチの削除」）ので `cleanup-branches.yml` に任せる
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1029-seo2
-- ログ: https://github.com/retroeater/mj/blob/work/1029-seo2/docs/logs/CHAT-1029-SEO-05.md
+- 状態: 完了
+- ブランチ: work/1029-seo2（マージ済み。リモートの削除は cleanup-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1029-SEO-05.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1029-seo2
 - 確認用URL: なし
-- マージ: 未
-- issue: 作業中
-- 判断が必要なこと: 作業中
-- 未確認の項目: 作業中
+- マージ: 済（7b0253107。範囲 4aa1e3f28..7b0253107）
+- issue: #5（S3 を移した）・#560（S5(e) と handover 2章の canonical の記述を移した）
+- 判断が必要なこと: なし（S3 の title の形は #5、S5(e) は #560 に移した）
+- 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 4aa1e3f2）: https://github.com/retroeater/mj-logs/tree/main/guide/4aa1e3f2
+ガイド文書（この版を写した時点の最新、mj a8bca67b）: https://github.com/retroeater/mj-logs/tree/main/guide/a8bca67b
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/4aa1e3f2/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/4aa1e3f2/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/4aa1e3f2/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/4aa1e3f2/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/4aa1e3f2/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/4aa1e3f2/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/74d7dc08.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a8bca67b/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a8bca67b/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a8bca67b/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a8bca67b/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a8bca67b/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a8bca67b/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/4aa1e3f2.md
