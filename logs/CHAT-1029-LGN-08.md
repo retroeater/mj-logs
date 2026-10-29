@@ -124,28 +124,37 @@ LGN-07 は、読み直した駅で【2】の駅が空の飲食店の行が 22.5%
 
 2回目のレビューは、直したのが1つの関数の数行と検査だけなので行っていない。`python3 -m unittest discover -s scripts/tests` → 1,609件 OK（足した検査は既存のテストの中）
 
+### マージ
+
+- push の直前に `git fetch origin cloudflare` と `git merge-base --is-ancestor origin/cloudflare HEAD` を行った。cloudflare が2回進んでいた（RSC-01・SEO-02・SEO-05、SEO-04・SEO-06）ので、その都度 `git merge origin/cloudflare` で取り込んだ（衝突なし）。取り込んだ後もテストは 1,609件 OK で、3回目に祖先であることを確かめた
+- `git push origin work/1029-lgn-eki:cloudflare` → `d6612502d..e6e91d584`
+- マージ後の check-run（e6e91d584）: Workers Builds の mj・mj-scheduler・mj-ask が成功、check・sync も成功、notify は skipped。「ページの再生成」（push で起動、run 40869892032）は成功。resource_logs.html はすでに生成済みと同じだったので、コミットは増えていない。「サイトマップの lastmod の同期」も成功
+- 本番の HTML（curl で取得）に出典の1行がある。ブラウザでの見え方は確かめていない
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1029-lgn-eki
-- ログ: https://github.com/retroeater/mj/blob/work/1029-lgn-eki/docs/logs/CHAT-1029-LGN-08.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1029-lgn-eki
-- 確認用URL: なし
-- マージ: 未
-- issue: #367・#639
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 状態: 判断待ち
+- ブランチ: work/1029-lgn-eki（cloudflare へマージ済み。ブランチは消していない）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1029-LGN-08.md
+- 比較URL: https://github.com/retroeater/mj/compare/d6612502d...e6e91d584
+- 確認用URL: なし（本番の HTML を curl で読んだ）
+- マージ: 済（e6e91d584）
+- issue: #367・#639・#636
+- 判断が必要なこと:
+  - バックアップのシート「【2】バックアップ_1029」には、消した「Places の店名」と Google 由来の旧い駅・駅の候補が残っている。いつ消すかを決める（照合のシート「駅の照合_1029」は、決定どおり平野さんの確かめの後に消す）
+  - 【3】で上書きした後もページで駅が空の行は 81行（3,159行の 2.6%）。決定どおり「駅なし」のまま載せ、必要なら【3】で埋める（#636）
+- 未確認の項目: 新しい変換が予約で初めて動くのは 2026-11-02（月）02:00 JST の run-weekly の xconvert（Text Search は place_id だけ、Nearby Search なし）。足した行の駅・要確認を、そのときに確かめる
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 29494f6b）: https://github.com/retroeater/mj-logs/tree/main/guide/29494f6b
+ガイド文書（この版を写した時点の最新、mj e6e91d58）: https://github.com/retroeater/mj-logs/tree/main/guide/e6e91d58
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/29494f6b/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/29494f6b/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/29494f6b/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/29494f6b/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/29494f6b/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/29494f6b/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e6e91d58/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e6e91d58/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e6e91d58/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e6e91d58/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e6e91d58/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e6e91d58/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/4aa1e3f2.md

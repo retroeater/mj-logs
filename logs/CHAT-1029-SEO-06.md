@@ -101,18 +101,21 @@ CHAT-1029-SEO-04 の変更（トップの title・h1・WebSite と、公開中�
 | 新旧の同一性のテストは、旧の dict をテスト側に持つので、固定の期待値の文字列と比べる形もある | 見送り（旧の形をそのまま残すことが目的。dict の形が変われば `json_ld_html()` との比較で落ちる） |
 
 2回目は直していないので行っていない。
+- マージ（手順3）: push 直前に `git fetch origin cloudflare`、`git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめて `git push origin work/1029-seo4:cloudflare`。範囲: `e6e91d584..1982db271`
+- check-run（1982db271）: 「Workers Builds: mj」success、「regenerate」success、「notify」skipped。マージで動いた「ページの再生成」は生成物を変えず、cloudflare に再生成のコミットは増えていない（`git log 1982db271..origin/cloudflare` が空）
+- この記録も同じ手順で cloudflare へ入れる。ブランチ（docs/notes/branch-operations.md「ブランチを削除するとき」を読んだ）: work/1029-seo4 はこの記録のコミット（1982db271 の次）を cloudflare へ入れた後、マージ済みを確かめてローカルを `git branch -d` で消す。リモートは git プロキシが削除を拒否する（docs/notes/cloud-sessions.md「ブランチの削除」）ので `cleanup-branches.yml` に任せる
 
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1029-seo4
-- ログ: https://github.com/retroeater/mj/blob/work/1029-seo4/docs/logs/CHAT-1029-SEO-06.md
+- 状態: 完了
+- ブランチ: work/1029-seo4（マージ済み。リモートの削除は cleanup-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1029-SEO-06.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1029-seo4
 - 確認用URL: なし
-- マージ: 未
-- issue: 作業中
-- 判断が必要なこと: 作業中
-- 未確認の項目: 作業中
+- マージ: 済（SEO-04 の変更 d6612502d〈範囲 29494f6b9..d6612502d〉、寄せ替え 1982db271〈範囲 e6e91d584..1982db271〉）
+- issue: #296（本文の子の表の #13 の行を直してコメント）・#13（コメント）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
