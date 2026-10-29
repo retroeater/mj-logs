@@ -131,28 +131,252 @@ https://github.com/retroeater/mj/issues/486#issuecomment-6489063736
 3人とも general-purpose、モデル指定 sonnet（Sonnet 5.5）、背景で起動。共通の約束（読み取り専用・出力の形・前提・棚卸し）は scratchpad の common.md に書いて読ませた（使い捨て）。名前と担当: seo-tech（①技術 SEO）・seo-content（②ページの中身）・seo-aio（③AIO）。
 棚卸しの割り当て: ① #638・#560・#335・#458・#264・#246・#532・#568・#465・#159・B1・B3／② #486・#5・#283・#142・#460・#165・#160・#219・#101・#195・#226・#282・#304・#529・B4・B6・B7／③ #229・#266・#227・#554・#620・#173・#13・#230・#289・#275・#362・#576・#640・#555・#296・B2・B5。
 
+### 手順1(b) の結果（棚卸しの issue の本文と最近のコメント）
+
+読み取り専用のサブエージェント（general-purpose、sonnet）に、39件の本文と全コメント、参照用に closed の #113・#629・#581・#582・#377・#559・#531 を読ませた。
+
+- **止まる条件の確認: 「SEO/AIO の包括的なレビュー」の着手中の issue・着手中のコメントは無い。** → 止まらずに進めた
+- 完了・中断のコメントが無いまま残る「着手中」（この指示の目的とは別。記録のみ）: #362 の CHAT-1016-LVP-01・02、CHAT-1017-LVP-04・06（LVP-06 は work/1017-lvp が判断待ち）、#304 の CHAT-1023-MCK-22（本文は直っている）
+- 状態が棚卸しと違うもの: 39件とも open で、状態の違いは無い。中身が古い点は下の判定の表に入れた（#266・#173・#246/#532・#486・#13 など）
+- 読ませた結果で、レビューの3人が判定しなかった補足（未検証。参考として残す）: #219 の要件11が指す `houou_race.js` の `playerUrl()` は #582 で消えた。#576 の「`VideoObject.uploadDate` を決める」論点は #629 で study/ の各話から VideoObject を外したので無くなった見込み。#13 の本文は帰り道の VideoObject の先行実装を前提にしたまま（#620・#629 で外した）
+
+### 手順2 相互検証の経路
+
+- 3人の最初の報告は、リーダーに返った（SubagentHandback）。リーダーが要約を scratchpad に置き（report-tech.md・report-content.md・report-aio.md、使い捨て）、SendMessage で検証役に渡した（①→②、②→③、③→①）。**サブエージェントどうしの直接のやり取りは使わず、リーダー経由**にした（3人の報告がそろってから順序をそろえて渡すため）
+- 検証の返答もリーダーに返った。異議が残ったのは①-3 の1件（下の表）。①-7 は検証役が再現していない（同時アクセスを避けたため）
+- 3人とも最後の返答の後は待機の状態（実行中の作業なし）で、追加の指示を送っていない。止める操作が要る実行中のタスクは無かった
+
+### 指摘の一覧（全件）
+
+検証者: ①の指摘は②（seo-content）、②の指摘は③（seo-aio）、③の指摘は①（seo-tech）。「判定」は検証者の返答。「リーダー」は私が追加で確かめたこと。
+
+#### ①技術 SEO（seo-tech、検証: seo-content）
+
+| 番号 | 場所 | 内容 | 証拠 | 区分 | 確かめ方 | 判定 | issue・B |
+|---|---|---|---|---|---|---|---|
+| ①-1 | index.html:2（https://ryoei.pro/） | トップだけ `<html lang="en">`。公開1450件で ja 1449・en 1 | 全件集計・本番も同じ | 現行で直す小さいもの（1行） | 機械的 | 同意（機械的に確認した） | #264 |
+| ①-2 | https://ryoei.pro/saikyo/players/ | canonical が本番に残る（#638 の決定は付けない、未実装）。saikyo/ は全891件に自己 canonical | 本番＝リポジトリ | 既存 issue の更新（#638 の実装時に saikyo/ のトップ・ranking/・vs/・years/ も決める） | 機械的 | 同意（機械的に確認した） | #638・#560・#113 |
+| ①-3 | 自己 canonical のあるもの: title/ 384・saikyo/ 891・mtsuku/ の各話61・exam/ の各話12・wayhome/ 44（一覧を含む）。他は無し | docs/notes/cloudflare.md:486「例外は帰り道の各話と一覧だけ」と実態が合わない。wayhome/ の一覧には有り、mtsuku/・exam/ の一覧には無い。title/・saikyo/ はクエリで中身が変わる（`assets/title.js` の `?year=`・`?q=`、saikyo.js の `?name=`・`?view=`）ので #113 の例外の基準に当たらない | 全件集計とコード | 既存 issue の更新（#560。外すか基準を直すかを決め、cloudflare.md を実態に直す） | 意味の照合をした | **異議あり（残った）**: ②「`?year=` を持つのは title/ の入口だけで、期ページ363・大会ページ20は基準に当てはまる可能性が高い。title/ 全体が当たらないは言い過ぎ」。リーダー: `assets/title.js:331` は `#title_filter`（入口・大会・期の全 title/ ページにある）で `?q=`・`?name=` を読んで絞り込みの結果を出し、`?year=`（:469）は `#title_year` のある入口だけ。①は `?q=`・`?name=` の分で正しく、②は `?year=` の分で正しい。期ページ・大会ページが基準に当たるかは「`?q=` の絞り込みを中身の変化とみなすか」と Search Console に `?` 付きの title/ の URL が出ているか次第で、平野さんの判断 | #560・#113・#638 |
+| ①-4 | #560 本文の表 | 2026-10-13 時点のまま（saikyo 895→891、houou/ 等は公開済み、mtsuku/・exam/ が増えた） | 集計 | 既存 issue の更新（表を直す） | 機械的 | 同意（機械的に確認した） | #560 |
+| ①-5 | docs/notes/redirects.md:95（「予定」の表） | `?match=` の Single Redirect ルールは作成済みで動くのに「予定」のまま | `/saikyo/2024.html?match=20240317` → 301 → `/saikyo/2024/20240317.html`（1ホップ）。`?match=zzz` は 301 → 404（docs/decisions/saikyo.md:125 どおり） | 既存 issue の更新（docs。この指示では直さない） | 機械的 | 同意（機械的に確認した）。**補足（②が見つけた）**: `?match=20240317&utm_source=x` は `/saikyo/2024/20240317&utm_source=x.html`（存在しない URL）へ 301。リーダーも本番で同じ応答を確かめた | B3・#549・#568 |
+| ①-6 | docs/notes/cloudflare.md:506 | 「HTML には ETag も Last-Modified も付かない」が古い。本番の HTML に ETag が付く（Last-Modified は付かない） | 本番のヘッダ | 既存 issue の更新（docs。この指示では直さない） | 機械的 | 同意（機械的に確認した。ETag の記述だけ古い） | #449・#258 |
+| ①-7 | 本番のレート制限（#124） | 1450件の HEAD を同時4本で取ると約半数が 429（683件）、同時2本で172件、逐次0件。docs は「Managed Challenge、30回/分」だが応答は 429。未検証のボットの大量取得は 429 になり得る | scratchpad の head_all.tsv（使い捨て） | 判断のみ | 機械的 | 判断できない（②は同時アクセスを避け再現していない） | #124 |
+| ①-8 | 末尾スラッシュの無い URL | redirects.md に載る分（`/saikyo/players` など）は 301 で1ホップ。載らない `/houou/players`・`/houou/ranking/total`・`/jwrc/race`・`/ouka/players`・`/wrcr/race`・`/saikyo/ranking/champion`・`/title/houou/42` は 404 | curl -I | 判断のみ（html_handling は none。サイト内リンクはスラッシュ付き） | 機械的 | 同意（機械的に確認した） | #89 |
+| ①-9 | `/index.html`・`/saikyo/index.html`・`/houou/players/index.html` など | `index.html` 付きの別名が 200。canonical の無いトップ・houou/ouka/jwrc/wrcr は二重 URL（サイト内リンク・sitemap はスラッシュ側だけ） | curl | 判断のみ（#560 の観点に当たる） | 機械的 | 同意（機械的に確認した） | #560 |
+| ①-10 | https://ryoei.pro/sitemap-books.xml | インデックスに載らないが本番 200 で、noindex の books/ 191件を載せる | 本番 | 判断のみ（`.assetsignore` に入れる／そのまま） | 機械的 | 同意（機械的に確認した） | #97・#429 |
+| ①-11 | 本番 robots.txt | 管理部分の前置は仕様どおり。Sitemap 1本、Training 系約30は Disallow、Search・Agent は許可、`ai-input` の宣言無し | 本番 3333 バイト | 決定済み（対応しない。docs と食い違い無し） | 機械的 | 確認していない（③-7 で③も同じ結果） | cloudflare.md |
+| ①-12 | 404 の応答 | ステータス 404。404.html の資産パスはすべてルート相対で、サブディレクトリの下でも資産 200・正しい MIME | curl 4 URL と資産4本 | 既存 issue の更新（#246・#532 は解消済み。閉じる） | 機械的 | 異議なし（部分的に確認: 404 のステータスだけ） | #246・#532 |
+| ①-13 | 転送の連鎖 | `_redirects` の 301 全62行・年度分・クエリ付きの変種がすべて1ホップでクエリを引き継ぐ。http→https は 301 | curl | 問題なし（記録） | 機械的 | 部分的に同意（5本を確認） | #568 |
+| ①-14 | www・workers.dev | サンドボックスから www は CONNECT 403、workers.dev は推定のホストで 404。確かめられない | curl | 判断のみ（平野さんの目視） | 機械的（届かず） | 確認していない | #114・#115 |
+| ①-15 | sitemap.xml と配下 | 本番の7本（books を含む）はリポジトリと一致、well-formed、lastmod はすべて YYYY-MM-DD、重複0。インデックスに lastmod が無い（#335）。#335 の本文は「4本」、実際は6本 | cmp・minidom | 既存 issue の更新（#335 の本文） | 機械的 | 同意（機械的に確認した） | #335・#265 |
+| ①-16 | sitemap の1450件 | 全件 200・転送なし。noindex の公開 URL 0。sitemap 外の公開ページは saikyo_mens.html（廃止予定）だけ | HEAD 全件と取り直し | 問題なし（#442） | 機械的 | 同意（機械的に確認した） | #442 |
+| ①-17 | 未公開のページ | live/・study/ ほかは meta の noindex（X-Robots-Tag 無し）。live/ は canonical 無し | curl | 判断のみ（meta で足りる） | 機械的 | 確認していない（担当外） | B1・#362 |
+| ①-18 | `/saikyo/2024/?match=20240317` | 転送されず 200（年度ページ本体） | curl | 判断のみ | 機械的 | 同意（機械的に確認した） | #425 |
+
+#### ②ページの中身（seo-content、検証: seo-aio）
+
+全ページの機械的な一覧（公開1450件、リポジトリの HTML）:
+
+| 種類 | 件数 | title 最小/中央/最大 | description 最小/中央/最大 | description 50字未満 | 本文 最小/中央/最大 | 本文200字未満 |
+|---|---|---|---|---|---|---|
+| トップ階層 | 9 | 9/21/522 | 37/71/77 | 4 | 424/4039/174865 | 0 |
+| 大会トップ | 4 | 26/28/31 | 71/75/76 | 0 | 206/211/223 | 0 |
+| 個人成績・順位変動 | 8 | 33/35/38 | 48/59/91 | 3 | 107/113/133 | 8 |
+| 大会ランキング | 35 | 39/43/47 | 66/68/69 | 0 | 383/738/1369 | 0 |
+| title/ 入口 | 1 | 44 | 52 | 0 | 747 | 0 |
+| title/ 大会ページ | 20 | 41/43/52 | 27/29/38 | 20 | 92/191/470 | 11 |
+| title/ 期ページ | 363 | 34/35/44 | 15/41/65 | 355 | 66/158/449 | 236 |
+| saikyo/ トップ | 1 | 17 | 62 | 0 | 189 | 1 |
+| saikyo/ vs・years・players | 3 | 21/22/22 | 38/47/72 | 2 | 105/197/500 | 2 |
+| saikyo/ ランキング | 6 | 28/29/31 | 54/55/57 | 0 | 212/539/678 | 0 |
+| saikyo/ 年度 | 16 | 27 | 28 | 16 | 417/712/814 | 0 |
+| saikyo/ 対局 | 205 | 39/46/67 | 35/42/63 | 182 | 137/262/390 | 18 |
+| saikyo/ 卓 | 660 | 41/55/77 | 37/49/71 | 337 | 166/942/1189 | 2 |
+| 動画の一覧 | 3 | 22/30/32 | 56/65/93 | 0 | 913/1693/2180 | 0 |
+| 動画の各話 | 116 | 30/43/59 | 46/50/82 | 53 | 153/236/384 | 28 |
+
+本文は navbar・footer・script を除いた可視テキストの字数（JS が描く部分を含まない）。og:title・og:description・og:image・og:type の欠けは0件。og:type は website 1334・video.other 116。リンク切れ0、301 を経由する静的リンク0、h1 の無い・複数のページ0、見出しの飛び0。どこからもリンクされない公開ページは静的リンクで7件あるが、navbar.js が全ページに描く。目に見えるパンくずは title/ だけ（動画の各話は JSON-LD だけ、saikyo/・houou/ は無し）。
+
+| 番号 | 場所 | 内容 | 証拠 | 区分 | 確かめ方 | 判定 | issue・B |
+|---|---|---|---|---|---|---|---|
+| ②-1 | title/ の期ページ363・大会ページ20（例 https://ryoei.pro/title/oui/1.html） | description と本文が極端に短い。description は「第1期王位戦の優勝者は青木博。」（15字）などの生成の型で、期ページ355/363・大会ページ20/20が50字未満。本文は期ページの236件が200字未満（oui/1 は66字） | 全件集計。リーダーも oui/1・gpmax/1・houou/ の description を見た（データの量で文が変わる型） | 既存 issue の更新（#5 の短い description の対象に明記。description は生成の型を直せば足りる。本文の薄さはデータの無い期では解消できない） | 機械的・意味の照合をした | 同意（50字未満の件数は一致。本文200字未満は数え方で211件と差） | #5・#486・Bing(2)(4) |
+| ②-2 | saikyo/ の年度16・対局205・卓660 | 年度の description は16件とも「麻雀最強戦<年>の各対局の勝ち上がりをまとめています。」（28字）。対局182/205・卓337/660 が50字未満。卓の description に出場者名が無い | 集計 | 既存 issue の更新（#5。卓に出場者・勝者、年度に最強位・対局数を入れる案） | 機械的・意味の照合をした（年度ごとに中身が違うので重複でなく情報不足） | 同意（意味の照合をした） | #5・#486・Bing(2) |
+| ②-3 | 大会ランキング35（houou 9・ouka 8・jwrc 9・wrcr 9） | 大会ごとに全部門の description が同一（4グループ）。title・h1 は部門名で区別 | 集計 | 現行で直す小さいもの（生成の型に部門名を入れる） | 意味の照合をした | 同意（意味の照合をした） | #5・#283 |
+| ②-4 | https://ryoei.pro/mtsuku/2FOsXsIqTAA.html と https://ryoei.pro/mtsuku/vSduV7-kLls.html | title が同一（「滝沢和典 \| Mリーグチームを作ろう！ \| ryoei.pro」）。h1 の重複は動画の各話に11グループ22ページ（同じ出演者が2回出た回）。description は区別あり | title の重複は全体でこの1組だけ | 現行で直す小さいもの（title か h1 に回の区別） | 意味の照合をした（別の動画の別ページ） | 同意（意味の照合をした） | #5・#283 |
+| ②-5 | https://ryoei.pro/ | title「ryoei.pro」9字（最短）。h1「Ryoei Hirano」、英語のテンプレートのナビ、DB への内部リンク1本、navbar.js 無し | Chrome で描画 | 新サイトの要件（#101、#296 の sub-issue） | 機械的 | 同意（部分。h1 とナビは未確認） | #101・#5・Bing(3) |
+| ②-6 | 短い title の12ページ（25字未満） | 型「ページ名 \| 大分類 \| ryoei.pro」で短い | 集計 | 決定済み（対応しない、BNG-04） | 機械的 | 同意（部分） | BNG-04・#5 |
+| ②-7 | docs/notes/ogp.md「ページの種類ごとの og:image・og:type の規則」 | B6: 区分の文字の画像は houou/jwrc/wrcr/ouka/saikyo/title/pros/site の8種（写真の wayhome を除く）だが、ogp.md は「4種類と未公開の ouka/ の1枚」で jwrc/・wrcr/ が無い。saikyo/ の vs・years・players・ranking（10ページ）の画像も書いていない（実物は saikyo/index-white.png） | img/ogp/ と全ページの og:image | 既存 issue の更新（docs。この指示では直さない） | 機械的 | 同意（意味の照合をした: 規則の表と実際の割り当てを比べた） | B6・#581・#594 |
+| ②-8 | 最強戦・動画の og:image | 規則どおり（卓612は回のサムネイル・48は作品画像、対局・年度は作品画像、動画の各話は maxresdefault）。外部ドメインの画像 | 本番で代表を取得して200 | 問題なし（記録） | 機械的（代表） | 同意（部分。画像の200は再確認せず） | B6・B7 |
+| ②-9 | https://ryoei.pro/saikyo/players/ | ①-2 と同じ | 本番 | 既存 issue の更新（#638 で起票済み） | 機械的 | 同意（機械的に確認した） | #638 |
+| ②-10 | Search Console（2026-09-09〜10-06、取得 2026-10-09。最新はこの回） | 総表示2641・クリック109。`?` 付きの着地が表示の86%。`jpml_pros.html?name=…` は title・description・h1 が全選手で同じ（JS が document.title を変えない）。`resource_logs.html?name=<人名>` 表示300・クリック1、`ouka_results.html?name=<選手>` 103・0 | docs/gsc/2026-10-09/page.csv | 新サイトの要件（#219・#159、#296 の sub-issue） | 機械的 | 同意（再計算はしていない） | #219・#159・#160・#142 |
+| ②-11 | Search Console の着地の旧 URL | 着地はほぼ旧 URL。本番の 301 は `?name=`・`?sheet=` を引き継ぐ。`houou_leagues.html`（表示143）の 301 先 `/houou/leagues/` は noindex | page.csv・houou/leagues/index.html | 既存 issue の更新（#142 の 11/1 の確認で、houou_leagues.html の流入の移り先も見る） | 機械的 | 同意（補足: `/houou/leagues/` は個人成績のリーグのタブへ移す転送専用のページで、noindex は設計どおり。docs/notes/redirects.md:42・87） | #142・#540 |
+| ②-12 | 画像の alt | alt 属性の無い img は0。空 alt は18,000超ですべて装飾 | 全件集計 | 問題なし（記録） | 機械的 | 同意（150件の標本で確認） | #486 |
+
+#### ③AIO（seo-aio、検証: seo-tech）
+
+| 番号 | 場所 | 内容 | 証拠 | 区分 | 確かめ方 | 判定 | issue・B |
+|---|---|---|---|---|---|---|---|
+| ③-1 | llms.txt:3・:16 | 「プロ1,100名超」「1,100名」が実数1,098名と合わない | jpml_pros.html の description「1,098名」 | 既存 issue の更新（#227。外すか丸めるかは未決） | 機械的 | 同意（機械的に確認した。役割も比べた） | #227 |
+| ③-2 | llms.txt:57 | 放送対局「2,332本」、ページは2,331本（既知） | video_live.html の description | 既存 issue の更新（#227） | 機械的 | 同意（機械的に確認した） | #227 |
+| ③-3 | llms.txt:64 | ログ「2,630件」、ページは3,159件（その後のデータの増加） | resource_logs.html の description | 既存 issue の更新（#227 に足す） | 機械的 | 同意（機械的に確認した） | #227 |
+| ③-4 | llms.txt 全体 | 問題なし。本番とリポジトリ diff 0、固定の URL 34件すべて200、転送・未公開・廃止の URL 無し、公開中の全種類の入口あり | 突き合わせ | 指摘なし（記録） | 機械的 | 同意（一部のみ確認） | #227・B5 |
+| ③-5 | llms.txt:77 と :59・:60 | 各話の URL の形（`<YouTube動画ID>.html`）は帰り道だけで、Mつく・プロテストに無い | 実在の URL は mtsuku/<ID>.html・exam/<ID>.html | 現行で直す小さいもの（1行。#227 の生成化に含めるなら不要） | 意味の照合をした | 同意（軽微） | #227 |
+| ③-6 | llms.txt:5〜8 と本番 robots.txt | llms.txt「検索・回答での参照は可」。Content-Signal は `search=yes, ai-train=no, use=reference` で `ai-input` の宣言が無い | robots.txt の凡例・cloudflare.md | 判断のみ（直すなら llms.txt の文言だけ。軽微） | 意味の照合をした | 同意（判断のみで可。use=reference の解釈として矛盾しない） | #130・#230 |
+| ③-7 | 本番 robots.txt の前置 | docs の方針どおり。Training 系は Disallow、Search・Agent は Disallow 無し | 142行 | 指摘なし（記録） | 機械的 | 同意（①-11 と整合） | #130・#304 |
+| ③-8 | #554 | 10-12 の起票から更新なし。原因は未確認。セッションから Security Events に届かない | issue・docs | 既存 issue の更新（変更なし。11/1 の #304 で見る） | 判断のみ | 同意（判断のみ） | #554・#555・#304 |
+| ③-9 | `.mj-lead` のある全ページ | `.mj-lead` は全ページで DOM の最後（`</main>` の直前）。#229 は未実装。#229 の「表が1.2MB」は古い（jpml_pros 922KB、video_live 1.7MB・resource_logs 2.3MB の方が大きい） | バイト位置、`scripts/lib/page.py:229` の `LEAD_TEMPLATE` | 既存 issue の更新（#229 の題・本文を今に合わせ、video_live・resource_logs を対象に足す） | 機械的 | 同意（機械的に確認した） | #229・#230 |
+| ③-10 | */players/・*/race/ | 中身は JS が JSON から描く。curl の可視テキストは1文だけ（houou/players/ 113字→描画後168字、saikyo/players/ 94→150、houou/race/ 94→391） | curl と Chrome の比較 | 新サイトの要件（#219、#296 の sub-issue） | 機械的 | 異議なし（未検証） | #219・#296 |
+| ③-11 | video_live.html・resource_logs.html | curl の可視テキスト約17万字、描画後4,000〜5,700字。#229 の懸念が当たる | 174,852→4,058、167,826→5,655 | 新サイトの要件（live/ #362・log/ #640 が置き換える） | 機械的 | 異議なし（ファイルの大きさは確認） | #229・#362・#640 |
+| ③-12 | 構造化データ（公開1450件） | BreadcrumbList は動画の各話116、ItemList は動画の一覧3、VideoObject 0（#620・#629 どおり）、他に JSON-LD 無し。JSON の壊れ0 | 全件 parse | 新サイトの要件（#13） | 機械的 | 同意（一部のみ確認） | #13・#620・#629 |
+| ③-13 | live/（B2） | docs/decisions/live.md:147「動画は公開の後に別に扱う（未実装）」のまま。live/ の JSON-LD は0件、og:type video.other と og:video はあり（VideoObject を外した他の各話と同じ形） | live/gpmax/10/b16-a.html | 既存 issue の更新（#362 に「VideoObject は入れない（#629 と同じ）」を決めて足す案） | 意味の照合をした | 同意（意味の照合をした） | B2・#362・#629 |
+| ③-14 | meta robots・X-Robots-Tag | AI 向けの指定（noai・max-snippet など）無し。X-Robots-Tag は workers.dev 向けの noindex だけ | grep・HEAD | 決定済み（対応しない） | 機械的 | 同意（機械的に確認した） | cloudflare.md |
+| ③-15 | Search Console の構造化データの警告の記録 | docs/gsc/ に記録無し。記録は #620 と decisions/mtsuku.md・exam.md だけ。#620 は「修正を検証」の結果待ち | grep | 既存 issue の更新（#620 は結果が出たら閉じる） | 機械的・判断のみ | 異議なし（未検証） | #620・#629 |
+| ③-16 | 代表20ページ | curl と描画後の差は小さい（③-10・③-11 以外） | render.json | 指摘なし（記録） | 機械的 | 異議なし（未検証） | #266 |
+| ③-17 | jpml_pros.html | 表は HTML に入っている（可視36,570字） | raw | 指摘なし（記録） | 機械的 | 同意 | ― |
+| ③-18 | wayhome/ の各話・/ | `.mj-lead` 無し。各話は wayhome.md:149 の決定、トップは別系統 | render.json | 決定済み（対応しない） | 意味の照合をした | 異議なし（未検証） | #229 |
+| ③-19 | rh_links.html（B5） | 本番404、llms.txt に無い。video_wayhome.html は 301 で /wayhome/ | curl・_redirects:118 | 指摘なし（記録） | 機械的 | 同意（機械的に確認した） | B5・#531 |
+| ③-20 | docs/notes/mj-lead.md:12-16 | 消えた Google Charts の6ページを残すが、同じ行に消した旨あり | 文書 | 指摘なし（軽微） | 意味の照合をした | 同意（Google Charts を読む HTML は0件） | #266 |
+
+リーダーが見つけたもの（検証なし、記録のみ）:
+
+| 番号 | 場所 | 内容 | 区分 |
+|---|---|---|---|
+| L-1 | scripts/regenerate.py の `OUTPUT_OVERRIDES` のコメント（ouka/・jwrc/・wrcr/）・docs/notes/static-generation.md「ページの一覧」の前文（ouka/） | 「未公開」「noindex・メニュー未掲載」と書くが、3つとも noindex 無しで sitemap-pages.xml に載る（公開は #591・#599・#611） | 既存の記述の直し（docs とコードのコメント。この指示では直さない） |
+
+### 棚卸しの issue と B1〜B7 の判定（全件）
+
+| 番号 | 判定者 | 判定 | 証拠 | 検証 |
+|---|---|---|---|---|
+| #638 | ① | 今も当てはまる | ①-2 | ② 同意 |
+| #560 | ① | 今も当てはまる（本文の表が古い） | ①-3・①-4 | ② 同意 |
+| #486 | ② | 一部（h1 の無いページは0。ランキング3ページは #582 で消えた。残りは 10/30 の Bing の再確認と (4)） | ②-1・②-2・②-12 | ③ 同意 |
+| #5 | ② | 一部（title の重複は②-4 の1組だけ。短い description は②-1〜②-3） | 集計 | ③ 同意 |
+| #283 | ② | 一部（②-4 が残る） | ②-4 | ③ 同意 |
+| #229 | ③ | 今も当てはまる（未実装。題・本文が古い） | ③-9 | ① 同意 |
+| #266 | ③ | 解消済み（対象の6ページは #582 で消え、Google Charts を読む HTML は0） | ③-20・#582 のコメント | ① 同意 |
+| #264 | ① | 今も当てはまる | ①-1 | ② 同意 |
+| #227 | ③ | 一部（件数のずれ③-1〜③-3、生成化は未着手。CLAUDE.md「構成」は「llms.txt は手書きで生成スクリプトを持たない」と書き、#227 の構想と食い違う〈今のコードどおりの記述〉） | ③-1〜③-5 | ① 同意 |
+| #335 | ① | 今も当てはまる（本文の「4本」は6本） | ①-15 | ② 同意 |
+| #554 | ③ | 今も当てはまる（原因は未確認。セッションから検証できない） | ③-8 | ① 判断を保留 |
+| #458 | ① | 今も当てはまる（新しい URL の登録の確認は 2026-10-30） | issue | ② 確認していない |
+| #620 | ③ | 一部（一覧・各話とも VideoObject 0 を確認。残りは Search Console の検証） | ③-12・③-15 | ① 判断を保留（矛盾はしない） |
+| #142 | ② | 今も当てはまる（次の取得は 11/1） | ②-10・②-11 | ③ 同意（未検証） |
+| #460 | ② | 今も当てはまる（国×クエリは未取得） | docs/gsc/2026-10-09/ | ③ 同意（未検証） |
+| #230 | ③ | 今も当てはまる（保留） | issue | ① 判断を保留 |
+| #465 | ① | 今も当てはまる（保留） | issue | ② 確認していない |
+| #296 | ③ | 今も当てはまる（sub-issue 37件） | issue | ① 判断を保留 |
+| #101 | ② | 今も当てはまる（保留） | ②-5 | ③ 同意（未検証） |
+| #13 | ③ | 今も当てはまる（保留・新サイト送り。本文は帰り道の VideoObject の先行実装を前提にしたままで古い） | ③-12 | ① 同意 |
+| #159 | ① | 今も当てはまる（新サイト送り） | `/jpml_pros.html?name=` は 200 のまま | ② 確認していない |
+| #160 | ② | 今も当てはまる（保留） | パンくずは title/ だけ | ③ 同意（未検証） |
+| #165 | ② | 一部（規則は #581 で実装済み。残りは選手個別ページの画像） | ②-8 | ③ 同意（部分） |
+| #219 | ② | 今も当てはまる（保留） | ②-10・③-10 | ③ 同意（未検証） |
+| #226 | ② | 今も当てはまる（保留。/en/・hreflang 無し） | 実物 | ③ 同意（未検証） |
+| #173 | ③ | 一部（題・本文の「VideoObject に反映」は #629 で無くなった。出演選手カードは残る） | ③・リーダー: 題と本文が `build_video_object()` を挙げ、scripts/ に `build_video_object` は無い | ① 判断を保留。リーダーが機械的に確認 |
+| #195 | ② | 一部（本文の依存先が #101。選手個別ページは #219。#195 は #296 の sub-issue でない） | issue | ③ 同意（部分） |
+| #289 | ③ | 今も当てはまる | issue | ① 判断を保留 |
+| #275 | ③ | 今も当てはまる（feed 無し） | 実物 | ① 判断を保留 |
+| #282 | ② | 今も当てはまる | issue | ③ 同意（部分） |
+| #532 | ① | 解消済み（#246 と同じ内容） | ①-12 | ② 異議なし（部分） |
+| #246 | ① | 解消済み | ①-12 | ② 異議なし（部分） |
+| #362 | ③ | 一部（未公開のまま。og:image の件は 10-17 のコメントにあるが題から読めない） | ③-13 | ① 判断を保留 |
+| #576 | ③ | 今も当てはまる（noindex のまま） | 実物 | ① 判断を保留 |
+| #640 | ③ | 今も当てはまる（log/ はまだ無い） | 実物 | ① 判断を保留 |
+| #568 | ① | 今も当てはまる（常設。redirects.md の「予定」表が古い） | ①-5・①-13 | ② 確認していない |
+| #304 | ② | 今も当てはまる | issue | ③ 同意（部分） |
+| #555 | ③ | 今も当てはまる | issue | ① 判断を保留 |
+| #529 | ② | 一部（jpml_links・rh_links の廃止で G2-08 の一部が消えた） | issue | ③ 同意 |
+| B1 | ① | 今も当てはまる（live/ は canonical 無し、docs/decisions/live.md:144 は未実装） | ①-17 | ② 同意 |
+| B2 | ③ | 今も当てはまる | ③-13 | ① 同意 |
+| B3 | ① | 解消済み（ルールは動く。redirects.md の記録が未更新。他のクエリが付くと壊れる〈①-5 の補足〉） | ①-5 | ② 同意（解消済み） |
+| B4 | ② | 今も当てはまる（h1「リソース 辞書」のまま。見直しの記録なし） | resource_dictionary.html | ③ 同意（機械的に確認した） |
+| B5 | ③ | 解消済み | ③-4・③-19 | ① 同意 |
+| B6 | ② | 今も当てはまる | ②-7 | ③ 同意 |
+| B7 | ② | 今も当てはまる（ogp.md に行き先 #362。live/ は未公開で確認できない） | ogp.md・#362 | ③ 同意 |
+
+### 起票の候補の既存 issue の検索
+
+`search_issues`（クローズ済みを含む）で探した。
+
+- `?match=` に他のクエリが付くと存在しない URL へ転送される（①-5 の補足）: 同じ目的の issue は無い。近いのは #549（closed、公開）・#568（常設の棚卸し）・#638
+- 一括取得で 429（①-7）: #124（closed、Rate limiting rules の設定）だけ
+- `sitemap-books.xml` が公開されている（①-10）: #429（open、書籍ページの公開）・#97（保留）だけ
+- description の生成の型（②-1〜②-3）: #5（open）が受け皿。#283・#229・#266・#517（closed）は別の目的
+
+### 実測
+
+- 所要時間: ログの最初の push 05:45Z → 相互検証の完了 約06:00Z（サブエージェントの所要は ① 約8分＋検証 約1分、② 約6.5分＋検証 約1分、③ 約7.5分＋検証 約1.5分。issue を読む補助 約3.5分）。ログの仕上げはその後
+- モデルとトークン（Agent の usage。最初の報告と検証の合計）: seo-tech（sonnet）148,172、seo-content（sonnet）196,014、seo-aio（sonnet）183,352。issue を読む補助（sonnet）293,717。sonnet の指定が Sonnet 5.5 に当たったかは usage に出ない（モデル名の実物は未確認）
+- 相互検証の経路: リーダー経由（SendMessage で検証役に要約のファイルの場所を渡した）
+- 本番へのリクエスト: ① 約2,595（全件 HEAD 1450・429 の取り直し約855 ほか、同時最大4本）＋検証0、② 約32＋検証11、③ 約62＋検証0、リーダー 2。合計 約2,700。①の同時4本の全件 HEAD で 429 が出たため、検証では同時1本・0.5秒以上の間隔にさせた
+- 指示に反してファイルを変えた・git を使った事象: ファイルの変更は無し（手順2の後の `git status --porcelain` は空）。**git の使用1件**: seo-aio が `git status --short` を1回実行した（読み取りのみ、出力は空。約束の「git コマンドを使わない」に反する）。ほかに seo-aio がバックグラウンドの grep を `pkill` で止めた（ファイルへの影響なし）
+- 権限の確認が出た回数: 0（3人とも0と報告。リーダー側も0）
+- 使ったスクリプト・中間データ: scratchpad の inv.py・cat.py・pages.json・public_urls.txt・reps.md・common.md・report-*.md と各担当のフォルダ（seo-tech/・seo-content/・seo-aio/）。**すべて使い捨て**（後の指示で使うなら、この表と指摘の一覧から作り直す）
+
+### マージと片付け
+
+- push 直前に `git fetch origin cloudflare` し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめて `git push origin work/1029-seo:cloudflare`。出力の範囲: `74d7dc08f..7fff49695`（変更は docs/logs/CHAT-1029-SEO-01.md と docs/decisions/seo-bing.md だけ）
+- この記録（件名「docs: record the merge of CHAT-1029-SEO-01」、7fff49695 の次のコミット）も同じ手順で cloudflare へ入れ、その後に作業ブランチを消す
+- ブランチの削除の記録（docs/notes/branch-operations.md「ブランチを削除するとき」を読んでから）: work/1029-seo ／ 削除直前の先頭 2e114b341 ／ マージ済み（`git branch -r --merged origin/cloudflare` で確かめた）。ローカルは HEAD を origin/cloudflare に移して `git branch -d` で消した。リモートの `git push origin --delete work/1029-seo` は HTTP 403（セッションの git プロキシが削除を拒否する。docs/notes/cloud-sessions.md「ブランチの削除」に書かれているとおりで、読む順を誤った）。リモートは `cleanup-branches.yml` に任せる
+- この記録を足すため、work/1029-seo を origin/cloudflare（2e114b341）から作り直して push し、同じ手順で cloudflare へ入れた
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1029-seo
-- ログ: https://github.com/retroeater/mj/blob/work/1029-seo/docs/logs/CHAT-1029-SEO-01.md
+- 状態: 判断待ち（下の一覧から、直す・起票する・整理するものを番号で選んでもらう）
+- ブランチ: work/1029-seo（マージ済み。リモートの削除は cleanup-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1029-SEO-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1029-seo
 - 確認用URL: なし
-- マージ: 未
-- issue: #486
-- 判断が必要なこと: 作業中
-- 未確認の項目: 作業中
+- マージ: 済（7fff49695。範囲 74d7dc08f..7fff49695）
+- issue: #486（Bing の Recommendations をコメント）。ほかの issue は読んだだけ
+- 判断が必要なこと:
+  - 判定が「同意」か「機械的に確認」の指摘を区分ごとに並べた（番号で選ぶ。詳細は経過の「指摘の一覧」）
+  - 現行で直す小さいもの:
+    - S1. `index.html` の `<html lang="en">` を `ja` にする（①-1、#264）
+    - S2. 大会ランキング35ページの description に部門名を入れる（生成の型、②-3、#5）
+    - S3. Mつくの同じ出演者の2回（`mtsuku/2FOsXsIqTAA.html`・`mtsuku/vSduV7-kLls.html` ほか h1 の11組）の title・h1 に回の区別を足す（②-4、#5・#283）
+    - S4. `llms.txt` に Mつく・プロテストの各話の URL の形を1行ずつ足す（③-5。#227 の生成化に含めるなら不要）
+    - S5. 文書の食い違いを直す（docs のみ。この指示では直していない）: (a) `docs/notes/redirects.md` の `?match=` を「予定」から作成済みへ（①-5・B3） (b) `docs/notes/cloudflare.md` の canonical の「例外は帰り道だけ」を実態に（①-3。S5(b) は #560 の結論と一緒でもよい） (c) 同 `cloudflare.md` の「HTML に ETag が付かない」を直す（①-6） (d) `docs/notes/ogp.md` の規則の表に jwrc/・wrcr/・公開済みの ouka/・saikyo/ の下位ページを足す（②-7・B6） (e) `scripts/regenerate.py` の `OUTPUT_OVERRIDES` のコメントと `docs/notes/static-generation.md`「ページの一覧」の前文の ouka/・jwrc/・wrcr/ の「未公開」を直す（L-1、リーダーのみの確認）
+  - 新サイトの要件（#296 の sub-issue に足すか、既存の sub-issue に寄せるか）:
+    - N1. トップの title「ryoei.pro」9字・h1「Ryoei Hirano」・英語のテンプレートのナビ（②-5 → #101）
+    - N2. `?name=` の着地が表示の86%で、`jpml_pros.html?name=…` は title・description・h1 が全選手で同じ（②-10 → #219・#159）
+    - N3. */players/・*/race/ は JS が JSON から描き、取得したままの HTML には1文しかない（③-10 → #219）
+    - N4. video_live.html・resource_logs.html は HTML の可視テキストが約17万字（③-11 → #362・#640 の置き換えで扱う）
+    - N5. 構造化データは BreadcrumbList（動画の各話）・ItemList（動画の一覧）だけ（③-12 → #13）
+  - 既存 issue の更新:
+    - U1. #266 を閉じる（対象の6ページは #582 で消え、Google Charts を読むページは0。①③同意）
+    - U2. #246 と #532 を閉じる（404.html の資産パスはすでにルート相対で、サブディレクトリの下でも読める。2件は同じ内容。①-12）
+    - U3. #5 に、短い description の対象として title/ の期ページ・大会ページ（②-1）と saikyo/ の年度・対局・卓（②-2）を、生成の型の直し方の案とともに書く。本文の薄さ（Bing の (4)）は #486 にも同じ材料を書く
+    - U4. #227 に llms.txt の件数のずれ（プロ 1,100名超↔1,098名、放送対局 2,332↔2,331、ログ 2,630↔3,159）を足す（③-1〜③-3）。件数を外すか生成にするかの判断が要る
+    - U5. #229 の題・本文を今に合わせる（jpml_pros は 922KB、video_live 1.7MB・resource_logs 2.3MB も対象。③-9）
+    - U6. #335 の本文の「4本」を6本に（①-15）
+    - U7. #560 の本文の表を今に合わせ、`index.html` 付きの別名（①-9）と末尾スラッシュの無い URL の 404（①-8）も観点に足す（①-4）。**title/ の期ページ・大会ページが例外の基準に当たるかは異議が残った**（①-3。①: `?q=`・`?name=` の絞り込みで中身が変わるので当たらない／②: `?year=` は入口だけなので当たる見込み。リーダー: `?q=`・`?name=` は title/ の全ページで読む。決め手は「絞り込みを中身の変化とみなすか」と Search Console に `?` 付きの title/ の URL があるか）
+    - U8. #638 の実装のとき、saikyo/ のトップ・ranking/・vs/・years/ の canonical も決める（①-2・②-9）
+    - U9. #362 に、B1（live/ は「全ページに canonical」の決定が #113 の例外の基準と食い違う。トップは `?q=` で中身が変わる）・B2（live/ にも VideoObject を入れない〈#629 と同じ〉と決めるか、③-13）・B7（og:image を最新話のサムネイルにする件を本文のチェックリストに書く）を足す
+    - U10. #173 の題・本文から「VideoObject に反映」を外す（#629 で `build_video_object()` が消えた。出演選手カードは残る）
+    - U11. #486 の本文に、h1 の無かったランキング3ページは #582 で消えたことと alt は当たらないこと（②-12）を書く
+    - U12. #195 の依存先を #101 から #219 に直す（②の判定）
+    - U13. #142 の 11/1 の確認に、`houou_leagues.html`（表示143）の流入の移り先（`/houou/players/`）を見る項目を足す（②-11）
+  - 起票の候補（既存の issue の検索結果つき）:
+    - K1. 最強戦の旧年度ページの `?match=` に他のクエリ（`&utm_source=` など）が付くと、存在しない URL（`/saikyo/2024/20240317&utm_source=x.html`）へ 301 する（①-5 の補足、②が発見・リーダーが本番で確認）。ダッシュボードのルールの式の直し。同じ目的の issue は無い（近いのは #549〈closed〉・#568〈常設〉）
+    - K2. `sitemap-books.xml` が本番で公開されている（noindex の books/ 191件を載せる。①-10）。`.assetsignore` に入れるか、そのままにするか。同じ目的の issue は無い（近いのは #429・#97）
+  - 決定済み（対応しない）に当たった指摘: ②-6（短い title、BNG-04）・③-14（AI 向けの meta robots）・③-18（帰り道の各話の `.mj-lead`）・①-11（robots.txt）
+- 未確認の項目:
+  - ①-7（全件の同時取得で約半数が 429。docs の「Managed Challenge」と応答が違う）は検証役が再現していない。問題か仕様かは平野さんの判断（#124 は closed）
+  - ①-14 www.ryoei.pro・workers.dev の転送・X-Robots-Tag はセッションから届かず未確認
+  - #554（AI クローラーへの 403）の原因・Search Console の数値（最新は 2026-10-09 の取得）・Bing の Recommendations（平野さんの画面の申告値。ここからは検証できない）
+  - 3人のモデルが Sonnet 5.5 だったかは usage に出ず未確認（指定は sonnet）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 74d7dc08）: https://github.com/retroeater/mj-logs/tree/main/guide/74d7dc08
+ガイド文書（この版を写した時点の最新、mj 0f7636bb）: https://github.com/retroeater/mj-logs/tree/main/guide/0f7636bb
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/74d7dc08/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/74d7dc08/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/74d7dc08/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/74d7dc08/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/74d7dc08/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/74d7dc08/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/0f7636bb/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/0f7636bb/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/0f7636bb/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/0f7636bb/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/0f7636bb/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/0f7636bb/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/74d7dc08.md
