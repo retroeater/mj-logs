@@ -70,28 +70,84 @@ CHAT-1029-SEO-01 のレビューの結果のうち、既存の issue の更新�
 - 済: #5・#486・#227・#229・#335・#560・#638・#195・#173・#142（2026-10-29T07:35Z）。#173 は題も直した（MCP の issue_write）
 - 最初の PATCH は Content-Type の指定漏れで10件とも HTTP 415（書き換わっていない）。指定して再実行し10件とも通った
 
+### コメント（手順2・3）
+
+コメントにはすべて SEO-01 のログ（https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1029-SEO-01.md ）の該当の行を引用し、末尾に `Chat-Ref: CHAT-1029-SEO-03` を書いた。本文を直した issue は、直した箇所と理由もコメントに書いた。
+
+- #5: https://github.com/retroeater/mj/issues/5#issuecomment-6490837913
+- #486: https://github.com/retroeater/mj/issues/486#issuecomment-6490840609
+- #227: https://github.com/retroeater/mj/issues/227#issuecomment-6490842715
+- #229: https://github.com/retroeater/mj/issues/229#issuecomment-6490845356
+- #335: https://github.com/retroeater/mj/issues/335#issuecomment-6490846725
+- #560: https://github.com/retroeater/mj/issues/560#issuecomment-6490852469 （①-3 は両方の言い分・リーダーの確認・決め手だけ。結論は書いていない）
+- #638: https://github.com/retroeater/mj/issues/638#issuecomment-6490854014
+- #362: https://github.com/retroeater/mj/issues/362#issuecomment-6490856690 （B1・B2・B7 を「決めることの候補」として。本文は変えていない）
+- #173: https://github.com/retroeater/mj/issues/173#issuecomment-6490858187
+- #195: https://github.com/retroeater/mj/issues/195#issuecomment-6490859691
+- #142: https://github.com/retroeater/mj/issues/142#issuecomment-6490861183
+- #568（K1）: https://github.com/retroeater/mj/issues/568#issuecomment-6490866335
+- #429（K2）: https://github.com/retroeater/mj/issues/429#issuecomment-6490867450
+
+### 確かめ
+
+- 直した10件を REST で取り直し、10件とも open・本文に「2026-10-29」を含む。#173 の題は「帰り道シートに個別ページ用の列を追加し、ページに反映する」
+- 閉じた3件: #266 closed（not_planned）・#246 closed（completed）・#532 closed（duplicate）
+- #560 の表の値は cloudflare b06f4f27c の HTML を数え直した（HTML の数・canonical の数・noindex の数を種類ごとに）。SEO-01 の①-3 の数と一致し、ほかに study/（41・40・41）・books/（191・190・191）・houou/ ほかの行を足した
+
+### 各 issue で行ったこと
+
+| issue | U・K | 行ったこと |
+|---|---|---|
+| #266 | U1 | 閉じた（not planned。根拠は「棚卸しの判定」の #266 の行と ③-20） |
+| #246 | U2 | 閉じた（completed。①-12。#532 を指した） |
+| #532 | U2 | 閉じた（duplicate of #246。①-12。#246 を指した） |
+| #5 | U3 | 本文の「残り」を直した・コメントした（②-1〜②-3、生成の型の直し方の案、S2 もこの issue で行う） |
+| #486 | U3・U11 | 本文の「残り」を直した（(1) h1 の11ページは解消、(3) alt は当たらない、残りは (2) の再確認だけ）・コメントした（中身の少ないページの材料） |
+| #227 | U4 | 本文の冒頭に1行足した・コメントした（③-1〜③-3、外すか生成にするかの判断が要る） |
+| #229 | U5 | 本文を直した（表の大きさ、#266 の関連）・コメントした（③-9・③-11） |
+| #335 | U6 | 本文を直した（4本→6本）・コメントした（①-15） |
+| #560 | U7 | 本文の表を 2026-10-29 の数に置き換え、観点4を足した・コメントした（①-3・①-4・①-8・①-9、異議の両方の言い分） |
+| #638 | U8 | 本文の「未決」に1文足した・コメントした（①-2・②-9） |
+| #362 | U9 | コメントだけ（B1・B2・B7 を決めることの候補として。LVP の着手中があるので本文は変えない） |
+| #173 | U10 | 題と本文を直した（VideoObject を外した）・コメントした（「棚卸しの判定」の #173 の行） |
+| #195 | U12 | 本文を直した（依存先 #101 → #219）・コメントした |
+| #142 | U13 | 本文に (5) を足した・コメントした（②-11） |
+| #568 | K1 | コメントした（①-5 の補足と本番の応答。次の棚卸しで直す） |
+| #429 | K2 | コメントした（①-10。凍結中なので変えない） |
+
+### ログ・決定
+
+- CHAT-1029-SEO-01 のログの `## 報告` の状態の末尾に ` / 続き: CHAT-1029-SEO-02` を足した
+- docs/decisions/seo-bing.md に「2026-10-29（CHAT-1029-SEO-03）」を足した。SEO-02 の決定（work/1029-seo2、未マージ）も同じファイルの末尾に足してあるので、SEO-02 のマージのときに末尾の追記どうしの衝突になれば両方を残して解く（CLAUDE.md「ブランチ運用」）
+
+### マージと片付け
+
+- push 直前に `git fetch origin cloudflare`、`git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめて `git push origin work/1029-seo3:cloudflare`。範囲: `b06f4f27c..0d86de495`（docs/logs の2ファイルと docs/decisions/seo-bing.md だけ）
+- この記録も同じ手順で cloudflare へ入れる
+- ブランチ（docs/notes/branch-operations.md「ブランチを削除するとき」を読んだ）: work/1029-seo3 はこの記録のコミット（0d86de495 の次）を cloudflare へ入れた後、マージ済みを確かめてローカルを `git branch -d` で消す。リモートは git プロキシが削除を拒否する（docs/notes/cloud-sessions.md「ブランチの削除」）ので `cleanup-branches.yml` に任せる
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1029-seo3
-- ログ: https://github.com/retroeater/mj/blob/work/1029-seo3/docs/logs/CHAT-1029-SEO-03.md
+- 状態: 完了
+- ブランチ: work/1029-seo3（マージ済み。リモートの削除は cleanup-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1029-SEO-03.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1029-seo3
 - 確認用URL: なし
-- マージ: 未
-- issue: 作業中
-- 判断が必要なこと: 作業中
-- 未確認の項目: 作業中
+- マージ: 済（0d86de495。範囲 b06f4f27c..0d86de495）
+- issue: 閉じた #266・#246・#532。本文を直した #5・#486・#227・#229・#335・#560・#638・#173（題も）・#195・#142。コメントだけ #362・#568・#429（各 issue で行ったことは経過の表）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 0f7636bb）: https://github.com/retroeater/mj-logs/tree/main/guide/0f7636bb
+ガイド文書（この版を写した時点の最新、mj 4aa1e3f2）: https://github.com/retroeater/mj-logs/tree/main/guide/4aa1e3f2
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/0f7636bb/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/0f7636bb/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/0f7636bb/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/0f7636bb/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/0f7636bb/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/0f7636bb/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/4aa1e3f2/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/4aa1e3f2/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/4aa1e3f2/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/4aa1e3f2/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/4aa1e3f2/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/4aa1e3f2/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/74d7dc08.md
