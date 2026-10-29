@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-29 20:49 JST
+- 書き出した時刻: 2026-10-29 20:51 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -134,14 +134,13 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-29 20:49 | workflow_dispatch | work/1029-lgn-eki | success | #51（40868320579） | 0分36秒 |
 | 2026-10-29 20:47 | workflow_dispatch | work/1029-lgn-eki | success | #50（40868125468） | 0分31秒 |
 | 2026-10-29 17:08 | workflow_dispatch | work/1029-lgn-eki | failure | #49（40839961758） | 0分30秒 |
 | 2026-10-29 16:07 | workflow_dispatch | work/1029-lgn-eki | success | #48（40833372313） | 60分08秒 |
 | 2026-10-29 16:06 | workflow_dispatch | work/1029-lgn-eki | success | #47（40833270498） | 0分32秒 |
-| 2026-10-29 14:53 | workflow_dispatch | work/1029-lgn-eki | failure | #46（40826011390） | 0分32秒 |
 
 - #49 failure: ジョブ「convert」 ステップ「実行」
-- #46 failure: ジョブ「convert」 ステップ「実行」
 
 ## fetch-gsc.yml
 
