@@ -55,6 +55,51 @@ CHAT-1029-SEO-01 のレビューで「新サイトの要件」とした N1〜N5 
 
 ## 経過
 
+### 着手前の確認（2026-10-29）
+
+- 0章: ログの「指示」欄の末尾が指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 欠けなし
+- 貼る時機: 指示文は「SEO-02・SEO-03 とは別のセッションに貼る」だが、SEO-01〜03 と同じセッションに貼られた。SEO-02 は判断待ちで止まり SEO-03 は完了していて、このセッションで並行して動く作業は無いので、そのまま進めた
+- SEO-02（work/1029-seo2）は未マージ（`git merge-base --is-ancestor origin/work/1029-seo2 origin/cloudflare` が偽）なので取り込まずに origin/cloudflare から始めた。`index.html` の `lang` は SEO-02 が直すので、この指示では触らない
+- 同じ Chat-Ref のコミット: なし。CLAUDE.md は起動時から変わっていない。work/1029-seo4 はローカル・リモートとも無く `git checkout -b work/1029-seo4 origin/cloudflare`（着手時 HEAD 4aa1e3f28）
+- 未マージの work/ ブランチとの重なり（`git diff --name-only origin/cloudflare...<branch>`）: work/1028-lgn・work/1029-lgn-eki が `scripts/generate_resource_logs.py`・`navbar.js` を、work/1017-lvp が `scripts/lib/study.py`・`scripts/lib/members.py`・`navbar.js`・live/ を変えている。この指示で変えるのは `scripts/lib/page.py`・`generate_title_pages.py`・`generate_saikyo_pages.py`・`generate_houou_pages.py`・`index.html`・`docs/handover.md` で、どれとも重ならない（resource_logs.html は下の表のとおり単層で、もともと入れない）
+- 告知の期間: docs/notes/page-announcement.md の「実例」の表は、最後の saikyo/ のリニューアル（2026-10-27）まで投稿済みか、告知済みとみなしてよい（最強戦、2026-10-28 の決定）。期間中のページは無い
+
+### 手順1 N5: ページの種類ごとの並び
+
+決め方: 見えているパンくずのある種類はその並び（title/ の `mj-title-breadcrumb`、houou/ ほか4大会と saikyo/ のメニューの下のページの `mj-houou-crumbs`、saikyo/ の年度・対局・卓・vs の `mj-saikyo-n-crumb`）。名前は見えているパンくずの文字。最後の項目は自分自身の URL（og:url・canonical と同じ）。
+**区分のトップ（navbar の項目そのもの）は並びが1項目になる。Google のパンくずのリッチリザルトは2項目以上が要るので、1項目のページには出さない**（`PageMeta.breadcrumb` が2つ以上のときだけ出す）。動画の各話（116件）は今の BreadcrumbList（一覧 → この回）のまま変えない。
+
+| ページの種類 | 件数 | 並び（BreadcrumbList） | 決め方 |
+|---|---|---|---|
+| トップ `/` | 1 | （BreadcrumbList 無し）。代わりに `WebSite`（name「ryoei.pro」・url） | 指示の (b) |
+| トップ階層の8ページ（jpml_pros・resource_dictionary・resource_efficiency・resource_logs・rh_*3・video_live） | 8 | 無し（1項目。navbar の「番組」「リソース」「良栄」はページを持たない項目で、並びに入れられない） | 単層 |
+| 大会トップ（houou/・ouka/・jwrc/・wrcr/） | 4 | 無し（1項目） | 単層 |
+| 大会の個人成績・順位変動（*/players/・*/race/） | 8 | 大会名（`/houou/` など）→ 個人成績／順位変動 | 見えているパンくず |
+| 大会ランキング（*/ranking/<部門>/） | 35 | 大会名 → ランキング（自分自身の URL。部門名は入らない） | 見えているパンくず |
+| title/ 入口 | 1 | 無し（1項目。入口に見えているパンくずは無い） | 単層 |
+| title/ 大会ページ | 20 | タイトル戦（`/title/`）→ 大会名 | 見えているパンくず |
+| title/ 期ページ | 363 | タイトル戦 → 大会名 → 第N期（対局日） | 見えているパンくず |
+| saikyo/ トップ | 1 | 無し（1項目） | 単層 |
+| saikyo/ vs・years・players | 3 | 最強戦（`/saikyo/`）→ 対戦成績／年度別／個人成績 | 見えているパンくず |
+| saikyo/ ランキング | 6 | 最強戦 → ランキング（自分自身の URL） | 見えているパンくず |
+| saikyo/ 年度 | 16 | 最強戦 → 麻雀最強戦<年度> | 見えているパンくず |
+| saikyo/ 対局 | 205 | 最強戦 → 麻雀最強戦<年度> → 対局名 | 見えているパンくず |
+| saikyo/ 卓 | 660 | 最強戦 → 麻雀最強戦<年度> → 対局名 → 卓の見出し | 見えているパンくず |
+| 動画の一覧（wayhome/・mtsuku/・exam/） | 3 | 無し（1項目。ItemList は今のまま） | 単層 |
+| 動画の各話 | 116 | 一覧 → この回（今のまま） | 既存 |
+
+並びが決まらない種類: 無し（「無し」の種類は、決まらないのでなく1項目になるため）。BreadcrumbList が入る見込みは 8＋35＋20＋363＋3＋6＋16＋205＋660＋116 = 1,432件、入らないのは 1＋8＋4＋1＋1＋3 = 18件（合わせて 1,450件）。
+
+### 手順1・2 の実装
+
+- `scripts/lib/page.py`（1203c3c99）: `PageMeta.breadcrumb`（(名前, URL) の並び、既定は空）と `breadcrumb_json_ld()` を足し、`HEAD_TEMPLATE` の `{extra_head}` の直後に `{breadcrumb}` を置いた。2項目以上のときだけ `<script type="application/ld+json">` を出す（JSON は動画の各話と同じ `script_json()`）。空のページは出力が変わらない
+- `scripts/generate_title_pages.py`: 大会・期の本文を作る関数で、見えているパンくずの並び（`crumbs`）を1か所で作り、`breadcrumb_html()` と `breadcrumb_meta()`（JSON-LD 用、href を `https://ryoei.pro` 付きに、最後を og:url に）の両方に渡した。期の対局日（`period_date()` は警告を足す）を2回呼ばないため、本文の関数の中で `meta.breadcrumb` に入れる（本文は render の前に作られる）
+- `scripts/generate_houou_pages.py`: `meta()` に `here`（見えているパンくずの最後の項目）を足し、`breadcrumb()` が (大会名, 大会のトップ)・(here, 自分自身) を返す。個人成績「個人成績」・ランキング「ランキング」・順位変動「順位変動」（順位変動は `dataclasses.replace` に渡す）。ouka/・jwrc/・wrcr/ は同じスクリプトを設定で動かすので同じ形になる
+- `scripts/generate_saikyo_pages.py`: `breadcrumb_meta(*items)`（最強戦のトップを先頭に足す）を足し、年度・対局・卓・vs の `PageMeta` と `menu_meta()`（`here` を足した。years・players・ranking）に渡した。トップは `here` 無し
+- `index.html`（b162e0a0c）: `<title>`・og:title を「平野良栄 | 麻雀プロ（日本プロ麻雀連盟） | ryoei.pro」（指示の案の「）| ryoei.pro」は、ほかのページの区切りに合わせて「） | ryoei.pro」にした）、h1 を「Ryoei Hirano」→「平野良栄」、`WebSite` の JSON-LD を head に足した。meta description・og:description（「日本プロ麻雀連盟の麻雀プロ、平野良栄の公式サイト。…」）は title と食い違わないので変えていない。og:image:alt「ryoei.pro」も変えていない。英語のナビ・`.typed` の「I'm Mahjong Pro, Mind Athlete」・ヘッダの「Ryoei Hirano」（59行・104行・フッタ）は #101 の範囲なので残した
+- テスト `scripts/tests/test_breadcrumb_json_ld.py`（8件）: 2項目以上で BreadcrumbList が出て position が 1..n・最後が自分自身・`<` が逃げる／1項目以下は出ない／title・houou・saikyo の並びの組み立て／生成済みの公開ページ（title/・saikyo/・houou/ ほか・動画）の BreadcrumbList が JSON として読め、2項目以上・最後が og:url と一致／トップの JSON-LD が WebSite の1つだけ。修正前のコードでは `breadcrumb` 引数・`breadcrumb_meta` が無く GeneratorTest・RenderTest が通らない（#310）。全体 1608 件 OK
+- コンテナにはシートの鍵が無い（docs/notes/cloud-sessions.md「鍵」）ので、再生成は `regenerate-page.yml` を作業ブランチで起動して行う。先に `dry_run`・`compare_ref`（cloudflare の 4aa1e3f28）で、コード起因の違いだけを確かめる（run 40838845823）
+
 ## 報告
 
 - 状態: 作業中
