@@ -54,6 +54,19 @@ CHAT-1029-SEO-04 の変更（トップの title・h1・WebSite と、公開中�
 
 ## 経過
 
+### 着手前の確認（2026-10-29）
+
+- 0章: ログの「指示」欄の末尾が指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 欠けなし
+- SEO-05 の前提: origin/cloudflare の docs/logs/CHAT-1029-SEO-05.md の状態は「完了」、`git merge-base --is-ancestor origin/work/1029-seo2 origin/cloudflare` は真
+- 同じ Chat-Ref のコミット: なし。CLAUDE.md は起動時から変わっていない。work/1029-seo4 はリモートにあり、ローカルと一致（1d5f2c525）
+
+### 手順1 取り込み・マージ
+
+- `git merge --no-edit origin/cloudflare`（29494f6b9）: `docs/decisions/seo-bing.md` の末尾の追記どうし（SEO-04 の節と SEO-05 の節）が衝突。両方を残して解いた（解いた後の見出しの並び: SEO-01・SEO-02・SEO-03・SEO-04・SEO-05。どの節も「- 作業中の回答: なし」で終わる）。`index.html`（2行目の `lang`〈SEO-02〉と title・h1・WebSite〈SEO-04〉）と `sitemap-pages.xml` は自動で入った。取り込んだ後の `index.html` は2行目 `<html lang="ja">`・8行目 title「平野良栄 | 麻雀プロ（日本プロ麻雀連盟） | ryoei.pro」・21行目 WebSite・85行目 h1「平野良栄」
+- 取り込んだ後の `git diff origin/cloudflare...HEAD --stat`: 1,329 ファイル。HTML 1,316（各1行の BreadcrumbList）、sitemap-pages.xml・sitemap-saikyo.xml・sitemap-title.xml（`<lastmod>`）、index.html、scripts/lib/page.py・generate_houou_pages.py・generate_saikyo_pages.py・generate_title_pages.py・scripts/tests/test_breadcrumb_json_ld.py、docs/handover.md・docs/decisions/seo-bing.md・docs/logs の2ファイル。SEO-04 のログの「再生成」「公開中のページの JSON-LD」の節で説明できる範囲に収まる（29494f6b9 までの cloudflare の変化は docs だけで、生成物は変わっていない）
+- テスト: `python3 -m unittest discover -s scripts/tests` OK
+- docs/decisions/seo-bing.md に「2026-10-29（CHAT-1029-SEO-06、#13・#296）」を足した。SEO-04 のログの状態の末尾に「 / 続き: CHAT-1029-SEO-06」を足した
+
 ## 報告
 
 - 状態: 作業中
@@ -70,12 +83,12 @@ CHAT-1029-SEO-04 の変更（トップの title・h1・WebSite と、公開中�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 29494f6b）: https://github.com/retroeater/mj-logs/tree/main/guide/29494f6b
+ガイド文書（この版を写した時点の最新、mj e6e91d58）: https://github.com/retroeater/mj-logs/tree/main/guide/e6e91d58
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/29494f6b/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/29494f6b/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/29494f6b/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/29494f6b/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/29494f6b/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/29494f6b/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e6e91d58/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e6e91d58/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e6e91d58/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e6e91d58/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e6e91d58/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e6e91d58/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/4aa1e3f2.md
