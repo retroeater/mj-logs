@@ -106,7 +106,7 @@ Mつくの各話の `<title>`・og:title・前後のリンク・パンくず（`
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1029-SEO-08
 - ブランチ: work/1029-seo7（マージ済み。リモートの削除は cleanup-branches.yml に任せる）
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1029-SEO-07.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1029-seo7
