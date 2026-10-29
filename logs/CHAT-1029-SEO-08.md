@@ -72,6 +72,20 @@ CHAT-1029-SEO-07 で、チーム名の無い回の題を「作る人（公開日
 - run 40884757135（書く）: success、08819ddbb「chore: regenerate mtsuku/index.html mtsuku/ via GitHub Actions」
 - 差の全件の分類（`git diff -U0` の −/＋ の組ごとに、−の行から「（YYYY年M月D日）」を1つ取ると＋の行に一致し、`mj-video-prevnext-title` を含み、対象の5回のどれかを `href` で指すことを機械的に確かめた）: 前後のリンク 9。**範囲の外の変化は0**。sitemap-mtsuku.xml は変わらない（9ページの lastmod は SEO-07 で 2026-10-29 になっていて、同じ日のため）
 
+### 差分のレビュー（docs/notes/self-review.md）
+
+新しい文脈のサブエージェント（general-purpose、sonnet、71,241 トークン）に、目的・決定・条件と `git diff origin/cloudflare...HEAD -- scripts docs/notes mtsuku` の見方、規約を渡した。要修正は無し、任意1件。
+
+| 指摘 | 扱い |
+|---|---|
+| docs/notes/video-mtsuku.md の題の行の前半が「`<title>`・og:title・前後のリンク・パンくずは「「チーム名」 作る人」」のままで、前後のリンクが後半の括弧の例外になっている | 直した（前半を title・og:title・パンくずにし、「前後のリンク・画像の alt・一覧の `ItemList` は「「チーム名」 作る人」で、チーム名の無い回も公開日を足さない」を別の文にした） |
+
+docs だけの直しなので2回目は行っていない。
+
+### 手順3 決定・マージ
+
+- docs/decisions/mtsuku.md に「2026-10-29（CHAT-1029-SEO-08、#5）」を足した。SEO-07 のログの状態の末尾に「 / 続き: CHAT-1029-SEO-08」を足した
+
 ## 報告
 
 - 状態: 作業中
@@ -88,12 +102,12 @@ CHAT-1029-SEO-07 で、チーム名の無い回の題を「作る人（公開日
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj d766dfba）: https://github.com/retroeater/mj-logs/tree/main/guide/d766dfba
+ガイド文書（この版を写した時点の最新、mj d0635eab）: https://github.com/retroeater/mj-logs/tree/main/guide/d0635eab
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d766dfba/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d766dfba/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d766dfba/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d766dfba/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d766dfba/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d766dfba/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d0635eab/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d0635eab/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d0635eab/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d0635eab/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d0635eab/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d0635eab/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/4aa1e3f2.md
