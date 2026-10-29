@@ -281,6 +281,8 @@ PowerShell 5.1 の既定が UTF-16LE のため、日本語部分が文字化け�
 - 2026-10-02 に Security Events（Service「Rate limiting rules」）を見て、閾値を 60 → 30 に下げた（アクション・条件式・順序は変えていない。10/1〜10/2 の当たりは Oracle Cloud〈AS31898〉の2 IP・26件のみ）。2026-10-09 に1週間分を見て #124 のクローズを判断する
 - 戻すときは Security rules の一覧でトグルを Off
 - workers.dev・プレビューはゾーンを通らないので対象外
+- 2026-10-29 に平野さんがダッシュボードの画面を見せた（申告値。セッションからは検証できない）: Rate limiting rules は2本（この行と下の `/api/ask`）。この行の条件は画面で「URI Path ends with .html or URI Path ends with /, Known Bots does not equal true and…」（「Known Bots」は `cf.client.bot` の画面の表示。以下は画面で切れている）、アクションは Managed Challenge。上の表と食い違いは無い
+- 2026-10-29 に公開の1450件を HEAD で同時4本で取ると約半数が 429（同時2本で172件、逐次は0件）になった（CHAT-1029-SEO-01）。Managed Challenge の画面とは別の応答で、原因は未確認
 
 #### Rate limiting rules: `/api/ask`（2026-10-18 に導入、#598 中-1）
 
@@ -483,7 +485,9 @@ canonicalを付けない（Googleの正規化に任せる）」と決定した�
 単純に付けるとSearch Console実測の`?name=`付き14URL（`docs/notes/site-findings.md` のSEO節）が
 正規化で検索結果から消えるため。選手個別ページと
 title/descriptionの出し分けは新サイト（#296）で解く（#79も同時にクローズ）。
-**例外は帰り道の各話（`wayhome/<動画ID>.html`、#162）と一覧（`/wayhome/`、2026-10-13）だけ。**
+**自分自身を指す canonical を持つのは、2026-10-29 の集計で `title/`（全384件）・`saikyo/`（全891件）・`wayhome/`（各話と一覧の44件）・`mtsuku/` の各話（61件）・`exam/` の各話（12件）。**
+ほか（トップ階層・houou/・ouka/・jwrc/・wrcr/・mtsuku/ と exam/ の一覧）には無い。帰り道の各話（#162）と一覧（2026-10-13）は下の基準で付けたもの。
+title/・saikyo/ の分（クエリで中身が変わるページを含む。`saikyo/players/` は外すと決めた、#638）が基準に当たるかは #560 で見直し中。
 例外の基準は「URL の別形（`?name=` などのクエリで中身が変わる URL）を持たず、Search Console にも `?` 付きの URL が
 出ていないページ」。値は`lib/page.py`の`PageMeta.canonical`（既定`None`）で渡し、html_handling の影響を受けない
 正規の URL（一覧は末尾スラッシュ付きの`https://ryoei.pro/wayhome/`）にする。基準に当てはまるほかのページは、ページごとに確かめてから付ける。
@@ -503,7 +507,7 @@ title/descriptionの出し分けは新サイト（#296）で解く（#79も同�
 
 ファイル名にハッシュを持たないため、HTMLとルート直下の
 スクリプトには意図的にTTLを付けていない。
-**HTML には ETag も Last-Modified も付かない**ため、再検証しても 304 にならず毎回全体を再取得する（`.css` / `.js` は ETag があり 304 になる）。**Workers の静的アセットの配信で HTML に付かない**（ゾーンの機能でも `html_handling` でもない。公式の記述と食い違うが仕様として受け入れた。2026-09-28 の実験、#449）。
+HTML に Last-Modified は付かない。ETag は 2026-09-28 の実験（#449）では HTML に付かず、再検証しても 304 にならなかったが、**2026-10-29 には本番の HTML（`/`・`/title/`・`/live/` など）に ETag が付いていた**（CHAT-1029-SEO-01 の計測。いつから付いたか・304 になるかは確かめていない）。`.css` / `.js` は ETag があり 304 になる。
 Email Address Obfuscation は 2026-09-11 に Off と記録したが（#120）2026-09-28 にオンになっていたので Off に戻した（平野さんの申告）。ETag とは無関係（#449）。
 
 **`assets/vendor` 配下を更新した場合、ブラウザには最大30日

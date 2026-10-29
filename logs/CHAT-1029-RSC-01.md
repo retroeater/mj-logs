@@ -67,29 +67,257 @@ Claude API（web search・citations・structured outputs）で、平野さんの
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 欠けなし
 - 0.: 「指示」欄の末尾は指示文の最後の行（「不明な点があれば…この行が指示文の最後の行です。」）と一致
 - 作業ブランチ: リモート・ローカルとも work/1029-rsc が無かったため `git checkout -b work/1029-rsc origin/cloudflare`
+- issue: #628・#630・#408 に着手中のコメントを書いた（他セッションの着手中のコメントは無し。#630 の 10-27 の着手中は同じコメント欄で「完了」済み）。#633 は参照だけなので書いていない
+
+### 1. 前提の確かめ
+
+#### issue の状態（2026-10-29）
+
+| issue | 状態 | 本文の残り |
+|---|---|---|
+| #628 名前かな | Open | 10-23 のコメント（SKP-05）で残り20名。ABEMA の放送の読み上げで確かめる決定 |
+| #630 順位（F列） | Open | 397卓（全員空 391＋通過者だけ 6）。平野さんが ABEMA の放送で調べる |
+| #408 対局日 | Open | `YYYY-XX-XX`・`YYYY-MM-XX` を実際の対局日に。10-12 のコメントで「大半は外の資料待ちにして急がない（推奨）」が論点（決定の記録は無い） |
+| #633 部門の見直し | Open | #630・#632 の後に、順位を使う部門を含めて最大3部門を足すか決める |
+
+どれも Closed でないので、4件とも外さずに進めた。
+
+#### 同じ論点の issue
+
+`search_issues`（「Claude API web search 候補 調べる 出典」「Anthropic API 調べもの 候補タブ」、クローズ済みを含む）で0件。未マージの `work/` ブランチにも同じ目的のものは無い（`git log --all --grep RSC` 0件）。
+
+#### 数え直し（今のシートは読めないため、生成物で数えた）
+
+シートは 2026-10-21 から「制限付き」で、セッションからはログインなしの gviz が 401（「タイトル」で確かめた）。サービスアカウントの鍵もセッションには無い。
+指示のとおり Actions も呼んでいないので、cloudflare の生成物（`saikyo/players/index.html` の埋め込みデータ〈2026-10-29 06:58 の再生成〉、`title/<大会>/<期>.html`）から数えた。スクリプトは scratchpad（消える）に置いた。
+
+**#628（見込み約20名 → 21名。±5名の内）**: 個人成績のデータで読み（`名前かな`／名簿の読み）が空の選手。
+
+| # | 名前 | 備考 |
+|---|---|---|
+| 1 | 小川光 | 本文・10-23 のコメントの表に無い。2026年度の未対局の卓（2026-11-01 ベスト8 A卓）だけに出る新しい出場者。「プロ」か「連盟プロ以外」かは生成物から分からない |
+| 2 | 牛田寿明 | |
+| 3 | 山部正人 | |
+| 4 | 折山貴裕 | |
+| 5 | 小寺勇輝 | |
+| 6 | 里中花奈 | |
+| 7 | 野間一列 | |
+| 8 | 影山恒太 | |
+| 9 | 稲波崇 | |
+| 10 | 水沼利晃 | |
+| 11 | 高橋凌 | |
+| 12 | 荒木栄二 | |
+| 13 | 秋葉啓之 | |
+| 14 | 時岡史郎 | 「時岡史明」の誤記の疑い（#628 本文） |
+| 15 | 村上公成 | |
+| 16 | 齋藤健人 | |
+| 17 | 上田浩二郎 | |
+| 18 | 濱石樹 | |
+| 19 | 金岡晋哉 | |
+| 20 | 齋藤勝久 | |
+| 21 | 藤崎和彦 | |
+
+2〜21 は 10-23 のコメントの20名と一致。この20名はチャット側が 10-23 に Web で調べて見つからなかった人（確度「推定」、出典なし）。
+
+**#630（見込み約397卓 → 397卓。一致）**: 結果（G列）が4人ともある卓のうち、順位が空の卓。
+
+| 年度 | 対局済みの卓 | F が全員空 | F が通過者だけ | 空の卓を含む対局 |
+|---|---|---|---|---|
+| 2011 | 23 | 18 | 0 | 8 |
+| 2012 | 23 | 22 | 0 | 7 |
+| 2013 | 27 | 26 | 0 | 9 |
+| 2014 | 29 | 28 | 0 | 9 |
+| 2015 | 26 | 25 | 0 | 8 |
+| 2016 | 39 | 38 | 0 | 13 |
+| 2017 | 42 | 41 | 0 | 14 |
+| 2018 | 55 | 54 | 0 | 19 |
+| 2019 | 52 | 51 | 0 | 18 |
+| 2020 | 51 | 50 | 0 | 16 |
+| 2021 | 49 | 38 | 6 | 16 |
+| 2022〜2026 | 226 | 0 | 0 | 0 |
+| 計 | 642 | 391 | 6 | 137 |
+
+本文（10-24）の 391・6 と同じ。対局済みの卓は 639 → 642（10-24 以降の対局の分）。
+
+**#408（見込み 937行 → 942行。±50行の内）**: 期ページのパンくずの対局日が「（YYYY年）」だけの期（`YYYY-XX-XX` か `YYYY-MM-XX`）と、その期の決勝メンバーのカード数（表示=Y の行）。
+シートの行数そのもの（表示=N の行を含む）はシートを読まないと数えられないので、カード数で代えた。
+2026-09-19 の 937行との差 +5 は、10-08 に平野さんが入れたリーチ麻雀世界選手権 第1・2回（2期・8行、#385）を足し、表示=N などで数えない行を引いたものと見ている（突き合わせはしていない）。
+
+| 大会 | 期 | 日付まで確定 | 年だけ（対象） | 対象の行（カード） | 日付なし |
+|---|---|---|---|---|---|
+| 麻雀グランプリMAX | 16 | 6 | 10 | 40 | 0 |
+| 鳳凰戦 | 42 | 4 | 38 | 152 | 0 |
+| 女流プロ麻雀日本シリーズ | 11 | 5 | 0 | 0 | 6 |
+| 十段戦 | 43 | 7 | 36 | 178 | 0 |
+| WRCリーグ | 19 | 12 | 7 | 28 | 0 |
+| WRC-Rリーグ | 7 | 7 | 0 | 0 | 0 |
+| 紅龍戦 | 4 | 4 | 0 | 0 | 0 |
+| 麻雀マスターズ | 34 | 6 | 28 | 85 | 0 |
+| 麻雀日本シリーズ | 11 | 4 | 0 | 0 | 7 |
+| 王位戦 | 50 | 5 | 45 | 179 | 0 |
+| 女流桜花 | 20 | 6 | 14 | 56 | 0 |
+| 桜蕾戦 | 12 | 12 | 0 | 0 | 0 |
+| プロクイーン | 23 | 6 | 17 | 84 | 0 |
+| 鸞和戦 | 6 | 6 | 0 | 0 | 0 |
+| 新人王戦 | 39 | 6 | 33 | 132 | 0 |
+| 昇龍戦 | 2 | 2 | 0 | 0 | 0 |
+| 達人戦 | 3 | 3 | 0 | 0 | 0 |
+| 小島武夫杯帝王戦 | 5 | 5 | 0 | 0 | 0 |
+| 若獅子戦 | 12 | 12 | 0 | 0 | 0 |
+| リーチ麻雀世界選手権 | 4 | 2 | 2 | 8 | 0 |
+| 計 | 363 | 120 | **230** | **942** | 13 |
+
+API で調べる単位は期（230）。行（942）は同じ期の全行に同じ値を入れるだけ。「日付なし」13期（日本シリーズ2大会）は #408 の対象外（日付列が空）。
+
+### 2. 制約
+
+#### `ANTHROPIC_API_KEY` の使われ方（コードと docs から）
+
+| 使う所 | 起動 | モデル | 1回の費用 |
+|---|---|---|---|
+| 道場部ゲスト `sync-dojo-calendar.yml`（`scripts/lib/dojo_guest.py`） | `run-daily.yml` から毎日。画像が変わったときだけ呼ぶ（月1回ほど） | `claude-opus-5`（`MODEL`） | 実績 $0.05／2回（2026-09-21、docs/notes/dojo-guest-calendar.md） |
+| X 投稿の変換 `convert-x-posts.yml`（`scripts/convert_x_posts.py`） | `run-weekly.yml` から毎週月曜（2026-11-02 から）と手動 | 既定 `claude-sonnet-5-5` | 見込み 1件 $0.00316、週 約 $0.08。1回の上限 $3（`CLAUDE_MAX_COST`） |
+| 質問欄 Worker `mj-ask` | — | `claude-haiku-5-5` | **別のキー**（ワークスペース `ryoei-pro-ask`、月の上限 $30）。Worker の Secret の名前が同じ `ANTHROPIC_API_KEY` なだけで、この指示の対象外 |
+| AIO 計測 | — | — | 別の Secret `AIO_ANTHROPIC_API_KEY`（専用ワークスペース、上限 $2） |
+
+docs に書かれたワークスペース・上限・組織:
+
+- GitHub の `ANTHROPIC_API_KEY` は Default のワークスペースのキー（名前 `mj-dojo-guest`。docs/notes/ask-worker.md「B」の手順2の注記）
+- 上限: 2026-09-21 に「Settings → Limits」で**月の利用上限 $2** にした（docs/notes/dojo-guest-calendar.md (b) の手順2）。組織の上限かワークスペースの上限かは書かれていない。その後に上げたかは**未記載**
+  （X 投稿の変換は 1回の上限 $3・旧「ログ」の移行 $10 を決めて実行しているので、$2 のままなら当たっていたはず。実際の値は Console で見るしかない）
+- 組織が Max・Team プランの月次 API クレジットを連携した組織か: **未記載**
+- Web 検索が組織で有効か（管理者が Console で切れる）: **未記載**
+
+平野さんが Console で見る画面（ログインが要る）:
+
+- 組織の利用上限・使用量の階層: https://platform.claude.com/settings/limits と https://platform.claude.com/usage/limits
+- ワークスペースごとの上限（Default の上限）: https://platform.claude.com/settings/workspaces
+- 月次クレジット（「Promotional credits」の節）と残高: https://platform.claude.com/settings/billing
+- 費用の内訳（ワークスペース・モデル別）: https://platform.claude.com/cost
+- Web 検索・Web 取得が有効か（Capabilities）: https://platform.claude.com/settings/capabilities
+
+#### 公式ドキュメント（2026-10-29 に platform.claude.com の .md を取得して確かめた）
+
+| 項目 | 結果 | 出典 |
+|---|---|---|
+| Web 検索の料金 | 1,000回 $10（1回 $0.01）＋検索結果のトークン（入力として数える）。失敗した検索は課金されない | pricing「Web search tool」、web-search-tool「Usage and pricing」 |
+| Web 取得の料金 | 追加料金なし。取得した本文のトークンだけ | pricing「Web fetch tool」 |
+| 動的フィルタ（`_20260209` 以降）のコード実行 | 追加料金なし | pricing「Code execution」 |
+| モデルの単価（1M トークン、入力／出力） | Haiku 5.5 $0.10／$0.50（プロンプト10万トークン超は $0.50／$2.50）、Sonnet 5.5 $2／$10、Opus 5.5 $4／$20 | pricing「Model pricing」 |
+| Batch の単価 | 入力・出力とも半額（Haiku 5.5 $0.05／$0.25、Sonnet 5.5 $1／$5） | pricing「Batch processing」 |
+| Haiku 5.5・Sonnet 5.5 で Web 検索 | 使える（両方とも supportedModels に載る） | web-search-tool の冒頭 |
+| 同じく Web 取得 | 使える | web-fetch-tool の冒頭 |
+| 動的フィルタ | 「Claude 4.6 以降」。Haiku 5.5 は programmatic tool calling の supportedModels に載る（Haiku 4.5 だけが不可と書かれている）ので使える見込み。実際に通るかは**未確認**（呼んでいない） | web-search-tool「Dynamic filtering」、programmatic-tool-calling |
+| citations | Web 検索は常に有効（`cited_text`・`url`・`title`。この3つはトークンに数えない）。Web 取得は既定で無効、`citations: {enabled: true}` で有効 | web-search-tool「Citations」、web-fetch-tool「Citations」 |
+| citations と structured outputs | 文書（`document`・`search_result` ブロック）の citations と `output_config.format` は同時に使えない（400）。**Web 検索の結果の citations と `output_config.format` を同時に使えるかは書かれていない（未確認）** | citations、structured-outputs「Incompatible with」 |
+| Web 取得で開ける URL | 会話にすでに出た URL だけ（ユーザーのメッセージ・検索結果・前の取得結果）。Claude が自分で書いた URL は開けない | web-fetch-tool |
+| Batch でサーバー側のツール | 使える（Web 検索・Web 取得・コード実行を含む全部）。料金は同じ。Web 検索は組織ごとに絞られ、大きいバッチは遅くなる | batch-processing「Server tools and the agentic loop」、web-search-tool「Batch requests」 |
+| 月次 API クレジット | Max 5x $100・Max 20x $200・Team 最大 $500。「Claude API」に使える。組織の全キー・全ワークスペースが同じ残高から引く。使い切ると次の付与まで API が止まる（購入クレジット・自動チャージが無ければ）。**Web 検索の $10/1,000 回がクレジットで払えるかは明記が無い（未確認）**。API の利用の一部なので払える見込み | api-credits-for-subscribers |
+| 強制のツール呼び出し | Sonnet 5.5 は `tool_choice` の `any`・`tool` が 400。`auto`＋指示で呼ばせる | claude-api skill（Sonnet 5.5 の節） |
+
+ワークフローが入れている SDK は `anthropic==1.7.0`（`sync-dojo-calendar.yml`）。`web_search_20260209` などを型で持つ版かは**未確認**（ツールは dict で渡すので、型が無くても送れる見込み）。
+
+#### B・D の資料（最強戦の公式サイト）
+
+- このセッションからは**読めない**。`mahjong-saikyosen.com`（検索で「近代麻雀」の最強戦の公式サイトとして出た。正しい公式の URL かも未確認）・`kinmaweb.jp`・`times.abema.tv` は、セッションのネットワークの設定で接続を拒否された（curl が CONNECT 403、WebFetch は名前解決できない）。ほかのサイトは試していない
+- そのため「成績記事がどの年度から残っているか」「順位が表か本文か」は**未確認**。#469 の経緯（CHAT-0918-SX-04）では「過去年度のスケジュールは404」とある
+- Web 検索（このセッションの検索ツール）では、ABEMA TIMES（`times.abema.tv`）の記事に「予選D卓 1位 堀慎吾、2位 藤田晋」の形で卓の順位が載る例が出た（2019年）。ABEMA TIMES はニュースの記事で、#501 で避けた `abema.tv` の動画とは別のドメイン。資料に使うかは平野さんの判断（下の「判断が必要なこと」）
+- Claude API の Web 検索・取得は Anthropic の基盤（国外）から動く。国外から読めない日本のサイトは、API からも読めない見込み（`abema.tv` は #501 で国外から読めないと確かめ済み）
+
+#### シートへの書き込み
+
+- `WRITABLE`（`scripts/lib/sheets_write.py`）の今の対象: 3層のブック（R_連盟_YouTube）の【1】【2】【3】、予定表のブックの【1】【2】【3】、SNS ブックの【1】【2】【3】、ABEMA ブック（R_ABEMA_最強戦）の【2】。見出しだけ書ける先: SNS ブックの【4】、ABEMA ブックの【3】
+- 書くサービスアカウントは `live-channel-writer`（Secret `LIVE_SHEETS_SA_KEY`）。編集者で共有しているのは、R_選手_SNS・R_連盟_YouTube・R_連盟_予定表・R_ABEMA_最強戦・R_ログ の5冊（docs/notes/sheets-reader.md「7.」の「4・5・6・7・11 の5冊」と、各 notes の記述から）
+- 「正本・/live 用スプレッドシートは共有しない」決定がある（docs/notes/live-channel-write.md 冒頭）。本体のタブがある R_選手（「連盟プロ以外」）・R_タイトル戦_マスタ（「タイトル」）・R_タイトル戦_成績（「最強戦」）は `live-channel-writer` に共有されていない
+- 読む側の `sheets-reader` は専用フォルダ「【本番環境】」の閲覧者なので、そのフォルダに置いたブックは読める
+- 気づいたこと（この指示の範囲外）: `scripts/fetch_x_posts.py` は `sheets_write._request()` を直接呼んで R_ログ に書いており、`WRITABLE` を通っていない（コードの形に合わせて記述は変えていない）
+
+### 3. 設計案
+
+#### 共通の土台（A で作る）
+
+- スクリプト1本（例 `scripts/research_candidates.py`）に種別（A〜D）を足していく。種別ごとに「対象の一覧を作る」「プロンプト」「答えの照合」だけを持つ。費用の上限・書き込み・dry-run は `convert_x_posts.py` の形（`Budget.check()`・`add()`、`EXPECTED_COST_PER_CALL`、`dry_run` 既定真）をそのまま使う
+- ワークフロー1本（例 `research-candidates.yml`）、手動実行だけ。入力: `kind`（A〜D）・`limit`（対象の数の上限、既定 5）・`model`（既定 `claude-haiku-5-5`、`claude-sonnet-5-5` も選べる）・`max_cost`（既定 $1、スクリプトの定数の上限 $5 を超えない）・`dry_run`（既定真: API を呼ばず、シートにも書かず、対象の数・見込みの費用だけを出す）。D だけは後で `run-daily.yml` から呼ぶ
+- 1回の呼び出しの形: Messages API、ツールは `web_search`（`max_uses` 3、`user_location` は日本）と `web_fetch`（`max_uses` 3、`citations` 有効、`max_content_tokens` 20,000）、答えを返すクライアント側のツール `submit_candidate`（`strict: true`。入力は 候補・確度・出典 URL・引用文・見つからない理由）。`tool_choice` は `auto` で、プロンプトで最後に必ず呼ばせる。
+  答えを structured outputs（`output_config.format`）にしないのは、citations との組み合わせが未確認のため（ツールの入力なら citations と並べられる）
+- 費用の上限の止め方: 呼ぶ前に「上限 − 使った額」が1回の最大の見込み（検索3回＝$0.03＋入力の上限×単価＋`max_tokens`×単価）より小さければ止める。呼んだ後は `usage`（`input_tokens`・キャッシュ・`server_tool_use.web_search_requests`）から実額を足す。ワークスペースの上限は最後の守り
+- 出典の照合（コードで行う。合わなければ確度を「未照合」にして書く）:
+  1. 出典 URL が、同じ応答の `web_fetch_tool_result` で実際に取った URL に入っている（検索結果だけの URL は本文が暗号化されていて照合できないので、取得させる）
+  2. 引用文が、その取得結果の本文に含まれる（空白・全角半角を揃えてから部分一致）
+  3. 候補の値が引用文に含まれる（A: 読み〈ひらがな・カタカナを揃える〉と名前、B: 名前と順位、C: 日付と大会名・期、D: 名前）
+- 名前の完全一致: 名前は「プロ」「連盟プロ以外」「別名」で照らす（`sync_dojo_calendar._fetch_roster()` と同じ読み方）。B・D は候補の4人が、その卓のシートの4人（別名を直した現在名）と完全に一致しなければ書かずに「名前が合わない」として数える
+- 書き込み: 候補タブへ `append_rows()` で足すだけ（既存の行は書き換えない）。次の実行では、候補タブに同じ対象キーがある対象は飛ばす（状態が「却下」の行だけ、`recheck` の入力で調べ直す）
+- 要約: 実行サマリに件数（照合済み・未照合・見つからない・名前が合わない）と実額を出す。issue への要約は、実行の後に Claude Code が実行サマリを読んで書く（ワークフローは issue に書かない。新しい権限を足さないため）
+
+#### 候補タブの置き場所
+
+| 案 | 内容 | メリット | デメリット |
+|---|---|---|---|
+| 1（推奨） | 新しいブック「R_候補」を専用フォルダ「【本番環境】」に作り、タブ「候補」を置く。`live-channel-writer` を編集者で共有 | 本体のブックを書ける先に入れずに済む（正本を共有しない決定と合う）。A〜D を1枚で見られる。`sheets-reader` はフォルダから読める | 平野さんの手作業（作成・共有）が1回。`BOOKS`（check_sheets_reader）・`WRITABLE` に1冊足す |
+| 2 | ABEMA ブック（R_ABEMA_最強戦）にタブ「候補」を足す | すでに `live-channel-writer` が編集者。B・D と同じ最強戦のブック | A（選手の読み）・C（タイトル戦）が最強戦のブックに混ざる。ABEMA の取り込みの表と見分けにくい |
+| 3 | 本体のブック（R_選手・R_タイトル戦_マスタ・R_タイトル戦_成績）にそれぞれ候補タブを足す | 本体のタブの隣で見比べられる | 正本のブックを `live-channel-writer` に共有することになり、2026-10-10 の決定（正本は共有しない）を変える。ブックが3冊に分かれる |
+
+列（案1・2・3 共通）: 種別（A〜D）／対象キー（A: 名前、B: 対局日＋対局名＋卓、C: 大会名＋期、D: 記事 URL＋卓）／対象（人が読む表記）／候補（読み・順位の並び・日付・転記の行）／確度（照合済み・未照合・見つからない）／出典 URL／引用文／調べた日時／モデル／費用（ドル）／状態（空＝未確認、平野さんが「採用」「却下」を書く）／備考
+
+#### A〜D
+
+単価は pricing（2026-10-29）。トークン数は前提で、公式の例（web-search-tool「Usage and pricing」で、検索1回の応答の入力が キャッシュ作成 7,345＋読み取り 7,123＋105）から、**検索1回・取得1回あたり入力 1万トークン**と置いた。サーバー側の繰り返しで前の結果を読み直す分を含め、1対象あたり入力 6万・出力 3,000（思考を含む）・検索3回を上限の見込みにする。実額は A の最初の実行（5人）で測って直す。
+
+- 1対象あたり: Haiku 5.5 ≈ 6万×$0.10＋3,000×$0.50＋検索3回×$0.01 ≈ **$0.04**、Sonnet 5.5 ≈ 6万×$2＋3,000×$10＋$0.03 ≈ **$0.18**（Batch ならトークンの分が半額、検索は同じ）
+
+| 種別 | 入力（対象） | 出力 | 対象の数 | 費用の見込み（Haiku／Sonnet） | 止まる条件 |
+|---|---|---|---|---|---|
+| A 名前かな（#628） | 「連盟プロ以外」で名前かなが空の人（名前・所属補足・出た年度と対局） | 読み（ひらがな）・出典 | 21名 | $0.8／$3.8 | 上限額、名前が「別名」で別の人に直る、読みが引用文に無い |
+| B 順位（#630） | 順位が空の卓を含む対局（対局日・対局名・卓・4人・結果） | 卓ごとの4人の順位・出典 | 137対局（397卓） | $5.5／$25 | 上限額、4人の名前が卓と合わない、順位が通過・敗退と矛盾（通過が下位など） |
+| C 対局日（#408） | 年だけの期（大会・期・年・決勝メンバー） | 優勝が決まった日（決勝の最終日）・出典 | 230期 | $9／$41 | 上限額、年が「タイトル」の年と±1を超えてずれる、日付が引用文に無い |
+| D 成績記事の転記案 | 公式サイトの新しい成績記事（読んだ記事は候補タブの D の行で見分ける） | 卓ごとの対局日・対局名・卓・順位・結果・名前 | 新しい記事のみ（年に数十本の見込み） | 1記事 $0.003／$0.05（検索なし・取得1回・入力1.5万・出力2,000の見込み） | 記事の一覧が読めない、名前が合わない、上限額 |
+
+- D の「新しい記事か」は API を呼ばずに一覧のページを HTTP で読んで見分ける（ワークフローの中、GitHub Actions は国外から動く）。一覧の URL と形は、公式サイトを読めないため**未確認**。D の実装の前に、平野さんが一覧の URL を渡すか、セッションのネットワークの設定でドメインを許す必要がある
+- 見込みの所見: A の21名のうち20名は、チャット側が 10-23 に Web で調べて見つからなかった人。Web 検索で同じものが見つかる見込みは低い（「見つからない」の行が多くなる）。C の古い期（1980〜2000年代）も Web に日付が残っていない見込みが高い。B は ABEMA TIMES の記事を使えるかで、見つかる数が大きく変わる
+
+### 4. その他
+
+- 指示の手順1「issue は着手中のコメントだけ書き」と CLAUDE.md「issueの着手ルール」（中断・完了をコメントに残す）が食い違う。ルールの側を取り、#628・#630・#408 に完了のコメント（調べ終わった・詳細はこのログ）を足した。本文・状態・ラベルは変えていない
+- 決定（2026-10-29）は docs/decisions/automation.md に足した
+- コード・ワークフロー・シートは変えていない。Claude API・Actions は呼んでいない。差分は docs のみのため、サブエージェントのレビューは対象外
+- マージ: origin/cloudflare（a8bca67bf）を取り込んで（9976c807d）、`git push origin work/1029-rsc:cloudflare` の範囲は `a8bca67bf..9976c807d`
 
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1029-rsc
-- ログ: https://github.com/retroeater/mj/blob/work/1029-rsc/docs/logs/CHAT-1029-RSC-01.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1029-RSC-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1029-rsc
 - 確認用URL: なし
-- マージ: 未
-- issue: #628・#630・#408
-- 判断が必要なこと: 作業中
-- 未確認の項目: 作業中
-- エラー: なし
+- マージ: 済（9976c807d）
+- issue: #628・#630・#408（着手中・完了のコメントのみ。本文・状態・ラベルは変えていない）
+- 判断が必要なこと:
+  1. **上限と残高（A の実装の前に Console で見て伝えてほしい）**: 共有の `ANTHROPIC_API_KEY`（Default のワークスペース）の上限は docs では 2026-09-21 の「月 $2」のまま（その後は未記載）。見てほしい値は、組織の月の上限、Default のワークスペースの上限、月次クレジットの連携の有無と残高、Web 検索が有効か（画面の URL は `## 経過`「2. 制約」）。
+     選択肢: (a) 上限は今のまま、スクリプトの1回の上限を $1 にして、月の上限との差（道場部ゲスト・X 投稿の変換の分を除く）に収まる範囲で回す（推奨。費用は A〜C を全部 Haiku でも約 $16）／(b) Default のワークスペースの上限を上げる（Sonnet で全部なら約 $70、ほかのジョブを止めないための余裕は増えるが、取り違えたときの損も増える）
+  2. **候補タブの置き場所**: 案1 新しいブック「R_候補」を【本番環境】に作り `live-channel-writer` を編集者で共有（推奨。正本を共有しない決定と合う。手作業1回）／案2 ABEMA ブックにタブを足す（手作業なし。A・C が最強戦のブックに混ざる）／案3 本体の各ブックに足す（正本の共有を変える。非推奨）。案1なら平野さんの手作業（ブックの作成・共有・ID を伝える）が A の実装の前に要る
+  3. **モデル**: (a) A の最初の実行で Haiku 5.5 と Sonnet 5.5 を同じ5人で比べてから決める（推奨。費用は $1 未満）／(b) 最初から Haiku 5.5（安い。読みの判断の質は未知）／(c) 最初から Sonnet 5.5（X 投稿の変換と同じ。費用は約5倍）
+  4. **A の見込みが低いこと**: 残り21名のうち20名はチャット側が 10-23 に Web で見つけられなかった人で、API でも「見つからない」が多くなる見込み。(a) 順番どおり A で土台を作る（推奨。対象が少なく安く、土台の確かめに向く。結果が出なくても B・C に使える）／(b) 土台を B（137対局）の5対局で作り、A は後にする（見つかる見込みが高い資料があれば）。あわせて、新しく読みの無い「小川光」（2026年度の出場者）を A の対象に入れるか
+  5. **B の資料**: ABEMA TIMES（`times.abema.tv`、ニュース記事）に卓の順位が載る例がある。#501 で避けたのは `abema.tv` の動画と国外から読めないこと。(a) ABEMA TIMES の記事は資料に使ってよい（`allowed_domains` に入れる）／(b) 使わない（`blocked_domains` に入れる）。規約の確かめはしていない。キンマweb（`kinmaweb.jp`）も同じく決めてほしい
+  6. **D の資料**: 最強戦の公式サイトの URL と成績記事の一覧の URL が、セッションから確かめられない（下の「エラー」）。D の実装の前に、(a) 平野さんが一覧の URL（と記事の例 1本）を渡す／(b) クラウドの環境の設定で、そのドメインを許す（「ネットワーク」の Allowed domains。手順 https://code.claude.com/docs/en/cloud-environments#network-access ）。(b) なら Claude Code が構成を読んで設計を直せる（推奨）
+  7. **#408 の扱い**: 10-12 のコメントの論点「大半は外の資料待ちにして急がない（推奨）」に決定の記録が無い。C はその「外の資料」を API で探す作業になる。C の対象を、まず決勝の年が新しい期（例: 2010年以降）に絞るか、230期すべてにするか
+- 未確認の項目:
+  - Web 検索の結果の citations と structured outputs（`output_config.format`）を同時に使えるか（設計はツールの入力で答えさせ、これに頼らない）
+  - Haiku 5.5 で動的フィルタ（`web_search_20260209` 以降）が通るか、`anthropic==1.7.0` で送れるか（A の最初の実行で確かめる）
+  - Web 検索の料金が月次クレジットで払えるか（公式に明記なし）
+  - 1対象あたりのトークン数（前提の見込み。A の最初の実行で実測する）
+  - 最強戦の公式サイトの URL・成績記事の残る年度・順位の載り方（セッションから読めない）
+- エラー:
+  - 最強戦の資料のサイトがセッションのネットワークの設定で拒否された: `mahjong-saikyosen.com`・`kinmaweb.jp`・`times.abema.tv`（curl は CONNECT 403、WebFetch は名前解決できない）。この3つ以外は試していない。B・D の資料の確かめ（手順2）はこのため未確認
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 4aa1e3f2）: https://github.com/retroeater/mj-logs/tree/main/guide/4aa1e3f2
+ガイド文書（この版を写した時点の最新、mj 29494f6b）: https://github.com/retroeater/mj-logs/tree/main/guide/29494f6b
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/4aa1e3f2/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/4aa1e3f2/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/4aa1e3f2/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/4aa1e3f2/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/4aa1e3f2/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/4aa1e3f2/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/29494f6b/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/29494f6b/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/29494f6b/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/29494f6b/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/29494f6b/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/29494f6b/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/4aa1e3f2.md
