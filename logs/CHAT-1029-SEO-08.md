@@ -85,18 +85,22 @@ docs だけの直しなので2回目は行っていない。
 ### 手順3 決定・マージ
 
 - docs/decisions/mtsuku.md に「2026-10-29（CHAT-1029-SEO-08、#5）」を足した。SEO-07 のログの状態の末尾に「 / 続き: CHAT-1029-SEO-08」を足した
+- push 直前に `git fetch origin cloudflare`、`git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめて `git push origin work/1029-seo8:cloudflare`。範囲: `d801c237b..d0635eab1`
+- check-run（d0635eab1）: 「Workers Builds: mj」success、「regenerate」「sync」success、「notify」skipped。マージで動いた再生成は生成物を変えず、cloudflare にコミットは増えていない（`git log d0635eab1..origin/cloudflare` が空）
+- 本番（`?v=seo08a`、curl）: `mtsuku/HgJy7ik0Mno.html` の前後のリンク（`f7__Vg7EUNE.html` を指す）は日付の行「2020年4月29日」・題「沢崎誠」（題に日付が無い）。`mtsuku/2FOsXsIqTAA.html` の `<title>` は「滝沢和典（2020年2月4日） | Mリーグチームを作ろう！ | ryoei.pro」（公開日付きのまま）
+- この記録も同じ手順で cloudflare へ入れる。ブランチ（docs/notes/branch-operations.md「ブランチを削除するとき」を読んだ）: work/1029-seo8 はこの記録のコミットを cloudflare へ入れた後、マージ済みを確かめてローカルを `git branch -d` で消す。リモートは git プロキシが削除を拒否する（docs/notes/cloud-sessions.md「ブランチの削除」）ので `cleanup-branches.yml` に任せる
 
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1029-seo8
-- ログ: https://github.com/retroeater/mj/blob/work/1029-seo8/docs/logs/CHAT-1029-SEO-08.md
+- 状態: 完了
+- ブランチ: work/1029-seo8（マージ済み。リモートの削除は cleanup-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1029-SEO-08.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1029-seo8
 - 確認用URL: なし
-- マージ: 未
-- issue: #5
-- 判断が必要なこと: 作業中
-- 未確認の項目: 作業中
+- マージ: 済（d0635eab1。範囲 d801c237b..d0635eab1）
+- issue: なし
+- 判断が必要なこと: なし
+- 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
