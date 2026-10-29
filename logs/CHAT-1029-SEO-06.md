@@ -66,6 +66,41 @@ CHAT-1029-SEO-04 の変更（トップの title・h1・WebSite と、公開中�
 - 取り込んだ後の `git diff origin/cloudflare...HEAD --stat`: 1,329 ファイル。HTML 1,316（各1行の BreadcrumbList）、sitemap-pages.xml・sitemap-saikyo.xml・sitemap-title.xml（`<lastmod>`）、index.html、scripts/lib/page.py・generate_houou_pages.py・generate_saikyo_pages.py・generate_title_pages.py・scripts/tests/test_breadcrumb_json_ld.py、docs/handover.md・docs/decisions/seo-bing.md・docs/logs の2ファイル。SEO-04 のログの「再生成」「公開中のページの JSON-LD」の節で説明できる範囲に収まる（29494f6b9 までの cloudflare の変化は docs だけで、生成物は変わっていない）
 - テスト: `python3 -m unittest discover -s scripts/tests` OK
 - docs/decisions/seo-bing.md に「2026-10-29（CHAT-1029-SEO-06、#13・#296）」を足した。SEO-04 のログの状態の末尾に「 / 続き: CHAT-1029-SEO-06」を足した
+- push 直前に `git fetch origin cloudflare`、`git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめて `git push origin work/1029-seo4:cloudflare`。範囲: `29494f6b9..d6612502d`
+- check-run（d6612502d）: 「Workers Builds: mj」completed / success、「sync」「check」success、「regenerate」success（下）。「本番ビルド失敗の検知」は skipped（本番のビルドの失敗が無いときの既定）
+- マージで動いたワークフロー: 「サイトマップの lastmod の同期」success。「ページの再生成」（run 40869750475、`scripts/lib/**` が変わったので all）は success。2ファイル（87行）の差のコミットを作ったが、push の前に取り込んだ cloudflare（work/1029-lgn-eki のマージ e6e91d584 までの LGN の再生成 018627189 など）に同じ中身が入っていて、rebase で「patch contents already upstream」として落ち、push は「Everything up-to-date」。**この指示のマージによる生成物の変化は無い**（シートの変化による分も無い）
+- 本番（`?v=seo06a`、curl で同時1本・0.5秒あけて取得。4ページとも 200、JSON-LD はすべて `json.loads` で読めた）:
+
+| ページ | 結果 |
+|---|---|
+| `/` | `<html lang="ja">`、title「平野良栄 \| 麻雀プロ（日本プロ麻雀連盟） \| ryoei.pro」、h1「平野良栄」、JSON-LD は WebSite |
+| `/title/houou/42.html` | BreadcrumbList: タイトル戦 > 鳳凰戦 > 第42期（2026年1月31日）、最後は https://ryoei.pro/title/houou/42.html |
+| `/saikyo/2024/20240317-s1-a.html` | BreadcrumbList: 最強戦 > 麻雀最強戦2024 > 女流新スター決戦 > ベスト8 A卓、最後は自分自身 |
+| `/houou/players/` | BreadcrumbList: 鳳凰戦 > 個人成績、最後は自分自身 |
+
+ブラウザでの見え方（トップの h1 の字形など）は確かめていない。
+
+### 手順2 #296・#13
+
+- #296 の本文の「子 issue」の表の #13 の行（REST の PATCH。直前に `updated_at` 2026-10-28T15:11:32Z が取得時と同じことを確かめた）: 「`Person` / `ItemList` / `WebSite` / `BreadcrumbList`」→「`Person` など（`WebSite`・`BreadcrumbList` は 2026-10-29 に現行サイトへ前倒しした。`ItemList` が要るかは #13 で決める）」。コメント https://github.com/retroeater/mj/issues/296#issuecomment-6496076392 （直した箇所と理由）
+- #13 のコメント（`ItemList` を前倒しの案から取り下げた理由）: https://github.com/retroeater/mj/issues/13#issuecomment-6496077555
+- 状態・ラベルはどちらも変えていない
+
+### 手順3 動画の各話の JSON-LD の寄せ替え
+
+- work/1029-seo4 を origin/cloudflare（e6e91d584）まで進めた: ローカルの work/1029-seo4（d6612502d）は origin/cloudflare の祖先なので `git merge --ff-only origin/cloudflare`（docs/notes/cloud-sessions.md「作業ブランチの用意」の「ローカルにあり origin/cloudflare の祖先」）
+- 未マージの work/ ブランチで、変える4つの生成スクリプトと `scripts/lib/page.py` を変えているものは無い（`git branch -r --no-merged origin/cloudflare` の各ブランチに `git diff --name-only`）。告知の期間中のページも無い（SEO-04 で確かめたまま）
+- 9cab92f1a: `generate_wayhome_episodes.py`・`generate_mtsuku_episodes.py`・`generate_exam_episodes.py`・`generate_study_episodes.py` の `build_json_ld()` を消し、`build_episode()` の中で `breadcrumb_json_ld(((シリーズ名, 一覧の URL), (回の名前, 回の URL)))` を呼ぶ形にした（名前と URL は前の関数と同じ式）。wayhome の使われなくなった `script_json` の import を外した。`mtsuku` の import は exam・study でもほかに使うので残した。`mtsuku.json_ld_html()` は一覧の `ItemList` が使うので残した。引数・出力の形は変えていない
+- テスト: `test_breadcrumb_json_ld.py` に、前の各話が組んでいた dict と `mtsuku.json_ld_html()` の文字列と `breadcrumb_json_ld()` の文字列が同じことを確かめる1本を足した（`<` を含む名前で）。全体 1618 件 OK
+- 差分0の確かめ: `regenerate-page.yml` を work/1029-seo4（9cab92f1a）で `dry_run`・`compare_ref` e6e91d584（その時点の origin/cloudflare）、target `wayhome_episodes mtsuku_episodes exam_episodes study_episodes` で起動（run 40871556307、success）。結果「compare: 差分なし」
+- 差分のレビュー（docs/notes/self-review.md）: 新しい文脈のサブエージェント（general-purpose、sonnet、73,224 トークン）に、目的・条件・`git diff origin/cloudflare...HEAD -- scripts`・規約を渡した。要修正は無し、任意2件
+
+| 指摘 | 扱い |
+|---|---|
+| 4ファイルの `build_episode()` に同じ趣旨のコメント（「BreadcrumbList(一覧 > この回)。各話は…VideoObject は置かない(#629)」）が並ぶ。1行に縮められる | 見送り（消した関数の docstring をそのまま移したもので、各ファイルを単独で読むときに要る。縮めると差分が増える） |
+| 新旧の同一性のテストは、旧の dict をテスト側に持つので、固定の期待値の文字列と比べる形もある | 見送り（旧の形をそのまま残すことが目的。dict の形が変われば `json_ld_html()` との比較で落ちる） |
+
+2回目は直していないので行っていない。
 
 ## 報告
 
