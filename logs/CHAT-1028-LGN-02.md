@@ -128,7 +128,7 @@ CHAT-1028-LGN-01 は、#378（現在地から探す）が既にあったため�
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1029-LGN-03
 - ブランチ: work/1028-lgn
 - ログ: https://github.com/retroeater/mj/blob/work/1028-lgn/docs/logs/CHAT-1028-LGN-02.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1028-lgn

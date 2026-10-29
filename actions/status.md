@@ -1,7 +1,7 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-29 07:51 JST
-- 書き出した実行の契機: schedule（main）
+- 書き出した時刻: 2026-10-29 10:03 JST
+- 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
 
@@ -25,11 +25,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-29 10:01 | push | work/1028-lgn | success | #486（40797865670） | 0分26秒 |
 | 2026-10-29 00:37 | push | work/1028-lgn | success | #485（40717851872） | 0分29秒 |
 | 2026-10-29 00:35 | push | work/1028-lgn | success | #484（40717534037） | 0分29秒 |
 | 2026-10-29 00:31 | push | work/1028-lgn | success | #483（40716761179） | 0分29秒 |
 | 2026-10-29 00:30 | push | work/1028-lgn | success | #482（40716690144） | 0分27秒 |
-| 2026-10-29 00:19 | push | work/1028-lgn | success | #481（40714814741） | 0分21秒 |
 
 ## check-build-failure.yml
 
@@ -38,11 +38,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-29 10:02 | check_run | cloudflare | skipped | #644（40797930945） | 0分01秒 |
 | 2026-10-29 00:27 | check_run | cloudflare | skipped | #643（40716145453） | 0分01秒 |
 | 2026-10-28 17:19 | check_run | cloudflare | success | #642（40655915024） | 0分09秒 |
 | 2026-10-28 17:03 | check_run | cloudflare | skipped | #641（40654047300） | 0分11秒 |
 | 2026-10-28 16:56 | check_run | cloudflare | success | #640（40653311290） | 0分10秒 |
-| 2026-10-28 16:55 | check_run | cloudflare | skipped | #639（40653253739） | 0分01秒 |
 
 ## check-image-links.yml
 
@@ -148,11 +148,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-29 09:28 | schedule | cloudflare | success | #10（40794333811） | 0分08秒 |
 | 2026-10-21 11:34 | workflow_dispatch | work/1021-wkp | success | #9（39533801092） | 0分31秒 |
 | 2026-10-09 10:22 | workflow_dispatch | work/1007-pht-gsc | success | #8（37869497652） | 0分29秒 |
 | 2026-10-01 09:13 | schedule | cloudflare | success | #7（36795074558） | 0分24秒 |
 | 2026-09-30 08:59 | schedule | cloudflare | success | #6（36647998515） | 0分08秒 |
-| 2026-09-29 09:40 | schedule | cloudflare | success | #5（36504217917） | 0分09秒 |
 
 ## fetch-redirect-counts.yml
 
