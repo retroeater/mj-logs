@@ -80,6 +80,36 @@ LGN-07 は、読み直した駅で【2】の駅が空の飲食店の行が 22.5%
 - **【3】で上書きした後に駅が空の行: 飲食店 3,162行のうち 82行（2.6%）、ページに出る行（表示 Y）3,159行のうち 81行（2.6%）**。条件 (3) の 10% 以下を満たす（ページに出る行の 3,159 は、今の resource_logs.html の行数と同じ）
 - 前と同じ駅の行 2,498行・出す駅が変わった行 55行（LGN-07 と同じ）
 
+### 手順2: relist の本番（run 40868320579、17e8bc96e、成功）
+
+- 本番の直前の読み直しは dry-run と同じ（【3】で上書きした後に駅が空の行: 飲食店 3,162行のうち 82行〈2.6%〉、ページに出る行 3,159行のうち 81行〈2.6%〉）
+- 「**【2】バックアップ_1029**」に【2】を写した（3,451行、値とも【2】と同じ。条件 (1)）
+- 「Places の店名」の列を消し、4,876セルを書き換えた（列ごと: 駅 687・駅の候補 2,650・要確認 755・要確認の理由 784）。読み直して、3,451行・見出しが新しい形（19列）・4列のほかは変わっていないことを、スクリプトが確かめた（条件 (2)(3)）。バックアップから戻す処理は通っていない
+- Claude は呼んでいない（**費用 $0**。条件 (6)）
+
+### 手順3: 一度きりの mode を外す（72af04a42）
+
+- reread・relist と、バックアップ・列を消す・戻す処理（`batch_update`・`sheet_id`・`column_count`・`restore_out_tab` など）、旧い見出しの扱い（`PLACES_NAME_OUT_HEADER`・`LEGACY_OUT_HEADER`・`old_header_text`）、照合のシートとバックアップのシートを書き込み可にしていた定数を消した。理由: 【2】は新しい見出しになり、二度と使わない。旧い見出しの【2】で動かしたときは、もとからある `header_state()` が「見出しが想定と違うため書かない」で止める（検査を1本残した）
+- `stations` の mode は残した（駅の一覧を取り直したときに、今の「駅」から計算し直す）
+- docstring・`convert-x-posts.yml` の mode の選択肢と説明・github-actions.md・log-stations.md を直した
+- `python3 -m unittest discover -s scripts/tests` → 1,609件 OK
+
+### 手順3: mode all の dry-run（run 40868809114、72af04a42、成功。条件 (4)）
+
+- 鍵 2つとも有。【2】は「見出し 同じ、3,451行」（新しい見出しで止まらない）。予定: 【2】に無い投稿 0件・Claude 0回・Places 0回
+- ブックのタブ: 【2】バックアップ_1029・【1】元データ・【2】自動変換後・【3】手動補正・駅の照合_1029
+
+### 手順3: resource_logs.html の再生成（regenerate-page.yml の run 40868931430、72af04a42、成功 → 018627189）
+
+- 入力は `target_page=resource_logs` にした（指示文の「入力無し」は `all` で全ページを作り直して作業ブランチにコミットするため、条件 (5) と関係の無いページの差分が混ざらないようにした）
+- 差分（`git diff 72af04a42 018627189`）: resource_logs.html と sitemap-pages.xml（resource_logs.html の lastmod が 2026-10-28 → 2026-10-29。生成の仕組みどおり）
+- resource_logs.html: 行は前後とも 3,159行で、並び（X の URL の順）も同じ。変わった行は 86行で、どれも概要のセルの駅の部分と data-info だけ（ほかの部分は前と同じことを、行ごとに確かめた）。種類ごとの件数:
+  - 駅が消えた 65行（例: 【北海道】ラベンダー畑・【千葉】八街・広尾・大久保・目黒・銀座・赤坂・東京。本文に駅名が無い・一覧に無い投稿で、【3】に駅が無いもの）
+  - 駅が変わった 14行（市ケ谷 → 市ヶ谷 5・南阿佐ケ谷 → 南阿佐ヶ谷 2〈一覧の名前の書き方〉、新宿西口 → 新宿・板橋 → 本郷三丁目・水天宮前 → 浜町・【北海道】札幌 → 新宿・後楽園 → 春日・東京 → 新宿・新宿西口 → 沼袋 など）
+  - 駅が付いた 7行（前は駅が空だった行。西新宿・池袋・船堀・新宿 など）
+  - ほかに、ページ末尾の説明文の後に出典の1行が増えた（新しいタブで開くリンク）
+- 想定外の差分: なし（行数・並び・駅のほかの部分は変わっていない）。条件 (5) を満たす
+
 ## 報告
 
 - 状態: 作業中
@@ -96,12 +126,12 @@ LGN-07 は、読み直した駅で【2】の駅が空の飲食店の行が 22.5%
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj a8bca67b）: https://github.com/retroeater/mj-logs/tree/main/guide/a8bca67b
+ガイド文書（この版を写した時点の最新、mj 29494f6b）: https://github.com/retroeater/mj-logs/tree/main/guide/29494f6b
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a8bca67b/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a8bca67b/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a8bca67b/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a8bca67b/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a8bca67b/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a8bca67b/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/29494f6b/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/29494f6b/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/29494f6b/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/29494f6b/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/29494f6b/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/29494f6b/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/4aa1e3f2.md
