@@ -98,18 +98,25 @@ Mつくの各話の `<title>`・og:title・前後のリンク・パンくず（`
 ### 手順3 決定・マージ
 
 - docs/decisions/mtsuku.md に「2026-10-29（CHAT-1029-SEO-07、#5）」を足した
+- push 直前に `git fetch origin cloudflare`、`git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめて `git push origin work/1029-seo7:cloudflare`。範囲: `2be723565..d766dfba2`
+- check-run（d766dfba2）: 「Workers Builds: mj」success、「regenerate」「sync」「check」success、「notify」skipped。マージで動いた再生成は生成物を変えず、cloudflare にコミットは増えていない（`git log d766dfba2..origin/cloudflare` が空）
+- 本番（`?v=seo07a`、curl）: `mtsuku/2FOsXsIqTAA.html` の `<title>` は「滝沢和典（2020年2月4日） | Mリーグチームを作ろう！ | ryoei.pro」、`mtsuku/vSduV7-kLls.html` は「滝沢和典（2024年8月10日） | Mリーグチームを作ろう！ | ryoei.pro」、チーム名のある回 `mtsuku/ZeFtFG2ov_Q.html` は「「どこでも行けます。」 和泉由希子 | Mリーグチームを作ろう！ | ryoei.pro」（変わっていない）
+- #5 にコメント: https://github.com/retroeater/mj/issues/5#issuecomment-6497282676 （S3 は済んだ。本文・状態・ラベルは変えていない）
+- この記録も同じ手順で cloudflare へ入れる。ブランチ（docs/notes/branch-operations.md「ブランチを削除するとき」を読んだ）: work/1029-seo7 はこの記録のコミットを cloudflare へ入れた後、マージ済みを確かめてローカルを `git branch -d` で消す。リモートは git プロキシが削除を拒否する（docs/notes/cloud-sessions.md「ブランチの削除」）ので `cleanup-branches.yml` に任せる
 
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1029-seo7
-- ログ: https://github.com/retroeater/mj/blob/work/1029-seo7/docs/logs/CHAT-1029-SEO-07.md
+- 状態: 判断待ち
+- ブランチ: work/1029-seo7（マージ済み。リモートの削除は cleanup-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1029-SEO-07.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1029-seo7
 - 確認用URL: なし
-- マージ: 未
-- issue: #5
-- 判断が必要なこと: 作業中
-- 未確認の項目: 作業中
+- マージ: 済（d766dfba2。範囲 2be723565..d766dfba2）
+- issue: #5（S3 は済んだとコメント）
+- 判断が必要なこと:
+  - 止まる条件の差の範囲（題と前後のリンクだけ）に収めるため、画像の alt（関連カード・一覧のカード）・og:image:alt・一覧の `ItemList` の名前は公開日を足さない形のまま残した（`alt_name()`）。同じ作る人の2回の alt・`ItemList` の名前は「滝沢和典」で同じ。こちらにも公開日を足すか（足すなら `alt_name()` を `episode_name()` に戻すだけ）
+  - 前後のリンクは、日付の行（`mj-video-prevnext-date`）の下に題が出るので、チーム名の無い回は同じ日付が2回見える（決定どおり題に公開日を入れた）。気になるなら前後のリンクだけ作る人の名前に戻すか
+- 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
