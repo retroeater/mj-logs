@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-29 22:19 JST
+- 書き出した時刻: 2026-10-29 22:25 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -25,11 +25,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-29 22:24 | push | work/1029-lgn-page | success | #519（40881660492） | 0分27秒 |
 | 2026-10-29 21:56 | push | work/1029-lgn-page | success | #518（40877441690） | 0分22秒 |
 | 2026-10-29 21:47 | push | work/1029-seo7 | success | #517（40876169234） | 0分28秒 |
 | 2026-10-29 21:40 | push | work/1029-seo7 | success | #516（40875216156） | 0分25秒 |
 | 2026-10-29 21:24 | push | work/1029-lgn-eki | success | #515（40872955972） | 0分23秒 |
-| 2026-10-29 21:13 | push | work/1029-seo4 | success | #514（40871530241） | 0分23秒 |
 
 ## check-build-failure.yml
 
@@ -204,11 +204,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-29 22:24 | workflow_dispatch | work/1029-lgn-page | in_progress | #512（40881661026） |  |
 | 2026-10-29 22:06 | workflow_dispatch | work/1029-lgn-page | success | #511（40878907756） | 10分09秒 |
 | 2026-10-29 21:56 | workflow_dispatch | work/1029-lgn-page | success | #510（40877454894） | 9分31秒 |
 | 2026-10-29 21:47 | push | cloudflare | success | #509（40876177948） | 9分00秒 |
 | 2026-10-29 21:42 | workflow_dispatch | work/1029-seo7 | success | #508（40875553692） | 1分13秒 |
-| 2026-10-29 21:40 | workflow_dispatch | work/1029-seo7 | success | #507（40875229374） | 1分58秒 |
 
 ## regenerate-saikyo.yml
 
