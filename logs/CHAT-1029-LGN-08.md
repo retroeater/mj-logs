@@ -110,6 +110,20 @@ LGN-07 は、読み直した駅で【2】の駅が空の飲食店の行が 22.5%
   - ほかに、ページ末尾の説明文の後に出典の1行が増えた（新しいタブで開くリンク）
 - 想定外の差分: なし（行数・並び・駅のほかの部分は変わっていない）。条件 (5) を満たす
 
+### 差分のレビュー（新しい文脈のサブエージェント、1回。`origin/cloudflare...HEAD` の scripts・.github・docs/notes・.assetsignore、マージの前）
+
+テスト 1,609件 OK（サブエージェントが実行）。must-fix なし。週次の実行（run-weekly の xconvert → mode all）は、入力・Secret・checkout に要るファイル（`data/stations_n02.json` は git で追跡）・新しい見出しの `header_state()` のどれも問題なし、との報告。消した名前の呼び出しはリポジトリに残っていない。resource_logs.html の差分は駅と出典の1行だけ、とサブエージェントも確かめた。
+
+| 指摘 | 扱い |
+|---|---|
+| stations の mode で、all が選び切れなかった同じ名前の駅（【新潟】白山と「同じ名前の駅が…」の要確認）が、今の「駅」の【県】で確定して要確認が消える | 直した（b5407878e）: 理由の括弧の駅名を【県】無しで先に引き直す。検査を1本足した |
+| `restation_plan` の `first_texts` 引数・結果の `body`・`empty_station_rows` が reread・relist の名残 | 意図どおり（stations が `current_station` を渡す。`body` と `empty_station_rows` は stations の dry-run の集計で使う） |
+| 旧い要確認の理由の定数（LOG_STATION_OUTSIDE など）は書き直した後の【2】に出てこないかもしれない | 意図どおり（stations が旧い行を読むため残す。【2】に残っているかは確かめていない） |
+| `test_generate_resource_logs.py` の見本の見出しに「Places の店名」が残る | 見送り（見出しの名前で読むので結果は変わらない。log/ の作り直しで見本を直す） |
+| github-actions.md の convert-x-posts.yml の行で、入力の列挙の途中に説明が割り込んでいる | 見送り（内容はコードと合っている。次にこの行を直すときに並べ直す） |
+
+2回目のレビューは、直したのが1つの関数の数行と検査だけなので行っていない。`python3 -m unittest discover -s scripts/tests` → 1,609件 OK（足した検査は既存のテストの中）
+
 ## 報告
 
 - 状態: 作業中
