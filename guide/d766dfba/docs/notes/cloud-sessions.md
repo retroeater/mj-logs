@@ -106,6 +106,9 @@ Chat-Ref の確認・`git branch --merged` が誤る。**これらの判定の�
 - `www.gstatic.com`（2026-10-13。Google Charts の `loader.js`。旧方式のページをヘッドレス Chrome で確かめるため、#548・#141。旧方式のページは #582 で消したので、今は使わない。足したときに既存の一覧が置き換わり、平野さんが直した。SNM-13 で一覧の全部が届くことを確認）。
   `ssl.gstatic.com`（CategoryFilter のボタンの画像）は許可していない。ヘッドレス Chrome で読み込みの失敗がコンソールに出るが、表示の確かめには影響しない
 
+- `ekidata.jp`・`nlftp.mlit.go.jp`（2026-10-29。「ログ」の駅の一覧のオープンデータを比べて取るため、#367・#639。2つとも 200 で読めた。
+  駅データ.jp はダウンロードに会員登録が要るので使わず、国土数値情報〈`nlftp.mlit.go.jp`〉の鉄道・行政区域を `scripts/build_station_list.py` が取る。docs/notes/log-stations.md）
+
 未追加: `openapi.rakuten.co.jp`（books は凍結中）。再生成は `jpml_titles` で確かめた（MD-15。旧表は #441 で廃止し、今は `regenerate.py` の対象に無い）。鍵の要るスクリプトはクラウドでは動かない（次節）。
 
 ## 鍵

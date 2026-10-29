@@ -54,6 +54,51 @@ Mつくの各話の `<title>`・og:title・前後のリンク・パンくず（`
 
 ## 経過
 
+### 着手前の確認（2026-10-29）
+
+- 0章: ログの「指示」欄の末尾が指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 欠けなし
+- SEO-06 の前提: origin/cloudflare の docs/logs/CHAT-1029-SEO-06.md の状態は「完了」（手順3の寄せ替えも 1982db271 でマージ済み）
+- 同じ Chat-Ref のコミット: なし。CLAUDE.md は起動時から変わっていない。work/1029-seo7 はローカル・リモートとも無く `git checkout -b work/1029-seo7 origin/cloudflare`（着手時 HEAD 2be723565）
+- 未マージの work/ ブランチで `scripts/lib/mtsuku.py`・`generate_mtsuku.py`・`generate_mtsuku_episodes.py` を変えているもの: 無し
+
+### 手順1 実装（0270462ac・4b1cca499）
+
+- 題を組む箇所: `scripts/lib/mtsuku.py` の `episode_name()` を `<title>`（`episode_page_title()`）・og:title（`episode_og_title()`）・前後のリンク（`generate_mtsuku_episodes.py` の `build_prevnext_link()`）・パンくず（`build_episode()` の `breadcrumb_json_ld()`）が共有している。**同じ関数を、画像の alt（関連カード・一覧のカード）・og:image:alt（`episode_og_image_alt()`）・一覧の `ItemList` の名前も使っていた**
+- 直し方: `episode_name()` を、チーム名が空なら「作る人（`wayhome.published_date_text()`）」を返す形にした（公開日はカード・前後のリンクの日付と同じ関数、月日ゼロ埋めなし。新しい書式の関数は作っていない）。止まる条件の差の範囲（題と前後のリンクだけ）に収めるため、alt・og:image:alt・`ItemList` は今の形（「「チーム名」 作る人」、チーム名の無い回は作る人だけ）を返す `alt_name()` に分けた（判断が必要なことに挙げた）
+- テスト `scripts/tests/test_mtsuku.py` の `TitleWithoutTeamTest`（3件）: チーム名の無い回の題に公開日が入る・同じ作る人の2回の題が違う・チーム名のある回の題「「チームA」 甲」は変わらない・title・og:title・パンくず・前後のリンクに公開日が入る・og:image:alt・h1・関連カードと一覧のカードの alt・`ItemList` の名前には入らない。修正前のコードでは題の検査が通らない（#310）。全体 1621 件 OK
+- docs/notes/video-mtsuku.md「帰り道との違い」の題の決まりの行に「チーム名の無い回は「作る人（公開日）」（例「滝沢和典（2020年2月4日）」、2026-10-29。画像の alt・一覧の `ItemList` は公開日を足さない）」を足した
+
+### 手順2 生成
+
+- run 40875229374（work/1029-seo7、`dry_run`・`compare_ref` 2be723565、target `mtsuku mtsuku_episodes`）: success、「差分あり 14 件」。対象の5回（2FOsXsIqTAA・CtDQ5NjWSN0・f7__Vg7EUNE・nLeGJz-nt-E・vSduV7-kLls）が各6行、前後の回9ページ（GNCqIFbBV_A・HgJy7ik0Mno・WsBTyiXi7hE・XABpqoyq9xE・bNPj2Xh_MKg・lG9c_Am70ek・poVkDif7aes・v0EI5aVIYMs・vtE90-iTtRo）が各2行。一覧 `mtsuku/index.html` は差に出ない。**チーム名が空と判定された回は前提の5回と同じ**（題が変わったのがこの5回だけ）
+- run 40875553692（同じ target、書く）: success、c7c10b5f9「chore: regenerate mtsuku/index.html mtsuku/ via GitHub Actions」（15ファイル、38行ずつ）
+- 差の全件の分類（`git diff -U0` の −/＋ の組ごとに、＋の行から「（YYYY年M月D日）」を1つ取ると−の行に一致するかを機械的に確かめた）: title 5・og:title 5・パンくず 5（対象の5回）、前後のリンク 9（対象の5回を指す `mj-video-prevnext-title` の文字）、sitemap-mtsuku.xml の `<lastmod>` 14（2026-10-25 → 2026-10-29、変わった14ページの分）。**範囲の外の変化は0**
+
+| ファイル | 前の題 | 後の題 |
+|---|---|---|
+| mtsuku/nLeGJz-nt-E.html | 園田賢 | 園田賢（2019年12月3日） |
+| mtsuku/CtDQ5NjWSN0.html | 多井隆晴 | 多井隆晴（2020年1月2日） |
+| mtsuku/2FOsXsIqTAA.html | 滝沢和典 | 滝沢和典（2020年2月4日） |
+| mtsuku/f7__Vg7EUNE.html | 沢崎誠 | 沢崎誠（2020年4月29日） |
+| mtsuku/vSduV7-kLls.html | 滝沢和典 | 滝沢和典（2024年8月10日） |
+
+（各行の `<title>` は「<題> \| Mリーグチームを作ろう！ \| ryoei.pro」、og:title は「<題> \| Mつく \| ryoei.pro」、パンくずの2番目の名前は「<題>」。前後のリンクの9ページは、指す回の題が同じく変わった）
+
+### 差分のレビュー（docs/notes/self-review.md）
+
+新しい文脈のサブエージェント（general-purpose、sonnet、80,117 トークン）に、目的・決定・条件、`git diff origin/cloudflare...HEAD -- scripts docs/notes`、生成物の差分の見方、規約を渡した。要修正は無し、任意2件。
+
+| 指摘 | 扱い |
+|---|---|
+| `alt_name()` に分けた残り（関連カードの alt・一覧のカードの alt・`ItemList` の名前）にテストが無い | 直した（4b1cca499。チーム名の無い回で3つとも公開日が入らないこと） |
+| テストの間に1回しか使わないヘルパーがある | 直した（4b1cca499。インラインにした） |
+
+直したのはテストだけ（生成物は変わらない）なので2回目は行っていない。
+
+### 手順3 決定・マージ
+
+- docs/decisions/mtsuku.md に「2026-10-29（CHAT-1029-SEO-07、#5）」を足した
+
 ## 報告
 
 - 状態: 作業中
@@ -70,12 +115,12 @@ Mつくの各話の `<title>`・og:title・前後のリンク・パンくず（`
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj e6e91d58）: https://github.com/retroeater/mj-logs/tree/main/guide/e6e91d58
+ガイド文書（この版を写した時点の最新、mj d766dfba）: https://github.com/retroeater/mj-logs/tree/main/guide/d766dfba
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e6e91d58/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e6e91d58/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e6e91d58/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e6e91d58/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e6e91d58/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e6e91d58/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d766dfba/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d766dfba/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d766dfba/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d766dfba/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d766dfba/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d766dfba/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/4aa1e3f2.md
