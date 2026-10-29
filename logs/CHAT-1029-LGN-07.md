@@ -86,28 +86,60 @@ LGN-06 は、既存の行の本文の駅を本文から拾い直すと誤りが�
 
 - 判定が飲食店の【2】の行 2,668行。Claude の呼び出し 2,668回、見込みの費用 約 $0.43（上限 $2.0）
 
+### 手順3の先取り: resource_logs.html の出典の表記（f89e8eb4f）
+
+- `generate_resource_logs.py` の `build()` が、ページ末尾の説明文の後（`</main>` の前）に1段落を入れる。文は「駅名の一部は「国土数値情報（鉄道データ・行政区域データ）」（国土交通省）（https://nlftp.mlit.go.jp/ksj/ へのリンク）をもとに作成（駅の点と都道府県を加工）」。【3】の駅は旧「ログ」の手書きなので「一部」とした。文の部品は `lib/stations.py` の `SOURCE_NAME`・`SOURCE_URL`。共有の `lib/page.py` は変えていない。検査は `test_generate_resource_logs.py` に1本
+- 再生成はまだ行っていない（【2】を書き換えていないため）
+
+### 手順1: reread の本番（run 40833372313、49320fa93、成功、約60分）
+
+- Claude API の呼び出し 2,668回、費用 **$0.2184**（使用量から計算。上限 $2.0 の内）。読み直せなかった行はなし
+- 照合のシート「**駅の照合_1029**」に 2,668行を書いた: **一致 2,004・空 601・不一致 63**（列: 【2】の行・【3】の行・投稿ID・今の駅・読み直した駅・新しい駅・一致）。【2】【3】には書いていない
+
+### 手順1: relist の dry-run（run 40839961758、f89e8eb4f）
+
+条件 (3) を満たさないので、指示どおり何も書かずに止まった。終了コード 1 で、ワークフローは失敗になった（失敗の通知が届くが対応は要らない）。
+
+- 消す列: F「Places の店名」だけ。【2】3,451行。読み直した駅は「駅の照合_1029」の 2,668行（飲食店の行で照合に無いもの 0行）
+- 変わる行 2,667行・セル 4,811個（列ごと: 駅 687・駅の候補 2,650・要確認 690・要確認の理由 784）
+- **駅が空の飲食店の行: 601行（飲食店 2,668行の 22.5%、全体 3,451行の 17.4%）。このうち書き換えで空になる行は 584行**。条件 (3) の 5% を超える
+- 要確認の理由（前 → 後）: 要確認の行 775 → 1,261・判定が不明 571 → 571・**本文に駅が無い 0 → 582**・旧「ログ」の駅が圏内に無い 236 → 61・圏内に駅が無い 141 → 46・同じ名前の駅が複数の都道府県にある 0 → 78・本文の駅が圏内に無い 37 → 0・店名が本文に無い 15 → 15・本文の駅が一覧に無い 0 → 19・店が見つからない 6 → 6
+- 前と同じ駅の行 2,498行。**出す駅が変わった行は 55行**（LGN-06 の本文から拾う方法では 167行）。多くは出口の名前・会社の名前が取れたもの（新宿西口 → 新宿 14行・池袋西口 → 池袋・西武新宿 → 新宿・東武池袋 → 池袋・京成上野 → 上野・小田急多摩センター → 多摩センター など）。本文に書かれた別の駅になったものもある（板橋 → 本郷三丁目・銀座 → 白金高輪・八王子 → 町田 など。確かめは照合のシートの「不一致」で行う）
+- 【3】手動補正（読むだけ）: LGN-06 と同じ（3,141行。空でない値は 店名 2,627・メニュー 2,627・駅 2,620・店URL 2,574・表示 3,141・投稿ID 3,141・判定 3,141・日付 13、ほかの列は 0）
+
+### 止めた理由と考えられる手
+
+本文に駅名が書かれていない投稿が、飲食店の行の約 22% ある（「本文に駅が無い」582行）。これまでの変換は、こうした行に Google の最寄り駅を入れていた。国土数値情報と本文だけで決める形では、こうした行の駅は空になる。読み直しを Haiku からほかのモデルに変えても、本文に駅が無い行は減らない見込み。
+
+1. 閾値を見直す。【3】の「駅」は 2,620行で空でなく、ページ（resource_logs.html）は【3】の値で上書きする。このため、【2】の駅が空でもページで駅が空になる行は、601行より少ない見込み。数は照合のシートの「【3】の行」と【3】の「駅」を突き合わせれば出せる（読むだけ。次の指示）
+2. 駅が空の行を、平野さんが【3】で埋める（照合のシートの「空」の 601行）
+3. 本文に駅が無い行は、今の「駅」（Google の最寄り駅）を残す。速いが、規約に全部合わせる決定と合わない
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1029-lgn-eki
+- 状態: 判断待ち
+- ブランチ: work/1029-lgn-eki（未マージ）
 - ログ: https://github.com/retroeater/mj/blob/work/1029-lgn-eki/docs/logs/CHAT-1029-LGN-07.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1029-lgn-eki
 - 確認用URL: なし
-- マージ: 未
+- マージ: 未（条件 (3) を満たさないため）
 - issue: #367・#639
-- 判断が必要なこと: なし
+- 判断が必要なこと:
+  - 条件 (3) を満たさない: 読み直した駅で relist の dry-run をすると、駅が空の飲食店の行が 601行（22.5%）。うち 582行は本文に駅名が無い投稿（`## 経過`「止めた理由と考えられる手」）。手は (1) 閾値を見直す（ページは【3】の駅で上書きするので、ページで空になる行は少ない見込み）／(2) 平野さんが【3】で埋める／(3) 本文に駅が無い行は Google の最寄り駅を残す（規約の決定と合わない）
+  - 照合のシート「駅の照合_1029」を作った（一致 2,004・空 601・不一致 63）。「今の駅」の列は Google 由来の値なので、平野さんが確かめた後に消す。消す時期は平野さんが決める
+  - 【2】【3】は書いていない。バックアップのシート「【2】バックアップ_1029」は作っていない。2026-11-02 02:00 JST の run-weekly は、今の cloudflare の変換（Nearby Search と「Places の店名」あり）で動く
 - 未確認の項目: なし
-- エラー: なし
+- エラー: なし（relist の dry-run は、条件 (3) で止める作りどおりに終了コード 1 で終わり、ワークフローは失敗になった。失敗の通知が届くが対応は要らない）
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 0f7636bb）: https://github.com/retroeater/mj-logs/tree/main/guide/0f7636bb
+ガイド文書（この版を写した時点の最新、mj 4aa1e3f2）: https://github.com/retroeater/mj-logs/tree/main/guide/4aa1e3f2
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/0f7636bb/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/0f7636bb/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/0f7636bb/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/0f7636bb/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/0f7636bb/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/0f7636bb/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/4aa1e3f2/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/4aa1e3f2/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/4aa1e3f2/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/4aa1e3f2/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/4aa1e3f2/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/4aa1e3f2/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/74d7dc08.md

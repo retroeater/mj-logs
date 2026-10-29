@@ -100,6 +100,60 @@ CHAT-1029-SEO-01 のレビューで「新サイトの要件」とした N1〜N5 
 - テスト `scripts/tests/test_breadcrumb_json_ld.py`（8件）: 2項目以上で BreadcrumbList が出て position が 1..n・最後が自分自身・`<` が逃げる／1項目以下は出ない／title・houou・saikyo の並びの組み立て／生成済みの公開ページ（title/・saikyo/・houou/ ほか・動画）の BreadcrumbList が JSON として読め、2項目以上・最後が og:url と一致／トップの JSON-LD が WebSite の1つだけ。修正前のコードでは `breadcrumb` 引数・`breadcrumb_meta` が無く GeneratorTest・RenderTest が通らない（#310）。全体 1608 件 OK
 - コンテナにはシートの鍵が無い（docs/notes/cloud-sessions.md「鍵」）ので、再生成は `regenerate-page.yml` を作業ブランチで起動して行う。先に `dry_run`・`compare_ref`（cloudflare の 4aa1e3f28）で、コード起因の違いだけを確かめる（run 40838845823）
 
+### 再生成（regenerate-page.yml を work/1029-seo4 で起動）
+
+- run 40838845823（`dry_run`・`compare_ref` 4aa1e3f28、target `title_pages saikyo_pages houou_pages ouka_pages jwrc_pages wrcr_pages`）: success。**新旧のコードで同じデータから生成した差は 1,316 ファイル・各1行**（houou/・ouka/・jwrc/・wrcr/ の個人成績・順位変動・ランキング 43、title/ の大会・期 383、saikyo/ の vs・years・players・ランキング・年度・対局・卓 890）。上の表の見込み 43＋383＋890 = 1,316 と一致し、title/ の入口・saikyo/ のトップ・大会トップは差に出ない
+- run 40839653040（同じ target、書く）: success、コミット 6e0b84e24「chore: regenerate title/ saikyo/ houou/ ouka/ jwrc/ wrcr/ via GitHub Actions」。1,319 ファイル
+- 差分の分類（`git diff -U0 HEAD origin/work/1029-seo4` を行ごとに分類）: 足した行 `<script type="application/ld+json">…BreadcrumbList…</script>` が 1,316（1ファイル1行）、ほかの変化は sitemap-pages.xml（44行）・sitemap-saikyo.xml（830行）・sitemap-title.xml（383行）の `<lastmod>` が 2026-10-29 になった 1,257 行だけ。lastmod はワークフローが git の最終コミット日から導く（`update_sitemap_lastmod.py --from-git`、手では書いていない）もので、ページが変わった分だけ動いた。**シートの変化による差分は無い**（本文・カード・リンクの行の変化は0）。止まる条件の「JSON-LD と N1 のトップの数行以外の変化」には、この lastmod を当てはめなかった（判断が必要なことに挙げた）
+- 生成の後に `python3 -m unittest discover -s scripts/tests`: 1608 件 OK（`GeneratedPagesTest` が生成済みの 1,432 件の BreadcrumbList を読む）
+
+### 公開中のページの JSON-LD（生成の後のリポジトリ、SEO-01 の pages.json の1,450件で数えた）
+
+| 種類 | 件数 | JSON-LD | 無し |
+|---|---|---|---|
+| 動画の各話 | 116 | BreadcrumbList 116（前から） | 0 |
+| 動画の一覧 | 3 | ItemList 3（前から） | 0 |
+| 大会トップ | 4 | 0 | 4（houou/・ouka/・jwrc/・wrcr/。並びが1項目） |
+| 大会の個人成績・順位変動 | 8 | BreadcrumbList 8 | 0 |
+| 大会ランキング | 35 | BreadcrumbList 35 | 0 |
+| トップ階層 | 9 | WebSite 1（`/`） | 8（jpml_pros・resource_dictionary・resource_efficiency・resource_logs・rh_paifu・rh_results・rh_results_detail・video_live。並びが1項目） |
+| saikyo/ 卓・対局・年度 | 660・205・16 | BreadcrumbList 881 | 0 |
+| saikyo/ トップ | 1 | 0 | 1（並びが1項目） |
+| saikyo/ vs・years・players・ランキング | 3・6 | BreadcrumbList 9 | 0 |
+| title/ 期・大会 | 363・20 | BreadcrumbList 383 | 0 |
+| title/ 入口 | 1 | 0 | 1（並びが1項目） |
+
+合計: BreadcrumbList 1,432（うち新しく足したもの 1,316）・WebSite 1・ItemList だけ 3・JSON-LD 無し 14（どれも区分のトップで、並びが1項目になるため）＝ 1,450。
+
+### プレビュー
+
+6e0b84e24 の check-run「Workers Builds: mj」は completed / success（URL は最終報告）。`?v=seo04a` を付け、同時1本・0.5秒あけて curl で23ページを取り、JSON-LD をすべて `json.loads` で読めた（23ページとも 200）。
+
+| ページ | JSON-LD |
+|---|---|
+| `/` | WebSite。title・og:title「平野良栄 \| 麻雀プロ（日本プロ麻雀連盟） \| ryoei.pro」、h1「平野良栄」 |
+| `/jpml_pros.html`・`/resource_dictionary.html`・`/houou/`・`/title/`・`/saikyo/` | 無し |
+| `/houou/players/` | 鳳凰戦 > 個人成績 |
+| `/jwrc/race/` | WRCリーグ > 順位変動 |
+| `/houou/ranking/total/` | 鳳凰戦 > ランキング |
+| `/title/houou/` | タイトル戦 > 鳳凰戦 |
+| `/title/houou/42.html` | タイトル戦 > 鳳凰戦 > 第42期（2026年1月31日） |
+| `/title/ourai/12.html` | タイトル戦 > 桜蕾戦 > 第12期（2026年9月4日） |
+| `/saikyo/vs/`・`/saikyo/players/`・`/saikyo/ranking/champion/` | 最強戦 > 対戦成績／個人成績／ランキング |
+| `/saikyo/2024/` | 最強戦 > 麻雀最強戦2024 |
+| `/saikyo/2024/20240317.html` | 最強戦 > 麻雀最強戦2024 > 女流新スター決戦 |
+| `/saikyo/2024/20240317-s1-a.html` | 最強戦 > 麻雀最強戦2024 > 女流新スター決戦 > ベスト8 A卓 |
+| `/wayhome/`・`/mtsuku/` | ItemList（前から） |
+| 動画の各話3件 | 一覧 > この回（前から） |
+
+どれも最後の項目は自分自身の URL。最初は Python の urllib で取ったら 403 だった（取り方の違い。curl では 200）
+
+### 記録（手順3）
+
+- docs/handover.md 4章「現行サイトに作り込みすぎない」: 「構造化データ（#13）は現行サイトでは見送り、新サイトで対応」→「構造化データ（#13）: 見えているパンくずと同じ並びの `BreadcrumbList`（title/・saikyo/・houou/ ほか4大会・動画の各話）とトップの `WebSite` は現行サイトに前倒しした（2026-10-29、`lib/page.py` の `PageMeta.breadcrumb`）。選手の `Person` などは新サイトで対応（#13・#219）」。同じ節のほかの行は変えていない。handover.md は 22,735 バイト（警告域 26KB の外）
+- #296 の本文「新サイト送りにするとき・やめるとき」: 新サイト送りにする・やめる issue は無いので当たらない（#13 は sub-issue のまま）
+- コメント（本文・状態・ラベルは変えていない）: #13 https://github.com/retroeater/mj/issues/13#issuecomment-6491364229 ／ #101 https://github.com/retroeater/mj/issues/101#issuecomment-6491366037 ／ #219 https://github.com/retroeater/mj/issues/219#issuecomment-6491368298 ／ #159 https://github.com/retroeater/mj/issues/159#issuecomment-6491369965 ／ #362 https://github.com/retroeater/mj/issues/362#issuecomment-6491371633 ／ #640 https://github.com/retroeater/mj/issues/640#issuecomment-6491372995
+
 ## 報告
 
 - 状態: 作業中
