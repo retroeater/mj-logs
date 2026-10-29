@@ -57,6 +57,40 @@ LGN-02・03 で作った log/（未マージの work/1028-lgn）は、Google の
 - 0章: 指示欄の末尾は指示文の最後の行と一致。`CHAT-1029-LGN-09` のコミット・ログなし。雛形の行の欠けなし
 - 作業ブランチ: work/1029-lgn-page はローカル・リモートとも無かったので `git checkout -b work/1029-lgn-page origin/cloudflare`（d766dfba2）
 - LGN-03 のログ（`docs/logs/CHAT-1029-LGN-03.md`）は work/1028-lgn にだけあるので、LGN-02・03 のログをこのブランチに写し、LGN-03 の状態の末尾に ` / 続き: CHAT-1029-LGN-09` を足した（work/1028-lgn には push していない）
+- 同じ目的の未マージのブランチ: `git branch -r --no-merged origin/cloudflare` の work/ の各ブランチの件名と変更のファイルを見た。log/ を作るものは work/1028-lgn だけ。共通の部品を変えているのは work/1017-lvp（`navbar.js` の if の並びの末尾〈放送対局の印〉・`style.css` の 1540〜2229 行あたり・`assets/live.js`・`scripts/lib/members.py`・`study.py`）。こちらの変更（`navbar.js` の if の並びの先頭、`style.css` の末尾）とは別の箇所なので止まらない
+- #639 に着手中のコメントを残した
+
+### 手順1・2: 作り（4e652f96b・ed642ea1e）
+
+- work/1028-lgn から移したもの: `scripts/generate_log_pages.py`・`assets/log.js`・`scripts/tests/test_log_pages.py`・`scripts/tests/js/log.test.js`・`docs/notes/log-page.md`、と差分で `style.css`（log/ の節）・`navbar.js`（/log/ で「リソース」に印）・`_redirects`（/log → /log/ 301、/log/ → index.html 200）・`_headers`（/log/* だけ geolocation=(self)。CSP は変えていない）・`check-assets.yml`（log/ を未公開の許可に足す・JS の検査を回す）・`regenerate.py`（`log_pages`）・`generate_resource_logs.py`（`merged_rows()` を分けた）・handover.md の表の行・new-page-checklist.md の URL パラメータの行・static-generation.md の行。移していないもの: `convert_x_posts.py`・`convert-x-posts.yml`・`run-monthly.yml`・github-actions.md の変更（緯度・経度・営業状況・ジャンル・details）
+- 外したもの: 座標（【2】の緯度・経度）・営業状況（閉業で外す処理）・Google のジャンル・【3】で place_id を直した行の扱い・【2】の「駅の候補」の読み取り
+- 作り直したもの（`station_info()`）: 店の「駅」（【3】で直した駅を含む）を駅の一覧で引き、駅の点（緯度・経度）・駅の候補（その駅から 800m 内の駅と駅どうしの距離）・都道府県（「東京都」の形）を出す。同じ名前の駅は【県】の印で選び、印が無ければ東京都。一覧に無い駅は座標・候補なしで、都道府県は【県】の印から（印が無ければ空）
+- `norm()`・`station_key()` を `convert_x_posts.py` から `scripts/lib/stations.py` に移した（生成スクリプトが `convert_x_posts.py` の重い import を経ずに使うため。`convert_x_posts.py` はそこから読むので、名前はそのまま使える）
+- JS: 距離の文を `distanceLabel()` にした。現在地は「神保町駅まで 300m」、駅のタグは「九段下（神保町駅から 615m）」、同じ駅・距離が分からなければ駅だけ。店名のリンクの後ろに小さく「Google マップ」
+- 出典: ページの最後に「駅・駅の位置・都道府県は「国土数値情報（鉄道データ・行政区域データ）」（国土交通省）（リンク、新しいタブ）をもとに作成（駅の点と都道府県を加工）」
+- docs: log-page.md（仕様と仮置きの一覧）・static-generation.md・handover.md の行・log-stations.md の「出典の表記」。docs/decisions/operations.md の末尾に、work/1028-lgn にだけあった LGN-01〜03 の節を移した（閉業の行に置き換えの印、【2】の新しい列の行に取り下げの印）
+- 検査: `python3 -m unittest discover -s scripts/tests` → OK、`node --test scripts/tests/js/*.test.js .github/actions/upsert-issue/test/*.test.js` → 34件 OK（distanceLabel の検査を足した）
+
+### 手順3: 生成
+
+- `regenerate-page.yml` の `check`（run 40877454894、ed642ea1e、成功）: 30ページすべて「通る」（log_pages も）。警告は 8件で、どれも今までと同じ種類（/live の【3】・最強戦の動画 URL・帰り道の写真）
+- 入力無し（`all`、run 40878907756、ed642ea1e、成功 → 9235a7f00）: 変わったのは `log/index.html`（新規）・`log/search.json`（新規、937,347 バイト）だけ。ほかのページは前と同じ
+- **件数の照合**: 同じ実行の resource_logs.html の行 3,159 − 過去メシで外した 128件 = log/ の投稿 3,031件（1,885店）で一致。外した 128件はすべて谷岡育夫の投稿（resource_logs.html の data-name と X の URL で突き合わせた）。log/ にあって resource_logs.html に無い投稿は 0件
+- 駅の点のある店 1,818店（現在地のボタンは押せる形）・都道府県のある店 1,818店（東京都 1,680・千葉県 76・神奈川県 14・埼玉県 9・静岡県 9・愛知県 6・宮城県 5 など、空 67）・ジャンルのある店 0店（ジャンルの候補は出ない）
+- `check-assets.yml` を変えたので、作業ブランチの push（ed642ea1e）で動いた run 40877441690 が成功したことを確かめた（変えた後の形で、JS の検査も回る）
+
+### 手順3: プレビュー（Workers Builds、9235a7f00）
+
+- `/log/` 200・`/log` 301・`/log/search.json` 200・`/assets/log.js` 200。`/log/` の Permissions-Policy は `geolocation=(self), microphone=(), camera=()`、`/houou/` は `geolocation=()` のまま。CSP は前と同じ。`noindex` あり
+- ヘッドレスの Chromium（幅 400px、位置は神保町の近くに置いた）で確かめた:
+  - トップ: カテゴリの行3つ（最近追加された店・掲載回数の多い店・2人とも行った店）、出典の1行
+  - `?station=水道橋` → 51店（タグ「×水道橋」）
+  - `?name=谷岡育夫` → 1,450店
+  - `?pref=千葉県` → 76店（駅は「【千葉】西千葉」など）
+  - `?station=神保町&name=平野良栄` → 12店（タグ2つ。3件目が「九段下（神保町駅から 615m）」）
+  - 現在地のボタン → 1,818店、「神保町駅まで 48m」の順
+  - 検索欄に「千葉」→ 候補「千葉 駅 3店」「千葉中央 駅 3店」「京成千葉 駅 3店」「千葉県 都道府県 76店」
+  - コンソールの誤りは、このセッションから届かない外部の読み込み（ERR_TUNNEL_CONNECTION_FAILED）だけで、ページの JS の誤りは無い
 
 ## 報告
 
