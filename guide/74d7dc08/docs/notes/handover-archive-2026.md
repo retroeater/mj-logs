@@ -1000,6 +1000,13 @@ Codespace 前提の記述（Code の実行環境は 2026-10-14 からクラウ�
 - instruction-template.md に「見込みが外れたときに測る候補」と「禁止には理由」を足した。ACF-32 は X API の呼び出しを理由なしに禁じており、1人を引けば分かった。ACF-33 は見込み（クエリでキャッシュを避ける）が外れ、次の案の材料（大きさごとの HEAD）は Code が自分の判断で測った
 - 純増を避けるため移した記述: 「告知の期間…『マージ:』の行に『告知の期間中の変更を承認（<日付>、平野さん）』と書く」→ docs/notes/page-announcement.md「進め方」（場面の表に行を足した）。「`.claude/` の hook・settings を変える指示は…『判断待ちで止まる』」→ 同じ規則が docs/notes/skills.md「git の hook（mj-git-guard）」にあるので消し、場面の表の行に「（『マージ:』は判断待ちで止まる）」を添えた
 
+### 2026-10-28 の申送り（SKP 系列、#633）で足した規則の経緯
+
+- league-pages-compare.md「新しい大会のランキングを作るとき」: 最強戦のランキングの部門を名前の案だけで決め（9部門は houou/ の 3×3 の格子の形から来ていた）、後で定義の一覧（CHAT-1024-SKP-09）と追加の候補の上位の比較（CHAT-1027-SKP-15）をしてから、部門を3回変えた（SKP-06 の改名、SKP-10 の「出場」への戻し、SKP-17 の6部門）
+- ask-worker.md「本番で送る固定の問い」の、選手の成績を含める・送り直す・束ねない: 最強戦の質問欄の誤りの確かめで3往復した（SKP-07・SKP-10・SKP-11）。選手の成績の誤り（「出場は36回」）は、部門名の変更（予選出場 → 出場）と答えの直しを同じ指示に束ねた SKP-10 の後に、その確かめの5問目で出た
+- saikyo-page-design.md「1. データ源」の見込みの差分: Mの乱の反映（CHAT-1027-SKP-19）で、出場者4人が出た過去の卓のページ45件の「他の対局」のカードの差分が見込みに無く、止まった（SKP-20 で見込みに足して反映）
+- page-announcement.md「告知動画の型」の撮る前の確かめ: 告知動画を2回撮り直した。第2版は、公開のときに直すと決めていた「最強位」のピル（CHAT-1023-SKP-02 の決定24）が公開前の動画に映った（CHAT-1025-SKP-12 → SKP-13）。第3版は、撮り直す場面を「ランキングが映る場面3・4」と限ったため、場面2の新トップの「9部門」が残った（CHAT-1027-SKP-18 で Code が見つけ、場面2も撮り直した v3b で確定）
+
 ## docs/notes/cloudflare.md・chrome-reading.md から（2026-10-13、#304）
 
 規則は `docs/notes/cloudflare.md`「ビルド成否と本番の確認範囲（check-runs）」「Chrome からダッシュボードの API を読む」と `docs/notes/chrome-reading.md`「使い方」、#304 の本文の冒頭（担当）が正。
@@ -1065,3 +1072,149 @@ AI機能を単一のユーザーエージェントでクロールするため、
 **9/13に新コントロール側でSearch/Agent=Allow・Training=Blockを設定済み。**
 設定前後でrobots.txtの管理セクション34行は完全一致し、旧トグルが同じ
 出力を出しているため判定は9/15以降。クローズ条件は#130に記載済み。
+
+## Codespace の旧記録（2026-10-28 に移動、CHAT-1028-AGT-04）
+
+`docs/notes/branch-operations.md` と `docs/notes/session-network.md` から、Codespace だけの記録の節を文面を変えずに移した（2026-10-14 からクラウドセッションだけ）。今の手順は `docs/notes/cloud-sessions.md`。
+
+## 起動時に読み込んだ CLAUDE.md が古くないか確かめる（Codespace）
+
+**会話の開始時に `git -C /workspaces/mj fetch origin` し、`/workspaces/mj` の HEAD が `origin/cloudflare` より遅れていたら、
+起動時に読み込まれた CLAUDE.md は古い版とみなし、規則は `git show origin/cloudflare:CLAUDE.md` で読む。**
+`/workspaces/mj` を pull しても読み込み済みの内容は変わらないため、読み直しは要る。
+
+## 作業ディレクトリの分離（Codespace）
+
+`/workspaces/mj` は全セッションが共有しており、ブランチを分けても作業ツリーは分離されない（#198）。
+
+- **`git -C /workspaces/mj fetch origin` のうえ、`origin/cloudflare` を明示して worktree を作り、その中で作業する**
+  （`/workspaces/mj` の HEAD は遅れていることがあるため、指示文に書かれていなくても常に行う）:
+  `git -C /workspaces/mj worktree add /workspaces/mj-<識別子> -b work/<識別子> origin/cloudflare`
+- ブランチの作成・切り替え・進める操作は、`cd`・`;`・`|`・`&&` を付けない単独のコマンドで実行する（場所は `git -C <パス>` で指定する）。
+  既存のブランチを付け替える `checkout -B`・`branch -f`・`reset --hard` は使わず、進めるときは `git merge --ff-only origin/cloudflare` を使う（#298）
+- 分岐元が `cloudflare` であることを `git merge-base --is-ancestor origin/cloudflare HEAD` で確認する（work/0913-hv）
+- `/workspaces/mj` 自身では `git checkout` / `git switch` を行わない。常に他セッションが使用中とみなす。
+  pull してよいのは下の「`/workspaces/mj` を pull するとき」の3条件をすべて満たすときだけ
+- 身に覚えのない未コミット変更を見つけたら、捨てる前に `git diff` で中身を確認し、他セッションの作業でないか疑う
+- コミットを分割するときは `git add -p`、または `git diff` で切り出したハンクを `git apply --cached` で部分ステージする
+  （`git stash` は共有パスの他セッションの未コミット編集を無言で消しうる、#198）
+- 作業完了後は `git worktree remove` で片付け、作業ブランチも（下の「ブランチを削除するとき」の手順で）削除する
+
+## `/workspaces/mj` を pull するとき（CHAT-0915-NT-04）
+
+`/workspaces/mj` は全セッションが共有する作業ツリーで、原則として触らない。**次の3条件をすべて満たすときに限り、
+セッションの判断で `git -C /workspaces/mj pull --ff-only` を行ってよい。**
+
+1. ブランチが `cloudflare` であること
+2. `git -C /workspaces/mj status --porcelain` が空であること
+3. HEAD が `origin/cloudflare` の祖先であること
+
+1つでも満たさなければ触らず、状態を報告する（未コミット変更の扱いは上の「作業ディレクトリの分離」）。
+**`--ff-only` 以外の pull（merge・rebase を伴うもの）・merge・reset はしない。**
+
+- 理由: 放っておくと起動時の CLAUDE.md が遅れる。切り替え・未コミット変更の破壊（WH-22）は3条件で防げる
+
+## Rebuild と Claude Code（#212、2026-09-14 に Rebuild 2回で検証済み）
+
+handover.md 3章「役割分担」から移した。
+
+- `.devcontainer/` の `postCreateCommand`（`post-create.sh`）が Rebuild 後に Claude Code を自動インストールする。手動インストールは不要
+- インストールは公式ネイティブインストーラ（`curl -fsSL https://claude.ai/install.sh | bash`）。npm 経由は anthropics/claude-code の README で deprecated とされている
+- 設定は `CLAUDE_CONFIG_DIR=/workspaces/.claude-config`。`/workspaces` 配下はリポジトリ外かつ Rebuild を越えて残るため、ログイン状態も維持される
+- `post-create.sh` は失敗しても起動を止めない。`claude` が見つからないときは Codespaces の creation log に `[post-create]` の失敗行が出ていないか確認する
+- `.devcontainer/` の変更を既存の codespace に Rebuild で反映するには `/workspaces/mj` の作業ツリーを最新にする必要がある（読まれるのは作業ツリーの内容）。反映の手段は次の2つ（2026-09-14決定、pull の条件は 2026-09-15 に変更）
+  - **`/workspaces/mj` を pull してから Rebuild する**（`git -C /workspaces/mj pull --ff-only`。セッションは CLAUDE.md「ブランチ運用」の3条件を満たすときは自分の判断で実行してよい。満たさないときは平野さんが確認する）。`/workspaces` 配下は Rebuild を越えて残るため、こちらのほうが軽い
+  - **codespace を作り直す**。環境ごと作り直す必要がある場合の手段。作り直すと `/workspaces` 配下の未コミットの変更と worktree はすべて消えるため、他セッションの worktree が残っていないことを確認してから行う
+
+## 2026-09-14（CHAT-0914-WF-03）
+
+codespace 上の Claude Code セッションから `curl -sS -m 15` で実測。プロキシ環境変数（HTTP_PROXY 等）なし。
+
+| ドメイン | 結果 |
+|---|---|
+| `docs.google.com` | トップ 302。`python3 scripts/regenerate.py wayhome_episodes` でシート取得も成功（exit=0） |
+| `www.gstatic.com` | トップ 404、`/charts/loader.js` 200 |
+| `ron2.jp` | トップ・画像とも 200 |
+| `ryoei.pro` | トップ 200（`<title>ryoei.pro`） |
+| `api.cloudflare.com` | トップ 301、`/client/v4/user/tokens/verify` 400（`Missing "Authorization" header`） |
+| `api.github.com` | トップ 200 |
+
+同日、別セッション（CHAT-0914-W2-04）でも `ryoei.pro` 200・`api.cloudflare.com/client/v4/` 400 を観測している（#328）。
+
+## 2026-09-14 追加分（CHAT-0914-WF-05）
+
+条件は上と同じ（codespace、`curl -sS -m 15`、プロキシ環境変数なし）。
+
+| ドメイン | 結果 |
+|---|---|
+| `pbs.twimg.com` | トップ 400。`jpml_pros.html` 内の画像URL 842件はすべて 200 |
+| `img.youtube.com` | トップ 404、`/vi/<動画ID>/mqdefault.jpg` 200 |
+| `abs.twimg.com` | トップ 400、`/sticky/default_profile_images/default_profile_200x200.png` 200 |
+| `hayabusa.io` | 名前解決できない（`curl: (6) Could not resolve host`）。`dns.google` の DoH でも SERVFAIL（lame delegation）で、セッション環境固有の遮断ではない。サイトでの使用は 2026-09-10 に削除済み（`docs/notes/site-findings.md`） |
+
+## 2026-09-19 追加分（CHAT-0918-TP-06）
+
+codespace、`curl -sS -m 20 -A 'Mozilla/5.0'`、プロキシ環境変数なし。
+
+| ドメイン | 結果 |
+|---|---|
+| `www.ma-jan.or.jp`（連盟公式HP） | トップ 200、`/title-fight.html` と大会ごとの `/title-fight/<名前>.html` 200（歴代優勝者の表を取得できた） |
+
+## Codespace の確認用 URL
+
+Workers Builds のプレビューが作られなかったときの確認用 URL は Codespace のポート転送の URL になる（GitHub ログイン必須）。
+開けないときは「ポート」タブで該当ポートを右クリック →「ブラウザーで開く」（docs/notes/chat-side-operations.md「確認用 URL」から移した）。
+
+（次の「gh の認証」は、削除した旧ノート〈Codespace 内のセッション環境の記録。CHAT-0914-GH-01 / SK-05 / DOC-01〉から session-network.md に移したもの〈CHAT-0914-SK-17〉）
+
+## gh の認証（2026-09-14）
+
+### 現在の設定
+
+- Codespaces のユーザーシークレット `GH_TOKEN` に classic PAT
+  （scopes: `repo`, `workflow`, `read:org`, `project`）。
+  API 応答に `github-authentication-token-expiration` ヘッダが無く、有効期限は無い
+- gh の優先順位は `GH_TOKEN` → `GITHUB_TOKEN` → `~/.config/gh/hosts.yml`。
+  Codespace 既定の `GITHUB_TOKEN` も引き続き設定されているが、gh からは使われない
+- git の fetch / push は `/etc/gitconfig` の `credential.helper`
+  （`/.codespaces/bin/gitcredential_github.sh`）経由で、`GH_TOKEN` とは無関係
+
+### 確認結果（環境変数を外さずに実行）
+
+| コマンド | 結果 |
+|---|---|
+| `gh auth status` | Active account が `retroeater (GH_TOKEN)`、scopes は上の4つ |
+| `gh api graphql -f query='{viewer{login}}'` | `retroeater` |
+| `gh project list --owner retroeater` | 成功（`ryoei.pro enhancements`） |
+| `gh workflow list` | 成功（6件） |
+| `gh secret list` | 成功（`YOUTUBE_API_KEY` のみ） |
+| `gh workflow run` | 2026-09-14（CHAT-0914-SK-12）に `sitemap-lastmod.yml` / `regenerate-page.yml` を作業ブランチで手動実行し、どちらも成功 |
+
+### 以前の運用（廃止）と経緯
+
+- Codespace 既定の `GITHUB_TOKEN` には Projects (V2) API の `project` スコープが無く、
+  `gh workflow run`（Actions: write）・`gh secret list` も 403 になった
+- そのため `env -u GITHUB_TOKEN -u GH_TOKEN gh ...` で環境変数を外し、
+  `gh auth login` で作った `hosts.yml` の認証を使っていた
+- `hosts.yml` はコンテナの再作成（rebuild）で消え、消えると `env -u` を付けても
+  「未認証」になった（#302）。対処案 A〜E の検討は #309
+- ユーザーシークレットは GitHub 側に保存され、Codespace の起動時に環境変数として
+  注入される。コンテナを作り直しても設定し直す必要が無い
+
+### PAT が失効・削除されたとき
+
+- gh は `GH_TOKEN` を優先するため、無効なトークンでも `hosts.yml` に切り替わらず
+  認証エラーになると見込まれる（未検証）
+- 対処: GitHub の Settings → Developer settings で classic PAT を発行し直し
+  （scopes は上の4つ）、Settings → Codespaces → Secrets の `GH_TOKEN` を更新して
+  Codespace を再起動する。シークレットの Repository access に `retroeater/mj` を含めること
+
+## 作業ファイルの置き場所（2026-09-19、CHAT-0916-LV-33・LV-34）
+
+- **後の指示で使うスクリプト・中間データは scratchpad（`/tmp` 以下）に置かない。** Codespace の再起動で消える。
+  CHAT-0916-LV-06 で、LV-03〜05 で使ったスクリプトと中間データ（`/tmp` 以下の scratchpad）が全部消え、
+  トランスクリプトからコマンドを再構成して復旧した（`scripts/live_seed/README.md`「トランスクリプトからの再構成」。`scripts/live_seed/` は削除済み、最後の版は 93379806）
+- `/workspaces/` 以下（リポジトリ外）に置く。/live では `/workspaces/live-seed/`（貼り付け用の TSV）と `/workspaces/live-work/` を使った
+- 作業ログの`## 経過`に、成果物を作ったスクリプトの置き場所を書く
+- 指示の完了時に、リポジトリへ保存する（`scripts/` の下。`scripts/` は `.assetsignore` で配信から外れている）か、使い捨てであることをログに書く
+- scratchpad は、その指示の中だけで使う一時ファイル（スクリーンショット、比較用の生成物の退避など）に使う

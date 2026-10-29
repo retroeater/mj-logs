@@ -6,11 +6,11 @@
 **この文書は現状・ルール・次にやることだけを書く。** 実装記録は `docs/notes/`、issue単位の経緯は GitHub Issues、過去の履歴は
 `docs/notes/handover-archive-2026.md`。容量の上限と退避方法は CLAUDE.md「CLAUDE.md / handover.md の更新ルール」。
 
-最終更新: 2026-10-20
+最終更新: 2026-10-28
 
-- **4文書の整理（#492）: CSP の導入済み（`_headers`）に合わせて4章「外部ドメインへの依存を増やさない」を直した**
-- **5章の表から閉じた #9・#523・#425・#366 を外した**
-- **3章「タスク管理」を CLAUDE.md「issueの着手ルール」の参照先にした**
+- **Codespace の旧記録（branch-operations.md・session-network.md）を handover-archive へ移し、6章の注記を直した**
+- **5章の表から新サイト送りの #4・保留の #96 を外し、「次の会話の順番」の日付を外した**
+- **2章の html_handling の参照先と週次の再生成の時刻（02:00 が主、05:37 は保険）を直した**
 
 ---
 
@@ -55,7 +55,7 @@ GitHub Pages からの移行の相談に始まり、Cloudflare への移行の�
 `wrangler.jsonc` の `assets.directory` がリポジトリ全体（`./`）を指すため、
 公開したくないファイルは `.assetsignore` に列挙している（追加時のルールは CLAUDE.md「方針」、#133）。
 
-`html_handling`・`_redirects` の先頭行の規則は CLAUDE.md「禁止事項」。canonical は付けない（#113）。例外は `wayhome/` の個別ページで、URL変種を持たないため canonical を持つ（#162）。
+`_redirects` の先頭行の規則は CLAUDE.md「禁止事項」、`html_handling` は `docs/notes/cloudflare.md`「配信設定: html_handling・_redirects・canonical・_headers」。canonical は付けない（#113）。例外は `wayhome/` の個別ページで、URL変種を持たないため canonical を持つ（#162）。
 `_headers` はセキュリティヘッダ（CSP を含む）とキャッシュ制御（#92）。設定値と経緯は `docs/notes/cloudflare.md`「配信設定: html_handling・_redirects・canonical・_headers」
 
 **本番反映**は CLAUDE.md「構成」（ゲートは #170）。設定値・確認範囲は `docs/notes/cloudflare.md`「本番反映（デプロイ）の仕組み」、セッションからの到達は `docs/notes/cloud-sessions.md`「ネットワーク」（#328）。
@@ -77,7 +77,7 @@ GitHub Pages からの移行の相談に始まり、Cloudflare への移行の�
 
 **スプレッドシートを直しただけでは、ビルド時生成のページには反映されない。** 即時に反映したいときは
 `regenerate-page.yml` を`workflow_dispatch`で手動実行する（`target_page`にページ名、または`all`）。
-週次（毎週月曜05:37 JST、#103）で`all`が走る。最強戦（saikyo/）は毎朝、写真のリンク切れ検知の後にも再生成する（`regenerate-saikyo.yml`、#537）。セッション内でも `python3 scripts/regenerate.py <ページ名>` で生成できる。
+週次（#103）は毎週月曜02:00 JST の `run-weekly.yml` が `fetch-youtube.yml` の最後に`all`を呼ぶ。05:37 JST は保険の予約実行（`docs/notes/github-actions.md`）。最強戦（saikyo/）は毎朝、写真のリンク切れ検知の後にも再生成する（`regenerate-saikyo.yml`、#537）。セッション内でも `python3 scripts/regenerate.py <ページ名>` で生成できる。
 
 ### 自動化
 
@@ -155,7 +155,7 @@ hook の判定は deny（実行させない）だけで、確認（ask）は出�
 
 ## 5. 次にやること
 
-**次の会話の順番（2026-10-09）:** (1) 待ち: #388（平野さんが「映画」のタブを作ってから）・#389（平野さんの校正した書籍の一覧の整備）。
+**次の会話の順番:** (1) 待ち: #388（平野さんが「映画」のタブを作ってから）・#389（平野さんの校正した書籍の一覧の整備）。
 (2) 期日待ちはカレンダーの順。決定は `docs/decisions/features.md`・`operations.md`。
 
 **期日のあるタスクはカレンダー「ryoei.pro」が正（件名【R#番号】…、作るのはチャット側）。handover に日付は書かない。**
@@ -166,8 +166,6 @@ GitHub Issues（Open）に全件あるが、着手可能な主なものは以下
 |---|---|---|
 | #486 | Bing の Recommendations | 残りは #486 の本文。title の長さ（短いページの共通の末尾）は #5 |
 | #550 | アクセス解析の導入の検討（利用者の画面幅・Cloudflare Pro の要否） | `docs/notes/design.md` の最小の画面幅（360px、2026-10-18）を見直す材料。外部ドメインへの依存（4章）に注意 |
-| #4 | SentryでJSエラー検知 | 外部サービスの登録が必要 |
-| #96 | カレンダーの参照・更新を自動化 | スコープ未定。決めるべき項目が4つある |
 | #390 | 道場部ゲストの書き込み済みの月の自動更新（本番で未稼働。サービスアカウントの削除の権限も未確認） | 随時: 差し替えで #426 に「自動で更新しました」か「自動では更新していません」が出たら、カレンダーの当日以降が画像と合っているかを確かめる |
 | #186 | アクセシビリティの実機での通し確認 | 静的レビュー（#178〜#185）の残り。チェックリストは `docs/notes/a11y-manual-check.md`。**Lighthouse のスコアを到達点として扱わない**（根拠は #186） |
 | #408 | タイトル戦の対局日を確定させる | `YYYY-XX-XX` の大半は決勝ライブが無く【2】【3】から直せない（外の資料が要る）。書式は `docs/notes/title-pages.md`「日付列の書式」 |
@@ -193,14 +191,14 @@ GitHub Issues（Open）に全件あるが、着手可能な主なものは以下
 | `docs/gsc/` | Search Console の数値（#142） |
 | `docs/notes/cloudflare.md` | Cloudflare の設定・配信（`_headers`・`_redirects`・`wrangler dev`）・本番反映と確認範囲（チャット側の check-run の確かめ方を含む）・設定の照合（Chrome） |
 | `docs/notes/redirects.md` | 転送（リダイレクト）の一覧と四半期の棚卸しの手順・流入の測り方（#568）。旧 URL の 301 やダッシュボードのルールを足す・消すとき |
-| `docs/notes/session-network.md` | シートの行番号の取り方、`ryoei.pro` の User-Agent。外部への到達・gh の認証・Rebuild・Codespace の確認用 URL・作業ファイルの置き場所の節は旧 Codespace の記録 |
+| `docs/notes/session-network.md` | シートの行番号の取り方、`ryoei.pro` の User-Agent（Codespace の旧記録は `docs/notes/handover-archive-2026.md` へ移した） |
 | `docs/notes/cloud-sessions.md` | クラウドセッション（Claude Code の実行環境）の手順（起動時の CLAUDE.md の確かめ・作業ファイルの置き場所・ブランチの用意・GitHub MCP・ネットワーク・プレビュー） |
 | `docs/notes/chat-side-operations.md` | チャット側が指示文を書く前（ログの読み方・場面ごとに読む文書の表もここ） |
 | `docs/notes/glossary.md` | 用語集（チャット側・Claude Code・docs で使う語。ワークフロー・定期実行・本実行・スプレッドシートなど） |
 | `docs/notes/chat-routines.md` | チャット側が「レビュー」「振り返り」「申送り」を行う前。指示の種類ごとの確かめ・期日とカレンダー・外部サービスの設定を頼むとき・ほかのセッションへの共有 |
 | `docs/notes/chrome-reading.md` | チャット側が PC で Claude for Chrome を使い mj を直接読む前 |
 | `docs/notes/skills.md` | skill の追加・更新、git の hook の判定を変える・確かめる前（`.claude/` を変える指示を書く前も） |
-| `docs/notes/branch-operations.md` | ブランチの削除・マージを戻すとき・作業ログの寿命・Chat-Ref の着手前の確認（入口の規則は CLAUDE.md）。「（Codespace）」の節と `/workspaces/mj` の pull は旧 Codespace の記録 |
+| `docs/notes/branch-operations.md` | ブランチの削除・マージを戻すとき・作業ログの寿命・Chat-Ref の着手前の確認（入口の規則は CLAUDE.md）。Codespace の旧記録は `docs/notes/handover-archive-2026.md` へ移した |
 | `docs/notes/self-review.md` | コード・生成物・ワークフロー・配信設定を変えた指示の最終報告の前（サブエージェントに差分をレビューさせる。往復は2回まで） |
 | `docs/notes/static-generation.md` | ページの一覧・生成スクリプト・ページ側のJS・メンテナンス用スクリプト |
 | `docs/notes/github-actions.md` | GitHub Actions のワークフローの一覧・`regenerate-page.yml`・手動実行と変更の前・チャット側の扱い（実行結果の確かめ方・失敗通知） |

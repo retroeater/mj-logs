@@ -129,28 +129,96 @@ Google Maps Platform の規約では、Places API から保存してよいのは
   - 駅データ.jp: 駅ごとの点（緯度・経度）・都道府県・路線の CSV。無料の会員登録で取れる。更新は月に数回。ライセンスの条件（表記・再配布）は要確認
   - 海外（Bond Street・Paddington など London 5店）は対象外
 
+### 手順3: 設計案（シートへの書き込み・Places・Claude の呼び出しはしていない）
+
+費用の前提: Google の料金表（2026-10-29、LGN-03 の経過）で Place Details Essentials（location だけ）は無料の枠 月10,000回・超えた分 1,000回 $5、Place Details Pro（businessStatus など）は 5,000回・$17、Text Search Essentials (IDs Only)（項目が places.id だけ）は無制限・無料、Text Search Pro は 5,000回・$32。place_id は 1,895個（LGN-03 の dry-run）。Claude の1件の費用の見込みは `convert_x_posts.py` の `EXPECTED_COST_PER_CALL`（claude-haiku-5-5 $0.00016・claude-sonnet-5-5 $0.00316、30件の比べから）
+
+**(1) 座標と30日**
+
+| 案 | 中身 | 費用 | 手間・リスク |
+|---|---|---|---|
+| A | 【2】に座標と取得日を持ち、28日ごとに Place Details（location だけ＝Essentials）で全件取り直し、取得日が30日を超えた行は空にする | 月 1,895〜3,790回、Essentials の無料の枠内 | 取得日の列・消す処理が要る。**生成物（search.json）に座標を入れてコミットすると git の履歴に残り 30日で消せない**ので、ページの現在地の計算に Places の座標は使えない（使うなら Worker で配るなど、新しい仕組みが要る） |
+| B（推奨） | Places の座標は保存しない。ページの現在地から探すは、店の駅のオープンデータの座標（駅の点）で「近い駅の店」を出す | Places の座標の呼び出し 0 | 店の位置は駅の位置で近似（800m 程度ずれる）。#378 の「直線距離で近い店」より粗い。規約の 30日の管理が要らない |
+
+閉業の判定（Pro の項目）は、座標と別に月1回 Place Details（businessStatus だけ）で 1,895回（Pro の無料の枠 5,000回の内）。判定の結果は保存しない（決定）
+
+**(2) 閉業の知らせ方**
+- 推奨: 月次の取り直し（`run-monthly.yml`）が、閉業と判定した店の行を issue（「ログ」の手入れの #636 か、新しい常設の issue）に1件のコメントで出す。1行は「【3】の行番号・【2】の行番号・投稿ID・店名（本文由来）」（docs/notes/chat-routines.md の、層の行番号と投稿IDを並べる規則）。【3】に行が無い投稿は「【3】に投稿IDの行を足して表示を N」と添える。平野さんが【3】の「表示」を N にする
+- 注意: issue のコメントに「閉業」の判定を書くこと自体が Google の内容の保存に当たりうる（本体 3.2.3(a)(i) store）。避けるなら、コメントには「Google マップで状態を確かめてほしい行」とだけ書き、判定の語を残さない（判断が必要なこと）
+
+**(3) ジャンル（Claude が付ける）**
+- 新しい行: 変換（all）の Claude の1回の呼び出しの出力にジャンルを足す（呼び出しは増えない。JSON スキーマに1項目）
+- 既存の行: 新しい mode で、店（place_id、空なら投稿）ごとに1回、店名と本文の要約から付ける。1,885店で claude-haiku-5-5 なら約 $0.30、claude-sonnet-5-5 なら約 $5.96（投稿ごとの 3,159件なら約 $0.51・$9.98）
+- ジャンルの一覧: 固定の一覧から選ばせる（例: ラーメン・つけ麺／そば・うどん／カレー／中華／焼肉・ホルモン／寿司・海鮮／定食・食堂／洋食／イタリアン／フレンチ／韓国料理／エスニック／ハンバーガー／カフェ・喫茶／スイーツ・パン／居酒屋・バー／牛丼・チェーン／その他。案）。一覧は平野さんが決める。自由に付けさせて後でまとめる案は、揺れの直しに手間がかかる
+- Google の primaryTypeDisplayName は使わない（決定。work/1028-lgn の「ジャンル」列は作り直す）
+
+**(4) 駅・駅の候補・都道府県**
+- **座標から計算する決定は、本体 3.2.3(c)（point-in-polygon の例）に当たりうる**。推奨: Places の座標を使わず、**本文の駅（Claude が既に `stations` で読んでいる）をオープンデータの駅の一覧で確かめて「駅」にする**。都道府県はその駅のオープンデータの都道府県。駅の候補は、その駅の点から 800m 内のオープンデータの駅（駅どうしの距離。Google を使わない）
+- 今の決め方との違い: 今は本文の駅が 800m 内ならそれ、無ければ Google の最寄り駅。新しい決め方は、本文に駅が無い・一覧に無い投稿は「駅」が空で要確認（平野さんが【3】で入れる）。同じ名前の駅（例: 東京都外にもある名前）は、本文のほかの駅・地名か【県】の印で選ぶ（簡略化）。空になる行の数は、次の指示の dry-run で数える
+- 旧「ログ」から移した行（【3】の手書きの駅）はそのまま
+- オープンデータ: 駅データ.jp（駅の点・都道府県。点なので計算が簡単）を推奨、国土数値情報（N02、線分。公的・出典の表記で商用可の見込み）を次点。どちらもこのセッションのネットワークで取れず、ライセンスは未確認（ドメインの許可を足すかは判断）。海外（London 5店）は駅・都道府県なし（「海外」と書く案）
+- 大きさ: 全国の駅の一覧（約1万駅）を `data/` か `scripts/` に置く（公開しないなら `.assetsignore`）。更新は年1〜数回、手で取り直す
+
+**(5) 「Places の店名」の列と【3】**
+- 「Places の店名」は列ごと消す（stations の mode でカテゴリの3列を消したのと同じ形。消した後に読み直して確かめる）
+- 「駅の候補」も消すか、オープンデータの候補で書き直す（推奨: 書き直す。列の名前はそのまま）
+- 【3】: 平野さんが Google マップを見て写した値（駅・place_id 以外の項目）があるかは、平野さんに聞くか、次の指示で【3】の見出しと値の出どころを読む（読むだけ）。あれば平野さんが本文・旧「ログ」から書き直す
+
+**(6) 店URL と帰属の表記**
+- 店URL は place_id から組み立てた Google マップの URL のままでよい（place_id は保存してよい）。旧「ログ」の共有リンク（2573行）もそのまま
+- 帰属: 店名・駅を Google から取らなくなれば、ページに Places の内容は出ない。ただしリンク先が Google マップなので、店名のリンクに「Google マップ」と分かる表記（例: 店名の横に「Google マップ」の小さな文字）を付ける案（推奨）
+- **利用規約・プライバシーポリシー**: Policies は Places API を使うアプリに、Google の規約・プライバシーポリシーを組み込んだ利用規約・プライバシーポリシーの公開を求める。Places を使い続けるなら、ryoei.pro にそのページを作る（新しいページ。段1・段2 の手順）
+
+**(7) Places を使い続けるか（本体 3.2.3(d)(iii)）**
+- 案B'（推奨、ただし判断が必要）: Places は place_id を取るだけに絞る（Text Search の項目を `places.id` だけ＝Essentials (IDs Only)、無料・無制限）。Nearby Search はやめる（駅はオープンデータ）。閉業の月次の判定だけ Place Details Pro
+- 案C: Places をやめる。新しい行の店URL は Maps URLs（`https://www.google.com/maps/search/?api=1&query=<店名> <駅>`。キー不要、Core Services の一覧に無い）にし、店のまとめは place_id が無い行は「店名＋駅」で。閉業は自動では分からない（平野さんが【3】で）。規約の論点（listings・保存・帰属・利用規約のページ）がほぼ無くなる
+- どちらにするかで、閉業の自動の判定・利用規約のページの要否が変わる
+
+**(8) 順番と指示の分け方**
+- 2026-11-02 の週次の取り込み（今の cloudflare のコード）は止めない（決定どおり）。この回で足す 20〜30行には「Places の店名」「駅（Google）」「駅の候補（Google）」が入るが、下の指示2で消す・書き直す
+- work/1028-lgn（LGN-02・03）は、今のままではマージしない（緯度・経度を search.json に入れる作り、Google の営業状況・ジャンルの列と details の mode が、決定・規約と合わない）。ページの直し（候補とタグ・過去メシ・カテゴリ）は残して作り直す
+- 指示の分け方（案）:
+  1. オープンデータの確かめと取り込み（ネットワークの許可の後）・新しい駅の決め方を変換（all・stations）に実装・Text Search を IDs Only に（dry-run まで、空になる行の数を出す）
+  2. 既存の【2】の書き換え（「Places の店名」の列を消す・駅・駅の候補・都道府県を書き直す）・resource_logs.html の再生成・【3】の見出しと値の出どころの洗い出し（読むだけ）
+  3. work/1028-lgn の作り直し（座標・Google の営業状況・ジャンルを外す、現在地を駅の座標で、都道府県をオープンデータで）・閉業の月次の知らせ（保存しない）・ジャンルを Claude で（新しい行は all、既存の行は新しい mode、dry-run まで）
+  4. （案B' のとき）利用規約・プライバシーポリシーのページと帰属の表記（作る段・段1）
+- マージ: docs/logs・docs/decisions だけを 106074e53 で cloudflare へ入れた。docs/decisions/operations.md の LGN-01〜03 の節は work/1028-lgn にだけあるので、そのブランチを取り込むときに末尾の追記どうしが衝突する（両方を残して解く規則のとおり）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1029-lgn-terms
-- ログ: https://github.com/retroeater/mj/blob/work/1029-lgn-terms/docs/logs/CHAT-1029-LGN-04.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1029-LGN-04.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1029-lgn-terms
 - 確認用URL: なし
-- マージ: 未
-- issue: なし
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- マージ: 済（106074e53。docs のみ。`git push origin HEAD:cloudflare`、直前に `merge-base --is-ancestor origin/cloudflare HEAD` を確かめた）
+- issue: なし（同じ論点の issue は無かった。関係: #367・#639・#378・#636・#640）
+- 判断が必要なこと:
+  - 規約の読みの違い（経過の「手順1」）: (1) 本体 3.2.3(c) は Places の緯度・経度を point-in-polygon の入力に使うことを禁じ、Google の内容から内容を作ることも禁じる。**「駅・都道府県を座標とオープンデータから計算」の決定は、座標が Places 由来なら当たりうる**。推奨は、座標を使わず本文の駅をオープンデータで確かめる形（経過の (4)）。(2) 本体 3.2.3(d)(iii) は Places（Core Services）を listings・directory のサービスに使うことを禁じ、店の一覧の「ログ」に当たりうる。(3) Places を使うアプリは、Google の規約・プライバシーポリシーを組み込んだ利用規約・プライバシーポリシーの公開が要る（ryoei.pro に無い）
+  - Places を使い続けるか: 推奨は案B'（place_id を取るだけ〈Text Search IDs Only、無料〉＋閉業の月次の判定だけ Place Details Pro〈月 1,895回、無料の枠内〉。利用規約・プライバシーポリシーのページを作る）。規約の論点をほぼ無くすなら案C（Places をやめ、Maps URLs の検索リンク。閉業は自動では分からない）
+  - 座標: 推奨は案B（Places の座標を保存しない。現在地から探すは店の駅のオープンデータの座標で「近い駅の店」）。案A（28日ごとに取り直し30日で消す）は、座標を生成物に入れると git の履歴で 30日を超えるため、ページで使うには別の仕組みが要る
+  - 閉業の知らせに「閉業」の語を残すか（issue に残すこと自体が保存に当たりうる。残さないなら「Google マップで状態を確かめてほしい行」とだけ書く）
+  - ジャンルの一覧（経過の (3) の案）と、既存の行に付けるモデル（haiku 約 $0.30・sonnet 約 $5.96、店ごと）
+  - オープンデータ: 駅データ.jp（推奨）か国土数値情報か。`ekidata.jp`・`nlftp.mlit.go.jp` を環境のネットワークの許可に足すか（足さないと次の指示で取り込めない）
+  - 本文に駅が無い・一覧に無い投稿は「駅」が空で要確認になる（今は Google の最寄り駅が入る）。これでよいか
+  - git の履歴に残る Google の値（resource_logs.html の駅など）は消さない（履歴を書き換えない）でよいか
+  - 【3】に平野さんが Google マップから写した値（駅など）があるか
+  - work/1028-lgn（LGN-02・03）は今のままではマージせず、上の決定に合わせて作り直す（ページの直しは残す）。指示の分け方の案は経過の (8)
+- 未確認の項目:
+  - オープンデータ（駅データ.jp・国土数値情報）の中身とライセンスの文（ネットワークで取れなかった）
+  - 【3】の見出しと値の出どころ（シートを読んでいない）
+  - 2026-11-02 02:00 JST の週次の取り込み（今の cloudflare のコードのまま動く。LOG 系列が確かめる）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 5b39b154）: https://github.com/retroeater/mj-logs/tree/main/guide/5b39b154
+ガイド文書（この版を写した時点の最新、mj 74d7dc08）: https://github.com/retroeater/mj-logs/tree/main/guide/74d7dc08
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b39b154/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b39b154/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b39b154/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b39b154/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b39b154/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b39b154/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/74d7dc08/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/74d7dc08/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/74d7dc08/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/74d7dc08/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/74d7dc08/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/74d7dc08/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/5b39b154.md
