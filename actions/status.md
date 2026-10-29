@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-29 10:10 JST
+- 書き出した時刻: 2026-10-29 10:14 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -25,11 +25,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-29 10:13 | push | work/1028-lgn | in_progress | #489（40799101649） |  |
+| 2026-10-29 10:13 | push | work/1028-lgn | success | #488（40799074272） | 0分20秒 |
 | 2026-10-29 10:06 | push | work/1028-lgn | success | #487（40798405360） | 0分22秒 |
 | 2026-10-29 10:01 | push | work/1028-lgn | success | #486（40797865670） | 0分26秒 |
 | 2026-10-29 00:37 | push | work/1028-lgn | success | #485（40717851872） | 0分29秒 |
-| 2026-10-29 00:35 | push | work/1028-lgn | success | #484（40717534037） | 0分29秒 |
-| 2026-10-29 00:31 | push | work/1028-lgn | success | #483（40716761179） | 0分29秒 |
 
 ## check-build-failure.yml
 
@@ -134,11 +134,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-29 10:13 | workflow_dispatch | work/1028-lgn | in_progress | #44（40799126254） |  |
 | 2026-10-29 10:07 | workflow_dispatch | work/1028-lgn | success | #43（40798426717） | 0分48秒 |
 | 2026-10-29 10:07 | workflow_dispatch | work/1028-lgn | success | #42（40798420718） | 0分29秒 |
 | 2026-10-29 00:19 | workflow_dispatch | work/1028-lgn | success | #41（40714841303） | 1分03秒 |
 | 2026-10-29 00:19 | workflow_dispatch | work/1028-lgn | success | #40（40714825265） | 0分34秒 |
-| 2026-10-28 00:51 | workflow_dispatch | work/1028-log-367-weekly | success | #39（40535186608） | 0分32秒 |
 
 ## fetch-gsc.yml
 
@@ -254,6 +254,7 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-29 10:12 | workflow_dispatch | work/1028-lgn | success | #3（40799028863） | 0分29秒 |
 | 2026-10-29 10:07 | workflow_dispatch | work/1028-lgn | cancelled | #2（40798423892） | 0分29秒 |
 | 2026-10-21 11:37 | workflow_dispatch | cloudflare | success | #1（39534076694） | 0分37秒 |
 
