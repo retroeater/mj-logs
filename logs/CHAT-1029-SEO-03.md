@@ -51,6 +51,25 @@ CHAT-1029-SEO-01 のレビューの結果のうち、既存の issue の更新�
 
 ## 経過
 
+### 着手前の確認（2026-10-29）
+
+- 0章: ログの「指示」欄の末尾が指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 欠けなし
+- 同じ Chat-Ref のコミット: なし。CLAUDE.md は起動時から変わっていない。work/1029-seo3 はローカル・リモートとも無く `git checkout -b work/1029-seo3 origin/cloudflare`（着手時 HEAD b06f4f27c）
+- 対象16件（#266・#246・#532・#5・#486・#227・#229・#335・#560・#638・#362・#173・#195・#142・#568・#429）の state と `updated_at` を REST で取得: 16件とも open。`updated_at` は SEO-01 の読み取りのときのまま（#486 は SEO-01 のコメント〈2026-10-29T05:47:15Z〉が最後）→ 外した issue は無い
+- 着手中のコメント: #362 に LVP の着手中（CHAT-1016-LVP-01・02、CHAT-1017-LVP-04・06）が残る（SEO-01 の手順1(b)）。#362 は指示どおりコメントだけ
+- 「状況:」のラベル: 閉じる3件（#266・#246・#532）には無い
+
+### 閉じた（手順1）
+
+- #266（not planned）: https://github.com/retroeater/mj/issues/266#issuecomment-6490788529
+- #246（completed）: https://github.com/retroeater/mj/issues/246#issuecomment-6490792090
+- #532（duplicate of #246）: https://github.com/retroeater/mj/issues/532#issuecomment-6490793286
+
+### 本文を直した（手順2、REST の PATCH。直前に `updated_at` を取り直して一致を確かめた）
+
+- 済: #5・#486・#227・#229・#335・#560・#638・#195・#173・#142（2026-10-29T07:35Z）。#173 は題も直した（MCP の issue_write）
+- 最初の PATCH は Content-Type の指定漏れで10件とも HTTP 415（書き換わっていない）。指定して再実行し10件とも通った
+
 ## 報告
 
 - 状態: 作業中
