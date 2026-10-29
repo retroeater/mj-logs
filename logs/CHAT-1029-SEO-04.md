@@ -154,17 +154,38 @@ CHAT-1029-SEO-01 のレビューで「新サイトの要件」とした N1〜N5 
 - #296 の本文「新サイト送りにするとき・やめるとき」: 新サイト送りにする・やめる issue は無いので当たらない（#13 は sub-issue のまま）
 - コメント（本文・状態・ラベルは変えていない）: #13 https://github.com/retroeater/mj/issues/13#issuecomment-6491364229 ／ #101 https://github.com/retroeater/mj/issues/101#issuecomment-6491366037 ／ #219 https://github.com/retroeater/mj/issues/219#issuecomment-6491368298 ／ #159 https://github.com/retroeater/mj/issues/159#issuecomment-6491369965 ／ #362 https://github.com/retroeater/mj/issues/362#issuecomment-6491371633 ／ #640 https://github.com/retroeater/mj/issues/640#issuecomment-6491372995
 
+### 差分のレビュー（docs/notes/self-review.md）
+
+新しい文脈のサブエージェント（general-purpose、sonnet、88,481 トークン）に、指示の目的・決定、コードの差分（生成物・ログを除く）と生成物の代表の差分、CLAUDE.md「コード規約」を渡した。1回目で要修正は無し、任意3件。
+
+| 指摘 | 扱い |
+|---|---|
+| 動画の各話は BreadcrumbList を自前で組む `build_json_ld()` を3か所に持ち、`page.py` の `breadcrumb_json_ld()` が4つ目になる | 見送り（各話の出力を変えないため今回は触らない。寄せる余地は「判断が必要なこと」に書いた） |
+| title/ の本文の関数が `meta.breadcrumb` を書き換える（head が本文の後に描かれる順に頼る副作用） | 意図どおり（期の対局日の `period_date()` は警告を足すので2回呼ばない。手順はログの「実装」に書いた。順序が変われば `GeneratedPagesTest` の「見えているパンくずと同じ」で落ちる） |
+| テスト: `</script>` の検査が何も検出しない／見えているパンくずとの名前の突き合わせが無い／og:url が無いと読みにくく落ちる | 直した（2264ef6e3「test: compare breadcrumb JSON-LD with the visible breadcrumbs」。見えているパンくずのある 1,316 ページで名前の並びが一致することを確かめる。8件・全体 1608 件 OK） |
+
+2回目は、直したのがテストだけ（生成物・ページの出力は変わらない）なので行っていない。
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1029-seo4
 - ログ: https://github.com/retroeater/mj/blob/work/1029-seo4/docs/logs/CHAT-1029-SEO-04.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1029-seo4
-- 確認用URL: 作業中
-- マージ: 未
-- issue: 作業中
-- 判断が必要なこと: 作業中
-- 未確認の項目: 作業中
+- 確認用URL: プレビューあり（URL は最終報告）。確認したページは `/`・`/houou/players/`・`/title/houou/42.html`・`/saikyo/2024/20240317-s1-a.html` ほか23ページ（経過の「プレビュー」）。この版で見える印は、トップの見出し（h1）が「平野良栄」になっていること
+- マージ: 未（平野さんの判断待ち。マージは別の指示）
+- issue: コメントした #13・#101・#219・#159・#362・#640（本文・状態・ラベルは変えていない）
+- 判断が必要なこと:
+  - マージしてよいか。N1 の文言（トップの `<title>`・og:title「平野良栄 | 麻雀プロ（日本プロ麻雀連盟） | ryoei.pro」、h1「平野良栄」）をプレビューで見て決める。案の「）| ryoei.pro」はほかのページの区切りに合わせて「） | ryoei.pro」にした
+  - BreadcrumbList を区分のトップ（並びが1項目になる14ページ: トップ階層8・大会トップ4・title/ の入口・saikyo/ のトップ）に入れなかった（Google のパンくずは2項目以上が要るため）。「公開中の全ページ」の指示と違うので、これでよいか
+  - 大会と最強戦のランキングのページの並びの最後は、見えているパンくずどおり「ランキング」（部門名は入らない。URL は部門のページ自身）
+  - 再生成で sitemap の `<lastmod>` 1,257 行（3ファイル）が 2026-10-29 になった。ワークフローが git から導く値で、ページが変わった分だけ動いたものなので、止まる条件の「JSON-LD 以外の変化」に当てはめずに進めた
+  - #296 の本文の子の表の #13 の行（「`Person` / `ItemList` / `WebSite` / `BreadcrumbList`」）を、マージの後に「`Person` など」に直すか（この指示では #296 の本文を変えていない）
+  - 動画の各話の3つの `build_json_ld()`（帰り道・Mつく・プロテスト。女流勉強会も同じ形）を `page.py` の `breadcrumb_json_ld()` に寄せるか（出力は同じ形。今回は触っていない）
+  - マージの順: SEO-02（work/1029-seo2）も `index.html`（2行目の `lang`）と `docs/decisions/seo-bing.md`（末尾の追記）を変えている。この指示は `index.html` の別の行と同じファイルの末尾を変えたので、後からマージする方で取り込み、衝突すれば decisions は両方を残す
+- 未確認の項目:
+  - Search Console・Bing がこのパンくずを読むか（リッチリザルトのテスト・URL 検査はセッションから届かない）
+  - トップの h1 の見た目（日本語の字形・大きさ）。プレビューで平野さんが見る
 - エラー: なし
 
 <!-- guide-links -->
