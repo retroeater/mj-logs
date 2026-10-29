@@ -59,6 +59,76 @@ Google Maps Platform の規約では、Places API から保存してよいのは
 
 ## 経過
 
+- 着手前の確認: `CHAT-1029-LGN-04` のコミット無し。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は欠け無し。0（指示欄の末尾）: 指示文の最後の行と一致。CLAUDE.md は `HEAD..origin/cloudflare` で変更無し
+- 作業ブランチ: `work/1029-lgn-terms` はローカル・リモートとも無かったので `git checkout -b work/1029-lgn-terms origin/cloudflare`（2df4bf7c7）。work/1028-lgn には触っていない
+- 止まる条件の検索: GitHub MCP の issue 検索（クローズ済みを含む）で「Places API 規約 キャッシュ 保存 Google Maps Platform 利用規約」「Google マップ 店 位置 座標 30日 place_id 帰属 表記 Google Maps ロゴ」「キャッシュ」「Places」。当たったのは #378（現在地から探す、open）だけで、規約・保存の論点の issue は無い（REST の `search/issues` はこのセッションでは結果が返らなかった）
+
+### 手順1: 規約（2026-10-29 に curl で取得して読んだ。版の日付は各ページの表示）
+
+- **Google Maps Platform Terms of Service（本体、Last modified August 26, 2026）**
+  - 定義: 「"Google Maps Content" means any content provided through the Services (whether created by Google or its third-party licensors), including map and terrain data, imagery, traffic data, and places data (including business listings).」「"Google Maps Core Services" means the services described at https://cloud.google.com/maps-platform/terms/maps-services/」（そのページ〈Last modified October 28, 2026〉に「Places API (New)」が載る）
+  - 3.2.2(b) Attribution: 「Customer will display all attribution that (i) Google provides through the Services (including branding, logos, and copyright and trademark notices); or (ii) is specified in the Maps Service Specific Terms. Customer will not modify, obscure, or delete such attribution.」
+  - 3.2.3(a) No Scraping: 「Customer will not export, extract, or otherwise scrape Google Maps Content for use outside the Services. For example, Customer will not: (i) pre-fetch, index, store, reshare, or rehost Google Maps Content outside the services; (ii) bulk download ... places information ...; (iii) copy and save business names, addresses, or user reviews; ...」
+  - 3.2.3(b) No Caching: 「Customer will not cache Google Maps Content except as expressly permitted under the Maps Service Specific Terms.」
+  - 3.2.3(c) No Creating Content From Google Maps Content: 「Customer will not create content based on Google Maps Content. For example, Customer will not: ... (iv) use latitude/longitude values from the Places API as an input for point-in-polygon analysis; ...」
+  - 3.2.3(d) No Re-Creating Google Products or Features: 「... For example, Customer will not: ... (iii) use the Google Maps Core Services in a listings or directory service or to create or augment an advertising product; ...」
+  - 3.2.3(e) No Use With Non-Google Maps: 「... Customer will not (i) display or use Places content on a non-Google Map, ...」
+- **Google Maps Platform Service Specific Terms（Last modified October 28, 2026）**
+  - A.2 Attribution: 「Customer will attribute all the Services in accordance with the Documentation.」
+  - A.3 Google ID Caching: 「Customer may cache the Google ID values from the Services that return such field and allow caching, in accordance with its Documentation. For example, Customer may cache (a) place_id from Places API, ...」
+  - 14.1 Use without a Google Map: 「Customer may use Google Maps Content from the Places API in Customer Applications without a corresponding Google Map.」
+  - 14.2 No use with a non-Google map: 「Customer must not use Google Maps Content from the Places API in conjunction with a non-Google map.」
+  - 14.3 Caching: 「Customer may temporarily cache latitude and longitude values from the Places API for up to 30 consecutive calendar days, after which Customer must delete the cached latitude and longitude values.」
+- **Places API (New) の Policies and attributions（Last updated 2026-10-28 UTC）**
+  - 「Note that the place ID, used to uniquely identify a place, is exempt from the caching restrictions. You can therefore store place ID values indefinitely.」
+  - 「Applications using the Places API must provide publicly accessible Terms of Use and a Privacy Policy that incorporate Google's Terms of Service and Privacy Policy, respectively. You must not pre-fetch, cache, or store Places API content beyond the allowed exceptions, although the place_id is exempt from caching restrictions. ... When displaying Places API data without a Google Map, you must include the Google logo, adhering to the provided style guidelines and attribution requirements.」
+  - 「Attribution should take the form of the Google Maps logo whenever possible. In cases where space is limited, the text Google Maps is acceptable. It must always be clear to end users which content is provided by Google Maps.」
+- **チャット側の前提の読みとの違い**（保存してよいのは place_id と座標〈30日〉だけ、は前提のとおり。禁止の条文は本体 3.2.3(a)(b)）:
+  1. 本体 3.2.3(c) は Google の内容から内容を作ることを禁じ、例に「Places API の緯度・経度を point-in-polygon の分析の入力に使う」を挙げる。**決定の「駅・都道府県: オープンデータと座標から計算して保存する」は、座標が Places から来るなら、都道府県の判定（座標が県の範囲に入るか）はこの例そのもの、最寄り駅の計算も「Google の内容から作った内容の保存」に当たりうる**
+  2. 本体 3.2.3(d)(iii) は Core Services（Places API (New) を含む）を「listings or directory service」に使うことを禁じる。**店の一覧である「ログ」に Places を使うこと自体がこれに当たりうる**（チャット側の前提に無い論点）
+  3. Policies は、Places API を使うアプリに、Google の規約・プライバシーポリシーを組み込んだ利用規約・プライバシーポリシーの公開を求める。ryoei.pro には利用規約・プライバシーポリシーのページが無い（`git grep` で「プライバシー」「privacy」「利用規約」が HTML・JS に無い）
+  4. 帰属: 地図なしで Places の内容を出すときは Google Maps のロゴ（狭ければ「Google Maps」の文字）が要る。今のページ（resource_logs.html・log/）に表記は無い（`git grep "Google Maps\|Google マップ"` が HTML に無い）
+  5. 30日の削除: 座標を生成物（log/search.json）に入れてコミットすると、git の履歴に残り「30日後に消す」ができない。LGN-02・03 の作り（search.json に緯度・経度）は、座標を埋めた時点でこれに当たる
+
+### 手順2: Places から来た値の保存・表示の箇所
+
+`git grep`（両方のブランチ。除外は docs/decisions・docs/logs・handover-archive）で `Places の店名|駅の候補|place_id|places.googleapis|PLACE_FIELDS|STATION_FIELDS|displayName|formattedAddress|businessStatus|primaryTypeDisplayName|searchNearby|searchText|GOOGLE_PLACES_API_KEY|maps/place` を数えた。cloudflare: resource_logs.html 568行・convert_x_posts.py 26・テスト 37・github-actions.md 2・ワークフロー 3。work/1028-lgn: これに加えて generate_log_pages.py 14・log/search.json・log-page.md 10・テスト（log）32 など
+
+**【2】自動変換後の列**（`convert_x_posts.py` の `OUT_HEADER`。cloudflare は20列、work/1028-lgn は24列）
+
+| 列 | どこから | 規約で保存してよいか | どう置き換えるか |
+|---|---|---|---|
+| 名前・X URL・画像・日付・投稿ID | X・SNS ブック | Google ではない | そのまま |
+| 店名・メニュー・判定・判定の理由 | Claude（本文） | Google ではない | そのまま |
+| **Places の店名** | Text Search の displayName | ×（3.2.3(a)(iii) business names） | 列を消す（決定） |
+| **駅** | Nearby Search の駅名（本文の駅が 800m 内ならその駅の Google の名前）＋ formattedAddress から作った【県】の印 | ×（Google の駅名・住所から作った内容） | 本文の駅＋オープンデータ（下の設計案） |
+| 店URL | place_id から組み立てた `https://www.google.com/maps/place/?q=place_id:…` | ○（place_id は保存してよい。URL は組み立て） | そのまま（表示の帰属は下） |
+| 表示・要確認・要確認の理由 | 判定と Places の結果（店が見つからない・圏内に駅が無いなど）から作った印・理由 | 理由の文は自前の判定。理由に入る駅名は本文の駅 | 新しい作りに合わせて計算し直す |
+| 店名の出どころ・モデル・変換日時 | 自前 | Google ではない | そのまま |
+| place_id | Text Search の id | ○（A.3・Policies） | そのまま |
+| **駅の候補** | Nearby Search の駅名と、Places の座標から計算した距離 | ×（Google の駅名、Google の座標から作った距離） | 列を消すか、オープンデータの駅と距離に（下） |
+| 緯度・経度（work/1028-lgn） | Text Search・Place Details の location | △（30日まで。消す仕組みが要る） | 下の設計案 |
+| 営業状況・ジャンル（work/1028-lgn） | businessStatus・primaryTypeDisplayName | × | 営業状況は保存しない（決定）。ジャンルは Claude（決定） |
+
+**【3】手動補正**: 見出しと中身はシートを読まないと分からない（このセッションでは読まない）。旧「ログ」から移した行の「駅」「店名」は旧「ログ」の手書きの値（2026-10-19〜27 の LOG 系列）。平野さんが Google マップを見て【3】に写した値（駅・place_id など）があるかは未確認
+
+**生成物**
+- resource_logs.html（両方のブランチ、3159行）: 「駅」（変換の行は Google の駅名）・店URL（568行は place_id から組み立てた URL、2573行は旧「ログ」の `maps.app.goo.gl`・`goo.gl` の手で入れた共有リンク）
+- log/index.html・log/search.json（work/1028-lgn だけ）: 駅・突き合わせ用の駅・都道府県（【県】の印から）・駅の候補（Google の駅名と距離）・店URL。座標・ジャンルは今は空
+- git の履歴: 上の値は過去のコミットにも残る（履歴を書き換えないかぎり消えない）
+
+**docs・テスト・ワークフローの出力**
+- テストの固定データ（`test_convert_x_posts.py` の PLACE・STATIONS、`test_log_pages.py`、`log.test.js`）: 作った見本の値で、Google から取った値ではない
+- docs/notes/github-actions.md・log-page.md: 仕組みの説明だけで、Google の値は無い
+- ワークフローの出力: `convert-x-posts.yml` の stations の実行サマリに、行ごとの「最寄り駅」（Google の駅名）を出す（`summarize_stations()`。Actions のログに残る）。all・details の出力は件数だけ
+
+### 手順3: オープンデータ
+
+- このセッションから `nlftp.mlit.go.jp`（国土数値情報）・`ekidata.jp`（駅データ.jp）を取りに行ったが、どちらも環境のネットワークの許可に無く `CONNECT tunnel failed, response 403`。中身・ライセンスの文は確かめていない。下の記述は記憶によるもので、取り込む指示の前に確かめる（ネットワークの許可に2つのドメインを足すかは平野さんの判断）
+  - 国土数値情報「鉄道」（N02、国土交通省）: 駅は線分（駅のホームの範囲の線）で持ち、点にするには代表点を計算する。年1回の更新。利用は出典の表記（例「国土数値情報（鉄道データ）（国土交通省）を加工して作成」）で商用も可、の見込み
+  - 駅データ.jp: 駅ごとの点（緯度・経度）・都道府県・路線の CSV。無料の会員登録で取れる。更新は月に数回。ライセンスの条件（表記・再配布）は要確認
+  - 海外（Bond Street・Paddington など London 5店）は対象外
+
 ## 報告
 
 - 状態: 作業中
