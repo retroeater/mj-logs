@@ -79,6 +79,58 @@ ryoei.pro の SEO/AIO（検索エンジン・AI 検索での見つかりやす�
 
 ## 経過
 
+### 着手前の確認（2026-10-29）
+
+- 0章: ログの「指示」欄の末尾が指示文の最後の行「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」と一致することを確かめた
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 欠けなし
+- 同じ Chat-Ref のコミット: なし。識別子 SEO の重複（全ブランチのコミットと docs/logs の履歴）: なし
+- 作業ブランチ: work/1029-seo はローカル・リモートとも無かったので `git checkout -b work/1029-seo origin/cloudflare`（着手時 HEAD 74d7dc08f）
+- 本番: `curl https://ryoei.pro/?v=seo01a` が 200。headless Chrome（Playwright）は読み込める
+- 0章ゲート: 実装を含まない指示なので対象外。指示文の issue の state: コメントの対象 #486 は open
+
+### 手順1(a) 対象のページの一覧
+
+`python3 scripts/regenerate.py --list`（30件）・`OUTPUT_OVERRIDES`・sitemap（`sitemap.xml` 配下の6ファイル）・リポジトリの HTML（docs・scripts・workers・assets などを除く全 .html）から作った。
+HTML のファイル数（noindex の数）: ルート11（1）・books 191（191）・exam 13（0）・houou 13（1）・jwrc 12（0）・live 923（923）・mtsuku 62（0）・ouka 12（1）・saikyo 891（0）・study 41（41）・title 384（0）・wayhome 44（0）・wrcr 12（0）。
+
+| 種類 | 件数 | 代表（本番 URL） |
+|---|---|---|
+| トップ階層（index・型A/A'/D・辞書） | 9 | https://ryoei.pro/ ・ https://ryoei.pro/jpml_pros.html ・ https://ryoei.pro/resource_dictionary.html |
+| 大会トップ（houou/ouka/jwrc/wrcr） | 4 | https://ryoei.pro/houou/ |
+| 大会の個人成績・順位変動（*/players/・*/race/） | 8 | https://ryoei.pro/houou/players/ ・ https://ryoei.pro/jwrc/race/ |
+| 大会ランキング（*/ranking/*/） | 35 | https://ryoei.pro/houou/ranking/total/ |
+| title/ 入口 | 1 | https://ryoei.pro/title/ |
+| title/ 大会ページ | 20 | https://ryoei.pro/title/houou/ |
+| title/ 期ページ | 363 | https://ryoei.pro/title/houou/42.html ・ https://ryoei.pro/title/ourai/12.html |
+| saikyo/ トップ | 1 | https://ryoei.pro/saikyo/ |
+| saikyo/ vs・years・players | 3 | https://ryoei.pro/saikyo/vs/ ・ https://ryoei.pro/saikyo/players/ |
+| saikyo/ ランキング | 6 | https://ryoei.pro/saikyo/ranking/champion/ |
+| saikyo/ 年度 | 16 | https://ryoei.pro/saikyo/2024/ |
+| saikyo/ 対局 | 205 | https://ryoei.pro/saikyo/2024/20240317.html |
+| saikyo/ 卓 | 660 | https://ryoei.pro/saikyo/2024/20240317-s1-a.html |
+| 動画の一覧（wayhome/mtsuku/exam） | 3 | https://ryoei.pro/wayhome/ ・ https://ryoei.pro/mtsuku/ |
+| 動画の各話（wayhome/mtsuku/exam） | 116 | https://ryoei.pro/wayhome/aNSsJicbMlM.html ・ https://ryoei.pro/mtsuku/ZeFtFG2ov_Q.html ・ https://ryoei.pro/exam/-PoeE0Bm2sE.html |
+
+除いたもの: books/（191、凍結・noindex）、saikyo_mens.html（廃止予定 #442、noindex 無し・sitemap 外）、404.html（noindex）、未公開（noindex）: live/（923、#362）・study/（41、#576）・houou/leagues/・ouka/leagues/（転送だけのページ）。log/ はリポジトリにまだ無い（#639 対応中）。
+公開中の1450件は sitemap（sitemap.xml 配下の6ファイル、books を除く）の <loc> と1対1（ファイルから導いた URL と突き合わせて差0）。
+公開中 URL の全件: このファイルと同じ場所の public_urls.txt。種類ごとの全件: pages.json。
+
+文書との食い違い（記録のみ。直さない）: `scripts/regenerate.py` の `OUTPUT_OVERRIDES` のコメントは ouka/・jwrc/・wrcr/ を「未公開」と書くが、3つとも noindex が無く sitemap-pages.xml に載る（公開は #591・#599・#611）。docs/notes/static-generation.md「ページの一覧」の前文も ouka/ を「noindex・メニュー未掲載」と書くが、同じ表の行は「公開は #591」。
+
+### 手順1(b) 棚卸しの issue の状態
+
+`list_issues`（open 全217件）で、棚卸しの39件がすべて open であることを確かめた（状態は棚卸しと同じ）。ラベルの補足: #640 は「状況: 待ち」、#460 は「状況:」無し、#142 は「状況: 待ち」、#230・#465 は「状況: 保留」、#620 はラベル無し（棚卸しどおり）、#532・#246 は「分野: UI/UX」（SEO のラベルは無い）。本文と最近のコメントの要旨・着手中のコメントの有無は下（読み取り専用のサブエージェントに読ませた結果）。
+
+### 手順1(c) #486 へのコメント
+
+https://github.com/retroeater/mj/issues/486#issuecomment-6489063736
+（Bing の Recommendations 上位5件、出典「平野さんの画面の申告（CHAT-1029-SEO-01）」。本文・状態・ラベルは変えていない）
+
+### 手順2 サブエージェントの起動（2026-10-29T05:49Z）
+
+3人とも general-purpose、モデル指定 sonnet（Sonnet 5.5）、背景で起動。共通の約束（読み取り専用・出力の形・前提・棚卸し）は scratchpad の common.md に書いて読ませた（使い捨て）。名前と担当: seo-tech（①技術 SEO）・seo-content（②ページの中身）・seo-aio（③AIO）。
+棚卸しの割り当て: ① #638・#560・#335・#458・#264・#246・#532・#568・#465・#159・B1・B3／② #486・#5・#283・#142・#460・#165・#160・#219・#101・#195・#226・#282・#304・#529・B4・B6・B7／③ #229・#266・#227・#554・#620・#173・#13・#230・#289・#275・#362・#576・#640・#555・#296・B2・B5。
+
 ## 報告
 
 - 状態: 作業中
