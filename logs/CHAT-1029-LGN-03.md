@@ -73,6 +73,29 @@ LGN-02 の報告の判断が要る点への回答
 
 ## 経過
 
+- 着手前の確認: `CHAT-1029-LGN-03` のコミット無し。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は欠け無し。0（指示欄の末尾）: 指示文の最後の行と一致。CLAUDE.md は `HEAD..origin/cloudflare` で変更無し。LGN-02 のログの状態を「判断待ち / 続き: CHAT-1029-LGN-03」にした
+- 作業ブランチ: `origin/work/1028-lgn`（08c89f0b2）がありローカルと一致。`merge-base --is-ancestor origin/cloudflare HEAD` が偽なので、ログの先行 push の後に `git merge origin/cloudflare`（8a2409978。`data/live_channel_raw.jsonl` だけ、衝突なし）
+- 未マージのブランチとの重なり: 1017-lvp が `style.css`（saikyo・live の節）・`navbar.js`・`scripts/lib/members.py`・`scripts/lib/study.py` を変えている。こちらは style.css の末尾の log/ の節だけ、`scripts/lib/` は触らない。`assets/`・`convert_x_posts.py`・`convert-x-posts.yml`・`run-monthly.yml` を変えている未マージのブランチは無い
+- Places の区分（Google の文書を 2026-10-29 に読んだ）: Place Details の Essentials は location など、**businessStatus・primaryTypeDisplayName は Place Details Pro**。料金表: Place Details Pro は無料の枠 月 5,000回・超えた分 1,000回 $17、Place Details Essentials は 10,000回・$5。Text Search は places.displayName が既に Text Search Pro の項目で、places.businessStatus・places.primaryTypeDisplayName も Text Search Pro（区分は変わらない。無料の枠 5,000回・$32）。LGN-02 の coords の見込み（Essentials $5 で $9.47）は、項目を足したので Pro になった
+- 手順2（変換、20e872a60）: 【2】の末尾の列を「緯度」「経度」「営業状況」「ジャンル」（`PLACE_DETAIL_COLUMNS`）にした。all は Text Search の応答から4列を書く（`PLACE_FIELDS` に businessStatus・primaryTypeDisplayName）。LGN-02 の `coords` を `details` に改め、place_id のある全部の行を place_id ごとに1回の Place Details（`location,businessStatus,primaryTypeDisplayName`）で取り直し、変わったセルだけ書く。営業状況は 営業中・臨時休業・閉業（`BUSINESS_STATUS`、知らない値はそのまま）。Place Details の 404（Google マップから消えた店）は止めずにその店だけ飛ばす。予定の出力に区分・無料の枠・枠を超える分の費用。`convert-x-posts.yml` の workflow_call に `mode`（既定 all。run-weekly は渡さないので all のまま）、`run-monthly.yml` に job `logplaces`（convert-x-posts の details、`dry_run: !scheduled`、Secret は Sheets の2つと Places）。docs/notes/github-actions.md の表・節を直した
+- 手動実行（作業ブランチ、書かない道筋）:
+  - convert-x-posts mode details（run 40798420718、成功）: 【2】 見出し 先頭が同じ（4列が無い）・3451行。**place_id のある 3141行（place_id 1895個）を取り直す。Place Details の呼び出し 1895回（区分は Place Details Pro、無料の枠は月 5,000回。枠を超える分 0回、見込みの費用 約 $0.00）**、上限 2,000回
+  - convert-x-posts mode all（run 40798426717、成功）
+  - run-monthly（scheduled なし）: 1回目（run 40798423892）は logplaces が cancelled。同時に起動した convert-x-posts の2本と同じ concurrency の組（`convert-x-posts`）で、待っていた本が後から来た本に押し出された。単独で起動し直した2回目（run 40799028863）は logplaces（details の dry-run、上と同じ予定）・redirects 成功、gsc は手動なので飛ばす
+  - 予約の道筋: 書き込みを止める1行（`APPLY: 'false'`）だけを入れた一時のコミット 8fc9f68e9 で、convert-x-posts を `scheduled` 真・mode details で起動（run 40799126254、成功）。判定は「event: workflow_dispatch / scheduled: true / apply: true」、スクリプトは --apply 無しの dry-run で通った。run-monthly を予約の形で起動すると gsc・redirects が本番に書く（#304・#568 へのコメントなど）ので、呼ばれる側を直接起動した。スイッチは 41f9ddbd6 で戻した（戻しの差分はその1行だけ、戻した後の convert-x-posts.yml は e9a0f90fb と差分 0行）。途中で `git revert` が動かずに `--amend` が一時のコミットの方を書き換えた（push は fast-forward でないと拒否され、リモートには出ていない）ので、`git reset --soft origin/work/1028-lgn` で戻してから戻しのコミットを作り直した
+- 手順1（ページ、e9a0f90fb）: 投稿者のボタンをやめ、検索の候補（駅・投稿者・店名・投稿年・ジャンル・都道府県、種類ごとに3件、「新宿 駅 17店」の形で店数は右端）とタグ（「×新宿」、種類ごとに1つ、AND、× で外す。カテゴリの店・現在地もタグ）にした。件数は「N店」、距離は「神保町から 46m」。カテゴリの行から「（店名非公開）」を外した。search.json の店に「ジャンル」「都道府県」を足した（11要素）
+  - 過去メシの判定の置き場所: **生成（`generate_log_pages.py`）が【1】元データの本文を読んで外す形**を選んだ。理由: シートに書かずに今の既存の行・新しい行の両方に同じ規則で当たる（変換で【2】の判定・表示に反映すると、既存の行への書き込みが要り、この指示の dry-run の範囲を超える）。resource_logs.html は変わらないので、件数の照合（resource_logs の行数 − 過去メシ = log/ の投稿）がそのまま使える。本文は出力しない。谷岡育夫でない投稿の本文に「過去メシ」があれば外さず、警告に投稿IDを出す
+  - 閉業: 「営業状況」が「閉業」の投稿を外す（【3】で直せる）。列が空の間は外さない。ジャンルの列が空の間はジャンルの候補が出ない
+  - 都道府県: 実データ（2026-10-28 の search.json、1914店）で、駅に【県】の印のある店 148（千葉77・神奈川13・埼玉10・静岡9・京都6・愛知6・北海道5・宮城5・London5 など）、印の無い駅 275種はほとんど東京だが、元住吉・土崎・新潟・Bond Street・Paddington などは東京の外。印が無ければ東京とみなす形を仮置きにし、`簡略化:` のコメントを残した
+  - JS: 画面に触れない関数（normalize・prepare・matchShop・search・suggest・setTag・readParams・writeParams・distance・meters）を `core` にまとめ、`module.exports` で出す（ブラウザでは document がある側だけ動く）。検査 `scripts/tests/js/log.test.js`（14件、`node --test`、依存なし）。CI: `check-assets.yml` の「共通の部品のテスト」に足し、work/** の push で回る（e9a0f90fb の run 40799074272 で 32件〈upsert 18・log 14〉が通った）
+  - 手元の確かめ（仮のデータ、ヘッドレス Chromium）: 「新宿」→ 候補「新宿 駅 17店」「新宿三丁目 駅 10店」→ タグ「×新宿」・17店・`?station=新宿`・「新宿から 75m」。「谷岡」→ 候補「谷岡育夫 投稿者 11店」→ タグ2つ・11店・`?station=新宿&name=谷岡育夫`。タグの × で外れる。LGN-02 の `?name=谷岡育夫&station=新宿` がタグ2つで開く。`?pref=千葉`。現在地はタグ「×現在地」と「現在地から 361m」。360px で横のはみ出し無し。ページのエラー無し
+  - 全テスト: Python 1637件 OK、node 32件 OK
+- 手順3（生成）: regenerate-page.yml（作業ブランチ、target_page `resource_logs log_pages`）
+  - 入力 `check`（run 40799361837、成功）: resource_logs「3層から 3159件」、log_pages「3層から 3159件のうち 3031件・1885店（過去メシで外した 128件・閉業で外した 0件、座標のある店 0店・ジャンルのある店 0店）」。谷岡育夫以外の過去メシの警告は無し
+  - 入力無し: ebed0da71「chore: regenerate resource_logs.html log/」
+  - **件数の照合（同じ実行の生成物）: resource_logs.html 3159行 − log/ 3031件 = 128件 = 過去メシで外した件数。log/ にだけある X の URL 0件、resource_logs.html にだけある 128件は名前がすべて谷岡育夫・URL がすべて it_uesama**（止まる条件に当たらない）
+  - search.json の店はすべて11要素。都道府県: 東京 1718店・千葉 77・空 20・神奈川 12・埼玉 10 など。index.html のカテゴリに「（店名非公開）」は無い
+
 ## 報告
 
 - 状態: 作業中
