@@ -143,7 +143,7 @@ Google の規約（CHAT-1029-LGN-04 のログ `## 経過`「手順1」）に合�
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1029-LGN-06
 - ブランチ: work/1029-lgn-eki
 - ログ: https://github.com/retroeater/mj/blob/work/1029-lgn-eki/docs/logs/CHAT-1029-LGN-05.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1029-lgn-eki
@@ -170,4 +170,4 @@ Google の規約（CHAT-1029-LGN-04 のログ `## 経過`「手順1」）に合�
 - docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/74d7dc08/docs/notes/chat-side-operations.md
 - docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/74d7dc08/docs/notes/cloudflare.md
 - docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/74d7dc08/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/5b39b154.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/74d7dc08.md
