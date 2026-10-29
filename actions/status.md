@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-29 10:03 JST
+- 書き出した時刻: 2026-10-29 10:07 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -25,11 +25,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-29 10:06 | push | work/1028-lgn | success | #487（40798405360） | 0分22秒 |
 | 2026-10-29 10:01 | push | work/1028-lgn | success | #486（40797865670） | 0分26秒 |
 | 2026-10-29 00:37 | push | work/1028-lgn | success | #485（40717851872） | 0分29秒 |
 | 2026-10-29 00:35 | push | work/1028-lgn | success | #484（40717534037） | 0分29秒 |
 | 2026-10-29 00:31 | push | work/1028-lgn | success | #483（40716761179） | 0分29秒 |
-| 2026-10-29 00:30 | push | work/1028-lgn | success | #482（40716690144） | 0分27秒 |
 
 ## check-build-failure.yml
 
@@ -38,11 +38,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-29 10:07 | check_run | cloudflare | skipped | #645（40798465590） | 0分00秒 |
 | 2026-10-29 10:02 | check_run | cloudflare | skipped | #644（40797930945） | 0分01秒 |
 | 2026-10-29 00:27 | check_run | cloudflare | skipped | #643（40716145453） | 0分01秒 |
 | 2026-10-28 17:19 | check_run | cloudflare | success | #642（40655915024） | 0分09秒 |
 | 2026-10-28 17:03 | check_run | cloudflare | skipped | #641（40654047300） | 0分11秒 |
-| 2026-10-28 16:56 | check_run | cloudflare | success | #640（40653311290） | 0分10秒 |
 
 ## check-image-links.yml
 
@@ -134,11 +134,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-29 10:07 | workflow_dispatch | work/1028-lgn | pending | #43（40798426717） |  |
+| 2026-10-29 10:07 | workflow_dispatch | work/1028-lgn | in_progress | #42（40798420718） |  |
 | 2026-10-29 00:19 | workflow_dispatch | work/1028-lgn | success | #41（40714841303） | 1分03秒 |
 | 2026-10-29 00:19 | workflow_dispatch | work/1028-lgn | success | #40（40714825265） | 0分34秒 |
 | 2026-10-28 00:51 | workflow_dispatch | work/1028-log-367-weekly | success | #39（40535186608） | 0分32秒 |
-| 2026-10-28 00:02 | workflow_dispatch | cloudflare | success | #38（40526977540） | 1分40秒 |
-| 2026-10-28 00:01 | workflow_dispatch | cloudflare | success | #37（40526818710） | 0分40秒 |
 
 ## fetch-gsc.yml
 
@@ -254,7 +254,10 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-29 10:07 | workflow_dispatch | work/1028-lgn | cancelled | #2（40798423892） | 0分29秒 |
 | 2026-10-21 11:37 | workflow_dispatch | cloudflare | success | #1（39534076694） | 0分37秒 |
+
+- #2 cancelled: ジョブ「logplaces / convert」
 
 ## run-weekly.yml
 
