@@ -200,7 +200,7 @@ Chat-Ref: CHAT-1030-SEO-11
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1030-SEO-12
 - ブランチ: work/1030-seo11
 - ログ: https://github.com/retroeater/mj/blob/work/1030-seo11/docs/logs/CHAT-1030-SEO-11.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1030-seo11
