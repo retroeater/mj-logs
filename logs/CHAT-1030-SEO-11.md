@@ -62,6 +62,27 @@ Chat-Ref: CHAT-1030-SEO-11
 - 0. 指示欄の末尾は指示文の最後の行（「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」）と一致。
 - 同じ Chat-Ref のコミット・ログ: なし。`work/1030-seo11` はローカル・リモートとも無く、origin/cloudflare（729e3163f）から作成。
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 欠けなし。
+- #5 は open。他セッションの着手中コメントなし。着手コメントを付けた（https://github.com/retroeater/mj/issues/5#issuecomment-6519354470 ）。
+- 0章ゲート: 未マージの work/ ブランチ（`git branch -r --no-merged origin/cloudflare`）のうち、3つの生成・`scripts/lib/` を変えているのは work/1017-lvp（`lib/members.py`・`lib/study.py`）と work/1029-lgn-page（`generate_resource_logs.py`・`lib/stations.py`）だけで、今回触るファイル（3つの生成・`lib/page.py`）と重ならない。CLAUDE.md 23,786・handover.md 22,887 バイト（警告域 26KB の手前）。
+- 告知の期間: docs/notes/page-announcement.md の実例・一覧で、4大会・title・saikyo とも投稿済み。期間中のページは無く、外した生成なし。
+
+### 手順1: 説明文を組む箇所と直し方
+
+- 3か所（meta description・og:description・`.mj-lead`）は、3つの生成とも `PageMeta.description` の1つの文字列から `lib/page.py` の `render_content()` が出す（`apply_count` の後の同じ値）。止まる条件（別々の文字列）には当たらない。
+- 大会ランキング: `generate_houou_pages.py` の `render_ranking()` の文を `ranking_description()` に出し、「通算・期最高・節最高など9部門」を「<部門名>など9部門」にした（部門の数は `CONTEST.divisions` から）。ouka/・jwrc/・wrcr/ も同じ関数。
+- title/ の期: `period_description()`。年（決勝日の年。`YYYY-XX-XX` も年は出す。西暦の期〈題に年がある〉と日付の無い期は省く）と `日本プロ麻雀連盟の` を足した。決勝の顔ぶれ（準優勝以下）は今の型にもすでに入っていた（「以下、〜。」）。名前の記録が無い行（「-」）は名前の並びから省く（今は「—」を出していた）。
+- title/ の大会: `taikai_description()` を足した。歴代の期の範囲（今のまま）と現タイトルホルダー（入口と同じく最新の期の優勝者）。
+- saikyo/ の年度: `year_description()`。最強位（`find_champions()` と同じ判定を `champion_players()` に出して共有）を決まった年度だけ足した。対局数は出さない。
+- saikyo/ の対局: `match_description()`。対局名と日付を「「対局名」（日付）」の形に分け、出場者（1卓に収まる4名以下なら名前、超えれば「出場は16名。」の人数）と勝ち上がり（`winners()`。決勝の通過は「優勝は」「最強位は」）を足した。
+- saikyo/ の卓: `table_description()`。出場者（卓の名前、空の名前は省く）と勝ち上がり（その卓の通過者）を足した。未対局の卓・対局は勝ち上がりの句を省く。
+- 字数の要約: `lib/page.py` に `DESCRIPTION_LIMIT = 120`・`description_summary()` を足し、3つの生成が実行の記録に種類ごとの件数・字数の最小／中央／最大・50字未満の件数・120字超のページ名を1行ずつ出す（値は出さない）。
+- テスト `scripts/tests/test_descriptions.py`（13件）: 句の省き方・3か所が同じ文字列・120字超の数え方。修正前のコード（origin/cloudflare 729e3163f）では 12件が失敗（残る1件は title の3か所の共通の出し方で、修正前から成り立つ）。`python3 -m unittest discover -s scripts/tests` は 1634件 OK。
+- コミット 6761bd061。
+
+### 手順2: dry_run の前提の食い違い
+
+- `regenerate-page.yml` の dry_run・compare_ref は「変わったファイルの名前と行数だけ」を出し、値を出さない作り（#557。ワークフローのコメント「値は出さない」）。指示文の前提「新旧の差から見本を取る」とは食い違う。
+- 字数の要約は上の `description_summary()` が生成の記録（ジョブのログ）に出すので、dry_run の実行から実データで取れる。前後の文の見本は dry_run からは取れない。
 
 ## 報告
 
