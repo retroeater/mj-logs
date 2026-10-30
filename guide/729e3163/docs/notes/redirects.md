@@ -15,7 +15,7 @@ ryoei.pro のすべての転送の一覧と、四半期ごとの棚卸しの手�
 | `/live` の URL 変更の 301 | `_redirects` の `# live: generated` 〜 `# live: end`（`scripts/generate_live_pages.py` が書く） | 2026-10-14 時点で `/live/teiou/3/b16.html`・`/live/teiou/4/b16.html` → 同じ期の `f.html` | docs/notes/live-page-design.md「3-4」。生成物なので行ごとに照らし合わせない。当面は消さない |
 | 内部の書き換え（200） | `_redirects` | 28行（`/`、各ディレクトリの `index.html`、`/saikyo/<年度>/`〈16行〉、`/title/:slug/` など） | docs/notes/cloudflare.md「配信設定」。転送ではないので棚卸ししない |
 
-ダッシュボードのルール: Redirect Rules は「www to apex」1本（Order 1、Active、308）。Bulk Redirects のリストは 0（0 out of 5）。Rules の Overview のほかの種類（URL Rewrite・Configuration・Origin・Request/Response Header Transform・Cache・Cache Response・Custom Error・Compression・Trace）はいずれも 0。Page Rules の欄は Overview に無かった。
+ダッシュボードのルール: Redirect Rules は「www to apex」1本（Order 1、Active、308。その後に `?match=` のルールが足された。下の「ダッシュボードの転送」）。Bulk Redirects のリストは 0（0 out of 5）。Rules の Overview のほかの種類（URL Rewrite・Configuration・Origin・Request/Response Header Transform・Cache・Cache Response・Custom Error・Compression・Trace）はいずれも 0。Page Rules の欄は Overview に無かった。
 2026-10-14 平野さんの画面で確認（申告値）。セッションからは検証できない。
 
 ## 棚卸しの対象
@@ -88,11 +88,17 @@ ryoei.pro のすべての転送の一覧と、四半期ごとの棚卸しの手�
 | `ouka/leagues/`（`/ouka_leagues.html` は 301 で来る） | `ouka/players/?view=league`（`?name=` を保つ） | `assets/league.js`（houou/ と同じ。生成は #591） | #591 |
 | `/saikyo/?q=<名前>`（今までのトップの検索の URL。外で共有されたもの） | `/saikyo/players/?name=<名前>` | `assets/saikyo.js`（新しいトップ、2026-10-26。サイト内のリンク〈jpml_pros・卓のページの「すべて見る」〉は個人成績へ直接張り替えた）。**期限つき: 公開から3か月後（2027-01 上旬）の棚卸しで、Cloudflare の集計で `/saikyo/?q=` の流入が無いと確かめたら、この行・JS の節・新しいトップの `saikyo.js` の読み込みを外す**（2026-10-23 の決定6。JS の移動は集計に出ないので、`/saikyo/` の流入のクエリつきの件数で見る） | #627 |
 
+## ダッシュボードの転送（テストで拾えない）
+
+| 転送元 | 転送先 | 仕組み | issue |
+|---|---|---|---|
+| 最強戦の旧年度ページの `?match=`（`/saikyo/<年度>.html?match=<対局識別子>`） | `/saikyo/<年度>/<対局識別子>.html`（1ホップ。個別ページに無い値は 404） | Single Redirect ルール（ダッシュボード、#549 の公開の後に平野さんが作った）。2026-10-29 に本番の応答で動いていることを確かめた（ルールの名前・式・順序はセッションから見えない） | #549 |
+
+既知の問題: `?match=` の後ろに他のクエリが付くと、クエリ文字列全体を識別子として使い、存在しない URL へ 301 する（例: `?match=20240317&utm_source=x` → `/saikyo/2024/20240317&utm_source=x.html` → 404。2026-10-29 に本番で確認）。扱いは #568 の棚卸しで決める。
+
 ## 予定（公開時に増える）
 
-| 転送元 | 予定 | issue |
-|---|---|---|
-| 最強戦の旧年度ページの `?match=` | `?match=` の Single Redirect ルール（ダッシュボード、#549 の公開の直後に平野さんが作る。テストで拾えない） | #549 |
+今は無い。
 
 ## 棚卸しの手順（四半期ごと、1・4・7・10月の上旬）
 

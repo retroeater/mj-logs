@@ -22,10 +22,10 @@ OGP 画像・og:title を作る／変えるときに読む。#339（「帰り道
 | 動画の一覧ページ（Mつく・女流勉強会の一覧など） | 最新話のサムネイル。許可を得て合成画像を作れるもの（帰り道の一覧、#340）は合成画像 | website |
 | 最強戦の卓（ABEMA） | ABEMA の回があればその回のサムネイル（ヒーローと同じ）、無ければ作品「麻雀最強戦」の画像 | website（ABEMA は埋め込みの URL を出していない） |
 | 最強戦の年度・対局 | 作品「麻雀最強戦」の画像 | website |
-| `jpml_pros.html`・title/ の全ページ・houou/ の全ページと旧 `houou_*.html`・ouka/ の全ページ・saikyo/ のトップ | それぞれ「連盟プロ」「タイトル戦」「鳳凰戦」「女流桜花」「麻雀最強戦」の1枚。共通画像と同じ白地・黒字で、区分名を大きく（幅に合わせ、上限 200px）、その下に「ryoei.pro」（48px）。`build_ogp_image.py --text <区分名> --footer ryoei.pro --color '#212529' --bg '#ffffff' --max-size 200 --tracking -0.03` | website |
+| `jpml_pros.html`・title/ の全ページ・houou/ の全ページと旧 `houou_*.html`・ouka/ の全ページ・jwrc/ の全ページ・wrcr/ の全ページ・saikyo/ のトップと vs/・years/・players/・ranking/ の各ページ | それぞれ「連盟プロ」「タイトル戦」「鳳凰戦」「女流桜花」「WRCリーグ」「WRC-Rリーグ」「麻雀最強戦」の1枚（`img/ogp/<pros・title・houou・ouka・jwrc・wrcr・saikyo>/index-white.png`）。共通画像と同じ白地・黒字で、区分名を大きく（幅に合わせ、上限 200px）、その下に「ryoei.pro」（48px）。`build_ogp_image.py --text <区分名> --footer ryoei.pro --color '#212529' --bg '#ffffff' --max-size 200 --tracking -0.03` | website |
 | ほかのページ（下位メニューしか無いグループ〈番組・リソース・良栄〉の下のページなど） | 共通の `img/ogp/site/index-white.png`。ページの種類ごとの画像は作らない | website |
 
-文字ベースの画像（サムネイルなどの無いページで使うもの）は、メニューの最上位でそれ自体がページになっているものだけ作る（ryoei.pro・鳳凰戦・麻雀最強戦・タイトル戦の4種類。サブメニューで細かく分けない、2026-10-16、#581。タイトル戦は当時メニュー「連盟」の下の例外だったが、2026-10-19 にメニュー「連盟」をやめ「連盟プロ」「タイトル戦」がトップの項目になった）。2026-10-19 に「連盟プロ」（`jpml_pros.html`）の `img/ogp/pros/index-white.png` を足した（`generate_jpml_pros.py` のテンプレート）。女流桜花の ouka/ は、公開で navbar「女流桜花」を `/ouka/` への1段にする案（#591）に合わせて5種類目を作った（`img/ogp/ouka/index-white.png`、2026-10-17、仮置き。#519）
+文字ベースの画像（サムネイルなどの無いページで使うもの）は、メニューの最上位でそれ自体がページになっているものだけ作る（2026-10-16 の決定の時点では ryoei.pro・鳳凰戦・麻雀最強戦・タイトル戦の4種類。サブメニューで細かく分けない、#581。タイトル戦は当時メニュー「連盟」の下の例外だったが、2026-10-19 にメニュー「連盟」をやめ「連盟プロ」「タイトル戦」がトップの項目になった）。2026-10-19 に「連盟プロ」（`jpml_pros.html`）の `img/ogp/pros/index-white.png` を足した（`generate_jpml_pros.py` のテンプレート）。女流桜花の ouka/ は、公開で navbar「女流桜花」を `/ouka/` への1段にする案（#591）に合わせて5種類目を作った（`img/ogp/ouka/index-white.png`、2026-10-17。ouka/ は #591 で公開済み。`ouka/leagues/` だけ noindex）。WRC リーグの jwrc/（#594）と WRC-R リーグの wrcr/（#366）も同じ形の画像を持つ（docs/decisions/houou.md の WRC-07・WRR-03）。2026-10-29 の時点の区分の画像は ryoei.pro（site）・連盟プロ・タイトル戦・鳳凰戦・女流桜花・WRCリーグ・WRC-Rリーグ・麻雀最強戦の8種類（ほかに帰り道の一覧の合成画像 `img/ogp/wayhome/`）
 
 - 全ページに og:locale `ja_JP`（#267）。生成のページは `lib/page.py` の `HEAD_TEMPLATE` と `generate_jpml_pros.py`、手書きのページは head に直接書く
 - 規則は「埋め込みできる動画のページ（YouTube）は video.other ＋ og:video、それ以外は website」
