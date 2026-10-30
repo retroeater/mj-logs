@@ -1,7 +1,7 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-30 07:59 JST
-- 書き出した実行の契機: schedule（main）
+- 書き出した時刻: 2026-10-30 11:12 JST
+- 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
 
@@ -107,11 +107,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-30 11:10 | schedule | cloudflare | success | #15（40990161216） | 0分36秒 |
 | 2026-10-29 10:57 | schedule | cloudflare | success | #14（40803492712） | 0分24秒 |
 | 2026-10-28 10:48 | schedule | cloudflare | success | #13（40617272245） | 0分22秒 |
 | 2026-10-27 10:38 | schedule | cloudflare | success | #12（40433747753） | 0分28秒 |
 | 2026-10-26 09:45 | schedule | cloudflare | success | #11（40250899502） | 0分24秒 |
-| 2026-10-25 09:34 | schedule | cloudflare | success | #10（40147230229） | 0分22秒 |
 
 ## cleanup-logs.yml
 
@@ -150,11 +150,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-30 09:28 | schedule | cloudflare | success | #11（40979920929） | 0分07秒 |
 | 2026-10-29 09:28 | schedule | cloudflare | success | #10（40794333811） | 0分08秒 |
 | 2026-10-21 11:34 | workflow_dispatch | work/1021-wkp | success | #9（39533801092） | 0分31秒 |
 | 2026-10-09 10:22 | workflow_dispatch | work/1007-pht-gsc | success | #8（37869497652） | 0分29秒 |
 | 2026-10-01 09:13 | schedule | cloudflare | success | #7（36795074558） | 0分24秒 |
-| 2026-09-30 08:59 | schedule | cloudflare | success | #6（36647998515） | 0分08秒 |
 
 ## fetch-redirect-counts.yml
 
@@ -164,11 +164,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-30 10:14 | schedule | cloudflare | success | #9（40984670975） | 0分07秒 |
 | 2026-10-29 10:08 | schedule | cloudflare | success | #8（40798548431） | 0分07秒 |
 | 2026-10-21 11:34 | workflow_dispatch | work/1021-wkp | success | #7（39533803420） | 0分30秒 |
 | 2026-10-18 21:22 | workflow_dispatch | work/1018-sec4 | success | #6（39127019361） | 0分40秒 |
 | 2026-10-15 03:01 | workflow_dispatch | cloudflare | success | #5（38611570265） | 0分32秒 |
-| 2026-10-15 02:59 | workflow_dispatch | cloudflare | success | #4（38611403811） | 0分30秒 |
 
 ## fetch-x-posts.yml
 
@@ -310,11 +310,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-30 10:53 | schedule | cloudflare | success | #64（40988493367） | 0分35秒 |
 | 2026-10-29 10:45 | schedule | cloudflare | success | #63（40802342994） | 0分42秒 |
 | 2026-10-28 10:14 | schedule | cloudflare | success | #62（40613879551） | 1分01秒 |
 | 2026-10-27 10:26 | schedule | cloudflare | success | #61（40432559735） | 0分41秒 |
 | 2026-10-26 09:13 | schedule | cloudflare | success | #60（40248321222） | 0分54秒 |
-| 2026-10-25 09:16 | schedule | cloudflare | success | #59（40146072802） | 0分32秒 |
 
 ## sync-yotei.yml
 
@@ -331,11 +331,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-30 10:21 | schedule | cloudflare | success | #110（40985346050） | 0分11秒 |
 | 2026-10-29 10:15 | schedule | cloudflare | success | #109（40799260007） | 0分08秒 |
 | 2026-10-28 09:45 | schedule | cloudflare | success | #108（40610776087） | 0分11秒 |
 | 2026-10-27 09:51 | schedule | cloudflare | success | #107（40428994681） | 0分12秒 |
 | 2026-10-26 08:34 | schedule | cloudflare | success | #106（40245383856） | 0分08秒 |
-| 2026-10-25 08:44 | schedule | cloudflare | success | #105（40143974736） | 0分09秒 |
 
 ## update-sns-book.yml
 
