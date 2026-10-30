@@ -61,17 +61,58 @@ CHAT-1030-SEO-11 で作った説明文の型（大会ランキング・title/ �
 - 同じ Chat-Ref のコミット・ログ: なし。work/1030-seo11 はローカル・リモートとも 32b40cef5 で、origin/cloudflare（729e3163f）が祖先（取り込み不要）。
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 欠けなし。
 
+- #5 は open。着手コメント https://github.com/retroeater/mj/issues/5#issuecomment-6522524618
+- 0章ゲート: 未マージの work/ ブランチで、3つの生成・`lib/page.py` を変えているものは無い。告知の期間中のページなし（SEO-11 と同じ）。
+
+### 手順1
+
+- `ranking_description()`: 「…の「<部門名>」の成績ランキングです（全<部門の数>部門のうちの1つ。在籍者のみ）。」。`period_description()`・`taikai_description()`: 文頭の `SECTION_NAME`（日本プロ麻雀連盟）の「の」を外した。コミット 5ac12dec2。
+- テスト `test_descriptions.py`: 期待値を直し、`test_no_org_at_the_start` を足した（14件）。SEO-11 のコード（32b40cef5）では7件が失敗。`python3 -m unittest discover -s scripts/tests` は 1635件 OK。
+- docs/notes: houou-top.md（ランキングの説明文）と saikyo-page-design.md（年度の説明文が SK-29 の旧い形のまま古かったので、年度・対局・卓の今の型に置き換えた）を直した（6f6cc90ae）。title-pages.md・mj-lead.md には説明文の型・例文が無く、直していない。
+- 決定の記録: seo-bing.md に SEO-12 の節、houou.md の 2026-10-10 のランキングの説明文の行に「→ 置き換え」、saikyo.md に SEO-12 の節（SK-29 はこのファイルに行が無いので、新しい決定の側に置き換えを書いた）。SEO-11 のログの状態に「 / 続き: CHAT-1030-SEO-12」を足した。
+
+### 自己レビュー（2回目。差分 32b40cef5..5ac12dec2 -- scripts/ だけ）
+
+テストはサブエージェントでも 1635件 OK。
+
+| 指摘 | 扱い |
+|---|---|
+| 最強戦のランキング（saikyo/ranking/）の説明文は「〜など9部門の記録のランキングです」のまま | 意図どおり（決定の対象は houou/・ouka/・jwrc/・wrcr/ の35ページ） |
+| ランキングのテストの「全9部門」が固定値 | 意図どおり（部門の数は `CONTEST.divisions` から。ouka の8部門は生成の記録で8件と出る） |
+
+### 手順2: dry_run（実行 41053818095、6f6cc90ae、compare_ref = origin/cloudflare 729e3163f）
+
+- 成功。注釈「compare: 差分あり 1276 件」。1276件すべて「6 行」（説明文の3か所の旧3行・新3行）で、ほかの行数・片方にだけあるものは0件。内訳 houou/ranking 9・ouka/ranking 8・jwrc/ranking 9・wrcr/ranking 9・title/ 361・saikyo/ 880。
+- SEO-11 の dry_run（1298件）との差の22件は title/ の nihon-series 11期・joryu-nihon-series 11期: 題に年がある期（年の句なし）で2位以下があり、文頭の「日本プロ麻雀連盟の」を外すと今の文と同じになる（例 「日本シリーズ2025の決勝結果。優勝は…。以下、…。」）。saikyo/2026/ も差なし（最強位が未決）。範囲の外の変化は無い。
+- 字数の要約（生成の記録）:
+  - ランキング: houou 9件 61〜64（中央63）、ouka 8件 60〜63（62）、jwrc 9件 62〜65（63）、wrcr 9件 63〜66（64）。50字未満0・120字超0
+  - title/ 大会: 20件 45〜57（中央48）、50字未満11（SEO-11 の見本では0、今の cloudflare では20）・120字超0
+  - title/ 期: 363件 26〜72（中央48）、50字未満237（SEO-11 の見本では20、今の cloudflare では355）・120字超0
+  - saikyo/ 年度 16件 28〜38（中央37）50字未満16、対局 219件 43〜110（57）50字未満6、卓 646件 63〜106（83）50字未満0。いずれも120字超0（SEO-11 と同じ）
+- 止まる条件に当たらないので、書く実行（dry_run なし）を起動した。
+
+### 手順2: 書く実行
+
+- regenerate-page.yml（work/1030-seo11、dry_run なし）が `1acb2466d chore: regenerate houou/ ouka/ jwrc/ wrcr/ title/ saikyo/ via GitHub Actions` を作った。1279ファイル（ページ 1276・sitemap-pages.xml・sitemap-saikyo.xml・sitemap-title.xml）、+5104/-5104。
+- 全件の確かめ: `git show --format= --unified=0 1acb2466d` の増減の行を種類ごとに数えると、`<meta name="description"`・`<meta property="og:description"`・`<p class="mj-lead">`・`<lastmod>` が各 +1276/-1276 で、ほかの行は0。ページの内訳は dry_run と同じ（houou/ranking 9・ouka/ranking 8・jwrc/ranking 9・wrcr/ranking 9・title/ 361・saikyo/ 880）。範囲（説明文の3か所・変わったページの lastmod）に収まる。
+- 作業ブランチに先に積んだログのコミット（e2574d73f）があったので、生成のコミットを merge で取り込んだ（8818690b7、衝突なし）。取り込んだ後も `python3 -m unittest discover -s scripts/tests` は OK。
+- 新しい文（生成物から）:
+  - ランキング: houou/ranking/total/「日本プロ麻雀連盟の鳳凰戦について、第43期前期終了時点の「通算」の成績ランキングです（全9部門のうちの1つ。在籍者のみ）。」、ouka/ranking/term-high/「日本プロ麻雀連盟の女流桜花について、第20期終了時点の「期最高」の成績ランキングです（全8部門のうちの1つ。在籍者のみ）。」
+  - title/ 期: title/wrc/3.html「第3回リーチ麻雀世界選手権（2022年）の決勝結果。優勝は奈良圭純。以下、藤崎智、Valentin Courtois、Anna Zubenko。」、title/oui/1.html「第1期王位戦（1973年）の決勝結果。優勝は青木博。」
+  - title/ 大会: title/ranwa/「鸞和戦について、歴代優勝者（第1期〜第6期）をまとめています。現タイトルホルダーは白鳥翔。」、title/houou/「鳳凰戦について、歴代優勝者（第1期〜第42期）をまとめています。現タイトルホルダーは白鳥翔。」
+  - 参考: saikyo/2022/「麻雀最強戦2022の各対局の勝ち上がりをまとめています。最強位は瀬戸熊直樹。」
+
 ## 報告
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 729e3163）: https://github.com/retroeater/mj-logs/tree/main/guide/729e3163
+ガイド文書（この版を写した時点の最新、mj bc1a6ae8）: https://github.com/retroeater/mj-logs/tree/main/guide/bc1a6ae8
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/729e3163/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/729e3163/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/729e3163/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/729e3163/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/729e3163/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/729e3163/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/bc1a6ae8/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/bc1a6ae8/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/bc1a6ae8/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/bc1a6ae8/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/bc1a6ae8/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/bc1a6ae8/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/5b6cb6cd.md
