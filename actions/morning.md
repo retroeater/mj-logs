@@ -1,12 +1,11 @@
 # 朝の報告用の異常（retroeater/mj）
 
-- 書き出した時刻: 2026-10-30 11:12 JST（見た範囲: 2026-10-29 09:12 JST から）
+- 書き出した時刻: 2026-10-30 12:52 JST（見た範囲: 2026-10-29 10:52 JST から）
 - 書き出した実行の契機: workflow_dispatch（main）
 - 異常だけを書く。全体は actions/status.md。判定は mj の scripts/morning_report.py（各ワークフローの直近 100 回まで）
 
 ## 1. 失敗など（結論が success・skipped 以外。実行中を含む）
 
-- 2026-10-29 10:07 run-monthly.yml cancelled（workflow_dispatch・work/1028-lgn）ジョブ「logplaces / convert」 https://github.com/retroeater/mj/actions/runs/40798423892
 - 2026-10-29 14:53 convert-x-posts.yml failure（workflow_dispatch・work/1029-lgn-eki）ジョブ「convert」 https://github.com/retroeater/mj/actions/runs/40826011390
 - 2026-10-29 17:08 convert-x-posts.yml failure（workflow_dispatch・work/1029-lgn-eki）ジョブ「convert」 https://github.com/retroeater/mj/actions/runs/40839961758
 
