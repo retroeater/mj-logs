@@ -121,7 +121,7 @@ SNS ブック: 1853名(【4】手動補正 0行)
 
 ## 報告
 
-- 状態: 判断待ち（止まる条件に当たり中断。英字の名が空の在籍者9名の slug の決め方）
+- 状態: 判断待ち（止まる条件に当たり中断。英字の名が空の在籍者9名の slug の決め方） / 続き: CHAT-1031-PRO-02
 - ブランチ: work/1030-pro
 - ログ: https://github.com/retroeater/mj/blob/work/1030-pro/docs/logs/CHAT-1030-PRO-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1030-pro
@@ -146,4 +146,4 @@ SNS ブック: 1853名(【4】手動補正 0行)
 - docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/bc1a6ae8/docs/notes/chat-side-operations.md
 - docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/bc1a6ae8/docs/notes/cloudflare.md
 - docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/bc1a6ae8/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/d1bf06e7.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/7147c20d.md
