@@ -73,6 +73,32 @@ Chat-Ref: CHAT-1030-PRO-01
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 着手前の確認（2026-10-30）
+
+- 0章: ログの「指示」欄の末尾は指示文の最後の行（「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」）と一致
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 欠けなし
+- CLAUDE.md: `git log HEAD..origin/cloudflare -- CLAUDE.md` は0件（起動時のもので最新）
+- 識別子 `PRO`: 全ブランチのコミット・`docs/logs/` の履歴に0件。同じ Chat-Ref のコミットも0件
+- 作業ブランチ: `work/1030-pro` はローカル・リモートとも無し → `git checkout -b work/1030-pro origin/cloudflare`（d1bf06e）
+- #219: open。他セッションの着手中コメントは無し → 着手中コメントを書いた（issuecomment-6524207270。1回目の投稿は MCP の時間切れで投稿されておらず、コメント一覧で確かめてから送り直した）
+- 同じ論点の issue（クローズ済みを含めて検索）: #219（作る issue）・#159（`?name=` の 301）・#238・#405・#195・#82・#235・#285（支部別ページ）・#596（jpml_pros の列）。公開の issue は無かった → #641 を起票（docs/new-page-checklist.md「段2」を写した）
+- 未マージの work/ ブランチ（`git branch -r --no-merged origin/cloudflare`）のうち、止まる条件の対象ファイルを変えているもの:
+
+| ブランチ | ファイル | 変更の箇所 | この作業との重なり |
+|---|---|---|---|
+| work/1017-lvp | style.css | live/ の節（1540〜2229行付近）の書き換え | 無し（pro/ の CSS は houou/ の節の後ろに置く） |
+| work/1028-lgn・work/1029-lgn-page | style.css | 末尾への追記（log/ の節） | 同じ行は触らない（pro/ の節を末尾でなく新サイトの基本の形の節の後ろに置いて、追記どうしの衝突を避ける） |
+| work/1028-lgn・work/1029-lgn-page | scripts/regenerate.py | `SHARED_GENERATORS["log_pages"]` の追加（exam_episodes の後）・`OUTPUT_OVERRIDES` の `log_pages`（wrcr_pages の後） | 同じ行は触らない（pro_pages は辞書の別の位置に足す） |
+| work/1029-lgn-page | .github/workflows/check-assets.yml・navbar.js | 許可リストの行に `log`・navbar の分岐の先頭に `/log/` | 止まる条件の対象外のファイル。check-assets.yml の許可リストは同じ行に `pro` を足すので、後からマージする側で衝突する（navbar.js は別の分岐の位置に足す） |
+
+  `scripts/lib/page.py`・`scripts/lib/meibo.py`・`scripts/lib/pro_stats.py`・`workers/ask/` を変えている未マージのブランチは無し
+- 踏襲の元の文書（docs/notes/houou-top.md・ogp.md・new-page-checklist.md・cloud-sessions.md）を読んだ。前提との食い違い:
+  - コンテナには鍵が無く、名簿・「プロ」のシートを読めない（cloud-sessions.md「鍵」）。生成・slug の一覧は `regenerate-page.yml` を作業ブランチで手動実行して得る（前提の「名簿と『プロ』を読み」はワークフローで行う。決定は守れるので止まらない）
+  - OGP 画像の字体（Noto Sans JP Bold）は Actions の環境に無い（build_ogp_image.py は生成物の PNG をコミットし、環境の字体の差を避ける方針）。選手別の OGP は、生成（Actions）が書く画像の文の一覧からコンテナで描いてコミットする2段にする（字体は `raw.githubusercontent.com/notofonts/noto-cjk` から取得、docs/notes/title-pages.md の手順）
+
+
 <!-- guide-links -->
 ---
 
