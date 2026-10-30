@@ -1184,6 +1184,106 @@ CHAT-1030-PRO-01 は、英字の名が空の在籍者9名の slug を作れず�
 | 1097 | 和田直樹 | naoki.wada.40 |
 | 1098 | 王政芳 | zheng-fang.wan.22 |
 
+### 作ったもの（手順2）
+
+- 生成: `scripts/generate_pro_pages.py`（トップ・個別ページ・`pro/search.json`・`data/pro_ogp.json`）。大会ごとの値は各ページの生成物から読む（PRO-01 の `## 経過` のとおり）。`regenerate.py` に `pro_pages`（出力 `pro/ data/pro_ogp.json`）・`RUN_LAST`（最後に作る）を足した
+- 部品: `assets/pro.js`（切り口・並べ替え・リンクのコピー・写真の差し替え）、`assets/league.js`（`data-houou="pro"` の検索。候補を押すと個別ページ、索引の9つ目が slug）、`assets/houou_ask.js`（`data-ask-prefix`）、`style.css`（pro/ の節。新サイトの基本の形の節の前）、`navbar.js`（/pro/ も白地のナビ）、`_redirects`（`/pro`・`/pro/`・`/pro/:slug/`）、`check-assets.yml`（`pro` を許可）
+- OGP: `scripts/build_pro_ogp.py`（コンテナで描く）・`scripts/tests/test_og_image.py` に選手別の画像の形を足した。docs/notes/ogp.md に「選手（pro/）」の節
+- 文書: docs/notes/pro-pages.md（仕様）・static-generation.md「ページの一覧」・new-page-checklist.md（`kana`・`joined`・`by`）・handover.md の表の1行
+- 生成の手順と計測:
+  - `regenerate-page.yml`（target_page `pro_pages`）run 41138136885 → e3197f7「chore: regenerate pro/ …」。「対象ページを再生成」の手順は 13秒（22:26:44〜22:26:57、シートの読み込みを含む）
+  - コンテナで `python3 scripts/build_pro_ogp.py`: 「描いた画像 1098枚・消した画像 0枚(72秒)。img/ogp/pro/ は 1098枚・36.3MB」（10分・300MB の内）→ bf1a0e7
+  - 再生成 run 41138394799 → aef8e8e。`grep -L "img/ogp/pro/" pro/*/index.html` は0件（全員が選手別の画像を指す）
+  - レビューの直しの後に再生成 run 41139346023 → faac8a1
+  - 合計: `pro/` 20,290,478 バイト（1,100ファイル: トップ 約0.7MB・search.json 約0.17MB・個別ページ平均 約17.7KB）、`img/ogp/pro/` 38,061,442 バイト（1,098枚）
+
+### 検査（手順3）
+
+- `python3 -m unittest discover -s scripts/tests`: 全件 OK（test_pro_pages は22件）
+- `regenerate-page.yml` の check（run 41139485140、4d368bb）: 「pro_pages: 通る(--check)」「check: 止まるページなし」。警告なし
+- `python3 scripts/check_asset_limits.py`: 配信ファイル数 6,405 / 100,000（6.4%）、最大のファイル resource_logs.html、_redirects 静的128・動的12、すべて OK
+- push の check-run（8c60619）: check（check-assets.yml）success・Workers Builds: mj success
+- プレビュー（ブランチの別名 URL。URL は最終報告にだけ書く）: `/pro/` 200・noindex あり、`/pro/ryoei.hirano.30/` 200、`/pro/a-ji.skull-reaper.27/`（点と「-」の slug）200、`/pro` 301、`/pro/search.json` 200、`/img/ogp/pro/ryoei.hirano.30-906e00a8.png` 200
+
+### 画面の確かめ
+
+- headless Chromium（同梱の Playwright）で、生成物をローカルの `python3 -m http.server` から開き、360px・390px × 明・暗を撮った（44枚、`docs/logs/CHAT-1031-PRO-02/`）。X の画像・YouTube・解析は読み込ませていない（頭の1字の丸で写る）
+- 対象: トップ（既定 `top`・絞り込み `top-place`〈?place=北海道〉・すべて `top-all`。トップは上 1400px だけ）、個別ページ（名前の最も長い スカルリーパーA-Ji `longest`・鳳凰戦だけ 會田亮介・桜花だけ 安部久美子・両方 蒼井ゆりか・どちらも無い 藍ありさ・放送対局の最も多い HIRO柴田〈123件〉・SNS の無い 明石定家〈SNS の無い在籍者は237名〉・進行中の期だけ 朝比奈優斗）
+- はみ出し（横スクロール・画面の外に出る要素）: 0件。重なり: 32件の検出はすべて「質問欄の注意書き（閉じた `<details>` の中）× ページ末尾の説明文」で、見えない要素の誤検出（houou/ のトップでも同じ検出が出る）。見える重なりは0件
+- 撮影スクリプトの不具合（URL の「=」で分けていた）で1回目の絞り込みの画面が「すべて」になっていたのを直して撮り直した
+
+### 差分のレビュー（新しい文脈のサブエージェント、2回）
+
+1回目（cloudflare...8c60619、生成物とログを除く19ファイル。テスト 1651件 OK・check_asset_limits OK を確かめたうえで）:
+
+| 指摘 | 扱い |
+|---|---|
+| 中: 足した分岐・解析の検査が無い（now_term・load_titles・page_json・related・facet_values・top_row、JS の suggestMeta・state） | 直した（039b86d。Python の7つ。JS は CI でテストが回っていないので見送り） |
+| 低: top_row のリーグの順の引き方が確かめなし | 直した（039b86d） |
+| 低: 不正なクエリでタブ・値が押されない | 直した（039b86d。既定の「あ」行へ） |
+| 低: 遅延の画像が complete=true になるブラウザで丸になる | 意図どおり（仕様では未読み込みは false。プレビューで確かめる） |
+| 低: 読む生成物だけの再生成で pro/ が追随しない | 直した（039b86d。regenerate.py に `簡略化:` を残した。毎日の all で追いつく） |
+| 低: OGP が黙って共通画像に戻る | 直した（039b86d・4d368bb。生成と --check で警告） |
+| 低: `lib.birthdays._parse_month_day`・`generate_jpml_pros.QUERY_ESCAPES` を外から読む | 見送り（判断が必要なこと） |
+| 低: 「いま」の期と直近の節の期が食い違って見える／description の文言 | 期は仮置き K1。description は直した（039b86d） |
+| 低: remove_stale が slug 以外のディレクトリも消す | 直した（039b86d） |
+
+2回目（8c60619..039b86d）:
+
+| 指摘 | 扱い |
+|---|---|
+| 低: OGP の警告が --check で出ない | 直した（4d368bb） |
+| 低: 順序表に無いリーグのチップが鳳凰位の色のまま | 意図どおり（今のデータでは起きない。止まらないことだけをテスト） |
+
+### 公開の指示で要る変更（#641 にコメント）
+
+- noindex を外す（`generate_pro_pages.py` の `NOINDEX_TAG`）、navbar の「連盟プロ」の行き先を `/pro/`、サイトマップ（1,100 URL。`sitemap-pro.xml` を生成に足すか決める）、`llms.txt`
+- `jpml_pros.html` → `/pro/` の 301、`?name=` の 301（Worker `mj`。名前→slug の表は `pro/search.json` から作れる、#159）
+- 既存ページのリンクの向け替え: houou_race の `playerUrl()`・title/ の優勝者・live/ の選手名・wayhome（#195）・質問欄の答えのカード（今は houou/ の個人成績へ）
+- canonical（K13）、OGP の画像の描き直しの運用（K16）
+
+### 仮置きの一覧（画面のどこに効くか）
+
+| # | 仮置き | 効く場所 | 今の形 | ほかの案 |
+|---|---|---|---|---|
+| K1 | 「いま」の期と直近の節 | 個別ページ「いま」 | 現在のリーグは各大会の `ask-players.json`（個人成績の名前の面のチップと同じ値。`current_league_table()` と同じ `current_league()` の結果）。期は進行中の期に出ていればその期、通期の A1・A2・鳳凰位は「43期」。直近の節は成績 JSON の最後の行（終わった期）の最後の節の得点と、その期の最終順位（「43期前期 第5節 ▲11.0 · 32位」）。進行中の期の節の成績は成績 JSON に無いので出せない | 進行中の期の節の速報（#223）が入ってからその値にする |
+| K2 | 成績の面の並び | 個別ページ「成績」 | 「リーグ戦・大会」（鳳凰戦・女流桜花・WRCリーグ・WRC-Rリーグ・麻雀最強戦）と「タイトル戦の決勝」（title/ の大会ごとに「優勝 N回 · 決勝 N回」）の2つの小見出し。WRC-R は指示の大会の列挙に無いが、同じ型の個人成績があるので足した。title/ の大会名はリーグ戦と同じ名前（鳳凰戦・WRC-Rリーグ）があるので小見出しで分けた | WRC-R を外す・タイトル戦を1行にまとめる |
+| K3 | 放送対局の件数 | 個別ページ「放送対局」の「すべて（N件）」 | live/ のトップのカードの検索語に名前が語として入るカードの数（語の一致）。live/?q= の検索は部分一致なので、名前が別の人の名前に含まれると live/ の件数の方が多くなりうる | live/ の検索と同じ部分一致で数える |
+| K4 | 関連する選手の選び方 | 個別ページ「関連する選手」 | 同期・同じ支部・同じリーグ（鳳凰戦の現在のリーグ）を、それぞれソートキーの順の先頭5人（本人を除く）。`簡略化:` の印あり | 同じ組・近い順位の選手、ランダム |
+| K5 | 名前の面 | 個別ページの上 | 読みとローマ字（「姓 名」の順）を「·」でつないで1行、支部と入会期はチップ、誕生日は「誕生日 6月1日」、SNS は文字のボタン（X・note・YouTube）、「リンクをコピー」は紺のボタンで面の右下。コピーしたら「コピーしました」 | SNS をアイコンにする、コピーをアイコンにする |
+| K6 | 支部の書き方 | 名前の面・説明文・表・関連する選手 | 名簿の値のまま（「東京」）。指示の例の「東京支部」の形にはしていない | 「東京支部」（本部・支部の区別が要る） |
+| K7 | description | 個別ページの meta description・og:description | 「日本プロ麻雀連盟の<名前>（東京・30期）。鳳凰戦 C2（43期後期）、最高 C1。女流桜花 …。成績・放送対局・関連する選手をまとめています。」 | — |
+| K8 | 質問欄 | 個別ページの下 | 送る文の先頭に「<名前>について: 」を付けて鳳凰戦（既定の大会）に送る。入力欄の上限は 200字から前置きの字数を引いた数。例文「例：<名前>の鳳凰戦の最高到達は？」。答えに出た選手のカードは houou/ の個人成績へ | 答えのカードを pro/ の個別ページへ（公開の段で） |
+| K9 | トップの切り口 | `pro/` | タブ「五十音・支部・入会期・リーグ」と値のボタン（各切り口の最後に「すべて」）。五十音は読みの頭の字の行（仮名でなければ「他」）、支部は人数の多い順、入会期は新しい順、リーグは鳳凰戦の現在のリーグ（リーグの無い選手は「すべて」でだけ出る）。URL は `?kana=`・`?place=`・`?joined=`・`?league=`・`?all=1`（`&by=`）で、`kana`・`joined`・`by` は新しいパラメータ（docs/new-page-checklist.md の規約に足した） | 女流桜花のリーグも切り口に足す |
+| K10 | トップの表 | `pro/` | 列は 名前（32px の画像）・支部·期・鳳凰・桜花（リーグのチップ）。最初はソートキーの順、見出しで並べ替え（桜花の欄は桜花の色） | — |
+| K11 | 支部・入会期ごとの静的なページ | — | 作らない（トップのクエリで絞るだけ） | `pro/place/<支部>/`・`pro/joined/<期>/` を作る（#285 の支部別ページと重なる。検索に載せたいなら静的なページが要る） |
+| K12 | 選手別の OGP 画像 | og:image | 段は名前・「東京・30期」・「鳳凰戦 C2 · 最高 C1」（鳳凰戦の値がある選手だけ）と「ryoei.pro」。白地・黒字。名前は文のハッシュ | 女流桜花の値も入れる |
+| K13 | canonical | 個別ページの head | 付けていない（#113）。個別ページはクエリの変種を持たないので wayhome/ の各話と同じ例外に当たりうる | 公開の段で og:url と同じ値を付ける |
+| K14 | トップの OGP | `pro/` の og:image | `img/ogp/pros/index-white.png`（「連盟プロ」）をそのまま使う（写していない） | `img/ogp/pro/index-white.png` に写す |
+| K15 | #219 と #296 | issue | #219 は #296（新サイト）の sub-issue のまま | 現行サイトで作ったので外す（#296 の本文「新サイト送りにするとき・やめるとき」の手順） |
+| K16 | 選手別の OGP 画像の描き直し | og:image | Actions に字体が無いので、コンテナで `build_pro_ogp.py` を回してコミットする（手作業）。リーグが変わった選手は描き直すまで「連盟プロ」の画像に戻る（生成が警告を出す） | Actions で字体を取って描く（`regenerate-page.yml` に Pillow と字体の取得を足す。環境で PNG のバイトが変わりうる） |
+| K17 | 共通の値の置き場所 | コード | 誕生日の読み取り `lib.birthdays._parse_month_day()`・クエリの書き方 `generate_jpml_pros.QUERY_ESCAPES` を外から読む | `lib/` に公開の関数・定数として移す（jpml_pros にも触れる変更） |
+
+
+## 報告
+
+- 状態: 判断待ち（全員分を作り、未公開のままプレビューで止めた。仮置き K1〜K17 の確定と公開の判断を待つ）
+- ブランチ: work/1030-pro
+- ログ: https://github.com/retroeater/mj/blob/work/1030-pro/docs/logs/CHAT-1031-PRO-02.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1030-pro
+- 確認用URL: プレビューあり（URL は最終報告）。確かめたページは `/pro/`・`/pro/ryoei.hirano.30/`・`/pro/a-ji.skull-reaper.27/`。この版の印: `/pro/` の「支部」のタブの値が「東京・関西・中部・九州・北海道…」の人数の多い順
+- マージ: 未（平野さんの判断待ち）
+- issue: #219（着手中・経過のコメント）・#641（公開の指示で要る変更をコメント）
+- 判断が必要なこと:
+  - `## 経過`「仮置きの一覧」の K1〜K17（1問1答で確定する）
+  - 生成時間 13秒（シートの読み込みを含む）・`pro/` 20.3MB（1,100ファイル）・OGP 1,098枚 72秒・38.1MB（上限の10分・300MB の内なので選手別のまま）
+  - #219 を #296（新サイト）の sub-issue から外すか（K15。外すなら #296 の本文「新サイト送りにするとき・やめるとき」の手順）
+  - work/1029-lgn-page と同じファイル（check-assets.yml・_redirects・navbar.js）を別の位置で変えた。後からマージする側で衝突しない見込みだが、取り込みは試していない
+- 未確認の項目:
+  - 実機・X・LINE での見え方（headless Chromium の 360・390px だけ）
+  - プレビューで X の画像を読み込んだときの写真の差し替え（撮影では読み込ませていない）
+  - 質問欄に実際に問いを送った答え（Worker を呼ぶため送っていない）
+- エラー: なし
 
 <!-- guide-links -->
 ---
