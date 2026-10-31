@@ -75,16 +75,55 @@ PRO-02 の仮置き K1〜K17 と、チャット側がスクショで見つけた
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 1行目にまとまって貼られているが、4つとも有る
 - 同じ Chat-Ref のコミット: 0件。CLAUDE.md は origin/cloudflare から変わっていない
 - 作業ブランチ: ローカルの work/1030-pro は origin/work/1030-pro（a742021）と一致。`git merge-base --is-ancestor origin/cloudflare HEAD` は偽 → 取り込む
+- 取り込み: `git merge origin/cloudflare`（docs/logs/CHAT-1031-PGV-01.md の1件。衝突なし、ea3f6b4）
+- #219・#641: 他セッションの着手中コメントは無し → #219 に着手中（続き）のコメント（issuecomment-6536522345）
+- 未マージの work/ ブランチの重なり（止まる条件の対象のファイル）: work/1017-lvp（style.css）・work/1028-lgn・work/1029-lgn-page（style.css・regenerate.py）は PRO-02 と同じ箇所のまま。`.github/workflows/regenerate-page.yml`・`scripts/lib/page.py`・`scripts/lib/birthdays.py`・`scripts/generate_jpml_pros.py` を変えている未マージのブランチは無し。この指示の style.css の追記は pro/ の節の中、regenerate.py は `pro_pages` の行だけ
+- `regenerate-page.yml` を呼ぶ側（使う直前に `git grep` で確かめ直した）: 前提の一覧と違い、`run-daily.yml` は直接は呼ばない（`update-live-channel.yml`〈target `live_pages title_pages`〉・`update-sns-book.yml`〈`all`〉を通して呼ぶ）。ほかは `fetch-youtube.yml`（`all`）・`regenerate-saikyo.yml`（`saikyo_pages`）・push・`workflow_dispatch`。前提の振る舞いの案（`pro_pages` が対象に入るときだけ字体を取る）はそのまま当てはまるので、案のとおりにした（`live_pages title_pages` の毎日の呼び出しでも取らない）
+
+### 手順1: A〜C・K3・K12・K17、K15、#641
+
+- A: 成績の面の要約を「最高 ◯ · 出場 N期」にそろえた（WRC の「最高到達」をやめた。`contest_summary()`）。最強戦は名前の面の1行を読み直して「最高 ファイナル · 出場 6回（ファイナル 2回）」「最高 最強位（2022・2021） · 出場 16回」「出場 3回」（`saikyo_summary()`）
+- B: 「いま」の2行目を「43期前期 20位（最終節 ▲45.7）」の形に（節の成績の無い期は「（合計 +50.0）」、鳳凰位の期は「42期 鳳凰位」。`last_round()`）
+- C: トップの表の支部·期を1行「北陸·42期」に（`white-space: nowrap`）
+- K3: 放送対局の件数と3件を、live/ の検索（`assets/live.js` の `normalize()`: NFKC・小文字・空白を1つ・全部の語を含む）と同じ部分一致にした（`live_key()`・`lives_of()`）
+- K12: OGP の3段目は鳳凰戦の値、無ければ女流桜花の値。大会名は必ず付ける（現在のリーグが無い選手は「女流桜花 最高 C1」。PRO-02 では大会名の無い「最高 C1」が133名に出ていたのを見つけて直した、a2d0432）
+- K17: `lib.birthdays.parse_month_day()` を公開の名前にし、`QUERY_ESCAPES` を `lib/url.py` へ移した（`generate_jpml_pros.py` も `lib/url.py` から読む）。`regenerate.py` の `pro_pages` の依存から `jpml_pros` を外した
+- テスト（`scripts/tests/test_pro_pages.py`、22件→27件）: `saikyo_summary`・新しい `last_round`・WRC の要約・live/ と同じ部分一致・OGP の段の女流桜花への切り替えと大会名・描き直しの範囲（1人の文を変えるとその1枚だけを描き、変わっていない画像の更新時刻が変わらず、古い画像が消える）・描けないとき前の画像を残す
+- K15: #219 を #296 の sub-issue から外した（`sub_issue_write` remove。#296 の子は 37→36）。#219 に取り消しのコメント（issuecomment-6536524859）。#296 の本文の表の #219 の行を「親の対象外」へ移した（#378 の前例の形。書き換え前の `updated_at` 2026-10-29T12:00:54Z を確かめてから REST の PATCH）
+- #641 に K8・K13・K14 を「公開の指示で行う」として追記（issuecomment-6536528759）
+
+### 手順2: K16（選手別 OGP を Actions で描く）
+
+- `generate_pro_pages.py`: 文の一覧を書いた後、名前（文のハッシュ）の画像が無いものだけを描き（`draw_ogp()`）、一覧に無い画像を消す。描く関数は `ogp_renderer()`（Pillow が無い・字体〈`OGP_FONT`〉が無いなら警告して描かない＝前の画像を残す）。描いた後にページを作るので、描けた選手はその画像を指す。`scripts/build_pro_ogp.py` は消した
+- `regenerate-page.yml`: 手順「選手別のOGP画像の字体とPillowを取る」を足した。`if: inputs.check != true && (push・target が空・all・pro_pages を含む)`、`continue-on-error: true`。`pip install Pillow==12.3.0`、字体は `https://raw.githubusercontent.com/notofonts/noto-cjk/f8d157532fbfaeda587e826d4cd5b21a49186f7c/Sans/SubsetOTF/JP/NotoSansJP-Bold.otf`（`git ls-remote` で取った main のコミット）を `curl` で取り、sha256 `1b0edfb5…2c5f` を `sha256sum -c` で確かめる（PRO-02 でコンテナが使った字体と同じバイト）。取れたときだけ出力 `font` を `OGP_FONT` で再生成の手順に渡す。入力はすべて env で受け、`run:` に展開していない
+- 手動実行（作業ブランチ）:
+
+| run | 入力 | 字体と Pillow の手順 | 結果 |
+|---|---|---|---|
+| 41150945841 | pro_pages・check 真 | skipped | 「pro_pages: 通る(--check、警告 1件)」。警告は K12 で文が変わった女流桜花だけの24名の画像が無いこと（想定どおり） |
+| 41151021073 | pro_pages | success（2秒） | 再生成 9秒。c742255: 画像は追加24枚・削除24枚（描き直さなかった 1,074枚）・中身の書き換え0枚 |
+| 41151198966 | pro_pages（a2d0432 の大会名の直しの後） | success（2秒） | 再生成 13秒。1c4bec3: 追加134枚・削除134枚（描き直さなかった 964枚）・中身の書き換え0枚 |
+| 41151310640 | saikyo_pages・dry_run 真 | skipped | 字体と Pillow を取らないことを確かめた |
+
+- 文の一覧が変わっていない選手の画像は書き換わらなかった（どちらの実行もコミットの画像の変更は追加と削除だけで、変更〈M〉は0件。止まる条件に当たらない）
+- 版: Pillow 12.3.0（`pip install Pillow==12.3.0` が通ったので、その版）、字体は上のコミットの SHA と sha256 で固定。手順の出力の Pillow の版の行（`python3 -c "import PIL; print('Pillow', PIL.__version__)"`）はジョブのログの途中にあり、ログの末尾だけを読める MCP では引けていない
+- OGP の4種（両方・鳳凰戦だけ・女流桜花だけ・どちらも無い）を `docs/logs/CHAT-1031-PRO-03/ogp-*.png` に置いた: 蒼井ゆりか「鳳凰戦 D1 · 最高 C2」・會田亮介「鳳凰戦 E3 · 最高 E3」・安部久美子「女流桜花 最高 C1」・藍ありさ（名前と「北陸・42期」だけ）
+- 合計: `img/ogp/pro/` 1,098枚・39,213,157 バイト、`pro/` 20,267,091 バイト
+
+### 手順3: 検査と画面
+
+- `python3 -m unittest discover -s scripts/tests`: OK。`check_asset_limits.py`: 配信ファイル数 6,405 / 100,000 ほか全部 OK
+- 画面: PRO-02 と同じ11画面（トップ3つ・個別ページ8つ。蒼井ゆりかは WRC・WRC-R・最強戦の行がある）を 360・390px × 明暗で44枚（`docs/logs/CHAT-1031-PRO-03/`）。はみ出し0件。重なりの検出32件は PRO-02 と同じ閉じた `<details>` の誤検出で、見える重なりは0件。A・B・C が出ていることを目で確かめた（例: 蒼井ゆりか「43期前期 20位（最終節 ▲45.7）」「最高 予選通過（16期） · 出場 2期（通過1回）」、トップ「東京·24期」が1行）
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj bc1a6ae8）: https://github.com/retroeater/mj-logs/tree/main/guide/bc1a6ae8
+ガイド文書（この版を写した時点の最新、mj a512c7d9）: https://github.com/retroeater/mj-logs/tree/main/guide/a512c7d9
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/bc1a6ae8/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/bc1a6ae8/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/bc1a6ae8/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/bc1a6ae8/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/bc1a6ae8/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/bc1a6ae8/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a512c7d9/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a512c7d9/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a512c7d9/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a512c7d9/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a512c7d9/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a512c7d9/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/7147c20d.md
