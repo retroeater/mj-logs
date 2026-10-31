@@ -1,7 +1,7 @@
 # CHAT-1031-PRO-10
 
 - 着手日時: 2026-10-31
-- 対象issue: #219・#641
+- 対象issue: なし（PRO-06 と同じく #641 の関連。指示に issue の指定なし）
 - ブランチ: work/1031-pro-404
 - 着手時HEAD: 2ed0504
 
@@ -53,16 +53,38 @@ PRO-06 の 404 のページの暗い配色への対応を cloudflare へマー�
 
 - 着手前の確認: 同じ Chat-Ref のコミットなし（`git log --all --grep`）。`PRO` は PRO-01 から続く同じチャットの識別子で重複ではない。0章ゲートは本指示がマージのみ（新しい実装なし）。#219・#641 は open。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は欠けなし
 - 0章: 「指示」欄の末尾は指示文の最後の行「不明な点があれば、…この行が指示文の最後の行です。」と一致。PRO-06 のログの `## 報告` の状態は「判断待ち（404 のページを暗い配色に対応させ、プレビューで止めた）」で、末尾に ` / 続き: CHAT-1031-PRO-10` を足した
+- 取り込み: `git merge-base --is-ancestor origin/cloudflare HEAD` は偽（PRO-09 のマージで cloudflare が進んだ）。`git merge origin/cloudflare`（bc444ee）。`style.css` は自動で合わさり、衝突は `docs/decisions/pros.md` だけ（末尾への追記どうし: こちらの PRO-06 の節と cloudflare の PRO-05・08・09 の節）。両方を残し、Chat-Ref の順（PRO-05 → 06 → 08 → 09）に並べて解いた。解いた後の該当箇所:
+
+  ```
+  - 選手別 OGP はやめ、全ページを「連盟プロ」の画像にする。…（PRO-05 の節の最後の行）
+
+  ## 2026-10-31（CHAT-1031-PRO-06）
+
+  - 存在しない選手の URL（例 `/pro/taro.yamada.99/`）で 404 になるのはよいが、暗い配色でも明るい配色の色で出るので直す（404 のページを暗い配色に対応させる）
+
+  ## 2026-10-31（CHAT-1031-PRO-08）
+  ```
+- 取り込んだ後の `origin/cloudflare` との差分（docs/ を除く）は `404.html`（body の class と注釈の2行）と `style.css`（暗い配色の `@media` の中の選択子1か所と規則2つ）だけで、PRO-06 の 600f150 と同じ
+- 404 の画面（PRO-06 と同じ撮影の手順: Playwright の Chromium、幅 360・390px、高さ 800、deviceScaleFactor 1、外部の画像は止める。404.html を 404 で返す開発用の配信）: `/no-such-page`・`/pro/taro.yamada.99/` の明るい配色4枚は PRO-06 の直す前の撮影と、暗い配色4枚は直した後の撮影と、8枚とも画素まで同じ
+- ほかのページに効かないこと: `git grep mj-404` で class を持つのは 404.html だけ（ほかは style.css の規則とログ）。加えて、`origin/cloudflare` の版と取り込んだ後の版を並べて配信し、`/pro/`・`/houou/` の明暗・2つの幅を撮って比べ、8枚とも画素まで同じ。`/`（トップ）は差が出たが、`origin/cloudflare` の版どうしを2回撮っても同じ場所（上から 335〜420px の帯）に差が出るので、撮るたびに変わる部分で、今回の変更によるものではない。`/houou/` は PRO-06 の撮影とも画素まで同じ
+- 止まる条件: どれにも当たらない（0章は通った・明るい配色の 404 は直す前と同じ・ほかのページに効く差分なし・衝突は追記どうしだけ）。マージの前に CLAUDE.md「ブランチ運用」と docs/notes/branch-operations.md「マージするとき」「ブランチを削除するとき」を読んだ
+- 差分のレビュー: この指示ではコードを変えていない（取り込みで解いたのは docs/decisions だけ）。コードの差分は PRO-06 で新しい文脈のサブエージェントがレビュー済み（PRO-06 のログ）で、取り込みの後も同じ差分なので、改めてのレビューはしなかった
+
+- マージ: `git push origin work/1031-pro-404:cloudflare` の直前に再 fetch し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真。push の範囲 `f624ffc04..e0de553ef`（fast-forward）
+- push で動いたワークフロー（e0de553ef、check-runs と Actions の runs）: Workers Builds: mj 成功・公開対象の検査（check）成功・サイトマップの lastmod の同期（sync）成功・本番ビルド失敗の検知は skipped（ビルドが成功したので動かない）。失敗なし
+- 本番: `https://ryoei.pro/no-such-page?v=e0de553` が 404 を返し、HTML に `<body class="mj-404" data-search="off">` が入っている。`/style.css?v=e0de553` にも `mj-404` が4か所ある（取得は2件）。HTML と CSS の中身までの確認で、ブラウザでの見え方は本番では確かめていない（見え方は上のローカルの撮影で確かめた）
+- 作業ブランチの片付け: `git branch -r --merged origin/cloudflare` に `origin/work/1031-pro-404` が入る（浅いクローンでない）。セッションの git プロキシはブランチの削除を拒否するので消さない（docs/notes/cloud-sessions.md「ブランチの削除」）。マージ済みの work/ は `cleanup-branches.yml` が消す。記録: `work/1031-pro-404`・e0de553ef（マージ時の先頭）・マージ済み。この後のログのコミットは cloudflare へも追いの push をする
+- 決定: docs/decisions/pros.md に PRO-10 の節を足した
 
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1031-pro-404
-- ログ: https://github.com/retroeater/mj/blob/work/1031-pro-404/docs/logs/CHAT-1031-PRO-10.md
+- 状態: 完了
+- ブランチ: work/1031-pro-404（マージ済み。削除は cleanup-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1031-PRO-10.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1031-pro-404
-- 確認用URL: なし
-- マージ: 未
-- issue: #219・#641
+- 確認用URL: なし（マージのみ。404 の見た目はローカルの撮影で PRO-06 と画素まで同じことを確かめ、本番は HTML の body の class `mj-404` を確かめた）
+- マージ: 済（e0de553ef）
+- issue: なし
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
@@ -70,12 +92,12 @@ PRO-06 の 404 のページの暗い配色への対応を cloudflare へマー�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj f624ffc0）: https://github.com/retroeater/mj-logs/tree/main/guide/f624ffc0
+ガイド文書（この版を写した時点の最新、mj f797a06d）: https://github.com/retroeater/mj-logs/tree/main/guide/f797a06d
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f624ffc0/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f624ffc0/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f624ffc0/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f624ffc0/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f624ffc0/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f624ffc0/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f797a06d/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f797a06d/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f797a06d/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f797a06d/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f797a06d/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f797a06d/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/eb14de8a.md
