@@ -91,6 +91,22 @@ CHAT-1029-RSC-01 の設計案（ログの `## 経過`「3. 設計案」）に沿
   - `https://times.abema.tv/` 200（ABEMA TIMES）。一覧の候補は確かめていない（`/tags` がある）
   - B・D の設計は今回は直さない（指示のとおり）
 
+### 2. 実装（コミット 6a3074d84）
+
+- 新しいファイル: `scripts/research_candidates.py`（種別 A）、`scripts/lib/candidates_book.py`（R_候補 の ID・タブ・見出し）、`scripts/tests/test_research_candidates.py`、`.github/workflows/research-candidates.yml`（`workflow_dispatch` だけ、`permissions: {}`＋ジョブは `contents: read`）、`docs/notes/research-candidates.md`
+- 一覧への追加: `scripts/lib/sheets_write.py` の `WRITABLE` に「候補」タブ、`scripts/check_sheets_reader.py` の `BOOKS` に R_候補（あわせて `scripts/tests/test_check_sheets_reader.py` のフォルダのブックの数を 14→15）
+- docs: `docs/notes/github-actions.md` のワークフローの表に1行（`test_workflows_table.py` が求める）、handover.md 6章の表に1行、docs/decisions/automation.md に決定
+- RSC-01 の設計から変えた点:
+  - 飛ばす単位を（種別, 対象キー）から（種別, 対象キー, モデル）にした。同じ5人を2つのモデルで調べるため
+  - 入力 `targets`（対象キーをカンマ区切りで指定）を足した。同じ5人を選ぶため
+  - Web 検索・取得は動的フィルタの無い基本の版（`web_search_20250305`・`web_fetch_20250910`）。結果のブロックがそのまま返り、取得した本文で引用文を照合できるため（`簡略化:` の行）。`max_uses` は検索・取得とも 2（RSC-01 は 3）、取得の本文は 8,000 トークンまで（同 20,000）。1回の実額が $1 を超えないよう小さくした
+  - 照合済みの条件は「出典を `web_fetch` で取っている・引用文がその本文にある・引用文に名前と読みがある」。検索結果だけの URL は本文が読めないので未照合
+  - 費用の止め方: 1要求の前に「使った額＋1要求の最大の見込み（入力 12万・出力 6,000・検索2回）」が上限を超えるなら呼ばない。見込みは Haiku $0.0950（12万トークンは10万超の単価）、Sonnet $0.3200
+  - X 投稿の変換の `Budget` は1回の呼び出しの見込みがプロンプトの字数からで、検索の費用・サーバー側の繰り返しを見ないため使わず、同じ形の小さな `Budget` を書いた。Claude の呼び出し（`claude_create`・`StopCalls`）は `convert_x_posts.py` のものを使う
+  - A の対象は `generate_saikyo_pages.load_rows()`（名前を「別名」で直し、引いた先を持つ）の行のうち、「連盟プロ以外」から引いた人で名前かなが空の人
+- テスト: `python3 -m unittest discover -s scripts/tests` → 1,653本 OK（最初の実行では `test_workflows_table`・`test_name_resolvers`・`test_check_sheets_reader` の3つ・4件が失敗。表の行を足し、名前の解決を `load_rows()` に任せて `check_unused_names.NAME_RESOLVERS` を変えずに済む形にし、ブックの数を直した）
+- 修正前のコードで通らないかの確かめ: 新しいスクリプトのテストなので修正前は import で失敗する（対象外）
+
 ## 報告
 
 - 状態: 作業中
