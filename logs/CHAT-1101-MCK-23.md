@@ -140,15 +140,40 @@ URL は画面の場所の目安（Cloudflare は `?to=/:account/...` の形、Se
 17. **(5) の判断**: 上の「(5) の結果」を見て、棚卸しの判断を #304 にコメントで残す（候補は0件。中身の判断が要る2つの観点を今月やるか）
 18. **(6)**: #357 の 10-18・10-25 の通知3件の片付けをどうするか
 
+### 4. 決定の記録
+
+- docs/decisions/operations.md に「2026-10-31（CHAT-1101-MCK-23）」を足した（指示文の「決定」節の3つ）
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1101-mck-304
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1101-MCK-23.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1101-mck-304
+- 確認用URL: なし
+- マージ: 済（6cb7f27d6。cloudflare へ fast-forward）
+- issue: #304（着手中のコメントのみ。本文・状態・ラベルは変えていない）。参照: #230・#357・#554・#555・#568
+- 判断が必要なこと:
+  - 10月と比べて大きく変わった値: Search Console（API、28日分）の表示回数が 2,582 → 11,653（約4.5倍）、クリックが 109 → 375。伸びの中心は `/houou/ranking/total/`・選手個別ページ・`/title/`・`/saikyo/2026.html`
+  - (13) の基準: Code の上限の目安（コミットから本番ビルドの完了まで、中央値 59秒・最長 109秒）は 10-21 の 3〜4 分より短い。Deployments の画面の所要時間と合わせて、どちらを基準にするか
+  - 10-29 の 429 の調べ方: 画面（Security Events・Traffic）で見るか、`CF_ANALYTICS_TOKEN` で `httpRequestsAdaptiveGroups` を引く一度きりのワークフロー（またはスクリプト）を別の指示で作るか。API の保持期間はおよそ31日で、10-29 の分は 11-28 ごろまで
+  - 月次の運行の `redirects` が push の競合で失敗し、10月の転送の件数（`docs/redirect-counts/2026-10.csv`・#568 のコメント）が無い。保険の予約実行で埋まるかを見るか、直す指示を出すか
+  - #357 の 10-18・10-25 の通知3件（残り 212・198・165件）に片付けのコメントが無い。(6) として今月片付けるか
+  - (5) の棚卸しで、中身の判断が要る2つの観点（ほかの issue の完了で不要・#296 の子）を今月やるか
+- 未確認の項目:
+  - 「3. 平野さん（またはチャット側が平野さんの Chrome で）見る手順」の 1〜16（画面の項目すべて）
+  - `fetch-redirect-counts.yml` の保険の予約実行（10-31 21:30 UTC の枠）が走り、2026-10.csv と #568 のコメントができるか（23:17 UTC の時点で未実行）
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj f797a06d）: https://github.com/retroeater/mj-logs/tree/main/guide/f797a06d
+ガイド文書（この版を写した時点の最新、mj 8083118c）: https://github.com/retroeater/mj-logs/tree/main/guide/8083118c
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f797a06d/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f797a06d/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f797a06d/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f797a06d/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f797a06d/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f797a06d/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/8083118c/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/8083118c/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/8083118c/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8083118c/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8083118c/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8083118c/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/7aaff304.md
