@@ -22,10 +22,10 @@ OGP 画像・og:title を作る／変えるときに読む。#339（「帰り道
 | 動画の一覧ページ（Mつく・女流勉強会の一覧など） | 最新話のサムネイル。許可を得て合成画像を作れるもの（帰り道の一覧、#340）は合成画像 | website |
 | 最強戦の卓（ABEMA） | ABEMA の回があればその回のサムネイル（ヒーローと同じ）、無ければ作品「麻雀最強戦」の画像 | website（ABEMA は埋め込みの URL を出していない） |
 | 最強戦の年度・対局 | 作品「麻雀最強戦」の画像 | website |
-| `jpml_pros.html`・title/ の全ページ・houou/ の全ページと旧 `houou_*.html`・ouka/ の全ページ・saikyo/ のトップ | それぞれ「連盟プロ」「タイトル戦」「鳳凰戦」「女流桜花」「麻雀最強戦」の1枚。共通画像と同じ白地・黒字で、区分名を大きく（幅に合わせ、上限 200px）、その下に「ryoei.pro」（48px）。`build_ogp_image.py --text <区分名> --footer ryoei.pro --color '#212529' --bg '#ffffff' --max-size 200 --tracking -0.03` | website |
+| `jpml_pros.html`・title/ の全ページ・houou/ の全ページと旧 `houou_*.html`・ouka/ の全ページ・jwrc/ の全ページ・wrcr/ の全ページ・saikyo/ のトップと vs/・years/・players/・ranking/ の各ページ | それぞれ「連盟プロ」「タイトル戦」「鳳凰戦」「女流桜花」「WRCリーグ」「WRC-Rリーグ」「麻雀最強戦」の1枚（`img/ogp/<pros・title・houou・ouka・jwrc・wrcr・saikyo>/index-white.png`）。共通画像と同じ白地・黒字で、区分名を大きく（幅に合わせ、上限 200px）、その下に「ryoei.pro」（48px）。`build_ogp_image.py --text <区分名> --footer ryoei.pro --color '#212529' --bg '#ffffff' --max-size 200 --tracking -0.03` | website |
 | ほかのページ（下位メニューしか無いグループ〈番組・リソース・良栄〉の下のページなど） | 共通の `img/ogp/site/index-white.png`。ページの種類ごとの画像は作らない | website |
 
-文字ベースの画像（サムネイルなどの無いページで使うもの）は、メニューの最上位でそれ自体がページになっているものだけ作る（ryoei.pro・鳳凰戦・麻雀最強戦・タイトル戦の4種類。サブメニューで細かく分けない、2026-10-16、#581。タイトル戦は当時メニュー「連盟」の下の例外だったが、2026-10-19 にメニュー「連盟」をやめ「連盟プロ」「タイトル戦」がトップの項目になった）。2026-10-19 に「連盟プロ」（`jpml_pros.html`）の `img/ogp/pros/index-white.png` を足した（`generate_jpml_pros.py` のテンプレート）。女流桜花の ouka/ は、公開で navbar「女流桜花」を `/ouka/` への1段にする案（#591）に合わせて5種類目を作った（`img/ogp/ouka/index-white.png`、2026-10-17、仮置き。#519）
+文字ベースの画像（サムネイルなどの無いページで使うもの）は、メニューの最上位でそれ自体がページになっているものだけ作る（2026-10-16 の決定の時点では ryoei.pro・鳳凰戦・麻雀最強戦・タイトル戦の4種類。サブメニューで細かく分けない、#581。タイトル戦は当時メニュー「連盟」の下の例外だったが、2026-10-19 にメニュー「連盟」をやめ「連盟プロ」「タイトル戦」がトップの項目になった）。2026-10-19 に「連盟プロ」（`jpml_pros.html`）の `img/ogp/pros/index-white.png` を足した（`generate_jpml_pros.py` のテンプレート）。女流桜花の ouka/ は、公開で navbar「女流桜花」を `/ouka/` への1段にする案（#591）に合わせて5種類目を作った（`img/ogp/ouka/index-white.png`、2026-10-17。ouka/ は #591 で公開済み。`ouka/leagues/` だけ noindex）。WRC リーグの jwrc/（#594）と WRC-R リーグの wrcr/（#366）も同じ形の画像を持つ（docs/decisions/houou.md の WRC-07・WRR-03）。2026-10-29 の時点の区分の画像は ryoei.pro（site）・連盟プロ・タイトル戦・鳳凰戦・女流桜花・WRCリーグ・WRC-Rリーグ・麻雀最強戦の8種類（ほかに帰り道の一覧の合成画像 `img/ogp/wayhome/`）
 
 - 全ページに og:locale `ja_JP`（#267）。生成のページは `lib/page.py` の `HEAD_TEMPLATE` と `generate_jpml_pros.py`、手書きのページは head に直接書く
 - 規則は「埋め込みできる動画のページ（YouTube）は video.other ＋ og:video、それ以外は website」
@@ -33,6 +33,17 @@ OGP 画像・og:title を作る／変えるときに読む。#339（「帰り道
 - 区分ごとの画像などの選択肢を出す前に、その区分がメニューでそれ自体がページか（`navbar.js`）を確かめる（下位メニューしか無いグループには画像を作らないため）
 - 見本はチャット側でも同じ `build_ogp_image.py` で作れる（字体は `OGP_FONT` で差し替える。チャットのサンドボックスでは `/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc`）。字体のファイルが Code と違い文字によっては差が出るので、見本の用途に限る
 - 残りの作業の行き先（#581 を 2026-10-18 に閉じた）: live/ のトップ・大会・期の og:image を最新話のサムネイルにする件（LVP の B9）は #362、ouka/ の「女流桜花」の OGP 画像（2026-10-17 の決定）は #591、女流勉強会の og:title・og:image の確かめは #576 のチェックリスト
+
+## 選手（pro/）
+
+連盟プロの個別ページ `pro/<slug>/` は、選手ごとの文字だけの画像 `img/ogp/pro/<slug>-<ハッシュ8桁>.png`（1200×630、2026-10-30 の決定の ⑧、#219）。
+段は名前・「東京・30期」・「鳳凰戦 C2 · 最高 C1」（鳳凰戦の現在のリーグか最高到達のある選手だけ）と「ryoei.pro」。写真は X の画像で揺らぐので入れない。
+
+- 名前のハッシュは段の文から決まる（`generate_pro_pages.py` の `ogp_file()`、意匠を変えたら `OGP_VERSION` を上げる）。リーグが変わると名前も変わり、古い画像は消える（下の「中身を差し替える画像はファイル名を変える」）
+- 生成（`pro_pages`）が描く（2026-10-31 の決定 K16）: 段の文の一覧 `data/pro_ogp.json` を書き、名前の画像が無いものだけを描いて一覧に無い画像を消す。変わっていない画像は書き換えない（環境で PNG のバイトが揺れても差分を出さない）。`regenerate-page.yml` は対象に `pro_pages` が入るとき（`pro_pages`・`all`・空・push）だけ Pillow（版を固定）と字体（Noto Sans JP Bold。`notofonts/noto-cjk` のコミットの SHA と sha256 で固定）を取り、`OGP_FONT` で渡す。取れなければ描かずに前の画像を残し、警告を出す（ページの生成は止めない）。画像が無い選手のページは `img/ogp/pros/index-white.png`（「連盟プロ」）を指す
+- 段の3つ目は鳳凰戦の値、鳳凰戦の値が無い選手は女流桜花の値（「女流桜花 C1 · 最高 A」、決定 K12）。どちらも無い選手は名前と支部·期だけ
+- 1,098枚で約2分・約40MB（2026-10-31、1枚約0.1秒・35KB）
+- `pro/` のトップは「連盟プロ」の区分の画像 `img/ogp/pros/index-white.png` をそのまま使う
 
 ## 中身を差し替える画像はファイル名を変える
 

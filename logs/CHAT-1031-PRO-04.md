@@ -105,15 +105,38 @@ a742021..09489ef（生成物・ログ・サイトマップを除く18ファイ�
 | 低: push の job は書き込みの資格情報が残ったまま pip を入れる | 見送り（既存の `google-auth requests` と同じ条件で、今回で増えていない） |
 | 低・参考: `build_ogp_image.py` の変更は push の対象の判定に掛からない | 意図どおり（意匠を変えるときは `OGP_VERSION` を上げる、docstring のとおり） |
 
+### 手順3: マージと本番の確かめ
+
+- push の直前に `git fetch origin` と `git merge-base --is-ancestor origin/cloudflare HEAD`（真）を確かめ、`git push origin work/1030-pro:cloudflare`: `a512c7d98..b21716231  work/1030-pro -> cloudflare`
+- 本番（`?v=b217162`）: `https://ryoei.pro/pro/` は push の約1分後に 200、noindex あり。`/pro/ryoei.hirano.30/` 200・noindex あり。その og:image の `img/ogp/pro/ryoei.hirano.30-906e00a8.png` 200（40,726 バイト）
+- push で動いたワークフロー（b217162）: 「ページの再生成」run 41154722452 系（`scripts/lib/` が変わったので全ページ）success → 7d53d78「chore: regenerate … pro/ data/pro_ogp.json img/ogp/pro/ via GitHub Actions」、「サイトマップの lastmod の同期」success、check-run の Workers Builds（mj・mj-ask・mj-scheduler）success。7d53d78 の pro/ の差分は39ファイルで、放送対局の件数の変化（例: 伊藤優孝「すべて（30件）」→「31件」）。選手別 OGP 画像の変更は0件
+- その間に別のセッションの CHAT-1031-RSC-02 が cloudflare にマージされていた（docs と scripts。この指示の変更とは別のファイル）
+- work/1029-lgn-page と cloudflare の衝突の見込み（`git merge-tree --write-tree --name-only`、そのブランチには push していない）: マージ前の cloudflare（a512c7d）では衝突0件、今は `docs/notes/static-generation.md` の1件だけ。「ページの一覧」の文の末尾と表の WRC-R の行の後ろに、log/ と pro/ がそれぞれ1行を足した追記どうしの衝突で、両方を残せば解ける。コードのファイル（check-assets.yml・_redirects・navbar.js・regenerate.py・style.css）は自動で合わさる
+  - 参考: work/1028-lgn も同じ static-generation.md が1件増える（5→6件）。work/1017-lvp は live/ の生成物の衝突が増えたが、push の後の再生成（7d53d78）の live/ のデータの変化によるもので、この指示の変更ではない（生成物の衝突は取り込んだ後のスクリプトで作り直して解く）
+- 作業ブランチの片付け: マージ済み（work/1030-pro の先頭 b21716231 は origin/cloudflare の祖先）。セッションの git プロキシはブランチの削除を拒否するので消していない。マージ済みの work/ は `cleanup-branches.yml` が毎日消す（docs/notes/cloud-sessions.md「ブランチの削除」）。記録: `work/1030-pro`・b21716231（マージ前の先頭）・マージ済み。この後に足したログのコミットは cloudflare へも push した（docs のみの追いの push: `7d53d780e..eead338fb  work/1030-pro -> cloudflare`）
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1030-pro（マージ済み。削除は cleanup-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1031-PRO-04.md
+- 比較URL: https://github.com/retroeater/mj/compare/a512c7d98...b21716231
+- 確認用URL: なし（本番で確かめた。`/pro/`・`/pro/ryoei.hirano.30/` が 200 で noindex）
+- マージ: 済（a512c7d98..b21716231）
+- issue: #641（マージのコメント）・#545（帰り道の新しい回の自動の知らせ、手動実行の all による）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj eb14de8a）: https://github.com/retroeater/mj-logs/tree/main/guide/eb14de8a
+ガイド文書（この版を写した時点の最新、mj 55a36fe9）: https://github.com/retroeater/mj-logs/tree/main/guide/55a36fe9
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/eb14de8a/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/eb14de8a/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/eb14de8a/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/eb14de8a/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/eb14de8a/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/eb14de8a/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a512c7d9.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/55a36fe9/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/55a36fe9/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/55a36fe9/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/55a36fe9/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/55a36fe9/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/55a36fe9/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/eb14de8a.md

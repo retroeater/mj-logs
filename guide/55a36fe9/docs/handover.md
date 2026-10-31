@@ -127,7 +127,7 @@ hook の判定は deny（実行させない）だけで、確認（ask）は出�
 **新サイトを別途新規構築する方針**が決まっている（`docs/new-site-design.md`）。
 現行サイトはいずれ役目を終えるため、大きな投資は避ける。これまでの判断:
 
-- 構造化データ（#13）は現行サイトでは見送り、新サイトで対応
+- 構造化データ（#13）: 見えているパンくずと同じ並びの `BreadcrumbList`（title/・saikyo/・houou/ ほか4大会・動画の各話）とトップの `WebSite` は現行サイトに前倒しした（2026-10-29、`lib/page.py` の `PageMeta.breadcrumb`）。選手の `Person` などは新サイトで対応（#13・#219）
 - 共有ボタン: 新サイトの選手個別ページは #82（新サイト送り）。現行サイトは live/ に共通の部品（#409。`scripts/lib/share.py`・`assets/share.js`・`style.css`）。title/・wayhome/（帰り道）・saikyo/ の共有は外した（saikyo/ の対局ごとの共有は #549 で廃止）。共通の部品は #362 のマージで live/ から外れた後に消す（#530、docs/decisions/site-review.md）。books/ は凍結中で旧実装のまま残す
 - Astroへの移行（#20/#21）は新サイト構築時に判断。現行サイトの残作業はPythonで進める
 
@@ -217,10 +217,12 @@ GitHub Issues（Open）に全件あるが、着手可能な主なものは以下
 | `docs/notes/mj-lead.md` | 表・グラフのあるページの説明文（`.mj-lead`、#312） |
 | `docs/notes/saikyo-page-design.md` | 最強戦（`saikyo/`）と選手写真の更新 |
 | `docs/notes/abema-book.md` | ABEMA ブック（最強戦の卓ごとの ABEMA の回、#425）。サムネイル・「▶ 再生」の元データを直す・確かめる前 |
+| `docs/notes/research-candidates.md` | Claude API の Web 検索で出典付きの候補を作る（R_候補、名前かな #628 など）。種別を足す・試し実行の前 |
 | `docs/notes/title-pages.md` | タイトル戦の新構成（`title/`、#222） |
 | `docs/notes/houou-race.md` | 順位変動（`houou/race/`・`ouka/race/`・`jwrc/race/` の土台、#507） |
 | `docs/notes/houou-top.md` | 鳳凰戦の新ページ `houou/` の仕様（トップ＋検索・ランキング・リーグ推移・順位変動、#518） |
 | `docs/notes/ouka-top.md` | 女流桜花の新ページ `ouka/` の houou/ との違い（#519。公開は #591） |
+| `docs/notes/pro-pages.md` | 連盟プロの新ページ `pro/`（トップ・選手の個別ページ、#219。公開は #641） |
 | `docs/notes/jwrc-top.md` | WRC リーグの新ページ `jwrc/` の houou/・ouka/ との違い（#594。公開は #599） |
 | `docs/notes/wrcr-top.md` | WRC-R リーグの新ページ `wrcr/` の jwrc/ との違い（#366。公開は #611） |
 | `docs/notes/league-pages-compare.md` | houou/・ouka/・jwrc/・wrcr/ の大会の差（意図した差と、公開でそろえる差）。大会の設定や共通の部品を変える前 |
@@ -230,6 +232,7 @@ GitHub Issues（Open）に全件あるが、着手可能な主なものは以下
 | `docs/notes/yotei-sheet.md` | 連盟の予定表の取り込みと放送対局の公開カレンダーへの同期（#448） |
 | `docs/notes/live-channel-write.md` | /live の3層（【1】【2】【3】）の書き込み・毎日の取り込み・平野さんの入力の手順（#438）。チャット側が /live の指示を書く前 |
 | `docs/notes/sns-book.md` | SNS ブック（選手の SNS の ID・画像の URL、#514）。ID の直し・写真の検知 |
+| `docs/notes/log-stations.md` | 「ログ」の駅の一覧（国土数値情報、#367・#639）。取り直し・駅の決め方・出典の表記 |
 | `docs/notes/books-freeze.md` | **書籍ページの開発凍結（2026-09-22、#97）。決定・凍結時点の状態・楽天データの期限・再開手順** |
 | `docs/notes/books-calendar.md` | 書籍の発売日のカレンダー同期の仕組み（#97、凍結時点の記録） |
 | `docs/notes/books-covers.md` | 書籍の書影（楽天ブックス書籍検索API）の仕組みと規約（#97、凍結時点の記録） |
