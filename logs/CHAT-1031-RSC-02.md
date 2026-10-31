@@ -128,7 +128,17 @@ CHAT-1029-RSC-01 の設計案（ログの `## 経過`「3. 設計案」）に沿
 | 低: 照合の条件が決定の文言（出典 URL が検索結果にある）より厳しい | 意図どおり。検索結果は本文が暗号化されていて引用文を照合できないため、取得した本文を要る条件にした。`## 報告` に書く |
 | 低: 名前かなの辞書が `load_profiles()` と重複 | 意図どおり。共通にすると生成スクリプトを触ることになり、変更行数を最小にする |
 
-- 修正前のコードでテストが通らないことの確かめ: `git archive HEAD`（修正前の 3531ec1cd 相当）を scratchpad に展開し、新しいテストのファイルだけを入れて回すと 22本中 失敗4・エラー1（足した5本）。修正後は `unittest discover` 1,657本 OK
+- 修正前のコードでテストが通らないことの確かめ: `git archive HEAD`（その時点の db2c81f84。コードは 6a3074d84 と同じ）を scratchpad に展開し、新しいテストのファイルだけを入れて回すと 22本中 失敗4・エラー1（足した5本）。修正後は `unittest discover` 1,657本 OK
+
+#### 自己レビュー 2回目（1回目の後の差分 db2c81f84..fcdd60024 だけ）
+
+| 指摘 | 扱い |
+|---|---|
+| 中: 境界の判定を空白を除いた後で、名前の前後のかなも見るので、「RMU所属の山田太郎（やまだたろう）」「山田 太郎 ヤマダ タロウ」「山田太郎・やまだたろう」などよくある書き方が未照合になる。読みの後ろの助詞でも落ちる | 直した（fbaa4a746）。名前は「直後に漢字が続かない」だけを見て、字の間の空白を許す（`name_in()`）。読みは部分一致に戻し、`簡略化:` の印に「読みの一部でも照合済みになりうる、採用の前に人が見る」と残した。挙がった形6つを通る側のテストにした |
+| 中: 催促で `tools` を変えると、前の thinking のブロックの照合（preserved thinking）に当たって 400 になりうる（要確認） | 直した（fbaa4a746）。案(c): `tools` は全要求で同じにし、催促の文で検索・取得をしないよう頼む。費用の見込みは2要求目から「前の入力の合計＋6,000＋1,000＋1要求目と同じ見込み（12万・検索2回）」 |
+| 低: 催促の文の分が見込みに入っていない。`pause_turn` の続きの中の繰り返しは厳密な上限でない | 直した（fbaa4a746）。余裕 1,000 トークン（`NUDGE_MARGIN_TOKENS`）を足し、`簡略化:` の印を残した |
+
+- 往復は2回まで（docs/notes/self-review.md「収束」）なので、2回目の修正（fbaa4a746）はサブエージェントに見せていない。テスト: `unittest discover` 1,658本 OK
 
 ## 報告
 
@@ -146,12 +156,12 @@ CHAT-1029-RSC-01 の設計案（ログの `## 経過`「3. 設計案」）に沿
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj a512c7d9）: https://github.com/retroeater/mj-logs/tree/main/guide/a512c7d9
+ガイド文書（この版を写した時点の最新、mj eb14de8a）: https://github.com/retroeater/mj-logs/tree/main/guide/eb14de8a
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a512c7d9/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a512c7d9/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a512c7d9/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a512c7d9/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a512c7d9/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a512c7d9/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/eb14de8a/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/eb14de8a/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/eb14de8a/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/eb14de8a/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/eb14de8a/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/eb14de8a/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a512c7d9.md

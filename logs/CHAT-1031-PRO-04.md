@@ -94,15 +94,26 @@ PRO-03 の「判断が必要なこと」への回答を入れ（Pillow の取得
 - `python3 -m unittest discover -s scripts/tests`: OK。`check_asset_limits.py`: 配信ファイル数 6,405 / 100,000 ほか全部 OK
 - 未公開の確かめ（作業ブランチの上）: `pro/` の 1,099ページ（トップと個別 1,098）に noindex の無いページ 0件。`sitemap*.xml`・`llms.txt` に `/pro/` 0件。pro/・docs・scripts・img の外で `/pro/` が出るのは `_redirects` の書き換えの3行（`/pro`→`/pro/` の 301、`/pro/`・`/pro/:slug/` → index.html の 200）と `navbar.js` の現在地の判定（`location.pathname.indexOf('/pro/')`）だけで、リンクではない。navbar の「連盟プロ」の行き先は `/jpml_pros.html` のまま
 
+### 差分のレビュー（新しい文脈のサブエージェント、マージ前）
+
+a742021..09489ef（生成物・ログ・サイトマップを除く18ファイル）。テスト 1666件 OK、ハッシュを PyPI と落とした wheel で照合、`pip download --require-hashes` を Python 3.12・manylinux_2_28 x86_64 の条件で成功させたうえで、重大・中の指摘なし（`--require-hashes` の設定・`-r` の読み取り・push で動くワークフロー・ワークフローのセキュリティ・未公開の状態・ほかのページの生成のどれも問題なし）。
+
+| 指摘 | 扱い |
+|---|---|
+| 低: `--requirement=<file>`・`-r<file>`・環境マーカー・入れ子の `-r` に未対応 | 意図どおり（使っていない） |
+| 低: `-r` のファイルが無いと pip-audit の手順が落ちる | 意図どおり（気づける。security-check は手動実行だけ） |
+| 低: push の job は書き込みの資格情報が残ったまま pip を入れる | 見送り（既存の `google-auth requests` と同じ条件で、今回で増えていない） |
+| 低・参考: `build_ogp_image.py` の変更は push の対象の判定に掛からない | 意図どおり（意匠を変えるときは `OGP_VERSION` を上げる、docstring のとおり） |
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj a512c7d9）: https://github.com/retroeater/mj-logs/tree/main/guide/a512c7d9
+ガイド文書（この版を写した時点の最新、mj eb14de8a）: https://github.com/retroeater/mj-logs/tree/main/guide/eb14de8a
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a512c7d9/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a512c7d9/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a512c7d9/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a512c7d9/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a512c7d9/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a512c7d9/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/eb14de8a/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/eb14de8a/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/eb14de8a/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/eb14de8a/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/eb14de8a/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/eb14de8a/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a512c7d9.md
