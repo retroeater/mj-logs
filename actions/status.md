@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-31 10:46 JST
+- 書き出した時刻: 2026-10-31 10:55 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -107,11 +107,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-31 10:52 | schedule | cloudflare | success | #16（41157417071） | 0分23秒 |
 | 2026-10-30 11:10 | schedule | cloudflare | success | #15（40990161216） | 0分36秒 |
 | 2026-10-29 10:57 | schedule | cloudflare | success | #14（40803492712） | 0分24秒 |
 | 2026-10-28 10:48 | schedule | cloudflare | success | #13（40617272245） | 0分22秒 |
 | 2026-10-27 10:38 | schedule | cloudflare | success | #12（40433747753） | 0分28秒 |
-| 2026-10-26 09:45 | schedule | cloudflare | success | #11（40250899502） | 0分24秒 |
 
 ## cleanup-logs.yml
 
@@ -204,7 +204,7 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-10-31 10:41 | workflow_dispatch | work/1029-lgn-page | in_progress | #536（41156581098） |  |
+| 2026-10-31 10:41 | workflow_dispatch | work/1029-lgn-page | success | #536（41156581098） | 12分19秒 |
 | 2026-10-31 10:25 | workflow_dispatch | work/1029-lgn-page | success | #535（41155320819） | 15分27秒 |
 | 2026-10-31 10:19 | push | cloudflare | success | #534（41154797689） | 25分12秒 |
 | 2026-10-31 10:18 | push | cloudflare | success | #533（41154722499） | 11分12秒 |
