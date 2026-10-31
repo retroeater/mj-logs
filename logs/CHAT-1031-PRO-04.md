@@ -68,6 +68,31 @@ PRO-03 の「判断が必要なこと」への回答を入れ（Pillow の取得
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 1行目にまとまって貼られているが、4つとも有る
 - 同じ Chat-Ref のコミット: 0件。CLAUDE.md は origin/cloudflare から変わっていない
 - 作業ブランチ: ローカルの work/1030-pro は origin/work/1030-pro（88e0bea）と一致。`git merge-base --is-ancestor origin/cloudflare HEAD` は偽 → 手順2で取り込む
+- #219・#641: 他セッションの着手中コメントは無し（最後のコメントはどちらも PRO-02・03 の自分のもの）
+
+### 手順1: Pillow をハッシュつき・12.3.0 にそろえる
+
+- PyPI の JSON（`https://pypi.org/pypi/Pillow/12.3.0/json`）: `requires_dist` は extra を除くと空（依存なし）。ランナー（ubuntu-latest・Python 3.12〈`regenerate-page.yml` の setup-python〉・x86_64）に合う wheel は `pillow-12.3.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl` の1つ（sha256 `78cb2c68…5d91`、2026-07-01 公開）
+- 書き場所: `scripts/requirements-ogp.txt`（`scripts/` は `.assetsignore` の対象で配信しない）。ワークフローの中に書かなかったのは、pip の `--hash` が要件のファイルの中でしか書けないため
+- 帰り道の手順と pro の手順の両方を `pip install --quiet --require-hashes -r scripts/requirements-ogp.txt` にした（50a543f）
+- 食い違いと対応: `scripts/ci_requirements.py`（ワークフローの `pip install` の行から依存を集めて security-check.yml の pip-audit に渡す）は `-r` の後ろのファイル名を依存として拾ってしまう。`-r`・`--requirement` の後ろは要件のファイルを読んで、その依存（`Pillow==12.3.0`）を集める形にした（テスト2件を足した）。`python3 scripts/ci_requirements.py` の出力: `anthropic==1.7.0 google-auth Pillow==12.3.0 pip-audit==2.10.1 requests zizmor==1.31.1`
+- 手動実行（作業ブランチ）:
+
+| run | 入力 | 帰り道の手順 | 字体と Pillow の手順 | 結果 |
+|---|---|---|---|---|
+| 41153165907 (1) | pro_pages | skipped | success（1秒） | 再生成 9秒。変更なし（コミット無し）: 画像の追加0・削除0・変更（M）0 |
+| 41153269380 (3) | saikyo_pages・dry_run 真 | skipped | skipped | 字体と Pillow を取らない |
+| 41153340686 (2) | all（取り込みの後の 1d92e46） | success（4秒） | success（1秒） | 再生成 11分2秒。変更なし（コミット無し）: 帰り道の生成物の差分0件（`img/ogp/wayhome/index-20261026.jpg` は sha256 294e57f2… のまま）、pro の画像の変更0件 |
+
+- (2) の帰り道の知らせの手順が、新しい回1件（`O0D8Dz7Kqpo` 2026-10-30「《第３期達人戦 森山茂和編》帰り道ついていってイイっすか」）を常設 issue #545 にコメントした（前回の知らせから状態が変わったときだけ書く既存の動き。週次の all でも同じコメントになる）
+- 帰り道の手順は同じ名前の画像の中身が違うときは上書きせずに今のファイルを残して1行出す作り（`build_wayhome_ogp.py`）。ファイルは変わっていない。その1行が出たかはジョブのログの途中にあり、末尾だけを読める MCP では確かめていない（新しい回がシートに入ると名前が変わり、12.3.0 で描かれる）
+
+### 手順2: 取り込み・全ページの生成・検査
+
+- `git merge origin/cloudflare`（1d92e46）: 入ったのは docs/decisions/automation.md と docs/logs/CHAT-1031-PGV-01・02 だけ。衝突なし
+- 全ページの生成: 上の (2)（`all`）で差分0件。`jpml_pros.html` も変わらない（K17 で出力が変わらないことの確かめ）
+- `python3 -m unittest discover -s scripts/tests`: OK。`check_asset_limits.py`: 配信ファイル数 6,405 / 100,000 ほか全部 OK
+- 未公開の確かめ（作業ブランチの上）: `pro/` の 1,099ページ（トップと個別 1,098）に noindex の無いページ 0件。`sitemap*.xml`・`llms.txt` に `/pro/` 0件。pro/・docs・scripts・img の外で `/pro/` が出るのは `_redirects` の書き換えの3行（`/pro`→`/pro/` の 301、`/pro/`・`/pro/:slug/` → index.html の 200）と `navbar.js` の現在地の判定（`location.pathname.indexOf('/pro/')`）だけで、リンクではない。navbar の「連盟プロ」の行き先は `/jpml_pros.html` のまま
 
 <!-- guide-links -->
 ---
