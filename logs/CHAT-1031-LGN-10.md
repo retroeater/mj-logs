@@ -69,29 +69,78 @@ LGN-09 の log/ のプレビューを平野さんが見て出した直しを入�
   - SEO 系列（CHAT-1029-SEO-01〜08、SEO/AIO の包括レビューとその直し）の…
   ```
 - LGN-09 のログの状態の末尾に ` / 続き: CHAT-1031-LGN-10` を足した
+- 共通の部品を変えている未マージのブランチ: work/1017-lvp（`style.css` の 1540〜2229 行あたり・`assets/live.js`・`scripts/lib/members.py`・`study.py`）、work/1030-pro（`style.css`・`assets/houou_ask.js`・`league.js`・`pro.js`・`scripts/lib/birthdays.py`・`url.py`）、work/1031-rsc（`scripts/lib/candidates_book.py`・`sheets_write.py`）。この指示で変えたのは `style.css` の末尾の log/ の節（cloudflare に無い行）・`assets/log.js`・`scripts/generate_log_pages.py` だけで、同じ行・同じ関数には当たらないので止まらない
+
+### 手順1・2: 作り（531318edf）
+
+- `generate_log_pages.py`:
+  - title を「ログ | ryoei.pro」にした
+  - h1 の下は `{店の数}店` だけにした
+  - カテゴリのカードの下は駅だけ（店の件数を出さない）
+  - `HIDDEN_PEOPLE = ("石立岳大",)` の投稿を `drop_posts()` で先に外す（本文に「過去メシ」があっても石立岳大は警告に入れない）。投稿から作る人の並び・候補・カテゴリ・件数・description にも出ない
+  - 「2人とも行った店」（`both_visited`・`BOTH`）を消した
+  - 出典は `<details class="mj-log-info">` の「(i)」（自前の SVG。読み上げの名前は「駅のデータの出典」）にして、`#log_home`（探していないときだけ見える）の先頭に置いた
+- `assets/log.js`: 店名のリンクの「Google マップ」の文字を、自前のインライン SVG の地図のピン（`mapPin()`、`createElementNS`、aria-hidden）に替えた。リンクに `aria-label="店名（Google マップで開く・新しいタブ）"` と `title="Google マップで開く"` を付けた（見える店名が名前の先頭）
+- `style.css`: `.mj-log-gmap`（ピン 14px、リンクの色）、`.mj-log-info`・`.mj-log-info-button`（右寄せ・灰色）
+- 検査: 石立岳大の外し方・カテゴリが2つ・カードに件数が無い・出典がトップにだけある・title と件数の表示。`python3 -m unittest discover -s scripts/tests` → OK、`node --test …` → 34件 OK
+- docs: log-page.md（目的・生成・画面・データ・仮置き）・log-stations.md「出典の表記」・static-generation.md の log/ の行（ページ数は 1 のまま）。docs/decisions/operations.md に LGN-10 の節を足した。LGN-03 の決定で置き換えるものは無かった（「件数は『1479店』の形〈投稿の件数を出さない〉」は今回の決定と同じ向き）ので、置き換えの印は付けていない
+
+### 手順3: 生成
+
+- `check`（run 41155320819、531318edf、成功）。前回より長く約22分かかった
+- 入力無し（`all`、run 41156581098、531318edf、成功 → f25e187b5）: log/ のほか、2日分のシートの更新で live/ など 946ファイルが作り直された（入力無しは全ページのため。log/ の変更と関係しない差分）
+- **件数の照合**: 同じ実行の resource_logs.html 3,159行 − 過去メシ 128件（すべて谷岡育夫）− 石立岳大 601件 = 2,430件 で、log/ の投稿と一致（1,734店）。log/ にだけある投稿は 0件。`search.json` の人は 谷岡育夫・平野良栄 の2人
+- 石立岳大の 601件は resource_logs.html には残る（決定どおり）
+
+### プレビュー（Workers Builds、f25e187b5）
+
+ヘッドレスの Chromium（幅 400px）で確かめた:
+
+- トップ: title「ログ | ryoei.pro」、h1 の下「1,734店」、カテゴリは「最近追加された店」「掲載回数の多い店」の2つ、カードは「イマダミナコ / 新宿」（件数なし）。右上の「(i)」は Tab で選んで Enter で開き、出典の文が出る
+- `?station=水道橋` → 50店。`?name=谷岡育夫` → 1,450店。`?pref=千葉県` → 4店（千葉の店の多くは石立岳大の投稿だったため、76店から減った）。`?name=石立岳大` → 0件（「見つかりませんでした」）。検索欄に「石立」と打っても投稿者の候補は出ない
+- 結果の画面では「(i)」は出ない。店名のリンクにはピンのアイコンが付き、aria-label・title も付いている
+- ページの JS の誤りは無い
+
+### 差分のレビュー（新しい文脈のサブエージェント、1回。0d15dd86b..531318edf と生成物）
+
+テスト（Python 1,662件・JS 34件）OK、生成物の照合もサブエージェントが確かめた。must-fix なし。
+
+| 指摘 | 扱い |
+|---|---|
+| 「(i)」の押せる範囲が約 26px で、design.md のタップ領域 44px に足りない | 直した（5d5134aa6）: 44×44px にし、行が高くならないよう負のマージンで打ち消した。プレビューで 44×44 を確かめた |
+| `card_html` の docstring に「件数」が残る | 直した（5d5134aa6） |
+| log-page.md のテストの列挙に今回の検査が無い | 直した（5d5134aa6） |
+| decisions の例「1,885店」が石立岳大を外す前の数 | 直した（5d5134aa6）: 「1,734店のように店の数だけ」 |
+| `assertNotIn("件", card)` が店名の「件」で誤って落ちうる | 直した（5d5134aa6）: `件</span>` で見る |
+
+CC BY 4.0 の表記についてのサブエージェントの見立て: CC BY 4.0 の 3(a)(2) は媒体・状況に応じた合理的な方法での表示を認めており、トップから1操作で出典名・URL・加工した旨に辿れるので妥当な読み方。弱い点は、`?station=` などで直接開いた結果の画面からは × で条件を外さないと辿れないこと（厳密にするなら結果の画面にも小さく置く案）。
 
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1029-lgn-page
+- 状態: 判断待ち
+- ブランチ: work/1029-lgn-page（未マージ）
 - ログ: https://github.com/retroeater/mj/blob/work/1029-lgn-page/docs/logs/CHAT-1031-LGN-10.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1029-lgn-page
-- 確認用URL: なし
-- マージ: 未
-- issue: #639
-- 判断が必要なこと: なし
+- 確認用URL: プレビューあり（URL は最終報告）。見る URL（いずれも `/log/` の後ろ）: トップ・`?station=水道橋`・`?name=谷岡育夫`・`?pref=千葉県`・`?name=石立岳大`（0件）。この版で見えるはずの印: h1 の下が「1,734店」だけ、トップの右上の「(i)」
+- マージ: 未（平野さんがプレビューを確かめるまで入れない）
+- issue: #639（公開は #640）
+- 判断が必要なこと:
+  - 石立岳大で外れた件数: 601件（店は 1,885店 → 1,734店、投稿は 3,031件 → 2,430件。`?pref=千葉県` は 76店 → 4店）
+  - 出典の「(i)」はトップにだけ置いた。`?station=` などで直接開いた画面からは、× で条件を外してトップに戻ると辿れる（結果の画面には置いていない）。CC BY 4.0 の表示として、ページの中で1操作で辿れるので足りる見込み（`## 経過`「差分のレビュー」の見立て）。結果の画面にも小さく置くかは仮置き
+  - 仮置き（docs/notes/log-page.md「仮置きの一覧」）: ピンのアイコンは 14px・リンクの色、「(i)」はトップの右上・18px・灰色（押せる範囲 44px）。距離の書き方（「神保町駅まで 300m」「九段下（神保町駅から 615m）」）、都道府県は「東京都」の形、駅が空の店は現在地から探すに出さない、は LGN-09 のまま
+  - work/1028-lgn・照合のシート・バックアップのシートを消す時期（LGN-08・09 から）
 - 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj eb14de8a）: https://github.com/retroeater/mj-logs/tree/main/guide/eb14de8a
+ガイド文書（この版を写した時点の最新、mj 55a36fe9）: https://github.com/retroeater/mj-logs/tree/main/guide/55a36fe9
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/eb14de8a/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/eb14de8a/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/eb14de8a/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/eb14de8a/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/eb14de8a/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/eb14de8a/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/55a36fe9/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/55a36fe9/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/55a36fe9/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/55a36fe9/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/55a36fe9/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/55a36fe9/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/eb14de8a.md
