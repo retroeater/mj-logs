@@ -60,6 +60,53 @@ PRO-08 の調べと平野さんの回答に沿って、個別ページ `pro/<slu
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 着手前の確認
+
+- 同じ Chat-Ref のコミットなし（`git log --all --grep`）。`PRO` は PRO-01 から続く同じチャットの識別子。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は欠けなし
+- 0章: 「指示」欄の末尾は指示文の最後の行と一致。PRO-09 の変更は origin/cloudflare に入っている（`pro/` の個別ページに「いま」の面の見出しは0件）。PRO-08 のログ（origin/cloudflare）の `## 報告` の状態は「判断待ち」で、末尾に ` / 続き: CHAT-1031-PRO-12` を足した（417575808）
+- 作業ブランチ: work/1031-pro-sched はリモートにもローカルにも無かったので origin/cloudflare（f797a06）から作った
+- #219: 他セッションの着手中コメントなし。着手中のコメントを書いた（issuecomment-6544577887）。#219・#641 は open
+- 0章ゲート: 未マージの work/ で `scripts/generate_pro_pages.py`・`assets/pro.js`・`scripts/lib/live_calendar.py`・`regenerate-page.yml`・`update-live-channel.yml` を変えているブランチは無い。`style.css` は止まる条件の対象外だが、work/1031-pro-nav（PRO-11、未マージ）が変えている（ナビの節と暗い配色の `@media`。こちらは pro の節に足しただけで別の箇所）
+- CLAUDE.md 23,786 バイト・handover.md 23,201 バイト（警告域の手前）
+
+### 1. 放送の部品の切り出し（f62a855）
+
+- `lib/live_calendar.py` の `build_desired()`（/live の【1】【2】【3】と予定表から公開カレンダーの予定を作る）は、もとからカレンダーへの読み書きを含まない。切り出したのは `sync_live_calendar.py` の `main()` の読み込みの部分（層1・/live の【2】【3】・予定表の【2】【3】・「【4】カレンダー非掲載」を読んで `build_desired()` に渡す）で、`load_desired(today, fix_name)` にした。`main()` はそれを呼ぶだけになり、`build_desired()`・`plan()`・`body_of()` は変えていない
+- 名前の直し方（「別名」の訂正）は `name_fixer(book)` に分け、`load_name_fixer()` はそれを呼ぶ（pro の生成は live/ と同じ辞書を読み済みなので、2回読まない）
+- 役ごとの名前は、予定の説明欄（`frame_description()` の形）を `people_of()` で読み戻す（`build_desired()` の予定に欄を足すと、カレンダーへの書き込みの比べに影響しうるので、予定そのものは変えない）
+- テスト: `test_sync_live_calendar.LoadDesiredTest`（同じ入力で `load_desired()` と `build_desired()` の予定の一覧が同じ。修正前のコードには `load_desired` が無いので落ちる）・`test_live_calendar.test_people_of_reads_back_the_description`
+- `check_unused_names.NAME_RESOLVERS`（名前を解決する関数の表、`test_name_resolvers` が見張る）の `sync_live_calendar.load_name_fixer.fix` を `name_fixer.fix` に直し、`generate_pro_pages.current_name` を足した（利用先は層1・【3】の名前で、検査がもう読んでいる）
+
+### 2. 道場部の読み取りの鍵
+
+- 「mj_道場部ゲスト」は公開カレンダー（docs/notes/dojo-guest-calendar.md）。Calendar API の events.list は、公開のカレンダーなら共有されていないサービスアカウントでも読める見込みなので、今 `regenerate-page.yml` が渡している `SHEETS_READER_SA_KEY`（sheets-reader）でスコープ `calendar.readonly` の資格を作って読む形にした（ワークフローに鍵を足さない・平野さんの手作業も要らない方）
+- 実物: 作業ブランチの `regenerate-page.yml`（pro_pages、check 真、run 41210025439）で、道場部の読み取りは警告なしで通った（`今後の予定の道場部ゲスト: 0名・0件`）。読めなければ 403/404 で `gcal.request` が止まり警告になるので、sheets-reader で読めている。0件は11月分がカレンダーに入っていないため（指示の前提のとおり、#426）。読んだ件数を出す行を足した（88e94a8）
+- カレンダー ID はコードの定数（`DOJO_CALENDAR_ID`。GitHub の変数 `DOJO_CALENDAR_ID` と同じ公開カレンダーの ID。`live_calendar.CALENDAR_ID` と同じ扱い）
+
+### 3. 「今後の予定」の面（d95c019）
+
+- 生成（`scripts/generate_pro_pages.py`）: `load_plans()` が3種類を読み、名前ごとに日付・時刻の順に並べる。どれかが読めなければその種類を出さずに警告（`load_plans` のテスト）
+  - 放送: `load_desired()` の予定のうち種類「枠」で今日以降。説明欄の【対局者】【実況】【解説】の名前を、名前の辞書で現在名に直して照合。役は対局者 > 実況 > 解説 で1人1行、実況・解説だけ役を添える。行き先は説明欄の配信の URL（YouTube、新しいタブ）。仮の予定（予定表）は名前が無いので出ない
+  - 最強戦: `saikyo/players/index.html` の `saikyo_players_data` の、順位も結果も空の今日以降の卓。件名「<対局名> <卓>」、行き先は卓のページ `/saikyo/<年度>/<卓>.html`（全卓のページがあることを確かめた）
+  - 道場部: 「mj_道場部ゲスト」の終日の予定「<登録名>（道場部）」の今日以降。件名「本部道場 ゲスト」、行き先は `https://www.ma-jan.or.jp/dojo_guest.html`（新しいタブ）
+- 面: 名前の面の次（成績の前）に「今後の予定」。5件、多ければ「ほか N件」の1行（押せない）。1行は1段目に日付（「11月4日（水）16:00」、最強戦・道場部は時刻なし）・種類のチップ・役、2段目に件名（1行で入らない分は「…」）。各行に `data-date`（日本時間の日）
+- JS（`assets/pro.js`）: 日本時間の今日（端末の時刻帯によらず UTC+9 で計算）より前の `data-date` の行を隠し、残らなければ見出しごと隠す
+- CSS（`style.css` の pro の節）: 種類のチップは新サイトの残留のピルの地（`--mj-n-chip`）に 12px 太字、役は 12px の灰色
+- テスト（`test_pro_pages.PlansTest`）: 照合（「別名」・未定の名前）・過ぎた枠と仮の予定を出さない・役の添え方と優先・最強戦は日付の過ぎた結果待ちの卓を出さない・道場部の件名の読み方・並び（時刻の無い予定はその日の先頭）・5件と「ほか N件」・`data-date` と `<time>` の値・面を出さない場合・読めない種類の警告
+- 簡略化（コードに `簡略化:` で残した）: `sync_live_calendar.py` は `generate_*.py` でも `lib/` でもないので、それだけを変えても push の再生成は pro/ を作り直さない（毎朝の生成で出る）
+
+### 4. 毎朝の生成（9037121）
+
+- `update-live-channel.yml` の job `regenerate` の `target_page` を `live_pages title_pages pro_pages` にした。`regenerate.py` の `RUN_LAST` で pro_pages は最後に作られる
+- 呼ぶ側（`git grep`）と振る舞い:
+  - `run-daily.yml`（Worker `mj-scheduler` が毎朝 04:00 JST に起動、`workflow_call`）: job `regenerate` は apply（予約の起動は常に真）のときだけ動くので、毎朝 pro/ も作り直してコミットする
+  - `update-live-channel.yml` の保険の schedule（06:43 JST、当日の予約の起動が成功済みなら動かない）: 同じ
+  - 手動実行: apply を付けたときだけ再生成が動く（付けないときは件数を出すだけで、pro/ は作らない）
+  - `workers/scheduler/test/catchup.test.mjs` はワークフローの名前を見るだけで、中身の変更の影響なし
+- docs/notes/github-actions.md の一覧の行・docs/notes/live-channel-write.md の「5.」・regenerate-page.yml の注釈を /live・title/・pro/ に直した
+
 <!-- guide-links -->
 ---
 
