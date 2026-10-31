@@ -152,7 +152,7 @@ github-actions.md「共通の部品」の「寄せられない点」にある si
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1101-WKP-06
 - ブランチ: work/1101-wkp
 - ログ: https://github.com/retroeater/mj/blob/work/1101-wkp/docs/logs/CHAT-1101-WKP-05.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1101-wkp
