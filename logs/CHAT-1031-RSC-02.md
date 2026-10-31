@@ -76,6 +76,20 @@ CHAT-1029-RSC-01 の設計案（ログの `## 経過`「3. 設計案」）に沿
 - 着手前の確認: 同じ Chat-Ref のコミット・ログなし（`git log --all --grep`）。`RSC` は CHAT-1029-RSC-01 の続き（02）なので識別子の重複確認の対象外。作業ブランチ: リモート・ローカルとも work/1031-rsc が無く、`git checkout -b work/1031-rsc origin/cloudflare`
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 欠けなし
 - 0.: 「指示」欄の末尾は指示文の最後の行と一致
+- 0.: 平野さんに R_候補 の ID を尋ね、このセッションで受け取った（ID はコードの定数にだけ書く）
+- CHAT-1029-RSC-01 のログの `## 報告` の状態を「判断待ち / 続き: CHAT-1031-RSC-02」にした
+
+### 1. 前提の確かめ
+
+- #628: Open。他セッションの着手中のコメントは無い（10-29 の RSC-01 の着手中は同じ欄で完了済み）。着手中のコメントを書いた
+- 未マージの `work/` ブランチで `scripts/lib/sheets_write.py`・`scripts/check_sheets_reader.py` を変えているものは無い（`git branch -r --no-merged origin/cloudflare` の各ブランチと cloudflare の merge-base からの差分、2026-10-31）
+- R_候補 を `live-channel-writer` で読めるか: **セッションに鍵が無く、ここでは確かめられない**。マージ前に確かめる手段も無い（既存のワークフローで `LIVE_SHEETS_SA_KEY` を使い、任意のブックを読むものは無い。新しいワークフローは既定のブランチに無いと手動実行できない）。
+  そのため、`sheets-reader` での読み取りを `check-sheets-reader.yml`（作業ブランチで `BOOKS` に R_候補 を足して手動実行）で確かめ、`live-channel-writer` での読み取りはマージ直後の新しいワークフローの `dry_run`（API を呼ばず、候補タブを読むだけ）で確かめる。読めなければそこで止める（マージしたコードは手動実行・dry-run 既定なので、ほかに影響しない）。指示文の順（手順1で確かめる）と違うので記録する
+- サイトの読み取り（セッションから curl、2026-10-31）:
+  - `https://mahjong-saikyosen.com/` 200（「麻雀最強戦 2026」、WordPress）。RSS `https://mahjong-saikyosen.com/?feed=rss2` が読める（最新の項目はインタビュー記事）。固定ページ「プロ対局」`https://mahjong-saikyosen.com/?page_id=382`（題「プロ対局スケジュール」、「予選通過者テーブル」の語がある）。成績記事の一覧の候補は RSS と「プロ対局」のページ。過去年度の記事が残るかは見ていない
+  - `https://kinmaweb.jp/` 200（キンマweb）。カテゴリ「麻雀最強戦」 `https://kinmaweb.jp/archives/category/mahjong-championship` が成績記事の一覧の候補
+  - `https://times.abema.tv/` 200（ABEMA TIMES）。一覧の候補は確かめていない（`/tags` がある）
+  - B・D の設計は今回は直さない（指示のとおり）
 
 ## 報告
 
