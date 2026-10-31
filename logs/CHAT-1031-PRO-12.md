@@ -130,6 +130,52 @@ PRO-08 の調べと平野さんの回答に沿って、個別ページ `pro/<slu
 
 計 88名・134件。PRO-08 の一覧（放送は対局者だけを数えていた）との違いは、実況・解説の枠が入ったことと、基準日が同じでも枠の追加・名前の入力で放送の枠が入れ替わること（PRO-08 の時点で名前のあった枠 26件のうち、今日以降は 16件の範囲の表と一致を目で確かめた。例: 三浦智博は PRO-08 の #5・#6〈解説〉・#12〈対局者〉、魚谷侑未は #1〈解説〉・#7・#17 と最強戦）
 
+### 6. レビュー（新しい文脈のサブエージェント、1回）
+
+渡したもの: 目的と決定、`git diff origin/cloudflare...work/1031-pro-sched`（pro/ と docs/logs を除く）、CLAUDE.md「コード規約」。結論は「目標を満たしている。高の指摘なし」。テストは 1,694件通った（レビューの側でも実行）。
+
+| 指摘 | 扱い |
+|---|---|
+| 中: 放送対局が読めない日（【3】の予定IDの重複・一時的な失敗）に、全員の放送の行が警告だけで消えたページが出る。決定で「読めなければ出さない」は道場部だけ | 直した（0d807f3）。放送対局・最強戦は読めなければ生成を止める（regenerate.py がそのページを飛ばし、pro/ は前の日のまま）。--check では止まる理由になる。道場部だけ警告。テスト `test_live_failure_stops`・`test_dojo_failure_only_warns` |
+| 中: 道場部が読めたことの根拠が0件の 200 だけ（公開範囲が「空き時間のみ」なら件名が無く、黙って全件落ちる） | 確かめた。10/1 から読む一時のコミット（eeda6a7、6954b96 で戻した）で手動実行（run 41211046153）: 22件・件名に「（道場部）」22件・終日 22件（PRO-08 の 10月の22件と同じ） |
+| 中: pro_pages の生成が止まると、毎朝の regenerate ジョブ（と run-daily）が失敗になる範囲が広がる。update-live-channel を直接 scheduled で起動した経路では保険の予約実行も動く | 受け入れ（live/・title/ は先にコミットされ、ページへの害は無い。止まったことは失敗のメールで分かる方がよい）。「判断が必要なこと」に書いた |
+| 低: `main()` で名前の辞書の読み込みが層1・シートより前になった（引数を先に評価するため） | 直した（0d807f3）。`load_desired(today, fix_name=None)` で、無ければ最後に読む（切り出す前と同じ順） |
+| 低: /live の【2】【3】を `load_roles()` と `load_desired()` で2回読む | 見送り（毎朝 Sheets API を数回余分に呼ぶだけ。共有にすると live/ の生成の読み方に手が入る） |
+| 低: 道場部の名前を現在名に直していない | 直した（0d807f3）。`current_name()` を通す。テストに旧名の行を足した |
+| 低: `DOJO_SUFFIX` と件名の読み方が `sync_dojo_calendar` の写し、カレンダー ID の固定値、鍵から資格を作る部分が `lib/sheets._session()` とほぼ同じ | 一部直した（0d807f3）。件名は `sync_dojo_calendar._title_name()` を使う。カレンダー ID は同期が GitHub の変数で受けるため pro の生成には渡っておらず、`live_calendar.CALENDAR_ID` と同じく公開カレンダーの ID を定数にした（意図どおり）。資格はスコープが違うので `calendar_session()` に分けた（テストで差し替えるため） |
+| 低: 最強戦の行に時刻が無い（決定は「時刻なしは道場部」） | 意図どおり（saikyo/ の生成物に時刻が無い）。「判断が必要なこと」に書いた |
+| 低: pro/ が抜けた古い記述3か所（live-channel-write.md の冒頭・live-page-design.md・yotei-sheet.md） | 直した（0d807f3） |
+| 低: テストの無い箇所（道場部の SystemExit の換え・book なし・JS） | 直した（`test_dojo_read_failure_becomes_generation_error`・`test_current_name_without_book`）。JS は撮影（時計を 11/5 にした確かめ）のまま |
+| 低: `assets/pro.js` の `const plans =document` の空白 | 直した（0d807f3） |
+
+- 直した後: テスト 1,697件 OK。`regenerate-page.yml`（pro_pages、check 偽、run 41211131995）は成功し、新しいコミットは無かった（直す前の生成 7da503d と出力が同じ）。2回目のレビューはしていない（直したのは止め方・順・名前の直し・記述で、テストと生成で確かめた）
+- 一時のコミットを戻すとき、`git revert` の引数を誤り、続けた `git commit --amend` が一時のコミットの説明だけを書き換えた（push は fast-forward でないため拒否され、リモートには出ていない）。`git reset --soft origin/work/1031-pro-sched` でリモートの先頭に戻してから `git revert --no-commit` で戻した。戻した後の作業ツリーは 0d807f3 と同じ（`git diff 0d807f3` が空）
+
+### 7. プレビュー
+
+- Workers Builds: 6954b96 で「Workers Builds: mj」success。別名 URL の `/pro/tomohiro.miura.28/` が 200 で、今後の予定の面（`data-plans` と3行）が入り、`assets/pro.js` に `hidePastPlans` が入っていることを確かめた（取得は2件）
+- 決定: docs/decisions/pros.md に PRO-12 の節を足した（PRO-08 の「対局者だけ」を置き換えた旨も）
+
+## 報告
+
+- 状態: 判断待ち（今後の予定の面を作り、毎朝の生成に足して、プレビューで止めた）
+- ブランチ: work/1031-pro-sched
+- ログ: https://github.com/retroeater/mj/blob/work/1031-pro-sched/docs/logs/CHAT-1031-PRO-12.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1031-pro-sched
+- 確認用URL: プレビューあり（URL は最終報告）。確かめるページ: `/pro/tomohiro.miura.28/`（解説2・対局者1）・`/pro/shota.akutsu.34/`（最強戦1・放送3）・`/pro/yu.yoshii.37/`（実況だけ）・`/pro/kotaro.uchikawa.22/`（最強戦だけ）・`/pro/hiro.shibata.17/`・`/pro/aki.nikaido.15/`・予定の無い選手 `/pro/a-ji.skull-reaper.27/`。この版の印: 個別ページの名前の面の次に「今後の予定」の見出しがあり、行に灰色の「放送」「最強戦」のチップがある
+- マージ: 未（平野さんの判断待ち）
+- issue: #219（着手中・判断待ちのコメント）・#641（公開。この指示では触れていない）
+- 判断が必要なこと:
+  - マージしてよいか（cloudflare に入ると、毎朝の update-live-channel.yml の再生成で pro/ も作り直してコミットする。pro/ は未公開〈noindex〉のまま）
+  - 最強戦の行は時刻なし（saikyo/ の生成物に時刻が無い。決定は「時刻なしは道場部」）。このままでよいか、時刻を出すなら ABEMA ブックなどから足す別の指示にするか
+  - 放送対局・最強戦が読めない日は pro/ の生成を止める（前の日のページのまま。レビューの指摘で、全員の行が黙って消えるより止める方にした）。止まった日は毎朝の regenerate ジョブ（と run-daily）が失敗になり、失敗のメールが届く。この扱いでよいか（警告にとどめて出す方にもできる）
+  - 道場部の読み取りは sheets-reader の鍵（regenerate-page.yml が今渡している `SHEETS_READER_SA_KEY`）でできた。カレンダーの共有も別の鍵も要らなかった
+  - 「ほか N件」の行は今日のデータでは出ない（最多4件）。テストだけで確かめた
+- 未確認の項目:
+  - 道場部の行がページに出ること（11月分がカレンダーに入るまで0件。入った後の毎朝の生成で出る。カレンダーの件名が読めることは10月分で確かめた）
+  - 実機（Safari など）での見え方（ヘッドレスの Chromium だけ）
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
