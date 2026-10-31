@@ -98,7 +98,7 @@
 - 選手別 OGP: `regenerate-page.yml` の pro の手順（字体と Pillow の取得）と `OGP_FONT` を消した（2f67e08）。`img/ogp/pro/` の 1,098枚・`data/pro_ogp.json`・`generate_pro_pages.py` の描く処理（`ogp_*`・`draw_ogp`）・テスト（`test_og_image.py` の選手別の形、`test_pro_pages.py` の OGP の検査）・docs/notes/ogp.md の「選手（pro/）」の節を消した（54f039b）。全ページの og:image は「連盟プロ」（`img/ogp/pros/index-white.png`）。帰り道の手順の `scripts/requirements-ogp.txt`（Pillow 12.3.0・ハッシュ）は残し、説明の「連盟プロの選手別」を外した。再開するときの戻し先は docs/notes/pro-pages.md に書いた（55a36fe9a までの履歴）
   - コミットの分け方の失敗: 撤去を1つのコミットにするつもりが、`git add` の指定（消した後のディレクトリ）で1つ目が失敗し、画像・データ・テスト・docs の削除が作り直しのコミット 54f039b に入った。ワークフローだけを 2f67e08 に分けた（push 済みなので書き換えていない）
 - 個別ページから外した面: 「いま」（`now_term`・`last_round`・成績 JSON・`houou_current`・`houou_upcoming` の読み込み）・関連する選手（`related`）・リンクのコピー（`COPY_BUTTON`・pro.js の `initCopy`・CSS）・質問欄（`ask_html`）・要約（`contest_summary`・`saikyo_summary`）を消した
-- `check_asset_limits.py` の配信ファイル数: 6,405 → 5,307（`img/ogp/pro/` の 1,098枚が減った）
+- `check_asset_limits.py` の配信ファイル数: 6,405（PRO-04 のマージ前）→ 5,326（`img/ogp/pro/` の 1,098枚が減った。差の残りはその後に cloudflare へ入ったほかの変更の分）
 - 手動実行: check（run 41162284203）「pro_pages: 通る(--check)」、生成（run 41162352211）→ d2497a1「chore: regenerate pro/ via GitHub Actions」（1,099ファイル）。放送対局の役は「在籍者 1098名、放送対局のページ 765件(live/ のカード 765件)」
 
 ### 手順2: 作り直し
