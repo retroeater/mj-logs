@@ -57,6 +57,14 @@ LGN-13 の決定（そのまま）
 
 - 0章: 指示欄の末尾は指示文の最後の行と一致。`CHAT-1031-LGN-14` のコミット・ログなし。雛形の行の欠けなし
 - LGN-12 のログの状態の末尾に ` / 続き: CHAT-1031-LGN-14` を足した。LGN-13 のログは無い（LGN-13 は0章の「貼る時機」の前提〈LGN-12 が判断待ち〉を満たさなかったので、ログ・コミット・ブランチの操作をせずに止まり、内容はターミナルの報告だけに書いた）。LGN-13 の決定はこの指示の「決定」から読む
+- 手順1（取り込み）: `git merge origin/cloudflare` で衝突は docs/notes/static-generation.md の1ファイルだけ（「ページの一覧」の前置きの段落と表）。指示のとおり pro/ と log/ の両方を残して解いた（前置きは pro/ の項目の後に log/ の項目、表は pro/ の行・log/ の行の順）。docs/decisions/operations.md は自動で両方残った。取り込み後に unittest・node --test が通ることを確かめて 5f5ea9692 を push
+- 手順2（LGN-12・13 の決定）: 744286e3b（コード）・2bb4a9b5c（docs）
+  - 出典: `SOURCE_HTML` の末尾を「を基に作成」に（「（駅の点と都道府県を加工）」を除く）
+  - 駅の表示: `shown_station()`（東京都の外は「船橋（千葉県）」、【千葉】船橋 → 船橋（千葉県）、東京都は駅名、都道府県の分からない【London】Marble Arch はそのまま）。候補・タグは `search.json` の `prefs`（東京都の外の駅名 → 都道府県。同じ名前の駅が東京都の外の2都道府県にあれば付けない〈`簡略化:`〉）を `tagLabel()` で読む。候補の突き合わせは駅名だけ（「千葉」で千葉県の駅が全部は出ないことをテストで確かめた）
+  - カード: 最近追加された店は「2026年3月2日」の形（`date_text()`）、掲載回数の多い店は「3回」
+  - 候補の1行: 種類・名前・店数の順の span、`.mj-log-suggest-kind` を幅 4.5em・左寄せ
+  - テスト: `python3 -m unittest discover -s scripts/tests` → 1722件 OK。`node --test scripts/tests/js/*.test.js .github/actions/upsert-issue/test/*.test.js` → pass 36 / fail 0
+  - docs/notes/log-page.md（画面ごとの仕様・search.json の形・仮置き）と docs/notes/log-stations.md（log/ の出典の行）を更新
 
 ## 報告
 
