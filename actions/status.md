@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-10-31 11:07 JST
+- 書き出した時刻: 2026-10-31 11:09 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -38,7 +38,7 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-10-31 11:06 | check_run | cloudflare | in_progress | #723（41158495213） |  |
+| 2026-10-31 11:06 | check_run | cloudflare | skipped | #723（41158495213） | 0分07秒 |
 | 2026-10-31 11:06 | check_run | cloudflare | skipped | #722（41158492123） | 0分01秒 |
 | 2026-10-31 11:06 | check_run | cloudflare | skipped | #721（41158476816） | 0分10秒 |
 | 2026-10-31 11:06 | check_run | cloudflare | skipped | #720（41158466786） | 0分01秒 |
@@ -241,6 +241,7 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-31 11:07 | workflow_dispatch | cloudflare | in_progress | #5（41158552781） |  |
 | 2026-10-31 11:05 | workflow_dispatch | cloudflare | success | #4（41158413492） | 0分46秒 |
 | 2026-10-31 10:24 | workflow_dispatch | cloudflare | success | #3（41155175550） | 1分25秒 |
 | 2026-10-31 10:21 | workflow_dispatch | cloudflare | success | #2（41154975194） | 1分54秒 |

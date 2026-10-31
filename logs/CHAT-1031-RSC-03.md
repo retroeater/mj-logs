@@ -72,6 +72,22 @@ CHAT-1031-RSC-02 の「判断が必要なこと」への回答を入れ、名前
 - テスト: 抜粋の候補（未照合と備考、名前・読みの確かめ）、`blocked_domains`、`recheck` の判定。`unittest discover` 1,691本 OK。修正前のコード（19e2afd75）に新しいテストを当てると 25本中 失敗1・エラー2（足した3本）
 - docs: docs/notes/research-candidates.md（ツール・確度の表・候補タブ）、docs/decisions/automation.md に決定
 
+#### 自己レビュー（新しい文脈のサブエージェント）
+
+1回目（`git diff origin/cloudflare...HEAD`、ログを除く。サブエージェントのテスト 1,691本 OK）:
+
+| 指摘 | 扱い |
+|---|---|
+| 中: 本文は開けたが読みが無く、抜粋にだけある場合、モデルが開いた URL を返すと「引用文が取得した本文に無い」で終わり、抜粋の扱い（備考・名前と読みの確かめ）にならない | 直した（63271ad6b）。引用文が本文に無く、URL が検索結果にあれば抜粋の候補として扱う。テスト1本 |
+| 低: 抜粋の候補が名前・読みの確かめで落ちたとき、抜粋だったことが備考で分からない | 直した（63271ad6b）。備考を「検索結果の抜粋（…）: 理由」にした |
+| 低: 抜粋の照合はモデルの quote の中だけで、`簡略化:` の印が無い | 直した（63271ad6b）。次の一手（応答の citations の cited_text と照らす）も書いた |
+| 低: notes の文の係り受けが崩れた | 直した（63271ad6b）。別の文にした |
+| 低: モデルの説明が空だと備考が「。」で終わる | 直した（63271ad6b）。空なら抜粋の文言だけ |
+
+問題なしとされた観点: `blocked_domains` の書き方（両ツールが受け付け、サブドメインも外れる）、抜粋の候補が照合済みになる経路が無いこと、`recheck` の判定、ワークフローの説明との一致。
+
+2回目（修正の差分 663f7d6f6..63271ad6b だけ）: 新しい誤りは「なし」。分岐の順・`snippet_result` の戻り値・照合済みになる経路を確かめた。テスト 1,692本 OK
+
 ## 報告
 
 - 状態: 作業中
@@ -88,12 +104,12 @@ CHAT-1031-RSC-02 の「判断が必要なこと」への回答を入れ、名前
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 55a36fe9）: https://github.com/retroeater/mj-logs/tree/main/guide/55a36fe9
+ガイド文書（この版を写した時点の最新、mj 063f4b64）: https://github.com/retroeater/mj-logs/tree/main/guide/063f4b64
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/55a36fe9/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/55a36fe9/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/55a36fe9/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/55a36fe9/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/55a36fe9/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/55a36fe9/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/063f4b64/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/063f4b64/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/063f4b64/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/063f4b64/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/063f4b64/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/063f4b64/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/eb14de8a.md

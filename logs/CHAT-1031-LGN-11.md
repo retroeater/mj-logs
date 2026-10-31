@@ -70,6 +70,12 @@
 
 - `scripts/convert_x_posts.py`・`.github/workflows/convert-x-posts.yml` を cloudflare と同じ中身に戻した。`git diff --stat origin/cloudflare...HEAD` は `docs/logs/CHAT-1031-LGN-11.md` だけ（下の decisions の追記を足した後は docs/logs・docs/decisions だけ）。`python3 -m unittest discover -s scripts/tests` → OK
 
+### マージ
+
+- push の直前に `git fetch origin cloudflare` と `git merge-base --is-ancestor origin/cloudflare HEAD`（真）を確かめ、差分が docs/logs・docs/decisions だけであることを確かめた
+- `git push origin work/1031-lgn-sheet:cloudflare` → `d21a95699..2e4652653`
+- #639 に、除いた行数と残った行数をコメントした
+
 ## 報告
 
 - 状態: 完了
@@ -77,7 +83,7 @@
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1031-LGN-11.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1031-lgn-sheet
 - 確認用URL: なし
-- マージ: 済（マージの SHA は `## 経過`「マージ」）
+- マージ: 済（2e4652653）
 - issue: #639
 - 判断が必要なこと: なし
 - 未確認の項目: なし
@@ -86,12 +92,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 2e465265）: https://github.com/retroeater/mj-logs/tree/main/guide/2e465265
+ガイド文書（この版を写した時点の最新、mj 063f4b64）: https://github.com/retroeater/mj-logs/tree/main/guide/063f4b64
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/2e465265/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/2e465265/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/2e465265/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/2e465265/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/2e465265/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/2e465265/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/063f4b64/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/063f4b64/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/063f4b64/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/063f4b64/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/063f4b64/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/063f4b64/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/eb14de8a.md
