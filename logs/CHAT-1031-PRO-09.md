@@ -93,15 +93,37 @@ pro/ の点検の結果（#219・#641）:
 
 - 91f5b7b（PRO-05 の最後）より後で生成物を除く変更は、取り込んだ PRO-08 のログ・決定と、この指示のログ・PRO-05 のログの状態の行・決定の衝突の解決だけ（docs のみ）。コード・ワークフロー・CSS は変わっていないので、サブエージェントのレビューは要らない（PRO-05 のコードは PRO-05 で2回レビュー済み）
 
+### 手順3: マージと本番の確かめ
+
+- push の直前に `git fetch origin` と `git merge-base --is-ancestor origin/cloudflare HEAD`（真）を確かめ、`git push origin work/1031-pro:cloudflare`: `057e86f66..d5544e346  work/1031-pro -> cloudflare`
+- 本番（`?v=d5544e3`、取得は5件だけ）: `/pro/` は push の約1分後に新しい版（「五十音: あ」の1行あり）を 200 で返し、noindex あり。`/pro/sho.shiratori.23/` 200・noindex あり・og:image は `img/ogp/pros/index-white.png`。旧の選手別の画像 `img/ogp/pro/ryoei.hirano.30-906e00a8.png` は 404
+- push で動いたワークフロー（d5544e3）: 「ページの再生成」run 41202120260 success（差分なし、コミット無し）、「サイトマップの lastmod の同期」run 41202120289 success。check-run の Workers Builds: mj success
+- PRO-06（work/1031-pro-404）と今の cloudflare の衝突の見込み（`git merge-tree --write-tree --name-only`、そのブランチには push していない）: `docs/decisions/pros.md` の1件だけ（末尾への追記どうし。両方を残せば解ける）。style.css・404.html は衝突しない
+- #219 に着手中と完了のコメント、#641 にマージのコメント（issuecomment-6543483924）
+- 作業ブランチの片付け: マージ済み（work/1031-pro の先頭 d5544e346 は origin/cloudflare の祖先）。セッションの git プロキシはブランチの削除を拒否するので消していない。マージ済みの work/ は `cleanup-branches.yml` が毎日消す。記録: `work/1031-pro`・d5544e346（マージ時の先頭）・マージ済み。この後のログのコミットは cloudflare へも追いの push をする
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1031-pro（マージ済み。削除は cleanup-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1031-PRO-09.md
+- 比較URL: https://github.com/retroeater/mj/compare/057e86f66...d5544e346
+- 確認用URL: なし（本番で確かめた。`/pro/`・`/pro/sho.shiratori.23/` が 200 で noindex）
+- マージ: 済（057e86f66..d5544e346）
+- issue: #219（着手中・完了のコメント）・#641（マージのコメント）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj d5544e34）: https://github.com/retroeater/mj-logs/tree/main/guide/d5544e34
+ガイド文書（この版を写した時点の最新、mj f624ffc0）: https://github.com/retroeater/mj-logs/tree/main/guide/f624ffc0
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d5544e34/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d5544e34/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d5544e34/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d5544e34/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d5544e34/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d5544e34/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f624ffc0/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f624ffc0/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f624ffc0/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f624ffc0/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f624ffc0/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f624ffc0/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/eb14de8a.md
