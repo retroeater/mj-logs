@@ -65,16 +65,43 @@ PRO-05 の「判断が必要なこと」への回答を記録し、pro/ の作�
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 欠けなし
 - 同じ Chat-Ref のコミット: 0件。CLAUDE.md は origin/cloudflare から変わっていない
 - 作業ブランチ: ローカルの work/1031-pro は origin/work/1031-pro（91f5b7b）と一致 → `git checkout work/1031-pro`
+- #219・#641: 他セッションの着手中コメントは無し → #219 に着手中のコメント（issuecomment-6543361929。PRO-05 で書き忘れた分を、この指示では着手時に書いた）
+
+### 手順1: 取り込み・全ページの生成・検査
+
+- `git merge origin/cloudflare`（入ったのは CHAT-1031-PRO-08 の3コミット〈ログと決定〉だけ）: `docs/decisions/pros.md` が衝突した。末尾への追記どうし（こちらの PRO-05 の節と、cloudflare の PRO-08 の節）なので、指示のとおり両方を残して解いた（90acbae）。解いた後の該当箇所（見出しの並び）:
+
+```
+## 2026-10-31（CHAT-1031-PRO-04）
+…
+## 2026-10-31（CHAT-1031-PRO-05）
+
+pro/ の点検の結果（#219・#641）:
+…
+## 2026-10-31（CHAT-1031-PRO-08）
+
+個別ページの「今後の予定」（調べる段。作るのは別の指示）:
+…
+```
+
+- 全ページの生成: `regenerate-page.yml` を作業ブランチで `all`（run 41201284366）。帰り道の手順を含めて全部 success、再生成 8分27秒。**差分なし（コミット無し）**: 4ffd8a3 の再生成の生成物が今のデータと同じだった
+- 作業ブランチと origin/cloudflare の差のうち、pro/・`img/ogp/pro/` の削除・docs・scripts・自分の変更（`regenerate-page.yml`・`assets/pro.js`・`style.css`）以外: `saikyo/` の8ファイル（`2026/20261018-*`・`2026/20261101*`・`ask-players.json`・`players/index.html`・`vs/index.html`）と `sitemap-saikyo.xml` の lastmod。中身は1人の X の画像の URL が新しくなったもの（SNS ブックの変化。cloudflare の saikyo/ の最後の再生成は 10/30）で、シートの変化で説明できる
+- `python3 -m unittest discover -s scripts/tests`: OK。`check_asset_limits.py`: 配信ファイル数 5,326 / 100,000 ほか OK（`img/ogp/pro/` が無い）。`--check`（pro_pages、run 41202031948）: 「pro_pages: 通る(--check)」、警告なし
+- 未公開の確かめ（作業ブランチの上）: pro/ の 1,099ページに noindex の無いページ 0件。`sitemap*.xml`・`llms.txt` に `/pro/` 0件。pro/・docs・scripts の外の `/pro/` は `_redirects` の書き換えの3行と `navbar.js` の現在地の判定だけ（リンクではない。navbar の「連盟プロ」の行き先は `/jpml_pros.html` のまま）。`img/ogp/pro/` を参照するファイル 0件（docs を除く）、`img/ogp/pro/` のディレクトリも無い
+
+### 手順2: レビュー
+
+- 91f5b7b（PRO-05 の最後）より後で生成物を除く変更は、取り込んだ PRO-08 のログ・決定と、この指示のログ・PRO-05 のログの状態の行・決定の衝突の解決だけ（docs のみ）。コード・ワークフロー・CSS は変わっていないので、サブエージェントのレビューは要らない（PRO-05 のコードは PRO-05 で2回レビュー済み）
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 057e86f6）: https://github.com/retroeater/mj-logs/tree/main/guide/057e86f6
+ガイド文書（この版を写した時点の最新、mj d5544e34）: https://github.com/retroeater/mj-logs/tree/main/guide/d5544e34
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/057e86f6/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/057e86f6/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/057e86f6/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/057e86f6/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/057e86f6/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/057e86f6/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d5544e34/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d5544e34/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d5544e34/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d5544e34/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d5544e34/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d5544e34/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/eb14de8a.md
