@@ -1267,7 +1267,7 @@ CHAT-1030-PRO-01 は、英字の名が空の在籍者9名の slug を作れず�
 
 ## 報告
 
-- 状態: 判断待ち（全員分を作り、未公開のままプレビューで止めた。仮置き K1〜K17 の確定と公開の判断を待つ）
+- 状態: 判断待ち（全員分を作り、未公開のままプレビューで止めた。仮置き K1〜K17 の確定と公開の判断を待つ） / 続き: CHAT-1031-PRO-03
 - ブランチ: work/1030-pro
 - ログ: https://github.com/retroeater/mj/blob/work/1030-pro/docs/logs/CHAT-1031-PRO-02.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1030-pro
