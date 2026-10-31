@@ -106,6 +106,10 @@ CHAT-1029-RSC-01 の設計案（ログの `## 経過`「3. 設計案」）に沿
   - A の対象は `generate_saikyo_pages.load_rows()`（名前を「別名」で直し、引いた先を持つ）の行のうち、「連盟プロ以外」から引いた人で名前かなが空の人
 - テスト: `python3 -m unittest discover -s scripts/tests` → 1,653本 OK（最初の実行では `test_workflows_table`・`test_name_resolvers`・`test_check_sheets_reader` の3つ・4件が失敗。表の行を足し、名前の解決を `load_rows()` に任せて `check_unused_names.NAME_RESOLVERS` を変えずに済む形にし、ブックの数を直した）
 - 修正前のコードで通らないかの確かめ: 新しいスクリプトのテストなので修正前は import で失敗する（対象外）
+- sheets-reader の確かめ（`check-sheets-reader.yml` を `work/1031-rsc` で手動実行、`BOOKS` に R_候補 を足した版）:
+  - 1回目（run 41153947855）: 6番目のブック以降が Sheets API の1分あたりの読み取り上限（HTTP 429）で失敗し、R_候補 も「失敗: HTTP 429」。判定できない
+  - 2回目（run 41154084914、1回目の直後）: R_候補 は「ログインなし gviz・htmlview: 読めない（HTTP 401）」「sheets-reader: 成功」、タブ「候補」1つ（グリッド 1000行×26列、values.get 0行＝空）。【本番環境】フォルダの共有で読めている。
+    同じ実行で R_ログ のタブは 429（このスクリプトの読み取りの速さの問題で、今回の変更と関係ない）
 
 ## 報告
 
