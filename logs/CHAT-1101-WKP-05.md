@@ -136,28 +136,47 @@ github-actions.md「共通の部品」の「寄せられない点」にある si
 - `python3 -m unittest discover -s scripts/tests` 成功、`node --test 'workers/scheduler/test/*.test.mjs'` 47 件成功
 - コミット: f43ebab5e（push の再試行と 403 のテスト。cleanup-logs.yml の `schedule` の削除もこのコミットに入った）、a7370d27c（schedule とゲートと docs）
 
+### (a) 書かない道筋の手動実行（a7370d27c）
+
+- run-weekly 41252382101: **success**（約1分）。meibo / meibo・meibo / ampai・birthday / sync・logs / cleanup・saikyo / check・xfetch / fetch・xconvert / convert は success、youtube は skipped（手動実行なので想定どおり）
+- run-daily 41252379802: **failure**（約12分53秒）。落ちたのは **sns / update の1ジョブだけ**で、`MODE: check / DRY_RUN: true` で次の行で止まった: 「止めました: 「プロ」「連盟プロ以外」で名前が重複しています」（1名。名前はログに書かない）。sns / regenerate・live / regenerate は skipped。ほかの dojo / sync・branches / delete・live / update・live / yotei / sync・images / check・images / saikyo・images / sns_book・saikyo / abema・saikyo / regenerate / regenerate（変更なし、push なし）・logs は success
+  - **今回の変更とは無関係**: update-sns-book.yml は今回変えていない。cloudflare の今朝の Worker からの起動 run-daily #26（run 41232112701、2026-11-01 04:00 JST、head 35901cd54）も、同じ sns / update が同じ行（`mode: update / dry_run: false`）で落ちている。シートのデータ（「プロ」と「連盟プロ以外」に同じ名前がある）による
+  - 外のサイト・API の一時的な接続の失敗ではないので、1回の再実行で通る見込みは無く、再実行していない
+- live / update のステップ「実行するかどうかを決める」は、ゲートの API の照会が無くなり、`run`・`apply`・`verify` だけを出した（env は `SCHEDULE_ENABLED: true / SCHEDULED: false / APPLY: false`）。書き込みは無い（「apply なしのためコミットしない」、各層とも dry-run）
+- 403 の注記: 2本の実行の全ジョブ（失敗・skipped を除く 20 件）のログに「ログを引けなかった」は 0 件。テストを回した dojo / sync・live / update・meibo / meibo・birthday / sync は「Ran 1685 tests」で OK
+- 作業ブランチへの bot のコミットは無い（regenerate-saikyo は「変更なし」）
+
+### 止まった
+
+止まる条件「手順2・3の手動実行が success にならない（外のサイト・API の一時的な接続の失敗は、失敗したジョブだけを1回再実行して success なら止まらない）」に当たった。run-daily の失敗は今回の変更と無関係だが、この条件は一時的な接続の失敗のほかの例外を書いていない。また決定は「作業ブランチの手動実行がすべて success」を条件にしている。そのため次を行わずに止まった: 手順2 (b)（run-monthly を `scheduled` 真で作業ブランチで動かす衝突の直しの確かめ）、決定の記録以外の仕上げ、cloudflare へのマージ。作業ブランチ work/1101-wkp には成果物（f43ebab5e・a7370d27c）が push 済みで、cloudflare には入っていない。
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1101-wkp
 - ログ: https://github.com/retroeater/mj/blob/work/1101-wkp/docs/logs/CHAT-1101-WKP-05.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1101-wkp
-- 確認用URL:
-- マージ:
-- issue:
+- 確認用URL: なし（配信物は変えていない）
+- マージ: 未（止まる条件に当たったため）
+- issue: #564（着手中・中断のコメント。閉じていない）
 - 判断が必要なこと:
+  - 作業ブランチの run-daily の手動実行（41252379802）が sns / update だけで落ちた。原因はシートのデータの名前の重複で、今回の変更とは無関係（cloudflare の今朝の run-daily #26 も同じ原因で落ちている）。止まる条件はこの種の失敗を例外にしていないので止まった。無関係として扱い、手順2 (b)（run-monthly を `scheduled` 真で作業ブランチで動かす衝突の直しの確かめ）とマージに進んでよいか。シートの重複を先に直して run-daily を作業ブランチで動かし直すか
+  - シートの名前の重複は、毎朝の run-daily の sns / update（SNS ブックの更新）を止めている（2026-11-01 の朝から。#506 に書かれた run-daily #26 の失敗）。直すのは「プロ」「連盟プロ以外」のシートの手作業（ログに名前は書かない。run 41252379802 の sns / update のログに出る）
 - 未確認の項目:
+  - 手順2 (b): run-monthly の衝突の直し（fetch-redirect-counts の `retry: rebase`）を実際の run で確かめていない
+  - fetch-redirect-counts の 2026-11-01 のフォールバック実行: 未実行（2026-11-01 08:18 JST 時点）。2026-10.csv は cloudflare に無い（同時点）
 - エラー:
+  - 作業ブランチの run-daily の手動実行 41252379802 が failure（sns / update。シートのデータの名前の重複。今回の変更とは無関係）
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 4377e5f1）: https://github.com/retroeater/mj-logs/tree/main/guide/4377e5f1
+ガイド文書（この版を写した時点の最新、mj d750c1c8）: https://github.com/retroeater/mj-logs/tree/main/guide/d750c1c8
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/4377e5f1/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/4377e5f1/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/4377e5f1/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/4377e5f1/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/4377e5f1/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/4377e5f1/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d750c1c8/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d750c1c8/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d750c1c8/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d750c1c8/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d750c1c8/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d750c1c8/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/7aaff304.md
