@@ -85,21 +85,43 @@ PRO-11 の版（ce0aeee）と取り込んだ後の版を、それぞれ 404 を�
 | 指摘 | 扱い |
 |---|---|
 | 低: ログの「古い行（16行）」は14行（16 は見出しと区切りの行を含めた数） | 直した（ログ） |
-| 低: 表の直し方が決定の文面（見出しに「出典」の列を足す）と違う。目的に沿う唯一の形だが、追認を取るのが妥当 | 意図どおり（「判断が必要なこと」に書いた） |
+| 低: 表の直し方が決定の文面（見出しに「出典」の列を足す）と違う。目的に沿う唯一の形だが、追認を取るのが妥当 | 意図どおり（決定の目的「新サイトの行の最後の出典のセルを表示させる」を満たす形はこれだけで、文面どおりだと適用範囲が「出典」の列に入る。理由は「1. 直したこと」。docs だけで戻せるので判断待ちにはせず、最終報告で知らせる） |
 | 低: CSS のコメントに経緯（PRO-11 で…広げた）が入っている | 直した（a64b8e5 の次のコミット。コメントだけ） |
 
 - コメントを直した後に ① と ② を確かめ直した。① は20通りとも同じ。② は1回目に `/pro/` の暗い配色で2要素の違いが出たが、外部の写真を止めているため写真が頭の1字の丸に替わる時機の違いで、PRO-11 の版どうしを比べても同じ違いが出た（3回中3回）。写真を止める代わりに 1×1 の PNG を返して替わりを起こさないようにすると、PRO-11 の版どうしで違い0になり、その方法で ② の12通りとも違い0（`same`）。2回目のレビューはしていない（直したのはコメントとログだけ）
 - 止まる条件: どれにも当たらない（0章は通った・①〜③を満たす・重大の指摘なし・取り込みの衝突なし）。マージの前に CLAUDE.md「ブランチ運用」と docs/notes/branch-operations.md「マージするとき」「ブランチを削除するとき」を読んだ（同じセッションの PRO-10 で読み、内容は変わっていない）
 
+### 5. マージ
+
+- 1回目の push の直前の確かめで `git merge-base --is-ancestor origin/cloudflare HEAD` が偽だった（cloudflare に CHAT-1031-SEO-13・CHAT-1101-MCK-23 の docs とログが入った）。push はせず、`git merge origin/cloudflare` で取り込んだ（衝突なし。docs/decisions と docs/logs だけで、style.css・ページは変わらないので ①〜③ はそのまま）
+- 再 fetch と `git merge-base --is-ancestor origin/cloudflare HEAD`（真）の後、`git push origin work/1031-pro-nav:cloudflare`: `36e0d3897..4377e5f18  work/1031-pro-nav -> cloudflare`。マージした時点の origin/cloudflare との差（docs/logs を除く）は `style.css`・`docs/notes/design.md`・`docs/decisions/design-renewal.md`（PRO-11 の決定）だけ
+- push で動いたワークフロー（4377e5f、check-runs と Actions の runs）: Workers Builds: mj 成功・本番ビルド失敗の検知は skipped（ビルドが成功したので動かない）。ほかに起動したワークフローは無い（style.css と docs は再生成・公開対象の検査・サイトマップの同期の契機に入らない）。失敗なし
+- 本番: `https://ryoei.pro/live/?v=4377e5f` が 200 で、HTML が読む `../style.css` に今回のコメントと `body:has(.mj-video-page) .navbar-dark .dropdown-menu` の規則があり、その間に `@media` が無い（明暗とも効く形）ことを確かめた（取得は2件）。HTML と CSS の中身までの確かめで、ブラウザでの見え方は本番では確かめていない（見え方は上のローカルの撮影で確かめた）
+- 作業ブランチの片付け: `git branch -r --merged origin/cloudflare` に `origin/work/1031-pro-nav` が入る。セッションの git プロキシはブランチの削除を拒否するので消さない（docs/notes/cloud-sessions.md「ブランチの削除」）。マージ済みの work/ は `cleanup-branches.yml` が消す。記録: `work/1031-pro-nav`・4377e5f18（マージ時の先頭）・マージ済み。この後のログのコミットは cloudflare へも追いの push をする
+- 決定: docs/decisions/design-renewal.md に PRO-14 の節を足した
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1031-pro-nav（マージ済み。削除は cleanup-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1031-PRO-14.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1031-pro-nav
+- 確認用URL: なし（マージ済み。本番の `/live/` で HTML と style.css の中身を確かめた）
+- マージ: 済（4377e5f18）
+- issue: なし
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 4377e5f1）: https://github.com/retroeater/mj-logs/tree/main/guide/4377e5f1
+ガイド文書（この版を写した時点の最新、mj d750c1c8）: https://github.com/retroeater/mj-logs/tree/main/guide/d750c1c8
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/4377e5f1/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/4377e5f1/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/4377e5f1/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/4377e5f1/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/4377e5f1/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/4377e5f1/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d750c1c8/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d750c1c8/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d750c1c8/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d750c1c8/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d750c1c8/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d750c1c8/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/7aaff304.md
