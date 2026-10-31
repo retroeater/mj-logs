@@ -185,7 +185,7 @@ CHAT-1029-RSC-01 の設計案（ログの `## 経過`「3. 設計案」）に沿
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1031-RSC-03
 - ブランチ: work/1031-rsc
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1031-RSC-02.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1031-rsc
@@ -207,12 +207,12 @@ CHAT-1029-RSC-01 の設計案（ログの `## 経過`「3. 設計案」）に沿
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj eb14de8a）: https://github.com/retroeater/mj-logs/tree/main/guide/eb14de8a
+ガイド文書（この版を写した時点の最新、mj 55a36fe9）: https://github.com/retroeater/mj-logs/tree/main/guide/55a36fe9
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/eb14de8a/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/eb14de8a/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/eb14de8a/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/eb14de8a/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/eb14de8a/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/eb14de8a/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/55a36fe9/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/55a36fe9/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/55a36fe9/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/55a36fe9/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/55a36fe9/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/55a36fe9/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/eb14de8a.md
