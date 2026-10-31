@@ -167,7 +167,7 @@
 
 ## 報告
 
-- 状態: 判断待ち（作り直しを入れ、未公開のままプレビューで止めた。仮置き G1〜G9 の確定を待つ）
+- 状態: 判断待ち（作り直しを入れ、未公開のままプレビューで止めた。仮置き G1〜G9 の確定を待つ） / 続き: CHAT-1031-PRO-09
 - ブランチ: work/1031-pro
 - ログ: https://github.com/retroeater/mj/blob/work/1031-pro/docs/logs/CHAT-1031-PRO-05.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1031-pro
@@ -184,12 +184,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 063f4b64）: https://github.com/retroeater/mj-logs/tree/main/guide/063f4b64
+ガイド文書（この版を写した時点の最新、mj 057e86f6）: https://github.com/retroeater/mj-logs/tree/main/guide/057e86f6
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/063f4b64/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/063f4b64/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/063f4b64/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/063f4b64/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/063f4b64/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/063f4b64/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/057e86f6/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/057e86f6/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/057e86f6/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/057e86f6/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/057e86f6/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/057e86f6/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/eb14de8a.md
