@@ -90,6 +90,28 @@
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 1行目にまとまって貼られているが、4つとも有る
 - 同じ Chat-Ref のコミット: 0件。CLAUDE.md は origin/cloudflare から変わっていない
 - 作業ブランチ: work/1031-pro はローカル・リモートとも無し → `git checkout -b work/1031-pro origin/cloudflare`
+- #219・#641: 他セッションの着手中コメントは無し（最後のコメントは PRO-03・04 の自分のもの）
+- 未マージの work/ ブランチの重なり（止まる条件の対象）: work/1017-lvp が `scripts/generate_live_pages.py`（`build_page_card()`・`build_individual()` など）と `style.css`（live/ の節）、work/1028-lgn・work/1029-lgn-page が `style.css`（末尾の log/ の節）を変えている。この指示は `generate_live_pages.py` を変えず（`load()`・`Warnings`・`Page.people()` を読むだけ）、`style.css` は pro/ の節の中だけを書き換えるので、同じ行・同じ関数には当たらない。`generate_pro_pages.py`・`assets/pro.js`・`regenerate-page.yml`・title/ の生成を変えている未マージのブランチは無し
+
+### 手順1: 選手別 OGP と個別ページの面の撤去
+
+- 選手別 OGP: `regenerate-page.yml` の pro の手順（字体と Pillow の取得）と `OGP_FONT` を消した（2f67e08）。`img/ogp/pro/` の 1,098枚・`data/pro_ogp.json`・`generate_pro_pages.py` の描く処理（`ogp_*`・`draw_ogp`）・テスト（`test_og_image.py` の選手別の形、`test_pro_pages.py` の OGP の検査）・docs/notes/ogp.md の「選手（pro/）」の節を消した（54f039b）。全ページの og:image は「連盟プロ」（`img/ogp/pros/index-white.png`）。帰り道の手順の `scripts/requirements-ogp.txt`（Pillow 12.3.0・ハッシュ）は残し、説明の「連盟プロの選手別」を外した。再開するときの戻し先は docs/notes/pro-pages.md に書いた（55a36fe9a までの履歴）
+  - コミットの分け方の失敗: 撤去を1つのコミットにするつもりが、`git add` の指定（消した後のディレクトリ）で1つ目が失敗し、画像・データ・テスト・docs の削除が作り直しのコミット 54f039b に入った。ワークフローだけを 2f67e08 に分けた（push 済みなので書き換えていない）
+- 個別ページから外した面: 「いま」（`now_term`・`last_round`・成績 JSON・`houou_current`・`houou_upcoming` の読み込み）・関連する選手（`related`）・リンクのコピー（`COPY_BUTTON`・pro.js の `initCopy`・CSS）・質問欄（`ask_html`）・要約（`contest_summary`・`saikyo_summary`）を消した
+- `check_asset_limits.py` の配信ファイル数: 6,405 → 5,307（`img/ogp/pro/` の 1,098枚が減った）
+- 手動実行: check（run 41162284203）「pro_pages: 通る(--check)」、生成（run 41162352211）→ d2497a1「chore: regenerate pro/ via GitHub Actions」（1,099ファイル）。放送対局の役は「在籍者 1098名、放送対局のページ 765件(live/ のカード 765件)」
+
+### 手順2: 作り直し
+
+- トップ: 列は 名前（左揃え）・所属・入会期・鳳凰・桜花（ほかは中央揃え。リーグはチップの中で中央）。X の画像 40px。「あ行 N名」の行は消し、件数は読み上げ用の `role="status"` だけに残した。絞り込みは今の絞り込みの1行（「五十音: あ」）を押すと下から出るシート（houou/race/ の `.mj-houou-sheet`・`.mj-houou-scrim` と同じ部品。背面を inert・Tab の巡回・Escape・「完了」も league_race.js と同じ形）。値を押すとシートを閉じて表を絞る。質問欄はトップの上に置いた
+- 新しいクエリ: `?birthday=06-01`（月-日。名簿の「MM/DD」から）と `?ouka=C1`（女流桜花のいまのリーグ）。docs/new-page-checklist.md の規約に `birthday` を足し、`ouka` は既存の名前を使った。シートのタブには無く、1行（「誕生日: 6月1日」「女流桜花: C1」）と「解除」だけ。表の行に `data-birthday`・`data-ouka` を足した。無い値は既定の「あ」行に戻す
+- 個別ページ: 名前の面（72px の画像・名前・読み · ローマ字・SNS のアイコン 22px〈押せる大きさ 44px〉・チップ）→ 成績 → 獲得タイトル → 放送対局（選手）→ 放送対局（実況・解説）
+  - チップ: 所属 `../?place=`・入会期 `../?joined=`・誕生日 `../?birthday=`・「鳳凰戦 D1」`../?league=`・「女流桜花 C1」`../?ouka=`。いま出場していない大会は出さない。押せる大きさ 44px
+  - SNS のアイコンは画像のファイルでなくインラインの SVG（字の色に合わせて明暗で色が変わるように）。形は `img/note.svg`・`img/youtube.svg` と同じ path、X は Bootstrap Icons の twitter-x（`img/` に X の SVG が無く、`img/x.png` は画像のため）
+  - 成績: 鳳凰戦・女流桜花はいまのリーグがあるときだけチップつきの行、WRC・WRC-R・最強戦は出場したことがあれば大会名だけの行
+  - 獲得タイトル: `title/search.json` の優勝の期を、期の名前（`m` の1つ目「第42期鳳凰戦」。title/ の期のページの名前を正式名称とした）で、年の降順（同じ年は title/ の並び）にすべて。各行はその期のページへ。最後に「すべての決勝進出」→ `/title/?q=<名前>`（title.js が受けるクエリは `q`）。決勝に出ていなければ面ごと出さない
+  - 放送対局: live/ のトップのカード（新しい順・サムネイルはカードと同じ `img.youtube.com/vi/<id>/mqdefault.jpg`。外部のドメインは増えない）を、`generate_live_pages.load()` の対局者／実況・解説の現在名で分けて3件ずつ。live/ の検索（`assets/live.js`）は data-info の全文の部分一致で役を区別しないので、「すべて（N件）」は1つだけ（選手の面、無ければ実況・解説の面）。題と日付は1行に収めて入らない分は「…」
+- テスト（`scripts/tests/test_pro_pages.py`、19件）: slug・チップのリンク先（クエリ）・成績の行・獲得タイトルの並びと「すべての決勝進出」・放送対局の役の分け方と件数と「すべて」の置き場所・カードの読み取り（サムネイル）・`page_roles()`・表の行の属性
 
 <!-- guide-links -->
 ---
