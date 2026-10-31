@@ -51,6 +51,33 @@ PRO-11 の「判断が必要なこと」への回答を入れ、ナビの配色�
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 着手前の確認
+
+- 同じ Chat-Ref のコミットなし。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は欠けなし。「指示」欄の末尾は指示文の最後の行と一致
+- work/1031-pro-nav はリモートにあり、ローカルと同じ（ce0aeee）
+- PRO-11 のログの `## 報告` の状態は「判断待ち（共通ナビの配色の2点を直し、プレビューで止めた）」。末尾に ` / 続き: CHAT-1031-PRO-14` を足した（724bf54）
+
+### 1. 直したこと（7fbc68f）
+
+- `style.css`: `body:has(.mj-video-page) .navbar-dark .dropdown-menu`（濃色固定のページのナビのドロップダウン）を `@media (prefers-color-scheme: dark)` の外に出した（明暗とも濃色トークンの地）。404 の規則は暗い配色のときだけのまま
+- docs/notes/design.md「4. 部品」の表: **指示の決定の記述と実物が少し違った。** 決定は「見出しに『出典』の列を足し、出典の無い古い行は空欄でそろえる」だが、実物は、古い行（3つのセル）の3つ目が出典で、新サイトの行（4つのセル）は3つ目が適用範囲・4つ目が出典だった（見出しは「部品 | 決まっていること | 出典」の3列）。見出しに「出典」をもう1列足すと、新サイトの行の適用範囲が「出典」の列に入ってしまう。そこで決定の目的（新サイトの行の最後の出典のセルを表示させる）に沿って、見出しを「部品 | 決まっていること | 適用範囲 | 出典」（「2. 色」「3. 文字・寸法」の表と同じ並び）にし、古い行（16行）の適用範囲を空欄にした。これで全行の出典が「出典」の列に入る。あわせて「共通ナビの 404 とドロップダウンの配色」の行を、濃色固定のページは明暗とも、に直した
+
+### 2. 取り込み（479930a）
+
+- `git merge-base --is-ancestor origin/cloudflare HEAD` は偽（cloudflare に CHAT-1101-MZA-01 のログ・GSC の取得・層1の取得が入っていた）。`git merge origin/cloudflare` は衝突なし
+- 取り込んだ後の origin/cloudflare との差（docs/logs を除く）: `style.css`・`docs/notes/design.md`・`docs/decisions/design-renewal.md`（PRO-11 の決定）だけ
+
+### 3. 条件の確かめ（取り込みの後の HEAD 479930a）
+
+PRO-11 の版（ce0aeee）と取り込んだ後の版を、それぞれ 404 を返す開発用の配信で並べ、Playwright の Chromium で確かめた。
+
+- ③ この指示で足した変更: この指示のコミット（取り込みを除く）が変えたのは `style.css`・`docs/notes/design.md`・`docs/logs/` だけ（`git log --first-parent --no-merges --name-only ce0aeee..HEAD`）。**満たす**
+- ② それ以外のページ: `/title/`・`/jpml_pros.html`・`/houou/`・`/pro/`・`/no-such-page`・`/pro/taro.yamada.99/` を明暗で開き、全要素（3,000 まで）の計算済みのスタイルを ce0aeee と比べた。12通りとも「same」（違う要素0）。**満たす**
+- ① 濃色固定のページ: PRO-11 の表の濃色固定の10型（`/live/`・`/wayhome/`・`/live/champions-league/29.html`・`/live/champions-league/29/f.html`・`/books/9784046013460.html`・`/exam/-PoeE0Bm2sE.html`・`/mtsuku/2FOsXsIqTAA.html`・`/study/1QVc_wj9T-c.html`・`/saikyo/2011/20110430-s1.html`・`/wayhome/0OPca1Bl5xk.html`）で、ナビの全ドロップダウン（3つ）と項目（12）の15要素の計算済みのスタイルの全プロパティを、HEAD の明暗それぞれと ce0aeee の暗い配色で比べた。20通りとも同じ（地 `rgb(30, 30, 30)`・項目の字 `rgb(245, 245, 245)`）。確かめの方法が違いを拾えることは、ce0aeee どうしの明るい配色で比べると地 `rgb(255, 255, 255)` などの違いが出ることで確かめた。**満たす**
+- 撮影（`docs/logs/CHAT-1031-PRO-14/<live|wayhome>-<360|390>-<closed|open>.png`、左から 直す前の明るい・直した後の明るい・直す前の暗い・直した後の暗い）: 8枚とも、直した後の明るい配色は直す前の暗い配色と画素まで同じ、直した後の暗い配色も直す前の暗い配色と画素まで同じ
+
 <!-- guide-links -->
 ---
 
