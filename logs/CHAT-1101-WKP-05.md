@@ -65,6 +65,77 @@ Chat-Ref: CHAT-1101-WKP-05
 
 ## 経過
 
+### 着手前の確かめ（2026-11-01 08:18 JST ごろ）
+
+- 指示欄の末尾: ログの「## 指示」の最後の行が指示文の最後の行と一致することを確かめた
+- 同じ Chat-Ref のコミット: 0 件。`WKP` は同じセッションの続き。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は4行ともあり
+- 作業ブランチ: `work/1101-wkp` はローカル・リモートとも無かったので `git checkout -b work/1101-wkp origin/cloudflare`（7aaff3045）
+- 指示文の issue の state: #564 は Open（対象）。MZA-01 のコメント 6550227622 はある。MZA-01 の着手中のコメント（6550219777）には、同じセッションの結果のコメント（6550227622）が続いている。#568・#304・#506・#357 は参照だけ。#564 に着手中のコメントを書いた（https://github.com/retroeater/mj/issues/564#issuecomment-6550496084 ）
+- fetch-redirect-counts.yml の 2026-11-01 のフォールバック実行: **未実行（2026-11-01 08:18 JST 時点）**。直近の schedule の実行は run 41152866065（2026-10-31 00:56 UTC = 10/31 JST の回で、判定で実行しない回、success）
+- origin/cloudflare の docs/redirect-counts/: 2026-09.csv だけ（2026-10.csv は無い。同時点）
+- 未マージの work/ ブランチとの重なり（変える予定のファイル〈.github/workflows・.github/actions・morning_report.py・actions_dashboard.py・github-actions.md・scheduler-worker.md〉で見た）:
+  - `work/1028-lgn`: run-monthly.yml の末尾にジョブ `logplaces`（convert-x-posts の details）を足す、convert-x-posts.yml・check-assets.yml・github-actions.md。今回は run-monthly.yml・convert-x-posts.yml を変えないので重ならない
+  - `work/1029-lgn-page`: check-assets.yml だけ（今回は変えない）
+  - `work/1031-pro-sched`: update-live-channel.yml の冒頭の説明の 5. の行と、ジョブ `regenerate` の `target_page`。regenerate-page.yml の `workflow_call` のコメント。github-actions.md の表の update-live-channel の行。今回の update-live-channel.yml の変更（schedule・ゲート・`actions: read`・冒頭の2行目）とは別の行。**github-actions.md の update-live-channel の行は同じ行を変える**（ワークフローではなく文書の表の1行。止まる条件はワークフローの同じ行・同じジョブなので止まらない。あちらのマージのときに表の行が衝突しうる）
+
+### schedule を持つワークフロー（`git grep -n -A3 'schedule:' .github/workflows/`、着手時の origin/cloudflare）
+
+| ワークフロー | cron（UTC） | JST | 呼ぶ束ね | 扱い |
+|---|---|---|---|---|
+| check-image-links.yml | `0 18 * * 0` | 月 03:00（`check` だけ） | run-daily | 外した |
+| check-meibo.yml | `7 20 * * 0` | 月 05:07 | run-weekly | 外した |
+| check-saikyo-unregistered.yml | `50 21 * * 0` | 月 06:50 | run-weekly | 外した |
+| cleanup-branches.yml | `53 22 * * *` | 毎日 07:53 | run-daily | 外した |
+| cleanup-logs.yml | `23 21 * * 0` | 月 06:23 | run-weekly | 外した |
+| fetch-gsc.yml | `0 21 28-31 * *` | 1日 06:00 | run-monthly | 残す（月次は 2026-12-01 の run-monthly の成功まで。決定） |
+| fetch-redirect-counts.yml | `30 21 28-31 * *` | 1日 06:30 | run-monthly | 残す（同上） |
+| fetch-youtube.yml | `37 20 * * 0` | 月 05:37 | run-weekly | 外した |
+| sync-birthday-calendar.yml | `17 20 * * 0` | 月 05:17 | run-weekly | 外した |
+| sync-dojo-calendar.yml | `12 22 * * *` | 毎日 07:12 | run-daily | 外した |
+| update-live-channel.yml | `43 21 * * *` | 毎日 06:43 | run-daily | 外した（ゲートも） |
+
+11 本。run-* から呼ばれていない本で `schedule` を持つものは無い。前提の「その後に run-weekly へ足したもの」は fetch-x-posts.yml・convert-x-posts.yml（run-weekly の `xfetch`・`xconvert`）で、どちらも `schedule` を持たない。
+
+### push の箇所（run-daily・run-weekly・run-monthly から呼ばれる本、入れ子を含む）
+
+| 束ね / ジョブ | 本（入れ子） | push の仕方 | 同じ run の中で重なりうる push | 直す前 | 直した後 |
+|---|---|---|---|---|---|
+| run-daily / live | update-live-channel（層1） | 自前の `git push`＋3回の `pull --rebase` | 並行の `saikyo` 以降は live の後。`dojo`・`branches` は push しない | 再試行あり | 変えない |
+| run-daily / live | → regenerate-page（/live・title/） | 自前の `git push`＋3回の `pull --rebase --autostash` | 同上 | 再試行あり | 変えない |
+| run-daily / live | → sync-yotei | push しない | — | — | — |
+| run-daily / sns | update-sns-book → regenerate-page | regenerate-page の push（再試行あり）。update-sns-book 自体は push しない | live の後 | 再試行あり | 変えない |
+| run-daily / images | check-image-links | push しない | — | — | — |
+| run-daily / saikyo | regenerate-saikyo → regenerate-page | regenerate-page の push（再試行あり） | images の後 | 再試行あり | 変えない |
+| run-daily / dojo | sync-dojo-calendar | push しない | — | — | — |
+| run-daily / branches | cleanup-branches | `git push --delete`（マージ済みの work/* を消す。cloudflare には push しない） | 重ならない（別の ref） | — | 変えない |
+| run-weekly / meibo・birthday・saikyo | check-meibo・sync-birthday-calendar・check-saikyo-unregistered | push しない | — | — | — |
+| run-weekly / xfetch・xconvert | fetch-x-posts・convert-x-posts | push しない（シートに書く） | — | — | — |
+| run-weekly / logs | cleanup-logs（docs/logs の削除） | `commit-push` | 同じ run の中で並行の本は push しない。run の外の push（作業ログのマージ・push で動く regenerate-page など）とは重なりうる | `retry: none`（既定） | `retry: rebase` |
+| run-weekly / youtube | fetch-youtube（data/youtube_*.json） | `commit-push` | logs の後に動く。run の外の push とは重なりうる | `retry: rebase` | 変えない |
+| run-weekly / youtube | → regenerate-page（all） | 自前の push（再試行あり） | fetch の後 | 再試行あり | 変えない |
+| run-monthly / gsc | fetch-gsc（docs/gsc） | 自前の `git push` | 先に動く。run の外の push とは重なりうる | 再試行なし | 3回の `pull --rebase` |
+| run-monthly / redirects | fetch-redirect-counts（docs/redirect-counts） | `commit-push` | **gsc の後。gsc がコミットする月は毎回重なる（2026-11-01 の失敗）** | `retry: none`（既定） | `retry: rebase` |
+
+checkout に `ref: ${{ github.ref_name }}` を足す案は採らなかった。run の外からの push（作業ログのマージなど）とは、checkout の後に重なりうるので、ref だけでは防げない。retry は同じ run と外の両方を拾う。書くパスは本ごとに別（docs/gsc・docs/redirect-counts・docs/logs・data/youtube_*.json）なので、rebase で衝突しない見込み。
+github-actions.md「共通の部品」の「寄せられない点」にある sitemap-lastmod の push の再試行（`regenerate-sitemap.yml`）は、push で動く本で、run-* からは呼ばれない（対象外）。
+
+### 403 の注記
+
+- 出元: `scripts/morning_report.py` の `fetch_skip_notes()` が、ログを引けないときに `print(f'::warning::ジョブ {job.get("id")} のログを引けなかった: {e}')` を出す
+- 原因: 注記を出していたのは本番の取得ではなく単体テストだった。`scripts/tests/test_morning_report.py` の `test_fetch_failed` は、偽のジョブ（id 77）のログ取得を `OSError('403')` で失敗させる。このときの `::warning::` の行が標準出力に出ていた。`python3 -m unittest discover -s scripts/tests` を回すジョブでは、それが workflow command として注記になる。setup-python の `test: 'true'`（check-meibo・sync-birthday-calendar・fetch-redirect-counts など）と fetch-gsc の「テスト」のステップが当たる。`GITHUB_TOKEN` の権限の問題ではない
+- 直し: テストで `contextlib.redirect_stdout(io.StringIO())` を使い、出力を受け取って `::warning::ジョブ 77 のログを引けなかった: 403` を確かめる形にした（3行）
+- 確かめ: 修正前のテストファイルを単独で回すと `::warning::ジョブ 77 のログを引けなかった: 403` が出る。修正後は `python3 -m unittest discover -s scripts/tests` の出力に `::` で始まる行が無い（成功）
+
+### フォールバック実行を外した
+
+- 上の表の「外した」9本の `on.schedule` と、その直前・中のコメントを消した
+- update-live-channel.yml: ジョブ `update` のステップ「実行するかどうかを決める」から、当日の予約の起動を API で引くゲートの部分を消した（`SCHEDULE_ENABLED` の判定と verify の判定は残す）。あわせて、その env（`GH_TOKEN`・`EVENT_NAME`）・ジョブの `actions: read`・冒頭の説明の「保険の実行のゲート」も消した。呼ぶ側の run-daily の `live` の `actions: read` も外した（ほかに使う箇所は無い。入れ子の sync-yotei・regenerate-page は `actions` を求めない）
+- 残したもの（`schedule` の契機が来なくなって動かないだけの式）: 各本の `github.event_name == 'schedule'` の判定（update-live-channel の `SCHEDULED`・`APPLY` など、check-image-links のジョブの `if:`、sync-dojo-calendar の `SCHEDULED`、resolve-mode の部品）。手で `schedule` を戻したときにそのまま動くように、変更行を増やさない
+- `scripts/morning_report.py`・`scripts/actions_dashboard.py`: ワークフローのファイルから cron を読む作りで、本の名前を持たない。直さなくてよい（cron の無い本は「未実行」の予定に出なくなるだけ）。`scripts/tests/test_workflows_table.py` は名前だけ見るので変えない
+- docs/notes/github-actions.md: 表の 11 行（9本＋sync-yotei・run-daily の権限の表の `actions: read`）、run-daily の節（保険の `schedule` とゲートの2行、戻し方）、run-weekly・run-monthly の節（月次の2本だけが残ること、同じ run の中の push の再試行）、「寄せられない点」のゲート。docs/notes/scheduler-worker.md「保険の予約実行のゲート（update-live-channel）」を「2026-11-01 に外した」の短い節に置き換えた
+- `python3 -m unittest discover -s scripts/tests` 成功、`node --test 'workers/scheduler/test/*.test.mjs'` 47 件成功
+- コミット: f43ebab5e（push の再試行と 403 のテスト。cleanup-logs.yml の `schedule` の削除もこのコミットに入った）、a7370d27c（schedule とゲートと docs）
+
 ## 報告
 
 - 状態: 作業中
@@ -81,12 +152,12 @@ Chat-Ref: CHAT-1101-WKP-05
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj f797a06d）: https://github.com/retroeater/mj-logs/tree/main/guide/f797a06d
+ガイド文書（この版を写した時点の最新、mj 4377e5f1）: https://github.com/retroeater/mj-logs/tree/main/guide/4377e5f1
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f797a06d/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f797a06d/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f797a06d/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f797a06d/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f797a06d/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f797a06d/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/4377e5f1/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/4377e5f1/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/4377e5f1/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/4377e5f1/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/4377e5f1/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/4377e5f1/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/7aaff304.md

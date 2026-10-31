@@ -62,7 +62,7 @@ PRO-11 の「判断が必要なこと」への回答を入れ、ナビの配色�
 ### 1. 直したこと（7fbc68f）
 
 - `style.css`: `body:has(.mj-video-page) .navbar-dark .dropdown-menu`（濃色固定のページのナビのドロップダウン）を `@media (prefers-color-scheme: dark)` の外に出した（明暗とも濃色トークンの地）。404 の規則は暗い配色のときだけのまま
-- docs/notes/design.md「4. 部品」の表: **指示の決定の記述と実物が少し違った。** 決定は「見出しに『出典』の列を足し、出典の無い古い行は空欄でそろえる」だが、実物は、古い行（3つのセル）の3つ目が出典で、新サイトの行（4つのセル）は3つ目が適用範囲・4つ目が出典だった（見出しは「部品 | 決まっていること | 出典」の3列）。見出しに「出典」をもう1列足すと、新サイトの行の適用範囲が「出典」の列に入ってしまう。そこで決定の目的（新サイトの行の最後の出典のセルを表示させる）に沿って、見出しを「部品 | 決まっていること | 適用範囲 | 出典」（「2. 色」「3. 文字・寸法」の表と同じ並び）にし、古い行（16行）の適用範囲を空欄にした。これで全行の出典が「出典」の列に入る。あわせて「共通ナビの 404 とドロップダウンの配色」の行を、濃色固定のページは明暗とも、に直した
+- docs/notes/design.md「4. 部品」の表: **指示の決定の記述と実物が少し違った。** 決定は「見出しに『出典』の列を足し、出典の無い古い行は空欄でそろえる」だが、実物は、古い行（3つのセル）の3つ目が出典で、新サイトの行（4つのセル）は3つ目が適用範囲・4つ目が出典だった（見出しは「部品 | 決まっていること | 出典」の3列）。見出しに「出典」をもう1列足すと、新サイトの行の適用範囲が「出典」の列に入ってしまう。そこで決定の目的（新サイトの行の最後の出典のセルを表示させる）に沿って、見出しを「部品 | 決まっていること | 適用範囲 | 出典」（「2. 色」「3. 文字・寸法」の表と同じ並び）にし、古い行（14行）の適用範囲を空欄にした。これで全行の出典が「出典」の列に入る。あわせて「共通ナビの 404 とドロップダウンの配色」の行を、濃色固定のページは明暗とも、に直した
 
 ### 2. 取り込み（479930a）
 
@@ -78,15 +78,28 @@ PRO-11 の版（ce0aeee）と取り込んだ後の版を、それぞれ 404 を�
 - ① 濃色固定のページ: PRO-11 の表の濃色固定の10型（`/live/`・`/wayhome/`・`/live/champions-league/29.html`・`/live/champions-league/29/f.html`・`/books/9784046013460.html`・`/exam/-PoeE0Bm2sE.html`・`/mtsuku/2FOsXsIqTAA.html`・`/study/1QVc_wj9T-c.html`・`/saikyo/2011/20110430-s1.html`・`/wayhome/0OPca1Bl5xk.html`）で、ナビの全ドロップダウン（3つ）と項目（12）の15要素の計算済みのスタイルの全プロパティを、HEAD の明暗それぞれと ce0aeee の暗い配色で比べた。20通りとも同じ（地 `rgb(30, 30, 30)`・項目の字 `rgb(245, 245, 245)`）。確かめの方法が違いを拾えることは、ce0aeee どうしの明るい配色で比べると地 `rgb(255, 255, 255)` などの違いが出ることで確かめた。**満たす**
 - 撮影（`docs/logs/CHAT-1031-PRO-14/<live|wayhome>-<360|390>-<closed|open>.png`、左から 直す前の明るい・直した後の明るい・直す前の暗い・直した後の暗い）: 8枚とも、直した後の明るい配色は直す前の暗い配色と画素まで同じ、直した後の暗い配色も直す前の暗い配色と画素まで同じ
 
+### 4. レビュー（新しい文脈のサブエージェント、1回）
+
+渡したもの: 決定1〜3と、この指示のコミット（7fbc68f の style.css・docs/notes/design.md）。結論は「重大・中なし。CSS は3つの決定を満たし、表は全行4セルで GFM でも正しく出る」。
+
+| 指摘 | 扱い |
+|---|---|
+| 低: ログの「古い行（16行）」は14行（16 は見出しと区切りの行を含めた数） | 直した（ログ） |
+| 低: 表の直し方が決定の文面（見出しに「出典」の列を足す）と違う。目的に沿う唯一の形だが、追認を取るのが妥当 | 意図どおり（「判断が必要なこと」に書いた） |
+| 低: CSS のコメントに経緯（PRO-11 で…広げた）が入っている | 直した（a64b8e5 の次のコミット。コメントだけ） |
+
+- コメントを直した後に ① と ② を確かめ直した。① は20通りとも同じ。② は1回目に `/pro/` の暗い配色で2要素の違いが出たが、外部の写真を止めているため写真が頭の1字の丸に替わる時機の違いで、PRO-11 の版どうしを比べても同じ違いが出た（3回中3回）。写真を止める代わりに 1×1 の PNG を返して替わりを起こさないようにすると、PRO-11 の版どうしで違い0になり、その方法で ② の12通りとも違い0（`same`）。2回目のレビューはしていない（直したのはコメントとログだけ）
+- 止まる条件: どれにも当たらない（0章は通った・①〜③を満たす・重大の指摘なし・取り込みの衝突なし）。マージの前に CLAUDE.md「ブランチ運用」と docs/notes/branch-operations.md「マージするとき」「ブランチを削除するとき」を読んだ（同じセッションの PRO-10 で読み、内容は変わっていない）
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj f797a06d）: https://github.com/retroeater/mj-logs/tree/main/guide/f797a06d
+ガイド文書（この版を写した時点の最新、mj 4377e5f1）: https://github.com/retroeater/mj-logs/tree/main/guide/4377e5f1
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f797a06d/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f797a06d/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f797a06d/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f797a06d/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f797a06d/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f797a06d/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/4377e5f1/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/4377e5f1/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/4377e5f1/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/4377e5f1/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/4377e5f1/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/4377e5f1/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/7aaff304.md
