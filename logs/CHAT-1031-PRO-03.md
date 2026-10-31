@@ -132,7 +132,7 @@ a742021..116ebe8（生成物・ログ・サイトマップを除く）。テス�
 
 ## 報告
 
-- 状態: 判断待ち（K1〜K17・A〜C の決定を入れ、選手別 OGP を Actions で描く形にして、未公開のままプレビューで止めた）
+- 状態: 判断待ち（K1〜K17・A〜C の決定を入れ、選手別 OGP を Actions で描く形にして、未公開のままプレビューで止めた） / 続き: CHAT-1031-PRO-04
 - ブランチ: work/1030-pro
 - ログ: https://github.com/retroeater/mj/blob/work/1030-pro/docs/logs/CHAT-1031-PRO-03.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1030-pro
@@ -160,4 +160,4 @@ a742021..116ebe8（生成物・ログ・サイトマップを除く）。テス�
 - docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a512c7d9/docs/notes/chat-side-operations.md
 - docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a512c7d9/docs/notes/cloudflare.md
 - docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a512c7d9/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/7147c20d.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a512c7d9.md
