@@ -61,7 +61,7 @@ LGN-10 の log/ のプレビューを平野さんが見て出した直しを入�
 
 ## 報告
 
-- 状態: 中断（取り込みの衝突）
+- 状態: 中断（取り込みの衝突） / 続き: CHAT-1031-LGN-14
 - ブランチ: work/1029-lgn-page（未マージ）
 - ログ: https://github.com/retroeater/mj/blob/work/1029-lgn-page/docs/logs/CHAT-1031-LGN-12.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1029-lgn-page
