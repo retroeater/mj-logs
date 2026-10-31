@@ -121,6 +121,9 @@ canonical の付け方（#560）を、ページの種類ごとに新しい基準
 ### 手順3
 
 - 決定を docs/decisions/seo-bing.md に足した（2026-10-31 の節）。変えたのは docs/logs と docs/decisions/seo-bing.md だけ。
+- push 直前の確かめで origin/cloudflare が進んでいた（CHAT-1101-MCK-23 の docs/logs・docs/decisions/operations.md の4コミット）ので merge で取り込んだ（衝突なし）。取り込んだ後の差は docs/decisions/seo-bing.md と docs/logs/CHAT-1031-SEO-13.md の2ファイルだけ。再 fetch して `git merge-base --is-ancestor origin/cloudflare HEAD` が真、`git push origin work/1031-seo13:cloudflare` の範囲は `151210a73..8083118c1`。
+- ブランチ: docs/notes/branch-operations.md「ブランチを削除するとき」のとおり、`git branch -r --merged origin/cloudflare` に `origin/work/1031-seo13` があり先頭 8083118c1 はマージ済み。`git push origin --delete work/1031-seo13` は「fatal: the remote end hung up unexpectedly」で消えなかった（ls-remote で 8083118c1 のまま。CHAT-1030-SEO-12 の work/1030-seo11 と同じ）。別の手段は試していない。
+  - work/1031-seo13: 先頭 8083118c1、マージ済み、リモートは削除できず残っている（この記録の追いの push で先頭は進む）
 
 ## 報告
 
@@ -129,7 +132,7 @@ canonical の付け方（#560）を、ページの種類ごとに新しい基準
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1031-SEO-13.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1031-seo13
 - 確認用URL: なし
-- マージ: 済（下の push の SHA は `## 経過` の最後の行）
+- マージ: 済（151210a73..8083118c1。マージの記録の追いの push あり）
 - issue: #560・#638（着手コメントのみ）
 - 判断が必要なこと:
   - 決めること（表の番号）:
@@ -144,7 +147,7 @@ canonical の付け方（#560）を、ページの種類ごとに新しい基準
     - 表18: exam/ の一覧に付ける（クエリを読まない）
   - 直す指示で一緒に直す文面: #113 へのコメント・docs/notes/cloudflare.md の canonical の段落・docs/handover.md 2章「配信」の canonical の行（今の文面は `## 経過`「手順2」）、`scripts/lib/page.py:68-70` のコメントと `generate_mtsuku.py`・`generate_exam.py` の docstring
 - 未確認の項目: なし
-- エラー: なし
+- エラー: なし（リモートのブランチの削除が失敗した。`## 経過` の最後。マージ済みで害は無い。GitHub の画面での削除を依頼）
 
 <!-- guide-links -->
 ---
