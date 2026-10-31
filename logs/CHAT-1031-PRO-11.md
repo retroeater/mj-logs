@@ -115,7 +115,7 @@ style.css だけを変えた（navbar.js・404.html は変えない）。
 
 ## 報告
 
-- 状態: 判断待ち（共通ナビの配色の2点を直し、プレビューで止めた）
+- 状態: 判断待ち（共通ナビの配色の2点を直し、プレビューで止めた） / 続き: CHAT-1031-PRO-14
 - ブランチ: work/1031-pro-nav
 - ログ: https://github.com/retroeater/mj/blob/work/1031-pro-nav/docs/logs/CHAT-1031-PRO-11.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1031-pro-nav
@@ -140,4 +140,4 @@ style.css だけを変えた（navbar.js・404.html は変えない）。
 - docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f797a06d/docs/notes/chat-side-operations.md
 - docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f797a06d/docs/notes/cloudflare.md
 - docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f797a06d/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/eb14de8a.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/7aaff304.md
