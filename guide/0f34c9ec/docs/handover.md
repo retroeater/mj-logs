@@ -6,11 +6,11 @@
 **この文書は現状・ルール・次にやることだけを書く。** 実装記録は `docs/notes/`、issue単位の経緯は GitHub Issues、過去の履歴は
 `docs/notes/handover-archive-2026.md`。容量の上限と退避方法は CLAUDE.md「CLAUDE.md / handover.md の更新ルール」。
 
-最終更新: 2026-10-28
+最終更新: 2026-11-01
 
+- **毎日・週次のフォールバック実行（GitHub の `schedule`）を外したので、2章の週次の再生成の記述を今の起動に合わせた**
 - **Codespace の旧記録（branch-operations.md・session-network.md）を handover-archive へ移し、6章の注記を直した**
 - **5章の表から新サイト送りの #4・保留の #96 を外し、「次の会話の順番」の日付を外した**
-- **2章の html_handling の参照先と週次の再生成の時刻（02:00 が主、05:37 は保険）を直した**
 
 ---
 
@@ -55,7 +55,7 @@ GitHub Pages からの移行の相談に始まり、Cloudflare への移行の�
 `wrangler.jsonc` の `assets.directory` がリポジトリ全体（`./`）を指すため、
 公開したくないファイルは `.assetsignore` に列挙している（追加時のルールは CLAUDE.md「方針」、#133）。
 
-`_redirects` の先頭行の規則は CLAUDE.md「禁止事項」、`html_handling` は `docs/notes/cloudflare.md`「配信設定: html_handling・_redirects・canonical・_headers」。canonical は付けない（#113）。例外は `wayhome/` の個別ページで、URL変種を持たないため canonical を持つ（#162）。
+`_redirects` の先頭行の規則は CLAUDE.md「禁止事項」、`html_handling` は `docs/notes/cloudflare.md`「配信設定: html_handling・_redirects・canonical・_headers」。canonical はクエリがページの主題（選手など）を選ぶページには付けず、表示の絞り込み・切り替えだけなら自分自身を付ける（#560。付け外しの一覧は `docs/notes/cloudflare.md`「配信設定」）。
 `_headers` はセキュリティヘッダ（CSP を含む）とキャッシュ制御（#92）。設定値と経緯は `docs/notes/cloudflare.md`「配信設定: html_handling・_redirects・canonical・_headers」
 
 **本番反映**は CLAUDE.md「構成」（ゲートは #170）。設定値・確認範囲は `docs/notes/cloudflare.md`「本番反映（デプロイ）の仕組み」、セッションからの到達は `docs/notes/cloud-sessions.md`「ネットワーク」（#328）。
@@ -77,7 +77,7 @@ GitHub Pages からの移行の相談に始まり、Cloudflare への移行の�
 
 **スプレッドシートを直しただけでは、ビルド時生成のページには反映されない。** 即時に反映したいときは
 `regenerate-page.yml` を`workflow_dispatch`で手動実行する（`target_page`にページ名、または`all`）。
-週次（#103）は毎週月曜02:00 JST の `run-weekly.yml` が `fetch-youtube.yml` の最後に`all`を呼ぶ。05:37 JST は保険の予約実行（`docs/notes/github-actions.md`）。最強戦（saikyo/）は毎朝、写真のリンク切れ検知の後にも再生成する（`regenerate-saikyo.yml`、#537）。セッション内でも `python3 scripts/regenerate.py <ページ名>` で生成できる。
+週次（#103）は毎週月曜02:00 JST の `run-weekly.yml` が `fetch-youtube.yml` の最後に`all`を呼ぶ（GitHub 側の予約実行は無い。`docs/notes/github-actions.md`）。最強戦（saikyo/）は毎朝、写真のリンク切れ検知の後にも再生成する（`regenerate-saikyo.yml`、#537）。セッション内でも `python3 scripts/regenerate.py <ページ名>` で生成できる。
 
 ### 自動化
 
