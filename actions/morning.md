@@ -1,13 +1,14 @@
 # 朝の報告用の異常（retroeater/mj）
 
-- 書き出した時刻: 2026-11-02 07:58 JST（見た範囲: 2026-11-01 05:58 JST から）
+- 書き出した時刻: 2026-11-02 08:00 JST（見た範囲: 2026-11-01 06:00 JST から）
 - 書き出した実行の契機: workflow_dispatch（main）
 - 異常だけを書く。全体は actions/status.md。判定は mj の scripts/morning_report.py（各ワークフローの直近 100 回まで）
 
 ## 1. 失敗など（結論が success・skipped 以外。実行中を含む）
 
 - 2026-11-01 08:24 run-daily.yml failure（workflow_dispatch・work/1101-wkp）ジョブ「sns / update」 https://github.com/retroeater/mj/actions/runs/41252379802
-- 2026-11-02 07:55 run-daily.yml queued（workflow_dispatch・work/1102-wkp） https://github.com/retroeater/mj/actions/runs/41359559502
+- 2026-11-02 07:55 run-daily.yml in_progress（workflow_dispatch・work/1102-wkp） https://github.com/retroeater/mj/actions/runs/41359559502
+- 2026-11-02 07:59 regenerate-page.yml in_progress（workflow_dispatch・cloudflare） https://github.com/retroeater/mj/actions/runs/41359848563
 
 ## 2. 予約実行の未実行（予定から3時間以内は「遅れの可能性」。3時間を超えて始まった実行は「遅れて実行」）
 
@@ -15,7 +16,7 @@
 
 ## 3. 所要時間の異常（cloudflare の実行だけ。基準は同じ種類〈cloudflare・予約の実行か手動か〉の直近20回。その中央値の3倍以上かつ中央値＋5分以上、または10分以上。skipped は除く）
 
-- 2026-11-01 11:48 regenerate-page.yml success（push・cloudflare）所要 14分27秒（直近20回の中央値 9分11秒） https://github.com/retroeater/mj/actions/runs/41266703100
+- 2026-11-01 11:48 regenerate-page.yml success（push・cloudflare）所要 14分27秒（直近20回の中央値 9分22秒） https://github.com/retroeater/mj/actions/runs/41266703100
 
 ## 4. 初回成功（cloudflare の実行だけ。それ以前の cloudflare の実行に success が無いもの）
 
