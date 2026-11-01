@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-11-02 08:02 JST
+- 書き出した時刻: 2026-11-02 08:09 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -196,7 +196,7 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-11-02 07:59 | workflow_dispatch | cloudflare | in_progress | #570（41359848563） |  |
+| 2026-11-02 07:59 | workflow_dispatch | cloudflare | success | #570（41359848563） | 9分35秒 |
 | 2026-11-02 07:44 | workflow_dispatch | cloudflare | success | #569（41358665936） | 9分59秒 |
 | 2026-11-01 16:57 | workflow_dispatch | work/1101-prp-pub | success | #568（41286842756） | 1分07秒 |
 | 2026-11-01 14:19 | workflow_dispatch | work/1101-prp-pub | success | #567（41276465494） | 3分16秒 |
@@ -248,7 +248,7 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-11-02 07:55 | workflow_dispatch | work/1102-wkp | in_progress | #29（41359559502） |  |
+| 2026-11-02 07:55 | workflow_dispatch | work/1102-wkp | success | #29（41359559502） | 13分15秒 |
 | 2026-11-02 04:00 | workflow_dispatch | cloudflare | success | #28（41339489114） | 26分34秒 |
 | 2026-11-01 08:24 | workflow_dispatch | work/1101-wkp | failure | #27（41252379802） | 12分53秒 |
 | 2026-11-01 10:35 | workflow_dispatch | cloudflare | success | #26（41232112701） | 11分11秒 |
