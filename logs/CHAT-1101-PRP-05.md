@@ -127,17 +127,39 @@ PRP-04 で止めた `jpml_pros.html` の 301 を、サイトの Worker `mj` と�
 
 3件とも空白の違いだけ。title/ の写真カードと質問欄の名簿には0件。直すのは平野さんの「鳳凰」シートの作業（この指示では直していない）
 
+### 4. 差分のレビュー（新しい文脈のサブエージェント、1回）
+
+渡したもの: 目的・決定・`git diff 18728eec6 HEAD`（ログと生成した `data.json` を除く）・`workers/ask/` と `docs/notes/ask-worker.md`・CLAUDE.md「コード規約」。サブエージェントもテスト（node 6件・Python 1,751件）と `data.json`（1,125件、slug 1,098種類が pro/ のディレクトリと一致、キーの前後の空白0件）を確かめた。高の指摘は無し。
+
+| 指摘 | 扱い |
+|---|---|
+| 301 に `Cache-Control` が無く、ブラウザが期限なしで持ち続け、表を直した後も古い行き先へ行く（中） | 直した（`Cache-Control: max-age=86400`。175dfd147「fix: cache the jpml_pros.html 301 for a day and pin https」） |
+| `Location` が要求の scheme に従い、http の要求では `http://` になる（低） | 直した（`https://ryoei.pro` に固定） |
+| 素通し（`fetch(request)`）の確かめが P1 の後の手順に無い（低） | 直した（`/jpml_pros.htmlx` が今までどおり 404 になることを足した。コメントで公式の文書を参照） |
+| `regenerate.py` の `pro_pages` の出力と `REDIRECT_TABLE` の一致を確かめるテストが無い（低） | 直した（`test_regenerate.test_pro_redirect_table_is_committed`） |
+| `test_redirect_table` が並びと末尾の改行を見ていない（低） | 直した |
+| 表の更新の遅れの `簡略化:` がコードに無い（低） | 直した（`redirect_table()` の docstring） |
+| 文書が「CHAT-1101-PRP-04 の調べ」を出典にしている（ログは消える）（低） | 直した（#641 の調べに） |
+
+直した後: node のテスト 7件（`workers/*/test` 全体で 163件）・Python 1,752件 OK。ローカルの `wrangler dev` で `?name=白鳥翔` が 301・`Cache-Control: max-age=86400`（`Location` のホストは `wrangler dev` がローカルの番地に書き換えて返した。https の固定はテストで確かめた）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1101-prp-pub
 - ログ: https://github.com/retroeater/mj/blob/work/1101-prp-pub/docs/logs/CHAT-1101-PRP-05.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1101-prp-pub
-- 確認用URL: 作業中
-- マージ: 未（判断待ち）
-- issue: #641
-- 判断が必要なこと: 作業中
-- 未確認の項目: 作業中
+- 確認用URL: なし（Worker `mj-pros-redirect` はプレビューを持たず〈`preview_urls: false`〉、サイトのプレビューには出ない。確かめはローカルの `wrangler dev` とテスト。サイトの生成物は変わっていない）
+- マージ: 未（指示のとおり。マージが pro/ の公開になる）
+- issue: #641（着手中のコメント）・#159（設計のコメント）
+- 判断が必要なこと:
+  - **平野さんのダッシュボードの作業 P1（Workers Builds のプロジェクト `mj-pros-redirect` を作る）の時機は、pro/ の公開のマージの後。** 手順は `docs/notes/pros-redirect-worker.md`「P1」。マージから P1 までの間、`/jpml_pros.html` は今の静的なページが 200 で返る（`jpml_pros.html` を消す #645 は P1 の後にする）。P1 の後に Claude Code が本番で数件確かめる（同じ文書の「P1 の後の確かめ」）
+  - **表記の揺れの表（`## 経過`「3. 表記の揺れ」）の3件は、「鳳凰」シートの第38期後期の行の名前の空白を直す作業**（こばり　しん・水口 崚・泉　裕斗）。直した後の生成で順位変動のアイコンが個別ページへ向く
+  - 転送の月次の集計（#568）は、今はこの Worker の 301 を数えない（「棚卸しの対象」に入れると `test_redirects_inventory.py` が `_redirects` との照合で落ちるため、「Worker の転送」の節に置いた）。数えるなら、テストで「仕組み」が Worker の行だけ照合を外す案（同じ文書の「転送の月次の集計」）。数えるかを決めてほしい
+  - 前の `jpml_pros.html` の `?place=`・`?league=`・`?ouka=` は、決定④の範囲（`?name=` だけ）のとおり `/pro/` へ送る（pro/ のトップの `?place=` などへは引き継がない）。引き継ぐなら直す
+- 未確認の項目:
+  - 本番での転送（P1 の後）
+  - Worker の 301 が Cloudflare の GraphQL の集計（`httpRequestsAdaptiveGroups`）に入るか（文書に記載なし）
 - エラー: なし
 
 <!-- guide-links -->
