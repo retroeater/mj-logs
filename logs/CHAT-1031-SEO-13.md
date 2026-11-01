@@ -127,7 +127,7 @@ canonical の付け方（#560）を、ページの種類ごとに新しい基準
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1101-SEO-14
 - ブランチ: work/1031-seo13
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1031-SEO-13.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1031-seo13
@@ -152,12 +152,12 @@ canonical の付け方（#560）を、ページの種類ごとに新しい基準
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 8083118c）: https://github.com/retroeater/mj-logs/tree/main/guide/8083118c
+ガイド文書（この版を写した時点の最新、mj 22bdc647）: https://github.com/retroeater/mj-logs/tree/main/guide/22bdc647
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/8083118c/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/8083118c/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/8083118c/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8083118c/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8083118c/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8083118c/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/22bdc647/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/22bdc647/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/22bdc647/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/22bdc647/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/22bdc647/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/22bdc647/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/7aaff304.md

@@ -64,17 +64,50 @@ CHAT-1031-SEO-13 の案の表（`## 経過` の表1〜22）と平野さんの答
 - 同じ Chat-Ref のコミット・ログ: なし。work/1101-seo14 はローカル・リモートとも無く、origin/cloudflare（d750c1c85）から作成。
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 欠けなし。
 
+- #638・#560 は open。他セッションの完了していない着手中のコメントは無い（#638 の最後は SEO-13 のこのセッションのもの）。着手コメント: #638 https://github.com/retroeater/mj/issues/638#issuecomment-6550798283 ・#560 https://github.com/retroeater/mj/issues/560#issuecomment-6550798704
+- 0章ゲート: 未マージの work/ ブランチのうち、変えるファイルに触れるのは work/1028-lgn・work/1029-lgn-page の docs/handover.md の表（`docs/notes/` の一覧に1行足す）だけで、今回の2章「配信」の行とは別の箇所。生成スクリプトの重なりは無い。告知の期間中のページ無し。
+- 手書きのページ: 付け外しの対象（各大会のトップ・ranking/・race/、mtsuku/・exam/ の一覧、saikyo/players/・vs/、title/ の入口）はすべて生成のページで、手書きは無かった。
+
+### 手順1
+
+- `generate_houou_pages.py`: `meta()` に `canonical=False` の引数を足し、`render_top`・`render_ranking` は `True`、`render_race` は `canonical=url`。`render_players`・leagues/ は付けないまま。4大会で共有。
+- `generate_saikyo_pages.py`: `menu_meta()` に `canonical=True` の引数を足し、players/ だけ `False`。vs/ の `canonical=` を外した。
+- `generate_title_pages.py`: `page_meta()` に `canonical=True` の引数を足し、入口だけ `False`（`簡略化:` のコメントで #485 で戻すことを書いた）。
+- `generate_mtsuku.py`・`generate_exam.py`: 一覧の `META` に `canonical=LIST_URL`、docstring の「付けない」の理由を直した。`lib/page.py` の `canonical` のコメントを新しい基準にした。
+- テスト: `scripts/tests/test_canonical.py`（7件。付ける・外すページの有無と向き先、og:url と同じこと）を足し、`test_mtsuku.py` の `test_unpublished`（「canonical は付けない」を確かめていた）を新しい決定に直した。修正前のコード（d750c1c85）では test_canonical の6件が失敗（残る1件は付けないページの確認で、修正前から成り立つ）。`python3 -m unittest discover -s scripts/tests` は 1692件 OK。コミット b18590ec3、テストの直しはレビューの後のコミット。
+
+### 自己レビュー（新しい文脈のサブエージェント。差分 d750c1c85..b18590ec3 -- scripts/）
+
+テストはサブエージェントでも 1692件 OK、修正前のコードで新しいテストが失敗することも確かめた。
+
+| 指摘 | 扱い |
+|---|---|
+| title/ の入口のテストが `page_meta(..., canonical=False)` を直接呼ぶだけで、`pages()` の入口の呼び出しを確かめていない | 直した（`pages()` を大会の無い site で呼び、入口の meta の canonical が None であることを確かめる形にした） |
+| 日付が「2026-10-31 の基準」と「2026-11-01」で混ざる | 意図どおり（基準は 2026-10-31、saikyo/vs/・title/ の入口の付け外しの決定は 2026-11-01） |
+
+### 手順2
+
+- dry_run（実行 41254473903、b18590ec3、compare_ref = origin/cloudflare d750c1c85、target `houou_pages ouka_pages jwrc_pages wrcr_pages title_pages saikyo_pages mtsuku exam`）: 成功。「compare: 差分あり 48 件」で、48件すべて「1 行」。内訳 houou/ 11（トップ・race・ranking 9）・ouka/ 10（トップ・race・ranking 8）・jwrc/ 11・wrcr/ 11（各トップ・race・ranking 9）・mtsuku/index.html・exam/index.html・saikyo/players/・saikyo/vs/・title/index.html。見込み（追加45・削除3）と同じ件数。
+- 書く実行: `1e530f7d8 chore: regenerate houou/ ouka/ jwrc/ wrcr/ title/ saikyo/ mtsuku/index.html exam/index.html via GitHub Actions`。53ファイル（ページ48・sitemap 5）。増減の行は `<link rel="canonical"` +45/-3 と `<lastmod>` +48/-48 だけで、ほかの行は0。範囲に収まる。
+- 全48ページを確かめた: 追加の45件は canonical が og:url と同じで、自分の URL（`https://ryoei.pro/<パス>`、ディレクトリは末尾スラッシュ）。canonical が無いのは saikyo/players/・saikyo/vs/・title/index.html の3件。
+- 生成の後の canonical の件数（リポジトリの HTML）: 1,664件（title/ 383・saikyo/ 889・houou/ 11・jwrc/ 11・wrcr/ 11・ouka/ 10・mtsuku/ 62・wayhome/ 44・exam/ 13・books/ 190・study/ 40）。取り込んだ後も unittest は OK。
+
+### 手順3（記録）
+
+- docs/notes/cloudflare.md の canonical の段落を新しい基準・付けないページと理由・付けているページと件数に置き換えた。docs/handover.md 2章「配信」の canonical の行を基準の1句と cloudflare.md への参照にした（handover.md 23,309 バイト）。
+- docs/decisions/seo-bing.md に 2026-11-01 の節、saikyo.md に1節（123行の決定は変わらない）。SEO-13 のログの状態に「 / 続き: CHAT-1101-SEO-14」を足した。
+
 ## 報告
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj d750c1c8）: https://github.com/retroeater/mj-logs/tree/main/guide/d750c1c8
+ガイド文書（この版を写した時点の最新、mj 22bdc647）: https://github.com/retroeater/mj-logs/tree/main/guide/22bdc647
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d750c1c8/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d750c1c8/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d750c1c8/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d750c1c8/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d750c1c8/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d750c1c8/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/22bdc647/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/22bdc647/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/22bdc647/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/22bdc647/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/22bdc647/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/22bdc647/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/7aaff304.md
