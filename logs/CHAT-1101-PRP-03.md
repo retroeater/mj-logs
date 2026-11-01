@@ -91,6 +91,27 @@ pro/ の公開（#641）のうち、生成・メタ情報・導線の変更を�
 
 - `navbar.js` の「連盟プロ」の行き先を `/pro/`、`index.html` のサイドメニューを `/pro/`（ルート相対）、`llms.txt` の行を「[連盟プロ](https://ryoei.pro/pro/)」に。個別ページの URL の形は、ほかの行（title/・houou/ の `https://ryoei.pro/title/<大会>/` など）に倣って書いた。`scripts/tests/test_navbar.py` の期待を `/pro/` に
 
+### 4. 未マージのブランチとの衝突（止まる条件）
+
+- `git merge-tree --write-tree --name-only HEAD <branch>` で、work/1029-lgn-page との取り込みが `docs/notes/static-generation.md` で衝突した（同じブランチと origin/cloudflare の間では衝突0件。こちらの変更で生じた衝突）。衝突は2か所: 「ページの一覧」の前書きの1行（256行目。こちらは pro/ の「noindex・メニュー未掲載」を消し、向こうは同じ行に log/ を足す）と、表の pro/ の行（280行目。向こうはその直後に log/ の行を足す）
+- 止まる条件（同じ行を変えている・取り込みで衝突する）に当たるのはこのファイルだけなので、**`docs/notes/static-generation.md` の変更だけを戻して**（`git checkout origin/cloudflare -- docs/notes/static-generation.md`、コミット 7afdd6315・84b9d1983）ほかは進めた。戻した後の衝突は0件。pro/ の「未公開」の記述とサイトマップの説明は、公開のマージの時点（work/1029-lgn-page の後か前かに合わせて）で直す（判断が必要なことに書いた）
+- work/1028-lgn（6件）・work/1017-lvp（926件）の衝突は、origin/cloudflare との間でも同じ件数で、こちらの変更による増減は無い
+
+### 5. 生成と確かめ
+
+- 新旧のコードの比べ: `regenerate-page.yml` を `target_page: all`・`dry_run: true`・`compare_ref: origin/cloudflare` で手動実行（run 41271108182、success）。中身の違うファイルは 1,100件で、内訳は `pro/<slug>/index.html` 1,098件（各8行: noindex の削除1・canonical 1・title 2・og:title 2・og:image 2）・`pro/index.html` 1件（4行: noindex 1・canonical 1・og:image 2）・`sitemap-pro.xml`（新しいファイル）。**pro/ 以外のページの生成物に差分は0件。** `jpml_pros.html` は差分に出ない（新しいコードの生成が、手で直した og:image の1行と同じものを書く）
+- 生成: `regenerate-page.yml` を `target_page: pro_pages` で手動実行（run 41272458751、success）→ コミット 1ccb48144「chore: regenerate pro/ via GitHub Actions」（1,101ファイル: pro/ 1,099・`sitemap-pro.xml`・`sitemap-pages.xml` のトップページ `/` の lastmod 2026-10-29 → 2026-11-01〈`index.html` を変えたため、`--from-git`〉）
+- origin/cloudflare を取り込んだ（93d665130、衝突なし）
+- テスト: `python3 -m unittest discover -s scripts/tests` は 1,736件 OK（pro/ の再生成の前は `test_og_image` が旧パスの pro/ で1件失敗。再生成の後に通った）。足した `PublishTest` の3本は修正前の生成スクリプトでは失敗（2 FAIL・1 ERROR）
+- 生成物の全件（1,099ページ）: noindex 0件・canonical と og:url の不一致 0件・title と og:title の不一致 0件・title の形の外れ 0件・og:image が `img/ogp/pro/` でないもの 0件・title の重複 0件。title の最短は「大和 | 連盟プロ | 日本プロ麻雀連盟 | ryoei.pro」（32字、`pro/yamato.26/`）、最長は「スカルリーパーA-Ji | 連盟プロ | 日本プロ麻雀連盟 | ryoei.pro」（41字、`pro/a-ji.skull-reaper.27/`）
+- `sitemap-pro.xml`: URL 1,099件（pro/ のページ数と一致、集合も一致、重複0）、lastmod はすべて 2026-11-01（新しい URL は当日）。`sitemap.xml`・`sitemap-pages.xml` は XML として読める。サイトマップの本体に `jpml_pros` は0件
+- プレビュー（版ごとの URL、93d665130 の check-run「Workers Builds: mj」は success）を headless Chromium で、トップ・`pro/yurika.aoi.24/`・`pro/a-ji.skull-reaper.27/`・`pro/taro.yamada.99/`（404）× 360px・1280px × 明暗の16画面:
+  - 状態 200（404 は 404）。メタの robots は無し（404 だけ有り）。応答ヘッダの `x-robots-tag: noindex` は workers.dev のプレビューに付くもの（#114）で本番には付かない。canonical はトップ `/pro/`・個別は自分自身。navbar に `href="/pro/"` の「連盟プロ」がある
+  - 横のはみ出し 0。基準を割るコントラスト 0
+  - 並べ替えのボタン: 360px で 名前 112×44・所属 44×44・入会期 44×44・鳳凰 44×44・桜花 44×44、1280px で 名前 152×44・ほか 44×44（前は 24×18・36×18）。表の行のリンクは 40px のまま（決定⑦）
+  - 404 のページの本文のリンク（98×17）は前からのもので、この変更とは関係しない
+- 本番（ryoei.pro）へのリクエスト: 0件
+
 ## 報告
 
 - 状態: 作業中
@@ -107,12 +128,12 @@ pro/ の公開（#641）のうち、生成・メタ情報・導線の変更を�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 946ededa）: https://github.com/retroeater/mj-logs/tree/main/guide/946ededa
+ガイド文書（この版を写した時点の最新、mj ffb0f3ac）: https://github.com/retroeater/mj-logs/tree/main/guide/ffb0f3ac
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/946ededa/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/946ededa/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/946ededa/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/946ededa/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/946ededa/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/946ededa/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ffb0f3ac/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ffb0f3ac/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ffb0f3ac/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ffb0f3ac/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ffb0f3ac/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/ffb0f3ac/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/bdc234c5.md
