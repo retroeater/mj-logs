@@ -303,3 +303,8 @@ PRO-12 の「判断が必要なこと」への回答:
 - 最強戦の行は、今は時刻なしでよい（時刻を出すなら ABEMA ブックなどから足す別の作業）
 - 放送対局・最強戦のデータが読めない日は、pro/ の生成を止める（PRO-12 の今の作り。前の日のページのまま、失敗のメールが届く）
 - work/1031-pro-sched を cloudflare へマージしてよい（pro/ は未公開のまま。マージの後は毎朝の `update-live-channel.yml` の再生成で pro/ も作り直してコミットする）
+
+## 2026-11-01（CHAT-1101-PRO-17）
+
+- PRO-15 の取り込みの衝突（`docs/notes/github-actions.md` の update-live-channel.yml の行、`docs/notes/live-channel-write.md` の「7.」の冒頭2行）は、どちらも cloudflare 側の行を正とし、こちらの変更（「/live・title/」→「/live・title/・pro/」、github-actions.md は「（個別ページの今後の予定）」も）だけを足して解く
+- PRO-15 の決定（最強戦の行は時刻なし・読めない日は pro/ の生成を止める・マージしてよい）はそのまま有効

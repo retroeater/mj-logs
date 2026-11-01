@@ -76,40 +76,24 @@ Bash のコマンド文字列を `&&`・`||`・`;`・`|`・改行で区切り、
 | `reset --hard` | git reset --hard は使わない（CLAUDE.md 禁止事項） |
 | `clean` | git clean は使わない（CLAUDE.md 禁止事項） |
 | `stash` | git stash は使わない（CLAUDE.md 禁止事項） |
-| `branch -D`（`--delete --force` を含む） | git branch -D は使わない。削除前に branch-operations.md「ブランチを削除するとき」 |
+| `branch -D`（`--delete --force` を含む） | git branch -D は使わない（branch-operations.md「ブランチを削除するとき」） |
 | `checkout .` | 作業ツリーをまとめて戻さない（branch-operations.md「未コミットの変更を戻すとき」） |
 | `gh-pages` への push（refspec が無ければ現在ブランチ） | gh-pages に触らない（handover.md） |
 | cloudflare への force push（`--force`・`-f`〈`-fu` 等のまとめ書きを含む〉・`--force-with-lease`・`--force-if-includes`・`+refspec`。refspec が無ければ現在ブランチ） | cloudflare へ force push しない（本番の履歴を書き換える） |
-| cloudflare を消す push（`--delete`・`-d`・`:cloudflare`） | cloudflare を消す push はしない |
+| リモートのブランチを消す push（`--delete`・`-d`〈まとめ書きを含む〉・`:` で始まる refspec。どのブランチでも、2026-11-01） | リモートのブランチは消さない。マージ済みの work/* は cleanup-branches.yml が消す（docs/notes/cloud-sessions.md「ブランチの削除」） |
 | `push --mirror`・`push --prune` | push --mirror・--prune は使わない（リモートのブランチを消しうる） |
 
-それ以外（cloudflare への通常の push、`claude/*`・`work/*` への push〈force・削除を含む〉、`branch -d`、`checkout -b` など）は出力なしで通す。
+それ以外（cloudflare への通常の push、`claude/*`・`work/*` への push〈force を含む〉、`branch -d`、`checkout -b` など）は出力なしで通す。
 
-試験した入力と結果（2026-09-30、39件）:
+判定の試験は `scripts/tests/test_git_guard.py`（unittest。2026-09-30 の手の試験の39件を写し、削除の push を足した）。
 
-| コマンド | 判定 |
-|---|---|
-| `git fetch -q origin && git merge-base --is-ancestor origin/cloudflare HEAD && git push origin work/x:cloudflare 2>&1 \| tail -1`・`git push origin HEAD:refs/heads/cloudflare` | 通過 |
-| `git push origin work/x`・`git push -u origin work/x`・`git push`（work 上） | 通過 |
-| `git push origin --delete work/old`・`git push origin :work/old` | 通過 |
-| `git push --force origin work/x`・`git push -f origin`（work 上） | 通過 |
-| `git push origin claude/foo` | 通過 |
-| `git push --force`・`-f`・`-fu`・`--force-with-lease`（`=...` 付きを含む）・`--force-if-includes` の `origin work/x:cloudflare`、`git push origin +work/x:cloudflare`・`+HEAD:refs/heads/cloudflare` | deny（force） |
-| `git push -f origin`・`git push --force`（cloudflare 上） | deny（force） |
-| `git push origin --delete cloudflare`・`git push -d origin cloudflare`・`git push origin :cloudflare`・`:refs/heads/cloudflare` | deny（削除） |
-| `git push --mirror origin`・`git push --prune origin ...` | deny（mirror・prune） |
-| `git reset --hard ...`・`git -C /x clean -fd`・`git stash`・`git branch -D`／`--delete --force`・`git checkout .`・`git push origin gh-pages`／`HEAD:refs/heads/gh-pages` | deny（既存6種、理由文は変わらない） |
-| `git fetch origin && git push --force origin work/x:cloudflare`・`git push origin work/x:cloudflare; git stash`・`git status \| git push origin --delete cloudflare` | deny（連結の中） |
-| `git branch -d work/old`・`git checkout -b work/y origin/cloudflare` | 通過 |
-
-- **hook の変更は、セッションからは書き換えも cloudflare へのマージも auto モードの分類器が `[Self-Modification]` として拒否する**（2026-09-30）。
-  平野さんが手でコミットし、PR（Create a merge commit）でマージする。セッションは試験と文書まで。
-  チャット側の指示はこの手作業を前提に組み、「マージ:」は「判断待ちで止まる」にする（`.claude/` の settings を変える指示も同じ）。
-  平野さんは GitHub の画面で作業ブランチにコミットする（「Create a new branch」が選ばれているかを確かめてもらう。外れると cloudflare に直接入る）
+- **hook・`.claude/` の settings・hookify の規則ファイルの変更は、ほかのコードと同じ運用**（作業ブランチで書き換え、テストで確かめ、指示文の「マージ:」の行に従ってマージする。2026-11-01）。
+  2026-09-30 時点では分類器が書き換えを拒否し、平野さんの手作業と PR でマージしていたが、2026-11-01 にセッションから書き換え・push できたため改めた。
+  分類器に拒否されたときは、その旨を報告して止まる
 
 限界（文字列の解析であり、事故の防止であって強制ではない）:
 
-- `sh -c "..."`・`eval`・変数展開・git のエイリアス・スクリプトの中の git は素通りする
+- `sh -c "..."`・`eval`・変数展開・git のエイリアス・スクリプトの中の git は素通りする。長いオプションの省略形（`--dele` など）と、`-C`・`-c` 以外の git 全体のオプション（`--no-pager` など）の後のサブコマンドも素通りする
 - 逆に、ヒアドキュメントや引数の文字列の中に上の git コマンドが1行で書かれていても判定される（改行で区切るため）。
   試験の入力を渡すときは、コマンド文字列に書かずファイル経由で渡す
 - 判定の試験は `{"tool_input":{"command":"..."}}` を標準入力に渡して出力の `permissionDecision` を見る（出力が無ければ通過）
@@ -121,7 +105,7 @@ Bash のコマンド文字列を `&&`・`||`・`;`・`|`・改行で区切り、
 - **止める**規則はリポジトリの hook（mj-git-guard と同じ Python・テスト付き）かテスト・CI に置く。**注意を出す**規則は hookify に置く
   （hookify はアカウント側の plugin で、外すと規則ファイルが残っていても効かなくなるため、止める規則を任せない。2026-10-20）
 - hookify の規則は `.claude/hookify.<名前>.local.md`。hookify はカレントディレクトリからの相対パス（`.claude/hookify.*.local.md`）で探し、次のツール呼び出しから効く。
-  hookify の skill は `.claude/*.local.md` を `.gitignore` に足すよう勧めるが、mj では規則を共有するので足さない。`.claude/` の下なので、足すのも直すのも平野さんの手作業（上の `[Self-Modification]`）
+  hookify の skill は `.claude/*.local.md` を `.gitignore` に足すよう勧めるが、mj では規則を共有するので足さない。足す・直すのは上の hook の変更と同じ運用
 - 規則の書式は skill `hookify:writing-rules`。file の条件の field は、Write の全文も見るなら `content`（`new_text` は Edit の `new_string` だけを見る）
 - 規則の試験は、規則ファイルを一時ディレクトリの `.claude/` に置き、そこをカレントにして hookify の `hooks/pretooluse.py`（同期先 `~/.claude/plugins/synced/` の下）に
   `{"tool_name":…,"tool_input":{…}}` をファイル経由で渡し、出力の `systemMessage` を見る（リポジトリの `.claude/` には置かない）

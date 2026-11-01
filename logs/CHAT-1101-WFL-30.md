@@ -58,19 +58,53 @@ docs/decisions/operations.md の末尾に、次の節を足す（見出しは既
 - 0. 指示欄の末尾は指示文の最後の行と一致。雛形の行の欠け: なし（冒頭の数行が1行につながって届いた。内容の欠けは無し）。
 - ブランチ: ローカルの work/1101-wfl は origin/cloudflare の祖先、リモートもマージ済み → `git merge --ff-only origin/cloudflare`（15ed0e253..125b132ff）。
 
+### 手順1（確かめ）
+
+- docs/decisions/operations.md の 2026-11-01 の節: MCK-24・SEO-15・MCK-25・SEO-16・MCK-26・WFL-28・WFL-29・PRO-18。WFL 系列の振り返りの節は無し（WFL の振り返りの節は 2026-10-17 の CHAT-1017-WFL-26 だけで、別の回）。止まる条件に当たらない。
+- run 41227250544: 「[scheduled] 月次の運行 #4」failure（作成 2026-10-31T18:00:26Z = 11/1 03:00 JST）。ジョブ「gsc / fetch」success、「redirects / fetch」failure。redirects のログに「集計の範囲: UTC 2026-09-30T18:11:27Z 〜」「`/saikyo_results.html` 301 143」「`! [rejected]        HEAD -> cloudflare (fetch first)`」。
+- fetch-redirect-counts.yml の run #11（41256095338、schedule、success）: 2026-11-01T00:17:27Z（09:17 JST）。ログに「集計の範囲: UTC 2026-10-01T00:27:52Z 〜 2026-10-31T15:00:00Z（保持期間のため月の始まり 2026-09-30T15:00:00Z から詰めた）」。`docs/redirect-counts/2026-10.csv` は cloudflare の 7d25a4982「chore: fetch redirect counts」で入り、`/saikyo_results.html,301,142,20`。#568 の最新のコメント（2026-11-01T00:17:57Z）が「転送の件数 2026-10（JST）」で同じ範囲。
+- 差: 18:11:27Z〜00:27:52Z は 6時間16分25秒（JST 10/1 03:11〜09:27）。前提と一致。食い違いは無し。
+- #643 は WFL-29 で起票した open の issue（この節では触れていない。指示の手順1の列挙にあるだけ）。
+
+### 手順2
+
+- docs/decisions/operations.md の末尾（PRO-18 の後）に「## 2026-11-01（CHAT-1101-WFL-30）」を足した。前提の文面のまま。変えた点: 決定の2点目（PR を使わない）を2行目に足した、事実の記録に拒否の出力（`[rejected] HEAD -> cloudflare (fetch first)`）を添えた。同じ趣旨の既存の記述は無し。
+
+### 取り込み
+
+- マージ直前の再 fetch で origin/cloudflare が進んでいた（cleanup-logs によるログの削除 89 本と CHAT-1101-MCK-27）。`git merge origin/cloudflare` で docs/decisions/operations.md が末尾の追記どうしで衝突し、両方を残して解いた（MCK-27 を先、WFL-30 を後。解いた直後に MCK-27 の「作業中の回答: なし」が二重になったので1行消した）。解いた後の該当箇所:
+  ```
+  - この片付けは cloudflare へマージしてよい
+  - 作業中の回答: なし
+
+  ## 2026-11-01（CHAT-1101-WFL-30）
+
+  - WFL 系列のチャット（2026-10-31〜11-01。#564 の段④の着手の確かめ、CHAT-1101-WFL-28・29）の振り返りとレビューの申送りを行う（…）
+  ```
+  取り込みの後の origin/cloudflare との差は docs/decisions/operations.md（+14 行、WFL-30 の節）と このログだけ。
+
 ## 報告
 
-- 状態: 中断（作業中）
+- 状態: 完了
+- ブランチ: work/1101-wfl
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1101-WFL-30.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1101-wfl
+- 確認用URL: なし
+- マージ: 済（このログを含むコミットを `git push origin work/1101-wfl:cloudflare` で入れた。SHA は最終報告の「ログ（公開）」の行）
+- issue: なし
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 6aac53da）: https://github.com/retroeater/mj-logs/tree/main/guide/6aac53da
+ガイド文書（この版を写した時点の最新、mj cc449e20）: https://github.com/retroeater/mj-logs/tree/main/guide/cc449e20
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6aac53da/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6aac53da/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6aac53da/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6aac53da/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6aac53da/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6aac53da/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/125b132f.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/cc449e20/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/cc449e20/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/cc449e20/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/cc449e20/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/cc449e20/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/cc449e20/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/cc449e20.md
