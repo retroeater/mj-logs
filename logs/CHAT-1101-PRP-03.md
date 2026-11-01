@@ -63,6 +63,34 @@ pro/ の公開（#641）のうち、生成・メタ情報・導線の変更を�
 
 ## 経過
 
+### 0. 着手前の確認
+
+- 指示欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある
+- 同じ Chat-Ref のコミット・ログ: なし。`PRP` は3本目。0章ゲート: 触るファイルと未マージの `work/*` の重なりは下
+- 作業ブランチ: `work/1101-prp-pub` はローカル・リモートとも無かったので `git checkout -b work/1101-prp-pub origin/cloudflare`（起点 2caddbbcc）
+- #641 にほかのセッションの着手中は無い（最後は PRP-01 の完了。PRP-02 は #641 の本文を直したがコメントは書いていない）。着手中のコメントを書いた
+- 前提の実物の場所: `NOINDEX_TAG` は `scripts/generate_pro_pages.py:52`、個別ページの title は 726行目の `PageMeta(title=f"{pro.name} | {SECTION} | ryoei.pro", …)`、`.mj-pro-sort` は `assets/pro.js:183`（並べ替えの動き）と `style.css:5700`（見た目）、`sitemap.xml` のコメントと `update_sitemap_lastmod.py` の `SITEMAP_*`。すべて前提どおり
+- 未マージの `work/*` と変えるファイルの重なり: `navbar.js` は work/1029-lgn-page・1028-lgn（`/log/` の現在地の分岐を先頭に足す）・1017-lvp（`mj-live-n-page` の分岐）が変えているが、どれも現在地の分岐で、変えた行（30行目の行き先、82行目の pro/ のコメント）とは別の行。`.github/workflows/check-assets.yml` は 1029-lgn-page も変えている（下で確かめる）。止まる条件には当たらない
+
+### 1. 生成が止まる理由の確かめ（表26）
+
+- `regenerate-page.yml` を `work/1101-prp-pub`・`check: true`・`target_page: pro_pages` で手動実行: run 41270870476 は success、「check: 止まるページなし」（`pro_pages: 通る(--check)`）
+
+### 2. 生成とメタ情報
+
+- `scripts/generate_pro_pages.py`: `NOINDEX_TAG` を消した。canonical をトップ（`TOP_URL`）と個別ページ（`pro.url`、og:url と同じ）に付けた。個別ページの title を `PLAYER_TITLE`「<名前> | 連盟プロ | 日本プロ麻雀連盟 | ryoei.pro」にした（og:title は `PageMeta.og_title` を渡さないので同じ）。OGP 画像を `img/ogp/pro/index-white.png` に。`build_sitemap()` で `sitemap-pro.xml`（トップ＋個別ページ全件。exam/ の `build_sitemap()` と同じ形、既にある URL の lastmod は残し新しい URL は当日）を書き、`--check` でも組み立てる
+- サイトマップの置き方: 決定の「`sitemap-pages.xml` の `jpml_pros.html` を pro/ に置き換える」と「個別ページは別ファイル `sitemap-pro.xml`」を合わせて、`/pro/` は `sitemap-pro.xml` の先頭に置き（exam/・mtsuku/ が一覧を自分のサイトマップの先頭に置くのと同じ）、`sitemap-pages.xml` からは `jpml_pros.html` の行を消して除外の理由をコメントに書いた（同じ URL を2つのサイトマップに載せないため）。`sitemap.xml` に `sitemap-pro.xml` を足し、`update_sitemap_lastmod.py` に `SITEMAP_PRO`（`pro/` 配下）を足した。`regenerate-page.yml` の XML の確かめの一覧にも `sitemap-pro.xml` を足した（コミットの手順は `sitemap*.xml` で拾う）
+- OGP 画像: `git mv img/ogp/pros img/ogp/pro`（写していない）。`generate_jpml_pros.py` のテンプレートと `jpml_pros.html` の og:image を移した先に直した（jpml_pros.html はこのブランチでは再生成せず、テンプレートと同じ1行だけを直した）。`scripts/tests/test_og_image.py` の許可の一覧と `docs/notes/ogp.md` も直した
+- 並べ替えのボタン: `style.css` の `.mj-pro .mj-pro-sort` に `width: 100%`・`min-width: 44px`・`min-height: 44px`・`text-align: inherit`。行の高さは変えていない
+- 「未公開」の記述（表24）: `generate_pro_pages.py` の docstring・`assets/pro.js:1`・`navbar.js:82`・`style.css` の節の見出し・`.github/workflows/check-assets.yml` の許可リストの注記・`docs/notes/pro-pages.md`・`docs/notes/static-generation.md`（「ページの一覧」の表と前書きの1行）。`docs/handover.md` の索引の行は「公開は #641」で未公開と書いていないので変えていない。`top_ask()` の「決定 K8 は公開の段」は PRP-04 で直す
+- `docs/notes/cloudflare.md`「配信設定」: 付けないページから `pro/` を外し、`jpml_pros.html` の注記を「pro/ の公開で 301」に。付けているページに pro/ のトップ（クエリは表示の絞り込み）と個別ページ（クエリを読まない）を足し、件数を 1,664 → 2,763（pro/ 1,099）にした。K13 の「wayhome/ の各話と同じ例外」の言い方は、この節の今の基準（クエリを読まないページには付ける）の中に入れたので、例外とは書いていない
+- `docs/notes/sitemap-lastmod.md`: 対象に `sitemap-mtsuku.xml`・`sitemap-exam.xml`（もとから抜けていた）・`sitemap-pro.xml` を足した
+- テスト: `scripts/tests/test_pro_pages.py` に `PublishTest`（個別ページの noindex なし・title と og:title・canonical と og:url・画像、トップの canonical、`sitemap-pro.xml` の並びと lastmod）を足した。修正前の generate_pro_pages.py（origin/cloudflare）では3本とも失敗（2 FAIL・1 ERROR）、修正後は通る
+
+### 3. 導線
+
+- `navbar.js` の「連盟プロ」の行き先を `/pro/`、`index.html` のサイドメニューを `/pro/`（ルート相対）、`llms.txt` の行を「[連盟プロ](https://ryoei.pro/pro/)」に。個別ページの URL の形は、ほかの行（title/・houou/ の `https://ryoei.pro/title/<大会>/` など）に倣って書いた。`scripts/tests/test_navbar.py` の期待を `/pro/` に
+
 ## 報告
 
 - 状態: 作業中
@@ -79,12 +107,12 @@ pro/ の公開（#641）のうち、生成・メタ情報・導線の変更を�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 6f0cfaaa）: https://github.com/retroeater/mj-logs/tree/main/guide/6f0cfaaa
+ガイド文書（この版を写した時点の最新、mj 946ededa）: https://github.com/retroeater/mj-logs/tree/main/guide/946ededa
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6f0cfaaa/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6f0cfaaa/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6f0cfaaa/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6f0cfaaa/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6f0cfaaa/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6f0cfaaa/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/946ededa/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/946ededa/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/946ededa/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/946ededa/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/946ededa/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/946ededa/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/bdc234c5.md
