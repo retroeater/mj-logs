@@ -1,6 +1,6 @@
 # CHAT-1102-LVP-08
 
-- 着手日時: 2026-11-01（指示の発行日は 11-02）
+- 着手日時: 2026-11-02
 - 対象issue: #362・#490
 - ブランチ: work/1017-lvp
 - 着手時HEAD: 8a63c670a
@@ -61,7 +61,40 @@ CHAT-1017-LVP-06 の作り直し（判断待ち）を、プレビューの確認
 - Chat-Ref の確認: `CHAT-1102-LVP-08` のコミットは0件。`LVP` は同じセッションの続き
 - 0. 「指示」欄の末尾は指示文の最後の行と一致。origin/work/1017-lvp の先頭は 8a63c670a で一致
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
-- 着手時刻はコンテナの時計で 2026-11-01（指示の決定日 11-02 と1日ずれる。時計の違いとみて進める）
+- 着手は 2026-11-02 08:10 JST（コンテナの時計は UTC で 11-01 23:10）。毎朝の取り込みの直後の30分には当たらない
+
+### 手順1: 取り込み
+
+- #362 のコメント（46件）に他セッションの着手中は無し。着手中のコメントを書いた。CHAT-1017-LVP-06 の報告の状態に「/ 続き: CHAT-1102-LVP-08」を足した
+- 未マージの work/ ブランチのうち、指定のファイルを変えているのは work/1028-lgn・work/1029-lgn-page・work/1101-prp-pub（navbar.js・style.css）。navbar.js は同じ `newNavCurrent` の if の並びの先頭の分岐（/log/）とナビの項目の行で、こちらが足した分岐（`mj-live-n-page`）とは別の行。style.css は鳳凰戦・ログ・連盟プロの別の節。同じ行・同じ関数の変更は無し
+- `git merge origin/cloudflare` の衝突は前提どおり: 生成された live/ の 922 ファイル、`docs/decisions/live.md`、`docs/decisions/design-renewal.md`、`scripts/lib/study.py`、`scripts/tests/test_study.py`。ほかの衝突は無し
+- 解き方:
+  - `docs/decisions/live.md`: 追記どうし。日付の順に、LVP-06（2026-10-16〜17）の節の後に LVP-07（2026-10-17）の節を置いた
+  - `docs/decisions/design-renewal.md`: 追記どうし。LVP-06（2026-10-17）の節の後に PRO-11・PRO-14（10-31）・PRO-15・PRO-17（11-01）の節を置いた
+  - `scripts/lib/study.py`: cloudflare 側の `build_video_object()` の削除を残し、札は work 側の `return html[:-len("</span>")] + members.badge_html(overlay=True) + "</span>"` にした
+  - `scripts/tests/test_study.py`: `test_members_only` は「`self.assertIn('<span class="mj-members">メンバー限定</span>', html)  # live/ と共通の札(lib/members.py)`」だけにし（isAccessibleForFree の確かめは VideoObject と一緒に無くなった）、cloudflare 側の `test_json_ld_has_no_video_object` を残した
+  - 生成された live/ のページ: 取り込んだ cloudflare には、シートを sheets-reader の鍵（`SHEETS_READER_SA_KEY`、Actions のシークレットだけ）で読む変更（#557）が入っていて、コンテナでは生成できない。いったん cloudflare 側の版で解いて取り込みをコミットし（b099876e2 の親）、作業ブランチで regenerate-page.yml を動かして生成し直す（下）
+
+### 手順2: 見出しの重なり
+
+- `period_row_label()` を足した: 期のページでステージに対局が1つだけなら、行の題からステージ名を省く（卓があれば「A卓」、無ければ題なし）。題の無い行は1行目が日付・本数になる。テスト `scripts/tests/test_live_pages.py` に3件足した（b099876e2）
+
+### 手順2: `--check live_pages` と3大会の照合（regenerate-page.yml、作業ブランチ）
+
+- シートを直接読めないので、`--check` に3大会の94行（LVP-07 の表の動画ID）の【3】の値と、載ったページを出す一時の関数を足したコミット（8ae517e92）で、regenerate-page.yml を作業ブランチで check・target `live_pages` で動かした（run 41361095643）。照合の後にこのコミットは戻した（revert）
+- `--check live_pages`: 止まる理由なし（ページ 942）。公開する動画 2,985本。警告 2件:
+  - 公開しなかった行 1件: **行4244 `FXtYzZBEtXA`（【メンバー限定】第２期 昇龍戦）「まとめ単位が空」**
+  - 未確認 690件（掲載が空欄）。LVP-04 の 751 − 3大会で入れた88行（TSV の86行と行4232・4244）＋ 10-18 以降に追記された27行（行4336〜4362、すべて空欄）= 690 で合う
+  - 第24期プロクイーン決定戦の配信予定の2行（4316・4320）は、もう出ていない（配信開始日時が入った）
+- 3大会の照合（動画ID で引いた。94行とも行番号は 10-17 のまま）:
+  - Y の12行・N の74行・行4232（N）・プレーオフの6行（空欄）・行4247（Y、まとめ単位「ベスト8、決勝」）は前提どおり
+  - **前提と違う行: 行4244 `FXtYzZBEtXA` は掲載 Y だが、まとめ単位が空（前提は「ベスト8、決勝」）。ステージも空。このため公開の条件で落ちる**
+- 3大会で増えた個別ページ（10ページ。行4244 の分は無い）:
+  - `live/tatsujin/1/f.html`（行4242・4257）、`live/tatsujin/2/f.html`（4252・4291）、`live/tatsujin/3/f.html`（4287・4293）
+  - `live/shouryu/1/b8.html`・`live/shouryu/1/f.html`（行4247。まとめ単位「ベスト8、決勝」で両方に出る）、`live/shouryu/2/b8-a.html`（4335）
+  - `live/housho/1/b16-a.html`〜`b16-d.html`（4305・4309・4323・4319）
+- URL の重なりの警告は無し
+- **止まる条件「3大会の行に落ちる行」「照合で前提と違う行」に当たったので、マージしない**
 
 ## 報告
 
