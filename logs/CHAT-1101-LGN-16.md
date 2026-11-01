@@ -63,7 +63,7 @@ LGN-14 の仮置きへの平野さんの回答を入れる。駅のタグで絞�
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1101-LGN-17
 - ブランチ: work/1029-lgn-page
 - ログ: https://github.com/retroeater/mj/blob/work/1029-lgn-page/docs/logs/CHAT-1101-LGN-16.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1029-lgn-page
