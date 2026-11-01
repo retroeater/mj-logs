@@ -112,17 +112,35 @@ pro/ の公開（#641）のうち、生成・メタ情報・導線の変更を�
   - 404 のページの本文のリンク（98×17）は前からのもので、この変更とは関係しない
 - 本番（ryoei.pro）へのリクエスト: 0件
 
+### 6. 差分のレビュー（新しい文脈のサブエージェント、1回）
+
+渡したもの: 指示文の目的と決定、`git diff origin/cloudflare...HEAD`（pro/ の生成物・ログ・`sitemap-pro.xml` を除く）と代表の生成物2ファイル、CLAUDE.md「コード規約」。サブエージェントもテスト 1,736件 OK・noindex 0件・canonical 1,099件・`sitemap-pro.xml` 1,099件を確かめた。
+
+| 指摘 | 扱い |
+|---|---|
+| `style.css` の `.mj-pro-sort` の `min-width: 44px` で、360px の名前の列が細り名前が折り返す（中） | 直した（1e475482c「fix: keep pro/ sort buttons within their column width」）。手元で測ると、`?all=1` の 360px で折り返す名前は 旧 CSS 2名・`min-width` あり 17名・外した後 2名。外した後のボタンは高さ 44px・幅は列の幅（360px で 名前 152・所属 39・入会期 36・鳳凰 30・桜花 30、1280px で 172・45・41・35・35）。幅が 44px に届かない列があるので「判断が必要なこと」に書いた |
+| `docs/handover.md` の #219 の行に「未公開」が残る（中） | 直した（PRP-02 で書いた行。「2026-10-31。公開は #641」に） |
+| `docs/notes/static-generation.md` の OGP 画像のパス（468行目）が旧いまま（低）。256・280行目は意図して残したなら明記を | 468行目は直した（5718a463f）（work/1029-lgn-page と衝突しないことを確かめた）。256・280行目は「判断が必要なこと」に書いた |
+| `llms.txt` のサイトマップの行に `sitemap-pro.xml` が無い（低） | 直した |
+| `regenerate-sitemap.yml` の XML の確かめに `sitemap-pro.xml` が無い（mtsuku・exam も前から無い）（低） | 直した（3つとも足した）。作業ブランチで手動実行: run 41273040673 は success（8ファイルとも parse、「変更なし」） |
+| `update_sitemap_lastmod.py` の docstring に pro/ が無い（低） | 直した（mtsuku・exam も） |
+| `docs/notes/cloudflare.md` の「`jpml_pros.html` は pro/ の公開で 301」が済んだように読める（低） | 直した（「301 にする予定」） |
+
+直した後のプレビュー（版ごとの URL、5718a463f の check-run は success）で、上の16画面をもう一度見た: はみ出し 0・コントラスト 0・canonical と navbar は同じ。`check-assets.yml` は 99d8df461・93d665130・5718a463f で success。テスト 1,736件 OK。2回目のレビューはしていない（直したのは指摘どおりの小さな変更で、上の測定で確かめた）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1101-prp-pub
 - ログ: https://github.com/retroeater/mj/blob/work/1101-prp-pub/docs/logs/CHAT-1101-PRP-03.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1101-prp-pub
-- 確認用URL: 作業中
-- マージ: 未（判断待ち）
-- issue: #641
-- 判断が必要なこと: 作業中
-- 未確認の項目: 作業中
+- 確認用URL: プレビューあり（URL は最終報告）。確かめたページはトップ・`pro/yurika.aoi.24/`・`pro/a-ji.skull-reaper.27/`・404（`pro/taro.yamada.99/`）。この版で見える印: トップの表の見出し（名前・所属…）の行が高くなった（44px）。navbar の「連盟プロ」が `/pro/` へ行く
+- マージ: 未（指示のとおり。マージが pro/ の公開になる。live/〈#362〉の公開と告知動画の後に別の指示で）
+- issue: #641（着手中のコメント）
+- 判断が必要なこと:
+  - 並べ替えのボタンの幅: 決定⑦は 44px の基準。高さは 44px にしたが、幅は見出しのセルいっぱい（360px で 鳳凰・桜花 30px・入会期 36px・所属 39px）。幅にも 44px を付けると 360px で名前の列が細り、折り返す名前が 2名から17名に増える（レビューの指摘）ので付けていない。今の形（高さだけ 44px）でよいか
+  - `docs/notes/static-generation.md`「ページの一覧」の pro/ の記述（前書きの「noindex・メニュー未掲載」と表の pro/ の行）は、未マージの work/1029-lgn-page と同じ行・隣の行で衝突するため、このブランチでは直していない（止まる条件。このファイルの変更だけ戻して進めた）。公開のマージの時点で直す（PRP-04 か、公開のマージの指示に入れる）
+- 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
