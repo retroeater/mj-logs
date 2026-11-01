@@ -81,15 +81,40 @@ PRO-15 は、マージの直前の取り込みで文書2か所が衝突して止
 - コードは変えていない（取り込みと文書の衝突の解決だけ）ので、レビューの対象の差分は無い
 - 止まる条件: どれにも当たらない（0章は通った・衝突は決定の2か所だけ・`target_page` に pro_pages が残る・pro_pages の失敗は live/title を止めない・全ページの生成の差分は説明できる・未公開・テスト・--check・check_asset_limits は通った・#219 に他セッションの着手中なし）。マージの前に CLAUDE.md「ブランチ運用」と docs/notes/branch-operations.md「マージするとき」「ブランチを削除するとき」を読んだ（同じセッションの PRO-10・PRO-14・PRO-16 で読み、内容は変わっていない）
 
+### 3. マージ
+
+- 1回目の push の直前の確かめで `git merge-base --is-ancestor origin/cloudflare HEAD` が偽（CHAT-1101-MCK-24 の docs とログ）。push はせず、`git merge origin/cloudflare` で取り込んだ（衝突なし。docs/decisions/operations.md・docs/notes/cloudflare.md・ログだけで、ページ・スクリプトは変わらない）
+- 再 fetch と `git merge-base --is-ancestor origin/cloudflare HEAD`（真）の後、`git push origin work/1031-pro-sched:cloudflare`: `27bafd9bf..a42225727  work/1031-pro-sched -> cloudflare`
+- push で動いたワークフロー（a422257）: ページの再生成（push、run 41261252901）成功（`scripts/lib/` が変わったので全ページ。「飛ばしたページを報告」は skipped）・サイトマップの lastmod の同期 成功・Workers Builds（mj・mj-ask・mj-scheduler）成功・本番ビルド失敗の検知は skipped。再生成のコミット 4505220 は `saikyo/` の8ファイルと `sitemap-saikyo.xml`（小川光の X のリンクと写真が入った。SNS ブックの変化で、今朝の SNS ブックの更新が「プロ」「連盟プロ以外」の小川光の重複で止まっていた件が直った後のもの。今回の変更とは関係ない）。失敗なし
+- 本番: `https://ryoei.pro/pro/shota.akutsu.34/?v=a422257` が 200、`<meta name="robots" content="noindex">` があり、「今後の予定」の見出しと行（`data-date` 2026-11-01・11-04・11-04・11-17）がある（取得は1件）
+- 毎朝の生成の初回: WKP-06 の後は cron が無く、Worker `mj-scheduler` が 04:00 JST に `run-daily.yml` を起動し、その job `live` が `update-live-channel.yml` を呼ぶ。pro/ を含む再生成の初回は **2026-11-02 04:00 JST の run-daily の live / regenerate**
+- 新しい issue: #642「濃色固定のページ（動画の系統）を明暗の両方に対応するかを決める（新サイト）」を起票した（ラベル `分野: UI/UX`）。#296 の手順のとおり、コメント「親: #296」（issuecomment-6551871517）と #296 の sub-issue の登録の両方を行った（#296 の sub-issue は 37件）。#296 の本文の子 issue の表には足していない（手順にあるのはコメントと sub-issue の2つだけ）
+- #219 に完了のコメントをした
+- 作業ブランチの片付け: `git branch -r --merged origin/cloudflare` に `origin/work/1031-pro-sched` が入る。セッションの git プロキシはブランチの削除を拒否するので消さない（docs/notes/cloud-sessions.md「ブランチの削除」）。マージ済みの work/ は `cleanup-branches.yml` が消す。記録: `work/1031-pro-sched`・a42225727（マージ時の先頭）・マージ済み。この後のログのコミットは cloudflare へも追いの push をする
+- 決定: docs/decisions/pros.md（衝突の解き方）と docs/decisions/design-renewal.md（issue の置き場所）に足した
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1031-pro-sched（マージ済み。削除は cleanup-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1101-PRO-17.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1031-pro-sched
+- 確認用URL: なし（マージ済み。本番の `/pro/shota.akutsu.34/` で確かめた）
+- マージ: 済（a42225727）
+- issue: #219（着手中・完了のコメント）・#642（起票、親 #296）・#296（sub-issue に #642 を登録）・#641（触れていない）
+- 判断が必要なこと: なし
+- 未確認の項目: なし（pro/ を含む毎朝の再生成の初回は 2026-11-02 04:00 JST の run-daily の live / regenerate）
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 27bafd9b）: https://github.com/retroeater/mj-logs/tree/main/guide/27bafd9b
+ガイド文書（この版を写した時点の最新、mj fa647008）: https://github.com/retroeater/mj-logs/tree/main/guide/fa647008
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/27bafd9b/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/27bafd9b/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/27bafd9b/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/27bafd9b/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/27bafd9b/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/27bafd9b/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/fa647008/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/fa647008/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/fa647008/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/fa647008/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/fa647008/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/fa647008/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/27bafd9b.md
