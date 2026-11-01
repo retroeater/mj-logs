@@ -46,6 +46,51 @@ CHAT-1101-MCK-24 の見立て1（CSP の `connect-src 'self'` が Web Analytics 
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 着手前の確認
+
+- 0: 「指示」欄の末尾が指示文の最後の行と一致することを確かめた
+- 同じ Chat-Ref のコミット: `git log --all --grep="MCK-30"` は0件（#9 が閉じていて止めた前の版は、ブランチ・ログ・コミットを作っていない）
+- 指示文の issue の state: #304 は Open。#9 は Closed（2026-10-19）だがコメントの対象から外れたので当たらない
+- CLAUDE.md: `git log HEAD..origin/cloudflare -- CLAUDE.md` は0件。雛形の行の欠けなし。`XXX` の重複は対象外
+- 作業ブランチ: work/1101-mck-csp はローカル・リモートとも無く、`git checkout -b work/1101-mck-csp origin/cloudflare` で作った
+- `_headers` の CSP の `connect-src` は `'self'` だけ（止まる条件に当たらない）。CSP を検査するテスト・スクリプトは無い（`grep -rln "Content-Security-Policy\|connect-src" scripts/ .github/` は0件）
+
+### 0章ゲート: 重なりがあったので止めた
+
+触る予定のファイル（`_headers`・docs/notes/cloudflare.md・docs/decisions/security.md）を、未マージの work/ ブランチが変えているか（`git branch -r --no-merged origin/cloudflare` の各ブランチと `git diff --stat origin/cloudflare...<branch> -- <ファイル>`）:
+
+| ブランチ | 最新のコミット | 変えているもの |
+|---|---|---|
+| origin/work/1028-lgn | d09ec3189（2026-10-29、CHAT-1029-LGN-03 の報告、判断待ち） | `_headers`（+8・−1） |
+| origin/work/1029-lgn-page | a8393de27（2026-11-01 02:44 UTC） | `_headers`（+8・−1） |
+
+- 中身（どちらも同じ）: `/*` の CSP の行の末尾に改行を足し（行の中身は同じ。今はファイルの末尾に改行が無い）、その後に `/log/*` の `Permissions-Policy` の規則（位置の許可、#378・#639）を足している
+- この指示は同じ CSP の行の中身を変える。先にこちらを入れると、LGN のブランチの取り込みで `_headers` の CSP の行が衝突する（git は同じ行を両方が変えたと見る）。CLAUDE.md の取り込みの規則では、生成物・decisions・logs の追記以外の衝突は止まるので、LGN の側が止まる
+- 0章ゲート（docs/notes/branch-operations.md）の「触る予定のファイルを未マージの work/ ブランチが変えていれば、着手せず報告して止まる」に当たるため、`_headers` は変えていない
+
+### 決定の記録
+
+- docs/decisions/security.md に「2026-11-01（CHAT-1101-MCK-30）」を足した（決定と、未実施であること）。このブランチだけで、cloudflare へは入れていない
+
+## 報告
+
+- 状態: 中断（0章ゲートで止めた）
+- ブランチ: work/1101-mck-csp
+- ログ: https://github.com/retroeater/mj/blob/work/1101-mck-csp/docs/logs/CHAT-1101-MCK-30.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1101-mck-csp
+- 確認用URL: なし
+- マージ: 未（止めた。`_headers` は変えていない）
+- issue: なし（#304 にはコメントしていない）
+- 判断が必要なこと:
+  - `_headers` の重なりの扱い。案（推奨順）:
+    - (1) このまま CSP の1行を直して入れ、LGN のブランチ（work/1028-lgn・work/1029-lgn-page）の取り込みの衝突は「CSP の行は cloudflare 側、改行と `/log/*` の規則は LGN 側」で解いてよいと、LGN の次の指示文に書く（計測を急いで戻せる）
+    - (2) LGN の `_headers` の変更（`/log/*`）を先に入れてから、この1行を入れる（LGN は判断待ち・作業中で、いつ入るか分からない）
+  - どちらの案でも、この Chat-Ref はコミット（このログ）があるので、続きは新しい番号で出す（docs/notes/branch-operations.md「作業を再開するとき」。続きを受けた Code がこのログの状態に「/ 続き: …」を足す）
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 

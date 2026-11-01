@@ -46,28 +46,45 @@ LGN-14 の仮置きへの平野さんの回答を入れる。駅のタグで絞�
 
 ## 経過
 
+- 0章: 指示欄の末尾は指示文の最後の行と一致。`CHAT-1101-LGN-16` のコミット・ログなし。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）の欠けなし。「貼る時機」の前提: CHAT-1101-LGN-15 のログの状態は「判断待ち」で満たす。末尾に ` / 続き: CHAT-1101-LGN-16` を足した（8117d864c）
+- 重なりの確認: 未マージの work/ のうち `style.css`・`assets/` を変えるのは work/1017-lvp（assets/live.js・style.css の saikyo/・動画の節）。この作業は assets/log.js だけを変え、style.css は変えないので重ならない
+- 取り込み: `git merge origin/cloudflare` は衝突なし（cc2572a1f）
+- 手順1（13ed4507b）: 結果の店の下を `shop[SHOP.station]`（駅だけ。東京都の外は「船橋（千葉県）」）にした。使われなくなった `distanceLabel()`・`meters()` と、`core` の export、その検査（`meters` の2行・`distanceLabel` の検査）を消した。並びは `search()` のまま（駅のタグの駅に近い順。`hit.distance` は並びにだけ使う。検査「駅のタグは駅の候補の距離の近い順」「現在地は座標のある店だけを近い順に」は残る）。style.css・generate_log_pages.py に距離の表示の専用のものは無かった
+- 手順2（a8393de27・この報告のコミット）: docs/notes/log-page.md の駅のタグ・結果の仕様を「駅だけ」に。仮置きの一覧から、括弧が2つ続く行・駅のタグの距離の行・カードの日付と回数の行を外し、カードの日付・回数の位置と府中の出方を仕様側に「2026-11-01 の決定」として書いた。docs/decisions/operations.md に LGN-16 の節を足した
+- テスト: unittest 全件 OK、`node --test scripts/tests/js/*.test.js .github/actions/upsert-issue/test/*.test.js` → pass 36 / fail 0
+- 再生成: regenerate-page.yml を入力無しで実行（run 41266397042、a8393de27、success）。コミットは作られなかった（生成物は変わらなかった。log.js は生成物ではなく、log/index.html・search.json は変えていない）
+- 自己レビュー（新しい文脈の general-purpose、`git diff cc2572a1f..a8393de27`）: 要修正なし
+
+| 指摘 | 扱い |
+|---|---|
+| assets/log.js の `distance()` の後に空行が2行続く（消した跡） | 直した（54bbe46fa） |
+
+- プレビュー（Playwright、幅 400px。プレビューの log.js に `distanceLabel` が無いことを確かめてから）: `?station=神保町` → 65店、タグ「×神保町」。「さらに表示」を最後まで押して店の下の駅は 神保町・九段下・新御茶ノ水・御茶ノ水・小川町 の順に出て、距離（m・km）の付いた行は0。`?station=西船橋` → 1店、タグ「×西船橋（千葉県）」、店の下は「西船橋（千葉県）」。ページのエラーなし
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1029-lgn-page
 - ログ: https://github.com/retroeater/mj/blob/work/1029-lgn-page/docs/logs/CHAT-1101-LGN-16.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1029-lgn-page
-- 確認用URL: なし
-- マージ: 未
+- 確認用URL: プレビューあり（URL は最終報告）。`?station=神保町`・`?station=西船橋` を確かめた。この版の印: `?station=神保町` で九段下の店の下が「九段下」（距離なし）
+- マージ: 未（指示のとおり判断待ちで止まる）
 - issue: #639
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 判断が必要なこと:
+  - 残った仮置き（docs/notes/log-page.md「仮置きの一覧」）: カテゴリの1行は10店・最近追加された店は最初の投稿の日付・掲載回数の多い店は投稿2件以上／候補は種類ごとに3件・種類の順・種類の名前の幅 4.5em／タグは紺の丸いボタン、現在地もタグ、駅のタグを選ぶと現在地は外れる／店名の候補は店の名前と投稿の店名の両方から、投稿年は「2025年」／都道府県は駅の一覧の値、一覧に無い駅は【県】の印から／ジャンルは Claude が付ける（後の指示）／Google マップのアイコンは地図のピン 14px、出典の「(i)」はトップの右上だけ／結果は20店ずつ、写真 120×68・カード 160×90／現在地の「準備中」のボタン／打った語も `?tag=` に入れる／白地のナビで「リソース」に印／【3】で駅を直した行は【3】の駅の点・駅の候補・都道府県を使う
+  - CHAT-1101-LGN-15 の判断待ち（「×2026年」で「平野」と打ったときの候補。(a) 今のまま (b) 0店でも出す (c) 検索欄の語をタグで絞った後の投稿だけと突き合わせる）は、この指示では扱っていない
+- 未確認の項目: ブラウザ（平野さんの端末）での見え方。ヘッドレスの Chromium（幅 400px）でだけ確かめた
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj d356d1bb）: https://github.com/retroeater/mj-logs/tree/main/guide/d356d1bb
+ガイド文書（この版を写した時点の最新、mj 50dcad88）: https://github.com/retroeater/mj-logs/tree/main/guide/50dcad88
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d356d1bb/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d356d1bb/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d356d1bb/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d356d1bb/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d356d1bb/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d356d1bb/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/50dcad88/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/50dcad88/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/50dcad88/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/50dcad88/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/50dcad88/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/50dcad88/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/cc449e20.md
