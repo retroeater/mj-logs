@@ -1,6 +1,6 @@
 # 朝の報告用の異常（retroeater/mj）
 
-- 書き出した時刻: 2026-11-01 09:32 JST（見た範囲: 2026-10-31 07:32 JST から）
+- 書き出した時刻: 2026-11-01 10:07 JST（見た範囲: 2026-10-31 08:07 JST から）
 - 書き出した実行の契機: workflow_dispatch（main）
 - 異常だけを書く。全体は actions/status.md。判定は mj の scripts/morning_report.py（各ワークフローの直近 100 回まで）
 
@@ -9,6 +9,7 @@
 - 2026-11-01 03:00 run-monthly.yml failure（workflow_dispatch・cloudflare）ジョブ「redirects / fetch」 https://github.com/retroeater/mj/actions/runs/41227250544
 - 2026-11-01 04:00 run-daily.yml failure（workflow_dispatch・cloudflare）ジョブ「sns / update」 https://github.com/retroeater/mj/actions/runs/41232112701
 - 2026-11-01 08:24 run-daily.yml failure（workflow_dispatch・work/1101-wkp）ジョブ「sns / update」 https://github.com/retroeater/mj/actions/runs/41252379802
+- 2026-11-01 10:06 regenerate-page.yml queued（workflow_dispatch・work/1031-pro-sched） https://github.com/retroeater/mj/actions/runs/41259680156
 
 ## 2. 予約実行の未実行（予定から3時間以内は「遅れの可能性」。3時間を超えて始まった実行は「遅れて実行」）
 
@@ -23,8 +24,8 @@
 
 - 2026-10-31 10:18 update-graph success（dynamic・cloudflare）それ以前の cloudflare の実行 0 件に success なし https://github.com/retroeater/mj/actions/runs/41154727561
 - 2026-10-31 10:19 research-candidates.yml success（workflow_dispatch・cloudflare）それ以前の cloudflare の実行 0 件に success なし https://github.com/retroeater/mj/actions/runs/41154805538
-- 2026-10-31 23:27 check-build-failure.yml success（check_run・cloudflare）それ以前の cloudflare の実行 78 件に success なし https://github.com/retroeater/mj/actions/runs/41210216337
+- 2026-10-31 23:27 check-build-failure.yml success（check_run・cloudflare）それ以前の cloudflare の実行 77 件に success なし https://github.com/retroeater/mj/actions/runs/41210216337
 
 ## 5. 未報告のログ（`## 報告` の節が無い）
 
-なし
+- CHAT-1101-PRO-17.md（着手 2026-11-01） https://github.com/retroeater/mj-logs/blob/main/logs/CHAT-1101-PRO-17.md
