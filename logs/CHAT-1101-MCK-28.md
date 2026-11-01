@@ -107,15 +107,38 @@
 
 - docs/handover.md「現行サイトに作り込みすぎない」の節に「選手の `Person` などは新サイトで対応（#13・#219）」「新サイトの選手個別ページは #82（新サイト送り）」とある。pros.md の K15（#219 を #296 から外し、pro/ を今のサイトで作る）・PRO-05（共有ボタンを出さない）と合わない。この指示のマージの条件は「ログ・docs/decisions」だけなので直していない（判断が必要なことに書いた）
 
+### 3. #304 への返信・決定の記録・マージ
+
+- #304 へのコメント（「2026-11 実施」への追記）: https://github.com/retroeater/mj/issues/304#issuecomment-6552379459 。issue の本文・状態・ラベルは、どの issue も変えていない
+- docs/decisions/operations.md に「2026-11-01（CHAT-1101-MCK-28）」を足した
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1101-mck-inv
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1101-MCK-28.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1101-mck-inv
+- 確認用URL: なし
+- マージ: 済（84cb209f0。cloudflare へ fast-forward。ログと operations.md だけ）
+- issue: #304（着手中・(5) の追記のコメント）。候補の issue は変えていない
+- 判断が必要なこと:
+  - 確信度の高い候補: #264 を閉じる（10-29 に直し済み）。#159 を新サイト送りから外し、#641（pro/ の公開）で扱う（#296 の sub-issue から外し、#296 の本文「新サイト送りにするとき・やめるとき」の手順で「親: #296」の取り消しの追記もする）
+  - 確信度「中」の 11件（#405・#24・#13・#238・#82・#165・#96・#95・#272・#290・#325）の案（閉じる・統合・新サイト送りをやめる）をどうするか。#13・#238・#82・#24 は #641 の公開に合わせて片付ける形になる
+  - 確信度「低」の 5件と「残す」7件（本文の直し: #365 の対象ページ名、#21 の Astro の方針の確認など）を今月扱うか
+  - docs/handover.md「現行サイトに作り込みすぎない」の #13・#219・#82 の記述が pros.md の K15・PRO-05 と合わない。直すか（docs のみ。別の指示）
+- 未確認の項目:
+  - その他の 180件のうち、サブエージェントが見ていない 5件（60件中 55件と返した。どれかは不明）
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj cc449e20）: https://github.com/retroeater/mj-logs/tree/main/guide/cc449e20
+ガイド文書（この版を写した時点の最新、mj 4bb63031）: https://github.com/retroeater/mj-logs/tree/main/guide/4bb63031
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/cc449e20/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/cc449e20/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/cc449e20/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/cc449e20/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/cc449e20/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/cc449e20/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/4bb63031/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/4bb63031/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/4bb63031/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/4bb63031/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/4bb63031/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/4bb63031/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/cc449e20.md

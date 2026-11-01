@@ -270,7 +270,7 @@ PowerShell 5.1 の既定が UTF-16LE のため、日本語部分が文字化け�
 |---|---|
 | Rule name | `Throttle rapid HTML fetches (#124)` |
 | 条件式 | `(ends_with(http.request.uri.path, ".html") or ends_with(http.request.uri.path, "/")) and not cf.client.bot and not starts_with(http.request.uri.path, "/cdn-cgi/")` |
-| 数える単位（characteristics） | IP |
+| 数える単位（characteristics） | IP（API では `ip.src`・`cf.colo.id`。2026-11-01、チャット側が API で読んだ） |
 | 閾値 | 30 requests / 1 minute（2026-09-29 の導入時は 60。2026-10-02 に下げた） |
 | アクション | Managed Challenge |
 | Execution order / Status | First / Active |
@@ -283,7 +283,7 @@ PowerShell 5.1 の既定が UTF-16LE のため、日本語部分が文字化け�
 - 戻すときは Security rules の一覧でトグルを Off
 - workers.dev・プレビューはゾーンを通らないので対象外
 - 2026-10-29 に平野さんがダッシュボードの画面を見せた（申告値。セッションからは検証できない）: Rate limiting rules は2本（この行と下の `/api/ask`）。この行の条件は画面で「URI Path ends with .html or URI Path ends with /, Known Bots does not equal true and…」（「Known Bots」は `cf.client.bot` の画面の表示。以下は画面で切れている）、アクションは Managed Challenge。上の表と食い違いは無い
-- 2026-10-29 に公開の1450件を HEAD で同時4本で取ると約半数が 429（同時2本で172件、逐次は0件）になった（CHAT-1029-SEO-01）。Managed Challenge の画面とは別の応答で、原因は未確認
+- 2026-10-29 に公開の1450件を HEAD で同時4本で取ると約半数が 429（同時2本で172件、逐次は0件）になった（CHAT-1029-SEO-01）。出どころはこのルール: Security Events（2026-10-29 14:45〜15:05 JST）に 851件、すべて Service「Rate limiting rules」・Action Managed Challenge、UA `curl/8.5.0`、送信元は AS396982（Google LLC）。件数は SEO の 683＋172＝855 とほぼ一致（2026-11-01、チャット側が画面で読んだ）。Managed Challenge が HEAD に 429 で返る対応は未検証
 
 #### Rate limiting rules: `/api/ask`（2026-10-18 に導入、#598 中-1）
 
