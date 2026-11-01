@@ -84,6 +84,32 @@ PRO-12 の「判断が必要なこと」への回答を記録し、個別ペー�
 - 全ページの生成: `regenerate-page.yml`（作業ブランチ、all、run 41253842468）。帰り道の手順を含めて全部 success（13分15秒）。コミット a9767bf の変更は `pro/` の6ファイルだけ（12行の削除）: 2026-10-31 の放送（第24期プロクイーン 決定戦 最終日）の行が、日付が 11/1 に変わって今日より前になったので消えた（`data-date="2026-10-31"` の行6つ。その行しか無かった4名は面ごと消えた）。pro/ と sitemap の lastmod 以外のページの差分は0件
 - 止まる条件: どれにも当たらない（0章は通った・pro_pages の失敗で live_pages・title_pages は止まらない〈直す必要なし〉・全ページの生成の差分は説明できる・未公開・テスト・--check・check_asset_limits は通った・取り込みの衝突なし・#219 に他セッションの着手中なし）。#107 が閉じていることは、マージの止まる条件ではないので、コメントをしないで報告する。マージの前に CLAUDE.md「ブランチ運用」と docs/notes/branch-operations.md「マージするとき」「ブランチを削除するとき」を読んだ（同じセッションの PRO-10・PRO-14 で読み、内容は変わっていない）
 
+### 3. マージの直前の確かめで止まった
+
+- push の直前の再 fetch で `git merge-base --is-ancestor origin/cloudflare HEAD` が偽だった（cloudflare に CHAT-1101-WKP-05・WKP-06 が入った: 毎日・毎週の保険の予約実行を外す〈`update-live-channel.yml` などの schedule とゲートの削除〉、まとめた実行の中で拒否された push をやり直す、関係する docs）。push はしていない
+- `git merge origin/cloudflare` を試すと、生成物でない文書2つが衝突した:
+  - `docs/notes/github-actions.md` の「ワークフローの一覧」の `update-live-channel.yml` の行: こちらは「/live・title/ を作り直し」を「/live・title/・pro/（個別ページの今後の予定）を作り直し」にし、cloudflare は同じ行の保険の予約実行の記述を「2026-11-01 に外した」に書き換えた（同じ行の別の箇所）。衝突の範囲には隣の `sync-yotei.yml`・`check-image-links.yml`・`check-saikyo-unregistered.yml` の行（こちらは変えていない。cloudflare だけが変えた）も入った
+  - `docs/notes/live-channel-write.md` の「7. 毎日の取り込み」の冒頭の2行: こちらは「最後に /live・title/ を作り直す（5.）」を「/live・title/・pro/」にし、cloudflare は1行目の保険の予約実行の記述を書き換えた
+- どちらも同じ行を両方が変えた衝突で、指示の作業ブランチの行が解いてよいとした「追記どうし・隣り合う行」に当たらない。止まる条件「取り込みで、上の作業ブランチの行が解いてよいとしたもの以外の衝突が起きる」に当たるので、解かずに `git merge --abort` で戻した（作業ブランチは 275bf7f のまま。マージしていない）
+- 解き方の案（平野さんの判断）: どちらも cloudflare の行を正とし、こちらの変更（「/live・title/」→「/live・title/・pro/」、github-actions.md は「（個別ページの今後の予定）」も）だけを足す。`.github/workflows/update-live-channel.yml` は自動で合わさり、`target_page: live_pages title_pages pro_pages` は残る（cloudflare の変更は schedule とゲートの削除で、job regenerate の行には触れていない）。解いた後に、テスト・`check`・全ページの生成をやり直してからマージする
+- #107 は closed のため、コメントはしていない（「着手前の確認」）
+- 決定: docs/decisions/pros.md に1〜3つ目、docs/decisions/design-renewal.md に4つ目を足した
+
+## 報告
+
+- 状態: 中断（マージの直前の取り込みで、解いてよいとされていない文書の衝突が起きたため、マージせずに止めた）
+- ブランチ: work/1031-pro-sched
+- ログ: https://github.com/retroeater/mj/blob/work/1031-pro-sched/docs/logs/CHAT-1101-PRO-15.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1031-pro-sched
+- 確認用URL: なし（マージ前の確かめは作業ブランチの生成で行った。プレビューは PRO-12 のもの）
+- マージ: 未（止まる条件に当たった）
+- issue: #219（着手中のコメント）・#107（closed のためコメントしていない）・#641（触れていない）
+- 判断が必要なこと:
+  - 取り込みの衝突（`docs/notes/github-actions.md` の update-live-channel.yml の行、`docs/notes/live-channel-write.md` の「7.」の冒頭2行。どちらも同じ行を両方が変えた）を、上の「解き方の案」（cloudflare の行に「・pro/」を足すだけ）で解いてよいか。よければ続きの指示で、解いて確かめ直してからマージする
+  - #107 へのコメント: #107 は 2026-10-14 に closed。濃色固定のページの明暗の対応の論点を、閉じた #107 にコメントで足すか、新しい issue にするか、ほかの issue（新サイトの UI の受け皿）に足すか
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
