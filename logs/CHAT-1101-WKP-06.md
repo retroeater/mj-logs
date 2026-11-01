@@ -128,18 +128,27 @@ CHAT-1101-WKP-05 の判断待ちへの回答。止まった手順の残り（手
 
 マージの差分の種類（`git diff --stat origin/cloudflare...HEAD`）: `.github/workflows/` 12・`scripts/tests/` 1・`docs/notes/` 9・`docs/decisions/` 1・`docs/logs/` 2。docs/gsc・docs/redirect-counts の差分は 0。
 
+### マージ
+
+push の直前に再 fetch し、`origin/cloudflare`（d750c1c85）が HEAD の祖先であることを確かめた。そのうえで `git push origin work/1101-wkp:cloudflare`（d750c1c85..ef4a1ca98）でマージした。
+マージの後の ef4a1ca98 の check-run: 「Workers Builds: mj」は success、notify は skipped。Actions の「本番ビルド失敗の検知」（run 41255093465、check_run の契機）は skipped。push で起動する本（ページの再生成・サイトマップの lastmod）は paths に当たらず、起動していない。cloudflare には ef4a1ca98 の後の bot のコミットは無い（2026-11-01 00:06 UTC 時点）。本番の HTML・見え方は変えていないので、確かめていない。
+#564 に結果をコメントした（https://github.com/retroeater/mj/issues/564#issuecomment-6550912609 ）。#564 は閉じていない。
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1101-wkp
-- ログ: https://github.com/retroeater/mj/blob/work/1101-wkp/docs/logs/CHAT-1101-WKP-06.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1101-WKP-06.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1101-wkp
-- 確認用URL:
-- マージ:
-- issue:
+- 確認用URL: なし（配信物は変えていない）
+- マージ: 済（ef4a1ca98。fast-forward）
+- issue: #564（結果のコメント。閉じていない）
 - 判断が必要なこと:
+  - docs/handover.md の2か所が古い。「最終更新」の行の「週次の再生成の時刻（02:00 が主、05:37 は保険）」と、週次（#103）の項の「05:37 JST は保険の予約実行」で、どちらも保険の予約実行を 2026-11-01 に外した後の記述と合わない。この指示ではマージの差分に handover.md を入れられないので直していない。直す指示を出すか
 - 未確認の項目:
-- エラー:
+  - fetch-gsc の push の再試行のループ: 後から push する側としてはまだ動いていない（run-monthly では先に push する）。同じ形の update-live-channel・regenerate-page のループは動いている
+  - 次の run-monthly（Worker から 2026-12-01 03:00 JST）で、gsc の後の redirects の push が通るか。月次の2本の `schedule` を外すのはその成功の後（WKP-07 以降の指示）
+- エラー: なし
 
 <!-- guide-links -->
 ---

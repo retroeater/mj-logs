@@ -81,6 +81,8 @@ PRO-12 の「判断が必要なこと」への回答を記録し、個別ペー�
 - `check_asset_limits.py`: 全項目 OK
 - `regenerate-page.yml`（作業ブランチ、all、check 真、run 41253826057）: 注釈「check: 止まるページなし」
 - 未公開の確かめ（PRO-09 と同じ方法）: `pro/` の 1,099 ファイル（トップと個別ページ 1,098）すべてに `<meta name="robots" content="noindex">`。`sitemap*.xml` に `/pro/` 0件、`llms.txt` に0件。navbar.js の `/pro/` は白地のナビの判定（`location.pathname.indexOf('/pro/')`）だけでリンクではない。pro/ と docs/ 以外の HTML から `/pro/` へのリンク0件
+- 全ページの生成: `regenerate-page.yml`（作業ブランチ、all、run 41253842468）。帰り道の手順を含めて全部 success（13分15秒）。コミット a9767bf の変更は `pro/` の6ファイルだけ（12行の削除）: 2026-10-31 の放送（第24期プロクイーン 決定戦 最終日）の行が、日付が 11/1 に変わって今日より前になったので消えた（`data-date="2026-10-31"` の行6つ。その行しか無かった4名は面ごと消えた）。pro/ と sitemap の lastmod 以外のページの差分は0件
+- 止まる条件: どれにも当たらない（0章は通った・pro_pages の失敗で live_pages・title_pages は止まらない〈直す必要なし〉・全ページの生成の差分は説明できる・未公開・テスト・--check・check_asset_limits は通った・取り込みの衝突なし・#219 に他セッションの着手中なし）。#107 が閉じていることは、マージの止まる条件ではないので、コメントをしないで報告する。マージの前に CLAUDE.md「ブランチ運用」と docs/notes/branch-operations.md「マージするとき」「ブランチを削除するとき」を読んだ（同じセッションの PRO-10・PRO-14 で読み、内容は変わっていない）
 
 <!-- guide-links -->
 ---
