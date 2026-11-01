@@ -105,17 +105,60 @@ Cloudflare の公式の文書（2026-11-01 に読んだ: Static Assets の Confi
 - workers のテストは、workers/ を変えていないので回していない
 - 未マージの `work/*` の各ブランチと、触ったファイルの重なりは0件。取り込みの衝突の件数も origin/cloudflare との間と同じ（増えていない）
 
+### 5. 生成と確かめ
+
+- 新旧のコードの比べ: `regenerate-page.yml` を `all`・`dry_run`・`compare_ref: 1a24eb9c4`（この指示のコードの前）で手動実行（run 41275107904、success）。中身の違うファイル 434件の内訳: `houou/race/` 61・`ouka/race/` 20・`jwrc/race/` 19・`wrcr/race/` 7・`pro/index.html` 1・title/ の期ページ 326（gpmax 16・houou 40・joryu-nihon-series 11・judan 40・jwrc-r 7・jwrc 19・kouryu 4・masters 22・nihon-series 11・oui 37・ouka 20・ourai 12・pro-queen 23・ranwa 6・shinjinou 32・shouryu 2・tatsujin 3・teiou 5・wakajishi 12・wrc 4）。**pro/・4大会の race/・title/ のほかに差分は0件**
+- 生成: `regenerate-page.yml` を `houou_pages ouka_pages jwrc_pages wrcr_pages title_pages pro_pages` で手動実行（run 41276465494、success）→ eebdfc793（435ファイル: 上の 434件と `sitemap-title.xml` の lastmod）
+- 生成物の実データ:
+  - 順位変動の JSON の選手 17,458件のうち slug あり 13,776・X だけ 41・どちらも無し 3,641。例: 在籍者 和久津晶 → `/pro/akira.wakutsu.23/`（`ouka/race/7-0.json`）、在籍者でない 藤川まゆ → X のまま（同じファイル）
+  - title/ の写真カードのリンク: pro/ 938・X 164・期ページ（大会ページの優勝者のカード）364。例: 在籍者 優勝 夏目一花 → `/pro/ichika.natsume.38/`（`title/ourai/12.html`）、在籍者でない 2位 藤川まゆ → X（`title/shouryu/2.html`）
+  - K8: `pro/index.html` の質問欄に `data-player-pages="search.json"`。実際の `pro/search.json` で `playerHref()` を動かすと、在籍者 白鳥翔 → `/pro/sho.shiratori.23/`、在籍者でない 藤川まゆ → `/houou/players/?name=…`（答えの文を出す `/api/ask` はプレビューに無いので、カードの画面は見ていない）
+- プレビュー（版ごとの URL、464e4bafd の check-run は success）を headless Chromium で: `houou/race/` の既定の表で pro/ へのアイコン 16件（例「吉野敦志の連盟プロのページ」→ `/pro/atsushi.yoshino.26/`、同じタブ）、`ouka/race/?term=7-0` で 15件。`title/ourai/12.html` の4枚はすべて pro/ へ（同じタブ）。`/pro/sho.shiratori.23/` は 200
+- 画像の検知: `check-image-links.yml` を作業ブランチで `dry_run: true` で手動実行（run 41275111941、check・saikyo・sns_book とも success）。ジョブ check は「857件の画像URLを確認します」「確認: 857件 / 失敗: 0件」、issue は書かずに本文だけ出した（節の見出し「### 連盟プロ」）。#352 は変わっていない（最後の更新 2026-10-31）
+- テスト: `python3 -m unittest discover -s scripts/tests` 1,750件 OK。workers/ は変えていない（レビューのサブエージェントが `node --test 'workers/*/test/*.test.mjs'` も通ることを確かめた）
+- 本番（ryoei.pro）へのリクエスト: 0件
+
+### 6. 差分のレビュー（新しい文脈のサブエージェント、1回）
+
+渡したもの: 目的・決定・`git diff 1a24eb9c4 HEAD`（ログを除く）・CLAUDE.md「コード規約」。高の指摘は無し。
+
+| 指摘 | 扱い |
+|---|---|
+| `check_image_links.py` の `PRO_ROW` が生成の形に依存し、形が変わると0件で「切れなし」として常設 issue を閉じる（中） | 直した（0件なら終了コード1。テスト `test_no_images_is_failure`） |
+| `ExtractProImagesTest` の HTML が手書きで、生成の変化を拾えない（中） | 直した（`test_pro_pages.test_image_check_reads_top_rows` が `top_row()` の出力に当てる） |
+| 再生成した生成物が差分に無い（中） | 直した（上の 5. の生成・実データの確かめ） |
+| 名前の照合が完全一致。`houou/race/38-2.json` の「水口 崚」（空白あり）は pro/ の「水口崚」と合わず X のまま（低） | 意図どおり（照合を緩めず、元のシートか「別名」で直すのが筋。判断が必要なことに書いた） |
+| slug の位置 8 を3か所で持つ（低） | 直した（正を `lib/pro_search.py` の `NAME`・`SLUG` とし、`search_index()` の docstring で参照、`test_search_index_positions` で固定。JS の `PRO_SLUG` はコメントで `search_index()` を参照） |
+| `/pro/<slug>/` の形を3か所で作る（低） | 意図どおり（Python と JS で分かれる。各所のコメントで決定⑨を参照） |
+| `"search.json"` を2か所に書く（低） | 直した（`SEARCH_FILE`） |
+| `data-player-pages` と `data-players-page` の名前が紛らわしい（低） | 見送り（必須ではない。今の名前で意味は通る） |
+| `lib/pro_search.py` は索引が壊れていると例外で4大会と title/ の生成が止まる（低） | 意図どおり（自分の生成物が壊れたら止めて気づく方がよい） |
+| `check_image_links.py`・`check_sns_book_images.py` の docstring が古い（低） | 直した |
+| `docs/notes/title-pages.md` のデータの節に「X ID があれば X のリンク」が残る（低） | 直した |
+| `playerUrl()` に JS のテストが無い（低） | 見送り（三項演算子だけ。データ側の `add_pro_slugs()` にテストがある） |
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1101-prp-pub
 - ログ: https://github.com/retroeater/mj/blob/work/1101-prp-pub/docs/logs/CHAT-1101-PRP-04.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1101-prp-pub
-- 確認用URL: 作業中
-- マージ: 未（判断待ち）
-- issue: #641
-- 判断が必要なこと: 作業中
-- 未確認の項目: 作業中
+- 確認用URL: プレビューあり（URL は最終報告）。確かめたページは `houou/race/`・`ouka/race/?term=7-0`・`title/ourai/12.html`・`pro/sho.shiratori.23/`。この版で見える印: 順位変動の選手のアイコンを押すと連盟プロの個別ページへ同じタブで移る（前は X を新しいタブ）
+- マージ: 未（指示のとおり。マージが pro/ の公開になる）
+- issue: #641（着手中のコメント）
+- 判断が必要なこと:
+  - **`jpml_pros.html?name=` の 301 を作っていない（止まる条件）。** Cloudflare の文書では、サイトの Worker `mj` に `main` を足すと、`run_worker_first: ["/jpml_pros.html"]` でそのパスを先に通せるが、どの静的アセットにも当たらない要求（存在しないパス・404 になるもの全部）も Worker に渡る（「If no matching asset is found and a Worker script is present, the request will be processed by the Worker.」）。`/jpml_pros.html` だけで動かす形は無い。見込み: 静的アセットへの要求は無料のまま、Worker に渡る要求（`/jpml_pros.html` と 404 の全部）だけが Workers の要求として数えられる（Workers Paid は月1,000万件が含まれ、超えた分は100万件あたり $0.30。今の 404 の件数はダッシュボードで見る必要があり、ここからは測れない）。速さは、その要求だけに Worker の実行の分がのる。加えて、Worker が作った応答には `_headers`（CSP などのセキュリティのヘッダ）と `_redirects` が当たらないので、Worker が 404 を返す道でヘッダが抜けないかの確かめが要る。案:
+    - A. `mj` に `main` と `run_worker_first: ["/jpml_pros.html"]` を足す（上の 404 の件とヘッダの確かめが要る）
+    - B. mj-ask（`ryoei.pro/api/*` のルートだけで動く別の Worker）と同じ形で、ルート `ryoei.pro/jpml_pros.html*` だけで動く小さな Worker を別に作る（`workers/<名前>/`。サイトの `mj` は静的アセットだけのまま。Workers Builds への接続は平野さんのダッシュボードの作業。名前 → slug の表は生成で `workers/<名前>/` のデータに書く）。Code はこの案を推す
+    - C. saikyo/ の `?q=`（#627）と同じく `jpml_pros.html` に JS の移動を残す（301 ではないので決定④と違う）
+    どれにするかと、`?name=` の無い `/jpml_pros.html` の 301（`_redirects` で行うか、上の Worker で行うか）を決めてほしい。決まるまで、このブランチは公開できない（`jpml_pros.html` はサイトマップから外れ、navbar からも外れているが、ページは今のまま残っている）
+  - 順位変動の向け替えは houou/ だけでなく ouka/・jwrc/・wrcr/ の順位変動にも当たる（`league_race.js` と生成が4大会の共通の部品）。指示の手順3「pro/・houou/race/・title/ のほかに差分が出たら止まる」と止まる条件「この指示の変更で説明できない差分」が食い違うため、ルールの側（止まる条件）を優先して4大会とも変えた。よいか
+  - title/ の向け替えは、期ページの写真カード（決勝に出た全員）に当てた。優勝者だけのカードは無く、同じ並びのカードで行き先が分かれないようにした。優勝者だけにするなら直す
+  - 名前の表記の揺れ: `houou/race/38-2.json` の「水口 崚」（空白あり。pro/ は「水口崚」）は slug が付かず X のまま。照合は完全一致のままにした。「鳳凰」シートか「別名」で直すかを決めてほしい
+  - `docs/notes/static-generation.md`「ページの一覧」の pro/ の記述は、PRP-03 の判断待ちのとおり公開のマージの時点で直す
+- 未確認の項目:
+  - `jpml_pros.html` と `?name=` の6通りの状態コードと行き先（Worker を作っていないため）
+  - pro/ のトップの質問欄の答えのカード（`/api/ask` はプレビューに無い。関数は実データで確かめた）
 - エラー: なし
 
 <!-- guide-links -->
