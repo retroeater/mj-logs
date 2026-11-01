@@ -45,15 +45,78 @@
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 着手前の確認
+
+- 0: 「指示」欄の末尾が指示文の最後の行と一致することを確かめた
+- 同じ Chat-Ref のコミット: `git log --all --grep="MCK-29"` は0件。`XXX` の重複は対象外。指示文の issue は無い。雛形の行の欠けなし
+- 0章ゲート（実装を含む）: 着手前に行わず、実装の後に行った（順序の誤り）。`git branch -r --no-merged origin/cloudflare` の work/ ブランチ 10本のうち、触るファイル（scripts/lib/sns_book.py・scripts/update_sns_book.py・scripts/tests/test_sns_book.py）を変えているのはこのブランチだけ（各ブランチと `git diff --stat origin/cloudflare...<branch> -- <ファイル>`）。指示文に issue は無く、handover・CLAUDE.md のサイズは変えない
+- CLAUDE.md: `git log HEAD..origin/cloudflare -- CLAUDE.md` は0件
+- 作業ブランチ: work/1101-mck-snsdup はローカル・リモートとも無く、`git checkout -b work/1101-mck-snsdup origin/cloudflare` で作った
+
+### 1. 出どころ
+
+`grep -rn "名前が重複" scripts/ .github/` の結果は3つ:
+
+| 場所 | 中身 | 扱い |
+|---|---|---|
+| scripts/lib/sns_book.py `source_rows()` | 「「プロ」「連盟プロ以外」で名前が重複しています: [名前]」。update_sns_book.py の `load_sources()` から呼ばれ、`main()` が「- 止めました: …」で出す。**止まったのはこれ** | 直した |
+| scripts/lib/sns_book.py `inputs_by_name()` | 「【2】で名前が重複しています: 名前」（SNS ブックの【2】の中の重複） | 直していない。タブは【2】の1つで、行番号が無いだけ |
+| scripts/lib/sns.py 59行目 | 「SNS ブックの【2】ID で名前が重複しています: 名前」（ページの生成が【2】を読むとき） | 直していない。同じく【2】の1つ |
+
+- テスト: scripts/tests/test_sns_book.py の `SourceRowsTest.test_duplicate_names_stop`（止まることだけ）があった
+
+### 2. 直し方
+
+- 読み込みの戻り値: `pro_sheet.fetch_pros()` は「表示」が Y の行だけ、`fetch_records()`（中の `_select()`）は完全に空の行を除いて返すので、並びの位置はシートの行番号にならない。**戻り値の形は変えず**、重複で止めるときだけ `sheets.fetch_csv()`（values.get の結果をそのまま返す。途中の空の行も `[]` で残る）で2つのタブの全行を読み、行番号（見出しが1行目）を数える。`_values()` は `lru_cache` 付きなので、直前の読み込みと同じ時点の値を使い、API は呼ばない（レビューで確かめた）
+- `source_rows()` は重複の名前を持つ `DuplicateNamesError`（`SnsBookError` の子）を投げる。`update_sns_book.duplicate_message()` が全行から `sb.numbered_names()` で（タブ, 行番号, 名前）を拾い、`sb.duplicate_rows_message()` で文にする
+- 見出しは既存の関数で引く（「プロ」は `pro_sheet.column_indexes()`〈セル内改行、#467〉、「連盟プロ以外」は `sheets.header_indexes()`）。見つからなければ、行番号なしの元の文に「(行番号は出せない: …)」を足す
+- 「プロ」は、重複の判定と同じく「表示」が Y の行だけを挙げる
+- メッセージの例（テストの値）: 「名前が重複しています: 乙（連盟プロ以外 2行目・連盟プロ以外 4行目）」、タブをまたぐと「甲（プロ 2行目・連盟プロ以外 3行目）」。冒頭の「「プロ」「連盟プロ以外」で」は、タブをまたいだと読めた原因なので外した
+- 止める条件（重複があれば止める）・書き込みの動きは変えていない
+- コミット: a453953e1（本体）・aa7107344（1回目のレビューの直し）・e8544b1dd（2回目のレビューの直し）
+
+### 3. 検証
+
+- 修正前のコードで新しいテストが通らないこと: scratchpad に scripts/ を写し、sns_book.py・update_sns_book.py を origin/cloudflare の版に戻して `python3 -m unittest scripts/tests/test_sns_book.py` → `FAILED (errors=9)`（最初の版のテストでは errors=6）
+- 修正後: `python3 -m unittest scripts/tests/test_sns_book.py` → `Ran 53 tests … OK`。`python3 -m unittest discover -s scripts/tests` → `Ran 1729 tests … OK`
+- 足したテスト: 同じタブ内の重複（途中の空の行を数える）・タブをまたぐ重複・重複なし（読み直さない）・見つからない名前・「表示」が Y でない行を除く・「プロ」の見出しのセル内改行・見出しが見つからないとき（「連盟プロ以外」・「プロ」の「表示」）
+
+### 4. 自己レビュー（docs/notes/self-review.md）
+
+1回目（新しい文脈のサブエージェントに目的・決定・差分・コード規約を渡した。must-fix 0）:
+
+| 指摘 | 扱い |
+|---|---|
+| 名前の列を完全一致で探していて、「プロ」の見出しのセル内改行（#467）で黙って飛ばされる | 直した（aa7107344。`pro_sheet.column_indexes()`・`sheets.header_indexes()` を使い、見つからなければ元の文に戻す） |
+| 「プロ」で「表示」が Y でない同名の行も挙げ、「プロ」の中の重複と誤読される | 直した（aa7107344。Y の行だけ） |
+| テストが上の2つを拾えていない | 直した（aa7107344。テストを足した） |
+| コメントの「全行を読み直す」は実際はキャッシュから読む | 意図どおり（API の呼び方はキャッシュ次第で、関数の意味としては全行を読む） |
+| `OTHER_HEADERS[0]` と `sb.COL_NAME` などが同じ値を別の定数から取る | 意図どおり（読む側〈update_sns_book〉は名簿の定数、書く側〈sns_book〉は SNS ブックの定数を使う既存の分け方に合わせた） |
+
+2回目（1回目の後の差分だけ。must-fix 0）:
+
+| 指摘 | 扱い |
+|---|---|
+| 「プロ」側の見出しの照合の失敗の戻り方のテストが無い | 直した（e8544b1dd） |
+| `fetch_csv()` が try の外で、読み直しの失敗では元の文が失われる | 意図どおり（止まることは変わらず、`_values()` のキャッシュから読むので失敗はまず起きない） |
+| `numbered_names()` の既定値 "Y" が `pro_sheet.SHOW_YES` と二重 | 直した（e8544b1dd。列と値を1つの引数で渡す） |
+| 新しい docstring の「タブ」は用語の規約（シート）に反する | 意図どおり（ファイルの既存の文が「タブ」で一貫しており、`COL_SHEET`〈「シート」の列〉と紛れるため） |
+
+### 5. 決定の記録・マージ
+
+- docs/decisions/operations.md に「2026-11-01（CHAT-1101-MCK-29）」を足した
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 4bb63031）: https://github.com/retroeater/mj-logs/tree/main/guide/4bb63031
+ガイド文書（この版を写した時点の最新、mj 120c7af8）: https://github.com/retroeater/mj-logs/tree/main/guide/120c7af8
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/4bb63031/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/4bb63031/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/4bb63031/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/4bb63031/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/4bb63031/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/4bb63031/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/120c7af8/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/120c7af8/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/120c7af8/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/120c7af8/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/120c7af8/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/120c7af8/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/cc449e20.md
