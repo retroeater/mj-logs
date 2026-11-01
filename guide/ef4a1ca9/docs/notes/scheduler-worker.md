@@ -32,7 +32,7 @@ GitHub Actions の予約実行（`schedule`）は予定より2時間半〜5時�
 2. **起動の失敗**: API が 2xx 以外を返したら（つながらなかったときも）、その場で #506 にコメントする
 3. **朝の確かめ（#504 の「層1」）**: 06:00 JST の回（時刻どおりの回だけ）に、当日の有効な行のうち予定が 06:00 より前のものごとに、当日（JST）に作られた実行の一覧を引く（`created>=<当日 0 時>`）。
    すべて success なら何もしない。それ以外は #506 に1件コメントする。実行の一覧は `event=workflow_dispatch` で絞る（push の実行が1日に100件を超えるワークフローでは、絞らないと1ページ目に予約の起動が載らない）。
-   `head_branch` では絞らないので、作業ブランチで `scheduled` を付けた試験の成功も当日の success に数える。**直さない（2026-10-08 の決定）**: 困るのは JST 0:00〜06:00 に作業ブランチで `scheduled` を付けて試験した日だけで、日中の試験はその日の 06:00 の確かめの後になり、翌日の分にも数えない。保険のゲート（下）は `head_branch` で絞るので影響を受けない
+   `head_branch` では絞らないので、作業ブランチで `scheduled` を付けた試験の成功も当日の success に数える。**直さない（2026-10-08 の決定）**: 困るのは JST 0:00〜06:00 に作業ブランチで `scheduled` を付けて試験した日だけで、日中の試験はその日の 06:00 の確かめの後になり、翌日の分にも数えない
    **06:15・06:30 の回で書き直す（2026-10-14 から）**: 06:00 の回が抜けた日のため、`GET /issues/506/comments?since=<当日 0 時>` を1回引き、「<日付> の朝の予約実行」で始まるコメント（書き手が `retroeater`〈Worker のトークンの持ち主〉か `github-actions[bot]` のもの。`TRUSTED_COMMENTERS`、CHAT-1018-SEC-04）が無ければ同じ確かめを行う（すべて success なら書かない。REST は1日 最大 2×〈1+行の数〉回）
 4. **mj-logs の同期（#298）**: 毎回 `GET /repos/retroeater/mj` の `pushed_at` を読み、この回の予定時刻から6分以内なら（2026-10-21 に3分から広げた。配備し直しの後に起動しない回の取りこぼしに備える、#298）、mj-logs の `sync-from-mj.yml` を `workflow_dispatch`（ref `main`、inputs なし）で起動する（`dispatchSync()`、行き先は `scheduler.mjs` の定数 `SYNC`）。
    1回の push で後の5〜6回が起動するが、mj-logs 側は concurrency で1本ずつ動き、写すものが無ければコミットしない。失敗は `console.error` に書くだけで #506 には書かない（毎分の回で通知が増えるため）。朝の確かめの対象にも入れない。毎朝の運行の後の書き直しは、Worker ではなく run-daily.yml の最後のジョブ `logs` が同じ起動を行う（#563、`docs/notes/github-actions.md`「run-daily.yml」）。
@@ -54,18 +54,8 @@ run-name: ${{ inputs.scheduled && '[scheduled] <ワークフローの name>' || 
 
 ## 保険の予約実行のゲート（update-live-channel）
 
-`update-live-channel.yml` は書き込みが重いので、保険の予約実行（`schedule`、06:43 JST）にゲートを置く（#504 の段階2の後の回）。
-ジョブ `update` のステップ「実行するかどうかを決める」が、当日（JST の 0 時以降）の実行の一覧を
-`GET /actions/workflows/<ファイル>/runs?event=workflow_dispatch&branch=cloudflare&created>=…` で引き、`head_branch` が `cloudflare`・題が `[scheduled]` で始まる実行のうち、次のどちらかを探す（権限はジョブの `actions: read`）:
-(1) `update-live-channel.yml` の `conclusion` が `success` の実行（2026-10-15 までの本ごとの起動の形）、
-(2) `run-daily.yml` の実行で、ジョブ `live / update` の `conclusion` が `success` のもの（`/actions/runs/<id>/jobs?filter=latest`。2026-10-16 から。run-daily 全体の結論は見ない、#564）。
-
-- 見つかり、この実行が `schedule` なら、何もせずに終わる（`run=false`。サマリに「当日の予約の起動（run #…）が成功済みのため、保険の実行は何もしません」）
-- 見つからない（Worker の起動が無い・失敗・実行中）なら、いつもどおり実行する
-- 一覧を引けない（API の失敗・応答が読めない）なら、止めずに実行する（サマリに「当日の予約の起動を確かめられなかったため、止めずに実行します」）
-- Worker の起動・手動実行は止めない（ログに見つかった run 番号か「なし」を出すだけ）
-- ジョブのログの行「当日の予約の起動の成功: run #<番号>／run-daily の実行 <ID> のジョブ live / update／なし／引けず」で結果を読む
-- `SCHEDULE_ENABLED` が `'false'` なら、ゲートより先に `schedule`・`scheduled` とも止まる（今までどおり）
+**2026-11-01 に外した（#564 の段④、CHAT-1101-WKP-05）。** update-live-channel の保険の予約実行（`schedule`、06:43 JST）と一緒に、当日の予約の起動が成功済みなら保険の実行を止めるゲート（ジョブ `update` のステップ「実行するかどうかを決める」の API の照会と、そのための `actions: read`）を消した。
+毎日・週次の本の保険の `schedule` も同時に外したので、Worker からの起動が抜けた日は、埋め合わせ（上の「動き」の 1.「起動」）と朝の確かめ（同じく 3.）の #506 の通知で気づいて手で動かす。月次の2本（fetch-gsc・fetch-redirect-counts）の `schedule` は 2026-12-01 の run-monthly の成功まで残す。
 
 ## 起動の表の直し方
 
@@ -156,7 +146,7 @@ Worker が書く行は1行1 JSON で、`event` の鍵で種類を分ける（202
 
 ## 未確認（2026-10-09 の時点）
 
-- Worker の実行と保険の予約実行が重なったときに、concurrency（組 `update-live-channel`）で保険の実行が待たされる動き（2026-10-09 時点で重なった日は無い。10/9 は Worker の実行が 04:05 に終わり、保険は 10:28）
+- Worker の実行と保険の予約実行が重なったときに、concurrency（組 `update-live-channel`）で保険の実行が待たされる動き（2026-10-09 時点で重なった日は無い。10/9 は Worker の実行が 04:05 に終わり、保険は 10:28）。2026-11-01 に保険の予約実行を外したので、確かめない
 
 ## 作業ブランチの push でサイトの `mj` のプレビューがビルドされる件（2026-10-12 に原因が分かり、受け入れた）
 

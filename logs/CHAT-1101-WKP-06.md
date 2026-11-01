@@ -104,6 +104,30 @@ CHAT-1101-WKP-05 の判断待ちへの回答。止まった手順の残り（手
 - 戻した後の `python3 -m unittest discover -s scripts/tests` 成功、`node --test 'workers/scheduler/test/*.test.mjs'` 47 件成功
 - 取り込みの後の run-daily の手動実行はしていない（取り込んだ cloudflare 側に `.github/` の変更が無く、WKP-05 の a7370d27c での実行〈41252379802〉から run-daily の道筋は変わっていないため）
 
+### 自己レビュー（docs/notes/self-review.md、1回）
+
+新しい文脈のサブエージェント（general-purpose）に、目的・決定・`git diff origin/cloudflare...HEAD -- .github scripts docs/notes`・コード規約を渡した。ブロッキングの指摘は無し。
+
+| 指摘 | 扱い |
+|---|---|
+| 呼び出しの木に、再試行なしで拒否される push は残っていない（run-daily・run-weekly・run-monthly の入れ子までたどった） | 意図どおり |
+| fetch-gsc のループは、後から push する側としては試されていない（run-monthly では先に push する） | 意図どおり（同じ形の update-live-channel・regenerate-page のループは動いている。`## 報告` の未確認に書いた） |
+| cleanup-logs.yml のコメント「run-weekly の後の fetch-youtube」は誤り（fetch-youtube は logs の後に動く） | 直した（c9a0f0e6d） |
+| fetch-gsc.yml のコメント「日付のフォルダの追加だけ」は、README の履歴の行も足す | 直した（c9a0f0e6d） |
+| fetch-youtube.yml の「GitHub の schedule は保険。」が残っている | 直した（c9a0f0e6d） |
+| `github.event_name == 'schedule'` の判定・コメントが各本に残る（動かないだけ） | 意図どおり（変更行を増やさない。WKP-05 のログに書いた） |
+| 403 の注記の原因の見立てと直しは正しい。ほかに `::warning::` などを標準出力に出すテストは無い（1685 件の stdout・stderr を grep） | 意図どおり |
+| scheduler-worker.md の新しい節の参照「上の「起動の判定」」の見出しが無い | 直した（c9a0f0e6d。「動き」の 1.・3. にした） |
+| github-actions.md の regenerate-page の行・本文の「毎週月曜05:37 JST の `all`」が古い。fetch-youtube の行の「2026-10-16 に移した」の位置が紛らわしい。sync-birthday-calendar の「週次の schedule（05:17）」が古い | 直した（c9a0f0e6d） |
+| 差分の外の docs/notes の古い記述（保険の予約実行・ゲートが今もある前提）: live-channel-write・live-page-design・dojo-guest-calendar・birthday-calendar・branch-operations・saikyo-page-design・video-wayhome・scheduler-worker の未確認の項・同 35 行の「保険のゲート（下）」 | 直した（60ad8ef25・c9a0f0e6d。成果物と別のコミット） |
+| docs/handover.md の 13 行・80 行「05:37 は保険」 | 見送り（handover.md はこの指示のマージの差分に入れてよい種類に無い。`## 報告` の判断が必要なことに書いた） |
+| books-freeze.md・books-calendar.md・scheduler-worker.md の 10/9 の記録の 05:37・05:17・06:43 | 意図どおり（過去の記録・止めたワークフローの記述） |
+| セキュリティ（権限は `actions: read` を2か所減らしただけ、`run:` への `${{ }}` の直接展開は増えていない） | 意図どおり |
+
+2回目の往復はしていない（直したのはコメントと docs だけで、ワークフローの動きは変えていないため）。直した後の `python3 -m unittest discover -s scripts/tests` 成功、変えた3本の YAML を `yaml.safe_load` で読めた。
+
+マージの差分の種類（`git diff --stat origin/cloudflare...HEAD`）: `.github/workflows/` 12・`scripts/tests/` 1・`docs/notes/` 9・`docs/decisions/` 1・`docs/logs/` 2。docs/gsc・docs/redirect-counts の差分は 0。
+
 ## 報告
 
 - 状態: 作業中
@@ -120,12 +144,12 @@ CHAT-1101-WKP-05 の判断待ちへの回答。止まった手順の残り（手
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj d750c1c8）: https://github.com/retroeater/mj-logs/tree/main/guide/d750c1c8
+ガイド文書（この版を写した時点の最新、mj ef4a1ca9）: https://github.com/retroeater/mj-logs/tree/main/guide/ef4a1ca9
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d750c1c8/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d750c1c8/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d750c1c8/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d750c1c8/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d750c1c8/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d750c1c8/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ef4a1ca9/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ef4a1ca9/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ef4a1ca9/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ef4a1ca9/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ef4a1ca9/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/ef4a1ca9/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/7aaff304.md
