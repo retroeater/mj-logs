@@ -480,17 +480,23 @@ Workers静的アセットにはオリジンサーバーが存在しないため�
 /  /index.html  200
 ```
 
-**canonicalは原則付けない。** **#113で「現行サイトには
-canonicalを付けない（Googleの正規化に任せる）」と決定した（2026-09-11）。**
-単純に付けるとSearch Console実測の`?name=`付き14URL（`docs/notes/site-findings.md` のSEO節）が
-正規化で検索結果から消えるため。選手個別ページと
-title/descriptionの出し分けは新サイト（#296）で解く（#79も同時にクローズ）。
-**自分自身を指す canonical を持つのは、2026-10-29 の集計で `title/`（全384件）・`saikyo/`（全891件）・`wayhome/`（各話と一覧の44件）・`mtsuku/` の各話（61件）・`exam/` の各話（12件）。**
-ほか（トップ階層・houou/・ouka/・jwrc/・wrcr/・mtsuku/ と exam/ の一覧）には無い。帰り道の各話（#162）と一覧（2026-10-13）は下の基準で付けたもの。
-title/・saikyo/ の分（クエリで中身が変わるページを含む。`saikyo/players/` は外すと決めた、#638）が基準に当たるかは #560 で見直し中。
-例外の基準は「URL の別形（`?name=` などのクエリで中身が変わる URL）を持たず、Search Console にも `?` 付きの URL が
-出ていないページ」。値は`lib/page.py`の`PageMeta.canonical`（既定`None`）で渡し、html_handling の影響を受けない
-正規の URL（一覧は末尾スラッシュ付きの`https://ryoei.pro/wayhome/`）にする。基準に当てはまるほかのページは、ページごとに確かめてから付ける。
+**canonical の基準（2026-10-31、#560。#113 の 2026-10-13 の例外の基準を置き換えた）:
+クエリがページの主題（選手など）を選ぶページには付けない。クエリが同じ主題の表示の絞り込み・切り替え（`?q=` の絞り込み、
+`?year=`・`?all=1`・`?view=` などの表示の切り替え）だけなら、自分自身を指す canonical を付ける。**
+主な判定はページの JS が受けるクエリ（何を選ぶか）で、Search Console の `?` 付きの着地は裏づけにだけ使う
+（遅行の指標なので「出ていない」を付ける根拠にしない）。もとの #113（2026-09-11）の「付けない」は、`?name=` で選手を選ぶページの
+検索流入を正規化で失わないための判断で、新しい基準の「付けない」側に引き継いでいる。
+
+- **付けないページ:** トップ階層（`jpml_pros.html` など。`?name=` などの着地がある。PRO 系列の作業に任せる）・各大会と saikyo/ の
+  個人成績 `players/`（`?name=` で選手を選ぶ。#638。選手個別ページ pro/〈#219〉と `?name=` からの 301 ができるまでの暫定）・
+  `saikyo/vs/`（`?name=A,B` で選手の組を選ぶ）・`title/` の入口（旧 `jpml_titles.html?name=` が 301 で着き、選手の検索結果になる。
+  #485 で受け取りをやめたら自分自身を戻す）・noindex のページ（`live/`・`pro/`・`study/` と `books/` の一覧・各大会の `leagues/`。公開のときに決める）
+- **付けているページ（2026-11-01 の生成の後で 1,664件: title/ 383・saikyo/ 889・houou/ 11・jwrc/ 11・wrcr/ 11・ouka/ 10・mtsuku/ 62・wayhome/ 44・exam/ 13・noindex の books/ 190・study/ 40）:** 表示の絞り込み・切り替えだけか、クエリを読まないページ。houou/・ouka/・jwrc/・wrcr/ のトップ・
+  `ranking/<部門>/`（`?name=` は表の行の印、`?division=` はその部門のページへ移すだけ）・`race/`（`?term=`・`?league=`）、
+  saikyo/ のトップ（`?q=` は個人成績へ移すだけ）・`ranking/`・`years/`・年度・対局・卓、title/ の大会・期（`?q=`・`?name=` の検索欄）、
+  wayhome/・mtsuku/（一覧の `?name=` は絞り込み）・exam/ の一覧と各話。noindex の study/・books/ の個別ページにも付いている
+- 値は `lib/page.py` の `PageMeta.canonical`（既定 `None`）で渡し、og:url と同じ、html_handling の影響を受けない正規の URL
+  （ディレクトリは末尾スラッシュ付き）にする。ページの種類ごとの受けるクエリと判定の表は #560 のコメント（2026-11-01）。`index.html` 付きの別名（`/houou/index.html` など）は 200 で、canonical のあるページはそれでまとまる
 
 `_headers` はセキュリティヘッダ5件に加えて、
 キャッシュ制御を持つ（#92）。

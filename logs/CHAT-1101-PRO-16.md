@@ -69,15 +69,39 @@ PRO-13 の同期の規則の直し（未定の日だけを飛ばして残りを�
 - テスト: `python3 -m unittest discover -s scripts/tests` → OK。`UndeterminedTest` の8件も ok。11月分の21件のテスト（`test_11月分は未定の3日を飛ばして18件を足す`）は「読み取り 21件 / 未定で飛ばした日 3件 / 照合できない名前 0件 / 既にある予定 0件 / 追加 18件」の行と、未定の日 2026-11-03・2026-11-05・2026-11-19 をそのまま確かめていて、通った
 - 止まる条件: どれにも当たらない。マージの前に CLAUDE.md「ブランチ運用」と docs/notes/branch-operations.md「マージするとき」「ブランチを削除するとき」を読んだ（同じセッションの PRO-10・PRO-14 で読み、内容は変わっていない）
 
+### マージ
+
+- push の直前に再 fetch し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真。`git push origin work/1031-pro-dojo:cloudflare`: `01bf0db45..ed58232fb  work/1031-pro-dojo -> cloudflare`
+- push で動いたワークフロー（ed58232、check-runs と Actions の runs）: Workers Builds: mj 成功・公開対象の検査（check）成功・本番ビルド失敗の検知は skipped（ビルドが成功したので動かない）。再生成は動かない（変えたのは `sync_dojo_calendar.py`〈`generate_*.py` でも `lib/` でもない〉・テスト・docs）。失敗なし
+- 次の毎朝の同期: WKP-06 の後は cron が無く、Worker `mj-scheduler` が 04:00 JST に `run-daily.yml` を起動し、その job `dojo` が `sync-dojo-calendar.yml` を呼ぶ（保険の予約実行〈07:12 JST〉は 2026-11-01 に外された）。新しい規則での初回は **2026-11-02 04:00 JST の run-daily の dojo / sync**（11月の画像が変わっていなければ「何もしません」で終わる見込み）
+- #390 にコメントした（issuecomment-6551178980）
+- 作業ブランチの片付け: `git branch -r --merged origin/cloudflare` に `origin/work/1031-pro-dojo` が入る。セッションの git プロキシはブランチの削除を拒否するので消さない（docs/notes/cloud-sessions.md「ブランチの削除」）。マージ済みの work/ は `cleanup-branches.yml` が消す。記録: `work/1031-pro-dojo`・ed58232fb（マージ時の先頭）・マージ済み。この後のログのコミットは cloudflare へも追いの push をする
+- 決定: docs/decisions/dojo-guest.md に PRO-16 の節を足した
+
+## 報告
+
+- 状態: 判断待ち（規則の直しは cloudflare へマージした。11月分のカレンダーへの書き込みは平野さんの手動実行を待つ）
+- ブランチ: work/1031-pro-dojo（マージ済み。削除は cleanup-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1101-PRO-16.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1031-pro-dojo
+- 確認用URL: なし（ページは変えていない）
+- マージ: 済（ed58232fb）
+- issue: #390（マージのコメント）・#426（コメントなし）
+- 判断が必要なこと:
+  - 11月分の書き込み（平野さんの手動実行。Windows のブラウザで）: (1) https://github.com/retroeater/mj/actions/workflows/sync-dojo-calendar.yml を開く (2)「Run workflow」→ ブランチは cloudflare、入力は空のまま、「カレンダーに書き込む」に**チェックを入れて**実行する（11月は今日の当月で最も新しい月なので、画像の URL・対象の月は要らない。11月はまだ書き込んでいない月なので、入力なしでも初回の追加をする）(3) 結果（#426 のコメントと実行の Summary）が「読み取り 21件 / 未定で飛ばした日 3件 / 照合できない名前 0件 / 既にある予定 0件 / 追加 18件」と「### 未定で飛ばした日」に 11/03・11/05・11/19 の「Coming soon」、末尾に「書き込みました: 追加 18件」であることを確かめる。Claude API は呼ばない（保存した読み取り結果を使う）。数が違えば書き込まれた後なので、その時点の #426 のコメントを Claude Code に渡す
+- 未確認の項目:
+  - 新しい規則での毎朝の同期の初回: 2026-11-02 04:00 JST の run-daily（job dojo / sync）。11月の画像が変わっていなければ「何もしません」で成功する見込み（チャット側が翌朝に確かめる）
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj ed58232f）: https://github.com/retroeater/mj-logs/tree/main/guide/ed58232f
+ガイド文書（この版を写した時点の最新、mj 76a77c04）: https://github.com/retroeater/mj-logs/tree/main/guide/76a77c04
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ed58232f/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ed58232f/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ed58232f/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ed58232f/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ed58232f/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/ed58232f/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/76a77c04/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/76a77c04/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/76a77c04/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/76a77c04/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/76a77c04/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/76a77c04/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/7aaff304.md
