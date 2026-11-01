@@ -54,15 +54,66 @@ CHAT-1101-MCK-31 の「判断が必要なこと」のうち2つを片付ける�
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 着手前の確認
+
+- 0: 「指示」欄の末尾が指示文の最後の行と一致することを確かめた。CHAT-1101-MCK-31 の状態は「判断待ち」
+- 同じ Chat-Ref のコミット: `git log --all --grep="MCK-34"` は0件。`XXX` の重複は対象外。0章ゲートは実装を含まないため対象外。雛形の行の欠けなし。CLAUDE.md の変更は0件。指示文の issue: #357・#298 は Open
+- 作業ブランチ: work/1101-mck-357c はローカル・リモートとも無く、`git checkout -b work/1101-mck-357c origin/cloudflare` で作った
+- #357 の着手中: https://github.com/retroeater/mj/issues/357#issuecomment-6553464432
+- 開始時の dry-run: 自動の削除の対象 203件・通知 26件。HOU の連鎖のうち自動の削除の対象に入っているのは CHAT-1015-HOU-49 だけ（前からのもの。HOU-48・60〜64 は通知の側）
+
+### 1. 連鎖の切り方
+
+- 各ログの状態（`## 報告` の最後）: HOU-48「… / 続き: CHAT-1016-HOU-60」、HOU-60「… / 続き: CHAT-1016-HOU-61」、HOU-61「… / 続き: CHAT-1016-HOU-62」、HOU-62「… / 続き: CHAT-1016-HOU-63」、HOU-63「判断待ち（公開のマージをしてよいか・投稿文の案） / 続き: CHAT-1016-HOU-64」、HOU-64「判断待ち（X の告知の準備ができた。投稿は平野さん）」
+- `cleanup_logs.py` の続きの読み方（`CONTINUATION_RE`）: `/`・`／`・`→`・`（`・`(` の後の「続き:」（全角の「：」も可）＋ Chat-Ref だけを続きと読む。docs/notes/branch-operations.md「作業ログの寿命」も「文中の「続きは CHAT-…」は読まない」としている
+- 選んだ切り方: **HOU-62 の状態の「 / 続き: CHAT-1016-HOU-63」を「。続きは CHAT-1016-HOU-63（…連鎖から外した。CHAT-1101-MCK-34）」に直す**（1行。続き先の情報は残る）。これで HOU-62 は「判断待ち（続きなし）」と読まれ、HOU-48→60→61→62 は通知に残る。HOU-63・64 は連鎖から外れる
+- 「過去の作業ログを直す」（訂正の段落を足す決まり）は、ログの記述の誤りを直すときのもの。今回は誤りの訂正ではなく、片付けのための状態の書き方の変更なので当たらないとし、理由を同じ行の括弧に書いた
+- HOU-63 の論点（公開のマージをしてよいか・投稿文の案）は、続き HOU-64 でマージ済み（houou/ は公開、#540 は Closed）。HOU-64 の論点は MCK-31 で #304 に移し済み（https://github.com/retroeater/mj/issues/304#issuecomment-6552982536 ）。どちらも削除した（c04c2c23f）
+
+### 2. 直した後の dry-run
+
+- 自動の削除の対象: 203件 → 203件（増減なし）
+- 通知: 26件 → 24件（HOU-63・HOU-64 が消えた）
+- **HOU-48・HOU-60・HOU-61・HOU-62 は4件とも自動の削除の対象に入っていない**（通知の側）。止まる条件に当たらない
+
+### 3. BIL-02 の Secret
+
+- `gh api repos/retroeater/mj/actions/secrets` は、セッションのプロキシが `HTTP 403`（「Access to this GitHub Actions path is not permitted through this proxy」）で拒んだ。**Secret `MJ_LOGS_TOKEN` があるかは確かめられなかった**（GitHub MCP にも Secret の一覧の道具は無い）
+- 参考: `git grep MJ_LOGS_TOKEN origin/cloudflare -- .github scripts workers` は0件（使っている所は無い）
+- 指示の手順3の分かれ（無ければ #298 に移す・あれば判断が必要なことに書く）のどちらにも決められないので、BIL-02 は動かしていない（丙のまま）
+
+### 4. 決定・マージ
+
+- docs/decisions/operations.md に「2026-11-01（CHAT-1101-MCK-34）」を足した
+- CHAT-1101-MCK-31 のログの状態に「 / 続き: CHAT-1101-MCK-34」を足した
+- マージ: 直前に `git merge-base --is-ancestor origin/cloudflare HEAD` が真、差分は docs/logs（HOU-62 の1行・HOU-63・64 の削除・MCK-31 の1行・このログ）と operations.md だけ。最終の dry-run でも自動の削除の対象は開始時と同じ 203件。`git push origin work/1101-mck-357c:cloudflare` で 75711aec7..c9d3fb5f6
+- #357 へのコメント: https://github.com/retroeater/mj/issues/357#issuecomment-6553479455
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1101-mck-357c
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1101-MCK-34.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1101-mck-357c
+- 確認用URL: なし
+- マージ: 済（c9d3fb5f6。cloudflare へ fast-forward）
+- issue: #357（着手中・結果のコメント）
+- 判断が必要なこと:
+  - CHAT-1021-BIL-02: Secret `MJ_LOGS_TOKEN` の有無はセッションから確かめられなかった（プロキシが Actions の Secret の API を拒む）。平野さんが GitHub の Settings → Secrets and variables → Actions で `MJ_LOGS_TOKEN` が無いこと、Settings → Developer settings → Personal access tokens で `mj-logs-sync` が無いことを確かめれば、BIL-02 は削除してよい（コードの参照は0件）
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj ffb0f3ac）: https://github.com/retroeater/mj-logs/tree/main/guide/ffb0f3ac
+ガイド文書（この版を写した時点の最新、mj f1d4a0a0）: https://github.com/retroeater/mj-logs/tree/main/guide/f1d4a0a0
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ffb0f3ac/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ffb0f3ac/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ffb0f3ac/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ffb0f3ac/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ffb0f3ac/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/ffb0f3ac/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f1d4a0a0/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f1d4a0a0/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f1d4a0a0/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f1d4a0a0/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f1d4a0a0/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f1d4a0a0/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/bdc234c5.md
