@@ -1,7 +1,7 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-11-02 07:25 JST
-- 書き出した実行の契機: schedule（main）
+- 書き出した時刻: 2026-11-02 07:53 JST
+- 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
 
@@ -196,11 +196,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-02 07:44 | workflow_dispatch | cloudflare | in_progress | #569（41358665936） |  |
 | 2026-11-01 16:57 | workflow_dispatch | work/1101-prp-pub | success | #568（41286842756） | 1分07秒 |
 | 2026-11-01 14:19 | workflow_dispatch | work/1101-prp-pub | success | #567（41276465494） | 3分16秒 |
 | 2026-11-01 13:58 | workflow_dispatch | work/1101-prp-pub | success | #566（41275107904） | 20分00秒 |
 | 2026-11-01 13:16 | workflow_dispatch | work/1101-prp-pub | success | #565（41272458751） | 1分14秒 |
-| 2026-11-01 12:56 | workflow_dispatch | work/1101-prp-pub | success | #564（41271108182） | 19分32秒 |
 
 ## regenerate-saikyo.yml
 
@@ -373,6 +373,7 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-02 07:27 | dynamic | cloudflare | success | #3（41357221104） | 0分51秒 |
 | 2026-10-18 22:25 | dynamic | cloudflare | success | #2（39131446560） | 0分37秒 |
 | 2026-10-18 21:39 | dynamic | cloudflare | success | #1（39128208449） | 1分08秒 |
 
