@@ -52,15 +52,44 @@ PRO-15 は、マージの直前の取り込みで文書2か所が衝突して止
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 着手前の確認
+
+- 同じ Chat-Ref のコミットなし。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は欠けなし。「指示」欄の末尾は指示文の最後の行と一致
+- work/1031-pro-sched はリモートにあり、ローカルと同じ（4dacfe2）
+- PRO-15 のログの `## 報告` の状態は「中断（…）」。末尾に ` / 続き: CHAT-1101-PRO-17` を足した（4843866）
+- #219: 他セッションの着手中コメントなし（最後は PRO-15 の中断のコメント）。着手中のコメントを書いた（issuecomment-6551548274）
+
+### 1. 取り込みと衝突の解き方（01c6271）
+
+- `git merge origin/cloudflare` で、PRO-15 と同じ2つ（`docs/notes/github-actions.md`・`docs/notes/live-channel-write.md`）だけが衝突した（ほかは自動で合わさった）。決定のとおり、衝突の範囲は cloudflare 側の行を正とし、こちらの変更だけを足した。解いた後の該当箇所:
+  - `docs/notes/github-actions.md`（`git diff --word-diff origin/cloudflare` の差はこの1か所だけ）: `[-/live・title/ を作り直し、最後に-]{+/live・title/・pro/（個別ページの今後の予定）を作り直し、最後に+}`。行の前半（「…保険の予約実行（毎日06:43 JST）とそのゲートは 2026-11-01 に外した…」）は cloudflare のまま
+  - `docs/notes/live-channel-write.md` の「7.」の冒頭: 1行目は cloudflare のまま（「…保険の予約実行（06:43 JST）とそのゲートは 2026-11-01 に外した…」）、2行目は「シートへの書き込み先は3層のスプレッドシートの【1】【2】【3】だけ。最後に /live・title/・pro/ を作り直す（5.）。」
+- `.github/workflows/update-live-channel.yml` は自動で合わさり、`target_page: live_pages title_pages pro_pages`（381行目）が残っている
+- 取り込んだ後の origin/cloudflare との差（docs/logs・pro/ を除く）は PRO-12 の変更（生成・JS・CSS・テスト・ワークフローの target_page と注釈・docs）と PRO-15 のテストと決定だけ
+
+### 2. 確かめのやり直し（01c6271）
+
+- pro_pages の失敗で live_pages・title_pages が止まらないこと: PRO-15 の形のまま（`regenerate.py` の #533 の扱いと `regenerate-page.yml` の終了コード 3 の扱いは取り込みで変わっていない）。`test_regenerate.SkipFailedPageTest.test_named_pages_with_last_one_failing` → OK
+- テスト: `python3 -m unittest discover -s scripts/tests` → OK
+- `check_asset_limits.py`: 全項目 OK（rc=0。配信ファイル数 5,326）
+- 未公開の確かめ（PRO-09 と同じ方法）: `pro/` の 1,099 ファイルすべてに noindex。`sitemap*.xml`・`llms.txt` に `/pro/` 0件。navbar.js の `/pro/` はパスの判定だけ。pro/ と docs/ 以外の HTML から `/pro/` へのリンク0件
+- 新しい issue の準備: 同じ主題の issue をクローズ済みも含めて検索した（「濃色固定」「ダークモード」「明暗」「濃色」）。#107（closed、UI 方針全般）・#528（open、デザインの不足・不整合の洗い出し）・#270・#271 などが出たが、濃色固定のページの明暗の対応を主題にしたものは無い。ラベル `分野: UI/UX` はある
+- `regenerate-page.yml`（作業ブランチ、all、check 真、run 41259680156）: 注釈「check: 止まるページなし」
+- 全ページの生成（`regenerate-page.yml`、all、run 41259694576）: 帰り道の手順を含めて success、「飛ばしたページを報告」は skipped（飛ばしたページなし）。コミット f767e02 の変更は `pro/` の18ファイルだけ（48行の追加）。足されたのはどれも種類「道場部」の行18件（11/02〜11/30）: 平野さんが PRO-16 のマージの後に11月分を書き込んだ（#426 の 2026-11-01T01:23Z の通知「読み取り 21件 / 未定で飛ばした日 3件 / 照合できない名前 0件 / 既にある予定 0件 / 追加 18件」）ので、「mj_道場部ゲスト」の今日以降の予定として今後の予定の面に出た（データの変化で説明できる。PRO-12 の道場部の読み取りが実物で行を出すことも、これで確かめられた）。pro/ と sitemap の lastmod 以外のページの差分は0件
+- コードは変えていない（取り込みと文書の衝突の解決だけ）ので、レビューの対象の差分は無い
+- 止まる条件: どれにも当たらない（0章は通った・衝突は決定の2か所だけ・`target_page` に pro_pages が残る・pro_pages の失敗は live/title を止めない・全ページの生成の差分は説明できる・未公開・テスト・--check・check_asset_limits は通った・#219 に他セッションの着手中なし）。マージの前に CLAUDE.md「ブランチ運用」と docs/notes/branch-operations.md「マージするとき」「ブランチを削除するとき」を読んだ（同じセッションの PRO-10・PRO-14・PRO-16 で読み、内容は変わっていない）
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 76a77c04）: https://github.com/retroeater/mj-logs/tree/main/guide/76a77c04
+ガイド文書（この版を写した時点の最新、mj 27bafd9b）: https://github.com/retroeater/mj-logs/tree/main/guide/27bafd9b
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/76a77c04/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/76a77c04/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/76a77c04/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/76a77c04/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/76a77c04/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/76a77c04/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/7aaff304.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/27bafd9b/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/27bafd9b/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/27bafd9b/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/27bafd9b/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/27bafd9b/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/27bafd9b/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/27bafd9b.md
