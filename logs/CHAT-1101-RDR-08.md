@@ -46,15 +46,70 @@ CHAT-1101-RDR-06 で決めた「本番へまとめて要求を送るときは UA
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 着手前の確認
+
+- 0: このログの「指示」欄の末尾は指示文の最後の行と一致
+- 同じ Chat-Ref のコミット: なし。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 欠けなし。#568: open
+- 作業ブランチ: ローカル・リモートとも `work/1101-rdr-img` が無かったため `git checkout -b work/1101-rdr-img origin/cloudflare`（起点 2caddbb）
+- 未マージの work/ ブランチで `scripts/check_image_links.py`・`docs/notes/session-network.md` を変えているもの: なし
+
+### 手順1（55a46bb）
+
+- `USER_AGENT` を `Mozilla/5.0 (compatible; ryoei.pro link checker; mj-internal; +https://ryoei.pro/jpml_pros.html)` にした（前提の案のとおり）
+- `git grep -n 'ryoei.pro link checker'`（docs/logs・docs/decisions を除く）で、スクリプトのほかに当たったのは docs/notes/session-network.md の1か所（2026-09-14 の観測の記録で、UA は `...` で省いて書いてある）。観測の値は変えず、「2026-11-01 から括弧の中に目印 `mj-internal` を足した」を足した
+- `scripts/check_sns_book_images.py` は `check_image_links` の `check()` を使うので、同じ UA になる（レビューで確認）
+- `python3 -m unittest discover -s scripts/tests`: OK
+
+### 手順2: 手動実行（check-image-links.yml、入力 dry_run: 真、run 41271253416）
+
+- 3つのジョブ（check・saikyo・sns_book）とも入力 `dry_run` に従い、issue を書かない（`[dry-run] #352(open) を本文を書き換える:` の表示だけ）。通知も無い
+- images / check の比較:
+
+| | 確認した件数 | 切れ | 切れの URL |
+|---|---|---|---|
+| cloudflare の直近の毎朝の運行（run 41232112701、job 124716380825、2026-11-01 01:39 UTC 完了） | 1,143 | 1（404） | https://yt3.ggpht.com/sGzgZgeoer_8-ZA_m0yyYs-jiPz8sS21D4FqtSb4ZSMp1cO_xdesYaW3sr-oJ1Bw8otp6LHL=s88-c-k-c0x00ffffff-no-rj |
+| 作業ブランチ（job 124744323230） | 1,143 | 1（404） | 同じ URL |
+
+- 件数は増えていない（止まる条件に当たらない）
+
+### 差分の自己レビュー（新しい文脈のサブエージェント、1回）
+
+| 指摘 | 扱い |
+|---|---|
+| 中（目的との食い違い）: `check_image_links.py` の送り先は `jpml_pros.html` の外部の画像（pbs.twimg.com 845・assets.st-note.com 179・yt3.ggpht.com 82 など）だけで、ryoei.pro への要求は0件。#568 の集計（ryoei.pro のゾーン）の値はこの変更で変わらない | 意図どおり（指示文の前提「確かめる先は主に外部の画像のホスト」と決定のとおり。目印を付けただけで、今は集計に影響しない） |
+| 低: session-network.md の「200」は目印の無い UA での観測 | 意図どおり（観測の記録は変えず、目印を足した日を書いた） |
+| ryoei.pro へまとめて要求を送っていて漏れたスクリプト | なし（ryoei.pro へ送るのは `fetch_gsc.py` の robots.txt 1件だけ） |
+
+### マージ前の確認
+
+- `git diff origin/cloudflare...HEAD --stat`: scripts/check_image_links.py・docs/notes/session-network.md・docs/decisions/cloudflare.md（追記のみ）・ログだけ。冒頭の「マージ:」の条件どおり
+
+- マージ: push 直前の確認で cloudflare が先に進んでいた（MCK-32 の docs のみ3コミット）ため `git merge origin/cloudflare`（衝突なし、テスト OK）。再 fetch して `git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめ、`git push origin work/1101-rdr-img:cloudflare` で d283280..cd28de4（fast-forward）
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1101-rdr-img
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1101-RDR-08.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1101-rdr-img
+- 確認用URL: なし（scripts/ と docs/ だけの変更。Workers Builds の対象外）
+- マージ: 済（cd28de4）
+- issue: #568
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 6f0cfaaa）: https://github.com/retroeater/mj-logs/tree/main/guide/6f0cfaaa
+ガイド文書（この版を写した時点の最新、mj 946ededa）: https://github.com/retroeater/mj-logs/tree/main/guide/946ededa
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6f0cfaaa/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6f0cfaaa/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6f0cfaaa/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6f0cfaaa/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6f0cfaaa/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6f0cfaaa/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/946ededa/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/946ededa/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/946ededa/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/946ededa/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/946ededa/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/946ededa/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/bdc234c5.md
