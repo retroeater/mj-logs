@@ -50,6 +50,49 @@
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 着手前の確認
+
+- 0: このログの「指示」欄の末尾は指示文の最後の行（「不明な点があれば、…この行が指示文の最後の行です。」）と一致
+- 同じ Chat-Ref のコミット: なし（`git fetch --unshallow` の後に `git log --all --grep`）。`RDR` は 05 なので最初の指示の重複確認は対象外
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 欠けなし
+- #568: open
+- 作業ブランチ: ローカル・リモートとも `work/1101-rdr-ua` が無かったため `git checkout -b work/1101-rdr-ua origin/cloudflare`（起点 6aac53d）
+- 0章ゲート: 未マージの work/ ブランチで `scripts/fetch_redirect_counts.py`・テスト・`docs/notes/redirects.md`・`docs/decisions/cloudflare.md` を変えているものは無い。open issue（更新順の上位100件）に集計のボットの判定を扱うものは #568 のほかに無い。CLAUDE.md 23,768 バイト・handover.md 23,354 バイトで警告域（26KB）の外
+
+### 手順1: 公式の資料
+
+読んだ資料（いずれも developers.cloudflare.com）:
+
+- https://developers.cloudflare.com/analytics/graphql-api/sampling/
+- https://developers.cloudflare.com/analytics/sampling/
+- https://developers.cloudflare.com/analytics/graphql-api/features/confidence-intervals/
+- https://developers.cloudflare.com/analytics/faq/graphql-api-inconsistent-results/
+- https://developers.cloudflare.com/analytics/graphql-api/migration-guides/graphql-api-analytics/
+- https://developers.cloudflare.com/analytics/graphql-api/features/filtering/
+- https://developers.cloudflare.com/analytics/graphql-api/limits/
+- https://developers.cloudflare.com/analytics/graphql-api/features/data-sets/
+
+(a) **`count` は抜き取りを補正した推定値（抜き取った行の数ではない）。止まる条件には当たらない。**
+
+- 「Sampling」: "Cloudflare Analytics returns an estimate derived from the sampled value." 例として 5,000 行の抜き取り（1/10）から "Cloudflare will estimate 50,000 total events (5,000 × 10) and report this value in Analytics."
+- FAQ: "Aggregated metrics (totals, averages, percentiles) are extrapolated based on the sample size, so reported metrics accurately represent the entire dataset."
+- 「Confidence intervals」の例（`firewallEventsAdaptiveGroups`）: `"count": 42939, "avg": {"sampleInterval": 1.07…}, "confidence": {"count": {"estimate": 42939, …, "sampleSize": 40054}}`。`count` と推定値 `estimate` が等しく、抜き取った行の数は `sampleSize` として別に返る
+- 移行の手引き: `httpRequestsAdaptiveGroups` の `count`（例 LHR 4350、`sampleInterval` 10）が、抜き取りの無い旧 API の `requests`（LHR 4404）とほぼ同じ。`count` を `sampleInterval` で掛け直すとは書かれていない（掛けると10倍になって合わない）
+- 「`count` は推定値」と明言する1文は無い。上の例と記述からそう判断した。`sampleInterval` の意味を定める文も無く、例の値（10、1.07…）から「何件に1件を抜き取ったか」の平均と読んだ
+
+(b) **`like`／`notlike` が大文字・小文字を区別するかは公式に書かれていない。** 「Filtering」は "The `like` operator is available for string comparisons and supports the `%` character as a wildcard." だけ。`_ilike` などの演算子の記載も無い。今の流儀（区別する前提で bot・crawl・spider・slurp の両方を書く）を残し、足す道具の UA は表記が決まっているためその表記だけ書いた。区別してもしなくても漏れない
+
+(c) **filter の条件の数の上限は公式に無い。** 「Limits」にあるのはゾーンの数（10）・問い合わせの数・1回の問い合わせの欄の数・行の数・期間（`settings` で読む）と、5分で300回の割り当てだけ。候補9件を全部足した（条件は全部で17）
+
+### 手順2: 実装（6d0c14f）
+
+- `BOT_UA_PATTERNS` に `%curl%`・`%python-requests%`・`%Python-urllib%`・`%Go-http-client%`・`%HeadlessChrome%`・`%Playwright%`・`%node-fetch%`・`%axios%`・`%mj-internal%` を足した。候補の `python-urllib` は、Python の標準の UA が `Python-urllib/3.x`（先頭が大文字）なので `Python-urllib` と書いた（区別しないなら同じ）。`Playwright` は既定の UA には出ない（`HeadlessChrome` で当たる）が、候補どおり残した。`_` は LIKE の1文字の万能記号なので含めていない（テストで確かめる）
+- 問い合わせに `avg { sampleInterval }` を足し、抜き取った行の数の見積もり（件数 / 間隔）の合計で件数の合計を割って、月の抜き取りの間隔の平均を出す（ボットの条件を付けない問い合わせの分）。#568 のコメントの注記の末尾に「件数は Cloudflare の抜き取り（adaptive sampling）から推した推定値。数十件以下は誤差が大きい（この月の抜き取りの間隔の平均: 約 N 件に1件）」を足した
+- コメントの表の列名「ボットらしい UA を除く」は変えていない（表の変更は RDR-06 の範囲）
+- テスト: 目印・道具の UA が問い合わせに入る、実物の形の UA に当たり人の UA には当たらない、`_` を含まない、間隔の平均の重み付け、注記の文面。`python3 -m unittest discover -s scripts/tests` は 1721 件 OK。修正前のスクリプトに新しいテストを当てると 4 件 FAIL・1 件 ERROR（#310 の確認）
+
 <!-- guide-links -->
 ---
 
