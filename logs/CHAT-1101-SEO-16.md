@@ -52,17 +52,37 @@ CHAT-1101-SEO-15 で docs/decisions/operations.md に足した節（`## 2026-11-
 - 雛形の行: Chat-Ref・マージ・貼る時機・共通手順の4つともある（貼られた指示文では1つの段落につながっていた）。
 - 止まる条件の確認: docs/decisions/operations.md に `## 2026-11-01（CHAT-1101-SEO-15）` の節がある（1280行）。
 
+### 手順1・2
+
+- docs/decisions/README.md「書き方」に記録の直し方の決まりがあった: 「前の決定を置き換えた・取り下げたときは、**前の決定を消さずに**行末に『→ 置き換え: YYYY-MM-DD（Chat-Ref）』…を付け、新しい決定の側に『（YYYY-MM-DD の〜を置き換える）』と書く」。前提の「決まりがあれば従う」のとおり、SEO-15 の節の (2)・(3) の行は書き換えずに残し、行末に「→ 置き換え: 2026-11-01（CHAT-1101-SEO-16）」を付けた。直した文は新しい `## 2026-11-01（CHAT-1101-SEO-16）` の節に書き、それぞれに「（2026-11-01 の CHAT-1101-SEO-15 の (2)／(3) を置き換える）」を添えた（前提の「行を書き換えて行末に（…で直した）」は、決まりが無いときの形なので使っていない）。
+- SEO-16 の節: (2)・(3) の直した文と、補足（「HTTP 403」と「remote end hung up」の違い）を WFL へ伝言しない決定、「作業中の回答: なし」。
+- SEO-10 の「足さなかったもの」(5) の行末に、「2026-11-01 追記: 原因は Rate limiting rule #124（同じ IP から HTML を1分30回まで、Managed Challenge）と分かった。文書の直しは CHAT-1101-MCK-25（CHAT-1101-SEO-16）」を足した。間隔の既定値は書いていない。
+- SEO-15 のログの `## 報告` の状態を「判断待ち / 続き: CHAT-1101-SEO-16」にした。
+- 作業ブランチの変更は docs/decisions/operations.md・docs/logs/CHAT-1101-SEO-15.md・docs/logs/CHAT-1101-SEO-16.md だけ。
+- push 直前に再 fetch し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真（取り込み不要）。`git push origin work/1101-seo16:cloudflare` の範囲は `fa647008a..855796715`。作業ブランチは削除しない（cleanup-branches.yml に任せる）。
+
 ## 報告
+
+- 状態: 完了
+- ブランチ: work/1101-seo16
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1101-SEO-16.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1101-seo16
+- 確認用URL: なし
+- マージ: 済（fa647008a..855796715。記録の追いの push あり）
+- issue: なし
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj fa647008）: https://github.com/retroeater/mj-logs/tree/main/guide/fa647008
+ガイド文書（この版を写した時点の最新、mj ac750f5e）: https://github.com/retroeater/mj-logs/tree/main/guide/ac750f5e
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/fa647008/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/fa647008/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/fa647008/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/fa647008/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/fa647008/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/fa647008/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ac750f5e/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ac750f5e/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ac750f5e/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ac750f5e/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ac750f5e/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/ac750f5e/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/27bafd9b.md
