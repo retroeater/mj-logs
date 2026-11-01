@@ -47,15 +47,108 @@ RDR-05 の「判断が必要なこと」への回答。429 の件は切り離し
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 着手前の確認
+
+- 0: このログの「指示」欄の末尾は指示文の最後の行と一致。CHAT-1101-RDR-05 の `## 報告` の状態は「判断待ち」だった
+- 同じ Chat-Ref のコミット: なし。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 欠けなし。#568: open
+- 作業ブランチ: ローカルの `work/1101-rdr-ua` が `origin/work/1101-rdr-ua` と一致（94fb9bf）。`git merge-base --is-ancestor origin/cloudflare HEAD` が偽だったため `git merge origin/cloudflare`。衝突なし（入ったのは docs/logs など、触るファイルと重ならない）
+- 未マージの work/ ブランチで `scripts/fetch_redirect_counts.py`・テスト・`docs/notes/redirects.md`・`docs/decisions/cloudflare.md` を変えているもの: なし
+
+### 手順1（c9bd71a）
+
+- RDR-05 のログの `## 報告` の状態を「判断待ち / 続き: CHAT-1101-RDR-07」にした
+- `BOT_UA_PATTERNS` に `%Wget%`・`%python-httpx%`・`%aiohttp%`・`%okhttp%`・`%Java/%`・`%libwww-perl%`・`%Scrapy%` を足した（各道具の既定の UA の表記。aiohttp は `Python/3.x aiohttp/3.x`）
+- 空の UA: 定数 `EMPTY_UA_FILTER = '{userAgent_neq: ""}'` を、ボットの条件の AND の並びの末尾に足した
+- テスト: 足した UA の実物の形が当たること、`userAgent_neq` がボットの条件のときだけ入ること。1722 件 OK。修正前のスクリプトに新しいテストを当てると 2 件 FAIL（#310 の確認）
+
+### 手順2: 手動実行（run 41266340138、c9bd71a、dry-run、month 2026-10）
+
+- 成功。トークン・権限のエラーなし。**`userAgent_neq: ""` は GraphQL でエラーにならずに通った**（ボット以外の問い合わせの失敗の表示なし）。差し引く方法は使っていない
+- 集計の範囲: UTC 2026-10-01T02:53:44Z 〜 2026-10-31T15:00:00Z。抜き取りの間隔の平均: 約 10.1 件に1件
+- ボット以外の件数（全状態コード）は、RDR-05 の run 41265136755 と全キーで同じだった。足した道具の UA・空の UA は、2026-10 分の対象のパスでは件数を変えなかった（空の UA の行が無いのか、空文字以外の形で記録されているのかは、ここからは見分けられない）
+- 止まる条件（301・ボット以外が増えた）: 当たらない（全行で差 0）
+
+| 転送元 | 301・ボット以外（RDR-05 の run 41265136755） | 301・ボット以外（今回） | 差 |
+|---|---|---|---|
+| `/saikyo_results.html` | 20 | 20 | 0 |
+| `/jpml_titles.html` | 311 | 311 | 0 |
+| `/video_wayhome.html` | 10 | 10 | 0 |
+| `/video_mtsuku.html` | 0 | 0 | 0 |
+| `/jpml_test.html` | 0 | 0 | 0 |
+| `/tanilog.html` | 20 | 20 | 0 |
+| `/houou/ranking/` | 13 | 13 | 0 |
+| `/ouka/ranking/` | 0 | 0 | 0 |
+| `/jwrc/ranking/` | 0 | 0 | 0 |
+| `/wrcr/ranking/` | 0 | 0 | 0 |
+| `/saikyo/ranking/` | 0 | 0 | 0 |
+| `/saikyo/ranking/qualifier-win/` | 0 | 0 | 0 |
+| `/saikyo/ranking/qualifier-final/` | 0 | 0 | 0 |
+| `/saikyo/ranking/qualifier-pass/` | 0 | 0 | 0 |
+| `/houou_ranking.html` | 21 | 21 | 0 |
+| `/houou_leagues.html` | 220 | 220 | 0 |
+| `/houou_race.html` | 32 | 32 | 0 |
+| `/houou_results.html` | 336 | 336 | 0 |
+| `/ouka_ranking.html` | 0 | 0 | 0 |
+| `/ouka_leagues.html` | 180 | 180 | 0 |
+| `/ouka_results.html` | 120 | 120 | 0 |
+| `/wrc_ranking.html` | 0 | 0 | 0 |
+| `/wrc_results.html` | 0 | 0 | 0 |
+| `/saikyo/2011.html` | 0 | 0 | 0 |
+| `/saikyo/2012.html` | 0 | 0 | 0 |
+| `/saikyo/2013.html` | 0 | 0 | 0 |
+| `/saikyo/2014.html` | 0 | 0 | 0 |
+| `/saikyo/2015.html` | 0 | 0 | 0 |
+| `/saikyo/2016.html` | 0 | 0 | 0 |
+| `/saikyo/2017.html` | 0 | 0 | 0 |
+| `/saikyo/2018.html` | 0 | 0 | 0 |
+| `/saikyo/2019.html` | 0 | 0 | 0 |
+| `/saikyo/2020.html` | 0 | 0 | 0 |
+| `/saikyo/2021.html` | 0 | 0 | 0 |
+| `/saikyo/2022.html` | 0 | 0 | 0 |
+| `/saikyo/2023.html` | 0 | 0 | 0 |
+| `/saikyo/2024.html` | 10 | 10 | 0 |
+| `/saikyo/2025.html` | 0 | 0 | 0 |
+| `/saikyo/2026.html` | 30 | 30 | 0 |
+
+- docs/notes/redirects.md「流入の測り方」の「ボット」の項に、足した UA・空の UA・道具と空の UA を除くのは 2026-11 分からを書き、「旧 URL への 429 は調べない」の項を足した（5f257d9）。docs/decisions/cloudflare.md に決定を足した
+
+### 差分の自己レビュー（新しい文脈のサブエージェント、2回目。94fb9bf..c9bd71a だけを見せた）
+
+| 指摘 | 扱い |
+|---|---|
+| 中: `%Java/%` は Java 11 以降の `java.net.http.HttpClient` の既定の UA（`Java-http-client/…`）に当たらない | 見送り（決定の候補の外。#568 に論点として移した https://github.com/retroeater/mj/issues/568#issuecomment-6552478705 ） |
+| 低: `%Wget%` は wget2 の既定の UA（`wget2/…`、小文字）に当たらない | 見送り（同上、#568 に移した） |
+| 低: `userAgent_neq: ""` は空の UA が空文字で記録される前提。効いているかは確かめられない | 意図どおり（通ることは確かめた。効きは未確認として #568 に書いた） |
+
+### 3: マージ
+
+- `git diff origin/cloudflare...HEAD --stat`: `docs/decisions/cloudflare.md`（追記のみ）・`docs/logs/CHAT-1101-RDR-05.md`・`docs/logs/CHAT-1101-RDR-07.md`・`docs/notes/redirects.md`（「流入の測り方」の節の中だけ、@@ -120,7 +120,9 @@）・`scripts/fetch_redirect_counts.py`・`scripts/tests/test_fetch_redirect_counts.py`。条件どおり
+- push 直前に再 fetch し `git merge-base --is-ancestor origin/cloudflare HEAD` が真。`git push origin work/1101-rdr-ua:cloudflare` で d356d1b..3911d5f（fast-forward）
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1101-rdr-ua
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1101-RDR-07.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1101-rdr-ua
+- 確認用URL: なし（scripts/ と docs/ だけの変更。Workers Builds の対象外）
+- マージ: 済（3911d5f）
+- issue: #568（論点のコメント）
+- 判断が必要なこと: なし（#568 に移した）
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj d356d1bb）: https://github.com/retroeater/mj-logs/tree/main/guide/d356d1bb
+ガイド文書（この版を写した時点の最新、mj 120c7af8）: https://github.com/retroeater/mj-logs/tree/main/guide/120c7af8
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d356d1bb/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d356d1bb/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d356d1bb/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d356d1bb/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d356d1bb/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d356d1bb/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/120c7af8/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/120c7af8/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/120c7af8/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/120c7af8/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/120c7af8/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/120c7af8/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/cc449e20.md
