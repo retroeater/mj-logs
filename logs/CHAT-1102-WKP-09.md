@@ -102,7 +102,7 @@ cleanup-logs の移し方の案:
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1102-WKP-10
 - ブランチ: work/1102-wkp
 - ログ: https://github.com/retroeater/mj/blob/work/1102-wkp/docs/logs/CHAT-1102-WKP-09.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1102-wkp
@@ -119,12 +119,12 @@ cleanup-logs の移し方の案:
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 5953e2f7）: https://github.com/retroeater/mj-logs/tree/main/guide/5953e2f7
+ガイド文書（この版を写した時点の最新、mj 90df278d）: https://github.com/retroeater/mj-logs/tree/main/guide/90df278d
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/5953e2f7/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/5953e2f7/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/5953e2f7/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/5953e2f7/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/5953e2f7/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/5953e2f7/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/90df278d/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/90df278d/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/90df278d/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/90df278d/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/90df278d/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/90df278d/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b1c2c3de.md

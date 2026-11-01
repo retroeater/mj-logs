@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-11-02 07:56 JST
+- 書き出した時刻: 2026-11-02 07:58 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -25,7 +25,7 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-11-02 07:55 | push | work/1102-wkp | in_progress | #632（41359548739） |  |
+| 2026-11-02 07:55 | push | work/1102-wkp | success | #632（41359548739） | 0分21秒 |
 | 2026-11-02 06:49 | push | work/1102-lgn-sheet | success | #631（41353938395） | 0分27秒 |
 | 2026-11-02 06:46 | push | work/1102-lgn-sheet | success | #630（41353750667） | 0分25秒 |
 | 2026-11-01 19:59 | push | work/1101-prp-pub | success | #629（41299851424） | 0分25秒 |
@@ -38,11 +38,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-02 07:56 | check_run | cloudflare | skipped | #820（41359586249） | 0分01秒 |
 | 2026-11-02 06:53 | check_run | cloudflare | skipped | #819（41354315238） | 0分01秒 |
 | 2026-11-02 06:49 | check_run | cloudflare | skipped | #818（41353972750） | 0分00秒 |
 | 2026-11-02 06:47 | check_run | cloudflare | skipped | #817（41353807054） | 0分00秒 |
 | 2026-11-01 20:00 | check_run | cloudflare | skipped | #816（41299905600） | 0分01秒 |
-| 2026-11-01 19:57 | check_run | cloudflare | skipped | #815（41299709050） | 0分01秒 |
 
 ## check-image-links.yml
 
@@ -279,7 +279,7 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-11-02 07:55 | workflow_dispatch | work/1102-wkp | in_progress | #9（41359561803） |  |
+| 2026-11-02 07:55 | workflow_dispatch | work/1102-wkp | success | #9（41359561803） | 0分26秒 |
 | 2026-11-02 02:00 | workflow_dispatch | cloudflare | success | #8（41329205064） | 11分26秒 |
 | 2026-11-01 08:24 | workflow_dispatch | work/1101-wkp | success | #7（41252382101） | 1分00秒 |
 | 2026-10-28 00:51 | workflow_dispatch | work/1028-log-367-weekly | success | #6（40535192703） | 2分29秒 |
