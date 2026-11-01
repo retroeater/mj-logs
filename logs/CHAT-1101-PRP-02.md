@@ -73,28 +73,68 @@ CHAT-1101-PRP-01 の棚卸しの表（そのログの `## 経過`「2. 棚卸し
 
 ## 経過
 
+### 0. 着手前の確認
+
+- 指示欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある
+- 同じ Chat-Ref のコミット・ログ: なし。`PRP` は CHAT-1101-PRP-01 に続く2本目（最初の指示ではない）。0章ゲート: 実装を含まない。指示文の issue（#641・#219・#405・#159・#296・#560）はすべて open
+- 作業ブランチ: `work/1101-prp-docs` はローカル・リモートとも無かったので `git checkout -b work/1101-prp-docs origin/cloudflare`（起点 a3e6ae1ba）
+- #641・#219・#296 に、ほかのセッションの着手中のコメントは無い（#641 の最後は PRP-01 の完了、#219 は PRO-17 の完了、#296 は 10-29 の SEO-06）。#641 の本文を直す直前にもう一度見て、PRP-03 の着手中は来ていなかった
+- 未マージの `work/*` と直す文書の重なり: `docs/handover.md` を `work/1028-lgn`・`work/1029-lgn-page` が変えているが、5章の設計メモの索引の表（`docs/notes/log-page.md` の行を足す）で、直す節（「現行サイトに作り込みすぎない」）とは別の節。止まらずに進めた。`docs/decisions/pros.md`・`docs/decisions/title.md`・`docs/notes/books-freeze.md`・`docs/notes/mj-lead.md` を変えているブランチは無い
+
+### 1. 決定の記録と issue の直し
+
+- `docs/decisions/pros.md` に「2026-11-01（CHAT-1101-PRP-02）」の節を足した（①〜⑭と前の決定。③・⑬には起票した #645・#646 の番号を入れた）
+- #641 の本文（前→後の要点）:
+  - 公開の条件: 「ページを作る issue（#219、work/1030-pro）を待つ」→「#219 は済。**live/（#362）の公開を待つ**。点検が済んだら公開」
+  - 消した: 「title・description・h1・og:title・og:image（選手別）・共有ボタン（リンクをコピー）を確かめる」「#238・#82・#13 にコメントする」「canonical を出すか決める（#113）」、公開後の「個別ページの質問欄」「X と LINE で選手別の画像」
+  - 足した: `index.html` のサイドメニュー・`sitemap-pro.xml`（全員を index）・`llms.txt` の置き換え・canonical（トップと個別）・title と og:title の形・並べ替えのボタン 44px・K8・K14・検知の付け替え（#139）と片付けの #645・Worker の `?name=` の 301（範囲・旧名・在籍者でない名前）・`playerUrl()` と title/ の優勝者（live/・wayhome は公開の後）・閉じる issue の一覧（#13・#238・#24・#82・#22・#416・#159、#405 は段位・性別だけ残す、#23 は #245 へ）・文書に `docs/notes/cloudflare.md`。公開後の確かめに `sitemap-pro.xml`・canonical・トップの質問欄・「クロール済み - インデックス未登録」の見直し・#560 への記録・告知
+  - 末尾に `Chat-Ref: CHAT-1101-PRP-02` を足した
+- #219: 題「選手個別ページを作り、横断情報を集約する（新サイト）」→「選手個別ページを作り、横断情報を集約する」。ラベル「状況: 保留」を外した（「分野: SEO/AIO」「分野: UI/UX」は残した。代わりの状況のラベルは付けていない）
+- #405: 題「名簿の属性（段位・入会期・性別など）を pros/ の新しい一覧・個別ページに載せる」→「名簿の属性（段位・性別）を pro/ の一覧・個別ページに載せる」。本文に、所属・入会期・誕生日は pro/ に載せ、残すのは段位・性別だけと書いた。#296 の子のまま（新サイト送りは変えていない）
+- #159: #296 の本文の手順（取り消しの旨をコメント＋`removeSubIssue`）のとおり、コメントを書き、#296 の sub-issue から外した（GraphQL はこのセッションで使えないので、GitHub MCP の `sub_issue_write` の remove〈REST〉で外した。外した後の #296 の sub-issue は36件で #159 は無い）。#296 の本文の子の表から #159 の行を「親の対象外」へ移した
+- #296 の本文: 子の表に #566（closed、2026-10-14 に子にした）・#642 の行を足した。#405 の行の題と、#285 の行の「pros/」を直した。末尾に Chat-Ref を足した
+- #560 に⑫のコメントを書いた
+
+### 2. 起票
+
+- (a) #645「旧 jpml_pros.html を退役させる（301 の後に要らなくなる生成・CSS・JS・テスト・ワークフローの片付け）」。ラベル「分野: 整理・保守」「対象: jpml_pros」「状況: 待ち」。着手のきっかけ（301 が本番に入ったこと）と、PRP-01 の表8と「入るリンク」の一覧を引用した。起票の前に「jpml_pros 退役」「jpml_pros 廃止」「jpml_pros 片付け」「jpml_pros 生成 止め」で探し、同じ主題の issue は無かった（#582 は houou_*.html の同じ種類の片付けで closed）
+- (b) #646「連盟プロの個別ページ pro/<slug>/ に書籍の面を出すかを 2026-12-15 までに決める」。ラベル「分野: UI/UX」「分野: データ」。#219 の要件10を引用し、#436 と books-freeze.md を引いた。起票の前に「書籍 個別ページ」「書籍 連盟プロ」「rakuten_books」で探した。#436（closed、#219 に統合）と #219 の要件10があるが、期限つきで「使うかを決める」issue は無かった
+
+### 3. 文書の古い記述
+
+- `docs/handover.md`「現行サイトに作り込みすぎない」: 構造化データの「選手の `Person` などは新サイトで対応（#13・#219）」→「選手の `Person` は pro/ の個別ページに入れた（#13 は pro/ の公開で閉じる。トップに `ItemList` は足さない）」。行「選手個別ページ（#219）: 新サイト送りを取り消し、現行サイトの pro/ で作った」を足した。共有ボタンの「新サイトの選手個別ページは #82（新サイト送り）」→「pro/ の個別ページには置かない（#82 は pro/ の公開で閉じる）」。「最終更新」の3行の先頭にこの直しを入れ、最も古い1行を外した。大きさは 23,619 バイト（上限 28KB、警告域 26KB の内）
+- `docs/notes/books-freeze.md`: 冒頭の「新サイトの#219」→「#219」、決定の節の #219 の題から「（新サイト）」を外した（issue の題を直したため）、再開の手順7の「#219、新サイト」→「#219、現行サイトの pro/。使うかは #646」、関連の「新サイト、#296の子issue」→「2026-10-31 に新サイト送りを取り消し、現行サイトの pro/ で作った。使うかは #646」
+- `docs/notes/mj-lead.md`: 「新サイト（#296）と選手個別ページ（#219）」→「新サイト（#296）…（選手個別ページ〈#219〉は新サイト送りを取り消し、現行サイトの pro/ で作った）」
+- `docs/decisions/title.md:154`: **直していない。** 実物を読むと、この行は「2026-10-08（CHAT-1008-NEN-01）」の節（年表ページの grill Q7）にあり、節の見出しにすでに「→ 置き換え: 2026-10-09（CHAT-1009-NEN-08、年表ページをやめた）」が付いている。title/ の期のページの優勝者のリンクを `jpml_pros.html?name=` と決めた行ではない（title.md に、期のページの優勝者を X へ向けると決めた行も無い）。つまり PRP-01 の報告の「食い違い」は、作られなかった年表ページの決定を今の title/ のものと読み違えたもので、食い違いは無かった。いったん行末に置き換えの注記を足したが、すでに節ごと置き換え済みなので戻した。⑨（title/ の優勝者を pro/ へ）は `docs/decisions/pros.md` に書いてある
+- `docs/notes/cloudflare.md`「配信設定」は前提のとおり直していない（PRP-03 で直す）
+
+### 4. マージ
+
+- `git merge-base --is-ancestor origin/cloudflare HEAD` を確かめ、`git push origin work/1101-prp-docs:cloudflare`（a3e6ae1ba..974d711aa）。取り込みの衝突は無かった
+- 決定の記録・文書の直しとログの仕上げを1つのコミット（974d711aa）に入れた。CLAUDE.md「作業ログ」の「ログは成果物と別のコミット」に沿っていない（docs のみの変更。push 済みなので分け直していない）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1101-prp-docs
-- ログ: https://github.com/retroeater/mj/blob/work/1101-prp-docs/docs/logs/CHAT-1101-PRP-02.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1101-PRP-02.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1101-prp-docs
 - 確認用URL: なし
-- マージ: 未
-- issue: 作業中
-- 判断が必要なこと: 作業中
-- 未確認の項目: 作業中
+- マージ: 済（974d711aa。docs のみ）
+- issue: #641（本文）・#219（題・ラベル）・#405（題・本文）・#159（コメント・#296 の sub-issue から外した）・#296（本文）・#560（コメント）・#645（起票）・#646（起票）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj e5e4fcb7）: https://github.com/retroeater/mj-logs/tree/main/guide/e5e4fcb7
+ガイド文書（この版を写した時点の最新、mj bdc234c5）: https://github.com/retroeater/mj-logs/tree/main/guide/bdc234c5
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e5e4fcb7/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e5e4fcb7/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e5e4fcb7/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e5e4fcb7/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e5e4fcb7/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e5e4fcb7/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/cc449e20.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/bdc234c5/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/bdc234c5/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/bdc234c5/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/bdc234c5/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/bdc234c5/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/bdc234c5/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/bdc234c5.md

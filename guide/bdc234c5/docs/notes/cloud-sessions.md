@@ -80,7 +80,8 @@ Chat-Ref の確認・`git branch --merged` が誤る。**これらの判定の�
 
 ## ブランチの削除
 
-セッションの git プロキシがブランチの削除を拒否する（`git push origin --delete` が HTTP 403）。削除はしない。
+セッションの git プロキシがリモートのブランチの削除を通さない（`git push origin --delete` は「fatal: the remote end hung up unexpectedly」で失敗し、ブランチは残る。2026-10-30〜11-01 の3回）。
+削除はしない。消す push は mj-git-guard が止める（docs/notes/skills.md「git の hook（mj-git-guard）」、2026-11-01）。
 マージ済みの `work/*` は `cleanup-branches.yml` が毎日、先頭が24時間より前のものを削除する（削除の記録もワークフローの出力に残る）。
 作業の後のブランチの削除は、このワークフローに任せる。
 `claude/*` は対象外（#440）。
