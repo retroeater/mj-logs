@@ -58,15 +58,39 @@ PRO-12 の「判断が必要なこと」への回答を記録し、個別ペー�
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 着手前の確認
+
+- 同じ Chat-Ref のコミットなし。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は欠けなし。「指示」欄の末尾は指示文の最後の行と一致
+- work/1031-pro-sched はリモートにあり、ローカルと同じ（17cf429）
+- PRO-12 のログの `## 報告` の状態は「判断待ち（今後の予定の面を作り、毎朝の生成に足して、プレビューで止めた）」。末尾に ` / 続き: CHAT-1101-PRO-15` を足した（b7737df）
+- #219: 他セッションの着手中コメントなし（最後は PRO-12 の判断待ちのコメント）。着手中のコメントを書いた（issuecomment-6550728315）
+- **#107 は closed**（2026-10-14 に「新サイトのデザインの基本の形が決まり…この issue を閉じる」で閉じている）。CLAUDE.md の「Chat-Ref の着手前の確認」の「指示文の issue の state」（コメントの対象の issue が閉じていれば着手せず、番号を報告して止まる）に当たるので、#107 へのコメントはしない。マージは #107 に関わらないので進める
+
+### 1. pro_pages の失敗で live_pages・title_pages が止まらないこと
+
+- 実物: `regenerate.py` は、1ページの生成が失敗したらそのページの途中の出力を戻して飛ばし、残りのページを生成する（#533）。成功したページだけをコミットの対象に出し、終了コード 3（`SKIPPED_EXIT`）を返す。`regenerate-page.yml` の「対象ページを再生成」は終了コード 0 と 3 のときは続け（`if [ "$RC" != 0 ] && [ "$RC" != 3 ]` のときだけ止める）、成功したページをコミット・push してから、最後の「飛ばしたページを報告」でジョブを失敗にする（失敗のメールが届く）。毎朝の `update-live-channel.yml` の job regenerate はこのワークフローを `workflow_call` で呼ぶので同じ
+- 既存のテスト（`test_regenerate.SkipFailedPageTest`）は `all` の形だけだったので、毎朝と同じ「名前で渡した最後のページが失敗する」形のテスト `test_named_pages_with_last_one_failing` を足した（`regenerate.py a c b` で b が失敗 → a・c は生成されてコミットの対象〈`a.html c.html`〉、終了コード 3、`skipped_pages=b`）。今のコードで通る（直す必要は無かった）。コードは変えていない（テストだけ）ので、レビューの対象の差分は無い
+- pro_pages は `RUN_LAST` で最後に作られるので、pro_pages が止まっても live_pages・title_pages は先に生成されている
+
+### 2. 取り込みと確かめ
+
+- `git merge-base --is-ancestor origin/cloudflare HEAD` は偽（PRO-14・PRO-13 のログ、MZA-01・MCK-23・SEO-13 の docs など）。`git merge origin/cloudflare`（a1e534e）は衝突なし。`style.css` は自動で合わさった（PRO-14 はナビの規則、こちらは pro の節）
+- テスト: `python3 -m unittest discover -s scripts/tests` → OK
+- `check_asset_limits.py`: 全項目 OK
+- `regenerate-page.yml`（作業ブランチ、all、check 真、run 41253826057）: 注釈「check: 止まるページなし」
+- 未公開の確かめ（PRO-09 と同じ方法）: `pro/` の 1,099 ファイル（トップと個別ページ 1,098）すべてに `<meta name="robots" content="noindex">`。`sitemap*.xml` に `/pro/` 0件、`llms.txt` に0件。navbar.js の `/pro/` は白地のナビの判定（`location.pathname.indexOf('/pro/')`）だけでリンクではない。pro/ と docs/ 以外の HTML から `/pro/` へのリンク0件
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj d750c1c8）: https://github.com/retroeater/mj-logs/tree/main/guide/d750c1c8
+ガイド文書（この版を写した時点の最新、mj ef4a1ca9）: https://github.com/retroeater/mj-logs/tree/main/guide/ef4a1ca9
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d750c1c8/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d750c1c8/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d750c1c8/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d750c1c8/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d750c1c8/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d750c1c8/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ef4a1ca9/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ef4a1ca9/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ef4a1ca9/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ef4a1ca9/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ef4a1ca9/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/ef4a1ca9/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/7aaff304.md
