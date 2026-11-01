@@ -48,28 +48,60 @@ LGN-15 の報告のとおり、「× 2026年」で絞ったまま「平野」と
 
 ## 経過
 
+- 0章: 指示欄の末尾は指示文の最後の行と一致。`CHAT-1101-LGN-17` のコミット・ログなし。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）の欠けなし。「貼る時機」の前提: CHAT-1101-LGN-16 のログの状態は「判断待ち」で満たす。LGN-16 と LGN-15 のログの状態の末尾に ` / 続き: CHAT-1101-LGN-17` を足した（d35a56825）
+- 重なりの確認: 未マージの work/ のうち `style.css`・`assets/` を変えるのは work/1017-lvp（assets/live.js・style.css の saikyo/・動画の節）。この作業は assets/log.js だけを変えるので重ならない
+- 取り込み（cffea2b41）: 衝突は docs/decisions/operations.md の末尾の追記どうしだけ（cloudflare の「## 2026-11-01（CHAT-1101-MCK-29）」とこちらの「## 2026-11-01（CHAT-1101-LGN-16）」）。両方を残した（MCK-29 の節 → LGN-16 の節の順）。取り込み後に unittest・node --test が通ることを確かめた
+- 手順1（867ff7ba9、d9a8f7d66）: `prepare()` で投稿ごとの検索の文字列（店の値〈店名・投稿の店名・駅・駅の候補〉＋その投稿のメニュー・人の名前）を作り、`matchShop()` でタグで絞った後の投稿のうち語に当たるものだけを残す。`shop.text` は使わなくなったので消した。`suggest()` は変えていない（候補の店数は語を入れずに今のタグ＋候補で数え、候補を押すと語は消えるので、押した後の結果の店数と一致する）
+  - 実データ（log/search.json）で直す前（cffea2b41 の log.js）と比べた（[店, 投稿]）: 「×2026年」＋「平野」 [8, 12] → [0, 0]、「×2026年」＋「谷岡」 [353, 399] 同じ、「×2026年」＋「茗荷谷」 [1, 1] 同じ、語だけ「平野」 [333, 662] → [333, 553]、「ラーメン」 [243, 481] → [243, 388]、「カレー」 [73, 129] → [73, 87]、「茗荷谷」「神田」同じ、タグだけ（2026年・平野良栄・神保町）同じ、「×神保町」「×2025年」＋「ラーメン」 [4, 7] 同じ
+  - 語だけの結果: 店の数は変わらない（レビューで、候補の値とメニューの計4,344語の店数を比べて差0件）。店の中の投稿は、語に当たる投稿だけになった（前提の「その店の中にもその投稿だけを出す」のとおり）
+  - 検査: `node --test` に「検索欄の語はタグで絞った後の投稿だけと突き合わせ…」（タグ1つ＋語で0店・1店、タグ2つ＋語、語だけ、タグだけ、店の値〈駅・店名・投稿の店名〉に当たる語、メニューは投稿の値）と「候補の店数は、選んだ後の結果の店数と同じ」を足した。前者は直す前の log.js で落ちる（not ok 12）。後者は直す前でも通る（語を消してから数える作りの確認）
+- 手順2（01357ce9e、df33ab45f）: docs/notes/log-page.md の検索欄の仕様に突き合わせの単位を書いた。docs/decisions/operations.md に LGN-17 の節（この報告のコミット）
+- テスト: unittest 全件 OK、`node --test scripts/tests/js/*.test.js .github/actions/upsert-issue/test/*.test.js` → pass 38 / fail 0
+- 再生成: regenerate-page.yml を入力無しで実行（run 41267991648、01357ce9e、success）。コミットは作られなかった（生成物は変わらなかった。log.js は生成物ではない）
+- 自己レビュー1回目（`git diff cffea2b41..01357ce9e`）: 要修正なし
+
+| 指摘 | 扱い |
+|---|---|
+| 投稿の店名が投稿ごとの値なので、店名のタグ（店の投稿がすべて出る）と検索欄の語で店の中の投稿の数が食い違う（「HARBS」: 店名の値 1,755件のうち71件） | 直した（d9a8f7d66。投稿の店名も店の値にした。前提の「店の単位の値」に合わせた） |
+| 「候補の店数」の検査は直す前のコードでも通る | 意図どおり（作りの確認の検査。直した証跡は前の検査で示す） |
+| 店の値と投稿の値を1つの文字列にしたので、境目をまたいで当たる語が増減する（差し引きは減） | 意図どおり（normalize が空白を消す前からの性質で、悪化していない） |
+
+- プレビュー（Playwright、幅 400px。プレビューの log.js が d9a8f7d66 のものになってから）: `?year=2026` → 353店。「平野」→ 「見つかりませんでした。店名・メニュー・駅・人の名前で探してください。」、候補なし。「谷岡」→ 353店、候補「投稿者|谷岡育夫|353店」、出る投稿は谷岡育夫の 2026年だけ。「茗荷谷」→ 1店、候補「駅|茗荷谷|1店」。タグなしの「カレー」→ 73店。ページのエラーなし
+
+- 自己レビュー2回目（`git diff 01357ce9e..df33ab45f`）:
+
+| 指摘 | 扱い |
+|---|---|
+| d9a8f7d66 で足した検査2行（「日高屋」「ラーメン」）は直す前のコードでも通り、直した内容を確かめていない | 直した（af266364b。投稿2件のうち1件だけが「HARBS」の店の見本で「harbs」→ 2件、店名のタグ「HARBS」→ 2件、メニュー「紅茶」→ 1件。直す前の 01357ce9e の log.js で落ちる〈not ok 13〉ことを確かめた） |
+| 投稿の店名に普通の語がある店は、その語で店の投稿がすべて出る（一品香の投稿の店名「新宿地下ラーメン」で「ラーメン」→ 9件、前は7件） | 意図どおり（店の値にした決めからそのまま出る結果。仮置きに挙げた） |
+
+  - レビューは実データで、新旧の prepare() の `data.values`（store・year を含む）と全店の `shop.names` が同じこと、店名が2つ以上ある95店で「投稿の店名で探したときの店の中の投稿数」が店名のタグと全件一致することを確かめた
+- テスト（af266364b）: `node --test scripts/tests/js/*.test.js .github/actions/upsert-issue/test/*.test.js` → pass 39 / fail 0、unittest 全件 OK
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1029-lgn-page
 - ログ: https://github.com/retroeater/mj/blob/work/1029-lgn-page/docs/logs/CHAT-1101-LGN-17.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1029-lgn-page
-- 確認用URL: なし
-- マージ: 未
+- 確認用URL: プレビューあり（URL は最終報告）。`?year=2026` で「平野」「谷岡」「茗荷谷」を確かめた。この版の印: `?year=2026` で「平野」と打つと「見つかりませんでした。…」（前は8店）
+- マージ: 未（指示のとおり判断待ちで止まる）
 - issue: #639
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 判断が必要なこと:
+  - 新しい仮置き: (1) 投稿の店名も店の値として、その店のどの投稿にも当たる（店名のタグと同じ数え方。前提の「店の単位の値」に投稿の店名を含めた。副作用として、投稿の店名に「ラーメン」などの普通の語がある店は、その語で店の投稿がすべて出る） (2) 0件の文は今のまま「見つかりませんでした。店名・メニュー・駅・人の名前で探してください。」（タグで絞っているときも同じ文）
+  - 残った仮置き（docs/notes/log-page.md「仮置きの一覧」。LGN-16 から変わらない）: カテゴリの1行は10店・最近追加された店は最初の投稿の日付・掲載回数の多い店は投稿2件以上／候補は種類ごとに3件・種類の順・種類の名前の幅 4.5em／タグは紺の丸いボタン、現在地もタグ、駅のタグを選ぶと現在地は外れる／店名の候補は店の名前と投稿の店名の両方から、投稿年は「2025年」／都道府県は駅の一覧の値、一覧に無い駅は【県】の印から／ジャンルは Claude が付ける（後の指示）／Google マップのアイコンは地図のピン 14px、出典の「(i)」はトップの右上だけ／結果は20店ずつ、写真 120×68・カード 160×90／現在地の「準備中」のボタン／打った語も `?tag=` に入れる／白地のナビで「リソース」に印／【3】で駅を直した行は【3】の駅の点・駅の候補・都道府県を使う
+- 未確認の項目: ブラウザ（平野さんの端末）での見え方。ヘッドレスの Chromium（幅 400px）でだけ確かめた
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 50dcad88）: https://github.com/retroeater/mj-logs/tree/main/guide/50dcad88
+ガイド文書（この版を写した時点の最新、mj e5e4fcb7）: https://github.com/retroeater/mj-logs/tree/main/guide/e5e4fcb7
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/50dcad88/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/50dcad88/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/50dcad88/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/50dcad88/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/50dcad88/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/50dcad88/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e5e4fcb7/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e5e4fcb7/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e5e4fcb7/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e5e4fcb7/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e5e4fcb7/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e5e4fcb7/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/cc449e20.md
