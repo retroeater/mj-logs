@@ -53,17 +53,64 @@ Chat-Ref: CHAT-1101-PRP-06
 
 ## 経過
 
+### 0. 着手前の確認
+
+- 指示欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある
+- CHAT-1101-PRP-05 のログの状態は「判断待ち」だった。末尾に「 / 続き: CHAT-1101-PRP-06」を足して push した（44ef97575）
+- 同じ Chat-Ref のコミット: なし。作業ブランチはローカル・リモートとも 410409287 で一致
+- #641 にほかのセッションの着手中は無い。着手中のコメントを書いた
+
+### 1. cloudflare の取り込み
+
+- `git fetch origin cloudflare` の後も `git merge-base --is-ancestor origin/cloudflare HEAD` は真（origin/cloudflare の先頭 f1d4a0a0e）。取り込むものは無かった
+- 前提の RDR の変更（CHAT-1101-RDR-08 の `check_image_links.py` の UA の目印 `mj-internal`〈55a46bb64〉・RDR-05・07 の集計の UA の除外）は、PRP-04 の取り込み（1a24eb9c4）ですでに入っていた。そのときは衝突しなかった（PRP-04 の検知の対象の変更は `TARGET_HTML` と `extract_images()`、RDR-08 は `USER_AGENT` の行で、別の行）。今の `scripts/check_image_links.py:39` は `mj-internal` を含み、対象は `pro/index.html`
+- 取り込みが無いので、pro/・順位変動・title/ の再生成もしていない（生成物の差分は0件）
+
+### 2. 集計の対象
+
+- `docs/notes/redirects.md`: PRP-05 で作った「Worker の転送」の節を消し、`/jpml_pros.html` の行を「棚卸しの対象」の最後に移した（6列。仕組み「Worker `mj-pros-redirect`（…）」、入れた日「2026-11-01（仮。…その日に直す）」、最後の棚卸し「未（入れた日を直すまで判定しない。…）」）。冒頭の決まりに Worker の行の扱いを1行足した
+- `scripts/tests/test_redirects_inventory.py`: 「棚卸しの対象」の「仕組み」が Worker `<名前>` で始まる行（`worker_rows()`）を `_redirects` との照合から外し、代わりに `workers/*/wrangler.jsonc` のうちその名前の Worker のルート（`worker_routes()`）が転送元に当たるか（`route_covers()`、大文字小文字を区別する）と、同じ転送元が `_redirects` に無いことを確かめる（`test_worker_rows_match_routes`）。部品のテスト（`WorkerRowsTest`）も足した
+- 集計の仕組み（`fetch_redirect_counts.py`・UA の除外）は変えていない
+- 実データで動かした: `inventory_sources()` は40件で最後に `/jpml_pros.html`、`inventory_added_dates()` は 2026-11-01、`judge_date()` は 2027-01-30。`python3 scripts/fetch_redirect_counts.py --plan`（API を呼ばない）の「対象のパス」にも `/jpml_pros.html` が出た。GraphQL の `clientRequestPath` はクエリを含まないので、`?name=` の違いは `/jpml_pros.html` の1行にまとまる
+- #568 に、Worker の 301 が集計に出るかを公開の後の月次（2026-12-01）で確かめる旨をコメントした
+
+### 3. 確かめ
+
+- `python3 -m unittest discover -s scripts/tests`: 1,755件 OK。`node --test 'workers/*/test/*.test.mjs'`: 163件 OK
+- 修正前の `test_redirects_inventory.py`（HEAD の時点）を、新しい `redirects.md` に当てると `test_every_listed_row_exists` が FAIL（`/jpml_pros.html` が `_redirects` に無い）。新しいテストは通る
+- 未マージの `work/*` で、`docs/notes/redirects.md`・`test_redirects_inventory.py`・`docs/notes/pros-redirect-worker.md` を変えているものは無い
+
+### 4. 差分のレビュー（新しい文脈のサブエージェント、1回）
+
+渡したもの: 目的・決定・`git diff 44ef97575 HEAD`（ログを除く）・CLAUDE.md「コード規約」。サブエージェントもテスト（1,755件）と `--plan` と実データの読み取り（6列・日付・Worker の行・3つの wrangler.jsonc）を確かめた。高の指摘は無し。
+
+| 指摘 | 扱い |
+|---|---|
+| 仮の「入れた日」を直し忘れると、効く前の0件の期間が判定に入り、消す判断をされうる（中） | 直した（`docs/notes/pros-redirect-worker.md`「P1 の後の確かめ」に「入れた日を P1 の日に直す」を足し、「最後の棚卸し」の列に「入れた日を直すまで判定しない」と書いた） |
+| `worker_routes()` が関係の無い Worker の設定まで読み、コメントの書き方で落ちる・例外にファイル名が出ない（低） | 直した（一覧に出る Worker の設定だけを読み、例外にパスを付けた。読める形の上限を `簡略化:` で書いた） |
+| ルートの書き方（文字列だけ・`route`）は読めない（低） | 同上（`簡略化:` に書いた） |
+| `route_covers()` は fnmatch で Cloudflare より広く当たる（低） | 意図どおり（今のパターンでは差が無い。docstring に「近似」と書いた） |
+| `worker_rows()` が「別名」の節の Worker の行も許し、集計から漏れても気づけない（低） | 直した（「棚卸しの対象」だけを読む。「別名」に置くと `_redirects` に無い行として落ちる。テストも足した） |
+| `redirects.md` の冒頭の決まりの1行目に Worker の行の例外が無い（低） | 直した |
+| 「最後の棚卸し」の列に初回の時期が無い（低） | 直した（2027-01 は判定前と書いた） |
+| 「2026-12-01」は P1 が11月中に済まないと外れる（低） | 直した（文書は「P1 の翌月の月次（11月中に P1 が済めば 2026-12-01）」。決定の記録は平野さんの言葉のまま） |
+
+直した後: テスト 1,755件 OK
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1101-prp-pub
 - ログ: https://github.com/retroeater/mj/blob/work/1101-prp-pub/docs/logs/CHAT-1101-PRP-06.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1101-prp-pub
-- 確認用URL: 作業中
-- マージ: 未（判断待ち）
-- issue: #641・#568
-- 判断が必要なこと: 作業中
-- 未確認の項目: 作業中
+- 確認用URL: なし（サイトの生成物・見た目は変えていない。変えたのは転送の一覧の文書とテスト）
+- マージ: 未（指示のとおり。マージが pro/ の公開になる）
+- issue: #641（着手中のコメント）・#568（月次で確かめる旨のコメント）
+- 判断が必要なこと:
+  - 公開のマージ（live/〈#362〉の公開と告知動画の後、別の指示）。そのときに直すもの: `docs/notes/static-generation.md`「ページの一覧」の pro/ の「未公開」の記述（work/1029-lgn-page と同じ行。PRP-03 の判断待ちのとおり）
+  - 公開のマージの後: 平野さんの P1（Workers Builds のプロジェクト `mj-pros-redirect`、`docs/notes/pros-redirect-worker.md`）。その後に Claude Code が本番で数件確かめ、`docs/notes/redirects.md` の `/jpml_pros.html` の「入れた日」（今は仮の 2026-11-01）を P1 の日に直す
+- 未確認の項目:
+  - Worker が返した 301 が Cloudflare の GraphQL の集計（`httpRequestsAdaptiveGroups`）に出るか。P1 の翌月の月次（11月中に P1 が済めば 2026-12-01）で確かめる（#568 にコメントした）
 - エラー: なし
 
 <!-- guide-links -->
