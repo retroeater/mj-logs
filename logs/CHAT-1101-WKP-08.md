@@ -69,28 +69,40 @@ WKP 系列の 11/1 の作業（CHAT-1101-WKP-05〜07、#564 の段④の締め�
 
 ## 経過
 
+- 指示欄の末尾: ログの「## 指示」の最後の行が指示文の最後の行と一致することを確かめた
+- 同じ Chat-Ref のコミット: 0 件。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は4行ともあり。知見→層→理由の表はある
+- 作業ブランチ: work/1101-wkp はリモート・ローカルとも origin/cloudflare の祖先（マージ済み）。`git merge --ff-only origin/cloudflare` で 4bb630314 に進めた
+- 指示文の issue の state: 着手・コメント・クローズの対象の issue は無い
+- 同じ論点の issue: `search_issues` がこのセッションで使えなくなっていたので、`list_issues` で open・closed の全 634 件の題を確かめた。止まる条件の書き方・無関係な失敗の例外・手動実行の失敗でマージを止めることを主題にした issue は無かった。近いものは #291（open、check-run・マージ判定の検証のスクリプト化）・#294（closed、指示文テンプレートを版管理下に置く）・#334（closed、check-run の成功を本番反映の合図にしてよいか）で、どれも別の論点
+- 未マージの work/ ブランチで docs/instruction-template.md を変えるものは無い
+- handover-archive-2026.md: 「外した」の行に、check-run・無関係な失敗・止まる条件・手動実行に当たるものは無い
+- 拡張した行（docs/instruction-template.md 32行、#277 の行）: 「マージ後の check-run の失敗で止める条件は」を「マージ後の check-run の失敗・マージ前の手動実行の失敗で止める条件は」にした。あわせて「書く時点で mj-logs の actions/morning.md の1節に出ている失敗は、ジョブ名とメッセージで例外に書く（そのジョブがそのメッセージだけで落ちたら止まらない。書かないとそれで止まり往復が増える）。」を足し、後ろは今の文のまま
+  - 同じ趣旨の記述（instruction-template.md・chat-side-operations.md・chat-routines.md の「無関係な失敗」「無関係なら」）はこの行だけで、ほかに置き換えるものは無かった
+- サイズ: docs/instruction-template.md 13,164 → 13,470 バイト（警告域 14,336 未満）
+- 決定（この指示の「決定」・約束・前回の約束が守れたか）を docs/decisions/operations.md に足した
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1101-wkp
-- ログ: https://github.com/retroeater/mj/blob/work/1101-wkp/docs/logs/CHAT-1101-WKP-08.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1101-WKP-08.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1101-wkp
-- 確認用URL:
-- マージ:
-- issue:
-- 判断が必要なこと:
-- 未確認の項目:
-- エラー:
+- 確認用URL: なし
+- マージ: 済（ドキュメントのみ）
+- issue: なし
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 4bb63031）: https://github.com/retroeater/mj-logs/tree/main/guide/4bb63031
+ガイド文書（この版を写した時点の最新、mj d356d1bb）: https://github.com/retroeater/mj-logs/tree/main/guide/d356d1bb
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/4bb63031/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/4bb63031/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/4bb63031/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/4bb63031/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/4bb63031/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/4bb63031/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d356d1bb/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d356d1bb/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d356d1bb/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d356d1bb/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d356d1bb/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d356d1bb/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/cc449e20.md
