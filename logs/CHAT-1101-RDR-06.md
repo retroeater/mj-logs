@@ -55,15 +55,112 @@ Chat-Ref: CHAT-1101-RDR-06
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 着手前の確認
+
+- 0: このログの「指示」欄の末尾は指示文の最後の行と一致。RDR-05 の変更（6d0c14f ほか）は `origin/cloudflare` の祖先（RDR-07 のマージ 3911d5f で入った）
+- 同じ Chat-Ref のコミット: なし。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 欠けなし。#568: open
+- ガイド文に規則を足す指示で、「知見 → 選んだ層 → 理由」の表がある（CLAUDE.md「Chat-Ref」の確認に当たらない）
+- 作業ブランチ: ローカル・リモートとも `work/1101-rdr-age` が無かったため `git checkout -b work/1101-rdr-age origin/cloudflare`（起点 50dcad8）
+- 未マージの work/ ブランチ: 触るファイルを変えているのは `origin/work/1017-lvp`（`scripts/lib/members.py`・`scripts/lib/study.py`）と `origin/work/1029-lgn-page`（`scripts/lib/stations.py`）だけ。どちらも本番への HTTP や転送の一覧と関係しない別のファイルなので止まらない
+
+### 手順1: 同じ論点の issue
+
+- `search/issues`（`is:issue`、open・closed）で「mj-internal」「User-Agent」「転送 棚卸し」「入れた日」「redirect」「一括取得 UA」を検索。棚卸しの基準・UA の規則を主題にする issue は対象の #568 だけだった（#485 は jpml_titles の転送の終え方、#554 は AI クローラーの 403 で別の論点）
+- redirects.md・CLAUDE.md「判断・作業の原則」・chat-side-operations.md「読み方」「指示文の書き方・渡し方」を読んだ。目印の UA と食い違う規則は無い（chat-side-operations.md の「チャット側から本番を読む手段は WebFetch と Chrome」は読む手段の記述で、矛盾しない）
+
+### 手順2: 入れた日・判定できる日（6bb7e4b）
+
+調べ方:
+
+- `_redirects` のその行（行頭が転送元）を最初に足したコミットを `git log origin/cloudflare --reverse -G '^<転送元>[ \t]' -- _redirects` で探した
+- そのコミットが cloudflare に入った時刻は、GitHub の `GET /repos/retroeater/mj/activity?ref=refs/heads/cloudflare`（push の記録、2026-09-06 以降の 2,556 件）の各 push の `before..after` に、そのコミットが初めて含まれた push の時刻（JST）とした。コミットの日付は push より前のことがある（例: 167b4ec はコミットが 10/15、cloudflare に入ったのは 10/16）
+- 全 39 行で確かめられた（確かめられない行は無い）。18 行は今の値と同じ日だった。直したのは次の 21 行
+
+| 転送元 | 前の値 | 新しい値 | 根拠のコミット |
+|---|---|---|---|
+| `/ouka/ranking/` | 2026-10-17（未公開。#519） | 2026-10-18（未公開で入れた。#519） | d8443ed（コミット 2026-10-17T03:18 UTC）。cloudflare への push 2026-10-18 21:23 JST（8165a7b） |
+| `/houou_ranking.html` | #540 の公開の日 | 2026-10-16（#540 の公開） | edcbe3b（コミット 2026-10-16T06:42 UTC）。cloudflare への push 2026-10-16 16:19 JST（5b362ee） |
+| `/houou_leagues.html` | #540 の公開の日 | 2026-10-16（#540 の公開） | edcbe3b（コミット 2026-10-16T06:42 UTC）。cloudflare への push 2026-10-16 16:19 JST（5b362ee） |
+| `/houou_race.html` | #540 の公開の日 | 2026-10-16（#540 の公開） | edcbe3b（コミット 2026-10-16T06:42 UTC）。cloudflare への push 2026-10-16 16:19 JST（5b362ee） |
+| `/houou_results.html` | #540 の公開の日 | 2026-10-16（#540 の公開） | edcbe3b（コミット 2026-10-16T06:42 UTC）。cloudflare への push 2026-10-16 16:19 JST（5b362ee） |
+| `/saikyo/2011.html` | #549 の公開の日 | 2026-10-16（#549 の公開） | 167b4ec（コミット 2026-10-15T09:59 UTC）。cloudflare への push 2026-10-16 09:39 JST（push 後の先頭 fa27910） |
+| `/saikyo/2012.html` | #549 の公開の日 | 2026-10-16（#549 の公開） | 167b4ec（コミット 2026-10-15T09:59 UTC）。cloudflare への push 2026-10-16 09:39 JST（push 後の先頭 fa27910） |
+| `/saikyo/2013.html` | #549 の公開の日 | 2026-10-16（#549 の公開） | 167b4ec（コミット 2026-10-15T09:59 UTC）。cloudflare への push 2026-10-16 09:39 JST（push 後の先頭 fa27910） |
+| `/saikyo/2014.html` | #549 の公開の日 | 2026-10-16（#549 の公開） | 167b4ec（コミット 2026-10-15T09:59 UTC）。cloudflare への push 2026-10-16 09:39 JST（push 後の先頭 fa27910） |
+| `/saikyo/2015.html` | #549 の公開の日 | 2026-10-16（#549 の公開） | 167b4ec（コミット 2026-10-15T09:59 UTC）。cloudflare への push 2026-10-16 09:39 JST（push 後の先頭 fa27910） |
+| `/saikyo/2016.html` | #549 の公開の日 | 2026-10-16（#549 の公開） | 167b4ec（コミット 2026-10-15T09:59 UTC）。cloudflare への push 2026-10-16 09:39 JST（push 後の先頭 fa27910） |
+| `/saikyo/2017.html` | #549 の公開の日 | 2026-10-16（#549 の公開） | 167b4ec（コミット 2026-10-15T09:59 UTC）。cloudflare への push 2026-10-16 09:39 JST（push 後の先頭 fa27910） |
+| `/saikyo/2018.html` | #549 の公開の日 | 2026-10-16（#549 の公開） | 167b4ec（コミット 2026-10-15T09:59 UTC）。cloudflare への push 2026-10-16 09:39 JST（push 後の先頭 fa27910） |
+| `/saikyo/2019.html` | #549 の公開の日 | 2026-10-16（#549 の公開） | 167b4ec（コミット 2026-10-15T09:59 UTC）。cloudflare への push 2026-10-16 09:39 JST（push 後の先頭 fa27910） |
+| `/saikyo/2020.html` | #549 の公開の日 | 2026-10-16（#549 の公開） | 167b4ec（コミット 2026-10-15T09:59 UTC）。cloudflare への push 2026-10-16 09:39 JST（push 後の先頭 fa27910） |
+| `/saikyo/2021.html` | #549 の公開の日 | 2026-10-16（#549 の公開） | 167b4ec（コミット 2026-10-15T09:59 UTC）。cloudflare への push 2026-10-16 09:39 JST（push 後の先頭 fa27910） |
+| `/saikyo/2022.html` | #549 の公開の日 | 2026-10-16（#549 の公開） | 167b4ec（コミット 2026-10-15T09:59 UTC）。cloudflare への push 2026-10-16 09:39 JST（push 後の先頭 fa27910） |
+| `/saikyo/2023.html` | #549 の公開の日 | 2026-10-16（#549 の公開） | 167b4ec（コミット 2026-10-15T09:59 UTC）。cloudflare への push 2026-10-16 09:39 JST（push 後の先頭 fa27910） |
+| `/saikyo/2024.html` | #549 の公開の日 | 2026-10-16（#549 の公開） | 167b4ec（コミット 2026-10-15T09:59 UTC）。cloudflare への push 2026-10-16 09:39 JST（push 後の先頭 fa27910） |
+| `/saikyo/2025.html` | #549 の公開の日 | 2026-10-16（#549 の公開） | 167b4ec（コミット 2026-10-15T09:59 UTC）。cloudflare への push 2026-10-16 09:39 JST（push 後の先頭 fa27910） |
+| `/saikyo/2026.html` | #549 の公開の日 | 2026-10-16（#549 の公開） | 167b4ec（コミット 2026-10-15T09:59 UTC）。cloudflare への push 2026-10-16 09:39 JST（push 後の先頭 fa27910） |
+
+- 前提「#540 のクローズは 2026-10-16、#549 の本番反映も 2026-10-16」は、cloudflare への push の時刻（10/16 16:19 JST・10/16 09:39 JST）と合う
+- `/ouka/ranking/` は、今の値 2026-10-17 がコミットの日（UTC 10/17 03:18 = JST 10/17 12:18）で、cloudflare に入ったのは 10/18 21:23 JST。前提の案（cloudflare に入った日）に従い 2026-10-18 にした
+- redirects.md「棚卸しの対象」の説明に「入れた日」の定義（cloudflare に入った日、JST、YYYY-MM-DD で始める）を1文足した。「棚卸しの手順」の削除の基準の下に「入れた日から90日経っていない行は判定しない。『最後の棚卸し』に『判定前（判定できる日 YYYY-MM-DD）』と書いて次へ回す」を足した
+- `fetch_redirect_counts.py`: 表の読み取りを `section_table` にまとめ、`inventory_added_dates`（「入れた日」の列を見出しで探し、先頭の YYYY-MM-DD を読む）と `judge_date`（＋`JUDGE_DAYS` = 90 日）を足した。`comment_text` に引数 `added_dates` を足し、渡したときだけ表の右端に「判定できる日」の列と注記の1行を出す（日付で始まらない行は「（入れた日が日付でない）」）
+- テスト（`test_fetch_redirect_counts.py`）: 読み取り・90日後の計算・列の有無・列の数（見出し・区切り・行）・注記。**実物の redirects.md の全行の「入れた日」が日付で始まること**（`test_real_inventory_added_dates_are_dates`。redirects.md を直す前は FAIL、直した後は OK）。`python3 -m unittest discover -s scripts/tests` は OK。修正前のスクリプト（origin/cloudflare）に新しいテストを当てると 3 件 ERROR（#310 の確認）
+
+### 手順3: 目印の UA
+
+- **本番（ryoei.pro）へ HTTP 要求を送る共通の部品は scripts に無い。** 変えたスクリプトは無い
+  - `scripts/lib/net_retry.py` は再試行の共通処理で、UA を持たない（要求は各スクリプトが作る）
+  - ryoei.pro へ要求を送るのは `scripts/fetch_gsc.py` の `robots.txt` の取得（月1回1件、`requests` の既定の UA `python-requests/…`。RDR-05 で集計から除外済み）だけ。一括の取得ではないので変えていない
+  - ほかの UA を持つ要求（`check_image_links.py`・`collect_saikyo_images.py`・`lib/dojo_guest.py`・`lib/wayhome.py`・`generate_live_pages.py` など）の送り先は外部（画像・連盟サイト・ABEMA など）で、指示どおり変えていない
+  - `workers/`・`.github/workflows/` にも ryoei.pro へまとめて要求を送るものは無い（grep）
+- ガイド文の大きさ（上限は各 28KB=28,672 バイト、警告域 26KB=26,624 バイト。`check-assets.yml`）: CLAUDE.md 23,768 → 23,967 バイト（警告域まで 2,657）、chat-side-operations.md 22,473 → 22,746 バイト（警告域まで 3,878）
+- （32ea23c）CLAUDE.md「判断・作業の原則」の「外部ドメインへの依存を増やさない」の次に1文、chat-side-operations.md「指示文の書き方・渡し方」に1文（指示文で UA に `mj-internal` を含めさせる）を足した。部品が無いので、層は「ガイド文」だけになった（表の「計算的」の側は該当なし）
+- docs/decisions/cloudflare.md に決定を足した
+
+### 作業ブランチでの手動実行（dry-run、month 2026-10、run 41268340019、32ea23c）
+
+- 成功。#568 のコメントの表の右端に「判定できる日」が全 39 行に出た（「（入れた日が日付でない）」の行は無し）。例: `/tanilog.html` 2026-12-06、`/saikyo_results.html` 2026-12-20、`/jpml_titles.html` 2026-12-29、`/houou_*.html`・`/saikyo/<年度>.html` 2027-01-14、`/saikyo/ranking/qualifier-*/` 2027-01-25。注記に「判定できる日: 「入れた日」（`docs/notes/redirects.md`）の90日後。この日より前の棚卸しでは判定せず、次へ回す」が出た
+- 2027-01 上旬の初回の棚卸しで判定できるのは、判定できる日が棚卸しの日以前の行だけ（2027-01-14 以降の行は、上旬に行うなら判定前になる）
+
+### 差分の自己レビュー（新しい文脈のサブエージェント、1回）
+
+レビュー側でも `/houou_results.html`・`/saikyo/2015.html`・`/ouka/ranking/` の入れた日を git で照合し、記載と合うとした。テストは 1733 件 OK。
+
+| 指摘 | 扱い |
+|---|---|
+| 低: 「入れた日」の列が無いと `{}` が返り、列が出て全行が「（入れた日が日付でない）」になる | 直した（10239334a。列が無ければ None を返し、表に列を出さない） |
+| 低: 同じ節に2つ目の表が増えると、行が混ざる・見出しは1つ目のものになる | 意図どおり（今の節は表が1つ。1列目の読み方は前からの挙動と同じ） |
+| 低: 行のセルが見出しより少ない分岐のテストが無い | 直した（10239334a。テストを1つ足した） |
+
+### マージ前の確認
+
+- `git diff origin/cloudflare...HEAD --stat`: CLAUDE.md（+1）・docs/decisions/cloudflare.md（追記のみ、削除行 0）・docs/logs/CHAT-1101-RDR-06.md・docs/notes/chat-side-operations.md（+1）・docs/notes/redirects.md・scripts/fetch_redirect_counts.py・scripts/tests/test_fetch_redirect_counts.py。冒頭の「マージ:」の条件どおり（転送の2つのテストのうち、変えたのは集計のテストだけ。`test_redirects_inventory.py` は変えていない）
+- `python3 -m unittest discover -s scripts/tests`: OK
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1101-rdr-age
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1101-RDR-06.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1101-rdr-age
+- 確認用URL: なし（scripts/ と docs/ と CLAUDE.md だけの変更。Workers Builds の対象外）
+- マージ: 済（`## 経過` の末尾に SHA を追記）
+- issue: #568
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 50dcad88）: https://github.com/retroeater/mj-logs/tree/main/guide/50dcad88
+ガイド文書（この版を写した時点の最新、mj e5e4fcb7）: https://github.com/retroeater/mj-logs/tree/main/guide/e5e4fcb7
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/50dcad88/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/50dcad88/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/50dcad88/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/50dcad88/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/50dcad88/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/50dcad88/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e5e4fcb7/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e5e4fcb7/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e5e4fcb7/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e5e4fcb7/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e5e4fcb7/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e5e4fcb7/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/cc449e20.md
