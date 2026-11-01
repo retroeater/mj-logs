@@ -83,30 +83,26 @@
 
 ## 報告
 
-- 状態: 判断待ち（マージ済み。マージ後に数日見ることが残る）
+- 状態: 完了（残る論点は CHAT-1101-MCK-31 で #504 に移した）
 - ブランチ: work/1014-acf-cron
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1014-ACF-18.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1014-acf-cron
 - 確認用URL: なし（Worker のコードと docs のみ）
 - マージ: 済（592334b3）。Workers Builds: mj-scheduler は success
 - issue: #504（着手中・結果をコメント）・#506（本文を書き換えた）
-- 判断が必要なこと:
-  - なし（数日見た結果で、#504 の段階を進めるかを決める）
-- 未確認の項目:
-  - ふだんの朝が変わらないこと（#506 に何も出ない、`[scheduled]` の実行の作られた時刻が予定から1分以内）。2026-10-15 の朝から数日
-  - チェックポイントの回の REST の数と、`埋め合わせ:` の行が出ないこと（Observability。平野さんかチャット側が見る）。06:15・06:30 の回に #506 への書き込みが増えないこと
-  - 次に回が抜けた朝に、埋め合わせで起動して結論が success になること
+- 判断が必要なこと: なし（#504 に移した）
+- 未確認の項目: なし（#504 に移した）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 592334b3）: https://github.com/retroeater/mj-logs/tree/main/guide/592334b3
+ガイド文書（この版を写した時点の最新、mj e5e4fcb7）: https://github.com/retroeater/mj-logs/tree/main/guide/e5e4fcb7
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/592334b3/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/592334b3/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/592334b3/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/592334b3/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/592334b3/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/592334b3/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/191d9dbd.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e5e4fcb7/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e5e4fcb7/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e5e4fcb7/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e5e4fcb7/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e5e4fcb7/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e5e4fcb7/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a3e6ae1b.md

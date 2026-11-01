@@ -229,30 +229,26 @@
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 完了（残る論点は CHAT-1101-MCK-31 で #490 に移した）
 - ブランチ: work/1017-lvp-3t
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1017-LVP-07.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1017-lvp-3t
 - 確認用URL: なし
 - マージ: 済（6e2dbd211）
 - issue: #490（着手中のコメントのみ。本文・ラベルは変えていない）、#362
-- 判断が必要なこと:
-  - 3大会の【3】の行は94行（達人戦 81・昇龍戦 5・鳳匠戦 8）、掲載は全部空欄。案ごとの件数は Y 案 12・N 案（冒頭）11・N 案（ベスト16 より前: リーグ戦の節 63・プレーオフ 6）69・要確認 2。行ごとの表は `## 経過` の「手順2」
-  - 落ちる行・作られないページ: なし（Y 案の12行を Y にした模擬で、12行とも通り、URL の重なりも無い。個別ページは 9 増える）
-  - 平野さんがシートに足すもの: (1) 【3】の掲載（Y 案 12行に Y、N 案 80行に N）。(2) 行4247（第1期昇龍戦 ベスト8・決勝のメンバー限定版）のまとめ単位を「ベスト8、決勝」にするか（今は「ベスト8」だけで決勝のページが作られない。変えれば決勝のページも作られることを模擬で確かめた）。(3) 行4232・4244（第2期昇龍戦、2026-06 の放送）はステージが空で題名にも段階が無いため、ステージを確かめて掲載を決める。「タイトル戦」シートは3大会とも行があり（shouryu・housho・tatsujin）、足すものは無い
-  - コードに足すもの: なし（Y 案が使うステージ「ベスト16」「ベスト8」「決勝」は記号の表にある）。プレーオフ（達人戦の各期2本）を載せると決めたときだけ、ステージの記号の追加とまとめ単位の入力が要る。プレーオフを「ベスト16 より前」に数えてよいか（N 案にした）も確かめてほしい
-- 未確認の項目: なし
+- 判断が必要なこと: なし（#490 に移した）
+- 未確認の項目: なし（#490 に移した）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj d42c0618）: https://github.com/retroeater/mj-logs/tree/main/guide/d42c0618
+ガイド文書（この版を写した時点の最新、mj e5e4fcb7）: https://github.com/retroeater/mj-logs/tree/main/guide/e5e4fcb7
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d42c0618/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d42c0618/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d42c0618/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d42c0618/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d42c0618/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d42c0618/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/42c384b5.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e5e4fcb7/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e5e4fcb7/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e5e4fcb7/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e5e4fcb7/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e5e4fcb7/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e5e4fcb7/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a3e6ae1b.md

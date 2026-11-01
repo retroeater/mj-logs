@@ -128,30 +128,26 @@
 
 ## 報告
 
-- 状態: 判断待ち（ページ送りをマージし、2人の未反映の期間の写真付きの投稿を全件〈707件〉取って【1】元データに 611行を足した。【2】の作りは別の指示） / 続き: CHAT-1015-MCK-14
+- 状態: 完了（残る論点は CHAT-1101-MCK-31 で #367 に移した）
 - ブランチ: work/1015-mck-367
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1015-MCK-12.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1015-mck-367
 - 確認用URL: なし
 - マージ: 済（281059a75。この報告は後の docs/logs・docs/decisions のみの追いの push）
 - issue: #367 に結果をコメント（https://github.com/retroeater/mj/issues/367#issuecomment-6187788583）
-- 判断が必要なこと:
-  - 【2】自動変換後を作る指示（店名・最寄り駅名・Google マップの URL。2026-10-15 の決定どおり別の指示）。材料は【1】元データの 809行（うち今回の未反映の期間 谷岡さん 632件・平野さん 75件）
-  - 平野さんの写真付きの投稿が見込みより大幅に少ない（75件。見込み約323件）。条件（`has:images`・返信とリポストを除く）で漏れている投稿が無いか、【1】を見て確かめるか（例: 返信の形で写真を付けた投稿は除かれている）
-- 未確認の項目:
-  - 実際の請求額（今回 707件・見込み $3.535、MCK-10 の 91件・見込み $0.455 を含めて。X の開発者画面で平野さんが見る）
-  - `result_count` 0 のページ（谷岡さんの3ページ目・平野さんの2ページ目）が請求に入るか
+- 判断が必要なこと: なし（#367 に移した）
+- 未確認の項目: なし（#367 に移した）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj e2355cd7）: https://github.com/retroeater/mj-logs/tree/main/guide/e2355cd7
+ガイド文書（この版を写した時点の最新、mj e5e4fcb7）: https://github.com/retroeater/mj-logs/tree/main/guide/e5e4fcb7
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2355cd7/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2355cd7/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2355cd7/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2355cd7/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2355cd7/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2355cd7/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/95d46b4d.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e5e4fcb7/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e5e4fcb7/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e5e4fcb7/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e5e4fcb7/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e5e4fcb7/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e5e4fcb7/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a3e6ae1b.md

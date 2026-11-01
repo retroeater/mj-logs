@@ -174,30 +174,26 @@
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 完了（残る論点は CHAT-1101-MCK-31 で #514 に移した）
 - ブランチ: work/1010-xap（cloudflare へマージ済み）
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1011-XAP-09.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1010-xap
 - 確認用URL: なし（マージ済み。差分の確かめは再生成の比べで行った）
 - マージ: 済（1245b908）
 - issue: #514（閉じない）、#534（写真の切れ 0 でクローズされた）
-- 判断が必要なこと:
-  - 平野さんへの知らせ: **今日（2026-10-11）から、X・note・YouTube の ID の直しは SNS ブックの【2】で行い、旧列（「プロ」の XID・X画像・noteID・note画像・YouTubeID、「連盟プロ以外」の X ID・X画像URL）は直さない。** 写真を手で上書きしたいときは【4】手動補正（見出しは入れてある）
-  - 旧列を空にする指示に向けて決めること: (1) 空にする日（数日ページを見てから。例 2026-10-14 以降）、(2) 空にするのは機械（`live-channel-writer` は正本・/live 用を共有していないため、共有が要る）か平野さん（手で列を選んで消す）か。勧めるのは平野さんの手作業（サービスアカウントに正本・/live 用を共有しない決定〈2026-10-10〉を保てる）。`update_sns_book.py` の【1】の元と `--init`・`--check` の確かめは旧列を読むので、空にした後は init と check の「写した値の確かめ」は使えなくなる（毎日の更新は名前と名前かなだけを読むので影響しない）
-  - 【3】で X状態が「アカウントなし」の人が2人いる（吉田彩乃など。【2】に X ID があるが X API がアカウントなしを返した）。jpml_pros の X の写真は空になり、リンクは残る。【2】を「-」にするか ID を直すかは平野さん
-- 未確認の項目:
-  - 明日 04:10 の SNS ブックの毎日の更新（cloudflare の新しい版）で、【3】が変わった日に全ページの再生成が起動するか（作業ブランチでは起動を確かめた。起動したジョブは不具合で失敗し、直した後の再生成は単独で success）
+- 判断が必要なこと: なし（#514 に移した）
+- 未確認の項目: なし（#514 に移した）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj b2727163）: https://github.com/retroeater/mj-logs/tree/main/guide/b2727163
+ガイド文書（この版を写した時点の最新、mj e5e4fcb7）: https://github.com/retroeater/mj-logs/tree/main/guide/e5e4fcb7
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b2727163/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b2727163/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b2727163/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b2727163/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b2727163/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b2727163/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b2727163.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e5e4fcb7/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e5e4fcb7/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e5e4fcb7/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e5e4fcb7/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e5e4fcb7/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e5e4fcb7/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a3e6ae1b.md

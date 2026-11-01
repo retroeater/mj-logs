@@ -116,31 +116,26 @@ HOU-63 で作った公開の変更（旧4ページの 301・jpml_pros のリン�
 
 ## 報告
 
-- 状態: 判断待ち（X の告知の準備ができた。投稿は平野さん）
+- 状態: 完了（残る論点は CHAT-1101-MCK-31 で #304 に移した）
 - ブランチ: work/1016-hou4（cloudflare へマージ済み）
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1016-HOU-64.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1016-hou4
 - 確認用URL: なし（本番 https://ryoei.pro/houou/ で確かめた）
 - マージ: 済（4f9aee6cc..5b362ee36。この報告と handover・houou-top の docs のみの追いの push あり）
 - issue: #540・#518・#520・#141・#371・#228 を閉じた。#582 を起票（旧4ページの後始末）。#541 は開けたまま
-- 判断が必要なこと:
-  - 告知の準備ができた: 投稿文は HOU-63 のログの案B（全文はそのログの「手順4」）、動画は houou-promo-v4.mp4。投稿は平野さん。動画の範囲の字幕は「691名」で、今の在籍は690名（退会者1名の分。撮り直さない決定のまま）
-  - 他のシートの確かめ: 退会者を在籍者として残している他のシートは見つからなかった。ただし今回生成し直していない `dic/pros.json`（辞書）・`houou_leagues.html`（旧ページ）にはまだ在籍者として出ている（次の再生成〈週次の all・月曜〉で消える。比較用の生成で消えることを確かめた）。急ぐなら `regenerate-page.yml` を `resource_dictionary houou_leagues` で手動実行する
-  - 質問欄のデータ `workers/ask/data.json` は指示の対象の外だったが、退会者がランキングに残って順位がページと1つずれるため、生成し直して含めた（差は退会者の分だけ）
-- 未確認の項目:
-  - 質問欄の全体の1日の上限が本番で200になっていること（応答に値が出ない。D1 の `daily_counts` が200に届くか、ダッシュボードの mj-ask の Variables の `DAILY_LIMIT` で見られる）
-  - X・LINE の投稿画面でのカード表示、Search Console での `sitemap.xml` の再送信と URL 検査、平野さんの実機での見え方（#540 の本文の残り）
+- 判断が必要なこと: なし（#304 に移した）
+- 未確認の項目: なし（#304 に移した）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 065b75e3）: https://github.com/retroeater/mj-logs/tree/main/guide/065b75e3
+ガイド文書（この版を写した時点の最新、mj e5e4fcb7）: https://github.com/retroeater/mj-logs/tree/main/guide/e5e4fcb7
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/065b75e3/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/065b75e3/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/065b75e3/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/065b75e3/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/065b75e3/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/065b75e3/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/91b5dd30.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e5e4fcb7/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e5e4fcb7/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e5e4fcb7/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e5e4fcb7/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e5e4fcb7/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e5e4fcb7/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a3e6ae1b.md

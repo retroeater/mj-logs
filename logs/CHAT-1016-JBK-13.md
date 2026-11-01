@@ -72,31 +72,26 @@ CHAT-1016-JBK-12 で、`--check` と週次の再生成のログ（Actions）に�
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 完了（残る論点は CHAT-1101-MCK-31 で #576 に移した）
 - ブランチ: work/JBK
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1016-JBK-13.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/JBK
 - 確認用URL: なし（ページの見た目は変えていない。生成物の差分0）
 - マージ: 済（55ef1c423）
 - issue: #576（着手中のコメント、進み具合のコメント）
-- 判断が必要なこと:
-  - 切り替えは環境変数 `CI` の有無にした（明示のオプションは足していない）。手元の Code のセッションでは `CI` が無いので一覧が出る。作業ログ・issue には件数だけを書く
-  - 平野さんの手作業: 生徒の名前をタブ「女流勉強会」の「生徒」列に入れる（「、」区切り）。旧名を掘り起こされたくない人は入れない（外したことは「備考」列に）。「別名」はタブに入れると決めた人にだけ足す（使われない別名は「使われていない登録」の issue に旧名→現名で載るため）
-  - 入れた後の確かめ: 写真入りの人が本人か。名前の一覧は別の指示で手元に出す（Actions のログには件数だけが出る）
-  - 公開（#576）の残りの段は #576 の本文のとおり
-- 未確認の項目:
-  - Actions のログ（regenerate のジョブ）で生徒の行が件数だけになっていること（今はタブの生徒が空で「生徒の名前を入れた回はありません」になる見込み。名前を入れた後の週次の再生成で分かる）
+- 判断が必要なこと: なし（#576 に移した）
+- 未確認の項目: なし（#576 に移した）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 55ef1c42）: https://github.com/retroeater/mj-logs/tree/main/guide/55ef1c42
+ガイド文書（この版を写した時点の最新、mj e5e4fcb7）: https://github.com/retroeater/mj-logs/tree/main/guide/e5e4fcb7
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/55ef1c42/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/55ef1c42/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/55ef1c42/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/55ef1c42/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/55ef1c42/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/55ef1c42/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/dde77936.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e5e4fcb7/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e5e4fcb7/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e5e4fcb7/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e5e4fcb7/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e5e4fcb7/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e5e4fcb7/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a3e6ae1b.md
