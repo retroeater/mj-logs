@@ -136,15 +136,64 @@ mj-logs（変えない）:
 
 5つとも当たらないので、全部を上げる。
 
+### 手順3: 上げ
+
+- コミット 44cce6393「chore: bump Node.js 20 actions to their Node.js 24 majors」: 25ファイル・59行の置き換え（`git diff` の `-`/`+` で `uses:` を含まない行は0行）。上げた後、旧 SHA（11d5960a・a26af69b・f28e40c7・c200f369・0057852b）は `.github/` に0件
+  - actions/checkout → 3d3c42e5aac5ba805825da76410c181273ba90b1（v7.0.1）26行
+  - actions/setup-python → 6d4fd22b20465ccc0f7354476588e8df7c9ca0e0（v7.1.0）12行
+  - actions/github-script → 3a2844b7e9c422d3c10d287c895573f7108da1b3（v9.0.0）7行
+  - google-github-actions/auth → 7c6bc770dae815cd3e89ee6cdf493a5fab2cc093（v3.0.0）13行
+  - actions/cache → 55cc8345863c7cc4c66a329aec7e433d2d1c52a9（v6.1.0）1行
+- `python3 -m unittest discover -s scripts/tests`: 1733件 OK。`node --test .github/actions/upsert-issue/test/*.test.js`: pass 18・fail 0
+- `.github/dependabot.yml` はメジャー版の上げを受けない設定（「メジャー版は四半期の棚卸し(#601)でまとめて見る」）。今回は手で上げた。設定は変えていない
+- `origin/cloudflare` を取り込んだ（518bd9e32。cloudflare 側の `.github/` の変更は e2ecc5ca1 の convert-x-posts.yml のコメントだけで、自動で解けた。取り込み後も旧 SHA は0件、cloudflare との差の `.github/` は `uses:` の行だけ）
+
+### 手順4: 確かめ（作業ブランチ work/1102-nod、eb9d30c69）
+
+`actions/runs?branch=work/1102-nod` と、各ジョブの `check-runs/<job>/annotations` で「Node.js 20」を含む注記を数えた（スクリプトは scratchpad の runs.py）。
+
+| ワークフロー | 入力 | run | 結果 | ジョブ数 | Node.js 20 の注記 |
+|---|---|---|---|---|---|
+| check-assets | push | 41363197390 | success | 1 | 0 |
+| check-sheets-reader | なし | 41363268423 | success | 1 | 0 |
+| security-check | なし | 41363270955 | success | 1 | 0 |
+| check-build-failure | check_run_id=125011040597・dry_run | 41363273348 | success | 1 | 0 |
+| check-image-links | dry_run | 41363275790 | success | 3 | 0 |
+| check-meibo | dry_run | 41363278488 | success | 2 | 0 |
+| check-saikyo-unregistered | dry_run | 41363281186 | success | 1 | 0 |
+| cleanup-branches | dry_run | 41363283882 | success | 1 | 0 |
+| cleanup-logs | dry_run | 41363287157 | success | 1 | 0 |
+| convert-x-posts | dry_run | 41363289266 | success | 1 | 0 |
+| fetch-x-posts | dry_run | 41363291481 | success | 1 | 0 |
+| fetch-redirect-counts | dry_run | 41363293710 | success | 1 | 0 |
+| research-candidates | dry_run | 41363296045 | success | 1 | 0 |
+| sync-birthday-calendar | 既定（差分だけ） | 41363298414 | success | 1 | 0 |
+| sync-yotei | 既定（書かない） | 41363300785 | success | 1 | 0 |
+| update-sns-book | mode=check・dry_run | 41363303180 | success | 2（regenerate は skipped） | 0 |
+| update-live-channel | 既定（apply なし） | 41363308644 | success | 3 | 0 |
+| regenerate-page | target_page=all・dry_run | 41363306425 | （下に追記） | | |
+
+- ステップの成否も見た: checkout・setup-python（直と部品）・Google の認証（auth、research-candidates・fetch-x-posts・convert-x-posts・check-sheets-reader・update-sns-book）・upsert-issue（github-script、cleanup-logs の「条件外のログを常設issue」）が success。commit-push・コミットの step は dry-run で skipped
+- 手動で動かさなかったもの（本番へ書き込む、または書かない道筋が無い）: run-daily・run-weekly・run-monthly、sync-dojo-calendar（手動でも新しい画像を読めば #426 に書く。actions/cache はこの本だけ）、fetch-gsc（robots.txt に差分があれば #304 に書く）、fetch-youtube（書かない道筋が無い）、regenerate-saikyo（ABEMA ブックを書く）、regenerate-sitemap（push の契機だけ）
+- 確かめられなかった道筋: checkout の認証情報で push する道筋（commit-push の部品・regenerate-page・regenerate-sitemap・update-live-channel・fetch-gsc・cleanup-branches の削除）と actions/cache の復元・保存。マージ後の定期実行で確かめる（報告の「未確認の項目」）
+
+### 自己レビュー（サブエージェント、1回目）
+
+`git diff origin/cloudflare...HEAD -- .github` と目的・決定・コード規約を渡した。指摘は0件（観点: 目的・SHA とタグと runs.using・破壊的変更・ほかのワークフロー・security.md「点検の観点」(d)。SHA はタグと一致〈github-script は annotated tag の `^{}`〉、5つとも node24、checkout v6 の認証情報の別ファイル化はワークスペースの中の git push/pull だけの使い方に当たらない、github-script v9 の dist は CJS でローカルの絶対パスの require は動く、と根拠を添えて返った）。
+
+| 指摘 | 扱い |
+|---|---|
+| なし | — |
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 89283fee）: https://github.com/retroeater/mj-logs/tree/main/guide/89283fee
+ガイド文書（この版を写した時点の最新、mj 8abd90d5）: https://github.com/retroeater/mj-logs/tree/main/guide/8abd90d5
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/89283fee/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/89283fee/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/89283fee/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/89283fee/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/89283fee/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/89283fee/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/cc812798.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/8abd90d5/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/8abd90d5/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/8abd90d5/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8abd90d5/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8abd90d5/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8abd90d5/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/8abd90d5.md
