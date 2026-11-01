@@ -103,18 +103,34 @@ CHAT-1102-WKP-09 の判断待ちへの回答。止まった手順2・3（時刻�
 
 同じ目的の issue を open・closed の全 637 件の題で探した（`search_issues` は使えなかった）。近いのは #298（Actions の使用量の監視と削減、open）で、案A（全部を日次にする）とは目的が違うので、本文で参照する形にした。#647 を起票した（ラベル「分野: 自動化」）。
 
+### マージ
+
+push の直前に再 fetch したところ、origin/cloudflare が b37a2a5cb（bot の再生成）に進んでいた。HEAD の祖先ではなかったので、`git merge origin/cloudflare` で取り込んだ（衝突なし。取り込んだ側に `.github/`・`workers/scheduler/`・`docs/notes/` の変更は無い）。もう一度 fetch して祖先であることを確かめ、`git push origin work/1102-wkp:cloudflare`（b37a2a5cb..096eaef69）でマージした。マージの差分の種類は `.github/workflows/`・`workers/scheduler/`（schedule.json とテスト）・`docs/` だけ。
+マージの後の 096eaef69 の check-run（`gh api` で読んだ）:
+- 「Workers Builds: mj」は2回とも success
+- 「Workers Builds: mj-scheduler」（Build ID 21cda193）は success（Skipped ではない）
+- check は success、notify は skipped
+- Actions の「公開対象の検査」は success、「本番ビルド失敗の検知」は skipped
+- cloudflare に 096eaef69 の後の bot のコミットは無い
+#564 に結果をコメントした（https://github.com/retroeater/mj/issues/564#issuecomment-6565454030 ）。#564 は閉じていない。
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1102-wkp
-- ログ: https://github.com/retroeater/mj/blob/work/1102-wkp/docs/logs/CHAT-1102-WKP-10.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1102-WKP-10.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1102-wkp
-- 確認用URL:
-- マージ:
-- issue:
+- 確認用URL: なし（配信物は変えていない）
+- マージ: 済（096eaef69）
+- issue: #647（起票、案A）、#564（結果のコメント。閉じていない）
 - 判断が必要なこと:
+  - CLAUDE.md「判断・作業の原則」の「週次の`check-meibo.yml`も実行する」が古い（今は毎朝の run-daily）。この指示のマージの差分に CLAUDE.md を入れられないので直していない。直す指示を出すか
+  - convert-x-posts.yml の冒頭のコメント「毎週月曜 02:00 JST に run-weekly.yml から」と入力の説明「run-weekly.yml から」が古い（今は run-daily）。work/1028-lgn が同じ行を変えているので、前提のとおり変えていない。1028-lgn の側で直すか、そのマージの後に直すか
+  - work/1028-lgn は run-monthly から convert-x-posts を mode=details で呼ぶ形（説明は「1日 03:00」）。今回 run-monthly を 02:00 にしたので、その記述は古くなる。run-daily の xconvert と concurrency の組 `convert-x-posts` を共有する（1日 02:00 と毎日 04:00 で時刻は離れている）
 - 未確認の項目:
-- エラー:
+  - 予約実行の初回: 移した5本は 2026-11-03 04:00 JST の run-daily（Worker から）、run-weekly は 2026-11-09 03:00 JST、run-monthly は 2026-12-01 02:00 JST
+  - Workers Builds の `mj-scheduler` のデプロイが Ready か（check-run の「Workers Builds: mj-scheduler」は success。ダッシュボードの Deployments での Ready は平野さん）
+- エラー: なし
 
 <!-- guide-links -->
 ---
