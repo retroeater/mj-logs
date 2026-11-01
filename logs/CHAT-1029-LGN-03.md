@@ -143,12 +143,12 @@ LGN-02 の報告の判断が要る点への回答
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 27bafd9b）: https://github.com/retroeater/mj-logs/tree/main/guide/27bafd9b
+ガイド文書（この版を写した時点の最新、mj a4222572）: https://github.com/retroeater/mj-logs/tree/main/guide/a4222572
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/27bafd9b/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/27bafd9b/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/27bafd9b/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/27bafd9b/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/27bafd9b/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/27bafd9b/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a4222572/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a4222572/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a4222572/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a4222572/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a4222572/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a4222572/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/27bafd9b.md
