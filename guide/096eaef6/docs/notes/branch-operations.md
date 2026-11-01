@@ -132,7 +132,7 @@ cloudflare への force push は mj-git-guard が止める（docs/notes/skills.m
 
 ## 作業ログの寿命（cleanup-logs.yml）
 
-`cleanup-logs.yml`が週次（月曜02:00 JST の run-weekly から）で片付ける。対象は`cloudflare`上の`docs/logs/CHAT-*.md`で、最終コミットから7日以上たったもの。
+`cleanup-logs.yml`が週次（月曜03:00 JST の run-weekly から）で片付ける。対象は`cloudflare`上の`docs/logs/CHAT-*.md`で、最終コミットから7日以上たったもの。
 **判定の正は`scripts/cleanup_logs.py`**（#513。経緯は`docs/decisions/operations.md`「2026-10-07（CHAT-1007-PHT-08）」）。
 
 ### 書き方（ログを書く側の規則）
@@ -171,6 +171,10 @@ cloudflare への force push は mj-git-guard が止める（docs/notes/skills.m
 
 一覧にするログが無い週はコメントしない。**通知を見たら、残った論点をissueか`docs/notes/`へ移してからログの`## 報告`を直す**（次回の実行で削除される）か、手で削除する。
 マージせずにブランチごと削除するとログも失われる。マージ→論点の移動→削除の順を守る。
+
+**手でログを消す・状態を「完了」にする前に、`python3 scripts/cleanup_logs.py --dry-run --json <ファイル>` を取り、すべて直した後にもう一度取って、自動の削除の対象に増えたログを見る。**
+増えた中に、scripts/・.github/ が Chat-Ref を書いているログか Open の issue がリンクするログがあれば、その続き先を消さず・完了にせずに戻す
+（続き先が消える・完了になると、続き元が次の週次で自動で消えるため。上の条件4）。
 
 ### 効果の確かめ方
 

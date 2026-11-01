@@ -49,6 +49,60 @@ CHAT-1102-WKP-09 の判断待ちへの回答。止まった手順2・3（時刻�
 
 ## 経過
 
+### 着手前の確かめ（2026-11-02 07:50 JST ごろ）
+
+- 指示欄の末尾: ログの「## 指示」の最後の行が指示文の最後の行と一致することを確かめた
+- 同じ Chat-Ref のコミット: 0 件。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は4行ともあり
+- 貼る時機: WKP-09 のログの `## 報告` の状態は「判断待ち」だった。末尾に ` / 続き: CHAT-1102-WKP-10` を足した
+- 作業ブランチ: work/1102-wkp はリモート・ローカルとも先頭 93bd46fe5（一致）。`git merge-base --is-ancestor origin/cloudflare HEAD` が偽だったので `git merge origin/cloudflare` で取り込んだ（衝突なし。取り込んだ側に `.github/`・`workers/` の変更は無い）
+- 指示文の issue の state: #564 は Open。他セッションの着手中のコメントは無い
+- 未マージの work/ ブランチ: 変えるファイル（run-daily・run-weekly・schedule.json・移す5本）を変えているのは work/1028-lgn の convert-x-posts.yml だけ（WKP-09 の後に増えたものは無い）
+
+### 移したこと
+
+- `workers/scheduler/schedule.json`: run-weekly を 02:00 → 03:00、run-monthly を 03:00 → 02:00（run-daily は 04:00 のまま）
+- `run-weekly.yml`: 残すのは `logs`（cleanup-logs）と `youtube`（fetch-youtube、`needs: [logs]`・`!cancelled() && inputs.scheduled`）。冒頭の説明を直した
+- `run-daily.yml`: run-weekly のジョブの塊をそのまま写した。`meibo`・`birthday`・`unregistered`（check-saikyo-unregistered。run-daily には regenerate-saikyo の `saikyo` があるので名前を変えた）・`xfetch`・`xconvert`（`needs: xfetch`・`!cancelled()`）。権限・Secret・`dry_run`/`apply`/`scheduled` の渡し方は run-weekly の形のまま。最後の `logs`（mj-logs の同期）の `needs` に `meibo`・`birthday`・`unregistered`・`xconvert` を足した（xfetch は xconvert を通して待つ）
+- 移した本の冒頭のコメントと入力の説明: check-meibo・check-saikyo-unregistered・sync-birthday-calendar・fetch-x-posts の「run-weekly.yml から」を「run-daily.yml から」に直した。convert-x-posts.yml は前提のとおり変えていない（いったんコメントを直したが、自己レビューの指摘で戻した。47c80c41d。work/1028-lgn が同じ行を変えている）
+- その他のワークフローのコメント: run-monthly.yml の時刻、regenerate-page.yml の「毎週月曜 05:37」（古い記述）
+- Worker のテスト: 起動の表のテストを新しい時刻にした（2026-10-26 月曜 03:00 に run-weekly、2026-11-01 の 02:00 に run-monthly、2027-02-01〈月曜で1日〉は 02:00 に run-monthly・03:00 に run-weekly）。「起動の回でなければ何も呼ばない」「何もしない回は書かない」の2本は 2026-10-05（月曜）03:00 を使っていて、今は run-weekly の回になるので 03:30 にした。前の schedule.json に新しいテストを当てると起動の表のテストが落ちる
+- `python3 -m unittest discover -s scripts/tests` 成功（1,733 件）、`node --test 'workers/scheduler/test/*.test.mjs'` 47 件成功。全ワークフローを `yaml.safe_load` で読めた
+- コミット: c618562c9（ワークフロー・起動の表・テスト）、9b224aee9（docs）、47c80c41d（convert-x-posts.yml を戻す）、242fe7f03（自己レビューの docs）
+
+### 文書の洗い出し
+
+`git grep -n -E '月曜 ?02:00|1日 ?03:00|run-weekly|run-monthly'` と `週1の同期|週1で|毎週月曜` を、docs/decisions・docs/logs・handover-archive を除いてリポジトリ全体で引いて直した:
+- docs/notes/github-actions.md: 表（fetch-youtube・check-saikyo-unregistered・cleanup-logs・check-meibo・sync-birthday-calendar・fetch-gsc・fetch-redirect-counts・convert-x-posts・fetch-x-posts・run-daily・run-weekly・run-monthly）、run-daily の節（並び・戻し方に移した5本）、run-weekly・run-monthly の節（時刻・5本の移し・cleanup-logs を残した理由・mj-ask はまだ月曜 09:00）、権限の表（5行を run-daily に）、手動実行の項（check-meibo・check-saikyo-unregistered・sync-birthday-calendar・check-image-links）
+- docs/notes/scheduler-worker.md（起動の表の今の表）、docs/handover.md（週次の再生成の時刻）、docs/notes/birthday-calendar.md、branch-operations.md、saikyo-page-design.md、video-wayhome.md、static-generation.md、glossary.md
+- 直さなかったもの: CLAUDE.md「判断・作業の原則」の「週次の`check-meibo.yml`も実行する」（マージの差分に入れてよい種類〈.github・schedule.json とテスト・docs〉に CLAUDE.md が無い。判断が必要なことに書いた）、scripts/fetch_x_posts.py の docstring の「週次:」（scripts/ も差分の種類に無い）、convert-x-posts.yml の「毎週月曜 02:00 JST に run-weekly.yml から」（前提のとおり変えない）、books-calendar.md・books-freeze.md（止めたワークフロー・過去の記録）
+
+### 作業ブランチでの手動実行（書かない道筋、9b224aee9）
+
+- run-daily 41359559502: **success**（約13分15秒）。全ジョブ success（live / regenerate・sns / regenerate は skipped）。移した5本: meibo / meibo 33s・meibo / ampai 29s・unregistered / check 25s・birthday / sync 26s・xfetch / fetch 17s・xconvert / convert 24s。どれも `event: workflow_dispatch / scheduled: false / apply: false` で、issue は dry-run（`[dry-run] #445(closed) は閉じるものが無い`・`[dry-run] #609(closed) は閉じるものが無い`）、birthday は `--compare`（0件）、xfetch・xconvert は「API を呼ばず、シートにも書かない」。saikyo / regenerate は「変更なし」で push していない
+- run-weekly 41359561803: **success**（約26秒）。logs / cleanup は dry-run（`削除対象(dry-run、削除していない): 0件`・`[dry-run] #357 にコメントする:`）、youtube は skipped
+- 作業ブランチの外への書き込み: 無い。#357・#445・#609 に直近1時間のコメントは無い。bot のコミットも無い。run-daily の最後の `logs` ジョブが mj-logs の `sync-from-mj.yml` を起動したのは既存の動き（docs/notes/github-actions.md「run-daily.yml」: 手動実行〈作業ブランチを含む〉でも起動する。同期は何度動いても同じ結果）
+- 47c80c41d・242fe7f03 はこの実行の後のコミット（convert-x-posts.yml を cloudflare と同じに戻したのと docs だけ）
+
+### 自己レビュー（docs/notes/self-review.md、1回）
+
+| 指摘 | 扱い |
+|---|---|
+| convert-x-posts.yml のコメントを変えた（前提は「変えない」。work/1028-lgn と同じ行） | 直した（47c80c41d で戻した。古いコメントは判断が必要なことに書いた） |
+| CLAUDE.md「週次の`check-meibo.yml`も実行する」が古い | 見送り（マージの差分の種類に CLAUDE.md が無い。判断が必要なことに書いた） |
+| github-actions.md の check-meibo・check-saikyo-unregistered の「週次の schedule は issue を書く」 | 直した（242fe7f03） |
+| static-generation.md の `check-meibo.yml` から「週1」 | 直した（242fe7f03） |
+| glossary.md の例「週次の check-meibo…」 | 直した（242fe7f03） |
+| github-actions.md の mj-ask の時刻が済んだように読める（今は月曜 09:00） | 直した（242fe7f03） |
+| run-daily・run-weekly の戻し方に、移した5本のことが無い | 直した（242fe7f03） |
+| 「2026-11-03 から」の日付は、11-03 04:00 JST より前のマージが前提 | 意図どおり（マージは 11-02 の朝） |
+| github-actions.md の check-image-links の「予約実行（`schedule`）では check だけ」が古い | 直した（242fe7f03） |
+| ワークフローの移しの正しさ・needs・権限・Secret・ジョブ名の衝突、scripts の前提、Worker のテストの曜日、セキュリティ | 指摘なし |
+| work/1028-lgn は run-monthly から convert-x-posts を mode=details で呼ぶ形で、今回 run-monthly を 02:00 にした。run-daily の xconvert と concurrency の組 `convert-x-posts` を共有する | 意図どおり（1028-lgn は未マージ。月次の1日 02:00 と毎日 04:00 は時刻が離れている。判断が必要なことに書いた） |
+
+### 案A の issue
+
+同じ目的の issue を open・closed の全 637 件の題で探した（`search_issues` は使えなかった）。近いのは #298（Actions の使用量の監視と削減、open）で、案A（全部を日次にする）とは目的が違うので、本文で参照する形にした。#647 を起票した（ラベル「分野: 自動化」）。
+
 ## 報告
 
 - 状態: 作業中
@@ -65,12 +119,12 @@ CHAT-1102-WKP-09 の判断待ちへの回答。止まった手順2・3（時刻�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 90df278d）: https://github.com/retroeater/mj-logs/tree/main/guide/90df278d
+ガイド文書（この版を写した時点の最新、mj 096eaef6）: https://github.com/retroeater/mj-logs/tree/main/guide/096eaef6
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/90df278d/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/90df278d/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/90df278d/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/90df278d/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/90df278d/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/90df278d/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b1c2c3de.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/096eaef6/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/096eaef6/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/096eaef6/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/096eaef6/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/096eaef6/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/096eaef6/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/096eaef6.md

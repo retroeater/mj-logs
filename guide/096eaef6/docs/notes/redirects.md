@@ -21,6 +21,7 @@ ryoei.pro のすべての転送の一覧と、四半期ごとの棚卸しの手�
 ## 棚卸しの対象
 
 旧 URL の 301。四半期の棚卸しで「削除の基準」に当たれば行を消す（消すと 404）。
+「入れた日」は、`_redirects` のその行が cloudflare（本番）に入った日（JST、転送が効き始めた日。ページの公開の日ではない）を YYYY-MM-DD で始めて書く（注記は後ろの括弧）。#568 の月次のコメントの「判定できる日」（入れた日＋90日）はこの列から出す（`scripts/fetch_redirect_counts.py`。日付で始まることは `scripts/tests/test_fetch_redirect_counts.py` が確かめる）。
 
 | 転送元 | 転送先 | 仕組み | 入れた日 | issue | 最後の棚卸し |
 |---|---|---|---|---|---|
@@ -31,38 +32,38 @@ ryoei.pro のすべての転送の一覧と、四半期ごとの棚卸しの手�
 | `/jpml_test.html` | `/exam/` | `_redirects` 301（クエリは Cloudflare の既定で付いたまま転送されるが、`/exam/` は `?name=` を読まない） | 2026-10-19 | #613 | 未（初回 2027-01 上旬） |
 | `/tanilog.html` | `/resource_logs.html?name=谷岡育夫` | `_redirects` 301 | 2026-09-07 | GitHub Pages からの移行 | 未（初回 2027-01 上旬） |
 | `/houou/ranking/` | `/houou/ranking/total/` | `_redirects` 301（クエリを引き継ぐ。`?division=` は下の「JS の移動」） | 2026-10-14 | #518・#540（通算得点を `total/` に移した開発中の入口） | 未（初回 2027-01 上旬） |
-| `/ouka/ranking/` | `/ouka/ranking/total/` | `_redirects` 301（クエリを引き継ぐ。houou/ と同じ入口の形） | 2026-10-17（未公開。#519） | #519 | 未（初回 2027-01 上旬） |
+| `/ouka/ranking/` | `/ouka/ranking/total/` | `_redirects` 301（クエリを引き継ぐ。houou/ と同じ入口の形） | 2026-10-18（未公開で入れた。#519） | #519 | 未（初回 2027-01 上旬） |
 | `/jwrc/ranking/` | `/jwrc/ranking/total/` | `_redirects` 301（クエリを引き継ぐ。houou/ と同じ入口の形） | 2026-10-18（公開は 2026-10-19、#599） | #594 | 未（初回 2027-01 上旬） |
 | `/wrcr/ranking/` | `/wrcr/ranking/total/` | `_redirects` 301（クエリを引き継ぐ。jwrc/ と同じ入口の形） | 2026-10-19（公開は同じ日、#611） | #366 | 未（初回 2027-01 上旬） |
 | `/saikyo/ranking/` | `/saikyo/ranking/champion/` | `_redirects` 301（クエリを引き継ぐ。houou/ と同じ入口の形） | 2026-10-23（公開は 2026-10-26、#627） | #626 | 未（初回 2027-01 上旬） |
 | `/saikyo/ranking/qualifier-win/` | `/saikyo/ranking/champion/` | `_redirects` 301（2026-10-27 に外した部門「予選優勝」。`:slug` の 200 より上に置く。`test_saikyo_redirects.py` が検査） | 2026-10-27 | #633 | 未（初回 2027-01 上旬。`/saikyo/?q=` の棚卸しと一緒に、流入が無ければ外す） |
 | `/saikyo/ranking/qualifier-final/` | `/saikyo/ranking/champion/` | `_redirects` 301（同じく「予選決勝」） | 2026-10-27 | #633 | 未（同上） |
 | `/saikyo/ranking/qualifier-pass/` | `/saikyo/ranking/champion/` | `_redirects` 301（同じく「予選通過」） | 2026-10-27 | #633 | 未（同上） |
-| `/houou_ranking.html` | `/houou/ranking/total/` | `_redirects` 301（クエリを引き継ぐ。`?division=` は下の「JS の移動」、`?sheet=` は読まれない） | #540 の公開の日 | #540 | 未（初回 2027-01 上旬） |
-| `/houou_leagues.html` | `/houou/leagues/` | `_redirects` 301（`?name=` を引き継ぎ、下の「JS の移動」で個人成績のリーグのタブへ） | #540 の公開の日 | #540 | 未（初回 2027-01 上旬） |
-| `/houou_race.html` | `/houou/race/` | `_redirects` 301 | #540 の公開の日 | #540 | 未（初回 2027-01 上旬） |
-| `/houou_results.html` | `/houou/players/` | `_redirects` 301（`?name=` を引き継ぐ） | #540 の公開の日 | #540 | 未（初回 2027-01 上旬） |
+| `/houou_ranking.html` | `/houou/ranking/total/` | `_redirects` 301（クエリを引き継ぐ。`?division=` は下の「JS の移動」、`?sheet=` は読まれない） | 2026-10-16（#540 の公開） | #540 | 未（初回 2027-01 上旬） |
+| `/houou_leagues.html` | `/houou/leagues/` | `_redirects` 301（`?name=` を引き継ぎ、下の「JS の移動」で個人成績のリーグのタブへ） | 2026-10-16（#540 の公開） | #540 | 未（初回 2027-01 上旬） |
+| `/houou_race.html` | `/houou/race/` | `_redirects` 301 | 2026-10-16（#540 の公開） | #540 | 未（初回 2027-01 上旬） |
+| `/houou_results.html` | `/houou/players/` | `_redirects` 301（`?name=` を引き継ぐ） | 2026-10-16（#540 の公開） | #540 | 未（初回 2027-01 上旬） |
 | `/ouka_ranking.html` | `/ouka/ranking/total/` | `_redirects` 301（クエリを引き継ぐ） | 2026-10-19 | #591 | 未（初回 2027-01 上旬） |
 | `/ouka_leagues.html` | `/ouka/leagues/` | `_redirects` 301（`?name=` を引き継ぎ、下の「JS の移動」で個人成績のリーグのタブへ） | 2026-10-19 | #591 | 未（初回 2027-01 上旬） |
 | `/ouka_results.html` | `/ouka/players/` | `_redirects` 301（`?name=` を引き継ぐ） | 2026-10-19 | #591 | 未（初回 2027-01 上旬） |
 | `/wrc_ranking.html` | `/jwrc/ranking/total/` | `_redirects` 301（クエリを引き継ぐ。`?division=` は下の「JS の移動」、jwrc/ に無い部門〈期単位浮き率・期連続浮き回数〉は total/ のまま。`?sheet=` は読まれない） | 2026-10-19 | #599 | 未（初回 2027-01 上旬） |
 | `/wrc_results.html` | `/jwrc/players/` | `_redirects` 301（`?name=` を引き継ぐ） | 2026-10-19 | #599 | 未（初回 2027-01 上旬） |
-| `/saikyo/2011.html` | `/saikyo/2011/` | `_redirects` 301 | #549 の公開の日 | #549 | 未（初回 2027-01 上旬） |
-| `/saikyo/2012.html` | `/saikyo/2012/` | `_redirects` 301 | #549 の公開の日 | #549 | 未（初回 2027-01 上旬） |
-| `/saikyo/2013.html` | `/saikyo/2013/` | `_redirects` 301 | #549 の公開の日 | #549 | 未（初回 2027-01 上旬） |
-| `/saikyo/2014.html` | `/saikyo/2014/` | `_redirects` 301 | #549 の公開の日 | #549 | 未（初回 2027-01 上旬） |
-| `/saikyo/2015.html` | `/saikyo/2015/` | `_redirects` 301 | #549 の公開の日 | #549 | 未（初回 2027-01 上旬） |
-| `/saikyo/2016.html` | `/saikyo/2016/` | `_redirects` 301 | #549 の公開の日 | #549 | 未（初回 2027-01 上旬） |
-| `/saikyo/2017.html` | `/saikyo/2017/` | `_redirects` 301 | #549 の公開の日 | #549 | 未（初回 2027-01 上旬） |
-| `/saikyo/2018.html` | `/saikyo/2018/` | `_redirects` 301 | #549 の公開の日 | #549 | 未（初回 2027-01 上旬） |
-| `/saikyo/2019.html` | `/saikyo/2019/` | `_redirects` 301 | #549 の公開の日 | #549 | 未（初回 2027-01 上旬） |
-| `/saikyo/2020.html` | `/saikyo/2020/` | `_redirects` 301 | #549 の公開の日 | #549 | 未（初回 2027-01 上旬） |
-| `/saikyo/2021.html` | `/saikyo/2021/` | `_redirects` 301 | #549 の公開の日 | #549 | 未（初回 2027-01 上旬） |
-| `/saikyo/2022.html` | `/saikyo/2022/` | `_redirects` 301 | #549 の公開の日 | #549 | 未（初回 2027-01 上旬） |
-| `/saikyo/2023.html` | `/saikyo/2023/` | `_redirects` 301 | #549 の公開の日 | #549 | 未（初回 2027-01 上旬） |
-| `/saikyo/2024.html` | `/saikyo/2024/` | `_redirects` 301 | #549 の公開の日 | #549 | 未（初回 2027-01 上旬） |
-| `/saikyo/2025.html` | `/saikyo/2025/` | `_redirects` 301 | #549 の公開の日 | #549 | 未（初回 2027-01 上旬） |
-| `/saikyo/2026.html` | `/saikyo/2026/` | `_redirects` 301 | #549 の公開の日 | #549 | 未（初回 2027-01 上旬） |
+| `/saikyo/2011.html` | `/saikyo/2011/` | `_redirects` 301 | 2026-10-16（#549 の公開） | #549 | 未（初回 2027-01 上旬） |
+| `/saikyo/2012.html` | `/saikyo/2012/` | `_redirects` 301 | 2026-10-16（#549 の公開） | #549 | 未（初回 2027-01 上旬） |
+| `/saikyo/2013.html` | `/saikyo/2013/` | `_redirects` 301 | 2026-10-16（#549 の公開） | #549 | 未（初回 2027-01 上旬） |
+| `/saikyo/2014.html` | `/saikyo/2014/` | `_redirects` 301 | 2026-10-16（#549 の公開） | #549 | 未（初回 2027-01 上旬） |
+| `/saikyo/2015.html` | `/saikyo/2015/` | `_redirects` 301 | 2026-10-16（#549 の公開） | #549 | 未（初回 2027-01 上旬） |
+| `/saikyo/2016.html` | `/saikyo/2016/` | `_redirects` 301 | 2026-10-16（#549 の公開） | #549 | 未（初回 2027-01 上旬） |
+| `/saikyo/2017.html` | `/saikyo/2017/` | `_redirects` 301 | 2026-10-16（#549 の公開） | #549 | 未（初回 2027-01 上旬） |
+| `/saikyo/2018.html` | `/saikyo/2018/` | `_redirects` 301 | 2026-10-16（#549 の公開） | #549 | 未（初回 2027-01 上旬） |
+| `/saikyo/2019.html` | `/saikyo/2019/` | `_redirects` 301 | 2026-10-16（#549 の公開） | #549 | 未（初回 2027-01 上旬） |
+| `/saikyo/2020.html` | `/saikyo/2020/` | `_redirects` 301 | 2026-10-16（#549 の公開） | #549 | 未（初回 2027-01 上旬） |
+| `/saikyo/2021.html` | `/saikyo/2021/` | `_redirects` 301 | 2026-10-16（#549 の公開） | #549 | 未（初回 2027-01 上旬） |
+| `/saikyo/2022.html` | `/saikyo/2022/` | `_redirects` 301 | 2026-10-16（#549 の公開） | #549 | 未（初回 2027-01 上旬） |
+| `/saikyo/2023.html` | `/saikyo/2023/` | `_redirects` 301 | 2026-10-16（#549 の公開） | #549 | 未（初回 2027-01 上旬） |
+| `/saikyo/2024.html` | `/saikyo/2024/` | `_redirects` 301 | 2026-10-16（#549 の公開） | #549 | 未（初回 2027-01 上旬） |
+| `/saikyo/2025.html` | `/saikyo/2025/` | `_redirects` 301 | 2026-10-16（#549 の公開） | #549 | 未（初回 2027-01 上旬） |
+| `/saikyo/2026.html` | `/saikyo/2026/` | `_redirects` 301 | 2026-10-16（#549 の公開） | #549 | 未（初回 2027-01 上旬） |
 
 `/jpml_titles.html` の行を消すときは `assets/title.js` の `?name=` の受け取りも消す（#485 の「終えるときの作業」）。
 
@@ -108,6 +109,7 @@ ryoei.pro のすべての転送の一覧と、四半期ごとの棚卸しの手�
    - 転送の件数（ボット以外）: #568 の月次のコメント（下の「流入の測り方」）の直近3か月の合計
    - Search Console の着地: `docs/gsc/<取得日>/page.csv` の転送元 URL（クエリ付きの変種を含む）の表示・クリック。ページ一覧から消えているかも見る
 2. **削除の基準: 直近90日で、ボット以外の転送が0件、かつ Search Console の着地も0件**（2026-10-14 の決定）。当たる行は `_redirects` と上の表から消す（同じコミット）。消すと SNS などの古いリンクが 404 になることは基準の中で受け入れている
+   - **入れた日から90日経っていない行は判定しない**（#568 の表の「判定できる日」より前。2026-11-01 の決定）。「最後の棚卸し」に「判定前（判定できる日 YYYY-MM-DD）」と書いて次の棚卸しへ回す
 3. 当たらない行は「最後の棚卸し」に日付と件数の要約を書く
 4. 「別名」「JS の移動」「予定」の行が今も正しいか（navbar のリンク・JS・issue の状態）を見直す
 5. 結果を #568 にコメントし、次回の日付をカレンダー「ryoei.pro」に入れる（チャット側）
