@@ -59,15 +59,61 @@ Cloudflare から「Observability の料金が 2026-12-01 から変わる」通�
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+- 0: ログの「指示」欄の末尾が指示文の最後の行（「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」）と一致することを確かめた
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある
+- 着手前の確認: `CHAT-1102-OBS-01` のコミット・`OBS` の識別子は全ブランチの履歴に無い。docs のみの指示なので0章ゲートは対象外。#298 は open
+- 作業ブランチ: `origin/work/1102-obs` は無かったので `git checkout -b work/1102-obs origin/cloudflare`（cc81279）
+- 手順1（issue の検索、open・closed）: `Observability`・`Workers Logs`・`Review later`・`Workers Paid`・`サンプリング` で検索。
+  Observability の料金を主題にする issue は無かった。言及があったのは #304（月次の手作業の (13) に旧料金の記述）・#564（経緯の言及）・#298（Observability の画面の見方）など。止まる条件に当たらない
+- 未マージの work/ ブランチ: 3文書（docs/notes/cloudflare.md・docs/notes/scheduler-worker.md・docs/decisions/cloudflare.md）を変えているのは `origin/work/1101-prp-pub` の docs/notes/cloudflare.md だけで、変更箇所は canonical の節（488 行付近）と Worker の一覧（580 行付近）。今回の「ビルド時間の見積もり」（736 行〜）とは別の箇所なので止めない
+- `git grep -n -E '2,000 ?万件|Review later|\$0\.60|Observability|Workers Logs'`（docs/decisions・docs/logs・handover-archive を除く）の処理:
+
+  | 箇所 | 処理 | 理由 |
+  | --- | --- | --- |
+  | docs/notes/cloudflare.md「ビルド時間の見積もり」の比較の表「Workers Logs」の行 | 直した | 11/30 までの値と、12/1 からは Workers のプランで決まらないことを書いた |
+  | 同節の「Workers Observability（Workers Logs）の新しい料金…Review later…」の行 | 置き換えた | 新料金（表）・対象・旧案内の値が置き換わったこと・決定と理由・解約がまだであることと 11/25・12/2 の予定（#298）にした |
+  | docs/notes/scheduler-worker.md「ログ（Workers Logs）」の「上限は月 2,000 万件…サンプリング」 | 直した | 11/30 までの上限と、12/1 からは Observability の Free にすることを書き、詳細は cloudflare.md への参照にした |
+  | docs/decisions/cloudflare.md の CHAT-1021-WKP-03 の行 | 注記した | 行末に「→ 置き換え: 2026-11-02（CHAT-1102-OBS-01）」（docs/decisions/README.md「書き方」の形。指示文の「CHAT-1102-OBS-01 で置き換えた」と同じ趣旨） |
+  | workers/scheduler/wrangler.jsonc:10 のコメント（「Workers Paid で月2,000万件・7日保存」） | 直さない | docs 以外。判断が必要なことに書いた |
+  | docs/notes/ask-worker.md の Workers Logs・Observability（142・238・249・299・312・328・353 行） | 直さない | ログの見方・書く内容の記述で、料金・上限に触れていない |
+  | docs/notes/scheduler-worker.md の Observability（66・94・105・157〜161 行） | 直さない | 画面の見方・過去の観測の記述 |
+  | docs/notes/security.md:12 | 直さない | 料金と無関係（Worker `mj-ask` の点検の範囲に Workers Logs を挙げた行） |
+  | workers/ask/wrangler.jsonc:18・workers/scheduler/src/scheduler.mjs:37・workers/scheduler/test/scheduler.test.mjs:211 | 直さない | ログの用途のコメントで料金・上限に触れていない |
+  | .claude/skills/cloudflare/ 配下 | 直さない | 外から入れた skill の一般的な説明で、今の運用の記述ではない |
+
+- 文書外: #304 の本文の (13)（386〜388 行付近の写しも）に「Workers Logs の件数（月 2,000 万件）」「Workers Logs は 100 万件ごとに $0.60」「金額は未確認」が残る。指示は docs のみなので直さず、判断が必要なことに書いた
+- 決定の日付は指示文どおり 2026-11-02 とした（セッションの日付は 2026-11-01）
+- docs の変更は 86a66fc98。docs のみなのでサブエージェントのレビューは対象外（CLAUDE.md「判断・作業の原則」）
+- #298 にコメントした: https://github.com/retroeater/mj/issues/298#issuecomment-6565589595
+- 取り込み: push 直前の再 fetch で cloudflare が f55eb6466 に進んでいたため `git merge origin/cloudflare`（衝突なし。入ったのは CLAUDE.md・docs/decisions/automation.md・WKP-10/11 のログで、今回の3文書は含まない）
+- マージ: `git push origin work/1102-obs:cloudflare`（f55eb6466..2ce61b388、fast-forward）。push 直前に `git merge-base --is-ancestor origin/cloudflare HEAD` が真、差分は docs/ のみ（4ファイル）
+
+## 報告
+
+- 状態: 判断待ち（docs の記録とマージは済み。文書外の古い記述2件の扱いが残る）
+- ブランチ: work/1102-obs
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1102-OBS-01.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1102-obs
+- 確認用URL: なし
+- マージ: 済（2ce61b388）
+- issue: #298（コメント）
+- 判断が必要なこと:
+  - #304 の本文の (13) に旧料金（Workers Logs の件数 月 2,000 万件・100 万件ごとに $0.60・「金額は未確認」）が残る。12/1 からの Observability（Free、1日 0.5GB）に合わせて本文を直すか
+  - `workers/scheduler/wrangler.jsonc` 10 行目のコメント「Workers Paid で月2,000万件・7日保存」が 12/1 から古くなる。直すならコードの変更を含む指示が要る（Workers Builds の mj-scheduler のビルドも走る）
+- 未確認の項目: Observability の契約の解約（2026-11-25 の予定、行が無ければ 2026-12-02 の予定。#298）
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 096eaef6）: https://github.com/retroeater/mj-logs/tree/main/guide/096eaef6
+ガイド文書（この版を写した時点の最新、mj 89283fee）: https://github.com/retroeater/mj-logs/tree/main/guide/89283fee
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/096eaef6/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/096eaef6/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/096eaef6/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/096eaef6/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/096eaef6/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/096eaef6/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/89283fee/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/89283fee/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/89283fee/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/89283fee/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/89283fee/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/89283fee/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/cc812798.md

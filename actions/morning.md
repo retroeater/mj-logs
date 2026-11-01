@@ -1,6 +1,6 @@
 # 朝の報告用の異常（retroeater/mj）
 
-- 書き出した時刻: 2026-11-02 08:38 JST（見た範囲: 2026-11-01 06:38 JST から）
+- 書き出した時刻: 2026-11-02 08:40 JST（見た範囲: 2026-11-01 06:40 JST から）
 - 書き出した実行の契機: workflow_dispatch（main）
 - 異常だけを書く。全体は actions/status.md。判定は mj の scripts/morning_report.py（各ワークフローの直近 100 回まで）
 
@@ -9,7 +9,6 @@
 - 2026-11-01 08:24 run-daily.yml failure（workflow_dispatch・work/1101-wkp）ジョブ「sns / update」 https://github.com/retroeater/mj/actions/runs/41252379802
 - 2026-11-02 08:15 regenerate-page.yml failure（workflow_dispatch・work/1017-lvp）ジョブ「regenerate」 https://github.com/retroeater/mj/actions/runs/41361234293
 - 2026-11-02 08:25 regenerate-page.yml in_progress（workflow_dispatch・work/1017-lvp） https://github.com/retroeater/mj/actions/runs/41362046200
-- 2026-11-02 08:38 check-build-failure.yml in_progress（check_run・cloudflare） https://github.com/retroeater/mj/actions/runs/41363064715
 
 ## 2. 予約実行の未実行（予定から3時間以内は「遅れの可能性」。3時間を超えて始まった実行は「遅れて実行」）
 
@@ -26,4 +25,3 @@
 ## 5. 未報告のログ（`## 報告` の節が無い）
 
 - CHAT-1102-NOD-01.md（着手 2026-11-01） https://github.com/retroeater/mj-logs/blob/main/logs/CHAT-1102-NOD-01.md
-- CHAT-1102-OBS-01.md（着手 2026-11-01（セッションの日付。指示文の決定日は 2026-11-02）） https://github.com/retroeater/mj-logs/blob/main/logs/CHAT-1102-OBS-01.md
