@@ -55,7 +55,7 @@ GitHub Pages からの移行の相談に始まり、Cloudflare への移行の�
 `wrangler.jsonc` の `assets.directory` がリポジトリ全体（`./`）を指すため、
 公開したくないファイルは `.assetsignore` に列挙している（追加時のルールは CLAUDE.md「方針」、#133）。
 
-`_redirects` の先頭行の規則は CLAUDE.md「禁止事項」、`html_handling` は `docs/notes/cloudflare.md`「配信設定: html_handling・_redirects・canonical・_headers」。canonical は付けない（#113）。例外は `wayhome/` の個別ページで、URL変種を持たないため canonical を持つ（#162）。
+`_redirects` の先頭行の規則は CLAUDE.md「禁止事項」、`html_handling` は `docs/notes/cloudflare.md`「配信設定: html_handling・_redirects・canonical・_headers」。canonical はクエリがページの主題（選手など）を選ぶページには付けず、表示の絞り込み・切り替えだけなら自分自身を付ける（#560。付け外しの一覧は `docs/notes/cloudflare.md`「配信設定」）。
 `_headers` はセキュリティヘッダ（CSP を含む）とキャッシュ制御（#92）。設定値と経緯は `docs/notes/cloudflare.md`「配信設定: html_handling・_redirects・canonical・_headers」
 
 **本番反映**は CLAUDE.md「構成」（ゲートは #170）。設定値・確認範囲は `docs/notes/cloudflare.md`「本番反映（デプロイ）の仕組み」、セッションからの到達は `docs/notes/cloud-sessions.md`「ネットワーク」（#328）。
