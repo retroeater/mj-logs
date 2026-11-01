@@ -755,7 +755,7 @@ python3 scripts/check_saikyo_unregistered.py --json result.json  # ワークフ�
 
 ### `.github/workflows/check-saikyo-unregistered.yml`
 
-毎週月曜 06:50 JST（03:00/04:00/05:37/06:23 の週次ジョブと重ねない）と手動実行。
+毎週月曜 02:00 JST に Worker からの run-weekly.yml（2026-10-26 から。それまでの `schedule` の 06:50 JST は 2026-11-01 に外した）と手動実行。
 常設issue「最強戦の出場者の登録漏れ」を本文ごと置き換え、引けない人も対局日が空の対局も0件になったらコメントして閉じる。
 閉じた常設 issue（ラベル「種類: 常設」）があれば新しく作らずに開き直す（`check-image-links.yml` と同じ作り。`.github/actions/upsert-issue`、#564）。対局日が空の対局は本文の節「対局日が空の対局」（年度・対局・シートの行の表）に出る。
 

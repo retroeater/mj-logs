@@ -50,28 +50,41 @@ CHAT-1101-WKP-06 の判断待ち（docs/handover.md の古い記述）への回�
 
 ## 経過
 
+- 指示欄の末尾: ログの「## 指示」の最後の行が指示文の最後の行と一致することを確かめた
+- 同じ Chat-Ref のコミット: 0 件。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は4行ともあり
+- 作業ブランチ: work/1101-wkp はリモート・ローカルとも origin/cloudflare の祖先（マージ済み）。`git merge --ff-only origin/cloudflare` で a42225727 に進めた
+- 指示文の issue の state: 着手・コメント・クローズの対象の issue は無い
+- 2か所は作業ブランチの上でもそのままあった（handover.md の13行「2章の html_handling の参照先と週次の再生成の時刻（02:00 が主、05:37 は保険）を直した」、80行「05:37 JST は保険の予約実行（`docs/notes/github-actions.md`）」）
+- 未マージの work/ ブランチで handover.md を変えるのは work/1028-lgn・work/1029-lgn-page で、どちらも 220 行あたりの表に `docs/notes/log-page.md` の行を足すだけ（別の箇所）
+- 直したこと（コミット a9b12148f）:
+  - 80行: 「05:37 JST は保険の予約実行（`docs/notes/github-actions.md`）。」を「（GitHub 側の予約実行は無い。`docs/notes/github-actions.md`）」にした
+  - 「最終更新」: 日付を 2026-11-01 にし、先頭に「毎日・週次のフォールバック実行（GitHub の `schedule`）を外したので、2章の週次の再生成の記述を今の起動に合わせた」を足し、「05:37 は保険」の行を消した（3行のまま）
+- `git grep -n -E '05:37|保険の予約実行|保険の実行' -- docs/handover.md CLAUDE.md docs/notes/chat-side-operations.md docs/instruction-template.md` は直した後に 0 件（ほかの残りは無かった）
+- handover.md のサイズ: 23,309 → 23,354 バイト（警告域 26,624 未満）
+- 決定を docs/decisions/automation.md に足し、WKP-06 のログの状態に ` / 続き: CHAT-1101-WKP-07` を足した
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1101-wkp
-- ログ: https://github.com/retroeater/mj/blob/work/1101-wkp/docs/logs/CHAT-1101-WKP-07.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1101-WKP-07.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1101-wkp
-- 確認用URL:
-- マージ:
-- issue:
-- 判断が必要なこと:
-- 未確認の項目:
-- エラー:
+- 確認用URL: なし
+- マージ: 済（ドキュメントのみ）
+- issue: なし
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj a4222572）: https://github.com/retroeater/mj-logs/tree/main/guide/a4222572
+ガイド文書（この版を写した時点の最新、mj 75e24890）: https://github.com/retroeater/mj-logs/tree/main/guide/75e24890
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a4222572/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a4222572/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a4222572/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a4222572/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a4222572/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a4222572/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/75e24890/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/75e24890/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/75e24890/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/75e24890/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/75e24890/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/75e24890/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/27bafd9b.md
