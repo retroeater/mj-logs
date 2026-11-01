@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-11-02 07:53 JST
+- 書き出した時刻: 2026-11-02 07:56 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -25,11 +25,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-02 07:55 | push | work/1102-wkp | in_progress | #632（41359548739） |  |
 | 2026-11-02 06:49 | push | work/1102-lgn-sheet | success | #631（41353938395） | 0分27秒 |
 | 2026-11-02 06:46 | push | work/1102-lgn-sheet | success | #630（41353750667） | 0分25秒 |
 | 2026-11-01 19:59 | push | work/1101-prp-pub | success | #629（41299851424） | 0分25秒 |
 | 2026-11-01 19:56 | push | work/1101-prp-pub | success | #628（41299675276） | 0分26秒 |
-| 2026-11-01 18:05 | push | work/1101-prp-pub | success | #627（41287377763） | 0分23秒 |
 
 ## check-build-failure.yml
 
@@ -196,7 +196,7 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-11-02 07:44 | workflow_dispatch | cloudflare | in_progress | #569（41358665936） |  |
+| 2026-11-02 07:44 | workflow_dispatch | cloudflare | success | #569（41358665936） | 9分59秒 |
 | 2026-11-01 16:57 | workflow_dispatch | work/1101-prp-pub | success | #568（41286842756） | 1分07秒 |
 | 2026-11-01 14:19 | workflow_dispatch | work/1101-prp-pub | success | #567（41276465494） | 3分16秒 |
 | 2026-11-01 13:58 | workflow_dispatch | work/1101-prp-pub | success | #566（41275107904） | 20分00秒 |
@@ -248,11 +248,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-02 07:55 | workflow_dispatch | work/1102-wkp | queued | #29（41359559502） |  |
 | 2026-11-02 04:00 | workflow_dispatch | cloudflare | success | #28（41339489114） | 26分34秒 |
 | 2026-11-01 08:24 | workflow_dispatch | work/1101-wkp | failure | #27（41252379802） | 12分53秒 |
 | 2026-11-01 10:35 | workflow_dispatch | cloudflare | success | #26（41232112701） | 11分11秒 |
 | 2026-10-31 04:00 | workflow_dispatch | cloudflare | success | #25（41111609608） | 16分12秒 |
-| 2026-10-30 04:00 | workflow_dispatch | cloudflare | success | #24（40936087240） | 15分53秒 |
 
 - #27 failure: ジョブ「sns / update」 ステップ「実行」
 
@@ -279,11 +279,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-02 07:55 | workflow_dispatch | work/1102-wkp | in_progress | #9（41359561803） |  |
 | 2026-11-02 02:00 | workflow_dispatch | cloudflare | success | #8（41329205064） | 11分26秒 |
 | 2026-11-01 08:24 | workflow_dispatch | work/1101-wkp | success | #7（41252382101） | 1分00秒 |
 | 2026-10-28 00:51 | workflow_dispatch | work/1028-log-367-weekly | success | #6（40535192703） | 2分29秒 |
 | 2026-10-26 02:00 | workflow_dispatch | cloudflare | success | #5（40214364620） | 12分21秒 |
-| 2026-10-21 13:27 | workflow_dispatch | work/1021-wkp | success | #4（39544116557） | 0分44秒 |
 
 ## security-check.yml
 
