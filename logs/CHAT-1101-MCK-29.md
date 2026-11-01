@@ -107,16 +107,37 @@
 ### 5. 決定の記録・マージ
 
 - docs/decisions/operations.md に「2026-11-01（CHAT-1101-MCK-29）」を足した
+- マージ前の再 fetch で cloudflare が進んでいた（CHAT-1101-WKP-08・RDR-07 ほか）。`git merge origin/cloudflare` で docs/decisions/operations.md の末尾の追記どうしが衝突し、両方を残して解いた（WKP-08 の節の後に MCK-29 の節。各節に「作業中の回答: なし」）。取り込んだ後にもテストを回した: `python3 -m unittest discover -s scripts/tests` → `Ran 1731 tests … OK`
+- マージ: 直前に `git merge-base --is-ancestor origin/cloudflare HEAD` が真、`git diff origin/cloudflare...HEAD --stat` が sns_book.py・update_sns_book.py・test_sns_book.py・このログ・operations.md の5ファイルだけ（条件どおり）。`git push origin work/1101-mck-snsdup:cloudflare` で 120c7af8f..a2b9cf4f6
+
+### 6. 手動実行
+
+- `update-sns-book.yml` を ref `cloudflare`・mode `check`・dry_run 真で手動実行した: run 41266709391（head a2b9cf4f6）、**success**。ログ: 「元の一覧: プロ 1098・連盟プロ以外 755・計 1853」まで進み、`load_sources()` は重複で止まらなかった（平野さんが重複の片方を消した後の状態）
+- 新しいメッセージの経路（重複があるとき）は本番のシートでは通っていない。テストで確かめた範囲だけ
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1101-mck-snsdup
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1101-MCK-29.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1101-mck-snsdup
+- 確認用URL: なし（scripts/ のみの変更で、配信物は変えていない）
+- マージ: 済（a2b9cf4f6。cloudflare へ fast-forward）
+- issue: なし
+- 判断が必要なこと:
+  - 同じ「名前が重複しています」のメッセージがほかに2つある（scripts/lib/sns_book.py の `inputs_by_name()`「【2】で名前が重複しています: 名前」、scripts/lib/sns.py の59行目「SNS ブックの【2】ID で名前が重複しています: 名前」）。どちらも SNS ブックの【2】の1つのタブの中の重複で、タブ違いの誤読は起きないが、行番号は出ない。同じ直し方（行番号を足す）をするか
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 120c7af8）: https://github.com/retroeater/mj-logs/tree/main/guide/120c7af8
+ガイド文書（この版を写した時点の最新、mj 50dcad88）: https://github.com/retroeater/mj-logs/tree/main/guide/50dcad88
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/120c7af8/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/120c7af8/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/120c7af8/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/120c7af8/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/120c7af8/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/120c7af8/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/50dcad88/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/50dcad88/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/50dcad88/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/50dcad88/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/50dcad88/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/50dcad88/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/cc449e20.md
