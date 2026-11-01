@@ -139,6 +139,7 @@ Chat-Ref: CHAT-1101-RDR-06
 - `git diff origin/cloudflare...HEAD --stat`: CLAUDE.md（+1）・docs/decisions/cloudflare.md（追記のみ、削除行 0）・docs/logs/CHAT-1101-RDR-06.md・docs/notes/chat-side-operations.md（+1）・docs/notes/redirects.md・scripts/fetch_redirect_counts.py・scripts/tests/test_fetch_redirect_counts.py。冒頭の「マージ:」の条件どおり（転送の2つのテストのうち、変えたのは集計のテストだけ。`test_redirects_inventory.py` は変えていない）
 - `python3 -m unittest discover -s scripts/tests`: OK
 
+- マージ: push 直前に再 fetch し `git merge-base --is-ancestor origin/cloudflare HEAD` が真。`git push origin work/1101-rdr-age:cloudflare` で 50dcad8..e5e4fcb（fast-forward）
 ## 報告
 
 - 状態: 完了
@@ -146,7 +147,7 @@ Chat-Ref: CHAT-1101-RDR-06
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1101-RDR-06.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1101-rdr-age
 - 確認用URL: なし（scripts/ と docs/ と CLAUDE.md だけの変更。Workers Builds の対象外）
-- マージ: 済（`## 経過` の末尾に SHA を追記）
+- マージ: 済（e5e4fcb）
 - issue: #568
 - 判断が必要なこと: なし
 - 未確認の項目: なし
