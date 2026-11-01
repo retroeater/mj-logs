@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-11-02 08:50 JST
+- 書き出した時刻: 2026-11-02 08:56 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -25,11 +25,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-02 08:55 | push | work/1102-nod | success | #642（41364443150） | 0分22秒 |
 | 2026-11-02 08:43 | push | work/1102-lgn-daily | success | #641（41363453828） | 0分26秒 |
 | 2026-11-02 08:39 | push | work/1102-nod | success | #640（41363197390） | 0分24秒 |
 | 2026-11-02 08:37 | push | work/1102-obs | success | #639（41363026275） | 0分27秒 |
 | 2026-11-02 08:36 | push | work/1102-wkp | success | #638（41362926740） | 0分25秒 |
-| 2026-11-02 08:15 | push | work/1017-lvp | success | #637（41361227574） | 0分25秒 |
 
 ## check-build-failure.yml
 
@@ -38,11 +38,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-02 08:56 | check_run | cloudflare | skipped | #837（41364489446） | 0分01秒 |
 | 2026-11-02 08:45 | check_run | cloudflare | skipped | #836（41363650615） | 0分00秒 |
 | 2026-11-02 08:43 | check_run | cloudflare | skipped | #835（41363504153） | 0分01秒 |
 | 2026-11-02 08:40 | workflow_dispatch | work/1102-nod | success | #834（41363273348） | 0分12秒 |
 | 2026-11-02 08:40 | check_run | cloudflare | skipped | #833（41363239733） | 0分01秒 |
-| 2026-11-02 08:38 | check_run | cloudflare | skipped | #832（41363097480） | 0分01秒 |
 
 ## check-image-links.yml
 
@@ -196,11 +196,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-02 08:55 | workflow_dispatch | work/1017-lvp | in_progress | #575（41364429459） |  |
 | 2026-11-02 08:41 | workflow_dispatch | work/1102-nod | in_progress | #574（41363306425） |  |
-| 2026-11-02 08:25 | workflow_dispatch | work/1017-lvp | in_progress | #573（41362046200） |  |
+| 2026-11-02 08:25 | workflow_dispatch | work/1017-lvp | success | #573（41362046200） | 28分41秒 |
 | 2026-11-02 08:15 | workflow_dispatch | work/1017-lvp | failure | #572（41361234293） | 9分29秒 |
 | 2026-11-02 08:14 | workflow_dispatch | work/1017-lvp | success | #571（41361095643） | 0分37秒 |
-| 2026-11-02 07:59 | workflow_dispatch | cloudflare | success | #570（41359848563） | 9分35秒 |
 
 - #572 failure: ジョブ「regenerate」 ステップ「生成物の差を実行サマリに出す」
 
