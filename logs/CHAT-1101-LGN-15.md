@@ -63,28 +63,51 @@ LGN-14 の log/ のプレビューを平野さんが見て出した直しを入�
   - 「8店」の結果: 検索欄の語は店の検索の文字列（店のすべての投稿のメニュー・人の名前などを含む）と突き合わせ、表示する投稿はタグ（2026年）で絞る。平野良栄が 2026年より前に行った店のうち、2026年に谷岡育夫の投稿がある8店が出ていた（大至・ドゥエイタリアン・shizuku・魚雷・琥珀・瞠・レセンシエル・半ざわ。どれも表示される投稿は谷岡育夫の 2026年の投稿）
   - 扱い: 決定（候補を出す）と前提（LGN-03 の「0店の候補は出さない」を守る）が、この例では両立しない（出せる候補が無い）。CLAUDE.md「Chat-Ref」の「前提と実物が食い違ったら、指示に合わせて手を入れず、中断して報告する」「記述同士が食い違ったときは前提・ルールの側を優先」により、候補の処理は変えない。今の動き（タグ1つ＋語・タグ2つ＋語・選んでいる種類の語）を `node --test` の検査に残し、判断を「判断が必要なこと」に挙げる。出典の文・現在地の結果の書き方は、この食い違いと関係しないので進める
 
+- 手順1・2（046bdb2ad コード、600120d24 docs）:
+  - 出典: `SOURCE_HTML` の末尾を「を加工して作成」に。resource_logs.html は「駅名の一部は…をもとに作成（駅の点と都道府県を加工）」のままで、docs/notes/log-stations.md「出典の表記」の resource_logs の行と一致（生成物の文を grep で確かめた）。log-stations.md の log/ の行も「を加工して作成」に直した
+  - 現在地の結果: `distanceLabel()` の現在地の分岐を、店の駅の表示（`shop[SHOP.station]`。東京都の外は「船橋（千葉県）」）だけに。近い順の並びは `search()` のまま。駅のタグの「（神保町駅から 615m）」は変えていない。使われなくなった JS の `HOME_PREF` を消した（`meters()` は駅のタグで使うので残す）
+  - 検査: `node --test` に「絞り込み中も候補を出す」（タグ1つ＋語〈2026年＋平野 → 平野良栄 1店〉、0店〈2025年＋谷岡〉、タグ2つ＋語〈2026年・茗荷谷＋谷岡 → 2店、＋平野 → なし〉、選んでいる種類の語〈2026年＋2025 → なし〉）を足した。候補の処理を変えていないので、この検査は直す前のコードでも通る（今の動きを固定する検査）。distanceLabel の検査は直す前の log.js（27c63dc02）で落ちる（not ok 17）ことを確かめた
+  - テスト: unittest 全件 OK、`node --test scripts/tests/js/*.test.js .github/actions/upsert-issue/test/*.test.js` → pass 37 / fail 0
+- 自己レビュー（新しい文脈の general-purpose、`git diff 27c63dc02..600120d24`）: 要修正なし。タグがあると候補が出ない経路は無い（`suggest()` が飛ばすのは shop と選んでいる種類だけ、`renderSuggest()` に分岐なし）と、実データで「×2026年」＋「平野」が0件なのを別に確かめた
+
+| 指摘 | 扱い |
+|---|---|
+| 作業ブランチの log/index.html が古い文のまま | 意図どおり（レビューの時点で再生成の前だった。この後の regenerate-page.yml で「を加工して作成」になった） |
+| 出典の行の日付「2026-10-31 の決定」が古い | 意図どおり（指示の決定の日付が 2026-10-31） |
+| `distanceLabel()` の現在地の分岐を `distance === null` とまとめられる | 見送り（任意。分岐ごとに意味が読めるため今の形） |
+| log-page.md の「×2026年」の例がデータ次第で古くなる | 直した（「2026-11-01 のデータでは0件」と添えた。この後の docs のコミット） |
+
+- 再生成: regenerate-page.yml を `check: true`（run 41263768441、600120d24、success）→ 入力無し（run 41264624089、600120d24、success）の順に実行し、`chore: regenerate ...` が入った。log/ は 1,734店・2,430件で LGN-14 と同じ（resource_logs.html の 3,159行 − 石立岳大 601行 = 2,558行。log/ が外す再投稿〈過去メシ〉はその差の 128行。resource_logs.html の行数は LGN-14 の時点と同じなので、件数も変わっていない）。log/index.html は「を加工して作成」。ほかに saikyo/ の生成物（スプレッドシートのデータの更新）
+- プレビュー（Playwright、幅 400px。プレビューのトップが「を加工して作成」になり、log.js に「駅まで」が無いことを確かめてから）:
+  - トップ: 出典「…（https://nlftp.mlit.go.jp/ksj/（新しいタブで開く））を加工して作成」
+  - `?year=2026` → 353店。打った語の候補: 「平野」→ なし（結果は8店。上の原因のとおり）、「谷岡」→ 投稿者|谷岡育夫|353店、「神田」→ 駅|神田|13店・店名|神田伯剌西爾(ブラジル)|1店、「茗荷」→ 駅|茗荷谷|1店
+  - 「谷岡」の候補を押す → タグ「×谷岡育夫」「×2026年」、353店。続けて「池袋」→ 駅|池袋|30店・駅|北池袋|1店・駅|東池袋|1店・店名|池袋ラーメン 梟|1店（タグ2つ＋語）
+  - 現在地（茗荷谷駅の近く）→ 「レセンシエル | 茗荷谷」「バンビ | 茗荷谷」…（距離なし）。`?station=神保町` は今のまま。ページのエラーなし
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1029-lgn-page
 - ログ: https://github.com/retroeater/mj/blob/work/1029-lgn-page/docs/logs/CHAT-1101-LGN-15.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1029-lgn-page
-- 確認用URL: なし
-- マージ: 未
+- 確認用URL: プレビューあり（URL は最終報告）。トップと `?year=2026` を確かめた。この版の印: 出典の文の末尾が「を加工して作成」、現在地の結果が「茗荷谷」（距離なし）
+- マージ: 未（指示のとおり判断待ちで止まる）
 - issue: #639
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 判断が必要なこと:
+  - 絞り込み中の候補: コードの誤りではなかった。タグがあっても候補は出る（「×2026年」で「谷岡」「神田」「茗荷」は出る）。報告の例（「×2026年」で「平野」）は、スプレッドシートに平野良栄の 2026年の投稿が0件のため、LGN-03 の「0店の候補は出さない」で出ない。決定（候補を出す）と前提（0店の候補は出さない）がこの例では両立しないので、候補の処理は変えていない。今の動きを検査に残した。直すなら次のどれか: (a) 今のまま (b) 0店でも「平野良栄 0店」と出す (c) 検索欄の語を、タグで絞った後の投稿だけと突き合わせる（今は店のすべての投稿と突き合わせるので、2026年に平野良栄の投稿が無くても、平野良栄が前に行った店が「8店」出て、表示は谷岡育夫の 2026年の投稿になる）
+  - 仮置き（LGN-14 から変えていない。docs/notes/log-page.md「仮置きの一覧」）: 駅のタグの距離で括弧が2つ続く「船橋（千葉県）（西船橋駅から 400m）」、候補の種類の幅 4.5em、カードの日付・回数は駅の下の行に灰色、同じ名前で2つ以上の都道府県の駅（府中）はカードと候補・タグで書き方が分かれる
+- 未確認の項目: ブラウザ（平野さんの端末）での見え方。ヘッドレスの Chromium（幅 400px）でだけ確かめた
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 74c389fe）: https://github.com/retroeater/mj-logs/tree/main/guide/74c389fe
+ガイド文書（この版を写した時点の最新、mj cc449e20）: https://github.com/retroeater/mj-logs/tree/main/guide/cc449e20
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/74c389fe/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/74c389fe/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/74c389fe/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/74c389fe/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/74c389fe/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/74c389fe/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/726c7ec8.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/cc449e20/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/cc449e20/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/cc449e20/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/cc449e20/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/cc449e20/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/cc449e20/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/cc449e20.md
