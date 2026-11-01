@@ -62,19 +62,69 @@ WFL-28 の判断待ち（マージの経路）への回答。平野さんは PR 
 - 0. 指示欄の末尾は指示文の最後の行と一致。WFL-28 のログの `## 報告` は「状態: 判断待ち」、`origin/work/1101-wfl`（09ccd86e8）は origin/cloudflare の祖先でない（未マージ）。cloudflare は 43 コミット先（前提と一致）。
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）の欠け: なし（貼られた指示文は冒頭の数行が1行につながって届いた。内容の欠けは無し）。
 
+### 手順1（取り込み）
+
+- `git merge origin/cloudflare`（43 コミット）: docs/decisions/operations.md だけが衝突（末尾の追記どうし。HEAD 側 WFL-28 の節、cloudflare 側 SEO-15・MCK-25・SEO-16 の節）。両方を残して解いた（cloudflare 側を先、WFL-28 を後）。解いた後の該当箇所:
+  ```
+  ## 2026-11-01（CHAT-1101-SEO-16）
+  …
+  - 作業中の回答: なし
+
+  ## 2026-11-01（CHAT-1101-WFL-28）
+
+  - リモートのブランチを消す push を mj-git-guard で止める（deny）。…
+  - マージ済みの `work/*` は `cleanup-branches.yml` に任せ、平野さんは GitHub の画面で手で消さない
+  - 作業中の回答: なし
+  ```
+  マージコミット 4815f24b7。hook・テスト・skills.md は衝突なし。
+- 取り込み後の `python3 -m unittest discover -s scripts/tests`: OK。
+
+### 手順2（直し、92001e35a）
+
+- docs/notes/skills.md「git の hook（mj-git-guard）」: 2026-09-30 の箇条（分類器が拒否・平野さんが手でコミット・PR でマージ・「判断待ちで止まる」・GitHub の画面でのコミット）を「hook・`.claude/` の settings・hookify の規則ファイルの変更は、ほかのコードと同じ運用…分類器に拒否されたときは、その旨を報告して止まる」に置き換えた（WFL-28 で足した 2026-11-01 の実測の行もこの中に吸収）。
+- 同「hook の層の分け方」の hookify の行の「`.claude/` の下なので、足すのも直すのも平野さんの手作業（上の `[Self-Modification]`）」を「足す・直すのは上の hook の変更と同じ運用」に。
+- docs/notes/chat-side-operations.md「場面ごとに読む文書」の表の行「`.claude/` の hook・settings を変える（「マージ:」は判断待ちで止まる）」から括弧を外した（同じ趣旨の記述。指示文の範囲は skills.md の節だったが、残すと規則が食い違うため直した）。
+- `.claude/hooks/mj-git-guard.py` の2行目の来歴コメントを「2026-09-30 チャット側の Claude が作成（CHAT-0930-HKG-04・HKG-07）。2026-11-01 からはセッションが作業ブランチで変更し、通常の経路でマージする（docs/notes/skills.md）」に。書き換え・コミット・push は分類器に拒否されなかった。
+- docs/decisions/operations.md の過去の節は書き換えていない（`Self-Modification` などの語を含む過去の記録は無かった。2026-09-30 の規則は decisions に記録が無いため、新しい節に「skills.md の規則を置き換える」と書いた）。
+
+### 確かめ
+
+- 取り込み後のテスト: `Ran 1719 tests … OK`（test_git_guard.py を含む）。2回目の取り込みの後も OK。
+- hook が作業ツリーの版か: `.claude/settings.json` の command は `python3 "$CLAUDE_PROJECT_DIR"/.claude/hooks/mj-git-guard.py`（作業ツリーのファイル）。`git push origin --delete work/1101-wfl-dummy` は「リモートのブランチは消さない。マージ済みの work/* は cleanup-branches.yml が消す（docs/notes/cloud-sessions.md「ブランチの削除」）」で deny（この理由文は作業ブランチの版にしか無い）。
+- `git grep -n "Self-Modification\|平野さんが手でコミット\|Create a merge commit" -- ':!docs/logs' ':!docs/decisions'`: 0 件。
+- 文書のサイズ（`wc -c`、作業ブランチ）: CLAUDE.md 23768・handover.md 23354・chat-side-operations.md 22473・instruction-template.md 13164。上限・警告域の内。
+- 自己レビュー: 今回のコードの差分は hook のコメント1行だけ（判定は WFL-28 でレビュー済み）なので、サブエージェントのレビューは行っていない。
+
+### 手順3（マージと後始末）
+
+- ff751e618: WFL-28 のログの状態を「判断待ち / 続き: CHAT-1101-WFL-29」に。docs/decisions/operations.md に「2026-11-01（CHAT-1101-WFL-29）」。
+- マージ直前の再 fetch で origin/cloudflare が3コミット進んでいた（MCK-26）。`git merge origin/cloudflare` で docs/decisions/operations.md が再び末尾の追記どうしで衝突し、両方を残して解いた（MCK-26 の節を先、WFL-28・WFL-29 を後。見出しの並び: 1306 MCK-26 / 1312 WFL-28 / 1318 WFL-29）。マージコミット 74c389feb、テスト OK。
+- 再 fetch → `git merge-base --is-ancestor origin/cloudflare HEAD` が真 → `git push origin work/1101-wfl:cloudflare`: `3c65b911e..74c389feb  work/1101-wfl -> cloudflare`。
+- マージ後の Actions: 74c389feb の workflow run は 0 件（regenerate-page.yml は push の paths が `scripts/generate_*.py`・`scripts/lib/**`・`*.js` で、今回の差分〈hook・テスト・docs〉は当たらない。見込みどおり走らなかった）。check-runs は「Workers Builds: mj」completed success（ビルドの成否だけ。本番の見え方は確かめていない。今回はページを変えていない）・「notify」skipped。
+- 起票: #643「mj-git-guard: `-o <値>` の付いた push で force の判定が素通りする」（ラベル「分野: 整理・保守」。事前の検索〈「mj-git-guard force」「push-option」「mj-git-guard -o」〉で同じ主題は無し）。
+
 ## 報告
 
-- 状態: 中断（作業中）
+- 状態: 完了
+- ブランチ: work/1101-wfl
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1101-WFL-29.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1101-wfl
+- 確認用URL: なし（hook・テスト・docs の変更でページは変わらない）
+- マージ: 済（74c389feb）
+- issue: #643（起票）・#176
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj ac750f5e）: https://github.com/retroeater/mj-logs/tree/main/guide/ac750f5e
+ガイド文書（この版を写した時点の最新、mj 74c389fe）: https://github.com/retroeater/mj-logs/tree/main/guide/74c389fe
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ac750f5e/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ac750f5e/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ac750f5e/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ac750f5e/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ac750f5e/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/ac750f5e/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/74c389fe/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/74c389fe/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/74c389fe/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/74c389fe/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/74c389fe/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/74c389fe/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/27bafd9b.md
