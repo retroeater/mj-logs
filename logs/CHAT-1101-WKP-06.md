@@ -53,6 +53,57 @@ CHAT-1101-WKP-05 の判断待ちへの回答。止まった手順の残り（手
 
 ## 経過
 
+### 着手前の確かめ（2026-11-01 08:52 JST ごろ）
+
+- 指示欄の末尾: ログの「## 指示」の最後の行が指示文の最後の行と一致することを確かめた
+- 同じ Chat-Ref のコミット: 0 件。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は4行ともあり
+- 貼る時機: CHAT-1101-WKP-05 のログの `## 報告` の状態は「判断待ち」だった。末尾に ` / 続き: CHAT-1101-WKP-06` を足した
+- 作業ブランチ: work/1101-wkp はリモートにあり、ローカルの先頭と一致（a265aa1ab）。`git merge-base --is-ancestor origin/cloudflare HEAD` が偽だったので、`git merge origin/cloudflare` で取り込んだ（be2d4854d、衝突なし。cloudflare 側の 22 コミットは docs・style.css・pro/ などで、`.github/` の変更は無い）
+- 指示文の issue の state: #564 は Open
+- fetch-redirect-counts.yml の 2026-11-01 のフォールバック実行: **未実行（2026-11-01 08:52 JST 時点）**。直近の schedule の実行は run 41152866065（10/31 00:56 UTC）のまま。origin/cloudflare の docs/redirect-counts/ は 2026-09.csv だけ（同時点）
+- 未マージの work/ ブランチで `.github/` を変えるもの: work/1028-lgn・work/1029-lgn-page・work/1031-pro-sched（WKP-05 の着手時と同じ。WKP-05 の後に増えたものは無い）。重なりの見立ては WKP-05 のログのとおり
+
+### 手順2 (b): run-monthly の衝突の直しの確かめ
+
+- 前提の補い: 作業ブランチには、今朝 cloudflare に入った gsc の回の docs/gsc/2026-11-01/ がある（35901cd54、取り込みで入った）。gsc は同じ日付のフォルダに同じ期間を書くので、そのままでは差分が出ずにコミットしない見込みで、redirects の push は拒否されない（再試行を確かめられない）。そこで一時のコミットには、外への書き込みを止める2行のほかに、作業ブランチの docs/gsc/2026-11-01/ の削除を入れた（あとで revert して戻す）
+- 一時のコミット ab1b8734e（`test: temporarily stop issue writes for the run-monthly check`）:
+  - fetch-gsc.yml「robots.txtの差分を知らせる」の `if:` の先頭に `false &&`（#304 へのコメントを止める）
+  - fetch-redirect-counts.yml「#568 にコメント」の `dry-run:` を `'true'`（#568 へのコメントを止める）
+  - docs/gsc/2026-11-01/ の 7 ファイルの削除
+- 実行: run-monthly を作業ブランチで `scheduled` 真で起動 → run 41254397984（題「[scheduled] 月次の運行」、**success**、1分29秒。gsc / fetch〈23:53:47〜23:54:29 UTC〉→ redirects / fetch〈23:54:31〜23:55:11 UTC〉）
+- gsc / fetch の「コミットしてpush」（ログの原文）:
+
+  ```
+  [work/1101-wkp ca21a41] chore: fetch Search Console export
+   7 files changed, 2295 insertions(+)
+  To https://github.com/retroeater/mj
+     ab1b873..ca21a41  HEAD -> work/1101-wkp
+  ```
+  「robots.txtの差分を知らせる」は skipped（取得のログは `robots.txt: 前回(2026-10-09)との差分なし`）
+- redirects / fetch の「コミットしてpush」（ログの原文。1回目は拒否、`pull --rebase` の後の2回目で通った）:
+
+  ```
+  [work/1101-wkp 3066197] chore: fetch redirect counts
+   1 file changed, 83 insertions(+)
+   create mode 100644 docs/redirect-counts/2026-10.csv
+  To https://github.com/retroeater/mj
+   ! [rejected]        HEAD -> work/1101-wkp (fetch first)
+  error: failed to push some refs to 'https://github.com/retroeater/mj'
+  From https://github.com/retroeater/mj
+   * branch            work/1101-wkp -> FETCH_HEAD
+     ab1b873..ca21a41  work/1101-wkp -> origin/work/1101-wkp
+  Rebasing (1/1)
+  Successfully rebased and updated refs/heads/work/1101-wkp.
+  To https://github.com/retroeater/mj
+     ca21a41..2fcc9e7  HEAD -> work/1101-wkp
+  work/1101-wkp へ push しました(2fcc9e7)
+  ```
+  「#568 にコメント」は `dry-run: true`・`[dry-run] #568 にコメントする:`（本文を出しただけ）
+- 作業ブランチの外への書き込み: 無い。cloudflare の直近1時間のコミットに bot のものは無い（どれも別セッションの docs・マージ）。#568 の最新のコメントは 2026-10-29。#304 の直近1時間のコメントは別セッションの着手コメント（23:12 UTC、この run の前）だけ
+- 戻し: `git revert` で 2fcc9e746（redirects のデータ）→ ca21a417e（gsc のデータ）→ ab1b8734e（一時のコミット）の順に戻した（244c5f35b・842cf0e86・5e3c73f14）。`git diff --quiet be2d4854d HEAD` が真（一時のコミットの前と同じ木）。一時のコミットの `.github/` の差分は上の2行だけ（`git show ab1b8734e -- .github`）。`git diff origin/cloudflare...HEAD -- docs/gsc docs/redirect-counts` は空
+- 戻した後の `python3 -m unittest discover -s scripts/tests` 成功、`node --test 'workers/scheduler/test/*.test.mjs'` 47 件成功
+- 取り込みの後の run-daily の手動実行はしていない（取り込んだ cloudflare 側に `.github/` の変更が無く、WKP-05 の a7370d27c での実行〈41252379802〉から run-daily の道筋は変わっていないため）
+
 ## 報告
 
 - 状態: 作業中
