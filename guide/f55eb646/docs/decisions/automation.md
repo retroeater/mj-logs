@@ -569,3 +569,24 @@ GitHub Actions の整理の段③-4（#564）。
 
 - WKP-06 の判断待ちの docs/handover.md の2か所（「05:37 は保険」）を直す
 - 作業中の回答: なし
+
+## 2026-11-02（CHAT-1102-WKP-09）
+
+- 時刻をそろえる（2026-11-09 の週から）: 月次（run-monthly）は毎月1日 03:00 → 02:00 JST、週次（run-weekly）は月曜 02:00 → 03:00 JST、日次（run-daily）は毎日 04:00 JST のまま。質問欄（mj-ask）の週次の書き出しも月曜 03:00 JST にそろえる（AIC の系列で mj-ask の Cron Trigger を変える）
+- 週次の中身を減らす（案B）: fetch-youtube（→ regenerate-page の all）だけを run-weekly に残し、ほかの週次（check-meibo・sync-birthday-calendar・cleanup-logs・check-saikyo-unregistered・fetch-x-posts → convert-x-posts）を run-daily に移す
+- 別の issue を起票する:「直近の Actions の使用量のペースを確かめ、問題なければ全部を日次にする（案A）」
+- マージは、作業ブランチの手動実行がすべて success（書く時点で分かっている無関係な失敗は除く）で、止まる条件に1つも当たらなければ行ってよい
+- 作業中の回答: なし（cleanup-logs を毎日にすると #357 に同じ通知が毎日付くので、止まる条件で止めた。移し方は判断待ち）
+
+## 2026-11-02（CHAT-1102-WKP-10）
+
+- cleanup-logs は run-weekly に残す（WKP-09 の案 (1)）。ほかの5本（check-meibo・sync-birthday-calendar・check-saikyo-unregistered・fetch-x-posts → convert-x-posts）を run-daily へ移す。run-weekly に残るのは fetch-youtube と cleanup-logs
+- WKP-09 の決定のほか（時刻: run-monthly は毎月1日 02:00、run-weekly は月曜 03:00、run-daily は 04:00 のまま。案A の issue の起票〈#647〉）はそのまま
+- マージは、作業ブランチの手動実行がすべて success で、止まる条件に1つも当たらなければ行ってよい
+- 作業中の回答: なし
+
+## 2026-11-02（CHAT-1102-WKP-11）
+
+- CLAUDE.md「判断・作業の原則」の「週次の`check-meibo.yml`も実行する」を直す（WKP-10 の判断待ちへの回答。チャット側の推奨のとおり）
+- convert-x-posts.yml のコメントと work/1028-lgn の run-monthly の説明の古い記述は、LGN のチャットに伝言して 1028-lgn の側で直してもらう（この指示では触らない）
+- 作業中の回答: なし

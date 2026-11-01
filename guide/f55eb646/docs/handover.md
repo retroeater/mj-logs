@@ -8,9 +8,9 @@
 
 最終更新: 2026-11-01
 
+- **「現行サイトに作り込みすぎない」の #13・#219・#82 を、pro/ を現行サイトで作った決定に合わせた**
 - **毎日・週次のフォールバック実行（GitHub の `schedule`）を外したので、2章の週次の再生成の記述を今の起動に合わせた**
 - **Codespace の旧記録（branch-operations.md・session-network.md）を handover-archive へ移し、6章の注記を直した**
-- **5章の表から新サイト送りの #4・保留の #96 を外し、「次の会話の順番」の日付を外した**
 
 ---
 
@@ -77,7 +77,7 @@ GitHub Pages からの移行の相談に始まり、Cloudflare への移行の�
 
 **スプレッドシートを直しただけでは、ビルド時生成のページには反映されない。** 即時に反映したいときは
 `regenerate-page.yml` を`workflow_dispatch`で手動実行する（`target_page`にページ名、または`all`）。
-週次（#103）は毎週月曜02:00 JST の `run-weekly.yml` が `fetch-youtube.yml` の最後に`all`を呼ぶ（GitHub 側の予約実行は無い。`docs/notes/github-actions.md`）。最強戦（saikyo/）は毎朝、写真のリンク切れ検知の後にも再生成する（`regenerate-saikyo.yml`、#537）。セッション内でも `python3 scripts/regenerate.py <ページ名>` で生成できる。
+週次（#103）は毎週月曜03:00 JST の `run-weekly.yml` が `fetch-youtube.yml` の最後に`all`を呼ぶ（GitHub 側の予約実行は無い。`docs/notes/github-actions.md`）。最強戦（saikyo/）は毎朝、写真のリンク切れ検知の後にも再生成する（`regenerate-saikyo.yml`、#537）。セッション内でも `python3 scripts/regenerate.py <ページ名>` で生成できる。
 
 ### 自動化
 
@@ -127,8 +127,9 @@ hook の判定は deny（実行させない）だけで、確認（ask）は出�
 **新サイトを別途新規構築する方針**が決まっている（`docs/new-site-design.md`）。
 現行サイトはいずれ役目を終えるため、大きな投資は避ける。これまでの判断:
 
-- 構造化データ（#13）: 見えているパンくずと同じ並びの `BreadcrumbList`（title/・saikyo/・houou/ ほか4大会・動画の各話）とトップの `WebSite` は現行サイトに前倒しした（2026-10-29、`lib/page.py` の `PageMeta.breadcrumb`）。選手の `Person` などは新サイトで対応（#13・#219）
-- 共有ボタン: 新サイトの選手個別ページは #82（新サイト送り）。現行サイトは live/ に共通の部品（#409。`scripts/lib/share.py`・`assets/share.js`・`style.css`）。title/・wayhome/（帰り道）・saikyo/ の共有は外した（saikyo/ の対局ごとの共有は #549 で廃止）。共通の部品は #362 のマージで live/ から外れた後に消す（#530、docs/decisions/site-review.md）。books/ は凍結中で旧実装のまま残す
+- 構造化データ（#13）: 見えているパンくずと同じ並びの `BreadcrumbList`（title/・saikyo/・houou/ ほか4大会・動画の各話）とトップの `WebSite` は現行サイトに前倒しした（2026-10-29、`lib/page.py` の `PageMeta.breadcrumb`）。選手の `Person` は pro/ の個別ページに入れた（#13 は pro/ の公開〈#641〉で閉じる。トップに `ItemList` は足さない）
+- 選手個別ページ（#219）: 新サイト送りを取り消し、現行サイトの pro/ で作った（2026-10-31、未公開。公開は #641）
+- 共有ボタン: pro/ の個別ページには置かない（2026-10-31。#82 は pro/ の公開で閉じる）。現行サイトは live/ に共通の部品（#409。`scripts/lib/share.py`・`assets/share.js`・`style.css`）。title/・wayhome/（帰り道）・saikyo/ の共有は外した（saikyo/ の対局ごとの共有は #549 で廃止）。共通の部品は #362 のマージで live/ から外れた後に消す（#530、docs/decisions/site-review.md）。books/ は凍結中で旧実装のまま残す
 - Astroへの移行（#20/#21）は新サイト構築時に判断。現行サイトの残作業はPythonで進める
 
 **新サイトの第一弾は index.html（#101）。** 他ページと構造が独立し依存が最も少ないため（Astro の試作対象も index.html に変え、#20 はクローズ）。

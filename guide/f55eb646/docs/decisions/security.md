@@ -175,3 +175,16 @@ Cloudflare の Security Overview の提案（security.txt など）の見送り�
 - #557 を閉じる
 - 残りの「Sheets API の 1分あたりの上限（429）の待ちの様子見」は、予約実行が長引いたときに別の issue を起票する（今は起票しない。「閉じる時点で残る作業は別の issue に起票する」より、この決定を正とする）
 - （元の「Public」フォルダの削除は CHAT-1022-PRV-08 の節に記録済み）
+
+## 2026-11-01（CHAT-1101-MCK-30）
+
+- 案（a）: `_headers` の CSP の `connect-src 'self'` を `connect-src 'self' https://cloudflareinsights.com` にする（Web Analytics の手動のビーコンの送り先、CHAT-1101-MCK-24）。本番で確かめる前提でマージしてよい
+- 未実施: 未マージの work/1028-lgn・work/1029-lgn-page が `_headers` の同じ行を変えていたため、0章ゲートで止めた（判断待ち）
+- 作業中の回答: なし
+
+## 2026-11-01（CHAT-1101-MCK-33）
+
+- CHAT-1101-MCK-30 の案（a）（CSP の `connect-src` に `https://cloudflareinsights.com`）を、未マージの LGN のブランチ（work/1028-lgn・work/1029-lgn-page）より先に入れる。0章ゲートの重なりは承知のうえとする（MCK-30 の「未実施」はこれで実施）
+- LGN のブランチを後で取り込むときの `_headers` の衝突は「CSP の行の中身は cloudflare 側、末尾の改行と `/log/*` の規則は LGN 側」で解いてよい（MCK のチャットが LGN のチャットへ伝える）
+- マージしてよい
+- 作業中の回答: なし
