@@ -31,7 +31,7 @@ Python かどうかでは決まらない。`requests` の既定 User-Agent で�
 - 403 は本文 `error code: 1010`、`server: cloudflare`。Cloudflare が User-Agent で拒否しているもので、
   **サイトの障害でもデプロイの失敗でもない**。curl で `Python-urllib` を名乗っても 403、`urllib` でもブラウザ UA なら 200 のため、
   判定は User-Agent の文字列による（2026-09-14 の初回観測では `User-Agent: Mozilla/5.0` と
-  `check_image_links.py` の User-Agent〈`Mozilla/5.0 (compatible; ryoei.pro link checker; ...)`〉も 200）
+  `check_image_links.py` の User-Agent〈`Mozilla/5.0 (compatible; ryoei.pro link checker; ...)`〉も 200。2026-11-01 から括弧の中に目印 `mj-internal` を足した）
 - **`urllib` で `ryoei.pro` を取得するときは User-Agent を必ず指定する。** 指定しないと、本番は正常なのに
   「落ちている」「未反映」と誤判定する。`requests` と curl は既定のままでよい
 - **リンク切れ検査の系統をローカルで走らせるときは特に注意する**

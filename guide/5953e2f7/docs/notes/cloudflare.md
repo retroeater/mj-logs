@@ -503,6 +503,7 @@ Workers静的アセットにはオリジンサーバーが存在しないため�
 キャッシュ制御を持つ（#92）。
 `/*` には `Content-Security-Policy` もある（2026-10-19、#9。報告先は持たない）。外部は `script-src` の Web Analytics（`static.cloudflareinsights.com`）だけを許し、
 `img-src` は `'self' data: https:`、`style-src-attr 'unsafe-inline'`（title/ の CSS 変数・glightbox）。typed.js のカーソルの CSS は index.css に置く（`<link data-typed-js-cursor-css>`）。
+ほかに外部を許すのは `connect-src` の `https://cloudflareinsights.com` だけで、手動のビーコンの送り先なので要る（無いと Web Analytics の計測が止まる。Web Analytics の FAQ。2026-10-19 の切り替えで止まり、2026-11-01 に足した、#304）。
 **外部のスクリプト・iframe・フォント・`fetch` の先・`<style>` 要素を足すときは、このヘッダの値も直す**（直さないと黙って読み込まれない。測り方と値の理由は #9）。
 
 | 対象 | Cache-Control |
