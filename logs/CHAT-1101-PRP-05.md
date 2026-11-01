@@ -60,6 +60,73 @@ PRP-04 で止めた `jpml_pros.html` の 301 を、サイトの Worker `mj` と�
 
 ## 経過
 
+### 0. 着手前の確認
+
+- 指示欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある
+- CHAT-1101-PRP-04 のログの状態は「判断待ち」だった。末尾に「 / 続き: CHAT-1101-PRP-05」を足して push した（18728eec6）
+- 同じ Chat-Ref のコミット: なし。作業ブランチはローカル・リモートとも 951a8c213 で一致、`origin/cloudflare` は祖先だった（取り込み不要）
+- #641 にほかのセッションの着手中は無い。着手中のコメントを書いた
+
+### 1. Worker（`mj-pros-redirect`）
+
+調べたこと（Cloudflare の公式の文書、2026-11-01 に読んだ。Workers の Routes のページ）:
+
+- 「The path component of route patterns is case sensitive」→ `ryoei.pro/jpml_pros.html*` は `/JPML_PROS.html` に当たらない（今までどおりサイトの 404）
+- 「Route pattern matching considers the entire request URL, including the query parameter string. ... the only way to have a route pattern match URLs with query parameters is to terminate it with a wildcard, `*`」→ 末尾の `*` が要る。`*` は `/jpml_pros.htmlx` なども拾うので、コードでパスを確かめて、ほかは `fetch(request)` でサイトへ渡す
+- 「Routes can `fetch()` Custom Domains and take precedence if configured on the same hostname」→ ルートの Worker がサイト（Custom Domain の `mj`）より先に動く。前提の「`_redirects` より先に Worker に渡る」はこのとおりで、`?name=` の無い `/jpml_pros.html` も同じ Worker で `/pro/` へ送った（`_redirects` には行を足していない）
+
+作ったもの:
+
+- `workers/pros-redirect/`: `wrangler.jsonc`（`mj-pros-redirect`・ルート `ryoei.pro/jpml_pros.html*`・`workers_dev: false`・`preview_urls: false`。mj-ask と同じ形）、`src/redirect.mjs`（`targetPath()`）、`src/index.mjs`（301、転送しないパスは `fetch(request)`）、`test/redirect.test.mjs`
+- 表: `scripts/generate_pro_pages.py` の `redirect_table()` が `workers/pros-redirect/data.json` を書く（在籍者の今の名前と、「別名」の変換前のうち変換後が在籍者のもの）。「別名」は今後の予定のために読んでいる `live_pages.load()` の名前の辞書から取る（`Site.aliases`）。`scripts/regenerate.py` の `pro_pages` の出力に足した（Actions の再生成がコミットする）
+- Actions の生成（run 41286842756、`pro_pages`、success）で `data.json` ができた: 1,125件（在籍者 1,098名・旧名 27件）。pro/ の生成物は変わらなかった
+- サイトの `mj` の `wrangler.jsonc` は変えていない（origin/cloudflare・この指示の前と差分0）
+
+テスト:
+
+- `node --test 'workers/pros-redirect/test/*.test.mjs'`: 6件 OK（在籍者・旧名・在籍者でない名前・表に無い名前・空・`null`・名前の一部・`?name=` 無し・ほかのクエリだけ・前後の空白・`+`・`&` と空白を含む名前・中の空白・壊れた `%` の符号・`__proto__`・`/jpml_pros.htmlx`・`/jpml_pros.html/`・`/JPML_PROS.html`）。`workers/*/test` の全部（162件）も OK
+- `python3 -m unittest discover -s scripts/tests`: 1,752件 OK（足した `test_redirect_table` は、この指示の前のコードで ERROR）
+
+ローカルの `wrangler dev`（`npx wrangler@4.156.0 dev --port 8791 --ip 127.0.0.1 --persist-to /tmp/wrangler-state-pr`、`workers/pros-redirect/` で起動。本番には出ていない）:
+
+| 要求 | 状態 | Location |
+|---|---|---|
+| `/jpml_pros.html` | 301 | `/pro/` |
+| `?name=白鳥翔`（在籍者） | 301 | `/pro/sho.shiratori.23/` |
+| `?name=ガースネルソン`（「別名」の旧名） | 301 | `/pro/garthe.22/` |
+| `?name=藤川まゆ`（在籍者でない） | 301 | `/pro/` |
+| `?name=存在しない名前` | 301 | `/pro/` |
+| `?name=%20白鳥翔%20`（前後の空白） | 301 | `/pro/sho.shiratori.23/` |
+| `?name=A%26B%2B%25`（記号） | 301 | `/pro/` |
+| `?name=%E0%A4%A`（壊れた符号） | 301 | `/pro/` |
+| `?place=東京`（name 無し） | 301 | `/pro/` |
+| `/JPML_PROS.html` | （ローカルでは `fetch(request)` が `wrangler dev` 自身に戻り 301 の繰り返しになった。本番ではルートが大文字小文字を区別するので、この Worker は動かない） | — |
+
+### 2. 文書
+
+- 新しく `docs/notes/pros-redirect-worker.md`（動き・表・デプロイと表の更新・平野さんの手作業 P1・P1 の後の確かめ・月次の集計）。`docs/handover.md` の設計メモの表に1行（`test_handover_notes_table.py` のため）
+- `docs/notes/redirects.md` に「Worker の転送（テストで拾えない）」の節と行（「棚卸しの対象」には入れていない。`test_redirects_inventory.py` が `_redirects` と照合するため）
+- `docs/notes/cloudflare.md`（Worker の一覧の段と、canonical の節の `jpml_pros.html` の注記）・`docs/notes/pro-pages.md`
+- #159 に設計をコメントした
+
+作る時機（平野さんの P1）: **pro/ の公開のマージの後。** Workers Builds は本番のブランチ `cloudflare` の Root directory を読むので、`workers/pros-redirect/` が `cloudflare` に入る前に作るとビルドが失敗する見込み。マージから P1 までの間、`/jpml_pros.html` は今の静的なページが 200 で返る（ページは消していない。消すのは #645 で、P1 の後にする）。
+
+毎朝のデプロイ: 毎朝の `update-live-channel.yml` の再生成（`pro_pages`）で表が変わると `data.json` がコミットされ、P1 の4で Build watch paths の Include を `workers/pros-redirect/**` にすれば、この Worker がデプロイし直される。サイトの `mj` は Exclude に `workers/**` がある（2026-10-06 の申告値。ここからは確かめられない）。
+
+月次の集計: `fetch_redirect_counts.py` は「棚卸しの対象」の転送元だけを数えるので、今は数えない。数える案（「棚卸しの対象」へ移し、`test_redirects_inventory.py` で「仕組み」が Worker の行だけ `_redirects` との照合を外す）は書いたが作っていない。Worker の 301 が GraphQL の `httpRequestsAdaptiveGroups` に入るかは文書に書かれておらず、未確認
+
+### 3. 表記の揺れ
+
+順位変動の JSON（4大会）・title/ の写真カード・質問欄の名簿（各大会の `ask-players.json`）で、在籍者の名前と完全には一致しないが、空白の除去・NFKC（全角半角）・異体字（髙→高・﨑→崎・邊/邉→辺・齋→斎・濵/濱→浜・澤→沢 など）を当てると在籍者の名前と一致するものを全件探した（調べるだけの一時のスクリプト。コードの照合は変えていない）。
+
+| 書かれている名前 | 在籍者の名前 | 出どころ（生成物） | 元のシート |
+|---|---|---|---|
+| 「こばり　しん」（全角空白） | こばりしん | `houou/race/38-2.json`（ほかに `workers/ask/data.json`） | 「鳳凰」シートの第38期後期の行 |
+| 「水口 崚」（半角空白） | 水口崚 | `houou/race/38-2.json`（ほかに `workers/ask/data.json`） | 同上 |
+| 「泉　裕斗」（全角空白） | 泉裕斗 | `houou/race/38-2.json`（ほかに `workers/ask/data.json`） | 同上 |
+
+3件とも空白の違いだけ。title/ の写真カードと質問欄の名簿には0件。直すのは平野さんの「鳳凰」シートの作業（この指示では直していない）
+
 ## 報告
 
 - 状態: 作業中
