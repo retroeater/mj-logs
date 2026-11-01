@@ -132,7 +132,7 @@ cloudflare への force push は mj-git-guard が止める（docs/notes/skills.m
 
 ## 作業ログの寿命（cleanup-logs.yml）
 
-`cleanup-logs.yml`が週次（月曜02:00 JST の run-weekly から）で片付ける。対象は`cloudflare`上の`docs/logs/CHAT-*.md`で、最終コミットから7日以上たったもの。
+`cleanup-logs.yml`が週次（月曜03:00 JST の run-weekly から）で片付ける。対象は`cloudflare`上の`docs/logs/CHAT-*.md`で、最終コミットから7日以上たったもの。
 **判定の正は`scripts/cleanup_logs.py`**（#513。経緯は`docs/decisions/operations.md`「2026-10-07（CHAT-1007-PHT-08）」）。
 
 ### 書き方（ログを書く側の規則）

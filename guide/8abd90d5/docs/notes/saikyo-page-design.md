@@ -675,7 +675,7 @@ python3 scripts/collect_saikyo_images.py --resolve-test 104307  # 1件だけ解�
 - **毎日の検知**: `.github/workflows/check-image-links.yml` のジョブ `saikyo` を、毎朝の運行（`run-daily.yml`。Worker `mj-scheduler` が毎日 04:00 JST に起動）が
   入力 `scheduled` 付きで呼び（docs/notes/github-actions.md「run-daily.yml」。この起動ではジョブ `saikyo` だけが動く）、`--json` で実行して
   常設issue「最強戦の選手写真のリンク切れ検知結果」に選手名・ハンドル・行数・取得できなかったURL・SNS ブックでの状態を書き出す。
-  ゼロになればコメントしてクローズする（CHAT-0916-SK-44、#139）。毎週月曜の予約実行（`schedule`）は `jpml_pros.html` のジョブ `check` だけを動かす。
+  ゼロになればコメントしてクローズする（CHAT-0916-SK-44、#139）。毎週月曜の予約実行（`schedule`）は `jpml_pros.html` のジョブ `check` だけを動かしていた（2026-11-01 に外した）。
   通知はissue経由のGitHubの通知で、メールを直接送る仕組みは無い。issueがopenのまま本文だけ更新された場合は通知が来ないことがある。
   1回の所要は約1分（2026-10-11、315種類のURLで65秒）。動作確認は `workflow_dispatch` の入力 `saikyo_limit`。
   入力 `saikyo_resolve_test` にX IDを1つ入れると、`resolve()` を1回だけ呼んで診断（HTTP の状態・errors の種類と detail・得た URL と2サイズの到達）を出す
@@ -728,7 +728,7 @@ J列が `_400x400` のURLのとき、同じ画像の `_200x200` を srcset の 1
 
 年度ページは、名前から「プロ」「連盟プロ以外」を引いて写真とXのリンクを出す（#384、`load_rows()`）。
 **どちらからも引けない人は代替アバターになるだけで、生成は止まらず何も知らせない。**
-登録漏れに気づけるよう、同じ読み方で引けない人を週1で確かめ、常設issueに書く。
+登録漏れに気づけるよう、同じ読み方で引けない人を毎日確かめ（2026-11-02 までは週1）、常設issueに書く。
 あわせて、**対局日が空の対局**（#425 の新しいページが個別ページを作らずに飛ばすもの）も同じ常設issueに書く（2026-10-11 の平野さんの決定）。
 
 ### `scripts/check_saikyo_unregistered.py`（手動実行＋週1の検知）
@@ -755,7 +755,7 @@ python3 scripts/check_saikyo_unregistered.py --json result.json  # ワークフ�
 
 ### `.github/workflows/check-saikyo-unregistered.yml`
 
-毎週月曜 02:00 JST に Worker からの run-weekly.yml（2026-10-26 から。それまでの `schedule` の 06:50 JST は 2026-11-01 に外した）と手動実行。
+毎朝 04:00 JST に Worker からの run-daily.yml（2026-11-03 から。2026-10-26〜11-02 は毎週月曜 02:00 JST の run-weekly.yml、それまでの `schedule` の 06:50 JST は 2026-11-01 に外した）と手動実行。
 常設issue「最強戦の出場者の登録漏れ」を本文ごと置き換え、引けない人も対局日が空の対局も0件になったらコメントして閉じる。
 閉じた常設 issue（ラベル「種類: 常設」）があれば新しく作らずに開き直す（`check-image-links.yml` と同じ作り。`.github/actions/upsert-issue`、#564）。対局日が空の対局は本文の節「対局日が空の対局」（年度・対局・シートの行の表）に出る。
 

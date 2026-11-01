@@ -49,28 +49,55 @@ CHAT-1102-WKP-10（096eaef69）で、「ログ」の取り込み（fetch-x-posts
 
 ## 経過
 
+- 0章: 指示欄の末尾は指示文の最後の行と一致。`CHAT-1102-LGN-19` のコミット・ログなし。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）の欠けなし
+- 作業ブランチ: ローカル・リモートとも work/1102-lgn-daily が無かったので `git checkout -b work/1102-lgn-daily origin/cloudflare`（89283fee2）。work/1029-lgn-page には触っていない
+- 手順1（work/1028-lgn）:
+  - リモートの先頭: `d09ec31894c488274a82f4aca807492914be84e2`（d09ec3189、2026-10-29 01:27 UTC、「docs: report CHAT-1029-LGN-03 (preview, awaiting decision)」）。CHAT-1029-LGN-09 のログ（work/1029-lgn-page）が「work/1028-lgn はこの指示では消さない」と書いた後に動いていない
+  - cloudflare に無いコミット 27件（新しい順）: d09ec3189 docs: report CHAT-1029-LGN-03 (preview, awaiting decision)／f4f7f946f test: check that a genre fixed in 【3】 is used／7418f05e4 fix: address the review of the log/ details and suggestions／0c6197d12 docs: log the work so far for CHAT-1029-LGN-03／86fe10238 docs: update the log/ spec for suggestions, tags and closed shops／ebed0da71 chore: regenerate resource_logs.html log/ via GitHub Actions／41f9ddbd6 Revert "test: temporarily disable writes in convert-x-posts.yml"／8fc9f68e9 test: temporarily disable writes in convert-x-posts.yml／e9a0f90fb feat: search log/ with suggestions and tags／20e872a60 feat: refetch shop details monthly for the log／8a2409978 Merge remote-tracking branch 'origin/cloudflare' into work/1028-lgn／60b1ac18e docs: start the log for CHAT-1029-LGN-03／08c89f0b2 docs: report CHAT-1028-LGN-02 (preview, awaiting decision)／c48f4b3f1 docs: log the generation and review for CHAT-1028-LGN-02／5a77fcf34 chore: regenerate resource_logs.html log/ via GitHub Actions／37f92d076 fix: address the review of log/／659080fa2 chore: note the size limit of log/search.json／094e3b750 chore: regenerate resource_logs.html log/ via GitHub Actions／351930934 docs: log the converter and log/ work for CHAT-1028-LGN-02／4b353523c chore: drop a duplicate import in convert_x_posts.py／27b2e651e feat: add the log/ page for searching shops／3e9179843 feat: add shop coordinates to the converted X posts／0c3674230 docs: log the issue setup for CHAT-1028-LGN-02／6faed6d4d Merge remote-tracking branch 'origin/cloudflare' into work/1028-lgn／dd238e5f9 docs: start the log for CHAT-1028-LGN-02／a452f6bbb docs: stop CHAT-1028-LGN-01 at the duplicate issue check／c17382123 docs: start the log for CHAT-1028-LGN-01
+  - **消していない**: docs/notes/branch-operations.md「ブランチを削除するとき」は「クラウドセッションではブランチを削除しない」「消す push（`--delete`・`-d`・`:<ブランチ>`）は mj-git-guard が止める」、CLAUDE.md「ブランチ運用」も「リモートのブランチは削除しない（消す push は mj-git-guard が止める）」。指示の「削除の手順は『ブランチを削除するとき』に従う」に従うと、このセッションからは消せない。止まる条件の「ブランチの削除が権限判定で拒否された（別の手段を試さずに止まる）」と同じ扱いにし、消す push は試していない（hook を外す・API など別の手段も試していない）。削除は平野さんが GitHub の画面で行う（上の先頭 SHA で確かめてから）。手順2・3は削除と独立なので進めた
+- 手順2（古い記述、e2ecc5ca1）: `git grep -n -e 毎週月曜 -e run-weekly -e 週次`（docs/decisions・docs/logs・docs/notes/handover-archive-2026.md を除く）と、取り込みのファイル（convert_x_posts.py・fetch_x_posts.py・2つのワークフロー・そのテスト・docs/notes/log-stations.md）の「週」「月曜」、docs の「取り込み」×「週・月曜」を見た
+  - 直した行（5行）:
+    - `.github/workflows/convert-x-posts.yml` 4行目（冒頭のコメント）: 「毎週月曜 02:00 JST に run-weekly.yml から(入力 scheduled、2026-11-02 から。mode=all、取得の後)と手動実行。」→「毎日 04:00 JST に run-daily.yml から(入力 scheduled。2026-11-02 は毎週月曜 02:00 の run-weekly から、2026-11 に run-daily へ移した。mode=all、取得の後)と手動実行。」（fetch-x-posts.yml の同じ行の形にそろえた）
+    - 同 41行目（workflow_call のコメント）: 「run-weekly.yml から呼ぶ(#367、2026-10-28)。」→「run-daily.yml から呼ぶ(#367、2026-10-28 に run-weekly から呼ぶ形で入れ、2026-11 に run-daily へ移した)。」
+    - 同 50行目（workflow_call の入力 scheduled の description）: 「予約の起動(run-weekly.yml が Worker から起動されたとき)」→「予約の起動(run-daily.yml が Worker から起動されたとき)」（fetch-x-posts.yml と同じ文）
+    - `scripts/fetch_x_posts.py` 17行目（docstring の使い方）: 「# 週次: 期間の初めは…」→「# 毎日の取り込み: 期間の初めは…」
+    - 同 341行目（preflight の docstring）: 「(週次の取り込み、2026-10-28。」→「(毎日の取り込み。2026-10-28 に週次で入れ、2026-11 に毎日へ移した。」
+  - 見つけたが直さなかった行（取り込みに関わらない、または今の運行と合っている）:
+    - `.github/workflows/fetch-x-posts.yml` 4・42行目、docs/notes/github-actions.md の convert-x-posts・fetch-x-posts の行（35・36）と 85・95・97行目: WKP-10 で直してあり、今の運行（run-daily）と合っている（run-weekly は移る前の履歴として書いている）
+    - run-weekly の本（cleanup-logs・fetch-youtube → regenerate-page）の記述: cleanup-logs.yml・fetch-youtube.yml・regenerate-page.yml・run-weekly.yml、docs/handover.md 12・80行目、docs/notes/github-actions.md 21・22・30・44〜46・89〜102・150・154・191行目、branch-operations.md 135・177・181行目、static-generation.md 300・378行目、video-wayhome.md・books-covers.md・books-freeze.md・live-page-design.md・saikyo-page-design.md 21行目・sitemap-lastmod.md・video-exam.md・video-mtsuku.md、scripts/build_wayhome_ogp.py・check_wayhome.py・lib/wayhome_intake.py・fetch_rakuten_books.py・actions_dashboard.py、workers/scheduler の表とテスト
+    - 2026-11-02 に run-daily へ移った本（check-meibo・sync-birthday-calendar・check-saikyo-unregistered）の記述: 移った旨が書いてあるもの（それぞれのワークフロー、github-actions.md 27・31・32・195行目、birthday-calendar.md 114行目、saikyo-page-design.md 758行目）と、文言に「週次」が残るもの（scripts/check_ampai.py 6・48行目、check_meibo.py 54行目、generate_jpml_pros.py 411行目、lib/x_images.py 7行目〈check-image-links〉、それぞれのテストの期待値、saikyo-page-design.md 678行目、glossary.md 17行目）。取り込みに関わらないので直していない（判断が必要なことに挙げた）
+    - データ・コンシェルジュの週次の cron（workers/ask と docs/notes/ask-worker.md）、books-calendar.md、new-site-design.md、review-followup-instructions.md、scheduler-worker.md 58・72行目、test_morning_report.py の過去の run の題: 取り込みと別の仕組み・過去の記録
+- テスト: `python3 -m unittest discover -s scripts/tests` → OK。convert-x-posts.yml は Python の yaml で読めることを確かめた
+- ワークフローの手動実行（docs/notes/github-actions.md「ワークフローを変更したとき」）: convert-x-posts.yml を作業ブランチで mode=all・dry_run（run 41363460220、e2ecc5ca1、success）。タブ4個（【2】バックアップ_1029 は LGN-18 で消したので無い）・【1】【2】とも 3,461行・変換する投稿 0件・API の呼び出し 0回
+
+- 自己レビュー（新しい文脈の general-purpose、`git diff 89283fee2..e2ecc5ca1 -- .github scripts`）: 指摘なし。convert-x-posts.yml を前後とも yaml で読み description を除いて一致（`on:`・`jobs:` とも同じ）、fetch_x_posts.py を前後とも ast で読み docstring を除いて一致。書いた時刻・移った時期は run-daily.yml・schedule.json・fetch-x-posts.yml・github-actions.md と合う。取り込みの古い記述の直し漏れなし
+- マージの条件: `git diff --stat origin/cloudflare...HEAD` は `.github/workflows/convert-x-posts.yml`（コメント2行・入力の説明1行）・`scripts/fetch_x_posts.py`（docstring 2行）・docs/logs・docs/decisions だけ。unittest OK
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1102-lgn-daily
-- ログ: https://github.com/retroeater/mj/blob/work/1102-lgn-daily/docs/logs/CHAT-1102-LGN-19.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1102-LGN-19.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1102-lgn-daily
 - 確認用URL: なし
-- マージ: 未
+- マージ: 済（1637339c3。`git push origin work/1102-lgn-daily:cloudflare`、push の直前に再 fetch して cloudflare が祖先であることを確かめた）
 - issue: なし
-- 判断が必要なこと: なし
+- 判断が必要なこと:
+  - work/1028-lgn は消していない（先頭 `d09ec31894c488274a82f4aca807492914be84e2`、cloudflare に無いコミット 27件は経過に列挙）。docs/notes/branch-operations.md「ブランチを削除するとき」と CLAUDE.md「ブランチ運用」は、クラウドセッションではリモートのブランチを消さない（消す push は mj-git-guard が止める）としているため、消す push は試していない。平野さんが GitHub の画面で消す（消す前に先頭が上の SHA であることを確かめる）か、消し方を決める
+  - 取り込みに関わらないが、run-daily へ移った本（check-meibo・check-saikyo-unregistered・check-image-links）の文言に「週次」が残る: scripts/check_ampai.py 6・48行目、scripts/check_meibo.py 54行目（issue の本文の脚注「週次実行の結果」。テストの期待値も同じ文）、scripts/generate_jpml_pros.py 411行目、scripts/lib/x_images.py 7行目、docs/notes/saikyo-page-design.md 678行目、docs/notes/glossary.md 17行目。直すかは WKP 系列で決める（issue の本文に出る文言なのでテストの期待値も変わる）
+- 直した行: `.github/workflows/convert-x-posts.yml` 4・41行目（コメント）・50行目（入力 scheduled の説明）、`scripts/fetch_x_posts.py` 17・341行目（docstring）。詳細は経過
 - 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 89283fee）: https://github.com/retroeater/mj-logs/tree/main/guide/89283fee
+ガイド文書（この版を写した時点の最新、mj 8abd90d5）: https://github.com/retroeater/mj-logs/tree/main/guide/8abd90d5
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/89283fee/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/89283fee/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/89283fee/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/89283fee/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/89283fee/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/89283fee/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/8abd90d5/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/8abd90d5/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/8abd90d5/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8abd90d5/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8abd90d5/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8abd90d5/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/cc812798.md
