@@ -97,7 +97,29 @@ CHAT-1031-SEO-13 の案の表（`## 経過` の表1〜22）と平野さんの答
 - docs/notes/cloudflare.md の canonical の段落を新しい基準・付けないページと理由・付けているページと件数に置き換えた。docs/handover.md 2章「配信」の canonical の行を基準の1句と cloudflare.md への参照にした（handover.md 23,309 バイト）。
 - docs/decisions/seo-bing.md に 2026-11-01 の節、saikyo.md に1節（123行の決定は変わらない）。SEO-13 のログの状態に「 / 続き: CHAT-1101-SEO-14」を足した。
 
+### 手順3（マージ・本番・issue・ブランチ）
+
+- push 直前の確かめで origin/cloudflare が進んでいた（CHAT-1101-WKP-05・06 の19コミット。ワークフロー・docs・ログ）。変えるファイルとの重なりは無く、merge で取り込んだ（衝突なし、22bdc6473）。取り込んだ後も unittest は OK。再 fetch して `git merge-base --is-ancestor origin/cloudflare HEAD` が真、`git push origin work/1101-seo14:cloudflare` の範囲は `0d5326d7a..22bdc6473`。
+- check-run（`commits/22bdc6473/check-runs`）: 「Workers Builds: mj」success（summary に Preview URL が無い本番のもの）・regenerate success（新しい再生成のコミットは無い）・sync success・check success・notify skipped。
+- 本番の HTML（`?v=seo14a`）: `houou/`→`https://ryoei.pro/houou/`、`houou/ranking/total/`→`https://ryoei.pro/houou/ranking/total/`、`mtsuku/`→`https://ryoei.pro/mtsuku/`、`saikyo/players/`・`saikyo/vs/`・`title/` は canonical 無し、`title/houou/`→`https://ryoei.pro/title/houou/`（付いたまま）。
+- #560: 結果と、ページの種類ごとの判定の表をコメントした（https://github.com/retroeater/mj/issues/560#issuecomment-6551122896 。docs/notes/cloudflare.md はこのコメントを参照する）。閉じていない（残りは S5(e)）。
+- #638: 結果をコメントし（https://github.com/retroeater/mj/issues/638#issuecomment-6551123387 ）、completed で閉じた。「状況:」のラベルは無かった。
+- #113: 基準の置き換えと付け外しの要約をコメントした（https://github.com/retroeater/mj/issues/113#issuecomment-6551125814 。閉じたまま）。
+- ブランチ: docs/notes/branch-operations.md「ブランチを削除するとき」のとおり、`git branch -r --merged origin/cloudflare` に `origin/work/1101-seo14` があり先頭 22bdc6473 はマージ済み。`git push origin --delete work/1101-seo14` は消えなかった（ls-remote で 22bdc6473 のまま。SEO-12・13 と同じ）。別の手段は試していない。
+  - work/1101-seo14: 先頭 22bdc6473、マージ済み、リモートは削除できず残っている（この記録の追いの push で先頭は進む）
+
 ## 報告
+
+- 状態: 完了
+- ブランチ: work/1101-seo14
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1101-SEO-14.md
+- 比較URL: https://github.com/retroeater/mj/compare/0d5326d7a...22bdc6473
+- 確認用URL: なし（決定によりプレビューを見ずにマージ。本番の HTML で確かめた）
+- マージ: 済（0d5326d7a..22bdc6473。記録の追いの push あり）
+- issue: #638（クローズ）・#560（コメント、open のまま）・#113（コメント、閉じたまま）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
