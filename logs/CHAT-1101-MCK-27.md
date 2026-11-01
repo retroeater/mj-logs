@@ -254,7 +254,7 @@
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1101-MCK-31
 - ブランチ: work/1101-mck-357
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1101-MCK-27.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1101-mck-357
@@ -271,12 +271,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 6aac53da）: https://github.com/retroeater/mj-logs/tree/main/guide/6aac53da
+ガイド文書（この版を写した時点の最新、mj 6f0cfaaa）: https://github.com/retroeater/mj-logs/tree/main/guide/6f0cfaaa
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6aac53da/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6aac53da/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6aac53da/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6aac53da/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6aac53da/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6aac53da/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/125b132f.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6f0cfaaa/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6f0cfaaa/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6f0cfaaa/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6f0cfaaa/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6f0cfaaa/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6f0cfaaa/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/bdc234c5.md
