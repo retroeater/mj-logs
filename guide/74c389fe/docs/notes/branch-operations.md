@@ -42,25 +42,16 @@ Codespace の旧記録の節は `docs/notes/handover-archive-2026.md`「Codespac
 - 触る予定のファイルを、未マージの work/ ブランチが変更していないか（`git branch -r --no-merged origin/cloudflare`
   で列挙し、各ブランチとの `git diff --stat origin/cloudflare...<branch> -- <ファイル>` で確認）（#336）
 
-## ブランチを削除するとき（#209、2026-09-13決定）
+## ブランチを削除するとき
 
-- マージ済みの判定は、削除の直前に、完全な履歴（浅いクローンでは判定できない）に対して、
-  **origin基準（`git branch --merged origin/cloudflare`）で行う。** 指示文に書かれたSHAや判定結果は
-  作成時点のもので古くなりうるため、根拠にしない（#206）
-- `/workspaces/mj`のHEADとローカル`cloudflare`は遅れていることがある。`git branch -d`が通ったか・
-  警告（"not yet merged to HEAD"等）が出たか・「not fully merged」で拒否されたかを判定の根拠にせず、
-  先頭が`origin/cloudflare`の祖先と確認する（#313、2026-09-14）
-- **ローカルの削除は、マージ済みと確認したブランチに限り`git branch -d`で行う。** `-D`は使わない（`.claude/hooks/mj-git-guard.py`が deny する、docs/notes/skills.md）。
-  `-d`は現在のHEADに対するマージ済みで判定するため、HEADが`origin/cloudflare`を含む別のブランチに移ってから消す。
-  HEADを動かしても拒否される・未マージのブランチを消す必要が出たときは、hookを外さず、平野さんがGitHubの画面で消す
-- 祖先でなかった場合も「未マージ」と即断しない。同じ内容が別SHAで`cloudflare`に入っていないかを、
-  件名・差分の突き合わせで確認してから判定する
-- 未マージのブランチは削除しない。内容（コミット数・変更ファイル・関連issue番号）を記録して平野さんの判断を仰ぐ
-- **削除する際は、削除直前の先頭SHAを必ず記録に残すこと。** 記録先は対応するissueのコメント
-  （issueが無い場合は作業ログの`## 経過`）。ブランチ名・SHA・マージ済み/未マージの判定を、ブランチごとに1行で書く。
-  削除後は判定の検証も誤削除の復旧もできなくなるため（#207）
-- **積み直して（rebase / cherry-pick / squash）マージした場合は、元のSHAと、対応する`cloudflare`側のSHAの
-  両方を記録すること。** 積み直すと元のSHAは`cloudflare`の祖先にならず、祖先関係だけでは検証できない（#209）
+クラウドセッションではブランチを削除しない（docs/notes/cloud-sessions.md「ブランチの削除」）。
+
+- リモート: 消す push（`--delete`・`-d`・`:<ブランチ>`）は mj-git-guard が止める（docs/notes/skills.md「git の hook（mj-git-guard）」）。
+  マージ済みの `work/*` は `cleanup-branches.yml`（`scripts/delete_merged_branches.py`）が消す。マージ済みの判定（完全な履歴で `origin/cloudflare` の祖先か）・
+  未マージを残すこと・削除したブランチ名と先頭 SHA の記録はこのスクリプトが行う（docs/notes/github-actions.md の一覧の `cleanup-branches.yml` の行）
+- ローカル: 消さなくてよい（コンテナとともに消える）。`git branch -D` は mj-git-guard が止める
+- 未マージの `work/*` と `claude/*` は自動では消えない。消すかは平野さんが決める
+- Codespace の頃の手順（#209・#313）は docs/notes/handover-archive-2026.md「ブランチを削除するとき（Codespace）」
 
 ## ワークフローを変更したとき
 
