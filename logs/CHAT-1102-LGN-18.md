@@ -54,15 +54,27 @@ Chat-Ref: CHAT-1102-LGN-18
 
 ## 経過
 
+- 0章: 指示欄の末尾は指示文の最後の行と一致。`CHAT-1102-LGN-18` のコミット・ログなし。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）の欠けなし。CHAT-1029-LGN-08 のログの状態の末尾に ` / 続き: CHAT-1102-LGN-18` を足した（84883d835）
+- 作業ブランチ: ローカル・リモートとも work/1102-lgn-sheet が無かったので `git checkout -b work/1102-lgn-sheet origin/cloudflare`（b1c2c3de7）。work/1029-lgn-page には触っていない
+- 手順1（初回の確かめ）: run 41329205064（run-weekly、cloudflare）は completed / success。ジョブ xfetch / fetch（124915544542）・xconvert / convert（124915656109）とも success（REST で読んだ）。CHAT-1102-LOG-01 のログ「経過」の xconvert の行: 【2】に 10行、Places 7回（Text Search 7、place_id だけ）、要確認 4行（判定が不明 3・本文に駅が無い 1）。前提の数と違いは無い
+- #636: open、コメントは0件（他セッションの着手中なし）。着手中のコメントを残した（issuecomment-6564331132）
+- 手順2（一度きりの処理、590cfe308）: `convert_x_posts.py` に mode `review`（`convert-x-posts.yml` の mode の選択肢にも）を足した。「【2】バックアップ_1029」の行数（見出しを除く）を LGN-08 の 3,451行と照らし、合えば本番だけ deleteSheet で消して、タブの一覧を読み直して無いことを確かめる。あわせて今の【2】【3】を読み、【2】の要確認の行のうち log/ に出す対象（【3】で上書きした後の名前で、石立岳大と、谷岡育夫で【1】の本文に「過去メシ」のものを除く。log/ の生成と同じ規則）を、【3】の行・【2】の行・投稿ID・理由の種類（駅の名前・本文は出さない）・ページに出ているか（【3】で上書きした後の判定が飲食店かつ表示が Y。`generate_resource_logs.py` と同じ）で出す。【1】【2】【3】には書かない。ローカルの見本（偽のシート）で dry-run・本番を試した
+  - dry-run（run 41353754328、590cfe308、success）: タブ5個（【2】バックアップ_1029・【1】元データ・【2】自動変換後・【3】手動補正・駅の照合_1029）。「【2】バックアップ_1029」 3,451行（LGN-08 の行数と一致）。【1】3,461行・【2】3,461行。要確認の行（log/ に出す対象）673行、除いた行 石立岳大 509・過去メシ 18
+  - 本番（run 41353876714、590cfe308、success）: 同じ数・同じ一覧（dry-run の一覧と diff で一致）のうえ、「【2】バックアップ_1029」を消した。読み直したタブ: 【1】元データ・【2】自動変換後・【3】手動補正・駅の照合_1029
+  - ジョブのログは `https://api.github.com/repos/retroeater/mj/actions/jobs/<job>/logs` で読んだ（zip の取得は proxy で 403）
+- 要確認の数（673行。理由は1行に複数あり）: 判定が不明 417（うちページに出ている 329）・本文に駅が無い 228（226）・旧「ログ」の駅が圏内に無い 22（22）・本文の駅が一覧に無い 19（19）・店名が本文に無い 15（15）・圏内に駅が無い 8（8）・店が見つからない 5（4）・同じ名前の駅が複数の都道府県にある 1（1）。ページに出ている 582行・出ていない 91行。【3】に行が無い 95行（出ている 4・出ていない 91。出ていない行はすべて【3】に行が無い）
+- 手順3: #636 の本文を今の数と理由に直した（注意の4行は残した。直した日・出典〈このログの「経過」、run 41353754328〉を書いた）。一覧はコメント2件（理由の組ごと。issuecomment-6564394168・6564405007）。投稿後に API で読み直し、作ったファイルと diff で一致することを確かめた
+- 一度きりの処理を消した（06cfc57d7）: `scripts/convert_x_posts.py`・`.github/workflows/convert-x-posts.yml` を origin/cloudflare と同じ中身に戻した。`git diff --stat origin/cloudflare...HEAD` は docs/logs だけ（この報告のコミットで docs/decisions/operations.md が加わる）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1102-lgn-sheet
-- ログ: https://github.com/retroeater/mj/blob/work/1102-lgn-sheet/docs/logs/CHAT-1102-LGN-18.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1102-LGN-18.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1102-lgn-sheet
 - 確認用URL: なし
-- マージ: 未
-- issue: #636
+- マージ: 済（dab2ed6b0。`git push origin work/1102-lgn-sheet:cloudflare`、push の直前に再 fetch して cloudflare が祖先であることを確かめた）
+- issue: #636（open のまま）。消したシート: 「【2】バックアップ_1029」3,451行（見出しを除く）。#636 の要確認 673行（log/ に出す対象）の理由ごと: 判定が不明 417・本文に駅が無い 228・旧「ログ」の駅が圏内に無い 22・本文の駅が一覧に無い 19・店名が本文に無い 15・圏内に駅が無い 8・店が見つからない 5・同じ名前の駅が複数の都道府県にある 1（ページに出ている 582行・出ていない 91行）。本文を直し、一覧はコメント2件
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
@@ -70,12 +82,12 @@ Chat-Ref: CHAT-1102-LGN-18
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 5953e2f7）: https://github.com/retroeater/mj-logs/tree/main/guide/5953e2f7
+ガイド文書（この版を写した時点の最新、mj 90df278d）: https://github.com/retroeater/mj-logs/tree/main/guide/90df278d
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/5953e2f7/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/5953e2f7/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/5953e2f7/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/5953e2f7/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/5953e2f7/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/5953e2f7/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/90df278d/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/90df278d/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/90df278d/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/90df278d/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/90df278d/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/90df278d/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b1c2c3de.md
