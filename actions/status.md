@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-11-02 08:42 JST
+- 書き出した時刻: 2026-11-02 08:44 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -25,11 +25,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-02 08:43 | push | work/1102-lgn-daily | success | #641（41363453828） | 0分26秒 |
 | 2026-11-02 08:39 | push | work/1102-nod | success | #640（41363197390） | 0分24秒 |
 | 2026-11-02 08:37 | push | work/1102-obs | success | #639（41363026275） | 0分27秒 |
 | 2026-11-02 08:36 | push | work/1102-wkp | success | #638（41362926740） | 0分25秒 |
 | 2026-11-02 08:15 | push | work/1017-lvp | success | #637（41361227574） | 0分25秒 |
-| 2026-11-02 08:14 | push | work/1017-lvp | success | #636（41361093766） | 0分22秒 |
 
 ## check-build-failure.yml
 
@@ -38,11 +38,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-02 08:43 | check_run | cloudflare | skipped | #835（41363504153） | 0分01秒 |
 | 2026-11-02 08:40 | workflow_dispatch | work/1102-nod | success | #834（41363273348） | 0分12秒 |
 | 2026-11-02 08:40 | check_run | cloudflare | skipped | #833（41363239733） | 0分01秒 |
 | 2026-11-02 08:38 | check_run | cloudflare | skipped | #832（41363097480） | 0分01秒 |
 | 2026-11-02 08:38 | check_run | cloudflare | skipped | #831（41363064715） | 0分10秒 |
-| 2026-11-02 08:37 | check_run | cloudflare | skipped | #830（41362984635） | 0分01秒 |
 
 ## check-image-links.yml
 
@@ -64,7 +64,7 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-11-02 08:40 | workflow_dispatch | work/1102-nod | in_progress | #23（41363278488） |  |
+| 2026-11-02 08:40 | workflow_dispatch | work/1102-nod | success | #23（41363278488） | 3分17秒 |
 | 2026-10-26 07:26 | schedule | cloudflare | success | #22（40240236918） | 0分41秒 |
 | 2026-10-23 11:39 | workflow_dispatch | work/1023-srg | success | #21（39890769599） | 0分39秒 |
 | 2026-10-23 09:38 | workflow_dispatch | cloudflare | success | #20（39879280082） | 0分38秒 |
@@ -77,7 +77,7 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-11-02 08:40 | workflow_dispatch | work/1102-nod | in_progress | #21（41363281186） |  |
+| 2026-11-02 08:40 | workflow_dispatch | work/1102-nod | success | #21（41363281186） | 3分11秒 |
 | 2026-10-28 00:58 | workflow_dispatch | work/1028-skp-col | success | #20（40536273768） | 0分39秒 |
 | 2026-10-26 08:37 | schedule | cloudflare | success | #19（40245574722） | 0分31秒 |
 | 2026-10-21 11:34 | workflow_dispatch | work/1021-wkp | success | #18（39533798396） | 0分29秒 |
@@ -129,11 +129,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-02 08:43 | workflow_dispatch | work/1102-lgn-daily | success | #58（41363460220） | 0分28秒 |
 | 2026-11-02 08:40 | workflow_dispatch | work/1102-nod | success | #57（41363289266） | 0分42秒 |
 | 2026-11-02 06:48 | workflow_dispatch | work/1102-lgn-sheet | success | #56（41353876714） | 0分27秒 |
 | 2026-11-02 06:46 | workflow_dispatch | work/1102-lgn-sheet | success | #55（41353754328） | 0分29秒 |
 | 2026-10-31 11:03 | workflow_dispatch | work/1031-lgn-sheet | success | #54（41158228306） | 0分31秒 |
-| 2026-10-31 11:02 | workflow_dispatch | work/1031-lgn-sheet | success | #53（41158154626） | 0分32秒 |
 
 ## fetch-gsc.yml
 
@@ -307,7 +307,7 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-11-02 08:41 | workflow_dispatch | work/1102-nod | in_progress | #17（41363298414） |  |
+| 2026-11-02 08:41 | workflow_dispatch | work/1102-nod | success | #17（41363298414） | 2分48秒 |
 | 2026-10-26 07:34 | schedule | cloudflare | success | #16（40240863402） | 0分42秒 |
 | 2026-10-21 11:34 | workflow_dispatch | work/1021-wkp | success | #15（39533793678） | 0分37秒 |
 | 2026-10-19 07:26 | schedule | cloudflare | success | #14（39172249264） | 0分51秒 |
@@ -333,7 +333,7 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-11-02 08:41 | workflow_dispatch | work/1102-nod | in_progress | #1（41363300785） |  |
+| 2026-11-02 08:41 | workflow_dispatch | work/1102-nod | success | #1（41363300785） | 1分47秒 |
 
 ## tmp-verify-paginate.yml
 
