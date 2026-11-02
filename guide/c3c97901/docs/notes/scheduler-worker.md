@@ -91,7 +91,7 @@ Node 22 で、引数にディレクトリを渡すと失敗する。パターン
 ## ログ（Workers Logs）
 
 `wrangler.jsonc` の `observability` を `{"enabled": true}` にしている（2026-10-06、#504）。`head_sampling_rate` は省略で、既定は 1（すべての起動を残す）。
-見る場所はダッシュボードの Workers & Pages > `mj-scheduler` > Observability。Events の一覧に時刻（JST）・Level・Message が並ぶ。毎回の起動は Message が cron の式（2026-10-07 までは `*/5 * * * *`）・Level が info で、Worker の書いた行は Level が空・Message に本文が出る（2026-10-07 の平野さんの画面。申告値）。保存は7日、上限は月 2,000 万件（2026-10-21 に Workers Paid にした。それまでの Free は3日・1日 20 万件。新しい料金に同意していないので超過時はサンプリング。`docs/notes/cloudflare.md`「ビルド時間の見積もり（2026-10-21、#363）」）。この Worker は1日 1,440 回（月 4.5 万回ほど）の起動で、Worker の書く行は起動した回だけなので、合わせても上限より十分小さい。
+見る場所はダッシュボードの Workers & Pages > `mj-scheduler` > Observability。Events の一覧に時刻（JST）・Level・Message が並ぶ。毎回の起動は Message が cron の式（2026-10-07 までは `*/5 * * * *`）・Level が info で、Worker の書いた行は Level が空・Message に本文が出る（2026-10-07 の平野さんの画面。申告値）。保存は7日。2026-11-30 までの上限は月 2,000 万件（Workers Paid。それまでの Free は3日・1日 20 万件）。2026-12-01 からは別の契約の Cloudflare Observability で決まり、契約を解約して Free（1日 0.5GB の取り込み・保存7日。超えた日は取り込みが止まる）にする（2026-11-02 の決定。解約の状況は `docs/notes/cloudflare.md`「ビルド時間の見積もり（2026-10-21、#363）」）。この Worker は1日 1,440 回（月 4.5 万回ほど）の起動で、Worker の書く行は起動した回だけなので、合わせても上限より十分小さい。
 
 Worker が書く行は1行1 JSON で、`event` の鍵で種類を分ける（2026-10-21 から。それまでは日本語の文。何もしない回は書かない。トークン・issue のコメントの本文は書かない）:
 

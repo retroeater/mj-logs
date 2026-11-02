@@ -21,7 +21,7 @@ YouTube チャンネル「麻雀遊戯王」の企画「Mリーグチームを�
   指名選手のカードは最強戦の写真カード（`.mj-saikyo-players`・`.mj-live-players`・`.mj-saikyo-card`）、「N巡目」の札は `style.css` の `.mj-mtsuku-round`（title/ の決勝ライブの札と同じ置き方）
 - 転送: `_redirects` に `/video_mtsuku.html  /mtsuku/  301`・`/mtsuku  /mtsuku/  301`・`/mtsuku/  /mtsuku/index.html  200`。`check-assets.yml` の許可リストに `mtsuku`
 - サイトマップ: 各話の生成が `sitemap-mtsuku.xml`（一覧が先頭、続いて各話）を書く。新しい URL の lastmod は当日、既にある URL は残し、`update_sitemap_lastmod.py --from-git` が最終コミット日にそろえる（帰り道と同じ）
-- 登録漏れの知らせ: 毎週の `check_saikyo_unregistered.py`（常設 issue「最強戦の出場者の登録漏れ」）に「Mつく」の節。登録が無い人（生成が止まる）と X ID が無い人を分けて出す。
+- 登録漏れの知らせ: 毎朝の `check_saikyo_unregistered.py`（常設 issue「最強戦の出場者の登録漏れ」）に「Mつく」の節。登録が無い人（生成が止まる）と X ID が無い人を分けて出す。
   SNS ブックの【2】の X が「-」（アカウントが無いと確かめ済み）の人は出さない（`lib/sns.py` の `x_marked_none()`）。X ID が無い人が残っている間は issue は閉じない。「使われていない登録」の検査（`check_unused_names.py`）も Mつくの名前を利用先として数える
 - テストは `scripts/tests/test_mtsuku.py`
 
