@@ -29,7 +29,7 @@
 3. 今後の予定（2026-10-31 の決定、CHAT-1031-PRO-12）: 未放送の放送対局（公開カレンダー「mj_放送対局」と同じ予定を `sync_live_calendar.load_desired()` で作り、説明欄の【対局者】【実況】【解説】を `live_calendar.people_of()` で読み戻す。実況・解説の行は種類のチップの横に役を添える。同じ枠で2つの役に名前があれば対局者 > 実況 > 解説 の1行。仮の予定〈名前なし〉は出ない）・未放送の麻雀最強戦（`saikyo/players/` の `saikyo_players_data` の、順位も結果も無い卓。行き先は卓のページ）・道場部ゲスト（「mj_道場部ゲスト」を Calendar API で読む。鍵は `SHEETS_READER_SA_KEY`。行き先は連盟サイトの本部道場ゲスト表）。名前は登録名と「別名」で現在名に直して照合する。日付の近い順に5件、多ければ「ほか N件」。行は日付（「11月4日（水）16:00」。最強戦・道場部は時刻なし）・種類のチップ（放送・最強戦・道場部）・件名。放送対局・最強戦が読めなければ生成を止める（全員の行が黙って消えたページを出さない。ページは前の日のまま）。道場部ゲストだけは、読めなければ出さずに警告する（`load_plans()`）。鮮度は、毎朝の `update-live-channel.yml` の再生成に `pro_pages` を入れたことと、`assets/pro.js` が各行の `data-date`（日本時間の日）で今日より前の行を隠すこと（行が残らなければ見出しごと隠す）の両方で保つ
 4. 成績: 鳳凰戦・女流桜花はいま出場しているときだけ、いまのリーグのチップつきの行。WRCリーグ・WRC-Rリーグ・麻雀最強戦は出場したことがあれば大会名だけの行。どの行も「最高」「出場」は出さない。押すとその大会の個人成績（`?name=`）へ（`result_rows()`）
 5. 獲得タイトル: `title/search.json` の決勝の行のうち優勝の期を、期の名前（「第42期鳳凰戦」。title/ の期のページの名前を正式名称とした）で新しい順にすべて。押すとその期のページへ。最後に「すべての決勝進出」（`/title/?q=<名前>`）。決勝に出ていなければ面ごと出さない（`title_wins()`）
-6. 放送対局（選手）・放送対局（実況・解説）: live/ のトップのカード（新しい順・サムネイルは live/ のカードと同じ画像）を、`generate_live_pages.load()` の対局者／実況・解説の現在名で分けて、それぞれ3件。「すべて（N件）」（`/live/?q=`）は live/ の検索が役で絞れないので1つだけ（選手の面、無ければ実況・解説の面）。N は live/ の検索と同じ部分一致（`live_cards()`）
+6. 放送対局（選手）・放送対局（実況・解説）: `generate_live_pages.load()` の対局（live/ のトップと同じ新しい順。題・日付・サムネイルは live/ の旧カードと同じ値。live/ の生成物は読まない）を、対局者／実況・解説の現在名で分けて、それぞれ3件。「すべて（N件）」（`/live/?q=`）は live/ の検索が役で絞れないので1つだけ（選手の面、無ければ実況・解説の面）。N は live/ の検索と同じ部分一致（`live_cards()`）
 
 - いまのリーグは各大会の `ask-players.json` の値（個人成績の名前の面のチップと同じ `current_league()` の値。進行中の期だけに出ている選手も入る）
 - 「いま」の面・関連する選手・リンクのコピー・質問欄は個別ページに置かない（2026-10-31 の決定）
@@ -37,7 +37,7 @@
 
 ## データと生成
 
-- `scripts/generate_pro_pages.py`。在籍者（「プロ」の「表示」が Y）・読み・英字・所属・入会期・誕生日はシートから（`lib/sns.fetch_pros()`・`lib/meibo.py`）。大会ごとの値は各ページの生成物から読む（houou/・ouka/・jwrc/・wrcr/ の `ask-players.json`、`saikyo/ask-players.json`、`title/search.json`、`live/index.html`）。放送対局の役は `generate_live_pages.load()`（シートを読む）。そのため `regenerate.py` は `pro_pages` を最後に作る（`RUN_LAST`）
+- `scripts/generate_pro_pages.py`。在籍者（「プロ」の「表示」が Y）・読み・英字・所属・入会期・誕生日はシートから（`lib/sns.fetch_pros()`・`lib/meibo.py`）。大会ごとの値は各ページの生成物から読む（houou/・ouka/・jwrc/・wrcr/ の `ask-players.json`、`saikyo/ask-players.json`、`title/search.json`）。放送対局の対局と役は `generate_live_pages.load()`（シートを読む）。そのため `regenerate.py` は `pro_pages` を最後に作る（`RUN_LAST`）
 - 出力は `pro/`（`index.html`・`search.json`・`<slug>/index.html`）。在籍者でなくなった選手のディレクトリは消す
-- 検査は `scripts/tests/test_pro_pages.py`（slug の規則・チップのリンク先・成績の行・獲得タイトルの並び・放送対局の役の分け方と件数・カードの読み取り・今後の予定の照合と並びと件数）
+- 検査は `scripts/tests/test_pro_pages.py`（slug の規則・チップのリンク先・成績の行・獲得タイトルの並び・放送対局の役の分け方と件数・行を Page から作ること・今後の予定の照合と並びと件数）
 - コンテナには鍵が無いので、生成・検査は `regenerate-page.yml` を作業ブランチで手動実行する（target_page `pro_pages`）
