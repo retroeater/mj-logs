@@ -106,6 +106,14 @@ check-meibo・check-saikyo-unregistered・check-image-links などは run-daily�
 | static-generation.md 456 の check_image_links の「保険で毎週月曜03:00 JST」が古い | 直した（91a40a7cf） |
 | scheduler-worker.md 72 の「今の表」の run-daily の説明に、移した5本が無い（「週次」の文言ではないが内容が古い） | 見送り（「週次」の文言ではなく、この指示のマージの差分に入れられない。判断が必要なことに書いた） |
 
+### マージ
+
+push の直前に再 fetch したところ、origin/cloudflare が d3c55fa15（他セッションの MCK-36 の docs）に進んでいた。HEAD の祖先ではなかったので `git merge origin/cloudflare` で取り込んだ（衝突なし）。取り込んだ後も `python3 -m unittest discover -s scripts/tests` は成功した。もう一度 fetch して祖先であることを確かめ、`git push origin work/1102-wkp:cloudflare`（d3c55fa15..eac294a10）でマージした。マージの差分は「週次」の文言（scripts 5本・docs/notes 3本）・テストの期待値2本・docs/decisions・docs/logs だけ。
+マージの後:
+- 「Workers Builds: mj」の check-run は success（ビルドが通っただけで、本番の見え方は確かめていない）
+- 「本番ビルド失敗の検知」は skipped
+- push で起動した「ページの再生成」（run 41367390119）は、待機の上限15分（00:44 UTC ごろ）を過ぎても「対象ページを再生成」のステップで in_progress だった。`scripts/generate_jpml_pros.py`・`scripts/lib/x_images.py` を変えたので、対象のページが多い見込み。どれも文言（警告・docstring）だけの変更で、ページの中身は変わらない見込み。コミットするか「変更なし」かは未確認
+
 ## 報告
 
 - 状態: 判断待ち
@@ -113,23 +121,24 @@ check-meibo・check-saikyo-unregistered・check-image-links などは run-daily�
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1102-WKP-13.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1102-wkp
 - 確認用URL: なし（配信物は変えていない）
-- マージ: 済（SHA は cloudflare の先頭〈このログを含むコミット〉）
+- マージ: 済（eac294a10）
 - issue: なし
 - 判断が必要なこと:
   - docs/notes/scheduler-worker.md「起動の表の直し方」の今の表の run-daily の説明に、2026-11-03 から run-daily にある5本（check-meibo・sync-birthday-calendar・check-saikyo-unregistered・fetch-x-posts → convert-x-posts）が無い。「週次」の文言ではないので、この指示のマージの差分に入れられず直していない
   - scripts/check_wayhome.py 36行の「fetch-youtube.yml の週次の実行（毎週月曜 05:37 JST の予定…）」が古い（今は月曜 03:00 の run-weekly）。fetch-youtube はこの指示の対象の外なので直していない
-- 未確認の項目: なし
+- 未確認の項目:
+  - マージの後に push で起動したページの再生成（run 41367390119）の結果。待機の上限の15分を過ぎても実行中だった。文言だけの変更なので、ページの差分は出ない見込み
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj eac294a1）: https://github.com/retroeater/mj-logs/tree/main/guide/eac294a1
+ガイド文書（この版を写した時点の最新、mj 2c35c84e）: https://github.com/retroeater/mj-logs/tree/main/guide/2c35c84e
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/eac294a1/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/eac294a1/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/eac294a1/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/eac294a1/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/eac294a1/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/eac294a1/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c35c84e/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c35c84e/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c35c84e/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c35c84e/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c35c84e/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c35c84e/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/29bf0a43.md
