@@ -55,15 +55,22 @@ issue は無い（#648〈クローズ済み〉の続き）。着手中のコメ�
 - 着手前の確認: 同じ Chat-Ref のコミット無し（`CFS` は同じセッションの続きの指示で、重複確認の対象外）。work/1102-cfs2 はリモート・ローカルとも無く、origin/cloudflare（7b866bf8a）から作成
 - 0. 指示欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は欠け無し
 
+- 未マージの work/ ブランチ: work/1101-prp-pub が docs/notes/cloudflare.md を変えているが、canonical の段落と Worker の行で、指示の2節とは別。止まらず進めた
+- #648（クローズ済み）に着手中のコメント https://github.com/retroeater/mj/issues/648#issuecomment-6580499412 を残した（本文・状態・ラベルは変えていない）
+- 手順1: 「アカウント・連絡先」「SSL/TLS・2段階認証の設定」の節で「未確認」「依頼」の語は対象の2行（CT Monitoring・2段階認証）だけだった
+- 手順2: 2行を案のとおり直した（CT Monitoring の行は「Alerts active — 1 recipients」を残した）。「アカウント・連絡先」の表の「2 段階認証」の行は「＋セキュリティキー（2026-11-02〜。下の節への参照）」に置き換えた。成果物のコミット 64d45456c
+- docs/decisions/cloudflare.md: CLAUDE.md の作業ログの規則（指示の完了時に「決定」節と作業中の回答を足す）に従い、「## 2026-11-02（CHAT-1102-CFS-02）」に決定の変更なし・作業中の回答なしを足した
+- docs のみのため差分のサブエージェントレビューは対象外
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1102-cfs2
-- ログ: https://github.com/retroeater/mj/blob/work/1102-cfs2/docs/logs/CHAT-1102-CFS-02.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1102-CFS-02.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1102-cfs2
 - 確認用URL: なし
-- マージ: 未
-- issue: #648
+- マージ: 済（cloudflare へ fast-forward）
+- issue: #648（クローズ済み。着手中のコメントのみ）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
@@ -71,12 +78,12 @@ issue は無い（#648〈クローズ済み〉の続き）。着手中のコメ�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 7b866bf8）: https://github.com/retroeater/mj-logs/tree/main/guide/7b866bf8
+ガイド文書（この版を写した時点の最新、mj 82c934c3）: https://github.com/retroeater/mj-logs/tree/main/guide/82c934c3
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/7b866bf8/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/7b866bf8/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/7b866bf8/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/7b866bf8/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/7b866bf8/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/7b866bf8/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/82c934c3/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/82c934c3/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/82c934c3/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/82c934c3/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/82c934c3/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/82c934c3/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/7b866bf8.md
