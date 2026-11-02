@@ -63,28 +63,40 @@ Chat-Ref: CHAT-1102-DNR-01
 
 ## 経過
 
+- 着手前の確認: `CHAT-1102-DNR-01` のコミット・`DNR` の識別子（コミット・docs/logs の履歴）はともに 0 件（`git fetch --unshallow` の後）。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は欠け無し。0. の指示欄の末尾は指示文の最後の行と一致
+- issue の state: #648 はクローズ済み（2026-11-02、completed）。CLAUDE.md の着手前の確認では止まる条件だが、指示文自体がクローズ済みと書いているため平野さんに確認し、「承知のうえで進める」の回答を得た
+- 0章ゲート: docs のみなので対象外。未マージの work/ で docs/notes/cloudflare.md を変えているのは `origin/work/1101-prp-pub` のみ（「配信設定: html_handling…」の canonical の箇条と「平野さんが…確認した設定値」の Worker の箇条）。今回の節とは別の箇所なので止めない
+- 手順1: 「連絡先」「ログインメール」「2 段階認証」「ryoei.net」で全文を確かめた。矛盾する記述は無し
+  - 「ryoei.net」は Google Cloud の組織（「公開期間の露出評価」）と、Subscriptions の行（Observability の節、2026-11-02 の申告値で「ryoei.net の Free Plan」）だけ。後者は同じアカウントに ryoei.net があることと合う。ただしその行に selflessness.net の Free Plan は無かった（申告値の撮影時刻の違いと思われる。報告だけする）
+  - 「連絡先」は security.txt を見送った行（サイトの連絡先の公開の話）だけで、今回と別の主題
+  - 「通知 … 宛先は別事業者のドメイン」の行: 今回のログインメールの変更と食い違いは無い（宛先は ryoei.net ではない）。変えていない
+- 手順2: 「DNS・メール・通知の設定（2026-09-11）」の直後に「#### アカウント・連絡先（2026-11-02、#648）」を足した（8199f5160）。文面は案のとおり、GWS を Google Workspace と書き、#652 に MTA-STS・TLS-RPT の保留を添えた。「平野さんがCloudflareダッシュボードで確認した設定値」は Workers Builds の設定だけで重なる項目は無く、参照にする箇所は無し
+- 手順3: #648 にコメント https://github.com/retroeater/mj/issues/648#issuecomment-6567711263 （本文・状態・ラベルは変えていない）
+- docs のみの変更なので、サブエージェントによる差分のレビューは行っていない（CLAUDE.md の対象はコード・生成物・ワークフロー・配信設定）
+- 決定と作業中の回答を docs/decisions/cloudflare.md に足した
+
 ## 報告
 
-- 状態:
-- ブランチ:
-- ログ:
-- 比較URL:
-- 確認用URL:
-- マージ:
-- issue:
-- 判断が必要なこと:
-- 未確認の項目:
-- エラー:
+- 状態: 完了
+- ブランチ: work/1102-dnr
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1102-DNR-01.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1102-dnr
+- 確認用URL: なし
+- マージ: 済（cloudflare へ fast-forward。cloudflare の先頭はこのログを入れたコミット）
+- issue: #648（コメントのみ）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 4212ea25）: https://github.com/retroeater/mj-logs/tree/main/guide/4212ea25
+ガイド文書（この版を写した時点の最新、mj 3203fecd）: https://github.com/retroeater/mj-logs/tree/main/guide/3203fecd
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/4212ea25/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/4212ea25/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/4212ea25/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/4212ea25/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/4212ea25/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/4212ea25/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/3203fecd/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/3203fecd/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/3203fecd/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/3203fecd/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/3203fecd/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/3203fecd/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/01d3ecae.md
