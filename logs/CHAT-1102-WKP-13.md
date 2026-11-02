@@ -59,28 +59,77 @@ check-meibo・check-saikyo-unregistered・check-image-links などは run-daily�
 
 ## 経過
 
+### 着手前の確かめ
+
+- 指示欄の末尾: ログの「## 指示」の最後の行が指示文の最後の行と一致することを確かめた
+- 同じ Chat-Ref のコミット: 0 件。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は4行ともあり
+- 貼る時機: CHAT-1102-WKP-12 のログ（origin/cloudflare）の `## 報告` の状態は「完了」
+- 作業ブランチ: work/1102-wkp はリモート・ローカルとも origin/cloudflare の祖先（マージ済み）。`git merge --ff-only origin/cloudflare`（Already up to date、1819ca0ce）
+- 指示文の issue の state: 着手・コメント・クローズの対象の issue は無い
+- 未マージの work/ ブランチ: 直すファイルを変えているのは work/1101-prp-pub の scripts/generate_jpml_pros.py だけで、86行（`og:image` の URL）を変える。今回の 411行とは別の行
+
+### 洗い出しの表（全件）
+
+前提の6か所と、`git grep -n -E '週次|毎週|週1'` で見つけた同じ残り（run-daily へ移った本と check-image-links）。
+
+| ファイル・行 | 今の文（直す前） | 直した文 | 生成物に出るか | 扱い |
+|---|---|---|---|---|
+| scripts/check_ampai.py 6 | check-meibo.yml の週次の実行でこの結果を | check-meibo.yml の毎朝の実行(run-daily)でこの結果を | 出ない（docstring） | 直した |
+| scripts/check_ampai.py 48 | の週次実行の結果（[実行ログ] | の毎朝の実行の結果（[実行ログ] | 出ない（issue「Ampai の URL が無い期」の本文の脚注） | 直した。テスト test_check_ampai.py 25行の期待値も合わせた |
+| scripts/check_meibo.py 54 | の週次実行の結果（[実行ログ] | の毎朝の実行の結果（[実行ログ] | 出ない（issue「名簿と「プロ」シートの不一致」の本文の脚注） | 直した。テスト test_meibo.py 142行の期待値も合わせた |
+| scripts/generate_jpml_pros.py 411 | check-meibo.yml の週次の検知が issue で知らせる) | check-meibo.yml の毎朝の検知が issue で知らせる) | 出ない（`warn(...)` の中。既定は `print_warning` で標準エラーに出すだけ、HTML に流す経路は無い） | 直した |
+| scripts/lib/x_images.py 7 | リンク切れは週次の check-image-links.yml が検知する。 | リンク切れは毎朝の check-image-links.yml が検知する。 | 出ない（docstring） | 直した |
+| docs/notes/saikyo-page-design.md 678 | 毎週月曜の予約実行（`schedule`）は `jpml_pros.html` のジョブ `check` だけを動かしていた（2026-11-01 に外した）。 | （変えていない） | 出ない | 直さなかった。WKP-06 で「動かしていた（2026-11-01 に外した）」と過去の記述に直してあり、今の事実と合う（LGN-19 の時点の版より新しい） |
+| docs/notes/glossary.md 17 | （2026-11-01 に外すまでの週次の check-meibo・check-saikyo-unregistered・cleanup-logs など。今は月次の fetch-gsc・fetch-redirect-counts の保険だけ） | （変えていない） | 出ない | 直さなかった。WKP-10 で日付つきの過去の記述に直してあり、今の事実と合う |
+| scripts/check_saikyo_unregistered.py 21 | 週1で実行し、結果を常設issueに書き出す。 | 毎朝(run-daily)実行し、結果を常設issueに書き出す。 | 出ない（docstring） | 直した（grep で見つけた） |
+| docs/notes/saikyo-page-design.md 291 | 週1の登録漏れの検知の常設 issue にも載る | 毎朝の登録漏れの検知の常設 issue にも載る | 出ない | 直した（grep） |
+| docs/notes/saikyo-page-design.md 734 | ### `scripts/check_saikyo_unregistered.py`（手動実行＋週1の検知） | ###（手動実行＋毎朝の検知） | 出ない | 直した（grep）。この見出しを参照する箇所は無い |
+| docs/notes/video-mtsuku.md 24 | 毎週の `check_saikyo_unregistered.py` | 毎朝の `check_saikyo_unregistered.py` | 出ない | 直した（grep） |
+| docs/notes/static-generation.md 297 | `check-meibo.yml` の週次の実行（`scripts/check_ampai.py`） | `check-meibo.yml` の毎朝の実行（run-daily、`scripts/check_ampai.py`） | 出ない | 直した（自己レビューで見つけた） |
+| docs/notes/static-generation.md 456 | 、保険で毎週月曜03:00 JST） | 。保険の毎週月曜03:00 JST の予約実行は 2026-11-01 に外した） | 出ない | 直した（自己レビュー。check-image-links） |
+
+直さなかった grep の当たり（今の事実と合う、または対象外）: saikyo-page-design.md 731・birthday-calendar.md 112・114・github-actions.md 22・27・31・32・35・36・195・fetch-x-posts.yml 4・convert-x-posts.yml 4・fetch_x_posts.py 341・run-weekly.yml 9（どれも日付つきの経緯で今の事実と合う）。handover.md 80・github-actions.md 22（run-weekly の fetch-youtube で正しい）。books-calendar.md 78・books-covers.md 54・lib/net_retry.py 3（止めた本・過去の記録）。scripts/check_wayhome.py 36（fetch-youtube の「毎週月曜 05:37 JST の予定」が古い。fetch-youtube は今回の対象〈run-daily へ移った本と check-image-links〉の外なので変えていない。判断が必要なことに書いた）。video-mtsuku.md 38（週次の再生成で正しい）
+
+### 直したこと
+
+- コミット: 961e2201b（スクリプト・テスト・docs の文言）、91a40a7cf（自己レビューで見つけた static-generation.md の2か所）
+- `python3 -m unittest discover -s scripts/tests` 成功（1,733 件）。期待値を変えた test_check_ampai.py・test_meibo.py も通る（直す前の脚注の文「週次実行の結果」では `startswith` が食い違って落ちる形）
+- 決定を docs/decisions/automation.md に足した
+
+### 自己レビュー（docs/notes/self-review.md、1回）
+
+| 指摘 | 扱い |
+|---|---|
+| 変わった行はどれも文言（docstring・コメント・f 文字列の文面・テストの期待値）で、分岐・呼び出しは変わっていない | 意図どおり |
+| generate_jpml_pros.py 411 は `warn` の中で、標準エラーに出るだけ。生成ページに出ない | 意図どおり |
+| static-generation.md 297 の「check-meibo.yml の週次の実行」が残る | 直した（91a40a7cf） |
+| static-generation.md 456 の check_image_links の「保険で毎週月曜03:00 JST」が古い | 直した（91a40a7cf） |
+| scheduler-worker.md 72 の「今の表」の run-daily の説明に、移した5本が無い（「週次」の文言ではないが内容が古い） | 見送り（「週次」の文言ではなく、この指示のマージの差分に入れられない。判断が必要なことに書いた） |
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1102-wkp
-- ログ: https://github.com/retroeater/mj/blob/work/1102-wkp/docs/logs/CHAT-1102-WKP-13.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1102-WKP-13.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1102-wkp
-- 確認用URL:
-- マージ:
-- issue:
+- 確認用URL: なし（配信物は変えていない）
+- マージ: 済（SHA は cloudflare の先頭〈このログを含むコミット〉）
+- issue: なし
 - 判断が必要なこと:
-- 未確認の項目:
-- エラー:
+  - docs/notes/scheduler-worker.md「起動の表の直し方」の今の表の run-daily の説明に、2026-11-03 から run-daily にある5本（check-meibo・sync-birthday-calendar・check-saikyo-unregistered・fetch-x-posts → convert-x-posts）が無い。「週次」の文言ではないので、この指示のマージの差分に入れられず直していない
+  - scripts/check_wayhome.py 36行の「fetch-youtube.yml の週次の実行（毎週月曜 05:37 JST の予定…）」が古い（今は月曜 03:00 の run-weekly）。fetch-youtube はこの指示の対象の外なので直していない
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj d3c55fa1）: https://github.com/retroeater/mj-logs/tree/main/guide/d3c55fa1
+ガイド文書（この版を写した時点の最新、mj eac294a1）: https://github.com/retroeater/mj-logs/tree/main/guide/eac294a1
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d3c55fa1/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d3c55fa1/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d3c55fa1/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d3c55fa1/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d3c55fa1/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d3c55fa1/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/eac294a1/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/eac294a1/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/eac294a1/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/eac294a1/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/eac294a1/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/eac294a1/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/29bf0a43.md

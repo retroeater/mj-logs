@@ -188,3 +188,9 @@ Cloudflare の Security Overview の提案（security.txt など）の見送り�
 - LGN のブランチを後で取り込むときの `_headers` の衝突は「CSP の行の中身は cloudflare 側、末尾の改行と `/log/*` の規則は LGN 側」で解いてよい（MCK のチャットが LGN のチャットへ伝える）
 - マージしてよい
 - 作業中の回答: なし
+
+## 2026-11-02（CHAT-1102-MCK-36）
+
+- CSP の確かめ方を規則にする（CHAT-1101-MCK-24 の「判断が必要なこと」の3つ目）。CSP（`_headers`）を変えたら、マージ後に実際のブラウザで外部への送信が CSP の違反なしに通ることを確かめる（docs/notes/cloudflare.md「配信設定」の CSP の段落）
+- マージしてよい
+- 作業中の回答: なし
