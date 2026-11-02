@@ -182,16 +182,24 @@ apex と www の Worker レコード）。**MX は未設定。**
 | 項目 | 状態 |
 |---|---|
 | DNSSEC | 有効化済み（#117）。Registrar も DNS も Cloudflare のため DS 登録まで自動 |
-| SPF | `v=spf1 -all`（#116） |
+| SPF | `v=spf1 -all`（#116）。SPF・DKIM・DMARC の3行は Cloudflare がメールを送らないドメインに勧める値と一致（2026-11-02 に公式の学習センターで確認。Null MX〈RFC 7505〉は公式の文書に無く足さない） |
 | DMARC | `v=DMARC1; p=reject; sp=reject; adkim=s; aspf=s;`（#116） |
 | DKIM | `*._domainkey` に空ポリシー（#116） |
-| 通知 | Universal SSL Alert のみ（#118）。宛先は別事業者のドメイン |
+| 通知 | Universal SSL Alert（#118）・HTTP DDoS Attack Alert（2026-11-02 追加）・Budget alert 2件（Billing Budget Alert〈2026-10-21、$5〉と Default budget alert〈auto-created〉）。Method はすべて Email。宛先は別事業者のドメイン（Universal SSL Alert。ほかは画面に無い）。2026-11-02 の一覧は申告値で、セッションからは検証できない |
 
-**Cloudflare の通知には Registrar 用の Alert Type が存在しない。**
-Billing の2種類も「支出がしきい値を超えたら通知」で、
-支払い失敗による失効は検知できない。ドメイン失効対策は
-Domain Registration 画面で Auto renew と期限を直接確認する方法に切り替えた
+**通知の種類（Notifications）に Registrar 用は今も無い**（2026-11-02 に公式の一覧で確認）。Billing の2種類も「支出がしきい値を超えたら通知」で、
+支払い失敗は検知しない。ただし公式の更新のページによれば、Registrar 自体が次のメールを送る:
+
+- 自動更新は期限の約30日前から試み、支払いが失敗するとメールで知らせて3回まで再試行する
+- Super Administrator へ「45日以内に自動更新」「60〜90日後に期限」の月次メール
+- WHOIS の Registrant 連絡先へ期限1か月前の週次・7日前の日次・失効の翌日・20日後のメール。2026-11-02 に Registrant 連絡先を変えたので宛先は新しいアドレス（下の「アカウント・連絡先」）
+
+それでも Domain Registration の画面で Auto renew と期限を直接確認する方法は続ける
 （2026-09-11 時点: Active / 期限 2028-03-20 / Auto renew On）。
+
+出典（2026-11-02 にチャット側が読んだ）: 通知の種類 https://developers.cloudflare.com/notifications/notification-available/ ・
+Registrar の更新 https://developers.cloudflare.com/registrar/account-options/renew-domains/ ・
+メールを送らないドメイン https://workers.cloudflare.com/learning/dns/dns-records/protect-domains-without-email
 
 **#17（Email Routing）に着手するときは SPF の書き換えが必須。**
 `v=spf1 -all` のままだと `@ryoei.pro` からの送信が拒否される。
@@ -201,6 +209,43 @@ Domain Registration 画面で Auto renew と期限を直接確認する方法に
 www → apex の Redirect Rule に到達する前に失敗する。
 Redirect Rules は Workers より前に評価されるため、
 レコードを残したままで正しく308が返る。
+
+#### アカウント・連絡先（2026-11-02、#648）
+
+**値は平野さんのスクリーンショットによる申告値（2026-11-02）。セッションからは検証できない。**
+
+| 項目 | 状態 |
+|---|---|
+| Cloudflare のログインメール | ryoei.net 以外の Gmail のアドレス（Verified）。以前は ryoei.net のアドレス |
+| 2 段階認証 | 認証アプリ（TOTP）＋バックアップコード（2つ目の方法は下の「SSL/TLS・2段階認証の設定」） |
+| ryoei.pro の Contact（Registrant・Administrator・Technical・Billing） | ログインメールと同じアドレス |
+| Registrations の Default contact | 同上 |
+
+- 理由: ryoei.net のメールが止まると Cloudflare に入れなくなる循環を切るため（#648）
+- 連絡先を変えるときは、承認画面の「Do not apply 60 day transfer lock」を選ぶ（選ばないと 60 日間ほかのレジストラへ移管できない）
+- 同じアカウントに ryoei.net（個人メール、Google Workspace）と selflessness.net（会社メール、Google Workspace）のゾーンとレジストラ登録がある（2026-11-02 から、Free プラン）。
+  設定の正は claude.ai のプロジェクト「セルフレスネス合同会社の経営」の文書「ドメイン・Cloudflare設定台帳」で、ryoei.pro 側の作業では触らない。関係する issue: #650・#651・#652（MTA-STS・TLS-RPT は保留）
+- ryoei.pro の DNS・SPF・DMARC・DNSSEC（上の表）は 2026-11-02 に変えていない
+
+#### SSL/TLS・2段階認証の設定（2026-11-02、CHAT-1102-CFS-01）
+
+**値は平野さんのスクリーンショット・PDF による申告値（2026-11-02）。セッションからは検証できない。**
+メールアドレスは書かない（mj-logs は public）。
+
+| 項目 | 状態（2026-11-02、申告値） |
+|---|---|
+| Minimum TLS Version | TLS 1.2（2026-11-02 に既定の 1.0 から変更。1.3 にはしない）。Always Use HTTPS の「last changed 2 months ago」は 2026-09-11 の有効化と合う |
+| Certificate Transparency Monitoring | 有効（Cloudflare 以外の CA が ryoei.pro の証明書を発行したらメール。全プラン、2026-08-13 GA）。画面は「Alerts active — 1 recipients」で、PDF の時点の宛先は ryoei.net のアドレス。ログインメール（ryoei.net 以外）への差し替えは平野さんの手作業（2026-11-02 に依頼、未確認） |
+| 2段階認証 | TOTP＋バックアップコード（Backup Code Reminders On。Email Authentication は無効）。セキュリティキー（Windows Hello）の追加は平野さんの手作業（2026-11-02 に依頼、未確認。公式は2つ以上の方法を勧める） |
+| CAA レコード | 無し。足さない（Cloudflare は利用者が CAA を足したときだけ自社の CA 用の CAA を自動で足す。足すなら Cloudflare が使う CA〈Google Trust Services・Let's Encrypt・SSL.com・Sectigo など、増減あり〉を許す必要があり、誤ると証明書の更新が止まる） |
+| Super Administrator | 平野さん1人。2人目は今は足さない（「APIトークンの棚卸し」の単一ユーザー依存は残る。判断材料として記録） |
+
+- Opportunistic Encryption・Automatic HTTPS Rewrites・Encrypted Client Hello・TLS 1.3 のトグルは PDF（印刷）から読めず、記録しない（TLS 1.3 は上の「Speed 設定の現状」の 2026-09-11 の値）
+- 出典（2026-11-02 にチャット側が読んだ）: TLS のプロトコル（既定は TLS 1.0）https://developers.cloudflare.com/ssl/reference/protocols/ ・
+  Minimum TLS Version https://developers.cloudflare.com/ssl/edge-certificates/additional-options/minimum-tls/ ・
+  CT Monitoring の GA https://developers.cloudflare.com/changelog/post/2026-08-13-ct-monitoring-ga/ ・
+  2段階認証 https://developers.cloudflare.com/fundamentals/user-profiles/2fa/ ・
+  CAA レコード https://developers.cloudflare.com/ssl/edge-certificates/caa-records/
 
 #### robots.txt の取得
 
@@ -603,6 +648,9 @@ Workers & Pages → `mj` → Settings → Builds:
 | `accounts/{id}/registrar/domains/ryoei.pro` | ドメインの自動更新・期限（公式にはこの旧パスは 2026-09-27 で end of life、#555） |
 | `accounts/{id}/workers/scripts`・`accounts/{id}/builds/workers/{tag}/triggers` | Workers Builds のトリガー（本番・非本番の2つ。除外は上の表） |
 | `accounts/{id}/builds/builds/<Build ID>`・同 `/logs` | 1回のビルドの段階・所要時間とログ（Build ID は check-run の `.output.summary`。2026-10-13 にチャット側が読んだ） |
+| `accounts/{id}/logs/audit`（`since`・`before` が必須） | 監査ログ v2（保存 18 か月、画面は直近 90 日。2026-11-02 のログインメール・連絡先・Minimum TLS の変更を申告値から検証済みにできる。未実施）。出典 https://developers.cloudflare.com/fundamentals/account/account-security/audit-logs/ |
+
+月次の (9) では Security Insights（Security → Insights。TLS・HSTS・MFA・WAF・SPF/DMARC などの不備を一覧にする）も見る（2026-11-02 の決定。#304 への追記は MCK 系列が行う。出典 https://developers.cloudflare.com/security/security-insights/ ）
 
 ### APIトークンの棚卸し（2026-09-12）
 
@@ -699,7 +747,7 @@ Workers & Pages → `mj` → Settings → Builds:
   プレビューと確かめられた失敗は知らせず、理由（トリガー名・ブランチ）を注釈に出す。確かめられないとき（Secret が無い・API が答えない・答えの形が違う）は知らせる。
   起動は Workers Builds の check-run の完了ごと（1日約100回）で、失敗以外はジョブが skipped の実行として Actions の一覧に残る。
   mj-logs の `actions/status.md` はワークフローごとの直近5回なので、この行はほぼ skipped で埋まり、失敗の回はすぐ表から外れる（気づくのはメール）。
-  2026-10-13 に有効化した（確かめた run は docs/notes/github-actions.md「ワークフローの一覧」）。Cloudflare 側の通知は Universal SSL Alert だけ（上の「DNS・メール・通知の設定」）
+  2026-10-13 に有効化した（確かめた run は docs/notes/github-actions.md「ワークフローの一覧」）。Cloudflare 側の通知に Workers Builds の失敗は無い（Universal SSL Alert・HTTP DDoS Attack Alert・Budget alert だけ。上の「DNS・メール・通知の設定」）
 - 事例（2026-10-13 13:15〜14:20 JST、本番向け `mj` が5回続けて失敗）:
 
 | コミット | check-run（UTC、in_progress → completed） | 結果 |
