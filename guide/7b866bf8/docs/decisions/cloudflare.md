@@ -151,3 +151,28 @@
 - Cloudflare Observability の契約だけを解約して Free プランにする。Workers Paid（月 $5）は続ける（2026-10-23 の CHAT-1023-BIL-10 は変えない）（2026-10-21 の CHAT-1021-WKP-03 の「新しい料金に同意せず Review later のままにする」を置き換える）
 - 理由: ログは月 5 万件・推定 月 50MB 程度で Free の1日 0.5GB に収まり、保存7日も今と同じ。有料のままだとログが急に増えたとき止まらずに課金される（Budget Alert は通知だけ）。Free は取り込みが止まるだけ。解約は Subscriptions に Observability の行が現れてから平野さんが手作業で行う（#298）
 - 作業中の回答: なし
+
+## 2026-11-02（CHAT-1102-DNR-01）
+
+- Cloudflare のアカウント・連絡先の記録の追記先は retroeater/mj の docs/notes/cloudflare.md（#648）
+- 連絡用のアドレスは ryoei.net 以外にそろえる（Cloudflare のログインメール、ryoei.pro の Contact の4種、Registrations の Default contact）
+- ryoei.net・selflessness.net の設定は claude.ai のプロジェクト「セルフレスネス合同会社の経営」の文書「ドメイン・Cloudflare設定台帳」が正。ryoei.pro 側の文書には線引きだけを書く
+- MTA-STS・TLS-RPT は保留（#652）
+- 作業中の回答: #648 がクローズ済みでも、承知のうえで進める（コメントを残し、本文・状態・ラベルは変えない）
+
+## 2026-11-02（CHAT-1102-CFS-01）
+
+- Minimum TLS Version は TLS 1.2（既定の 1.0 から変更。1.3 にはしない）
+- 通知に HTTP DDoS Attack Alert を足す（宛先は Universal SSL Alert と同じ）
+- Certificate Transparency Monitoring を有効にする。宛先はログインメール（ryoei.net 以外）にそろえる
+- 2段階認証に2つ目の方法（セキュリティキー。Windows Hello）を足す。バックアップコードは残す
+- CAA レコードは足さない（足すなら Cloudflare が使う CA を許す必要があり、誤ると証明書の更新が止まる）
+- 2人目の Super Administrator は今は足さない（判断材料として記録だけ）
+- #304 の月次 (9)（設定と記録の照合）に Security Insights を見ることを足す（#304 への追記は MCK 系列のチャットが別に指示する）
+- 作業中の回答: なし
+
+## 2026-11-02（CHAT-1102-MCK-41）
+
+- #304 の (9) に、Security Insights（Security → Insights）を全ゾーンについて見る行を足す（CFS のチャットでの決定を MCK で受けた）
+- 見送った提案（security.txt・Super Bot Fight Mode）の判断は変えない
+- 作業中の回答: なし

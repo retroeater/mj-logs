@@ -51,15 +51,58 @@ Chat-Ref: CHAT-1102-MCK-41
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+- 0: 「指示」欄の末尾は指示文の最後の行（「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」）と一致
+- 着手前の確認: CHAT-1102-MCK-41 のコミットは無し（MCK は既存の系列なので `XXX` の重複は該当なし）。docs のみ・issue 本文の編集なので 0章ゲートは対象外。#304 は Open。冒頭の雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は欠け無し
+- ブランチ: ローカル・リモートとも work/1102-mck-insights が無かったので `git checkout -b work/1102-mck-insights origin/cloudflare`（起点 5f54ea1b1）
+- #304 のコメント: 他セッションの着手中は CHAT-1102-MCK-38（(13) の Observability）だけで、完了コメント済み・(9) は変えていない。着手中のコメントを残した https://github.com/retroeater/mj/issues/304#issuecomment-6572007121
+- 手順1: 直す前の (9):
+
+  ```
+  - [ ] (9) Cloudflare ダッシュボードの主な設定（Security の Settings〈Bot traffic・Client side abuse など〉、AI Crawl Control、Workers Builds の Build watch paths など）を `docs/notes/cloudflare.md` の記録と照らし合わせる
+    - 2026-09-11 に Off と記録した Email Address Obfuscation（#120）が、2026-09-28 にはオンになっていた（いつ変わったかは不明。#449）。記録と実物のずれに、事故より前に気づくため
+    - 食い違いがあれば、その月の「YYYY-MM 実施」のコメントに書き、記録か設定のどちらを直すかを決める
+  ```
+
+  Security Insights・監査ログの行は無かった
+- CFS-01 の行は origin/cloudflare に入っていた: docs/notes/cloudflare.md「Chrome からダッシュボードの API を読む」の表に `accounts/{id}/logs/audit`（`since`・`before` が必須。保存 18 か月、画面は直近 90 日）、その直後に「月次の (9) では Security Insights（Security → Insights …）も見る」。docs/decisions/cloudflare.md「2026-11-02（CHAT-1102-CFS-01）」に (9) への追記の決定。画面の場所・値は文案と一致したので文案のまま使った（パスだけコード書式にした）
+- 手順2: 直した後の (9):
+
+  ```
+  - [ ] (9) Cloudflare ダッシュボードの主な設定（Security の Settings〈Bot traffic・Client side abuse など〉、AI Crawl Control、Workers Builds の Build watch paths など）を `docs/notes/cloudflare.md` の記録と照らし合わせる
+    - 2026-09-11 に Off と記録した Email Address Obfuscation（#120）が、2026-09-28 にはオンになっていた（いつ変わったかは不明。#449）。記録と実物のずれに、事故より前に気づくため
+    - 食い違いがあれば、その月の「YYYY-MM 実施」のコメントに書き、記録か設定のどちらを直すかを決める
+    - Security Insights（ダッシュボードの Security → Insights）の一覧を見る。Cloudflare 自身が設定の不備（古い TLS、HSTS / Always Use HTTPS の欠け、MFA の無いユーザー、WAF Managed Rules の無いゾーン、SPF / DMARC の誤りなど）を全ゾーンについて挙げる。出たものは記録と照らし、対処するかをその月のコメントに書く（2026-11-02 の平野さんの決定）
+    - 前月の回からの設定の変更は、監査ログ（ダッシュボードの API の `accounts/{id}/logs/audit`。手順は docs/notes/cloudflare.md「Chrome からダッシュボードの API を読む」）で読み、平野さんの申告値を検証済みにする
+  ```
+
+  ほかに変えたのは本文末尾の Chat-Ref の並びに `Chat-Ref: CHAT-1102-MCK-41` を足したことだけ（本文は MCP の issue_write で全文を送るため、読んだ本文を写して2行と Chat-Ref の行を足した）
+- 手順3: 本文を直したコメント https://github.com/retroeater/mj/issues/304#issuecomment-6572019256 。docs/decisions/cloudflare.md の末尾に「2026-11-02（CHAT-1102-MCK-41）」を足した
+- セルフレビュー: コード・生成物・ワークフロー・配信設定を変えていない（docs と issue 本文のみ）ので行わない
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1102-mck-insights
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1102-MCK-41.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1102-mck-insights
+- 確認用URL: なし
+- マージ: 済（d7a91ef81。cloudflare へ fast-forward）
+- issue: #304
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 3f6de264）: https://github.com/retroeater/mj-logs/tree/main/guide/3f6de264
+ガイド文書（この版を写した時点の最新、mj 7b866bf8）: https://github.com/retroeater/mj-logs/tree/main/guide/7b866bf8
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/3f6de264/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/3f6de264/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/3f6de264/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/3f6de264/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/3f6de264/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/3f6de264/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/7b866bf8/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/7b866bf8/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/7b866bf8/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/7b866bf8/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/7b866bf8/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/7b866bf8/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/f753b32c.md
