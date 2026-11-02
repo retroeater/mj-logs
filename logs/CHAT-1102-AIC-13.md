@@ -178,7 +178,7 @@ AIC-12 の「違いの一覧」（docs/notes/ask-worker.md「5大会の応答ル
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1102-AIC-14
 - ブランチ: work/1102-aic
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1102-AIC-13.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1102-aic
@@ -186,8 +186,8 @@ AIC-12 の「違いの一覧」（docs/notes/ask-worker.md「5大会の応答ル
 - マージ: 済（4212ea255。9789a6fb2..4212ea255）
 - issue: #586（決定と結果をコメント）
 - 判断が必要なこと:
-  - 本番で、同率でない入会期の一覧に「10人が並んでいます」と出た（WRC-R の「40期生」）。直すなら、2回目の共通の文の「並んでいます」は tie のときだけ、を others の行だけでなく一覧全体に広げるか、`tidyAnswer()` の置き換えを「N人が並んでいます」まで広げる（同率の答えは tie があるので残る）。どちらにするか
-  - 本番で「37期生で一覧」に「主な名前は」と出た。「上位」「主な」と書かない一文は今 champions の切った一覧だけが対象。entry の一覧にも広げるか
+  - 本番で、同率でない入会期の一覧に「10人が並んでいます」と出た（WRC-R の「40期生」）。直すなら、2回目の共通の文の「並んでいます」は tie のときだけ、を others の行だけでなく一覧全体に広げるか、`tidyAnswer()` の置き換えを「N人が並んでいます」まで広げる（同率の答えは tie があるので残る）。どちらにするか → 回答（2026-11-02、平野さん）: `tidyAnswer()` の置き換えを「N人が並んでいます」まで広げる（同率のある答えの「並んでいます」は残す）。すぐ直す（CHAT-1102-AIC-14）
+  - 本番で「37期生で一覧」に「主な名前は」と出た。「上位」「主な」と書かない一文は今 champions の切った一覧だけが対象。entry の一覧にも広げるか → 回答: 広げる。すぐ直す（CHAT-1102-AIC-14）
 - 未確認の項目:
   - 予約実行の初回: 2026-11-09（月）03:00 JST の週次の書き出しが動き、ブックに 11/02〜11/08 の行が入るか。あわせて、AIC-11 の本番の「現女流桜花は？」（2026-11-02 10:09 JST ごろ）の「引数」の列に from・to が入っているか（AIC-12 から写した）
   - 地域で断られた問いが、新しい結果（`region`、ブック「地域で使えない」）で記録に入るか（AIC-12 から写した）
@@ -196,12 +196,12 @@ AIC-12 の「違いの一覧」（docs/notes/ask-worker.md「5大会の応答ル
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 4212ea25）: https://github.com/retroeater/mj-logs/tree/main/guide/4212ea25
+ガイド文書（この版を写した時点の最新、mj 6d624329）: https://github.com/retroeater/mj-logs/tree/main/guide/6d624329
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/4212ea25/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/4212ea25/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/4212ea25/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/4212ea25/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/4212ea25/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/4212ea25/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/c3c97901.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6d624329/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6d624329/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6d624329/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6d624329/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6d624329/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6d624329/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/01d3ecae.md

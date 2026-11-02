@@ -116,12 +116,12 @@ ryoei.pro のすべての転送の一覧と、四半期ごとの棚卸しの手�
 
 ## 流入の測り方
 
-**`fetch-redirect-counts.yml`**（毎月1日 06:30 JST、`fetch-gsc.yml` の後）が、`scripts/fetch_redirect_counts.py` で「棚卸しの対象」の表の転送元（表から読む。手で二重に持たない）について前月分（JST）の件数を取り、
+**`fetch-redirect-counts.yml`**（毎月1日 02:00 JST に `run-monthly.yml` から、`fetch-gsc.yml` の後。保険として GitHub の schedule〈cron〉でも 06:30 JST に動く。02:00 の成功に関係なく動く）が、`scripts/fetch_redirect_counts.py` で「棚卸しの対象」の表の転送元（表から読む。手で二重に持たない）について前月分（JST）の件数を取り、
 `docs/redirect-counts/<YYYY-MM>.csv`（列 `path`・`status`・`count`・`count_non_bot`。公開しない、`.assetsignore` の `docs`）にコミットし、#568 に前月分と直近3か月の合計の表をコメントする。
 ファイル冒頭の `ENABLED` が `'true'` でないあいだは予約実行も dry-run。手動実行は入力 `dry_run`（既定は真）と `month`（YYYY-MM、空なら前月）。
 
 - **データセット: GraphQL Analytics API の `httpRequestsAdaptiveGroups`（ゾーン単位）。** `clientRequestPath_in` で転送元に絞り、`clientRequestPath`・`edgeResponseStatus` でまとめた `count`。CSV には出た状態コードをすべて書き、#568 のコメントは 301 の件数
-- **期間:** Adaptive のデータセットは「どのプランでも少なくとも31日」保持する（公式「GraphQL Analytics API — Limits」）。スクリプトは毎回 `settings` の `notOlderThan`・`maxDuration` を読み、月の始まりが保持期間より古ければ取れる所まで詰め（コメントに範囲を書く）、`maxDuration` ごとに分けて問い合わせる。31日の月は、1日 06:30 JST の実行で月の始まりの数時間が保持期間の外になりうる。90日は一度に取らず、月ごとの集計3つを足す
+- **期間:** Adaptive のデータセットは「どのプランでも少なくとも31日」保持する（公式「GraphQL Analytics API — Limits」）。スクリプトは毎回 `settings` の `notOlderThan`・`maxDuration` を読み、月の始まりが保持期間より古ければ取れる所まで詰め（コメントに範囲を書く）、`maxDuration` ごとに分けて問い合わせる。31日の月は、1日 02:00 JST の実行で月の始まりの数時間が保持期間の外になりうる。90日は一度に取らず、月ごとの集計3つを足す
 - **ボット:** Pro では bot score を使えない（「likely automated」は Pro では不可、Bot Analytics は Business 以上。公式「Bots — Pro」「Bot Analytics」）。代わりに `availableFields` に `userAgent` があれば、`userAgent_notlike` で除いた件数を `count_non_bot` に書く。除くのは `bot`・`crawl`・`spider`・`slurp`（先頭が大文字のものも）と、道具・自分たちの目印の UA（`curl`・`python-requests`・`Python-urllib`・`Go-http-client`・`HeadlessChrome`・`Playwright`・`node-fetch`・`axios`・`mj-internal`・`Wget`・`python-httpx`・`aiohttp`・`okhttp`・`Java/`・`libwww-perl`・`Scrapy`）を含む User-Agent（並びは `BOT_UA_PATTERNS`）と、空の User-Agent（`userAgent_neq: ""`）。道具の UA と空の UA を除くのは 2026-11 分から。`2026-10.csv` 以前の `count_non_bot` には自分たちの curl などが入っており、直近3か月の合計にも 2026-12 分まで混ざる。`like` が大文字・小文字を区別するかは公式に書かれていないため、区別する前提で書く。条件の数の上限も公式に無い。`userAgent` が無ければ空にし、総数で判断する（総数が0ならボット以外も0）
 - **旧 URL への 429 は調べない:** 2026-10 分で `houou_leagues`・`houou_results`・`ouka_leagues`・`ouka_results` に 429 が出ており、どれも「ボット以外」に残るが、出どころは調べない（削除の基準と #568 の表は 301 だけを数え、429 は Rate limiting が止めているため。2026-11-01 の決定）
 - **件数は推定値:** `count` は抜き取り（adaptive sampling）から推した全体の推定値で、抜き取った行の数ではない（公式「Sampling」「Confidence intervals」の例で `count` と `confidence` の `estimate` が等しく、`sampleSize` が別に返る）。数十件以下は誤差が大きい。#568 のコメントには、`avg { sampleInterval }` から求めた月の抜き取りの間隔の平均を出す

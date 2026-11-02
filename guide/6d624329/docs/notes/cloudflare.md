@@ -202,6 +202,23 @@ www → apex の Redirect Rule に到達する前に失敗する。
 Redirect Rules は Workers より前に評価されるため、
 レコードを残したままで正しく308が返る。
 
+#### アカウント・連絡先（2026-11-02、#648）
+
+**値は平野さんのスクリーンショットによる申告値（2026-11-02）。セッションからは検証できない。**
+
+| 項目 | 状態 |
+|---|---|
+| Cloudflare のログインメール | ryoei.net 以外の Gmail のアドレス（Verified）。以前は ryoei.net のアドレス |
+| 2 段階認証 | 認証アプリ（TOTP）＋バックアップコード |
+| ryoei.pro の Contact（Registrant・Administrator・Technical・Billing） | ログインメールと同じアドレス |
+| Registrations の Default contact | 同上 |
+
+- 理由: ryoei.net のメールが止まると Cloudflare に入れなくなる循環を切るため（#648）
+- 連絡先を変えるときは、承認画面の「Do not apply 60 day transfer lock」を選ぶ（選ばないと 60 日間ほかのレジストラへ移管できない）
+- 同じアカウントに ryoei.net（個人メール、Google Workspace）と selflessness.net（会社メール、Google Workspace）のゾーンとレジストラ登録がある（2026-11-02 から、Free プラン）。
+  設定の正は claude.ai のプロジェクト「セルフレスネス合同会社の経営」の文書「ドメイン・Cloudflare設定台帳」で、ryoei.pro 側の作業では触らない。関係する issue: #650・#651・#652（MTA-STS・TLS-RPT は保留）
+- ryoei.pro の DNS・SPF・DMARC・DNSSEC（上の表）は 2026-11-02 に変えていない
+
 #### robots.txt の取得
 
 **robots.txt の実測は Claude Code のセッションから `curl` でできる（2026-09-21 に確認）。**
