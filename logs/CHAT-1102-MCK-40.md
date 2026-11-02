@@ -112,6 +112,8 @@ MCK 系列の 11月の月次チェック（CHAT-1101-MCK-23〜CHAT-1102-MCK-39�
 ### 3. 決定・マージ
 
 - docs/decisions/operations.md に「2026-11-02（CHAT-1102-MCK-40）」を足した
+- マージ: 再 fetch で cloudflare が進んでいたので `git merge origin/cloudflare`（衝突なし）。差分は chrome-reading.md の1行・このログ・operations.md だけ。`git push origin work/1102-mck-handoff:cloudflare` で 26012fe3b..368cfd61f
+- ガイド文書の写し: mj-logs の `guide/HISTORY` の最新が `368cfd61`（このマージ）で、その `docs/notes/chrome-reading.md` に足した項がある（raw で確認）。写しは動いた
 
 ## 報告
 
@@ -120,7 +122,7 @@ MCK 系列の 11月の月次チェック（CHAT-1101-MCK-23〜CHAT-1102-MCK-39�
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1102-MCK-40.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1102-mck-handoff
 - 確認用URL: なし
-- マージ: 未（このあと cloudflare へ入れる）
+- マージ: 済（368cfd61f。cloudflare へ fast-forward）
 - issue: #653（起票）
 - 判断が必要なこと: なし（#653 の判断〈作るか・閾値〉は #653 で待つ）
 - 未確認の項目: なし
