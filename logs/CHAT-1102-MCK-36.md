@@ -57,15 +57,77 @@ Chat-Ref: CHAT-1102-MCK-36
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 着手前の確認
+
+- 0: 「指示」欄の末尾が指示文の最後の行と一致することを確かめた
+- 同じ Chat-Ref のコミット: `git log --all --grep="MCK-36"` は0件。`XXX` の重複は対象外。0章ゲートは実装を含まないため対象外。雛形の行の欠けなし。CLAUDE.md の変更は0件。指示文に issue は無い
+- 「知見 → 選んだ層 → 理由」の表（#492）: 指示文にある
+- 作業ブランチ: work/1102-mck-csprule はローカル・リモートとも無く、`git checkout -b work/1102-mck-csprule origin/cloudflare` で作った
+
+### 1. 同じ趣旨の記述
+
+- docs/notes/cloudflare.md「配信設定」の CSP の段落（`_headers` の節、504〜507行）: CSP の値・`connect-src` の理由・「外部の…を足すときは、このヘッダの値も直す」はあるが、変えたときの確かめ方は無い
+- docs/notes/security.md の冒頭（4行目）: CSP は #9 で入れた、という経緯と cloudflare.md への参照だけ。ほかに `grep` で「クラウド.*Playwright」「ブラウザで.*確かめ」「違反」を探し、食い違う記述は無い（security.md 70行の「届かない」は道具の到達の話）
+
+### 2. 追記
+
+追記後の段落（docs/notes/cloudflare.md）:
+
+```
+`_headers` はセキュリティヘッダ5件に加えて、
+キャッシュ制御を持つ（#92）。
+`/*` には `Content-Security-Policy` もある（2026-10-19、#9。報告先は持たない）。外部は `script-src` の Web Analytics（`static.cloudflareinsights.com`）だけを許し、
+`img-src` は `'self' data: https:`、`style-src-attr 'unsafe-inline'`（title/ の CSS 変数・glightbox）。typed.js のカーソルの CSS は index.css に置く（`<link data-typed-js-cursor-css>`）。
+ほかに外部を許すのは `connect-src` の `https://cloudflareinsights.com` だけで、手動のビーコンの送り先なので要る（無いと Web Analytics の計測が止まる。Web Analytics の FAQ。2026-10-19 の切り替えで止まり、2026-11-01 に足した、#304）。
+**外部のスクリプト・iframe・フォント・`fetch` の先・`<style>` 要素を足すときは、このヘッダの値も直す**（直さないと黙って読み込まれない。測り方と値の理由は #9）。
+**CSP（`_headers`）を変えたら、クラウドからの実測だけで済ませず、マージ後に実際のブラウザで外部への送信（Web Analytics のビーコン `https://cloudflareinsights.com/cdn-cgi/rum` など）が CSP の違反なしに通ることを確かめる**（チャット側が平野さんの Chrome で行う。Code は完了報告の「未確認の項目」に書く）。クラウドの外向きの経路は外部のホストを拒むので、送信が起きず違反も出ない（2026-10-19〜11-01 に計測が止まった）。
+```
+
+`git diff`（736045af5）:
+
+```diff
+--- a/docs/notes/cloudflare.md
++++ b/docs/notes/cloudflare.md
+@@ -505,6 +505,7 @@
+ **外部のスクリプト・iframe・フォント・`fetch` の先・`<style>` 要素を足すときは、このヘッダの値も直す**（直さないと黙って読み込まれない。測り方と値の理由は #9）。
++**CSP（`_headers`）を変えたら、クラウドからの実測だけで済ませず、マージ後に実際のブラウザで外部への送信（Web Analytics のビーコン `https://cloudflareinsights.com/cdn-cgi/rum` など）が CSP の違反なしに通ることを確かめる**（チャット側が平野さんの Chrome で行う。Code は完了報告の「未確認の項目」に書く）。クラウドの外向きの経路は外部のホストを拒むので、送信が起きず違反も出ない（2026-10-19〜11-01 に計測が止まった）。
+--- a/docs/notes/security.md
++++ b/docs/notes/security.md
+-CSP は #9 で本番の `Content-Security-Policy` を入れて閉じた（2026-10-19。`docs/notes/cloudflare.md`「配信設定」）。…
++CSP は #9 で本番の `Content-Security-Policy` を入れて閉じた（2026-10-19。`docs/notes/cloudflare.md`「配信設定」。変えたときの確かめ方も同じ段落）。…
+```
+
+- 前提の案の文のまま。ガイド文に出典としての Chat-Ref は書いていない（日付と事象だけ）
+
+### 3. 決定・マージ
+
+- docs/decisions/security.md に「2026-11-02（CHAT-1102-MCK-36）」を足した
+- CHAT-1101-MCK-24 の状態はすでに「完了 / 続き: CHAT-1102-MCK-36」（MCK-35 が足していた）ので足していない
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1102-mck-csprule
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1102-MCK-36.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1102-mck-csprule
+- 確認用URL: なし（docs のみ）
+- マージ: 済（932d0e93d。cloudflare へ fast-forward）
+- issue: なし
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 1819ca0c）: https://github.com/retroeater/mj-logs/tree/main/guide/1819ca0c
+ガイド文書（この版を写した時点の最新、mj d3c55fa1）: https://github.com/retroeater/mj-logs/tree/main/guide/d3c55fa1
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/1819ca0c/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/1819ca0c/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/1819ca0c/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/1819ca0c/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/1819ca0c/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/1819ca0c/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d3c55fa1/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d3c55fa1/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d3c55fa1/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d3c55fa1/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d3c55fa1/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d3c55fa1/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/29bf0a43.md
