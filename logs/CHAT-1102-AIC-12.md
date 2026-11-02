@@ -105,15 +105,55 @@ AIC-11 の「判断が必要なこと」への回答と、この指示の範囲�
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 0. 着手前の確認（2026-11-02）
+
+- 指示欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある
+- `git log --all --grep="CHAT-1102-AIC-12"` は0件。`AIC` はこのチャットの系列（AIC-01〜11）
+- bf117febb は origin/cloudflare の祖先。`origin/work/1102-aic`（a7e90f53）はマージ済みで、ローカルも cloudflare の祖先なので `git merge --ff-only origin/cloudflare`（ef69064f）
+- AIC-11 のログの `## 報告` の状態に ` / 続き: CHAT-1102-AIC-12` を足し、「判断が必要なこと」2つの後ろに回答（Cron は済み・SQL は実行せずすぐ直す）を書き足した
+- #586 に他セッションの着手中は無い（最後は AIC-11 の解除）。着手中のコメントを書いた。未マージの work/ ブランチで `workers/ask/` を変えているものは無い
+
+### 1. 「現女流桜花は？」の原因の再現
+
+- `PLAN_LINES` は `{ houou: hououLines, jwrc: holderLine, wrcr: holderLine, saikyo: saikyoLines }` で、女流桜花（ouka）だけ1回目の最後の一文が無かった（見立てどおり）
+- 女流桜花の champions を期で絞ると、清水香織の terms は `{}` で [5, 19, 20]、`{from: 20, to: 20}` で [20]、`{from: 19, to: 20}`・`{from: 19}` で [19, 20]。本番の「第19期と第20期の女流桜花で、通算は2期」は、1回目が第19期からに絞り、2回目が絞った terms の個数を通算と書いた形と一致する（`parity.test.mjs` の1件目で再現。D1 の引数は見ていない。裏付けは 2026-11-09 の書き出しの「引数」の列）
+- 2回目の `ANSWER_LINES` は4大会とも「回数は terms の個数」だけで、「絞った terms を通算と書かない」は最強戦にだけあった（CHAT-1024-SKP-07）
+
+### 2. 照合と直し（コミット 3ccf8cc9c・60200b97c）
+
+5大会の表（全行）は docs/notes/ask-worker.md「5大会の応答ルール」に置いた（○ ある／－ 当てはまらない／★ 欠けていたのでそろえた／△ 違いを残した）。表の置き場所は、仕様の正の ask-worker.md の「データ」の前（大会ごとの節の後）にした。
+
+直した行（★、そろえる直し）:
+
+| 項目 | そろえた大会 | 直し方 |
+|---|---|---|
+| 「現〜」を最新の決勝の期で引く | 女流桜花 | `oukaLines()`: 「現女流桜花」「現在の女流桜花」「今の女流桜花」「最新の女流桜花」「現タイトルホルダー」「前回の優勝者」は第20期の女流桜花として from・to に20（`holderLine()` を使う）。これが「現女流桜花」の直し（候補 (a)） |
+| 「現在」「今」の期のリーグ・順位 | 女流桜花・WRC リーグ・WRC-R | `currentTermLine()`（前期・後期の無い大会の `currentLine()`。成績の行の最大の期）。現タイトルホルダーの一文は「現在」より先に当てる（鳳凰戦と同じ一文）。WRC は `wrcLines()` |
+| 名前・名字・名前の一部だけの問いを player に | 女流桜花・WRC リーグ・WRC-R・最強戦 | 型の説明に一文（例の名前は大会ごと） |
+| 「生涯」「これまでの合計」は通算 | 女流桜花・WRC リーグ・WRC-R | ranking の説明に一文（最強戦は通算の部門が無い） |
+| 「23期生の〜は？」は entry | 女流桜花・WRC リーグ・WRC-R・最強戦 | champions の説明に例 |
+| league の順位（rank）・人数 | 女流桜花・WRC リーグ・WRC-R | league の説明に「顔ぶれ・順位・人数」と rank（引数 rank は #618 から5大会にあったが、説明は鳳凰戦だけだった） |
+| live の「回数」 | 女流桜花・WRC リーグ・WRC-R | live の説明を「一覧・回数」に（最強戦は live の型が無い） |
+| 期で絞った terms を通算と書かない | 鳳凰戦・女流桜花・WRC リーグ・WRC-R | `ANSWER_LINES` の回数の文に「from・to で絞った問いでは、terms は絞った範囲の期だけで、terms の個数を通算の回数として書かない」（候補 (b)。最強戦の文と同じ趣旨） |
+
+- 候補 (c)（絞っても通算の回数 total をプログラムが渡す）は、最強戦にだけある処理だが、4大会に足すと「現在の鳳凰位は？」などに回数が付いて今の答えが変わる見込み（AIC-09 で聞いていない回数を絞った）なので、止まる条件に合わせて「違い（判断が要る）」に回した
+- 違い（判断が要る、直していない）: 型 `entry` を4大会に広げるか／total を4大会に渡すか／同率の名前を渡す人数（最強戦10人、ほか3人）／最強戦の年度と期（性質）／最強戦の型（性質）。案は ask-worker.md の「違いの一覧」と報告の「判断が必要なこと」
+- 落ちると分かって直したテスト: `jwrc.test.mjs` の「現タイトルホルダー」（1回目の最後が `holderLine()` で終わる → 後ろに「先に当てる」の文が付くので includes に）と「優勝の期の読み方」（2回目の文の期待値に絞った terms の一文を足した）、`wrcr.test.mjs` の「現タイトルホルダーは？」（同じ2つ）
+- 新しいテスト: `workers/ask/test/parity.test.mjs`（原因の再現／「現女流桜花」の1回目・2回目の文と渡す terms／5大会の「現〜」の一文と最新の期／3大会の「現在」の一文と鳳凰戦の前期／5大会の型の説明の一文／4大会の絞った terms の一文と最強戦の文）。「最多は？」の5大会は AIC-08・09 の `cross.test.mjs` のまま通る
+- 直す前のコード（origin/cloudflare の `workers/ask/`）に `parity.test.mjs` を当てると6件中5件が落ちた（落ちない1件は原因の再現で、前も後も同じ）
+- `node --test 'workers/ask/test/*.test.mjs'` 124件通過、`python3 -m unittest discover -s scripts/tests` 通過
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj ef69064f）: https://github.com/retroeater/mj-logs/tree/main/guide/ef69064f
+ガイド文書（この版を写した時点の最新、mj 7c48f517）: https://github.com/retroeater/mj-logs/tree/main/guide/7c48f517
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ef69064f/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ef69064f/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ef69064f/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ef69064f/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ef69064f/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/ef69064f/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/7c48f517/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/7c48f517/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/7c48f517/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/7c48f517/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/7c48f517/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/7c48f517/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/c3c97901.md

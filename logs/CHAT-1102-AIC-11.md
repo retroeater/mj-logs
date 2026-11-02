@@ -170,7 +170,7 @@
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1102-AIC-12
 - ブランチ: work/1102-aic
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1102-AIC-11.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1102-aic
@@ -178,8 +178,8 @@
 - マージ: 済（bf117febb。b948baf96..bf117febb。AIC-10 のログと決定も同じマージで入った）
 - issue: #586（本文に「3週目の改善」を書き足し、1週間の数・403 の原因・結果をコメント）
 - 判断が必要なこと:
-  - Cloudflare のダッシュボードの `mj-ask` → Settings → Triggers の Cron が「Sunday 18:00 UTC」（月曜 3:00 JST）になったか見てほしい（前の「Monday 0:00 UTC」が残っていないか）
-  - 本番の「現女流桜花は？」が通算の回数を「2期」と答えた（正しくは3回）。今回の直しによるものではない見込み。D1 の `mj-ask` の Console で `SELECT asked_at, question, type, args, answer FROM questions WHERE asked_at >= '2026-11-02T10:09:00+09:00' AND question = '現女流桜花は？';` を実行し、`args` に `from`・`to` が付いていたかを見てほしい。付いていれば、女流桜花にも鳳凰戦・WRC と同じ「現タイトルホルダーは最新の決勝の期で引く」一文を足し、2回目の読み方（絞った terms を通算と書かない）を足すのが次の直しの候補
+  - Cloudflare のダッシュボードの `mj-ask` → Settings → Triggers の Cron が「Sunday 18:00 UTC」（月曜 3:00 JST）になったか見てほしい（前の「Monday 0:00 UTC」が残っていないか） → 回答（2026-11-02、平野さん）: 済み。「At 06:00 PM on Sunday」「Next Sun, 08 Nov 2026 18:00:00」（UTC）で、前の行は残っていない（スクリーンショット、10:25 JST）
+  - 本番の「現女流桜花は？」が通算の回数を「2期」と答えた（正しくは3回）。今回の直しによるものではない見込み。D1 の `mj-ask` の Console で `SELECT asked_at, question, type, args, answer FROM questions WHERE asked_at >= '2026-11-02T10:09:00+09:00' AND question = '現女流桜花は？';` を実行し、`args` に `from`・`to` が付いていたかを見てほしい。付いていれば、女流桜花にも鳳凰戦・WRC と同じ「現タイトルホルダーは最新の決勝の期で引く」一文を足し、2回目の読み方（絞った terms を通算と書かない）を足すのが次の直しの候補 → 回答: SQL は実行しない。すぐ直す（CHAT-1102-AIC-12）。原因の裏付けは 2026-11-09 の書き出しの「引数」の列で取る
 - 未確認の項目:
   - 予約実行の初回: 2026-11-09（月）03:00 JST の週次の書き出しが動き、ブックに 11/02〜11/08 の行が入るか
   - 地域で断られた問いが、新しい結果（`region`、ブック「地域で使えない」）で記録に入るか
@@ -188,12 +188,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj a7e90f53）: https://github.com/retroeater/mj-logs/tree/main/guide/a7e90f53
+ガイド文書（この版を写した時点の最新、mj 7c48f517）: https://github.com/retroeater/mj-logs/tree/main/guide/7c48f517
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7e90f53/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7e90f53/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7e90f53/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7e90f53/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7e90f53/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7e90f53/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/7c48f517/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/7c48f517/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/7c48f517/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/7c48f517/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/7c48f517/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/7c48f517/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/c3c97901.md
