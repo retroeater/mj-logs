@@ -139,7 +139,7 @@ AIC 系列（2026-10-11〜11-02、AIC-01〜14）の振り返りと、Fable 5.1 �
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1102-AIC-15.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1102-aic
 - 確認用URL: なし（ドキュメントのみ）
-- マージ: 済（下の追いの push で SHA を書く）
+- マージ: 済（3f6de264b。2cdccbe52..3f6de264b、ドキュメントのみ）
 - issue: #654（起票）・#586（コメントして閉じた）
 - 判断が必要なこと:
   - 最強戦の公開（#627）は閉じているが、ほかの大会への案内の行き先（`GUIDE_PAGES`）に最強戦が入っていない（`簡略化:` のコメントは「公開のときに足す」）。次の直しの指示で足すか（#654 の「ほかの残り」）
