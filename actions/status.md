@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-11-02 10:00 JST
+- 書き出した時刻: 2026-11-02 10:02 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -25,7 +25,7 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-11-02 09:59 | push | work/1102-wkp | in_progress | #654（41370111591） |  |
+| 2026-11-02 09:59 | push | work/1102-wkp | success | #654（41370111591） | 0分25秒 |
 | 2026-11-02 09:56 | push | work/1102-wkp | success | #653（41369863414） | 0分23秒 |
 | 2026-11-02 09:43 | push | work/1102-wkp | success | #652（41368640202） | 0分22秒 |
 | 2026-11-02 09:39 | push | work/1102-mck-snsdup2 | success | #651（41368315915） | 0分27秒 |
@@ -38,11 +38,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-02 10:00 | check_run | cloudflare | skipped | #854（41370194970） | 0分01秒 |
+| 2026-11-02 10:00 | check_run | cloudflare | skipped | #853（41370166527） | 0分01秒 |
 | 2026-11-02 09:57 | check_run | cloudflare | skipped | #852（41369917411） | 0分01秒 |
 | 2026-11-02 09:43 | check_run | cloudflare | skipped | #851（41368696859） | 0分01秒 |
 | 2026-11-02 09:43 | check_run | cloudflare | skipped | #850（41368691361） | 0分00秒 |
-| 2026-11-02 09:41 | check_run | cloudflare | skipped | #849（41368481745） | 0分01秒 |
-| 2026-11-02 09:40 | check_run | cloudflare | skipped | #848（41368411679） | 0分00秒 |
 
 ## check-image-links.yml
 
@@ -196,8 +196,8 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-11-02 09:58 | workflow_dispatch | work/1017-lvp | in_progress | #579（41369997845） |  |
-| 2026-11-02 09:40 | push | cloudflare | in_progress | #578（41368410875） |  |
+| 2026-11-02 09:58 | workflow_dispatch | work/1017-lvp | success | #579（41369997845） | 2分30秒 |
+| 2026-11-02 09:40 | push | cloudflare | success | #578（41368410875） | 19分26秒 |
 | 2026-11-02 09:29 | push | cloudflare | success | #577（41367390119） | 16分42秒 |
 | 2026-11-02 09:25 | workflow_dispatch | work/1017-lvp | success | #576（41367081286） | 31分45秒 |
 | 2026-11-02 08:55 | workflow_dispatch | work/1017-lvp | success | #575（41364429459） | 3分11秒 |
