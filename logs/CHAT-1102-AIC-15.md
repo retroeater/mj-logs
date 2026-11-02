@@ -107,15 +107,56 @@ AIC 系列（2026-10-11〜11-02、AIC-01〜14）の振り返りと、Fable 5.1 �
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 0. 着手前の確認（2026-11-02）
+
+- 指示欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある
+- `git log --all --grep="CHAT-1102-AIC-15"` は0件。`AIC` はこのチャットの系列（AIC-01〜14）
+- 6d624329d は origin/cloudflare の祖先。`origin/work/1102-aic` はマージ済みで、ローカルは cloudflare と同じ（f753b32c）
+- AIC-14 のログの `## 報告` の状態に ` / 続き: CHAT-1102-AIC-15` を足し、「判断が必要なこと」の後ろに回答（入会期の一覧だけに限ったことで確定）を書き足した
+- #586 に他セッションの着手中は無い（最後は AIC-14 の結果）
+- 同じ主題の issue: `/repos/retroeater/mj/issues?state=all` の新しい順100件の題を「質問欄」「コンシェルジュ」「統合」「ask」「Turnstile」「内部の名前」で見た。統合の issue は無かった（#586 open、#614・#619 open、#626・#627 closed、#564 は Actions の統合で別の主題）。#543（Turnstile）は open・「状況: 保留」
+- 未マージの work/ ブランチで同じ文書を変えているもの: `origin/work/1029-lgn-page` が docs/decisions/operations.md の末尾に LGN の節を足している（同じ節ではなく、末尾への追記どうし。止まらない）
+
+### 1. 記録
+
+- docs/notes/chat-routines.md「指示の種類ごとの確かめ」: 冒頭の一文（chat-side-operations.md「書く前に実物で確かめる」の規則に加えて）の直後に、どの種類の指示にも当たる1行として足した。「前提にデータ・コード・過去の指示の経緯を書くとき: mj（clone か `gh api`）か mj-logs で該当の行を開き、その場所（ファイルと行、ログの節）を前提の行に添える。開けなかったものは（要確認）を付ける」。chat-side-operations.md「書く前に実物で確かめる」の「事実は実物で確かめたものだけを断定する」「（要確認）を付けて Claude Code に確かめさせ」と矛盾しない（開いた場所を添えることを足す拡張）。chat-routines.md は 20890 → 21330 バイト（上限を置かない文書）
+- docs/decisions/houou.md: 「2026-11-02（CHAT-1102-AIC-15）」の節（AIC-14 の回答、マージの例外、直しの時機、#586 の閉じ方）
+- docs/decisions/operations.md: 「2026-11-02（CHAT-1102-AIC-15）」の節（振り返りの要点、前回の約束〈WKP-12〉が守れなかったことと書く場所の検討、次の振り返りで確かめる約束 (a)(b)(c)）。houou.md と operations.md の分け方は docs/decisions/README.md の分野の表（houou.md は鳳凰戦・質問欄、operations.md は運用）に合わせた
+- docs/notes/ask-worker.md「5大会の応答ルール」: 冒頭に「統合と残した違いの続きは #654」を足した
+
+### 2. issue
+
+- #654「質問欄を1つにまとめる（5大会のデータ・コンシェルジュの統合）」を起票: 方針（2026-10-19）、表への参照、残した違い3つ、週次の確かめと直しの時機、AIC のマージの例外、未確認の項目2つ、#614・#543・#619 との関係、末尾に `Chat-Ref: CHAT-1102-AIC-15`。ラベルは付けていない
+- 起票の前に見つけたこと（#654 の「ほかの残り」に書いた）: 最強戦の公開（#627）は閉じていて、`saikyo/index.html` に質問欄があり noindex は無い。ところが、ほかの大会への案内の行き先（`workers/ask/src/ask.mjs` の `GUIDE_PAGES`）に最強戦が無く、`簡略化:` のコメントは「公開（#627）のときに足す」のまま。この指示はドキュメントのみなので直していない
+- #586: #654 への移しと閉じる理由をコメントし、閉じた（completed）。ラベルは「分野: UI/UX」だけで「状況:」は無かった
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1102-aic
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1102-AIC-15.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1102-aic
+- 確認用URL: なし（ドキュメントのみ）
+- マージ: 済（下の追いの push で SHA を書く）
+- issue: #654（起票）・#586（コメントして閉じた）
+- 判断が必要なこと:
+  - 最強戦の公開（#627）は閉じているが、ほかの大会への案内の行き先（`GUIDE_PAGES`）に最強戦が入っていない（`簡略化:` のコメントは「公開のときに足す」）。次の直しの指示で足すか（#654 の「ほかの残り」）
+- 未確認の項目:
+  - 2026-11-09（月）03:00 JST の週次の書き出しが動き、ブックに 11/02〜11/08 の行が入るか。あわせて、2026-11-02 10:09 JST ごろの「現女流桜花は？」の「引数」の列に from・to が入っているか（AIC-14 から写した）
+  - 地域で断られた問いが、新しい結果（`region`、ブック「地域で使えない」）で記録に入るか（AIC-14 から写した）
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 2cdccbe5）: https://github.com/retroeater/mj-logs/tree/main/guide/2cdccbe5
+ガイド文書（この版を写した時点の最新、mj 3f6de264）: https://github.com/retroeater/mj-logs/tree/main/guide/3f6de264
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/2cdccbe5/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/2cdccbe5/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/2cdccbe5/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/2cdccbe5/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/2cdccbe5/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/2cdccbe5/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/3f6de264/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/3f6de264/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/3f6de264/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/3f6de264/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/3f6de264/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/3f6de264/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/f753b32c.md

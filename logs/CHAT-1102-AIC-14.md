@@ -145,7 +145,7 @@ AIC-13 の「判断が必要なこと」への回答。
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1102-AIC-15
 - ブランチ: work/1102-aic
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1102-AIC-14.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1102-aic
@@ -153,7 +153,7 @@ AIC-13 の「判断が必要なこと」への回答。
 - マージ: 済（6d624329d。3203fecdf..6d624329d）
 - issue: #586（着手中と結果をコメント）
 - 判断が必要なこと:
-  - 決定の「`tidyAnswer()` の置き換えを「N人が並んでいます」まで広げる」は、入会期の一覧（entry）の答えに限った。全部の型に当てると、回数の段や、tie の付かない下位の同率のランキングの本当の並び（「5回が最多で、2人が並んでいます」「3位には2人が並んでいます」）まで「2人です」に変わり、止まる条件「ほかの型の答えが変わる」に当たるため（自己レビューの指摘）。この限り方でよいか
+  - 決定の「`tidyAnswer()` の置き換えを「N人が並んでいます」まで広げる」は、入会期の一覧（entry）の答えに限った。全部の型に当てると、回数の段や、tie の付かない下位の同率のランキングの本当の並び（「5回が最多で、2人が並んでいます」「3位には2人が並んでいます」）まで「2人です」に変わり、止まる条件「ほかの型の答えが変わる」に当たるため（自己レビューの指摘）。この限り方でよいか → 回答（2026-11-02、平野さん）: 入会期の一覧（entry）の答えだけに限ったことで確定する（CHAT-1102-AIC-15）
 - 未確認の項目:
   - 予約実行の初回: 2026-11-09（月）03:00 JST の週次の書き出しが動き、ブックに 11/02〜11/08 の行が入るか。あわせて、AIC-11 の本番の「現女流桜花は？」（2026-11-02 10:09 JST ごろ）の「引数」の列に from・to が入っているか（AIC-13 から写した）
   - 地域で断られた問いが、新しい結果（`region`、ブック「地域で使えない」）で記録に入るか（AIC-13 から写した）
@@ -162,12 +162,12 @@ AIC-13 の「判断が必要なこと」への回答。
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 6d624329）: https://github.com/retroeater/mj-logs/tree/main/guide/6d624329
+ガイド文書（この版を写した時点の最新、mj 3f6de264）: https://github.com/retroeater/mj-logs/tree/main/guide/3f6de264
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6d624329/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6d624329/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6d624329/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6d624329/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6d624329/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6d624329/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/01d3ecae.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/3f6de264/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/3f6de264/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/3f6de264/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/3f6de264/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/3f6de264/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/3f6de264/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/f753b32c.md
