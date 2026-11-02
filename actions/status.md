@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-11-02 10:04 JST
+- 書き出した時刻: 2026-11-02 10:06 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -25,11 +25,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-02 10:06 | push | work/1102-aic | in_progress | #656（41370701740） |  |
 | 2026-11-02 10:03 | push | work/1017-lvp | success | #655（41370418542） | 0分28秒 |
 | 2026-11-02 09:59 | push | work/1102-wkp | success | #654（41370111591） | 0分25秒 |
 | 2026-11-02 09:56 | push | work/1102-wkp | success | #653（41369863414） | 0分23秒 |
 | 2026-11-02 09:43 | push | work/1102-wkp | success | #652（41368640202） | 0分22秒 |
-| 2026-11-02 09:39 | push | work/1102-mck-snsdup2 | success | #651（41368315915） | 0分27秒 |
 
 ## check-build-failure.yml
 
@@ -196,11 +196,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-11-02 10:03 | workflow_dispatch | work/1017-lvp | in_progress | #580（41370424642） |  |
+| 2026-11-02 10:05 | push | cloudflare | in_progress | #581（41370611798） |  |
+| 2026-11-02 10:03 | workflow_dispatch | work/1017-lvp | success | #580（41370424642） | 1分16秒 |
 | 2026-11-02 09:58 | workflow_dispatch | work/1017-lvp | success | #579（41369997845） | 2分30秒 |
 | 2026-11-02 09:40 | push | cloudflare | success | #578（41368410875） | 19分26秒 |
 | 2026-11-02 09:29 | push | cloudflare | success | #577（41367390119） | 16分42秒 |
-| 2026-11-02 09:25 | workflow_dispatch | work/1017-lvp | success | #576（41367081286） | 31分45秒 |
 
 ## regenerate-saikyo.yml
 
@@ -222,11 +222,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-02 10:05 | push | cloudflare | success | #68（41370611655） | 0分24秒 |
 | 2026-11-01 13:25 | workflow_dispatch | work/1101-prp-pub | success | #67（41273040673） | 0分48秒 |
 | 2026-11-01 10:28 | push | cloudflare | success | #66（41261252910） | 0分22秒 |
 | 2026-11-01 09:15 | push | cloudflare | success | #65（41255918392） | 0分19秒 |
 | 2026-10-31 22:12 | push | cloudflare | success | #64（41204523670） | 0分31秒 |
-| 2026-10-31 21:40 | push | cloudflare | success | #63（41202120289） | 0分24秒 |
 
 ## research-candidates.yml
 
