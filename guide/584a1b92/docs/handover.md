@@ -77,7 +77,7 @@ GitHub Pages からの移行の相談に始まり、Cloudflare への移行の�
 
 **スプレッドシートを直しただけでは、ビルド時生成のページには反映されない。** 即時に反映したいときは
 `regenerate-page.yml` を`workflow_dispatch`で手動実行する（`target_page`にページ名、または`all`）。
-週次（#103）は毎週月曜02:00 JST の `run-weekly.yml` が `fetch-youtube.yml` の最後に`all`を呼ぶ（GitHub 側の予約実行は無い。`docs/notes/github-actions.md`）。最強戦（saikyo/）は毎朝、写真のリンク切れ検知の後にも再生成する（`regenerate-saikyo.yml`、#537）。セッション内でも `python3 scripts/regenerate.py <ページ名>` で生成できる。
+週次（#103）は毎週月曜03:00 JST の `run-weekly.yml` が `fetch-youtube.yml` の最後に`all`を呼ぶ（GitHub 側の予約実行は無い。`docs/notes/github-actions.md`）。最強戦（saikyo/）は毎朝、写真のリンク切れ検知の後にも再生成する（`regenerate-saikyo.yml`、#537）。セッション内でも `python3 scripts/regenerate.py <ページ名>` で生成できる。
 
 ### 自動化
 
