@@ -70,6 +70,54 @@ Chat-Ref: CHAT-1102-MCK-35
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 着手前の確認
+
+- 0: 「指示」欄の末尾が指示文の最後の行と一致することを確かめた
+- 同じ Chat-Ref のコミット: `git log --all --grep="MCK-35"` は0件。`XXX` の重複は対象外。0章ゲートは実装を含まないため対象外。雛形の行の欠けなし。指示文の issue: #304 は Open。他セッションの着手中は無い
+- CLAUDE.md: `origin/cloudflare` で1件変わっていた（108853e18、check-meibo は毎朝の run-daily でテストを回す、の言い換え）。この指示には当たらない
+- 作業ブランチ: work/1102-mck-close はローカル・リモートとも無く、`git checkout -b work/1102-mck-close origin/cloudflare` で作った
+- 開始時の dry-run: 自動の削除の対象 **0件**（11-02 02:00 JST の週次が 203件を消した後）・通知 25件
+
+### 1. #304
+
+- 着手中: https://github.com/retroeater/mj/issues/304#issuecomment-6565837987
+- 「2026-11 実施」への追記（OGP の3つの URL と X・LINE の結果、Web Analytics の復旧〈11-01 13:40 ごろから、直近24時間 page views 434・visits 146〉、「2026-11 の回は完了」）: https://github.com/retroeater/mj/issues/304#issuecomment-6565838779 。本文・状態・ラベルは変えていない
+
+### 2. ログの直し
+
+- 7件（MCK-23・24・25・29・32・33・34）の `## 報告` の直前に「### 報告の直し（CHAT-1102-MCK-35）」の節を足し、直す前の「判断が必要なこと」「未確認の項目」をそのまま移し、平野さんの答え・その後の結果を書いた。`## 報告` の2項目は「なし（答えは上の「報告の直し（CHAT-1102-MCK-35）」）」にした
+- 状態: MCK-23・25・32・33・34 は「完了」、MCK-24 は「完了 / 続き: CHAT-1102-MCK-36」、MCK-29 は「判断待ち / 続き: CHAT-1102-MCK-37」
+- `cleanup_logs.judge()` の結果: 6件は「完了」。MCK-29 は「続き先 CHAT-1102-MCK-37 が読めない」（MCK-37 のログができるまで通知の③に出る）
+- 「過去の作業ログを直す」（docs/notes/branch-operations.md）の決まりは、ログの記述の誤りを直すときのもの。今回は判断待ちへの答えを書き足して状態を進めるもので、元の記述は消さずに節へ移したので当たらないと判断した
+- **CHAT-1021-BIL-02 を削除した**（前提のとおり手作業は済んでいる）
+- **CHAT-1013-ABM-18 を削除した**: 11-02 の週次（run-weekly 41359561803、success）の「unregistered / check」のジョブのログが「出場者440名を確認し、0名が「プロ」「連盟プロ以外」から引けませんでした」。常設の「最強戦の出場者の登録漏れ」（#609）は 10-19 から Closed。ABM-18 が挙げた未登録の名前は解消している
+- コミット: 3517c22e2
+
+### 3. dry-run の比較
+
+- 開始時: 自動の削除の対象 0件・通知 25件 → 直した後: 自動の削除の対象 1件・通知 23件
+- 増えた1件は CHAT-1026-MRP-01（完了。最終コミット 2026-10-26 で、7日を過ぎたため。今回の直しとは関係が無い）。scripts/・.github/ が Chat-Ref を書いていない。リンクする issue は #563 だけで Closed。止まる条件に当たらない
+- 今回「完了」にした6件は今日コミットしたので、7日後の週次（11-09）で消える見込み。そのとき続き元の MCK-27（→31→34）・MCK-28（→32）・MCK-30（→33）も消える。どれも scripts/・.github/ が参照していない
+
+### 4. 決定の記録
+
+- docs/decisions/operations.md に「2026-11-02（CHAT-1102-MCK-35）」を足した
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1102-mck-close
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1102-MCK-35.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1102-mck-close
+- 確認用URL: なし
+- マージ: 未（このあと cloudflare へ入れる）
+- issue: #304（着手中・最後の値の追記）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
@@ -81,4 +129,4 @@ Chat-Ref: CHAT-1102-MCK-35
 - docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/29bf0a43/docs/notes/chat-side-operations.md
 - docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/29bf0a43/docs/notes/cloudflare.md
 - docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/29bf0a43/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/8abd90d5.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/29bf0a43.md

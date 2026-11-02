@@ -144,15 +144,10 @@ URL は画面の場所の目安（Cloudflare は `?to=/:account/...` の形、Se
 
 - docs/decisions/operations.md に「2026-10-31（CHAT-1101-MCK-23）」を足した（指示文の「決定」節の3つ）
 
-## 報告
+### 報告の直し（CHAT-1102-MCK-35）
 
-- 状態: 判断待ち
-- ブランチ: work/1101-mck-304
-- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1101-MCK-23.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1101-mck-304
-- 確認用URL: なし
-- マージ: 済（6cb7f27d6。cloudflare へ fast-forward）
-- issue: #304（着手中のコメントのみ。本文・状態・ラベルは変えていない）。参照: #230・#357・#554・#555・#568
+直す前の「判断が必要なこと」「未確認の項目」:
+
 - 判断が必要なこと:
   - 10月と比べて大きく変わった値: Search Console（API、28日分）の表示回数が 2,582 → 11,653（約4.5倍）、クリックが 109 → 375。伸びの中心は `/houou/ranking/total/`・選手個別ページ・`/title/`・`/saikyo/2026.html`
   - (13) の基準: Code の上限の目安（コミットから本番ビルドの完了まで、中央値 59秒・最長 109秒）は 10-21 の 3〜4 分より短い。Deployments の画面の所要時間と合わせて、どちらを基準にするか
@@ -163,17 +158,31 @@ URL は画面の場所の目安（Cloudflare は `?to=/:account/...` の形、Se
 - 未確認の項目:
   - 「3. 平野さん（またはチャット側が平野さんの Chrome で）見る手順」の 1〜16（画面の項目すべて）
   - `fetch-redirect-counts.yml` の保険の予約実行（10-31 21:30 UTC の枠）が走り、2026-10.csv と #568 のコメントができるか（23:17 UTC の時点で未実行）
+
+答え・結果（平野さんの答えとその後の結果、2026-11-02）: 画面の項目はチャット側が読み CHAT-1101-MCK-25 で #304 に記録。429 は #124 から（MCK-25）。#357 は MCK-27・31・34、(5) は MCK-28・32 で片付けた。転送の件数は保険の予約実行で 2026-10.csv ができた（MCK-25）
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1101-mck-304
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1101-MCK-23.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1101-mck-304
+- 確認用URL: なし
+- マージ: 済（6cb7f27d6。cloudflare へ fast-forward）
+- issue: #304（着手中のコメントのみ。本文・状態・ラベルは変えていない）。参照: #230・#357・#554・#555・#568
+- 判断が必要なこと: なし（答えは上の「報告の直し（CHAT-1102-MCK-35）」）
+- 未確認の項目: なし（答えは上の「報告の直し（CHAT-1102-MCK-35）」）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 8083118c）: https://github.com/retroeater/mj-logs/tree/main/guide/8083118c
+ガイド文書（この版を写した時点の最新、mj 29bf0a43）: https://github.com/retroeater/mj-logs/tree/main/guide/29bf0a43
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/8083118c/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/8083118c/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/8083118c/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8083118c/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8083118c/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8083118c/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/7aaff304.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/29bf0a43/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/29bf0a43/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/29bf0a43/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/29bf0a43/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/29bf0a43/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/29bf0a43/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/29bf0a43.md

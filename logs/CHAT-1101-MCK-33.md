@@ -108,30 +108,39 @@ MCK-30 は、未マージの LGN のブランチ（origin/work/1028-lgn・origin
 - 実際のブラウザでビーコンの送信が通るか・Web Analytics に計測が戻るかは、このセッションから確かめられない（cloudflareinsights.com へ届かない）。チャット側が平野さんの Chrome で確かめる
 - #304 への追記: https://github.com/retroeater/mj/issues/304#issuecomment-6553296125 （#9 は閉じているのでコメントしていない）
 
+### 報告の直し（CHAT-1102-MCK-35）
+
+直す前の「判断が必要なこと」「未確認の項目」:
+
+- 判断が必要なこと:
+  - LGN のチャットへの伝言（決定のとおり MCK のチャットから）: LGN の2本のブランチ（work/1028-lgn・work/1029-lgn-page）が cloudflare を取り込むと `_headers` の CSP の行で衝突する。解き方は「CSP の行の中身は cloudflare 側（`connect-src 'self' https://cloudflareinsights.com`）、末尾の改行と `/log/*` の規則は LGN 側」
+- 未確認の項目:
+  - 実際のブラウザでビーコンの送信（`POST https://cloudflareinsights.com/cdn-cgi/rum`）が CSP の違反なしに通り、Web Analytics の日別のグラフに 11-01 から計測が戻ること（チャット側が平野さんの Chrome で確かめる）
+
+答え・結果（平野さんの答えとその後の結果、2026-11-02）: LGN への伝言は済み（平野さん、11-01）。ブラウザでのビーコンの送信は 204、Web Analytics の計測は戻った（11-01〜02、チャット側）
+
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 完了
 - ブランチ: work/1101-mck-csp
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1101-MCK-33.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1101-mck-csp
 - 確認用URL: なし（本番の応答ヘッダで確かめた。プレビューは使っていない）
 - マージ: 済（ffb0f3acc。cloudflare へ fast-forward）
 - issue: #304（追記）
-- 判断が必要なこと:
-  - LGN のチャットへの伝言（決定のとおり MCK のチャットから）: LGN の2本のブランチ（work/1028-lgn・work/1029-lgn-page）が cloudflare を取り込むと `_headers` の CSP の行で衝突する。解き方は「CSP の行の中身は cloudflare 側（`connect-src 'self' https://cloudflareinsights.com`）、末尾の改行と `/log/*` の規則は LGN 側」
-- 未確認の項目:
-  - 実際のブラウザでビーコンの送信（`POST https://cloudflareinsights.com/cdn-cgi/rum`）が CSP の違反なしに通り、Web Analytics の日別のグラフに 11-01 から計測が戻ること（チャット側が平野さんの Chrome で確かめる）
+- 判断が必要なこと: なし（答えは上の「報告の直し（CHAT-1102-MCK-35）」）
+- 未確認の項目: なし（答えは上の「報告の直し（CHAT-1102-MCK-35）」）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj ffb0f3ac）: https://github.com/retroeater/mj-logs/tree/main/guide/ffb0f3ac
+ガイド文書（この版を写した時点の最新、mj 29bf0a43）: https://github.com/retroeater/mj-logs/tree/main/guide/29bf0a43
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ffb0f3ac/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ffb0f3ac/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ffb0f3ac/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ffb0f3ac/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ffb0f3ac/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/ffb0f3ac/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/bdc234c5.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/29bf0a43/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/29bf0a43/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/29bf0a43/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/29bf0a43/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/29bf0a43/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/29bf0a43/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/29bf0a43.md

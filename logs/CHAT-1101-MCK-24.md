@@ -100,15 +100,10 @@ Chat-Ref: CHAT-1101-MCK-24
 
 - docs/decisions/operations.md に「2026-11-01（CHAT-1101-MCK-24）」を足した（調査した・判断待ち）
 
-## 報告
+### 報告の直し（CHAT-1102-MCK-35）
 
-- 状態: 判断待ち
-- ブランチ: work/1101-mck-rum
-- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1101-MCK-24.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1101-mck-rum
-- 確認用URL: なし
-- マージ: 済（b0659a34c。cloudflare へ fast-forward。docs のみ）
-- issue: なし（関係: #9〈CSP〉・#304）
+直す前の「判断が必要なこと」「未確認の項目」:
+
 - 判断が必要なこと:
   - 直し方: 案（a）`_headers` の CSP を `connect-src 'self' https://cloudflareinsights.com` にする（推奨、1行）か、案（b）自動挿入へ移すか。直す指示を出すか（配信設定の変更なので承認が要る）
   - 前に、平野さんの Chrome のコンソールで CSP の違反（`Refused to connect … connect-src`）が出ているかを確かめるか（前提の「503」と食い違うため）
@@ -117,17 +112,31 @@ Chat-Ref: CHAT-1101-MCK-24
 - 未確認の項目:
   - ブラウザでの実際のエラー（CSP の違反か 503 か）と、グラフの落ちた日（上の「平野さんが見る場所」1・2）
   - Cloudflare Status の 10-19〜11-01 の障害の有無（セッションから読めない）
+
+答え・結果（平野さんの答えとその後の結果、2026-11-02）: 直し方は案（a）で CHAT-1101-MCK-33 が実施。ブラウザでは CSP の違反を確かめた（11-01、チャット側）。欠けは #304 に記録（MCK-33）。CSP の確かめ方は規則にする（CHAT-1102-MCK-36）
+
+## 報告
+
+- 状態: 完了 / 続き: CHAT-1102-MCK-36
+- ブランチ: work/1101-mck-rum
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1101-MCK-24.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1101-mck-rum
+- 確認用URL: なし
+- マージ: 済（b0659a34c。cloudflare へ fast-forward。docs のみ）
+- issue: なし（関係: #9〈CSP〉・#304）
+- 判断が必要なこと: なし（答えは上の「報告の直し（CHAT-1102-MCK-35）」）
+- 未確認の項目: なし（答えは上の「報告の直し（CHAT-1102-MCK-35）」）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 27bafd9b）: https://github.com/retroeater/mj-logs/tree/main/guide/27bafd9b
+ガイド文書（この版を写した時点の最新、mj 29bf0a43）: https://github.com/retroeater/mj-logs/tree/main/guide/29bf0a43
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/27bafd9b/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/27bafd9b/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/27bafd9b/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/27bafd9b/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/27bafd9b/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/27bafd9b/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/7aaff304.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/29bf0a43/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/29bf0a43/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/29bf0a43/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/29bf0a43/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/29bf0a43/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/29bf0a43/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/29bf0a43.md

@@ -95,32 +95,41 @@
 - マージの条件（cloudflare との差分が cloudflare.md の Rate limiting の節・ログ・operations.md の追記だけ）を `git diff origin/cloudflare...HEAD --stat` で確かめてからマージする
 - マージ前の再 fetch で cloudflare が進んでいた（CHAT-1101-SEO-15 ほか）。`git merge origin/cloudflare` で docs/decisions/operations.md の末尾の追記どうしが衝突し、両方を残して解いた（SEO-15 の節の後に MCK-25 の節。各節に「作業中の回答: なし」）
 
-## 報告
+### 報告の直し（CHAT-1102-MCK-35）
 
-- 状態: 判断待ち
-- ブランチ: work/1101-mck-record
-- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1101-MCK-25.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1101-mck-record
-- 確認用URL: なし
-- マージ: 済（463697ac1。cloudflare へ fast-forward。差分は条件どおり cloudflare.md の Rate limiting の節の2行・ログ・operations.md の追記だけ）
-- issue: #304（「2026-11 実施」のコメント。本文・状態・ラベルは変えていない）
+直す前の「判断が必要なこと」「未確認の項目」:
+
 - 判断が必要なこと:
   - OGP（X・LINE）の確認の結果（2026-11-02 の平野さんの手作業）を #304 に足すか
   - 10-31 の KDDI の IPv6 への Managed Challenge 約1.18k回が平野さんご本人か（確認中）。ご本人なら #124 のルールの閾値・対象の見直しが要るか
   - Web Analytics の停止の直し方（CHAT-1101-MCK-24 の判断待ちのまま）
 - 未確認の項目:
   - Managed Challenge が HEAD の要求に 429 で返る対応（Cloudflare の仕様として確かめていない）
+
+答え・結果（平野さんの答えとその後の結果、2026-11-02）: OGP は 11-02 に平野さんが確かめ #304 に記録（CHAT-1102-MCK-35）。KDDI の回線は PRO のチャットの一括取得（CHAT-1101-MCK-26 で記録）。Web Analytics は CHAT-1101-MCK-33 で直した。Managed Challenge が HEAD に 429 で返る対応は追跡しない
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1101-mck-record
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1101-MCK-25.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1101-mck-record
+- 確認用URL: なし
+- マージ: 済（463697ac1。cloudflare へ fast-forward。差分は条件どおり cloudflare.md の Rate limiting の節の2行・ログ・operations.md の追記だけ）
+- issue: #304（「2026-11 実施」のコメント。本文・状態・ラベルは変えていない）
+- 判断が必要なこと: なし（答えは上の「報告の直し（CHAT-1102-MCK-35）」）
+- 未確認の項目: なし（答えは上の「報告の直し（CHAT-1102-MCK-35）」）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 0f34c9ec）: https://github.com/retroeater/mj-logs/tree/main/guide/0f34c9ec
+ガイド文書（この版を写した時点の最新、mj 29bf0a43）: https://github.com/retroeater/mj-logs/tree/main/guide/29bf0a43
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/0f34c9ec/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/0f34c9ec/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/0f34c9ec/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/0f34c9ec/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/0f34c9ec/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/0f34c9ec/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/27bafd9b.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/29bf0a43/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/29bf0a43/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/29bf0a43/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/29bf0a43/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/29bf0a43/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/29bf0a43/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/29bf0a43.md
