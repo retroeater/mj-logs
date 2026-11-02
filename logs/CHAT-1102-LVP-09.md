@@ -58,6 +58,44 @@ CHAT-1102-LVP-08 が止まった2つの理由を片付け、live/ の作り直�
 - 0. 「指示」欄の末尾は指示文の最後の行と一致。origin/work/1017-lvp に e1181557b より後のコミットは無い
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
 
+### 手順1: 取り込みと行4244
+
+- #362 のコメント（47件）に他セッションの着手中は無し。着手中のコメントを書いた。LVP-08 の報告の状態に「/ 続き: CHAT-1102-LVP-09」を足した
+- 未マージの work/ ブランチ: `scripts/generate_pro_pages.py` を変えているのは work/1101-prp-pub だけ。変えているのは冒頭の説明・定数・`Site`・`prepare()` の Site の組み立ての行・`render_player()`・`render_top()`・`remove_stale()`・`run_check()` で、止まる条件の `load_lives()`・`parse_lives()`・`live_cards()`・`load_roles()` は変えていない（`prepare()` はこちらも変えたので、PRP を後で取り込むときに同じ関数の別の行で衝突しうる）。navbar.js・style.css は work/1028-lgn・work/1029-lgn-page・work/1101-prp-pub が別の箇所を変えている（LVP-08 と同じ）
+- `git merge origin/cloudflare`（715d30115）: 衝突なし
+- 行4244（regenerate-page.yml で live_pages を生成した run 41369997845 の結果から読んだ）: ステージ「決勝」（個別ページの動画のカードの題）、まとめ単位「ベスト8、決勝」（`live/shouryu/2/b8.html`・`live/shouryu/2/f.html` の両方に出る）。公開しなかった行 0件、URL の重なりの警告なし（公開する動画 2,986本、個別 767・期 154・タイトル戦 22）。行4244 で新しく作られたページは `live/shouryu/2/b8.html`（第2期昇龍戦 ベスト8）と `live/shouryu/2/f.html`（第2期昇龍戦 決勝）。カードの説明は「ベスト8・決勝を続けて配信」
+
+### 手順2: pro/ の直し
+
+- `generate_pro_pages.py`: `load_lives()`（live/index.html を読む）・`parse_lives()`・カードの正規表現・`LIVE_TOP`・`unmatched_cards()` を消し、`page_cards()`（Page から Card を作る。並びは `page_date_order()`、href は `"/" + page.path`、題は `full_label`、日付は `date_label(page.date)`、サムネイルは `thumb_url(first_video, mqdefault)`、key は `live_key(search_text(page))`）を足した。`load_roles()` を `load_lives()` にまとめ、`generate_live_pages.load()` は1回だけ呼ぶ。役と行が同じ Page から出るので、役の取れない行の警告（`unmatched_cards`）は要らなくなった（db9292e1c）
+- テスト: `test_pro_pages.py` のカードの読み取りのテストを Page から作るテストに替え、`unmatched_cards` のテストを消した。`regenerate.py` の RUN_LAST のコメントと docs/notes/pro-pages.md の記述を直した
+- 確かめ（regenerate-page.yml、dry_run・target all・compare_ref `origin/cloudflare`、run 41367081286、比べの相手 cc8127988 以降の cloudflare）: 中身の違うファイルは 13件で、live/ 10・houou/ 3。**pro/ は0件**
+  - この比べは「どちらかの生成で変わったファイル」だけを比べる。作業ブランチの pro/ は cloudflare の生成物のままなので、直した版で生成して pro/ が変わらなかった＝直した版の出力が cloudflare の今の pro/（live/ が旧の形のときの生成物）と同じ、ということになる
+  - その後、作業ブランチで live_pages・pro_pages を生成し直した（run 41369997845、29a6d77aa）。`git diff origin/cloudflare HEAD -- pro` は差0（放送対局の欄を含め、選手・実況・解説の行・件数・`/live/?q=` のリンクとも同じ）
+  - houou/ の3件（`houou/results/` の日本語名の JSON が「片方にだけある」）: 両方のコミットにファイルはある。ワークフローの比べの手順が `git status --porcelain` のパスを読むとき、日本語のパスが引用符付きの8進表記で出て `[ -e "$f" ]` が両側で偽になるための見かけの差とみる（houou の生成は今回の変更と無関係）。LVP-08 の比べの houou/ の4件も、同じ見かけの差と、比べの相手側の生成の飛ばし（終了コード 3）によるとみる
+  - live/ の10件は、取り込んだ後の作業ブランチの生成物と cloudflare の生成物の時点の違い（3大会・行4244）
+- `python3 -m unittest discover -s scripts/tests`: 1,741件 OK（29a6d77aa の後）。workers は変えていない
+
+### 自己レビュー（新しい文脈のサブエージェント、1回）
+
+| 指摘 | 扱い |
+|---|---|
+| 個別ページのパンくずの CSS が最強戦の卓のページの規則と同じ値で重複（style.css） | 直した: 既存の規則のセレクタを `:is(.mj-saikyo-table-page, .mj-live-detail)` にした（1c92fe2a4） |
+| 白地の live/ のパンくずのフォーカス枠が `body.mj-saikyo-n-page` だけ | 直した: `:is(.mj-saikyo-n-page, .mj-live-n-page)` に広げた（1c92fe2a4） |
+| `build_period` の未使用の `latest_page`、トップの hero_ids の重複の追加 | 直した（1c92fe2a4） |
+| docs/notes/pro-pages.md の検査の行が「カードの読み取り」のまま | 直した（1c92fe2a4） |
+| `title_items()` の今のページの印に検査が無い | 直した: テストを足した（1c92fe2a4） |
+| `load_videos` の「表示が空欄なら未確認」の分岐そのものの検査が無い | 見送り: シートの読み込みを差し替えるテストが要り、警告の文の検査（`WarningsTest`）で足りるとした |
+| `assets/live.js` の `bindSheet()` が `assets/saikyo.js` の `bindYearSheet()` とほぼ同じ | 意図どおり: live/ は saikyo.js を読まないため。コメントで同じ動きと書いた |
+| 個別ページの戻るボタン・ヒーローの説明文が消えた | 意図どおり: LVP-06 の仮置き10（パンくずで戻る、最強戦の卓のページと同じ）として 2026-11-02 に採られた |
+| 共有ボタンの部品（`lib/share.py`・`assets/share.js`）がどこからも使われなくなった | 見送り: 扱いは #530 で決める（LVP-06 の決定） |
+| pro/ の新しい行の値が旧カードと同じか | 指摘なし（レビューは cloudflare の live/index.html を旧の正規表現で読んだ 765件と突き合わせ、値・並びとも一致と報告） |
+
+### 手順3: プレビュー
+
+- 29a6d77aa の Workers Builds: success。別名 URL で `/pro/hiro.shibata.17/`（放送対局の多い人。選手の面と実況・解説の面、「すべて（125件）」）、`/pro/yu.kusuhara.30/`（実況・解説だけの人。「放送対局（実況・解説）」の面と「すべて（63件）」）、`/live/shouryu/2.html`（ステージの見出し「ベスト8」「決勝」、ベスト8 は2対局なので行の題は「ベスト8」「ベスト8 A卓」、決勝は1対局なので行の題なし）が 200 を返すことを、UA `mj-internal` の curl で確かめた（URL は最終報告にだけ書く）
+- docs/decisions/live.md と docs/decisions/pros.md に決定を足した
+
 ## 報告
 
 - 状態: 作業中
@@ -74,12 +112,12 @@ CHAT-1102-LVP-08 が止まった2つの理由を片付け、live/ の作り直�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 1819ca0c）: https://github.com/retroeater/mj-logs/tree/main/guide/1819ca0c
+ガイド文書（この版を写した時点の最新、mj c9e94ae8）: https://github.com/retroeater/mj-logs/tree/main/guide/c9e94ae8
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/1819ca0c/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/1819ca0c/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/1819ca0c/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/1819ca0c/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/1819ca0c/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/1819ca0c/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/29bf0a43.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c9e94ae8/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c9e94ae8/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c9e94ae8/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c9e94ae8/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c9e94ae8/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c9e94ae8/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/c3c97901.md
