@@ -103,15 +103,54 @@
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 0. 着手前の確認（2026-11-02）
+
+- 指示欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある
+- `git log --all --grep="CHAT-1102-AIC-11"` は0件。`AIC` はこのチャットの系列（AIC-01〜10）
+- f9a809f1d は origin/cloudflare の祖先。`origin/work/1102-aic` は無かったので `git checkout -b work/1102-aic origin/cloudflare`（c3c97901）
+- AIC-10 のログ（判断待ち）は cloudflare には無く（未マージの `origin/work/1026-aic` の上だけ）、mj-logs にはあった（raw が 200）。AIC-10 はログと決定だけの変更（4ファイル）なので、`git merge origin/work/1026-aic` で取り込み、`## 報告` の状態に ` / 続き: CHAT-1102-AIC-11` を足し、「判断が必要なこと」に回答（案2・中身は 11-02 の書き出しで分かった）、「未確認の項目」に「済」を書き足した（このブランチのマージで cloudflare に入る）
+- #586 に他セッションの着手中は無い（最後は AIC-09 の解除）。着手中のコメントを書いた
+- 未マージの work/ ブランチ: `origin/work/1101-prp-pub`（PRP 系列）が `assets/houou_ask.js` のカードの行き先（`playerHref()`・`slugMap()`・`loadRoster()`・`playerCard()`）を変えている。今回は `MESSAGES` と `ask()` の状態の分岐だけで、同じ関数・同じ行ではないので止まらない。`workers/ask/` を変えている未マージのブランチは無い
+
+### 1. 再現（今の `workers/ask/` と data の JSON）
+
+| 項目 | 再現 | 中身 |
+|---|---|---|
+| (1) 地域の 403 | 再現した | `callClaude()` は `!res.ok` で `Claude plan: HTTP 403 forbidden Request not allowed` を投げ、`catch` で「いまは答えられません。」（`unavailable`）。記録は `unanswered` |
+| (1) 公式の文書 | 合わない所は無い | errors の文書の 403 は `permission_error`（キーの権限）だけで、`forbidden` は書かれていない（AIC-10 で確認、2026-10-26）。`forbidden` がキーの権限など地域の制限以外で返るという記述も無い。見たのは香港の2回だけ |
+| (2) データに無い期 | 再現した | 女流桜花の `player` `{name: 和久津晶, term: 22}` は items が0件で `found: false`（error 無し）→「答えられません。」。女流桜花のデータは第20期まで（`asof.league` は「第20期終了時点」、成績の行の最大の期も20） |
+| (2) 大会ごとの最新 | — | 鳳凰戦 43（第43期前期終了時点）、女流桜花 20、WRC リーグ 19、WRC-R 7、最強戦 2026（年度、「2026年10月25日の対局まで」） |
+| (3) 言語の混入 | コードからは再現できない | 2回目の指示に「日本語だけで書く」はある（AIC-08）。答えを確かめる処理は無かった |
+| (3) 「並んでいます」 | 再現した（指示の不足） | `others` の説明に「同率ではない」が無く、答えを直す処理も無い |
+| (4) cron | 確かめた | `wrangler.jsonc` は `0 0 * * 2`。`weekly.mjs` の区切りは `weekStart(now)`（今週の月曜 0 時 JST）で、3:00 に動いても同じ月曜 0 時になる |
+
+### 2. 直したこと（コミット 2b6a90742・3adddd172）
+
+| 項目 | 直し方 | 大会ごとの違い |
+|---|---|---|
+| (1) 地域の 403 | HTTP 403 で `error.type` が `forbidden` なら地域の制限（`isRegionRefusal()`。`簡略化:` のコメントに、1つの国の2回で決めたこと・ほかの理由で返ると分かったら message や国で絞ることを書いた）。応答は 503 の `{"status":"region"}`、記録の結果は `region`（ブック「地域で使えない」）、記録の答えは今までどおり「失敗: …（拠点 …）」。画面の JS に `MESSAGES.region`「お使いの地域からは、この質問欄を使えません（AI の提供元が対応していない地域のため）。」と `status === 'region'` の分岐を足した（ほかの状態の文は変えていない）。1日の回数には数える（数えるのは Claude を呼ぶ前で、断られるかは呼ぶまで分からないため。コメントに書いた） | 5大会共通（`callClaude()`・`ask()`・共有の JS） |
+| (2) データに無い期 | `runQuery()` の前で、引数 `term`・`from` が `latestTerm()`（成績の行・決勝・放送対局の最大の期・年度）より後なら `beyond_data`。`ask()` は、選手の成績・優勝者（`champions`・`player`）で名前があれば期を外して引き直し、記録のある期で答え、冒頭に「女流桜花のデータは第20期終了時点までで、第22期はまだありません。記録のある期で答えます」。ほかの型・引き直しても無いときは、同じ文だけを「答えられません」の代わりに返す | 時点の書き方は各大会の `asof.league`。最強戦は年度（「2027年度」）で、時点の末尾の「まで」は重ねない |
+| (3) 言語 | 案 (c): 2回目の答えにハングル（字母・互換字母・音節）か英語の `league` があれば1回だけ作り直し、残った「리그」「league」は「リーグ」に置き換える（`tidyAnswer()`）。A1 などのリーグ名・HIRO柴田などの英字の名前は崩さない（テスト） | 5大会共通 |
+| (3) 並んでいます | 2回目の共通の指示の `others` の行に「同率ではないので「並んでいます」と書かない」を足し、`tidyAnswer()` で同率（`tie`）が無い答えの「ほか N人が並んでいます」を「ほか N人がいます」に直す | 5大会共通（同率のときの「並んでいます」は残す） |
+| (4) cron | `crons` を `["0 18 * * 1"]`（日曜 18:00 UTC = 月曜 3:00 JST）。区切りの数え方は変えていない | — |
+
+- 落ちると分かって直したテスト: `query.test.mjs`「決勝の結果」の第999期（`not_found` → `beyond_data`。第43期の決勝は今までどおり `not_found`）、`saikyo.test.mjs` の2030年度の決勝（同じ。2026年度は今までどおり「決勝のデータがありません」）。どちらも前も今も「答えられない」で、答えの文がデータの時点の文に変わる
+- 新しいテスト: `workers/ask/test/week3.test.mjs`（地域の 403 の文・記録・回数／ほかの 403・429・529・待ちの超過は unavailable／画面の文と分岐／22期の和久津晶・21期の和久津／5大会の最新の期とデータに無い期の文／ハングル・league の作り直しと置き換え／「並んでいます」／cron）と `weekly.test.mjs` の月曜 3:00 の回（日曜 23:59 の行が入り、月曜 0:30・2:59 の行は次の回に入り、二度足さない）
+- 直す前のコード（origin/cloudflare の `workers/ask/` と `assets/houou_ask.js`）に新しいテストを当てると10件落ちた（新しい関数は無い扱いにして当てた）。月曜 3:00 の回の区切りのテストは前のコードでも通る（区切りの数え方を変えていないことの確かめ）
+- `node --test 'workers/ask/test/*.test.mjs'` 118件通過、`python3 -m unittest discover -s scripts/tests` 通過
+- 文書: `docs/notes/ask-worker.md`（Worker の流れの 7〜10、「HTTP 403 の調べ」の結果、週次の cron の時刻と区切り、ブックの結果のラベル）、`docs/notes/github-actions.md`（mj-ask の書き出しを月曜 03:00 にそろえた）。`git grep` で「`0 0 * * 2`」「月曜 9:00」を洗い出し、docs/decisions・docs/logs・handover-archive を除いて直した（ask-worker.md の「最初の本番の実行は 2026-10-19（月）9:00 JST の見込み」など、過去の事実の行は残した）
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj c3c97901）: https://github.com/retroeater/mj-logs/tree/main/guide/c3c97901
+ガイド文書（この版を写した時点の最新、mj b948baf9）: https://github.com/retroeater/mj-logs/tree/main/guide/b948baf9
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c3c97901/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c3c97901/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c3c97901/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c3c97901/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c3c97901/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c3c97901/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b948baf9/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b948baf9/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b948baf9/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b948baf9/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b948baf9/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b948baf9/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/c3c97901.md

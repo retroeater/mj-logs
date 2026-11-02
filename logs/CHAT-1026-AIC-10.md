@@ -114,12 +114,12 @@ AIC-08 で調べた質問欄の HTTP 403 の原因は、Anthropic の API の対
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj c9e94ae8）: https://github.com/retroeater/mj-logs/tree/main/guide/c9e94ae8
+ガイド文書（この版を写した時点の最新、mj b948baf9）: https://github.com/retroeater/mj-logs/tree/main/guide/b948baf9
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c9e94ae8/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c9e94ae8/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c9e94ae8/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c9e94ae8/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c9e94ae8/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c9e94ae8/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b948baf9/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b948baf9/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b948baf9/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b948baf9/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b948baf9/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b948baf9/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/c3c97901.md

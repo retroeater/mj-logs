@@ -96,28 +96,35 @@ CHAT-1102-LVP-08 が止まった2つの理由を片付け、live/ の作り直�
 - 29a6d77aa の Workers Builds: success。別名 URL で `/pro/hiro.shibata.17/`（放送対局の多い人。選手の面と実況・解説の面、「すべて（125件）」）、`/pro/yu.kusuhara.30/`（実況・解説だけの人。「放送対局（実況・解説）」の面と「すべて（63件）」）、`/live/shouryu/2.html`（ステージの見出し「ベスト8」「決勝」、ベスト8 は2対局なので行の題は「ベスト8」「ベスト8 A卓」、決勝は1対局なので行の題なし）が 200 を返すことを、UA `mj-internal` の curl で確かめた（URL は最終報告にだけ書く）
 - docs/decisions/live.md と docs/decisions/pros.md に決定を足した
 
+### マージ
+
+- push の直前に origin/cloudflare が進んでいた（毎日の再生成 38b2833f6〈旧の形の live/・pro/〉と docs）。`git merge origin/cloudflare` の衝突は live/ の10ファイル（生成物）だけで、cloudflare 側の版でいったん解き（1823a308a）、作業ブランチで regenerate-page.yml（live_pages・pro_pages）を動かして、取り込んだ後のスクリプトで生成し直した（run 41370424642、0b7ce13fd）。live/ の全ページが新しい形（`mj-live-n-page`・`mj-live-detail`）、`git diff origin/cloudflare HEAD -- pro` は差0、テスト 1,747件 OK
+- push 直前に再 fetch して `git merge-base --is-ancestor origin/cloudflare HEAD` が真。`git push origin work/1017-lvp:cloudflare` で c9e94ae81..0b7ce13fd
+- マージ後: 0b7ce13fd の check-run は「Workers Builds: mj」success、「Workers Builds: mj-scheduler」success、「Workers Builds: mj-ask」は 01:06 UTC の時点で in_progress（今回 workers は変えていない）
+- 本番の HTML（UA `mj-internal` の curl、01:07 UTC 頃）: `https://ryoei.pro/live/` が新しい版（`<body class="mj-live-n-page"`、`<title>放送対局 | 番組 | ryoei.pro`）を返し、`<meta name="robots" content="noindex">` が残っている。サイトマップ（`/sitemap.xml`）と navbar.js に `/live/` へのリンクは0件。`/pro/hiro.shibata.17/` は「放送対局（選手）」と「すべて（125件）」を返す。ブラウザでの見え方は確かめていない
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1017-lvp
-- ログ: https://github.com/retroeater/mj/blob/work/1017-lvp/docs/logs/CHAT-1102-LVP-09.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1102-LVP-09.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1017-lvp
-- 確認用URL: なし
-- マージ: 未
-- issue: #362
-- 判断が必要なこと: なし
+- 確認用URL: プレビューあり（URL は最終報告）。`/live/shouryu/2.html` の「決勝」の見出しの下の行に題が出ない（この版の印）
+- マージ: 済（0b7ce13fd）
+- issue: #362・#219
+- 判断が必要なこと: なし（指示の完了条件の2点: 行4244 で作られたページは `live/shouryu/2/b8.html`・`live/shouryu/2/f.html`、pro/ の比べの差は0件。詳細は `## 経過`）
 - 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj c9e94ae8）: https://github.com/retroeater/mj-logs/tree/main/guide/c9e94ae8
+ガイド文書（この版を写した時点の最新、mj b948baf9）: https://github.com/retroeater/mj-logs/tree/main/guide/b948baf9
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c9e94ae8/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c9e94ae8/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c9e94ae8/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c9e94ae8/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c9e94ae8/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c9e94ae8/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b948baf9/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b948baf9/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b948baf9/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b948baf9/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b948baf9/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b948baf9/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/c3c97901.md
