@@ -88,7 +88,7 @@ GitHub Actions (`.github/workflows/regenerate-page.yml`) が、`scripts/generate
 
 ## run-weekly.yml・run-monthly.yml
 
-週次・月次の本を1本ずつにまとめたワークフロー（#564 の段④の前半、CHAT-1021-WKP-02）。run-daily と同じ形で、Worker の起動の表に1行ずつある（`run-monthly.yml` 1日 02:00・`run-weekly.yml` 月曜 03:00。2026-11-02 までは月曜 02:00・1日 03:00。run-daily の 04:00 より前で、06:00 の朝の確かめの対象。質問欄〈mj-ask〉の週次の書き出しも月曜 03:00 にそろえる予定で、AIC の系列で変える。今は `workers/ask/wrangler.jsonc` の月曜 09:00、CHAT-1102-WKP-09）。
+週次・月次の本を1本ずつにまとめたワークフロー（#564 の段④の前半、CHAT-1021-WKP-02）。run-daily と同じ形で、Worker の起動の表に1行ずつある（`run-monthly.yml` 1日 02:00・`run-weekly.yml` 月曜 03:00。2026-11-02 までは月曜 02:00・1日 03:00。run-daily の 04:00 より前で、06:00 の朝の確かめの対象。質問欄〈mj-ask〉の週次の書き出しも月曜 03:00 にそろえた〈`workers/ask/wrangler.jsonc` の `0 18 * * 1`、2026-11-02 まで月曜 09:00〉、CHAT-1102-WKP-09）。
 
 - `run-weekly`: `logs`（cleanup-logs）の後に `youtube`。cleanup-logs は毎日にすると #357 に同じ一覧の通知が毎日付くので週次に残した（CHAT-1102-WKP-09）。手動実行は cleanup-logs に dry-run を渡す
 - 2026-11-03 から run-daily に移した5本: `meibo`（check-meibo）・`birthday`（sync-birthday-calendar）・`unregistered`（check-saikyo-unregistered、run-daily には regenerate-saikyo の `saikyo` があるので名前を変えた）・`xfetch`・`xconvert`。どれも変わらない日には書かない（check-meibo・check-saikyo-unregistered は問題が続くあいだ issue の本文を毎日書き換えるが、コメント・通知ではない。CHAT-1102-WKP-09 の表）。run-daily の `logs`（mj-logs の同期）はこれらの後に動く
