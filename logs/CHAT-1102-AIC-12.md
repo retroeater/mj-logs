@@ -145,15 +145,41 @@ AIC-11 の「判断が必要なこと」への回答と、この指示の範囲�
 - 直す前のコード（origin/cloudflare の `workers/ask/`）に `parity.test.mjs` を当てると6件中5件が落ちた（落ちない1件は原因の再現で、前も後も同じ）
 - `node --test 'workers/ask/test/*.test.mjs'` 124件通過、`python3 -m unittest discover -s scripts/tests` 通過
 
+### 3. 自己レビュー（docs/notes/self-review.md、新しい文脈のサブエージェント、2往復）
+
+1回目（`git diff origin/cloudflare...HEAD -- workers/ask`、286行。目的・決定・コード規約を渡した。`node --test` 124件通過を相手も確かめた）:
+
+| 指摘 | 扱い |
+|---|---|
+| 2回目には引数（from・to）を渡さないので、「from・to で絞った問いでは」という条件を2回目の AI が確かめられない。「現女流桜花は？」で第20期だけに絞ると「通算1期」と書く余地が残り、正しい3回の材料（total）も無い（ask.mjs の `ANSWER_LINES`） | 直した（cb4b8c498）: 共通の定数 `FILTERED_LINE`「回数は聞かれたときだけ書く。「現〜」「第N期から」のように期を絞った問いでは、terms は絞った範囲の期だけで、terms の個数を通算の回数として書かない」にした。total を渡すのは結果の形が変わるので、違いの一覧（判断待ち）のまま |
+| 足した `currentTermLine()` で「今の成績は？」の player に期が入り、今は全期で答えている問いが、その期に出ていない選手で答えられなくなるおそれ | 直した（cb4b8c498）: 外して違いの一覧（判断待ち）に回した（止まる条件「今答えられている問いの答えが変わる」） |
+| `jwrc.test.mjs`・`wrcr.test.mjs` の endsWith を includes に変えて、最後の一文の位置を確かめなくなった | 直した（cb4b8c498）: origin/cloudflare の形に戻し、2回目の文の期待値だけを変えた |
+| `parity.test.mjs` の期を固定で書いており、data を作り直すと落ちる。jwrc の `holderLine` の重ねた確かめは要らない | 直した（cb4b8c498）: 期は `finals` から求め、重ねた確かめは消した |
+| 同じ文の繰り返し（絞った terms の文が4回など） | 直した（cb4b8c498）: `FILTERED_LINE` にまとめた。「先に当てる」の文は `currentTermLine()` を外したので鳳凰戦の1か所だけになった |
+| `query.mjs` の rank のコメント「鳳凰戦だけの引数」が古い（差分の外） | 直した（cb4b8c498）: 「引数は #618 から全大会、説明は 2026-11-02 に4大会」 |
+| 成績の行の最大の期を数える処理が `latestTerm()` と重なる | 意図どおり（`currentTermLine()` ごと外したので無くなった） |
+
+2回目（1回目の後の差分 `git diff 3ccf8cc9c HEAD -- workers/ask`、200行だけ。`node --test` 123件通過を相手も確かめた）:
+
+| 指摘 | 扱い |
+|---|---|
+| `FILTERED_LINE` の定義と使う所・テンプレートは正しい／削除した関数の参照は残っていない | 指摘なし |
+| 「回数は聞かれたときだけ」で、回数を聞いていない問いに今まで添えていた通算の回数が落ちうる（数が誤りになるのではない。HOU-59・AIC-09 の方針と同じ向き） | 意図どおり（固定の問いの「現女流桜花は？」の見る点も「通算の回数は書かない」に直した） |
+| 「現女流桜花は？」のテストで誰が返るかを確かめなくなった | 直した（72a2486dd）: finals の最新の期の優勝者の名前と比べる |
+| `oukaLines` だけ矢印関数で、隣の関数と形がそろっていない | 直した（72a2486dd） |
+
+- 直した後: `node --test 'workers/ask/test/*.test.mjs'` 123件通過、`python3 -m unittest discover -s scripts/tests` 通過。直す前のコードに `parity.test.mjs`（最後の形）を当てると5件中4件が落ちる（落ちない1件は原因の再現）
+- 直しの後の表（ask-worker.md）: 「現在」の期の一文は女流桜花・WRC リーグ・WRC-R で △（違い）、「先に当てる」の行は －、絞った terms の行は `FILTERED_LINE`
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 7c48f517）: https://github.com/retroeater/mj-logs/tree/main/guide/7c48f517
+ガイド文書（この版を写した時点の最新、mj 368cfd61）: https://github.com/retroeater/mj-logs/tree/main/guide/368cfd61
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/7c48f517/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/7c48f517/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/7c48f517/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/7c48f517/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/7c48f517/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/7c48f517/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/368cfd61/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/368cfd61/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/368cfd61/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/368cfd61/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/368cfd61/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/368cfd61/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/c3c97901.md
