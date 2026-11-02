@@ -14,7 +14,7 @@
 | 実行 | — | ワークフローを1回動かしたもの。番号（`#3`）と ID で呼ぶ | run（`/actions/runs/<ID>`） |
 | スケジュール | 起動の表 | Worker `mj-scheduler` が毎分見て、決まった時刻にワークフローを起動するための表 | `workers/scheduler/schedule.json` の `rows` |
 | 定期実行 | 予約の起動・予約実行 | Worker がスケジュールの時刻に、入力 `scheduled` を真にして起動する実行。題の先頭に `[scheduled]` が付く | `workflow_dispatch` ＋ 入力 `scheduled: true` |
-| cron 実行 | 予約実行 | GitHub の `schedule`（cron）が本来の起動であるワークフロー（週次の check-meibo・check-saikyo-unregistered・cleanup-logs など）の実行。フォールバック実行ではないもの | `on.schedule`（cron）、契機 `schedule` |
+| cron 実行 | 予約実行 | GitHub の `schedule`（cron）が本来の起動であるワークフロー（2026-11-01 に外すまでの週次の check-meibo・check-saikyo-unregistered・cleanup-logs など。今は月次の fetch-gsc・fetch-redirect-counts の保険だけ）の実行。フォールバック実行ではないもの | `on.schedule`（cron）、契機 `schedule` |
 | フォールバック実行 | 保険の実行・保険の予約実行 | Worker からの定期実行が無かった日に備えて、GitHub の `schedule`（cron）で動く実行。その日の定期実行が成功済みなら何もせずに終わる | `on.schedule`（cron）、契機 `schedule` |
 | 手動実行 | — | 人（またはセッション）が画面・API から起動する実行 | `workflow_dispatch`（`scheduled` なし） |
 | 本実行 | 書く道筋 | スプレッドシート・カレンダー・issue・ブランチに書き込む動かし方 | 入力 `apply: true`・`dry_run: false` |

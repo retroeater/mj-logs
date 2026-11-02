@@ -96,28 +96,50 @@ CHAT-1017-LVP-06 の作り直し（判断待ち）を、プレビューの確認
 - URL の重なりの警告は無し
 - **止まる条件「3大会の行に落ちる行」「照合で前提と違う行」に当たったので、マージしない**
 
+### 手順2: 全ページの新旧の比べ（regenerate-page.yml の dry_run・compare_ref）
+
+- 1回目は compare_ref に `cloudflare` を渡して、比べの手順で `fatal: invalid reference: cloudflare` で止まった（run 41361234293。ワークフローの中では `origin/cloudflare` と書く）
+- 2回目（run 41362046200、compare_ref `origin/cloudflare`。比べの相手は cc8127988）: 中身の違うファイルは live/ のほかに **pro/ と houou/**。比べの相手側の生成の終了コードは 3（どこかのページを飛ばした。どのページかはログの範囲では未確認）
+  - **pro/（連盟プロの新ページ、#219・#641）の各選手のページ: 約470ファイルで5〜13行の差。** `scripts/generate_pro_pages.py` の `parse_lives()` が live/ のトップ（`live/index.html`）の**今のカードの HTML**（`<li class="mj-video-card" data-info=…><a class="mj-video-card-link" …>`）を正規表現で読んで放送対局の行を作っている。LVP-06 でトップをカードから面の行（`<li data-info=…><a class="mj-saikyo-n-row … mj-live-n-row" …>`）に替えたので、作業ブランチのコードでは放送対局の行を拾えない（各選手のページの放送対局の面が空になるとみる。pro/ は LVP-06 の後に cloudflare に入った）。**共通化と取り込みでは説明できない差なので、止まる条件に当たる**
+  - houou/ の4ファイル（`houou/results/` の2人分の JSON が片方にだけある、`houou/ask-players.json`・`houou/race/38-2.json` が2行）: houou の生成は live/ を読まないので今回の変更とは無関係とみるが、相手側の終了コード 3（ページを飛ばした）との関係は確かめていない
+  - study/・saikyo/・mtsuku/・wayhome/ などに差は無かった。study/ はいまメンバー限定の回が無く、札の HTML が出ないため差が出ない（札のクラスの変化は、メンバー限定の回が出たときの生成から入る）。375px の画面での札の比べは、メンバー限定の回が無いので行っていない
+
+### 作業ブランチの live/ の生成し直し
+
+- 衝突をいったん cloudflare 側の版で解いていたので、作業ブランチを揃えるため regenerate-page.yml を `live_pages` で動かした（run 41364429459、コミット 08a6e54a6。マージはしていない）
+- 見出しの重なり: `live/judan/43.html` の「初段戦Select」「二段戦Select」は、見出しの下の行に題が出ず、1行目が「2026年5月23日配信・5本」になった
+- `python3 -m unittest discover -s scripts/tests`: 1,741件 OK（取り込んだ直後は live/ が cloudflare 側の古い版で `test_no_share_button_on_title_pages` が落ちていたが、生成し直して通った）。workers は変えていないので node のテストは回していない
+- プレビュー（08a6e54a6 の Workers Builds: success）: `/live/judan/43.html`・`/live/tatsujin/`・`/live/judan/43/f.html` が 200。白地のページのナビは「連盟プロ｜タイトル戦｜鳳凰戦｜女流桜花｜WRC｜WRC-R｜最強戦｜番組｜リソース｜良栄」で「番組」に印。個別ページは LVP-06 のとおり濃色のナビで、印は付かない（濃色のナビは印を付けない形のまま）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 中断（止まる条件に当たった）
 - ブランチ: work/1017-lvp
 - ログ: https://github.com/retroeater/mj/blob/work/1017-lvp/docs/logs/CHAT-1102-LVP-08.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1017-lvp
-- 確認用URL: なし
-- マージ: 未
-- issue: #362
-- 判断が必要なこと: なし
-- 未確認の項目: なし
-- エラー: なし
+- 確認用URL: プレビューあり（URL は最終報告）。`/live/judan/43.html` で「初段戦Select」の見出しの下の行に題が出ない（この版の印）
+- マージ: 未（止まる条件に当たったため。承認はあったがマージしていない）
+- issue: #362（着手中のコメント）・#490
+- 判断が必要なこと:
+  - 3大会の照合: 前提と違う行が1行。**行4244 `FXtYzZBEtXA`（【メンバー限定】第２期 昇龍戦）は掲載 Y だが、まとめ単位が空（前提は「ベスト8、決勝」、ステージも空）**。このため「まとめ単位が空」で公開から落ちる。ほかの93行（Y 12・N 74・行4232 の N・プレーオフ6行の空欄・行4247 の「ベスト8、決勝」）は前提どおり。直すのは平野さん（【3】の行4244 のまとめ単位）
+  - 増えた個別ページは10（達人戦 第1〜3期の決勝 3、昇龍戦 第1期のベスト8・決勝 2と第2期のベスト8 A卓 1、鳳匠戦 第1期のベスト16 A〜D卓 4）。行4244 が直れば昇龍戦 第2期に決勝などのページが足される見込み（行4244 の分は確かめていない）。URL の重なりは無し
+  - **pro/（連盟プロの新ページ）の生成が live/ のトップのカードの HTML を正規表現で読んでいる（`generate_pro_pages.py` の `parse_lives()`）ため、live/ の作り直しをこのまま入れると pro/ の放送対局の面が空になる見込み**（全ページの新旧の比べで pro/ の約470ファイルに差）。直し方の案: (a) `parse_lives()` を新しい面の行の形（`mj-live-n-row`・`mj-live-n-label`・`mj-live-n-sub`）に合わせる、(b) pro/ が HTML を読まずに `generate_live_pages.load()` の結果から行を作る。どちらにするか、どの指示で直すか（pro/ の系列か LVP か）を決めてほしい
+  - houou/ の4ファイルの差（比べの相手側の生成が一部のページを飛ばした）は、今回の変更と無関係とみるが確かめていない
+- 未確認の項目:
+  - study/ のメンバー限定の札の見え方（いまメンバー限定の回が無く、画面で比べられない。次にメンバー限定の回が出たときの生成で入る）
+  - 実機での見え方
+- エラー:
+  - regenerate-page.yml の dry_run で compare_ref に `cloudflare` を渡して「fatal: invalid reference: cloudflare」（run 41361234293）。`origin/cloudflare` で入れ直して解決
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 096eaef6）: https://github.com/retroeater/mj-logs/tree/main/guide/096eaef6
+ガイド文書（この版を写した時点の最新、mj 29bf0a43）: https://github.com/retroeater/mj-logs/tree/main/guide/29bf0a43
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/096eaef6/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/096eaef6/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/096eaef6/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/096eaef6/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/096eaef6/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/096eaef6/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/096eaef6.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/29bf0a43/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/29bf0a43/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/29bf0a43/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/29bf0a43/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/29bf0a43/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/29bf0a43/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/8abd90d5.md

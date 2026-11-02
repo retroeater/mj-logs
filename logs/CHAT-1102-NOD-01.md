@@ -186,15 +186,41 @@ mj-logs（変えない）:
 |---|---|
 | なし | — |
 
+### マージと issue
+
+- マージ: `git fetch` の後 `git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめ、`git push origin work/1102-nod:cloudflare` → `8abd90d53..fa2fc18f6  work/1102-nod -> cloudflare`
+- #308 に表と確かめの結果をコメント（issuecomment-6565836383）し、completed で閉じた（ラベルは「分野: 自動化」だけで、「状況:」ラベルは無かった）
+- 指示文の「次回要確認」は `_template.md` の項目名に合わせて「未確認の項目」に書いた
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1102-nod
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1102-NOD-01.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1102-nod
+- 確認用URL: なし（変えたのはワークフローだけで、ページは変わらない）
+- マージ: 済（fa2fc18f6。範囲 8abd90d53..fa2fc18f6）
+- issue: #308（コメントしてクローズ）
+- 判断が必要なこと:
+  - mj-logs の `.github/workflows/sync-from-mj.yml` が、まだ node20 の `actions/checkout@v4`（v4.4.0）と `actions/setup-python@v5`（v5.6.0）を使っている。上げ先は v7.0.1・v7.1.0（どちらも node24）。この指示では変えていない。別の指示で上げるか（このセッションの API は mj-logs で HTTP 403 だった。push には `add_repo` が要る）
+  - 指示文の前提「ハッシュ固定はしない（今の書き方にそろえる）」は実物と違った（今の書き方は SHA 固定 ＋ `# vX.Y.Z`）。「今の書き方にそろえる」の側に従い、SHA 固定のまま上げた。タグの参照（`@v7`）にしたかったのなら知らせてほしい
+  - 指示文の前提「未マージの work/1101-wkp」は着手時に cloudflare にマージ済みだった（重なりは無し）
+- 未確認の項目:
+  - run-daily（2026-11-03 04:00 JST）: update-live-channel の apply と push、sync-dojo-calendar の actions/cache の復元と保存、regenerate-saikyo の再生成とコミット。success で、Node.js 20 の注記が無いこと
+  - run-weekly（2026-11-09 03:00 JST）: cleanup-logs の commit-push、fetch-youtube の commit-push と regenerate-page（all）の push
+  - run-monthly（2026-12-01 02:00 JST）: fetch-gsc・fetch-redirect-counts。保険の予約実行はそれぞれ 06:00・06:30 JST
+  - regenerate-sitemap: 次の HTML を含む cloudflare への push
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 8abd90d5）: https://github.com/retroeater/mj-logs/tree/main/guide/8abd90d5
+ガイド文書（この版を写した時点の最新、mj 29bf0a43）: https://github.com/retroeater/mj-logs/tree/main/guide/29bf0a43
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/8abd90d5/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/8abd90d5/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/8abd90d5/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8abd90d5/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8abd90d5/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8abd90d5/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/29bf0a43/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/29bf0a43/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/29bf0a43/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/29bf0a43/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/29bf0a43/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/29bf0a43/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/8abd90d5.md

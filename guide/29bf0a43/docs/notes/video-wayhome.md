@@ -6,7 +6,7 @@
 
 ## 新しい回を追加する手順
 
-**シート（動画のタブをまとめたブック〈`lib/video_book.py` の `SPREADSHEET_ID`〉の「帰り道」タブ、#578）に1行貼るだけ。** あとは週次の再生成（run-weekly.yml の `fetch-youtube.yml` が `regenerate-page.yml` を呼ぶ、毎週月曜 02:00 JST）が行う（#194・#340、2026-10-11）。
+**シート（動画のタブをまとめたブック〈`lib/video_book.py` の `SPREADSHEET_ID`〉の「帰り道」タブ、#578）に1行貼るだけ。** あとは週次の再生成（run-weekly.yml の `fetch-youtube.yml` が `regenerate-page.yml` を呼ぶ、毎週月曜 03:00 JST）が行う（#194・#340、2026-10-11）。
 SNS ブックの更新・/live の取り込みから呼ばれた再生成では、帰り道の手順は動かない（`github.workflow_ref` が `regenerate-page.yml` のときだけ、2026-10-12。コードで確かめた。呼ばれた再生成の実行での確認は未、2026-10-13）。
 
 1. 新しい回が公開されると、週次の再生成が常設 issue「帰り道の新しい回」に知らせる（/live の層1 `data/live_channel_raw.jsonl` の題名に「帰り道」か「ついていって」があり、シートに無い動画。メンバー限定も）。
@@ -15,7 +15,7 @@ SNS ブックの更新・/live の取り込みから呼ばれた再生成では�
    - タイトルは title/ の期の題（大会名の書き方の違いは `lib/wayhome_intake.py` の `TAIKAI_ALIASES` で直す。期は `title/search.json` の公開している期）。帰り道用に直して貼ってよい。
      期に結び付かないタイトルは注記が付き、その回の各話には「決勝戦を見る」が出ない
 2. 1行をシートの末尾に貼る（シートへの追記は自動では行わない）
-3. 次の週次の `fetch-youtube.yml`（毎週月曜 02:00 JST の run-weekly から。急ぐときは `fetch-youtube.yml` を手動実行）が、YouTube の情報を取り直して `data/youtube_meta.json` をコミットし、
+3. 次の週次の `fetch-youtube.yml`（毎週月曜 03:00 JST の run-weekly から。急ぐときは `fetch-youtube.yml` を手動実行）が、YouTube の情報を取り直して `data/youtube_meta.json` をコミットし、
    続けて呼ぶ `regenerate-page.yml`（`all`）が一覧の OGP 画像を作り直し、一覧・各話を生成して同じコミットに入れる（データのコミットとページのコミットは2つに分かれる。2026-10-16 から、#564）
 
 週次の再生成が知らせること（前回の知らせと変わったときだけ。決定は `docs/decisions/wayhome.md`）:
