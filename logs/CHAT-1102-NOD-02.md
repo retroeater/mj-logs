@@ -50,6 +50,31 @@ CHAT-1102-NOD-01 の残り。public の retroeater/mj-logs の `.github/workflow
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 着手前の確認
+
+- 手順0: ログの「指示」欄の末尾は指示文の最後の行と一致
+- 冒頭の雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 4行ともある
+- 同じ Chat-Ref のコミット: 0件（`git log --all --grep='CHAT-1102-NOD-02'`）。`NOD` は NOD-01 と同じセッションの続き
+- 作業ブランチ: リモートの `work/1102-nod` は無く（cleanup-branches が消した）、ローカルの `work/1102-nod`（29bf0a43f）は `origin/cloudflare` の祖先だったので、`git checkout`（既にそのブランチ）のうえ `git merge --ff-only origin/cloudflare` で 1819ca0ce に進めた
+- #308 は closed のまま、着手中のコメントを書いた（issuecomment-6566143969）
+
+### 手順1
+
+- `add_repo`（retroeater/mj-logs、access push）: 付いた（status appended）。`git clone --depth 1` で /home/user/mj-logs に置いた（mj のリポジトリの外）
+- `.github/` は `workflows/sync-from-mj.yml` の1本だけで、`uses:` は `actions/checkout@v4`（30行）と `actions/setup-python@v5`（34行）の2行だけ。前提と一致
+- 前提の「最後の変更 a0ccf9e」は浅いクローンのため確かめていない（内容は前提どおり）
+
+### 手順2
+
+- mj-logs にブランチ `nod-02` を main（eb5a87f）から作り、2行を `@v7` に上げて push（11eb75c「chore: bump checkout/setup-python to Node.js 24 majors (mj #308)」、1ファイル2行）。`@v7` はタグ v7 の参照で、checkout は 3d3c42e5（v7.0.1）、setup-python は 6d4fd22b（v7.1.0）を指す（NOD-01 で `git ls-remote` で確かめた、どちらも node24）
+- 1回目の `workflow_dispatch`（ref nod-02、run 41367111659）は、main の別の回（41367064041、Worker からの起動）の後ろで待っていた。先の回が main を進めると、nod-02 の回の `git push HEAD:main` が拒否されて `reset --hard origin/main` で今回のコミットが落ち、fast-forward もできなくなる。そのため始まる前に取り消し、main の回が終わってから最新の main に nod-02 を作り直して動かすことにした
+
+### mj-logs の Pages のビルド（指示の範囲外の発見）
+
+- mj-logs の main への push のたびに GitHub の Pages のビルド（`pages-build-deployment`、event dynamic。例: run 41367071455）が動き、その annotations に「Node.js 20 is deprecated … actions/upload-artifact@v4」が出ている。これは GitHub が持つワークフローで、mj-logs のファイルには無い（`.github/` は sync-from-mj.yml だけ）。リポジトリ側の `uses:` を上げても消えない
+
 <!-- guide-links -->
 ---
 
