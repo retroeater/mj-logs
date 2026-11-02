@@ -87,15 +87,80 @@ AIC-12 の「違いの一覧」（docs/notes/ask-worker.md「5大会の応答ル
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 0. 着手前の確認（2026-11-02）
+
+- 指示欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある
+- `git log --all --grep="CHAT-1102-AIC-13"` は0件。`AIC` はこのチャットの系列（AIC-01〜12）
+- 26012fe3b は origin/cloudflare の祖先。`origin/work/1102-aic` はマージ済みで、ローカルも cloudflare の祖先なので `git merge --ff-only origin/cloudflare`（9789a6fb）
+- AIC-12 のログの `## 報告` の状態に ` / 続き: CHAT-1102-AIC-13` を足し、「判断が必要なこと」の後ろに回答（5つの違いへの決定）を書き足した
+- #586 に他セッションの着手中は無い（最後は AIC-12 の解除）。着手中のコメントを書いた。未マージの work/ ブランチで `workers/ask/` を変えているものは無い
+
+### 1. 確かめ（今の `workers/ask/` と data の JSON）
+
+| 大会 | 在籍者（people） | 入会期のある人 | いちばん多い期 | 同率4人以上の例（部門・順位・人数） |
+|---|---|---|---|---|
+| 鳳凰戦 | 692 | 692 | 37期 62人 | 期連続浮き 15位 13人 |
+| 女流桜花 | 164 | 164 | 40期 16人 | 期連続浮き 6位 12人 |
+| WRC リーグ | 334 | 334 | 37期 26人 | 通過回数 14位 10人 |
+| WRC-R | 197 | 197 | 40期 23人 | 通過回数 1位 9人 |
+| 最強戦 | 156 | 156 | 29期 13人 | 最強位 3位 10人 |
+
+- 5大会とも `people` の全員に入会期があり、`entry` は成り立つ（外した大会は無い）。`people` はその大会の出場者（決勝・放送対局だけに出た人を含む。`generate_ask_data.py`）で、連盟の期生の全員ではない
+- 同率は `tieOf()`（ランキングの同率の名前）。`byTimes`（回数の段）とは別の処理で、変えていない
+
+### 2. 直したこと（be7509c43・0b6003302・d99b1ef06、文書 e6933d6c7・83ff2fa41）
+
+| 項目 | 鳳凰戦 | 女流桜花 | WRC リーグ・WRC-R | 最強戦 |
+|---|---|---|---|---|
+| 型 `entry` | 前から（変えていない） | 足した | 足した | 足した（`typesOf()` が contest の types に entry を足す。`data-saikyo.json` の types は生成のまま） |
+| entry の items | `{name, league}`（上のリーグから） | `{name, league}`（上のリーグから。リーグが6つ） | `{name, last}`（最後に出た期の新しい順。リーグが「予選」の1つ） | `{name, last}`（最後に出た年度の新しい順。リーグが無い） |
+| last の取り方 | － | － | 成績の行と決勝の最大の期（決勝だけに出た人も付く） | 成績の行と決勝の最大の年度（成績の行は新しい順に並ぶので並びに頼らない） |
+| 注記 | 「入会期が分かるのは在籍中の選手だけです」（前のまま） | 「入会期が分かるのは在籍中の選手だけです。女流桜花に出場した選手だけを数えています」（`entryNote()`） | 同（大会名） | 同（「麻雀最強戦」） |
+| 1回目の entry の行 | 前から | 足した（「40期後期生」の例も） | 足した | 足した（入会期は連盟の） |
+| 2回目の entry の読み方 | league（前から） | league（足した） | last（足した） | last（足した） |
+| 同率の名前（`TIE_NAMES`） | 3人 → 10人と others | 同 | 同 | 10人と others（前から。`YEARLY_TIE_NAMES` を `TIE_NAMES` の1つにした） |
+| 同率の書き方の一文 | 共通の文に「tie.others が付いていたら「ほか tie.others名」、無ければ全員挙げて「ほか」を付けない」を足し、1位の例を「ほか」の無い形に替えた | 同 | 同 | 最強戦にだけあった同じ一文は共通の文に移して外した |
+
+- 鳳凰戦の `entry` と最強戦の同率・ほかの型が変わらないことの確かめ: 直す前（origin/cloudflare）と後の `runQuery` を、鳳凰戦の全入会期の `entry`・最強戦の全部門の全順位の `ranking`（rank 付き）と上位・5大会の champions・最新の final・先頭の選手の player で比べ、320件すべて同じ（スクリプトは scratchpad の cmp13.mjs）
+- 落ちると分かって直したテスト: `ask.test.mjs`「型 entry と引数 rank はほかの大会の…」（entry が enum に入る）、`saikyo.test.mjs` の型の enum（entry が入る）・`YEARLY_TIE_NAMES` → `TIE_NAMES`・tie.others の文（共通の文に移した）、`tie.test.mjs` の9人の同率（3人 → 9人全員。11人で others 1 を足した）と1位の例
+- 新しいテスト `workers/ask/test/align.test.mjs`: 4大会の「N期生」（いちばん多い期を data から選ぶ。型・人数・注記・出典・1回目の文）／並び（女流桜花は上のリーグから、ほかは last の新しい順、last は成績の行と決勝の最大、最強戦の行が新しい順であること、決勝だけに出た人に last が付くこと）／鳳凰戦の37期生は62人・前の注記／5大会の同率4人以上（data から選ぶ。10人まで・others）／同率の書き方の一文が5大会で1つ
+- 直す前のコードに `align.test.mjs` を当てると5件中4件が落ちた（鳳凰戦が変わらない1件は前後とも通る）。1回目の自己レビューの後の直しの前（be7509c43）に当てると、並びのテスト（jwrc の決勝だけに出た人の last）と同率の例のテストが落ちた
+- `node --test 'workers/ask/test/*.test.mjs'` 128件通過、`python3 -m unittest discover -s scripts/tests` 通過
+
+### 3. 自己レビュー（docs/notes/self-review.md、新しい文脈のサブエージェント、2往復）
+
+1回目（`git diff origin/cloudflare...HEAD -- workers/ask`、404行。目的・決定・観点を渡した。`node --test` 128件通過を相手も確かめた）:
+
+| 指摘 | 扱い |
+|---|---|
+| 【重大】最強戦の成績の行は新しい順に並ぶので、`at(-1)` が最初に出た年度を指し、last と並びが誤る（37期生の3人で実測） | 直した（0b6003302）: 成績の行と決勝の最大を取る |
+| 【中】people には決勝・放送対局だけに出た人もいて（jwrc 14人・wrcr 13人）、last が空になる | 直した（0b6003302）: 決勝の期も見る。テストで確かめる |
+| 【中】共通の文の1位の例「9人が並んでいます（大和さんほか）」が、10人まで渡す新しい規則と逆 | 直した（0b6003302）: 「ほか」の無い3人の例に替えた |
+| 【中】last の誤りを並びのテストが拾えない | 直した（0b6003302）: data の最大の期・年度と照合する |
+| 鳳凰戦が変わらないテストが人数・注記・キーだけ | 意図どおり（並びと league の値は、直す前と後の `runQuery` の比べで320件同じを確かめた。data を作り直すと変わる値はテストに固定しない） |
+| `lastLabel` が既存の `finalTerm()` と同じ式／古いコメントの位置／最強戦の「40期後期生」の例が無い／Set の比較にメッセージが無い | 直した（0b6003302） |
+| `c === HOUOU` より `c.id` のほうが壊れにくい（任意） | 意図どおり（同じファイルのほかの判定が `c === HOUOU` の形） |
+
+2回目（1回目の後の差分 `git diff e6933d6c7 HEAD -- workers/ask`、103行だけ）:
+
+| 指摘 | 扱い |
+|---|---|
+| lastTerm・同率の例・最強戦の例は正しい。鳳凰戦・女流桜花のリーグの側は変わっていない | 指摘なし |
+| 最強戦の行が新しい順の検査が等号を含み、同じ年度だけの人で弱い | 直した（d99b1ef06）: 先頭と末尾の年度が違う人を選び、不等号にした |
+| 決勝だけに出た人が見つからないと例外で落ちる | 直した（d99b1ef06）: 先に assert する |
+| 1行が長い | 意図どおり（動作に関わらない。同じファイルのほかのテストと同じ書き方） |
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 368cfd61）: https://github.com/retroeater/mj-logs/tree/main/guide/368cfd61
+ガイド文書（この版を写した時点の最新、mj 4212ea25）: https://github.com/retroeater/mj-logs/tree/main/guide/4212ea25
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/368cfd61/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/368cfd61/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/368cfd61/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/368cfd61/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/368cfd61/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/368cfd61/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/4212ea25/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/4212ea25/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/4212ea25/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/4212ea25/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/4212ea25/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/4212ea25/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/c3c97901.md

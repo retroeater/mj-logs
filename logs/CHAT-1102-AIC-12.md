@@ -195,7 +195,7 @@ AIC-11 の「判断が必要なこと」への回答と、この指示の範囲�
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1102-AIC-13
 - ブランチ: work/1102-aic
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1102-AIC-12.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1102-aic
@@ -209,6 +209,7 @@ AIC-11 の「判断が必要なこと」への回答と、この指示の範囲�
     - 期で絞っても通算の回数（total）を渡す処理: 最強戦だけ。そろえるなら4大会の champions にも渡す（「現女流桜花は？」で通算3回を書けるようになる）。残す理由は、「現在の鳳凰位は？」などに回数が付き、今の答えが変わること
     - 同率の名前を渡す人数: 最強戦は10人と others、ほかは3人。そろえるなら5大会を同じ人数にする。残す理由は、2026-10-24 の決定（SKP-10）
     - 最強戦の年度と期・型（league・live が無く year がある）: 大会の性質。残す案
+  - → 回答（2026-11-02、平野さん、CHAT-1102-AIC-13）: 「現在」の一文は残す／`entry` はそろえる（4大会に広げる）／total は残す（統合のときに決め直す）／同率の名前はそろえる（5大会とも10人と others）／最強戦の年度と期・型は残す
 - 未確認の項目:
   - 予約実行の初回: 2026-11-09（月）03:00 JST の週次の書き出しが動き、ブックに 11/02〜11/08 の行が入るか（AIC-11 から写した）。あわせて、AIC-11 の本番の「現女流桜花は？」（2026-11-02 10:09 JST ごろ）の「引数」の列に from・to が入っているか（原因の裏付け）
   - 地域で断られた問いが、新しい結果（`region`、ブック「地域で使えない」）で記録に入るか（AIC-11 から写した）
@@ -217,12 +218,12 @@ AIC-11 の「判断が必要なこと」への回答と、この指示の範囲�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 368cfd61）: https://github.com/retroeater/mj-logs/tree/main/guide/368cfd61
+ガイド文書（この版を写した時点の最新、mj 4212ea25）: https://github.com/retroeater/mj-logs/tree/main/guide/4212ea25
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/368cfd61/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/368cfd61/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/368cfd61/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/368cfd61/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/368cfd61/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/368cfd61/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/4212ea25/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/4212ea25/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/4212ea25/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/4212ea25/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/4212ea25/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/4212ea25/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/c3c97901.md
