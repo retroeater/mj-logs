@@ -171,7 +171,8 @@ mj-logs（変えない）:
 | sync-yotei | 既定（書かない） | 41363300785 | success | 1 | 0 |
 | update-sns-book | mode=check・dry_run | 41363303180 | success | 2（regenerate は skipped） | 0 |
 | update-live-channel | 既定（apply なし） | 41363308644 | success | 3 | 0 |
-| regenerate-page | target_page=all・dry_run | 41363306425 | （下に追記） | | |
+| regenerate-page | target_page=all・dry_run | 41363306425 | success（約30分） | 1 | 0 |
+| check-assets（cloudflare の取り込み後） | push | 41364443150 | success | 1 | 0 |
 
 - ステップの成否も見た: checkout・setup-python（直と部品）・Google の認証（auth、research-candidates・fetch-x-posts・convert-x-posts・check-sheets-reader・update-sns-book）・upsert-issue（github-script、cleanup-logs の「条件外のログを常設issue」）が success。commit-push・コミットの step は dry-run で skipped
 - 手動で動かさなかったもの（本番へ書き込む、または書かない道筋が無い）: run-daily・run-weekly・run-monthly、sync-dojo-calendar（手動でも新しい画像を読めば #426 に書く。actions/cache はこの本だけ）、fetch-gsc（robots.txt に差分があれば #304 に書く）、fetch-youtube（書かない道筋が無い）、regenerate-saikyo（ABEMA ブックを書く）、regenerate-sitemap（push の契機だけ）
