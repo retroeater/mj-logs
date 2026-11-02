@@ -113,26 +113,27 @@ Chat-Ref: CHAT-1102-MCK-35
 
 ## 報告
 
-- 状態: 完了
+- 状態: 判断待ち
 - ブランチ: work/1102-mck-close
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1102-MCK-35.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1102-mck-close
 - 確認用URL: なし
 - マージ: 済（371fe8801。cloudflare へ fast-forward）
 - issue: #304（着手中・最後の値の追記）
-- 判断が必要なこと: なし
+- 判断が必要なこと:
+  - Open の issue に私（MCK の Code）が書いたコメント4件が、ログを版を固定しない `blob/cloudflare/…` で指している。今回完了にしたログは 11-09 の週次で消えるので、そのあとリンクが切れる（docs/notes/branch-operations.md の「issue がログを名指しするときは permalink で書く」に反する）: #304 https://github.com/retroeater/mj/issues/304#issuecomment-6552379459 （MCK-28）・ https://github.com/retroeater/mj/issues/304#issuecomment-6553153765 （MCK-32）、#357 https://github.com/retroeater/mj/issues/357#issuecomment-6552259220 （MCK-27）・ https://github.com/retroeater/mj/issues/357#issuecomment-6553039539 （MCK-31）。11-09 より前に permalink（cloudflare の最新の版の SHA）へ書き換えるか
 - 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 584a1b92）: https://github.com/retroeater/mj-logs/tree/main/guide/584a1b92
+ガイド文書（この版を写した時点の最新、mj 1819ca0c）: https://github.com/retroeater/mj-logs/tree/main/guide/1819ca0c
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/584a1b92/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/584a1b92/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/584a1b92/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/584a1b92/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/584a1b92/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/584a1b92/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/1819ca0c/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/1819ca0c/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/1819ca0c/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/1819ca0c/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/1819ca0c/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/1819ca0c/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/29bf0a43.md
