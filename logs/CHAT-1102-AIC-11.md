@@ -142,15 +142,58 @@
 - `node --test 'workers/ask/test/*.test.mjs'` 118件通過、`python3 -m unittest discover -s scripts/tests` 通過
 - 文書: `docs/notes/ask-worker.md`（Worker の流れの 7〜10、「HTTP 403 の調べ」の結果、週次の cron の時刻と区切り、ブックの結果のラベル）、`docs/notes/github-actions.md`（mj-ask の書き出しを月曜 03:00 にそろえた）。`git grep` で「`0 0 * * 2`」「月曜 9:00」を洗い出し、docs/decisions・docs/logs・handover-archive を除いて直した（ask-worker.md の「最初の本番の実行は 2026-10-19（月）9:00 JST の見込み」など、過去の事実の行は残した）
 
+### 3. issue・マージ・本番
+
+- #586: 本文に「3週目の改善」の表を足し、2週目の4の行に「2026-10-26: 配置は変えない。原因は拠点 HKG・国 HK」を書き、末尾に `Chat-Ref: CHAT-1102-AIC-11`。1週間の数・地域の制限の原因（拠点と国だけ）・本番の結果をコメントし、着手中を解除
+- マージ: push の直前に origin/cloudflare が進んでいた（`scripts/lib/members.py` など、ほかの系列）ので `git merge origin/cloudflare`（衝突なし）。取り込んだ後も `node --test` 118件・`scripts/tests` 通過。再 fetch して `git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめ、`git push origin work/1102-aic:cloudflare`（b948baf96..bf117febb）
+- check-run（bf117febb）: Workers Builds: mj-ask success（01:08:48Z、Version 250cb80f）、Workers Builds: mj success（01:08:52Z、Version 7c807f1a）、check success、notify は skipped
+- 本番の `assets/houou_ask.js` に `status === 'region'` の分岐が入ったことを確かめた（HTML/JS の取得まで。ブラウザでの見え方は地域の制限を起こせないので確かめていない）
+- `/api/ask/status` → `{"status":"open","remaining":10,"max":200}`
+
+本番の10問（2026-11-02 01:09:26〜01:10:04 UTC、すべて answered、上限には当たらなかった）:
+
+| 大会 | 問い | 冒頭 | 答え（要旨） |
+|---|---|---|---|
+| 女流桜花 | 22期の和久津晶成績 | 女流桜花のデータは第20期終了時点までで、第22期はまだありません。記録のある期で答えます | 第4期〜第20期の17期分。第20期は B リーグ 7位・残留 |
+| 鳳凰戦 | 通算得点の上位15人は？ | | 10人と「ほか5人を加えて、全体は15人」（「並んでいます」は出ない） |
+| 女流桜花 | 東城 | 「東城」を東城りおとして答えます | 第9期〜第20期の11期分。第20期は B リーグ 12位・残留 |
+| 鳳凰戦 | 現在の鳳凰位は？ | | 白鳥翔（第42期） |
+| 鳳凰戦 | 第1期から第10期の鳳凰位は？ | | 6人と各人の期。回数は付かない |
+| 鳳凰戦 | 鳳凰位になった人は全部で何人？ | | 23人。最近に獲った10人と「ほか13人がいます」 |
+| 鳳凰戦 | 白鳥翔の第40期の成績は？ | | A2 1位・昇級・278.8 |
+| 女流桜花 | 現女流桜花は？ | | **「清水香織さんで、第20期に女流桜花…第19期と第20期の女流桜花で、通算は2期」。正しくは3回（第5・19・20期、固定の問いの見る点）** |
+| WRC | 現タイトルホルダーは？ | | 紺野真太郎（第19期） |
+| 鳳凰戦 | 鳳凰位戴冠回数が最多なのは？ | | 安藤満・前原雄大の4回、次いで3回は古川孝次・阿部孝則・瀬戸熊直樹・佐々木寿人 |
+
+- 「現女流桜花は？」の通算の回数の誤り: 今回の直し（地域の 403・データに無い期・言語・「並んでいます」・cron）は、女流桜花の優勝者の引き方と2回目に渡す形を変えていない（「現女流桜花」は回数の語が無いので byTimes も渡らない。答えに言語の混入も「並んでいます」も無く、作り直し・置き換えも起きない）。女流桜花には「現タイトルホルダー」を最新の決勝の期で引く一文（`PLAN_LINES`）が無く、1回目の AI が期の範囲（第19〜20期など）を付けたため、絞った terms を通算と書いた見込み。D1 の `args` で確かめる（「判断が必要なこと」）。直していない
+- 地域の制限は本番では起こせないので、差し替えたテスト（week3.test.mjs）だけで確かめた
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1102-aic
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1102-AIC-11.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1102-aic
+- 確認用URL: なし（本番の `/api/ask` へ10問送って確かめた。画面の変化は地域の制限のときだけで、本番では起こせない）
+- マージ: 済（bf117febb。b948baf96..bf117febb。AIC-10 のログと決定も同じマージで入った）
+- issue: #586（本文に「3週目の改善」を書き足し、1週間の数・403 の原因・結果をコメント）
+- 判断が必要なこと:
+  - Cloudflare のダッシュボードの `mj-ask` → Settings → Triggers の Cron が「Sunday 18:00 UTC」（月曜 3:00 JST）になったか見てほしい（前の「Monday 0:00 UTC」が残っていないか）
+  - 本番の「現女流桜花は？」が通算の回数を「2期」と答えた（正しくは3回）。今回の直しによるものではない見込み。D1 の `mj-ask` の Console で `SELECT asked_at, question, type, args, answer FROM questions WHERE asked_at >= '2026-11-02T10:09:00+09:00' AND question = '現女流桜花は？';` を実行し、`args` に `from`・`to` が付いていたかを見てほしい。付いていれば、女流桜花にも鳳凰戦・WRC と同じ「現タイトルホルダーは最新の決勝の期で引く」一文を足し、2回目の読み方（絞った terms を通算と書かない）を足すのが次の直しの候補
+- 未確認の項目:
+  - 予約実行の初回: 2026-11-09（月）03:00 JST の週次の書き出しが動き、ブックに 11/02〜11/08 の行が入るか
+  - 地域で断られた問いが、新しい結果（`region`、ブック「地域で使えない」）で記録に入るか
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj b948baf9）: https://github.com/retroeater/mj-logs/tree/main/guide/b948baf9
+ガイド文書（この版を写した時点の最新、mj a7e90f53）: https://github.com/retroeater/mj-logs/tree/main/guide/a7e90f53
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b948baf9/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b948baf9/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b948baf9/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b948baf9/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b948baf9/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b948baf9/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7e90f53/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7e90f53/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7e90f53/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7e90f53/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7e90f53/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7e90f53/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/c3c97901.md

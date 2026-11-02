@@ -128,9 +128,12 @@ POST `/api/ask`（本文 `{"question": "…"}`）の流れ:
    確定（2026-10-20）: 同率の言い回しは問いの言葉をなぞる形でよい（例「通過回数がいちばん多いのは4回で、9人が並んでいます（大和さんほか）。」。文例どおりに強める直しはしない）。
    確定（2026-10-20）: `rank` の無い問いで `limit` の切れ目に同率が続くときは、人数を添えない。
    並ばないとき・`ranking` 以外（`champions` など）は `tie` を付けず、渡す形は前と同じ。WRC-R の「通過回数がいちばん多いのは？」に9人の同率1位のうち1人だけを「最も多い」と答えたため（WRR-06 の本番）。テストは `tie.test.mjs`
-7. 記録（決定5・grill Q8 を 2026-10-19 に置き換え）: `questions` に日時（JST）・質問文・結果（`answered` / `unanswered` / `candidates` / `guided`）・型・答えの本文（`answer`、返した文言）・型の引数（`args`、null を除いた JSON の文字列。型が無い・引数が無いときは空）。IP は書かない。
+7. 記録（決定5・grill Q8 を 2026-10-19 に置き換え）: `questions` に日時（JST）・質問文・結果（`answered` / `unanswered` / `candidates` / `guided` / `region`）・型・答えの本文（`answer`、返した文言）・型の引数（`args`、null を除いた JSON の文字列。型が無い・引数が無いときは空）。IP は書かない。
    答えの本文は `max_tokens` 2048 で数千字までなので、ブックのセルの上限（5万字）に収まる
 8. Claude の失敗（HTTP エラー・ワークスペースの上限の 400・拒否 `refusal`・打ち切り）は 503（`unavailable`）。この問いは数えたまま、記録は `unanswered`、答えの本文は「失敗: 」と理由（例「失敗: Claude plan: HTTP 529」）。2026-10-26 から、HTTP エラーは応答の本文の `error.type`・`error.message`（200字まで）と `request-id`、Worker の拠点（`request.cf` の `colo`・`country`）も書く（例「失敗: Claude plan: HTTP 403 forbidden Request not allowed req_…（拠点 HKG・HK）」。下の「HTTP 403 の調べ」）。
+   地域の制限（HTTP 403 で `error.type` が `forbidden`、2026-11-02）は、記録の結果を `region`（ブック「地域で使えない」）、応答を 503 の `{"status":"region"}` にし、画面は「お使いの地域からは、この質問欄を使えません（AI の提供元が対応していない地域のため）。」を出す（`assets/houou_ask.js` の `MESSAGES.region`）。ほかの失敗と同じく1問と数える（数えるのは Claude を呼ぶ前で、断られるかは呼ぶまで分からない）
+9. データに無い期（引数 `term`・`from` が `latestTerm()`〈成績の行・決勝・放送対局の最大の期・年度〉より後）は `beyond_data`。選手の成績・優勝者は期を外して記録のある期で答え、冒頭に「女流桜花のデータは第20期終了時点までで、第22期はまだありません。記録のある期で答えます」（時点は `asof.league`）。ほかの型は同じ文だけを `unanswerable` で返す（2026-11-02。女流桜花の「22期の和久津晶成績」など6問）
+10. 2回目の答えにハングル・英語の `league` が混ざったら1回だけ作り直し、残った「리그」「league」は「リーグ」に置き換える。人数で切った残りの「ほか N人が並んでいます」は、同率（`tie`）が無ければ「ほか N人がいます」に直す（`tidyAnswer()`、2026-11-02。指示の文だけでは止まらなかった）
    2026-10-18 までは失敗も `none` も型が空で記録され、区別できなかった（「23期生の鳳凰位は？」が 2026-10-16 22:10 JST ごろに2回続けて答えられなかった原因を記録から決められなかった。CHAT-1019-AIC-07）
 
 Claude の呼び出しの設定（公式の文書と claude-api skill で確かめた。2026-10-11）:
@@ -297,16 +300,18 @@ SELECT day, length(ip_hash) AS hash_length, n FROM ip_counts;
 - 2026-10-26 から、失敗の記録に応答の本文と request-id、拠点（colo・国）を書く（上の「Worker」の8）。次に起きたら D1 の `answer` で分けられる
 - 直す案（入れていない。本番の動きと費用に関わるので平野さんの判断）: `wrangler.jsonc` に `placement`（Smart Placement、または対応地域のクラウドの region を指す Placement Hints）を足し、Anthropic を呼ぶ Worker を利用者の近くでなく対応地域で動かす
 - 見てほしい所: Cloudflare のダッシュボードの `mj-ask` の Observability（失敗の時刻の `答えの作成に失敗: …` の行と、要求の colo・国）、Anthropic の Console の Logs（その時刻の 403 の行と理由）
+- 結果（2026-11-02）: 2026-10-21 23:54 JST の失敗は拠点 HKG・国 HK（平野さんが Observability で確認）。2026-11-01 02:32 JST の2回は記録の答えが「失敗: Claude plan: HTTP 403 forbidden Request not allowed（拠点 HKG・HK）」で、`error.type` は `forbidden`（文書のキーの権限の `permission_error` と違う）。配置は変えず（対応地域の外の利用者に制限を迂回して提供することになるため）、`forbidden` を地域の制限と見て理由の分かる文を返す（上の「Worker」の8）。見たのは1つの国の2回だけなので、ほかの理由で `forbidden` が返ると分かったら `message` や国で絞る（`ask.mjs` の `簡略化:`）
 
 ## 週次の cron（実装3、grill Q9）
 
-`wrangler.jsonc` の `triggers.crons` に `0 0 * * 2`（UTC の月曜 0:00 = **月曜 9:00 JST**）。**Cloudflare の Cron Triggers の曜日は 1 = 日曜・2 = 月曜**（公式の Cron Triggers のページ「Days of the week go from 1 = Sunday to 7 = Saturday」。ほかの cron の 0 = 日曜と違う）。
+`wrangler.jsonc` の `triggers.crons` に `0 18 * * 1`（UTC の日曜 18:00 = **月曜 3:00 JST**。ほかの定期実行〈月次 2:00・週次 3:00・日次 4:00 JST〉にそろえた。2026-11-02 までは `0 0 * * 2`〈月曜 9:00 JST〉。初回は 2026-11-09〈月〉3:00 JST）。
+区切りの「今週の月曜 0 時（JST）」は 3:00 に動いても同じ月曜 0 時になるので、日曜 23:59 JST までの行が入り、月曜 0:00〜3:00 の行は次の回に入る（欠けも重なりも無い。`weekly.test.mjs` で確かめる）。**Cloudflare の Cron Triggers の曜日は 1 = 日曜・2 = 月曜**（公式の Cron Triggers のページ「Days of the week go from 1 = Sunday to 7 = Saturday」。ほかの cron の 0 = 日曜と違う）。
 2026-10-11〜13 は誤って `0 0 * * 1`（日曜 9:00 JST）になっていた（CHAT-1013-AIC-05 で直した）。Cron Triggers はアカウントで 250 本まで（Workers Paid。2026-10-21 までの Free は5本）で、`mj-scheduler`（毎分）と合わせて2本。
 入口は `index.mjs` の `scheduled`、本体は `src/weekly.mjs`。
 
 1. **ブックへの書き出し**（`GOOGLE_SA_KEY` と `ASK_SHEET_ID` があるとき）: 専用のブックの最初のシートに、1行目の見出し（日時・質問文・結果・型・答え・引数。空のブックなら最初に足し、行があれば毎回書き直す〈4列だったブックを6列にする、2026-10-19〉）に続けて、
    D1 の `questions` のうち「ブックの最後の行の日時より後」かつ「今週の月曜 0 時（JST）より前」かつ「90日以内」の行を日時の順に足す（`values:append`、`valueInputOption=RAW` で質問文を式として扱わせない）。
-   前の週の行が足され、取りこぼした週があれば次の回に拾い、同じ回が2度動いても同じ行を二度足さない。結果は「答えた」「答えられなかった」「候補を出した」、型・答え・引数が無ければ空
+   前の週の行が足され、取りこぼした週があれば次の回に拾い、同じ回が2度動いても同じ行を二度足さない。結果は「答えた」「答えられなかった」「候補を出した」「ほかの大会を案内した」「地域で使えない」、型・答え・引数が無ければ空
 2. **ブックの90日を過ぎた行の削除**: 2行目から日時の古い順に並んでいる前提で、先頭から続く90日より前の行を消す（`batchUpdate` の `deleteDimension`）。ブックの行を手で並べ替えると、古い行が残ることがある
 3. **D1 の90日を過ぎた行の削除**: `DELETE FROM questions WHERE asked_at < <90日前>`。鍵が無いときや Google の呼び出しが失敗したときも行う
 4. 鍵かブックの ID が無ければ、Workers Logs に「週次: 鍵(GOOGLE_SA_KEY)かブックの ID(ASK_SHEET_ID)が無いため、ブックへの書き出しを飛ばす」と書き、1・2 を飛ばして正常に終わる。最後に `週次: {cutoff, until, sheet, d1Deleted}` の1行を書く
@@ -350,7 +355,7 @@ Worker から出るのは `oauth2.googleapis.com`・`sheets.googleapis.com` だ�
 2. Type **Secret**、Variable name **`GOOGLE_SA_KEY`**、Value に C1 の4の JSON ファイルの中身を全部（メモ帳で開いて Ctrl+A → Ctrl+C）→ **Deploy**
 3. ダウンロードした JSON を PC から消す（ごみ箱も空にする）
 4. ブックの ID（C2 の4）をチャットに伝える。ID は秘密の値ではないので、指示で `wrangler.jsonc` の `ASK_SHEET_ID` に書く（ダッシュボードで変数を足しても、次のデプロイで `wrangler.jsonc` の値に上書きされるため）
-5. 最初の書き出しは、`ASK_SHEET_ID` を入れた後の月曜 9:00 JST。Workers Logs の `週次:` の行と、ブックの行で確かめる
+5. 最初の書き出しは、`ASK_SHEET_ID` を入れた後の月曜（当時は 9:00 JST、2026-11-09 から 3:00 JST）。Workers Logs の `週次:` の行と、ブックの行で確かめる
 
 ## キーの差し替え（期限の前・漏れたとき）
 

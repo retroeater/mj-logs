@@ -74,16 +74,44 @@ CHAT-1102-NOD-01 の残り。public の retroeater/mj-logs の `.github/workflow
 ### mj-logs の Pages のビルド（指示の範囲外の発見）
 
 - mj-logs の main への push のたびに GitHub の Pages のビルド（`pages-build-deployment`、event dynamic。例: run 41367071455）が動き、その annotations に「Node.js 20 is deprecated … actions/upload-artifact@v4」が出ている。これは GitHub が持つワークフローで、mj-logs のファイルには無い（`.github/` は sync-from-mj.yml だけ）。リポジトリ側の `uses:` を上げても消えない
+- 1回目の後、main は a4f98ea まで進んでいた。浅いクローンの `git rebase origin/main` は共通の祖先が無いため、eb5a87f から当て直そうとして止まった。`git rebase --abort` で戻し、`origin/main`（a4f98ea）から `nod-02-r2` を作った。2行を上げ直し（e4c84af）、`git push --force-with-lease=nod-02:11eb75c origin HEAD:nod-02` で nod-02 を置き換えた
+- その後、回が途切れたら起動するように見張った。1本目（00:53）は、待つ間に main が 9ca5f63 に進んだ。2本目（00:54〜01:09）は、回が途切れたら「最新の main から nod-02 を作り直す → すぐ `workflow_dispatch`」をするスクリプト（scratchpad の go.sh）を15分動かしたが、0件で打ち切った
+- 状況（`actions/runs` の 00:49〜01:08 の sync-from-mj、20件）: Worker が毎分 xx:26 に起動するが、1回に約2〜3分かかるので、前の回が走っている間に次の回が待ちに入り、その待ちも1分後の起動に置き換えられて cancelled になる（20件中 cancelled 9件）。00:24 から mj への push（他のセッションのものを含む）が続いていて、走っている回も待ちも無い隙は1度も無かった
+- この状況で nod-02 を起動した場合
+  - 起動した回は待ちに入り、1分以内に次の Worker の起動に置き換えられて cancelled になる見込みが高い
+  - 走れたとしても、前の回が main に push した後なので、`git push HEAD:main` が拒否される。`reset --hard origin/main` で今回の2行が落ち、main には今の版のままの同期のコミットが入る。nod-02 は fast-forward できなくなり、止まる条件に当たる
+  - main に rebase して合わせるのは止まる条件で禁じられているので、ここで止まった
+- main は触っていない（今は b99a649）。リモートの nod-02 は e4c84af（a4f98ea の上の1コミット）のまま残した（今回の変更による失敗ではないので消していない）。2行の差分そのものは確かめ済み（`uses:` の2行だけ）
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1102-nod（mj、ログだけ）。mj-logs は nod-02（e4c84af、main には入っていない）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1102-NOD-02.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1102-nod
+- 確認用URL: なし
+- マージ: mj は済（ログだけ。36045e64f、範囲 bf117febb..36045e64f）。mj-logs の main は未（手動実行が終わっていない）
+- issue: #308（closed のまま。着手中と中断をコメント）
+- 判断が必要なこと:
+  - mj-logs の nod-02 の手動実行ができない。00:24 からの1時間弱、Worker が毎分 sync-from-mj を起動していて、走っている回か待ちの回が常にある（mj への push が続いているため）。この状態では nod-02 の回は待ちのうちに置き換えられるか、走れても push が拒否されて変更が落ちる。どれを選ぶか
+    - (1) mj への push が6分以上止む時間（深夜など）に、同じ指示を貼り直す。nod-02 は最新の main から作り直す
+    - (2) 手動実行を省き、2行の変更を main へ直接入れる。確かめは次の Worker の回（その回が失敗したら戻す）。決定の「手動実行が success なら」から外れるので、平野さんの判断が要る
+    - (3) sync-from-mj の concurrency や起動の仕組みを変える（別の指示）
+  - mj-logs の GitHub Pages のビルド（`pages-build-deployment`、GitHub が持つワークフロー）の annotations に「Node.js 20 … actions/upload-artifact@v4」の警告が出ている（例: run 41367071455）。mj-logs のファイルを変えても消えない。GitHub 側が直すのを待つか、Pages の配信を「GitHub Actions」に切り替えて自分のワークフローにするか（その場合は新しいワークフローが増える）
+- 未確認の項目:
+  - mj-logs の sync-from-mj を `@v7` で動かした回（手動実行と、main に入った後の初回）は、まだ無い
+- エラー:
+  - mj-logs の nod-02 の `workflow_dispatch` は、Worker の毎分の起動とぶつかるため走らせられなかった（1回目の run 41367111659 は自分で取り消した）
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj d3c55fa1）: https://github.com/retroeater/mj-logs/tree/main/guide/d3c55fa1
+ガイド文書（この版を写した時点の最新、mj a7e90f53）: https://github.com/retroeater/mj-logs/tree/main/guide/a7e90f53
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d3c55fa1/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d3c55fa1/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d3c55fa1/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d3c55fa1/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d3c55fa1/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d3c55fa1/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/29bf0a43.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7e90f53/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7e90f53/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7e90f53/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7e90f53/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7e90f53/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7e90f53/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/c3c97901.md
