@@ -72,6 +72,117 @@
 
 ## 経過
 
+### 着手前の確認
+
+- 0章: ログの「指示」欄の末尾が指示文の最後の行（「不明な点があれば…この行が指示文の最後の行です。」）と一致することを確かめた
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: すべてある
+- 同じ Chat-Ref のコミット: なし。`RYO` の重複（`git log --all -E --grep 'CHAT-[0-9]{4}-RYO-'`・`docs/logs/CHAT-*-RYO-*.md` の履歴）: なし
+- 作業ブランチ: `origin/work/1103-ryo` はリモートに無かったので `git checkout -b work/1103-ryo origin/cloudflare`（着手時 HEAD c1bc06de7）
+- 指示文の issue の state: #389 open・#101 open・#641 open
+- 同じ論点の issue（「良栄」「r/」「トップページ」「トップ」「プロフィール」「ポートフォリオ」「自己紹介」をクローズ済みも含めて検索）: `r/` を作る issue は無し。近いのは #101（トップの作り直し、別系列）・#389（校正、状況: 待ち）。起票: #655（作る、`分野: UI/UX`）・#656（公開、`分野: UI/UX`・`状況: 待ち`）。`対象:` のラベルに `r` に当たるものが無いので付けていない。#655 に着手中コメント（公開の issue の番号を含む）、#389 に1行コメント
+- 他セッションの着手中コメント: #389・#655 に無し
+- 未マージの work/ ブランチ（`git branch -r --no-merged origin/cloudflare`）: `work/1009-swp-526`・`work/1011-swp-hnd`・`work/1011-swp-nav`・`work/1015-skd-notes`（ログのみ）、`work/1029-lgn-page`（log/ の新ページ）、`work/1101-prp-pub`（pro/ の公開）。`r/` を作る作業は無し
+  - 触るファイルの重なり（別の箇所なので止まらず、離れた行に足した）:
+    - `navbar.js`: lgn は `newNavCurrent` の連鎖の先頭に `/log/` を、prp は `/pro/` の行のコメントを変える → `/r/` は `/ouka/` の後（両方から離れた所）に足した
+    - `check-assets.yml` の `allowed()`: lgn は `exam)` の後に `log)`、prp は `pro)` のコメント → `r)` は `houou_leagues_data.json` の行の後
+    - `scripts/regenerate.py`: lgn は `SHARED_GENERATORS["log_pages"]` と `OUTPUT_OVERRIDES` の wrcr の後、prp は `pro_pages` の値 → `ryoei_pages` は辞書の pro_pages の後・title_pages の後、`RUN_LAST` の行
+    - `_redirects`: lgn は books の後 → `r` は `/pro/` の後
+    - `style.css`: lgn は末尾に追記、prp は `.mj-pro-sort` → `r/` の節は `.mj-pro-plan-more` の後
+    - `docs/notes/static-generation.md`「ページの一覧」の冒頭の1行は lgn も同じ行を変えるので、後からマージする側で衝突する（生成物ではない。取り込むときは両方の項目を残して解く）
+    - `scripts/generate_pro_pages.py`・`scripts/lib/page.py` は変えていない
+- 踏襲の元の実物との突き合わせ:
+  - `face_html()`・`results_panel()`・`panel()`・`row_link()`・`sns_icon()`・`houou_now()`・`name_query()`・`SNS_ICONS` は `scripts/generate_pro_pages.py` にある
+  - **食い違い1**: 前提は「1行の要約（最高 C1 · 出場 N期）は pro/ の `results_panel()` と同じ値」だが、`results_panel()` は大会名といまのリーグのチップだけで「最高」「出場」は出さない（2026-10-31 の決定、docstring）。値は `houou/ask-players.json` に「最高」「出場期数」があるので、その値で要約を出した（決定は守れるので止まらず仮置き）
+  - **食い違い2**: `sns_icon(label, url)` は `SNS_ICONS` の3つ（X・note・YouTube）しか引けない。pro/ のファイルを触らず（prp-pub が変更中）、同じ形の `sns_icon()` を r/ のスクリプトに置いた
+  - `regenerate.py` の `OUTPUT_OVERRIDES`・`RUN_LAST`（`("pro_pages",)`）、`check-assets.yml` の `allowed()` は前提どおり
+  - `RUN_LAST` の並びは `run_order()` が真偽でしか並べていなかったので、RUN_LAST の中の並びで作るように直した（r/ は pro/search.json を読むため pro/ の後に要る）
+
+### 現行 index.html から移した値
+
+| 現行（index.html） | r/ |
+|---|---|
+| title・og:title「平野良栄 \| 麻雀プロ（日本プロ麻雀連盟） \| ryoei.pro」 | 同じ |
+| meta description「日本プロ麻雀連盟の麻雀プロ、平野良栄の公式サイト。…データベースを公開しています。」 | 同じ |
+| og:image `img/ogp/site/index-white.png` | 同じ（`PageMeta` の既定） |
+| 写真 `img/profile-img.webp` | 名前の面の 72px の丸 |
+| h1「平野良栄」・名前「Ryoei Hirano」 | h1「平野良栄」、読み「ひらの りょうえい · Ryoei Hirano」 |
+| タイピング「I'm Mahjong Pro, Mind Athlete」 | 自己紹介「肩書き: 麻雀プロ・マインドアスリート」（仮置き） |
+| SNS: X `twitter.com/retroeater`・Facebook `facebook.com/ryoei`・LinkedIn `linkedin.com/in/ryoei/`・GitHub `github.com/retroeater/`・IMDb `imdb.com/name/nm14435079/` | 同じ5つ（X は pro/ と同じ `x.com/retroeater`）。アイコンは X が pro/ の形、ほかは index.html の SVG |
+| Birthday: 29 August 1977 | 生年月日: 1977年8月29日 |
+| City: Tokyo, JAPAN | 所在地: 東京 |
+| Website: ryoei.pro | ウェブサイト: ryoei.pro（仮置き） |
+| Specialty: Proofreading | 専門: 校正 |
+| Organization: JPML ／ Joined: 2014 | 所属: 日本プロ麻雀連盟（2014年9月〜） |
+| League: C2 | 鳳凰戦: C2（データ `houou/ask-players.json`） |
+| Degree: 4th dan | 段位: 四段（手書き、仮置き） |
+| Facts: Children 4（9〜18） | 子ども: 4人（9〜18歳） |
+| Facts: IQ 143（WAIS-IV） | IQ: 143（WAIS-IV） |
+| Facts: JPML Pros 1102 | 連盟プロ: 1,098名（データベース）（`pro/search.json` の件数、pro/ のトップと同じ） |
+| Portfolio 1: 第3期WRC-Rリーグ／`youtube.com/playlist?list=PLEAV_Z2MBt0zNdVLyQd0r24V4vhqzeFNp`／`i.ytimg.com/vi/CWJHAP4E5wI/sddefault.jpg` | 出演1（媒体 YouTube） |
+| Portfolio 2: 第82回　平野 良栄 \| 今を輝く同窓生たち \| 国際基督教大学同窓会／`icualumni.com/interview/guest083`／`icualumni.com/…/hirano2-640x480.jpg` | 出演2（媒体 国際基督教大学同窓会。題は title 属性の全文） |
+| Portfolio 3: ASICS \| 'Mind Games – The Experiment' Full Documentary／`youtube.com/watch?v=Pm5yrqdRUpw`／`img.youtube.com/vi/Pm5yrqdRUpw/sddefault.jpg` | 出演3（YouTube） |
+| Portfolio 4: マインドアスリート 彼らが挑む実験ドキュメンタリー／`amazon.co.jp/dp/B0B8M889D5`／`img/Mind_Games_KEY_VIS_4.3_RYOEI_PRIME_CLEAN_JAPANESE.webp` | 出演4（Amazon） |
+| Portfolio 5: 平野良栄､満貫ツモ!!【麻雀最強戦2018】／`youtube.com/watch?v=aRujA8_rWh8` | 出演5（YouTube） |
+| Portfolio 6: 【世界リーチ麻雀選手権2017インタビュー】土屋 幸弘プロ＆平野 良栄プロ＆西島 一彦プロ＆伊賀 則夫プロ（日本プロ麻雀連盟）／`youtube.com/watch?v=Xixk-10g4aM` | 出演6（YouTube、全文） |
+| Portfolio 7: 第29期新人王戦／`youtube.com/watch?v=mNaNGFC-LOA&list=PLEAV_Z2MBt0ykyGbU5MmU1X9ZsqUF2nnY` | 出演7（YouTube） |
+| Awards: 4th Tokusho League Dec 2024 ／ 4th WRC-R League Jun 2024 ／ 110th World Riichi Championship Oct 2017 ／ 3rd Tokusho League Jul 2017 ／ 4th Champions League Sep 2015 ／ 2nd Rookie Game Aug 2015 | 入賞6件（特昇リーグ 4位 2024年12月 … 新人王戦 2位 2015年8月） |
+| Education & Memberships: JAPAN MENSA Jun 2022- ／ JPML Sep 2014- ／ ICU Apr 1997-Mar 2001 ／ Kaisei Apr 1990-Mar 1996 | 学歴と所属4件 |
+| JPML Houou League 8行 | 面は置かず「鳳凰戦のリーグの履歴 → リーグの推移」（`/houou/players/?name=平野良栄&view=league`）の1行（仮置き） |
+| フッター「© Ryoei Hirano」・「Designed by BootstrapMade」 | 移していない（共通のページの形にフッターが無い。テンプレートの表示） |
+| サイドメニュー（#hero・#about・#portfolio・#resume・jpml_pros.html） | 移していない（共通ナビ navbar.js を使う） |
+
+### 鳳凰戦のリーグの履歴（現行の8行とデータの突き合わせ）
+
+`houou/results/平野良栄.json` の期（N期前期 = (N+1983)年4月、後期 = 同年9月）:
+
+| 現行 index.html | データ | 一致 |
+|---|---|---|
+| D3 2014-09〜2016-03 | 31後・32前・32後 D3 | 一致 |
+| D2 2016-04〜2017-03 | 33前・33後 D2 | 一致 |
+| D1 2017-04〜2017-08 | 34前 D1 | 一致 |
+| C2 2017-09〜2019-03 | 34後・35前・35後 C2 | 一致 |
+| C1 2019-04〜2024-08 | 36前 C1、**36後〜39後（2019-09〜2023-03）の8期の行が無い**、40前・40後・41前 C1 | 食い違い |
+| C2 2024-09〜2025-08 | 41後・42前 C2 | 一致 |
+| C1 2025-09〜2026-03 | 42後 C1 | 一致 |
+| C2 2026-04〜 | 43前 C2 | 一致 |
+
+`houou/ask-players.json` の出場期数 17 も、この8期を数えていない（現行どおりなら 25期）。r/ の要約「最高 C1 · 出場 17期」に効く。
+
+### 実装
+
+- `scripts/generate_ryoei_pages.py`（ページ名 `ryoei_pages`）: 手書きの定数（自己紹介・Facts・成績への行・出演・入賞・学歴と所属・SNS）と、`houou/ask-players.json`・`pro/search.json` を読む `load()`。無い・読めないときは警告して行を出さない。`--check` あり
+- 部品は pro/ の `row_link()`・`panel()`・`league_chip()`・`name_query()`・`CHEVRON`・`SNS_ICONS["X"]`・`FACE_PHOTO`。CSS は pro/ の名前の面・行の面をそのまま使い、`style.css` には `.mj-ryoei` の2規則（押せない行の押した色を消す・出演のサムネイル 40px の正方形）だけ足した
+- `navbar.js`: `/r/` で白地の新しい形にし「良栄」に印（`else if` の2行。メニューの項目は変えていない）
+- `_redirects`: `/r /r/ 301`・`/r/ /r/index.html 200`（saikyo/ と同じ並び）
+- `check-assets.yml` の `allowed()` に `r`（コメント「未公開。公開は #656」）
+- `scripts/regenerate.py`: `SHARED_GENERATORS["ryoei_pages"] = ("pro_pages", "houou_pages")`・`OUTPUT_OVERRIDES["ryoei_pages"] = "r/"`・`RUN_LAST = ("pro_pages", "ryoei_pages")`・`run_order()` を RUN_LAST の並びで作るように
+- 検査 `scripts/tests/test_ryoei_pages.py`: 定数の件数（出演7・入賞6・学歴と所属4）・SNS の5つ・`_redirects` の2行・生成の順・データの無いときに鳳凰戦の行・チップ・連盟プロの数を出さないこと・要約の組み立て
+- `docs/notes/static-generation.md`「ページの一覧」に `r/` の行
+- `docs/decisions/ryoei.md` を作り、README の表に行を足した
+- 共有の部品: `lib/page.py`・`generate_pro_pages.py` は変えていない。`style.css` の追加は `.mj-ryoei` の中だけ、`navbar.js` は `/r/` のパスだけに効くので、全ページの再生成はしていない
+
+### 検査（証跡）
+
+- `python3 -m unittest discover -s scripts/tests`: Ran 1754 tests … OK（1回目は自分の検査の文言の誤り〈description にも「データベース」がある〉で1件落ち、検査を「名（データベース）」に直して通った）
+- `python3 scripts/regenerate.py --check ryoei_pages`: 「ryoei_pages: 通る(--check)」
+- `python3 scripts/check_asset_limits.py`: 配信ファイル数 5,330（5.3%）・`_redirects` 静的 130・動的 12、すべて OK
+- `python3 scripts/regenerate.py --list` に `ryoei_pages` がある。`pages_for_changes(['scripts/generate_pro_pages.py'])` → `['pro_pages', 'ryoei_pages']`
+- `check-assets.yml` は `work/**` への push で走る（run 41562753049）。結果は下の「レビュー」の後に追記
+
+### 画面の確かめ
+
+`python3 -m http.server` で配信し、Playwright（headless Chrome、UA に `mj-internal`）で 360px・390px × 明暗の4枚を撮った（`docs/logs/CHAT-1103-RYO-01/r-<幅>-<light|dark>.png`）。
+
+| 幅・配色 | 横のはみ出し（scrollWidth − 幅） | main の中で画面からはみ出す要素 | 行の中の子要素の重なり | 2行以上に折り返す出演の題 | 白地のナビ・「良栄」に印 |
+|---|---|---|---|---|---|
+| 360 明 | 0 | 0 | 0 | 5件 | あり |
+| 360 暗 | 0 | 0 | 0 | 5件 | あり |
+| 390 明 | 0 | 0 | 0 | 5件 | あり |
+| 390 暗 | 0 | 0 | 0 | 5件 | あり |
+
+- 出演のサムネイルのうち `i.ytimg.com`（第3期WRC-Rリーグ）と `icualumni.com` の2つは、このコンテナのプロキシが CONNECT を 403 で断るため撮った画面では割れた画像になっている（`curl` で 403）。本番では現行トップと同じ URL で、CSP の `img-src https:` の範囲
+- この版で見えるはずの印: 自己紹介の面の先頭の行が「肩書き / 麻雀プロ・マインドアスリート」
+
 ## 報告
 
 - 状態: 作業中
