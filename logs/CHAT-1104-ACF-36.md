@@ -65,6 +65,56 @@
 
 ## 経過
 
+### 着手前の確認
+
+- Chat-Ref の重複: `git log --all --grep='CHAT-1104-ACF-36'` は0件。`ACF` は既存（CHAT-1013-ACF-07 など）で、連番36は最初の指示ではない
+- 0章ゲート: 実装を含まない（ドキュメントと issue の起票のみ）ため対象外
+- 指示文の issue の state: 着手対象の issue は無い（#552・#456 は手順1で確認）
+- 雛形の行: Chat-Ref・マージ・貼る時機・共通手順の4行がそろっている
+- 0.: このログの「指示」欄の末尾は指示文の最後の行（「不明な点があれば、…この行が指示文の最後の行です。」）と一致
+- 作業ブランチ: ローカル・リモートとも `work/1104-acf` は無かった → `git checkout -b work/1104-acf origin/cloudflare`（499f5e29a）
+
+### 手順1: 同じ論点の issue
+
+`gh api search/issues`（`repo:retroeater/mj is:issue`）で「429」「RESOURCE_EXHAUSTED」「"Sheets API"」「上限」「並走」「concurrency」「"Read requests"」「quota」「クォータ」「sheets-reader」を検索した。同じ主題（Sheets API の読み取りの上限・並走）の issue は open・closed とも無し。
+
+- 近いもの: #263（closed、regenerate-page.yml に concurrency。push の競合が主題）、#472（closed、外部からの読み取りの再試行）、#564（open、Actions の整理）、#298（open、Actions の使用量）。主題が違うので関連にだけ書く
+- #552（open）「title の fetch_tab() がフィルタの検知（#432）と再試行を通らずにシートを読む」→ 関連に書く（429 の再試行を通らない読み取りが残っている）
+- #456（open）「全ページの再生成の差分を、コードによる変化とデータによる変化に分けて出す」→ 作業ブランチで全ページの再生成を回す理由の一つなので関連に書く
+
+### 手順2: 起票の材料（読むだけ）
+
+concurrency（`git grep -ln SHEETS_READER_SA_KEY .github/workflows/` の17本）:
+
+| ワークフロー | concurrency の group |
+|---|---|
+| check-image-links.yml | なし |
+| check-meibo.yml | なし |
+| check-saikyo-unregistered.yml | なし |
+| check-sheets-reader.yml | check-sheets-reader |
+| convert-x-posts.yml | convert-x-posts |
+| fetch-x-posts.yml | fetch-x-posts |
+| fetch-youtube.yml | fetch-youtube |
+| regenerate-page.yml | job に `regenerate-page-${{ github.ref }}`（queue: max）。ブランチごとの組なので、別のブランチどうしは並走する |
+| regenerate-saikyo.yml | regenerate-saikyo |
+| research-candidates.yml | research-candidates |
+| run-daily.yml | run-daily |
+| run-weekly.yml | run-weekly |
+| sync-birthday-calendar.yml | sync-birthday-calendar |
+| sync-dojo-calendar.yml | sync-dojo-calendar |
+| sync-yotei.yml | sync-yotei |
+| update-live-channel.yml | update-live-channel |
+| update-sns-book.yml | update-sns-book |
+
+ワークフローをまたぐ共通の group は無い。
+
+呼び出し数（コードから）:
+
+- `scripts/regenerate.py` の `run_page()` はページごとに生成スクリプトを別のプロセスで順に動かす。`lib/sheets.py` のキャッシュ（`_book`・`_values`・`check_not_filtered` の `lru_cache`）はプロセスの中だけで効く
+- 1プロセスの中では、ブック1冊につき `spreadsheets.get` 1回、タブ1枚につき `values.get` が最大2回（`UNFORMATTED_VALUE` と `FORMATTED_VALUE`。`_select()` が両方読む）
+- よって全ページの生成1回 ≒ Σ(ページごとの 読むブック数 ＋ 2×読むタブ数)。ページをまたいで同じタブを読むと、その分だけ繰り返し数えられる
+- ページごとの内訳は未確認（タブ名が定数・lib のモジュール経由で決まり、静的に数え切れない。認証情報が無いので手元で動かして数えられない）。測り方の案: `lib/sheets.py` の `_get()` に呼び出しの数を数えてページの終わりに1行出す仕組みを足し、作業ブランチの `regenerate-page.yml`（dry_run・all）で1回動かす。または Google Cloud のコンソールの API の指標（Sheets API の「リクエスト」をメソッド別）で、全ページの生成1回の前後を比べる
+
 ## 報告
 
 - 状態: 作業中

@@ -1,6 +1,6 @@
 # 朝の報告用の異常（retroeater/mj）
 
-- 書き出した時刻: 2026-11-04 08:30 JST（見た範囲: 2026-11-03 06:30 JST から）
+- 書き出した時刻: 2026-11-04 08:32 JST（見た範囲: 2026-11-03 06:32 JST から）
 - 書き出した実行の契機: workflow_dispatch（main）
 - 異常だけを書く。全体は actions/status.md。判定は mj の scripts/morning_report.py（各ワークフローの直近 100 回まで）
 
@@ -17,6 +17,7 @@
 - 2026-11-04 07:58 regenerate-page.yml failure（workflow_dispatch・work/1104-lgn-release）ジョブ「regenerate」 https://github.com/retroeater/mj/actions/runs/41735344487
 - 2026-11-04 08:25 regenerate-page.yml in_progress（push・cloudflare） https://github.com/retroeater/mj/actions/runs/41738984175
 - 2026-11-04 08:26 regenerate-page.yml pending（push・cloudflare） https://github.com/retroeater/mj/actions/runs/41739199804
+- 2026-11-04 08:32 check-assets.yml in_progress（push・work/1104-rsc） https://github.com/retroeater/mj/actions/runs/41739931580
 
 ## 2. 予約実行の未実行（予定から3時間以内は「遅れの可能性」。3時間を超えて始まった実行は「遅れて実行」）
 
@@ -31,8 +32,9 @@
 
 ## 4. 初回成功（cloudflare の実行だけ。それ以前の cloudflare の実行に success が無いもの）
 
-- 2026-11-04 01:37 check-build-failure.yml success（check_run・cloudflare）それ以前の cloudflare の実行 2 件に success なし https://github.com/retroeater/mj/actions/runs/41676147031
+なし
 
 ## 5. 未報告のログ（`## 報告` の節が無い）
 
 - CHAT-1104-RYO-13.md（着手 2026-11-04） https://github.com/retroeater/mj-logs/blob/main/logs/CHAT-1104-RYO-13.md
+- CHAT-1104-TOP-15.md（着手 2026-11-04） https://github.com/retroeater/mj-logs/blob/main/logs/CHAT-1104-TOP-15.md

@@ -115,17 +115,25 @@ PRP-12 の判断が必要なことへの回答を入れ、トップの説明文�
 
 ## 経過
 
+### 4. マージと本番
+
+- 決定を `docs/decisions/pros.md` に足した（2026-11-04〈CHAT-1104-PRP-13〉の節）
+- origin/cloudflare がまた進んでいたので取り込んだ（衝突なし。r/・scripts/・docs の変更で pro/ に触れない）。取り込みの後もテスト OK（Ran 1928 tests OK）。cloudflare との差分は pro/index.html・`generate_pro_pages.py`・`test_pro_pages.py`・docs だけ
+- push の直前に `git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめ、`git push origin work/1104-prp-desc:cloudflare` → `499f5e29a..95028c1a1`
+- `Workers Builds: mj` は 95028c1a1 で success（23:27Z）。その直後の本番の HTML はまだ古い文（新しい文 0・旧い文 3）。約1分半後に取り直すと、`https://ryoei.pro/pro/` 200・新しい文 3か所・noindex 1（UA に mj-internal。本番へのリクエストはこの指示で計2件）
+- 確かめたのは本番の HTML まで（ブラウザでの見え方は見ていない。見た目は説明の段落の文が変わるだけ）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1104-prp-desc
 - ログ: https://github.com/retroeater/mj/blob/work/1104-prp-desc/docs/logs/CHAT-1104-PRP-13.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1104-prp-desc
-- 確認用URL: 作業中
-- マージ: 作業中
+- 比較URL: https://github.com/retroeater/mj/compare/499f5e29a...95028c1a1
+- 確認用URL: 本番 https://ryoei.pro/pro/ （未公開〈noindex〉。目印: ページ末尾の説明の段落が「…名前・所属・入会期・鳳凰戦および女流桜花の所属リーグ等で検索できます。」）
+- マージ: 済み（95028c1a1 を cloudflare へ。承認済み〈チャットで〉）
 - issue: #641
-- 判断が必要なこと: 作業中
-- 未確認の項目: 作業中
+- 判断が必要なこと: なし
+- 未確認の項目: ブラウザでの本番の見え方（HTML までを確かめた）
 - エラー: なし
 
 <!-- guide-links -->
