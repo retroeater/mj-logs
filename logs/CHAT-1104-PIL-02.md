@@ -90,6 +90,30 @@ CHAT-1104-PIL-01 で判断待ちになった Pillow 13.0.0 への版上げを cl
 - 再生成のコミット: 8aa33033d「chore: regenerate … via GitHub Actions」（push で別セッションの 667be053f と競合し、ワークフローの rebase で入った。`667be053f..8aa33033d`）。変わったのは7ファイル: `pro/aki.nikaido.15/`・`pro/jun.nishikawa.18/`・`pro/kana.nakata.21/`・`pro/maiko.erikawa.32/`・`pro/masaaki.ishikawa.17/`・`pro/tadashi.yoshida.23/` の各 `index.html` と `top/index.html`（シートの変化を反映したもの。Pillow とは無関係）
 - そのほかの手順: サイトマップ・title/ の転送の確認・コミット・帰り道の前回の知らせを読む・帰り道の取り込みを調べる は success。帰り道の知らせを書く は skipped（新しい回なし）
 
+### 本番のビルド・issue
+
+- d30c186d3 の後の cloudflare の 667be053f（別セッションの CHAT-1104-AIC-33 のマージ。d30c186d3 を含む）の Workers Builds: `mj` は本番（summary に Preview URL なし）とプレビューの両方 success、`mj-ask` も success（16:20〜16:22Z）。d30c186d3 の本番の失敗は、次の本番ビルドで解消した。今回の差分は公開対象外（`scripts/`・docs）なので、本番の HTML とブラウザでの見え方は変わらない（確かめるものなし）
+- 8aa33033d（再生成のコミット）のビルドは、この報告の時点では未完了。今回の変更とは無関係
+- #660: 手順3の結果をコメントし（issuecomment-6609359771）、クローズした（completed）。「状況:」ラベルは付いていなかった
+- Dependabot alerts: セッションからは読めない（HTTP 403）。マージの push の出力の「41 vulnerabilities（5 critical）」は、Dependabot が読み直す前の表示とみられる。閉じたかは平野さんが画面で確かめる
+
+### 差分のレビュー
+
+PIL-02 で足したのは docs（decisions・ログ）と取り込みのマージだけで、コード・ワークフローの変更は PIL-01 から増えていない（PIL-01 でレビュー済み）。新しいレビューは行っていない。
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1104-pil
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1104-PIL-02.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1104-pil
+- 確認用URL: なし（見た目の変更なし。公開対象外の scripts/ と docs だけ）
+- マージ: 済（d30c186d3。59c4b82db..d30c186d3）
+- issue: #660（クローズ）
+- 判断が必要なこと: なし
+- 未確認の項目: Dependabot alerts が閉じたか（セッションから読めないため、平野さんが画面で確かめる）
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
