@@ -88,16 +88,18 @@ RYO-12 のマージ後、チャット側が本番の `https://ryoei.pro/r/world-
 | check_hidden の照合が JSON-LD の逃がしの形を含まない | 見送り（JSON-LD は基本と SNS だけで、今は経路が無い。JSON-LD に出来事を載せるときに足す） |
 
 - 直した後: `python3 -m unittest discover -s scripts/tests` OK、`check_asset_limits.py` OK。実データで r/ を作り直して、検査で止まらず出力が変わらないことを確かめる
+- 全ページの新旧の比べ（run 659、`dry_run`・`all`・`compare_ref: origin/cloudflare`）: success、注釈「compare: 差分なし」（ほかのページの生成物は変わらない）
+- 直した後の r/ の作り直し（run 662、9bc2a924c）: success。生成物の差が無くコミットなし（実データで検査に当たらず、r/ は be7866cea のまま）
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj a7323386）: https://github.com/retroeater/mj-logs/tree/main/guide/a7323386
+ガイド文書（この版を写した時点の最新、mj 95028c1a）: https://github.com/retroeater/mj-logs/tree/main/guide/95028c1a
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7323386/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7323386/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7323386/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7323386/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7323386/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7323386/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/dfabc859.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/95028c1a/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/95028c1a/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/95028c1a/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/95028c1a/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/95028c1a/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/95028c1a/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/95028c1a.md
