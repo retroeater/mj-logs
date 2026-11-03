@@ -31,6 +31,7 @@
 | [study.md](study.md) | 女流勉強会（一覧 /study/・各話 study/、帰り道と同じ形、#575 系） |
 | [exam.md](exam.md) | プロテスト（一覧 /exam/・各話 exam/、女流勉強会と同じ形、旧 jpml_test.html の動画、#612 系） |
 | [title.md](title.md) | タイトル戦（title/、「タイトル」タブのデータ・公開後の残件、#222 系） |
+| [top.md](top.md) | サイトのトップ（index.html の作り直し、#101 系。お気に入り #287） |
 | [wayhome.md](wayhome.md) | 帰り道（一覧 /wayhome/・各話 wayhome/、共有ボタン #530・呼称・新しい回の取り込み #194・一覧の OGP #340） |
 
 ## 書き方
