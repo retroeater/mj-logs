@@ -109,28 +109,54 @@ work/1104-top の `docs/notes/pro-pages.md` の追記（「トップの質問欄
 - cloudflare の今の生成物で `houou_ask.js`・`.css` を読むのは houou/・jwrc/・ouka/・wrcr/・saikyo/・top/ のトップ。`ASK_TEMPLATE`・`ASK_HEAD` を使う生成は `generate_houou_pages.py`（4大会）・`generate_saikyo_pages.py`・`generate_top_page.py`。work/1104-top（TOP-12）が houou/ などの欄を消すと、残るのは top/（`generate_top_page.py` の5大会の横断の欄）だけの見込み
 - pro/ の生成は各大会の `ask-players.json`（`houou_pages.ASK_PLAYERS`）をいまのリーグと最強戦の出場に読み続ける（`load_roster_of()`・`SAIKYO_ROSTER`）。欄を消しても `ask-players.json` の生成は残す必要がある
 
+### 5. 差分のレビュー（新しい文脈のサブエージェント、1回。作業ツリーを変えないように頼んだ）
+
+origin/cloudflare...work/1104-prp-unpub と生成物 de3c4a813。bug の指摘なし。work/1101-prp-pub との違いは公開の段の分だけで、入れるものの抜け・残すものの漏れは無い（`assets/pro.js`・`style.css` の違いは冒頭の注記の1行ずつだけ）、という結果。
+
+| 指摘 | 扱い |
+|---|---|
+| 1. `style.css` の `.mj-pro .mj-houou-ask { margin-top: 8px; }` は質問欄を外したので使われない | 直した（835a049de。消した） |
+| 2. `generate_pro_pages.py` の import の注記「検索欄・質問欄・行の部品」 | 直した（835a049de。「検索欄・行の部品と大会の設定〈ask-players.json の名前〉」） |
+| 3. トップの description「五十音・所属・入会期・鳳凰戦のリーグで探せます」に桜花・お気に入りが無い | 見送り（work/1101-prp-pub も同じ文。判断が必要なことに挙げる） |
+| 4. `docs/notes/pro-pages.md` で「切り口」と「カテゴリ」が混ざる | 見送り（work/1101-prp-pub と同じ文のままにして、公開のマージの衝突を増やさない） |
+| 5. `docs/notes/pro-pages.md` の検査の行に `MetaTest` が無い | 直した（835a049de） |
+
+835a049de の後: Ran 1832 tests OK。生成物に効く変更は無い（CSS の未使用の規則と注記だけ）ので再生成しない。
+
+### 6. マージと本番
+
+- 決定を `docs/decisions/pros.md` に足した（2026-11-04〈CHAT-1104-PRP-11〉の節）
+- origin/cloudflare が進んでいたので取り込んだ（898f03c43、衝突なし。取り込んだのは saikyo/・title/・top/・wayhome/ などの生成物で、pro/ には触れない）。取り込みの後もテスト OK（Ran 1832 tests OK・node 212 pass）、止まる条件の対象のファイルの差分なし、noindex の無いページ 0
+- push の直前に `git fetch` と `git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめ、`git push origin work/1104-prp-unpub:cloudflare` → `cf56b6db4..898f03c43`
+- `Workers Builds: mj` は 898f03c43 で success（17:56Z）
+- 本番の HTML（UA に mj-internal、2件、7秒あけて）: `https://ryoei.pro/pro/` 200・noindex 1・1行「すべて」・`hidden` の行 0・`houou_ask` 0。`https://ryoei.pro/pro/sho.shiratori.23/` 200・noindex 1・☆ のボタン 1・「すべて（93件）」1・`houou_ask` 0。本番へのリクエストはこの指示で計2件
+- 確かめたのは本番の HTML まで。ブラウザでの本番の見え方は見ていない（プレビューで 360px・明暗を見た）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1104-prp-unpub
 - ログ: https://github.com/retroeater/mj/blob/work/1104-prp-unpub/docs/logs/CHAT-1104-PRP-11.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1104-prp-unpub
-- 確認用URL: 作業中
-- マージ: 作業中
+- 比較URL: https://github.com/retroeater/mj/compare/cf56b6db4...898f03c43
+- 確認用URL: 本番 https://ryoei.pro/pro/ ・ https://ryoei.pro/pro/sho.shiratori.23/ （未公開〈noindex〉。目印: トップの1行が「すべて」で質問欄が無い、個別ページの右上に ☆）
+- マージ: 済み（898f03c43 を cloudflare へ。承認済み〈チャットで〉）
 - issue: #641
-- 判断が必要なこと: 作業中
-- 未確認の項目: 作業中
+- 判断が必要なこと:
+  - トップの description「五十音・所属・入会期・鳳凰戦のリーグで探せます」に、桜花とお気に入りが入っていない（work/1101-prp-pub も同じ文）。直すか
+  - work/1104-top の `docs/notes/pro-pages.md` の追記（pro/ のトップの質問欄が残っている、の記述）は、この指示で古くなった。TOP の側で直す（#641 のコメントで伝えた）
+  - 公開のマージでは、work/1101-prp-pub とこのブランチの両方が `generate_pro_pages.py`・`assets/pro.js`・`style.css`・テスト・`docs/notes/pro-pages.md`・`docs/decisions/pros.md` を変えている。解き方は `docs/notes/pro-pages.md`「未公開のまま入れたものと、公開のマージで入れるもの」（トップの質問欄と K8 は戻さない）
+- 未確認の項目: ブラウザでの本番の見え方（本番は HTML まで。見た目はプレビューで確かめた）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj dbac236b）: https://github.com/retroeater/mj-logs/tree/main/guide/dbac236b
+ガイド文書（この版を写した時点の最新、mj bec7039a）: https://github.com/retroeater/mj-logs/tree/main/guide/bec7039a
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/dbac236b/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/dbac236b/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/dbac236b/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/dbac236b/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/dbac236b/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/dbac236b/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/bec7039a/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/bec7039a/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/bec7039a/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/bec7039a/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/bec7039a/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/bec7039a/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/53edca83.md

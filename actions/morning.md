@@ -1,6 +1,6 @@
 # 朝の報告用の異常（retroeater/mj）
 
-- 書き出した時刻: 2026-11-04 03:03 JST（見た範囲: 2026-11-03 01:03 JST から）
+- 書き出した時刻: 2026-11-04 03:13 JST（見た範囲: 2026-11-03 01:13 JST から）
 - 書き出した実行の契機: workflow_dispatch（main）
 - 異常だけを書く。全体は actions/status.md。判定は mj の scripts/morning_report.py（各ワークフローの直近 100 回まで）
 
@@ -15,8 +15,11 @@
 - 2026-11-04 02:43 regenerate-page.yml in_progress（workflow_dispatch・work/1103-ryo8） https://github.com/retroeater/mj/actions/runs/41686981568
 - 2026-11-04 02:47 regenerate-page.yml in_progress（workflow_dispatch・work/1104-top） https://github.com/retroeater/mj/actions/runs/41687676575
 - 2026-11-04 02:48 regenerate-page.yml in_progress（workflow_dispatch・work/1029-lgn-page） https://github.com/retroeater/mj/actions/runs/41687839172
-- 2026-11-04 02:56 regenerate-page.yml in_progress（push・cloudflare） https://github.com/retroeater/mj/actions/runs/41689008141
-- 2026-11-04 03:02 check-assets.yml in_progress（push・work/1104-rsc） https://github.com/retroeater/mj/actions/runs/41689906059
+- 2026-11-04 02:56 regenerate-page.yml failure（push・cloudflare）ジョブ「regenerate」：生成に失敗したページを飛ばしました: pro_pages（理由はジョブのサマリ、#533） https://github.com/retroeater/mj/actions/runs/41689008141
+- 2026-11-04 03:08 regenerate-page.yml in_progress（workflow_dispatch・work/1104-lvp） https://github.com/retroeater/mj/actions/runs/41690959274
+- 2026-11-04 03:10 check-assets.yml in_progress（push・work/1104-rsc） https://github.com/retroeater/mj/actions/runs/41691301893
+- 2026-11-04 03:12 check-assets.yml in_progress（push・work/1104-rsc） https://github.com/retroeater/mj/actions/runs/41691573275
+- 2026-11-04 03:12 research-candidates.yml in_progress（workflow_dispatch・cloudflare） https://github.com/retroeater/mj/actions/runs/41691630970
 
 ## 2. 予約実行の未実行（予定から3時間以内は「遅れの可能性」。3時間を超えて始まった実行は「遅れて実行」）
 
@@ -26,13 +29,13 @@
 
 - 2026-11-04 00:55 regenerate-page.yml success（workflow_dispatch・cloudflare）所要 23分45秒（直近20回の中央値 9分34秒） https://github.com/retroeater/mj/actions/runs/41668885312
 - 2026-11-04 02:20 fetch-youtube.yml failure（workflow_dispatch・cloudflare）所要 23分52秒（直近20回の中央値 9分34秒） https://github.com/retroeater/mj/actions/runs/41683310617
+- 2026-11-04 02:56 regenerate-page.yml failure（push・cloudflare）所要 10分47秒（直近20回の中央値 9分34秒） https://github.com/retroeater/mj/actions/runs/41689008141
 
 ## 4. 初回成功（cloudflare の実行だけ。それ以前の cloudflare の実行に success が無いもの）
 
-- 2026-11-03 23:50 check-build-failure.yml success（check_run・cloudflare）それ以前の cloudflare の実行 31 件に success なし https://github.com/retroeater/mj/actions/runs/41657643690
+- 2026-11-03 23:50 check-build-failure.yml success（check_run・cloudflare）それ以前の cloudflare の実行 27 件に success なし https://github.com/retroeater/mj/actions/runs/41657643690
 
 ## 5. 未報告のログ（`## 報告` の節が無い）
 
-- CHAT-1104-PIL-03.md（着手 2026-11-04） https://github.com/retroeater/mj-logs/blob/main/logs/CHAT-1104-PIL-03.md
 - CHAT-1104-RYO-12.md（着手 2026-11-04） https://github.com/retroeater/mj-logs/blob/main/logs/CHAT-1104-RYO-12.md
 - CHAT-1104-TOP-13.md（着手 2026-11-04） https://github.com/retroeater/mj-logs/blob/main/logs/CHAT-1104-TOP-13.md

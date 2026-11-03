@@ -194,3 +194,17 @@ Cloudflare の Security Overview の提案（security.txt など）の見送り�
 - CSP の確かめ方を規則にする（CHAT-1101-MCK-24 の「判断が必要なこと」の3つ目）。CSP（`_headers`）を変えたら、マージ後に実際のブラウザで外部への送信が CSP の違反なしに通ることを確かめる（docs/notes/cloudflare.md「配信設定」の CSP の段落）
 - マージしてよい
 - 作業中の回答: なし
+
+## 2026-11-04（CHAT-1104-PIL-01）
+
+- Pillow を今すぐ 13.0.0 に上げる（Dependabot alerts、#660）。版とハッシュの照合（`--require-hashes`）の形は保つ。`docs/decisions/pros.md` の 2026-10-31（CHAT-1031-PRO-04）の「同じ版（12.3.0）」はこの版に読み替える
+- `.github/dependabot.yml` に pip を足すことはこの指示ではしない。四半期の棚卸し（#601）までは待たない（Dependabot のメジャー版を棚卸しでまとめて見るのは github-actions の PR の扱いで、今回は手で上げる）
+- マージの承認の条件: (1) 差分が `scripts/requirements-ogp.txt`（版とハッシュ）と、非互換への対応で変えた Pillow を使うスクリプト・そのテスト・docs だけ (2) テストがすべて成功 (3) 帰り道の OGP 画像を 13.0.0 で作り直しても、コミット済みの画像と寸法が同じ (4) 作業ブランチで `regenerate-page.yml` の帰り道の手順を dry-run で動かして success。(4) は dry-run では帰り道の手順が動かないため、2026-11-04 に案A へ読み替えた（下の CHAT-1104-PIL-02）
+- 作業中の回答: なし
+
+## 2026-11-04（CHAT-1104-PIL-02）
+
+- CHAT-1104-PIL-01 のマージの条件 (4) は案A で読み替える: 手元の Python 3.12 の venv に `--require-hashes -r scripts/requirements-ogp.txt` で入り、`render_ogp()` の出力がコミット済みとバイト一致したことで代える
+- マージの直後に cloudflare で `regenerate-page.yml` を `target_page: all`・dry-run なしで手動実行し、帰り道の手順（`id: build_wayhome_ogp`）がランナーで success になることを確かめる
+- マージは承認済み。案B（作業ブランチで dry-run なしの実行）・案C（画像だけを作る入力をワークフローに足す）は採らない
+- 作業中の回答: なし

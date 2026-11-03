@@ -64,15 +64,60 @@ CHAT-1104-PIL-01・02（Pillow 12.3.0 → 13.0.0、#660 クローズ済み）の
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 着手前の確認
+
+- 指示欄の末尾は指示文の最後の行と一致
+- `CHAT-1104-PIL-03` のコミット・ログ: 0件（同じチャットの3本目で、識別子の重複の確認は対象外）
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 欠けなし
+- ガイド文に足す指示の「知見 → 選んだ層 → 理由」の表: あり
+- 作業ブランチ: `work/1104-pil` はローカル・リモートとも cloudflare にマージ済み（`git merge-base --is-ancestor` が真）。ローカルにあり cloudflare の祖先なので、docs/notes/cloud-sessions.md「作業ブランチの用意」のとおり `git merge --ff-only origin/cloudflare` で進めた（cf56b6db4）
+
+### 手順1（issue・ブランチ）
+
+- open issue の検索（`is:issue is:open` + `dependabot`・`pillow`・`dry_run`・`requirements`・`pip 依存`）: 同じ論点の issue は無し
+  - #619（#598 の残り。行1が「CI の依存を requirements〈ハッシュ付き〉にし、pip-audit・Dependabot の対象にする」）は近いが、CI の依存全体を固定する将来の作業で、今回の「今の手順と事実を書く」とは別の論点と判断した。#601（棚卸し）・#539（Python 3.14）も別
+- 未マージの work/ ブランチと追記先:
+  - `docs/notes/github-actions.md`: `work/1101-prp-pub`（26行目）・`work/1103-ryo5`（36行目）・`work/1103-ryo8`（24行目）。どれも冒頭の「ワークフローの一覧」の表の行で、今回の「regenerate-page.yml」「Dependabot」節とは別の箇所
+  - `docs/decisions/operations.md`: `work/1029-lgn-page` が途中の節（1254〜1545行の辺り）に追記。今回は末尾に足すので別の箇所
+  - 止まる条件には当たらない
+
+### 手順2（追記）
+
+- `docs/notes/github-actions.md`「regenerate-page.yml」の `dry_run` の項: 既に「帰り道の OGP 画像と知らせは動かさない」とあったので、その文を拡張した（同じ趣旨の記述の拡張）。足したのは「帰り道の手順〈Pillow を入れる行を含む〉は `if:` で飛ぶので、ランナーで Pillow を確かめる手段にならない。cloudflare で `target_page: all`・`dry_run: false` を手動実行する。作業ブランチでの実行は再生成のコミットがそのブランチに入るので使わない」
+- 同「Dependabot」節: 2行を足した。(2) pip の依存は `dependabot.yml` の対象外だが alerts は届く。届いたら版とハッシュを手で上げる（PIL-01 の形）。pip を `dependabot.yml` に足すことは採らなかった。(3) alerts の API はセッションで HTTP 403。閉じたかは平野さんが画面で確かめる。2026-11-04 の Open 0・Closed 41 は平野さんの申告値として書いた（CLAUDE.md「判断・作業の原則」の書き方）
+- `docs/decisions/operations.md`: 末尾に「2026-11-04（CHAT-1104-PIL-03）」の節を足した。指示文の案のとおり。「ガイド文に規則は足さない」の行には、手順・事実を github-actions.md に書いたことを添えた
+- 矛盾する記述: なし（既存の Dependabot 節は github-actions の PR の扱いだけを書いていた）
+- 容量: `check-assets.yml` の上限・警告の対象は CLAUDE.md・handover.md・chat-side-operations.md・instruction-template.md の4文書だけで、この2ファイルには上限が無い。測った値: `docs/notes/github-actions.md` 63,398 → 64,722 バイト（+1,324）、`docs/decisions/operations.md` 177,042 → 179,406 バイト（+2,364）
+- docs のみの変更なので、差分のレビュー（docs/notes/self-review.md）は対象外
+
+### マージ
+
+- 完了報告（このログの `## 報告`）を書いたうえで、push 直前に再 fetch し `git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめて `git push origin work/1104-pil:cloudflare`: `898f03c43..0fff2d9dd`（取り込みのマージは衝突なし）
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1104-pil
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1104-PIL-03.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1104-pil
+- 確認用URL: なし
+- マージ: 済（0fff2d9dd。898f03c43..0fff2d9dd）
+- issue: なし
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj dbac236b）: https://github.com/retroeater/mj-logs/tree/main/guide/dbac236b
+ガイド文書（この版を写した時点の最新、mj bec7039a）: https://github.com/retroeater/mj-logs/tree/main/guide/bec7039a
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/dbac236b/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/dbac236b/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/dbac236b/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/dbac236b/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/dbac236b/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/dbac236b/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/bec7039a/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/bec7039a/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/bec7039a/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/bec7039a/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/bec7039a/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/bec7039a/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/53edca83.md
