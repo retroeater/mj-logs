@@ -102,15 +102,49 @@ AIC-17 は送る前に差し替えたため欠番。
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 0. 着手前の確認（2026-11-03）
+
+- 指示欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある
+- `git log --all --grep` で CHAT-1103-AIC-18 と AIC-17（欠番）は0件。`AIC` はこのチャットの系列（AIC-01〜16）
+- f520341f5 は origin/cloudflare の祖先。`origin/work/1103-aic` は無かったので `git checkout -b work/1103-aic origin/cloudflare`（c1bc06de）
+- AIC-16 のログの `## 報告` の状態に ` / 続き: CHAT-1103-AIC-18` を足し、「判断が必要なこと」2つの後ろに回答（すぐ直す）を書き足した
+- #654 に他セッションの着手中は無い（最後は AIC-16 の結果）。着手中のコメントを書いた。未マージの work/ ブランチで `workers/ask/` を変えているものは無い
+
+### 1. 再現と、1 を外した理由
+
+- 1（決勝だけの人）: 前提のとおり。鳳凰戦の `player` `{name: 森山茂和}` は `not_found`（「森山茂和の鳳凰戦リーグの成績がありません」）で、`guideAnswer()` が「鳳凰戦の記録に…いません」と書く。決勝（第2・4・7期、2位）に記録がある
+- 5大会の「決勝だけに出た人」（決勝の順位にいて成績の行が無い人）を data で数えた: 鳳凰戦9人（森山茂和・島田昭・ロッキー堀江など）、女流桜花0人、WRC リーグ5人、WRC-R 7人、最強戦0人
+- **WRC リーグの5人に「佐々木寿人」がいる（第10期の決勝 4位）。** jwrc/ の「佐々木寿人」も今は `not_found` で「WRCリーグの記録に「佐々木寿人」に当たる選手はいません。記録があるのは鳳凰戦（佐々木寿人）、麻雀最強戦（佐々木寿人）です。」と答えており、1 と同じ誤り
+- 指示は「AIC-08・16 の案内の答え（「佐々木寿人」を jwrc/ で聞く）が変わらないこと」を確かめるとし、止まる条件に「今答えられている問いの答えが変わる（どれか1つでもマージしない）」がある。1 を直すとこの答えが変わる（決勝の記録で答える形になる）ので、前提と実物が食い違う（CLAUDE.md「Chat-Ref」: 前提と実物が食い違ったら手を入れず報告）。**1 は直さずに外し、2 だけ進めた**（止まる条件は 1 と 2 を別に扱う形）
+- 2（連盟の外の選手）: 前提のとおり。最強戦の `players` にあって `people` に無い人（TAKUYA など）は、案内の出典が「麻雀最強戦のトップ」になる
+
+### 2. 直したこと（2 だけ。4b7e7244f と、コメントの直し、文書 9fa27d5e3）
+
+- `guideAnswer()` の個人のリンクの条件を、`d.people[name]`（在籍者）から `d.people[name] || d.totals?.[name]` にした（`hasPage()`）。`totals`（部門別の値）は `data-saikyo.json` だけが持ち、キーは `players` と同じ439人で、どれも最強戦の個人成績のページに載っている
+- ほかの4大会は `totals` が無いので前と同じ（個人成績のページは在籍者だけ。退会者はトップのまま）
+- 全件の比べ（scratchpad の cmp18.mjs）: 5大会の在籍者と成績の行のある選手の名前すべてを、5大会の質問欄から `guideAnswer()` に当てて直す前と後を比べた。同じ 6959件、変わった 1136件はすべて「答えの文は同じで、出典の『麻雀最強戦のトップ』が最強戦の個人成績（連盟の外の選手）に替わっただけ」、それ以外の変化は0件
+- 本番のページ: `https://ryoei.pro/saikyo/players/?name=TAKUYA` は HTTP 200。埋め込みの選手のデータ（`saikyo_players_data` の `p`、440人）に TAKUYA があり、ページの JS（`assets/saikyo.js` の `params.get('name')` → `show(currentName(name))`）が `?name=` で選手を出す（HTML と JS の取得まで。ブラウザでの見え方は見ていない）
+- テスト: `cross.test.mjs` に、TAKUYA を鳳凰戦の質問欄で聞くと出典が `/saikyo/players/?name=TAKUYA` になること・totals と players のキーが同じこと・萩原聖人（AIC-16）の答えが前と同じこと・ほかの大会の退会者は今までどおりトップのことを足した。直す前のコード（origin/cloudflare）に当てると新しいテストだけが落ちる。`node --test 'workers/ask/test/*.test.mjs'` 133件通過、`python3 -m unittest discover -s scripts/tests` 通過
+- 文書: docs/notes/ask-worker.md の案内の出典の書き方と、決勝だけに出た人の残り（大会ごとの人数と jwrc/ の佐々木寿人）
+
+### 3. 自己レビュー（docs/notes/self-review.md、新しい文脈のサブエージェント、1往復）
+
+| 指摘 | 扱い |
+|---|---|
+| 条件の対象とページが一致（totals 439人は全員ページにいる、ほかの大会に totals は無い、別名・カンマ〈個人成績のページは分割しない〉の扱いも問題なし）／ほかの4大会は変わらない／テストは直す前に落ちる／規約 | 指摘なし |
+| コメントの「totals の選手＝ページの選手」は厳密でない（ページには未対局の卓だけの選手が1人多い。案内には出ないので動作に影響なし） | 直した: 「totals の選手はページに載っている」に |
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj c1bc06de）: https://github.com/retroeater/mj-logs/tree/main/guide/c1bc06de
+ガイド文書（この版を写した時点の最新、mj 62570dd4）: https://github.com/retroeater/mj-logs/tree/main/guide/62570dd4
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c1bc06de/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c1bc06de/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c1bc06de/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c1bc06de/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c1bc06de/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c1bc06de/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/62570dd4/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/62570dd4/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/62570dd4/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/62570dd4/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/62570dd4/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/62570dd4/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/c1bc06de.md

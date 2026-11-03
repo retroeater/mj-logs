@@ -128,7 +128,7 @@
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1103-AIC-18
 - ブランチ: work/1102-aic
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1102-AIC-16.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1102-aic
@@ -136,8 +136,8 @@
 - マージ: 済（f520341f5。cf7053c8e..f520341f5）
 - issue: #654（着手中と結果をコメント）
 - 判断が必要なこと:
-  - 決勝だけに出た人の案内の文: 鳳凰戦の質問欄で「森山茂和」の成績を聞くと、成績の行が無いので「鳳凰戦の記録に「森山茂和」に当たる選手はいません」と答える（実際は鳳凰戦の決勝の第2・4・7期に記録がある）。AIC-08 からの食い違いで、事実の誤りの側。直すか（例: その大会の決勝の記録を添える）
-  - 連盟の外の選手（TAKUYA など、最強戦の在籍者の一覧に無い人）は、最強戦の個人成績に載っているが、案内は「麻雀最強戦のトップ」止まり。個人成績へ送るようにするか（自己レビューの改善の余地）
+  - 決勝だけに出た人の案内の文: 鳳凰戦の質問欄で「森山茂和」の成績を聞くと、成績の行が無いので「鳳凰戦の記録に「森山茂和」に当たる選手はいません」と答える（実際は鳳凰戦の決勝の第2・4・7期に記録がある）。AIC-08 からの食い違いで、事実の誤りの側。直すか（例: その大会の決勝の記録を添える） → 回答（2026-11-03、平野さん）: すぐ直す（CHAT-1103-AIC-18）
+  - 連盟の外の選手（TAKUYA など、最強戦の在籍者の一覧に無い人）は、最強戦の個人成績に載っているが、案内は「麻雀最強戦のトップ」止まり。個人成績へ送るようにするか（自己レビューの改善の余地） → 回答（2026-11-03、平野さん）: すぐ直す（CHAT-1103-AIC-18）
 - 未確認の項目:
   - 2026-11-09（月）03:00 JST の週次の書き出しが動き、ブックに 11/02〜11/08 の行が入るか。あわせて、2026-11-02 10:09 JST ごろの「現女流桜花は？」の「引数」の列に from・to が入っているか（AIC-15 から写した）
   - 地域で断られた問いが、新しい結果（`region`、ブック「地域で使えない」）で記録に入るか（AIC-15 から写した）
@@ -146,12 +146,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj f520341f）: https://github.com/retroeater/mj-logs/tree/main/guide/f520341f
+ガイド文書（この版を写した時点の最新、mj 62570dd4）: https://github.com/retroeater/mj-logs/tree/main/guide/62570dd4
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f520341f/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f520341f/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f520341f/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f520341f/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f520341f/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f520341f/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/cf7053c8.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/62570dd4/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/62570dd4/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/62570dd4/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/62570dd4/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/62570dd4/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/62570dd4/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/c1bc06de.md
