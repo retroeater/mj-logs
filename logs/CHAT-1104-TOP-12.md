@@ -57,6 +57,61 @@ TOP-11 の新しいナビをプレビューで見た平野さんの判断を反�
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 0. 着手前の確認
+
+- 「指示」欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は4行とも有り。同じ Chat-Ref のコミットは0件。TOP は既存の識別子（最初の指示ではない）
+- CHAT-1104-TOP-11 の `## 報告` の状態は「判断待ち」、origin/work/1104-top（866b8bf0f）は cloudflare に未マージ。TOP-11 の状態に ` / 続き: CHAT-1104-TOP-12` を足した（55e5a1bfd）
+- issue の state: #101・#231・#654 とも open。#101 の着手中コメントは TOP-11（このセッション）のものだけ
+- `origin/cloudflare` を merge で取り込んだ（40f2c59b2、30コミット）。衝突は `top/index.html`（生成物）だけ。作業ブランチ側の版を残し、後で `regenerate-page.yml` で作り直す
+- CLAUDE.md 23,981・handover.md 24,023 バイト（上限 28KB）
+
+### 1. 調べ
+
+**ページの中の質問欄**（`class="mj-houou-ask"` のある生成物）:
+
+| ページ | 生成 | 扱い |
+|---|---|---|
+| houou/・ouka/・jwrc/・wrcr/ のトップ | `generate_houou_pages.py` の `ask_box()`（`TOP_TEMPLATE` の `{ask}`、head に `ASK_HEAD`） | 外す |
+| saikyo/ のトップ | `generate_saikyo_pages.py` の 1721 行あたり（`houou.ASK_TEMPLATE`・`ASK_PLACEHOLDER`） | 外す |
+| top/ | `generate_top_page.py` の質問欄（`ASK_TEMPLATE`・`top_ask.js`・`#top_ask_contests`） | 外す |
+| pro/ のトップ | `generate_pro_pages.py` の `top_ask()` | **外さない**（work/1101-prp-pub が同じ関数 `top_ask()` と `assets/houou_ask.js` を変えている。下の表） |
+
+**部品の読み手**:
+
+| 部品 | 読み手（質問欄を外した後） | 扱い |
+|---|---|---|
+| `assets/houou_ask.js` | pro/ のトップ（残す）、`workers/ask/test/week3.test.mjs`（画面の文言を読む検査）、work/1101-prp-pub が変更中 | 残す |
+| `assets/houou_ask.css` | ナビの質問欄（assets/nav.js が読む）、pro/ | 残す |
+| `ASK_TEMPLATE`・`ASK_HEAD`・`ASK_NOTICES`・`ASK_MAX`（generate_houou_pages.py） | pro/ の `top_ask()` | 残す |
+| `ask_box()`・`Contest.ask_placeholder`（generate_houou_pages.py） | 大会のトップだけ | 消す（例は assets/nav.js へ移す） |
+| saikyo の `ASK_PLACEHOLDER` と質問欄の HTML | saikyo/ のトップだけ | 消す（例は assets/nav.js へ） |
+| 各大会の `ask-players.json`（houou/・ouka/・jwrc/・wrcr/・saikyo/） | `generate_pro_pages.py`（いまのリーグ・最強戦の出場）、pro/ の質問欄、`test_houou_ask.py`・`test_jpml_pros.py` | 残す（生成も残す） |
+| `ASK_CONTESTS`・`#top_ask_contests`（generate_top_page.py）と `top_ask.js` の読み方 | top/ だけ | 消す（top_ask.js の `ASK_CONTEST_NAMES` にまとめる） |
+| 答えの選手のカード | ナビの欄は応答の `players[]`（名前・大会・行き先）で出す（TOP-07 から同じ） | 大会別の名簿は読まない |
+
+`houou_ask.js` が残るので、`top_ask.js` との一時的な重複（#654 のコメント）は pro/ の質問欄を外すときまで残る。
+
+**番組の新しいページの今のナビ**（`navbar.js` の `newNavCurrent` に入っていない＝黒地）:
+
+| ページ | 形 | 扱い |
+|---|---|---|
+| wayhome/・exam/・mtsuku/・study/ の一覧 | `.mj-video-page.mj-video-list`（濃色固定・全画面のヒーロー、`color-scheme: dark`） | 新しいナビに足す（パスで判定） |
+| 同じ各話 | `.mj-video-page`（濃色のヒーロー） | 足す |
+| live/ の個別ページ（`live/<大会>/<期>/<対局>.html`） | `.mj-video-page.mj-live-detail`、body に目印なし | 足す（パス `/live/` で、`mj-live-n-page` の後に判定） |
+| video_live.html | 古い表のページ（黒地） | 足さない |
+
+`.mj-video-page` は books/（凍結）・saikyo/<年度>/ の卓のページにもあるため、目印ではなくパスで決める。濃色のページは `--mj-n-*` を持たないので、ナビが読む名前を `--mj-v-*` から足す。
+
+**未マージの work/ ブランチの重なり**（変える予定のファイル）:
+
+| ブランチ | 重なるファイル | 同じ行・関数か | 扱い |
+|---|---|---|---|
+| work/1101-prp-pub | `generate_pro_pages.py` の `top_ask()`・`ASK_PLAYERS_PAGE`、`assets/houou_ask.js`（`playerHref()`・`slugMap()`） | 同じ | pro/ を外す（PRP 系列に頼む。`## 報告`） |
+| work/1101-prp-pub | `generate_houou_pages.py`（`add_pro_slugs()`・`prepare()`）、`navbar.js`（「連盟プロ」の行き先）、`style.css`（pro/ の節） | 別の関数・行 | そのまま進める |
+| work/1029-lgn-page | `navbar.js`（if の連なりの先頭に `/log/`）、`style.css`（log/ の節） | 別の行 | そのまま進める（取り込むときは if の連なりに行を足すどうし） |
+
 <!-- guide-links -->
 ---
 
@@ -68,4 +123,4 @@ TOP-11 の新しいナビをプレビューで見た平野さんの判断を反�
 - docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/667be053/docs/notes/chat-side-operations.md
 - docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/667be053/docs/notes/cloudflare.md
 - docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/667be053/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/59c4b82d.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/53edca83.md
