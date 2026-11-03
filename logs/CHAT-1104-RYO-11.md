@@ -70,6 +70,28 @@ CHAT-1104-RYO-10（判断待ち）の「判断が必要なこと」に平野さ�
 - 読み取り（`fetch_table`）は列の中で少ない方の型のセルを空にするので、表示の文字と比べて「読み取りで空欄になったセル」を出す確かめを `--check` に足した（`ryoei_book.lost_dates()`・`check_lost_dates()`。見つけて警告するだけで、読めるようにはしない。Q3 の決定）（9f5888b3a）
 - 手動実行（run 633、9f5888b3a、`check`・`ryoei_pages`）: 「『出来事』の開始・終了: 読み取りで空欄になったセルはありません」。検査は通り、基本の未使用の項目の警告も消えた。列・行数は前と同じ（基本17・出来事38 など）。「【Claude受渡用】」は前と同じ PDF 1件（22ページ）
 
+### r/ の作り直しと画面の比べ
+
+- r/ の作り直し（run 635、9f5888b3a、`target_page: ryoei_pages`）: success。ワークフローが aa13fab4c をコミット
+- `r/index.html` の差（RYO-10 の版 aa9ca272c と比べて）: 自己紹介に「出身 富山生まれ・千葉育ち」（生年月日の後）と「目標」（所属の後）の2行が増えただけ。`r/world-data.json` は about が7つになった
+- 家族の語の検索: `r/index.html`・`r/world-data.json` とも0件
+- 検査: `python3 -m unittest discover -s scripts/tests` OK、`python3 scripts/check_asset_limits.py` OK（_redirects・_headers とも上限の 15% 未満）
+- 画面の比べ（360px。前は RYO-10 の版 aa9ca272c、後はこのブランチ。外部の画像は両方とも読まない）: `docs/logs/CHAT-1104-RYO-11/`
+  - `compare-list.png`: 自己紹介の出身・目標の2行の分だけ下が伸びた（Q1 の決定による差）。ほかは同じ
+  - `compare-enter.png`・`compare-cinema.png`: 看板・スクリーン・椅子は同じ（街の灯りの並びと紙の粒子は読み込むたびに乱数。RYO-10 のログのとおり）
+
+### Workers Builds（Q4）
+
+- 前提の「本番の cloudflare（53edca83）のビルドは成功」: check-runs で確かめた（16:33〜16:34 UTC にプレビューと本番の `mj` がどちらも success）
+- RYO-10 で失敗した 8a7b8378b のビルド（Build ID は check-run の summary にある。プレビュー・本番の別は失敗した check-run からは分からない〈docs/notes/cloudflare.md「ビルドが Cloning で失敗したとき」〉）: 16:22:29 開始・16:27:28 failure。summary は Build ID と Script の2行だけで、失敗した段・エラー文は check-run に出ない
+- 同じ時間帯（16:11:51）に `cloudflare` の 667be053f の本番のビルドも failure（`check-build-failure.yml` が本番の失敗として知らせた run が 16:11 に2件）。16:33 の 53edca83 からは通っている
+- この指示の push のビルド:
+  - 9f5888b3a（RYO-10 の変更すべて＋Q1・Q3 のコード。r/ は作り直す前）: 17:04 にプレビューの `mj` が success（summary に Preview Alias URL あり）
+  - aa13fab4c（r/ の作り直し）: 17:09 にプレビューの `mj` が success
+  - b30e2b946・3c612ca9e などには check-run が付かなかった（docs だけの push は対象外。b30e2b946 は直後の push に追い越されたと見ている）
+- 結論: 8a7b8378b の失敗は今回の変更によるものではないと見ている。`r/world-data.json` を含む同じ中身（9f5888b3a・aa13fab4c）のビルドは通り、同じ時間帯に本番のビルドも失敗していたため。失敗した段はダッシュボードでしか見られないので、原因（Cloning など）は確かめていない
+- プレビューで確かめたこと（ブランチ名の別名 URL に `?v=aa13fab4c`、UA に mj-internal）: `/r/` は 200 で出身・目標を含む。`/r/world-data.json` は 200。Playwright（360px、SwiftShader）で「入る」を押すと、CSP の下で `/r/world-data.json`・Three.js を読み（どちらも 200）、空間の canvas が出た。コンソールのエラーなし（外部の画像の読み込みの失敗を除く）
+
 <!-- guide-links -->
 ---
 

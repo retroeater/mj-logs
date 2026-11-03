@@ -112,15 +112,66 @@ TOP-11 の新しいナビをプレビューで見た平野さんの判断を反�
 | work/1101-prp-pub | `generate_houou_pages.py`（`add_pro_slugs()`・`prepare()`）、`navbar.js`（「連盟プロ」の行き先）、`style.css`（pro/ の節） | 別の関数・行 | そのまま進める |
 | work/1029-lgn-page | `navbar.js`（if の連なりの先頭に `/log/`）、`style.css`（log/ の節） | 別の行 | そのまま進める（取り込むときは if の連なりに行を足すどうし） |
 
+### 2. 実装（0ad6d1186・a5dbc593f・5f04f5ce9・11a6d40c5）
+
+| 場所 | 中身 |
+|---|---|
+| `navbar.js` | 帯の「質問」の文字をやめ、虫眼鏡に小さな光の印の SVG（読み上げ「AI に質問」）。`newNavCurrent` の if の連なりに、番組の新しいページのパス `/^\/(wayhome\|exam\|mtsuku\|study\|live)\//`（live/ は `mj-live-n-page` の判定の後なので個別ページだけ）を足す（印は「番組」） |
+| `assets/nav.js` | 質問のシートをやめ、帯の直後に置く欄（`#mj_nav_ask_panel`）にする。アイコンで開閉、Esc（変換の取り消しは除く）で閉じる、開くと入力欄・閉じるとアイコンへフォーカス、`aria-expanded`・`aria-controls`。入力欄の例は大会のページならその大会のもの（`ASK_PLACEHOLDERS`、前の大会別の欄の例をそのまま移した）。まとまりは 選手・大会（先頭タイトル戦）・動画・リソース・良栄、定数に無い項目はその名前のまとまりで末尾に |
+| `assets/top_ask.js` | 新トップの `#top_ask_contests` を読む分岐と自動の初期化を外し、nav.js からだけ動かす |
+| `scripts/generate_houou_pages.py` | 大会のトップの質問欄（`ask_box()`・`TOP_TEMPLATE` の `{ask}`・トップの `ASK_HEAD`）と `Contest.ask_placeholder` を消す。`ASK_TEMPLATE`・`ASK_HEAD`・`ASK_NOTICES`・`ASK_MAX`・`ask-players.json` の生成は pro/ が使うので残す |
+| `scripts/generate_saikyo_pages.py` | トップの質問欄・`ASK_PLACEHOLDER`・トップの `#league_contest`（facts は houou_ask.js だけが読んでいた）を消す。`ask-players.json` の生成は pro/ の生成が読むので残す |
+| `scripts/generate_top_page.py` | 上部の質問欄（`top_ask()`・`ASK_*`・`top_ask.js` の読み込み）を消す。`houou_ask.css` は「もっと見る」の形に使うので残す |
+| `style.css` | 帯の下の欄の見た目（`.mj-nav-ask-panel`、幅 560px まで）、開いている間のアイコンの地、出典のリンクの色。番組の濃色のページ（`.mj-video-page`）でナビが読む `--mj-n-*` を `--mj-v-*` から置く。濃色のページ（番組・r/）の受付停止の文の色 |
+| `assets/houou_ask.js`・`assets/houou_ask.css`・`assets/top.css` | コメントだけ（読み手の記述）。`top.css` の答えのカードの規則は style.css の欄の規則へ移した |
+| テスト | `test_top_page.py`（まとまりの並び・定数に無い項目・大会ごとの例・アイコンの読み上げと aria-controls・帯の直後に置くこと・番組のパスの判定〈当たる6件・当たらない4件: video_live.html・jpml_pros.html・books/・saikyo/2025/〉・トップに質問欄と消した名前が無いこと）、`test_houou_pages.py`・`test_jwrc_pages.py`・`test_wrcr_pages.py`・`test_saikyo_pages.py`（トップに質問欄が無いこと） |
+| docs | `top-page.md`・`design.md`（共通ナビ〈新しい形〉の行と配色の節）・`ask-worker.md`（質問欄の置き場所）・`houou-top.md`・`ouka-top.md`・`jwrc-top.md`・`wrcr-top.md`・`saikyo-page-design.md`・`pro-pages.md`・`static-generation.md`・`league-pages-compare.md`・`docs/decisions/top.md`（2026-11-04 の決定。2026-11-03 の決定と TOP-11 の「右上の質問」に置き換えの印）・`docs/decisions/houou.md`（同じ決定の写しに置き換えの印） |
+
+- #654 に、大会別の欄（`contest` 指定）の呼び出しが無くなることを1行コメントした（Worker は変えていない）
+
+### 3. 検証
+
+- `python3 -m unittest discover -s scripts/tests`: 1799件 OK（5f04f5ce9 の時点。11a6d40c5 の後に `test_top_page.py` を回して OK）
+- 修正前のコードで通らないこと: 足した検査（まとまりの並び・大会ごとの例・アイコンの読み上げ・番組のパス・トップに質問欄が無い）は、どれも前のコード（TOP-11 の版）では落ちる形
+- `regenerate-page.yml` dry_run・all・compare_ref＝origin/cloudflare（53edca83d）の新旧の比べ（run 41676459542、0ad6d1186）: 成功。**中身の違うファイルは6件だけ**: houou/index.html（18行）・jwrc/index.html（18行）・ouka/index.html（18行）・saikyo/index.html（19行）・top/index.html（65行）・wrcr/index.html（18行）。古い表のページ（jpml_pros.html・video_live.html・title/ など）の生成物は変わらない。その後のコミット（5f04f5ce9・11a6d40c5）は JS・CSS・コメント・docs だけで、生成のコードは変えていない
+- 画面（ローカルの静的サーバ＋Playwright、UA に mj-internal、`/api/ask` は差し替え。生成し直す前の HTML なので大会のトップにはページの中の欄がまだ出ている）:
+
+| ページ | 結果 |
+|---|---|
+| top/・houou/・saikyo/・pro/ | 帯（48px）にアイコン（読み上げ「AI に質問」、文字なし）。押すと帯の直後（隙間 0）に欄が開き入力欄にフォーカス、`aria-expanded="true"`。例は top/・pro/「例：現鳳凰位は？」、houou/「例：23期生の鳳凰位は？」、saikyo/「例：2025年度の最強位は？」。送ると `{contest:"all", context:"houou"/"saikyo"/null}`、答えと選手のカードが欄の下に出る。Esc で閉じてアイコンへフォーカス、もう一度押しても閉じる。≡ のシートは 選手/大会/動画/リソース/良栄、今の項目に印 |
+| wayhome/・mtsuku/・exam/ の一覧、wayhome/ の各話、live/ の個別ページ | 帯が出る（濃色の地のまま上に貼り付く）。欄・≡ のシートとも同じ動き。全画面のヒーローは崩れない（帯の高さが 56→48px になるだけ）。答えの出典のリンクは明るい青、選手の頭の1字の丸に地の色 |
+| r/ | 帯・欄・シートとも同じ動き |
+| title/・jpml_pros.html・video_live.html | 黒地のナビのまま（帯なし） |
+
+### 4. 自己レビュー（新しい文脈のサブエージェント、2回）
+
+| 指摘 | 扱い |
+|---|---|
+| 番組の濃色のページで、答えの出典のリンク（Bootstrap の紺）と受付停止の文（暗い赤）が濃色の地で読めない | 直した（5f04f5ce9。出典は `--mj-n-accent`、受付停止の文は濃色のページで明るい赤）。2回目: r/ でも受付停止の文が同じ → 直した（11a6d40c5） |
+| 番組のページ（帯が上に貼り付く）で下までスクロールしてから開くと、欄が文書の先頭にあるので先頭へ移る | 意図どおり（決定の「帯のすぐ下」。上限を `簡略化:` で残した、5f04f5ce9） |
+| 日本語の変換の取り消しの Esc で欄が閉じる | 直した（`isComposing`、5f04f5ce9。2回目: Safari の 229 も、11a6d40c5） |
+| `aria-controls` が欄を作る前の無い id を指す | 欄を作ったときに付ける（5f04f5ce9） |
+| 古いコメント・文書（navbar.js の live/ の分岐、nav.js の loadAsk、houou_ask.css の読み手、league-pages-compare.md の `ask_placeholder`、design.md の配色の節、style.css の番組の節の範囲） | 直した（5f04f5ce9） |
+| 大会のトップの生成物にまだページの中の欄が残っている | 生成し直す（下の本実行） |
+
+### 5. 仮置きの一覧
+
+- アイコンの形（虫眼鏡に小さな光の印の SVG）と読み上げ「AI に質問」（指示文の前提のまま）
+- 開いている間のアイコンの地（丸い灰色）
+- 欄の幅（本文の面と同じ 560px まで）と、番組のページ（帯が上に貼り付く）で開くと文書の先頭へ移ること
+- 定数のまとまりに無い項目（他の作業で navbar.js に足したもの）は、その項目の名前のまとまりとして末尾に出す
+- 番組の濃色のページの帯・シート・欄の色（ページの濃色 `--mj-v-*` から。開いている間の押した地 `#2c2c2e`・頭の1字の丸 `#48484a`）
+- pro/ のトップのページの中の欄は残っている（`## 報告`「判断が必要なこと」）
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 667be053）: https://github.com/retroeater/mj-logs/tree/main/guide/667be053
+ガイド文書（この版を写した時点の最新、mj 6865148b）: https://github.com/retroeater/mj-logs/tree/main/guide/6865148b
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/667be053/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/667be053/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/667be053/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/667be053/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/667be053/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/667be053/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6865148b/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6865148b/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6865148b/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6865148b/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6865148b/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6865148b/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/53edca83.md
