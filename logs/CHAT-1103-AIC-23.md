@@ -93,16 +93,23 @@ AIC-22 の本番の確かめ（横断の「佐々木寿人の成績は？」）�
 - テスト（count.test.mjs に1本、AIC-21 の規則の文を新しい文に）: 最強戦の欄と横断の2回目の指示に部門の意味の行が入る（6部門の名前がすべて入る）、鳳凰戦の欄と横断の指示に「count は答えに書かず」が入り「成績の行」の言葉が無い、女流桜花・WRC・WRC-R の指示には入らない。直す前のコードで新しい1本と、規則の文を替えた2本が落ちる。直した後は node 147本・python 1747本 通過
 - 変わる範囲の比較（scratchpad の in21.mjs を直す前と後で）: 応答・記録と2回目に渡す結果は全部同じ。2回目の指示（system）が変わるのは鳳凰戦と最強戦（と、それらを含む横断）だけ。女流桜花・WRC リーグ・WRC-R は同じ
 - docs: ask-worker.md「5大会の応答ルール」の表の player の count の行を直し、totals の部門の意味の行を足した（c0df647a6）。docs/decisions/houou.md に 2026-11-03（CHAT-1103-AIC-23）の節
+- 自己レビュー（新しい文脈のサブエージェント、1回）:
+
+  | 回 | 対象 | 観点 | 結果 |
+  |---|---|---|---|
+  | 1 | f244c35f4・c0df647a6 | 6部門の意味と DIVISIONS・Career の一致、最強戦の既存の行との矛盾、鳳凰戦の行と「人数や件数は count を使う」、ほかの型・大会への影響、テスト、docs | 要修正なし。任意2件: 勝率は規定（対局数10回以上、`PASS_RATE_MIN_TABLES`）に届かない選手の totals に無い（439人のうち351人）→ 「対局数10回以上の選手だけにある」を足した／ファイナルは「ファイナルトーナメント 1st・2nd Stage」「ファイナル 1st・2nd Stage」も数える → 「(1st・2nd Stage を含む)」を足した（コミットは下の SHA）。証跡: 6部門すべて一致、年度で絞らないとき count と totals の対局数が全選手で一致、147本通過、直す前のコードで新しいテストが落ちる |
+
+  直しは1行の文面だけなので2回目のレビューは行わなかった。直した後も node 147本・python 1747本 通過
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj d2277ebe）: https://github.com/retroeater/mj-logs/tree/main/guide/d2277ebe
+ガイド文書（この版を写した時点の最新、mj 22d902d0）: https://github.com/retroeater/mj-logs/tree/main/guide/22d902d0
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d2277ebe/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d2277ebe/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d2277ebe/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d2277ebe/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d2277ebe/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d2277ebe/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/22d902d0/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/22d902d0/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/22d902d0/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/22d902d0/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/22d902d0/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/22d902d0/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/795228a7.md

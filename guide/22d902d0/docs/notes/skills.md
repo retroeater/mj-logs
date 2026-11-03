@@ -53,7 +53,9 @@ claude.ai のアカウントで追加した plugin は、クラウドセッシ�
 アカウントから外した plugin は、同じセッションの途中でも同期先から消え、`claude plugin list` に出なくなった（同日）。
 セッションの画面の `/plugin` は「この環境ではプラグインをご利用いただけません」と出る（平野さんの申告）が、同期された plugin は動く。
 どの plugin が入るかはアカウント側で決まり、リポジトリからは決められないため、mj の規則・手順は plugin が無くても回るように書く。
-アカウントに残している plugin と採否の経緯は docs/decisions/operations.md（2026-10-20・2026-11-03）。
+アカウントに残している plugin は security-guidance（編集ごとのパターン照合）と claude-security（深い診断、回し方は docs/notes/security.md）の2件（2026-11-03）。採否の経緯は docs/decisions/operations.md（2026-10-20・2026-11-03）。
+外した plugin のうち、claude-md-management は年数回の CLAUDE.md の監査のとき、frontend-design はトップの作り直し（#101）のように方向性を決めるときの比較ページの案出しにだけ、入れ直して使う。
+code-review・code-simplifier・claude-code-setup は入れ直す予定が無い
 
 - マーケットプレイスから project スコープで入れる方法（2026-09-29 に試した）は、本体が `~/.claude/plugins/cache/` に置かれ、
   `~/.claude` が起動のたびに作り直されるため毎セッション入れ直しが要る（`.claude/settings.json` の `enabledPlugins` を宣言しても、
@@ -132,4 +134,4 @@ Bash のコマンド文字列を `&&`・`||`・`;`・`|`・改行で区切り、
 モデルが自動で使う skill の description は毎セッション読み込まれる（`disable-model-invocation: true` のものは除く）。
 今の4本（grilling・domain-modeling・writing-for-agents・cloudflare）で合わせて約300トークン（plugin の `claude plugin details` の見積もりから）。
 本文は呼ばれたときだけ読まれる（`cloudflare` は約8,700トークン、`writing-for-agents` は約3,700トークン）。
-アカウントの plugin の skill・slash command・agent の description も毎セッション読み込まれる（2026-11-03 は plugin 7件で skill 4本・slash command 2本・agent 9本）。
+アカウントの plugin の skill・slash command・agent の description も毎セッション読み込まれる（2026-11-03 は plugin 2件で skill 1本〈`disable-model-invocation: true`〉・agent 8本、どちらも claude-security。security-guidance は hook だけ）。
