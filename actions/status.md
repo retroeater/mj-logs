@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-11-04 04:28 JST
+- 書き出した時刻: 2026-11-04 04:34 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -199,7 +199,7 @@
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
 | 2026-11-04 04:20 | push | cloudflare | in_progress | #655（41702345684） |  |
-| 2026-11-04 03:52 | workflow_dispatch | work/1104-top | in_progress | #654（41697907318） |  |
+| 2026-11-04 03:52 | workflow_dispatch | work/1104-top | success | #654（41697907318） | 38分36秒 |
 | 2026-11-04 03:48 | workflow_dispatch | work/1104-top | cancelled | #653（41697295116） | 1分35秒 |
 | 2026-11-04 03:26 | push | cloudflare | failure | #652（41693768390） | 32分15秒 |
 | 2026-11-04 03:17 | workflow_dispatch | work/1103-ryo8 | success | #651（41692398002） | 60分59秒 |
