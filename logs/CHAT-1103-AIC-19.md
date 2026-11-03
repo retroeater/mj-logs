@@ -87,16 +87,25 @@ AIC-18 の止まる条件「jwrc/ の『佐々木寿人』の答えが変わら�
   - 直す前のコード（origin/cloudflare の workers/ask）で新しいテストを回すと、佐々木寿人・21人の2本が落ちる（ほか15本は通る）
   - 直した後: `node --test 'workers/ask/test/*.test.mjs'` 134本すべて通る。`python3 -m unittest discover -s scripts/tests` 1747本 OK
 - docs: ask-worker.md の残りの行を直しの説明に置き換えた（ab2e8c20f）。docs/decisions/houou.md に 2026-11-03（CHAT-1103-AIC-19）の節を足した
+- 答えの比較（scratchpad の cmp19.mjs）: 直す前（origin/cloudflare）と後の `ask()` を、5大会 × 名前（5大会の people・players・決勝の名前の全員、その先頭2文字、存在しない名前）× player・champions の 26950 通りで比べた（Claude の返事は固定の偽物）。違ったのは 36 通りで、すべて player 型の21人（その大会で聞いた場合）と、その大会でその21人の1人に決まる名前の一部15通り（「森山」「大橋」「白鳥」など）。名前の一部の前の答えも「〜の記録に「森山」に当たる選手はいません」で同じ誤りなので、「答えが変わってよい問い」（21人をその大会で聞いたとき）の内と判断した。champions 型・ほかの名前・ほかの大会の答えと記録は同じ
+- 自己レビュー（新しい文脈のサブエージェント、2回）:
+
+  | 回 | 対象 | 観点 | 結果 |
+  |---|---|---|---|
+  | 1 | 1d39b40e5 | 正しさ・21人以外が変わる経路・文面・テストの妥当性 | 要修正なし。任意5件: (1) 名前の一部「寿人」で、ほかの大会の一覧に本人以外（鳳凰戦の石津寿人）が入る → 直した（9d1fd3f28、本人の名前で引く。テストを足した）。(2) 文面（「成績の記録」の重なり、「第10期WRCリーグ決勝で4位」の語順、最強戦に該当者が出たときの文）→ 言い回しは週次でまとめる決定（2026-11-02）なので今回は直さない。(3) 答えの asof が空 → 直さない（ほかの案内の答えも空）。(4) 最新より後の期を付けて聞くと期の外の答えになる → 直す前と同じ動き、範囲外。(5) テストが21人の人数を固定 → データが変われば数え直す前提で残す。証跡: 134本通過、直す前のコードで新しい2本が落ちる、別の比較（1667の名前 × 2型）で guideAnswer・runQuery の違い0件 |
+  | 2 | 9d1fd3f28 | 直しで新たな問題が無いか | 指摘なし。別名（「大橋良弘」「伊藤優こ孝」）も本人の名前で一覧・出典が出る。証跡: 134本通過、比較の違いは1回目と同じ |
+
+- 9d1fd3f28 の後に比較を回し直し、違った 36 通りは同じ組（26914 通りは同じ）。node 134本・python 1747本 通過
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 12483fda）: https://github.com/retroeater/mj-logs/tree/main/guide/12483fda
+ガイド文書（この版を写した時点の最新、mj 83a01444）: https://github.com/retroeater/mj-logs/tree/main/guide/83a01444
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/12483fda/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/12483fda/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/12483fda/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/12483fda/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/12483fda/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/12483fda/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/83a01444/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/83a01444/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/83a01444/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/83a01444/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/83a01444/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/83a01444/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/ad26c534.md
