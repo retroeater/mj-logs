@@ -54,28 +54,61 @@ CHAT-1103-PLG-02 は、docs/notes/design.md に規則の 1 行を足す手順に
 
 ## 経過
 
+### 0. 着手前の確認
+
+- 「指示」欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべて揃っている
+- `git log --all --grep="CHAT-1103-PLG-03"` は0件、`docs/logs/` にも無し。CHAT-1103-PLG-01・02 と同じセッション
+- 作業ブランチ: `work/1103-plg` はローカル・リモートとも `origin/cloudflare` の祖先（マージ済み）。`git merge --ff-only origin/cloudflare` は「Already up to date」（HEAD ad26c5345）
+- 規則の表: この指示はガイド文に規則を足さない（指示文の止まる条件の1つ目）。PLG-02 で止まった docs/notes/design.md の1行は外されている
+- 未マージの `work/` ブランチ: `origin/work/1029-lgn-page` が docs/decisions/operations.md の中ほどを変えている（今回の追記は末尾で別の箇所）。docs/notes/skills.md を変えているものは無し
+
+### 1. plugin の一覧・参照箇所
+
+- `claude plugin list` の「Synced from claude.ai:」: `claude-security@synced`・`security-guidance@synced` の2件（どちらも `Status: √ loaded`）。同期先の `manifest.json` も2件
+  - 中身: claude-security は skill 1本（`claude-security`、`disable-model-invocation: true`）・agent 8本、security-guidance は hook だけ
+- CLAUDE.md・docs/（docs/logs/ を除く）で外した5件を参照している箇所:
+  - CLAUDE.md: 無し
+  - docs/notes/skills.md 61行目「`mattpocock-skills` は25本、`code-review`・`triage` など組み込みや mj の運用と重なるもの」: mattpocock-skills の中の skill の名前で、plugin の code-review ではない。直さない
+  - docs/notes/self-review.md「`/code-review` を使わない理由」: 「Claude Code の `/code-review` をクラウドセッションで試した（2026-10-27）」で、plugin に限らない記述。前提（要確認）のとおり、plugin を外しても変える必要は無い。直さない
+  - docs/decisions/operations.md の 2026-10-20（PLG-01・07）・2026-10-28 ごろ（1182行目「`/code-review` は試し直さない」）の節: 決定の記録なので書き換えず、今回の節で置き換えを書いた
+  - docs/notes/skills.md の「plugin の扱い」「コンテキストの負荷」: plugin の名前は無いが、件数・本数（7件）と採否の参照があり、今の状態に直す対象
+
+### 2. 文書の直し
+
+- docs/notes/skills.md「plugin の扱い」: 「アカウントに残している plugin と採否の経緯は docs/decisions/operations.md（2026-10-20・2026-11-03）」の1行を、
+  残している2件（security-guidance・claude-security と各役割、回し方は docs/notes/security.md）と採否の経緯の参照、外した plugin のうち入れ直す場面（claude-md-management＝年数回の CLAUDE.md の監査、frontend-design＝方向性を決めるときの比較ページの案出しだけ）、入れ直す予定の無い3件、の3行に置き換えた
+- docs/notes/skills.md「コンテキストの負荷」: 「2026-11-03 は plugin 7件で skill 4本・slash command 2本・agent 9本」を「plugin 2件で skill 1本〈`disable-model-invocation: true`〉・agent 8本、どちらも claude-security。security-guidance は hook だけ」にした
+- 規則は足していない（入れ直す場面は今の状態の記述として書いた。「使い終えたら外す」は決定に無いので書かなかった）
+- docs/decisions/operations.md の末尾に「2026-11-03（CHAT-1103-PLG-03）」の節を足した（2026-10-20 の「残す」8件を置き換える旨を含む）
+- CHAT-1103-PLG-02 のログの `## 報告`（ファイルの最後の一致）の状態を「判断待ち / 続き: CHAT-1103-PLG-03」にした
+- 差分は docs/notes/skills.md・docs/decisions/operations.md・docs/logs/ の範囲
+
+### 3. 上限
+
+- 変えた docs/notes/skills.md・docs/decisions/operations.md は、CLAUDE.md「CLAUDE.md / handover.md の更新ルール」の上限の対象（CLAUDE.md・handover.md・chat-side-operations.md・instruction-template.md）ではない。測る対象は無し
+
 ## 報告
 
-- 状態: 対応中
+- 状態: 完了
 - ブランチ: work/1103-plg
-- ログ: https://github.com/retroeater/mj/blob/work/1103-plg/docs/logs/CHAT-1103-PLG-03.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1103-PLG-03.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1103-plg
 - 確認用URL: なし
-- マージ: 未
+- マージ: 済（1eb05aaa0 を fast-forward で push。ドキュメントのみ）
 - issue: なし
-- 判断が必要なこと: 未記入
-- 未確認の項目: 未記入
+- 判断が必要なこと: なし
+- 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 62570dd4）: https://github.com/retroeater/mj-logs/tree/main/guide/62570dd4
+ガイド文書（この版を写した時点の最新、mj 46a47f07）: https://github.com/retroeater/mj-logs/tree/main/guide/46a47f07
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/62570dd4/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/62570dd4/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/62570dd4/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/62570dd4/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/62570dd4/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/62570dd4/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/46a47f07/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/46a47f07/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/46a47f07/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/46a47f07/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/46a47f07/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/46a47f07/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/ad26c534.md
