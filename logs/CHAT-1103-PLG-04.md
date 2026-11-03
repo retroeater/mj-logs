@@ -53,28 +53,67 @@ PLG 系列（2026-10-20〜11-03、CHAT-1020-PLG-01〜10・CHAT-1103-PLG-01〜03�
 
 ## 経過
 
+### 0. 着手前の確認
+
+- 「指示」欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべて揃っている
+- `git log --all --grep="CHAT-1103-PLG-04"` は0件、`docs/logs/` にも無し。CHAT-1103-PLG-01〜03 と同じセッション
+- 作業ブランチ: `work/1103-plg` はローカル・リモートとも `origin/cloudflare` の祖先（マージ済み）。`git merge --ff-only origin/cloudflare` で進めた（着手時HEAD 0fcfe5bdd）
+- 未マージの `work/` ブランチ: `origin/work/1029-lgn-page` が docs/decisions/operations.md を変えているが、そのブランチの分岐時の末尾（今の 1379 行あたり）への追記で、今の末尾（1532 行）とは別の箇所。取り込みの衝突も無し（今回は取り込み不要）
+
+### 1. 数の確かめ
+
+各ログの `## 報告` の最終の状態（CHAT-1020-PLG-01〜09 は削除済みなので、`git log --all` で各ログの最後の版を読んだ）:
+
+| Chat-Ref | ログ | 最終の状態 | 止まり方 |
+|---|---|---|---|
+| CHAT-1020-PLG-01 | 削除済み | 判断待ち / 続き: CHAT-1020-PLG-07 | 判断を求める作り（(a)〜(c)） |
+| CHAT-1020-PLG-02 | 削除済み | 判断待ち / 続き: CHAT-1020-PLG-07 | 判断を求める作り（指摘の採否） |
+| CHAT-1020-PLG-03 | 削除済み | 判断待ち / 続き: CHAT-1020-PLG-07 | 手順0（PLG-02 が完了でない） |
+| CHAT-1020-PLG-04 | 削除済み | 判断待ち / 続き: CHAT-1020-PLG-07 | 手順0（PLG-03 が完了でない） |
+| CHAT-1020-PLG-05 | 削除済み | 判断待ち / 続き: CHAT-1020-PLG-07 | 手順0（新しいセッションでない） |
+| CHAT-1020-PLG-06 | 削除済み | 判断待ち / 続き: CHAT-1020-PLG-07 | 手順0（新しいセッションでない） |
+| CHAT-1020-PLG-07 | 削除済み | 完了 | |
+| CHAT-1020-PLG-08 | 削除済み | 完了（止まった時点は判断待ち。PLG-10 で完了に直した） | 止まる条件（sitemap.xml の正しい経路が Edit） |
+| CHAT-1020-PLG-09 | 削除済み | 完了 | |
+| CHAT-1020-PLG-10 | あり | 判断待ち / 続き: CHAT-1103-PLG-01 | 手順と作業ログの規則が両立しない |
+| CHAT-1103-PLG-01 | あり | 完了 | |
+| CHAT-1103-PLG-02 | あり | 判断待ち / 続き: CHAT-1103-PLG-03 | 着手前（規則の表が無い） |
+| CHAT-1103-PLG-03 | あり | 完了 | |
+
+- 13本・手順0/着手前に止まった5本（PLG-03〜06、1103-PLG-02）・止まる条件の1本（PLG-08）・判断待ちで残った1本（PLG-10）は前提のとおり。7本のうち6本がチャット側の指示文の書き方が原因、も前提のとおり
+- 前提に無かった点: PLG-01・02 も判断待ちで終わっている（判断を求める作りの指示で、止まったのではない）。結論は変わらないので止まらず、節に1文で足した
+- **前提と食い違った点（直した）:** 「新しいセッションの開始 2 回（PLG-05・06、結果として不要）」。PLG-05・06 のログでは、どちらも PLG-01〜04 と同じセッションに貼られて手順0で止まっている（Claude-Session の URL も PLG-01〜13 で同じ）。
+  新しいセッションは始められておらず、増えたのは貼り直しの2回。節では「新しいセッションは始めず、PLG-05・06 は同じセッションに貼られて止まり、貼り直しが2回増えた」と書いた
+- 前回の約束 (a): CHAT-1103-PLG-01 の前提には開いた場所（docs/notes/skills.md「git の hook」、CHAT-1101-WFL-29、mj-logs の検索）、CHAT-1103-PLG-03 の前提には根拠のログ（CHAT-1020-PLG-07、CHAT-1103-PLG-01）と「要確認」が添えてあった。前提のとおり
+- 平野さんのプラグインの追加1回・削除3回: PLG-01（7件の追加）、PLG-07 の前（6件の削除）、1103-PLG-01（hookify）、1103-PLG-03（5件）で前提のとおり
+
+### 2. 記録
+
+- docs/decisions/operations.md の末尾に「2026-11-03（CHAT-1103-PLG-04）」の節を足した。書式は「2026-11-02（CHAT-1102-AIC-15）」に合わせ、1つ目の箇条に「（中身はチャット側の案）」と書いた
+- ガイド文（CLAUDE.md・handover.md・docs/notes/）は変えていない
+
 ## 報告
 
-- 状態: 対応中
+- 状態: 完了
 - ブランチ: work/1103-plg
-- ログ: https://github.com/retroeater/mj/blob/work/1103-plg/docs/logs/CHAT-1103-PLG-04.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1103-PLG-04.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1103-plg
 - 確認用URL: なし
-- マージ: 未
+- マージ: 済（ed348b21f を fast-forward で push。ドキュメントのみ）
 - issue: なし
-- 判断が必要なこと: 未記入
-- 未確認の項目: 未記入
+- 判断が必要なこと: なし（前提の「新しいセッションの開始 2 回」は、PLG-05・06 が同じセッションに貼られていたため「新しいセッションは始めず、貼り直しが2回増えた」に直して記録した。経過の 1.）
+- 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 82af799a）: https://github.com/retroeater/mj-logs/tree/main/guide/82af799a
+ガイド文書（この版を写した時点の最新、mj 8eb4b671）: https://github.com/retroeater/mj-logs/tree/main/guide/8eb4b671
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/82af799a/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/82af799a/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/82af799a/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/82af799a/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/82af799a/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/82af799a/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/8eb4b671/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/8eb4b671/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/8eb4b671/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8eb4b671/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8eb4b671/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8eb4b671/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/e4049b27.md
