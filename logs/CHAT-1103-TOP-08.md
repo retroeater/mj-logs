@@ -53,6 +53,24 @@
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 0. 着手前の確認
+
+- 「指示」欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は4行とも有り。同じ Chat-Ref のコミットは0件
+- TOP-07 のログの `## 報告` の状態は「判断待ち」、origin/work/1103-top（bedfbd0a2）は cloudflare に未マージ。`origin/cloudflare` は HEAD の祖先（取り込みは不要）。TOP-07 の状態の末尾に ` / 続き: CHAT-1103-TOP-08` を足した（e91dcdbd4）
+- 未マージの work/ ブランチで `scripts/generate_top_page.py`・`assets/top.js`・`scripts/tests/test_top_page.py` を変えているものは無い
+- #101 に他セッションの着手中コメントは無い。着手中コメントを書いた
+
+### 1. サムネイル・X の画像の取り方と大きさの見込み
+
+- **CSP**: `_headers` の `img-src 'self' data: https:`。https の画像はどのドメインでも読めるので、**CSP の変更は要らない**
+- **放送の枠のサムネイル**: pro/ の個別ページの放送対局の行と同じ `generate_live_pages.thumb_url(動画ID, CARD_THUMB[0])`（`https://img.youtube.com/vi/<動画ID>/mqdefault.jpg`、live/ のカードと同じ）。動画ID は予定の行き先の `watch?v=`（`wayhome.video_id_from_watch_url()`）。大きさは pro/ の `THUMB_W, THUMB_H = 96, 54`（CSS は既存の `.mj-pro .mj-houou-card .mj-pro-thumb`）。前提の「i.ytimg.com」ではなく img.youtube.com（live/・pro/ が使っている方。CSP の上ではどちらも同じ）
+- **新着の番組のサムネイル**: 帰り道・Mつく・プロテストの一覧のカードもすべて YouTube の `mqdefault`（`wayhome.CARD_THUMB`・`mtsuku.CARD_THUMB`）なので、各話のページのパスの動画ID から同じ URL を作る
+- **最強戦の予定・枠の無い予定表の予定**: サムネイルが無いので、同じ大きさ（96×54）の灰色の箱に大会名の頭の文字
+- **X のプロフィール画像**: `pro/search.json` の写真の列（`_80x80` の URL。pro/ の一覧の 40px の丸と同じ元、SNS ブック）。無い選手は pro/ の `photo_html()` と同じく頭の1字の丸。読めない画像は pro/ と同じく JS が頭の1字に差し替える
+- **大きさの見込み**: 今の `top/index.html` は 41,990 バイト。大会日程は今も全件（36行）焼いているのでサムネイルの `<img>` の分（1行 150 バイト前後 × 36）、新着の番組は 3件 → 12件、誕生日は焼く範囲を前3日・後3日から前1日・後8日に広げる（今日と明日から7日分、生成が1日止まっても今日と7日分が出る）。合わせて 60KB 前後の見込みで、2倍（84KB）は超えない
+
 <!-- guide-links -->
 ---
 
