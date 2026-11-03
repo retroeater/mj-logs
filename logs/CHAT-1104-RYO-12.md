@@ -56,15 +56,25 @@ RYO-11 の判断待ちに平野さんが答えた（マージしてよい）の�
 - 0: 「指示」欄の末尾はこの指示文の最後の行と一致
 - `work/1103-ryo8` はリモートにあり、ローカルと同じ f83317354
 
+### マージ前の確かめ（手順1）
+
+- `origin/cloudflare` を merge で取り込んだ（ef6bf81a6、衝突なし）。push
+- `python3 -m unittest discover -s scripts/tests` OK、`python3 scripts/check_asset_limits.py` OK
+- check（run 640、ef6bf81a6、`check`・`ryoei_pages`）: 通る。「R_良栄」の検査に当たる行なし、「『出来事』の開始・終了: 読み取りで空欄になったセルはありません」
+- 全ページの再生成の差分（`dry_run`・`target_page: all`・`compare_ref`）:
+  - run 641（`compare_ref: cloudflare`）: 生成は通ったが、新旧の比べの段が `fatal: invalid reference: cloudflare` で失敗（実行環境にローカルの cloudflare ブランチは無い。`origin/cloudflare` を渡すべきだった）。
+    また `wrcr_pages` が Sheets API の HTTP 429（1分あたりの読み取りの上限）で飛ばされた（一時的な上限。今回の変更とは関係ない）
+  - `compare_ref: origin/cloudflare` で1回やり直す
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj dbac236b）: https://github.com/retroeater/mj-logs/tree/main/guide/dbac236b
+ガイド文書（この版を写した時点の最新、mj ce650cc3）: https://github.com/retroeater/mj-logs/tree/main/guide/ce650cc3
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/dbac236b/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/dbac236b/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/dbac236b/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/dbac236b/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/dbac236b/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/dbac236b/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce650cc3/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce650cc3/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce650cc3/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce650cc3/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce650cc3/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce650cc3/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/53edca83.md
