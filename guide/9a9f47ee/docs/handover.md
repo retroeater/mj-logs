@@ -139,7 +139,7 @@ hook の判定は deny（実行させない）だけで、確認（ask）は出�
 
 ### 外部ドメインへの依存を増やさない
 
-方針は CLAUDE.md「判断・作業の原則」。許可の正は `_headers` の CSP（外部の `script-src` は Cloudflare Web Analytics の `static.cloudflareinsights.com` だけで、送信先は自ドメインの `/cdn-cgi/rum`。`img-src` は `https:`）。
+方針は CLAUDE.md「判断・作業の原則」。許可の正は `_headers` の CSP（外部の `script-src` は Cloudflare Web Analytics の `static.cloudflareinsights.com` だけで、送信先は自ドメインの `/cdn-cgi/rum`。`img-src` は `https:`。iframe は r/ の動画の埋め込みの `https://www.youtube-nocookie.com` だけ、#657）。
 残る外部依存は画像12ドメインと `image.p-c2-x.abema-tv.com`（最強戦の ABEMA のサムネイル・og:image、#502・#549）。詳細は `docs/notes/handover-archive-2026.md`「外部ドメイン依存の詳細」と
 `docs/notes/site-findings.md`（画像ドメインの実測）。
 
@@ -224,6 +224,8 @@ GitHub Issues（Open）に全件あるが、着手可能な主なものは以下
 | `docs/notes/houou-top.md` | 鳳凰戦の新ページ `houou/` の仕様（トップ＋検索・ランキング・リーグ推移・順位変動、#518） |
 | `docs/notes/ouka-top.md` | 女流桜花の新ページ `ouka/` の houou/ との違い（#519。公開は #591） |
 | `docs/notes/pro-pages.md` | 連盟プロの新ページ `pro/`（トップ・選手の個別ページ、#219。公開は #641） |
+| `docs/notes/ryoei-world.md` | 「良栄」のトップ `r/` の一覧と「記憶の中を歩く空間」（Three.js・音・場面の足し方、#657。公開は #656） |
+| `docs/notes/top-page.md` | サイトのトップの新しい形 `top/`（#101。切り替えの後に `index.html`） |
 | `docs/notes/jwrc-top.md` | WRC リーグの新ページ `jwrc/` の houou/・ouka/ との違い（#594。公開は #599） |
 | `docs/notes/wrcr-top.md` | WRC-R リーグの新ページ `wrcr/` の jwrc/ との違い（#366。公開は #611） |
 | `docs/notes/league-pages-compare.md` | houou/・ouka/・jwrc/・wrcr/ の大会の差（意図した差と、公開でそろえる差）。大会の設定や共通の部品を変える前 |

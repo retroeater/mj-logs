@@ -120,15 +120,50 @@ AIC-26 の本番の確かめで、2回目の Claude の書き方がデータと�
 
 - 直した後: node 154本・python 1747本 通過。直す前のコードで新しい2本が落ちる
 
+### マージと本番
+
+- 取り込み: origin/cloudflare が RYO-07 など58ファイル（`workers/ask/` は無し）進んでいたのでマージコミットで取り込んだ（衝突なし）。node 154本・python 1747本 通過を確かめ、再 fetch して `git merge-base --is-ancestor origin/cloudflare HEAD` が真、`git push origin work/1103-aic:cloudflare`（58b5f89d0..9a9f47ee8）
+- check-run（9a9f47ee8）: Workers Builds: mj-ask success（09:56:19Z）
+- `/api/ask/status` → `{"status":"open","remaining":8,"max":200}`。UA に `mj-internal AIC-27`
+
+本番の3問（2026-11-03 09:56:35〜09:56:48 UTC、すべて answered）:
+
+| 要求 | 問い | 答え | データとの突き合わせ |
+|---|---|---|---|
+| 横断・context houou | 佐々木寿人の成績は？ | 【鳳凰戦】「佐々木寿人さんは鳳凰戦に第23期から第42期まで20期出場し、第37期・第38期・第40期に鳳凰位になっています。現在はA1リーグに所属しています。」【WRCリーグ】決勝の第10期に4位【麻雀最強戦】「2011年度から2026年度まで出場し、ファイナルトーナメントには5回進みました。最強位の経験はなく、出場数は16回、対局数は38回、勝率は.421です。」contests `["houou","jwrc","saikyo"]` | 一致（鳳凰位は第37・38・40期の決勝の優勝。前は「鳳凰位にはなっていません」）。最強戦の totals も一致。「現在はA1リーグに所属しています」は聞いていない推し量り: データの最後の行は第42期 A1（3位・決定戦）で、第43期の A1 の行はまだ無い（A1 は通期のリーグで、データの時点は第43期前期終了。第43期の行がある選手は542人だが A1 の人は無い）。データと食い違いはしない |
+| 横断・context saikyo | 歴代最強位は？ | 「歴代の最強位は全12人です。直近では桑田憲汰さんが3回（2023〜2025年度）で最多、瀬戸熊直樹さんが2回（2021・2022年度）で続いています。ほかに多井隆晴さん、鈴木大介さん、近藤誠一さん、金太賢さん、近藤千雄さん、前田直哉さん、藤田晋さん、沢崎誠さんがいます。」contests `["saikyo"]`、asof「決勝 2025年度まで」 | 一致（12人、桑田憲汰・瀬戸熊直樹の回数と年度、渡した10人の名前）。others（2人）の年度・名前は書いていない（前は「ほか10人…2013年度以降」） |
+| 大会別（鳳凰戦） | 鳳凰位になった人は全部で何人？ | 「鳳凰位になった人は全部で23人です。直近の鳳凰位を獲った順では、白鳥翔さん、…、荒正義さんなどが並びます。ほか13人です。」 | 一致。固定の問いの期待（23人、白鳥翔が先頭の10人と「ほか13人」、「上位」と書かない）どおり |
+
+- #654 に結果をコメントした
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1103-aic
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1103-AIC-27.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1103-aic
+- 確認用URL: なし（Worker の変更。本番の3問で確かめた）
+- マージ: 済（9a9f47ee8）
+- issue: #654（着手中と結果をコメント）
+- 判断が必要なこと:
+  - 横断の「佐々木寿人の成績は？」の鳳凰戦の答えに、聞いていない「現在はA1リーグに所属しています」が付いた。データの最後の行（第42期 A1・決定戦）からの推し量りで、食い違いではない（第43期の A1 の行はまだデータに無い）。言い回しとして週次の直し（2026-11-09 の週）に入れるか
+  - 直し方は候補 (a)（`titleTerms` をプログラムが付ける）を選び、WRC リーグ・WRC-R にも足した（座っている期の行は無いが、player の結果に優勝の期が無いのは同じため）。others の一文は5大会共通にした（others は5大会のどの一覧にも付くため）
+- 未確認の項目:
+  - 2026-11-09（月）03:00 JST の週次の書き出しが動き、ブックに 11/02〜11/08 の行が入るか。あわせて、2026-11-02 10:09 JST ごろの「現女流桜花は？」の「引数」の列に from・to が入っているか（AIC-26 から写した）
+  - 地域で断られた問いが、新しい結果（`region`、ブック「地域で使えない」）で記録に入るか（AIC-26 から写した）
+  - 横断の記録（型 `all:…`）が週次の書き出しのブックに入るか（2026-11-09 03:00 JST の書き出しで。AIC-26 から写した）
+  - 期の外で期を外して答える問い（例「22期の和久津晶成績」）の答えに、冒頭の文と重なる「第N期の記録はありません」が出ないか（週次の記録で見る。AIC-26 から写した）
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 28ad5e2a）: https://github.com/retroeater/mj-logs/tree/main/guide/28ad5e2a
+ガイド文書（この版を写した時点の最新、mj 9a9f47ee）: https://github.com/retroeater/mj-logs/tree/main/guide/9a9f47ee
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/28ad5e2a/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/28ad5e2a/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/28ad5e2a/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/28ad5e2a/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/28ad5e2a/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/28ad5e2a/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a9f47ee/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a9f47ee/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a9f47ee/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a9f47ee/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a9f47ee/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a9f47ee/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/795228a7.md
