@@ -141,15 +141,57 @@ docs/notes/ogp.md の作り方の引数で9通り（既定・site・pros・title
 
 `regenerate-page.yml` の「帰り道の一覧のOGP画像を作る」（`id: build_wayhome_ogp`）の `if:` は `... && inputs.dry_run != true && inputs.check != true`。dry_run（入力名 `dry_run`）では帰り道の手順（Pillow を入れる行を含む）は飛ばされる。実行ログで確かめるため、作業ブランチで `target_page: all`・`dry_run: true` を手動実行した（run 41661756230）。結果は下に追記する。
 
+run 41661756230（作業ブランチ、head faa1c357c、`target_page: all`・`dry_run: true`）: 結論 success。ジョブ regenerate の手順のうち「帰り道の一覧のOGP画像を作る」（6）は **skipped**（Pillow を入れる行も動いていない）。ほかに success は「依存をインストール」「対象ページを再生成」「生成物の差を実行サマリに出す」。コミット・サイトマップ・帰り道の知らせの手順はすべて skipped。
+
+→ 止まる条件「dry-run で帰り道の手順が動かないなら、動かせる別の安全な方法を案として書いて止まる」に当たる。マージの条件 (4) が満たせないため、cloudflare へマージしていない。
+
+帰り道の手順をランナーで動かす方法の案:
+
+| 案 | やること | 副作用・リスク |
+|---|---|---|
+| A（推奨） | 条件 (4) を「手元の Python 3.12 の venv に `--require-hashes -r scripts/requirements-ogp.txt` で入り、同じ `render_ogp()` の出力がコミット済みとバイト一致（上の 3(a)）」に読み替えてマージし、ランナーでの最初の実行は次の週次（月曜 03:00 JST の run-weekly → fetch-youtube.yml → regenerate の wayhome）か、マージ直後の cloudflare での `regenerate-page.yml`（`target_page: all`、dry_run なし）の手動実行で確かめる | 手動実行は通常の運用と同じ操作（再生成のコミット・帰り道の知らせが動く）。ランナー固有の差（wheel の取得・ハッシュの照合）は、3.12 の cp312 の wheel を手元で同じハッシュで入れたので、残る差は小さい |
+| B | 作業ブランチで `target_page: all`・`dry_run` なしで手動実行する（帰り道の手順は `workflow_ref` が regenerate-page.yml なので動く） | 再生成のコミットが作業ブランチに入り、マージの差分が決定 (1) の範囲を超える。帰り道の知らせの手順が本番の常設 issue に書きうる。勧めない |
+| C | `regenerate-page.yml` に「dry_run でも帰り道の画像だけ作る（コミットしない）」入力を足す | ワークフローの変更で決定 (1) の範囲を超える。別の指示が要る |
+
+### 差分のレビュー（新しい文脈のサブエージェント、1回）
+
+対象: `git diff origin/cloudflare...HEAD -- scripts/`。観点: requirements の形式とハッシュ、13.0.0 の非互換の当たり、テストの変更、取りこぼし。
+
+| 指摘 | 扱い |
+|---|---|
+| ハッシュは PyPI の digests と一致、`pip download --require-hashes` で cp312・cp313 とも取れる（指摘でなく確認） | 意図どおり |
+| HarfBuzz の変更で NotoSansJP の `--check` が一致しなくなる可能性（軽微・参考） | 意図どおり（3(b) で NotoSansJP-Bold を使い、12.3.0・13.0.0・コミット済みの8枚がバイト一致） |
+| `docs/decisions/pros.md:250` の「12.3.0」（軽微） | 意図どおり（過去の決定は書き換えず、`docs/decisions/security.md` に読み替えの決定を足した） |
+| test の31・32行目は仮の値で 12.3.0 のままでよい | 意図どおり |
+
+2回目は不要（直すものが無かった）。
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1104-pil
+- ログ: https://github.com/retroeater/mj/blob/work/1104-pil/docs/logs/CHAT-1104-PIL-01.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1104-pil
+- 確認用URL: なし（ページ・見た目の変更なし）
+- マージ: 未（平野さんの判断待ち）
+- issue: #660（起票。判断待ちのため open のまま）
+- 判断が必要なこと:
+  - マージの条件 (4)「作業ブランチで regenerate-page.yml の帰り道の手順を dry-run で動かして success」は満たせない。dry_run では帰り道の手順が `if:` で飛ばされる（run 41661756230 は success だが、その手順は skipped）。代わりの方法を `## 経過` の「手順3(c)」の表（案A〜C）から選んでほしい。推奨は案A（手元の 3.12 での再現で読み替えてマージし、ランナーでは次の週次かマージ後の手動実行で確かめる）
+  - Dependabot alerts の一覧はセッションの権限で読めない（HTTP 403）。マージ後に alerts が閉じたかは画面で見てほしい
+- 未確認の項目:
+  - ランナー（ubuntu-latest・3.12）での `pip install --require-hashes -r scripts/requirements-ogp.txt` と `build_wayhome_ogp.py` の実行（上の判断の後）
+  - Dependabot alerts が閉じるか（マージ後）
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj d772aeb2）: https://github.com/retroeater/mj-logs/tree/main/guide/d772aeb2
+ガイド文書（この版を写した時点の最新、mj 8071c9be）: https://github.com/retroeater/mj-logs/tree/main/guide/8071c9be
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d772aeb2/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d772aeb2/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d772aeb2/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d772aeb2/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d772aeb2/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d772aeb2/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/68f0411e.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/8071c9be/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/8071c9be/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/8071c9be/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8071c9be/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8071c9be/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8071c9be/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/8071c9be.md
