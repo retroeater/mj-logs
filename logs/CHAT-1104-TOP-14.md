@@ -56,6 +56,21 @@ TOP-13 は、マージの条件 (3)（比べる実行で6件が出ること）�
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 0. 着手前の確認
+
+- 「指示」欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は4行とも有り。同じ Chat-Ref のコミットは0件
+- CHAT-1104-TOP-13 の `## 報告` の状態は「判断待ち」、origin/work/1104-top（eae05129b）は cloudflare に未マージ。TOP-13 の状態に ` / 続き: CHAT-1104-TOP-14` を足した
+
+### 1. TOP-05 の判断待ちを閉じる・取り込み・条件
+
+- CHAT-1103-TOP-05 のログの状態に ` / 解消: 2026-11-04 毎朝の運行で top/ の作り直しを確認（CHAT-1104-TOP-14）`、「未確認の項目」の初回の予約実行の行に確認済み（チャット側の確かめの中身）を書いた（b798233ea）
+- origin/cloudflare（5c74b8644）を merge で取り込んだ（f012b1b3b）。衝突なし
+- (1) テスト: 1907件 OK
+- (2) `git diff --name-only origin/cloudflare...HEAD`（生成し直す前）: assets/houou_ask.css・houou_ask.js・nav.js・ryoei/world.css・top.css・top.js・top_ask.js、docs/decisions/houou.md・top.md、docs/logs/CHAT-1103-TOP-05.md・CHAT-1104-TOP-11〜14.md、docs/notes/ の11件（ask-worker・design・houou-top・jwrc-top・league-pages-compare・ouka-top・pro-pages・saikyo-page-design・static-generation・top-page・wrcr-top）、houou/・jwrc/・ouka/・saikyo/・top/・wrcr/ の index.html、navbar.js、scripts/generate_houou_pages.py・generate_saikyo_pages.py・generate_top_page.py・regenerate.py、scripts/tests/ の5件、sitemap-pages.xml・sitemap-saikyo.xml、style.css。TOP-13 の一覧と同じで、ほかは TOP-05・14 のログだけ
+- (3) 全ページの生成し直し（dry_run なし・all）を作業ブランチで実行中
+
 <!-- guide-links -->
 ---
 

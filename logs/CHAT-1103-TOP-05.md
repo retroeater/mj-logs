@@ -78,7 +78,7 @@ TOP-02・TOP-03 で作った未公開の新トップ `top/`（noindex・メニ�
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 解消: 2026-11-04 毎朝の運行で top/ の作り直しを確認（CHAT-1104-TOP-14）
 - ブランチ: work/1103-top（マージ済み。cleanup-branches.yml が消す）
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1103-TOP-05.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1103-top
@@ -88,18 +88,18 @@ TOP-02・TOP-03 で作った未公開の新トップ `top/`（noindex・メニ�
 - 判断が必要なこと:
   - 翌朝の初回の毎朝の再生成の結果を見て、この系列を閉じてよいか（下の「未確認の項目」）
 - 未確認の項目:
-  - 初回の予約実行: 2026-11-04（水）04:00 JST の run-daily から `update-live-channel.yml` の `regenerate`（`target_page` に `top_page`）。top/ が作り直されるか（大会日程・誕生日が当日の分になるか）を見る
+  - 初回の予約実行: 2026-11-04（水）04:00 JST の run-daily から `update-live-channel.yml` の `regenerate`（`target_page` に `top_page`）。top/ が作り直されるか（大会日程・誕生日が当日の分になるか）を見る → 確認済み（2026-11-04 04:00 JST の毎朝の運行〈run 41699165492〉は success で、対象に `top_page` が入り「top/index.html は変わりません」〈02:43 JST の再生成ですでに 11/4 の内容〉。チャット側の確かめ、CHAT-1104-TOP-14）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj a918bc1b）: https://github.com/retroeater/mj-logs/tree/main/guide/a918bc1b
+ガイド文書（この版を写した時点の最新、mj dfabc859）: https://github.com/retroeater/mj-logs/tree/main/guide/dfabc859
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a918bc1b/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a918bc1b/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a918bc1b/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a918bc1b/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a918bc1b/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a918bc1b/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/795228a7.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/dfabc859/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/dfabc859/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/dfabc859/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/dfabc859/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/dfabc859/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/dfabc859/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/dfabc859.md

@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-11-04 07:34 JST
+- 書き出した時刻: 2026-11-04 07:37 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -25,7 +25,7 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-11-04 07:34 | push | work/1104-top | in_progress | #836（41731916811） |  |
+| 2026-11-04 07:34 | push | work/1104-top | success | #836（41731916811） | 1分17秒 |
 | 2026-11-04 04:38 | push | work/1103-ryo8 | success | #835（41705222613） | 0分33秒 |
 | 2026-11-04 04:20 | push | work/1103-ryo8 | success | #834（41702337005） | 1分28秒 |
 | 2026-11-04 04:11 | push | work/1104-lgn | success | #833（41700935451） | 0分48秒 |
@@ -38,11 +38,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-04 07:34 | check_run | cloudflare | skipped | #1082（41731999989） | 0分10秒 |
 | 2026-11-04 04:40 | check_run | cloudflare | skipped | #1081（41705451049） | 0分01秒 |
 | 2026-11-04 04:40 | check_run | cloudflare | skipped | #1080（41705429425） | 0分01秒 |
 | 2026-11-04 04:21 | check_run | cloudflare | skipped | #1079（41702443230） | 0分01秒 |
 | 2026-11-04 04:21 | check_run | cloudflare | skipped | #1078（41702439754） | 0分02秒 |
-| 2026-11-04 04:21 | check_run | cloudflare | skipped | #1077（41702437213） | 0分01秒 |
 
 ## check-image-links.yml
 
@@ -198,11 +198,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-04 07:34 | workflow_dispatch | work/1104-top | in_progress | #656（41731926149） |  |
 | 2026-11-04 04:20 | push | cloudflare | success | #655（41702345684） | 16分00秒 |
 | 2026-11-04 03:52 | workflow_dispatch | work/1104-top | success | #654（41697907318） | 38分36秒 |
 | 2026-11-04 03:48 | workflow_dispatch | work/1104-top | cancelled | #653（41697295116） | 1分35秒 |
 | 2026-11-04 03:26 | push | cloudflare | failure | #652（41693768390） | 32分15秒 |
-| 2026-11-04 03:17 | workflow_dispatch | work/1103-ryo8 | success | #651（41692398002） | 60分59秒 |
 
 - #653 cancelled: ジョブ「regenerate」 ステップ「対象ページを再生成」
 - #652 failure: ジョブ「regenerate」 ステップ「飛ばしたページを報告」
