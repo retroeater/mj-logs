@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-11-04 01:08 JST
+- 書き出した時刻: 2026-11-04 01:14 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -25,11 +25,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-11-04 01:08 | push | work/1101-prp-pub | in_progress | #773（41671109783） |  |
-| 2026-11-04 01:08 | push | work/1104-aic | in_progress | #772（41671061809） |  |
-| 2026-11-04 01:07 | push | work/1104-aic | success | #771（41670959899） | 0分53秒 |
-| 2026-11-04 01:07 | push | work/1104-ttl | success | #770（41670943413） | 0分54秒 |
-| 2026-11-04 01:01 | push | work/1104-aic | success | #769（41669958703） | 0分58秒 |
+| 2026-11-04 01:13 | push | work/1104-ttl | in_progress | #776（41672047042） |  |
+| 2026-11-04 01:11 | push | work/1101-prp-pub | success | #775（41671567404） | 0分36秒 |
+| 2026-11-04 01:09 | push | work/1103-ryo8 | success | #774（41671270281） | 0分52秒 |
+| 2026-11-04 01:08 | push | work/1101-prp-pub | success | #773（41671109783） | 2分06秒 |
+| 2026-11-04 01:08 | push | work/1104-aic | success | #772（41671061809） | 1分13秒 |
 
 ## check-build-failure.yml
 
@@ -38,11 +38,14 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-04 01:11 | check_run | cloudflare | failure | #1004（41671698335） | 0分11秒 |
+| 2026-11-04 01:11 | check_run | cloudflare | success | #1003（41671694707） | 0分11秒 |
+| 2026-11-04 01:11 | check_run | cloudflare | failure | #1002（41671687021） | 0分11秒 |
 | 2026-11-04 01:00 | check_run | cloudflare | success | #1001（41669679662） | 0分14秒 |
 | 2026-11-04 00:48 | check_run | cloudflare | skipped | #1000（41667630814） | 0分01秒 |
-| 2026-11-04 00:35 | check_run | cloudflare | skipped | #999（41665417224） | 0分01秒 |
-| 2026-11-04 00:29 | check_run | cloudflare | skipped | #998（41664347498） | 0分01秒 |
-| 2026-11-04 00:28 | check_run | cloudflare | skipped | #997（41664312912） | 0分01秒 |
+
+- #1004 failure: ジョブ「notify」 ステップ「判定する(該当すればジョブを失敗させる)」
+- #1002 failure: ジョブ「notify」 ステップ「判定する(該当すればジョブを失敗させる)」
 
 ## check-image-links.yml
 
@@ -196,13 +199,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-04 01:11 | workflow_dispatch | work/1101-prp-pub | in_progress | #627（41671567813） |  |
+| 2026-11-04 01:09 | workflow_dispatch | work/1103-ryo8 | success | #626（41671280559） | 1分33秒 |
 | 2026-11-04 01:01 | workflow_dispatch | work/1103-ryo8 | success | #625（41669864649） | 1分34秒 |
 | 2026-11-04 01:00 | workflow_dispatch | work/1029-lgn-page | in_progress | #624（41669606603） |  |
 | 2026-11-04 01:00 | workflow_dispatch | work/1104-ttl | success | #623（41669601814） | 1分13秒 |
-| 2026-11-04 00:58 | workflow_dispatch | work/1104-ttl | failure | #622（41669293763） | 1分19秒 |
-| 2026-11-04 00:56 | workflow_dispatch | work/1103-ryo8 | success | #621（41669078040） | 4分23秒 |
-
-- #622 failure: ジョブ「regenerate」 ステップ「対象ページを再生成」
 
 ## regenerate-saikyo.yml
 

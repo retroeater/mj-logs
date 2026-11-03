@@ -101,15 +101,32 @@ CHAT-1103-RYO-09（判断待ち）の続き。「Claude受渡用」に届かな�
   - `compare-enter.png`（空間の最初の画面）・`compare-cinema.png`（屋外上映の場）: 看板・スクリーン・椅子は同じ。対岸の街の灯りの建物の並びと紙の粒子は、world.js が読み込むたびに乱数で決める（759〜765行・1559行）ので前後で違う。今回の変更による差ではない
   - 指示文（RYO-08）の置き場所は `docs/logs/CHAT-1103-RYO-08/` だが、この指示のログに合わせて `docs/logs/CHAT-1104-RYO-10/` に置いた
 
+### レビュー（サブエージェント、1回。CLAUDE.md「判断・作業の原則」）
+
+対象は `git diff origin/cloudflare...HEAD`（docs/logs を除く。生成物を含む）。要修正なし。任意の7件:
+
+| 指摘 | 扱い |
+|---|---|
+| 開始・終了の列に Sheets が日付（数）に変えたセルが混じると、`fetch_table` の型そろえで空欄になり、書式の検査をすり抜ける | `簡略化:` の印を残した（1cba92fd4）。シートの列を書式なしテキストにしておくかは平野さんに確かめる（報告の「判断が必要なこと」） |
+| 途中に空の行があると「n行目」が実際の行より小さく出る | `簡略化:` の印を残した（理由には ID も出る） |
+| 灯りの出来事を指す素材が出演（スクリーン・看板・リンク）で表示＝Y だと、題が公開のファイルに出る | 直した（1cba92fd4。写真パネル以外で表示＝Y なら止める検査とテスト） |
+| 灯りの文字が漏れて止めたとき、どの行か分からない | 直した（`hidden_texts` を (ID, 文字) にし、止めるときは ID を出す） |
+| 灯りの駅に時代を書き出している（前提は ID・年・見せ方だけ） | 直した（灯りの駅は ID・見せ方だけ。8a7b8378b で r/world-data.json を作り直した） |
+| f-string の引用符が 3.12 より前の Python で構文エラーになる | 直した |
+| `_photo_path`・`_thumb` の YouTube の形・`DATE` の月日の範囲に検査・印が無い | `_photo_path` のテストを足し、`_thumb` と `DATE` は `簡略化:` の印を残した |
+
+- 直した後: `python3 -m unittest discover -s scripts/tests` 1820件 OK。r/ をもう一度作り直した（run 626、1cba92fd4 → 8a7b8378b。r/world-data.json の灯りの駅から時代が消えただけ。r/index.html は変わらない）
+- 2回目のレビューは行わない（直した点は小さく、テストと生成で確かめた）
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj d30c186d）: https://github.com/retroeater/mj-logs/tree/main/guide/d30c186d
+ガイド文書（この版を写した時点の最新、mj 667be053）: https://github.com/retroeater/mj-logs/tree/main/guide/667be053
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d30c186d/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d30c186d/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d30c186d/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d30c186d/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d30c186d/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d30c186d/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/667be053/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/667be053/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/667be053/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/667be053/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/667be053/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/667be053/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/59c4b82d.md

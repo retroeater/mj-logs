@@ -548,6 +548,7 @@ Workers静的アセットにはオリジンサーバーが存在しないため�
 キャッシュ制御を持つ（#92）。
 `/*` には `Content-Security-Policy` もある（2026-10-19、#9。報告先は持たない）。外部は `script-src` の Web Analytics（`static.cloudflareinsights.com`）だけを許し、
 `img-src` は `'self' data: https:`、`style-src-attr 'unsafe-inline'`（title/ の CSS 変数・glightbox）。typed.js のカーソルの CSS は index.css に置く（`<link data-typed-js-cursor-css>`）。
+iframe は `frame-src https://www.youtube-nocookie.com` だけを許す（r/ の空間の中で出演の動画を再生する埋め込み、2026-11-03 の決定、#657。それまでは `frame-src 'none'`）。
 ほかに外部を許すのは `connect-src` の `https://cloudflareinsights.com` だけで、手動のビーコンの送り先なので要る（無いと Web Analytics の計測が止まる。Web Analytics の FAQ。2026-10-19 の切り替えで止まり、2026-11-01 に足した、#304）。
 **外部のスクリプト・iframe・フォント・`fetch` の先・`<style>` 要素を足すときは、このヘッダの値も直す**（直さないと黙って読み込まれない。測り方と値の理由は #9）。
 **CSP（`_headers`）を変えたら、クラウドからの実測だけで済ませず、マージ後に実際のブラウザで外部への送信（Web Analytics のビーコン `https://cloudflareinsights.com/cdn-cgi/rum` など）が CSP の違反なしに通ることを確かめる**（チャット側が平野さんの Chrome で行う。Code は完了報告の「未確認の項目」に書く）。クラウドの外向きの経路は外部のホストを拒むので、送信が起きず違反も出ない（2026-10-19〜11-01 に計測が止まった）。

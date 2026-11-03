@@ -1,6 +1,6 @@
 # 朝の報告用の異常（retroeater/mj）
 
-- 書き出した時刻: 2026-11-04 01:08 JST（見た範囲: 2026-11-02 23:08 JST から）
+- 書き出した時刻: 2026-11-04 01:14 JST（見た範囲: 2026-11-02 23:14 JST から）
 - 書き出した実行の契機: workflow_dispatch（main）
 - 異常だけを書く。全体は actions/status.md。判定は mj の scripts/morning_report.py（各ワークフローの直近 100 回まで）
 
@@ -9,8 +9,10 @@
 - 2026-11-04 00:55 regenerate-page.yml in_progress（workflow_dispatch・cloudflare） https://github.com/retroeater/mj/actions/runs/41668885312
 - 2026-11-04 00:58 regenerate-page.yml failure（workflow_dispatch・work/1104-ttl）ジョブ「regenerate」 https://github.com/retroeater/mj/actions/runs/41669293763
 - 2026-11-04 01:00 regenerate-page.yml in_progress（workflow_dispatch・work/1029-lgn-page） https://github.com/retroeater/mj/actions/runs/41669606603
-- 2026-11-04 01:08 check-assets.yml in_progress（push・work/1104-aic） https://github.com/retroeater/mj/actions/runs/41671061809
-- 2026-11-04 01:08 check-assets.yml in_progress（push・work/1101-prp-pub） https://github.com/retroeater/mj/actions/runs/41671109783
+- 2026-11-04 01:11 regenerate-page.yml in_progress（workflow_dispatch・work/1101-prp-pub） https://github.com/retroeater/mj/actions/runs/41671567813
+- 2026-11-04 01:11 check-build-failure.yml failure（check_run・cloudflare）ジョブ「notify」 https://github.com/retroeater/mj/actions/runs/41671687021
+- 2026-11-04 01:11 check-build-failure.yml failure（check_run・cloudflare）ジョブ「notify」 https://github.com/retroeater/mj/actions/runs/41671698335
+- 2026-11-04 01:13 check-assets.yml in_progress（push・work/1104-ttl） https://github.com/retroeater/mj/actions/runs/41672047042
 
 ## 2. 予約実行の未実行（予定から3時間以内は「遅れの可能性」。3時間を超えて始まった実行は「遅れて実行」）
 
@@ -22,7 +24,7 @@
 
 ## 4. 初回成功（cloudflare の実行だけ。それ以前の cloudflare の実行に success が無いもの）
 
-- 2026-11-03 23:50 check-build-failure.yml success（check_run・cloudflare）それ以前の cloudflare の実行 90 件に success なし https://github.com/retroeater/mj/actions/runs/41657643690
+- 2026-11-03 23:50 check-build-failure.yml success（check_run・cloudflare）それ以前の cloudflare の実行 87 件に success なし https://github.com/retroeater/mj/actions/runs/41657643690
 
 ## 5. 未報告のログ（`## 報告` の節が無い）
 
