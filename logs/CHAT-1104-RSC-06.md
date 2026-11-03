@@ -80,6 +80,30 @@ CHAT-1104-RSC-05 の「判断が必要なこと」への回答を入れ、過去
 - テスト: 旧公式の解析（固定の HTML）・当て方（4人・3人・食い違い・当たらない）・年度ごとの数と飛ばす判定・robots.txt と Crawl-Delay・旧公式の行がある卓を API で飛ばす・姓だけの照合（違う姓・同じ姓・姓の後に漢字・B の照合済み・A）・入力の組み合わせ。`unittest discover` OK
 - docs: docs/notes/research-candidates.md（姓だけの照合、旧公式の節）、docs/notes/github-actions.md の表の行、docs/decisions/automation.md
 
+#### 自己レビュー（新しい文脈のサブエージェント）
+
+1回目（`git diff origin/cloudflare...HEAD`、ログを除く。サブエージェントは保存の3ページを `official_lines()` に通して全54行の取りこぼしが無いこと、robots.txt で3つのパスとも許されることを確かめた）:
+
+| 指摘 | 扱い |
+|---|---|
+| 高: 姓だけの照合が広すぎる（2字の名前が1字で当たる「大和」と「長村大」、かな・英字の名前「ちゃな」「TAKUYA」、後ろにかなが続く別人「宮内悠介」と「宮内こずえ」） | 直した（ffc7b77a3）。姓は先頭の漢字だけの部分（2字以上）で、前に漢字が無く後ろに漢字・かな・英字が続かないときだけ。2字の名前・かなや英字で始まる名前は完全一致だけ。テスト2本 |
+| 中: シートの結果と食い違う順位を「落とす」はずが、未照合で書く | 意図どおり。API の B（RSC-04）と同じく未照合で候補タブに書き、備考に理由を書く（人が見て判断する）。docs に書いた |
+| 中: 3人一致の行を先に当てて返す。残りの1人が別人でも「揺れ」とする | 直した（ffc7b77a3）。4人一致の行を先に探す。3人一致は残りの1人どうしが同じ字数で1字だけ違うとき（`variant()`）だけ。揺れと食い違いの備考を両方残す。テスト2本 |
+| 低: 見出し（日付・対局名）を使っていない | 直した（ffc7b77a3）。引用文を「日付 対局名 / 1位:…」の形にした |
+| 低: official では targets・limit・model・max_cost が効かず、dry-run でも読むことが docs に無い | 直した（ffc7b77a3）。docs に1行 |
+| 低: robots.txt の Crawl-Delay に上限が無い。HTTP エラーでどの URL か分からない | 直した（ffc7b77a3）。60秒を超えたら止める。HTTP のエラーを URL つきの RuntimeError に包む。テスト1本 |
+| 低: テストの抜け | 上の各行で足した |
+
+2回目（修正の差分 81beaf828..ffc7b77a3 だけ）:
+
+| 指摘 | 扱い |
+|---|---|
+| 低: 旧公式の行に同じ名前が2回あると、3人一致の判定で IndexError（実際のページでは起きない） | 直した（88333b51e）。残りの数が合わない行は当てない。テスト1本（修正前の ffc7b77a3 では ERROR） |
+| 低（安全側）: 「宮内36,100」のように点数が続くと姓で当たらない。「1位宮内」の「位」でも当たらない | 数字は許すように直した（88333b51e。修正前では FAIL）。前の漢字は `簡略化:` の行に残した |
+| 低（安全側）: ヶ・ノ・互換漢字（﨑）を含む姓は姓の経路に乗らない | 直した（88333b51e）。姓の字に足した |
+
+- 2回目の後の修正（88333b51e）はサブエージェントに見せていない（往復は2回まで）。`unittest discover` OK。手元の確かめは修正の後も 当たった 44・揺れ 1
+
 ## 報告
 
 - 状態: 作業中
@@ -96,12 +120,12 @@ CHAT-1104-RSC-05 の「判断が必要なこと」への回答を入れ、過去
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj bec7039a）: https://github.com/retroeater/mj-logs/tree/main/guide/bec7039a
+ガイド文書（この版を写した時点の最新、mj ce650cc3）: https://github.com/retroeater/mj-logs/tree/main/guide/ce650cc3
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/bec7039a/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/bec7039a/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/bec7039a/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/bec7039a/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/bec7039a/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/bec7039a/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce650cc3/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce650cc3/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce650cc3/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce650cc3/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce650cc3/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce650cc3/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/53edca83.md
