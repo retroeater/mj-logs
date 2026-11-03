@@ -71,15 +71,82 @@
 - **X のプロフィール画像**: `pro/search.json` の写真の列（`_80x80` の URL。pro/ の一覧の 40px の丸と同じ元、SNS ブック）。無い選手は pro/ の `photo_html()` と同じく頭の1字の丸。読めない画像は pro/ と同じく JS が頭の1字に差し替える
 - **大きさの見込み**: 今の `top/index.html` は 41,990 バイト。大会日程は今も全件（36行）焼いているのでサムネイルの `<img>` の分（1行 150 バイト前後 × 36）、新着の番組は 3件 → 12件、誕生日は焼く範囲を前3日・後3日から前1日・後8日に広げる（今日と明日から7日分、生成が1日止まっても今日と7日分が出る）。合わせて 60KB 前後の見込みで、2倍（84KB）は超えない
 
+### 2. 実装
+
+| ファイル | 中身 |
+|---|---|
+| `scripts/generate_top_page.py` | 大会日程: `schedule_row()`（pro/ の予定の行の並びに `thumb_html()`。YouTube の枠は `live_pages.thumb_url(動画ID, "mqdefault")`・96×54、無ければ同じ大きさの灰色の箱に大会名の頭の文字）。今日以降を全部焼き、最初 `SCHEDULE_FIRST`=5、`SCHEDULE_STEP`=10。「ほかN件」をやめ `more_button()`（「もっと見る」、答えの「ほか N名」と同じ `.mj-houou-ask-more`）。新着の番組: `NEW_EPISODES_MAX`=12 を焼き最初 `NEW_EPISODES_FIRST`=3、各話のページの動画ID のサムネイル。誕生日: 見出し「誕生日」と横に今日の日付（`date_label()`）、焼く範囲を `BIRTHDAY_BEFORE`=1 日前〜`BIRTHDAY_AFTER`=8 日後（`window_dates()`）にし、日付ごとの見出し（`data-day-label`）・行・「今日の誕生日の選手はいません」（`data-top-none`）・「もっと見る」（`data-more-days`=7）。行に X の画像（`pro_slugs()` が `pro/search.json` の写真の列も返す、pro/ の `photo_html()`・40px）。読み上げの `#top_status`。大会日程を上限なしに焼くことに `簡略化:` |
+| `assets/top.js` | 3つの面の「もっと見る」（`setupList()`: 今日より前の行を隠し data-max 件、押すごとに data-step 件、全部出したらボタンを消して開いた最初の行へフォーカス。`setupBirthdays()`: 今日の人だけ／0人の行、見出しの日付を日本時間の今日で書き直し、押すと明日から7日分を日付の見出しごとに開く）。開いた範囲を `#top_status` で読み上げ。X の画像が読めないとき頭の1字に（読み込み前に失敗した画像も）。日付の計算（`jstToday`・`dayKeyAfter`・`dateLabel`・`birthdayDays`）を外に出して node で検査 |
+| `assets/top.css` | サムネイルの無い行の箱、見出しの日付、40px の写真、日付の見出し、0人の行。トップの大会日程・新着の番組の行は日付・チップと件名を折り返す（360px で 96px のサムネイルの横に入らず、チップと卓の名前が切れたため） |
+| `scripts/tests/test_top_page.py` | 36件（5件と10件ずつ・全件を焼く、サムネイルと箱、新着の番組の12件と3件・サムネイル、誕生日の範囲〈1日前〜8日後・年またぎ〉・見出しと日付・日付の見出し・0人の行・写真と頭の1字・pro/ に無い選手の行・生成の翌日に見ても7日分が焼いた範囲に入ること、JS の日本時間の日付の切り替わり・7日分の月日・日付の書き方が Python と同じこと） |
+| docs/notes/top-page.md・docs/decisions/top.md | 誕生日・「もっと見る」の節、大会日程・新着の番組の行の形。決定の節（TOP-08） |
+
+### 3. 検証
+
+- テスト: `python3 -m unittest discover -s scripts/tests` → `Ran 1795 tests … OK`
+- 生成: `regenerate-page.yml`（work/1103-top、`target_page: top_page`）。`e1c522da7`（`top/index.html` +102/−71）。その後の2回（CSS だけの直しの後・JS とテストの直しの後〈run 41611409789〉）は success で、HTML は変わらずコミットなし。**変わったのは `top/index.html` だけ**（top/ 以外の生成物の差分は0件）
+- **大きさ**: `top/index.html` は 41,990 → **63,810 バイト（1.52倍）**。2倍は超えない
+- **データの事実**: 今日以降の大会日程の36件は、どれもまだ YouTube の枠が公開されていない予定表の予定（公開カレンダーの説明「ライブ配信枠公開後に更新します」）。そのため**今は36件とも灰色の箱**で、枠が公開されると毎朝の生成でサムネイルに替わる。新着の番組は12件ともサムネイルあり。誕生日の行の X の画像は焼いた範囲の行のうち9名が頭の1字（画像なし）
+- 画面（Playwright、ローカルの静的サーバ、時計を固定、UA に mj-internal）: 360px・400px の明暗。JS のエラー0件、横スクロールなし
+
+| 日付（JST） | 大会日程 | 新着の番組 | 誕生日 |
+|---|---|---|---|
+| 2026-11-03（生成の日） | 5件 → 押すごとに 15・25・35・36（全件でボタンが消える） | 3件 → 12件 | 今日の1名 → 明日から7日分を開いて 29名（日付の見出し7つ）。読み上げ「明日から7日分の28名を表示しました」、フォーカスは開いた最初の行 |
+| 2026-11-01（今日が0人の日） | 同上 | 同上 | 「今日の誕生日の選手はいません」の1行と「もっと見る」→ 21名。見出しの日付は「11月1日（日）」 |
+
+  いちばん長い題（大会日程の「第21期女流桜花決定戦初日」・「第8期WRC-Rリーグベスト16AB卓」）は 360px で2行に折り返す。スクリーンショットは選手の氏名と誕生日が写るのでログに置いていない
+- プレビュー（ブランチ名の別名 URL、`/top/?v=527821c`）: 見出し「誕生日」の横に「11月3日（火）」、「もっと見る」3つ、img.youtube.com のサムネイル12（新着の番組）、`assets/top.js` が新しい版
+
+### 4. 自己レビュー（docs/notes/self-review.md）
+
+新しい文脈のサブエージェント（general-purpose）に、目的・決定・観点と差分（780行）を渡した（1回）。高は無し。
+
+| 指摘 | 扱い |
+|---|---|
+| 中: X の画像が top.js の実行より先に失敗すると `error` を取り逃がし、壊れた画像の印が残る（pro.js は先に確かめている） | 直した（527821cca、`complete && naturalWidth === 0` を先に差し替え） |
+| 中: pro/ に無い選手の行は `<div>` でフォーカスできず、「もっと見る」の後にフォーカスが body に落ちる | 直した（527821cca、`tabindex="-1"`） |
+| 低: 2回目に押したときの読み上げが1回目と同じ文言で読まれないことがある | 直した（527821cca、「6〜15件目を表示しました」の範囲にし、一度空にしてから入れる） |
+| 低: 生成日と表示日のずれ（焼く範囲と JS の出し分け）の組み合わせに検査が無い | 直した（527821cca、翌日に見ても今日と7日分が焼いた範囲に入る検査）。`setupList`・`setupBirthdays` の DOM の分岐は Playwright の上の表で確かめた |
+| 低: 大会日程を上限なしに焼く | 直した（527821cca、`簡略化:` の印） |
+| 低: 誕生日の行の数え方が2通りに書かれている | 見送り（動作は正しい） |
+
+### 5. 仮置きの一覧
+
+| 仮置き | 画面のどこに効くか |
+|---|---|
+| 誕生日を焼く範囲は今日の1日前〜8日後（生成が2日止まると7日目が欠ける） | 誕生日の「もっと見る」の後 |
+| 「もっと見る」は答えの「ほか N名」と同じ形（紺の字・下向きの印）。全部出したらボタンが消え、開いた最初の行へフォーカス | 3つの面の下 |
+| 開いた範囲の読み上げ（「6〜15件目を表示しました」「明日から7日分のN名を表示しました」） | 読み上げのみ |
+| 日付の見出し（「11月4日（水）」）は明日以降の日だけ。今日の分は見出しの横の日付で代える | 誕生日の面 |
+| 大会日程・新着の番組の行は、サムネイルの横で日付・チップと件名を折り返す（行の高さは件名で変わる） | 大会日程・新着の番組 |
+| サムネイルの無い行の箱の字は大会名の頭の1字（「王」「W」「女」など。WRC と WRC-R は同じ「W」） | 大会日程 |
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1103-top
+- ログ: https://github.com/retroeater/mj/blob/work/1103-top/docs/logs/CHAT-1103-TOP-08.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1103-top
+- 確認用URL: プレビューあり（URL は最終報告）。確認したページ: `/top/`。この版で見えるはずの印: 見出し「誕生日」の横に今日の日付、3つの面の下に「もっと見る」、新着の番組の行にサムネイル
+- マージ: 未（平野さんの判断待ち。指示文の「マージ: 判断待ちで止まる」）
+- issue: #101（着手中コメント）
+- 判断が必要なこと:
+  - プレビューで見て決める点: `## 経過`「5. 仮置きの一覧」の6項目（誕生日を焼く範囲、「もっと見る」の形と押した後の動き、読み上げの文言、日付の見出し、行の折り返し、箱の字）
+  - 大会日程は今、36件とも YouTube の枠が公開前で灰色の箱になる（枠が公開されると毎朝の生成でサムネイルに替わる）。箱だけが並ぶ見え方でよいか
+  - TOP-07（上部・質問欄）と TOP-08 はまとめて未マージ。マージは両方を見たうえで
+- 未確認の項目:
+  - YouTube の枠のある予定の行のサムネイル（今のデータに該当が無く、テストの見本でだけ確かめた）
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 45487824）: https://github.com/retroeater/mj-logs/tree/main/guide/45487824
+ガイド文書（この版を写した時点の最新、mj c129a98b）: https://github.com/retroeater/mj-logs/tree/main/guide/c129a98b
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/45487824/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/45487824/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/45487824/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/45487824/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/45487824/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/45487824/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c129a98b/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c129a98b/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c129a98b/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c129a98b/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c129a98b/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c129a98b/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/795228a7.md
