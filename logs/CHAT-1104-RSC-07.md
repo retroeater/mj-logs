@@ -55,6 +55,46 @@ Chat-Ref: CHAT-1104-RSC-07
 
 ## 経過
 
+- 着手前の確認: 同じ Chat-Ref のコミット・ログなし。`RSC` は続き（07）。作業ブランチ: origin/work/1104-rsc は origin/cloudflare の祖先（マージ済み）。ローカルの work/1104-rsc も祖先なので `git merge --ff-only origin/cloudflare` で進めた（e27f2c52a）
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 欠けなし
+- 0.: 「指示」欄の末尾は指示文の最後の行と一致。CHAT-1104-RSC-06 の `## 報告` の状態を「判断待ち / 続き: CHAT-1104-RSC-07」にした
+
+### 1. 前提の確かめ
+
+- #408: Open。着手中のコメントは RSC-01（自分、完了済み）だけ。着手中のコメントを書いた（https://github.com/retroeater/mj/issues/408#issuecomment-6617455408）
+- #630: Open。B の決定を記録するコメントを書いた（https://github.com/retroeater/mj/issues/630#issuecomment-6617456149）
+- 未マージの `work/` ブランチで、調べもののスクリプト・テスト・ワークフロー・`lib/candidates_book.py` を変えているものは無い（`git diff --name-only origin/cloudflare...<ブランチ>` で全件を見た）
+- 連盟の公式サイト（www.ma-jan.or.jp）: セッションから読めた（robots.txt は `/wp-admin/` だけを禁止）。タイトル戦のページ（`/title-fight.html`）から大会ごとの一覧に入れる。1つだけ見た十段戦の一覧（`/title-fight/10dansen.html`）には「歴代優勝者」の表があり、期と**年だけ**（例「第30期 2013」）。決勝の日付は無い。決勝の観戦記（2019年ごろ以降の「第36期十段戦決勝 最終日観戦記」など）は一覧にある。API の資料の選び方は変えていない（ryoei.pro だけを外す）
+
+### 2. 実装（コミット 91552219c）
+
+- `scripts/research_candidates.py` に種別 C を足した: 対象は `generate_title_pages` で「タイトル」「タイトル戦」を読み、`load_periods()` で期にまとめ、表示する大会（title/ に載る大会）の期のうち、日付（期ページの対局日と同じく最初に読めた値）が年だけ（`DATE_YEAR_RE`）で年が 2010年以降のもの。対象キーは期の題（「第30期十段戦」）
+- 照合（`verify_date()`）: 日付が `YYYY-MM-DD` の実在する日／年がシートの年と1年を超えてずれない（RSC-01 の止まる条件「±1 を超えてずれる」をここで未照合にする）／シートに月があれば同じ年月。合えば、出典の引用文に月日・大会名（改称前の名前も可）・期があるか。抜粋だけは未照合（A・B と同じ `verify_source()`）。資料は A と同じく ryoei.pro だけを外す
+- RSC-01 の案から変えた点: 「日付が引用文に無い」は止めずに未照合にする（A・B と同じく、止まるのは費用と API のエラーだけ）。引用文の年は無くてもよい（記事の題や前の段落にあることが多い。`簡略化:`）
+- 名前は「別名」で直さず、シートの表記のまま渡す: 「別名」を通すと「使われていない登録」の検査の表（`scripts/check_unused_names.py` の `NAME_RESOLVERS`、テスト `test_name_resolvers`）に関数を足すことになり、差分の範囲（調べもののスクリプト・テスト・ワークフロー、docs）を超えるため。照合に名前は使わず、プロンプトの手がかりだけなので、当時の表記のほうが記事を探しやすい
+- テスト `DateTest`（9本）と `ArgsTest` への追記。`python3 -m unittest discover -s scripts/tests`: 1916件 OK
+- ワークフロー: 入力 `kind` に C を足した。docs: `research-candidates.md`（種別の表・C の照合・B の区切り）、`github-actions.md`（表の行）、`decisions/automation.md`（この指示の決定）
+
+#### 作業ブランチでの手動実行（ワークフローを変えたため）
+
+- run 41734716178（work/1104-rsc、kind C、dry_run、limit 300）: 成功。「タイトル」3119行・「タイトル戦」31行を読めた。**対象 91期**。候補タブ 183行・見出し一致
+
+| 大会 | 対象の期 | シートの年 |
+|---|---|---|
+| 鳳凰戦 | 12（第27〜38期） | 2010〜2021 |
+| 十段戦 | 10（第27〜36期） | 2010〜2019 |
+| 王位戦 | 10（第36〜45期） | 2010〜2019 |
+| 麻雀マスターズ | 10（第19〜28期） | 2010〜2019 |
+| 麻雀グランプリMAX | 10（第1〜10期） | 2010〜2019 |
+| 女流桜花 | 10（第5〜14期） | 2010〜2019 |
+| プロクイーン | 10（第8〜17期） | 2010〜2019 |
+| WRCリーグ | 7（第1〜7期） | 2016〜2019 |
+| 新人王戦 | 10（第24〜33期） | 2010〜2019 |
+| リーチ麻雀世界選手権 | 2（第1・2回） | 2014・2017 |
+| 計 | **91** | |
+
+- RSC-01 の数え方（期ページの対局日が年だけの期、全年で 230期）との比べ: RSC-01 は 2010年以降に絞った数を出していない。年で絞らない大会（WRCリーグ 7・リーチ麻雀世界選手権 2）は RSC-01 の数と同じ。ほかの大会は 2010〜2019年（鳳凰戦は 2021年まで）の期だけが年だけで、2020年以降は日付まで確定しているため、2010年以降は 91期。ずれは絞り込みで説明がつく
+
 ## 報告
 
 - 状態: 作業中
@@ -71,12 +111,12 @@ Chat-Ref: CHAT-1104-RSC-07
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj a7323386）: https://github.com/retroeater/mj-logs/tree/main/guide/a7323386
+ガイド文書（この版を写した時点の最新、mj c00e4591）: https://github.com/retroeater/mj-logs/tree/main/guide/c00e4591
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7323386/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7323386/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7323386/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7323386/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7323386/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7323386/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c00e4591/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c00e4591/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c00e4591/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c00e4591/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c00e4591/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c00e4591/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/dfabc859.md

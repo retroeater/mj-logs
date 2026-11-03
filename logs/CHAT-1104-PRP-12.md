@@ -49,28 +49,74 @@ pro/ のトップの説明文が、今の絞り込みのタブ（よみ・所属
 
 ## 経過
 
+### 0. 着手前の確認
+
+- 「指示」欄の末尾は指示文の最後の行（「不明な点があれば…この行が指示文の最後の行です。」）と一致
+- 同じ Chat-Ref のコミット・ログは無し。#641 は open
+- 冒頭の雛形の行（Chat-Ref・マージ・貼る時機・共通手順）に欠けなし。「マージ: 承認済み（チャットで）」あり
+- work/1104-prp-desc はリモートにもローカルにも無かったので `git checkout -b work/1104-prp-desc origin/cloudflare`（a73233863）で作った
+- 今の説明文は「日本プロ麻雀連盟の在籍する麻雀プロ1,098名の個別ページの一覧。五十音・所属・入会期・鳳凰戦のリーグで探せます。」（前提のとおり）。og:description も同じ値
+- 未マージの work/ ブランチで `TOP_DESCRIPTION` の行を変えているものは無い（work/1101-prp-pub の差分では前後の文脈の行として出るだけ）
+
+### 1. 変更（3f2b9c0e9・9dfdd08b0）
+
+- `TOP_DESCRIPTION` を「{org}の在籍する麻雀プロ{count:,}名の個別ページの一覧。よみ・所属・入会期・鳳凰戦と女流桜花のリーグ・お気に入りで絞り込めます。」にした（1,098名で69字。houou/ 75字・saikyo/ 62字・title/ 52字・live/ 50字）。人数は生成の値のまま
+- 最初はチャット側の案（「…鳳凰戦／女流桜花のリーグで絞り込め、お気に入りの選手も保存できます。」）で入れたが、レビューの指摘（お気に入りはトップで保存するのでなく個別ページの ☆ で足し、トップは絞り込むだけ。「絞り込め、」の連用形のつなぎ）で 9dfdd08b0 に直した
+- 検査 `MetaTest.test_top_description_follows_tabs`: description と og:description の全文。cloudflare（a73233863）の `git archive` に入れて実行すると `FAIL`（旧の文）
+- `python3 -m unittest discover -s scripts/tests`: Ran 1908 tests OK
+
+### 2. 生成物（regenerate-page.yml、target_page pro_pages → 757dd075c）
+
+この指示の前の origin/cloudflare（a73233863）と比べた生成物の差分は `pro/index.html` だけで、変わった行は3行:
+
+| 行 | 中身 |
+|---|---|
+| `<meta name="description" …>` | 新しい説明文 |
+| `<meta property="og:description" …>` | 新しい説明文 |
+| `<p class="mj-lead">…</p>` | 新しい説明文（ページの末尾に出る説明の段落。同じ値をページの本文にも出す既存の形） |
+
+`pro/index.html` の noindex は残っている（1件）。個別ページ・`plans.json`・ほかの生成物に差分なし。
+
+### 3. 止まった理由
+
+止まる条件「生成物の差分が `pro/index.html` の description・og:description の行のほかに出た」に、3行目の `<p class="mj-lead">` が当たる。同じ値（`description`）を `render_content()` がページの説明の段落にも出す既存の形で、説明文を変えると必ず一緒に変わる。前提に無かったので、マージせずに止めた。
+
+### 4. 差分のレビュー（新しい文脈のサブエージェント、1回）
+
+3f2b9c0e9。bug の指摘なし。
+
+| 指摘 | 扱い |
+|---|---|
+| 1. 「お気に入りの選手も保存できます」は、トップで保存できるように読める（追加は個別ページの ☆。localStorage の使えない端末では ★ のタブも出ない） | 直した（9dfdd08b0。「…・お気に入りで絞り込めます。」） |
+| 2. 「絞り込め、」の連用形のつなぎが読みにくい。ほかのページは「〜できます。」で終わる1文 | 直した（9dfdd08b0） |
+| 3. 「鳳凰戦／女流桜花」の全角スラッシュ。同じファイルは「鳳凰戦・女流桜花のリーグ」と書く | 直した（9dfdd08b0。列挙の「・」と紛れないよう「鳳凰戦と女流桜花のリーグ」） |
+| 4. テストの「桜花」「お気に入り」のループは全文一致と重なる | 直した（9dfdd08b0。消した） |
+| 5. 生成物はまだ旧の文（レビューの時点） | 意図どおり（Actions で再生成した。上の表） |
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 中断（止まる条件に当たった。マージしていない）
 - ブランチ: work/1104-prp-desc
 - ログ: https://github.com/retroeater/mj/blob/work/1104-prp-desc/docs/logs/CHAT-1104-PRP-12.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1104-prp-desc
-- 確認用URL: 作業中
-- マージ: 作業中
+- 確認用URL: なし（マージしていない。生成物は作業ブランチの `pro/index.html`）
+- マージ: しない（止まる条件「生成物の差分が description・og:description の行のほかに出た」に当たった）
 - issue: #641
-- 判断が必要なこと: 作業中
-- 未確認の項目: 作業中
+- 判断が必要なこと:
+  - 説明文を変えると、同じ値を出す `pro/index.html` の `<p class="mj-lead">`（ページの末尾の説明の段落）も変わる（既存の形。ほかのトップも同じ）。この3行目の差分を認めてマージしてよいか。よければ「この差分を認める・マージ: 承認済み」の指示で、作業ブランチのままマージする（生成物の再生成は不要）
+  - 直した文「日本プロ麻雀連盟の在籍する麻雀プロ1,098名の個別ページの一覧。よみ・所属・入会期・鳳凰戦と女流桜花のリーグ・お気に入りで絞り込めます。」でよいか（チャット側の案からレビューで直した）
+- 未確認の項目: 本番の説明文（マージしていないため）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj a7323386）: https://github.com/retroeater/mj-logs/tree/main/guide/a7323386
+ガイド文書（この版を写した時点の最新、mj c00e4591）: https://github.com/retroeater/mj-logs/tree/main/guide/c00e4591
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7323386/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7323386/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7323386/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7323386/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7323386/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7323386/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c00e4591/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c00e4591/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c00e4591/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c00e4591/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c00e4591/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c00e4591/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/dfabc859.md
