@@ -167,7 +167,7 @@ RYO 系列の公開（「良栄」をドロップダウンから `/r/` へのリ
 - ログ: https://github.com/retroeater/mj/blob/work/1104-top/docs/logs/CHAT-1104-TOP-11.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1104-top
 - 確認用URL: プレビューあり（URL は最終報告）。確認したページ: top/・houou/・pro/・title/・jpml_pros.html。この版の印: top/ に「開催中・直近の大会」の面が無く、上の細い帯の右に「質問」と「≡」
-- マージ: 未（平野さんの判断待ち。プレビューを見て決める）
+- マージ: 未（平野さんの判断待ち。プレビューを見て決める） → 済（e27f2c52a、CHAT-1104-TOP-14 で TOP-11〜14 をまとめてマージ）
 - issue: #101, #231（1行コメントのみ。本文・状態は変えていない）
 - 判断が必要なこと:
   - title/ は `navbar.js` の白地の対象に入っていない（パスの一覧に無く、body の目印も無い）ため、新しいナビにしていない。決定の例「title/」と食い違う。title/ を白地の対象に足すか（足すと title/ の見た目も白地のナビの形になる）
@@ -182,12 +182,12 @@ RYO 系列の公開（「良栄」をドロップダウンから `/r/` へのリ
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 667be053）: https://github.com/retroeater/mj-logs/tree/main/guide/667be053
+ガイド文書（この版を写した時点の最新、mj a7323386）: https://github.com/retroeater/mj-logs/tree/main/guide/a7323386
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/667be053/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/667be053/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/667be053/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/667be053/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/667be053/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/667be053/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/59c4b82d.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7323386/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7323386/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7323386/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7323386/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7323386/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7323386/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/dfabc859.md

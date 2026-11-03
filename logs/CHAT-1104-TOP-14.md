@@ -73,15 +73,41 @@ TOP-13 は、マージの条件 (3)（比べる実行で6件が出ること）�
 - (3) 全ページの生成し直し（`regenerate-page.yml`、dry_run なし・all、run 41731926149、f012b1b3b）: 成功、飛ばしたページなし。生成し直しても変わるファイルが無く、コミットは出なかった（シート側のその日の変化による差も無い。除いたファイルは無い）。`git diff --name-only origin/cloudflare...HEAD` の生成物は houou/・jwrc/・ouka/・saikyo/・top/・wrcr/ の index.html と `sitemap-pages.xml`・`sitemap-saikyo.xml` だけで、サイトマップの差は lastmod の行だけ（lastmod 以外の行の差は0行）
 - 3つとも満たしたのでマージする
 
+### 2. マージ
+
+- push 直前に再 fetch し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真（origin/cloudflare＝5c74b8644）であることを確かめて `git push origin work/1104-top:cloudflare`（5c74b8644..e27f2c52a）
+
+### 3. 本番の確かめ（2026-11-04、Playwright、UA に mj-internal）
+
+- マージの約1分後に本番の `assets/nav.js`・`style.css`・`houou/` が新しい版になった
+- `https://ryoei.pro/houou/?v=…`（1280px）: 新しい帯、アイコンの読み上げ「AI に質問」、ページの中の質問欄なし。開いた入力欄の左右の端 456–824px が本文の面（3項目の面）の 456–824px と同じ。「現鳳凰位は？」を1問送り（`{contest:"all", context:"houou"}`）、「現鳳凰位は白鳥翔さんです。」の答え・データの時点・出典と選手のカード1件が出た。ページの JS エラーなし
+- `https://ryoei.pro/wayhome/?v=…`: 新しい帯（高さ 48px）
+- `https://ryoei.pro/jpml_pros.html?v=…`・`https://ryoei.pro/title/?v=…`・`https://ryoei.pro/?v=…`: マージの前後で本番の HTML が同じ（cmp）。jpml_pros.html・title/ は黒地のナビのまま。トップ `/`（index.html）は navbar.js を読まないページで、マージでも変えていない
+- 送った問いは1問（上限に数える）
+- CHAT-1104-TOP-11・12・13 のログの「マージ」の行にこのマージのコミットを書き足した。#101 にマージと本番の確かめをコメントし、TOP 系列の着手中を解除した
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1104-top（マージ済み。cleanup-branches.yml が消す）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1104-TOP-14.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1104-top
+- 確認用URL: なし（本番の houou/・wayhome/・jpml_pros.html・title/・トップで確かめた）
+- マージ: 済（e27f2c52a）
+- issue: #101（マージと本番の確かめのコメント、着手中の解除）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj e27f2c52）: https://github.com/retroeater/mj-logs/tree/main/guide/e27f2c52
+ガイド文書（この版を写した時点の最新、mj a7323386）: https://github.com/retroeater/mj-logs/tree/main/guide/a7323386
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e27f2c52/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e27f2c52/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e27f2c52/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e27f2c52/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e27f2c52/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e27f2c52/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7323386/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7323386/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7323386/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7323386/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7323386/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7323386/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/dfabc859.md

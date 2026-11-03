@@ -97,7 +97,7 @@ PC 幅で、帯の下に開く AI 検索の入力欄（今は最大 560px）が�
 - ログ: https://github.com/retroeater/mj/blob/work/1104-top/docs/logs/CHAT-1104-TOP-13.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1104-top
 - 確認用URL: プレビューあり（URL は最終報告）。確認したページ: houou/・top/・saikyo/・pro/・log/・wayhome/・jpml_pros.html（ローカル）。この版の印: PC 幅で、帯の下に開く質問欄の入力欄の左右の端が、下の本文の面（houou/ の3項目の面）の左右の端とそろう
-- マージ: 未（条件 (3) を満たしたと言えないため止まった。下の「判断が必要なこと」）
+- マージ: 未（条件 (3) を満たしたと言えないため止まった。下の「判断が必要なこと」） → 済（e27f2c52a、CHAT-1104-TOP-14 で TOP-11〜14 をまとめてマージ）
 - issue: #101（コメントなし。マージしていないので着手中のまま）
 - 判断が必要なこと:
   - 条件 (3) の比べ（dry_run・all・compare_ref）は「compare: 差分なし」だった（`## 経過`「2.」）。比べの仕組み上、生成し直してコミット済みの6件は比べの対象に入らず、6件が出ないのが正しい結果。両方のコードともコミット済みの生成物をそのまま作ることは示せていて、生成物の違いは `git diff` の6件の index.html と sitemap の lastmod だけ。これで条件 (3) を満たしたとしてマージしてよいか（よければ、取り込み直し〈cloudflare は 4339cd583 まで進んでいる〉→ 条件 (1)(2) の確かめ → マージ、の続きの指示）
@@ -111,12 +111,12 @@ PC 幅で、帯の下に開く AI 検索の入力欄（今は最大 560px）が�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj dfabc859）: https://github.com/retroeater/mj-logs/tree/main/guide/dfabc859
+ガイド文書（この版を写した時点の最新、mj a7323386）: https://github.com/retroeater/mj-logs/tree/main/guide/a7323386
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/dfabc859/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/dfabc859/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/dfabc859/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/dfabc859/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/dfabc859/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/dfabc859/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7323386/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7323386/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7323386/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7323386/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7323386/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7323386/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/dfabc859.md

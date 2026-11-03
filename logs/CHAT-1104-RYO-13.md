@@ -60,15 +60,30 @@ RYO-12 のマージ後、チャット側が本番の `https://ryoei.pro/r/world-
 - 0: 「指示」欄の末尾はこの指示文の最後の行と一致
 - `work/1104-ryo13` はローカル・リモートとも無かったので `git checkout -b work/1104-ryo13 origin/cloudflare`（5c74b8644）
 
+### 直す前の確かめと直し（手順1）
+
+- 本番と同じ `r/world-data.json`（origin/cloudflare）: L05 の名前「家族線」が出ている（駅の並び S18・S20・S28・S29、S20・S28 が灯りの駅）。`r/index.html` に「家族」は無い。灯りの駅に置かれた出来事で表示＝Y のものは無い
+- 検査を先に足し、直す前のコードで落ちることを確かめた: テストのシートの写しに灯りの駅を含む路線「テスト用の家族線」（L05、S36・S20）を足し、
+  路線の書き出しで L05 に `name` が無いこと・公開のファイルに「家族」の語と灯りに結びつく文字が無いことを確かめるテストにした → 直す前のコードで `test_next_scene_data_is_written`・`test_light_texts_are_not_written` の2件が FAIL
+- 直し（e4f010ea0）:
+  - 灯りの駅を含む路線は `name` のキーを除き、`id`・`color`・`stations` だけを書く（灯りの駅を `name` を除いて書いた RYO-08 の形にそろえた。シートの「路線」は変えない）
+  - 同じ趣旨で、灯りの駅に置かれた出来事は、見せ方が文字でも ID・年・見せ方だけを書く（今のシートには該当の行が無いので出力は変わらない。テストで確かめた）
+  - 生成の後の照合（`check_hidden`）の対象に、灯りの駅を含む路線の名前と、灯りの駅に置かれた出来事の題・説明を足した（出ていたら止める）
+  - テストの家族の語の一覧に「家族」を足した。docs/notes/ryoei-world.md を直した
+- `python3 -m unittest discover -s scripts/tests` OK、`python3 scripts/check_asset_limits.py` OK
+- r/ の作り直し（run 657、e4f010ea0、`target_page: ryoei_pages`）: success、ワークフローが be7866cea をコミット。`r/index.html` は変わらない。`r/world-data.json` の差は L05 の `name` が消えたことだけ
+- 作り直した後の `r/index.html`・`r/world-data.json`: 「家族」0件、家族の語（結婚・長男・長女・次男・次女・三男・離婚・妻・息子・娘）0件
+- `scripts/lib/ryoei_book.py` を変えたので、全ページの新旧の比べ（`dry_run`・`all`・`compare_ref: origin/cloudflare`）を流す。`ryoei_book` を読むのは `generate_ryoei_pages.py` だけ
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj dfabc859）: https://github.com/retroeater/mj-logs/tree/main/guide/dfabc859
+ガイド文書（この版を写した時点の最新、mj a7323386）: https://github.com/retroeater/mj-logs/tree/main/guide/a7323386
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/dfabc859/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/dfabc859/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/dfabc859/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/dfabc859/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/dfabc859/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/dfabc859/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7323386/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7323386/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7323386/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7323386/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7323386/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7323386/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/dfabc859.md
