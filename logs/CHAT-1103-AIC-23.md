@@ -119,7 +119,7 @@ AIC-22 の本番の確かめ（横断の「佐々木寿人の成績は？」）�
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1103-AIC-25
 - ブランチ: work/1103-aic
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1103-AIC-23.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1103-aic
@@ -138,12 +138,12 @@ AIC-22 の本番の確かめ（横断の「佐々木寿人の成績は？」）�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 22d902d0）: https://github.com/retroeater/mj-logs/tree/main/guide/22d902d0
+ガイド文書（この版を写した時点の最新、mj 45487824）: https://github.com/retroeater/mj-logs/tree/main/guide/45487824
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/22d902d0/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/22d902d0/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/22d902d0/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/22d902d0/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/22d902d0/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/22d902d0/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/45487824/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/45487824/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/45487824/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/45487824/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/45487824/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/45487824/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/795228a7.md
