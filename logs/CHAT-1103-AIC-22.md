@@ -1,0 +1,91 @@
+# CHAT-1103-AIC-22
+
+- 着手日時: 2026-11-03（JST）
+- 対象issue: #654
+- ブランチ: work/1103-aic
+- 着手時HEAD: 8eb4b671c
+
+## 指示
+
+【Claude作成】Claude Code 向け指示：（AIC-21 の続き）質問欄の答えに、聞かれていない「今期の所属は分かりません。」のような「分からない」の一文が付く点を直し、cloudflare へマージする Chat-Ref: CHAT-1103-AIC-22 マージ: 承認済み（チャットで）。AIC 系列の例外（2026-11-02 の平野さんの決定）による。下の「止まる条件」のうち、次の3つを1つでも満たさなければマージしない
+
+* テストが通る
+* 本番の問いの答えがデータと一致する
+* 下の「答えが変わってよい問い」の外で、今答えられている問いの答えが変わらない 貼る時機: いつでも（CHAT-1103-AIC-21 のマージ〈82af799a4〉は済んでいる） 共通手順: CLAUDE.md「Chat-Ref」「ブランチ運用」「作業ログ」節のとおり（識別子確認 → origin/cloudflare を起点に work/<識別子>〈手順は docs/notes/cloud-sessions.md〉 → ログ先行push → 最終報告の Chat-Ref の行の直前に「ログ（公開）」の行、最後の行に Chat-Ref）。平野さんは、この指示のための作業ブランチ work/<識別子> の作成と push を許可している（セッションに割り当てられた claude/… のブランチは使わない）。 作業ブランチ: クラウドセッションで実行する。work/1103-aic を使う。リモートに無ければ origin/cloudflare から作る。リモートにあってマージ済み（`git merge-base --is-ancestor origin/work/1103-aic origin/cloudflare` が真）なら origin/cloudflare から作る（`checkout -B` は使わない。ローカルにあるときを含め手順は docs/notes/cloud-sessions.md「作業ブランチの用意」）。マージ済みでなければ止まる
+
+0. 着手前に、このログの「指示」欄の末尾が、この指示文の末尾（最後の行）と一致しているか確認し、一致しなければ作業せず報告する。82af799a4 が origin/cloudflare の祖先であることを確かめる。AIC-21 のログの `## 報告` の状態の末尾に `/ 続き: CHAT-1103-AIC-22` を足し、その「判断が必要なこと」への回答（下の「決定」）を書き足す。識別子 `AIC` はこのチャットの系列（AIC-01〜21 で使用。AIC-17 は欠番）。
+
+目的
+AIC-21 の本番の確かめで、横断の「佐々木寿人の成績は？」の鳳凰戦の答えの最後に、聞いていない「今期の所属は分かりません。」が付いた。データとは食い違わないが、読む人には「データが欠けている」と読める。週次に回さず、いま直す。
+決定（2026-11-03、平野さん）
+
+* AIC-21 の「判断が必要なこと」1つ目（聞いていない「今期の所属は分かりません。」）への回答: 週次に回さず、いますぐ直す（この指示）
+* AIC-21 の「判断が必要なこと」2つ目（`termCount` の名前と `answerInput()` に足した1行）: チャット側で確かめ、そのままでよいとした（平野さんの個別の決定ではない）
+* AIC 系列のマージの例外は 2026-11-02 の決定のまま
+
+前提（チャット側。平野さんの決定ではない）
+チャット側が 2026-11-03 16:00 JST ごろ、origin/cloudflare（8eb4b671c）で開いて確かめた。着手時に今のコードで開き直す。
+
+* `workers/ask/src/ask.mjs`
+   * 118〜129行あたり `answerSystem()`（2回目の指示。大会別の欄と横断で同じものを使う）。「結果に無いことは書かない。評価・推測・私生活には触れない」はあるが、「聞かれていないことについて『分からない』と書かない」に当たる行は無い
+   * 「今期」「所属」を答えに書かせる指示の行は、`ANSWER_LINES` の鳳凰戦・女流桜花の entry の行（「league は…今の所属とは限らない。リーグを聞かれたときだけ書き」）だけ。player の行には無い
+   * 横断の2回目は `crossSystem()`（753行あたり）が `answerSystem()` と `ANSWER_LINES` を並べて作る
+* 原因の見立て（確かめていない）: 横断では entry の「今の所属とは限らない」の行が player の結果と同じ指示に並ぶため、Claude が所属に触れ、結果に無いので「分かりません」と書いた。大会別の欄の鳳凰戦の答え（AIC-21 の本番）には出ていない
+* 直し方の候補（実物に合わせて選んでよい。選んだ方と理由を報告に書く）
+   * (a) `answerSystem()` に「聞かれていないことについて、分からない・記録が無いとは書かない（聞かれたことが結果に無いときだけ、その旨を書く）」の1行を足す
+   * (b) `ANSWER_LINES` の entry の行を「entry の結果があるときだけ」の形にし、player の答えで所属に触れさせない
+   * Claude の出力は毎回同じではないので、テストは「指示に規則が入る」ことを確かめる形でよい。本番は1回の確かめで足りるとする
+* 答えが変わってよい問い: 答えに、聞かれていない事柄について「分からない」「記録が無い」と書く一文がある問い（大会別の欄と横断の両方）。聞かれたことがデータに無いときの「分かりません」「記録はありません」（例: 案内の答え、`beyond_data`、決勝だけの人の「予選の成績の記録はありませんが」）は変えない
+* 選手の役職などの人の属性は、ログ・テストに書かない
+* 本番の確かめは1日10問まで（同じ接続元から）。上限に当たったら、送れなかった問いを「未確認の項目」に書く
+
+手順
+
+1. 直す: 上の答えを今のコードで再現できるか試してから直す（Claude の出力が揺れて再現しなければ、そう書いて直しを入れる）。docs/notes/ask-worker.md「5大会の応答ルール」の該当の行を直し、docs/decisions/houou.md に上の「決定」を足す
+2. テスト:
+   * 大会別の欄と横断の2回目の指示に、足した規則が入ることを確かめる
+   * 「答えが変わってよい問い」の外で、今のテスト（AIC-08〜21）が変わらないことを確かめる
+   * 直す前のコードで新しいテストが落ちることを確かめる
+   * `python3 -m unittest discover -s scripts/tests` と `node --test 'workers/ask/test/*.test.mjs'` が通ることを確かめる
+   * 新しい文脈のサブエージェントにレビューさせる（CLAUDE.md「判断・作業の原則」）
+3. マージと本番:
+   * cloudflare へマージし、`mj-ask` のビルドの結果を確かめられる範囲でログに書く
+   * 本番に送る問いは次の3つ。答えがデータと一致し、聞かれていない「分からない」の一文が無いかを書く
+      * 横断（`contest: "all"`）の「佐々木寿人の成績は？」
+      * houou/ の「森山茂和の成績は？」（決勝だけの人の「予選の成績の記録はありませんが」が残ること）
+      * ask-worker.md「本番で送る固定の問い」から1問
+   * #654 に結果をコメントする
+
+止まる条件
+
+* テストが通らない、本番の問いの答えがデータと一致しない、「答えが変わってよい問い」の外で今答えられている問いの答えが変わる（どれか1つでもマージしない）
+* 直すと、聞かれたことがデータに無いときの答え（案内・`beyond_data`・決勝だけの人）も変わる見込みになった（直さずに書いて止まる）
+* 未マージの work/ ブランチが `workers/ask/src/ask.mjs` の同じ関数・同じ行を変えている、または取り込みで衝突する（同じファイルの別の箇所の変更では止まらず、ログに書く）
+* #654 に他セッションの着手中コメントがある
+* 取り込みで生成物でない文書が衝突した。ただし、両方の変更が両立する衝突（追記どうし・隣り合う行）は、両方を残して解いてよい。解いた後の該当箇所をログに引用する。それ以外の衝突は解かずに止まる
+* マージ後の check-run・ビルドの失敗: 今回の変更による失敗なら止まって報告する。無関係な失敗なら原因を報告に書いて、残りの手順を進めてよい。自分の変更で落ちると分かったテストは直してよい
+* cloudflare への push が権限判定で拒否された（別の手段を試さずに止まる）
+
+完了条件
+
+* ログの「## 報告」を CLAUDE.md「作業ログ」節のとおりに書いて push する。AIC-21 の「未確認の項目」3つは、この指示の「未確認の項目」にも写す
+   * 2026-11-09（月）03:00 JST の書き出しと「現女流桜花」の引数
+   * 地域で断られた問いの記録
+   * 横断の記録（型 `all:…`）の書き出し
+* マージは冒頭の「マージ:」の行のとおり
+* ターミナルへの最終報告の Chat-Ref の行の直前に ログ（公開）: https://github.com/retroeater/mj-logs/blob/main/logs/CHAT-1103-AIC-22.md?v=<SHA>（CLAUDE.md「作業ログ」節）を書き、最後の行に Chat-Ref: CHAT-1103-AIC-22 を書く
+
+不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
+
+<!-- guide-links -->
+---
+
+ガイド文書（この版を写した時点の最新、mj 8eb4b671）: https://github.com/retroeater/mj-logs/tree/main/guide/8eb4b671
+
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/8eb4b671/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/8eb4b671/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/8eb4b671/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8eb4b671/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8eb4b671/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8eb4b671/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/e4049b27.md
