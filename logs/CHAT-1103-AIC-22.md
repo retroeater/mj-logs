@@ -87,16 +87,24 @@ AIC-21 の本番の確かめで、横断の「佐々木寿人の成績は？」�
 - テスト（count.test.mjs に1本）: 鳳凰戦・女流桜花・WRC リーグ・WRC-R・最強戦の欄と横断の2回目の指示に一文が入る（横断では1回だけ）。直す前のコードでこの1本が落ち、ほかの3本は通る。直した後は node 146本・python 1747本 通過
 - 変わる範囲の比較（scratchpad の in21.mjs を直す前と後で）: 応答・記録（プログラムの文を含む）と2回目に渡す結果は全部同じ。2回目の指示（system）が、2回目を呼ぶ問いすべてで1行増える
 - docs: ask-worker.md「5大会の応答ルール」の表に行を足した（2d80422fd）。docs/decisions/houou.md に 2026-11-03（CHAT-1103-AIC-22）の節
+- 自己レビュー（新しい文脈のサブエージェント、2回）:
+
+  | 回 | 対象 | 観点 | 結果 |
+  |---|---|---|---|
+  | 1 | 976129d9e・2d80422fd | 書くべき場面との衝突、ほかの行との矛盾、プログラムの文が Claude を通らないか、テスト、docs | 要修正1: docs の表の印が ★（2026-11-02 にそろえた）→ ○ に直した。任意: 足した一文の後半「聞かれたことが結果に無いときだけ、その旨を書く」は、期の外で期を外して答える経路（冒頭の文はプログラムが書き、2回目に渡らない）で「第N期の記録はありません」を重ねて書かせるおそれ → 後半を外し、禁じる側「- 聞かれていないことについて「分からない」「記録が無い」とは書かない」だけにした（974895be9。止まる条件「聞かれたことがデータに無いときの答えも変わる見込み」を避けるため）／コメントの「2行目」→「箇条の2つ目」に直した／言い換えの語（「不明です」など）は記録に出てから。証跡: 案内・決勝だけ・期の外で記録が無い・候補は Claude を通らない（コードと既存のテスト）、146本通過、直す前で新しい1本だけ落ちる |
+  | 2 | 974895be9・64796c86d | 新たな問題 | 指摘なし。期の外の経路で Claude が自分から「第N期の記録はありません」と書く可能性は前と同じく残る（本番の記録で見る）。証跡: 146本通過、直す前で新しい1本だけ落ちる |
+
+- 直した後: node 146本・python 1747本 通過
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 8eb4b671）: https://github.com/retroeater/mj-logs/tree/main/guide/8eb4b671
+ガイド文書（この版を写した時点の最新、mj d2277ebe）: https://github.com/retroeater/mj-logs/tree/main/guide/d2277ebe
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/8eb4b671/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/8eb4b671/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/8eb4b671/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8eb4b671/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8eb4b671/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8eb4b671/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d2277ebe/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d2277ebe/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d2277ebe/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d2277ebe/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d2277ebe/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d2277ebe/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/e4049b27.md
