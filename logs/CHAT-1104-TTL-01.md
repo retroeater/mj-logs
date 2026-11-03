@@ -55,17 +55,32 @@ title/（入口・大会ページ・期ページ）の見た目を、黒いナ�
 
 ## 経過
 
+- 着手前の確認: `git log --all -E --grep 'CHAT-[0-9]{4}-TTL-'` と `docs/logs/CHAT-*-TTL-*.md` の履歴はともに0件（同じ Chat-Ref・識別子 TTL の重複なし）。対象 issue の指定なし（#101 は経緯の参照）。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は欠けなし
+- 作業ブランチ: ローカル・リモートとも `work/1104-ttl` が無かったため `git checkout -b work/1104-ttl origin/cloudflare`（8071c9bed）で作り、ログを先に push した
+- 手順0: このログの「指示」欄の末尾の行は指示文の最後の行（「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」）と一致
+- 手順1（読んだもの）: `docs/notes/title-pages.md`、`docs/notes/design.md`、`scripts/generate_title_pages.py`（`breadcrumb_html`・`photo_card_html`・`member_card_html`・`period_body`・`taikai_body`・`index_body`・`filterbar_html`・`page_html`）、`title/houou/41.html`、`saikyo/2025/index.html`（`body.mj-saikyo-n-page` の年度ページ）、`style.css` の「最強戦(saikyo/、#319・#549)」節（`--mj-n-*` は `body:is(.mj-saikyo-n-page, .mj-live-n-page)` に置かれ、live/ も同じ部品を使っている）、`navbar.js`
+- 手順1（未マージのブランチ）: `git branch -r --no-merged origin/cloudflare` の各ブランチと `git diff --stat origin/cloudflare...<branch> -- scripts/generate_title_pages.py assets/title.js style.css navbar.js title/search.json` で、変更があったのは次の3本
+  - `origin/work/1101-prp-pub`（CHAT-1104-PRP-08 が作業中。#641）: **`generate_title_pages.py` の `member_card_html()`（期ページの写真カードの行き先を、個別ページのある在籍者は連盟プロの個別ページ〈pro/〉、無ければ X に変える）と `period_body()`（引数に `slugs` を足し、`cards = [...]` の行を変える）・`pages()`** を変えている（コミット 0ed406ea8「feat: link race icons and title/ final cards to pro/ pages」）。title/ の期ページの HTML 全部・`sitemap-title.xml` も再生成済み。`navbar.js` は「連盟プロ」の href と `/pro/` の判定のコメントの行、`style.css` は houou/ の節（5419〜5800 行付近）で、title/ の節ではない
+  - `origin/work/1029-lgn-page`: `navbar.js` の `newNavCurrent` の判定の先頭（`if (location.pathname.indexOf('/houou/') === 0)` の行の前に `/log/` を足す）と `style.css` の末尾への追加。title/ の節・`generate_title_pages.py`・`assets/title.js` は変えていない
+  - `origin/work/1104-top`: `navbar.js` の `if (newNavCurrent) {…}` の後ろへの追加と `style.css` の末尾への追加。`generate_title_pages.py`・`title/search.json`・`assets/title.js` は変えていない（前提の「TOP 系列が `title/search.json` の生成を変えている可能性」は、今の `work/1104-top` には無い。`docs/decisions/title.md` の 2026-11-03〈CHAT-1103-TOP-06〉には「TOP 系列の次の指示で、記録0件の大会名も `search.json` に出す」とあり、これから変わる予定）
+- 止まる条件の判定: 期ページを新しい形にするには、`period_body()` の中身（パンくずの直後の `visually-hidden` の h1 を 28px の題名にする・写真カードの並びを行の案に切り替える）と、決勝メンバーの写真カード／行を作る `member_card_html()` を変える必要がある。この2関数は `work/1101-prp-pub` が変えている関数そのもので、止まる条件「未マージの work/ ブランチが `generate_title_pages.py` … の同じ行・同じ関数を変えている」に当たる。`breadcrumb_html()`・`page_html()` など別の関数だけで期ページの題名・行の案を作る方法（生成後の HTML の置換など）は、コードの形を崩すため採らなかった
+  - あわせて、`work/1101-prp-pub` がマージされると期ページの決勝メンバーの行き先が X から pro/ の個別ページに変わり、前提の「押すと X へ行く形」も変わる（行の案の右端・リンクの形の判断に関わる）
+  - `navbar.js` は、`/pro/` の判定の行（prp-pub）と先頭の `if`（lgn-page）、`if (newNavCurrent)` の後ろ（top）を避けて `/title/` を足せる見込み。`style.css` の title/ の節（2621〜3240 行付近）はどのブランチも変えていない
+- 実装・生成・撮影はしていない（作業ブランチの差分はこのログと `docs/decisions/title.md` の追記だけ）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 中断（止まる条件に当たった）
 - ブランチ: work/1104-ttl
 - ログ: https://github.com/retroeater/mj/blob/work/1104-ttl/docs/logs/CHAT-1104-TTL-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1104-ttl
-- 確認用URL: 未
-- マージ: 未
+- 確認用URL: なし（実装前に止まった）
+- マージ: 未（平野さんの判断待ち）
 - issue: なし
-- 判断が必要なこと: 未
-- 未確認の項目: 未
+- 判断が必要なこと:
+  - 未マージの `work/1101-prp-pub`（CHAT-1104-PRP-08 作業中、#641）が `generate_title_pages.py` の `member_card_html()`・`period_body()` を変えており、期ページを新しい形にするにはこの2関数を変える必要がある（止まる条件）。進め方を選んでほしい: (A) `work/1101-prp-pub` のマージを待ってから、この指示を新しい Chat-Ref で貼り直す（期ページの決勝メンバーの行き先が pro/ になった後の形で作れる）／(B) 衝突を承知で今の `origin/cloudflare` の上で作る（後でマージする側が、2関数と title/ の期ページの HTML の取り込みを解く）／(C) 入口・大会ページ・共通ナビ・CSS だけを先に作り、期ページは (A) の後にする
+  - 前提の「期ページの決勝メンバーは押すと X へ行く形」は、`work/1101-prp-pub` のマージ後は「個別ページのある在籍者は pro/ の個別ページ、無ければ X」に変わる
+- 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->

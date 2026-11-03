@@ -78,28 +78,164 @@ PRP-07 の判断が必要なことへの回答（2026-11-03）:
 
 ## 経過
 
+### 0. 着手前の確認
+
+- 「指示」欄の末尾は指示文の最後の行（「不明な点があれば…この行が指示文の最後の行です。」）と一致
+- CHAT-1103-PRP-07 の `## 報告` の状態は「判断待ち」。末尾に `/ 続き: CHAT-1104-PRP-08` を足して push（01ef6c8f5）
+- 冒頭の雛形の行（Chat-Ref・マージ・貼る時機・共通手順）に欠けなし
+- 作業ブランチ: work/1101-prp-pub はリモートにあり、`git merge-base --is-ancestor origin/cloudflare HEAD` が偽だったので merge で取り込んだ
+
+### 1. cloudflare の取り込み（209cb023b）
+
+衝突は2ファイル。どちらも両立する変更なので両方を残して解いた。
+
+- `docs/handover.md`（参照の表の隣り合う行）: このブランチの `pros-redirect-worker.md` の行と、cloudflare の `ryoei-world.md`・`top-page.md` の行を両方残した
+- `docs/new-page-checklist.md`（「保存する項目」の同じ行）: cloudflare の行（r/ の音 `mj:ryoei-sound` を足したもの）を採り、その中のお気に入りの記述をこのブランチのものにした。解いた後:
+
+> - 保存する項目: 最近見た選手 #236（…）/ 全件表示 #237 / お気に入り #287（`mj:favorites`、`[{"slug", "name"}]` の配列・上限なし。pro/ の個別ページの ☆ で足す・外す、2026-11-03）/ クイズの自己最高点 #279 / r/ の空間の音のオン／オフ #657（`mj:ryoei-sound`、…）。項目ごとに上限を決める
+
+cloudflare が足した top/・r/ は名前の面のクラス（`mj-pro-face`・`-who`・`-fav`・`-chips`・`-chip`）を使わない（top/ が使うのは `mj-pro-heading`・`-plans`・`-plan`・`-kind`・`-thumb`・`-plan-meta`）。
+
+### 2. 個別ページ（6043e78de）
+
+- 名前の面のチップは所属・入会期・誕生日の3つ（`face_chips()`）。誕生日は「8/27生」。3つの grid で同じ幅（360px で各95px、1280px で各108px）
+- 読みは名前のすぐ下（`.mj-pro-sub`）。ローマ字は出さない
+- ☆ は名前の面の右上（44px の丸、読み上げの名前「お気に入り」は visually-hidden、`aria-pressed`）。選ぶと白の ★。明るい配色は紺 `rgb(20,69,155)` の丸の上（白とのコントラスト約 9:1）、暗い配色は面の上に白
+- 見出しは「放送対局」「放送対局（実況・解説）」。どちらの欄の下にも同じ「すべて（N件）」（`/live/?q=<名前>`）
+
+「すべて」と「もっと見る」の平仄（サイトの既存のリンク）:
+
+| 場所 | 語 | 動き |
+|---|---|---|
+| pro/ 個別ページ 獲得タイトルの末尾 | すべての決勝進出 | 一覧のページへ移る（`/title/?q=`） |
+| pro/ 個別ページ 放送対局（選手）の末尾（PRP-07 まで） | すべて（N件） | 一覧のページへ移る（`/live/?q=`） |
+| live/ のトップ | すべての放送対局 | 一覧へ移る |
+| top/（新しいトップ）の各欄 | もっと見る | その場で行を広げる |
+| 質問欄の答えのカード | ほか N名 | その場で広げる |
+
+一覧のページへ移るリンクは「すべて…」、その場で広げるものは「もっと見る」と分かれている。実況・解説の欄の下のリンクも live/ の一覧へ移るので「すべて（N件）」にそろえた。live/ の検索は役（選手／実況・解説）で絞れないため、2つの欄の行き先と N は同じ。
+
+### 3. トップの絞り込みのシート（fef3ec598・0e8840109）
+
+- タブ6つ「よみ・所属・入会・鳳凰・桜花・★」（`FACETS`。★ だけ `aria-label="お気に入り"`。ほかは見える字が読み上げの名前に含まれるので付けない）
+- 各グループの最初が「すべて」（`data-all`）。値のチップは `repeat(auto-fill, minmax(64px,1fr))` の grid で同じ幅（「お気に入りの選手」だけ2列分）
+- 値を押すと足す・外す（カテゴリの中は OR）。カテゴリの間は AND。「すべて」はそのカテゴリを外す。値を押してもシートは閉じない
+- 今の状態の1行: 「所属: 東京、関西・入会: 23期」（カテゴリは「・」、値は「、」、1カテゴリ2つを超えたら「ほか N」。★ は「★お気に入り」。空なら「すべて」）
+- URL: `?place=東京,関西&joined=23`（値は「,」区切り、`%2C` も読む）。既定（よみ: あ）はクエリなし、空は `?all=1`。★ は載せない。シートに無い値は捨て、何も残らなければ既定
+- 既定の「あ」のままほかのカテゴリの値を押したら「あ」を外す（レビュー指摘1による、0e8840109）
+
+誕生日の絞り込み（`?birthday=`）を調べた結果: 個別ページの誕生日のチップ（1,098人すべてにある）からだけ来る。トップでは1行に「誕生日: 8月27日」と出し、「解除」で外す（外すと残りの絞り込み、無ければ `?all=1` の全員）。誕生日は366通りあり、シートのタブにすると値のチップが366個になる。チップから来る使い方（同じ誕生日の選手を見る）は今の形で足りるので、シートに足さない今の形のままを提案する。
+
+### 4. テストと確かめ
+
+- `python3 -m unittest discover -s scripts/tests`: Ran 1839 tests OK（0e8840109 の前）。0e8840109 の後は `test_pro_*.py` が OK、全体は下の最後の実行
+- `node --test 'workers/*/test/*.test.mjs'`: tests 215 / pass 215 / fail 0
+- 足したテストが修正前のコードで失敗すること:
+  - 6043e78de（個別ページ）の3本: 修正前のコードで失敗を確かめてからコミット（チップ4つ・「誕生日 8月27日」・ローマ字あり・見出し「放送対局（選手）」で不一致）
+  - `test_pro_filter.py`・`test_pro_favorites.py` を 6043e78de の `git archive` に入れて実行: `Ran 17 tests … FAILED (failures=1, errors=9)`（新しい関数が無い・FACETS が2つ組）
+  - `test_default_kana_dropped_by_other_facet` を cb776ad99 の `git archive` に入れて実行: `FAILED (failures=1)`
+- 選び方の組み合わせ（`test_pro_filter.py`）: 1つ・同じカテゴリで複数・2カテゴリ・「すべて」でリセット・URL から開く（既定・all=1・チップの URL・「,」と %2C・league/ouka/birthday・無い値・重複・★ を読まない）・★ と他の重ね掛け・0人・クエリの往復・1行の文言・既定の「あ」を外す
+
+再生成（regenerate-page.yml、target_page pro_pages、run 41662339496、success → cb776ad99）の差分を種類ごとに数えた表:
+
+| 種類 | 件数 | 中身 |
+|---|---|---|
+| pro/<slug>/index.html | 1,098 | ☆ の位置と中身・読みの行・チップ（1,085。13人はチップの中身が同じ）・見出し・実況・解説の欄の下の「すべて」94件。予定の行6件と予定の面1つが消えたのは日付が過ぎたため（生成が 2026-11-04 の日本時間） |
+| pro/index.html | 1 | 1行の初期値「よみ: あ」・タブ6つ・各グループの「すべて」・桜花のグループ |
+| pro/plans.json | 1 | 日付が過ぎた予定が抜け、新しい日の予定が入った（データの更新） |
+| sitemap-pro.xml | 1 | lastmod 1,099件が 2026-11-03 → 2026-11-04（ワークフローの `update_sitemap_lastmod.py --from-git`） |
+| workers/pros-redirect/data.json | 0 | 変わらず |
+| pro/ と sitemap-pro.xml のほか | 0 | なし |
+
+画面の確かめ（ローカル `python3 -m http.server 8790` を Playwright で、UA に mj-internal。プレビューは下の「プレビュー」）:
+
+| 項目 | light-360 | light-1280 | dark-360 | dark-1280 |
+|---|---|---|---|---|
+| ページの横のはみ出し（4ページとトップ） | 0 | 0 | 0 | 0 |
+| タブ6つの幅 / はみ出し | 各52px / 0 | 各86px / 0 | 各52px / 0 | 各86px / 0 |
+| ☆（押す前）色 | #1d1d1f | 同 | #f5f5f7 | 同 |
+| ★（押した後）色 / 地 | 白 / 紺 | 白 / 紺 | 白 / なし | 白 / なし |
+
+360px で各グループを開いて測った値のチップ（はみ出し / 幅 / 字の切れ）: よみ 0 / 78px / なし、所属 0 / 78px / なし、入会 0 / 78px / なし（42個）、鳳凰 0 / 78px / なし、桜花 0 / 78px / なし、★ 0 / 78px・161px / なし。
+
+シートの流れ（どの幅・配色でも同じ結果）:
+
+| 操作 | URL | 1行 | 人数 |
+|---|---|---|---|
+| `?place=東京` で開く | ?place=東京 | 所属: 東京 | 585名 |
+| 入会 23期 を足す | ?place=東京&joined=23 | 所属: 東京・入会: 23期 | 15名 |
+| 所属 関西 を足す | ?place=東京,関西&joined=23 | 所属: 東京、関西・入会: 23期 | 18名 |
+| 所属の「すべて」 | ?joined=23 | 入会: 23期 | 27名 |
+| ★ を足す（☆ を押した白鳥翔だけ） | ?joined=23 | 入会: 23期・★お気に入り | 1名 |
+| （0e8840109 の後）既定から 所属 東京 | ?place=東京 | 所属: 東京 | 585名 |
+| 続けて よみ か | ?kana=か&place=東京 | よみ: か・所属: 東京 | 94名 |
+| `?birthday=08-27` →「解除」 | ?birthday=08-27 → ?all=1 | 誕生日: 8月27日 → すべて | 6名 → 1,098名 |
+
+名前の面: 4ページ（白鳥翔・スカルリーパーA-Ji・明石定家・藍ありさ）とも読みが名前のすぐ下、チップ3つが同じ幅、はみ出し 0。
+
+未マージの work/ ブランチ: 変えるファイル（`assets/pro.js`・`scripts/generate_pro_pages.py`・`style.css`・`docs/notes/pro-pages.md`・テスト2本）に触るのは work/1028-lgn・work/1029-lgn-page の `style.css` だけで、別の箇所（6646行より後に足すもの）。`git merge-tree` の衝突は cloudflare を起点にしたときと同じ（_headers・static-generation.md など）で、このブランチによる増えはない。
+
+### 5. 差分のレビュー（新しい文脈のサブエージェント、2回）
+
+1回目（209cb023b..dd2d672da のコードと docs、bug の指摘なし）:
+
+| 指摘 | 扱い |
+|---|---|
+| 1. 既定の「あ」のままほかのカテゴリを選ぶと、あ行だけに絞られる（`assets/pro.js` の値の押下） | 直した（0e8840109。既定のときだけ「あ」を外す。検査を足した）。判断が必要なことに挙げる |
+| 2. ★ を選んで0人のとき、お気に入りがあれば案内が出ない | 意図どおり（1を直したので、残るのは利用者が自分で重ねた条件。人数「0名」と1行で分かる） |
+| 3. 誕生日だけのとき「解除」で全員（`?all=1`）になる。旧版は「あ」に戻した | 意図どおり（「すべて」でカテゴリを外す方針にそろえた）。判断が必要なことに挙げる |
+| 4. `FACETS` の上のコメントが古い（2つ組・桜花はタブに無い） | 直した（0e8840109） |
+| 5. `face_html(site, pro)` の `site` が使われていない | 見送り（呼び出しとテストの変更が増える。変更行を最小に） |
+| 6. 誕生日の「MM-DD」を split し直している | 意図どおり（`birthday_parts()` の戻り値の形のまま。変更行を最小に） |
+| 7. `?place=東京&place=関西` の2つ目を捨てる | 意図どおり（生成する URL は「,」区切りだけ） |
+| 8. 1行の「★お気に入り」の ★ が読み上げられる | 見送り（読み上げは「黒星お気に入り」程度で意味は通る。直すなら1行を span に分ける） |
+| 9. タブからほかのカテゴリの選択が分からない | 見送り（1行に出る。要るなら別の指示で） |
+| 10. `.mj-pro-face` の規則が2か所 | 見送り（既存の規則に手を入れず足した。変更行を最小に） |
+| 11. `.mj-pro-values[hidden]` が Bootstrap の reboot と重なる | 意図どおり（grid にしたので明示した。害なし） |
+| 12. ☆ を出さない端末でも名前の右に 32px 空く | 意図どおり（localStorage の使えない端末だけ。実害が小さい） |
+
+2回目（0e8840109 だけ）:
+
+| 指摘 | 扱い |
+|---|---|
+| 1. 既定のまま、ほかのカテゴリの押された「すべて」を押すと「あ」が外れて全員になる | 直した（53bd73f74。値を押したときだけ外す。検査を足し、0e8840109 のコードで失敗を確かめた） |
+| 2. `filterQuery` の既定の判定が ★ を数えるように変わった（`{kana:['あ'], fav:['1']}` が `kana=あ` に） | 直した（53bd73f74。元の判定に戻し、検査を足した） |
+| 3. 自分で選び直した「あ」と既定の「あ」を区別できない | 意図どおり（`簡略化:` のコメントで上限を残した、53bd73f74） |
+| 5. 「すべて」と ★ の場合の検査が無い | 直した（53bd73f74） |
+
+53bd73f74 の後: `python3 -m unittest discover -s scripts/tests` → Ran 1840 tests OK。ローカルのシートの流れ（上の表の後半）も同じ結果。
+
+### 6. プレビュー
+
+Workers Builds のチェック（`Workers Builds: mj`）が、このブランチの fef3ec598・dd2d672da・cb776ad99・0e8840109・53bd73f74 のどれにも付かなかった（このブランチで最後に付いたのは 3793ab8bc、2026-11-03 06:37Z。同じ時刻帯に cloudflare の 8071c9bed にも付いておらず、work/1103-ryo8 の a4eeab459 には付いた）。最初の push から15分を超えたので待つのをやめ、画面の確かめは上のローカル（同じ静的ファイルを `http.server` で配信）で代えた。プレビューでの確かめは「未確認の項目」に回す。
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1101-prp-pub
 - ログ: https://github.com/retroeater/mj/blob/work/1101-prp-pub/docs/logs/CHAT-1104-PRP-08.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1101-prp-pub
-- 確認用URL: 作業中
-- マージ: 未（判断待ち）
+- 確認用URL: プレビューなし（Workers Builds のチェックがこの指示のコミットに付かなかった。`## 経過`「6. プレビュー」）。画面はローカルの Playwright で確かめた
+- マージ: 未（判断待ち。このブランチのマージが pro/ の公開。live/〈#362〉の公開と告知動画の後に別の指示で）
 - issue: #641
-- 判断が必要なこと: 作業中
-- 未確認の項目: 作業中
+- 判断が必要なこと:
+  - 既定の「よみ: あ」のままほかのカテゴリ（所属など）の値を押すと「あ」を外す形にした（外さないと「所属: 東京」があ行の東京だけになる）。よみで選び直した「あ」も同じに扱う。この形でよいか
+  - 誕生日の絞り込みは今の形（個別ページのチップからだけ。トップでは1行と「解除」）のままを提案する（366通りでシートのチップに向かない）。「解除」で誕生日を外すと、ほかの絞り込みが無ければ全員（`?all=1`）になる（旧版は「あ」に戻した）。この形でよいか
+  - 放送対局の2つの欄の下の「すべて（N件）」は、live/ の検索が役で絞れないため行き先も N も同じ。2つ並んでよいか
+  - ★（選んだ後）は、明るい配色で紺の丸の上の白、暗い配色で面の上の白（明るい配色の面の上の白は見えないため）。この違いでよいか
+  - Workers Builds のプレビューがこのブランチに出ない（06:37Z 以降）。ダッシュボードの状態は平野さんの確認が要る
+- 未確認の項目: プレビュー（workers.dev）での表示と流れ。iPhone 実機での ☆ の位置・6つのタブ・値のチップの見え方
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj d772aeb2）: https://github.com/retroeater/mj-logs/tree/main/guide/d772aeb2
+ガイド文書（この版を写した時点の最新、mj 8071c9be）: https://github.com/retroeater/mj-logs/tree/main/guide/8071c9be
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d772aeb2/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d772aeb2/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d772aeb2/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d772aeb2/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d772aeb2/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d772aeb2/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/68f0411e.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/8071c9be/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/8071c9be/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/8071c9be/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8071c9be/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8071c9be/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8071c9be/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/8071c9be.md
