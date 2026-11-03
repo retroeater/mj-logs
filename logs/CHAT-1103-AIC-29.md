@@ -79,6 +79,16 @@ AIC-28 の本番の確かめで、固定の問い「白鳥翔の第40期の成�
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+- 0: 指示欄の末尾は指示文の最後の行と一致。7539bdc7c は origin/cloudflare の祖先。origin/work/1103-aic はマージ済みで、ローカルの work/1103-aic は origin/cloudflare（c86c1b017）と同じ。#654 に他セッションの着手中コメントなし（着手中をコメント、issuecomment-6604749121）。未マージの work/ ブランチで `workers/ask/src/` を変えているものなし。雛形の行は4つともある。AIC-28 のログの状態に「/ 続き: CHAT-1103-AIC-29」と回答2つを書き足した
+- 前提の確かめ: `player()`（316〜317行）・`league()`（358行）の items の `total` はその期（前期・後期はその半期）の得点。2回目の指示に `total` の読み方は無い。最強戦の `champions` の `total`（255〜258行）は通算の最強位の回数。前提どおり。2回目に渡す結果（`answerInput()`）に items の `total` がそのまま入っていた（白鳥翔 第40期は `{"period":"第40期","league":"A2","place":1,"result":"昇級","total":278.8}`）
+- 直し（26291058f）: 候補 (a)。`answerInput()` で type が player・league のとき、items の `total` を `points` に替えて渡す（2回目に渡すものだけ。応答の本文〈answer・lead・notes・asof・sources〉と記録は検索の結果から作るので形は変わらない）。鳳凰戦・女流桜花・WRC リーグ・WRC-R の `ANSWER_LINES` に `POINTS_LINE`「- player・league の items の points はその期(前期・後期はその半期)の得点で、通算ではない。points を「通算」と書かない」を足した（champions の一文は最後のまま）。最強戦は player・league に得点が無いので入れない
+  - (a) の理由: 名前 `total` がランキングの部門「通算」と紛れた見込みで、名前を替えれば取り違えの元が無くなる。止まる条件の「名前を変えると応答・記録の形や画面が読む項目が変わる」には当たらない（`answerInput()` の結果は2回目の Claude にだけ渡る）
+- テスト（count.test.mjs に1本）: 白鳥翔の第40期の player が `points: 278.8` で `total` が無い、第42期 A1 の league も points、女流桜花・WRC・WRC-R の player も points、最強戦の champions の total はそのまま、5大会の欄の2回目の指示に一文が入る（最強戦には入らない）、横断の鳳凰戦にも入る。直す前のコードでこの1本が落ちる。直した後は node 156本・python 1747本 通過
+- 変わる範囲の比較（in21.mjs、直す前と後）: 応答・記録は全部同じ。2回目に渡す結果が変わるのは鳳凰戦・女流桜花・WRC・WRC-R の player と鳳凰戦の league（と横断）だけ。最強戦は渡す結果も指示も同じ
+- docs: ask-worker.md「5大会の応答ルール」の表に points の行を足した（b18123c4e）。docs/decisions/houou.md に 2026-11-03（CHAT-1103-AIC-29）の節
+
 <!-- guide-links -->
 ---
 
