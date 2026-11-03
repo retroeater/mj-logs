@@ -87,15 +87,23 @@ LGN-20 の log/ のプレビューを平野さんが確かめた（2026-11-04）
   - (4) log/index.html に `<meta name="robots" content="noindex">` が1つ。`git grep` で navbar.js・sitemap*.xml・llms.txt に log/ へのリンクは無い（navbar.js 73行目の `location.pathname.indexOf('/log/')` は今いるページを見分けて白地のナビの「リソース」に印を付ける行で、リンクではない。r/ など未公開のほかのページと同じ形）。既存のページ（log/ の外の *.html）から `/log/`・`log/`・`../log/`・`https://ryoei.pro/log/` への href は無い: 満たす
   - (5) `_headers` の `/*` の CSP に `connect-src 'self' https://cloudflareinsights.com` がある: 満たす
 
+- 取り込み3（20acd472c）: マージの直前の再 fetch で cloudflare が進んでいた（pro/・research の変更）。衝突は docs/decisions/operations.md の末尾の追記どうし（cloudflare の「## 2026-11-04（CHAT-1104-PIL-03）」とこちらの LGN-20・21 の節）だけで、両方を残した（PIL-03 の節 → LGN-20 → LGN-21 の順）。入ってきた変更は log/ の生成の入力（generate_resource_logs.py・lib/stations.py など）に触れていない。unittest OK・node --test pass 39、cloudflare との差分は同じ 20ファイル、`/*` の CSP の cloudflareinsights も残る
+- マージ: `git fetch` の直後に `git merge-base --is-ancestor origin/cloudflare HEAD` を確かめ、`git push origin work/1029-lgn-page:cloudflare`（ce650cc33..20acd472c）
+- マージの後:
+  - check-run（20acd472c）: Workers Builds: mj・mj-ask・mj-scheduler success、check success、sync success、research success、regenerate（run 41693768390、push 検知）は 18:58 UTC に failure。失敗は最後の「飛ばしたページを報告」のステップで、jpml_pros と saikyo_pages の生成が Sheets API の読み取りの上限（HTTP 429 RESOURCE_EXHAUSTED「Read requests per minute per user」）に当たり、前の出力のまま飛ばされた（#533 の仕組み。生成物のコミット・push は success）。log_pages は成功（「3層から 3166件のうち 2434件・1738店…」）。この指示の変更（log/ だけ）とは関係しない失敗で、指示の止まる条件のとおり残りを進めた。同じ時間帯に作業ブランチの再生成〈全ページ〉を続けて回していたことが、読み取りの回数を押し上げた見込み（確かめてはいない）。飛ばした2ページは次の毎朝の再生成か手動の再生成で作り直される
+  - 本番（UA に `mj-internal`）: `https://ryoei.pro/log/` → 200、`<meta name="robots" content="noindex">` が1つ、説明文「飲食店1,738店（2,434件）」、レスポンスヘッダ `permissions-policy: geolocation=(self), microphone=(), camera=()`。`navbar.js` の `/log/` は73行目の今いるページを見分ける行だけ（リンクの項目は無い）。`sitemap.xml`・`llms.txt` に `/log/` は無い。sitemap.xml の各サイトマップに `/log/` は無い
+  - #639 に段1の完了とマージの SHA をコメント（issuecomment-6612161083）し、閉じた（completed。ラベル「状況: 対応中」を外した）。#640 に「#639 は済んだ」とコメント（issuecomment-6612163056）
+  - 指示のとおり work/1029-lgn-page はこれ以上使わない。このログのマージの後の追記は、cloudflare から作った work/1104-lgn で入れた（docs/logs だけ）
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1029-lgn-page
-- ログ: https://github.com/retroeater/mj/blob/work/1029-lgn-page/docs/logs/CHAT-1104-LGN-21.md
+- 状態: 完了
+- ブランチ: work/1029-lgn-page（マージの後のログの追記だけ work/1104-lgn）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1104-LGN-21.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1029-lgn-page
 - 確認用URL: なし
-- マージ: 未
-- issue: #639・#640
+- マージ: 済（20acd472c）。マージの条件: (1) 満たす（cloudflare との差分は log/ に関わる 20ファイルだけ。この指示で変えたページは3点と件数だけ） (2) 満たす（unittest OK、node --test pass 39） (3) 満たす（3,166 − 過去メシ 131 − 石立岳大 601 = 2,434） (4) 満たす（noindex あり。navbar.js の `/log/` は今いるページを見分ける行でリンクではない。sitemap・llms.txt・既存のページからのリンクなし） (5) 満たす（`connect-src 'self' https://cloudflareinsights.com`）
+- issue: #639（閉じた）・#640（コメント）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
