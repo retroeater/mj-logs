@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-11-04 00:52 JST
+- 書き出した時刻: 2026-11-04 00:58 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -25,11 +25,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-04 00:57 | push | work/1104-ttl | in_progress | #768（41669263926） |  |
+| 2026-11-04 00:56 | push | work/1103-ryo8 | success | #767（41669065460） | 0分30秒 |
+| 2026-11-04 00:55 | push | work/1104-pil | success | #766（41668848502） | 1分05秒 |
 | 2026-11-04 00:48 | push | work/1103-ryo8 | success | #765（41667763619） | 0分27秒 |
 | 2026-11-04 00:45 | push | work/1029-lgn-page | success | #764（41667248544） | 1分16秒 |
-| 2026-11-04 00:44 | push | work/1029-lgn-page | success | #763（41667020239） | 0分32秒 |
-| 2026-11-04 00:38 | push | work/1104-top | success | #762（41666051751） | 0分44秒 |
-| 2026-11-04 00:33 | push | work/1104-top | success | #761（41665104351） | 1分11秒 |
 
 ## check-build-failure.yml
 
@@ -196,11 +196,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-04 00:56 | workflow_dispatch | work/1103-ryo8 | in_progress | #621（41669078040） |  |
+| 2026-11-04 00:55 | workflow_dispatch | cloudflare | in_progress | #620（41668885312） |  |
 | 2026-11-04 00:49 | workflow_dispatch | work/1103-ryo8 | success | #619（41667774292） | 0分52秒 |
 | 2026-11-04 00:47 | workflow_dispatch | work/1029-lgn-page | in_progress | #618（41667493958） |  |
 | 2026-11-04 00:36 | workflow_dispatch | work/1104-top | success | #617（41665642757） | 2分08秒 |
-| 2026-11-04 00:20 | workflow_dispatch | work/1104-top | success | #616（41662800947） | 15分06秒 |
-| 2026-11-04 00:17 | workflow_dispatch | work/1101-prp-pub | success | #615（41662339496） | 1分52秒 |
 
 ## regenerate-saikyo.yml
 
@@ -386,6 +386,7 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-04 00:55 | dynamic | cloudflare | success | #3（41668888976） | 0分58秒 |
 | 2026-10-31 21:40 | dynamic | cloudflare | success | #2（41202124095） | 1分03秒 |
 | 2026-10-31 10:18 | dynamic | cloudflare | success | #1（41154727561） | 1分28秒 |
 
