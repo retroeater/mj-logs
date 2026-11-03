@@ -55,6 +55,60 @@
 
 ## 経過
 
+### 0. 着手前の確認
+
+- 「指示」欄の末尾は指示文の最後の行（「不明な点があれば…この行が指示文の最後の行です。」）と一致
+- 同じ Chat-Ref のコミット・ログは無し。#641 は open
+- 冒頭の雛形の行（Chat-Ref・マージ・貼る時機・共通手順）に欠けなし。「マージ: 承認済み（チャットで）」あり
+- CHAT-1104-PRP-10 の `## 報告` の状態は「判断待ち」。末尾に `/ 続き: CHAT-1104-PRP-11` を足して work/1101-prp-pub に push（44e86cbb9。ログだけ）
+- work/1104-prp-unpub はリモートにもローカルにも無かったので、`git checkout -b work/1104-prp-unpub origin/cloudflare`（dbac236b1）で作った。拒否なし
+
+### 1. 移したもの・移さなかったもの
+
+作り方: `git diff origin/cloudflare...origin/work/1101-prp-pub` のうち pro/ の中だけで効くファイル（`assets/pro.js`・`style.css`・`scripts/generate_pro_pages.py`・テスト3本）を `git apply -3` で当て、公開の段の部分を元に戻した（3dc36b5a3）。
+
+| ファイル | 移したもの | 移さなかったもの（公開のマージで入れる） |
+|---|---|---|
+| `scripts/generate_pro_pages.py` | `face_chips()`・`chip_html()`（チップ3つ・「8/27生」）、`fav_button()`、`face_html()`（読みだけ・☆）、`LIVE_HEADINGS`・`live_panels()`（「すべて」は最後の面に1つ）、`PLAYER_TITLE`（題の形）、`FACETS`・`facet_values()`・`sheet_html()`（6つのタブ・「すべて」・桜花・★）、`top_row()`（`hidden` なし・`data-slug`）、`FAV_*`・`plans_json()`・`PLANS_FILE` と書き出し・`run_check()` の「今後の予定の JSON」、`SEARCH_FILE`、`TOP_URL` | `NOINDEX_TAG` を消すこと（残した）、`canonical=`、`build_sitemap()`・`SITEMAP_PATH`・`import xml.etree`、`redirect_table()`・`REDIRECT_TABLE`・`Site.aliases`、`OGP_IMAGE` の `img/ogp/pro/`（`pros/` のまま）、`top_ask()` の K8（`data-player-pages`）、`search_index()` の `pro_search` の注記 |
+| `scripts/generate_pro_pages.py`（この指示で） | トップの質問欄を外した: `top_ask()`・`ASK_PLAYERS_URL`・`ASK_PLAYERS_PAGE`・`ASK_PLACEHOLDER`・`houou_pages.ASK_HEAD` の読み込み（`assets/houou_ask.js`・`houou_ask.css`）。各大会の `ask-players.json` からいまのリーグを読む `load_roster_of()` はそのまま | — |
+| `assets/pro.js` | すべて（絞り込みの部品・`initTop()`・お気に入り・`?all=1` の書き換え）。冒頭の注記だけ「未公開。公開は #641」に戻した | — |
+| `style.css` | pro/ の節の追加・変更すべて（☆/★・チップ・タブ・値のチップ・並べ替えのボタン 44px）。節の見出しの注記だけ「未公開」に戻した | — |
+| `scripts/tests/test_pro_pages.py` | チップ・読み・☆・見出し・「すべて」の検査 | `PublishTest`（noindex なし・canonical・`sitemap-pro.xml`・転送の表・`pro_search` の位置・画像の検知）。代わりに `MetaTest`（noindex あり・canonical なし・題の形・`img/ogp/pros/`・トップに `houou_ask` と `data-players-page` が無い）を書いた |
+| `scripts/tests/test_pro_favorites.py`・`test_pro_filter.py` | そのまま（新しいファイル） | — |
+| `docs/new-page-checklist.md` | 「保存する項目」の `mj:favorites`（work/1101-prp-pub と同じ文。900dc1e19） | — |
+| `docs/notes/pro-pages.md` | work/1101-prp-pub の版から、質問欄・Worker・サイトマップ・canonical・OGP の移動の記述を未公開の形に戻し、「未公開のまま入れたものと、公開のマージで入れるもの」の節を足した（382bfda5f） | — |
+| そのほか（移さない） | — | `navbar.js`・`index.html`・`llms.txt`・`sitemap*.xml`・`scripts/update_sitemap_lastmod.py`・`.github/workflows/*`・`workers/pros-redirect/`・`scripts/regenerate.py`・`assets/league_race.js`・`assets/houou_ask.js`・`scripts/generate_houou_pages.py`・`scripts/generate_title_pages.py`・`scripts/lib/pro_search.py`・`scripts/check_image_links.py`・`scripts/check_sns_book_images.py`・`scripts/generate_jpml_pros.py`・`jpml_pros.html`・`img/ogp/`・ほかのテスト（`test_houou_ask.py`・`test_houou_pages.py`・`test_navbar.py`・`test_og_image.py`・`test_redirects_inventory.py`・`test_regenerate.py`・`test_title_member_links.py`・`test_check_sns_book_images.py`）・docs/notes の公開の段の記述 |
+
+### 2. 確かめ（止まる条件の機械的な確かめ）
+
+- テスト: `python3 -m unittest discover -s scripts/tests` → Ran 1832 tests OK。`node --test 'workers/*/test/*.test.mjs'` → tests 212 / pass 212 / fail 0
+- `regenerate-page.yml` の `check`（target_page pro_pages、run 41687288495）: success。「- pro_pages: 通る(--check)」「check: 止まるページなし」
+- 生成（run の結果 de3c4a813「chore: regenerate pro/ via GitHub Actions」）
+
+| 種類 | 件数 |
+|---|---|
+| pro/<slug>/index.html | 1,098 |
+| pro/index.html | 1 |
+| pro/plans.json | 1（新しいファイル） |
+| pro/ のほかの生成物 | 0 |
+
+- 生成した pro/ の 1,099ページ: `<meta name="robots" content="noindex">` の無いページ 0、`rel="canonical"` のあるページ 0、`houou_ask` を読むページ 0、og:image が `img/ogp/pros/index-white.png` のページ 1,099
+- `git diff --stat origin/cloudflare...HEAD -- navbar.js index.html llms.txt 'sitemap*.xml' _redirects wrangler.jsonc workers/ assets/league_race.js scripts/generate_title_pages.py scripts/generate_houou_pages.py scripts/check_image_links.py jpml_pros.html` → 出力なし（変わっていない。TOP の取り込みは無かったので除いた行も無し）
+- トップ: 表の行 1,098・`hidden` の行 0・1行の初期値「すべて」。白鳥翔のページ: ☆ のボタン1つ・「すべて（93件）」1つ・題「白鳥翔 | 連盟プロ | 日本プロ麻雀連盟 | ryoei.pro」
+- プレビュー（de3c4a813 の Workers Builds、約2分で success）を Playwright（UA に mj-internal）で 360px・明暗: トップは開いた直後「すべて」1,098名、質問欄なし、東京 → 23期 → あ → 「すべて」で戻る流れと ★・誕生日と「解除」・`?all=1` の書き換えが PRP-09・10 のローカルと同じ結果。白鳥翔のページは ☆ → ★（明 rgb(20,69,155)・暗 白）、「すべて（93件）」は実況・解説の欄の下に1つ。どれも横のはみ出し 0
+
+### 3. 未マージの work/ ブランチ（work/1101-prp-pub を除く）
+
+変えるファイルに触るのは: work/1028-lgn・work/1029-lgn-page（`style.css`・`docs/new-page-checklist.md`）、work/1104-lvp（`docs/new-page-checklist.md`）、work/1104-top（`docs/notes/pro-pages.md`・`style.css`）、work/1104-ttl（`style.css`）。どれも別の箇所で、`git merge-tree` で cloudflare を起点にしたときより衝突が増えるブランチは無い。
+
+work/1104-top の `docs/notes/pro-pages.md` の追記（「トップの質問欄〈`top_ask()`・`assets/houou_ask.js`〉は…pro/ の公開の作業が同じ関数を変えているため残っている」）は、この指示で pro/ のトップの質問欄を外したので古くなる。#641 のコメントで TOP に伝える。
+
+### 4. 質問欄の部品と `houou_ask.*` を読むページ（この指示の後）
+
+- pro/ は読まなくなった（生成した 1,099ページで 0）
+- cloudflare の今の生成物で `houou_ask.js`・`.css` を読むのは houou/・jwrc/・ouka/・wrcr/・saikyo/・top/ のトップ。`ASK_TEMPLATE`・`ASK_HEAD` を使う生成は `generate_houou_pages.py`（4大会）・`generate_saikyo_pages.py`・`generate_top_page.py`。work/1104-top（TOP-12）が houou/ などの欄を消すと、残るのは top/（`generate_top_page.py` の5大会の横断の欄）だけの見込み
+- pro/ の生成は各大会の `ask-players.json`（`houou_pages.ASK_PLAYERS`）をいまのリーグと最強戦の出場に読み続ける（`load_roster_of()`・`SAIKYO_ROSTER`）。欄を消しても `ask-players.json` の生成は残す必要がある
+
 ## 報告
 
 - 状態: 作業中
