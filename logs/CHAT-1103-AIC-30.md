@@ -1,0 +1,98 @@
+# CHAT-1103-AIC-30
+
+- 着手日時: 2026-11-03（JST）
+- 対象issue: #654
+- ブランチ: work/1103-aic
+- 着手時HEAD: d965ebd47
+
+## 指示
+
+【Claude作成】Claude Code 向け指示：（AIC-29 の続き。TOP 系列からの依頼）横断（`contest: "all"`）の応答の値を3つ直す（最強戦の選手のカードが出ない、出典の名前で大会を見分けられない、データの時点の大会名の重なりと欠け）。cloudflare へマージする Chat-Ref: CHAT-1103-AIC-30 マージ: 承認済み（チャットで）。AIC 系列の例外（2026-11-02 の平野さんの決定）による。下の「止まる条件」のうち、次の3つを1つでも満たさなければマージしない
+
+* テストが通る
+* 本番の問いの応答がデータと一致する
+* 大会別の要求（`contest` を省略・大会の id）の応答が変わらない 貼る時機: CHAT-1103-AIC-29 のマージの後（同じ作業ブランチを使う。AIC-29 のログの状態が「完了」か「判断待ち」で、マージが「済」になっていること） 共通手順: CLAUDE.md「Chat-Ref」「ブランチ運用」「作業ログ」節のとおり（識別子確認 → origin/cloudflare を起点に work/<識別子>〈手順は docs/notes/cloud-sessions.md〉 → ログ先行push → 最終報告の Chat-Ref の行の直前に「ログ（公開）」の行、最後の行に Chat-Ref）。平野さんは、この指示のための作業ブランチ work/<識別子> の作成と push を許可している（セッションに割り当てられた claude/… のブランチは使わない）。 作業ブランチ: クラウドセッションで実行する。work/1103-aic を使う。リモートに無ければ origin/cloudflare から作る。リモートにあってマージ済み（`git merge-base --is-ancestor origin/work/1103-aic origin/cloudflare` が真）なら origin/cloudflare から作る（`checkout -B` は使わない。ローカルにあるときを含め手順は docs/notes/cloud-sessions.md「作業ブランチの用意」）。マージ済みでなければ止まる
+
+0. 着手前に、このログの「指示」欄の末尾が、この指示文の末尾（最後の行）と一致しているか確認し、一致しなければ作業せず報告する。CHAT-1103-AIC-29 のマージのコミットが origin/cloudflare の祖先であることを確かめる（AIC-29 のログ `## 報告` の「マージ」の行の SHA。マージされていなければ止まる）。AIC-29 のログの `## 報告` の状態の末尾に `/ 続き: CHAT-1103-AIC-30` を足す（AIC-29 の「判断が必要なこと」があれば、チャット側の回答はまだ無いので「CHAT-1103-AIC-30 の時点で回答なし」と書く）。識別子 `AIC` はこのチャットの系列（AIC-01〜29 で使用。AIC-17・24 は欠番）。
+
+目的
+TOP 系列（サイトのトップ #101）から依頼があった。新トップ（未公開の `/top/`、横断）の本番の確かめ（CHAT-1103-TOP-10 のログ `## 経過` 3、画像は cloudflare の `docs/logs/CHAT-1103-TOP-10/ask-1.png`・`ask-2.png`）で、「佐々木寿人の成績は？」の応答の値に3点の問題があった。トップの部品 `assets/top_ask.js` は応答の値をそのまま出すので、Worker の値を直す。
+
+1. `players[]` が鳳凰戦・WRC リーグの2件だけで、答えにある最強戦の選手のカードが出ない（出典には `/saikyo/players/?name=…` がある）
+2. 出典に「佐々木寿人の成績」が2つ（鳳凰戦と最強戦）並び、どちらの大会か見分けられない
+3. データの時点（`asof`）が「鳳凰戦 鳳凰戦リーグ 第43期前期終了時点」「麻雀最強戦 麻雀最強戦 2026年10月25日の対局まで」と大会名が重なる。WRC リーグの時点が無い（`contests` に jwrc があるのに `asof` は2件）
+
+決定（2026-11-03、平野さん。TOP 系列のチャットで）
+
+* 新トップの本番の確かめで見つかった上の3点を、Worker 側（AIC 系列、#654）の直しに回す
+* AIC 系列のマージの例外（2026-11-02 の決定）。値の直しで、新しい機能ではないので例外の内とした（チャット側の当てはめ）
+
+前提（チャット側。平野さんの決定ではない）
+チャット側が 2026-11-03 22:15 JST ごろ、origin/cloudflare（c86c1b017、AIC-29 の前）で開いて確かめた。AIC-29 の後のコードで開き直す。
+
+* `workers/ask/src/ask.mjs`
+   * 808行あたり `playersIn(d, text)`: 答えの文に出た名前（`d.people` と `d.totals` のキー）だけを拾う
+   * 横断の答えの組み立て（890〜904行あたり）:
+      * `asof: shown.flatMap((p) => (p.part.asof ?? []).map((a) => \`${contestOf(p.d).name} ${a}`))`
+      * `sources: shown.flatMap((p) => p.part.sources ?? [])`
+      * `const players = shown.flatMap((p) => playersIn(p.d, p.part.answer))`
+   * 840行あたり: `context` の大会だけのとき（AIC-26 の `contextAsk()`）も `playersIn(data, done.answer)`
+* 1 の見立て: 最強戦の欄の答えの文が「出場数16回、対局数38回…」で、選手の名前を書いていない。`playersIn()` は文の中の名前しか拾わないので、カードが出ない。直し方の案: 選手の成績（player 型など、結果に選手の名前 `name` がある型）では、文に名前が無くても、その大会の結果の選手をカードに入れる。文の中の名前を拾う今の形は、一覧の答え（champions など）のために残す
+* 2 の見立て: 出典の `label` が大会ごとの欄と同じ（「佐々木寿人の成績」）。直し方の案: 横断で答えた大会が2つ以上のとき、出典の `label` の頭に大会名を付ける（例「鳳凰戦 佐々木寿人の成績」）。大会が1つのとき・大会別の要求のときは今のまま
+* 3 の見立て:
+   * 重なり: 大会ごとの `asof` が既に大会名・リーグ名を含む（「鳳凰戦リーグ 第43期前期終了時点」「麻雀最強戦 2026年10月25日の対局まで」）のに、横断で大会名を頭に付けている。直し方の案: `asof` が大会名で始まるときは付けない、などで重ならない形にする（実物の5大会の `asof` の文を見て決める）
+   * 欠け: WRC リーグの答えは決勝だけの人の答え（AIC-19 の `finalsOnlyAnswer()` など）で、`asof` を持っていない見込み。決勝の答え（`final` の検索）と同じ時点（例「決勝 第N期まで」）を付ける
+* 大会別の要求の応答は変えない（大会別の欄の答え・出典・時点・カード）。1〜3の直しは横断の組み立ての側（と、必要なら決勝だけの答えの `asof`）に入れる。決勝だけの答えの `asof` を足すと大会別の欄の応答も変わるなら、それは「答えが変わってよい問い」とし、変わる範囲を報告に書く
+* 画面（`assets/`）は変えない。表示の部品を変える必要があれば、#654 のコメントに書く（TOP 系列が直す）
+* 本番の確かめは、上限に数えるので3問まで（同じ接続元から。`Origin: https://ryoei.pro`、UA に `mj-internal`）。上限に当たったら、送れなかった問いを「未確認の項目」に書く
+* 選手の役職などの人の属性は、ログ・テストに書かない
+
+手順
+
+1. 直す: 3点を今のコードで再現してから直す（テストの作り物の fetch で、TOP-10 の2問と同じ形の応答を作れるか試す）。docs/notes/ask-worker.md の横断の節（応答の項目の表）を直し、docs/decisions/houou.md に上の「決定」を足す
+2. テスト
+   * 横断の「佐々木寿人の成績は？」（context 無し）で、`players[]` に鳳凰戦・WRC リーグ・最強戦の3件が入る。出典の `label` に大会名が付く。`asof` に大会名の重なりが無く、`contests` の大会ごとに1つ以上ある
+   * 横断の「現鳳凰位は？」（大会が1つ）の応答が今と同じ
+   * 大会別の要求の応答が今と同じ（AIC-20・26 の「直す前後の比べ」の形で、5大会×型×名前）
+   * 直す前のコードで新しいテストが落ちることを確かめる
+   * `python3 -m unittest discover -s scripts/tests` と `node --test 'workers/ask/test/*.test.mjs'` が通ることを確かめる
+   * 新しい文脈のサブエージェントにレビューさせる（CLAUDE.md「判断・作業の原則」）
+3. マージと本番
+   * cloudflare へマージし、`mj-ask` のビルドの結果を確かめられる範囲でログに書く
+   * 本番に送る問いは次の3つ。`players`・出典の `label`・`asof` を書く
+      * 横断（`contest: "all"`、context 無し、トップと同じ形）の「佐々木寿人の成績は？」
+      * 横断（`contest: "all"`、context 無し）の「現鳳凰位は？」
+      * ask-worker.md「本番で送る固定の問い」から1問（大会別の要求のまま）
+   * #654 にコメントする（TOP 系列が読む）。直した値の形（`players` の入り方、出典の `label`、`asof` の文）と、表示の部品を変える必要の有無を書く
+
+止まる条件
+
+* テストが通らない、本番の問いの応答がデータと一致しない、大会別の要求の応答が変わる（決勝だけの答えの `asof` を足した分を除く）（どれか1つでもマージしない）
+* 直すのに、大会別の流れ（1回目・検索・2回目）の中身を書き換える必要がある（作らずに、どこが違うかを書いて止まる）
+* AIC-29 がマージされていない
+* 未マージの work/ ブランチが `workers/ask/src/` の同じ関数・同じ行を変えている、または取り込みで衝突する（同じファイルの別の箇所の変更では止まらず、ログに書く）
+* #654 に他セッションの着手中コメントがある
+* 取り込みで生成物でない文書が衝突した。ただし、両方の変更が両立する衝突（追記どうし・隣り合う行）は、両方を残して解いてよい。解いた後の該当箇所をログに引用する。それ以外の衝突は解かずに止まる
+* マージ後の check-run・ビルドの失敗: 今回の変更による失敗なら止まって報告する。無関係な失敗なら原因を報告に書いて、残りの手順を進めてよい。自分の変更で落ちると分かったテストは直してよい
+* cloudflare への push が権限判定で拒否された（別の手段を試さずに止まる）
+
+完了条件
+
+* ログの「## 報告」を CLAUDE.md「作業ログ」節のとおりに書いて push する。AIC-29 の「未確認の項目」は、この指示の「未確認の項目」にも写す
+* マージは冒頭の「マージ:」の行のとおり
+* ターミナルへの最終報告の Chat-Ref の行の直前に ログ（公開）: https://github.com/retroeater/mj-logs/blob/main/logs/CHAT-1103-AIC-30.md?v=<SHA>（CLAUDE.md「作業ログ」節）を書き、最後の行に Chat-Ref: CHAT-1103-AIC-30 を書く
+
+不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
+
+<!-- guide-links -->
+---
+
+ガイド文書（この版を写した時点の最新、mj 9484f5a2）: https://github.com/retroeater/mj-logs/tree/main/guide/9484f5a2
+
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9484f5a2/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9484f5a2/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9484f5a2/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9484f5a2/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9484f5a2/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9484f5a2/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/795228a7.md
