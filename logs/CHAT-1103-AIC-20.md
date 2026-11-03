@@ -160,15 +160,52 @@ Chat-Ref: CHAT-1103-AIC-20
 
 - 直しの後: node 142本・python 1747本 通過
 
+### マージと本番
+
+- 取り込み: origin/cloudflare が RYO-01〜03 の変更（`r/`・navbar.js・style.css・ワークフローなど。`workers/ask/` は無し）で進んでいたのでマージコミットで取り込んだ（衝突なし）。node 142本・python 1747本 通過を確かめ、再 fetch して `git merge-base --is-ancestor origin/cloudflare HEAD` が真、`git push origin work/1103-aic:cloudflare`（1d6c9682c..93f8976cc）
+- check-run（93f8976cc）: Workers Builds: mj-ask success（04:12:22Z）
+- `/api/ask/status` → `{"status":"open","remaining":10,"max":200}`。UA に `mj-internal AIC-20`。応答の `remaining` は 9・4・9・9 で、接続元（プロキシの出口）が問いごとに違うと見ている
+
+本番の4問（2026-11-03 04:12:46〜04:13:09 UTC、すべて answered）:
+
+| 要求 | 問い | 答え（要旨）と出典 | データとの突き合わせ |
+|---|---|---|---|
+| 横断 | 女流桜花の歴代優勝者は？ | 【女流桜花】10人（優木美智・二階堂亜樹・仲田加南・清水香織・魚谷侑未・吾妻さおり・宮内こずえ・古谷知美・川原舞子・白銀紗希）。contests `["ouka"]`、出典 女流桜花 歴代優勝者、players 9人（優木美智は在籍の名簿に無い） | 一致（決勝の優勝者の重なりを除いた10人） |
+| 横断 | 佐々木寿人の成績は？ | 【鳳凰戦】「鳳凰戦に28期分の成績があります。直近の第42期はA1で3位となり、決定戦に進みました。第37期にはA1で2位、第40期にもA1で2位…」【WRCリーグ】決勝の第10期に4位（プログラムの文）【麻雀最強戦】2024年度の伝説を継ぐ者で決勝を優勝、出場数16回・最強位0回。contests `["houou","jwrc","saikyo"]` | **「28期分」は食い違う**（成績の行は28〈前期・後期を分けた行〉、期は20）。第42期 A1 3位・第37期と第40期 A1 2位・決定戦はデータと一致。WRC リーグと最強戦（2024 伝説を継ぐ者 決勝 1位 優勝、totals の出場数16回・最強位0回）は一致 |
+| 横断・context ouka | 現タイトルホルダーは？ | 女流桜花を先に5大会: 清水香織（第20期）・白鳥翔（第42期）・紺野真太郎（第19期）・小川尚哉（第7期）・桑田憲汰（2025年度）。出典は5大会の歴代優勝者、asof は大会名付き | 一致（5大会の最新の決勝の優勝者） |
+| 大会別（鳳凰戦） | 現在の鳳凰位は？ | 「現在の鳳凰位は白鳥翔さんです。鳳凰位になったのは第42期の鳳凰戦です。」 | 一致。前と同じ形 |
+
+- 「28期分」の原因の見立て: 鳳凰戦の `player` の `count` は成績の行の数（通期の行と前期・後期の行）で、期の数ではない。2回目の指示（鳳凰戦の `ANSWER_LINES`）にこの読み方が無く、横断で渡す結果は大会別の欄と同じ（`answerInput()`）。大会別の鳳凰戦の欄でも同じ問いで同じ誤りになりうる（本番では確かめていない。1日の問いの数を使い切らないため）。横断の作りの誤りではないので、この指示では直していない
+- #654 に要求・応答の項目と本番の結果をコメントした（issuecomment-6595277236）
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1103-aic
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1103-AIC-20.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1103-aic
+- 確認用URL: なし（Worker の変更。`ALLOWED_ORIGIN` が本番だけなので本番の4問で確かめた）
+- マージ: 済（93f8976cc）
+- issue: #654（着手中・項目と結果をコメント）
+- 判断が必要なこと:
+  - 本番の横断「佐々木寿人の成績は？」の鳳凰戦の答えの「28期分の成績」がデータ（期は20、成績の行が28）と食い違う。マージは手順どおり本番の確かめの前に済んでいて、止まる条件「本番で横断の問いの答えがデータと一致しない」に当たる。原因は横断の作りではなく、鳳凰戦の `player` の `count`（行の数）の読み方が2回目の指示に無いことと見ている（大会別の鳳凰戦の欄でも同じ誤りになりうる）。直すか（例: 鳳凰戦の `ANSWER_LINES` に「player の count は成績の行の数で期の数ではない。期の数は書かない」を足す。大会別の欄の答えも変わる）、戻すか、事実の誤りとして次の指示で直すかの判断を仰ぐ。横断を戻す必要は無いと考える（ほかの3問は一致、大会別の欄は 15255 通りで変わらない）
+  - 費用: 5大会を並べる問いは送る文字数が約4倍（1問あたり約 $0.0016 の見込み）。呼び出しの回数は6回で今の3倍まで（止まる条件の「3倍を超える」には当たらないと判断した）。費用の4倍を受け入れるか
+  - 選んだ形: `context` は「並べる順で先に出す」（大会を1つに絞らない）とした。指示の案「無い: context の大会を先に」「現タイトルホルダー など: 5大会すべて」をそのまま読んだ。開いているページの大会だけで答える形がよければ次の指示で変える
+- 未確認の項目:
+  - 2026-11-09（月）03:00 JST の週次の書き出しが動き、ブックに 11/02〜11/08 の行が入るか。あわせて、2026-11-02 10:09 JST ごろの「現女流桜花は？」の「引数」の列に from・to が入っているか（AIC-19 から写した）
+  - 地域で断られた問いが、新しい結果（`region`、ブック「地域で使えない」）で記録に入るか（AIC-19 から写した）
+  - 横断の記録（型 `all:…`）が週次の書き出しのブックに入るか（2026-11-09 03:00 JST の書き出しで）
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 01d7a675）: https://github.com/retroeater/mj-logs/tree/main/guide/01d7a675
+ガイド文書（この版を写した時点の最新、mj 93f8976c）: https://github.com/retroeater/mj-logs/tree/main/guide/93f8976c
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/01d7a675/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/01d7a675/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/01d7a675/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/01d7a675/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/01d7a675/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/01d7a675/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/93f8976c/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/93f8976c/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/93f8976c/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/93f8976c/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/93f8976c/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/93f8976c/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/ad26c534.md

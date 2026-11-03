@@ -1,6 +1,6 @@
 # 朝の報告用の異常（retroeater/mj）
 
-- 書き出した時刻: 2026-11-03 13:13 JST（見た範囲: 2026-11-02 11:13 JST から）
+- 書き出した時刻: 2026-11-03 13:17 JST（見た範囲: 2026-11-02 11:17 JST から）
 - 書き出した実行の契機: workflow_dispatch（main）
 - 異常だけを書く。全体は actions/status.md。判定は mj の scripts/morning_report.py（各ワークフローの直近 100 回まで）
 
@@ -22,4 +22,4 @@
 
 ## 5. 未報告のログ（`## 報告` の節が無い）
 
-- CHAT-1103-AIC-20.md（着手 2026-11-03（JST）） https://github.com/retroeater/mj-logs/blob/main/logs/CHAT-1103-AIC-20.md
+なし
