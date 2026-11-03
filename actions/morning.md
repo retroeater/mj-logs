@@ -1,6 +1,6 @@
 # 朝の報告用の異常（retroeater/mj）
 
-- 書き出した時刻: 2026-11-04 03:57 JST（見た範囲: 2026-11-03 01:57 JST から）
+- 書き出した時刻: 2026-11-04 04:06 JST（見た範囲: 2026-11-03 02:06 JST から）
 - 書き出した実行の契機: workflow_dispatch（main）
 - 異常だけを書く。全体は actions/status.md。判定は mj の scripts/morning_report.py（各ワークフローの直近 100 回まで）
 
@@ -16,9 +16,10 @@
 - 2026-11-04 02:56 regenerate-page.yml failure（push・cloudflare）ジョブ「regenerate」：生成に失敗したページを飛ばしました: pro_pages（理由はジョブのサマリ、#533） https://github.com/retroeater/mj/actions/runs/41689008141
 - 2026-11-04 03:08 regenerate-page.yml in_progress（workflow_dispatch・work/1104-lvp） https://github.com/retroeater/mj/actions/runs/41690959274
 - 2026-11-04 03:17 regenerate-page.yml in_progress（workflow_dispatch・work/1103-ryo8） https://github.com/retroeater/mj/actions/runs/41692398002
-- 2026-11-04 03:26 regenerate-page.yml in_progress（push・cloudflare） https://github.com/retroeater/mj/actions/runs/41693768390
+- 2026-11-04 03:26 regenerate-page.yml failure（push・cloudflare）ジョブ「regenerate」：生成に失敗したページを飛ばしました: jpml_pros, saikyo_pages（理由はジョブのサマリ、#533） https://github.com/retroeater/mj/actions/runs/41693768390
 - 2026-11-04 03:48 regenerate-page.yml cancelled（workflow_dispatch・work/1104-top）ジョブ「regenerate」 https://github.com/retroeater/mj/actions/runs/41697295116
 - 2026-11-04 03:52 regenerate-page.yml in_progress（workflow_dispatch・work/1104-top） https://github.com/retroeater/mj/actions/runs/41697907318
+- 2026-11-04 04:00 run-daily.yml in_progress（workflow_dispatch・cloudflare） https://github.com/retroeater/mj/actions/runs/41699165492
 
 ## 2. 予約実行の未実行（予定から3時間以内は「遅れの可能性」。3時間を超えて始まった実行は「遅れて実行」）
 
@@ -26,10 +27,11 @@
 
 ## 3. 所要時間の異常（cloudflare の実行だけ。基準は同じ種類〈cloudflare・予約の実行か手動か〉の直近20回。その中央値の3倍以上かつ中央値＋5分以上、または10分以上。skipped は除く）
 
-- 2026-11-04 00:55 regenerate-page.yml success（workflow_dispatch・cloudflare）所要 23分45秒（直近20回の中央値 9分35秒） https://github.com/retroeater/mj/actions/runs/41668885312
+- 2026-11-04 00:55 regenerate-page.yml success（workflow_dispatch・cloudflare）所要 23分45秒（直近20回の中央値 9分47秒） https://github.com/retroeater/mj/actions/runs/41668885312
 - 2026-11-04 02:20 fetch-youtube.yml failure（workflow_dispatch・cloudflare）所要 23分52秒（直近20回の中央値 9分34秒） https://github.com/retroeater/mj/actions/runs/41683310617
-- 2026-11-04 02:56 regenerate-page.yml failure（push・cloudflare）所要 10分47秒（直近20回の中央値 9分35秒） https://github.com/retroeater/mj/actions/runs/41689008141
+- 2026-11-04 02:56 regenerate-page.yml failure（push・cloudflare）所要 10分47秒（直近20回の中央値 9分47秒） https://github.com/retroeater/mj/actions/runs/41689008141
 - 2026-11-04 03:19 research-candidates.yml success（workflow_dispatch・cloudflare）所要 13分14秒（直近20回の中央値 1分25秒） https://github.com/retroeater/mj/actions/runs/41692708935
+- 2026-11-04 03:26 regenerate-page.yml failure（push・cloudflare）所要 32分15秒（直近20回の中央値 9分47秒） https://github.com/retroeater/mj/actions/runs/41693768390
 - 2026-11-04 03:35 research-candidates.yml success（workflow_dispatch・cloudflare）所要 11分25秒（直近20回の中央値 1分25秒） https://github.com/retroeater/mj/actions/runs/41695240844
 
 ## 4. 初回成功（cloudflare の実行だけ。それ以前の cloudflare の実行に success が無いもの）
