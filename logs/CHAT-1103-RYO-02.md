@@ -119,12 +119,12 @@ CHAT-1103-RYO-01（判断待ち）の仮置きとデータの食い違いに平�
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1103-RYO-03
 - ブランチ: work/1103-ryo
-- ログ: https://github.com/retroeater/mj/blob/work/1103-ryo/docs/logs/CHAT-1103-RYO-02.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1103-RYO-02.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1103-ryo
 - 確認用URL: プレビューあり（URL は最終報告）。確認したページ: `/r/`。この版で見えるはずの印: 2つ目の面の見出しが「数字で見る」
-- マージ: 未（平野さんの判断待ち。指示文の「マージ: 判断待ちで止まる」。RYO-01 の分と一緒）
+- マージ: 済（CHAT-1103-RYO-03 で cloudflare へ。`a31eaf9a2..01d7a6750`。件数の固定 `FINALS_EXPECTED` は RYO-03 でやめた）
 - issue: #655（着手中コメント）・#656（公開。内容は変えていない）
 - 判断が必要なこと:
   - 残る仮置き: 入賞の手書き2件（世界リーチ麻雀選手権 110位 2017年10月・チャンピオンズリーグ 4位 2015年9月。押せない行。title/ にデータが無い）、データの2件の2行目は年だけ（「2024年」「2015年」。データに月が無い）、同じ年なら月のある手書きの行を先に並べた（2015年: チャンピオンズリーグ → 新人王戦）
@@ -140,12 +140,12 @@ CHAT-1103-RYO-01（判断待ち）の仮置きとデータの食い違いに平�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 12483fda）: https://github.com/retroeater/mj-logs/tree/main/guide/12483fda
+ガイド文書（この版を写した時点の最新、mj 01d7a675）: https://github.com/retroeater/mj-logs/tree/main/guide/01d7a675
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/12483fda/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/12483fda/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/12483fda/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/12483fda/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/12483fda/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/12483fda/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/01d7a675/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/01d7a675/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/01d7a675/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/01d7a675/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/01d7a675/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/01d7a675/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/ad26c534.md

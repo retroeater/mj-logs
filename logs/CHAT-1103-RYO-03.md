@@ -75,18 +75,26 @@ RYO-01・02 で作った `r/`（未公開、noindex・メニュー未掲載）�
 | 検査のコメント「title/ にある2件はデータから」が件数を書いている（低） | 直した（「title/ にあるものはデータから」） |
 | ほか（残った参照 `FINALS_EXPECTED` 0件、docs に件数の前提なし、生成物は不変、検査は新旧を区別） | なし |
 
+### マージと本番
+
+- push 直前に再 fetch し `git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめて `git push origin work/1103-ryo:cloudflare`: `a31eaf9a2..01d7a6750  work/1103-ryo -> cloudflare`
+- check-run（01d7a6750）: Workers Builds: mj・mj-ask・mj-scheduler すべて success、`sync`・`regenerate` success（push の再生成で新しいコミットは無し）
+- 本番（UA に `mj-internal`、`?v=<乱数>`）: `https://ryoei.pro/r/` が 200、`<meta name="robots" content="noindex">` が1つ、見出し「数字で見る」がある（1回目で新しい版）。`https://ryoei.pro/r` が 301 で `https://ryoei.pro/r/` へ
+- issue: #656 に「毎朝の再生成の初回の確かめ」と「未公開」と書いたコメントの場所、残る仮置きをコメントで足した（チップのリンク・title の重なり・公開は本文にある）。#655 にマージの結果をコメントして閉じた（「状況:」ラベルは元から無い）。#101 に1行コメント
+- RYO-01・02 のログの状態に ` / 続き: CHAT-1103-RYO-03`、マージを「済」に
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1103-ryo
-- ログ: https://github.com/retroeater/mj/blob/work/1103-ryo/docs/logs/CHAT-1103-RYO-03.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1103-ryo
-- 確認用URL:
-- マージ: 未
-- issue: #655
-- 判断が必要なこと:
-- 未確認の項目:
-- エラー:
+- 状態: 完了
+- ブランチ: work/1103-ryo（マージ済み。削除は cleanup-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1103-RYO-03.md
+- 比較URL: https://github.com/retroeater/mj/compare/a31eaf9a2...01d7a6750
+- 確認用URL: 本番の `/r/`（noindex・メニュー未掲載）で確認した。この版で見えるはずの印: 2つ目の面の見出しが「数字で見る」
+- マージ: 済（01d7a6750、`a31eaf9a2..01d7a6750`）
+- issue: #655（クローズ）・#656（残りをコメントで追記）・#101（1行コメント）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
