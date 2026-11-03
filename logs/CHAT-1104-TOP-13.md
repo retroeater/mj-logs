@@ -84,16 +84,39 @@ PC 幅で、帯の下に開く AI 検索の入力欄（今は最大 560px）が�
 - (1) 取り込み直した後のテスト: 1884件 OK
 - (2) 取り込み直した後の差分: ファイルは上と同じ（docs/logs は TOP-11・12・13 だけ）
 - (3) 新旧の比べを compare_ref＝20acd472c でやり直す
+- (3) やり直しの比べ（dry_run・all・compare_ref＝20acd472c、run 41697907318、e62478edd）: ジョブは成功し、飛ばしたページは無い。注釈は「**compare: 差分なし**」で、指示文の見込み（TOP-12 の6件）と違う
+  - 比べの仕組み（regenerate-page.yml の「生成物の差を実行サマリに出す」）: 両方の側で生成し、**どちらかの側でコミットから変わったファイル**だけを比べる。TOP-12 のときは作業ブランチの6件が生成し直す前だったので、作業ブランチ側で変わって6件が出た。今は6件とも生成し直してコミット済みで、作業ブランチのコードも cloudflare のコードも、自分のコミットと同じものを作る（どちらも変わらない）ので、比べの対象に入らず「差分なし」になる
+  - 読めること: 両方のコードとも、コミット済みの生成物をそのまま作る（シートの日々の変化による差も無い）。生成物どうしの違いは `git diff origin/cloudflare...HEAD` の houou/・ouka/・jwrc/・wrcr/・saikyo/・top/ の index.html の6件と、`sitemap-pages.xml`・`sitemap-saikyo.xml` の lastmod（その6ページの日付）だけ
+  - ただし条件 (3) の文言「中身の違う生成物が TOP-12 の6件だけ」を、比べの結果が直接示してはいない。条件は「1つでも満たさなければマージせずに止まる」なので、**マージせずに止まる**（`## 報告`「判断が必要なこと」）
+- 止まった時点で origin/cloudflare はさらに進んでいる（4339cd583。live/・title/・pro/・top/ の再生成〈e821aa462〉などの36ファイル）。マージするなら、もう一度取り込み直す必要がある（top/index.html は生成物どうしの衝突になる見込みで、取り込んだ後に生成し直して解く）
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1104-top（指示文の指定どおり。origin/cloudflare を merge で2回取り込んだ〈ac2ec04c2・a38db8c74〉）
+- ログ: https://github.com/retroeater/mj/blob/work/1104-top/docs/logs/CHAT-1104-TOP-13.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1104-top
+- 確認用URL: プレビューあり（URL は最終報告）。確認したページ: houou/・top/・saikyo/・pro/・log/・wayhome/・jpml_pros.html（ローカル）。この版の印: PC 幅で、帯の下に開く質問欄の入力欄の左右の端が、下の本文の面（houou/ の3項目の面）の左右の端とそろう
+- マージ: 未（条件 (3) を満たしたと言えないため止まった。下の「判断が必要なこと」）
+- issue: #101（コメントなし。マージしていないので着手中のまま）
+- 判断が必要なこと:
+  - 条件 (3) の比べ（dry_run・all・compare_ref）は「compare: 差分なし」だった（`## 経過`「2.」）。比べの仕組み上、生成し直してコミット済みの6件は比べの対象に入らず、6件が出ないのが正しい結果。両方のコードともコミット済みの生成物をそのまま作ることは示せていて、生成物の違いは `git diff` の6件の index.html と sitemap の lastmod だけ。これで条件 (3) を満たしたとしてマージしてよいか（よければ、取り込み直し〈cloudflare は 4339cd583 まで進んでいる〉→ 条件 (1)(2) の確かめ → マージ、の続きの指示）
+  - 条件 (3) を「中身の違うファイルが一覧に出る」形で確かめるなら、compare_ref に TOP-12 の再生成の前の作業ブランチのコミット（例: 11a6d40c5）を使う比べ方もある（ただしその間に入った cloudflare の変更も差に出る）
+  - pro/ のトップの質問欄は、取り込んだ cloudflare 側（pro/ の作業）で外れていた。ページの中の質問欄の部品（`ASK_TEMPLATE`・`ASK_HEAD`・`assets/houou_ask.js` と、その名前を書いたコメント）は読むページが無くなった。決定どおり後の指示で片付ける（`houou_ask.js` は `workers/ask/test/week3.test.mjs` も読むので、Worker の検査の向け先も要る）
+- 未確認の項目:
+  - 本番での確かめ（マージしていないため、手順3は行っていない）
+  - ブラウザでの見え方（プレビューは HTML・JS の版までを確かめた）
+- エラー: なし（1回目の比べ〈run 41687676575〉は Sheets API の上限〈HTTP 429〉で title_pages を飛ばしたが、やり直しで解消）
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 20acd472）: https://github.com/retroeater/mj-logs/tree/main/guide/20acd472
+ガイド文書（この版を写した時点の最新、mj 4339cd58）: https://github.com/retroeater/mj-logs/tree/main/guide/4339cd58
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/20acd472/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/20acd472/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/20acd472/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/20acd472/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/20acd472/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/20acd472/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/4339cd58/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/4339cd58/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/4339cd58/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/4339cd58/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/4339cd58/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/4339cd58/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/53edca83.md
