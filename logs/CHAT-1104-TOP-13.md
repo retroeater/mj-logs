@@ -76,16 +76,24 @@ PC 幅で、帯の下に開く AI 検索の入力欄（今は最大 560px）が�
 - `origin/cloudflare`（cf56b6db4、41コミット）を merge で取り込んだ（ac2ec04c2）。衝突なし
 - (1) テスト: `python3 -m unittest discover -s scripts/tests` OK（取り込んだ後）
 - (2) cloudflare との差分（`git diff --name-only origin/cloudflare...HEAD`）: TOP-12 のログ「7.」の表のファイルから `saikyo/players/index.html` が抜けた（取り込んだ cloudflare 側の再生成で同じ内容になった）だけで、ほかの新しいファイルは無い。docs/logs は TOP-11・12・13 の3件。sitemap の差分は lastmod の5行だけ
+- (3) 新旧の比べ（dry_run・all・compare_ref＝cf56b6db4、run 41687676575、ac2ec04c2）: ジョブは成功したが、作業ブランチ側の生成で `title_pages` が Sheets API の上限（HTTP 429 RESOURCE_EXHAUSTED「Read requests per minute per user」）で失敗して飛ばされ、compare_ref 側の生成も終了コード 3（ページを飛ばした）。注釈は「compare: 差分なし」。作業ブランチの6件は生成し直し済みなので、compare_ref 側が6件を作り直していれば6件の差が出るはずで、出ないのは compare_ref 側でもページが飛ばされたためと読める。**比べが成り立っていないので、条件 (3) は満たしたと扱わない**。一時的な上限の失敗なので、同じ比べを1回だけやり直す
+- 比べの途中で origin/cloudflare が進んだ（20acd472c。log/ の公開の作業・pro/ の作業〈work/1104-prp-unpub〉など、1150ファイル）。やり直しの比べ（run 41697295116、古い基準 cf56b6db4）は取り消し、取り込み直した（a38db8c74）
+  - 衝突は `style.css` だけ。どちらもファイル末尾への追記（こちらは「新しいナビ」の節、cloudflare 側は「『ログ』の新しいページ log/」の節）なので両方を残して解いた。解いた後: cloudflare 側の style.css のまま、log/ の節の直前に「/* ==== 新しいナビ(#101、2026-11-04 の決定・案 A。navbar.js の mjNavBand()・assets/nav.js) ====」から「body:has(.ryoei) .mj-nav-ask-panel .mj-houou-ask-message.is-closed {」の規則までの節（201行）が入る（`git diff origin/cloudflare -- style.css` は @@ -7082,6 +7082,207 @@ の1か所だけ）
+  - `navbar.js` は自動で取り込めた。if の連なりの先頭に cloudflare 側の `/log/`（印「リソース」）が入り、log/ も新しい帯になる（ローカルで帯・欄・シートの動きを確かめた）
+  - pro/ のトップの質問欄は cloudflare 側（pro/ の作業）で外れていた（pro/index.html に `class="mj-houou-ask"` が無い）。これで `ASK_TEMPLATE`・`ASK_HEAD`・`assets/houou_ask.js` を読むページは無くなった（片付けは決定どおり後の指示）。「pro/ の欄だけ残っている」と書いた docs を直した（e62478edd、docs のみ）
+- (1) 取り込み直した後のテスト: 1884件 OK
+- (2) 取り込み直した後の差分: ファイルは上と同じ（docs/logs は TOP-11・12・13 だけ）
+- (3) 新旧の比べを compare_ref＝20acd472c でやり直す
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj dbac236b）: https://github.com/retroeater/mj-logs/tree/main/guide/dbac236b
+ガイド文書（この版を写した時点の最新、mj 20acd472）: https://github.com/retroeater/mj-logs/tree/main/guide/20acd472
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/dbac236b/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/dbac236b/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/dbac236b/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/dbac236b/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/dbac236b/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/dbac236b/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/20acd472/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/20acd472/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/20acd472/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/20acd472/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/20acd472/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/20acd472/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/53edca83.md
