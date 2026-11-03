@@ -65,16 +65,27 @@ RYO-11 の判断待ちに平野さんが答えた（マージしてよい）の�
   - run 641（`compare_ref: cloudflare`）: 生成は通ったが、新旧の比べの段が `fatal: invalid reference: cloudflare` で失敗（実行環境にローカルの cloudflare ブランチは無い。`origin/cloudflare` を渡すべきだった）。
     また `wrcr_pages` が Sheets API の HTTP 429（1分あたりの読み取りの上限）で飛ばされた（一時的な上限。今回の変更とは関係ない）
   - `compare_ref: origin/cloudflare` で1回やり直す
+  - run 651（`compare_ref: origin/cloudflare`）: success。注釈「compare: 差分あり 5 件、compare_ref の生成の終了コード 3」（3 は `wrcr_pages` をまた 429 で飛ばしたため。両方の生成で同じく飛んだ）:
+    - `r/index.html`（7 行）・`r/world-data.json`（片方にだけある）: 今回の変更（シートから読む・出身と目標・埋め込みのデータを JSON へ）
+    - `resource_logs.html`（8 行）・`sitemap-wayhome.xml`（6 行）・`wayhome/index.html`（4 行）: 比べの途中で `origin/cloudflare` が進み（ef6bf81a6 の取り込みの後に入った LGN-21 などのマージ）、旧の側（`origin/cloudflare` のコード）だけに入った変更による。
+      `scripts/lib/stations.py`（ログのページの駅）・2026-10-31 の帰り道の回と OGP 画像（`img/ogp/wayhome/index-20261031.jpg`・`wayhome/O0D8Dz7Kqpo.html`・`sitemap-wayhome.xml`）。このブランチの変更は `resource_logs`・帰り道の生成に触れていない
+  - 差分は今回の変更と、cloudflare 側の新しいコミットで説明できる。シートの変更による差は出ていない（両方の生成は同じ時間帯にシートを読んだ）
+
+### マージ（手順2）
+
+- 最新の `origin/cloudflare` をもう一度取り込んだ（e2e1d6705、衝突なし。`docs/notes/github-actions.md` は自動で混ざった）。テスト・`check_asset_limits.py` OK
+- push の直前に再 fetch し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真
+- `git push origin work/1103-ryo8:cloudflare`: `e821aa462..4339cd583  work/1103-ryo8 -> cloudflare`
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj ce650cc3）: https://github.com/retroeater/mj-logs/tree/main/guide/ce650cc3
+ガイド文書（この版を写した時点の最新、mj 4339cd58）: https://github.com/retroeater/mj-logs/tree/main/guide/4339cd58
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce650cc3/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce650cc3/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce650cc3/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce650cc3/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce650cc3/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/ce650cc3/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/4339cd58/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/4339cd58/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/4339cd58/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/4339cd58/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/4339cd58/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/4339cd58/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/53edca83.md
