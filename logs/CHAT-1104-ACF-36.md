@@ -1,7 +1,7 @@
 # CHAT-1104-ACF-36
 
 - 着手日時: 2026-11-04
-- 対象issue: なし（起票予定）
+- 対象issue: #662（起票）
 - ブランチ: work/1104-acf
 - 着手時HEAD: 499f5e29a
 
@@ -115,28 +115,46 @@ concurrency（`git grep -ln SHEETS_READER_SA_KEY .github/workflows/` の17本）
 - よって全ページの生成1回 ≒ Σ(ページごとの 読むブック数 ＋ 2×読むタブ数)。ページをまたいで同じタブを読むと、その分だけ繰り返し数えられる
 - ページごとの内訳は未確認（タブ名が定数・lib のモジュール経由で決まり、静的に数え切れない。認証情報が無いので手元で動かして数えられない）。測り方の案: `lib/sheets.py` の `_get()` に呼び出しの数を数えてページの終わりに1行出す仕組みを足し、作業ブランチの `regenerate-page.yml`（dry_run・all）で1回動かす。または Google Cloud のコンソールの API の指標（Sheets API の「リクエスト」をメソッド別）で、全ページの生成1回の前後を比べる
 
+run の一覧・429 の grep・run-daily の所要時間（サブエージェントが GitHub MCP でジョブのログを読んだ。ワークフローは実行していない。23件すべてのログを取得できた）:
+
+- 2026-11-03T17:00Z〜19:00Z に始まった regenerate-page.yml・fetch-youtube.yml は23件（cloudflare 3件、作業ブランチ 20件）。429 が出たのは8件（cloudflare の3件＋ work/1103-ryo8 の2件・work/1104-lvp・work/1104-top・work/1029-lgn-page）。表は #662 の本文
+- 前提との差: houou_pages の最初の 429 は 17:28:47Z（MEW-01 の 17:43:32Z は再試行が尽きてページを飛ばした時刻）。work/1104-ttl・work/1029-lgn-page・work/1104-prp-unpub・work/1104-top・work/1103-ryo8 の並走は前提どおり。ほかに work/1104-lvp も並走していた
+- run-daily の直近7回の所要: 37分41秒（11/03 19:00Z）・29分22秒・13分15秒（work/1102-wkp）・26分34秒・12分53秒（work/1101-wkp、failure）・11分11秒（再実行）・16分12秒。前提の3つの値と一致
+- 見立て（並走で上限を食う）は成り立つ（429 の時間帯に作業ブランチの run が常に複数走っている）ので起票へ進んだ
+
+### 手順3: 起票と docs
+
+- #662「Sheets API の1分あたりの読み取り上限（429）で、並走する再生成がページを飛ばす」を起票。ラベルは「分野: 自動化」「対象: 全ページ」（#298・#472・#552 などの慣例）
+- 未マージの work/ ブランチで docs/notes/sheets-reader.md・docs/decisions/security.md を変えているものは無し（`git diff --stat origin/cloudflare...<各ブランチ>` が空）
+- docs/notes/sheets-reader.md「段取りと今の状態」の5. を #662 を指す形に置き換え、docs/decisions/security.md の末尾に 2026-11-04 の決定を足した（ccd794171）
+- 差分は docs のみのため、self-review のサブエージェントは回していない（CLAUDE.md の対象はコード・生成物・ワークフロー・配信設定）
+
+### マージ
+
+- origin/cloudflare（6b77232eb、PRP-13 の分）を取り込み（衝突なし）、`git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめて `git push origin work/1104-acf:cloudflare`（6b77232eb..99fb61e21）。cloudflare との差は docs/decisions/security.md・docs/logs/CHAT-1104-ACF-36.md・docs/notes/sheets-reader.md の3ファイルだけ
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1104-acf
-- ログ: https://github.com/retroeater/mj/blob/work/1104-acf/docs/logs/CHAT-1104-ACF-36.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1104-ACF-36.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1104-acf
 - 確認用URL: なし
-- マージ: 未
-- issue: なし
-- 判断が必要なこと:
-- 未確認の項目:
-- エラー:
+- マージ: 済（99fb61e21）
+- issue: #662（起票）
+- 判断が必要なこと: なし（#662 に移した）
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 95028c1a）: https://github.com/retroeater/mj-logs/tree/main/guide/95028c1a
+ガイド文書（この版を写した時点の最新、mj dda3b16c）: https://github.com/retroeater/mj-logs/tree/main/guide/dda3b16c
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/95028c1a/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/95028c1a/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/95028c1a/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/95028c1a/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/95028c1a/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/95028c1a/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/dda3b16c/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/dda3b16c/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/dda3b16c/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/dda3b16c/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/dda3b16c/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/dda3b16c/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/95028c1a.md
