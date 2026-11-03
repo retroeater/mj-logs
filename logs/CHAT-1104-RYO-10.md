@@ -67,15 +67,33 @@ CHAT-1103-RYO-09（判断待ち）の続き。「Claude受渡用」に届かな�
   - 路線の ID は L10 が欠番（L01〜L09・L11〜L14）。ライフラインは 2014 年が2行（-95・-90）
   - 出来事のうち家族（E034〜E038）はすべて見せ方＝灯り・表示＝N。灯りの駅は S20・S28
 
+### 手順2: 読み取り・検査・生成の置き換え・JSON・毎朝の再生成・docs
+
+- `scripts/lib/ryoei_book.py` に `parse()`（7つのシートの検査と読み取り）と `load()`（ふだんの生成。「R_良栄」だけを読み、フォルダは読まない）を足した。検査に当たる行は「シート n行目: 理由」をまとめて出して止める。
+  検査: ID の重複・空、出来事の駅ID・素材の出来事ID・路線の駅の並びの参照切れ、開始・終了の書式（YYYY／YYYY-MM／YYYY-MM-DD／空）、見せ方（出来事: 文字・物・灯り、駅: 文字・灯り）・表示（Y・N）・使い方（スクリーン・写真パネル・看板・リンク）の値、
+  ライフラインの年・高さが整数で高さが −100〜100、種類＝家族の出来事が灯りでない（説明シート「家族の出来事はここ〈灯り〉」）、読む列が無い
+- `scripts/generate_ryoei_pages.py`: 名前・読み・肩書き・写真・SNS の URL・自己紹介（肩書き・生年月日・所在地・専門・所属）・数字で見る（「数字: 」の項目、値「数＋単位（説明）」を分ける）・出演（素材の使い方＝スクリーン・看板・リンク、表示＝Y、シートの並び）をシートから読むようにした。
+  見た目（SNS のアイコン・出演のサムネイル〈YouTube の動画は動画の ID から、ほかは素材 ID で `THUMBS`〉・媒体の名前〈ホストから `MEDIA_LABELS`〉）はコードに残した。title・description は名前をシートから
+- 基本の「出身」「目標」は今の r/ に無い項目なので出していない（`--check` が警告で知らせる）。出すかは平野さんの判断（報告の「判断が必要なこと」）
+- `r/world-data.json` を書き出し、HTML に埋め込んでいた `ryoei_data` を外した。`assets/ryoei/world.js` は「入る」を押したときに Three.js と一緒に `/r/world-data.json` を読む（読めなければ今までと同じく「空間を読み込めませんでした」で一覧に戻る）。
+  出来事・駅・路線・ライフラインも書き出す（画面には出さない）。灯りの出来事は ID・年・見せ方だけ、灯りの駅は駅名なし、物の出来事は題・説明なし、ライフラインはラベルなし（家族に触れうるため、使う場面を決めるまで）。
+  書く前に、灯りの出来事（表示＝N を含む）の題・説明と灯りの駅の名前が HTML・JSON に出ていないことを確かめ、出ていれば止める
+- 毎朝の再生成: `update-live-channel.yml` の `target_page` に `ryoei_pages` を戻した（`live_pages title_pages pro_pages ryoei_pages top_page`。RUN_LAST・SHARED_GENERATORS には入れない）。冒頭の説明・`regenerate-page.yml` のコメント・
+  docs（github-actions.md・live-channel-write.md・live-page-design.md・yotei-sheet.md）も RYO-06 で外す前の形に戻した。`update-live-channel.yml` 自体の手動実行は本番の /live のシートへ書くので行わず、渡す値と同じ `target_page` で `regenerate-page.yml` を check で手動実行して確かめる（RYO-02 と同じ方法）
+- docs/notes/ryoei-world.md に「中身と見た目の分け方」（読み方・検査・出す項目・出演・家族の出来事・既存が変わらないための決まり〈ID は変えない・使い回さない／写真の線画は素材 ID から名前を決めて一度だけ作る／駅の中は番号付きの置き場所〉・フォルダ）を足した
+- テスト: `scripts/tests/test_ryoei_book.py`（シートの写しの `fake_tabs()` と検査の各分岐）・`test_ryoei_pages.py`（写しから作った中身が前の定数と同じ・不正な値で止まる・JSON・灯りの文字が出ない・漏れたら止まる・毎朝の再生成）。
+  `python3 -m unittest discover -s scripts/tests` 1819件 OK。写しから作った `r/index.html` と今の `r/index.html` の差は、埋め込みの `ryoei_data` の1行が消えたことだけ
+- コミット: b4d83feb9（コード・テスト・world.js）、f902cae76（ワークフロー・docs）
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 8071c9be）: https://github.com/retroeater/mj-logs/tree/main/guide/8071c9be
+ガイド文書（この版を写した時点の最新、mj d30c186d）: https://github.com/retroeater/mj-logs/tree/main/guide/d30c186d
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/8071c9be/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/8071c9be/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/8071c9be/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8071c9be/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8071c9be/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8071c9be/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d30c186d/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d30c186d/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d30c186d/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d30c186d/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d30c186d/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d30c186d/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/59c4b82d.md
