@@ -127,7 +127,7 @@
 | Portfolio 7: 第29期新人王戦／`youtube.com/watch?v=mNaNGFC-LOA&list=PLEAV_Z2MBt0ykyGbU5MmU1X9ZsqUF2nnY` | 出演7（YouTube） |
 | Awards: 4th Tokusho League Dec 2024 ／ 4th WRC-R League Jun 2024 ／ 110th World Riichi Championship Oct 2017 ／ 3rd Tokusho League Jul 2017 ／ 4th Champions League Sep 2015 ／ 2nd Rookie Game Aug 2015 | 入賞6件（特昇リーグ 4位 2024年12月 … 新人王戦 2位 2015年8月） |
 | Education & Memberships: JAPAN MENSA Jun 2022- ／ JPML Sep 2014- ／ ICU Apr 1997-Mar 2001 ／ Kaisei Apr 1990-Mar 1996 | 学歴と所属4件 |
-| JPML Houou League 8行 | 面は置かず「鳳凰戦のリーグの履歴 → リーグの推移」（`/houou/players/?name=平野良栄&view=league`）の1行（仮置き） |
+| JPML Houou League 8行 | 「鳳凰戦のリーグの履歴」の面（`houou/results/平野良栄.json` の期ごとの行から作る。9行、下の突き合わせ）。最後の行に「リーグの推移」（`/houou/players/?name=平野良栄&view=league`） |
 | フッター「© Ryoei Hirano」・「Designed by BootstrapMade」 | 移していない（共通のページの形にフッターが無い。テンプレートの表示） |
 | サイドメニュー（#hero・#about・#portfolio・#resume・jpml_pros.html） | 移していない（共通ナビ navbar.js を使う） |
 
@@ -150,7 +150,7 @@
 
 ### 実装
 
-- `scripts/generate_ryoei_pages.py`（ページ名 `ryoei_pages`）: 手書きの定数（自己紹介・Facts・成績への行・出演・入賞・学歴と所属・SNS）と、`houou/ask-players.json`・`pro/search.json` を読む `load()`。無い・読めないときは警告して行を出さない。`--check` あり
+- `scripts/generate_ryoei_pages.py`（ページ名 `ryoei_pages`）: 手書きの定数（自己紹介・Facts・成績への行・出演・入賞・学歴と所属・SNS）と、`houou/ask-players.json`・`houou/results/平野良栄.json`・`pro/search.json` を読む `load()`。リーグの履歴は期ごとの行を、続く同じリーグでまとめ（期の飛びでは分ける）新しい順に並べる（`league_spans()`）。無い・読めないときは警告して行を出さない。`--check` あり
 - 部品は pro/ の `row_link()`・`panel()`・`league_chip()`・`name_query()`・`CHEVRON`・`SNS_ICONS["X"]`・`FACE_PHOTO`。CSS は pro/ の名前の面・行の面をそのまま使い、`style.css` には `.mj-ryoei` の2規則（押せない行の押した色を消す・出演のサムネイル 40px の正方形）だけ足した
 - `navbar.js`: `/r/` で白地の新しい形にし「良栄」に印（`else if` の2行。メニューの項目は変えていない）
 - `_redirects`: `/r /r/ 301`・`/r/ /r/index.html 200`（saikyo/ と同じ並び）
@@ -163,11 +163,12 @@
 
 ### 検査（証跡）
 
-- `python3 -m unittest discover -s scripts/tests`: Ran 1754 tests … OK（1回目は自分の検査の文言の誤り〈description にも「データベース」がある〉で1件落ち、検査を「名（データベース）」に直して通った）
+- `python3 -m unittest discover -s scripts/tests`: 最初のコミットで Ran 1754 tests … OK、レビュー後の最後のコミット（02d073df5）でも OK（1回目は自分の検査の文言の誤り〈description にも「データベース」がある〉で1件落ち、検査を「名（データベース）」に直して通った）
 - `python3 scripts/regenerate.py --check ryoei_pages`: 「ryoei_pages: 通る(--check)」
 - `python3 scripts/check_asset_limits.py`: 配信ファイル数 5,330（5.3%）・`_redirects` 静的 130・動的 12、すべて OK
 - `python3 scripts/regenerate.py --list` に `ryoei_pages` がある。`pages_for_changes(['scripts/generate_pro_pages.py'])` → `['pro_pages', 'ryoei_pages']`
-- `check-assets.yml` は `work/**` への push で走る（run 41562753049）。結果は下の「レビュー」の後に追記
+- `check-assets.yml` は `work/**` への push で走る。run 41562753049（795eb679f）: success（`r` を許可リストに足した後の「公開対象の検査」）
+- Workers Builds の check-run（795eb679f）: success。プレビュー（版ごとの URL、UA に `mj-internal`）で `/r/` が 200・印あり、`/r` が `/r/` へ 301
 
 ### 画面の確かめ
 
@@ -181,20 +182,80 @@
 | 390 暗 | 0 | 0 | 0 | 5件 | あり |
 
 - 出演のサムネイルのうち `i.ytimg.com`（第3期WRC-Rリーグ）と `icualumni.com` の2つは、このコンテナのプロキシが CONNECT を 403 で断るため撮った画面では割れた画像になっている（`curl` で 403）。本番では現行トップと同じ URL で、CSP の `img-src https:` の範囲
-- この版で見えるはずの印: 自己紹介の面の先頭の行が「肩書き / 麻雀プロ・マインドアスリート」
+- 撮り直し（02d073df5 の生成物）も4枚とも はみ出し0・重なり0・2行以上の出演の題5件
+- この版で見えるはずの印: 「鳳凰戦のリーグの履歴」の面の最後の行が「リーグの推移 ›」（その前の版は別の面「鳳凰戦のリーグの推移」だった）
+
+### レビュー（docs/notes/self-review.md、新しい文脈のサブエージェント2回）
+
+1回目（795eb679f の差分）:
+
+| 指摘 | 扱い |
+|---|---|
+| 鳳凰戦のリーグの履歴を移していない（行で代えただけ）。決定「すべて移す」「データから作る」と食い違う（高） | 直した（8dee634e3）。指示文の前提の仮置き「面を置かず行で代える」より決定を優先した（CLAUDE.md「指示文の記述同士が食い違ったとき」）。データから面を作り、リーグのタブへの行も残した |
+| 面の並びが決定（名前 → 成績 → 出演 → 経歴）と違い、自己紹介・Facts が名前と成績の間にある（低） | 意図どおり（決定は自己紹介・Facts の位置を書いていない。前提の面の案の並び）。判断が必要なことに挙げた |
+| X が `twitter.com` から `x.com` に（低） | 意図どおり（pro/ の形）。報告に書いた |
+| `sns_icon()` を作り直している（低） | 意図どおり（pro/ の `SNS_ICONS` はパス1本の形で LinkedIn・IMDb が入らない。prp-pub が変更中の pro/ を触らない） |
+| 使われないクラス `mj-ryoei-media`（低） | 直した（8dee634e3） |
+| 毎朝の再生成で r/ が作り直されない（低） | `簡略化:` のコメントに r/ を含めた（8dee634e3・02d073df5）。公開の前に判断（判断が必要なこと） |
+| チップを押せない簡略化に `簡略化:` が無い（低） | 直した（8dee634e3） |
+| 鳳凰戦の行を「所属」の後に差し込む分岐の検査が無い（低） | 直した（8dee634e3、`test_houou_league_follows_affiliation`） |
+| 作業ツリーの未コミットのファイル・`docs/logs/CHAT-1103-RYO-01/` | 意図どおり（ログと決定の記録は別のコミット ace72a04c。画像の置き場は指示文の指定） |
+| サブエージェントがレビュー中に HEAD を外して戻した | 影響なし（同じコミット、作業ツリーも同じ） |
+
+2回目（795eb679f..8dee634e3 の scripts/ の差分）:
+
+| 指摘 | 扱い |
+|---|---|
+| 同じ期の行が重なると区間が2つになる（低） | 直した（02d073df5、`previous >= index - 1`、検査あり） |
+| 並びのばらばらな入力・render 経由の履歴の面の検査が無い（低） | 直した（02d073df5） |
+| `regenerate.py` の r/ のコメントが2行に分かれている（低） | 直した（02d073df5、1行に） |
+| 長い1行（低） | 直した（02d073df5、`current` を先に取り出した） |
+| `mj-ryoei-media` の削除・about_rows の検査・`簡略化:` の移し替えがリーグの履歴と別の話題（低） | 意図どおり（1回目の指摘への対応をまとめたコミット） |
+| 「鳳凰戦のリーグの履歴」と「鳳凰戦のリーグの推移」の見出しが続いて紛らわしい（UI） | 直した（02d073df5、推移への行を履歴の面の最後の行にして見出しを1つに） |
+
+### 公開の指示で要る変更（#656 の本文に同じ）
+
+- noindex を外す（`scripts/generate_ryoei_pages.py` の `NOINDEX_TAG` の1か所）と、「未公開」と書いたコメント・docstring・説明（`check-assets.yml` の `allowed()`・`_redirects`・`navbar.js`・`style.css`・`regenerate.py`・`docs/notes/static-generation.md`）
+- `navbar.js` の「良栄」を `/r/` へのリンクにし、ドロップダウンをやめる（2026-11-03 の決定）
+- `sitemap-pages.xml`・`llms.txt` に `/r/` を足す
+- 名前の面のチップ（東京・30期）を pro/ の同じ値の一覧へのリンクにする（pro/ の公開 #641 の後）
+- title が `index.html` と同じ「平野良栄 | 麻雀プロ（日本プロ麻雀連盟） | ryoei.pro」。重ならない形へ直すか
+- canonical を付けるか（#113・#560）
+- `r/` と `index.html` の内容の重複の解消は #101 側
+- 毎朝の再生成で r/ を作り直すか（下の判断が必要なこと）
 
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1103-ryo
 - ログ: https://github.com/retroeater/mj/blob/work/1103-ryo/docs/logs/CHAT-1103-RYO-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1103-ryo
-- 確認用URL:
-- マージ: 未
-- issue:
+- 確認用URL: プレビューあり（URL は最終報告）。確認したページ: `/r/`。この版で見えるはずの印: 「鳳凰戦のリーグの履歴」の面の最後の行が「リーグの推移 ›」
+- マージ: 未（平野さんの判断待ち。指示文の「マージ: 判断待ちで止まる」）
+- issue: #655（起票・着手中）・#656（公開の issue を起票）・#389（1行コメント）
 - 判断が必要なこと:
+  - 仮置き（画面のどこに効くか）:
+    1. 面の並び: 名前 → 自己紹介 → Facts → 成績 → 出演 → 入賞 → 学歴と所属 → 鳳凰戦のリーグの履歴（決定の並びに自己紹介・Facts の位置が無いので名前の面の後に置いた）
+    2. 名前の面の読み「ひらの りょうえい · Ryoei Hirano」は手書き（pro/ はデータの「ひらのりょうえい · Hirano Ryoei」）
+    3. 名前の面のチップ「東京」「30期」（`pro/search.json` の所属・入会期）は押せない。現行トップの「所属: JPML」「入会: 2014」とは別の値
+    4. X のリンクを `twitter.com/retroeater` から `x.com/retroeater` に（pro/ の形）
+    5. 自己紹介に「肩書き: 麻雀プロ・マインドアスリート」（現行のタイピングの文言）と「ウェブサイト: ryoei.pro」（現行の Website）を残した。r/ は ryoei.pro の中なのでウェブサイトの行は要らないかもしれない
+    6. 自己紹介の「段位: 四段」は手書き（pro/ は段位を出さない決定〈2026-10-30〉だが本人のページなので出した）
+    7. 自己紹介の「所属: 日本プロ麻雀連盟（2014年9月〜）」は手書き。「鳳凰戦: C2」はデータから（所属の次の行）
+    8. Facts の見出しは英語のまま「Facts」。連盟プロの数は 1,098名（現行の 1102 ではなく pro/ のトップと同じ在籍者の数）
+    9. 成績の面の「鳳凰戦の個人成績」の2行目「最高 C1 · 出場 17期」（`houou/ask-players.json`）。前提は「pro/ の `results_panel()` と同じ値」だったが、`results_panel()` は「最高」「出場」を出さない（2026-10-31 の決定）。いまのリーグのチップは pro/ と同じ
+    10. 出演の2行目の媒体: YouTube・国際基督教大学同窓会・YouTube・Amazon・YouTube・YouTube・YouTube（現行に無い値。リンク先のドメインから）。題は title 属性の全文（ICU は「… | 国際基督教大学同窓会」まで、WRC 2017 のインタビューは4名の名前まで）で、5件が 360px で2行以上に折り返す。ICU の題は「第82回」だがリンク先は `guest083`（現行のまま）
+    11. 経歴の訳: 「Tokusho League」→「特昇リーグ」、「Rookie Game」→「新人王戦」、「Champions League」→「チャンピオンズリーグ」、「World Riichi Championship」→「世界リーチ麻雀選手権」、学歴は「国際基督教大学」「開成中学校・高等学校」（Tokyo を落とした）
+    12. 鳳凰戦のリーグの履歴: 前提の仮置き（面を置かず行で代える）ではなく、決定に従いデータから面を作り、最後に「リーグの推移」への行を置いた
+    13. フッター（© Ryoei Hirano）とサイドメニューは移していない
+  - データの食い違い: `houou/results/平野良栄.json` に 36期後期〜39期後期（2019年9月〜2023年3月）の8期の行が無い。r/ の履歴は C1 が「2023年4月〜2024年8月」と「2019年4月〜2019年8月」の2行に分かれ（現行は「C1 2019年4月〜2024年8月」の1行）、「出場 17期」も8期少ない見込み。ほかの7行は一致（`## 経過`「鳳凰戦のリーグの履歴」）。スプレッドシートの成績の欠けか、出場していない期かの確認が要る
+  - 毎朝の再生成（`live_pages title_pages pro_pages`）では r/ を作り直さない（`簡略化:`）。在籍者の数・いまのリーグは `all` か r/ の生成スクリプトの変更まで古いまま。公開までに毎朝の対象に足すか
+  - `docs/notes/static-generation.md`「ページの一覧」の冒頭の行は、未マージの `work/1029-lgn-page` も同じ行を変えているので、後からマージする側で衝突する（両方の項目を残して解く）
 - 未確認の項目:
-- エラー:
+  - 出演のサムネイルのうち `i.ytimg.com`・`www.icualumni.com` の2つは、このコンテナのプロキシに断られて表示を確かめていない（現行トップと同じ URL）
+  - 実機・ブラウザでの見え方（平野さんが確かめる端の状態: 360px・390px の明暗、出演の題の折り返し、押せないチップ）
+  - houou/ のデータが無いときの面は検査（`test_without_data_rows_are_left_out`）で確かめ、画面では見ていない
+- エラー: なし
 
 <!-- guide-links -->
 ---
