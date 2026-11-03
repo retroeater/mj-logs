@@ -81,28 +81,71 @@ CHAT-1103-RYO-01（判断待ち）の仮置きとデータの食い違いに平�
 - 検査 `scripts/tests/test_ryoei_pages.py`: 件数（出演7・手書きの入賞2・学歴と所属4）、入賞の並びとリンク、決勝の件数で止まること、名簿の段位（1件・2件・無し、`meibo.parse_rows()` を通す）、段位の行、毎朝の `target_page` に `ryoei_pages` が `pro_pages` の後にあること
 - `python3 -m unittest discover -s scripts/tests`: OK
 
+### 生成と毎朝の対象の確かめ（regenerate-page.yml を work/1103-ryo で手動実行）
+
+- run 582（入力 `check: true`、`target_page: live_pages title_pages pro_pages ryoei_pages`、588df7011）: success。「検査の結果(4ページ): live_pages 通る（警告1件: 未確認 691件〈【3】手動補正の掲載が空欄の行〉、今回と無関係）・title_pages 通る・pro_pages 通る・ryoei_pages 通る」。ryoei_pages は pro_pages の後に動いた（ログの「== ryoei_pages(検査、--check) ==」が最後）。名簿は読めた（止まらない＝平野良栄が1件）
+- run 583（`target_page: ryoei_pages`）: success。作業ブランチに 640c5a5de「chore: regenerate r/ via GitHub Actions」（`r/index.html` 4行増・20行減）。段位は名簿の値「四段」
+- run 584（`target_page: ryoei_pages`・`dry_run: true`、レビュー後の 764aada42）: success、「r/index.html は変わりません」
+- `update-live-channel.yml` 自体は手動実行していない（指示どおり。`regenerate` ジョブは `apply: true` のときだけ動き、本番の /live のシートに書くため）
+- 初回の毎朝の再生成で r/ が作り直されるのは、cloudflare にマージした翌朝の run-daily（04:00 JST）から。未マージの間は動かない
+
+### 画面の確かめ
+
+`r/index.html`（640c5a5de）を `python3 -m http.server` で配信し、Playwright（UA に `mj-internal`）で 360px・390px × 明暗を撮った（`docs/logs/CHAT-1103-RYO-02/r-<幅>-<light|dark>.png`）。
+
+| 幅・配色 | 横のはみ出し | 画面からはみ出す要素 | 行の中の重なり | 2行以上の出演の題 | 高さ（RYO-01 → RYO-02） |
+|---|---|---|---|---|---|
+| 360 明 | 0 | 0 | 0 | 5件 | 3,588 → 2,648px（940px 減） |
+| 360 暗 | 0 | 0 | 0 | 5件 | 3,588 → 2,648px（940px 減） |
+| 390 明 | 0 | 0 | 0 | 5件 | 3,517 → 2,602px（915px 減） |
+| 390 暗 | 0 | 0 | 0 | 5件 | 3,517 → 2,602px（915px 減） |
+
+- 短くした WRC 2017 の題も 360px・390px では2行に折り返す（「【世界リーチ麻雀選手権2017 / インタビュー】」）
+- プレビュー: Workers Builds の check-run（764aada42）success。版ごとの URL と別名（`?v=764aada42`）で `/r/` に「数字で見る」・「第3期WRC-Rリーグ 4位」・段位「四段」がある
+- この版で見えるはずの印: 2つ目の面の見出しが「数字で見る」（前の版は「Facts」）
+
+### レビュー（docs/notes/self-review.md、新しい文脈のサブエージェント1回）
+
+対象は 588df7011・640c5a5de。テスト 1759件 OK（サブエージェントの実行）。
+
+| 指摘 | 扱い |
+|---|---|
+| 毎日の再生成のページの一覧が古い文書が3つ（`live-channel-write.md`・`live-page-design.md`・`yotei-sheet.md`）（中） | 直した（別のコミット「docs: list r/ in the daily regeneration notes」） |
+| `title/search.json` が読めないと止まらず、決勝の2行が黙って消える（低〜中） | 直した（764aada42 の前のコミット。読めなければ決勝0件として止まる。検査あり） |
+| 名簿の重複を警告文の文字列で判定している（低） | 意図どおり（`meibo.parse_rows()` は重複の2行目を捨てて警告に残すだけで、件数を返さない。`lib/meibo.py` は変えない。検査が `parse_rows()` を通すので文言が変われば落ちる） |
+| 名簿の段位が空欄だと行が黙って消える（低） | 直した（警告を出す） |
+| 決勝の読み方を `title_wins()` から写している（低） | 意図どおり（`title_wins()` は優勝だけで (名前, URL) を返すので使えない。pro/ は未マージの prp-pub が変更中） |
+| `regenerate.py` の r/ のコメントから「読むページだけの再生成では作り直さない」が消えた（低） | 直した（1行戻した） |
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1103-ryo
 - ログ: https://github.com/retroeater/mj/blob/work/1103-ryo/docs/logs/CHAT-1103-RYO-02.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1103-ryo
-- 確認用URL:
-- マージ: 未
-- issue: #655
+- 確認用URL: プレビューあり（URL は最終報告）。確認したページ: `/r/`。この版で見えるはずの印: 2つ目の面の見出しが「数字で見る」
+- マージ: 未（平野さんの判断待ち。指示文の「マージ: 判断待ちで止まる」。RYO-01 の分と一緒）
+- issue: #655（着手中コメント）・#656（公開。内容は変えていない）
 - 判断が必要なこと:
+  - 残る仮置き: 入賞の手書き2件（世界リーチ麻雀選手権 110位 2017年10月・チャンピオンズリーグ 4位 2015年9月。押せない行。title/ にデータが無い）、データの2件の2行目は年だけ（「2024年」「2015年」。データに月が無い）、同じ年なら月のある手書きの行を先に並べた（2015年: チャンピオンズリーグ → 新人王戦）
+  - RYO-01 から続く仮置き（面の並び・読み・押せないチップ・x.com・所属の手書き・1,098名・媒体の行・ICU の「第82回」・訳・フッターを移さない）はいまのまま
+  - `FINALS_EXPECTED = 2`: 平野良栄の決勝が title/ に増えると、毎朝の再生成で r/ だけが止まる（ほかのページは生成・コミットされ、ジョブは失敗で知らせる）。増えたら定数を直す運用でよいか
+  - マージの時機: `.github/workflows/update-live-channel.yml` を変えたので、マージした翌朝から毎朝の再生成に r/ が入る（r/ は noindex・メニュー未掲載のまま）
 - 未確認の項目:
-- エラー:
+  - 毎朝の run-daily での r/ の再生成（マージ後の初回 04:00 JST。`update-live-channel.yml` は手動実行していない）
+  - 出演のサムネイルのうち `i.ytimg.com`・`www.icualumni.com` の2つは、このコンテナのプロキシに断られて表示を見ていない（RYO-01 と同じ）
+  - 実機・ブラウザでの見え方
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 46a47f07）: https://github.com/retroeater/mj-logs/tree/main/guide/46a47f07
+ガイド文書（この版を写した時点の最新、mj 12483fda）: https://github.com/retroeater/mj-logs/tree/main/guide/12483fda
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/46a47f07/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/46a47f07/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/46a47f07/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/46a47f07/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/46a47f07/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/46a47f07/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/12483fda/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/12483fda/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/12483fda/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/12483fda/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/12483fda/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/12483fda/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/ad26c534.md
