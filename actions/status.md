@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-11-04 01:41 JST
+- 書き出した時刻: 2026-11-04 01:44 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -25,11 +25,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-11-04 01:39 | push | work/1104-top | in_progress | #782（41676444500） |  |
+| 2026-11-04 01:43 | push | work/1031-rsc | in_progress | #785（41677113595） |  |
+| 2026-11-04 01:43 | push | work/1104-lvp | success | #784（41677083551） | 0分58秒 |
+| 2026-11-04 01:42 | push | work/1031-rsc | success | #783（41676901168） | 2分09秒 |
+| 2026-11-04 01:39 | push | work/1104-top | success | #782（41676444500） | 2分32秒 |
 | 2026-11-04 01:37 | push | work/1031-rsc | success | #781（41676070266） | 1分37秒 |
-| 2026-11-04 01:32 | push | work/1104-top | success | #780（41675300455） | 2分36秒 |
-| 2026-11-04 01:27 | push | work/1101-prp-pub | success | #779（41674330493） | 1分41秒 |
-| 2026-11-04 01:23 | push | work/1104-aic | success | #778（41673744259） | 0分33秒 |
 
 ## check-build-failure.yml
 
@@ -198,11 +198,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-04 01:43 | workflow_dispatch | work/1104-lvp | in_progress | #630（41677090621） |  |
 | 2026-11-04 01:39 | workflow_dispatch | work/1104-top | in_progress | #629（41676459542） |  |
 | 2026-11-04 01:14 | workflow_dispatch | work/1104-ttl | success | #628（41672054289） | 2分43秒 |
 | 2026-11-04 01:11 | workflow_dispatch | work/1101-prp-pub | success | #627（41671567813） | 2分39秒 |
 | 2026-11-04 01:09 | workflow_dispatch | work/1103-ryo8 | success | #626（41671280559） | 1分33秒 |
-| 2026-11-04 01:01 | workflow_dispatch | work/1103-ryo8 | success | #625（41669864649） | 1分34秒 |
 
 ## regenerate-saikyo.yml
 
