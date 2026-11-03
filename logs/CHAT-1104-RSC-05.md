@@ -114,6 +114,10 @@
 - 残りの読みの無い人: 11-03 の調べもの（RSC-04）の dry-run で「連盟プロ以外」で名前かなが空は 16名。今回の4名（小寺勇輝・里中花奈・影山恒太・荒木栄二）を除いた見立てで、牛田寿明・山部正人・折山貴裕・野間一列・稲波崇・水沼利晃・高橋凌・秋葉啓之・時岡史郎・村上公成・上田浩二郎・齋藤健人・濱石樹・金岡晋哉・齋藤勝久・藤崎和彦。手元の生成物（11-02 の再生成）はまだ入力の前で、21名のまま
 - 決定は docs/decisions/automation.md に足した
 
+### マージ
+
+- docs のみ（ログ・決定）。origin/cloudflare（6d5b34e16）を取り込み（衝突なし）、`git push origin work/1104-rsc:cloudflare` の範囲は `6d5b34e16..c21576fe0`
+
 ## 報告
 
 - 状態: 判断待ち
@@ -121,7 +125,7 @@
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1104-RSC-05.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1104-rsc
 - 確認用URL: なし
-- マージ: 未（このあと cloudflare へ入れる）
+- マージ: 済（c21576fe0）
 - issue: #630（着手中のコメント）・#628（候補の確かめの記録）。本文・状態・ラベルは変えていない
 - 判断が必要なこと:
   1. **B の残り 392卓の進め方**: 旧公式の結果一覧で順位が分かるのは 397卓のうち 45卓（2019〜2021年度の各対局の決勝。4人一致 44・表記の揺れ 1）。残りの 352卓（2018年度以前の全部と、2019〜2021年度のベスト8 などの予選の卓）は旧公式に無い。
@@ -139,12 +143,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 6d5b34e1）: https://github.com/retroeater/mj-logs/tree/main/guide/6d5b34e1
+ガイド文書（この版を写した時点の最新、mj dbac236b）: https://github.com/retroeater/mj-logs/tree/main/guide/dbac236b
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6d5b34e1/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6d5b34e1/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6d5b34e1/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6d5b34e1/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6d5b34e1/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6d5b34e1/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/dbac236b/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/dbac236b/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/dbac236b/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/dbac236b/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/dbac236b/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/dbac236b/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/53edca83.md

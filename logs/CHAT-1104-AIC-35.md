@@ -118,15 +118,42 @@ AIC-29・34 のログと今のコードを読む。着手時に開き直す。
 
   直した後: node 165本・python 1747本 通過。scan35.mjs は前と同じく既知の2件だけに当たる。in21.mjs で鳳凰戦の指示は直す前と同じ（変わるのは女流桜花・WRC・WRC-R と、それらを含む横断の指示だけ）。2回目のレビューは、直しが元に戻す向きと語の一覧の絞り込みなので行わなかった
 
+### マージと本番
+
+- 取り込み: origin/cloudflare が YouTube・wayhome のデータの取得（a1f075557、`workers/ask/` は無し）で進んでいたのでマージコミットで取り込んだ（衝突なし）。node 165本・python 1747本 通過を確かめ、再 fetch して `git merge-base --is-ancestor origin/cloudflare HEAD` が真、`git push origin work/1104-aic:cloudflare`（a1f075557..6d5b34e16）
+- check-run（6d5b34e16）: Workers Builds: mj-ask success（2026-11-03 17:29:32Z = 2026-11-04 02:29 JST）
+- 本番の3問: 2026-11-04 JST の10問は AIC-32（4問）・AIC-33（4問）・AIC-34（2問）で使い切ったので、指示のとおり 2026-11-05 の分で送る。このセッションに 2026-11-05 09:20 JST の予約（send_later）を入れた。送ったら、この節と「未確認の項目」を結果で書き換える
+- #654 に直しの内容と、本番の問いを 2026-11-05 に送ることをコメントした
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1104-aic
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1104-AIC-35.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1104-aic
+- 確認用URL: なし（Worker の変更。本番の確かめは 2026-11-05）
+- マージ: 済（6d5b34e16）
+- issue: #654（着手中と、直しの内容・本番の予定をコメント）
+- 判断が必要なこと:
+  - 本番の確かめはまだ（下の「未確認の項目」）。マージは手順どおり本番の前に済んでいる。2026-11-05 の結果で答えがデータと一致しなければ、戻すか直すかの判断を仰ぐ
+  - 選んだ形: 内部の言葉は語の一覧（`internalWords()`）で確かめ、大会別の欄は作り直し（1回、呼び出しは3回まで）、横断のまとめた2回目は記録だけ。文を外す形は、正しい文まで消えるので選ばなかった。鳳凰戦の得点の一文は変えていない（変えてよい範囲の外のため）
+- 未確認の項目:
+  - 本番の3問（2026-11-05 09:20 JST ごろに送る予定。このセッションの予約）: ouka/「二階堂亜樹の成績は？」、houou/「白鳥翔の第40期の成績は？」、横断（context なし）「佐々木寿人の成績は？」。内部の言葉が出ないか、データと一致するか
+  - 2026-11-09（月）03:00 JST の週次の書き出しが動き、ブックに 11/02〜11/08 の行が入るか。あわせて、2026-11-02 10:09 JST ごろの「現女流桜花は？」の「引数」の列に from・to が入っているか（AIC-34 から写した）
+  - 地域で断られた問いが、新しい結果（`region`、ブック「地域で使えない」）で記録に入るか（AIC-34 から写した）
+  - 横断の記録（型 `all:…`）が週次の書き出しのブックに入るか（2026-11-09 03:00 JST の書き出しで。AIC-34 から写した）
+  - 期の外で期を外して答える問い（例「22期の和久津晶成績」）の答えに、冒頭の文と重なる「第N期の記録はありません」が出ないか（週次の記録で見る。AIC-34 から写した）
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 6d5b34e1）: https://github.com/retroeater/mj-logs/tree/main/guide/6d5b34e1
+ガイド文書（この版を写した時点の最新、mj dbac236b）: https://github.com/retroeater/mj-logs/tree/main/guide/dbac236b
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6d5b34e1/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6d5b34e1/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6d5b34e1/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6d5b34e1/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6d5b34e1/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6d5b34e1/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/dbac236b/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/dbac236b/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/dbac236b/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/dbac236b/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/dbac236b/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/dbac236b/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/53edca83.md
