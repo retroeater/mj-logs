@@ -108,15 +108,86 @@
 
 RYO 系列の公開（「良栄」をドロップダウンから `/r/` へのリンクに）も、項目の1か所が変われば新しいナビに反映される（ドロップダウンでもリンクでも読めるように作る）。
 
+### 2. 実装（bce74d878・1b0d46fce・5c44b015c）
+
+| 場所 | 中身 |
+|---|---|
+| `navbar.js` | 黒地のナビの部分（`document.write`・`newNavCurrent` の if の連なり・白地の書き換え）は変えない。末尾に `mjNavBand()` を足し、`newNavCurrent` があるときだけ、描いたナビの項目（`.navbar-nav > .nav-item`、ドロップダウンの中身も）を読み取って `window.mjNavItems` に置き、帯（ロゴ・「質問」・「≡」）に置き換えて `assets/nav.js` を読む。項目は `document.write` の1か所のまま（他のブランチの項目の変更がそのまま流れる） |
+| `assets/nav.js`（新規） | まとまり（選手・大会・動画・その他）の定数と、項目をまとまりに分ける `groupItems()`（定数に無い項目は「その他」へ）、質問の context を決める `askContext()`。≡ のシートと質問のシートは `.mj-houou-sheet`・`.mj-houou-scrim` を共有し、背面の inert・Tab の循環・Esc／背景／閉じるで閉じる・押したボタンへフォーカスを戻す |
+| `assets/top_ask.js` | 欄の中のクラスで部品を探す `initAsk(root)` に分け、トップの欄とナビの質問のシートの両方で動かす。context は欄の `data-context`（無ければ null） |
+| `scripts/generate_top_page.py`・`assets/top.js`・`assets/top.css` | 「開催中・直近の大会」の面と一行の説明、それだけが使っていたコード・定数・CSS を消す（予定のシートの読み込みも消えた。誕生日・新着の番組のシートは読む） |
+| `style.css` | 末尾に「新しいナビ」の節（帯・シートの行・質問のシートの中の欄） |
+| `assets/ryoei/world.css` | r/ でシートが透けないよう、ナビが読む `--mj-n-page`・`--mj-n-muted`・`--mj-n-scrim` を r/ の夜の色で足す |
+| `scripts/tests/test_top_page.py` | 大会日程の検査を消し、ナビの検査を足す（navbar.js の項目がすべてシートに出る・定数に無い項目は「その他」・今の項目の印・子の印・context・注意書きと大会名が生成と同じ・並び〈入力欄→お気に入り→誕生日→新着の番組〉） |
+| docs | `docs/notes/top-page.md`・`docs/notes/design.md`（共通ナビ〈新しい形〉の行）・`docs/notes/static-generation.md`（top/ の行）・`docs/decisions/top.md` |
+
+### 3. 検証
+
+- `python3 -m unittest discover -s scripts/tests`: 1797件 OK（1b0d46fce の時点）。5c44b015c で `test_top_page.py` に1件足し OK
+- 修正前のコードで通らないこと: 子の印の検査は、子の `current` を読まない前の `groupItems()` では落ちる形（子の行の印が常に false）
+- `regenerate-page.yml` を作業ブランチで手動実行:
+  - dry_run・all（run 41662800947、bce74d878）: 成功。変わったファイルの一覧はステップの要約にだけ出て、セッションから読めなかった（check-run の output・annotations にも無い）。代わりに、この差分で生成のコードが変わったのは `scripts/generate_top_page.py` だけ（共有の `scripts/lib/`・ほかの `generate_*.py` は変えていない。`regenerate.py` はコメントのみ）ことで、古い表のページの生成物が変わらないことを確かめた
+  - 本実行・top_page（run 41665642757、1b0d46fce）: 成功。コミット 51d8a1456 は `top/index.html` だけ（+9/−51。大会日程の面と一行の説明が消えた）
+- 画面（ローカルの静的サーバ＋Playwright、UA に mj-internal、`/api/ask` は差し替え）:
+
+| ページ | 360・400・1280／明・暗 | 結果 |
+|---|---|---|
+| top/ | 6通り | 帯（高さ48px）。大会日程の面・一行の説明なし。「質問」は上部の入力欄へフォーカス（シートは開かず、aria-haspopup なし）。≡ のシートは4まとまり19行 |
+| houou/ | 6通り | 帯。≡ で「鳳凰戦」に印。質問のシートは `{contest:"all", context:"houou"}` を送り、答え・選手のカードが出る。Esc・背景でフォーカスが押したボタンへ戻る |
+| pro/ | 6通り | 帯。「連盟プロ」に印。context は null |
+| saikyo/・live/・r/ | 360 明 | 帯。saikyo/ は「最強戦」に印・context saikyo。r/ はシートが不透明になった（修正前は透けていた） |
+| title/ | 6通り | 黒地のナビのまま（白地の対象に無いため。`## 報告` に書く） |
+| jpml_pros.html | 6通り | 黒地のナビのまま（高さ56px／PC 80px で修正前と同じ）。ページの JS エラーなし |
+
+### 4. 自己レビュー（新しい文脈のサブエージェント、2回）
+
+| 指摘 | 扱い |
+|---|---|
+| シートの Tab の循環に `summary`（注意書き）が入らない（nav.js） | 直した（1b0d46fce） |
+| r/ でシートが透ける（world.css に `--mj-n-page`・`--mj-n-muted`・`--mj-n-scrim` が無い） | 直した（1b0d46fce） |
+| ドロップダウンの子に今の項目の印が付かない | 子の行き先と今のパスが同じなら印を付けた（1b0d46fce）。2回目: 子の行き先はどれも黒地のページなので帯の上では付かない → 親だけが今の項目（live/ の「番組」・r/ の「良栄」）のときは印を出さない上限として `簡略化:` を残し、検査を足した（5c44b015c）。仮置きに書く |
+| top_ask.js を読み込む前に送れる | 読み込むまで送るボタンを押せなくした（1b0d46fce）。読み込みに失敗したときは押せないまま（`簡略化:`、5c44b015c） |
+| top/ の「質問」がダイアログと読み上げられるのにシートを開かない | top/ では aria-haspopup・aria-expanded を外す（`簡略化:`、1b0d46fce）。2回目: 入力欄を nav.js の読み込み時に1回だけ探すと、本文の解析前に動いたとき見つからない → 解析の後と押したときに探す（5c44b015c） |
+| 大会日程を消した後の古いコメント（regenerate.py・generate_top_page.py・top-page.md）、コード中の Chat-Ref | 直した（1b0d46fce） |
+| r/ でシートの地と行のまとまりが同じ色 | 意図どおり（r/ の夜の色に合わせた。差を付けるかは見た目の判断として仮置きに書く） |
+
+### 5. 仮置きの一覧（プレビューで決めてもらうもの）
+
+- PC 幅でも同じ細い帯（≡ のシートは中央に最大幅 560px）
+- top/ の「質問」はシートを開かず、上部の入力欄へ移る
+- まとまりの行の補い: 「その他」のように出どころが2つ以上のまとまりだけ、行に出どころの名前（リソース・良栄）を添える
+- 今の項目の印は行の文字の色。ドロップダウンの中の行は、その行き先のページにいるときだけ（live/・r/ では印が出ない）
+- r/ のシートの色は r/ の夜の色（地と行のまとまりが同じ色）
+- 帯の「質問」は文字、「≡」はアイコン（読み上げは「メニュー」）
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1104-top（指示文の指定どおり。セッションに割り当てられた claude/… は使っていない）
+- ログ: https://github.com/retroeater/mj/blob/work/1104-top/docs/logs/CHAT-1104-TOP-11.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1104-top
+- 確認用URL: プレビューあり（URL は最終報告）。確認したページ: top/・houou/・pro/・title/・jpml_pros.html。この版の印: top/ に「開催中・直近の大会」の面が無く、上の細い帯の右に「質問」と「≡」
+- マージ: 未（平野さんの判断待ち。プレビューを見て決める）
+- issue: #101, #231（1行コメントのみ。本文・状態は変えていない）
+- 判断が必要なこと:
+  - title/ は `navbar.js` の白地の対象に入っていない（パスの一覧に無く、body の目印も無い）ため、新しいナビにしていない。決定の例「title/」と食い違う。title/ を白地の対象に足すか（足すと title/ の見た目も白地のナビの形になる）
+  - #231 を閉じるか（トップの大会日程の面をやめたので、(a) は第一弾に入らなくなった）
+  - 仮置きの一覧（`## 経過`「5. 仮置きの一覧」）: PC 幅も同じ帯／top/ の「質問」は入力欄へ移る／その他の行の補い／ドロップダウンの中の行の印（live/・r/ では出ない）／r/ のシートの色／「質問」は文字・「≡」はアイコン
+- 未確認の項目:
+  - dry_run・all で変わったファイルの一覧（ステップの要約にだけ出て、セッションから読めない。生成のコードが変わったのは generate_top_page.py だけであることで代えた。Actions の run 41662800947 の要約で見られる）
+  - 本番の質問の Worker に横断の質問を送る確かめ（プレビュー・本番とも送っていない。ローカルでは差し替えた応答で確かめた。Worker は変えていない）
+  - ブラウザでの見え方（プレビューは HTML・JS の版までを確かめた）
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj d772aeb2）: https://github.com/retroeater/mj-logs/tree/main/guide/d772aeb2
+ガイド文書（この版を写した時点の最新、mj 8071c9be）: https://github.com/retroeater/mj-logs/tree/main/guide/8071c9be
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d772aeb2/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d772aeb2/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d772aeb2/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d772aeb2/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d772aeb2/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d772aeb2/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/68f0411e.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/8071c9be/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/8071c9be/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/8071c9be/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8071c9be/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8071c9be/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8071c9be/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/59c4b82d.md
