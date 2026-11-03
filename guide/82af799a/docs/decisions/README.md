@@ -24,6 +24,7 @@
 | [page-release.md](page-release.md) | 新しいページ・メニューの公開（未公開で入れる段と公開の段、#507 系） |
 | [pros.md](pros.md) | プロ一覧（jpml_pros.html） |
 | [publishing.md](publishing.md) | 配信の対象（`.assetsignore`・`assets-check.yml`、#133・#331） |
+| [ryoei.md](ryoei.md) | 良栄（r/・成績・成績詳細・牌譜、#389） |
 | [saikyo.md](saikyo.md) | 最強戦（saikyo/、選手写真のリンク切れ #499 系） |
 | [security.md](security.md) | セキュリティ（点検・診断・道具・Security Guidance プラグイン、#598 系） |
 | [seo-bing.md](seo-bing.md) | SEO・Bing（Bing Webmaster Tools・Search Console・title・h1・description・OGP 画像、#126・#486・#5・#457・#581 系） |
@@ -31,6 +32,7 @@
 | [study.md](study.md) | 女流勉強会（一覧 /study/・各話 study/、帰り道と同じ形、#575 系） |
 | [exam.md](exam.md) | プロテスト（一覧 /exam/・各話 exam/、女流勉強会と同じ形、旧 jpml_test.html の動画、#612 系） |
 | [title.md](title.md) | タイトル戦（title/、「タイトル」タブのデータ・公開後の残件、#222 系） |
+| [top.md](top.md) | サイトのトップ（index.html の作り直し、#101 系。お気に入り #287） |
 | [wayhome.md](wayhome.md) | 帰り道（一覧 /wayhome/・各話 wayhome/、共有ボタン #530・呼称・新しい回の取り込み #194・一覧の OGP #340） |
 
 ## 書き方

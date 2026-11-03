@@ -217,7 +217,7 @@ Redirect Rules は Workers より前に評価されるため、
 | 項目 | 状態 |
 |---|---|
 | Cloudflare のログインメール | ryoei.net 以外の Gmail のアドレス（Verified）。以前は ryoei.net のアドレス |
-| 2 段階認証 | 認証アプリ（TOTP）＋バックアップコード（2つ目の方法は下の「SSL/TLS・2段階認証の設定」） |
+| 2 段階認証 | 認証アプリ（TOTP）＋バックアップコード＋セキュリティキー（2026-11-02〜。下の「SSL/TLS・2段階認証の設定」） |
 | ryoei.pro の Contact（Registrant・Administrator・Technical・Billing） | ログインメールと同じアドレス |
 | Registrations の Default contact | 同上 |
 
@@ -235,8 +235,8 @@ Redirect Rules は Workers より前に評価されるため、
 | 項目 | 状態（2026-11-02、申告値） |
 |---|---|
 | Minimum TLS Version | TLS 1.2（2026-11-02 に既定の 1.0 から変更。1.3 にはしない）。Always Use HTTPS の「last changed 2 months ago」は 2026-09-11 の有効化と合う |
-| Certificate Transparency Monitoring | 有効（Cloudflare 以外の CA が ryoei.pro の証明書を発行したらメール。全プラン、2026-08-13 GA）。画面は「Alerts active — 1 recipients」で、PDF の時点の宛先は ryoei.net のアドレス。ログインメール（ryoei.net 以外）への差し替えは平野さんの手作業（2026-11-02 に依頼、未確認） |
-| 2段階認証 | TOTP＋バックアップコード（Backup Code Reminders On。Email Authentication は無効）。セキュリティキー（Windows Hello）の追加は平野さんの手作業（2026-11-02 に依頼、未確認。公式は2つ以上の方法を勧める） |
+| Certificate Transparency Monitoring | 有効（Cloudflare 以外の CA が ryoei.pro の証明書を発行したらメール。全プラン、2026-08-13 GA）。宛先はログインメール（ryoei.net 以外）1件（「Alerts active — 1 recipients」。2026-11-02 に ryoei.net のアドレスから差し替え済み。申告値） |
+| 2段階認証 | TOTP＋バックアップコード（Backup Code Reminders On。Email Authentication は無効）。セキュリティキー（Windows Hello）を 2026-11-02 に追加済み（申告値。公式は2つ以上の方法を勧める） |
 | CAA レコード | 無し。足さない（Cloudflare は利用者が CAA を足したときだけ自社の CA 用の CAA を自動で足す。足すなら Cloudflare が使う CA〈Google Trust Services・Let's Encrypt・SSL.com・Sectigo など、増減あり〉を許す必要があり、誤ると証明書の更新が止まる） |
 | Super Administrator | 平野さん1人。2人目は今は足さない（「APIトークンの棚卸し」の単一ユーザー依存は残る。判断材料として記録） |
 

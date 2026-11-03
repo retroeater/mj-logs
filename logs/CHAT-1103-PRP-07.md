@@ -61,6 +61,66 @@
 
 ## 経過
 
+### 0. 着手前の確認
+
+- 指示欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある（指示文が改行の無い1段落で貼られていたので、ログの指示欄もそのまま写した）
+- CHAT-1101-PRP-06 のログの状態は「判断待ち」だった。末尾に「 / 続き: CHAT-1103-PRP-07」を足して push した（449131465）
+- 同じ Chat-Ref のコミット: なし。作業ブランチはローカル・リモートとも 3b3f2152f で一致
+- #641 にほかのセッションの着手中は無い（最後は PRP-06 の判断待ち）
+- **#287 にほかのセッションの着手中のコメントがある**（2026-11-03 02:23 UTC「着手中（題・本文の更新。コードは変えない）。work/1103-top」、TOP の CHAT-1103-TOP-01）。止まる条件のとおり、#287 にはコメントを書かずに進めた。#287 に書く予定だった中身は `## 報告` の「判断が必要なこと」に置いた
+
+### 1. cloudflare の取り込み（ec633df1b）
+
+origin/cloudflare は祖先でなかった（254件先行）ので `git merge origin/cloudflare`。`scripts/generate_pro_pages.py` は自動で混ざった（LVP-09 の `load_lives()`〈`generate_live_pages.load()` から行と役と名前の辞書を返す〉・`live_cards()` は cloudflare の側、noindex・canonical・題・OGP・`build_sitemap()`・`redirect_table()`・`top_ask()` はこのブランチの側。`prepare()` の `aliases` は LVP-09 の `load_lives()` が返す名前の辞書から取る形で残った）。`assets/pro.js` は衝突しなかった。衝突と解き方:
+
+| ファイル | 解き方 |
+|---|---|
+| `docs/decisions/pros.md` | 末尾の追記どうし。両方を日付の順に残した（このブランチの 2026-11-01 の PRP-03〜06 → cloudflare の「2026-11-02（CHAT-1102-LVP-09、#219・#362）」） |
+| `docs/notes/github-actions.md` | ワークフローの一覧の表の隣り合う行（cloudflare は `fetch-youtube.yml`・`check-saikyo-unregistered.yml` ほかの起動の時刻、このブランチは `check-image-links.yml` の対象）。cloudflare の側を取り、このブランチの1か所（`check-image-links.yml` の「連盟プロのトップ `pro/index.html` の X の画像（ジョブ `check`。…#641）」）を足し直した |
+| `sitemap-pages.xml` | このブランチの側（`jpml_pros.html` の行を消したもの。cloudflare はその行の lastmod を 2026-11-03 にしていた） |
+| `sitemap-title.xml` | 生成物の lastmod。cloudflare の側を取り、下の生成で作り直した |
+| `houou/race/` の7ファイル（32-2・33-1・33-2・38-2・42-1・42-2・43-1）・`title/` の4ファイル（masters/29・shinjinou/29・shinjinou/30・shouryu/2） | 生成物。cloudflare の側を取り、取り込んだ後のスクリプトで生成し直した（下） |
+
+放送対局の欄の確かめ（手順1）:
+
+- 取り込んだ後のコードで `regenerate-page.yml`（`pro_pages`・`dry_run`・`compare_ref: origin/cloudflare`、run 41589447844、success）: 「差分なし」。取り込んだ後の pro/ は、このコードで生成しても変わらない（自動で混ざった pro/ がそのまま生成の結果）
+- そのうえで、取り込んだ後の pro/（ec633df1b）と cloudflare の pro/（LVP-09 のコード、同じ日のデータ）の個別ページ 1,098件の放送対局の欄（見出し `pro_live_0`・`pro_live_1` から `</nav>` まで）を比べた: **違うページは0件**（欄 563・行 1,910）
+- 取り込む前のこのブランチの pro/（3b3f2152f、2026-11-01 のデータ）と比べると4ページが違った（`pro/go.saito.28/`・`pro/satoshi.fujisaki.13/`・`pro/shota.hatadani.42/`・`pro/tatsuki.hata.35/`）。違いはすべて「第2期昇龍戦」（ベスト8・決勝）の2本が加わったこと（と「すべて（N件）」の件数が2つ増えたこと）。`live/shouryu/2/` のページは 3b3f2152f には無く、cloudflare の 2026-11-02 の生成（38b2833f6）で初めて入った新しいデータ。同じデータでは LVP-09 のコードと取り込んだ後のコードが同じ欄を作るので、取り込みによる変化ではないと判断して止まらずに進めた（判断が必要なことに書いた）
+
+### 2. お気に入り・予定の JSON・トップの絞り込み（b5df430af・49ce47f55・09d20656c）
+
+- 個別ページ: 名前の面の h1 の下に `<button class="mj-pro-fav" data-fav-slug data-fav-name aria-pressed="false" hidden>☆ お気に入り</button>`（`fav_button()`）。`assets/pro.js` が localStorage を使えるときだけ出し、押すと `mj:favorites` に足す・外す（☆ → ★、`title` は「お気に入りに追加」／「お気に入りから外す」）。読み上げの名前は「お気に入り」で一定にし、状態は `aria-pressed` で伝える（名前を押すたびに替えると、押した状態との二重の伝え方になるため。TOP の案の「お気に入りに追加／外す」の文言は `title` に移した）
+- `mj:favorites` の値は `[{"slug", "name"}]`。足した順、上限なし。読むときは配列でない値・壊れた JSON・slug の無い要素・重複を落とす（`parseFavorites()`）。localStorage が使えるかは、書いて消してみて決める（`usableStorage()`。無い・例外・書けない端末は null）
+- トップ: 絞り込みの切り口に「お気に入り」（値は「お気に入りの選手」の1つ、「すべて」は無い）。表の行に `data-slug`。選ぶと `mj:favorites` の slug の行だけ。0人なら「お気に入りの選手はまだいません。個別ページの ☆ で追加できます」。選んだときは URL のクエリを消す（端末ごとの絞り込みなので載せない）。localStorage の使えない端末ではこの切り口を出さない
+- 360px で5つのタブを等分すると「お気に入り」が2行になったので、pro/ のシートのタブだけ字の幅で分けて折り返さないようにした（360px で 五十音 60・所属 44・入会期 60・リーグ 60・お気に入り 93px、高さ 44px。320px では横に16px はみ出すが、最小の画面幅は 360px〈docs/notes/design.md〉）
+- `pro/plans.json`（`plans_json()`）: 在籍者の今後の予定の全件（5件の切りなし）を `{"plans": [{slug, name, date, kind, role, title, href}]}` で日付の近い順に。pro/ の生成と `--check` で一緒に作る
+- 公開: `pro/` は `.assetsignore` で外れておらず、`check-assets.yml` の許可の一覧に `pro` がある（`pro/plans.json` は公開される）
+- 文書: `docs/notes/pro-pages.md`（「お気に入り」「全在籍者の今後の予定」の節、トップの切り口、出力の一覧）、`docs/new-page-checklist.md`「localStorage の規約」の「マイ選手 #287」→「お気に入り #287（`mj:favorites`…）」
+
+### 3. 生成と確かめ
+
+- 生成: `regenerate-page.yml`（`houou_pages ouka_pages jwrc_pages wrcr_pages title_pages pro_pages`、run 41589883717、success）→ 11a549bd3（1,115ファイル）:
+
+| 種類 | 件数 | 理由 |
+|---|---|---|
+| `pro/<slug>/index.html` | 1,098 | ☆ のボタン（この指示） |
+| `pro/index.html` | 1 | 切り口「お気に入り」・行の `data-slug`・空のときの1行（この指示） |
+| `pro/plans.json` | 1（新しい） | この指示 |
+| `houou/race/` | 7 | 取り込みで cloudflare の側を取った7ファイルに、このブランチの slug（PRP-04）が戻った |
+| `title/` | 5 | 同じく、取り込みで cloudflare の側を取ったファイルに、このブランチの pro/ へのリンクが戻った（4ファイル）と大会のページ1つ |
+| `sitemap-pro.xml`・`sitemap-pages.xml`・`sitemap-title.xml` | 3 | lastmod（`update_sitemap_lastmod.py --from-git` が git の日付にそろえた。手では書いていない） |
+
+  pro/・順位変動・title/ とサイトマップのほかに差分は無い
+- `pro/plans.json`: 24,341 バイト（gzip 3,230 バイト）、124行、予定のある在籍者 85名。いちばん多いのは3件で、二階堂亜樹・佐々木寿人・古川孝次ほか。種類は 放送 102・道場部 18・最強戦 4。slug はすべて pro/ のページにある
+- テスト: `python3 -m unittest discover -s scripts/tests` 1,789件 OK、`node --test 'workers/*/test/*.test.mjs'` 163件 OK。足した `scripts/tests/test_pro_favorites.py`（8件: 予定の JSON の全件・在籍者だけ・並び・5件の切りなし、☆ のボタン、トップの切り口、`mj:favorites` の読み書き・壊れた値・使えない localStorage）は、この指示の前のコードで 8件とも失敗（failures=2・errors=6）
+- プレビュー（版ごとの URL、8144c67e2 の check-run は success）を headless Chromium（UA に `mj-internal`）で、360px・1280px × 明暗の4通り:
+  - `pro/sho.shiratori.23/` の ☆ をクリック、`pro/shota.akutsu.34/` の ☆ をキーボード（フォーカスして Enter）で押す → どちらも `aria-pressed="true"`・★。ボタンは 121×44px。★ の色のコントラストは明 8.92・暗 8.07
+  - トップで絞り込み → 「お気に入り」→ 表は2人（shota.akutsu.34・sho.shiratori.23）。URL は `/pro/`（クエリなし）。横のはみ出し 0
+  - 2人の ☆ を外す → トップの「お気に入り」は0人で、空のときの1行が出る。`mj:favorites` は `[]`
+  - JS のエラー 0
+  - localStorage を使えなくした（`window.localStorage` を読むと例外）状態: 個別ページは h1 が出て ☆ は隠れたまま、トップは「お気に入り」の切り口が隠れ、表（259行）と「所属」の絞り込み（585行）は動く。JS のエラー 0
+- 本番（ryoei.pro）へのリクエスト: 0件
+
 ## 報告
 
 - 状態: 作業中
@@ -77,12 +137,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 93f8976c）: https://github.com/retroeater/mj-logs/tree/main/guide/93f8976c
+ガイド文書（この版を写した時点の最新、mj 82af799a）: https://github.com/retroeater/mj-logs/tree/main/guide/82af799a
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/93f8976c/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/93f8976c/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/93f8976c/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/93f8976c/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/93f8976c/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/93f8976c/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/82af799a/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/82af799a/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/82af799a/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/82af799a/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/82af799a/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/82af799a/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/e4049b27.md

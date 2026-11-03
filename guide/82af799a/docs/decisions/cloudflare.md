@@ -176,3 +176,8 @@
 - #304 の (9) に、Security Insights（Security → Insights）を全ゾーンについて見る行を足す（CFS のチャットでの決定を MCK で受けた）
 - 見送った提案（security.txt・Super Bot Fight Mode）の判断は変えない
 - 作業中の回答: なし
+
+## 2026-11-02（CHAT-1102-CFS-02）
+
+- 決定の変更は無い（CHAT-1102-CFS-01 の決定のまま。CT Monitoring の宛先の差し替えとセキュリティキーの追加は実施済み）
+- 作業中の回答: なし

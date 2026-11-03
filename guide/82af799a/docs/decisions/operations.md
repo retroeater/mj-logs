@@ -1509,3 +1509,24 @@ MCK 系列の 11月の月次チェック（CHAT-1101-MCK-23〜CHAT-1102-MCK-39�
   - 前回の約束（CHAT-1102-WKP-12 の節の「実物で確かめたものだけを前提・振り返りに書く」）は、この系列の AIC-14 の指示文と振り返りの本文で守れなかった。約束どおり書く場所を検討し、docs/notes/chat-routines.md「指示の種類ごとの確かめ」に1行足した（前提に開いた場所を添える。開けなかったものは（要確認））。層をガイド文にした理由: テスト・hook・ワークフローはチャット側が書く文の中身を見られず、Code の着手前の確認は指示文を受け取った後にしか拾えない
   - 約束（次の振り返りで確かめる）: (a) 前提に開いた場所を添えたか (b) 言い回しの直しを週次にまとめられたか (c) AIC の承認の例外で、止まる条件を満たさないのにマージした例が無いか
 - 作業中の回答: なし
+
+## 2026-11-03（CHAT-1103-PLG-01）
+
+hookify の試行の振り返り（予定の 2026-11-04 を前倒し）:
+
+- hookify の規則ファイル `.claude/hookify.warn-sitemap-lastmod.local.md` を消す。hookify は claude.ai のアカウントから外した（平野さんの手作業）。2026-10-20（CHAT-1020-PLG-08・PLG-09）の節の「hookify で最初に試す規則」を置き換える
+- docs/notes/skills.md「hook の層の分け方」の方針（止める規則はリポジトリの hook かテスト・CI、注意を出す規則は hookify）は、次に必要になったときの判断基準として残し、規則の表は消す
+- 理由: 2週間（2026-10-20〜11-03）で規則が働いた記録が無い。手で書いた lastmod は `regenerate-sitemap.yml`（HTML を含む push）と週次の全ページ再生成で git から計算し直されて自動で直る。hookify はツールの呼び出しのたびに動く
+- この指示の中で cloudflare へマージしてよい（平野さんがチャットで承認）
+- CHAT-1020-PLG-10 の未確認の項目（実際の warn の表示）は、規則をやめたので確かめない
+- 作業中の回答: なし
+
+## 2026-11-03（CHAT-1103-PLG-03）
+
+使っていない公式プラグインを外した（CHAT-1103-PLG-02 は欠番、その貼り直し）:
+
+- code-review・code-simplifier・claude-code-setup・claude-md-management・frontend-design の5件を claude.ai のアカウントから外した（平野さんの手作業）。2026-10-20（CHAT-1020-PLG-07）の節の「残す」8件を置き換える
+- 残すのは security-guidance（編集ごとのパターン照合）と claude-security（深い診断。回し方は docs/decisions/security.md の 2026-10-20 の決定のまま）
+- 理由: code-review はクラウドセッションで返り値が空で、2026-10-28 に使わないと決め、差分の自己レビュー（docs/notes/self-review.md）で代えている。code-simplifier は使った記録が無い。claude-code-setup は 2026-10-20 の提案で用が済んだ。claude-md-management は 2026-10-20 の監査1回だけで、年数回の監査のときに入れ直す。frontend-design は mj の既決のデザイン（docs/notes/design.md）と競合し、頼まなくても自動で呼ばれ得るため、方向性そのものを決めるとき（#101 など）に入れ直して比較ページの案出しにだけ使う
+- 新しいページのデザインで frontend-design を毎回呼ぶ運用にはしない（基準は docs/notes/design.md・docs/decisions/design-renewal.md）。docs/notes/design.md には規則として足さない（外したので自動で呼ばれる経路が無く、テスト・hook でも確かめられないため）
+- 作業中の回答: なし
