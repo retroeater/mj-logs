@@ -88,16 +88,23 @@ AIC-28 の本番の確かめで、固定の問い「白鳥翔の第40期の成�
 - テスト（count.test.mjs に1本）: 白鳥翔の第40期の player が `points: 278.8` で `total` が無い、第42期 A1 の league も points、女流桜花・WRC・WRC-R の player も points、最強戦の champions の total はそのまま、5大会の欄の2回目の指示に一文が入る（最強戦には入らない）、横断の鳳凰戦にも入る。直す前のコードでこの1本が落ちる。直した後は node 156本・python 1747本 通過
 - 変わる範囲の比較（in21.mjs、直す前と後）: 応答・記録は全部同じ。2回目に渡す結果が変わるのは鳳凰戦・女流桜花・WRC・WRC-R の player と鳳凰戦の league（と横断）だけ。最強戦は渡す結果も指示も同じ
 - docs: ask-worker.md「5大会の応答ルール」の表に points の行を足した（b18123c4e）。docs/decisions/houou.md に 2026-11-03（CHAT-1103-AIC-29）の節
+- 自己レビュー（新しい文脈のサブエージェント、1回）:
+
+  | 回 | 対象 | 観点 | 結果 |
+  |---|---|---|---|
+  | 1 | 26291058f・b18123c4e | 名前替えが応答・記録・画面に漏れないか、total を持つほかの型、一文の矛盾と通期のリーグでの言い方、テスト、docs | 要修正なし。任意3件: POINTS_LINE の定義が titleLine のコメントと定義の間に入っていた → 前へ移した（動作は同じ）／足した行の位置が大会で違う（鳳凰戦・女流桜花は titleLine の前、WRC・WRC-R は後。champions の一文が最後は守られている）→ そのまま／docs の最強戦の欄「player・league に得点が無い」→「league の型が無く、player に得点が無い」に直した。証跡: answerInput は write と writeMany の2か所で Claude に渡す JSON だけに使われ、tidyAnswer・応答・D1 は元の結果、画面の JS は total も points も読まない。total を持つのは player・league と最強戦の champions だけ。前期・後期があるのは鳳凰戦の B1〜E3 だけで、括弧の但し書きは通期でも正しい。156本通過、直す前で新しい1本が落ちる |
+
+  直しはコメントの位置と docs だけなので2回目のレビューは行わなかった。直した後も node 156本通過
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 7539bdc7）: https://github.com/retroeater/mj-logs/tree/main/guide/7539bdc7
+ガイド文書（この版を写した時点の最新、mj 9484f5a2）: https://github.com/retroeater/mj-logs/tree/main/guide/9484f5a2
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/7539bdc7/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/7539bdc7/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/7539bdc7/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/7539bdc7/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/7539bdc7/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/7539bdc7/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9484f5a2/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9484f5a2/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9484f5a2/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9484f5a2/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9484f5a2/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9484f5a2/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/795228a7.md
