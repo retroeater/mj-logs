@@ -129,7 +129,7 @@ TOP 系列（サイトのトップ #101）から依頼があった。新トッ�
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1104-AIC-32
 - ブランチ: work/1103-aic
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1103-AIC-30.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1103-aic
@@ -137,8 +137,8 @@ TOP 系列（サイトのトップ #101）から依頼があった。新トッ�
 - マージ: 済（d772aeb29）
 - issue: #654（着手中と、値の形・結果をコメント）
 - 判断が必要なこと:
-  - 本番の横断「佐々木寿人の成績は？」の鳳凰戦の答えの「鳳凰位には第37期・第38期・第40期に座りました」がデータと食い違う（鳳凰位になったのは第37・38・40期、座っていたのは第38・39・41期）。止まる条件「本番の問いの応答がデータと一致しない」に当たるが、マージは手順どおり本番の前に済んでいる。原因は今回の値の直しではなく、2回目の指示の「鳳凰位になった期」と「座っている期」の言葉が混ざったことと見ている。事実の誤りとして直すか（案: titleLine の「座っている期」の説明を「座っている期は書かない（鳳凰位になった期は titleTerms）」にする）
-  - 表示の部品（`assets/top_ask.js`）を変える必要は無いと見ている。16行目のコメント「文に出た順のまま」は、答えた選手を先頭に足す形と少しずれる（TOP 系列が直すかどうか）
+  - 本番の横断「佐々木寿人の成績は？」の鳳凰戦の答えの「鳳凰位には第37期・第38期・第40期に座りました」がデータと食い違う（鳳凰位になったのは第37・38・40期、座っていたのは第38・39・41期）。止まる条件「本番の問いの応答がデータと一致しない」に当たるが、マージは手順どおり本番の前に済んでいる。原因は今回の値の直しではなく、2回目の指示の「鳳凰位になった期」と「座っている期」の言葉が混ざったことと見ている。事実の誤りとして直すか（案: titleLine の「座っている期」の説明を「座っている期は書かない（鳳凰位になった期は titleTerms）」にする） → 回答（2026-11-04、平野さん）: 「第37期・第38期・第40期の鳳凰位です」の形で答える（期はタイトル戦の記録から、座っている期は書かない、女流桜花も同じ）。CHAT-1104-AIC-32 で直す
+  - 表示の部品（`assets/top_ask.js`）を変える必要は無いと見ている。16行目のコメント「文に出た順のまま」は、答えた選手を先頭に足す形と少しずれる（TOP 系列が直すかどうか） → 扱い（2026-11-04、チャット側）: TOP 系列に回す（#654 のコメントに書いてある）
 - 未確認の項目:
   - 2026-11-09（月）03:00 JST の週次の書き出しが動き、ブックに 11/02〜11/08 の行が入るか。あわせて、2026-11-02 10:09 JST ごろの「現女流桜花は？」の「引数」の列に from・to が入っているか（AIC-29 から写した）
   - 地域で断られた問いが、新しい結果（`region`、ブック「地域で使えない」）で記録に入るか（AIC-29 から写した）
@@ -157,4 +157,4 @@ TOP 系列（サイトのトップ #101）から依頼があった。新トッ�
 - docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d772aeb2/docs/notes/chat-side-operations.md
 - docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d772aeb2/docs/notes/cloudflare.md
 - docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d772aeb2/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/795228a7.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/68f0411e.md
