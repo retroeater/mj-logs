@@ -113,16 +113,17 @@ AIC-25 の前提（`crossContests()` の今の選び方など）と、AIC-25 の
   | 1 | 23cfee26a・5bcf56292 | contextAsk が大会別の欄と同じか（決勝だけ・案内・期の外・地域の制限の失敗）、context が無いときの選び方、記録の型、テスト、docs | 要修正なし。判断・任意5件: ほかの大会にだけ記録のある選手名は、context があっても並べた答えになる（決定どおり。画面の統合の後に変わる答えとして docs に書いた）／記録の args は横断の形 `{"<大会>":…}`（意図どおり）／context の大会名だけの問いのテストが無い → 足した（5d31183af）／contextAsk と ask() の大会別の try/catch が似ている（型・args・足す2項目だけ違う。今は残す）／docs の「選手名」→「記録のある選手名」に直した（69ec1d26b）。証跡: 151本通過、直す前のコードで新しいテストが落ちる、probe で期の外・none・自分の大会名・1回目と2回目の 403 の応答と結果が大会別と同じ |
 
   直しはテスト1本と docs だけなので2回目のレビューは行わなかった。直した後は node 152本通過
+- 大会別の要求が変わらないことの比較（cmp20.mjs、直す前〈origin/cloudflare〉と後、15255 通り）: 違い0
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 45487824）: https://github.com/retroeater/mj-logs/tree/main/guide/45487824
+ガイド文書（この版を写した時点の最新、mj c129a98b）: https://github.com/retroeater/mj-logs/tree/main/guide/c129a98b
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/45487824/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/45487824/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/45487824/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/45487824/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/45487824/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/45487824/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c129a98b/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c129a98b/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c129a98b/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c129a98b/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c129a98b/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c129a98b/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/795228a7.md
