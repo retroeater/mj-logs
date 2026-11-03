@@ -217,15 +217,103 @@
 | 2027-03-29 | 第1期JPMLリーグ決勝 | —（title/ に無い：JPMLリーグ） | 決勝 | 外す |
 | 2027-03-31 | 開幕式2027 | —（title/ に無い：開幕式） | 段なし | 外す |
 
+外した中で迷うもの（仮置きで外した）: 2026-11-14・15 の「麻雀グランプリMAX」（件名に段の語が無い）、「第21期女流桜花 AリーグプレーオフA卓・B卓」「第4期達人戦プレーオフ」「第21期女流桜花 入れ替え戦 3rd stage」（プレーオフ・入れ替え戦は段の語で判定できない）、「第1期鳳匠戦決勝」「第1期JPMLリーグ」のベスト16〜決勝・「麻雀格闘倶楽部プロNo1決定戦」・地方プロリーグ決勝（title/ に無い大会）。
+
+### 3. 実装
+
+| ファイル | 中身 |
+|---|---|
+| `scripts/generate_top_page.py`（新規） | 生成。部品は pro/ の `Plan`・`plan_row()`・`panel()`・`row_link()`・`CHEVRON`・`load_saikyo_plans()` を import だけで使う（`generate_pro_pages.py` は変えていない）。放送対局は `sync_live_calendar.load_desired(today)[2]`、誕生日は `birthdays.fetch()`、slug と所属・入会期は `pro/search.json`、title/ の大会は `title/search.json` の `t` |
+| `assets/top.js`（新規） | 日付の出し分けだけ。`[data-top-list]` は日本時間の今日より前の行を隠し、残りの先頭 `data-max` 件と「ほかN件」を数え直す。`[data-top-birthdays]` は今日の月日（`data-day`）の行だけを出す。どちらも残りが無ければ見出しごと隠す |
+| `scripts/tests/test_top_page.py`（新規） | 19件: 段の判定（載せる7件・外す8件、実物の件名）、title/ の大会名の照合、予定の行の絞り込みと行き先、最強戦のファイナルと卓ごとの1行、5件と「ほかN件」、0件で面なし、誕生日の前後3日・年またぎ・今日だけ見える・slug 無し、導線の行き先と navbar.js、面の並びと題・noindex・WebSite、_redirects・生成の順・毎朝の対象 |
+| `scripts/regenerate.py` | `SHARED_GENERATORS["top_page"] = ("pro_pages", "houou_pages")`、`OUTPUT_OVERRIDES["top_page"] = "top/"`、`RUN_LAST` の最後に `top_page`（RYO が `run_order()` を RUN_LAST の並びで並べる形に直してあったので、関数は変えていない） |
+| `_redirects` | `/top` → `/top/`（301）・`/top/` → `/top/index.html`（200）を `/r/` の行の後に（前提は `/top/` → `index.html` だが、実物の pro/・r/ の行の形 `/<dir>/index.html` に合わせた） |
+| `.github/workflows/check-assets.yml` | `allowed()` に `top`（`r` の後） |
+| `.github/workflows/update-live-channel.yml` | `regenerate` の `target_page` の最後に `top_page`、冒頭の説明の手順5に top/ |
+| `navbar.js` | 白地のナビの対象に `/top/`（`newNavCurrent = 'トップ'`。どの項目にも当たらないので印は付かない。仮置き） |
+| `scripts/tests/test_ryoei_pages.py` | `test_daily_regeneration_includes_r_after_pro` の「最後の2つが pro_pages・ryoei_pages」を「pro_pages が ryoei_pages より前」に（top_page が最後に続くため。意図は同じ） |
+| docs/notes/top-page.md（新規）・docs/notes/static-generation.md | 構成・面・判定・未公開の段の扱い。「ページの一覧」の冒頭の列挙と表に `top/` の行 |
+
+`.assetsignore` には足していない（公開するディレクトリ）。`style.css`・`scripts/lib/page.py`・pro/ の関数は変えていない。
+
+### 4. 検証
+
+- テスト: `python3 -m unittest discover -s scripts/tests` → `Ran 1778 tests … OK`（test_top_page.py 19件を含む）
+- 生成の検査: `regenerate-page.yml` を work/1103-top で `target_page: top_page`・`check: true`（run 41589981935、success）。出力「開催中・直近の大会: 36件(放送対局の予定 2634件から)」「誕生日の行(前後3日): 27名」「top_page: 通る(--check)」。36件は公開 ICS で分けた「載せる」36件と同じ
+- 生成: 同じく `check` なし（success）。作業ブランチに `351a4f728 chore: regenerate top/ via GitHub Actions`（変わったのは `top/index.html` 1ファイル、134行・43,141バイト）。**top/ 以外の生成物の差分は0件**（共有の部品は regenerate.py の定数と navbar.js の分岐だけで、ほかのページの生成物の中身に関わらない。全ページの再生成は行っていない）
+- 生成物: 予定の行 36件（見える5件・「ほか31件」）、誕生日の行は 10-31〜11-06 の 27名（今日 11-03 は1名が見え、ほかは hidden）
+- 画面（Playwright、ローカルの静的サーバ、時計を固定。UA に mj-internal）: 360px・400px、明暗。日付を変えた端の状態:
+
+| 日付（JST） | 大会日程 | 誕生日 | 横スクロール |
+|---|---|---|---|
+| 2026-11-03 | 5件・ほか31件 | 1名 | なし |
+| 2026-11-01（誕生日の多い日） | 5件・ほか31件 | 8名 | なし |
+| 2026-11-06 23:59（焼いた範囲の端） | 5件・ほか31件 | 5名 | なし |
+| 2026-11-10（焼いた範囲の外） | 5件・ほか31件 | 面ごと隠れる | なし |
+| 2027-04-01（予定がすべて過ぎた） | 面ごと隠れる | 面ごと隠れる | なし |
+| 2027-03-14（長い大会名のチップ） | 「女流プロ麻雀日本シリーズ」のチップも行に収まり、長い件名は「…」（pro/ と同じ） | — | なし |
+
+  JS のエラーは0件。白地のナビ（`mj-nav-new`）が付き、項目の印は無い。スクリーンショットは選手の氏名と誕生日が写るので、ログに置いていない（CLAUDE.md「作業ログ」の個人情報）
+- プレビュー（ブランチ名の別名 URL、UA に mj-internal）: `/top/?v=351a4f7` 200（題「日本プロ麻雀連盟の選手と大会のデータ | ryoei.pro」・noindex）、`/top` 301 → `/top/`、`/` 200（今のトップのまま）、`/assets/top.js` 200
+
+### 5. 自己レビュー（docs/notes/self-review.md）
+
+新しい文脈のサブエージェント（general-purpose）に、指示の目的・決定、`git diff origin/cloudflare...HEAD`（ログと生成物を除く 757行）、CLAUDE.md「コード規約」と観点を渡した（1回）。
+
+| 指摘 | 扱い |
+|---|---|
+| 高: 新しい docs/notes/top-page.md が docs/handover.md「6. 関連文書」の表に無く、`test_handover_notes_table` が落ちる（毎朝の update-live-channel.yml のテストの手順で止まる）。自分の全体テストはノートを足す前に回していた | 直した（b33e9ed75。表に1行。handover.md 23,755 バイト、警告域 26KB の下）。直した後 `Ran 1778 tests … OK` |
+| 低: `SHARED_GENERATORS` は `sync_live_calendar.py` を表せず、その変更だけでは push の再生成が top/ を作り直さない | 意図どおり（pro/ と同じ既存の制約。毎朝作り直す）。`簡略化:` のコメントを足した（120002a65） |
+| 低: `pro_slugs()` が pro/search.json の列番号を直書きし、直接の検査が無い | 検査を1本足した（120002a65、search.json の行の形から通す）。列番号の直書きは同じ型の `generate_ryoei_pages.py` と同じ形のまま |
+
+指摘の後の差分はテストとコメントと docs の1行だけなので、2回目のレビューは行っていない。
+
+### 6. 仮置きの一覧
+
+| 仮置き | 画面のどこに効くか |
+|---|---|
+| h1 は「ryoei.pro」 | ページの最上部の見出し |
+| 大会日程の見出しは「開催中・直近の大会」、5件（`SCHEDULE_MAX`）と「ほかN件」 | 大会日程の面 |
+| 段の判定: ベストN ≤ 16・決定戦・決勝（決勝トーナメントを除く）。段の語の無い件名・プレーオフ・入れ替え戦は外す | 2026-11-14・15 の「麻雀グランプリMAX」、女流桜花・達人戦のプレーオフが出ない（`## 経過` 2 の表） |
+| title/ に無い大会（鳳匠戦・JPMLリーグ・プロNo.1決定戦・地方プロリーグ決勝・WROTL など）は出さない | 2026-11-20 の鳳匠戦決勝、2027-03 の JPMLリーグのベスト16〜決勝が出ない |
+| 枠のまだ無い予定表の予定の行き先は title/ の大会のページ（新しいタブで開かない）。枠のある予定は YouTube | 大会日程の行を押した先 |
+| 最強戦は「ファイナル」で始まる対局名の卓だけ。チップは「麻雀最強戦」 | 2026年のファイナルがデータに入るまで最強戦の行は0件 |
+| 誕生日は前後3日（`BIRTHDAY_DAYS`）を焼く。2行目は所属・入会期。写真は出さない。並びは月日・読みの順 | 誕生日の面 |
+| 2/29 生まれは閏年の 2/29 にだけ出る（`簡略化:`） | 平年の 2/28・3/1 |
+| 導線の1行の説明の文言（「在籍する選手の一覧と個別ページ」など） | 各セクションの面 |
+| 「番組」は別の面に帰り道・プロテスト・Mつくの3行（navbar のドロップダウンの放送対局以外）。2行目は「番組」 | 番組の面 |
+| ナビは白地（`newNavCurrent = 'トップ'`）で、どの項目にも印を付けない。ナビの左の「R」は今のまま `/index.html` を指す | ナビ |
+| description・ページ末尾の説明文「日本プロ麻雀連盟の選手と大会のデータ。連盟プロ・鳳凰戦・…の成績と放送対局の予定をまとめています。」 | ページの末尾・検索結果の説明（公開後） |
+| 質問欄・お気に入りは空の差し込み口（`data-top-slot="ask"`・`"favorites"`）。画面には何も出ない | 見出しの下（TOP-03・TOP-04） |
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1103-top
+- ログ: https://github.com/retroeater/mj/blob/work/1103-top/docs/logs/CHAT-1103-TOP-02.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1103-top
+- 確認用URL: プレビューあり（URL は最終報告）。確認したページ: `/top/`。この版で見えるはずの印: 題が「日本プロ麻雀連盟の選手と大会のデータ | ryoei.pro」で、最初の面の見出しが「開催中・直近の大会」
+- マージ: 未（平野さんの判断待ち。指示文の「マージ: 判断待ちで止まる」）
+- issue: #101・#231・#286（着手中コメント、#231・#286 は本文を書き直した）・#287（ラベル `対象: pro` を作って付けた）・#656（題の決定をコメント）
+- 判断が必要なこと:
+  - プレビューで見て決める点: `## 経過`「6. 仮置きの一覧」の13項目（段の判定で外した「麻雀グランプリMAX」〈2026-11-14・15〉・プレーオフ・入れ替え戦、title/ に無い大会〈鳳匠戦・JPMLリーグなど〉を出さないこと、5件、誕生日の前後3日、導線の説明の文言、「番組」を別の面に3行、h1「ryoei.pro」など）
+  - マージしてよいか（未公開の `top/` が本番に入る。noindex・メニュー未掲載。毎朝の `update-live-channel.yml` が top/ を作り直すようになる）
+  - ラベル `対象: pro` の色・説明が GitHub の既定のまま（色 ededed・説明なし。ほかの `対象:` は C5DEF5・説明つき）。MCP にラベルの編集が無いので、そろえるなら GitHub の画面で直す
+  - 指示の範囲外で変えたもの: `scripts/tests/test_ryoei_pages.py` の順の検査（「最後の2つ」→「pro が r より前」。top_page が最後に続くため）、docs/handover.md「6. 関連文書」の表に top-page.md の1行（新しいノートを載せないと `test_handover_notes_table` が落ちる）
+- 未確認の項目:
+  - 実機・ブラウザでの見え方（平野さんが確かめる端の状態: 360px・390px の明暗、誕生日の多い日、長い大会名のチップ）
+  - マージした後の初回の毎朝の再生成（`update-live-channel.yml`、Worker の起動で毎日 04:00 JST の run-daily から）で top/ が作り直されるか。初回はマージの翌朝の 04:00 JST
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 93f8976c）: https://github.com/retroeater/mj-logs/tree/main/guide/93f8976c
+ガイド文書（この版を写した時点の最新、mj 82af799a）: https://github.com/retroeater/mj-logs/tree/main/guide/82af799a
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/93f8976c/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/93f8976c/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/93f8976c/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/93f8976c/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/93f8976c/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/93f8976c/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/82af799a/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/82af799a/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/82af799a/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/82af799a/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/82af799a/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/82af799a/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/e4049b27.md
