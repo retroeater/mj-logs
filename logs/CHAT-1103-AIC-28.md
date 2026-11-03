@@ -124,15 +124,50 @@ Chat-Ref: CHAT-1103-AIC-28
   直しは小さいので2回目のレビューは行わなかった。直した後は node 155本・python 1747本 通過
   - 期で絞ったとき（指示の手順2）: 第38期・第23期とも seasons は付かない（出場の期数を書かせない規則と合う）。絞らないときは25
 
+### マージと本番
+
+- 取り込み: origin/cloudflare が TOP-07〜10 のマージ（9ceea4549 など。`workers/ask/` は無し）で進んでいたのでマージコミットで取り込んだ（衝突なし）。node 155本・python 1747本 通過を確かめ、再 fetch して `git merge-base --is-ancestor origin/cloudflare HEAD` が真、`git push origin work/1103-aic:cloudflare`（bc078e260..7539bdc7c）
+- check-run（7539bdc7c）: Workers Builds: mj-ask success（10:26:16Z）
+- `/api/ask/status` → `{"status":"open","remaining":10,"max":200}`。UA に `mj-internal AIC-28`
+
+本番の3問（2026-11-03 10:26:50〜10:27:02 UTC、すべて answered）:
+
+| 要求 | 問い | 答え | データ・ページとの突き合わせ |
+|---|---|---|---|
+| 横断・context houou | 佐々木寿人の成績は？ | 【鳳凰戦】「鳳凰戦では出場25期で、鳳凰位になった期は第37期・第38期・第40期です。」【WRCリーグ】決勝の第10期に4位【麻雀最強戦】「出場数16回、対局数38回、連続出場16回、ファイナルトーナメント出場5回、勝率.421です。最強位になった回数は0回です。」contests `["houou","jwrc","saikyo"]` | 一致。出場25期はページ（houou/results の divisions.seasons 25）と同じ。鳳凰位の期、最強戦の totals も一致 |
+| 大会別（鳳凰戦） | 佐々木寿人は何期出場していますか？ | 「佐々木寿人さんの出場は25期です。鳳凰位になった期は第37期、第38期、第40期です。」 | 一致。ページの値と同じ（前は「20期」） |
+| 大会別（鳳凰戦） | 白鳥翔の第40期の成績は？ | 「白鳥翔さんの第40期は、A2リーグで1位となり、昇級しました。通算得点は278.8点です。」 | 数は一致（A2・1位・昇級・278.8）。「通算得点」はその期の得点を通算と呼んだ言い回し（AIC-22 までの本番では「総ポイント」）。出場の期数は書いていない |
+
+- #654 に結果をコメントした
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1103-aic
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1103-AIC-28.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1103-aic
+- 確認用URL: なし（Worker の変更。本番の3問で確かめた）
+- マージ: 済（7539bdc7c）
+- issue: #654（着手中と結果をコメント）
+- 判断が必要なこと:
+  - 固定の問い「白鳥翔の第40期の成績は？」で、その期の得点（278.8）を「通算得点」と書いた（数は正しい）。言い回しとして週次の直し（2026-11-09 の週）に入れるか。直すなら、player の items の total は「その期の得点で、通算ではない」の一文
+  - 直し方は候補 (a)（`player()` が得点のある行を数える）を選んだ。data.json の行から全選手でページと同じ値が出るので、`scripts/` の共通の関数と全ページの再生成に触らずに済むため。期で絞った問いには seasons を付けない形にした（自己レビュー）
+- 未確認の項目:
+  - 2026-11-09（月）03:00 JST の週次の書き出しが動き、ブックに 11/02〜11/08 の行が入るか。あわせて、2026-11-02 10:09 JST ごろの「現女流桜花は？」の「引数」の列に from・to が入っているか（AIC-27 から写した）
+  - 地域で断られた問いが、新しい結果（`region`、ブック「地域で使えない」）で記録に入るか（AIC-27 から写した）
+  - 横断の記録（型 `all:…`）が週次の書き出しのブックに入るか（2026-11-09 03:00 JST の書き出しで。AIC-27 から写した）
+  - 期の外で期を外して答える問い（例「22期の和久津晶成績」）の答えに、冒頭の文と重なる「第N期の記録はありません」が出ないか（週次の記録で見る。AIC-27 から写した）
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 9ceea454）: https://github.com/retroeater/mj-logs/tree/main/guide/9ceea454
+ガイド文書（この版を写した時点の最新、mj 7539bdc7）: https://github.com/retroeater/mj-logs/tree/main/guide/7539bdc7
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9ceea454/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9ceea454/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9ceea454/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9ceea454/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9ceea454/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9ceea454/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/7539bdc7/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/7539bdc7/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/7539bdc7/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/7539bdc7/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/7539bdc7/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/7539bdc7/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/795228a7.md
