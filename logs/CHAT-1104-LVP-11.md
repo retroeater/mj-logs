@@ -67,7 +67,7 @@
   - docs/notes/live-page-design.md の判断 LP-12・説明文・ページの構成の記述を今の形に直した
 - 文書・ワークフローの直し（b20faf559）: `regenerate-page.yml` のコメント2か所と static-generation.md のサイトマップの段落に sitemap-mtsuku/exam/live.xml を足した。レビューの指摘で docs/notes/title-pages.md の「/live 側の『決勝結果（タイトル戦）』は残る」も直した（ca881129d）
 - origin/cloudflare が先に進んでいたので merge で取り込んだ（a99692a9a、衝突なし）
-- テスト: `python3 -m unittest discover -s scripts/tests` は全件 OK（1814件、取り込みの後も OK）。live/ の生成で落ちると分かっていたテスト（test_live_check.py の `page_outputs` のモックの戻り値）を2値に直した
+- テスト: `python3 -m unittest discover -s scripts/tests` は全件 OK（取り込みの前 1814件、a99692a9a の取り込みの後 1836件）。live/ の生成で落ちると分かっていたテスト（test_live_check.py の `page_outputs` のモックの戻り値）を2値に直した
 - `regenerate-page.yml` の手動実行（変えたワークフローの確かめを兼ねる）: run 41690593183（`live_pages`、本実行）は success。生成物のコミット a72d9a6e1 は live/ の177ファイルだけ（トップ1・タイトル戦22・期154。個別ページは変わらない）
 - 撮影（ローカルの http.server、375px と 1280px の明・暗）: トップ、期の数が最も多いタイトル戦 `live/jwrc/`（17期）、1対局だけの期 `live/champions-league/30.html`（配信期間あり）、1対局で1日の期 `live/teiou/3.html`、1日で複数対局の期 `live/shouryu/2.html`。件数の行が無くなり、下部の文章に件数が入っていること、崩れが無いことを確かめた
 - 気づいたこと（直していない）: `live/shouryu/2.html` は「2本（3対局、2026年6月20日配信）」になる。メンバー限定のライブ1本がベスト8と決勝の2対局に載るため本数より対局数が多く、期間はライブがあるとライブの配信日だけで作る（判断 LP-09 以降の date_range のまま）。以前の件数の行でも同じ数だった
@@ -83,28 +83,42 @@
   | 「2026-11-04 に外した」の日付 | 確認のみ | JST で正しい |
 
   証跡: 消した名前（build_summary・title_link_html・load_title_links・title_links・mj-live-n-meta・mj-live-n-link）は scripts・assets・style.css・tests・docs/notes に残っていない。`page_outputs()` の呼び出し元は main・run_check・test_live_check.py のモックだけ。説明文は page.py で1回だけエスケープされ、meta・og・`.mj-lead` の3つが同じ文。テスト1836件 OK（レビュー時点のサブエージェントの実行）
+- プレビュー: a72d9a6e1 の Workers Builds（success）の別名 URL で、/live/・/live/jwrc/・/live/teiou/3.html・/live/judan/43.html の HTML に件数の行と「決勝結果（タイトル戦）」が無く、下部の文章に件数が入っていることを確かめた（UA は mj-internal）。その後の docs だけのコミットではビルドが走っていない。URL はターミナルへの最終報告にだけ書く
+- 毎朝の取り込み（update-live-channel、04:00 JST）が作業の途中に入った。live/ の生成物は作業ブランチの a72d9a6e1 の時点のもの
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1104-lvp
 - ログ: https://github.com/retroeater/mj/blob/work/1104-lvp/docs/logs/CHAT-1104-LVP-11.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1104-lvp
-- 確認用URL: なし
-- マージ: 未
+- 確認用URL: ターミナルへの最終報告に書いた（a72d9a6e1 のプレビュー）
+- マージ: 未（「マージ: 判断待ちで止まる」のとおり）
 - issue: #362
-- 判断が必要なこと: なし
-- 未確認の項目: なし
-- エラー: なし
+- 判断が必要なこと:
+  - 下部の文章（description・og:description・`.mj-lead` の3つが同じ文）の実際の文面:
+    - トップ: 「日本プロ麻雀連盟チャンネルの放送対局動画2986本（767対局）を、タイトル戦・選手・実況・解説等で検索できます。」
+    - タイトル戦（十段戦）: 「十段戦の放送対局動画444本（13期・90対局）を、期ごとにまとめています。」
+    - 期（第43期十段戦）: 「第43期十段戦の放送対局動画49本（9対局、2026年5月23日〜2026年9月26日配信）を、ステージ・卓ごとにまとめています。」
+  - プレビューで見てほしいページ: /live/（トップ）、/live/judan/、/live/judan/43.html、期の数が最も多い /live/jwrc/（17期）、1対局だけの期 /live/teiou/3.html（1日）・/live/champions-league/30.html（期間あり）、/live/shouryu/2.html（「2本（3対局、2026年6月20日配信）」と本数より対局数が多い。ライブ1本がベスト8と決勝に載るため。以前の件数の行でも同じ数）
+  - 外したもの（未マージの work/1101-prp-pub が同じ行を変えている）: `regenerate-sitemap.yml` の well-formedness の列挙と docs/notes/sitemap-lastmod.md の対象の列挙。work/1101-prp-pub は mtsuku・exam・pro を足すが live は無いので、両方のマージの後に sitemap-live.xml を足す直しが要る
+  - 外したもの（未マージの work/1028-lgn が同じ行を変えている）: docs/notes/static-generation.md の「HTMLは21ページ」の行
+  - 公開のマージの前に origin/cloudflare の取り込みが要る。今は docs/new-page-checklist.md（URL パラメータの表の行）と docs/notes/static-generation.md（「HTMLは21ページ」の行・ページの一覧の放送対局の行）が衝突する（work/1029-lgn-page の log/ の追加と、CHAT-1104-LVP-10 の文書の直しが同じ場所に入るため）。両方の行を残せば解ける形だが、CLAUDE.md の規則では止まる衝突なので、次の指示で解き方を指定してほしい
+  - 説明文の括弧の中の区切りは、期だけ読点（日付の範囲が入るため）、タイトル戦は中黒。そろえるなら次の指示で
+- 未確認の項目:
+  - 全ページの再生成で `jpml_pros`・`wayhome_episodes` は Sheets API の 429 で両方の側とも飛ばし、比べていない（今回の変更はこの2ページの生成に関わらない）
+  - 実機・ブラウザでのプレビューの見え方（HTML とローカルの撮影までは確かめた）
+- エラー: なし（Sheets API の 429 は1分あたりの上限によるもので、今回の変更に関わらない）
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 20acd472）: https://github.com/retroeater/mj-logs/tree/main/guide/20acd472
+ガイド文書（この版を写した時点の最新、mj 4339cd58）: https://github.com/retroeater/mj-logs/tree/main/guide/4339cd58
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/20acd472/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/20acd472/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/20acd472/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/20acd472/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/20acd472/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/20acd472/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/4339cd58/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/4339cd58/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/4339cd58/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/4339cd58/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/4339cd58/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/4339cd58/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/53edca83.md

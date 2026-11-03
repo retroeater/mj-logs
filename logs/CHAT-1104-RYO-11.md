@@ -108,12 +108,12 @@ CHAT-1104-RYO-10（判断待ち）の「判断が必要なこと」に平野さ�
 
 ## 報告
 
-- 状態: 判断待ち（Q1〜Q3 を入れ、プレビューできる状態にした。マージはプレビューを見た後の平野さんの判断）
+- 状態: 判断待ち（Q1〜Q3 を入れ、プレビューできる状態にした。マージはプレビューを見た後の平野さんの判断） / 続き: CHAT-1104-RYO-12
 - ブランチ: work/1103-ryo8
 - ログ: https://github.com/retroeater/mj/blob/work/1103-ryo8/docs/logs/CHAT-1104-RYO-11.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1103-ryo8
 - 確認用URL: ブランチ名の別名 URL（ターミナルへの最終報告に書いた）に `?v=d087de651` を付けて `/r/`
-- マージ: 未（指示文のとおり判断待ち）
+- マージ: 済み（CHAT-1104-RYO-12 で cloudflare へ。`e821aa462..4339cd583`）
 - issue: #657（着手中コメント）
 - 判断が必要なこと:
   - マージしてよいか（プレビューを見た後）。マージすると変わる範囲:
@@ -129,12 +129,12 @@ CHAT-1104-RYO-10（判断待ち）の「判断が必要なこと」に平野さ�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 6865148b）: https://github.com/retroeater/mj-logs/tree/main/guide/6865148b
+ガイド文書（この版を写した時点の最新、mj 4339cd58）: https://github.com/retroeater/mj-logs/tree/main/guide/4339cd58
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6865148b/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6865148b/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6865148b/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6865148b/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6865148b/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6865148b/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/4339cd58/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/4339cd58/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/4339cd58/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/4339cd58/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/4339cd58/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/4339cd58/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/53edca83.md
