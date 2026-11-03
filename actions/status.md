@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-11-04 01:14 JST
+- 書き出した時刻: 2026-11-04 01:17 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -25,7 +25,7 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-11-04 01:13 | push | work/1104-ttl | in_progress | #776（41672047042） |  |
+| 2026-11-04 01:13 | push | work/1104-ttl | success | #776（41672047042） | 0分49秒 |
 | 2026-11-04 01:11 | push | work/1101-prp-pub | success | #775（41671567404） | 0分36秒 |
 | 2026-11-04 01:09 | push | work/1103-ryo8 | success | #774（41671270281） | 0分52秒 |
 | 2026-11-04 01:08 | push | work/1101-prp-pub | success | #773（41671109783） | 2分06秒 |
@@ -199,11 +199,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-11-04 01:11 | workflow_dispatch | work/1101-prp-pub | in_progress | #627（41671567813） |  |
+| 2026-11-04 01:14 | workflow_dispatch | work/1104-ttl | success | #628（41672054289） | 2分43秒 |
+| 2026-11-04 01:11 | workflow_dispatch | work/1101-prp-pub | success | #627（41671567813） | 2分39秒 |
 | 2026-11-04 01:09 | workflow_dispatch | work/1103-ryo8 | success | #626（41671280559） | 1分33秒 |
 | 2026-11-04 01:01 | workflow_dispatch | work/1103-ryo8 | success | #625（41669864649） | 1分34秒 |
 | 2026-11-04 01:00 | workflow_dispatch | work/1029-lgn-page | in_progress | #624（41669606603） |  |
-| 2026-11-04 01:00 | workflow_dispatch | work/1104-ttl | success | #623（41669601814） | 1分13秒 |
 
 ## regenerate-saikyo.yml
 
