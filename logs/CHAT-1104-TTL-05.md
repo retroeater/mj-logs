@@ -51,28 +51,62 @@ TTL-04 で仕上げた title/ の新しいレイアウト（入口は写真カ�
 
 ## 経過
 
+- 着手前の確認: `git log --all --grep 'CHAT-1104-TTL-05'` は0件。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は欠けなし。対象 issue の指定なし
+- 作業ブランチ: `work/1104-ttl`（ローカル・リモートとも 5793f1ef9、未マージ）を続けて使った。手順0: 指示欄の末尾の行は指示文の最後の行と一致。TTL-04 のログの状態に ` / 続き: CHAT-1104-TTL-05` を足し、このログと一緒に push（569ff76a7）
+- `work/1104-top` は着手時に cloudflare にマージ済み（`git merge-base --is-ancestor origin/work/1104-top origin/cloudflare` が真）
+- 手順1（取り込み）: origin/cloudflare は 181 コミット先行。`git merge-tree` で衝突を先に見て、`docs/notes/design.md`（2か所）と生成物 `title/tatsujin/3.html` だけが衝突、`generate_title_pages.py`・`assets/title.js`・`style.css`・`navbar.js` は自動で合わさることを確かめてから `git merge origin/cloudflare`（10dc7345a）
+  - `docs/notes/design.md` は前提のとおり cloudflare（top）の文面を残し、title/ を足して解いた。解いた後の該当箇所:
+    - 前置き: 「新しい形のページ（houou/・title/ など。番組の濃色のページを含む。一覧は下の「部品」の「共通ナビ（新しい形）」）だけは新しい形。」
+    - 「共通ナビ（新しい形）」の行: 判定の列挙を「`<body>` の `mj-saikyo-n-page`・`mj-live-n-page`・`mj-title-n-page`（title/ の全ページ、「タイトル戦」に印）、番組の…」に、適用範囲の末尾を「帰り道・プロテスト・Mつく・女流勉強会の一覧と各話、title/ の全ページ（2026-11-04、CHAT-1104-TTL-05）」に（top の「title/ は黒地のナビのまま。title/ の作り直しで入れる」を置き換えた）
+  - `title/tatsujin/3.html` は生成物なので、cloudflare 側を取って `regenerate-page.yml`（target_page=title_pages、run 41734289842 success）で生成し直した（b1230146d、1ファイル +8 −10）。title_pages は飛ばされていない
+  - navbar.js は自動で合わさり、title/ の判定は top の番組の判定（`/^\/(wayhome|exam|mtsuku|study|live)\//`）の次の `else if` に残った（`/title/` のパスはそれに当たらない）
+  - テスト: `python3 -m unittest discover -s scripts/tests` → OK（取り込み後・生成し直し後とも）
+- マージ前の差分（`git diff --name-only origin/cloudflare...HEAD`、460 files）の種類:
+  - title/ の HTML 385（M のみ。入口1・大会20・期364。比較ページは作業ブランチの中で足して消したので差分に出ない）
+  - `sitemap-title.xml`: lastmod の 384 行だけ（lastmod 以外の変化 0 行）
+  - CSS／JS: `style.css`・`assets/title.js`・`navbar.js`（title/ の判定の2行）
+  - 生成スクリプトとテスト: `scripts/generate_title_pages.py`・`scripts/tests/` の3本、`scripts/promo_video/title/capture.mjs`（注記のみ）
+  - docs: `docs/notes/design.md`・`docs/notes/title-pages.md`・`docs/decisions/title.md`・`docs/logs/`（TTL-01〜05 のログと画像）
+  - `title/search.json`・`title/years.json`・ほかのページの HTML の変化なし。取り込みで入ったシートの変化（cloudflare 側の日次の生成物）は差分に出ない（cloudflare と同じ）
+- ローカルの確かめ（取り込み後、360px の明・暗、8ページ × 2）: はみ出し・切れ・重なり 16/16 とも 0件。top の新しいナビ（帯・質問・≡）が title/ にも出ることを画面で確かめた
+- `docs/decisions/title.md` に TTL-05 の決定（マージの承認）を足した（c00e45910。TTL-01・02・04 の分は既にあり、TTL-03 は新しい決定なし）
+- 手順2（マージ）: push 直前に `git fetch origin cloudflare` と `git merge-base --is-ancestor origin/cloudflare HEAD`（真）を確かめ、`git push origin work/1104-ttl:cloudflare` → `a73233863..c00e45910  work/1104-ttl -> cloudflare`
+  - 自動再生成（regenerate-page.yml、push、run 41734828939）は success。生成物の差分なし（コミットが作られず cloudflare の先頭は c00e45910 のまま）
+  - c00e45910 の Workers Builds: mj・mj-ask・mj-scheduler とも success
+- 手順3（本番、UA に mj-internal、`?v=ttl05…`）:
+  - `/title/`・`/title/?year=2025`・`/title/houou/`・`/title/houou/41.html`・`/title/oui/26.html` は 200、`<body class="mj-title-n-page"` あり。入口（既定・?year=2025）は写真カード（`mj-title-holder-card` あり・`mj-title-rows` なし）、大会ページ・期ページは行（`mj-title-rows` あり・写真カードなし）
+  - `/title/compare-layout.html` は 404
+  - headless Chromium（360px の明・暗）: ナビは `mj-nav-new mj-nav-band`（帯）で、質問のアイコン・≡ がある。質問のアイコンを押すと質問欄が開く。≡ のシートで「タイトル戦」が `aria-current="true"`。`?year=2025` で題名が「2025年優勝者」、写真カード 25枚。横スクロールなし
+- `work/1101-prp-pub`（44e86cbb9、2026-11-03 17:41Z）との取り込みの見込み（`git merge-tree --write-tree c00e45910 origin/work/1101-prp-pub`）: title/ の関係では `scripts/generate_title_pages.py`・`docs/notes/title-pages.md`・`sitemap-title.xml`・title/ の HTML 327 ページが衝突。ほかに pro/ の関係（`assets/pro.js`・`docs/decisions/pros.md`・`docs/notes/pro-pages.md`・`pro/index.html`・`pro/plans.json`・`scripts/generate_pro_pages.py`・`scripts/tests/test_pro_pages.py`）も衝突（cloudflare に先に入ったほかの作業との重なり。TTL とは別）
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1104-ttl
-- ログ: https://github.com/retroeater/mj/blob/work/1104-ttl/docs/logs/CHAT-1104-TTL-05.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1104-ttl
-- 確認用URL: 未
-- マージ: 未
+- 状態: 判断待ち
+- ブランチ: work/1104-ttl（マージ済み。削除は cleanup-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1104-TTL-05.md
+- 比較URL: https://github.com/retroeater/mj/compare/a73233863...c00e45910
+- 確認用URL: 本番 https://ryoei.pro/title/ で確かめた（入口〈既定・?year=2025〉・鳳凰戦・第41期鳳凰戦・第26期王位戦、比較ページの 404）。この版の印: 入口の題名が「現タイトルホルダー ▾」で、ナビが帯（R・質問・≡）
+- マージ: 済（a73233863..c00e45910。自動再生成は差分なし、Workers Builds の本番は mj・mj-ask・mj-scheduler とも success）
 - issue: なし
-- 判断が必要なこと: 未
-- 未確認の項目: 未
+- 判断が必要なこと:
+  - `work/1101-prp-pub` の側で解く重なり（c00e45910 の時点、PRP 系列のチャットへ渡す）:
+    - `scripts/generate_title_pages.py`: cloudflare では `member_card_html()` は無くなり、期ページの決勝メンバーは面の中の行（`member_holder()` → `Holder` → `row_html()`）。行き先は `member_link(entry) -> (href, external)` の1か所。解き方の案: prp-pub の判定（`slugs.get(person.name)` があれば `pro_search.page_path(slug)` を新しいタブにしないで返し、無ければ X を新しいタブで返す）を `member_link()` に入れ、`slugs` を `period_body()` → `member_holder()` → `member_link()` へ引数で渡す（`pages()` の `slugs = pro_search.load_slugs()` と import の `pro_search` は prp-pub の形のまま）。行の右端の › は href があれば出るので、pro/ への行も押せる行になる
+    - `scripts/tests/test_title_years.py` の `RowsTest.test_member_link_decides_target` は `member_link(entry)` の引数が1つの前提。引数を足したら合わせる
+    - `docs/notes/title-pages.md`: 期ページの節（「押すと X（新しいタブ、右に ›）…行き先は `member_link()` の1か所で決める」）に pro/ の行き先を足す
+    - title/ の HTML（327ページが衝突）と `sitemap-title.xml` の lastmod: 解いた後のスクリプトで生成し直す
+    - ほかに pro/ の関係のファイル（`assets/pro.js`・`pro/index.html`・`scripts/generate_pro_pages.py` など）も cloudflare と衝突する（TTL とは別の重なり）
+- 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj a7323386）: https://github.com/retroeater/mj-logs/tree/main/guide/a7323386
+ガイド文書（この版を写した時点の最新、mj a900cef7）: https://github.com/retroeater/mj-logs/tree/main/guide/a900cef7
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7323386/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7323386/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7323386/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7323386/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7323386/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7323386/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a900cef7/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a900cef7/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a900cef7/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a900cef7/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a900cef7/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a900cef7/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/dfabc859.md

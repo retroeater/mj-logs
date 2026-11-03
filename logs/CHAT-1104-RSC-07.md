@@ -95,6 +95,33 @@ Chat-Ref: CHAT-1104-RSC-07
 
 - RSC-01 の数え方（期ページの対局日が年だけの期、全年で 230期）との比べ: RSC-01 は 2010年以降に絞った数を出していない。年で絞らない大会（WRCリーグ 7・リーチ麻雀世界選手権 2）は RSC-01 の数と同じ。ほかの大会は 2010〜2019年（鳳凰戦は 2021年まで）の期だけが年だけで、2020年以降は日付まで確定しているため、2010年以降は 91期。ずれは絞り込みで説明がつく
 
+#### 自己レビュー（新しい文脈のサブエージェント、2回）
+
+1回目（91552219c まで）:
+
+| 指摘 | 扱い |
+|---|---|
+| 中: シートが `YYYY-MM-XX` のとき年月の完全一致を求めているが、月は予定の値で前後する（決定は年の ±1 だけ） | 直した（141680084）。月を見ない。プロンプトに「月は予定の値で前後する」と書いた |
+| 中: 引用文に別の年の同じ月日（「2012年5月26日」）があっても、候補 2013-05-26 が通る | 直した（141680084）。同じ月日に年が付いていて、その年が違えば当たらない。テスト（修正前の 91552219c では FAIL） |
+| 低: 1桁の月（`2013-5-XX`）で月が読めない | 直した（141680084） |
+| 低: `date.fromisoformat` が `20130526`・`2013-W21-7` も受ける | 直した（141680084）。先に `YYYY-MM-DD` の形を見る。テスト（修正前では FAIL） |
+| 低: 期の検査に `簡略化:` が無い | 直した（141680084） |
+| 低: 名前が「-」の行もプロンプトに入る | 直した（141680084） |
+| 低: `5.26` のような小数にも当たる | 意図どおり（大会名・期・年の検査が重なり、誤りは照合済みになりにくい） |
+| 低: 試しの5期が先頭の大会に偏る（`targets` が空のとき） | 意図どおり（試しは `targets` で大会と年を散らして指定する。下） |
+| 低: `fetch_tab` の出力が実行サマリの先頭に入る・シートの行の誤りで止まる | 意図どおり（B と同じ。生成も同じく止まる） |
+
+2回目（141680084 の差分だけ）: 直し方は6件とも正しく、新しいバグは無い。
+
+| 指摘 | 扱い |
+|---|---|
+| 低: 年の検査は月日にすぐ続く西暦だけ（和暦・間に語が入る書き方は年が無い扱い）。`簡略化:` を足す | 直した（7801d6cda） |
+| 低: ログの「2. 実装」に月の一致の記述が残る | 直した（この追記と「2. 実装」の文） |
+| 低（任意）: `2012-05-06` の形の年違いのテストが無い | 足した（7801d6cda） |
+| 参考: 複数日の「5月25日・26日」「5月25日〜26日」の最終日が単独の月日にならず未照合に倒れる | 直した（7801d6cda）。後ろの日に当て、前の日（「5月6日・7日」の 6日）は当てない。テスト（直す前の 141680084 では FAIL） |
+
+- 2回目の後の修正（7801d6cda）はサブエージェントに見せていない（往復は2回まで）。`python3 -m unittest discover -s scripts/tests`: OK（1916件）
+
 ## 報告
 
 - 状態: 作業中
@@ -111,12 +138,12 @@ Chat-Ref: CHAT-1104-RSC-07
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj c00e4591）: https://github.com/retroeater/mj-logs/tree/main/guide/c00e4591
+ガイド文書（この版を写した時点の最新、mj a900cef7）: https://github.com/retroeater/mj-logs/tree/main/guide/a900cef7
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c00e4591/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c00e4591/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c00e4591/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c00e4591/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c00e4591/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c00e4591/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a900cef7/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a900cef7/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a900cef7/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a900cef7/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a900cef7/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a900cef7/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/dfabc859.md
