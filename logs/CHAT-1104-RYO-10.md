@@ -84,6 +84,22 @@ CHAT-1103-RYO-09（判断待ち）の続き。「Claude受渡用」に届かな�
 - テスト: `scripts/tests/test_ryoei_book.py`（シートの写しの `fake_tabs()` と検査の各分岐）・`test_ryoei_pages.py`（写しから作った中身が前の定数と同じ・不正な値で止まる・JSON・灯りの文字が出ない・漏れたら止まる・毎朝の再生成）。
   `python3 -m unittest discover -s scripts/tests` 1819件 OK。写しから作った `r/index.html` と今の `r/index.html` の差は、埋め込みの `ryoei_data` の1行が消えたことだけ
 - コミット: b4d83feb9（コード・テスト・world.js）、f902cae76（ワークフロー・docs）
+- 手順1で足した一時の書き出しは、b4d83feb9 の `run_check()` の書き直しで消した（今の check は列・行数・値の種類と、フォルダの一覧だけを出す）
+
+### 実データでの確かめと r/ の作り直し
+
+- 毎朝と同じ並びの check（run 621、f902cae76、`check`・`target_page: live_pages title_pages pro_pages ryoei_pages top_page`）: 5ページとも通る。
+  並びは live_pages → title_pages → ryoei_pages → pro_pages → top_page（RUN_LAST の pro_pages・top_page が最後）。警告は live_pages の未確認691件（既存）と、ryoei_pages の「基本の項目のうち、まだページに出していないもの: 出身・目標」
+- r/ の作り直し（run 625、9d799d137、`target_page: ryoei_pages`）: success。ワークフローが 69a3d8561（`chore: regenerate r/ via GitHub Actions`、r/index.html・r/world-data.json）をコミット
+- `r/index.html` の今の版（origin/cloudflare）との差は2つ:
+  - 出演の2本目（ICU 同窓会）の題が、シートの字「第82回 平野 良栄 | 今を輝く同窓生たち」になった（前は全角の空白と末尾の「 | 国際基督教大学同窓会」があった）。title 属性と読み上げの文だけで、画面の見た目は変わらない（題は画面に出さない）。シートから読んだことによる文言のゆれ
+  - 埋め込みの `ryoei_data` が消えた（`r/world-data.json` へ移した）
+- `r/world-data.json`: about 5・facts 2・media 7・results 3・places 3・events 32（38行のうち表示＝N の6行を除く）・stations 40・lines 13・lifeline 15。灯りの出来事は表示＝Y に無い（E034〜E038 はすべて表示＝N）。灯りの駅 S20・S28 は ID・時代・見せ方だけ
+- 家族の語（結婚・長男・長女・次男・次女・三男・離婚・妻・息子・娘）の検索: `r/index.html`・`r/world-data.json` とも0件。灯りの出来事・駅の文字の照合（生成の中の `check_hidden`）も通った
+- 画面の比べ（360px、Playwright・SwiftShader。前は origin/cloudflare の r/・assets、後はこのブランチ。外部の画像は読まずに両方そろえた）: `docs/logs/CHAT-1104-RYO-10/`
+  - `compare-list.png`（一覧の全体）: ピクセルの差は「入る」のボタンのまわりだけ（同じ文字・形。描画の揺れ）
+  - `compare-enter.png`（空間の最初の画面）・`compare-cinema.png`（屋外上映の場）: 看板・スクリーン・椅子は同じ。対岸の街の灯りの建物の並びと紙の粒子は、world.js が読み込むたびに乱数で決める（759〜765行・1559行）ので前後で違う。今回の変更による差ではない
+  - 指示文（RYO-08）の置き場所は `docs/logs/CHAT-1103-RYO-08/` だが、この指示のログに合わせて `docs/logs/CHAT-1104-RYO-10/` に置いた
 
 <!-- guide-links -->
 ---
