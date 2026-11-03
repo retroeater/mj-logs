@@ -77,15 +77,45 @@ RYO-11 の判断待ちに平野さんが答えた（マージしてよい）の�
 - push の直前に再 fetch し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真
 - `git push origin work/1103-ryo8:cloudflare`: `e821aa462..4339cd583  work/1103-ryo8 -> cloudflare`
 
+### 本番の確かめ（手順3）
+
+- マージのコミット 4339cd583 の check-run: Workers Builds（mj・mj-ask・mj-scheduler）success、check・sync success。マージの push で `regenerate-page.yml` が全ページを再生成し（`scripts/lib/` の変更のため）、19:36 UTC に 2749f8690 をコミット（regenerate success）。2749f8690 の Workers Builds（mj）も success
+- 2749f8690 で変わったファイル: `log/index.html`・`log/search.json`・`resource_logs.html`・`sitemap-pages.xml`（ログのページ。ほかのシートの変更）と `r/index.html`・`r/world-data.json`
+  - r/ の差は「数字で見る」の子どもの説明だけ:「子ども（9〜18歳）」→「子ども」。生成は「基本」の「数字: 子ども」の値の括弧の中を説明に足すので、マージ前の check（17:45 UTC）の後にシートの値から括弧の部分が消えたことによる（シートの変更。値はここからは見ていない）
+- 本番（UA に mj-internal、`?v=` 付き。19:22〜19:40 UTC）:
+  - `https://ryoei.pro/r/`: 200、`<meta name="robots" content="noindex">` あり、自己紹介に「出身 富山生まれ・千葉育ち」と「目標」の行あり
+  - `/r/world-data.json`: 200（`content-type: application/json`）。マージ時点ではこのブランチの `r/world-data.json` と同じ中身。家族の語（結婚・長男・長女・次男・次女・三男・離婚・妻・息子・娘）は0件。灯りの駅 S20・S28 は ID と見せ方だけ。about 7・events 32
+  - headless Chrome（Playwright、360px、SwiftShader）: 「入る」の後に空間の canvas が出た（水辺の広場の看板・スクリーン）。`/r/world-data.json`・Three.js とも 200。CSP の違反（securitypolicyviolation・コンソールの Refused to）は0件。
+    コンソールのエラーは5件で、どれもこのセッションのプロキシが外部へ出られないことによる読み込みの失敗（`i.ytimg.com` 2・`www.icualumni.com` 2・`static.cloudflareinsights.com` 1、`net::ERR_TUNNEL_CONNECTION_FAILED`）。ブラウザでの見え方（iPhone）はここからは確かめられない
+- #657 にマージした旨をコメントした（閉じない）。RYO-11 のログの `## 報告` の状態に「/ 続き: CHAT-1104-RYO-12」とマージの結果を書いた（7debabd8d）
+- 毎朝の再生成への `ryoei_pages` の初回: マージは 2026-11-04 04:20 JST（19:20 UTC）で、その日の 04:00 JST の run-daily の後。初回は 2026-11-05 04:00 JST の run-daily（この指示では待たない）
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1103-ryo8（削除しない。マージ済みなので cleanup-branches.yml が消す）
+- ログ: https://github.com/retroeater/mj/blob/work/1103-ryo8/docs/logs/CHAT-1104-RYO-12.md
+- 比較URL: https://github.com/retroeater/mj/compare/e821aa462...4339cd583
+- 確認用URL: https://ryoei.pro/r/（noindex・メニュー未掲載）
+- マージ: 済み（`e821aa462..4339cd583`。マージ後の自動の再生成 2749f8690）
+- issue: #657（着手中・マージのコメント。閉じない）
+- 判断が必要なこと:
+  - 本番の r/ の「数字で見る」の子どもの説明が「子ども（9〜18歳）」から「子ども」に変わった。マージ前の check の後に「基本」の「数字: 子ども」の値から括弧の部分が消えたためと見ている。意図した直しか、シートを確かめてほしい（括弧を戻せば翌朝の再生成で戻る）
+- 未確認の項目:
+  - 予約実行の初回の日時: 毎朝の再生成に `ryoei_pages` が入った初回は 2026-11-05 04:00 JST の run-daily（update-live-channel の regenerate ジョブ）。チャット側が確かめる
+  - iPhone でのブラウザの見え方（headless Chrome の確かめだけ）
+- エラー: なし（マージ前の全ページの比べで `wrcr_pages` が Sheets API の 429〈1分あたりの読み取りの上限〉で2回飛ばされたが、比べの実行の中だけ。マージ後の自動の再生成は通った）
+
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 4339cd58）: https://github.com/retroeater/mj-logs/tree/main/guide/4339cd58
+ガイド文書（この版を写した時点の最新、mj dfabc859）: https://github.com/retroeater/mj-logs/tree/main/guide/dfabc859
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/4339cd58/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/4339cd58/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/4339cd58/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/4339cd58/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/4339cd58/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/4339cd58/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/dfabc859/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/dfabc859/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/dfabc859/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/dfabc859/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/dfabc859/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/dfabc859/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/53edca83.md

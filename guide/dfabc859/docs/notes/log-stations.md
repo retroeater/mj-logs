@@ -25,11 +25,11 @@
 ## 出典の表記
 
 国土数値情報は CC BY 4.0（2020年版以降）。サイトの利用規約（PDL1.0）は出典の記載と、加工したときはその旨の記載を求め、加工した情報を国が作ったように見せることを禁じる。
-ページと docs に次の文を出す（文の部品は `lib/stations.py` の `SOURCE_NAME`・`SOURCE_URL`）:
+ページと docs に次の文を出す（log/ は「を加工して作成」で終わる別の文。下の log/ の行。文の部品は `lib/stations.py` の `SOURCE_NAME`・`SOURCE_URL`）:
 
 > 「国土数値情報（鉄道データ・行政区域データ）」（国土交通省）（https://nlftp.mlit.go.jp/ksj/）をもとに作成（駅の点と都道府県を加工）
 
 - resource_logs.html: ページ末尾の説明文の後に「駅名の一部は…をもとに作成（駅の点と都道府県を加工）」（`generate_resource_logs.py` の `SOURCE_HTML`。【3】で直した駅は旧「ログ」の手書きなので「一部」）
-- log/: log/ の作り直しで入れる
+- log/: トップの「(i)」を押すと「駅・駅の位置・都道府県は…を加工して作成」が開く（`generate_log_pages.py` の `SOURCE_HTML`、2026-10-31 の決定）。log/ は店の駅の点を現在地から探すにも使う（docs/notes/log-page.md）
 
 駅データ.jp（駅の点・都道府県）は、ダウンロードに会員登録が要るので使っていない（2026-10-29）。

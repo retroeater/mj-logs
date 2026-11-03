@@ -103,7 +103,7 @@ Sheets APIの呼び出し回数（サービスアカウントの書き込み上�
 ### 7. 毎日の取り込み（#404、実装: CHAT-0922-UT-17）
 
 ワークフロー `.github/workflows/update-live-channel.yml` が毎日 04:00 JST に Worker `mj-scheduler` から起動され（入力 `scheduled`、#504。`docs/notes/scheduler-worker.md`）、次の順で動く。2026-10-16 からは run-daily.yml の `live` から呼ばれる。保険の予約実行（06:43 JST）とそのゲートは 2026-11-01 に外した（`docs/notes/scheduler-worker.md`「保険の予約実行のゲート（update-live-channel）」）。
-シートへの書き込み先は3層のスプレッドシートの【1】【2】【3】だけ。最後に /live・title/・pro/ を作り直す（5.）。
+シートへの書き込み先は3層のスプレッドシートの【1】【2】【3】だけ。最後に /live・title/・pro/・r/ を作り直す（5.）。
 
 1. **層1**（`scripts/fetch_live_channel_raw.py --mode new`）: 新着の動画と、配信予定・配信中のまま保存していた動画の
    取り直しを `data/live_channel_raw.jsonl` の末尾に追記し、`cloudflare` へコミットする。水曜は `--mode verify` も行い、
@@ -142,7 +142,7 @@ Sheets APIの呼び出し回数（サービスアカウントの書き込み上�
    **掲載・補正を空欄、追加日を実行日（JST）にしてタブの末尾に追記する。** 既存の行は書き換えない（追記の前後にタブを読んで
    確かめ、崩れていれば失敗する）。1回に200行を超えるときは追記せずに失敗する。
    列は見出しの名前で引き、知らない列（「冒頭」など）は空欄で書く。必要な見出しが欠けている・重複しているときは追記せずに失敗する（#476）
-5. **ページの再生成**（#438）: 1〜4 が成功したら、`regenerate-page.yml` を呼んで `live_pages`・`title_pages`・`pro_pages`（/live・title/・pro/）を作り直し、
+5. **ページの再生成**（#438）: 1〜4 が成功したら、`regenerate-page.yml` を呼んで `live_pages`・`title_pages`・`pro_pages`・`ryoei_pages`（/live・title/・pro/・r/）を作り直し、
    **変更があるときだけ** `cloudflare` へコミットする（本番に出る）。【3】の直しは、ここで翌朝のページに出る。
    1〜4 のどれかが失敗した日は作り直さない（ページは前の日のまま）。取り込みから再生成まで、合わせて数分で終わる
 6. **連盟の予定表の取り込み**（#448、ジョブ `yotei` が呼ぶ `sync-yotei.yml`）: 1〜4 が成功したら、連盟の予定表を別のスプレッドシート（予定表のスプレッドシート）の
