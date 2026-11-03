@@ -64,6 +64,33 @@ CHAT-1103-RYO-08（中断）の続き。Google Drive API が GCP のプロジェ
   - 素材: 27行、列: ID・出来事ID・種類・出どころ・題・使い方・表示・出典・備考（種類: リンク・写真・動画・資料／使い方: スクリーン・写真パネル・看板・リンク／表示: N・Y）
 - 「Claude受渡用」: 届かない。名前と種類（フォルダ）で引いて 0件（「1件のはず。共有か名前を確かめる」）。403 ではない（Drive API は通っている）
 - 止まる前に原因を切り分けるため、探し方を共有ドライブまで広げ（`corpora=allDrives`）、見つからないときは名前の先頭を含む見えるものの名前と種類を出すようにした（ID は出さない、31f6e8ecc）。もう一度手動実行する
+- 再実行（run 612、31f6e8ecc、`check`・`ryoei_pages`）: 「R_良栄」はまた読めた（列・行数は run 611 と同じ）。「Claude受渡用」は共有ドライブまで広げても 0件で、
+  sheets-reader から見えるもののうち名前に「Claude」を含むものは「なし」。Drive API は通っており、同じ探し方で「R_良栄」は見つかるので、
+  「Claude受渡用」（とその親のフォルダ）が sheets-reader に共有されていないと見ている（ここからは共有の画面を検証できない）
+- 止まる条件「Drive API・サービスアカウントで『R_良栄』か『Claude受渡用』に届かない（要る手作業を書いて止まる）」に当たるので、ここで止めた。
+  手順2（読み取り・検査・生成の置き換え・JSON・毎朝の再生成・docs）は行っていない。r/ のページ・毎朝の再生成・`cloudflare` は変えていない
+- 403 のやり直しの条件（数分待って1回）は 403 のときのもので、今回は 403 ではないので使わなかった
+- RYO-08 の指示文の「決定」は RYO-08 の中断のときに `docs/decisions/ryoei.md` へ足していなかったので、RYO-09 の決定と一緒に足した
+- レビュー: コードの変更は `scripts/lib/ryoei_book.py` の探し方（共有ドライブまで・見つからないときの手がかり）だけで、確かめ用。生成物・ワークフロー・配信設定は変えていないので、サブエージェントのレビューは手順2の実装の後に回す
+- テスト: `python3 -m unittest discover -s scripts/tests` OK
+
+## 報告
+
+- 状態: 判断待ち（「Claude受渡用」に届かない。平野さんの手作業の後に続き）
+- ブランチ: work/1103-ryo8
+- ログ: https://github.com/retroeater/mj/blob/work/1103-ryo8/docs/logs/CHAT-1103-RYO-09.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1103-ryo8
+- 確認用URL: なし（ページは変えていない）
+- マージ: 未
+- issue: #657（着手中コメント）
+- 判断が必要なこと:
+  - 平野さんの手作業: ドライブで「Claude受渡用」（【ryoei.pro】の下）を右クリック →「共有」→ sheets-reader のサービスアカウントのメールアドレス（「R_良栄」の共有に入れたものと同じ。`sheets-reader@…iam.gserviceaccount.com` の形）を「閲覧者」で追加 →「送信」（通知のチェックは外してよい）。
+    共有の画面に既に sheets-reader が入っているなら、入っているのが別のサービスアカウント（live-channel-writer など）でないか、フォルダの名前が「Claude受渡用」と同じ字か（全角・半角・空白）を確かめる
+  - 共有の後、続きの指示（新しい Chat-Ref。このブランチに 31f6e8ecc までのコミットがある）で、同じ確かめ（`regenerate-page.yml` の `check`・`ryoei_pages`）からやり直す。「R_良栄」はもう読めるので、「Claude受渡用」を待たずに手順2（R_良栄 の読み取りから先）を進めてよいかも、続きの指示で決めてほしい
+- 未確認の項目:
+  - 「Claude受渡用」の中の一覧（名前・種類・大きさ）と PDF のページ数
+  - 「R_良栄」の中身の検査（ID の重複・参照切れ・日付の書式・家族の出来事の書き出し）。手順2で行う
+- エラー: run 611・612（regenerate-page.yml、check）で「Claude受渡用」が 0件（`RyoeiBookError`）。Drive API の 403 は解けた
 
 <!-- guide-links -->
 ---
