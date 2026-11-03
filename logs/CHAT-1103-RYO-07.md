@@ -54,6 +54,27 @@ RYO-06 の判断待ちに平野さんが答えたので、小さな直しを入�
 
 ## 経過
 
+### 着手前の確認
+
+- 0章: ログの「指示」欄の末尾が指示文の最後の行と一致
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: すべてある
+- 同じ Chat-Ref のコミット: なし。`origin/work/1103-ryo4` はローカルと一致（9bdafb193）
+- #657 に着手中コメント
+- `git merge origin/cloudflare`（ea34f1e66）: 衝突なし
+
+### 直し
+
+- Q1（af0ce8d51）: 一覧の「数字で見る」の直後に節「成績」（`#ryoei_results`）を置き、成績・成績詳細・牌譜の3つのリンク（`RESULTS` の定数。空間の対局室と同じ値）。目次の対局室の名前を「対局室 — 自己紹介・数字で見る・成績」に戻した（一覧でも成績へつながるようになったため。空間のメニューと同じ名前）。検査: 節の中のリンクが3つで順と URL が合うこと・節が「数字で見る」の直後にあること・目次の名前（旧コードでは落ちることをレビューで確かめた）
+- `r/index.html` の差分は、目次の名前と節「成績」だけ（Q1・Q2 以外の見た目の変更は無い）
+- Q2（aebaa1076）: (d) に合わせたコード・コメントは元から無かった（「保存データを消す」のリンクはどのページにも無い）。`docs/decisions/ryoei.md` に置き換えの決定を書き、`docs/new-page-checklist.md`「localStorage の規約」の `mj:ryoei-sound` に「空間の右上の『音』で切り替えるだけで『保存データを消す』は作らない」、`docs/notes/ryoei-world.md` に同じ一文と一覧の並びを足した
+- レビュー（新しい文脈のサブエージェント1回、af0ce8d51・aebaa1076）: 高・中の指摘なし。低の3つを直した（成績のリンクの CSS を目次の規則に並べて書き直しをやめた／「›」を読み上げない〈`content: "›" / ""`〉／目次の名前の検査）。4つ目（`PLACES` の目次とメニューの名前が今は同じ）は見送り（欄を減らすと Q1 の範囲を超える）
+- 画面: `docs/logs/CHAT-1103-RYO-07/r-390-list.png`（一覧の全体。数字で見るの下に「成績」の節と3つのリンク）
+
+### 検査・重さ
+
+- `python3 -m unittest discover -s scripts/tests`: OK。`python3 scripts/check_asset_limits.py`: すべて OK
+- 重さ（gzip）: 最初の画面 約138KB（上限 600KB）。`world.js` 55,036 バイト（上限 150KB）
+
 ## 報告
 
 - 状態: 作業中
@@ -70,12 +91,12 @@ RYO-06 の判断待ちに平野さんが答えたので、小さな直しを入�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj c129a98b）: https://github.com/retroeater/mj-logs/tree/main/guide/c129a98b
+ガイド文書（この版を写した時点の最新、mj 28ad5e2a）: https://github.com/retroeater/mj-logs/tree/main/guide/28ad5e2a
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c129a98b/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c129a98b/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c129a98b/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c129a98b/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c129a98b/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c129a98b/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/28ad5e2a/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/28ad5e2a/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/28ad5e2a/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/28ad5e2a/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/28ad5e2a/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/28ad5e2a/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/795228a7.md

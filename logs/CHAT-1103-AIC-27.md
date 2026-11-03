@@ -100,15 +100,27 @@ AIC-26 の本番の確かめで、2回目の Claude の書き方がデータと�
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+- 0: 指示欄の末尾は指示文の最後の行と一致。c129a98b9 は origin/cloudflare の祖先。origin/work/1103-aic はマージ済みで、ローカルの work/1103-aic は origin/cloudflare（5c53eb050）と同じ。#654 に他セッションの着手中コメントなし（着手中をコメント、issuecomment-6600375911）。未マージの work/ ブランチで `workers/ask/src/` を変えているものなし。雛形の行は4つともある。AIC-26 のログの状態に「/ 続き: CHAT-1103-AIC-27」と扱い3つを書き足した
+- 前提の確かめ: 佐々木寿人の鳳凰戦の決勝の順位1は第37・38・40期、league「鳳凰位」の行は第38・39・41期、`player()` の結果に優勝の期は無く注記 `seatNote()` だけ（前提どおり）。2回目に渡す結果の others と、127行・最強戦の行の others の規則も前提どおり
+- 座っている期の行と優勝の期（データ）: 座っている期の行（league が大会の top）を持つのは鳳凰戦（14人）と女流桜花（top「桜花」、10人）。WRC リーグ・WRC-R は座っている期の行は無いが、player の結果に優勝の期が無いのは同じ（優勝者16人のうち15人、7人のうち6人に成績の行がある）。最強戦は player の行の result に「最強位」、totals に最強位の回数があるので足さない
+- 直し（bb36a8a88）:
+  - 1: 候補 (a)。`player()` が決勝の順位1から優勝した期 `titleTerms` を付ける（期で絞ればその期、優勝が無ければ付けない。無い選手に空を渡すと「なっていない」と書かせうるため）。`answerInput()` が渡す。`ANSWER_LINES` の鳳凰戦・女流桜花・WRC リーグ・WRC-R に `titleLine()` の一文「- player の titleTerms は<鳳凰位になった期など>(決勝で優勝した期)。<…>期と回数は titleTerms から書き、titleTerms があるのに<…なっていない>と書かない」、鳳凰戦・女流桜花には「items の league が<鳳凰位・桜花>の期は、前の期に<…>になって座っている期」を足した（champions の一文は最後のまま）
+  - 2: 5大会共通の `answerSystem()` に「- others の人については人数だけを書き、結果(items・byTimes・tie)に無い年度・期・回数・名前を書かない」を足した。others は champions・entry・ranking など5大会のどの一覧にも付くので共通にした（「ほか N人」の語を2行目に書くと、その語の行が1つであることを見るテストに当たるので、語を変えた）
+- テスト（count.test.mjs に2本）: titleTerms（佐々木寿人 [37, 38, 40]、第39期で絞ると無し、第40期で [40]、女流桜花・WRC・WRC-R の優勝者も決勝から、優勝の無い選手には付かない）と、大会別・横断の2回目に titleTerms と一文が入る（最強戦には入らない）／others の一文が5大会の欄と横断に1回入る。直す前のコードで2本とも落ちる。直した後は node 154本・python 1747本 通過
+- 変わる範囲の比較（in21.mjs、直す前と後）: 応答・記録は全部同じ。2回目に渡す結果が変わるのは、優勝のある選手の player だけ（鳳凰戦4・女流桜花2・WRC 2・WRC-R 2・横断10 の通り。titleTerms が付く）。2回目の指示（system）は2回目を呼ぶ問いすべてで変わる（共通の一文。鳳凰戦・女流桜花・WRC・WRC-R は titleTerms の一文も）
+- docs: ask-worker.md「5大会の応答ルール」の表に2行を足した（65d04c110）。docs/decisions/houou.md に 2026-11-03（CHAT-1103-AIC-27）の節
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj c129a98b）: https://github.com/retroeater/mj-logs/tree/main/guide/c129a98b
+ガイド文書（この版を写した時点の最新、mj 28ad5e2a）: https://github.com/retroeater/mj-logs/tree/main/guide/28ad5e2a
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c129a98b/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c129a98b/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c129a98b/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c129a98b/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c129a98b/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c129a98b/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/28ad5e2a/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/28ad5e2a/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/28ad5e2a/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/28ad5e2a/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/28ad5e2a/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/28ad5e2a/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/795228a7.md

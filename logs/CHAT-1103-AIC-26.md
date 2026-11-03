@@ -136,7 +136,7 @@ AIC-25 の前提（`crossContests()` の今の選び方など）と、AIC-25 の
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1103-AIC-27
 - ブランチ: work/1103-aic
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1103-AIC-26.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1103-aic
@@ -147,8 +147,9 @@ AIC-25 の前提（`crossContests()` の今の選び方など）と、AIC-25 の
   - 本番の2問で、2回目の Claude の書き方がデータと食い違った（止まる条件「本番の問いの答えがデータと一致しない」に当たるが、マージは手順どおり本番の前に済んでいる。原因は今回の変更ではないと見ている）。事実の誤りとして直すか:
     - 鳳凰戦の player で「鳳凰位にはなっていません」（優勝は第37・38・40期）。案: 鳳凰戦の `ANSWER_LINES` に「player の items の league が鳳凰位の期は、前の期に鳳凰位になった。鳳凰位の回数はその行の数で、鳳凰位になっていないと書かない」を足す。大会別の欄でも同じ誤りが起こりうる
     - 最強戦の champions で「ほか10人…2013年度以降に1回ずつ」（10人のうち2人は2011・2012年度）。案: 回数の段（byTimes）の渡し方か、「others の人の年度・回数は書かない」の一文
-  - `top_ask.js`（`work/1103-top` で読んだだけ）が送る要求: `{ question, contest: root.dataset.contest, context: null }`。トップの答えはこの指示の後も変わらない
-  - 画面の統合の指示に要る前提: `work/1101-prp-pub`（PRP-07 まで、判断待ち）と `work/1103-top`（TOP-07、判断待ち / 続き TOP-08）はどちらも未マージ。両方のマージの後に、大会のページの欄を `top_ask.js` に寄せて横断＋`context` で送る指示を書く（決定どおり）。そのとき答えが変わるのは、ほかの大会に記録のある選手名の問い（案内の一文 → 記録のある大会を並べた答え）だけ（docs/notes/ask-worker.md「横断」に書いた）
+    - → 扱い（2026-11-03、チャット側が 2026-11-02 の決定に当てはめた）: 2つとも事実の誤りなので CHAT-1103-AIC-27 で直す
+  - `top_ask.js`（`work/1103-top` で読んだだけ）が送る要求: `{ question, contest: root.dataset.contest, context: null }`。トップの答えはこの指示の後も変わらない → 扱い（チャット側）: 確かめた結果として受けた。判断は要らない
+  - 画面の統合の指示に要る前提: `work/1101-prp-pub`（PRP-07 まで、判断待ち）と `work/1103-top`（TOP-07、判断待ち / 続き TOP-08）はどちらも未マージ。両方のマージの後に、大会のページの欄を `top_ask.js` に寄せて横断＋`context` で送る指示を書く（決定どおり）。そのとき答えが変わるのは、ほかの大会に記録のある選手名の問い（案内の一文 → 記録のある大会を並べた答え）だけ（docs/notes/ask-worker.md「横断」に書いた） → 扱い（チャット側）: 両方のマージの後に画面の統合の指示を書く（2026-11-03 の決定どおり）
 - 未確認の項目:
   - 2026-11-09（月）03:00 JST の週次の書き出しが動き、ブックに 11/02〜11/08 の行が入るか。あわせて、2026-11-02 10:09 JST ごろの「現女流桜花は？」の「引数」の列に from・to が入っているか（AIC-25 から写した）
   - 地域で断られた問いが、新しい結果（`region`、ブック「地域で使えない」）で記録に入るか（AIC-25 から写した）
@@ -159,12 +160,12 @@ AIC-25 の前提（`crossContests()` の今の選び方など）と、AIC-25 の
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj c129a98b）: https://github.com/retroeater/mj-logs/tree/main/guide/c129a98b
+ガイド文書（この版を写した時点の最新、mj 28ad5e2a）: https://github.com/retroeater/mj-logs/tree/main/guide/28ad5e2a
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c129a98b/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c129a98b/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c129a98b/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c129a98b/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c129a98b/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c129a98b/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/28ad5e2a/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/28ad5e2a/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/28ad5e2a/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/28ad5e2a/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/28ad5e2a/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/28ad5e2a/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/795228a7.md
