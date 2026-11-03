@@ -81,6 +81,21 @@ AIC-20 の本番の確かめで、横断の問い「佐々木寿人の成績は�
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+- 0: 指示欄の末尾は指示文の最後の行と一致。93f8976cc は origin/cloudflare の祖先。origin/work/1103-aic はマージ済みで、ローカルの work/1103-aic は origin/cloudflare（e4049b271）と同じ。#654 に他セッションの着手中コメントなし（着手中をコメント、issuecomment-6597051499）。未マージの work/ ブランチで `workers/ask/src/` を変えているものなし。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は4つともある。AIC-20 のログの状態に「/ 続き: CHAT-1103-AIC-21」と回答を書き足した
+- 前提の確かめ: `players['佐々木寿人']` は28行・期の種類20（前提どおり）。`player()` の `count: items.length` は行の数（前提どおり。行番号は 304〜331 で同じ）。`ANSWER_LINES` の鳳凰戦・女流桜花・WRC・WRC-R に player の count の行は無く、最強戦にはある（前提どおり）
+- 1期に複数の行を持つ大会: 鳳凰戦だけ（1292人のうち1088人。例 HIRO柴田 29行・25期）。女流桜花245人・WRC リーグ357人・WRC-R 192人はすべて1期1行。最強戦は年度ごとの卓の行で、今の規則（154行あたり）のまま
+- 再現: 今のコードで `answerInput(runQuery(data, player 佐々木寿人))` の鍵は type・count・items・notes で、count 28（items 28、期は20）。期の数は渡っていない
+- 直し（62fb61417）: 候補 (a) を選んだ。`player()` が前期・後期のある大会（`contest.halves`、鳳凰戦だけ）のとき、期の数 `termCount`（絞った後の行の期の種類）を足し、`answerInput()` がそれを渡す。鳳凰戦の `ANSWER_LINES` に「- player の count は成績の行の数(前期・後期は別の行)で、期の数ではない。何期出たか(期の数)は termCount を書き、count を期の数として書かない」を、champions の一文の前に足した（champions の一文が最後であることを `jwrc.test.mjs` が見ている）
+  - (a) の理由: (b) では「何期出た？」に答えられなくなる。数はプログラムが数える
+  - 名前は指示の例の `terms` ではなく `termCount` にした。鳳凰戦の指示には「champions の terms は鳳凰位になった期」の一文があり、同じ名前だと紛れるため
+  - `answerInput()` に受け渡しの1行を足した（結果の鍵を2回目に渡すのはここだけなので、(a) には要る。原因は見立てどおりで、止まる条件の「player() の結果か ANSWER_LINES の外を変えないと直らない」には当たらないと判断した）
+- テスト（test/count.test.mjs、3本）: `player()` の termCount（28行・20期、期で絞ると1、1期1行の大会には付かない）、大会別の欄で2回目に termCount と一文が入る（ほかの4大会の指示には入らない）、横断のまとめた2回目で鳳凰戦の結果に termCount と一文が入る
+  - 直す前のコード（origin/cloudflare）で3本とも落ちる。直した後は node 145本・python 1747本 通過
+- 変わる範囲の比較（scratchpad の in21.mjs、5大会と横断 × 8つの型 × 名前）: 応答と記録は全部同じ。2回目に渡す結果が変わるのは鳳凰戦の player だけ（termCount が付く。横断でも同じ）。2回目の指示（system）は鳳凰戦の全部の型で1行増える（ほかの4大会は同じ）
+- docs: ask-worker.md「5大会の応答ルール」の表に player の count の行を足した（0e476b537）。docs/decisions/houou.md に 2026-11-03（CHAT-1103-AIC-21）の節
+
 <!-- guide-links -->
 ---
 
