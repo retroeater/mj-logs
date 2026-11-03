@@ -100,16 +100,25 @@ TOP 系列（サイトのトップ #101）から依頼があった。新トッ�
   - in21.mjs（直す前と後、5大会と横断 × 8型 × 名前）: 大会別の5大会は応答・記録・Claude に渡すものが全部同じ。横断（context なし）は応答だけが変わる（player 14/16・ranking・entry・league。players の追加、2大会以上の出典の大会名、時点の重なりの除き）。Claude に渡すものは同じ
   - 例: 横断の ranking（通算）は、時点が「鳳凰戦 鳳凰戦リーグ 第43期前期終了時点」→「鳳凰戦リーグ 第43期前期終了時点」に変わっただけ（出典はもとから大会名を含む）
   - cmp26.mjs（横断＋context の、context の大会だけを選んだ 695 通りと大会別の要求）: 695 通りとも同じ（players を除く）
+- 大会別の要求が変わらないことの比較（cmp20.mjs、直す前〈origin/cloudflare〉と 945dba2ca、15255 通り）: 違い0。その後の直し（ed59e2989）は横断の組み立ての出典の判定だけ
+- 自己レビュー（新しい文脈のサブエージェント、2回）:
+
+  | 回 | 対象 | 観点 | 結果 |
+  |---|---|---|---|
+  | 1 | 945dba2ca・39da145ad | 大会別の応答が変わらないか、players・label・asof の正しさ、top_ask.js の表示、テスト、docs | 要修正1: 決勝だけの答えの出典に混ざるほかの大会の案内（「佐々木寿人の成績（麻雀最強戦）」）に、答えた大会の名前（「WRCリーグ …」）が付く（「鳳凰戦とWRCリーグの佐々木寿人の成績は？」で再現）→ 5大会のどれかの名前を含む出典には付けない形に直した（ed59e2989）。任意: playersIn のコメントの位置がずれた → 戻した／「先頭に」の記述 → 「文に無ければ先頭に」に直した／context の大会だけのときは決勝の時点を付けない → docs に書いた／入らないはずの値のテストが無い → 2本足した。証跡: 直す前後の56通りの比べで大会別の応答と D1 の行が同じ、161本通過。`assets/top_ask.js` は players を3件まで（残りは「ほか N名」）大会のチップ付きで出し、sources は label をリンクに、asof は「／」でつなぐだけで、表示の部品を変える必要は無い（16行目のコメント「文に出た順のまま」は少しずれたが、画面は変えない制約なので報告だけ） |
+  | 2 | ed59e2989・9d7324175 | 新たな問題 | 要修正なし。任意2件: 候補の部分のテストは壊れても落ちない形（players が文に出た名前だけかを見ている）→ そのまま／退会者の選手が見つからないと条件を外れて通る → `assert.ok(retired)` を足した。証跡: 161本通過、直す前（945dba2ca）で新しいテストが落ちる |
+
+- 直した後: node 161本・python 1747本 通過
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 9484f5a2）: https://github.com/retroeater/mj-logs/tree/main/guide/9484f5a2
+ガイド文書（この版を写した時点の最新、mj d772aeb2）: https://github.com/retroeater/mj-logs/tree/main/guide/d772aeb2
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9484f5a2/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9484f5a2/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9484f5a2/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9484f5a2/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9484f5a2/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9484f5a2/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d772aeb2/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d772aeb2/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d772aeb2/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d772aeb2/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d772aeb2/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d772aeb2/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/795228a7.md

@@ -144,7 +144,7 @@
   /live の生成部分〈`# live: generated`〜`# live: end`〉より後ろに置き、/live の 301 が動的ルールの上限〈100行〉に数えられないようにする、#418。
   `generate_live_pages.py` の `update_redirects()` は目印の間だけを書き換えるので、この位置は保たれる）
 
-`/title/<slug>`（末尾スラッシュなし）は、大会ごとに `/title/<slug>  /title/<slug>/  301` を `_redirects` に手で1行ずつ書く（20行、#455）。
+`/title/<slug>`（末尾スラッシュなし）は、大会ごとに `/title/<slug>  /title/<slug>/  301` を `_redirects` に手で1行ずつ書く（21行、#455。鳳匠戦の `/title/housho` は記録0件のうちに先に入れた、2026-11-03）。
 大会を足したら1行足す（`scripts/tests/test_title_redirects.py` が検査）。`/title/:slug  /title/:slug/  301` のワイルドカードは `/title/index.html` にも一致して壊れるため置かない。
 確認は wrangler 同梱の asset-worker（miniflare）の `parseRedirects`・ルール照合のコードを抜き出して行った（CHAT-0916-TT-10。
 セッション環境では `wrangler dev` が動かない）。本番の応答は第1段のマージ後に確認済み（CHAT-0916-TT-16: `/title` → 301、`/title/`・大会ページ・期ページ → 200、`/title/<slug>` → 404）。
