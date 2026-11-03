@@ -132,15 +132,34 @@ Chat-Ref: CHAT-1103-AIC-20
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+- 0: 指示欄の末尾は指示文の最後の行と一致。83a014443 は origin/cloudflare の祖先。origin/work/1103-aic は cloudflare にマージ済みで、ローカルの work/1103-aic は origin/cloudflare（a31eaf9a2）と同じだったので `git merge --ff-only origin/cloudflare`（Already up to date）で使った。#654 に他セッションの着手中コメントなし（着手中をコメント、issuecomment-6594982079）。#654 は open。未マージの work/ ブランチで `workers/ask/` を変えているものなし。CLAUDE.md 23981・handover.md 23633・chat-side-operations.md 22746・instruction-template.md 13650 バイト（警告域の下）
+- 同じ目的の issue・ブランチ: 統合は #654 の主題そのもの。未マージの work/ ブランチに質問欄の横断を作るものは無い（TOP-01 は cloudflare にマージ済みで docs だけ）
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は4つともある
+- AIC-19 のログの状態に「/ 続き: CHAT-1103-AIC-20」と、判断が必要なこと2つへの扱いを書き足した
+- 前提の確かめ: `ask.mjs` の受け方（contest 省略は鳳凰戦、`deps.contests` のキーならその大会、ほかは 400 `bad_request`）と `index.mjs` の `contests: { ouka, jwrc, wrcr, saikyo }` は前提どおり（行番号は AIC-19 の追加で少しずれていた: 受け方は 616〜626 行あたり）
+- 作り（46f30e345）:
+  - 大会別の欄の流れを `settle()`（1回目 → 検索 → プログラムの答え、または2回目に渡す結果）・`finish()`（2回目）・`bodyOf()`（応答）に分け、記録と応答は `ask()` が作る。中身は前と同じ（下の比較）
+  - 横断 `contest: "all"`（`context` は大会の id、省略可）。大会の選び方は `crossContests()`: 問いの大会名 → 問いの選手名の記録がある大会 → 5大会。どれも context を先に
+  - 選んだ大会ごとに `settle()` を並行して行い、2回目が要る大会が1つならその大会の2回目、2つ以上なら1回にまとめる（structured outputs で大会の id ごとの欄。指示に大会ごとの `ANSWER_LINES`）。Claude は1問あたり6回まで（5大会 + まとめ1回。言語の混ざりの作り直しで7回）
+  - 応答は今の項目に `contests`・`players` を足した。答えは大会ごとに `【大会名】` を付けて改行でつなぐ。記録は1問1行、型は `all:<大会>:<型>` を `,` でつなぐ
+  - 選んだ形の理由: 1回目は大会ごとに指示・型の定義が違う（期・リーグ・部門）ので大会ごとに呼ぶ。2回目はまとめると呼び出しが5回から1回に減り、大会名と出典はプログラムが付けられる。大会の選び方はプログラムで決める（大会を選ぶ Claude の呼び出しを足さない）
+- 費用の見込み: 送る文字数で比べた（scratchpad の len20.mjs）。1つの大会の欄の「歴代の鳳凰位は？」は 4466 字、横断の「現タイトルホルダーは？」（5大会）は 18030 字で約4倍。1問あたり約 $0.0004（2026-10-19 の実績）から、5大会を並べる問いは約 $0.0016 の見込み。呼び出しの回数は6回で今の3倍まで
+- テスト（test/all.test.mjs、6本）: 女流桜花の歴代優勝者（女流桜花だけ・2回）、佐々木寿人の成績（鳳凰戦・WRC リーグ・最強戦、4回、WRC リーグは決勝の記録で「ほかに」を付けない、players）、現タイトルホルダー（5大会・6回・context の大会が先・1日の上限で1問）、どの大会にも記録の無い名前（5回、「どれにも見つかりません」）、大会の選び方（WRC と WRC-R、全角、選手名の無い問いで名前を拾わない）、要求の検査（context の不正値は 400、大会別の欄の応答に contests・players が付かない）
+  - 直す前のコード（origin/cloudflare の workers/ask）で回すと、6本のうち5本が落ちる（要求の検査の1本は、前のコードも `"all"` を 400 にするので通る。変えないことを見る1本）
+  - node 140本・python 1747本 通過
+- docs: ask-worker.md に「横断」節（要求・応答の項目の表、大会の選び方、呼び出しと費用、記録）（f9fea1a7c）。docs/decisions/houou.md に 2026-11-03（CHAT-1103-AIC-20）の節
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 83a01444）: https://github.com/retroeater/mj-logs/tree/main/guide/83a01444
+ガイド文書（この版を写した時点の最新、mj 01d7a675）: https://github.com/retroeater/mj-logs/tree/main/guide/01d7a675
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/83a01444/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/83a01444/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/83a01444/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/83a01444/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/83a01444/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/83a01444/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/01d7a675/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/01d7a675/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/01d7a675/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/01d7a675/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/01d7a675/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/01d7a675/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/ad26c534.md

@@ -117,7 +117,7 @@ AIC-18 の止まる条件「jwrc/ の『佐々木寿人』の答えが変わら�
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1103-AIC-20
 - ブランチ: work/1103-aic
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1103-AIC-19.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1103-aic
@@ -125,8 +125,8 @@ AIC-18 の止まる条件「jwrc/ の『佐々木寿人』の答えが変わら�
 - マージ: 済（83a014443）
 - issue: #654（結果をコメント）
 - 判断が必要なこと:
-  - 決勝の答えの言い回し2点を、週次の言い回しの直しに入れるか: 「〜の予選の成績の記録はありませんが」の「成績」「記録」の重なり、「WRCリーグ決勝の第10期に4位」の語順（「第10期のWRCリーグ決勝で4位」など）。事実は合っているので今回は直していない
-  - 変わった答えには、21人をフルネームで聞いた問いのほか、その大会で21人の1人に決まる名前の一部（「森山」「大橋」「白鳥」など15通り）も入る。前の答えも同じ誤り（「〜に当たる選手はいません」）だったので「答えが変わってよい問い」の内と判断してマージした
+  - 決勝の答えの言い回し2点を、週次の言い回しの直しに入れるか: 「〜の予選の成績の記録はありませんが」の「成績」「記録」の重なり、「WRCリーグ決勝の第10期に4位」の語順（「第10期のWRCリーグ決勝で4位」など）。事実は合っているので今回は直していない → 扱い（2026-11-03、チャット側が 2026-11-02 の決定に当てはめた）: 言い回しなので週次の直しに回す（2026-11-09 の週。CHAT-1103-AIC-20）
+  - 変わった答えには、21人をフルネームで聞いた問いのほか、その大会で21人の1人に決まる名前の一部（「森山」「大橋」「白鳥」など15通り）も入る。前の答えも同じ誤り（「〜に当たる選手はいません」）だったので「答えが変わってよい問い」の内と判断してマージした → 扱い（2026-11-03、チャット側）: この判断でよい（CHAT-1103-AIC-20）
 - 未確認の項目:
   - 2026-11-09（月）03:00 JST の週次の書き出しが動き、ブックに 11/02〜11/08 の行が入るか。あわせて、2026-11-02 10:09 JST ごろの「現女流桜花は？」の「引数」の列に from・to が入っているか（AIC-18 から写した）
   - 地域で断られた問いが、新しい結果（`region`、ブック「地域で使えない」）で記録に入るか（AIC-18 から写した）
@@ -135,12 +135,12 @@ AIC-18 の止まる条件「jwrc/ の『佐々木寿人』の答えが変わら�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 83a01444）: https://github.com/retroeater/mj-logs/tree/main/guide/83a01444
+ガイド文書（この版を写した時点の最新、mj 01d7a675）: https://github.com/retroeater/mj-logs/tree/main/guide/01d7a675
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/83a01444/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/83a01444/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/83a01444/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/83a01444/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/83a01444/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/83a01444/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/01d7a675/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/01d7a675/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/01d7a675/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/01d7a675/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/01d7a675/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/01d7a675/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/ad26c534.md
