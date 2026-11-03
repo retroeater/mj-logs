@@ -48,15 +48,64 @@ TOP-04 の判断待ちへの回答を反映し、鳳匠戦の `_redirects` の�
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 0. 着手前の確認
+
+- 「指示」欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は4行とも有り。同じ Chat-Ref のコミットは0件
+- TOP-04 のログの `## 報告` の状態は「判断待ち」、origin/work/1103-top-hosho（be1f75164）は cloudflare に未マージ。TOP-04 の状態の末尾に ` / 続き: CHAT-1103-TOP-06` を足した（210aff72b）
+- `git merge origin/cloudflare`（衝突なし。TOP-05 の /top の行を含む。eda09bf5b）
+
+### 1. 全ページの検査（`regenerate-page.yml`、work/1103-top-hosho、`target_page: all`・`check: true`、run 41600366755、eda09bf5b）
+
+success。「検査の結果(32ページ)」はすべて「通る」、「check: 止まるページなし」。**title_pages は警告なしで通る**（平野さんが「タイトル」シートに足した鳳匠戦の表示 N の行は、生成を止める検査に当たっていない）。警告は8件で、どれも title/ と関係の無い既存のもの（全件）:
+
+| ページ | 警告 |
+|---|---|
+| ask_data・ask_data_jwrc・ask_data_ouka・ask_data_wrcr | /live: 未確認 691件（「【3】手動補正」の掲載が空欄の行） |
+| live_pages | 未確認 691件（「【3】手動補正」の掲載が空欄の行） |
+| saikyo_pages | 動画URLが ABEMA の回の URL ではありません(リンクだけ出し、サムネイルは出しません): 2026 超技巧合戦 ベスト8 A卓・B卓（2件） |
+| wayhome_episodes | jpml_prosに該当する選手がいないため、Xの写真を出しません: タマシュ・エルドス |
+
+`--check` は「記録の無い大会」の行を出さないので、`_redirects` を足した後の HEAD（66eea8fd2）で title_pages の `dry_run: true`（run 41601967182、success）も流した。出力: 「『タイトル』: 3119行」「『タイトル戦』: 31行」「**記録の無い大会(表示する大会で表示=Y の行が0件、ページを作らない): 2大会: JPMLリーグ、鳳匠戦**」「警告: 0件」「sitemap-title.xml を更新しました(385件)」「title/search.json: 70664バイト」。リポジトリの `title/search.json`（70,664 バイト）・`sitemap-title.xml`（385件）と同じで、title/ の生成物は変わらない
+
+**表示順**: シートは鍵が無く読めないので、CHAT-0916-LV-11 のログ（2026-09-16、「タイトル戦」シートの写し）で確かめた。鸞和戦 ranwa 540・**鳳匠戦 housho 550**・達人戦 tatsujin 560（区分はどれも「連盟」、状態は「継続」）で、550 は鸞和戦の次、重なりなし。平野さんの申告（鳳匠戦 / housho / 550 / 連盟 / 継続）と一致する。記録が0件なので title/ の生成物の並びでは確かめられない（2026-09-16 より後に表示順が変わっていればこの確かめは古い）
+
+### 2. 変更
+
+- `_redirects`: `/title/houou  /title/houou/  301` の次（アルファベット順）に `/title/housho  /title/housho/  301`（5374b2769）。TOP-04 では `_redirects` にコミットしていない
+- docs/notes/title-pages.md: 大会ごとの行の件数を「20行」→「21行」と、鳳匠戦の行を記録0件のうちに入れたこと
+- docs/decisions/title.md・docs/decisions/top.md: TOP-04 の「slug は `hosho`」に「→ 置き換え: CHAT-1103-TOP-06 で `housho`」を付け、「2026-11-03（CHAT-1103-TOP-06）」の節を足した（66eea8fd2）
+- 検査（`test_title_redirects.py`）は直していない（生成物の側から `_redirects` を求める片向きの検査なので、先に足しても通る）
+
+### 3. マージの条件
+
+- (1) `python3 -m unittest discover -s scripts/tests` → `Ran 1786 tests … OK`
+- (2) `git diff --stat origin/cloudflare HEAD`: `_redirects`（+1）・docs/decisions/title.md・docs/decisions/top.md・docs/notes/title-pages.md・docs/logs/CHAT-1103-TOP-04.md・docs/logs/CHAT-1103-TOP-06.md だけ
+- (3) 上の 1 のとおり、`all` の検査は止まらず、title/ の生成物も変わらない（コード・生成物の差分は0件）
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1103-top-hosho（マージ済み。cleanup-branches.yml が消す）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1103-TOP-06.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1103-top-hosho
+- 確認用URL: なし
+- マージ: 済（08f5622aa、fast-forward。本番で `/title/housho` → `/title/housho/` の 301 を確かめた〈マージの約40秒後〉。転送先は記録0件なので 404 で想定どおり）
+- issue: #101（コメント・TOP-04 の着手中の解除）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj a918bc1b）: https://github.com/retroeater/mj-logs/tree/main/guide/a918bc1b
+ガイド文書（この版を写した時点の最新、mj 45487824）: https://github.com/retroeater/mj-logs/tree/main/guide/45487824
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a918bc1b/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a918bc1b/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a918bc1b/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a918bc1b/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a918bc1b/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a918bc1b/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/45487824/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/45487824/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/45487824/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/45487824/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/45487824/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/45487824/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/795228a7.md

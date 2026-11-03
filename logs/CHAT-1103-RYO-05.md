@@ -640,28 +640,69 @@ X の全期間検索で取れた retroeater の写真付きの投稿（返信・
 - 時代を行き来する仕組みは、まとめの推奨（A: エレベーター）に Code も賛成。RYO-04 の試作の広間（通路の突き当たり）にエレベーターを置き、階を時代にすると、今の入口・通路・映画館・対局室を「ロビーの階」として残したまま足せる。路線図（B）はニューヨーク駐在の階の中の移動（街角 → 地下鉄 → 部屋）に使う、と組み合わせられる
 - 画面の写し（天気・注文・検査結果・宛名のラベル・順位表・グラフ）は「人なし」に入っているが、場面の写真としては使わない方がよい（まとめの「0. 前提」）。使えそうと分類したのは 382枚のうち 191枚
 
+### レビュー（docs/notes/self-review.md、新しい文脈のサブエージェント2回）
+
+1回目（70f5bf0bb）:
+
+| 指摘 | 扱い |
+|---|---|
+| まとめの呼び出しが失敗すると結果がログに残らない（高） | 直した（f4818d059、まとめの StopCalls を捕まえて表は必ず出す。検査は 895552a1d） |
+| 上限が1回の実行ごと（中〜高） | `簡略化:` のコメントを残した（f4818d059）。調べ全体では X $6.06・Claude 約 $0.55 を使った（判断が必要なことに残りの額を書いた） |
+| まとめの見込みが日本語に対して小さい（中） | 直した（1字1.5トークン、`convert_x_posts.max_call_cost` と同じ） |
+| 本実行で【2】を読めないとブックの ID がログに出うる（中） | 直した（`fx.hide_book` で伏せて止める。検査は 895552a1d） |
+| 読むだけなのに書き込みのできる SA で認証（低〜中） | 意図どおり（`fx.google_sessions()` が `sheets_write` と ADC の前提で、読み取り用の SA に替えると手が増える。書かないのはコードで守る。ワークフローのコメントに書いた） |
+| concurrency の組が「ログ」の取り込みと同じ（低） | ワークフローのコメントと `docs/notes/github-actions.md` に「04:00 JST の前後は避ける」を書いた |
+| `workflow_call` の Secret の宣言は要らない（低） | いったん外したが、2回目の指摘でほかの workflow と同じ形（使う secret はすべて宣言）に戻した |
+| dry-run で見出しが無いと SystemExit（低） | 見送り（止まるので実害なし） |
+| docs/notes に Chat-Ref | 外した（`#657` だけ） |
+
+2回目（f4818d059）:
+
+| 指摘 | 扱い |
+|---|---|
+| 宣言の無い secret の参照がリポジトリで唯一（低） | 直した（895552a1d、宣言を戻しコメント） |
+| 新しく足した分岐（シートを読めない・まとめが止まる）の検査が無い（低〜中） | 直した（895552a1d、`RunTest` の2本。ID がログに出ないこと・まとめが止まっても表が出ること） |
+| docs の行から `ANTHROPIC_API_KEY` が消えた（低） | 直した |
+
+### 最後の確かめ（895552a1d）
+
+- `python3 -m unittest discover -s scripts/tests`: OK
+- run 30（`mode` 既定・dry-run）: success、`fetch` が動き `ryoei-survey` は skipped
+- run 31（`mode: ryoei-survey`・dry-run）: success、`ryoei-survey` が動き `fetch` は skipped
+- run-daily（`workflow_call`）からの起動は、作業ブランチでは動かしていない（run-daily は手動でも `regenerate-saikyo` が作業ブランチにコミットするため）。`fetch` のジョブは中身・権限を変えておらず、`workflow_call` では `mode` が空なので今までどおり `fetch` が動く。マージしたら翌朝の run-daily の `xfetch` を確かめる
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1103-ryo5
 - ログ: https://github.com/retroeater/mj/blob/work/1103-ryo5/docs/logs/CHAT-1103-RYO-05.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1103-ryo5
-- 確認用URL:
-- マージ: 未
-- issue: #657
+- 確認用URL: なし（ページは変えていない。結果は `docs/logs/CHAT-1103-RYO-05/` のコンタクトシート8枚・`summary.md`・`photos.json`）
+- マージ: 未（平野さんの判断待ち。指示文の「マージ: 判断待ちで止まる」）
+- issue: #657（着手中コメント）
 - 判断が必要なこと:
+  - 場面の案（`## 経過`「場面の案」）: ニューヨーク駐在（高層階の部屋・公園と水辺の散歩道・街角と地下鉄）／帰国後〜専業前（荷ほどきの部屋・朝の通勤路・大会の廊下）／麻雀プロ専業（雀荘の夜・掲示の回廊・街角と旅先）と、写真が無い時代（中1・開成・ICU・ドイツ銀行・バークレイズ）をコードで描く案。どの場面から作るか
+  - 時代を行き来する仕組み: A エレベーター（推奨。まとめと Code とも）／B 地下鉄の路線図／C 牌をめくる
+  - 写真の候補: 人の写っていない 382枚（使えそうと分類 191枚）。画面の写し（注文・検査結果・宛名のラベル・順位表）は使わない方がよい。人の写っている 211枚は URL の一覧だけ（本人の写真を使うなら、ここから選んでもらう）
+  - 写真は 2020年7月より前が無い（検索に出る写真付きの投稿は 2020-07〜2026-10 の606件で全部）。金融の仕事の時代とニューヨーク駐在の最初の9か月は、平野さんから写真を受け取るか、コードで描く
+  - 【2】の retroeater の飲食店の224行は今回の606件と重ならなかった（返信の投稿か、検索に出ない投稿と見られる）。飲食店は Claude の分類で外した（179枚）。この扱いでよいか
+  - 調べ全体の費用: X $6.06（上限 $15。本実行を2回動かしたため）・Claude 約 $0.55（上限 $5）。残りは X $8.94・Claude 約 $4.45。上限は1回の実行ごとに効く作りなので、もう一度動かすなら定数を残りの額にする
+  - 調べのモード（`fetch-x-posts.yml` の `mode=ryoei-survey`・`scripts/survey_ryoei_photos.py`）を cloudflare に入れるか、調べが済んだので入れずにおくか（マージするなら翌朝の run-daily の `xfetch` が今までどおり動くことを確かめる）
 - 未確認の項目:
-- エラー:
+  - run-daily からの `workflow_call` での `fetch-x-posts.yml` の起動（作業ブランチでは run-daily を動かしていない。マージしたときは翌朝 04:00 JST の run-daily の `xfetch`）
+  - X・Anthropic の請求の実額（run の中の数え方で書いた）
+  - 2020年7月より前の写真付きの投稿が検索に出ない理由
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj a918bc1b）: https://github.com/retroeater/mj-logs/tree/main/guide/a918bc1b
+ガイド文書（この版を写した時点の最新、mj 45487824）: https://github.com/retroeater/mj-logs/tree/main/guide/45487824
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a918bc1b/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a918bc1b/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a918bc1b/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a918bc1b/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a918bc1b/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a918bc1b/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/45487824/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/45487824/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/45487824/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/45487824/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/45487824/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/45487824/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/795228a7.md
