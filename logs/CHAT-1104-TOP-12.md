@@ -163,6 +163,43 @@ TOP-11 の新しいナビをプレビューで見た平野さんの判断を反�
 - 番組の濃色のページの帯・シート・欄の色（ページの濃色 `--mj-v-*` から。開いている間の押した地 `#2c2c2e`・頭の1字の丸 `#48484a`）
 - pro/ のトップのページの中の欄は残っている（`## 報告`「判断が必要なこと」）
 
+### 6. 生成し直し・画面・プレビュー
+
+- `regenerate-page.yml` 本実行（target_page `houou_pages ouka_pages jwrc_pages wrcr_pages saikyo_pages top_page`、run 41680997567）: 成功。コミット fe4e55a46 は houou/・ouka/・jwrc/・wrcr/・saikyo/・top/ の index.html（ページの中の質問欄を外した −18〜19行）と、`saikyo/players/index.html`（シートの更新による出場者のデータの1行）、`sitemap-pages.xml`・`sitemap-saikyo.xml`（lastmod、`update_sitemap_lastmod.py --from-git` の導出）だけ
+- 画面（生成し直した後。360・400・1280px × 明・暗、ローカルの静的サーバ＋Playwright）: top/・houou/・saikyo/・pro/・wayhome/・mtsuku/ の42通りで、ページの中の質問欄なし（pro/ だけ残る）、アイコンで帯の直後に欄が開き、送る `context` と例が上の表のとおり、Esc・もう一度押すで閉じる、≡ のシートは5まとまり。jpml_pros.html は帯なし・高さ 56px（PC 80px）で前と同じ
+- プレビュー（ブランチ名の別名 URL）: 11a6d40c5 の nav.js が出て、houou/ にページの中の質問欄が無い版を返すことを確かめた（UA に mj-internal）
+
+### 7. TOP-11・12 を合わせた cloudflare との差分（docs/logs を除く、40ファイル）
+
+| 種類 | ファイル |
+|---|---|
+| ナビ | `navbar.js`（帯・番組のパス）、`assets/nav.js`（新規。≡ のシート・帯の下の質問欄）、`style.css`（「新しいナビ」の節・番組の濃色のページの色）、`assets/ryoei/world.css`（r/ でナビが読む色） |
+| 質問欄 | `assets/top_ask.js`（共通ナビの欄から動かす）、`assets/houou_ask.js`・`assets/houou_ask.css`（コメントだけ） |
+| トップ | `scripts/generate_top_page.py`（大会日程・一行の説明・上部の質問欄を外す）、`assets/top.js`・`assets/top.css` |
+| 大会のトップ | `scripts/generate_houou_pages.py`・`scripts/generate_saikyo_pages.py`（ページの中の質問欄を外す）、`scripts/regenerate.py`（コメント） |
+| 生成物 | `top/index.html`・`houou/index.html`・`ouka/index.html`・`jwrc/index.html`・`wrcr/index.html`・`saikyo/index.html`・`saikyo/players/index.html`（データ）・`sitemap-pages.xml`・`sitemap-saikyo.xml`（lastmod） |
+| テスト | `scripts/tests/test_top_page.py`・`test_houou_pages.py`・`test_jwrc_pages.py`・`test_wrcr_pages.py`・`test_saikyo_pages.py` |
+| docs | `docs/notes/top-page.md`・`design.md`・`ask-worker.md`・`houou-top.md`・`ouka-top.md`・`jwrc-top.md`・`wrcr-top.md`・`saikyo-page-design.md`・`pro-pages.md`・`static-generation.md`・`league-pages-compare.md`、`docs/decisions/top.md`・`houou.md` |
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1104-top（指示文の指定どおり。TOP-11 から続けて使い、origin/cloudflare を merge で取り込んだ〈40f2c59b2〉）
+- ログ: https://github.com/retroeater/mj/blob/work/1104-top/docs/logs/CHAT-1104-TOP-12.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1104-top
+- 確認用URL: プレビューあり（URL は最終報告）。確認したページ: top/・houou/・saikyo/・pro/・wayhome/・mtsuku/・jpml_pros.html。この版の印: houou/ のトップに質問欄が無く、帯の右に虫眼鏡に光の印のアイコンと「≡」
+- マージ: 未（平野さんの判断待ち。プレビューを見て決める。TOP-11 と一緒にマージする形）
+- issue: #101（着手中のコメント）、#231（閉じない旨のコメント）、#654（大会別の欄の呼び出しが無くなる旨のコメント）
+- 判断が必要なこと:
+  - pro/ のトップのページの中の質問欄は外していない（work/1101-prp-pub が同じ関数 `generate_pro_pages.top_ask()` と `assets/houou_ask.js` を変えているため）。PRP 系列に、pro/ の公開の作業で pro/ のトップの欄を外し、`houou_ask.js` を消して共通ナビの欄（`assets/top_ask.js`）1つにすることを頼むか
+  - `assets/houou_ask.js` は pro/ の欄のほか、`workers/ask/test/week3.test.mjs`（画面の文言を読む検査）も読んでいる。消すときは Worker の検査を `top_ask.js` に向ける必要がある（Worker は変えていない。AIC 系列に頼むか）
+  - 各大会の `ask-players.json` は pro/ の生成（いまのリーグ・最強戦の出場）と検査が読むので、生成を残した
+  - 仮置きの一覧（`## 経過`「5. 仮置きの一覧」）: アイコンの形と読み上げ／開いている間のアイコンの地／欄の幅と番組のページで先頭へ移ること／定数に無い項目のまとまり／番組の濃色のページの色
+- 未確認の項目:
+  - 本番の質問の Worker に送る確かめ（プレビューからは `/api/ask` に届かない。ローカルで差し替えた応答で確かめた）
+  - ブラウザでの見え方（プレビューは HTML・JS の版までを確かめた）
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
