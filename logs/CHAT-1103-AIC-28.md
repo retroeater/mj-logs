@@ -1,0 +1,109 @@
+# CHAT-1103-AIC-28
+
+- 着手日時: 2026-11-03（JST）
+- 対象issue: #654
+- ブランチ: work/1103-aic
+- 着手時HEAD: 15de4f915
+
+## 指示
+
+【Claude作成】Claude Code 向け指示：（AIC-27 の続き）質問欄の「出場 N期」を個人成績のページの「出場 N期」と同じ値にそろえる（佐々木寿人の鳳凰戦は、ページ 25期・質問欄 20期と食い違っている）。cloudflare へマージする
+Chat-Ref: CHAT-1103-AIC-28
+マージ: 承認済み（チャットで）。AIC 系列の例外（2026-11-02 の平野さんの決定）による。下の「止まる条件」のうち、次の3つを1つでも満たさなければマージしない
+  - テストが通る
+  - 本番の問いの答えがデータと一致する
+  - 下の「答えが変わってよい問い」の外で、今答えられている問いの答えが変わらない
+貼る時機: いつでも（CHAT-1103-AIC-27 のマージ〈9a9f47ee8〉は済んでいる）
+共通手順: CLAUDE.md「Chat-Ref」「ブランチ運用」「作業ログ」節のとおり（識別子確認 → origin/cloudflare を起点に work/<識別子>〈手順は docs/notes/cloud-sessions.md〉 → ログ先行push → 最終報告の Chat-Ref の行の直前に「ログ（公開）」の行、最後の行に Chat-Ref）。平野さんは、この指示のための作業ブランチ work/<識別子> の作成と push を許可している（セッションに割り当てられた claude/… のブランチは使わない）。
+作業ブランチ: クラウドセッションで実行する。work/1103-aic を使う。リモートに無ければ origin/cloudflare から作る。リモートにあってマージ済み（`git merge-base --is-ancestor origin/work/1103-aic origin/cloudflare` が真）なら origin/cloudflare から作る（`checkout -B` は使わない。ローカルにあるときを含め手順は docs/notes/cloud-sessions.md「作業ブランチの用意」）。マージ済みでなければ止まる
+
+0. 着手前に、このログの「指示」欄の末尾が、この指示文の末尾（最後の行）と一致しているか確認し、一致しなければ作業せず報告する。9a9f47ee8 が origin/cloudflare の祖先であることを確かめる。AIC-27 のログの `## 報告` の状態の末尾に ` / 続き: CHAT-1103-AIC-28` を足し、その「判断が必要なこと」2つへの回答（下の「決定」）を書き足す。識別子 `AIC` はこのチャットの系列（AIC-01〜27 で使用。AIC-17・24 は欠番）。
+
+## 目的
+
+鳳凰戦の個人成績のページ（houou/players/）は、佐々木寿人を「出場 25期（181節）」と出している。質問欄は「20期出場」と答える。同じサイトの中で、同じ選手の出場の数が違って見える。
+
+質問欄の数え方は、AIC-21 でチャット側が決めたもので、期の番号の種類の数になっている。この数え方では、鳳凰位として座っていてリーグに出ていない期（第38・39・41期）も出場に入る。これは事実の誤り。質問欄をページの値にそろえる。
+
+### 決定（2026-11-03、平野さん）
+
+- AIC-27 の「判断が必要なこと」への回答
+  - 1つ目（聞いていない「現在はA1リーグに所属しています」）: 直さない。今期 A1 の所属は個人成績のページでも出しており、問題ない
+  - 2つ目（`titleTerms` を WRC リーグ・WRC-R にも足した、others の一文を5大会共通にした）: そのままでよい（チャット側が確かめた。平野さんの個別の決定ではない）
+- 質問欄の「出場 N期」は、個人成績のページの「出場 N期」と同じ値にそろえる（佐々木寿人の鳳凰戦は 25期）。即日直す
+
+### 前提（チャット側。平野さんの決定ではない）
+
+チャット側が 2026-11-03 19:15 JST ごろ、origin/cloudflare（15de4f915）で開いて確かめた。着手時に今のコードで開き直す。
+
+- ページの数え方
+  - `scripts/generate_houou_pages.py` の601〜645行 `player_divisions()`
+  - `seasons = collections.Counter(r.name for r in rrows if r.total is not None)`（609行）。得点のある行の数で、前期・後期は別に数え、座っている期（得点が無い行）は数えない
+  - 名前の面の「出場 N期（N節）」は `assets/league.js` 669行が `data.divisions.seasons` から出す
+- 質問欄の数え方
+  - `workers/ask/src/query.mjs` 324行: `termCount` は `contestOf(data).halves` のときだけ付け、`new Set(picked.map(([ki]) => ki)).size`（期の番号の種類の数）
+  - `workers/ask/src/ask.mjs` 155行（鳳凰戦の `ANSWER_LINES`）: 「何期出たか(期の数)は termCount を書く」
+- データ: `workers/ask/data.json` の `players['佐々木寿人']` は28行。得点（6列目）がある行は25、無い行は3（第38・39・41期、league「鳳凰位」）
+- 直し方の案（実物に合わせて選んでよい。選んだ方と理由を報告に書く）
+  - (a) `termCount` を「得点のある行の数」にする（ページの609行と同じ数え方）。名前は、意味が変わるので変えてよい（例 `seasons`）
+  - (b) 生成スクリプト（`scripts/generate_ask_data.py`）で、ページと同じ関数の値を data.json に入れる。数え方を1か所にでき、ページとずれない。ただし `scripts/` の共通の関数に触るなら、CLAUDE.md「判断・作業の原則」の共有の関数の行に従い、全ページを再生成して差分を確かめる
+  - 名寄せ・在籍者だけの集計（`ranking_rows()`・`active`）の違いで値がずれないかを、全選手でページの値と比べて確かめる（ずれる選手がいれば、数と理由を報告に書く）
+  - `ANSWER_LINES` の文は「出場の期数は termCount（個人成績のページの『出場 N期』と同じ。前期・後期を別に数え、鳳凰位として座っている期は数えない）を書く」の形にする。答えに「前期・後期を別に数え」などの内部の言葉を書かせない（AIC-23 の「成績の行」と同じ注意）
+- ほかの大会
+  - 女流桜花・WRC リーグ・WRC-R も、個人成績のページに「出場 N期」を出している（`assets/league.js` 605〜607・669行）
+  - 質問欄の player の答えの出場の数が、ページと同じ数え方になっているかを全選手で比べる。違えば同じ直しを入れる（女流桜花には座っている期の行がある見込み）
+  - 最強戦は totals の「出場数」をページと同じ値で渡している（AIC-23）ので、変えない
+- 答えが変わってよい問い: 選手の成績のうち、出場の期数に触れる答え（大会別と横断の両方）
+- 選手の役職などの人の属性は、ログ・テストに書かない（データの名前と数だけ）
+- 本番の確かめは1日10問まで（同じ接続元から）。上限に当たったら、送れなかった問いを「未確認の項目」に書く
+
+## 手順
+
+1. 直す: 上の食い違いを今のコードとデータで確かめてから直す。docs/notes/ask-worker.md「5大会の応答ルール」の該当の行を直し、docs/decisions/houou.md に上の「決定」を足す
+2. テスト
+   - 佐々木寿人（鳳凰戦）の player の結果の出場の数が25になる。期で絞ったとき（例 第38期は座っている期で0、第23期は前期・後期で2）の値も確かめ、答えの規則と合うかを書く
+   - 4大会（鳳凰戦・女流桜花・WRC リーグ・WRC-R）の全選手で、質問欄の出場の数とページの `seasons` が一致する（一致しない選手がいれば数と理由をログに書き、直すか止まるかを止まる条件に照らす）
+   - 「答えが変わってよい問い」の外で、今のテスト（AIC-08〜27）が変わらないことを確かめる
+   - 直す前のコードで新しいテストが落ちることを確かめる
+   - `python3 -m unittest discover -s scripts/tests` と `node --test 'workers/ask/test/*.test.mjs'` が通ることを確かめる
+   - (b) を選んだときは、`python3 scripts/regenerate.py all` の差分が data*.json だけであることを確かめる
+   - 新しい文脈のサブエージェントにレビューさせる（CLAUDE.md「判断・作業の原則」）
+3. マージと本番
+   - cloudflare へマージし、`mj-ask` のビルドの結果を確かめられる範囲でログに書く
+   - 本番に送る問いは次の3つ（`Origin: https://ryoei.pro`）。答えがデータと一致し、出場の数がページと同じかを書く
+     - 横断（`contest: "all"`, `context: "houou"`）の「佐々木寿人の成績は？」（25期）
+     - 大会別（houou/）の「佐々木寿人は何期出場していますか？」（25期）
+     - ask-worker.md「本番で送る固定の問い」から1問
+   - #654 に結果をコメントする
+
+## 止まる条件
+
+- テストが通らない、本番の問いの答えがデータと一致しない、「答えが変わってよい問い」の外で今答えられている問いの答えが変わる（どれか1つでもマージしない）
+- 全選手の比べで、質問欄の出場の数とページの値が、理由の分からないずれ方をする（直さずに、ずれた選手の数と例〈名前と数だけ〉を書いて止まる）
+- (b) で `scripts/` の共通の関数を変えて、ページの出力が変わる（共通の関数は変えずに (a) にする。(a) でもそろわなければ止まる）
+- 未マージの work/ ブランチが `workers/ask/src/`・`scripts/generate_ask_data*.py` の同じ関数・同じ行を変えている、または取り込みで衝突する（同じファイルの別の箇所の変更では止まらず、ログに書く）
+- #654 に他セッションの着手中コメントがある
+- 取り込みで生成物でない文書が衝突した。ただし、両方の変更が両立する衝突（追記どうし・隣り合う行）は、両方を残して解いてよい。解いた後の該当箇所をログに引用する。それ以外の衝突は解かずに止まる
+- マージ後の check-run・ビルドの失敗: 今回の変更による失敗なら止まって報告する。無関係な失敗なら原因を報告に書いて、残りの手順を進めてよい。自分の変更で落ちると分かったテストは直してよい
+- cloudflare への push が権限判定で拒否された（別の手段を試さずに止まる）
+
+## 完了条件
+
+- ログの「## 報告」を CLAUDE.md「作業ログ」節のとおりに書いて push する。AIC-27 の「未確認の項目」4つは、この指示の「未確認の項目」にも写す
+- マージは冒頭の「マージ:」の行のとおり
+- ターミナルへの最終報告の Chat-Ref の行の直前に ログ（公開）: https://github.com/retroeater/mj-logs/blob/main/logs/CHAT-1103-AIC-28.md?v=<SHA>（CLAUDE.md「作業ログ」節）を書き、最後の行に Chat-Ref: CHAT-1103-AIC-28 を書く
+
+不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
+
+<!-- guide-links -->
+---
+
+ガイド文書（この版を写した時点の最新、mj 9a9f47ee）: https://github.com/retroeater/mj-logs/tree/main/guide/9a9f47ee
+
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a9f47ee/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a9f47ee/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a9f47ee/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a9f47ee/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a9f47ee/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a9f47ee/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/795228a7.md

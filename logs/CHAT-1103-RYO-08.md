@@ -60,18 +60,42 @@ r/ を将来も出来事を足しながら育てられるように、中身（�
 
 ## 経過
 
+### 着手前の確認
+
+- 0章: ログの「指示」欄の末尾が指示文の最後の行と一致
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: すべてある
+- 同じ Chat-Ref のコミット: なし。`origin/work/1103-ryo8` はリモートに無かったので `git checkout -b work/1103-ryo8 origin/cloudflare`
+- #657 に着手中コメント
+
+### 「R_良栄」「Claude受渡用」に届くかの確かめ（手順1）
+
+- ID をコードに置く前提だが、ID をジョブのログに出さずにコードの定数へ移す手段が無いので、毎回 Drive API で名前から引く形にした（ちょうど1件でなければ止める）。`scripts/lib/ryoei_book.py`（新規）: sheets-reader の鍵（`SHEETS_READER_SA_KEY`、`lib/sheets.py` と同じ）で、スコープ `drive.readonly` の Drive API の `files.list` を名前と種類で引く。フォルダは中の1段の一覧（名前・種類・大きさ）と、PDF だけはダウンロードしてページ数を数える（新しい依存を足さないよう、`/Type /Page` を数えるだけ）
+- `scripts/generate_ryoei_pages.py --check` で、シートごとの列・行数・値の種類（見せ方・表示・使い方・種類・時代・色）と、フォルダの一覧を出すようにした（ID・題・説明は出さない）（6285aeeca）
+- `regenerate-page.yml` を work/1103-ryo8 で手動実行（run 608、`check: true`、`target_page: ryoei_pages`）: ジョブは success、`ryoei_pages` は「止まる」。理由は「R_良栄」「Claude受渡用」とも同じ:
+  > Drive API で読めません: HTTP 403 PERMISSION_DENIED Google Drive API has not been used in project （番号は省く） before or it is disabled. Enable it by visiting （省く） then retry.
+- sheets-reader のサービスアカウントの GCP のプロジェクトで、Google Drive API が有効になっていない。共有（閲覧者）の設定の前の段で止まっているので、シートの列・行数とフォルダの一覧はまだ読めていない
+- 止まる条件「Drive API・サービスアカウントで『R_良栄』か『Claude受渡用』に届かない」に当たるので、ここで止めた（手順2以降は行っていない。r/ のページ・毎朝の再生成は変えていない）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 中断（エラー）
 - ブランチ: work/1103-ryo8
 - ログ: https://github.com/retroeater/mj/blob/work/1103-ryo8/docs/logs/CHAT-1103-RYO-08.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1103-ryo8
-- 確認用URL:
+- 確認用URL: なし（ページは変えていない）
 - マージ: 未
-- issue: #657
+- issue: #657（着手中コメント）
 - 判断が必要なこと:
+  - 平野さんの手作業（`docs/notes/sheets-reader.md`「1. プロジェクトと Google Sheets API を確かめる」と同じ画面）:
+    1. https://console.cloud.google.com/ を開き、画面上部で sheets-reader のサービスアカウントがあるプロジェクトを選ぶ（ジョブのログの案内のリンクのプロジェクト）
+    2. 左上のメニュー →「API とサービス」→「ライブラリ」→「Google Drive API」を開き、「有効にする」を押す（「管理」と出ていれば有効になっている）
+    3. 数分待つ（有効にしてすぐは同じエラーが出ることがある、とエラーの案内にある）
+    - ロールは付けなくてよい（読めるかは「R_良栄」「Claude受渡用」を sheets-reader に閲覧者で共有したかで決まる。共有は済み、と指示文にある）。スコープ（`drive.readonly`）はコードの側で指定している
+  - 有効にした後、続きの指示（新しい Chat-Ref。このブランチに 6285aeeca までのコミットがあるため）で、同じ確かめ（`regenerate-page.yml` の `check`・`ryoei_pages`）からやり直す
+  - ID の扱い: 指示文の前提は「ID を探して `scripts/` の定数に置く」だが、ID をジョブのログに出さずに定数へ移す手段が無いので、毎回 Drive API で名前から引く形にした（同じ名前のものが共有されると止まる）。この形でよいか
 - 未確認の項目:
-- エラー:
+  - 「R_良栄」の7つのシートの列・行数、「Claude受渡用」の中の一覧（Drive API を有効にした後）
+- エラー: run 608（regenerate-page.yml、check）で「R_良栄」「Claude受渡用」とも HTTP 403 PERMISSION_DENIED（Google Drive API がプロジェクトで有効になっていない）
 
 <!-- guide-links -->
 ---
