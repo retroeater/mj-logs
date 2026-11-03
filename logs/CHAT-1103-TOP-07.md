@@ -51,6 +51,94 @@
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 0. 着手前の確認
+
+- 「指示」欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は4行とも有り。同じ Chat-Ref のコミットは0件
+- 作業ブランチ: ローカルの work/1103-top は origin/cloudflare の祖先（TOP-05 でマージ済み、リモートも 92a343074 でマージ済み）なので、`git checkout work/1103-top` のうえ `git merge --ff-only origin/cloudflare`（着手時 HEAD 454878245）
+- #101 に他セッションの着手中コメントは無い。着手中コメントを書いた
+
+### 1. 調べ
+
+**未マージの work/ ブランチ**（`git branch -r --no-merged origin/cloudflare`）で `assets/houou_ask.js`・`assets/houou_ask.css`・`scripts/generate_houou_pages.py`・`scripts/generate_top_page.py` を変えているもの:
+
+| ブランチ | ファイル | 箇所 |
+|---|---|---|
+| work/1101-prp-pub | `assets/houou_ask.js` | `playerHref()`・`slugMap()` を足し、`loadRoster()`（名簿の読み込み）と `playerCard()` の行き先を変える（pro/ の個別ページへのカードの行き先、K8） |
+| work/1101-prp-pub | `scripts/generate_houou_pages.py` | （`ASK_TEMPLATE` の行は変えていない） |
+
+`houou_ask.js` の名簿の読み込み・カードの関数は PRP が変えている最中なので、**`houou_ask.js` は変えず、トップ専用の `assets/top_ask.js` を作った**（止まる条件の「同じ関数を変える」を避けるため）。HTML は `ASK_TEMPLATE` を、見た目は `assets/houou_ask.css` をそのまま使う。`houou_ask.js`・`houou_ask.css`・`ASK_TEMPLATE` は変えていないので、大会別の欄（houou/・ouka/・jwrc/・wrcr/・saikyo/・pro/）の HTML・JS は変わらない
+
+**横断の API**: `docs/notes/ask-worker.md`「横断（`contest: "all"`…）」の要求（`question`・`contest: "all"`・`context`）と応答（`contests[]`・`players[{name, contest, url}]`、`answer` は `【大会名】` で始まる行の `\\n` つなぎ）は、指示文の前提（AIC-20 のコメント）と同じ。答えの改行は既存の `.mj-houou-ask-answer { white-space: pre-line }`（`assets/houou_ask.css`）で出る
+
+**「次の決勝はいつ？」**: Worker の型は `workers/ask/src/query.mjs` の `TYPES`（champions・final・player・league・ranking・live）と entry・year（最強戦）。live は「放送対局の一覧・回数」（データの中の過去の回）、final は過去の決勝の結果で、これからの予定を答える型は無い。答えられない見込みなので、3つ目の例を前提の案「女流桜花の歴代優勝者は？」に替えて仮置きにした
+
+### 2. 実装
+
+| ファイル | 中身 |
+|---|---|
+| `scripts/generate_top_page.py` | `SECTIONS`・`sections_panel()` を消した。`header_html()`（h1「ryoei.pro」と一行の説明 `LEAD`）、`top_ask()`（`ASK_TEMPLATE` に `data-contest="all"`・`data-players-url=""`・入力欄の文言 `ASK_PLACEHOLDER`、`</form>` の後に例の `examples_html()`、大会のチップの名前 `#top_ask_contests`〈`ASK_CONTESTS`〉）。head に `houou_ask.css`・`top.css`・`top_ask.js`。差し込み口 `data-top-slot="ask"` は入力欄に置き換え、`render()` の `ask_html` 引数を消した |
+| `assets/top_ask.js`（新規） | 送る・答えを出す流れは `houou_ask.js` と同じ（文言・状態ごとの出し分け・上限で止める・出典はサイトの中の URL だけリンク・3人と「ほか N名」）。違いは `{question, contest: "all", context: null}` で送る、選手のカードを `players[]` から作る（頭文字の丸・大会のチップ・名前、行き先はサイトの中の `url` だけ、写真は出さない〈`簡略化:`〉）、例を押すと入力欄に文を入れて送る（入力欄へフォーカスを移す）。`sameOrigin()`・`cardPlayers()` は node で検査できるよう外に出した。写していることに `簡略化:`（大会別の欄を同じ部品にするときに1つにまとめる） |
+| `assets/top.css`（新規） | 一行の説明・質問の例のボタン（44px・角丸・紺の字）・カードのチップの間だけ |
+| `scripts/tests/test_top_page.py` | 31件（上部の並びと文言、例の3つ・「次の決勝はいつ？」が無いこと、横断・`top_ask.js` を読み `houou_ask.js` を読まないこと・大会のチップの名前、各セクション・ask の差し込み口が無いこと、面の並び〈入力欄 → お気に入り → 大会日程 → 誕生日 → 新着の番組 → 末尾の説明文〉、`top_ask.js` の `cardPlayers()`・`sameOrigin()` を node で〈外のサイト・`//`・`/\\`・名前の無い行を弾く〉） |
+| docs/notes/top-page.md・docs/decisions/top.md | 構成・上部の節。決定の節（TOP-07） |
+
+### 3. 検証
+
+- テスト: `python3 -m unittest discover -s scripts/tests` → `Ran 1790 tests … OK`
+- 生成: `regenerate-page.yml`（work/1103-top、`target_page: top_page`）を2回。`7ec9fb4ea`（+22/−13）・`aa53273b1`（+1/−1、role="group"）で、**変わったのは `top/index.html` だけ**（`houou_ask.js`・`houou_ask.css`・`ASK_TEMPLATE` を変えていないので、大会別の欄のページの生成物の差分は0件）
+- 画面（Playwright、ローカルの静的サーバ。`/api/ask` と `/api/ask/status` を応答の見本に差し替え、UA に mj-internal）: 360px は明暗、400px は明暗で1大会・3大会。5通りとも JS のエラー0件、横スクロールなし、「各セクション」の面は無い
+
+| 見本 | 送った要求 | 画面 |
+|---|---|---|
+| 1大会（例「現鳳凰位は？」を押す） | `{"question":"現鳳凰位は？","contest":"all","context":null}` | 答え1行・データ・出典のリンク、カード1枚（チップ「鳳凰戦」）。例・入力欄は戻る |
+| 3大会（入力して Enter） | `{"question":"白鳥翔の成績は？","contest":"all","context":null}` | 答えは【鳳凰戦】【WRCリーグ】【麻雀最強戦】の3行に改行、lead・注記・データ3つ、出典は外の URL をリンクにしない、カード3枚（鳳凰戦・WRCリーグ・麻雀最強戦）と「ほか 1名」 |
+| 答えられない | 同上 | 答えの文だけ |
+| 上限（429 `limit`、scope ip） | 同上 | 「本日ご質問いただける回数の上限に…」、入力欄・送る・例のボタンが押せなくなる |
+| 地域（503 `region`） | 同上 | 「お使いの地域からは、この質問欄を使えません…」 |
+
+  どの見本でも、ページを開いただけでは `/api/ask` に送っていない（送ったのは押した・入力した後の1回だけ）
+- プレビュー（ブランチ名の別名 URL、`/top/?v=aa53273`）: 一行の説明・`data-contest="all"`・見出しが 開催中・直近の大会／今日が誕生日の選手／新着の番組 の順（各セクションは無い）、`assets/top_ask.js`・`assets/top.css` が 200。答えは `ALLOWED_ORIGIN` が本番だけなのでプレビューでは確かめていない
+
+### 4. 自己レビュー（docs/notes/self-review.md）
+
+新しい文脈のサブエージェント（general-purpose）に、目的・横断の API・観点と差分（579行）を渡した（1回）。高・中は無し。
+
+| 指摘 | 扱い |
+|---|---|
+| 低: 例のまとまりの `div` の `aria-label` に role が無く読まれない | 直した（f88ca1265、`role="group"`） |
+| 低: 例を押すとそのボタンが disabled になりフォーカスが外れる | 直した（f88ca1265、押したら入力欄へフォーカス） |
+| 低: `contest` の欠けた `players[]` の行で空のチップが出る | 直した（f88ca1265、名前が取れないときはチップを作らない） |
+| 低: 例を押して送る・送る間は押せない・上限の後は押せないままの動きに検査が無い | 見送り（`houou_ask.js` にも DOM の検査は無く同じ水準。動きは上の Playwright の見本で確かめた） |
+
+### 5. 仮置きの一覧
+
+| 仮置き | 画面のどこに効くか |
+|---|---|
+| 一行の説明「日本プロ麻雀連盟の選手・大会・放送対局のデータ」（360px では2行に折り返す） | h1 の下 |
+| 入力欄の中の文言「選手や大会について質問してください」 | 入力欄 |
+| 質問の例「現鳳凰位は？」「白鳥翔の成績は？」「女流桜花の歴代優勝者は？」（3つ目は決定の「次の決勝はいつ？」から替えた。360px では2段） | 入力欄の下 |
+| 注意書き（「AI の回答には間違いが…」と ⓘ）は大会別の欄と同じく例の下 | 例の下 |
+| 答えの選手のカードは頭文字の丸・大会のチップ・名前（写真は出さない） | 答えの下 |
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1103-top
+- ログ: https://github.com/retroeater/mj/blob/work/1103-top/docs/logs/CHAT-1103-TOP-07.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1103-top
+- 確認用URL: プレビューあり（URL は最終報告）。確認したページ: `/top/`。この版で見えるはずの印: h1「ryoei.pro」の下に「日本プロ麻雀連盟の選手・大会・放送対局のデータ」と入力欄、その下に例のボタン3つ。「各セクション」の面が無い
+- マージ: 未（平野さんの判断待ち。指示文の「マージ: 判断待ちで止まる」）
+- issue: #101（着手中コメント）
+- 判断が必要なこと:
+  - プレビューで見て決める点: `## 経過`「5. 仮置きの一覧」の5項目（一行の説明・入力欄の文言・例の3つ〈3つ目を「女流桜花の歴代優勝者は？」に替えた〉・注意書きの位置・カードに写真を出さないこと）
+  - 答えの見え方はプレビューでは確かめられない（`ALLOWED_ORIGIN` が本番だけ）。応答の見本で確かめた。本番で答えを確かめるのはマージの後
+  - `houou_ask.js` は変えていない（変えた関数は無し）。トップの横断の動きは新しい `assets/top_ask.js` に写した（PRP 系列が `houou_ask.js` の名簿・カードの関数を変えている最中のため）。大会別の欄を同じ部品にするとき（#654・#101 の後の決定）に1つにまとめる
+- 未確認の項目:
+  - 本番での横断の答えの見え方（マージの後）
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
