@@ -70,7 +70,7 @@ title/（入口・大会ページ・期ページ）の見た目を、黒いナ�
 
 ## 報告
 
-- 状態: 中断（止まる条件に当たった）
+- 状態: 中断（止まる条件に当たった） / 続き: CHAT-1104-TTL-02
 - ブランチ: work/1104-ttl
 - ログ: https://github.com/retroeater/mj/blob/work/1104-ttl/docs/logs/CHAT-1104-TTL-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1104-ttl
@@ -94,4 +94,4 @@ title/（入口・大会ページ・期ページ）の見た目を、黒いナ�
 - docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8071c9be/docs/notes/chat-side-operations.md
 - docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8071c9be/docs/notes/cloudflare.md
 - docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8071c9be/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/8071c9be.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/59c4b82d.md
