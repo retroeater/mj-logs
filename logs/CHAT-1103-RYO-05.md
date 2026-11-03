@@ -60,6 +60,39 @@ RYO-04（試作: 映画館・対局室）の次に足す r/ の場面を決め�
 
 ## 経過
 
+### 着手前の確認
+
+- 0章: ログの「指示」欄の末尾が指示文の最後の行と一致
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: すべてある。貼る時機は「別のセッションに貼る」だが、RYO-04 と同じセッションに貼られた（RYO-04 は判断待ちで止まっていて並行の作業は無い。ブランチは指示どおり別の work/1103-ryo5）
+- 同じ Chat-Ref のコミット: なし。`origin/work/1103-ryo5` はリモートに無かったので `git checkout -b work/1103-ryo5 origin/cloudflare`（着手時 HEAD 35a071d86）
+- issue: RYO-04 で起票した #657 に着手中コメント
+- 未マージの work/ ブランチで `fetch-x-posts.yml`・`fetch_x_posts.py` を変えているもの: 無し
+- 前提の実物:
+  - `scripts/fetch_x_posts.py`（全期間検索・`SEARCH_MAX_READS = 1200`・`SEARCH_MAX_COST = 6.0`・`COST_PER_READ = 0.005`・鍵 `X_BEARER_TOKEN`）、`fetch-x-posts.yml`（手動実行と `workflow_call`）、`convert-x-posts.yml`（`ANTHROPIC_API_KEY`・`anthropic==1.7.0`）は前提どおり
+  - 呼び出し元: `run-daily.yml` の `xfetch`（`workflow_call`、`permissions: contents: read`）だけ。`run-weekly.yml` からは 2026-11 に外れていた（コメントだけ）。前提の「run-weekly・run-daily など」は今は run-daily だけ
+  - **食い違い1（止まらず調整）**: 前提は「飲食店の投稿は【1】元データの投稿 ID と照らして外す」だが、【1】は本人の写真付きの投稿をすべて入れる（飲食店以外も入る）。飲食店かどうかは【2】自動変換後の「判定」にある。【2】で判定が「飲食店」の投稿 ID を外すことにした（読むだけ）
+  - **食い違い2（止まらず調整）**: 調べの結果（コンタクトシート・表）をワークフローから作業ブランチにコミットするには、そのジョブに `contents: write` が要る。`fetch-x-posts.yml` は run-daily から `contents: read` で呼ばれ、呼ばれるワークフローのジョブが呼ぶ側より強い権限を求めると、そのジョブを動かさない日でも起動で失敗する。新しいワークフローも足さないので、調べのジョブは `contents: read` のまま、結果を圧縮してジョブのログに出し、セッションでログを読んでコンタクトシートを作ることにした（写真は pbs.twimg.com から読める。このコンテナから届くことを確かめた）
+  - Pillow は既存の `scripts/requirements-ogp.txt`（版とハッシュを固定）、Claude は既存の `anthropic==1.7.0` で足りた（新しい依存は無い）
+
+### 仕組み
+
+- `scripts/survey_ryoei_photos.py`（新規、一度きり）:
+  - X: `fetch_x_posts.fetch_search()` で `from:retroeater has:images -is:retweet -is:reply`（引用は含む。返信は人との会話の写真が多い見込みで外した。「ログ」の取り込みと同じ式）、期間は 2006-03-21 から今まで、新しい順。上限はこの調べ用に別に持つ（`X_MAX_COST = 15.0` → 3,000件）。「ログ」の取り込みの上限（1,200件・$6）は変えていない
+  - 飲食店: 【2】で判定が飲食店の投稿を外し、残りは分類の `food` で外す
+  - 分類: `claude-haiku-5-5` に写真（長い辺 512px）と本文の先頭280字を見せ、`people`・`food`・`description`（30字）・`clues`（20字）・`usable`・`scene` を JSON で返させる。人物の特定はしない・名前と顔の特徴は書かないと指示。8本並べて呼ぶ。費用は呼ぶ前に上限の見込みを取っておき、$5 からまとめの分（$0.8）を残したところで止める
+  - まとめ: 人なしの写真の表（時代・番号・投稿日・説明・手がかり・場面）を `claude-sonnet-5-5` に渡し、時代ごとの空間の案・時代を行き来する仕組みの案・写真の無い時代の案を書かせる
+  - 結果は圧縮して base64 にし、ジョブのログ（標準エラー）に `RYOEI_SURVEY ` の行で出す。本文は出さない
+  - セッションで `--sheets <ジョブのログ>` を動かし、表の写真（`?name=small`）を読んで時代ごとの番号付きのコンタクトシート（6列×10段、1枚 2MB 以下・合計 15MB 以下になるまで格子を小さくする）と `survey.json`・`summary.md` を作る
+- `fetch-x-posts.yml`: 手動実行の入力 `mode`（`logs` 既定・`ryoei-survey`）を足し、既存のジョブ `fetch` は `mode` が `ryoei-survey` でないとき（`workflow_call` は `mode` が無いので今までどおり）、新しいジョブ `ryoei-survey`（`contents: read`）は `ryoei-survey` のときだけ動く。`workflow_call` の Secret に `ANTHROPIC_API_KEY`（required: false、run-daily からは渡さない）を足した
+- 検査 `scripts/tests/test_survey_ryoei_photos.py`: 上限（3,000件、「ログ」の上限は変わらない）・検索の式・費用の取り置き・時代の区切り・【2】の飲食店の ID・ログとの往復（途中で切れたら止まる）・シートの並びと大きさ
+- `docs/notes/github-actions.md`「ワークフローの一覧」の `fetch-x-posts.yml` の行に `mode=ryoei-survey` を足した
+
+### 手動実行（work/1103-ryo5、4a41c7943）
+
+- run 22（`mode` 既定・`dry_run: true`）: success。ジョブ `fetch` が動き、`ryoei-survey` は skipped（既定の動きが変わらない）
+- run 23（`mode: ryoei-survey`・`dry_run: true`）: success。ジョブ `ryoei-survey` が動き、`fetch` は skipped。出力: 鍵は X・Claude とも有、「【2】自動変換後」で飲食店の投稿 2,676件、X の上限 3,000件・$15、Claude の分類は1枚 約 $0.00018（上限まで約 23,333枚）
+- dry-run では X の件数を数えられない（件数の取得〈counts〉の課金が確かめられないので呼ばない）。決定のとおり、本実行は新しい順に読み、$15 で止める。どこまで遡れたかを時代ごとに書く
+
 ## 報告
 
 - 状態: 作業中
@@ -76,12 +109,12 @@ RYO-04（試作: 映画館・対局室）の次に足す r/ の場面を決め�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 22d902d0）: https://github.com/retroeater/mj-logs/tree/main/guide/22d902d0
+ガイド文書（この版を写した時点の最新、mj a918bc1b）: https://github.com/retroeater/mj-logs/tree/main/guide/a918bc1b
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/22d902d0/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/22d902d0/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/22d902d0/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/22d902d0/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/22d902d0/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/22d902d0/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a918bc1b/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a918bc1b/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a918bc1b/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a918bc1b/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a918bc1b/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a918bc1b/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/795228a7.md
