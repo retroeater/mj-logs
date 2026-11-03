@@ -54,6 +54,33 @@ CHAT-1103-RYO-01（判断待ち）の仮置きとデータの食い違いに平�
 
 ## 経過
 
+### 着手前の確認
+
+- 0章: ログの「指示」欄の末尾が指示文の最後の行と一致
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: すべてある
+- 同じ Chat-Ref のコミット: なし（`RYO` は同じセッションの続きの 02）
+- 作業ブランチ: `origin/work/1103-ryo` があり、ローカルと一致（cce7d2c3a）。`git merge-base --is-ancestor origin/cloudflare HEAD` が偽だったので `git merge origin/cloudflare`（衝突なし、13コミット）
+- #655 の着手中コメント: RYO-01 の自分のものだけ。今回の着手中コメントを書いた
+- 前提の実物:
+  - `title/search.json` の `p` の平野良栄: `[[259, 4], [272, 2]]`。`m[259]` = `['第3期WRC-Rリーグ', '/title/jwrc-r/3.html', '2024', 10]`、`m[272]` = `['第29期新人王戦', '/title/shinjinou/29.html', '2015', 11]`（cloudflare の版も同じ）。2件で前提どおり
+  - `lib/meibo.py` の `Member.rank`（段位、例「五段」）がある。同じ登録名の2行目は捨てて警告に残す（`parse_rows()`）
+  - `update-live-channel.yml` の `regenerate` ジョブ: `target_page: live_pages title_pages pro_pages`（381行）で前提どおり。呼び出し元は `run-daily.yml`（`uses: ./.github/workflows/update-live-channel.yml`）だけ。ほかの言及は `regenerate-page.yml`・`sync-yotei.yml` のコメント
+- 未マージの work/ ブランチで `update-live-channel.yml`・`scripts/regenerate.py`・`scripts/lib/meibo.py` を変えているもの: `work/1029-lgn-page`・`work/1101-prp-pub` の `regenerate.py`（別の行。RYO-01 のログのとおり）。止まらない
+
+### 実装
+
+- `scripts/generate_ryoei_pages.py`:
+  - 段位: `meibo.fetch_members()` の `Member.rank`（`member_rank()`。名簿に平野良栄が無い・2行あれば止める）。手書きの「四段」を消し、自己紹介の最後の行に
+  - 入賞: `title/search.json` の決勝（`title_finals()`。pro/ の `title_wins()` と同じ読み方で、優勝に限らない。2件でなければ止める、定数 `FINALS_EXPECTED`）を「第3期WRC-Rリーグ 4位」・2行目「2024年」・title/ の期のページへの行にし、手書きの2件（世界リーチ麻雀選手権 110位 2017年10月・チャンピオンズリーグ 4位 2015年9月、押せない行）と新しい順に並べる（`award_rows()`。同じ年なら月のある手書きの行が先）。特別昇級リーグの2件は除いた
+  - 鳳凰戦のリーグの履歴の面（`league_spans()` など）を消した
+  - 自己紹介の「ウェブサイト」を消した。見出し「Facts」→「数字で見る」。WRC 2017 のインタビューの題を「【世界リーチ麻雀選手権2017インタビュー】」に
+  - 鍵の無い環境の `--check`: pro/ と同じく、名簿の読み込みで止まる（`読み込み: SheetsReadError: 環境変数 SHEETS_READER_SA_KEY がありません…`。`generate_pro_pages.py --check` も同じ文で止まることを確かめた）
+- `.github/workflows/update-live-channel.yml`: `target_page: live_pages title_pages pro_pages ryoei_pages`、冒頭の説明の5.に r/。`regenerate-page.yml` の `workflow_call` のコメントにも r/
+- `scripts/regenerate.py`: RUN_LAST の上の r/ のコメントを「毎朝の再生成で pro/ の後に作り直す」に（「作り直さない」の記述を消した）
+- `docs/notes/github-actions.md`「ワークフローの一覧」の `update-live-channel.yml` の行・`docs/notes/static-generation.md` の r/ の行
+- 検査 `scripts/tests/test_ryoei_pages.py`: 件数（出演7・手書きの入賞2・学歴と所属4）、入賞の並びとリンク、決勝の件数で止まること、名簿の段位（1件・2件・無し、`meibo.parse_rows()` を通す）、段位の行、毎朝の `target_page` に `ryoei_pages` が `pro_pages` の後にあること
+- `python3 -m unittest discover -s scripts/tests`: OK
+
 ## 報告
 
 - 状態: 作業中
