@@ -70,16 +70,18 @@ TOP-13 は、マージの条件 (3)（比べる実行で6件が出ること）�
 - (1) テスト: 1907件 OK
 - (2) `git diff --name-only origin/cloudflare...HEAD`（生成し直す前）: assets/houou_ask.css・houou_ask.js・nav.js・ryoei/world.css・top.css・top.js・top_ask.js、docs/decisions/houou.md・top.md、docs/logs/CHAT-1103-TOP-05.md・CHAT-1104-TOP-11〜14.md、docs/notes/ の11件（ask-worker・design・houou-top・jwrc-top・league-pages-compare・ouka-top・pro-pages・saikyo-page-design・static-generation・top-page・wrcr-top）、houou/・jwrc/・ouka/・saikyo/・top/・wrcr/ の index.html、navbar.js、scripts/generate_houou_pages.py・generate_saikyo_pages.py・generate_top_page.py・regenerate.py、scripts/tests/ の5件、sitemap-pages.xml・sitemap-saikyo.xml、style.css。TOP-13 の一覧と同じで、ほかは TOP-05・14 のログだけ
 - (3) 全ページの生成し直し（dry_run なし・all）を作業ブランチで実行中
+- (3) 全ページの生成し直し（`regenerate-page.yml`、dry_run なし・all、run 41731926149、f012b1b3b）: 成功、飛ばしたページなし。生成し直しても変わるファイルが無く、コミットは出なかった（シート側のその日の変化による差も無い。除いたファイルは無い）。`git diff --name-only origin/cloudflare...HEAD` の生成物は houou/・jwrc/・ouka/・saikyo/・top/・wrcr/ の index.html と `sitemap-pages.xml`・`sitemap-saikyo.xml` だけで、サイトマップの差は lastmod の行だけ（lastmod 以外の行の差は0行）
+- 3つとも満たしたのでマージする
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj dfabc859）: https://github.com/retroeater/mj-logs/tree/main/guide/dfabc859
+ガイド文書（この版を写した時点の最新、mj e27f2c52）: https://github.com/retroeater/mj-logs/tree/main/guide/e27f2c52
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/dfabc859/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/dfabc859/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/dfabc859/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/dfabc859/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/dfabc859/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/dfabc859/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e27f2c52/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e27f2c52/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e27f2c52/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e27f2c52/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e27f2c52/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e27f2c52/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/dfabc859.md

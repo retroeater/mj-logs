@@ -6,7 +6,7 @@
 
 ## 構成と生成
 
-- URL は houou/ と同じ並び: `ouka/`（トップ・質問欄）・`ouka/players/`・`ouka/ranking/<スラッグ>/`（連続昇級を除いた8部門、2026-10-18。`ouka/ranking/` は `total/` へ 301）・`ouka/race/`・`ouka/leagues/`（旧 `ouka_leagues.html` の転送先。個人成績のリーグのタブ `?view=league` へ JS で移すだけ、noindex、#591。`Contest.leagues_moved`）
+- URL は houou/ と同じ並び: `ouka/`（トップ。質問欄は 2026-11-04 に外し、共通ナビの AI 検索のアイコンから開く）・`ouka/players/`・`ouka/ranking/<スラッグ>/`（連続昇級を除いた8部門、2026-10-18。`ouka/ranking/` は `total/` へ 301）・`ouka/race/`・`ouka/leagues/`（旧 `ouka_leagues.html` の転送先。個人成績のリーグのタブ `?view=league` へ JS で移すだけ、noindex、#591。`Contest.leagues_moved`）
 - 生成は `scripts/generate_ouka_pages.py`（`regenerate.py` の `ouka_pages`、出力 `ouka/`）。中身は `generate_houou_pages.py` を大会の設定 `OUKA` で動かすだけ（`using(OUKA)`。設定は `Contest`）。共有の部品は複製しない。`regenerate.py --changed` は `generate_houou_pages.py` の変更でも `ouka_pages` を選ぶ（`scripts/lib/houou_race.py` などの `lib/` の変更では全ページ）（`ask_data_ouka` は `generate_ask_data.py`・`generate_houou_pages.py` の変更でも。`SHARED_GENERATORS`）
 - JS は houou/ と共有の `assets/league.js`・`assets/league_race.js`（2026-10-17 に `houou.js`・`houou_race.js` から改名）と `assets/houou_ask.js`。ページの `<script type="application/json" id="league_contest">`（`OUKA.script`）でリーグ・期の書き方・題名の接尾辞・最近見た選手のキー・順位変動のリーグの番号を渡す。houou/ のページには無く、JS は鳳凰戦の既定で動く
 - CSS は houou/ の節のまま。ページの枠に `is-ouka` を付け、`style.css` の `.is-ouka` でリーグの色だけを替える
@@ -17,7 +17,7 @@
 
 - 前期・後期が無い（「前後」の列が無い）。全リーグを houou/ の通期（#541、`houou_tab.SPAN`）として扱う（`OUKA.halves` が偽のとき `term_half()` が全行 SPAN を返す）。成績 JSON の前後は 0、順位変動の期のキーは `<期>-0`、URL は `ouka/race/?term=20&league=A`（旧形式 `?term=20-2` も受ける）。画面の期は「21期」「第21期」、リーグのタブの期は「20期」
 - リーグは 桜花・A・B・C1・C2・C3（C1 は第7期〜、C2 は第15期〜、C3 は第19期〜）。組は無い
-- 「桜花」の行は前の期の優勝者が座っている期（鳳凰位と同じ扱い: 順位・合計・節は空、行を開かない、全体の順位に数えない、出場の期数に数えない）
+- 「桜花」の行は、前の期の優勝者が女流桜花として迎えた期で、リーグ戦には出ていない（鳳凰位と同じ扱い: 順位・合計・節は空、行を開かない、全体の順位に数えない、出場の期数に数えない）
 - 「結果」の列は平野さんが埋めた（#597。値は 昇級・降級・残留・決定戦・空欄。入替戦に出た人は入替戦の後の結果で、出たかは「入替戦」列〈G列、Y/N〉。特別昇級はリーグの成績での結果）。houou/ と同じく、結果のチップ（期のカード・吹き出し・通算のグラフの丸）と「入替戦」の印、順位変動の昇級・降級・入替戦の帯と A の「決定戦」の人数の帯（houou/ の A1 と同じ）を出す。C の1〜3位が入替戦に出る期は入替戦の帯が昇級の帯の上に来る。ランキングの「連続昇級」は出さない（8部門、2026-10-18。部門の格子は houou/ と同じ3段×3列で、1枠空く）。空欄の行は結果なし（チップなし）
 - 節は第1〜8節（第1〜8期は6節、第9〜14期は7節、第15期〜は8節）。節の成績の無い期は無い
 - 進行中の期（第21期。「表示」が全行 N）は houou/ と同じく期別の一番上の行・名前の面のチップ・質問欄の選手カードのチップ。進行中の期だけに出ている選手も個人成績に載せる（ほかのタブは「データがありません」）。Ampai のブックは「女流桜花」・前後は空で引く。前期の B1 で昇級して後期に出ない扱い（houou/ の `skip_back_half`）は無い
@@ -33,6 +33,8 @@
 - OGP は `img/ogp/ouka/index-white.png`（白地・黒字の「女流桜花」＋「ryoei.pro」、docs/notes/ogp.md の規則）。旧 `ouka_results.html`・`ouka_ranking.html`・`ouka_leagues.html` も同じ画像だった（2026-10-17。旧3ページは #582 で消した、2026-10-19）
 
 ## 質問欄
+
+大会のトップの欄は 2026-11-04 に外した。共通ナビの欄はこのページから開くと `context` に `ouka` を添えて横断で問う（docs/notes/design.md「共通ナビ（新しい形）」）。下は廃止した大会別の欄と Worker の記述。
 
 - Worker `mj-ask` を鳳凰戦と共有し、1日の上限（全体 200・IP ごと 10）も共有する（2026-10-17）
 - ouka/ の質問欄は問いに `contest: "ouka"` を添え、Worker は `data-ouka.json` と女流桜花の指示（`ask.mjs` の `OUKA_PLAN_SYSTEM`）で答える。鳳凰戦の問い（`contest` 無し）の答え方は変えない
