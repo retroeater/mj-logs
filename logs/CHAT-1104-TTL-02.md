@@ -73,28 +73,56 @@ CHAT-1104-TTL-01 の指示（目的・決定・前提・手順・止まる条件
   - 取り込むときに解く箇所の見込み: この作業ブランチでは `member_card_html()` を `member_link()`（行き先と新しいタブで開くかを返す、写真カード案・行の案で共通）と `member_holder()` に分けた。prp-pub の行き先の決め方は `member_link()` の中に移せば足りる（`slugs` を引数で渡すか、`member_link()` の中で読む）。`period_body()` は引数に `slugs` を足し、`members_html()` → `member_holder()` → `member_link()` へ渡す。期ページの HTML は解いた後のスクリプトで生成し直す
 - 手順2（実装、3d0d3c72d）: 下の「作ったもの」。生成はこの環境ではシートの鍵（`SHEETS_READER_SA_KEY`）が無く走らないため、`regenerate-page.yml` を作業ブランチで手動実行した（target_page=title）
 
-## 報告
+- 作ったもの（3d0d3c72d・7bc3fc318・6f8b9cdc8）:
+  - `<body class="mj-title-n-page">`（`NEW_BODY_CLASS`、`render_page()` で付ける。live/ の `WHITE_BODY_CLASS` と同じ差し込み方）。`style.css` の最強戦の節の `body:is(.mj-saikyo-n-page, .mj-live-n-page)`（14か所、暗い配色の `@media` を含む）に `.mj-title-n-page` を足し、`--mj-n-*` と最強戦の部品をそのまま使う
+  - `navbar.js`: `<body>` の `mj-title-n-page` で白地のナビにし、「タイトル戦」に印（`newNavCurrent` の判定の末尾、`mj-live-n-page` の次に足した。lgn-page の先頭・prp-pub の `/pro/` の行・top の `if (newNavCurrent)` の後ろとは離した）
+  - パンくず: `breadcrumb_html()` を `saikyo.build_breadcrumb()` に（13px 灰色、紺のリンク 44px）。JSON-LD の BreadcrumbList は見えているパンくずと同じ並びのまま（`test_breadcrumb_json_ld` が通る）
+  - 題名: 大会ページ・期ページは `page_title_html()`（最強戦の対局のページの `.mj-saikyo-n-page-title`、28px 太字＋2行目 13px 灰色）。h1 の文言は読み上げ用の `visually-hidden` の語を足して今の「… 歴代優勝者」「… 決勝結果」を保った
+  - 入口の年の切り替え: `year_picker_html()`（最強戦の年度ページと同じ `.mj-saikyo-n-picker`・`.mj-houou-sheet`。項目は `?year=` のリンク）。`assets/title.js` が開閉（`bindYearSheet` と同じ動き）・再読み込みなしの切り替え・`?year=`・h1・タブの題名を担う
+  - 検索欄: `search_html()`（`.mj-saikyo-n-search`、題名の下）。0件・失敗の知らせは欄の下の `#title_filter_status`。検索の動き（`?q=`・`?name=`・`/`・Esc・120ms・結果の出し方）は変えていない。navbar とバーの固定、`--mj-title-nav-h`・`--mj-title-filter-h`、年のプルダウンの CSS は消した
+  - 写真カード案と行の案: `Holder`（中身）→ `holders_html(holders, layout, …)` が写真カード（今の `photo_card_html()`）か面の中の行（`row_html()`、最強戦の `.mj-saikyo-n-row`・`.mj-saikyo-n-avatar`・`.mj-saikyo-n-chev`・`.mj-saikyo-n-pill`・`.mj-saikyo-n-place`）を作る。本体のページは `LAYOUT`（写真カード案）。期ページの決勝メンバーの行き先は `member_link()` の1か所
+  - 比較ページ `title/compare-layout.html`（`compare_body()`）: noindex、どこからもリンクしない（`grep -r compare-layout` で本ページ以外に0件）、sitemap に載せない（`sitemap-title.xml` に0件）。ラジオボタンと `:has(#title_cmp_….:checked)` で切り替える（JS なし）。入口（現タイトルホルダーと年を選んだとき、年のシートも動く）・大会ページ（鳳凰戦・王位戦）・期ページ（第41期鳳凰戦〈決勝4名〉・第42期十段戦〈決勝5名〉）を両方の案で並べる
+  - 期ページの節（決勝ライブ・決勝動画・帰り道）と大会ページの「成績」の見出しは `.mj-saikyo-n-label`（13px 灰色）。動画のカードは変えていない。「成績」のリンクは面の中の押せる行（›）
+  - 検索結果の期のカードは面の色（`--mj-n-surface`・角丸 12px・影なし）、順位のバッジは灰色の地に灰色の字（最強戦の敗退のピルと同じ）、優勝の淡い金はそのまま
+- 生成（`regenerate-page.yml`、作業ブランチで手動実行）: 1回目は target_page=title で「生成スクリプトがありません: scripts/generate_title.py」で失敗（ページ名は `title_pages`。`python3 scripts/regenerate.py --list` で確かめて再実行）。2回目（36ca28110）と、レビューの修正の後の3回目（f4b38e70a）は成功
+  - 生成物の差分（`git diff --stat origin/cloudflare...HEAD -- title/ sitemap-title.xml`）: 387 files。title/ の HTML（入口1・大会20・期365）、新しい `title/compare-layout.html`、`sitemap-title.xml` の lastmod だけ（`git diff … sitemap-title.xml` の lastmod 以外の行は0）。`title/search.json`・`title/years.json`・`llms.txt`・`sitemap.xml` は差分なし。ほかのページの HTML の変化なし（`git diff --name-only origin/cloudflare...HEAD` の title/・docs/ 以外は assets/title.js・navbar.js・scripts の4本・sitemap-title.xml・style.css）
+  - 公開ページの noindex・canonical・og:* は変わっていない（レビューのサブエージェントが meta の差分0を確かめた）
+- テスト: `python3 -m unittest discover -s scripts/tests` → 1807 tests OK（自分の変更で落ちた3本〈成績のリンク・帰り道の見出し・入口の年の切り替えの文言〉は新しい形に直した。行・カードの組み立てのテスト7本を足した）。`node --check assets/title.js navbar.js` 通過
+- 確かめ（headless Chromium、`python3 -m http.server` で作業ツリーを配信、UA に mj-internal。スクリプトは `docs/logs/CHAT-1104-TTL-02/shoot.js`）:
+  - 9ページ（入口の既定・`?year=2025`・`?q=白鳥`、大会ページ 鳳凰戦・王位戦、期ページ 第41期鳳凰戦〈決勝ライブ・帰り道あり〉・第42期十段戦〈決勝5名・帰り道あり〉、比較ページ〈写真カード案・行の案〉）× 360px・1280px × 明・暗 = 36枚
+  - はみ出し（横スクロール・main の要素が画面の右端を越える）・切れ（overflow hidden の葉の要素の文字の切れ）・重なり（行・題名・検索欄・パンくずの子どうし）: 標準の字体で 36/36 ページとも 0件。幅の広い字体（IPA ゴシック・WenQuanYi Zen Hei を `font-family` に当てた）でも 36/36 ページとも 0件（`measure-default-font.json`・`measure-wide-font.json`）
+  - 文字の拡大: ルートの文字 150%・200% で 入口・第41期鳳凰戦・比較ページ（行の案）のはみ出し 0件
+  - 部品の状態ごとの高さ（360px・1280px とも同じ値）: 題名の選ぶボタン 44px（「現タイトルホルダー」・「2025年優勝者」とも）、年のシートを開いた高さ 663px、検索欄のまとまり 44px（知らせなし）→ 72px（「該当する選手はいません」あり。検索中は本来の内容が隠れるため、下のずれは本来の内容に及ばない）、期ページの題名 55px（日付ありの第41期・「1984年」の第1期とも）
+  - 年の切り替え: シートで「2025年優勝者」を押すと URL `?year=2025`・タブの題名「2025年優勝者 | タイトル戦 | …」・題名のラベル・h1「タイトル戦 2025年優勝者」が替わり、カード 25枚。シートを開いた間は `/` で検索欄へ移らない（フォーカスはシートのまま）
+  - 共通ナビ: `/title/`・`/title/houou/41.html` は `mj-nav-new` で「タイトル戦」に印、`/saikyo/2025/`・`/houou/` は従来どおり（「最強戦」「鳳凰戦」）
+  - 画像（標準の字体の36枚）は `docs/logs/CHAT-1104-TTL-02/`
+- レビュー（docs/notes/self-review.md、新しい文脈の general-purpose に目的・決定・差分・コード規約を渡した。1回目）:
 
-- 状態: 作業中
-- ブランチ: work/1104-ttl
-- ログ: https://github.com/retroeater/mj/blob/work/1104-ttl/docs/logs/CHAT-1104-TTL-02.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1104-ttl
-- 確認用URL: 未
-- マージ: 未
-- issue: なし
-- 判断が必要なこと: 未
-- 未確認の項目: 未
-- エラー: なし
+  | 指摘 | 扱い |
+  |---|---|
+  | `row_html`・`rank_mark_html`・`holders_html` の分岐にテストが無い | 直した（6f8b9cdc8、`test_title_years.LayoutTest` 7本） |
+  | docs/notes/title-pages.md が固定バー・年のプルダウンの記述のまま | 直した（e0e050120、docs だけの別コミット） |
+  | シートを開いている間も `/` が背面の検索欄へ移る | 直した（6f8b9cdc8） |
+  | 比較ページに h1 が5つある | 意図どおり（noindex・リンクなしの一時のページで、節の題名を本体のページと同じ部品で見せるため） |
+  | 比較ページの期の節の代替画像のパスが1階層ずれる | 直した（6f8b9cdc8、`members_html()` に asset_prefix） |
+  | 暗い配色で検索結果の順位のバッジが明るいまま、メンバー限定のバッジの縁が見えない | 順位のバッジは直した（灰色の地に灰色の字）。メンバー限定のバッジは「動画のカード自体は変えない」の前提どおり残した（仮置きの一覧） |
+  | 年のシートが saikyo/live の写し・「完了」が直書き | 「完了」は `saikyo.SHEET_DONE_LABEL` に（6f8b9cdc8）。HTML・JS の共通化は見送り（案が決まった後に検討） |
+  | navbar.js だけパスで判定 | 直した（6f8b9cdc8、`<body>` の class で判定） |
+  | 参考: `scripts/promo_video/title/capture.mjs` が `.mj-filterbar`・`#title_select` を見ている | 見送り（`#title_select` はこの変更の前から無く、すでに壊れている。報告に書く） |
+
+  2回目の往復はしていない（修正は指摘の範囲だけで、テスト・生成・撮影をやり直した）
+- 実装後の未マージのブランチとの取り込みの確かめ（`git merge-tree --write-tree HEAD <branch>`、実装のコミットの時点）: `work/1029-lgn-page`・`work/1104-top` は衝突なし。`work/1101-prp-pub` は `scripts/generate_title_pages.py` が衝突（再生成後は title/ の期ページの HTML も衝突する見込み）
+- プレビュー: 作業ブランチの push に「Workers Builds: mj」の check-run が付かなかった（下の「未確認の項目」）
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj d30c186d）: https://github.com/retroeater/mj-logs/tree/main/guide/d30c186d
+ガイド文書（この版を写した時点の最新、mj 667be053）: https://github.com/retroeater/mj-logs/tree/main/guide/667be053
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d30c186d/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d30c186d/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d30c186d/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d30c186d/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d30c186d/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d30c186d/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/667be053/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/667be053/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/667be053/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/667be053/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/667be053/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/667be053/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/59c4b82d.md

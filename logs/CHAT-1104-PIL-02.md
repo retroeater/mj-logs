@@ -79,6 +79,17 @@ CHAT-1104-PIL-01 で判断待ちになった Pillow 13.0.0 への版上げを cl
   - 今回の変更と無関係と判断した理由: 差分は `scripts/`（`.assetsignore` で公開対象外）・テスト・docs だけで、Workers Builds の Build command は「なし」。`workers/ask` を触っていない `mj-ask` も同時に失敗した。直前にも無関係のコミット（d772aeb29、docs のみ）で `mj` の失敗があり、作業ブランチの faa1c357c（requirements の変更）のプレビューは failure だったが、8071c9bed（その後のコミット、cloudflare）は mj・mj-ask とも success。Workers Builds 側の断続的な失敗とみている（推測。段階は平野さんがダッシュボードで確かめられる）
   - 本番の反映: d30c186d3 の後に別セッションの CHAT-1104-AIC-33 のマージ（667be053f）が cloudflare に入った。その本番ビルドの成否を下に書く
 
+### 手順3（cloudflare での手動実行）
+
+`regenerate-page.yml` を ref `cloudflare`（d30c186d3）、`target_page: all`・`dry_run: false` で手動実行した（run 41668885312、ジョブ 126031570050）。結論: success。
+
+- 帰り道の手順「帰り道の一覧のOGP画像を作る」（`id: build_wayhome_ogp`）: **success**。Python は 3.12.16（`/opt/hostedtoolcache/Python/3.12.16/x64`）
+  - この手順は `continue-on-error: true` なので、ジョブのログで中身も確かめた。`pip install --quiet --require-hashes -r scripts/requirements-ogp.txt` は pip の更新の notice だけを出して通り、続く `build_wayhome_ogp.py` が `img/ogp/wayhome/index-20261026.jpg: 176,094バイト` を出した（「既にあり中身が違います」は出ていない）。後の「帰り道の取り込みの失敗を報告」は skipped
+  - 入った Pillow の版: pip が `--quiet` のため版の行は出ない。ハッシュは 13.0.0 の cp312・cp313 の wheel のものだけなので、`--require-hashes` で入ったのは 13.0.0（cp312）に限られる
+- `img/ogp/wayhome/`: 差分なし（`git diff --stat d30c186d3 8aa33033d -- img/ogp/wayhome` が空。最新4本は変わらず）
+- 再生成のコミット: 8aa33033d「chore: regenerate … via GitHub Actions」（push で別セッションの 667be053f と競合し、ワークフローの rebase で入った。`667be053f..8aa33033d`）。変わったのは7ファイル: `pro/aki.nikaido.15/`・`pro/jun.nishikawa.18/`・`pro/kana.nakata.21/`・`pro/maiko.erikawa.32/`・`pro/masaaki.ishikawa.17/`・`pro/tadashi.yoshida.23/` の各 `index.html` と `top/index.html`（シートの変化を反映したもの。Pillow とは無関係）
+- そのほかの手順: サイトマップ・title/ の転送の確認・コミット・帰り道の前回の知らせを読む・帰り道の取り込みを調べる は success。帰り道の知らせを書く は skipped（新しい回なし）
+
 <!-- guide-links -->
 ---
 
