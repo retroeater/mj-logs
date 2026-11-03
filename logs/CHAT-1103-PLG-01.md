@@ -53,28 +53,66 @@
 
 ## 経過
 
+### 0. 着手前の確認
+
+- 「指示」欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべて揃っている
+- この会話は PLG-01〜10（2026-10-20）と同じセッション（Claude-Session の URL が同じ）。この指示はセッションの最初の指示ではないので、`PLG` の重複の確認は当たらない。
+  念のため全ブランチの `-PLG-` のコミットの Claude-Session を見たところ、すべてこのセッションのものだった
+- `git log --all --grep="CHAT-1103-PLG-01"` は0件、`docs/logs/` にも無し。`work/1103-plg` はローカル・リモートとも無し → `git checkout -b work/1103-plg origin/cloudflare`（着手時HEAD 11e7c6551）
+- 未マージの `work/` ブランチの重なり: `origin/work/1029-lgn-page` が docs/decisions/operations.md を変えている（中ほどの 1246〜1442 行あたりへの追記）。今回の追記は末尾で別の箇所。docs/notes/skills.md・`.claude/` を変えているものは無し
+
+### 1. plugin の一覧・規則ファイル・参照箇所
+
+- Claude Code 2.1.317。`claude plugin list` の「Synced from claude.ai:」は7件、すべて `Status: √ loaded`: code-review・frontend-design・claude-md-management・claude-code-setup・claude-security・code-simplifier・security-guidance。**hookify は無い**
+  - 同期先 `~/.claude/plugins/synced/<アカウントの識別子>/` には hookify のディレクトリ（6459f953-…）と、frontend-design・code-review の古い版のディレクトリが残っている（更新 11-03 01:42 UTC）。`manifest.json` の plugin は7件で、hookify は含まれない。`claude plugin list` は manifest に従っている、と読める
+  - 7件の中身（manifest の7件のディレクトリを数えた）: skill 4本（frontend-design・claude-md-management・claude-code-setup・claude-security）、slash command 2本（code-review・claude-md-management）、agent 9本（code-simplifier 1・claude-security 8）
+- `.claude/` の下の hookify の規則ファイル: `.claude/hookify.warn-sitemap-lastmod.local.md` の1本だけ（リポジトリ全体で `hookify.*` を探した）
+- CLAUDE.md・docs/（docs/logs/ を除く）の `hookify`・`warn-sitemap-lastmod` の参照:
+  - CLAUDE.md: 無し
+  - docs/notes/skills.md: 「git の hook」の「hook・`.claude/` の settings・hookify の規則ファイルの変更は、ほかのコードと同じ運用」（90行目）、「hook の層の分け方」の各行（105〜119行目、規則の表を含む）
+  - docs/decisions/operations.md: 2026-10-20（PLG-01・07・08・09・10）の節と 2026-11-01 の節（1327行目、「hookify の規則ファイルの変更も、ほかのコードと同じ運用」）。決定の記録なので書き換えず、今回の節で置き換えを書いた
+  - ほか（scripts/・.github/ など）: 無し
+
+### 2. 削除と文書の直し
+
+- `git rm .claude/hookify.warn-sitemap-lastmod.local.md`（分類器の拒否は無かった）
+- docs/notes/skills.md:
+  - 「hook の層の分け方」: 方針の箇条（止める規則と注意を出す規則）、足す目安、格上げの目安は残した。hookify の規則の置き場所・書式・試験の3つの箇条と規則の表を消した。
+    方針の箇条の直後に「hookify は 2026-11-03 にやめた（唯一の規則が2週間働いた記録が無く、守る対象の lastmod は `regenerate-sitemap.yml` と週次の再生成で自動で直るため。CHAT-1103-PLG-01）。注意を出す規則が要るときは、plugin を入れ直して規則を足す」を足した
+  - 「git の hook」: 「hook・`.claude/` の settings・hookify の規則ファイルの変更は…」から「・hookify の規則ファイル」を外した（規則ファイルが無くなったため）
+  - 「plugin の扱い」: 「採否の経緯は docs/decisions/operations.md（2026-10-20）」を「（2026-10-20・2026-11-03）」にした
+  - 「コンテキストの負荷」: 「2026-10-20 は plugin 8件で skill 5本・slash command 6本・agent 10本」を「2026-11-03 は plugin 7件で skill 4本・slash command 2本・agent 9本」にした
+  - 方針と決定の矛盾は無し（方針は残す、の決定どおり）
+- docs/decisions/operations.md の末尾に「2026-11-03（CHAT-1103-PLG-01）」の節を足した（PLG-08・09 の「hookify で最初に試す規則」を置き換える旨を含む）
+- CHAT-1020-PLG-10 のログの `## 報告`（ファイルの最後の一致）の状態を「判断待ち / 続き: CHAT-1103-PLG-01」にした
+- 差分は、規則ファイルの削除・docs/notes/skills.md・docs/decisions/operations.md・PLG-10 とこのログの範囲に収まっている
+
+### 3. テスト
+
+- `python3 -m unittest discover -s scripts/tests`: 1747件 OK（13.1秒）
+
 ## 報告
 
-- 状態: 対応中
+- 状態: 完了
 - ブランチ: work/1103-plg
-- ログ: https://github.com/retroeater/mj/blob/work/1103-plg/docs/logs/CHAT-1103-PLG-01.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1103-PLG-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1103-plg
 - 確認用URL: なし
-- マージ: 未
+- マージ: 済（e498414f9 を fast-forward で push。承認済み〈チャットで〉）
 - issue: なし
-- 判断が必要なこと: 未記入
-- 未確認の項目: 未記入
+- 判断が必要なこと: なし
+- 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj f520341f）: https://github.com/retroeater/mj-logs/tree/main/guide/f520341f
+ガイド文書（この版を写した時点の最新、mj c1bc06de）: https://github.com/retroeater/mj-logs/tree/main/guide/c1bc06de
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f520341f/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f520341f/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f520341f/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f520341f/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f520341f/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f520341f/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c1bc06de/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c1bc06de/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c1bc06de/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c1bc06de/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c1bc06de/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c1bc06de/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/11e7c655.md

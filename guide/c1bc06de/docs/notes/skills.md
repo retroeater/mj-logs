@@ -53,7 +53,7 @@ claude.ai のアカウントで追加した plugin は、クラウドセッシ�
 アカウントから外した plugin は、同じセッションの途中でも同期先から消え、`claude plugin list` に出なくなった（同日）。
 セッションの画面の `/plugin` は「この環境ではプラグインをご利用いただけません」と出る（平野さんの申告）が、同期された plugin は動く。
 どの plugin が入るかはアカウント側で決まり、リポジトリからは決められないため、mj の規則・手順は plugin が無くても回るように書く。
-アカウントに残している plugin と採否の経緯は docs/decisions/operations.md（2026-10-20）。
+アカウントに残している plugin と採否の経緯は docs/decisions/operations.md（2026-10-20・2026-11-03）。
 
 - マーケットプレイスから project スコープで入れる方法（2026-09-29 に試した）は、本体が `~/.claude/plugins/cache/` に置かれ、
   `~/.claude` が起動のたびに作り直されるため毎セッション入れ直しが要る（`.claude/settings.json` の `enabledPlugins` を宣言しても、
@@ -87,7 +87,7 @@ Bash のコマンド文字列を `&&`・`||`・`;`・`|`・改行で区切り、
 
 判定の試験は `scripts/tests/test_git_guard.py`（unittest。2026-09-30 の手の試験の39件を写し、削除の push を足した）。
 
-- **hook・`.claude/` の settings・hookify の規則ファイルの変更は、ほかのコードと同じ運用**（作業ブランチで書き換え、テストで確かめ、指示文の「マージ:」の行に従ってマージする。2026-11-01）。
+- **hook・`.claude/` の settings の変更は、ほかのコードと同じ運用**（作業ブランチで書き換え、テストで確かめ、指示文の「マージ:」の行に従ってマージする。2026-11-01）。
   2026-09-30 時点では分類器が書き換えを拒否し、平野さんの手作業と PR でマージしていたが、2026-11-01 にセッションから書き換え・push できたため改めた。
   分類器に拒否されたときは、その旨を報告して止まる
 
@@ -104,16 +104,8 @@ Bash のコマンド文字列を `&&`・`||`・`;`・`|`・改行で区切り、
 
 - **止める**規則はリポジトリの hook（mj-git-guard と同じ Python・テスト付き）かテスト・CI に置く。**注意を出す**規則は hookify に置く
   （hookify はアカウント側の plugin で、外すと規則ファイルが残っていても効かなくなるため、止める規則を任せない。2026-10-20）
-- hookify の規則は `.claude/hookify.<名前>.local.md`。hookify はカレントディレクトリからの相対パス（`.claude/hookify.*.local.md`）で探し、次のツール呼び出しから効く。
-  hookify の skill は `.claude/*.local.md` を `.gitignore` に足すよう勧めるが、mj では規則を共有するので足さない。足す・直すのは上の hook の変更と同じ運用
-- 規則の書式は skill `hookify:writing-rules`。file の条件の field は、Write の全文も見るなら `content`（`new_text` は Edit の `new_string` だけを見る）
-- 規則の試験は、規則ファイルを一時ディレクトリの `.claude/` に置き、そこをカレントにして hookify の `hooks/pretooluse.py`（同期先 `~/.claude/plugins/synced/` の下）に
-  `{"tool_name":…,"tool_input":{…}}` をファイル経由で渡し、出力の `systemMessage` を見る（リポジトリの `.claude/` には置かない）
-
-| 規則 | 対象・条件 | 動作 | 振り返り |
-|---|---|---|---|
-| `hookify.warn-sitemap-lastmod.local.md` | `sitemap*.xml` の Edit・Write で、書く内容に `<lastmod>` を含むとき（公開の段の URL の手追加〈docs/new-page-checklist.md〉には出ない） | warn | 2026-11-04 |
-
+- hookify は 2026-11-03 にやめた（唯一の規則〈sitemap に lastmod を手で書くと warn〉が2週間働いた記録が無く、守る対象の lastmod は `regenerate-sitemap.yml` と週次の再生成で自動で直るため。CHAT-1103-PLG-01）。
+  注意を出す規則が要るときは、plugin を入れ直して規則を足す
 - 足す目安: CLAUDE.md の規則のうち、ツールの入力（ファイル名・書く内容・コマンド）の文字列で当たりが取れ、正しい作業で出ないもの。正しい作業でも出るなら条件を絞るか足さない
 - 止める規則へ格上げする目安: 振り返りで、warn が出ても守られなかった・誤検知が無かった、のとき。格上げ先はリポジトリの hook かテスト・CI で、
   格上げしたら hookify の規則を消し、CLAUDE.md の該当の行は参照だけにする（CLAUDE.md「テスト・hook・ワークフローで確かめるようにした規則は…」）
@@ -140,4 +132,4 @@ Bash のコマンド文字列を `&&`・`||`・`;`・`|`・改行で区切り、
 モデルが自動で使う skill の description は毎セッション読み込まれる（`disable-model-invocation: true` のものは除く）。
 今の4本（grilling・domain-modeling・writing-for-agents・cloudflare）で合わせて約300トークン（plugin の `claude plugin details` の見積もりから）。
 本文は呼ばれたときだけ読まれる（`cloudflare` は約8,700トークン、`writing-for-agents` は約3,700トークン）。
-アカウントの plugin の skill・slash command・agent の description も毎セッション読み込まれる（2026-10-20 は plugin 8件で skill 5本・slash command 6本・agent 10本）。
+アカウントの plugin の skill・slash command・agent の description も毎セッション読み込まれる（2026-11-03 は plugin 7件で skill 4本・slash command 2本・agent 9本）。
