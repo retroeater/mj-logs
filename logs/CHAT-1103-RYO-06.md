@@ -59,6 +59,56 @@ RYO-04 の仮置き14点と技術の判断に平野さんが答えたので、�
 
 ## 経過
 
+### 着手前の確認
+
+- 0章: ログの「指示」欄の末尾が指示文の最後の行と一致
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: すべてある
+- 同じ Chat-Ref のコミット: なし。`origin/work/1103-ryo4` はローカルと一致（9f4dcacd6）
+- #657 に着手中コメント（他セッションの着手中コメントは無い）
+- 前提の実物:
+  - 「保存データを消す」のリンク: 無い（`assets/league.js`・`assets/saikyo.js` に最近見た選手を1件ずつ消す `removeItem` があるだけで、まとめて消すリンクはどのページにも無い）。前提のとおり足さずに「判断が必要なこと」に書いた
+  - `RUN_LAST`: 取り込みの後は `("pro_pages", "ryoei_pages", "top_page")`（`work/1103-top` はもう cloudflare に入っていた）
+  - `update-live-channel.yml` の `target_page`: 取り込みの後は `live_pages title_pages pro_pages ryoei_pages top_page`
+
+### origin/cloudflare の取り込み（a4c626971）
+
+`git merge origin/cloudflare` で3つのファイルが衝突した。`docs/notes/static-generation.md` は指示文で解いてよいとされた形（両方を残す）。`docs/handover.md`・`docs/new-page-checklist.md` は指示文の一覧に無いので、いったん取り込みを取り消して平野さんに尋ね（このセッションの質問。答えはどちらも「両方を残して解く」）、両方を残して解いた。
+
+- `docs/handover.md`（docs/notes の表）: こちらの行と cloudflare 側の行を両方残した
+  > | `docs/notes/ryoei-world.md` | 「良栄」のトップ `r/` の一覧と「記憶の中を歩く空間」（Three.js・音・場面の足し方、#657。公開は #656） |
+  > | `docs/notes/top-page.md` | サイトのトップの新しい形 `top/`（#101。切り替えの後に `index.html`） |
+- `docs/new-page-checklist.md`「localStorage の規約」の「保存する項目」: cloudflare 側の行（「マイ選手」→「お気に入り #287（上限なし）」）に、こちらの項目を足した
+  > - 保存する項目: 最近見た選手 #236（…）/ 全件表示 #237 / お気に入り #287（上限なし）/ クイズの自己最高点 #279 / r/ の空間の音のオン／オフ #657（`mj:ryoei-sound`、真偽）。項目ごとに上限を決める
+- `docs/notes/static-generation.md`「ページの一覧」の表: こちらの r/ の行と cloudflare 側の top/ の行を両方残した（冒頭の段落は自動で両方入った）。あわせて cloudflare 側に残っていた古い r/ の行（RYO-03 の版）を消し、r/ の行を1つにした（7d6b8f431 の前のコミット）
+
+### 技術の判断 (a)〜(d)
+
+- (a) r/ を毎朝の再生成から外した（コミット「chore: stop rebuilding r/ every morning」）: `update-live-channel.yml` の `target_page` を `live_pages title_pages pro_pages top_page` に、冒頭の説明の5.と `regenerate-page.yml` の `workflow_call` のコメントも直した。`scripts/regenerate.py` は `SHARED_GENERATORS["ryoei_pages"]`・r/ のコメント2行を消し、`RUN_LAST = ("pro_pages", "top_page")`。`docs/notes/github-actions.md`・`live-channel-write.md`・`live-page-design.md`・`yotei-sheet.md` の毎朝のページの一覧から r/ を外した。`OUTPUT_OVERRIDES["ryoei_pages"] = "r/"` は残す（出力がディレクトリのため）。`work/1103-top` はもう cloudflare に入っていたので、後から取り込む側で解く衝突は無い
+  - `update-live-channel.yml` 自体は手動実行していない（`regenerate` ジョブは `apply: true` のときだけ動き、本番の /live のシートへ書くため。RYO-02 と同じ扱い）。変えた行が渡す値を `regenerate-page.yml` の手動実行で確かめた: run 602（`check: true`、`target_page: live_pages title_pages pro_pages top_page`、7d6b8f431）success、4ページとも「通る」（live_pages の警告1件「未確認 691件」は今回と無関係）
+- (b) `_headers` の衝突は、このブランチでは起きていない（`work/1029-lgn-page` はまだ未マージ）。後からマージする側が「`frame-src https://www.youtube-nocookie.com` を残し、lgn の `/log/*` の規則も足す」で解く
+- (c) CSP の `frame-src` はサイト全体のまま（変えていない）
+- (d) 「保存データを消す」のリンクは無いので足していない（判断が必要なこと）
+
+### 実装（7d6b8f431 まで）
+
+- 一覧（`scripts/generate_ryoei_pages.py`・`world.css`）: 「記憶の中を、歩く。」を消した。学歴と所属（`EDUCATION`）を消した。出演はサムネイルだけを大きく（2列、最新の1本は幅いっぱい、題は読み上げとツールチップだけ、`THUMB_W, THUMB_H = 320, 180`）。目次は「対局室 — 自己紹介・数字で見る・成績」「屋外上映 — 出演」の2つ。空間のデータに成績の3つ（`RESULTS`）を足した（一覧の本文には出さない。RYO-04 の決定〈成績の面を消す〉のまま）
+- 空間（`assets/ryoei/world.js`）を屋外に作り直した: 石畳の広場（入口。立て看板に名前と肩書き）→ 砂利の上映の場（足場に張った幅 9.6m の大スクリーンに最新の第3期WRC-Rリーグ、客席を囲む左右の立て看板の小さなスクリーンに残りの6本、まばらな折りたたみ椅子18脚ほど）→ 板張りの桟橋と手すり → 水（光の筋がゆっくり流れる）→ 対岸の街の灯り。東の一角に雀荘の建物（灯りのついた窓、扉の上に「麻雀」の札）。中が対局室で、卓の上の点数表 → 成績、牌譜の紙 → 牌譜、壁の貼り紙 → 成績詳細（ふつうのページ遷移）。手牌13枚 → 自己紹介・数字で見るの紙片（今のまま）、点棒 → 音。実在の映画祭のロゴ・名前・会場は描いていない
+- 絵柄の直し: 輪郭線 2.5cm → 6cm（薄い物はいちばん薄い辺の3割まで。薄い板が黒い塊に見えたため）、折れた辺の線（`EdgesGeometry`）、地面の目地・板の線、月の平行光（半球の光は 0.9 → 0.55）で面ごとの平塗りの段を分ける。直した前後の同じ構図: `docs/logs/CHAT-1103-RYO-06/compare-before-after.png`（左: RYO-04 の絵柄の設定、右: 今回。どちらも屋外の同じ場所・向き。屋内の版とは場面が違うので、絵柄の設定だけを戻して撮った）
+- 音: 足音は石畳・砂利（細かい粒を重ねる）・板張り。屋外は風と水が主で、上映の場（水辺）で水音が大きく、対局室の中は風が遠くうなりがある
+- 看板の「マインドアスリート」の「ト」の欠け: 立て看板（幅 1.9m の札）で全部出ることを画面で確かめた
+- 検査（`scripts/tests/test_ryoei_pages.py`）: 件数（出演7・自己紹介5・数字で見る2・成績3、`EDUCATION` が無いこと）、一覧に連盟プロと重なる語・学歴と所属・最初の言葉が無いこと、出演がサムネイルだけ（画像7・題は title 属性）、空間のデータの場所（entrance・cinema・room）と成績の3つの URL、毎朝の再生成・`RUN_LAST`・`SHARED_GENERATORS` に r/ が無いこと
+- docs: `docs/notes/ryoei-world.md`（場面・絵柄・触れる・音・場面の足し方・重さ）、`docs/notes/static-generation.md` の r/ の行
+- #656 に「pro/ の公開の後に、対局室から連盟プロの個別ページへのつなぎを足す」をコメントした
+
+### 検査・重さ・画面
+
+- `python3 -m unittest discover -s scripts/tests`: OK。`node --check assets/ryoei/world.js`: OK。`python3 scripts/check_asset_limits.py`: すべて OK
+- 重さ（gzip）: 最初の画面 約137KB（上限 600KB）、空間に入った後 約307KB。`world.js` 52,920 バイト（上限 150KB）
+- 画面（360px・390px、`docs/logs/CHAT-1103-RYO-06/r-<幅>-<番号>.png`: 1 最初の画面・2 水辺の広場・3 屋外上映・4 対局室〈牌に触れて紙片〉・5 メニュー・6 一覧の全体・7 動画を開いた状態）。headless（SwiftShader）の描画は約20fps
+- CSP の違反: 0件（ローカルで `_headers` の CSP を付けて、プレビュー 7d6b8f431 の実際のヘッダで）。コンソールのエラーは外部の画像・YouTube への接続の失敗だけ（このコンテナのプロキシ）
+- Workers Builds（7d6b8f431）: success。check-assets: success
+- この版で見えるはずの印: 「入る」の後、正面に名前の立て看板と、その奥の水辺に足場の大スクリーン（「第3期WRC-Rリーグ」）と対岸の街の灯り
+
 ## 報告
 
 - 状態: 作業中
