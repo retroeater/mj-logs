@@ -78,6 +78,15 @@ LGN-20 の log/ のプレビューを平野さんが確かめた（2026-11-04）
 
 - 取り込み2（50f90d273）: マージの前に cloudflare を取り込むと、生成物だけ（sitemap-wayhome.xml・title/tatsujin/3.html・top/index.html・wayhome/aNSsJicbMlM.html・wayhome/index.html）が衝突した。cloudflare 側の版を取り、取り込んだ後のスクリプトで生成し直す（regenerate-page.yml の入力無しを再び実行）
 
+- 再生成（取り込み2の後）: 入力無し（run 41687839172、50f90d273、success。帰り道の失敗の知らせのステップも通った）。生成し直したページは cloudflare と同じで、コミットは作られなかった（衝突した生成物は cloudflare 側の版がそのまま今のスクリプトの出力）。生成のログ「3層から 3166件のうち 2434件・1738店（過去メシで外した 131件・石立岳大で外した 601件…）」
+- プレビュー（Playwright、幅 400px、UA に `mj-internal`。プレビューの log.js に「もっと見る」があることを確かめてから）: `?year=2026` → 結果の上に店の数は出ない（`#log_status` の中は visually-hidden の span〈1×1px、clip rect(0,0,0,0)〉の「357店」だけ）、ボタン「もっと見る」。検索欄に「Marble」→ 候補「駅|Marble Arch (London)|2店」。`?station=Marble Arch` → タグ「×Marble Arch (London)」、店の下「Marble Arch (London)」。0件の文は今のまま。ページのエラーなし
+- マージの条件（マージ前、HEAD 7f129e7c4 の上で）:
+  - (1) `git diff --stat origin/cloudflare...HEAD`（docs/logs・docs/decisions を除く）は log/ に関わる 20ファイル（log/・assets/log.js・generate_log_pages.py・そのテスト・style.css の log/ の節・_headers の /log/*・_redirects・navbar.js・lib/stations.py など LGN-09〜20 の分）だけで、ほかのページの生成物の差分は無い。この指示で変えたページの差分は3点（海外の駅・結果の上の店数・「もっと見る」）と log/search.json の数（毎朝の取り込みで 2,434件）だけ: 満たす
+  - (2) `python3 -m unittest discover -s scripts/tests` OK、`node --test scripts/tests/js/*.test.js .github/actions/upsert-issue/test/*.test.js` pass 39 / fail 0: 満たす
+  - (3) 同じ実行（run 41687839172）の生成のログで resource_logs の行 3,166 − 過去メシ 131 − 石立岳大 601 = 2,434 = log/ の投稿の件数。resource_logs.html の `<tr data-name=` も 3,166行・石立岳大 601行: 満たす
+  - (4) log/index.html に `<meta name="robots" content="noindex">` が1つ。`git grep` で navbar.js・sitemap*.xml・llms.txt に log/ へのリンクは無い（navbar.js 73行目の `location.pathname.indexOf('/log/')` は今いるページを見分けて白地のナビの「リソース」に印を付ける行で、リンクではない。r/ など未公開のほかのページと同じ形）。既存のページ（log/ の外の *.html）から `/log/`・`log/`・`../log/`・`https://ryoei.pro/log/` への href は無い: 満たす
+  - (5) `_headers` の `/*` の CSP に `connect-src 'self' https://cloudflareinsights.com` がある: 満たす
+
 ## 報告
 
 - 状態: 作業中
@@ -94,12 +103,12 @@ LGN-20 の log/ のプレビューを平野さんが確かめた（2026-11-04）
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj dbac236b）: https://github.com/retroeater/mj-logs/tree/main/guide/dbac236b
+ガイド文書（この版を写した時点の最新、mj 20acd472）: https://github.com/retroeater/mj-logs/tree/main/guide/20acd472
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/dbac236b/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/dbac236b/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/dbac236b/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/dbac236b/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/dbac236b/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/dbac236b/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/20acd472/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/20acd472/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/20acd472/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/20acd472/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/20acd472/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/20acd472/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/53edca83.md

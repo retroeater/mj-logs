@@ -1,6 +1,6 @@
 # 朝の報告用の異常（retroeater/mj）
 
-- 書き出した時刻: 2026-11-04 03:27 JST（見た範囲: 2026-11-03 01:27 JST から）
+- 書き出した時刻: 2026-11-04 03:35 JST（見た範囲: 2026-11-03 01:35 JST から）
 - 書き出した実行の契機: workflow_dispatch（main）
 - 異常だけを書く。全体は actions/status.md。判定は mj の scripts/morning_report.py（各ワークフローの直近 100 回まで）
 
@@ -17,10 +17,8 @@
 - 2026-11-04 02:56 regenerate-page.yml failure（push・cloudflare）ジョブ「regenerate」：生成に失敗したページを飛ばしました: pro_pages（理由はジョブのサマリ、#533） https://github.com/retroeater/mj/actions/runs/41689008141
 - 2026-11-04 03:08 regenerate-page.yml in_progress（workflow_dispatch・work/1104-lvp） https://github.com/retroeater/mj/actions/runs/41690959274
 - 2026-11-04 03:17 regenerate-page.yml in_progress（workflow_dispatch・work/1103-ryo8） https://github.com/retroeater/mj/actions/runs/41692398002
-- 2026-11-04 03:19 research-candidates.yml in_progress（workflow_dispatch・cloudflare） https://github.com/retroeater/mj/actions/runs/41692708935
-- 2026-11-04 03:25 check-assets.yml in_progress（push・work/1029-lgn-page） https://github.com/retroeater/mj/actions/runs/41693635868
 - 2026-11-04 03:26 regenerate-page.yml in_progress（push・cloudflare） https://github.com/retroeater/mj/actions/runs/41693768390
-- 2026-11-04 03:26 regenerate-sitemap.yml in_progress（push・cloudflare） https://github.com/retroeater/mj/actions/runs/41693768275
+- 2026-11-04 03:35 research-candidates.yml in_progress（workflow_dispatch・cloudflare） https://github.com/retroeater/mj/actions/runs/41695240844
 
 ## 2. 予約実行の未実行（予定から3時間以内は「遅れの可能性」。3時間を超えて始まった実行は「遅れて実行」）
 
@@ -31,6 +29,7 @@
 - 2026-11-04 00:55 regenerate-page.yml success（workflow_dispatch・cloudflare）所要 23分45秒（直近20回の中央値 9分34秒） https://github.com/retroeater/mj/actions/runs/41668885312
 - 2026-11-04 02:20 fetch-youtube.yml failure（workflow_dispatch・cloudflare）所要 23分52秒（直近20回の中央値 9分34秒） https://github.com/retroeater/mj/actions/runs/41683310617
 - 2026-11-04 02:56 regenerate-page.yml failure（push・cloudflare）所要 10分47秒（直近20回の中央値 9分34秒） https://github.com/retroeater/mj/actions/runs/41689008141
+- 2026-11-04 03:19 research-candidates.yml success（workflow_dispatch・cloudflare）所要 13分14秒（直近20回の中央値 1分24秒） https://github.com/retroeater/mj/actions/runs/41692708935
 
 ## 4. 初回成功（cloudflare の実行だけ。それ以前の cloudflare の実行に success が無いもの）
 

@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-11-04 03:27 JST
+- 書き出した時刻: 2026-11-04 03:35 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -25,7 +25,7 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-11-04 03:25 | push | work/1029-lgn-page | in_progress | #830（41693635868） |  |
+| 2026-11-04 03:25 | push | work/1029-lgn-page | success | #830（41693635868） | 5分20秒 |
 | 2026-11-04 03:12 | push | work/1104-rsc | success | #829（41691573275） | 3分22秒 |
 | 2026-11-04 03:10 | push | work/1104-rsc | success | #828（41691301893） | 2分00秒 |
 | 2026-11-04 03:07 | push | work/1104-rsc | success | #827（41690753525） | 1分24秒 |
@@ -224,7 +224,7 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-11-04 03:26 | push | cloudflare | in_progress | #74（41693768275） |  |
+| 2026-11-04 03:26 | push | cloudflare | success | #74（41693768275） | 3分16秒 |
 | 2026-11-04 02:56 | push | cloudflare | success | #73（41689008165） | 4分30秒 |
 | 2026-11-03 19:18 | push | cloudflare | success | #72（41618164804） | 0分21秒 |
 | 2026-11-03 18:52 | push | cloudflare | success | #71（41614486475） | 0分27秒 |
@@ -237,11 +237,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-11-04 03:19 | workflow_dispatch | cloudflare | in_progress | #15（41692708935） |  |
+| 2026-11-04 03:35 | workflow_dispatch | cloudflare | in_progress | #16（41695240844） |  |
+| 2026-11-04 03:19 | workflow_dispatch | cloudflare | success | #15（41692708935） | 13分14秒 |
 | 2026-11-04 03:16 | workflow_dispatch | cloudflare | success | #14（41692267320） | 1分40秒 |
 | 2026-11-04 03:14 | workflow_dispatch | cloudflare | success | #13（41691943269） | 1分06秒 |
 | 2026-11-04 03:12 | workflow_dispatch | cloudflare | success | #12（41691630970） | 0分58秒 |
-| 2026-11-04 01:55 | workflow_dispatch | cloudflare | success | #11（41679141794） | 1分38秒 |
 
 ## run-daily.yml
 
