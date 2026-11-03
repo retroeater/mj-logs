@@ -67,6 +67,30 @@
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている
 - work/1104-lvp はローカル・リモートとも無く、origin/cloudflare（53edca83d）から作成。着手は 2026-11-04 01:42 JST（毎朝の取り込みの直後ではない）
 
+### 手順1: 着手前の確かめ
+
+- #362 のコメント（48件）に他セッションの着手中は無し。着手中のコメントを書いた
+- 未マージの work/ ブランチで、指定のファイルを変えているもの（同じ行の変更は無い）:
+  - work/1028-lgn・work/1029-lgn-page: `navbar.js`（`newNavCurrent` の先頭の分岐〈/log/〉）、`_redirects`（`/log` の2行）、`scripts/regenerate.py`（log_pages の行）
+  - work/1101-prp-pub: `navbar.js`（「連盟プロ」の項目の href と pro/ の分岐のコメント）、`llms.txt`（連盟プロの行とサイトマップの行）、`sitemap.xml`（sitemap-pro.xml の節）、`scripts/regenerate.py`（pro_pages の行）
+  - work/1104-top: `navbar.js`（`newNavCurrent` に番組の新しいページ〈`/live/` を含む〉の分岐と新しいナビの帯）、`scripts/regenerate.py`（top/ のコメント）。live/ の個別ページのナビの見た目に関わるが、こちらが変える「番組 > 放送対局」の href の行とは別
+  - work/1104-ttl: `navbar.js`（タイトル戦の分岐）
+  - `sitemap.xml` と `llms.txt` は work/1101-prp-pub と同じ節の近くを足すことになるので、行を離して置く（サイトマップの説明の行は変えない）
+- regenerate-page.yml を作業ブランチで check・`live_pages`（run 41677090621、一時の出力のコミット 755f08d13 で）: 止まるページなし（ページ 944、公開する動画 2,986本）。警告は「未確認 691件」の1件だけ
+- 一時の出力（【3】と【2】の値。読んだ後に revert した）で読んだプレーオフの6行（行番号は 2026-10-17 のまま、動画ID も前提どおり）:
+
+| 行 | 動画ID | 期 | 【2】の限定 | 【3】の掲載 | 【3】の冒頭 | 【3】のステージ・並び・まとめ単位 | 【2】のステージ・並び・動画の単位・まとめ単位 |
+|---|---|---|---|---|---|---|---|
+| 4289 | pPhdXp3U7mU | 第1期 | Y（メンバー限定） | 空欄 | 空欄 | 空欄 | 空・空・ステージ・空 |
+| 4283 | lQTUI_C_Vw0 | 第1期 | N（公開版） | 空欄 | Y | 空欄 | 空・空・ステージ・空 |
+| 4228 | 4j_vrUqShCc | 第2期 | Y | 空欄 | 空欄 | 空欄 | 空・空・ステージ・空 |
+| 4222 | 1-DyHZm29OM | 第2期 | N | 空欄 | Y | 空欄 | 空・空・ステージ・空 |
+| 4240 | DfjwueadOwc | 第3期 | Y | 空欄 | 空欄 | 空欄 | 空・空・ステージ・空 |
+| 4264 | XQLktBZyx5A | 第3期 | N | 空欄 | Y | 空欄 | 空・空・ステージ・空 |
+
+- 同じ期の決勝（掲載 Y の6行: 4257・4242・4252・4291・4293・4287）は、【2】のステージ「決勝」・まとめ単位「決勝」・ステージの並び 空（`live_extract.py` の `STAGE_ORDER` に達人戦が無いため）
+- SEO-03 の B7（#362 の 2026-10-29 のコメント）: 「live/ のトップ・大会・期の og:image を最新話のサムネイルにする件（LVP の B9、#581 から移した）」。LVP-06 で実装済み。公開前の確かめとして、生成物のトップ・タイトル戦・期の og:image がその範囲で最新の動画のサムネイルになっていること（と、個別ページは今のまま）を見る
+
 ## 報告
 
 - 状態: 作業中
@@ -83,12 +107,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 667be053）: https://github.com/retroeater/mj-logs/tree/main/guide/667be053
+ガイド文書（この版を写した時点の最新、mj 6fe4b43f）: https://github.com/retroeater/mj-logs/tree/main/guide/6fe4b43f
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/667be053/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/667be053/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/667be053/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/667be053/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/667be053/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/667be053/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6fe4b43f/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6fe4b43f/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6fe4b43f/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6fe4b43f/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6fe4b43f/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6fe4b43f/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/53edca83.md

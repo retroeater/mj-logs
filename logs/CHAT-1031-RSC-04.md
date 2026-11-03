@@ -79,6 +79,7 @@ CHAT-1031-RSC-03 の「判断が必要なこと」2〜5 への回答を入れ、
 - 記事の本文の卓どうしの使い回しは作っていない（指示の前提は「作ってよい」。API の呼び出しは卓ごとで、使い回しても検索・取得の回数を減らす仕組みが要るため、今回は見送った）
 - テスト: B の対象の数え方・照合（合う・名前・順位の並び・通過と敗退・シートの順位・引用文の名前・見つからない・抜粋）・ツールの `allowed_domains`・`research()` が種別のツールを渡すこと。`unittest discover` OK
 - docs: docs/notes/research-candidates.md（種別の表・調べ方・B の照合）、docs/notes/github-actions.md のワークフローの表の行、docs/decisions/automation.md
+
 #### 自己レビュー（新しい文脈のサブエージェント）
 
 1回目（`git diff origin/cloudflare...HEAD`、ログを除く。サブエージェントのテスト 1,807本 OK）:
@@ -114,12 +115,12 @@ CHAT-1031-RSC-03 の「判断が必要なこと」2〜5 への回答を入れ、
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 667be053）: https://github.com/retroeater/mj-logs/tree/main/guide/667be053
+ガイド文書（この版を写した時点の最新、mj 6fe4b43f）: https://github.com/retroeater/mj-logs/tree/main/guide/6fe4b43f
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/667be053/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/667be053/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/667be053/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/667be053/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/667be053/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/667be053/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6fe4b43f/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6fe4b43f/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6fe4b43f/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6fe4b43f/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6fe4b43f/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6fe4b43f/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/53edca83.md

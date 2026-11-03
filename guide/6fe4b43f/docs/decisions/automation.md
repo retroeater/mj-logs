@@ -626,3 +626,13 @@ GitHub Actions の整理の段③-4（#564）。
 - NOD-02 の案 (2): 手動実行を省き、mj-logs の `sync-from-mj.yml` の2行を main へ直接入れる。確かめは次の Worker の回で、今回の変更で失敗したら戻す（NOD-02 の「手動実行が success なら」を置き換える、#308）
 - mj-logs の GitHub Pages のビルド（`pages-build-deployment`）の Node.js 20（upload-artifact@v4）の警告は、GitHub 側が直すのを待つ。Pages の配信を自前のワークフローに切り替えない
 - 作業中の回答: なし
+
+## 2026-10-31（CHAT-1031-RSC-04）
+
+- 「小川光」は `targets` 小川光として1回だけ調べる（Haiku 5.5）
+- B（過去の順位、#630）の対象の単位は卓ごと（397卓）。RSC-03 の推奨（対局ごと）は採らない。照合は卓ごとに4人の名前の完全一致で行う
+- B の資料は `allowed_domains` で4つに絞る: mahjong-saikyosen.com・mahjong-saikyosen.jimdoweb.com（2013年ごろの旧公式）・kinmaweb.jp・times.abema.tv
+- B の最初の比較は5卓を Haiku 5.5 と Sonnet 5.5 で1回ずつ（上限 $1 ずつ）。年度は古い 2011年度と新しい 2021年度を混ぜる
+- この指示のマージと、マージの後の実行（B の5卓×2モデル、小川光の A）を承認する。結果は R_候補 に書く。シートの「最強戦」は変えない
+- #628 の候補4件の確かめと齋藤健人の所属は平野さんが別に見る（この指示では扱わない）
+- 作業中の回答: なし
