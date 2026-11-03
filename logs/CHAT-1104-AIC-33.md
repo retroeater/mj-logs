@@ -141,7 +141,7 @@ AIC-32 のログと今のコードを読む。着手時に開き直す。
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1104-AIC-34
 - ブランチ: work/1104-aic
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1104-AIC-33.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1104-aic
@@ -149,9 +149,9 @@ AIC-32 のログと今のコードを読む。着手時に開き直す。
 - マージ: 済（667be053f）
 - issue: #654（着手中と結果をコメント）
 - 判断が必要なこと:
-  - タイトルの文の形が、本番の4問のうち2問で守られなかった（女流桜花の「女流桜花は、第2期・第3期の女流桜花です。 2回です。」、横断の「3回鳳凰位になりました。鳳凰戦の第37期、第38期、第40期です。」。期と回数はデータと一致）。指示の文だけでは形を保てない。プログラムの側で形を保つか: (a) 答えに titleSentence が無ければ足す・重なりを置き換える後処理、(b) タイトルと回数の文はプログラムが答えの末尾に付け、Claude にはタイトルに触れさせない（形は必ず守れるが、文の流れはプログラムの付け足しになる）。止まる条件「本番の問いの答えがデータと一致しない」には当たらないと判断した（期・回数は一致）
-  - 迎えた期にその期の決勝でも優勝した（防衛した）とき、答えを「第38期は鳳凰位として迎えた期で、リーグ戦には出ていません。第38期の鳳凰位です。」とした（自己レビューの指摘。決定の形の外。鳳凰戦4・女流桜花6の期）。この形でよいか
-  - Worker の外の「座っている」の言い方: `docs/notes/ouka-top.md` 20行「「桜花」の行は前の期の優勝者が座っている期（鳳凰位と同じ扱い…）」（直していない）。`assets/`・`scripts/`・ページには無い
+  - タイトルの文の形が、本番の4問のうち2問で守られなかった（女流桜花の「女流桜花は、第2期・第3期の女流桜花です。 2回です。」、横断の「3回鳳凰位になりました。鳳凰戦の第37期、第38期、第40期です。」。期と回数はデータと一致）。指示の文だけでは形を保てない。プログラムの側で形を保つか: (a) 答えに titleSentence が無ければ足す・重なりを置き換える後処理、(b) タイトルと回数の文はプログラムが答えの末尾に付け、Claude にはタイトルに触れさせない（形は必ず守れるが、文の流れはプログラムの付け足しになる）。止まる条件「本番の問いの答えがデータと一致しない」には当たらないと判断した（期・回数は一致） → 回答（2026-11-04、平野さん）: A（プログラムが答えの最後に付け、Claude にはタイトルに触れさせない。CHAT-1104-AIC-34）
+  - 迎えた期にその期の決勝でも優勝した（防衛した）とき、答えを「第38期は鳳凰位として迎えた期で、リーグ戦には出ていません。第38期の鳳凰位です。」とした（自己レビューの指摘。決定の形の外。鳳凰戦4・女流桜花6の期）。この形でよいか → 回答（2026-11-04、平野さん）: A。今の形のまま
+  - Worker の外の「座っている」の言い方: `docs/notes/ouka-top.md` 20行「「桜花」の行は前の期の優勝者が座っている期（鳳凰位と同じ扱い…）」（直していない）。`assets/`・`scripts/`・ページには無い → 回答（2026-11-04、平野さん）: 言い換えてよい（CHAT-1104-AIC-34 で直す）
 - 未確認の項目:
   - 2026-11-09（月）03:00 JST の週次の書き出しが動き、ブックに 11/02〜11/08 の行が入るか。あわせて、2026-11-02 10:09 JST ごろの「現女流桜花は？」の「引数」の列に from・to が入っているか（AIC-32 から写した）
   - 地域で断られた問いが、新しい結果（`region`、ブック「地域で使えない」）で記録に入るか（AIC-32 から写した）
@@ -162,12 +162,12 @@ AIC-32 のログと今のコードを読む。着手時に開き直す。
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 667be053）: https://github.com/retroeater/mj-logs/tree/main/guide/667be053
+ガイド文書（この版を写した時点の最新、mj 6fe4b43f）: https://github.com/retroeater/mj-logs/tree/main/guide/6fe4b43f
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/667be053/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/667be053/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/667be053/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/667be053/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/667be053/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/667be053/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/59c4b82d.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6fe4b43f/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6fe4b43f/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6fe4b43f/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6fe4b43f/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6fe4b43f/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6fe4b43f/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/53edca83.md

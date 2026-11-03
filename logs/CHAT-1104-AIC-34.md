@@ -90,15 +90,38 @@ AIC-32・33 のログと今のコードを読む。着手時に開き直す。
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+- 0: 指示欄の末尾は指示文の最後の行と一致。667be053f は origin/cloudflare の祖先。origin/work/1104-aic はマージ済みで、ローカルの work/1104-aic は origin/cloudflare（53edca83d）と同じ。#654 に他セッションの着手中コメントなし（着手中をコメント、issuecomment-6609924602）。雛形の行は4つともある。AIC-33 のログの状態に「/ 続き: CHAT-1104-AIC-34」と回答3つを書き足した
+- 未マージのブランチ: `workers/ask/src/` を変えているものなし。`origin/work/1104-top`（TOP-12）が `docs/notes/ouka-top.md` を変えているが、6行目（質問欄を外した説明）と「質問欄」の節の頭（2行足す）で、この指示が直す20行（「桜花」の行）とは別の箇所（止まらない。取り込みのときに衝突しうるのは隣り合わない行なので無い見込み）
+- 前提の確かめ: AIC-33 の後、`titleSentence`・`titleTimes`（「3回です。」）を2回目に渡し、titleLine で「そのまま1文として書く」としていた。前提どおり
+- 直し（179909a76）:
+  - `withTitle()`: 選手の成績（player）の答えの最後に、タイトルの文 `titleSentence`（と、回数を聞かれた問い〈`asksTimes()`〉なら回数の文 `titleTimes`「鳳凰位は3回です。」を前に）をプログラムが付ける。Claude が同じ文を書いてしまったときは重ねない。`write()`（大会別の欄、横断で2回目が1大会のとき）と `writeMany()`（横断でまとめた2回目。欄が空なら付けない）の後に通す
+  - 2回目に渡す結果から titleTerms・titleSentence・titleTimes を外し、titleLine を「- player の<鳳凰位>になった期と回数は書かない(プログラムが答えの最後に付ける)。<鳳凰位>になっていないとも書かない。「座る」の語は使わない」にした（4大会）
+  - 選手名で1人に絞った champions（「佐々木寿人は何回鳳凰位になりましたか？」の1回目は champions になりうる。期・入会期で絞らないとき、タイトルの名前のある大会）は、2回目を呼ばずに「鳳凰位は3回です。第37期・第38期・第40期の鳳凰位です。」（回数を聞かれなければタイトルの文だけ）で答える
+  - 回数の文 `titleTimes` を「鳳凰位は3回です。」の形に（`titleTimesSentence()`。期で絞った問いには付けないのは AIC-33 のまま）
+  - 期で絞った問い（迎えた期・防衛した期）は AIC-33 のまま
+  - Claude の答えに残ったタイトルの文の後処理: 同じ文がそのまま入っていれば重ねないだけにした（タイトルの名前と期を含む文を消すと、「第37期は A1 で2位、鳳凰位決定戦に進出」のような正しい文も消えるため）。2回目にはタイトルの期を渡さないので、Claude がタイトルの期を書く元は無い
+- docs: ask-worker.md の表の行を直した（49abd7aad）。`docs/notes/ouka-top.md` 20行を「「桜花」の行は、前の期の優勝者が女流桜花として迎えた期で、リーグ戦には出ていない（鳳凰位と同じ扱い…）」に言い換えた（115a88d3a、成果物と別のコミット）。docs/decisions/houou.md に 2026-11-04（CHAT-1104-AIC-34）の節
+- テスト（count.test.mjs に1本）: Claude の答えにタイトルが無いとき最後に付く／同じ文を書いたとき重ねない／回数を聞かれた player は「鳳凰位は3回です。」を前に／名前付きの champions はプログラムの文だけ（Claude 1回）／女流桜花は「第2期・第3期の女流桜花です。」で重なりなし／WRC リーグ「第2期のWRCリーグ優勝です。」／タイトルの無い選手は何も付かない／横断で鳳凰戦の欄の最後に付く／期で絞った問いは AIC-33 のまま。既存の all・context・week3・count のテストは、答えの最後にタイトルの文が付く形と、2回目に titleTerms を渡さない形に合わせた。直す前のコードで新しい1本と書き換えた3本が落ちる。直した後は node 164本・python 1747本 通過
+- 変わる範囲の比較（in21.mjs、直す前と後）: 応答が変わるのは、優勝のある選手の player（鳳凰戦4・女流桜花2・WRC 2・WRC-R 2・横断10 の通り。答えの最後にタイトルの文）と、名前付きの champions（鳳凰戦3・女流桜花1・WRC 1・WRC-R 1・横断6。プログラムの文だけになる）だけ。2回目の指示は4大会の全部の型で titleLine の文が変わる
+- 自己レビュー（新しい文脈のサブエージェント、1回）:
+
+  | 回 | 対象 | 観点 | 結果 |
+  |---|---|---|---|
+  | 1 | 179909a76・49abd7aad・115a88d3a | withTitle の経路と二重付け、champions の分岐、重ねない判定、asksTimes、テスト、docs | 要修正なし。任意: Claude が回数の文だけを書くと回数が二重 → 回数の文も答えに無いときだけ付ける／区切りが無いとそのまま続く → 答えが「。」・改行で終わらなければ「。」を補う／「何回出場しましたか」でもタイトルの回数が付く → 問いにタイトルの名前があるときだけ／古いコメントとテスト名 → 直した／テストの穴 → 回数を聞かない champions・期で絞った champions（2回目に回る）・回数でない「何回」・句点のテストを足した（直しはこのコミットの後の 1件）。残したもの: 名前付きの champions は何を聞かれても「（回数の文）＋期の文」で答える（「何期生」「最後に」などで champions に振られたとき入会期などが落ちうる。1回目がそう振るかは確かめられない）→ 判断に挙げる。証跡: 経路ごとに1回だけ付く、最強戦・from/to/entry 付き・beyond は2回目のまま、記録の型と args は同じ、164本通過、直す前で関係するテストが落ちる |
+
+  直した後: node 164本・python 1747本 通過。2回目のレビューは、直しが小さくテストで押さえたので行わなかった
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 667be053）: https://github.com/retroeater/mj-logs/tree/main/guide/667be053
+ガイド文書（この版を写した時点の最新、mj 6fe4b43f）: https://github.com/retroeater/mj-logs/tree/main/guide/6fe4b43f
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/667be053/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/667be053/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/667be053/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/667be053/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/667be053/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/667be053/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6fe4b43f/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6fe4b43f/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6fe4b43f/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6fe4b43f/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6fe4b43f/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6fe4b43f/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/53edca83.md

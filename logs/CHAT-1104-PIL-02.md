@@ -93,13 +93,18 @@ CHAT-1104-PIL-01 で判断待ちになった Pillow 13.0.0 への版上げを cl
 ### 本番のビルド・issue
 
 - d30c186d3 の後の cloudflare の 667be053f（別セッションの CHAT-1104-AIC-33 のマージ。d30c186d3 を含む）の Workers Builds: `mj` は本番（summary に Preview URL なし）とプレビューの両方 success、`mj-ask` も success（16:20〜16:22Z）。d30c186d3 の本番の失敗は、次の本番ビルドで解消した。今回の差分は公開対象外（`scripts/`・docs）なので、本番の HTML とブラウザでの見え方は変わらない（確かめるものなし）
-- 8aa33033d（再生成のコミット）のビルドは、この報告の時点では未完了。今回の変更とは無関係
+- 8aa33033d（再生成のコミット）のビルドは下の「追いの push の後の本番ビルド」
 - #660: 手順3の結果をコメントし（issuecomment-6609359771）、クローズした（completed）。「状況:」ラベルは付いていなかった
 - Dependabot alerts: セッションからは読めない（HTTP 403）。マージの push の出力の「41 vulnerabilities（5 critical）」は、Dependabot が読み直す前の表示とみられる。閉じたかは平野さんが画面で確かめる
 
 ### 差分のレビュー
 
 PIL-02 で足したのは docs（decisions・ログ）と取り込みのマージだけで、コード・ワークフローの変更は PIL-01 から増えていない（PIL-01 でレビュー済み）。新しいレビューは行っていない。
+
+### 追いの push の後の本番ビルド
+
+- ログだけの追いの push（`8aa33033d..0e0953ccb`。再生成のコミット 8aa33033d のビルドはこれにまとめられた）の Workers Builds: `mj`・`mj-ask` とも failure（段階は check-run から読めない）。本番は 667be053f の版のまま（今回の Pillow の変更は公開対象外なので影響なし）。8aa33033d の再生成（pro/ の6ページ・`top/index.html`）はまだ本番に入っていない
+- 今回のセッションが push したコミット（d30c186d3・0e0953ccb）の本番ビルドが2回失敗したが、d30c186d3 を含む 667be053f は成功しており、内容による失敗ではなく Workers Builds 側の断続的な失敗とみている（推測）。その後、別セッションの push の 53edca83d（0e0953ccb・8aa33033d を含む）の本番 `mj` が success になり、8aa33033d の再生成も本番のビルドに入った（check-run の範囲の確認。本番の HTML は見ていない）
 
 ## 報告
 
@@ -117,12 +122,12 @@ PIL-02 で足したのは docs（decisions・ログ）と取り込みのマー�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 667be053）: https://github.com/retroeater/mj-logs/tree/main/guide/667be053
+ガイド文書（この版を写した時点の最新、mj 6fe4b43f）: https://github.com/retroeater/mj-logs/tree/main/guide/6fe4b43f
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/667be053/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/667be053/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/667be053/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/667be053/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/667be053/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/667be053/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/59c4b82d.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6fe4b43f/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6fe4b43f/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6fe4b43f/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6fe4b43f/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6fe4b43f/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6fe4b43f/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/53edca83.md
