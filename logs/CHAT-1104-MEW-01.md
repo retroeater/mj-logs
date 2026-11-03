@@ -55,15 +55,58 @@ Chat-Ref: CHAT-1104-MEW-01
 
 ## 経過
 
+### 着手時の確認
+
+- Chat-Ref の重複: origin/cloudflare のコミット・docs/logs に `MEW` は無し（最初の指示）。work/1104-mew はローカル・リモートとも無く、origin/cloudflare（dfabc8599）から作成
+- 0章: ログの「指示」欄の末尾は指示文の最後の行「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」と一致
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 欠け無し
+- 0章ゲート: コード・生成物を触らない調査のため対象外
+
+### 手順1: 渡し先の issue の検索
+
+`gh api search/issues`（`is:issue` 付き）で「429」「RESOURCE_EXHAUSTED」「飛ばした」「check-build-failure」「0e0953c」「mj-ask Workers Builds」を検索。
+Sheets API の 429 で飛ばしたページを主題にした open の issue は無い。#533（1ページの失敗で残りが止まる）は closed、#561（本番の Workers Builds の失敗を知らせる）も closed。
+直近7日に同じ趣旨（この3 run／41676151633）のコメントは見つからず、止まる条件には当たらない。
+
+### 手順2 (A): 飛ばしたページと、その後の作り直し
+
+ジョブのログを GitHub MCP で読んだ（サブエージェント。ワークフローは実行していない。ログの URL を curl で取るとプロキシで 403 になった）。
+
+- run 41683310617（fetch-youtube.yml）job 126082974289: houou_pages を飛ばした。理由は 429
+  - `17:43:32Z - houou_pages(終了コード 1): lib.sheets.SheetsReadError: Sheets API で読めません: HTTP 429 RESOURCE_EXHAUSTED Quota exceeded for quota metric 'Read requests' and limit 'Read requests per minute per user'`
+  - 残りのページはコミット cf56b6db4 として push された
+- run 41689008141（regenerate-page.yml）job 126102300125: pro_pages を飛ばした。理由は 429（`meibo.fetch_members()` の読み取りで、18:03:00Z）。残りは「変更なし」で push 無し
+- run 41693768390（regenerate-page.yml）job 126118789266: jpml_pros・saikyo_pages を飛ばした。理由はどちらも 429（18:58:01Z）。残りは「変更なし」で push 無し
+- その後の success の run:
+  - 41699165492（run-daily）: live の regenerate で pro_pages を生成し e821aa462 を push。saikyo の regenerate で saikyo_pages を生成（「変更なし」）。houou_pages・jpml_pros は対象外
+  - 41702345684（regenerate-page、push）job 126148590941: FILES に `houou/`・`jpml_pros.html`・`saikyo/`・`pro/` がそろい、飛ばしたページは無し（報告のステップは skipped）。2749f8690（19:36Z）を cloudflare へ push
+- 結論: **4ページとも 41702345684 で作り直され、cloudflare に入っている**（作り直されていないページは無い）。本番に出たかは check-run・本番の HTML では確かめていない（下の (B) の間接の判断のとおり、その後の Workers Builds の失敗の通知は無い）
+
+### 手順2 (B): check-build-failure の 01:37 JST の failure
+
+- run 41676151633（16:37:46Z）の notify ジョブ（126057184731）が知らせたもの: check-run「Workers Builds: mj-ask」(id 126057135331)、結論 failure、コミット 0e0953ccb（CHAT-1104-PIL-02 の追いの push、`Merge remote-tracking branch 'origin/cloudflare' into work/1104-pil`）、ブランチ cloudflare の本番のトリガー。failure は失敗をメールで知らせる設計どおり（#561）
+- 01:11 JST の2件（41671687021・41671698335）が知らせたのは d30c186d3 の mj・mj-ask で、**01:37 の分は別のコミット（0e0953ccb）の失敗**
+- ただし 0e0953ccb の本番ビルドの失敗は、CHAT-1104-PIL-02 のログ「追いの push の後の本番ビルド」に記録済み（run ID は書かれていない）。同ログは、その後の 53edca83d の本番 `mj` が success と書いている。PIL-02 と同じ系列（同じセッションの push）の続きとして扱った
+- check-run の output は Build ID と Script 名だけで、失敗の原因は読めない（docs/notes/cloudflare.md のとおり。ダッシュボードの Build history でしか見えない）
+- その後: check-build-failure.yml の run は 16:49:37Z（41678130377）〜19:40:27Z（41705451049）の約70本がすべて skipped で、Workers Builds の failure の完了は無い（間接の判断。HEAD dfabc8599 の check-runs の success は直接は見ていない）
+
+### 手順3: issue へのコメント
+
+(A) は4ページとも作り直し済み、(B) は既知の系列（CHAT-1104-PIL-02 のログに記録済み）の続きで、その後に失敗の通知が無い。指示の手順3の「起票はせず報告に書くだけでよい」に当たるため、起票もコメントもしていない。
+
+### docs/decisions
+
+指示の「決定」節は「なし」、作業中の平野さんの回答も無いため、docs/decisions には足していない。
+
 ## 報告
 
-- 状態: 対応中
+- 状態: 完了
 - ブランチ: work/1104-mew
-- ログ: https://github.com/retroeater/mj/blob/work/1104-mew/docs/logs/CHAT-1104-MEW-01.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1104-MEW-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1104-mew
 - 確認用URL: なし
-- マージ: 未
-- issue: なし
+- マージ: 済（1d3c510c7。fast-forward、dfabc8599..1d3c510c7）
+- issue: なし（(A) 飛ばした4ページはすべて 429 が理由で、41702345684 の 2749f8690 で作り直し済み。(B) 01:37 の通知は 0e0953ccb の mj-ask の本番ビルドの失敗で、CHAT-1104-PIL-02 のログに記録済みの系列。その後に失敗の通知は無い。手順3のとおり起票しない）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
