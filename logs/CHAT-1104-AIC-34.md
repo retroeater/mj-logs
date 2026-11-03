@@ -113,15 +113,50 @@ AIC-32・33 のログと今のコードを読む。着手時に開き直す。
 
   直した後: node 164本・python 1747本 通過。2回目のレビューは、直しが小さくテストで押さえたので行わなかった
 
+### マージと本番
+
+- 取り込み: origin/cloudflare が RSC-04・PIL-02 の変更（`workers/ask/`・`docs/notes/ouka-top.md` は無し）で進んでいたのでマージコミットで取り込んだ（衝突なし）。node 164本・python 1747本 通過を確かめ、再 fetch して `git merge-base --is-ancestor origin/cloudflare HEAD` が真、`git push origin work/1104-aic:cloudflare`（d580617a1..6865148b9）
+- check-run（6865148b9）: Workers Builds: mj-ask success（2026-11-03 16:59:14Z = 2026-11-04 01:59 JST）
+- `/api/ask/status` → `{"status":"open","remaining":10,"max":200}`。UA に `mj-internal AIC-34`。2026-11-04 JST は AIC-32・33 で8問使っていて、この2問で10問
+
+本番の2問（2026-11-03 17:00:26〜17:00:32 UTC = 2026-11-04 02:00 JST、どちらも answered）:
+
+| 要求 | 問い | 答え | 形・重なり・データ |
+|---|---|---|---|
+| 大会別（女流桜花） | 二階堂亜樹の成績は？ | 「二階堂亜樹さんの出場は17期で、すべてAリーグに所属しています。第2期・第10期・第15期では決定戦に進み、第1期から第20期まで各期の残留・決定戦の結果が記録されています。得点は各期(前期・後期)の値で、第10期の138.2が最高、第12期の-32.4が最低です。第2期・第3期の女流桜花です。」注記「成績の「桜花」の期は、女流桜花として迎えた期で、リーグ戦には出ていません」 | タイトルの文は決めた形で最後に1回（「女流桜花は、」の重なりなし、回数は聞いていないので付かない）。17期・A・決定戦の期（第2・10・15期）・得点の最高（第10期 138.2）と最低（第12期 -32.4）はデータと一致。**「得点は各期(前期・後期)の値で」は、2回目の指示の POINTS_LINE の言葉が答えに出たもの**（女流桜花に前期・後期は無い）。「第1期から第20期まで各期の…結果が記録されています」も聞いていない説明 |
+| 横断（context なし） | 佐々木寿人は何回鳳凰位になりましたか？ | 「【鳳凰戦】鳳凰位は3回です。第37期・第38期・第40期の鳳凰位です。」contests `["houou"]`、players 佐々木寿人（houou） | 決めた形どおり（名前付きの champions のプログラムの文。2回目は呼んでいない）。データと一致 |
+
+- #654 に結果をコメントした
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1104-aic
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1104-AIC-34.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1104-aic
+- 確認用URL: なし（Worker の変更。本番の2問で確かめた）
+- マージ: 済（6865148b9）
+- issue: #654（着手中と結果をコメント）
+- 判断が必要なこと:
+  - 女流桜花の答えに「得点は各期(前期・後期)の値で」と、2回目の指示（AIC-29 の POINTS_LINE「points はその期(前期・後期はその半期)の得点…」）の言葉が出た。女流桜花には前期・後期が無く、誤った説明でもある（数はデータと一致）。直すか（例: POINTS_LINE を大会ごとにし、前期・後期の無い大会では書かない／「得点の説明は答えに書かない」を足す）
+  - 選手名で1人に絞ったタイトルの一覧（champions）は、問いの中身によらず「（回数の文）＋タイトルの文」で答える形にした。「何期生」「最後に」などの問いが champions に振られると、入会期などが答えから落ちうる（1回目がそう振るかは確かめられない）。この形でよいか、語で除くか
+  - 選んだ形: 2回目にタイトルの期・回数を渡さず、プログラムが `withTitle()` で答えの最後に付ける（回数の文は、回数を聞かれていて問いにタイトルの名前があるときだけ、タイトルの文の前に）。Claude が同じ文を書いたときは重ねない（タイトルの名前と期を含む文を消す後処理は、正しい文も消すので入れなかった）
+- 未確認の項目:
+  - 2026-11-09（月）03:00 JST の週次の書き出しが動き、ブックに 11/02〜11/08 の行が入るか。あわせて、2026-11-02 10:09 JST ごろの「現女流桜花は？」の「引数」の列に from・to が入っているか（AIC-33 から写した）
+  - 地域で断られた問いが、新しい結果（`region`、ブック「地域で使えない」）で記録に入るか（AIC-33 から写した）
+  - 横断の記録（型 `all:…`）が週次の書き出しのブックに入るか（2026-11-09 03:00 JST の書き出しで。AIC-33 から写した）
+  - 期の外で期を外して答える問い（例「22期の和久津晶成績」）の答えに、冒頭の文と重なる「第N期の記録はありません」が出ないか（週次の記録で見る。AIC-33 から写した）
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 6fe4b43f）: https://github.com/retroeater/mj-logs/tree/main/guide/6fe4b43f
+ガイド文書（この版を写した時点の最新、mj 6865148b）: https://github.com/retroeater/mj-logs/tree/main/guide/6865148b
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6fe4b43f/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6fe4b43f/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6fe4b43f/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6fe4b43f/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6fe4b43f/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6fe4b43f/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6865148b/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6865148b/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6865148b/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6865148b/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6865148b/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6865148b/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/53edca83.md

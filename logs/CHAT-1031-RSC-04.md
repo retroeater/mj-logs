@@ -115,28 +115,69 @@ CHAT-1031-RSC-03 の「判断が必要なこと」2〜5 への回答を入れ、
   - 2021-07-10 女流プロMの城壁 決勝（宮内こずえ・高宮まり・仲田加南・茅森早香）: 2021年度の予選の決勝
   - 2021-10-23 全日本プロ選手権 ベスト8 A卓（小川稜太・古本和宏・麻生ゆり・忍田幸夫）: 通過者だけに順位がある6卓の1つ（シートの順位との照合を試す）
 
+#### 5卓×2モデルの結果（run 41678529712 Haiku 5.5・run 41679141794 Sonnet 5.5、どちらも `max_cost` 1）
+
+実行したときの cloudflare は d580617a1（ほかのセッションのマージの後。調べもののコードは 6fe4b43f3 と同じ）。候補タブに10行を書いた。引用文・備考は実行サマリの先頭60字（全文は候補タブ）。
+
+| 卓 | モデル | 候補の順位 | 確度 | 出典 URL | 引用文（要約） | 費用 | 備考（要約） |
+|---|---|---|---|---|---|---|---|
+| 2011-11-23 ファイナルトーナメント ベスト16 A卓 | Haiku 5.5 | — | 見つからない | — | — | $0.0253 | 4人の順位が書かれた記事は無い。検索に出たのは決勝など |
+| 同 | Sonnet 5.5 | — | 見つからない | — | — | $0.0949 | 結果の記事は検索で見つからない |
+| 2011-07-16 新鋭プロ代表決定戦 決勝 | Haiku 5.5 | — | 見つからない | — | — | $0.0229 | 4人の順位が書かれた記事は見つからない |
+| 同 | Sonnet 5.5 | — | 見つからない | — | — | $0.0965 | 記事は見つからない。出たのは最強戦2011の概要や別の年度 |
+| 2021-12-11 ファイナルトーナメント 1st Stage ベスト16 A卓 | Haiku 5.5 | — | 見つからない | — | — | $0.0277 | キンマweb の記事（archives/151173）は1位 宮内こずえ・2位 瀬戸熊直樹だけで、3・4位が無い |
+| 同 | Sonnet 5.5 | — | 見つからない | — | — | $0.1130 | キンマweb の記事（archives/151199）で1位・2位は分かるが、3・4位が無い |
+| 2021-07-10 女流プロMの城壁 決勝 | Haiku 5.5 | 1位 宮内こずえ・2位 高宮まり・3位 仲田加南・4位 茅森早香 | 未照合 | https://kinmaweb.jp/archives/140719 | 「最終結果 仲田 21,500 高宮 29,300 茅森 13,100 宮内 36,100」 | $0.0285 | 検索結果の抜粋。**引用文が姓だけのため「引用文に名前が無い: 宮内こずえ・高宮まり・仲田加南・茅森早香」**（点数の並びは順位と合う） |
+| 同 | Sonnet 5.5 | 1位 宮内こずえ・2位 高宮まり・3位 仲田加南・4位 茅森早香 | 未照合 | https://mahjong-saikyosen.jimdoweb.com/broadcast/ | 「7/10(土) · 女流プロMの城壁 · 1位:宮内こずえ 2位:高宮まり 3位:仲田加南 4位:茅森早香 …」 | $0.0592 | 検索結果の抜粋（本文は取っていない）。**旧公式サイトの対局結果の一覧** |
+| 2021-10-23 全日本プロ選手権 ベスト8 A卓 | Haiku 5.5 | — | 見つからない | — | — | $0.0805 | キンマweb の観戦記の本文は開けたが、4人の最終順位は無い（1〜2ページ目） |
+| 同 | Sonnet 5.5 | — | 見つからない | — | — | $0.1997 | 観戦記（archives/146474）は見つかったが、開けたのは1ページ目（東2局まで） |
+
+モデルごとの実額・トークン・検索（実行サマリから、全件）:
+
+| モデル | 実額 | 要求 | 入力 | 出力 | キャッシュ | 検索 | 取得 | 1卓あたり |
+|---|---|---|---|---|---|---|---|---|
+| Haiku 5.5 | $0.1849 | 5回 | 324,821 | 7,858 | 0 | 10回 | 5回 | $0.037 |
+| Sonnet 5.5 | $0.5633 | 5回 | 232,896 | 2,746 | 0 | 7回 | 4回 | $0.113 |
+
+- 合計 $0.7482（A の小川光は $0）。どの回も上限を超えず、API のエラーも無い
+- 所見:
+  - 2つのモデルとも「女流プロMの城壁 決勝」で同じ順位を出した（宮内こずえ 1位はシートの結果〈通過＝優勝〉と合う）。ほかの4卓は「見つからない」で一致した
+  - **旧公式サイト（mahjong-saikyosen.jimdoweb.com/broadcast/）に「1位:名前 2位:名前 …」の形の対局結果の一覧がある**（Sonnet が見つけた）。2021年度の他の対局もここに載っている見込みで、B の主な資料になりうる。ただし今回は検索結果の抜粋だけで、本文は取っていない（ページが大きい見込み）
+  - キンマweb の観戦記は複数ページに分かれていて、`web_fetch` は1ページ目しか取れない（最終結果は後ろのページ）。記事は姓だけで書くことが多く（「仲田」「高宮」）、今の照合（名前の完全一致）では未照合になる
+  - 2011年度の卓は、どちらのモデルも記事を見つけられなかった
+  - 卓ごとに同じ記事を読み直した例は今回の5卓では無い（5卓とも別の対局）
+- ログ（報告）の追いの push: origin/cloudflare（6865148b9）を取り込み（衝突なし、テスト OK）、`git push origin work/1031-rsc:cloudflare` の範囲は `6865148b9..4ecc9a729`
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1031-rsc
-- ログ: https://github.com/retroeater/mj/blob/work/1031-rsc/docs/logs/CHAT-1031-RSC-04.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1031-RSC-04.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1031-rsc
-- 確認用URL: なし
-- マージ: 未
-- issue: #630・#628
-- 判断が必要なこと: 作業中
-- 未確認の項目: 作業中
+- 確認用URL: なし（ページ・生成物は変えていない）
+- マージ: 済（成果物 6fe4b43f3、報告まで 4ecc9a729）
+- issue: #630（着手中・結果の要約のコメント）・#628（この指示ではコメントしていない。小川光は対象に入らなかった）。本文・状態・ラベルは変えていない
+- 判断が必要なこと:
+  1. **「小川光」**: 実行の時点でも対象の一覧（「連盟プロ以外」で名前かなが空、「最強戦」の表示=Y に出る人。16件）に入らなかった。理由（「連盟プロ以外」にいない・名前かなが入っている・表示=Y に出ない）はセッションから見分けられない。(a) 平野さんがシートを見て、入っていなければ「連盟プロ以外」に入れる（推奨。入れた後は同じ実行で調べられる）／(b) 名前かなが入っていれば、このまま終える
+  2. **残り 392卓のモデルと進め方**: 5卓では2つのモデルの結果は同じ（見つからない4・同じ順位の未照合1）で、費用は Haiku が約1/3（1卓 $0.037 と $0.113）。ただし、良い資料（旧公式の結果一覧）を見つけたのは Sonnet。
+     (a) すぐ Haiku で全件: 1回 50卓・上限 $3（見込み約 $1.85）を8回、合計約 $15。今の照合のままだと、照合済みはほぼ出ず、未照合と見つからないが多い見込み
+     (b) 先に改善して5卓をもう一度 Haiku で試してから全件（推奨。約 $0.2）: プロンプトで旧公式の結果一覧（mahjong-saikyosen.jimdoweb.com/broadcast/ など）を先に見るよう指示する／`web_fetch` の本文の上限（今 8,000 トークン）を一覧のページが入る大きさに上げる（1卓の費用は上がる）／照合で姓だけの表記も許す（下の3）
+     (c) Sonnet で全件: 約 $44。今の5卓では Haiku より良い結果にはなっていない
+  3. **照合で姓だけの表記を許すか**: キンマweb の記事は「仲田 21,500 高宮 29,300 …」のように姓だけで書く。(a) 許す: 卓の4人の姓が互いに違うときだけ、引用文に4人の姓があれば名前ありとみなす（推奨。同じ卓に同じ姓の2人がいるときは今どおり完全一致）／(b) 許さない（今のまま。人が出典を開いて確かめる）
+  4. **旧公式の結果一覧をAPIなしで読むか**: 一覧のページを Actions から直接読み、「1位:名前 …」を卓に当てる形にすれば、Claude API を使わずに多くの卓を埋められるかもしれない（2021年度より前の年度が載っているかは未確認）。(a) まずセッションのネットワークに mahjong-saikyosen.jimdoweb.com を足して、ページの形を確かめる（推奨。費用なし）／(b) API の調べものだけで進める
+- 未確認の項目:
+  - 旧公式の結果一覧（mahjong-saikyosen.jimdoweb.com/broadcast/）に、どの年度の結果まで載っているか（このセッションのネットワークでは許されていないドメイン）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 6fe4b43f）: https://github.com/retroeater/mj-logs/tree/main/guide/6fe4b43f
+ガイド文書（この版を写した時点の最新、mj 6865148b）: https://github.com/retroeater/mj-logs/tree/main/guide/6865148b
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6fe4b43f/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6fe4b43f/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6fe4b43f/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6fe4b43f/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6fe4b43f/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6fe4b43f/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6865148b/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6865148b/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6865148b/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6865148b/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6865148b/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6865148b/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/53edca83.md
