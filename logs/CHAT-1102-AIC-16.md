@@ -72,15 +72,51 @@
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 0. 着手前の確認（2026-11-03）
+
+- 指示欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある
+- `git log --all --grep="CHAT-1102-AIC-16"` は0件。`AIC` はこのチャットの系列（AIC-01〜15）
+- 3f6de264b は origin/cloudflare の祖先。`origin/work/1102-aic` はマージ済みで、ローカルも cloudflare の祖先なので `git merge --ff-only origin/cloudflare`（cf7053c8）
+- AIC-15 のログの `## 報告` の状態に ` / 続き: CHAT-1102-AIC-16` を足し、「判断が必要なこと」の後ろに回答を書き足した
+- #654 にコメントは無かった（他セッションの着手中なし）。着手中のコメントを書いた。未マージの work/ ブランチで `workers/ask/` を変えているものは無い
+
+### 1. 確かめ（前提の行と実物）
+
+- `workers/ask/src/ask.mjs` の27〜29行は前提のとおり（コメント2行と `GUIDE_PAGES` の4大会）。`workers/ask/src/index.mjs` の大会の id は `saikyo`
+- 最強戦の個人成績のリンク: `data-saikyo.json` の `urls.players` は `/saikyo/players/`、ページの JS（`assets/saikyo.js` の `params.get('name')`）が `?name=` を読む。ほかの大会と同じ形で作れる。個人へのリンクは在籍者（`people`）のときだけ（ほかの大会と同じ規則）で、連盟の外の選手（people に無い）は「麻雀最強戦のトップ」（`/saikyo/`、質問欄あり）
+- 最強戦にだけ記録（成績の行か決勝）のある在籍者は11人（萩原聖人・原えりか など）。前提の「最強戦にだけ記録がある選手」の候補に見えた森山茂和は、鳳凰戦の決勝（第2・4・7期）に記録があり、当たらない
+- 気づいたこと（直していない）: 鳳凰戦の質問欄で「森山茂和」の成績（player）を聞くと、成績の行が無いので `not_found` になり、案内の文が「鳳凰戦の記録に「森山茂和」に当たる選手はいません」となる（決勝の記録はある）。決勝だけに出た人に当たる、AIC-08 からの食い違い。docs/notes/ask-worker.md に書き、#654 にも書く
+
+### 2. 直したこと（e3c6e7d5e、文書 dac689701）
+
+- `GUIDE_PAGES` に `saikyo: '/saikyo/'` を足した。コメントは「公開している大会だけ(最強戦は公開〈#627〉の後の 2026-11-02 に足した)」「簡略化: 大会の一覧をここに持つ。質問欄を1つにまとめるときは大会の設定に移す」に直した
+- 落ちると分かって直したテスト（`cross.test.mjs`、AIC-08 のもの）: 「佐々木寿人」の答えと出典（鳳凰戦に麻雀最強戦が並ぶ）、東城りお・黒沢咲（3大会）、「寿人」（鳳凰戦のトップと最強戦の佐々木寿人）、「二階堂」（3大会）、「どれにも見つかりません」の大会の列（5大会）、「森山」（最強戦の森山茂和へ）。「未公開の最強戦は案内しない」の検査は、最強戦の個人成績へのリンクの検査に置き換えた
+- 新しいテスト: 最強戦にだけ記録のある在籍者を data から選び（萩原聖人が入ることを確かめ）、鳳凰戦の質問欄で聞くと最強戦の個人成績へ案内され、記録の結果が `guided` になる。最強戦の質問欄からの案内に最強戦が入らない
+- 直す前のコード（origin/cloudflare）に `cross.test.mjs` を当てると4件落ちた
+- 案内の答えが変わらないことの比べ（scratchpad の cmp16.mjs）: 5大会の在籍者の名前すべてを、最強戦以外の4大会の質問欄から `guideAnswer()` に当てて直す前と後を比べた。同じ 2006件、変わった 926件はすべて「最強戦に記録がある（案内に最強戦が加わる）」か「見つからない文の大会の列に最強戦が加わる」もの、それ以外の変化は0件。最強戦の質問欄からの案内は 733件すべて同じ
+- `node --test 'workers/ask/test/*.test.mjs'` 132件通過、`python3 -m unittest discover -s scripts/tests` 通過
+
+### 3. 自己レビュー（docs/notes/self-review.md、新しい文脈のサブエージェント、1往復）
+
+`git diff origin/cloudflare...HEAD -- workers/ask`。目的・観点を渡した。`node --test` 132件通過を相手も確かめた。
+
+| 指摘 | 扱い |
+|---|---|
+| リンクとラベル（在籍者は個人成績、連盟の外の選手〈TAKUYA など〉は「麻雀最強戦のトップ」）・`GUIDE_PAGES` に頼る3か所・最強戦の質問欄から自分が外れること・テストの書き換え・`簡略化:` のコメント・規約 | 指摘なし |
+| 改善の余地: 連盟の外の選手も最強戦の個人成績にいるので、`/saikyo/players/?name=TAKUYA` へ送れるはず（今はトップ止まり。不具合ではない） | 見送り（決定の範囲の外。報告の「判断が必要なこと」に書いた） |
+| 新しいテストの `hasRecord` が `recordNames()` と同じ判定の書き直し | 意図どおり（前提の確かめ用） |
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 82c934c3）: https://github.com/retroeater/mj-logs/tree/main/guide/82c934c3
+ガイド文書（この版を写した時点の最新、mj f520341f）: https://github.com/retroeater/mj-logs/tree/main/guide/f520341f
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/82c934c3/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/82c934c3/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/82c934c3/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/82c934c3/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/82c934c3/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/82c934c3/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f520341f/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f520341f/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f520341f/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f520341f/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f520341f/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f520341f/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/cf7053c8.md
