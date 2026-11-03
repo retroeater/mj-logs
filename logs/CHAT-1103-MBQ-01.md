@@ -61,7 +61,7 @@
 
 ## 報告
 
-- 状態: 中断（指示文の issue #563 が closed）
+- 状態: 中断（指示文の issue #563 が closed） / 続き: CHAT-1103-MDX-01
 - ブランチ: work/1103-mbq
 - ログ: https://github.com/retroeater/mj/blob/work/1103-mbq/docs/logs/CHAT-1103-MBQ-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1103-mbq
