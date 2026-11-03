@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-11-04 02:43 JST
+- 書き出した時刻: 2026-11-04 02:49 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -25,11 +25,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-11-04 02:42 | push | work/1104-ttl | in_progress | #811（41686761711） |  |
-| 2026-11-04 02:38 | push | work/1104-lvp | success | #810（41686164844） | 0分33秒 |
-| 2026-11-04 02:29 | push | work/1104-rsc | success | #809（41684697296） | 3分22秒 |
-| 2026-11-04 02:26 | push | work/1104-aic | success | #808（41684323935） | 1分33秒 |
-| 2026-11-04 02:26 | push | work/1104-aic | success | #807（41684286074） | 3分13秒 |
+| 2026-11-04 02:48 | push | work/1029-lgn-page | in_progress | #817（41687834812） |  |
+| 2026-11-04 02:47 | push | work/1104-top | in_progress | #816（41687653487） |  |
+| 2026-11-04 02:47 | push | work/1104-top | success | #815（41687551080） | 1分34秒 |
+| 2026-11-04 02:45 | push | work/1104-prp-unpub | success | #814（41687273761） | 3分29秒 |
+| 2026-11-04 02:43 | push | work/1104-ttl | success | #813（41686975143） | 3分13秒 |
 
 ## check-build-failure.yml
 
@@ -38,11 +38,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-11-04 02:42 | check_run | cloudflare | skipped | #1044（41686867543） | 0分11秒 |
-| 2026-11-04 02:39 | check_run | cloudflare | skipped | #1043（41686344770） | 0分01秒 |
-| 2026-11-04 02:31 | check_run | cloudflare | skipped | #1042（41685017741） | 0分01秒 |
-| 2026-11-04 02:30 | check_run | cloudflare | skipped | #1041（41684937893） | 0分09秒 |
-| 2026-11-04 02:29 | check_run | cloudflare | skipped | #1040（41684776202） | 0分08秒 |
+| 2026-11-04 02:49 | check_run | cloudflare | in_progress | #1050（41687922178） |  |
+| 2026-11-04 02:48 | check_run | cloudflare | skipped | #1049（41687730729） | 0分01秒 |
+| 2026-11-04 02:47 | check_run | cloudflare | skipped | #1048（41687630718） | 0分01秒 |
+| 2026-11-04 02:45 | check_run | cloudflare | skipped | #1047（41687381587） | 0分02秒 |
+| 2026-11-04 02:43 | check_run | cloudflare | skipped | #1046（41687061054） | 0分11秒 |
 
 ## check-image-links.yml
 
@@ -183,11 +183,13 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-11-04 02:20 | workflow_dispatch | cloudflare | in_progress | #6（41683310617） |  |
+| 2026-11-04 02:20 | workflow_dispatch | cloudflare | failure | #6（41683310617） | 23分52秒 |
 | 2026-10-27 20:49 | workflow_dispatch | cloudflare | success | #5（40499085851） | 9分40秒 |
 | 2026-10-26 07:47 | schedule | cloudflare | success | #4（40241832250） | 10分06秒 |
 | 2026-10-21 12:39 | workflow_dispatch | cloudflare | success | #3（39539783113） | 9分28秒 |
 | 2026-10-19 07:35 | schedule | cloudflare | success | #2（39172875765） | 5分44秒 |
+
+- #6 failure: ジョブ「regenerate / regenerate」 ステップ「飛ばしたページを報告」
 
 ## regenerate-page.yml
 
@@ -196,11 +198,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-11-04 02:42 | workflow_dispatch | work/1104-ttl | in_progress | #639（41686767355） |  |
-| 2026-11-04 02:28 | workflow_dispatch | work/1029-lgn-page | in_progress | #638（41684544766） |  |
-| 2026-11-04 02:12 | workflow_dispatch | work/1103-ryo8 | success | #637（41681969308） | 2分01秒 |
-| 2026-11-04 02:06 | workflow_dispatch | work/1104-top | success | #636（41680997567） | 5分31秒 |
-| 2026-11-04 02:04 | workflow_dispatch | work/1103-ryo8 | success | #635（41680687102） | 2分44秒 |
+| 2026-11-04 02:48 | workflow_dispatch | work/1029-lgn-page | in_progress | #645（41687839172） |  |
+| 2026-11-04 02:48 | workflow_dispatch | work/1104-prp-unpub | in_progress | #644（41687719568） |  |
+| 2026-11-04 02:47 | workflow_dispatch | work/1104-top | in_progress | #643（41687676575） |  |
+| 2026-11-04 02:45 | workflow_dispatch | work/1104-prp-unpub | success | #642（41687288495） | 2分17秒 |
+| 2026-11-04 02:43 | workflow_dispatch | work/1103-ryo8 | in_progress | #641（41686981568） |  |
 
 ## regenerate-saikyo.yml
 

@@ -91,28 +91,100 @@
 - 同じ期の決勝（掲載 Y の6行: 4257・4242・4252・4291・4293・4287）は、【2】のステージ「決勝」・まとめ単位「決勝」・ステージの並び 空（`live_extract.py` の `STAGE_ORDER` に達人戦が無いため）
 - SEO-03 の B7（#362 の 2026-10-29 のコメント）: 「live/ のトップ・大会・期の og:image を最新話のサムネイルにする件（LVP の B9、#581 から移した）」。LVP-06 で実装済み。公開前の確かめとして、生成物のトップ・タイトル戦・期の og:image がその範囲で最新の動画のサムネイルになっていること（と、個別ページは今のまま）を見る
 
+### 手順2: 実装（主なコミット bff719d11・b3ebd398c・bf699c350）
+
+- `scripts/generate_live_pages.py`: noindex を外し、全ページに canonical（`page_url(path)`、トップは `https://ryoei.pro/live/`）を付けた。`build_sitemap()`（`sitemap-mtsuku.xml` と同じ形。既にある lastmod を残し、新しい URL は当日）を足し、`main()` で `sitemap-live.xml` を書き、`--check` でも組み立てる
+- `scripts/lib/live.py`: ステージの記号 `"プレーオフ": "po"`。日本シリーズの「プレーオフ第1節」は卓の形でないので当たらない（テストあり）
+- `scripts/lib/live_extract.py`: `STAGE_ORDER` に `"達人戦": {"プレーオフ": "1", "ベスト16": "2", "ベスト8": "3", "決勝": "4"}`。【2】の達人戦の決勝の並びが空から 4 になり、プレーオフの行もステージ・並びが入る（毎日の取り込みの次の回から。【3】の既存の行は書き換えない）。毎日の取り込みの「行数・候補が減ったら止める」には当たらない（候補の判定は `classify()` で、`analyze()` の影響を受けない。自己レビューで実データ 10,002 件にかけて、変わるのは達人戦の18件だけと確かめた）
+- `assets/live.js`: `?q=` が無く `?name=` があれば、それを検索欄の初期値にする（期限つき）
+- `navbar.js`: 「番組 > 放送対局」の href を `/live/` に
+- `_redirects`: `/video_live.html  /live/  301`（`/video_mtsuku.html` の次）
+- `sitemap.xml`: `sitemap-live.xml` の節（sitemap-title の後。work/1101-prp-pub が足す sitemap-pro の節と離した）。`sitemap-pages.xml` から `video_live.html` の URL を消した
+- `scripts/update_sitemap_lastmod.py`: `SITEMAP_LIVE`（`live/` 配下）を足し、`--from-git` の対象に入れた
+- `.github/workflows/regenerate-page.yml`: サイトマップの XML の確かめの一覧に `sitemap-live.xml` を足した。作業ブランチで手動実行して通った（run 41678301131〈生成・確かめ・コミット〉、41678927453〈dry_run〉）
+- `scripts/regenerate.py`: `live_pages` の出力に `sitemap-live.xml` を足した（`--check` で戻す対象に入る）
+- 旧ページ: `video_live.html` と `scripts/generate_video_live.py` を消した。それを使っていたテスト（`test_simple_pages_check.py` は rh_paifu に、`test_taikai_names.py` は該当の確かめを消した）を直した
+- `llms.txt`: 放送対局の行を `https://ryoei.pro/live/` に替え、本数を 2,986本（`live/index.html` の「動画2986本」）にした。プレーオフの3本が入ると 2,989本になる
+- 文書: docs/notes/redirects.md（棚卸しの対象の行。入れた日は「2026-11-04（予定。公開の指示でマージした日に直す）」）、docs/new-page-checklist.md（URL パラメータの `q`・`name`、実例の表の live 列）、docs/notes/live-page-design.md（2-3 の「未検証」、2-7 の公開の手順、4章の Workers のプラン、冒頭の noindex、2-10 の見出し、1章の「現行 video_live.html」）、docs/notes/static-generation.md（放送対局の行・型A の行と件数 4→3）、docs/handover.md（共有ボタンの行・BreadcrumbList の並び）、docs/notes/title-pages.md（消した生成の名前）
+- `git grep -n 'video_live'`（docs/decisions・docs/logs・handover-archive・docs/gsc を除く）で残したもの:
+  - `_redirects`・`assets/live.js`・docs/notes/redirects.md・docs/new-page-checklist.md・docs/notes/live-page-design.md・docs/notes/static-generation.md・`scripts/generate_live_pages.py`・`scripts/lib/page.py`: 今回の転送・経緯の説明
+  - `jpml_pros.html`（319件）・`scripts/generate_jpml_pros.py:270`・`scripts/tests/test_jpml_pros.py`: 旧 jpml_pros の放送対局の件数のリンク `./video_live.html?name=`。直すと jpml_pros.html が変わり「ほかの生成物に差分が出ない」に当たる。301 と `?name=` の受け付けで届く。jpml_pros は #641 で pro/ に替わる
+  - `style.css:433`・`table.js:4`: 型Aの共通部品のコメント（動作に関わらない）
+  - docs/lighthouse-baseline.md・docs/notes/decisions-2026-09-13-review.md・docs/notes/site-findings.md・docs/review-followup-instructions.md・docs/notes/static-generation.md の 17〜18 行: 過去の記録
+- テスト: `test_live_pages.py`（noindex 無し・canonical・サイトマップの lastmod の保持と当日・プレーオフの記号）、`test_live_extract.py`（達人戦の決勝の並び 4・プレーオフの題名で並び 1）を足した・直した。`python3 -m unittest discover -s scripts/tests`: 1,814件 OK（cloudflare を取り込んだ後、e64d1d101）
+
+### 手順2: 確かめ
+
+- 作業ブランチで regenerate-page.yml の `live_pages`（run 41678301131、d3344288b）: live/ の 944 ページを生成し直し、`sitemap-live.xml`（944 URL）を書き出した。どのページにも noindex が無く、canonical は自分自身
+- `npx wrangler dev --port 8789 --ip 127.0.0.1 --persist-to /tmp/wrangler-state`（wrangler 4.45.0、npx で一時に取得。リポジトリに依存は足していない。作業ツリーに作られた `node_modules/.mf` は消した）:
+  - `/video_live.html` → 301 `/live/`、`/video_live.html?name=%E5%A0%80%E6%85%8E%E5%90%BE` → 301 `/live/?name=%E5%A0%80%E6%85%8E%E5%90%BE`（クエリが残る）
+  - ローカルの wrangler dev では、`_redirects` の 200 の書き換えでディレクトリを返す URL が 404 になる（`/`・`/saikyo/`・`/mtsuku/` も同じ。今回の変更と無関係）ので、`/live/` の絞り込みはプレビューで確かめた
+- プレビュー（d3344288b の Workers Builds: success。ヘッドレス Chromium、UA に `mj-internal`）:
+  - `/video_live.html?name=堀慎吾` → `/live/?name=堀慎吾`。検索欄が「堀慎吾」、「767件中 3件を表示」（`/live/?q=堀慎吾` と同じ件数）
+  - `/video_live.html` → `/live/`。`/live/` は noindex なし、canonical `https://ryoei.pro/live/`、navbar の「放送対局」は `/live/`
+  - pro/ の個別ページ（`/pro/hiro.shibata.17/`）からのリンク: `/live/?q=HIRO柴田` が開いて「767件中 125件を表示」、`/live/masters/34/b8-b.html` が 200
+  - `/sitemap.xml` に `sitemap-live.xml` があり、`/sitemap-live.xml`・`/llms.txt`（放送対局の行が `/live/`）が 200
+- 取り込んだ後の e64d1d101 のプレビュー（Workers Builds: success）でも、`/live/`・`/live/tatsujin/`・`/sitemap-live.xml` が 200、`/video_live.html?name=…` が 301 でクエリを保つ、navbar が `/live/`、`/live/` に robots の meta が無いことを確かめた
+- 全ページの新旧の比べ（regenerate-page.yml の dry_run・all・compare_ref `origin/cloudflare`、run 41678927453。比べの相手は d580617a1）: 中身の違うファイルは5件で、`wayhome/index.html`・`wayhome/OkKAh8yP8Uk.html`・`wayhome/aNSsJicbMlM.html`・`top/index.html`・`title/tatsujin/3.html`。cloudflare 側にだけあった YouTube の情報の更新（a1f075557、`data/youtube_meta.json` に帰り道の新しい回）によるもの（帰り道の一覧・各話、トップの新着の番組、帰り道の `aNSsJicbMlM` へリンクする title/ の期のページ）。今回の変更による live/・サイトマップ・`llms.txt`・navbar・`_redirects` のほかの差は無い。その後 cloudflare を取り込んだ（e64d1d101、衝突なし）
+- SEO-03 の B7: 生成物の og:image は、トップ `-K8QmXaw8uU`（第24期プロクイーン決定戦、トップの最新の行）、`/live/judan/` と `/live/judan/43.html` は `jtimc62TkpE`（第43期十段戦 ベスト8 B卓 5回戦、十段戦で最新）、個別ページ `/live/judan/43/f.html` はそのページの先頭の動画のまま。決定（トップ・大会・期は範囲で最新の動画のサムネイル、個別は今のまま）のとおり
+
+### 自己レビュー（新しい文脈のサブエージェント、1回）
+
+| 指摘 | 扱い |
+|---|---|
+| `llms.txt` の「サイトマップ」の行の列挙に `sitemap-live.xml` が無い（mtsuku・exam の公開では足している） | 見送り: work/1101-prp-pub が同じ行を変えている（止まる条件の「同じ行」に当たらないよう触らない）。次の指示で足す（判断が必要なこと） |
+| docs/notes/static-generation.md の「HTMLは21ページ」が古い（直下のページは origin で 11） | 見送り: 元からの食い違い。判断が必要なことに挙げた |
+| `regenerate-sitemap.yml`・docs/notes/sitemap-lastmod.md・static-generation.md の列挙・regenerate-page.yml のコメントに sitemap-live.xml が無い（mtsuku・exam も元から無い） | 見送り: 元からの抜け。判断が必要なことに挙げた |
+| live-page-design.md:27 の「現行 video_live.html」 | 直した（bf699c350） |
+| `live.py` の「プレーオフ」のコメントが日本シリーズの「プレーオフ」単体に触れていない | 直した（bf699c350）。日本シリーズの【3】で「プレーオフ」単体を掲載 Y にすると `po` のページになる（今は該当なし） |
+| 達人戦のプレーオフの題名の並びの検査、サイトマップの新しい URL の当日の検査が無い | 直した（bf699c350） |
+| 【3】に手で入れた達人戦の並びと新しい表の番号が今後の期で混ざりうる | 意図どおり: 今は決勝の1ステージだけで影響なし。プレーオフの並びは表と同じ 1 を入れる案にした |
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1104-lvp
 - ログ: https://github.com/retroeater/mj/blob/work/1104-lvp/docs/logs/CHAT-1104-LVP-10.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1104-lvp
-- 確認用URL: なし
-- マージ: 未
-- issue: #362
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 確認用URL: プレビューあり（URL は最終報告）。この版の印は、`/video_live.html` を開くと `/live/` に移り、navbar の「番組 > 放送対局」が `/live/` を指すこと
+- マージ: 未（判断待ち。告知動画を撮った後、次の指示でマージ＝公開）
+- issue: #362（着手中のコメント）
+- 判断が必要なこと:
+  - 【3】のプレーオフの6行に入れる値（公開版は「冒頭」が Y なので N。ステージの並びの 1 は決勝〈【2】で 4〉・ベスト16〈2〉より前）:
+
+| 行 | 動画ID | 期 | 掲載 | ステージ | ステージの並び | まとめ単位 |
+|---|---|---|---|---|---|---|
+| 4289 | pPhdXp3U7mU（メンバー限定） | 第1期 | Y | プレーオフ | 1 | プレーオフ |
+| 4283 | lQTUI_C_Vw0（公開版、冒頭 Y） | 第1期 | N | （空欄のまま） | （空欄のまま） | （空欄のまま） |
+| 4228 | 4j_vrUqShCc（メンバー限定） | 第2期 | Y | プレーオフ | 1 | プレーオフ |
+| 4222 | 1-DyHZm29OM（公開版、冒頭 Y） | 第2期 | N | （空欄のまま） | （空欄のまま） | （空欄のまま） |
+| 4240 | DfjwueadOwc（メンバー限定） | 第3期 | Y | プレーオフ | 1 | プレーオフ |
+| 4264 | XQLktBZyx5A（公開版、冒頭 Y） | 第3期 | N | （空欄のまま） | （空欄のまま） | （空欄のまま） |
+
+  - 入れると `live/tatsujin/1/po.html`・`2/po.html`・`3/po.html` ができ、期のページで決勝の前に「プレーオフ」の見出しが出る見込み（ステージに1対局なので行の題は出ない）。入れた後は次の指示の前に `--check live_pages` で確かめる
+  - プレビューで見てほしいページ（告知動画の候補に ★）: ★`/live/`（白地のトップ・題名のシート・検索）、★`/live/judan/43.html`（期のページ・ステージの見出し）、★`/live/judan/43/f.html`（濃色のヒーローの個別ページ）、`/live/judan/`、`/live/tatsujin/`、`/video_live.html?name=堀慎吾`（旧 URL から絞り込まれて開く）、pro/ の個別ページからの `/live/?q=…`
+  - SEO-03 の B7 の確かめ: トップ・大会・期の og:image はその範囲で最新の動画のサムネイル、個別ページは今のまま（`## 経過`）。X・LINE のカードの見え方は公開の後に確かめる
+  - 次の指示（マージ＝公開と公開後の確かめ）に要る項目:
+    - docs/notes/redirects.md の `/video_live.html` の行の「入れた日」を、マージした日に直す
+    - `llms.txt` の「サイトマップ」の行の列挙に `sitemap-live.xml` を足す（work/1101-prp-pub が同じ行を変えているので、この指示では触っていない）。プレーオフを入れたら本数（2,986→2,989）も直す
+    - #362 の本文を公開後の形に直す（決定の B14。公開前に「公開した」と書かないため、この指示では直していない）
+    - 元からの食い違い（直すかの判断）: docs/notes/static-generation.md の「HTMLは21ページ」（直下は 10）、`regenerate-sitemap.yml`・docs/notes/sitemap-lastmod.md・static-generation.md の列挙・regenerate-page.yml のコメントに mtsuku・exam・live のサイトマップが無い
+    - 公開後の確かめ（段2）: 本番の HTML（noindex 無し・canonical・`/video_live.html` の 301 とクエリ）、X・LINE のカード、実機、Search Console のサイトマップの再送信と URL 検査
+    - 達人戦の `STAGE_ORDER` は毎朝の取り込みの次の回から【2】に入る（決勝の並び 4）。公開の前にその回を挟むと、`--check live_pages` でも変化を見られる
+    - 未マージの work/1104-top が `navbar.js` で live/ の個別ページを新しいナビの帯にする分岐を足している。どちらを先にマージしても行は重ならないが、個別ページのナビの見た目が変わる
+- 未確認の項目:
+  - 実機（iPhone など）での見え方
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 6fe4b43f）: https://github.com/retroeater/mj-logs/tree/main/guide/6fe4b43f
+ガイド文書（この版を写した時点の最新、mj dbac236b）: https://github.com/retroeater/mj-logs/tree/main/guide/dbac236b
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6fe4b43f/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6fe4b43f/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6fe4b43f/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6fe4b43f/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6fe4b43f/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6fe4b43f/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/dbac236b/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/dbac236b/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/dbac236b/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/dbac236b/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/dbac236b/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/dbac236b/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/53edca83.md
