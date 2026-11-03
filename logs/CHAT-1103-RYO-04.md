@@ -133,18 +133,95 @@
 - 直したこと: 共通ナビのメニューの線が夜の地で見えない → `world.css` で色を変えた／牌の紙片がメニューに透ける → メニューを開くと紙片を消す／メニューを開くと「場所」が隠れる → HUD を前に
 - この版で見えるはずの印: 最初の画面の名前の上に「記憶の中を、歩く。」（暖色の小さな字）と「入る」のボタン
 
+### レビュー（docs/notes/self-review.md、新しい文脈のサブエージェント2回）
+
+1回目（e304c8279）:
+
+| 指摘 | 扱い |
+|---|---|
+| 動画の「閉じる」が HUD（場所・音）の下に隠れる（高） | 直した（32100f163、前面に z-index） |
+| Enter・E がフォーカス中のボタンの操作と二重に動く（中） | 直した（32100f163、ボタン・リンクの上の Enter と前面を開いている間は見送る。2回目の指摘で E は通すように 8ecd5f8bd） |
+| 読み込みに失敗するとスクロールが止まったまま（中） | 直した（`leaveWorld()` で戻す） |
+| WebGL1 だけの端末・AudioContext の無い端末で全面が残る（中） | 直した（判定を WebGL2・Web Audio にし、World の作成も try/catch） |
+| 空間を開いたときのフォーカスとモーダル（中） | 直した（入ると「場所」へフォーカス、外を `inert`、出ると移った場所の節の見出しへ。見出しに `tabindex="-1"`） |
+| exit 後の GPU の資源（低） | 直した（geometry・material・テクスチャの dispose と `forceContextLoss()`、判定用のコンテキストも手放す） |
+| タブを隠しても音が鳴る・Alt+Tab 後に歩き続ける（低） | 直した（visibilitychange で音を止める、blur でキーを放す） |
+| タップが壁越しに当たる・外れても前の物を開く（低） | 直した（最初に当たった物が触れられる物のときだけ開く。外れたら何もしない） |
+| 出演・学歴の件数が増えると壊れる配置（低） | `簡略化:` のコメントを残し、出演は置き場の数までにした（件数は検査で縛る） |
+| 試作・計測の残り（`noteIndex`・`window.ryoeiWorld`・`data-place`）（低） | `noteIndex`・`data-place` は消した。`window.ryoeiWorld` は headless の確かめ（場所の移動・fps）に使うので残した（コメントあり） |
+| `（新しいタブで開く）` の手書き（低） | 直した（`NEW_TAB_HINT`） |
+| `regenerate.py` の依存・コメント・毎朝の再生成が古い（低） | 見送り（判断が必要なことに挙げた。未マージの `work/1103-top` が隣の行〈`RUN_LAST`〉を変えていて衝突するため） |
+| 目次の並びと本文の並びが逆（低） | 直した（目次は本文の並び `SECTION_ORDER`、メニューは道順。検査あり） |
+| 広間の天井 3.2 と対局室の壁 2.8 の間のすき間（低） | 直した（広間を 2.8 に。2回目の指摘で通路も 2.8 に） |
+| docs の正確さ（ryoei-world.md・localStorage の規約）（低） | 直した（ryoei-world.md を実物に合わせ、`docs/new-page-checklist.md` の保存する項目に `mj:ryoei-sound` を足した） |
+
+2回目（32100f163）:
+
+| 指摘 | 扱い |
+|---|---|
+| 入った直後はフォーカスが「場所」にあり、E でも開けない（中） | 直した（8ecd5f8bd、ボタンの上で見送るのは Enter だけ） |
+| 目次の並びの検査が修正前のコードでも通る（中） | 直した（8ecd5f8bd、目次が `SECTION_ORDER` と一致することも確かめる。修正前の目次では空になり落ちる） |
+| 広間を 2.8 にして通路（3.0）との境にすき間（低） | 直した（8ecd5f8bd、通路も 2.8） |
+| World の作成の途中の失敗でリスナーが残る（低） | 直した（8ecd5f8bd、窓・文書のリスナーは `start()` で足す） |
+| メニューのコメントが古い（低） | 直した |
+
+### 最後の確かめ（8ecd5f8bd）
+
+- `python3 -m unittest discover -s scripts/tests`: OK（1762件）。`node --check`: OK。`r/index.html` は生成と一致
+- check-run: Workers Builds: mj success・公開対象の検査 success
+- プレビュー（版ごとの URL、実際のヘッダ）: 空間に入って映画館へ移り、動画を開いて CSP の違反 0件。別名（`?v=8ecd5f8bd`）に「記憶の中を、歩く。」がある
+- 画面（360px・390px）を撮り直した（`docs/logs/CHAT-1103-RYO-04/`）。headless（SwiftShader）の描画は 360px 約15〜17fps・390px 約14〜16fps
+- `world.js` は 44,399 バイト（上限 150KB）
+
+### 仮置きの一覧（画面のどこに効くか）
+
+1. 最初の画面の言葉「記憶の中を、歩く。」と「入る」の下の注意書き（一覧の最初の画面）
+2. 一覧の見た目（夜の地・暖色1色・大きな名前・写真をモノクロ寄りに）（一覧全体）
+3. 場面の並びと形: 入口 → 通路（学歴と所属の額4つ）→ 広間 → 西に映画館・東に対局室（空間全体）
+4. 通路に学歴と所属を額で置き、触れると紙片（通路）
+5. 映画館: 正面に3枚・左右の壁に2枚ずつ、計7枚のスクリーン。正面の大きいのは最新の第3期WRC-Rリーグ（映画館）
+6. YouTube でない2本（ICU 同窓会・Amazon）は前面にサムネイル・題と、新しいタブで開くリンク（映画館）
+7. 対局室: 牌に触れると自己紹介5行・数字で見る2つが順に紙片で出る（13枚に7項目をくり返して割り当て）、点棒は音だけ（対局室）
+8. 操作: 左半分の仮想スティック・右半分で見回す・タップで開く・メニューから 2.4 秒で浮いて移る（空間全体）
+9. 音: 風・空調・遠い水と雫・対局室のうなり・床ごとの足音・牌と点棒・風切り。音量の釣り合い（空間全体）
+10. 絵柄: トゥーン3段・黒い輪郭線（2.5cm）・霧（5〜24m）・紙の粒子（8コマ／秒）。人物なし（空間全体）
+11. 空間の中の共通ナビは隠れ、右上の「場所」「音」だけ（空間全体）。一覧のページでは共通ナビを夜の色に
+12. 一覧の目次は本文の並び（対局室 → 映画館 → 通路）、空間のメニューは道順（入口 → 通路 → 映画館 → 対局室）
+13. 出演のサムネイルは、CORS が無く WebGL に使えないもの（`i.ytimg.com`・`icualumni.com` の見込み）は紙に題を描いた絵になる（映画館）
+14. 描く解像度の上限 1.5 倍（重さと画質の釣り合い）
+
+### 次の場面の候補（次の指示で足す）
+
+中1で麻雀を覚えた部屋／開成（教室・廊下）／ICU（キャンパスの道・図書館）／金融の仕事（夜のオフィス・取引の画面）／ニューヨーク（街角・地下鉄・大画面）／麻雀から離れた15年（誰もいない雀荘・止まった時計）／プロ入り（連盟の対局室・初めての卓）／専業へ（家の机・牌譜）／マインドアスリート（実験の部屋・ASICS のドキュメンタリーの撮影の場）。
+写真のパネル（線画・減色）は、各場面の壁・机の上に置く。
+
+写真を受け取る方法の案:
+- A: 平野さんが GitHub の issue（#657）のコメントに画像を添付し、Code がダウンロードして線画・減色に加工（Pillow。`scripts/` に手動の加工スクリプト）して `img/ryoei/<場面>-<連番>.webp` に置く（原画はリポジトリに入れない）
+- B: Google ドライブの共有フォルダに置き、セッションが読める形（sheets-reader の鍵の範囲）にする（鍵の範囲を広げる判断が要る）
+- C: チャットに添付し、チャット側が加工の指示とともに渡す（Code のセッションには届かないので、A か B と組み合わせる）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1103-ryo4
 - ログ: https://github.com/retroeater/mj/blob/work/1103-ryo4/docs/logs/CHAT-1103-RYO-04.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1103-ryo4
-- 確認用URL:
-- マージ: 未
-- issue:
+- 確認用URL: プレビューあり（URL は最終報告）。確認したページ: `/r/`（一覧と空間）。この版で見えるはずの印: 最初の画面の名前の上の「記憶の中を、歩く。」と「入る」のボタン
+- マージ: 未（平野さんの判断待ち。指示文の「マージ: 判断待ちで止まる」）
+- issue: #657（起票・着手中）。#656（公開）は変えていない
 - 判断が必要なこと:
+  - 仮置き14点（`## 経過`「仮置きの一覧」。画面のどこに効くかと一緒に）
+  - r/ はもうほかのページの生成物・名簿を読まないので、`scripts/regenerate.py` の `RUN_LAST`・`SHARED_GENERATORS["ryoei_pages"]`・r/ のコメント（「pro/search.json・houou/・title/ の生成物を読む」は事実と違う）と、`update-live-channel.yml` の毎朝の再生成の `ryoei_pages` を外すか。未マージの `work/1103-top` が `RUN_LAST` の行を変えているので、この指示では触れていない
+  - `_headers`: 未マージの `work/1029-lgn-page` が CSP の行の末尾の改行だけを変え（中身は同じ）、末尾に `/log/*` の規則を足している。後からマージする側で衝突する。解き方は「`frame-src https://www.youtube-nocookie.com` を残し、lgn の `/log/*` の規則を足す」（両立する）でよいか
+  - CSP の `frame-src` はサイト全体の設定（r/ だけに限るには `/r/*` の規則で CSP を付け直す形になり、CSP の行を2か所に持つ）。全体のままでよいか
+  - `mj:ryoei-sound` を「保存データを消す」リンク（`docs/new-page-checklist.md`「localStorage の規約」）の対象にするか（空間の右上の「音」で切り替えられる）
+  - 次の場面の候補と、写真を受け取る方法（A〜C）（`## 経過`「次の場面の候補」）
 - 未確認の項目:
-- エラー:
+  - iPhone の Safari での見え方・タッチの操作（仮想スティック・見回す・タップ）・音・WebGL の描画の速さ（headless はソフトウェア描画で約14〜17fps。目安にならない）
+  - YouTube の埋め込みが空間の中で再生されること（このコンテナからは YouTube に届かない。CSP の違反は出ていない）
+  - スクリーンのサムネイルのうち `i.ytimg.com`・`icualumni.com` が WebGL に使えるか（CORS。使えなければ紙に題の絵になる）
+  - CSP（`_headers`）を変えたので、マージ後に実際のブラウザで Web Analytics のビーコンが違反なしに通ること（docs/notes/cloudflare.md「配信設定」。チャット側が平野さんの Chrome で）
+- エラー: なし
 
 <!-- guide-links -->
 ---
@@ -157,4 +234,4 @@
 - docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d2277ebe/docs/notes/chat-side-operations.md
 - docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d2277ebe/docs/notes/cloudflare.md
 - docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d2277ebe/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/e4049b27.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/795228a7.md
