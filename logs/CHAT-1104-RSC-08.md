@@ -77,6 +77,16 @@ CHAT-1104-RSC-07 の「判断が必要なこと」1・2 への回答を入れ、
 - 直した後は1回で収まった（中の1件はコメントだけで動作は変わらず、低の1件はテストつき）。`python3 -m unittest discover -s scripts/tests`: OK
 - 試しの第1回リーチ麻雀世界選手権（未照合）: 調べ直さない。抜粋の引用文「第1回大会は2014年7月16日から20日にかけて、…」は、新しい照合で日付は通るが、大会名（「リーチ麻雀世界選手権」）が引用文に無く、抜粋なので未照合のまま変わらない。`recheck` は「却下」か「見つからない」の行だけを調べ直すので、この行は対象にならない（候補タブの既存の行は書き換えない）
 
+### マージ
+
+- 差分は6ファイル（調べもののスクリプト・テスト、docs〈notes・decisions・ログ〉）。ワークフロー・ページ・生成物は変えていない（ワークフローを変えていないので、作業ブランチでの手動実行は要らない）
+- origin/cloudflare（dda3b16cf）を取り込み（衝突なし）、`unittest discover` OK。`git push origin work/1104-rsc:cloudflare` の範囲は `dda3b16cf..17a9d13c8`
+
+### 3. 実行（cloudflare 17a9d13c8）
+
+- dry_run（run 41740265192、limit 300、max_cost 3）: 対象の一覧 91期、試しの5期を飛ばして**調べる 86期**（見込みの 86 と一致。止まる条件の ±5 に当たらない）
+- 本番（limit 86、Haiku 5.5、max_cost 3）を起動した
+
 ## 報告
 
 - 状態: 作業中
@@ -93,12 +103,12 @@ CHAT-1104-RSC-07 の「判断が必要なこと」1・2 への回答を入れ、
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 17a9d13c）: https://github.com/retroeater/mj-logs/tree/main/guide/17a9d13c
+ガイド文書（この版を写した時点の最新、mj 73d76cb6）: https://github.com/retroeater/mj-logs/tree/main/guide/73d76cb6
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/17a9d13c/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/17a9d13c/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/17a9d13c/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/17a9d13c/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/17a9d13c/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/17a9d13c/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/73d76cb6/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/73d76cb6/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/73d76cb6/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/73d76cb6/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/73d76cb6/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/73d76cb6/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/95028c1a.md

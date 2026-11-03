@@ -73,3 +73,5 @@
 - 出力は `pro/`（`index.html`・`search.json`・`plans.json`・`<slug>/index.html`）。在籍者でなくなった選手のディレクトリは消す
 - 検査は `scripts/tests/test_pro_favorites.py`（お気に入りの読み書き・予定の JSON・☆ とトップのカテゴリ）、`scripts/tests/test_pro_filter.py`（シートのタブと値、絞り込みの組み合わせ・URL の読み書き・1行の文言）と `scripts/tests/test_pro_pages.py`（未公開のメタ〈noindex・canonical なし・題の形・質問欄なし〉・slug の規則・チップのリンク先・成績の行・獲得タイトルの並び・放送対局の役の分け方と件数・行を Page から作ること・今後の予定の照合と並びと件数）
 - コンテナには鍵が無いので、生成・検査は `regenerate-page.yml` を作業ブランチで手動実行する（target_page `pro_pages`）
+- トップの質問欄は pro/ の作業で外した（ほかのページの中の質問欄も 2026-11-04 にやめ、入口は共通ナビの AI 検索のアイコン。docs/notes/design.md「共通ナビ（新しい形）」）。
+  各大会の `ask-players.json` は、いまのリーグ・最強戦の出場を読むのに使うので生成を残す

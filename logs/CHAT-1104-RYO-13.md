@@ -91,15 +91,40 @@ RYO-12 のマージ後、チャット側が本番の `https://ryoei.pro/r/world-
 - 全ページの新旧の比べ（run 659、`dry_run`・`all`・`compare_ref: origin/cloudflare`）: success、注釈「compare: 差分なし」（ほかのページの生成物は変わらない）
 - 直した後の r/ の作り直し（run 662、9bc2a924c）: success。生成物の差が無くコミットなし（実データで検査に当たらず、r/ は be7866cea のまま）
 
+### マージと本番の確かめ（手順2・3）
+
+- 最新の `origin/cloudflare` を取り込んだ（499f5e29a、衝突なし）。テスト・`check_asset_limits.py` OK
+- push の直前に再 fetch し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真
+- `git push origin work/1104-ryo13:cloudflare`: `c91861d36..499f5e29a  work/1104-ryo13 -> cloudflare`
+- 499f5e29a の check-run: Workers Builds（mj）success、check success。マージの push で `regenerate-page.yml`（run 669、`scripts/lib/` の変更で全ページ）が 23:37 UTC に success。その後の自動の再生成で r/ は変わっていない（`git log 499f5e29a..origin/cloudflare -- r/` が空）
+- 本番（UA に mj-internal、`?v=` 付き。23:2x〜23:38 UTC）:
+  - `https://ryoei.pro/r/world-data.json`: 200。「家族」0件、家族の語（結婚・長男・長女・次男・次女・三男・離婚・妻・息子・娘）0件。L05 は `{"id":"L05","color":"#9E9E9E","stations":["S18","S20","S28","S29"]}`（名前なし、色と駅の並びあり）。中身はこのブランチの `r/world-data.json` と同じ
+  - `https://ryoei.pro/r/`: 200。「数字で見る」は「4 人／子ども」、「9〜18」は0件。「家族」・家族の語とも0件
+- #657 にマージした旨をコメントした（閉じない）
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1104-ryo13（削除しない。マージ済みなので cleanup-branches.yml が消す）
+- ログ: https://github.com/retroeater/mj/blob/work/1104-ryo13/docs/logs/CHAT-1104-RYO-13.md
+- 比較URL: https://github.com/retroeater/mj/compare/c91861d36...499f5e29a
+- 確認用URL: https://ryoei.pro/r/world-data.json（r/ は noindex・メニュー未掲載）
+- マージ: 済み（`c91861d36..499f5e29a`）
+- issue: #657（着手中・マージのコメント。閉じない）
+- 判断が必要なこと: なし
+- 未確認の項目: なし（ブラウザでの見え方は変えていない。`r/index.html` は変わらない）
+- エラー: なし
+
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 95028c1a）: https://github.com/retroeater/mj-logs/tree/main/guide/95028c1a
+ガイド文書（この版を写した時点の最新、mj 73d76cb6）: https://github.com/retroeater/mj-logs/tree/main/guide/73d76cb6
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/95028c1a/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/95028c1a/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/95028c1a/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/95028c1a/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/95028c1a/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/95028c1a/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/73d76cb6/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/73d76cb6/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/73d76cb6/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/73d76cb6/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/73d76cb6/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/73d76cb6/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/95028c1a.md

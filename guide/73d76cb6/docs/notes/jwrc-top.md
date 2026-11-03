@@ -6,7 +6,7 @@ WRC リーグの成績とランキング（旧 `wrc_results.html`・`wrc_ranking
 
 ## 構成と生成
 
-- URL: `jwrc/`（トップ・質問欄）・`jwrc/players/`・`jwrc/ranking/<スラッグ>/`（9部門。`jwrc/ranking/` は `total/` へ 301）・`jwrc/race/`
+- URL: `jwrc/`（トップ。質問欄は 2026-11-04 に外し、共通ナビの AI 検索のアイコンから開く）・`jwrc/players/`・`jwrc/ranking/<スラッグ>/`（9部門。`jwrc/ranking/` は `total/` へ 301）・`jwrc/race/`
 - 生成は `scripts/generate_jwrc_pages.py`（`regenerate.py` の `jwrc_pages`、出力 `jwrc/`）。中身は `generate_houou_pages.py` を大会の設定 `JWRC` で動かすだけ。`Contest.no_leagues`（リーグの列が無い大会）で、リーグ・リーグのタブ・現在のリーグに頼る所を外す
 - JS は houou/・ouka/ と共有の `assets/league.js`・`assets/league_race.js`・`assets/houou_ask.js`。ページの `#league_contest`（`JWRC.script`）の `noLeagues`・`pass`・`championLabel` で動きを替える
 - 集計元は正本の「JWRC」タブ（見出しで読む。名前・期・順位・結果・合計・第1〜5節・表示・備考の12列）。「表示」が Y の行の数が 1,000〜4,000 の外なら止める（`JWRC.rows`）。Ampai のブックは読まない（`JWRC.ampai` が空）
@@ -38,6 +38,8 @@ WRC リーグの成績とランキング（旧 `wrc_results.html`・`wrc_ranking
 - OGP は `img/ogp/jwrc/index-white.png`（白地・黒字の「WRCリーグ」＋「ryoei.pro」、docs/notes/ogp.md の規則。2026-10-18 に確定）
 
 ## 質問欄
+
+大会のトップの欄は 2026-11-04 に外した。共通ナビの欄はこのページから開くと `context` に `jwrc` を添えて横断で問う（docs/notes/design.md「共通ナビ（新しい形）」）。下は廃止した大会別の欄と Worker の記述。
 
 - Worker `mj-ask` と1日の上限を鳳凰戦・女流桜花と共有する。jwrc/ の質問欄は問いに `contest: "jwrc"` を添え、Worker は `data-jwrc.json` と `ask.mjs` の `JWRC_PLAN_SYSTEM`（リーグは「予選」だけ、部門は `JWRC_DIVISIONS`）で答える。記録の型は「jwrc:league」の形
 - 決勝は title/search.json の「WRCリーグ」、放送対局は /live の「WRCリーグ」。時点は「WRCリーグ 第19期終了時点」（`query.mjs` の `leagueName()` は名前が「リーグ」で終わるとき「リーグ」を重ねない）
