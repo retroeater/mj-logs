@@ -71,7 +71,36 @@ CHAT-1103-RYO-08（中断）の続き。Google Drive API が GCP のプロジェ
   手順2（読み取り・検査・生成の置き換え・JSON・毎朝の再生成・docs）は行っていない。r/ のページ・毎朝の再生成・`cloudflare` は変えていない
 - 403 のやり直しの条件（数分待って1回）は 403 のときのもので、今回は 403 ではないので使わなかった
 - RYO-08 の指示文の「決定」は RYO-08 の中断のときに `docs/decisions/ryoei.md` へ足していなかったので、RYO-09 の決定と一緒に足した
-- レビュー: コードの変更は `scripts/lib/ryoei_book.py` の探し方（共有ドライブまで・見つからないときの手がかり）だけで、確かめ用。生成物・ワークフロー・配信設定は変えていないので、サブエージェントのレビューは手順2の実装の後に回す
+- レビュー（サブエージェント、2回。CLAUDE.md「判断・作業の原則」。対象は `scripts/lib/ryoei_book.py`・`scripts/generate_ryoei_pages.py`。生成物・ワークフロー・配信設定は変えていない）
+
+  1回目（RYO-08 からの差分）:
+
+  | 指摘 | 扱い |
+  |---|---|
+  | Drive のエラー文（404 の `File not found: <ID>` など）に ID が出る | 直した（58be64f61。`hide_ids()` で ID らしい文字列を `<ID>` に伏せ、元の例外は付けない） |
+  | net_retry の再試行の表示・接続エラーの文に URL（ファイル・フォルダ・ブックの ID）が出る | 直した（58be64f61。`hide_ids()` の中は stderr を伏せる流れに通す。共通の net_retry・sheets は変えない） |
+  | 鍵の無い環境で `regenerate.py --check` が r/ で必ず止まる | 直した（58be64f61。鍵が無ければ警告にして飛ばす。93c4a9cb1 で Actions の上では止めるようにした） |
+  | `ryoei_book.py` の検査が無い | 直した（58be64f61・93c4a9cb1、`scripts/tests/test_ryoei_book.py` 13本） |
+  | 一覧のクエリに `corpora=allDrives` が無い | 直した（58be64f61、`ALL_DRIVES` にまとめた） |
+  | 件数が 10件で頭打ち | 直した（`pageSize: 2`、「2件以上」と書く） |
+  | 手がかりがほかの種類のファイルの名前もジョブのログに出しうる | 直した（同じ種類〈mimeType〉に絞った。docstring も「語の頭」に） |
+  | `_drive_get` のエラーの組み立てが `sheets._describe` と重なる | 直した（`sheets._describe` を使う）。`_drive` と `sheets._session` の共通化は見送り（共通関数の変更になり、確かめ用のため） |
+  | `sorted(rows)` が None と int を比べうる | 直した（名前・種類をキーに） |
+  | `簡略化:` に次の一手が無い | 直した（次の一手と、増分更新の PDF を多く数えることを書いた） |
+
+  2回目（58be64f61）: 要修正なし。任意の5件:
+
+  | 指摘 | 扱い |
+  |---|---|
+  | stderr の差し替えが `isatty` などを持たない | 直した（93c4a9cb1、`__getattr__` で元の stderr へ） |
+  | `with hide_ids()` を外しても気づけない | 直した（93c4a9cb1。`folder_listing` の接続エラーに ID が出ないことのテスト。外すと落ちることを scratchpad で確かめた） |
+  | 鍵の分岐・`pageSize`・並べ方のテストが無い | 直した（93c4a9cb1。鍵の分岐2本と `pageSize` の assert） |
+  | Actions で鍵が渡らなかったときも警告で通る | 直した（93c4a9cb1。`GITHUB_ACTIONS` があれば止める） |
+  | ID を伏せる正規表現の上限が書かれていない | 直した（93c4a9cb1、`簡略化:` の1行） |
+
+- 修正前のコードで新しいテストが落ちるか: 2回目のレビューで、58be64f61 の前の `ryoei_book.py` に戻すと 9本のうち5本が落ちることを確かめた。93c4a9cb1 で足した `hide_ids` の外しの検出も、外した写しで落ちる（scratchpad）
+- 直した後の確かめ（run 613、58be64f61、`check`・`ryoei_pages`）: 「R_良栄」は同じ列・行数で読め、「Claude受渡用」は「見つかりません（sheets-reader への共有か名前を確かめる）。名前の頭が『Claude』の同じ種類のもの: なし」。ジョブのログに ID は出ていない
+- 手元の `python3 scripts/regenerate.py --check ryoei_pages`: 通る（鍵が無いので「R_良栄」「Claude受渡用」の確かめを飛ばした警告1件）
 - テスト: `python3 -m unittest discover -s scripts/tests` OK
 
 ## 報告
@@ -86,11 +115,11 @@ CHAT-1103-RYO-08（中断）の続き。Google Drive API が GCP のプロジェ
 - 判断が必要なこと:
   - 平野さんの手作業: ドライブで「Claude受渡用」（【ryoei.pro】の下）を右クリック →「共有」→ sheets-reader のサービスアカウントのメールアドレス（「R_良栄」の共有に入れたものと同じ。`sheets-reader@…iam.gserviceaccount.com` の形）を「閲覧者」で追加 →「送信」（通知のチェックは外してよい）。
     共有の画面に既に sheets-reader が入っているなら、入っているのが別のサービスアカウント（live-channel-writer など）でないか、フォルダの名前が「Claude受渡用」と同じ字か（全角・半角・空白）を確かめる
-  - 共有の後、続きの指示（新しい Chat-Ref。このブランチに 31f6e8ecc までのコミットがある）で、同じ確かめ（`regenerate-page.yml` の `check`・`ryoei_pages`）からやり直す。「R_良栄」はもう読めるので、「Claude受渡用」を待たずに手順2（R_良栄 の読み取りから先）を進めてよいかも、続きの指示で決めてほしい
+  - 共有の後、続きの指示（新しい Chat-Ref。このブランチに 93c4a9cb1 までのコミットがある）で、同じ確かめ（`regenerate-page.yml` の `check`・`ryoei_pages`）からやり直す。「R_良栄」はもう読めるので、「Claude受渡用」を待たずに手順2（R_良栄 の読み取りから先）を進めてよいかも、続きの指示で決めてほしい
 - 未確認の項目:
   - 「Claude受渡用」の中の一覧（名前・種類・大きさ）と PDF のページ数
   - 「R_良栄」の中身の検査（ID の重複・参照切れ・日付の書式・家族の出来事の書き出し）。手順2で行う
-- エラー: run 611・612（regenerate-page.yml、check）で「Claude受渡用」が 0件（`RyoeiBookError`）。Drive API の 403 は解けた
+- エラー: run 611・612・613（regenerate-page.yml、check）で「Claude受渡用」が 0件（`RyoeiBookError`）。Drive API の 403 は解けた
 
 <!-- guide-links -->
 ---
