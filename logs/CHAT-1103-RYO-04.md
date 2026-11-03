@@ -72,6 +72,67 @@
 
 ## 経過
 
+### 着手前の確認
+
+- 0章: ログの「指示」欄の末尾が指示文の最後の行と一致
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: すべてある
+- 同じ Chat-Ref のコミット: なし。`origin/work/1103-ryo4` はリモートに無かったので `git checkout -b work/1103-ryo4 origin/cloudflare`（着手時 HEAD 8eb4b671c）
+- 同じ論点の issue（「r/」「3D」「一人称」「Three」「ポートフォリオ」「良栄」をクローズ済みも含めて検索）: 作り直しの issue は無し（#655 クローズ・#656 公開・#389 校正）。起票: #657「r/ を一人称で歩ける空間に作り直す（試作: 映画館・対局室）」（`分野: UI/UX`）、着手中コメント
+- 前提の実物:
+  - 今の `r/index.html`（RYO-03 の版）と `scripts/generate_ryoei_pages.py`: 残す内容（名前・読み・SNS 5つ・写真／自己紹介〈肩書き・生年月日・所在地・専門・所属〉／数字で見る〈子ども・IQ〉／出演7本／学歴と所属4件）は前提どおり
+  - `_headers` の CSP: `frame-src 'none'`、`script-src 'self' https://static.cloudflareinsights.com`、`style-src-elem 'self'`、`img-src 'self' data: https:` で前提どおり
+  - `git grep -n '<iframe'`: ページには無い（このログの指示文の中だけ）
+- 未マージの work/ ブランチ（`_headers`・`scripts/generate_ryoei_pages.py`・`scripts/regenerate.py`・`navbar.js`）:
+  - `work/1029-lgn-page`: `_headers` の CSP の行を「末尾の改行の有無」だけ変え（行の中身は同じ）、ファイルの末尾に `/log/*` の規則を足す。この指示も CSP の行（`frame-src`）を変えるので、後からマージする側で衝突する。解き方は「この指示の `frame-src` の値を残し、lgn の末尾の改行と `/log/*` の規則を足す」（両立する）。行の中身を変えているのはこの指示だけと見て、止まらずに進めた（判断が必要なことに挙げた）。`navbar.js`・`regenerate.py` は別の行
+  - `work/1101-prp-pub`: `navbar.js`・`regenerate.py` の別の行（pro/ の公開）
+  - `work/1103-top`: `navbar.js` に `/top/` の行、`regenerate.py` の `SHARED_GENERATORS`・`OUTPUT_OVERRIDES`・`RUN_LAST` の行を変える。この指示は `regenerate.py`・`navbar.js` を変えていない（衝突なし）
+  - `scripts/generate_ryoei_pages.py` を変えているブランチは無し
+
+### 実装
+
+- 削除（2026-11-03 の決定）: 名前の面のチップ・自己紹介の鳳凰戦と段位・数字で見るの連盟プロの人数・成績の面（`rh_*` へのリンクを含む）・入賞の面。名簿（`lib/meibo.py`）・`title/search.json`・`houou/`・`pro/search.json` の読み取りも外した（生成に鍵が要らなくなった）
+- `scripts/generate_ryoei_pages.py`: 一覧の HTML（最初の画面〈写真・「記憶の中を、歩く。」・名前・読み・肩書き・SNS・「入る」〉→ 場所の目次 → 自己紹介 → 数字で見る → 出演 → 学歴と所属）。空間が使う値を `<script type="application/json" id="ryoei_data">` に。`youtube_embed()` が YouTube の URL を `youtube-nocookie.com/embed/<ID>`（再生リストは `videoseries?list=`）にする。「入る」は JS が使えると判断したときだけ出す（`hidden` で焼き、world.js が外す）
+- `assets/ryoei/world.js`（約42KB）・`world.css`: 空間（入口・通路・広間・映画館・対局室）、仮想スティック、メニュー（場所へ 2.4 秒で浮いて移る・空間を出て一覧で読む）、動画（YouTube は前面に埋め込み、ICU 同窓会・Amazon は新しいタブへのボタン）、牌に触れると紙片、点棒は音、音（風・空調・遠い水・雫・低いうなり・床の材質ごとの足音・牌・点棒・風切り）。仕組みは `docs/notes/ryoei-world.md`
+- Three.js: npm の `three@0.169.0`（2024-09 公開）の `build/three.module.min.js` と `LICENSE` を `assets/vendor/three-0.169.0/` に置いた。`sourceMappingURL` 無し（`grep` 0件）。追加のモジュール（`examples/jsm`）は使っていない（輪郭線・操作は world.js の中で書いた）。`package.json` は足していない
+- `_headers`: `frame-src 'none'` → `frame-src https://www.youtube-nocookie.com`。ほかの許可は要らなかった（`blob:`・`worker-src` 無し。動的 `import()` は `script-src 'self'` の範囲。スクリーンのサムネイルは `img-src https:` の範囲で、CORS が無く WebGL に使えない画像は紙に題を描いた絵で代える）。`docs/notes/cloudflare.md`「配信設定」と `docs/handover.md`「外部ドメインへの依存を増やさない」を同じコミットで直した
+- `style.css`: r/ だけの規則（`.mj-ryoei` の2つ）を消した（ほかのページに効かない）。共通ナビ（navbar.js が `/r/` で白地の形にする）は `navbar.js` を変えず、`world.css` で `--mj-n-*` を r/ の夜の色にした
+- 検査 `scripts/tests/test_ryoei_pages.py` を書き直した: 件数（出演7・学歴と所属4・自己紹介5・数字で見る2）・SNS 5つ・場所の一覧と節の id・`youtube_embed()`（動画・再生リスト・YouTube でないもの）・焼き込み・連盟プロと重なる語が無いこと・空間のデータ・実行するインラインのスクリプトが無いこと・Three.js の版入りのパス・`_headers` の `frame-src` が youtube-nocookie.com だけ・`_redirects`・生成の順（消した仕組み〈名簿の段位・決勝〉の検査は消した）
+- docs: `docs/notes/ryoei-world.md`（新規）・`docs/notes/static-generation.md` の r/ の行・`docs/handover.md` の notes の表・`docs/decisions/ryoei.md`
+
+### 検査
+
+- `python3 -m unittest discover -s scripts/tests`: OK（1761件）
+- `python3 scripts/regenerate.py --check ryoei_pages`: 通る（鍵が要らなくなったのでセッションでも通る）
+- `python3 scripts/check_asset_limits.py`: 配信ファイル数 5,334（5.3%）ほかすべて OK
+- `node --check assets/ryoei/world.js`: OK
+- check-run（e304c8279）: Workers Builds: mj success、公開対象の検査 success
+
+### 重さ（gzip は Python の `gzip.compress`）
+
+| 対象 | 生 | gzip |
+|---|---:|---:|
+| `r/index.html` | 15,705 | 4,888 |
+| bootstrap.min.css・style.css・bootstrap.bundle.min.js・navbar.js（共通） | | 110,649 |
+| `assets/ryoei/world.css` | 9,837 | 3,019 |
+| `assets/ryoei/world.js` | 41,785 | 14,292 |
+| 最初の画面の合計（HTML＋JS＋CSS） | | 約132,800（上限 600KB） |
+| Three.js（「入る」の後に読む） | 687,458 | 169,732 |
+| 空間に入った後の合計 | | 約302,500 |
+
+- r/ 専用の JS（Three.js を除く）: 41,785 バイト（上限 150KB）
+- 描画: headless Chrome（ソフトウェア描画 SwiftShader、2倍の解像度）で 360px 約14〜16fps、390px 約15〜16fps。GPU のある端末の目安にはならない（iPhone の実測は未確認の項目）
+- 描く解像度の上限は 1.5 倍（`PIXEL_RATIO_MAX`）、光は場面ごとに1〜2個（全体で点光源6・スポット1・半球1）
+
+### 画面の確かめ
+
+`python3 -m http.server` で配信し、Playwright で `_headers` の CSP をそのまま HTML の応答に付けて（実物の値）、360px・390px（縦、タッチ、2倍）で撮った（`docs/logs/CHAT-1103-RYO-04/r-<幅>-<番号>.png`: 1 最初の画面・2 入口・3 映画館・4 対局室〈牌に触れて紙片〉・5 メニュー・6 一覧の全体・7 動画を開いた状態）。
+
+- CSP の違反: 0件（ローカルとプレビューの両方。プレビュー e304c8279 の実際のヘッダで `frame-src https://www.youtube-nocookie.com` を確かめ、空間に入って動画を開いた）
+- コンソールのエラー: 外部の画像・YouTube の読み込み失敗（`net::ERR_FAILED`・`ERR_TUNNEL_CONNECTION_FAILED`）だけ。このコンテナのプロキシが外部のホストを断るため。そのため動画を開いた画面（7）は白い枠で、`i.ytimg.com`・`icualumni.com` のサムネイルは紙に題を描いた絵になっている
+- 確かめた動き: 「入る」が出る・空間に入る・メニューから映画館・対局室へ移る・手前の牌をタップして紙片（「数字で見る IQ（WAIS-IV） 143」）が出る・メニューを開く・動画の iframe の src が `https://www.youtube-nocookie.com/embed/videoseries?list=…&autoplay=1&playsinline=1&rel=0`
+- 直したこと: 共通ナビのメニューの線が夜の地で見えない → `world.css` で色を変えた／牌の紙片がメニューに透ける → メニューを開くと紙片を消す／メニューを開くと「場所」が隠れる → HUD を前に
+- この版で見えるはずの印: 最初の画面の名前の上に「記憶の中を、歩く。」（暖色の小さな字）と「入る」のボタン
+
 ## 報告
 
 - 状態: 作業中
@@ -88,12 +149,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 8eb4b671）: https://github.com/retroeater/mj-logs/tree/main/guide/8eb4b671
+ガイド文書（この版を写した時点の最新、mj d2277ebe）: https://github.com/retroeater/mj-logs/tree/main/guide/d2277ebe
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/8eb4b671/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/8eb4b671/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/8eb4b671/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8eb4b671/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8eb4b671/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8eb4b671/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d2277ebe/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d2277ebe/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d2277ebe/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d2277ebe/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d2277ebe/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d2277ebe/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/e4049b27.md
