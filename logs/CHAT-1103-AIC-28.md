@@ -95,15 +95,36 @@ Chat-Ref: CHAT-1103-AIC-28
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+- 0: 指示欄の末尾は指示文の最後の行と一致。9a9f47ee8 は origin/cloudflare の祖先。origin/work/1103-aic はマージ済みで、ローカルの work/1103-aic は origin/cloudflare（15de4f915）と同じ。#654 に他セッションの着手中コメントなし（着手中をコメント、issuecomment-6600943244）。未マージの work/ ブランチで `workers/ask/src/`・`scripts/generate_ask_data*.py` を変えているものなし。雛形の行は4つともある。AIC-27 のログの状態に「/ 続き: CHAT-1103-AIC-28」と回答2つを書き足した
+- 前提の確かめ: ページの `player_divisions()`（601〜645行）の `seasons` は得点のある行の数（609行）。ページの値は `<大会>/results/<名前>.json` の `divisions.seasons`（佐々木寿人は25・181節）。質問欄の `termCount`（324行）は期の番号の種類の数。`players['佐々木寿人']` は28行・得点のある行25・無い行3（第38・39・41期、鳳凰位）。前提どおり
+- 全選手の比べ（ページの results の JSON と data*.json の行）:
+
+  | 大会 | ページの選手 | 得点のある行の数がページと一致 | ずれ | 成績の行が無い（ページは0） | 期の種類の数（直す前の数え方）で一致 |
+  |---|---|---|---|---|---|
+  | 鳳凰戦 | 715 | 690 | 0 | 25 | 64 |
+  | 女流桜花 | 178 | 164 | 0 | 14 | 155 |
+  | WRC リーグ | 324 | 320 | 0 | 4 | 320 |
+  | WRC-R | 191 | 184 | 0 | 7 | 184 |
+
+  成績の行が無い選手は、ページを持つが成績が無い在籍者と決勝だけの人で、ページの値は0（質問欄は player では答えず、決勝だけの答えか案内になる）。女流桜花も直す前の数え方だと9人ずれる（座っている期の行があるため）。WRC・WRC-R は行の数（count）がページの値と同じ
+- 直し（588d7466e）: 候補 (a)。`player()` の `termCount` を `seasons`（得点のある行の数。`TOTAL_AT = 5` の列が null でない行）に替え、座っている期の行がある大会（`contest.top` がある鳳凰戦・女流桜花）だけに付ける。(b)（生成スクリプトでページの関数の値を入れる）にしなかったのは、data.json の行から同じ値が出る（全選手で一致）ので、`scripts/` の共通の関数と全ページの再生成に触らずに済むため
+  - 期で絞ると、その期の得点のある行の数: 第38期（座っている期）は0、第23期（前期・後期）は2、第42期は1
+  - `ANSWER_LINES` の鳳凰戦（AIC-21・23 の count の一文を置き換え）と女流桜花に `seasonsLine()`「- player の出場の期数は seasons を書く(個人成績のページの「出場 N期」と同じ値。<鳳凰位・女流桜花>として座っている期は入らない)。count は答えに書かない。数え方は答えに書かず、期で絞った問いでは出場の期数を書かない」（期で絞った問いで「2期出場」のように書かせないため）
+- テスト（count.test.mjs、AIC-21 の3本を書き換え、1本を足した）: 佐々木寿人の seasons 25（ページの値と同じ）、期で絞った値、WRC には付かない／4大会の在籍の全選手で、質問欄の出場の期数（seasons、無ければ count）がページの値と同じ／大会別の欄の2回目に seasons 25 と一文、女流桜花にも入り、WRC・WRC-R・最強戦には入らない／横断の2回目の鳳凰戦に seasons 25 と一文。AIC-23 の1本の「count は答えに書かず」の文言を新しい文に合わせた。直す前のコードで新しい・書き換えた5本が落ちる。直した後は node 155本・python 1747本 通過
+- 変わる範囲の比較（in21.mjs、直す前と後）: 応答・記録は全部同じ。2回目に渡す結果が変わるのは鳳凰戦（と横断）・女流桜花の player だけ（termCount → seasons、女流桜花は seasons が付く）。2回目の指示が変わるのは鳳凰戦・女流桜花（と横断）だけ
+- docs: ask-worker.md「5大会の応答ルール」の player の count の行を直した（c032bdd42）。docs/decisions/houou.md に 2026-11-03（CHAT-1103-AIC-28）の節
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 9a9f47ee）: https://github.com/retroeater/mj-logs/tree/main/guide/9a9f47ee
+ガイド文書（この版を写した時点の最新、mj 9ceea454）: https://github.com/retroeater/mj-logs/tree/main/guide/9ceea454
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a9f47ee/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a9f47ee/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a9f47ee/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a9f47ee/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a9f47ee/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a9f47ee/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9ceea454/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9ceea454/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9ceea454/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9ceea454/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9ceea454/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9ceea454/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/795228a7.md
