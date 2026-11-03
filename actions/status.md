@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-11-04 08:24 JST
+- 書き出した時刻: 2026-11-04 08:27 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -25,11 +25,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-11-04 08:24 | push | work/1104-prp-desc | in_progress | #850（41738847266） |  |
+| 2026-11-04 08:26 | push | work/1104-prp-desc | in_progress | #853（41739191182） |  |
+| 2026-11-04 08:26 | push | work/1104-prp-desc | success | #852（41739132086） | 0分36秒 |
+| 2026-11-04 08:25 | push | work/1104-ryo13 | success | #851（41738981260） | 0分28秒 |
+| 2026-11-04 08:24 | push | work/1104-prp-desc | success | #850（41738847266） | 0分25秒 |
 | 2026-11-04 08:23 | push | work/1104-lgn-release | success | #849（41738727128） | 0分27秒 |
-| 2026-11-04 08:18 | push | work/1104-lgn-release | success | #848（41738130734） | 0分31秒 |
-| 2026-11-04 08:06 | push | work/1104-lgn-release | success | #847（41736425207） | 0分27秒 |
-| 2026-11-04 08:01 | push | work/1104-rsc | success | #846（41735765992） | 0分41秒 |
 
 ## check-build-failure.yml
 
@@ -38,11 +38,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-04 08:26 | check_run | cloudflare | skipped | #1106（41739192765） | 0分01秒 |
+| 2026-11-04 08:25 | check_run | cloudflare | skipped | #1105（41739084498） | 0分08秒 |
+| 2026-11-04 08:25 | check_run | cloudflare | skipped | #1104（41739078667） | 0分01秒 |
+| 2026-11-04 08:24 | check_run | cloudflare | skipped | #1103（41738925027） | 0分01秒 |
 | 2026-11-04 08:23 | check_run | cloudflare | skipped | #1102（41738800980） | 0分01秒 |
-| 2026-11-04 08:19 | check_run | cloudflare | skipped | #1101（41738207475） | 0分02秒 |
-| 2026-11-04 08:06 | check_run | cloudflare | skipped | #1100（41736494605） | 0分01秒 |
-| 2026-11-04 08:02 | check_run | cloudflare | skipped | #1099（41735914822） | 0分02秒 |
-| 2026-11-04 08:02 | check_run | cloudflare | skipped | #1098（41735867555） | 0分01秒 |
 
 ## check-image-links.yml
 
@@ -198,11 +198,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-04 08:25 | push | cloudflare | in_progress | #669（41738984175） |  |
+| 2026-11-04 08:24 | workflow_dispatch | work/1104-prp-desc | success | #668（41738855608） | 1分00秒 |
 | 2026-11-04 08:07 | workflow_dispatch | work/1104-lgn-release | success | #667（41736600151） | 15分03秒 |
 | 2026-11-04 08:06 | workflow_dispatch | work/1104-lgn-release | success | #666（41736463954） | 0分47秒 |
 | 2026-11-04 07:58 | workflow_dispatch | work/1104-lgn-release | failure | #665（41735344487） | 0分30秒 |
-| 2026-11-04 07:54 | push | cloudflare | success | #664（41734828939） | 5分06秒 |
-| 2026-11-04 07:52 | workflow_dispatch | work/1104-prp-desc | success | #663（41734514427） | 1分27秒 |
 
 - #665 failure: ジョブ「regenerate」 ステップ「対象ページを再生成」
 
@@ -226,11 +226,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-04 08:26 | push | cloudflare | in_progress | #78（41739199781） |  |
 | 2026-11-04 07:54 | push | cloudflare | success | #77（41734828970） | 0分28秒 |
 | 2026-11-04 07:46 | push | cloudflare | success | #76（41733700708） | 1分48秒 |
 | 2026-11-04 04:20 | push | cloudflare | success | #75（41702345759） | 0分51秒 |
 | 2026-11-04 03:26 | push | cloudflare | success | #74（41693768275） | 3分16秒 |
-| 2026-11-04 02:56 | push | cloudflare | success | #73（41689008165） | 4分30秒 |
 
 ## research-candidates.yml
 

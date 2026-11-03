@@ -102,17 +102,38 @@ CHAT-1104-LGN-22 は送る前に差し替えたため欠番（平野さんが本
   - テスト: unittest 全件 OK、`node --test scripts/tests/js/*.test.js .github/actions/upsert-issue/test/*.test.js` pass 40
 - 重なりの確認: 未マージの work/ のうち navbar.js・_redirects・sitemap*.xml・llms.txt・scripts/regenerate.py・.github/workflows/ を変えるのは work/1101-prp-pub・work/1104-lvp（work/1103-ryo5 は fetch-x-posts.yml だけ）。どちらも log/・resource_logs・tanilog の行には触れていない（同じファイルの別の箇所）。origin/work/1028-lgn は fetch の古い参照で、リモートには無い
 
+- 再生成（手順2）: 入力無し（run 41736600151、5a91b4d64、success）→ d89dd91ab `chore: regenerate …`（log/index.html・log/search.json だけが変わった）。log/index.html に noindex 無し、search.json の店の URL は前の形 0件・新しい形（`maps/search/?api=1&query=…&query_place_id=…`）。1,740店・2,436件（check の生成のログ「3層から 3168件のうち 2436件・1740店（過去メシで外した 131件・石立岳大で外した 601件…）」と同じ。3,168 − 131 − 601 = 2,436）。`resource_logs.html` は作られていない
+- 自己レビュー（新しい文脈の general-purpose、`git diff 3bfabe6d3..5a91b4d64`）:
+
+| 指摘 | 扱い |
+|---|---|
+| 作業ブランチの log/ の生成物を作り直していない（noindex が残る・店の URL が前の形） | 意図どおり（レビューの時点で入力無しの再生成が動いていた。d89dd91ab で作り直され、noindex 0件・前の形 0件を確かめた） |
+| llms.txt の「1,738店（2,434件）」が生成物の数と合わない | 直した（4b6ff41de。1,740店・2,436件） |
+| `?tag=tanilog&name=<別の人>` で語 tanilog が残って0件になる。大文字の Tanilog は読み替わらない | 前者は直した（0e972a57b。`?name=` が先で語は捨てる）。後者は意図どおり（旧リンクは小文字） |
+| テストを消した跡の空行、共有の部品のコメント・static-generation.md 412行目の resource_logs の例示 | 空行は直した（0e972a57b）。コメント・例示は見送り（共有の部品の範囲外。判断が必要なことに挙げた） |
+
+  - 直す前のコード（3bfabe6d3）で新しい検査（tanilog・変換の店URL・カードの空の行・noindex・search.json の店の URL・shop_link）が落ちることを、レビューで確かめた。unittest 1903件 OK、node --test pass
+- プレビュー（Workers Builds の別名 URL、UA に `mj-internal`。プレビューの navbar.js が `/log/` になってから）:
+  - 転送（curl）: `/resource_logs.html` → 301 `/log/`、`/resource_logs.html?tag=tanilog` → 301 `/log/?tag=tanilog`、`/resource_logs.html?name=谷岡育夫` → 301 `/log/?name=谷岡育夫`、`/resource_logs.html?tag=ラーメン` → 301 `/log/?tag=ラーメン`、`/tanilog.html` → 301 `/log/?name=谷岡育夫`。クエリは引き継がれた
+  - log/ の HTML に noindex 無し（レスポンスヘッダの `x-robots-tag: noindex` は workers.dev のプレビューに付ける `_headers` の規則で、本番には付かない）
+  - Playwright（幅 1200px→400px）: resource_dictionary.html のナビの「リソース」→「ログ」の href は `/log/` で、押すと `/log/`（title「ログ | ryoei.pro」）が開いた。新着のカード10枚は高さがすべて 155px（駅の無い「とみたメロンハウス」「ONOdeら〜めんH」は駅の行が空で日付が3行目）。`/resource_logs.html?tag=tanilog` → タグ「×谷岡育夫」・検索欄は空。`?name=谷岡育夫` → タグ「×谷岡育夫」。店名のリンクは `https://www.google.com/maps/search/?api=1&query=%E3%82%AB…&query_place_id=ChIJ…` の形。ページのエラーなし
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1104-lgn-release
 - ログ: https://github.com/retroeater/mj/blob/work/1104-lgn-release/docs/logs/CHAT-1104-LGN-23.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1104-lgn-release
-- 確認用URL: なし
-- マージ: 未
-- issue: #640・#255
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 確認用URL: プレビューあり（URL は最終報告）。log/・ナビ・転送（`/resource_logs.html`・`?tag=tanilog`・`?name=谷岡育夫`・`/tanilog.html`）を確かめた。この版の印: ナビの「リソース」→「ログ」の行き先が `/log/`、新着のカードで駅の無い店も日付が3行目
+- マージ: 未（指示のとおり判断待ちで止まる。#255 を閉じるのも公開のマージの後）
+- issue: #640（着手中のコメント）・#255（公開のマージの後に閉じる）
+- 判断が必要なこと:
+  - 公開（cloudflare へのマージ）の可否。マージの指示では、docs/notes/redirects.md の `/resource_logs.html` の行の「入れた日」（今は「2026-11-04（作業ブランチに入れた日。公開のマージの日に直す）」）をマージの日に直す。公開の後の確かめ（#640 の「公開後の確かめ」: 本番の curl・X と LINE のカード・Search Console の再送信とインデックス登録のリクエスト・#639・#378 へのコメント・#255 を閉じる）も、その指示で
+  - check の対象の名前: 指示文と #640 の本文の `target_page: log` は誤りで、対象の名前は `log_pages`（`log` で実行すると「生成スクリプトがありません: scripts/generate_log.py」で失敗する）。#640 の本文を直すか
+  - docs/notes/log-page.md の「公開の形」にあった「段2 の前（後の指示）: 利用規約・プライバシーポリシーのページ、閉業の月次の判定と知らせ、Claude のジャンル」は、まだ行っていない。公開の前に要るか
+  - 公開前の Search Console の数字は残さない案で進めた（houou_race と同じ。違えば知らせてください）
+  - 見送り: 共有の部品のコメント（style.css・table.js・scripts/lib/page.py・generate_saikyo_mens.py）と docs/notes/static-generation.md の共有 JS の節（12〜69行目・412行目）に、消した resource_logs を例に挙げた記述が残る。直すなら後の指示で
+- 未確認の項目: ブラウザ（平野さんの端末、特に iPhone の Google マップのアプリで店名のリンクから店が開くか）での見え方。ヘッドレスの Chromium でだけ確かめた
 - エラー: なし
 
 <!-- guide-links -->
