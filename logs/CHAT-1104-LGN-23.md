@@ -62,6 +62,46 @@ CHAT-1104-LGN-22 は送る前に差し替えたため欠番（平野さんが本
 
 ## 経過
 
+- 0章: 指示欄の末尾は指示文の最後の行と一致。`CHAT-1104-LGN-23`・`CHAT-1104-LGN-22` のコミットなし（LGN-22 は欠番）。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）の欠けなし。「貼る時機」: CHAT-1104-LGN-21 のログ（cloudflare）の `## 報告` のマージは「済（20acd472c）」。平野さんが本番の未公開の URL を実機で確かめたことは指示文の決定から（ここからは確かめられない）
+- 作業ブランチ: ローカル・リモートとも無かったので `git checkout -b work/1104-lgn-release origin/cloudflare`（e27f2c52a）
+- #640 に着手中のコメント（issuecomment-6617629126）。公開の条件のうち「【2】の座標の列を埋めた」は 2026-10-29 の決定で要らなくなったこと、Search Console の数字は残さない案で進めることも同じコメントに書いた
+- check（手順1）: `target_page: log` で実行（run 41735344487、3bfabe6d3）すると「生成スクリプトがありません: scripts/generate_log.py」で失敗した（再生成の対象の名前は `log_pages`。指示文・#640 の本文の `log` は誤り。生成が止まったのではない）。`target_page: log_pages` で実行し直して success（run 41736463954、5a91b4d64。「3層から 3168件のうち 2436件・1740店…」「検査: 通りました」「check: 止まるページなし」）
+- Google の Maps URLs の文書（https://developers.google.com/maps/documentation/urls/get-started）を読んだ: search の形は `https://www.google.com/maps/search/?api=1&query=…&query_place_id=…`（例: `query=starbucks&query_place_id=ChIJsU30zM1qkFQRbnOm1_LBoG0`）。query は必須で、place ID が見つからないときだけ使われる。iOS・Android はアプリが入っていればアプリで開く。`maps/place/?q=place_id:` の形は文書に無い
+- `resource_logs` の洗い出し（`git grep -n resource_logs`、docs/decisions・docs/logs・handover-archive を除く、着手時 e27f2c52a）:
+
+| 場所 | 中身 | 扱い |
+|---|---|---|
+| `resource_logs.html` | 旧ページ | 消した |
+| `resource_logs.js` | 旧ページの名前の選択の JS | 消した |
+| `scripts/generate_resource_logs.py` | 旧ページの生成と、log/ が使う行の読み込み（`records`・`display_station`・`merged_rows`・定数・`NAME_OPTIONS`） | 消した。log/ が使う部分は `scripts/lib/log_rows.py` へ移した（中身は同じ） |
+| `scripts/tests/test_generate_resource_logs.py` | 上のテスト | 消した。行の読み込み・駅の表示・同じブックの検査は `scripts/tests/test_log_rows.py` へ移した（ページの組み立ての検査は消した） |
+| `scripts/regenerate.py` の `SHARED_GENERATORS["log_pages"] = ("resource_logs",)` | log/ の再生成の契機 | 消した（`scripts/lib/**` の変更で log/ も作り直される。対象は `scripts/generate_*.py` の glob なので、生成スクリプトを消せば対象から外れる。`--list` で確かめた） |
+| `scripts/generate_log_pages.py` の import・docstring・コメント | | `lib.log_rows` に切り替え、旧ページの記述を直した |
+| `scripts/tests/test_log_pages.py` の `generate_resource_logs as rl` | | `lib.log_rows` に切り替え。「resource_logs と同じ行」の検査は「merged_rows と同じ行」に |
+| `scripts/tests/test_safe_url.py` の `test_resource_logs_does_not_link_unsafe_url` | 旧ページの get_info_cell の検査 | 消した（log/ は test_log_pages.py の test_unsafe_urls_are_dropped が見る） |
+| `scripts/tests/test_simple_pages_check.py` の `GENERATE_PAGES` | 簡易ページの --check の検査 | `resource_logs` を外した |
+| `navbar.js` 49行目 | メニューの「ログ」の href | `/log/` に替えた |
+| `navbar.js` 74行目のコメント | 「未公開」 | 直した |
+| `sitemap-pages.xml` の `<loc>https://ryoei.pro/resource_logs.html</loc>` | | `https://ryoei.pro/log/` に替え、`update_sitemap_lastmod.py --from-git` で lastmod を計算（2026-11-04 のまま）。全 sitemap を `xml.etree.ElementTree` で parse した |
+| `llms.txt` 64行目 | 「ログ」の行 | `log/` と今の説明に替えた |
+| `_redirects` の `/tanilog.html  /resource_logs.html?name=谷岡育夫  301` | | 転送先を `/log/?name=谷岡育夫` に（2段の転送にしない）。`/resource_logs.html  /log/  301` を `/log/` の 200 の行の後に足した |
+| `style.css` の log/ の節の見出しのコメント | 「未公開」 | 直した |
+| `style.css` 264・433・458行目、`table.js` 4・15行目、`scripts/lib/page.py` 3・108・112・357行目、`scripts/generate_saikyo_mens.py` 11行目 | 共有の部品のコメントの例示（resource_logs の名前の選択・2列の表など） | 残した（ほかのページと共有の部品のコメントで、この作業の範囲外。直すなら後の指示） |
+| `scripts/tests/test_morning_report.py` 280・286行目 | 朝の報告の検査のデータ（飛ばしたページの名前の例） | 残した（文字列のデータで、ページの有無に関係しない） |
+| `.github/workflows/`・`workers/` | | 参照なし（ワークフローは変えていない） |
+| docs（static-generation.md・log-page.md・log-stations.md・redirects.md・handover.md） | | 今の作りに直した（下） |
+| docs（cloudflare.md・site-findings.md・lighthouse-baseline.md・review-followup-instructions.md・decisions-2026-09-13-review.md・docs/gsc/） | 過去の計測・調べの記録 | 残した |
+
+- 手順2（72891cd4d・5a91b4d64）:
+  - 新着のカード: `card_html()` が駅の無い店も駅の行（`<span aria-hidden="true">`＋改行しない空白）を置き、日付・回数をいつも3行目に
+  - 店の URL: `lib/url.py` に `maps_url()`（店名と place ID をそれぞれ URL エンコード。店名が空なら query に place ID）と `MAPS_SEARCH_URL`・`MAPS_PLACE_ID_PREFIX`。`generate_log_pages.py` の `shop_link()` は、place_id があり「店URL」が空か前の形（`place/?q=place_id:`）なら組み立て直し、ほか（共有リンク・手書きの URL・place_id の無い行）はそのまま。変換（`convert_x_posts.py`）も新しい行の「店URL」をこの形で書く。既存の【2】の値は書き換えず、生成のときに組み立て直す形にした
+  - noindex: `NOINDEX_TAG` を消した。title「ログ | ryoei.pro」・h1「ログ」・description（説明文と同じ）・og:title（title と同じ）・og:image（サイト共通の1枚）・canonical なしは今のまま
+  - `?tag=tanilog`: `assets/log.js` の `readParams()` で投稿者「谷岡育夫」の絞り込みに（`?name=` があればそちらが先。ほかの語は検索語のまま）。外す条件は `簡略化:` のコメントと log-page.md・redirects.md
+  - docs: log-page.md（見出し・生成・店の URL・カード・公開の形・tanilog）、static-generation.md（ページ数 21→20、型A の表から resource_logs、log/ の行）、log-stations.md（旧ページの出典の行を消した）、redirects.md（棚卸しの対象に `/resource_logs.html` の行、`/tanilog.html` の転送先、JS の移動に `?tag=tanilog`）、handover.md（log-page.md の行）
+  - redirects.md の「入れた日」は日付で始める決まり（`test_fetch_redirect_counts.py` が検査）なので「2026-11-04（作業ブランチに入れた日。公開のマージの日に直す）」と書いた
+  - テスト: unittest 全件 OK、`node --test scripts/tests/js/*.test.js .github/actions/upsert-issue/test/*.test.js` pass 40
+- 重なりの確認: 未マージの work/ のうち navbar.js・_redirects・sitemap*.xml・llms.txt・scripts/regenerate.py・.github/workflows/ を変えるのは work/1101-prp-pub・work/1104-lvp（work/1103-ryo5 は fetch-x-posts.yml だけ）。どちらも log/・resource_logs・tanilog の行には触れていない（同じファイルの別の箇所）。origin/work/1028-lgn は fetch の古い参照で、リモートには無い
+
 ## 報告
 
 - 状態: 作業中
@@ -78,12 +118,12 @@ CHAT-1104-LGN-22 は送る前に差し替えたため欠番（平野さんが本
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj c00e4591）: https://github.com/retroeater/mj-logs/tree/main/guide/c00e4591
+ガイド文書（この版を写した時点の最新、mj a900cef7）: https://github.com/retroeater/mj-logs/tree/main/guide/a900cef7
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c00e4591/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c00e4591/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c00e4591/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c00e4591/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c00e4591/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c00e4591/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a900cef7/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a900cef7/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a900cef7/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a900cef7/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a900cef7/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a900cef7/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/dfabc859.md
