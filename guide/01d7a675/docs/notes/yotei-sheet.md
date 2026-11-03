@@ -155,7 +155,7 @@ Worker の毎朝の起動〈入力 `scheduled`、手では付けない〉もほ�
 
 | 入力 | ジョブ | 切り替える書き込み | schedule |
 |---|---|---|---|
-| `apply` | update（環境変数 `APPLY`） | 層1のコミット、/live の【1】【2】【3】、常設 issue「/live の未登録の名前」（#475）への知らせ。ジョブ regenerate（/live・title/・pro/ の作り直しとコミット）もこれで動く | 書く |
+| `apply` | update（環境変数 `APPLY`） | 層1のコミット、/live の【1】【2】【3】、常設 issue「/live の未登録の名前」（#475）への知らせ。ジョブ regenerate（/live・title/・pro/・r/ の作り直しとコミット）もこれで動く | 書く |
 | `apply` / `yotei_apply` | yotei（環境変数 `APPLY` に合成） | 予定表のシートの【1】【2】【3】と、常設 issue「予定表の変化」（#481）への知らせ | 書く |
 | `calendar_apply` | yotei（環境変数 `CALENDAR_APPLY`） | 放送対局の公開カレンダー（`apply`・`yotei_apply` とは別） | 書く |
 | `verify`・`allow_many_changes` | update | 週1回の確認を行う・その上限を外す | 水曜だけ確認・上限あり |

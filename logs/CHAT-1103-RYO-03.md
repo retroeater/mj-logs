@@ -53,6 +53,28 @@ RYO-01・02 で作った `r/`（未公開、noindex・メニュー未掲載）�
 
 ## 経過
 
+### 着手前の確認
+
+- 0章: ログの「指示」欄の末尾が指示文の最後の行と一致
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: すべてある
+- 同じ Chat-Ref のコミット: なし。`origin/work/1103-ryo` はローカルと一致（6daac0147）
+- #655: 他セッションの着手中コメント無し（RYO-01・02 の自分のものだけ）。今回の着手中コメントを書いた
+- `git merge-base --is-ancestor origin/cloudflare HEAD` が偽 → `git merge origin/cloudflare`（衝突なし。TOP-01 のログ・`docs/decisions/top.md` などが入った）
+
+### 件数の固定をやめる直し（29056ac80）
+
+- `scripts/generate_ryoei_pages.py`: `FINALS_EXPECTED` とその判定を消し、`title_finals()` は決勝が0件のときだけ止まる（title/search.json が読めないときも0件として止まる）
+- 検査: 2件・3件（N件なら award_rows が N＋手書き2行）では止まらず、0件・読めないときは止まる。旧コードでは3件の検査が「決勝が3件です(想定 2件)」で落ちる（レビューのサブエージェントが旧コードの写しで確かめた）
+- `python3 -m unittest discover -s scripts/tests`: OK（1759件）
+- 生成物の差分: 名簿の鍵が無いので `regenerate-page.yml` を work/1103-ryo で手動実行（run 585、`target_page: ryoei_pages`、29056ac80）: success。ログに「r/index.html は変わりません」、作業ブランチに新しいコミットは無い（先頭は 29056ac80 のまま） → `r/index.html` の差分なし
+
+### レビュー（新しい文脈のサブエージェント1回、29056ac80）
+
+| 指摘 | 扱い |
+|---|---|
+| 検査のコメント「title/ にある2件はデータから」が件数を書いている（低） | 直した（「title/ にあるものはデータから」） |
+| ほか（残った参照 `FINALS_EXPECTED` 0件、docs に件数の前提なし、生成物は不変、検査は新旧を区別） | なし |
+
 ## 報告
 
 - 状態: 作業中
@@ -69,12 +91,12 @@ RYO-01・02 で作った `r/`（未公開、noindex・メニュー未掲載）�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 83a01444）: https://github.com/retroeater/mj-logs/tree/main/guide/83a01444
+ガイド文書（この版を写した時点の最新、mj 01d7a675）: https://github.com/retroeater/mj-logs/tree/main/guide/01d7a675
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/83a01444/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/83a01444/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/83a01444/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/83a01444/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/83a01444/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/83a01444/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/01d7a675/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/01d7a675/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/01d7a675/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/01d7a675/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/01d7a675/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/01d7a675/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/ad26c534.md
