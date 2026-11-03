@@ -46,15 +46,60 @@ TOP-02・TOP-03 で作った未公開の新トップ `top/`（noindex・メニ�
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 0. 着手前の確認
+
+- 「指示」欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は4行とも有り。同じ Chat-Ref のコミットは0件
+- TOP-03 のログの `## 報告` の状態は「判断待ち」、origin/work/1103-top（96f9fa24d）は cloudflare に未マージ。TOP-03 の状態の末尾に ` / 続き: CHAT-1103-TOP-05` を足した（f63e22a48）
+- ローカルの work/1103-top は origin/work/1103-top と同じ（96f9fa24d）
+
+### 1. 取り込みとマージの条件
+
+- `git merge origin/cloudflare`（衝突なし。取り込んだのは AIC-22・23、MBQ-01、MDX-01 の docs・workers/ask）。TOP-04 の work/1103-top-hosho は止まってマージされていないので、`_redirects` の title/ の行の取り込みは無かった
+- **条件 (1)**: `python3 -m unittest discover -s scripts/tests` → `Ran 1786 tests … OK`
+- **条件 (2)**: `git diff --stat origin/cloudflare HEAD` は18ファイル: `.github/workflows/check-assets.yml`（+2）・`.github/workflows/update-live-channel.yml`（4）・`_redirects`（+3、/top の2行とコメント）・`assets/top.js`・`navbar.js`（+2）・`scripts/generate_top_page.py`・`scripts/regenerate.py`（7）・`scripts/tests/test_top_page.py`・`scripts/tests/test_ryoei_pages.py`（3、TOP-02 の順の検査）・`top/index.html`・docs（`docs/decisions/top.md`・`docs/handover.md`〈関連文書の表に1行〉・`docs/new-page-checklist.md`〈お気に入りの1語〉・`docs/notes/static-generation.md`・`docs/notes/top-page.md`・TOP-02・03・05 のログ）。すべて TOP-02・TOP-03 の変更とこの指示のログ・決定で、新しい変更は無い
+- `docs/decisions/top.md` に「2026-11-03（CHAT-1103-TOP-05）」の節（a918bc1ba）
+- **条件 (3)**: `regenerate-page.yml`（work/1103-top、`target_page: top_page`、run 41598554555）success。出力「開催中・直近の大会: 36件」「新着の番組: [('2026-10-26', '帰り道', '第3期達人戦 森山茂和'), …]」「top/index.html は変わりません」。コミットは作られず、**top/ を含め生成物の差分は0件**
+
+### 2. マージ
+
+- マージ前の本番 `https://ryoei.pro/?v=top05pre` の sha256 は df3eefaa…（`origin/cloudflare:index.html` と同じ）
+- push 直前に再 fetch。`origin/cloudflare` に新しいコミットは無く、`git merge-base --is-ancestor origin/cloudflare HEAD` が真
+- `git push origin work/1103-top:cloudflare` → `35a071d86..a918bc1ba`（fast-forward）
+
+### 3. 本番の確かめ（UA に mj-internal）
+
+- `https://ryoei.pro/top/?v=top05-<n>`: マージの約1分後（3回目、20秒おき）に 200。題「日本プロ麻雀連盟の選手と大会のデータ | ryoei.pro」、`<meta name="robots" content="noindex">` がある
+- `https://ryoei.pro/top` → 301 `https://ryoei.pro/top/`
+- `https://ryoei.pro/?v=top05post` の sha256 は df3eefaa…（マージの前と同じ）。**今のトップは変わっていない**
+- マージの後の3分で、cloudflare に自動の再生成のコミットは出ていない（他ページの差分なし）
+- #101 にマージのコメント（TOP-01〜03・05 の着手中の解除と、翌朝の確かめが残ること）、#231・#286 に TOP-02 の着手中の解除
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1103-top（マージ済み。cleanup-branches.yml が消す）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1103-TOP-05.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1103-top
+- 確認用URL: なし（本番の `/top/` で確かめた）
+- マージ: 済（a918bc1ba）
+- issue: #101・#231・#286（マージのコメントと着手中の解除）
+- 判断が必要なこと:
+  - 翌朝の初回の毎朝の再生成の結果を見て、この系列を閉じてよいか（下の「未確認の項目」）
+- 未確認の項目:
+  - 初回の予約実行: 2026-11-04（水）04:00 JST の run-daily から `update-live-channel.yml` の `regenerate`（`target_page` に `top_page`）。top/ が作り直されるか（大会日程・誕生日が当日の分になるか）を見る
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 22d902d0）: https://github.com/retroeater/mj-logs/tree/main/guide/22d902d0
+ガイド文書（この版を写した時点の最新、mj a918bc1b）: https://github.com/retroeater/mj-logs/tree/main/guide/a918bc1b
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/22d902d0/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/22d902d0/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/22d902d0/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/22d902d0/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/22d902d0/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/22d902d0/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a918bc1b/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a918bc1b/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a918bc1b/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a918bc1b/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a918bc1b/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a918bc1b/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/795228a7.md
