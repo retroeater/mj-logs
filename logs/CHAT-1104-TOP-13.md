@@ -50,6 +50,33 @@ PC 幅で、帯の下に開く AI 検索の入力欄（今は最大 560px）が�
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 0. 着手前の確認
+
+- 「指示」欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は4行とも有り。同じ Chat-Ref のコミットは0件
+- CHAT-1104-TOP-12 の `## 報告` の状態は「判断待ち」、origin/work/1104-top（4bae3e3b4）は cloudflare に未マージ。TOP-12 の状態に ` / 続き: CHAT-1104-TOP-13` を足した（35b7b35cc）
+
+### 1. 幅の直し（9f32ae0c6・43467242e）
+
+- 本文の面の幅は、白地のページの外枠 `.mj-race` の `max-width: 400px`（左右の内側 16px、面は 368px）。帯の下の欄 `.mj-nav-ask-panel` を `max-width: 560px` → `400px`（内側 16px は同じ）にした。≡ のシート（`.mj-houou-sheet` の 560px）は変えていない
+- 画面（ローカル＋Playwright、入力欄 `.mj-houou-ask-form` と本文の面 `nav.mj-houou-menu` の左右の端の x 座標）:
+
+| ページ | 360px | 400px | 1280px |
+|---|---|---|---|
+| houou/・top/・saikyo/（直す前） | 16–344 / 16–344 | 16–384 / 16–384 | 376–904 / 456–824（欄が広い） |
+| houou/・top/・saikyo/（直した後） | 16–344 / 16–344 | 16–384 / 16–384 | 456–824 / 456–824 |
+
+  番組の濃色のページ（wayhome/ など）は本文が 400px の面ではない（全幅の一覧）ので、欄は同じ 400px で中央（1280px で 449–817）
+- 検査: `test_top_page.py` に「欄の max-width が `.mj-race` と同じ・シートは 560px」を足した（直す前の 560px では落ちる）
+- docs: `docs/notes/design.md`（共通ナビ〈新しい形〉の行）・`docs/notes/top-page.md`・`docs/decisions/top.md`（2026-11-04 の TOP-13 の決定）
+
+### 2. 取り込みとマージの条件
+
+- `origin/cloudflare`（cf56b6db4、41コミット）を merge で取り込んだ（ac2ec04c2）。衝突なし
+- (1) テスト: `python3 -m unittest discover -s scripts/tests` OK（取り込んだ後）
+- (2) cloudflare との差分（`git diff --name-only origin/cloudflare...HEAD`）: TOP-12 のログ「7.」の表のファイルから `saikyo/players/index.html` が抜けた（取り込んだ cloudflare 側の再生成で同じ内容になった）だけで、ほかの新しいファイルは無い。docs/logs は TOP-11・12・13 の3件。sitemap の差分は lastmod の5行だけ
+
 <!-- guide-links -->
 ---
 

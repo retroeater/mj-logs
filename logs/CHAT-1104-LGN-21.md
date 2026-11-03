@@ -57,6 +57,27 @@ LGN-20 の log/ のプレビューを平野さんが確かめた（2026-11-04）
 
 ## 経過
 
+- 0章: 指示欄の末尾は指示文の最後の行と一致。`CHAT-1104-LGN-21` のコミット・ログなし。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）の欠けなし。CHAT-1104-LGN-20 のログの状態に ` / 続き: CHAT-1104-LGN-21` を足した（1f922128f）
+- 取り込み1（9e6ed0eaf）: `git merge origin/cloudflare` は衝突なし。`_headers` の `/*` の CSP に `connect-src 'self' https://cloudflareinsights.com` が1行、`/log/*` の規則も残る
+- 手順1（9d0941143・aeb4acf1d・4ce1306fc）:
+  - 海外の駅: `overseas_area()`（【…】付きで都道府県の分からない駅の地名）を足し、`shown_station()` で「Marble Arch (London)」（半角の空白・半角の括弧）に。候補・タグは `search.json` の `areas`（海外の駅名 → 地名）を `tagLabel()` で読む。国内の「西千葉（千葉県）」は変えていない。一覧に無い国内の駅（【千葉】幕張の浜）・選び切れない同じ名前の駅（【新潟】白山・白山）は海外の形にならない（検査あり）
+  - 検索結果の上の店数: `#log_status`（`role="status"`）に読み上げ用の visually-hidden の「N店」だけを置き、画面には出さない。0件の文は今のまま
+  - 「さらに表示（残り N店）」→「もっと見る」: `git grep` で同じ働きのボタンを探し、saikyo/vs/（`generate_saikyo_pages.py` の `VS_MORE_TEXT = "もっと見る"`・assets/saikyo.js）と top/（assets/top.js・generate_top_page.py）が「もっと見る」（残りの件数は付けない）だったので、それにそろえた。ほかの文言（「さらに表示」「続きを見る」「もっと表示」「さらに読み込む」）は log/ のほかに無かった
+  - 検査: test_shown_station（海外）・test_areas_for_overseas_labels（新）・log.test.js の tagLabel（海外）。直す前のコード（9e6ed0eaf）で FAIL・ERROR・not ok になることを確かめた。ボタンの文言と店数の表示（画面の DOM の部分）は1行の文字列なので検査は足していない
+  - docs/notes/log-page.md（駅の出し方・結果・search.json の areas）を直した
+- 再生成: check（run 41680601593、aeb4acf1d、success）→ 入力無し（run 41684544766、4ce1306fc）。生成物のコミット 9c0aeb972 までは成功し、最後の「帰り道の取り込みの失敗を報告」のステップが failure（帰り道の1回 O0D8Dz7Kqpo が YouTube の情報の JSON に無いという知らせ。log/ と関係しない）
+  - log/: 生成のログ「3層から 3166件のうち 2434件・1738店（過去メシで外した 131件・石立岳大で外した 601件…）」、search.json 1,738店・2,434件、areas は Marble Arch・Richmond・Embankment・Mansion House → London。resource_logs.html は 3,166行（石立岳大 601行）。3,166 − 131 − 601 = 2,434
+- 自己レビュー（新しい文脈の general-purpose、`git diff 9e6ed0eaf..aeb4acf1d`）: 要修正なし
+
+| 指摘 | 扱い |
+|---|---|
+| `prepare()` のコメントが古い形（「【London】Marble Arch」を London で探せる） | 直した（4ce1306fc） |
+| `areas` は駅名だけを鍵にし、海外の駅と同じ名前の国内の駅があると地名が付く | 簡略化: のコメントを残した（4ce1306fc。実データの海外は4駅で、駅の候補・国内の駅と重ならないことを確かめた） |
+| 選び切れない同じ名前の駅が `areas` に入らないことを検査していない | 直した（4ce1306fc。【新潟】白山・白山を足した） |
+| 件数のあるとき `#log_status` は高さ0の span だけになり、margin の隙間だけ残る | 意図どおり（前より詰まる。見た目はプレビューで確かめる） |
+
+- 取り込み2（50f90d273）: マージの前に cloudflare を取り込むと、生成物だけ（sitemap-wayhome.xml・title/tatsujin/3.html・top/index.html・wayhome/aNSsJicbMlM.html・wayhome/index.html）が衝突した。cloudflare 側の版を取り、取り込んだ後のスクリプトで生成し直す（regenerate-page.yml の入力無しを再び実行）
+
 ## 報告
 
 - 状態: 作業中
@@ -73,12 +94,12 @@ LGN-20 の log/ のプレビューを平野さんが確かめた（2026-11-04）
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 6865148b）: https://github.com/retroeater/mj-logs/tree/main/guide/6865148b
+ガイド文書（この版を写した時点の最新、mj dbac236b）: https://github.com/retroeater/mj-logs/tree/main/guide/dbac236b
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6865148b/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6865148b/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6865148b/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6865148b/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6865148b/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6865148b/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/dbac236b/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/dbac236b/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/dbac236b/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/dbac236b/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/dbac236b/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/dbac236b/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/53edca83.md
