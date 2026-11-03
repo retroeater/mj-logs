@@ -51,6 +51,96 @@ GitHub の Dependabot alerts（2026-10-27〜11-03 の週の通知）が、`scrip
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 着手前の確認
+
+- 指示欄の末尾は指示文の最後の行（「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」）と一致
+- `git fetch --unshallow origin` のうえ、`CHAT-1104-PIL-01` のコミット・`PIL` の識別子のコミットとログ（`git log --all -E --grep 'CHAT-[0-9]{4}-PIL-'`・`docs/logs/CHAT-*-PIL-*.md` の追加）: 0件
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 欠けなし
+- 指示文の issue の state: 指示文が着手・クローズの対象にする issue は手順1で起票するもの（#660）だけ。#601・#657 は経緯の参照
+- 作業ブランチ: ローカル・リモートとも `work/1104-pil` が無かったので `git checkout -b work/1104-pil origin/cloudflare`（着手時 HEAD 68f0411e8）
+- 0章ゲート: CLAUDE.md・handover.md は触らない。未マージの work/ ブランチ（`git branch -r --no-merged origin/cloudflare`）と触るファイルの重なりは下の「手順1」
+
+### 手順1（同じ論点の issue・ブランチ、起票）
+
+- issue の検索（`search/issues`、`is:issue` + `pillow`・`dependabot`・`依存 脆弱性`）: Pillow の版上げ・Dependabot alerts を主題にする open issue は無し。近い open issue:
+  - #619（#598 の残り。行1「CI の Python の依存を版の指定なしで入れる」に `regenerate-page.yml:115（Pillow）` が挙がる。Pillow の行は `requirements-ogp.txt` で既に版とハッシュを固定済み。主題は CI の依存全体の固定で、今回の版上げとは別）
+  - #539（ワークフローの Python を 3.14 へ。Pillow の 3.14 対応に触れる。今回は Python の版を変えない）
+- 未マージの work/ ブランチ（8本）と、Pillow に関わるファイルの重なり:
+  - `work/1101-prp-pub`: `regenerate-page.yml` を変えるが、サイトマップの検査の行（228行目の一覧に `sitemap-pro.xml` を足す）だけ。Pillow の手順（141〜143行目）とは別の箇所。今回はワークフローを変えないので衝突しない
+  - `work/1103-ryo5`: `fetch-x-posts.yml` に「Pillow を入れる」（`pip install --quiet --require-hashes -r scripts/requirements-ogp.txt`）の手順を足し、新しい `scripts/survey_ryoei_photos.py`（Pillow で issue の添付画像を開く・縮小・格子）とそのテストを持つ。`requirements-ogp.txt` 自体は変えない。前提の「RYO の加工スクリプトがこのファイルを使う」は、cloudflare には未だ無く、このブランチ上で正しい。マージ後は cp312 のハッシュで同じく入る（fetch-x-posts.yml の Python も setup-python 経由なら 3.12。ブランチ側の確認は RYO の指示で）
+  - そのほか（1009-swp-526・1011-swp-hnd・1011-swp-nav・1015-skd-notes・1029-lgn-page・1103-ryo8）: Pillow に関わるファイルの変更なし
+- 止まる条件に当たるものは無いと判断（同じ行・関数の変更なし）
+- Dependabot alerts の一覧: `gh api repos/retroeater/mj/dependabot/alerts?state=open` は HTTP 403「Resource not accessible by integration」で読めない。表は作れない。参考に、上流の 13.0.0 のリリースノートの Security 節の GHSA は 42件（Critical 3・High 14・Medium 22・Low 3。1項目に GHSA が2〜3個並ぶものがある）。Dependabot の画面の 29件（Critical 4件）は平野さんの申告値で、ここからは検証できない。数え方の違い（Dependabot の DB に載った分だけ・CVE 単位など）と見ているが、確かめていない
+- 起票: #660「Pillow を 13.0.0 に上げる（Dependabot alerts）」（ラベル「分野: セキュリティ」。#619・#598 と同じ）。本文に着手中の印（セッションの URL）
+
+### 手順2（版とハッシュ、非互換の表、テスト）
+
+PyPI の確認: `https://pypi.org/pypi/Pillow/json` の最新は 13.0.0（`requires_python >=3.11`、2026-10-16 公開。告知の 2026-10-21 より前の公開で矛盾なし）。13.0.0 より新しい版は無い。
+
+Pillow を入れる・使う箇所（`git grep -n -i 'pillow\|requirements-ogp\|from PIL\|import PIL'`、docs/logs・handover-archive を除く）:
+
+| 場所 | 種類 |
+|---|---|
+| `.github/workflows/regenerate-page.yml:141-143` | 帰り道の一覧の OGP 画像の手順で `--require-hashes -r scripts/requirements-ogp.txt` → `build_wayhome_ogp.py` |
+| `scripts/build_wayhome_ogp.py` | `Image.open`（YouTube のサムネイル）・`convert("RGB")`・`resize(..., Image.LANCZOS)`・`crop`・`Image.new`・`paste`・JPEG 保存（quality 88・optimize・progressive） |
+| `scripts/build_ogp_image.py` | 手動実行。`ImageFont.truetype`・`ImageDraw`・PNG 保存（optimize） |
+| `scripts/tests/test_ci_requirements.py` | 31・32行目は仮の値（辞書）、35行目は実ファイルを読んで `Pillow==12.3.0` を確かめる |
+| `docs/decisions/pros.md:250` | 2026-10-31 の決定（12.3.0）。過去の決定なので書き換えず、新しい決定を security.md に足す |
+| `docs/notes/static-generation.md`・`video-wayhome.md`・`github-actions.md` | 「Pillowが必要」などで版の数字は無い |
+| 未マージ `work/1103-ryo5` の `fetch-x-posts.yml`・`survey_ryoei_photos.py` | 上の手順1 |
+
+`git grep -n '12\.3\.0'`（docs/logs を除く）: `requirements-ogp.txt`・`test_ci_requirements.py`・`docs/decisions/pros.md:250` だけ。docs/notes に版の記述は無かった（直すものなし）。
+
+13.0.0 の非互換（上流 `docs/releasenotes/13.0.0.rst`、タグ 13.0.0 の raw）と当たり:
+
+| 変更 | 使っている箇所に当たるか |
+|---|---|
+| Python 3.10 の対応をやめた | 当たらない（ランナー 3.12、手元 3.13） |
+| I モードの PNG 保存で値を切り詰めない | 当たらない（RGB だけ） |
+| `Image.fromarray` の `mode` | 使っていない |
+| `get_child_images()` の移動・`Image._show`・`ImageCms` の属性・`ExifTags.IFD.Makernote` の削除 | 使っていない |
+| `ImageColor.getcolor` の RGBa/La・TIFF の重複タグ・小さい ICO | 使っていない |
+| `resize` の `reducing_gap` が RGBA/LA にも効く | 当たらない（`convert("RGB")` 後に縮小） |
+| wheel が同梱の HarfBuzz でヒンティング（文字の描き方が少し変わりうる） | `build_ogp_image.py` に当たりうる → 3(b) で出力同士を比べ、差なし |
+| `Image.LANCZOS` などの名前 | 13.0.0 でも残る（非互換の節に記載なし。実際に 13.0.0 で動いた） |
+
+非互換に当たる箇所は無く、スクリプトは変えていない。
+
+ハッシュの取り方: PyPI の JSON（`https://pypi.org/pypi/Pillow/13.0.0/json`）の `urls` から、ランナー用 `pillow-13.0.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl`（sha256 42d63be3…）と手元のテスト用 `pillow-13.0.0-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl`（sha256 5f56499c…）の `digests.sha256` を取り、両方の wheel を落として `sha256sum` で一致を確かめた。`python3.12 -m venv` と `python3.13 -m venv` にそれぞれ `pip install --require-hashes -r scripts/requirements-ogp.txt` で入ることも確かめた（3.12.3 / 3.13.18 で `PIL.__version__` 13.0.0）。
+
+テスト:
+- 変更前の `test_ci_requirements` は、ファイルを 13.0.0 にした時点で1件失敗（35行目。版の数字を実ファイルと照合するため）→ 35行目だけ 13.0.0 に直した。31・32行目は仮の値なので残した
+- `python3 -m unittest discover -s scripts/tests`（システムの 3.13、Pillow 12.3.0）: 1799件 OK
+- 13.0.0 の venv（3.12・3.13、ほかに `requests` を入れた）: 各 1799件 OK（`requests` を入れる前は `test_net_retry.GoogleApiTest` の4件が `ModuleNotFoundError: requests` で ERROR。パッケージが無いだけで #539 の記録と同じ）
+- scripts/tests に Pillow を import するテストは無い（Pillow の動きは下の手順3で見た）
+- 参考: 未マージの `work/1103-ryo5` の `test_survey_ryoei_photos.py` を 13.0.0（3.13）で流して13件 OK（`-W error::DeprecationWarning` でも OK）。一時的な worktree で流し、消した
+
+### 手順3(a)（帰り道の一覧の OGP 画像）
+
+`build_wayhome_ogp.py` の `main()` はシートを読む（`SHEETS_READER_SA_KEY` が要り、セッションには無い）。そこで、シートの代わりにコミット済みの `wayhome/index.html` に載っている回（43本）と `data/youtube_meta.json` から `Episode` を作り、同じ `render_ogp()`・`fetch_thumb()`（YouTube から実際にサムネイルを取得）・同じ保存の引数で書き出した（スクリプトはリポジトリ外の scratchpad。リポジトリのファイルは書き換えていない）。
+
+| 版 | ファイル名 | 寸法 | コミット済み `img/ogp/wayhome/index-20261026.jpg` とのバイト | 画素の差の最大 |
+|---|---|---|---|---|
+| 12.3.0（3.13） | index-20261026.jpg | 1200×630 | 一致 | 0 |
+| 13.0.0（3.12） | index-20261026.jpg | 1200×630 | 一致 | 0 |
+| 13.0.0（3.13） | index-20261026.jpg | 1200×630 | 一致 | 0 |
+
+最新4本は aNSsJicbMlM・OkKAh8yP8Uk・Yjp_PKHvldw・2Bn3SktouP4。作り直した画像はコミットしていない（差が無いため不要）。
+
+### 手順3(b)（`build_ogp_image.py` の `render()`）
+
+字体: 区分・共通の画像は `NotoSansJP-Bold.otf` で描かれている。セッションに無いので notofonts/noto-cjk の `Sans/SubsetOTF/JP/NotoSansJP-Bold.otf` を scratchpad に落として `font_path` に渡した。引数なしの既定はこの環境では DejaVuSans。
+docs/notes/ogp.md の作り方の引数で9通り（既定・site・pros・title・houou・ouka・jwrc・wrcr・saikyo）を描いて比べた。
+
+- 12.3.0 と 13.0.0 の `render()` の出力: 9通りともバイト一致（3.12 の 13.0.0 と 3.13 の 13.0.0 も一致）
+- 参考: コミット済みの `img/ogp/<区分>/index-white.png` 8枚とも、12.3.0・13.0.0 の出力とバイト一致（この字体なら `--check` 相当も通る）
+
+### 手順3(c)（`regenerate-page.yml` の dry-run）
+
+`regenerate-page.yml` の「帰り道の一覧のOGP画像を作る」（`id: build_wayhome_ogp`）の `if:` は `... && inputs.dry_run != true && inputs.check != true`。dry_run（入力名 `dry_run`）では帰り道の手順（Pillow を入れる行を含む）は飛ばされる。実行ログで確かめるため、作業ブランチで `target_page: all`・`dry_run: true` を手動実行した（run 41661756230）。結果は下に追記する。
+
 <!-- guide-links -->
 ---
 

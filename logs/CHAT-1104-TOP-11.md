@@ -55,6 +55,59 @@
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 0. 着手前の確認
+
+- 「指示」欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は4行とも有り。同じ Chat-Ref のコミットは0件
+- 作業ブランチ: `work/1104-top` はローカルにもリモートにも無かったので `git checkout -b work/1104-top origin/cloudflare`（着手時 HEAD 68f0411e8）
+
+### 1. 今の `navbar.js`（origin/cloudflare 68f0411e8）
+
+**白地の新しい形にするページ**（`newNavCurrent` の if の連なり。値が入ると `nav.navbar` を `.mj-nav-new` にし、項目名を日本語1行にして今いる項目に印）:
+
+| 判定 | ページ | `newNavCurrent`（印の付く項目） |
+|---|---|---|
+| パス `/houou/` | 鳳凰戦の新ページ | 鳳凰戦 |
+| パス `/ouka/` | 女流桜花 | 女流桜花 |
+| パス `/r/` | 良栄のトップ（未公開） | 良栄 |
+| パス `/top/` | 新トップ（未公開） | トップ（どの項目にも当たらない） |
+| パス `/jwrc/` | WRC リーグ | WRC |
+| パス `/wrcr/` | WRC-R リーグ | WRC-R |
+| パス `/pro/` | 連盟プロ（未公開） | 連盟プロ |
+| `<body class="mj-saikyo-n-page">` | 最強戦の新しい年度・対局のページ（saikyo/ のトップ・年度など） | 最強戦 |
+| `<body class="mj-live-n-page">` | 放送対局 live/ のトップ・タイトル戦・期のページ | 番組 |
+
+**title/ は対象に入っていない**（`title/index.html` は `<body data-search="off">` で目印が無く、パスの一覧にも無い。黒地のナビのまま）。決定は「`navbar.js` が白地の新しい形にしているページ全部」なので、title/ は新しいナビの対象に入れなかった（決定の例の「title/」とは食い違う。`## 報告` に書く）。
+
+**項目**（`document.write` の1か所。白地のときは `data-short-label` か `<br>` の前の日本語だけを出す）:
+
+| 項目 | 行き先 | ドロップダウンの中身 |
+|---|---|---|
+| 連盟プロ | `/jpml_pros.html` | — |
+| タイトル戦 | `/title/` | — |
+| 鳳凰戦 | `/houou/` | — |
+| 女流桜花 | `/ouka/` | — |
+| WRC（`data-short-label`。黒地では「JPML WRC」） | `/jwrc/` | — |
+| WRC-R（同） | `/wrcr/` | — |
+| 最強戦 | `/saikyo/` | — |
+| 番組 | （ドロップダウン） | 放送対局 `/video_live.html`・帰り道 `/wayhome/`・プロテスト `/exam/`・Mつく `/mtsuku/` |
+| リソース | （ドロップダウン） | カレンダー `/resource_calendar.html`（新しいタブ）・書籍 `/resource_books.html`（新しいタブ）・ログ `/resource_logs.html`・辞書 `/resource_dictionary.html`・牌効率 `/resource_efficiency.html` |
+| 良栄 | （ドロップダウン） | 成績 `/rh_results.html`・成績詳細 `/rh_results_detail.html`・牌譜 `/rh_paifu.html` |
+
+ロゴは「R」で `/index.html` へ。右端の虫眼鏡（`searchIconHtml`）は `data-search="off"` のページでは出ない（白地のページはどれも `off`）。
+
+**未マージの work/ ブランチの重なり**（`git branch -r --no-merged origin/cloudflare`、2026-11-04）:
+
+| ブランチ | ファイル | 中身 | 取り込むときの解き方の見込み |
+|---|---|---|---|
+| work/1029-lgn-page | `navbar.js` | if の連なりの先頭に `/log/`（印は「リソース」）を足す | if の連なりに行を足すだけ。新しいナビはこの連なりの値で出し分けるので、`/log/` も自動で新しいナビになる |
+| work/1029-lgn-page | `style.css` | log/ の節（259行の追加） | 別の節。新しいナビの節はファイルの末尾に足すので、末尾どうしの追記の衝突なら両方を残す |
+| work/1101-prp-pub | `navbar.js` | 「連盟プロ」の行き先 `/jpml_pros.html` → `/pro/`、pro/ の分岐のコメント | 項目の行き先の1行。新しいナビは項目を `document.write` の1か所から読むので、この1行が入ればシートにも反映される |
+| work/1101-prp-pub | `style.css` | pro/ の節（+45/−1） | 別の節 |
+
+RYO 系列の公開（「良栄」をドロップダウンから `/r/` へのリンクに）も、項目の1か所が変われば新しいナビに反映される（ドロップダウンでもリンクでも読めるように作る）。
+
 <!-- guide-links -->
 ---
 
