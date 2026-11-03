@@ -75,18 +75,26 @@ RYO-06 の判断待ちに平野さんが答えたので、小さな直しを入�
 - `python3 -m unittest discover -s scripts/tests`: OK。`python3 scripts/check_asset_limits.py`: すべて OK
 - 重さ（gzip）: 最初の画面 約138KB（上限 600KB）。`world.js` 55,036 バイト（上限 150KB）
 
+### マージと本番
+
+- push 直前に再 fetch し `git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめて `git push origin work/1103-ryo4:cloudflare`: `5c53eb050..28ad5e2a7  work/1103-ryo4 -> cloudflare`
+- check-run（28ad5e2a7）: Workers Builds: mj・mj-ask・mj-scheduler すべて success、`sync`・`regenerate`・`check` success（push の再生成で新しいコミットは無し）
+- 本番（UA に `mj-internal`、`?v=<乱数>`）: `https://ryoei.pro/r/` が 200、noindex あり、一覧の「成績」の節に `/rh_results.html`・`/rh_results_detail.html`・`/rh_paifu.html` の3つ、Error 1101 の文字なし（1回目で新しい版）。`https://ryoei.pro/r` は 301 で `/r/` へ。`/assets/vendor/three-0.169.0/three.module.min.js`・`/assets/ryoei/world.js` は 200
+- headless Chrome（本番の実際のヘッダ）: `/r/`（「入る」→ 空間 → 動画を開く）と `/houou/` で CSP の違反 0件。コンソールのエラーは外部への接続の失敗（このコンテナのプロキシ）だけ
+- #657 にマージした旨をコメント（閉じない）。RYO-04・RYO-06 のログの状態に ` / 続き: CHAT-1103-RYO-07`、マージを「済」に
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1103-ryo4
-- ログ: https://github.com/retroeater/mj/blob/work/1103-ryo4/docs/logs/CHAT-1103-RYO-07.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1103-ryo4
-- 確認用URL:
-- マージ: 未
-- issue: #657
-- 判断が必要なこと:
-- 未確認の項目:
-- エラー:
+- 状態: 完了
+- ブランチ: work/1103-ryo4（マージ済み。削除は cleanup-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1103-RYO-07.md
+- 比較URL: https://github.com/retroeater/mj/compare/5c53eb050...28ad5e2a7
+- 確認用URL: 本番の `/r/`（noindex・メニュー未掲載）で確認した。この版で見えるはずの印: 一覧の「数字で見る」の下に節「成績」と、成績・成績詳細・牌譜の3つのリンク
+- マージ: 済（28ad5e2a7、`5c53eb050..28ad5e2a7`）
+- issue: #657（コメント、閉じない）・#656（変えていない）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---

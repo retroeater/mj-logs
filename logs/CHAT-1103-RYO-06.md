@@ -142,12 +142,12 @@ RYO-04 の仮置き14点と技術の判断に平野さんが答えたので、�
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1103-RYO-07
 - ブランチ: work/1103-ryo4
-- ログ: https://github.com/retroeater/mj/blob/work/1103-ryo4/docs/logs/CHAT-1103-RYO-06.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1103-RYO-06.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1103-ryo4
 - 確認用URL: プレビューあり（URL は最終報告）。確認したページ: `/r/`（一覧と空間）。この版で見えるはずの印: 「入る」の後、正面に名前の立て看板と、その奥の水辺に足場の大スクリーン（「第3期WRC-Rリーグ」）と対岸の街の灯り
-- マージ: 未（平野さんの判断待ち。指示文の「マージ: 判断待ちで止まる」。RYO-04 の分と一緒）
+- マージ: 済（CHAT-1103-RYO-07 で RYO-04 と一緒に cloudflare へ。`5c53eb050..28ad5e2a7`。一覧の成績へのリンクと「保存データを消す」は RYO-07 の決定で直した）
 - issue: #657（着手中コメント）・#656（pro/ のつなぎをコメントで追記）
 - 判断が必要なこと:
   - 新しい仮置き（画面のどこに効くか）:
@@ -173,12 +173,12 @@ RYO-04 の仮置き14点と技術の判断に平野さんが答えたので、�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 45487824）: https://github.com/retroeater/mj-logs/tree/main/guide/45487824
+ガイド文書（この版を写した時点の最新、mj 28ad5e2a）: https://github.com/retroeater/mj-logs/tree/main/guide/28ad5e2a
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/45487824/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/45487824/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/45487824/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/45487824/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/45487824/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/45487824/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/28ad5e2a/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/28ad5e2a/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/28ad5e2a/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/28ad5e2a/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/28ad5e2a/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/28ad5e2a/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/795228a7.md
