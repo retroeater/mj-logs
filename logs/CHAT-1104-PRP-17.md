@@ -61,6 +61,57 @@ CHAT-1104-PRP-16 の洗い出し（そのログの `## 経過`「2. 洗い出し
 
 ## 経過
 
+### 0. 着手前の確認
+
+- 「指示」欄の末尾は指示文の最後の行（「不明な点があれば…この行が指示文の最後の行です。」）と一致
+- 同じ Chat-Ref のコミット・ログは無し。#641 は open で、ほかのセッションの着手中のコメントは無い（最後は CHAT-1104-PRP-16 の完了）
+- 冒頭の雛形の行（Chat-Ref・マージ・貼る時機・共通手順）に欠けなし。「マージ: 承認済み（チャットで）」あり
+- work/1104-prp-polish はリモートにもローカルにも無かったので `git checkout -b work/1104-prp-polish origin/cloudflare`（8c7dd9a31）で作った
+
+### 1. 変更（b838264a8・f767b851a、生成 ce1c11079）
+
+- B1: `generate_pro_pages.py` に `APP_TITLE_TAG`（`<meta name="apple-mobile-web-app-title" content="連盟プロ">`）を足し、`render_top()` の head にだけ入れた（旧 `jpml_pros.html` 8行目と同じ文字列）
+- B2: `x_photo(pro, size)` を足し、X の既定のアイコン（`lib/x_images.is_default_avatar()`、`abs.twimg.com/sticky/default_profile_images/`）を画像なしと同じに扱う。顔写真・トップの表・`search.json` の3か所を置き換えた。対象は12名（cloudflare 8c7dd9a31 の生成物で数えた。PRP-01 の時点と同じ数）: 三田不二夫・比嘉秀樹・神代陽向・村瀬寛哉・吉田勝弥・戸井田清光・福本正雄・仁平宣明・藤﨑龍一・大滝聡・比屋定秀太・犬見武史
+- B15: `assets/pro.js` の並べ替えの比べ方（`compareSortKeys()`）と予定を隠す処理の日本時間の日（`jstDay()`・`isPastPlan()`）を IIFE の外の部品に出し、`module.exports` に足した（中の処理はこの部品を呼ぶだけで、比べ方は前と同じ）。検査 `scripts/tests/test_pro_js.py`（node で動かす。test_pro_filter.py と同じ形）: 50音の昇順・降順、同じ値は元の並び、値の無い行、0詰めの数（入会期・リーグの順位）、日本時間 0 時の境目、当日の予定は出す、月またぎ。絞り込みの組み合わせ・`?all=1` の書き換えは `test_pro_filter.py`、お気に入りは `test_pro_favorites.py` に前からある
+- B16: 今後の予定が6件以上の選手は、今の `pro/plans.json`（112行、最多は3件: yukinori.toriya.31・kazunori.takizawa.16・sho.shiratori.23）にも、git の履歴にある `pro/plans.json` の2つの版（最多3件）にもいない。「ほか N件」の行は実データで出たことが無い。生成の処理（`plans_panel()`、`PLAN_MAX = 5` を超えたら `<p class="mj-pro-plan-more">ほか{N}件</p>`）は `test_pro_pages.py` の「ほか2件」の検査で確かめている。live のシートは生成1回で2回読む（今後の予定は `sync_live_calendar.load_desired()`、放送対局の行は `generate_live_pages.load()`）。直す必要は見つからず、記録だけにした
+- テストの足し: `test_pro_pages.py` の `MetaTest` に `test_top_has_home_screen_title`（トップにだけある）・`test_default_x_avatar_is_initial`（既定のアイコンの URL が個別ページ・トップ・search.json に出ない、頭の1字の丸、ふつうの画像は 200x200 のまま）
+- A8: `docs/notes/static-generation.md` の pro/ の行を今の形に（絞り込み〈よみ・所属・入会・鳳凰・桜花・★、複数選択と重ね掛け、既定は全員〉・質問欄が無い・`pro/plans.json`）
+- A9: `docs/new-page-checklist.md`「URL パラメータの規約」の pro/ の行から `by` を外し、複数の値の「,」区切り・切り口の重ね掛け・`ouka` はシートのタブにもある・`birthday` だけチップから・pro/ では `all`・`by` を使わず旧の `?all=1` は消す、を書いた
+
+### 2. 確かめ（止まる条件）
+
+- テスト: `python3 -m unittest discover -s scripts/tests` → Ran 1970 tests OK。`node --test 'workers/*/test/*.test.mjs'` → pass 212 / fail 0
+- 足したテストを origin/cloudflare（8c7dd9a31）の `git archive` に入れて実行: `FAILED (failures=2, errors=6)`（`test_pro_js.py` の6件は関数が無い、`MetaTest` の2件は旧の出力）
+- `regenerate-page.yml` の `check`（`pro_pages`、run 41779708313）: success。「- pro_pages: 通る(--check)」「check: 止まるページなし」
+- 生成（target_page pro_pages → ce1c11079）の差分:
+
+| 種類 | 件数 | 中身 |
+|---|---|---|
+| pro/<slug>/index.html | 12 | 名前の面の写真の1行が `<img … default_profile_200x200.png>` から `<span class="… is-initial">頭の1字</span>` に（12名、上の名前） |
+| pro/index.html | 1 | 表の12行（同じ12名の写真）と `apple-mobile-web-app-title` の1行 |
+| pro/search.json | 1 | 1行（12名の画像の欄が空に） |
+| pro/ の外 | 0 | — |
+
+- noindex: 生成した pro/ の 1,099ページすべてに `<meta name="robots" content="noindex">`（無いページ 0）。`default_profile_images` は pro/ の全ページ・`search.json` で 0件
+- `git diff --stat origin/cloudflare...HEAD -- navbar.js index.html llms.txt 'sitemap*.xml' _redirects wrangler.jsonc workers/` → 出力なし（変わっていない）
+- 未マージの work/ ブランチ（work/1101-prp-pub を除く）: 変えるファイルに触るのは work/1028-lgn（`docs/new-page-checklist.md`・`docs/notes/static-generation.md`）・work/1104-acf-cache・work/1104-lgn-policy（`docs/notes/static-generation.md`）。`git merge-tree` で、work/1028-lgn は両方の文書で衝突するが、cloudflare を起点にしても同じ箇所（`new-page-checklist.md` 36行目・`static-generation.md` 256・284行目）で同じ数だけ衝突し、この指示の変更で増えない（work/1028-lgn は 2026-10-29 で止まった古い版）。work/1104-acf-cache・work/1104-lgn-policy は衝突なし
+- プレビュー（ce1c11079 の Workers Builds、05:36Z に success）を Playwright（UA に mj-internal、360px）: `pro/fujio.mita.11/`（三田不二夫）の写真は `SPAN`「三」72×72・X の画像の読み込み 0・noindex あり・横のはみ出し 0。トップは `apple-mobile-web-app-title` が「連盟プロ」・三田不二夫の行の写真は `is-initial` の「三」。入会期の並べ替えは昇順で「1期」から、もう一度押して「43期」から
+
+### 3. 差分のレビュー（新しい文脈のサブエージェント、1回。作業ツリーを変えないように頼んだ）
+
+origin/cloudflare...ce1c11079。bug・should-fix の指摘なし（並べ替え・日本時間の日・過ぎた予定の比べ方は前と同じ、既定のアイコンの置き換えは3か所で漏れなし、search.json の位置は変わらない、meta はトップだけ、文書はコードと合う、という結果）。
+
+| 指摘 | 扱い |
+|---|---|
+| 1. `jstDay()` の上の注記が `hidePastPlans()` の注記と重なる | 直した（f767b851a。「日本時間の YYYY-MM-DD」に縮めた） |
+| 2. `isPastPlan()` は `<` 1つを包むだけ | 意図どおり（B15 の検査から呼ぶための形） |
+| 3. `test_missing_key` は undefined と '' の同じことだけを見る | 意図どおり（値の無い行の並びは `test_ties_keep_original_order` の "" で見ている） |
+
+### 4. B18 の起票
+
+- 同じ主題の issue を「pip install」「資格情報」「regenerate-page.yml push」「GITHUB_TOKEN pip」「書き込みの権限」で探した（`gh api search/issues`、クローズ済みを含む）。近いのは #619（#598 の残り。1 は CI の Python の依存を版の指定なしで入れること、`regenerate-page.yml` も一覧にある）で、「書き込みの資格情報を持ったまま入れる」ことは書かれていない。別の論点として起票した
+- #668「regenerate-page.yml の push の job が、書き込みの資格情報を持ったまま pip install する」（ラベル「分野: セキュリティ」）。本文に PRP-16 の表の B18 の行を引用し、#619・#598・#564 を関係に書いた。確かめた形: job `regenerate` は `permissions: contents: write`（78行目）、`actions/checkout` は `persist-credentials` を指定しない（既定で true）、109行目で `pip install --quiet google-auth requests`
+
 ## 報告
 
 - 状態: 作業中
@@ -77,12 +128,12 @@ CHAT-1104-PRP-16 の洗い出し（そのログの `## 経過`「2. 洗い出し
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 8c7dd9a3）: https://github.com/retroeater/mj-logs/tree/main/guide/8c7dd9a3
+ガイド文書（この版を写した時点の最新、mj 0921e345）: https://github.com/retroeater/mj-logs/tree/main/guide/0921e345
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/8c7dd9a3/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/8c7dd9a3/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/8c7dd9a3/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8c7dd9a3/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8c7dd9a3/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8c7dd9a3/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/0921e345/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/0921e345/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/0921e345/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/0921e345/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/0921e345/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/0921e345/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/95028c1a.md

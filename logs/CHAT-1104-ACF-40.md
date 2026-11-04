@@ -101,6 +101,11 @@ Chat-Ref: CHAT-1104-ACF-40
 
 2回目（新しい文脈、`git show 14472414e` だけ）: 3点とも直っている。変異試験（コピーした一時ディレクトリで）: --check の `sheets_cache()` を外す・通常の生成の `sheets_cache()` を外す・ページごとに作る・unlink を消す、の4つともテストが落ちた。対応の要る指摘なし。`python3 -m unittest discover -s scripts/tests`: Ran 1979 tests、OK
 
+### 手順2: 計測の run
+- 起動前の並走: 05:23Z に regenerate-page の実行中が2本（41778530568 work/1104-lgn-gnotice 05:19Z〜、41778794993 work/1104-top3 05:21Z〜）。05:38Z まで15分待ち、41778530568 は終わったが 41778794993 が残り、途中で 41779916769（work/1104-prp-polish、05:32Z〜）も始まって終わった。41778794993 の並走を記録して起動した
+- 起動の前に origin/cloudflare が 8b36d3c34 へ進んでいたので `git merge origin/cloudflare`（衝突なし、234ff84b2）。取り込み後のテスト: OK
+- run 41780431563（work/1104-acf-cache、head 234ff84b2、target_page all・dry_run 真・compare_ref 8b36d3c3457d65afe924fb7d12e2227f054867ad）、05:37:55Z 開始
+
 ## 報告
 
 - 状態:
@@ -117,12 +122,12 @@ Chat-Ref: CHAT-1104-ACF-40
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 8c7dd9a3）: https://github.com/retroeater/mj-logs/tree/main/guide/8c7dd9a3
+ガイド文書（この版を写した時点の最新、mj 0921e345）: https://github.com/retroeater/mj-logs/tree/main/guide/0921e345
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/8c7dd9a3/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/8c7dd9a3/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/8c7dd9a3/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8c7dd9a3/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8c7dd9a3/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8c7dd9a3/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/0921e345/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/0921e345/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/0921e345/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/0921e345/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/0921e345/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/0921e345/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/95028c1a.md
