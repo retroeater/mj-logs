@@ -8,7 +8,7 @@ WRC リーグの成績とランキング（旧 `wrc_results.html`・`wrc_ranking
 
 - URL: `jwrc/`（トップ。質問欄は 2026-11-04 に外し、共通ナビの AI 検索のアイコンから開く）・`jwrc/players/`・`jwrc/ranking/<スラッグ>/`（9部門。`jwrc/ranking/` は `total/` へ 301）・`jwrc/race/`
 - 生成は `scripts/generate_jwrc_pages.py`（`regenerate.py` の `jwrc_pages`、出力 `jwrc/`）。中身は `generate_houou_pages.py` を大会の設定 `JWRC` で動かすだけ。`Contest.no_leagues`（リーグの列が無い大会）で、リーグ・リーグのタブ・現在のリーグに頼る所を外す
-- JS は houou/・ouka/ と共有の `assets/league.js`・`assets/league_race.js`・`assets/houou_ask.js`。ページの `#league_contest`（`JWRC.script`）の `noLeagues`・`pass`・`championLabel` で動きを替える
+- JS は houou/・ouka/ と共有の `assets/league.js`・`assets/league_race.js`。ページの `#league_contest`（`JWRC.script`）の `noLeagues`・`pass`・`championLabel` で動きを替える
 - 集計元は正本の「JWRC」タブ（見出しで読む。名前・期・順位・結果・合計・第1〜5節・表示・備考の12列）。「表示」が Y の行の数が 1,000〜4,000 の外なら止める（`JWRC.rows`）。Ampai のブックは読まない（`JWRC.ampai` が空）
 - 質問欄の検索データは `workers/ask/data-jwrc.json`（`scripts/generate_ask_data_jwrc.py`、`regenerate.py` の `ask_data_jwrc`）
 

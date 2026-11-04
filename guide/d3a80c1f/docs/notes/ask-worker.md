@@ -6,7 +6,7 @@ houou/ のトップで鳳凰戦のデータに言葉で質問できる欄。決�
 
 **質問欄の置き場所（2026-11-04）**: ページの中の質問欄（houou/・ouka/・jwrc/・wrcr/・saikyo/ のトップと新トップ）はやめ、入口を共通ナビの AI 検索のアイコン1つにした
 （帯のすぐ下に横断の欄を開く。`assets/nav.js`・`assets/top_ask.js`、`contest: "all"` と `context`。docs/notes/design.md「共通ナビ（新しい形）」）。
-pro/ のトップの欄も pro/ の作業で外した。ページの中の欄の部品（`ASK_TEMPLATE`・`ASK_HEAD`・`assets/houou_ask.js`）は読むページが無くなり、後の指示で片付ける（TOP）。
+pro/ のトップの欄も pro/ の作業で外した。ページの中の欄の部品は 2026-11-04 に片付けた（`ASK_TEMPLATE`・`ASK_HEAD`・`ASK_NOTICES`・`ASK_MAX` を消し、`assets/houou_ask.css` の規則は `style.css` の「質問欄の部品」へ移した）。`assets/houou_ask.js` と `scripts/tests/test_houou_ask.py` の突き合わせ（`pickPlayers`・`splitPlayers`）の検査も 2026-11-04 に消した（3人と「ほか N名」の分け方の検査は `test_top_page.py` の `TopAskJsTest`）。
 下の各大会の「X/ の質問欄は `contest: "X"` を添える」は廃止した大会別の欄の記述で、Worker は `contest` を指定した問いを今も受け付ける（外すかは #654）。
 
 ## 構成
@@ -24,9 +24,9 @@ pro/ のトップの欄も pro/ の作業で外した。ページの中の欄の
 | `workers/ask/schema.sql` | D1 の表（B2 で D1 の Console に貼る） |
 | `workers/ask/src/weekly.mjs` | 週次の cron（ブックへの書き出し・90日の削除、下の「週次の cron」） |
 | `workers/ask/test/ask.test.mjs`・`weekly.test.mjs` | 受付と週次のテスト。D1 は `test/fake-d1.mjs`（`node:sqlite` で `schema.sql` をそのまま使う作り物）、Anthropic・Google は偽の fetch |
-| `assets/houou_ask.js`・`assets/houou_ask.css` | 大会別の質問欄の送信と表示・見た目（読むページは無い。`houou_ask.css` は共通ナビの欄と top/ の「もっと見る」が使う）。HTML は `generate_houou_pages.py` の `ASK_TEMPLATE`。答えに出た選手のカードのリーグのチップの色だけ `style.css` の `--lg-*` を使う |
-| `houou/ask-players.json` | 答えに出た選手のカードの名簿（各大会の名簿は pro/ の生成もいまのリーグ・出場を読む。生成物。`generate_houou_pages.py` の `ask_roster()`、約66KB。答えが出たときに初めて読む） |
-| `scripts/tests/test_houou_ask.py` | 突き合わせ（`pickPlayers`・`splitPlayers` を node で動かす）・名簿の値・書き出した名簿と名前の面の一致 |
+| `assets/nav.js`・`assets/top_ask.js` | 共通ナビの質問欄（HTML は nav.js が作る）と、その送信と表示。見た目は `style.css` の「質問欄の部品」と「新しいナビ」の節 |
+| `houou/ask-players.json` | 選手の名簿（もとは答えに出た選手のカードの名簿。いまは pro/ の生成の入力。各大会の名簿は pro/ の生成もいまのリーグ・出場を読む。生成物。`generate_houou_pages.py` の `ask_roster()`、約66KB） |
+| `scripts/tests/test_houou_ask.py` | 名簿の値・書き出した名簿と名前の面の一致 |
 
 ## 女流桜花（ouka/、#519。未公開）
 
@@ -198,7 +198,7 @@ POST `/api/ask`（本文 `{"question": "…"}`）の流れ:
 7. 記録（決定5・grill Q8 を 2026-10-19 に置き換え）: `questions` に日時（JST）・質問文・結果（`answered` / `unanswered` / `candidates` / `guided` / `region`）・型・答えの本文（`answer`、返した文言）・型の引数（`args`、null を除いた JSON の文字列。型が無い・引数が無いときは空）。IP は書かない。
    答えの本文は `max_tokens` 2048 で数千字までなので、ブックのセルの上限（5万字）に収まる
 8. Claude の失敗（HTTP エラー・ワークスペースの上限の 400・拒否 `refusal`・打ち切り）は 503（`unavailable`）。この問いは数えたまま、記録は `unanswered`、答えの本文は「失敗: 」と理由（例「失敗: Claude plan: HTTP 529」）。2026-10-26 から、HTTP エラーは応答の本文の `error.type`・`error.message`（200字まで）と `request-id`、Worker の拠点（`request.cf` の `colo`・`country`）も書く（例「失敗: Claude plan: HTTP 403 forbidden Request not allowed req_…（拠点 HKG・HK）」。下の「HTTP 403 の調べ」）。
-   地域の制限（HTTP 403 で `error.type` が `forbidden`、2026-11-02）は、記録の結果を `region`（ブック「地域で使えない」）、応答を 503 の `{"status":"region"}` にし、画面は「お使いの地域からは、この質問欄を使えません（AI の提供元が対応していない地域のため）。」を出す（`assets/houou_ask.js` の `MESSAGES.region`）。ほかの失敗と同じく1問と数える（数えるのは Claude を呼ぶ前で、断られるかは呼ぶまで分からない）
+   地域の制限（HTTP 403 で `error.type` が `forbidden`、2026-11-02）は、記録の結果を `region`（ブック「地域で使えない」）、応答を 503 の `{"status":"region"}` にし、画面は「お使いの地域からは、この質問欄を使えません（AI の提供元が対応していない地域のため）。」を出す（`assets/top_ask.js` の `MESSAGES.region`。`workers/ask/test/week3.test.mjs` が確かめる）。ほかの失敗と同じく1問と数える（数えるのは Claude を呼ぶ前で、断られるかは呼ぶまで分からない）
 9. データに無い期（引数 `term`・`from` が `latestTerm()`〈成績の行・決勝・放送対局の最大の期・年度〉より後）は `beyond_data`。選手の成績・優勝者は期を外して記録のある期で答え、冒頭に「女流桜花のデータは第20期終了時点までで、第22期はまだありません。記録のある期で答えます」（時点は `asof.league`）。ほかの型は同じ文だけを `unanswerable` で返す（2026-11-02。女流桜花の「22期の和久津晶成績」など6問）
 10. 2回目の答えにハングル・英語の `league` が混ざったら1回だけ作り直し、残った「리그」「league」は「リーグ」に置き換える。人数で切った残りの「ほか N人が並んでいます」は、同率（`tie`）が無ければ「ほか N人がいます」に、入会期の一覧（`entry`）の「N人が並んでいます」は「N人です」に、「主な名前」「上位の選手」は「名前」「選手」に直す（回数の段や、tie の付かない下位の同率のランキングでは並ぶのが本当なので、入会期の一覧だけに当てる）（`tidyAnswer()`、2026-11-02。指示の文だけでは止まらなかった。AIC-14 で「N人が並んでいます」と「主な」を足した）
    2026-10-18 までは失敗も `none` も型が空で記録され、区別できなかった（「23期生の鳳凰位は？」が 2026-10-16 22:10 JST ごろに2回続けて答えられなかった原因を記録から決められなかった。CHAT-1019-AIC-07）
@@ -213,10 +213,10 @@ Claude の呼び出しの設定（公式の文書と claude-api skill で確か�
 
 GET `/api/ask/status`: `{"status": "open", "remaining": n, "max": 200}` か `{"status": "limit", "scope": …, "resetAt": …}`。質問欄は開いた時点で上限なら受付を止める。
 
-質問欄の状態ごとの表示（`assets/houou_ask.js`）: 答え（読み方 → 本文 → 注記 → 「データ: …」 → 「出典: …」のリンク）、「答えられません。」、上限（全体「本日の受付は上限に達しました。翌0時（日本時間）から受け付けます。」・IP「本日ご質問いただける回数の上限に達しました。…」）、
+質問欄の状態ごとの表示（いまは `assets/top_ask.js`。廃止した大会別の欄と同じ）: 答え（読み方 → 本文 → 注記 → 「データ: …」 → 「出典: …」のリンク）、「答えられません。」、上限（全体「本日の受付は上限に達しました。翌0時（日本時間）から受け付けます。」・IP「本日ご質問いただける回数の上限に達しました。…」）、
 それ以外（Worker が無い・失敗）は「いまは答えられません。」。答えは `textContent` で入れ、出典はルート相対の URL だけをリンクにする。
 
-答えに出た選手のカード（2026-10-15、決定は `docs/decisions/houou.md`「2026-10-15（CHAT-1015-HOU-49）」）: 答えが出たら名簿 `houou/ask-players.json`
+答えに出た選手のカード（廃止した大会別の欄の動き。共通ナビの欄は応答の `players[]` から作る。2026-10-15、決定は `docs/decisions/houou.md`「2026-10-15（CHAT-1015-HOU-49）」）: 答えが出たら名簿 `houou/ask-players.json`
 （在籍の選手だけ。`[名前, 写真, 現在のリーグ, 最高到達, 出場期数]`。値は個人成績の名前の面と同じ作り。現在のリーグは `current_league()` で、名前の面の `currentLeague()` と同じ決め方〈進行中の期のリーグ。前期の B1 で昇級して後期に出ない選手は B1、2026-10-17、#584〉。生成した名簿と名前の面の JS を node で突き合わせるテストは `test_houou_ask.py` の `GeneratedRosterTest`）を読み、答えの文と突き合わせる（`pickPlayers`）。
 長い名前を先に当て、当たった文字に重なる短い名前は拾わない（在籍者の名簿で、ある名前が別の名前の一部になっている組は 2026-10-15 時点で0組）。
 文に出た順に、同じ選手は1行。答えの面の下の別の面（`#houou_ask_players`、トップの3項目と同じ行の形）に、写真（無ければ頭文字の丸）・名前と現在のリーグのチップ /

@@ -344,7 +344,7 @@ PowerShell 5.1 の既定が UTF-16LE のため、日本語部分が文字化け�
 | Execution order / Status | Last / Active |
 | 本数 | 入れた後は 2/2（上の #124 と合わせて Pro の枠が埋まった） |
 
-- 応答を既定のままにしたのは、`assets/houou_ask.js` が上限の JSON（`status: "limit"`）を「翌0時（日本時間）から受け付けます」と表示し、10分で解ける Block と食い違うため（既定の HTML なら「いまは答えられません。」になる）
+- 応答を既定のままにしたのは、質問欄（当時は `assets/houou_ask.js`、いまは `assets/top_ask.js`）が上限の JSON（`status: "limit"`）を「翌0時（日本時間）から受け付けます」と表示し、10分で解ける Block と食い違うため（既定の HTML なら「いまは答えられません。」になる）
 - Worker の D1 の回数（全体・IP ごとの1日の上限、`docs/notes/ask-worker.md`）はそのまま。これは短い時間の連打を止める層
 - Pro では数える単位が IP だけで、IPv6 を /64 でまとめて数えることはできない
 - 3本目を足すには、既存のどちらかを外すかプランを上げる
@@ -776,6 +776,7 @@ Workers & Pages → `mj` → Settings → Builds:
   - `Preview URL: https://<バージョンIDの先頭8桁>-mj.<アカウントのサブドメイン>.workers.dev`（そのバージョン固定。サブドメインの実際の値はこの check-run の出力で確かめる）
   - `Preview Alias URL: https://<ブランチ名>-mj.<アカウントのサブドメイン>.workers.dev`（ブランチ名の `/` を `-` にした形。例: `work/0918-th` → `work-0918-th-mj…`）。2026-09-12〜18 の work/ ブランチ24本で同じ形を確認。`.` や大文字を含む名前は未確認
 - ログイン不要で誰でも開ける。`x-robots-tag: noindex` が付く。ブランチを削除した後も開ける
+- **docs だけの push ではプレビューを作らない**（非本番の watch paths も `docs/**` を除外。判定は push 全体のファイル、上の「`docs/**` のみのコミットには…」）。作り直したいときは docs 以外を含む push（cloudflare の取り込みなど）にする
 - 別名の URL は前の版を返すことがある（2026-10-12、CHAT-1012-DSN-03: HTML と CSS が前の版で返り、クエリを付けると新しい版が返った。キャッシュと見られる）。版を確かめるときは、版ごとの URL を使うか、別名にクエリ（`?v=<SHA>`）を付けてログの「確認用URL」の印（`docs/logs/_template.md`）を見る
 - この URL は非公開として扱い、作業ログには書かず、ターミナルへの最終報告にだけ書く（CLAUDE.md「作業ログ」節、ログの書き方は `docs/logs/_template.md`）
 - **本番のビルドが走るかは、push の先頭のコミットでは決まらない**（2026-10-17、cloudflare への push 32件の check-run で確かめた。CHAT-1017-PAD-08）。

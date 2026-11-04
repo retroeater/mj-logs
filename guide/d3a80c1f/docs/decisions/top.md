@@ -112,3 +112,16 @@ TOP-07 のプレビューを見て（平野さん）:
 
 - TOP-13 の条件 (3) は満たしたものとしてよい。取り込み直し → 条件 (1)(2) の確かめ直し → マージ、で進める（条件 (3) は「全ページを生成し直した後の cloudflare との差分の生成物が6件の index.html とサイトマップの lastmod だけ」に置き換え）
 - CHAT-1103-TOP-05 の判断待ち（新トップ top/ が毎朝の運行で作り直されるか）は、チャット側の確かめで済んだので閉じる
+
+## 2026-11-04（CHAT-1104-TOP-15）
+
+- ページの中の質問欄の部品を片付ける（`ASK_TEMPLATE`・`ASK_HEAD`・`ASK_NOTICES`・`ASK_MAX` を消し、`assets/houou_ask.css` の規則を `style.css` へ移して消す）。マージの可否は後で分けて聞く
+
+## 2026-11-04（CHAT-1104-TOP-16）
+
+- TOP-15 を cloudflare へマージしてよい（条件: 取り込んだ後にテストが通る・差分が TOP-15 の変更とログ・決定だけ・全ページを生成し直した後の生成物の差が top/index.html の1行だけ）
+- `assets/houou_ask.js` と `scripts/tests/test_houou_ask.py` の JS の検査は、未マージの work/1101-prp-pub と衝突するため今回は残す
+
+## 2026-11-04（CHAT-1104-TOP-17）
+
+- 読むページの無い `assets/houou_ask.js` と `scripts/tests/test_houou_ask.py` の JS の検査を消す（未マージの work/1101-prp-pub が変えているという前提はもう当たらない。PRP は pro/ 以外のファイルを変えない）。マージの可否は後で分けて聞く

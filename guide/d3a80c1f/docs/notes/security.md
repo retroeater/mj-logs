@@ -9,7 +9,7 @@ ryoei.pro 固有の攻撃面を8つに分けて見る。
 
 | | 対象 | 見ること |
 |---|---|---|
-| (a) | Worker `mj-ask`（`workers/ask/`、`assets/houou_ask.js`） | 入力の検査（大会名などの表をプロトタイプ経由で引かない、#598 低-10）、`Origin` が偽装できる前提での費用の守り（回数の上限・IP の取り方）、プロンプトインジェクション（system と user の分け方、検索条件の型の固定、答えの検証）、答えの描画（`textContent` か）、D1 の引数化、エラー応答と `/api/ask/status` が返す情報、レスポンスヘッダ（`_headers` は Worker の応答に効かない）、Workers Logs に書く内容。`mj-scheduler` はトークンの使い道 |
+| (a) | Worker `mj-ask`（`workers/ask/`、`assets/top_ask.js`） | 入力の検査（大会名などの表をプロトタイプ経由で引かない、#598 低-10）、`Origin` が偽装できる前提での費用の守り（回数の上限・IP の取り方）、プロンプトインジェクション（system と user の分け方、検索条件の型の固定、答えの検証）、答えの描画（`textContent` か）、D1 の引数化、エラー応答と `/api/ask/status` が返す情報、レスポンスヘッダ（`_headers` は Worker の応答に効かない）、Workers Logs に書く内容。`mj-scheduler` はトークンの使い道 |
 | (b) | 生成スクリプト（`scripts/*.py`・`scripts/lib/*.py`） | シートの値を HTML に入れる箇所の `esc()`、`href` に入る URL の scheme（`javascript:`。`lib/url.py` の `safe_url()` を通す）、`<script>` に入れる JSON の `<` の逃がし方（`lib/page.py` の `script_json()` で `<` をすべて `\u003c` に）、クエリに入れる名前（`&`・`#`・`%`・`+`・空白を逃がす）、属性の引用符 |
 | (c) | フロントの JS（`assets/*.js`・ルート直下の `*.js`。`assets/vendor/` を除く） | `innerHTML`・`insertAdjacentHTML`・`document.write`・`eval`・`new Function` と、そこに入る値の出所（生成 JSON・localStorage・URL のクエリ）。データ由来の URL は `https?:` か同じ origin（`new URL(u, location.origin).origin`）を確かめてから `href` に入れ、`decodeURIComponent` は try で囲む（#598 低-7）。`assets/vendor/` は名前と版を一覧にして既知の脆弱性を照合 |
 | (d) | GitHub Actions（`.github/workflows/`・`.github/actions/`） | zizmor の結果（2026-10-19 の再点検で 58 件〈2026-10-18 に直した後と同数〉。残りは self-repository 45・push する job の artipacked 8・`sync-logs.yml` の 5）。今の形から外れていないか: 第三者 action が SHA で固定され `dependabot.yml` の対象か、トップレベルが `permissions: {}` で job ごとに最小か、`secrets: inherit` が無く Secret を明示して渡しているか、`run:` に `${{ }}` を直接書いていないか、push しない checkout が `persist-credentials: false` か（形は `docs/notes/github-actions.md`「権限と Secret の渡し方」）。ほかに `pull_request_target`・`workflow_run`、Secret がログに出る経路、Settings の Workflow permissions の既定が読み取りだけか |
@@ -91,7 +91,7 @@ claude.ai のプラグイン一覧で有効にすると、クラウドセッシ�
 
 - 入れ方: claude.ai のプラグイン一覧で有効にする。**有効にした後に始めたセッション**でだけ `claude plugin list` に `claude-security@synced … √ loaded` と出る（前から開いていたセッションには同期されない）。Python 3.9 以上が要る
 - 使い方: skill `claude-security` は `disable-model-invocation: true` で、指示文からは呼べない。平野さんが `/claude-security` を打つか、Claude Code が skill の手順書（プラグインの `skills/claude-security/jobs/scan-codebase.md`）を読んで、その手順どおりに `write_scan_meta.py` → Workflow `claude-security:scan` → `save_result.py` → `render_report.py` を自分で進める（2026-10-18 は後者）。時間とトークンを使うことへの承認が要り、指示文に費用の受け入れがあればそれで足りる
-- 対象の絞り方: リポジトリ全体（5千ファイル超、大半が生成物）は選ばない。`--scope` にディレクトリ・ファイルをカンマ区切りで渡す（例: `workers,scripts/lib,assets/houou_ask.js` で 56 ファイル）。大きいリポジトリでは focus `attack-surface` になり、テスト・生成物は参照扱いになる
+- 対象の絞り方: リポジトリ全体（5千ファイル超、大半が生成物）は選ばない。`--scope` にディレクトリ・ファイルをカンマ区切りで渡す（例: `workers,scripts/lib,assets/top_ask.js`）。大きいリポジトリでは focus `attack-surface` になり、テスト・生成物は参照扱いになる
 - 結果の置き場所: 結果のディレクトリ（`CLAUDE-SECURITY-<時刻>/`）は作業ツリーの外（scratchpad）に作れる。`render_report.py` に `--products-dir` で渡す。中に `.gitignore`（`*`）が付く
 - 所要（medium、同じ対象）: 2026-10-18 は 56 ファイルで約 12 分・エージェント 15・トークン約 109 万、2026-10-19 は 67 ファイルで約 8 分・エージェント 15・トークン約 108 万（サブエージェントの分。Max の使用量から出る）。どちらも指摘 0 件、`verification.status: verified`
 - 注意: 「Suggest patches」は指摘を見てからチャットで決める。結果に秘密の値が出たら値を写さない。結果は毎回同じとは限らない（非決定的）
