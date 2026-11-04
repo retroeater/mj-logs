@@ -68,28 +68,42 @@ TTL 系列（2026-11-04、CHAT-1104-TTL-01〜08）の振り返りと Fable 5.1 �
 
 ## 経過
 
+- 着手前の確認: `git log --all --grep 'CHAT-1104-TTL-10'` は0件（TTL-09 も0件で欠番どおり）。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は欠けなし。ガイド文に規則を足す指示で、「知見 → 選んだ層 → 理由」の表がある
+- 作業ブランチ: `origin/work/1104-ttl` はマージ済み、ローカルも cloudflare の祖先だったので `git merge --ff-only origin/cloudflare` で進めた。手順0: 指示欄の末尾の行は指示文の最後の行と一致。ログを先に push（bab90e126）
+- 手順1（追記先と容量）: 4つとも容量の上限・警告域の対象（CLAUDE.md・handover.md・docs/notes/chat-side-operations.md・docs/instruction-template.md）ではない。前後のバイト数:
+  - docs/decisions/operations.md 196,092 → 199,559
+  - docs/notes/cloudflare.md 87,803 → 88,117
+  - docs/notes/sns-book.md 14,095 → 14,389
+  - docs/notes/design.md 34,188 → 34,414
+  - 同じ趣旨の記述: cloudflare.md には「`docs/**` のみのコミットには Workers Builds の check-run が付かない」「判定は push 全体のファイル」（本番・非本番の両方の話として、ビルドのチェックの節）が既にあった。work/ ブランチのプレビューの節には無かったので、規則の1行と既存の項目への参照だけを足した（事実を二重に書かない）。sns-book.md・design.md には同じ趣旨の記述が無く、sns-book.md は「手動実行」の節に1行、design.md は「部品の状態ごとの高さ」の行を拡張（状態の混ざる一覧の行の位置の比べ、適用範囲に「状態の混ざる一覧の行」）。矛盾は無かった
+- 手順2: docs/decisions/operations.md の末尾に「2026-11-04（CHAT-1104-TTL-10）」の節（CHAT-1104-PIL-03 と同じ形）。表の3件は上のとおり（979d2cf02）
+- 手順3（後始末）:
+  - 告知動画の撮影スクリプト: `gh api search/issues` で「capture.mjs」「告知動画」「promo_video」「撮影スクリプト」「mj-filterbar title_select」をクローズ済みを含めて検索。title/ の capture.mjs を扱う issue は無かった（#637 は saikyo/ の capture.mjs、#540 は houou_race の capture.mjs の言及）。#667「title/ の告知動画の撮影スクリプトが今のページの部品を見ていない」を起票（ラベルなし）
+  - #107（closed）は本文に「残り3件…は親の #296 にコメントで書いた」とあるだけで、残りは #296 の 2026-10-14 のコメントの「2. 最強戦（saikyo/）・title/ の Material 寄りの見た目…を面の形に寄せる」。#296（open）に「title/ の分は CHAT-1104-TTL-05〜07 で済んだ」をコメントした。#107 にはコメントしていない（クローズ済みで、残りを #296 へ移したと書いてあるため）。本文・状態・ラベルは変えていない
+  - 決定の重複: docs/decisions/title.md（TTL-04 の節）には「TTL を先にマージし、`work/1101-prp-pub` の側で重なりを解く（CHAT-1104-PRP-10 で記録される決定）」がある。cloudflare の docs/decisions/pros.md には CHAT-1104-PRP-10 の節が無く、未マージの `work/1101-prp-pub` の pros.md（412行目〜）にだけある（中身は食い違っていない）。「両方にあれば参照に直す」に当たらないので title.md は直していない
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1104-ttl
-- ログ: https://github.com/retroeater/mj/blob/work/1104-ttl/docs/logs/CHAT-1104-TTL-10.md
+- 状態: 完了
+- ブランチ: work/1104-ttl（docs のみ）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1104-TTL-10.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1104-ttl
 - 確認用URL: なし
-- マージ: 未
-- issue: 未
-- 判断が必要なこと: 未
-- 未確認の項目: 未
+- マージ: 済（docs のみ）
+- issue: #667（起票）、#296（コメント）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 34170645）: https://github.com/retroeater/mj-logs/tree/main/guide/34170645
+ガイド文書（この版を写した時点の最新、mj 4faa95fb）: https://github.com/retroeater/mj-logs/tree/main/guide/4faa95fb
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/34170645/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/34170645/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/34170645/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/34170645/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/34170645/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/34170645/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/4faa95fb/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/4faa95fb/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/4faa95fb/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/4faa95fb/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/4faa95fb/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/4faa95fb/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/95028c1a.md

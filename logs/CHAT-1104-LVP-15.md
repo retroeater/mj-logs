@@ -75,28 +75,55 @@
 - 文書（a669e487e）: docs/notes/ogp.md の表に live/ の行を足し、区分の画像の例外を「log/ と live/」にした。docs/notes/live-page-design.md の 2-8 を「検索欄はトップだけ」に書き直し、2-10・OGP の記述を直した
 - テスト: `python3 -m unittest discover -s scripts/tests` は全件 OK
 - 未マージの work/ ブランチ: `git merge-tree` で、この作業ブランチで新しく生まれる衝突は無い。同じファイルの別の箇所: work/1028-lgn（style.css 6649行〜）、work/1101-prp-pub（style.css 5297行・`test_og_image.py` 23行・docs/notes/ogp.md 25・28行）、work/1104-lgn-policy（style.css 7407行〜）。`generate_live_pages.py`・`assets/live.js` を変えているブランチは無い
+- 全ページの再生成（run 41767654496、`all`・dry_run・compare_ref `origin/cloudflare`〈f24f5edfe〉。a669e487e のコード）: success、飛ばしたページは無い。比べの結果は「差分あり 16件」:
+  - live/ の14ページ（`live/ourai/{5,8,11,12}/…`・`live/pro-queen/24/…` の個別ページ、各59〜67行）: 今回の変更（検索欄・固定バーを外した）そのもの。両方の側の生成でデータの変化があり比べに出た
+  - `houou/results/鴨舞.json`・`ouka/results/鴨舞.json`（「片方にだけある」）: 比べの手順が `git status` の引用された日本語のパスをそのまま `-e` で調べるために出るもの。2つのファイルは両方の側にあり、houou/・ouka/ の生成は live/ の生成を使わない（LVP-10 でも同じ形が出た）
+  - pro/ ほか、live/ のほかの生成物の差分は0
+- レビュー（新しい文脈のサブエージェント、1回目。対象は 674955bec..a669e487e のうち live/ と docs/logs を除いた差分と、生成物 5c18a197b の抜き取り。観点は残骸・呼び出し元・一覧ページの CSS への影響・トップの JS・ほかのスクリプトへの影響・文書とコードの一致・テストの意味）
+
+  | 指摘 | 重さ | 対応 |
+  |---|---|---|
+  | `build_search` の docstring が「そのページの範囲」のまま | 低 | 直した（0fef8ccbc） |
+  | style.css の新しいコメントが一覧の規則の上にあり、対象とずれる | 低 | 直した（0fef8ccbc） |
+  | test_live_pages.py のクラスの前の空行が3行 | 低 | 直した（0fef8ccbc） |
+  | live-page-design.md 290行の共有ボタンの記述が古い（今回より前から。2-10 で上書きされている） | 情報 | 直していない |
+
+  証跡: 消した名前は、コード・CSS・JS・生成物のどこにも残っていない。pro/・ask が使う関数は残っている。一覧ページ（`.mj-video-list`）の scroll-padding と固定バーは変更前と同じ値・同じ規則で効く。トップの JS の件数・最近の12件・`?q=`/`?name=`・`/`・Esc は正しい。テスト1945件 OK、`node --check assets/live.js` OK
+- origin/cloudflare の取り込み（2d04e220b）: 衝突なし。cloudflare 側の毎日の再生成で live/ の一部が変わっていたので、取り込んだ後に live/ を生成し直した（run 41770417538）。差分は出なかった（取り込んだ状態が今のコードの生成と同じ）。テストは OK
+- cloudflare へのマージ: push 直前に再 fetch し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真であることを確かめて `git push origin HEAD:cloudflare`。範囲は `341706455..fbf335503`（2026-11-04 13:01 JST）
+- check-run（fbf335503）: Workers Builds: mj は success、sync は success
+- 本番の確かめ（UA に mj-internal。本番の HTML と画像の応答の範囲で、ブラウザでの見え方は確かめていない）:
+  - `/live/`・`/live/judan/`・`/live/judan/43.html` の og:image は `https://ryoei.pro/img/ogp/live/index-white.png` で、その画像は 200（image/png）
+  - `/live/judan/43/f.html` の og:image は `https://img.youtube.com/vi/xDw5CYnCJ4I/maxresdefault.jpg`（動画のサムネイルのまま、200）
+  - 検索欄（`id="live_filter"`）は `/live/` にあり、`/live/judan/43.html` には無い
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1104-lvp
 - ログ: https://github.com/retroeater/mj/blob/work/1104-lvp/docs/logs/CHAT-1104-LVP-15.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1104-lvp
-- 確認用URL: なし
-- マージ: 未
-- issue: #362
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 比較URL: https://github.com/retroeater/mj/compare/341706455...fbf335503
+- 確認用URL: https://ryoei.pro/live/
+- マージ: 済（cloudflare `341706455..fbf335503`、2026-11-04 13:01 JST）
+- issue: #362（着手中のコメント。本文は変えていない）
+- 判断が必要なこと:
+  - 検索中・0件の見え方（見出しを外した後に決めた形）: 検索中は検索欄の下に「770件中 N件を表示」、0件は「該当する対局がありません」だけ。見出しは無い（切り替えも無い）
+  - 前からの古い記述（直していない）: docs/notes/live-page-design.md の 2-1 付近の共有ボタンの記述（「固定バーの検索欄の右」）。2-10 で上書きされている
+- 未確認の項目:
+  - 平野さんの X・LINE のカードの確かめ（URL に `?x=<未使用の数字>` を付けて貼る。トップ・大会・期は「放送対局」の画像、個別ページは動画のサムネイル）
+  - ブラウザでの本番の見え方（本番の HTML と画像の応答までは確かめた。ローカルで 375px・1280px の明・暗を撮った）
+  - 告知動画（この直しの後に撮る）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 1c9190e0）: https://github.com/retroeater/mj-logs/tree/main/guide/1c9190e0
+ガイド文書（この版を写した時点の最新、mj 4faa95fb）: https://github.com/retroeater/mj-logs/tree/main/guide/4faa95fb
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/1c9190e0/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/1c9190e0/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/1c9190e0/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/1c9190e0/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/1c9190e0/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/1c9190e0/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/4faa95fb/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/4faa95fb/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/4faa95fb/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/4faa95fb/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/4faa95fb/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/4faa95fb/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/95028c1a.md
