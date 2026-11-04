@@ -146,7 +146,7 @@ CHAT-1104-TOP-12〜14 で、ページの中の質問欄（大会別の欄・新�
 - ログ: https://github.com/retroeater/mj/blob/work/1104-top2/docs/logs/CHAT-1104-TOP-15.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1104-top2
 - 確認用URL: プレビューあり（URL は最終報告）。確認したページ: houou/・saikyo/・top/・pro/・wayhome/（ローカルで画素の比べ）、プレビューは style.css・top/。この版の印: `/assets/houou_ask.css` が 404 になり、top/ の head に `houou_ask.css` の読み込みが無い（見た目は同じ）
-- マージ: 未（チャット側がプレビューと差分を見てから、平野さんに聞く）
+- マージ: 未（チャット側がプレビューと差分を見てから、平野さんに聞く） → 済（8e21779ff、CHAT-1104-TOP-16）
 - issue: #101（着手中のコメント）、#654（Worker の画面の検査の読む先を替えた旨のコメント）
 - 判断が必要なこと:
   - `assets/houou_ask.js` と `scripts/tests/test_houou_ask.py` の JS の検査は消していない（未マージの work/1101-prp-pub〈PRP-08 を始めたところで 11-03 から止まっている〉が、houou_ask.js に `playerHref()`・`slugMap()` を足し、その検査を足しているため。消すと衝突する）。読むページは無い。work/1101-prp-pub を閉じる（PRP 系列に、その変更が要らなくなったことを確かめてもらう）なら、その後の指示で houou_ask.js と JS の検査を消し、`docs/notes/security.md` の例も直す
@@ -157,12 +157,12 @@ CHAT-1104-TOP-12〜14 で、ページの中の質問欄（大会別の欄・新�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj c853e6ae）: https://github.com/retroeater/mj-logs/tree/main/guide/c853e6ae
+ガイド文書（この版を写した時点の最新、mj 674955be）: https://github.com/retroeater/mj-logs/tree/main/guide/674955be
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c853e6ae/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c853e6ae/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c853e6ae/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c853e6ae/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c853e6ae/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c853e6ae/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/674955be/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/674955be/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/674955be/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/674955be/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/674955be/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/674955be/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/95028c1a.md

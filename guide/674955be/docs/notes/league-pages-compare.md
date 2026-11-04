@@ -1,6 +1,6 @@
 # 鳳凰戦・女流桜花・WRC リーグ・WRC-R リーグの新ページの比較（houou/・ouka/・jwrc/・wrcr/）
 
-4大会のページは同じ作り（`scripts/generate_houou_pages.py` を大会の設定 `Contest`〈`HOUOU`・`OUKA`・`JWRC`・`WRCR`〉で動かす。JS は `assets/league.js`・`league_race.js`・`houou_ask.js`、CSS は `style.css` の houou の節）。
+4大会のページは同じ作り（`scripts/generate_houou_pages.py` を大会の設定 `Contest`〈`HOUOU`・`OUKA`・`JWRC`・`WRCR`〉で動かす。JS は `assets/league.js`・`league_race.js`、CSS は `style.css` の houou の節）。
 ここには、大会で**違うところ**と、その差が意図したものか（よりどころ）を書く。同じところは書かない。それぞれの仕様は `docs/notes/houou-top.md`・`ouka-top.md`・`jwrc-top.md`・`wrcr-top.md`（wrcr/ は jwrc/ と同じ形で、2026-10-19 に足し〈#366〉、#611 で公開した）。
 2026-10-18 に CHAT-1018-OUK-13 で横に比べた（比べた画面は下の「比べ方」）。**大会の設定や共通の部品を変えたら、この表と照らし、意図しない差を作らない。**（表の列に全大会があるかは `scripts/tests/test_league_pages_compare.py`）
 

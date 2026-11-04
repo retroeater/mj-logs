@@ -65,16 +65,46 @@ TOP-15（ページの中の質問欄の部品の片付け。`houou_ask.css` を�
 - (3) 全ページの生成し直し（dry_run なし・all、run 41759643923、a20e0db51）: 成功、飛ばしたページなし。コミット cd95ec51d で4ファイルが各1行変わった: `live/pro-queen/24/b16-c.html`・`b8-b.html`・`f.html`、`title/pro-queen/24.html`。中身は、出場者「松本ちづる」のカードが X へのリンクになったもの（`<div class="mj-saikyo-card">` → `<a class="mj-saikyo-card" href="https://x.com/…">`）で、シート側の変化。この変更の生成のコード（houou・saikyo・top）は live/・title/ の生成に関わらない
 - その間に origin/cloudflare が進んだ（d08074979、TTL・LGN の作業）ので取り込んだ。衝突なし。取り込むと `title/pro-queen/24.html` は cloudflare 側の生成で同じ内容になっていて差から消えた。テストは 1925件・165件 OK
 - 残る live/pro-queen/24 の3ファイルを除いてよいか確かめるため、比べ（dry_run・all・compare_ref＝origin/cloudflare d08074979）を実行中（中身の違うファイルとして出なければ、cloudflare のコードでも同じものができる＝シート側の変化）
+- 比べ（run 41761870869、883c916ee）: 成功、「compare: 差分なし」。ただしこの比べは、どちらかの側でコミットから変わったファイルしか比べないので、3ファイルを cloudflare のコードでも作り直すことまでは示せない
+- その間に origin/cloudflare が進み（36d21c725。cloudflare 側の再生成〈live/ を含む〉と RSC・LVP の作業）、取り込んだ。衝突なし。**取り込むと live/pro-queen/24 の3ファイルも差から消えた**（cloudflare 側の再生成が同じ内容を作った＝シート側の変化と確かめられた）。除いたファイルは無くなった
+- 取り込んだ後の条件:
+  - (1) テスト: 1944件 OK、Worker 165件 OK
+  - (2) `git diff --name-only origin/cloudflare...HEAD`: TOP-15 の30ファイルと TOP-16 のログ（31件）
+  - (3) 生成物は `top/index.html` だけで、差は `<link rel="stylesheet" href="../assets/houou_ask.css">` の1行を消したものだけ。最後の取り込みの後は生成し直していない（取り込んだのは cloudflare 側で生成済みのページと、生成のコードに関わらない作業で、取り込む前の全ページの生成し直し〈cd95ec51d〉との差は無い）
+
+### 2. マージ
+
+- push 直前に再 fetch し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真（origin/cloudflare＝36d21c725）であることを確かめて `git push origin work/1104-top2:cloudflare`（36d21c725..8e21779ff）
+
+### 3. 本番の確かめ（2026-11-04、Playwright、UA に mj-internal、質問は送っていない）
+
+- マージの約1分後に本番が新しい版になった（`/assets/houou_ask.css?v=…` が 404、style.css に「質問欄の部品」の節）
+- houou/・saikyo/（360px・1280px）: AI 検索のアイコンで開いた欄の画面（上 260px）を、マージ前の本番（取り込みの後に撮った4枚）と画素で比べ、4枚とも1画素も違わない。`assets/top_ask.js` を読み（200）、`houou_ask.css` の要求は出ない（マージ前は 200 で読んでいた）。ページの JS エラーなし
+- jpml_pros.html・title/・index.html はこのマージ（36d21c725..8e21779ff）で変わっていない
+- CHAT-1104-TOP-15 のログの「マージ」の行にこのマージのコミットを書き足した。#101 にマージと本番の確かめをコメントし、着手中を解除した
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1104-top2（マージ済み。cleanup-branches.yml が消す）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1104-TOP-16.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1104-top2
+- 確認用URL: なし（本番の houou/・saikyo/ と `/assets/houou_ask.css` で確かめた）
+- マージ: 済（8e21779ff）
+- issue: #101（マージと本番の確かめのコメント、着手中の解除）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 05cad68f）: https://github.com/retroeater/mj-logs/tree/main/guide/05cad68f
+ガイド文書（この版を写した時点の最新、mj 674955be）: https://github.com/retroeater/mj-logs/tree/main/guide/674955be
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/05cad68f/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/05cad68f/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/05cad68f/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/05cad68f/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/05cad68f/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/05cad68f/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/674955be/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/674955be/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/674955be/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/674955be/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/674955be/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/674955be/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/95028c1a.md

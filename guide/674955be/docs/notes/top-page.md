@@ -9,7 +9,7 @@
 |---|---|
 | 生成 | `scripts/generate_top_page.py`（ページ名 `top_page`。`regenerate.py` の `OUTPUT_OVERRIDES` で `top/`、`RUN_LAST` で pro/ の後） |
 | JS | `assets/top.js`（日付で変わる行の出し分けと新着の番組・誕生日の「もっと見る」、X の画像が読めないときの頭の1字） |
-| CSS | `assets/houou_ask.css`（「もっと見る」の形 `.mj-houou-ask-more`）と `assets/top.css`（誕生日の日付と写真・新着の番組の行の折り返し）。ほかは houou/・pro/ の部品（`.mj-houou-card`・`.mj-pro-plans`・`.mj-pro-heading`）をそのまま使う |
+| CSS | `assets/top.css`（誕生日の日付と写真・新着の番組の行の折り返し）。ほかは houou/・pro/ の部品（`.mj-houou-card`・`.mj-pro-plans`・`.mj-pro-heading`）と、`style.css` の「質問欄の部品」の「もっと見る」の形（`.mj-houou-ask-more`）をそのまま使う |
 | 配信 | `_redirects` の `/top` → `/top/`（301）・`/top/` → `/top/index.html`（200）、`check-assets.yml` の `allowed()` の `top` |
 | ナビ | `navbar.js` の白地のナビの対象に `/top/`（`newNavCurrent = 'トップ'`。どの項目にも当たらないので印は付かない）。新しい形のページの共通ナビ（細い帯・≡ のメニュー・AI 検索のアイコンで帯の下に開く質問欄）は docs/notes/design.md「共通ナビ（新しい形）」 |
 | 毎朝 | `update-live-channel.yml` の `regenerate` ジョブの `target_page` に `top_page`（pro/ の後） |
