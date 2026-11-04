@@ -52,6 +52,31 @@ CHAT-1104-LGF-01 の調べの結果を受けて、log/ の残りの小さな後�
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 0. 着手前の確認
+
+- 「指示」欄の末尾は指示文の最後の行（「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」）と一致
+- 同じ Chat-Ref のコミットは0件。LGF は LGF-01 で使い始めた系列で、`XXX` の重複の確かめは最初の指示だけなので今回は不要
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある（貼られた指示文は改行が詰まって1行目につながっていたが、行の欠けはない）
+- 作業ブランチ: ローカル・リモートとも無かったので `git checkout -b work/1104-lgf-tidy origin/cloudflare`（起点 c983a501f）
+- LGF-01 のログの `## 報告` の状態を「判断待ち / 続き: CHAT-1104-LGF-02」にした（ログ先行のコミットに含めた）
+
+### 1. #378
+
+- open、ほかのセッションの着手中コメントなし（着手中のコメントは LGF-01 の自分のものだけ）。「状況:」ラベルは付いていない
+- LGF-01 の表をそのまま引用したコメント（https://github.com/retroeater/mj/issues/378#issuecomment-6627438778 ）を書き、completed で閉じた
+
+### 2. design.md
+
+- docs/notes/design.md:105（「共通ナビ（新しい形）」の行）の `newNavCurrent` が入るページの一覧の先頭に `/log/`、「使うページ」の列の先頭に log/ を足した（`navbar.js` の分岐の順で `/log/` が最初）。f6a32e7b9
+- 食い違いの確かめ: design.md:34 は「新しい形のページ（houou/・title/ など…一覧は下の『部品』の『共通ナビ（新しい形）』）」で一覧を参照するだけ。docs/decisions/top.md:89 は「白地の新しい形のページ全部」。どちらとも食い違わない
+
+### 3. 旧「ログ」のスプレッドシート
+
+- `check_sheets_reader.py` は ID をファイルの定数から読む（`spreadsheet_id()`）。旧 ID はリポジトリのどこにも定数として無いので、`BOOKS` の1件に加えて、その1件が指す定数 `OLD_LOG_SPREADSHEET_ID` を同じファイルに足した（2行の追加。値は f9da0388c の親の `generate_resource_logs.py` の `SPREADSHEET_ID` から取った）。ecea1bfc5
+- `check-sheets-reader.yml` を `work/1104-lgf-tidy` で手動実行: run 41808024787
+
 <!-- guide-links -->
 ---
 
