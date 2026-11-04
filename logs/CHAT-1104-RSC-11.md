@@ -1,0 +1,86 @@
+# CHAT-1104-RSC-11
+
+- 着手日時: 2026-11-04
+- 対象issue: #666
+- ブランチ: work/1104-rsc
+- 着手時HEAD: ff3a11794
+
+## 指示
+
+【Claude作成】Claude Code 向け指示：RSC 系列の振り返りと Fable 5.1 のレビューの申送りを docs/decisions/operations.md に記録し、RSC-10 の判断待ちへの回答を docs/decisions/automation.md に記録する Chat-Ref: CHAT-1104-RSC-11 マージ: ドキュメントのみ（docs/decisions とログ）なので完了報告のうえ cloudflare へ入れてよい 貼る時機: いつでも（CHAT-1104-RSC-10 と同じセッションでよい） 作業ブランチ: クラウドセッションで実行する。work/1104-rsc を使う。リモートに無ければ origin/cloudflare から作る。リモートにあってマージ済み（`git merge-base --is-ancestor origin/work/1104-rsc origin/cloudflare` が真）なら origin/cloudflare から作る（`checkout -B` は使わない。ローカルにあるときを含め手順は docs/notes/cloud-sessions.md「作業ブランチの用意」）。マージ済みでなければ止まる 共通手順: CLAUDE.md「Chat-Ref」「ブランチ運用」「作業ログ」節のとおり（識別子確認 → origin/cloudflare を起点に work/<識別子>〈手順は docs/notes/cloud-sessions.md〉 → ログ先行push → 最終報告の Chat-Ref の行の直前に「ログ（公開）」の行、最後の行に Chat-Ref）。平野さんは、この指示のための作業ブランチ work/1104-rsc の作成と push を許可している（セッションに割り当てられた claude/… のブランチは使わない）。
+
+0. 着手前に、このログの「指示」欄の末尾が、この指示文の末尾（最後の行）と一致しているか確認し、一致しなければ作業せず報告する。 CHAT-1104-RSC-10 のログの `## 報告` の状態の末尾に `/ 続き: CHAT-1104-RSC-11` を足す。
+
+目的
+RSC 系列（Claude API の調べもの、2026-10-29〜11-04、CHAT-1029-RSC-01〜CHAT-1104-RSC-10）の振り返りと Fable 5.1 のレビューを申送りとして記録する。あわせて RSC-10 の判断待ちへの回答を記録する。この系列は新しいチャットに引き継ぐ。
+決定（2026-11-04、平野さん）
+
+* RSC-10 の判断待ち1: #666 は、2026-11-08（義兄弟合戦）の翌朝 11-09 の run-daily で転記案（D）が新しい速報を候補タブに書けたのを確かめてから閉じる
+* RSC-10 の判断待ち2: 形の違う対局（11-15 全日本プロ選手権・11-22 アマチュア・12-12/13 ファイナル）は、11-15 の後に1回、速報の実物と候補タブの行を見て、形を足すかを決める
+* 確かめの期日はカレンダー「ryoei.pro」の予定にした（11-05 初回の毎朝の運行・11-09・11-16。チャット側が作成済み）
+* 振り返りの申送りを行う（中身は下のチャット側の案。平野さんが「申送り」と言った）
+
+前提（チャット側の案。振り返りと Fable 5.1 のレビューの中身）
+docs/decisions/operations.md の末尾に、直近の振り返りの節（例 2026-11-04（CHAT-1104-PIL-03））と同じ形で次を記録する。書く前に operations.md の直近の振り返り・申送りの節を読み、形をそろえる。
+
+* RSC 系列（Claude API の調べもの、2026-10-29〜11-04、CHAT-1029-RSC-01〜CHAT-1104-RSC-10）の振り返りと、Fable 5.1 のレビューの申送りを行う（中身はチャット側の案）
+   * 「小川光」: 2026-10-29 に「名前かなの対象に入れる」と決め、チャット側が対象の条件（docs/notes/research-candidates.md の A の対象）を確かめずに「『連盟プロ以外』に入れれば次の実行で対象になる」と伝えた。RSC-02・03・04 の3回とも対象に入らなかった。RSC-02・03 の時点で入らなかった理由はログでは見分けられない（CHAT-1031-RSC-04 のログ、経過の「A 小川光」の行）。最後は平野さんが名前かなを入れて終えた（2026-11-04）
+   * RSC-02 の手順1（マージ前に R_候補 を live-channel-writer で読めるか確かめる）は、セッションに鍵が無く、新しいワークフローは既定のブランチに無いと動かないため、マージ前には行えなかった（docs/notes/github-actions.md）。Code は確かめをマージ後に回した
+   * 抜粋だけの候補を未照合で書く案（RSC-03、チャット側の推奨）で、Chrome が「危険なサイト」と警告するサイトの URL が候補タブにリンクで載り、平野さんが開いた。平野さんは 2026-11-04 に、出典を絞る仕組みは作らず、クリックするときに気をつけると決めた
+   * 対局日（C）の照合済み19期のうち12期は観戦記の見出しの日付で、公開日のことがある（CHAT-1104-RSC-08 のログ。照合は引用文に日付があることしか見ない）。C は区切ったので、照合は直さず、平野さんが出典で確かめる
+   * チャット側が平野さんに伝えた費用の集計に、ログの実額を足さずに書いた値があった（名前かなを約$0.8 と伝えたが、ログの実額は RSC-02 の $0.93〈表: Haiku $0.1367・Sonnet $0.7917〉と RSC-03 の $0.6204 で約$1.55）
+   * 収支（ログの実額の合計で概算 $9）: 名前かなは4人を採用（約$1.55）。過去の順位は旧公式から45卓（費用0）と API で4人の順位の候補8卓（RSC-04 $0.75・RSC-06 $3.82〈$2.0340＋$1.7848〉）で、API の分は手作業の削減に見合わず、残りは放送で調べる。対局日は照合済み20期・未照合34期（RSC-07 $0.1369・RSC-08 $2.7633）。転記案は費用0で毎朝の運行に入った（#666）
+   * 平野さんの手作業: Console の画面の確認、ブック R_候補 の作成・共有・タブ名とフォルダの確認、「小川光」の追加、危険なサイトの URL の削除、クラウドの環境のネットワークへのドメインの追加（2回）。候補の確かめ（最強戦の45卓、対局日の54期、名前かなの4件）は、調べものの前には無かった作業として残る
+   * 前回の約束: CHAT-1102-AIC-15 の (a)（前提に開いた場所を添える）はおおむね守れた。CHAT-1104-PIL-03 の (a)（スクリーンショットから写した数に出典）は守れた、(b)（止まる条件・マージの条件に使う仕組みを書く前に確かめる）は RSC-02 の手順1で守れなかった。CHAT-1103-PLG-04 の (a)（試行の指示に残す／外すの基準）は #666 の閉じる基準で守れた、(b) は当たる場面が無い
+   * ガイド文に規則は足さない（どれも既存の規則〈書く前に実物で確かめる、止まる条件の仕組みを確かめる〉の不履行）。コードの直し（未照合の URL をリンクにしない・見出しの日付を未照合に下げる）も行わない（平野さんが 2026-11-04 に出典を絞らないと決めた／C は区切った）
+   * 約束: 新しく立てず、CHAT-1102-AIC-15 の (a) の具体例として次を確かめる。(a-1) 平野さんにシートの手作業を頼んで「これで対象に入る」と言う前に、対象の条件を確かめたか (a-2) 費用・件数の合計を伝えるとき、ログの実額から出典つきで計算したか
+* 作業中の回答: なし
+
+docs/decisions/automation.md の RSC の節の末尾に、上の「決定」の RSC-10 の判断待ち1・2への回答を同じ形で記録する。
+手順
+
+1. 前提を確かめる: 上の数字（各ログの実額）を、各ログの該当の表・行で照らし合わせる。食い違えばログの値に直し、直したことを報告に書く。operations.md・automation.md の直近の節を読み、形と、同じ趣旨の記述が無いかを確かめる（あれば置き換え・拡張でよい）
+2. operations.md・automation.md に記録する。#666 の本文・状態は変えず、着手中のコメントは書かなくてよい（docs だけの記録のため）
+3. マージする
+
+止まる条件
+
+* operations.md・automation.md に、この記録と矛盾する記述があり、どちらが正か平野さんかチャット側の判断が要る（同じ趣旨の記述があるだけなら止めずに置き換え・拡張してよい）
+* 差分が docs/decisions とログの外に出る
+* cloudflare への push が権限判定で拒否された（別の手段を試さずに止まる）
+
+完了条件
+
+* ログの「## 報告」を CLAUDE.md「作業ログ」節のとおりに書いて push する
+* マージは冒頭の「マージ:」の行のとおり
+* ターミナルへの最終報告の Chat-Ref の行の直前に ログ（公開）: https://github.com/retroeater/mj-logs/blob/main/logs/CHAT-1104-RSC-11.md?v=<SHA>（CLAUDE.md「作業ログ」節）を書き、最後の行に Chat-Ref: CHAT-1104-RSC-11 を書く
+
+不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
+
+## 経過
+
+## 報告
+
+- 状態: 作業中
+- ブランチ: work/1104-rsc
+- ログ: https://github.com/retroeater/mj/blob/work/1104-rsc/docs/logs/CHAT-1104-RSC-11.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1104-rsc
+- 確認用URL: なし
+- マージ: 未
+- issue: #666
+- 判断が必要なこと: 作業中
+- 未確認の項目: 作業中
+- エラー: なし
+
+<!-- guide-links -->
+---
+
+ガイド文書（この版を写した時点の最新、mj ff3a1179）: https://github.com/retroeater/mj-logs/tree/main/guide/ff3a1179
+
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ff3a1179/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ff3a1179/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ff3a1179/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ff3a1179/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ff3a1179/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/ff3a1179/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/95028c1a.md

@@ -53,6 +53,30 @@ live/（#362）が公開された。pro/ の公開（#641）を「公開のマ�
 
 ## 経過
 
+### 0. 着手前の確認
+
+- 「指示」欄の末尾は指示文の最後の行（「不明な点があれば…この行が指示文の最後の行です。」）と一致
+- 同じ Chat-Ref のコミット・ログは無し。#641 は open。#641 にほかのセッションの着手中のコメントは無い（最後は CHAT-1104-PRP-15 の完了）。着手中のコメントを書いた
+- 冒頭の雛形の行（Chat-Ref・マージ・貼る時機・共通手順）に欠けなし
+- work/1104-prp-inv はリモートにもローカルにも無かったので `git checkout -b work/1104-prp-inv origin/cloudflare`（7beb935b0）で作った
+- 前提の確かめ（origin/cloudflare 7beb935b0）: `live/index.html` に robots の meta なし（0件）・`navbar.js` に `href="/live/"` あり。`sitemap-live.xml` は `regenerate-sitemap.yml`・`llms.txt`・`docs/notes/sitemap-lastmod.md` の3つに無い（cloudflare・work/1101-prp-pub とも0件）。`update_sitemap_lastmod.py`・`regenerate-page.yml`・`sitemap.xml` には cloudflare 側にある
+
+### 1. cloudflare と work/1101-prp-pub の差、未マージの work/*
+
+work/1101-prp-pub（04c5d480c）は origin/cloudflare（7beb935b0）より 131 コミット遅れている（LVP の live/ 公開・TTL の続き・log/ など）。`git merge-tree` で取り込みを試すと衝突するのは: `.github/workflows/regenerate-page.yml`・`scripts/update_sitemap_lastmod.py`・`sitemap-pages.xml`・`docs/handover.md`（LVP の `sitemap-live.xml` と同じ行。決定どおり両方を残せる）、`scripts/generate_title_pages.py`・`docs/notes/title-pages.md`（TTL の続き「決勝メンバーの順位をそろえ、検索は入口だけに」〈8e8761046〉）、`docs/notes/ogp.md`（log/ の OGP 画像〈7e0984151〉と pro/ の OGP の移動）、`docs/decisions/pros.md`（末尾の追記どうし）、title/ 192・houou/ と ouka/ の race 8（生成物）。
+
+work/1101-prp-pub の cloudflare からの差（生成物・ログを除く、`git diff --stat origin/cloudflare...origin/work/1101-prp-pub`）は 51ファイル: ワークフロー4（`check-assets.yml`・`check-image-links.yml`・`regenerate-page.yml`・`regenerate-sitemap.yml`）、`assets/league_race.js`・`assets/pro.js`（注記1行）、docs 15（`pros-redirect-worker.md` の新規ほか）、`img/ogp/pros → pro`、`index.html`・`jpml_pros.html`・`llms.txt`・`navbar.js`、スクリプト 8（`check_image_links.py`・`check_sns_book_images.py`・`generate_houou_pages.py`・`generate_jpml_pros.py`・`generate_pro_pages.py`・`generate_title_pages.py`・`lib/pro_search.py`・`regenerate.py`）・`update_sitemap_lastmod.py`、テスト 9、`sitemap-pages.xml`・`sitemap-pro.xml`（新規）・`sitemap.xml`、`style.css`（注記1行）、`workers/pros-redirect/` 5（新規）。中身の一覧は work/1101-prp-pub の `docs/notes/pro-pages.md`「公開のマージ（#641）」のとおり（pro/ の noindex・canonical・OGP・サイトマップ、入口、`jpml_pros.html` の 301、公開中のページからのリンク、入れないもの〈質問欄と K8〉）。
+
+未マージの work/*（`git branch -r --no-merged origin/cloudflare`）のうち pro/・live/・title/・wayhome/・成績ページ・navbar・関係する部品に触れるもの:
+
+| ブランチ | 最後のコミット | 触るもの | pro/ の公開との関係 |
+|---|---|---|---|
+| work/1101-prp-pub | 2026-11-04（PRP-14 の報告） | 公開の段の全部 | 公開のマージそのもの。cloudflare から 131 コミット遅れ、取り込みで上の衝突 |
+| work/1104-lvp | 2026-11-04（CHAT-1104-LVP-15 着手） | `scripts/generate_live_pages.py`（`build_*` の引数を減らす。`load()`・`search_text()`・`page_date_order()`・`date_label()`・`thumb_url()`・`CARD_THUMB`・`Warnings` は残る）・`assets/live.js`（`?q=` は読み続ける）・live/ の生成物・`style.css` | pro/ の生成は `generate_live_pages.load()` などを使う（名前は残っている）。pro/ の「すべて（N件）」は `/live/?q=<名前>` で、live/ のトップの検索に残る。work/1101-prp-pub とは `regenerate-page.yml`・`update_sitemap_lastmod.py`・`docs/handover.md` などで衝突（cloudflare 起点の衝突と同じもの） |
+| work/1104-top3 | 2026-11-04（CHAT-1104-TOP-17 着手） | `assets/houou_ask.js` を消す・`assets/league.js`・`assets/top_ask.js`・`docs/notes/pro-pages.md` ほか | K8 を戻さない決定と合う。`ask-players.json` の生成は残す（pro/ の入力と書いている）。work/1101-prp-pub とは `docs/notes/pro-pages.md` も衝突 |
+| work/1104-lgn-policy | 2026-11-04（CHAT-1104-LGN-27 判断待ち） | `navbar.js`（「利用規約・プライバシー」の項目と分岐を足す）・`style.css` | navbar の別の行。work/1101-prp-pub の「連盟プロ」の行とは重ならない |
+| work/1028-lgn | 2026-10-29（CHAT-1029-LGN-03 判断待ち） | `navbar.js`・`style.css`・`assets/log.js` | 古い navbar（放送対局が `video_live.html`）。pro/ の行とは重ならない |
+
 ## 報告
 
 - 状態: 作業中
@@ -69,12 +93,12 @@ live/（#362）が公開された。pro/ の公開（#641）を「公開のマ�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 1c9190e0）: https://github.com/retroeater/mj-logs/tree/main/guide/1c9190e0
+ガイド文書（この版を写した時点の最新、mj ff3a1179）: https://github.com/retroeater/mj-logs/tree/main/guide/ff3a1179
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/1c9190e0/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/1c9190e0/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/1c9190e0/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/1c9190e0/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/1c9190e0/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/1c9190e0/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ff3a1179/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ff3a1179/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ff3a1179/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ff3a1179/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ff3a1179/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/ff3a1179/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/95028c1a.md
