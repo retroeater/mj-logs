@@ -109,6 +109,50 @@ CHAT-1104-TOP-12〜14 で、ページの中の質問欄（大会別の欄・新�
 - 修正前のコードで通らないこと: Worker の検査は、読む先だけ替えて字下げを直さないと落ちる（top_ask.js の字下げは1段深い）。test_top_page の「top/ が houou_ask.css を読まない」は直す前の生成では落ちる
 - 新旧の比べ（`regenerate-page.yml` dry_run・all・compare_ref＝origin/cloudflare 17a9d13c8、run 41740518947、3aa79b824）: 成功、飛ばしたページなし。**中身の違うファイルは `top/index.html`（1行）だけ**＝消した `houou_ask.css` の `<link>` の行。古い表のページ・title/・index.html・ほかの大会のページの生成物は変わらない
 - 画面（ローカルの静的サーバ＋Playwright。片付ける前〈＝cloudflare・本番と同じ〉と後で、houou/・saikyo/・top/・pro/・wayhome/ × 360・400・1280px × 明・暗の30通り。欄を開いた状態と、見本の応答〈読み方・2行の答え・注記・時点・出典・選手4人〉を流し込んで答えと選手のカード〈3人＋「ほか 1名」〉が出た状態、top/ は「もっと見る」まで入れた全体の66枚）を画素で比べた: 60枚は1画素も違わない。違ったのは6枚で、pro/ の欄を開いた画面（5枚）の右端の幅 8px の帯（画素の値の差は最大 7/255）と、top/ の 360px・暗の X の写真1枚（最大 11/255）。2回撮り直しても同じ所に同じ大きさで出る（片付けた後どうしでは差なし）。目で見て区別できない差で、見た目は変わらない
+- 自己レビュー（新しい文脈のサブエージェント、1回）:
+
+| 指摘 | 扱い |
+|---|---|
+| `top/index.html` に消した `houou_ask.css` の `<link>` が残る（生成し直していない）。マージすると top/ を開くたびに 404 | 直した（`regenerate-page.yml` top_page、run 41743745272、6df374524。差分はその1行だけ） |
+| `docs/notes/saikyo-page-design.md` の「雛形（`ASK_TEMPLATE`…）を読む」「部品（質問欄・…）」 | 直した（109864dff） |
+| `docs/notes/ask-worker.md` の地域の制限の文の出どころが `houou_ask.js` のまま | 直した（`top_ask.js` と検査の名前、109864dff） |
+| `docs/notes/security.md` の `--scope` の例の `assets/houou_ask.js` | 意図どおり（ただの例。houou_ask.js を消すときに直す） |
+| 移した規則の中身・カスケード・消した規則の使い手・消した名前の参照 | 問題なし（`.mj-nav-ask-panel .mj-houou-card.mj-houou-ask-more` が同じ詳細度で後ろに来るが、値が同じで見た目は変わらない） |
+
+- プレビュー（ブランチ名の別名 URL、UA に mj-internal）: style.css に「質問欄の部品」の節、top/ に `houou_ask.css` の読み込みが無い、`/assets/houou_ask.css` は 404 の版を返すことを確かめた
+
+### 4. cloudflare との差分（`git diff --name-status origin/cloudflare...HEAD`、30ファイル）
+
+| 種類 | ファイル |
+|---|---|
+| 消した | `assets/houou_ask.css` |
+| CSS・JS | `style.css`（「質問欄の部品」の節を足し、注記を直す）、`assets/nav.js`、`assets/top_ask.js`（コメント）、`assets/houou_ask.js`（1行目のコメント）、`assets/league.js`・`assets/top.css`（注記） |
+| 生成 | `scripts/generate_houou_pages.py`、`scripts/generate_saikyo_pages.py`（注記）、`scripts/generate_top_page.py` |
+| 生成物 | `top/index.html`（`houou_ask.css` の読み込みの1行を消しただけ） |
+| テスト | `scripts/tests/test_top_page.py`・`test_houou_ask.py`（説明）、`workers/ask/test/week3.test.mjs`（読む先） |
+| docs | `docs/notes/` の9件（ask-worker・cloudflare・jwrc-top・league-pages-compare・ouka-top・saikyo-page-design・security・static-generation・top-page）、`scripts/promo_video/` の README 5件、`docs/decisions/top.md`、このログ |
+
+- 止まった時点で origin/cloudflare はさらに進んでいる（作業ブランチには取り込んでいない。マージの指示で取り込む）
+- #654 に、Worker の画面の検査の読む先を替えたことを1行コメントした
+
+### 5. 仮置き
+
+- なし（見た目・動きは変えていない。クラス名 `mj-houou-ask-*` はそのまま）
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1104-top2（指示文の指定どおり。origin/cloudflare 95028c1a1 から作り、途中で 17a9d13c8 を取り込んだ）
+- ログ: https://github.com/retroeater/mj/blob/work/1104-top2/docs/logs/CHAT-1104-TOP-15.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1104-top2
+- 確認用URL: プレビューあり（URL は最終報告）。確認したページ: houou/・saikyo/・top/・pro/・wayhome/（ローカルで画素の比べ）、プレビューは style.css・top/。この版の印: `/assets/houou_ask.css` が 404 になり、top/ の head に `houou_ask.css` の読み込みが無い（見た目は同じ）
+- マージ: 未（チャット側がプレビューと差分を見てから、平野さんに聞く）
+- issue: #101（着手中のコメント）、#654（Worker の画面の検査の読む先を替えた旨のコメント）
+- 判断が必要なこと:
+  - `assets/houou_ask.js` と `scripts/tests/test_houou_ask.py` の JS の検査は消していない（未マージの work/1101-prp-pub〈PRP-08 を始めたところで 11-03 から止まっている〉が、houou_ask.js に `playerHref()`・`slugMap()` を足し、その検査を足しているため。消すと衝突する）。読むページは無い。work/1101-prp-pub を閉じる（PRP 系列に、その変更が要らなくなったことを確かめてもらう）なら、その後の指示で houou_ask.js と JS の検査を消し、`docs/notes/security.md` の例も直す
+- 未確認の項目:
+  - ブラウザでの見え方（ローカルで片付ける前と後を画素で比べた。プレビューは CSS・HTML の版までを確かめた）
+- エラー: なし
 
 <!-- guide-links -->
 ---
