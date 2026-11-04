@@ -154,6 +154,51 @@ Chat-Ref: CHAT-1104-ACF-40
 - 41782258945（work/1104-top3、05:56:04Z〜）の終了を 06:06Z から待った。06:21Z に実行中の regenerate-page は0本
 - その間に cloudflare が e0b3a1409・b877e1e87 へ進んだので2回取り込んだ（衝突なし。a4846398c・37bc64a83。どちらの後もテスト OK）
 - run 41785057721（head 37bc64a83、target_page all・dry_run 真・compare_ref b877e1e87550e724cc2210541965780d71bf1b10）、06:22:13Z 開始。起動時の並走: なし
+- 06:33:45Z に終了、success（所要約11分32秒）
+  - 「対象ページを再生成」（新しい側）: 06:22:36Z〜06:24:13Z（約1分37秒）。「飛ばしたページを報告」は skipped
+  - 「生成物の差を実行サマリに出す」: 06:24:13Z〜06:33:43Z。注釈 `##[notice]compare: 差分なし`（`scripts/regen_annotations.py` は旧い側の終了コードが0でないとき「、compare_ref の生成の終了コード N」を足し warning にする。付いていないので旧い側も飛ばしたページ0）
+  - 並走していた regenerate-page: なし（起動時に実行中0本。終了までに始まった run も一覧に無い）
+- ページごとの表（2回目、新しい側。job 126425196867 のログから同じ抜き方。31ページすべてに要約が1行。`Sheets API 429:` の行は0行。`キャッシュを読めない`・`キャッシュに書けない`・`Traceback`・`生成に失敗しました`・`飛ばしたページ` の行は無し）:
+
+| ページ | 合計（API） | spreadsheets.get | values.get | キャッシュ | 429 の待ち 回 | 429 の待ち 秒 | ほかの待ち 回 | ほかの待ち 秒 | 経過 秒 |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| ask_data | 21 | 5 | 16 | 0 | 0 | 0.0 | 0 | 0.0 | 14.7 |
+| ask_data_jwrc | 2 | 0 | 2 | 19 | 0 | 0.0 | 0 | 0.0 | 1.7 |
+| ask_data_ouka | 2 | 0 | 2 | 19 | 0 | 0.0 | 0 | 0.0 | 1.8 |
+| ask_data_saikyo | 9 | 1 | 8 | 11 | 0 | 0.0 | 0 | 0.0 | 4.3 |
+| ask_data_wrcr | 2 | 0 | 2 | 19 | 0 | 0.0 | 0 | 0.0 | 1.7 |
+| exam | 3 | 1 | 2 | 14 | 0 | 0.0 | 0 | 0.0 | 2.9 |
+| exam_episodes | 0 | 0 | 0 | 17 | 0 | 0.0 | 0 | 0.0 | 1.0 |
+| houou_pages | 4 | 0 | 4 | 21 | 0 | 0.0 | 0 | 0.0 | 5.7 |
+| jpml_pros | 6 | 0 | 6 | 31 | 0 | 0.0 | 0 | 0.0 | 5.3 |
+| jwrc_pages | 0 | 0 | 0 | 25 | 0 | 0.0 | 0 | 0.0 | 0.5 |
+| live_pages | 0 | 0 | 0 | 22 | 0 | 0.0 | 0 | 0.0 | 2.0 |
+| log_pages | 7 | 1 | 6 | 0 | 0 | 0.0 | 0 | 0.0 | 5.7 |
+| mtsuku | 2 | 0 | 2 | 15 | 0 | 0.0 | 0 | 0.0 | 5.9 |
+| mtsuku_episodes | 0 | 0 | 0 | 17 | 0 | 0.0 | 0 | 0.0 | 4.6 |
+| ouka_pages | 0 | 0 | 0 | 25 | 0 | 0.0 | 0 | 0.0 | 0.4 |
+| resource_dictionary | 3 | 1 | 2 | 3 | 0 | 0.0 | 0 | 0.0 | 1.6 |
+| resource_efficiency | 3 | 1 | 2 | 0 | 0 | 0.0 | 0 | 0.0 | 1.5 |
+| rh_paifu | 3 | 1 | 2 | 0 | 0 | 0.0 | 0 | 0.0 | 1.1 |
+| rh_results | 2 | 0 | 2 | 1 | 0 | 0.0 | 0 | 0.0 | 0.6 |
+| rh_results_detail | 2 | 0 | 2 | 1 | 0 | 0.0 | 0 | 0.0 | 0.6 |
+| ryoei_pages | 15 | 1 | 14 | 0 | 0 | 0.0 | 0 | 0.0 | 4.9 |
+| saikyo_mens | 3 | 1 | 2 | 0 | 0 | 0.0 | 0 | 0.0 | 1.5 |
+| saikyo_pages | 5 | 1 | 4 | 22 | 0 | 0.0 | 0 | 0.0 | 3.1 |
+| study | 2 | 0 | 2 | 15 | 0 | 0.0 | 0 | 0.0 | 5.1 |
+| study_episodes | 0 | 0 | 0 | 17 | 0 | 0.0 | 0 | 0.0 | 4.7 |
+| title_pages | 2 | 0 | 2 | 25 | 0 | 0.0 | 0 | 0.0 | 1.9 |
+| video_wayhome | 0 | 0 | 0 | 13 | 0 | 0.0 | 0 | 0.0 | 0.1 |
+| wayhome_episodes | 0 | 0 | 0 | 13 | 0 | 0.0 | 0 | 0.0 | 0.9 |
+| wrcr_pages | 0 | 0 | 0 | 25 | 0 | 0.0 | 0 | 0.0 | 0.3 |
+| pro_pages | 7 | 1 | 6 | 27 | 0 | 0.0 | 0 | 0.0 | 6.1 |
+| top_page | 0 | 0 | 0 | 20 | 0 | 0.0 | 0 | 0.0 | 0.3 |
+| **合計** | 105 | 15 | 90 | 437 | 0 | 0.0 | 0 | 0.0 | |
+
+### マージの条件
+- (1) origin/cloudflare（b877e1e87）を取り込んだ後の `python3 -m unittest discover -s scripts/tests`: OK → 満たす
+- (2) run 41785057721: 新旧の差分0、飛ばしたページ0（新旧とも）→ 満たす（1回目の 41780431563 は旧い側が終了コード3で満たさず、指示のとおり1回だけやり直した）
+- (3) 新しい側の `Sheets API の呼び出し: 合計 N` の総和 105（≦150）→ 満たす（1回目も 105）
 
 ## 報告
 
@@ -171,12 +216,12 @@ Chat-Ref: CHAT-1104-ACF-40
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj b877e1e8）: https://github.com/retroeater/mj-logs/tree/main/guide/b877e1e8
+ガイド文書（この版を写した時点の最新、mj 4c48f228）: https://github.com/retroeater/mj-logs/tree/main/guide/4c48f228
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b877e1e8/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b877e1e8/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b877e1e8/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b877e1e8/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b877e1e8/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b877e1e8/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/4c48f228/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/4c48f228/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/4c48f228/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/4c48f228/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/4c48f228/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/4c48f228/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/95028c1a.md
