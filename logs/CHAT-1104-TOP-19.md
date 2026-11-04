@@ -93,15 +93,104 @@ Chat-Ref: CHAT-1104-TOP-19
 | work/1104-lgn-policy | `scripts/tests/test_top_page.py`（`NavTest` の 319 行あたり）、`style.css`（末尾への追記） | 別（検査はファイルの別の場所に足す。style.css は変えない） |
 | work/1101-prp-pub | `style.css`（5266 行あたり） | 別 |
 
+### 2. 実装（264a569f3・41f4bdeb2・3482574e2・ba67c9bcf）
+
+| 場所 | 中身 |
+|---|---|
+| `scripts/generate_top_page.py` | 差し込み口 `slot()` を `favorites_panel()` に替え、見出し `#top_favorites` と面 `[data-top-favorites]`（`data-plans-url`・`data-birthdays-url`・`data-max="5"`・`data-days="30"`）を hidden で焼く。`birthday_index()` で `top/birthdays.json`（pro/ の個別ページのある在籍者の `[slug, 名前, "MM-DD"]`、年は書かない）を書く。標題・件数・日数・URL は定数（`FAVORITES_TITLE`・`FAVORITES_FIRST`・`FAVORITES_DAYS`・`PLANS_URL`・`BIRTHDAYS_URL`）。`load()` が4つ返し、`main()` が2つのファイルを書く |
+| `assets/top.js` | 純粋な関数（`parseFavorites`〈pro.js と同じ読み方〉・`nextBirthday`・`dayWord`・`safeHref`・`favoriteRows`・`favoriteChips`）と、面を描く `setupFavorites()`。DOM はすべて `textContent` で作る（`insertAdjacentHTML` は定数の「もっと見る」の印だけ）。「もっと見る」は新着の番組と同じ `setupList()` |
+| `assets/top.css` | 行の中のリンク・今日の行の日付・選手名のチップ |
+| `scripts/tests/test_top_page.py` | `FavoritesPanelTest`（面の枠・誕生日の JSON）、`FavoritesJsTest`（並び・30日の境目・今日と明日の語・年またぎ・2/29・改名・リンク・slug の形・壊れた値・0人・pro.js と同じ読み方） |
+| docs | `docs/notes/top-page.md`（「お気に入りの予定」の節）・`static-generation.md`（top/ の行に `top/birthdays.json`）・`docs/decisions/top.md` |
+| 生成物 | `top/index.html`（差し込み口 → 面の枠）・`top/birthdays.json`（新しいファイル、1071人） |
+
+- 公開対象: `top/` は公開のディレクトリで、`top/birthdays.json` も公開される（`.assetsignore` に無い）。中身は在籍者の slug・登録名・誕生日の月日で、誕生日の面と pro/ の個別ページ・絞り込みに今も出ている情報（年は書かない）。新しい外部ドメインは無い（読むのは同じサイトの `/pro/plans.json` と `/top/birthdays.json`）
+- PRP 系列の担当のファイル（`generate_pro_pages.py`・`assets/pro.js`・pro/）は変えていない
+
+### 3. 検査・比べ・画面
+
+- `python3 -m unittest discover -s scripts/tests`: 1994件 OK（3482574e2 の後に `test_top_page.py` 49件 OK）
+- 新旧の比べ（dry_run・all・compare_ref＝origin/cloudflare ada6990de、run 41794256679、41f4bdeb2）: 成功、飛ばしたページなし。中身の違うファイルは `top/birthdays.json`（片方にだけある）と `top/index.html`（3行）の2件だけ。top/ 以外の生成物に差は無い
+- 本実行（top_page、run 41794922463）: コミット ba67c9bcf は `top/index.html`・`top/birthdays.json` だけ
+- 画面（360・400・1280px × 明・暗。ローカルは要求を差し替えた見本、プレビューは実データ。UA に mj-internal）:
+
+| 状態 | localStorage の値 | 結果 |
+|---|---|---|
+| 0人 | `[]` | 面が出て、案内の1行と「連盟プロ」へのリンク |
+| 3人（予定のある人・ない人・誕生日の近い人を混ぜる） | 下の例 | 6行のうち5行と「もっと見る」。押すと6行すべて。誕生日の行（「〇〇さんの誕生日」）と放送・最強戦の行が日付の順に混ざる。ローカルの見本では今日の行の日付が紺の太字 |
+| 予定なし | 予定も30日以内の誕生日も無い2人 | 「お気に入りの選手の予定はまだありません」と2人の名前のチップ |
+| localStorage が使えない | （読むと例外） | 面は出ない。誕生日・新着の番組の面はそのまま |
+
+- 自己レビュー（新しい文脈のサブエージェント、1回）:
+
+| 指摘 | 扱い |
+|---|---|
+| `parseFavorites()` が pro.js と違い重複した slug を外さない（予定なしのときチップが2つ出る） | 直した（3482574e2。検査の見本に重複を足した） |
+| `safeHref()` がタブ・改行の入った `/\t/evil` を通す（ブラウザが `//evil` と読む） | 直した（制御文字を含むものは外す。検査を足した） |
+| `birthdays` が配列でない・日付の形が崩れた・名前が欠けた値で、面ごと消える・「NaN月」「undefinedさん」が出る | 直した（配列でなければ空、`PLAN_DATE` で日付の形を確かめ、名前の無い誕生日は外す。検査を足した） |
+| 差分に `top/index.html`・`top/birthdays.json` が無い（生成し直していない） | 直した（本実行 ba67c9bcf） |
+| `top/birthdays.json` は新しく公開されるファイル | 上の「公開対象」に書いた |
+| 面は fetch の後に出るので、読み込みの途中で下の面が押し下げられる | 仮置きに書いた |
+| テストの空行・docs の出典（ログ → #101） | 直した |
+
+### 4. プレビューで localStorage に入れる値の例
+
+プレビュー（ブランチ名の別名 URL の `/top/`）を開き、開発者ツールのコンソールで次を実行してから読み直す（3人とも実在の slug。名前は何でもよく、現在名に置き換わる）:
+
+- 3人: `localStorage.setItem('mj:favorites', JSON.stringify([{slug: 'kazunori.takizawa.16', name: 'x'}, {slug: 'shigekazu.moriyama.1', name: 'x'}, {slug: 'ai.fujita.37', name: 'x'}]))`
+- 予定なし: `localStorage.setItem('mj:favorites', JSON.stringify([{slug: 'yuki.aizawa.38', name: 'x'}, {slug: 'ryosuke.aida.35', name: 'x'}]))`
+- 0人: `localStorage.setItem('mj:favorites', '[]')`（消すときは `localStorage.removeItem('mj:favorites')`）
+
+予定は毎朝の pro/ の生成で、誕生日は日付で変わるので、日によって行の数と中身が変わる。
+
+### 5. 仮置きの一覧
+
+- 標題「お気に入りの予定」（`FAVORITES_TITLE`）
+- 行の並び: 1段目に日付（今日・明日はその語）と時刻・種類のチップ・役、2段目に題（予定の行き先へ）、3段目に選手名（個別ページへ）。誕生日の行は題が「〇〇さんの誕生日」で選手名の段なし
+- 同じ日の並び: 誕生日 → 時刻の無い予定（最強戦・道場部）→ 時刻の順
+- 範囲: 予定は今日以降の全部、誕生日は今日から30日後（その日を含む）まで
+- 件数: 最初は5件、「もっと見る」で残りを全部
+- 今日の行: 日付を紺の太字（地の色は変えない）
+- 0人の案内の文言と「連盟プロ」のリンク、予定なしの文言と名前のチップ
+- 面は予定の JSON を読んでから出す（読み込みの途中で下の面が押し下げられる）
+
+### 6. cloudflare との差分（`git diff --name-status origin/cloudflare...HEAD`、10ファイル）
+
+| 種類 | ファイル |
+|---|---|
+| 生成 | `scripts/generate_top_page.py` |
+| JS・CSS | `assets/top.js`・`assets/top.css` |
+| 生成物 | `top/index.html`・`top/birthdays.json`（新規） |
+| テスト | `scripts/tests/test_top_page.py` |
+| docs | `docs/notes/top-page.md`・`docs/notes/static-generation.md`・`docs/decisions/top.md`、このログ |
+
+- 止めた時点で origin/cloudflare は先へ進んでいる（作業ブランチには取り込んでいない。マージの指示で取り込む）
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1104-top4（指示文の指定どおり。origin/cloudflare ada6990de から作った）
+- ログ: https://github.com/retroeater/mj/blob/work/1104-top4/docs/logs/CHAT-1104-TOP-19.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1104-top4
+- 確認用URL: プレビューあり（URL は最終報告）。確認したページ: top/（0人・3人・予定なし・localStorage が使えない）。この版の印: top/ のロゴの下に「お気に入りの予定」の見出しと面（localStorage が空なら案内の1行と「連盟プロ」のチップ）。値の入れ方は `## 経過`「4.」
+- マージ: 未（チャット側がプレビューを見て仮置きを決めてから、マージを分けて聞く）
+- issue: #101（着手中のコメント）
+- 判断が必要なこと:
+  - 仮置きの一覧（`## 経過`「5.」）: 標題・行の並び・同じ日の並び・範囲（予定は全部、誕生日は30日）・件数（5件＋もっと見る）・今日の行の目立たせ方・0人と予定なしの文言・読み込み後に面が出ること
+  - `top/birthdays.json`（在籍者の slug・登録名・誕生日の月日、年なし）を新しく公開してよいか（誕生日の面と pro/ に今も出ている情報。お気に入りの選手の誕生日を引くのに使う）
+- 未確認の項目:
+  - ブラウザでの見え方（プレビューで動きと画面を確かめた。本番の pro/ の ★ で入れた値での確かめは pro/ の公開〈#641〉の後）
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj ada6990d）: https://github.com/retroeater/mj-logs/tree/main/guide/ada6990d
+ガイド文書（この版を写した時点の最新、mj a4a9ed1b）: https://github.com/retroeater/mj-logs/tree/main/guide/a4a9ed1b
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ada6990d/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ada6990d/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ada6990d/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ada6990d/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ada6990d/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/ada6990d/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a4a9ed1b/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a4a9ed1b/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a4a9ed1b/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a4a9ed1b/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a4a9ed1b/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a4a9ed1b/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/95028c1a.md
