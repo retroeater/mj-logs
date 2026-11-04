@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-11-04 16:08 JST
+- 書き出した時刻: 2026-11-04 16:11 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -25,7 +25,7 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-11-04 16:08 | push | work/1104-lgn-closed | queued | #929（41790164788） |  |
+| 2026-11-04 16:08 | push | work/1104-lgn-closed | success | #929（41790164788） | 0分34秒 |
 | 2026-11-04 16:06 | push | work/1104-lgn-closed | success | #928（41790006225） | 0分30秒 |
 | 2026-11-04 15:22 | push | work/1104-acf-cache | success | #927（41785050195） | 0分28秒 |
 | 2026-11-04 15:17 | push | work/1104-acf-cache | success | #926（41784550758） | 0分33秒 |
@@ -38,11 +38,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-04 16:08 | check_run | cloudflare | skipped | #1217（41790245500） | 0分10秒 |
 | 2026-11-04 16:07 | check_run | cloudflare | skipped | #1216（41790070904） | 0分01秒 |
 | 2026-11-04 15:43 | check_run | cloudflare | skipped | #1215（41787433664） | 0分01秒 |
 | 2026-11-04 15:43 | check_run | cloudflare | skipped | #1214（41787384541） | 0分01秒 |
 | 2026-11-04 15:22 | check_run | cloudflare | skipped | #1213（41785117927） | 0分00秒 |
-| 2026-11-04 15:18 | check_run | cloudflare | skipped | #1212（41784639957） | 0分10秒 |
 
 ## check-image-links.yml
 
@@ -129,11 +129,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-04 16:08 | workflow_dispatch | work/1104-lgn-closed | success | #63（41790170439） | 0分31秒 |
 | 2026-11-04 12:43 | workflow_dispatch | cloudflare | failure | #62（41768833961） | 5分46秒 |
 | 2026-11-04 12:33 | workflow_dispatch | cloudflare | failure | #61（41767827901） | 7分30秒 |
 | 2026-11-04 12:29 | workflow_dispatch | work/1104-lgn-closed | success | #60（41767465405） | 0分37秒 |
 | 2026-11-04 12:23 | workflow_dispatch | work/1104-lgn-closed | success | #59（41766856132） | 0分33秒 |
-| 2026-11-02 08:43 | workflow_dispatch | work/1102-lgn-daily | success | #58（41363460220） | 0分28秒 |
 
 - #62 failure: ジョブ「convert」 ステップ「実行」
 - #61 failure: ジョブ「convert」 ステップ「実行」
