@@ -43,17 +43,41 @@ cloudflare の `docs/logs/CHAT-1104-PRP-13.md` は、見出しを探す書き方
 
 ## 経過
 
+### 0. 着手前の確認
+
+- 「指示」欄の末尾は指示文の最後の行（「不明な点があれば…この行が指示文の最後の行です。」）と一致
+- 同じ Chat-Ref のコミット・ログは無し。#641 は open
+- 冒頭の雛形の行（Chat-Ref・マージ・貼る時機・共通手順）に欠けなし。「マージ: ドキュメントのみ（ログ）」
+- work/1104-prp-log はリモートにもローカルにも無かったので `git checkout -b work/1104-prp-log origin/cloudflare`（71efe5a3e）で作った
+
+### 1. 作り直した版の確かめ
+
+`git checkout origin/work/1101-prp-pub -- docs/logs/CHAT-1104-PRP-13.md`（その版の最後の変更は 9a677b95a「docs: repair the CHAT-1104-PRP-13 log split by a heading search」）。行頭の見出し（`\n## 指示\n`・`\n## 経過\n`・最後の `\n## 報告\n`）で区切って比べた:
+
+- `## 指示` 欄が、そのログの最初のコミット 785a98b2b の `## 指示` 欄と同じ（True）。最初の行は「【Claude作成】Claude Code 向け指示：PRP-12 の続き。…」、最後の行は「…この行が指示文の最後の行です。」。指示欄の中に `### ` の見出し（経過）は無い
+- `## 報告` 欄が cloudflare の今の版の `## 報告` 欄と同じ（True）。状態「完了」・マージ「済み（95028c1a1 を cloudflare へ。承認済み〈チャットで〉）」
+- 行頭の2段の見出しは `## 指示`・`## 経過`・`## 報告` の3つだけ（壊れた版は 経過・報告 が2つずつ）
+- 経過の節（### 0.〜4.）の並びは、cloudflare の壊れた版と同じ（`diff` で差なし）
+
+### 2. 差分とマージ
+
+- 決定を `docs/decisions/pros.md` に足した（2026-11-04〈CHAT-1104-PRP-15〉の節）
+- 作業ブランチと origin/cloudflare の差は `docs/decisions/pros.md`・`docs/logs/CHAT-1104-PRP-13.md`・`docs/logs/CHAT-1104-PRP-15.md` の3つだけ
+- push の直前に `git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめ、`git push origin work/1104-prp-log:cloudflare` → `71efe5a3e..214c8e429`
+- 入れた後: origin/work/1101-prp-pub と origin/cloudflare の `docs/logs/CHAT-1104-PRP-13.md` は同じ blob（`bb88c44a2c49e0844e331f7e4a97f257fd43ad3a`）。公開のマージでこのファイルは衝突しない
+- `docs/decisions/pros.md` は、work/1101-prp-pub も末尾に PRP-14 の節を足しているので、公開のマージで末尾の追記どうしが衝突する見込み（両方を残して解く範囲）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1104-prp-log
 - ログ: https://github.com/retroeater/mj/blob/work/1104-prp-log/docs/logs/CHAT-1104-PRP-15.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1104-prp-log
-- 確認用URL: なし（docs/logs のみ）
-- マージ: 作業中
+- 比較URL: https://github.com/retroeater/mj/compare/71efe5a3e...214c8e429
+- 確認用URL: なし（docs/logs のみ。直した版は https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1104-PRP-13.md ）
+- マージ: 済み（214c8e429 を cloudflare へ。ドキュメントのみ）
 - issue: #641
-- 判断が必要なこと: 作業中
-- 未確認の項目: 作業中
+- 判断が必要なこと: なし
+- 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->

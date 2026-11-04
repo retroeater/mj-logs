@@ -1,0 +1,92 @@
+# CHAT-1104-LVP-14
+
+- 着手日時: 2026-11-04
+- 対象issue: #362
+- ブランチ: work/1104-lvp
+- 着手時HEAD: 17230975c
+
+## 指示
+
+【Claude作成】Claude Code 向け指示：live/ の公開の変更（work/1104-lvp）に cloudflare を取り込み、残りの直しを入れて cloudflare へマージ（＝公開）し、公開後の確かめをする Chat-Ref: CHAT-1104-LVP-14 マージ: 承認済み（チャットで） 貼る時機: いつでも（CHAT-1104-LVP-13 の判断待ちの後。毎朝の取り込み〈update-live-channel、04:00 JST〉の直後の30分は避ける） 共通手順: CLAUDE.md「Chat-Ref」「ブランチ運用」「作業ログ」節のとおり（識別子確認 → work/<識別子>〈手順は docs/notes/cloud-sessions.md〉 → ログ先行push → 最終報告の Chat-Ref の行の直前に「ログ（公開）」の行、最後の行に Chat-Ref）。平野さんは、この指示のための作業ブランチ work/1104-lvp の push を許可している（セッションに割り当てられた claude/… のブランチは使わない）。 作業ブランチ: クラウドセッションで実行する。未マージの work/1104-lvp を続けて使う（CHAT-1104-LVP-10・11・13 の公開の変更があるため）。`git merge-base --is-ancestor origin/cloudflare HEAD` が偽なら merge で取り込んでよい（rebase しない）。リモートに無ければ止まる（ローカルにあるときを含め手順は docs/notes/cloud-sessions.md「作業ブランチの用意」） 作業ブランチの片付け: 作業ブランチは削除しない。マージ済みなら cleanup-branches.yml が消す（docs/notes/cloud-sessions.md「ブランチの削除」）
+
+0. 着手前に、このログの「指示」欄の末尾が、この指示文の末尾（最後の行）と一致しているか確認し、一致しなければ作業せず報告する。origin/work/1104-lvp に、CHAT-1104-LVP-13 の報告（6860e8bba）より後のコミットが毎日の再生成（`chore: regenerate ...`）のほかにあれば、ログに書いて止まる。
+
+目的
+/live の正式公開（#362）。プレビューで確かめた公開の変更を cloudflare に入れ、本番で確かめる。CHAT-1104-LVP-13 が取り込みの衝突で止まったので、その解き方を指定して続ける（CHAT-1104-LVP-12 は送る前に差し替えたため欠番）。
+決定（2026-11-04、平野さん）
+
+* 確かめがすべて通れば cloudflare へマージして live/ を公開してよい
+* 告知動画は公開の後に撮る（docs/notes/page-announcement.md の型のとおり。2026-10-16 に決めた「プレビューで止める → 告知動画を撮る → マージ＝公開」の順〈最強戦の例〉を置き換える）
+* 下部の文章の括弧の中の区切り（期は読点、タイトル戦は中黒）は今のままでよい
+* 【3】のプレーオフの6行は平野さんが入れた（CHAT-1104-LVP-10 の報告の表のとおり）
+* CHAT-1104-LVP-10・11 の報告で次の指示に回した項目を、この指示で行う
+* CHAT-1104-LVP-13 の報告の衝突の解き方の案（下の手順1）で解いてよい
+* 達人戦のプレーオフの対局者・実況・解説の pro/ のページに、プレーオフの行が足される差分（LVP-13 では13ページ）は、公開の変更から出る差分として受け入れる
+* 前からの食い違い（style.css・table.js のコメントが型Aのページに video_live を挙げている、docs/notes/static-generation.md の sitemap-pages.xml の「24ページ」が実数と合わない）も、この指示で直す
+
+前提（チャット側。平野さんの決定ではない）
+
+* 2026-11-04 にチャット側が `git merge-tree` で見た、取り込みで衝突するファイル（生成されたページを除く）: `docs/new-page-checklist.md`（URL パラメータの表の行）と `docs/notes/static-generation.md`（「HTMLは21ページ」の行・ページの一覧の放送対局の行）。log/ の追加（CHAT-1104-LGN-21、cloudflare 20acd472c）と、LVP-10 の文書の直しが同じ場所に入るため（要確認）
+* 2026-11-04 の cloudflare の `regenerate-sitemap.yml` の well-formedness の列挙は `sitemap.xml`・`sitemap-pages.xml`・`sitemap-wayhome.xml`・`sitemap-saikyo.xml`・`sitemap-title.xml` だけ（mtsuku・exam・live が無い）。LVP-11 で、未マージの work/1101-prp-pub が同じ行を変えているので外した。そのブランチが今も未マージかは要確認
+* LVP-10・11 の報告で次の指示に回した項目: docs/notes/redirects.md の `/video_live.html` の行の「入れた日」をマージの日に直す。`llms.txt` の「サイトマップ」の行に `sitemap-live.xml` を足し、放送対局の本数を今の値に直す。#362 の本文を公開後の形に直す（B14）。「HTMLは21ページ」の直し。サイトマップの列挙に live（と、まだ無ければ mtsuku・exam）を足す
+* 公開後の確かめのうち、X・LINE のカード、iPhone の実機、Search Console のサイトマップの再送信と URL 検査、約2週間後のインデックス登録の確認は平野さんとチャット側が行う
+* 未マージの work/1104-top が `navbar.js` で live/ の個別ページのナビを変える分岐を足している（LVP-10 の報告。行は重ならない）
+
+手順
+
+1. #362 に着手中のコメントを書く（本文・状態・ラベルは変えない）。CHAT-1104-LVP-13 のログの `## 報告` の状態の末尾に `/ 続き: CHAT-1104-LVP-14` を足す。origin/cloudflare を merge で取り込む。衝突は次のとおり解き、解いた後の該当箇所をログに引用する: 生成されたページは取り込んだ後のスクリプトで生成し直す。`docs/new-page-checklist.md`・`docs/notes/static-generation.md` は、両方の変更が両立する衝突（追記どうし・隣り合う行・同じ表の別の行）なら両方を残す。型Aのページを両側で外したことによる衝突（`scripts/lib/page.py`・`scripts/tests/test_simple_pages_check.py`・`sitemap-pages.xml`・docs/notes/static-generation.md）は、LVP-13 の報告の案のとおり両方の変更を合わせて解く（page.py の docstring は jpml_titles・resource_logs・video_live の廃止をまとめる、`GENERATE_PAGES` は両方を外す、`sitemap-pages.xml` は resource_logs.html と video_live.html の `<url>` を消して /log/ を残す、static-generation.md のページ数・型Aの行・ページの一覧は実物の数に合わせる）。それ以外の衝突は解かずに止まる。【3】のプレーオフの6行を動画ID で読み、LVP-10 の報告の表のとおりかを確かめる。`--check live_pages` で `live/tatsujin/1/po.html`・`2/po.html`・`3/po.html` が作られ、URL の重なりが無いことを確かめる
+2. 上の「前提」の回した項目と、決定の前からの食い違いを直す（`llms.txt` の「サイトマップ」の行・サイトマップの列挙は、未マージのブランチが同じ行を変えていれば外して報告に書く。チャット側から pro/ の系列に、後でマージする側が live を足すよう伝える）。`regenerate-page.yml` を作業ブランチで `check`・`target_page: live_pages` で手動実行する。全ページを再生成し、公開の変更と直した文書のほかの生成物の差分が0であることを確かめる。テストを回す。`npx wrangler dev --port 8789 --ip 127.0.0.1 --persist-to /tmp/wrangler-state` で `/live/`・`/video_live.html?name=堀慎吾`・`/live/tatsujin/1.html` を確かめる。止まる条件に当たらなければ、CLAUDE.md「ブランチ運用」のとおり cloudflare へマージする
+3. マージ後、Workers Builds の check-run の結果を確かめ、本番で次を確かめる（CLAUDE.md「判断・作業の原則」の確認範囲で書く）: `/live/` ほか3ページの HTML に noindex が無く canonical があること、`/video_live.html` と `/video_live.html?name=堀慎吾` が `/live/` へ 301 しクエリが残ること、`/sitemap.xml` から `sitemap-live.xml` が引けること、`/llms.txt` と `/navbar.js` が新しい行き先であること。#362 の本文を公開後の形に直し、公開の日と SHA をコメントに書く。#362 は閉じず、本文の残りに平野さんの確かめ（X・LINE のカード、実機、Search Console）と公開の後に回したもの（#495・#475 の抜き出しの直し・#396・#397 の本文・LV-04 の差4・C8）を書く。上の「決定」を docs/decisions/live.md に足す
+
+止まる条件
+
+* 0章の確かめに当たる
+* 手順1の解き方に当てはまらない衝突がある
+* プレーオフの6行が表と違う、`po.html` が作られない、または URL の重なりがある（違う行と理由を書いて、マージせずに止まる。直すのは平野さん）
+* `check` の手動実行が止まる、または `--check live_pages` が止まる理由を出す
+* 公開の変更と直した文書のほかの生成物に差分が出る（達人戦のプレーオフに出た人の pro/ のページにプレーオフの行が足される差分は除く。その差分は全件のページ名を書く）
+* テストが落ちる（今回の変更で落ちると分かっているテストは直してよい。無関係な失敗は原因をログに書いて進めてよい）
+* 未マージの work/ ブランチが、`navbar.js`・`_redirects`・`sitemap.xml`・`llms.txt`・`scripts/generate_live_pages.py`・`scripts/lib/live.py`・`assets/live.js` の同じ行・同じ関数を変えている、または取り込みで衝突する（同じファイルの別の箇所の変更では止まらず、ログに書く）
+* マージ後の check-run が今回の変更で失敗する、または本番で noindex が残る・301 が働かない（原因を書いて止まる。無関係な失敗は原因をログに書いて残りの確かめを進めてよい）
+* #362 に他セッションの着手中コメントがある
+* cloudflare への push が権限判定で拒否された（別の手段を試さずに止まる）
+
+完了条件
+
+* ログの「## 報告」を CLAUDE.md「作業ログ」節のとおりに書いて push する。「未確認の項目」に、平野さんとチャット側の確かめ（X・LINE のカード、実機、Search Console の再送信と URL 検査、約2週間後のインデックス登録の確認の日付）を書く
+* マージは冒頭の「マージ:」の行のとおり（止まる条件に当たったらマージしない）
+* ターミナルへの最終報告の Chat-Ref の行の直前に ログ（公開）: https://github.com/retroeater/mj-logs/blob/main/logs/CHAT-1104-LVP-14.md?v=<SHA>（CLAUDE.md「作業ログ」節）を書き、最後の行に Chat-Ref: CHAT-1104-LVP-14 を書く
+
+不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
+
+## 経過
+
+- Chat-Ref の確認: `CHAT-1104-LVP-14` のコミットは0件。`LVP` は同じセッションの続き
+- 0. 「指示」欄の末尾は指示文の最後の行と一致。指示文の「LVP-13 の報告（6860e8bba）」は mj-logs 側の SHA で、mj の報告のコミットは 17230975c。origin/work/1104-lvp にそれより後のコミットは無い
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている。着手は 2026-11-04 11:08 JST（毎朝の取り込みの直後ではない）
+
+## 報告
+
+- 状態: 作業中
+- ブランチ: work/1104-lvp
+- ログ: https://github.com/retroeater/mj/blob/work/1104-lvp/docs/logs/CHAT-1104-LVP-14.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1104-lvp
+- 確認用URL: なし
+- マージ: 未
+- issue: #362
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
+
+<!-- guide-links -->
+---
+
+ガイド文書（この版を写した時点の最新、mj 214c8e42）: https://github.com/retroeater/mj-logs/tree/main/guide/214c8e42
+
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/214c8e42/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/214c8e42/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/214c8e42/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/214c8e42/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/214c8e42/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/214c8e42/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/95028c1a.md
