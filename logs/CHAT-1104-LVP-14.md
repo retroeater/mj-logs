@@ -86,6 +86,19 @@
 - live/ の本実行（run 41759258958、15258f472）: 変わったのは live/ の3ファイルだけ。トップは「放送対局動画2989本（770対局）」で、`llms.txt` の 2,989本（LVP-13 で直した）と一致。`live/tatsujin/1/po.html`・`2/po.html`・`3/po.html` はある
 - テスト: `python3 -m unittest discover -s scripts/tests` は全件 OK（取り込みの後・直しの後）
 - wrangler dev: `/video_live.html` → 301 `/live/`、`/video_live.html?name=堀慎吾` → 301 `/live/?name=堀慎吾`（クエリが残る）。`/live/` はローカルでは 404（`_redirects` の 200 の書き換えを wrangler dev が当てない。LVP-10・13 と同じ）。`/live/index.html?name=堀慎吾` は「770件中 3件を表示」。`/live/tatsujin/1.html` は 200・noindex 無し、見出しは「プレーオフ」→「決勝」
+- 全ページの再生成（run 41759410398、`all`・dry_run・compare_ref `origin/cloudflare`。比べた cloudflare は 3c7a64ac6）: success、飛ばしたページは無い。比べの結果は「差分あり 16件」:
+  - pro/ の13ページ（決定で受け入れた、達人戦のプレーオフに出た人のページにプレーオフの行が足される差分）: `pro/asataro.nada.1/`・`pro/hiro.shibata.17/`・`pro/hisato.sasaki.22/`・`pro/koji.furukawa.1/`・`pro/makoto.sawazaki.3/`・`pro/masayoshi.ara.1/`・`pro/mika.yuzuki.30/`・`pro/naoki.setokuma.14/`・`pro/satoshi.fujisaki.13/`・`pro/shigekazu.moriyama.1/`・`pro/sho.shiratori.23/`・`pro/shota.akutsu.34/`・`pro/yuko.ito.1/`（各 index.html）
+  - live/ の3ページ（`live/pro-queen/24/b16-c.html`・`b8-b.html`・`f.html`、各2行）: 公開の変更そのもの（live/）の生成物。15258f472 の後にデータが変わり、両方の側の生成で変わったため比べに出た
+  - ほかの生成物の差分は0。compare_ref 側（cloudflare のコード）の生成の終了コードは 3（ログに内訳が出ない。cloudflare のコードの側で、この作業ブランチの変更とは関わらない）
+- レビュー（新しい文脈のサブエージェント、1回目。対象は取り込み 3655e9642 の衝突の解き方〈remerge-diff〉と 6e22ba1d1。観点は両側の削除が落ちずに合わさっているか・ページ数が実物と合うか・regenerate.py とワークフローに旧ページが残っていないか・_redirects・テスト）
+
+  | 指摘 | 重さ | 対応 |
+  |---|---|---|
+  | page.py・table.js の廃止の列挙に jpml_test（#613 で廃止済み）が無い | 低（今回の取り込みで生じたものではない） | 直していない（判断が必要なことに書いた） |
+  | `generate_jpml_pros.py` が `./video_live.html?name=` へのリンクを出し続ける（301 と `?name=` で動く） | 低 | 直していない。docs/notes/redirects.md の期限つきの暫定のとおり（#641 で pro/ に替わるまで） |
+
+  証跡: page.py の docstring・`GENERATE_PAGES`・sitemap-pages.xml（55件、XML として読める）・static-generation.md の 9ページ・型Aの2ページ・live/ の947ページは実物と一致。regenerate.py とワークフローに video_live・resource_logs は残っていない。`_redirects` の1行目は `/  /index.html  200`、`/resource_logs.html` と `/video_live.html` の 301 がある。テスト1928件 OK
+- origin/cloudflare の取り込み（2回目、611d1436f、d08074979 まで）: 衝突なし。入ったのは title/・log/ の変更（`generate_title_pages.py`・`generate_log_pages.py`・style.css など）。`generate_title_pages.py` は live/ の生成を読まない（コメントで触れるだけ）ので、全ページの再生成はやり直していない。テストは OK
 ## 報告
 
 - 状態: 作業中
@@ -102,12 +115,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj c853e6ae）: https://github.com/retroeater/mj-logs/tree/main/guide/c853e6ae
+ガイド文書（この版を写した時点の最新、mj 05cad68f）: https://github.com/retroeater/mj-logs/tree/main/guide/05cad68f
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c853e6ae/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c853e6ae/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c853e6ae/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c853e6ae/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c853e6ae/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c853e6ae/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/05cad68f/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/05cad68f/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/05cad68f/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/05cad68f/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/05cad68f/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/05cad68f/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/95028c1a.md
