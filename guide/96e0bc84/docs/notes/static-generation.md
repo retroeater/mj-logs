@@ -282,7 +282,7 @@ handover.md 5章から移した。ページの一覧は下の「ページの一�
 | ビルド時生成（サブディレクトリ、放送対局ページ） | 947（2026-11-04） | `live/index.html`・`live/<タイトル戦>/index.html` 以下。`scripts/generate_live_pages.py`（`sitemap-live.xml` も書き出す）。公開は #362（`docs/notes/live-page-design.md`） |
 | ビルド時生成（サブディレクトリ、書籍の一覧と個別ページ） | 一覧1＋190 | `books/index.html`・`books/<ISBN13>.html`。`scripts/generate_books_pages.py` が「書籍」シート（「辞書」と同じ「R_その他」、`lib/other_book.py`）から書く。noindex・メニュー未掲載、`sitemap-books.xml` は `sitemap.xml` から未参照。**2026-09-22 開発凍結（自動生成・自動取得を停止、本番はそのまま残す）。詳細は `docs/notes/books-freeze.md`** |
 | ビルド時生成（サブディレクトリ、「良栄」のトップ） | 1 | `r/index.html`（URL は `/r/`、`_redirects` で index.html を返す）。平野良栄の経歴とポートフォリオの1枚のページ（自己紹介・数字で見る・出演）。中身はすべて `scripts/generate_ryoei_pages.py` の定数で、ほかのページの生成物・シートは読まない（毎朝の再生成の対象でもない）。その上に「記憶の中を一人称で歩ける空間」（夜の水辺の広場・屋外上映・雀荘の建物の中の対局室。`assets/ryoei/world.js`・`world.css`、Three.js は `assets/vendor/three-0.169.0/`）を重ねる（#657、`docs/notes/ryoei-world.md`）。「新サイトの基本の形」の例外。noindex・メニュー未掲載、公開は #656（#655） |
-| ビルド時生成（サブディレクトリ、サイトのトップの新しい形） | 1 | `top/index.html`（URL は `/top/`、`_redirects` で index.html を返す）。#101 の新トップ。誕生日（`lib/birthdays.py`、鍵が要る）・新着の番組（帰り道・プロテスト・Mつく、シートを読む）。`pro/search.json` を読むので pro/ の後に作る（`RUN_LAST`）。毎朝 `update-live-channel.yml` が作り直す。`scripts/generate_top_page.py`、`assets/top.js`（日付の出し分け・「もっと見る」）。noindex・メニュー未掲載。切り替えの後に `index.html`（#101、`docs/notes/top-page.md`） |
+| ビルド時生成（サブディレクトリ、サイトのトップの新しい形） | 1 | `top/index.html`（URL は `/top/`、`_redirects` で index.html を返す）と、お気に入りの予定が読む `top/birthdays.json`。#101 の新トップ。お気に入りの予定（JS が描く）・誕生日（`lib/birthdays.py`、鍵が要る）・新着の番組（帰り道・プロテスト・Mつく、シートを読む）。`pro/search.json` を読むので pro/ の後に作る（`RUN_LAST`）。毎朝 `update-live-channel.yml` が作り直す。`scripts/generate_top_page.py`、`assets/top.js`（日付の出し分け・「もっと見る」）。noindex・メニュー未掲載。切り替えの後に `index.html`（#101、`docs/notes/top-page.md`） |
 | 静的なページ | 1 | `404.html` |
 
 ページを書かない生成対象が4つある: `ask_data`（`scripts/generate_ask_data.py`）と `ask_data_ouka`（`scripts/generate_ask_data_ouka.py`、女流桜花の分、#519）・`ask_data_jwrc`（`scripts/generate_ask_data_jwrc.py`、WRC リーグの分、#594）・`ask_data_wrcr`（`scripts/generate_ask_data_wrcr.py`、WRC-R リーグの分、#366）は Worker `mj-ask` が同梱する検索データ `workers/ask/data.json`・`data-ouka.json`・`data-jwrc.json`・`data-wrcr.json` だけを書く（配信しない。#542、`docs/notes/ask-worker.md`）。
@@ -316,6 +316,9 @@ handover.md 5章から移した。ページの一覧は下の「ページの一�
   日付は表示の文字で返す（gviz は `Date(y,m,d)` だったが、日付の列は `formatted=True` でしか読んでいない）
 - **SELECT 文は生成が使う形だけを読む**: `SELECT 列,…`（または `*`）・`WHERE 列 = "値"`（生の値と比べる。前後の空白は落とさない）・`ORDER BY 列 [DESC]`（空は小さい値、同じ値は元の順）・`LIMIT`。ほかの形は止める
 - **読む回数**: ブックごとに `spreadsheets.get` 1回（タブ・gid・グリッドの列数・隠れた行）、タブごとに `values.get` 2回（生の値と表示の文字）。プロセスの中ではキャッシュする。
+  `regenerate.py` の1回の実行の中では、ページ（別のプロセス）の間でも共有する（#662）: 実行の始めにリポジトリの外の一時ディレクトリを作って環境変数 `SHEETS_CACHE_DIR` で子に渡し、
+  `lib/sheets.py` は同じ要求（URL・引数）の応答をそこから返す（ファイル名は要求の SHA-256。読めないファイルは読み直す）。実行の終わりに消すので、次の実行はシートを読み直す。
+  環境変数が無ければ（生成スクリプトを単独で動かす・ほかのワークフローから呼ぶ）プロセスの中だけ。生成の途中でシートへ書くページは無い前提（書くページを足すときは見直す）
   読み取りの上限（1分あたり）の 429 と 5xx は待って繰り返す（最大7回、64秒まで）。タイムアウト・接続の失敗は `lib/net_retry.py`
 - **止める**: 鍵が無い、認証・権限の失敗（401・403）、無いブック。警告で通さない（非公開の後に検査が黙って省かれないように）。Claude Code の環境には鍵を置かないので、
   コンテナではシートを読む生成は動かない。確かめは `regenerate-page.yml` の手動実行（入力 `dry_run`・`check`、`docs/notes/github-actions.md`「regenerate-page.yml」）と `check-sheets-reader.yml` で行う
