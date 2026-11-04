@@ -62,6 +62,32 @@
 - 0. 「指示」欄の末尾は指示文の最後の行と一致。origin/work/1104-lvp に 184d76577 より後のコミットは無い
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている。着手は 2026-11-04 08:33 JST（毎朝の取り込みの直後ではない）
 
+- 手順1: #362 に他セッションの着手中のコメントが無いことを確かめ、着手中のコメントを書いた。CHAT-1104-LVP-11 のログの状態に `/ 続き: CHAT-1104-LVP-13` を足した（c310b924b）
+- origin/cloudflare の取り込み（4c85d60ab）: 衝突は docs/new-page-checklist.md の1か所と docs/notes/static-generation.md の2か所（前提のとおり）。どれも両立する衝突（同じ表の隣の行・同じ行の別の箇所への追加）なので両方を残した。生成されたページの衝突は無かった。解いた後:
+  - docs/new-page-checklist.md 36〜37行（URL パラメータの表。この作業ブランチの `q` の行と、cloudflare の log/ のタグの行を両方残した）:
+    > - `q`（検索欄の初期値。そのページの範囲の対局をその場で絞り込む。live/ の全ページ・最強戦の旧トップ〈期限つき、docs/notes/redirects.md〉。表示の絞…
+    > - log/ のタグ（#639、2026-10-28・29）: `station`（駅名）/ `name`（投稿者。完全一致）/ `store`（店名）/ `year`（投稿年、西…
+  - docs/notes/static-generation.md 256行（この作業ブランチの放送対局の記述と、cloudflare が足した log/ の項を両方残した。抜き出し）:
+    > … + 放送対局ページ（`live/`、#346、公開は #362。旧 `video_live.html` は `/live/` へ 301） …  + 連盟プロの新ページと選手の個別ページ（`pro/`、#219、noindex・メニュー未掲載、公開は #641） + 「ログ」の新しいページ（`log/`、#639、noindex・メニュー未掲載、公開は #640） + 「良栄」のトップ（`r/`、#655、noindex・メニュー未掲載、公開は #656）…
+  - docs/notes/static-generation.md ページの一覧（cloudflare の log/ の行の後に、この作業ブランチの放送対局の行を置いた）:
+    > | ビルド時生成（サブディレクトリ、「ログ」の新しいページ） | 1 | `log/index.html`（URL は `/log/`、`_…
+    > | ビルド時生成（サブディレクトリ、放送対局ページ） | 944（2026-11-04） | `live/index.html`・`live…
+- 未マージの work/ ブランチとの重なり（`git merge-tree` で、この作業ブランチと cloudflare のそれぞれに対する衝突を比べた。この作業ブランチで新しく生まれる衝突だけを書く）:
+  - 止まる条件のファイル（navbar.js・_redirects・sitemap.xml・llms.txt・generate_live_pages.py・lib/live.py・assets/live.js）で新しく衝突するブランチは無い。同じファイルの別の箇所: work/1028-lgn（navbar.js 73行・_redirects 95行）、work/1101-prp-pub（navbar.js 30・86行、sitemap.xml 15・45行、llms.txt 16・76行）、work/1104-lgn-release（navbar.js 49・74行、_redirects 98・139行、llms.txt 64行）。この作業ブランチは navbar.js 39行・_redirects 131行・llms.txt 57行・sitemap.xml 11・37行
+  - ほかのファイルで新しく生まれる衝突: work/1028-lgn（docs/new-page-checklist.md）、work/1101-prp-pub（regenerate-page.yml・docs/handover.md・update_sitemap_lastmod.py。LVP-10 で同じ節に sitemap-live.xml を足したため）、work/1104-lgn-release（docs/notes/static-generation.md・test_simple_pages_check.py・sitemap-pages.xml。どちらも video_live.html・resource_logs.html の行を消すため）
+- 【3】のプレーオフの6行（一時の出力 2f9dd8aae で読み、272e58c95 で戻した。run 41740438663）: 6行とも LVP-10 の報告の表のとおり。メンバー限定の3行（4289・4228・4240）は掲載 Y・ステージ「プレーオフ」・ステージの並び 1・まとめ単位「プレーオフ」、公開版の3行（4283・4222・4264）は掲載 N・冒頭 Y・ほかは空欄。行番号も前提のまま
+  - 一時の出力を戻すときに `git revert` が動かず、続けた `git commit --amend` が一時の出力のコミットの件名だけを変えた（push はしていない）。`git reset --soft` で origin の位置に戻し（中身は同じ）、`git revert --no-commit` で戻した
+- `--check live_pages`（run 41740438663・41743357705）: 止まるページなし、ページ 947（LVP-11 の 944 にプレーオフの3つ）。警告は「未確認 686件」の1件だけ。重なる URL は検査で止まっていない
+- live/ の本実行（run 41740655453、0a64f8216）: `live/tatsujin/1/po.html`・`2/po.html`・`3/po.html` ができ、`data/live_pages.json` でそれぞれメンバー限定の動画（pPhdXp3U7mU・4j_vrUqShCc・DfjwueadOwc）だけを持つ。`sitemap-live.xml` に3件。期のページは「プレーオフ」→「決勝」の順。トップは「放送対局動画2989本（770対局）」。変わったのは live/・data/live_pages.json・data/live_thumbs.json・sitemap-live.xml だけ
+- 回した項目の直し（a9eeb6f59）: docs/notes/redirects.md の `/video_live.html` の行の「入れた日」を 2026-11-04 に、`llms.txt` の放送対局の本数を 2,989本にした
+- 外した項目（未マージのブランチが同じ行を変えているため）:
+  - `llms.txt` の「サイトマップ」の行（76行）・`regenerate-sitemap.yml` の well-formedness の列挙（84行）・docs/notes/sitemap-lastmod.md の対象の列挙（5行）: work/1101-prp-pub が同じ行を変えている（mtsuku・exam・pro を足す。live は無い）
+  - docs/notes/static-generation.md の「HTMLは21ページ」: work/1104-lgn-release と work/1028-lgn が同じ行を変えている。work/1104-lgn-release は resource_logs.html を外して「20ページ」にする。この作業ブランチで video_live.html も外れるので、両方が入った後の正しい値は 19（型A の行も同じく両方の変更をまとめる必要がある）
+- テスト: `python3 -m unittest discover -s scripts/tests` は全件 OK（取り込みの後・直しの後）
+- wrangler dev（`npx wrangler dev --port 8789 --ip 127.0.0.1 --persist-to /tmp/wrangler-state`）:
+  - `/video_live.html?name=堀慎吾` → 301 で `/live/?name=堀慎吾`（クエリが残る）
+  - `/live/` はローカルでは 404（`_redirects` の 200 の書き換えを wrangler dev が当てない。LVP-10 と同じ。本番で確かめる）。`/live/index.html?name=堀慎吾` は検索欄が「堀慎吾」、「770件中 3件を表示」（LVP-10 の「767件中 3件」と同じ件数）
+  - `/live/tatsujin/1.html` は 200、canonical あり・noindex 無し、見出しは「プレーオフ」→「決勝」。`/live/tatsujin/1/po.html` は 200、canonical あり
 ## 報告
 
 - 状態: 作業中
@@ -78,12 +104,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 17a9d13c）: https://github.com/retroeater/mj-logs/tree/main/guide/17a9d13c
+ガイド文書（この版を写した時点の最新、mj 1ccc58f2）: https://github.com/retroeater/mj-logs/tree/main/guide/1ccc58f2
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/17a9d13c/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/17a9d13c/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/17a9d13c/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/17a9d13c/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/17a9d13c/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/17a9d13c/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/1ccc58f2/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/1ccc58f2/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/1ccc58f2/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/1ccc58f2/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/1ccc58f2/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/1ccc58f2/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/95028c1a.md

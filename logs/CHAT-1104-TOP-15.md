@@ -83,15 +83,42 @@ CHAT-1104-TOP-12〜14 で、ページの中の質問欄（大会別の欄・新�
 | work/1101-prp-pub | `scripts/generate_houou_pages.py`（`add_pro_slugs()`・`prepare()`）、`style.css`（pro/ の節） | 別の関数・節 | そのまま進める |
 | ほかの未マージの work/ | `workers/ask/`・`assets/nav.js`・`assets/top_ask.js`・`generate_saikyo_pages.py`・`generate_top_page.py` | 変更なし | — |
 
+### 2. 片付け（826df5cc3・1635b0fe1・取り込み〈origin/cloudflare 17a9d13c8〉・レビューの直し）
+
+| 場所 | 中身 |
+|---|---|
+| `scripts/generate_houou_pages.py` | `ASK_TEMPLATE`・`ASK_HEAD`・`ASK_NOTICES`・`ASK_MAX` を消す。`ASK_PLAYERS` と名簿の生成は残し、冒頭の一覧・コメント・`ask_roster()` の説明を「pro/ の生成の入力」に直す |
+| `assets/houou_ask.css` | 消す。規則は `style.css` の「質問欄の部品」（`.mj-nav-ask-panel` の規則の直前）へそのまま移した。使う所の無い3つ（`.mj-houou-ask`〈欄の枠、消した型だけが使う〉・`.mj-houou .mj-houou-ask-submit`〈欄は `.mj-houou` の外。共通ナビの欄は `.mj-nav-ask-panel .mj-houou-ask-submit` が同じ値〉・`.mj-houou-ask-fact`〈houou_ask.js だけ〉）は移さない |
+| `assets/nav.js` | `houou_ask.css` を読み込む処理を外す。注意書き・上限のコメントを直す |
+| `scripts/generate_top_page.py` | `houou_ask.css` の `<link>` を外す（「もっと見る」の形は style.css に移った）。`MORE_CHEVRON` の注記を `top_ask.js` に |
+| `assets/top_ask.js` | 冒頭のコメント（見た目は style.css、houou_ask.js を残す理由と消す時機を `簡略化:` に） |
+| `assets/houou_ask.js` | **残す**（work/1101-prp-pub が変えている）。1行目のコメントだけ「読むページは無い」に |
+| `workers/ask/test/week3.test.mjs` | 画面の文言の検査が読む先を `assets/top_ask.js` に替え、正規表現の字下げを1段深くした（top_ask.js は欄ごとの関数の中にある）。Worker の本体と `ask.mjs` の注記は変えない（`houou_ask.js` が残るので注記はそのまま正しい） |
+| `scripts/tests/test_top_page.py` | top/ が `houou_ask.css` を読まないこと。nav.js の `ASK_MAX` を Worker の `QUESTION_MAX` と比べる（Python の定数は消した）。注意書きは nav.js が正なので件数だけ |
+| `scripts/tests/test_houou_ask.py` | 説明だけ（JS の検査は残す） |
+| `assets/league.js`・`assets/top.css`・`scripts/generate_saikyo_pages.py`・`style.css` の注記 | 今の形に直した |
+| `scripts/promo_video/{houou,ouka,jwrc,wrcr,saikyo_renewal}/README.md` | 末尾に「ページの中の質問欄は 2026-11-04 に廃止した（入口は共通ナビの AI 検索のアイコン）。この撮り方（`capture.mjs` の質問欄の場面）はそのままでは動かない」 |
+| docs | ask-worker・top-page・ouka-top・jwrc-top・league-pages-compare・saikyo-page-design・security・cloudflare・static-generation、`docs/decisions/top.md`。`docs/notes/security.md` の `--scope` の例の `assets/houou_ask.js` はただの例なので残した（houou_ask.js を消すときに直す） |
+
+- `#101` に着手中コメント
+- 取り込み: 作業の途中で origin/cloudflare（17a9d13c8）を merge で取り込んだ。衝突なし
+
+### 3. 検査・比べ・画面
+
+- `python3 -m unittest discover -s scripts/tests`: 1928件 OK（取り込んだ後）。`node --test 'workers/ask/test/*.test.mjs'`: 165件 OK（`workers/ask` に package.json が無いので `npm test` ではなく CLAUDE.md の形で回した）
+- 修正前のコードで通らないこと: Worker の検査は、読む先だけ替えて字下げを直さないと落ちる（top_ask.js の字下げは1段深い）。test_top_page の「top/ が houou_ask.css を読まない」は直す前の生成では落ちる
+- 新旧の比べ（`regenerate-page.yml` dry_run・all・compare_ref＝origin/cloudflare 17a9d13c8、run 41740518947、3aa79b824）: 成功、飛ばしたページなし。**中身の違うファイルは `top/index.html`（1行）だけ**＝消した `houou_ask.css` の `<link>` の行。古い表のページ・title/・index.html・ほかの大会のページの生成物は変わらない
+- 画面（ローカルの静的サーバ＋Playwright。片付ける前〈＝cloudflare・本番と同じ〉と後で、houou/・saikyo/・top/・pro/・wayhome/ × 360・400・1280px × 明・暗の30通り。欄を開いた状態と、見本の応答〈読み方・2行の答え・注記・時点・出典・選手4人〉を流し込んで答えと選手のカード〈3人＋「ほか 1名」〉が出た状態、top/ は「もっと見る」まで入れた全体の66枚）を画素で比べた: 60枚は1画素も違わない。違ったのは6枚で、pro/ の欄を開いた画面（5枚）の右端の幅 8px の帯（画素の値の差は最大 7/255）と、top/ の 360px・暗の X の写真1枚（最大 11/255）。2回撮り直しても同じ所に同じ大きさで出る（片付けた後どうしでは差なし）。目で見て区別できない差で、見た目は変わらない
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 95028c1a）: https://github.com/retroeater/mj-logs/tree/main/guide/95028c1a
+ガイド文書（この版を写した時点の最新、mj 1ccc58f2）: https://github.com/retroeater/mj-logs/tree/main/guide/1ccc58f2
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/95028c1a/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/95028c1a/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/95028c1a/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/95028c1a/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/95028c1a/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/95028c1a/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/1ccc58f2/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/1ccc58f2/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/1ccc58f2/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/1ccc58f2/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/1ccc58f2/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/1ccc58f2/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/95028c1a.md

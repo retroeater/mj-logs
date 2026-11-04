@@ -118,17 +118,34 @@ Playwright（UA に mj-internal）で 360px 明・1280px 暗:
 
 このログ（9dd5f0660）と CHAT-1104-PRP-13 のログ（cloudflare に入っている）で、`## 経過`・`## 報告` の節を書き足すときに、貼られた指示文の中の「`## 経過`」「`## 報告`」の字に当たって、経過の文が指示欄の途中に入り、指示文の一部が二重になっていた。どちらも最初のログのコミット（このログは cc64d58a2、PRP-13 は 785a98b2b）の指示欄に、書いた経過と報告をつないで作り直し、指示欄が最初のコミットと同じことを確かめた。PRP-13 の直しはこのブランチにあり、cloudflare には公開のマージで入る。PRP-08〜12 のログの指示欄は最初のコミットと同じだった。
 
+### 6. 差分のレビュー（新しい文脈のサブエージェント、1回。作業ツリーを変えないように頼んだ）
+
+マージ 771e4369e と生成 76094afde。bug の指摘なし（`houou_ask.js`・`test_houou_ask.py` は cloudflare と同じ、K8 の残りは docs のほかに 0件、`generate_pro_pages.py` が cloudflare から変えたのは公開の段だけ、`generate_title_pages.py` は `member_link(entry, slugs)` などの4か所だけで呼び出し元の漏れなし、生成物は決定どおり、という結果）。
+
+| 指摘 | 扱い |
+|---|---|
+| 1. `docs/notes/title-pages.md` の「連盟プロ以外」の項目の「上の『期ページの写真』」は、TTL で無くなった項目への参照 | 直した（82b8e6e88。「上の『期ページの決勝メンバーの行』」） |
+| 2. `generate_title_pages.py` の `slugs = pro_search.load_slugs()` の注記「期ページの写真カードの行き先」 | 直した（82b8e6e88。「決勝メンバーの行き先」。生成物に効かないので再生成しない） |
+| 3. `docs/decisions/pros.md` の PRP-10 と PRP-11 の節の間に空行が無い（取り込みでつないだ所） | 直した（82b8e6e88） |
+| 4. `docs/notes/pro-pages.md` の検査の一覧に `PublishTest` の中身が無い | 直した（82b8e6e88） |
+| 5. `assets/houou_ask.js` の1行目の注記「pro/ のトップの欄だけが使う…生成は `top_ask()`」は cloudflare の時点で古い | 見送り（決定「houou_ask.js は cloudflare のまま」。別に直す。判断が必要なことに挙げる） |
+
+82b8e6e88 の後: Ran 1945 tests OK。
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1101-prp-pub
 - ログ: https://github.com/retroeater/mj/blob/work/1101-prp-pub/docs/logs/CHAT-1104-PRP-14.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1101-prp-pub
-- 確認用URL: 作業中
-- マージ: 未（判断待ち）
+- 確認用URL: プレビューあり（76094afde の Workers Builds。URL はターミナルの最終報告だけ。目印: `title/houou/41.html` の決勝メンバーを押すと連盟プロの個別ページ、`pro/` に noindex が無く質問欄も無い）
+- マージ: 未（判断待ち。このブランチのマージが pro/ の公開。live/〈#362〉の公開と告知動画の後に別の指示で）
 - issue: #641
-- 判断が必要なこと: 作業中
-- 未確認の項目: 作業中
+- 判断が必要なこと:
+  - 公開のマージの日に入るのは `docs/notes/pro-pages.md`「公開のマージ（#641）」の項目だけになった。work/1104-lvp が先に cloudflare に入れば、`regenerate-page.yml`・`update_sitemap_lastmod.py`・`docs/handover.md` の衝突は決定どおり両方を残して解く
+  - CHAT-1104-PRP-13 のログ（cloudflare に入っている）が、見出しの字を探す書き方の誤りで指示欄の途中に経過が入って壊れていた。このブランチで作り直した（9a677b95a）。cloudflare には公開のマージで入る。先に直すなら docs のみの指示が要る
+  - `assets/houou_ask.js` の1行目の注記（「pro/ のトップの欄だけが使う…`top_ask()`」）は、PRP-11 で pro/ の質問欄を外した後は古い。TOP の側（質問欄の部品を消す指示）で直すか
+- 未確認の項目: iPhone 実機での title/ の期ページの行と pro/ の見え方
 - エラー: なし
 
 <!-- guide-links -->
