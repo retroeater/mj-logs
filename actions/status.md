@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-11-04 14:31 JST
+- 書き出した時刻: 2026-11-04 14:34 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -25,7 +25,7 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-11-04 14:30 | push | work/1104-prp-polish | in_progress | #921（41779708229） |  |
+| 2026-11-04 14:30 | push | work/1104-prp-polish | success | #921（41779708229） | 0分33秒 |
 | 2026-11-04 14:25 | push | work/1104-acf-cache | success | #920（41779213855） | 0分26秒 |
 | 2026-11-04 14:23 | push | work/1104-acf-cache | success | #919（41778970585） | 0分32秒 |
 | 2026-11-04 14:21 | push | work/1104-top3 | success | #918（41778789076） | 0分27秒 |
@@ -38,11 +38,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-04 14:31 | check_run | cloudflare | skipped | #1204（41779801043） | 0分01秒 |
 | 2026-11-04 14:26 | check_run | cloudflare | skipped | #1203（41779282544） | 0分02秒 |
 | 2026-11-04 14:24 | check_run | cloudflare | skipped | #1202（41779018274） | 0分02秒 |
 | 2026-11-04 14:22 | check_run | cloudflare | skipped | #1201（41778842515） | 0分01秒 |
 | 2026-11-04 14:19 | check_run | cloudflare | skipped | #1200（41778560237） | 0分01秒 |
-| 2026-11-04 14:16 | check_run | cloudflare | skipped | #1199（41778240091） | 0分01秒 |
 
 ## check-image-links.yml
 
@@ -201,11 +201,13 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-04 14:32 | workflow_dispatch | work/1104-prp-polish | in_progress | #707（41779916769） |  |
+| 2026-11-04 14:30 | workflow_dispatch | work/1104-prp-polish | success | #706（41779708313） | 1分51秒 |
 | 2026-11-04 14:21 | workflow_dispatch | work/1104-top3 | in_progress | #705（41778794993） |  |
-| 2026-11-04 14:19 | workflow_dispatch | work/1104-lgn-gnotice | in_progress | #704（41778530568） |  |
+| 2026-11-04 14:19 | workflow_dispatch | work/1104-lgn-gnotice | failure | #704（41778530568） | 13分53秒 |
 | 2026-11-04 14:18 | workflow_dispatch | work/1104-lgn-gnotice | success | #703（41778449435） | 0分37秒 |
-| 2026-11-04 13:01 | push | cloudflare | success | #702（41770619431） | 10分44秒 |
-| 2026-11-04 12:59 | workflow_dispatch | work/1104-lvp | success | #701（41770417538） | 1分04秒 |
+
+- #704 failure: ジョブ「regenerate」 ステップ「飛ばしたページを報告」
 
 ## regenerate-saikyo.yml
 
