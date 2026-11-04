@@ -115,28 +115,107 @@ UA は `mj-internal research (ryoei.pro)`、ページの間は2〜3秒あけた�
 - 形の違う対局: 全日本プロ選手権（11-15）・全国アマチュア最強位決定戦（11-22、#632）・ファイナル（12-12・13。1st Stage が4卓）のテキスト速報が同じ形かは、まだ見ていない
 - 公開日と対局日: テキスト速報の題に日付は無い（公開日で代える。日をまたいだ対局は無い前提）
 
+### 3. 設計案（D: 最強戦の成績記事からの転記案）
+
+#### 方式の比較
+
+| 案 | 中身 | 費用の見込み | 長所 | 短所 |
+|---|---|---|---|---|
+| (a) プログラムで読む | キンマweb のテキスト速報の席順の行と「試合結果」の行を正規表現で読み、点数の順に順位、上位2人を通過（決勝は1位を優勝）。決勝は結果記事の「▲1位：…」でも確かめる | 0（API を呼ばない） | 費用が無い。答えがぶれない。テストで形を固定できる | 記事の形が変わると読めない（読めなければ「見つからない」で書き、知らせる）。形の違う対局（全日本プロ選手権・アマチュア・ファイナル）は形ごとに足す |
+| (b) API に本文を渡す | コードで記事を取得し、本文を Haiku 5.5 に渡して4人の点数・順位を答えさせる（Web 検索・取得のツールは使わない）。照合は (a) と同じ | 1記事 約 5,000トークン → 1対局（速報3本） 約 $0.003、月4対局で 約 $0.01〜0.02 | 形が多少変わっても読める | 費用は小さいが、答えのぶれと照合の手間がある。結局 (a) と同じ照合のコードが要る |
+| (c) A〜C と同じ Web 検索 | 卓ごとに Haiku 5.5 に検索・取得させる | 1卓 約 $0.03、1対局 約 $0.09、月 約 $0.4 | 今の仕組みのまま種別を足すだけ | RSC-06 のとおり、予選の4人の順位が出る割合が低い（観戦記を取りきれない）。速報を確実に選ぶ保証が無い |
+
+推奨は (a)。2026-10-29 の決定（「新しい成績記事があるときだけ API を呼ぶ」）を変えることになるので、「判断が必要なこと」1 に書いた。
+
+#### 起動・新しい記事の見分け方と記録（(a) の場合）
+
+- 起動: 毎朝の `run-daily.yml` から、`research-candidates.yml` を `workflow_call` で呼ぶ（入力 `kind` D・書く）。今の research-candidates は「手動実行だけ」なので、`workflow_call` を足すことになる（`docs/notes/github-actions.md` の表と Worker の起動の表の扱いを直す）。オフシーズンは RSS に新しい速報が無いので、RSS を1回読むだけで終わる
+- 新しい記事: キンマweb のカテゴリの RSS を読み、カテゴリ「テキスト速報」で、題が「【麻雀最強戦YYYY <対局名> <A卓戦|B卓戦|決勝戦>】テキスト速報」の形の記事を選ぶ。決勝の確かめには同じ対局の結果記事（題「優勝は…【麻雀最強戦YYYY <対局名>】」）も読む
+- 記録: 候補タブの行そのものを記録にする（対象キーを記事の URL にすれば、今の `existing_keys()` の「同じ（種別, 対象キー, モデル）は飛ばす」で二度読まない。新しい置き場は作らない）。読めなかった記事も「見つからない」で1行書き、二度読まない（`recheck` で読み直せる）
+- RSS は新しい10件だけ。対局の週は1日に7件ほど（速報3・結果1・観戦記3）増えるので、毎朝読めば落ちない。ジョブが2日以上止まったときに備え、2ページ目（`?paged=2`）までは読む
+- robots.txt を読み（`urllib.robotparser`、旧公式と同じ）、禁じられていれば止める。ページの間は数秒あける
+
+#### 照合（シートとのずれ）
+
+| 確かめること | 合わないとき |
+|---|---|
+| 題の年度・対局名が、「最強戦」シート（表示=Y）の対局と同じ | 未照合「シートに対局が無い」（対局名の表記の揺れを含む） |
+| 予選の卓: 席順の4人（フルネーム）が、シートのその卓の4人と同じ（シートの名前は `generate_saikyo_pages.load_rows()` で「別名」を通した現在名） | 未照合「4人がシートと違う」 |
+| 「試合結果」の点数が4つ読め、略称の並びが席順と同じ数。合計が 100,000 以下で100点単位（供託が残ることがある） | 見つからない「試合結果を読めない」 |
+| 同点が無い | 未照合「同点（順位を決められない）」 |
+| 「○・○が勝ち上がり！」の2人（略称）が、点数の上位2人の略称と同じ | 未照合「勝ち上がりの文と点数の順が違う」 |
+| 決勝の卓: 4人が、同じ対局の予選の上位2人ずつ（計4人）と同じ。結果記事の「1位：…」の並びと点数の順が同じ | 未照合（理由を備考に） |
+| シートにすでに順位・結果がある人は、それと同じ | 未照合「シートの順位・結果と違う」 |
+
+- 名前を照合に使うが、記事の名前を「別名」で直す処理（`NameBook.resolve`）は呼ばない。シートの行（`load_rows()` で直した現在名）と記事の席順のフルネームを比べるだけにする。このため `scripts/check_unused_names.py` の `NAME_RESOLVERS` は**範囲に含めなくてよい**（`generate_saikyo_pages.load_rows` は表に載っている）。記事が旧名で書かれた人は未照合に倒れる（簡略化として残す）。記事の名前も「別名」で直すなら、表に関数を足すので範囲に含める（「判断が必要なこと」6）
+
+#### 候補タブの列（今の12列で足りる）
+
+| 列 | D の値 |
+|---|---|
+| 種別 | D |
+| 対象キー | 記事の URL（テキスト速報） |
+| 対象 | 「2026-11-01 超技巧合戦 ベスト8 A卓（内川幸太郎・小川光・鈴木たろう・小林剛）」 |
+| 候補 | 「1位 鈴木たろう 通過・2位 小川光 通過・3位 小林剛 敗退・4位 内川幸太郎 敗退」（決勝は「1位 小川光 優勝・2位 鈴木優 敗退・…」） |
+| 確度 | 照合済み・未照合・見つからない（上の表） |
+| 出典URL・引用文 | 記事の URL と「試合結果」の行 |
+| モデル | 「速報」（API を使わない行。旧公式の「旧公式」と同じ扱い） |
+| 費用 | 0 |
+| 状態・備考 | 平野さんが採用・却下を書く／理由 |
+
+- 決勝の卓はシートに行が無いので、候補の行を見て平野さんが4行を足す（シートには書かない。2026-10-29 の決定）
+
+#### 止まる条件（ジョブを失敗にする）
+
+- RSS・記事が HTTP 200 で返らない、robots.txt で禁じられる
+- 1回の実行で新しいテキスト速報が 12本を超える（RSS の取り違えの疑い。ファイナルは1日に5本ほど）
+- 候補タブの見出しが違う（今と同じ）
+
+止まらずに行を書くもの: 読めない記事（見つからない）、シートとずれる記事（未照合）。
+
+#### 費用
+
+- (a): API は 0。Actions は毎朝1分ほど（RSS 1回と、対局の週は記事4本）
+- 参考 (b): 月 約 $0.01〜0.02。(c): 月 約 $0.4
+
+#### マージの後に確かめること（実装の指示で）
+
+- 11-08（義兄弟合戦）の速報3本と結果記事で、dry-run の表がシートの4人と合うか
+- 11-15（全日本プロ選手権）・11-22（アマチュア）・12-12/13（ファイナル）の速報の形（形が違えば、その対局は見つからない・未照合で書かれる。形を足すかは見てから決める）
+
+### マージ
+
+- 差分はドキュメントだけ（`docs/logs/CHAT-1104-RSC-08.md`・`CHAT-1104-RSC-09.md`・`docs/decisions/automation.md`）。`git push origin work/1104-rsc:cloudflare` の範囲は `3c7a64ac6..7ff3e3e59`。この行はマージの後の追いの push
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1104-rsc
-- ログ: https://github.com/retroeater/mj/blob/work/1104-rsc/docs/logs/CHAT-1104-RSC-09.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1104-rsc
+- 状態: 判断待ち
+- ブランチ: work/1104-rsc（cloudflare にマージ済み）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1104-RSC-09.md
+- 比較URL: なし（マージ済み）
 - 確認用URL: なし
-- マージ: 未
-- issue: #408・#630
-- 判断が必要なこと: 作業中
-- 未確認の項目: 作業中
+- マージ: 済み（ドキュメントのみ。範囲は「マージ」の行）
+- issue: #408（C の決定を記録。Open のまま）。D 用の issue は無い（起票の案は下の 5）
+- 判断が必要なこと:
+  1. **D の方式。** 予選の卓の4人の順位が分かるのは、キンマweb のテキスト速報の「試合結果」の行（4人の点数）だけで、プログラムで読める形だった。(a) プログラムで読む（推奨。費用 0、答えがぶれない。2026-10-29 の決定「新しい成績記事があるときだけ API を呼ぶ」を「API を使わずにプログラムで読む」に変える）／(b) コードで取得した本文を Haiku 5.5 に渡す（月 約 $0.01〜0.02。形の変化に強いが、照合のコードは (a) と同じだけ要る）／(c) A〜C と同じ Web 検索（月 約 $0.4。予選の4人の順位が出る割合が低い〈RSC-06〉）
+  2. **資料をキンマweb に絞るか。** 公式サイトには結果が無く（予定表だけ）、ABEMA TIMES は決勝の1〜4位だけで翌日の昼に出る。(a) キンマweb のテキスト速報と結果記事だけ（推奨。月曜の朝に揃う）／(b) ABEMA TIMES の「【決勝結果】」も決勝の確かめに足す（火曜の朝になる。決勝だけ二重に確かめられる）。あわせて、キンマweb も最強戦の公式サイトと同じ竹書房の運営（会社概要）なので、#469 の許可の内とみなしてよいか（推奨: みなす。CHAT-0918-SX-04 でも出典にしていた）
+  3. **起動。** (a) 毎朝の run-daily から research-candidates を `workflow_call` で呼ぶ（推奨。オフシーズンは RSS を1回読むだけ。research-candidates に `workflow_call` を足し、「手動実行だけ」の扱いを変える）／(b) 月・火の朝だけ（シートの更新の日に合わせる。日曜以外の対局〈土曜・ファイナル〉の取りこぼしは翌週になる）／(c) 手動だけ（平野さんか Claude Code が対局の後に起動する）
+  4. **決勝の卓の扱い。** シートに行が無いので、候補の行（4人と順位・結果）を見て平野さんが4行を足す（推奨。シートには書かない決定のまま）／候補タブとは別に「シートに足す4行」の形でも出す（転記の手間は減るが、出力の形が増える）
+  5. **D の issue の起票。** 案: 題「最強戦: 成績記事から順位・結果の転記案を候補タブに書く（調べもの D）」、ラベル「分野: データ」「対象: saikyo」、本文にこのログの「2. 記事の作り」「3. 設計案」の結論と参照。起票するか（推奨: 実装の指示の前に起票する）
+  6. **`NAME_RESOLVERS`（RSC-07 の判断待ち3）。** (a) の照合はシートの行（`load_rows()` で「別名」を通した現在名）と記事のフルネームを比べるだけで、記事の名前を「別名」で直さない。(a) 範囲に含めない（推奨。旧名で書かれた記事は未照合に倒れる）／(b) 記事の名前も「別名」で直し、`scripts/check_unused_names.py` を差分の範囲に含める
+  7. **形の違う対局。** 全日本プロ選手権・アマチュア最強位決定戦・ファイナルの速報の形はまだ見ていない。(a) まず通常の対局（予選2卓＋決勝）の形だけを実装し、ほかは見つからない・未照合で書いて、形を見てから足す（推奨）／(b) 実装の前に過去の年度の同じ対局の速報を読んで、形を揃えてから実装する
+- 未確認の項目: 形の違う対局の速報の形（上の 7）。最強戦の同点の順位の決め方（点数だけでは決まらない。同点は未照合にする案）。古い456件の issue の題（D 用の issue の検索は新しい200件だけ）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 214c8e42）: https://github.com/retroeater/mj-logs/tree/main/guide/214c8e42
+ガイド文書（この版を写した時点の最新、mj c853e6ae）: https://github.com/retroeater/mj-logs/tree/main/guide/c853e6ae
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/214c8e42/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/214c8e42/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/214c8e42/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/214c8e42/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/214c8e42/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/214c8e42/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c853e6ae/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c853e6ae/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c853e6ae/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c853e6ae/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c853e6ae/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c853e6ae/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/95028c1a.md

@@ -65,6 +65,27 @@
 - 0. 「指示」欄の末尾は指示文の最後の行と一致。指示文の「LVP-13 の報告（6860e8bba）」は mj-logs 側の SHA で、mj の報告のコミットは 17230975c。origin/work/1104-lvp にそれより後のコミットは無い
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている。着手は 2026-11-04 11:08 JST（毎朝の取り込みの直後ではない）
 
+- 手順1: #362 に他セッションの着手中のコメントが無いことを確かめ、着手中のコメントを書いた。CHAT-1104-LVP-13 のログの状態に `/ 続き: CHAT-1104-LVP-14` を足した
+- origin/cloudflare（3c7a64ac6）の取り込み（3655e9642）: 衝突は LVP-13 と同じ4ファイル（`scripts/lib/page.py`・`scripts/tests/test_simple_pages_check.py`・`sitemap-pages.xml`・docs/notes/static-generation.md）。ほかの衝突は無い。指示の解き方のとおり両方の変更を合わせた。解いた後:
+  - `scripts/lib/page.py` 3行:
+    > jpml_test / resource_logs / video_live の3本(jpml_titles は #441、resource_logs は #640、video_live は #362 で廃止。今は rh_paifu・saikyo_mens など)の
+  - `scripts/tests/test_simple_pages_check.py` 19行:
+    > GENERATE_PAGES = ["rh_paifu", "rh_results", "rh_results_detail", "saikyo_mens"]
+  - `sitemap-pages.xml`: resource_logs.html と video_live.html の `<url>` を消し、/log/ の `<url>`（lastmod 2026-11-04）を残した。XML として読める。`<loc>` は55件
+  - docs/notes/static-generation.md 256行（ページ数は `ls *.html` の実数 9 にした。抜き出し）:
+    > ルート直下のHTMLは9ページ（2026-11-04、`ls *.html`） … 放送対局ページ（`live/`、#346、公開は #362。旧 `video_live.html` は `/live/` へ 301） + …
+  - 型Aの行:
+    > | ビルド時生成（型A・2列/3列） | 2 | `rh_paifu.html` / `saikyo_mens.html`。旧 `resource_logs.html` は廃止し `/log/` へ 301（#640。生成スクリプト・`resource_logs.js` も消した）。旧 `video_live.html` は廃止し `/live/` へ 301（`?name=` は期限つきで `?…
+  - ページの一覧（cloudflare の「ログ」の行と、この作業ブランチの放送対局の行。ページ数は 947 にした）:
+    > | ビルド時生成（サブディレクトリ、「ログ」のページ） | 1 | `log/index.html`（URL は `/l…
+    > | ビルド時生成（サブディレクトリ、放送対局ページ） | 947（2026-11-04） | `live/index.html`・`live/<タイトル戦>/index.html`…
+- 未マージの work/ ブランチ（`git merge-tree` で、この作業ブランチと cloudflare のそれぞれに対する衝突を比べた）: 止まる条件のファイルで新しく衝突するブランチは無い。同じファイルの別の箇所: work/1028-lgn（navbar.js 73行・_redirects 95行）、work/1101-prp-pub（navbar.js 30・88行、sitemap.xml 15・45行、llms.txt 16・76行）。work/1101-prp-pub は今も未マージで、`llms.txt` 76行（サイトマップの行）・`regenerate-sitemap.yml` 84行・docs/notes/sitemap-lastmod.md 5行を変えているので、この3つは外した。ほかのファイルで新しく生まれる衝突: work/1028-lgn（docs/new-page-checklist.md）、work/1101-prp-pub（regenerate-page.yml・docs/handover.md・update_sitemap_lastmod.py）
+- 【3】のプレーオフの6行（一時の出力 23ff0d4fb で読み、7b1aee39c で戻した。run 41759058973）: LVP-13 と同じく、6行とも LVP-10 の報告の表のとおり（メンバー限定の4289・4228・4240 は掲載 Y・ステージ「プレーオフ」・並び 1・まとめ単位「プレーオフ」、公開版の4283・4222・4264 は掲載 N・冒頭 Y）
+- `--check live_pages`（同じ run）: 止まるページなし、ページ 947、警告は「未確認 686件」だけ
+- 前からの食い違いの直し（6e22ba1d1）: style.css・table.js のコメントから video_live を外した（table.js は「#362 で廃止」と書いた）。static-generation.md の sitemap-pages.xml の「24ページ」を実数の55件と中身に直した。live-page-design.md の live/ のページ数を 947 にした
+- live/ の本実行（run 41759258958、15258f472）: 変わったのは live/ の3ファイルだけ。トップは「放送対局動画2989本（770対局）」で、`llms.txt` の 2,989本（LVP-13 で直した）と一致。`live/tatsujin/1/po.html`・`2/po.html`・`3/po.html` はある
+- テスト: `python3 -m unittest discover -s scripts/tests` は全件 OK（取り込みの後・直しの後）
+- wrangler dev: `/video_live.html` → 301 `/live/`、`/video_live.html?name=堀慎吾` → 301 `/live/?name=堀慎吾`（クエリが残る）。`/live/` はローカルでは 404（`_redirects` の 200 の書き換えを wrangler dev が当てない。LVP-10・13 と同じ）。`/live/index.html?name=堀慎吾` は「770件中 3件を表示」。`/live/tatsujin/1.html` は 200・noindex 無し、見出しは「プレーオフ」→「決勝」
 ## 報告
 
 - 状態: 作業中
@@ -81,12 +102,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 214c8e42）: https://github.com/retroeater/mj-logs/tree/main/guide/214c8e42
+ガイド文書（この版を写した時点の最新、mj c853e6ae）: https://github.com/retroeater/mj-logs/tree/main/guide/c853e6ae
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/214c8e42/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/214c8e42/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/214c8e42/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/214c8e42/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/214c8e42/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/214c8e42/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c853e6ae/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c853e6ae/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c853e6ae/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c853e6ae/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c853e6ae/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c853e6ae/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/95028c1a.md
