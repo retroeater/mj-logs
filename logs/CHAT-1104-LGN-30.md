@@ -70,18 +70,28 @@ Chat-Ref: CHAT-1104-LGN-30
 - docs（4e3d8dd78）: log-page.md（画面ごとの仕様に「利用条件」と理由〈規約 3.2.2(a)(i)〉、「段2 の後」の行から #663 を外した）、docs/decisions/operations.md
 - `regenerate-page.yml`（作業ブランチ、`check`・`target_page: log_pages`、run 41778449435、4e3d8dd78、success）: 「3層から 3168件のうち 2436件・1740店（…「閉業」シートで外した 0店…）」「検査: 通りました(2436件・1740店。ファイルは書いていません)」
 - 自己レビュー（新しい文脈のサブエージェント1回、docs/notes/self-review.md）: 指摘なし（要件・決定、log.js が隠さないこと、HTML・アクセシビリティ・CSS、検査が変更前に落ちること〈生成スクリプトを戻すと TermsTest が落ちる〉、docs）。補足の2点（rel が無いのは既存の `SOURCE_HTML` と同じ形・見出しの文字の大きさは注記として控えめ）は意図どおり。往復1回で収まった
+- 再生成（入力無し、run 41778530568、success）→ d7b736fbb `chore: regenerate …`。変わったのは `log/index.html` の1行（末尾の利用条件）だけ（題に並ぶほかのパスは差分なし）
+- マージの条件:
+  - (1) `git diff --name-only origin/cloudflare...HEAD` は8ファイル: `scripts/generate_log_pages.py`・`log/index.html`（生成物）・`style.css`（利用条件の分）・`scripts/tests/test_log_pages.py`（検査）・docs/notes/log-page.md・docs/decisions/operations.md・docs/logs/CHAT-1104-LGN-27.md（写し）・docs/logs/CHAT-1104-LGN-30.md。満たす
+  - (2) unittest OK・`node --test` pass 40・fail 0。満たす
+  - (3) `check`（`target_page: log_pages`、run 41778449435）success・「検査: 通りました」。満たす
+  - (4) `_headers` の `/*` の CSP に `https://cloudflareinsights.com` がある（1件）。満たす
+  - 取り込み: cloudflare は作業ブランチの祖先（取り込みは不要・衝突なし）
+- マージ: 直前の再 fetch で祖先を確かめて `git push origin work/1104-lgn-gnotice:cloudflare`（8c7dd9a31..d7b736fbb）
+- 本番（UA に `mj-internal`）: check-run（d7b736fbb）は Workers Builds: mj・regenerate・sync とも success。`https://ryoei.pro/log/` は 200、`mj-log-terms` の節が1つあり `#log_result` の後、節の中に `https://maps.google.com/help/terms_maps/` と `https://policies.google.com/privacy` がある
+- #663: 題を「ログ: 利用規約・プライバシーポリシーのページを作る」から「ログ: log/ の末尾に Google マップの利用条件を載せる」に直し、/policy/ を作らず末尾に載せたこととマージの SHA をコメントして閉じた（状況のラベルは付いていなかった）
 
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1104-lgn-gnotice
-- ログ: https://github.com/retroeater/mj/blob/work/1104-lgn-gnotice/docs/logs/CHAT-1104-LGN-30.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1104-LGN-30.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1104-lgn-gnotice
-- 確認用URL: なし
-- マージ: 未
-- issue: #663
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 確認用URL: なし（本番 https://ryoei.pro/log/ で確かめた）
+- マージ: 済（d7b736fbb）。条件 (1) 差分は利用条件の生成スクリプト・生成物・style.css・検査・docs・ログ（LGN-27 の写しを含む）の8ファイル (2) unittest OK・node --test pass 40 (3) check の log_pages success (4) CSP に cloudflareinsights.com あり。本番の log/ の末尾に2つの URL
+- issue: #663（題を直し、コメントして閉じた）
+- 判断が必要なこと: work/1104-lgn-policy（先頭 e20490d5e8cf2fdfd4d7fa6364a8267475840d32、LGN-27 の /policy/ の案）はマージしないので cleanup-branches.yml では消えない。消すなら平野さんが GitHub の画面で削除する
+- 未確認の項目: 実機（iPhone）での末尾の見え方
 - エラー: なし
 
 <!-- guide-links -->
