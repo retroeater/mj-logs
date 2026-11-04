@@ -54,6 +54,21 @@ TOP-17（読むページの無い `assets/houou_ask.js` とその JS の検査�
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 0. 着手前の確認
+
+- 「指示」欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は4行とも有り。同じ Chat-Ref のコミットは0件
+- CHAT-1104-TOP-17 の `## 報告` の状態は「判断待ち」、origin/work/1104-top3（b3f9e5121）は cloudflare に未マージ。TOP-17 の状態に ` / 続き: CHAT-1104-TOP-18` を足した
+- `git branch -r --no-merged origin/cloudflare` の全ブランチ（work/1104-top3 を除く）で、`assets/houou_ask.js`・`scripts/tests/test_houou_ask.py` を変えているものは0件
+
+### 1. 取り込みと条件
+
+- origin/cloudflare（8c7dd9a31）を merge で取り込んだ。衝突なし
+- (1) テスト: `python3 -m unittest discover -s scripts/tests` 1957件 OK、`node --test 'workers/ask/test/*.test.mjs'` 165件 OK
+- (2) `git diff --name-only origin/cloudflare...HEAD`: assets/houou_ask.js・assets/league.js・assets/top_ask.js・docs/decisions/top.md・docs/logs/CHAT-1104-TOP-17.md・CHAT-1104-TOP-18.md・docs/notes/ask-worker.md・pro-pages.md・security.md・scripts/tests/test_houou_ask.py・test_top_page.py・workers/ask/src/ask.mjs。TOP-17 のログ「4.」の11ファイルと TOP-18 のログだけ
+- (3) 新旧の比べ（dry_run・all・compare_ref＝origin/cloudflare 8c7dd9a31）を実行中
+
 <!-- guide-links -->
 ---
 
