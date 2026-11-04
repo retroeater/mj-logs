@@ -55,6 +55,66 @@
 
 ## 経過
 
+- 着手前の確認: 同じ Chat-Ref のコミット・ログなし。`RSC` は続き（09）。作業ブランチ: origin/work/1104-rsc とローカルの work/1104-rsc は origin/cloudflare の祖先（マージ済み）なので `git merge --ff-only origin/cloudflare` で進めた（71efe5a3e）
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 欠けなし（RSC-08 と同じく改行が詰まって1段落）
+- 0.: 「指示」欄の末尾は指示文の最後の行と一致。CHAT-1104-RSC-08 の `## 報告` の状態を「判断待ち / 続き: CHAT-1104-RSC-09」にした
+
+### 1. 前提の確かめ
+
+- #408・#630: どちらも Open。他セッションの着手中のコメントは無い（直近は RSC-07・08 の自分のコメント）
+- #408 に C の決定を記録した（https://github.com/retroeater/mj/issues/408#issuecomment-6620598727）。区切り・平野さんが確かめるもの（※の12期・未照合の33期）・外の資料待ちに戻すもの（見つからない34期・2009年以前）
+- D 用の issue: 無い。issue の一覧（656件のうち新しい200件の題、クローズ済みを含む）を「最強戦」「転記」「記事」「成績」で見た。近いものは #469（公式サイトを資料に使う扱い、Closed）・#537（「最強戦」シートの更新を saikyo/ に自動で反映、Closed）・#573（ABEMA の回と「最強戦」シートの突き合わせ、Open）で、どれも転記案ではない。GitHub の検索のツール（search_issues）はこのセッションに無いので、一覧の題で見た（簡略化。古い456件の題は見ていない）
+
+### 2. 記事の作り（Claude API・Actions は呼んでいない）
+
+UA は `mj-internal research (ryoei.pro)`、ページの間は2〜3秒あけた。読んだのは各サイトの robots.txt・一覧（RSS・特集）と、2026-11-01 の「超技巧合戦」の記事。3つとも読めた。
+
+#### サイトと記事の種類
+
+| サイト | 運営 | robots.txt | 新しい記事の見分け方 | 最強戦の成績が載る記事 |
+|---|---|---|---|---|
+| 公式（mahjong-saikyosen.com） | 竹書房（サイトポリシー「全てのコンテンツは株式会社竹書房が所有」「書面による許可なく、個人的な目的以外で使用することは禁止」。#469 の許可の内） | 無い（404） | RSS `?feed=rss2`（10件）。今は地方最強位のインタビューだけ | **無い**。「プロ対局」（`?page_id=382`）は対局日・対局名と A卓・B卓の4人・解説の予定表で、結果は載らない |
+| キンマweb（kinmaweb.jp） | 竹書房（近代麻雀編集部。会社概要のページ） | `User-agent: *` は `/wp-admin/` だけを禁止（Crowsnest という UA にだけ一部の記事を禁止） | カテゴリ「麻雀最強戦」の RSS `https://kinmaweb.jp/archives/category/mahjong-championship/feed`（新しい10件。記事ごとにカテゴリ〈「テキスト速報」など〉と出場者のタグが付く）。URL は `/archives/<番号>` | 対局の当日: 卓ごとの「テキスト速報」（A卓戦・B卓戦・決勝戦）と、夜の結果記事「優勝は○○プロ！！…」。翌朝: 卓ごとの観戦記（A卓・B卓・決勝卓） |
+| ABEMA TIMES（times.abema.tv） | ABEMA | 一部のボットだけ禁止（`User-agent: *` の禁止なし） | 特集「麻雀最強戦」（`/tags/麻雀最強戦` → `/feature/program/strongest-fight`）の一覧。全体の RSS `/list/feed/rss` はあるが最強戦に絞れない。URL は `/articles/-/<番号>`（2ページ目は `?page=1`） | 翌日の昼の記事1本（優勝者の記事。2026-11-02 14:50） |
+
+#### 載っている項目（2026-11-01「超技巧合戦」）
+
+| 記事 | 公開 | 対局日 | 対局名 | 卓 | 4人の名前 | 順位 | 点数 | 通過/敗退 | 書き方の例（引用） |
+|---|---|---|---|---|---|---|---|---|---|
+| キンマ テキスト速報 A卓戦（/archives/288622） | 当日の対局中から更新 | 題に無く、公開日で分かる | 題「【麻雀最強戦2026 超技巧合戦 A卓戦】テキスト速報」 | 題 | 冒頭の席順（「東家：内川幸太郎 南家：小川光 西家：鈴木たろう 北家：小林剛」） | 点数から分かる | **4人とも** | 「たろう・小川が勝ち上がり！」 | 「試合結果 内川：20600　小川：24700　たろう：32600　小林：22100」 |
+| キンマ テキスト速報 B卓戦（/archives/288623） | 同上 | 同上 | 同上 | 同上 | 同上（阿久津翔太・魚谷侑未・石井一馬・鈴木優） | 同上 | 4人とも | 「優・魚谷が勝ち上がり！」 | 「試合結果 阿久津：14400　魚谷：32400　一馬：15300　優：37900」 |
+| キンマ テキスト速報 決勝戦（/archives/288624） | 同上 | 同上 | 同上 | 同上 | 同上（鈴木たろう・小川光・鈴木優・魚谷侑未） | 同上 | 4人とも（マイナスは「▲」） | — | 「試合結果 たろう：▲7400　小川：43600　優：41400　魚谷：22400」 |
+| キンマ 結果記事（/archives/288627） | 当日の夜（20:44） | 「11月1日（日）15時より」 | 本文 | 決勝だけ | 決勝の4人（フルネーム） | **決勝だけ 1〜4位** | 無い | 優勝者だけ | 「▲1位：小川光プロ/2位：鈴木優プロ/3位：魚谷侑未プロ/4位：鈴木たろうプロ」。次の対局の A卓・B卓の4人も載る |
+| キンマ 観戦記（/archives/288712 ほか） | 翌朝 | 本文 | 題 | 題 | 本文（姓だけの所が多い） | 本文の流れ（RSC-06 で、取りきれないことが多いと分かった） | 一部 | 本文 | 題「小川光が下馬評を覆す！…堂々の2位獲得【麻雀最強戦2026 超技巧合戦】観戦記【A卓】」 |
+| ABEMA TIMES（/articles/-/10285810） | 翌日の昼 | 「11月1日に行われ」 | 本文 | 予選は通過の卓だけ（「予選A卓を2位で通過」） | 決勝の4人 | **決勝だけ 1〜4位** | 途中の点だけ | 優勝者だけ | 「【決勝結果】 1位　小川光 2位　鈴木優 3位　魚谷侑未 4位　鈴木たろう」 |
+
+分かったこと:
+
+- **予選の卓の4人の順位が分かるのは、キンマweb のテキスト速報の「試合結果」の行だけ**（点数4人分）。結果記事・ABEMA TIMES は決勝の1〜4位だけ。公式サイトには結果が無い
+- テキスト速報の「試合結果」は、名前が略称（「たろう」「優」「一馬」）だが、並びは冒頭の席順（東家から）と同じで、席順の行はフルネーム。**席の位置で4人を結べるので、プログラムで読める**（3つの卓とも同じ形を確かめた）
+- 結果記事は当日の夜、テキスト速報は当日に出るので、**月曜の朝には揃っている**（ABEMA TIMES は月曜の昼で、火曜の朝になる）
+- 「最強戦」シートには、対局の前に予選の卓の4人が入っている（saikyo/2026/20261108-s1-a.html に 11-08 の A卓の4人がある）。11-01 の分は、11-04 の時点で結果も決勝の卓もまだ入っていない（20261101-s2.html が無い）。決勝の卓の4人は、予選の後に平野さんが足している
+
+#### 「最強戦」シートの列と記事の対応
+
+| 列（`generate_saikyo_pages.HEADERS` と「表示」） | 予選の卓（シートに行がある） | 決勝の卓（シートに行が無い） | 出どころ |
+|---|---|---|---|
+| 対局日 | 入っている | 埋められる | テキスト速報の公開日・結果記事の「11月1日（日）」 |
+| 年度 | 入っている | 埋められる | 題の「麻雀最強戦2026」 |
+| 対局 | 入っている | 埋められる | 題の対局名（「超技巧合戦」） |
+| ステージ | 入っている | 「決勝」 | 題の「決勝戦」 |
+| 卓 | 入っている（A卓・B卓） | 空（決勝は1卓） | 題 |
+| 順位 | **埋められる**（点数の順） | **埋められる** | テキスト速報の「試合結果」・結果記事・ABEMA TIMES |
+| 結果 | **埋められる**（予選は上位2人が通過、ほかは敗退。記事の「○・○が勝ち上がり！」で確かめる） | **埋められる**（1位は優勝、ほかは敗退） | 同上 |
+| 名前 | 入っている | 埋められる（予選の通過者と一致するか確かめる） | 席順の行 |
+| 表示 | 入っている | 埋められない（平野さんが Y） | — |
+
+#### 埋められない・分からないもの
+
+- 同点のとき（点数が同じ2人）の順位: 記事の点数だけでは決まらない（最強戦の同点の決め方〈上家取りなど〉を確かめていない）
+- 形の違う対局: 全日本プロ選手権（11-15）・全国アマチュア最強位決定戦（11-22、#632）・ファイナル（12-12・13。1st Stage が4卓）のテキスト速報が同じ形かは、まだ見ていない
+- 公開日と対局日: テキスト速報の題に日付は無い（公開日で代える。日をまたいだ対局は無い前提）
+
 ## 報告
 
 - 状態: 作業中
@@ -71,12 +131,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 8140cebc）: https://github.com/retroeater/mj-logs/tree/main/guide/8140cebc
+ガイド文書（この版を写した時点の最新、mj 214c8e42）: https://github.com/retroeater/mj-logs/tree/main/guide/214c8e42
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/8140cebc/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/8140cebc/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/8140cebc/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8140cebc/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8140cebc/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8140cebc/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/214c8e42/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/214c8e42/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/214c8e42/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/214c8e42/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/214c8e42/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/214c8e42/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/95028c1a.md
