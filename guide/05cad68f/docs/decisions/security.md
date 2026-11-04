@@ -208,3 +208,8 @@ Cloudflare の Security Overview の提案（security.txt など）の見送り�
 - マージの直後に cloudflare で `regenerate-page.yml` を `target_page: all`・dry-run なしで手動実行し、帰り道の手順（`id: build_wayhome_ogp`）がランナーで success になることを確かめる
 - マージは承認済み。案B（作業ブランチで dry-run なしの実行）・案C（画像だけを作る入力をワークフローに足す）は採らない
 - 作業中の回答: なし
+
+## 2026-11-04（CHAT-1104-ACF-36）
+
+- Sheets API の 429 の件を、別の issue として今起票する（2026-10-22 の CHAT-1022-PRV-09 の条件に当たった）→ #662。対策は #662 で決める
+- 作業中の回答: なし

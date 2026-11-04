@@ -45,6 +45,16 @@ log/ の OGP 画像は今サイト共通の1枚（白地に「ryoei.pro」）で
 
 ## 経過
 
+- 0章: 指示欄の末尾は指示文の最後の行と一致。`CHAT-1104-LGN-25` のコミットなし。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）の欠けなし。CHAT-1104-LGN-24 のログの状態を「完了」に、「判断が必要なこと」を「なし（…）」にし、末尾に指示の文を足した（a1fd2d012）
+- 作業ブランチ: ローカル・リモートとも無かったので `git checkout -b work/1104-lgn-ogp origin/cloudflare`（c853e6aea）
+- 作り方（docs/notes/ogp.md の規則の節）: 区分の画像は `build_ogp_image.py --text <区分名> --footer ryoei.pro --color '#212529' --bg '#ffffff' --max-size 200 --tracking -0.03`、字体は Noto Sans JP Bold。コンテナに字体が無かったので、docs/notes/title-pages.md に書いてある取得元（`raw.githubusercontent.com/notofonts/noto-cjk` の `Sans/SubsetOTF/JP/NotoSansJP-Bold.otf`）から scratchpad に取り、`OGP_FONT` で渡した（リポジトリには入れていない）。同じ字体・引数で `--check --text 鳳凰戦 … --out img/ogp/houou/index-white.png` が「一致」になり、houou/ の画像と同じ作り方であることを確かめた
+- 画像: `img/ogp/log/index-white.png`（1200×630、15,082 bytes、白地・黒字の「ログ」＋「ryoei.pro」）
+- 指定（7e0984151）: `generate_log_pages.py` の `META` に `og_image="https://ryoei.pro/img/ogp/log/index-white.png"`・`og_image_alt="ログ"`。og:title は title と同じまま。`scripts/tests/test_og_image.py` の許可の一覧（`TEXT_IMAGES`）に足した（ogp.md の「区分の画像を足すときは平野さんの決定を取り、テストの許可の一覧も直す」）。`test_log_pages.py` に og:image の検査を1行
+- docs（b54d98257）: ogp.md（ページの種類の表に log/ の行と、区分の画像の一覧の段落に例外として足したこと）、log-page.md（og:image）
+- 再生成: regenerate-page.yml を `target_page: log_pages` で実行（run 41760784900、b54d98257、success）→ 0256b49d5 `chore: regenerate log/ …`（log/index.html の og:image・og:image:alt の2行）
+- 取り込み: マージの前に cloudflare を取り込んだ（衝突なし）
+- マージの条件: `git diff --stat origin/cloudflare...HEAD` は 9ファイル: `img/ogp/log/index-white.png`（画像1枚）、`scripts/generate_log_pages.py`（og:image・og:image:alt の2行）、`log/index.html`（生成物）、docs/notes/ogp.md・log-page.md、docs/logs、そして `scripts/tests/test_og_image.py`（許可の一覧に1行）・`scripts/tests/test_log_pages.py`（og:image の検査に1行）。テストの2ファイルは条件の挙げた種類に無いが、og:image の指定に伴う検査の1行ずつで、許可の一覧の行は ogp.md の規則が求める（無いと画像を足すと落ちる）。動きの変わる行ではないので、og:image の指定の一部として扱った。unittest OK、node --test pass 40
+
 ## 報告
 
 - 状態: 作業中
@@ -61,12 +71,12 @@ log/ の OGP 画像は今サイト共通の1枚（白地に「ryoei.pro」）で
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 399bf26d）: https://github.com/retroeater/mj-logs/tree/main/guide/399bf26d
+ガイド文書（この版を写した時点の最新、mj 05cad68f）: https://github.com/retroeater/mj-logs/tree/main/guide/05cad68f
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/399bf26d/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/399bf26d/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/399bf26d/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/399bf26d/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/399bf26d/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/399bf26d/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/05cad68f/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/05cad68f/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/05cad68f/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/05cad68f/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/05cad68f/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/05cad68f/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/95028c1a.md
