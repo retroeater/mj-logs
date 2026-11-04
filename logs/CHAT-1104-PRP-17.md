@@ -112,17 +112,41 @@ origin/cloudflare...ce1c11079。bug・should-fix の指摘なし（並べ替え�
 - 同じ主題の issue を「pip install」「資格情報」「regenerate-page.yml push」「GITHUB_TOKEN pip」「書き込みの権限」で探した（`gh api search/issues`、クローズ済みを含む）。近いのは #619（#598 の残り。1 は CI の Python の依存を版の指定なしで入れること、`regenerate-page.yml` も一覧にある）で、「書き込みの資格情報を持ったまま入れる」ことは書かれていない。別の論点として起票した
 - #668「regenerate-page.yml の push の job が、書き込みの資格情報を持ったまま pip install する」（ラベル「分野: セキュリティ」）。本文に PRP-16 の表の B18 の行を引用し、#619・#598・#564 を関係に書いた。確かめた形: job `regenerate` は `permissions: contents: write`（78行目）、`actions/checkout` は `persist-credentials` を指定しない（既定で true）、109行目で `pip install --quiet google-auth requests`
 
+### 5. マージと本番
+
+- 決定を `docs/decisions/pros.md` に足した（2026-11-04〈CHAT-1104-PRP-17〉の節）
+- origin/cloudflare が進んでいたので取り込んだ（衝突なし。docs・log/・scripts・style.css の他の作業）。取り込みの後もテスト OK（Ran 1971 tests OK）、cloudflare との差は pro/ 14ファイルと上の変更・docs だけ、導線と転送のファイルの差なし、noindex の無いページ 0
+- push の直前に `git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめ、`git push origin work/1104-prp-polish:cloudflare` → `8b36d3c34..0921e3458`
+- `Workers Builds: mj` は 0921e3458 で success（05:39Z）。本番の HTML（UA に mj-internal、2件、7秒あけて）: `https://ryoei.pro/pro/` 200・noindex 1・`apple-mobile-web-app-title` 1・`default_profile_images` 0。`https://ryoei.pro/pro/fujio.mita.11/` 200・noindex 1・`mj-pro-photo is-initial` 1・`default_profile_images` 0。本番へのリクエストはこの指示で計2件。確かめたのは本番の HTML まで（見え方はプレビューで 360px を見た）
+
+### 6. #641 の本文の書き直し
+
+前（CHAT-1101-PRP-02 の版）: 「公開でやること」17件・「公開後の確かめ」9件で、チェック 0件。公開の条件は「live/ の公開を待つ」。K8（質問欄の答えのカードの行き先）・`jpml_pros.html` → `/pro/` の 301 を `_redirects` で・`?name=` の 301 を Worker `mj` で・「トップの質問欄に問いを送り答えを確かめる」が残っていた。
+
+後（2026-11-04）:
+
+- 公開の条件: live/ の公開は済。点検は PRP-01 と PRP-16。告知動画は保留
+- 「未公開のまま cloudflare に入れたもの（済）」5件にチェック（題の形・並べ替えのボタン・個別ページとシートとお気に入りと `plans.json`・説明文・PRP-17 の B1・B2・B15）
+- 「公開のブランチ work/1101-prp-pub に用意したもの（済。公開のマージで入る）」9件にチェック（noindex・navbar とサイドメニューと `llms.txt`・サイトマップ・canonical・OGP の移動・別の Worker `mj-pros-redirect` の 301 と集計・画像の検知・順位変動と title/ のリンク・文書）
+- 「公開の前に残っていること」7件（cloudflare の取り込み直し〈185コミット遅れ〉・`sitemap-live.xml` の3か所・`llms.txt` の文・PRP-19 の3つのリンク・取り込みの後の `check`・平野さんの最終確認と Search Console の数字・マージは平野さんの確認の後）
+- 「公開の日・その後にやること」3件（P1 と「入れた日」・「鳳凰」シートの3名の確かめ・閉じる issue〈#82 の閉じる理由を書いた〉）
+- 「公開後の確かめ」8件（質問欄の確かめを外した。告知動画は保留と書いた）
+- 外したもの: K8、`_redirects` の 301、Worker `mj`、トップの質問欄の確かめ
+- 書き直しの前の本文はこのセッションの作業ファイルに残した（`gh api` で読んだ 5,048 バイト）。#135 に既定のアイコンの12名を直したことをコメントした
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1104-prp-polish
-- ログ: https://github.com/retroeater/mj/blob/work/1104-prp-polish/docs/logs/CHAT-1104-PRP-17.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1104-prp-polish
-- 確認用URL: 作業中
-- マージ: 作業中
-- issue: #641
-- 判断が必要なこと: 作業中
-- 未確認の項目: 作業中
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1104-PRP-17.md
+- 比較URL: https://github.com/retroeater/mj/compare/8b36d3c34...0921e3458
+- 確認用URL: 本番 https://ryoei.pro/pro/ ・ https://ryoei.pro/pro/fujio.mita.11/ （未公開〈noindex〉。目印: 三田不二夫の写真が頭の1字「三」の丸）
+- マージ: 済み（0921e3458 を cloudflare へ。承認済み〈チャットで〉）
+- issue: #641（本文を書き直した）・#668（B18 を起票）・#135（コメント）
+- 判断が必要なこと:
+  - B16: 今後の予定が6件以上の選手は今のデータにも履歴にもいない（最多3件）。「ほか N件」は検査だけで、実データでは確かめられていない。起きたときに見るでよいか
+  - work/1101-prp-pub は cloudflare から185コミット遅れた（この指示のマージの後）。公開の前の取り込み直し（#641 の「公開の前に残っていること」の1行目）は、PRP-19 の前にするか一緒にするか
+- 未確認の項目: ブラウザでの本番の見え方（HTML まで）
 - エラー: なし
 
 <!-- guide-links -->
