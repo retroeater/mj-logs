@@ -99,28 +99,44 @@
 
   証跡: page.py の docstring・`GENERATE_PAGES`・sitemap-pages.xml（55件、XML として読める）・static-generation.md の 9ページ・型Aの2ページ・live/ の947ページは実物と一致。regenerate.py とワークフローに video_live・resource_logs は残っていない。`_redirects` の1行目は `/  /index.html  200`、`/resource_logs.html` と `/video_live.html` の 301 がある。テスト1928件 OK
 - origin/cloudflare の取り込み（2回目、611d1436f、d08074979 まで）: 衝突なし。入ったのは title/・log/ の変更（`generate_title_pages.py`・`generate_log_pages.py`・style.css など）。`generate_title_pages.py` は live/ の生成を読まない（コメントで触れるだけ）ので、全ページの再生成はやり直していない。テストは OK
+- cloudflare へのマージ: push 直前に再 fetch し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真であることを確かめて `git push origin HEAD:cloudflare`。範囲は `d08074979..dd0746383`（2026-11-04 11:49 JST）
+- check-run（dd0746383）: Workers Builds: mj・mj-ask・mj-scheduler は success、sync は success
+- 本番の確かめ（UA に mj-internal。本番の HTML と転送の範囲で、ブラウザでの見え方は確かめていない）:
+  - `/live/`・`/live/judan/`・`/live/judan/43.html`・`/live/judan/43/f.html`・`/live/tatsujin/1/po.html`: noindex 無し（HTML。`/live/` の応答ヘッダにも X-Robots-Tag は無い）、canonical は自分自身
+  - `/video_live.html` → 301 `https://ryoei.pro/live/`、`/video_live.html?name=堀慎吾` → 301 `https://ryoei.pro/live/?name=堀慎吾`（クエリが残る）
+  - `/sitemap.xml` に `sitemap-live.xml` があり、`/sitemap-live.xml` は 200（application/xml）・947件
+  - `/llms.txt` の放送対局の行は `https://ryoei.pro/live/`・2,989本。`/navbar.js` の「放送対局」は `/live/`
+- #362: 本文を公開後の形に直した（公開したもの・本番で確かめたこと・平野さんとチャット側の確かめ・公開の後に回したもの）。公開の日と SHA をコメントに書いた。閉じていない
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1104-lvp
 - ログ: https://github.com/retroeater/mj/blob/work/1104-lvp/docs/logs/CHAT-1104-LVP-14.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1104-lvp
-- 確認用URL: なし
-- マージ: 未
-- issue: #362
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 比較URL: https://github.com/retroeater/mj/compare/d08074979...dd0746383
+- 確認用URL: https://ryoei.pro/live/
+- マージ: 済（cloudflare `d08074979..dd0746383`、2026-11-04 11:49 JST。live/ を公開した）
+- issue: #362（本文を公開後の形に直し、公開のコメントを書いた。閉じていない）
+- 判断が必要なこと:
+  - 外したまま残っている項目（未マージの work/1101-prp-pub が同じ行を変えているため）: `llms.txt` の「サイトマップ」の行・`regenerate-sitemap.yml` の well-formedness の列挙・docs/notes/sitemap-lastmod.md の対象の列挙への `sitemap-live.xml`。チャット側から pro/ の系列に、後でマージする側（work/1101-prp-pub）が live を足すよう伝えてほしい（指示文の手順2のとおり）
+  - 未マージのブランチに残る衝突: work/1028-lgn は docs/new-page-checklist.md、work/1101-prp-pub は regenerate-page.yml・docs/handover.md・`scripts/update_sitemap_lastmod.py`（どれも live の行が同じ節に入ったため）。取り込むときに両方を残す形で解ける
+  - レビューの軽微な指摘（直していない）: `scripts/lib/page.py`・`table.js` の廃止の列挙に jpml_test（#613）が無い。`scripts/generate_jpml_pros.py` は `./video_live.html?name=` へのリンクを出し続ける（301 と期限つきの `?name=` で動く。#641 で pro/ に替わるまで）
+- 未確認の項目:
+  - 平野さんとチャット側の確かめ: X・LINE のカード、iPhone の実機、Search Console のサイトマップの再送信と URL 検査、約2週間後（2026-11-18 ごろ）のインデックス登録の確認
+  - 告知動画（公開の後に撮る）
+  - ブラウザでの本番の見え方（本番の HTML と転送までは確かめた）
+  - 全ページの再生成の比べの compare_ref 側（cloudflare のコード）の終了コード 3 の内訳（ログに出ない。この作業ブランチの変更とは関わらない）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 05cad68f）: https://github.com/retroeater/mj-logs/tree/main/guide/05cad68f
+ガイド文書（この版を写した時点の最新、mj 7586f592）: https://github.com/retroeater/mj-logs/tree/main/guide/7586f592
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/05cad68f/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/05cad68f/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/05cad68f/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/05cad68f/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/05cad68f/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/05cad68f/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/7586f592/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/7586f592/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/7586f592/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/7586f592/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/7586f592/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/7586f592/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/95028c1a.md

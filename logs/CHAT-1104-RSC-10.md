@@ -1,7 +1,7 @@
 # CHAT-1104-RSC-10
 
 - 着手日時: 2026-11-04
-- 対象issue: （D の issue を起票する）
+- 対象issue: #666（この指示で起票）
 - ブランチ: work/1104-rsc
 - 着手時HEAD: d08074979
 
@@ -58,6 +58,63 @@ CHAT-1104-RSC-09 の設計案と「判断が必要なこと」1〜7 への回答
 
 ## 経過
 
+- 着手前の確認: 同じ Chat-Ref のコミット・ログなし。`RSC` は続き（10）。作業ブランチ: origin/work/1104-rsc とローカルは origin/cloudflare の祖先（マージ済み）なので `git merge --ff-only origin/cloudflare` で進めた（d08074979）
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 欠けなし（改行が詰まって1段落）
+- 0.: 「指示」欄の末尾は指示文の最後の行と一致。CHAT-1104-RSC-09 の `## 報告` の状態を「判断待ち / 続き: CHAT-1104-RSC-10」にした
+
+### 1. 前提の確かめ
+
+- 同じ論点の issue: GitHub の検索 API（`is:issue`、Open・Closed とも、題と本文）で「転記」「成績記事」「テキスト速報」「キンマweb」「最強戦 記事」「転記案」を検索した。D と同じ論点（最強戦の記事からの転記案）は無い（近いのは #469・#537・#323、どれも Closed で別の論点）。GitHub MCP の issue の検索のツールがこのセッションに無いので、公開の検索 API を使った
+- D の issue を起票した: #666（ラベル「分野: データ」「対象: saikyo」）。着手中のコメントを書いた（https://github.com/retroeater/mj/issues/666#issuecomment-6621006238）
+- 未マージの `work/` ブランチ: 調べもののスクリプト・テスト・`research-candidates.yml`・`run-daily.yml`・`test_workflows_table.py` を変えているものは無い。`docs/notes/github-actions.md` は3本（work/1028-lgn・work/1101-prp-pub・work/1103-ryo5）が変えているが、`convert-x-posts`・`run-monthly`・`check-image-links`・`fetch-x-posts` の行で、この指示で直す行（`research-candidates`・`run-daily`・表の `run-daily` の `sokuho`）とは別（止まる条件に当たらない）
+
+### 2. 実装（コミット e93921910、自己レビューの修正 207184bae・c2093b3de）
+
+- `scripts/research_candidates.py` に種別 D を足した。API の流れ（KINDS）には入れず、`main()` の先頭で `run_sokuho()` に分ける
+  - 新着の判定: キンマweb のカテゴリ「麻雀最強戦」の RSS（2ページ目まで）のうち、カテゴリ「テキスト速報」で公開から `--lookback-hours`（既定 30）以内の記事。**読んだ記事の記録は、新しい置き場を作らず、公開の時刻の幅で決める**: 毎朝 04:00 JST の起動で前の朝の後に出た速報だけが入る（日曜 15〜21時の速報は月曜の朝に入り、火曜の朝には 30時間を過ぎて入らない）。**無ければ Google のシートを1回も読まずに終わる**（#662）。あれば候補タブを読み、どれも候補タブに行があればそこで終わる（「最強戦」は読まない）。残れば「最強戦」を読んで照合し、新しい行だけを足す
+  - 読み取り: 題「【麻雀最強戦YYYY 対局名 A卓戦／B卓戦／決勝戦】テキスト速報」の記事の席順（東家〜北家のフルネーム）と「試合結果」の行。点数の順に順位、予選は上位2人が通過・ほかは敗退、決勝は1位が優勝・ほかは敗退。形の違う題は「見つからない」
+  - 照合: 本文の略称が同じ位置の席の名前に含まれる／点数の合計が100,000以下で100点単位／同点が無い（同点は未照合）／予選は「○・○が（の）勝ち上がり」の2人が上位2人と同じ・シートの同じ年度・対局名・卓の4人が席順にある（姓だけの照合は `missing_names()`）・シートにある順位・結果と同じ／決勝は同じ実行で読んだ予選2卓の通過者4人と同じ。結果記事は読まない（`簡略化:` の行）
+  - robots.txt を読み、禁じられていれば止める。記事の間は3秒。UA は `mj-internal research (ryoei.pro)`（RSC-05 と同じ）。1回に12本を超えたら止める
+  - 旧公式の読み取り（`official_lines()`）の HTML を行にする4行を `html_lines()` に切り出して、D と共用した（動作は同じ）
+- `.github/workflows/research-candidates.yml`: `kind` に D、入力 `lookback_hours`（D だけ。空ならスクリプトの既定）、`workflow_call`（入力は workflow_dispatch と同じ名前・既定値、Secret は `LIVE_SHEETS_SA_KEY`・`SHEETS_READER_SA_KEY`〈必須〉・`ANTHROPIC_API_KEY`〈任意〉）
+- `.github/workflows/run-daily.yml`: ジョブ `sokuho`（`research-candidates.yml` を kind D・`dry_run: ${{ !inputs.scheduled }}` で呼ぶ。`permissions: contents: read`。Secret は2つ）を並行に足した。あわせて最後のジョブ `logs` の `needs` に `sokuho` を足した（mj-logs の同期を毎朝の本の後に動かすため。既存の1行の変更）
+- docs: `research-candidates.md`（部品の表・種別の表・「D のテキスト速報」の節）、`github-actions.md`（`research-candidates.yml`・`run-daily.yml` の行、「run-daily.yml」の並び、「権限と Secret の渡し方」の表に `run-daily` の `sokuho`）、`decisions/automation.md`（この指示の決定）
+- `scripts/tests/test_workflows_table.py` は変えていない: このテストは表のワークフローの名前（ファイル）と実物の一致だけを見るもので、ワークフローを足していないので直す所が無い（`python3 -m unittest discover -s scripts/tests` で OK）
+- テスト `SokuhoTest`（15本）と `ArgsTest` への追記。全体: 1940件 OK
+
+#### 作業ブランチでの手動実行（ワークフローを変えたため）
+
+- research-candidates（run 41762531864、kind D、dry_run、lookback 120時間）: 成功。新しい速報3本（11-01 超技巧合戦の A卓・B卓・決勝）を実ページで読み、**3本とも照合済み**（予選の2卓はシートの4人と一致、決勝は予選の通過者4人と一致）。決勝の候補「1位 小川光 優勝・2位 鈴木優 敗退・3位 魚谷侑未 敗退・4位 鈴木たろう 敗退」は、結果記事の「1位：小川光/2位：鈴木優/3位：魚谷侑未/4位：鈴木たろう」と同じ
+- research-candidates（run 41762757916、kind D、dry_run、lookback 30時間）: 成功。新しい速報 0本で「シートは読まない」で終わった（#662 の確かめ）
+- run-daily（run 41763112104、手動、`scheduled` なし）: ジョブ `sokuho / research` が成功（3秒、dry-run で新しい速報なし）。ほかのジョブの結論は下の「マージ」に書く
+
+#### 自己レビュー（新しい文脈のサブエージェント、2回）
+
+1回目（e93921910 まで）:
+
+| 指摘 | 扱い |
+|---|---|
+| 中: 試合結果の点数の並びが席順と同じことを確かめていない（点数の順に書かれた回は、別の人の点数がフルネームに付いて照合済みになる） | 直した（207184bae）。略称が同じ位置の席の名前に含まれなければ未照合。テスト（修正前では FAIL） |
+| 中: 30時間の幅で前の夜の速報が翌朝も入り、処理済みの記事でもシートを読む | 直した（207184bae）。候補タブを読んだ後、どれも既存なら「最強戦」を読まずに終える。テスト（修正前では FAIL）。候補タブの1回の読み取りは残る（まれ。速報は 15〜21時が多い） |
+| 低: 「の勝ち上がり」を拾えない（Mの乱 A卓の実例） | 直した（207184bae）。テスト |
+| 低: 決勝にも上位2人で勝ち上がりの文を照らしている | 直した（207184bae）。決勝は照らさない。テスト |
+| 低: ページの頭・サイドバーの文を拾う恐れ | 実ページで確かめた（作業ブランチの dry_run で3本とも照合済み）。照合済みに誤って倒れる道は無い |
+| 低: 取得の失敗で run-daily 全体が failure になる | 意図どおり（指示の前提のとおり）。docs に一言書いた（207184bae） |
+| 低: 同点などの未照合で出典 URL・引用文が入らない | 直した（207184bae）。テスト |
+| 低: `lookback_hours` を空にすると全種別が argparse のエラーで止まる | 直した（207184bae → c2093b3de で、空なら引数を付けない形に） |
+| 低: docs の部品の表が「手動実行だけ」のまま | 直した（207184bae） |
+| 低: `-0000` の pubDate・深夜の公開日・呼ばれる側の `concurrency` の待ち | 意図どおり（WordPress は `+0000`。日付は「対象」の見出しだけ。まれ） |
+
+2回目（207184bae の差分だけ）: 直し方は8点とも正しく、新しいバグは無い。
+
+| 指摘 | 扱い |
+|---|---|
+| 低: 「の勝ち上がり」で実況の途中の文（「たろうの勝ち上がりが濃厚」）を拾う | 直した（c2093b3de）。試合結果にいちばん近い文を使う。テスト（直す前では FAIL） |
+| 低: 既定値 30 をワークフローとスクリプトの2か所に持つ | 直した（c2093b3de）。空なら引数を付けない |
+| 低: 一部だけ既存の場合のテストが無い | 足した（c2093b3de） |
+
+- 2回目の後の修正（c2093b3de）はサブエージェントに見せていない（往復は2回まで）。`unittest discover`: OK
+
 ## 報告
 
 - 状態: 作業中
@@ -74,12 +131,12 @@ CHAT-1104-RSC-09 の設計案と「判断が必要なこと」1〜7 への回答
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 05cad68f）: https://github.com/retroeater/mj-logs/tree/main/guide/05cad68f
+ガイド文書（この版を写した時点の最新、mj 7586f592）: https://github.com/retroeater/mj-logs/tree/main/guide/7586f592
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/05cad68f/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/05cad68f/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/05cad68f/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/05cad68f/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/05cad68f/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/05cad68f/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/7586f592/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/7586f592/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/7586f592/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/7586f592/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/7586f592/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/7586f592/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/95028c1a.md
