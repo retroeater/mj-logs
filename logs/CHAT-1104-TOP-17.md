@@ -100,17 +100,52 @@ CHAT-1104-TOP-15・16 で、ページの中の質問欄の部品を片付けた�
 ### 3. 検査・比べ
 
 - `python3 -m unittest discover -s scripts/tests`: 1949件 OK（取り込んだ後）。`node --test 'workers/ask/test/*.test.mjs'`: 165件 OK
-- 新旧の比べ（dry_run・all・compare_ref＝origin/cloudflare 7beb935b0）を実行中
+- 新旧の比べ（dry_run・all・compare_ref＝origin/cloudflare 7beb935b0、run 41769174005、85edbc7cc）: 成功、飛ばしたページなし、「compare: 差分なし」。cloudflare との差分に生成物は無い（どのページも houou_ask.js を読まないので、生成物に差が出ないのが見込みどおり）
+- 自己レビュー（新しい文脈のサブエージェント、1回）:
+
+| 指摘 | 扱い |
+|---|---|
+| houou_ask.js を読む・参照する所 | 問題なし（残るのは「読まない」の検査と経緯のコメント・docs だけ） |
+| `splitCards()` の切り出しで動きが変わらないか | 問題なし（空のときの早期 return・「ほか N名」の置き換え・フォーカスとも同じ。名前の衝突なし） |
+| Worker の `playersIn()`（長い名前を先に当てる・文に出た順・1回だけ・名簿に無い名前は拾わない）を確かめる workers/ask の検査が無い（消した `PickPlayersTest` が見ていた考え） | 見送り（`## 報告`「判断が必要なこと」。いまのデータで名前が別の名前を含む組は0件で、影響は無い） |
+| `docs/notes/ask-worker.md` の名簿の行の「答えが出たときに初めて読む」が古い | 直した（読む JS が無いので消した） |
+
+### 4. cloudflare との差分（`git diff --name-status origin/cloudflare...HEAD`、11ファイル）
+
+| 種類 | ファイル |
+|---|---|
+| 消した | `assets/houou_ask.js` |
+| JS | `assets/top_ask.js`（`splitCards()` の切り出しと注記）、`assets/league.js`（注記） |
+| Worker | `workers/ask/src/ask.mjs`（`playersIn()` の注記の1行だけ） |
+| テスト | `scripts/tests/test_houou_ask.py`（JS の検査を消す）、`scripts/tests/test_top_page.py`（`splitCards` の検査） |
+| docs | `docs/notes/ask-worker.md`・`pro-pages.md`・`security.md`、`docs/decisions/top.md`、このログ |
+| 生成物 | なし |
+
+- 止めた時点で origin/cloudflare はさらに進んでいる（作業ブランチには取り込んでいない。マージの指示で取り込む）
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1104-top3（指示文の指定どおり。origin/cloudflare 68a6c4841 から作り、途中で 7beb935b0 を取り込んだ）
+- ログ: https://github.com/retroeater/mj/blob/work/1104-top3/docs/logs/CHAT-1104-TOP-17.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1104-top3
+- 確認用URL: なし（見た目が変わらない変更で、生成物の差も無い。指示文のとおりプレビューは確かめていない）
+- マージ: 未（チャット側が差分を見てから、平野さんに聞く）
+- issue: #101（着手中のコメント）、#654（`ask.mjs` の注記を直した旨のコメント）
+- 判断が必要なこと:
+  - 消した `PickPlayersTest` が見ていた「答えの文から名前を拾う考え」（長い名前を先に当てる・文に出た順・1回だけ・名簿に無い名前は拾わない）は、今は Worker の `playersIn()`（`workers/ask/src/ask.mjs`）にだけあり、それを確かめる workers/ask の検査が無い（`values.test.mjs` は名前が答えの文にあることと、当たりが無ければ空のことだけ）。Worker の検査を1本足すか（AIC 系列に頼むか、TOP で `workers/ask/test/` に足すか）。いまのデータで名前が別の名前を含む組は0件で、影響は無い
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 1c9190e0）: https://github.com/retroeater/mj-logs/tree/main/guide/1c9190e0
+ガイド文書（この版を写した時点の最新、mj 4faa95fb）: https://github.com/retroeater/mj-logs/tree/main/guide/4faa95fb
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/1c9190e0/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/1c9190e0/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/1c9190e0/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/1c9190e0/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/1c9190e0/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/1c9190e0/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/4faa95fb/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/4faa95fb/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/4faa95fb/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/4faa95fb/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/4faa95fb/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/4faa95fb/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/95028c1a.md
