@@ -200,18 +200,27 @@ Chat-Ref: CHAT-1104-ACF-40
 - (2) run 41785057721: 新旧の差分0、飛ばしたページ0（新旧とも）→ 満たす（1回目の 41780431563 は旧い側が終了コード3で満たさず、指示のとおり1回だけやり直した）
 - (3) 新しい側の `Sheets API の呼び出し: 合計 N` の総和 105（≦150）→ 満たす（1回目も 105）
 
+### 手順3: マージ
+- push 直前に `git fetch origin cloudflare` → `git merge-base --is-ancestor origin/cloudflare HEAD` 真（cloudflare は b877e1e87 のまま）。テスト OK
+- `git push origin work/1104-acf-cache:cloudflare` → `b877e1e87..4c48f2288  work/1104-acf-cache -> cloudflare`（06:42Z）
+- push 検知の regenerate-page: run 41787325988（06:42:31Z〜06:45:05Z）、success。31ページを生成（対象は all と同じ31ページ）、「飛ばしたページを報告」は skipped、「変更をコミット・push」は「変更なし」。
+  ページごとの要約の行の合計: 呼び出し 105（spreadsheets.get 15・values.get 90）、キャッシュ 437 回、429 の待ち 0 回・0.0 秒、ほかの待ち 0 回。`Sheets API 429:` の行 0、キャッシュの読み書きの失敗の行・Traceback 無し
+- #662 にコメント: https://github.com/retroeater/mj/issues/662#issuecomment-6624573753 （#662 は閉じない）
+- docs/decisions/security.md に「決定」を足した（04bb52adf）。docs/notes/static-generation.md「シートの読み方（Sheets API）」・docs/notes/sheets-reader.md「段取りと今の状態」5. を直した（d8a938b79）
+- ジョブログはプロキシで直接取れなかったので（blob の URL は拒否）、サブエージェントに `get_job_logs` の内容をそのまま scratchpad のファイルに書かせ、表はそのファイルから自分のスクリプトで作った（1回目はサブエージェントの数え上げとも一致）
+
 ## 報告
 
-- 状態:
-- ブランチ:
-- ログ:
-- 比較URL:
-- 確認用URL:
-- マージ:
-- issue:
-- 判断が必要なこと:
-- 未確認の項目:
-- エラー:
+- 状態: 完了
+- ブランチ: work/1104-acf-cache
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1104-ACF-40.md
+- 比較URL: https://github.com/retroeater/mj/compare/b877e1e87...4c48f2288
+- 確認用URL: なし（生成物の変更なし。dry_run の新旧比べと push 検知の再生成の「変更なし」で確かめた）
+- マージ: 済（b877e1e87..4c48f2288。計測 run 41780431563〈旧い側が終了コード3でやり直し〉・41785057721〈差分0・飛ばしたページ0・呼び出し105〉、push 検知 41787325988 success・変更なし・呼び出し105・429 の待ち0。#662 のコメント https://github.com/retroeater/mj/issues/662#issuecomment-6624573753 ）
+- issue: #662（コメント。閉じない）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
