@@ -60,6 +60,21 @@
 - 作業ブランチ: origin/work/1104-lvp は cloudflare にマージ済み。ローカルの work/1104-lvp は origin/cloudflare の祖先なので、`git merge --ff-only origin/cloudflare` で進めた（docs/notes/cloud-sessions.md「作業ブランチの用意」）
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている。着手は 2026-11-04 12:24 JST
 
+- #362 に他セッションの着手中のコメントが無いことを確かめ、着手中のコメントを書いた
+- 画像（54b31c701）: `img/ogp/live/index-white.png`（1200x630）を `build_ogp_image.py --text 放送対局 --footer ryoei.pro --color '#212529' --bg '#ffffff' --max-size 200 --tracking -0.03` で作った。コンテナに字体が無いので、LGN-25 と同じ取得元（notofonts/noto-cjk の `Sans/SubsetOTF/JP/NotoSansJP-Bold.otf`）から scratchpad に取り `OGP_FONT` で渡した。同じ手順で「ログ」を作り直すと既存の `img/ogp/log/index-white.png` とバイト単位で一致したので、字体と作り方は区分の画像と同じ
+- 生成（54b31c701）:
+  - トップ・タイトル戦・期の og:image を `OG_IMAGE`（上の画像、1200x630、alt「放送対局」）にした。個別ページは今のまま動画のサムネイル。範囲で最新の動画を選ぶ `latest_video()` と、そのためにヒーローの画像の確かめに足していた動画は消した（`data/live_thumbs.json` の記録は残る形なので差分なし）
+  - 検索欄をトップだけにした。タイトル戦・期の検索欄と検索結果の埋め込み（`#live_results`・`data-live-content`）、個別ページの固定バー（`build_filterbar`）と検索結果（`build_results`）を消した。カード（`build_page_card`）の検索用の引数も使われなくなったので消した
+  - トップの見出し「最新の対局」とタイトル戦のページの見出し「期」を外した。期のページのステージの見出しは残した
+  - `assets/live.js`: 検索はトップだけの形にした（範囲の名前・検索結果の入れ替え・見出しの切り替え・固定バーの高さの実測を消した）。決めた見え方: 検索中は検索欄の下に「770件中 N件を表示」、0件は「該当する対局がありません」（見出しが無いので切り替えは無い）
+  - `style.css`: 個別ページの固定バーの中身（`.mj-live-filter-search`・件数の配置）を消し、`.mj-filterbar` の位置と scroll-padding の規則から `.mj-live` を外した（`scrollbar-gutter` は残した）。帰り道などの一覧（`.mj-video-list`）の規則は変えていない
+  - テスト: `test_og_image.py` の許可の一覧に `img/ogp/live/index-white.png` を足した。`test_live_pages.py` に、生成済みの live/ の全ページで og:image（トップ・タイトル戦・期は文字の画像、個別は YouTube）と検索欄（トップだけ）を確かめる検査を足した。直す前の生成物では 947件すべて落ち、生成し直した後は通る
+- live/ の本実行（run 41767291734、5c18a197b）: 変わったのは live/ の947ページだけ（トップ 764KB、期 12KB 前後、個別 28KB 前後）
+- 撮影（ローカルの http.server、375px と 1280px の明・暗）: トップ（検索前・「佐々木寿人 十段戦」で検索中・0件）、タイトル戦 `live/judan/`、期 `live/judan/43.html`、個別 `live/judan/43/f.html`。見出しが無くなり、検索欄はトップだけ、個別ページは固定バーが無くパンくずとヒーローから始まる
+- pro/ からのリンク: pro/ の `href="/live/?q=佐々木寿人"` の形は変わらず、`/live/index.html?q=佐々木寿人` は「770件中 97件を表示」で絞り込まれる
+- 文書（a669e487e）: docs/notes/ogp.md の表に live/ の行を足し、区分の画像の例外を「log/ と live/」にした。docs/notes/live-page-design.md の 2-8 を「検索欄はトップだけ」に書き直し、2-10・OGP の記述を直した
+- テスト: `python3 -m unittest discover -s scripts/tests` は全件 OK
+- 未マージの work/ ブランチ: `git merge-tree` で、この作業ブランチで新しく生まれる衝突は無い。同じファイルの別の箇所: work/1028-lgn（style.css 6649行〜）、work/1101-prp-pub（style.css 5297行・`test_og_image.py` 23行・docs/notes/ogp.md 25・28行）、work/1104-lgn-policy（style.css 7407行〜）。`generate_live_pages.py`・`assets/live.js` を変えているブランチは無い
 ## 報告
 
 - 状態: 作業中
@@ -76,12 +91,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 674955be）: https://github.com/retroeater/mj-logs/tree/main/guide/674955be
+ガイド文書（この版を写した時点の最新、mj 1c9190e0）: https://github.com/retroeater/mj-logs/tree/main/guide/1c9190e0
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/674955be/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/674955be/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/674955be/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/674955be/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/674955be/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/674955be/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/1c9190e0/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/1c9190e0/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/1c9190e0/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/1c9190e0/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/1c9190e0/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/1c9190e0/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/95028c1a.md

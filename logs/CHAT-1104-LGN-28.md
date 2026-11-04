@@ -88,6 +88,15 @@ CHAT-1104-LGN-26 は送る前に差し替えたため欠番（割り当ての実
 | log-page.md の「後の指示」の行と、ページに出る時機 | 直した（c02ef4f6f） |
 
 - 最終のコードでの dry-run（convert-x-posts.yml、mode closed・dry_run 真、run 41767465405、c02ef4f6f、success）: 「予定: … 1721店に … 1721回（上限 2500回、1分 500回まで・約 3.4分）。書く先は「閉業」だけ（今 0店）」。preflight の【2】の行は「（closed では読むだけ）」（25bc76f0d）
+- 自己レビュー2回目（1回目の後の差分 25bc76f0d..c02ef4f6f だけ）:
+
+| 指摘 | 扱い |
+|---|---|
+| status の無い応答では `split(':')[0]` が message を丸ごと残し、place_id が出うる | 直した（e14392de5、`places_status` で status だけを読む。status が無い・JSON でない応答のテストを足した） |
+| PUT の後の clear だけが失敗すると、新しい一覧と前の一覧の残りが混ざる | 直した（e14392de5、前の一覧の行数まで空で埋めた1回の PUT にした。clear を使わない） |
+
+  - 往復は2回で終えた（2回目の指摘は2件とも直し、テスト OK）
+- マージの条件: (1) dry-run の予定 1721回は月の無料の枠（5,000回）の内で、上限 2,500回（`CLOSED_MAX_CALLS`、テストで ×2 ≦ 5,000）、呼び出しの間 60/500 秒（`CLOSED_PER_MINUTE` 500 ≦ 600、テスト）。(2) `python3 -m unittest discover -s scripts/tests` OK（1954件）、`node --test` pass 40・fail 0。(3) closed の道筋で書くのは `write_closed`（`_check_target(CLOSED_TAB)` を通り、「閉業」のタブだけへ1回の PUT）だけ。`write_rows`・`write_cells` を呼ばない（テスト）。【1】【3】は `FORBIDDEN_TABS`。work ブランチの e14392de5 の check-run は Workers Builds: mj・check とも success
 
 ## 報告
 
@@ -105,12 +114,12 @@ CHAT-1104-LGN-26 は送る前に差し替えたため欠番（割り当ての実
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 674955be）: https://github.com/retroeater/mj-logs/tree/main/guide/674955be
+ガイド文書（この版を写した時点の最新、mj 1c9190e0）: https://github.com/retroeater/mj-logs/tree/main/guide/1c9190e0
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/674955be/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/674955be/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/674955be/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/674955be/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/674955be/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/674955be/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/1c9190e0/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/1c9190e0/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/1c9190e0/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/1c9190e0/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/1c9190e0/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/1c9190e0/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/95028c1a.md
