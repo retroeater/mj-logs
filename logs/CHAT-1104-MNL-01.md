@@ -73,7 +73,7 @@ Chat-Ref: CHAT-1104-MNL-01
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1104-MNL-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1104-mnl
 - 確認用URL: なし
-- マージ: 未（ログのみを cloudflare へ fast-forward で入れる予定。結果は経過に追記）
+- マージ: 済（8b773d6de を fast-forward で push。ログのみ）
 - issue: なし
 - 判断が必要なこと:
   - 着手前に止まった。docs/notes/chat-side-operations.md に規則（手作業の依頼・手順には操作するページへの直接リンクを付ける）を足す指示だが、「知見 → 選んだ層 → 理由」の表が無い（CLAUDE.md「Chat-Ref」、#492）。
