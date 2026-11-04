@@ -68,16 +68,19 @@ TOP-17（読むページの無い `assets/houou_ask.js` とその JS の検査�
 - (1) テスト: `python3 -m unittest discover -s scripts/tests` 1957件 OK、`node --test 'workers/ask/test/*.test.mjs'` 165件 OK
 - (2) `git diff --name-only origin/cloudflare...HEAD`: assets/houou_ask.js・assets/league.js・assets/top_ask.js・docs/decisions/top.md・docs/logs/CHAT-1104-TOP-17.md・CHAT-1104-TOP-18.md・docs/notes/ask-worker.md・pro-pages.md・security.md・scripts/tests/test_houou_ask.py・test_top_page.py・workers/ask/src/ask.mjs。TOP-17 のログ「4.」の11ファイルと TOP-18 のログだけ
 - (3) 新旧の比べ（dry_run・all・compare_ref＝origin/cloudflare 8c7dd9a31）を実行中
+- (3) 1回目の比べ（run 41778794993、89a8d31bb）: ジョブは成功、「compare: 差分なし」。ただし作業ブランチ側の生成で `jpml_pros` が Sheets API の上限（HTTP 429 RESOURCE_EXHAUSTED「Read requests per minute per user」）で失敗して飛ばされたので、比べから1ページ抜けている。条件 (3) は満たしたと扱わず、1回だけやり直す
+- その間に origin/cloudflare が進んだ（e0b3a1409、PRP-17・LGN-30 など）ので取り込んだ。衝突なし。テストは 1966件・165件 OK。差分のファイルは上と同じ12件
+- (3) やり直しの比べ（dry_run・all・compare_ref＝origin/cloudflare e0b3a1409）を実行中
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 8c7dd9a3）: https://github.com/retroeater/mj-logs/tree/main/guide/8c7dd9a3
+ガイド文書（この版を写した時点の最新、mj 0921e345）: https://github.com/retroeater/mj-logs/tree/main/guide/0921e345
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/8c7dd9a3/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/8c7dd9a3/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/8c7dd9a3/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8c7dd9a3/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8c7dd9a3/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8c7dd9a3/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/0921e345/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/0921e345/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/0921e345/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/0921e345/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/0921e345/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/0921e345/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/95028c1a.md
