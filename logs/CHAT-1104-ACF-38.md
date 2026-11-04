@@ -52,29 +52,134 @@ CHAT-1104-ACF-37 で起動した計測の run（41761816704、work/1104-acf-coun
 - 同じ Chat-Ref のコミット: 0件。雛形の4行（Chat-Ref・マージ・貼る時機・共通手順）はそろっている
 - 0.: このログの「指示」欄の末尾は指示文の最後の行と一致。CHAT-1104-ACF-37 のログの状態に ` / 続き: CHAT-1104-ACF-38` を足した
 - 作業ブランチ: ローカルの work/1104-acf-count が origin/work/1104-acf-count と同じ（47d3931bb）。`git merge-base --is-ancestor origin/cloudflare HEAD` は偽 → 取り込む（下）
+- 取り込み: `git merge origin/cloudflare`（49c5ba0b4、衝突なし）。cloudflare 側の scripts/regenerate.py の変更は `OUTPUT_OVERRIDES` の live_pages の行だけ。未マージの work/1101-prp-pub・work/1104-lgn-policy も regenerate.py の `OUTPUT_OVERRIDES` の行だけを変えており、ACF-37 で変えた `run_page()`・lib/sheets.py の関数とは別の箇所。取り込み後に `python3 -m unittest discover -s scripts/tests` は OK
+
+### 手順1: ジョブログ
+
+- ジョブ 126351004713 のログの置き場所（blob.core.windows.net）は、curl ではプロキシに止められた（connect_rejected）。サブエージェントが GitHub MCP の `get_job_logs`（return_content）で全文（2703行、1行目は runner の版）を scratchpad に保存し、それを集計した（集計のスクリプトも scratchpad。コンテナと一緒に消える）
+- 出力の位置: 32ページすべてで、`Sheets API の読み取り:`・待ち・要約の行は、そのページの `== <ページ> ==` の区切りと次の区切りの間に出ていた（ACF-37 の未確認の項目は確認済み）
+- 突き合わせ: ページごとの `Sheets API の読み取り:` の行の数（メソッド別）と待ちの行の数は、全ページで要約の行の合計・内訳・待ちの回数と一致した（止まる条件に当たらない）。待ちの行 111行はすべて `Sheets API 429:`
+- 計測中の並走: 前提の 41759410398 のほかに、41761870869（work/1104-top2）と 41763190152（cloudflare の push）も重なっていた（regenerate-page.yml の run の一覧で確かめた）
+
+- run: [41761816704](https://github.com/retroeater/mj/actions/runs/41761816704)（work/1104-acf-count、workflow_dispatch、target_page all・dry_run 真・compare_ref 空、head 56e60d6a7）。開始 02:36:09Z・終了 02:59:10Z・success。「対象ページを再生成」の手順は 02:36:37Z〜02:59:06Z
+- 生成したページは32。飛ばしたページは無し
+- 計測中に並走していた regenerate-page の run:
+  - [41759410398](https://github.com/retroeater/mj/actions/runs/41759410398)（work/1104-lvp、workflow_dispatch、02:14:20Z〜02:47:21Z）
+  - [41761870869](https://github.com/retroeater/mj/actions/runs/41761870869)（work/1104-top2、workflow_dispatch、02:36:40Z〜03:17:30Z）
+  - [41763190152](https://github.com/retroeater/mj/actions/runs/41763190152)（cloudflare、push、02:49:13Z〜03:11:20Z）
+
+#### ページごと（ジョブログの `== <ページ> ==` の区切りの中の行から）
+
+呼び出し数は `Sheets API の読み取り:` の行を数えた値で、全ページで要約の行（`Sheets API の呼び出し:`）の合計・内訳・待ちの回数と一致した。待ちの秒数と「経過（要約）」は要約の行の値。「区切りの間」は次の区切りまでの時刻の差（最後のページは手順の最後の行まで）。
+
+| ページ | spreadsheets.get | values.get | 計 | 上限の待ち 回 | 上限の待ち 秒 | ほかの待ち 回 | ほかの待ち 秒 | 経過 秒（要約） | 区切りの間 秒 |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| ask_data | 5 | 16 | 21 | 0 | 0.0 | 0 | 0.0 | 11.9 | 12 |
+| ask_data_jwrc | 5 | 16 | 21 | 0 | 0.0 | 0 | 0.0 | 8.1 | 8 |
+| ask_data_ouka | 5 | 16 | 21 | 6 | 66.2 | 0 | 0.0 | 76.9 | 77 |
+| ask_data_saikyo | 4 | 16 | 20 | 5 | 33.1 | 0 | 0.0 | 39.3 | 39 |
+| ask_data_wrcr | 5 | 16 | 21 | 0 | 0.0 | 0 | 0.0 | 7.5 | 8 |
+| exam | 3 | 14 | 17 | 6 | 66.8 | 0 | 0.0 | 74.3 | 74 |
+| exam_episodes | 3 | 14 | 17 | 5 | 33.3 | 0 | 0.0 | 40.1 | 40 |
+| houou_pages | 5 | 20 | 25 | 6 | 65.2 | 0 | 0.0 | 78.7 | 79 |
+| jpml_pros | 5 | 32 | 37 | 11 | 99.1 | 0 | 0.0 | 115.4 | 116 |
+| jwrc_pages | 5 | 20 | 25 | 6 | 66.3 | 0 | 0.0 | 75.7 | 76 |
+| live_pages | 4 | 18 | 22 | 4 | 16.7 | 0 | 0.0 | 28.1 | 28 |
+| log_pages | 1 | 6 | 7 | 6 | 65.1 | 0 | 0.0 | 72.3 | 73 |
+| mtsuku | 3 | 14 | 17 | 0 | 0.0 | 0 | 0.0 | 12.5 | 13 |
+| mtsuku_episodes | 3 | 14 | 17 | 0 | 0.0 | 0 | 0.0 | 15.9 | 16 |
+| ouka_pages | 5 | 20 | 25 | 0 | 0.0 | 0 | 0.0 | 7.6 | 8 |
+| resource_dictionary | 2 | 4 | 6 | 0 | 0.0 | 0 | 0.0 | 1.6 | 2 |
+| resource_efficiency | 1 | 2 | 3 | 0 | 0.0 | 0 | 0.0 | 1.1 | 1 |
+| rh_paifu | 1 | 2 | 3 | 0 | 0.0 | 0 | 0.0 | 1.2 | 1 |
+| rh_results | 1 | 2 | 3 | 0 | 0.0 | 0 | 0.0 | 0.7 | 1 |
+| rh_results_detail | 1 | 2 | 3 | 0 | 0.0 | 0 | 0.0 | 0.8 | 1 |
+| ryoei_pages | 1 | 14 | 15 | 6 | 64.9 | 0 | 0.0 | 69.5 | 70 |
+| saikyo_mens | 1 | 2 | 3 | 0 | 0.0 | 0 | 0.0 | 1.1 | 1 |
+| saikyo_pages | 5 | 22 | 27 | 17 | 166.6 | 0 | 0.0 | 180.4 | 181 |
+| study | 3 | 14 | 17 | 0 | 0.0 | 0 | 0.0 | 12.0 | 12 |
+| study_episodes | 3 | 14 | 17 | 5 | 33.4 | 0 | 0.0 | 45.2 | 45 |
+| title_pages | 5 | 22 | 27 | 17 | 213.6 | 0 | 0.0 | 225.0 | 225 |
+| video_live | 1 | 2 | 3 | 0 | 0.0 | 0 | 0.0 | 1.7 | 2 |
+| video_wayhome | 3 | 10 | 13 | 0 | 0.0 | 0 | 0.0 | 3.1 | 3 |
+| wayhome_episodes | 3 | 10 | 13 | 0 | 0.0 | 0 | 0.0 | 3.7 | 4 |
+| wrcr_pages | 5 | 20 | 25 | 6 | 64.7 | 0 | 0.0 | 75.0 | 75 |
+| pro_pages | 6 | 28 | 34 | 5 | 33.3 | 0 | 0.0 | 51.3 | 52 |
+| top_page | 4 | 16 | 20 | 0 | 0.0 | 0 | 0.0 | 5.3 | 7 |
+| **合計** | 107 | 438 | 545 | 111 | 1088.3 | 0 | 0.0 | | 1350 |
+
+- 上限の待ちは 429 だけ（403 rateLimitExceeded・5xx の待ちは0回）。「ほかの待ち」は全ページ0回
+- 上限の待ちの合計 1088.3 秒は、手順の所要（約1349秒）の約81%
+
+#### 重複を除いた組
+
+- 呼び出しの合計: 545（spreadsheets.get 107・values.get 438）
+- (ブック, タブ, render) の組（spreadsheets.get はブックごと）を重複を除くと: **105**（spreadsheets.get 15・values.get 90）
+
+#### 同じ組を読んだページの数（上位10組）
+
+| 順 | メソッド | タブ | render | 読んだページの数 | ページ |
+|---:|---|---|---|---:|---|
+| 1 | spreadsheets.get | （ブックの一覧。「プロ」「別名」「連盟プロ以外」のブック） | - | 24 | ask_data・ask_data_jwrc・ask_data_ouka・ask_data_saikyo・ask_data_wrcr・exam・exam_episodes・houou_pages・jpml_pros・jwrc_pages・live_pages・mtsuku・mtsuku_episodes・ouka_pages・pro_pages・resource_dictionary・saikyo_pages・study・study_episodes・title_pages・top_page・video_wayhome・wayhome_episodes・wrcr_pages |
+| 2 | values.get | 「プロ」 | FORMATTED_VALUE | 24 | ask_data・ask_data_jwrc・ask_data_ouka・ask_data_saikyo・ask_data_wrcr・exam・exam_episodes・houou_pages・jpml_pros・jwrc_pages・live_pages・mtsuku・mtsuku_episodes・ouka_pages・pro_pages・resource_dictionary・saikyo_pages・study・study_episodes・title_pages・top_page・video_wayhome・wayhome_episodes・wrcr_pages |
+| 3 | values.get | 「プロ」 | UNFORMATTED_VALUE | 24 | ask_data・ask_data_jwrc・ask_data_ouka・ask_data_saikyo・ask_data_wrcr・exam・exam_episodes・houou_pages・jpml_pros・jwrc_pages・live_pages・mtsuku・mtsuku_episodes・ouka_pages・pro_pages・resource_dictionary・saikyo_pages・study・study_episodes・title_pages・top_page・video_wayhome・wayhome_episodes・wrcr_pages |
+| 4 | values.get | 「別名」 | FORMATTED_VALUE | 20 | ask_data・ask_data_jwrc・ask_data_ouka・ask_data_saikyo・ask_data_wrcr・exam・exam_episodes・houou_pages・jpml_pros・jwrc_pages・live_pages・mtsuku・mtsuku_episodes・ouka_pages・pro_pages・saikyo_pages・study・study_episodes・title_pages・wrcr_pages |
+| 5 | values.get | 「別名」 | UNFORMATTED_VALUE | 20 | ask_data・ask_data_jwrc・ask_data_ouka・ask_data_saikyo・ask_data_wrcr・exam・exam_episodes・houou_pages・jpml_pros・jwrc_pages・live_pages・mtsuku・mtsuku_episodes・ouka_pages・pro_pages・saikyo_pages・study・study_episodes・title_pages・wrcr_pages |
+| 6 | values.get | 「連盟プロ以外」 | FORMATTED_VALUE | 20 | ask_data・ask_data_jwrc・ask_data_ouka・ask_data_saikyo・ask_data_wrcr・exam・exam_episodes・houou_pages・jpml_pros・jwrc_pages・live_pages・mtsuku・mtsuku_episodes・ouka_pages・pro_pages・saikyo_pages・study・study_episodes・title_pages・wrcr_pages |
+| 7 | values.get | 「連盟プロ以外」 | UNFORMATTED_VALUE | 20 | ask_data・ask_data_jwrc・ask_data_ouka・ask_data_saikyo・ask_data_wrcr・exam・exam_episodes・houou_pages・jpml_pros・jwrc_pages・live_pages・mtsuku・mtsuku_episodes・ouka_pages・pro_pages・saikyo_pages・study・study_episodes・title_pages・wrcr_pages |
+| 8 | spreadsheets.get | （ブックの一覧。「【2】ID」「【3】画像取得」「【4】手動補正」のブック） | - | 19 | ask_data_saikyo・exam・exam_episodes・houou_pages・jpml_pros・jwrc_pages・live_pages・mtsuku・mtsuku_episodes・ouka_pages・pro_pages・saikyo_pages・study・study_episodes・title_pages・top_page・video_wayhome・wayhome_episodes・wrcr_pages |
+| 9 | values.get | 「【2】ID」 | FORMATTED_VALUE | 19 | ask_data_saikyo・exam・exam_episodes・houou_pages・jpml_pros・jwrc_pages・live_pages・mtsuku・mtsuku_episodes・ouka_pages・pro_pages・saikyo_pages・study・study_episodes・title_pages・top_page・video_wayhome・wayhome_episodes・wrcr_pages |
+| 10 | values.get | 「【2】ID」 | UNFORMATTED_VALUE | 19 | ask_data_saikyo・exam・exam_episodes・houou_pages・jpml_pros・jwrc_pages・live_pages・mtsuku・mtsuku_episodes・ouka_pages・pro_pages・saikyo_pages・study・study_episodes・title_pages・top_page・video_wayhome・wayhome_episodes・wrcr_pages |
+
+19ページの組は8〜14位の7組で、11〜14位は「【3】画像取得」「【4】手動補正」の FORMATTED_VALUE・UNFORMATTED_VALUE（読んだページは8〜10位と同じ19ページ）。15位以下は13ページ以下（13ページが3組、12ページが2組、10ページが1組、…）。
+
+### 手順2: #662 へのコメント
+
+https://github.com/retroeater/mj/issues/662#issuecomment-6621662464 （上と同じ表。上位10組の表は、ページの列が同じ行を「（n位と同じ…ページ）」と書いた）
+
+### 手順3
+
+(a) `lib/net_retry.call()` の URL の出力の行き先:
+
+- `call()` は再試行のたびに `再試行 n/m: GET <URL>: <例外>` を stderr に出す。`google_request()` から呼ばれると `<URL>` はブック ID を含む。最後まで失敗したときの例外（requests の ConnectionError など）の文にも URL の path が入りうる
+- 出る先: Actions のジョブログ。regenerate.py では失敗の理由（最後の行）が実行サマリ（`GITHUB_STEP_SUMMARY`）の「飛ばしたページ」に入る。`check-image-links.yml` の3か所は `2>&1 | tee summary.txt` を実行サマリに貼る。いずれも mj（private）の中
+- mj-logs へ自動で写る経路は無い: mj-logs に写るのは docs/logs とガイド文書（sync-from-mj.yml、docs/notes/scheduler-worker.md）と、`actions/status.md`（`scripts/actions_status.py`。題を書かない）・`actions/morning.md`（`scripts/morning_report.py`。飛ばしたページの注釈の1行目＝ページ名だけ。理由は読まない）。どれもジョブログの本文・理由を写さない
+- 残る経路は手で写すときだけ: セッションがジョブログや実行サマリの行を docs/logs に引用すると、push から mj-logs（public）に写る（例: CHAT-1104-MEW-01 のログは 429 の理由の行を引用している。この行には ID は無い）
+
+(b) #552: https://github.com/retroeater/mj/issues/552#issuecomment-6621665899
+
+- `fetch_tab()` は 8bcb3a6e2（2026-10-21、CHAT-1021-PRV-06）から `sheets.fetch_table()` 経由で、`check_not_filtered()` と `_get()` の再試行を通る。jpml_pros も `final_counts()` 経由で同じ。jpml_test の生成スクリプトは 3fb048f0b（2026-10-19）で削除済み。計測の run でも title_pages・jpml_pros が「タイトル」「タイトル戦」「連盟プロ以外」「別名」を UNFORMATTED・FORMATTED の両方で読んでいる。#552 は閉じていない・本文とラベルは変えていない
+
+### そのほか
+
+- この指示ではコード・生成物・ワークフローを変えていない（取り込みのマージだけ）ので、self-review は回していない
+- 新しい決定・作業中の回答は無いので、docs/decisions には足していない
 
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1104-acf-count
 - ログ: https://github.com/retroeater/mj/blob/work/1104-acf-count/docs/logs/CHAT-1104-ACF-38.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1104-acf-count
 - 確認用URL: なし
-- マージ: 未
-- issue: #662・#552
+- マージ: 未（ACF-37 の変更と合わせて、平野さんの判断待ち）
+- issue: #662（計測のコメント https://github.com/retroeater/mj/issues/662#issuecomment-6621662464 ）・#552（確認のコメント https://github.com/retroeater/mj/issues/552#issuecomment-6621665899 ）
 - 判断が必要なこと:
-- 未確認の項目:
-- エラー:
+  - work/1104-acf-count（ACF-37 の計測の出力）を cloudflare へ入れるか。#662 の計測の数を見て、対策をどれにするか
+  - `lib/net_retry.call()` の URL（ブック ID を含む）の出力: mj-logs へ自動で写る経路は無く、セッションが docs/logs に手で引用したときだけ写る。起票するか
+  - #552 を閉じるか（本文の「gviz を直接読む」は 8bcb3a6e2 以降は当たらない）
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 5a8971e1）: https://github.com/retroeater/mj-logs/tree/main/guide/5a8971e1
+ガイド文書（この版を写した時点の最新、mj 674955be）: https://github.com/retroeater/mj-logs/tree/main/guide/674955be
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/5a8971e1/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/5a8971e1/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/5a8971e1/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/5a8971e1/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/5a8971e1/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/5a8971e1/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/674955be/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/674955be/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/674955be/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/674955be/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/674955be/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/674955be/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/95028c1a.md

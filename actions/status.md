@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-11-04 12:20 JST
+- 書き出した時刻: 2026-11-04 12:26 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -25,13 +25,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-04 12:25 | push | work/1104-lgn-closed | success | #899（41767048378） | 0分28秒 |
+| 2026-11-04 12:24 | push | work/1104-lvp | success | #898（41766942560） | 0分28秒 |
+| 2026-11-04 12:23 | push | work/1104-lgn-closed | success | #897（41766851391） | 0分26秒 |
 | 2026-11-04 12:18 | push | work/1104-top2 | success | #896（41766341381） | 0分27秒 |
 | 2026-11-04 12:18 | push | work/1104-acf-count | success | #895（41766308008） | 0分32秒 |
-| 2026-11-04 12:10 | push | work/1104-lgn-policy | success | #894（41765427889） | 0分26秒 |
-| 2026-11-04 12:09 | push | work/1104-lgn-policy | failure | #893（41765308660） | 0分21秒 |
-| 2026-11-04 12:08 | push | work/1104-ttl | success | #892（41765279005） | 0分27秒 |
-
-- #893 failure: ジョブ「check」 ステップ「公開対象の最上位を確認」
 
 ## check-build-failure.yml
 
@@ -40,11 +38,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-04 12:25 | check_run | cloudflare | skipped | #1168（41767025861） | 0分01秒 |
+| 2026-11-04 12:24 | check_run | cloudflare | skipped | #1167（41766912785） | 0分01秒 |
 | 2026-11-04 12:20 | check_run | cloudflare | skipped | #1166（41766473095） | 0分09秒 |
 | 2026-11-04 12:19 | check_run | cloudflare | skipped | #1165（41766425585） | 0分01秒 |
 | 2026-11-04 12:19 | check_run | cloudflare | skipped | #1164（41766421254） | 0分01秒 |
-| 2026-11-04 12:19 | check_run | cloudflare | skipped | #1163（41766385706） | 0分01秒 |
-| 2026-11-04 12:11 | check_run | cloudflare | skipped | #1162（41765532911） | 0分01秒 |
 
 ## check-image-links.yml
 
@@ -131,11 +129,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-04 12:23 | workflow_dispatch | work/1104-lgn-closed | success | #59（41766856132） | 0分33秒 |
 | 2026-11-02 08:43 | workflow_dispatch | work/1102-lgn-daily | success | #58（41363460220） | 0分28秒 |
 | 2026-11-02 08:40 | workflow_dispatch | work/1102-nod | success | #57（41363289266） | 0分42秒 |
 | 2026-11-02 06:48 | workflow_dispatch | work/1102-lgn-sheet | success | #56（41353876714） | 0分27秒 |
 | 2026-11-02 06:46 | workflow_dispatch | work/1102-lgn-sheet | success | #55（41353754328） | 0分29秒 |
-| 2026-10-31 11:03 | workflow_dispatch | work/1031-lgn-sheet | success | #54（41158228306） | 0分31秒 |
 
 ## fetch-gsc.yml
 
@@ -200,7 +198,7 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-11-04 12:19 | push | cloudflare | in_progress | #695（41766360280） |  |
+| 2026-11-04 12:19 | push | cloudflare | success | #695（41766360280） | 5分11秒 |
 | 2026-11-04 12:01 | workflow_dispatch | work/1104-lgn-policy | success | #694（41764490394） | 0分45秒 |
 | 2026-11-04 12:00 | workflow_dispatch | work/1104-lgn-policy | success | #693（41764291070） | 1分14秒 |
 | 2026-11-04 11:49 | push | cloudflare | success | #692（41763190152） | 22分07秒 |
@@ -265,11 +263,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-04 12:23 | workflow_dispatch | work/1104-lgn-closed | success | #6（41766859486） | 1分04秒 |
 | 2026-11-01 08:53 | workflow_dispatch | work/1101-wkp | success | #5（41254397984） | 1分29秒 |
 | 2026-11-01 03:00 | workflow_dispatch | cloudflare | failure | #4（41227250544） | 1分08秒 |
 | 2026-10-29 10:12 | workflow_dispatch | work/1028-lgn | success | #3（40799028863） | 0分29秒 |
 | 2026-10-29 10:07 | workflow_dispatch | work/1028-lgn | cancelled | #2（40798423892） | 0分29秒 |
-| 2026-10-21 11:37 | workflow_dispatch | cloudflare | success | #1（39534076694） | 0分37秒 |
 
 - #4 failure: ジョブ「redirects / fetch」 ステップ「コミットしてpush」
 - #2 cancelled: ジョブ「logplaces / convert」
@@ -364,7 +362,7 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-11-04 12:19 | workflow_dispatch | cloudflare | pending | #39（41766370389） |  |
+| 2026-11-04 12:19 | workflow_dispatch | cloudflare | in_progress | #39（41766370389） |  |
 | 2026-11-04 12:18 | workflow_dispatch | cloudflare | success | #38（41766236895） | 0分49秒 |
 | 2026-11-02 08:41 | workflow_dispatch | work/1102-nod | success | #37（41363303180） | 0分19秒 |
 | 2026-11-01 11:49 | workflow_dispatch | cloudflare | success | #36（41266709391） | 0分24秒 |
