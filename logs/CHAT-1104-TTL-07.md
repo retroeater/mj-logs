@@ -54,28 +54,60 @@
 
 ## 経過
 
+- 着手前の確認: `git log --all --grep 'CHAT-1104-TTL-07'` は0件。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は欠けなし。対象 issue の指定なし
+- 作業ブランチ: `origin/work/1104-ttl` はマージ済み、ローカルの `work/1104-ttl` も cloudflare の祖先だったので `git merge --ff-only origin/cloudflare` で c853e6aea へ進めた。手順0: 指示欄の末尾の行は指示文の最後の行と一致。ログを先に push（23c808c8e）
+- 未マージのブランチ: `generate_title_pages.py`・`assets/title.js`・`style.css` を変えているのは `work/1101-prp-pub`（import・`member_link()`・`member_holder()`・`period_body()`・`pages()` の行き先の変更と、style.css の houou/ の節。順位の位置には関わらない）、`work/1104-lvp`（style.css の live/ の節と表の節のコメント）、`work/1104-top2`（style.css の末尾）。変える関数・CSS の行（`row_html()` の押せない行・`page_html()`・title/ の節）と重ならない
+- `?q=` の調べ: 大会ページ・期ページへ `?q=` を付けるリンクは作られていない（`grep` で、`scripts/generate_pro_pages.py` の「すべての決勝進出」は入口 `/title/?q=` へ。生成済みの HTML にも `/title/<slug>/…?q=` のリンクは0件）。向け直しはしていない（`?q=` 付きで大会ページ・期ページを開いても、検索欄が無いのでふつうに表示される）
+- 手順1（8e8761046・58349df52）:
+  - 順位の右端: 押せない行（`row_html()` の href の無い行）に、› と同じ class の見えない印（`<span class="mj-saikyo-n-chev mj-title-chev-space" aria-hidden="true">`、CSS は `.mj-title-chev-space { visibility: hidden; }`）を置き、› の幅（8px）と間（12px）の分を空けた
+  - 検索欄: `page_html()` に `search` を足し、入口（`index_body()`）だけ検索欄と検索結果の入れ物を出す。`assets/title.js` は `#title_filter` が無ければ検索の処理を抜ける（画像の代替・写真カードの文字の判定・年の切り替えはその前か別の処理で、影響なし）
+  - 題名と行の間: 期ページ・大会ページは題名（`margin-bottom: 16px`）のすぐ下に行の面で 16px。入口の題名（選ぶボタン）と検索欄の間も 16px で同じ（新しい値なし）
+  - テスト: `RowsTest.test_row_without_link`（見えない印）と `test_search_only_on_index` を直し・足した（どちらも修正前のコードで FAIL を確かめた）。`python3 -m unittest discover -s scripts/tests` → 1925 tests OK
+  - 文書: docs/notes/title-pages.md（期ページの押せない行・検索の節）、docs/notes/design.md（title/ の行の並び）、docs/decisions/title.md（この指示の決定）
+- 手順2（生成、`regenerate-page.yml` target_page=title_pages、run 41760181695 success、e9cd3c66b）: 同じ時間に work/1104-top2・work/1104-lvp の再生成が走っていたが、title_pages は飛ばされずに生成された
+  - 差分 384 ファイル（期ページ 364・大会ページ 20。入口は変化なし）。種類（旧の HTML から検索欄の2行を除き、新の HTML から見えない印を除いて突き合わせた）: 検索欄と検索結果の入れ物の削除 384 ページ、見えない印の追加 225 ページ・497 行、それ以外の違いは第24期プロクイーンの松本ちづるの行1か所だけ（押せない行 → X へのリンクの行）。想定外の行 0
+  - `sitemap-title.xml`・`title/search.json`・`title/years.json` は変化なし
+  - 松本ちづる（生成と同じ経路の SNS ブック）: X の ID は入った（期ページの行が X へのリンクになった）。写真の URL は入っていない（頭の1字の丸のまま。search.json の写真も空のまま）。松本ちづるが出る期ページは1ページ（第24期プロクイーン）
+  - 全ページの確かめ（ローカルの配信、headless Chromium 360px、UA に mj-internal、外部の画像は読まない。スクリプト scratchpad の ranks.js）: 385 ページ。順位の印のある期ページ 364・1492 行。各ページの順位の右端の x 座標の差の最大 0px（› のある行と無い行が混ざる期ページ 178）。検索欄（`#title_filter`）は入口に1つ、ほかの 384 ページは0
+- レビュー（新しい文脈の general-purpose、1回目）:
+
+  | 指摘 | 扱い |
+  |---|---|
+  | `assets/title.js` の冒頭と検索の節のコメントが「すべてのページ」のまま | 直した（399bf26de） |
+  | `period_body()`・`taikai_body()` の docstring に「→ 検索欄 →」が残る | 直した（399bf26de） |
+  | テストが `title.periods_by_title` を書いたまま戻さない、期ページで `title_results` の不在を確かめていない | 直した（399bf26de、addCleanup で戻し、期ページも確かめる） |
+  | `results_html()` の引数が入口の値だけになった | 見送り（害なし） |
+  | 見えない印の読み上げ・位置・早期 return | 問題なし（レビューの確認どおり） |
+
+  399bf26de はコメントとテストだけで、生成物は変わらない（マージ後の自動再生成も差分なし）
+- 手順3（マージ）: push 直前に `git fetch origin cloudflare` と `git merge-base --is-ancestor origin/cloudflare HEAD`（真）を確かめ、`git push origin work/1104-ttl:cloudflare` → `c853e6aea..399bf26de  work/1104-ttl -> cloudflare`
+  - 自動再生成（run 41760841087）success、生成物の差分なし。399bf26de の Workers Builds: mj は success（その後に他セッションのマージ〈LGN-25〉が続いた）
+  - 本番（UA に mj-internal、`?v=ttl07…`）: `/title/` は 200・検索欄 1、`/title/houou/`・`/title/pro-queen/24.html` は 200・検索欄 0
+  - `/title/pro-queen/24.html`（松本ちづるが出る期ページ）: 5行とも X へのリンクの行になり、順位の右端は5行とも 308px（360px の幅）
+  - › の無い行がある期ページの例 `/title/gpmax/1.html`: 優勝・3位（押せない行）と 2位・4位（リンクの行）の順位の右端が4行とも 308px
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1104-ttl
-- ログ: https://github.com/retroeater/mj/blob/work/1104-ttl/docs/logs/CHAT-1104-TTL-07.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1104-ttl
-- 確認用URL: 未
-- マージ: 未
+- 状態: 完了
+- ブランチ: work/1104-ttl（マージ済み。削除は cleanup-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1104-TTL-07.md
+- 比較URL: https://github.com/retroeater/mj/compare/c853e6aea...399bf26de
+- 確認用URL: 本番 https://ryoei.pro/title/pro-queen/24.html ・ /title/houou/ ・ /title/ ・ /title/gpmax/1.html で確かめた。この版の印: 鳳凰戦の大会ページに検索欄が無く、題名のすぐ下に行
+- マージ: 済（c853e6aea..399bf26de。自動再生成は差分なし、Workers Builds の本番 mj は success）
 - issue: なし
-- 判断が必要なこと: 未
-- 未確認の項目: 未
+- 判断が必要なこと: なし
+- 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj c853e6ae）: https://github.com/retroeater/mj-logs/tree/main/guide/c853e6ae
+ガイド文書（この版を写した時点の最新、mj 05cad68f）: https://github.com/retroeater/mj-logs/tree/main/guide/05cad68f
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c853e6ae/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c853e6ae/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c853e6ae/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c853e6ae/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c853e6ae/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c853e6ae/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/05cad68f/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/05cad68f/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/05cad68f/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/05cad68f/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/05cad68f/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/05cad68f/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/95028c1a.md

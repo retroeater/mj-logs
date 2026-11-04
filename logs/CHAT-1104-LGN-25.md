@@ -55,18 +55,22 @@ log/ の OGP 画像は今サイト共通の1枚（白地に「ryoei.pro」）で
 - 取り込み: マージの前に cloudflare を取り込んだ（衝突なし）
 - マージの条件: `git diff --stat origin/cloudflare...HEAD` は 9ファイル: `img/ogp/log/index-white.png`（画像1枚）、`scripts/generate_log_pages.py`（og:image・og:image:alt の2行）、`log/index.html`（生成物）、docs/notes/ogp.md・log-page.md、docs/logs、そして `scripts/tests/test_og_image.py`（許可の一覧に1行）・`scripts/tests/test_log_pages.py`（og:image の検査に1行）。テストの2ファイルは条件の挙げた種類に無いが、og:image の指定に伴う検査の1行ずつで、許可の一覧の行は ogp.md の規則が求める（無いと画像を足すと落ちる）。動きの変わる行ではないので、og:image の指定の一部として扱った。unittest OK、node --test pass 40
 
+- マージ: 直前の再 fetch で cloudflare が祖先であることを確かめ、`git push origin work/1104-lgn-ogp:cloudflare`（399bf26de..05cad68f4）
+- 本番（UA に `mj-internal`）: check-run（05cad68f4）は Workers Builds: mj・regenerate・sync とも success。`https://ryoei.pro/log/` の `og:image` は `https://ryoei.pro/img/ogp/log/index-white.png`、`og:image:alt` は「ログ」。`https://ryoei.pro/img/ogp/log/index-white.png` は 200・image/png・15,082 bytes
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1104-lgn-ogp
-- ログ: https://github.com/retroeater/mj/blob/work/1104-lgn-ogp/docs/logs/CHAT-1104-LGN-25.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1104-LGN-25.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1104-lgn-ogp
-- 確認用URL: なし
-- マージ: 未
-- issue: #640
+- 確認用URL: なし（本番 https://ryoei.pro/log/ で確かめた）
+- マージ: 済（05cad68f4）。条件: 差分は画像1枚・og:image と og:image:alt の指定・生成物・docs・docs/logs・docs/decisions と、og:image の許可の一覧と検査のテストの1行ずつ（経過に理由）。unittest OK・node --test pass 40。本番の og:image は新しい画像を指し、画像は 200
+- issue: #640（閉じたまま）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
+- 平野さんの作業（任意）: X の投稿画面に `https://ryoei.pro/log/?x=<未使用の数字>` を貼ってカードの画像を確かめる（デプロイ直後の1〜2分は避ける）
 
 <!-- guide-links -->
 ---
