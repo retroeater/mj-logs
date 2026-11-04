@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-11-05 01:22 JST
+- 書き出した時刻: 2026-11-05 01:25 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -25,9 +25,9 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-11-05 01:18 | push | work/1104-lgf-alias | queued | #974（41865967586） |  |
-| 2026-11-05 01:16 | push | work/1104-lgf-alias | queued | #973（41865616819） |  |
-| 2026-11-05 01:13 | push | work/1104-lgf-alias | queued | #972（41865166136） |  |
+| 2026-11-05 01:18 | push | work/1104-lgf-alias | success | #974（41865967586） | 5分56秒 |
+| 2026-11-05 01:16 | push | work/1104-lgf-alias | success | #973（41865616819） | 6分17秒 |
+| 2026-11-05 01:13 | push | work/1104-lgf-alias | success | #972（41865166136） | 8分31秒 |
 | 2026-11-05 00:53 | push | work/1104-skn | success | #971（41862373048） | 23分19秒 |
 | 2026-11-05 00:45 | push | work/1104-skn | success | #970（41861128235） | 0分53秒 |
 
@@ -38,7 +38,7 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-11-05 01:19 | check_run | cloudflare | in_progress | #1268（41866126898） |  |
+| 2026-11-05 01:19 | check_run | cloudflare | skipped | #1268（41866126898） | 4分34秒 |
 | 2026-11-05 01:17 | check_run | cloudflare | in_progress | #1267（41865817795） |  |
 | 2026-11-05 01:14 | check_run | cloudflare | skipped | #1266（41865249129） | 7分41秒 |
 | 2026-11-05 00:54 | check_run | cloudflare | skipped | #1265（41862456814） | 21分57秒 |
@@ -201,7 +201,7 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-11-05 01:16 | workflow_dispatch | work/1104-lgf-alias | queued | #743（41865616913） |  |
+| 2026-11-05 01:16 | workflow_dispatch | work/1104-lgf-alias | in_progress | #743（41865616913） |  |
 | 2026-11-05 01:13 | workflow_dispatch | work/1104-lgf-alias | queued | #742（41865165683） |  |
 | 2026-11-05 00:53 | workflow_dispatch | work/1104-skn | success | #741（41862378968） | 24分40秒 |
 | 2026-11-05 00:46 | workflow_dispatch | work/1104-skn | success | #740（41861150985） | 3分12秒 |
