@@ -60,6 +60,36 @@ Chat-Ref: CHAT-1104-ACF-40
 
 ## 経過
 
+### 着手前の確認
+- 同じ Chat-Ref のコミット: なし（`git log --all --grep=CHAT-1104-ACF-40`）。`ACF` は ACF-36〜39 の続きで最初の指示ではない
+- 0. 指示欄の末尾は指示文の最後の行（「不明な点があれば、…この行が指示文の最後の行です。」）と一致
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 欠けなし
+- 作業ブランチ: ローカル・リモートとも work/1104-acf-cache が無かったので `git checkout -b work/1104-acf-cache origin/cloudflare`（8c7dd9a3）
+- #662: open。着手中コメントは ACF-37（別セッション、計測。ACF-39 でマージ済みで作業は終わっている）だけで、進行中の他セッションの着手は無いと判断。着手中のコメント: https://github.com/retroeater/mj/issues/662#issuecomment-6623269249
+
+### 手順1: 未マージの work/ ブランチ
+`git branch -r --no-merged origin/cloudflare` の各ブランチで `git diff origin/cloudflare...<b> -- scripts/lib/sheets.py scripts/regenerate.py`:
+- origin/work/1101-prp-pub: scripts/regenerate.py の `OUTPUT_OVERRIDES` の `pro_pages` の行だけ
+- origin/work/1104-lgn-policy: scripts/regenerate.py の `OUTPUT_OVERRIDES` に `policy_page` を足すだけ
+- どちらも手順1に挙げた関数（`_book()`・`_values()`・`_get()`・要約・`run_page()`・`main()` の始めと終わり）ではないので止まらない。lib/sheets.py を変えるブランチは無し
+
+### 手順1: 前提の確かめ
+- 生成の途中でシートへ書くページ: 無し。`scripts/generate_*.py`・`scripts/lib/*.py` で `sheets_write` を import するものは無い（`lib/sheets.py` はコメントで名前を出すだけ）。`batchUpdate|:append|"PUT"|"POST"|values.update` は lib/gcal.py（カレンダー）・lib/sheets_write.py だけ。生成スクリプトから書き込みのスクリプトを subprocess で動かすものも無い（`generate_log_pages.py`・`lib/sns.py` などはコメントで名前を出すだけ）
+- キャッシュの置き場所: `tempfile.TemporaryDirectory(prefix="sheets-cache-")`（ランナーでは /tmp の下、リポジトリの外）。regenerate.py の `with` を抜けると消える。作業ツリーの外なので `TreeSnapshot`（git add -A）・コミットの手順・`git status` を見る dry_run のサマリには入らない。値は stderr にも出さない（例外の型名だけ）
+- compare_ref の旧い側: regenerate-page.yml「生成物の差を実行サマリに出す」は別のステップで `/tmp/base` の旧いコードの regenerate.py を動かす。新しい側の環境変数は前のステップの中だけで、旧いコードは環境変数を読まないので共有しない
+- `run_page()` は子の環境を `{**os.environ, ...}` から作っている（確かめた）。なので `sheets_cache()` が `os.environ` に置き、終わりに元へ戻す
+
+### 手順1: 実装（1947e5dbc）
+- `lib/sheets.py`: `_read(method, url, params)` を足し、`_book()`・`_values()` の `_get()` をこれに替えた。`SHEETS_CACHE_DIR` があれば、鍵＝`sha256(json.dumps([url, params], sort_keys=True))`（URL にブック ID・タブ、params に render・fields が入る）のファイル `<鍵>.json` に API の応答そのもの（JSON）を置き・読む。書きは同じディレクトリの一時ファイル→`os.replace`。読めない・壊れたファイルは1行出して API で読み直し、書けないときも1行出して生成は続ける。失敗（SheetsReadError）は置かない
+- 呼び出しのたびの1行（`CALL_PREFIX`・`book_token`・`_count_call`）を消した。要約の行に `キャッシュ k 回` を足した（合計は API を実際に呼んだ回数）。キャッシュだけのプロセスも要約を出す
+- `regenerate.py`: `sheets_cache()`（contextmanager）を足し、通常の生成と `--check` の両方を囲んだ
+- docs: docs/notes/static-generation.md「シートの読み方（Sheets API）」の「読む回数」、docs/notes/sheets-reader.md「段取りと今の状態」5.（別のコミット）
+
+### 手順1: テスト
+- `python3 -m unittest discover -s scripts/tests`: Ran 1976 tests、OK（足したテストを含む）。test_sheets_count は 21 件 OK
+- 足したテスト（scripts/tests/test_sheets_count.py）: 2つ目のプロセスがキャッシュに当たって API を呼ばない（本物の subprocess 2本。値 `[[6010.0, 'a', True]]` の型が変わらない・要約が `合計 0…、キャッシュ 1 回、`）・環境変数が無いと各プロセスが呼ぶ・render やタブの違いは別の鍵・ファイル名にブック ID が出ない・壊れたキャッシュは読み直して書き直す・失敗は置かない・書けなくても値を返す・regenerate の子が同じディレクトリを受け取り、終わりに消え、リポジトリの外・要約の行の形
+- 修正前のコードで通らないか（#310）: origin/cloudflare の worktree に新しいテストのファイルだけを写して実行 → `Ran 21 tests … FAILED (errors=20)`（通るのは理由の行のテスト1件だけ）
+
 ## 報告
 
 - 状態:
