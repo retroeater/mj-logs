@@ -57,29 +57,44 @@ ACF-37 で入れた lib/sheets.py の呼び出し数のカウンタと 429 の�
 - `git merge origin/cloudflare`（衝突なし）。`git diff --stat origin/cloudflare...HEAD` は docs/decisions/security.md・docs/logs/CHAT-1104-ACF-37.md・ACF-38.md・ACF-39.md・docs/notes/sheets-reader.md・scripts/lib/sheets.py・scripts/regenerate.py・scripts/tests/test_regenerate.py・scripts/tests/test_sheets_count.py の9ファイルで、条件 (2) の範囲に収まる
 - `python3 -m unittest discover -s scripts/tests`: OK（条件 (1)）
 - docs/decisions/security.md の末尾（ACF-37 の節の後）に 2026-11-04（CHAT-1104-ACF-39）の決定を足した
+- 取り込み直し: push 前の再 fetch で cloudflare が進んでいた（849bb0ad7・87be7c173、LGN-28 のログ）ので、もう一度 `git merge origin/cloudflare`（衝突なし）。差は同じ9ファイル、テストは OK
+
+### 手順2: マージと push 検知の run
+
+- `git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめて `git push origin work/1104-acf-count:cloudflare`（87be7c173..ff3a11794、03:50:39Z）
+- push 検知の run: 41769583706（cloudflare、push、03:50:40Z 開始）。04:05Z 時点で「対象ページを再生成」の手順（03:51:07Z 開始）が実行中で、15分の上限内に終わらなかった。結論と最初のページの要約の行は未確認の項目に回した
+- 並走: 04:05Z 時点で work/1104-top3 の 41769174005（workflow_dispatch、03:46:32Z 開始）も実行中
+
+### 手順3
+
+- #662 へのコメント: https://github.com/retroeater/mj/issues/662#issuecomment-6622045419
+- 決定は docs/decisions/security.md に足した（手順1）
+- コード・生成物を変えたのは ACF-37 で、self-review は ACF-37 で済み（この指示は取り込みとマージだけ）
 
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1104-acf-count
-- ログ: https://github.com/retroeater/mj/blob/work/1104-acf-count/docs/logs/CHAT-1104-ACF-39.md
+- 状態: 判断待ち
+- ブランチ: work/1104-acf-count（cloudflare へマージ済み。作業ブランチは削除していない）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1104-ACF-39.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1104-acf-count
 - 確認用URL: なし
-- マージ: 未
-- issue: #662
+- マージ: 済（ff3a11794）
+- issue: #662（マージのコメント https://github.com/retroeater/mj/issues/662#issuecomment-6622045419 ）
 - 判断が必要なこと:
+  - 未確認の項目の run の結論の確かめを、次の指示（または朝の確認）で行うか
 - 未確認の項目:
-- エラー:
+  - push 検知の run 41769583706 の結論と、ジョブログの最初のページの `Sheets API の呼び出し: …` の行（15分の上限内に終わらなかった。04:05Z 時点で実行中、並走は 41769174005）
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj ff3a1179）: https://github.com/retroeater/mj-logs/tree/main/guide/ff3a1179
+ガイド文書（この版を写した時点の最新、mj 4faa95fb）: https://github.com/retroeater/mj-logs/tree/main/guide/4faa95fb
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ff3a1179/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ff3a1179/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ff3a1179/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ff3a1179/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ff3a1179/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/ff3a1179/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/4faa95fb/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/4faa95fb/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/4faa95fb/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/4faa95fb/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/4faa95fb/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/4faa95fb/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/95028c1a.md
