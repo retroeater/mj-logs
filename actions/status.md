@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-11-05 00:15 JST
+- 書き出した時刻: 2026-11-05 00:18 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -201,11 +201,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-11-05 00:13 | workflow_dispatch | work/1104-skn | in_progress | #736（41855458077） |  |
+| 2026-11-05 00:14 | workflow_dispatch | work/1104-skn | success | #737（41855668426） | 1分23秒 |
+| 2026-11-05 00:13 | workflow_dispatch | work/1104-skn | success | #736（41855458077） | 1分47秒 |
 | 2026-11-05 00:13 | workflow_dispatch | work/1104-skn | failure | #735（41855451367） | 0分50秒 |
 | 2026-11-04 23:58 | workflow_dispatch | work/1104-lvp-auto | success | #734（41852873693） | 0分40秒 |
 | 2026-11-04 23:57 | workflow_dispatch | work/1104-lgf-alias | success | #733（41852711010） | 1分01秒 |
-| 2026-11-04 23:49 | push | cloudflare | success | #732（41851481930） | 1分05秒 |
 
 - #735 failure: ジョブ「regenerate」 ステップ「生成物の差を実行サマリに出す」
 
