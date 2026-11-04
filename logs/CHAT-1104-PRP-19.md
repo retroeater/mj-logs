@@ -55,6 +55,58 @@ pro/ を公開した日から、公開中のページ（live/・成績ページ�
 
 ## 経過
 
+### 0. 着手前の確認
+
+- 「指示」欄の末尾は指示文の最後の行（「不明な点があれば…この行が指示文の最後の行です。」）と一致
+- 同じ Chat-Ref のコミット・ログは無し。#641 は open
+- CHAT-1104-PRP-18 の `## 報告` の状態の末尾に ` / 続き: CHAT-1104-PRP-19` を足して push（f6700f374）
+- 冒頭の雛形の行（Chat-Ref・マージ・貼る時機・共通手順）に欠けなし
+- work/1101-prp-pub はリモートにあり、ローカルと同じ（f99f85741）
+
+### 1. 取り込み（2671d663a）
+
+`git merge origin/cloudflare` は衝突なし（docs 10・scripts 2 のほかの作業）。この 2671d663a を「この指示で変える前」の比べる元にした。
+
+未マージの work/ ブランチ: work/1104-lvp の `scripts/generate_live_pages.py` の差（`git diff origin/cloudflare...origin/work/1104-lvp`）は空（cloudflare に入った後）で、`build_player_card()` に当たらない。A5 を入れた。
+
+### 2. 変更（dd9137778）
+
+- A5（live/）: `build_player_card(name, olds, photos, book, prefix, slugs, role)`。`slugs.get(name)`（現在名）があれば `<a class="mj-saikyo-card" href="/pro/<slug>/">`（`target` なし・「新しいタブで開く」なし）、無ければ今までどおり X（`target="_blank"`）か `<div>`。`slugs = pro_search.load_slugs()` を `photos` の隣で作り、`build_individual()`・`staff_cards()` に渡した（実況・解説のカードも同じ）
+- C10（#644）: リンクの形は、同じ成績のページの系統の順位変動（`assets/league_race.js` の `playerUrl()` と `aria-label`「<名前>の連盟プロのページ」）に合わせ、名前の面の写真のリンク先を在籍者は `/pro/<slug>/`（同じタブ）、ほかは今までどおり X にした（名前そのものはリンクにしない。`assets/league.js` の名前の面の注記に「将来は選手ページへ」とあった所）
+  - houou/・ouka/・jwrc/・wrcr/: `generate_houou_pages.py` の `result_files(…, slugs=pro_search.load_slugs())` が選手ごとの成績 JSON に `slug` を足し、`assets/league.js` の `renderPlayer()` が読む。wrcr/ にも個人成績の名前の面がある（同じ `generate_houou_pages.py` で作る）ので入れた。名簿 `ask-players.json`（`ask_roster()`）は `slug` を読まないので変わらない
+  - saikyo/: `generate_saikyo_pages.py` の `players_data(…, slugs)` の各行の最後（12番目）に slug（無ければ ""）、`assets/saikyo.js` の `renderPlayer()` が読む
+- C17（#195）: `lib/wayhome.py` の `PlayerLinks` に `slug`（既定 ""）を足し、`with_pro_slugs(links, slugs)` で入れる。`build_player_links_html()` は slug があれば写真のリンクを `/pro/<slug>/`（同じタブ、alt「<名前>さんの連盟プロのページ」）にし、無ければ今までどおり X。選手の面のリンクは1つのまま（X を置き換えた）。`with_pro_slugs()` を呼ぶのは帰り道の2つの生成（`generate_wayhome_episodes.py`・`generate_video_wayhome.py`、main と `run_check()`）だけで、同じ関数を使う Mつく（`generate_mtsuku.py`・`generate_mtsuku_episodes.py`）は変わらない。X の ID が無く個別ページのある在籍者は、名前だけだったところに写真のリンクが付く
+- `llms.txt`: 3行目「連盟所属プロ1,100名超」→「連盟所属プロ約1,100名」（16行目は PRP-18 で「約1,100名」）
+- `scripts/generate_pro_pages.py` の「質問欄が読む」「`assets/houou_ask.js` の PRO_SLUG」の注記は、このブランチでは PRP-14 で「(順位変動・title/ が読む)」に直してあった（今 `houou_ask`・`質問欄が読む` の字は無い）。変えていない
+- 検査: `test_live_pages.PlayerCardTest`（在籍者は `/pro/<slug>/` で `target` なし・実況の帯つきも同じ・在籍者でない人は X・どちらも無ければリンクなし）、`test_houou_pages.UpcomingOnlyTest.test_result_file_slug_for_members`（在籍者だけ `slug`・`slugs` を渡さなければ無い・`ask_roster()` は変わらない）、`test_saikyo_menu.PlayerSlugTest`（最後の値）、`test_wayhome_player_links.ProPageLinkTest`（個別ページへ・`target` なし・alt・在籍者でない人は X・X の ID が無い在籍者・既定の `slug` は ""）。2671d663a の `git archive` に入れて実行すると7件とも ERROR（関数の引数・`with_pro_slugs` が無い）
+
+### 3. 生成と確かめ
+
+- `regenerate-page.yml` の `check`（live_pages・houou_pages・ouka_pages・jwrc_pages・wrcr_pages・saikyo_pages・video_wayhome・wayhome_episodes・pro_pages、run 41794639083）: success、全部「通る」（警告は live/ の未確認 686件・最強戦の ABEMA の URL 2件・帰り道 1件で、前からのデータの警告）
+- `dry_run`（`compare_ref` 2671d663a）は回したが、ファイル名が日本語の成績 JSON を「片方にだけある」と数え（引用符つきのパス）、一覧がログに出ないので使わなかった。代わりに本生成（→ 1f1d32774）を 2671d663a と比べた
+
+2671d663a と比べた生成物の差分（日付の動いた差分は無かった）:
+
+| 種類 | 件数 | 中身（機械で確かめた） |
+|---|---|---|
+| live/ の対局ページ | 769 | 選手・実況・解説のカードの行だけ（リンクの属性・「新しいタブで開く」・`div`↔`a` を伏せると、変わったファイルと元が一致） |
+| houou/ ouka/ jwrc/ wrcr/ の results/*.json | 715・178・324・191（計1,408） | `slug` を1つ足しただけ（`slug` を除くと全件が元と同じ） |
+| saikyo/players/index.html | 1 | 埋め込みのデータの各行の最後に slug（440名のうち156名）。データの外の HTML と、各行の前の11の値は元と同じ |
+| wayhome/ の各話 | 43 | 選手の写真のリンクが X（新しいタブ）から `/pro/<slug>/` に。うち2話は X の ID が無く名前だけだったところに写真のリンクが付いた |
+| wayhome/index.html | 1 | 一覧のヒーローの選手の写真のリンク（同じ） |
+| sitemap-wayhome.xml | 1 | 変わった各話の lastmod 39件が 2026-10-25 → 2026-11-04（生成のときの `update_sitemap_lastmod.py`） |
+| pro/・title/・mtsuku/・`ask-players.json`・ほか | 0 | — |
+
+- リンク先: live/・wayhome/ の生成物の `/pro/<slug>/` は 469通り、成績 JSON と saikyo/ の slug を合わせて 757通り。`pro/<slug>/index.html` が無いものは 0
+- テスト: `python3 -m unittest discover -s scripts/tests` → Ran 2008 tests OK。`node --test 'workers/*/test/*.test.mjs'` → 219 pass（取り込みの後）
+- プレビュー（1f1d32774 の Workers Builds、07:55Z に success）を Playwright（UA に mj-internal、360px）:
+  - `live/houou/39/f.html`: 佐々木寿人・前田直哉・HIRO柴田・吉田直・古橋崇志・森山茂和・勝又健志・瀬戸熊直樹・藤崎智は `/pro/<slug>/`（同じタブ）、前原雄大は X（新しいタブ）。横のはみ出し無し
+  - `houou/players/?name=白鳥翔`: 写真のリンク `/pro/sho.shiratori.23/`・`target` なし・aria-label「白鳥翔の連盟プロのページ」。はみ出し 0
+  - `saikyo/players/?name=白鳥翔`: 同じ。はみ出し 0
+  - `wayhome/0OPca1Bl5xk.html`: 写真のリンク `/pro/rana.tachibana.41/`・`target` なし・alt「橘来奈さんの連盟プロのページ」。はみ出し 0
+- `docs/notes/pro-pages.md`「公開のマージ」に、入れた3つのリンクを書き、「まだ入っていないもの」の行を消した（df5b4ee60）。docs/decisions/pros.md に PRP-19 の決定を足した
+- #641 の本文の「公開の前に残っていること」の5行（cloudflare の取り込み直し・`sitemap-live.xml` の3か所・`llms.txt` の文・公開中のページからのリンク・取り込みの後の `check`）にチェックを付けた（ほかは変えていない）
+
 ## 報告
 
 - 状態: 作業中
@@ -71,12 +123,12 @@ pro/ を公開した日から、公開中のページ（live/・成績ページ�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj ada6990d）: https://github.com/retroeater/mj-logs/tree/main/guide/ada6990d
+ガイド文書（この版を写した時点の最新、mj a4a9ed1b）: https://github.com/retroeater/mj-logs/tree/main/guide/a4a9ed1b
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ada6990d/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ada6990d/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ada6990d/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ada6990d/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ada6990d/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/ada6990d/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a4a9ed1b/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a4a9ed1b/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a4a9ed1b/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a4a9ed1b/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a4a9ed1b/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a4a9ed1b/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/95028c1a.md
