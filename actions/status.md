@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-11-04 12:34 JST
+- 書き出した時刻: 2026-11-04 12:39 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -25,11 +25,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-04 12:38 | push | work/1104-ttl | success | #904（41768347172） | 0分31秒 |
 | 2026-11-04 12:33 | push | work/1104-lgn-closed | success | #903（41767814125） | 0分34秒 |
 | 2026-11-04 12:31 | push | work/1104-lgn-closed | success | #902（41767670000） | 0分25秒 |
 | 2026-11-04 12:29 | push | work/1104-lgn-closed | success | #901（41767448692） | 0分24秒 |
 | 2026-11-04 12:27 | push | work/1104-lvp | success | #900（41767286981） | 0分26秒 |
-| 2026-11-04 12:25 | push | work/1104-lgn-closed | success | #899（41767048378） | 0分28秒 |
 
 ## check-build-failure.yml
 
@@ -198,7 +198,7 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-11-04 12:33 | push | cloudflare | pending | #698（41767823578） |  |
+| 2026-11-04 12:33 | push | cloudflare | success | #698（41767823578） | 5分06秒 |
 | 2026-11-04 12:31 | workflow_dispatch | work/1104-lvp | in_progress | #697（41767654496） |  |
 | 2026-11-04 12:27 | workflow_dispatch | work/1104-lvp | success | #696（41767291734） | 1分27秒 |
 | 2026-11-04 12:19 | push | cloudflare | success | #695（41766360280） | 5分11秒 |
@@ -362,7 +362,7 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-11-04 12:19 | workflow_dispatch | cloudflare | in_progress | #39（41766370389） |  |
+| 2026-11-04 12:19 | workflow_dispatch | cloudflare | success | #39（41766370389） | 17分59秒 |
 | 2026-11-04 12:18 | workflow_dispatch | cloudflare | success | #38（41766236895） | 0分49秒 |
 | 2026-11-02 08:41 | workflow_dispatch | work/1102-nod | success | #37（41363303180） | 0分19秒 |
 | 2026-11-01 11:49 | workflow_dispatch | cloudflare | success | #36（41266709391） | 0分24秒 |
