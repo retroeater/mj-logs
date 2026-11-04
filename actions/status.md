@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-11-04 12:18 JST
+- 書き出した時刻: 2026-11-04 12:20 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -25,14 +25,13 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-04 12:18 | push | work/1104-top2 | success | #896（41766341381） | 0分27秒 |
+| 2026-11-04 12:18 | push | work/1104-acf-count | success | #895（41766308008） | 0分32秒 |
 | 2026-11-04 12:10 | push | work/1104-lgn-policy | success | #894（41765427889） | 0分26秒 |
 | 2026-11-04 12:09 | push | work/1104-lgn-policy | failure | #893（41765308660） | 0分21秒 |
 | 2026-11-04 12:08 | push | work/1104-ttl | success | #892（41765279005） | 0分27秒 |
-| 2026-11-04 12:01 | push | work/1104-rsc | success | #891（41764490397） | 0分28秒 |
-| 2026-11-04 11:59 | push | work/1104-lgn-policy | failure | #890（41764230828） | 0分22秒 |
 
 - #893 failure: ジョブ「check」 ステップ「公開対象の最上位を確認」
-- #890 failure: ジョブ「check」 ステップ「公開対象の最上位を確認」
 
 ## check-build-failure.yml
 
@@ -41,11 +40,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-04 12:20 | check_run | cloudflare | skipped | #1166（41766473095） | 0分09秒 |
+| 2026-11-04 12:19 | check_run | cloudflare | skipped | #1165（41766425585） | 0分01秒 |
+| 2026-11-04 12:19 | check_run | cloudflare | skipped | #1164（41766421254） | 0分01秒 |
+| 2026-11-04 12:19 | check_run | cloudflare | skipped | #1163（41766385706） | 0分01秒 |
 | 2026-11-04 12:11 | check_run | cloudflare | skipped | #1162（41765532911） | 0分01秒 |
-| 2026-11-04 12:09 | check_run | cloudflare | skipped | #1161（41765371567） | 0分02秒 |
-| 2026-11-04 12:09 | check_run | cloudflare | skipped | #1160（41765340672） | 0分01秒 |
-| 2026-11-04 12:02 | check_run | cloudflare | skipped | #1159（41764571677） | 0分01秒 |
-| 2026-11-04 12:02 | check_run | cloudflare | skipped | #1158（41764553295） | 0分01秒 |
 
 ## check-image-links.yml
 
@@ -201,11 +200,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-04 12:19 | push | cloudflare | in_progress | #695（41766360280） |  |
 | 2026-11-04 12:01 | workflow_dispatch | work/1104-lgn-policy | success | #694（41764490394） | 0分45秒 |
 | 2026-11-04 12:00 | workflow_dispatch | work/1104-lgn-policy | success | #693（41764291070） | 1分14秒 |
 | 2026-11-04 11:49 | push | cloudflare | success | #692（41763190152） | 22分07秒 |
 | 2026-11-04 11:36 | workflow_dispatch | work/1104-top2 | success | #691（41761870869） | 40分50秒 |
-| 2026-11-04 11:36 | workflow_dispatch | work/1104-acf-count | success | #690（41761816704） | 23分01秒 |
 
 ## regenerate-saikyo.yml
 
@@ -227,11 +226,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-04 12:19 | push | cloudflare | success | #84（41766360308） | 0分24秒 |
 | 2026-11-04 11:49 | push | cloudflare | success | #83（41763190182） | 0分26秒 |
 | 2026-11-04 11:28 | push | cloudflare | success | #82（41761013599） | 0分24秒 |
 | 2026-11-04 11:27 | push | cloudflare | success | #81（41760841163） | 0分24秒 |
 | 2026-11-04 09:13 | push | cloudflare | success | #80（41745261941） | 0分26秒 |
-| 2026-11-04 08:58 | push | cloudflare | success | #79（41743330490） | 0分25秒 |
 
 ## research-candidates.yml
 
@@ -365,11 +364,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-04 12:19 | workflow_dispatch | cloudflare | pending | #39（41766370389） |  |
+| 2026-11-04 12:18 | workflow_dispatch | cloudflare | success | #38（41766236895） | 0分49秒 |
 | 2026-11-02 08:41 | workflow_dispatch | work/1102-nod | success | #37（41363303180） | 0分19秒 |
 | 2026-11-01 11:49 | workflow_dispatch | cloudflare | success | #36（41266709391） | 0分24秒 |
 | 2026-10-23 18:54 | workflow_dispatch | cloudflare | success | #35（39935314394） | 10分48秒 |
-| 2026-10-23 18:53 | workflow_dispatch | work/1023-acf | success | #34（39935137148） | 1分02秒 |
-| 2026-10-23 11:37 | workflow_dispatch | cloudflare | success | #33（39890617104） | 0分48秒 |
 
 ## dependabot-updates
 
