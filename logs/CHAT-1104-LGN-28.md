@@ -59,6 +59,36 @@ CHAT-1104-LGN-26 は送る前に差し替えたため欠番（割り当ての実
 
 ## 経過
 
+- 0章: 指示欄の末尾は指示文の最後の行と一致。`CHAT-1104-LGN-28` のコミットなし（LGN-26 は欠番と指示文にある）。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）の欠けなし。#664 は open、着手中のコメントなし。CLAUDE.md 23,981・handover.md 24,280 バイト（警告域の外）
+- 作業ブランチ: ローカル・リモートとも無かったので `git checkout -b work/1104-lgn-closed origin/cloudflare`（36d21c725）
+- #664: 着手中のコメント（判定の語を使わない）。決定（題・コメントに「閉業」の語を残さない）に合わせ、題を「ログ: 閉業の店を月次で知らせる（保存しない）」から「ログ: 店の表示を月次で見直す（判定は保存しない）」に変えた。本文（2026-10-29 の「知らせて平野さんが【3】を N にする」案）は、この指示の決定（自動で外す）で置き換わった。本文は書き換えていない
+- 仕組み（8ae04e4de・2ebd… は下）: `convert_x_posts.py` に mode `closed` を足した（新しいワークフローを足さず、既存の `convert-x-posts.yml` の mode と `run-monthly.yml` のジョブで呼ぶ。Places の呼び方・シートの書き方・書いてよいタブの確かめ〈`_check_target`〉を使い回すため）
+  - 対象: `generate_log_pages.py` に `shown_pairs()`（生成と同じ読み方で、【2】を【3】で直し、飲食店・表示 Y、石立岳大・過去メシを外した組。「閉業」シートで外す前）を切り出し、closed はその place_id を重ねずに数える
+  - 判定: place_id ごとに `GET places/{id}`（`X-Goog-FieldMask: businessStatus`）。`CLOSED_PERMANENTLY` だけを外す。HTTP 404（place_id が見つからない）は外さずに数えて続ける。ほかの失敗（割り当て・権限・接続）は止めて書かない（繰り返さない。`簡略化:` の印）。呼び出しの間は 60/500 秒
+  - 止める: 対象が `CLOSED_MAX_CALLS`（2,500）を超える（1回も呼ばない）・Places の鍵が無い・失敗・外す店が対象の 10%（`CLOSED_MAX_SHARE`）を超える。どれも「閉業」シートを書かない
+  - 書く: 「閉業」シートを見出し `place_id` と外す店の place_id で丸ごと書き直す（無ければタブを足す）。書くのはこのタブだけ（`WRITABLE_TABS` に足し、`write_closed` は `_check_target(CLOSED_TAB)`。【1】【3】は `FORBIDDEN_TABS` のまま、closed の道筋は `write_rows`・`write_cells` を呼ばない〈テストで確かめる〉）
+  - 出力: 対象の数・呼んだ回数・外す店の数（前回からの追加・戻す）・見つからない place_id の数だけ（place_id・店名は出さない〈テストで確かめる〉）
+  - 生成: `generate_log_pages.py` が「閉業」シートを読み（`closed_place_ids`。シートが無ければ空。`check_sheet_exists` の ValueError だけを受け、読むときのフィルタの検査はそのまま）、`drop_closed` で外す。生成のログに「「閉業」シートで外した N店」
+  - ワークフロー: `convert-x-posts.yml` の mode の選択肢に closed、`workflow_call` に入力 `mode`（既定 all。run-daily は渡さないので all のまま）。`run-monthly.yml` にジョブ `closed`（Secret は LIVE_SHEETS_SA_KEY・SHEETS_READER_SA_KEY・GOOGLE_PLACES_API_KEY だけ、`dry_run: !inputs.scheduled`）
+- テスト: `test_convert_x_posts.py` の ClosedTest（dry-run は呼ばない・書かない、本番は CLOSED_PERMANENTLY だけ〈臨時休業・404 は外さない〉・呼び出しの間・失敗/10%/上限で書かない・書く先は「閉業」のタブだけ・GET の項目・404/403・タブの名前が生成と同じ・出力に place_id が無い）、`test_log_pages.py` の ClosedTest（drop_closed・シートが無い/空）。`python3 -m unittest discover -s scripts/tests` OK（1953件）、`node --test scripts/tests/js/*.test.js .github/actions/upsert-issue/test/*.test.js` pass 40・fail 0
+- docs（b3f041294）: log-page.md（データの持ち方に外す店）、github-actions.md（convert-x-posts・run-monthly の行と節）、docs/decisions/operations.md
+- dry-run（作業ブランチ、8ae04e4de）: `convert-x-posts.yml`（mode closed・dry_run 真、run 41766856132、success）と `run-monthly.yml`（手動、run 41766859486、success。gsc は飛ばし、redirects・closed は dry-run）。どちらも「予定: log/ に出す店のうち place_id のある 1721店に Place Details（項目は businessStatus だけ）を 1721回（上限 2500回、1分 500回まで・約 3.4分）。書く先は「閉業」だけ（今 0店）」
+  - preflight の行が closed でも「書く先「【2】自動変換後」」と出ていたので、closed では「（closed では読むだけ）」と出すようにした（直したコミットは下）
+- 未マージの work/ ブランチとの重なり（`git merge-tree` で cloudflare との衝突に比べて増える分）: work/1028-lgn（2026-10-29 の、Place Details で座標・営業状況を取り直す `details` の案。10-29 の決定〈place_id だけを保存〉で置き換わった案で、マージすると run-monthly.yml が衝突する）、work/1103-ryo5（github-actions.md の隣の行〈fetch-x-posts の行〉）、work/1104-lgn-policy（docs/decisions/operations.md の末尾への追記どうし。両方を残して解く）。同じ行・同じ関数の変更は無い
+- 自己レビュー1回目（docs/notes/self-review.md、新しい文脈のサブエージェント）:
+
+| 指摘 | 扱い |
+|---|---|
+| 404 を外さずに数えるだけで上限が無い（URL の誤りなどで全件 404 なら空の一覧を書き、外していた店が全部戻る） | 直した（e3fe23598、見つからない place_id が対象の 10% を超えたら書かずに止める） |
+| place_id の形の誤り（HTTP 400）で毎月止まる | 直した（e3fe23598、400 も見つからないと同じに数える） |
+| Places のエラーの message（place_id を含みうる）がサマリに出る | 直した（e3fe23598、HTTP の状態と status だけ） |
+| 書き直しが clear→PUT で、間で失敗すると空になる | 直した（e3fe23598、先に A1 から書き、書いた行の下だけを消す） |
+| 「閉業」シートの見出しの文字列が2か所 | 直した（e3fe23598、`CLOSED_HEADER` とテストで生成の `CLOSED_COLUMN` と突き合わせ） |
+| closed も preflight で【1】の見出しと SNS ブックの名前を確かめる | 意図どおり（既存の preflight の形。名前の対応は店の情報ではない） |
+| log-page.md の「後の指示」の行と、ページに出る時機 | 直した（c02ef4f6f） |
+
+- 最終のコードでの dry-run（convert-x-posts.yml、mode closed・dry_run 真、run 41767465405、c02ef4f6f、success）: 「予定: … 1721店に … 1721回（上限 2500回、1分 500回まで・約 3.4分）。書く先は「閉業」だけ（今 0店）」。preflight の【2】の行は「（closed では読むだけ）」（25bc76f0d）
+
 ## 報告
 
 - 状態: 作業中
