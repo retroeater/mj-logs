@@ -107,15 +107,58 @@ CHAT-1104-LGF-04 で、同じ place_id で店名の表記が2つ以上ある店�
 | 14 | ChIJHYXJaAftGGARh4scOx6eXho | hobomizu | ホボミズ | 3 |
 | 15 | ChIJ49tXz1PtGGARIlvW5mJPmx8 | よしかわ | 寿製麺よしかわ | 3 |
 
+### 4. 差分のレビュー（docs/notes/self-review.md）
+
+新しい文脈のサブエージェントに、指示の目的・決定と `git diff origin/cloudflare...e0dad02b8`（scripts・assets・docs/notes）、CLAUDE.md「コード規約」を渡した（1回目）。サブエージェントは変更後と、生成スクリプト・log.js だけを戻した版の両方でテストを回し（変更後: Python 39件・JS 22件が成功。戻した版: Python 3件・JS 3件が落ちる）、目的・既存の形・ほかへの影響・検査・文書を見た。動作の不具合の指摘は無し。
+
+| 指摘 | 扱い |
+|---|---|
+| 店の URL（`shop_link()`、`SHOP_FIELDS` の `shop_url`）の `query=` は「店の URL を持つ最も新しい投稿」の店名で、代表の店名と違うことがある。query は place ID が見つからないときだけ使われ実害はほぼ無いが、log-page.md の「query=<店名>」と厳密には合わない | 文書を直した（93f3db7a2。log-page.md の店の URL の項に、その URL を取った投稿の店名で店の店名と違うことがあると書いた）。URL の組み立ては変えていない |
+| 「（店名非公開）」の扱いが投稿の数で決まるようになった（非公開が多数なら実名は別名として検索に残る） | 意図どおり（前も投稿の店名として実名を search.json に持ち、結果に出していたので悪化ではない。今のデータに該当する店は0） |
+| 差分に search.json の再生成が入っていない（古い JSON を新しい JS が読むと別名が検索に当たらない） | 意図どおり（レビューに渡した e0dad02b8 の後に、同じブランチで生成のコミット dd39e780b を積んだ。マージは両方を一緒に入れる） |
+| `?store=<別名>` を `readParams()` から通す検査が無い（任意） | 見送り（`readParams()` は値を確かめずにタグにし、店名のタグが別名に当たることは `log.test.js` で確かめている。プレビューで `?store=中華そば きみのあーる` が 中華蕎麦 きみのあーる の 34件を出すことを確かめた） |
+| コード・テストのコメントに `CHAT-1104-LGF-05` を出典として書いている（ログは定期削除される） | 直した（93f3db7a2。assets/log.js・generate_log_pages.py・log.test.js のコメントを日付だけにした。log-page.md は既存の書き方に合わせて残した） |
+
+2回目のレビューは、1回目の後の差分がコメントと文書の各1行だけなのでしていない。93f3db7a2 の後も `python3 -m unittest discover -s scripts/tests -p 'test_log*'` は OK、`node --test scripts/tests/js/*.test.js` は pass 22・fail 0。コメントの変更は生成物に影響しない（生成物は dd39e780b のまま）。
+
+### 5. プレビュー
+
+- dd39e780b（生成の後）の Workers Builds: success。版ごとのプレビューを Playwright（UA に mj-internal、幅 390）で開いた
+  - `?shop=ChIJzyJ4NBiNGGARlmBtxAiDwsk`: 店名「中華蕎麦 きみのあーる」・投稿 34件。投稿の行に「中華そば きみのあーる」「らぁ麺や 弾」は出ない
+  - `?tag=HARBS`: 「ハーブス」の店・投稿 2件（別名で検索欄の語が当たる）
+  - `?store=中華そば きみのあーる`（別名の店名のタグ）: 「中華蕎麦 きみのあーる」・34件
+  - 検索欄に「きみのあーる」: 店名の候補は「中華蕎麦 きみのあーる 1店」だけ（別名は出ない）
+- 93f3db7a2（コメントと文書だけ）の Workers Builds は、最終報告を書く時点で in_progress のまま（20分ほど）。生成物は dd39e780b と同じなので、プレビューの確かめは dd39e780b の版で行った
+
+### 決定の記録
+
+- 指示文の「決定」節を docs/decisions/operations.md の末尾に「2026-11-04（CHAT-1104-LGF-05）」として足した。作業中の平野さんの回答は無い
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1104-lgf-alias
+- ログ: https://github.com/retroeater/mj/blob/work/1104-lgf-alias/docs/logs/CHAT-1104-LGF-05.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1104-lgf-alias
+- 確認用URL: プレビューあり（URL は最終報告）。この版で見える印: `?shop=ChIJzyJ4NBiNGGARlmBtxAiDwsk` の店名が「中華蕎麦 きみのあーる」で、投稿の行に別の店名が出ない
+- マージ: 未（平野さんの判断待ち）
+- issue: #665（保留にした）
+- 判断が必要なこと:
+  - プレビューを見て、マージしてよいか。見るとよい店（店名が変わった店のうち投稿の多い3店）: `/log/?shop=ChIJzyJ4NBiNGGARlmBtxAiDwsk`（中華そば きみのあーる → 中華蕎麦 きみのあーる、34件）・`/log/?shop=ChIJc9ZjLluMGGARVVMatB5p8lc`（焼肉屋 Kazu → 焼肉家 Kazu、18件）・`/log/?shop=ChIJA5fGqXCNGGARRqON_S3nADU`（鮨 酒 肴 杉玉 → 杉玉、17件）
+  - 要確認の店のうち2店は、決め方どおりで店名が別の店の名前に変わった: `/log/?shop=ChIJkdDwfBKNGGAR2oXHz9NjCc8`（一品香 → 新宿地下ラーメン。カテゴリ「投稿回数の多い店」のカードにも出る）・`/log/?shop=ChIJQbWaOxiNGGAR2Wr2BfXxEU8`（やまぐち → 巌哲）。【3】で直す（案 A）までこのままでよいか
+  - 店の URL の `query=` は店の URL を持つ最も新しい投稿の店名のまま（店の店名と違うことがある。place ID が見つからないときだけ使われる）。代表の店名で組み直すか（経過の「4.」）
+- 未確認の項目: 93f3db7a2（コメントと文書だけ）の Workers Builds のプレビューが in_progress のまま（生成物は dd39e780b の版と同じで、確かめはその版で行った）
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 23efd467）: https://github.com/retroeater/mj-logs/tree/main/guide/23efd467
+ガイド文書（この版を写した時点の最新、mj 1a06d89d）: https://github.com/retroeater/mj-logs/tree/main/guide/1a06d89d
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/23efd467/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/23efd467/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/23efd467/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/23efd467/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/23efd467/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/23efd467/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/23efd467.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/1a06d89d/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/1a06d89d/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/1a06d89d/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/1a06d89d/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/1a06d89d/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/1a06d89d/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/1a06d89d.md

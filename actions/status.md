@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-11-05 00:06 JST
+- 書き出した時刻: 2026-11-05 00:15 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -25,11 +25,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-05 00:13 | push | work/1104-skn | success | #964（41855428562） | 0分36秒 |
 | 2026-11-04 23:59 | push | work/1104-lgf-alias | success | #963（41853108101） | 0分50秒 |
 | 2026-11-04 23:59 | push | work/1104-lvp-auto | success | #962（41853014840） | 0分26秒 |
 | 2026-11-04 23:58 | push | work/1104-lvp-auto | success | #961（41852864035） | 0分30秒 |
 | 2026-11-04 23:57 | push | work/1104-lgf-alias | success | #960（41852711103） | 0分26秒 |
-| 2026-11-04 23:49 | push | work/1104-lvp | success | #959（41851476647） | 0分27秒 |
 
 ## check-build-failure.yml
 
@@ -38,11 +38,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-05 00:13 | check_run | cloudflare | skipped | #1256（41855526193） | 0分01秒 |
 | 2026-11-05 00:03 | check_run | cloudflare | skipped | #1255（41853842176） | 0分02秒 |
 | 2026-11-05 00:00 | check_run | cloudflare | skipped | #1254（41853246475） | 0分02秒 |
 | 2026-11-04 23:59 | check_run | cloudflare | skipped | #1253（41853107562） | 0分01秒 |
 | 2026-11-04 23:58 | check_run | cloudflare | skipped | #1252（41852958742） | 0分01秒 |
-| 2026-11-04 23:57 | check_run | cloudflare | skipped | #1251（41852811074） | 0分01秒 |
 
 ## check-image-links.yml
 
@@ -201,11 +201,13 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-05 00:13 | workflow_dispatch | work/1104-skn | in_progress | #736（41855458077） |  |
+| 2026-11-05 00:13 | workflow_dispatch | work/1104-skn | failure | #735（41855451367） | 0分50秒 |
 | 2026-11-04 23:58 | workflow_dispatch | work/1104-lvp-auto | success | #734（41852873693） | 0分40秒 |
 | 2026-11-04 23:57 | workflow_dispatch | work/1104-lgf-alias | success | #733（41852711010） | 1分01秒 |
 | 2026-11-04 23:49 | push | cloudflare | success | #732（41851481930） | 1分05秒 |
-| 2026-11-04 23:41 | workflow_dispatch | work/1104-lvp | success | #731（41850045228） | 5分09秒 |
-| 2026-11-04 23:39 | workflow_dispatch | work/1104-lvp | success | #730（41849771213） | 1分06秒 |
+
+- #735 failure: ジョブ「regenerate」 ステップ「生成物の差を実行サマリに出す」
 
 ## regenerate-saikyo.yml
 
