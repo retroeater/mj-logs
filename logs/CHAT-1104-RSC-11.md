@@ -59,28 +59,62 @@ docs/decisions/automation.md の RSC の節の末尾に、上の「決定」の 
 
 ## 経過
 
+- 着手前の確認: 同じ Chat-Ref のコミット・ログなし。`RSC` は続き（11）。作業ブランチ: origin/work/1104-rsc とローカルは origin/cloudflare の祖先（マージ済み）なので `git merge --ff-only origin/cloudflare` で進めた（ff3a11794）
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 欠けなし（改行が詰まって1段落）
+- 0.: 「指示」欄の末尾は指示文の最後の行と一致。CHAT-1104-RSC-10 の `## 報告` の状態を「判断待ち / 続き: CHAT-1104-RSC-11」にした
+
+### 1. 前提の確かめ（数字をログで照らした）
+
+| 前提の値 | ログの値（出どころ） | 結果 |
+|---|---|---|
+| RSC-02 $0.93（Haiku $0.1367・Sonnet $0.7917） | 「試しの合計 $0.9284」、表の Haiku $0.1367・Sonnet $0.7917（CHAT-1031-RSC-02 の経過の表と次の行） | 合う。記録には $0.9284 と書いた |
+| RSC-03 $0.6204 | 「実額: $0.6204」（CHAT-1031-RSC-03） | 合う |
+| 名前かな 約$1.55 | $0.9284＋$0.6204＝$1.5488 | 合う |
+| RSC-04 $0.75 | 「合計 $0.7482」（CHAT-1031-RSC-04 の「モデルごとの実額」の表の次の行） | 合う。記録には $0.7482 と書いた |
+| RSC-06 $3.82（$2.0340＋$1.7848） | 「API の合計（98卓）」の表の実額 $3.8188（CHAT-1104-RSC-06） | 合う。記録には $3.8188 と書いた |
+| RSC-07 $0.1369・RSC-08 $2.7633 | 各ログの「3. 実行」の実額 | 合う |
+| 合計 概算 $9 | $0.9284＋$0.6204＋$0.7482＋$3.8188＋$0.1369＋$2.7633＝$9.016 | 合う。記録には「概算 $9.02」と書いた |
+| 旧公式 45卓・API の4人の候補 8卓 | RSC-06 の「旧公式」（照合済み44・揺れ1）と「API の合計」（照合済み1・4人の順位ありの未照合7） | 合う |
+| 対局日 照合済み20期・未照合34期・確かめ54期 | RSC-07（照合済み1・未照合1）＋RSC-08（照合済み19・未照合33） | 合う |
+| 照合済み19期のうち12期が見出しの日付 | RSC-08 の「分かったこと」 | 合う |
+| 名前かな「4人を採用」 | RSC-03 の表で候補が出たのは4人（照合済み2〈小寺勇輝・里中花奈〉・未照合2）。採用したかは候補タブの「状態」で、ログには無い | ログで照らせるのは「候補4人」まで。記録には「4人を採用（…RSC-03 の表で候補が出たのは4人〈照合済み2・未照合2〉）」と並べて書いた |
+| 「RSC-02・03 の時点で入らなかった理由はログでは見分けられない」 | RSC-02 のログは「A の対象は『連盟プロ以外』から引いた人で、小川光はそこにいない」、RSC-03 のログは「『連盟プロ以外』に無い」と理由を書いている。どちらもセッションはシートを読めず、対象の一覧に無いことから推した書き方。RSC-04 のログは3つの理由を見分けられないと書いた | **食い違い**。前提の文をログに合わせて「RSC-02・03 のログは理由を『連盟プロ以外』にいないと書いたが、対象の一覧から推した値で、RSC-04 のログは理由を見分けられないと書いた」に直した |
+
+- operations.md の直近の振り返り（CHAT-1104-PIL-03・CHAT-1103-PLG-04）の形（系列の振り返りの1行の下に字下げの箇条、最後に「約束（次の振り返りで確かめる）」と「作業中の回答」）にそろえた。RSC 系列の振り返りの記述は operations.md に無く、矛盾する記述も無い
+- automation.md の RSC の節（RSC-01〜10）に、#666 の閉じる時機・形の違う対局の扱いと矛盾する記述は無い。RSC-10 の節の後に新しい節として足した
+
+### 2. 記録（コミットは下）
+
+- `docs/decisions/operations.md` の末尾に「## 2026-11-04（CHAT-1104-RSC-11）」（振り返りと Fable 5.1 のレビューの申送り）
+- `docs/decisions/automation.md` の末尾に「## 2026-11-04（CHAT-1104-RSC-11）」（RSC-10 の判断待ち1・2への回答と確かめの期日）
+- #666 の本文・状態は変えていない。着手中のコメントは書いていない（docs だけの記録のため）
+
+### マージ
+
+- 差分は docs/decisions の2ファイルとログ（`CHAT-1104-RSC-10.md` の状態・`CHAT-1104-RSC-11.md`）だけ。`git push origin work/1104-rsc:cloudflare` の範囲は `ff3a11794..e69005702`。この行はマージの後の追いの push
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1104-rsc
-- ログ: https://github.com/retroeater/mj/blob/work/1104-rsc/docs/logs/CHAT-1104-RSC-11.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1104-rsc
+- 状態: 完了
+- ブランチ: work/1104-rsc（cloudflare にマージ済み）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1104-RSC-11.md
+- 比較URL: なし（マージ済み）
 - 確認用URL: なし
-- マージ: 未
-- issue: #666
-- 判断が必要なこと: 作業中
-- 未確認の項目: 作業中
+- マージ: 済み（ドキュメントのみ。範囲は「マージ」の行）
+- issue: #666（変えていない）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj ff3a1179）: https://github.com/retroeater/mj-logs/tree/main/guide/ff3a1179
+ガイド文書（この版を写した時点の最新、mj aed42d89）: https://github.com/retroeater/mj-logs/tree/main/guide/aed42d89
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ff3a1179/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ff3a1179/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ff3a1179/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ff3a1179/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ff3a1179/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/ff3a1179/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/aed42d89/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/aed42d89/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/aed42d89/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/aed42d89/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/aed42d89/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/aed42d89/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/95028c1a.md

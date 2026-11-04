@@ -53,28 +53,39 @@ Google Cloud の設定（有効にした API・API キーとその制限・割�
 
 ## 経過
 
+- 0章: 指示欄の末尾は指示文の最後の行と一致。`CHAT-1104-LGN-29` のコミットなし。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）の欠けなし。ガイド文に規則を足す指示の表（知見 → 選んだ層 → 理由）あり。CLAUDE.md 23,981・handover.md 24,280・chat-side-operations.md 22,746 バイト（警告域の外）
+- 作業ブランチ: ローカル・リモートとも無かったので `git checkout -b work/1104-lgn-gcp origin/cloudflare`（ff3a11794）
+- 手順1（同じ主題の文書・issue）:
+  - docs/notes: `google-cloud.md` などの同じ主題の文書は無い（「Google Cloud」を含むのは cloudflare.md・live-channel-write.md・birthday-calendar.md・books-calendar.md・sheets-reader.md・dojo-guest-calendar.md・ask-worker.md で、どれも個々の仕組みの文書）
+  - issue: GitHub の検索（「Google Cloud」「割り当て」「クォータ」「API キー」「Places 上限」）で **#601（open）「認証情報（トークン・サービスアカウント・API キー）の一覧を作り、棚卸しする」** が見つかった。主題が重なる:
+    - #601 は GCP のサービスアカウント（5つ: birthday-calendar・gsc-export・live-channel-writer・mj-ask・sheets-reader）、Places などの API キー、GitHub の Secret 名、対象と権限の範囲（どのシートに共有しているか）、期限を載せる台帳を作る issue（2026-10-18 の平野さんの決定。項目に期限を含める・四半期に1回棚卸しする、は決定済み）
+    - **台帳の置き場所が未決**: 本文の論点「docs/notes は mj-logs（public）の `guide/` に写るので、名前・保管場所・権限の範囲だけでも公開される（攻撃の手がかりになる）」の上で、(A) docs/notes に置き写しの対象から外す／(B) private な別の場所／(C) リポジトリの外、を並べている
+    - この指示の google-cloud.md は、サービスアカウント（役割の名前・何に共有しているか・使う Secret）と API キー（名前・制限・使う Secret）を docs/notes に書く案で、#601 の台帳の GCP の部分と重なり、#601 で未決の置き場所を docs/notes（public に写る）に決めることになる
+  - → 止まる条件「同じ主題の文書・issue がある」に当たるので、google-cloud.md を書かずに止めた（手順1の洗い出しの表・手順2・3は行っていない）
+- 参考（この指示の決定から分かったこと）: GetPlaceRequest の1日の割り当てを 2026-11-04 に 125,000 から 3,000 に下げた、とこの指示の決定にある。CHAT-1104-LGN-28 の本番の2回目が HTTP 429 RESOURCE_EXHAUSTED で止まったのは、1回目（約7分）と2回目（約5分）で同じ日に約 3,000回に届いたためと見込む（呼んだ回数は出力に無いので見込み。LGN-28 のログの「判断が必要なこと」(1) の答えの候補）。割り当てを下げた時刻と LGN-28 の実行（12:33〜12:49 JST）の前後はここからは確かめられない
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1104-lgn-gcp
 - ログ: https://github.com/retroeater/mj/blob/work/1104-lgn-gcp/docs/logs/CHAT-1104-LGN-29.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1104-lgn-gcp
 - 確認用URL: なし
-- マージ: 未
-- issue: なし
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- マージ: 未（止まる条件に当たったので google-cloud.md を書いていない。差分はこのログだけ）
+- issue: #601（主題が重なる。コメントしていない）
+- 判断が必要なこと: (1) #601（認証情報の台帳。置き場所が未決で、docs/notes は public の mj-logs に写るのでサービスアカウント・API キーの名前・権限の範囲を載せるのは攻撃の手がかりになる、という論点）と、この指示の google-cloud.md（docs/notes に、サービスアカウントの共有先・API キーの制限・Secret 名を書く）の関係を決める。案: (a) google-cloud.md は公開してよい設定（有効にした API・割り当ての値・請求の形・無料の枠と単価・変えたときの手順）だけにし、サービスアカウント・API キーの行は #601 の台帳（置き場所の決定待ち）に回す (b) #601 の置き場所を先に決め、google-cloud.md をその一部にする (c) 公開されてよいと決め、指示のとおり docs/notes に書く (2) LGN-28 の 429: GetPlace の1日の割り当てを今日 3,000 に下げたことで説明がつく見込み（`## 経過`）。今月の1回は、割り当てが戻る明日以降にやり直すか、12-01 の予約に任せるか
+- 未確認の項目: Places の Text Search・Nearby Search の1日の割り当ての今の値（この指示の前提の「要確認」。平野さんが https://console.cloud.google.com/apis/api/places.googleapis.com/quotas で確かめる）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj ff3a1179）: https://github.com/retroeater/mj-logs/tree/main/guide/ff3a1179
+ガイド文書（この版を写した時点の最新、mj aed42d89）: https://github.com/retroeater/mj-logs/tree/main/guide/aed42d89
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ff3a1179/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ff3a1179/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ff3a1179/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ff3a1179/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ff3a1179/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/ff3a1179/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/aed42d89/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/aed42d89/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/aed42d89/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/aed42d89/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/aed42d89/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/aed42d89/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/95028c1a.md

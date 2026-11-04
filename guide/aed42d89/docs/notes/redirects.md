@@ -29,6 +29,7 @@ ryoei.pro のすべての転送の一覧と、四半期ごとの棚卸しの手�
 | `/jpml_titles.html` | `/title/` | `_redirects` 301 | 2026-09-30 | #441・#485 | 未（初回 2027-01 上旬） |
 | `/video_wayhome.html` | `/wayhome/` | `_redirects` 301 | 2026-10-13 | #559 | 未（初回 2027-01 上旬） |
 | `/video_mtsuku.html` | `/mtsuku/` | `_redirects` 301 | 2026-10-15 | #570 | 未（初回 2027-01 上旬） |
+| `/video_live.html` | `/live/` | `_redirects` 301（`?name=<名前>` は Cloudflare の既定で付いたまま転送され、`assets/live.js` が `?q=` と同じ絞り込みとして受ける）。**期限つき: 棚卸しで、Cloudflare の集計で `/video_live.html` の `?name=` 付きの流入が無いと確かめたら、この行と `assets/live.js` の `?name=` の受け付けを一緒に外す**（2026-11-04 の決定。旧 `jpml_pros.html` の放送対局の件数のリンクも `?name=` で来るので、#641 で pro/ に替わるまでは流入が残る） | 2026-11-04 | #362 | 未（初回 2027-02 上旬） |
 | `/jpml_test.html` | `/exam/` | `_redirects` 301（クエリは Cloudflare の既定で付いたまま転送されるが、`/exam/` は `?name=` を読まない） | 2026-10-19 | #613 | 未（初回 2027-01 上旬） |
 | `/tanilog.html` | `/log/?name=谷岡育夫` | `_redirects` 301（2026-11 に転送先を `/resource_logs.html?name=谷岡育夫` から直した。2段の転送にしない） | 2026-09-07 | GitHub Pages からの移行・#640 | 未（初回 2027-01 上旬） |
 | `/resource_logs.html` | `/log/` | `_redirects` 301（クエリは Cloudflare の既定で引き継ぐ。`?name=` は log/ の投稿者の絞り込み、`?tag=` は検索語の初期値。`?tag=tanilog` は下の「JS の移動」） | 2026-11-04（#640 の公開） | #640・#255 | 未（初回 2027-01 上旬） |
