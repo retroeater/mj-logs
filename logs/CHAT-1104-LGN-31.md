@@ -54,6 +54,22 @@ LGN-28 で作った閉業の判定（#664）は、今月の本番の1回が2回�
 
 ## 経過
 
+- 0章: 指示欄の末尾は指示文の最後の行と一致。`CHAT-1104-LGN-31` のコミットなし。雛形の行の欠けなし。#664 は open（ラベル「分野: 自動化」「対象: resource_logs」）。CHAT-1104-LGN-28 のログの状態を「判断待ち / 続き: CHAT-1104-LGN-31」にした（54fba0294）
+- 作業ブランチ: ローカルの work/1104-lgn-closed が origin/cloudflare の祖先だった（リモートもマージ済み）ので、`git checkout work/1104-lgn-closed` → `git merge --ff-only origin/cloudflare`（87be7c173..ce30453a6）
+- 変更（bfb6deb5d）: `place_status` に `calls`（送った要求の数。失敗した要求・接続の繰り返しを含む）、`check_closed` が回数を返し、PlacesError に `calls` を付けて投げ直す。止めた行: 「止めた: Places API のエラー(HTTP 429 RESOURCE_EXHAUSTED)（Place Details を呼んだ N回・書いていない）」、呼ぶ前の止め（上限・鍵なし）は「（呼んだ 0回・書いていない）」、10% の止めと終えた行は「Place Details を N回呼んだ（対象 M店）。…」。place_id は出さない（既存の検査のまま）
+- docs（54fba0294）: log-page.md（回数を出すことと、やり直す前に Google Cloud の割り当てと指標の画面で使った回数を確かめる運用の注意。google-cloud.md は cloudflare に無いのでファイル名だけ）、docs/decisions/operations.md
+- テスト: unittest OK・`node --test` pass 40・fail 0
+- 自己レビュー（新しい文脈のサブエージェント1回、docs/notes/self-review.md）:
+
+| 指摘 | 扱い |
+|---|---|
+| [中] Place Details を全部呼んだ後に「閉業」への書き込みが落ちると、回数の行が出ない | 直した（c42ba69f3、書き込みの失敗で「止めた: Place Details を N回呼んだ…。「閉業」に書けなかった」を出してから投げ直す。検査あり） |
+| [低] ジョブの取り消し（KeyboardInterrupt など）では回数を出さない | `簡略化:` のコメントで上限を残した（直さない） |
+| [低] urlopen の経路の回数の検査が「繰り返しで成功」だけ | 直した（404・400 で1、2回続けて切れて2、最初の HTTP の失敗で1を確かめる） |
+
+  - レビューは旧コード（082dd24a4）に新しいテストを当てて ClosedTest の3件が落ちることを確かめた。回数は 404/400・429・繰り返しの成功/失敗・check_closed 経由のどれも正しい
+- dry-run（convert-x-posts.yml、作業ブランチ、mode closed・dry_run 真、run 41790170439、54fba0294）: success。`apply: false`、「予定: … 1721店に … 1721回（上限 2500回、1分 500回まで・約 3.4分）。書く先は「閉業」だけ（今 0店）」の後に Place Details の行が無い（Places を呼んでいない）。本番（dry_run 偽）は動かしていない
+
 ## 報告
 
 - 状態: 作業中
