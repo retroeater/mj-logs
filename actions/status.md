@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-11-05 08:17 JST
+- 書き出した時刻: 2026-11-05 08:20 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -38,11 +38,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-05 08:17 | check_run | cloudflare | skipped | #1272（41932580070） | 0分01秒 |
+| 2026-11-05 08:17 | check_run | cloudflare | skipped | #1271（41932562437） | 0分01秒 |
+| 2026-11-05 08:17 | check_run | cloudflare | skipped | #1270（41932555033） | 0分08秒 |
 | 2026-11-05 08:16 | check_run | cloudflare | skipped | #1269（41932366944） | 0分01秒 |
 | 2026-11-05 01:19 | check_run | cloudflare | skipped | #1268（41866126898） | 4分34秒 |
-| 2026-11-05 01:17 | check_run | cloudflare | skipped | #1267（41865817795） | 12分52秒 |
-| 2026-11-05 01:14 | check_run | cloudflare | skipped | #1266（41865249129） | 7分41秒 |
-| 2026-11-05 00:54 | check_run | cloudflare | skipped | #1265（41862456814） | 21分57秒 |
 
 ## check-image-links.yml
 
@@ -201,11 +201,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-05 08:17 | push | cloudflare | in_progress | #744（41932492563） |  |
 | 2026-11-05 01:16 | workflow_dispatch | work/1104-lgf-alias | success | #743（41865616913） | 12分57秒 |
 | 2026-11-05 01:13 | workflow_dispatch | work/1104-lgf-alias | success | #742（41865165683） | 16分21秒 |
 | 2026-11-05 00:53 | workflow_dispatch | work/1104-skn | success | #741（41862378968） | 24分40秒 |
 | 2026-11-05 00:46 | workflow_dispatch | work/1104-skn | success | #740（41861150985） | 3分12秒 |
-| 2026-11-05 00:46 | workflow_dispatch | work/1104-skn | success | #739（41861144203） | 2分28秒 |
 
 ## regenerate-saikyo.yml
 
@@ -227,7 +227,7 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-11-05 08:17 | push | cloudflare | in_progress | #90（41932492627） |  |
+| 2026-11-05 08:17 | push | cloudflare | success | #90（41932492627） | 0分21秒 |
 | 2026-11-04 23:49 | push | cloudflare | success | #89（41851481870） | 0分25秒 |
 | 2026-11-04 19:31 | push | cloudflare | success | #88（41814753938） | 0分25秒 |
 | 2026-11-04 14:39 | push | cloudflare | success | #87（41780537257） | 0分25秒 |
