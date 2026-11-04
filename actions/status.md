@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-11-04 18:45 JST
+- 書き出した時刻: 2026-11-04 19:28 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -25,11 +25,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-04 19:27 | push | work/1104-top4 | success | #950（41814306401） | 0分22秒 |
 | 2026-11-04 18:34 | push | work/1104-lgf-tidy | success | #949（41808703614） | 0分42秒 |
 | 2026-11-04 18:30 | push | work/1104-lgf-tidy | success | #948（41808019512） | 0分31秒 |
 | 2026-11-04 18:22 | workflow_dispatch | work/1104-top5 | success | #947（41807000056） | 0分31秒 |
 | 2026-11-04 17:36 | push | work/1104-top4 | success | #946（41800781636） | 0分33秒 |
-| 2026-11-04 17:33 | push | work/1104-top4 | success | #945（41800394660） | 0分27秒 |
 
 ## check-build-failure.yml
 
@@ -38,11 +38,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-04 19:27 | check_run | cloudflare | skipped | #1241（41814347584） | 0分07秒 |
 | 2026-11-04 18:35 | check_run | cloudflare | skipped | #1240（41808818554） | 0分01秒 |
 | 2026-11-04 18:35 | check_run | cloudflare | skipped | #1239（41808816964） | 0分06秒 |
 | 2026-11-04 18:30 | check_run | cloudflare | skipped | #1238（41808098001） | 0分01秒 |
 | 2026-11-04 18:24 | check_run | cloudflare | skipped | #1237（41807211102） | 0分01秒 |
-| 2026-11-04 17:36 | check_run | cloudflare | skipped | #1236（41800856732） | 0分01秒 |
 
 ## check-image-links.yml
 
@@ -201,11 +201,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-04 19:27 | workflow_dispatch | work/1104-top4 | in_progress | #726（41814314756） |  |
 | 2026-11-04 17:38 | workflow_dispatch | work/1104-top4 | success | #725（41801012706） | 1分06秒 |
 | 2026-11-04 17:33 | workflow_dispatch | work/1104-top4 | success | #724（41800413021） | 3分57秒 |
 | 2026-11-04 17:26 | workflow_dispatch | work/1101-prp-pub | success | #723（41799478006） | 1分07秒 |
 | 2026-11-04 17:25 | workflow_dispatch | work/1101-prp-pub | success | #722（41799360155） | 0分43秒 |
-| 2026-11-04 16:59 | workflow_dispatch | work/1101-prp-pub | success | #721（41796063398） | 1分13秒 |
 
 ## regenerate-saikyo.yml
 
