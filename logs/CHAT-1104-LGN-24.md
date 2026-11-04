@@ -58,6 +58,21 @@ LGN-23 で作った公開の準備（#640、段2）を cloudflare へマージ�
 
 ## 経過
 
+- 0章: 指示欄の末尾は指示文の最後の行と一致。`CHAT-1104-LGN-24` のコミットなし。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）の欠けなし。CHAT-1104-LGN-23 のログの状態に ` / 続き: CHAT-1104-LGN-24` を足した（a0efa3597）。work/1104-lgn-release はリモートにあり、ローカルと同じ（e471efdeb）
+- 手順1:
+  - resource_logs を例にした記述（bfb2fba25・582767ed6）: `scripts/lib/page.py` 3行目（今は video_live・rh_paifu・saikyo_mens など、resource_logs は #640 で廃止）・108・112・357行目（名前セレクトボックス・専用の JS は「今は使うページが無い」）、`style.css` 264行目（`.mj-plain` の例を rh_paifu の牌譜リンクに）・433行目（2列ページの例を video_live/rh_paifu/saikyo_mens に）・458行目（対象外の例から resource_logs を外した）、`table.js` 4行目（統合の経緯に「#640 で廃止」）・15行目（「今は使うページが無い」）、`scripts/generate_saikyo_mens.py` 11行目（「resource_logs と同じ方式」を外した）、docs/notes/static-generation.md 34・38・412行目（name_mode の例は saikyo_mens、search_boxes とページ固有の JS は「今は使うページが無い」）。動きは変えていない
+  - 残した: docs/notes/static-generation.md 12・16・66・69行目（`jpml_titles.html` などの移行（#7）の記録の段落。ほかにも廃止したページ〈jpml_test・video_mtsuku・jpml_titles〉を当時の形で書いた記録なので、resource_logs だけを直すと記録として崩れる）
+  - docs/notes/redirects.md の `/resource_logs.html` の行の「入れた日」を「2026-11-04（#640 の公開）」に
+  - #640 の本文の `target_page: log` を `log_pages` に直した（ほかは変えていない。末尾に `Chat-Ref: CHAT-1104-LGN-24`）
+  - 取り込み（755a3b9d2）: `git merge origin/cloudflare` は衝突なし（cloudflare 側の 89コミット）。取り込んだ後も、navbar.js の「ログ」の行き先は `/log/`、`_headers` の `/*` の CSP に `connect-src 'self' https://cloudflareinsights.com` が1行。navbar.js・sitemap*.xml・llms.txt と、HTML に resource_logs への参照は無い（`_redirects` の 301 の行と、log/ の暫定の読み替えのコメントなどだけ）
+  - check（run 41745095980、755a3b9d2、`target_page: log_pages`）: success。「3層から 3168件のうち 2436件・1740店（過去メシで外した 131件・石立岳大で外した 601件…）」「検査: 通りました」「check: 止まるページなし」
+  - テスト: unittest OK、`node --test scripts/tests/js/*.test.js .github/actions/upsert-issue/test/*.test.js` pass 40 / fail 0
+- マージの条件:
+  - (1) `git diff --stat origin/cloudflare...HEAD`（docs/logs・docs/decisions を除く）は 31ファイル: LGN-23 の公開の準備（_redirects・assets/log.js・navbar.js・llms.txt・sitemap-pages.xml・log/ の生成物・旧ページと生成スクリプトとテストの削除・lib/log_rows.py・lib/url.py・convert_x_posts.py・generate_log_pages.py・regenerate.py・テスト・docs）と、この指示の直し（page.py・style.css・table.js・generate_saikyo_mens.py のコメント、static-generation.md・redirects.md）だけ: 満たす
+  - (2) unittest OK、node --test pass 40: 満たす
+  - (3) check（log_pages）で止まるページなし: 満たす
+  - (4) `/*` の CSP に `https://cloudflareinsights.com`: 満たす
+
 ## 報告
 
 - 状態: 作業中
@@ -74,12 +89,12 @@ LGN-23 で作った公開の準備（#640、段2）を cloudflare へマージ�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 1ccc58f2）: https://github.com/retroeater/mj-logs/tree/main/guide/1ccc58f2
+ガイド文書（この版を写した時点の最新、mj 8140cebc）: https://github.com/retroeater/mj-logs/tree/main/guide/8140cebc
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/1ccc58f2/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/1ccc58f2/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/1ccc58f2/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/1ccc58f2/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/1ccc58f2/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/1ccc58f2/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/8140cebc/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/8140cebc/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/8140cebc/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8140cebc/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8140cebc/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8140cebc/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/95028c1a.md
