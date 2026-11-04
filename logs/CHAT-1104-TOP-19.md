@@ -70,6 +70,29 @@ Chat-Ref: CHAT-1104-TOP-19
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 0. 着手前の確認
+
+- 「指示」欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は4行とも有り。同じ Chat-Ref のコミットは0件。work/1104-top4 はリモートに無かったので origin/cloudflare（ada6990de）から作った
+- #101 の着手中コメントは TOP 系列（このセッション）のものだけで、TOP-18 で解除済み。#101 に着手中コメントを足した
+
+### 1. データの形（origin/cloudflare ada6990de）
+
+| もの | 実物 | 前提との違い |
+|---|---|---|
+| `mj:favorites`（`assets/pro.js` の `FAV_KEY`） | `[{"slug": "<slug>", "name": "<現在名>"}, …]`。読むときは `parseFavorites()` が配列でない・slug の無い要素を外す。書くのは pro/ の個別ページ | なし |
+| `/pro/plans.json` | `{"plans": [...]}` の112行・84人、キーは `slug`・`name`・`date`・`kind`・`role`・`title`・`href` の7つ。`date` は10字（`YYYY-MM-DD`、最強戦・道場部）か16字（`YYYY-MM-DDTHH:MM`、放送）。`kind` は「放送」「最強戦」「道場部」。11/04〜11/30。`href` は www.youtube.com 90・www.ma-jan.or.jp 18・ルート相対 4 | なし |
+| 過ぎた行の基準 | `assets/pro.js` の `isPastPlan(date, today)` は `date < today`（日本時間の今日の `YYYY-MM-DD` と文字列で比べる。今日の行は時刻が過ぎても残る） | なし |
+| 誕生日 | `plans.json` に無い。`lib/birthdays.fetch()` は在籍者（「プロ」の表示 Y × 名簿）の `Birthday(name, kana, month, day, x_id)` の一覧。top/ の生成はこれと `pro/search.json` の slug を結ぶ（`pro_slugs()`） | なし。top/ の生成で `top/birthdays.json` を書き出す |
+
+**未マージの work/ ブランチの重なり**（変えるファイル: `scripts/generate_top_page.py`・`assets/top.js`・`assets/top.css`・`scripts/tests/test_top_page.py`。`style.css` は変えない見込み）:
+
+| ブランチ | ファイル | 同じ行・関数か |
+|---|---|---|
+| work/1104-lgn-policy | `scripts/tests/test_top_page.py`（`NavTest` の 319 行あたり）、`style.css`（末尾への追記） | 別（検査はファイルの別の場所に足す。style.css は変えない） |
+| work/1101-prp-pub | `style.css`（5266 行あたり） | 別 |
+
 <!-- guide-links -->
 ---
 
