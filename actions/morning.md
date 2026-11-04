@@ -1,6 +1,6 @@
 # 朝の報告用の異常（retroeater/mj）
 
-- 書き出した時刻: 2026-11-04 12:39 JST（見た範囲: 2026-11-03 10:39 JST から）
+- 書き出した時刻: 2026-11-04 12:41 JST（見た範囲: 2026-11-03 10:41 JST から）
 - 書き出した実行の契機: workflow_dispatch（main）
 - 異常だけを書く。全体は actions/status.md。判定は mj の scripts/morning_report.py（各ワークフローの直近 100 回まで）
 
@@ -17,7 +17,7 @@
 - 2026-11-04 11:59 check-assets.yml failure（push・work/1104-lgn-policy）ジョブ「check」 https://github.com/retroeater/mj/actions/runs/41764230828
 - 2026-11-04 12:09 check-assets.yml failure（push・work/1104-lgn-policy）ジョブ「check」 https://github.com/retroeater/mj/actions/runs/41765308660
 - 2026-11-04 12:31 regenerate-page.yml in_progress（workflow_dispatch・work/1104-lvp） https://github.com/retroeater/mj/actions/runs/41767654496
-- 2026-11-04 12:33 convert-x-posts.yml in_progress（workflow_dispatch・cloudflare） https://github.com/retroeater/mj/actions/runs/41767827901
+- 2026-11-04 12:33 convert-x-posts.yml failure（workflow_dispatch・cloudflare）ジョブ「convert」 https://github.com/retroeater/mj/actions/runs/41767827901
 
 ## 2. 予約実行の未実行（予定から3時間以内は「遅れの可能性」。3時間を超えて始まった実行は「遅れて実行」）
 
@@ -39,6 +39,7 @@
 - 2026-11-04 09:13 regenerate-page.yml success（push・cloudflare）所要 12分39秒（直近20回の中央値 10分44秒） https://github.com/retroeater/mj/actions/runs/41745261928
 - 2026-11-04 11:49 regenerate-page.yml success（push・cloudflare）所要 22分07秒（直近20回の中央値 10分44秒） https://github.com/retroeater/mj/actions/runs/41763190152
 - 2026-11-04 12:19 update-sns-book.yml success（workflow_dispatch・cloudflare）所要 17分59秒（直近20回の中央値 0分48秒） https://github.com/retroeater/mj/actions/runs/41766370389
+- 2026-11-04 12:33 convert-x-posts.yml failure（workflow_dispatch・cloudflare）所要 7分30秒（直近20回の中央値 0分40秒） https://github.com/retroeater/mj/actions/runs/41767827901
 
 ## 4. 初回成功（cloudflare の実行だけ。それ以前の cloudflare の実行に success が無いもの）
 

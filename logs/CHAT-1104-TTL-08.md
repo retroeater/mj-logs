@@ -46,28 +46,38 @@ TTL-07 で「松本ちづる」の X の ID は入ったが、写真の URL が�
 
 ## 経過
 
+- 着手前の確認: `git log --all --grep 'CHAT-1104-TTL-08'` は0件。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は欠けなし。対象 issue の指定なし
+- 作業ブランチ: `origin/work/1104-ttl` はマージ済み、ローカルの `work/1104-ttl` も cloudflare の祖先だったので `git merge --ff-only origin/cloudflare` で進めた。手順0: 指示欄の末尾の行は指示文の最後の行と一致。ログを先に push（1192f941d）
+- 待機: 着手時に cloudflare と work/1104-top2 の「ページの再生成」が走っていたため、「ページの再生成」「SNS ブックの更新」が走っていない状態になるまで待った（約9分、上限15分の内）
+- 手順1（`update-sns-book.yml`、ref cloudflare、mode update・dry_run true、run 41766236895 success）: 【2】は 1854 行で変化なし。X API を呼ぶ予定の件数 1（上限 30）で、その1件が「松本ちづる」（前の画像なし → dry-run(呼ぶ予定)）。「ページが使う値が変わった人: 1」。dry-run なので書かず、ジョブ regenerate は skipped
+- 手順2（同じく dry_run false、run 41766370389）:
+  - ジョブ update は success。【2】は変化なし。X API を呼んだ件数 2（上限 30）: 「松本ちづる」は前の画像なし → 画像の URL が入った（状態「解決」）。もう1件は dry-run の後に配信元の画像が切れて取り直しの対象になった別の選手（「解決」、前の値から新しい画像へ）。X状態の内訳: シートから写した 972、未入力 772、解決 87、既定のアイコン 13、アカウントなし(確認済み) 10。「ページが使う値が変わった人: 2」。認証の失敗・レート制限・【2】の確かめでの停止は無し
+  - ジョブ regenerate（全ページの再生成）は success（03:24〜03:37Z）。title/ は飛ばされず、FILES に title/ を含むコミット 008e03f9f を作り、push の時に cloudflare が先へ進んでいたため取り込んで d7631c387 として push した（25ファイル。title/ は第24期プロクイーン・桜蕾戦の期ページと大会ページ・`search.json`・`years.json` など。sitemap の lastmod は jpml_pros.html・帰り道・プロテストの各1件）
+- 手順3（本番、UA に mj-internal、`?v=ttl08…`）: `/title/pro-queen/24.html` は 200。松本ちづるの行は頭の1字の丸（`is-initial`）でなく `<img class="mj-saikyo-n-avatar">` で、src は X の画像（pbs.twimg.com の profile_images）、その URL の HEAD は 200
+  - d7631c387 の Workers Builds: mj は success
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1104-ttl
-- ログ: https://github.com/retroeater/mj/blob/work/1104-ttl/docs/logs/CHAT-1104-TTL-08.md
+- 状態: 完了
+- ブランチ: work/1104-ttl（ログのみ）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1104-TTL-08.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1104-ttl
-- 確認用URL: 未
-- マージ: 未
+- 確認用URL: 本番 https://ryoei.pro/title/pro-queen/24.html で確かめた。この版の印: 第24期プロクイーンの4位「松本ちづる」の行に X の写真が出る
+- マージ: 済（ログのみ。写真の反映は SNS ブックの更新が起動した再生成 d7631c387 で cloudflare に入った）
 - issue: なし
-- 判断が必要なこと: 未
-- 未確認の項目: 未
+- 判断が必要なこと: なし
+- 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 5a8971e1）: https://github.com/retroeater/mj-logs/tree/main/guide/5a8971e1
+ガイド文書（この版を写した時点の最新、mj 1c9190e0）: https://github.com/retroeater/mj-logs/tree/main/guide/1c9190e0
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/5a8971e1/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/5a8971e1/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/5a8971e1/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/5a8971e1/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/5a8971e1/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/5a8971e1/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/1c9190e0/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/1c9190e0/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/1c9190e0/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/1c9190e0/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/1c9190e0/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/1c9190e0/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/95028c1a.md
