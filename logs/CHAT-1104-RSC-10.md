@@ -115,28 +115,60 @@ CHAT-1104-RSC-09 の設計案と「判断が必要なこと」1〜7 への回答
 
 - 2回目の後の修正（c2093b3de）はサブエージェントに見せていない（往復は2回まで）。`unittest discover`: OK
 
+- run-daily（run 41763112104）の結論: success（17分）。作業ブランチへのコミットは無かった（`git log HEAD..origin/work/1104-rsc` が空）
+
+### マージ
+
+- 差分は9ファイル（調べもののスクリプト・テスト、`research-candidates.yml`、`run-daily.yml` へのジョブ `sokuho` と `logs` の `needs`、`github-actions.md` の行、docs〈notes・decisions・ログ〉）。ページ・生成物・ほかのワークフローは変えていない
+- origin/cloudflare を取り込み（衝突なし）、`unittest discover` OK（1940件）。`git push origin work/1104-rsc:cloudflare` の範囲は `7586f5929..5a8971e1c`
+
+### 3. 試し（cloudflare 5a8971e1c）
+
+- dry_run（run 41764504729、kind D、lookback 120時間）: 成功
+- 本実行（run 41764673458、kind D、lookback 120時間）: 成功。新しい速報3本、候補タブ 274行・見出し一致、**3行を書いた**（「最強戦」シートは変えていない）。所要は約2分30秒（ほとんどは「最強戦」と名前の辞書〈SNS ブック〉の読み取り）
+
+読んだ記事と卓ごとの表（全件）:
+
+| 卓 | 候補の順位 | 確度 | 出典 URL | 引用文（試合結果） |
+|---|---|---|---|---|
+| 2026-11-01 超技巧合戦 ベスト8 A卓（内川幸太郎・小川光・鈴木たろう・小林剛） | 1位 鈴木たろう 通過・2位 小川光 通過・3位 小林剛 敗退・4位 内川幸太郎 敗退 | 照合済み | https://kinmaweb.jp/archives/288622 | 内川：20600　小川：24700　たろう：32600　小林：22100 |
+| 2026-11-01 超技巧合戦 ベスト8 B卓（阿久津翔太・魚谷侑未・石井一馬・鈴木優） | 1位 鈴木優 通過・2位 魚谷侑未 通過・3位 石井一馬 敗退・4位 阿久津翔太 敗退 | 照合済み | https://kinmaweb.jp/archives/288623 | 阿久津：14400　魚谷：32400　一馬：15300　優：37900 |
+| 2026-11-01 超技巧合戦 決勝（鈴木たろう・小川光・鈴木優・魚谷侑未） | 1位 小川光 優勝・2位 鈴木優 敗退・3位 魚谷侑未 敗退・4位 鈴木たろう 敗退 | 照合済み | https://kinmaweb.jp/archives/288624 | たろう：▲7400　小川：43600　優：41400　魚谷：22400 |
+
+- 決勝の候補は、キンマweb の結果記事（/archives/288627）の「1位：小川光プロ/2位：鈴木優プロ/3位：魚谷侑未プロ/4位：鈴木たろうプロ」と同じ（目で確かめた）
+- #666 に要約をコメントした（https://github.com/retroeater/mj/issues/666#issuecomment-6621440631。上の表を引いた）
+
+### マージ（2回目）
+
+- 試しの後の差分はログだけ（`docs/logs/CHAT-1104-RSC-10.md`）。`git push origin work/1104-rsc:cloudflare` の範囲は `5a8971e1c..6a2ccd78a`。この行と状態の直しはマージの後の追いの push
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1104-rsc
-- ログ: https://github.com/retroeater/mj/blob/work/1104-rsc/docs/logs/CHAT-1104-RSC-10.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1104-rsc
+- 状態: 判断待ち
+- ブランチ: work/1104-rsc（cloudflare にマージ済み）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1104-RSC-10.md
+- 比較URL: なし（マージ済み）
 - 確認用URL: なし
-- マージ: 未
-- issue: 作業中
-- 判断が必要なこと: 作業中
-- 未確認の項目: 作業中
+- マージ: 済み（成果物 `7586f5929..5a8971e1c`。ログの追いは「マージ（2回目）」の行）
+- issue: #666（起票・着手中・試しの要約をコメント。Open のまま。毎朝の動きを確かめてから閉じる）
+- 判断が必要なこと:
+  1. **#666 を閉じる時機。** (a) 11-08（義兄弟合戦）の翌朝 11-09 の run-daily で D が新しい速報を書けたのを確かめてから閉じる（推奨）／(b) 今の試しで閉じ、形の違う対局（11-15 全日本プロ選手権・11-22 アマチュア・12-12/13 ファイナル）は新しい issue にする
+  2. **形の違う対局の扱い（2026-11-04 の決定 7 のとおり、見てから足す）。** 11-15・11-22・12-12/13 の速報は「見つからない」で書かれる。その行と速報の実物を見て、形を足す指示を作るか（推奨: 11-15 の後に1回見る）
+- 未確認の項目:
+  - 翌朝（2026-11-05 04:00 JST）の run-daily で D が動いたか。確かめ方: Actions の「毎朝の運行」の 11-05 の予約の実行（題の先頭が `[scheduled]`）を開き、ジョブ `sokuho / research` が成功で、実行サマリに「新しいテキスト速報（公開から 30時間以内）: 0本」「シートは読まない」が出ていること（11-04〜05 は対局が無い）。初めて新しい速報を書くのは 11-08（日）の対局の翌朝 11-09 で、実行サマリに3行の表と「候補タブに 3行を書いた」が出る見込み。mj-logs の actions/morning.md にも run-daily の結論が出る
+  - 決勝の候補を、結果記事の「1位：…」とコードでは照らしていない（予選の通過者との一致だけ。`簡略化:` の行）
+  - 速報が深夜0時を過ぎて公開された場合、「対象」の日付が1日ずれる（候補の値には影響しない）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 7586f592）: https://github.com/retroeater/mj-logs/tree/main/guide/7586f592
+ガイド文書（この版を写した時点の最新、mj 5a8971e1）: https://github.com/retroeater/mj-logs/tree/main/guide/5a8971e1
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/7586f592/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/7586f592/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/7586f592/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/7586f592/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/7586f592/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/7586f592/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/5a8971e1/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/5a8971e1/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/5a8971e1/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/5a8971e1/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/5a8971e1/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/5a8971e1/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/95028c1a.md

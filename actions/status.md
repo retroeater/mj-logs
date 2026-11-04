@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-11-04 12:09 JST
+- 書き出した時刻: 2026-11-04 12:12 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -25,12 +25,13 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-11-04 12:09 | push | work/1104-lgn-policy | in_progress | #893（41765308660） |  |
+| 2026-11-04 12:10 | push | work/1104-lgn-policy | success | #894（41765427889） | 0分26秒 |
+| 2026-11-04 12:09 | push | work/1104-lgn-policy | failure | #893（41765308660） | 0分21秒 |
 | 2026-11-04 12:08 | push | work/1104-ttl | success | #892（41765279005） | 0分27秒 |
 | 2026-11-04 12:01 | push | work/1104-rsc | success | #891（41764490397） | 0分28秒 |
 | 2026-11-04 11:59 | push | work/1104-lgn-policy | failure | #890（41764230828） | 0分22秒 |
-| 2026-11-04 11:50 | push | work/1104-rsc | success | #889（41763289493） | 0分26秒 |
 
+- #893 failure: ジョブ「check」 ステップ「公開対象の最上位を確認」
 - #890 failure: ジョブ「check」 ステップ「公開対象の最上位を確認」
 
 ## check-build-failure.yml
@@ -40,11 +41,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-04 12:11 | check_run | cloudflare | skipped | #1162（41765532911） | 0分01秒 |
+| 2026-11-04 12:09 | check_run | cloudflare | skipped | #1161（41765371567） | 0分02秒 |
+| 2026-11-04 12:09 | check_run | cloudflare | skipped | #1160（41765340672） | 0分01秒 |
 | 2026-11-04 12:02 | check_run | cloudflare | skipped | #1159（41764571677） | 0分01秒 |
 | 2026-11-04 12:02 | check_run | cloudflare | skipped | #1158（41764553295） | 0分01秒 |
-| 2026-11-04 12:00 | check_run | cloudflare | skipped | #1157（41764373689） | 0分01秒 |
-| 2026-11-04 11:50 | check_run | cloudflare | skipped | #1156（41763349509） | 0分01秒 |
-| 2026-11-04 11:49 | check_run | cloudflare | skipped | #1155（41763256295） | 0分01秒 |
 
 ## check-image-links.yml
 
@@ -202,7 +203,7 @@
 | --- | --- | --- | --- | --- | --- |
 | 2026-11-04 12:01 | workflow_dispatch | work/1104-lgn-policy | success | #694（41764490394） | 0分45秒 |
 | 2026-11-04 12:00 | workflow_dispatch | work/1104-lgn-policy | success | #693（41764291070） | 1分14秒 |
-| 2026-11-04 11:49 | push | cloudflare | in_progress | #692（41763190152） |  |
+| 2026-11-04 11:49 | push | cloudflare | success | #692（41763190152） | 22分07秒 |
 | 2026-11-04 11:36 | workflow_dispatch | work/1104-top2 | in_progress | #691（41761870869） |  |
 | 2026-11-04 11:36 | workflow_dispatch | work/1104-acf-count | success | #690（41761816704） | 23分01秒 |
 
