@@ -168,7 +168,7 @@ Chat-Ref: CHAT-1104-TOP-19
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1104-TOP-21
 - ブランチ: work/1104-top4（指示文の指定どおり。origin/cloudflare ada6990de から作った）
 - ログ: https://github.com/retroeater/mj/blob/work/1104-top4/docs/logs/CHAT-1104-TOP-19.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1104-top4
@@ -193,4 +193,4 @@ Chat-Ref: CHAT-1104-TOP-19
 - docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a4a9ed1b/docs/notes/chat-side-operations.md
 - docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a4a9ed1b/docs/notes/cloudflare.md
 - docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a4a9ed1b/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/95028c1a.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a4a9ed1b.md

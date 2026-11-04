@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-11-04 17:27 JST
+- 書き出した時刻: 2026-11-04 17:30 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -25,11 +25,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-04 17:30 | push | work/1101-prp-pub | in_progress | #944（41800017023） |  |
 | 2026-11-04 17:24 | push | work/1101-prp-pub | success | #943（41799311797） | 0分29秒 |
 | 2026-11-04 17:17 | push | work/1104-top5 | success | #942（41798400648） | 0分33秒 |
 | 2026-11-04 17:16 | push | work/1104-top5 | success | #941（41798213431） | 0分30秒 |
 | 2026-11-04 16:59 | push | work/1101-prp-pub | success | #940（41796063024） | 0分28秒 |
-| 2026-11-04 16:46 | push | work/1101-prp-pub | success | #939（41794629256） | 0分27秒 |
 
 ## check-build-failure.yml
 
@@ -201,7 +201,7 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-11-04 17:26 | workflow_dispatch | work/1101-prp-pub | in_progress | #723（41799478006） |  |
+| 2026-11-04 17:26 | workflow_dispatch | work/1101-prp-pub | success | #723（41799478006） | 1分07秒 |
 | 2026-11-04 17:25 | workflow_dispatch | work/1101-prp-pub | success | #722（41799360155） | 0分43秒 |
 | 2026-11-04 16:59 | workflow_dispatch | work/1101-prp-pub | success | #721（41796063398） | 1分13秒 |
 | 2026-11-04 16:52 | workflow_dispatch | work/1101-prp-pub | success | #720（41795285109） | 1分46秒 |
