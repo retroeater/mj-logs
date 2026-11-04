@@ -73,16 +73,33 @@ LGN-23 で作った公開の準備（#640、段2）を cloudflare へマージ�
   - (3) check（log_pages）で止まるページなし: 満たす
   - (4) `/*` の CSP に `https://cloudflareinsights.com`: 満たす
 
+- マージ: 直前の再 fetch で `git merge-base --is-ancestor origin/cloudflare HEAD` を確かめ、`git push origin work/1104-lgn-release:cloudflare`（1bfe819ad..8140cebc1）
+- 公開後の確かめ（本番、UA に `mj-internal`）:
+  - check-run（8140cebc1）: Workers Builds: mj success・sync success・regenerate success（00:14〜00:26 UTC）
+  - `https://ryoei.pro/log/` → 200。HTML に noindex 無し、レスポンスヘッダに `x-robots-tag` 無し
+  - 本番の `navbar.js` に `href="/log/">ログ`。`sitemap.xml` が参照する6つのサイトマップのうち `sitemap-pages.xml` に `https://ryoei.pro/log/`。`llms.txt` に `https://ryoei.pro/log/`
+  - 転送: `/resource_logs.html` → 301 `/log/`、`/resource_logs.html?tag=tanilog` → 301 `/log/?tag=tanilog`、`/resource_logs.html?name=谷岡育夫` → 301 `/log/?name=谷岡育夫`、`/tanilog.html` → 301 `/log/?name=谷岡育夫`。期待どおり
+- issue: #640 にコメント（issuecomment-6618887273）して閉じた（completed、「状況: 待ち」を外した）。#639（issuecomment-6618887673）・#378（issuecomment-6618888238）に公開した日とマージの SHA をコメント。#255 にコメント（issuecomment-6618888869）して閉じた（completed。「状況:」のラベルは元から無い）
+- 起票（同じ主題の issue を検索〈「利用規約」「プライバシーポリシー」「閉業」「businessStatus」「ジャンル ログ」「ジャンル Claude」〉し、専用の issue は無かった。#236〈最近見た選手、localStorage〉はプライバシーポリシーに触れるが主題が違うので関連に挙げた）。状況のラベルは付けていない:
+  - #663「ログ: 利用規約・プライバシーポリシーのページを作る」（分野: セキュリティ・対象: resource_logs）
+  - #664「ログ: 閉業の店を月次で知らせる（保存しない）」（分野: 自動化・対象: resource_logs。題とコメントに「閉業」の語を残すかは未決と書いた）
+  - #665「ログ: Claude でジャンルを付ける」（分野: データ・対象: resource_logs）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1104-lgn-release
-- ログ: https://github.com/retroeater/mj/blob/work/1104-lgn-release/docs/logs/CHAT-1104-LGN-24.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1104-LGN-24.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1104-lgn-release
-- 確認用URL: なし
-- マージ: 未
-- issue: #640・#255
-- 判断が必要なこと: なし
+- 確認用URL: なし（本番 https://ryoei.pro/log/ で確かめた）
+- マージ: 済（8140cebc1）。条件: (1) 満たす（差分は LGN-23 の公開の準備とこの指示の直しだけ） (2) 満たす（unittest OK、node --test pass 40） (3) 満たす（check の log_pages で止まるページなし） (4) 満たす（CSP に cloudflareinsights）。公開後の確かめ: Workers Builds success・log/ は 200 で noindex と x-robots-tag 無し・navbar.js と sitemap-pages.xml と llms.txt に log/・転送4つとも期待どおり
+- issue: #640（閉じた）・#255（閉じた）・#639・#378（コメント）・起票 #663（利用規約・プライバシーポリシー）・#664（閉業の月次の知らせ）・#665（Claude のジャンル）
+- 判断が必要なこと:
+  - 平野さんの作業: X と LINE の投稿画面で `https://ryoei.pro/log/?x=<未使用の数字>` のカード表示を確かめる（docs/notes/ogp.md。og:image はサイト共通の1枚）
+  - 平野さんの作業: Search Console で `sitemap.xml` を再送信し、`https://ryoei.pro/log/` を URL 検査でインデックス登録をリクエストする
+  - チャット側: 登録の結果を確かめる予定（1週間後、終日、件名【R#640】）をカレンダー「ryoei.pro」に作る（#640 の本文の公開後の確かめ）
+  - #664 の題・コメントに「閉業」の語を残すか（規約の読みとして未決）
+  - 残した記述: docs/notes/static-generation.md 12・16・66・69行目（移行〈#7〉の記録の段落で、ほかの廃止したページも当時の形で書いているため resource_logs だけを直していない）
 - 未確認の項目: なし
 - エラー: なし
 
