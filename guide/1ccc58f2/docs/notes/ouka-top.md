@@ -6,7 +6,7 @@
 
 ## 構成と生成
 
-- URL は houou/ と同じ並び: `ouka/`（トップ・質問欄）・`ouka/players/`・`ouka/ranking/<スラッグ>/`（連続昇級を除いた8部門、2026-10-18。`ouka/ranking/` は `total/` へ 301）・`ouka/race/`・`ouka/leagues/`（旧 `ouka_leagues.html` の転送先。個人成績のリーグのタブ `?view=league` へ JS で移すだけ、noindex、#591。`Contest.leagues_moved`）
+- URL は houou/ と同じ並び: `ouka/`（トップ。質問欄は 2026-11-04 に外し、共通ナビの AI 検索のアイコンから開く）・`ouka/players/`・`ouka/ranking/<スラッグ>/`（連続昇級を除いた8部門、2026-10-18。`ouka/ranking/` は `total/` へ 301）・`ouka/race/`・`ouka/leagues/`（旧 `ouka_leagues.html` の転送先。個人成績のリーグのタブ `?view=league` へ JS で移すだけ、noindex、#591。`Contest.leagues_moved`）
 - 生成は `scripts/generate_ouka_pages.py`（`regenerate.py` の `ouka_pages`、出力 `ouka/`）。中身は `generate_houou_pages.py` を大会の設定 `OUKA` で動かすだけ（`using(OUKA)`。設定は `Contest`）。共有の部品は複製しない。`regenerate.py --changed` は `generate_houou_pages.py` の変更でも `ouka_pages` を選ぶ（`scripts/lib/houou_race.py` などの `lib/` の変更では全ページ）（`ask_data_ouka` は `generate_ask_data.py`・`generate_houou_pages.py` の変更でも。`SHARED_GENERATORS`）
 - JS は houou/ と共有の `assets/league.js`・`assets/league_race.js`（2026-10-17 に `houou.js`・`houou_race.js` から改名）と `assets/houou_ask.js`。ページの `<script type="application/json" id="league_contest">`（`OUKA.script`）でリーグ・期の書き方・題名の接尾辞・最近見た選手のキー・順位変動のリーグの番号を渡す。houou/ のページには無く、JS は鳳凰戦の既定で動く
 - CSS は houou/ の節のまま。ページの枠に `is-ouka` を付け、`style.css` の `.is-ouka` でリーグの色だけを替える
@@ -33,6 +33,8 @@
 - OGP は `img/ogp/ouka/index-white.png`（白地・黒字の「女流桜花」＋「ryoei.pro」、docs/notes/ogp.md の規則）。旧 `ouka_results.html`・`ouka_ranking.html`・`ouka_leagues.html` も同じ画像だった（2026-10-17。旧3ページは #582 で消した、2026-10-19）
 
 ## 質問欄
+
+大会のトップの欄は 2026-11-04 に外した。共通ナビの欄はこのページから開くと `context` に `ouka` を添えて横断で問う（docs/notes/design.md「共通ナビ（新しい形）」）。下は廃止した大会別の欄と Worker の記述。
 
 - Worker `mj-ask` を鳳凰戦と共有し、1日の上限（全体 200・IP ごと 10）も共有する（2026-10-17）
 - ouka/ の質問欄は問いに `contest: "ouka"` を添え、Worker は `data-ouka.json` と女流桜花の指示（`ask.mjs` の `OUKA_PLAN_SYSTEM`）で答える。鳳凰戦の問い（`contest` 無し）の答え方は変えない

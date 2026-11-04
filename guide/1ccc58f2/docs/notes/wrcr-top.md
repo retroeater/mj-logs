@@ -6,7 +6,7 @@ WRC-R リーグの成績とランキングを、WRC リーグの `jwrc/`（`docs
 
 ## 構成と生成
 
-- URL: `wrcr/`（トップ・質問欄）・`wrcr/players/`・`wrcr/ranking/<スラッグ>/`（9部門。`wrcr/ranking/` は `total/` へ 301）・`wrcr/race/`
+- URL: `wrcr/`（トップ。質問欄は 2026-11-04 に外し、共通ナビの AI 検索のアイコンから開く）・`wrcr/players/`・`wrcr/ranking/<スラッグ>/`（9部門。`wrcr/ranking/` は `total/` へ 301）・`wrcr/race/`
 - 生成は `scripts/generate_wrcr_pages.py`（`regenerate.py` の `wrcr_pages`、出力 `wrcr/`）。`generate_houou_pages.py` を大会の設定 `WRCR` で動かすだけ（`JWRC` と同じくリーグの無い大会）
 - 集計元は正本の「WRCR」シート（「R_タイトル戦_成績」。列は「JWRC」と同じ12列）。「表示」が Y の行の数が 400〜2,000 の外なら止める（`WRCR.rows`。2026-10-19 は 572行）
 - 規定は `lib/ranking.py` の `CONTESTS["WRCR"]`（WRC リーグと同じ値、2026-10-19 の決定）
@@ -26,6 +26,8 @@ WRC-R リーグの成績とランキングを、WRC リーグの `jwrc/`（`docs
 - OGP は `img/ogp/wrcr/index-white.png`（白地・黒字の「WRC-Rリーグ」＋「ryoei.pro」、docs/notes/ogp.md の規則）
 
 ## 質問欄
+
+大会のトップの欄は 2026-11-04 に外した。共通ナビの欄はこのページから開くと `context` に `wrcr` を添えて横断で問う（docs/notes/design.md「共通ナビ（新しい形）」）。下は廃止した大会別の欄と Worker の記述。
 
 - Worker `mj-ask` と1日の上限を3大会と共有する。wrcr/ の質問欄は問いに `contest: "wrcr"` を添え、Worker は `data-wrcr.json` と `ask.mjs` の `WRCR_PLAN_SYSTEM`（部門は `JWRC_DIVISIONS`）で答える。記録の型は「wrcr:league」の形
 - 決勝は title/search.json の「WRC-Rリーグ」（`/title/jwrc-r/`）、放送対局は /live の「WRC-Rリーグ」（`/live/jwrc-r/`）。WRC リーグ（R の付かない方）と世界麻雀は答えない（`none`）

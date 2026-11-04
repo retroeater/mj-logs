@@ -4,6 +4,11 @@ houou/ のトップで鳳凰戦のデータに言葉で質問できる欄。決�
 実装は3つに分ける（grill Q13）: (1) データと検索〈済〉、(2) Worker と質問欄〈済、2026-10-11 から本番で動作〉、(3) 週次の cron〈済。ブックへの書き出しの最初の本番の実行は 2026-10-19（月）9:00 JST の見込み〉。
 1日の上限は全体 200・IP ごと 10（2026-10-16。試行中の全体は 50 だった）。公開は #540。
 
+**質問欄の置き場所（2026-11-04）**: ページの中の質問欄（houou/・ouka/・jwrc/・wrcr/・saikyo/ のトップと新トップ）はやめ、入口を共通ナビの AI 検索のアイコン1つにした
+（帯のすぐ下に横断の欄を開く。`assets/nav.js`・`assets/top_ask.js`、`contest: "all"` と `context`。docs/notes/design.md「共通ナビ（新しい形）」）。
+pro/ のトップの欄も pro/ の作業で外した。ページの中の欄の部品（`ASK_TEMPLATE`・`ASK_HEAD`・`assets/houou_ask.js`）は読むページが無くなり、後の指示で片付ける（TOP）。
+下の各大会の「X/ の質問欄は `contest: "X"` を添える」は廃止した大会別の欄の記述で、Worker は `contest` を指定した問いを今も受け付ける（外すかは #654）。
+
 ## 構成
 
 | ファイル | 役割 |
@@ -19,14 +24,14 @@ houou/ のトップで鳳凰戦のデータに言葉で質問できる欄。決�
 | `workers/ask/schema.sql` | D1 の表（B2 で D1 の Console に貼る） |
 | `workers/ask/src/weekly.mjs` | 週次の cron（ブックへの書き出し・90日の削除、下の「週次の cron」） |
 | `workers/ask/test/ask.test.mjs`・`weekly.test.mjs` | 受付と週次のテスト。D1 は `test/fake-d1.mjs`（`node:sqlite` で `schema.sql` をそのまま使う作り物）、Anthropic・Google は偽の fetch |
-| `assets/houou_ask.js`・`assets/houou_ask.css` | houou/ トップの質問欄の送信と表示・見た目。HTML は `generate_houou_pages.py` の `ask_box()`。答えに出た選手のカードのリーグのチップの色だけ `style.css` の `--lg-*` を使う |
-| `houou/ask-players.json` | 答えに出た選手のカードの名簿（生成物。`generate_houou_pages.py` の `ask_roster()`、約66KB。答えが出たときに初めて読む） |
+| `assets/houou_ask.js`・`assets/houou_ask.css` | 大会別の質問欄の送信と表示・見た目（読むページは無い。`houou_ask.css` は共通ナビの欄と top/ の「もっと見る」が使う）。HTML は `generate_houou_pages.py` の `ASK_TEMPLATE`。答えに出た選手のカードのリーグのチップの色だけ `style.css` の `--lg-*` を使う |
+| `houou/ask-players.json` | 答えに出た選手のカードの名簿（各大会の名簿は pro/ の生成もいまのリーグ・出場を読む。生成物。`generate_houou_pages.py` の `ask_roster()`、約66KB。答えが出たときに初めて読む） |
 | `scripts/tests/test_houou_ask.py` | 突き合わせ（`pickPlayers`・`splitPlayers` を node で動かす）・名簿の値・書き出した名簿と名前の面の一致 |
 
 ## 女流桜花（ouka/、#519。未公開）
 
 - `scripts/generate_ask_data_ouka.py`（`ask_data_ouka`）が `generate_ask_data.py` を設定 `OUKA` で動かし、`workers/ask/data-ouka.json` を書く（並びは data.json と同じ。決勝は title/search.json の「女流桜花」、放送対局は /live の「女流桜花」。大会の名前・リーグ・部門を `contest` に足す）。data.json には `contest` が無く、Worker は鳳凰戦の既定（`query.mjs` の `HOUOU`）で読む
-- ouka/ の質問欄（`ask_box()` が `data-contest="ouka"`）は問いに `contest: "ouka"` を添える。`ask.mjs` は `deps.contests.ouka` のデータと女流桜花の指示（`OUKA_PLAN_SYSTEM`、出力の形のリーグ・部門も女流桜花）で答える。知らない `contest` は 400（数えない）。`contest` の無い問い（houou/）の答え方は変えない
+- ouka/ の質問欄（`data-contest="ouka"`、2026-11-04 に廃止）は問いに `contest: "ouka"` を添える。`ask.mjs` は `deps.contests.ouka` のデータと女流桜花の指示（`OUKA_PLAN_SYSTEM`、出力の形のリーグ・部門も女流桜花）で答える。知らない `contest` は 400（数えない）。`contest` の無い問い（houou/）の答え方は変えない
 - 1日の上限・IP ごとの上限は鳳凰戦と共有（2026-10-17）。記録の型は「ouka:league」の形（答えられなかった問いは「ouka:」。仮置き）
 - テストは `workers/ask/test/ouka.test.mjs`。違いの全体は docs/notes/ouka-top.md
 

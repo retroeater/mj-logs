@@ -50,28 +50,40 @@ TTL-05 で本番に出した title/ の大会ページ（`title/<slug>/index.htm
 
 ## 経過
 
+- 着手前の確認: `git log --all --grep 'CHAT-1104-TTL-06'` は0件。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は欠けなし。対象 issue の指定なし
+- 作業ブランチ: `origin/work/1104-ttl` はマージ済み（cloudflare の祖先）、ローカルの `work/1104-ttl` も cloudflare の祖先だったので、`git merge --ff-only origin/cloudflare` で 73d76cb6d へ進めた（docs/notes/cloud-sessions.md「作業ブランチの用意」の「ローカルにあり origin/cloudflare の祖先」）。手順0: 指示欄の末尾の行は指示文の最後の行と一致。TTL-05 のログの状態に ` / 続き: CHAT-1104-TTL-06` を足し、このログと一緒に push（10f7f19b6）
+- 未マージのブランチ: `generate_title_pages.py` を変えているのは `work/1101-prp-pub` だけ（import・`member_link()`・`member_holder()`・`period_body()`・`pages()` の行）。大会ページの関数（`taikai_body()`・`taikai_holders()`）と「成績」の関数は変えていない
+- 手順1（6a6aa8b92）: `taikai_body()` の題名の2行目（`taikai.span`）をやめ、期の範囲は h1 の読み上げ用の語に入れた（`page_title_html(taikai.name, f"歴代優勝者{taikai.span}")`。h1 の文字列は前と同じ「鳳凰戦 歴代優勝者第1期〜第42期」）。「成績」の節（`RESULTS_PATHS`・`RESULTS_SECTION_ID`・`RESULTS_HEADING`・`results_link_html()`）を消した。ほかに参照は無かった（`grep`）。CSS は「成績」だけのものが無く（`.mj-title-section`・`.mj-title-rows` は期ページの節・行でも使う）、消していない。`<title>`・og:*・JSON-LD は変えていない
+  - テスト: `test_title_check.ResultsLinkTest` を消し、`test_title_years.RowsTest.test_taikai_page_has_no_span_line_or_results` を足した（修正前の `generate_title_pages.py` では FAIL、修正後は OK を確かめた）。`python3 -m unittest discover -s scripts/tests` → OK
+  - 文書（bb1889eb7）: docs/notes/title-pages.md（「成績」の節の行・題名の2行目・節の見出しの列挙）、docs/notes/design.md（title/ の行の題名の2行目と「成績」）、docs/decisions/title.md（この指示の決定）
+- 手順2（生成、`regenerate-page.yml` target_page=title_pages、run 41743052299 success、d756d0537）: 変わったのは大会ページの HTML 20件だけ（`title/<slug>/index.html`、20大会すべて）。各ページの差分は h1 の行の書き換え（2行目の `mj-saikyo-n-page-date` の span を消し、期の範囲を読み上げ用の語へ）が20件すべて、「成績」の節の行の削除が4件（鳳凰戦・女流桜花・WRCリーグ・WRC-Rリーグ）だけ（ほかの行の変化 0）。期ページ・入口・`title/search.json`・`title/years.json`・`sitemap-title.xml`・ほかのページは変化なし（lastmod も変わらず）
+  - 360px（明・暗）で鳳凰戦・王位戦の大会ページを撮った: 題名の下端 151px → 検索欄 167〜211px → 行の面 227px（間はどちらも 16px）。`.mj-title-section` は0件、横スクロールなし
+- 手順3（マージ）: push 直前に `git fetch origin cloudflare` と `git merge-base --is-ancestor origin/cloudflare HEAD`（真）を確かめ、`git push origin work/1104-ttl:cloudflare` → `73d76cb6d..d756d0537  work/1104-ttl -> cloudflare`
+  - 自動再生成（run 41743330609）は success、生成物の差分なし（cloudflare の先頭は d756d0537 のまま）。d756d0537 の Workers Builds: mj は success
+  - 本番（UA に mj-internal、`?v=ttl06…`）: `/title/houou/`・`/title/ouka/`・`/title/oui/` とも 200、期の範囲の行（`mj-saikyo-n-page-date`）0件・「成績」の節（`title_results_link`）0件。h1 の読み上げは「歴代優勝者第1期〜第42期」「…第1期〜第20期」「…第1期〜第50期」のまま
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1104-ttl
-- ログ: https://github.com/retroeater/mj/blob/work/1104-ttl/docs/logs/CHAT-1104-TTL-06.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1104-ttl
-- 確認用URL: 未
-- マージ: 未
+- 状態: 完了
+- ブランチ: work/1104-ttl（マージ済み。削除は cleanup-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1104-TTL-06.md
+- 比較URL: https://github.com/retroeater/mj/compare/73d76cb6d...d756d0537
+- 確認用URL: 本番 https://ryoei.pro/title/houou/ ・ /title/ouka/ ・ /title/oui/ で確かめた。この版の印: 鳳凰戦の大会ページの題名「鳳凰戦」の下に期の範囲の行が無く、すぐ検索欄
+- マージ: 済（73d76cb6d..d756d0537。自動再生成は差分なし、Workers Builds の本番 mj は success）
 - issue: なし
-- 判断が必要なこと: 未
-- 未確認の項目: 未
+- 判断が必要なこと: なし
+- 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 73d76cb6）: https://github.com/retroeater/mj-logs/tree/main/guide/73d76cb6
+ガイド文書（この版を写した時点の最新、mj 1ccc58f2）: https://github.com/retroeater/mj-logs/tree/main/guide/1ccc58f2
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/73d76cb6/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/73d76cb6/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/73d76cb6/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/73d76cb6/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/73d76cb6/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/73d76cb6/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/1ccc58f2/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/1ccc58f2/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/1ccc58f2/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/1ccc58f2/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/1ccc58f2/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/1ccc58f2/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/95028c1a.md

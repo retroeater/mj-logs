@@ -30,7 +30,27 @@ work/1101-prp-pub は cloudflare から離れている（TTL のマージ、PRP-
 
 手順
 
-1. `origin/cloudflare` を取り込み、上の「決定」と「前提」の解き方で衝突を解く。解いたファイルごとに、どちらの側を残したか（両方の場合はどう合わせたか）を `## 経過
+1. `origin/cloudflare` を取り込み、上の「決定」と「前提」の解き方で衝突を解く。解いたファイルごとに、どちらの側を残したか（両方の場合はどう合わせたか）を `## 経過` に表にして、解いた後の該当箇所を引用する。`docs/decisions/*.md`・`docs/logs/` の末尾の追記どうしは両方を残す
+2. 生成: `regenerate-page.yml` で pro/・title/・順位変動（4大会）を作り直す。生成物の差分を cloudflare と比べ、種類ごとに数えた表を書く（見込み: pro/ は「公開の段」の差分〈noindex なし・canonical・題・og:image など〉、title/ の期ページは決勝メンバーの行き先、順位変動はアイコンの行き先、`sitemap-pro.xml` が新しいファイル。ほかが出たら一覧を書いて止まる）
+3. 確かめ: テスト（`python3 -m unittest discover -s scripts/tests` と `node --test 'workers/*/test/*.test.mjs'`）がすべて通る。プレビュー（付かなければローカル）で、`title/` の期ページ1つ（在籍者は pro/ の個別ページへ同じタブ、ほかは X）・`pro/`（質問欄が無い・既定の「すべて」）・`pro/sho.shiratori.23/` を見る。新しい文脈のサブエージェントの差分レビュー（CLAUDE.md「判断・作業の原則」）。`docs/notes/pro-pages.md` の「公開のマージ」の節を今の残り（このブランチと cloudflare の差）に合わせて直す
+
+止まる条件
+
+* 0章の確かめで食い違いがあり、どの指示の続きか決められない
+* 上に解き方を書いていない衝突が出た（解かずに、衝突したファイルと両側の変更の要点を書いて止まる）
+* 生成物に、見込みで説明できない差分が出た
+* テストが落ちる（取り込みと解き方で直せる範囲は直してよい。直せなければ止まる）
+* この指示では `cloudflare` へマージしない（完了の報告は「判断待ち」）
+
+完了条件
+
+* ログの「## 報告」を CLAUDE.md「作業ログ」節のとおりに書いて push する。プレビューの URL はターミナルへの最終報告の「確認用:」の行にだけ書く
+* マージは冒頭の「マージ:」の行のとおり（しない）
+* ターミナルへの最終報告の Chat-Ref の行の直前に ログ（公開）: https://github.com/retroeater/mj-logs/blob/main/logs/CHAT-1104-PRP-14.md?v=<SHA>（CLAUDE.md「作業ログ」節）を書き、最後の行に Chat-Ref: CHAT-1104-PRP-14 を書く
+
+不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
+
+## 経過
 
 ### 0. 着手前の確認
 
@@ -62,48 +82,41 @@ work/1101-prp-pub は cloudflare から離れている（TTL のマージ、PRP-
 
 取り込みの直後（生成の前）のテスト: Ran 1945 tests、失敗1（`test_og_image`: 取り込んだ cloudflare の古い `pro/index.html` が `img/ogp/pros/` を指す。生成で直る）。node 219 pass。
 
-## 報告` の状態の末尾に `/ 続き: CHAT-1104-PRP-11` があることを確かめる（無ければ足さずにログに書く）。
+### 2. 生成（regenerate-page.yml、target_page「houou_pages ouka_pages jwrc_pages wrcr_pages title_pages pro_pages」→ 76094afde）
 
-目的
-work/1101-prp-pub は cloudflare から離れている（TTL のマージ、PRP-11・13 で未公開のまま入れた pro/ の変更）。公開のマージの日に1本で解くと重いので、先に取り込んで解いておく。公開の日には、このブランチに残した「公開の段」の変更を入れるだけにする。
-決定（平野さん）
+origin/cloudflare と比べた生成物の差分:
 
-* 2026-11-04: タイトル戦のレイアウトの作り直し（TTL）を先に cloudflare へマージし、pro/ の公開のブランチの側で重なりを解く（TTL は CHAT-1104-TTL-05 でマージ済み）
-* 2026-11-04: live/ の公開のブランチ（work/1104-lvp）と `regenerate-page.yml`・`update_sitemap_lastmod.py`・`docs/handover.md` の同じ行に `sitemap-pro.xml` と `sitemap-live.xml` を足した衝突は、両方を残して解いてよい（LVP が先に cloudflare に入っていれば当たる）
-* 2026-11-04（PRP-11）: 未公開のまま本番に入れたもの（個別ページ・トップの絞り込みのシート・お気に入り・`pro/plans.json`・題の形など）は cloudflare の形を正とする。pro/ のトップのページの中の質問欄は外したままにし、K8（質問欄の答えのカードの行き先、`houou_ask.js` の `playerHref()` など）は戻さない
-* 2026-11-04（PRP-13）: pro/ のトップの説明文は「日本プロ麻雀連盟の在籍する麻雀プロ1,098名の個別ページの一覧。名前・所属・入会期・鳳凰戦および女流桜花の所属リーグ等で検索できます。」（cloudflare の形）
+| 種類 | 件数 | 中身 |
+|---|---|---|
+| pro/<slug>/index.html | 1,098 | noindex の行が無くなり、canonical（自分自身）が入り、og:image が `img/ogp/pro/index-white.png` に（各ページこの4行だけ） |
+| pro/index.html | 1 | 同じ（noindex なし・canonical・og:image）。質問欄なし・説明文は cloudflare のまま |
+| pro/plans.json・pro/search.json | 0 | — |
+| title/<大会>/<期>.html | 327 | 決勝メンバーの行（`<ol class="… mj-title-rows">` の1行）だけ。在籍者の行き先が X から `/pro/<slug>/`（`target` なし）に。X の無い在籍者は押せない行から押せる行に（`<div>` の行 74 → 51） |
+| houou/ ouka/ jwrc/ wrcr/ の race/*.json | 61・20・19・7 | 選手に `slug` が足された（`slug` を除くと cloudflare と同じことを全107件で確かめた） |
+| sitemap-pro.xml | 1（新しいファイル） | トップと個別ページ 1,099件 |
+| sitemap.xml | 1 | `sitemap-pro.xml` の参照（PRP-03 の公開の段） |
+| sitemap-pages.xml | 1 | `jpml_pros.html` の行を外し、注記に pro/ を書いた（PRP-03 の公開の段） |
+| workers/pros-redirect/data.json | （cloudflare に無いファイル） | 転送の表 |
 
-前提（チャット側。平野さんの決定ではない）
+見込みで説明できない差分は無い（sitemap.xml・sitemap-pages.xml は `sitemap-pro.xml` の公開の段の一部）。
 
-* TTL の伝言（出典: mj-logs `logs/CHAT-1104-TTL-05.md` の `## 報告`）による cloudflare の形: `generate_title_pages.py` に `member_card_html()` は無く、期ページの決勝メンバーは `member_holder()` → `Holder` → `row_html()` の行で、行き先は `member_link(entry) -> (href, external)` の1か所。`scripts/tests/test_title_years.py` の `RowsTest.test_member_link_decides_target` は引数が1つの前提（要確認）
-* 解き方の案（TTL-05 の Claude Code の案。採ってよい）: このブランチの判定（`slugs.get(person.name)` があれば `pro_search.page_path(slug)` を同じタブ、無ければ X を新しいタブ、X も無ければリンクなし）を `member_link()` に入れ、`slugs` を `period_body()` → `member_holder()` → `member_link()` へ引数で渡す。`pages()` の `slugs = pro_search.load_slugs()` と import の `pro_search` はこのブランチの形のまま。テストは引数を足した形に合わせる。`docs/notes/title-pages.md` の期ページの節に pro/ の行き先を足す
-* pro/ 関係のファイルの衝突は、`docs/notes/pro-pages.md`「未公開のまま入れたものと、公開のマージで入れるもの」（PRP-11 が書いた）に従って解く。「公開のマージで入れるもの」（noindex を外す・canonical・`sitemap-pro.xml`・navbar・サイドメニュー・`llms.txt`・転送の Worker と集計の行・`playerUrl()`・title/ の向け替え・`lib/pro_search.py`・検知の付け替え・OGP の画像の置き場所）はこのブランチの側を残す
-* 生成されたページ（pro/・title/・順位変動の4大会・`sitemap*.xml` の lastmod）の衝突は、解いた後のスクリプトで生成し直す（docs/notes/branch-operations.md）
-* 本番（ryoei.pro）へのリクエストは、この指示の全体で20件まで、1分に10件以下。まとめて送るときは UA に `mj-internal` を含める（CLAUDE.md）
+生成の後のテスト: `python3 -m unittest discover -s scripts/tests` → Ran 1945 tests OK。`node --test 'workers/*/test/*.test.mjs'` → tests 219 / pass 219 / fail 0。
 
-手順
+### 3. プレビュー（76094afde の Workers Builds、23:57Z に success）
 
-1. `origin/cloudflare` を取り込み、上の「決定」と「前提」の解き方で衝突を解く。解いたファイルごとに、どちらの側を残したか（両方の場合はどう合わせたか）を `## 経過` に表にして、解いた後の該当箇所を引用する。`docs/decisions/*.md`・`docs/logs/` の末尾の追記どうしは両方を残す
-2. 生成: `regenerate-page.yml` で pro/・title/・順位変動（4大会）を作り直す。生成物の差分を cloudflare と比べ、種類ごとに数えた表を書く（見込み: pro/ は「公開の段」の差分〈noindex なし・canonical・題・og:image など〉、title/ の期ページは決勝メンバーの行き先、順位変動はアイコンの行き先、`sitemap-pro.xml` が新しいファイル。ほかが出たら一覧を書いて止まる）
-3. 確かめ: テスト（`python3 -m unittest discover -s scripts/tests` と `node --test 'workers/*/test/*.test.mjs'`）がすべて通る。プレビュー（付かなければローカル）で、`title/` の期ページ1つ（在籍者は pro/ の個別ページへ同じタブ、ほかは X）・`pro/`（質問欄が無い・既定の「すべて」）・`pro/sho.shiratori.23/` を見る。新しい文脈のサブエージェントの差分レビュー（CLAUDE.md「判断・作業の原則」）。`docs/notes/pro-pages.md` の「公開のマージ」の節を今の残り（このブランチと cloudflare の差）に合わせて直す
+Playwright（UA に mj-internal）で 360px 明・1280px 暗:
 
-止まる条件
+- `title/houou/41.html`: 決勝メンバー4人とも `/pro/<slug>/`・同じタブ。横のはみ出し 0。在籍者でない人がいる期（`title/houou/12.html` の生成物）では、X は `target="_blank"`、在籍者は `/pro/masayoshi.ara.1/` の同じタブ、どちらも無い人は押せない行
+- `pro/`: robots の meta なし・canonical `https://ryoei.pro/pro/`・og:image `img/ogp/pro/`・質問欄なし・1行「すべて」・1,098名。はみ出し 0
+- `pro/sho.shiratori.23/`: robots の meta なし・canonical 自分自身・題「白鳥翔 | 連盟プロ | 日本プロ麻雀連盟 | ryoei.pro」・☆ あり・チップ「東京」「23期」「8/27生」・「すべて（N件）」1つ。はみ出し 0
 
-* 0章の確かめで食い違いがあり、どの指示の続きか決められない
-* 上に解き方を書いていない衝突が出た（解かずに、衝突したファイルと両側の変更の要点を書いて止まる）
-* 生成物に、見込みで説明できない差分が出た
-* テストが落ちる（取り込みと解き方で直せる範囲は直してよい。直せなければ止まる）
-* この指示では `cloudflare` へマージしない（完了の報告は「判断待ち」）
+### 4. 文書
 
-完了条件
+`docs/notes/pro-pages.md` の公開の節を、今の残り（このブランチと cloudflare の差）だけにした（fc4165b9e）: pro/ の noindex・canonical・OGP・サイトマップ、入口（navbar・サイドメニュー・`llms.txt`）、`jpml_pros.html` の 301、公開中のページからのリンク（順位変動・title/・`pro_search.py`・画像の検知）、入れないもの（質問欄と K8）。
 
-* ログの「## 報告」を CLAUDE.md「作業ログ」節のとおりに書いて push する。プレビューの URL はターミナルへの最終報告の「確認用:」の行にだけ書く
-* マージは冒頭の「マージ:」の行のとおり（しない）
-* ターミナルへの最終報告の Chat-Ref の行の直前に ログ（公開）: https://github.com/retroeater/mj-logs/blob/main/logs/CHAT-1104-PRP-14.md?v=<SHA>（CLAUDE.md「作業ログ」節）を書き、最後の行に Chat-Ref: CHAT-1104-PRP-14 を書く
+### 5. ログの壊れの直し
 
-不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
-
-## 経過
+このログ（9dd5f0660）と CHAT-1104-PRP-13 のログ（cloudflare に入っている）で、`## 経過`・`## 報告` の節を書き足すときに、貼られた指示文の中の「`## 経過`」「`## 報告`」の字に当たって、経過の文が指示欄の途中に入り、指示文の一部が二重になっていた。どちらも最初のログのコミット（このログは cc64d58a2、PRP-13 は 785a98b2b）の指示欄に、書いた経過と報告をつないで作り直し、指示欄が最初のコミットと同じことを確かめた。PRP-13 の直しはこのブランチにあり、cloudflare には公開のマージで入る。PRP-08〜12 のログの指示欄は最初のコミットと同じだった。
 
 ## 報告
 
@@ -121,12 +134,12 @@ work/1101-prp-pub は cloudflare から離れている（TTL のマージ、PRP-
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 73d76cb6）: https://github.com/retroeater/mj-logs/tree/main/guide/73d76cb6
+ガイド文書（この版を写した時点の最新、mj 1ccc58f2）: https://github.com/retroeater/mj-logs/tree/main/guide/1ccc58f2
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/73d76cb6/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/73d76cb6/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/73d76cb6/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/73d76cb6/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/73d76cb6/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/73d76cb6/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/1ccc58f2/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/1ccc58f2/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/1ccc58f2/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/1ccc58f2/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/1ccc58f2/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/1ccc58f2/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/95028c1a.md
