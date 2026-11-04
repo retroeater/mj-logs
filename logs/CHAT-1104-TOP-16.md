@@ -62,16 +62,19 @@ TOP-15（ページの中の質問欄の部品の片付け。`houou_ask.css` を�
 - (2) `git diff --name-only origin/cloudflare...HEAD`: TOP-15 のログ「4.」の30ファイルと TOP-16 のログだけ（ほかの新しい変更なし）
 - マージ前の本番の画面（houou/・saikyo/、360・1280px、欄を開いた状態の上 260px）を撮った。どれも `houou_ask.css`（200）と `top_ask.js`（200）を読み、JS エラーなし。`/assets/houou_ask.css` は 200
 - (3) 全ページの生成し直し（dry_run なし・all）を実行中
+- (3) 全ページの生成し直し（dry_run なし・all、run 41759643923、a20e0db51）: 成功、飛ばしたページなし。コミット cd95ec51d で4ファイルが各1行変わった: `live/pro-queen/24/b16-c.html`・`b8-b.html`・`f.html`、`title/pro-queen/24.html`。中身は、出場者「松本ちづる」のカードが X へのリンクになったもの（`<div class="mj-saikyo-card">` → `<a class="mj-saikyo-card" href="https://x.com/…">`）で、シート側の変化。この変更の生成のコード（houou・saikyo・top）は live/・title/ の生成に関わらない
+- その間に origin/cloudflare が進んだ（d08074979、TTL・LGN の作業）ので取り込んだ。衝突なし。取り込むと `title/pro-queen/24.html` は cloudflare 側の生成で同じ内容になっていて差から消えた。テストは 1925件・165件 OK
+- 残る live/pro-queen/24 の3ファイルを除いてよいか確かめるため、比べ（dry_run・all・compare_ref＝origin/cloudflare d08074979）を実行中（中身の違うファイルとして出なければ、cloudflare のコードでも同じものができる＝シート側の変化）
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj c853e6ae）: https://github.com/retroeater/mj-logs/tree/main/guide/c853e6ae
+ガイド文書（この版を写した時点の最新、mj 05cad68f）: https://github.com/retroeater/mj-logs/tree/main/guide/05cad68f
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c853e6ae/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c853e6ae/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c853e6ae/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c853e6ae/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c853e6ae/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c853e6ae/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/05cad68f/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/05cad68f/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/05cad68f/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/05cad68f/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/05cad68f/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/05cad68f/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/95028c1a.md
