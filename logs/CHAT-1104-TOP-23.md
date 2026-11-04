@@ -63,6 +63,31 @@
 - (3) 全ページの生成し直し（dry_run なし・all、run 41814314756、a1ac5d18e）: 成功、飛ばしたページなし。生成し直しても変わるファイルが無く、コミットは出なかった（除いたファイルは無い）。`git diff --name-only origin/cloudflare...HEAD` の生成物は `top/index.html`・`top/birthdays.json` だけ
 - 3つとも満たしたのでマージする
 
+### 2. マージ
+
+- push 直前に再 fetch し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真（origin/cloudflare＝125151186）であることを確かめて `git push origin work/1104-top4:cloudflare`（125151186..9dd7b6e0f）
+
+### 3. 本番の確かめ（2026-11-04、Playwright、UA に mj-internal）
+
+- マージの約1〜2分後に本番が新しい版になった
+- `https://ryoei.pro/top/birthdays.json?v=…`: 200
+- `https://ryoei.pro/top/?v=…`（360px・1280px、TOP-19 のログ「4.」の値を localStorage に入れて）: 0人は案内の1行と「連盟プロ」へのリンク、3人は6行のうち5行と「もっと見る」（押すと6行）、予定なしは「お気に入りの選手の予定はまだありません」と名前のチップ。localStorage が使えないときは面が出ない（誕生日の面は出る）。ページの JS エラーなし
+- `https://ryoei.pro/?v=…`（今のトップ）: マージの前後で HTML が同じ。`index.html`・`jpml_pros.html`・`title/` はこのマージで変わっていない
+- CHAT-1104-TOP-19・21 のログの「マージ」の行にこのマージのコミットを書き足した。#101 にマージと本番の確かめをコメントし、着手中を解除した
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1104-top4（マージ済み。cleanup-branches.yml が消す）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1104-TOP-23.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1104-top4
+- 確認用URL: なし（本番の `/top/`・`/top/birthdays.json`・`/` で確かめた）
+- マージ: 済（9dd7b6e0f）
+- issue: #101（マージと本番の確かめのコメント、着手中の解除）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし（push が GitHub の Internal Server Error で3回断られたが、4回目で通った）
+
 <!-- guide-links -->
 ---
 

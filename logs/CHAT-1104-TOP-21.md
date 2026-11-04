@@ -120,7 +120,7 @@ TOP-19 のプレビューを見た平野さんの判断を反映する。仮置�
 - ログ: https://github.com/retroeater/mj/blob/work/1104-top4/docs/logs/CHAT-1104-TOP-21.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1104-top4
 - 確認用URL: プレビューあり（URL は最終報告）。確認したページ: top/（0人・3人・予定なし・localStorage が使えない）。この版の印: お気に入りの予定の行の左に顔写真（か頭の1字の丸）、右に ›。localStorage に入れる値は TOP-19 のログの「4.」と同じ
-- マージ: 未（チャット側がプレビューを見てから、平野さんにマージを分けて聞く）
+- マージ: 未（チャット側がプレビューを見てから、平野さんにマージを分けて聞く） → 済（9dd7b6e0f、CHAT-1104-TOP-23）
 - issue: #101
 - 判断が必要なこと:
   - `top/birthdays.json` に、行の顔写真のために X の画像の URL（誕生日の面と pro/ の一覧に今も出ている写真）を4つ目の列として足した。公開の決定（slug・登録名・誕生日の月日）に画像の URL も含めてよいか
@@ -132,12 +132,12 @@ TOP-19 のプレビューを見た平野さんの判断を反映する。仮置�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 12515118）: https://github.com/retroeater/mj-logs/tree/main/guide/12515118
+ガイド文書（この版を写した時点の最新、mj 9dd7b6e0）: https://github.com/retroeater/mj-logs/tree/main/guide/9dd7b6e0
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/12515118/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/12515118/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/12515118/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/12515118/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/12515118/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/12515118/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9dd7b6e0/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9dd7b6e0/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9dd7b6e0/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9dd7b6e0/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9dd7b6e0/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9dd7b6e0/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a4a9ed1b.md
