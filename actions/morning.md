@@ -1,6 +1,6 @@
 # 朝の報告用の異常（retroeater/mj）
 
-- 書き出した時刻: 2026-11-04 12:12 JST（見た範囲: 2026-11-03 10:12 JST から）
+- 書き出した時刻: 2026-11-04 12:18 JST（見た範囲: 2026-11-03 10:18 JST から）
 - 書き出した実行の契機: workflow_dispatch（main）
 - 異常だけを書く。全体は actions/status.md。判定は mj の scripts/morning_report.py（各ワークフローの直近 100 回まで）
 
@@ -14,7 +14,6 @@
 - 2026-11-04 03:26 regenerate-page.yml failure（push・cloudflare）ジョブ「regenerate」：生成に失敗したページを飛ばしました: jpml_pros, saikyo_pages（理由はジョブのサマリ、#533） https://github.com/retroeater/mj/actions/runs/41693768390
 - 2026-11-04 03:48 regenerate-page.yml cancelled（workflow_dispatch・work/1104-top）ジョブ「regenerate」 https://github.com/retroeater/mj/actions/runs/41697295116
 - 2026-11-04 07:58 regenerate-page.yml failure（workflow_dispatch・work/1104-lgn-release）ジョブ「regenerate」 https://github.com/retroeater/mj/actions/runs/41735344487
-- 2026-11-04 11:36 regenerate-page.yml in_progress（workflow_dispatch・work/1104-top2） https://github.com/retroeater/mj/actions/runs/41761870869
 - 2026-11-04 11:59 check-assets.yml failure（push・work/1104-lgn-policy）ジョブ「check」 https://github.com/retroeater/mj/actions/runs/41764230828
 - 2026-11-04 12:09 check-assets.yml failure（push・work/1104-lgn-policy）ジョブ「check」 https://github.com/retroeater/mj/actions/runs/41765308660
 
