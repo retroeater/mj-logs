@@ -1,0 +1,87 @@
+# CHAT-1104-ACF-40
+
+- 着手日時: 2026-11-04
+- 対象issue: #662
+- ブランチ: work/1104-acf-cache
+- 着手時HEAD: 8c7dd9a3
+
+## 指示
+
+【Claude作成】Claude Code 向け指示：Sheets API の読み取りを1回の再生成の中でページをまたいでキャッシュし、呼び出しを減らす（#662 の対策、自律開発）
+Chat-Ref: CHAT-1104-ACF-40
+マージ: 承認済み（チャットで、2026-11-04）。条件: (1) origin/cloudflare を取り込んだ後に `python3 -m unittest discover -s scripts/tests` が通る (2) 作業ブランチで regenerate-page.yml を dry_run 真・対象 all・compare_ref＝その時点の origin/cloudflare の SHA で動かし、新旧の全ページの生成物の差分が0、かつ飛ばしたページが0 (3) 同じ run の新しい側（作業ブランチ側）の、ページごとの `Sheets API の呼び出し: 合計 N` の N の総和が 150 以下（見込み 105。ACF-38 の計測で重複を除いた組の数）。1つでも満たさなければマージせず止まる
+貼る時機: いつでも（並走の有無は手順2で見る）
+共通手順: CLAUDE.md「Chat-Ref」「ブランチ運用」「作業ログ」節のとおり（識別子確認 → origin/cloudflare を起点に work/<識別子>〈手順は docs/notes/cloud-sessions.md〉 → ログ先行push → 最終報告の Chat-Ref の行の直前に「ログ（公開）」の行、最後の行に Chat-Ref）。平野さんは、この指示のための作業ブランチ work/1104-acf-cache の作成と push、条件を満たしたときの cloudflare へのマージを許可している（セッションに割り当てられた claude/… のブランチは使わない）。
+作業ブランチ: クラウドセッションで実行する。work/1104-acf-cache を使う。リモートに無ければ origin/cloudflare から作る。リモートにあってマージ済み（`git merge-base --is-ancestor origin/work/1104-acf-cache origin/cloudflare` が真）なら origin/cloudflare から作る（`checkout -B` は使わない。ローカルにあるときを含め手順は docs/notes/cloud-sessions.md「作業ブランチの用意」）。マージ済みでなければ止まる
+作業ブランチの片付け: 作業ブランチは削除しない。マージ済みなら cleanup-branches.yml が消す（docs/notes/cloud-sessions.md「ブランチの削除」）
+
+0. 着手前に、このログの「指示」欄の末尾が、この指示文の末尾（最後の行）と一致しているか確認し、一致しなければ作業せず報告する。
+
+## 目的
+#662（Sheets API の1分あたりの読み取り上限〈429〉で、並走する再生成がページを飛ばす）の対策。`scripts/regenerate.py` はページごとに生成スクリプトを別のプロセスで動かすため、`lib/sheets.py` の `lru_cache` がページをまたいで効かず、全ページの生成1回で 545 回呼んでいる（重複を除くと 105 組。CHAT-1104-ACF-38 のログ・#662 の計測のコメント）。1回の再生成の中だけ有効なファイルのキャッシュをページの間で共有し、呼び出しを減らす。生成物は変えない。
+
+### 決定（2026-11-04、平野さん）
+- #662 の対策として、ページをまたぐ読み取りのキャッシュを自律開発で進める
+- 範囲はキャッシュだけ。batchGet（同じブックの複数タブを1回で読む）は入れない（効果を見てから別に判断）
+- ACF-37 で足した「呼び出しのたびの1行」（`Sheets API の読み取り: …`）は消し、ページごとの要約の行（`Sheets API の呼び出し: …`）は残す
+- 冒頭の「マージ:」の行の条件 (1)〜(3) をすべて満たせば、プレビューを待たずに cloudflare へマージしてよい
+
+### 前提（チャット側。平野さんの決定ではない。実物に合わせて変えてよい）
+- 設計の案:
+  - `scripts/regenerate.py` が実行の始めに一時ディレクトリ（リポジトリの外。`tempfile` か `RUNNER_TEMP` の下）を作り、環境変数（例 `SHEETS_CACHE_DIR`）で子のプロセスに渡す。実行の終わりに消す。`run_page()` は子の環境を `os.environ` から作っている（要確認）
+  - `lib/sheets.py` の `_book()`・`_values()` は、環境変数があればキャッシュのファイル（鍵: ブック ID・タブ名・render・`BOOK_FIELDS` などの引数の hash。ファイル名にブック ID を出さない）を先に見て、あれば API を呼ばない。無ければ今までどおり読んでから書く。環境変数が無ければ今までと同じ動き（単独で生成スクリプトを動かすとき・ほかのワークフローから呼ぶとき）
+  - 書き込みは一時ファイルに書いてから rename（途中で落ちたときに壊れたキャッシュを残さない）。読み込みに失敗したら API で読み直す
+  - 要約の行の「合計」は API を実際に呼んだ回数のままにし、キャッシュに当たった回数を別に足す（例 `…、キャッシュ k 回`）。待ちの行（`Sheets API 429: …`）は残す
+  - キャッシュは1回の実行の中だけなので、シートの更新が次の実行に反映されない心配は無い。compare_ref の旧い側の生成は旧いコードで動くのでキャッシュを使わない（要確認。新旧が同じキャッシュを共有しないこと）
+- 確かめること（要確認。食い違えば止まる条件へ）:
+  - 1回の `regenerate.py` の実行の中で、シートへ書き込んでから同じタブを読み直すページが無いこと（`lib/sheets_write.py` などの書き込みを生成スクリプトの中から呼んでいないか）。あればキャッシュで古い値を読むので止まる
+  - キャッシュのファイルの中身（シートの値）は一時ディレクトリにだけ置き、リポジトリ・生成物・実行サマリ・artifact に出ないこと（コミットの手順が拾わないこと）
+- 計測の run は並走で 429 が出ても呼び出しの数（条件 (3)）は変わらないが、旧い側の生成（キャッシュなし、約545回）が 429 でページを飛ばすと条件 (2) を満たさない。起動の前に regenerate-page の実行中の run を見て、あれば 15 分まで待つ（待っても残れば並走を記録して起動してよい）
+
+## 手順
+1. #662 が open で他セッションの着手中コメントが無いことを確かめ、着手中のコメントを書く。未マージの work/ ブランチが scripts/lib/sheets.py の `_book()`・`_values()`・`_get()`・要約の関数、scripts/regenerate.py の `run_page()`・実行の始めと終わりを変えていないかを `git branch -r --no-merged origin/cloudflare` の各ブランチで確かめる。「前提」の確かめること2点を確かめる。そのうえでキャッシュを実装し、呼び出しのたびの1行を消す。`scripts/tests/` にテストを足す（2つ目のプロセスがキャッシュに当たって API を呼ばない・環境変数が無いときは今までどおり・壊れたキャッシュは読み直す・要約の行の形）。テストが通ることを確かめ、self-review（CLAUDE.md のとおり）を回す
+2. 作業ブランチで regenerate-page.yml を dry_run 真・対象 all・compare_ref＝その時点の origin/cloudflare の SHA で動かし、完了を待つ（15分の上限は CLAUDE.md「判断・作業の原則」のとおり。超えたら run の ID を書いて、同じセッションで続けて待ってよい〈この指示の範囲で1回まで延長、合計 45 分〉）。結果: 新旧の差分の有無、飛ばしたページ、ページごとの「呼び出し・キャッシュに当たった回数・429 の待ち回数と秒数・経過秒数」の表（全件）と合計、並走していた run。差分か飛ばしたページが出たときは、理由が 429 か、シートの値の変化（新旧の読む時刻のずれ）で説明できるなら、並走の無いときにもう1回だけ同じ実行をしてよい。それでも出たら止まる
+3. 冒頭の条件 (1)〜(3) をすべて満たせば cloudflare へマージする（取り込み直しの後もテストを流す）。マージの push で動く push 検知の regenerate-page.yml を 15 分を上限に待ち、結論と、ページごとの要約の行から呼び出しの合計・429 の待ちの合計を報告に書く（終わらなければ run の ID を未確認の項目へ）。#662 に「【キャッシュ（CHAT-1104-ACF-40、2026-11-04）】」の見出しで、手順2の表・合計・マージの SHA・push 検知の run の結果をコメントする（#662 は閉じない。毎朝の運行の所要で効果を見てから閉じるかを平野さんが決める）。docs/notes/static-generation.md「シートの読み方（Sheets API）」・docs/notes/sheets-reader.md の該当の記述をキャッシュの仕組みに合わせて直し（追記先の今の内容を読んでから）、docs/decisions/security.md の #662 の節に上の「決定」を足す
+
+## 止まる条件
+- #662 が open でない、または他セッションの着手中コメントがある
+- 生成の途中でシートへ書いて読み直すページがある、またはキャッシュの中身がリポジトリ・生成物・実行サマリ・artifact に出る経路がある（見つけた所を報告に書いて止まる）
+- 未マージの work/ ブランチが、手順1に挙げた関数を変えている、または取り込みで衝突する（同じファイルの別の箇所の変更では止まらず、ログに書く。両方の変更が両立する衝突〈追記どうし・隣り合う行〉は両方を残して解いてよく、解いた後の該当箇所をログに引用する）
+- 冒頭のマージの条件 (1)〜(3) のどれかを満たさない（手順2のやり直し1回の後も）。そのときは作業ブランチを残し、表と差分の内容を報告に書いて「判断待ち」にする
+- マージ後の push 検知の再生成が、今回の変更に起因する理由（キャッシュの読み書きの例外など）で失敗した。429 で飛ばしたページがあるだけなら止まらず、飛ばしたページ・並走していた run・429 の待ちの合計を報告に書く
+- cloudflare への push が権限判定で拒否された（別の手段を試さずに止まる）
+
+## 完了条件
+- ログの「## 報告」を CLAUDE.md「作業ログ」節のとおりに書いて push する（手順2の run の ID、マージの SHA、push 検知の run の ID と結論、#662 のコメントの URL を書く）
+- マージは冒頭の「マージ:」の行のとおり
+- ターミナルへの最終報告の Chat-Ref の行の直前に ログ（公開）: https://github.com/retroeater/mj-logs/blob/main/logs/CHAT-1104-ACF-40.md?v=<SHA>（CLAUDE.md「作業ログ」節）を書き、最後の行に Chat-Ref: CHAT-1104-ACF-40 を書く
+
+不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
+
+## 経過
+
+## 報告
+
+- 状態:
+- ブランチ:
+- ログ:
+- 比較URL:
+- 確認用URL:
+- マージ:
+- issue:
+- 判断が必要なこと:
+- 未確認の項目:
+- エラー:
+
+<!-- guide-links -->
+---
+
+ガイド文書（この版を写した時点の最新、mj 8c7dd9a3）: https://github.com/retroeater/mj-logs/tree/main/guide/8c7dd9a3
+
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/8c7dd9a3/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/8c7dd9a3/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/8c7dd9a3/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8c7dd9a3/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8c7dd9a3/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8c7dd9a3/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/95028c1a.md
