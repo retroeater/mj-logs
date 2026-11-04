@@ -69,29 +69,33 @@ LGN-28 で作った閉業の判定（#664）は、今月の本番の1回が2回�
 
   - レビューは旧コード（082dd24a4）に新しいテストを当てて ClosedTest の3件が落ちることを確かめた。回数は 404/400・429・繰り返しの成功/失敗・check_closed 経由のどれも正しい
 - dry-run（convert-x-posts.yml、作業ブランチ、mode closed・dry_run 真、run 41790170439、54fba0294）: success。`apply: false`、「予定: … 1721店に … 1721回（上限 2500回、1分 500回まで・約 3.4分）。書く先は「閉業」だけ（今 0店）」の後に Place Details の行が無い（Places を呼んでいない）。本番（dry_run 偽）は動かしていない
+- 最終のコードでの dry-run（run 41790522109、2594cf83a）: success・`apply: false`、予定の行だけ（Places を呼んでいない）
+- マージの条件: (1) `git diff --name-only origin/cloudflare...HEAD` は6ファイル（`scripts/convert_x_posts.py`〈出力の行と回数〉・`scripts/tests/test_convert_x_posts.py`・docs/notes/log-page.md・docs/decisions/operations.md・docs/logs/CHAT-1104-LGN-28.md・docs/logs/CHAT-1104-LGN-31.md）。満たす (2) unittest OK・node --test pass 40。満たす (3) dry-run success・Places を呼んでいない。満たす。cloudflare は作業ブランチの祖先（取り込み不要・衝突なし）
+- マージ: 直前の再 fetch で祖先を確かめて `git push origin work/1104-lgn-closed:cloudflare`（ce30453a6..2594cf83a）。check-run（2594cf83a）は Workers Builds: mj・check・convert（dry-run）とも success
+- #664: 今月は見送ったこと・原因（GetPlace の1日の割り当て 3,000 に達した）・直しの SHA をコメントし、ラベル「状況: 待ち」を付けた（閉じていない）
 
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1104-lgn-closed
-- ログ: https://github.com/retroeater/mj/blob/work/1104-lgn-closed/docs/logs/CHAT-1104-LGN-31.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1104-LGN-31.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1104-lgn-closed
-- 確認用URL: なし
-- マージ: 未
-- issue: #664
+- 確認用URL: なし（ページの見た目は変えていない）
+- マージ: 済（2594cf83a）。条件 (1) 差分は閉業の判定の出力の行・検査・docs・ログの6ファイル (2) unittest OK・node --test pass 40 (3) dry-run（mode closed）success・Places を呼んでいない
+- issue: #664（コメントし「状況: 待ち」。閉じていない）
 - 判断が必要なこと: なし
-- 未確認の項目: なし
+- 未確認の項目: 予約の実行の初回 2026-12-01 02:00 JST の run-monthly（ジョブ closed）。今月の判定は行っていない（決定のとおり）。log-page.md の google-cloud.md への参照はファイル名だけ（CHAT-1104-LGN-29 が判断待ちで、まだ無い）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 4c48f228）: https://github.com/retroeater/mj-logs/tree/main/guide/4c48f228
+ガイド文書（この版を写した時点の最新、mj 339f291e）: https://github.com/retroeater/mj-logs/tree/main/guide/339f291e
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/4c48f228/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/4c48f228/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/4c48f228/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/4c48f228/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/4c48f228/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/4c48f228/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/339f291e/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/339f291e/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/339f291e/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/339f291e/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/339f291e/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/339f291e/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/95028c1a.md

@@ -6,7 +6,7 @@ houou/ のトップで鳳凰戦のデータに言葉で質問できる欄。決�
 
 **質問欄の置き場所（2026-11-04）**: ページの中の質問欄（houou/・ouka/・jwrc/・wrcr/・saikyo/ のトップと新トップ）はやめ、入口を共通ナビの AI 検索のアイコン1つにした
 （帯のすぐ下に横断の欄を開く。`assets/nav.js`・`assets/top_ask.js`、`contest: "all"` と `context`。docs/notes/design.md「共通ナビ（新しい形）」）。
-pro/ のトップの欄も pro/ の作業で外した。ページの中の欄の部品は 2026-11-04 に片付けた（`ASK_TEMPLATE`・`ASK_HEAD`・`ASK_NOTICES`・`ASK_MAX` を消し、`assets/houou_ask.css` の規則は `style.css` の「質問欄の部品」へ移した）。`assets/houou_ask.js` だけ、未マージの pro/ の作業（work/1101-prp-pub）が変えているので残している（読むページは無い）。
+pro/ のトップの欄も pro/ の作業で外した。ページの中の欄の部品は 2026-11-04 に片付けた（`ASK_TEMPLATE`・`ASK_HEAD`・`ASK_NOTICES`・`ASK_MAX` を消し、`assets/houou_ask.css` の規則は `style.css` の「質問欄の部品」へ移した）。`assets/houou_ask.js` と `scripts/tests/test_houou_ask.py` の突き合わせ（`pickPlayers`・`splitPlayers`）の検査も 2026-11-04 に消した（3人と「ほか N名」の分け方の検査は `test_top_page.py` の `TopAskJsTest`）。
 下の各大会の「X/ の質問欄は `contest: "X"` を添える」は廃止した大会別の欄の記述で、Worker は `contest` を指定した問いを今も受け付ける（外すかは #654）。
 
 ## 構成
@@ -25,9 +25,8 @@ pro/ のトップの欄も pro/ の作業で外した。ページの中の欄の
 | `workers/ask/src/weekly.mjs` | 週次の cron（ブックへの書き出し・90日の削除、下の「週次の cron」） |
 | `workers/ask/test/ask.test.mjs`・`weekly.test.mjs` | 受付と週次のテスト。D1 は `test/fake-d1.mjs`（`node:sqlite` で `schema.sql` をそのまま使う作り物）、Anthropic・Google は偽の fetch |
 | `assets/nav.js`・`assets/top_ask.js` | 共通ナビの質問欄（HTML は nav.js が作る）と、その送信と表示。見た目は `style.css` の「質問欄の部品」と「新しいナビ」の節 |
-| `assets/houou_ask.js` | 廃止した大会別の欄の送信と表示（読むページは無い。残す理由は上） |
-| `houou/ask-players.json` | 選手の名簿（もとは答えに出た選手のカードの名簿。いまは pro/ の生成の入力。各大会の名簿は pro/ の生成もいまのリーグ・出場を読む。生成物。`generate_houou_pages.py` の `ask_roster()`、約66KB。答えが出たときに初めて読む） |
-| `scripts/tests/test_houou_ask.py` | 突き合わせ（`pickPlayers`・`splitPlayers` を node で動かす）・名簿の値・書き出した名簿と名前の面の一致 |
+| `houou/ask-players.json` | 選手の名簿（もとは答えに出た選手のカードの名簿。いまは pro/ の生成の入力。各大会の名簿は pro/ の生成もいまのリーグ・出場を読む。生成物。`generate_houou_pages.py` の `ask_roster()`、約66KB） |
+| `scripts/tests/test_houou_ask.py` | 名簿の値・書き出した名簿と名前の面の一致 |
 
 ## 女流桜花（ouka/、#519。未公開）
 
@@ -214,7 +213,7 @@ Claude の呼び出しの設定（公式の文書と claude-api skill で確か�
 
 GET `/api/ask/status`: `{"status": "open", "remaining": n, "max": 200}` か `{"status": "limit", "scope": …, "resetAt": …}`。質問欄は開いた時点で上限なら受付を止める。
 
-質問欄の状態ごとの表示（いまは `assets/top_ask.js`。大会別の欄の `assets/houou_ask.js` と同じ）: 答え（読み方 → 本文 → 注記 → 「データ: …」 → 「出典: …」のリンク）、「答えられません。」、上限（全体「本日の受付は上限に達しました。翌0時（日本時間）から受け付けます。」・IP「本日ご質問いただける回数の上限に達しました。…」）、
+質問欄の状態ごとの表示（いまは `assets/top_ask.js`。廃止した大会別の欄と同じ）: 答え（読み方 → 本文 → 注記 → 「データ: …」 → 「出典: …」のリンク）、「答えられません。」、上限（全体「本日の受付は上限に達しました。翌0時（日本時間）から受け付けます。」・IP「本日ご質問いただける回数の上限に達しました。…」）、
 それ以外（Worker が無い・失敗）は「いまは答えられません。」。答えは `textContent` で入れ、出典はルート相対の URL だけをリンクにする。
 
 答えに出た選手のカード（廃止した大会別の欄の動き。共通ナビの欄は応答の `players[]` から作る。2026-10-15、決定は `docs/decisions/houou.md`「2026-10-15（CHAT-1015-HOU-49）」）: 答えが出たら名簿 `houou/ask-players.json`
