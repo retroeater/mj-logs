@@ -84,28 +84,42 @@
 - テストのプロセスで他のテストの偽の呼び出しの行が出る（`test_sheets_count.py` で atexit の要約だけ止めた）→ 失敗はしないので残す
 - 鍵が無いときも1回と数える → CI では鍵があるので残す
 
+### 手順2: 計測の run
+
+- 起動前の確認: 02:16Z に regenerate-page の run が2本（work/1104-top2 の 41759643923、work/1104-lvp の 41759410398）、02:27Z に cloudflare の push の 41760841087 が実行中だった。02:22Z から待ち、15分の上限（02:36Z）で cloudflare の run と work/1104-top2 は終わっていたが、work/1104-lvp の 41759410398 は実行中のままだった。本番（cloudflare）の run が走っていないので、並走を記録して起動した
+- 起動: run 41761816704（work/1104-acf-count、head 56e60d6a7、workflow_dispatch、target_page all・dry_run 真・check 偽・compare_ref 空）、02:36:09Z 開始。開始時に並走していた regenerate-page の run は 41759410398（work/1104-lvp）
+- 02:52Z 時点で「対象ページを再生成」の手順（02:36:37Z 開始）が実行中。起動から15分を超えたので、CLAUDE.md「判断・作業の原則」の待機の上限に従い、表・#662 へのコメントは未確認の項目に回した
+- 手順3のうち docs/notes/sheets-reader.md「段取りと今の状態」の5. の出力の記述は計測に依らないので直した（1f7c4deed）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1104-acf-count
 - ログ: https://github.com/retroeater/mj/blob/work/1104-acf-count/docs/logs/CHAT-1104-ACF-37.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1104-acf-count
-- 確認用URL: なし
-- マージ: 未
-- issue: #662
+- 確認用URL: なし（dry_run の計測。プレビューで見るページは無い）
+- マージ: 未（指示の「マージ:」の行のとおり判断待ち）
+- issue: #662（着手中のコメント https://github.com/retroeater/mj/issues/662#issuecomment-6620701164 ）
 - 判断が必要なこと:
+  - 計測の run 41761816704 が待機の上限（15分）内に終わらなかった。ページごとの表・(ブック, タブ, render) の組の数・#662 への計測のコメントは未作成。続きを同じセッションへの指示で行うか、次の指示に回すか
+  - 呼び出しのたびの1行（`Sheets API の読み取り: …`）は指示の案より広げた（ページをまたぐ重なりを数えるため）。対策が決まったら消すか残すか
+  - `check-image-links.yml` の `collect_saikyo_images.py`・`check_sns_book_images.py` は `2>&1 | tee` を実行サマリに貼るので、そこにも呼び出しの行と要約が混ざる（ID は出ない）。そのままでよいか
+  - 既存の `lib/net_retry.call()` は、タイムアウト・接続の失敗の再試行で URL（ブック ID を含む）を stderr に出している（今回の変更の外、ログは公開）。別の issue にするか
+  - title の `fetch_tab()` は今は `sheets.fetch_table()` を通り、再試行もフィルタの検知も通る（前提の「#552 で再試行を通らない」は古い）。#552 を閉じてよいかの確認
 - 未確認の項目:
-- エラー:
+  - 計測の run 41761816704 の結果（02:52Z 時点で実行中）。ページごとの呼び出し数・待ち・所要秒数の表、組の数、#662 へのコメント
+  - 出力がページごとの `== <ページ> ==` の区切りの中に出ること（コード上は `run_page()` が子の出力をそのまま流すので出るはず。ジョブログでは未確認）
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj c853e6ae）: https://github.com/retroeater/mj-logs/tree/main/guide/c853e6ae
+ガイド文書（この版を写した時点の最新、mj 7586f592）: https://github.com/retroeater/mj-logs/tree/main/guide/7586f592
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c853e6ae/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c853e6ae/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c853e6ae/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c853e6ae/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c853e6ae/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c853e6ae/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/7586f592/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/7586f592/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/7586f592/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/7586f592/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/7586f592/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/7586f592/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/95028c1a.md

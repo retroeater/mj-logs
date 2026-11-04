@@ -57,6 +57,26 @@
 
 ## 経過
 
+- 0章: 指示欄の末尾は指示文の最後の行と一致。`CHAT-1104-LGN-27` のコミットなし（`CHAT-1104-LGN-26` のコミット・ログも無い。この指示文に LGN-26 の説明は無い）。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）の欠けなし
+- 作業ブランチ: ローカル・リモートとも無かったので `git checkout -b work/1104-lgn-policy origin/cloudflare`（dd0746383）。#663 に着手中のコメント（他セッションの着手中コメントは無かった）
+- TOP 系列の work/1104-top は cloudflare にマージ済み（`git merge-base --is-ancestor origin/work/1104-top origin/cloudflare` が真）。新しいナビ（帯＋メニューのシート）は、`navbar.js` の白地の対象（`newNavCurrent`）のページで、`document.write` の項目を `window.mjNavItems` に読んでシートに出す仕組み
+- 調べた事実（手順1。書く内容はこの表の事実だけ）:
+
+| 項目 | 実物の場所 | 事実 |
+|---|---|---|
+| アクセス解析 | `scripts/lib/page.py` の `HEAD_TEMPLATE`（169行目）・手書きのページ（index.html・404.html・jpml_pros.html ほか）・`_headers` の CSP（`script-src … https://static.cloudflareinsights.com`、`connect-src … https://cloudflareinsights.com`） | 全ページで Cloudflare Web Analytics のビーコン（`https://static.cloudflareinsights.com/beacon.min.js`、手動のスニペット）を読み込む。送り先は `https://cloudflareinsights.com/cdn-cgi/rum`（docs/notes/cloudflare.md）。Cookie を使うかはリポジトリからは確かめられない（ページの JS に `document.cookie` は無い） |
+| サイトの Cookie・ほかの保存 | `git grep "document.cookie\|sessionStorage\|indexedDB"`（assets/vendor を除く） | どれも無い |
+| ブラウザに保存するもの（localStorage） | `assets/league.js` 59〜60・442行目、`assets/saikyo.js` 697行目、`assets/pro.js` 9〜10行目、`assets/ryoei/world.js` 6行目、生成スクリプトの `recentKey` | `mj:recent-players`（鳳凰戦の最近見た選手）・`mj:recent-players:ouka`・`:jwrc`・`:wrcr`・`:saikyo`（女流桜花・WRC・WRC-R・最強戦の最近見た選手）、`mj:favorites`（連盟プロのお気に入り。`[{slug, name}]`）、`mj:ryoei-sound`（r/ の音のオン・オフ）。どれもブラウザの中だけで読み書きし、送る処理は無い |
+| 現在地 | `assets/log.js`（`navigator.geolocation.getCurrentPosition` はボタンを押したときだけ）、`_headers` の `/log/*` の `Permissions-Policy: geolocation=(self)`、docs/notes/log-page.md | log/ の「現在地から探す」を押したときだけ位置を聞く。位置はブラウザの中で店の駅との距離の並べ替えにだけ使い、送らず保存しない（URL・localStorage にも入れない）。ほかのページは `geolocation=()` で使えない |
+| AI の質問欄（データ・コンシェルジュ、Worker `mj-ask`） | `workers/ask/src/ask.mjs`（`MODEL = 'claude-haiku-5-5'`、`https://api.anthropic.com/v1/messages`、`questions` への INSERT 722行目、`ip_counts` 300〜311行目）、`workers/ask/schema.sql`、`workers/ask/src/weekly.mjs`（`RETENTION_DAYS = 90`）、docs/notes/ask-worker.md | 質問の文は `ryoei.pro/api/*` の Worker が受け、Anthropic の Claude API に送って答えを作る。記録は日時・質問文・結果・型・答えの本文・引数で、IP は書かない。週1回、運営者だけが見られるスプレッドシート（共有はオーナーとサービスアカウントだけ）に書き出し、90日を過ぎた行は D1 とスプレッドシートの両方から消す。1日の回数の上限のため、IP を「Secret の塩・日付・IP」の SHA-256 にして数え、前日以前の行は消す |
+| Google マップ・Places API | `scripts/convert_x_posts.py`（Text Search の place_id だけ）、`scripts/lib/url.py` の `maps_url()`、`assets/log.js` の店名のリンク | 投稿の取り込み（GitHub Actions、サーバー側）で Places API から店の place_id を取り、log/ の店名から Google マップへリンクする（地図の埋め込みは無い）。閲覧者の情報を Places API へ送る処理は無い |
+| 外部の画像・動画 | `_headers` の `img-src 'self' data: https:`・`frame-src https://www.youtube-nocookie.com`、生成スクリプトの画像の URL | X（`pbs.twimg.com`）・YouTube（`img.youtube.com`・`i.ytimg.com`）・ABEMA（`image.p-c2-x.abema-tv.com`）の画像を表示する。r/ は YouTube の動画を `youtube-nocookie.com` で埋め込む。表示するときブラウザがそれぞれのサービスに接続する |
+| 出典 | 各ページの出典の表記、docs/notes/log-stations.md | 選手・成績は日本プロ麻雀連盟などの公開情報、ログは X の投稿、log/ の駅は国土数値情報（CC BY 4.0、「…を加工して作成」） |
+| 運営者・連絡先 | `index.html` 62行目（`https://twitter.com/retroeater`）、`r/index.html`（`https://x.com/retroeater`） | 運営者は平野良栄（個人）。サイトに載っている連絡先は X の @retroeater だけ（メール・問い合わせの欄は無い） |
+| Google の規約の要件 | Google Maps Platform Terms of Service（https://cloud.google.com/maps-platform/terms/、Last modified August 26, 2026、curl で取得）の 3.2.2(a)(i) | 「The Customer Application’s terms of service will (A) notify users that the Customer Application includes Google Maps features and content; and (B) state that use of Google Maps features and content is subject to the then-current versions of the: (1) Google Maps End User Additional Terms of Service at https://maps.google.com/help/terms_maps/ ; and (2) Google Privacy Policy at https://policies.google.com/privacy .」 |
+
+  - 指示の前提の「リンクの今の URL は Places API の Policies のページで確かめる」: Places API の Policies のページ（https://developers.google.com/maps/documentation/places/web-service/policies）には、今は利用規約・プライバシーポリシーの要件とリンクが見当たらなかった（LGN-04 の 2026-10-29 の読みには「Applications using the Places API must provide publicly accessible Terms of Use and a Privacy Policy …」があった）。要件と URL は規約の本体 3.2.2(a)(i) で確かめた（上の表）。URL は前提の案と同じ
+
 ## 報告
 
 - 状態: 作業中
