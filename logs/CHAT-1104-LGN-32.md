@@ -54,28 +54,48 @@ LGN-29 は、#601（認証情報の台帳。置き場所は未決）と主題が
 
 ## 経過
 
+- 0章: 指示欄の末尾は指示文の最後の行と一致。`CHAT-1104-LGN-32` のコミットなし。雛形の行の欠けなし。知見 → 選んだ層 → 理由の表あり。CHAT-1104-LGN-29 のログの状態を「判断待ち / 続き: CHAT-1104-LGN-32」にした
+- 作業ブランチ: ローカルの work/1104-lgn-gcp は origin/work/1104-lgn-gcp と同じ（847866317）。`git checkout work/1104-lgn-gcp` → `git merge --ff-only origin/work/1104-lgn-gcp`（変化なし）→ cloudflare が祖先でなかったので `git merge origin/cloudflare`（衝突なし、12f23348e）
+- 手順1の前提との違い: LGN-29 は手順1の洗い出しの表を作る前に止まったので、「LGN-29 の洗い出しの表」は無い。この指示で洗い出した（下の表）
+- 洗い出し（`git grep` で、コード・ワークフローが呼ぶ Google の API と、docs の Google Cloud の設定の記述）:
+
+| 種類 | 場所（ファイル・節） | 扱い |
+|---|---|---|
+| コードが呼ぶ API | scripts/lib/sheets.py・sheets_write.py・workers/ask/src/weekly.mjs（Sheets）、fetch_x_posts.py・lib/ryoei_book.py（Drive）、lib/gcal.py・sync_birthday_calendar.py（Calendar）、fetch_gsc.py（Search Console）、fetch_youtube_channels.py・fetch_youtube_meta.py・fetch_live_channel_raw.py（YouTube Data）、convert_x_posts.py（Places API (New)） | 公開してよい → google-cloud.md「コードが呼ぶ API」 |
+| Places の割り当て | docs/decisions/operations.md の 2026-10-19（CHAT-1019-LOG-02、Text Search・Nearby Search の1日）・2026-11-04（CHAT-1104-LGN-28、GetPlace） | 公開してよい → google-cloud.md「割り当て」（decisions は記録なので動かさない） |
+| GetPlace の1日の割り当てと月の無料の枠の値 | docs/notes/log-page.md「データの持ち方」の外す店の項（LGN-31 で書いた運用の注意） | 値を google-cloud.md への参照に置き換えた |
+| 請求の形（従量課金・月額のプランを使わない） | docs/decisions/operations.md の 2026-10-17（CHAT-1017-MCK-15） | 公開してよい → google-cloud.md「請求」 |
+| 無料の枠と単価 | どの文書にも無かった（LGN-28 の指示文の前提の「月 5,000回」だけ） | Google の料金表（最終更新 2026-11-02 UTC）と Data fields のページで 2026-11-04 に確かめて google-cloud.md「無料の枠と単価」に書いた（Text Search Essentials (IDs Only) は無制限、Place Details Pro は月 5,000回・$17.00/1,000回、`businessStatus` は Place Details Pro） |
+| サービスアカウント・鍵・API キーの記述（名前・Secret 名・共有先・制限） | docs/handover.md、docs/notes の abema-book.md・ask-worker.md・birthday-calendar.md・books-calendar.md・cloud-sessions.md・cloudflare.md・dojo-guest-calendar.md・github-actions.md・handover-archive-2026.md・live-channel-write.md・live-page-design.md・pro-pages.md・ryoei-world.md・security.md・sheets-reader.md・sns-book.md・static-generation.md・video-wayhome.md・yotei-sheet.md、docs/decisions/operations.md の 2026-10-17（`GOOGLE_PLACES_API_KEY` の制限） | #601 に回す。この指示では動かしていない |
+| YouTube・Sheets の使用量（ユニット・429） | live-channel-write.md・live-page-design.md・yotei-sheet.md（ユニットの使用量）、sheets-reader.md「残り」・static-generation.md（Sheets の1分の 429） | 設定値でなく使用量・挙動の記述なので動かしていない。google-cloud.md には「記録していない」と #662 の参照だけ |
+
+- 書いたもの（de63dfd8f）: docs/notes/google-cloud.md（新規）、docs/handover.md「6. 関連文書」の表に1行（cloudflare.md の次）、docs/notes/log-page.md（割り当て・無料の枠の値を google-cloud.md への参照に）、docs/decisions/operations.md（LGN-29・32 の決定）
+- 容量: handover.md 24,518 バイト（警告域 26,624 の外）、CLAUDE.md・chat-side-operations.md は変えていない
+- 書かないものの確かめ（docs/notes/google-cloud.md に対して `git grep -nE`）: メールアドレスの形 0件、`AIza…`・40字以上の英数字・`iam.gserviceaccount`・`projects/<数>`・project id 0件、`*_KEY`・`*_TOKEN`・`*_SECRET`・`*_SALT`・`SA_KEY` 0件、サービスアカウントの役割の名前（sheets-reader・birthday-calendar・gsc-export・live-channel-writer・mj-ask、大文字小文字を問わず）0件。書く途中で、表の「Worker `mj-ask`」（Worker の名前がサービスアカウントの名前と同じ）と `scripts/check_sheets_reader.py`（ファイル名がサービスアカウントの名前を示す）に気づき、書き換え・削除した
+- #601 にコメント（google-cloud.md を公開してよい設定だけで作ったこと、サービスアカウント・鍵の行は台帳に回したこと、書いている所のファイル名）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1104-lgn-gcp
-- ログ: https://github.com/retroeater/mj/blob/work/1104-lgn-gcp/docs/logs/CHAT-1104-LGN-32.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1104-LGN-32.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1104-lgn-gcp
-- 確認用URL: なし
-- マージ: 未
+- 確認用URL: なし（docs のみ）
+- マージ: 済（docs のみ。docs/notes・docs/handover.md・docs/decisions・docs/logs〈LGN-29・32〉）
 - issue: #601（コメントのみ）
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 判断が必要なこと: Places の Text Search（SearchTextRequest）・Nearby Search（SearchNearbyRequest）の1日・1分の割り当ての今の値を、平野さんが https://console.cloud.google.com/apis/api/places.googleapis.com/quotas で確かめる（google-cloud.md の表は「要確認」。2026-10-19 の決定では変換が済んだら 1,000 に戻す。分かったら表を直す）
+- 未確認の項目: 「有効な API」の画面の一覧（コードが呼べていることから有効と書いた。画面はセッションから見られない）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 339f291e）: https://github.com/retroeater/mj-logs/tree/main/guide/339f291e
+ガイド文書（この版を写した時点の最新、mj ada6990d）: https://github.com/retroeater/mj-logs/tree/main/guide/ada6990d
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/339f291e/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/339f291e/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/339f291e/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/339f291e/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/339f291e/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/339f291e/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ada6990d/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ada6990d/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ada6990d/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ada6990d/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ada6990d/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/ada6990d/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/95028c1a.md

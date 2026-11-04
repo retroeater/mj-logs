@@ -126,28 +126,44 @@ origin/cloudflare と比べた生成物の差分:
 - `docs/notes/pro-pages.md`「公開のマージ（#641）」を今の残りに直した（e414a1b93。PRP-17 を足し、`sitemap-live.xml` の3か所が一緒に入ること、PRP-19 で入れる3つのリンクがまだ無いことを書いた）
 - 決定: 指示の「決定」4つは docs/decisions/pros.md にすでにある（2026-11-04 の PRP-10〈TTL を先に〉・PRP-14〈cloudflare の形を正・K8 を戻さない・sitemap の両方を残す〉・PRP-16〈告知動画は保留〉）ので足していない
 
+### 4. 差分のレビュー（新しい文脈のサブエージェント、1回。作業ツリーを変えないように頼んだ）
+
+f9d654bca・9df8ea0cf・842acb907（と e414a1b93）。bug の指摘なし（衝突の解き方で失われたもの・取り違えは無い、sitemap の一覧は live と pro の両方、`houou_ask.js` は無く pro/ に質問欄の参照なし、生成物は決定どおり、という結果）。
+
+| 指摘 | 扱い |
+|---|---|
+| 1. `docs/notes/title-pages.md` 42行目が TTL の文のまま「押すと X…X ID の無い選手は押せない行」で、43行目（pro/ の行き先）と食い違う | 直した（dbdec0117。「押すと連盟プロの個別ページか X（下の項目。X は新しいタブ、右に ›）。どちらも無い選手は押せない行」） |
+| 2. `docs/notes/pro-pages.md` の「`assets/houou_ask.js` は cloudflare のまま」は、cloudflare で消した後なので古い | 直した（dbdec0117） |
+| 3. サイトマップの列挙のコメント・docstring・文書に `sitemap-pro.xml`・`sitemap-live.xml` が欠ける所（`regenerate-page.yml` のコメント2か所・`update_sitemap_lastmod.py` の docstring・`static-generation.md`「サイトマップ」） | 直した（dbdec0117。動きには影響しない。`regenerate-page.yml` はコメントだけの変更で、このブランチで生成を回した後） |
+| 3'. `scripts/regenerate.py` の `pro_pages` の出力に `sitemap-pro.xml` が無い（`live_pages` は `sitemap-live.xml` を含む） | 見送り（`regenerate-page.yml` が `sitemap*.xml` をまとめてコミットするので動きは同じ。直すなら別の指示で） |
+| 4. `llms.txt` の houou/・ouka/・jwrc/・wrcr/・saikyo/ の行の「言葉で質問できる欄」と、3行目の「1,100名超」が今の形と合わない | 見送り（この指示の範囲外で cloudflare 側にもある古さ。判断が必要なことに挙げる） |
+
+dbdec0117 の後: Ran 2000 tests OK。
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1101-prp-pub
 - ログ: https://github.com/retroeater/mj/blob/work/1101-prp-pub/docs/logs/CHAT-1104-PRP-18.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1101-prp-pub
-- 確認用URL: 作業中
-- マージ: 未（判断待ち）
+- 確認用URL: プレビューあり（842acb907 の Workers Builds。URL はターミナルの最終報告だけ。目印: `pro/` に robots の meta が無く canonical がある、`title/houou/12.html` の荒正義が `/pro/masayoshi.ara.1/`）
+- マージ: 未（判断待ち。このブランチのマージが pro/ の公開。告知動画の後に別の指示で）
 - issue: #641
-- 判断が必要なこと: 作業中
-- 未確認の項目: 作業中
+- 判断が必要なこと:
+  - 公開の前に残るのは CHAT-1104-PRP-19（live/ の選手のカード・#644・#195 のリンクをこのブランチに入れる）と、平野さんの最終確認・公開前の Search Console の数字。cloudflare はこの後も進むので、PRP-19 の着手時にまた取り込む
+  - `llms.txt` の houou/・ouka/・jwrc/・wrcr/・saikyo/ の行の「言葉で質問できる欄」（ページの中の質問欄は 2026-11-04 にやめた）と、3行目の「1,100名超」（16行目は「約1,100名」、実数 1,098名）が古い。cloudflare 側にもある。直すのは別の指示か
+- 未確認の項目: 「鳳凰」シートの第38期後期の3名（平野さんが 2026-11-02 に直した）が個別ページへ向くかは、公開のマージの生成で確かめる（決定どおり）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 339f291e）: https://github.com/retroeater/mj-logs/tree/main/guide/339f291e
+ガイド文書（この版を写した時点の最新、mj ada6990d）: https://github.com/retroeater/mj-logs/tree/main/guide/ada6990d
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/339f291e/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/339f291e/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/339f291e/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/339f291e/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/339f291e/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/339f291e/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ada6990d/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ada6990d/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ada6990d/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ada6990d/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ada6990d/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/ada6990d/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/95028c1a.md
