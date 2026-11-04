@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-11-04 12:46 JST
+- 書き出した時刻: 2026-11-04 12:49 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -38,8 +38,8 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-11-04 12:46 | check_run | cloudflare | queued | #1184（41769190967） |  |
-| 2026-11-04 12:46 | check_run | cloudflare | in_progress | #1183（41769186595） |  |
+| 2026-11-04 12:46 | check_run | cloudflare | skipped | #1184（41769190967） | 0分01秒 |
+| 2026-11-04 12:46 | check_run | cloudflare | skipped | #1183（41769186595） | 0分11秒 |
 | 2026-11-04 12:43 | check_run | cloudflare | skipped | #1182（41768892157） | 0分01秒 |
 | 2026-11-04 12:43 | check_run | cloudflare | skipped | #1181（41768872631） | 0分01秒 |
 | 2026-11-04 12:43 | check_run | cloudflare | skipped | #1180（41768866022） | 0分10秒 |
@@ -129,12 +129,13 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-11-04 12:43 | workflow_dispatch | cloudflare | in_progress | #62（41768833961） |  |
+| 2026-11-04 12:43 | workflow_dispatch | cloudflare | failure | #62（41768833961） | 5分46秒 |
 | 2026-11-04 12:33 | workflow_dispatch | cloudflare | failure | #61（41767827901） | 7分30秒 |
 | 2026-11-04 12:29 | workflow_dispatch | work/1104-lgn-closed | success | #60（41767465405） | 0分37秒 |
 | 2026-11-04 12:23 | workflow_dispatch | work/1104-lgn-closed | success | #59（41766856132） | 0分33秒 |
 | 2026-11-02 08:43 | workflow_dispatch | work/1102-lgn-daily | success | #58（41363460220） | 0分28秒 |
 
+- #62 failure: ジョブ「convert」 ステップ「実行」
 - #61 failure: ジョブ「convert」 ステップ「実行」
 
 ## fetch-gsc.yml
@@ -200,11 +201,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-04 12:46 | workflow_dispatch | work/1104-top3 | in_progress | #699（41769174005） |  |
 | 2026-11-04 12:33 | push | cloudflare | success | #698（41767823578） | 5分06秒 |
 | 2026-11-04 12:31 | workflow_dispatch | work/1104-lvp | in_progress | #697（41767654496） |  |
 | 2026-11-04 12:27 | workflow_dispatch | work/1104-lvp | success | #696（41767291734） | 1分27秒 |
 | 2026-11-04 12:19 | push | cloudflare | success | #695（41766360280） | 5分11秒 |
-| 2026-11-04 12:01 | workflow_dispatch | work/1104-lgn-policy | success | #694（41764490394） | 0分45秒 |
 
 ## regenerate-saikyo.yml
 

@@ -51,6 +51,57 @@ CHAT-1104-TOP-15・16 で、ページの中の質問欄の部品を片付けた�
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 0. 着手前の確認
+
+- 「指示」欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は4行とも有り。同じ Chat-Ref のコミットは0件。work/1104-top3 はリモートに無かったので origin/cloudflare（68a6c4841）から作った
+- #101 の着手中コメントは TOP 系列（このセッション）のものだけで、TOP-16 で解除済み
+- `git branch -r --no-merged origin/cloudflare` の全ブランチで `assets/houou_ask.js`・`scripts/tests/test_houou_ask.py` を変えているものは0件（前提のとおり。work/1101-prp-pub の変更ももう無い）
+
+### 1. 読み手（docs/logs・docs/decisions・scripts/promo_video を除く）
+
+| 読み手 | 読んでいるもの | 扱い |
+|---|---|---|
+| ページ（生成物・手書き） | なし | — |
+| `scripts/tests/test_houou_ask.py` | `PickPlayersTest`（`pickPlayers`・`splitPlayers` を node で動かす6件） | 消す。名簿の検査（`AskRosterTest`・`GeneratedRosterTest`）はファイルに残す |
+| `assets/top_ask.js` の注記 | 「houou_ask.js と同じ流れを写している…残した」「houou_ask.js と同じ」（3か所） | 直す |
+| `assets/league.js` 605行目の注記 | 名前だけ | 直す |
+| `workers/ask/src/ask.mjs` 918行目の注記（`playersIn()`） | 「assets/houou_ask.js の pickPlayers と同じ考え」 | 直す（注記だけ。`workers/ask/` に触れる未マージのブランチは0件） |
+| `scripts/tests/test_top_page.py`（87行目）・`test_pro_pages.py`（240行目） | 「houou_ask を読まない」の確かめ | 残す |
+| `style.css` 7063行目 | `houou_ask.css` から移した経緯（.css の名前） | 残す（.js ではない） |
+| docs | ask-worker・pro-pages・security・cloudflare | 直す（cloudflare.md は「当時は houou_ask.js」の経緯なので残す） |
+
+**未マージの work/ ブランチの重なり**: 変える行（`style.css` は変えない。`test_top_page.py` の `TopAskJsTest`、`top_ask.js`・`league.js`・`ask.mjs` の注記）と同じ行・関数を変えているものは無い（work/1104-lgn-policy の `test_top_page.py` は `NavTest` の行、`style.css` は末尾）
+
+### 2. 消す・直す（52ff3bcff・d54ac67d2）
+
+- `assets/houou_ask.js` を消した
+- `scripts/tests/test_houou_ask.py`: `PickPlayersTest`・`run_js()`・`p()`・`ASK_JS` を消し、説明を名簿のテストに直した
+- 消した検査の確かめの行き先:
+  - `pickPlayers`（答えの文から名前を拾う。長い名前を先に当てる・重ねて拾わない・文に出た順・名簿に無い名前は拾わない）: top_ask.js には同じ処理が無い（選手のカードは応答の `players[]` から作る）。同じ考えの処理は Worker の `playersIn()`（`workers/ask/src/ask.mjs`）にある
+  - `splitPlayers`（3人と「ほか N名」）: top_ask.js の `showCards()` の中にあったので、純粋な関数 `splitCards()` に切り出して（`PLAYERS_SHOWN` も上へ）書き出し、`test_top_page.py` の `TopAskJsTest.test_split_three_and_more` に移した（動きは同じ）
+  - 別サイトを弾くリンクの扱い（`'/\evil'`）: もとから `TopAskJsTest.test_only_same_site_links_become_cards`・`test_same_origin` にある
+- 消す前と後の検査の一覧（`python3 -m unittest -v test_houou_ask test_top_page.TopAskJsTest`）:
+
+| 消す前（12件） | 消した後（6件） |
+|---|---|
+| AskRosterTest.test_values | 同じ |
+| GeneratedRosterTest.test_matches_name_card・_ouka | 同じ |
+| PickPlayersTest.test_text_order・test_duplicate_once・test_longer_name_wins・test_retired_not_in_roster・test_no_hit | 消した（top_ask.js に同じ処理が無い） |
+| PickPlayersTest.test_split_three_and_four | 消した → TopAskJsTest.test_split_three_and_more（消す前に足して両方が通ることを確かめた） |
+| TopAskJsTest.test_only_same_site_links_become_cards・test_same_origin | 同じ |
+
+- 注記: `assets/top_ask.js` 冒頭（写して作った経緯と、houou_ask.js を消して流れはこのファイルだけになったこと）、`assets/league.js`、`workers/ask/src/ask.mjs`（`playersIn()` の注記）
+- docs: `ask-worker.md`（置き場所の段落・構成の表から houou_ask.js の行を外し、test_houou_ask.py の行を名簿だけに）・`pro-pages.md`（K8 の行に消したことを足す）・`security.md`（`--scope` の例を `assets/top_ask.js` に）、`docs/decisions/top.md`
+- #101 に着手中コメント、#654 に `ask.mjs` の注記を直したことを1行コメント
+- 途中で origin/cloudflare（7beb935b0）を取り込んだ。衝突なし
+
+### 3. 検査・比べ
+
+- `python3 -m unittest discover -s scripts/tests`: 1949件 OK（取り込んだ後）。`node --test 'workers/ask/test/*.test.mjs'`: 165件 OK
+- 新旧の比べ（dry_run・all・compare_ref＝origin/cloudflare 7beb935b0）を実行中
+
 <!-- guide-links -->
 ---
 
