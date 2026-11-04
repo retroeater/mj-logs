@@ -60,16 +60,18 @@
 - (1) テスト: 1998件 OK
 - (2) `git diff --name-only origin/cloudflare...HEAD`: assets/top.css・assets/top.js・docs/decisions/top.md・docs/logs/CHAT-1104-TOP-19.md・TOP-21.md・TOP-23.md・docs/notes/static-generation.md・docs/notes/top-page.md・scripts/generate_top_page.py・scripts/tests/test_top_page.py・top/birthdays.json・top/index.html。TOP-21 のログの一覧とログ・決定だけ
 - (3) 全ページの生成し直し（dry_run なし・all）を実行中
+- (3) 全ページの生成し直し（dry_run なし・all、run 41814314756、a1ac5d18e）: 成功、飛ばしたページなし。生成し直しても変わるファイルが無く、コミットは出なかった（除いたファイルは無い）。`git diff --name-only origin/cloudflare...HEAD` の生成物は `top/index.html`・`top/birthdays.json` だけ
+- 3つとも満たしたのでマージする
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 12515118）: https://github.com/retroeater/mj-logs/tree/main/guide/12515118
+ガイド文書（この版を写した時点の最新、mj 9dd7b6e0）: https://github.com/retroeater/mj-logs/tree/main/guide/9dd7b6e0
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/12515118/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/12515118/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/12515118/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/12515118/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/12515118/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/12515118/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9dd7b6e0/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9dd7b6e0/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9dd7b6e0/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9dd7b6e0/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9dd7b6e0/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9dd7b6e0/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a4a9ed1b.md
