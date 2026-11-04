@@ -76,16 +76,57 @@ CHAT-1104-LGF-01 の調べの結果を受けて、log/ の残りの小さな後�
 
 - `check_sheets_reader.py` は ID をファイルの定数から読む（`spreadsheet_id()`）。旧 ID はリポジトリのどこにも定数として無いので、`BOOKS` の1件に加えて、その1件が指す定数 `OLD_LOG_SPREADSHEET_ID` を同じファイルに足した（2行の追加。値は f9da0388c の親の `generate_resource_logs.py` の `SPREADSHEET_ID` から取った）。ecea1bfc5
 - `check-sheets-reader.yml` を `work/1104-lgf-tidy` で手動実行: run 41808024787
+- 実行は success（run_attempt 1。やり直しなし）。実行サマリーの旧ブックの行（18番目「旧ログ（廃止）」）:
+
+| 読み方 | 成否 | HTTP の状態 |
+|---|---|---|
+| ログインなし gviz | 読めない | HTTP 401 |
+| ログインなし htmlview | 読めない | HTTP 401 |
+| sheets-reader（spreadsheets.get） | 失敗 | HTTP 403 PERMISSION_DENIED |
+
+  判定の列は「sheets-reader で読めない」（ほかの17件は「期待どおり」で、今回の確かめの対象外）
+- ログインなしの 401 は、非公開のほかのブック（1〜13・15〜17）と同じ応答で、ログインなしで読めないときにこのスクリプトが返す形。指示文のマージの条件 (3) の括弧（404・403）は sheets-reader の側の状態（static-generation.md の記述）と読み、ログインなしの 401 も「読めなかった」に当たるとした
+- sheets-reader は 404 でなく 403。403 は「無い」と「共有されていない」を区別しないので、ファイルが完全に消えたかはここからは分からない。ただ static-generation.md の規則（ゴミ箱にある間は共有を受けた sheets-reader から読める）に照らすと、読めないので追加の削除の依頼は要らない
+- 足した2行を消すコミット 54636df69（ecea1bfc5 の revert）。`git diff origin/cloudflare -- scripts/check_sheets_reader.py` は空（0 バイト）
+
+### マージの条件
+
+- (1) `git diff origin/cloudflare...HEAD --stat` は docs/logs/CHAT-1104-LGF-01.md・docs/logs/CHAT-1104-LGF-02.md・docs/notes/design.md だけ（このあと docs/decisions/operations.md が加わる）。`scripts/check_sheets_reader.py` は出ない
+- (2) design.md の差分は `@@ -105 +105 @@` の1行（「共通ナビ（新しい形）」の行）だけ
+- (3) 旧ブックはログインなし（401）・sheets-reader（403）のどちらでも読めなかった
+- `git merge-base --is-ancestor origin/cloudflare HEAD` は真（取り込みは要らず、衝突なし）
+- 差分は文書だけ（スクリプトは足して戻したので最終の差分に無い）なので、サブエージェントのレビューはしていない
+
+### マージ
+
+- push 直前に再 fetch し `git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめ、`git push origin work/1104-lgf-tidy:cloudflare`（c983a501f..b5dd5e95b、fast-forward）
+
+### 決定の記録
+
+- 指示文の「決定」節を docs/decisions/operations.md の末尾に「2026-11-04（CHAT-1104-LGF-02）」として足した。作業中の平野さんの回答は無い
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1104-lgf-tidy
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1104-LGF-02.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1104-lgf-tidy
+- 確認用URL: なし
+- マージ: 済（b5dd5e95b、fast-forward）
+- issue: #378（閉じた）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj c983a501）: https://github.com/retroeater/mj-logs/tree/main/guide/c983a501
+ガイド文書（この版を写した時点の最新、mj 12515118）: https://github.com/retroeater/mj-logs/tree/main/guide/12515118
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c983a501/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c983a501/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c983a501/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c983a501/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c983a501/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c983a501/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/12515118/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/12515118/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/12515118/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/12515118/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/12515118/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/12515118/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a4a9ed1b.md
