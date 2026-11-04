@@ -45,6 +45,24 @@ TOP-15（ページの中の質問欄の部品の片付け。`houou_ask.css` を�
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 0. 着手前の確認
+
+- 「指示」欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は4行とも有り。同じ Chat-Ref のコミットは0件
+- CHAT-1104-TOP-15 の `## 報告` の状態は「判断待ち」、origin/work/1104-top2（64fd36065）は cloudflare に未マージ。TOP-15 の状態に ` / 続き: CHAT-1104-TOP-16` を足した
+
+### 1. 取り込みと条件
+
+- origin/cloudflare（3c7a64ac6）を merge で取り込んだ（a20e0db51）。衝突は `docs/notes/static-generation.md` の隣り合う2行（こちらは連盟プロの行から質問欄と `houou_ask.js` を外した変更、cloudflare 側は「ログ」の行の公開に合わせた変更）。両方を残して解いた。解いた後の該当箇所:
+  - 「| ビルド時生成（サブディレクトリ、連盟プロの新ページ） | 1＋在籍者数（1,098、2026-10-31） | `pro/index.html`（トップ: 選手を探す部品・下から出るシートの絞り込み〈五十音・所属・入会期・リーグ〉・在籍者の表）…＋`assets/pro.js`・`assets/league.js`（検索）。OGP は…」（こちらの版）
+  - 「| ビルド時生成（サブディレクトリ、「ログ」のページ） | 1 | `log/index.html`…`lib/log_rows.py` の `merged_rows()`…公開は #640（「リソース」の「ログ」、旧 `resource_logs.html` から 301。#639、`docs/notes/log-page.md`） |」（cloudflare 側の版）
+  - `git diff origin/cloudflare -- docs/notes/static-generation.md` は連盟プロの1行だけ
+- (1) テスト: `python3 -m unittest discover -s scripts/tests` 1924件 OK、`node --test 'workers/ask/test/*.test.mjs'` 165件 OK
+- (2) `git diff --name-only origin/cloudflare...HEAD`: TOP-15 のログ「4.」の30ファイルと TOP-16 のログだけ（ほかの新しい変更なし）
+- マージ前の本番の画面（houou/・saikyo/、360・1280px、欄を開いた状態の上 260px）を撮った。どれも `houou_ask.css`（200）と `top_ask.js`（200）を読み、JS エラーなし。`/assets/houou_ask.css` は 200
+- (3) 全ページの生成し直し（dry_run なし・all）を実行中
+
 <!-- guide-links -->
 ---
 
