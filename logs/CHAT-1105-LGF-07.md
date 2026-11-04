@@ -144,7 +144,7 @@ search.json の店名・別名・投稿のメニューを、出店・催事の�
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1105-LGF-08
 - ブランチ: work/1104-lgf-alias
 - ログ: https://github.com/retroeater/mj/blob/work/1104-lgf-alias/docs/logs/CHAT-1105-LGF-07.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1104-lgf-alias

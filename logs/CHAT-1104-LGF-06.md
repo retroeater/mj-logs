@@ -141,7 +141,7 @@ LGF-04 の要確認の10店との重なり: 4店。5番（大至、この表の3
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1105-LGF-08
 - ブランチ: work/1104-lgf-stations
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1104-LGF-06.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1104-lgf-stations
