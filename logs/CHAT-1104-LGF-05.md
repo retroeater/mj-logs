@@ -54,6 +54,59 @@ CHAT-1104-LGF-04 で、同じ place_id で店名の表記が2つ以上ある店�
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 0. 着手前の確認
+
+- 「指示」欄の末尾は指示文の最後の行と一致
+- 同じ Chat-Ref のコミットは0件（LGF の識別子の重複の確かめは LGF-01 で済み）
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある（貼られた指示文は改行が詰まって1行目につながっていたが、行の欠けはない）
+- 作業ブランチ: ローカル・リモートとも無かったので `git checkout -b work/1104-lgf-alias origin/cloudflare`（起点 23efd467c）
+- LGF-04 のログの状態を「判断待ち / 続き: CHAT-1104-LGF-05」にした（ログ先行のコミットに含めた）
+- 未マージの work/ ブランチ（`git branch -r --no-merged origin/cloudflare`）のうち、cloudflare との差に `scripts/generate_log_pages.py`・`assets/log.js` を含むのは `origin/work/1104-lgn-policy` だけ。変えているのは `SOURCE_HTML`（出典の「(i)」の中に /policy/ へのリンク）で、`group_shops()`・`search_data()`・`prepare()`・結果の投稿の行ではないので止まらない（/policy/ は作らない決定でマージされない見込み）
+
+### 1. #665
+
+- open、コメント0件（着手中のコメントなし）。ラベルは「分野: データ」「対象: resource_logs」
+- 保留の理由をコメント（https://github.com/retroeater/mj/issues/665#issuecomment-6633847148 ）し、「状況: 保留」を足した（ほかの2つは残した。`get_labels` で3つを確かめた）。閉じていない
+
+### 2. コードとテスト（e0dad02b8）
+
+- `scripts/generate_log_pages.py`: `shop_names()` を足し、`group_shops()` が店の店名と別名（`aliases`）をそこから取る。決め方は投稿の数 → 同数なら最も新しい投稿（投稿は新しい順なので、その表記の最初の位置が小さい方。同じ日は merged_rows の投稿 ID の大きい順）。表記は文字列の完全一致。`SHOP_FIELDS` から `shop` を外した。`search_data()` は店の12要素目に別名の一覧を足し、投稿の6要素目（店名）を消した（投稿は5要素）
+- `assets/log.js`: `SHOP.aliases`（11）を足し、`POST.name` を消した。`prepare()` は `shop.names` を店名と別名から作り（検索欄の語・店名のタグ〈`?store=` を含む〉に当たる）、店名の候補（`values.store`）には店の店名だけを入れる。結果の投稿の行の別名の表示を消した
+- テスト: `test_log_pages.py` に `test_shop_name_is_the_most_posted`（多い表記・同数で新しい日付・同じ日で投稿 ID の大きい方・空の店名）を足し、`test_group_by_place_id_and_single_posts`・`test_shape` を直した。`log.test.js` は見本の形を直し、別名が候補に出ないことを足した
+- docs/notes/log-page.md: 「検索欄」「店名」（タグ）「結果」「データの持ち方」（店の店名・search.json の形）「仮置きの一覧」（店名の候補・検索欄の語）を直した
+- 検証:
+  - `python3 -m unittest discover -s scripts/tests`: Ran 2002 tests、OK
+  - `node --test scripts/tests/js/*.test.js`: pass 22・fail 0
+  - 修正前のコードで新しいテストが落ちること（#310）: origin/cloudflare の `scripts`・`assets`・`data` を作業ファイルの置き場に展開し、新しい2つのテストのファイルだけを差し替えて実行。`test_log_pages`: failures=2・errors=1（`test_shape`・`test_shop_name_is_the_most_posted`・`test_group_by_place_id_and_single_posts`）。`log.test.js`: fail 3（店名のタグ・候補・別名）
+
+### 3. 生成と数（dd39e780b）
+
+- ページ名は `python3 scripts/regenerate.py --list` で `log_pages`。`regenerate-page.yml` を `work/1104-lgf-alias` で手動実行（target_page=log_pages）: run 41852711010。生成のコミット dd39e780b（`log/index.html`・`log/search.json` の2ファイル）
+- (a) 店 1,740・投稿 2,436。origin/cloudflare（23efd467c）の search.json と同じ数で、足された店・消えた店は0件（毎朝の取り込みの差も無い）。店の要素は全件12・投稿の要素は全件5。店名・別名・投稿の6要素目のほかに変わった値は無い（鍵・駅・URL・座標・駅の候補・投稿の5要素・突き合わせ用の駅・ジャンル・都道府県を店ごとに比べて差0件）
+- (c) 別名を持つ店: 95店。LGF-04 の表の 95店と鍵の集合が一致（どちらにだけある店は0件）。各店の「店の店名＋別名」は、前の search.json で集めた表記の集合と全店で一致
+- (b) 店の店名が変わった店: 15店（下の表、投稿の多い順）。LGF-04 の表と突き合わせると、案のある 90店は新しい店名が全店で LGF-04 の案と一致。案を出していない要確認の5店（LGF-04 の 1・9・17・91・93番）は決め方どおりの表記になり、このうち 1番（一品香 → 新宿地下ラーメン）と 17番（やまぐち → 巌哲）は店名が変わった。合わない店は無い
+- log/index.html の差はカテゴリ「投稿回数の多い店」のカードの店名4つ（中華そば きみのあーる → 中華蕎麦 きみのあーる、焼肉屋 Kazu → 焼肉家 Kazu、鮨 酒 肴 杉玉 → 杉玉、一品香 → 新宿地下ラーメン）だけ
+
+| # | 鍵（place_id） | 前の店名 | 新しい店名 | 投稿の数 |
+|---|---|---|---|---|
+| 1 | ChIJzyJ4NBiNGGARlmBtxAiDwsk | 中華そば きみのあーる | 中華蕎麦 きみのあーる | 34 |
+| 2 | ChIJc9ZjLluMGGARVVMatB5p8lc | 焼肉屋 Kazu | 焼肉家 Kazu | 18 |
+| 3 | ChIJA5fGqXCNGGARRqON_S3nADU | 鮨 酒 肴 杉玉 | 杉玉 | 17 |
+| 4 | ChIJkdDwfBKNGGAR2oXHz9NjCc8 | 一品香 | 新宿地下ラーメン | 9 |
+| 5 | ChIJQbWaOxiNGGAR2Wr2BfXxEU8 | やまぐち | 巌哲 | 5 |
+| 6 | ChIJe1Y0JxmLGGARZ6sC3dtQKWI | 目黒のさんま菜の花 | 目黒のさんま 菜の花 | 4 |
+| 7 | ChIJAxKeZNmMGGARQ4EOGHqSdIg | 凪 | すごい煮干しラーメン凪 | 4 |
+| 8 | ChIJA-YrZAGMGGARXXj2g_kPcOk | ルードメール | ルー・ド・メール | 3 |
+| 9 | ChIJcWT7lMLtGGAR456BhfnIycU | SHUN RAKU、cafe イチフジ、オクシタニアル、ミッドナイトブルー | SHUN RAKU | 3 |
+| 10 | ChIJTbD0tqGLGGAR_F9iW6BGesQ | コメダ | コメダ珈琲店 | 3 |
+| 11 | ChIJ86P7b16NGGARQnPB24N3lIY | 蔵 | 炭火焼珈琲 蔵 | 3 |
+| 12 | ChIJ4bpfn1WJGGARO1OEAby5VeA | 肉寿司 肉和食 KINTAN | KINTAN | 3 |
+| 13 | ChIJFUmflX2LGGAR72gjQHIiWKM | 富喜製麺所 | 富喜製麺研究所 | 3 |
+| 14 | ChIJHYXJaAftGGARh4scOx6eXho | hobomizu | ホボミズ | 3 |
+| 15 | ChIJ49tXz1PtGGARIlvW5mJPmx8 | よしかわ | 寿製麺よしかわ | 3 |
+
 <!-- guide-links -->
 ---
 
