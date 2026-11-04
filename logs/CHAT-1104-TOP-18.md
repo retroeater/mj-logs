@@ -74,15 +74,39 @@ TOP-17（読むページの無い `assets/houou_ask.js` とその JS の検査�
 - (3) やり直しの比べ（run 41782258945、3b435d4c9）: 成功、飛ばしたページなし、「compare: 差分なし」。中身の違う生成物は無い
 - 3つとも満たしたのでマージする
 
+### 2. マージ
+
+- push 直前に再 fetch し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真（origin/cloudflare＝e0b3a1409）であることを確かめて `git push origin work/1104-top3:cloudflare`（e0b3a1409..d3a80c1ff）
+
+### 3. 本番の確かめ（2026-11-04、Playwright、UA に mj-internal、質問は送っていない）
+
+- マージの約1分後に本番が新しい版になった（`/assets/top_ask.js` に `splitCards`）
+- `https://ryoei.pro/assets/houou_ask.js?v=…`: 404
+- `https://ryoei.pro/houou/?v=…`（360px・1280px）: AI 検索のアイコンを押すと欄が開き、`assets/top_ask.js` を読み（200）、送るボタンが押せる状態になる（`window.mjTopAskInit` がある）。`houou_ask.*` の要求は出ない。ページの JS エラーなし
+- CHAT-1104-TOP-17 のログの「マージ」の行にこのマージのコミットを書き足した。#101 にマージと本番の確かめをコメントし、着手中を解除した
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1104-top3（マージ済み。cleanup-branches.yml が消す）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1104-TOP-18.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1104-top3
+- 確認用URL: なし（本番の houou/ と `/assets/houou_ask.js` で確かめた）
+- マージ: 済（d3a80c1ff）
+- issue: #101（マージと本番の確かめのコメント、着手中の解除）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし（1回目の比べは Sheets API の上限〈HTTP 429〉で jpml_pros を飛ばしたが、やり直しで解消）
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj d3a80c1f）: https://github.com/retroeater/mj-logs/tree/main/guide/d3a80c1f
+ガイド文書（この版を写した時点の最新、mj b877e1e8）: https://github.com/retroeater/mj-logs/tree/main/guide/b877e1e8
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d3a80c1f/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d3a80c1f/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d3a80c1f/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d3a80c1f/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d3a80c1f/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d3a80c1f/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b877e1e8/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b877e1e8/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b877e1e8/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b877e1e8/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b877e1e8/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b877e1e8/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/95028c1a.md

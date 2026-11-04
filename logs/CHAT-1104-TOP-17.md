@@ -130,7 +130,7 @@ CHAT-1104-TOP-15・16 で、ページの中の質問欄の部品を片付けた�
 - ログ: https://github.com/retroeater/mj/blob/work/1104-top3/docs/logs/CHAT-1104-TOP-17.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1104-top3
 - 確認用URL: なし（見た目が変わらない変更で、生成物の差も無い。指示文のとおりプレビューは確かめていない）
-- マージ: 未（チャット側が差分を見てから、平野さんに聞く）
+- マージ: 未（チャット側が差分を見てから、平野さんに聞く） → 済（d3a80c1ff、CHAT-1104-TOP-18）
 - issue: #101（着手中のコメント）、#654（`ask.mjs` の注記を直した旨のコメント）
 - 判断が必要なこと:
   - 消した `PickPlayersTest` が見ていた「答えの文から名前を拾う考え」（長い名前を先に当てる・文に出た順・1回だけ・名簿に無い名前は拾わない）は、今は Worker の `playersIn()`（`workers/ask/src/ask.mjs`）にだけあり、それを確かめる workers/ask の検査が無い（`values.test.mjs` は名前が答えの文にあることと、当たりが無ければ空のことだけ）。Worker の検査を1本足すか（AIC 系列に頼むか、TOP で `workers/ask/test/` に足すか）。いまのデータで名前が別の名前を含む組は0件で、影響は無い
@@ -140,12 +140,12 @@ CHAT-1104-TOP-15・16 で、ページの中の質問欄の部品を片付けた�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 8c7dd9a3）: https://github.com/retroeater/mj-logs/tree/main/guide/8c7dd9a3
+ガイド文書（この版を写した時点の最新、mj b877e1e8）: https://github.com/retroeater/mj-logs/tree/main/guide/b877e1e8
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/8c7dd9a3/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/8c7dd9a3/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/8c7dd9a3/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8c7dd9a3/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8c7dd9a3/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8c7dd9a3/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b877e1e8/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b877e1e8/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b877e1e8/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b877e1e8/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b877e1e8/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b877e1e8/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/95028c1a.md
