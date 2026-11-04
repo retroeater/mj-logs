@@ -61,6 +61,20 @@
 - 作業ブランチ: origin/work/1104-lvp は cloudflare にマージ済み。ローカルの work/1104-lvp は origin/cloudflare の祖先なので `git merge --ff-only origin/cloudflare` で進めた
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている。着手は 2026-11-04 23:30 JST
 
+- #362 に他セッションの着手中のコメントが無いことを確かめ、着手中のコメントを書いた
+- 【2】【3】の読み取り（一時の出力 9267b059b で `--check` から出し、反映後に戻した。run 41848466943）: 第24期プロクイーン決定戦の6本、【3】の掲載が空欄の行（686行）、【2】の限定が Y で題名に【メンバー限定】が無い行（7行）。表は `## 報告` の「判断が必要なこと」
+  - 最終日が出ない理由: 最終日の2行（4344 `WnnCehyq0yU`・4348 `y4v0by0gW_Y`）は【3】の掲載が空欄で、生成は「未確認」として飛ばしている（2026-10-17 の決定〈CHAT-1017-LVP-04〉で、掲載が空欄の行は N で埋めず未確認として数える）。【2】の判定は正しい: `WnnCehyq0yU` は題名に【メンバー限定】が無いが、【2】の限定は Y（層1の限定はメンバー限定の再生リスト〈UUMO〉に載っているかで決まり、題名は見ない。`fetch_live_channel_raw.py`）。`y4v0by0gW_Y` の冒頭も Y（同じ大会・期・配信日にメンバー限定の生放送があるので `opening_ids()` が付けた）。初日・二日目と同じ形で、掲載を入れれば載る
+  - 掲載が空欄の686行は、すべて公開している大会の行。643行は麻雀日本シリーズ・女流プロ麻雀日本シリーズ（2026-10-16 の決定で公開の後に回した）、10行は小島武夫杯帝王戦（2026-10-17 の決定で #590 に回した）。残る33行は毎日の追記で増えた行（2026-10-17〜11-03 の配信が中心）
+- 見た目の直し（28673e2ed・1bedc53a8）:
+  - 対局の行（トップ・期）の2行目を「<最新の日付>更新」にし、「配信」と本数を外した。日付はその対局の動画の最新の日付（`Page.updated`。大会のページの期の行の「更新」と同じ決め方）
+  - 大会のページの期の行は「<最新の日付>更新」だけにし、対局数・本数を外した（メンバー限定の札は残した）
+  - トップの題を「放送対局 | ryoei.pro」、検索欄の案内を「大会・選手・実況・解説等で検索」にし、検索欄と面の間を 16px 空けた（`.mj-live-n-search ~ section`）
+  - 行の日付を最新の日付にしたところ、トップの並び（最初の日付の降順）と行の日付が食い違い、隣り合う行の日付が逆になる箇所が118か所できた。トップだけ、行に出す日付（`Page.updated`）の降順に並べ替えた（1bedc53a8）。pro/ の放送対局の欄と個別ページの「他の対局」は今のまま最初の日付の順（`page_date_order`）にした（pro/ を変えないため。判断が必要なことに書いた）
+  - テスト: `RowDateTest`（2日の決定戦で「2026年1月31日更新」になり、最初の日付と本数が出ない）、`TitleTest` の題、生成済みのトップの行の日付が降順であることの検査を足した。どれも直す前のコード・生成物では落ちる
+- live/ の本実行（run 41849175130・41849771213、d89233167・53919e317）: 変わったのは live/ の177ページ（トップ・大会・期）だけ。個別ページは変わらない。本番の例: `live/houou/index.html` の第42期は「2026年1月31日更新」、`live/houou/42.html` の決定戦も「2026年1月31日更新」
+- 撮影（ローカルの http.server、375px と 1280px の明・暗）: トップ（検索前・「佐々木寿人 十段戦」で検索中・0件）、大会 `live/houou/`、期 `live/houou/42.html`、個別 `live/houou/42/f.html`
+- 文書（30612b576）: docs/notes/live-page-design.md の行の形・題・検索欄の文言を直し、古い共有ボタンの記述を「置かない（LVP-06 で外した）」にした
+- テスト: `python3 -m unittest discover -s scripts/tests` は全件 OK
 ## 報告
 
 - 状態: 作業中
@@ -77,12 +91,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 96e0bc84）: https://github.com/retroeater/mj-logs/tree/main/guide/96e0bc84
+ガイド文書（この版を写した時点の最新、mj bb265e15）: https://github.com/retroeater/mj-logs/tree/main/guide/bb265e15
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/96e0bc84/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/96e0bc84/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/96e0bc84/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/96e0bc84/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/96e0bc84/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/96e0bc84/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/bb265e15/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/bb265e15/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/bb265e15/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/bb265e15/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/bb265e15/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/bb265e15/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/96e0bc84.md
