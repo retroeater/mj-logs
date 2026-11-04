@@ -65,6 +65,9 @@ Chat-Ref: CHAT-1104-ACF-41
 - クローズのコメント: https://github.com/retroeater/mj/issues/552#issuecomment-6624986723
 - #552 を completed で閉じた。外すラベルは無かった
 
+### マージ
+- origin/cloudflare（215835f36、docs のみ）を取り込み、`git push origin work/1104-acf-552:cloudflare` → `215835f36..339f291ef`
+
 ## 報告
 
 - 状態: 完了
@@ -72,7 +75,7 @@ Chat-Ref: CHAT-1104-ACF-41
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1104-ACF-41.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1104-acf-552
 - 確認用URL: なし
-- マージ: 済（ドキュメントのみ。SHA は push の後に経過へ書く）
+- マージ: 済（ドキュメントのみ。215835f36..339f291ef）
 - issue: #552（クローズ。コメント https://github.com/retroeater/mj/issues/552#issuecomment-6624986723 ）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
