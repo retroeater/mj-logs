@@ -46,6 +46,21 @@
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 0. 着手前の確認
+
+- 「指示」欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は4行とも有り。同じ Chat-Ref のコミットは0件
+- CHAT-1104-TOP-21 の `## 報告` の状態は「判断待ち」、origin/work/1104-top4（bb6f568f1）は cloudflare に未マージ。TOP-21 の状態に ` / 続き: CHAT-1104-TOP-23` を足した
+
+### 1. 取り込みと条件
+
+- origin/cloudflare（125151186）を merge で取り込んだ（a1ac5d18e）。衝突は `docs/decisions/top.md` の末尾への追記どうし（こちらは TOP-19・21 の節、cloudflare 側は TOP-20・22 の節）で、両方を残して解いた。解いた後の該当箇所: 「## 2026-11-04（CHAT-1104-TOP-20）」「## 2026-11-04（CHAT-1104-TOP-22）」の後に「## 2026-11-03〜04（CHAT-1104-TOP-19）」「## 2026-11-04（CHAT-1104-TOP-21）」が続く
+- push は GitHub の Internal Server Error で3回断られ、4回目で通った
+- (1) テスト: 1998件 OK
+- (2) `git diff --name-only origin/cloudflare...HEAD`: assets/top.css・assets/top.js・docs/decisions/top.md・docs/logs/CHAT-1104-TOP-19.md・TOP-21.md・TOP-23.md・docs/notes/static-generation.md・docs/notes/top-page.md・scripts/generate_top_page.py・scripts/tests/test_top_page.py・top/birthdays.json・top/index.html。TOP-21 のログの一覧とログ・決定だけ
+- (3) 全ページの生成し直し（dry_run なし・all）を実行中
+
 <!-- guide-links -->
 ---
 
