@@ -191,6 +191,7 @@ GitHub Issues（Open）に全件あるが、着手可能な主なものは以下
 | `docs/lighthouse-baseline.md` | パフォーマンスの改善前後の比較（ページ別スコアの基準値） |
 | `docs/gsc/` | Search Console の数値（#142） |
 | `docs/notes/cloudflare.md` | Cloudflare の設定・配信（`_headers`・`_redirects`・`wrangler dev`）・本番反映と確認範囲（チャット側の check-run の確かめ方を含む）・設定の照合（Chrome） |
+| `docs/notes/google-cloud.md` | Google Cloud（Places を含む）の公開してよい設定: コードが呼ぶ API・割り当て・請求の形・無料の枠と単価・変えたときの手順（認証情報は #601 の台帳） |
 | `docs/notes/redirects.md` | 転送（リダイレクト）の一覧と四半期の棚卸しの手順・流入の測り方（#568）。旧 URL の 301 やダッシュボードのルールを足す・消すとき |
 | `docs/notes/session-network.md` | シートの行番号の取り方、`ryoei.pro` の User-Agent（Codespace の旧記録は `docs/notes/handover-archive-2026.md` へ移した） |
 | `docs/notes/cloud-sessions.md` | クラウドセッション（Claude Code の実行環境）の手順（起動時の CLAUDE.md の確かめ・作業ファイルの置き場所・ブランチの用意・GitHub MCP・ネットワーク・プレビュー） |
