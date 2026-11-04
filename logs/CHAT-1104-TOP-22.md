@@ -59,15 +59,37 @@ TOP-20（`llms.txt` の5大会の入口の行の「言葉で質問できる欄�
 - (3) `check-assets.yml`: TOP-20 の push（4b8ee207c・1cc4c0bb4）で成功。取り込みの後の push（79eff4ea2）では paths の条件で走らなかったので、作業ブランチで手動実行して 79eff4ea2 で成功
 - 3つとも満たしたのでマージする
 
+### 2. マージ
+
+- push 直前に再 fetch し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真（origin/cloudflare＝1d5e1177b）であることを確かめて `git push origin work/1104-top5:cloudflare`（1d5e1177b..852debe1b）
+
+### 3. 本番の確かめ（2026-11-04、UA に mj-internal）
+
+- マージの約1分後に、`https://ryoei.pro/llms.txt?v=…` の5大会の入口の行が直した文（「画面上部の AI 検索（ナビの「AI に質問」）で5大会の記録を言葉で質問でき、〇〇のページからは大会名も選手名も無い問いに〇〇について答える。」）になった（5行）。「言葉で質問できる欄」は0件
+- CHAT-1104-TOP-20 のログの「マージ」の行にこのマージのコミットを書き足した。#101 にマージと本番の確かめをコメントし、TOP-20 の着手中を解除した（TOP-19・21 は判断待ちのまま）
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1104-top5（マージ済み。cleanup-branches.yml が消す）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1104-TOP-22.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1104-top5
+- 確認用URL: なし（本番の `/llms.txt` で確かめた）
+- マージ: 済（852debe1b）
+- issue: #101（マージと本番の確かめのコメント、TOP-20 の着手中の解除）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 852debe1）: https://github.com/retroeater/mj-logs/tree/main/guide/852debe1
+ガイド文書（この版を写した時点の最新、mj c983a501）: https://github.com/retroeater/mj-logs/tree/main/guide/c983a501
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/852debe1/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/852debe1/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/852debe1/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/852debe1/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/852debe1/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/852debe1/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c983a501/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c983a501/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c983a501/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c983a501/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c983a501/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c983a501/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a4a9ed1b.md

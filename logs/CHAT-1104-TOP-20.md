@@ -101,7 +101,7 @@ Chat-Ref: CHAT-1104-TOP-20
 - ログ: https://github.com/retroeater/mj/blob/work/1104-top5/docs/logs/CHAT-1104-TOP-20.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1104-top5
 - 確認用URL: なし（`llms.txt` の文の直しで、画面は変わらない）
-- マージ: 未（チャット側が差分を見てから、平野さんに聞く）
+- マージ: 未（チャット側が差分を見てから、平野さんに聞く） → 済（852debe1b、CHAT-1104-TOP-22）
 - issue: #101（着手中のコメント）
 - 判断が必要なこと:
   - 直した文（`## 経過`「1.」の表）でよいか。指示文の案から2点変えた: 「5大会の記録を」（横断であること）と、「大会名も選手名も無い問いに〇〇について答える」（Worker は大会名・選手名のある問いではその大会で答えるため）
@@ -111,12 +111,12 @@ Chat-Ref: CHAT-1104-TOP-20
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 1d5e1177）: https://github.com/retroeater/mj-logs/tree/main/guide/1d5e1177
+ガイド文書（この版を写した時点の最新、mj c983a501）: https://github.com/retroeater/mj-logs/tree/main/guide/c983a501
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/1d5e1177/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/1d5e1177/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/1d5e1177/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/1d5e1177/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/1d5e1177/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/1d5e1177/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c983a501/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c983a501/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c983a501/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c983a501/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c983a501/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c983a501/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a4a9ed1b.md

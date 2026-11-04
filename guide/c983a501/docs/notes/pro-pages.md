@@ -58,7 +58,7 @@
 2026-11-04 の決定（案A）で、work/1101-prp-pub（PRP-03〜10）のうち pro/ の中だけで効く変更を未公開のまま cloudflare に入れた（CHAT-1104-PRP-11、work/1104-prp-unpub）。
 
 - 入れたもの: 個別ページの名前の面（チップ3つ・読み・☆/★）・今後の予定・放送対局の見出しと「すべて（N件）」・題の形（`PLAYER_TITLE`）、トップの絞り込みのシート（6つのタブ・複数選択・既定の「すべて」・★・`?all=1` の書き換え）、`pro/plans.json`、並べ替えのボタンの高さ。トップの質問欄は外した（入れない K8 の代わり）
-- 公開のマージで入れるもの（work/1101-prp-pub に残した）: noindex を外す・canonical・`sitemap-pro.xml` と `update_sitemap_lastmod.py`・`regenerate-page.yml` の一覧、navbar・`index.html` のサイドメニュー・`llms.txt` の向け替え、`jpml_pros.html` の 301（`workers/pros-redirect/`・`regenerate.py` の出力・転送の集計の行）、順位変動の `playerUrl()`（`assets/league_race.js`・`generate_houou_pages.py`）・title/ の期ページの決勝メンバー（`generate_title_pages.py`）・`scripts/lib/pro_search.py`、X の画像のリンク切れの検知（`check_image_links.py`）、OGP の画像の置き場所（`img/ogp/pro/`）、K8（`houou_ask.js` の `playerHref()`。質問欄を外したので要らない見込み）
+- 公開のマージで入れるもの（work/1101-prp-pub に残した）: noindex を外す・canonical・`sitemap-pro.xml` と `update_sitemap_lastmod.py`・`regenerate-page.yml` の一覧、navbar・`index.html` のサイドメニュー・`llms.txt` の向け替え、`jpml_pros.html` の 301（`workers/pros-redirect/`・`regenerate.py` の出力・転送の集計の行）、順位変動の `playerUrl()`（`assets/league_race.js`・`generate_houou_pages.py`）・title/ の期ページの決勝メンバー（`generate_title_pages.py`）・`scripts/lib/pro_search.py`、X の画像のリンク切れの検知（`check_image_links.py`）、OGP の画像の置き場所（`img/ogp/pro/`）、K8（`houou_ask.js` の `playerHref()`。質問欄を外したので要らない見込み。`houou_ask.js` は 2026-11-04 に消した）
 - 公開のマージでは、このブランチと work/1101-prp-pub の両方が `generate_pro_pages.py`・`assets/pro.js`・`style.css`・テスト・この文書を変えている。work/1101-prp-pub の側から上の「公開のマージで入れるもの」だけを残し、トップの質問欄（`top_ask()`・`ASK_*`・K8）は戻さない
 
 ### TTL との重なり
