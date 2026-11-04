@@ -64,6 +64,12 @@ Chat-Ref: CHAT-1104-LGN-30
 - 作業ブランチ: ローカル・リモートとも無かったので `git checkout -b work/1104-lgn-gnotice origin/cloudflare`（8c7dd9a31）
 - work/1104-lgn-policy の先頭: e20490d5e8cf2fdfd4d7fa6364a8267475840d32（取り込まない・使わない）
 - LGN-27 のログ: `git show origin/work/1104-lgn-policy:docs/logs/CHAT-1104-LGN-27.md` をそのパスに写し、`## 報告` の状態を「中断 / 続き: CHAT-1104-LGN-30」に、`## 報告` の前に中断の理由（2026-11-04 に平野さんが /policy/ を作らないと決めた）と先頭の SHA の行を足した。`## 指示` 欄は変えていない（写す前後で一致を確かめた）
+- #663 に着手中のコメント（LGN-27 の着手中のコメントがある同じ issue の続き）
+- 変更（3288d4e49）: `generate_log_pages.py` に `TERMS_HTML`（定数 `GOOGLE_MAPS_TERMS_URL`・`GOOGLE_PRIVACY_URL`）を足し、`body_html` のページの入れ物の最後（`#log_home`・`#log_result` の後）に置いた。`assets/log.js` が切り替えるのは `#log_home`・`#log_result` の hidden と `#log_result` の中身だけなので、どの状態でも見える。文は指示の案のまま（リンクの前後の空白だけ、既存の日本語の文の書き方に合わせて詰めた）。リンクは `SOURCE_HTML` と同じ `target="_blank"`（rel なし）と `NEW_TAB_HINT`。見出しは `h2`（`section aria-labelledby`）。style.css に `.mj-log-terms`・`.mj-log-terms-title` と注記の上の余白（17行）。国土数値情報の出典の `SOURCE_HTML` は変えていない
+- 検査: `test_log_pages.py` の TermsTest（見出し・2つの URL と target・入れ物の最後・`#log_result` の後）。`python3 -m unittest discover -s scripts/tests` OK、`node --test scripts/tests/js/*.test.js .github/actions/upsert-issue/test/*.test.js` pass 40・fail 0
+- docs（4e3d8dd78）: log-page.md（画面ごとの仕様に「利用条件」と理由〈規約 3.2.2(a)(i)〉、「段2 の後」の行から #663 を外した）、docs/decisions/operations.md
+- `regenerate-page.yml`（作業ブランチ、`check`・`target_page: log_pages`、run 41778449435、4e3d8dd78、success）: 「3層から 3168件のうち 2436件・1740店（…「閉業」シートで外した 0店…）」「検査: 通りました(2436件・1740店。ファイルは書いていません)」
+- 自己レビュー（新しい文脈のサブエージェント1回、docs/notes/self-review.md）: 指摘なし（要件・決定、log.js が隠さないこと、HTML・アクセシビリティ・CSS、検査が変更前に落ちること〈生成スクリプトを戻すと TermsTest が落ちる〉、docs）。補足の2点（rel が無いのは既存の `SOURCE_HTML` と同じ形・見出しの文字の大きさは注記として控えめ）は意図どおり。往復1回で収まった
 
 ## 報告
 
@@ -81,12 +87,12 @@ Chat-Ref: CHAT-1104-LGN-30
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 8c7dd9a3）: https://github.com/retroeater/mj-logs/tree/main/guide/8c7dd9a3
+ガイド文書（この版を写した時点の最新、mj d7b736fb）: https://github.com/retroeater/mj-logs/tree/main/guide/d7b736fb
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/8c7dd9a3/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/8c7dd9a3/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/8c7dd9a3/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8c7dd9a3/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8c7dd9a3/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8c7dd9a3/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d7b736fb/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d7b736fb/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d7b736fb/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d7b736fb/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d7b736fb/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d7b736fb/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/95028c1a.md

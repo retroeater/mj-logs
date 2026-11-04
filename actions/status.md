@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-11-04 14:34 JST
+- 書き出した時刻: 2026-11-04 14:37 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -201,11 +201,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-11-04 14:32 | workflow_dispatch | work/1104-prp-polish | in_progress | #707（41779916769） |  |
+| 2026-11-04 14:34 | push | cloudflare | success | #708（41780039872） | 1分01秒 |
+| 2026-11-04 14:32 | workflow_dispatch | work/1104-prp-polish | success | #707（41779916769） | 2分02秒 |
 | 2026-11-04 14:30 | workflow_dispatch | work/1104-prp-polish | success | #706（41779708313） | 1分51秒 |
 | 2026-11-04 14:21 | workflow_dispatch | work/1104-top3 | in_progress | #705（41778794993） |  |
 | 2026-11-04 14:19 | workflow_dispatch | work/1104-lgn-gnotice | failure | #704（41778530568） | 13分53秒 |
-| 2026-11-04 14:18 | workflow_dispatch | work/1104-lgn-gnotice | success | #703（41778449435） | 0分37秒 |
 
 - #704 failure: ジョブ「regenerate」 ステップ「飛ばしたページを報告」
 
@@ -229,11 +229,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-04 14:34 | push | cloudflare | success | #86（41780039846） | 0分21秒 |
 | 2026-11-04 13:01 | push | cloudflare | success | #85（41770619524） | 0分23秒 |
 | 2026-11-04 12:19 | push | cloudflare | success | #84（41766360308） | 0分24秒 |
 | 2026-11-04 11:49 | push | cloudflare | success | #83（41763190182） | 0分26秒 |
 | 2026-11-04 11:28 | push | cloudflare | success | #82（41761013599） | 0分24秒 |
-| 2026-11-04 11:27 | push | cloudflare | success | #81（41760841163） | 0分24秒 |
 
 ## research-candidates.yml
 
