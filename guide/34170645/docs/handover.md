@@ -127,9 +127,9 @@ hook の判定は deny（実行させない）だけで、確認（ask）は出�
 **新サイトを別途新規構築する方針**が決まっている（`docs/new-site-design.md`）。
 現行サイトはいずれ役目を終えるため、大きな投資は避ける。これまでの判断:
 
-- 構造化データ（#13）: 見えているパンくずと同じ並びの `BreadcrumbList`（title/・saikyo/・houou/ ほか4大会・動画の各話）とトップの `WebSite` は現行サイトに前倒しした（2026-10-29、`lib/page.py` の `PageMeta.breadcrumb`）。選手の `Person` は pro/ の個別ページに入れた（#13 は pro/ の公開〈#641〉で閉じる。トップに `ItemList` は足さない）
+- 構造化データ（#13）: 見えているパンくずと同じ並びの `BreadcrumbList`（title/・saikyo/・houou/ ほか4大会・動画の各話・live/）とトップの `WebSite` は現行サイトに前倒しした（2026-10-29、`lib/page.py` の `PageMeta.breadcrumb`）。選手の `Person` は pro/ の個別ページに入れた（#13 は pro/ の公開〈#641〉で閉じる。トップに `ItemList` は足さない）
 - 選手個別ページ（#219）: 新サイト送りを取り消し、現行サイトの pro/ で作った（2026-10-31、未公開。公開は #641）
-- 共有ボタン: pro/ の個別ページには置かない（2026-10-31。#82 は pro/ の公開で閉じる）。現行サイトは live/ に共通の部品（#409。`scripts/lib/share.py`・`assets/share.js`・`style.css`）。title/・wayhome/（帰り道）・saikyo/ の共有は外した（saikyo/ の対局ごとの共有は #549 で廃止）。共通の部品は #362 のマージで live/ から外れた後に消す（#530、docs/decisions/site-review.md）。books/ は凍結中で旧実装のまま残す
+- 共有ボタン: pro/ の個別ページには置かない（2026-10-31。#82 は pro/ の公開で閉じる）。title/・wayhome/（帰り道）・saikyo/・live/ の共有は外した（saikyo/ の対局ごとの共有は #549、live/ は 2026-11-02 の作り直しで廃止）。どこからも使わなくなった共通の部品（#409。`scripts/lib/share.py`・`assets/share.js`・`style.css`）は #530 で消す（docs/decisions/site-review.md）。books/ は凍結中で旧実装のまま残す
 - Astroへの移行（#20/#21）は新サイト構築時に判断。現行サイトの残作業はPythonで進める
 
 **新サイトの第一弾は index.html（#101）。** 他ページと構造が独立し依存が最も少ないため（Astro の試作対象も index.html に変え、#20 はクローズ）。

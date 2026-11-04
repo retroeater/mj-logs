@@ -8,7 +8,7 @@
 
 - URL は houou/ と同じ並び: `ouka/`（トップ。質問欄は 2026-11-04 に外し、共通ナビの AI 検索のアイコンから開く）・`ouka/players/`・`ouka/ranking/<スラッグ>/`（連続昇級を除いた8部門、2026-10-18。`ouka/ranking/` は `total/` へ 301）・`ouka/race/`・`ouka/leagues/`（旧 `ouka_leagues.html` の転送先。個人成績のリーグのタブ `?view=league` へ JS で移すだけ、noindex、#591。`Contest.leagues_moved`）
 - 生成は `scripts/generate_ouka_pages.py`（`regenerate.py` の `ouka_pages`、出力 `ouka/`）。中身は `generate_houou_pages.py` を大会の設定 `OUKA` で動かすだけ（`using(OUKA)`。設定は `Contest`）。共有の部品は複製しない。`regenerate.py --changed` は `generate_houou_pages.py` の変更でも `ouka_pages` を選ぶ（`scripts/lib/houou_race.py` などの `lib/` の変更では全ページ）（`ask_data_ouka` は `generate_ask_data.py`・`generate_houou_pages.py` の変更でも。`SHARED_GENERATORS`）
-- JS は houou/ と共有の `assets/league.js`・`assets/league_race.js`（2026-10-17 に `houou.js`・`houou_race.js` から改名）と `assets/houou_ask.js`。ページの `<script type="application/json" id="league_contest">`（`OUKA.script`）でリーグ・期の書き方・題名の接尾辞・最近見た選手のキー・順位変動のリーグの番号を渡す。houou/ のページには無く、JS は鳳凰戦の既定で動く
+- JS は houou/ と共有の `assets/league.js`・`assets/league_race.js`（2026-10-17 に `houou.js`・`houou_race.js` から改名）。ページの `<script type="application/json" id="league_contest">`（`OUKA.script`）でリーグ・期の書き方・題名の接尾辞・最近見た選手のキー・順位変動のリーグの番号を渡す。houou/ のページには無く、JS は鳳凰戦の既定で動く
 - CSS は houou/ の節のまま。ページの枠に `is-ouka` を付け、`style.css` の `.is-ouka` でリーグの色だけを替える
 - 集計元は正本の「桜花」タブ（見出しで読む。名前・期・リーグ・リーグキー・順位・結果・入替戦・合計・第1〜8節・表示・備考の18列）。「表示」が Y の行の数が 1,000〜4,000 の外なら止める（`OUKA.rows`）
 - 質問欄の検索データは `workers/ask/data-ouka.json`（`scripts/generate_ask_data_ouka.py`、`regenerate.py` の `ask_data_ouka`）。仕組みは docs/notes/ask-worker.md
