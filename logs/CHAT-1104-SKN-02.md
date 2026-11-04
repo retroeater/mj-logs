@@ -96,7 +96,7 @@ CHAT-1104-SKN-01 の「判断が必要なこと」の1つ目・2つ目への回�
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1104-SKN-03
 - ブランチ: work/1104-skn
 - ログ: https://github.com/retroeater/mj/blob/work/1104-skn/docs/logs/CHAT-1104-SKN-02.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1104-skn
