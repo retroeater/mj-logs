@@ -121,3 +121,12 @@ TOP-07 のプレビューを見て（平野さん）:
 
 - TOP-15 を cloudflare へマージしてよい（条件: 取り込んだ後にテストが通る・差分が TOP-15 の変更とログ・決定だけ・全ページを生成し直した後の生成物の差が top/index.html の1行だけ）
 - `assets/houou_ask.js` と `scripts/tests/test_houou_ask.py` の JS の検査は、未マージの work/1101-prp-pub と衝突するため今回は残す
+
+## 2026-11-04（CHAT-1104-TOP-17）
+
+- 読むページの無い `assets/houou_ask.js` と `scripts/tests/test_houou_ask.py` の JS の検査を消す（未マージの work/1101-prp-pub が変えているという前提はもう当たらない。PRP は pro/ 以外のファイルを変えない）。マージの可否は後で分けて聞く
+
+## 2026-11-04（CHAT-1104-TOP-18）
+
+- TOP-17 を cloudflare へマージしてよい（条件: 取り込んだ後にテストが通る・差分が TOP-17 の変更とログ・決定だけ・新旧の比べで中身の違う生成物が無い）
+- TOP-17 の「判断が必要なこと」（Worker の `playersIn()` の検査が workers/ask に無い）は、このマージとは分けて決める

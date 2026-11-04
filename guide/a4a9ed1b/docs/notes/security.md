@@ -91,7 +91,7 @@ claude.ai のプラグイン一覧で有効にすると、クラウドセッシ�
 
 - 入れ方: claude.ai のプラグイン一覧で有効にする。**有効にした後に始めたセッション**でだけ `claude plugin list` に `claude-security@synced … √ loaded` と出る（前から開いていたセッションには同期されない）。Python 3.9 以上が要る
 - 使い方: skill `claude-security` は `disable-model-invocation: true` で、指示文からは呼べない。平野さんが `/claude-security` を打つか、Claude Code が skill の手順書（プラグインの `skills/claude-security/jobs/scan-codebase.md`）を読んで、その手順どおりに `write_scan_meta.py` → Workflow `claude-security:scan` → `save_result.py` → `render_report.py` を自分で進める（2026-10-18 は後者）。時間とトークンを使うことへの承認が要り、指示文に費用の受け入れがあればそれで足りる
-- 対象の絞り方: リポジトリ全体（5千ファイル超、大半が生成物）は選ばない。`--scope` にディレクトリ・ファイルをカンマ区切りで渡す（例: `workers,scripts/lib,assets/houou_ask.js` で 56 ファイル）。大きいリポジトリでは focus `attack-surface` になり、テスト・生成物は参照扱いになる
+- 対象の絞り方: リポジトリ全体（5千ファイル超、大半が生成物）は選ばない。`--scope` にディレクトリ・ファイルをカンマ区切りで渡す（例: `workers,scripts/lib,assets/top_ask.js`）。大きいリポジトリでは focus `attack-surface` になり、テスト・生成物は参照扱いになる
 - 結果の置き場所: 結果のディレクトリ（`CLAUDE-SECURITY-<時刻>/`）は作業ツリーの外（scratchpad）に作れる。`render_report.py` に `--products-dir` で渡す。中に `.gitignore`（`*`）が付く
 - 所要（medium、同じ対象）: 2026-10-18 は 56 ファイルで約 12 分・エージェント 15・トークン約 109 万、2026-10-19 は 67 ファイルで約 8 分・エージェント 15・トークン約 108 万（サブエージェントの分。Max の使用量から出る）。どちらも指摘 0 件、`verification.status: verified`
 - 注意: 「Suggest patches」は指摘を見てからチャットで決める。結果に秘密の値が出たら値を写さない。結果は毎回同じとは限らない（非決定的）
