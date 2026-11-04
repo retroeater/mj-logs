@@ -54,6 +54,78 @@ Chat-Ref: CHAT-1104-PRP-18
 
 ## 経過
 
+### 0. 着手前の確認
+
+- 「指示」欄の末尾は指示文の最後の行（「不明な点があれば…この行が指示文の最後の行です。」）と一致
+- 同じ Chat-Ref のコミット・ログは無し。#641 は open
+- CHAT-1104-PRP-17 のログ（cloudflare の版）の `## 報告` は「状態: 完了」「マージ: 済み（0921e3458 を cloudflare へ…）」、`git merge-base --is-ancestor 0921e3458 origin/cloudflare` も真
+- CHAT-1104-PRP-14 の `## 報告` の状態の末尾に ` / 続き: CHAT-1104-PRP-18` を足して push（2f61c55da）
+- 冒頭の雛形の行（Chat-Ref・マージ・貼る時機・共通手順）に欠けなし
+- work/1101-prp-pub はリモートにあり、ローカルと同じ（04c5d480c）。`git merge-base --is-ancestor origin/cloudflare HEAD` は偽
+
+### 1. 取り込み（f9d654bca）
+
+`git merge origin/cloudflare` の衝突: title/ 192・houou/race 5・ouka/race 3・`pro/index.html`（生成物）と、次の9ファイル。どれも「決定」と「前提」の解き方の範囲で、それ以外の衝突は無かった。
+
+| ファイル | 残した側 | 解いた後の該当箇所（引用・要点） |
+|---|---|---|
+| title/・race・`pro/index.html` | cloudflare（`--theirs`）。生成で作り直した（下の2.） | — |
+| `.github/workflows/regenerate-page.yml` | 両方（決定） | `for f in ['sitemap.xml', 'sitemap-pages.xml', 'sitemap-wayhome.xml', 'sitemap-saikyo.xml', 'sitemap-title.xml', 'sitemap-mtsuku.xml', 'sitemap-exam.xml', 'sitemap-live.xml', 'sitemap-pro.xml']:` |
+| `scripts/update_sitemap_lastmod.py` | 両方（決定。4か所） | docstring「… / sitemap-exam.xml / sitemap-live.xml / sitemap-pro.xml の全URLについて」、`SITEMAP_LIVE = REPO_ROOT / "sitemap-live.xml"` と `SITEMAP_PRO = REPO_ROOT / "sitemap-pro.xml"`、`if page_path.startswith("live/"): return SITEMAP_LIVE` と `if page_path.startswith("pro/"): return SITEMAP_PRO`、`for sitemap_path in (…, SITEMAP_EXAM, SITEMAP_LIVE, SITEMAP_PRO):` |
+| `sitemap-pages.xml` | このブランチ（`jpml_pros.html` の行を外したまま。トップの lastmod はこのブランチの 2026-11-01） | — |
+| `docs/handover.md` | 行ごと: 構造化データの行は cloudflare（`live/` を足した）、選手個別ページの行はこのブランチ（「公開は #641」、未公開の字なし）、共有ボタンの行は cloudflare（title/・wayhome/・saikyo/・live/ の共有を外した） | — |
+| `docs/notes/ogp.md` | 両方: 表の行はこのブランチ（`pro/ の全ページと jpml_pros.html…`・`img/ogp/pro/`）に cloudflare の log/・live/ の行を足した。その下の段落は cloudflare の文（log/・live/ の例外）にこのブランチの「2026-11-01 に pro/ の公開の準備で `img/ogp/pro/` へ移した、K14」を足した | — |
+| `docs/notes/title-pages.md` | cloudflare（TTL-06・07: 大会ページの「成績」の節を消した・大会ページの2行目を消した・期ページの検索欄を外した）に、このブランチの「期ページの決勝メンバーの行は、連盟プロの個別ページ…（行き先は `member_link()` の1か所…）」の行を足した | — |
+| `docs/notes/pro-pages.md` | このブランチ（公開のマージの一覧）。下の3.で今の残りに直した | — |
+| `docs/decisions/pros.md` | 両方（末尾の追記どうし。このブランチの PRP-14 の後に cloudflare の PRP-15〜17） | — |
+| `scripts/generate_title_pages.py` | 両方: 引数はこのブランチ（`wayhome_episodes: dict, slugs: dict) -> str:`）、docstring は cloudflare（「パンくず → 題名 → 決勝メンバー → …」、検索欄を外した） | `member_link(entry: Entry, slugs: dict)`・`member_holder(entry: Entry, slugs: dict)` は PRP-14 の形のまま。cloudflare の `member_link(entry)` は X だけを返す形で変わっていない |
+
+取り込みの後のテストで、cloudflare から入った TTL-07 の検査 `test_title_years.RowsTest.test_search_only_on_index` が `period_body()` を `slugs` なしで呼んで落ちた（`TypeError: … missing 1 required positional argument: 'slugs'`）。引数 `{}` を足した（取り込みと解き方で直せる範囲）。`test_og_image` は取り込んだ古い `pro/index.html` が `img/ogp/pros/` を指すために落ち、生成で直った。
+
+### 2. A1〜A3・A12 と生成（9df8ea0cf、生成 842acb907）
+
+- A1: `.github/workflows/regenerate-sitemap.yml` の XML の確かめの一覧に `sitemap-live.xml`（`sitemap-pro.xml` の前）
+- A2: `llms.txt` のサイトマップの行に「放送対局のトップ・大会・期・対局のページ（sitemap-live.xml）」
+- A3: `docs/notes/sitemap-lastmod.md` の対象に `sitemap-live.xml`（#362）
+- A12: `llms.txt` の連盟プロの行を「…約1,100名の一覧。名前・所属・入会期・鳳凰戦および女流桜花の所属リーグ等で検索でき、お気に入りの選手で絞り込める（お気に入りは端末に保存）。」に（「五十音・…・言葉で質問できる欄もある」を外した。PRP-13 の説明文の語にそろえた）
+- A8: `docs/notes/static-generation.md` の pro/ の行は、取り込みで cloudflare（PRP-17）の文になった（`diff` で一致）
+- A11: `regenerate-page.yml` の `check`（`pro_pages title_pages`、run 41790824568）は success。「- title_pages: 通る(--check)」「- pro_pages: 通る(--check)」「check: 止まるページなし」
+- 生成（target_page「houou_pages ouka_pages jwrc_pages wrcr_pages title_pages pro_pages」→ 842acb907）
+
+origin/cloudflare と比べた生成物の差分:
+
+| 種類 | 件数 | 中身 |
+|---|---|---|
+| pro/<slug>/index.html | 1,098 | 各4行: robots の meta が無くなり、canonical が入り、og:image が `img/ogp/pro/` に（PRP-17 の頭の1字の丸などは cloudflare の形のまま） |
+| pro/index.html | 1 | 同じ（robots なし・canonical・og:image）。`apple-mobile-web-app-title` はある |
+| title/ | 327 | 決勝メンバーの行（`mj-title-rows`）の1行だけ（ほかの行の差分 0） |
+| houou/ ouka/ jwrc/ wrcr/ の race/*.json | 61・20・19・7 | 選手に `slug` が足された（`slug` を除くと全107件が cloudflare と同じ） |
+| sitemap-pro.xml | 1（新しいファイル） | — |
+| sitemap.xml | 1 | `sitemap-pro.xml` の参照 |
+| sitemap-pages.xml | 1 | `jpml_pros.html` の行を外す・注記 |
+| pro/ の robots の meta | 0件（1,099ページ） | — |
+
+見込みで説明できない差分は無い。
+
+「すべて（N件）」と live/ の検索の件数（生成物の pro/ と、ローカルの `python3 -m http.server` で開いた `/live/?q=<名前>` の「N件中 M件を表示」の M）:
+
+| 選手 | pro/ の個別ページ | live/ の検索 |
+|---|---|---|
+| 白鳥翔 | すべて（94件） | 770件中 94件 |
+| 佐々木寿人 | すべて（97件） | 770件中 97件 |
+| 二階堂亜樹 | すべて（16件） | 770件中 16件 |
+
+### 3. 確かめ
+
+- テスト: `python3 -m unittest discover -s scripts/tests` → Ran 2000 tests OK。`node --test 'workers/*/test/*.test.mjs'` → tests 219 / pass 219 / fail 0
+- プレビュー（842acb907 の Workers Builds、07:18Z に success）を Playwright（UA に mj-internal、360px）:
+  - `pro/`: robots の meta なし・canonical `https://ryoei.pro/pro/`・質問欄なし・1行「すべて」・1,098名・`apple-mobile-web-app-title`「連盟プロ」。横のはみ出し 0
+  - `pro/sho.shiratori.23/`: robots なし・canonical 自分自身・題「白鳥翔 | 連盟プロ | 日本プロ麻雀連盟 | ryoei.pro」・「すべて（94件）」1つ（`/live/?q=白鳥翔`）。はみ出し 0
+  - `title/houou/12.html`: 前原雄大は X（新しいタブ）、荒正義は `/pro/masayoshi.ara.1/`（同じタブ）、安藤満はリンクなし、土田浩翔は X。はみ出し 0
+  - `houou/race/`: `/pro/` へのリンク 16件（例 `/pro/atsushi.yoshino.26/`）。はみ出し 0
+- `docs/notes/pro-pages.md`「公開のマージ（#641）」を今の残りに直した（e414a1b93。PRP-17 を足し、`sitemap-live.xml` の3か所が一緒に入ること、PRP-19 で入れる3つのリンクがまだ無いことを書いた）
+- 決定: 指示の「決定」4つは docs/decisions/pros.md にすでにある（2026-11-04 の PRP-10〈TTL を先に〉・PRP-14〈cloudflare の形を正・K8 を戻さない・sitemap の両方を残す〉・PRP-16〈告知動画は保留〉）ので足していない
+
 ## 報告
 
 - 状態: 作業中
@@ -70,12 +142,12 @@ Chat-Ref: CHAT-1104-PRP-18
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 4c48f228）: https://github.com/retroeater/mj-logs/tree/main/guide/4c48f228
+ガイド文書（この版を写した時点の最新、mj 339f291e）: https://github.com/retroeater/mj-logs/tree/main/guide/339f291e
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/4c48f228/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/4c48f228/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/4c48f228/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/4c48f228/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/4c48f228/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/4c48f228/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/339f291e/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/339f291e/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/339f291e/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/339f291e/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/339f291e/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/339f291e/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/95028c1a.md
