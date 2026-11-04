@@ -87,31 +87,27 @@ LGN-23 で作った公開の準備（#640、段2）を cloudflare へマージ�
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 完了
 - ブランチ: work/1104-lgn-release
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1104-LGN-24.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1104-lgn-release
 - 確認用URL: なし（本番 https://ryoei.pro/log/ で確かめた）
 - マージ: 済（8140cebc1）。条件: (1) 満たす（差分は LGN-23 の公開の準備とこの指示の直しだけ） (2) 満たす（unittest OK、node --test pass 40） (3) 満たす（check の log_pages で止まるページなし） (4) 満たす（CSP に cloudflareinsights）。公開後の確かめ: Workers Builds success・log/ は 200 で noindex と x-robots-tag 無し・navbar.js と sitemap-pages.xml と llms.txt に log/・転送4つとも期待どおり
 - issue: #640（閉じた）・#255（閉じた）・#639・#378（コメント）・起票 #663（利用規約・プライバシーポリシー）・#664（閉業の月次の知らせ）・#665（Claude のジャンル）
-- 判断が必要なこと:
-  - 平野さんの作業: X と LINE の投稿画面で `https://ryoei.pro/log/?x=<未使用の数字>` のカード表示を確かめる（docs/notes/ogp.md。og:image はサイト共通の1枚）
-  - 平野さんの作業: Search Console で `sitemap.xml` を再送信し、`https://ryoei.pro/log/` を URL 検査でインデックス登録をリクエストする
-  - チャット側: 登録の結果を確かめる予定（1週間後、終日、件名【R#640】）をカレンダー「ryoei.pro」に作る（#640 の本文の公開後の確かめ）
-  - #664 の題・コメントに「閉業」の語を残すか（規約の読みとして未決）
-  - 残した記述: docs/notes/static-generation.md 12・16・66・69行目（移行〈#7〉の記録の段落で、ほかの廃止したページも当時の形で書いているため resource_logs だけを直していない）
+- 判断が必要なこと: なし（X・LINE・Search Console の作業は平野さんが済ませた。#664 の「閉業」の語は #664 で決める。カレンダーの予定はチャット側）
 - 未確認の項目: なし
 - エラー: なし
+- 平野さんが 2026-11-04 に X・LINE のカード表示、Search Console のサイトマップの再送信と log/ の URL 検査（インデックス登録のリクエスト）を済ませた（チャットのスクリーンショットで確かめた）
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 8140cebc）: https://github.com/retroeater/mj-logs/tree/main/guide/8140cebc
+ガイド文書（この版を写した時点の最新、mj 399bf26d）: https://github.com/retroeater/mj-logs/tree/main/guide/399bf26d
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/8140cebc/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/8140cebc/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/8140cebc/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8140cebc/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8140cebc/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8140cebc/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/399bf26d/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/399bf26d/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/399bf26d/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/399bf26d/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/399bf26d/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/399bf26d/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/95028c1a.md

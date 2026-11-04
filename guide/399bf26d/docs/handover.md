@@ -222,7 +222,7 @@ GitHub Issues（Open）に全件あるが、着手可能な主なものは以下
 | `docs/notes/title-pages.md` | タイトル戦の新構成（`title/`、#222） |
 | `docs/notes/houou-race.md` | 順位変動（`houou/race/`・`ouka/race/`・`jwrc/race/` の土台、#507） |
 | `docs/notes/houou-top.md` | 鳳凰戦の新ページ `houou/` の仕様（トップ＋検索・ランキング・リーグ推移・順位変動、#518） |
-| `docs/notes/log-page.md` | 「ログ」の新しいページ `log/` の仕様（検索の候補とタグ・現在地から探す〈駅の点で〉・カテゴリの行・過去メシの外し方・帰属の表記、#639。未公開、公開は #640） |
+| `docs/notes/log-page.md` | 「ログ」のページ `log/` の仕様（検索の候補とタグ・現在地から探す〈駅の点で〉・カテゴリの行・過去メシの外し方・帰属の表記、#639・#640。旧 `resource_logs.html` は 301） |
 | `docs/notes/ouka-top.md` | 女流桜花の新ページ `ouka/` の houou/ との違い（#519。公開は #591） |
 | `docs/notes/pro-pages.md` | 連盟プロの新ページ `pro/`（トップ・選手の個別ページ、#219。公開は #641） |
 | `docs/notes/ryoei-world.md` | 「良栄」のトップ `r/` の一覧と「記憶の中を歩く空間」（Three.js・音・場面の足し方、#657。公開は #656） |
