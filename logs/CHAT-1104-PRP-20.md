@@ -47,28 +47,38 @@ CHAT-1104-PRP-19 の「判断が必要なこと」の1つ目への回答。帰�
 
 ## 経過
 
+- 着手前の確認: 「指示」欄の末尾は指示文の最後の行と一致。冒頭の雛形の行（Chat-Ref・マージ・貼る時機・共通手順）に欠けは無い。CHAT-1104-PRP-19 のログの状態に「 / 続き: CHAT-1104-PRP-20」を足して push（ebe43d263）。`origin/cloudflare` は取り込んでいない
+- 実装（519bb46d0）: `scripts/lib/wayhome.py` に `build_player_name_html()` を足した。X の ID が無く `PlayerLinks.slug` がある選手だけ、名前を `<a href="{pro_search.page_path(slug)}">` で包む（target なし）。X の ID がある・slug が無い・links が None のときは `esc(名前)`。一覧のヒーロー（h2）と各話（h1「タイトル 名前」、名前の部分だけリンク）で使う。Mつくの2本は呼ばない
+- `load_slugs()` から引く代わりの道は作っていない: 森山茂和は「プロ」シートで1件だけ一致するので `{選手名: PlayerLinks}` に x_id 空で入っており、PRP-19 の `with_pro_slugs()` で slug が入る（生成物で確かめた）。dict に無い選手（シートに無い・同姓同名）は今のまま名前だけ
+- CSS は足していない: 既存の `style.css` の `.mj-video-hero-content a:not(.mj-video-btn) { color: inherit; }` で白、下線は Bootstrap の既定（a の underline）。帰り道に専用の CSS ファイルは無い
+- 検査: `test_wayhome_player_links.py`（X なし＋slug → リンク、X あり → 名前だけ、どちらも無し・None → 名前だけ・エスケープ）、`test_wayhome_links.py` の `HeroNameLinkTest`（各話の h1・一覧の h2・X あり・どちらも無し）。06f7dceb4 の git archive に新しいテストを入れると FAIL 2・ERROR 3（リンクの2件と新しい関数の3件）。全体は 2014 件 OK
+- 生成: `regenerate-page.yml`（target_page: video_wayhome wayhome_episodes）を check: true で成功させた後、本生成（ab90d6721）。差分は wayhome/index.html・wayhome/aNSsJicbMlM.html（#1）・wayhome/O0D8Dz7Kqpo.html（#2）の3ファイル、各1行（名前が /pro/shigekazu.moriyama.1/ へのリンク）。mtsuku/・サイトマップの差分は 0
+- プレビュー（Workers Builds の別名 URL、ab90d6721）で 360px: 一覧と #1 とも、名前は白・下線・28px（見出しと同じ）、target なし、横スクロールなし。リンク先の /pro/shigekazu.moriyama.1/ は 200。要求は本番ではなくプレビューへ5件（UA に mj-internal）
+- 差分レビュー（新しい文脈のサブエージェント、1回）: `git diff ebe43d263 ab90d6721` を正しさ・Mつくへの影響・テスト・最小の変更・docstring の観点で。must-fix・should-fix なし。nit 3件: ①テストのクラス間の空行 → 直した（b727e7aa9、生成に影響なし）②名前が空で slug がある場合の空の a → 呼び出しは名前で引くので起きない ③名前の前後の空白が a の中に残る → シートの値は整形済みで影響なし。①のあともテストは全件 OK
+- docs/decisions/pros.md に決定を足した。#195 にコメント（issuecomment-6626313645）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1101-prp-pub
 - ログ: https://github.com/retroeater/mj/blob/work/1101-prp-pub/docs/logs/CHAT-1104-PRP-20.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1101-prp-pub
-- 確認用URL: 作業中
-- マージ: 未（判断待ち）
-- issue: #641・#195
-- 判断が必要なこと: 作業中
-- 未確認の項目: 作業中
+- 確認用URL: ターミナルへの最終報告に記載（プレビュー）
+- マージ: 未（判断待ち。公開のマージの指示で行う）
+- issue: #641・#195（#195 にコメント）
+- 判断が必要なこと: なし
+- 未確認の項目: 本番での見え方（公開のマージの後）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj a4a9ed1b）: https://github.com/retroeater/mj-logs/tree/main/guide/a4a9ed1b
+ガイド文書（この版を写した時点の最新、mj 1d5e1177）: https://github.com/retroeater/mj-logs/tree/main/guide/1d5e1177
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a4a9ed1b/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a4a9ed1b/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a4a9ed1b/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a4a9ed1b/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a4a9ed1b/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a4a9ed1b/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/95028c1a.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/1d5e1177/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/1d5e1177/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/1d5e1177/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/1d5e1177/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/1d5e1177/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/1d5e1177/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a4a9ed1b.md
