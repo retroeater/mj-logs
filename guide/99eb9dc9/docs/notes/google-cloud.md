@@ -30,11 +30,11 @@ Google Cloud（Google Maps Platform を含む）の設定値をまとめる文�
 | メソッド | 1日 | 1分 | 1分・ユーザーごと | 確かめた日 |
 |---|---|---|---|---|
 | GetPlaceRequest（Place Details） | 3,000（2026-11-04 に 125,000 から下げた。呼びすぎたときの費用の歯止め） | 600 | 無制限 | 2026-11-04（平野さんが画面で） |
-| SearchTextRequest（Text Search） | 要確認（2026-10-19 の決定: 変換のあいだ 1,000 → 3,000、済んだら 1,000 に戻す。今の値は平野さんが画面で確かめる） | 要確認 | 要確認 | — |
+| SearchTextRequest（Text Search） | 1,000（2026-10-19 の決定で変換のあいだ 3,000 に上げ、済んだら 1,000 に戻すとした値。戻し済み） | 600 | 無制限 | 2026-11-04（平野さんが画面で） |
 | SearchNearbyRequest（Nearby Search） | 要確認（同上。2026-10-29 の決定で使わなくなった） | 要確認 | 要確認 | — |
 
 - 2026-11-04 に、閉業の判定（mode closed、CHAT-1104-LGN-28）の本番の2回で GetPlaceRequest の1日の 3,000 に 100% 達した（1分は 43%）。1回の判定は約 1,700回呼ぶので、失敗した実行を同じ日にやり直す前に、割り当てと指標の画面で使った回数を確かめる（docs/notes/log-page.md の閉業の項）
-- ほかの API（Sheets・Drive・Calendar・Search Console・YouTube Data）の割り当ての値は記録していない。Sheets API の1分あたりの読み取りの上限の 429 は #662
+- ほかの API（Sheets・Drive・Calendar・Search Console・YouTube Data）の割り当ての値は記録していない。Sheets API の1分あたりの読み取りの上限の 429 は #662 で対策して閉じた（docs/notes/sheets-reader.md「段取りと今の状態」5.。再発したら新しい issue）
 
 ## 無料の枠と単価（Places）
 

@@ -8,8 +8,9 @@
 | 項目 | 所在 |
 |---|---|
 | 生成 | `scripts/generate_top_page.py`（ページ名 `top_page`。`regenerate.py` の `OUTPUT_OVERRIDES` で `top/`、`RUN_LAST` で pro/ の後） |
-| JS | `assets/top.js`（日付で変わる行の出し分けと新着の番組・誕生日の「もっと見る」、X の画像が読めないときの頭の1字） |
-| CSS | `assets/top.css`（誕生日の日付と写真・新着の番組の行の折り返し）。ほかは houou/・pro/ の部品（`.mj-houou-card`・`.mj-pro-plans`・`.mj-pro-heading`）と、`style.css` の「質問欄の部品」の「もっと見る」の形（`.mj-houou-ask-more`）をそのまま使う |
+| JS | `assets/top.js`（日付で変わる行の出し分けと新着の番組・誕生日の「もっと見る」、X の画像が読めないときの頭の1字、お気に入りの予定） |
+| データ | `top/birthdays.json`（お気に入りの予定が読む在籍者の誕生日 `[[slug, 名前, "MM-DD", X の画像]]`。年は書かない。画像は誕生日の面と同じ `pro/search.json` の写真。生成が毎回書く。公開は 2026-11-04 の決定）、`pro/plans.json`（pro/ の生成物。PRP 系列の担当） |
+| CSS | `assets/top.css`（誕生日の日付と写真・新着の番組の行の折り返し・お気に入りの予定の今日の行と名前のチップ）。ほかは houou/・pro/ の部品（`.mj-houou-card`・`.mj-pro-plans`・`.mj-pro-heading`）と、`style.css` の「質問欄の部品」の「もっと見る」の形（`.mj-houou-ask-more`）をそのまま使う |
 | 配信 | `_redirects` の `/top` → `/top/`（301）・`/top/` → `/top/index.html`（200）、`check-assets.yml` の `allowed()` の `top` |
 | ナビ | `navbar.js` の白地のナビの対象に `/top/`（`newNavCurrent = 'トップ'`。どの項目にも当たらないので印は付かない）。新しい形のページの共通ナビ（細い帯・≡ のメニュー・AI 検索のアイコンで帯の下に開く質問欄）は docs/notes/design.md「共通ナビ（新しい形）」 |
 | 毎朝 | `update-live-channel.yml` の `regenerate` ジョブの `target_page` に `top_page`（pro/ の後） |
@@ -18,7 +19,7 @@
 ## 面（2026-11-03〜04 の決定の並び）
 
 1. 上部 — ロゴ（h1「ryoei.pro」）だけ。AIコンシェルジュの入力欄は 2026-11-04 にやめた（入口は共通ナビの AI 検索のアイコン。下の「質問」）
-2. お気に入りの今後の予定 — 差し込み口 `data-top-slot="favorites"` だけ（中身は後の指示。JS が実行時に pro/ 側の予定の JSON を読み、localStorage のお気に入りで絞って5件と「ほかN件」。0件の人には「pro/ の個別ページの ★ でお気に入りに登録できます」の1行）
+2. お気に入りの予定 — 下の「お気に入りの予定」
 3. 誕生日（#286） — 下の「誕生日」
 4. 新着の番組 — 下の「新着の番組」
 5. ページ末尾の説明文（`lib/page.py` の `.mj-lead`）
@@ -26,6 +27,22 @@
 「各セクション」の導線の面は 2026-11-03 に消した（ナビゲーションは上の共通ナビに任せる、TOP-07）。「開催中・直近の大会」の面と一行の説明「日本プロ麻雀連盟の選手・大会・放送対局のデータ」も 2026-11-03 にやめた（TOP-11）。
 
 題は「日本プロ麻雀連盟の選手と大会のデータ | ryoei.pro」、h1 は「ryoei.pro」、JSON-LD は `WebSite`（今の index.html と同じ）。
+
+## お気に入りの予定（2026-11-04 の決定）
+
+端末の「お気に入り」（pro/ の個別ページの ★、localStorage `mj:favorites`〈`[{slug, name}]`〉）の選手の今後の予定と誕生日を、日付の近い順に混ぜて1行1件で出す（`assets/top.js` の `favoriteRows()`）。お気に入りの中身は URL に載せない。
+
+- 生成（`favorites_panel()`）は見出し `#top_favorites` と面 `[data-top-favorites]` の枠だけを hidden で焼き、`top/birthdays.json`（`birthday_index()`）を書く。中身は JS が描く
+- 予定: `pro/plans.json` のうち、お気に入りの slug で、日付が日本時間の今日以降の行（`assets/pro.js` の `isPastPlan()` と同じ基準。今日の行は時刻が過ぎても残る）。誕生日: `top/birthdays.json` から、今日から30日後（`FAVORITES_DAYS`、その日を含む）までに来る日。2/29 生まれは閏年の 2/29 だけ（`簡略化:`）
+- 並び: 日付の順。同じ日は誕生日 → 時刻の無い予定（最強戦・道場部）→ 時刻の順
+- 行: 誕生日・新着の番組の行と同じく行全体が1つのリンク（入れ子にしない）。左に顔写真（誕生日の面と同じ 40px の丸。`top/birthdays.json` の画像。無い・読めないときは頭の1字の丸。誕生日の無い在籍者は JSON に入らないので頭の1字、`簡略化:`）、1段目に日付（今日・明日はその語）と時刻・種類のチップ（放送・最強戦・道場部・誕生日）・役（実況・解説）、2段目に題、3段目に選手名（リンクにしない）、右に ›。行き先は予定の `href`（https の外部は新しいタブで、行の最後に読み上げ用の「（新しいタブで開く）」を必ず添える。`rowLink()`）、誕生日の行は個別ページ（題が「〇〇さんの誕生日」で選手名の段は無い）。今日の行は日付を紺の太字
+- 名前は `plans.json`・`top/birthdays.json` の現在名（改名に追従）。どちらにも無い slug は `mj:favorites` の名前
+- 件数: 最初は5件（`FAVORITES_FIRST`）、「もっと見る」で残りを全部（新着の番組と同じ `setupList()`）
+- お気に入りが0人: 面を出し、案内「選手のページの ☆ で「お気に入り」に入れると、ここに放送対局や誕生日が出ます」と連盟プロ（`/pro/`）へのリンク
+- お気に入りはいるが行が無い: 「お気に入りの選手の予定はまだありません」と選手名のチップ（個別ページへ）
+- localStorage が使えない・`plans.json` が読めない: 面を出さない。`top/birthdays.json` だけ読めないときは誕生日の行を出さない（`簡略化:`）
+- リンクにするのは https の URL とルート相対のパスだけ（`safeHref()`。`//`・`/\` で始まるものは外す）。slug は英小文字・数字・`.`・`-` の形だけ使う
+- 検査は `scripts/tests/test_top_page.py` の `FavoritesPanelTest`・`FavoritesJsTest`（並び・30日の境目・今日と明日の語・年またぎ・改名・リンク・外部の行の「新しいタブで開く」・顔写真・0人・壊れた値・`assets/pro.js` の `parseFavorites()` と同じ読み方）。件数と「もっと見る」、localStorage が使えないときは画面で確かめた（#101）
 
 ## 質問（AIコンシェルジュ）
 

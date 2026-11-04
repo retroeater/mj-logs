@@ -98,28 +98,43 @@ Chat-Ref: CHAT-1105-ACF-42
 - 一覧はサブエージェントに list_workflow_runs で取らせ、regenerate-page は自分でも直近4件を見て一致を確かめた。fetch-youtube の最新は 41683310617（11-03 17:20Z、failure。#662 の発端の run で、マージより前）
 - ページを飛ばした run は無し（regenerate.py は飛ばすと終了コード3で job を failure にする。全件 success）。止まる条件に当たらない
 
+### 手順2
+- #662 にクローズのコメント: https://github.com/retroeater/mj/issues/662#issuecomment-6644263233
+- #662 を completed で閉じた。外すラベルは無かった（「分野: 自動化」「対象: 全ページ」だけ）
+
+### 手順3（6db0a429b）
+`git grep -n '#662' -- . ':!docs/logs' ':!docs/decisions'` の結果と扱い:
+- docs/notes/sheets-reader.md「段取りと今の状態」5.（「**残り**: … 429 は #662 で扱う」）→ 「読み取りの上限（1分あたり）の 429」として、#662 で対策して閉じたこと・効果（545→105 回、37分41秒→16分14秒）・行っていない対策・再発したら新しい issue、に書き換えた。続く要約の行の説明（2行）はそのまま
+- docs/notes/google-cloud.md:37（「429 は #662」。今の扱い先として読める）→ 「#662 で対策して閉じた（sheets-reader.md 5.。再発したら新しい issue）」に直した
+- 直さなかった所（#662 を未解決・残りとして挙げていない。出典として #662 を付けているだけ）: docs/notes/github-actions.md:71・docs/notes/research-candidates.md:66（シートを読まない朝の理由）・docs/notes/static-generation.md:319（キャッシュの説明）・scripts/ のコメントとテスト（lib/sheets.py・regenerate.py・research_candidates.py・tests）。CLAUDE.md・docs/handover.md に #662 は無し
+- 未マージの work/ ブランチで sheets-reader.md・google-cloud.md・decisions/security.md を変えるものは無し（static-generation.md を変えるブランチ〈work/1101-prp-pub・work/1104-lgn-policy〉はあるが、今回は触っていない）
+- docs/decisions/security.md の末尾（#662 の節の続き、ACF-40 の後）に「決定」を足した
+
+### マージ
+- `git push origin work/1105-acf:cloudflare` → `04d7a0704b..e14d00595d`（直前に fetch し、cloudflare が HEAD の祖先であることを確かめた）
+
 ## 報告
 
-- 状態:
-- ブランチ:
-- ログ:
-- 比較URL:
-- 確認用URL:
-- マージ:
-- issue:
-- 判断が必要なこと:
-- 未確認の項目:
-- エラー:
+- 状態: 完了
+- ブランチ: work/1105-acf
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1105-ACF-42.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1105-acf
+- 確認用URL: なし
+- マージ: 済（ドキュメントのみ。04d7a0704b..e14d00595d）
+- issue: #662（クローズ。コメント https://github.com/retroeater/mj/issues/662#issuecomment-6644263233 ）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj fa43459d）: https://github.com/retroeater/mj-logs/tree/main/guide/fa43459d
+ガイド文書（この版を写した時点の最新、mj 99eb9dc9）: https://github.com/retroeater/mj-logs/tree/main/guide/99eb9dc9
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/fa43459d/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/fa43459d/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/fa43459d/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/fa43459d/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/fa43459d/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/fa43459d/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/99eb9dc9/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/99eb9dc9/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/99eb9dc9/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/99eb9dc9/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/99eb9dc9/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/99eb9dc9/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/04d7a070.md
