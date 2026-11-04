@@ -59,6 +59,30 @@
 - #662: open、コメント0件（他セッションの着手中コメントなし）
 - 0章ゲート: CLAUDE.md 23,981 B・handover.md 24,279 B（警告域 26KB 未満）。未マージの work/ ブランチのうち、触る予定のファイル（scripts/lib/sheets.py・scripts/generate_title_pages.py・docs/notes/sheets-reader.md）を変えているのは work/1101-prp-pub の generate_title_pages.py だけで、変更箇所は 41・780〜810・1239〜1262 行付近（`fetch_tab()` は 263 行で範囲外）。止まる条件に当たらない
 - 作業ブランチ: ローカル・リモートとも無し → `git checkout -b work/1104-acf-count origin/cloudflare`（3c7a64ac6）
+- #662 に着手中のコメント: https://github.com/retroeater/mj/issues/662#issuecomment-6620701164
+
+### 手順1: 読み取りの形の確認と実装
+
+- 読み取りの経路: `scripts/` でシートを読むのはすべて `lib/sheets.py` の公開関数（`fetch_sheet`・`fetch_records`・`fetch_columns`・`fetch_table`・`fetch_csv`）で、API は `_book()`（`spreadsheets.get`）と `_values()`（`values.get`）から `_get()` を通る。`check_sheets_reader.py` だけは自前で読むが、生成（regenerate.py）の外なので対象外
+- **前提との差**: title の `generate_title_pages.fetch_tab()` は今は `sheets.fetch_table()` を使っており、`_get()`（再試行）も `check_not_filtered()`（フィルタの検知）も通る。前提の「再試行を通らずに読む（#552）」は古い。何もしなくても title_pages は数に入る。#552 はこの点で片付いている可能性があるが、#552 の本文との突き合わせはしていない（判断が必要なことに書く）
+- 実装（eed3f181b・c539027dc）:
+  - `_book()`・`_values()` の本体（`lru_cache` の内側）で数えるので、実際に API を呼んだときだけ1回数える。呼ぶたびに `Sheets API の読み取り: <メソッド> <ブックID の SHA-256 の先頭8桁> 「<タブ>」 <render>` を stderr に1行出す（ページをまたぐ (ブック, タブ, render) の重なりを数えるため。指示の案より広げた点）
+  - `_get()` が待つたびに `Sheets API <状態>: n 回目、m 秒待つ(<メソッド>)` を1行。429 と 403 rateLimitExceeded を「上限の待ち」、5xx を「ほかの待ち」に分ける
+  - プロセスの終わり（`atexit`、読んだときだけ）に `Sheets API の呼び出し: 合計 N(spreadsheets.get a・values.get b)、上限(429・403)の待ち c 回・合計 d 秒、ほかの待ち e 回・合計 f 秒、経過 g 秒`
+  - 要約は traceback の後に出るので、`regenerate.py` の `run_page()` が失敗の理由（最後の行）から要約の行を除く。そのため regenerate.py が `lib.sheets` を読み込み、`test_regenerate.py` の一時のリポジトリに `lib/sheets.py`・`lib/net_retry.py` も写すようにした（`LIB_FILES`）
+- テスト: `scripts/tests/test_sheets_count.py`（7件）。`python3 -m unittest discover -s scripts/tests` は 1930件 OK。修正前の regenerate.py・sheets.py に戻すと、新しいテストは落ちる（sheets.py が古いと読み込みで AttributeError、regenerate.py だけ古いと理由のテストが「Sheets API の呼び出し: …」を理由にして FAIL）
+
+### self-review（1回目）
+
+新しい文脈のサブエージェントに `git diff origin/cloudflare...HEAD -- scripts/` と目的・決定・コード規約を渡した。must-fix なし。扱い:
+
+- 403 rateLimitExceeded が「ほかの待ち」に入る → 直した（c539027dc、テストを1件足した）
+- `_get()` の `spreadsheets.get` 側の分岐にテストが無い → 同じコミットで足した
+- 呼び出しごとの行は指示の案より広い → 意図して足した（重なりを数えるため）。報告に書く
+- `check-image-links.yml` の `collect_saikyo_images.py`・`check_sns_book_images.py` は `2>&1 | tee` を実行サマリに貼るので、そこにも呼び出しの行と要約が混ざる（ID は出ない。壊れない）→ 判断が必要なことに書く
+- 既存の `lib/net_retry.call()` はタイムアウト・接続の失敗の再試行で URL（ブック ID を含む）を stderr に出している（今回の変更の外）→ 判断が必要なことに書く
+- テストのプロセスで他のテストの偽の呼び出しの行が出る（`test_sheets_count.py` で atexit の要約だけ止めた）→ 失敗はしないので残す
+- 鍵が無いときも1回と数える → CI では鍵があるので残す
 
 ## 報告
 
