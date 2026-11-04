@@ -90,6 +90,17 @@ Chat-Ref: CHAT-1104-ACF-40
 - 足したテスト（scripts/tests/test_sheets_count.py）: 2つ目のプロセスがキャッシュに当たって API を呼ばない（本物の subprocess 2本。値 `[[6010.0, 'a', True]]` の型が変わらない・要約が `合計 0…、キャッシュ 1 回、`）・環境変数が無いと各プロセスが呼ぶ・render やタブの違いは別の鍵・ファイル名にブック ID が出ない・壊れたキャッシュは読み直して書き直す・失敗は置かない・書けなくても値を返す・regenerate の子が同じディレクトリを受け取り、終わりに消え、リポジトリの外・要約の行の形
 - 修正前のコードで通らないか（#310）: origin/cloudflare の worktree に新しいテストのファイルだけを写して実行 → `Ran 21 tests … FAILED (errors=20)`（通るのは理由の行のテスト1件だけ）
 
+### 手順1: self-review（docs/notes/self-review.md）
+1回目（新しい文脈の general-purpose、`git diff origin/cloudflare...HEAD -- scripts/ docs/notes/`）: JSON の往復・鍵の衝突・compare_ref・--check・参照元・権限は問題なし。指摘3件:
+
+| 指摘 | 扱い |
+|---|---|
+| `main()` が `sheets_cache()` で囲むことを確かめるテストが無い（regenerate.py の main、test_sheets_count.py） | 直した（14472414e、`RegenerateMainCacheTest` で通常の生成と --check） |
+| 書き込みの途中の OSError で `.tmp` が残る（lib/sheets.py `_write_cache`） | 直した（14472414e、unlink とテスト） |
+| 「1回の実行の中でシートが変わらない」前提の `簡略化:` のコメントが無い | 直した（14472414e、`_read` の冒頭） |
+
+2回目（新しい文脈、`git show 14472414e` だけ）: 3点とも直っている。変異試験（コピーした一時ディレクトリで）: --check の `sheets_cache()` を外す・通常の生成の `sheets_cache()` を外す・ページごとに作る・unlink を消す、の4つともテストが落ちた。対応の要る指摘なし。`python3 -m unittest discover -s scripts/tests`: Ran 1979 tests、OK
+
 ## 報告
 
 - 状態:
