@@ -119,15 +119,44 @@ TOP 系列（サイトのトップ #101）から依頼があった。
 | 時点の検査は、日付そのものは見なくなるが、文の形・「まで」の重ならないこと・形の正規表現は残る | 問題なし |
 | `playersIn` を export しても他に影響なし（呼ぶのは `cardsOf` だけ） | 問題なし |
 
+### 5. マージと本番
+
+- 取り込み: 不要（origin/cloudflare 2aae12dac が作業ブランチの祖先のまま）。再 fetch して `git merge-base --is-ancestor origin/cloudflare HEAD` が真、`git push origin work/1104-aic:cloudflare`（2aae12dac..f1a600501）
+- check-run（f1a600501）: Workers Builds: mj-ask success（2026-11-05T00:49:32Z = 09:49 JST）。notify は skipped（2件）
+- 本番の1問（Worker の本体を直したため）: 2026-11-05 10:04 JST、横断（`contest: "all"`、context なし）「佐々木寿人の成績は？」、`Origin: https://ryoei.pro`・UA に `mj-internal`。送る前の status は remaining 10
+  - `answered`、`contests` は houou・jwrc・saikyo
+  - `players[]`: 佐々木寿人（houou `/houou/players/?name=…`）・佐々木寿人（jwrc `/jwrc/players/?name=…`）・佐々木寿人（saikyo `/saikyo/players/?name=…`）の3件。AIC-35 の本番（2026-11-05 09:22 JST）と同じ
+  - 答えの文はデータと一致（鳳凰戦: 25期、第23期前期 D2 8位昇級、第37期・第40期・第42期 A1 2位・2位・3位で決定戦、第37期・第38期・第40期の鳳凰位。WRC: 決勝の第10期 4位。最強戦: 出場数16回・ファイナル5回・勝率.421・連続出場16回・最強位0回、2025年度の最強夫婦決戦のベスト8 A卓 1位通過〈データの行どおり。同じ年度の決勝 2位敗退は答えに無い〉）。文の言い回しは AIC-35 の回と違うが、Claude の答えの揺れで、`playersIn` は文に関わらない
+- #654 に、足した検査の場所と見ている点をコメントした
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1104-aic
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1104-AIC-36.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1104-aic
+- 確認用URL: なし（Worker の変更。本番の1問は「経過」の5）
+- マージ: 済（f1a600501）
+- issue: #654（着手中と、足した検査の場所・見ている点をコメント）
+- 判断が必要なこと:
+  - チャット側の気づき（短い名前が長い名前の中に出た後、単独でも出る文で拾わない）は、見立てどおり今のコードで起きていた。直した（Worker の本体、72624d064）。今のデータでは、ある名前が別の名前を含む組が5大会とも0件で、カードは変わらない（新旧の比べ 645件同じ）。直したことでよいか
+  - 指示の外の変更: `node --test` が着手時の cloudflare で2件落ちていた（最強戦のデータの時点「2026年10月25日」を固定で書いた検査が、日々の生成で 11月1日に進んで落ちた。AIC 系列で足した検査）。マージの条件を満たすため、時点をデータから取る形に直した（196ed1b24、テストだけ）
+- 未確認の項目（AIC-35 から写した）:
+  - 2026-11-09（月）03:00 JST の週次の書き出しが動き、ブックに 11/02〜11/08 の行が入るか。あわせて、2026-11-02 10:09 JST ごろの「現女流桜花は？」の「引数」の列に from・to が入っているか
+  - 地域で断られた問いが、新しい結果（`region`、ブック「地域で使えない」）で記録に入るか
+  - 横断の記録（型 `all:…`）が週次の書き出しのブックに入るか（2026-11-09 03:00 JST の書き出しで）
+  - 期の外で期を外して答える問い（例「22期の和久津晶成績」）の答えに、冒頭の文と重なる「第N期の記録はありません」が出ないか（週次の記録で見る）
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj f1a60050）: https://github.com/retroeater/mj-logs/tree/main/guide/f1a60050
+ガイド文書（この版を写した時点の最新、mj 7864a244）: https://github.com/retroeater/mj-logs/tree/main/guide/7864a244
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f1a60050/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f1a60050/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f1a60050/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f1a60050/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f1a60050/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f1a60050/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/7864a244/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/7864a244/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/7864a244/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/7864a244/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/7864a244/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/7864a244/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/2aae12da.md
