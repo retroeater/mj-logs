@@ -116,14 +116,22 @@ https://ryoei.pro/log/
 
 - すべて止まる条件の範囲の中。`assets/log.js`・`scripts/generate_log_pages.py`・`scripts/lib/`・`log/`・`style.css` の差分は無い
 
+### 3. マージと後の確かめ
+
+- push の直前に `git fetch origin cloudflare` と `git merge-base --is-ancestor origin/cloudflare HEAD`（真）を確かめ、`git push origin work/1105-lgv:cloudflare`（201acc32f..652fd4a6a、2026-11-06 08:50 JST 頃）
+- 652fd4a6a の check-run: Workers Builds: mj success・Workers Builds: mj-ask success・sync success・check success・notify skipped（3件）
+- push で走ったワークフロー: 「サイトマップの lastmod の同期」success・「公開対象の検査」success・「本番ビルド失敗の検知」skipped（3件、ビルドが成功したため）。「ページの再生成」は走らない（`scripts/promo_video/` は検知の対象外）
+- マージ後の origin/cloudflare に追加のコミット（再生成・lastmod）は無い。log/ の生成物は変わっていない
+- 本番に出るのは文書と `scripts/` だけで、どちらも `.assetsignore` で配信の対象外。本番のページの見え方は変わらない（ブラウザでの見え方は確かめていない）
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1105-lgv
-- ログ: https://github.com/retroeater/mj/blob/work/1105-lgv/docs/logs/CHAT-1106-LGV-04.md
+- 状態: 完了
+- ブランチ: work/1105-lgv（マージ済み。削除は cleanup-branches.yml）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1106-LGV-04.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1105-lgv
 - 確認用URL: なし
-- マージ: 未
+- マージ: 済（652fd4a6a）
 - issue: なし
 - 判断が必要なこと: なし
 - 未確認の項目: なし
