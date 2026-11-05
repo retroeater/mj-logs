@@ -113,7 +113,7 @@ Chat-Ref: CHAT-1104-SKN-08
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1104-SKN-09
 - ブランチ: work/1105-skn-live
 - ログ: https://github.com/retroeater/mj/blob/work/1105-skn-live/docs/logs/CHAT-1104-SKN-08.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1105-skn-live
