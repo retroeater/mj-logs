@@ -72,28 +72,53 @@ ACF 系列の振り返り（Sheets API の 429・#662 のキャッシュ・#552 
 
 ## 経過
 
+### 着手前の確認
+- 同じ Chat-Ref のコミット: なし。`ACF` は続き。0. 指示欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 欠けなし
+- 前提の表（知見 → 選んだ層 → 理由）あり（CLAUDE.md「Chat-Ref」のガイド文に規則を足す指示の条件を満たす）
+- 作業ブランチ: ローカル・リモートとも無かったので `git checkout -b work/1105-acf-ho origin/cloudflare`（f0d9e1f8f3）
+
+### 手順1: 追記先と容量
+- docs/instruction-template.md 28行「待機の上限15分と、共有の定数・関数を変えるときの全ページ再生成は … 指示文には例外だけ書く」: 前提の案と同じ趣旨で、矛盾なし
+- docs/notes/chat-side-operations.md「Claude Code とのやり取り」54行「返答の最後に、『未完了の指示』… と、平野さんの手作業の残りを一覧で出す」: 矛盾なし
+- docs/decisions/operations.md の末尾は CHAT-1105-LGF-09。直前の振り返りの節は CHAT-1104-LGN-33（1733行）の形（1つ目の箇条に系列の説明と「中身はチャット側の案」、その下に字下げで各点、最後に「作業中の回答」）
+- 容量（check-assets.yml「ガイド文書のサイズを確認」と同じ `wc -c`）: 着手時 chat-side-operations.md 22,569（警告域 26,624・上限 28,672）、instruction-template.md 13,650（警告域 14,336・上限 16,384）。CLAUDE.md 23,981・handover.md 24,518（触らない）
+- 未マージの work/ ブランチ: docs/decisions/operations.md を変えるのは work/1104-lgn-policy・work/1105-lgf-ui（どちらも末尾への追記。追記どうしの衝突なら両方を残して解ける）。instruction-template.md・chat-side-operations.md・decisions/security.md・notes/cloudflare.md を変えるものは無し
+
+### 手順2（0509478b17）
+- instruction-template.md 28行の末尾に「（例: 全ページの再生成・compare_ref の比べ・共有の lib を変えたマージ後の push 検知の再生成を待つ指示は、同じセッションで合計45分まで延長してよいと書く。並走で15分を超え、往復が増える）」を足した（案のまま）。13,650 → 13,913
+- chat-side-operations.md 54行の「平野さんの手作業の残りを一覧で出す。」を「平野さんの手作業の残り・『後で伺う』と言った問いを一覧で出す（言ったまま落とさない）。」にした（+75 バイト）
+- 純増の相殺: chat-side-operations.md「確認用 URL」の「**Code が撮った画像は URL と別で、作業ブランチの `docs/logs/<Chat-Ref>/` に置いてよい**（mj-logs には写らないので REST で読む）。」（見た目の確かめの場面だけで効く行）を、同じ節が既に指している docs/notes/cloudflare.md「work/ ブランチのプレビュー」の「この URL は非公開として扱い…」の次の行へ移した（移した旨を括弧で付けた）。chat-side-operations.md は 22,569 → 22,476（純減 93）。4文書とも警告域の下
+- docs/decisions/security.md の CHAT-1105-ACF-42 の節の2行目の括弧に「ACF-42 の時点ではチャット側が選択肢の説明に足した方針だったが、2026-11-05 に単独の問いで平野さんの決定と確認した、CHAT-1105-ACF-43」を足した
+
+### 手順3（0509478b17）
+- docs/decisions/operations.md の末尾に「## 2026-11-05（CHAT-1105-ACF-43）」を足した。LGN-33 と同じ形で、振り返り5点・Fable 5.1 のレビュー・前回の約束・足したもの（2行と相殺の移し先）・足さないもの・約束 (a)〜(c) を「中身はチャット側の案」の下に、決定の2・3点目を独立の箇条に書いた
+- 止まる条件（矛盾・容量・重なり）には当たらなかった
+
+### マージ
+- `git push origin work/1105-acf-ho:cloudflare` → `f0d9e1f8f3..e97765b78c`（直前に fetch し、cloudflare が HEAD の祖先であることを確かめた）
+
 ## 報告
 
-- 状態:
-- ブランチ:
-- ログ:
-- 比較URL:
-- 確認用URL:
-- マージ:
-- issue:
-- 判断が必要なこと:
-- 未確認の項目:
-- エラー:
+- 状態: 完了
+- ブランチ: work/1105-acf-ho
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1105-ACF-43.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1105-acf-ho
+- 確認用URL: なし
+- マージ: 済（ドキュメントのみ。f0d9e1f8f3..e97765b78c）
+- issue: なし
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj d7a17d1b）: https://github.com/retroeater/mj-logs/tree/main/guide/d7a17d1b
+ガイド文書（この版を写した時点の最新、mj fc1c303e）: https://github.com/retroeater/mj-logs/tree/main/guide/fc1c303e
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d7a17d1b/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d7a17d1b/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d7a17d1b/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d7a17d1b/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d7a17d1b/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d7a17d1b/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/fc1c303e/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/fc1c303e/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/fc1c303e/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/fc1c303e/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/fc1c303e/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/fc1c303e/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/04d7a070.md
