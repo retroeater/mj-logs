@@ -1,6 +1,6 @@
 # 朝の報告用の異常（retroeater/mj）
 
-- 書き出した時刻: 2026-11-05 09:07 JST（見た範囲: 2026-11-04 07:07 JST から）
+- 書き出した時刻: 2026-11-05 09:11 JST（見た範囲: 2026-11-04 07:11 JST から）
 - 書き出した実行の契機: workflow_dispatch（main）
 - 異常だけを書く。全体は actions/status.md。判定は mj の scripts/morning_report.py（各ワークフローの直近 100 回まで）
 
@@ -13,8 +13,6 @@
 - 2026-11-04 12:43 convert-x-posts.yml failure（workflow_dispatch・cloudflare）ジョブ「convert」 https://github.com/retroeater/mj/actions/runs/41768833961
 - 2026-11-04 14:19 regenerate-page.yml failure（workflow_dispatch・work/1104-lgn-gnotice）ジョブ「regenerate」：生成に失敗したページを飛ばしました: exam_episodes（理由はジョブのサマリ、#533） https://github.com/retroeater/mj/actions/runs/41778530568
 - 2026-11-05 00:13 regenerate-page.yml failure（workflow_dispatch・work/1104-skn）ジョブ「regenerate」 https://github.com/retroeater/mj/actions/runs/41855451367
-- 2026-11-05 09:02 regenerate-page.yml in_progress（workflow_dispatch・work/1104-skn） https://github.com/retroeater/mj/actions/runs/41938313765
-- 2026-11-05 09:02 regenerate-page.yml pending（workflow_dispatch・work/1104-skn） https://github.com/retroeater/mj/actions/runs/41938317305
 
 ## 2. 予約実行の未実行（予定から3時間以内は「遅れの可能性」。3時間を超えて始まった実行は「遅れて実行」）
 
