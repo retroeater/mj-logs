@@ -704,3 +704,12 @@ GitHub Actions の整理の段③-4（#564）。
 
 - #552 を閉じる（理由: 8bcb3a6e2 以降、`fetch_tab()` は `sheets.fetch_table()` 経由で再試行とフィルタの検知を通る。対象だった jpml_test は 3fb048f0b〈2026-10-19〉で削除済み）
 - 作業中の回答: なし
+
+## 2026-11-05（CHAT-1105-MIN-01）
+
+- Actions の使用量の超過（11/5 に 90%、#298）は Actions の予算（$20）で受ける。削減策は次の2つだけ採る
+  - `regenerate-page.yml` の job `regenerate` に `timeout-minutes: 20` を付ける
+  - 画像リンク切れの検知（`check-image-links.yml`）を `run-daily.yml` から外し、`run-weekly.yml`（毎週月曜 03:00 JST）に入れる。検知が最大7日遅れることは受け入れる（11/2 の案 B のうち、この1本だけ逆に戻す）
+- public に戻す案・作業ブランチの全ページ再生成を減らす運用ルール・`regenerate-page.yml` の全ブランチ共通の concurrency（B1）・作業ブランチの `all` の制限（B4）は今は採らず、11/30 に使用量を実測して判断する
+- #647（全部日次にする〈案 A〉）は前提が崩れたので、計測結果をコメントしてクローズする
+- 作業中の回答: なし
