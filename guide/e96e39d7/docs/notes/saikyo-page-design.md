@@ -17,7 +17,7 @@
 `generate_saikyo_pages.py` が持つ。旧ページを畳んだ #350 第2段で移した）。
 
 シートの更新（週1、月〜火が多い）は、毎朝 `regenerate-saikyo.yml` が saikyo_pages だけを再生成して出す（#537）。
-毎朝 04:00 JST に Worker が起動する `run-daily.yml` が、写真のリンク切れ検知（`check-image-links.yml`）の後に `workflow_call` で呼ぶ（2026-10-16 から。それまでは検知の完了の `workflow_run`）。
+毎朝 04:00 JST に Worker が起動する `run-daily.yml` が、SNS ブックの更新（`update-sns-book.yml`）の後に `workflow_call` で呼ぶ（2026-10-16 から。2026-11-05 までは写真のリンク切れ検知〈`check-image-links.yml`〉の後、それより前は検知の完了の `workflow_run`）。
 差分が無ければコミットしない。ほかに週次の `all` と手動実行（`regenerate-page.yml`）でも再生成される。
 手動で反映するときの差分の見込みには、その対局の年度・対局・卓のページ、個人成績・ランキング・対戦成績・新トップのデータ、sitemap、質問欄のデータに加えて、その対局の出場者が出た過去の卓のページ（下の「〈選手〉の他の対局」のカード。出場者の数だけ過去のページが変わる）を含める（2026-10-28）。
 
@@ -477,8 +477,9 @@ houou/・jwrc/ と同じ形にし、部品（メニューの面・選手を探�
   ため、トリミングで顔が切れないよう正方形にする。写真をカード全面に敷き
   （`object-fit: cover`）、下端に名前を重ねる（通過・敗退は写真の上端の帯）。縦長の写真
   （kinmaweb.jp の 640×960）は上寄り（`object-position: center 20%`）で切り出す
-- **本文の幅**: 最大 960px・左右の余白 16px（CSS 変数 `--mj-saikyo-max-w` / `--mj-saikyo-gutter`）。
-  `title/` の本文（`body:has(.mj-title) main`）と同じ値にそろえた（#412、平野さんの判断 2026-09-21、CHAT-0921-SG-03。
+- **本文の幅**: 新しいページ（`<body>` に `mj-saikyo-n-page`。トップ・年度別・個人成績・ランキング・対戦成績・年度・対局のページ）は、houou/ と同じ**幅 400px の中央寄せ**（2026-11-05 の決定、#669）。年度別・対戦成績・年度・対局のページの `.mj-saikyo` は、`body.mj-saikyo-n-page` で変数を 400px にし、余白（16px 16px 28px）・説明文の左右 20px・パンくずの行の高さを houou/ の `.mj-race`・`.mj-houou-crumbs` にそろえた。そろっていることは `scripts/tests/test_new_site_column.py` が確かめる。卓のページ（/live と同じ濃色の作り）は下の 960px のまま（同じ `.mj-saikyo` を使う live/ の一覧と title/ も 2026-11-05 に 400px の中央寄せへ移した。title/ は CHAT-1105-TTL-12）。
+  以下は 960px の列の記録: 最大 960px・左右の余白 16px（CSS 変数 `--mj-saikyo-max-w` / `--mj-saikyo-gutter`）。
+  当時の `title/` の本文（`body:has(.mj-title) main`、今は無い）と同じ値にそろえた（#412、平野さんの判断 2026-09-21、CHAT-0921-SG-03。
   それまでは 720px・8px）。1366px 幅でカードは 165.5px → **221.5px**。390px 幅では左右の余白が増えた分
   174px → 166px に小さくなる（`title/` も同じ余白なので、狭い画面での見え方は両者でそろう）
   - ページ末尾の説明文（`.mj-lead`）も同じ列に収める（`body:has(.mj-saikyo) .mj-lead`、CHAT-0921-SG-04）。
@@ -656,7 +657,7 @@ houou/・jwrc/ と同じ形にし、部品（メニューの面・選手を探�
 （調査はCHAT-0916-SK-34。unavatar.io は1日25件〈APIキー登録で50件〉で足りない）。
 壊れるのはアイコンを変えた選手だけなので、SNS ブックの毎日の更新（04:10）が、HEAD で取れなくなった行と ID が変わった行だけを X 公式 API で取り直す（#514）。
 
-### `scripts/collect_saikyo_images.py`（手動実行＋毎日の検知）
+### `scripts/collect_saikyo_images.py`（手動実行＋週次の検知）
 
 写真のURLをHEADで確認し、取得できないものをCSVと検知の issue に出す。**解決はしない（X API を呼ばない）。** 取り直しは SNS ブックの
 毎日の更新（`scripts/update_sns_book.py`、04:10）だけが行う（検知と更新で二重に呼ばない、2026-10-11）。写真とハンドルは年度ページと同じく
@@ -672,8 +673,8 @@ python3 scripts/collect_saikyo_images.py --json result.json  # ワークフロ�
 python3 scripts/collect_saikyo_images.py --resolve-test 104307  # 1件だけ解決して診断を出す
 ```
 
-- **毎日の検知**: `.github/workflows/check-image-links.yml` のジョブ `saikyo` を、毎朝の運行（`run-daily.yml`。Worker `mj-scheduler` が毎日 04:00 JST に起動）が
-  入力 `scheduled` 付きで呼び（docs/notes/github-actions.md「run-daily.yml」。この起動ではジョブ `saikyo` だけが動く）、`--json` で実行して
+- **週次の検知**: `.github/workflows/check-image-links.yml` のジョブ `saikyo` を、週次の運行（`run-weekly.yml`。Worker `mj-scheduler` が毎週月曜 03:00 JST に起動。2026-11-05 までは毎朝の `run-daily.yml`、#298）が
+  入力 `scheduled` 付きで呼び（docs/notes/github-actions.md「run-weekly.yml・run-monthly.yml」。この起動ではジョブ `check`・`saikyo`・`sns_book` の3つが動く）、`--json` で実行して
   常設issue「最強戦の選手写真のリンク切れ検知結果」に選手名・ハンドル・行数・取得できなかったURL・SNS ブックでの状態を書き出す。
   ゼロになればコメントしてクローズする（CHAT-0916-SK-44、#139）。毎週月曜の予約実行（`schedule`）は `jpml_pros.html` のジョブ `check` だけを動かしていた（2026-11-01 に外した）。
   通知はissue経由のGitHubの通知で、メールを直接送る仕組みは無い。issueがopenのまま本文だけ更新された場合は通知が来ないことがある。

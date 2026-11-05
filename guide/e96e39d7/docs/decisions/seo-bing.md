@@ -235,3 +235,7 @@
 - SEO-13 の案で今から変わる行はすべて行う: houou/・ouka/・jwrc/・wrcr/ のトップ・`ranking/`・`race/` と mtsuku/・exam/ の一覧に付ける、saikyo/players/ から外す（#638）
 - 差分の範囲（canonical の追加・削除と sitemap の lastmod）に収まれば、プレビューを見ずに cloudflare へマージしてよい（canonical は画面に出ないため）
 - 作業中の回答: なし
+
+## 2026-11-05（CHAT-1105-MFQ-03）
+
+- 11/1 の Search Console の取得での #485（旧表 jpml_titles.html への着地）と #142（title 整備の効果の3回目）の確かめの指示文を、朝のチャットで作る

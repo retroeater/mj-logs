@@ -38,15 +38,73 @@ Chat-Ref: CHAT-1105-MFQ-03
 
 完了条件: 最終報告の最後の行が `Chat-Ref: CHAT-1105-MFQ-03`
 
+## 経過
+
+### 着手前の確認
+
+- 手順0: ログの「指示」欄の末尾は指示文の最後の行（完了条件の行）と一致
+- 同じ Chat-Ref のコミット: 0件。`MFQ` はこのセッションの識別子（MFQ-02 に続く指示）
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 欠けなし
+- 0章ゲート: 集計と記録だけで実装を含まないので対象外
+- issue の state: #485・#142 とも open
+- 作業ブランチ: ローカルの `work/1105-mfq` は origin/cloudflare の祖先（MFQ-02 でマージ済み）。`git merge --ff-only origin/cloudflare` で a81f755479 へ進めた
+
+### 手順1
+
+- 直近7日（10-29 以降）のコメント: #485 は0件、#142 は1件（10-29、本文に (5) を足した記録）。11/1 の取得分の集計のコメントは無い
+- 未マージの `work/` ブランチで `docs/gsc/2026-11-01/`・`docs/notes/site-findings.md` を変えているもの: 0件（`git diff --name-only origin/cloudflare...<branch>` で全ブランチを確かめた）。外したファイルは無い
+- 着手中のコメント: #485（issuecomment-6654050156）・#142（issuecomment-6654050845）
+
+### 手順2
+
+前の回のファイル（`docs/gsc/2026-10-01/jpml-titles-landing.md`・`tournament-queries.md`、`docs/gsc/2026-10-09/title-effect.md`・`saikyo-pages.md`・`tournament-queries.md`、`site-findings.md` の #142 の節）を読み、同じ抜き出し方で集計した。集計のスクリプトは scratchpad（コミットしない）。
+
+作ったファイル（すべて `docs/`、公開対象外）:
+
+- `docs/gsc/2026-11-01/jpml-titles-landing.md`（#485）: page.csv 23行・表示 287・クリック 7、query-page.csv 19行・表示 57・クリック 0。2つの基準値（36・1 と 88・3）と並べた。`/title/?name=` への着地は0件。転送の件数（`docs/redirect-counts/2026-10.csv`、11/1 の初回 7d25a4982）: 301 が 673（ボット以外 321）、403 が 110（同 0）。2026-09.csv の全行も並べた
+- `docs/gsc/2026-11-01/title-effect.md`（#142）: (1)〜(5) を 10/9 の取得と並べた表と、言えること・言えないこと
+- `docs/gsc/2026-11-01/tournament-queries.md`: 大会名クエリの全件（125行・88クエリ・表示 1,007・クリック 17）と、10/9 の11クエリの行き先の比較
+- `docs/gsc/2026-11-01/saikyo-pages.md`: saikyo/ 配下の全件（102ページ・表示 987・クリック 46）
+- `docs/notes/site-findings.md`: 「#142 3回目の計測」の項目を、2回目の計測・大会名クエリ・saikyo/ の項目の後に足した
+
+前提・前の回との違い:
+
+- 指示文の置き場所の案は2ファイルだったが、前の回の形（大会名クエリと saikyo/ を別ファイル）に合わせて4ファイルにした（指示文が「実物に合わせて変えてよい」とする範囲）
+- saikyo/ は前の回は `sitemap-saikyo.xml` の17件に固定していたが、今の sitemap は 892件なので、URL に `/saikyo` を含む行をすべて数えた（`saikyo-pages.md` に書いた）
+- houou/ の公開は期間の途中（`_redirects` のコミット edcbe3ba2 が 2026-10-16 06:42 UTC、#540 のクローズは同日）。旧 `houou_leagues.html` は `/houou/leagues/` へ 301（`_redirects` 103行）
+- 前提の「houou_leagues.html（10/9 の取得で表示143・クリック1）」は `?name=` の無い行の値。`?name=` を含む5行の合計は表示 180・クリック 1（両方を表に書いた）
+- 10-29 は未確定の可能性がある（README の注意）。日別の値は取っていない
+
+### 手順3
+
+- #485 に報告（issuecomment-6654120681）: 記録だけ、判断は四半期の棚卸し
+- #142 に報告（issuecomment-6654123724）: 閉じてよいか・案 c に進むかの判断を頼んだ。推奨は「#142 は閉じてよい。案 c は進める価値がある」（Claude Code の推奨として書いた）
+- 決定の節を `docs/decisions/seo-bing.md` に足した（#5・#142 の分野）
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1105-mfq
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1105-MFQ-03.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1105-mfq
+- 確認用URL: なし
+- マージ: 済（776f2b20d6、`a81f755479..776f2b20d6`）
+- issue: #485（着手中・途中経過のコメント）、#142（着手中・報告のコメント）
+- 判断が必要なこと:
+  - #142 を閉じるか（閉じていない。推奨は閉じてよい: title の効果は3回とも分けられず、(2)〜(5) の変化は公開と転送の結果）
+  - #142 の (2) で案 c（`houou/ranking/total/` から `title/houou/` へリンクを1行足す）に進むか（「鳳凰位 歴代」の表示 115 がランキングに着地、`title/houou/` は 0）
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 4a8b9cb3）: https://github.com/retroeater/mj-logs/tree/main/guide/4a8b9cb3
+ガイド文書（この版を写した時点の最新、mj e96e39d7）: https://github.com/retroeater/mj-logs/tree/main/guide/e96e39d7
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/4a8b9cb3/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/4a8b9cb3/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/4a8b9cb3/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/4a8b9cb3/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/4a8b9cb3/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/4a8b9cb3/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e96e39d7/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e96e39d7/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e96e39d7/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e96e39d7/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e96e39d7/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e96e39d7/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/275d8111.md

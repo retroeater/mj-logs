@@ -23,7 +23,7 @@
 
 ## 毎朝の作り直し（`scripts/update_abema_book.py`）
 
-- `regenerate-saikyo.yml` のジョブ `abema` が、最強戦の再生成（ジョブ `regenerate`）の前に動く（毎朝 04:00 JST に起動する `run-daily.yml` が、写真のリンク切れ検知〈ジョブ `images`〉の後に呼ぶ。新しい予約実行は持たない）。`abema` が失敗しても再生成は今の【2】のまま動く
+- `regenerate-saikyo.yml` のジョブ `abema` が、最強戦の再生成（ジョブ `regenerate`）の前に動く（毎朝 04:00 JST に起動する `run-daily.yml` が、SNS ブックの更新〈ジョブ `sns`〉の後に呼ぶ。新しい予約実行は持たない）。`abema` が失敗しても再生成は今の【2】のまま動く
 - 【1】は生成と同じ `lib/sheets.py` の `fetch_table()`（Sheets API、`sheets-reader`）で読み、「最強戦」シートは生成と同じ読み方（`generate_saikyo_pages.load_rows()`・`build_matches()`、名前は現在名）。書く直前に【2】を読み直して、読んだときから変わっていれば書かない。書いた後に読み直して同じことを確かめる
 - 手動実行の入力: abema（update〈書く〉/ dry_run〈書かずに件数だけ〉/ check〈読むだけ。タブ・編集者か・【1】の見出しと行数〉）、regenerate（最強戦のページを再生成するか）。作業ブランチで実行すると再生成の差分は作業ブランチにコミットされる（`regenerate-page.yml`）
 
