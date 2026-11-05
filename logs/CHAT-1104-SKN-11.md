@@ -46,28 +46,53 @@ CHAT-1104-SKN-10 の「判断が必要なこと」への回答。SKN-10 の版�
 
 ## 経過
 
+- 着手前の確認: `CHAT-1104-SKN-11` のコミットは全ブランチに無し。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）の欠け無し。CLAUDE.md は起動時から変わっていない
+- 0. の確認: 「指示」欄の末尾は指示文の最後の行と一致。SKN-10 のログの状態の末尾に ` / 続き: CHAT-1104-SKN-11` を足し、このログと同じコミット（d1e186115）で push
+- 作業ブランチ: work/1105-skn-gutter。`origin/cloudflare` が祖先でなかったので、`git merge origin/cloudflare` で取り込んだ（衝突なし）
+  - 入ったのは TTL の title/ の作り直し（style.css・scripts/tests/test_new_site_column.py ほか）
+  - title/ は CHAT-1105-TTL-12 で 400px の中央寄せにそろえられ、テストの一時の例外（`TEMPORARY_EXCEPTIONS`）は空になっていた
+  - この指示の変更（style.css の `50cqi` の2か所と、`body:has(.mj-video-list)` の `container-type`）はそのまま残っている
+- 決定は docs/decisions/saikyo.md に足した（b5962522b）。この指示ではコードを変えていない（SKN-10 の版のまま）
+- テスト: `python3 -m unittest discover -s scripts/tests` → 2032件 OK
+- `regenerate.py all --check`（run 41979959432）: 「check: 止まるページなし」
+- 新旧の生成物の比べ（`compare_ref=875120e07…`〈その時点の origin/cloudflare〉、run 41979962885）: 「compare: 差分なし」（CSS だけの変更で、生成物は変わらない）
+- SKN-10 の測り方で測った（プレビュー、b5962522b のビルド。`Workers Builds: mj` は success）。4つの一覧とも同じ値で、SKN-10 の報告と同じ（±0 px）
+  - 1280px: 全幅の並び 0..1265・説明文 0..1265・ヒーロー 0..1265（ずれ 0）
+  - 1280px のカード: 1行に4枚、幅 282.0px、並び 38.4..1226.6（左右の余白 38.4px ずつ）
+  - 390px（isMobile）: すべて 0..390（直す前と同じ）
+
+- マージ: push の直前に `git fetch origin cloudflare` し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真であることを確かめてから `git push origin work/1105-skn-gutter:cloudflare` → `875120e07..1948ce8c6  work/1105-skn-gutter -> cloudflare`
+- マージ後
+  - 1948ce8c6 の check-run は Workers Builds: mj が success
+  - `regenerate-page.yml` は動かなかった。push で動くのは `scripts/generate_*.py`・`scripts/lib/**`・`*.js` が変わったときで、この push は style.css と docs だけだった
+- 本番（https://ryoei.pro 。SKN-10 の測り方、UA に mj-internal、`?v=1948ce8c6`）: wayhome/・exam/・mtsuku/・study/ とも同じ値
+  - 1280px: 全幅の並び・説明文・ヒーローが 0..1265（ずれ 0）
+  - 1280px のカード（wayhome）: 1行4枚・幅 282.0px・並び 38.4..1226.6
+  - 390px（isMobile）: すべて 0..390
+- #669 に直したことと残りをコメントした https://github.com/retroeater/mj/issues/669#issuecomment-6651417876 （title/ は TTL-12 でそろったことも書いた。#669 は閉じていない）
+
 ## 報告
 
-- 状態: 対応中
-- ブランチ: work/1105-skn-gutter
-- ログ: https://github.com/retroeater/mj/blob/work/1105-skn-gutter/docs/logs/CHAT-1104-SKN-11.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1105-skn-gutter
-- 確認用URL: なし
-- マージ: 未
-- issue: #669
-- 判断が必要なこと: 未記入
-- 未確認の項目: 未記入
+- 状態: 完了
+- ブランチ: work/1105-skn-gutter（マージ済み。削除は cleanup-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1104-SKN-11.md
+- 比較URL: https://github.com/retroeater/mj/compare/875120e07...1948ce8c6
+- 確認用URL: なし（本番で確かめた。wayhome/・exam/・mtsuku/・study/）
+- マージ: 済（1948ce8c6、範囲 875120e07..1948ce8c6）
+- issue: #669（直したことと残りをコメント）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 5ef09b7d）: https://github.com/retroeater/mj-logs/tree/main/guide/5ef09b7d
+ガイド文書（この版を写した時点の最新、mj 4a8b9cb3）: https://github.com/retroeater/mj-logs/tree/main/guide/4a8b9cb3
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/5ef09b7d/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/5ef09b7d/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/5ef09b7d/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/5ef09b7d/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/5ef09b7d/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/5ef09b7d/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/4a8b9cb3/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/4a8b9cb3/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/4a8b9cb3/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/4a8b9cb3/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/4a8b9cb3/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/4a8b9cb3/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/275d8111.md
