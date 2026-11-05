@@ -93,7 +93,7 @@
 
 ## 報告
 
-- 状態: 判断待ち（止まる条件: 1280px でずれ以外の差〈カードの幅 -3.8px・左右の余白 30.9 → 38.4px〉が出た）
+- 状態: 判断待ち（止まる条件: 1280px でずれ以外の差〈カードの幅 -3.8px・左右の余白 30.9 → 38.4px〉が出た） / 続き: CHAT-1104-SKN-11
 - ブランチ: work/1105-skn-gutter
 - ログ: https://github.com/retroeater/mj/blob/work/1105-skn-gutter/docs/logs/CHAT-1104-SKN-10.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1105-skn-gutter
@@ -108,12 +108,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj d9c57896）: https://github.com/retroeater/mj-logs/tree/main/guide/d9c57896
+ガイド文書（この版を写した時点の最新、mj 5ef09b7d）: https://github.com/retroeater/mj-logs/tree/main/guide/5ef09b7d
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d9c57896/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d9c57896/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d9c57896/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d9c57896/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d9c57896/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d9c57896/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/5ef09b7d/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/5ef09b7d/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/5ef09b7d/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/5ef09b7d/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/5ef09b7d/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/5ef09b7d/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/275d8111.md

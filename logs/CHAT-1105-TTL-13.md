@@ -48,28 +48,49 @@ TTL-12 で作った title/ の配置のそろえ（全ページを houou/ の基
 
 ## 経過
 
+- 着手前の確認: `git log --all --grep 'CHAT-1105-TTL-13'` は0件。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は欠けなし
+- 作業ブランチ: 未マージの `work/1105-ttl`（ローカル・リモートとも 9bce8f38d）を続けて使った。手順0: 指示欄の末尾の行は指示文の最後の行と一致。TTL-12 のログの状態に ` / 続き: CHAT-1105-TTL-13` を足し、このログと一緒に push（75de65fc0）
+- 手順1: origin/cloudflare は 6 コミット先行。`git merge-tree` で衝突なしを確かめ `git merge origin/cloudflare`（1ec99f2a1、衝突なし）。取り込んだ docs 以外の変更は `.github/workflows/` の5本・`scripts/check_image_links.py`・`scripts/collect_saikyo_images.py`・`scripts/lib/x_images.py`（title/ の生成が使うのはこの1本で、変更はコメントの1行だけ）
+  - title/ を生成し直した（`regenerate-page.yml` target_page=title_pages、run 41979209449 success）: 差分なし（コミットが作られなかった）。title_pages は飛ばされていない
+  - テスト（配置のテストを含む）: `python3 -m unittest discover -s scripts/tests` → OK
+  - マージ前の差分（`git diff --name-only origin/cloudflare...HEAD`）: title/ の HTML 385、`sitemap-title.xml`、`style.css`・`scripts/generate_title_pages.py`・`scripts/tests/test_new_site_column.py`、docs（decisions/title.md・notes/design.md・title-pages.md・saikyo-page-design.md・docs/logs 28）。TTL-12 の差分のとおりで、ほかのページ・`search.json`・`years.json` の変化なし
+- docs/decisions/title.md に「2026-11-05（CHAT-1105-TTL-13）」の節（マージの承認・動画の並びは PC でも1列・写真カードは PC でも2列で最も長い大会名の帯は2行）を足した（5ef09b7de。TTL-12 の節と重ねていない）
+- 手順2（マージ）: push 直前に `git fetch origin cloudflare` と `git merge-base --is-ancestor origin/cloudflare HEAD`（真）を確かめ、`git push origin work/1105-ttl:cloudflare` → `57988657c..5ef09b7de  work/1105-ttl -> cloudflare`
+  - 自動再生成（run 41979426923）success、生成物の差分なし。5ef09b7de の Workers Builds: mj は success
+- 手順3（本番、UA に mj-internal、`?v=ttl13…`、headless Chromium）:
+
+  | ページ | 360px の本文の列 | 1280px の本文の列 | 入口の写真カードの列 | 順位の右端の差 |
+  |---|---|---|---|---|
+  | `/title/` | 0〜360 | 440〜840 | 2（両方の幅） | — |
+  | `/title/houou/` | 0〜360 | 440〜840 | — | — |
+  | `/title/houou/41.html` | 0〜360 | 440〜840 | — | 0px |
+  | `/title/pro-queen/24.html` | 0〜360 | 440〜840 | — | 0px |
+
+  TTL-12 のローカルの測り（1280px で左 440・幅 400、360px で左 0・幅 360）と同じ。4ページとも `<body class="mj-title-n-page">`
+- #669 に「title/ は CHAT-1105-TTL-13 でそろえ、配置のテストの例外から外した」をコメントした（本文・状態・ラベルは変えていない）
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1105-ttl
-- ログ: https://github.com/retroeater/mj/blob/work/1105-ttl/docs/logs/CHAT-1105-TTL-13.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1105-ttl
-- 確認用URL: 未
-- マージ: 未
-- issue: 未
-- 判断が必要なこと: 未
-- 未確認の項目: 未
+- 状態: 完了
+- ブランチ: work/1105-ttl（マージ済み。削除は cleanup-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1105-TTL-13.md
+- 比較URL: https://github.com/retroeater/mj/compare/57988657c...5ef09b7de
+- 確認用URL: 本番 https://ryoei.pro/title/ ・ /title/houou/ ・ /title/houou/41.html ・ /title/pro-queen/24.html で確かめた。この版の印: PC 幅でも入口の写真カードが2列で、本文が幅 400px の中央に寄る
+- マージ: 済（57988657c..5ef09b7de。自動再生成は差分なし、Workers Builds の本番 mj は success）
+- issue: #669（コメント）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 57988657）: https://github.com/retroeater/mj-logs/tree/main/guide/57988657
+ガイド文書（この版を写した時点の最新、mj 5ef09b7d）: https://github.com/retroeater/mj-logs/tree/main/guide/5ef09b7d
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/57988657/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/57988657/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/57988657/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/57988657/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/57988657/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/57988657/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/5ef09b7d/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/5ef09b7d/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/5ef09b7d/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/5ef09b7d/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/5ef09b7d/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/5ef09b7d/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/275d8111.md
