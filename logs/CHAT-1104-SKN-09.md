@@ -63,28 +63,41 @@ CHAT-1104-SKN-08 の「判断が必要なこと」への回答。SKN-08 の版�
   - live/・最強戦のほかのページ・ほかの区分の生成物は0件
   - コードの差分は navbar.js・style.css・scripts/generate_saikyo_pages.py・テスト2つ
 
+- マージ: push の直前に `git fetch origin cloudflare` し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真であることを確かめてから `git push origin work/1105-skn-live:cloudflare` → `a49b80287..d9c57896a  work/1105-skn-live -> cloudflare`
+- マージ後
+  - `regenerate-page.yml`（push、run 41970762301）は success。対象は saikyo_pages・ask_data_saikyo で、結果は「変更なし」（新しいコミット無し）
+  - d9c57896a の check-run: Workers Builds: mj・regenerate・sync は success（notify は skipped）
+- 本番（https://ryoei.pro 。Playwright、UA に mj-internal、`?v=d9c57896a`）
+  - /live/ と /live/wakajishi/ は、1280px で本文の列が 440〜840（余白 16px 16px 28px）・字 456〜824・説明文 440〜840（左右 20px）
+  - /live/ の検索欄は角丸 10px
+  - /live/wakajishi/ のパンくずの行は 20px
+  - 最強戦の卓のページ（/saikyo/2025/20250816-s1-a.html）は、390px・1280px とも共通ナビが新しい帯（`mj-nav-new mj-nav-band`、48px、sticky）
+  - 本番の navbar.js に `mj-saikyo-t-page` の分岐がある
+  - スクリーンショットは docs/logs/CHAT-1104-SKN-09/（1280px）
+- #669 にマージしたことと残りをコメントした https://github.com/retroeater/mj/issues/669#issuecomment-6650074689
+
 ## 報告
 
-- 状態: 対応中
-- ブランチ: work/1105-skn-live
-- ログ: https://github.com/retroeater/mj/blob/work/1105-skn-live/docs/logs/CHAT-1104-SKN-09.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1105-skn-live
-- 確認用URL: なし
-- マージ: 未
-- issue: #669
-- 判断が必要なこと: 未記入
-- 未確認の項目: 未記入
+- 状態: 完了
+- ブランチ: work/1105-skn-live（マージ済み。削除は cleanup-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1104-SKN-09.md
+- 比較URL: https://github.com/retroeater/mj/compare/a49b80287...d9c57896a
+- 確認用URL: なし（本番で確かめた。/live/・/live/wakajishi/・/saikyo/2025/20250816-s1-a.html）
+- マージ: 済（d9c57896a、範囲 a49b80287..d9c57896a）
+- issue: #669（マージと残りをコメント）
+- 判断が必要なこと: なし（番組の一覧の 7.5px のずれと title/ は #669 の残りに移した）
+- 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj a49b8028）: https://github.com/retroeater/mj-logs/tree/main/guide/a49b8028
+ガイド文書（この版を写した時点の最新、mj d9c57896）: https://github.com/retroeater/mj-logs/tree/main/guide/d9c57896
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a49b8028/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a49b8028/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a49b8028/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a49b8028/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a49b8028/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a49b8028/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d9c57896/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d9c57896/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d9c57896/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d9c57896/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d9c57896/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d9c57896/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/7864a244.md
