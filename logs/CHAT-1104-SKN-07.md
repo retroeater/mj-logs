@@ -49,6 +49,16 @@ CHAT-1104-SKN-06 の変更（最強戦の7画面を 400px の中央寄せにそ�
 
 ## 経過
 
+- 着手前の確認: `CHAT-1104-SKN-07` のコミットは全ブランチに無し。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）の欠け無し。CLAUDE.md は起動時から変わっていない
+- 0. の確認: 「指示」欄の末尾は指示文の最後の行と一致。SKN-06 のログの状態の末尾に ` / 続き: CHAT-1104-SKN-07` を足し、このログと同じコミット（8d2a2f493）で push
+- 作業ブランチ: work/1105-skn-layout。`origin/cloudflare` が祖先でなかったので、`git merge origin/cloudflare` で取り込んだ（feeef9d79、衝突なし。入ったのは log/ の JS のテストと docs/logs の LGF のログなどで、style.css・navbar.js・saikyo/ は変わっていない）
+- この指示で新しく足した変更は無い（SKN-06 の版のまま）
+- テスト: `python3 -m unittest discover -s scripts/tests` → 2028件 OK。`node --test scripts/tests/js/log.test.js` → 23件 pass
+- `regenerate.py all --check`（`regenerate-page.yml` の `check`、run 41957830570、feeef9d79）: 「check: 止まるページなし」
+- 生成物の差分: `dry_run`・`target_page=all`・`compare_ref=e660a210b…`（その時点の origin/cloudflare）で、全ページを両方のコードで生成した（run 41957833193）→「compare: 差分なし」
+  - SKN-06 の変更は style.css とテストだけで、生成物は変わらない。ページの種類ごとに変わった数はすべて0（saikyo/ も saikyo/ 以外も0）
+  - 同じ run の警告「jpml_prosに該当する選手がいないため、Xの写真を出しません: タマシュ・エルドス」は帰り道のシートのデータで、この変更と関係ない
+
 ## 報告
 
 - 状態: 対応中
@@ -65,12 +75,12 @@ CHAT-1104-SKN-06 の変更（最強戦の7画面を 400px の中央寄せにそ�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj e660a210）: https://github.com/retroeater/mj-logs/tree/main/guide/e660a210
+ガイド文書（この版を写した時点の最新、mj a9c390a4）: https://github.com/retroeater/mj-logs/tree/main/guide/a9c390a4
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e660a210/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e660a210/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e660a210/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e660a210/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e660a210/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e660a210/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a9c390a4/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a9c390a4/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a9c390a4/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a9c390a4/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a9c390a4/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a9c390a4/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/7864a244.md

@@ -477,7 +477,8 @@ houou/・jwrc/ と同じ形にし、部品（メニューの面・選手を探�
   ため、トリミングで顔が切れないよう正方形にする。写真をカード全面に敷き
   （`object-fit: cover`）、下端に名前を重ねる（通過・敗退は写真の上端の帯）。縦長の写真
   （kinmaweb.jp の 640×960）は上寄り（`object-position: center 20%`）で切り出す
-- **本文の幅**: 最大 960px・左右の余白 16px（CSS 変数 `--mj-saikyo-max-w` / `--mj-saikyo-gutter`）。
+- **本文の幅**: 新しいページ（`<body>` に `mj-saikyo-n-page`。トップ・年度別・個人成績・ランキング・対戦成績・年度・対局のページ）は、houou/ と同じ**幅 400px の中央寄せ**（2026-11-05 の決定、#669）。年度別・対戦成績・年度・対局のページの `.mj-saikyo` は、`body.mj-saikyo-n-page` で変数を 400px にし、余白（16px 16px 28px）・説明文の左右 20px・パンくずの行の高さを houou/ の `.mj-race`・`.mj-houou-crumbs` にそろえた。そろっていることは `scripts/tests/test_new_site_column.py` が確かめる。卓のページ（/live と同じ濃色の作り）と、同じ `.mj-saikyo` を使う live/ の一覧・title/ は下の 960px のまま。
+  以下は 960px の列の記録: 最大 960px・左右の余白 16px（CSS 変数 `--mj-saikyo-max-w` / `--mj-saikyo-gutter`）。
   `title/` の本文（`body:has(.mj-title) main`）と同じ値にそろえた（#412、平野さんの判断 2026-09-21、CHAT-0921-SG-03。
   それまでは 720px・8px）。1366px 幅でカードは 165.5px → **221.5px**。390px 幅では左右の余白が増えた分
   174px → 166px に小さくなる（`title/` も同じ余白なので、狭い画面での見え方は両者でそろう）
