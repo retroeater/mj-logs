@@ -76,16 +76,39 @@ Chat-Ref: CHAT-1105-LGV-03
 - 変換（`convert_x_posts.py`）: `build_row()` で Claude が返した店名・メニューを `html.unescape()` で戻して【2】に書く（店の URL も戻した店名から）。本文は戻さずに渡す（戻す所を1か所にして、二重に戻さないため）。既存の【2】【3】の値は書き換えない
 - テスト: `test_log_pages.py` の `CharRefTest`（戻す・`&amp;amp;` は `&amp;` に一度だけ・`&amp;` と `&` の表記を同じ表記として数える・カードの HTML で `<` `"` `&` がエスケープされる・search.json は戻した文字列）と `test_convert_x_posts.py` の `test_char_refs_are_unescaped`。直す前のコードで4件とも失敗することを確かめてから直した。直した後 `python3 -m unittest discover -s scripts/tests` 2,036件 OK、`node --test scripts/tests/js/log.test.js` 23件 pass
 
+### 3. 作業ブランチでの生成とプレビュー
+
+- `regenerate-page.yml` を作業ブランチで手動実行（`target_page: log_pages`、`dry_run: false`。run 42000798195）→ `chore: regenerate log/ via GitHub Actions`（b40b3a415）
+- 差分（`git diff --stat origin/cloudflare -- log/`）: `log/search.json` だけ（1行。1行の JSON）。`log/index.html` は変わらない（この店はカテゴリの行に出ない）。cloudflare の log/ は 2026-11-05 10:32 JST の生成
+- 種類ごと（新旧の search.json を店ごとに比べた）:
+  - 文字参照の直り: 1店（ChIJ0_RXpduMGGAR0YKe38aV2p8）の店名 `レディース&amp;ジェントルメン` → `レディース&ジェントルメン` と、店の URL の query の `%26amp%3B` → `%26`
+  - 毎朝の取り込みの差: 0（店 1,737・投稿 2,425 のまま。増えた・減った店・投稿は無し）
+  - そのほか: 0（people・prefs・areas も同じ）
+- `<` `>`: 新旧の search.json とも0個。index.html の HTML は変わらない
+- プレビュー: check-run「Workers Builds: mj」success。版ごとの URL で `log/search.json` の店名が `レディース&ジェントルメン`、`?shop=ChIJ0_RXpduMGGAR0YKe38aV2p8` を iPhone 13 の幅で開き、タグ・店名が「レディース&ジェントルメン」、地図のリンクの query が `%26` であることを確かめた（URL は最終報告）
+
+### 4. 自己レビュー（サブエージェント、1回）
+
+| 指摘 | 扱い |
+|---|---|
+| 変換と生成の両方で戻すので、本文に字で `&amp;` と書いた投稿（X API では `&amp;amp;`）は、変換で `&amp;`、生成でもう一度 `&` になる。前提「一度だけ」が端から端では守られない | 意図どおり（決定「生成で戻し、変換でも戻す」に従った。前提より決定を優先）。「判断が必要なこと」に回した |
+| `html.unescape()` はセミコロンの無い古い名前（`&copy`・`&reg`・`&lt3`）も戻す | 直した（bc8922cd2。`簡略化:` のコメントで上限と次の一手を残した。今のデータでは差分は上の1店だけ） |
+| 「駅」は変換が一覧の名前で書くので戻す理由が無い | 意図どおり（手順1の対象の列に駅があり、【3】の手書きの駅にも効く。今のデータで変わる値は無い） |
+| HIDDEN_NAME との比べ・出力のエスケープ・共有の関数・テスト | 問題なし（修正前のコードで新しいテスト4本が失敗することもレビュー側で確かめた） |
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1105-lgv-amp
 - ログ: https://github.com/retroeater/mj/blob/work/1105-lgv-amp/docs/logs/CHAT-1105-LGV-03.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1105-lgv-amp
-- 確認用URL: なし
-- マージ: 未
-- issue: なし
-- 判断が必要なこと: なし
+- 確認用URL: プレビューあり（URL は最終報告）。log/ の `?shop=ChIJ0_RXpduMGGAR0YKe38aV2p8` で、店名とタグが「レディース&ジェントルメン」（`&amp;` が出ない）
+- マージ: 未（log/ の告知の期間中の変更のため、平野さんの承認〈「告知の期間中の変更を承認」〉を待つ）
+- issue: なし（#640 は参照）
+- 判断が必要なこと:
+  - マージの承認（告知の期間中の変更を承認するか）。マージすると本番の log/ のこの店の名前が直る。告知動画（LGV-02）にはこの店は映らない
+  - 手順1の【1】【2】【3】のセルごとの表は作れていない（コンテナにシートの読み取りの鍵が無く、値を出すワークフローも無い）。代わりに本番の search.json の全値を調べ、文字参照は上の1件だけだった。シートのセル（`&amp;` が【2】か【3】のどちらにあるか、【1】の本文が `&amp;` か）を確かめるなら、平野さんがシートで投稿 ID 2014248828128698462 の行を見る
+  - 二度戻る経路: 変換と生成の両方で戻す（決定）ので、本文に字で `&amp;` と書いた投稿は `&` まで戻る（前提の「一度だけ」と食い違う。決定を優先した）。このままでよいか、変換では戻さず生成だけにするか
 - 未確認の項目: なし
 - エラー: なし
 
