@@ -68,15 +68,59 @@ LGF 系列（log/ の残りの後始末と改善、2026-11-04〜05、CHAT-1104-L
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 0. 着手前の確認
+
+- 「指示」欄の末尾は指示文の最後の行と一致
+- 同じ Chat-Ref のコミットは0件（LGF の識別子の重複の確かめは LGF-01 で済み）
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある
+- 作業ブランチ: ローカル・リモートとも無かったので `git checkout -b work/1105-lgf-retro origin/cloudflare`（起点 952d8935d）
+- 指示文に「知見 → 選んだ層 → 理由」の表がある。足す先は docs/decisions/operations.md だけで、ガイド文には足さない
+
+### 1. 同じ趣旨の節と容量
+
+- docs/decisions/operations.md に「LGF 系列」の振り返りの節は無い（直近の振り返りは「2026-11-04（CHAT-1104-LGN-33）」）
+- 容量: 足す前 215,764 バイト、足した後 218,584 バイト（docs/decisions には上限が無い）
+
+### 2. 足した節と事実の突き合わせ
+
+- 末尾に「2026-11-05（CHAT-1105-LGF-14）」の節を、指示文の案のまま足した（文は変えていない）。作業中の回答は「なし」
+- ログと突き合わせた事実:
+  - LGF-05・07・08 が同じ作業ブランチ（work/1104-lgf-alias）で判断待ちを重ね、LGF-09 でまとめてマージ（a428af80f）: LGF-05・07・08・09 のログと合う
+  - LGF-11 の指示文の「決定」に「LGF-10 のプレビューを見て、マージしてよい」と「ラベルの (i) を外す」の両方があり、マージは「承認済み」: LGF-11 のログの指示欄と合う
+  - LGF-08 の止まる条件と、表示の寄せ（ケ→ヶ 9店・笹塚の字 29店、計 38店）で数の上では当たり前提で説明できるとして進めたこと: LGF-08 のログの経過「3.」と報告と合う
+  - LGF-01 の前提（新しいナビから漏れている見込み）が誤りで、漏れていたのは design.md の記述だった: LGF-01 のログの経過「2.」(a) と合う
+  - (c-1) の「有料の API を本番で呼ぶ指示は無かった」: LGF-06 の一度きりの mode はシートを読むだけで Places・Claude・X を呼ばず、LGF-02 の sheets-reader の確かめも有料の API ではない。ほかの指示も呼んでいない
+  - chat-side-operations.md「平野さんの判断とマージの許可」の (1)(2) は、同じ節の「『判断待ち』で止めた報告を確認した返答に…」の項にある（(1) 新しい変更を含まない、(2) 何がどう変わるかを示した）
+- チャット側だけの事実（プレビューを WebFetch で開けなかった・以後開かなかった、#665 の回答、(a-3) の当たり方）は Code のログには残っていないので確かめられない。ログと食い違う点は無い
+
+### 3. 書かないものの確かめ
+
+- `git diff -U0 docs/decisions/operations.md` の追加行を、プレビューの URL・Workers のサブドメイン・サービスアカウント・Secret 名・40字以上の ID の形で探して0件。「workers.dev」は「workers.dev のプレビュー」という語として1回出る（URL ではない。指示文の案の文のまま）
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1105-lgf-retro
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1105-LGF-14.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1105-lgf-retro
+- 確認用URL: なし
+- マージ: 済（9d4a61645、fast-forward）
+- issue: なし
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj a9c390a4）: https://github.com/retroeater/mj-logs/tree/main/guide/a9c390a4
+ガイド文書（この版を写した時点の最新、mj a49b8028）: https://github.com/retroeater/mj-logs/tree/main/guide/a49b8028
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a9c390a4/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a9c390a4/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a9c390a4/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a9c390a4/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a9c390a4/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a9c390a4/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a49b8028/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a49b8028/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a49b8028/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a49b8028/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a49b8028/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a49b8028/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/7864a244.md
