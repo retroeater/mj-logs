@@ -1,12 +1,11 @@
 # 朝の報告用の異常（retroeater/mj）
 
-- 書き出した時刻: 2026-11-05 11:03 JST（見た範囲: 2026-11-04 09:03 JST から）
+- 書き出した時刻: 2026-11-05 11:07 JST（見た範囲: 2026-11-04 09:07 JST から）
 - 書き出した実行の契機: workflow_dispatch（main）
 - 異常だけを書く。全体は actions/status.md。判定は mj の scripts/morning_report.py（各ワークフローの直近 100 回まで）
 
 ## 1. 失敗など（結論が success・skipped 以外。実行中を含む）
 
-- 2026-11-04 12:09 check-assets.yml failure（push・work/1104-lgn-policy）ジョブ「check」 https://github.com/retroeater/mj/actions/runs/41765308660
 - 2026-11-04 12:33 convert-x-posts.yml failure（workflow_dispatch・cloudflare）ジョブ「convert」 https://github.com/retroeater/mj/actions/runs/41767827901
 - 2026-11-04 12:43 convert-x-posts.yml failure（workflow_dispatch・cloudflare）ジョブ「convert」 https://github.com/retroeater/mj/actions/runs/41768833961
 - 2026-11-04 14:19 regenerate-page.yml failure（workflow_dispatch・work/1104-lgn-gnotice）ジョブ「regenerate」：生成に失敗したページを飛ばしました: exam_episodes（理由はジョブのサマリ、#533） https://github.com/retroeater/mj/actions/runs/41778530568
@@ -33,4 +32,3 @@
 ## 5. 未報告のログ（`## 報告` の節が無い）
 
 - CHAT-1105-AIC-38.md（着手 2026-11-05（JST）） https://github.com/retroeater/mj-logs/blob/main/logs/CHAT-1105-AIC-38.md
-- CHAT-1105-LGF-12.md（着手 2026-11-05） https://github.com/retroeater/mj-logs/blob/main/logs/CHAT-1105-LGF-12.md
