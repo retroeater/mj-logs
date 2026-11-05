@@ -51,6 +51,18 @@ CHAT-1104-SKN-08 の「判断が必要なこと」への回答。SKN-08 の版�
 
 ## 経過
 
+- 着手前の確認: `CHAT-1104-SKN-09` のコミットは全ブランチに無し。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）の欠け無し。CLAUDE.md は起動時から変わっていない
+- 0. の確認: 「指示」欄の末尾は指示文の最後の行と一致。SKN-08 のログの状態の末尾に ` / 続き: CHAT-1104-SKN-09` を足し、このログと同じコミット（8f9328965）で push
+- 作業ブランチ: work/1105-skn-live。`origin/cloudflare` が祖先でなかったので、`git merge origin/cloudflare` で取り込んだ（衝突なし。入ったのは docs/logs/CHAT-1105-LGF-14.md などの docs だけ）
+- 決定1・2は docs/decisions/saikyo.md に足した（c08780b4b）。この指示ではコードを変えていない（SKN-08 の版のまま）
+- テスト: `python3 -m unittest discover -s scripts/tests` → 2031件 OK。`node --test scripts/tests/js/log.test.js` → 23件 pass
+- `regenerate.py all --check`（run 41970018554）: 「check: 止まるページなし」
+- 新旧の生成物の比べ（`dry_run`・`target_page=all`・`compare_ref=a49b80287…`〈その時点の origin/cloudflare〉、run 41970021713）: 「compare: 差分なし」。このブランチのコードも cloudflare のコードも、その日のシートで生成し直して変わるファイルが無い。シートの変化による差分は無い
+- origin/cloudflare からの生成物の差分（このブランチの全体）
+  - 最強戦の卓のページ 647件。どれも `<body data-search="off">` → `<body class="mj-saikyo-t-page" data-search="off">` の1行だけ（共通ナビの帯を出すための印）
+  - live/・最強戦のほかのページ・ほかの区分の生成物は0件
+  - コードの差分は navbar.js・style.css・scripts/generate_saikyo_pages.py・テスト2つ
+
 ## 報告
 
 - 状態: 対応中
