@@ -208,15 +208,60 @@
 - 直した後: node 188件 通過、python 2018件 OK
 - run 754（afa664a3c、`ask_data_schedule` だけ）: success、コミットなし（`aliases` を入れたデータも作業ブランチのものと同じ中身）
 
+### 6. マージと本番
+
+- 取り込み: origin/cloudflare（87faa4935、LGF・MFQ の作業）をマージコミットで取り込んだ。衝突なし。触ったファイル（`regenerate.py`・`workers/ask/`・ワークフロー・ask-worker.md など）の変更は無かった。取り込んだ後に node 188件・python OK
+- マージ1: 再 fetch して `git merge-base --is-ancestor origin/cloudflare HEAD` が真、`git push origin work/1105-aic:cloudflare`（87faa4935..47f13823b）。check-run（47f13823b）: Workers Builds: mj-ask success（01:46:13Z）、mj success、regenerate success（生成物の変化なし）
+- 本番（2026-11-05 10:46〜10:47 JST、`Origin: https://ryoei.pro`・UA に `mj-internal`）:
+
+| 問い | 答え | データと |
+|---|---|---|
+| 横断（context なし）「次の決勝はいつ？」 | 「この先の予定です。」と、段を絞らないすべての予定の先頭5件（11/6 鳳凰戦 A2 第9節A卓 ほか、「ほか80件」） | **一致しない**（データの行ではあるが、決勝を聞いた問いに決勝で絞っていない）。予定と読んだ大会の1回目が `stage` を入れなかった |
+| 横断（context なし）「白鳥翔の次の対局は？」 | 11/8 第4期達人戦、11/11 Focus M season13、11/11 第43期鳳凰戦 A1リーグ最終節A卓（解説） | 一致（data-schedule.json の白鳥翔の3行と同じ）。カードは houou・jwrc・wrcr・saikyo |
+| 横断（context: houou）「次の決定戦はいつ？」 | 第43期鳳凰位決定戦の初日・二日目・三日目・最終日（1/6・1/20・1/24・1/31） | 一致（鳳凰戦の決定戦の4行だけ） |
+| 横断（context: houou）「現在の鳳凰位は？」（固定の問い） | 「現在の鳳凰位は白鳥翔さんです。鳳凰位になったのは第42期の鳳凰戦です。」 | 白鳥翔で一致。予定の語の無い問いなので指示は今と同じ（固定の問いの表の期待「第41期・第42期」との書き方の違いは、この変更の前からの Claude の文） |
+| 横断（context: houou）「白鳥翔が鳳凰位になったのはいつ？」（足した1問。予定の語のある過去の問い） | 「第41期・第42期の鳳凰位です。」 | 一致（予定にならず、今までの流れで答えた） |
+
+- 直し（759e6347e）: 段は問いの語（ベストN・準々決勝・準決勝・決定戦・決勝）をプログラムが読み、無ければ1回目の `stage`。予定と読んだ大会の引数を合わせて使う。直す前のコードで新しい検査が落ちることを確かめた。node 189件・python OK。レビューは2回で上限のため、この直しには行っていない
+- マージ2: 再 fetch・`merge-base --is-ancestor` が真、`git push origin work/1105-aic:cloudflare`（47f13823b..759e6347e）。check-run（759e6347e）: Workers Builds: mj-ask success（01:49:07Z）、mj success
+- 送り直し（10:49 JST）「次の決勝はいつ？」（context なし）: 「決勝のこの先の予定です。」と 11/29 第51期王位戦決勝・12/9 第21期女流桜花決定戦初日・12/16 同二日目・12/19 第4期達人戦決勝初日・12/20 麻雀日本シリーズ2026決勝、「ほか13件」。データの決勝11件・決定戦7件の計18件の先頭5件で**一致**
+- 本番に送った問いは今日（2026-11-05 JST）で計10問（AIC-35 の3問、AIC-36 の1問、この指示の6問）。1日の上限に達した
+- #654 に、型の名前・答えられる問いと答えられない問い・データの時点・`context` の効き方・本番の結果をコメントした
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1105-aic
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1105-AIC-37.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1105-aic
+- 確認用URL: なし（Worker の変更。本番の問いは「経過」の6）
+- マージ: 済（47f13823b、直しを 759e6347e）
+- issue: #654（着手中と、型・答えられる問い・データの時点・context の効き方・本番の結果をコメント）
+- 判断が必要なこと:
+  - 本番の1問目「次の決勝はいつ？」は、最初のマージの後、決勝で絞らずに答えた（データの行だが問いに合わない）。マージの条件「本番で予定の問いの答えがデータと一致する」に当たるため、段を問いから読む直しを足して再びマージし、送り直して一致を確かめた（759e6347e）。直しは2回目のレビューの後で、レビューに通していない（往復2回の上限）。戻すか、このままでよいか
+  - `update-live-channel.yml` 自体は手動実行していない。本番の /live のシートへ書き（apply）、apply が無いと再生成のジョブが動かないため。前例（CHAT-1104-RYO-10）と同じく、渡す値と同じ `target_page` で `regenerate-page.yml` を手動実行して確かめた（run 751 dry_run・753・754、すべて success）。指示の手順と違う確かめ方でマージした
+  - 選んだ形（指示の前提と違うところ）: 1回目の指示に型を足すのは予定の語のある問いだけにした（今の問いの指示を1字も変えないため。context の大会だけの流れは大会別の欄と同じ指示であることをテストで確かめている）。横断で選んだ大会の過半が予定と読んだときだけ予定で答える。範囲・段はプログラムが問いから読み、Claude は選手名・件数・段の補いだけ。出典はサイトの中のページ（title/ の大会・最強戦の卓）だけで、YouTube と公開カレンダーの URL は入れていない（画面がリンクにしないため。カレンダーの名前は時点に入れた）
+  - 予定のデータの選び方: 期間は区切らない（2026-11-05 は 2027-03 まで、大会の予定 85件・選手の予定 109件、33KB）。title/ に無い大会（地方プロリーグ・鳳匠戦・WROTL・プロNo.1決定戦など）は入れない。道場部のゲストは選手の予定にだけ入る（大会の予定には入れない）。最強戦の卓は pro/plans.json にある卓だけ（在籍者の出ない卓は出ない）
+  - 残した低い指摘: 「グランプリ」「日本シリーズ」だけの略称は大会を読めずすべての予定を出す／title/ に無い大会と title/ の大会を両方書くと後者だけ／「決勝進出者決定戦」は決勝になる（今のデータに無い）／名前が複数に当たるときの候補は最初の大会の名簿から
+  - 費用: 予定の問いは1回目だけ（context ありは1回、context なしは5大会の5回）で、2回目の分だけ今の横断より少ない
+  - `data-schedule.json` は毎朝 asof が変わるので、毎朝コミットされ `mj-ask` もビルドされる
+- 未確認の項目:
+  - 2026-11-06（金）の朝の取り込み（`update-live-channel.yml`）で `workers/ask/data-schedule.json` が作り直され（asof が 2026-11-06）、`mj-ask` がビルドされるか
+  - 2026-11-09（月）03:00 JST の週次の書き出しが動き、ブックに 11/02〜11/08 の行が入るか。あわせて、2026-11-02 10:09 JST ごろの「現女流桜花は？」の「引数」の列に from・to が入っているか（AIC-36 から写した）
+  - 地域で断られた問いが、新しい結果（`region`、ブック「地域で使えない」）で記録に入るか（AIC-36 から写した）
+  - 横断の記録（型 `all:…`。この指示の `all:…:schedule` を含む）が週次の書き出しのブックに入るか（2026-11-09 03:00 JST の書き出しで。AIC-36 から写した）
+  - 期の外で期を外して答える問い（例「22期の和久津晶成績」）の答えに、冒頭の文と重なる「第N期の記録はありません」が出ないか（週次の記録で見る。AIC-36 から写した）
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 47f13823）: https://github.com/retroeater/mj-logs/tree/main/guide/47f13823
+ガイド文書（この版を写した時点の最新、mj 759e6347）: https://github.com/retroeater/mj-logs/tree/main/guide/759e6347
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/47f13823/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/47f13823/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/47f13823/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/47f13823/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/47f13823/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/47f13823/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/759e6347/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/759e6347/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/759e6347/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/759e6347/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/759e6347/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/759e6347/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/7864a244.md
