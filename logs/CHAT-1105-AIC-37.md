@@ -180,15 +180,43 @@
 - run 751（de2ec1503、dry_run、`live_pages title_pages pro_pages ryoei_pages top_page ask_data_schedule`）: success。順は pro_pages → ask_data_schedule → top_page。`ask_data_schedule` は「大会の予定 85件（段なし48・決勝11・ベスト16 11・ベスト8 7・決定戦7・準決勝1）、選手の予定 109件」、33,646 バイト。**Sheets API の呼び出しは 0（キャッシュ 26 回）**で、毎朝の読み取りの数は増えない
 - run 753（58a4c954f、`ask_data_schedule` だけ、コミットあり）: success。「変更なし」（作業ブランチに置いた data-schedule.json と同じ中身。公開カレンダーの ics から手元で作った最初の写しが、本物の `load_desired()` の結果と一致した）
 
+### 5. レビュー（新しい文脈のサブエージェント、2回）
+
+1回目（3つのコミット、8b4f68903..de2ec1503）。予定の語の無い問いの指示が今と同じことは、レビュー側が直す前のコード（8b4f68903）と並べて確かめた（予定の語の無い5問 × 5つの要求の形〈大会別の省略・ouka・横断・横断＋houou・横断＋jwrc〉の25件で、Claude に送る中身が1字も違わない）。
+
+| 指摘 | 扱い |
+|---|---|
+| 「準々決勝」が決勝になる（中） | 直した（準々決勝を段に足し、決勝の前に除く） |
+| 大会名に「決定戦」を含む大会の準決勝が決定戦になる（中） | 直した（決定戦を最後に見る） |
+| 件名に大会名の無い行（「第43期A2リーグ第9節D卓」）に大会名が付かない（中） | 直した（件名に大会名の語が無ければ添える。選手の予定の行は同じ日・同じ件名の大会の予定から大会を引く） |
+| 「帝王戦」など短い大会名を読めず、すべての大会の予定を出す（中） | 直した（予定表の大会の読み方 `yotei.EVENTS` の語を `aliases` としてデータに書く。title/ に無い大会だけが書かれていたら予定が無いと答える） |
+| 「いつ」の問いで5大会の1つが予定と読むと、ほかの大会の正しい答えを消す（中） | 直した（過半で決める） |
+| 選手名の正規化が無い（空白・名字だけ）（中） | 直した（5大会の名簿の `resolveName()`。複数に当たれば候補の答え） |
+| 5大会の id で絞ったとき見出しに大会名が無い・大会名と5大会の名前の両方があると片方だけ（低） | 直した（大会名にまとめる） |
+| 最強戦の卓は在籍者のいる卓だけ・行き先の無い卓がまとまる（低） | 行き先の無い卓は日付と件名で分けた。在籍者のいない卓は出ない（pro/plans.json の範囲。報告に書く） |
+| `INTERNAL_FIELDS` に足した `stage` などが今の答えで誤って当たらないか（低） | 今のデータでは当たらない（「1st Stage」は大文字）。そのまま |
+
+2回目（bee449383..afa664a3c）: 段の順・語の読み・大会名の添え方・名前の直し方は問題なし。予定の語の無い問いの指示が今と同じことを再び確かめた（25件同じ）。テスト通過。
+
+| 指摘 | 扱い |
+|---|---|
+| 過半にならなかった予定の大会が残り、ほかの大会に答えの文が無いと記録で undefined を書いて 503 になる。1回目が失敗した大会も数に入る（中） | 直した（433968459。数えるのは1回目が済んだ大会だけ、過半でなければ予定の大会を答えなかったとして落とす）。直す前のコードで新しい検査が落ちることを確かめた |
+| 「決勝進出者決定戦」が決勝になる（低） | 今のデータに無い。そのまま（報告に書く） |
+| 「グランプリ」「日本シリーズ」だけの問いは大会を読めず、すべての大会の予定を出す。title/ に無い大会と title/ の大会が両方書かれると後者だけ（低） | そのまま（報告に書く） |
+| 名前が複数に当たるときの候補は最初の大会の名簿から（低） | そのまま |
+
+- 直した後: node 188件 通過、python 2018件 OK
+- run 754（afa664a3c、`ask_data_schedule` だけ）: success、コミットなし（`aliases` を入れたデータも作業ブランチのものと同じ中身）
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 87faa493）: https://github.com/retroeater/mj-logs/tree/main/guide/87faa493
+ガイド文書（この版を写した時点の最新、mj 47f13823）: https://github.com/retroeater/mj-logs/tree/main/guide/47f13823
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/87faa493/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/87faa493/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/87faa493/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/87faa493/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/87faa493/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/87faa493/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/47f13823/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/47f13823/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/47f13823/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/47f13823/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/47f13823/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/47f13823/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/7864a244.md
