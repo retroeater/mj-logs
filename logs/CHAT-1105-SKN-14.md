@@ -51,6 +51,22 @@ CHAT-1105-SKN-13 の「判断が必要なこと」3点への回答を入れ、cl
 
 ## 経過
 
+- 着手前の確認: `CHAT-1105-SKN-14` のコミットは全ブランチに無し。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）の欠け無し。CLAUDE.md は起動時から変わっていない
+- 0. の確認: 「指示」欄の末尾は指示文の最後の行と一致。SKN-13 のログの状態の末尾に ` / 続き: CHAT-1105-SKN-14` を足し、このログと同じコミット（32f414c23）で push
+- 作業ブランチ: work/1105-skn-vsinput。`origin/cloudflare` は祖先だったので取り込みは要らなかった
+- 実装（決定1）: style.css の `.mj-saikyo-n-vs-input` の暗い配色の規則（`@media (prefers-color-scheme: dark)`）に `background-color: #2c2c2e` を足した。明るい配色の値（`var(--mj-n-groove)` = #e9e9ee）と、houou/ の検索欄は変えていない。虫眼鏡はそのまま（決定2）
+- テスト: scripts/tests/test_new_site_column.py の `CSS_DEFINED` に、入力欄の `background-color: #2c2c2e` を足した。`python3 -m unittest discover -s scripts/tests` → 2033件 OK
+- `regenerate.py all --check`（run 42028247936）: 「check: 止まるページなし」
+- 新旧の生成物の比べ（`compare_ref=e96e39d70…`〈その時点の origin/cloudflare〉、run 42028252462）: 「compare: 差分なし」
+  - origin/cloudflare からの差分は style.css・scripts/tests/test_new_site_column.py・docs だけで、生成物の差分は無い
+- 測った値（ローカルの作業ツリー。プレビューと同じファイル）
+  - 対戦成績の入力欄の地: 暗い配色は 360px・1280px とも rgb(44,44,46) = #2c2c2e。明るい配色は rgb(233,233,238) = #e9e9ee（変わらない）
+  - 角丸 10px・枠 0・高さ 44px・左の余白 36px は、どちらの配色でも同じ
+  - houou/ の検索欄（/houou/players/）: 明 rgb(233,233,238)・暗 rgb(28,28,30)・角丸 10px・44px で、本番と同じ（360px・1280px）
+  - 左右のカード: 360px で 140×128px が左右に並ぶ（16 と 204）。1280px は 160×128px
+  - スクリーンショット: docs/logs/CHAT-1105-SKN-14/（vs-init・vs-left の各 -360・-1280、-dark・-light）
+- docs: docs/notes/saikyo-page-design.md の対戦成績の1段目に、暗い配色の地を足した。決定は docs/decisions/saikyo.md に足した
+
 ## 報告
 
 - 状態: 対応中
@@ -67,12 +83,12 @@ CHAT-1105-SKN-13 の「判断が必要なこと」3点への回答を入れ、cl
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj e96e39d7）: https://github.com/retroeater/mj-logs/tree/main/guide/e96e39d7
+ガイド文書（この版を写した時点の最新、mj 1451b350）: https://github.com/retroeater/mj-logs/tree/main/guide/1451b350
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e96e39d7/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e96e39d7/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e96e39d7/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e96e39d7/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e96e39d7/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e96e39d7/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/1451b350/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/1451b350/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/1451b350/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/1451b350/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/1451b350/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/1451b350/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/275d8111.md
