@@ -96,7 +96,7 @@ CHAT-1105-SKN-12 の「判断が必要なこと」への回答。最強戦の対
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1105-SKN-14
 - ブランチ: work/1105-skn-vsinput
 - ログ: https://github.com/retroeater/mj/blob/work/1105-skn-vsinput/docs/logs/CHAT-1105-SKN-13.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1105-skn-vsinput
