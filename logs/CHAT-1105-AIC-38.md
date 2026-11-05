@@ -101,15 +101,58 @@ AIC-37 で、本番の確かめの後に入れた直し（759e6347e。段〈決�
 
 - 直す前のコード（HEAD の ask.mjs・schedule.mjs）で、足した3件の検査が落ちることを確かめた（18件通過・3件失敗）。直した後: node 192件 通過、python OK
 
+| 回 | 対象 | 観点 | 結果と証跡 |
+|---|---|---|---|
+| 2 | 2d91f400c..4da5ab118 | 1回目の直しが正しいか（大会名の語を除くときの段の語との重なり、'' と null の扱い、見出し、選手名の決め方）／突然変異が検査で落ちるか／予定の語の無い問いの指示／両方のテスト | 1回目の直しは正しい（鳳凰位決定戦・女流桜花決定戦・王位戦決勝・WRCリーグ決勝・グランプリMAXの決勝・決勝トーナメントの決勝・ベスト８ を確かめた）。突然変異7つ（選手名の決め方2・stage の補い・ベストN・'' を null に・〜進出者決定戦の除き・大会名の語の除き）はすべて検査で落ちる。「nonempty 25 cases 25 identical 25」（予定の問いで「cases 5 identical 2」）。node 192件・python 2019件 通過。残った指摘: 中1・低1（下の表） |
+
+| 指摘 | 扱い |
+|---|---|
+| 「決勝進出者決定戦はいつ？」は問いからは段を読まなくなったが、1回目が stage に決定戦を入れると、それを使ってほかの大会の決定戦を出す（中。1回目の誤りと同じ答えが、1回目が stage を入れたときだけ残る） | 往復2回の上限のため直していない（`## 報告`「判断が必要なこと」。直し方の案: 「〜進出者決定戦」か段の語を含む大会名を除いたときは、段の語が残らなければ '' を返し、1回目の stage を使わない） |
+| 「プロリーグ決勝はいつ？」で1回目が stage を入れると、見出しが「プロリーグ決勝の決勝の…」と重なる（低。答えは予定なしで変わらない） | 同じ直しで直る見込み。上と一緒に判断待ち |
+
+### 2. マージ
+
+- 4da5ab118 は2回目のレビューを通った直しで、今の本番（759e6347e）より誤りが少ない（残った中の指摘は、759e6347e では1回目が stage を入れなくても起きていた）。指示の「レビューで直すものがあったときだけマージする」に当たるのでマージする
+- 再 fetch して `git merge-base --is-ancestor origin/cloudflare HEAD` が真（cloudflare は 41d9f17e7 のまま）、`git push origin work/1105-aic:cloudflare`（41d9f17e7..64d80acc7）
+- check-run（64d80acc7）: Workers Builds: mj-ask success（2026-11-05T02:10:20Z = 11:10 JST）
+- 本番の問い: 2026-11-05 JST の10問は AIC-35〜37 で使い切ったので、2026-11-06 の分で送る。このセッションに 2026-11-06 09:40 JST の予約（send_later）を入れた（横断・context なしの「次の決勝はいつ？」と、直した問いの例「王位戦の決勝トーナメントはいつ？」）。送ったら、ここと「未確認の項目」を結果で書き換え、#654 にコメントする
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1105-aic
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1105-AIC-38.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1105-aic
+- 確認用URL: なし（Worker の変更。本番の問いは 2026-11-06）
+- マージ: 済（64d80acc7。直しは 4da5ab118）
+- issue: #654（着手中をコメント。レビューと本番の結果は 2026-11-06 の本番の後にコメントする）
+- 判断が必要なこと:
+  - 2回目のレビューで残った中の指摘を、往復2回の上限のため直していない: 「決勝進出者決定戦はいつ？」で1回目が stage に決定戦を入れると、その stage を使ってほかの大会の決定戦（女流桜花決定戦）を出す（1回目が stage を入れなければ、すべての予定を出す）。直し方の案: 「〜進出者決定戦」か段の語を含む大会名（麻雀格闘倶楽部プロNo.1決定戦・プロリーグ決勝）を除いたときは、段の語が残らなければ ''（段で絞らない）を返し、1回目の stage を使わない（数行の直しと検査1件）。同じ直しで低の指摘（「プロリーグ決勝の決勝の…」の見出しの重なり）も直る見込み。次の指示で直すか、週次の直し（2026-11-09 の週）にまとめるか
+  - 見送った低い指摘（過去を聞く問い「前回の決勝はいつだった？」・否定「決勝ではなく予選」でも段を読む）は、決定どおり週次の直しにまとめる（下の「未確認の項目」）
+- 未確認の項目:
+  - 本番の2問（2026-11-06 09:40 JST ごろに送る予定。このセッションの予約）: 横断（context なし）「次の決勝はいつ？」が決勝・決定戦だけか、「王位戦の決勝トーナメントはいつ？」が王位戦の準決勝と決勝の両方か。その日の data-schedule.json と一致するか
+  - 2026-11-06（金）の朝の取り込み（`update-live-channel.yml`）で `workers/ask/data-schedule.json` が作り直され（asof が 2026-11-06）、`mj-ask` がビルドされるか（AIC-37 から写した。この指示は 2026-11-05 11:00 JST ごろに進めたので、朝の取り込みの前。上の予約で確かめる）
+  - 2026-11-09（月）03:00 JST の週次の書き出しが動き、ブックに 11/02〜11/08 の行が入るか。あわせて、2026-11-02 10:09 JST ごろの「現女流桜花は？」の「引数」の列に from・to が入っているか（AIC-37 から写した）
+  - 地域で断られた問いが、新しい結果（`region`、ブック「地域で使えない」）で記録に入るか（AIC-37 から写した）
+  - 横断の記録（型 `all:…`。`all:…:schedule` を含む）が週次の書き出しのブックに入るか（2026-11-09 03:00 JST の書き出しで。AIC-37 から写した）
+  - 期の外で期を外して答える問い（例「22期の和久津晶成績」）の答えに、冒頭の文と重なる「第N期の記録はありません」が出ないか（週次の記録で見る。AIC-37 から写した）
+  - 週次の直し（2026-11-09 の週）にまとめる言い回しの残り:
+    - AIC-19: 決勝だけの答えの「〜の予選の成績の記録はありませんが」の「成績」「記録」の重なり
+    - AIC-19: 「WRCリーグ決勝の第10期に4位」の語順（「第10期のWRCリーグ決勝で4位」など）
+    - AIC-29: 「4位の古川孝次さんから10位の杉浦勘介さんまでは残留です」（11〜13位も残留なのに、渡した10人の範囲で言い切る）
+    - AIC-37: 予定の問いの略称（「グランプリ」「日本シリーズ」だけでは大会を読めず、すべての予定を出す）、title/ に無い大会と title/ の大会を両方書くと後者だけ、件名の「決勝進出者決定戦」が決勝になる（生成の段の判定）、名前が複数に当たるときの候補は最初の大会の名簿から
+    - AIC-38: 予定の問いで、過去を聞く問い・否定でも段を読む。上の「判断が必要なこと」の中の指摘（週次にまとめる場合）
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 759e6347）: https://github.com/retroeater/mj-logs/tree/main/guide/759e6347
+ガイド文書（この版を写した時点の最新、mj 8cc0bf62）: https://github.com/retroeater/mj-logs/tree/main/guide/8cc0bf62
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/759e6347/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/759e6347/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/759e6347/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/759e6347/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/759e6347/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/759e6347/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/8cc0bf62/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/8cc0bf62/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/8cc0bf62/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8cc0bf62/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8cc0bf62/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8cc0bf62/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/7864a244.md

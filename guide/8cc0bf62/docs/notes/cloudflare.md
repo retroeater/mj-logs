@@ -779,6 +779,7 @@ Workers & Pages → `mj` → Settings → Builds:
 - **docs だけの push ではプレビューを作らない**（非本番の watch paths も `docs/**` を除外。判定は push 全体のファイル、上の「`docs/**` のみのコミットには…」）。作り直したいときは docs 以外を含む push（cloudflare の取り込みなど）にする
 - 別名の URL は前の版を返すことがある（2026-10-12、CHAT-1012-DSN-03: HTML と CSS が前の版で返り、クエリを付けると新しい版が返った。キャッシュと見られる）。版を確かめるときは、版ごとの URL を使うか、別名にクエリ（`?v=<SHA>`）を付けてログの「確認用URL」の印（`docs/logs/_template.md`）を見る
 - この URL は非公開として扱い、作業ログには書かず、ターミナルへの最終報告にだけ書く（CLAUDE.md「作業ログ」節、ログの書き方は `docs/logs/_template.md`）
+- Code が撮った画像は URL と別で、作業ブランチの `docs/logs/<Chat-Ref>/` に置いてよい（mj-logs には写らないので、チャット側は REST で読む。docs/notes/chat-side-operations.md から移した）
 - **本番のビルドが走るかは、push の先頭のコミットでは決まらない**（2026-10-17、cloudflare への push 32件の check-run で確かめた。CHAT-1017-PAD-08）。
   先頭が docs/ だけでも、同じ push のほかのコミットが docs 外を変えていれば本番のビルドが走った（538ab6575・d8a640236・c859c26c8）。
   docs 外を含む push で本番のビルドが付かなかったのは、どれも本番のビルドが始まる前に、次の docs 外を含む push が cloudflare に来ていたとき（上の「古い本番のビルドは飛ばされ」）。

@@ -235,5 +235,5 @@ Cloudflare の Security Overview の提案（security.txt など）の見送り�
 ## 2026-11-05（CHAT-1105-ACF-42）
 
 - #662 を閉じる
-- batchGet・Sheets API の上限の引き上げ申請・共通の concurrency group は今は行わない。キャッシュの後も 429 でページを飛ばすことが起きたら、新しい issue で扱う（チャット側の提案を平野さんが選んだ）
+- batchGet・Sheets API の上限の引き上げ申請・共通の concurrency group は今は行わない。キャッシュの後も 429 でページを飛ばすことが起きたら、新しい issue で扱う（チャット側の提案を平野さんが選んだ。ACF-42 の時点ではチャット側が選択肢の説明に足した方針だったが、2026-11-05 に単独の問いで平野さんの決定と確認した、CHAT-1105-ACF-43）
 - 作業中の回答: なし
