@@ -163,15 +163,32 @@
   - 出典: サイトの中のページだけ（行の大会の title/ のページ、最強戦の卓のページ）。YouTube と公開カレンダーの URL は画面がリンクにしないので入れない。公開カレンダーの名前は `asof` に入れた（「予定 YYYY-MM-DD 時点（公開カレンダー「mj_放送対局」）」）
 - 費用の見込み: 予定の問いは1回目だけ。context なしの「次の決勝はいつ？」は5大会の1回目（今の横断の1回目と同じ、約 $0.0016 の見込みのうち1回目の分）で、2回目の分だけ今より少ない。context ありの問いは1回（約 $0.0002）
 
+### 3. テスト
+
+- `node --test 'workers/ask/test/*.test.mjs'`: 183件 通過（新しい `schedule.test.mjs` 12件を含む）。`python3 -m unittest discover -s scripts/tests`: 2017件 OK（新しい `test_ask_data_schedule.py` 6件を含む）
+- 新しい検査を作る前のコードで（origin/cloudflare の worktree に `schedule.mjs` と検査だけを写して）: `schedule.test.mjs` は予定の答えの7件が落ち、今の動きが変わらないことの4件（予定の語の無い問いの指示が同じ・予定でない型なら今までの流れ・大会別の要求に足さない・1問と数える）と日付の形の1件は通る。`test_ask_data_schedule.py` は生成スクリプトが無いので落ちる
+- 段の判定（`StageTest`）: 決勝・決定戦・ベスト16・ベスト8・準決勝・「準決勝・決勝」・決勝トーナメント・「新鋭プロ代表決定戦 決勝」・最強戦の 1st Stage／2nd Stage／ファイナルトーナメント 決勝・リーグの節・プレーオフ
+- 大会の判定: 「帝王戦」→「小島武夫杯帝王戦」、title/ に無い「地方プロリーグ決勝」は無し
+- 選手の予定が pro/plans.json と同じ行になる（作り物の行と、今の pro/plans.json 109行の両方）
+- 問いの例（作り物の予定のデータ）: context 無しの「次の決勝はいつ？」（王位戦決勝・女流桜花決定戦・WRC-R 決勝・鳳凰位決定戦の順、前日の予定は出ない、時点、出典、1回目5回で2回目なし、記録 `all:all:schedule`）／「王位戦の決勝はいつ？」（準決勝は出ない、`all:王位戦:schedule`）／「白鳥翔の次の対局は？」（前日の行は出ない、解説の役、選手のカード、`all:player:schedule`）／`context: "houou"` の「次の決定戦はいつ？」（鳳凰位決定戦だけ、1回目1回、`all:houou:schedule`）／予定の無い大会の context（jwrc）／予定の無い選手／件数を聞いた問いと「ほかN件」・最強戦の卓の大会名と出典／1問と数える
+- 今の問いの指示が変わらないこと: ask-worker.md「本番で送る固定の問い」の15問と context.test の問いは、予定の語に当たらない（指示が1字も変わらない）。scratchpad の本番の問い46問も当たらない
+- `generate_pro_pages.py` は変えていないので、`regenerate.py pro_pages` の比べは行っていない
+
+### 4. ワークフローの手動実行（作業ブランチ）
+
+- `update-live-channel.yml` 自体は手動実行していない（apply で本番の /live のシートへ書き、apply が無いと再生成のジョブが動かないため。前例 CHAT-1104-RYO-10 と同じ）。代わりに、渡す値と同じ `target_page` で `regenerate-page.yml` を手動実行した
+- run 751（de2ec1503、dry_run、`live_pages title_pages pro_pages ryoei_pages top_page ask_data_schedule`）: success。順は pro_pages → ask_data_schedule → top_page。`ask_data_schedule` は「大会の予定 85件（段なし48・決勝11・ベスト16 11・ベスト8 7・決定戦7・準決勝1）、選手の予定 109件」、33,646 バイト。**Sheets API の呼び出しは 0（キャッシュ 26 回）**で、毎朝の読み取りの数は増えない
+- run 753（58a4c954f、`ask_data_schedule` だけ、コミットあり）: success。「変更なし」（作業ブランチに置いた data-schedule.json と同じ中身。公開カレンダーの ics から手元で作った最初の写しが、本物の `load_desired()` の結果と一致した）
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 7864a244）: https://github.com/retroeater/mj-logs/tree/main/guide/7864a244
+ガイド文書（この版を写した時点の最新、mj 87faa493）: https://github.com/retroeater/mj-logs/tree/main/guide/87faa493
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/7864a244/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/7864a244/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/7864a244/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/7864a244/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/7864a244/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/7864a244/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/87faa493/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/87faa493/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/87faa493/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/87faa493/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/87faa493/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/87faa493/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/7864a244.md

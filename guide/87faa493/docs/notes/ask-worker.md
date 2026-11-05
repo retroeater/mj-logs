@@ -23,6 +23,7 @@ pro/ のトップの欄も pro/ の作業で外した。ページの中の欄の
 | `workers/ask/src/ask.mjs` | 受付の本体（入力の検査・回数・Claude の2回の呼び出し・記録） |
 | `workers/ask/schema.sql` | D1 の表（B2 で D1 の Console に貼る） |
 | `workers/ask/src/weekly.mjs` | 週次の cron（ブックへの書き出し・90日の削除、下の「週次の cron」） |
+| `workers/ask/test/players-in.test.mjs` | 答えの文から選手名を拾う `playersIn()`（長い名前を先に当てる・文に出た順・1回だけ・名簿に無い名前は拾わない・長い名前の中の後に単独で出る短い名前は拾う）。作り物の名簿で確かめる |
 | `workers/ask/test/ask.test.mjs`・`weekly.test.mjs` | 受付と週次のテスト。D1 は `test/fake-d1.mjs`（`node:sqlite` で `schema.sql` をそのまま使う作り物）、Anthropic・Google は偽の fetch |
 | `assets/nav.js`・`assets/top_ask.js` | 共通ナビの質問欄（HTML は nav.js が作る）と、その送信と表示。見た目は `style.css` の「質問欄の部品」と「新しいナビ」の節 |
 | `houou/ask-players.json` | 選手の名簿（もとは答えに出た選手のカードの名簿。いまは pro/ の生成の入力。各大会の名簿は pro/ の生成もいまのリーグ・出場を読む。生成物。`generate_houou_pages.py` の `ask_roster()`、約66KB） |
