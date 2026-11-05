@@ -44,6 +44,136 @@ CHAT-1104-SKN-05 の「判断が必要なこと」への回答。新サイトの
 
 ## 経過
 
+- 着手前の確認: `CHAT-1104-SKN-06` のコミットは全ブランチに無し。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）の欠け無し。CLAUDE.md は起動時から変わっていない
+- 0. の確認: 「指示」欄の末尾は指示文の最後の行と一致。SKN-05 のログの状態の末尾に ` / 続き: CHAT-1104-SKN-06` を足し、このログと同じコミット（486f63863）で push
+- 作業ブランチ: work/1105-skn-layout。`origin/cloudflare` が祖先でなかったので、`git merge origin/cloudflare` で取り込んだ（cb57fe72e、衝突なし）
+- 手順1（issue）
+  - #528 以外の同じ論点の issue（クローズ済みを含む）を `search/issues` で探した。語は「400px」「中央寄せ」「基本の形」「配置 統一」「本文の列」など
+    - 近いのは #566（最強戦を新サイトの基本の形に寄せた、closed）と #637（生成・CSS の二重定義の整理、open。コードの共通化で配置の統一ではない）。同じ論点ではない
+    - 未マージのブランチの件名にも同じ目的のものは無い
+  - #669「新サイトの形のページの配置・部品を houou/ の基本の形にそろえ、検査で守る」を起こした（ラベルは #528 にそろえて「分野: UI/UX」「対象: 全ページ」、加えて「対象: saikyo」）
+  - #528 にコメントした https://github.com/retroeater/mj/issues/528#issuecomment-6647529717 （本文・状態・ラベルは変えていない）
+  - #669 に着手中のコメントを書いた
+- 新サイトの形のページの一覧: navbar.js が白地のナビ（`.mj-nav-new`）にする分岐から作った
+  - パスの頭: log/・houou/・ouka/・r/・top/・jwrc/・wrcr/・pro/
+  - `<body>` の class: `mj-saikyo-n-page`（最強戦）・`mj-live-n-page`（live/ の一覧）・`mj-title-n-page`（title/）
+  - 番組のパス: wayhome/・exam/・mtsuku/・study/・live/ の個別ページ（濃色のまま、ナビの帯だけ新しい形）
+  - 生成物の HTML では 2,889 ページ。最強戦の卓のページ（647）は `<body>` に class が無く、パスも分岐に無いので、白地のナビにならない（下の表の saikyo/table）
+- 測り方: 本番（cloudflare の生成物）を headless Chromium（Playwright）で、390px と 1280px、明と暗の配色で測った。UA に mj-internal を入れた。ページの型ごとに1つの URL（46件）。測った項目は次のとおり
+  - 本文の列: `<main>` の最初の要素の左右の端と余白
+  - 題名（h1）の大きさ・見えるか
+  - パンくずの行の高さ・下の余白・字の色
+  - 共通ナビの形（白地の帯か旧い濃色か）と position
+  - 地の色（明・暗）
+  - 面の角丸
+  - 検索欄の部品・幅
+  - タブの部品
+  - 説明文（`.mj-lead`）の左右の端と余白
+  - 文書の幅
+  - スクリーンショットは docs/logs/CHAT-1104-SKN-05/（92枚。JPEG に縮めた。<区分>-<型>-<幅>.jpg）。測ったスクリプトはその場限りのもの（scratchpad）
+- 基本の形（houou/）の値（1280px）: 本文の列は 440〜840（幅 400px の中央寄せ、余白 16px 16px 28px、字の端は 456〜824）。ほかは次のとおり
+  - パンくず: 行 20px・下 4px・13px の灰色 rgb(85,85,85)（押せる 44px は上下 -12px の余白で吸収）。390px でも同じ形で、本文の列は画面いっぱい・字は 16〜374
+  - 題名: 28px 太字（順位変動は題名のボタンで、h1 は読み上げだけ）
+  - 共通ナビ: 白地の帯・固定しない
+  - 地の色: 明 #f2f2f7・暗 #000
+  - 面の角丸: 12px（検索欄・チップは 10px）
+  - 検索欄: `.mj-houou-search`（高さ 44px）
+  - タブ: `.mj-houou-seg`（順位変動は `.mj-race-seg`）
+  - 説明文: 列と同じ 440〜840・左右 20px・13px
+- **差異の表（修正前の本番。全46件）**
+
+| 区分 | ページ（測った URL） | 基本の形（houou/）との差異 |
+|---|---|---|
+| houou | top（`/houou/`） | なし |
+| houou | players（`/houou/players/?name=白鳥翔`） | なし |
+| houou | race（`/houou/race/`） | なし |
+| houou | leagues（`/houou/leagues/`） | なし |
+| houou | ranking（`/houou/ranking/total/`） | なし |
+| ouka | top（`/ouka/`） | なし |
+| ouka | players（`/ouka/players/?name=清水香織`） | なし |
+| ouka | race（`/ouka/race/`） | なし |
+| ouka | leagues（`/ouka/leagues/`） | なし |
+| ouka | ranking（`/ouka/ranking/total/`） | なし |
+| jwrc | top（`/jwrc/`） | なし |
+| jwrc | players（`/jwrc/players/?name=紺野真太郎`） | なし |
+| jwrc | race（`/jwrc/race/`） | なし |
+| jwrc | ranking（`/jwrc/ranking/total/`） | なし |
+| wrcr | top（`/wrcr/`） | なし |
+| wrcr | players（`/wrcr/players/?name=小川尚哉`） | なし |
+| wrcr | race（`/wrcr/race/`） | なし |
+| wrcr | ranking（`/wrcr/ranking/total/`） | なし |
+| saikyo | top（`/saikyo/`） | なし |
+| saikyo | years（`/saikyo/years/`） | 本文の列: 1280px で 0〜960（余白 12px 16px）／390px で 0〜390。基本は 1280px で 440〜840（400px の中央寄せ、余白 16px 16px 28px）<br>パンくず: 行の高さ 44px・下 8px・字 rgb(85, 85, 85)。基本は行 20px・下 4px（押せる 44px は負の余白で吸収）<br>説明文（.mj-lead）: 1280px で 0〜960・左右 16px（390px で 0〜390）。基本は列と同じ 440〜840・左右 20px |
+| saikyo | players（`/saikyo/players/?name=魚谷侑未`） | なし |
+| saikyo | ranking（`/saikyo/ranking/champion/`） | なし |
+| saikyo | vs（`/saikyo/vs/`） | 本文の列: 1280px で 0〜960（余白 12px 16px）／390px で 0〜390。基本は 1280px で 440〜840（400px の中央寄せ、余白 16px 16px 28px）<br>パンくず: 行の高さ 44px・下 8px・字 rgb(85, 85, 85)。基本は行 20px・下 4px（押せる 44px は負の余白で吸収）<br>面の角丸: 12px/8px。基本は 12px（検索欄・チップは 10px）<br>検索欄: `mj-saikyo-n-vs-input`（1280px で幅 424px）。基本は `.mj-houou-search`（列の中、高さ 44px）<br>説明文（.mj-lead）: 1280px で 0〜960・左右 16px（390px で 0〜390）。基本は列と同じ 440〜840・左右 20px |
+| saikyo | year（`/saikyo/2025/`） | 本文の列: 1280px で 0〜960（余白 12px 16px）／390px で 0〜390。基本は 1280px で 440〜840（400px の中央寄せ、余白 16px 16px 28px）<br>パンくず: 行の高さ 44px・下 8px・字 rgb(85, 85, 85)。基本は行 20px・下 4px（押せる 44px は負の余白で吸収）<br>説明文（.mj-lead）: 1280px で 0〜960・左右 16px（390px で 0〜390）。基本は列と同じ 440〜840・左右 20px |
+| saikyo | match（`/saikyo/2025/20250816.html`） | 本文の列: 1280px で 0〜960（余白 12px 16px）／390px で 0〜390。基本は 1280px で 440〜840（400px の中央寄せ、余白 16px 16px 28px）<br>パンくず: 行の高さ 44px・下 8px・字 rgb(85, 85, 85)。基本は行 20px・下 4px（押せる 44px は負の余白で吸収）<br>説明文（.mj-lead）: 1280px で 0〜960・左右 16px（390px で 0〜390）。基本は列と同じ 440〜840・左右 20px |
+| saikyo | table（`/saikyo/2025/20250816-s1-a.html`） | 本文の列: 1280px で 83〜1183（余白 0px 48px）／390px で 0〜375。基本は 1280px で 440〜840（400px の中央寄せ、余白 16px 16px 28px）<br>パンくず: 行の高さ 44px・下 0px・字 rgb(168, 173, 179)。基本は行 20px・下 4px（押せる 44px は負の余白で吸収）<br>題名（h1）: 1280px で 48px/700（390px で 28px）。基本は 28px 太字<br>共通ナビ: dark/sticky。基本は白地の帯（new）で固定しない（relative）<br>地の色: 明 rgb(18, 18, 18)／暗 rgb(18, 18, 18)。基本は明 #f2f2f7／暗 #000<br>面: 角丸の面が無い<br>説明文（.mj-lead）: 1280px で 83〜1183・左右 48px（390px で 0〜375）。基本は列と同じ 440〜840・左右 20px<br>文書の幅: 390px で 375・1280px で 1265（縦のスクロールバーの分か、はみ出しの可能性。要確認） |
+| title | top（`/title/`） | 本文の列: 1280px で 176〜1104（余白 0px）／390px で 16〜374。基本は 1280px で 440〜840（400px の中央寄せ、余白 16px 16px 28px）<br>題名（h1）: 見えない（40px/500）。代わりの題名の形は下のスクリーンショット<br>検索欄: `mj-saikyo-n-search-input`（1280px で幅 870px）。基本は `.mj-houou-search`（列の中、高さ 44px）<br>説明文（.mj-lead）: 1280px で 176〜1104・左右 4px（390px で 16〜374）。基本は列と同じ 440〜840・左右 20px |
+| title | contest（`/title/wakajishi/`） | 本文の列: 1280px で 176〜1104（余白 0px）／390px で 16〜374。基本は 1280px で 440〜840（400px の中央寄せ、余白 16px 16px 28px）<br>パンくず: 行の高さ 44px・下 8px・字 rgb(85, 85, 85)。基本は行 20px・下 4px（押せる 44px は負の余白で吸収）<br>説明文（.mj-lead）: 1280px で 176〜1104・左右 4px（390px で 16〜374）。基本は列と同じ 440〜840・左右 20px |
+| title | term（`/title/wakajishi/9.html`） | 本文の列: 1280px で 176〜1104（余白 0px）／390px で 16〜374。基本は 1280px で 440〜840（400px の中央寄せ、余白 16px 16px 28px）<br>パンくず: 行の高さ 44px・下 8px・字 rgb(85, 85, 85)。基本は行 20px・下 4px（押せる 44px は負の余白で吸収）<br>説明文（.mj-lead）: 1280px で 176〜1104・左右 4px（390px で 16〜374）。基本は列と同じ 440〜840・左右 20px |
+| pro | top（`/pro/`） | なし |
+| pro | person（`/pro/yuumi.uotani.25/`） | なし |
+| live | top（`/live/`） | 本文の列: 1280px で 0〜960（余白 12px 16px）／390px で 0〜390。基本は 1280px で 440〜840（400px の中央寄せ、余白 16px 16px 28px）<br>題名（h1）: 見えない（40px/500）。代わりの題名の形は下のスクリーンショット<br>検索欄: `mj-saikyo-n-search-input`（1280px で幅 870px）。基本は `.mj-houou-search`（列の中、高さ 44px）<br>説明文（.mj-lead）: 1280px で 0〜960・左右 16px（390px で 0〜390）。基本は列と同じ 440〜840・左右 20px |
+| live | contest（`/live/wakajishi/`） | 本文の列: 1280px で 0〜960（余白 12px 16px）／390px で 0〜390。基本は 1280px で 440〜840（400px の中央寄せ、余白 16px 16px 28px）<br>パンくず: 行の高さ 44px・下 8px・字 rgb(85, 85, 85)。基本は行 20px・下 4px（押せる 44px は負の余白で吸収）<br>題名（h1）: 見えない（40px/500）。代わりの題名の形は下のスクリーンショット<br>説明文（.mj-lead）: 1280px で 0〜960・左右 16px（390px で 0〜390）。基本は列と同じ 440〜840・左右 20px |
+| live | term（`/live/wakajishi/9.html`） | 本文の列: 1280px で 0〜960（余白 12px 16px）／390px で 0〜390。基本は 1280px で 440〜840（400px の中央寄せ、余白 16px 16px 28px）<br>パンくず: 行の高さ 44px・下 8px・字 rgb(85, 85, 85)。基本は行 20px・下 4px（押せる 44px は負の余白で吸収）<br>題名（h1）: 見えない（40px/500）。代わりの題名の形は下のスクリーンショット<br>説明文（.mj-lead）: 1280px で 0〜960・左右 16px（390px で 0〜390）。基本は列と同じ 440〜840・左右 20px |
+| live | table（`/live/wakajishi/9/f.html`） | 本文の列: 1280px で 83〜1183（余白 0px 48px）／390px で 0〜375。基本は 1280px で 440〜840（400px の中央寄せ、余白 16px 16px 28px）<br>パンくず: 行の高さ 44px・下 0px・字 rgb(168, 173, 179)。基本は行 20px・下 4px（押せる 44px は負の余白で吸収）<br>題名（h1）: 1280px で 48px/700（390px で 28px）。基本は 28px 太字<br>共通ナビ: new/sticky。基本は白地の帯（new）で固定しない（relative）<br>地の色: 明 rgb(18, 18, 18)／暗 rgb(18, 18, 18)。基本は明 #f2f2f7／暗 #000<br>面の角丸: 8px。基本は 12px（検索欄・チップは 10px）<br>説明文（.mj-lead）: 1280px で 83〜1183・左右 48px（390px で 0〜375）。基本は列と同じ 440〜840・左右 20px<br>文書の幅: 390px で 375・1280px で 1265（縦のスクロールバーの分か、はみ出しの可能性。要確認） |
+| log | top（`/log/`） | なし |
+| r | top（`/r/`） | 本文の列: 1280px で 360〜920（余白 0px 16px 64px）／390px で 0〜390。基本は 1280px で 440〜840（400px の中央寄せ、余白 16px 16px 28px）<br>題名（h1）: 1280px で 88px/800（390px で 70.2px）。基本は 28px 太字<br>地の色: 明 rgb(21, 19, 15)／暗 rgb(21, 19, 15)。基本は明 #f2f2f7／暗 #000<br>面: 角丸の面が無い<br>説明文（.mj-lead）: 無い |
+| top | top（`/top/`） | なし |
+| wayhome | top（`/wayhome/`） | 本文の列: 1280px で 0〜1265（余白 0px）／390px で 0〜375。基本は 1280px で 440〜840（400px の中央寄せ、余白 16px 16px 28px）<br>題名（h1）: 1280px で 13.6px/700（390px で 13.6px）。基本は 28px 太字<br>共通ナビ: new/sticky。基本は白地の帯（new）で固定しない（relative）<br>地の色: 明 rgb(18, 18, 18)／暗 rgb(18, 18, 18)。基本は明 #f2f2f7／暗 #000<br>面の角丸: 8px。基本は 12px（検索欄・チップは 10px）<br>検索欄: `mj-filter-input`（1280px で幅 1139px）。基本は `.mj-houou-search`（列の中、高さ 44px）<br>説明文（.mj-lead）: 1280px で -7〜1273・左右 38.4px（390px で -7〜383）。基本は列と同じ 440〜840・左右 20px<br>文書の幅: 390px で 383・1280px で 1273（縦のスクロールバーの分か、はみ出しの可能性。要確認） |
+| wayhome | episode（`/wayhome/0OPca1Bl5xk.html`） | 本文の列: 1280px で 0〜1280（余白 0px）／390px で 0〜390。基本は 1280px で 440〜840（400px の中央寄せ、余白 16px 16px 28px）<br>題名（h1）: 1280px で 48px/700（390px で 28px）。基本は 28px 太字<br>共通ナビ: new/sticky。基本は白地の帯（new）で固定しない（relative）<br>地の色: 明 rgb(18, 18, 18)／暗 rgb(18, 18, 18)。基本は明 #f2f2f7／暗 #000<br>面の角丸: 8px。基本は 12px（検索欄・チップは 10px）<br>説明文（.mj-lead）: 無い |
+| exam | top（`/exam/`） | 本文の列: 1280px で 0〜1265（余白 0px）／390px で 0〜375。基本は 1280px で 440〜840（400px の中央寄せ、余白 16px 16px 28px）<br>題名（h1）: 1280px で 13.6px/700（390px で 13.6px）。基本は 28px 太字<br>共通ナビ: new/sticky。基本は白地の帯（new）で固定しない（relative）<br>地の色: 明 rgb(18, 18, 18)／暗 rgb(18, 18, 18)。基本は明 #f2f2f7／暗 #000<br>面の角丸: 8px。基本は 12px（検索欄・チップは 10px）<br>検索欄: `mj-filter-input`（1280px で幅 1139px）。基本は `.mj-houou-search`（列の中、高さ 44px）<br>説明文（.mj-lead）: 1280px で -7〜1273・左右 38.4px（390px で -7〜383）。基本は列と同じ 440〜840・左右 20px<br>文書の幅: 390px で 383・1280px で 1273（縦のスクロールバーの分か、はみ出しの可能性。要確認） |
+| exam | episode（`/exam/lGPjKHDAlzw.html`） | 本文の列: 1280px で 0〜1280（余白 0px）／390px で 0〜390。基本は 1280px で 440〜840（400px の中央寄せ、余白 16px 16px 28px）<br>題名（h1）: 1280px で 48px/700（390px で 28px）。基本は 28px 太字<br>共通ナビ: new/sticky。基本は白地の帯（new）で固定しない（relative）<br>地の色: 明 rgb(18, 18, 18)／暗 rgb(18, 18, 18)。基本は明 #f2f2f7／暗 #000<br>面の角丸: 8px。基本は 12px（検索欄・チップは 10px）<br>説明文（.mj-lead）: 無い |
+| mtsuku | top（`/mtsuku/`） | 本文の列: 1280px で 0〜1265（余白 0px）／390px で 0〜375。基本は 1280px で 440〜840（400px の中央寄せ、余白 16px 16px 28px）<br>題名（h1）: 1280px で 13.6px/700（390px で 13.6px）。基本は 28px 太字<br>共通ナビ: new/sticky。基本は白地の帯（new）で固定しない（relative）<br>地の色: 明 rgb(18, 18, 18)／暗 rgb(18, 18, 18)。基本は明 #f2f2f7／暗 #000<br>面の角丸: 8px。基本は 12px（検索欄・チップは 10px）<br>検索欄: `mj-filter-input`（1280px で幅 1139px）。基本は `.mj-houou-search`（列の中、高さ 44px）<br>説明文（.mj-lead）: 1280px で -7〜1273・左右 38.4px（390px で -7〜383）。基本は列と同じ 440〜840・左右 20px<br>文書の幅: 390px で 383・1280px で 1273（縦のスクロールバーの分か、はみ出しの可能性。要確認） |
+| mtsuku | episode（`/mtsuku/yILN6DE-wew.html`） | 本文の列: 1280px で 0〜1280（余白 0px）／390px で 0〜390。基本は 1280px で 440〜840（400px の中央寄せ、余白 16px 16px 28px）<br>題名（h1）: 1280px で 48px/700（390px で 28px）。基本は 28px 太字<br>共通ナビ: new/sticky。基本は白地の帯（new）で固定しない（relative）<br>地の色: 明 rgb(18, 18, 18)／暗 rgb(18, 18, 18)。基本は明 #f2f2f7／暗 #000<br>面の角丸: 8px。基本は 12px（検索欄・チップは 10px）<br>説明文（.mj-lead）: 無い |
+| study | top（`/study/`） | 本文の列: 1280px で 0〜1265（余白 0px）／390px で 0〜375。基本は 1280px で 440〜840（400px の中央寄せ、余白 16px 16px 28px）<br>題名（h1）: 1280px で 13.6px/700（390px で 13.6px）。基本は 28px 太字<br>共通ナビ: new/sticky。基本は白地の帯（new）で固定しない（relative）<br>地の色: 明 rgb(18, 18, 18)／暗 rgb(18, 18, 18)。基本は明 #f2f2f7／暗 #000<br>面の角丸: 8px。基本は 12px（検索欄・チップは 10px）<br>検索欄: `mj-filter-input`（1280px で幅 1139px）。基本は `.mj-houou-search`（列の中、高さ 44px）<br>説明文（.mj-lead）: 1280px で -7〜1273・左右 38.4px（390px で -7〜383）。基本は列と同じ 440〜840・左右 20px<br>文書の幅: 390px で 383・1280px で 1273（縦のスクロールバーの分か、はみ出しの可能性。要確認） |
+| study | episode（`/study/1QVc_wj9T-c.html`） | 本文の列: 1280px で 0〜1280（余白 0px）／390px で 0〜390。基本は 1280px で 440〜840（400px の中央寄せ、余白 16px 16px 28px）<br>題名（h1）: 1280px で 48px/700（390px で 28px）。基本は 28px 太字<br>共通ナビ: new/sticky。基本は白地の帯（new）で固定しない（relative）<br>地の色: 明 rgb(18, 18, 18)／暗 rgb(18, 18, 18)。基本は明 #f2f2f7／暗 #000<br>面の角丸: 8px。基本は 12px（検索欄・チップは 10px）<br>説明文（.mj-lead）: 無い |
+
+区分ごとの差異の数: houou 0・ouka 0・jwrc 0・wrcr 0・saikyo 22・title 10・pro 0・live 20・log 0・r 5・top 0・wayhome 14・exam 14・mtsuku 14・study 14
+
+  - 補足:
+    - 表の「題名（h1）: 見えない」の区分は、title/ のトップと live/ の一覧。年度ページ（saikyo/year）と順位変動（race）は、題名のボタンが見える題名なので差異にしていない
+    - 「文書の幅」が 390px・1280px より 7〜15px 狭いのは、濃色のページで縦のスクロールバーが出ているためと見られる（要確認）。番組の一覧の説明文が -7px から始まるのは、はみ出しの可能性がある（要確認）
+    - 最強戦の卓のページの共通ナビは、旧い濃色（dark/sticky）のまま。放送対局の卓のページ（live/table）は新しい帯（new/sticky）
+- 手順2（最強戦の7画面）: 実物は前提どおりだった。個人成績・ランキング・トップは houou/ の部品（`.mj-race`）で 400px の中央寄せ。年度別・対戦成績・年度・対局のページは `.mj-saikyo` で 960px の左寄せ
+  - style.css（c168374e6）に `body.mj-saikyo-n-page` の中だけの規則を足した
+    - 変数 `--mj-saikyo-max-w` を 400px にし、`.mj-saikyo` を中央寄せ・余白 16px 16px 28px にした
+    - 説明文を中央寄せ・左右 20px にした
+    - パンくずの行を houou/ の `.mj-houou-crumbs` と同じにした（`ol` の下 4px・リンクの上下 -12px・区切りの左右 0.5em）
+    - 卓のページ（body に class が無い）と、同じ `.mj-saikyo`・`.mj-saikyo-n-crumb` を使う live/ の一覧・title/ は変わらない
+  - 直した後（プレビュー、c168374e6 のビルド）: 7画面とも、1280px で本文の列 440〜840・パンくず 456〜824（行 20px）・題名の上端 88（トップは 64）・説明文 440〜840（左右 20px）になり、houou/ のランキングと同じになった。390px でも本文の列 0〜390・字 16〜374 で同じ。卓のページ・live/wakajishi/・title/wakajishi/ の値は直す前と同じ
+  - 最強戦の中に残した差異（決まっていない形に変えるので、直さずに判断へ）
+    - 対戦成績の検索欄は `.mj-saikyo-n-vs-input`（対戦成績のページ独自の左右のカードの入力）で、`.mj-houou-search` と違う
+    - 対戦成績のカードの一部の角丸が 8px
+    - 卓のページは濃色の作りのまま（1100px の列・48px の題名・旧い濃色のナビ・地 #121212・説明文 1100px）
+- 計算的センサー（scripts/tests/test_new_site_column.py。c168374e6、強めたのは f5705d420）
+  - 新サイトの形のページを navbar.js の分岐から読み、各ページの `<main>` の最初の要素が 400px の中央寄せの部品（`.mj-race`、または `body.mj-saikyo-n-page` の `.mj-saikyo`）であることを確かめる
+  - style.css でその部品が 400px の中央寄せであることを確かめる（同じセレクタの規則のうち最後の値で判定。最強戦の説明文・パンくずの行の形も含む）
+  - navbar.js の分岐の数（`newNavCurrent` への代入 12）と、読めた分岐の数（パスの頭 8・body の class 3・番組の正規表現 1）が合うことも確かめる
+  - 例外の一覧（いま通している区分。直すかは #669 で決める）
+    - title/（385ページ。本文の列は main の 960px の中央寄せ）
+    - live/ のトップ・大会・期（177ページ。`.mj-saikyo` の 960px の左寄せ）
+    - 濃色のページ（番組のディレクトリの wayhome 45・exam 13・mtsuku 62・study 41・live の個別 770。濃色のヒーローの作り）
+    - 良栄のトップ r/（1ページ。独自の作り）
+  - 修正前のコードで落ちること: origin/cloudflare の style.css に差し替えると 10件が落ちた（最強戦の変数・中央寄せ・余白・説明文・パンくず）
+  - 自己レビューで挙がった7つの後戻りは、強めた後はすべて落ちる
+    - `.mj-saikyo` の幅の直書き
+    - 後ろからの margin-left の上書き
+    - `.mj-race` の上書き
+    - 説明文の中央寄せを消す
+    - パンくずの負の余白を消す
+    - navbar.js に startsWith の分岐を足す
+    - navbar.js に /saikyo/ のパスの分岐を足す
+  - `python3 -m unittest discover -s scripts/tests` → 2028件 OK
+- 再生成: `regenerate-page.yml`（`saikyo_pages`、run 41953236143）は「変更なし」。CSS だけの変更で生成物は変わらない（ページの種類ごとに変わった数はすべて0）
+- ドキュメント（f45818337）
+  - docs/notes/saikyo-page-design.md の「本文の幅」と docs/notes/design.md の「本文の列」の行を直した。値の記録と、テストへの参照だけにした
+  - 決定は docs/decisions/saikyo.md に足した
+- work/1101-prp-pub との重なり: `git merge-tree` の衝突は、このブランチを合わせても、origin/cloudflare と work/1101-prp-pub の間の衝突（saikyo.js・generate_saikyo_pages.py・saikyo/players/index.html・test_live_pages.py・sitemap-pages.xml）と同じで、増えていない。#641 には追記していない
+- 未マージのブランチ: style.css・navbar.js を変えているほかのブランチは無い（work/1105-lgf-ui は取り込みの後に差分が無くなった）
+
 ## 報告
 
 - 状態: 対応中
@@ -60,12 +190,12 @@ CHAT-1104-SKN-05 の「判断が必要なこと」への回答。新サイトの
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 759e6347）: https://github.com/retroeater/mj-logs/tree/main/guide/759e6347
+ガイド文書（この版を写した時点の最新、mj 8cc0bf62）: https://github.com/retroeater/mj-logs/tree/main/guide/8cc0bf62
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/759e6347/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/759e6347/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/759e6347/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/759e6347/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/759e6347/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/759e6347/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/8cc0bf62/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/8cc0bf62/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/8cc0bf62/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8cc0bf62/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8cc0bf62/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8cc0bf62/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/7864a244.md
