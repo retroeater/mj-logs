@@ -34,7 +34,7 @@ Google Cloud（Google Maps Platform を含む）の設定値をまとめる文�
 | SearchNearbyRequest（Nearby Search） | 要確認（同上。2026-10-29 の決定で使わなくなった） | 要確認 | 要確認 | — |
 
 - 2026-11-04 に、閉業の判定（mode closed、CHAT-1104-LGN-28）の本番の2回で GetPlaceRequest の1日の 3,000 に 100% 達した（1分は 43%）。1回の判定は約 1,700回呼ぶので、失敗した実行を同じ日にやり直す前に、割り当てと指標の画面で使った回数を確かめる（docs/notes/log-page.md の閉業の項）
-- ほかの API（Sheets・Drive・Calendar・Search Console・YouTube Data）の割り当ての値は記録していない。Sheets API の1分あたりの読み取りの上限の 429 は #662
+- ほかの API（Sheets・Drive・Calendar・Search Console・YouTube Data）の割り当ての値は記録していない。Sheets API の1分あたりの読み取りの上限の 429 は #662 で対策して閉じた（docs/notes/sheets-reader.md「段取りと今の状態」5.。再発したら新しい issue）
 
 ## 無料の枠と単価（Places）
 
