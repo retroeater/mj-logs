@@ -75,15 +75,59 @@ TOP 系列（サイトのトップ #101）から依頼があった。
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 着手前の確認
+
+- `## 指示` 欄の末尾は指示文の最後の行（「不明な点があれば…最後の行です。」）と一致
+- AIC-35 のログの本番の3問は結果で書き換わっている（2aae12dac、2026-11-05 09:22 JST の3問）
+- 同じ Chat-Ref のコミット: なし。#654 に他セッションの着手中コメント: なし（着手中をコメントした）
+- 作業ブランチ: origin/work/1104-aic はマージ済み（`merge-base --is-ancestor origin/work/1104-aic origin/cloudflare` が真）。ローカルの work/1104-aic が origin/cloudflare（2aae12dac）と同じなので、`git merge --ff-only origin/cloudflare`（変化なし）で使った
+- 未マージの work/ ブランチで `workers/ask/src/ask.mjs`・`workers/ask/test/`・`docs/notes/ask-worker.md` を変えているもの: なし
+- 冒頭の雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 欠けなし
+- AIC-35 のログの状態に「/ 続き: CHAT-1104-AIC-36」を足した（「判断が必要なこと」は回答なしと書いた）
+
+### 1. 実物の確かめ
+
+- `playersIn(d, text)` は ask.mjs 919行（前提どおり）。呼ぶのは `cardsOf()` だけ。export されていなかった
+- 検査は応答の `players[]` ではなく、`playersIn` を export して直接確かめる形にした（作り物の名簿を `data` 全体に入れずに済み、AIC-30 の「答えた選手を足す」分を除く必要も無い）
+- 新しいファイル `workers/ask/test/players-in.test.mjs` にした（`values.test.mjs` は本物のデータで応答を見るファイルで、作り物の名簿の検査とは形が違うため）
+
+### 2. 検査とチャット側の気づき
+
+- 作り物の名簿: `people` に「山田太郎」「山田太」「鈴木花子」、`totals` に「佐藤次郎」（名前だけ）。短い名前を先に置き、長さの順の並べ替えが効いていることも確かめる形にした（レビューの指摘）
+- 見ていること（6件）: 長い名前を先に当て中の短い名前は拾わない／文に出た順／同じ選手は1回だけ／名簿に無い名前は拾わない・空／長い名前の中に出た後に単独で出る短い名前を拾う（気づきの場合）／大会と個人成績のリンク
+- 気づきの場合は、チャット側の見立てどおり今のコードで落ちた（`indexOf` の最初の位置が長い名前の中にあると、後の単独の位置を見ない）。**直すことにした**（Worker の本体の直し、72624d064）: 重なる位置なら `indexOf(name, at + 1)` で次の位置を探す。直す前のコードで新しい検査は気づきの1件だけ落ち、直した後は6件とも通る
+  - 直した理由: 名簿に選手が増えると、答えの文に出た選手のカードが黙って欠ける。直しは数行で、今のデータでは結果が変わらない（下）
+- 並べ替えを外したコードでは、新しい検査の5件が落ちる（並べ替えを確かめられている）
+- 応答・記録が今と変わらないこと（比べ方: 直す前の ask.mjs を scratchpad に写し、`playersIn` を新旧で並べて比べる cmp36.mjs）:
+  - 5大会のデータの名簿（`people`・`totals`）で、ある名前が別の名前を含む組: 鳳凰戦 692人・女流桜花 164人・WRC 334人・WRC-R 197人・最強戦 440人のいずれも0件。この場合、新旧の動きは同じ（重なりが起きないので、最初の位置で決まる）
+  - これまでの本番の答え（scratchpad の prod*・out* の 119件）と、各大会の名簿の名前を全部並べた文10件、計129件を5大会のデータそれぞれで比べ、645件すべて同じ
+  - `players[]` は答えの文には影響しない（カードだけ）。答えの文・記録・Claude に渡すものは変えていない
+
+### 3. テスト
+
+- `node --test 'workers/ask/test/*.test.mjs'`: 着手時の cloudflare（2aae12dac）で **2件落ちていた**（saikyo.test.mjs「最強位: 年度の範囲で引ける…」、week3.test.mjs「データに無い期…」）。どちらも最強戦のデータの時点「2026年10月25日」を固定で書いており、日々の生成（c5721c607）で時点が 2026年11月1日に進んだため。今回の変更とは無関係だが、マージの条件（テストが通る）を満たすため、時点をデータ（`asof.league`）から取る形に直した（196ed1b24、テストだけ。形 `YYYY年M月D日の対局まで` は固定で確かめる）。2件とも AIC 系列（2b6a90742）で足した検査
+- 直した後: node 171件 通過、`python3 -m unittest discover -s scripts/tests` 2011件 OK
+
+### 4. レビュー（新しい文脈のサブエージェント、1回）
+
+| 指摘 | 扱い |
+|---|---|
+| ループの終わり・重なりの条件・空の文・同じ名前の複数回・重なり合う出現 | 問題なし |
+| 長い名前を先に当てる検査が、名簿の順（長い名前が先）のおかげで並べ替えなしでも通る（低） | 直した（短い名前を先に。並べ替えを外すと落ちることを確かめた） |
+| 時点の検査は、日付そのものは見なくなるが、文の形・「まで」の重ならないこと・形の正規表現は残る | 問題なし |
+| `playersIn` を export しても他に影響なし（呼ぶのは `cardsOf` だけ） | 問題なし |
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj fc1c303e）: https://github.com/retroeater/mj-logs/tree/main/guide/fc1c303e
+ガイド文書（この版を写した時点の最新、mj f1a60050）: https://github.com/retroeater/mj-logs/tree/main/guide/f1a60050
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/fc1c303e/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/fc1c303e/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/fc1c303e/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/fc1c303e/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/fc1c303e/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/fc1c303e/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f1a60050/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f1a60050/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f1a60050/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f1a60050/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f1a60050/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f1a60050/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/2aae12da.md
