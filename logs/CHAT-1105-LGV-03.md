@@ -48,6 +48,34 @@ Chat-Ref: CHAT-1105-LGV-03
 
 ## 経過
 
+### 着手（2026-11-05 17:58 JST）
+
+- 0章: ログの「指示」欄の末尾は指示文の最後の行と一致。告知の期間中（LGV-01 の着手 2026-11-05 14:20 JST から）なので、マージは平野さんの承認を待つ
+- 同じ Chat-Ref のコミット・ログ: 0件。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 欠けなし
+- 貼る時機は「別のセッションに貼る」だが、このセッション（LGV-01・02 と同じ）に貼られた。LGV-02 は判断待ちで止まっていて並行の作業は無いため、このセッションで行った。ブランチは分けた
+- ブランチ: work/1105-lgv-amp はローカル・リモートとも無し → `git checkout -b work/1105-lgv-amp origin/cloudflare`
+- 未マージの work/ ブランチで `scripts/lib/log_rows.py`・`generate_log_pages.py`・`convert_x_posts.py`（とそのテスト）を変えているもの: 0件
+
+### 1. 文字参照を含む値の洗い出し
+
+- **シートの【1】【2】【3】は、このコンテナから読めない**（読み取りの鍵 `SHEETS_READER_SA_KEY` は GitHub Actions の Secret にだけある。docs/notes/cloud-sessions.md「鍵」）。値を出すワークフローも無い（regenerate-page の dry_run・convert-x-posts は件数だけ）。そのため、シートの列・セルごとの表は作れていない（下の「判断が必要なこと」）
+- 代わりに、公開中の本番 `log/search.json`（【2】を【3】で直し、載せない投稿・店を外した値。2026-11-05 17:59 JST に取得、店 1,737・投稿 2,425）の全部の値（店名・別名・駅・突き合わせ用の駅・ジャンル・都道府県・駅の候補・メニュー・投稿者・prefs・areas）を、文字参照の形（`&名前;`・`&#数字;`・`&#x16進;`）で `html.unescape()` で変わるものに絞って調べた。当たったのは1件だけ:
+
+| 出どころ | 列 | 投稿 ID | 値 |
+|---|---|---|---|
+| 【2】か【3】（log/ の値では区別できない） | 店名 | 2014248828128698462（谷岡育夫、2026-01-22、place_id ChIJ0_RXpduMGGAR0YKe38aV2p8、駅 新宿） | `レディース&amp;ジェントルメン` |
+
+- この店の投稿は1件で、別名は無い。メニュー（プリンアラモード、シトラス(ノンアル)）に文字参照は無い。店の URL の query も `%26amp%3B` を含む（生成が店名から組み立てるため）
+- ほかの店名の「&」（23店。例: `802 CAFE&DINER`・`ELLA&LOUIS`）とメニューの「&」（33件）は、文字参照でなく元の文字で入っている
+- 原因（見込み）: X API の投稿の本文は `&` を `&amp;` で返し（`<` `>` も同じ）、【1】は API の値のまま入る（fetch_x_posts.py）。変換（convert_x_posts.py）は本文をそのまま Claude に渡し、Claude の抜き出した店名をそのまま【2】に書く。Claude はほとんどの投稿で「&」に戻して書いていたが、この投稿では `&amp;` を写した。【1】の本文と【2】【3】のセルを見ていないので、【3】の手書きの値の可能性は消せていない。どちらでも、生成で戻せば直る
+- 止まる条件「店名そのものが &amp; と書かれた店」: 店は新宿の「レディース&ジェントルメン」で、`&amp;` は `&` の文字参照と判断した
+
+### 2. 直したこと（713b25b8c）
+
+- 生成（`generate_log_pages.py`）: `build_posts()` の初めで、行の「店名」「メニュー」「駅」を `html.unescape()` で一度だけ戻した写し（`unescaped()`）を使う。店名の表記を数える（`shop_names()`）前・地図の URL を組み立てる（`shop_link()`）前に戻る。出すときは今までどおり `esc()`（HTML）と `json.dumps`（search.json）
+- 変換（`convert_x_posts.py`）: `build_row()` で Claude が返した店名・メニューを `html.unescape()` で戻して【2】に書く（店の URL も戻した店名から）。本文は戻さずに渡す（戻す所を1か所にして、二重に戻さないため）。既存の【2】【3】の値は書き換えない
+- テスト: `test_log_pages.py` の `CharRefTest`（戻す・`&amp;amp;` は `&amp;` に一度だけ・`&amp;` と `&` の表記を同じ表記として数える・カードの HTML で `<` `"` `&` がエスケープされる・search.json は戻した文字列）と `test_convert_x_posts.py` の `test_char_refs_are_unescaped`。直す前のコードで4件とも失敗することを確かめてから直した。直した後 `python3 -m unittest discover -s scripts/tests` 2,036件 OK、`node --test scripts/tests/js/log.test.js` 23件 pass
+
 ## 報告
 
 - 状態: 作業中
