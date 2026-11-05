@@ -73,28 +73,54 @@ SKN・MNL 系列（最強戦の選手から個人成績へのリンク・新サ�
 
 ## 経過
 
+- 着手前の確認: `CHAT-1106-SKN-15` のコミットは全ブランチに無し。`SKN` はこのセッションの続きの識別子。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）の欠け無し。指示文に issue の指定は無し。CLAUDE.md は起動時から変わっていない
+- 0. の確認: 「指示」欄の末尾は指示文の最後の行と一致
+- ガイド文に規則を足す指示ではない（docs/decisions/operations.md への記録だけ）。「知見 → 選んだ層 → 理由」の表は指示文にある
+- 作業ブランチ: work/1106-skn-retro はローカルにもリモートにも無かったので、`git checkout -b work/1106-skn-retro origin/cloudflare`（7f6d4280e）で作った
+- 手順1
+  - docs/decisions/operations.md に SKN・MNL 系列の振り返りの節は無かった。MNL の節は「2026-11-04（CHAT-1104-MNL-02）」の決定の節だけ
+  - 足す前の容量は 218,584 バイト
+  - 約束の番号の確かめ
+    - 案が参照する「CHAT-1104-TTL-08 の (a)〜(c)」は、実物では「2026-11-04（CHAT-1104-TTL-10）」の節の約束だった（TTL 系列の振り返りの節）
+    - 「CHAT-1104-ACF-42 の (a)〜(c)」は「2026-11-05（CHAT-1105-ACF-43）」の節の約束だった（ACF 系列の振り返りの節）
+    - 中身と (a)・(b)・(c) の記号は案の説明と合っていたので、参照を TTL-10・ACF-43 に直した
+    - CHAT-1105-LGF-14 の (a-5)・(b-2)・(c-2) は案の参照と合っていた
+- 手順2（事実の突き合わせ。ログと食い違った所と直したこと）
+  - MNL-01 は欠番ではない（コミットとログがある。docs/notes/branch-operations.md「作業を再開するとき」の扱い）。ただし「MNL-01 は欠番」と最初に書いたのは、Code 側の MNL-01 のログの `## 報告`（「表を付けて新しい番号で貼り直してほしい（MNL-01 は欠番）」）だった。MNL-02 の指示文はそれを写している。そこで節には「MNL-01 の報告と MNL-02 の指示文にある『MNL-01 は欠番』は誤り」と書いた
+  - SKN-05 の「design.md の冒頭に #528 の参照があった」は合っていた（docs/notes/design.md の4行目）
+  - SKN-06 の差異の表の対戦成績の項目は、入力欄の部品（`mj-saikyo-n-vs-input`、1280px で幅 424px）と角丸 8px だった。案の「幅の違い」は「違い」に整えた
+  - そのほか（SKN-01・SKN-10 の数値・往復5組・SKN-02 の仮置き6件・ACF の伝言を SKN-03 の前提に入れたこと・Code が 390px と 1280px を確かめていたこと）は、各ログと合っていた
+  - チャット側だけが知る事実（Chrome で見た幅・Q9・Q10・平野さんの了承・SKN-04 の前に分けて伺ったこと）は、案のまま書いた
+- 約束 (d) の書き方: 案は「CHAT-1104-ACF-42 の (a) の例」だった
+  - ACF-43 の (a) は、変更で制御できない外部の要因（並走・外のデータ）で落ちる条件を入れないこと
+  - SKN-10 は逆に、変更そのものが必ず動かす値で止まった
+  - そこで「CHAT-1105-ACF-43 の (a) と同じく、止まる条件の書き方の例」と整えた（例の親は変えていない）
+- 節は「2026-11-05（CHAT-1105-LGF-14）」と同じ形（事実・前回の約束・ガイド文には足さない・約束）。長い行は字下げで分けた。足した後の容量は 222,888 バイト（+4,304）
+- 手順3: `git diff -U0` の追加行を「workers.dev・gserviceaccount・SECRET・SA_KEY・spreadsheets/d/・docs.google」で探して、該当0件
+- ガイド文（CLAUDE.md・handover.md・chat-side-operations.md・instruction-template.md・chat-routines.md）は変えていない
+
 ## 報告
 
-- 状態: 対応中
+- 状態: 完了
 - ブランチ: work/1106-skn-retro
-- ログ: https://github.com/retroeater/mj/blob/work/1106-skn-retro/docs/logs/CHAT-1106-SKN-15.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1106-SKN-15.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1106-skn-retro
 - 確認用URL: なし（docs のみ）
-- マージ: 未
+- マージ: 済（docs のみ。この報告の push で cloudflare へ入れる）
 - issue: なし
-- 判断が必要なこと: 未記入
-- 未確認の項目: 未記入
+- 判断が必要なこと: なし
+- 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 1451b350）: https://github.com/retroeater/mj-logs/tree/main/guide/1451b350
+ガイド文書（この版を写した時点の最新、mj 03e95b54）: https://github.com/retroeater/mj-logs/tree/main/guide/03e95b54
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/1451b350/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/1451b350/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/1451b350/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/1451b350/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/1451b350/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/1451b350/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/03e95b54/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/03e95b54/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/03e95b54/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/03e95b54/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/03e95b54/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/03e95b54/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/7f6d4280.md
