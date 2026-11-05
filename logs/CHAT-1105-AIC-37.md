@@ -125,6 +125,44 @@
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 着手前の確認
+
+- `## 指示` 欄の末尾は指示文の最後の行と一致。同じ Chat-Ref のコミット・ログ: なし
+- AIC-36 のマージ（f1a600501）は origin/cloudflare の祖先。AIC-36 のログの状態に「/ 続き: CHAT-1105-AIC-37」を足した（下の「AIC-36 のログ」）
+- 作業ブランチ: work/1105-aic はローカル・リモートとも無かったので `git checkout -b work/1105-aic origin/cloudflare`（7864a2443）
+- 同じ目的の issue: 開いている issue の題に「質問欄で予定に答える」ものは無い（#481「予定表の変化」・#658 は別の目的）。この作業は #654 の中で行う
+- 未マージの work/ ブランチで、触るファイル（`workers/ask/`・`generate_pro_pages.py`・`sync_live_calendar.py`・`update-live-channel.yml`・`regenerate.py`・`ask-worker.md`）を変えているもの: `work/1101-prp-pub`（CHAT-1104-PRP-20、判断待ち）が `scripts/generate_pro_pages.py`（`render_top()`・`plans_json()` の近く）と `scripts/regenerate.py` を変えている。目的は pro/ の公開で、予定の型ではない。この指示では `generate_pro_pages.py` を変えない（関数を import して使うだけ）ので同じ行に触れない。`regenerate.py` は `OUTPUT_OVERRIDES`・`RUN_LAST` の行を変えるので、マージの順によっては取り込みで確かめる
+- 0章ゲート: #654 は open。CLAUDE.md 23,981 バイト・handover.md 24,518 バイト（警告域 26KB の手前）。#654 に他セッションの着手中コメントは無い（着手中をコメントした）
+- docs/notes/github-actions.md「ワークフローを変更したとき」を読んだ。`update-live-channel.yml` の `target_page` を変えた前例（CHAT-1104-RYO-10・RYO-02）は、`update-live-channel.yml` 自体の手動実行が本番の /live のシートへ書くため、渡す値と同じ `target_page` で `regenerate-page.yml` を手動実行して確かめていた
+- 冒頭の雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 欠けなし
+
+### 1. 実物の確かめ
+
+- `scripts/generate_top_page.py` に `is_late_stage()`・`live_rows()` は無い（前提どおり）。前の判定は bce74d878 の親の `generate_top_page.py` にあった（`BEST_MAX`・`FINAL_WORD`・`KO_WORD`・`contest_of()`）
+- このコンテナには Sheets の鍵が無く、`load_desired()` は手元で動かせない。件数は、同じ元から毎朝同期される公開カレンダー「mj_放送対局」の公開の ics で見た（2026-11-05 10:30 JST ごろ）: 今日以降 114件、2027-03-31 まで（11月27・12月21・1月23・2月23・3月20件）
+- `pro/plans.json`（2026-11-05）: 109行（放送88・道場部17・最強戦4）
+- `title/search.json` の大会: 20（鳳凰戦・女流桜花・WRCリーグ・WRC-Rリーグを含む。最強戦は無い）
+- Sheets の読み取りのキャッシュ（`lib/sheets.py` の `SHEETS_CACHE_DIR`）は `regenerate.py` の1回の実行の間、ページ（別のプロセス）をまたいで効く
+- 画面（`assets/top_ask.js`）は `sources` のうち `/` で始まる行き先だけをリンクにし、ほかは名前だけを出す。`answer` は改行をそのまま出す（pre-line）
+
+### 2. 選んだ形
+
+- データ: 新しい生成物 `workers/ask/data-schedule.json`（`scripts/generate_ask_data_schedule.py`、`ask_data_schedule`）
+  - 大会の予定: `load_desired()` の今日以降のうち title/ の大会のもの（期間は区切らない。予定表の取り込みにある分で、2026-11-05 は 2027-03 まで）。title/ に無い大会（地方プロリーグ・鳳匠戦・WROTL・プロNo.1決定戦・WRCアマチュアグランプリなど）は入れない。リーグ戦の節など段の無い予定も入れる（「次の鳳凰戦の対局は？」のため。段は空）
+  - 段: 件名から（ベストN > 決勝 > 決定戦 > 準決勝。「決勝トーナメント」「準決勝」は決勝ではない）。決勝を決定戦より先に見るのは、最強戦の「新鋭プロ代表決定戦 決勝」のような件名のため
+  - 最強戦の卓: 公開カレンダーに無いので、`pro/plans.json` の最強戦の行から卓ごとに1件
+  - 選手の予定: `pro/plans.json` をそのまま写す（slug を除き、日付と時刻を分けるだけ）。`generate_pro_pages.py` は変えない。そのため `pro/` の出力は変わらない（`regenerate.py pro_pages` の比べは不要）
+  - 道場部のゲスト: 選手の予定には入る（plans.json に入っているため）。大会の予定には入れない（大会ではない）
+- 毎日の作り直し: `update-live-channel.yml` の `target_page` に `ask_data_schedule` を足し、`RUN_LAST` を `("pro_pages", "ask_data_schedule", "top_page")` にした（pro/plans.json の後。top_page を最後にする既存の検査 `test_top_page.py` の `test_runs_after_pro_and_daily` に合わせた）
+- Worker: 予定の語（次の・次回・今後・これから・この先・予定・日程・いつ・開催日・放送日・直近）のある横断の問いだけ、1回目の指示に型 `schedule` と引数 `stage` を足す
+  - 理由: 今の問いの指示を変えないため（語の無い問いは指示が1字も変わらない）。`context` の大会だけで答える流れは「大会別の欄と同じ指示・同じ回数」をテスト（`context.test.mjs`）で確かめており、すべての問いに型を足すとそれが崩れる
+  - 1回目が `schedule` を選んだら、2回目を呼ばずにプログラムが答えを書く（AIC-34 のタイトルの文と同じ考え）。呼び出しは1回目の大会の数だけ（最大5回）で、`CROSS_CALLS_MAX`（6）の内
+  - 範囲はプログラムが問いから決める: 問いの大会名（title/ の大会・最強戦）＞5大会の名前＞`context`＞すべて。Claude には大会名を入れさせない
+  - 出典: サイトの中のページだけ（行の大会の title/ のページ、最強戦の卓のページ）。YouTube と公開カレンダーの URL は画面がリンクにしないので入れない。公開カレンダーの名前は `asof` に入れた（「予定 YYYY-MM-DD 時点（公開カレンダー「mj_放送対局」）」）
+- 費用の見込み: 予定の問いは1回目だけ。context なしの「次の決勝はいつ？」は5大会の1回目（今の横断の1回目と同じ、約 $0.0016 の見込みのうち1回目の分）で、2回目の分だけ今より少ない。context ありの問いは1回（約 $0.0002）
+
 <!-- guide-links -->
 ---
 
@@ -136,4 +174,4 @@
 - docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/7864a244/docs/notes/chat-side-operations.md
 - docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/7864a244/docs/notes/cloudflare.md
 - docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/7864a244/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/2aae12da.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/7864a244.md
