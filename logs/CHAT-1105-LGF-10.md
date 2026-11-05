@@ -48,15 +48,108 @@ LGF-09 の判断待ちの残りと、平野さんの新しい決定を進める�
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 0. 着手前の確認
+
+- 「指示」欄の末尾は指示文の最後の行と一致
+- 同じ Chat-Ref のコミットは0件（LGF の識別子の重複の確かめは LGF-01 で済み）
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある（貼られた指示文は改行が詰まって1行目につながっていたが、行の欠けはない）
+- 作業ブランチ: ローカル・リモートとも無かったので `git checkout -b work/1105-lgf-ui origin/cloudflare`（起点 c5721c607）
+- LGF-09 のログの状態に「 / 続き: CHAT-1105-LGF-10」を足した（ログ先行のコミット 052dacb2e に含めた）
+- 未マージの work/ ブランチで `assets/log.js`・`generate_log_pages.py`・`convert_x_posts.py` を変えているのは `origin/work/1104-lgn-policy`（`SOURCE_HTML`）だけ。今回の関数とは重ならない
+
+### 1. 期間限定の出店2件（b7f24a0b2・df0fd116c）
+
+- 今までの外し方は place_id だけを見ていた（LGF-07 の `HIDDEN_PLACES` を `drop_closed()` で外す）。寒鱈まつりは place_id が無く、店の鍵が「p2022849721023299710」なので外せなかった
+- `HIDDEN_PLACES` を `HIDDEN_SHOPS`（`{店の鍵: 理由}`）に改め、`shop_key()`（place_id、空なら「p<投稿ID>」。`group_shops()` の鍵と同じ）と `drop_hidden()` を足した。2件の理由は「期間限定の催事の出店で、検索した人が訪れられないため」。`convert_x_posts.py` の `closed_targets()`・テスト・log-page.md の参照もそろえた（リポジトリ全体で `HIDDEN_PLACES` の残りは0件）
+- 「p<投稿ID>」の鍵は、その投稿1件にだけ効く（【3】でその投稿に place_id を付けると鍵が変わって載る。同じ催事の別の投稿も別の店になる）。レビューの指摘で、コメントと log-page.md の表に書いた
+- テスト: `HiddenShopsTest`（理由・鍵の形〈place_id か p<数字>〉、place_id の店と p の店の両方が search.json・カテゴリに出ず、ログの行に「2店」、`shop_key()` が `group_shops()` の鍵と同じ）、`test_targets_skip_hidden_places`
+
+### 2. 現在地から探すのアイコン（56f284b6e・df0fd116c）
+
+- `body_html()`: 検索欄（`.mj-houou-search`）の中、入力を消す × の後に、細い区切りの線（`.mj-log-geo-sep`）と照準のアイコンのボタン（`id="log_geo"`、`GEO_ICON` の自前のインライン SVG、`aria-label`・`title` は「現在地から探す」）を置き、前の検索欄の下の文字のボタンの行（`.mj-log-tools`）を消した
+- 準備中: 今のボタンと同じく `disabled` にした（押せないアイコン。`aria-label`・`title` は「現在地から探す（準備中）」、色は灰色）。押した後の動き（`assets/log.js` の `geoButton` の処理）は変えていない（`#log_geo` と `disabled` で見る作りのまま）
+- CSS: `.mj-log-geo` を 44×44px の丸い押す所（色は `--mj-n-accent`）にし、区切りの線は `--mj-n-muted` の 35% の濃さ（`--mj-n-line` は検索欄の地と近くて見えなかった。手元で撮って確かめて直した）。共通の `.mj-houou-search*` の規則は変えていない（`.mj-log-more` と共有していたセレクタを分けただけで、`.mj-log-more` の宣言は前と同じ）。ほかのページの生成物は変わらない（log_pages だけを生成し、差分は log/ だけ）
+- テスト: `test_geo_button_waits_for_coords`（検索欄の中にアイコン、前の行が無い、準備中は押せない）
+- docs/notes/log-page.md の「構成」「現在地から探す」「仮置きの一覧」を直した
+- 検証: `python3 -m unittest discover -s scripts/tests` は OK（2009件）、`node --test scripts/tests/js/*.test.js` は pass 22・fail 0
+
+### 差分のレビュー（docs/notes/self-review.md）
+
+新しい文脈のサブエージェントに、指示の目的と決定、`git diff 052dacb2e 56f284b6e`（scripts・style.css・docs/notes・assets）、CLAUDE.md「コード規約」を渡した（1回目）。`test_log_pages`・`test_convert_x_posts` の 98件は OK。バグの指摘は無し。
+
+| 指摘 | 扱い |
+|---|---|
+| 生成物（log/index.html）を作り直していない（CSS だけ入ると前の文字のボタンが 44px の円に押し込まれる） | 直した（同じブランチで生成のコミット aef3f41ce。マージは一緒に入る） |
+| 「p<投稿ID>」の鍵は、【3】で place_id が付くと鍵が変わってまた載る。同じ催事の別の投稿も別の店になる | 直した（df0fd116c。コメントと log-page.md に書いた。仕組みは変えていない） |
+| 鍵の形の検査が `startswith(("ChIJ", "p"))` だけで、打ち間違いを拾えない | 直した（df0fd116c。`^(ChIJ[\w-]+|p\d+)$` にした） |
+| style.css の log/ の節の冒頭のコメントに「現在地のボタン」が残っている | 直した（df0fd116c） |
+| disabled のボタンでは Firefox などで title のツールチップが出ない（準備中のとき） | 見送り（名前は aria-label で伝わる。今のデータでは押せる状態） |
+| 区切りの線があること・アイコンが × の後にあることを検査していない／`shop_key()` の投稿 ID も空の場合 | 見送り（軽微。位置はプレビューで撮って確かめた。投稿 ID の空の行は merged_rows の行に無い） |
+
+1回目の後の差分（コメント・文書・検査の形）は生成物を変えないので、2回目のレビューはしていない。
+
+### 生成と数
+
+- `regenerate-page.yml` を `work/1105-lgf-ui`・`target_page: log_pages` で手動実行（56f284b6e の後）、生成のコミット aef3f41ce（`log/index.html`・`log/search.json`）
+- LGF-09 のマージ（a428af80f）の search.json と比べて: 店 1,739 → 1,737（−2）・投稿 2,427 → 2,425（−2）。外れた店は 東京ラーメンショー極み麺（`ChIJT2WXm-aNGGAR24zlaGQ7fiQ`、投稿 1513813599906824195）と寒鱈まつり（`p2022849721023299710`、投稿 2022849721023299710）だけ。足された店・投稿は0件（毎朝の取り込みの差は無い）
+- 生成した log/index.html に `mj-log-tools` は0件、`id="log_geo"` は検索欄の中のアイコン
+
+### プレビュー
+
+- 0ac5d53c1 の Workers Builds: success。版ごとのプレビューを Playwright（UA に mj-internal、幅 390、geolocation を神保町〈35.6959, 139.7577〉にして許可）で開いた
+  - トップの検索欄: 右端に区切りの線と照準のアイコン。前の文字のボタンの行は無い
+  - アイコンを押すと「×現在地」のタグが付き、1,670店が近い順に出る（先頭の3店の駅は神保町）
+  - `?tag=ラーメン` で探した後の検索欄: 語・入力を消す ×・区切りの線・アイコンの順に並ぶ
+
+### 3. 検索結果の並び順（assets/log.js の `search()`、:124-149。変えていない）
+
+前提: 検索用のデータの店の並びは、店の最も新しい投稿の新しい順（`generate_log_pages.py` の `group_shops()` が新しい順の投稿から店を作る順。同じ日は投稿 ID の大きい順）。`search()` はこの並びのまま条件に合う店を集め、駅のタグか現在地のときだけ距離で並べ替える（`Array.prototype.sort` は安定なので、同じ距離の店は元の並びのまま）。店の中の投稿は新しい順。
+
+| 探し方 | 1つ目の鍵 | 同じ値の店どうし（2つ目の鍵） | 「近い駅 → 新しい投稿のある店」か |
+|---|---|---|---|
+| 検索欄の語だけ | 店の最も新しい投稿（店のすべての投稿のうち。語に当たった投稿に限らない） | — | 距離は無い。新しい順だが、語に当たった投稿でなく店全体の最も新しい投稿で並ぶ |
+| 駅のタグ | 店の駅の候補の中の、その駅までの距離（その駅の店は 0m。候補に無い店は後ろ） | 店の最も新しい投稿の新しい順 | なっている |
+| 現在地 | 現在地から店の駅の点までの距離（同じ駅の店は同じ距離） | 店の最も新しい投稿の新しい順 | なっている |
+| 店名・ジャンル・都道府県のタグ | 店の最も新しい投稿 | — | 新しい順（店のすべての投稿が出るので、出る投稿の最も新しいものと同じ） |
+| 投稿者・投稿年のタグ | 店の最も新しい投稿（店のすべての投稿のうち） | — | 新しい順だが、出る投稿（その投稿者・その年の投稿）でなく店全体の最も新しい投稿で並ぶ |
+| 駅のタグ＋ほかのタグ・語 | 駅のタグと同じ距離 | 店の最も新しい投稿（店全体） | 近い駅 → 新しいはなっているが、2つ目の鍵は出る投稿でなく店全体の投稿 |
+| 現在地＋ほかのタグ・語 | 現在地と同じ距離 | 店の最も新しい投稿（店全体） | 同上 |
+
+- 例: 「×2024年」で探すと、2026年の投稿もある店は、2024年12月の投稿だけの店より上に出ることがある（2026年の投稿は出ないのに、その日付で並ぶ）
+- 直すなら: `search()`（assets/log.js:124-149）で、`matchShop()` が返した投稿（条件に合う投稿、新しい順）の先頭の日付を2つ目の鍵にして並べ替える。距離の無い探し方は「合う投稿の最も新しい日付の新しい順」で並べ替え、距離のある探し方は距離が同じとき同じ日付で比べる（今は元の並びに任せている。146行目の比べる関数に、距離が同じなら `posts[0]` の日付〈同じ日なら X の URL の投稿 ID〉で比べる形を足す）
+
+### 決定の記録
+
+- 指示文の「決定」節を docs/decisions/operations.md の末尾に「2026-11-05（CHAT-1105-LGF-10）」として足した。作業中の平野さんの回答は無い
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1105-lgf-ui
+- ログ: https://github.com/retroeater/mj/blob/work/1105-lgf-ui/docs/logs/CHAT-1105-LGF-10.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1105-lgf-ui
+- 確認用URL: プレビューあり（URL は最終報告）。この版で見える印: 検索欄の右端に照準のアイコンがあり、検索欄の下の「現在地から探す」の文字のボタンが無い
+- マージ: 未（平野さんの判断待ち）
+- issue: なし
+- 判断が必要なこと:
+  - プレビューを見て、マージしてよいか。見る所: トップ（`/log/`）の検索欄の右端のアイコン（押すと位置の許可を聞き、「×現在地」のタグで近い順に出る）、`/log/?tag=ラーメン` で探した後の検索欄（語・×・区切りの線・アイコンの並び）、`/log/?shop=ChIJT2WXm-aNGGAR24zlaGQ7fiQ` が「見つかりませんでした」になること
+  - 準備中のアイコンは、押せないアイコン（灰色、名前に「準備中」）にした。この形でよいか
+  - 並び順: 投稿者・投稿年のタグと検索欄の語、駅・現在地で同じ距離の店どうしは、出る投稿でなく店全体の最も新しい投稿で並ぶ（経過の「3.」の表）。「出る投稿の最も新しい日付」で並べるように直すか（変え方は経過の「3.」の最後）
+  - LGF-09 から移した残り: 一覧に当たらない駅の表記2つ（緑ヶ丘・東武池袋）と、【3】で平野さんが直す店（LGF-04 の要確認の10店と誤字の2店、LGF-06 の離れた駅の6店と大至）。issue に移すか
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj c5721c60）: https://github.com/retroeater/mj-logs/tree/main/guide/c5721c60
+ガイド文書（この版を写した時点の最新、mj d7a17d1b）: https://github.com/retroeater/mj-logs/tree/main/guide/d7a17d1b
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5721c60/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5721c60/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5721c60/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5721c60/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5721c60/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5721c60/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d7a17d1b/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d7a17d1b/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d7a17d1b/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d7a17d1b/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d7a17d1b/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d7a17d1b/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/04d7a070.md

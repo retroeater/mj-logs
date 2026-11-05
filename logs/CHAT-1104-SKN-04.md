@@ -88,17 +88,21 @@ CHAT-1104-SKN-03 の「判断が必要なこと」5点への回答を入れ、SK
 | 1回目・情報: 「表示」が Y でないプロにも X のアイコンが出る（X は最強戦のシートの I 列から） | 意図どおり（前提の誤り。X は `load_rows()` が名前の辞書〈SNS ブック、「表示」が Y でない人は空〉から入れる。SKN-02 のログと同じ） |
 | 2回目 | 指摘なし |
 
+- マージ: push の直前に `git fetch origin cloudflare` し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真であることを確かめてから `git push origin work/1104-skn:cloudflare` → `c5721c607..d7a17d1bb  work/1104-skn -> cloudflare`
+- マージ後: `regenerate-page.yml`（push、run 41939706855）は success。`scripts/lib/` の変更で全ページが対象になり、結果は「変更なし」（新しいコミット無し）。d7a17d1bb の check-run は Workers Builds: mj・mj-ask・mj-scheduler とも success、regenerate・sync も success（notify は skipped）。朝の報告にあった無関係の失敗は、この確かめの中では出なかった
+- 本番（https://ryoei.pro 。UA に mj-internal、`?v=d7a17d1bb` を付けた）: Playwright（Chromium、390px）で見た。魚谷侑未の `?view=vs` は、タブ「年度別・部門別・対戦成績」（対戦成績が選ばれている）、59行、アイコン 3つ。先頭は 二階堂亜樹 2勝2敗2分（→ `../vs/?name=魚谷侑未,二階堂亜樹`）。2025 の対局のページ（20250816）は行のリンク 0。写真の読み上げは「喜多剛士の個人成績」で、押すと `/saikyo/players/?name=喜多剛士` が開き、名前の面も喜多剛士。卓のページ（20250816-s1-a）の本番の HTML は 200 で、カードに `aria-label="喜多剛士の個人成績"` がある。スクリーンショットは docs/logs/CHAT-1104-SKN-04/prod-*.png
+
 ## 報告
 
-- 状態: 対応中
-- ブランチ: work/1104-skn
-- ログ: https://github.com/retroeater/mj/blob/work/1104-skn/docs/logs/CHAT-1104-SKN-04.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1104-skn
-- 確認用URL: なし
-- マージ: 未
-- issue: #641
-- 判断が必要なこと: 未記入
-- 未確認の項目: 未記入
+- 状態: 完了
+- ブランチ: work/1104-skn（マージ済み。削除は cleanup-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1104-SKN-04.md
+- 比較URL: https://github.com/retroeater/mj/compare/c5721c607...d7a17d1bb
+- 確認用URL: プレビューあり（URL は最終報告）。確かめたページ: 卓（20250816-s1-a）・対局（20250816）・年度（2025）・個人成績（魚谷侑未、`?view=vs`）。この版の印: 卓のページの出場者のカードの読み上げが「<名前>の個人成績」
+- マージ: 済（d7a17d1bb、範囲 c5721c607..d7a17d1bb）
+- issue: #641（SKN-02・03 でコメント済み。この指示では追記なし）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
