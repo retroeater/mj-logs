@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-11-05 10:42 JST
+- 書き出した時刻: 2026-11-05 10:45 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -25,11 +25,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-05 10:45 | push | work/1105-aic | in_progress | #989（41950667349） |  |
+| 2026-11-05 10:44 | push | work/1105-aic | success | #988（41950522279） | 0分28秒 |
 | 2026-11-05 10:41 | push | work/1105-aic | success | #987（41950207264） | 0分24秒 |
 | 2026-11-05 10:36 | push | work/1105-mfq | success | #986（41949643436） | 0分28秒 |
 | 2026-11-05 10:34 | push | work/1105-aic | success | #985（41949438095） | 0分23秒 |
-| 2026-11-05 10:34 | push | work/1105-lgf-ui | success | #984（41949415880） | 0分27秒 |
-| 2026-11-05 10:33 | push | work/1105-lgf-ui | success | #983（41949339651） | 0分32秒 |
 
 ## check-build-failure.yml
 
@@ -38,11 +38,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-05 10:45 | check_run | cloudflare | skipped | #1292（41950637721） | 0分01秒 |
 | 2026-11-05 10:42 | check_run | cloudflare | skipped | #1291（41950300640） | 0分01秒 |
 | 2026-11-05 10:38 | check_run | cloudflare | skipped | #1290（41949827886） | 0分01秒 |
 | 2026-11-05 10:36 | check_run | cloudflare | skipped | #1289（41949704392） | 0分07秒 |
 | 2026-11-05 10:36 | check_run | cloudflare | skipped | #1288（41949699713） | 0分00秒 |
-| 2026-11-05 10:36 | check_run | cloudflare | skipped | #1287（41949650880） | 0分01秒 |
 
 ## check-image-links.yml
 
@@ -201,7 +201,7 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-11-05 10:41 | workflow_dispatch | work/1105-aic | in_progress | #754（41950207267） |  |
+| 2026-11-05 10:41 | workflow_dispatch | work/1105-aic | success | #754（41950207267） | 1分14秒 |
 | 2026-11-05 10:36 | workflow_dispatch | work/1105-aic | success | #753（41949652605） | 0分57秒 |
 | 2026-11-05 10:35 | push | cloudflare | success | #752（41949570987） | 0分55秒 |
 | 2026-11-05 10:34 | workflow_dispatch | work/1105-aic | success | #751（41949449353） | 1分12秒 |
