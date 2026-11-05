@@ -58,15 +58,62 @@ GitHub Actions の今月の使用量が 11/5 に 90%（2,700 / 3,000 分）に�
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+- 0. 「指示」欄の末尾が指示文の最後の行（「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」）と一致することを確かめた。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は欠けなし
+- 着手前の確認: `git log --all -E --grep 'CHAT-[0-9]{4}-MIN-'` と `docs/logs/CHAT-*-MIN-*.md` の履歴はどちらも0件。`work/1105-min` はローカル・リモートとも無く、`git checkout -b work/1105-min origin/cloudflare`（着手時 275d81111）で作った
+- issue: #298・#647 は open、他セッションの着手中コメントなし（#647 はコメント0件、#298 の直近は 11/1 の Observability の記録）。検索（`search/issues` で「Actions 使用量」「Actions 分」「画像リンク切れ」「run-weekly」「run-daily」「check-image-links」「日次 週次」）で、同じ論点は #298・#647・#564 だけ（#139・#257 は検知の対象・反映の話で別の論点）
+- 未マージの work/ ブランチ: 5本（run-daily・run-weekly・regenerate-page・regenerate-saikyo・check-image-links）を変えているのは `work/1101-prp-pub` だけ。regenerate-page.yml はサイトマップの確認の行（221行付近・264行付近）で、今回の timeout の行と別の箇所。check-image-links.yml の2行目（冒頭のコメント）は今回も直したので、1101-prp-pub を取り込むときにこの1行が衝突する（止まる条件の4本には入らないファイル。コメントの1行なので両方の内容を合わせて解ける）
+- `saikyo` が `images` を使っていないこと: regenerate-saikyo.yml は artifact・検知の出力を読まず、`needs` は自分の中の abema だけ。collect_saikyo_images.py の出力は json・CSV・issue の本文だけ。`needs: sns` に付け替えた
+- timeout の「要確認」: `regenerate-page.yml` は job が1つで、帰り道の知らせ（帰り道の前回の知らせを読む・調べる・書く）は同じ job の後ろのステップ。20分で切れると push もそれらも動かないので、週次の `all`（fetch-youtube から）が切れると帰り道の知らせは翌週の週次まで出ない（該当する）。ワークフローのコメントと github-actions.md「regenerate-page.yml」に書いた
+- 変えたもの（d7d8ae4ab）: `regenerate-page.yml`（`timeout-minutes: 20`）、`run-daily.yml`（`images` を外し `saikyo` の `needs` を `sns`）、`run-weekly.yml`（`images` を `logs` と並行に足し、`youtube` の `needs: [logs, images]`。権限 contents: read・issues: write、Secret `SHEETS_READER_SA_KEY`、`dry_run: ${{ !inputs.scheduled }}`）、`check-image-links.yml`・`regenerate-saikyo.yml` の冒頭のコメント、検知の頻度を書いた文言（`scripts/check_image_links.py` の `ISSUE_INTRO`〈#352 の本文の1行目が「毎週月曜の…」になる〉、`scripts/collect_saikyo_images.py`・`scripts/lib/x_images.py` の docstring）
+- 直した文書: docs/notes/github-actions.md（一覧の `regenerate-page.yml`・`regenerate-saikyo.yml`・`check-image-links.yml`・`run-daily.yml`・`run-weekly.yml` の行、「regenerate-page.yml」「run-daily.yml」〈並びと戻し方1〉「run-weekly.yml・run-monthly.yml」の節、「権限と Secret の渡し方」の表〈`run-daily` の `images` を `run-weekly` の `images` に〉）、docs/notes/sns-book.md「検知と更新の役割」、docs/notes/saikyo-page-design.md（冒頭の再生成の起動・「週次の検知」・見出し）、docs/notes/scheduler-worker.md の表の説明、docs/notes/abema-book.md、docs/notes/static-generation.md（check_image_links.py・collect_saikyo_images.py の項）、docs/handover.md（2章の最強戦の再生成の1文）
+- 食い違いの直し（docs のみ、別コミット d6a01ed65）: saikyo-page-design.md は予約の起動で「ジョブ `saikyo` だけが動く」と書いていたが、check-image-links.yml は `check`・`saikyo`・`sns_book` の3つとも動かす。コードに合わせて直した
+- テスト: `python3 -m unittest discover -s scripts/tests` → Ran 2031 tests, OK。`node --test 'workers/scheduler/test/*.test.mjs'` → pass 47 / fail 0（どちらもレビューの直しの後にも再実行して同じ）。5本の YAML は `yaml.safe_load` で読めた
+- 手動実行（作業ブランチ d6a01ed65、書かない道筋）:
+  - (a) `run-weekly.yml` https://github.com/retroeater/mj/actions/runs/41974624785 success、約8分（05:32:16〜05:40:39 UTC）。`logs / cleanup` 30秒、`images / check` 3分21秒・`images / saikyo` 1分14秒・`images / sns_book` 4分57秒（check の後）、`youtube` は skipped。`images / check` の書き込みのステップは `dry-run: true`（「[dry-run] #352(closed) は閉じるものが無い」）。#352 の更新日時は 2026-11-01 のまま
+  - (b) `run-daily.yml` https://github.com/retroeater/mj/actions/runs/41974628419 success、約5分（05:32:18〜05:37:23 UTC）。`images` のジョブは無い。`sns / update` 完了 05:35:57 の後に `saikyo / abema` 05:35:59 開始、`saikyo / regenerate / regenerate` 46秒。saikyo/ の差分は無く、作業ブランチへのコミットは無かった
+  - (c) `regenerate-page.yml`（`target_page: study`・`dry_run: true`）https://github.com/retroeater/mj/actions/runs/41974631885 success、約1分（42秒）
+- #298 にコメント https://github.com/retroeater/mj/issues/298#issuecomment-6650587615 （集計の表・主因・見込み・決定・変えたワークフロー・11/30 の B1・B4 の判断）
+- #647 にコメント https://github.com/retroeater/mj/issues/647#issuecomment-6650589530 して閉じた（not planned）。「状況:」ラベルは元から付いていない（分野: 自動化 だけ）。本文は変えていない
+- 決定を docs/decisions/automation.md に足した
+
+### 差分のレビュー（新しい文脈のサブエージェント、1回目）
+
+| 指摘 | 扱い |
+|---|---|
+| check-image-links.yml 2・30行、regenerate-saikyo.yml 4行の「2026-11-04 まで」が他の文書の「2026-11-05 まで」と食い違う | 直した（7789ce83b） |
+| abema-book.md 26行に「写真のリンク切れ検知〈ジョブ images〉の後に呼ぶ」が残る | 直した（7789ce83b） |
+| static-generation.md の check_image_links.py・collect_saikyo_images.py の項が毎朝・毎日のまま | 直した（7789ce83b） |
+| saikyo-page-design.md の見出し「手動実行＋毎日の検知」（任意） | 直した（7789ce83b。見出しを参照する文書は無い） |
+| regenerate-saikyo.yml の job abema のコメントが「検知の成否に関係なく」のまま（任意） | 直した（7789ce83b） |
+| github-actions.md「run-daily.yml」の戻し方1で check-image-links 04:30 を戻すと run-weekly と二重になる（任意） | 直した（7789ce83b、注記を足した） |
+| YAML の needs・if・権限・Secret、saikyo の依存、他の部品への影響、timeout の位置と副作用、security.md の観点 | 指摘なし |
+
+- 7789ce83b はコメントと文書だけ（`.github` の差分はコメントの行だけ）なので、手動実行はやり直していない（Actions の分を使わないため）。2回目のレビューは行っていない
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1105-min
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1105-MIN-01.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1105-min
+- 確認用URL: なし（ワークフロー・コメント・文書の変更で、ページの見た目は変えていない）
+- マージ: 済（5eacbf147。`git push origin work/1105-min:cloudflare`、275d81111..5eacbf147 の fast-forward）
+- issue: #298（コメント）、#647（コメントしてクローズ）
+- 判断が必要なこと: なし
+- 未確認の項目: なし（週次の検知の初回の予約実行は 2026-11-09〈月〉03:00 JST の run-weekly のジョブ images。11/6 04:00 JST の run-daily から images が無くなる。11/30 の使用量の実測と B1・B4 の判断は #298）
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj d9c57896）: https://github.com/retroeater/mj-logs/tree/main/guide/d9c57896
+ガイド文書（この版を写した時点の最新、mj 57988657）: https://github.com/retroeater/mj-logs/tree/main/guide/57988657
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d9c57896/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d9c57896/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d9c57896/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d9c57896/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d9c57896/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d9c57896/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/57988657/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/57988657/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/57988657/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/57988657/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/57988657/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/57988657/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/275d8111.md

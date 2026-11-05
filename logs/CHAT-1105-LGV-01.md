@@ -129,28 +129,49 @@ https://ryoei.pro/log/
 - mp4 を `SendUserFile` で送った（2026-11-05 14:36 JST 頃）
 - `scripts/promo_video/log/`（README.md・setup.sh・build.sh・capture.mjs・compose.py・composition/index.html）をコミットして push（96728d322）。saikyo_renewal/ を写し、題の2行・字幕・撮る場面を替えた
 
+
+### 4. 自己レビュー（サブエージェント、1回）
+
+渡したもの: 指示文の目的・決定、`git diff origin/cloudflare...HEAD -- scripts/`、CLAUDE.md「コード規約」。
+
+| 指摘 | 扱い |
+|---|---|
+| `images()` が読めない写真（透明の代わりの画像）を数えるだけで止まらない（capture.mjs） | 直した（018a692f5。画面に入ったら止める。README の止まる条件にも足した） |
+| 場面7が決定「結果で止める」と違い、説明文まで送って止める。20店を1.3秒で送るので速い | 意図どおり（型のテロップの項を優先）。止め方は「判断が必要なこと」に回した |
+| 写真が読み終わった直後に撮る（decoding="async" の描き終わり・字形を待たない） | 直した（018a692f5。`document.fonts.ready` と 100ms を待つ） |
+| 「茗荷谷」の確かめは文だけで、写真の中の文字は拾えない | 意図どおり（写真の中はコマの目視で補った。191コマの文の確かめは通過） |
+| `tapMark` に `scrollIntoViewIfNeeded` が無い | 意図どおり（押す前にスクロールを0に戻しており、瞬間的な跳びを避けるため。送る量を変えたら見直す） |
+| compose.py の docstring の定数名（SCENES）・scrollBy のコメントの引数名・件数の読み取りの重複 | 直した（018a692f5） |
+| 560px・170px・1.8秒などのその場の数値 | 見送り（saikyo_renewal/ と同じ書き方。一度きりの撮影の調整値） |
+
+- 直した後に撮り直した（`bash scripts/promo_video/log/build.sh <scratchpad>/lgv b`）: 34.5秒・1080×1920・30fps、場面の秒は同じ（scenes.json `{"top":0,"station":3.5,"result":8.5,"narrow":12.5,"geo":19.5,"range":25,"end":28.5}`）、茗荷谷の確かめ 191コマ通過、読めない写真 0、店 1,737・件数 2,425。8コマを抜いて先の版と同じ画面であることを見た。この版を送り直した（初版はこちら）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1105-lgv
 - ログ: https://github.com/retroeater/mj/blob/work/1105-lgv/docs/logs/CHAT-1105-LGV-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1105-lgv
-- 確認用URL: なし
-- マージ: 未
-- issue: #640（参照）
-- 判断が必要なこと: なし
+- 確認用URL: なし（本番から撮った。ページは変えていない）
+- マージ: 未（動画の確定まで止まる。docs/notes/page-announcement.md「進め方」）
+- issue: #640（参照のみ）
+- 判断が必要なこと:
+  - 初版の動画（34.5秒、SendUserFile で送った2本目）を見て、直すか確定かを決める
+  - 場面7の止め方: 決定は「結果で止める」だが、テロップ「飲食店1,700店超・2,400件超」の数を画面に映すため（告知動画の型のテロップの項）、現在地の結果から下の説明文「飲食店1,737店（2,425件）」まで1.3秒で送って止めた。送りが速い。案: (a) このまま (b) 結果で止め、数は映さない (c) 送りを遅くし、場面6・7の秒を配り直す
+  - 場面6のタグの外し方: 投稿者・店名のタグを × で外し、銀座のタグは現在地を押したときにページが外す（3つとも手で外すとトップが一瞬戻るため）。このままでよいか
+  - 本番のデータの表記: 新宿の店「レディース&amp;ジェントルメン」（place_id ChIJ0_RXpduMGGAR0YKe38aV2p8）の店名に `&amp;` がそのまま出る。場面7の止める画面に映る。シート（【2】か【3】）の店名を直して log/ を再生成し、撮り直すか
 - 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj d9c57896）: https://github.com/retroeater/mj-logs/tree/main/guide/d9c57896
+ガイド文書（この版を写した時点の最新、mj 57988657）: https://github.com/retroeater/mj-logs/tree/main/guide/57988657
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d9c57896/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d9c57896/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d9c57896/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d9c57896/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d9c57896/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d9c57896/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/57988657/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/57988657/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/57988657/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/57988657/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/57988657/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/57988657/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/275d8111.md
