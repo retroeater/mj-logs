@@ -50,18 +50,45 @@ SKN 系列（最強戦のリンク・配置の統一、#669）の伝言を受け
 
 ## 経過
 
+- 着手前の確認: `git log --all --grep 'CHAT-1105-TTL-12'` は0件。識別子 TTL は同じセッションの続き（TTL-01〜11）。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は欠けなし
+- 作業ブランチ: ローカル・リモートとも `work/1105-ttl` が無かったため `git checkout -b work/1105-ttl origin/cloudflare` で作り、ログを先に push（e3ead5819）。手順0: 指示欄の末尾の行は指示文の最後の行と一致
+- 未マージのブランチ: `generate_title_pages.py`・`assets/title.js`・`style.css`・`scripts/tests/test_new_site_column.py` を変えているのは `work/1101-prp-pub`（`member_link()`・`member_holder()`・`period_body()`・`pages()` と import。変える `page_html()`・`search_html()`・CSS の配置の規則・配置のテストとは別の箇所）と `work/1104-lgn-policy`（style.css の末尾）。重なり・衝突なし
+- 手順1（今の cloudflare〈e3ead5819 の時点の生成物〉を、ローカルの配信と headless Chromium で測った。左端・幅・上端・高さは px。基本の値は houou/players/）:
+
+  | 項目 | 基本（houou/、1280px） | title/ の今の値（1280px） | 直すか |
+  |---|---|---|---|
+  | 本文の列 | 根 `.mj-race`、左 440・幅 400、内側の余白 16px 16px 28px | 根 `.mj-title`、main の 960px の中央寄せ（左 176・幅 928、余白 0）。360px では左 16・幅 328 | 直す |
+  | パンくずの行 | 高さ 20・下 4px（上端 64） | 高さ 44・下 8px | 直す |
+  | 題名 | 28px・700、上端 88（パンくずの下） | 大会ページ・期ページは 28px・700 で上端 116。入口は「現タイトルホルダー ▾」の選ぶボタン 28px・700 で見えている（h1 は読み上げ用） | 入口の題名はもうそろっている（SKN-06 の表の「見えない〈40px/500〉」は TTL 系列の作り直しの前の版の値）。上端はパンくずの行を直すとそろう |
+  | 検索欄（入口） | `.mj-houou-search`、高さ 44・溝の色 rgb(233,233,238)・角丸 10px | `.mj-saikyo-n-search`、高さ 44・面の色の白・角丸 12px（列の中） | 直す（live/ のトップと同じ見た目に） |
+  | 説明文 `.mj-lead` | 幅 400 の列・左右 20px | 列の中・左右 4px | 直す |
+
+- 手順2（47dee7461）:
+  - 本文の根を `<div class="mj-saikyo mj-title mj-title-…">` にし（`page_html()`）、`style.css` の「幅 400px の中央寄せ」の規則（`--mj-saikyo-max-w: 400px`・`.mj-saikyo` の余白と中央寄せ・`.mj-lead` の左右 20px・パンくずの行の高さ）のセレクタ `body:is(.mj-saikyo-n-page, .mj-live-n-page)` に `.mj-title-n-page` を足した（6規則。ほかのページには `mj-title-n-page` が無いので、houou/・最強戦・live/ の見た目は変わらない）。title/ の節の `body:has(.mj-title) main {max-width: 960px; …}` と `body:has(.mj-title) .mj-lead {max-width: none}` を消した
+  - 入口の検索欄に `mj-title-search` を足し、live/ のトップの検索欄の規則（溝の色・角丸 10px・左右 12px・虫眼鏡 20px・フォーカスの枠）のセレクタに `body.mj-title-n-page .mj-title-search` を並べた
+  - 配置のテスト（`scripts/tests/test_new_site_column.py`）: title/ の一時の例外を外し（`TEMPORARY_EXCEPTIONS = ()`）、`CENTERED_BODIES`・`CENTERED_SCOPE` に `mj-title-n-page` を足し、title/ の検索欄の見た目の期待値と `test_title_pages_are_centered` を足した。生成し直す前の HTML では `test_new_site_pages_use_centered_column`・`test_title_pages_are_centered` が FAIL、生成し直した後は 2032 tests OK
+  - 文書（ea812093a・…）: docs/notes/design.md（「本文の列」の行の適用範囲、title/ の行）、docs/notes/title-pages.md、docs/notes/saikyo-page-design.md（960px のままと書いた行）、docs/decisions/title.md（この指示の決定）
+- 生成（`regenerate-page.yml` target_page=title_pages、run 41973685940 success、723733fc3）: 386 ファイル。title/ の HTML 385（どれも根の class の1行の書き換えだけ。入口だけ、さらに検索欄の class の1行）と `sitemap-title.xml`（lastmod の 385 行だけ）。`search.json`・`years.json`・ほかのページは変化なし
+- 手順3（直した後、ローカルの配信、headless Chromium）:
+
+  | 項目 | 基本（houou/players/） | title/（入口・大会ページ・期ページ） |
+  |---|---|---|
+  | 本文の列（1280px） | 左 440・幅 400、余白 16px 16px 28px | 全ページ 左 440・幅 400、余白 16px 16px 28px |
+  | 本文の列（360px） | 左 0・幅 360 | 全ページ 左 0・幅 360 |
+  | パンくずの行 | 左 456（16）・上端 64・高さ 20・下 4px | 大会ページ・期ページとも同じ（入口はパンくずなし） |
+  | 題名 | 上端 88・28px・700 | 大会ページ・期ページ 上端 88・28px・700（期ページは2行目に対局日で高さ 55）。入口は選ぶボタン 上端 64・28px・700（live/ のトップと同じ） |
+  | 検索欄 | 高さ 44・溝の色・角丸 10px（上端 139、パンくずあり） | 入口 高さ 44・溝の色・角丸 10px・左 456（上端 124、パンくずなし） |
+  | 説明文 | 幅 400 の列・左右 20px | 全ページ 幅 400 の列・左右 20px |
+
+  - 撮影: 入口（既定・`?year=2025`・`?q=白鳥`）・大会ページ（鳳凰戦・王位戦・若獅子戦）・期ページ（第41期鳳凰戦・第42期十段戦・第26期王位戦・第9期若獅子戦・第24期プロクイーン）× 360px・1280px × 明・暗 = 44 通り。はみ出し・切れ・重なり 0件（`docs/logs/CHAT-1105-TTL-12/measure.json`、画像は 360px の22枚と 1280px の3枚）
+  - 行の状態ごとの順位の右端（TTL-07 と同じ測り方、360px、全 385 ページ）: 期ページ 364・1492 行、› の有り無しが混ざる期ページ 178、右端の差の最大 0px。検索欄は入口の1つだけ
+  - 入口の写真カード: 360px・1280px とも2列（カードの幅 160px・180px）。`--mj-title-taikai-em` は 12、帯の字は 14px・14.33px（下限 14px）で、最も長い大会名（女流プロ麻雀日本シリーズ）は帯が2行（下限で収まらない長い大会名だけ2行になる、の今の規則どおり）。`fitCardLabels()` の `.is-text-large` は付かない（ルートの文字 200% でも付かない。帯と名前の字は px と cqi で決まり、ルートの文字の大きさに連動しないため。前と同じ）
+  - 期ページの決勝ライブ・決勝動画・帰り道の動画の並び（`minmax(240px, 1fr)`）は、400px の列で1列になる（1280px で前は3列）
+- レビュー（新しい文脈の general-purpose、1回目）: 正しさの指摘なし（共有のセレクタに足した `.mj-title-n-page` は title/ の外に無い、`.mj-saikyo` の根で title/ に新しく当たるのは `.mj-saikyo` と `body:has(.mj-saikyo) .mj-lead` だけで後ろの規則が上書きする、消した main の規則に頼る部品は無い）。古いコメント・記述の指摘（style.css の title/ の節の前置き・写真カードの列のコメント、テストのコメント、docs/notes/title-pages.md・saikyo-page-design.md）は直した（da6c97ed9 ほか）。`test_title_pages_are_centered` が全体のテストと重なる点は、live/ のテストと同じ形なので残した
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1105-ttl
-- ログ: https://github.com/retroeater/mj/blob/work/1105-ttl/docs/logs/CHAT-1105-TTL-12.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1105-ttl
-- 確認用URL: 未
-- マージ: 未
-- issue: なし
-- 判断が必要なこと: 未
-- 未確認の項目: 未
-- エラー: なし
+(仕上げ中)
 
 <!-- guide-links -->
 ---
