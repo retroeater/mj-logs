@@ -65,6 +65,57 @@ https://ryoei.pro/log/
 
 ## 経過
 
+### 着手（2026-11-06 08:44 JST）
+
+- 0章: ログの「指示」欄の末尾は指示文の最後の行と一致。CHAT-1105-LGV-02 のログの `## 報告` は「判断待ち」、`scripts/promo_video/log/` は work/1105-lgv にある
+- 同じ Chat-Ref のコミット・ログ: 0件。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 欠けなし
+- ブランチ: work/1105-lgv（origin と同じ 58603d8f8）。cloudflare が祖先でないため、ログを push した後に `git merge origin/cloudflare`
+- 取り込みの衝突: `docs/decisions/operations.md` の末尾への追記どうし（こちらの LGV-01・LGV-02 の節と、cloudflare の CHAT-1106-SKN-15 の節）。両方を残して日付順に並べた（c961a3199）。解いた後の該当箇所:
+
+```
+## 2026-11-05（CHAT-1105-LGV-02）
+
+- 「ログ」の告知動画の場面7は、現在地の結果で止め、ページの下の説明文までは送らない。…
+- 場面6は、タグを外す手順を映す（ページが自動で外すのに任せない）
+- 新宿の店名「レディース&ジェントルメン」の `&amp;` は直す（直し方は別の指示）
+- 作業中の回答: なし
+
+## 2026-11-06（CHAT-1106-SKN-15）
+
+- SKN・MNL 系列（…）
+…
+- 作業中の回答: なし
+```
+
+- 未マージの work/ ブランチで同じ文書・スクリプトを変えているもの: work/1105-lgv-amp（CHAT-1105-LGV-03）が `docs/decisions/operations.md` の末尾に LGV-03 の節を足している。同じファイルの別の節（末尾への追記）なので止まらない。work/1105-lgv-amp をマージするときに末尾どうしの衝突になりうる（追記どうしは両方を残して解く規則）
+- CHAT-1105-LGV-02 のログの状態を「判断待ち / 続き: CHAT-1106-LGV-04」にした
+
+### 1. 文書（0ce229cb3）
+
+- `docs/notes/page-announcement.md`: 「投稿文の型」に投稿文の実例（2026-11-06 18:00 に予約、入力したとおり）を、「実例」の表に「ログ log/（2026-11-06）」の行を足した
+- `docs/notes/log-page.md`: 「告知動画」の節（制作のスクリプトの場所・README.md・止まる確かめ）を「仮置きの一覧」の前に足した
+- `scripts/promo_video/log/README.md`: 第2版の作り方と合っているかを見た。撮り方（3つのタグを順に外して現在地 → 結果で止める）と秒（`SCENE_END` の geo 26.0・range 29.5 = 動画の 28.5・32.0秒）は合っていた。確定版（第2版、35.5秒）の行と、止まる条件に「場面6でタグが1つずつ外れない・3つ外してトップに戻らない」を足した（`capture.mjs` にはあり、README の一覧に抜けていた）
+- `python3 -m unittest discover -s scripts/tests`: OK
+
+### 2. 差分の範囲（`git diff --stat origin/cloudflare...HEAD`）
+
+```
+ docs/decisions/operations.md
+ docs/logs/CHAT-1105-LGV-01.md
+ docs/logs/CHAT-1105-LGV-02.md
+ docs/logs/CHAT-1106-LGV-04.md
+ docs/notes/log-page.md
+ docs/notes/page-announcement.md
+ scripts/promo_video/log/README.md
+ scripts/promo_video/log/build.sh
+ scripts/promo_video/log/capture.mjs
+ scripts/promo_video/log/compose.py
+ scripts/promo_video/log/composition/index.html
+ scripts/promo_video/log/setup.sh
+```
+
+- すべて止まる条件の範囲の中。`assets/log.js`・`scripts/generate_log_pages.py`・`scripts/lib/`・`log/`・`style.css` の差分は無い
+
 ## 報告
 
 - 状態: 作業中
@@ -81,12 +132,12 @@ https://ryoei.pro/log/
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 201acc32）: https://github.com/retroeater/mj-logs/tree/main/guide/201acc32
+ガイド文書（この版を写した時点の最新、mj 652fd4a6）: https://github.com/retroeater/mj-logs/tree/main/guide/652fd4a6
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/201acc32/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/201acc32/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/201acc32/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/201acc32/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/201acc32/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/201acc32/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/652fd4a6/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/652fd4a6/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/652fd4a6/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/652fd4a6/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/652fd4a6/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/652fd4a6/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/201acc32.md
