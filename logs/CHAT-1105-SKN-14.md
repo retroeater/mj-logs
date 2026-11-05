@@ -67,17 +67,27 @@ CHAT-1105-SKN-13 の「判断が必要なこと」3点への回答を入れ、cl
   - スクリーンショット: docs/logs/CHAT-1105-SKN-14/（vs-init・vs-left の各 -360・-1280、-dark・-light）
 - docs: docs/notes/saikyo-page-design.md の対戦成績の1段目に、暗い配色の地を足した。決定は docs/decisions/saikyo.md に足した
 
+- マージ: push の直前に `git fetch origin cloudflare` し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真であることを確かめてから `git push origin work/1105-skn-vsinput:cloudflare` → `e96e39d70..1451b350c  work/1105-skn-vsinput -> cloudflare`
+- マージ後
+  - 1451b350c の check-run は Workers Builds: mj が success（notify は skipped）
+  - `regenerate-page.yml` は動かなかった（push で動くのは生成スクリプト・scripts/lib・*.js が変わったときで、この push は CSS とテスト・docs だけ）
+- 本番（https://ryoei.pro/saikyo/vs/ 。Playwright、UA に mj-internal、`?v=1451b350c`）
+  - 入力欄の地は、明 rgb(233,233,238)・暗 rgb(44,44,46)（360px・1280px）
+  - 角丸 10px・枠 0・高さ 44px・左の余白 36px
+  - 左右のカードは 360px で 140×128px が並ぶ
+- #670 に結果を書いて completed で閉じた https://github.com/retroeater/mj/issues/670#issuecomment-6658292738 （「状況:」ラベルは付いていない）
+
 ## 報告
 
-- 状態: 対応中
-- ブランチ: work/1105-skn-vsinput
-- ログ: https://github.com/retroeater/mj/blob/work/1105-skn-vsinput/docs/logs/CHAT-1105-SKN-14.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1105-skn-vsinput
-- 確認用URL: なし
-- マージ: 未
-- issue: #670
-- 判断が必要なこと: 未記入
-- 未確認の項目: 未記入
+- 状態: 完了
+- ブランチ: work/1105-skn-vsinput（マージ済み。削除は cleanup-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1105-SKN-14.md
+- 比較URL: https://github.com/retroeater/mj/compare/e96e39d70...1451b350c
+- 確認用URL: なし（本番で確かめた。/saikyo/vs/）
+- マージ: 済（1451b350c、範囲 e96e39d70..1451b350c）
+- issue: #670（結果を書いて閉じた）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
