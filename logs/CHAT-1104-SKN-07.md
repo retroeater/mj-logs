@@ -59,17 +59,25 @@ CHAT-1104-SKN-06 の変更（最強戦の7画面を 400px の中央寄せにそ�
   - SKN-06 の変更は style.css とテストだけで、生成物は変わらない。ページの種類ごとに変わった数はすべて0（saikyo/ も saikyo/ 以外も0）
   - 同じ run の警告「jpml_prosに該当する選手がいないため、Xの写真を出しません: タマシュ・エルドス」は帰り道のシートのデータで、この変更と関係ない
 
+- マージ: push の直前に `git fetch origin cloudflare` し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真であることを確かめてから `git push origin work/1105-skn-layout:cloudflare` → `e660a210b..a9c390a4b  work/1105-skn-layout -> cloudflare`
+- マージ後
+  - a9c390a4b の check-run: Workers Builds: mj・mj-ask は success（notify は skipped）
+  - `regenerate-page.yml` は動かなかった。push で動くのは `scripts/generate_*.py`・`scripts/lib/**`・`*.js` が変わったときだけで、この push は style.css とテストだけ（生成物は作り直す必要が無い）。失敗ではない
+  - 待つためのループ（背景の確かめ）は時間の上限で止まったが、その後に check-run と run の一覧を直接読んで確かめた
+- 本番（https://ryoei.pro 。Playwright、UA に mj-internal、`?v=a9c390a4b`）: /saikyo/years/ と /saikyo/vs/ は、1280px で本文の列が 440〜840（余白 16px 16px 28px）・字 456〜824・パンくずの行 20px・題名の上端 88・説明文 440〜840（左右 20px）。/houou/ranking/total/ と同じ端。390px でも houou/ と同じ（列 0〜390・字 16〜374）。本番の style.css に `body.mj-saikyo-n-page .mj-saikyo {` がある。スクリーンショットは docs/logs/CHAT-1104-SKN-07/
+- #669 にマージしたことと残りをコメントした https://github.com/retroeater/mj/issues/669#issuecomment-6648699204
+
 ## 報告
 
-- 状態: 対応中
-- ブランチ: work/1105-skn-layout
-- ログ: https://github.com/retroeater/mj/blob/work/1105-skn-layout/docs/logs/CHAT-1104-SKN-07.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1105-skn-layout
-- 確認用URL: なし
-- マージ: 未
-- issue: #669
-- 判断が必要なこと: 未記入
-- 未確認の項目: 未記入
+- 状態: 完了
+- ブランチ: work/1105-skn-layout（マージ済み。削除は cleanup-branches.yml に任せる）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1104-SKN-07.md
+- 比較URL: https://github.com/retroeater/mj/compare/e660a210b...a9c390a4b
+- 確認用URL: なし（本番で確かめた。/saikyo/years/・/saikyo/vs/）
+- マージ: 済（a9c390a4b、範囲 e660a210b..a9c390a4b）
+- issue: #669（マージと残りをコメント）
+- 判断が必要なこと: なし（最強戦以外の差異は #669 に移した）
+- 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
