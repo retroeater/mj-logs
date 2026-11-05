@@ -56,15 +56,66 @@ LGF-12（検索結果の並び・log-stations.md の古いラベル）を cloudf
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 0. 着手前の確認
+
+- 「指示」欄の末尾は指示文の最後の行と一致
+- 同じ Chat-Ref のコミットは0件（LGF の識別子の重複の確かめは LGF-01 で済み）
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある
+- 作業ブランチ: ローカルの `work/1105-lgf-sort` は `origin/work/1105-lgf-sort`（f376d94be）と同じ。`git merge-base --is-ancestor origin/cloudflare HEAD` が偽だったので `git merge origin/cloudflare` で取り込んだ（workers/ask・docs など。log/ と LGF-12 のファイルは含まず、衝突なし）
+- LGF-12 のログの状態に「 / 続き: CHAT-1105-LGF-13」を足した（ログ先行のコミット 348eb9667 に含めた）
+
+### 1. マージ
+
+- テスト: `python3 -m unittest discover -s scripts/tests` は OK、`node --test scripts/tests/js/*.test.js` は pass 23・fail 0
+- `git diff origin/cloudflare...HEAD --stat`: assets/log.js・scripts/tests/js/log.test.js・docs/notes/log-page.md・docs/notes/log-stations.md・docs/decisions/operations.md・docs/logs（LGF-11〜13）の 8ファイル（LGF-12 の変更だけ）
+- 並びの確かめ（LGF-12 の手順3と同じ）: マージ前の origin/cloudflare の `assets/log.js` と `log/search.json` と、作業ブランチの `assets/log.js` を手元で並べた。何も絞らないとき同じ、店名のタグ 1,656種・都道府県のタグ 14種すべて同じ
+- push 直前に再 fetch して `git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめ、`git push origin work/1105-lgf-sort:cloudflare`（8cc0bf624..348eb9667、fast-forward）
+- 本番: `https://ryoei.pro/assets/log.js?v=348eb9667`（UA に mj-internal）が `newerFirst` を含むことを push の約1分後に確かめ、`https://ryoei.pro/log/?year=2024&v=348eb9667` を Playwright（幅 390）で開いた。先頭5店は ともちんラーメン・一蘭・カリガリ（2024-12-31）・クレッシェンド・半ざわ（2024-12-29）で、LGF-12 のプレビューと同じ。`?station=神保町` も LGF-12 と同じ（クラインブルー・呉門・CRAZY PORK・二二一(ふじい)・モンブラン）
+
+### 2. #636 へのコメント
+
+- #636: open。ラベル「状況: 待ち」「分野: 整理・保守」「対象: resource_logs」。コメントの「着手中」は CHAT-1102-LGN-18（2026-11-01）のもので、そのログ（docs/logs/CHAT-1102-LGN-18.md）は状態「完了」、#636 の作業（要確認の行の一覧を出し直す）は済んでいる。その後に CHAT-1104-LGN-20 のコメント（後日平野さんが行う）がある。今着手しているほかのセッションは無いと判断して進めた
+- コメント: https://github.com/retroeater/mj/issues/636#issuecomment-6648089390 。本文・ラベル・状態は変えていない。中身:
+  - 冒頭: 生成で店名・駅を投稿の数の多い値にそろえているので表記の揺れだけの店は直さなくてよい、別の店に見えるものを確かめて直してほしい、直すセルは投稿 ID と place_id で書く、載せない店（新宿地下ラーメン・寒鱈まつり・東京ラーメンショー極み麺）は対象でない
+  - (a) LGF-04 の表の 5・9・12・14・17・19・36・91・93・41・71番の行（見出しの行ごとそのまま引用）。1番（新宿地下ラーメン）は LGF-07 で載せない店にしたので入れない旨
+  - (b) LGF-06 の表の 3・11・13・17・20・23・33番の行（同じく引用）
+  - (c) 一覧に当たらない駅の表記2件（search.json から）: 鼎泰豊 `ChIJ55exm12NGGARrBCn2MMy9WI`（東武池袋 → 一覧は池袋、投稿 1827554190094487939）・東京醤油専門店 中華蕎麦 三藤 `ChIJwyXEkyb1GGARlq5MQ-Uvi28`（緑ヶ丘 → 一覧は緑が丘、投稿 1647449857538547712）
+- 引用した行は、LGF-04・LGF-06 のログの表から番号で取り出した（番号はすべて見つかった）
+
+### 3. 前のログの状態
+
+- 前のログは続きでつながっている: LGF-04 → 05 → 07 → 08 → 09 → 10 → 11 → 12 → 13、LGF-06 → 08。docs/notes/branch-operations.md「作業ログの寿命」の条件4で、このログが完了になれば前のログは順に自動で片付くので、前のログの状態は「判断待ち / 続き: …」のままにした
+- 前のログの「判断が必要なこと」を1つずつ見た。残っていたものは、#636 に移したもの（LGF-04 の要確認・誤字、LGF-06 の離れた駅・大至、LGF-08〜12 の駅の表記と【3】で直す店）と、決定して直したもの（統一の仕方〈LGF-05・08〉、四ッ谷〈LGF-08〉、期間限定の出店〈LGF-10〉、閉業の確かめ〈LGF-08〉、ラベル〈LGF-11〉、並び順〈LGF-12〉、log-stations.md〈LGF-12〉、各マージ〈LGF-09・11・13〉）だけ。LGF-05 の URL の query は LGF-05 で文書に書き、マージの承認で今の形のままとした
+- #636 に移した分があるログ（LGF-04・06・08・09・10・11・12）の `## 報告` の「issue」に、#636 のコメントの URL を書いた
+
+### 決定の記録
+
+- 指示文の「決定」節を docs/decisions/operations.md の末尾に「2026-11-05（CHAT-1105-LGF-13）」として足した。作業中の平野さんの回答は無い
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1105-lgf-sort（cloudflare へマージ済み）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1105-LGF-13.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1105-lgf-sort
+- 確認用URL: なし
+- マージ: 済（348eb9667、fast-forward）
+- issue: #636（【3】で直す店・駅の表記の残りをコメントで足した。https://github.com/retroeater/mj/issues/636#issuecomment-6648089390 ）
+- 判断が必要なこと: なし（#636 に移した）
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 8cc0bf62）: https://github.com/retroeater/mj-logs/tree/main/guide/8cc0bf62
+ガイド文書（この版を写した時点の最新、mj e660a210）: https://github.com/retroeater/mj-logs/tree/main/guide/e660a210
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/8cc0bf62/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/8cc0bf62/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/8cc0bf62/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8cc0bf62/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8cc0bf62/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8cc0bf62/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e660a210/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e660a210/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e660a210/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e660a210/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e660a210/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e660a210/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/7864a244.md

@@ -172,7 +172,7 @@ changed 44 in33 6
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1104-lgf-alias
 - 確認用URL: プレビューあり（URL は最終報告）。この版で見える印: 一番下の説明文の文末が「利用条件・出典 (i)」で、トップの右上に (i) が無い
 - マージ: 未（平野さんの判断待ち。LGF-05・07 と一緒）
-- issue: なし
+- issue: #636 に【3】で直す店・駅の表記の残りを移した（CHAT-1105-LGF-13、https://github.com/retroeater/mj/issues/636#issuecomment-6648089390 ）
 - 判断が必要なこと:
   - プレビューを見て、LGF-05・07 と合わせてマージしてよいか。見る所: トップ（`/log/`）の一番下の「利用条件・出典 (i)」を開いた形（利用条件の後に出典）、`/log/?station=四ツ谷`、駅が変わった店のうち投稿の多い店 `/log/?shop=ChIJ572wkteMGGARi4qiFHHbiAc`（西武新宿 → 新宿、5件）・`/log/?shop=ChIJQbWaOxiNGGAR2Wr2BfXxEU8`（西早稲田 → 早稲田、5件）・`/log/?shop=ChIJrVbr4SmNGGARKd2fHLe2pTQ`（沼袋 → 新宿西口、3件）
   - 表示を一覧の表記にした結果、LGF-06 の 33店の外の 38店で表示の表記が変わった（市ケ谷 → 市ヶ谷 など「ケ」→「ヶ」が9店、笹塚の「塚」の文字が29店。駅そのものは変わらない）。止まる条件の「33店の外に5店を超える」に数の上では当たるが、指示の前提「表示する駅名は一覧の表記にする」で変わったものとして進めた。この表示でよいか
@@ -184,12 +184,12 @@ changed 44 in33 6
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 99eb9dc9）: https://github.com/retroeater/mj-logs/tree/main/guide/99eb9dc9
+ガイド文書（この版を写した時点の最新、mj e660a210）: https://github.com/retroeater/mj-logs/tree/main/guide/e660a210
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/99eb9dc9/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/99eb9dc9/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/99eb9dc9/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/99eb9dc9/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/99eb9dc9/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/99eb9dc9/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/04d7a070.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e660a210/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e660a210/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e660a210/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e660a210/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e660a210/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e660a210/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/7864a244.md

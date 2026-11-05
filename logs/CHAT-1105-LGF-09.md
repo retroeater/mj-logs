@@ -96,7 +96,7 @@ LGF-05（店名の統一・#665 の保留）・LGF-07（載せない店・利用
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1104-lgf-alias
 - 確認用URL: なし（本番で確かめた。プレビューの URL は最終報告にも書かない）
 - マージ: 済（a428af80f、fast-forward）
-- issue: なし
+- issue: #636 に【3】で直す店・駅の表記の残りを移した（CHAT-1105-LGF-13、https://github.com/retroeater/mj/issues/636#issuecomment-6648089390 ）
 - 判断が必要なこと:
   - 期間限定の出店の候補（LGF-07 の経過「(b)」）: 寒鱈まつり（place_id が無く `HIDDEN_PLACES` では外せない）・東京ラーメンショー極み麺（`/log/?shop=ChIJT2WXm-aNGGAR24zlaGQ7fiQ`）を載せないか。ほかの7件は常設の店の見込み
   - 一覧に当たらない駅の表記の違い2つ（LGF-08）: 緑ヶ丘（一覧は「緑が丘」、1店）・東武池袋（1店）。【3】で直すか、生成の寄せに足すか
@@ -107,12 +107,12 @@ LGF-05（店名の統一・#665 の保留）・LGF-07（載せない店・利用
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj c5721c60）: https://github.com/retroeater/mj-logs/tree/main/guide/c5721c60
+ガイド文書（この版を写した時点の最新、mj e660a210）: https://github.com/retroeater/mj-logs/tree/main/guide/e660a210
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5721c60/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5721c60/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5721c60/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5721c60/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5721c60/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c5721c60/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/04d7a070.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e660a210/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e660a210/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e660a210/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e660a210/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e660a210/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e660a210/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/7864a244.md

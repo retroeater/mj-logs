@@ -206,7 +206,7 @@ log/ で、同じ店（同じ place_id）なのに投稿ごとに店名の表記
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1104-lgf-names
 - 確認用URL: なし
 - マージ: 済（3452547a9、fast-forward）
-- issue: なし
+- issue: #636 に【3】で直す店・駅の表記の残りを移した（CHAT-1105-LGF-13、https://github.com/retroeater/mj/issues/636#issuecomment-6648089390 ）
 - 判断が必要なこと:
   - 統一の仕方: (A)【3】の店名を投稿ごとに直す（123セル・88店、コードは変えない。後で増える揺れには効かない）／(B) 生成で店ごとに数の多い表記にそろえ、投稿の行の別名を出さない（`generate_log_pages.py` の `group_shops()`・`search_data()`、`assets/log.js` の `prepare()`・結果の投稿の行。別名でも検索に当てるには search.json に店ごとの別名の一覧を足す）／両方（(B) で吸収し、要確認と誤字だけ (A)）。詳細は経過の「3.」
   - 要確認の 10店（経過の表の1・5・9・12・14・17・19・36・91・93番）: 別の店の名前・複数の店を並べた店名・駅名の店名が同じ place_id に入っている。【3】の place_id か店名をどう直すか（どの表記が place_id の店かは、Google の値を使わない決定のため、この調べでは決めていない）
@@ -217,12 +217,12 @@ log/ で、同じ店（同じ place_id）なのに投稿ごとに店名の表記
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 23efd467）: https://github.com/retroeater/mj-logs/tree/main/guide/23efd467
+ガイド文書（この版を写した時点の最新、mj e660a210）: https://github.com/retroeater/mj-logs/tree/main/guide/e660a210
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/23efd467/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/23efd467/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/23efd467/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/23efd467/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/23efd467/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/23efd467/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/23efd467.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e660a210/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e660a210/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e660a210/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e660a210/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e660a210/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e660a210/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/7864a244.md

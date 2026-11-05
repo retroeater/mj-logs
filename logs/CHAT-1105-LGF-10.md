@@ -132,7 +132,7 @@ LGF-09 の判断待ちの残りと、平野さんの新しい決定を進める�
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1105-lgf-ui
 - 確認用URL: プレビューあり（URL は最終報告）。この版で見える印: 検索欄の右端に照準のアイコンがあり、検索欄の下の「現在地から探す」の文字のボタンが無い
 - マージ: 未（平野さんの判断待ち）
-- issue: なし
+- issue: #636 に【3】で直す店・駅の表記の残りを移した（CHAT-1105-LGF-13、https://github.com/retroeater/mj/issues/636#issuecomment-6648089390 ）
 - 判断が必要なこと:
   - プレビューを見て、マージしてよいか。見る所: トップ（`/log/`）の検索欄の右端のアイコン（押すと位置の許可を聞き、「×現在地」のタグで近い順に出る）、`/log/?tag=ラーメン` で探した後の検索欄（語・×・区切りの線・アイコンの並び）、`/log/?shop=ChIJT2WXm-aNGGAR24zlaGQ7fiQ` が「見つかりませんでした」になること
   - 準備中のアイコンは、押せないアイコン（灰色、名前に「準備中」）にした。この形でよいか
@@ -144,12 +144,12 @@ LGF-09 の判断待ちの残りと、平野さんの新しい決定を進める�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 7864a244）: https://github.com/retroeater/mj-logs/tree/main/guide/7864a244
+ガイド文書（この版を写した時点の最新、mj e660a210）: https://github.com/retroeater/mj-logs/tree/main/guide/e660a210
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/7864a244/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/7864a244/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/7864a244/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/7864a244/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/7864a244/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/7864a244/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/2aae12da.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e660a210/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e660a210/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e660a210/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e660a210/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e660a210/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e660a210/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/7864a244.md
