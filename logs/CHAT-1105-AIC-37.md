@@ -230,7 +230,7 @@
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1105-AIC-38。回答（2026-11-05、平野さん）: 「判断が必要なこと」はすべてこのままでよい（レビューを通っていない直し 759e6347e は CHAT-1105-AIC-38 でレビューする。`regenerate-page.yml` での確かめ、選んだ形、予定のデータの選び方もこのまま。残した低い指摘は週次の直し〈2026-11-09 の週〉にまとめる）
 - ブランチ: work/1105-aic
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1105-AIC-37.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1105-aic
