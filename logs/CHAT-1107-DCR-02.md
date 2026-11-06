@@ -94,15 +94,26 @@ DCR-01 の辞書ページ（#672）で、見える題名を log/・title/ と同
 | `scripts/lib/page.py` の `PageMeta.h1` のコメントが「visually-hidden の h1」のまま（`render_content()` は h1 を使わず、resource_efficiency にも見える h1 の前例あり。この変更より前からの記述） | 見送り（今回の指示のファイルの外。使い方は合っている） |
 | h2 が無くなり `<section class="mj-dic-card">` が見出しを持たない | 意図どおり（決定のとおり。名前の無い section は汎用の入れ物と同じ扱いで害はない） |
 
+### マージと本番の確かめ
+
+- push 直前に再 fetch し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真であることを確かめた
+- `git push origin work/1106-dcr:cloudflare` の出力: `9a5e25163..ed86d66c9  work/1106-dcr -> cloudflare`（DCR-01 の変更を含む）
+- ed86d66c9 の check-run「Workers Builds: mj」は completed success
+- 本番（UA に mj-internal、クエリ付き）:
+  - curl: `resource_dictionary.html` に `<h1 class="mj-race-title">辞書</h1>` と枠の `mj-race mj-houou mj-dic` がある。「辞書ダウンロード」は無い。`navbar.js` に辞書の分岐がある
+  - headless Chromium（幅 390px）: ナビの class は `mj-nav-new mj-nav-band`、h1 は「辞書」の1つで 28px、≡ のシートの `aria-current` は「辞書」
+  - 実機のブラウザでの見え方は確かめていない
+- #672 に結果をコメントして閉じた（状況のラベルを外した）。残る作業は無いので起票していない
+
 ## 報告
 
-- 状態: 中断（作業中）
+- 状態: 完了
 - ブランチ: work/1106-dcr
-- ログ: https://github.com/retroeater/mj/blob/work/1106-dcr/docs/logs/CHAT-1107-DCR-02.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1107-DCR-02.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1106-dcr
-- 確認用URL: なし
-- マージ: 未
-- issue: #672
+- 確認用URL: プレビューは使わず本番で確かめた（指示のとおり）。確認したページ: /resource_dictionary.html。この版の印: 題名が「辞書」で、その下に面と3行（「辞書ダウンロード」の見出しは無い）
+- マージ: 済（ed86d66c9、範囲 9a5e25163..ed86d66c9）
+- issue: #672（クローズ）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
