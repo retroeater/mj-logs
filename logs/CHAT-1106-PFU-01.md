@@ -106,6 +106,33 @@
 
 「止まる条件」の「参照が1件でも残る」は、ページへのリンク・生成・検査の対象（生きている参照）と読む。static-generation.md の表に足す廃止の記録自体が `rh_paifu.html` を含むため、時点の記録の行（上の「変えない（時点の記録）」12件）は `docs/decisions/` の過去の行と同じ扱いにした。
 
+### 手順2: 削除と書き換え
+
+- コミット: d8ba695b4（ページ・生成スクリプト・ナビ・r/ の RESULTS と world.js・sitemap・llms.txt・CSS・テスト）、420be1522（docs と decisions）、レビュー後に 6b3b1537c の style（下）・360e7d2e9（docs）、e2e8533c1（ワークフローでの r/ の再生成）
+- 対局室の「牌譜の紙」は **物ごと消した**（`world.js` の `record` のラベルと触れる先。置き場所の番号付けは無く、卓の上は点数表が残るので場面は保てると判断）
+- `_redirects`・`docs/notes/redirects.md` には足していない
+- ページの一覧の件数: ルート直下の HTML 9 → 8（`ls *.html`）、`regenerate.py --list` 32 → 31
+- テストで落ちた `test_ryoei_pages.ContentTest.test_counts`（`len(g.RESULTS)` が 3 → 2）は自分の変更によるもので、期待値を 2 に直した
+
+### 確かめ
+
+- テスト: `python3 -m unittest discover -s scripts/tests` → 2038件 OK（origin/cloudflare の取り込み後も OK）。workers/ は変えていない
+- `git grep` の残り: 生きた参照（リンク・生成・検査・ナビ・CSS）は0件。残るのは表の「変えない」と、廃止の記録として足した行（static-generation.md の表、site-findings.md の `?name=` の表、decisions の決定節）
+- 全ページの比べ: `regenerate-page.yml` を work/1106-pfu で `target_page=all`・`dry_run=true`・`compare_ref=origin/cloudflare`（run 42215046711、success）。同じデータで両方のコードで生成し、中身の違うファイルは `r/index.html (2 行)`・`r/world-data.json (2 行)` の2件だけ（注釈「compare: 差分あり 2 件」）
+- r/ の再生成: 同ワークフローを `target_page=ryoei_pages` で実行（run 42215707442、success、コミット e2e8533c1）。差分は `r/index.html` の成績の `<ul>` から牌譜の `<li>` が消えた1行と、`r/world-data.json` のキー `results` だけ（JSON を読んで比べ、違うキーは `results` のみ。3件 → 2件）
+- プレビュー（コミット 420be1522 の Workers Builds: mj、success）: `/rh_paifu.html` 404・`/rh_paifu.html?v=pfu1` 404・`/rh_paifu` 404・`/rh_results.html` 200・`/r/` 200。`navbar.js`・`sitemap-pages.xml`・`llms.txt` に `paifu` 0件（UA に mj-internal）
+- r/ の重さ（gzip、Python の `gzip.compress`）: 最初の画面 143,594B（r/index.html・world.css・world.js・bootstrap の CSS/JS・navbar.js・style.css。上限 600KB）、`world.js` 18,974B（上限 150KB）
+- 未マージの work/ ブランチとの重なり（変えたファイル）: 1101-prp-pub（static-generation.md・llms.txt・navbar.js・sitemap-pages.xml・style.css）・1103-ryo5（docs/decisions/ryoei.md）・1106-dcr（static-generation.md・navbar.js）。`git merge-tree` で試すと、1106-dcr は衝突なし（navbar.js は `newNavCurrent` の分岐、static-generation.md は辞書の行で別の箇所）。1101-prp-pub・1103-ryo5 の衝突するファイルは origin/cloudflare と比べたときと同じ集合で、このブランチが増やした衝突は無い（prp-pub の sitemap・navbar・llms・style の差分に `rh_` の行は無い。ryo5 の ryoei.md は末尾への追記どうし）
+
+### 差分の自己レビュー（新しい文脈のサブエージェント、1回）
+
+| 指摘 | 扱い |
+|---|---|
+| test_ryoei_pages.py 36行のコメント「成績へは対局室の3つ」が assert の2と食い違う | 直した（「2つ（牌譜は #673 で廃止）」） |
+| style.css の `.mj-table a.mj-plain` は rh_paifu だけが使っていたのに、コメントを書き換えて残した | 直した（ルールごと消し、static-generation.md「style.css の共通クラス」に消したことを書いた） |
+| r/ の生成物が未再生成のままマージすると 404 へのリンクが残る | 意図どおり（マージ前にワークフローで再生成した。上の「r/ の再生成」） |
+| static-generation.md 74行・site-findings.md 257・288行が現状のように読める | 意図どおり（移行・調査の経緯の記録。video_en など他の廃止済みページも同じ形で残している） |
+
 ## 報告
 
 - 状態: 対応中
@@ -122,12 +149,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 82fe7190）: https://github.com/retroeater/mj-logs/tree/main/guide/82fe7190
+ガイド文書（この版を写した時点の最新、mj e1763a1c）: https://github.com/retroeater/mj-logs/tree/main/guide/e1763a1c
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/82fe7190/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/82fe7190/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/82fe7190/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/82fe7190/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/82fe7190/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/82fe7190/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e1763a1c/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e1763a1c/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e1763a1c/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e1763a1c/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e1763a1c/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e1763a1c/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/82fe7190.md
