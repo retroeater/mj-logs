@@ -1,7 +1,7 @@
 # CHAT-1106-DCR-01
 
 - 着手日時: 2026-11-06
-- 対象issue: 未定（手順1で決める）
+- 対象issue: #672
 - ブランチ: work/1106-dcr
 - 着手時HEAD: 021cf8330
 
@@ -88,17 +88,51 @@
 - ≡ のシート: 「リソース」のまとまりの「辞書」が太字の紺（`aria-current="true"` は「辞書」のリンク1つ）。log/ でも同じく `aria-current` はシートの「ログ」1つで、同じ挙動
 - 暗い配色の説明文の上の線が明るい灰色（#e5e5e5）なのは `.mj-lead` の共通の規則で、houou/ でも同じ（`getComputedStyle` で rgb(229, 229, 229)）。今回は変えない
 
+### ワークフローでの生成と検査（シートを読む）
+
+- `regenerate-page.yml` を work/1106-dcr で手動実行（`target_page: resource_dictionary`）
+  - `check: true`（run 42214561580）: 「検査: 通りました(保存の語数 1869語。ファイルは書いていません)」。一般用語 583・連盟用語 137・連盟プロ 1098・Mリーグ 71。注釈「check: 止まるページなし」。修正前のページの語数（1,869語）と同じ
+  - `dry_run: true`・`compare_ref: cloudflare`（run 42214565396）: `fatal: invalid reference: cloudflare` で失敗（ランナーにあるのは `origin/cloudflare`。docs/notes/github-actions.md に書いてあるとおりで、こちらの指定の誤り）
+  - `dry_run: true`・`compare_ref: origin/cloudflare`（run 42214759444）: 注釈「compare: 差分なし」。作業ブランチのコードでも cloudflare のコードでも、今のシートで生成してコミット済みの生成物（`resource_dictionary.html`・`dic/*.json`）が変わらない
+    → 手元で組み立てた HTML が正式な生成と同じなので、生成のコミット（dry_run なしの実行）は要らない
+- 共有の部品: 変えたのは `navbar.js`（分岐を1つ足しただけ。ページの HTML には焼き込まれない）とテスト。生成の共通関数・定数は変えていないので、全ページの再生成はしていない（`render_content` などは不変）
+- 取り込み: `origin/cloudflare`（f5bd1552c、log/ の作業が進んだ）と `git merge-tree` で衝突なし
+
+### 差分のレビュー（docs/notes/self-review.md、1回）
+
+新しい文脈の general-purpose のサブエージェントに、目的・決定・`git diff origin/cloudflare...HEAD`・コード規約を渡した。要修正なし、提案3件。テスト 2034件の実行と、`render_page()` の出力とコミット済みの HTML の一致も確かめていた。
+
+| 指摘 | 扱い |
+|---|---|
+| 見出しの値（28px 太字など）を `resource_dictionary.css` に写している。h2 に `.mj-race-title` を付ければ既存の規則を使える | 直した（e1bff9566。h2 の class を `mj-race-title` にし `.mj-dic-title` の規則を消した。テストの期待値も合わせた。スクリーンショットで見た目が変わらないことを確かめた） |
+| 面（角丸・地・overflow）は `.mj-houou-menu` と同じ値。併用もできる | 見送り（併用すると上の余白 16px を打ち消す規則が要り、行は独自の区切りが要るため、面の3行だけを持つ今の形のほうが短い） |
+| `.mj-dic-card` の class が CSS・JS のどこからも使われない | 意図どおり（変更行を最小にするため残した） |
+
+2回目のレビューは、1回目の指摘1の直し（class の差し替えと4行の削除）だけなので行っていない。
+
+### プレビュー
+
+- e1bff9566 の check-run「Workers Builds: mj」は success。版の URL で `resource_dictionary.html` に `mj-race mj-houou mj-dic`、`navbar.js` に `resource_dictionary.html`、`resource_dictionary.css` に区切り線の規則が入っていることを curl（UA に mj-internal）で確かめた。ブラウザでの見え方はローカルの Playwright で確かめたもの
+
+### 決定の記録
+
+- `docs/decisions/design-renewal.md` に 2026-11-06 の決定2つ（デザインを合わせる・URL は変えない）を足した
+
 ## 報告
 
-- 状態: 中断（作業中）
+- 状態: 判断待ち
 - ブランチ: work/1106-dcr
 - ログ: https://github.com/retroeater/mj/blob/work/1106-dcr/docs/logs/CHAT-1106-DCR-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1106-dcr
-- 確認用URL: なし
-- マージ: 未
-- issue: なし
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 確認用URL: プレビューあり（URL は最終報告）。確認したページ: /resource_dictionary.html。この版の印: 題名「辞書ダウンロード」の下に白い面1枚、その中に「Microsoft IME」「Google 日本語入力」「Gboard」の3行（右端に灰色の下向きの矢印）
+- マージ: 未（平野さんの判断待ち）
+- issue: #672（起票。#296 の子にしない: 新サイト送りでなく現行サイトの見た目の直しのため）
+- 判断が必要なこと:
+  - cloudflare へのマージの可否（指示文の「マージ: 判断待ちで止まる」）
+  - 前提のうち選んだ形の確認: 形式のボタンは「面の中の行」（44px 以上・右に灰色の保存の印・押すと行の地が灰色）にした。変数は枠に `.mj-race.mj-houou` を付けて `style.css` の `:root:has(.mj-houou)` から受けた（`style.css` は変えない）。暗い配色も log/ と同じ。見出しは文言を変えないため、非表示の h1「リソース 辞書」を残し、h2「辞書ダウンロード」を題名の形で出した（log/ の見える h1「ログ」とは違う）
+  - navbar.js の分岐を読むテスト（`scripts/tests/test_new_site_column.py`）を、パスの一致（`location.pathname === '…'`）も読むように変えた。指示文のファイル一覧の外だが、新しい分岐の書き方を読ませるのに要った
+- 未確認の項目:
+  - 実機（iPhone・Android）とプレビューのブラウザでの見え方（ローカルの headless Chromium のスクリーンショットだけ）
 - エラー: なし
 
 <!-- guide-links -->
