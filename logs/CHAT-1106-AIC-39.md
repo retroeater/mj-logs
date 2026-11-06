@@ -135,15 +135,26 @@ AIC-37・38 のログと今のコードを読む。着手時に開き直す。
 
 - 直す前のコード（31cc08590）で、足した検査（近道に入る3問と、入らない5問）が落ちることを確かめた（23件通過・1件失敗）。直した後: node 195件 通過、python OK、「nonempty 25 cases 25 identical 25」
 
+| 回 | 対象 | 観点 | 結果と証跡 |
+|---|---|---|---|
+| 2 | 584348e91..fed2615e5 | 1回目の指摘が今までの流れに戻るか／本番の2問が近道のままか／近道に入らなくなった予定の問い・まだ入る予定でない問い／正規表現の並び／25件の比べ／テスト | 1回目の指摘（名字・過去・ほかの問い・件数）は9問とも今までの流れ。本番の2問と「王位戦の決勝の日程を教えてください」「王位戦の準決勝はいつですか」「王位戦の決勝の放送日は？」「マスターズのベスト16はいつ？」などは近道。正規表現の並び（準々決勝 > 準決勝 > 決勝トーナメント > 決勝 など）は問題なし。「nonempty 25 cases 25 identical 25」。node 195件・python OK。残った指摘: 中1・低2（下の表） |
+
+| 指摘 | 扱い |
+|---|---|
+| 「第50期王位戦の決勝はいつ？」が近道に入り、第51期の日を答える（期を予定の期と照らしていない）（中） | 直した（fc2a6b735。「第N期」を除く語から外し、期のある問いは今までの流れ〈今と同じ「答えられません」〉）。往復2回の上限の後なので3回目のレビューはしていない。近道を狭める直しだけで、新たに近道に入る問いは無い。レビュー側の確かめの道具（rev39/probe2.mjs、33問）を直した後のコードで走らせ、「第50期王位戦の決勝はいつ？」が今までの流れになり、ほかの32問の結果が2回目のレビューの結果と同じことを確かめた |
+| 「直近の王位戦の決勝は？」の「直近」（過去の「直近の」の意味もある）が予定の語で、近道で次の決勝を答える（低） | 見送り（予定の語は AIC-37 の形のまま。「判断が必要なこと」に書く） |
+| 助詞の一字ずつの除き（「王位戦はいつでもある？」が近道に入る）（低） | 見送り（作り物の問い。自然な予定でない問いで通るものは見つかっていない） |
+| 近道に入らなくなった自然な予定の問い（「王位戦、次はいつ？」「次の王位戦はいつ開催？」「王位戦の決勝の日時は？」「王位戦の次の放送は？」「王位戦決勝戦はいつ？」「王位戦っていつ？」「王位戦はいつから？」漢数字の期 など） | 今の「答えられません」の流れのまま（悪くなったものではない）。週次の書き出しで実際に聞かれたら語を足す候補 |
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj b9d20fc0）: https://github.com/retroeater/mj-logs/tree/main/guide/b9d20fc0
+ガイド文書（この版を写した時点の最新、mj 599356aa）: https://github.com/retroeater/mj-logs/tree/main/guide/599356aa
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b9d20fc0/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b9d20fc0/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b9d20fc0/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b9d20fc0/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b9d20fc0/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b9d20fc0/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/599356aa/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/599356aa/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/599356aa/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/599356aa/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/599356aa/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/599356aa/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b9d20fc0.md
