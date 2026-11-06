@@ -49,6 +49,23 @@ CHAT-1107-LGV-08 の変更（`HIDDEN_POSTS`・`EVENT_WORDS`・`EVENT_ALLOWED_POS
 
 ## 経過
 
+### 着手（2026-11-07）
+
+- 0章: ログの「指示」欄の末尾は指示文の最後の行と一致。CHAT-1107-LGV-08 のログの `## 報告` は「判断待ち」、work/1107-lgv-hide はリモートにある（e77f18fe4、ローカルと同じ）
+- 同じ Chat-Ref のコミット・ログ: 0件。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 欠けなし
+- CHAT-1107-LGV-08 のログの状態を「判断待ち / 続き: CHAT-1107-LGV-09」にした（ログ先行のコミットに含めた）
+
+### 1. 取り込みとテスト
+
+- `git fetch origin cloudflare` の後、`git merge-base --is-ancestor origin/cloudflare HEAD` は真（LGV-08 の着手から cloudflare は進んでいない）。取り込むものは無く、衝突も無い。log/ は古くなっていないので作り直していない
+- `python3 -m unittest discover -s scripts/tests`: OK（2,047件）。`node --test scripts/tests/js/log.test.js`: pass 23・fail 0
+- 未マージの work/ ブランチで `generate_log_pages.py`・`convert_x_posts.py`・`run-monthly.yml` を変えているもの: 0件
+
+### 2. 差分
+
+- `git diff --stat origin/cloudflare...HEAD`: docs/decisions/operations.md・docs/logs/CHAT-1106-LGV-07.md・docs/logs/CHAT-1107-LGV-08.md・docs/logs/CHAT-1107-LGV-09.md・docs/notes/github-actions.md・docs/notes/log-page.md・log/index.html・log/search.json・scripts/convert_x_posts.py・scripts/generate_log_pages.py・scripts/tests/test_convert_x_posts.py・scripts/tests/test_log_pages.py・sitemap-pages.xml（13ファイル）
+- `log/search.json` の cloudflare（b40b3a415 の生成）との差: 店 1,737 → 1,721・投稿 2,425 → 2,407。外れた投稿は LGV-08 の (b) の18件と一致。増えた投稿は0（毎朝の取り込みの差は無い）
+
 ## 報告
 
 - 状態: 作業中
@@ -65,12 +82,12 @@ CHAT-1107-LGV-08 の変更（`HIDDEN_POSTS`・`EVENT_WORDS`・`EVENT_ALLOWED_POS
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 48501e54）: https://github.com/retroeater/mj-logs/tree/main/guide/48501e54
+ガイド文書（この版を写した時点の最新、mj 00db63f7）: https://github.com/retroeater/mj-logs/tree/main/guide/00db63f7
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/48501e54/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/48501e54/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/48501e54/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/48501e54/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/48501e54/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/48501e54/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/00db63f7/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/00db63f7/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/00db63f7/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/00db63f7/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/00db63f7/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/00db63f7/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/ff7af9eb.md
