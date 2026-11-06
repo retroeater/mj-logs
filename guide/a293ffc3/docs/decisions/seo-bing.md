@@ -235,3 +235,23 @@
 - SEO-13 の案で今から変わる行はすべて行う: houou/・ouka/・jwrc/・wrcr/ のトップ・`ranking/`・`race/` と mtsuku/・exam/ の一覧に付ける、saikyo/players/ から外す（#638）
 - 差分の範囲（canonical の追加・削除と sitemap の lastmod）に収まれば、プレビューを見ずに cloudflare へマージしてよい（canonical は画面に出ないため）
 - 作業中の回答: なし
+
+## 2026-11-05（CHAT-1105-MFQ-03）
+
+- 11/1 の Search Console の取得での #485（旧表 jpml_titles.html への着地）と #142（title 整備の効果の3回目）の確かめの指示文を、朝のチャットで作る
+
+## 2026-11-05（CHAT-1105-MFQ-04）
+
+- #142 を閉じる（title 整備の効果は3回とも切り出せず、Search Console の開始が整備の3日前で変更前が無いという構造の問題のため、測り直しても変わらない。残っている変化は公開と転送の結果）
+- 「鳳凰位 歴代」の着地の改善は #142 から切り出して新しい issue にする。中身は (1) `title/houou/` の title か description に「鳳凰位」を入れる（本命）、(2) `houou/ranking/total/` から `title/houou/` へリンクを1行足す（案 c）
+
+## 2026-11-05（CHAT-1105-MFQ-05）
+
+- #671 のやること 1（`title/houou/` の title・description に「鳳凰位」を入れる）をやる
+- #671 のやること 2（`houou/ranking/total/` から `title/houou/` へリンクを1行足す、案 c）は採らない。ランキングのページと歴代優勝者は関係ないため
+
+## 2026-11-06（CHAT-1106-MFQ-06）
+
+- `title/houou/` の「鳳凰位」の変更（MFQ-05）を cloudflare へマージしてよい
+- 文面は MFQ-05 のプレビューのまま確定: title「鳳凰戦 歴代鳳凰位・優勝者（第1期〜第42期） | 日本プロ麻雀連盟 | ryoei.pro」、description「鳳凰戦について、歴代鳳凰位（歴代優勝者、第1期〜第42期）をまとめています。現鳳凰位は白鳥翔。」
+- 同じ説明文が og:description とページ末尾の説明文（`.mj-lead`）にも出てよい（3か所を同じ文にする既存の作りのまま）

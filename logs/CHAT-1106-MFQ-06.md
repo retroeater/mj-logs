@@ -33,15 +33,71 @@ CHAT-1105-MFQ-05 の判断待ち3点に平野さんがすべて OK と答えた�
 
 完了条件: 最終報告の最後の行が `Chat-Ref: CHAT-1106-MFQ-06`
 
+## 経過
+
+### 着手前の確認
+
+- 手順0: ログの「指示」欄の末尾は指示文の最後の行（完了条件の行）と一致。CHAT-1105-MFQ-05 のログの状態を「判断待ち / 続き: CHAT-1106-MFQ-06」にした（このログの最初のコミット 47c7d4051）
+- 同じ Chat-Ref のコミット: 0件。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 欠けなし
+- 作業ブランチ: リモートの `origin/work/1105-mfq` は 8ab5b10b2 でローカルと一致（未マージ）。`origin/cloudflare` は a04d5564a で、HEAD の祖先ではなかった
+- #671 は open（コメント1件、MFQ-05 の着手中）。着手中のコメント（issuecomment-6682931854）
+
+### 手順1（取り込み）
+
+- `git merge --no-edit origin/cloudflare` → 衝突なし、マージコミット da4ed929e（19 files changed、1352+/9-。取り込んだのは他の作業の変更）
+- 取り込む前に `git diff --stat HEAD...origin/cloudflare -- scripts/generate_title_pages.py scripts/lib title/houou sitemap-title.xml docs/notes/title-pages.md scripts/tests/test_descriptions.py` は空。取り込みで `generate_title_pages.py` は変わっていないので、再生成はしていない
+- 取り込んだ後の `title/houou/index.html` の `<title>`・description は MFQ-05 の文面のまま
+- `python3 -m unittest discover -s scripts/tests` → `Ran 2034 tests … OK`
+
+### 手順2（マージ）
+
+- push 直前に `git fetch origin cloudflare`。`git merge-base --is-ancestor origin/cloudflare HEAD` が真（origin/cloudflare は a04d5564a のまま）
+- `git push origin work/1105-mfq:cloudflare` → `a04d5564ac..da4ed929e7`
+- da4ed929e の check-runs: Workers Builds: mj success・Workers Builds: mj-ask success・check success・sync success・regenerate success・notify skipped（3件）。失敗は無い。regenerate の後も origin/cloudflare の先頭は da4ed929e のまま（生成物の追いのコミットは無かった）
+
+### 手順3（本番）
+
+`curl`（UA に mj-internal、クエリ `?v=<乱数>` 付き）。`title/houou/` は HTTP 200。
+
+| ページ | 項目 | 本番の値 |
+|---|---|---|
+| title/houou/ | `<title>` | 鳳凰戦 歴代鳳凰位・優勝者（第1期〜第42期） \| 日本プロ麻雀連盟 \| ryoei.pro |
+| title/houou/ | meta description | 鳳凰戦について、歴代鳳凰位（歴代優勝者、第1期〜第42期）をまとめています。現鳳凰位は白鳥翔。 |
+| title/houou/ | og:description | （meta description と同じ） |
+| title/houou/ | `.mj-lead` | （meta description と同じ） |
+| title/houou/ | og:title | 鳳凰戦 \| タイトル戦 \| 日本プロ麻雀連盟 \| ryoei.pro（今のまま） |
+| title/judan/ | `<title>`・description | 十段戦 歴代優勝者（第1期〜第43期） \| …、「…現タイトルホルダーは岡本和也。」（今のまま。og:description・`.mj-lead` も同じ） |
+| title/oui/ | `<title>`・description | 王位戦 歴代優勝者（第1期〜第50期） \| …、「…現タイトルホルダーは石川正明。」（今のまま。og:description・`.mj-lead` も同じ） |
+
+- 確かめたのは本番の HTML まで。ブラウザでの見え方と Google の検索結果の表示は確かめていない（CLAUDE.md「判断・作業の原則」）
+
+### 手順4
+
+- #671 にマージと本番の確かめのコメント（issuecomment-6682971437）。閉じていない。効果は次の Search Console の月次の取得の後に見る、と書いた
+- 決定の節を `docs/decisions/seo-bing.md` に足した
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1105-mfq
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1106-MFQ-06.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1105-mfq
+- 確認用URL: なし（本番で確かめた。プレビューは MFQ-05）
+- マージ: 済（da4ed929e7、`a04d5564ac..da4ed929e7`）
+- issue: #671（着手中・マージと本番の確かめのコメント。閉じていない）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 599356aa）: https://github.com/retroeater/mj-logs/tree/main/guide/599356aa
+ガイド文書（この版を写した時点の最新、mj a293ffc3）: https://github.com/retroeater/mj-logs/tree/main/guide/a293ffc3
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/599356aa/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/599356aa/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/599356aa/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/599356aa/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/599356aa/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/599356aa/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a293ffc3/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a293ffc3/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a293ffc3/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a293ffc3/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a293ffc3/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a293ffc3/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b9d20fc0.md
