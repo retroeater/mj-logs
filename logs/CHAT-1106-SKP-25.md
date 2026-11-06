@@ -152,15 +152,44 @@ regenerate-saikyo.yml（ref cloudflare、abema update、regenerate true）: 1回
 
 確かめたのは本番の HTML とサムネイルの応答まで。ブラウザでの見え方（画像の表示・ボタンの押下）はこのセッションからは確かめていない。
 
+### 自己レビュー（docs/notes/self-review.md）
+
+再生成のコミット fdd9f8891 を、文脈を持たない general-purpose のサブエージェントに読ませた（指示文の目的・決定と観点を渡し、自分の結論は渡していない）。1回で指摘なし。
+
+| 指摘 | 扱い |
+|---|---|
+| なし（3卓の「▶ 再生」・見出しのリンク・画像・og:image が p31/p32/p33、ライブ枠 0、カード 233 枚の卓と回の対応の不一致 0、ほかの 122 ファイルはカードの画像の置き換えだけ、125 ファイルのタグの対応の崩れ 0、sitemap の lastmod の集合が変わったページの集合と一致） | — |
+
+レビューで付け加わった事実: 決勝の新しい「司会・実況・解説」の節は p33 の出演の一覧から来たもので、A・B卓の3人と同じ。2026 年の対局のページの og:image は作品の画像のままだが、ほかの対局のページも同じ形（既存の形どおり）。
+
+### マージ
+
+作業ブランチに origin/cloudflare（fdd9f8891、再生成のコミット）を `git merge origin/cloudflare` で取り込んだ（衝突なし）。origin/cloudflare との差は docs/logs/CHAT-1106-SKP-25.md と docs/decisions/saikyo.md だけ。
+
+`git push origin work/1106-skp-abema-p31:cloudflare` の直前に再 fetch し `git merge-base --is-ancestor origin/cloudflare HEAD` が真。push の出力: `fdd9f8891..582b7c6a3  work/1106-skp-abema-p31 -> cloudflare`（docs のみなので Workers Builds は走らない想定）。この追記はマージの結果を書く docs/logs のみの追いの push。
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1106-skp-abema-p31
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1106-SKP-25.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1106-skp-abema-p31
+- 確認用URL: なし
+- マージ: 済（582b7c6a3。範囲 fdd9f8891..582b7c6a3、ログ・決定のみ。ページの再生成は regenerate-saikyo.yml が fdd9f8891 で cloudflare へ入れた）
+- issue: なし
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj a293ffc3）: https://github.com/retroeater/mj-logs/tree/main/guide/a293ffc3
+ガイド文書（この版を写した時点の最新、mj e577707b）: https://github.com/retroeater/mj-logs/tree/main/guide/e577707b
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a293ffc3/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a293ffc3/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a293ffc3/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a293ffc3/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a293ffc3/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a293ffc3/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e577707b/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e577707b/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e577707b/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e577707b/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e577707b/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e577707b/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a293ffc3.md
