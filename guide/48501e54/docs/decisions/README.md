@@ -24,7 +24,7 @@
 | [page-release.md](page-release.md) | 新しいページ・メニューの公開（未公開で入れる段と公開の段、#507 系） |
 | [pros.md](pros.md) | プロ一覧（jpml_pros.html） |
 | [publishing.md](publishing.md) | 配信の対象（`.assetsignore`・`assets-check.yml`、#133・#331） |
-| [ryoei.md](ryoei.md) | 良栄（r/・成績・成績詳細・牌譜、#389） |
+| [ryoei.md](ryoei.md) | 良栄（r/・成績・成績詳細、#389） |
 | [saikyo.md](saikyo.md) | 最強戦（saikyo/、選手写真のリンク切れ #499 系） |
 | [security.md](security.md) | セキュリティ（点検・診断・道具・Security Guidance プラグイン、#598 系） |
 | [seo-bing.md](seo-bing.md) | SEO・Bing（Bing Webmaster Tools・Search Console・title・h1・description・OGP 画像、#126・#486・#5・#457・#581 系） |

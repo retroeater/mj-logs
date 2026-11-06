@@ -58,6 +58,42 @@ DCR-01 の辞書ページ（#672）で、見える題名を log/・title/ と同
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 4行ともあり
 - CHAT-1106-DCR-01 のログの状態を「判断待ち / 続き: CHAT-1107-DCR-02」にした
 
+### 取り込みと重なり
+
+- `git merge --no-edit origin/cloudflare`: 衝突なし（cloudflare 側は rh_paifu の削除・log/ の作業など。`navbar.js`・辞書のファイルには触れていない）。取り込み後に `merge-base --is-ancestor origin/cloudflare HEAD` は真
+- 未マージの work/ ブランチで対象のファイルに触れるのは `work/1101-prp-pub` の `navbar.js` 2行（ドロップダウンの連盟プロの href と `/pro/` の分岐のコメント）だけ。辞書の分岐（`/log/` の直後）とは別の箇所なので止まらない
+
+### 実装（ad47f435a）
+
+- `scripts/generate_resource_dictionary.py`: `META.h1` を「リソース 辞書」から「辞書」にし、枠の中の先頭に `<h1 class="mj-race-title">{h1}</h1>`（log/ と同じ形）を出す。非表示の h1 と h2「辞書ダウンロード」を消した
+- `resource_dictionary.css`: 冒頭のコメント1行だけを直した（規則は変えていない）
+- テスト: `<h1 class="mj-race-title">辞書</h1>` があることと、「辞書ダウンロード」・非表示の h1「リソース」が無いことを確かめる期待値にした
+- docs: `docs/notes/static-generation.md` の resource_dictionary の行。`docs/decisions/features.md` に決定を足し、元の決定の行に「→ 置き換え（h1 のみ）」を付けた（元の行は h1 以外の文言の決定も含むため「h1 のみ」とした）
+- 指示文は置き換える決定を「2026-10-09 の h1『リソース 辞書』の決定」と書いているが、`docs/decisions/features.md` の実物は 2026-10-07（CHAT-1005-RVW-10）の節。中身（#377 の h1「リソース 辞書」）は同じなので、日付は実物で書いた
+- 今の値の引用（変えていない）:
+  - `<title>辞書 | リソース | ryoei.pro</title>`
+  - `<meta name="description" content="一般的な麻雀用語、および日本プロ麻雀連盟・Mリーグ関連の用語（タイトル戦・選手・チーム・団体等）の辞書（1,869語）をダウンロードできます。">`
+  - `og:title` は title と同じ文言、`og:description` は description と同じ文言、`og:url` は `https://ryoei.pro/resource_dictionary.html`
+- DCR-01 の版（取り込み後の e4f7707a2 のマージ）から見た HTML の差分: h1 の1行の置き換えと h2 の1行の削除だけ（`git diff`）
+
+### 確かめ
+
+- `python3 -m unittest discover -s scripts/tests` → OK（レビューのサブエージェントの実行で 2038 件）
+- `regenerate-page.yml`（work/1106-dcr、ad47f435a）:
+  - `check: true`（run 42241585379）: 「検査: 通りました(保存の語数 1869語。ファイルは書いていません)」、注釈「check: 止まるページなし」
+  - `dry_run: true`・`compare_ref: origin/cloudflare`（run 42241591191）: 注釈「compare: 差分なし」（コミット済みの生成物がシートからの生成と一致）
+- 3形式の保存（ローカル、Playwright）: 保存名は `20261106_MSIME_麻雀用語辞書.txt`・`20261106_Google日本語入力_麻雀用語辞書.txt`・`20261106_Gboard_麻雀用語辞書.zip`。MSIME・Google は DCR-01 着手前の出力とバイト一致、Gboard は zip の中の `dictionary.txt` が一致
+- スクリーンショット（幅 390px の明るい・暗い配色、ほか 360・1280px）: 題名「辞書」（28px 太字・左寄せ）の下に面と3行。保存後の登録方法の出方も変わらない。横スクロールなし（scrollWidth＝画面幅）
+
+### 差分のレビュー（docs/notes/self-review.md）
+
+新しい文脈のサブエージェントに目的・決定・止まる条件・`git show ad47f435a` を渡した。止まる条件には当たらない、要修正なし、提案2件。
+
+| 指摘 | 扱い |
+|---|---|
+| `scripts/lib/page.py` の `PageMeta.h1` のコメントが「visually-hidden の h1」のまま（`render_content()` は h1 を使わず、resource_efficiency にも見える h1 の前例あり。この変更より前からの記述） | 見送り（今回の指示のファイルの外。使い方は合っている） |
+| h2 が無くなり `<section class="mj-dic-card">` が見出しを持たない | 意図どおり（決定のとおり。名前の無い section は汎用の入れ物と同じ扱いで害はない） |
+
 ## 報告
 
 - 状態: 中断（作業中）
@@ -74,12 +110,12 @@ DCR-01 の辞書ページ（#672）で、見える題名を log/・title/ と同
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 9a5e2516）: https://github.com/retroeater/mj-logs/tree/main/guide/9a5e2516
+ガイド文書（この版を写した時点の最新、mj 48501e54）: https://github.com/retroeater/mj-logs/tree/main/guide/48501e54
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a5e2516/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a5e2516/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a5e2516/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a5e2516/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a5e2516/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a5e2516/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/48501e54/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/48501e54/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/48501e54/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/48501e54/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/48501e54/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/48501e54/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/9a5e2516.md

@@ -104,7 +104,7 @@
 
 ## 告知動画
 
-リニューアルの告知動画（2026-11-06 に X へ投稿、型は docs/notes/page-announcement.md）。制作のスクリプトは `scripts/promo_video/log/`、作り直しの手順・場面と秒・止まる条件は同じフォルダの `README.md`。
+リニューアルの告知動画（2026-11-06 18:00 に X へ投稿、https://x.com/retroeater/status/2118629471376859227 。型は docs/notes/page-announcement.md）。制作のスクリプトは `scripts/promo_video/log/`、作り直しの手順・場面と秒・止まる条件は同じフォルダの `README.md`。
 
 - 本番の log/ を撮る（位置は Playwright の geolocation で新宿駅の点に固定。実在の人の位置は使わない）。店名のリンク（Google マップ）は押さない
 - 撮るコマごとに確かめて止まる: 映さない駅（`capture.mjs` の `HIDDEN`。画面に見えている文に出たら止まる）・読めない写真（灰色の空の枠）・場面6でタグが1つずつ外れてトップに戻ること
