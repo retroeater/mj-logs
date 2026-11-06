@@ -157,7 +157,7 @@ CHAT-1106-LGV-07 の候補（ログの経過「3.」）から平野さんが選�
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1107-LGV-09
 - ブランチ: work/1107-lgv-hide
 - ログ: https://github.com/retroeater/mj/blob/work/1107-lgv-hide/docs/logs/CHAT-1107-LGV-08.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1107-lgv-hide
