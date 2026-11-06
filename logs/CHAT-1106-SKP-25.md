@@ -56,6 +56,38 @@ ABEMA に最強戦2026「超技巧合戦」の卓ごとの動画（A卓・B卓�
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 着手前の確認
+
+- 0: 「指示」欄の末尾（「不明な点があれば、…この行が指示文の最後の行です。」）は指示文の最後の行と一致
+- 同じ Chat-Ref のコミット: 無し（`git log --all --grep=CHAT-1106-SKP-25`）。SKP は 25 番目の指示なので識別子の重複確認は対象外。issue: なし（指示は issue を変えない）
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 4行とも有る
+- 作業ブランチ: work/1106-skp-abema-p31 はローカル・リモートとも無かったので origin/cloudflare（a293ffc38）から作った
+- 未マージの work/ ブランチ（`git branch -r --no-merged origin/cloudflare`）で saikyo/・scripts/lib/・update_abema_book.py・generate_saikyo_pages.py に触れるもの: origin/work/1101-prp-pub だけ。変えているのは generate_saikyo_pages.py の `players_data()`・`write_menu()` 付近と saikyo/players/index.html、lib/pro_search.py・lib/wayhome.py。`load_videos()`・lib/abema_book.py・update_abema_book.py には触れていない（別の箇所なので止まらない）
+
+### 手順1 下ごしらえ
+
+実行中の確認（REST `actions/workflows/<名前>/runs`、2026-11-06 夜）: regenerate-saikyo.yml・regenerate-page.yml・run-daily.yml とも実行中・待機中のものは無し（最新はそれぞれ 11-04 13:26Z 手動・11-06 10:40Z push・11-05 19:00Z 毎朝）。
+
+対象のページ（saikyo/2026/ を「超技巧」で探した）: 対局 `20261101.html`（超技巧合戦、2026年11月1日）、卓 `20261101-s1-a.html`（ベスト8 A卓）・`20261101-s1-b.html`（ベスト8 B卓）・`20261101-s2.html`（決勝）。
+
+| ページ | cloudflare（a293ffc38）の「▶ 再生」 | 見出しの画像 | 本番（`.html?v=skp25c`、UA mj-internal） |
+|---|---|---|---|
+| 20261101.html（対局） | 無し（ボタンを持たない型） | 無し（og:image は作品の画像 series/68-38） | cloudflare と同一（バイト一致） |
+| 20261101-s1-a.html（A卓） | https://abema.tv/channels/mahjong/slots/9CHRCzeorA4sL3 （ライブ枠） | 作品の画像 series/68-38 | 同一 |
+| 20261101-s1-b.html（B卓） | https://abema.tv/channels/mahjong/slots/9CHRCzeorA4sL3 （ライブ枠） | 作品の画像 series/68-38 | 同一 |
+| 20261101-s2.html（決勝） | 無し（動画の URL が無い） | 作品の画像 series/68-38 | 同一 |
+
+- 「ABEMA で見る」のリンクはどのページにも無い。p31〜p33 はどのページにも出ていない
+- 拡張子なしの URL（`/saikyo/2026/20261101-s1-a?v=…`）は本番で 404。canonical は `.html` 付きなので、以降は `.html` 付きで読む
+
+### 直前の abema: update（毎朝の運行 11-06 04:00 JST、run 42089699270、ジョブ saikyo / abema 127468757070）
+
+- 入力: abema update・regenerate true・scheduled true。注釈: 「新しい回: 土曜でないので確かめません」と runner の移行の notice だけ
+- 【2】最強戦: 714 行（卓 647・なし 67）、回が当たった卓 615 / 647、2026 は 30/35
+- なしの理由: 当たる卓なし 62・卓でない回 3・1回戦 1・2回戦 1
+
 <!-- guide-links -->
 ---
 

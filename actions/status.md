@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-11-06 19:44 JST
+- 書き出した時刻: 2026-11-06 19:58 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -201,11 +201,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-06 19:57 | workflow_dispatch | work/1106-skp-abema-p31 | success | #779（42206540551） | 0分37秒 |
 | 2026-11-06 19:40 | push | cloudflare | success | #778（42204502672） | 1分12秒 |
 | 2026-11-06 08:46 | workflow_dispatch | work/1105-mfq | success | #777（42131938805） | 1分11秒 |
 | 2026-11-05 21:34 | workflow_dispatch | work/1105-skn-vsinput | success | #776（42028252462） | 7分12秒 |
 | 2026-11-05 21:34 | workflow_dispatch | work/1105-skn-vsinput | success | #775（42028247936） | 2分25秒 |
-| 2026-11-05 18:50 | workflow_dispatch | work/1105-skn-vsinput | success | #774（42005718785） | 1分00秒 |
 
 ## regenerate-saikyo.yml
 
@@ -214,11 +214,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-06 19:56 | workflow_dispatch | cloudflare | success | #25（42206428932） | 0分37秒 |
 | 2026-11-04 22:26 | workflow_dispatch | cloudflare | success | #24（41838128532） | 1分50秒 |
 | 2026-10-29 15:57 | workflow_dispatch | cloudflare | success | #23（40832366214） | 1分23秒 |
 | 2026-10-27 21:47 | workflow_dispatch | cloudflare | success | #22（40506498244） | 1分44秒 |
 | 2026-10-25 08:55 | workflow_dispatch | work/1025-skv | success | #21（40144694342） | 0分26秒 |
-| 2026-10-23 18:49 | workflow_dispatch | work/1023-skv-detect | success | #20（39934617712） | 0分26秒 |
 
 ## regenerate-sitemap.yml
 
