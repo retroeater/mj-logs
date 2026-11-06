@@ -66,14 +66,21 @@ CHAT-1107-LGV-08 の変更（`HIDDEN_POSTS`・`EVENT_WORDS`・`EVENT_ALLOWED_POS
 - `git diff --stat origin/cloudflare...HEAD`: docs/decisions/operations.md・docs/logs/CHAT-1106-LGV-07.md・docs/logs/CHAT-1107-LGV-08.md・docs/logs/CHAT-1107-LGV-09.md・docs/notes/github-actions.md・docs/notes/log-page.md・log/index.html・log/search.json・scripts/convert_x_posts.py・scripts/generate_log_pages.py・scripts/tests/test_convert_x_posts.py・scripts/tests/test_log_pages.py・sitemap-pages.xml（13ファイル）
 - `log/search.json` の cloudflare（b40b3a415 の生成）との差: 店 1,737 → 1,721・投稿 2,425 → 2,407。外れた投稿は LGV-08 の (b) の18件と一致。増えた投稿は0（毎朝の取り込みの差は無い）
 
+### 3. マージと後の確かめ
+
+- push の直前に `git fetch origin cloudflare` と `git merge-base --is-ancestor origin/cloudflare HEAD`（真）を確かめ、`git push origin work/1107-lgv-hide:cloudflare`（ff7af9ebe..00db63f7c）
+- 00db63f7c の check-run: Workers Builds: mj success・regenerate success・sync success・notify skipped
+- push で走ったワークフロー: 「ページの再生成」success（`scripts/generate_log_pages.py` の変更の検知）・「サイトマップの lastmod の同期」success・「本番ビルド失敗の検知」skipped（ビルドが成功したため）。再生成は生成物に差が無く、コミットは無い（00db63f7c の後に cloudflare へのコミットは無し。毎朝の取り込みの差も無かった）
+- 本番 `https://ryoei.pro/log/search.json?v=00db63f7c`（UA に mj-internal、2026-11-07 00:48 JST）: 店 1,721・投稿 2,407。`ChIJGeYlX_mLGGARwsJahMe-XZg`（天外天の場所）・`ChIJ86b9L4qJGGARGEWCsXZx9tQ`（WACCA）は無い。新横浜ラーメン博物館の2店（`ChIJf41M_dNeGGARVFT6mtftFbk`・`ChIJNSoA_dNeGGARjAJl8smPb4w`）はある。つきひ（`ChIJQeHeBsWIGGAR7VoAcu4Wb5k`）の投稿は「2025-04-10 · 谷岡育夫」の1件だけ。プレビューと同じ。ブラウザでの見え方は確かめていない
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1107-lgv-hide
-- ログ: https://github.com/retroeater/mj/blob/work/1107-lgv-hide/docs/logs/CHAT-1107-LGV-09.md
+- 状態: 完了
+- ブランチ: work/1107-lgv-hide（マージ済み。削除は cleanup-branches.yml）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1107-LGV-09.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1107-lgv-hide
-- 確認用URL: なし
-- マージ: 未
+- 確認用URL: なし（本番の search.json で確かめた）
+- マージ: 済（00db63f7c）
 - issue: なし
 - 判断が必要なこと: なし
 - 未確認の項目: なし
