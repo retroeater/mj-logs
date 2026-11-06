@@ -17,7 +17,7 @@
   - `title/search.json`（全ページの検索のデータ、#364）
   - `title/years.json`（入口の年の切り替えのデータ、#277）
 - `render_content()` 方式。画像の読み込み失敗は `assets/title.js` が `data-fallback`（アバター）へ差し替える
-- CSS は `style.css` の「タイトル戦(title/、#222)」節。クラスは `.mj-title*` と `body:has(.mj-title)` に閉じる
+- CSS は `style.css` の「タイトル戦(title/、#222)」節。クラスは `.mj-title*` と `body.mj-title-n-page` に閉じる（本文の列・説明文・パンくずの行は最強戦の節の 400px の中央寄せの規則、CHAT-1105-TTL-12）
 - 公開（#413、2026-09-28）: noindex を外し、`sitemap.xml` から `sitemap-title.xml` を参照する。navbar の「連盟 > タイトル」は `/title/` へ差し替えた（項目名は 2026-10-01 に「タイトル戦」へ改めた。入口の見出し・パンくず・og:title と揃える）。`llms.txt` に入口を載せた
   - canonical を出す（サイトの既定〈#113、出さない〉の例外。`saikyo/` と同じ形）。入口・大会ページ・期ページとも、スラッシュ付きの正規の URL（`https://ryoei.pro/title/`・`/title/<slug>/`・`/title/<slug>/<期>.html`）で、og:url と同じ値（`page_meta()`）
   - 旧表 `jpml_titles.html` は廃止し、`_redirects` で `/title/` へ 301（#441）。`?name=<選手名>` はそのまま付き、`assets/title.js` が `q` の無いときの検索の初期値に使う。
@@ -27,7 +27,8 @@
   - og:image: 入口・大会ページ・期ページとも `img/ogp/title/index-white.png`（白地・黒字の「タイトル戦」と、その下に小さく「ryoei.pro」。大会ごとの画像は作らない、2026-10-16、#581）。
     写真は使わない（肖像権）。指定は `generate_title_pages.py` の `OG_IMAGE`。og:image:alt は「タイトル戦」
   - og:title: 入口「タイトル戦 | 日本プロ麻雀連盟 | ryoei.pro」、大会ページ「<大会名> | タイトル戦 | …」、期ページ「<期の名前> | タイトル戦 | …」（大会・期は houou/ など同じ名前のページと X のカードで見分けるため「タイトル戦」を入れる、`section_og_label()`、2026-10-17、#581。`Period.title`。「第41期鳳凰戦」「第3回リーチ麻雀世界選手権」「麻雀日本シリーズ2025」のように、期と大会名の間は空けず、数え方は実物のまま）。
-    `<title>` は正式名のまま（「… 歴代優勝者（第1期〜第42期）」「… 決勝結果」）。分けるのは `page_meta()` の `og_label`（`PageMeta.og_title`）
+    `<title>` は正式名のまま（「… 歴代優勝者（第1期〜第42期）」「… 決勝結果」）。分けるのは `page_meta()` の `og_label`（`PageMeta.og_title`）。
+    鳳凰戦の大会ページだけ、`<title>` と説明文に称号「鳳凰位」を入れる（「鳳凰戦 歴代鳳凰位・優勝者（…）」「…現鳳凰位は…」。`HOLDER_TITLES`、#671。og:title・h1 は変えない）
   - 画像は手で作ってコミットする（生成の Actions では作らない）: `python3 scripts/build_ogp_image.py --text タイトル戦 --footer ryoei.pro --color '#212529' --bg '#ffffff' --max-size 200 --tracking -0.03 --out img/ogp/title/index-white.png`。
     フォントは Noto Sans JP Bold（`~/.local/share/fonts/NotoSansJP-Bold.otf`、クラウドのセッションでは `raw.githubusercontent.com/notofonts/noto-cjk` の `Sans/SubsetOTF/JP/NotoSansJP-Bold.otf` から取得できた）。中身を変えるときは名前を変える（`docs/notes/ogp.md`「中身を差し替える画像はファイル名を変える」）
   - 新しい大会を表示するとき・大会名を変えたときも、画像は作らない。`scripts/tests/test_title_ogp.py` が、画像が入口の1枚だけであることを確かめる
@@ -41,7 +42,7 @@
   - 大会ページ・期ページの題名は 28px 太字で画面に出す（`page_title_html()`。期ページは2行目に対局日。大会ページは2行目を出さない〈期の範囲は 2026-11-04 に消した、CHAT-1104-TTL-06。h1 の読み上げにだけ「歴代優勝者第1期〜第42期」の形で残す〉。h1 の文言は読み上げ用の語〈「歴代優勝者」「決勝結果」〉を足して今のまま）。大会ページの区分・状態の行は出さない（CHAT-0918-TP-14）
   - 期ページ: パンくず（「タイトル戦 / 鳳凰戦 / 第41期」）→ 題名（2行目に対局日。空なら出さない。複数日の決勝は最終日。CHAT-0918-TP-17 まではパンくずの最後の項目に添えていた）→ 決勝に出た全員の行 → 決勝ライブ → 決勝動画 → 帰り道（その期の回があるときだけ、#553）。前後の期へのリンクは無い（TP-15 で廃止）。行の右端に順位（優勝は金のピル、ほかは灰色の「2位」。同順位はそのまま、第26期王位戦は2名とも「優勝」）、押すと X（新しいタブ、右に ›）。X ID の無い選手は押せない行（› は出さず、同じ大きさの見えない印〈`.mj-title-chev-space`〉で場所を空け、順位の右端を押せる行とそろえる、CHAT-1104-TTL-07）。行き先は `member_link()` の1か所で決める
   - 期ページに無いもの: 「この選手の他のタイトル・決勝進出」、大会の歴代優勝者、X・note のテキストリンク、「決勝メンバー」の語、「連盟プロ以外」の所属団体（データの整備後に出す、#397）
-- 新サイトの基本の形（CHAT-1104-TTL-02〜04）: `<body class="mj-title-n-page">` に最強戦の新しいページ・live/ の白地のページと同じ色（`--mj-n-*`）と部品（`.mj-saikyo-n-*`）を当て、navbar.js が `<body>` の class で白地のナビにする（「タイトル戦」に印）。navbar は固定しない。濃色の固定バーはやめた。
+- 新サイトの基本の形（CHAT-1104-TTL-02〜04、配置は CHAT-1105-TTL-12）: 本文の列は houou/ と同じ幅 400px の中央寄せ（本文の根は `.mj-saikyo`。最強戦・live/ の一覧と同じ規則〈`style.css` の「幅 400px の中央寄せ」〉で、説明文・パンくずの行もそろう。入口の写真カードは PC でも2列）。`<body class="mj-title-n-page">` に最強戦の新しいページ・live/ の白地のページと同じ色（`--mj-n-*`）と部品（`.mj-saikyo-n-*`）を当て、navbar.js が `<body>` の class で白地のナビにする（「タイトル戦」に印）。navbar は固定しない。濃色の固定バーはやめた。
   パンくずは最強戦と同じ 13px 灰色の1行（`saikyo.build_breadcrumb()`）。節（決勝ライブ・決勝動画・帰り道）の見出しは 13px 灰色（`.mj-saikyo-n-label`、上の余白 8px）、節の間隔 16px。
   入口は写真カード、大会ページ・期ページは面の中の行（写真カード案と行の案を比較ページで見比べて決めた。比較ページは削除）。
   暗い配色のメンバー限定の印は、地を #3a3a3c・字を #f5f5f7（10.42:1）にする（#212529 の地はページの地 #000000 に溶けて縁が見えなかった）
