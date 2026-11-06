@@ -115,7 +115,22 @@ AIC-37 で、本番の確かめの後に入れた直し（759e6347e。段〈決�
 - 4da5ab118 は2回目のレビューを通った直しで、今の本番（759e6347e）より誤りが少ない（残った中の指摘は、759e6347e では1回目が stage を入れなくても起きていた）。指示の「レビューで直すものがあったときだけマージする」に当たるのでマージする
 - 再 fetch して `git merge-base --is-ancestor origin/cloudflare HEAD` が真（cloudflare は 41d9f17e7 のまま）、`git push origin work/1105-aic:cloudflare`（41d9f17e7..64d80acc7）
 - check-run（64d80acc7）: Workers Builds: mj-ask success（2026-11-05T02:10:20Z = 11:10 JST）
-- 本番の問い: 2026-11-05 JST の10問は AIC-35〜37 で使い切ったので、2026-11-06 の分で送る。このセッションに 2026-11-06 09:40 JST の予約（send_later）を入れた（横断・context なしの「次の決勝はいつ？」と、直した問いの例「王位戦の決勝トーナメントはいつ？」）。送ったら、ここと「未確認の項目」を結果で書き換え、#654 にコメントする
+- 本番の問い: 2026-11-05 JST の10問は AIC-35〜37 で使い切ったので、2026-11-06 の分で送った（予約 send_later、2026-11-06 09:42 JST、`Origin: https://ryoei.pro`・UA に `mj-internal`。送る前の status は remaining 10）
+
+### 3. 2026-11-06 の朝の取り込みと本番
+
+- 朝の取り込み: 7f6d4280e（2026-11-06 04:07 JST、`chore: regenerate … workers/ask/data-schedule.json top/ via GitHub Actions`）で `workers/ask/data-schedule.json` が作り直された。asof 2026-11-06、大会の予定 85件・選手の予定 128件。check-run（7f6d4280e）: Workers Builds: mj-ask success（2026-11-05T19:08:24Z = 11-06 04:08 JST）、mj success
+
+| 問い（横断・context なし） | 答え | データ（7f6d4280e の data-schedule.json）と |
+|---|---|---|
+| 次の決勝はいつ？ | 「決勝のこの先の予定です。」11/29 第51期王位戦決勝・12/9 第21期女流桜花決定戦初日・12/16 同二日目・12/19 第4期達人戦決勝初日・12/20 麻雀日本シリーズ2026決勝「ほか13件」、時点「予定 2026-11-06 時点」 | 一致（決勝・決定戦の 18件の先頭5件） |
+| 王位戦の決勝トーナメントはいつ？（直した問いの例） | 「【鳳凰戦】答えられません。」（unanswerable） | **一致しない**（データには 11/28 第51期王位戦準決勝・11/29 第51期王位戦決勝がある）。予定の答えに回っていない |
+| 王位戦の決勝はいつ？（原因を見るために足した1問） | 「【鳳凰戦】答えられません。」 | **一致しない**（同じ） |
+
+- 原因（見立て）: 問いに5大会の名前も選手名も無いので、横断は5大会すべての1回目を呼ぶ。予定の型を選ぶかは大会ごとの1回目（その大会の指示）が決めるが、王位戦は5大会のどれでもないため、5大会の1回目の過半が `schedule` を選ばず（none などを選び）、予定の答えに回らない。AIC-37 の検査は1回目の返事を作り物で `schedule` にしていたので、この食い違いを拾えなかった。AIC-37 の本番の問いにも title/ の大会（5大会の外）の問いは無かった
+- 4da5ab118 の直し（段の読み）はこの経路に届く前で、直す前（759e6347e）も同じ答えになる見込み（この直しで悪くなったものではない）
+- 直すには、予定の型へ回す決め方（5大会の1回目の過半）を変える必要がある（例: 問いに5大会の外の title/ の大会名と予定の語があれば、1回目を待たずに予定で答える）。止まる条件「直すと予定の型の作りを変える必要がある」に当たるので、直していない
+- この日に送った問いは3問（予定の2問と、原因を見るための1問）
 
 ## 報告
 
@@ -123,15 +138,14 @@ AIC-37 で、本番の確かめの後に入れた直し（759e6347e。段〈決�
 - ブランチ: work/1105-aic
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1105-AIC-38.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1105-aic
-- 確認用URL: なし（Worker の変更。本番の問いは 2026-11-06）
+- 確認用URL: なし（Worker の変更。本番の問いは「経過」の3）
 - マージ: 済（64d80acc7。直しは 4da5ab118）
-- issue: #654（着手中をコメント。レビューと本番の結果は 2026-11-06 の本番の後にコメントする）
+- issue: #654（着手中と、レビュー・本番の結果をコメント）
 - 判断が必要なこと:
+  - **5大会の外の title/ の大会の予定の問いが、本番で答えられない**（2026-11-06 の本番。「王位戦の決勝はいつ？」「王位戦の決勝トーナメントはいつ？」がどちらも「【鳳凰戦】答えられません。」。データには王位戦の準決勝・決勝がある）。原因は予定の型へ回す決め方（5大会の1回目の過半が schedule を選ぶ）で、5大会の指示は5大会の外の大会を自分の大会と見ないため（見立て）。AIC-37 から（4da5ab118 で悪くなったものではない）。直すには決め方を変える必要があり、止まる条件のとおり直していない。直し方の案: 問いに5大会の外の title/ の大会名（`aliases`・`contests`）と予定の語があれば、1回目を待たずに予定で答える（1回目は呼ばない）か、1回目を1回だけ（鳳凰戦の指示）にしてその読みで決める。どちらにするか。本番の「次の決勝はいつ？」・context ありの問い・選手の問いは答えられている
   - 2回目のレビューで残った中の指摘を、往復2回の上限のため直していない: 「決勝進出者決定戦はいつ？」で1回目が stage に決定戦を入れると、その stage を使ってほかの大会の決定戦（女流桜花決定戦）を出す（1回目が stage を入れなければ、すべての予定を出す）。直し方の案: 「〜進出者決定戦」か段の語を含む大会名（麻雀格闘倶楽部プロNo.1決定戦・プロリーグ決勝）を除いたときは、段の語が残らなければ ''（段で絞らない）を返し、1回目の stage を使わない（数行の直しと検査1件）。同じ直しで低の指摘（「プロリーグ決勝の決勝の…」の見出しの重なり）も直る見込み。次の指示で直すか、週次の直し（2026-11-09 の週）にまとめるか
   - 見送った低い指摘（過去を聞く問い「前回の決勝はいつだった？」・否定「決勝ではなく予選」でも段を読む）は、決定どおり週次の直しにまとめる（下の「未確認の項目」）
 - 未確認の項目:
-  - 本番の2問（2026-11-06 09:40 JST ごろに送る予定。このセッションの予約）: 横断（context なし）「次の決勝はいつ？」が決勝・決定戦だけか、「王位戦の決勝トーナメントはいつ？」が王位戦の準決勝と決勝の両方か。その日の data-schedule.json と一致するか
-  - 2026-11-06（金）の朝の取り込み（`update-live-channel.yml`）で `workers/ask/data-schedule.json` が作り直され（asof が 2026-11-06）、`mj-ask` がビルドされるか（AIC-37 から写した。この指示は 2026-11-05 11:00 JST ごろに進めたので、朝の取り込みの前。上の予約で確かめる）
   - 2026-11-09（月）03:00 JST の週次の書き出しが動き、ブックに 11/02〜11/08 の行が入るか。あわせて、2026-11-02 10:09 JST ごろの「現女流桜花は？」の「引数」の列に from・to が入っているか（AIC-37 から写した）
   - 地域で断られた問いが、新しい結果（`region`、ブック「地域で使えない」）で記録に入るか（AIC-37 から写した）
   - 横断の記録（型 `all:…`。`all:…:schedule` を含む）が週次の書き出しのブックに入るか（2026-11-09 03:00 JST の書き出しで。AIC-37 から写した）
@@ -147,12 +161,12 @@ AIC-37 で、本番の確かめの後に入れた直し（759e6347e。段〈決�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 8cc0bf62）: https://github.com/retroeater/mj-logs/tree/main/guide/8cc0bf62
+ガイド文書（この版を写した時点の最新、mj b9d20fc0）: https://github.com/retroeater/mj-logs/tree/main/guide/b9d20fc0
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/8cc0bf62/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/8cc0bf62/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/8cc0bf62/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8cc0bf62/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8cc0bf62/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8cc0bf62/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/7864a244.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b9d20fc0/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b9d20fc0/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b9d20fc0/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b9d20fc0/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b9d20fc0/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b9d20fc0/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b9d20fc0.md
