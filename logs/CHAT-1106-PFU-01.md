@@ -1,7 +1,7 @@
 # CHAT-1106-PFU-01
 
 - 着手日時: 2026-11-06
-- 対象issue: （起票予定）
+- 対象issue: #673（起票）・#389（リンクのコメント）
 - ブランチ: work/1106-pfu
 - 着手時HEAD: 021cf833
 
@@ -133,15 +133,28 @@
 | r/ の生成物が未再生成のままマージすると 404 へのリンクが残る | 意図どおり（マージ前にワークフローで再生成した。上の「r/ の再生成」） |
 | static-generation.md 74行・site-findings.md 257・288行が現状のように読める | 意図どおり（移行・調査の経緯の記録。video_en など他の廃止済みページも同じ形で残している） |
 
+### 手順3: マージと本番
+
+- push 直前に `git fetch origin cloudflare` → `git merge-base --is-ancestor origin/cloudflare HEAD` が真
+- `git push origin work/1106-pfu:cloudflare` → `f5bd1552c..e1763a1c9  work/1106-pfu -> cloudflare`
+- e1763a1c9 の check-run: Workers Builds: mj success（summary に Preview の行なし＝本番）・regenerate success・sync success・notify skipped。push で動いた「ページの再生成」「サイトマップの lastmod の同期」も success（追いのコミットなし）
+- 本番（UA に mj-internal）: `/rh_paifu.html?v=pfu20261106` 404。`/`・`/r/`・`/houou/` は 200 で HTML に `paifu` 0件。Playwright で r/・houou/ の新しいナビのシート（`window.mjNavItems` の「良栄」）は「成績 /rh_results.html | 成績詳細 /rh_results_detail.html」、DOM 全体に `rh_paifu` 無し。トップ `/`（index.html）は共通ナビを使わず「良栄」のメニュー自体が無い
+- #673 に完了のコメントを残してクローズ（「状況:」ラベルは付いていなかった）
+
+### 報告に書く元データ
+
+- ブック: `scripts/check_sheets_reader.py` の BOOKS で「mj_ryoei」（定数は消した `scripts/generate_rh_paifu.py` の `SPREADSHEET_ID`。同じブックを `scripts/generate_rh_results.py`・`generate_rh_results_detail.py` の `SPREADSHEET_ID` が読む）
+- シート: 「牌譜」（`SHEET_NAME`、QUERY は `SELECT A,B,C,D,E,F,G,H,I,J WHERE K = "Y"`）。消していない
+
 ## 報告
 
-- 状態: 対応中
+- 状態: 完了
 - ブランチ: work/1106-pfu
-- ログ: https://github.com/retroeater/mj/blob/work/1106-pfu/docs/logs/CHAT-1106-PFU-01.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1106-PFU-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1106-pfu
-- 確認用URL: なし
-- マージ: 未
-- issue: なし
+- 確認用URL: プレビューあり（URL は最終報告）。確認したページは /rh_paifu.html（404）・/r/・/navbar.js。この版の印: r/ の一覧の「成績」の節のリンクが「成績」「成績詳細」の2つ
+- マージ: 済（e1763a1c9、範囲 f5bd1552c..e1763a1c9）
+- issue: #673（起票・クローズ）、#389（リンクのコメント）。元データはブック「mj_ryoei」（消した generate_rh_paifu.py の定数 SPREADSHEET_ID。成績・成績詳細と同じブック）の「牌譜」シートで、消していない。対局室の「牌譜の紙」は物ごと消した
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
@@ -149,12 +162,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj e1763a1c）: https://github.com/retroeater/mj-logs/tree/main/guide/e1763a1c
+ガイド文書（この版を写した時点の最新、mj 38e25997）: https://github.com/retroeater/mj-logs/tree/main/guide/38e25997
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e1763a1c/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e1763a1c/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e1763a1c/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e1763a1c/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e1763a1c/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e1763a1c/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/82fe7190.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/38e25997/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/38e25997/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/38e25997/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/38e25997/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/38e25997/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/38e25997/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/e1763a1c.md

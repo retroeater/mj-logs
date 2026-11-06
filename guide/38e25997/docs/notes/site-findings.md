@@ -48,7 +48,7 @@ for f in *.html wayhome/*.html; do grep -o '<img[^>]*>' "$f" | grep -o ' src="ht
 
 | ドメイン | 発生ページ |
 |---|---|
-| `img.youtube.com` | jpml_test / rh_paifu / video_en / video_live / video_mtsuku / video_wayhome / wayhome/* / index |
+| `img.youtube.com` | jpml_test / video_en / video_live / video_mtsuku / video_wayhome / wayhome/* / index |
 | `pbs.twimg.com` | jpml_pros / jpml_titles / resource_logs / saikyo_mens / saikyo_results |
 | `ron2.jp` | jpml_pros / jpml_test / jpml_titles |
 | `abs.twimg.com` | jpml_pros（11件）/ saikyo_results（2件）。データ側13件が残っている（#135） |
@@ -241,7 +241,7 @@ Google Charts依存の6ページ（ブラウザ側で描画するため上のコ
 | `league_ranking`（ランキング3ページ） | `division` / `name` |
 | `saikyo_results` | `name`（**移行済み**。バグ修正あり、下記参照） |
 | `saikyo_mens` | `name` / `tag`（**移行済み**） |
-| `rh_paifu` | `name`（**移行済み**） |
+| `rh_paifu` | `name`（**移行済み**。2026-11-06 にページを廃止、404、#673） |
 | `video_en` / `video_mtsuku` | `name`（**移行済み**） |
 | `wrc_results` | `name` |
 
