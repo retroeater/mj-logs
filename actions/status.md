@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-11-06 21:17 JST
+- 書き出した時刻: 2026-11-06 21:19 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -25,11 +25,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-06 21:18 | push | work/1106-lgv-event | success | #1034（42216601197） | 0分31秒 |
 | 2026-11-06 21:10 | push | work/1106-pfu | success | #1033（42215702527） | 0分27秒 |
 | 2026-11-06 21:05 | push | work/1106-pfu | success | #1032（42215025509） | 0分24秒 |
 | 2026-11-06 21:05 | push | work/1106-dcr | success | #1031（42215003786） | 0分28秒 |
 | 2026-11-06 21:01 | push | work/1106-dcr | success | #1030（42214540944） | 0分32秒 |
-| 2026-11-06 20:59 | push | work/1105-lgv-amp | success | #1029（42214241572） | 0分32秒 |
 
 ## check-build-failure.yml
 
@@ -129,14 +129,13 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-06 21:18 | workflow_dispatch | work/1106-lgv-event | success | #66（42216605501） | 0分38秒 |
 | 2026-11-05 00:20 | workflow_dispatch | work/1104-lgf-stations | success | #65（41856625346） | 0分38秒 |
 | 2026-11-04 16:11 | workflow_dispatch | work/1104-lgn-closed | success | #64（41790522109） | 0分35秒 |
 | 2026-11-04 16:08 | workflow_dispatch | work/1104-lgn-closed | success | #63（41790170439） | 0分31秒 |
 | 2026-11-04 12:43 | workflow_dispatch | cloudflare | failure | #62（41768833961） | 5分46秒 |
-| 2026-11-04 12:33 | workflow_dispatch | cloudflare | failure | #61（41767827901） | 7分30秒 |
 
 - #62 failure: ジョブ「convert」 ステップ「実行」
-- #61 failure: ジョブ「convert」 ステップ「実行」
 
 ## fetch-gsc.yml
 
@@ -201,7 +200,7 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-11-06 21:13 | push | cloudflare | in_progress | #786（42216060946） |  |
+| 2026-11-06 21:13 | push | cloudflare | success | #786（42216060946） | 2分34秒 |
 | 2026-11-06 21:10 | workflow_dispatch | work/1106-pfu | success | #785（42215707442） | 1分06秒 |
 | 2026-11-06 21:05 | workflow_dispatch | work/1106-pfu | success | #784（42215046711） | 4分21秒 |
 | 2026-11-06 21:03 | workflow_dispatch | work/1106-dcr | success | #783（42214759444） | 0分41秒 |
