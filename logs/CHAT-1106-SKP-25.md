@@ -111,6 +111,47 @@ regenerate-page.yml（ref work/1106-skp-abema-p31、target_page saikyo_pages、c
 - 結果: `saikyo_pages: 通る(--check)`。止まる理由 0、`::warning::`・警告の行 0
 - 参考の出力: 動画URLのある卓 615（作業ブランチの生成は今の【2】を読むので update 前の値）、年度・対局・卓のページ 882件、「連盟プロ以外」で名前かなが空 16名、写真URLがXのデフォルトアイコンだった行 3件（どちらも以前からの情報の行で、止まる理由・警告ではない）、Sheets API の上限の待ち 0 回
 
+### 手順3 本番への反映
+
+regenerate-saikyo.yml（ref cloudflare、abema update、regenerate true）: 1回目の起動は MCP が「upstream connect error … remote connection failure」で失敗（run 一覧に新しい実行が無いことを確かめてから）、2回目で起動。run 42209205959、11:18:00Z〜11:19:37Z、success（abema success・regenerate / regenerate success）。並走する再生成は無し。
+
+- abema（job 127863389977）: 【2】714 行（卓 647・なし 67）、回が当たった卓 618 / 647（2026 は 33/35）、なしの理由は dry_run と同じ。「【2】最強戦 を書きました。【3】手動補正: 入力あり(書いていません)」。注釈: 新しい回: 無し（既にある回 68-38_s26_p33 200、p34〜p39 404）
+- regenerate（job 127863608719）: 動画URLのある卓 618（手順2の check の 615 から +3）。注釈は runner の移行の notice だけ。コミット fdd9f8891「chore: regenerate saikyo/ via GitHub Actions」を cloudflare に push
+- Workers Builds: mj の check-run は fdd9f8891 で success（11:19:59Z）
+
+再生成のコミット fdd9f8891 の変更ファイル（126）の分類:
+
+| 分類 | ファイル | 中身 |
+|---|---|---|
+| 超技巧合戦の3回 | saikyo/2026/20261101-s1-a.html | og:image・見出しの画像が作品の画像 → p31 のサムネイル、og:image:alt が卓の名前に、「▶ 再生」がライブ枠 → p31、見出しのリンク（p31）が増えた。下の関連の卓のカードの画像（作品の画像 → p32・p33） |
+| 超技巧合戦の3回 | saikyo/2026/20261101-s1-b.html | 同じ形で p32。カードは p31・p33 |
+| 超技巧合戦の3回 | saikyo/2026/20261101-s2.html | 同じ形で p33。「▶ 再生」と見出しのリンクが新たに付いた（前は動画の URL が無くボタン無し）。「司会・実況・解説」の節が新たに付いた（A・B卓は前から有り、今回変化なし）。カードは p31・p32 |
+| 超技巧合戦の3回 | ほかの年度・対局の卓のページ 122 | どの差分行も「関連の卓のカードの画像が作品の画像（series/68-38）→ p31/p32/p33 のサムネイル」の1行の置き換えだけ（機械で全行を照合: 置き換え p31 75・p32 61・p33 83、型に合わない行 0）。カードのリンク先と回の対応も照合した（p31 → 20261101-s1-a.html、p32 → -s1-b.html、p33 → -s2.html。3卓を含む 125 ファイルで 233 枚、食い違い 0）。同じ選手の出た卓のページに超技巧合戦の卓のカードが出ているため |
+| 超技巧合戦の3回 | sitemap-saikyo.xml | 変わった 125 ページの lastmod が 2026-11-05 → 2026-11-06（loc の集合は変わったページの集合と一致、ほかの行の変化なし） |
+| シート側のほかの変化 | なし | — |
+| 説明できない | なし | — |
+
+対局のページ 20261101.html は変わっていない（動画のカードを持たない型）。origin/cloudflare の saikyo/ に `abema.tv/channels/` を含むファイルは 0（`git grep`）。
+
+本番（`.html?v=skp25d`、UA mj-internal、Workers Builds の success の後 11:20Z 台）:
+
+| ページ | 「▶ 再生」 | 見出しの画像 | ライブ枠のリンク | 本番と fdd9f8891 |
+|---|---|---|---|---|
+| 20261101-s1-a.html（A卓） | https://abema.tv/video/episode/68-38_s26_p31 | programs/68-38_s26_p31/thumb001.png | 0 | バイト一致 |
+| 20261101-s1-b.html（B卓） | https://abema.tv/video/episode/68-38_s26_p32 | programs/68-38_s26_p32/thumb001.png | 0 | バイト一致 |
+| 20261101-s2.html（決勝） | https://abema.tv/video/episode/68-38_s26_p33 | programs/68-38_s26_p33/thumb001.png | 0 | バイト一致 |
+| 20261101.html（対局） | 無し（型どおり） | 無し | 0 | バイト一致 |
+
+サムネイル（UA mj-internal）:
+
+| 回 | 1280×720（見出し・og:image） | 640×360（カード） |
+|---|---|---|
+| p31 | 200 image/jpeg 102919 B | 200 image/jpeg 35732 B |
+| p32 | 200 image/jpeg 100089 B | 200 image/jpeg 35008 B |
+| p33 | 200 image/jpeg 94676 B | 200 image/jpeg 34150 B |
+
+確かめたのは本番の HTML とサムネイルの応答まで。ブラウザでの見え方（画像の表示・ボタンの押下）はこのセッションからは確かめていない。
+
 <!-- guide-links -->
 ---
 
