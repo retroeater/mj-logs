@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-11-07 08:37 JST
+- 書き出した時刻: 2026-11-07 08:40 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -25,7 +25,7 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-11-07 08:37 | push | work/1107-lgv-notify | in_progress | #1040（42313103224） |  |
+| 2026-11-07 08:37 | push | work/1107-lgv-notify | success | #1040（42313103224） | 0分26秒 |
 | 2026-11-07 00:28 | push | work/1107-lgv-hide | success | #1039（42243422853） | 0分37秒 |
 | 2026-11-07 00:26 | push | work/1107-lgv-hide | success | #1038（42242991146） | 0分28秒 |
 | 2026-11-07 00:20 | push | work/1106-dcr | success | #1037（42242126364） | 0分32秒 |
@@ -38,11 +38,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-07 08:37 | check_run | cloudflare | skipped | #1372（42313157848） | 0分01秒 |
 | 2026-11-07 00:48 | check_run | cloudflare | skipped | #1371（42246439767） | 0分10秒 |
 | 2026-11-07 00:29 | check_run | cloudflare | skipped | #1370（42243524262） | 0分02秒 |
 | 2026-11-07 00:27 | check_run | cloudflare | skipped | #1369（42243150128） | 0分02秒 |
 | 2026-11-07 00:21 | check_run | cloudflare | skipped | #1368（42242239726） | 0分08秒 |
-| 2026-11-07 00:21 | check_run | cloudflare | skipped | #1367（42242223703） | 0分08秒 |
 
 ## check-image-links.yml
 
@@ -129,11 +129,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-07 08:37 | workflow_dispatch | work/1107-lgv-notify | success | #68（42313132948） | 0分33秒 |
 | 2026-11-07 00:29 | workflow_dispatch | work/1107-lgv-hide | success | #67（42243460253） | 0分33秒 |
 | 2026-11-06 21:18 | workflow_dispatch | work/1106-lgv-event | success | #66（42216605501） | 0分38秒 |
 | 2026-11-05 00:20 | workflow_dispatch | work/1104-lgf-stations | success | #65（41856625346） | 0分38秒 |
 | 2026-11-04 16:11 | workflow_dispatch | work/1104-lgn-closed | success | #64（41790522109） | 0分35秒 |
-| 2026-11-04 16:08 | workflow_dispatch | work/1104-lgn-closed | success | #63（41790170439） | 0分31秒 |
 
 ## fetch-gsc.yml
 
@@ -263,7 +263,7 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-11-07 08:37 | workflow_dispatch | work/1107-lgv-notify | pending | #7（42313135911） |  |
+| 2026-11-07 08:37 | workflow_dispatch | work/1107-lgv-notify | success | #7（42313135911） | 1分23秒 |
 | 2026-11-04 12:23 | workflow_dispatch | work/1104-lgn-closed | success | #6（41766859486） | 1分04秒 |
 | 2026-11-01 08:53 | workflow_dispatch | work/1101-wkp | success | #5（41254397984） | 1分29秒 |
 | 2026-11-01 03:00 | workflow_dispatch | cloudflare | failure | #4（41227250544） | 1分08秒 |
