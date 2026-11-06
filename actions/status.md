@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-11-07 08:35 JST
+- 書き出した時刻: 2026-11-07 08:37 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -25,11 +25,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-07 08:37 | push | work/1107-lgv-notify | in_progress | #1040（42313103224） |  |
 | 2026-11-07 00:28 | push | work/1107-lgv-hide | success | #1039（42243422853） | 0分37秒 |
 | 2026-11-07 00:26 | push | work/1107-lgv-hide | success | #1038（42242991146） | 0分28秒 |
 | 2026-11-07 00:20 | push | work/1106-dcr | success | #1037（42242126364） | 0分32秒 |
 | 2026-11-07 00:16 | push | work/1106-dcr | success | #1036（42241576984） | 0分28秒 |
-| 2026-11-06 21:21 | push | work/1106-lgv-event | success | #1035（42216982591） | 0分25秒 |
 
 ## check-build-failure.yml
 
@@ -263,14 +263,13 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-07 08:37 | workflow_dispatch | work/1107-lgv-notify | pending | #7（42313135911） |  |
 | 2026-11-04 12:23 | workflow_dispatch | work/1104-lgn-closed | success | #6（41766859486） | 1分04秒 |
 | 2026-11-01 08:53 | workflow_dispatch | work/1101-wkp | success | #5（41254397984） | 1分29秒 |
 | 2026-11-01 03:00 | workflow_dispatch | cloudflare | failure | #4（41227250544） | 1分08秒 |
 | 2026-10-29 10:12 | workflow_dispatch | work/1028-lgn | success | #3（40799028863） | 0分29秒 |
-| 2026-10-29 10:07 | workflow_dispatch | work/1028-lgn | cancelled | #2（40798423892） | 0分29秒 |
 
 - #4 failure: ジョブ「redirects / fetch」 ステップ「コミットしてpush」
-- #2 cancelled: ジョブ「logplaces / convert」
 
 ## run-weekly.yml
 
