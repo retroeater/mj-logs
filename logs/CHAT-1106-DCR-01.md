@@ -55,6 +55,39 @@
 - 0. 指示欄の末尾の行は「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」で、指示文の最後の行と一致
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 4行ともあり
 
+### 手順1: 重なりの確認
+
+- issue: `search/issues`（辞書・resource_dictionary・dictionary）で同じ論点の open issue は無し。前回の見た目の刷新 #522・#515・#377 は closed。#535（iPhone 向けの形式）は open だが論点が別
+  → #672 を起票（対象: resource_dictionary・分野: UI/UX・状況: 対応中）、着手中コメントを付けた
+- #296 の子にしない: #296 の本文「新サイト送りにするとき・やめるとき」は「新サイトで対応として保留にする issue」を子にする手順。今回は現行サイトで見た目を直す作業で保留ではないため
+- 未マージのブランチ（`git branch -r --no-merged origin/cloudflare` の work/ 7本）と `navbar.js`・`resource_dictionary.*`・`scripts/generate_resource_dictionary.py`・`assets/nav.js`・`style.css` の `git diff --stat origin/cloudflare...<branch>`:
+  `work/1101-prp-pub` だけが `navbar.js`（ドロップダウンの連盟プロの href と `/pro/` の分岐のコメント、2行）と `style.css`（pro/ の節のコメント1行）を変える。
+  今回の分岐は `/log/` の分岐の直後に足し、`/pro/` の行とは離れている（同じ行ではない。止まらずに記録）
+- log/ の実物（`log/index.html`）: 枠は `.mj-race.mj-houou.mj-log`、題名は `h1.mj-race-title`（28px 太字）、説明文は枠の外の `.mj-lead`。新サイトの色 `--mj-n-*` と暗い配色は `style.css` の `:root:has(.mj-houou, …)` に置かれ、地は `body:has(.mj-houou)`。前提と食い違いなし
+- 前提「`--mj-n-*` が特定の body クラスにしか無ければ当て方を選ぶ」: `:root:has(.mj-houou)` で当たるので、枠に `.mj-race.mj-houou` を付けるだけで足り、`style.css` は変えない
+
+### 手順2: 実装
+
+- 修正前の基準: ローカルの `python3 -m http.server` で修正前のページを開き、Playwright で3形式を保存（`before/`）。`generate_resource_dictionary.py --check` はこの環境に `SHEETS_READER_SA_KEY` が無く読めない（ワークフローで回す）
+- `scripts/generate_resource_dictionary.py`: 枠の div に `mj-race mj-houou` を足し、非表示の h1 を枠の中の先頭へ移した（文言は変えない）。形式のボタンの中を「名前・環境」の body と右端の灰色の保存の印（下向きの矢印の SVG、`aria-hidden`）にした
+- `resource_dictionary.css`: カード・影・黒塗りのボタンをやめ、見出し「辞書ダウンロード」を題名の形（28px 太字・左寄せ）、形式のボタン3つを1枚の面（`--mj-n-surface`・角丸 12px・影なし）の中の行（44px 以上・区切り線・押すと `--mj-n-pressed`）にした。登録方法は同じ面の中、押した行のすぐ下に出る。説明文の幅の独自規則は消し、`style.css` の `body:has(.mj-houou) .mj-lead`（400px）に任せた
+- `navbar.js`: `location.pathname === '/resource_dictionary.html'` の分岐を `/log/` の直後に足し `newNavCurrent = 'リソース'`。`html_handling: "none"` なのでパスは `.html` 付きのまま
+- `scripts/tests/test_new_site_column.py`: navbar.js の分岐を読む検査（`test_navbar_branches_are_all_read`）が 13 != 14 で落ちた（新しい書き方のパスの一致を読まない）。`PATH_EXACT` を足して読ませ、新サイトの形のページの判定にも入れた。
+  あわせて「本文の列が 400px の中央寄せ」の検査が `/resource_dictionary.html` を拾い、`<main>` の最初の要素が非表示の h1 で落ちたため、h1 を枠の中へ移した
+- 生成: シートを読めないので、手元の `dic/*.json` から `render_page()` で組み立てた（scratchpad の `render_local.py`）。HTML の差分は枠の div・h1 の位置・ボタンの中だけで、語数（1,869語）・description は不変
+- ボタンの形は「面の中の行」の案にした（縦3つのボタンを色・角丸だけそろえる案ではない）
+- 1回目のスクリーンショットで、ボタンどうしの区切り線が出ていなかった（`.mj-dic-formats > * + *` と `.mj-dic-btn { border: 0 }` が同じ詳細度で後者が勝つ）→ `.mj-dic .mj-dic-formats > * + *` にして直した
+- テスト: `python3 -m unittest discover -s scripts/tests` → Ran 2034 tests OK
+
+### 手順3: 確かめ（ローカル、Playwright、UA に mj-internal）
+
+- 3形式の保存: 修正後も `[data-dic-format]` を押すと保存され、保存名は `20261106_MSIME_麻雀用語辞書.txt`・`20261106_Google日本語入力_麻雀用語辞書.txt`・`20261106_Gboard_麻雀用語辞書.zip`（JS は変えていない）
+- 中身: Microsoft IME・Google 日本語入力は修正前とバイト一致（`cmp`）。Gboard の zip は2か所（11 バイト目・72115 バイト目）だけ違い、どちらも zip の時刻欄（JS が保存した時刻を書く）。展開した `dictionary.txt` は一致
+- 横スクロール: 360・390・1280px の明暗で `document.documentElement.scrollWidth` が画面幅と同じ（はみ出しなし）
+- スクリーンショットで見た点: 白地（暗い配色は黒地）の新しいナビの帯、題名「辞書ダウンロード」、面の中の3行（名前は本文色・環境は灰色・右に灰色の保存の印・行の間の線）、保存後に押した行の下に「辞書ファイルをダウンロードしました。」と登録方法・公式ヘルプのリンク（紺、暗い配色は明るい青）、説明文は 400px の列で灰色。1280px でも 400px の列が中央
+- ≡ のシート: 「リソース」のまとまりの「辞書」が太字の紺（`aria-current="true"` は「辞書」のリンク1つ）。log/ でも同じく `aria-current` はシートの「ログ」1つで、同じ挙動
+- 暗い配色の説明文の上の線が明るい灰色（#e5e5e5）なのは `.mj-lead` の共通の規則で、houou/ でも同じ（`getComputedStyle` で rgb(229, 229, 229)）。今回は変えない
+
 ## 報告
 
 - 状態: 中断（作業中）
@@ -71,12 +104,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 021cf833）: https://github.com/retroeater/mj-logs/tree/main/guide/021cf833
+ガイド文書（この版を写した時点の最新、mj 82fe7190）: https://github.com/retroeater/mj-logs/tree/main/guide/82fe7190
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/021cf833/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/021cf833/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/021cf833/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/021cf833/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/021cf833/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/021cf833/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/021cf833.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/82fe7190/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/82fe7190/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/82fe7190/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/82fe7190/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/82fe7190/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/82fe7190/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/82fe7190.md

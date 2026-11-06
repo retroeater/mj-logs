@@ -87,14 +87,21 @@ CHAT-1105-LGV-03 の直し（生成と変換で HTML の文字参照を元の文
   - `<` `>`: 0個。文字参照の形の値: 0件
 - マージの後、`scripts/generate_log_pages.py` の push の検知で cloudflare の `log/` が再生成される（その時点のシートで生成し、取り込みの差が入りうる）
 
+### 3. マージと後の確かめ
+
+- push の直前に `git fetch origin cloudflare` と `git merge-base --is-ancestor origin/cloudflare HEAD`（真）を確かめ、`git push origin work/1105-lgv-amp:cloudflare`（021cf8330..82fe71906）
+- 82fe71906 の check-run: Workers Builds: mj success・Workers Builds: mj-ask success・regenerate success・notify skipped（2件）
+- push で走ったワークフロー: 「ページの再生成」success（`scripts/generate_log_pages.py` の変更の検知）・「本番ビルド失敗の検知」skipped（2件）。再生成は生成物に差が無く、コミットは無い（82fe71906 の後に cloudflare へのコミットは無し）。毎朝の取り込みの差も無かった
+- 本番 `https://ryoei.pro/log/search.json?v=82fe71906`（UA に mj-internal、2026-11-06 21:01 JST）: place_id ChIJ0_RXpduMGGAR0YKe38aV2p8 の店名は「レディース&ジェントルメン」、文字参照の形の値 0件、`<` `>` 0個、店 1,737・投稿 2,425。ブラウザでの見え方は確かめていない（LGV-03 でプレビューのページは確かめた）
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1105-lgv-amp
-- ログ: https://github.com/retroeater/mj/blob/work/1105-lgv-amp/docs/logs/CHAT-1106-LGV-06.md
+- 状態: 完了
+- ブランチ: work/1105-lgv-amp（マージ済み。削除は cleanup-branches.yml）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1106-LGV-06.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1105-lgv-amp
-- 確認用URL: なし
-- マージ: 未
+- 確認用URL: なし（本番の search.json で確かめた）
+- マージ: 済（82fe71906）
 - issue: なし
 - 判断が必要なこと: なし
 - 未確認の項目: なし
