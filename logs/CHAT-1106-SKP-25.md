@@ -1,0 +1,70 @@
+# CHAT-1106-SKP-25
+
+- 着手日時: 2026-11-06
+- 対象issue: なし
+- ブランチ: work/1106-skp-abema-p31
+- 着手時HEAD: a293ffc38
+
+## 指示
+
+【Claude作成】Claude Code 向け指示：最強戦 超技巧合戦の卓ごとの動画（ABEMA 68-38_s26_p31〜p33）を再生成で本番に出し、「▶ 再生」を確かめる
+Chat-Ref: CHAT-1106-SKP-25
+マージ: ドキュメントのみ（ログ）なので完了報告のうえ cloudflare へ入れてよい（このセッションのコミットはログだけ。ページの再生成のコミットは regenerate-saikyo.yml が cloudflare へ入れる）
+貼る時機: いつでも
+共通手順: CLAUDE.md「Chat-Ref」「ブランチ運用」「作業ログ」節のとおり（識別子確認 → origin/cloudflare を起点に work/<識別子>〈手順は docs/notes/cloud-sessions.md〉 → ログ先行push → 最終報告の Chat-Ref の行の直前に「ログ（公開）」の行、最後の行に Chat-Ref）。平野さんは、この指示のための作業ブランチ work/<識別子> の作成と push を許可している（セッションに割り当てられた claude/… のブランチは使わない）。
+作業ブランチ: クラウドセッションで実行する。work/1106-skp-abema-p31 を使う。リモートに無ければ origin/cloudflare から作る。リモートにあってマージ済み（`git merge-base --is-ancestor origin/work/1106-skp-abema-p31 origin/cloudflare` が真）なら origin/cloudflare から作る（`checkout -B` は使わない。ローカルにあるときを含め手順は docs/notes/cloud-sessions.md「作業ブランチの用意」）。マージ済みでなければ止まる
+作業ブランチの片付け: 作業ブランチは削除しない。マージ済みなら cleanup-branches.yml が消す（docs/notes/cloud-sessions.md「ブランチの削除」）
+
+0. 着手前に、このログの「指示」欄の末尾が、この指示文の末尾（最後の行）と一致しているか確認し、一致しなければ作業せず報告する。
+
+## 目的
+ABEMA に最強戦2026「超技巧合戦」の卓ごとの動画（A卓・B卓・決勝卓）が出て、平野さんが ABEMA ブックへ取り込んだ。regenerate-saikyo.yml を手動実行して本番の卓のページに出し、3卓とも「▶ 再生」でその回を指していることを確かめる。
+
+### 決定（2026-11-06、平野さん）
+- 再生成は翌朝の自動を待たず、今夜 Code が regenerate-saikyo.yml を cloudflare で手動実行する（abema: update、再生成あり）。手順は カレンダーの【R#577】の 3 と同じ
+
+### 前提（チャット側。平野さんの決定ではない）
+- 平野さんの申告（未確認）: 2026-11-06 に、次の3回を ABEMA ブック【1】元データへ取り込み、その卓の【3】手動補正のライブ枠の行を消した
+  | 年度 | 回のID | URL | 題名 |
+  |---|---|---|---|
+  | 2026 | 68-38_s26_p31 | https://abema.tv/video/episode/68-38_s26_p31 | 麻雀最強戦2026 超技巧合戦 A卓 |
+  | 2026 | 68-38_s26_p32 | https://abema.tv/video/episode/68-38_s26_p32 | 麻雀最強戦2026 超技巧合戦 B卓 |
+  | 2026 | 68-38_s26_p33 | https://abema.tv/video/episode/68-38_s26_p33 | 麻雀最強戦2026 超技巧合戦 決勝卓 |
+- 仕組みは docs/notes/abema-book.md（毎朝の作り直し・割り当ての規則・生成の読み方）。【3】の空でない URL が【2】を上書きするので、【3】の行が残っていればライブ枠を指したままになる
+- 「最強戦」シートの超技巧合戦の対局日・卓のページのファイル名は確かめていない（要確認）。生成物（saikyo/2026/）から探す
+- 新しい回の検知（#572）は手動実行では #572 に知らせず実行サマリ・注釈に出るだけ。明日 11/07（土）04:00 の毎朝の運行で初めて予約の起動の検知が動く（この指示では触れない）
+- Sheets API の読み取りの上限（#662）があるので、再生成どうしを並走させない
+
+## 手順
+1. 下ごしらえ: `gh run list` で regenerate-saikyo.yml・regenerate-page.yml・run-daily.yml に実行中のものが無いことを確かめる（あれば終わるまで待つ。15分を超えたら止まる）。saikyo/2026/ の生成物から超技巧合戦の対局のページと3卓（A卓・B卓・決勝卓）の卓のページを特定し、今の「▶ 再生」/「ABEMA で見る」のリンク先を表にする（cloudflare の今の版と、本番を `?v=<未使用の値>` 付き・UA に `mj-internal` を含めて読んだ結果の両方）
+2. 確かめの実行: regenerate-saikyo.yml を ref cloudflare、abema: dry_run、再生成なしで手動実行し、ジョブ abema の注釈（check-run の annotations）と件数を、直前の abema: update の実行（毎朝の運行を含む）と並べて表にする。回が当たった卓の数が直前より 3 増えていなければ止まる（増えた数・当たらなかった回の理由を書く）。続けて regenerate-page.yml を作業ブランチの ref・入力 check で、対象を最強戦のページに絞って手動実行し（入力名は今のワークフローで確かめる）、止まる理由・警告を全部ログに書く。止まる理由があれば止まる
+3. 本番への反映: regenerate-saikyo.yml を ref cloudflare、abema: update、再生成ありで手動実行し、終わるまで待つ（合計30分まで延長してよい）。再生成のコミットの変更ファイルを全部一覧にし、それぞれを「超技巧合戦の3回」「シート側のほかの変化」「説明できない」に分ける。本番の手順1のページを `?v=<未使用の値>` 付きでもう一度読み、3卓の「▶ 再生」がそれぞれ p31・p32・p33 の URL を指し、ライブ枠（abema.tv/channels/…）のリンクが残っていないこと、サムネイルの画像 URL が HTTP 200 であることを表にする
+
+## 止まる条件
+- 手順2の dry_run で、回が当たった卓の増加が 3 でない、または p31〜p33 のどれかが「なし」に割り当たる
+- regenerate-page.yml の check に止まる理由がある
+- 手動実行のどれかが失敗した（手順3の前なら update は実行しない。原因をジョブのログから書く）
+- 手順3の後で 3卓のどれかが p31〜p33 以外（ライブ枠を含む）を指す。このときはコミットを戻さず、どの層（【2】か【3】）から来た値かを書いて止まる（【3】の行の残りが疑わしければ、行番号は書かず卓の鍵〈年度・対局日・対局・ステージ・卓〉で示す）
+- 「説明できない」変更ファイルがある（戻さず、一覧と理由の推定を書いて判断待ちにする）
+- 未マージの work/ ブランチが saikyo/ の生成・scripts/lib/abema_book.py・scripts/update_abema_book.py の同じ関数を変えている（`git branch -r --no-merged origin/cloudflare` から確かめる。別の箇所なら止まらずログに書く）
+- cloudflare への push が権限判定で拒否された（別の手段を試さずに止まる）
+
+## 完了条件
+- ログの「## 報告」を CLAUDE.md「作業ログ」節のとおりに書いて push する。issue: なし（issue は変えない）
+- マージは冒頭の「マージ:」の行のとおり
+- ターミナルへの最終報告の Chat-Ref の行の直前に ログ（公開）: https://github.com/retroeater/mj-logs/blob/main/logs/CHAT-1106-SKP-25.md?v=<SHA>（CLAUDE.md「作業ログ」節）を書き、最後の行に Chat-Ref: CHAT-1106-SKP-25 を書く
+
+不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
+
+<!-- guide-links -->
+---
+
+ガイド文書（この版を写した時点の最新、mj a293ffc3）: https://github.com/retroeater/mj-logs/tree/main/guide/a293ffc3
+
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a293ffc3/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a293ffc3/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a293ffc3/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a293ffc3/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a293ffc3/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a293ffc3/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a293ffc3.md
