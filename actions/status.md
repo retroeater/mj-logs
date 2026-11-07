@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-11-07 11:23 JST
+- 書き出した時刻: 2026-11-07 11:25 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -25,11 +25,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-07 11:25 | push | work/1107-lgv-check | in_progress | #1046（42329177464） |  |
+| 2026-11-07 11:24 | push | work/1107-lgv-check | success | #1045（42329053287） | 0分27秒 |
 | 2026-11-07 10:23 | push | work/1107-pfu | success | #1044（42323851425） | 0分37秒 |
 | 2026-11-07 10:18 | push | work/1107-pfu | success | #1043（42323372394） | 0分29秒 |
 | 2026-11-07 10:15 | push | work/1107-pfu | success | #1042（42323103729） | 0分28秒 |
-| 2026-11-07 08:40 | push | work/1107-lgv-notify | success | #1041（42313428779） | 0分23秒 |
-| 2026-11-07 08:37 | push | work/1107-lgv-notify | success | #1040（42313103224） | 0分26秒 |
 
 ## check-build-failure.yml
 
@@ -38,11 +38,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-07 11:24 | check_run | cloudflare | skipped | #1379（42329094003） | 0分09秒 |
 | 2026-11-07 10:24 | check_run | cloudflare | skipped | #1378（42323910373） | 0分02秒 |
 | 2026-11-07 10:24 | check_run | cloudflare | skipped | #1377（42323888602） | 0分01秒 |
 | 2026-11-07 10:19 | check_run | cloudflare | skipped | #1376（42323435780） | 0分09秒 |
 | 2026-11-07 10:16 | check_run | cloudflare | skipped | #1375（42323150087） | 0分02秒 |
-| 2026-11-07 10:04 | check_run | cloudflare | skipped | #1374（42321983994） | 0分08秒 |
 
 ## check-image-links.yml
 
@@ -90,7 +90,7 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-11-07 11:22 | workflow_dispatch | work/1107-pfu | in_progress | #13（42328892598） |  |
+| 2026-11-07 11:22 | workflow_dispatch | work/1107-pfu | success | #13（42328892598） | 2分16秒 |
 | 2026-11-07 09:58 | workflow_dispatch | work/1107-pfu | success | #12（42321446032） | 2分10秒 |
 | 2026-11-04 18:30 | workflow_dispatch | work/1104-lgf-tidy | success | #11（41808024787） | 2分09秒 |
 | 2026-11-02 08:40 | workflow_dispatch | work/1102-nod | success | #10（41363268423） | 1分06秒 |
@@ -129,11 +129,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-07 11:25 | workflow_dispatch | work/1107-lgv-check | in_progress | #70（42329180438） |  |
+| 2026-11-07 11:24 | workflow_dispatch | work/1107-lgv-check | success | #69（42329055502） | 0分31秒 |
 | 2026-11-07 08:37 | workflow_dispatch | work/1107-lgv-notify | success | #68（42313132948） | 0分33秒 |
 | 2026-11-07 00:29 | workflow_dispatch | work/1107-lgv-hide | success | #67（42243460253） | 0分33秒 |
 | 2026-11-06 21:18 | workflow_dispatch | work/1106-lgv-event | success | #66（42216605501） | 0分38秒 |
-| 2026-11-05 00:20 | workflow_dispatch | work/1104-lgf-stations | success | #65（41856625346） | 0分38秒 |
-| 2026-11-04 16:11 | workflow_dispatch | work/1104-lgn-closed | success | #64（41790522109） | 0分35秒 |
 
 ## fetch-gsc.yml
 
