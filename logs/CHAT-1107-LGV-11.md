@@ -78,14 +78,21 @@ CHAT-1107-LGV-10 の変更（毎月の催事の一覧から閉業の店の投稿
 
 （範囲の中）
 
+### 3. マージと後の確かめ
+
+- 1回目の push の確かめで cloudflare が進んでいた（3f27cc46d、PFU-02 のログ）ので、もう一度 `git merge origin/cloudflare`（衝突なし）。push の直前に `git fetch origin cloudflare` と `git merge-base --is-ancestor origin/cloudflare HEAD`（真）を確かめ、`git push origin work/1107-lgv-notify:cloudflare`（3f27cc46d..1e1ee61d4）
+- 1e1ee61d4 の check-run: Workers Builds: mj success・notify skipped
+- push で走ったワークフロー: 「本番ビルド失敗の検知」skipped（ビルドが成功したため）だけ。「ページの再生成」は走らない（`scripts/convert_x_posts.py` は検知の対象〈`generate_*.py`・`scripts/lib/`〉の外）。生成物は変わらず、1e1ee61d4 の後に cloudflare へのコミットは無い
+- 本番の初回は 2026-12-01 02:00 JST の run-monthly（closed と closed-issue）。結果はチャット側がカレンダー 2026-12-01【R#664】の確かめで見る（前提）
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1107-lgv-notify
-- ログ: https://github.com/retroeater/mj/blob/work/1107-lgv-notify/docs/logs/CHAT-1107-LGV-11.md
+- 状態: 完了
+- ブランチ: work/1107-lgv-notify（マージ済み。削除は cleanup-branches.yml）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1107-LGV-11.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1107-lgv-notify
 - 確認用URL: なし
-- マージ: 未
+- マージ: 済（1e1ee61d4）
 - issue: なし
 - 判断が必要なこと: なし
 - 未確認の項目: なし
