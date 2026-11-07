@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-11-07 10:19 JST
+- 書き出した時刻: 2026-11-07 10:22 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -198,11 +198,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-11-07 10:18 | workflow_dispatch | work/1107-pfu | pending | #796（42323380419） |  |
-| 2026-11-07 10:18 | workflow_dispatch | work/1107-pfu | in_progress | #795（42323378107） |  |
+| 2026-11-07 10:20 | workflow_dispatch | work/1107-pfu | in_progress | #797（42323582921） |  |
+| 2026-11-07 10:18 | workflow_dispatch | work/1107-pfu | success | #796（42323380419） | 1分12秒 |
+| 2026-11-07 10:18 | workflow_dispatch | work/1107-pfu | success | #795（42323378107） | 0分41秒 |
 | 2026-11-07 09:57 | workflow_dispatch | work/1107-pfu | success | #794（42321325475） | 0分52秒 |
 | 2026-11-07 09:57 | workflow_dispatch | work/1107-pfu | success | #793（42321313231） | 0分33秒 |
-| 2026-11-07 00:46 | push | cloudflare | success | #792（42246212834） | 0分55秒 |
 
 ## regenerate-saikyo.yml
 
