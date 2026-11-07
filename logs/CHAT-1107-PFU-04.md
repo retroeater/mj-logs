@@ -57,6 +57,43 @@
 
 ## 経過
 
+### 着手前の確認
+
+- 0. 「指示」欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 欠けなし
+- 同じ Chat-Ref のコミット・ログ: 0件（PFU は同じチャットの4本目）
+- 作業ブランチ: ローカルの `work/1107-pfu` は origin/cloudflare の祖先・リモートもマージ済み → `git checkout work/1107-pfu`（済）・`git merge --ff-only origin/cloudflare`（Already up to date、8dfc39bf7）
+- 指示文の issue #674 は open（PFU-03 で起票、「状況: 待ち」）。着手中のコメントを残した
+
+### 手順1
+
+- 未マージの work/ ブランチ（1009-swp-526・1011-swp-hnd・1011-swp-nav・1015-skd-notes・1101-prp-pub・1103-ryo5）: どれも `generate_rh_results.py`・`generate_rh_results_detail.py`・`check_sheets_reader.py` を変えていない（`git diff --name-only origin/cloudflare...<branch> -- <3ファイル>` が空）
+- `check-sheets-reader.yml`（work/1107-pfu、run 42328892598、success）:
+  - **mj_ryoei: 読めない。** sheets-reader の spreadsheets.get が「HTTP 403 PERMISSION_DENIED The caller does not have permission」、ログインなしの gviz・htmlview は HTTP 401（判定「sheets-reader で読めない」）。PFU-02 の時点（2026-11-07 朝）は読めてタブは「成績」「成績詳細」だった。ブックごと消したのか、共有を外したのかは、ここからは分からない（403 は権限が無いときの応答で、どちらでも起こりうる）
+  - R_タイトル戦_成績（`houou_tab.SPREADSHEET_ID`）: sheets-reader で成功。タブは 対局 2339×10・鳳凰 16012×24・桜花 1720×18・JWRC 1678×12・WRCR 1000×12・最強戦 2745×10・**良栄 322行×20列**（values.get も 322行・20列）
+  - 「良栄」の見出し（1行目の全セル。check_sheets_reader はセルの文字を出さないので、手順3の `--check` で `generate_rh_results_detail.py` が出した行）: **日付 / ID / 団体 / タイトル / 対局 / 対局者 / 対局者1 / 対局者2 / 対局者3 / 対局者4 / 着順 / 得点 / 結果 / twitter_url / 表示 / 1着 / 2着 / 3着 / 4着 / 合計**（20列。チャット側の見込みと同じ。生成に要る見出しはすべて1つずつある）
+- `git grep`（除外: docs/logs・handover-archive・docs/decisions の過去の行）で mj_ryoei の ID・題と「成績詳細」のシート名を読む処理: `scripts/generate_rh_results.py:28`（`SPREADSHEET_ID`）・`scripts/generate_rh_results_detail.py:33`（`SPREADSHEET_ID`）・`:34`（`SHEET_NAME = "成績詳細"`）・`scripts/check_sheets_reader.py:43`（BOOKS の mj_ryoei）だけ。ほかに出た「成績詳細」は表示の文字（assets/league.js:501 の題・navbar.js:57・world.js:911・generate_ryoei_pages.py:85,268 のリンクの題・テストのコメント）で、シートを読まない
+
+### 手順2
+
+- `scripts/generate_rh_results.py`: ID は `from lib.houou_tab import SPREADSHEET_ID`（check_sheets_reader が「R_タイトル戦_成績」として挙げる定数。ID を新しく書いていない）。`SHEET_NAME = "良栄"`。既存の `sheets.fetch_columns(SPREADSHEET_ID, "良栄", ("日付", "ID", "着順", "得点"), ("表示", "Y"))` で見出しの名前で読む（欠け・重なりは `header_indexes()` が止める）。集計は PFU-03 のまま
+- `scripts/generate_rh_results_detail.py`: 同じ定数と「良栄」。表示の文字が要る（得点の「13.0」など）ので、見出しは `fetch_table()`、行は `fetch_sheet(..., "SELECT *", formatted=True)` から取り、`header_indexes()` で 日付・団体・タイトル・対局・対局者・着順・得点・結果・twitter_url と「表示」の位置を引いて、表示が Y の行だけにする。page.generate()/check_rows() は問い合わせ文（列記号）で読むので、同じ流れ（取得・行の組み立て・render・--check）をこのスクリプトに持った。`--check` と生成で見出しの一覧を1行出す
+- `scripts/lib/` は変えていない（全ページの再生成の確かめは対象外）
+- `scripts/check_sheets_reader.py`: BOOKS から mj_ryoei を外し、コメントに理由を書いた。`test_check_sheets_reader.py` の専用フォルダのブックの数を 15 → 14 にした（自分の変更で落ちると分かっているテスト）
+- テスト: `test_rh_results.py` に見出しで読む呼び方・見出しの欠けと重なりで `--check` が止まることを足し（12件）、`test_rh_results_detail.py` を新しく足した（5件: 列の並びを逆にしても見出しで同じ値を読む・表示が Y の行だけ・「R_タイトル戦_成績」の「良栄」を読む・見出しの欠けと重なりで生成も `--check` も止まる・`--check` が通る／0件は警告）。`python3 -m unittest discover -s scripts/tests` → 2069件 OK
+- 文書: `docs/notes/static-generation.md` の型A' の行を新しい元データと読み方に直し、`docs/decisions/ryoei.md` に決定を足した
+- コミット: cba5e766f（scripts）・87ab93be2（docs）
+
+### 手順3: 確かめ
+
+旧コード（origin/cloudflare）は mj_ryoei を読む（403 で読めない）ので、`compare_ref` の比べは成り立たない。代わりに作業ブランチで本実行し、コミットができないこと（＝作った2ページが cloudflare のものとファイル全体で同じ）で確かめた。
+
+| run | 入力 | 結果 |
+|---|---|---|
+| 42329306740 | `target_page="rh_results rh_results_detail"`・`check=true` | success。rh_results「検査: 通りました(321件…)」・rh_results_detail「見出し: …（上の20列）」「検査: 通りました(321件…)」、「check: 止まるページなし」 |
+| 42329364494 | `target_page="rh_results rh_results_detail"`（本実行） | success。どちらも「321件取得しました」「…を更新しました」のあと、コミットの手順は「**変更なし**」（作業ブランチにコミットを作らなかった）。2ページとも cloudflare のもの（f451ca9f8 の毎朝の再生成）とファイル全体で同じなので、違う行は0行 |
+
+- Sheets API の呼び出しの回数: 1ページ目の rh_results で **合計 3（spreadsheets.get 1・values.get 2）**、2ページ目の rh_results_detail は **合計 0（キャッシュ 3 回）**。2ページで3回。「R_タイトル戦_成績」の「良栄」タブだけを読むので、ほかのタブ（鳳凰など）の読み取りは増えない
+
 ## 報告
 
 - 状態: 対応中
@@ -73,12 +110,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 8dfc39bf）: https://github.com/retroeater/mj-logs/tree/main/guide/8dfc39bf
+ガイド文書（この版を写した時点の最新、mj 1262cca8）: https://github.com/retroeater/mj-logs/tree/main/guide/1262cca8
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/8dfc39bf/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/8dfc39bf/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/8dfc39bf/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8dfc39bf/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8dfc39bf/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8dfc39bf/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/1262cca8/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/1262cca8/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/1262cca8/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/1262cca8/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/1262cca8/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/1262cca8/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/f451ca9f.md
