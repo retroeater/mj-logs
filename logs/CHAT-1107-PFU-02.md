@@ -153,7 +153,7 @@
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1107-PFU-03
 - ブランチ: work/1107-pfu
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1107-PFU-02.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1107-pfu
