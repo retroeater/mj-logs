@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-11-07 09:58 JST
+- 書き出した時刻: 2026-11-07 10:01 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -90,11 +90,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-07 09:58 | workflow_dispatch | work/1107-pfu | in_progress | #12（42321446032） |  |
 | 2026-11-04 18:30 | workflow_dispatch | work/1104-lgf-tidy | success | #11（41808024787） | 2分09秒 |
 | 2026-11-02 08:40 | workflow_dispatch | work/1102-nod | success | #10（41363268423） | 1分06秒 |
 | 2026-10-31 10:11 | workflow_dispatch | work/1031-rsc | success | #9（41154084914） | 1分27秒 |
 | 2026-10-31 10:09 | workflow_dispatch | work/1031-rsc | success | #8（41153947855） | 1分13秒 |
-| 2026-10-23 11:36 | workflow_dispatch | work/1023-srg | success | #7（39890529981） | 2分10秒 |
 
 ## cleanup-branches.yml
 
@@ -198,7 +198,7 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-11-07 09:57 | workflow_dispatch | work/1107-pfu | in_progress | #794（42321325475） |  |
+| 2026-11-07 09:57 | workflow_dispatch | work/1107-pfu | success | #794（42321325475） | 0分52秒 |
 | 2026-11-07 09:57 | workflow_dispatch | work/1107-pfu | success | #793（42321313231） | 0分33秒 |
 | 2026-11-07 00:46 | push | cloudflare | success | #792（42246212834） | 0分55秒 |
 | 2026-11-07 00:29 | workflow_dispatch | work/1107-lgv-hide | success | #791（42243454729） | 1分08秒 |
