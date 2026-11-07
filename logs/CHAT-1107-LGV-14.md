@@ -68,14 +68,21 @@ CHAT-1107-LGV-13 の変更（`HIDDEN_POSTS` の19件、再掲の語、`WORD_ALLO
 - `git diff --stat origin/cloudflare...HEAD`: .github/workflows/convert-x-posts.yml・.github/workflows/run-monthly.yml・docs/decisions/operations.md・docs/logs/CHAT-1107-LGV-12.md・docs/logs/CHAT-1107-LGV-13.md・docs/logs/CHAT-1107-LGV-14.md・docs/notes/github-actions.md・docs/notes/log-page.md・log/index.html・log/search.json・scripts/convert_x_posts.py・scripts/generate_log_pages.py・scripts/tests/test_convert_x_posts.py・scripts/tests/test_log_pages.py（14ファイル）
 - `log/search.json` の cloudflare（82a75fac9 の生成）との差: 店 1,721 → 1,718・投稿 2,407 → 2,388。外れた投稿は LGV-13 の (b) の19件と一致。増えた投稿は0
 
+### 3. マージと後の確かめ
+
+- push の直前に `git fetch origin cloudflare` と `git merge-base --is-ancestor origin/cloudflare HEAD`（真）を確かめ、`git push origin work/1107-lgv-repost:cloudflare`（83dbf9aad..a2e786916）
+- a2e786916 の check-run: Workers Builds: mj success・regenerate success・sync success・notify skipped
+- push で走ったワークフロー: 「ページの再生成」success（`scripts/generate_log_pages.py` の変更の検知）・「サイトマップの lastmod の同期」success・「本番ビルド失敗の検知」skipped（ビルドが成功したため）。再生成は生成物に差が無く、コミットは無い（a2e786916 の後に cloudflare へのコミットは無し。毎朝の取り込みの差も無かった）
+- 本番 `https://ryoei.pro/log/search.json?v=a2e786916`（UA に mj-internal、2026-11-07 12:38 JST）: 店 1,718・投稿 2,388。`ChIJQbWaOxiNGGAR2Wr2BfXxEU8` は「やまぐち」・西早稲田・投稿1件（2026-07-16 · 谷岡育夫）。`ChIJs9lZQwCLGGARB52nqWASVr8` は「すぎだま」・投稿2件。`ChIJHS8Vi9KNGGARPcMp59xBpUo`（Rock'anDo 六感堂）の投稿は1件（2026-05-03）。プレビューと同じ。ブラウザでの見え方は確かめていない
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1107-lgv-repost
-- ログ: https://github.com/retroeater/mj/blob/work/1107-lgv-repost/docs/logs/CHAT-1107-LGV-14.md
+- 状態: 完了
+- ブランチ: work/1107-lgv-repost（マージ済み。削除は cleanup-branches.yml）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1107-LGV-14.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1107-lgv-repost
-- 確認用URL: なし
-- マージ: 未
+- 確認用URL: なし（本番の search.json で確かめた）
+- マージ: 済（a2e786916）
 - issue: #636（参照）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
