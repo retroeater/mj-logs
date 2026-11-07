@@ -94,15 +94,33 @@
 
 - Sheets API の呼び出しの回数: 1ページ目の rh_results で **合計 3（spreadsheets.get 1・values.get 2）**、2ページ目の rh_results_detail は **合計 0（キャッシュ 3 回）**。2ページで3回。「R_タイトル戦_成績」の「良栄」タブだけを読むので、ほかのタブ（鳳凰など）の読み取りは増えない
 
+### 差分の自己レビュー（新しい文脈のサブエージェント、1回）
+
+| 指摘 | 扱い |
+|---|---|
+| rh_results_detail は「表示」を前後の空白を落とした表示の文字で比べ、rh_results（fetch_columns）は落とす前の生の値で比べる。「Y 」のときだけ2ページの対象行が食い違う | 意図どおり（今の公開の関数で生の値のまま比べられるのは fetch_columns だけで、表示の文字が要る detail には使えない。scripts/lib を変えない）。違いをコメントに1行残した（コミット下） |
+| テストの _select の差し替えが formatted に関わらず同じ行を返し、「行は表示の文字から取る」を検査していない | 直した（`test_cells_are_the_shown_text`: 生の値 13.0・表示 "13.0" を別に返し、"13.0" が出ることを確かめる。fetch_table の行を使う誤りなら落ちる） |
+| --check と生成の出力に「見出し: …」の行が増える | 意図どおり（この指示で「良栄」の見出しの全セルを記録するのに使った。終了コード・止まる理由の拾い方〈find_stops・find_warnings〉には影響しない） |
+| build・run_check・main が page.generate()/check_rows() を写した形 | 意図どおり（generate/check_rows は列記号の問い合わせ文で読むので、見出しで選ぶには scripts/lib を変える必要がある） |
+
+レビューの確かめ（要点）: fetch_table と fetch_sheet('SELECT *', formatted=True) はどちらも同じ _select（同じキャッシュの raw・shown から同じ空行の除き方・列の幅）を通るので、見出しと行はずれない。HTML・--check の形・終了コードは旧版と同じ。テスト 2069件 → 直した後 2070件 OK。
+
+### マージ
+
+- origin/cloudflare（1262cca8b、convert_x_posts とログのコミット）を取り込み（衝突なし、テスト 2070件 OK）。push 直前に再 fetch して `git merge-base --is-ancestor origin/cloudflare HEAD` が真。`git push origin work/1107-pfu:cloudflare` → `1262cca8b..a64ecd9a4`
+- a64ecd9a4 の check-run: Workers Builds: mj success・regenerate success・notify skipped
+- push で動いた「ページの再生成」（run 42329744715）: 対象 rh_results, rh_results_detail。どちらも「321件取得しました」、Sheets API は合計 3（spreadsheets.get 1・values.get 2）と合計 0（キャッシュ 3 回）。コミットの手順は「変更なし」（2ページを変えるコミットを作らなかった）
+- #674 に結果（mj_ryoei の状態を含む）をコメントし、「状況: 待ち」を外してクローズした
+
 ## 報告
 
-- 状態: 対応中
+- 状態: 完了
 - ブランチ: work/1107-pfu
-- ログ: https://github.com/retroeater/mj/blob/work/1107-pfu/docs/logs/CHAT-1107-PFU-04.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1107-PFU-04.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1107-pfu
-- 確認用URL: なし
-- マージ: 未
-- issue: #674
+- 確認用URL: なし（ページの中身は変わらない。作業ブランチの本実行とマージ後の再生成の「変更なし」で、2ページとも今のものとファイル全体で同じことを確かめた）
+- マージ: 済（a64ecd9a4、範囲 1262cca8b..a64ecd9a4）
+- issue: #674（結果をコメントしてクローズ、「状況:」ラベルを外した）。mj_ryoei は読めない（sheets-reader で HTTP 403 PERMISSION_DENIED、ログインなしで 401。ブックごと消したか共有を外したかはここからは分からない）ので、check_sheets_reader.py の BOOKS から外した。「良栄」の見出しは 日付 / ID / 団体 / タイトル / 対局 / 対局者 / 対局者1 / 対局者2 / 対局者3 / 対局者4 / 着順 / 得点 / 結果 / twitter_url / 表示 / 1着 / 2着 / 3着 / 4着 / 合計（322行×20列）。Sheets API の呼び出しは2ページで合計 3（spreadsheets.get 1・values.get 2）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
@@ -110,12 +128,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 1262cca8）: https://github.com/retroeater/mj-logs/tree/main/guide/1262cca8
+ガイド文書（この版を写した時点の最新、mj a64ecd9a）: https://github.com/retroeater/mj-logs/tree/main/guide/a64ecd9a
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/1262cca8/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/1262cca8/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/1262cca8/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/1262cca8/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/1262cca8/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/1262cca8/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a64ecd9a/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a64ecd9a/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a64ecd9a/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a64ecd9a/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a64ecd9a/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a64ecd9a/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/f451ca9f.md
