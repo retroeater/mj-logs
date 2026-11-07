@@ -128,28 +128,35 @@
 
 レビューの確かめ（要点）: コミット済みの `rh_results_detail.html` から作った行を `build()` に渡すと、出力は今の `rh_results.html` とファイル全体で一致（`render` の count は description に `{count}` が無いので影響なし）。`regenerate.has_check("rh_results")` は真。
 
+### マージ
+
+- push 直前に `git fetch origin cloudflare` → `git merge-base --is-ancestor origin/cloudflare HEAD` が真。`git push origin work/1107-pfu:cloudflare` → `bd37332c9..f9507d2ad`
+- f9507d2ad の check-run: Workers Builds: mj success・regenerate success・check success・notify skipped
+- push で動いた「ページの再生成」（run 42323864109）: 対象 rh_results、「321件取得しました」、Sheets API 合計 3（spreadsheets.get 1・values.get 2）、コミットの手順は「変更なし」（rh_results.html を変えるコミットを作らなかった）。「公開対象の検査」も success
+- #674 に「状況: 待ち」を付け、平野さんの「成績」シートの削除を待つとコメントした（クローズしない）
+
 ## 報告
 
-- 状態: 対応中
+- 状態: 完了
 - ブランチ: work/1107-pfu
-- ログ: https://github.com/retroeater/mj/blob/work/1107-pfu/docs/logs/CHAT-1107-PFU-03.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1107-PFU-03.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1107-pfu
-- 確認用URL: なし
-- マージ: 未
-- issue: なし
-- 判断が必要なこと: なし
+- 確認用URL: なし（ページの見た目は変わらない。作った rh_results.html が今のものとファイル全体で同じことを、作業ブランチの本実行とマージ後の再生成の「変更なし」で確かめた）
+- マージ: 済（f9507d2ad、範囲 bd37332c9..f9507d2ad）
+- issue: #674（起票。「状況: 待ち」で、平野さんの「成績」シートの削除を待つ）、#673（リンクのコメント）。集計の範囲は W＝"Y" の行（今は321行すべて Y）。Sheets API の呼び出しは合計 3（spreadsheets.get 1・values.get 2）で前と同じ
+- 判断が必要なこと: なし（「成績」シートの削除の後の確かめは #674 に移した）
 - 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj f9507d2a）: https://github.com/retroeater/mj-logs/tree/main/guide/f9507d2a
+ガイド文書（この版を写した時点の最新、mj 8dfc39bf）: https://github.com/retroeater/mj-logs/tree/main/guide/8dfc39bf
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f9507d2a/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f9507d2a/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f9507d2a/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f9507d2a/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f9507d2a/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f9507d2a/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/8dfc39bf/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/8dfc39bf/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/8dfc39bf/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8dfc39bf/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8dfc39bf/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8dfc39bf/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/f451ca9f.md
