@@ -1,7 +1,7 @@
 # CHAT-1107-PFU-03
 
 - 着手日時: 2026-11-07
-- 対象issue: （起票予定）
+- 対象issue: #674（起票）・#673（リンクのコメント）
 - ブランチ: work/1107-pfu
 - 着手時HEAD: bd37332c9
 
@@ -64,6 +64,70 @@
 
 ## 経過
 
+### 着手前の確認
+
+- 0. 「指示」欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 欠けなし
+- 同じ Chat-Ref のコミット・ログ: 0件（PFU は同じチャットの3本目）
+- PFU-02 のログの状態を「判断待ち / 続き: CHAT-1107-PFU-03」にした（ログの先行 push と同じコミット abbd34097）
+- 作業ブランチ: ローカルの `work/1107-pfu` は origin/cloudflare の祖先・リモートもマージ済み → `git checkout work/1107-pfu`（済）のうえ `git merge --ff-only origin/cloudflare`（3f27cc46d..bd37332c9）
+
+### 手順1
+
+- 同じ主題の issue（`is:issue 成績詳細`・`is:issue rh_results`、クローズ済みを含む）: 同じ目的のものは無し（近いのは #196「列参照を位置ベースから名前ベースに」closed で目的は別）
+- 未マージの work/ ブランチ: 1009-swp-526・1011-swp-hnd・1011-swp-nav・1015-skd-notes・1101-prp-pub・1103-ryo5（と自分の 1107-pfu）。どれも `scripts/generate_rh_results.py`・`scripts/check_sheets_reader.py` を変えていない（`git diff --name-only origin/cloudflare...<branch> -- <2ファイル>` が空）。同じ目的のものも無し
+- 起票: #674「良栄 > 成績を『成績詳細』から集計し、『成績』シートを消す」。着手中のコメントと #673 へのリンクのコメントを残した
+
+### 手順2
+
+- `scripts/generate_rh_results.py`（2fc189017・追いのコメント）: 「成績詳細」を `fetch_sheet(SPREADSHEET_ID, "成績詳細", 'SELECT A,B,R,S WHERE W = "Y"')`（既定の formatted=False。日付は Sheets API の `dateTimeRenderOption=FORMATTED_STRING` で表示の文字）で読み、`aggregate()` で通算と年ごとに集め、`format_row()` で旧シートの表示形式（得点 `#,##0.0`・平均順位 `0.00`・率 `0.000`・半荘数 `#,##0`）に合わせる。丸めは既存の `lib/ranking.py` の `to_fixed()`（四捨五入、中間は絶対値の大きい側）
+  - 年は A の先頭4桁。B（ID）の先頭4桁と食い違う・どちらかが `YYYY-` で始まらない行は止める
+  - R は文字にして 1〜4 の個数を数える。空・1〜4 以外の文字の行は止める。止まる行は全部集めて ID を並べた1つのエラーにする
+  - 得点 S の空は 0 点（旧シートの SUMIF と同じ。コメントに書いた）
+  - 並び: 「通算」が先頭、対局のある年を新しい順
+  - `--check`（`run_check()`）は生成と同じ `fetch()` → `build()` の経路で、書き出さない。0件は警告
+  - `SPREADSHEET_ID` の名前・置き場所は変えていないので `scripts/check_sheets_reader.py` は変えていない
+- テスト `scripts/tests/test_rh_results.py`（11件）: 指標と並び・四捨五入（0.05→0.1・0.25→0.3・2.5→2.50・1/8→0.125）・0件・着順に 1〜4 以外（4105・41-4）と空（""・None）で止まる・A と B の年の食い違いで止まる・止まる行を全部出す・今の `rh_results_detail.html` の表を入力にすると今の `rh_results.html` の表と同じになる・`--check` の止まる／通る／0件の警告・読むのは「成績詳細」の A,B,R,S（W="Y"）だけ。新しい関数の検査なので、修正前のコードでは通らない（関数が無い）
+- テスト全体: `python3 -m unittest discover -s scripts/tests` → 2063件 OK
+- 文書: `docs/notes/static-generation.md` の型A' の行に読み方を書いた。`docs/decisions/ryoei.md` に決定を足した（08bb23f61）
+- 「成績」シートを読む処理の確かめ: `git grep -n -e '"成績"' -e "'成績'" -e '「成績」'`（除外: docs/logs・handover-archive）の全件。シートを読む処理は0件
+
+| ファイル: 行 | 内容 |
+|---|---|
+| docs/decisions/operations.md: 1703 | タイトル戦の大会ページの「成績」の節（別の意味） |
+| docs/decisions/ryoei.md: 49 | 対局室は「成績」などにつながる（決定の記録） |
+| docs/decisions/ryoei.md: 103 | PFU-02 の決定（記録） |
+| docs/decisions/title.md: 318, 330 | タイトル戦の「成績」の節（別の意味） |
+| docs/notes/title-pages.md: 41 | 同上 |
+| r/world-data.json: 1 | r/ の成績のページへのリンクの題 |
+| scripts/generate_pro_pages.py: 623 | pro/ の「成績」の面の見出し（別のブック） |
+| scripts/generate_rh_results.py: 6, 11, 97 | 旧「成績」シートに触れたコメント |
+| scripts/generate_ryoei_pages.py: 84 | r/ のリンクの題（ページの見出し） |
+| scripts/generate_title_pages.py: 869 / scripts/tests/test_title_years.py: 96, 100 | タイトル戦の「成績」の節（別の意味） |
+
+  `SHEET_NAME` は `generate_rh_results.py`・`generate_rh_results_detail.py` とも「成績詳細」だけ。ブックの ID を持つのもこの2本（と ID を読むだけの check_sheets_reader.py）
+
+### 手順3: 確かめ
+
+| run | 入力 | 結果 |
+|---|---|---|
+| 42323380419 | `target_page=rh_results`・`check=true` | success。「検査: 通りました(321件。ファイルは書いていません)」、「check: 止まるページなし」。着順・年の食い違いで止まる行は0件（実データで確かめた） |
+| 42323378107 | `target_page=rh_results`・`dry_run=true`・`compare_ref=origin/cloudflare` | success。「321件取得しました」、注釈「compare: 差分なし」（同じデータで旧コード〈「成績」シートを読む〉と新コードで作った `rh_results.html` が同じ） |
+| 42323582921 | `target_page=rh_results`（本実行） | success。コミットの手順は「変更なし」で、作業ブランチにコミットを作らなかった＝作った `rh_results.html` は cloudflare のもの（f451ca9f8 の毎朝の再生成）とファイル全体で同じ。12行×6列の全セルが同じなので差の表は無し |
+
+- Sheets API の呼び出しの回数: どの実行も **合計 3（spreadsheets.get 1・values.get 2）**、上限の待ち 0 回（前と同じ回数。読むタブが「成績」から「成績詳細」に替わっただけ）
+- 差分（`git diff --stat origin/cloudflare...HEAD`）: scripts/generate_rh_results.py・scripts/tests/test_rh_results.py・docs/notes/static-generation.md・docs/decisions/ryoei.md・docs/logs/ のみ（生成物の変化なし）
+
+### 差分の自己レビュー（新しい文脈のサブエージェント、1回）
+
+| 指摘 | 扱い |
+|---|---|
+| 得点 S が空・型違いで None の行を黙って 0 点にしている | 意図どおり（旧シートの SUMIF と同じ）。コメントに書いた |
+| R・A の型（数値セル・日付の書式）が実シートで混ざると止まる | 意図どおり（止まる向き）。実データの `--check` と本実行で通ることを確かめた（上の表） |
+| `scripts/lib/sheets.py` の `_select` の docstring「日付の列は formatted=True でしか読んでいない」が古くなった | 見送り（動作は同じ。共有の `scripts/lib/` を変えると差分の範囲〈止まる条件〉と全ページの再生成が要るため。次に sheets.py を触る指示で直す） |
+| `CurrentPageTest` がコミット済みの2枚の生成物に依存する・合計が 0 に近い負の値で「-0.0」になる | 意図どおり（毎朝は両方とも再生成される。-0.0 は今の実データで起きない） |
+
+レビューの確かめ（要点）: コミット済みの `rh_results_detail.html` から作った行を `build()` に渡すと、出力は今の `rh_results.html` とファイル全体で一致（`render` の count は description に `{count}` が無いので影響なし）。`regenerate.has_check("rh_results")` は真。
+
 ## 報告
 
 - 状態: 対応中
@@ -80,12 +144,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 1e1ee61d）: https://github.com/retroeater/mj-logs/tree/main/guide/1e1ee61d
+ガイド文書（この版を写した時点の最新、mj f9507d2a）: https://github.com/retroeater/mj-logs/tree/main/guide/f9507d2a
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/1e1ee61d/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/1e1ee61d/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/1e1ee61d/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/1e1ee61d/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/1e1ee61d/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/1e1ee61d/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f9507d2a/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f9507d2a/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f9507d2a/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f9507d2a/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f9507d2a/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f9507d2a/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/f451ca9f.md
