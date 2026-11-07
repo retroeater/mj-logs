@@ -119,7 +119,7 @@ Chat-Ref: CHAT-1107-LGV-15
 
 ## 報告
 
-- 状態: 中断（止まる条件に当たった）
+- 状態: 中断（止まる条件に当たった） / 続き: CHAT-1107-LGV-16
 - ブランチ: work/1107-lgv-l3（未マージ。一度きりの mode を残している）
 - ログ: https://github.com/retroeater/mj/blob/work/1107-lgv-l3/docs/logs/CHAT-1107-LGV-15.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1107-lgv-l3
