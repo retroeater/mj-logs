@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-11-07 12:41 JST
+- 書き出した時刻: 2026-11-07 12:53 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -25,11 +25,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-07 12:53 | push | work/1107-lgv-l3 | in_progress | #1053（42335987000） |  |
 | 2026-11-07 12:12 | push | work/1107-lgv-repost | success | #1052（42332953093） | 0分30秒 |
 | 2026-11-07 12:10 | push | work/1107-lgv-repost | success | #1051（42332729332） | 0分27秒 |
 | 2026-11-07 11:31 | push | work/1107-pfu | success | #1050（42329672598） | 0分24秒 |
 | 2026-11-07 11:28 | push | work/1107-lgv-check | success | #1049（42329429385） | 0分31秒 |
-| 2026-11-07 11:26 | push | work/1107-pfu | success | #1048（42329299386） | 0分27秒 |
 
 ## check-build-failure.yml
 
@@ -129,11 +129,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-07 12:53 | workflow_dispatch | work/1107-lgv-l3 | in_progress | #72（42335988748） |  |
 | 2026-11-07 11:26 | workflow_dispatch | work/1107-lgv-check | success | #71（42329263942） | 0分31秒 |
 | 2026-11-07 11:25 | workflow_dispatch | work/1107-lgv-check | success | #70（42329180438） | 0分33秒 |
 | 2026-11-07 11:24 | workflow_dispatch | work/1107-lgv-check | success | #69（42329055502） | 0分31秒 |
 | 2026-11-07 08:37 | workflow_dispatch | work/1107-lgv-notify | success | #68（42313132948） | 0分33秒 |
-| 2026-11-07 00:29 | workflow_dispatch | work/1107-lgv-hide | success | #67（42243460253） | 0分33秒 |
 
 ## fetch-gsc.yml
 
