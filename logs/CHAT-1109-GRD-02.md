@@ -61,15 +61,23 @@ CHAT-1109-GRD-01 の「判断が必要なこと」への回答を記録し、#55
 - docs/decisions/operations.md の 2026-11-09（CHAT-1109-GRD-01）の節に3行足した: 決定2点（GitHub MCP 経由のコミットは hook で止めず追加の仕組みは作らない・#556 は閉じる／CLAUDE.md「コミットのルール」の置き換えはこのままでよい）と、文書での確かめの結果（キーワード9語、形は `KEYWORD #番号`・`KEYWORD owner/repo#番号`、コロン付き・大文字も可、コミットメッセージは既定のブランチに入ると閉じる、URL・`GH-`・空白なしの形の記述は無く hook は止める側のまま。出典 https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/linking-a-pull-request-to-an-issue ）
 - docs/notes/skills.md「限界」: 同じ趣旨の行（「GitHub の文書はセッションから読めず、空白なし・GH-番号・URL…も止める側に入れた」）があったため足さず、文書で確かめた内容に置き換えた（記述のある形は `KEYWORD #番号`・`KEYWORD owner/repo#番号`、記述の無い形〈空白なし・`GH-番号`・URL〉と改行をまたぐ形・日本語に接する形も止める側に倒している）。決定との矛盾なし
 
+### 3. #556
+
+- 決定2点と文書での確かめの結果をコメント（issuecomment-6734822873）。`gh issue close 556` は「GitHub GraphQL is not available from Claude Code sessions」（HTTP 403）で失敗したため、GitHub MCP の issue_write（state closed、state_reason completed）で閉じた（docs/notes/cloud-sessions.md の `gh` の代わり）。REST で state が closed を確かめた。「状況:」ラベルは付いていなかった
+
+### 4. マージ
+
+- push 直前に fetch し、`git merge-base --is-ancestor origin/cloudflare HEAD` を確かめて `git push origin work/1109-grd:cloudflare`（このコミットを含む）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1109-grd
-- ログ: https://github.com/retroeater/mj/blob/work/1109-grd/docs/logs/CHAT-1109-GRD-02.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1109-GRD-02.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1109-grd
 - 確認用URL: なし
-- マージ: 未
-- issue: #556
+- マージ: 済（ドキュメントのみ。SHA は ## 経過 の「4. マージ」）
+- issue: #556（コメントのうえクローズ）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
@@ -77,12 +85,12 @@ CHAT-1109-GRD-01 の「判断が必要なこと」への回答を記録し、#55
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 91057b6b）: https://github.com/retroeater/mj-logs/tree/main/guide/91057b6b
+ガイド文書（この版を写した時点の最新、mj 9f6170bc）: https://github.com/retroeater/mj-logs/tree/main/guide/9f6170bc
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/91057b6b/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/91057b6b/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/91057b6b/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/91057b6b/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/91057b6b/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/91057b6b/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9f6170bc/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9f6170bc/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9f6170bc/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9f6170bc/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9f6170bc/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9f6170bc/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b912fa9a.md
