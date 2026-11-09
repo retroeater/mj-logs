@@ -144,17 +144,28 @@ Chat-Ref: CHAT-1109-GRD-01
   - `test_split_or_substituted_blocked` 11件: `git commit -m 'subject' -m 'fix' -m '#10'`／`git commit -m subject --trailer 'Fixes: #10'`／`--trailer='Closes: #10'`／`--trailer 'Fixes=#10'`／`--trailer 'Closes = #11'`／`--trailer=Fixes=#10`／`--trailer Fixes:#10`／`git commit -m Fixes:#10`／`git commit -m "$(cat <<'EOF'` ＋件名＋e69005702 の文＋`EOF`＋`)"`／`` git commit -m "`cat <<EOF `` ＋f8e76c033 の件名＋`EOF`＋`` `" ``／`git commit -F - <<\EOF`＋5937f723a の文＋`EOF`
   - `test_unreadable_message_file_passes` 1件: `git commit -F 'a\x00b'` → 通過（例外で落ちない）
 
+### 6. マージ・クローズ
+
+- push 直前に `git fetch origin cloudflare` → `git merge-base --is-ancestor origin/cloudflare HEAD` が真。`git push origin work/1109-grd:cloudflare` → `b912fa9a4..285adc1b5`
+- cloudflare の上（285adc1b5 を別の worktree に detach で出した）で `test_git_guard.py` → OK、全体 → OK
+- #556 に実装の要点のコメント（issuecomment-6731214484）。本文の「進め方」が古いこと（2026-11-01 の skills.md の運用で進め、分類器の拒否は無かった）も書いた
+- #556 は閉じていない: 限界のうち「GitHub MCP のコミット（`push_files`・`create_or_update_file` の message）を hook で見るか」は追加の仕組み（`.claude/settings.json` の matcher を足す等）の判断で、指示の手順3のとおり閉じずに「判断が必要なこと」に回した
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1109-grd
-- ログ: https://github.com/retroeater/mj/blob/work/1109-grd/docs/logs/CHAT-1109-GRD-01.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1109-GRD-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1109-grd
-- 確認用URL: なし
-- マージ: 未
-- issue: #556
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 確認用URL: なし（配信対象外の `.claude/`・`scripts/`・docs のみの変更）
+- マージ: 済（285adc1b5。fast-forward。cloudflare の上で試験 OK）
+- issue: #556（着手中・実装の要点をコメント。限界の判断が残るため開けたまま）
+- 判断が必要なこと:
+  - GitHub MCP のコミット（`push_files`・`create_or_update_file` の message）の閉じるキーワードも hook で止めるか（`.claude/settings.json` に MCP のツールの matcher を足す等の追加の仕組み）。決まれば #556 を閉じるか、その実装に進む
+  - 指示文に無い変更: CLAUDE.md「コミットのルール」の閉じるキーワードの行を、#492 の規則（hook で確かめる規則は参照だけ残す）に従い hook への参照に置き換えた（hook が見ない経路では書かない旨は残した）。指示の個別の指定より CLAUDE.md の規則を優先した
+  - 指示の判定の案から変えた点: 空白なし・`GH-番号`・改行をまたぐ形・日本語に接する形・`--trailer`・`=` 区切りも止める側に入れ、`git commit-tree` も対象にした（GitHub の文書は docs.github.com がこのセッションで解決できず確かめられなかったため、止める側に倒した）
+- 未確認の項目:
+  - GitHub の文書（docs.github.com「Linking a pull request to an issue」）での閉じる形の確認（このセッションのネットワークで解決できない）
 - エラー: なし
 
 <!-- guide-links -->

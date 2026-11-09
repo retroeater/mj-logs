@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-11-09 12:04 JST
+- 書き出した時刻: 2026-11-09 12:07 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -25,7 +25,7 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-11-09 12:04 | push | work/1109-aic | in_progress | #1070（42554343888） |  |
+| 2026-11-09 12:04 | push | work/1109-aic | success | #1070（42554343888） | 0分45秒 |
 | 2026-11-09 12:01 | push | work/1109-grd | success | #1069（42554114900） | 0分31秒 |
 | 2026-11-09 11:59 | push | work/1109-grd | success | #1068（42553865492） | 0分32秒 |
 | 2026-11-09 11:55 | push | work/1109-grd | success | #1067（42553544928） | 0分28秒 |
@@ -38,11 +38,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-09 12:05 | check_run | cloudflare | skipped | #1415（42554468475） | 0分01秒 |
 | 2026-11-09 12:03 | check_run | cloudflare | skipped | #1414（42554223015） | 0分09秒 |
 | 2026-11-09 12:02 | check_run | cloudflare | skipped | #1413（42554196982） | 0分01秒 |
 | 2026-11-09 11:59 | check_run | cloudflare | skipped | #1412（42553906508） | 0分10秒 |
 | 2026-11-09 11:56 | check_run | cloudflare | skipped | #1411（42553610509） | 0分01秒 |
-| 2026-11-09 11:55 | check_run | cloudflare | skipped | #1410（42553527622） | 0分11秒 |
 
 ## check-image-links.yml
 
@@ -364,13 +364,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-11-09 11:53 | workflow_dispatch | work/1109-pyv | failure | #40（42553404832） | 2分32秒 |
+| 2026-11-09 12:06 | workflow_dispatch | work/1109-pyv | success | #40（42553404832） | 0分35秒 |
 | 2026-11-04 12:19 | workflow_dispatch | cloudflare | success | #39（41766370389） | 17分59秒 |
 | 2026-11-04 12:18 | workflow_dispatch | cloudflare | success | #38（41766236895） | 0分49秒 |
 | 2026-11-02 08:41 | workflow_dispatch | work/1102-nod | success | #37（41363303180） | 0分19秒 |
 | 2026-11-01 11:49 | workflow_dispatch | cloudflare | success | #36（41266709391） | 0分24秒 |
-
-- #40 failure: ジョブ「update」 ステップ「実行」
 
 ## dependabot-updates
 
