@@ -58,15 +58,61 @@ AIC 系列（質問欄、#654）の 2026-11-03〜09 の指示（AIC-21〜42）�
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 着手前の確認
+
+- `## 指示` 欄の末尾は指示文の最後の行と一致。同じ Chat-Ref のコミット・ログ: なし
+- CHAT-1109-AIC-43 のマージ（6afa6323c）は origin/cloudflare の祖先。作業ブランチ: ローカルの work/1109-aic が origin/cloudflare と同じ（6afa6323c）なので `git merge --ff-only origin/cloudflare`（変化なし）で使った
+- 冒頭の雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 欠けなし
+- この指示は規則でない学びを docs/notes/ask-worker.md に置くもので、ガイド文（CLAUDE.md・handover.md・chat-side-operations.md）に規則を足さない（「知見 → 選んだ層 → 理由」の表は要らない）
+- AIC-43 のログの状態に「/ 続き: CHAT-1109-AIC-44」と「CHAT-1109-AIC-44 の時点でチャット側の回答なし」を足した
+
+### 1. 棚卸し（コードは変えていない）
+
+- 読んだもの: `workers/ask/src/ask.mjs` の `answerSystem()`（126行）・`ANSWER_LINES`（164行）・`answerInput()`（435行）・`tidyAnswer()`（477行）・`withTitle()`（490行）・`writeMany()`・`settle()`、プログラムの答えの関数（`candidatesAnswer()` 561行・`guideAnswer()` 597行・`finalsOnlyAnswer()` 614行・`entryHalfLead()` 636行・`beyond()` 649行）、`workers/ask/src/query.mjs` の `runQuery()` と型ごとの関数（champions 246行・final 299行・player 329行・league 374行・rankingQuery 415行・live 458行・entry 482行・yearlyPlayer 515行・yearMatches 539行）の items の形、`seatAnswer()`（34行）
+- 一覧は ask-worker.md「運用の学び」の「答えの事実を誰が書くか」に書いた（Claude が文にしている事実を型ごとに9行、プログラムが文を作っている箇所を10行）
+
+### 2. 書いたもの（1621d3011）
+
+- docs/notes/ask-worker.md に「## 運用の学び（2026-11-09、AIC-21〜42 の振り返り、#654）」を「予定」の節の後に足した。前提の1〜7 と棚卸しの一覧
+  - 7（系列の受け持ち）: ask-worker.md の「横断」の冒頭に「サイト全体で1つの質問欄（呼び出しの部品とトップは TOP 系列）の Worker 側」とあるが、「AIC の指示は画面を変えず、#654 にコメントして TOP 系列に回す」は書かれていなかったので、1行で足し、受け持ちは「横断」の冒頭を参照にした
+- 今の記述との食い違い: 無い（「5大会の応答ルール」の表の行は、Claude に書かせる事実の歯止め〈`SEASONS_LINE`・`pointsLine()`・`FILTERED_LINE` など〉とプログラムの文〈`withTitle()` など〉を記述していて、一覧と同じ。「言葉を足すのでなく、プログラムの文に移す」は今ある歯止めを外すものではない）
+- docs/decisions/houou.md に「2026-11-09（CHAT-1109-AIC-44）」（2本に分けて記録すること、持ち越しの一覧の閉じ方）を足した
+- テスト: `python3 -m unittest discover -s scripts/tests` OK（docs のみ）
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1109-aic
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1109-AIC-44.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1109-aic
+- 確認用URL: なし（docs のみ）
+- マージ: 済（docs のみ、完了の報告のうえマージ）
+- issue: なし（docs のみ。#654 にはコメントしていない）
+- 判断が必要なこと:
+  - 状態を判断待ちにしたのは、下の「未確認の項目」（持ち越しの一覧）が残るため。この指示について新たな判断は無い
+  - 棚卸しで見えた次の直しの候補（実際に聞かれた問いで揺れた順に移す。今週の書き出しで揺れたのは player の要約〈「鮎川」「HIRO柴田」〉）: player の要約（どの期を挙げるか）、champions の人数・回数、ranking の同率、live の回数
+- 未確認の項目:
+  - 持ち越す言い回しと見送った問い（AIC-43 から写した。次の週次の書き出し〈2026-11-16〉で、実際に聞かれたか見る。2週続けて聞かれなければ一覧から外し、#654 にコメントで残す〈2026-11-09 の決定〉）:
+    - AIC-19: 決勝だけの答えの「成績」「記録」の重なり、「WRCリーグ決勝の第10期に4位」の語順
+    - AIC-29: 「4位の古川孝次さんから10位の杉浦勘介さんまでは残留です」（11〜13位も残留）
+    - AIC-37: 予定の略称（「グランプリ」「日本シリーズ」）、title/ に無い大会と title/ の大会を両方書くと後者だけ、件名の「決勝進出者決定戦」が決勝になる、候補が最初の大会の名簿から
+    - AIC-38: 予定の問いで過去・否定でも段を読む、「決勝進出者決定戦はいつ？」で1回目の stage を使う
+    - AIC-39: 近道に入らない予定の言い回し（「王位戦、次はいつ？」「王位戦の次の放送は？」「王位戦っていつ？」など）、「直近」の過去の意味
+    - AIC-40: 作り直しの JSON が null のとき、空白入り・漢数字の「検索で 43 件」
+    - AIC-42: 名字だけの1文字の問い（「勝」）で、大会によって1回目が選手名の問いと読まない
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 6afa6323）: https://github.com/retroeater/mj-logs/tree/main/guide/6afa6323
+ガイド文書（この版を写した時点の最新、mj fc46d17c）: https://github.com/retroeater/mj-logs/tree/main/guide/fc46d17c
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6afa6323/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6afa6323/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6afa6323/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6afa6323/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6afa6323/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6afa6323/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/fc46d17c/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/fc46d17c/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/fc46d17c/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/fc46d17c/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/fc46d17c/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/fc46d17c/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b912fa9a.md
