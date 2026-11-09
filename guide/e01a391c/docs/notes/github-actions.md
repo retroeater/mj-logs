@@ -176,7 +176,7 @@ GitHub Actions (`.github/workflows/regenerate-page.yml`) が、`scripts/generate
 **受けるのはマイナー版・パッチ版だけ**（`ignore` の `update-types: version-update:semver-major`、2026-10-18 の平野さんの決定）。メジャー版の上げは、認証情報の台帳の四半期の棚卸し（#601）でまとめて見る（初回の実行が出したメジャー版の PR #602〜#608 は閉じた）。
 PR は SHA と版のコメントを書き換える。Dependabot security updates（Settings）は Off のまま（2026-10-18）。
 
-- **pip の依存（`scripts/requirements-ogp.txt` の Pillow）は `.github/dependabot.yml` の対象外**で版上げの PR は来ないが、Dependabot alerts（依存グラフ）の通知は届く。届いたら版とハッシュを手で上げる（2026-11-04 の Pillow 13.0.0 の形: PyPI の JSON から cp312〈ランナー〉と手元のテスト用の版の wheel の sha256 を取り、`--require-hashes` で入るかを確かめ、`scripts/tests/test_ci_requirements.py` の版の行も直す）。pip を `dependabot.yml` に足すことは 2026-11-04 には採らなかった（頻度が低いため）
+- **pip の依存（`scripts/requirements-ogp.txt` の Pillow）は `.github/dependabot.yml` の対象外**で版上げの PR は来ないが、Dependabot alerts（依存グラフ）の通知は届く。届いたら版とハッシュを手で上げる（2026-11-04 の Pillow 13.0.0 の形: PyPI の JSON から `.github/.python-version` の版〈ランナー〉と手元のテスト用の版の wheel の sha256 を取り、`--require-hashes` で入るかを確かめ、`scripts/tests/test_ci_requirements.py` の版の行も直す）。pip を `dependabot.yml` に足すことは 2026-11-04 には採らなかった（頻度が低いため）
 - **Dependabot alerts の API（`GET /repos/{repo}/dependabot/alerts`）は Claude Code のセッションの権限で HTTP 403**（2026-11-03 の実測）。alerts が閉じたかは平野さんが https://github.com/retroeater/mj/security/dependabot で確かめる（2026-11-04 に Open 0・Closed 41。平野さんの申告値で、セッションからは検証できない）
 - PR のブランチは `dependabot/github_actions/…`。`work/*` ではないので、`cleanup-branches.yml`（マージ済みの `work/*` だけを消す）は触らない。Dependabot は閉じた PR のブランチを消す（手で閉じた #602〜#607 のブランチも数分のうちに消えた、2026-10-18）。マージした PR のブランチが残るかはリポジトリの「Automatically delete head branches」の設定しだい（未確認）。残ったら平野さんが消す（セッションからは削除が拒否される）
 - PR のマージは `cloudflare` へのマージ（＝本番反映）なので、CLAUDE.md「ブランチ運用」の承認の規則に従う。セッションは PR のブランチへ push しない

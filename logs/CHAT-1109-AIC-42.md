@@ -184,15 +184,30 @@ AIC-41 のログ（作業ブランチ）と今のコードを読む。着手時�
 - 直す前のコード（cloudflare の今）で、絞り込みを確かめる2件（作り物の名簿の「原」、data.json の「原」）が落ちることを確かめた（残る6件は今と同じ動きを確かめる検査で、直す前も通る）。AIC-41 の作業ブランチの形では、3件（1人だけ・記録が無い・レビューの語）が落ちていた
 - `node --test 'workers/ask/test/*.test.mjs'`: 209件 通過（今のテストは変えていない）。`python3 -m unittest discover -s scripts/tests`: OK
 
+### 5. レビュー（新しい文脈のサブエージェント、1回）
+
+| 回 | 対象 | 観点 | 結果と証跡 |
+|---|---|---|---|
+| 1 | origin/cloudflare...HEAD の `workers/ask/`（e9ad141a9・6a6f85425・2b544a225） | 決まりの4つ（1人に決まる問いが変わらない・候補から1人に決まらない・絞って記録のある人を失わない・案内と決勝だけは同じ）／比べの道具の論理と取りこぼし／ほかの呼び出し元（nameLead・candidatesAnswer・guideAnswer・currentName・namesIn・crossContests）／CANDIDATE_MAX との整合／かな・半角・英字／テスト | 正しさの問題なし。4つはコードの形で保たれる（絞るのは部分一致の経路だけ、絞った結果は部分一致の部分集合で2人以上、記録のある人を含む）。cmp42「resolvedChanged 0・newlyResolved 0・lostRecord 0・candNarrowed 241」、rec41「diff 0」を再現。比べに読みの途中・カタカナ・半角カナ・空白・英字・別名を足した 76,506語でも「resolvedChanged 0・newlyResolved 0・lostRecord 0、絞った候補はどれも前の候補の部分集合で2人以上」。「ハラ」「ﾊﾗ」「はら」は17人のまま、「hiro」「ＨＩＲＯ」は HIRO柴田のまま。node 209件・python 2082件 通過。低1（下の表） |
+
+| 指摘 | 扱い |
+|---|---|
+| 案内は絞らない検査の名簿で、頭が一致する人が1人だけなので、案内を絞るように壊しても検査が通る（低） | 直した（3e79f7d5a。頭が一致する人をもう1人〈記録なし〉足し、案内を絞ると記録のある石原次郎が落ちる形にした。`recordNames()` に narrow を渡すように壊したコードで、この検査が落ちることを確かめた） |
+| 「ひろし」の検査は頭が一致する人が1人なので、読みで絞るかに関係なく通る（低） | そのまま（読みで絞らないことは同じ検査の「はら」が確かめている） |
+| 「AIC-41 のレビューの語」と data.json の「原」の検査は、実データの週次の更新で前提が崩れうる（低） | そのまま（崩れたら検査が落ちて分かる） |
+| 投げる候補（`e.candidates`、5人まで）と候補の文（`nameCandidates()`）の並びが違う（低、前から） | そのまま（`ambiguous_name` は候補の文で答えるので、`e.candidates` は答えに出ない） |
+
+- 指摘は検査の直しだけだったので、2回目のレビューはしていない
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 9f6170bc）: https://github.com/retroeater/mj-logs/tree/main/guide/9f6170bc
+ガイド文書（この版を写した時点の最新、mj e01a391c）: https://github.com/retroeater/mj-logs/tree/main/guide/e01a391c
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9f6170bc/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9f6170bc/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9f6170bc/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9f6170bc/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9f6170bc/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9f6170bc/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e01a391c/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e01a391c/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e01a391c/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e01a391c/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e01a391c/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e01a391c/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b912fa9a.md
