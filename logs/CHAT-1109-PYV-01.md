@@ -52,6 +52,52 @@ Chat-Ref: CHAT-1109-PYV-01
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 着手前の確認
+
+- 手順0: 「指示」欄の末尾の行は指示文の最後の行（「不明な点があれば、…この行が指示文の最後の行です。」）と一致
+- Chat-Ref: 全ブランチの履歴・docs/logs に `PYV` は無し（最初の指示）。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は欠け無し
+- 作業ブランチ: ローカル・リモートとも `work/1109-pyv` は無し → `git checkout -b work/1109-pyv origin/cloudflare`（b912fa9a4）
+- #539: open、コメント0件（他セッションの着手中なし）。着手中のコメントを書いた（issuecomment-6731035504）
+- 未マージの `work/` ブランチ: `.github/`・`scripts/requirements-ogp.txt` を変えるのは `work/1101-prp-pub`（check-assets・check-image-links・regenerate-page・regenerate-sitemap）と `work/1103-ryo5`（fetch-x-posts）。どちらも setup-python・pip の行は変えていない（差分に `python`・`pip` を含む行が0件）。同じファイルの別の箇所なので止まらずに進めた
+
+### `git grep -n '3\.12'`（リポジトリ全体、646件）
+
+- docs/decisions・docs/logs・handover-archive の過去の行: 605件 → 変えない（過去の記録）
+- 残り41件:
+
+| 箇所 | 扱い | 理由 |
+|---|---|---|
+| `.github/.python-version:1` `3.12` | 変える → `3.14` | 版を決める1か所 |
+| `.github/workflows/{check-assets:62,cleanup-branches:78,fetch-gsc:96,regenerate-page:108,regenerate-saikyo:80,regenerate-sitemap:45,sync-dojo-calendar:99,sync-yotei:99,update-live-channel:172,update-sns-book:83}.yml` `python-version: '3.12'` | 変える → `python-version-file: .github/.python-version` | 直書きを無くす（下の「直書きのそろえ方」） |
+| `scripts/requirements-ogp.txt:2`（コメントの「Python 3.12」） | 変える → 3.14 | ハッシュを cp314 に替えるため |
+| `scripts/tests/test_root_runtime_files.py:4`（2026-10-14〜21 に直下の `.python-version` で 3.12 を入れていた） | 変えない | 過去の事実の記述 |
+| `docs/notes/cloudflare.md:826`（同じ件の原因の記述、`Installing python 3.12.15`） | 変えない | 過去の事実の記述 |
+| `docs/notes/session-network.md:18,25,26`（2026-09-15 の codespace の計測） | 変えない | 計測時点の版の記録 |
+| `scripts/tests/test_fetch_redirect_counts.py:163,166`（`Python-urllib/3.12` などの UA の文字列） | 変えない | UA の判定のテストの入力。ランナーの版と関係ない |
+| `books/index.html`・`index.html`・`r/index.html`・`scripts/generate_books_pages.py`・`scripts/generate_ryoei_pages.py`・`scripts/lib/share.py`（SVG の path の数値）、`data/live_channel_raw.jsonl`（動画のタイトルの日付）、`data/stations_n02.json`（緯度経度） | 変えない | 版ではない数値 |
+
+- ほかに `cp312` の語: `docs/notes/github-actions.md:179`（Pillow の上げ方の手順「cp312〈ランナー〉」）→「`.github/.python-version` の版〈ランナー〉」に直した（版を上げるたびに古くならないように）
+
+### 直書きのそろえ方
+
+- 10本とも `actions/setup-python` の `python-version: '3.12'` を `python-version-file: .github/.python-version` に替えた（部品にはしない）
+- 理由: (1) `security-check.yml` が既にこの形（CHAT-1021-BIL-08 で「共通の部品への置き換えはしない」と決めた形）。(2) 毎朝のワークフロー・regenerate-page・sitemap・fetch-gsc の部品化は段③（以降）でまとめる決定がある（docs/decisions/automation.md、段の順）。(3) 10本とも checkout（全体）の後で、ファイルを読める。後の pip の行（`--require-hashes` を含む）は部品の `pip install $PACKAGES` と形が違い、部品にすると変更が広がる
+- 変えた後、`.github/` に `'3.12'` は0件
+
+### 依存の固定（3.14 で入るか）
+
+- 手元は Python 3.13.18。uv で CPython 3.14.6 を入れ、scratchpad の venv で試した
+- `scripts/requirements-ogp.txt`（Pillow==13.0.0、`--require-hashes`）: 固定のハッシュは cp312・cp313 の wheel だけで、3.14 では入らない。版は変えず、PyPI の JSON（https://pypi.org/pypi/Pillow/13.0.0/json）の `pillow-13.0.0-cp314-cp314-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl` の sha256（e91c2b1c…）に cp312 のものを替えた（cp313 は手元のテスト用に残す）。`pip install --require-hashes -r scripts/requirements-ogp.txt` が 3.14.6 で入った
+- ほかの pip の行: `anthropic==1.7.0`（sync-dojo-calendar）・`zizmor==1.31.1`・`pip-audit==2.10.1`（security-check）・`google-auth`・`requests`（固定なし）が 3.14.6 で入った（google-auth 2.62.1・requests 2.34.2）。上げたものは無し
+
+### テスト（3.14.6）
+
+- `python -m unittest discover -s scripts/tests`: 2074件 OK
+- `node --test 'workers/ask/test/*.test.mjs'`: pass 201・fail 0、`workers/scheduler`: pass 47・fail 0（workers は変えていないが既存のテストとして回した）
+- 成果物のコミット: d5b1034e1
+
 <!-- guide-links -->
 ---
 

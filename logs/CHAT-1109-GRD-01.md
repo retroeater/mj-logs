@@ -63,6 +63,14 @@ Chat-Ref: CHAT-1109-GRD-01
 - 0章: 指示欄の末尾の行は指示文の最後の行（「不明な点があれば…この行が指示文の最後の行です。」）と一致
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 欠けなし
 
+### 1. 確かめ
+
+- (a) #556: Open。コメントは CHAT-1109-RSC-13 の1件のみで、ほかのセッションの着手中のコメントなし。着手中のコメントを書いた（issuecomment-6731068367）
+- (b) 同じ論点の issue: search/issues で「閉じるキーワード」「closing keyword」「mj-git-guard」（クローズ済みを含む）。当たったのは #556 のほか #492（センサー化の親）・#666・#298・#538（事故の例）・#643（push の `-o` の判定、別論点）・#176・#293・#551。同じ論点の別 issue なし
+- (c) `git branch -r --no-merged origin/cloudflare` の各ブランチと cloudflare の差（三点の diff）に `.claude/hooks/mj-git-guard.py`・`scripts/tests/test_git_guard.py`・`.claude/settings.json` を含むものなし
+- (d) 変える前の `test_git_guard.py`: 6件（test メソッド数。subTest を含む）すべて OK
+- GitHub の文書（docs.github.com「Linking a pull request to an issue」）: web-fetch で取得を試みたが `getaddrinfo ENOTFOUND docs.github.com`（このセッションのネットワークで解決できない）。文書で確かめられないため、指示のとおり `owner/repo#番号`・issue の URL・空白なし・コロン付きはすべて止める側に入れる
+
 ## 報告
 
 - 状態: 作業中
