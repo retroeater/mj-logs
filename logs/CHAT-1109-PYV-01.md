@@ -98,15 +98,53 @@ Chat-Ref: CHAT-1109-PYV-01
 - `node --test 'workers/ask/test/*.test.mjs'`: pass 201・fail 0、`workers/scheduler`: pass 47・fail 0（workers は変えていないが既存のテストとして回した）
 - 成果物のコミット: d5b1034e1
 
+### 自己レビュー（サブエージェント、1回目）
+
+`git diff origin/cloudflare...d5b1034e1` と目的・観点（checkout の前後・workflow_call・版の直書きの残り・Pillow のハッシュ・テストとの食い違い・YAML）を渡した。指摘0件。根拠: 10本とも同じジョブで checkout（sparse・path なし、ref は `github.ref` か省略）が setup-python より前、gate のある3本は両方に同じ `if`。`.github/` の版の直書き・cp312・`cache: pip` は0件。ハッシュは PyPI の cp314 の wheel と一致し、`pip download --python-version 3.14 --abi cp314 --platform manylinux_2_28_x86_64 --require-hashes` で選ばれた。PyYAML で全ワークフローが読め、11か所の `with` は `python-version-file` だけ
+
+### 手順3: 確かめ（作業ブランチ work/1109-pyv、8ea01cf65）
+
+ジョブの結果と、ログの `Resolved .github/.python-version as 3.14` → `Successfully set up CPython (3.14.10)` の行を見た（17本を同時に起動し、結果と版はサブエージェントに GitHub MCP で読ませた。再実行の結果は自分で見た）。
+
+| ワークフロー | 入力 | run | 結果 | ジョブ | setup-python の版 |
+|---|---|---|---|---|---|
+| check-assets | push | 42553348018 | success | 1 | 3.14.10 |
+| check-sheets-reader | なし | 42553371209 → 42554793405 | success（下の注） | 1 | 3.14.10 |
+| security-check | なし | 42553373629 | success | 1 | 3.14.10 |
+| check-build-failure | check_run_id=125011040597・dry_run | 42553376117 | success | 1 | setup-python なし（ランナーの python3） |
+| check-image-links | dry_run | 42553378748 | success | 2 | 3.14.10・3.14.10 |
+| check-meibo | dry_run | 42553380942 | success | 2 | 3.14.10・3.14.10（テスト 2074件 OK） |
+| check-saikyo-unregistered | dry_run | 42553383321 | success | 1 | 3.14.10 |
+| cleanup-branches | dry_run | 42553385863 | success | 1 | 3.14.10 |
+| cleanup-logs | dry_run | 42553387977 | success | 1 | 3.14.10 |
+| convert-x-posts | dry_run | 42553390330 | success | 1 | 3.14.10 |
+| fetch-x-posts | dry_run | 42553392808 | success | 1 | 3.14.10 |
+| fetch-redirect-counts | dry_run | 42553395136 | success | 1 | 3.14.10 |
+| research-candidates | dry_run | 42553397454 | success | 1 | 3.14.10 |
+| sync-birthday-calendar | 既定（差分だけ） | 42553399833 | success | 1 | 3.14.10 |
+| sync-yotei | 既定（書かない） | 42553402487 | success | 1 | 3.14.10 |
+| update-sns-book | mode=check・dry_run | 42553404832（attempt 1 failure → attempt 2 success） | success | 2（regenerate は skipped） | 3.14.10 |
+| update-live-channel | 既定（apply なし） | 42553406955 | success | 3（regenerate は skipped） | 3.14.10・3.14.10 |
+| regenerate-page | target_page=all・dry_run | 42553368530（attempt 2） | success（飛ばしたページ 0） | 1 | 3.14.10 |
+
+- 17本を同時に起動したため、Sheets API の「1分あたり・1ユーザーあたりの読み取り」の上限（HTTP 429）に当たった。版とは無関係（起動のしかたの問題）
+  - update-sns-book（attempt 1）: 「実行」の step が 429 の7回の再試行の後に `SheetsReadError` で failure → 失敗したジョブだけ再実行して success
+  - check-sheets-reader（42553371209）: ジョブは success だが16冊中14冊が 429 で「読めない」と出た → 単独で起動し直し（42554793405）、16冊とも values.get が読めた
+  - regenerate-page（attempt 1）: `ask_data` を 429 で飛ばした（dry_run は警告で返す）→ 単独で再実行（attempt 2）し、「飛ばしたページを報告」は skipped（飛ばしたページ 0）
+  - fetch-x-posts・convert-x-posts・research-candidates・check-saikyo-unregistered・sync-birthday-calendar は 429 の待ちを挟んで success
+- 今回の変更による失敗: なし
+- 手動で動かさなかったもの（CHAT-1102-NOD-01 と同じ。本番へ書き込む、または書かない道筋が無い）: run-daily・run-weekly・run-monthly、sync-dojo-calendar、fetch-gsc、fetch-youtube、regenerate-saikyo、regenerate-sitemap
+- 確かめられなかった道筋: regenerate-page の「帰り道の一覧のOGP画像を作る」（Pillow の `--require-hashes` の install）は dry_run・check で skipped になる作り。cp314 のハッシュでの install は手元の 3.14.6 だけで確かめた。ランナーではマージ後の週次（run-weekly → fetch-youtube → regenerate-page の wayhome）で確かめる（その step は `continue-on-error: true`）
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 63bd5266）: https://github.com/retroeater/mj-logs/tree/main/guide/63bd5266
+ガイド文書（この版を写した時点の最新、mj 285adc1b）: https://github.com/retroeater/mj-logs/tree/main/guide/285adc1b
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/63bd5266/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/63bd5266/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/63bd5266/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/63bd5266/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/63bd5266/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/63bd5266/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/285adc1b/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/285adc1b/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/285adc1b/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/285adc1b/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/285adc1b/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/285adc1b/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b912fa9a.md
