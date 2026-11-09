@@ -175,15 +175,31 @@ AIC-40 で分かったこと（チャット側の前提の誤り）:
 - 直す前のコードで、4件のうち3件が落ちることを確かめた（残る1件は「今の部分一致のまま」で、直す前も通る）
 - `node --test 'workers/ask/test/*.test.mjs'`: 205件 通過（今のテストは変えていない）。`python3 -m unittest discover -s scripts/tests`: OK
 
+### 4. レビュー（新しい文脈のサブエージェント）
+
+| 回 | 対象 | 観点 | 結果と証跡 |
+|---|---|---|---|
+| 1 | e9ad141a9 | `matchNames()` を使う所すべて（案内・決勝だけを含む）／全数の比べの正しさと取りこぼし／読みの頭の一致／横断の大会の選び方／テスト | `resolveName()`・`nameCandidates()` は決定どおり（頭の一致は部分一致の部分集合なので、今1人に決まる問いは変わらない）。全数の比べ（cmp41.mjs）は「resolvedChanged 0」。横断の大会の選び方（`namesIn()`・`crossContests()`）は `matchNames()` を使わず変わらない。node 205件・python 2074件 通過。中2・低3（下の表） |
+
+| 指摘 | 扱い |
+|---|---|
+| ほかの大会への案内（`recordNames()`）も絞られ、記録の無い人で絞ってから記録で除くので、記録のある大会が落ちる（女流桜花のページの「ひろし」で WRC-R〈山井弘〉が案内から消える）。案内は決定の範囲外（中） | 直した（6a6f85425。案内は絞らない〈`nameCandidates(data, text, false)`〉。決勝だけの答え `finalsOnly()` も同じ）。直した後、名前の1〜4文字の部分と読みの頭1〜4文字の 20,146 語で、案内と決勝だけの答えが直す前と同じ（diff 0、scratchpad の rec41.mjs） |
+| 読みの頭は名字と名前の切れ目が無く、名前だけのかなの問いが無関係の1人に決まる（「ひろし」→ HIRO柴田〈ひろしばた〉、「とし」→ 外嶋諒汰、「しん」→ 新谷翔平 など21件）（中） | 直した（読みの頭では絞らず、名前の表記の頭だけで絞る。かなの問いは今と同じ候補。「原」の絞り込みは変わらない） |
+| 決勝だけの答え（`finalsOnly()`）が、前は候補だった語で出る（低） | 案内と一緒に絞らない形に戻した（変わらない） |
+| 予定の問いの選手名の直し（`currentName()`）も、絞って1人に決まる語でその人の予定を答える（低） | そのまま（決定の「絞って1人ならその人で答える」と同じ扱い） |
+| `nameCandidates()` の並べ替えの1つ目（頭から一致が先）は、絞った後はいつも同じ値（低） | そのまま（絞らない案内〈narrow が false〉では今も効く） |
+
+- 直した後: 全数の比べ「resolvedChanged 0、candChanged 238、newlyResolved 331」（読みで絞らなくなった分、減った）。今週の13の名字の表は1回目の直しと同じ（変わるのは「原」だけ）。検査を2件足した（読みの頭では絞らない、案内は絞らない）。直す前のコードで6件のうち3件が落ちる（残る3件は今と同じ動きを確かめる検査）。node 207件 通過、python OK
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 63bd5266）: https://github.com/retroeater/mj-logs/tree/main/guide/63bd5266
+ガイド文書（この版を写した時点の最新、mj 285adc1b）: https://github.com/retroeater/mj-logs/tree/main/guide/285adc1b
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/63bd5266/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/63bd5266/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/63bd5266/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/63bd5266/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/63bd5266/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/63bd5266/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/c34f62d3.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/285adc1b/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/285adc1b/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/285adc1b/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/285adc1b/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/285adc1b/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/285adc1b/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b912fa9a.md
