@@ -159,15 +159,56 @@
 
 ### 4. マージ
 
+- 取り込み: 不要（origin/cloudflare c34f62d34 が作業ブランチの祖先のまま）。再 fetch して `git merge-base --is-ancestor origin/cloudflare HEAD` が真、`git push origin work/1109-aic:cloudflare`（c34f62d34..7dc644e91）
+- check-run（7dc644e91）: Workers Builds: mj-ask success（2026-11-09T00:48:35Z = 09:48 JST）
+- 本番（2026-11-09 09:49 JST、横断・context なし、`Origin: https://ryoei.pro`・UA に `mj-internal`。送る前の status は remaining 10）。4問とも `internalWords()` は空
+
+| 問い | 答え | データと |
+|---|---|---|
+| 鮎川 | 冒頭「「鮎川」を鮎川卓として答えます」。【鳳凰戦】42期出場、最後は第42期で A2 リーグの残留／【WRCリーグ】第1期・第2期・第4期、第2期は予選通過、第1期・第4期は予選敗退 | 一致（seasons 42、第42期 A2 5位残留。WRC は第1期46位敗退・第2期3位通過・第4期39位敗退）。前の「検索で43件の期が見つかりました」は出ていない |
+| HIRO柴田 | 【鳳凰戦】28期出場、第18期前期 C3 から第42期まで、第35期の 258.9 が最も高い、第39期の鳳凰位／【WRCリーグ】第2期に予選敗退／【麻雀最強戦】12卓、2026年度の最強夫婦合戦で決勝敗退、最強位0回・出場数7回 | 一致（seasons 28、第18期前期 C3、最高は第35期 258.9、titleSentence 第39期。WRC 第2期43位敗退。最強戦 対局数12・出場数7・最強位0）。前の「通算ではなく期ごとの得点で」は出ていない（「期ごとに得点が異なり」は一覧の形ではない） |
+| 原 | 【鳳凰戦】42人（原田潤次、原佑典、原田正史、石原康申、…ほか32人）／【WRCリーグ】14人（原田潤次、原佑典、蛯原朗、…ほか4人）。players は鳳凰戦9人・WRC リーグ10人 | 今と同じ（2 は手を入れていない）。頭が「原」の人は先に並んでいる |
+| 加藤 | 【鳳凰戦】7人（加藤貴一、加藤拓海、加藤哲郎、加藤勇飛、加藤勝久、加藤誠、加藤博己）／【麻雀最強戦】3人（加藤哲郎、加藤鷹、加藤博己）。players は鳳凰戦4人・最強戦3人 | 今と同じ（2 は手を入れていない） |
+
+- 1問目「鮎川」で作り直しが起きたかは、応答からは分からない（Workers Logs は見ていない）
+- #654 に、1 の結果と、2 の前提の食い違いをコメントした
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1109-aic
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1109-AIC-40.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1109-aic
+- 確認用URL: なし（Worker の変更。本番の問いは「経過」の4）
+- マージ: 済（7dc644e91。1 の直しは 15be0bbcb・2f7550ef4）
+- issue: #654（着手中と、1 の結果・2 の前提の食い違いをコメント）
+- 判断が必要なこと:
+  - **2（名字だけの問いの候補）は、指示の前提と実物が食い違ったので手を入れていない**（CLAUDE.md「Chat-Ref」）。名字の頭が一致する人を先に並べる形はもうある（`nameCandidates()`、2026-10-26 から。「原」は原田潤次・原佑典・原田正史が先）。候補の答えでも `players[]` は返っている（答えの文に出た名前のうち個人成績のページのある人。「加藤」の鳳凰戦は7人のうち4人）。直すなら何をするか: (a) 頭が一致する人がいれば、その人たちだけを候補にする（「原」は3人）、(b) カードを候補の文の人数にそろえる（ページの無い人は開けないので、そろえるには文の側を在籍者に絞る）、(c) このまま
+  - 1 の選んだ形: まとめた2回目は、残った大会だけをもう1回まとめて作り直す（案の「その大会の2回目を write() で」は、残った大会が2つ以上だと呼び出しが2回以上増えるため）。作り直しの呼び出しが失敗したら1回目の答えを返す（大会別の欄も同じ。変わるのは作り直しが失敗したときだけ）
+  - 作り直しの呼び出しで地域の拒否が起きたときも、1回目の答えを返す（前は 503 `region`。記録の結果が region にならない。1回目は答えられているため答えを返すのがよいと見て、そのままにした）
+  - 足した言い回しは数の付いた形だけ（「検索で〈数〉件」「〈数〉件の期」）と「通算ではなく期ごとの得点」。レビューで、数の無い形は「条件の期間」「ページの検索で」など正しい答えに当たると分かったため
+  - 費用: 作り直しは言語の混ざり・内部の言葉が出た問いだけ（今週の165行では2行）。1回あたり多くて約 $0.0005
+  - 残した低い指摘: 作り直しの JSON が null だと 503（まず起きない）、空白入り・漢数字の「検索で 43 件」の取りこぼし
+- 未確認の項目:
+  - 確かめた（2026-11-09 の書き出し、チャット側）: 11/02〜11/08 の行（165行）がブックに入った／地域で使えない／横断と予定の記録（型 `all:…`）／期を付けた問いの重なり。この指示ではこれで閉じる
+  - 持ち越す言い回しと見送った問い（次の週次の書き出し〈2026-11-16〉で、実際に聞かれたか見る）:
+    - AIC-19: 決勝だけの答えの「成績」「記録」の重なり、「WRCリーグ決勝の第10期に4位」の語順
+    - AIC-29: 「4位の古川孝次さんから10位の杉浦勘介さんまでは残留です」（11〜13位も残留）
+    - AIC-37: 予定の略称（「グランプリ」「日本シリーズ」）、title/ に無い大会と title/ の大会を両方書くと後者だけ、件名の「決勝進出者決定戦」が決勝になる、候補が最初の大会の名簿から
+    - AIC-38: 予定の問いで過去・否定でも段を読む、「決勝進出者決定戦はいつ？」で1回目の stage を使う
+    - AIC-39: 近道に入らない予定の言い回し（「王位戦、次はいつ？」「王位戦の次の放送は？」「王位戦っていつ？」など）、「直近」の過去の意味
+    - AIC-40: 作り直しの JSON が null のとき、空白入り・漢数字の「検索で 43 件」
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj c34f62d3）: https://github.com/retroeater/mj-logs/tree/main/guide/c34f62d3
+ガイド文書（この版を写した時点の最新、mj daf94d67）: https://github.com/retroeater/mj-logs/tree/main/guide/daf94d67
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c34f62d3/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c34f62d3/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c34f62d3/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c34f62d3/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c34f62d3/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c34f62d3/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/daf94d67/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/daf94d67/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/daf94d67/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/daf94d67/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/daf94d67/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/daf94d67/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/c34f62d3.md
