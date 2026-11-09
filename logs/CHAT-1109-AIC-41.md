@@ -210,7 +210,7 @@ AIC-40 で分かったこと（チャット側の前提の誤り）:
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1109-AIC-42。回答（2026-11-09、平野さん）: 残った誤り（中高）とかなの問い（中）は、頭が一致する人が2人以上いて、その中にその大会に記録のある人が1人以上いるときだけ絞る形に狭めて直す（1人には決めない。それ以外は今の部分一致のまま）。読みの頭では絞らない形、案内と決勝だけの答えは絞らない形は、このままでよい
 - ブランチ: work/1109-aic
 - ログ: https://github.com/retroeater/mj/blob/work/1109-aic/docs/logs/CHAT-1109-AIC-41.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1109-aic
@@ -237,12 +237,12 @@ AIC-40 で分かったこと（チャット側の前提の誤り）:
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 91057b6b）: https://github.com/retroeater/mj-logs/tree/main/guide/91057b6b
+ガイド文書（この版を写した時点の最新、mj 9f6170bc）: https://github.com/retroeater/mj-logs/tree/main/guide/9f6170bc
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/91057b6b/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/91057b6b/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/91057b6b/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/91057b6b/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/91057b6b/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/91057b6b/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9f6170bc/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9f6170bc/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9f6170bc/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9f6170bc/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9f6170bc/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9f6170bc/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b912fa9a.md
