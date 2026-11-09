@@ -165,8 +165,8 @@
   複数の変更が混ざっていたらissueごとに分けてコミットする（#157）
 - コミットメッセージ: 件名は50字目安（72字上限）・命令形・末尾ピリオドなし、空行を挟んで本文に「何を・なぜ」。
   既存の`chore:`等の接頭辞形式を維持し、トレーラは「Chat-Ref」節のとおり入れる
-- **コミットメッセージ（件名・本文）に閉じるキーワード（close・fix・resolve とその活用形、大文字・コロン付きも含む）の直後に `#番号` を書かない**
-  （cloudflare に入ると issue が自動で閉じる。#298・#538 が誤って閉じた。閉じるのは `gh issue close`）
+- コミットメッセージの閉じるキーワード＋`#番号`は、Bash の git なら mj-git-guard が止める（docs/notes/skills.md「git の hook（mj-git-guard）」、#556）。
+  hook が見ない経路（GitHub MCP のコミット・PR の本文）でも書かない。issue を閉じるのは `gh issue close`
 - **文章（ログ・issue本文・コメント・コミットメッセージ）をシェル経由で書かない**（`$`・バッククォートが展開される）。ファイルは Write / Edit、
   コミットメッセージは `git commit -F - <<'EOF'`（引用符付き）。渡し方の細目は docs/notes/branch-operations.md「文章をコマンドに渡すとき」
 

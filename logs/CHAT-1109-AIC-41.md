@@ -191,15 +191,58 @@ AIC-40 で分かったこと（チャット側の前提の誤り）:
 
 - 直した後: 全数の比べ「resolvedChanged 0、candChanged 238、newlyResolved 331」（読みで絞らなくなった分、減った）。今週の13の名字の表は1回目の直しと同じ（変わるのは「原」だけ）。検査を2件足した（読みの頭では絞らない、案内は絞らない）。直す前のコードで6件のうち3件が落ちる（残る3件は今と同じ動きを確かめる検査）。node 207件 通過、python OK
 
+| 回 | 対象 | 観点 | 結果と証跡 |
+|---|---|---|---|
+| 2 | e9ad141a9..6a6f85425 | 表記の頭だけで絞る形（かな・カタカナ・英字の名前）／名前だけのかなの問い／案内が直す前と同じか／予定の選手名／テスト | 案内と決勝だけの答えは直す前と同じ（rec.mjs「lost 0, oneToOther 0, manyToOne 0, foNew 0, foChanged 0」、guide.mjs「diff 0」）。cmp41 は「resolvedChanged 0」。英字の「hiro」「ＨＩＲＯ」は前と同じく HIRO柴田。node 207件・python OK。**中高1・中1・低2**（下の表） |
+
+| 指摘 | 扱い |
+|---|---|
+| **名前の解決（`resolveName()`）は絞るが、決勝だけの答え（`finalsOnly()`）と案内は絞らないので、絞って1人になった人がその大会に成績の行を持たないと、同じ大会に記録のある人がいるのに「〜の記録に「…」に当たる選手はいません」と答える**（中高）。例: WRC リーグで「勝」（前は候補 → 今は「WRCリーグの記録に「勝」に当たる選手はいません。記録があるのは鳳凰戦（勝又健志・…）」。WRC リーグにも勝又健志・瀬下勝也・永井勝晴・藤井崇勝の記録がある）、WRC リーグで「とも」（ともたけ雅晴に決まり、記録が無い）、鳳凰戦で「ロ」「ろ」（ロッキー堀江、決勝だけ）。前は候補だった語で7件 | **直していない**（往復2回の上限）。「答えが変わってよい問い」の外で答えが変わる（候補 → 誤った案内）ので、止まる条件のとおり**マージしない**。直し方の案は `## 報告` |
+| 名前だけのかなの問いが、かなで書かれた名前の別の人に決まる（「とも」→ ともたけ雅晴、「ゆう」→ ゆうせー、「こう」→ こうちゃん、「たか」→ たかし、「さくら」→ さくら美緒、「だん」→ ダンプ大橋 など）。`normalize()` がカタカナをひらがなにそろえるため（中） | 直していない（同上） |
+| 決定は「表記か読み」で絞るが、6a6f85425 は表記だけ（「はら」は5人のまま、「原」は3人）（確かめ・低） | `## 報告` に書く |
+| 「頭が一致する人が1人なら…」の検査のうち「石」は直す前も1人に決まっていた（低） | 同じ検査の「原」が絞り込みを確かめている |
+
+### 5. 止まった
+
+- 2回目のレビューで、マージの条件（「答えが変わってよい問い」の外で今の答えが変わらない）に当たる誤り（上の中高）が残った。往復2回の上限なので直さずに止まり、マージしていない（cloudflare は b912fa9a4 のまま、この指示のコードは入っていない）
+- 本番の問いは送っていない（マージしていないため）
+- #654 に、止まったことと残った指摘をコメントした
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1109-aic
+- ログ: https://github.com/retroeater/mj/blob/work/1109-aic/docs/logs/CHAT-1109-AIC-41.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1109-aic
+- 確認用URL: なし（マージしていない）
+- マージ: 未（マージの条件に当たる誤りが残ったため。作業ブランチの e9ad141a9・6a6f85425 は cloudflare に入っていない）
+- issue: #654（着手中と、止まったこと・残った指摘をコメント）
+- 判断が必要なこと:
+  - **残った誤り（中高）**: 名前の解決は絞るが、決勝だけの答えと案内は絞らないので、絞って1人になった人がその大会に成績の行を持たないと、記録のある人がいても「〜の記録に「…」に当たる選手はいません」と答える（WRC リーグの「勝」「とも」、鳳凰戦の「ロ」「ろ」など、前は候補だった7語）。直し方の案: (a) 絞るのは、その大会に記録（成績の行か決勝の順位）のある人のうち頭が一致する人がいるときだけにする（「勝」は WRC リーグで勝又健志に決まり、「とも」は今と同じ候補）。(b) 決勝だけの答えも、名前の解決が選んだ人で見る。(a) を推す（記録の無い人に決めて「いません」と答える道が無くなる）
+  - **名前だけのかなの問い（中）**: 「とも」→ ともたけ雅晴、「ゆう」→ ゆうせー、「こう」→ こうちゃん、「たか」→ たかし、「さくら」→ さくら美緒、「だん」→ ダンプ大橋 など、かなで書かれた名前の人に決まる。案: 問いがかなだけのときは絞らない（「はら」「とも」は今と同じ候補。「原」「勝」は絞る）
+  - 決定は「表記か読み」の頭で絞るとしているが、読みの頭では絞らない形にした（読みは名字と名前の切れ目が無く、「ひろし」が HIRO柴田〈ひろしばた〉に、「とし」が外嶋諒汰に決まるため。1回目のレビュー）。これでよいか
+  - ほかの大会への案内（「記録があるのは…」）は絞らない形にした（絞ると記録のある大会が案内から落ちるため。決定の範囲は候補だけと読んだ）
+  - 上の (a) とかなの扱いを決めてもらえれば、作業ブランチの直しに足して、改めてレビュー・本番の確かめをする
+- 未確認の項目:
+  - 本番の問い（「原」「加藤」「石田」）は送っていない（マージしていないため）
+  - 持ち越す言い回しと見送った問い（AIC-40 から写した。次の週次の書き出し〈2026-11-16〉で、実際に聞かれたか見る）:
+    - AIC-19: 決勝だけの答えの「成績」「記録」の重なり、「WRCリーグ決勝の第10期に4位」の語順
+    - AIC-29: 「4位の古川孝次さんから10位の杉浦勘介さんまでは残留です」（11〜13位も残留）
+    - AIC-37: 予定の略称（「グランプリ」「日本シリーズ」）、title/ に無い大会と title/ の大会を両方書くと後者だけ、件名の「決勝進出者決定戦」が決勝になる、候補が最初の大会の名簿から
+    - AIC-38: 予定の問いで過去・否定でも段を読む、「決勝進出者決定戦はいつ？」で1回目の stage を使う
+    - AIC-39: 近道に入らない予定の言い回し（「王位戦、次はいつ？」「王位戦の次の放送は？」「王位戦っていつ？」など）、「直近」の過去の意味
+    - AIC-40: 作り直しの JSON が null のとき、空白入り・漢数字の「検索で 43 件」
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 285adc1b）: https://github.com/retroeater/mj-logs/tree/main/guide/285adc1b
+ガイド文書（この版を写した時点の最新、mj 91057b6b）: https://github.com/retroeater/mj-logs/tree/main/guide/91057b6b
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/285adc1b/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/285adc1b/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/285adc1b/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/285adc1b/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/285adc1b/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/285adc1b/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/91057b6b/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/91057b6b/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/91057b6b/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/91057b6b/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/91057b6b/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/91057b6b/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b912fa9a.md
