@@ -215,7 +215,7 @@ AIC-41 のログ（作業ブランチ）と今のコードを読む。着手時�
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1109-AIC-43
 - ブランチ: work/1109-aic
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1109-AIC-42.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1109-aic
@@ -239,12 +239,12 @@ AIC-41 のログ（作業ブランチ）と今のコードを読む。着手時�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj e01a391c）: https://github.com/retroeater/mj-logs/tree/main/guide/e01a391c
+ガイド文書（この版を写した時点の最新、mj 6afa6323）: https://github.com/retroeater/mj-logs/tree/main/guide/6afa6323
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e01a391c/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e01a391c/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e01a391c/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e01a391c/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e01a391c/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e01a391c/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6afa6323/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6afa6323/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6afa6323/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6afa6323/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6afa6323/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6afa6323/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b912fa9a.md
