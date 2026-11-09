@@ -68,8 +68,9 @@ code-review・code-simplifier・claude-code-setup は入れ直す予定が無い
 
 ## git の hook（mj-git-guard）
 
-`.claude/settings.json` の `hooks.PreToolUse`（matcher `Bash`）が `.claude/hooks/mj-git-guard.py` を呼ぶ。
+`.claude/settings.json` の `hooks.PreToolUse`（matcher `Bash`）が `.claude/hooks/mj-git-guard.py` を呼ぶ（`$CLAUDE_PROJECT_DIR` の作業ツリーのファイル）。
 Bash のコマンド文字列を `&&`・`||`・`;`・`|`・改行で区切り、`git` で始まる部分を判定する。
+コミットメッセージの判定だけは、区切る前のコマンド全体から取り出す（ヒアドキュメントの本文を集め、残りを引用符の中の改行を保って区切る）。
 
 判定は deny（実行させない）だけで、確認（ask）は出さない（2026-09-30。マージの承認は指示文の「マージ:」の行で事前に行う、CLAUDE.md「ブランチ運用」）。
 
@@ -84,10 +85,12 @@ Bash のコマンド文字列を `&&`・`||`・`;`・`|`・改行で区切り、
 | cloudflare への force push（`--force`・`-f`〈`-fu` 等のまとめ書きを含む〉・`--force-with-lease`・`--force-if-includes`・`+refspec`。refspec が無ければ現在ブランチ） | cloudflare へ force push しない（本番の履歴を書き換える） |
 | リモートのブランチを消す push（`--delete`・`-d`〈まとめ書きを含む〉・`:` で始まる refspec。どのブランチでも、2026-11-01） | リモートのブランチは消さない。マージ済みの work/* は cleanup-branches.yml が消す（docs/notes/cloud-sessions.md「ブランチの削除」） |
 | `push --mirror`・`push --prune` | push --mirror・--prune は使わない（リモートのブランチを消しうる） |
+| `commit`・`merge`・`commit-tree` のメッセージ（`-m`・`--message`〈`-am` 等のまとめ書きを含む。複数の `-m` は空行で結んで見る。値に `$(`・バッククォートがあれば同じコマンドのヒアドキュメントの本文も見る〉、`--trailer`、`-F -`〈ヒアドキュメント〉・`-F <ファイル>`・`--file`）に、閉じるキーワード（close・closes・closed・fix・fixes・fixed・resolve・resolves・resolved。大文字小文字を問わず、英数字に接しないとき）＋任意のコロン＋空白（無し・改行を含む）＋`#番号`・`owner/repo#番号`・`GH-番号`・github.com の issue／PR の URL（2026-11-09、#556） | コミットメッセージに閉じるキーワードの直後の #番号を書かない（cloudflare に入ると issue が閉じる。CLAUDE.md「コミットのルール」、#556） |
 
 それ以外（cloudflare への通常の push、`claude/*`・`work/*` への push〈force を含む〉、`branch -d`、`checkout -b` など）は出力なしで通す。
+メッセージでは `(#556)`・`refs #556`・`issue #556`・`for #556`・`fix:` の接頭辞（後に `#番号` が無いもの）・`fixture #5`・`prefix #5`・Chat-Ref のトレーラを通す。
 
-判定の試験は `scripts/tests/test_git_guard.py`（unittest。2026-09-30 の手の試験の39件を写し、削除の push を足した）。
+判定の試験は `scripts/tests/test_git_guard.py`（unittest。2026-09-30 の手の試験の39件を写し、削除の push と、閉じるキーワードの止める形・通す形〈#298・#538・#666 を閉じた実際の文を含む〉を足した）。
 
 - **hook・`.claude/` の settings の変更は、ほかのコードと同じ運用**（作業ブランチで書き換え、テストで確かめ、指示文の「マージ:」の行に従ってマージする。2026-11-01）。
   2026-09-30 時点では分類器が書き換えを拒否し、平野さんの手作業と PR でマージしていたが、2026-11-01 にセッションから書き換え・push できたため改めた。
@@ -98,6 +101,11 @@ Bash のコマンド文字列を `&&`・`||`・`;`・`|`・改行で区切り、
 - `sh -c "..."`・`eval`・変数展開・git のエイリアス・スクリプトの中の git は素通りする。長いオプションの省略形（`--dele` など）と、`-C`・`-c` 以外の git 全体のオプション（`--no-pager` など）の後のサブコマンドも素通りする
 - 逆に、ヒアドキュメントや引数の文字列の中に上の git コマンドが1行で書かれていても判定される（改行で区切るため）。
   試験の入力を渡すときは、コマンド文字列に書かずファイル経由で渡す
+- 閉じるキーワードの判定の限界: 見るのは Bash の git だけで、GitHub MCP のコミット（`push_files`・`create_or_update_file` の message）・PR の本文・issue のコメントは見ない。
+  GitHub の文書（docs.github.com）はセッションから読めず、空白なし（`closes:#10`）・`GH-番号`・URL・改行をまたぐ形・日本語に接する形も止める側に入れた（止めすぎは書き直しで済む）。
+  `-F -` は同じコマンドのヒアドキュメントの本文をすべて見るので、無関係なヒアドキュメント（`cat > a.md <<'EOF'` 等）の文でも止まる。複数の `-m`・`--trailer` を結んで見るので、`-m 'Close' -m '#5 notes'` のように段落をまたいでも止まる。
+  `-F <ファイル>` は hook の作業ディレクトリから読めるときだけ見る（同じコマンドで `cd` した先の相対パス・まだ無いファイルは通す。同じコマンドのヒアドキュメントの本文は見る）。
+  パイプ・`<<<` で渡す `-F -`、`$'...'` の引用、ヒアドキュメントでない `<<`（`python3 -c "print(1<<x)"` 等）の次の行、エディタで書くメッセージ、`--amend --no-edit`・`cherry-pick`・`rebase`・`-c`／`-C`／`-t` で引き継ぐメッセージ、`git merge` の既定のメッセージ、`-m "$(cat ファイル)"` のファイルの中身、`tag -m` は見ない
 - 判定の試験は `{"tool_input":{"command":"..."}}` を標準入力に渡して出力の `permissionDecision` を見る（出力が無ければ通過）
 
 同梱の git-guardrails-claude-code（mattpocock/skills の `skills/misc/`）は `git push` をすべて止め、ログ先行 push もできなくなるため使わない。

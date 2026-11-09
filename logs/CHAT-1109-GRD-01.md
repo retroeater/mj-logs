@@ -102,7 +102,47 @@ Chat-Ref: CHAT-1109-GRD-01
 
 - docs/notes/skills.md「git の hook（mj-git-guard）」: 呼び出しの説明にメッセージの取り出し方を1行、deny の表に1行、通す形を1行、試験の説明、「限界」に閉じるキーワードの判定の限界を足した
 - docs/decisions/operations.md に 2026-11-09（CHAT-1109-GRD-01）の節を足した
-- CLAUDE.md「コミットのルール」の閉じるキーワードの行を、hook への参照の1行に置き換えた（CLAUDE.md「CLAUDE.md / handover.md の更新ルール」の「テスト・hook・ワークフローで確かめるようにした規則は…ガイド文から消し、参照だけ残す」〈#492〉による。指示文に無い変更で、規則の側を優先した。hook と同じコミットにはしておらず、直後の別コミット）
+- CLAUDE.md「コミットのルール」の閉じるキーワードの行を、hook への参照の1行に置き換えた（CLAUDE.md「CLAUDE.md / handover.md の更新ルール」の「テスト・hook・ワークフローで確かめるようにした規則は…ガイド文から消し、参照だけ残す」〈#492〉による。指示文に無い変更で、規則の側を優先した。hook と同じコミットにはしておらず、直後の別コミット）。レビュー1回目の指摘で、hook が見ない経路（GitHub MCP のコミット・PR の本文）では書かない旨を同じ行に残した（648467abd）
+
+### 4. 自己レビュー（新しい文脈のサブエージェント、2回）
+
+1回目（対象 `git diff origin/cloudflare...HEAD`、観点は docs/notes/self-review.md）:
+
+| 指摘 | 扱い |
+|---|---|
+| 【高】`git commit -m "$(cat <<'EOF' … EOF)"` の本文を見ていない | 直した（2fbe4d4c4。`-m` の値に `$(`・バッククォートがあればヒアドキュメントの本文も見る） |
+| 【中】`--trailer 'Fixes: #5'` が素通り | 直した（2fbe4d4c4） |
+| 【中】CLAUDE.md の規則を参照に置き換えたが、hook は Bash だけで GitHub MCP のコミット・PR 本文を見ない | 直した（648467abd。CLAUDE.md の行と skills.md の限界に明記） |
+| 【低】`-m 'fix' -m '#5'` が素通り | 直した（2fbe4d4c4。複数の値を空行で結んで判定） |
+| 【低】`<<\EOF` の区切り | 直した（2fbe4d4c4） |
+| 【低】`$'…'` の引用・`print(1<<x)` の次の行が素通り | 見送り（頻度が低い。skills.md の限界に書いた） |
+| 【低・止めすぎ】同じコマンドの無関係なヒアドキュメントで止まる | 意図どおり（止める側に倒す方針。skills.md の限界に書いた） |
+| 【低】NUL を含む `-F` の名前で ValueError | 直した（2fbe4d4c4） |
+| 【低・判断】`fixes GH-5` が通る | 直した（2fbe4d4c4。文書で確かめられないため止める側） |
+| 【低・規約】`簡略化:` の印が一部だけ | 直した（2fbe4d4c4。`split_heredocs`・`read_message_file`） |
+
+2回目（対象 `git diff 70e4dc929..HEAD`）:
+
+| 指摘 | 扱い |
+|---|---|
+| 【中】`--trailer 'Fixes=#10'`（git は `=` を `:` にする）が素通り | 直した（070a7ba8e。区切りを `\s*[:=]?\s*` に） |
+| 【低】引用符なしの語の途中の `#`（`-m Fixes:#10`）を shlex が注釈として捨てる | 直した（070a7ba8e。`commenters = ""`） |
+| 【低】段落をまたいだ形も止まることが文書に無い | 直した（c4b20e3dc） |
+| 【低】skills.md の文末の「。」の欠け・「PR の本文」の重複 | 直した（c4b20e3dc） |
+| 【低】`-m "$(cat ファイル)"` の素通りが限界に無い | 直した（c4b20e3dc。限界に書いた） |
+
+- 各修正の前のコードで新しい試験が落ちることを確かめた: 2fbe4d4c4 の前の hook（70e4dc929）で新しい試験を回すと failures=21・errors=1。2回目の形も 70e4dc929 の版では素通り（レビューのサブエージェントが `command_reasons` で確かめた）
+
+### 5. 最終の試験（c4b20e3dc）
+
+- `python3 -m unittest discover -s scripts/tests -p 'test_git_guard.py'` → `Ran 14 tests` `OK`。全体 → `OK`
+- 件数（test メソッド14＝既存6・新規8）:
+  - 既存: 6メソッド・入力50件（止める33・通す17）。全件通過
+  - 新規: 8メソッド・入力445件（止める376・通す69）。全件通過
+- 2. の一覧に足した入力（レビュー後）:
+  - 止めるメッセージに `fixes GH-10`（24件目。× -m の10形＝240件、× ヒアドキュメント5形＝120件）
+  - `test_split_or_substituted_blocked` 11件: `git commit -m 'subject' -m 'fix' -m '#10'`／`git commit -m subject --trailer 'Fixes: #10'`／`--trailer='Closes: #10'`／`--trailer 'Fixes=#10'`／`--trailer 'Closes = #11'`／`--trailer=Fixes=#10`／`--trailer Fixes:#10`／`git commit -m Fixes:#10`／`git commit -m "$(cat <<'EOF'` ＋件名＋e69005702 の文＋`EOF`＋`)"`／`` git commit -m "`cat <<EOF `` ＋f8e76c033 の件名＋`EOF`＋`` `" ``／`git commit -F - <<\EOF`＋5937f723a の文＋`EOF`
+  - `test_unreadable_message_file_passes` 1件: `git commit -F 'a\x00b'` → 通過（例外で落ちない）
 
 ## 報告
 
@@ -120,12 +160,12 @@ Chat-Ref: CHAT-1109-GRD-01
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 63bd5266）: https://github.com/retroeater/mj-logs/tree/main/guide/63bd5266
+ガイド文書（この版を写した時点の最新、mj 285adc1b）: https://github.com/retroeater/mj-logs/tree/main/guide/285adc1b
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/63bd5266/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/63bd5266/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/63bd5266/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/63bd5266/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/63bd5266/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/63bd5266/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/285adc1b/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/285adc1b/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/285adc1b/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/285adc1b/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/285adc1b/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/285adc1b/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b912fa9a.md
