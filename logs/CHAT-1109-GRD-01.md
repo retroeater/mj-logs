@@ -71,6 +71,39 @@ Chat-Ref: CHAT-1109-GRD-01
 - (d) 変える前の `test_git_guard.py`: 6件（test メソッド数。subTest を含む）すべて OK
 - GitHub の文書（docs.github.com「Linking a pull request to an issue」）: web-fetch で取得を試みたが `getaddrinfo ENOTFOUND docs.github.com`（このセッションのネットワークで解決できない）。文書で確かめられないため、指示のとおり `owner/repo#番号`・issue の URL・空白なし・コロン付きはすべて止める側に入れる
 
+### 2. 実装と試験（3d4b3f951）
+
+- hook の分類器による拒否: なし（`.claude/hooks/mj-git-guard.py` の書き換え・コミット・push とも通った）
+- 実装（`mj-git-guard.py`）:
+  - `commit_message_problem(command)`: 区切る前のコマンド全体から、ヒアドキュメントの本文を集め（`split_heredocs`。`<<'EOF'`・`<<EOF`・`<<"MSG"`・`<<-`）、残りを引用符の中の改行を保って演算子・改行で区切る（`shell_segments`、`shlex` の `punctuation_chars`）。`git`（`-C`・`-c`・`FOO=1` を除く）の `commit`・`merge`・`commit-tree` の `-m`・`--message[=]`・`-am` などのまとめ書き・`-F`・`-F<値>`・`--file[=]` からメッセージを取り出す。`-F -` はヒアドキュメントの本文、`-F <ファイル>` は読めれば中身（読めなければ通す。同じコマンドで書くファイルはヒアドキュメントの本文で見る）
+  - 引用符の閉じ忘れで区切れないときは、コマンド全体に `git commit` 等があり正規表現が当たれば止める
+  - 判定の正規表現 `CLOSING_REF`: キーワードの前後が英数字・`_` でない（`fixture`・`prefix`・`unfixed` は通す。日本語に接していても止める）＋任意のコロン＋任意の空白（無し・改行を含む）＋ `#番号`・`owner/repo#番号`・`https://github.com/<owner>/<repo>/(issues|pull)/<番号>`
+  - `command_reasons(command)`: 上のメッセージ判定と、従来の区切りごとの `judge` をまとめる。`main` と試験の両方がこれを呼ぶ
+  - docstring の「deny:」の一覧に1行足した。理由文は指示の案のまま
+  - 指示の案から変えた点: (1) 空白なし（`closes:#10`・`fix#10`）、改行をまたぐ形、日本語に接する形も止める（文書で確かめられないため止める側）(2) `git commit-tree -m/-F` も対象にした（メッセージの取り出しが commit と同じで足りるため）。`git tag -m` は対象外（タグは issue を閉じない）
+- 修正前の hook での試験（`origin/cloudflare` の hook に `command_reasons` だけ足した写しで回した）: 新しい試験の止める側 350件が全件落ち（FAILED failures=350）、通す側は通った。修正前は止められていなかったことを確かめた
+- 修正後: `python3 -m unittest discover -s scripts/tests -p 'test_git_guard.py'` → `Ran 12 tests` `OK`。全体 `python3 -m unittest discover -s scripts/tests` → `Ran 2080 tests` `OK`
+- 件数（test メソッド12＝既存6・新規6。subTest の入力件数）:
+  - 既存: 6メソッド・入力50件（止める33・通す17）。全件通過
+  - 新規: 6メソッド・入力418件（止める350・通す68）。全件通過
+- 新しい試験の入力（全件。`<msg>` はシェルの引用符で囲んで入れる）:
+  - 止めるメッセージ23件: `docs: fix #298 deadline row and drop review-followup row in handover`（f8e76c033 の件名）／`Close #533 after weekly run #276, file #551 for --check, fix #538 due date.`（5937f723a の本文）／`the logs, and the answers on when to close #666 and when to look at the`（e69005702 の本文）／`Fixes #10`／`fixed #10`／`FIX #10`／`Closes #10`／`closed #10`／`resolve #10`／`Resolves #10`／`RESOLVED #10`／`CLOSES: #10`／`fix: #10 typo`／`closes:#10`／`fix#10`／`close<TAB>#10`／`closes retroeater/mj#10`／`fixes owner/repo.name#10`／`closes https://github.com/retroeater/mj/issues/10`／`fixes https://github.com/retroeater/mj/pull/10`／`期日を直す（fix #538）`／`直すfix #538`／`line one<改行><改行>fix<改行>#538 split over lines`
+  - 上の23件 × 10形（230件）: `git commit -m <msg>`／`git commit -q -am <msg>`／`git commit --message=<msg>`／`git commit --message <msg>`／`git commit --amend -m <msg>`／`git commit -m 'subject' -m <msg>`／`git -C /x commit -m <msg>`／`cd /x && git commit -m <msg> && git push`／`git merge --no-ff -m <msg> origin/cloudflare`／`git commit-tree HEAD^{tree} -p HEAD -m <msg>`
+  - 上の23件 × ヒアドキュメント5形（115件）: `git add x && git commit -F - <<'EOF'`＋件名・空行・<msg>・空行・トレーラ＋`EOF`＋`git push -u origin work/x`／同じく `<<EOF` で <msg> を件名に／`<<"MSG"`／`git commit -q -F - <<-'EOF'`（タブ字下げ）／`git merge -F - origin/x <<'EOF'`
+  - `-F <ファイル>` 4件（一時ファイルに e69005702 の文）: `-F <path>`／`-F<path>`／`--file=<path>`／`--file <path>`
+  - hook の標準入力・出力（subprocess）: ヒアドキュメントで 5937f723a の文 → `deny`
+  - 通すメッセージ20件: `docs: update handover (#556)`／`#556`／`refs #556`／`issue #556`／`for #556`／`see #556 and #538`／`fix: drop stale row`／`fix: row for issue #556`／`fixture #5 added`／`prefix #5`／`suffix #5`／`closing the gap in #556`／`closer look at #556`／`unfixed #5`／`close the log; see #556`／`fixes the deadline row`／`Close the session`／Chat-Ref・Co-Authored-By のトレーラ／`close 556 (no hash)`／`fixes https://example.com/issues/5`
+  - 上の20件 × 3形（60件）: `git commit -m <msg>`／`git merge -m <msg> origin/cloudflare`／ヒアドキュメント（件名・空行・<msg>・空行・トレーラ）
+  - 通すほかのコマンド7件（文は f8e76c033 の件名）: `echo <msg>`／`cat > /tmp/x.md <<'EOF'`＋<msg>／`git log --grep <msg>`／`git tag -a v1 -m <msg>`／`git commit --amend --no-edit`／`git merge --no-edit origin/cloudflare`／`git commit -F /nonexistent/msg.txt`
+  - hook の標準入力・出力（subprocess）: ヒアドキュメントで `subject (#556)` → 出力なし（通過）
+- 作業ツリーの hook がそのまま使われるか: `.claude/settings.json` の command は `python3 "$CLAUDE_PROJECT_DIR"/.claude/hooks/mj-git-guard.py` で、作業ツリーのファイルを読む。指示のとおり、止まる文をコマンドに書いて実地で試すことはしていない（subprocess の試験で `main` の出力を確かめた）。以後のこのセッションのコミット（ヒアドキュメント）はすべて通った
+
+### 3. 文書（bf8ea00e8・a216a9963）
+
+- docs/notes/skills.md「git の hook（mj-git-guard）」: 呼び出しの説明にメッセージの取り出し方を1行、deny の表に1行、通す形を1行、試験の説明、「限界」に閉じるキーワードの判定の限界を足した
+- docs/decisions/operations.md に 2026-11-09（CHAT-1109-GRD-01）の節を足した
+- CLAUDE.md「コミットのルール」の閉じるキーワードの行を、hook への参照の1行に置き換えた（CLAUDE.md「CLAUDE.md / handover.md の更新ルール」の「テスト・hook・ワークフローで確かめるようにした規則は…ガイド文から消し、参照だけ残す」〈#492〉による。指示文に無い変更で、規則の側を優先した。hook と同じコミットにはしておらず、直後の別コミット）
+
 ## 報告
 
 - 状態: 作業中
