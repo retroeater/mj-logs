@@ -29,11 +29,11 @@ jobs:
       - name: このリポジトリをチェックアウト
         uses: actions/checkout@v7
 
-      # ubuntu-latest の既定の Python が変わっても版を変えない（mj の #538。mj のワークフローと同じ 3.12）
+      # ubuntu-latest の既定の Python が変わっても版を変えない（mj の #538。mj のワークフローと同じ 3.14、mj の #539）
       - name: Pythonをセットアップ
         uses: actions/setup-python@v7
         with:
-          python-version: '3.12'
+          python-version: '3.14'
 
       - name: mj をクローン
         env:
