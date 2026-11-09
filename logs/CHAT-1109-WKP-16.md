@@ -45,28 +45,37 @@
 
 ## 経過
 
+- 指示欄の末尾: ログの「## 指示」の最後の行が指示文の最後の行と一致することを確かめた
+- 同じ Chat-Ref のコミット: 0 件。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は4行ともあり
+- 作業ブランチ: work/1109-wkp はローカル・リモートとも無かったので `git checkout -b work/1109-wkp origin/cloudflare`（4ce1589f5）
+- 指示文の issue の state: #564 は Open（コメント 34 件）
+- MDX-01 のコメント（6598082356、2026-11-03 07:37 UTC）は #564 の最後のコメントで、その後に同じ問いへの返事は無かった
+- 前提の補い: 1本目の run 41367390119 は、CHAT-1102-WKP-13 のマージ（eac294a10。「週次」の文言の直しで `scripts/lib/x_images.py`・`scripts/generate_jpml_pros.py` を変えた）で起動したもの。返事にその旨を1句書いた
+- #564 に返事のコメントを書いた（https://github.com/retroeater/mj/issues/564#issuecomment-6729410406 ）。本文・状態・ラベルは変えていない
+- 決定を docs/decisions/automation.md に足した
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1109-wkp
-- ログ: https://github.com/retroeater/mj/blob/work/1109-wkp/docs/logs/CHAT-1109-WKP-16.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1109-WKP-16.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1109-wkp
-- 確認用URL:
-- マージ:
-- issue:
-- 判断が必要なこと:
-- 未確認の項目:
-- エラー:
+- 確認用URL: なし
+- マージ: 済（ドキュメントのみ）
+- issue: #564（返事のコメント https://github.com/retroeater/mj/issues/564#issuecomment-6729410406 。閉じていない）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 1d5ae6ce）: https://github.com/retroeater/mj-logs/tree/main/guide/1d5ae6ce
+ガイド文書（この版を写した時点の最新、mj c34f62d3）: https://github.com/retroeater/mj-logs/tree/main/guide/c34f62d3
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/1d5ae6ce/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/1d5ae6ce/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/1d5ae6ce/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/1d5ae6ce/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/1d5ae6ce/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/1d5ae6ce/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c34f62d3/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c34f62d3/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c34f62d3/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c34f62d3/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c34f62d3/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c34f62d3/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/69469d94.md
