@@ -59,6 +59,7 @@ CHAT-1109-MUB-01 の確認で、Ubuntu 26.04 への移行後の回が success �
 - 手順2: docs/decisions/automation.md に #538 の既存の記述（2026-10-10 RGN-05・RGN-06、2026-11-02 の #308 の節、2026-11-09 MUB-01 の作業中の回答）と矛盾は無い。末尾に `## 2026-11-09（CHAT-1109-UBU-03）` の節で決定2行を足した
 - 手順3: #538 に閉じる旨と MUB-01 の結果の要点をコメント（issuecomment-6730606685）し、completed で閉じた。本文・ラベルは変えていない
 - MUB-01 のログの状態は変えていない（指示の前提のとおり）
+- マージ: `git push origin work/1109-ubu:cloudflare`（fc6d3da2b..63bd5266d、fast-forward。push 直前に再 fetch して cloudflare が祖先であることを確かめた）
 
 ## 報告
 
@@ -67,7 +68,7 @@ CHAT-1109-MUB-01 の確認で、Ubuntu 26.04 への移行後の回が success �
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1109-UBU-03.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1109-ubu
 - 確認用URL: なし
-- マージ: 済（cloudflare へ fast-forward。SHA は経過に追記）
+- マージ: 済（63bd5266d）
 - issue: #538（closed、completed）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
