@@ -44,6 +44,29 @@
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+- Chat-Ref の重複確認（`git fetch --unshallow` 後、`git log --all -E --grep 'CHAT-[0-9]{4}-MUB-'`・docs/logs の履歴）: 該当なし
+- work/1109-mub はローカル・リモートとも無し → `git checkout -b work/1109-mub origin/cloudflare`（69469d94）
+- 0章: 「指示」欄の末尾は指示文の最後の行（「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」）と一致
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある
+- 手順1: #538 は open。最後のコメントは CHAT-1026-UBU-01（2026-10-26T00:17:26Z）で前提と一致。2026-10-26 より後の着手中のコメント・26.04 の確認のコメントは無い。
+  着手中のコメントを書いた（https://github.com/retroeater/mj/issues/538#issuecomment-6729356922 ）
+- mj-logs: `add_repo`（push）で接続できた（/home/user/mj-logs に clone。書き込みはしない）
+- 対象の run（GitHub MCP の `list_workflow_runs`、perPage=100 で page 1〜22。サブエージェント）: run_started_at が 2026-10-25T23:37Z より後のもの **2,099件**
+  （最初 40245574722 2026-10-25T23:37:04Z、最後 42512794532 2026-11-08T19:00:26Z。境界の外の直前は 40245383856 23:34:31Z）。
+  success 1,225・skipped 845（すべて 本番ビルド失敗の検知）・failure 27・cancelled 2。skipped でない run は 1,254件（前回 275件の約4.6倍。公開対象の検査 641・ページの再生成 347 が大半）
+- ジョブの一覧: `list_workflow_jobs` は1件 1.5k〜15k トークンで、1,254件ぶんは取り切れず止まった（取得 19件）。ジョブのログ: `get_job_logs` は1件 約10k トークン（ジョブ 約1,500件の見込み）。
+  `get_workflow_run_logs_url` の ZIP（results-receiver.actions.githubusercontent.com）は curl でプロキシに拒否（CONNECT 403）
+- **Ubuntu 26.04 のジョブがある**: run 42512794532（[scheduled] 毎朝の運行）の job 128829306366（sokuho / research、開始 2026-11-08T19:00:29Z）は
+  `Ubuntu 26.04.1 LTS`・`Image: ubuntu-26.04`・`Version: 20261101.186.1`・CPython 3.12.16・success
+
+### 手順4: run-daily 42512794532 の sokuho / research（job 128829306366）
+
+- 結論 success。入力 kind D・lookback_hours 30・dry_run false・scheduled true
+- 実行の出力（＝実行サマリに cat したもの）: 「新しいテキスト速報（公開から 30時間以内）: 3本」「候補タブ: 277行・見出し 一致」「書く行: 3件」「候補タブに 3行を書いた」
+- 書いた3行はすべて 2026-11-08 義兄弟合戦（ベスト8 A卓 kinmaweb 290041・ベスト8 B卓 290042・決勝 290043）で、確度はすべて「照合済み」。「見つからない」「未照合」の行は無い
+
 <!-- guide-links -->
 ---
 
