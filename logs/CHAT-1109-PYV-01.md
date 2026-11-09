@@ -144,6 +144,30 @@ Chat-Ref: CHAT-1109-PYV-01
 ### mj-logs
 
 - `sync-from-mj.yml` の `python-version: '3.12'` を `'3.14'` にし、直上のコメントの「3.12」も直した。`origin/main`（147aec6）の上のコミット 14a7aa1 を `git push origin HEAD:main` で1回目に入れた
+- 確かめた回: https://github.com/retroeater/mj-logs/actions/runs/42556228843 （workflow_dispatch〈Worker からの起動〉、head 14a7aa1、結論 success）。ランナーは Ubuntu 26.04.1、`Run actions/setup-python@v7` の入力 `python-version: 3.14` → `Successfully set up CPython (3.14.10)`、「写す・書き出す・push」の `python3 --version` は `Python 3.14.10`。mj の scripts（sync_all_logs.py・actions_status.py）が 3.14 で動き、push は1回目が「! [rejected] (fetch first)」（先の回が main を進めたため。版と無関係）で、2回目に fb519883「sync: mj 91057b6b」を push して終わった。その前の 14a7aa1 の回（42556134951）は cancelled（後の起動に置き換わった）
+- 戻す必要は無かった
+
+### #539
+
+- 結果をコメントした（issuecomment-6731516899）。マージ後の定期実行の確かめが残るので閉じていない
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1109-pyv（mj）。mj-logs は main へ直接
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1109-PYV-01.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1109-pyv
+- 確認用URL: なし（ワークフローと依存の固定だけで、ページの見た目は変えていない）
+- マージ: 済（mj は 91057b6b6、範囲 23d2762ed..91057b6b6。mj-logs の main は 14a7aa1）
+- issue: #539（コメント済み、open のまま）
+- 判断が必要なこと:
+  - 下の「未確認の項目」の定期実行が success で 3.14.x になったら #539 を閉じてよいか
+- 未確認の項目:
+  - 毎朝の運行（run-daily）の初回: 2026-11-10 04:00 JST（update-live-channel・update-sns-book・regenerate-saikyo・sync-dojo-calendar・cleanup-branches ほか。書き込みと push の道筋を含む）
+  - 週次の運行（run-weekly）の初回: 2026-11-16 03:00 JST（fetch-youtube → regenerate-page の「帰り道の一覧のOGP画像を作る」で Pillow の cp314 のハッシュの `--require-hashes` の install。その step は continue-on-error）
+  - 月次の運行（run-monthly）の初回: 2026-12-01 02:00 JST（fetch-gsc・fetch-redirect-counts・convert-x-posts）
+  - regenerate-sitemap: cloudflare への次の対象の push の回
+- エラー: なし
 
 <!-- guide-links -->
 ---
