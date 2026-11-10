@@ -96,6 +96,13 @@ cloudflare の生成（65cdd58e1）との比べ（search.json）:
 - #675 に、(1) 3件を載せないようにしたことと、(2) の Text Search の結果（候補1件、今の place_id と同じで決めていない）をコメントした
 - 一度きりの mode を戻すコミットで消した。`git diff origin/cloudflare -- .github/` は空。`scripts/` の差分は `generate_log_pages.py` の `HIDDEN_POSTS` の3件とコメント（4行）だけ
 
+### 5. マージと後の確かめ
+
+- push の直前に `git fetch origin cloudflare` と `git merge-base --is-ancestor origin/cloudflare HEAD`（真）を確かめ、`git push origin work/1110-lgv-l3check:cloudflare`（9df3ca3ca..bee601395）
+- bee601395 の check-run: Workers Builds: mj success・regenerate success・sync success・check success・notify skipped（2件）
+- push で走ったワークフロー: 「ページの再生成」success・「サイトマップの lastmod の同期」success・「公開対象の検査」success・「本番ビルド失敗の検知」skipped（2件、ビルドが成功したため）。再生成は生成物に差が無く、コミットは無い（bee601395 の後に cloudflare へのコミットは無し）
+- 本番 `https://ryoei.pro/log/search.json?v=bee601395`（UA に mj-internal、2026-11-10 09:21 JST）: 店 1,715・投稿 2,386。地図のリンクのホスト（店単位）は www.google.com 1,702・なし 13（旧「ログ」の共有リンクは0）。閉業の3店（p1615197432467566592・p1772580856504472001・p1845395661509824631）は無い。作業ブランチの生成と同じ。ブラウザでの見え方は確かめていない
+
 ## 報告
 
 - 状態: 判断待ち
@@ -103,7 +110,7 @@ cloudflare の生成（65cdd58e1）との比べ（search.json）:
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1110-LGV-17.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1110-lgv-l3check
 - 確認用URL: なし（本番の search.json で確かめた）
-- マージ: 済（下の経過「5.」の SHA）
+- マージ: 済（bee601395）
 - issue: #675（コメント）・#636（参照）
 - 判断が必要なこと:
   - 投稿 1450394631586279428（椿屋珈琲 新宿店）の【3】の place_id に入れる値は決めていない。共有リンクの店名「椿屋珈琲 新宿茶寮」で Text Search を引くと、候補は1件で `ChIJn1k_ZdqMGGARatQHM4XEIjk`（今この投稿に付いている、日比谷店と見ていた place_id と同じ）だった。止まる条件のとおり手順3を止めた。Google マップでこの place_id がどちらの店かを確かめ、新宿茶寮なら直しは要らない。日比谷店なら、新宿茶寮の place_id を別の手がかり（店の住所など）で引き直す指示が要る
