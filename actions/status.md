@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-11-10 10:48 JST
+- 書き出した時刻: 2026-11-10 10:51 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -25,7 +25,7 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-11-10 10:48 | push | work/1110-xpu | in_progress | #1087（42738386955） |  |
+| 2026-11-10 10:48 | push | work/1110-xpu | success | #1087（42738386955） | 0分28秒 |
 | 2026-11-10 10:15 | push | work/1110-lgv-tidy | success | #1086（42734478162） | 0分34秒 |
 | 2026-11-10 10:12 | push | work/1110-lgv-tidy | success | #1085（42734053433） | 0分27秒 |
 | 2026-11-10 10:09 | push | work/1110-lgv-tidy | success | #1084（42733721394） | 0分31秒 |
@@ -38,11 +38,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-10 10:49 | check_run | cloudflare | skipped | #1436（42738486755） | 0分01秒 |
 | 2026-11-10 10:16 | check_run | cloudflare | skipped | #1435（42734549098） | 0分00秒 |
 | 2026-11-10 10:12 | check_run | cloudflare | skipped | #1434（42734154638） | 0分01秒 |
 | 2026-11-10 10:11 | check_run | cloudflare | skipped | #1433（42734026866） | 0分01秒 |
 | 2026-11-10 10:10 | check_run | cloudflare | skipped | #1432（42733792083） | 0分07秒 |
-| 2026-11-10 10:03 | check_run | cloudflare | skipped | #1431（42732999055） | 0分01秒 |
 
 ## check-image-links.yml
 
@@ -172,11 +172,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-10 10:48 | workflow_dispatch | work/1110-xpu | success | #33（42738397386） | 0分33秒 |
 | 2026-11-09 11:53 | workflow_dispatch | work/1109-pyv | success | #32（42553392808） | 1分33秒 |
 | 2026-11-03 17:17 | workflow_dispatch | work/1103-ryo5 | success | #31（41602169277） | 0分47秒 |
 | 2026-11-03 17:17 | workflow_dispatch | work/1103-ryo5 | success | #30（41602164414） | 0分25秒 |
 | 2026-11-03 17:15 | workflow_dispatch | work/1103-ryo5 | success | #29（41601917661） | 0分53秒 |
-| 2026-11-03 17:15 | workflow_dispatch | work/1103-ryo5 | success | #28（41601912805） | 0分28秒 |
 
 ## fetch-youtube.yml
 
