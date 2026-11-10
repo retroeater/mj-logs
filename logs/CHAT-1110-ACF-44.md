@@ -51,6 +51,42 @@
 
 ## 経過
 
+### 着手前の確認
+- 同じ Chat-Ref のコミット: なし。`ACF` は続き。0. 指示欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 欠けなし（「使う skill」の行もある）
+- 作業ブランチ: ローカル・リモートとも無かったので `git checkout -b work/1110-acf origin/cloudflare`（449e771dfe）
+- 着手時に docs/notes/github-actions.md「ワークフローを変更したとき」「チャット側」、writing-for-agents を読んだ
+
+### 手順1: 前提の確かめ
+- #352: open（state_reason reopened、更新 2026-11-08T18:08:38Z = 11/9 03:08 JST）。本文の「jpml_pros.html」の節は切れ1件で `404 石川正明 X — …/pAfu5snD_80x80.jpg`。ラベル「種類: 常設」
+- 69469d9489（2026-11-08T19:11:38Z = 11/9 04:11 JST、chore: regenerate … jpml_pros.html …）で `pAfu5snD_80x80` が jpml_pros.html から消えた（`git log -S'pAfu5snD_80x80' -- jpml_pros.html` が fb37c83627〈入った〉と 69469d9489〈消えた〉を指す。今の jpml_pros.html に0件）→ 前提と一致
+- run-weekly の `images`: 今の run-weekly.yml に `images`（check-image-links、dry_run/scheduled を渡す、secrets SHEETS_READER_SA_KEY）があり、`youtube` が `needs: [logs, images]` → 前提と一致
+- MIN-01 の前の run-daily（d7d8ae4ab1^）: `sns` → `images`（`needs: sns`・`!cancelled()`・dry_run `!inputs.scheduled`・scheduled）→ `saikyo`（`needs: images`）。MIN-01 は d7d8ae4ab1（run-daily・run-weekly・check-image-links.yml・3スクリプトの文言・docs）と 7789ce83b6（コメント・docs の日付）
+- 同じ論点の open issue: 「画像リンク切れ」「check-image-links」で検索。#257（生成への反映）・#139（対象の範囲）・#564（Actions の整理）などで、検知の頻度・置き場所を主題にするものは無し
+- #298・#352 の他セッションの着手中: 無し（#298 の最後のコメントは 11/5 の MIN-01、#352 は 10/23 の ACF-34 の後は bot の結果だけ）。**着手中のコメントは、コードを直した後（db03e530ba の後）に書いた**（CLAUDE.md の「コードを触る前に」に遅れた。他セッションの着手の有無は直す前に確かめていない）: #352 https://github.com/retroeater/mj/issues/352#issuecomment-6755728311 、#298 https://github.com/retroeater/mj/issues/298#issuecomment-6755728987
+
+### 手順1: 未マージの work/ ブランチ
+対象の文書・ワークフロー・スクリプトを変えるブランチ（`git diff origin/cloudflare...<b>`）:
+- origin/work/1101-prp-pub: check-image-links.yml の2行目（「jpml_pros.html・最強戦・SNS ブックの3つのジョブを毎日動かし」→ 連盟プロ〈pro/〉へ）と saikyo のジョブのコメント、scripts/check_image_links.py（対象を pro/index.html へ。ISSUE_INTRO は変えていない）、docs/notes/github-actions.md の check-image-links.yml の行、handover.md。**どれも MIN-01 より前（merge-base ada6990de1）の文を元にした直し**
+- origin/work/1103-ryo5: docs/notes/github-actions.md の fetch-x-posts.yml の行（別の行）
+- origin/work/1104-lgn-policy: docs/handover.md（別の行）
+- 判断: work/1101-prp-pub は check-image-links.yml の2行目を変えていて、今回も同じ行を直す。ただし今回はその行を MIN-01 の前の文（prp-pub の元の文）にそのまま戻すので、取り込みは衝突しなくなる。`git merge-tree --write-tree` の試し: cloudflare × prp-pub は check-image-links.yml と github-actions.md が衝突、**作業ブランチ × prp-pub は github-actions.md だけ**（check-image-links.yml の衝突は消える）。ryo5 の github-actions.md・lgn-policy の static-generation.md の衝突は cloudflare の時点からあり、今回で増えていない。止まる条件の趣旨（重なる変更で衝突する・作業を壊す）に当たらないと判断して進めた（判断の根拠をここに残す）
+
+### 手順2: 並びの決め方（saikyo と images）
+- images の3ジョブ（check・saikyo・sns_book）は checkout の ref が `${{ github.ref }}`（起動時のブランチの先頭）で、`check` は jpml_pros.html、`saikyo`・`sns_book` はシート（SNS ブック・最強戦）を読み、issue を書くだけ（permissions contents: read）。`sns` の後に置けば、更新とその再生成の後のページ・値を見る
+- saikyo（regenerate-saikyo）は ABEMA ブックの【2】と saikyo/ を書く。images はそれを読まず、saikyo も images の結果を使わない（MIN-01 も同じ判断で needs を sns に付け替えた）。書き込みを共有しないので、**`saikyo` は `needs: sns` のまま、`images` も `needs: sns`（`!cancelled()`）で並行**にした。並行にしても使用量（分）は変わらず、saikyo/ の反映が images の約5分を待たない
+- `logs`（mj-logs の同期の起動）の `needs` に `images` を足した（11/5 までは saikyo 経由で images を待っていた）
+
+### 手順2: 変えたもの（db03e530ba）
+- `.github/workflows/check-image-links.yml`・`scripts/check_image_links.py`（ISSUE_INTRO を「毎朝の…」）・`scripts/collect_saikyo_images.py`・`scripts/lib/x_images.py`: MIN-01 の直前（d7d8ae4ab1^）の版に戻した（この4ファイルの d7d8ae4ab1^..cloudflare の差は MIN-01 の2コミットだけと確かめた）
+- `run-daily.yml`: `images` を `sns` の後に足し、冒頭のコメントの並び、`logs` の needs を直した。`run-weekly.yml`: `images` を外し、`youtube` の needs を `[logs]` に、冒頭のコメントを直した
+- docs: github-actions.md（表の regenerate-saikyo・check-image-links・run-daily・run-weekly の行、「run-daily.yml」の並び、戻し方 1.、「run-weekly.yml・run-monthly.yml」の2行、権限の表の images の行〈run-daily の saikyo の次へ〉）、sns-book.md（「毎朝の検知」）、saikyo-page-design.md（20行・660行の見出し・676〜677行）、scheduler-worker.md（今の表）、static-generation.md（scripts の2行）。handover.md・abema-book.md・regenerate-saikyo.yml のコメントは今も正しい（saikyo は sns の後）ので直していない
+- docs/decisions/automation.md に「決定」を足した
+- 運行表（mj-logs の actions/index.html）は `scripts/actions_dashboard.py` が `.github/workflows/` から起こして同期で書くので、手作業は無し（マージ後の同期で書き直される）
+- テスト: `python3 -m unittest discover -s scripts/tests` OK、`node --test workers/scheduler/test/*.test.mjs` pass 47・fail 0（schedule.json は変えていない）
+
+### 手順3: 手動実行
+- 00:54Z に run-daily.yml・run-weekly.yml を work/1110-acf で起動（入力なし＝書かない道筋）
+
 ## 報告
 
 - 状態:
