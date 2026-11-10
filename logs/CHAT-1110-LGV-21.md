@@ -56,7 +56,7 @@ CHAT-1110-LGV-20 の洗い出しの (A)（本文に駅が無く店舗を特定�
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1110-LGV-22
 - ブランチ: work/1110-lgv-chainissue
 - ログ: https://github.com/retroeater/mj/blob/work/1110-lgv-chainissue/docs/logs/CHAT-1110-LGV-21.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1110-lgv-chainissue
@@ -70,12 +70,12 @@ CHAT-1110-LGV-20 の洗い出しの (A)（本文に駅が無く店舗を特定�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 097c4d99）: https://github.com/retroeater/mj-logs/tree/main/guide/097c4d99
+ガイド文書（この版を写した時点の最新、mj 88a83744）: https://github.com/retroeater/mj-logs/tree/main/guide/88a83744
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/097c4d99/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/097c4d99/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/097c4d99/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/097c4d99/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/097c4d99/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/097c4d99/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/88a83744/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/88a83744/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/88a83744/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/88a83744/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/88a83744/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/88a83744/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/535e861a.md

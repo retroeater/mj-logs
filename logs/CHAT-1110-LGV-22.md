@@ -49,28 +49,35 @@ CHAT-1110-LGV-20 の洗い出しの (A)（本文に駅が無く店舗を特定�
 
 ## 経過
 
+- 着手。指示欄の末尾は指示文の最後の行と一致。冒頭の雛形の行（Chat-Ref・マージ・貼る時機・共通手順）に欠けなし。同じ Chat-Ref のコミットなし。work/1110-lgv-chainissue はリモートにあり（760c8e2cf、LGV-21 のログ）、origin/cloudflare を含む（取り込み不要）。CHAT-1110-LGV-21 のログの状態に「 / 続き: CHAT-1110-LGV-22」を足した
+- 同じ主題の issue の検索（search/issues、題・本文の「チェーン店」「別の店舗」「place_id ログ」、閉じたものを含む）: 同じ主題なし（「チェーン」が当たるのは #665〈ジャンル〉だけ）
+- 手順1: LGV-20 のログの (A) の表（21行）から椿屋珈琲を除いて20店・25件（重なりなし）。数は指示と合う。本番の `log/search.json`（origin/cloudflare の生成物）で25件すべて今の店（place_id）の投稿として載っている（載っていない投稿なし）。日付・投稿者（25件とも谷岡育夫）・店の駅はここから引いた
+- 手順2: #678「ログ: チェーン店で別の店舗が付いている見込みの投稿」を作った（ラベル: 状況: 待ち・分野: 整理・保守・対象: resource_logs）。本文は確かめ方と、店ごとの節20（店名・今の place_id・店の駅・今の店舗と同じ店名の別の店舗の地図・投稿のチェックボックス）、投稿の行25（投稿 ID・日付・投稿者・`https://x.com/i/status/<投稿ID>`）。本文（X の投稿の文）は書いていない。Places の API は呼んでいない
+  - GitHub MCP で書くと、最初の4本の地図の URL（店名を URL エンコードした部分が長いトシ・ヨロイヅカと焼きあご塩らー麺 たかはし）がバッククォートで囲まれて保存された（markdown のリンクの形でも、URL だけの形でも同じ）。地図のリンクを URL だけの形にし、この2店だけ query の店名をエンコードせずに書いて（空白は %20）書き直し、保存された本文が意図どおりなことを GitHub の API で読み直して確かめた（指示の「店名を URL エンコード」から外れたのはこの2店の4本だけ）
+- 手順3: ログを cloudflare へマージする（差分は docs/logs・docs/decisions だけ）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1110-lgv-chainissue
 - ログ: https://github.com/retroeater/mj/blob/work/1110-lgv-chainissue/docs/logs/CHAT-1110-LGV-22.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1110-lgv-chainissue
 - 確認用URL: なし
-- マージ: 未
-- issue: なし
-- 判断が必要なこと: なし
+- マージ: 済 35782cfaf（docs のみ。LGV-21 のログを含む）
+- issue: #678 を作った（20店・25件）
+- 判断が必要なこと: 平野さんが #678 の25件を X の投稿で確かめ、違う店舗なら【3】の「place_id」を直し、分からなければ【3】の「表示」を N にする。直し終えたらチャットに伝える（直した後の確かめは別の指示）
 - 未確認の項目: なし
-- エラー: なし
+- エラー: なし（GitHub MCP が長いエンコードの URL をバッククォートで囲んだ件は、書き方を変えて解いた。経過のとおり）
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 097c4d99）: https://github.com/retroeater/mj-logs/tree/main/guide/097c4d99
+ガイド文書（この版を写した時点の最新、mj 88a83744）: https://github.com/retroeater/mj-logs/tree/main/guide/88a83744
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/097c4d99/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/097c4d99/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/097c4d99/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/097c4d99/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/097c4d99/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/097c4d99/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/88a83744/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/88a83744/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/88a83744/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/88a83744/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/88a83744/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/88a83744/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/535e861a.md
