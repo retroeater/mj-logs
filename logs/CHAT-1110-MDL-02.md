@@ -63,16 +63,39 @@
 
 - 着手前の確認: 同じ Chat-Ref のコミットなし／`MDL` は同じセッションの続き（MDL-01 の次）／0章: 指示欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）の欠けなし（貼られた指示文は改行が一部つながった形で届いたので、そのまま写した）
 - 作業ブランチ: origin/work/1110-mdl はマージ済み、ローカルの work/1110-mdl は origin/cloudflare の祖先（同じ先頭）→ `git merge --ff-only origin/cloudflare`（Already up to date）
+- #390: open、他セッションの着手中のコメントなし（直近は 2026-11-01 のマージの報告）。着手中のコメント: https://github.com/retroeater/mj/issues/390#issuecomment-6758822807
+- 前提の照合（4eb5ef4）: `MODEL = "claude-opus-5"` は scripts/lib/dojo_guest.py 37行目、`git grep MODEL` で使うのは `read_image()` の `model=MODEL`（167行目）だけ。`read_image()` が送るのは model・max_tokens・messages・output_config（json_schema）だけで、tool_choice・thinking・temperature なし。応答は `type == "text"` のブロックだけを読む。`_sync_image()` の読み取りを飛ばす条件（`changed` が偽で保存した data があり `--apply` でない → skipped）は実物では 118〜126行目付近（前提の行番号と1〜2行ずれるが内容は一致）。文書の「読み取り:」は docs/notes/dojo-guest-calendar.md 14行目だけ。古い ID はコード・文書でほかに無し
+- 未マージの work/ ブランチは2ファイルとも変えていない
+- 基準（#426 の11月分の最も新しい読み取り、2026-11-01 https://github.com/retroeater/mj/issues/426#issuecomment-6551720627 。11/1 より後の11月分のコメントは無し）:
+  > 読み取り 21件 / 未定で飛ばした日 3件 / 照合できない名前 0件 / 既にある予定 0件 / 追加 18件
+- 変更（e59e65b）: `MODEL = "claude-opus-5-5"`、文書の「読み取り:」の行のモデル名。`python3 -m unittest discover -s scripts/tests` → `Ran 2087 tests` `OK`
+- 手動実行: https://github.com/retroeater/mj/actions/runs/42754850894 （ref work/1110-mdl、image=11月分の URL + `?v=mdl02`、month=2026-11、apply=false、scheduled なし）→ ジョブ sync が success（再実行なし）
+  - 引数の行: `引数: --compare --state dojo-state.json --json result.json --image https://www.ma-jan.or.jp/wp-content/uploads/202611R.jpg?v=mdl02 --month 2026-11`
+  - 件数の行: `読み取り 21件 / 未定で飛ばした日 3件 / 照合できない名前 0件 / 書き込み済みの月 / 当日以降の変更 0件`
+  - 「当日以降の変更（変更前 → 変更後）」: `- なし`
+  - 「手で入れた予定との食い違い」の節: 出ていない
+  - 「保存した読み取り結果を使いました」の行が無く、Claude API で読み直した（HEAD・画像の取得とも失敗なし）
+  - #426 に付いたコメント: https://github.com/retroeater/mj/issues/426#issuecomment-6758844487
+  - 基準との比較: 読み取り 21・未定 3・照合できない名前 0 とも一致。未定の日（11/03・11/05・11/19）も同じ。違いは 11/05 に「カレンダーの予定（手で入れた予定）は残しています」の注記が付いたこと（11/1 の後にカレンダーへ手で入れた予定と読める。食い違いの節ではない）と、画像の注記の読み取りの細かい揺れ（「金曜は」→「金曜日は」など。書き込みには使わない）
+- 自己レビュー（新しい文脈の general-purpose、1回）:
+
+| 指摘 | 扱い |
+|---|---|
+| docs/notes/dojo-guest-calendar.md「費用」の単価（入力 $5/1M）が前の世代のもの | 意図どおり（2026-09-21 の実績の説明として日付付きで書かれている。指示が文書は「読み取り:」の行だけを直すとしている。単価はこのセッションで確かめていない） |
+| `read_image()` が effort を送らず、モデルの既定の effort が変わりうる | 意図どおり（決定は ID の書き換えだけ。実行の結果が基準と一致した） |
+| 拒否の分類が広がりうる | 意図どおり（拒否は ValueError で止まり、誤って書き込まない） |
+
+- マージ: `git push origin work/1110-mdl:cloudflare`（push 直前に再 fetch して `git merge-base --is-ancestor origin/cloudflare HEAD` を確認）。マージの後の見込み: ページの生成物は変わらない。毎朝の実行は画像が変わるまで Claude API を呼ばない。新しいモデルが本番で初めて読むのは次の月の画像が載った日
 
 ## 報告
 
-- 状態: 中断（作業中）
+- 状態: 完了
 - ブランチ: work/1110-mdl
-- ログ: https://github.com/retroeater/mj/blob/work/1110-mdl/docs/logs/CHAT-1110-MDL-02.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1110-MDL-02.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1110-mdl
-- 確認用URL: なし
-- マージ: 未
-- issue: #390
+- 確認用URL: なし（ページの生成物は変えていない）
+- マージ: 済（このログを含む work/1110-mdl の先頭を cloudflare へ fast-forward）
+- issue: #390（着手と結果のコメント、open のまま）、#426（確かめの実行のコメントが1件付いた）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
@@ -80,12 +103,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 4eb5ef49）: https://github.com/retroeater/mj-logs/tree/main/guide/4eb5ef49
+ガイド文書（この版を写した時点の最新、mj 0d3df830）: https://github.com/retroeater/mj-logs/tree/main/guide/0d3df830
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/4eb5ef49/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/4eb5ef49/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/4eb5ef49/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/4eb5ef49/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/4eb5ef49/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/4eb5ef49/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/0d3df830/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/0d3df830/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/0d3df830/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/0d3df830/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/0d3df830/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/0d3df830/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/535e861a.md
