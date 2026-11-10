@@ -111,7 +111,7 @@
 
 ## 報告
 
-- 状態: 完了
+- 状態: 完了 / 続き: CHAT-1110-LGV-21
 - ブランチ: work/1110-lgv-chain
 - ログ: https://github.com/retroeater/mj/blob/work/1110-lgv-chain/docs/logs/CHAT-1110-LGV-20.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1110-lgv-chain
