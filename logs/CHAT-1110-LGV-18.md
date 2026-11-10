@@ -137,7 +137,7 @@
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1110-LGV-19
 - ブランチ: work/1110-lgv-tidy
 - ログ: https://github.com/retroeater/mj/blob/work/1110-lgv-tidy/docs/logs/CHAT-1110-LGV-18.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1110-lgv-tidy
@@ -155,12 +155,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 23779199）: https://github.com/retroeater/mj-logs/tree/main/guide/23779199
+ガイド文書（この版を写した時点の最新、mj 3fe89e4b）: https://github.com/retroeater/mj-logs/tree/main/guide/3fe89e4b
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/23779199/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/23779199/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/23779199/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/23779199/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/23779199/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/23779199/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/449e771d.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/3fe89e4b/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/3fe89e4b/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/3fe89e4b/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/3fe89e4b/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/3fe89e4b/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/3fe89e4b/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/23779199.md
