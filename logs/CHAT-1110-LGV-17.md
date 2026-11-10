@@ -56,28 +56,69 @@ CHAT-1107-LGV-16 の後、平野さんが3層のシートの【3】のタブを�
 
 ## 経過
 
+### 着手（2026-11-10）
+
+- 0章: ログの「指示」欄の末尾は指示文の最後の行と一致。CHAT-1107-LGV-16 のログの状態に「/ 続き: CHAT-1110-LGV-17」を足した（ログ先行のコミットに含めた）
+- 同じ Chat-Ref のコミット・ログ: 0件。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 欠けなし
+- ブランチ: work/1110-lgv-l3check はローカル・リモートとも無し → `git checkout -b work/1110-lgv-l3check origin/cloudflare`
+- #675 は open。未マージの work/ ブランチで `scripts/generate_log_pages.py`・docs/notes/log-page.md を変えているもの: 0件
+
+### 1. 閉業の3件と文書（135b0b08d）
+
+- `HIDDEN_POSTS` に 1615197432467566592「閉業(牡蠣屋うらら)」・1772580856504472001「閉業(為セバ成ル)」・1845395661509824631「閉業(かめや)」を足した（place_id が無いので毎月の閉業の確かめでは外れない旨のコメントも）
+- `python3 -m unittest discover -s scripts/tests`: OK
+- docs/notes/log-page.md: 「データの持ち方」の先頭に3層の形（【2】の「表示」の規則を古い行にも当てた〈2026-11-07、2,030件 N→Y〉・【3】は補正の要る行だけ、8列〈投稿ID・表示・判定・日付・place_id・駅・店名・メニュー、見出しの名前で読むので順は問わない〉・「店URL」は【3】に持たず生成で組み立てる・「【3】手動補正（旧）」のタブは残っていて生成は読まない）を足した。「載せない投稿」の行の閉業に place_id の無い3店を足した
+
+### 2. 生成と比べ
+
+- `regenerate-page.yml` を作業ブランチの ref・`target_page: log_pages` で手動実行（run 805、135b0b08d）→ 生成のコミット 2fa4677fb
+- 生成のログ: 「3層から 3173件のうち 2386件・1715店（過去メシで外した 133件・石立岳大で外した 601件、載せない投稿（HIDDEN_POSTS）で外した 38件、本文の語（催事・再掲）で外した 2件、「閉業」シートで外した 0店、載せない店（HIDDEN_SHOPS）で外した 4店、…）」。本文の語で外した2件は毎朝の取り込みで入った新しい投稿: 2119372281105539156・2119370337225990144（どちらも「大つけ麺博」。cloudflare の生成〈65cdd58e1、2026-11-08 04:09 JST〉には無かった投稿なので、ページの増減には出ない）
+
+cloudflare の生成（65cdd58e1）との比べ（search.json）:
+
+- (a) 店 1,718 → 1,715（−3）・投稿 2,389 → 2,386（−3）
+- (b) 外れた投稿: 3件、すべて「投稿ごと」（`HIDDEN_POSTS`、閉業）: 1615197432467566592（牡蠣屋うらら、2023-01-17）・1772580856504472001（為セバ成ル、2024-03-26）・1845395661509824631（かめや、2024-10-13）。3店とも投稿は1件で、店ごと消えた（p の鍵の店）。増えた投稿は0（毎朝の取り込みの新しい2件は大つけ麺博の語で外れた）
+- (c) 店の地図のリンクのホスト（店単位）: 前 maps.app.goo.gl 903・goo.gl 447・www.google.com 354・pbs.twimg.com 1・なし 13 → 後 www.google.com 1,702・なし 13。検索の形に替わったのは 1,348店（maps.app.goo.gl 901・goo.gl 446・pbs.twimg.com 1）で、残りの3店は閉業で外した店。リンクの無い 13店は前後で同じ
+- (c) の見込み（約1,978件）は LGV-16 の投稿単位の数で、search.json の店単位の数（1,348店。その店の投稿は 1,705件）とは数え方が違う。同じ数え方で確かめるため、一度きりの mode（下）で「【3】手動補正（旧）」と今の【3】の投稿ごとのリンクを比べた: maps.app.goo.gl → 検索の形 1,236・goo.gl → 検索の形 741・pbs.twimg.com → 検索の形 1（計 **1,978**）で見込みと一致
+- (d) リンク以外で値が変わった店・投稿: 0（search.json の店の全項目を比べて 0。一度きりの mode の投稿ごとの比べでも「リンク以外の違い: なし」）
+
+### 3. 一度きりの mode（f736b391e・bb1a1a17a。1e4277bd5 で消した）
+
+- `convert_x_posts.py` に mode `lgv17` を足し、`convert-x-posts.yml` の選択肢に足した。旧の【3】と今の【3】で log/ の生成と同じ処理を回して投稿ごとに比べ（読むだけ）、椿屋珈琲 新宿店の共有リンクの転送先を読み、`--apply` のときだけ Text Search（IDs Only）を1回呼ぶ。どのシートにも書かない
+- 共有リンク（`share.google`）はこのコンテナのネットワークでは拒否された（プロキシが接続を拒否）ので、ワークフローの中で読んだ
+- run 78（ID 42727081844、dry-run、success）: 【2】 3,484行・【3】 1,843行（見出し: 投稿ID・表示・判定・日付・place_id・駅・店名・メニュー）・【3】（旧） 3,141行。投稿は旧の【3】・今の【3】とも 2,386件（片方だけの投稿 0）。上の (c)(d) の投稿ごとの数。共有リンクの転送先（1回）は `https://www.google.com/search`（Google の検索ページ。Google マップの URL ではない）、店名「椿屋珈琲 新宿茶寮」、座標は無い
+- run 79（ID 42727216465、`--apply`、success）: 転送先は読み直さず、run 78 で読んだ店名で Text Search（IDs Only、`pageSize` 5、`locationBias` なし）を1回: 候補 1件 `ChIJn1k_ZdqMGGARatQHM4XEIjk`
+- **この place_id は、日比谷店の place_id として指示に書かれたものと同じ**。止まる条件のとおり手順3を止め、place_id は決めていない。「椿屋珈琲 新宿茶寮」で引いた place_id と、今この投稿に付いている place_id が同じなので、今の place_id が新宿茶寮のもので直しが要らない可能性がある
+- 1e4277bd5（f736b391e・bb1a1a17a を戻すコミット）で mode を消した
+
+### 4. #675 のコメントと片付け
+
+- #675 に、(1) 3件を載せないようにしたことと、(2) の Text Search の結果（候補1件、今の place_id と同じで決めていない）をコメントした
+- 一度きりの mode を戻すコミットで消した。`git diff origin/cloudflare -- .github/` は空。`scripts/` の差分は `generate_log_pages.py` の `HIDDEN_POSTS` の3件とコメント（4行）だけ
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1110-lgv-l3check
-- ログ: https://github.com/retroeater/mj/blob/work/1110-lgv-l3check/docs/logs/CHAT-1110-LGV-17.md
+- 状態: 判断待ち
+- ブランチ: work/1110-lgv-l3check（マージ済み。削除は cleanup-branches.yml）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1110-LGV-17.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1110-lgv-l3check
-- 確認用URL: なし
-- マージ: 未
-- issue: #675・#636（参照）
-- 判断が必要なこと: なし
+- 確認用URL: なし（本番の search.json で確かめた）
+- マージ: 済（下の経過「5.」の SHA）
+- issue: #675（コメント）・#636（参照）
+- 判断が必要なこと:
+  - 投稿 1450394631586279428（椿屋珈琲 新宿店）の【3】の place_id に入れる値は決めていない。共有リンクの店名「椿屋珈琲 新宿茶寮」で Text Search を引くと、候補は1件で `ChIJn1k_ZdqMGGARatQHM4XEIjk`（今この投稿に付いている、日比谷店と見ていた place_id と同じ）だった。止まる条件のとおり手順3を止めた。Google マップでこの place_id がどちらの店かを確かめ、新宿茶寮なら直しは要らない。日比谷店なら、新宿茶寮の place_id を別の手がかり（店の住所など）で引き直す指示が要る
 - 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj fc46d17c）: https://github.com/retroeater/mj-logs/tree/main/guide/fc46d17c
+ガイド文書（この版を写した時点の最新、mj bee60139）: https://github.com/retroeater/mj-logs/tree/main/guide/bee60139
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/fc46d17c/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/fc46d17c/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/fc46d17c/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/fc46d17c/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/fc46d17c/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/fc46d17c/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/bee60139/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/bee60139/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/bee60139/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/bee60139/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/bee60139/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/bee60139/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/9df3ca3c.md
