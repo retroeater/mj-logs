@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-11-11 04:20 JST
+- 書き出した時刻: 2026-11-11 08:17 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -25,11 +25,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-11 08:16 | push | work/1110-lgv-fujiclose | success | #1095（42921981097） | 0分38秒 |
 | 2026-11-10 21:52 | push | work/1110-lgv-fuji | success | #1094（42819418471） | 0分31秒 |
 | 2026-11-10 21:50 | push | work/1110-lgv-fuji | success | #1093（42819123601） | 0分28秒 |
 | 2026-11-10 13:31 | push | work/1110-lgv-chain | success | #1092（42756371254） | 0分29秒 |
 | 2026-11-10 13:28 | push | work/1110-lgv-chain | success | #1091（42756068617） | 0分23秒 |
-| 2026-11-10 13:16 | push | work/1110-mdl | success | #1090（42754841464） | 0分24秒 |
 
 ## check-build-failure.yml
 
@@ -129,11 +129,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-11 08:16 | workflow_dispatch | work/1110-lgv-fujiclose | success | #85（42921985597） | 0分41秒 |
 | 2026-11-10 21:50 | workflow_dispatch | work/1110-lgv-fuji | success | #84（42819129396） | 0分46秒 |
 | 2026-11-10 13:28 | workflow_dispatch | work/1110-lgv-chain | success | #83（42756074326） | 0分42秒 |
 | 2026-11-10 10:08 | workflow_dispatch | work/1110-lgv-tidy | failure | #82（42733568250） | 0分37秒 |
 | 2026-11-10 10:07 | workflow_dispatch | work/1110-lgv-tidy | success | #81（42733467207） | 0分39秒 |
-| 2026-11-10 10:02 | workflow_dispatch | work/1110-lgv-tidy | success | #80（42732780414） | 0分32秒 |
 
 - #82 failure: ジョブ「convert」 ステップ「実行」
 

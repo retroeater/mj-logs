@@ -73,7 +73,7 @@
 
 ## 報告
 
-- 状態: 完了
+- 状態: 完了 / 続き: CHAT-1110-LGV-24
 - ブランチ: work/1110-lgv-fuji
 - ログ: https://github.com/retroeater/mj/blob/work/1110-lgv-fuji/docs/logs/CHAT-1110-LGV-23.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1110-lgv-fuji
@@ -95,4 +95,4 @@
 - docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f2ff86b9/docs/notes/chat-side-operations.md
 - docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f2ff86b9/docs/notes/cloudflare.md
 - docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f2ff86b9/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/535e861a.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/500391e1.md
