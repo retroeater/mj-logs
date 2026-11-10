@@ -60,15 +60,61 @@ X の Pay-Per-Use では、2026-11-22 から expansions で返る物（写真な
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+- 0章: 指示欄の末尾は指示文の最後の行「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」と一致
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 欠けなし
+- 着手前の確認: `git log --all -E --grep 'CHAT-[0-9]{4}-XPU-'`・`docs/logs/CHAT-*-XPU-*.md` の履歴とも0件。指示文が対象にする issue は無い。work/1110-xpu はローカル・リモートとも無く、origin/cloudflare（23779199f）から作った
+- 前提の確かめ（作業ブランチの起点 23779199f の `scripts/fetch_x_posts.py`）:
+  - `EXPANSIONS = "attachments.media_keys"`（59行）・`MEDIA_FIELDS = "url,type"`（58行）・ほかの expansions なし・`geo` は `TWEET_FIELDS` の値: 一致
+  - `SEARCH_MAX_READS = 1200`（49行）・`SEARCH_MAX_COST = 6.0`（50行）・`check_limits()` は 90行（前提は 89行）・`fetch_search()` 160行・`preflight()` の見込み 376行・`main()` の報告 425行: 一致（行番号のずれは1行）
+  - `convert_x_posts.py` の `photos[0]` 383行: 一致。`collect_saikyo_images.py` 55行の URL は `user.fields=profile_image_url` だけ: 一致。`update_sns_book.py` に expansions・user.fields の語は無い
+  - `git grep -n "読んだ投稿"`: コードは `scripts/fetch_x_posts.py` の1か所だけ。前提の「そのテスト」には無く（テストは見込みの費用の行を見ていなかった）、ほかは docs/logs の過去の記録（CHAT-1102-LOG-01・CHAT-1102-WKP-09）。文言を読むコードが無い点は前提どおりなので止めない
+- 同じ論点の issue: `repo:retroeater/mj is:issue` で「expansions」「fetch_x_posts」「media_keys」「Pay-Per-Use」「COST_PER_READ」は0件。「X API 費用」は #514・#628・#564（open）、#367・#542・#598・#333（closed）で、どれも expansions の費用の論点ではない
+- 未マージのブランチ: `git branch -r --no-merged origin/cloudflare` の各ブランチで `git diff origin/cloudflare...<branch> -- scripts/fetch_x_posts.py scripts/tests/test_fetch_x_posts.py` は全て空
+- 直し（ae8107fbe）:
+  - 定数 `COST_PER_MEDIA = 0.005`・`MAX_MEDIA_PER_POST = 4`・`WORST_COST_PER_POST`（$0.025）と `x_cost(reads, media)` を足した。日付で分けない点は `簡略化:` のコメント
+  - `fetch_search()` に `cost_budget`（既定 `SEARCH_MAX_COST`）を足し、次のページの `max_results` を「残りの件数」と「残りの費用 ÷ $0.025」の小さい方にした。費用は `includes.media` の数を含めて足す
+  - `main()` は人ごとに残りの費用を渡し、報告の行を「読んだ投稿 N件・写真など M件（見込みの費用 $X）」にした。dry-run の見込みは写真込みの最悪の場合（$6.0 で頭打ち）と縮め方を出す
+  - 上限の値（1,200件・$6）は変えていない。ただし has:images の検索なので1投稿に写真が1件以上あり、実際は $6 が先に効く（写真1件ずつなら約 582件で止まる）
+  - X の1投稿の写真の上限 4件は X の仕様として知っている値で、この作業では X の文書を開いて確かめていない
+- テスト: `python3 -m unittest discover -s scripts/tests` → `Ran 2085 tests` `OK`。直しの前のコード（`git show HEAD~:scripts/fetch_x_posts.py` を scratchpad に置き、新しいテストのファイルで回した）では 29本中 failures=4・errors=6（新しいテストと直したテストが落ちる）
+- docs（40fb3ab80）: `docs/notes/github-actions.md` の `fetch-x-posts.yml` の行を写真込みの判定に直した。`git grep -n '1,200件\|1200件\|\$6'`（decisions・logs・handover-archive を除く）のほかの当たりは `.github/workflows/fetch-x-posts.yml` 6行のコメント（「1,200件・$6」のままで誤りではない。変えてよいファイルの外なので触らない）・`docs/notes/cloudflare.md` 803行（Workers の費用で無関係）・`fetch_x_posts.py` 50行のコメント（2026-10-15 の決定の記録として残した）
+- dry-run の手動実行: run 42738397386（ref work/1110-xpu、入力は既定。`APPLY: false`）→ success。出力の見込みの行:
+  > - X API の呼び出し 2回以上（next_token が無くなるまで）、読む投稿 最大 1200件、見込みの費用 最大 $6.0（写真など込み。1投稿 最大 $0.025〈写真など 4件〉で次のページを縮める。上限 1200件・$6.0）
+- サブエージェントのレビュー（1回、`git diff origin/cloudflare...HEAD -- scripts docs/notes`）: 要修正なし。テスト 2085本 OK を再現。$6 の保証・アカウントをまたぐ残りの費用・浮動小数点の端・出力の文言を読む箇所（`summary.md` への tee だけ）を確かめたとの報告
+
+| 指摘 | 扱い |
+|---|---|
+| preflight の `check_limits(SEARCH_MAX_READS, cost)` は `cost` を `min(…, SEARCH_MAX_COST)` で頭打ちにしたので費用の側は常に通る（任意） | 意図どおり（直しの前も 1200×$0.005＝$6 で常に通っていた。定数の組み合わせはテストの `SEARCH_MIN_PAGE * WORST_COST_PER_POST <= SEARCH_MAX_COST` で確かめる） |
+| has:images なので実際は 1,200件に届かない（1投稿1写真で約 582件で止まる）。まとめて取り直すときは途中で止まる（任意・報告向け） | 意図どおり（上限の値は変えない決定。毎日の取り込みは1回 十数件なので影響しない）。下の docs に書いた |
+| `docs/notes/github-actions.md` に実効の上限を書き添えるか（任意） | 直した（docs: note the effective post limit of the X fetch） |
+
+- 変わるファイル（`git diff --stat origin/cloudflare...HEAD`）: `scripts/fetch_x_posts.py`・`scripts/tests/test_fetch_x_posts.py`・`docs/notes/github-actions.md`・`docs/decisions/operations.md`・`docs/logs/CHAT-1110-XPU-01.md` だけ。`git merge-base --is-ancestor origin/cloudflare HEAD` は真（取り込み不要）
+- 決定を `docs/decisions/operations.md` に足した
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1110-xpu
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1110-XPU-01.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1110-xpu
+- 確認用URL: なし（スクリプトとテストと docs だけで、ページは変わらない。作業ブランチの dry-run は run 42738397386 で success）
+- マージ: 済（c1a76da82。cloudflare へ fast-forward）
+- issue: なし
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 23779199）: https://github.com/retroeater/mj-logs/tree/main/guide/23779199
+ガイド文書（この版を写した時点の最新、mj 3fe89e4b）: https://github.com/retroeater/mj-logs/tree/main/guide/3fe89e4b
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/23779199/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/23779199/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/23779199/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/23779199/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/23779199/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/23779199/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/3fe89e4b/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/3fe89e4b/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/3fe89e4b/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/3fe89e4b/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/3fe89e4b/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/3fe89e4b/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/23779199.md
