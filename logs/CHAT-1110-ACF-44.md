@@ -118,28 +118,46 @@ run-daily [42731915921](https://github.com/retroeater/mj/actions/runs/4273191592
 - run-weekly [42731919732](https://github.com/retroeater/mj/actions/runs/42731919732)（head db03e530ba、00:55:00Z〜00:55:40Z、**success**）: `logs / cleanup`（35秒、success）と `youtube`（skipped、手動実行では飛ばす）の2 job だけで、**images の job は無い**
 - 失敗した job は無し（get_job_logs は不要）。マージの条件（手動実行がすべて success・run-daily に images・run-weekly に無い）を満たした
 
+### 手順3: マージ
+- push 直前に fetch し、`git merge-base --is-ancestor origin/cloudflare HEAD` 真、テスト OK を確かめて `git push origin work/1110-acf:cloudflare` → `449e771dfe..f086da253e`
+- マージの push で動いた regenerate-page [42733945460](https://github.com/retroeater/mj/actions/runs/42733945460)（scripts/lib/x_images.py のコメントの変更で全ページ）: success、01:11:18Z〜01:14:38Z、「飛ばしたページを報告」は skipped、生成物のコミットは無し（cloudflare に chore: regenerate が乗っていない）
+- コメント: #352 https://github.com/retroeater/mj/issues/352#issuecomment-6755997397 、#298 https://github.com/retroeater/mj/issues/298#issuecomment-6755998618 （どちらも閉じない）
+
+### self-review（docs/notes/self-review.md。マージの後に回した）
+新しい文脈の general-purpose に `git diff 449e771dfe f086da253e -- . ':!docs/logs'` を見せた。ワークフロー・スクリプトの指摘は無し（images の needs・if・permissions・secrets・with は MIN-01 の前の版と1字ずつ同じ、手動実行は dry_run 真で issue を書かない、saikyo と images は書き込みを共有しない、MIN-01 以外のコミットの巻き戻しは無し、security.md の観点に当たる項目なし、テスト 2082 件 OK）。docs の指摘2件:
+
+| 指摘 | 扱い |
+|---|---|
+| run-weekly にあった期間の書き方が、ワークフローのコメント（2026-11-05〜11-10）と docs（2026-11-09〜11-10）で違う | 直した（77aedcb8e1、docs を 2026-11-05〜11-10 にそろえた） |
+| github-actions.md「run-daily.yml」の戻し方 1. の但し書き（run-daily の `images` を外す）は、run-daily の行そのものを消す手順なので要らない | 直した（77aedcb8e1、MIN-01 の前の文に戻した） |
+| （参考、指摘ではない）regenerate-saikyo.yml:4 の「(2026-11-05 までは写真のリンク切れ検知の後、#298)」の #298 は今の並行の理由と合わない | 意図どおり（事実として正しく、ワークフローを変える指示を増やさないため触らない） |
+
+- 往復は1回。マージの後に回したのは手順の順の誤り（CLAUDE.md は最終報告の前とだけ定めており、規則には反しない）
+- 77aedcb8e1 は docs のみなので、ログと一緒に cloudflare へ入れる
+- docs の直し（77aedcb8e1）とログを cloudflare へ: `f086da253e..1b0c2252e4`
+
 ## 報告
 
-- 状態:
-- ブランチ:
-- ログ:
-- 比較URL:
-- 確認用URL:
-- マージ:
-- issue:
-- 判断が必要なこと:
-- 未確認の項目:
-- エラー:
+- 状態: 完了
+- ブランチ: work/1110-acf
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1110-ACF-44.md
+- 比較URL: https://github.com/retroeater/mj/compare/449e771dfe...work/1110-acf
+- 確認用URL: なし（ワークフローとコメント・docs の変更で、生成物は変わらない。push 検知の再生成も「変更なし」）
+- マージ: 済（449e771dfe..f086da253e。手動実行 run-daily 42731915921・run-weekly 42731919732 とも success、push 検知の再生成 42733945460 success。docs の直しとログの追いの push は f086da253e..1b0c2252e4）
+- issue: #352（コメント https://github.com/retroeater/mj/issues/352#issuecomment-6755997397 。閉じない）、#298（コメント https://github.com/retroeater/mj/issues/298#issuecomment-6755998618 。閉じない）
+- 判断が必要なこと: なし
+- 未確認の項目: マージ後の初回の run-daily（2026-11-11 04:00 JST）で images の3 job が `sns` の後に動き、切れが無ければ #352 が自動で閉じること
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj f086da25）: https://github.com/retroeater/mj-logs/tree/main/guide/f086da25
+ガイド文書（この版を写した時点の最新、mj 23779199）: https://github.com/retroeater/mj-logs/tree/main/guide/23779199
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f086da25/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f086da25/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f086da25/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f086da25/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f086da25/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f086da25/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/23779199/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/23779199/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/23779199/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/23779199/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/23779199/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/23779199/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/449e771d.md

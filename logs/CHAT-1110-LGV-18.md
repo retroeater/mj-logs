@@ -99,28 +99,68 @@
 
 </details>
 
+### 3. コード（edeacd0a6・371377caa）
+
+- 石立岳大の規則を外した: `generate_log_pages.py` の `HIDDEN_PEOPLE`・`drop_posts()` の判定・生成のログの「石立岳大で外した N件」、テスト `test_hidden_people_are_dropped`、docs（log-page.md の目的・生成・テストの項、「載せない投稿・店」の表の行を「シートから消した」に書き換え）。`lib/log_rows.py` の `NAME_OPTIONS` の「石立岳大」は投稿者の並びの初めで、投稿の無い人は出ない（`people_order()`）ので残した（レビューも残してよいとした）
+- 店名が空の投稿: `drop_posts()` で HIDDEN_POSTS → 過去メシ → 本文の語 → 店名が空 の順に判定し、`merged_rows()` の後（【3】の上書きの後、文字参照を戻した後）の「店名」が空・空白だけの投稿を外す（`HIDDEN_SHOPS` の店の投稿は入れない）。戻り値の4つ目を「HIDDEN_PEOPLE で外した投稿 ID」から「店名が空で外した投稿 ID」に替えた（`shown_pairs()` の5つ目）。生成のログに「店名が空で外した N件」
+- 毎月の一覧: `convert_x_posts.py` に `no_shop_posts()`（閉業の店の投稿を除く。投稿 ID・日付・投稿者・駅・X の URL）と `no_shop_lines()` を足し、`event_issue()` を `check_issue(events, no_shop, today)` にして、常設 issue「ログ: 確かめる投稿」の本文を2つの節（本文の語〈催事・再掲〉で外した投稿／店名が空の投稿）にした。戻し方に「店名を補えるなら【3】の『店名』に、判別できないなら【3】の『表示』に N」を足した。両方0件なら閉じるコメント。`run-monthly.yml` の題・`convert-x-posts.yml` のコメントを合わせた
+- テスト: 店名が空・空白だけ（全角の空白を含む）の投稿が外れる、【3】で店名を補うと載る、【3】の表示 N は一覧に出ない、載せない店の投稿は一覧に出ない（`test_log_pages.py`）。2つの節と閉じるコメント、店名が空の節（閉業の店を除く・駅）、本文の語が0件でも店名が空が1件以上なら body.md を書く・書き直した後の閉業の店を除く（`test_convert_x_posts.py`）。直す前のコード（origin/cloudflare）では新しいテストが失敗（failures 1・errors 2）。直した後 `python3 -m unittest discover -s scripts/tests` OK
+- 文書: docs/notes/log-page.md（目的・生成・テスト・「載せない投稿・店」の石立岳大の行と「店名が空の投稿」の行・「催事の語」の行の毎月の一覧と題・閉業の確かめの対象）、docs/notes/github-actions.md（convert-x-posts の closed の説明）、docs/notes/static-generation.md「ページの一覧」の「ログ」の行（レビューの指摘で直した）
+
+### 4. 生成と比べ
+
+- `regenerate-page.yml` を作業ブランチの ref・`target_page: log_pages` で手動実行（run 808、edeacd0a6）→ 生成のコミット 43ec5fcf5
+- 生成のログ: 「3層から 2572件のうち 2373件・1702店（過去メシで外した 133件・載せない投稿（HIDDEN_POSTS）で外した 38件、店名が空で外した 13件、本文の語（催事・再掲）で外した 2件、「閉業」シートで外した 0店、載せない店（HIDDEN_SHOPS）で外した 4店、…）」。3層の行は LGV-17 の 3,173件から、石立岳大の 601件を消して 2,572件
+- 本文の語で外した2件は毎朝の取り込みで入った投稿（2119372281105539156・2119370337225990144、どちらも「大つけ麺博」。LGV-17 の生成でも外れていた）
+- (a) cloudflare の生成（2fa4677fb、LGV-17）との差: 店 1,715 → 1,702（−13）・投稿 2,386 → 2,373（−13）。投稿者は前後とも 谷岡育夫・平野良栄
+- (b) 外れた投稿: 13件、すべて店名が空（店の鍵は p<投稿ID>、投稿者は谷岡育夫）: 2086308912907833692（2026-08-09）・2079420015888282096（2026-07-21、渋谷）・2076978322375049243（2026-07-14）・2071791227557781705（2026-06-30）・2063481504567889971・2063478258822439080・2063464891923693664・2063459271275348121（2026-06-07）・2053329697577238706（2026-05-10）・2047878234197692813（2026-04-25）・2032659019073204569（2026-03-14）・2025556203884175373（2026-02-22）・2022484619644547502（2026-02-14、池袋）。増えた投稿は0（石立岳大の投稿は出ていない）
+- 毎月の一覧: `run-monthly.yml` を作業ブランチの ref で手動実行（run 9、手動はすべて dry-run。Place Details は呼んでいない）。ジョブ `closed` の出力: 「本文の語（催事・再掲）で外した投稿（閉業の店を除く）: 2件」「店名が空の投稿（閉業の店を除く）: 13件（店名を補えるなら【3】の「店名」に、判別できないなら【3】の「表示」に N を入れる）」。ジョブ `closed-issue`（upsert-issue の dry-run）: 「[dry-run] 「ログ: 確かめる投稿」を作る(ラベル: 種類: 常設)」と、本文（2つの節。本文の語の節は上の2件の表、店名が空の節は上の13件の表〈投稿 ID は X の投稿へのリンク・日付・投稿者・駅〉、末尾に実行ログへのリンク）
+- プレビュー: 43ec5fcf5 の Workers Builds success。版ごとのプレビューの search.json は店 1,702・投稿 2,373、店名が空の店は0、投稿者は谷岡育夫・平野良栄
+
+### 5. #675
+
+- #675 に、新宿の投稿の place_id は正しいこと（チャット側の確かめ）と、日比谷の投稿 1855425650372542512 に入れる place_id `ChIJcY3qtu-LGGARLhso8rUcoeo`（「椿屋珈琲 日比谷離れ」、Text Search の候補1件）をコメントした
+
+### 6. 差分のレビュー（docs/notes/self-review.md、1回）
+
+| 指摘 | 扱い |
+|---|---|
+| 中: static-generation.md「ページの一覧」の「ログ」の行に「石立岳大の投稿…を外し」が残る | 直した（371377caa） |
+| 低: github-actions.md の closed の説明に店名が空の節が無い | 直した（371377caa） |
+| 低: log-page.md の一覧の項目が本文の語の節だけの書き方 | 直した（371377caa。節ごとの項目を書いた） |
+| 低: 店名が空・本文の語で外した投稿の店は閉業の確かめの対象から外れるので、「閉業の店を除く」はほとんど効かない | 意図どおり（本文の語と同じ既存の作り。Places の呼び出しが減る向き） |
+| 低: `no_shop_posts()` が `shown[4]` の位置で読む | 見送り（`closed_events()` と同じ作り。並びはテストの見本で固定している） |
+| 低: run_closed を通した「店名が空だけで body.md」のテストが無い | 直した（371377caa） |
+| 低: `NAME_OPTIONS` の石立岳大・`assets/log.js` の「（店名なし）」の表示 | 意図どおり（害が無く、変更行数を増やさない） |
+| 低: 題「ログ: 確かめる投稿」と #675 の題が人には紛らわしい | 意図どおり（題は決定のとおり。照合は完全一致で機械の動きに影響しない） |
+| 確かめた: 常設 issue「ログ: 本文の語で外した投稿」も「ログ: 確かめる投稿」もまだ作られていない（REST の検索） | — |
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1110-lgv-tidy
 - ログ: https://github.com/retroeater/mj/blob/work/1110-lgv-tidy/docs/logs/CHAT-1110-LGV-18.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1110-lgv-tidy
-- 確認用URL: なし
-- マージ: 未
-- issue: #675（参照）
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 確認用URL: プレビューあり（URL は最終報告）。log/ の店 1,702・投稿 2,373、店名が空の店（「（店名なし）」）が出ない
+- マージ: 未（コードの変更はプレビューを見てから決める。シートの行の削除は済み）
+- issue: #675（コメント）
+- 判断が必要なこと:
+  - プレビューで log/ を見て、マージするか決める（トップと、店名の無い店が出ないこと。例 `/log/?shop=p2079420015888282096` が「見つかりませんでした」）
+  - 平野さんが【3】の投稿 1855425650372542512（椿屋珈琲 日比谷）の「place_id」に `ChIJcY3qtu-LGGARLhso8rUcoeo` を入れる（「椿屋珈琲 日比谷離れ」。Text Search の候補1件）
+  - 店名が空の13件（経過の「4.」）は、マージした後の毎月の常設 issue「ログ: 確かめる投稿」で知らせる（初回は 2026-12-01 02:00 JST の run-monthly）。それより前に【3】で直してもよい
+- 未確認の項目:
+  - マージした場合の常設 issue「ログ: 確かめる投稿」の初回: 2026-12-01 02:00 JST の run-monthly（closed と closed-issue）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj bee60139）: https://github.com/retroeater/mj-logs/tree/main/guide/bee60139
+ガイド文書（この版を写した時点の最新、mj 23779199）: https://github.com/retroeater/mj-logs/tree/main/guide/23779199
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/bee60139/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/bee60139/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/bee60139/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/bee60139/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/bee60139/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/bee60139/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/23779199/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/23779199/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/23779199/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/23779199/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/23779199/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/23779199/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/449e771d.md
