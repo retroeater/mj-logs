@@ -58,7 +58,7 @@ CHAT-1110-LGV-20 の洗い出しの (A)（本文に駅が無く店舗を特定�
 
 ## 報告
 
-- 状態: 完了
+- 状態: 完了 / 続き: CHAT-1110-LGV-23
 - ブランチ: work/1110-lgv-chainissue
 - ログ: https://github.com/retroeater/mj/blob/work/1110-lgv-chainissue/docs/logs/CHAT-1110-LGV-22.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1110-lgv-chainissue
