@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-11-10 10:06 JST
+- 書き出した時刻: 2026-11-10 10:10 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -25,11 +25,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-10 10:09 | push | work/1110-lgv-tidy | in_progress | #1084（42733721394） |  |
 | 2026-11-10 10:02 | push | work/1110-lgv-tidy | success | #1083（42732892762） | 0分24秒 |
 | 2026-11-10 10:02 | push | work/1110-lgv-tidy | success | #1082（42732780637） | 0分32秒 |
 | 2026-11-10 09:54 | push | work/1110-acf | success | #1081（42731900544） | 0分35秒 |
 | 2026-11-10 09:19 | push | work/1110-lgv-l3check | success | #1080（42727465312） | 0分30秒 |
-| 2026-11-10 09:17 | push | work/1110-lgv-l3check | success | #1079（42727216299） | 0分28秒 |
 
 ## check-build-failure.yml
 
@@ -129,11 +129,13 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-10 10:08 | workflow_dispatch | work/1110-lgv-tidy | failure | #82（42733568250） | 0分37秒 |
+| 2026-11-10 10:07 | workflow_dispatch | work/1110-lgv-tidy | success | #81（42733467207） | 0分39秒 |
 | 2026-11-10 10:02 | workflow_dispatch | work/1110-lgv-tidy | success | #80（42732780414） | 0分32秒 |
 | 2026-11-10 09:17 | workflow_dispatch | work/1110-lgv-l3check | success | #79（42727216465） | 0分42秒 |
 | 2026-11-10 09:16 | workflow_dispatch | work/1110-lgv-l3check | success | #78（42727081844） | 0分43秒 |
-| 2026-11-09 11:53 | workflow_dispatch | work/1109-pyv | success | #77（42553390330） | 1分36秒 |
-| 2026-11-07 15:50 | workflow_dispatch | work/1107-lgv-l3 | success | #76（42348753842） | 0分36秒 |
+
+- #82 failure: ジョブ「convert」 ステップ「実行」
 
 ## fetch-gsc.yml
 
@@ -250,7 +252,7 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-11-10 09:54 | workflow_dispatch | work/1110-acf | in_progress | #40（42731915921） |  |
+| 2026-11-10 09:54 | workflow_dispatch | work/1110-acf | success | #40（42731915921） | 11分52秒 |
 | 2026-11-10 04:00 | workflow_dispatch | cloudflare | success | #39（42679168828） | 12分15秒 |
 | 2026-11-09 04:00 | workflow_dispatch | cloudflare | success | #38（42512794532） | 12分53秒 |
 | 2026-11-08 04:00 | workflow_dispatch | cloudflare | success | #37（42404062406） | 11分18秒 |
