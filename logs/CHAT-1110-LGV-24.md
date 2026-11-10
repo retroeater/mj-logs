@@ -49,28 +49,39 @@
 
 ## 経過
 
+- 着手。指示欄の末尾は指示文の最後の行と一致。冒頭の雛形の行（Chat-Ref・マージ・貼る時機・共通手順）に欠けなし。同じ Chat-Ref のコミットなし。work/1110-lgv-fujiclose はリモート・ローカルとも無く、origin/cloudflare（500391e12）から作った。CHAT-1110-LGV-23 のログの状態に「 / 続き: CHAT-1110-LGV-24」を足した。#678 に着手中のコメント
+- 手順1: 未マージの work/ ブランチで `scripts/convert_x_posts.py`・`.github/workflows/convert-x-posts.yml` を変えているもの: なし
+- 手順2: 一度きりの mode `lgv24` を足した（5f916c6d7）。log/ の生成と同じ処理（shown_pairs〈merged_rows・drop_posts〉→ 閉業 → HIDDEN_SHOPS → build_posts → group_shops）で確かめる。どの API も呼ばず、シートにも書かない。作業ブランチの ref・dry_run で convert-x-posts.yml を手動実行: run 85（job 130198857670）success
+  - (a) 2047232238555906256: place_id `ChIJweLmJvuLGGARVhUj1iX8McM`・店名 フジ・店の駅 (空)・店の投稿 1件（この投稿だけ）→ OK。店名は投稿の店名「フジ」のまま（【3】で直したのは place_id だけ。店名を「コーヒー FUJI」にするなら【3】の「店名」を直す）
+  - (b) `ChIJtxODuv6LGGARI9lDb1Ij4E8` の店: 無い（ほかの投稿は付いていなかった）→ OK
+  - (c) 表示 N の8件: 載っている0件・表示 Y の行に残る0件 → OK。2085272539753042380: `ChIJ4wskpaSJGGARWW1ybv4hvds`（梅むら・三越前・2件〈2085272539753042380・2085270597521797244〉）→ OK。1850006626511753277: `ChIJU3T0JQCNGGARu1A__-8rzWY`（棋の音・千駄ヶ谷・2件〈1850006626511753277・1849995883284447493〉）→ OK。1896776432048848946: `ChIJ44O4KuqLGGAR9gdpox0EBqc`（フジ・新橋・1件）→ OK
+  - (d) 載る投稿 2,367件・1,699店（LGV-23 の 2,366件・1,698店から +1件・+1店）。コーヒー FUJI の付け替えは、フジテレビショップの店が無くなりコーヒー FUJI の店ができるので店の数は変わらない（±0）。差の +1件・+1店は毎朝の取り込み: 【1】【2】が 2,883 → 2,886行（+3行、表示 Y の組は 2,553）、載る投稿で最も新しい 2119988562666078556（2026-11-10）は本番の search.json に無い新しい投稿で、新しい店として載る見込み（残り2行は表示 N か外す規則に当たったもの。行ごとには見ていない）
+- 本番 `https://ryoei.pro/log/search.json?v=500391e12`（UA に mj-internal、HTTP 200）: 1,703店・2,373件。2047232238555906256 は `ChIJtxODuv6LGGARI9lDb1Ij4E8`、表示 N の 2078467508777181354 が載っている → #678 の直しは**未反映**。log/search.json の最後の再生成は 62459843e（2026-11-10 04:23 UTC、毎朝の再生成）で、#678 の直しより前。次の毎朝の再生成で入る見込み
+- 手順3: (a)〜(c) がすべてそのとおりなので、#678 に結果をコメントして閉じた（「状況: 待ち」のラベルを外した）
+- 手順4: 一度きりの mode を戻した（b77b33882）。`git diff origin/cloudflare -- scripts/ .github/` は空。cloudflare との差は docs だけ。差分のレビュー（新しい文脈のサブエージェント）は、コード・ワークフローの差が残らないため行っていない
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1110-lgv-fujiclose
 - ログ: https://github.com/retroeater/mj/blob/work/1110-lgv-fujiclose/docs/logs/CHAT-1110-LGV-24.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1110-lgv-fujiclose
 - 確認用URL: なし
-- マージ: 未
-- issue: #678
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- マージ: 済 1a165073c（docs のみ。500391e12..1a165073c）
+- issue: #678 を閉じた（25件の直しをすべて確かめた）
+- 判断が必要なこと: 2047232238555906256 の店名は「フジ」のまま（【3】で直したのは place_id だけ）。「コーヒー FUJI」と出すなら、平野さんが【3】の「店名」を直すかを決める
+- 未確認の項目: 本番の log/ に #678 の直しが入ったこと（本番の search.json は 04:23 UTC の再生成のもので未反映。次の毎朝の再生成に任せた）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj f2ff86b9）: https://github.com/retroeater/mj-logs/tree/main/guide/f2ff86b9
+ガイド文書（この版を写した時点の最新、mj 81809f53）: https://github.com/retroeater/mj-logs/tree/main/guide/81809f53
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f2ff86b9/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f2ff86b9/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f2ff86b9/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f2ff86b9/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f2ff86b9/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f2ff86b9/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/81809f53/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/81809f53/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/81809f53/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/81809f53/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/81809f53/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/81809f53/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/500391e1.md

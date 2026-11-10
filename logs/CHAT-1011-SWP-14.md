@@ -145,12 +145,12 @@ CHAT-1011-SWP-13 の第2弾の直しを仕上げて本番に入れる。G2-03 �
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj f2ff86b9）: https://github.com/retroeater/mj-logs/tree/main/guide/f2ff86b9
+ガイド文書（この版を写した時点の最新、mj 81809f53）: https://github.com/retroeater/mj-logs/tree/main/guide/81809f53
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f2ff86b9/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f2ff86b9/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f2ff86b9/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f2ff86b9/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f2ff86b9/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f2ff86b9/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/81809f53/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/81809f53/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/81809f53/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/81809f53/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/81809f53/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/81809f53/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/500391e1.md

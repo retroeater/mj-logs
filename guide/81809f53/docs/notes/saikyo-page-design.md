@@ -673,7 +673,7 @@ python3 scripts/collect_saikyo_images.py --json result.json  # ワークフロ�
 python3 scripts/collect_saikyo_images.py --resolve-test 104307  # 1件だけ解決して診断を出す
 ```
 
-- **毎朝の検知**: `.github/workflows/check-image-links.yml` のジョブ `saikyo` を、毎朝の運行（`run-daily.yml`。Worker `mj-scheduler` が毎日 04:00 JST に起動。2026-11-09〜11-10 は毎週月曜の `run-weekly.yml`）が
+- **毎朝の検知**: `.github/workflows/check-image-links.yml` のジョブ `saikyo` を、毎朝の運行（`run-daily.yml`。Worker `mj-scheduler` が毎日 04:00 JST に起動。2026-11-05〜11-10 は毎週月曜の `run-weekly.yml`）が
   入力 `scheduled` 付きで呼び（docs/notes/github-actions.md「run-daily.yml」。この起動ではジョブ `check`・`saikyo`・`sns_book` の3つが動く）、`--json` で実行して
   常設issue「最強戦の選手写真のリンク切れ検知結果」に選手名・ハンドル・行数・取得できなかったURL・SNS ブックでの状態を書き出す。
   ゼロになればコメントしてクローズする（CHAT-0916-SK-44、#139）。毎週月曜の予約実行（`schedule`）は `jpml_pros.html` のジョブ `check` だけを動かしていた（2026-11-01 に外した）。
