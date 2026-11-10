@@ -87,6 +87,37 @@
 ### 手順3: 手動実行
 - 00:54Z に run-daily.yml・run-weekly.yml を work/1110-acf で起動（入力なし＝書かない道筋）
 
+- 結果（job の表はサブエージェントに list_workflow_jobs で取らせ、run の結論と最後の2 job は自分で get_workflow_run・list_workflow_jobs を見て確かめた。時刻はすべて 2026-11-10、UTC）
+
+run-daily [42731915921](https://github.com/retroeater/mj/actions/runs/42731915921)（head db03e530ba、00:54:59Z〜01:06:51Z、**success**、20 job）:
+
+| job | 開始 | 終了 | 所要秒 | 結論 |
+|---|---|---|---|---|
+| unregistered / check | 00:55:02 | 00:55:35 | 33 | success |
+| dojo / sync | 00:55:02 | 00:55:50 | 48 | success |
+| meibo / meibo | 00:55:02 | 00:55:55 | 53 | success |
+| meibo / ampai | 00:55:02 | 00:55:35 | 33 | success |
+| branches / delete | 00:55:02 | 00:55:28 | 26 | success |
+| birthday / sync | 00:55:02 | 00:55:52 | 50 | success |
+| live / update | 00:55:02 | 00:57:16 | 134 | success |
+| sokuho / research | 00:55:02 | 00:55:27 | 25 | success |
+| xfetch / fetch | 00:55:02 | 00:55:25 | 23 | success |
+| xconvert / convert | 00:55:27 | 00:55:52 | 25 | success |
+| live / regenerate | 00:57:17 | — | — | skipped |
+| live / yotei / sync | 00:57:18 | 00:57:59 | 41 | success |
+| sns / update | 00:58:01 | 00:58:27 | 26 | success |
+| sns / regenerate | 00:58:28 | — | — | skipped |
+| **images / saikyo** | 00:58:29 | 01:00:47 | 138 | success |
+| **images / check** | 00:58:29 | 01:01:45 | 196 | success |
+| saikyo / abema | 00:58:29 | 00:58:57 | 28 | success |
+| saikyo / regenerate / regenerate | 00:58:58 | 01:00:09 | 71 | success |
+| **images / sns_book** | 01:01:46 | 01:06:44 | 298 | success |
+| logs | 01:06:46 | 01:06:51 | 5 | success |
+
+- images の3 job は `sns / update` の後（00:58:29Z〜）に始まり、`saikyo` と並行に動いた。`logs` は images の後に動いた。saikyo の再生成は差分なし（作業ブランチにコミットは増えていない）
+- run-weekly [42731919732](https://github.com/retroeater/mj/actions/runs/42731919732)（head db03e530ba、00:55:00Z〜00:55:40Z、**success**）: `logs / cleanup`（35秒、success）と `youtube`（skipped、手動実行では飛ばす）の2 job だけで、**images の job は無い**
+- 失敗した job は無し（get_job_logs は不要）。マージの条件（手動実行がすべて success・run-daily に images・run-weekly に無い）を満たした
+
 ## 報告
 
 - 状態:
@@ -103,12 +134,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj bee60139）: https://github.com/retroeater/mj-logs/tree/main/guide/bee60139
+ガイド文書（この版を写した時点の最新、mj f086da25）: https://github.com/retroeater/mj-logs/tree/main/guide/f086da25
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/bee60139/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/bee60139/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/bee60139/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/bee60139/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/bee60139/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/bee60139/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f086da25/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f086da25/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f086da25/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f086da25/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f086da25/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f086da25/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/449e771d.md

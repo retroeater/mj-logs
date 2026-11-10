@@ -17,7 +17,7 @@
 `generate_saikyo_pages.py` が持つ。旧ページを畳んだ #350 第2段で移した）。
 
 シートの更新（週1、月〜火が多い）は、毎朝 `regenerate-saikyo.yml` が saikyo_pages だけを再生成して出す（#537）。
-毎朝 04:00 JST に Worker が起動する `run-daily.yml` が、SNS ブックの更新（`update-sns-book.yml`）の後に `workflow_call` で呼ぶ（2026-10-16 から。2026-11-05 までは写真のリンク切れ検知〈`check-image-links.yml`〉の後、それより前は検知の完了の `workflow_run`）。
+毎朝 04:00 JST に Worker が起動する `run-daily.yml` が、SNS ブックの更新（`update-sns-book.yml`）の後に、写真のリンク切れ検知と並行に `workflow_call` で呼ぶ（2026-10-16 から。2026-11-05 までは写真のリンク切れ検知〈`check-image-links.yml`〉の後、それより前は検知の完了の `workflow_run`）。
 差分が無ければコミットしない。ほかに週次の `all` と手動実行（`regenerate-page.yml`）でも再生成される。
 手動で反映するときの差分の見込みには、その対局の年度・対局・卓のページ、個人成績・ランキング・対戦成績・新トップのデータ、sitemap、質問欄のデータに加えて、その対局の出場者が出た過去の卓のページ（下の「〈選手〉の他の対局」のカード。出場者の数だけ過去のページが変わる）を含める（2026-10-28）。
 
@@ -657,7 +657,7 @@ houou/・jwrc/ と同じ形にし、部品（メニューの面・選手を探�
 （調査はCHAT-0916-SK-34。unavatar.io は1日25件〈APIキー登録で50件〉で足りない）。
 壊れるのはアイコンを変えた選手だけなので、SNS ブックの毎日の更新（04:10）が、HEAD で取れなくなった行と ID が変わった行だけを X 公式 API で取り直す（#514）。
 
-### `scripts/collect_saikyo_images.py`（手動実行＋週次の検知）
+### `scripts/collect_saikyo_images.py`（手動実行＋毎朝の検知）
 
 写真のURLをHEADで確認し、取得できないものをCSVと検知の issue に出す。**解決はしない（X API を呼ばない）。** 取り直しは SNS ブックの
 毎日の更新（`scripts/update_sns_book.py`、04:10）だけが行う（検知と更新で二重に呼ばない、2026-10-11）。写真とハンドルは年度ページと同じく
@@ -673,8 +673,8 @@ python3 scripts/collect_saikyo_images.py --json result.json  # ワークフロ�
 python3 scripts/collect_saikyo_images.py --resolve-test 104307  # 1件だけ解決して診断を出す
 ```
 
-- **週次の検知**: `.github/workflows/check-image-links.yml` のジョブ `saikyo` を、週次の運行（`run-weekly.yml`。Worker `mj-scheduler` が毎週月曜 03:00 JST に起動。2026-11-05 までは毎朝の `run-daily.yml`、#298）が
-  入力 `scheduled` 付きで呼び（docs/notes/github-actions.md「run-weekly.yml・run-monthly.yml」。この起動ではジョブ `check`・`saikyo`・`sns_book` の3つが動く）、`--json` で実行して
+- **毎朝の検知**: `.github/workflows/check-image-links.yml` のジョブ `saikyo` を、毎朝の運行（`run-daily.yml`。Worker `mj-scheduler` が毎日 04:00 JST に起動。2026-11-09〜11-10 は毎週月曜の `run-weekly.yml`）が
+  入力 `scheduled` 付きで呼び（docs/notes/github-actions.md「run-daily.yml」。この起動ではジョブ `check`・`saikyo`・`sns_book` の3つが動く）、`--json` で実行して
   常設issue「最強戦の選手写真のリンク切れ検知結果」に選手名・ハンドル・行数・取得できなかったURL・SNS ブックでの状態を書き出す。
   ゼロになればコメントしてクローズする（CHAT-0916-SK-44、#139）。毎週月曜の予約実行（`schedule`）は `jpml_pros.html` のジョブ `check` だけを動かしていた（2026-11-01 に外した）。
   通知はissue経由のGitHubの通知で、メールを直接送る仕組みは無い。issueがopenのまま本文だけ更新された場合は通知が来ないことがある。
