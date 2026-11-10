@@ -1,7 +1,7 @@
 # CHAT-1110-MDL-01
 
 - 着手日時: 2026-11-10
-- 対象issue: なし（手順3で起票）
+- 対象issue: #677（起票）
 - ブランチ: work/1110-mdl
 - 着手時HEAD: 535e861a
 
@@ -80,15 +80,29 @@ Chat-Ref: CHAT-1110-MDL-01
 - 着手前の確認: 同じ Chat-Ref のコミットなし／`MDL` の重複なし（全ブランチのコミット・docs/logs の履歴）／0章: 指示欄の末尾は指示文の最後の行と一致／指示文の issue は #360（経緯の参照のみで対象外）。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）の欠けなし
 - 作業ブランチ: ローカル・リモートとも無し → `git checkout -b work/1110-mdl origin/cloudflare`
 
+- 手順1（検索）: REST の search/issues で Sonnet・使用量・トークン・opusplan・advisor・effort・Fable・モデル を検索。同じ論点（チャット側のモデル・使用量の節約）の open issue は無し。Sonnet の当たり #665・#630・#628 は Claude API でデータを作る話、使用量の当たり #298 は Actions の使用量で別の論点。#360 は closed（前提どおり）
+- 前提の照合: chat-side-operations.md 134行目の既定モデルの項目、chat-routines.md「振り返り」「成果物の形」の最後の段落とも前提どおり。2026-10-17 の「申送りを作るときは原則 Opus に戻す」はリポジトリ内（docs/decisions を含む）に記述が無い（ここからは所在を確かめられない）
+- 未マージの work/ ブランチ（1009-swp-526・1011-swp-hnd・1011-swp-nav・1015-skd-notes・1101-prp-pub・1103-ryo5）はどれも2文書を変えていない
+- `git grep 'Fable 5.1'`・`'claude-fable-5-1'`: 対象外（docs/decisions・docs/logs）を除くと chat-routines.md 54行目だけ。CLAUDE.md・docs/handover.md には無し
+- 起票: #677「使用量の節約案（保留）: Sonnet 5.5 の採用・advisor tool・opusplan」、ラベル「状況: 保留」。コメント末尾に Chat-Ref
+- 文書の変更（5faf4af）:
+  - chat-side-operations.md 既定モデルの項目を置き換え（指示の案の文面を、純増を抑えるため少し詰めた: 「などは」→「は」、「足りないときだけ」→「足りなければ」、「収束しなかった」→「収束しない」、「切り替えた最初の手番で」→「切り替えると」）
+  - chat-routines.md 54行目: Fable 5.1 → Fable 5.2（`/model claude-fable-5-2`）。「申送り」「何をするか」に1項目追加
+  - 純増の相殺: chat-side-operations.md「指示文の書き方・渡し方」の2項目（他のチャットへの伝言は .md の添付／常設 issue に足す指示は担当の系列で作る、523バイト）を chat-routines.md「ほかのセッションへの共有」へ移した（「場面ごとに読む文書」の表の「ほかのチャットへの共有」の行から引ける）
+  - バイト数: chat-side-operations.md 22,470 → 22,469（警告域 26,624 未満）／chat-routines.md 22,500 → 23,317（上限なし）
+- docs/decisions/operations.md（315dc38）: 末尾に「## 2026-11-10（CHAT-1110-MDL-01）」を足し、2026-10-11（CHAT-1011-RGN-07）の Fable 5.1 の行の末尾に「→ 置き換え」の印を付けた（docs/decisions/README.md「書き方」の規則。指示の「過去の行は直さない」は内容を変えないことと読み、印だけ足した）
+- 自己レビューのサブエージェント: docs のみの変更のため対象外（CLAUDE.md「判断・作業の原則」の対象はコード・生成物・ワークフロー・配信設定）
+- マージ: `git push origin work/1110-mdl:cloudflare`（push 直前に再 fetch して `git merge-base --is-ancestor origin/cloudflare HEAD` を確認）
+
 ## 報告
 
-- 状態: 中断（作業中）
+- 状態: 完了
 - ブランチ: work/1110-mdl
-- ログ: https://github.com/retroeater/mj/blob/work/1110-mdl/docs/logs/CHAT-1110-MDL-01.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1110-MDL-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1110-mdl
 - 確認用URL: なし
-- マージ: 未
-- issue: なし
+- マージ: 済（このログを含む work/1110-mdl の先頭を cloudflare へ fast-forward）
+- issue: #677 起票「使用量の節約案（保留）: Sonnet 5.5 の採用・advisor tool・opusplan」（ラベル「状況: 保留」）。直した行: docs/notes/chat-routines.md 54行目（Fable 5.1 → 5.2）だけ（CLAUDE.md・handover.md に該当なし）。バイト数: chat-side-operations.md 22,470 → 22,469、chat-routines.md 22,500 → 23,317
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
@@ -96,12 +110,12 @@ Chat-Ref: CHAT-1110-MDL-01
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 535e861a）: https://github.com/retroeater/mj-logs/tree/main/guide/535e861a
+ガイド文書（この版を写した時点の最新、mj 4eb5ef49）: https://github.com/retroeater/mj-logs/tree/main/guide/4eb5ef49
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/535e861a/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/535e861a/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/535e861a/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/535e861a/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/535e861a/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/535e861a/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/4eb5ef49/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/4eb5ef49/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/4eb5ef49/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/4eb5ef49/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/4eb5ef49/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/4eb5ef49/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/535e861a.md
