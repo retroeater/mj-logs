@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-11-10 13:33 JST
+- 書き出した時刻: 2026-11-10 21:50 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -129,11 +129,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-10 21:50 | workflow_dispatch | work/1110-lgv-fuji | in_progress | #84（42819129396） |  |
 | 2026-11-10 13:28 | workflow_dispatch | work/1110-lgv-chain | success | #83（42756074326） | 0分42秒 |
 | 2026-11-10 10:08 | workflow_dispatch | work/1110-lgv-tidy | failure | #82（42733568250） | 0分37秒 |
 | 2026-11-10 10:07 | workflow_dispatch | work/1110-lgv-tidy | success | #81（42733467207） | 0分39秒 |
 | 2026-11-10 10:02 | workflow_dispatch | work/1110-lgv-tidy | success | #80（42732780414） | 0分32秒 |
-| 2026-11-10 09:17 | workflow_dispatch | work/1110-lgv-l3check | success | #79（42727216465） | 0分42秒 |
 
 - #82 failure: ジョブ「convert」 ステップ「実行」
 
