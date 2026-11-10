@@ -57,28 +57,42 @@
 
 ## 経過
 
+- 着手。指示欄の末尾は指示文の最後の行と一致。冒頭の雛形の行（Chat-Ref・マージ・貼る時機・共通手順）に欠けなし。同じ Chat-Ref のコミットなし。work/1110-lgv-fuji はリモート・ローカルとも無く、origin/cloudflare（88a837446）から作った。CHAT-1110-LGV-22 のログの状態に「 / 続き: CHAT-1110-LGV-23」を足した。#678 に着手中のコメント
+- 手順1: 未マージの work/ ブランチで `scripts/convert_x_posts.py`・`.github/workflows/convert-x-posts.yml` を変えているもの: なし
+- 手順2: 一度きりの mode `lgv23` を足した（1e466d3f0）。log/ の生成と同じ処理（shown_pairs〈merged_rows・drop_posts〉→ 閉業 → HIDDEN_SHOPS → build_posts → group_shops）で確かめ、Places の Text Search（IDs Only、項目は places.id だけ）を1回呼ぶ。Claude・X の API は呼ばず、シートにも書かない。作業ブランチの ref・dry_run で convert-x-posts.yml を手動実行: run 84（job 129839809561）success
+- 【3】の直しの確かめ
+  - (a) 表示 N の8件（2078467508777181354・2078465395867165127・2061774660031901748・2020129794201878638・2020119469524144635・2063473335259042151・2063445868204929241・1796903761564270825）: 載っている0件・表示 Y の行に残る0件 → OK
+  - (b) 2085272539753042380: place_id `ChIJ4wskpaSJGGARWW1ybv4hvds`・店名 梅むら・店の駅 三越前（この投稿の駅は空）・店の投稿 2件 → OK。1850006626511753277: place_id `ChIJU3T0JQCNGGARu1A__-8rzWY`・店名 棋の音・店の駅 千駄ヶ谷・店の投稿 2件 → OK
+  - (c) 1896776432048848946: place_id `ChIJ44O4KuqLGGAR9gdpox0EBqc`（フジ・新橋）のまま → OK
+  - (d) 2047232238555906256: place_id `ChIJtxODuv6LGGARI9lDb1Ij4E8`（フジ・駅は空）のまま → OK
+  - 載る投稿 2,366件・1,698店（LGV-20 の 2,374件・1,703店から、表示 N で -8件。店は、梅むら・棋の音が既にある店に入って -2店、投稿がすべて N になった吉野家2店・サイゼで -3店）。log/ はこのブランチでは作り直さない（push の検知か毎朝の再生成で入る）
+- コーヒー FUJI: Text Search（「コーヒー FUJI 丸の内」、1回）の候補は1件で **`ChIJweLmJvuLGGARVhUj1iX8McM`**。`ChIJtxODuv6LGGARI9lDb1Ij4E8`・`ChIJ44O4KuqLGGAR9gdpox0EBqc` のどちらとも違う。共有リンクの転送先は読んでいない（候補が共有リンクの店と同じかは、ここからは確かめていない）
+
+- 手順3: #678 に結果をコメントした（閉じていない）
+- 手順4: 一度きりの mode を戻した（44dc361f2）。`git diff origin/cloudflare -- scripts/ .github/` は空。cloudflare との差は docs だけ。差分のレビュー（新しい文脈のサブエージェント）は、コード・ワークフローの差が残らないため行っていない
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1110-lgv-fuji
 - ログ: https://github.com/retroeater/mj/blob/work/1110-lgv-fuji/docs/logs/CHAT-1110-LGV-23.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1110-lgv-fuji
 - 確認用URL: なし
-- マージ: 未
-- issue: #678
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- マージ: 済 1c0dc58b4（docs のみ。88a837446..1c0dc58b4）
+- issue: #678 に結果をコメント（閉じていない）
+- 判断が必要なこと: 平野さんが【3】の 2047232238555906256 の「place_id」に `ChIJweLmJvuLGGARVhUj1iX8McM`（Text Search「コーヒー FUJI 丸の内」の候補1件）を入れる。直した後の確かめと #678 を閉じるのは別の指示
+- 未確認の項目: `ChIJweLmJvuLGGARVhUj1iX8McM` が平野さんの共有リンクの店と同じか（転送先は読んでいない）。本番の log/ に #678 の直し（2,366件・1,698店）が入ったこと（push の検知か毎朝の再生成に任せた）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 88a83744）: https://github.com/retroeater/mj-logs/tree/main/guide/88a83744
+ガイド文書（この版を写した時点の最新、mj f2ff86b9）: https://github.com/retroeater/mj-logs/tree/main/guide/f2ff86b9
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/88a83744/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/88a83744/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/88a83744/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/88a83744/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/88a83744/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/88a83744/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f2ff86b9/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f2ff86b9/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f2ff86b9/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f2ff86b9/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f2ff86b9/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f2ff86b9/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/535e861a.md
