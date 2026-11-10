@@ -105,7 +105,7 @@ cloudflare の生成（65cdd58e1）との比べ（search.json）:
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1110-LGV-18
 - ブランチ: work/1110-lgv-l3check（マージ済み。削除は cleanup-branches.yml）
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1110-LGV-17.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1110-lgv-l3check
@@ -128,4 +128,4 @@ cloudflare の生成（65cdd58e1）との比べ（search.json）:
 - docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/bee60139/docs/notes/chat-side-operations.md
 - docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/bee60139/docs/notes/cloudflare.md
 - docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/bee60139/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/9df3ca3c.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/449e771d.md
