@@ -53,28 +53,39 @@ Chat-Ref: CHAT-1111-LGV-27
 
 ## 経過
 
+- 着手。指示欄の末尾は指示文の最後の行と一致。冒頭の雛形の行（Chat-Ref・マージ・貼る時機・共通手順）に欠けなし。同じ Chat-Ref のコミットなし。work/1111-lgv-stcheck はリモート・ローカルとも無く、origin/cloudflare（05165e667）から作った。CHAT-1111-LGV-26 のログの状態に「 / 続き: CHAT-1111-LGV-27」を足した。#661 に他セッションの着手中コメントは無く、着手中のコメントを書いた
+- 手順1: 未マージの work/ ブランチで `scripts/convert_x_posts.py`・`.github/workflows/convert-x-posts.yml` を変えているもの: なし
+- 手順2: 一度きりの mode `lgv27` を足した（db8aafb9d）。照合のシートを読み、不一致の行ごとに【2】【3】の今の行番号と、log/ の生成と同じ処理（shown_pairs → 閉業 → HIDDEN_SHOPS → build_posts → group_shops）で載るか・店名・ログの駅・店の鍵を出す。「今の駅」の値は出さない。どの API も呼ばず、シートにも書かない。作業ブランチの ref・dry_run で convert-x-posts.yml を手動実行: run 88（job 130270220568）success
+  - 照合のシート「駅の照合_1029」: 見出しは「【2】の行・【3】の行・投稿ID・今の駅・読み直した駅・新しい駅・一致」で見込みどおり。2,099行（データ 2,098行）
+  - 「一致」の値ごとの行数: 一致 1,799・空 246・不一致 54（#661 の起票時と同じ 54・246）
+  - 不一致 54行のうち: 載る 46・載らない 8（載せない投稿 4〈2072920715603706097・2058018315554234715・2030123236659540188・1845395661509824631〉・表示 N か飲食店でない 3〈2079420015888282096・2022484619644547502・2114923184357249288〉・載せない店 1〈2022849721023299710〉）。3層に無い・閉業・店名が空は0
+  - 載る 46件のうち【3】に行がある 41件・無い 5件（照合の行 182・309・338・486・1229）。ログの駅（【3】の上書きの後）が読み直した駅と違う投稿が多い（例: 光来〈照合の行 401〉は読み直した駅 沼袋・ログの駅 新宿西口〈【3】の駅〉）。どちらが正しいかは平野さんが X の投稿で確かめる
+- 手順3: #661 にチェックリストをコメントした（閉じていない）。載る 46件をチェックボックスの行（照合の行・店名・ログの駅・X の投稿・ログの店のリンク・【3】の行番号）、載らない 8件を `<details>` に理由ごとの件数と投稿 ID。本文と「今の駅」の値は書いていない。保存されたコメントを GitHub の API で読み直し、意図どおりなことを確かめた
+  - ログの店のリンクは `https://ryoei.pro/log/?shop=<店の鍵>`（カテゴリのカードの `card_html()` と同じ形。`assets/log.js` が `?shop=` を店の鍵として読む）。本番の search.json（05165e667 の時点で配信中のもの、HTTP 200）に46件の店の鍵がすべてあり、各投稿がその店に入っていることを確かめた。3件（`ChIJz_IhRwCJGGARPIb_HzPO4Y0`・`ChIJrVbr4SmNGGARKd2fHLe2pTQ`・`ChIJvQctNwCLGGARKGqw1Z5CcCI`）の URL を UA に mj-internal で開き HTTP 200。ブラウザでの表示は確かめていない
+- 手順4: 一度きりの mode を戻した（3e7bdfbad）。`git diff origin/cloudflare -- scripts/ .github/` は空。差分のレビュー（新しい文脈のサブエージェント）は、コード・ワークフローの差が残らないため行っていない
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1111-lgv-stcheck
 - ログ: https://github.com/retroeater/mj/blob/work/1111-lgv-stcheck/docs/logs/CHAT-1111-LGV-27.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1111-lgv-stcheck
 - 確認用URL: なし
-- マージ: 未
-- issue: #661
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- マージ: 済 20e91049e（docs のみ。05165e667..20e91049e）
+- issue: #661 にチェックリストをコメント（46件。閉じていない）
+- 判断が必要なこと: 平野さんが #661 のチェックリスト（46件）を X の投稿で確かめ、ログの駅が違えば【3】の「駅」を直す（【3】に行が無い5件は行を足す）。終わったらチャットに伝える（照合のシートは後の指示で Code が消す）
+- 未確認の項目: ログの店のリンクのブラウザでの表示（HTTP 200 と、店の鍵が本番の search.json にあることまでは確かめた）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 05165e66）: https://github.com/retroeater/mj-logs/tree/main/guide/05165e66
+ガイド文書（この版を写した時点の最新、mj 21f86de7）: https://github.com/retroeater/mj-logs/tree/main/guide/21f86de7
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/05165e66/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/05165e66/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/05165e66/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/05165e66/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/05165e66/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/05165e66/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/21f86de7/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/21f86de7/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/21f86de7/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/21f86de7/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/21f86de7/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/21f86de7/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/500391e1.md
