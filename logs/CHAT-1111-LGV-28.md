@@ -120,7 +120,7 @@
 
 ## 報告
 
-- 状態: 完了
+- 状態: 完了 / 続き: CHAT-1111-LGV-29
 - ブランチ: work/1111-lgv-stfinal
 - ログ: https://github.com/retroeater/mj/blob/work/1111-lgv-stfinal/docs/logs/CHAT-1111-LGV-28.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1111-lgv-stfinal
