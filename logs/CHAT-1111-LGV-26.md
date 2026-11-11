@@ -61,7 +61,7 @@ CHAT-1111-LGV-25 で見つかった CANAL CAFE の店名の違いを、平野さ
 
 ## 報告
 
-- 状態: 完了
+- 状態: 完了 / 続き: CHAT-1111-LGV-27
 - ブランチ: work/1111-lgv-date
 - ログ: https://github.com/retroeater/mj/blob/work/1111-lgv-date/docs/logs/CHAT-1111-LGV-26.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1111-lgv-date
