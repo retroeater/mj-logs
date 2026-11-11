@@ -77,28 +77,69 @@
 
 ## 経過
 
+- 着手。指示欄の末尾は指示文の最後の行と一致。冒頭の雛形の行（Chat-Ref・マージ・貼る時機・共通手順）に欠けなし。同じ Chat-Ref のコミットなし。work/1111-lgv-stfinal はリモート・ローカルとも無く、origin/cloudflare（21f86de76）から作った。CHAT-1111-LGV-27 のログの状態に「 / 続き: CHAT-1111-LGV-28」を足した。#661 に他セッションの着手中コメントは無く（あるのはこのセッションの LGV-27 のもの）、着手中のコメントを書いた
+- 手順1: 未マージの work/ ブランチで `scripts/convert_x_posts.py`・`.github/workflows/convert-x-posts.yml` を変えているもの: なし
+- 手順2: 一度きりの mode `lgv28` を足した（a24f6aa02）。log/ の生成と同じ処理（shown_pairs → 閉業 → HIDDEN_SHOPS → build_posts → group_shops）で確かめる。Places・Claude・X は呼ばない。作業ブランチの ref・dry_run で convert-x-posts.yml を手動実行: run 89（job 130339966828）success
+  - (a) すべて決定どおり → OK
+    - 2032311086255652878 アナログ八重洲: 駅 銀座一丁目・place_id `ChIJq3Hlu4GLGGAR0L7E5MmfiIg`（店の投稿 3件、店の駅 銀座一丁目）
+    - 1839521026691993823 目黒のさんま 菜の花: place_id `ChIJlYf__xWLGGARhWjyXG7CqTw`・駅 恵比寿（店の投稿 1件）。前の店 `ChIJe1Y0JxmLGGARZ6sC3dtQKWI`（菜の花）には 2107314180546330733・1972871516628111766・1703981635543412744 の3件が残る
+    - 1719224173825052788 ギャラン: 上野。1709052392589930936 もも瀬: 市ヶ谷。1561935361122545664 吉野: 池袋。1477628296460652544 三国一: 新宿
+    - 1591647002567544834 さくり: 載らない（表示 Y の行にも無い）。店 `ChIJkXM2vVGJGGARIbsJOymj19U` にほかの投稿は無い（店ごと無くなる）
+  - (b) チェックリストの 46件のうち、さくりを除く 45件のログの駅は、LGV-27 の値に上の6件の直しを当てた見込みとすべて同じ → OK（照合の行・投稿 ID・店名・ログの駅は #661 の LGV-27 のコメントのとおりで、直した6件は上の値）
+  - (c) 駅の一覧に無い駅（ログに載る 2,366件のうち。表示する駅〈`display_station()` の後〉を駅の一覧で引けないもの）:
+
+| 駅 | 投稿 ID | 店名 | 駅の出どころ | 【3】の行 |
+|---|---|---|---|---|
+| 西麻布 | 1792770665789218884 | なかじま | 【3】 | 472 |
+| 西麻布 | 1587297994986369025 | 三河屋 | 【3】 | 1001 |
+| 奥浅草 | 1626782256747667457 | ロッジ赤石 | 【3】 | 920 |
+| 奥浅草 | 1472186441480675328 | 弁天 | 【3】 | 1197 |
+| 南青山 | 1776616654870298808 | かおたんラーメン | 【3】 | 518 |
+| 新宿東口 | 1761237983766921551 | 卯作 | 【3】 | 558 |
+| Bond Street | 1613273507970023424 | The Coach Makers Arms Pub Restaurant | 【2】 | 951（駅は空） |
+| Paddington | 1585156830619369473 | Carriages | 【2】 | 1005（駅は空） |
+
+    - 【県】の付かない駅: 8件・6駅（西麻布 2・奥浅草 2・南青山 1・新宿東口 1・Bond Street 1・Paddington 1）
+    - 【県】の付いた駅で一覧に無い駅: 8件（すべて【London】。Marble Arch 4〈1613796861063663617・1613558649753935872・1613459440753049600・1613088424013041667〉・Richmond 2〈1612887451021807633・1585042204154040320〉・Embankment 1〈1585612763350683649〉・Mansion House 1〈1585544909376917511〉。駅の出どころは【2】）
+    - 駅が空: 45件。載る投稿 2,366件・1,699店（LGV-26 の 2,367件・1,699店から、さくりの -1件。さくりの店は無くなり、茶屋坂本店の店ができて店の数は同じ）
+  - (d) 1706624921349321070（鳥花）: 【1】の「写真のURL」は4枚（F68mTjbbEAAil6u・F68mT7uawAAkWu2・F68mT8GbUAAA_Df・F68mT8qb0AAo1S9、いずれも `https://pbs.twimg.com/media/<名前>.jpg`）。【2】の「画像」は1枚目。2枚目は `https://pbs.twimg.com/media/F68mT7uawAAkWu2.jpg`
+- 手順3: (a)(b) が決定どおりなので、照合のシートを消した
+  - 消す前の行数: 2,100行（見出しを含む。データ 2,099行で見込みどおり）。CHAT-1111-LGV-27 のログの「2,099行（データ 2,098行）」は、2,099 がデータの行数（見出しを除く）だった（LGV-27 のログの書き違い）
+  - `--apply` で手動実行: run 90（job 130340558946）success。「「駅の照合_1029」を消した（deleteSheet）」
+  - もう一度 dry_run: run 91（job 130341162321）success。「「駅の照合_1029」: タブが無い」
+- 手順4: `regenerate-page.yml` を cloudflare の ref・`target_page: log_pages` で手動実行: run 811 success。再生成のコミット 70e0ef97d（chore: regenerate log/ via GitHub Actions、2026-11-11 05:23 UTC）。70e0ef97d の check-run「Workers Builds: mj」success
+  - 本番 `https://ryoei.pro/log/search.json?v=70e0ef97d`（UA に mj-internal、HTTP 200）: 70e0ef97d の log/search.json と同じ。1,699店・2,366件
+  - #678 の表示 N の8件: どれも無い
+  - 2047232238555906256: 店 `ChIJweLmJvuLGGARVhUj1iX8McM`・コーヒー FUJI・東京
+  - 日付が変わった12件のうち3件: 1483386524854996999 2022-01-18・1780082587471348041 2024-04-16・1962724931717734612 2025-09-02（どれも【2】の日付）
+  - CANAL CAFE の店: 店名 CANAL CAFE・URL の query CANAL%20CAFE
+  - (a) の7件: アナログ八重洲 銀座一丁目・目黒のさんま 菜の花 `ChIJlYf__xWLGGARhWjyXG7CqTw` 恵比寿・ギャラン 上野・もも瀬 市ヶ谷・吉野 池袋・三国一 新宿（search.json の駅は店の駅。アナログ八重洲以外は投稿1件の店）。さくりの投稿と店は無い
+  - ブラウザでの見え方は確かめていない（本番の JSON まで）
+- 手順5: #661 に (c) の結果（チェックボックスの行 8件〈X の投稿・ログの店のリンク付き〉と【London】の8件を `<details>` に）と (d) の写真の URL・【3】に「画像」の列を足す手順をコメントした。保存されたコメントを読み直し、URL がバッククォートで囲まれていないことを確かめた。(c) が1件以上なので #661 は閉じていない
+- 手順6: 一度きりの mode を戻した（2f8cbc7ad）。origin/cloudflare（再生成のコミット）を merge で取り込んだ（504419225、衝突なし）。`git diff origin/cloudflare -- scripts/ .github/` は空。cloudflare との差は docs/logs だけ。差分のレビュー（新しい文脈のサブエージェント）は、コード・ワークフローの差が残らないため行っていない
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1111-lgv-stfinal
 - ログ: https://github.com/retroeater/mj/blob/work/1111-lgv-stfinal/docs/logs/CHAT-1111-LGV-28.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1111-lgv-stfinal
-- 確認用URL: なし
-- マージ: 未
-- issue: #661
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 確認用URL: https://ryoei.pro/log/
+- マージ: 済 442d693c3（docs のみ。70e0ef97d..442d693c3）。log/ は手動の再生成で 70e0ef97d が cloudflare に入った
+- issue: #661 に (c)(d) をコメント（閉じていない。駅の一覧に無い駅が残るため）
+- 判断が必要なこと: (1) 平野さんが #661 の駅の一覧に無い駅 8件（西麻布 2・奥浅草 2・南青山・新宿東口・Bond Street・Paddington）を確かめ、直すなら【3】の「駅」に一覧の駅名（海外は【London】付き）を入れる。(2) 鳥花（1706624921349321070）の写真: 平野さんが【3】に「画像」の列を足し、その行に `https://pbs.twimg.com/media/F68mT7uawAAkWu2.jpg` を入れる。終わったらチャットに伝える
+- 未確認の項目: 本番の log/ のブラウザでの見え方（本番の search.json までは確かめた）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 21f86de7）: https://github.com/retroeater/mj-logs/tree/main/guide/21f86de7
+ガイド文書（この版を写した時点の最新、mj 27980a0b）: https://github.com/retroeater/mj-logs/tree/main/guide/27980a0b
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/21f86de7/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/21f86de7/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/21f86de7/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/21f86de7/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/21f86de7/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/21f86de7/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/27980a0b/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/27980a0b/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/27980a0b/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/27980a0b/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/27980a0b/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/27980a0b/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/500391e1.md
