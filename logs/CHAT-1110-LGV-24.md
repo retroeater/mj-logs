@@ -62,7 +62,7 @@
 
 ## 報告
 
-- 状態: 完了
+- 状態: 完了 / 続き: CHAT-1111-LGV-25
 - ブランチ: work/1110-lgv-fujiclose
 - ログ: https://github.com/retroeater/mj/blob/work/1110-lgv-fujiclose/docs/logs/CHAT-1110-LGV-24.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1110-lgv-fujiclose
