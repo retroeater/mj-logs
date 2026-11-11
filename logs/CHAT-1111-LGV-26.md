@@ -49,28 +49,38 @@ CHAT-1111-LGV-25 で見つかった CANAL CAFE の店名の違いを、平野さ
 
 ## 経過
 
+- 着手。指示欄の末尾は指示文の最後の行と一致。冒頭の雛形の行（Chat-Ref・マージ・貼る時機・共通手順）に欠けなし。同じ Chat-Ref のコミットなし。CHAT-1111-LGV-25 のログの `## 報告` は「判断待ち」、work/1111-lgv-date はリモートにある（e281cc062）。LGV-25 のログの状態に「 / 続き: CHAT-1111-LGV-26」を足した
+- 手順1: origin/cloudflare は作業ブランチに含まれている（取り込み不要、衝突なし）。未マージの work/ ブランチで `scripts/convert_x_posts.py`・`.github/workflows/convert-x-posts.yml`・`docs/notes/log-page.md` を変えているもの: なし
+- 手順1: LGV-25 の一度きりの mode を戻したコミット（bc43ee7e9）を戻し、CANAL CAFE の店の投稿と店名・URL を出す行を足した（c41989f43）。シートは読むだけで、Places・Claude・X は呼ばない。作業ブランチの ref・dry_run で convert-x-posts.yml を手動実行: run 87（job 130250478489）success
+  - (a) 1780109306995921315 の上書き後の店名: CANAL CAFE（日付 2024-04-16）→ OK。同じ店のもう1件 1780082587471348041 も CANAL CAFE・2024-04-16
+  - (b) 店 `ChIJVVVwsESMGGARP1dWh0WXom4`: 店名 CANAL CAFE・URL `https://www.google.com/maps/search/?api=1&query=CANAL%20CAFE&query_place_id=ChIJVVVwsESMGGARP1dWh0WXom4`（本番と同じ）→ OK。別名は無くなる（本番は「カナルカフェ」。2件とも「CANAL CAFE」になったため）
+  - (c) LGV-25 の (a)〜(d) は変わらない: 【3】は 1,245行（+1）・7列（投稿ID・表示・判定・place_id・駅・店名・メニュー）で「日付」は無い。12件の日付は【2】の日付で、表示 Y の組で【2】と違う日付は0件。2047232238555906256 は コーヒー FUJI・東京・`ChIJweLmJvuLGGARVhUj1iX8McM`。載る投稿 2,367件・1,699店。【2】は 2,886行で毎朝の取り込みの差は無い → OK
+  - (d) 本番の search.json（1,703店・2,373件、log/ の最後の再生成は 62459843e〈2026-11-10 04:23 UTC〉）との違いは、LGV-25 の (e) の表の「日付（12件）」「毎朝の取り込み」（福与志）「#678 の直し」（コメダ珈琲店の URL の query と別名を含む）「LGV-20 の【3】の直し」（ほんま）と同じ分だけ。CANAL CAFE の店名・URL の違いは無くなった。CANAL CAFE で残る違いは別名（「カナルカフェ」→ 無し）だけで、平野さんの【3】の直しで2件の表記がそろったことによる → OK
+- 手順2: 一度きりの mode を戻した（7e8604eaf）。`docs/decisions/operations.md` に LGV-26 の決定を足した（LGV-25 の決定の節は LGV-25 のコミットで足してある）。`git diff origin/cloudflare -- scripts/ .github/` は空。差分のレビュー（新しい文脈のサブエージェント）は、コード・ワークフローの差が残らないため行っていない
+- 手順3: 止まる条件に当たらないので cloudflare へマージする。差は docs だけ（`docs/notes/log-page.md`・`docs/decisions/operations.md`・docs/logs〈LGV-24・25・26〉）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1111-lgv-date
 - ログ: https://github.com/retroeater/mj/blob/work/1111-lgv-date/docs/logs/CHAT-1111-LGV-26.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1111-lgv-date
 - 確認用URL: なし
-- マージ: 未
+- マージ: 済 bdbefbe3f（docs のみ。81809f536..bdbefbe3f。LGV-25 の docs を含む）
 - issue: なし
 - 判断が必要なこと: なし
-- 未確認の項目: なし
+- 未確認の項目: 本番の log/ に日付の統一・CANAL CAFE・#678 の直しが入ったこと（本番の search.json は 2026-11-10 04:23 UTC の再生成のもの。次の毎朝の再生成に任せた）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 81809f53）: https://github.com/retroeater/mj-logs/tree/main/guide/81809f53
+ガイド文書（この版を写した時点の最新、mj 05165e66）: https://github.com/retroeater/mj-logs/tree/main/guide/05165e66
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/81809f53/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/81809f53/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/81809f53/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/81809f53/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/81809f53/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/81809f53/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/05165e66/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/05165e66/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/05165e66/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/05165e66/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/05165e66/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/05165e66/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/500391e1.md
