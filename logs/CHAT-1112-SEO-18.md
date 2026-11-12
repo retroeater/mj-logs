@@ -54,15 +54,37 @@ CHAT-1112-SEO-17 の `## 報告`「判断が必要なこと」に答える。女
 
 ## 経過
 
+### 0. 着手前の確認
+
+- 指示欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある
+- 同じ Chat-Ref のコミット・ログは無し。work/1112-seo18 はローカル・リモートとも無し → `git checkout -b work/1112-seo18 origin/cloudflare`（46b7c205d）
+
+### 1. 既存の issue と未マージのブランチ
+
+- `gh api search/issues`（`is:issue`、state を問わない）で「日本シリーズ」「nihon-series」「着地 入口」「女流 入口」を検索。同じ目的（男子の検索語が女流の入口に着地する）の issue は無し。近いものは #437・#452・#478（/live・期ページの動画）、#142・#671（title の着地、別の大会）で目的が違う
+- `git branch -r --no-merged origin/cloudflare` の work/ の各ブランチで、件名に nihon・日本シリーズ・seo を含むコミットはこの作業ブランチだけ
+
+### 2. 起票
+
+- #680 を起票した（ラベル: 分野: SEO/AIO・対象: title。どちらも既存）: https://github.com/retroeater/mj/issues/680
+- チャット側の案から直した点:
+  - 男子の大会の語の行は5件（麻雀日本シリーズ 48・歴代 17・麻雀 日本シリーズ 13・日本麻雀シリーズ 1・とは 1、計80）。「麻雀 日本 シリーズ 2026 成績」（1）は男女どちらか分からないので表の外に注記した
+  - 起票時に生成物を読んだ範囲を本文に入れた: 両方の入口の title・description・h1、互いの入口へのリンクは両方とも無し、男子の入口は sitemap-title.xml に有り、`llms.txt` は `title/<大会>/` の形で大会ごとの URL は無し
+
+### 3. 決定の記録・SEO-17 のログ
+
+- docs/decisions/seo-bing.md に 2026-11-12（CHAT-1112-SEO-18）を足した
+- SEO-17 のログの `## 報告` の状態を「判断待ち / 続き: CHAT-1112-SEO-18」にした
+
 ## 報告
 
-- 状態: 対応中
+- 状態: 完了
 - ブランチ: work/1112-seo18
-- ログ: https://github.com/retroeater/mj/blob/work/1112-seo18/docs/logs/CHAT-1112-SEO-18.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1112-SEO-18.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1112-seo18
 - 確認用URL: なし
-- マージ: 未
-- issue: なし
+- マージ: 済（4e2cf150d、fast-forward）
+- issue: #680（起票）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
@@ -70,12 +92,12 @@ CHAT-1112-SEO-17 の `## 報告`「判断が必要なこと」に答える。女
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 46b7c205）: https://github.com/retroeater/mj-logs/tree/main/guide/46b7c205
+ガイド文書（この版を写した時点の最新、mj 61fe10c9）: https://github.com/retroeater/mj-logs/tree/main/guide/61fe10c9
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/46b7c205/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/46b7c205/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/46b7c205/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/46b7c205/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/46b7c205/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/46b7c205/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/61fe10c9/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/61fe10c9/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/61fe10c9/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/61fe10c9/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/61fe10c9/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/61fe10c9/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/fde93af5.md

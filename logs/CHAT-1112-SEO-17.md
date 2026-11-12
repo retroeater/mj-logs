@@ -179,7 +179,7 @@ title・h1 は全期とも「女流プロ麻雀日本シリーズYYYY 決勝結�
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1112-SEO-18
 - ブランチ: work/1112-seo17
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1112-SEO-17.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1112-seo17
@@ -203,12 +203,12 @@ title・h1 は全期とも「女流プロ麻雀日本シリーズYYYY 決勝結�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj f0d66fae）: https://github.com/retroeater/mj-logs/tree/main/guide/f0d66fae
+ガイド文書（この版を写した時点の最新、mj 61fe10c9）: https://github.com/retroeater/mj-logs/tree/main/guide/61fe10c9
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f0d66fae/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f0d66fae/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f0d66fae/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f0d66fae/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f0d66fae/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f0d66fae/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/6eb2da98.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/61fe10c9/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/61fe10c9/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/61fe10c9/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/61fe10c9/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/61fe10c9/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/61fe10c9/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/fde93af5.md
