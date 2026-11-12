@@ -117,7 +117,7 @@
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1112-LGV-31
 - ブランチ: work/1111-lgv-stfix
 - ログ: https://github.com/retroeater/mj/blob/work/1111-lgv-stfix/docs/logs/CHAT-1111-LGV-29.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1111-lgv-stfix
@@ -139,4 +139,4 @@
 - docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/27980a0b/docs/notes/chat-side-operations.md
 - docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/27980a0b/docs/notes/cloudflare.md
 - docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/27980a0b/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/500391e1.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/c0cfc4fa.md
