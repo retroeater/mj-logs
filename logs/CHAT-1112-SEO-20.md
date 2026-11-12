@@ -51,6 +51,14 @@ CHAT-1112-SEO-19 の変更（`scripts/inspect_gsc_urls.py`・テスト・`fetch-
 
 ## 経過
 
+### 1. 着手前の確認・取り込み
+
+- 指示欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある。同じ Chat-Ref のコミットは無し。#458 は open
+- origin/work/1112-seo19（221feb533）はローカルと一致。origin/cloudflare（176104e87）は HEAD の祖先なので取り込み（merge）は不要で、衝突も無し
+- cloudflare との差分は10ファイルで、SEO-19 の報告の範囲（`scripts/inspect_gsc_urls.py`・テスト・`fetch-gsc.yml`・`docs/gsc/README.md`・`docs/notes/github-actions.md`・`docs/gsc/inspect/2026-11-12-*`）と、ログ（SEO-19・SEO-20）・`docs/decisions/seo-bing.md` だけ。ページの生成物の変更は無し
+- `python3 -m unittest discover -s scripts/tests`: OK
+- SEO-19 のログの状態を「判断待ち / 続き: CHAT-1112-SEO-20」にし、決定を docs/decisions/seo-bing.md に足した
+
 ## 報告
 
 - 状態: 対応中
@@ -67,12 +75,12 @@ CHAT-1112-SEO-19 の変更（`scripts/inspect_gsc_urls.py`・テスト・`fetch-
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 176104e8）: https://github.com/retroeater/mj-logs/tree/main/guide/176104e8
+ガイド文書（この版を写した時点の最新、mj 6bb66149）: https://github.com/retroeater/mj-logs/tree/main/guide/6bb66149
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/176104e8/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/176104e8/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/176104e8/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/176104e8/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/176104e8/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/176104e8/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6bb66149/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6bb66149/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6bb66149/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6bb66149/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6bb66149/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6bb66149/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/fde93af5.md
