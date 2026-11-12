@@ -69,16 +69,37 @@ Chat-Ref: CHAT-1112-RDR-09
 - 0. 指示欄の末尾は指示文の最後の行（「不明な点があれば…この行が指示文の最後の行です。」）と一致
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は欠けなし
 - work/1112-rdr はローカル・リモートとも無く、origin/cloudflare（fde93af5e）から作った
+- 手順1: 未マージの work/ ブランチ（1009-swp-526・1011-swp-hnd・1011-swp-nav・1015-skd-notes・1101-prp-pub・1103-ryo5）の件名に同じ論点は無い。redirects.md・decisions/cloudflare.md を変えているのは work/1101-prp-pub だけで、冒頭の項目と「棚卸しの対象」の表の行（#641 の Worker の転送）。「棚卸しの手順」とは重ならない。open issue の検索（Bing・転送 削除・redirects・Copilot・棚卸し）で同じ論点の issue は無い（#568 は対象そのもの。#230 は AI 検索の言及の計測、#486 は Bing の Recommendations で別の論点）。#568 に他セッションの着手中コメントは無い
+- 削除の基準は前提どおり「直近90日で、ボット以外の転送が0件、かつ Search Console の着地も0件」（redirects.md「棚卸しの手順」の 2.）だった
+- 手順2: redirects.md「棚卸しの手順」の 1. に「Bing の引用」の項を足し、2. の基準に「かつ Bing の引用も0件」と理由の一句を足した。Bing の画面の期間 3M は約90日で、基準の直近90日とほぼそろうと書いた（画面の実物は見ていない）。決定を docs/decisions/cloudflare.md に足した。コミット a9593ca2a
+- 同じ基準の文が `scripts/fetch_redirect_counts.py` の #568 への月次コメントの1行（「削除の基準: 直近90日で、ボット以外の転送が0件、かつ Search Console の着地も0件」）にもある。指示がドキュメントのみなので変えていない（「判断が必要なこと」）
+- `python3 -m unittest scripts/tests/test_redirects_inventory.py scripts/tests/test_fetch_redirect_counts.py`: 20件 OK
+- 手順3: #568 にコメント https://github.com/retroeater/mj/issues/568#issuecomment-6814273832
+- サブエージェントのレビュー: ドキュメントのみの変更なので行っていない（CLAUDE.md の対象はコード・生成物・ワークフロー・配信設定）
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1112-rdr
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1112-RDR-09.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1112-rdr
+- 確認用URL: なし
+- マージ: 済（cloudflare へ fast-forward。SHA はこのコミット）
+- issue: #568（コメント）
+- 判断が必要なこと:
+  - `scripts/fetch_redirect_counts.py` が #568 の月次コメントに書く「削除の基準:」の行が古い2条件のまま（2026-12-01 の月次から食い違う）。3条件に直すか、行を消して redirects.md の参照だけにするか（コードの変更なので別の指示が要る）
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 4dcebb9d）: https://github.com/retroeater/mj-logs/tree/main/guide/4dcebb9d
+ガイド文書（この版を写した時点の最新、mj 46b7c205）: https://github.com/retroeater/mj-logs/tree/main/guide/46b7c205
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/4dcebb9d/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/4dcebb9d/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/4dcebb9d/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/4dcebb9d/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/4dcebb9d/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/4dcebb9d/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/46b7c205/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/46b7c205/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/46b7c205/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/46b7c205/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/46b7c205/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/46b7c205/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/fde93af5.md
