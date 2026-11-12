@@ -1,0 +1,81 @@
+# CHAT-1112-SEO-18
+
+- 着手日時: 2026-11-12
+- 対象issue: なし（起票する）
+- ブランチ: work/1112-seo18
+- 着手時HEAD: 46b7c205d
+
+## 指示
+
+【Claude作成】Claude Code 向け指示：CHAT-1112-SEO-17 の判断待ちへの答え（女流日本シリーズの期ページは今のまま）を記録し、男子「麻雀日本シリーズ」の検索が女流の入口に着地している件を起票する
+Chat-Ref: CHAT-1112-SEO-18
+マージ: ドキュメントのみ（ログ）なので完了報告のうえ cloudflare へ入れてよい（変えるのは issue と docs/logs・docs/decisions だけ。ページ・コード・ほかの文書は直さない）
+貼る時機: いつでも（SEO-17 と同じセッションでよい）
+共通手順: CLAUDE.md「Chat-Ref」「ブランチ運用」「作業ログ」節のとおり（識別子確認 → origin/cloudflare を起点に work/1112-seo18〈手順は docs/notes/cloud-sessions.md〉 → ログ先行push → 最終報告の Chat-Ref の行の直前に「ログ（公開）」の行、最後の行に Chat-Ref）。平野さんは、この指示のための作業ブランチ work/1112-seo18 の作成と push を許可している（セッションに割り当てられた claude/… のブランチは使わない）。
+作業ブランチ: クラウドセッションで実行する。work/1112-seo18 を使う。リモートに無ければ origin/cloudflare から作る。リモートにあってマージ済み（`git merge-base --is-ancestor origin/work/1112-seo18 origin/cloudflare` が真）なら origin/cloudflare から作る（`checkout -B` は使わない。ローカルにあるときを含め手順は docs/notes/cloud-sessions.md「作業ブランチの用意」）。マージ済みでなければ止まる
+作業ブランチの片付け: 作業ブランチは削除しない。マージ済みなら cleanup-branches.yml が消す（docs/notes/cloud-sessions.md「ブランチの削除」）
+
+0. 着手前に、このログの「指示」欄の末尾が、この指示文の末尾（最後の行）と一致しているか確認し、一致しなければ作業せず報告する。
+
+## 目的
+CHAT-1112-SEO-17 の `## 報告`「判断が必要なこと」に答える。女流日本シリーズの期ページの直し方の決定を記録し、男子「麻雀日本シリーズ」の検索語が女流の入口に着地している件を issue にする。
+
+### 決定（2026-11-12、平野さん）
+- 女流プロ麻雀日本シリーズの期ページは今のまま（SEO-17 の案1。title・description に「プレーオフ」の語は入れない。中身と文言が合ったまま）。過去の期のクリック0は、検索結果の説明文で答えが済む型として受け入れ、成果は Copilot の引用などクリック以外でも見る
+- 男子の「麻雀日本シリーズ」の検索語（SEO-17 の経過 3、計80表示）が、男子の入口 `title/nihon-series/` ではなく女流の入口 `title/joryu-nihon-series/` に着地している件を、新しい issue に起票する。原因を調べる指示は後で出す
+
+### 前提（チャット側。平野さんの決定ではない）
+- 起票する issue の中身（チャット側の案。実物に合わせて直してよい）:
+  - 題: 「麻雀日本シリーズ」の検索が女流の入口（title/joryu-nihon-series/）に着地する（男子の入口 title/nihon-series/ へ着地させる）
+  - 背景: SEO-17 の経過 3 の表（入口に着地した検索語の全15件のうち、男子の大会の語の行）を引用し、ログの URL を添える。男子の入口は page.csv に無く、期ページ `title/nihon-series/2024.html` だけ表示5
+  - 調べること（候補）: 男子の入口と女流の入口の title・description・h1 の今の文言（生成物から）、両方の入口の互いへのリンク、男子の入口がサイトマップと llms.txt に載っているか。同じ型の直しの例は #671（「鳳凰位」）
+  - ラベル: 「分野: SEO/AIO」と、対象のラベルは既存のものから（新しいラベルは作らない）
+  - 起票の前に、同じ目的の既存の issue（クローズ済みを含む）を探し、あれば起票せずにコメントする
+- 女流の期ページの件は issue にしない（直さないため）
+- pro/ のトップの title・h1 に「一覧」が無い件は、#641 にコメント済み（SEO-17）。PRP 系列の判断に任せ、この指示では触れない
+- SEO-17 の「未確認の項目」（【3】の行の有無、予選・プレーオフの点数、2022 の期ページの動画）は、案1 にしたので調べない
+
+## 手順
+1. 上の前提のとおり、既存の issue を探してから、男子「麻雀日本シリーズ」の件を起票する（または既存の issue にコメントする）
+2. 上の「決定」を docs/decisions/README.md の書き方に従って docs/decisions/seo-bing.md に足し、SEO-17 のログの `## 報告` の状態の末尾に ` / 続き: CHAT-1112-SEO-18` を足す
+3. ログを仕上げて `git push origin work/1112-seo18:cloudflare` で入れる（push 直前の確かめは CLAUDE.md「ブランチ運用」）
+
+## 止まる条件
+- 同じ目的の open の issue に、他のセッションの完了していない着手中のコメントがある（起票もコメントもせずに止まる）
+- 作業ブランチに docs/logs・docs/decisions 以外の変更がある
+- cloudflare への push が権限判定で拒否された（別の手段を試さずに止まる）
+
+## 完了条件
+- ログの「## 報告」を CLAUDE.md「作業ログ」節のとおりに書いて push する
+- マージは冒頭の「マージ:」の行のとおり
+- ターミナルへの最終報告の Chat-Ref の行の直前に ログ（公開）: https://github.com/retroeater/mj-logs/blob/main/logs/CHAT-1112-SEO-18.md?v=<SHA>（CLAUDE.md「作業ログ」節）を書き、最後の行に Chat-Ref: CHAT-1112-SEO-18 を書く
+
+不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
+
+## 経過
+
+## 報告
+
+- 状態: 対応中
+- ブランチ: work/1112-seo18
+- ログ: https://github.com/retroeater/mj/blob/work/1112-seo18/docs/logs/CHAT-1112-SEO-18.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1112-seo18
+- 確認用URL: なし
+- マージ: 未
+- issue: なし
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
+
+<!-- guide-links -->
+---
+
+ガイド文書（この版を写した時点の最新、mj 46b7c205）: https://github.com/retroeater/mj-logs/tree/main/guide/46b7c205
+
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/46b7c205/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/46b7c205/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/46b7c205/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/46b7c205/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/46b7c205/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/46b7c205/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/fde93af5.md
