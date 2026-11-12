@@ -148,6 +148,9 @@ Chat-Ref: CHAT-1111-LGV-30
 - 手順5: `convert-x-posts.yml` を作業ブランチの ref・mode all・dry_run で手動実行（run 43143975444、d28aeaac4、success）: 【1】【2】2,887行、【2】に無い投稿 0件。Claude・写真の判定・Places の呼び出し 0回、シートに書いていない。「毎日確かめる投稿 … 0件」で、常設 issue の出力の手順が動いた（閉じるコメント）。この後の直し（2f881afde・7b46f3e20）は新しい投稿が無いときの道筋を変えない
 - 常設 issue: #679「ログ: 毎日確かめる投稿」を作った（ラベル: 種類: 常設・分野: 整理・保守・対象: resource_logs。本文は説明だけ）。コメントに試しの結果と止めた「通す」見本 3件（6812975952）、今載っている投稿の空欄 44件の全件（6812986765）を書いた。GitHub MCP で書くと一部の行が backtick で囲まれて保存されたので、写真のリンクを外した形で書き直し、読み直して確かめた
 
+- 手順6: origin/cloudflare を merge で取り込み（衝突なし、取り込んだのは docs/logs だけ）、テスト OK を確かめ、再 fetch して `git merge-base --is-ancestor origin/cloudflare HEAD` を確かめてから `git push origin work/1111-lgv-photo:cloudflare`（f0d66fae0..4dcebb9dd）。4dcebb9dd の check-run: Workers Builds: mj success・notify skipped（生成物は変わらないので再生成のコミットは無い）
+- マージの後に最初に動く毎朝の変換: 2026-11-13 04:00 JST の run-daily（Worker `mj-scheduler` から、xfetch → xconvert → xconvert-issue）
+
 ## 報告
 
 - 状態: 完了
@@ -155,7 +158,7 @@ Chat-Ref: CHAT-1111-LGV-30
 - ログ: https://github.com/retroeater/mj/blob/work/1111-lgv-photo/docs/logs/CHAT-1111-LGV-30.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1111-lgv-photo
 - 確認用URL: なし
-- マージ: 済（下の追記）
+- マージ: 済 4dcebb9dd（f0d66fae0..4dcebb9dd。LGV-31 の報告の docs の2コミットを含む）
 - issue: #679「ログ: 毎日確かめる投稿」を作った（試しの結果と空欄の全件をコメント）
 - 判断が必要なこと: (1) 今載っている投稿で空欄のある 44件（駅 41・メニュー 3。#679 のコメント）の扱い（外す・【3】で埋める・このままなど）。(2) 試しで止めた今載っている店のカードの写真 3件（犬・包み紙・ランプとカップ。#679 のコメント）を【3】の「画像」で替えるか。(3) #679 は対象が0件の朝にコメントして閉じる（次の朝の変換で閉じる見込み）。コメントの一覧は閉じた issue に残る
 - 未確認の項目: 新しい投稿があるときの本番の動き（写真の判定と issue への書き込み）。最初に動く毎朝の変換の結果
