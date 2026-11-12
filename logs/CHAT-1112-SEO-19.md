@@ -52,6 +52,83 @@ Chat-Ref: CHAT-1112-SEO-19
 
 ## 経過
 
+### 0. 着手前の確認
+
+- 指示欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある
+- 同じ Chat-Ref のコミット・ログは無し。SEO 系列の既存の指示なので `XXX` の重複確認は対象外
+- issue の state: #458・#680 とも open。#458 のコメントは期日と最強戦の旧 URL の扱いで、着手中のコメントは無し。#680 はコメント無し
+- 0章ゲート: 未マージの work/ ブランチのうち `scripts/fetch_gsc.py`・`fetch-gsc.yml`・`run-monthly.yml`・`docs/gsc/README.md` を変えるものは無し。`docs/notes/github-actions.md` は work/1101-prp-pub・work/1103-ryo5 が別の行（check-image-links・fetch-x-posts の行）を変えていて、この作業の行（fetch-gsc の節）とは重ならない。CLAUDE.md 23,972B・handover.md 24,510B（警告域 26KB の手前）
+- 作業ブランチ: ローカル・リモートとも無し → `git checkout -b work/1112-seo19 origin/cloudflare`（176104e87）
+
+### 1. 公式ドキュメントで確かめたこと（2026-11-12 に developers.google.com の本文を読んだ）
+
+- 上限（Usage Limits）: URL 検査はサイト単位 **2,000件/日・600件/分**、プロジェクト単位 10,000,000件/日・15,000件/分。sitemaps など「その他」はユーザー単位 20件/秒・200件/分。#458 の本文の値と一致
+- 費用（Pricing）: 「All use of Google Search Console API is free of charge」。上限だけがある
+- `urlInspection.index.inspect`: `POST https://searchconsole.googleapis.com/v1/urlInspection/index:inspect`、本文は `inspectionUrl`・`siteUrl`・`languageCode`。スコープは `webmasters` か `webmasters.readonly`
+- 返る項目（`IndexStatusInspectionResult`）: `sitemap[]`・`referringUrls[]`・`verdict`（PASS／NEUTRAL＝除外／FAIL）・`coverageState`・`robotsTxtState`・`indexingState`・`lastCrawlTime`・`pageFetchState`・`googleCanonical`・`userCanonical`・`crawledAs`
+- `sitemaps.list`・`sitemaps.get`: スコープは `webmasters.readonly` で可。項目は `path`・`lastSubmitted`・`isPending`・`isSitemapsIndex`・`type`・`lastDownloaded`・`warnings`・`errors`・`contents[]`（`indexed` は非推奨）
+- サイトマップの件数（origin/cloudflare）: pages 54・wayhome 45・saikyo 892・title 385・live 947・mtsuku 62・exam 13、計 2,398（前提と一致。`sitemap-books.xml` はインデックスに無い）
+
+### 2. 作った仕組み（cf0eaa8de）
+
+- `scripts/inspect_gsc_urls.py`（新規）: `sitemap.xml` の子サイトマップをリポジトリのファイルから読み（本番は取りに行かない）、URL ごとに URL 検査を呼んで `docs/gsc/inspect/<取得の開始日>.csv` に1行ずつ足す
+  - 列: `url`・`listed_in`（載っている子サイトマップ）・`verdict`・`coverageState`・`indexingState`・`googleCanonical`・`userCanonical`・`lastCrawlTime`・`pageFetchState`・`robotsTxtState`・`crawledAs`・`sitemap`（Google が知る参照元サイトマップ）・`referringUrls_count`・`referringUrls`・`inspected_at`
+  - `--limit`（既定 1,900）・`--resume`（いちばん新しい `<日付>.csv` に続きを足す。同じファイルにある URL は飛ばす）。1行ずつ書き出すので、途中で止まっても取った分は残る。呼び出しの間は 0.11秒以上空ける（600件/分）
+  - `--url`（指定した URL だけを検査。`<取得日>-urls.csv` に書き、全件の続きには混ぜない）・`--print-json`（応答をそのまま出す）
+  - `--sitemaps`: `sitemaps.list` とインデックス＋7つの子の `sitemaps.get` を `<取得日>-sitemaps.md` に表と JSON で書く（取れないものは止めずにエラーの文を残す）
+  - 認証・再試行・403 の扱いは `fetch_gsc.py` の `_authorized_session()`・`_request()` をそのまま使う
+- `scripts/tests/test_inspect_gsc_urls.py`（新規、9件）: サイトマップの読み（重複・サイト外）・続きからの判定・CSV の書き出し（見出し1回・追記）・サイトマップの表
+- `.github/workflows/fetch-gsc.yml`: 手動実行の入力 `task`（export／inspect、既定 export）と `inspect_limit`・`inspect_urls`・`inspect_resume`・`inspect_sitemaps` を足した。`TASK` は `workflow_dispatch` のときだけ入力を見て、ほか（schedule・run-monthly からの `workflow_call`）は常に export。「取得」と「robots.txtの差分を知らせる」は export のときだけ、新しい「URL 検査」は inspect のときだけ動く。コミットの件名は inspect のとき「chore: fetch Search Console URL inspection」
+  - 新しいワークフローにしなかった理由: 新規のワークフローは既定ブランチに無いため作業ブランチから手動実行できない（docs/notes/github-actions.md「ワークフローを変更したとき」）。月次の取得と同じ鍵・同じ経路の既存の本に手動の入口を足した。定期の取得への組み込み（run-monthly）はしていない
+- 文書: `docs/gsc/README.md`「API で取れないもの」の URL 検査の行、`docs/notes/github-actions.md` の fetch-gsc の項に1行
+- `python3 -m unittest discover -s scripts/tests`: 2,122件 OK（ローカル。ワークフローの「テスト」でも成功）
+
+### 3. 作業ブランチでの手動実行（run 43163808026、success）
+
+入力: `commit=true`・`task=inspect`・`inspect_limit=1`・`inspect_urls=https://ryoei.pro/title/nihon-series/`・`inspect_sitemaps=true`。結果は bot のコミット cf61dba16（`docs/gsc/inspect/2026-11-12-urls.csv`・`2026-11-12-sitemaps.md`）。「取得」と robots の通知は skipped。
+
+(a) URL 検査（「制限付き」の権限で**呼べた**）。応答の `indexStatusResult` の全項目:
+
+| 項目 | 値 |
+|---|---|
+| verdict | NEUTRAL |
+| coverageState | クロール済み - インデックス未登録 |
+| robotsTxtState | ALLOWED |
+| indexingState | INDEXING_ALLOWED |
+| lastCrawlTime | 2026-11-12T05:41:41Z |
+| pageFetchState | SUCCESSFUL |
+| googleCanonical | https://ryoei.pro/title/nihon-series/ |
+| userCanonical | https://ryoei.pro/title/nihon-series/ |
+| sitemap | https://ryoei.pro/sitemap.xml |
+| crawledAs | MOBILE |
+| referringUrls | （無し） |
+
+ほかに `mobileUsabilityResult.verdict` = VERDICT_UNSPECIFIED（非推奨の項目）と `inspectionResultLink`（Search Console の画面へのリンク。ログには写さない）。
+
+- 平野さんの画面（同日）の「URL が Google に認識されていません」から変わり、検査の8分前にクロールされていた。画面のライブテスト・インデックス登録のリクエストの後か否かはここからは分からない
+- `title/nihon-series/` は 2026-09-17 から `sitemap-title.xml` にあり、インデックス経由で公開（#413、2026-09-28）
+
+(b) サイトマップの状態（全項目は `docs/gsc/inspect/2026-11-12-sitemaps.md`）:
+
+| サイトマップ | 送信 | lastDownloaded | isPending | errors | warnings | submitted(web) |
+|---|---|---|---|---|---|---|
+| sitemap.xml（インデックス） | 2026-11-04 | 2026-11-09 | false | 0 | 0 | 2,398 |
+| sitemap-pages.xml | 2026-09-12 | 2026-11-10 | false | 0 | 0 | 54 |
+| sitemap-wayhome.xml | 2026-09-12 | 2026-11-07 | false | 0 | 0 | 45 |
+| sitemap-saikyo.xml | 2026-10-27 | 2026-11-11 | false | 0 | 0 | 892 |
+| sitemap-title.xml | （単独では未送信） | 2026-11-07 | false | 0 | 0 | 385 |
+| sitemap-live.xml | （単独では未送信） | 2026-11-09 | false | 0 | 0 | 947 |
+| sitemap-mtsuku.xml | （単独では未送信） | 2026-11-04 | false | 0 | 0 | 62 |
+| sitemap-exam.xml | （単独では未送信） | 2026-11-08 | false | 0 | 0 | 13 |
+
+- `sitemaps.list` は送信済みの4件（平野さんの画面と一致）。インデックス経由の4件も `sitemaps.get` で取れ、どれも Google が読んでいてエラー・警告は0。`contents[].indexed` は全件 0（公式で非推奨の項目）
+- → title/ のサイトマップは読まれている。「サイトマップに載っているのに認識されない」はサイトマップの読み込みの失敗ではない
+
+### 4. 所要時間の見込み（Actions の使用量、#298）
+
+- この実行のジョブは 51秒（準備・テスト 40秒、URL 検査の手順 10秒〈サイトマップ 9件の取得を含む〉）。検査1件は 6.43秒（初回の接続を含む1件だけの値）
+- 1回 1,900件では、1件 1〜6.4秒として 約32〜205分。月次の 2,398件では 約40〜260分。1件あたりの実際の値は全件の取得の初回で測る
+
 ## 報告
 
 - 状態: 対応中
