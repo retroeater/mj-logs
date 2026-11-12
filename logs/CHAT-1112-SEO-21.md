@@ -90,15 +90,23 @@ URL 検査の全件の取得の1日目（`fetch-gsc.yml` の実行 43169347821�
 - `fetch-gsc.yml` を ref cloudflare で起動。入力 `commit=true`・`task=inspect`・`inspect_limit=1900`・`inspect_resume=true`・`inspect_urls` 空・`inspect_sitemaps=false`。15:44:24Z（11/13 00:44 JST）開始、対象 137c8327b
 - 上限の見込み: 太平洋時間の 11/12 の分は 1日目の 08:00Z 以降の 881件。残り 712件と合わせて 1,593件で 2,000件の内
 
+- 準備・テスト・認証は success（〜15:45:05Z）、「取得」は skipped、「URL 検査」は 15:45:05Z から実行中（job 131296615689）
+- 待機の上限（15分）の 15:59:30Z の時点でも「URL 検査」は in_progress。始まってすぐの権限・上限のエラーでは止まっていない
+- 件数・所要時間・再試行の回数・飛ばした件数は、ジョブのログが完了後にしか API で読めないので次の指示で確かめる（見込み 712件 × 約6.2秒 ≒ 74分）
+
+### 5. issue
+
+- #458 に、失敗の原因・再試行の追加・残りの起動をコメントした
+
 ## 報告
 
-- 状態: 対応中
+- 状態: 完了
 - ブランチ: work/1112-seo21
-- ログ: https://github.com/retroeater/mj/blob/work/1112-seo21/docs/logs/CHAT-1112-SEO-21.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1112-SEO-21.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1112-seo21
 - 確認用URL: なし
-- マージ: 未
-- issue: #458
+- マージ: 済（137c8327b、fast-forward）
+- issue: #458（コメント1件）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
