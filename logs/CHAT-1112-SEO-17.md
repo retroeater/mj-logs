@@ -64,28 +64,151 @@ Bing Webmaster Tools（2026-11-12 に平野さんの画面で読んだ、デー�
 
 ## 経過
 
+### 0. 着手前の確認
+
+- 指示欄の末尾は指示文の最後の行（「不明な点があれば…この行が指示文の最後の行です。」）と一致
+- 同じ Chat-Ref のコミット・ログは無し（`git log --all --grep`、`docs/logs/`）。SEO 系列の既存の指示なので `XXX` の重複確認は対象外。読むだけの指示なので 0章ゲートは対象外
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある
+- 作業ブランチ: `origin/work/1112-seo17` も ローカルも無し → `git checkout -b work/1112-seo17 origin/cloudflare`（着手時 HEAD 6eb2da9）
+- #641: open。着手中のまま完了していないコメントは無し（PRP-01・03・04・05・06・08・16 の着手中はどれも完了・判断待ちの報告がある）
+
+### 1. 期ページの中身（origin/cloudflare 6eb2da9 の生成物）
+
+title・h1 は全期とも「女流プロ麻雀日本シリーズYYYY 決勝結果」（h1 の「決勝結果」は visually-hidden）。description は全期とも「女流プロ麻雀日本シリーズYYYYの決勝結果。優勝は<1位>。以下、<2〜4位>。」の形。チャット側の前提（2022 の title・description）は実物と一致。
+
+| 期 | 決勝の対局者（順位順。1位に「優勝」、ほかに「N位」） | 対局日 | 点数 | 決勝ライブ | 決勝動画（回戦） | プレーオフ・予選 | ほか |
+|---|---|---|---|---|---|---|---|
+| 2016 | 高宮まり・魚谷侑未・二階堂瑠美・大平亜季 | 無し | 無し | 無し | 4本 | 無し | — |
+| 2017 | 二階堂亜樹・仲田加南・宮内こずえ・朝倉ゆかり | 無し | 無し | 無し | 4本 | 無し | — |
+| 2018 | 魚谷侑未・黒沢咲・西嶋千春・池沢麻奈美 | 無し | 無し | 無し | 4本 | 無し | — |
+| 2019 | 茅森早香・西嶋千春・朝倉ゆかり・西嶋ゆかり | 無し | 無し | 無し | 4本 | 無し | — |
+| 2020 | 仲田加南・高宮まり・逢川恵夢・日向藍子 | 無し | 無し | 無し | 4本 | 無し | — |
+| 2021 | 二階堂亜樹・高宮まり・川原舞子・佐月麻理子 | 無し | 無し | 無し | 4本 | 無し | — |
+| 2022 | 岡田紗佳・魚谷侑未・逢川恵夢・日向藍子 | 2022年7月24日 | 無し | 1本（メンバー限定） | 4本 | 無し | — |
+| 2023 | 仲田加南・瑞原明奈・魚谷侑未・岡田紗佳 | 2023年3月26日 | 無し | 1本（メンバー限定） | 4本 | 無し | — |
+| 2024 | 岡田紗佳・伊達朱里紗・仲田加南・高宮まり | 2024年3月31日 | 無し | 1本（メンバー限定） | 4本 | 無し | — |
+| 2025 | 高宮まり・伊達朱里紗・川原舞子・逢川恵夢 | 2025年3月30日 | 無し | 1本（メンバー限定） | 無し | 無し | 帰り道の1話 |
+| 2026 | 御崎千結・浅見真紀・逢川恵夢・高宮まり | 2026年3月29日 | 無し | 1本（メンバー限定） | 無し | 無し | — |
+
+- 関連リンクは全期ともパンくず（`/title/`・`/title/joryu-nihon-series/`）だけ。前後の期・live/ の期ページ・公式の結果ページへのリンクは無い。選手の行は X へのリンク（pro/ の公開で在籍者は個別ページへ）
+- 構造化データは `BreadcrumbList` だけ
+
+ほかの大会の期ページ（最新の期）との比べ:
+
+| ページ | 載っているもの |
+|---|---|
+| title/houou/42.html（鳳凰戦） | 決勝4名の順位・対局日・決勝ライブ。点数・リーグ戦は無し（リーグ戦の成績は別の houou/ にある） |
+| title/judan/43.html（十段戦） | 決勝5名の順位・対局日・決勝ライブ。点数・予選は無し |
+| title/nihon-series/2025.html（麻雀日本シリーズ） | 決勝4名・対局日・決勝ライブ・帰り道。プレーオフ・リーグ戦は無し（女流と同じ型） |
+| title/ouka/20.html（女流桜花） | 決勝4名・対局日・決勝ライブ・帰り道。点数・リーグ戦は無し |
+| title/masters/34.html（麻雀マスターズ） | 決勝4名・対局日・決勝ライブ・決勝動画。点数・予選は無し |
+| saikyo/2026/20260816.html（最強戦の大会） | **全卓（ベスト8 A卓・B卓・決勝）の対局者と順位（通過・敗退）**。点数は無し |
+
+→ title/ の期ページはどの大会も「決勝の対局者と順位・対局日・決勝の動画」だけで、女流日本シリーズだけが薄いわけではない。決勝より前の段階を載せているのは最強戦（saikyo/、別の生成）だけ。
+
+### 2. データ（シートの列・リポジトリのほかのデータ）
+
+- `generate_title_pages.py` が読むのは「タイトル」シート（`EXPECTED_HEADERS`: 大会名・期・期の表記・タイトル・順位・名前・日付・表示・備考）。**決勝の最終順位だけで、点数・プレーオフ・予選の列は無い**
+- 動画は /live の【2】＋【3】（`lib/live_layer3.py` の `fetch_matches()`）から、ステージが `FINAL_STAGES = ("決勝", "決定戦", "十段位決定戦")` の行だけを読む（`load_broadcasts()`）。プレーオフ・予選の行は読まない
+- `scripts/lib/live_extract.py` は女流日本シリーズを専用規則の大会（`TARGET_WARS`）として持ち、題名から「第N節」「プレーオフ第N節」「プレーオフ」「決勝」のステージを判定できる
+- 層1 `data/live_channel_raw.jsonl`（2026-11-11 の更新、18,639行）には、全期の予選（節・回戦）・プレーオフ・決勝の動画がある（題名に「女流プロ麻雀日本シリーズYYYY」を含む行の数）:
+
+  | 期 | 全体 | プレーオフ | 決勝 |
+  |---|---|---|---|
+  | 2016 | 23 | 4 | 4 |
+  | 2017 | 28 | 4 | 4 |
+  | 2018 | 32 | 4 | 4 |
+  | 2019 | 32 | 4 | 4 |
+  | 2020 | 32 | 4 | 4 |
+  | 2021 | 32 | 4 | 4 |
+  | 2022 | 60 | 10 | 8 |
+  | 2023 | 78 | 14 | 8 |
+  | 2024 | 74 | 10 | 8 |
+  | 2025 | 37 | 8 | 4 |
+  | 2026 | 46 | 8 | 6 |
+
+  概要欄には対局者の組み合わせ（例: 2022 プレーオフ第2節「プレーオフ４回戦：岡田紗佳vs仲田加南vs二階堂亜樹vs佐月麻理子」）と大会のシステム（16人で予選28回戦 → 12人・8人・4人のプレーオフ → 決勝4回戦）がある。**点数・通過者・最終順位は無い**
+- live/joryu-nihon-series/ は 2025 の決勝1本だけ。【3】に 2016〜2024・2026 の行があるか、あって掲載=Y でないのかは未確認（シートの鍵が要る）
+- 予選・プレーオフの点数・順位（＝「結果」）は、リポジトリのどのデータにも無い（`data/`・`workers/ask/data-schedule.json`〈2027 の予定の題名だけ〉・`dic/`）。シートにあるかは未確認
+- 気づいたこと（直さない）: 2022 の期ページの決勝ライブはメンバー限定の 7BqtFo_t1ko だが、層1 には同じ日（2022-07-24）の無料の決勝ライブ wl7FiDKPSTQ もある。`drop_member_duplicates()` は【3】に無料の行があれば限定を落とすので、無料の行が【3】に無いか掲載されていない見込み（未確認）
+
+### 3. Search Console（`docs/gsc/2026-11-01/`、2026-10-02〜10-29）
+
+- page.csv: 期ページ（`title/joryu-nihon-series/<年>.html`）は**全期とも無し**。入口 `title/joryu-nihon-series/` は クリック6・表示227・CTR 2.6%・平均順位 7.37
+- query-page.csv: 期ページに着地した検索語は**無し**。入口に着地した検索語は全15件（クリックはどれも0。入口の6クリックは匿名の検索語）:
+
+  | 検索語 | クリック | 表示 | 順位 |
+  |---|---|---|---|
+  | 麻雀日本シリーズ | 0 | 48 | 10.0 |
+  | 麻雀日本シリーズ 歴代 | 0 | 17 | 4.0 |
+  | 麻雀 日本シリーズ | 0 | 13 | 11.15 |
+  | 理麗麻雀 歴代 優勝 者 | 0 | 7 | 10.29 |
+  | 女流プロ麻雀日本シリーズ | 0 | 2 | 11.0 |
+  | 女流プロ麻雀日本シリーズ 2026 | 0 | 2 | 10.0 |
+  | 女流プロ麻雀日本シリーズ2026 速報 | 0 | 2 | 1.0 |
+  | 女流最高位 歴代 | 0 | 2 | 21.5 |
+  | 女流桜花 歴代優勝者 | 0 | 2 | 11.0 |
+  | 麻雀 女流プロ | 0 | 2 | 7.5 |
+  | 女流麻雀日本シリーズ | 0 | 1 | 9.0 |
+  | 日本麻雀シリーズ | 0 | 1 | 10.0 |
+  | 理麗麻雀 歴代 優勝者 | 0 | 1 | 11.0 |
+  | 麻雀 日本 シリーズ 2026 成績 | 0 | 1 | 9.0 |
+  | 麻雀日本シリーズとは | 0 | 1 | 10.0 |
+
+- 同じ型の「結果」「決勝」の検索語（ほかの大会）: 「女流桜花 結果」→ `title/ouka/1.html` 表示56・クリック1・7.54位、`ouka/14.html` 6・0。「鸞和戦 結果」→ `title/ranwa/5.html` 7・0・3.29位。「十段戦 麻雀 決勝」→ `title/judan/25.html` 5・0。一方、全卓の結果が載る最強戦は「麻雀最強戦2026 結果」→ `saikyo/2026.html` 21・3（CTR 14%）
+- 気づいたこと（直さない）: 男子の「麻雀日本シリーズ」の検索語（計80表示）が、男子の `title/nihon-series/` ではなく女流の入口に着地している。`title/nihon-series/` の入口は page.csv に無い（期ページ 2024.html だけ 表示5）
+
+### 4. 見立て
+
+- 2022 の期ページは title・description とも「決勝結果」と優勝者・順位をすでに出している。「…2022 結果」「…2022 決勝結果」で探す人は、**検索結果の説明文だけで答え（優勝者）を得て、クリックしない**可能性がある（Copilot の引用 34 も同じく答えとして使われた形）。文言を足しても、この型のクリックは増えにくい
+- 「…2022 プレーオフ」（72）で探す人には、ページにプレーオフの情報が何も無い。手元で足せるのは**プレーオフの動画と対局の組み合わせ**（層1）までで、プレーオフの点数・通過者は手元に無い
+- 2026（19クリック・3.01位）は今期で、決勝ライブなど見に行く動機がある。過去の期は答えが説明文で完結する
+
+### 5. #641 へのコメントと pro/ のトップ
+
+- #641 にコメントした（本文・状態・ラベルは変えていない）: https://github.com/retroeater/mj/issues/641#issuecomment-6812590274
+- `pro/index.html`（origin/cloudflare 6eb2da9・origin/work/1101-prp-pub 8ad7c5dfa とも同じ）:
+  - title「連盟プロ | 日本プロ麻雀連盟 | ryoei.pro」→ **「一覧」無し**
+  - description「日本プロ麻雀連盟の在籍する麻雀プロ1,098名の個別ページの一覧。名前・所属・入会期・鳳凰戦および女流桜花の所属リーグ等で検索できます。」→ **「一覧」有り**
+  - h1「連盟プロ」→ **「一覧」無し**
+  - 参考: 今の `jpml_pros.html` は title「プロ | 日本プロ麻雀連盟 | ryoei.pro」、h1（visually-hidden）「日本プロ麻雀連盟 プロ雀士データベース」で、ここにも「一覧」は無い
+
+### 6. 決定の記録
+
+- 指示の「決定」を docs/decisions/seo-bing.md に足した
+
 ## 報告
 
-- 状態: 対応中
+- 状態: 判断待ち
 - ブランチ: work/1112-seo17
-- ログ: https://github.com/retroeater/mj/blob/work/1112-seo17/docs/logs/CHAT-1112-SEO-17.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1112-SEO-17.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1112-seo17
 - 確認用URL: なし
-- マージ: 未
-- issue: #641
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- マージ: 済（de04ff5e6、fast-forward）
+- issue: #641（コメント1件）
+- 判断が必要なこと:
+  - 女流日本シリーズの期ページの直し方（下から1つ選ぶ。組み合わせも可。どれも title/ の全大会の期ページに同じ型で広がる）
+    - 案1 今のまま（「プレーオフ」の語は入れない）。利点: 作業なし・中身と文言が合ったまま。欠点: 過去の期のクリック0は続く見込み（説明文で答えが済む型のため）。成果は Copilot の引用など、クリック以外で測る。広がり: 変更なし
+    - 案2 期ページに決勝より前の段階（プレーオフ・予選）の動画と対局の組み合わせを足し、載った期だけ title・description に「プレーオフ」を足す。データは層1に全期分ある（2022 はプレーオフ10本）。利点: 「プレーオフ」で来た人に中身がある。欠点: 点数・通過者は手元に無いので「結果」は満たせない。【3】に行を入れて掲載にする作業と、`FINAL_STAGES` だけを読む `load_broadcasts()` の変更が要る（【3】に今行があるかは未確認）。広がり: 予選・プレーオフのある大会（麻雀日本シリーズ・達人戦など）にそのまま広がる
+    - 案3 期ページに導線を足す（その期の live/ の放送対局ページ・前後の期・公式の結果ページ）。利点: 「結果」の詳細を求める人の行き先ができる。欠点: 検索結果のクリック率には直接効かない。公式の結果ページの URL はリポジトリに無く、シートに列を足す（入力の手間）か規則を調べる必要がある。live/ の期ページは今 2025 だけ。広がり: 全大会に同じ列・同じ部品で広がる
+    - Code の推奨: 案1（直すなら案2を、点数無しで足せる範囲として）。理由は経過「4. 見立て」
+  - 男子の「麻雀日本シリーズ」の検索語（計80表示、「麻雀日本シリーズ 歴代」は4.0位）が女流の入口 `title/joryu-nihon-series/` に着地している件を、別の issue で扱うか（経過 3）
+  - pro/ のトップの title・h1 に「一覧」が無い（description には有る）。#641 の公開前の点検で直すかは PRP 系列で判断（経過 5）
+- 未確認の項目:
+  - 【3】に女流日本シリーズの 2016〜2024・2026 の行（決勝以外を含む）があるか、掲載の値（シートの鍵が要る）
+  - 予選・プレーオフの点数・順位が、どのシートにもあるか
+  - 2022 の期ページが無料の決勝ライブ（wl7FiDKPSTQ）ではなくメンバー限定を載せている理由（【3】の行の有無・掲載）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 6eb2da98）: https://github.com/retroeater/mj-logs/tree/main/guide/6eb2da98
+ガイド文書（この版を写した時点の最新、mj f0d66fae）: https://github.com/retroeater/mj-logs/tree/main/guide/f0d66fae
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6eb2da98/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6eb2da98/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6eb2da98/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6eb2da98/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6eb2da98/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6eb2da98/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f0d66fae/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f0d66fae/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f0d66fae/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f0d66fae/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f0d66fae/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f0d66fae/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/6eb2da98.md
