@@ -133,28 +133,43 @@ Chat-Ref: CHAT-1111-LGV-30
 | 2032690002430407127 | ELLA&LOUIS | 駅 | 63 |
 | 2031371580107055235 | ますたに | 駅 | 65 |
 
+- 試し2回目（出力の上限 1000、run 43142798203、job 130933530100、success）: (i) 止める見本 **13件のうち13件**を止めた (ii) 通す見本 1,695件のうち **3件（0.18%）**を止めた。判定できないは0件。止めた3件: 2047905533672485181（レトロフィッシュカフェ、犬）・1886620499213709448（もんじゃコロッケの包み紙）・1860541604345577649（ランプと卓上のカップ、灰皿の雰囲気） (iii) 1,708回・**$0.1972**。試しの費用は2回で約 $0.39（上限 $3）。基準を満たした。空欄の数えは1回目と同じ（44件）
+- 手順4: 一度きりの mode を戻した（1448780e9）。変換への組み込み（a177c790e）:
+  - `build_row()`: 判定が飲食店の行で、`blank_fields()` が空の項目を返せば理由「空欄: <項目>」、写真があれば `photo(url)` で判定し、料理でなければ「写真が料理でない」、判定できなければ「写真を判定できない」。理由があれば「表示」は N（今までの規則のまま）
+  - `run_all()`: 写真の判定は `judge_photo()`（Haiku）を、変換と同じ `Budget`（1回の実行で $3）で数えて呼ぶ。新しい投稿が無ければ呼ばない。dry-run では呼ばない
+  - 常設 issue「ログ: 毎日確かめる投稿」: `daily_check_posts()`（【2】で写真・空欄の理由がある N の行のうち【3】の「表示」が空のもの）・`daily_issue()`（チェックボックスの行。投稿 ID・日付・投稿者・店名・理由・X の投稿・1枚目の写真。冒頭に3つの対応。0件は閉じるコメント）。`--mode all --issue-dir` で body.md か close.md を書き出す（dry-run でも【2】【3】を読んで書き出す）。題は月次の「ログ: 確かめる投稿」と区別できるよう「毎日」を付けた（upsert は題の完全一致で探す）
+  - ワークフロー: `convert-x-posts.yml` は all でも `--issue-dir` を渡し、出力の手順を all でも動かす。`run-daily.yml` にジョブ `xconvert-issue`（needs: xconvert、issues: write、`upsert-issue` mode state。手動実行は dry-run）。月次の `closed-issue` と同じ形
+  - テスト（`test_convert_x_posts.py`）: 写真が料理でない → N と理由・判定できない → N と理由・空欄 → N と理由・すべて揃った料理 → 今までどおり・飲食店でなければ判定しない・写真の取り方（name=small・base64・形の崩れた URL・形の違う応答・大きすぎる写真）・答えの形（オブジェクトでない・refusal・max_tokens・クレジット切れ 400 は止める）・issue の本文と0件で閉じる・【3】で表示を決めた投稿は出ない・行の上限・run_all の写真の判定（費用の共有、続けて 400 で止める、止まっても書いた行と issue は残る）・stations で駅が埋まったときの空欄の理由。既存の4本は、店名・駅・地図の URL が空のときに「空欄」の理由が足される形に期待値を直した
+  - docs: `docs/notes/log-page.md` に「新しい投稿の写真と空欄」の節、`docs/notes/github-actions.md` の xconvert の説明と `xconvert-issue` の権限の行（d28aeaac4）
+- 検査: `python3 -m unittest discover -s scripts/tests` OK（2,113件）。`node --test scripts/tests/js/log.test.js` は変更なし。YAML の読み込み OK。zizmor: 作業ブランチ 70件（cloudflare 69件）。増えた1件は `run-daily.yml` の `xconvert-issue` の `uses: ./.github/actions/upsert-issue` の self-repository（低、既存の61件と同じ種類で、`run-monthly.yml` の `closed-issue` と同じ書き方）
+- 差分のレビュー（新しい文脈のサブエージェント、2回）:
+  - 1回目の指摘と直し（2f881afde）: HTTP 400 をすべて「判定できない」にしていた（クレジット切れ・設定の誤りでも全件 N になり、実行は成功に見える）→ クレジット切れは止め、写真の判定が続けて3回 400 なら止める。オブジェクトでない答えで実行全体が落ちる → 判定できないにする。Places を飛ばすと全件が「空欄: Google マップの URL」で issue があふれ、本文の上限を超えうる → Places を飛ばしたときは地図の URL を数えず、issue は150行までにして残りは件数だけ。stations で駅が埋まっても「空欄: 駅」が残る → 駅を外す。出力の説明が closed のまま → all を書いた。issue の本文に店名をそのまま入れる（@・# で通知が飛びうる）は、月次の issue と同じ形なので変えていない
+  - 2回目の指摘と直し（7b46f3e20）: 理由が「空欄: 駅」だけの行で駅が埋まると理由が無くなり、「表示」N のまま issue からも消える → 理由が1つも残らないなら空欄の理由を残す。コメントの「止まった」を消した。ほかに問題は無いとの結果
+- 手順5: `convert-x-posts.yml` を作業ブランチの ref・mode all・dry_run で手動実行（run 43143975444、d28aeaac4、success）: 【1】【2】2,887行、【2】に無い投稿 0件。Claude・写真の判定・Places の呼び出し 0回、シートに書いていない。「毎日確かめる投稿 … 0件」で、常設 issue の出力の手順が動いた（閉じるコメント）。この後の直し（2f881afde・7b46f3e20）は新しい投稿が無いときの道筋を変えない
+- 常設 issue: #679「ログ: 毎日確かめる投稿」を作った（ラベル: 種類: 常設・分野: 整理・保守・対象: resource_logs。本文は説明だけ）。コメントに試しの結果と止めた「通す」見本 3件（6812975952）、今載っている投稿の空欄 44件の全件（6812986765）を書いた。GitHub MCP で書くと一部の行が backtick で囲まれて保存されたので、写真のリンクを外した形で書き直し、読み直して確かめた
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1111-lgv-photo
 - ログ: https://github.com/retroeater/mj/blob/work/1111-lgv-photo/docs/logs/CHAT-1111-LGV-30.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1111-lgv-photo
 - 確認用URL: なし
-- マージ: 未
-- issue: なし
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- マージ: 済（下の追記）
+- issue: #679「ログ: 毎日確かめる投稿」を作った（試しの結果と空欄の全件をコメント）
+- 判断が必要なこと: (1) 今載っている投稿で空欄のある 44件（駅 41・メニュー 3。#679 のコメント）の扱い（外す・【3】で埋める・このままなど）。(2) 試しで止めた今載っている店のカードの写真 3件（犬・包み紙・ランプとカップ。#679 のコメント）を【3】の「画像」で替えるか。(3) #679 は対象が0件の朝にコメントして閉じる（次の朝の変換で閉じる見込み）。コメントの一覧は閉じた issue に残る
+- 未確認の項目: 新しい投稿があるときの本番の動き（写真の判定と issue への書き込み）。最初に動く毎朝の変換の結果
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj f0d66fae）: https://github.com/retroeater/mj-logs/tree/main/guide/f0d66fae
+ガイド文書（この版を写した時点の最新、mj 4dcebb9d）: https://github.com/retroeater/mj-logs/tree/main/guide/4dcebb9d
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f0d66fae/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f0d66fae/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f0d66fae/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f0d66fae/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f0d66fae/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f0d66fae/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/4dcebb9d/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/4dcebb9d/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/4dcebb9d/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/4dcebb9d/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/4dcebb9d/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/4dcebb9d/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/6eb2da98.md
