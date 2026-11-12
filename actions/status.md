@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-11-12 09:02 JST
+- 書き出した時刻: 2026-11-12 09:05 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -25,7 +25,7 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-11-12 09:01 | push | work/1111-lgv-stfix | in_progress | #1109（43124240399） |  |
+| 2026-11-12 09:01 | push | work/1111-lgv-stfix | success | #1109（43124240399） | 0分29秒 |
 | 2026-11-12 08:59 | push | work/1111-lgv-stfix | success | #1108（43123988636） | 0分28秒 |
 | 2026-11-11 15:54 | push | work/1111-lgv-stfix | success | #1107（42975702590） | 0分26秒 |
 | 2026-11-11 15:51 | push | work/1111-lgv-stfix | success | #1106（42975382662） | 0分32秒 |
@@ -38,11 +38,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-12 09:02 | check_run | cloudflare | skipped | #1466（43124368662） | 0分01秒 |
 | 2026-11-12 09:00 | check_run | cloudflare | skipped | #1465（43124090714） | 0分01秒 |
 | 2026-11-11 15:55 | check_run | cloudflare | skipped | #1464（42975828857） | 0分01秒 |
 | 2026-11-11 15:52 | check_run | cloudflare | skipped | #1463（42975447198） | 0分01秒 |
 | 2026-11-11 15:50 | check_run | cloudflare | skipped | #1462（42975212945） | 0分00秒 |
-| 2026-11-11 14:26 | check_run | cloudflare | skipped | #1461（42965814367） | 0分01秒 |
 
 ## check-image-links.yml
 
