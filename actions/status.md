@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-11-13 00:43 JST
+- 書き出した時刻: 2026-11-13 00:45 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -25,11 +25,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-11-13 00:42 | push | work/1112-seo21 | in_progress | #1119（43250690204） |  |
+| 2026-11-13 00:43 | push | work/1112-seo21 | success | #1120（43250921718） | 0分30秒 |
+| 2026-11-13 00:42 | push | work/1112-seo21 | success | #1119（43250690204） | 0分28秒 |
 | 2026-11-12 14:51 | push | work/1112-seo19 | success | #1118（43164163438） | 0分28秒 |
 | 2026-11-12 14:48 | push | work/1112-seo19 | success | #1117（43163799390） | 0分32秒 |
 | 2026-11-12 13:44 | push | work/1112-rdr | success | #1116（43156778379） | 0分30秒 |
-| 2026-11-12 13:42 | push | work/1112-rdr | success | #1115（43156551759） | 0分23秒 |
 
 ## check-build-failure.yml
 
@@ -38,11 +38,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-13 00:44 | check_run | cloudflare | skipped | #1483（43251030800） | 0分01秒 |
+| 2026-11-13 00:44 | check_run | cloudflare | skipped | #1482（43251025147） | 0分02秒 |
+| 2026-11-13 00:43 | check_run | cloudflare | skipped | #1481（43250796662） | 0分08秒 |
 | 2026-11-12 15:36 | check_run | cloudflare | skipped | #1480（43169329271） | 0分01秒 |
 | 2026-11-12 14:52 | check_run | cloudflare | skipped | #1479（43164221234） | 0分10秒 |
-| 2026-11-12 14:49 | check_run | cloudflare | skipped | #1478（43163882264） | 0分01秒 |
-| 2026-11-12 13:45 | check_run | cloudflare | skipped | #1477（43156906716） | 0分01秒 |
-| 2026-11-12 13:45 | check_run | cloudflare | skipped | #1476（43156905007） | 0分01秒 |
 
 ## check-image-links.yml
 
@@ -146,11 +146,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-13 00:44 | workflow_dispatch | cloudflare | in_progress | #17（43251047782） |  |
 | 2026-11-12 15:36 | workflow_dispatch | cloudflare | failure | #16（43169347821） | 174分34秒 |
 | 2026-11-12 14:51 | workflow_dispatch | work/1112-seo19 | success | #15（43164168577） | 0分45秒 |
 | 2026-11-12 14:48 | workflow_dispatch | work/1112-seo19 | success | #14（43163808026） | 0分57秒 |
 | 2026-11-01 08:49 | schedule | cloudflare | success | #13（41254107140） | 0分35秒 |
-| 2026-10-31 09:12 | schedule | cloudflare | success | #12（41148907501） | 0分08秒 |
 
 - #16 failure: ジョブ「fetch」 ステップ「URL 検査」
 
