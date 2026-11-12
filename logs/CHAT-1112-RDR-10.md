@@ -50,16 +50,50 @@ CHAT-1112-RDR-09 の「判断が必要なこと」への回答。#568 の月次�
 - Chat-Ref の重複: `git log --all --grep=CHAT-1112-RDR-10` で0件。CLAUDE.md は起動時から変わっていない
 - 0. 指示欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は欠けなし
 - 作業ブランチ: ローカルの work/1112-rdr は origin/cloudflare の祖先（RDR-09 のマージで一致）、origin/work/1112-rdr もマージ済み。cloud-sessions.md「作業ブランチの用意」のローカルにあり祖先の場合として `git merge --ff-only origin/cloudflare`（Already up to date、46b7c205d）
+- 前提の行は `scripts/fetch_redirect_counts.py` 278行目にあった。`grep -rn "着地も0件|削除の基準|Search Console の着地" scripts/ .github/ workers/` でほかに基準の中身を書いた箇所は無い（32・41行目の定数の注記「直近90日」だけ。前提どおり変えない）
+- 未マージの work/ ブランチで `scripts/fetch_redirect_counts.py`・`scripts/tests/test_fetch_redirect_counts.py` を変えているものは無い（`git diff --stat origin/cloudflare...<branch>` で0件）
+- 手順1: 278行目を `- 削除の基準と棚卸しの手順: \`docs/notes/redirects.md\`「棚卸しの手順」` に直した（1df78f342）。テストは行の文字列を確かめていなかったので、`WindowTest.test_three_month_total_and_comment` に新しい行の assertIn と旧い基準が無いことの assertNotIn を足した。修正前のコードで足した assert が落ちる（FAILED failures=1）ことを先に確かめた。`python3 -m unittest discover -s scripts/tests`: 2113件 OK
+- 手順2: `fetch-redirect-counts.yml` を work/1112-rdr で手動実行（dry_run true、month 2026-10）。run 43156560189、success、head 1df78f342。集計の範囲は UTC 2026-10-12T04:53:14Z 〜 2026-10-31T15:00:00Z（保持期間で詰めた）。出力の「[dry-run] #568 にコメントする:」の該当の行（引用）:
+
+```
+- 直近3か月（2026-08・2026-09・2026-10）のうち、集計があるのは 2026-09・2026-10 だけ。合計はその分だけ
+- 削除の基準と棚卸しの手順: `docs/notes/redirects.md`「棚卸しの手順」
+- 状態コードごとの全件は `docs/redirect-counts/2026-10.csv`
+```
+
+- サブエージェントのレビュー（新しい文脈、差分 `git diff origin/cloudflare...HEAD -- scripts/`）:
+
+| 指摘 | 扱い |
+|---|---|
+| 1回目: 直すべき指摘なし。任意の改善として、テストの `assertNotIn("0件")` は範囲が広く、将来の無関係な文で落ちうる。基準に固有の語で確かめるほうがよい | 直した（a394de15e、`assertNotIn("Search Console")`。修正前の278行目は「Search Console」を含むことを確かめた） |
+| 2回目（a394de15e だけ）: 指摘なし | — |
+
+- 手順3: 決定を docs/decisions/cloudflare.md に足した
+
+- マージ前の再 fetch で cloudflare が 61fe10c9d に進んでいた（SEO-17・SEO-18 のログと docs/decisions/seo-bing.md）。`git merge origin/cloudflare` で衝突なく取り込み、`git diff origin/cloudflare...HEAD --stat` が fetch_redirect_counts.py・test_fetch_redirect_counts.py・docs/decisions/cloudflare.md（追記のみ）・ログの4つだけであることを確かめた
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1112-rdr
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1112-RDR-10.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1112-rdr
+- 確認用URL: なし（スクリプトは配信対象外。確かめは手動実行の dry-run run 43156560189）
+- マージ: 済（cloudflare へ fast-forward。SHA はこのコミット）
+- issue: #568
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 46b7c205）: https://github.com/retroeater/mj-logs/tree/main/guide/46b7c205
+ガイド文書（この版を写した時点の最新、mj 176104e8）: https://github.com/retroeater/mj-logs/tree/main/guide/176104e8
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/46b7c205/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/46b7c205/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/46b7c205/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/46b7c205/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/46b7c205/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/46b7c205/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/176104e8/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/176104e8/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/176104e8/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/176104e8/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/176104e8/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/176104e8/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/fde93af5.md
