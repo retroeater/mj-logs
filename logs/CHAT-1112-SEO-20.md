@@ -59,15 +59,32 @@ CHAT-1112-SEO-19 の変更（`scripts/inspect_gsc_urls.py`・テスト・`fetch-
 - `python3 -m unittest discover -s scripts/tests`: OK
 - SEO-19 のログの状態を「判断待ち / 続き: CHAT-1112-SEO-20」にし、決定を docs/decisions/seo-bing.md に足した
 
+### 2. マージ
+
+- push の直前に再 fetch し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真なのを確かめて `git push origin work/1112-seo19:cloudflare`（176104e87..6bb661493、fast-forward）
+- check-run（6bb661493）: 「Workers Builds: mj」success・notify skipped。push で起動するワークフローは無し（変えたパスがどの起動条件にも掛からない）
+
+### 3. 1日目の起動（run 43169347821）
+
+- `fetch-gsc.yml` を ref cloudflare で起動。入力 `commit=true`・`task=inspect`・`inspect_limit=1900`・`inspect_urls` 空・`inspect_resume=false`・`inspect_sitemaps=false`
+- 06:36:48Z 開始。準備・テスト・認証は success（〜06:37:29Z）、「取得」は skipped、「URL 検査」は 06:37:29Z から実行中
+- 待機の上限（15分、CLAUDE.md「判断・作業の原則」）の 06:52:18Z の時点でも「URL 検査」は in_progress。始まってすぐの権限・上限のエラーでは止まっていない
+- 進みの件数は、ジョブのログが API で読めるのが完了後なので分からない。結果（`docs/gsc/inspect/2026-11-12.csv` の bot のコミット）・件数・所要時間・1件あたりの時間・エラーの件数は次の指示で確かめる
+- 少なくとも15分で終わらなかったので、1件あたりは 0.47秒より長い（1,900件 / 約900秒）
+
+### 4. issue
+
+- #458 にマージと1日目の起動をコメントした
+
 ## 報告
 
-- 状態: 対応中
+- 状態: 完了
 - ブランチ: work/1112-seo19
-- ログ: https://github.com/retroeater/mj/blob/work/1112-seo19/docs/logs/CHAT-1112-SEO-20.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1112-SEO-20.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1112-seo19
 - 確認用URL: なし
-- マージ: 未
-- issue: #458
+- マージ: 済（6bb661493、fast-forward）
+- issue: #458（コメント1件）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
