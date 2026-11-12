@@ -50,6 +50,46 @@ URL 検査の全件の取得の1日目（`fetch-gsc.yml` の実行 43169347821�
 
 ## 経過
 
+### 0. 着手前の確認
+
+- 指示欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある。同じ Chat-Ref のコミットは無し。#458 は open
+- 作業ブランチ: ローカル・リモートとも無し → `git checkout -b work/1112-seo21 origin/cloudflare`（278a17fcb）
+- 前提の数を `docs/gsc/inspect/2026-11-12.csv`（278a17fcb）で確かめた: 1,686行・重複なし・最後は `https://ryoei.pro/live/gpmax/16/b16-c.html`（09:30:46Z）。内訳 saikyo 892・title 385・live 310・pages 54・wayhome 45。残り 712件（live 637・mtsuku 62・exam 13）。08:00Z 以降に検査した行は 881件。すべて前提と一致
+
+### 1. 再試行
+
+- `scripts/inspect_gsc_urls.py` に `inspect_one()` を足した（f721c63eb・137c8327b）
+  - 通信の失敗（`requests.exceptions.RequestException` 全体。時間切れ・接続の失敗・本文の途中切れ）・429・5xx（`fetch_gsc.RETRY_STATUSES`）は 5・15・45秒あけて3回まで取り直す
+  - 取り直してもだめな URL は行を書かずに飛ばして続ける。CSV に行が無いので次の `--resume` で取り直される（エラーの列は足さない。足すと `done_urls()` が取った扱いにし、取り直されなくなるため）
+  - 権限の 403 は取り直さずに止める。429（と上限超過の 403）が4回とも続いたら、1日の上限とみなして止める（上限の 429 を本文で見分ける方法は公式に無いので、前提の「3回の再試行の後に止める」の形）
+  - 取り直さない 4xx（400 など）は1回で飛ばす。再試行の回数・飛ばした件数を実行の終わりに出す（止まったときも出す）
+- テスト（`scripts/tests/test_inspect_gsc_urls.py`、17件）: 時間切れと 503 の後に成功・取り直してもだめな URL を飛ばして続け `--resume` で取り直される・400 は1回で飛ばす・403 で止まり書いた行が残る・429 が続けば止まり書いた行が残る・429 の後に最後が時間切れなら飛ばす・上限超過の 403 は取り直す・本文の途中切れも取り直す。偽のセッションで API は呼ばない。requests が無い環境では再試行の検査だけ飛ばす（テストは標準ライブラリだけで動かす決まり。ワークフローは requests を入れている）
+- 修正前のスクリプト（278a17fcb）で新しいテストを回すと、再試行の5件が ERROR（`inspect_all()` が再試行を持たない）。修正後は全件 OK
+- `python3 -m unittest discover -s scripts/tests`: OK
+- `docs/gsc/README.md` の URL 検査の項に再試行の1行を足した
+
+### 2. レビュー（新しい文脈のサブエージェント、1往復）
+
+| 指摘 | 重さ | 対応 |
+|---|---|---|
+| 取り直す例外が Timeout・ConnectionError だけで、本文の途中切れ（ChunkedEncodingError）は止まる | 中 | 直した: RequestException 全体 |
+| `RETRY_STATUSES` が fetch_gsc.py と同じ値の重複 | 低 | 直した: `fetch_gsc.RETRY_STATUSES` を使う |
+| テストの先頭の `import requests` が「標準ライブラリのみ」から外れる | 低 | 直した: 無ければ再試行の検査を飛ばす |
+| 上限で止まるとき、その URL の再試行3回が表示の回数に入らない | 低 | 直さない（表示だけ。止まった理由は終了のメッセージに出る） |
+| 429→時間切れ・上限超過の 403・429 で止まる前の行の分岐に検査が無い | 低 | 直した: 3本足した |
+| 取り直さない 4xx の URL は `--resume` のたびに呼び直され、1日の上限を使う | 情報 | 直さない。恒常的に失敗する URL が出たら次の指示で扱う |
+
+### 3. マージ
+
+- 差分は `scripts/inspect_gsc_urls.py`・テスト・`docs/gsc/README.md`・`docs/decisions/seo-bing.md`・このログだけ（止まる条件の範囲内）
+- push の直前に再 fetch し、cloudflare が HEAD の祖先なのを確かめて `git push origin work/1112-seo21:cloudflare`（278a17fcb..137c8327b）
+- check-run（137c8327b）: Workers Builds: mj success・check success・notify skipped
+
+### 4. 残りの起動（run 43251047782）
+
+- `fetch-gsc.yml` を ref cloudflare で起動。入力 `commit=true`・`task=inspect`・`inspect_limit=1900`・`inspect_resume=true`・`inspect_urls` 空・`inspect_sitemaps=false`。15:44:24Z（11/13 00:44 JST）開始、対象 137c8327b
+- 上限の見込み: 太平洋時間の 11/12 の分は 1日目の 08:00Z 以降の 881件。残り 712件と合わせて 1,593件で 2,000件の内
+
 ## 報告
 
 - 状態: 対応中
@@ -66,12 +106,12 @@ URL 検査の全件の取得の1日目（`fetch-gsc.yml` の実行 43169347821�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 6bb66149）: https://github.com/retroeater/mj-logs/tree/main/guide/6bb66149
+ガイド文書（この版を写した時点の最新、mj 137c8327）: https://github.com/retroeater/mj-logs/tree/main/guide/137c8327
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6bb66149/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6bb66149/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6bb66149/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6bb66149/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6bb66149/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6bb66149/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/137c8327/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/137c8327/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/137c8327/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/137c8327/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/137c8327/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/137c8327/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/278a17fc.md
