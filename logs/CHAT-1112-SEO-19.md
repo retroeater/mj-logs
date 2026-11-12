@@ -129,17 +129,52 @@ Chat-Ref: CHAT-1112-SEO-19
 - この実行のジョブは 51秒（準備・テスト 40秒、URL 検査の手順 10秒〈サイトマップ 9件の取得を含む〉）。検査1件は 6.43秒（初回の接続を含む1件だけの値）
 - 1回 1,900件では、1件 1〜6.4秒として 約32〜205分。月次の 2,398件では 約40〜260分。1件あたりの実際の値は全件の取得の初回で測る
 
+### 5. レビュー（新しい文脈のサブエージェント、1往復）と直し（6a389825a）
+
+対象: `git diff origin/cloudflare...HEAD` の scripts/・.github/・docs/gsc/README.md・docs/notes/github-actions.md。観点: schedule・workflow_call の経路、シェルの引用、続き・上限・途中の失敗、レート、コード規約。
+
+| 指摘 | 重さ | 対応 |
+|---|---|---|
+| 「URL 検査」の手順が上限などで失敗すると「コミットしてpush」が動かず、取れた行が runner と一緒に消える | 高 | 直した: inspect のときは `!cancelled()` で失敗してもコミットする |
+| `--url` も取った URL を飛ばすので、同じ日の再検査が0件で黙って終わる | 中 | 直した: `--url` では飛ばさない |
+| 2,000件/日を1回の上限でしか抑えていない（同じ日に2回走らせると超えうる） | 中 | 直さない。超えても上の直しで取れた行は残り、`--resume` で続く。判断が必要なことに書いた |
+| `for url in $URLS` がパス名展開される | 低 | 直した: `read -ra` で配列に |
+| workflow_call で export になる理由のコメントが無い | 軽微 | 直した |
+| 途中で失敗しても行が残る分岐の検査が無い | 低 | 直した: テストを1本足した（10件） |
+| 列のコメントが中身と違う・空の `<loc/>`・`--out-dir` が外のとき・サマリの見出し | 低 | 直した |
+| commit を外すと結果が残らない | 低 | 入力の説明に書いた |
+| `fetch_gsc` の private の関数（`_request`・`_authorized_session`）を外から使っている | 低 | 直さない（実装が2本だけで共通化の部品を作らない、CLAUDE.md「コード規約」） |
+| sitemaps.get は再試行しない | 低 | 直さない（取れないものは文で残す作り） |
+
+- 確かめた結果: scripts/tests 2,122件+1 OK（ローカル）。作業ブランチの手動実行 run 43164168577（6a389825a、入力は (a) と同じで `inspect_sitemaps=false`）が success。`--url` の再検査で `2026-11-12-urls.csv` に2行目が足された（1f12ae25b）。検査1件 6.52秒（認証の初回を含む）
+- export の経路（月次）は、変えたのが「コミットしてpush」の `if`（export では今までどおり success のときだけ）とサマリの見出しだけ。手動の export は robots.txt の差分で #304 にコメントしうるので実行していない（未確認の項目）
+
+### 6. issue へのコメント
+
+- #680: (a) の結果 https://github.com/retroeater/mj/issues/680#issuecomment-6815849770
+- #458: 仕組みの形と (a)(b) の結果 https://github.com/retroeater/mj/issues/458#issuecomment-6815893286
+
+### 7. 決定の記録
+
+- 指示の「決定」を docs/decisions/seo-bing.md に足した
+
 ## 報告
 
-- 状態: 対応中
+- 状態: 判断待ち
 - ブランチ: work/1112-seo19
 - ログ: https://github.com/retroeater/mj/blob/work/1112-seo19/docs/logs/CHAT-1112-SEO-19.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1112-seo19
-- 確認用URL: なし
-- マージ: 未
-- issue: #458, #680
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 確認用URL: なし（ページの変更なし）
+- マージ: 未（平野さんの判断待ち）
+- issue: #458・#680（コメント各1件）
+- 判断が必要なこと:
+  - 権限: 「制限付き」のまま URL 検査を呼べた。権限を「フル」に上げる作業は要らない
+  - マージの可否: work/1112-seo19 を cloudflare へ入れてよいか（変わるのは `scripts/inspect_gsc_urls.py`・テスト・`fetch-gsc.yml` の手動の入口・`docs/gsc/README.md`・`docs/notes/github-actions.md` の1行と、試した結果の `docs/gsc/inspect/2026-11-12-urls.csv`・`2026-11-12-sitemaps.md`。月次の export の動きは変えていない）
+  - 全件の取得の日程（マージの後の別の指示）: 2日に分ける案。1日目は `task=inspect`・`inspect_limit=1900`・`commit=true` で 1,900件、2日目（太平洋時間で日が変わった後〈JST 17時以降〉）に `inspect_resume=true` で残り 498件。1件あたりの時間で Actions の使用は約32〜205分（#298。初回で実測）。2日目と同じ日に画面の URL 検査を合わせて 2,000件を超えないようにする
+  - 1件あたりの時間が長かったときに、検査を並行にするか（600件/分の内なら並行で縮む。今は1件ずつ）
+- 未確認の項目:
+  - 月次の export の経路（schedule・run-monthly からの呼び出し）を変更後に実行していない（次は 2026-12-01 の run-monthly）。変えたのは「コミットしてpush」の `if` とサマリの見出しだけで、レビューでは今までどおり export になることを確かめた
+  - 検査1件あたりの実際の時間（2回とも認証の初回を含む1件だけ）
 - エラー: なし
 
 <!-- guide-links -->
