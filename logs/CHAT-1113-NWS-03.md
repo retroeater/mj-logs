@@ -677,28 +677,52 @@ CHAT-1113-NWS-02（判断待ち。全号の Batch は送信済み）の続き。
 - 足した行の数（分け方 × 大会）は、上の「照らし合わせ（分け方 × 大会）」の表と同じ（全行を書いた）。「食い違い」と「補完」の全件は上の「照らし合わせ（全件）」の表（大会・期は対象キー、項目は種別〈C: 決勝の最終日・E: 順位〉、シートの値・ニュースの値・号とページ・確度・備考）
 - 状態の列は空。モデルの列は「連盟ニュース」
 
+### 3. 後片付け
+
+- 外した（74fc858）: `scripts/oneoff_news_read.py`・`.github/workflows/oneoff-news-read.yml`・`scripts/tests/test_oneoff_news_read.py`・docs/notes/github-actions.md の表の行・`scripts/check_unused_names.py` の `NAME_RESOLVERS` の1行（`scripts/tests/test_workflows_table.py` は表と実物を比べるだけなので変更なし）。docs/notes/research-candidates.md の E の行を過去形にし、「連盟ニュースの行」に外したことと戻し方（e863b34 から取り出す）を1行足した
+- 試験: `python3 -m unittest discover -s scripts/tests` → OK（2145件）
+- 自己レビュー（削除の差分、新しい文脈のサブエージェント）: 指摘なし（参照の残りは research-candidates.md の記録の2か所だけ、試験 OK、削除だけ、e863b34 から戻せる）
+- マージ: `git push origin work/1113-nws-collect:cloudflare` → `e863b34..74fc858`（ancestor の確かめ・試験 OK）。差分は削除と docs だけ
+- 環境: 許可するホストから productionresultssa10・productionresultssa13・productionresultssa12 の blob.core.windows.net を外した（update_environment、承認済み）。sa13・sa12 は、この指示でジョブのログの置き場が sa10 と別のホストになったため足したもの（足すたびに承認の画面で承認）
+- 作業領域（セッション）に落としたジョブのログは、照らし合わせの表をこのログに写すのに使った。切り出しの画像は落としていない
+- #408 に要約をコメントした（https://github.com/retroeater/mj/issues/408#issuecomment-6851279223 ）
+- docs/decisions/automation.md に「2026-11-13（CHAT-1113-NWS-03）」を足した
+- 使った額の合計: NWS-01 $0・NWS-02 の試し $2.6137・全号の Batch $23.0559 → **$25.67**（上限 $60 の内）
+
 ## 報告
 
-- 状態: 対応中
+- 状態: 判断待ち
 - ブランチ: work/1113-nws-collect
-- ログ: https://github.com/retroeater/mj/blob/work/1113-nws-collect/docs/logs/CHAT-1113-NWS-03.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1113-NWS-03.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1113-nws-collect
 - 確認用URL: なし
-- マージ: 未
-- issue: #408
-- 判断が必要なこと: なし
+- マージ: 済（e863b34: 期を補う直しなど。74fc858: 一度きりのスクリプト・ワークフロー・試験の削除）。このログと決定の追いの push も cloudflare に入れた
+- issue: #408（着手中・要約のコメント https://github.com/retroeater/mj/issues/408#issuecomment-6851279223 ）
+- 判断が必要なこと:
+  - 1. 候補の採用の進め方。候補タブに連盟ニュースの 244行（C 補完 17・E 照合済み 182・E 食い違い 44・E シートに無い 1）。RSC-14（Web 検索）の C と一致した件数は 0（期が重ならない）。採用しやすい順のまとまりの案:
+    - (a) C の補完のうち、対局日（記事・結果の日付）で推定でない 14行: 号とページを開いて日付を確かめ、「タイトル」の年だけの日付を置き換える（1件 1〜2分、計 約20分）
+    - (b) C の補完のうち、予定表の値・推定を含む 3行（第2期プロクイーン〈予定〉、第30期王位戦・第15期麻雀マスターズ〈推定〉）: 号の別の記事か外の資料と合わせて決める
+    - (c) E の照合済み 182行: シートと同じなので、採用の作業は要らない（候補タブで一括して「採用」にするか、そのままにする）
+    - (d) E の食い違い 44行（鳳凰戦 17・麻雀マスターズ 12・新人王戦 8・王位戦 7）: 41件はシートのその期にニュースの名前が無いもの（表記の違い〈斉藤/斎藤など〉・姓だけ・読み違い・期の取り違えのいずれか）、3件は順位の違い。18件は期を同じ号の記事から補った行で、期の取り違えを疑う。1件ずつ号とページを開くので 1件 2〜3分、計 約1.5〜2時間
+    - (e) E のシートに無い 1行: その期の出場者がシートに無い
+    - 推奨: (a)→(c)→(d)（補った行を先に）→(b)・(e)の順。メリット: 確かめの手間の小さい日付の補完から入れられる。デメリット: (d) は割合が関門ぎりぎり（80.5%）で、読み違いが混じる見込みがあり手間が大きい
+  - 2. 鳳凰戦などリーグ戦の全成績表（今回は取り出していない）を同じ方法で取り出すか
+    - 費用の見込み: 入力は今回と同じ画像（約 913万トークン、Batch で約 $18）で、出力は全成績表の行が多く今回（平均 836/ページ）の数倍（表のあるページで 5,000〜10,000）になりうる。合計 $30〜45 の見込みで、この系列の残り（$60 − $25.67 = 約 $34）を超えうる（表のあるページに絞れば下げられる）
+    - 失効するクレジット（2026-11-17 00:00 UTC）を使うなら、2026-11-15 中に Batch を送る必要がある。外したスクリプトを e863b34 から戻し、プロンプトと照らし合わせ（全成績表の行の形）を足し、レビュー・試し・送信を 11-14〜15 に行う手間がかかる
+    - メリット: 鳳凰戦などの各期の全順位・点数が出典付きで揃う。デメリット: 照らす先（「タイトル」は決勝メンバーだけ）が無く、別のシートとの照らし方を決める必要がある。費用が上限を超えうる。期限が短い
+    - 推奨: 今回は見送る（照らし方が決まっておらず、期限内にレビューまで済ませるのは難しい）。取り出すなら、クレジットに頼らない別の系列として、照らす先を決めてから
 - 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 74fc8588）: https://github.com/retroeater/mj-logs/tree/main/guide/74fc8588
+ガイド文書（この版を写した時点の最新、mj c6ab5ee2）: https://github.com/retroeater/mj-logs/tree/main/guide/c6ab5ee2
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/74fc8588/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/74fc8588/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/74fc8588/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/74fc8588/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/74fc8588/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/74fc8588/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c6ab5ee2/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c6ab5ee2/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c6ab5ee2/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c6ab5ee2/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c6ab5ee2/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c6ab5ee2/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/de3fa135.md

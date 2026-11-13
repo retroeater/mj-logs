@@ -51,6 +51,25 @@ TYP-06 のまとめ D の直し（続けて配信した動画の各卓のペー�
 
 ## 経過
 
+### マージの前の確かめ（手順1）
+
+- 0章: ログの「指示」欄の末尾は指示文の最後の行と一致。雛形の行の欠けなし。同じ Chat-Ref のコミット 0件
+- 作業ブランチ: ローカルと origin/work/1113-typ は同じ（161fa4e）。TYP-06 のログの状態を「判断待ち / 続き: CHAT-1113-TYP-07」にした
+- #682: Open、最後の着手中は TYP-06（このセッション）。着手中をコメントした（https://github.com/retroeater/mj/issues/682#issuecomment-6851227196 ）
+- `git merge --no-edit origin/cloudflare`（e863b34 を取り込み、25コミット）: 衝突なし
+- `python3 -m unittest discover -s scripts/tests`: OK
+- `regenerate-page.yml` を作業ブランチで dry_run 真・compare_ref e863b34（origin/cloudflare）・対象 live_pages pro_pages ask_data で実行（run 43415764775、success）: 中身の違うファイル 4件
+
+| 種類 | TYP-06 | TYP-07 | ファイル |
+|---|---:|---:|---|
+| 続けて配信した動画のあるページ | 169 | 2 | live/jwrc-r/3/b8-a.html（137行）・live/jwrc-r/3/b8-b.html（200行） |
+| ほかの /live の個別ページ | 534 | 1 | live/jwrc-r/3/b16-d.html（18行） |
+| pro/ | 103 | 1 | pro/ryo.sato.37/index.html（1行） |
+| 期などのページ | 22 | 0 | — |
+
+- 4件だけなのは、作業ブランチがすでに新しいコードで再生成したもの（b9266d7）を持っていて、比べが「どちらかの生成で今のファイルから変わったファイル」だけを見るため。828件のコードによる違いはブランチに入っている。この4件は、作業ブランチの再生成の後のシートの変化（第3期WRC-Rリーグのページなど）で両方の生成が書き換え、新旧のコードで中身が違うもの。4種類の内で、どれも TYP-06 の数を超えない（止まる条件に当たらない）
+- 生成物を除く差分: `scripts/generate_live_pages.py`・`scripts/tests/test_live_pages.py` と docs のみ
+
 ## 報告
 
 - 状態: 作業中
@@ -58,12 +77,12 @@ TYP-06 のまとめ D の直し（続けて配信した動画の各卓のペー�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 74fc8588）: https://github.com/retroeater/mj-logs/tree/main/guide/74fc8588
+ガイド文書（この版を写した時点の最新、mj c6ab5ee2）: https://github.com/retroeater/mj-logs/tree/main/guide/c6ab5ee2
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/74fc8588/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/74fc8588/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/74fc8588/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/74fc8588/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/74fc8588/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/74fc8588/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c6ab5ee2/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c6ab5ee2/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c6ab5ee2/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c6ab5ee2/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c6ab5ee2/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c6ab5ee2/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/de3fa135.md
