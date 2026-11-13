@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-11-13 22:29 JST
+- 書き出した時刻: 2026-11-14 04:03 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -198,7 +198,7 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-11-13 22:26 | workflow_dispatch | cloudflare | in_progress | #13（43433646984） |  |
+| 2026-11-13 22:26 | workflow_dispatch | cloudflare | success | #13（43433646984） | 9分44秒 |
 | 2026-11-13 22:01 | workflow_dispatch | work/1113-nws-league | success | #12（43430028242） | 17分37秒 |
 | 2026-11-13 21:54 | workflow_dispatch | work/1113-nws-league | cancelled | #11（43429134232） | 6分45秒 |
 | 2026-11-13 20:13 | workflow_dispatch | cloudflare | success | #10（43415289251） | 0分48秒 |
@@ -267,11 +267,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-14 04:00 | workflow_dispatch | cloudflare | in_progress | #45（43488043749） |  |
 | 2026-11-13 12:12 | workflow_dispatch | work/1113-lgv-daily | success | #44（43357431853） | 11分58秒 |
 | 2026-11-13 04:00 | workflow_dispatch | cloudflare | success | #43（43285672503） | 15分51秒 |
 | 2026-11-12 04:00 | workflow_dispatch | cloudflare | success | #42（43083099995） | 16分51秒 |
 | 2026-11-11 04:00 | workflow_dispatch | cloudflare | success | #41（42880887888） | 18分43秒 |
-| 2026-11-10 09:54 | workflow_dispatch | work/1110-acf | success | #40（42731915921） | 11分52秒 |
 
 ## run-monthly.yml
 

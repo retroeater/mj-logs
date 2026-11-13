@@ -1,12 +1,11 @@
 # 朝の報告用の異常（retroeater/mj）
 
-- 書き出した時刻: 2026-11-13 22:29 JST（見た範囲: 2026-11-12 20:29 JST から）
+- 書き出した時刻: 2026-11-14 04:03 JST（見た範囲: 2026-11-13 02:03 JST から）
 - 書き出した実行の契機: workflow_dispatch（main）
 - 異常だけを書く。全体は actions/status.md。判定は mj の scripts/morning_report.py（各ワークフローの直近 100 回まで）
 
 ## 1. 失敗など（結論が success・skipped 以外。実行中を含む）
 
-- 2026-11-13 00:44 fetch-gsc.yml failure（workflow_dispatch・cloudflare）ジョブ「fetch」 https://github.com/retroeater/mj/actions/runs/43251047782
 - 2026-11-13 09:24 fetch-gsc.yml failure（workflow_dispatch・cloudflare）ジョブ「fetch」 https://github.com/retroeater/mj/actions/runs/43336769308
 - 2026-11-13 09:32 research-candidates.yml failure（workflow_dispatch・cloudflare）ジョブ「research」 https://github.com/retroeater/mj/actions/runs/43337927213
 - 2026-11-13 09:38 research-candidates.yml failure（workflow_dispatch・cloudflare）ジョブ「research」 https://github.com/retroeater/mj/actions/runs/43338663748
@@ -38,7 +37,7 @@
 - 2026-11-13 20:42 research-candidates.yml failure（workflow_dispatch・work/1113-rsc）ジョブ「research」 https://github.com/retroeater/mj/actions/runs/43419175939
 - 2026-11-13 21:17 research-candidates.yml failure（workflow_dispatch・cloudflare）ジョブ「research」 https://github.com/retroeater/mj/actions/runs/43423864654
 - 2026-11-13 21:54 oneoff-news-read.yml cancelled（workflow_dispatch・work/1113-nws-league）ジョブ「read」 https://github.com/retroeater/mj/actions/runs/43429134232
-- 2026-11-13 22:26 oneoff-news-read.yml in_progress（workflow_dispatch・cloudflare） https://github.com/retroeater/mj/actions/runs/43433646984
+- 2026-11-14 04:00 run-daily.yml in_progress（workflow_dispatch・cloudflare） https://github.com/retroeater/mj/actions/runs/43488043749
 
 ## 2. 予約実行の未実行（予定から3時間以内は「遅れの可能性」。3時間を超えて始まった実行は「遅れて実行」）
 
@@ -46,9 +45,7 @@
 
 ## 3. 所要時間の異常（cloudflare の実行だけ。基準は同じ種類〈cloudflare・予約の実行か手動か〉の直近20回。その中央値の3倍以上かつ中央値＋5分以上、または10分以上。skipped は除く）
 
-- 2026-11-13 00:44 fetch-gsc.yml failure（workflow_dispatch・cloudflare）所要 37分15秒（直近20回の中央値 1分09秒） https://github.com/retroeater/mj/actions/runs/43251047782
-- 2026-11-13 17:03 oneoff-news-read.yml success（workflow_dispatch・cloudflare）所要 7分10秒（直近20回の中央値 1分30秒） https://github.com/retroeater/mj/actions/runs/43390206093
-- 2026-11-13 17:24 oneoff-news-read.yml success（workflow_dispatch・cloudflare）所要 16分36秒（直近20回の中央値 1分30秒） https://github.com/retroeater/mj/actions/runs/43392968392
+- 2026-11-13 17:24 oneoff-news-read.yml success（workflow_dispatch・cloudflare）所要 16分36秒（直近20回の中央値 4分20秒） https://github.com/retroeater/mj/actions/runs/43392968392
 - 2026-11-13 20:06 fetch-gsc.yml success（workflow_dispatch・cloudflare）所要 43分43秒（直近20回の中央値 1分09秒） https://github.com/retroeater/mj/actions/runs/43414332570
 
 ## 4. 初回成功（cloudflare の実行だけ。それ以前の cloudflare の実行に success が無いもの）
