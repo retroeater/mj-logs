@@ -63,28 +63,56 @@
 
 ## 経過
 
+- 手順0: 「指示」欄の末尾は指示文の最後の行と一致。同じ Chat-Ref のコミットなし。work/1113-lgv-waseda はリモート・ローカルとも無く、origin/cloudflare（6fa387cbd）から作った。LGV-34 の状態に ` / 続き: CHAT-1113-LGV-35` を足した
+- 冒頭の雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は欠けていない
+- 手順1: 未マージの work/ ブランチで convert_x_posts.py・convert-x-posts.yml を変えているものは無い
+- 「早稲田」: 駅の一覧（data/stations_n02.json）に東京都の「早稲田」が2点ある（緯度 35.71187 と 35.70568。都電荒川線と東西線と見込む）。名前は同じで都道府県も東京都だけなので `resolve` は要確認なしに最初の点に決まり、表示は「早稲田」
+- 手順2: 一度きりの mode `lgv35` を足した（c61db4b5b）。作業ブランチの ref で convert-x-posts.yml を手動実行
+  - dry_run（run 43349238125）: 書くセル 1・足す行 3・違う値があって書かない 0（【3】1257行）
+  - 写真: 1886620499213709448 は【1】の写真 4枚の3枚目が Gi6elcfa4AEPaSo、1860541604345577649 は 3枚の3枚目が GdH3mZfbQAA6JEj で、どちらも決定の URL と同じ名前
+  - 駅の確かめ（claude-sonnet-5-5、今の cloudflare のプロンプト〈案 i 入り〉、2回、$0.0056）: 2120728116775796776・2120719752305979531 とも stations「早稲田」、area「早稲田」、駅 早稲田（要確認の理由なし）→ 直したプロンプトで取れる。11/13 の変換（今朝 04:00 JST の毎朝の変換）で空だったのは、直す前のプロンプトだったため（案 i のマージは同じ日の 09 時台）
+  - 3層に書くジョブ: Actions の未完了の run 0件を確かめて `--apply`（run 43349336588 success）: 「【3】の 1セルを書いた」「【3】に 3行を足した」
+  - 書いた行・セル:
+
+    ```
+    242 1886620499213709448 画像 (空) → https://pbs.twimg.com/media/Gi6elcfa4AEPaSo?format=jpg&name=large
+    足した行: 2120728116775796776 駅=早稲田・表示=Y
+    足した行: 2120719752305979531 駅=早稲田・表示=Y
+    足した行: 1860541604345577649 画像=https://pbs.twimg.com/media/GdH3mZfbQAA6JEj?format=jpg&name=large
+    ```
+  - もう一度 dry_run（run 43349438457）: 書くセル 0・足す行 0・違う値 0（【3】1260行 = 1257 + 3）
+- 手順3（同じ run、log/ の生成と同じ処理 `shown_pairs` → 閉業 → HIDDEN_SHOPS → `build_posts`）: 決定どおりでない 0件・載る投稿 2,351件
+  - 2120728116775796776: 喫茶10・駅 早稲田（座標あり）で載る
+  - 2120719752305979531: 三品食堂・駅 早稲田（座標あり）で載る
+  - 1886620499213709448: 浅草もんじゃころっけ（駅 浅草）・画像 Gi6elcfa4AEPaSo.jpg
+  - 1860541604345577649: カフェ・ド・ラペ（駅 乃木坂）・画像 GdH3mZfbQAA6JEj.jpg
+  - #679 にコメントした（issuecomment-6841640107。保存された本文にバッククォートの混入なし）。#679 の本文の一覧からは、次の毎朝の更新で2件が消える見込み（【3】の「表示」に値が入ったため）
+- 手順4: 一度きりの mode を戻した（5d9c5daca）。`git diff origin/cloudflare -- scripts/ .github/` は空
+- レビュー: 残るコードの差が無い（一度きりの mode は足して消した）ため、サブエージェントのレビューはしていない
+- 決定を docs/decisions/operations.md に足した
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1113-lgv-waseda
 - ログ: https://github.com/retroeater/mj/blob/work/1113-lgv-waseda/docs/logs/CHAT-1113-LGV-35.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1113-lgv-waseda
 - 確認用URL: なし
-- マージ: 未
-- issue: #679
+- マージ: 済（ドキュメントのみ。6fa387cbd..e2bc0f6a7）
+- issue: #679（結果をコメント）
 - 判断が必要なこと: なし
-- 未確認の項目: なし
+- 未確認の項目: 本番の log/ の見え方（再生成は毎日の run-daily。この指示では本番を見ていない）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 9edd967e）: https://github.com/retroeater/mj-logs/tree/main/guide/9edd967e
+ガイド文書（この版を写した時点の最新、mj be8d366d）: https://github.com/retroeater/mj-logs/tree/main/guide/be8d366d
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9edd967e/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9edd967e/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9edd967e/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9edd967e/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9edd967e/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9edd967e/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/be8d366d/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/be8d366d/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/be8d366d/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/be8d366d/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/be8d366d/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/be8d366d/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/613f050c.md
