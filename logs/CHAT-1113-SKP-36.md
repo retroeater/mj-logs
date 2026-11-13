@@ -54,6 +54,24 @@ SKP-35 の手順2〜4（佐藤凌の X の ID の変更を SNS ブックとペ�
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 着手前の確認
+
+- 0: 「指示」欄の末尾は指示文の最後の行と一致。CHAT-1113-SKP-35 のログの `## 報告` の状態を「判断待ち / 続き: CHAT-1113-SKP-36」にした（同じコミット）
+- 同じ Chat-Ref のコミット: 無し。issue: なし
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 4つとも有る
+- 作業ブランチ: work/1113-skp-retro（リモートとローカルが 8a4983285 で一致）。`git merge-base --is-ancestor origin/cloudflare HEAD` が偽だったので `git merge origin/cloudflare` で取り込んだ（衝突なし、ef407e429）
+
+### 手順1 待つ対象の確かめ（11:40Z）
+
+| 実行 | ワークフロー | 起動 | シートを読む・書くか | 理由 |
+|---|---|---|---|---|
+| run 43414332570 Search Console のエクスポート（cloudflare） | fetch-gsc.yml | 11:06:18Z | 読まない・書かない | 動いているステップ「URL 検査」は scripts/inspect_gsc_urls.py。呼ぶのは `searchconsole.googleapis.com/v1/urlInspection`（と fetch_gsc.py の `www.googleapis.com/webmasters/v3`）だけで、スコープは `webmasters.readonly`。認証の鍵も Secret `GSC_SERVICE_ACCOUNT_JSON`（シートを読む `sheets-reader` とは別）。Sheets API の呼び出しも `lib/sheets.py` の import も無い |
+| run 43418929277 公開対象の検査（work/1113-rsc） | check-assets.yml | 11:40:23Z | 読まない・書かない | Google の認証のステップが無く、scripts/check_asset_limits.py（リポジトリのファイルの数・大きさ）と node のテストだけ |
+
+- シートを読む・書く実行は無いので待たない
+
 <!-- guide-links -->
 ---
 
