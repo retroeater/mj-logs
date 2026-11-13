@@ -664,6 +664,19 @@ CHAT-1113-NWS-02（判断待ち。全号の Batch は送信済み）の続き。
 | 第15期マスターズ決勝 | 麻雀マスターズ | 1 |
 | 麻雀マスターズ | 麻雀マスターズ | 11 |
 
+### マージ（e863b34）
+
+- `git merge-base --is-ancestor origin/cloudflare HEAD` が真（cloudflare を取り込み、衝突なし）、試験 OK。`git push origin work/1113-nws-collect:cloudflare` → `65044527..e863b34`
+- 差分: スクリプト・試験・docs/notes/research-candidates.md・ログだけ。ページ・生成物・ほかのワークフローは変えていない
+
+### 2. 関門と候補タブへの書き込み（cloudflare の e863b34、run 43415289251）
+
+- 関門（決定の案A）: 期を補った後の全体で **照合済み 182・食い違い 44 → 80.5%（80% 以上で通る）**。期を補う前 144・26 → 84.7%、期を補った行だけ 39・18 → 68.4%（全体との差 12.1ポイントで 20ポイント未満なので、補った行も書く）。80% を下回っていないので、切り出しでの確かめはしていない
+- 書く前の確かめ: 候補タブ 436行・連盟ニュースの行 0（同じ（種別, 対象キー, 連盟ニュース）の行は無い）。書く前の2回の読み取り（run 43414845520 と 43415289251）とも 436行で変わらない
+- 書いた結果（スクリプトの出力）: 「候補タブに 244行を書いた(書く前 436行 → 書いた後 680行)。C/補完 17・E/シートに無い 1・E/照合済み 182・E/食い違い 44」。書いた後の行の数は「書く前＋足した行」と一致し、連盟ニュースでない行は変わっていない（スクリプトの確かめが通り、終了コード 0）
+- 足した行の数（分け方 × 大会）は、上の「照らし合わせ（分け方 × 大会）」の表と同じ（全行を書いた）。「食い違い」と「補完」の全件は上の「照らし合わせ（全件）」の表（大会・期は対象キー、項目は種別〈C: 決勝の最終日・E: 順位〉、シートの値・ニュースの値・号とページ・確度・備考）
+- 状態の列は空。モデルの列は「連盟ニュース」
+
 ## 報告
 
 - 状態: 対応中
@@ -680,12 +693,12 @@ CHAT-1113-NWS-02（判断待ち。全号の Batch は送信済み）の続き。
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj e863b346）: https://github.com/retroeater/mj-logs/tree/main/guide/e863b346
+ガイド文書（この版を写した時点の最新、mj 74fc8588）: https://github.com/retroeater/mj-logs/tree/main/guide/74fc8588
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e863b346/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e863b346/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e863b346/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e863b346/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e863b346/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e863b346/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/74fc8588/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/74fc8588/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/74fc8588/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/74fc8588/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/74fc8588/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/74fc8588/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/de3fa135.md

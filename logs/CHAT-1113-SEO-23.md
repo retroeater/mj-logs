@@ -47,6 +47,19 @@ CHAT-1113-SEO-22 で上限に当たって取れなかった残り（live 325・m
 
 ## 経過
 
+### 0. 着手前の確認
+
+- 指示欄の末尾は指示文の最後の行と一致。時刻 2026-11-13 11:05Z（日本時間 20:05）で 18:35 以降
+- 同じ Chat-Ref のコミット: 0件。SEO 系列の続きで識別子の重複確認・0章ゲート（docs のみ）は対象外。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は全部ある
+- #458 は open（SEO-22 の時点で確認、以降の着手中コメントは無い）。着手中コメントを付けた
+- 作業ブランチ: ローカル・リモートとも無かったので `git checkout -b work/1113-seo23 origin/cloudflare`（c021605cb9）
+
+### 1. 残りの取得
+
+- `fetch-gsc.yml` を ref cloudflare・`task=inspect`・`inspect_resume=true`・`commit=true` で起動 → 実行 43414332570（11:06:18Z 起動、「URL 検査」は 11:07:02Z 開始）
+- サイトマップが SEO-22 の時点から変わっていた（cloudflare c021605cb9）: saikyo 892→901（2026 年度の対局 9件が増えた）、live 947→946。インデックス配下は計 2,406件。今回の対象は CSV に無い 410件（live 326・mtsuku 62・exam 13・saikyo 9）の見込み。CSV にあってサイトマップから外れた URL が2件（`live/masters/26/sf.html`・`live/masters/27/sf.html`）
+- 11:17Z の時点で「URL 検査」は続いている（429 で止まっていない）
+
 ## 報告
 
 - 状態: 作業中
@@ -63,12 +76,12 @@ CHAT-1113-SEO-22 で上限に当たって取れなかった残り（live 325・m
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 7d38bc92）: https://github.com/retroeater/mj-logs/tree/main/guide/7d38bc92
+ガイド文書（この版を写した時点の最新、mj 74fc8588）: https://github.com/retroeater/mj-logs/tree/main/guide/74fc8588
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/7d38bc92/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/7d38bc92/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/7d38bc92/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/7d38bc92/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/7d38bc92/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/7d38bc92/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/74fc8588/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/74fc8588/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/74fc8588/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/74fc8588/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/74fc8588/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/74fc8588/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/de3fa135.md

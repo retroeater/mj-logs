@@ -200,7 +200,7 @@ CHAT-1113-TYP-05 の判断待ちへの回答を入れ、まとめ D の直し（
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1113-TYP-07
 - ブランチ: work/1113-typ
 - ログ: https://github.com/retroeater/mj/blob/work/1113-typ/docs/logs/CHAT-1113-TYP-06.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1113-typ
@@ -229,12 +229,12 @@ CHAT-1113-TYP-05 の判断待ちへの回答を入れ、まとめ D の直し（
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 7d38bc92）: https://github.com/retroeater/mj-logs/tree/main/guide/7d38bc92
+ガイド文書（この版を写した時点の最新、mj 74fc8588）: https://github.com/retroeater/mj-logs/tree/main/guide/74fc8588
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/7d38bc92/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/7d38bc92/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/7d38bc92/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/7d38bc92/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/7d38bc92/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/7d38bc92/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/74fc8588/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/74fc8588/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/74fc8588/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/74fc8588/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/74fc8588/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/74fc8588/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/de3fa135.md
