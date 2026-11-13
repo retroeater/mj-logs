@@ -938,3 +938,8 @@ CHAT-1113-SKP-31 の判断待ちへの回答。
 
 - 全日本プロ選手権（2026-11-15）のライブ枠を ABEMA ブック【3】に足した後、翌朝の自動を待たず、Code が regenerate-saikyo.yml を abema: update・再生成ありで手動実行して本番で確かめる
 - 作業中の回答: なし
+
+## 2026-11-13（CHAT-1113-SKP-34）
+
+- ABEMA ブックの注意（【3】の鍵は【2】から写す・当たらない【3】の行は警告なし・「最強戦」シートの鍵の列を直した日に abema: update を続けて回す）を docs/notes/abema-book.md に、「表示」N の行と新しい対局のページの3点の確かめを docs/notes/saikyo-page-design.md「1. データ源」に足した
+- 作業中の回答: なし

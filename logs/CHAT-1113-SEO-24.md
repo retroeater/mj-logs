@@ -78,28 +78,58 @@ URL 検査を月1回の定期取得にするため、1回の対象を 1日の上
 - docs/gsc/README.md に月次の選び方を足した。docs/decisions/seo-bing.md に決定（exam の事実を添えた）
 - 作業ブランチで手動実行（task=inspect-monthly・inspect_plan=true・commit=false）→ 実行 43423093725（12:11:37Z）
 
+### 2. 作業ブランチでの手動実行
+
+- 実行 43423093725（67f201fb9b、task=inspect-monthly・inspect_plan=true・commit=false）: 成功。「URL 検査」の出力はコンテナと同じ（今回 1,900件。1. 0/0・2. 1,516/1,516・3. 369/369・4. 521件のうち 15件。サイトマップ別 pages 20・wayhome 11・saikyo 624・title 276・live 919・mtsuku 50）、「--plan のためAPIは呼ばない」。「コミットしてpush」は skipped
+- 実行 43423505192（2dead00e81、レビューの直しの後、同じ入力）: 成功。「URL 検査」は 12:15:12Z の1秒内で終了、「コミットしてpush」は skipped
+- export（run-monthly からの呼び出し・schedule）は手動で動かしていない（commit を外しても robots.txt に差分があれば #304 にコメントするため。run-monthly.yml の注記と同じ理由）。式 `inputs.task || 'export'` と、export の手順の条件を変えていないことで確かめた（レビューも同じ結論）
+- 順位3の 369件はすべて lastmod 2026-11-13（今日の再生成）。内訳は saikyo 315・live 48・pages 4・title 2
+
+### 3. 差分のレビュー（サブエージェント、2回）
+
+1回目（67f201fb9b までの差分）:
+
+| 指摘 | 扱い |
+|---|---|
+| docs/notes/github-actions.md の fetch-gsc の項に「予約の起動・`workflow_call` は常に export」が残る（要修正） | 見送り: 指示の止まる条件で差分に入れてよいファイルの外（docs/notes）。「判断が必要なこと」に書いた |
+| workflow_call の task が自由な文字列で、打ち間違いでも全件の検査が走る（任意） | 直した（2dead00e81、「URL 検査」の先頭で inspect・inspect-monthly 以外を止める） |
+| 月次の回のファイルも後の `--resume` の続きの元になる（任意） | 直した（2dead00e81、README に1文） |
+| 順位4が実データでは月15件しか回らず、登録済みの一巡に約3年（判断待ち） | 「判断が必要なこと」に書いた（指示どおりの実装で、選び方の変更は平野さんの判断） |
+| テストの抜け: 時刻付きの lastmod・同じ時刻の並び（任意） | 直した（2dead00e81、テスト2つ。`--monthly` と `--url` の併用のエラーは argparse の分岐1行のため足していない） |
+
+2回目（2dead00e81 だけ）: 要修正なし。任意1件（task の検査がテストと認証の後に走る）は、変更行が増えるため今のまま。テスト 2,158件 OK（レビュー側の実行）
+
+- 自分の実行: `python3 -m unittest discover -s scripts/tests` → OK。`TASK=inspect-montly` で case が「未知の task」を出して exit 1、`inspect-monthly` で通ることをコンテナで確かめた
+- #458 に仕組みの形と件数の内訳をコメントした
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1113-seo24
 - ログ: https://github.com/retroeater/mj/blob/work/1113-seo24/docs/logs/CHAT-1113-SEO-24.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1113-seo24
 - 確認用URL: なし
-- マージ: 未
-- issue: #458
-- 判断が必要なこと: なし
+- マージ: 未（平野さんの判断待ち）
+- issue: #458（コメントのみ）
+- 判断が必要なこと:
+  - マージの可否（差分は `scripts/inspect_gsc_urls.py`・そのテスト・`.github/workflows/fetch-gsc.yml`・docs/gsc/README.md・docs/decisions・docs/logs。作業ブランチで手動実行2回成功、レビュー2回で要修正なし）
+  - **順位4（登録済みの見直し）がほとんど回らない**: 今のデータでは順位2（未登録）1,516件と順位3（lastmod 更新）369件で枠を使い、順位4は月15件。登録済み 521件の一巡に約3年かかり、決定の「数か月に1回」を満たさない。順位3は再生成のたびに lastmod が進む saikyo・live が多い（今回はすべて 11/13 の再生成）。案: (i) 順位4に最低の枠を取る（例: 月300件なら登録済みは約2か月で一巡、その分ほかが減る）、(ii) 順位2を「前回の検査から N 日（例 28日）たったもの」に絞る、(iii) 今のままにして、登録済みの全件の見直しは数か月に1回の手動の inspect（`--resume` なしの全件）で行う。推し: (i)。直すなら続きの指示で
+  - 上限の件数: 1,900件（約3.3時間・1件約6.2秒、Actions の使用量 #298）か、減らす（例 1,000件・約1.7時間。そのとき今のデータでは順位2の 1,516件も入り切らない）
+  - 最初の月次の取得: 12/1 の run-monthly（02:00 JST）の後、同じ日の日中に手動で task=inspect-monthly・commit=true で1回（案A〈子サイトマップの個別送信、11/13〉の比べを兼ねる）。前の検査（11/13 11:07Z〜11:49Z）から24時間は過ぎている。始める前に inspect_plan で内訳を見る
+  - run-monthly.yml への組み込みで WFL 系列へ伝える要点: (1) job は `uses: ./.github/workflows/fetch-gsc.yml`・`with: { task: inspect-monthly, commit: true, scheduled: ... }`・`secrets: GSC_SERVICE_ACCOUNT_JSON`・permissions は gsc の job と同じ。(2) `needs: gsc` と `if: ${{ !cancelled() }}`（fetch-gsc.yml は concurrency group `fetch-gsc` を持つので、並べても同時には走らない）。redirects との前後は問わない。(3) 所要約3.3時間（1,900件）で、ジョブの既定の上限6時間の内。(4) 12/1 の初回の成功と WKP-07 以降の月次2本の schedule の整理の後に入れる（12/1 の前に呼び出しの形を変えない）。(5) export の job（gsc）はそのまま
+  - docs/notes/github-actions.md の fetch-gsc の項（「予約の起動・`workflow_call` は常に export」）が、マージすると実物と合わなくなる。この指示では差分に入れてよいファイルの外なので直していない。マージと一緒に直すか、別の指示で直すか
 - 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj a1752ff3）: https://github.com/retroeater/mj-logs/tree/main/guide/a1752ff3
+ガイド文書（この版を写した時点の最新、mj fb37f552）: https://github.com/retroeater/mj-logs/tree/main/guide/fb37f552
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1752ff3/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1752ff3/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1752ff3/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1752ff3/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1752ff3/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1752ff3/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/fb37f552/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/fb37f552/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/fb37f552/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/fb37f552/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/fb37f552/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/fb37f552/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/de3fa135.md

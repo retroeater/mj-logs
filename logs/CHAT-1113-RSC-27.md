@@ -128,7 +128,7 @@ CHAT-1113-RSC-26 は、「最強戦」のブックの共有が外れていた（
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1113-RSC-28
 - ブランチ: work/1113-rsc（cloudflare にマージ済み。書き込みの手段 `f2629453c..a24c8b2bd`、片付けは「マージ（片付け）」の行）
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1113-RSC-27.md
 - 比較URL: なし（マージ済み）
@@ -143,12 +143,12 @@ CHAT-1113-RSC-26 は、「最強戦」のブックの共有が外れていた（
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj a1752ff3）: https://github.com/retroeater/mj-logs/tree/main/guide/a1752ff3
+ガイド文書（この版を写した時点の最新、mj fb37f552）: https://github.com/retroeater/mj-logs/tree/main/guide/fb37f552
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1752ff3/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1752ff3/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1752ff3/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1752ff3/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1752ff3/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1752ff3/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/fb37f552/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/fb37f552/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/fb37f552/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/fb37f552/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/fb37f552/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/fb37f552/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/de3fa135.md

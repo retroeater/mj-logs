@@ -256,6 +256,20 @@ TITLE_SHEET_NAME = "タイトル"
 （入力 `source` の説明の文からも RSC の adopt を外し、nws-adopt だけを残した。ログには ID を書かないので `<ID>` にした）
 - スクリプトのコメントが外されたファイル（scripts/oneoff_saikyo_adopt.py）を指していたので、文だけ直した
 
+### マージ（e3004ec）
+
+- `git merge-base --is-ancestor origin/cloudflare HEAD` が真、試験 OK。`git push origin work/1113-nws-adopt:cloudflare` → `05292f0..e3004ec`
+- 差分: 一度きりのスクリプト・試験・`research-candidates.yml` の入力と呼び出し・`sheets_write.py` の `WRITABLE` の1件・ログだけ
+
+### 2. 書き込み（cloudflare の e3004ec）
+
+- dry-run（run 43423501654）: 作業ブランチの dry-run と同じ数（「タイトル」3,119行・書くセル 77、候補タブ 680行・連盟ニュースの行 244、採用 17・却下 44、却下の分け方ごとの数も同じ）
+- 本実行（run 43423681900、2026-11-13 21:16 JST）: 「書いた: 「タイトル」の日付 77セル」「書いた: 候補タブ 105セル（61行）」「読み直し: 「タイトル」の書いたセルの違い 0・「タイトル」のほかのセルの変化 0・候補タブの書いたセルの違い 0・候補タブのほかのセルの変化 0（「タイトル」3,119行・候補タブ 680行）」。終了コード 0
+  - 候補タブの 105セル = 状態 61（採用 17・却下 44）＋ 却下の行の備考 44
+  - 書いた後の行の数は書く前と同じ（「タイトル」3,119行・候補タブ 680行）。連盟ニュースでない行と、E 照合済み 182行・E シートに無い 1行は変わっていない（読み直しの「ほかのセルの変化 0」に含まれる）
+- 念のための dry-run（run 43423864654）: 書かずに止まった（終了コード 1）。理由は「表1 の17期の今の日付が年だけでない（書いた日付）」「61行の状態がすでに入っている」で、もう書くものが無いことの確かめになる（このスクリプトは書く前提が崩れたら書かずに止まる作り）
+- `regenerate-page.yml` の check（入力 target_page title_pages・check、run 43423869339）: 成功（止まる理由なし）。「タイトル」の日付の列を読む生成スクリプトは `generate_title_pages.py` だけ（`TAB_TITLES` を読むほかの2つ〈`check_unused_names.py`・`research_candidates.py`〉はページを作らない）
+
 ## 報告
 
 - 状態: 対応中
@@ -272,12 +286,12 @@ TITLE_SHEET_NAME = "タイトル"
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj a1752ff3）: https://github.com/retroeater/mj-logs/tree/main/guide/a1752ff3
+ガイド文書（この版を写した時点の最新、mj fb37f552）: https://github.com/retroeater/mj-logs/tree/main/guide/fb37f552
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1752ff3/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1752ff3/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1752ff3/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1752ff3/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1752ff3/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1752ff3/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/fb37f552/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/fb37f552/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/fb37f552/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/fb37f552/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/fb37f552/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/fb37f552/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/de3fa135.md
