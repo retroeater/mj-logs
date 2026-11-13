@@ -70,19 +70,51 @@ TYP-06 のまとめ D の直し（続けて配信した動画の各卓のペー�
 - 4件だけなのは、作業ブランチがすでに新しいコードで再生成したもの（b9266d7）を持っていて、比べが「どちらかの生成で今のファイルから変わったファイル」だけを見るため。828件のコードによる違いはブランチに入っている。この4件は、作業ブランチの再生成の後のシートの変化（第3期WRC-Rリーグのページなど）で両方の生成が書き換え、新旧のコードで中身が違うもの。4種類の内で、どれも TYP-06 の数を超えない（止まる条件に当たらない）
 - 生成物を除く差分: `scripts/generate_live_pages.py`・`scripts/tests/test_live_pages.py` と docs のみ
 
+### マージと本番の確かめ（手順2）
+
+- cloudflare が別のセッションの docs で2回進んだので、その都度 `git merge --no-edit origin/cloudflare`（衝突なし。2回目までに `python3 -m unittest discover -s scripts/tests` OK、3回目の取り込みは docs のみ）
+- push の直前に再 fetch して `git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめ、`git push origin work/1113-typ:cloudflare`（c15eb8d..55f6981）
+- push の検知の再生成: `regenerate-page.yml`（run 43416138241、push、success）が c6ab5ee で3ファイル（live/jwrc-r/3/b16-d.html・b8-a.html、pro/ryo.sato.37/index.html。手順1の dry_run で見たシートの変化の分）を作り直した。「Workers Builds: mj」は c6ab5ee で success
+- 本番（UA `mj-internal check (ryoei.pro)`、HTML の説明文と本文）:
+
+| URL | 結果 |
+|---|---|
+| https://ryoei.pro/live/gpmax/14/9d-q-a.html | 対局者: ともたけ雅晴、古川孝次、前原雄大、藤原隆弘（TYP-06 の「変わった後」と同じ） |
+| https://ryoei.pro/live/jwrc-r/2/b16-a.html | 対局者: 仲田加南、古橋崇志、勝又健志、魚谷侑未（同） |
+| https://ryoei.pro/live/jwrc-r/4/b16-a.html | 対局者: 勝又健志、長谷川夏音、福光聖雄、ケネス徳田、魚谷侑未、仲田加南、阿部謙一、瀧澤光太郎（8人のまま） |
+| https://ryoei.pro/pro/ai.fujita.37/ | 「第9期桜蕾戦 ベスト8 A卓」の出現 0 |
+
+- マージの直後（Workers Builds の前）は本番が古いまま（9d-q-a は8人）だった。待ちはマージから約15分
+
+### 記録と issue（手順3）
+
+- docs/decisions/site-review.md に TYP-06・07 の決定を記録
+- 同じ主題の issue を検索（「続けて配信」「対局者 8人」「卓のページ 対局者」）: 無し
+- #683「続けて配信したライブしか無い卓のページの対局者が8人のまま」を起票（ラベル 分野: データ・対象: 全ページ〈#682 にならう〉。本文に、なぜ残るか・直し方は後日・TYP-06 のログの 88ページの表をそのまま引用）: https://github.com/retroeater/mj/issues/683
+- #682 にマージ・本番の確かめの結果と #683 をコメントし（https://github.com/retroeater/mj/issues/682#issuecomment-6851348848 ）、閉じた（completed。「状況:」のラベルは付いていなかった）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
+- ブランチ: work/1113-typ
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1113-TYP-07.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1113-typ
+- 確認用URL: なし（本番で確かめた。「経過」の表）
+- マージ: 済（c15eb8d..55f6981。ログ・決定の追いの push は最終報告の SHA）
+- issue: #682（閉じた）、#683（起票）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj c6ab5ee2）: https://github.com/retroeater/mj-logs/tree/main/guide/c6ab5ee2
+ガイド文書（この版を写した時点の最新、mj c3ef367b）: https://github.com/retroeater/mj-logs/tree/main/guide/c3ef367b
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c6ab5ee2/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c6ab5ee2/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c6ab5ee2/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c6ab5ee2/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c6ab5ee2/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c6ab5ee2/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c3ef367b/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c3ef367b/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c3ef367b/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c3ef367b/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c3ef367b/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c3ef367b/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/de3fa135.md
