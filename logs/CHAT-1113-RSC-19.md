@@ -54,28 +54,60 @@ CHAT-1113-RSC-18（中断）の再開。目的・決定は RSC-18 の指示文�
 
 ## 経過
 
+- 着手前の確認: 同じ Chat-Ref のコミット・ログなし。`RSC` は続き（19）。作業ブランチ: origin/work/1113-rsc は origin/cloudflare の祖先（マージ済み）なので `git merge --ff-only origin/cloudflare` で進めた（6d4e48852）
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 欠けなし
+- 0.: 「指示」欄の末尾は指示文の最後の行と一致。CHAT-1113-RSC-18 の `## 報告` の状態を「中断 / 続き: CHAT-1113-RSC-19」にした
+- RSC-18 の手順3: docs/decisions の記録は済み。docs/notes の1文は、書けた後の決まりなので書いていない（RSC-18 のログ）
+
+### 1. #630
+
+- Open。最後の着手中のコメントはこのセッションの RSC-18 のもの（RSC-17 のものは決定3のとおり扱う）。着手中をコメントした（issuecomment-6844701978）
+
+### 2. dry-run（cloudflare、run 43369883294）
+
+- 結果は RSC-18 の dry-run（run 43364265658）と同じ。「書く行」は4件（天鳳ニューパワー・菊の陣・2014 風神編・2014 全日本〈女流〉、4件とも照合済み）。2016-05-21 著名人代表決定戦 決勝は、まだ当たらない。ログの該当の行:
+
+```
+警告: 「別名」の行を使いません(区分が想定外です「」): トレンディエンジェルたかし → たかし
+```
+
+- 理由: スクリプトは「別名」を、実行のたびにシートから直に読む（`lib/name_book.py` → `lib/sheets.py` の `fetch_records`。Google Visualization の問い合わせで、見出し「変換前」「変換後」「区分」の列を見出しの名前で読む）。その読み取りで、この行の「区分」がまだ空になっている。考えられる理由（ここからは確かめられない）は次のとおり:
+  - 直した値が保存されていない、または別の行・別の列に入った
+  - 見出し「区分」の列とは違う列に入った
+  - 問い合わせの答えが古いまま返った
+  - 列の型の推定で値が空として返った（Google Visualization は、列の大半と型の違うセルを空で返すことがある）
+- 止まる条件（「書く行」が5件でない・名前の警告が出る）に当たるので、本実行はしていない（候補タブに書いていない）。#630 の要約のコメントも書いていない
+- 「ビッグダディ」には、名前の辞書に無いという警告は出ていない（風神編の卓が当たった）。「たかし」は、行が区分で弾かれるので、まだ確かめられない
+- 決定を `docs/decisions/automation.md` に記録した。差分は、このログ・RSC-18 のログの状態の行・`docs/decisions/automation.md` だけ
+
+### マージ
+
+- ドキュメントのみ。`git push origin work/1113-rsc:cloudflare` で入れた。push 直前に再 fetch して `merge-base --is-ancestor` を確かめ、範囲のコミットの件名・本文に閉じるキーワードの直後の `#番号` が無いことも確かめた。この行を含むコミットが範囲の終わり
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1113-rsc
-- ログ: https://github.com/retroeater/mj/blob/work/1113-rsc/docs/logs/CHAT-1113-RSC-19.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1113-rsc
+- 状態: 中断
+- ブランチ: work/1113-rsc（cloudflare にマージ済み。ドキュメントのみ）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1113-RSC-19.md
+- 比較URL: なし（マージ済み）
 - 確認用URL: なし
-- マージ: 未
-- issue: #630
-- 判断が必要なこと: 作業中
-- 未確認の項目: 作業中
+- マージ: 済み（ドキュメントのみ。範囲は「マージ」の行）
+- issue: #630（着手中のコメント。Open のまま）
+- 判断が必要なこと:
+  1. 平野さんの確かめ: ryoei.pro_選手 の「別名」タブで、「トレンディエンジェルたかし」の行を見てほしい。見出しが「区分」の列に「訂正」が入っているか。前後に空白や別の字が無いか。保存されているか。スクリプトの読み取り（run 43369883294）では、まだ空になっている。ほかの「訂正」の行（例: 「林下清志（ビッグダディ）」）と同じ形になっていれば、少し時間をおいて dry-run をやり直す（この指示の手順2から）
+  2. 「別名」の2行（トレンディエンジェルたかし・林下清志（ビッグダディ））を消すのは、候補タブに書けた後。今は消さない
+- 未確認の項目: 「たかし」が「プロ」か「連盟プロ以外」にあるか。区分が読まれた後の dry-run で確かめる
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 6d4e4885）: https://github.com/retroeater/mj-logs/tree/main/guide/6d4e4885
+ガイド文書（この版を写した時点の最新、mj 39e55941）: https://github.com/retroeater/mj-logs/tree/main/guide/39e55941
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6d4e4885/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6d4e4885/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6d4e4885/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6d4e4885/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6d4e4885/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6d4e4885/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/39e55941/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/39e55941/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/39e55941/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/39e55941/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/39e55941/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/39e55941/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a5fcf1af.md
