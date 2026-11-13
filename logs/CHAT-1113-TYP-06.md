@@ -92,7 +92,7 @@ CHAT-1113-TYP-05 の判断待ちへの回答を入れ、まとめ D の直し（
 ### 再生成（dry_run 偽、run 43400101850、success）
 
 - 再生成のコミット b9266d7（`chore: regenerate live/ _redirects data/live_pages.json data/live_thumbs.json sitemap-live.xml workers/ask/data.json pro/ via GitHub Actions`、829ファイル。dry_run の 828 に sitemap-live.xml の lastmod）を作業ブランチに取り込み（113f481）
-- 「Workers Builds: mj」: 113f481 で completed・success（check-runs の API で確かめた）
+- 「Workers Builds: mj」: 113f481 で completed・success（check-runs の API で確かめた）。その後の docs のみのコミット（ログ）には check-run が付かない（配信の中身は 113f481 と同じ）。作業ブランチの別名のプレビューで live/gpmax/14/9d-q-a.html・live/jwrc-r/2/b16-a.html の説明文の対局者が4人になっていることを確かめた（URL は最終報告）
 
 ### 続けて配信した動画のある卓のページ（再生成の後の生成物から数えた）
 
@@ -229,12 +229,12 @@ CHAT-1113-TYP-05 の判断待ちへの回答を入れ、まとめ D の直し（
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj b6f0dd1d）: https://github.com/retroeater/mj-logs/tree/main/guide/b6f0dd1d
+ガイド文書（この版を写した時点の最新、mj 7d38bc92）: https://github.com/retroeater/mj-logs/tree/main/guide/7d38bc92
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b6f0dd1d/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b6f0dd1d/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b6f0dd1d/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b6f0dd1d/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b6f0dd1d/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b6f0dd1d/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/7d38bc92/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/7d38bc92/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/7d38bc92/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/7d38bc92/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/7d38bc92/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/7d38bc92/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/de3fa135.md
