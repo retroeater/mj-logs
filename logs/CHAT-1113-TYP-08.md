@@ -58,19 +58,71 @@ TYP 系列のこのチャット（CHAT-1113-TYP-05 の判断待ちへの回答�
 
 ## 経過
 
+### 着手前の確認（2026-11-13）
+
+- 0章: ログの「指示」欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）の欠けなし
+- 同じ Chat-Ref のコミット: 0件。作業ブランチ: origin/work/1113-typ・ローカルとも origin/cloudflare の祖先 → `git merge --ff-only origin/cloudflare`（79d758f）
+
+### 振り返りの記録（手順1）
+
+- docs/decisions/operations.md の直近の振り返りの節（CHAT-1113-CRD-01・SKP-34・SKP-35）を読んだ。今ある約束の記号は (a-7)・(g)・(h)・(j)・(k)・(n)・(o)・(p)（(i) は CRD-01 で外した）。新しい (q)・(r) は重ならず、矛盾する記述も無い（止まる条件に当たらない）
+- 「記録する中身」を CHAT-1113-TYP-08 の節として、ほかの振り返りの節と同じ書き方で足した（中身は指示文のとおり）
+
+### 確かめ残し1: まとめ A の見え方（手順2）
+
+本番を headless Chrome（Playwright、UA `mj-internal check (ryoei.pro)`）で 360px・1280px の幅で開いた。スクリーンショットは scratchpad に置き、リポジトリには入れていない。
+
+| ページ | 幅 | 題（h1） | 「▶ 再生」 | 出場者の節 | ページの横スクロール | はみ出し・重なり |
+|---|---|---|---|---|---|---|
+| https://ryoei.pro/saikyo/2025/20251213-s1-a.html | 360 | 麻雀最強戦2025 ファイナルトーナメント 1st Stage ベスト16 A卓 | あり | あり（写真カード） | なし（scrollWidth 345 = clientWidth 345） | なし |
+| 同 | 1280 | 同 | あり | あり | なし（1265 = 1265） | なし |
+| https://ryoei.pro/saikyo/2025/20251214-2-s1-a.html | 360 | 麻雀最強戦2025 ファイナルトーナメント 2nd Stage ベスト8 A卓 | あり | あり | なし | なし |
+| 同 | 1280 | 同 | あり | あり | なし | なし |
+| https://ryoei.pro/saikyo/2025/20251214-s1.html | 360 | 麻雀最強戦2025 ファイナルトーナメント 決勝 | あり | あり | なし | なし |
+| 同 | 1280 | 同 | あり | あり | なし | なし |
+
+- 360px で画面の右端を越える要素は「他の対局」の動画カードだけで、どれも横にスクロールする一覧（`.mj-video-track`、overflow-x: auto）の中に収まっている（はみ出しではない。104要素すべてが、はみ出しを切る祖先の中）
+- スクリーンショットを目で見た: 題は3行に折り返し、日付・「▶ 再生」・出場者のカードの帯（1位 通過 など）が重ならない。パンくずは2行に折り返す
+- 気づいたこと（崩れではない）: 決勝のページの見出しの画像（ABEMA の回 68-38_s25_p55 のサムネイル）に「2ndStage」の文字が写っている。卓ごとの回は ベスト8 A卓 p53・B卓 p54・決勝 p55 と別々で、1a157a3（直す前）の版から同じ。画像は ABEMA のもの
+
+### 確かめ残し2: live/jwrc-r/3/b8-b.html（手順3）
+
+- TYP-07 のログ: マージ前の dry_run（compare_ref e863b34）で中身の違うファイルは4件（live/jwrc-r/3/b16-d.html・b8-a.html・b8-b.html、pro/ryo.sato.37/index.html）、マージの後の再生成 c6ab5ee が作り直したのは3件（b8-b.html が無い）
+- 分かった事実:
+  - `git log -- live/jwrc-r/3/b8-b.html` の最後の変更は b9266d7（作業ブランチの再生成、新しいコード）。マージの後の再生成 c6ab5ee は b8-b.html を変えていない＝マージの時点の b8-b.html（b9266d7 の中身）が、新しいコードと今のシートで作る中身と同じだった
+  - cloudflare の今の b8-b.html と本番の HTML は同じ（取得して比べた）
+- 理由の見立て（推測。直接は確かめていない）: dry_run の比べは「どちらかの生成で今のファイルから変わったファイル」の和を見る。b8-b.html は、作業ブランチ側（新しいコード）では変わらず、比べの相手（e863b34、古いコード）の生成だけが変えた（古いコードは8人の版を作るので、作業ブランチが入れた4人の版と中身が違う）ので4件に入った、と見ている。作業ブランチ側の変わったファイルの一覧は実行サマリにだけ出て、ジョブのログに残っていないため、確かめられなかった
+- 本番の対局者（UA `mj-internal check (ryoei.pro)`）:
+
+| ページ | 本番の対局者 | cloudflare の生成物 | この卓だけの動画 |
+|---|---|---|---|
+| https://ryoei.pro/live/jwrc-r/3/b8-a.html | 勝又健志、魚谷侑未、齋藤豪、佐藤凌（4人） | 同じ（HTML 全体が一致） | 1〜4回戦の4本（題「第３期JPML WRC-Rリーグベスト８A卓N回戦」）。ほかに続けて配信したライブ1本（ベスト8A卓・B卓） |
+| https://ryoei.pro/live/jwrc-r/3/b8-b.html | 近藤久春、角谷陽介、平野良栄、鷹見としや（4人） | 同じ（HTML 全体が一致） | 1〜4回戦の4本（題「…ベスト８B卓N回戦」）。ほかに同じライブ1本 |
+
+- 卓の4人の裏付け: 公開している良栄の成績（https://ryoei.pro/rh_results_detail.html ）の 2024-06-21「第3期WRC-Rリーグベスト8」の同卓者は 角谷陽介・近藤久春・鷹見としや（B卓の4人と一致）。2024-06-30 の決勝の同卓者は 魚谷侑未・勝又健志・近藤久春（A卓の勝ち上がり2人と B卓の近藤久春で、矛盾しない）。回戦の動画のカードには、4人のページでは名前が出ないため、動画ごとの対局者はページからは見られない
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
+- ブランチ: work/1113-typ
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1113-TYP-08.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1113-typ
+- 確認用URL: なし（docs のみ。確かめは本番）
+- マージ: 済（docs のみ。`git push origin work/1113-typ:cloudflare`、894e127..0bc6470）
+- issue: なし（#682 は閉じたまま触っていない。#683 も触っていない）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 894e1278）: https://github.com/retroeater/mj-logs/tree/main/guide/894e1278
+ガイド文書（この版を写した時点の最新、mj f2629453）: https://github.com/retroeater/mj-logs/tree/main/guide/f2629453
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/894e1278/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/894e1278/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/894e1278/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/894e1278/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/894e1278/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/894e1278/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f2629453/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f2629453/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f2629453/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f2629453/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f2629453/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f2629453/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/de3fa135.md
