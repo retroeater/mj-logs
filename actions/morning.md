@@ -1,6 +1,6 @@
 # 朝の報告用の異常（retroeater/mj）
 
-- 書き出した時刻: 2026-11-13 20:11 JST（見た範囲: 2026-11-12 18:11 JST から）
+- 書き出した時刻: 2026-11-13 20:14 JST（見た範囲: 2026-11-12 18:14 JST から）
 - 書き出した実行の契機: workflow_dispatch（main）
 - 異常だけを書く。全体は actions/status.md。判定は mj の scripts/morning_report.py（各ワークフローの直近 100 回まで）
 
@@ -35,7 +35,9 @@
 - 2026-11-13 16:41 oneoff-news-read.yml cancelled（workflow_dispatch・work/1113-nws）ジョブ「read」 https://github.com/retroeater/mj/actions/runs/43387550650
 - 2026-11-13 17:30 research-candidates.yml failure（workflow_dispatch・work/1113-rsc）ジョブ「research」 https://github.com/retroeater/mj/actions/runs/43393805625
 - 2026-11-13 20:06 fetch-gsc.yml in_progress（workflow_dispatch・cloudflare） https://github.com/retroeater/mj/actions/runs/43414332570
-- 2026-11-13 20:10 check-assets.yml in_progress（push・work/1113-rsc） https://github.com/retroeater/mj/actions/runs/43414940594
+- 2026-11-13 20:13 oneoff-news-read.yml in_progress（workflow_dispatch・cloudflare） https://github.com/retroeater/mj/actions/runs/43415289251
+- 2026-11-13 20:13 check-build-failure.yml in_progress（check_run・cloudflare） https://github.com/retroeater/mj/actions/runs/43415348122
+- 2026-11-13 20:13 check-build-failure.yml queued（check_run・cloudflare） https://github.com/retroeater/mj/actions/runs/43415358610
 
 ## 2. 予約実行の未実行（予定から3時間以内は「遅れの可能性」。3時間を超えて始まった実行は「遅れて実行」）
 
@@ -52,4 +54,4 @@
 
 ## 5. 未報告のログ（`## 報告` の節が無い）
 
-なし
+- CHAT-1113-SKP-35.md（着手 2026-11-13） https://github.com/retroeater/mj-logs/blob/main/logs/CHAT-1113-SKP-35.md

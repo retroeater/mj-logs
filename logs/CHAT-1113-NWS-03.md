@@ -80,6 +80,49 @@ CHAT-1113-NWS-02（判断待ち。全号の Batch は送信済み）の続き。
 
 ## 経過
 
+### 1. 着手
+
+- 0.: 「指示」欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 欠けなし
+- Chat-Ref の重複: 0件。#408 は open。着手中のコメント https://github.com/retroeater/mj/issues/408#issuecomment-6849160007
+- ブランチ: リモートに `work/1113-nws-collect` が無いので `origin/cloudflare`（7d38bc9）から作った
+- NWS-02 のログの状態に ` / 続き: CHAT-1113-NWS-03` を足した
+- Batch: 6つとも ended（collect、待ち 0分、run 43401362343・43401669805）。succeeded 574・errored 0・expired 0・canceled 0。待ちは要らなかった
+
+### 直し（27588cd・8f73f8e）
+
+- 期を補う（`fill_periods`）: 期の書いていない**結果**に、同じ号の同じ大会の結果・対局日に書かれた期がちょうど1つのときだけ補う（対局日には補わない。決定の文言どおり。1回目のレビューの指摘3で、最初の版が対局日にも補っていたのを直した）。補った記録は確度を1段下げ、行の備考に「期は同じ号の記事から補った」
+- 対局日の備考: モデルの注記に「推定」があれば「日付に推定を含む（モデルの注記: …）」。予定の値は今の「行事予定表などの予定の値」のまま
+- Web 検索の候補（候補タブのほかのモデルの C の行、却下と空は除く）と並べた表を出し、C の行の備考に「Web 検索の候補と一致」「Web 検索の候補と食い違い（値）」。ほかのモデルの行は変えない
+- 号の間・記事の間で値が違った対象の表を出す（行は今の規則で1つ。違いは備考）
+- 関門: 照合済み ÷〈照合済み＋食い違い〉を、期を補う前・後・補った行だけで出す。判定は補った後の全体で 80% 以上。補った行だけの割合が全体より20ポイント以上低ければ、補う前の行を書く
+- 書くとき: 同じ（種別, 対象キー, 連盟ニュース）の行があれば止まる。append の後に読み直し、行の数が「書く前＋足した行」と合わない、または連盟ニュースでない行が変わったら失敗にする
+- docs/notes/research-candidates.md の「連盟ニュースの行」に、期を補うこと・Web 検索の候補との備考・関門を足した
+- 試験: `python3 -m unittest discover -s scripts/tests` → OK（この試験は 43件。期を補う条件、対局日に補わない、推定の備考、関門〈境界を含む〉、Web 検索の候補、書く経路〈書く・書かない・重複で止まる・書いた後の食い違い・関門を下回る〉）
+
+### 自己レビュー 1回目（origin/cloudflare...27588cd）
+
+| 指摘 | 扱い |
+|---|---|
+| 1. 「20ポイント以上低ければ」の境界がずれる（候補タブに書く行） | 直した（8f73f8e）: 差が FILLED_GAP 以上（誤差の幅つき） |
+| 2. 補った行を外しても、補った記録が投票・確度に混ざった行が残る／予定の値の行が消える（候補タブに書く行） | 直した（8f73f8e）: 外すときは補う前の行（before）を書く |
+| 3. 対局日にも期を補っていた（決定は「結果」） | 直した（8f73f8e）: 結果だけに補う |
+| 4. direct でも候補タブを先に読み、読めないと有料の結果を出さずに終わる（費用） | 直した（8f73f8e）: 照らし合わせを先に出し、読めないときは書かずに止める |
+| 5. 書く経路に試験が無い | 直した（8f73f8e）: FakeSheets で書く経路の試験を足した |
+| 6. candidates_book の定数を使っていない | 直した（8f73f8e） |
+| 7. 「推定」の語・PERIOD_RE の上限に `簡略化:` が無い | 直した（8f73f8e） |
+| 8. 試験のクラスが `if __name__` の後 | 直した（8f73f8e） |
+
+### 自己レビュー 2回目（27588cd..8f73f8e）
+
+| 指摘 | 扱い |
+|---|---|
+| 1回目の 1〜8 の直し | 正しい。新しい不具合なし（レビューの確かめ） |
+| 9. 境界の試験が、厳密な比較（誤差の幅なし）に戻しても通る（27/30−7/10 が浮動小数で 0.2 を上回るため） | 見送り（2回目の後の直しはマージしない、docs/notes/self-review.md「収束」）。コードの判定は正しい（レビューの確かめ）。試験の効き目だけの指摘で、照らし合わせ・書く行・費用の動きには関わらない |
+| 10. 書いた後の確かめの試験が、行の数と連盟ニュースでない行の2つの条件を別々に守っていない | 見送り（同じ）。コードは両方を見ている |
+| 11. 候補タブが読めないときの経路に試験が無い | 見送り（同じ） |
+
+- 残った指摘は試験の効き目だけで、照らし合わせ・候補タブに書く行・費用の判定の動きには関わらないので、レビュー済みの 8f73f8e をマージの候補にした
+
 ## 報告
 
 - 状態: 対応中
@@ -96,12 +139,12 @@ CHAT-1113-NWS-02（判断待ち。全号の Batch は送信済み）の続き。
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 7d38bc92）: https://github.com/retroeater/mj-logs/tree/main/guide/7d38bc92
+ガイド文書（この版を写した時点の最新、mj 65044527）: https://github.com/retroeater/mj-logs/tree/main/guide/65044527
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/7d38bc92/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/7d38bc92/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/7d38bc92/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/7d38bc92/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/7d38bc92/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/7d38bc92/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/65044527/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/65044527/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/65044527/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/65044527/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/65044527/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/65044527/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/de3fa135.md
