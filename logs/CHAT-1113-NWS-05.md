@@ -490,28 +490,68 @@ CHAT-1113-NWS-03 の「判断が必要なこと」2（リーグ戦の全成績�
 - シートに無い 55件: 期・リーグの決まった表で名前がシートに無い行（読み違いの名前、または別名の未登録）と、決められなかった表（200608_056 p.9 の「その他」5行）。NWS-06 で名前の一覧を見る
 - 1回目で「シートに無い」だった 200305_023 p.5・200608_056 p.9 の表は、プロンプトの直しでリーグを取り違えずに読めた（名前で決めたリーグも2表）
 
+
+### 3. 全号の Batch の送信（run 43522702849、2026-11-14 07:51〜08:06 JST）
+
+- 送った版: `cloudflare` の 67ec196（ほかのセッションのマージで 6aa6642 から進んでいたが、`scripts/oneoff_news_read.py`・ワークフロー・`lib/` は 6aa6642 と同じことを `git diff` で確かめた）
+- 入力: `--pages` は plan の「--pages に渡す形」（171ページ。上の「選んだページ（号ごと）」の表と同じ）、`--est-output 3300`（試しの出力の平均。1回目 3,296・2回目 2,989 の大きい方を切り上げ）、`--spent 31.64`
+- 入力トークン（count_tokens、ページの寸法ごと）: 4,636,557
+- 見込み（Batch、出力 3,300/ページ）: $14.92。判定: 出力 3,300×1.5/ページで $17.74、使った額 $31.64 → **$31.64 ＋ $17.74 ＝ $49.38 ≦ $80**（絞っていない）。出力がすべて上限 24,000 に達したときは $50.31（合計 $81.95。決定の式は実測×1.5 なので判定には使わない）
+- RUN_SINCE（2026-11-13 22:00 JST）以降の Batch は無かった（二重送信の確かめを通った）
+
+| Batch | 要求 | 大きさ |
+|---|---:|---:|
+| msgbatch_01WUKVHhbfuss8oHwBaHReSY | 78 | 179MB |
+| msgbatch_0113xSfjsTjb7QG1zNnbP9m6 | 58 | 177MB |
+| msgbatch_018Hbaju94Fwa75EEfzxSgTu | 35 | 102MB |
+| 計 3本 | 171 | |
+
+- 送った時刻: 2026-11-14 08:05〜08:06 JST。Batch は 24時間で期限切れ（遅くとも 2026-11-15 08:06 JST に終わる）。結果は29日保持
+- 回収（NWS-06）: `oneoff-news-read.yml` を mode `collect`、`batch_ids` に `msgbatch_01WUKVHhbfuss8oHwBaHReSY,msgbatch_0113xSfjsTjb7QG1zNnbP9m6,msgbatch_018Hbaju94Fwa75EEfzxSgTu`（ref は `cloudflare`。スクリプトは 6aa6642 の版）。collect は照らし合わせまでで、シートにも候補タブにも書かない
+- この指示で使った額: 選び分け $0.2544 ＋ 試し $2.8991 ＋ $2.8090 ＝ $5.96（実額。Batch の $17.74 以内の見込みは回収で確定）。NWS の系列の累計: $31.63（送った Batch を除く）
+
+### 後片付けしないもの（NWS-06 で行う）
+
+- 一度きりのスクリプト・ワークフロー・試験は残す。環境に足したホスト `productionresultssa9.blob.core.windows.net`（試しの dump の取得）は NWS-06 の最後に外す
+- 手元の切り出し（scratchpad）はコンテナとともに消える。リポジトリ・ログ・issue には入れていない
+
+### ガイド文の食い違い
+
+- docs/notes/research-candidates.md「連盟ニュースの行」の「書いたスクリプト…は…外した（CHAT-1113-NWS-03）」は、この指示で戻した実物と食い違う。docs のみの直しとして別のコミットで「NWS-05 で戻し、鳳凰戦のリーグの成績表の読み取りに作り替えた（#685）」を足した
+
 ## 報告
 
-- 状態: 対応中
+- 状態: 判断待ち
 - ブランチ: work/1113-nws-league
-- ログ: https://github.com/retroeater/mj/blob/work/1113-nws-league/docs/logs/CHAT-1113-NWS-05.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1113-NWS-05.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1113-nws-league
-- 確認用URL: なし
-- マージ: 未
-- issue: （起票する）
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 確認用URL: なし（ページ・生成物は変えていない）
+- マージ: 済（e8adaad・6aa6642。ログ・決定の追いのマージは最後の push）
+- issue: #685（起票。要約をコメント）
+- 判断が必要なこと:
+  - 1. NWS-06 の「候補タブに書く前の関門」のしきい値（割合はどれも 照合済み ÷〈照合済み＋食い違い〉。照合済み(絶対値)・節不明・シートに無いは入れない）
+    - 案A: 試しと同じ「全体で 85% 以上」。メリット: 決めてある基準のまま。デメリット: 試しは 100% だったので、15% までの読み違いが「食い違い」として候補タブに流れうる
+    - 案B（推奨）: 「全体で 95% 以上、かつ照らせた行が20行以上の号はどれも 85% 以上」。満たさない号は書かずに号ごとの表で報告する。メリット: 1回目の符号の誤りのような、号・リーグに偏る系統の誤りを号の単位で止められる。デメリット: 1号の崩れでその号が書けず、読み直しの手間が出る
+    - 案C: しきい値でなく、食い違いを全件チャット側で切り出しを見て確かめる。メリット: 精度。デメリット: 件数しだいで手間が大きく、dump の保持（1日）と再取得の手間がかかる
+  - 2. 候補タブに書く行の形（新しい種別）
+    - 案A（推奨）: 種別 F「鳳凰戦のリーグの成績（連盟ニュース）」1つ。対象キーは「第N期 前後 リーグ 名前 節」（例「第22期 後 B1 二階堂亜樹 最終」「第23期 前 C1 名前 3」。A1・A2 の前後は「通」、名前は「別名」で直した現在名）。候補は紙面の値（途中経過は「第N節終了時の累計 −62.8」、最終は「合計 −62.8・3位」）。確度は E と同じく分け方（食い違い／補完）、対象の列にシートの値、出典は「号 p.N」、引用文は紙面の数字の書き方（「62・8（並びで負）」）、備考にモデルの確度と期・リーグの決め方。メリット: E と同じ読み方で、1行で1人1節が分かる。デメリット: 途中経過の「補完」は累計なので、シートの節ごとの値に直すには隣り合う節の差を取る手間が採用の側に残る
+    - 案B: 途中経過（F）と最終成績（G）を分ける。メリット: 累計と合計・順位を取り違えない。デメリット: 種別が増え、docs/notes/research-candidates.md の表と照らし方の説明が2つになる
+  - 3. 「補完」の量: 第17〜22期は「鳳凰」に節のポイントが1行も無いので、その期の途中経過の表（2001年1月〜2006年5月ごろの号の大半）は全行が「補完」になる見込み（1号あたり数百行×数十号で、数千〜1万行規模）。案: (a) 最終成績の補完・食い違いと、途中経過の食い違いだけを候補タブに書き、途中経過の補完は期×リーグの件数だけをログに書く（推奨。候補タブを溢れさせず、節ごとの値の補完は別の指示で扱う）／(b) すべて書く（候補タブが大きくなり、採否の手間が大きい）
+  - 4. 「タイトル」のブックの共有: 指示文の前提（「タイトル」のブックは /live のブックで、毎朝 live-channel-writer が書く）は実物と食い違った（`## 経過`「『タイトル』のブックの共有」）。「タイトル」は正本のブックで、/live の書き込み先（3層のブック）とは別。指示どおり docs/decisions には追記していない。NWS-04 の報告のとおり、正本のブックから live-channel-writer の編集者の共有を外すのがよい（平野さんの手作業。外すかどうかの判断を求む）
+  - 5. 環境に足したホスト: `productionresultssa9.blob.core.windows.net`（試しの dump の取得。NWS-06 の最後に外す）
+- 未確認の項目:
+  - Batch 3本の結果（遅くとも 2026-11-15 08:06 JST に終わる。NWS-06 で回収）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 67ec196b）: https://github.com/retroeater/mj-logs/tree/main/guide/67ec196b
+ガイド文書（この版を写した時点の最新、mj ed3af373）: https://github.com/retroeater/mj-logs/tree/main/guide/ed3af373
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/67ec196b/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/67ec196b/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/67ec196b/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/67ec196b/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/67ec196b/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/67ec196b/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ed3af373/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ed3af373/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ed3af373/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ed3af373/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ed3af373/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/ed3af373/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/6aa6642b.md
