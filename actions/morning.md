@@ -1,6 +1,6 @@
 # 朝の報告用の異常（retroeater/mj）
 
-- 書き出した時刻: 2026-11-13 09:22 JST（見た範囲: 2026-11-12 07:22 JST から）
+- 書き出した時刻: 2026-11-13 09:24 JST（見た範囲: 2026-11-12 07:24 JST から）
 - 書き出した実行の契機: workflow_dispatch（main）
 - 異常だけを書く。全体は actions/status.md。判定は mj の scripts/morning_report.py（各ワークフローの直近 100 回まで）
 
@@ -8,7 +8,8 @@
 
 - 2026-11-12 15:36 fetch-gsc.yml failure（workflow_dispatch・cloudflare）ジョブ「fetch」 https://github.com/retroeater/mj/actions/runs/43169347821
 - 2026-11-13 00:44 fetch-gsc.yml failure（workflow_dispatch・cloudflare）ジョブ「fetch」 https://github.com/retroeater/mj/actions/runs/43251047782
-- 2026-11-13 09:22 research-candidates.yml in_progress（workflow_dispatch・work/1113-rsc） https://github.com/retroeater/mj/actions/runs/43336512444
+- 2026-11-13 09:24 fetch-gsc.yml in_progress（workflow_dispatch・cloudflare） https://github.com/retroeater/mj/actions/runs/43336769308
+- 2026-11-13 09:24 regenerate-page.yml in_progress（workflow_dispatch・work/1113-skp-abema-regen） https://github.com/retroeater/mj/actions/runs/43336776245
 
 ## 2. 予約実行の未実行（予定から3時間以内は「遅れの可能性」。3時間を超えて始まった実行は「遅れて実行」）
 
@@ -25,4 +26,4 @@
 
 ## 5. 未報告のログ（`## 報告` の節が無い）
 
-なし
+- CHAT-1113-SKP-26.md（着手 2026-11-13） https://github.com/retroeater/mj-logs/blob/main/logs/CHAT-1113-SKP-26.md
