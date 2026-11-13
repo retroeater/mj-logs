@@ -1,6 +1,6 @@
 # 朝の報告用の異常（retroeater/mj）
 
-- 書き出した時刻: 2026-11-13 18:25 JST（見た範囲: 2026-11-12 16:25 JST から）
+- 書き出した時刻: 2026-11-13 18:28 JST（見た範囲: 2026-11-12 16:28 JST から）
 - 書き出した実行の契機: workflow_dispatch（main）
 - 異常だけを書く。全体は actions/status.md。判定は mj の scripts/morning_report.py（各ワークフローの直近 100 回まで）
 
@@ -43,7 +43,7 @@
 ## 3. 所要時間の異常（cloudflare の実行だけ。基準は同じ種類〈cloudflare・予約の実行か手動か〉の直近20回。その中央値の3倍以上かつ中央値＋5分以上、または10分以上。skipped は除く）
 
 - 2026-11-13 00:44 fetch-gsc.yml failure（workflow_dispatch・cloudflare）所要 37分15秒（直近20回の中央値 0分21秒） https://github.com/retroeater/mj/actions/runs/43251047782
-- 2026-11-13 17:24 oneoff-news-read.yml success（workflow_dispatch・cloudflare）所要 16分36秒（直近20回の中央値 7分10秒） https://github.com/retroeater/mj/actions/runs/43392968392
+- 2026-11-13 17:24 oneoff-news-read.yml success（workflow_dispatch・cloudflare）所要 16分36秒（直近20回の中央値 4分20秒） https://github.com/retroeater/mj/actions/runs/43392968392
 
 ## 4. 初回成功（cloudflare の実行だけ。それ以前の cloudflare の実行に success が無いもの）
 
@@ -51,4 +51,4 @@
 
 ## 5. 未報告のログ（`## 報告` の節が無い）
 
-なし
+- CHAT-1113-SKP-34.md（着手 2026-11-13） https://github.com/retroeater/mj-logs/blob/main/logs/CHAT-1113-SKP-34.md
