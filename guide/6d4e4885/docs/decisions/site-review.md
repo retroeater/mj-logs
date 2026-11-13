@@ -272,3 +272,33 @@ CHAT-1019-LNK-02 の「判断が必要なこと」への回答:
 - Q4: #296 の本文の「子 issue」の表には行を足さない（新しい sub-issue を作らないため）
 - S19 の方針は LPR-02 の決定のまま: `saikyo/players/` には canonical を付けない。年度・対局・卓の個別ページは docs/decisions/saikyo.md の決定のまま（自分自身）
 - 作業中の回答: なし
+
+## 2026-11-13（CHAT-1113-TYP-01）
+
+サイト全体の文字の点検（誤字・表記ゆれ・食い違い）:
+
+- 案3「サイト全体の誤字・表記ゆれの点検を、Batch API で1回だけ行う」に着手する（系列 TYP）
+- 組織の月間支出上限を $100 から $200 に上げた（2026-11-17 に $100 へ戻す）
+- 一度きりのスクリプト・ワークフローのマージと、使い終えた後の削除を承認する。ページ・シート・テンプレートは直さない
+- 状態: スクリプト・ワークフローは work/1113-typ にあり未マージ（2回目の自己レビューの後の直しがレビューを受けていないため、判断待ち）
+- 作業中の回答: なし
+
+## 2026-11-13（CHAT-1113-TYP-02）
+
+サイト全体の文字の点検の続き（TYP-01 の判断待ち1への回答）:
+
+- 案A: 59b0dfd だけを新しい文脈のサブエージェントにレビューさせ、指摘が無ければマージし、cloudflare で plan → submit → collect まで進める（TYP-01 の決定はそのまま）
+- 結果: 指摘 102件を #682 に書いた。実額 $8.13（Batch の usage から）
+- 一度きりのスクリプト・ワークフロー・試験（`scripts/oneoff_text_audit.py`・`.github/workflows/oneoff-text-audit.yml`・`scripts/tests/test_oneoff_text_audit.py`）と、docs/notes/github-actions.md の一覧の行は、回収の後に外した（b6931f9）。
+  もう一度行うときは `git checkout 1a157a3 -- scripts/oneoff_text_audit.py scripts/tests/test_oneoff_text_audit.py .github/workflows/oneoff-text-audit.yml` で戻し、表の行も 1a157a3 の docs/notes/github-actions.md から戻す（スクリプトの `RUN_SINCE` は二重送信の止めなので、そのときの日付に直す）
+- 作業中の回答: なし
+
+## 2026-11-13（CHAT-1113-TYP-03）
+
+文字の点検の指摘（#682）の仕分け（TYP-02 の判断待ちへの回答）:
+
+- 案1: Claude Code が先に仕分けをする（シートは読むだけ）。シートごとの直しの一覧を #682 に書き、コードの不具合（No.29）は直す
+- 平野さんはシートの一覧に沿って手で直し、公式の確認が要るもの（まとめ A・C、No.82 など）を決める。シートは Claude Code が書かない
+- この指示のマージ（コードの直しと docs）を承認する
+- 結果: (1) シート 14・(2) コード 1・(3) 誤った指摘 49・(4) 判断が要る 38。行を引いた一度きりのスクリプト・ワークフロー（`scripts/oneoff_sheet_lookup.py`・`.github/workflows/oneoff-sheet-lookup.yml`・試験）は使い終えて外した。もう一度使うときは `git checkout d09d07d -- scripts/oneoff_sheet_lookup.py scripts/tests/test_oneoff_sheet_lookup.py .github/workflows/oneoff-sheet-lookup.yml` で戻し、docs/notes/github-actions.md の一覧の行も d09d07d から戻す
+- 作業中の回答: なし
