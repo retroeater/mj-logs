@@ -456,28 +456,64 @@ CHAT-1113-NWS-01（判断待ち）の続き。読めなかった28本を含む56
 
 - 成果物・ジョブのログの置き場 productionresultssa10.blob.core.windows.net を、この環境（Claude-iPhone、個人の環境）の許可するホストに足した（update_environment、承認の画面で平野さんが承認）
 
+### 3. 全号の Batch の送信（cloudflare、run 43392968392）
+
+- 入力: mode submit・files all・max_cost 60・est_output 903（試しの3号の平均）・spent 2.62（試しの実額）。試しの3号も含めた全56本・574ページを送った（理由: 次の指示で照らす結果を Batch の1つの集まりにそろえる。試しの結果は保存していない。3号の分の費用は約 $1.5）
+- 上限の判定（スクリプトの出力）: 「出力 903×1.5/ページで $26.03、使った額 $2.62、上限 $60.00」→ 送った。入力トークン 9,129,470（count_tokens）。RUN_SINCE（2026-11-13 16:00 JST）以降のほかの Batch は無かった（`allow_existing` は使っていない）
+- 送った時刻: 2026-11-13 17:39〜17:40 JST
+- Batch: 6つ・計 574 要求（1つ 180MB 以下に分けた）
+
+| Batch の ID | 要求 | 大きさ |
+|---|---:|---:|
+| msgbatch_01JPjHzQKc6LiRFaAXuZ288k | 103 | 180MB |
+| msgbatch_01HhgBthKe95pX7pfdtfVdzd | 99 | 179MB |
+| msgbatch_013vXqZ8G3ciXH6ZFRJiTUCQ | 109 | 180MB |
+| msgbatch_01LPc89udi5fb6iy6knDcQL1 | 98 | 180MB |
+| msgbatch_01KaG9GpqfpPV4cZK4j3ThZH | 99 | 180MB |
+| msgbatch_01QWTtGnAE3cwzba4g81jmQ3 | 66 | 112MB |
+
+- **次の指示（NWS-03）で回収するとき**: ワークフロー `oneoff-news-read.yml` を mode collect、`batch_ids` に次の1行、`wait_minutes` は 60 以下で実行する（まず `apply` なしで照らし合わせの表を見て、関門の後に `apply` を付けて書く）。Batch の ID は鍵ではない（API の鍵が無いと読めない）ので公開のログに書いた
+
+```
+msgbatch_01JPjHzQKc6LiRFaAXuZ288k,msgbatch_01HhgBthKe95pX7pfdtfVdzd,msgbatch_013vXqZ8G3ciXH6ZFRJiTUCQ,msgbatch_01LPc89udi5fb6iy6knDcQL1,msgbatch_01KaG9GpqfpPV4cZK4j3ThZH,msgbatch_01QWTtGnAE3cwzba4g81jmQ3
+```
+
+- 見込みの費用: Batch で約 $26（入力 $18.26・出力 約 $7.8〈903×1.5/ページ〉）。この系列の使った額は試しの $2.61 だけ（NWS-01 の plan は count_tokens まで進まず $0）。実額は回収のときに usage から出る
+- マージ後の自動処理: 743a394 の push で動いたワークフロー（ページの再生成など）は無い（push の起動の一覧に無い）。ページ・生成物の差分は無い
+
+### 決定の記録
+
+- docs/decisions/automation.md に「2026-11-13（CHAT-1113-NWS-02）」を足した（指示の決定と、作業中の回答〈upload-artifact を足す〉）
+
 ## 報告
 
-- 状態: 対応中
+- 状態: 判断待ち
 - ブランチ: work/1113-nws
 - ログ: https://github.com/retroeater/mj/blob/work/1113-nws/docs/logs/CHAT-1113-NWS-02.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1113-nws
 - 確認用URL: なし
-- マージ: 未
-- issue: #408
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- マージ: 済（743a394。pdftoppm でページを画像にする処理・切り出しの成果物・318a361・fcbd6a1 を含む）。その後のログ・決定（docs のみ）も同じブランチから cloudflare に入れた
+- issue: #408（着手中・要約のコメント https://github.com/retroeater/mj/issues/408#issuecomment-6848341886 ）
+- 判断が必要なこと:
+  - 1. 次の指示（NWS-03）の「候補タブに書く前の関門」のしきい値。試しの3号は、コードの数え方（照合済み ÷〈照合済み＋食い違い〉）で全体 12/14 = 86%（号ごとに 100%・67%・100%）。食い違い2件はどちらも紙面どおり（斉藤/斎藤の表記、姓だけの記事）で、外すと 100%
+    - 案A（推奨）: 全体で 80% 以上なら書く。下回ったら書かずに、食い違いを大会ごとに10件ほど切り出しで確かめ、紙面どおりの食い違い（表記の違い・姓だけ）を外して数え直し、80% 以上なら書く。メリット: 試しの実測（86%）に合い、表記の違いで止まりすぎない。デメリット: 確かめの手間（切り出しを見る）が NWS-03 に入る
+    - 案B: 70% 以上なら書く（確かめなし）。メリット: 速い。デメリット: 読み違いが多い大会が混じっても通る
+    - 案C: 大会ごとに 80% 以上の大会だけ書く。メリット: 悪い大会だけを外せる。デメリット: 件数の少ない大会は割合が揺れ、1件の食い違いで外れる
+  - 2. 2回目のレビューの指摘6（読まないファイルの名前〈スライドの PDF・X のアーカイブの zip〉をジョブのログ・実行サマリに出す）は、手順（2回目の後の直しはマージしない）により直していない。中身・ID・記事の文章は出ない。NWS-03 で一度きりのスクリプトを外すまでこのまま使うか、直すか
+  - 3. 環境の許可するホストに productionresultssa10.blob.core.windows.net を足した（成果物とジョブのログを取るため。個人の環境 Claude-iPhone、承認済み）。NWS-03 で外すか、残すか（残すと以後のセッションも Actions の成果物・ジョブのログを取れる）
+- 未確認の項目:
+  - Batch の処理の終わり（送った時刻 2026-11-13 17:40 JST、最長 24時間。NWS-03 で回収）と実額
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 06a55663）: https://github.com/retroeater/mj-logs/tree/main/guide/06a55663
+ガイド文書（この版を写した時点の最新、mj 79e7a337）: https://github.com/retroeater/mj-logs/tree/main/guide/79e7a337
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/06a55663/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/06a55663/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/06a55663/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/06a55663/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/06a55663/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/06a55663/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/79e7a337/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/79e7a337/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/79e7a337/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/79e7a337/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/79e7a337/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/79e7a337/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b3a20d7c.md
