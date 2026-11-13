@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-11-13 13:20 JST
+- 書き出した時刻: 2026-11-13 13:23 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -25,11 +25,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-13 13:21 | push | work/1113-typ | success | #1157（43364990470） | 0分21秒 |
 | 2026-11-13 13:17 | push | work/1113-typ | success | #1156（43364594866） | 0分24秒 |
 | 2026-11-13 13:14 | push | work/1113-rsc | success | #1155（43364222501） | 0分23秒 |
 | 2026-11-13 13:10 | push | work/1113-typ | success | #1154（43363816276） | 0分28秒 |
 | 2026-11-13 13:09 | push | work/1113-skp-abema-regen | success | #1153（43363625251） | 0分29秒 |
-| 2026-11-13 13:03 | push | work/1113-skp-abema-regen | success | #1152（43362972155） | 0分29秒 |
 
 ## check-build-failure.yml
 
@@ -38,11 +38,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-13 13:22 | check_run | cloudflare | skipped | #1532（43365071736） | 0分00秒 |
 | 2026-11-13 13:18 | check_run | cloudflare | skipped | #1531（43364666647） | 0分01秒 |
 | 2026-11-13 13:15 | check_run | cloudflare | skipped | #1530（43364317539） | 0分01秒 |
 | 2026-11-13 13:11 | check_run | cloudflare | skipped | #1529（43363880431） | 0分00秒 |
 | 2026-11-13 13:10 | check_run | cloudflare | skipped | #1528（43363729219） | 0分01秒 |
-| 2026-11-13 13:10 | check_run | cloudflare | skipped | #1527（43363724073） | 0分01秒 |
 
 ## check-image-links.yml
 
@@ -195,6 +195,15 @@
 
 - #6 failure: ジョブ「regenerate / regenerate」 ステップ「飛ばしたページを報告」
 
+## oneoff-sheet-lookup.yml
+
+- 名前: 指摘の行の引き当て(一度きり)
+- state: active
+
+| 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
+| --- | --- | --- | --- | --- | --- |
+| 2026-11-13 13:22 | workflow_dispatch | cloudflare | in_progress | #1（43365117501） |  |
+
 ## regenerate-page.yml
 
 - 名前: ページの再生成
@@ -202,11 +211,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-11-13 13:19 | workflow_dispatch | work/1113-typ | in_progress | #820（43364782962） |  |
+| 2026-11-13 13:22 | push | cloudflare | in_progress | #821（43365112563） |  |
+| 2026-11-13 13:19 | workflow_dispatch | work/1113-typ | success | #820（43364782962） | 1分03秒 |
 | 2026-11-13 13:17 | workflow_dispatch | work/1113-typ | failure | #819（43364600528） | 0分46秒 |
 | 2026-11-13 13:03 | workflow_dispatch | work/1113-skp-abema-regen | success | #818（43362980752） | 0分39秒 |
 | 2026-11-13 11:12 | workflow_dispatch | cloudflare | success | #817（43350503345） | 1分16秒 |
-| 2026-11-13 11:10 | workflow_dispatch | work/1113-skp-abema-regen | success | #816（43350202977） | 0分46秒 |
 
 - #819 failure: ジョブ「regenerate」 ステップ「生成物の差を実行サマリに出す」
 
