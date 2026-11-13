@@ -55,15 +55,48 @@ CHAT-1113-SKP-28 の手順3の一覧で「登録が無い」だった最強戦�
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 着手前の確認
+
+- 0: 「指示」欄の末尾は指示文の最後の行と一致
+- 同じ Chat-Ref のコミット: 無し。issue: なし
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 4つとも有る
+- 作業ブランチ: work/1113-skp-sns-book はローカル・リモートとも無かったので origin/cloudflare（6d4e48852）から作った
+- 未マージの work/ ブランチで scripts/update_sns_book.py・scripts/lib/sns.py に触れるもの: 無し
+
+### 手順1 読むだけの確かめ
+
+実行中の確認（REST、05:06Z）: update-sns-book.yml・regenerate-page.yml・regenerate-saikyo.yml・run-daily.yml・check-saikyo-unregistered.yml とも実行中は無し。
+
+update-sns-book.yml（ref cloudflare、mode check、dry_run true）: run 43369834398、job update 131702766070、05:06:43Z〜05:07:08Z、success（regenerate は skipped）。
+
+| 項目 | 直前の毎朝の更新（11-13 04:00 JST、run 43285672503、job sns / update 131422219663） | 今回の check | 差 |
+|---|---|---|---|
+| 元の一覧（「プロ」＋「連盟プロ以外」） | 1853（【1】に写した数） | 1872（プロ 1098・連盟プロ以外 774） | +19 |
+| 【1】元データ | 1853 行 | 1853 行（まだ写していない） | 0 |
+| 【2】ID | 1854 行（一覧に無い 1） | 1854 行 | 0 |
+| 【2】の入力のある名前 | — | 1086 | — |
+| 【3】画像取得・【4】手動補正 | — | 1854 行・0 行 | — |
+
+- 毎朝の更新の出力はシートごとの内訳を出さないので、「連盟プロ以外」だけの増加は直接は比べられない。一覧の計が +19 で、下の登録漏れの検知で 19 名が全員引けるようになったことから、増えたのは「連盟プロ以外」の 19 と判断した（「プロ」は SNS ブックの init〈2026-10-10〉の 1,099 から今 1,098）
+- 名前かなのある行: プロ 1098・連盟プロ以外 357
+
+check-saikyo-unregistered.yml（ref cloudflare、dry_run true）: run 43369930161、job 131703067836、05:07:34Z〜05:08:16Z、success。
+
+- 「出場者461名を確認し、0名が「プロ」「連盟プロ以外」から引けませんでした。」「登録が無い: 0名 / 重複などで使われない: 0名」。対局日が空の対局 0件。SKP-28 では登録が無い 19 名だった
+- 新しい警告 1件: 「警告: 「別名」の行を使いません(区分が想定外です「」): トレンディエンジェルたかし → たかし」（SKP-28 の同じ検知〈04:07Z〉には無かった。「別名」シートに区分が空の行が足されたと見られる。19 名とは関係しない。止まる条件ではないので記録だけ）
+- 止まる条件（増加が 19 でない・登録が無い／重複が 0 でない）に当たらない
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 6d4e4885）: https://github.com/retroeater/mj-logs/tree/main/guide/6d4e4885
+ガイド文書（この版を写した時点の最新、mj 39e55941）: https://github.com/retroeater/mj-logs/tree/main/guide/39e55941
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6d4e4885/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6d4e4885/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6d4e4885/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6d4e4885/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6d4e4885/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6d4e4885/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/39e55941/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/39e55941/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/39e55941/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/39e55941/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/39e55941/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/39e55941/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a5fcf1af.md
