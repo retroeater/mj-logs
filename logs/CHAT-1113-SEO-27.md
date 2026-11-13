@@ -65,28 +65,82 @@ SEO 系列の 2026-11-12〜13（CHAT-1112-SEO-17〜CHAT-1201-SEO-26 の指示）
 
 ## 経過
 
+### 0. 着手前の確認
+
+- 指示欄の末尾は指示文の最後の行と一致。同じ Chat-Ref のコミット0件。SEO 系列の続きで識別子の重複確認は対象外。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は全部ある
+- ガイド文に規則を足す指示で、「知見 → 選んだ層 → 理由」の表がある（CLAUDE.md「Chat-Ref」）
+- 作業ブランチ: ローカル・リモートとも無かったので `git checkout -b work/1113-seo27 origin/cloudflare`（0778da8633）
+- 指示は「CHAT-1201-SEO-26」を挙げるが、全ブランチにこの Chat-Ref のコミットは無い（12/1 に出す予定の指示の番号と読んだ）
+
+### 1. 読んだもの・既存の規則の検索
+
+- docs/notes/chat-routines.md「申送り」「指示の種類ごとの確かめ」、docs/notes/chat-side-operations.md の冒頭（上限あり・純増したら同じ量を移す）と「平野さんの判断とマージの許可」の 100〜101 行目、#565 の本文
+- 既存の規則の検索（`grep -E '見込み.{0,20}(事実|写さ)|再試行|日の区切り|呼ぶ仕組み|件数を当てはめ|分数|使用量|説明する文書|差分に入れてよい|範囲に.*文書'` を chat-routines.md・chat-side-operations.md・instruction-template.md に）: 一致なし。近いのは chat-routines.md「外部サービスの設定を頼むとき」の「外部サービスの設定値（割り当て・上限・単価）は指示文に値を写さず節を指す」で、自分たちの設定値の話のため別の項目にした（食い違いではない）
+- #6 の既存の規則: chat-routines.md「指示の種類ごとの確かめ」の最初の項目「前提にデータ・コード・過去の指示の経緯を書くとき: 該当の行を開き、その場所を前提の行に添える」を確かめた
+- #565 の検査の案は、参照（`docs/notes/<file>.md「見出し」`）の見出しが実在するかを見るもので、#4 の「説明の中身と実物の食い違い」はそのままでは拾えない。コメントにそう書いた
+- 表と食い違う既存の規則・決定: なし
+
+### 2. 足したもの・バイト数
+
+| 文書 | 前 | 後 | 差 |
+|---|---:|---:|---:|
+| docs/notes/chat-routines.md（上限なし） | 23,912 | 25,095 | +1,183 |
+| docs/notes/chat-side-operations.md（上限 28KB・警告域 26KB） | 22,469 | 22,466 | −3 |
+| docs/notes/handover-archive-2026.md（上限なし） | 125,072 | 127,067 | +1,995 |
+
+- chat-routines.md「指示の種類ごとの確かめ」の「外のサイト・API に触れるワークフローの手動実行…」の次に3項目（#1・#2 をまとめた項目、#3、#4）。文案はチャット側の案のまま、#3・#4 に理由の一句を足した
+- chat-side-operations.md 101行目（#5）: 「**マージの可否は、ほかの問いと分けて単独で聞く。別の問いの答え（「進む」など）から承認を推さない**（推すと、承認されていない変更までマージされる）。」（222バイト）→「**マージの可否は単独で聞く。別の問いの答え（「進む」・「異論がなければ推奨どおり」）から承認を推さない**（承認されていない変更までマージされる）。」（219バイト）。同じ行の中の置き換えで、純増なし
+- archive: 「## docs/notes/chat-side-operations.md から」の節の後、「## docs/notes/cloudflare.md・chrome-reading.md から」の前に、新しい節「docs/notes/chat-routines.md・chat-side-operations.md の規則の事例（2026-11-13 の申送り、CHAT-1113-SEO-27）」を足し、#1〜#5 の事例を書いた（既存の「## docs/notes/<文書> から」の並びに合わせた）
+- docs/decisions/operations.md に「## 2026-11-13（CHAT-1113-SEO-27）」の節（CHAT-1101-SEO-15 と同じ書き方）
+- #565 に #4 の事例をコメントした
+- SEO-22 のログの状態を「判断待ち / 続き: CHAT-1113-SEO-23 / 続き: CHAT-1113-SEO-24」にした。続きの書き方は「状態の末尾に ` / 続き: CHAT-…`」（docs/notes/branch-operations.md「作業ログの寿命」）で、2つ目の続きの決まりは無いので、指示どおり末尾に足した。なお `scripts/cleanup_logs.py` は最初の「続き」（SEO-23、完了）で読むので、SEO-22 は SEO-23 の完了の時点で片付けの対象になっていて、この直しで判定は変わらない。#680 の男女の入口の相互リンク（未決）は、12/1 の SEO-26 の報告で扱う
+
+
+### 3. マージ（止まった）
+
+- push 直前に `git fetch origin cloudflare` → `git merge-base --is-ancestor origin/cloudflare HEAD` が偽（cloudflare が進んでいた。同時に送った `git push origin work/1113-seo27:cloudflare` は non-fast-forward で拒否。権限の拒否ではない）
+- `git merge origin/cloudflare` で3ファイルが衝突した。cloudflare 側は CHAT-1113-GDR（4文書の整理、#492。f45aaef6a1「compress chat-side-operations.md and move situational steps」・85e4fccd33「record text removed in the 2026-11-13 guide cleanup」ほか）
+  - `docs/notes/chat-side-operations.md`: マージの可否の行（#5）を両側が変えた。cloudflare 側は「**マージの可否は、ほかの問いと分けて単独で聞く。別の問いの答え（「進む」など）から承認を推さない**（承認されていない変更までマージされる）。」（理由の括弧の「推すと、」を外した）、こちらは「**マージの可否は単独で聞く。別の問いの答え（「進む」・「異論がなければ推奨どおり」）から承認を推さない**（承認されていない変更までマージされる）。」。同じ行の中身を両側が変えた衝突
+  - `docs/notes/handover-archive-2026.md`: 同じ位置（「## docs/notes/cloudflare.md・chrome-reading.md から」の前）に、こちらは新しい節「docs/notes/chat-routines.md・chat-side-operations.md の規則の事例…」を、cloudflare 側は「### 2026-11-13 の整理で4文書から外した記述（#492）」を足した。追記どうしで両立する形だが、docs/decisions・docs/logs の外
+  - `docs/decisions/operations.md`: 末尾の追記どうし（解いてよい種類）
+  - `docs/notes/chat-routines.md` は衝突なし（cloudflare 側は 27,088 バイトに増えていた）
+- この指示に衝突の解き方の指定は無く、CLAUDE.md「ブランチ運用」で解いてよいのは docs/decisions・docs/logs の末尾の追記どうしだけなので、`git merge --abort` で取り込みをやめ、マージせずに止まった。作業ブランチは 03f7e5357e（取り込む前）のまま
+- cloudflare の chat-side-operations.md は 22,041 バイト（GDR の整理の後）。こちらの #5 の書き方を cloudflare 側の行に当て直すと、「（「進む」など）」→「（「進む」・「異論がなければ推奨どおり」）」で約 +33 バイトの純増になり、同じ量を移す必要がある
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1113-seo27
 - ログ: https://github.com/retroeater/mj/blob/work/1113-seo27/docs/logs/CHAT-1113-SEO-27.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1113-seo27
 - 確認用URL: なし
-- マージ: 未
-- issue: #565
-- 判断が必要なこと: なし
+- マージ: 未（cloudflare の取り込みで、解いてよい種類の外の衝突が出たため止まった）
+- issue: #565（コメントのみ）
+- 知見ごとの扱い:
+
+  | # | 足した場所 ／ 足さなかった理由 |
+  |---|---|
+  | 1・2 | docs/notes/chat-routines.md「指示の種類ごとの確かめ」に1項目（外の API を多数回呼ぶ仕組みの指示: 上限の数え方の出典・見込みを写さない・最初の指示に再試行・続きの入口・上限で止まる形） |
+  | 3 | 同じ節に1項目（枠・上限・優先順位の案に件数を当てはめる・定期の実行の案に1回の分数を添える） |
+  | 4 | 同じ節に1項目（ワークフローの入力・起動を変える指示の範囲に説明の文書を入れる）＋ #565 に事例をコメント（#565 の案では拾えないことも書いた） |
+  | 5 | docs/notes/chat-side-operations.md「平野さんの判断とマージの許可」の同じ行の中で置き換え（222→219バイト、純増なし） |
+  | 6 | 足さない（chat-routines.md「指示の種類ごとの確かめ」の最初の項目が既にある）。docs/decisions/operations.md に守られなかった事実だけ書いた |
+- 判断が必要なこと:
+  - cloudflare の取り込みの衝突の解き方（CHAT-1113-GDR の4文書の整理と重なった）。案: (a) chat-side-operations.md は cloudflare 側の行を採り、#5 の「・「異論がなければ推奨どおり」」だけを当て直す（約 +33 バイトの純増。同じ量をほかの文書へ移すか、純増するなら #5 は足さずに docs/decisions に事実だけ書く〈指示の表の #5 の扱い〉）。archive は両方の節を残し、cloudflare 側の「### 2026-11-13 の整理で4文書から外した記述」を先、こちらの節を後に並べる。docs/decisions/operations.md は両方の節を残す。(b) #5 は今回は足さず、chat-side-operations.md は cloudflare 側のままにする（docs/decisions に事実だけ）。推し: (b)（GDR の整理の直後で、同じ行を続けて変えない方が読み比べが楽）
+  - chat-routines.md の3項目（#1〜#4）は衝突しておらず、解き方が決まればそのまま入る
 - 未確認の項目: なし
-- エラー: なし
+- エラー:
+  - `git merge origin/cloudflare` で docs/notes/chat-side-operations.md・docs/notes/handover-archive-2026.md・docs/decisions/operations.md が衝突（`git merge --abort` 済み）
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 0778da86）: https://github.com/retroeater/mj-logs/tree/main/guide/0778da86
+ガイド文書（この版を写した時点の最新、mj 97603d46）: https://github.com/retroeater/mj-logs/tree/main/guide/97603d46
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/0778da86/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/0778da86/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/0778da86/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/0778da86/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/0778da86/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/0778da86/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/97603d46/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/97603d46/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/97603d46/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/97603d46/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/97603d46/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/97603d46/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/0778da86.md
