@@ -270,28 +270,71 @@ TITLE_SHEET_NAME = "タイトル"
 - 念のための dry-run（run 43423864654）: 書かずに止まった（終了コード 1）。理由は「表1 の17期の今の日付が年だけでない（書いた日付）」「61行の状態がすでに入っている」で、もう書くものが無いことの確かめになる（このスクリプトは書く前提が崩れたら書かずに止まる作り）
 - `regenerate-page.yml` の check（入力 target_page title_pages・check、run 43423869339）: 成功（止まる理由なし）。「タイトル」の日付の列を読む生成スクリプトは `generate_title_pages.py` だけ（`TAB_TITLES` を読むほかの2つ〈`check_unused_names.py`・`research_candidates.py`〉はページを作らない）
 
+### 再生成（run 「ページの再生成」、cloudflare の bf04d4a）
+
+- `regenerate-page.yml`（target_page title_pages）→ `chore: regenerate title/ via GitHub Actions`（bf04d4a、19ファイル・35行の入れ替え）
+- 差分はすべて17期の日付で説明できる:
+  - 期のページ 17（`title/oui/26・27・28・30・31`、`title/shinjinou/15〜19`、`title/judan/22・23`、`title/masters/12・13・15`、`title/pro-queen/2・3`）: 見出しの日付が「2000年」→「2000年12月10日」の形に
+  - `sitemap-title.xml`: 上の17ページの lastmod が 2026-11-13 に（17か所）
+  - `title/years.json`: 2000〜2006年の年の中の並びだけが変わった（日付の入った期が先に並ぶ。項目の増減・中身の変化は無いことを JSON で比べて確かめた）
+- その時点のシートのほかの変化による差分: なし
+- 本番（UA に mj-internal を含めて、2026-11-13 21:21 JST に読んだ）:
+  - https://ryoei.pro/title/oui/26.html → 「2000年12月10日」
+  - https://ryoei.pro/title/shinjinou/18.html → 「2004年8月8日」
+  - https://ryoei.pro/title/judan/23.html → 「2006年7月30日」
+  - https://ryoei.pro/title/pro-queen/2.html → 「2004年9月19日」
+
+### 3. 片付け・起票
+
+- 外した（7d9c212）: `scripts/oneoff_nws_adopt.py`・`scripts/tests/test_oneoff_nws_adopt.py`・`research-candidates.yml` の `source=nws-adopt`（選択肢・説明の文・呼び出しの分岐）・`lib/sheets_write.py` の `TITLE_*` と `WRITABLE` の1件。2つのファイルは、手を入れる前の cloudflare（05292f0）と同じ内容に戻った（`git diff 05292f0 HEAD` が空）。`NAME_RESOLVERS`・docs/notes には足していなかったので外すものは無い（名前で検索し、docs/logs・docs/decisions のほかに参照が残っていないことを確かめた）
+- 試験 OK（2152件）。自己レビュー（削除の差分）: 指摘なし。マージ: `git push origin work/1113-nws-adopt:cloudflare` → `bf04d4a..8108af8`
+- docs/decisions/automation.md に「2026-11-13（CHAT-1113-NWS-04）」を足した（外したことと戻し方〈e3004ec〉を含む）
+- 起票: #684「タイトル戦の2位以下の順位を調べる（公式HP に1位だけ載る期）」（ラベル「分野: データ」。同じ論点の issue は open・closed とも無かった〈#470 は第26期王位戦・第23期發王戦の順位の確認で別の論点〉）。「1位だけの期」は生成済みの title/search.json から数えた: 王位戦 10・麻雀マスターズ 9・ほか 0（計 19）
+
+#### 日付が年だけの期の残り（再生成後の title/ の期のページの見出しで数えた。`YYYY-XX-XX` と `YYYY-MM-XX` はどちらも「YYYY年」と出る）
+
+| 大会 | 期 | 年だけ | 日付なし |
+|---|---:|---:|---:|
+| 鳳凰戦 | 42 | 37 | 0 |
+| 十段戦 | 43 | 34 | 0 |
+| 王位戦 | 50 | 40 | 0 |
+| 麻雀マスターズ | 34 | 25 | 0 |
+| 麻雀グランプリMAX | 16 | 10 | 0 |
+| 女流桜花 | 20 | 14 | 0 |
+| プロクイーン | 24 | 15 | 0 |
+| WRCリーグ | 19 | 7 | 0 |
+| 新人王戦 | 39 | 28 | 0 |
+| リーチ麻雀世界選手権 | 4 | 2 | 0 |
+| 麻雀日本シリーズ | 11 | 0 | 7 |
+| 女流プロ麻雀日本シリーズ | 11 | 0 | 6 |
+| ほかの8大会 | 51 | 0 | 0 |
+| 計 | 364 | 212 | 13 |
+
+（日本シリーズの「日付なし」は期の題が西暦の期で、見出しに日付を出さない形）
+
 ## 報告
 
-- 状態: 対応中
+- 状態: 判断待ち
 - ブランチ: work/1113-nws-adopt
-- ログ: https://github.com/retroeater/mj/blob/work/1113-nws-adopt/docs/logs/CHAT-1113-NWS-04.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1113-NWS-04.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1113-nws-adopt
 - 確認用URL: なし
-- マージ: 未
-- issue: #408
-- 判断が必要なこと: なし
+- マージ: 済（e3004ec: 一度きりの書き込みの手段。8108af8: その削除〈7d9c212〉）。再生成は bf04d4a。このログと決定の追いの push も cloudflare に入れた
+- issue: #408（着手中・結果のコメント https://github.com/retroeater/mj/issues/408#issuecomment-6852803544 ）、#684（起票）
+- 判断が必要なこと:
+  - 平野さんの手作業: 「タイトル」のタブのあるブックの live-channel-writer への編集者の共有を外す（書き込みは済み、一度きりの手段も外した）
 - 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj fb37f552）: https://github.com/retroeater/mj-logs/tree/main/guide/fb37f552
+ガイド文書（この版を写した時点の最新、mj 45b67577）: https://github.com/retroeater/mj-logs/tree/main/guide/45b67577
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/fb37f552/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/fb37f552/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/fb37f552/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/fb37f552/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/fb37f552/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/fb37f552/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/45b67577/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/45b67577/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/45b67577/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/45b67577/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/45b67577/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/45b67577/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/de3fa135.md
