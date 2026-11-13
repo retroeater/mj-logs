@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-11-13 17:31 JST
+- 書き出した時刻: 2026-11-13 17:34 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -25,11 +25,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-13 17:31 | push | work/1113-typ | success | #1179（43393832974） | 0分27秒 |
+| 2026-11-13 17:30 | push | work/1113-rsc | success | #1178（43393803657） | 0分38秒 |
 | 2026-11-13 17:27 | push | work/1113-typ | success | #1177（43393324621） | 0分26秒 |
 | 2026-11-13 17:26 | push | work/1113-rsc | success | #1176（43393296171） | 0分33秒 |
 | 2026-11-13 17:04 | push | work/1113-skp-abema-rekey | success | #1175（43390414451） | 0分29秒 |
-| 2026-11-13 17:03 | push | work/1113-nws | success | #1174（43390177199） | 0分38秒 |
-| 2026-11-13 16:50 | push | work/1113-typ | success | #1173（43388628038） | 0分30秒 |
 
 ## check-build-failure.yml
 
@@ -38,11 +38,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-13 17:32 | check_run | cloudflare | skipped | #1565（43393951933） | 0分01秒 |
+| 2026-11-13 17:31 | check_run | cloudflare | skipped | #1564（43393908943） | 0分00秒 |
 | 2026-11-13 17:27 | check_run | cloudflare | skipped | #1563（43393393226） | 0分00秒 |
 | 2026-11-13 17:27 | check_run | cloudflare | skipped | #1562（43393365489） | 0分10秒 |
 | 2026-11-13 17:05 | check_run | cloudflare | skipped | #1561（43390539697） | 0分01秒 |
-| 2026-11-13 17:05 | check_run | cloudflare | skipped | #1560（43390536286） | 0分01秒 |
-| 2026-11-13 17:03 | check_run | cloudflare | skipped | #1559（43390265389） | 0分10秒 |
 
 ## check-image-links.yml
 
@@ -218,11 +218,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-13 17:31 | workflow_dispatch | work/1113-typ | success | #822（43393840486） | 1分59秒 |
 | 2026-11-13 13:22 | push | cloudflare | success | #821（43365112563） | 1分17秒 |
 | 2026-11-13 13:19 | workflow_dispatch | work/1113-typ | success | #820（43364782962） | 1分03秒 |
 | 2026-11-13 13:17 | workflow_dispatch | work/1113-typ | failure | #819（43364600528） | 0分46秒 |
 | 2026-11-13 13:03 | workflow_dispatch | work/1113-skp-abema-regen | success | #818（43362980752） | 0分39秒 |
-| 2026-11-13 11:12 | workflow_dispatch | cloudflare | success | #817（43350503345） | 1分16秒 |
 
 - #819 failure: ジョブ「regenerate」 ステップ「生成物の差を実行サマリに出す」
 
@@ -259,11 +259,13 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-11-13 17:30 | workflow_dispatch | work/1113-rsc | in_progress | #61（43393805625） |  |
+| 2026-11-13 17:30 | workflow_dispatch | work/1113-rsc | failure | #61（43393805625） | 0分44秒 |
 | 2026-11-13 16:24 | workflow_dispatch | cloudflare | success | #60（43385561912） | 1分29秒 |
 | 2026-11-13 16:22 | workflow_dispatch | cloudflare | success | #59（43385341503） | 1分25秒 |
 | 2026-11-13 16:08 | workflow_dispatch | cloudflare | success | #58（43383636129） | 1分21秒 |
 | 2026-11-13 15:24 | workflow_dispatch | cloudflare | success | #57（43378528812） | 1分30秒 |
+
+- #61 failure: ジョブ「research」 ステップ「実行」
 
 ## run-daily.yml
 
