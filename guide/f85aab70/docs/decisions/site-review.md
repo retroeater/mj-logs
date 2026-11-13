@@ -292,3 +292,13 @@ CHAT-1019-LNK-02 の「判断が必要なこと」への回答:
 - 一度きりのスクリプト・ワークフロー・試験（`scripts/oneoff_text_audit.py`・`.github/workflows/oneoff-text-audit.yml`・`scripts/tests/test_oneoff_text_audit.py`）と、docs/notes/github-actions.md の一覧の行は、回収の後に外した（b6931f9）。
   もう一度行うときは `git checkout 1a157a3 -- scripts/oneoff_text_audit.py scripts/tests/test_oneoff_text_audit.py .github/workflows/oneoff-text-audit.yml` で戻し、表の行も 1a157a3 の docs/notes/github-actions.md から戻す（スクリプトの `RUN_SINCE` は二重送信の止めなので、そのときの日付に直す）
 - 作業中の回答: なし
+
+## 2026-11-13（CHAT-1113-TYP-03）
+
+文字の点検の指摘（#682）の仕分け（TYP-02 の判断待ちへの回答）:
+
+- 案1: Claude Code が先に仕分けをする（シートは読むだけ）。シートごとの直しの一覧を #682 に書き、コードの不具合（No.29）は直す
+- 平野さんはシートの一覧に沿って手で直し、公式の確認が要るもの（まとめ A・C、No.82 など）を決める。シートは Claude Code が書かない
+- この指示のマージ（コードの直しと docs）を承認する
+- 結果: (1) シート 14・(2) コード 1・(3) 誤った指摘 49・(4) 判断が要る 38。行を引いた一度きりのスクリプト・ワークフロー（`scripts/oneoff_sheet_lookup.py`・`.github/workflows/oneoff-sheet-lookup.yml`・試験）は使い終えて外した。もう一度使うときは `git checkout d09d07d -- scripts/oneoff_sheet_lookup.py scripts/tests/test_oneoff_sheet_lookup.py .github/workflows/oneoff-sheet-lookup.yml` で戻し、docs/notes/github-actions.md の一覧の行も d09d07d から戻す
+- 作業中の回答: なし

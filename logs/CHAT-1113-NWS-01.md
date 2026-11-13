@@ -99,6 +99,16 @@
 
 - 直しの後の試験: `python3 -m unittest discover -s scripts/tests` → OK（新しい試験は 18件。月・年の食い違い・ゼロ埋めの無い日付の `classify_date`、空白入りの旧名、`parse_records`、大きいページの切り出し）。`classify_date`・`parse_records` の検査は直す前のコード（39ba6e6）には関数が無く通らない
 
+### 自己レビュー 2回目（差分 39ba6e6..98b02f3）
+
+| 指摘 | 扱い |
+|---|---|
+| 1. ワークフローに `est_output`・`spent` の入力が無く、Actions から submit が必ず止まる（重大度 高） | 直す（下の「レビュー後の直し」）。2回目の後の直しなのでレビューを受けていない |
+| 2. 直下に PDF が1本でもあると zip の中の号を黙って読まない | 直す（同じ）: 混在していたら止め、読まない zip は一覧に出す |
+| 1回目の指摘 1〜8 の直し | 正しい（レビューの確かめ） |
+
+- レビュー済みの版（98b02f3）は plan・direct が動き、submit は安全側に止まる（`--est-output` が無いと送らない）。2回目の後の直しは docs/notes/self-review.md「収束」によりマージしない。98b02f3 までをマージし、cloudflare で plan と試しの1号を行う
+
 ## 報告
 
 - 状態: 対応中
@@ -115,12 +125,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj b3a20d7c）: https://github.com/retroeater/mj-logs/tree/main/guide/b3a20d7c
+ガイド文書（この版を写した時点の最新、mj f85aab70）: https://github.com/retroeater/mj-logs/tree/main/guide/f85aab70
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b3a20d7c/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b3a20d7c/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b3a20d7c/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b3a20d7c/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b3a20d7c/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b3a20d7c/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f85aab70/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f85aab70/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f85aab70/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f85aab70/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f85aab70/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f85aab70/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b3a20d7c.md
