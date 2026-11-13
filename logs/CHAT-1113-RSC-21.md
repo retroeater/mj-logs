@@ -100,7 +100,7 @@ CHAT-1113-RSC-20（中断）の再開。目的は RSC-18〜20 の指示文のと
 
 ## 報告
 
-- 状態: 中断
+- 状態: 中断 / 続き: CHAT-1113-RSC-22
 - ブランチ: work/1113-rsc（cloudflare にマージ済み。ドキュメントのみ）
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1113-RSC-21.md
 - 比較URL: なし（マージ済み）
