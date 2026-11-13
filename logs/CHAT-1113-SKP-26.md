@@ -88,15 +88,64 @@
 - なしの理由: 当たる卓なし 62・卓でない回 3・1回戦 1・2回戦 1
 - 司会・実況・解説: 599・565・568
 
+### 手順2 確かめの実行
+
+regenerate-saikyo.yml（ref cloudflare、abema dry_run、regenerate false）: run 43336583993、00:22:45Z〜00:23:21Z、success（abema success・regenerate skipped）。
+
+| 項目 | 直前の update（毎朝 11-13 04:00 JST、job 131422718015） | 今回の dry_run（job 131594184468） | 差 |
+|---|---|---|---|
+| 【2】の行 | 714（卓 647・なし 67） | 715（卓 647・なし 68） | +1（なし +1） |
+| 回が当たった卓 | 618 / 647 | 620 / 647 | +2 |
+| 2026 年度 | 33 / 35 | 35 / 35 | +2 |
+| なしの理由 | 当たる卓なし 62・卓でない回 3・1回戦 1・2回戦 1 | 当たる卓なし 63・卓でない回 3・1回戦 1・2回戦 1 | 当たる卓なし +1 |
+| 司会・実況・解説 | 599・565・568 | 601・567・570 | 各 +2 |
+| 注釈 | 新しい回: 土曜でないので確かめません（予約の起動） | 新しい回: 無し（既にある回 68-38_s26_p36 200、p37〜p42 404） | — |
+
+- 当たった卓の増加は 2 で、手順1で数えた義兄弟合戦の卓の数 2（A卓・B卓）と同じ
+- ただし【1】の 2026 の最大の回は p33（11-06 の dry_run の注釈）から p36 に進み、新しい回は p34・p35・p36 の 3 回と見られる。卓に当たったのは 2 回で、残る 1 回が「なし」（理由「当たる卓なし」）になった
+- 「最強戦」シートの 2026 の卓は 35（saikyo/2026/ の卓のページも 35）で、義兄弟合戦（2026-11-08）には A卓・B卓しか無く決勝の卓が無い。このため、なしになった 1 回は義兄弟合戦の決勝卓の回（題名「… 義兄弟合戦 決勝卓」）と推定する。【1】の題名は dry_run の出力に出ず（`print_summary()` は「なし」の回を警告の理由のときしか列挙しない）、セッションには ABEMA ブックを読む鍵が無いため、回のIDと題名は確かめていない
+- → 止まる条件「義兄弟合戦の回が「なし」に割り当たる」に当たる（推定）と判断し、手順3（update）は実行しない
+
+regenerate-page.yml（ref work/1113-skp-abema-regen、target_page saikyo_pages、check true）: run 43336776245、job 131594821316、00:24:13Z〜00:24:52Z、success。dry_run の終了（00:23:21Z）の後に始まり、並走していない。止まる条件に当たった後だが、読むだけで判断の材料になるため回した。
+
+- 注釈: 「check: 止まるページなし」（と runner の移行の notice）
+- 結果: `saikyo_pages: 通る(--check)`。止まる理由 0、`::warning::`・「警告:」の行 0
+- 動画URLのある卓 622・司会・実況・解説のある卓 615（11-06 の update 後の生成では 618・608）。【2】はまだ毎朝の版（当たった卓 618）なので、+4 の鍵は【3】に足された行から来ていると見られる。年度・対局・卓のページは 882件のままで、アマ最強位決定戦・ザ・リベンジの対局は「最強戦」シートに無い（ページが無い）。生成は【3】の行が卓に当たらなくても警告を出さない（`attach_videos()` は卓から鍵を引くだけ）ので、この 4 行はどのページにも出ない見込み
+
+## 判断待ちの理由（まとめ）
+
+1. 義兄弟合戦の新しい回は 3（p34〜p36 と推定）で、卓に当たるのは 2。残る 1 回（決勝卓と推定）は「最強戦」シートに義兄弟合戦の決勝の卓が無いため「なし」になる。止まる条件に当たるので update は実行していない
+2. アマ最強位決定戦・ザ・リベンジは、「最強戦」シートに対局が無く卓のページも無い。【3】に足された行（4 行と推定）は、update を実行してもどの卓にも当たらない見込み（止まる条件「【3】の行が卓に当たらない」に当たる見込み）
+
+どちらも「最強戦」シートの側（義兄弟合戦の決勝の卓、アマ最強位決定戦・ザ・リベンジの対局と卓）が入れば解ける形。シートに入れてから update するか、A卓・B卓だけ先に出すために今の状態で update するかは平野さんの判断。
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1113-skp-abema-regen
+- ログ: https://github.com/retroeater/mj/blob/work/1113-skp-abema-regen/docs/logs/CHAT-1113-SKP-26.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1113-skp-abema-regen
+- 確認用URL: なし
+- マージ: 未（止まる条件に当たったため、ログもマージしていない）
+- issue: なし
+- 判断が必要なこと:
+  - 義兄弟合戦（2026-11-08）: dry_run で当たった卓は +2（A卓・B卓）だが、新しい回は 3 と見られ、1 回が「なし」（当たる卓なし）になった。「最強戦」シートに義兄弟合戦の決勝の卓が無いため、決勝卓の回と推定（回のIDと題名はセッションから読めず未確認）。シートに決勝の卓を入れてから update するか、A卓・B卓だけ先に出すため今のまま update するか
+  - 全国アマチュア最強位決定戦・ザ・リベンジ: 「最強戦」シートに対局が無く、saikyo/2026/ に対局・卓のページが無い。【3】に足した行（check の数からの推定で 4 行）はどの卓にも当たらずページに出ない見込み。シートに対局・卓を入れるのが先か
+  - 指示文の冒頭の雛形の行が改行なしの1行につながって貼られていた（内容は読めた）
+- 未確認の項目:
+  - 「なし」になった 1 回の回のIDと題名（【2】の「なし」の行か【1】で確かめる）
+  - 【3】に足された行の数と鍵（推定 4 行）
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 613f050c）: https://github.com/retroeater/mj-logs/tree/main/guide/613f050c
+ガイド文書（この版を写した時点の最新、mj 9edd967e）: https://github.com/retroeater/mj-logs/tree/main/guide/9edd967e
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/613f050c/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/613f050c/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/613f050c/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/613f050c/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/613f050c/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/613f050c/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9edd967e/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9edd967e/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9edd967e/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9edd967e/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9edd967e/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9edd967e/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/613f050c.md
