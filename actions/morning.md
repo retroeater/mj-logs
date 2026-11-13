@@ -1,6 +1,6 @@
 # 朝の報告用の異常（retroeater/mj）
 
-- 書き出した時刻: 2026-11-13 21:56 JST（見た範囲: 2026-11-12 19:56 JST から）
+- 書き出した時刻: 2026-11-13 21:58 JST（見た範囲: 2026-11-12 19:58 JST から）
 - 書き出した実行の契機: workflow_dispatch（main）
 - 異常だけを書く。全体は actions/status.md。判定は mj の scripts/morning_report.py（各ワークフローの直近 100 回まで）
 
@@ -38,7 +38,6 @@
 - 2026-11-13 20:42 research-candidates.yml failure（workflow_dispatch・work/1113-rsc）ジョブ「research」 https://github.com/retroeater/mj/actions/runs/43419175939
 - 2026-11-13 21:17 research-candidates.yml failure（workflow_dispatch・cloudflare）ジョブ「research」 https://github.com/retroeater/mj/actions/runs/43423864654
 - 2026-11-13 21:54 oneoff-news-read.yml in_progress（workflow_dispatch・work/1113-nws-league） https://github.com/retroeater/mj/actions/runs/43429134232
-- 2026-11-13 21:55 check-assets.yml in_progress（push・work/1113-gdr） https://github.com/retroeater/mj/actions/runs/43429204454
 
 ## 2. 予約実行の未実行（予定から3時間以内は「遅れの可能性」。3時間を超えて始まった実行は「遅れて実行」）
 
@@ -57,4 +56,4 @@
 
 ## 5. 未報告のログ（`## 報告` の節が無い）
 
-- CHAT-1113-GDR-01.md（着手 2026-11-13） https://github.com/retroeater/mj-logs/blob/main/logs/CHAT-1113-GDR-01.md
+なし
