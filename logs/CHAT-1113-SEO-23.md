@@ -1,0 +1,74 @@
+# CHAT-1113-SEO-23
+
+- 着手日時: 2026-11-13
+- 対象issue: #458
+- ブランチ: work/1113-seo23
+- 着手時HEAD: c021605cb9
+
+## 指示
+
+【Claude作成】Claude Code 向け指示：URL 検査の残り（約400件）を取り、まとめの md を全件の数に直す（#458） Chat-Ref: CHAT-1113-SEO-23 マージ: ドキュメントのみ（ログ）なので完了報告のうえ cloudflare へ入れてよい（変えるのは docs/logs・docs/decisions と docs/gsc/ の説明・まとめの md だけ。ページ・コードは直さない） 貼る時機: 2026-11-13 の日本時間 18:35 以降（新しいセッションを推奨） 共通手順: CLAUDE.md「Chat-Ref」「ブランチ運用」「作業ログ」節のとおり（識別子確認 → origin/cloudflare を起点に work/1113-seo23〈手順は docs/notes/cloud-sessions.md〉 → ログ先行push → 最終報告の Chat-Ref の行の直前に「ログ（公開）」の行、最後の行に Chat-Ref）。平野さんは、この指示のための作業ブランチ work/1113-seo23 の作成と push を許可している（セッションに割り当てられた claude/… のブランチは使わない）。 作業ブランチ: クラウドセッションで実行する。work/1113-seo23 を使う。リモートに無ければ origin/cloudflare から作る。リモートにあってマージ済み（`git merge-base --is-ancestor origin/work/1113-seo23 origin/cloudflare` が真）なら origin/cloudflare から作る（`checkout -B` は使わない。ローカルにあるときを含め手順は docs/notes/cloud-sessions.md「作業ブランチの用意」）。マージ済みでなければ止まる 作業ブランチの片付け: 作業ブランチは削除しない。マージ済みなら cleanup-branches.yml が消す（docs/notes/cloud-sessions.md「ブランチの削除」）
+
+0. 着手前に、このログの「指示」欄の末尾が、この指示文の末尾（最後の行）と一致しているか確認し、一致しなければ作業せず報告する。あわせて、今が 2026-11-13 の日本時間 18:35 以降であることを確かめ、そうでなければ何もせず止まる。
+
+目的
+CHAT-1113-SEO-22 で上限に当たって取れなかった残り（live 325・mtsuku 62・exam 13 の約400件）を取り、`docs/gsc/inspect/` のまとめの md を全件（2,398件）の数に直す。
+決定（2026-11-13、平野さん）
+
+* （CHAT-1112-SEO-19〜CHAT-1113-SEO-22 の決定のまま）全件を取り、結果を docs/gsc/ に残す
+
+前提（チャット側。平野さんの決定ではない）
+
+* 起動: `fetch-gsc.yml` を `task=inspect`・`inspect_resume=true`・`commit=true`・ref cloudflare で起動する。約400件 × 約6.2秒で約41分の見込み。同じセッションで合計45分まで待ってよい
+* 上限は直近24時間の幅で数えている見込み（SEO-22 の推測）。18:35 以降なら確実と SEO-22 が書いている。それでも 429 の上限で止まったら、もう一度起動せず、取れた件数と時刻を書き、取れた分でまとめを直す（上限の数え方の見込みが違ったことを docs/gsc/README.md に書く）
+* 上限の数え方が確かめられたら（通った時刻・止まった時刻から）、docs/gsc/README.md の説明をその事実に合わせる
+* まとめの md は、SEO-22 の md を全件の数に直す。直し方の案の節は、数が変わる分だけ直す（案の中身は変えない）
+* 平野さんが Search Console でサイトマップの個別送信（SEO-22 の案A）をしていても、この指示の取得には関係しない
+
+手順
+
+1. 0章の確かめの後、上の前提のとおり起動し、結果（件数・所要時間・再試行の回数・エラーの件数）と CSV の全体の行数をログに書く
+2. まとめの md を直し、#458 に全件の要点（サイトマップ別の登録済みの件数）をコメントする（本文・状態・ラベルは変えない）。SEO-22 のログの `## 報告` の状態の末尾に `/ 続き: CHAT-1113-SEO-23` を足す（SEO-22 の判断待ちのうち、残りの取得の日時はこの指示で答えた。直し方の案と月1回の定期取得は、平野さんの答えの後に別の指示で決める）
+3. ログを仕上げて `git push origin work/1113-seo23:cloudflare` で入れる（push 直前の確かめは CLAUDE.md「ブランチ運用」）
+
+止まる条件
+
+* 0章の条件が満たされない（何もせず止まる）
+* 作業ブランチに docs/logs・docs/decisions・docs/gsc/ 以外の変更がある
+* cloudflare への push が権限判定で拒否された（別の手段を試さずに止まる）
+
+完了条件
+
+* ログの「## 報告」を CLAUDE.md「作業ログ」節のとおりに書いて push する
+* マージは冒頭の「マージ:」の行のとおり
+* ターミナルへの最終報告の Chat-Ref の行の直前に ログ（公開）: https://github.com/retroeater/mj-logs/blob/main/logs/CHAT-1113-SEO-23.md?v=<SHA>（CLAUDE.md「作業ログ」節）を書き、最後の行に Chat-Ref: CHAT-1113-SEO-23 を書く
+
+不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
+
+## 経過
+
+## 報告
+
+- 状態: 作業中
+- ブランチ: work/1113-seo23
+- ログ: https://github.com/retroeater/mj/blob/work/1113-seo23/docs/logs/CHAT-1113-SEO-23.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1113-seo23
+- 確認用URL: なし
+- マージ: 未
+- issue: #458
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
+
+<!-- guide-links -->
+---
+
+ガイド文書（この版を写した時点の最新、mj 7d38bc92）: https://github.com/retroeater/mj-logs/tree/main/guide/7d38bc92
+
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/7d38bc92/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/7d38bc92/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/7d38bc92/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/7d38bc92/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/7d38bc92/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/7d38bc92/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/de3fa135.md
