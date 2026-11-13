@@ -72,7 +72,7 @@ CHAT-1109-RSC-12 の判断待ち（閉じるキーワードによる誤ったク
 
 ## 報告
 
-- 状態: 完了
+- 状態: 完了 / 続き: CHAT-1113-RSC-14
 - ブランチ: work/1109-rsc（cloudflare にマージ済み）
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1109-RSC-13.md
 - 比較URL: なし（マージ済み）
@@ -86,12 +86,12 @@ CHAT-1109-RSC-12 の判断待ち（閉じるキーワードによる誤ったク
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj fc6d3da2）: https://github.com/retroeater/mj-logs/tree/main/guide/fc6d3da2
+ガイド文書（この版を写した時点の最新、mj 613f050c）: https://github.com/retroeater/mj-logs/tree/main/guide/613f050c
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/fc6d3da2/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/fc6d3da2/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/fc6d3da2/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/fc6d3da2/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/fc6d3da2/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/fc6d3da2/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/c34f62d3.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/613f050c/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/613f050c/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/613f050c/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/613f050c/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/613f050c/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/613f050c/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/613f050c.md

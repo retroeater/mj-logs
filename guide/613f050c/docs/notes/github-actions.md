@@ -92,7 +92,7 @@ GitHub Actions (`.github/workflows/regenerate-page.yml`) が、`scripts/generate
 
 - `run-weekly`: `logs`（cleanup-logs）の後に `youtube`。cleanup-logs は毎日にすると #357 に同じ一覧の通知が毎日付くので週次に残した（CHAT-1102-WKP-09）。手動実行は cleanup-logs に dry-run を渡す
 - 2026-11-03 から run-daily に移した5本: `meibo`（check-meibo）・`birthday`（sync-birthday-calendar）・`unregistered`（check-saikyo-unregistered、run-daily には regenerate-saikyo の `saikyo` があるので名前を変えた）・`xfetch`・`xconvert`。どれも変わらない日には書かない（check-meibo・check-saikyo-unregistered は問題が続くあいだ issue の本文を毎日書き換えるが、コメント・通知ではない。CHAT-1102-WKP-09 の表）。run-daily の `logs`（mj-logs の同期）はこれらの後に動く
-- `run-daily` の `xfetch`（fetch-x-posts）→ `xconvert`（convert-x-posts の all）: 「ログ」の取り込み（#367、2026-11-02 は run-weekly、2026-11-03 から run-daily）。ほかの本と並行に動き、`xconvert` は `xfetch` が失敗しても `!cancelled()` で動く（【1】にある分を変換する）。対象は `fetch_x_posts.py` の既定の2人（it_uesama・retroeater。石立岳大は対象外）、期間は【1】の人ごとの最も新しい投稿日から今まで（`--since-latest`。同じ投稿 ID は足さない）。新しい行の表示は、判定が飲食店で要確認でなければ Y。手動実行（`scheduled` なし）は両方とも dry-run（X・Claude・Places を呼ばず、シートに書かない。書くかどうかは各本の `resolve-mode` が実行サマリに出す）。費用の見込みは週に X 20〜30件（約 $0.15。毎日にしたので、最も新しい投稿日の投稿の読み直しで月に約 $0.65 増える見込み、CHAT-1102-WKP-09）・Claude 約 $0.08・Places 20〜30回（Text Search の place_id だけ、2026-10-29 から）
+- `run-daily` の `xfetch`（fetch-x-posts）→ `xconvert`（convert-x-posts の all）: 「ログ」の取り込み（#367、2026-11-02 は run-weekly、2026-11-03 から run-daily）。ほかの本と並行に動き、`xconvert` は `xfetch` が失敗しても `!cancelled()` で動く（【1】にある分を変換する）。対象は `fetch_x_posts.py` の既定の2人（it_uesama・retroeater。石立岳大は対象外）、期間は【1】の人ごとの最も新しい投稿日から今まで（`--since-latest`。同じ投稿 ID は足さない）。新しい行の表示は、判定が飲食店で要確認でなければ Y（2026-11-12 から、飲食店の行は1枚目の写真を Claude Haiku で判定し、料理・飲み物が主でない・判定できない・5項目のどれかが空なら要確認〈表示 N〉。`xconvert-issue` が常設 issue「ログ: 毎日確かめる投稿」を書く〈`upsert-issue`、1件以上で本文を書き換え・0件で閉じる。手動実行は書かない〉。docs/notes/log-page.md「新しい投稿の写真と空欄」、CHAT-1111-LGV-30）。手動実行（`scheduled` なし）は両方とも dry-run（X・Claude・Places を呼ばず、シートに書かない。書くかどうかは各本の `resolve-mode` が実行サマリに出す）。費用の見込みは週に X 20〜30件（約 $0.15。毎日にしたので、最も新しい投稿日の投稿の読み直しで月に約 $0.65 増える見込み、CHAT-1102-WKP-09）・Claude 約 $0.08・Places 20〜30回（Text Search の place_id だけ、2026-10-29 から）
 - `run-monthly`: `gsc`（fetch-gsc）→ `redirects`（fetch-redirect-counts）と、並行に `closed`（convert-x-posts の closed、#664。Secret は `LIVE_SHEETS_SA_KEY`・`SHEETS_READER_SA_KEY`・`GOOGLE_PLACES_API_KEY` だけを渡す）→ `closed-issue`（`closed` の出力 `issue_body`・`issue_close` が空でなければ、`upsert-issue` の型S で常設 issue「ログ: 確かめる投稿」を書く。1件以上なら開いて本文を書き換え、0件なら開いていればコメントして閉じる。CHAT-1107-LGV-10。`issues: write` を持つのはこの job だけで、`convert-x-posts.yml` に持たせない〈入れ子では呼ぶ側の job も同じ権限が要り、`run-daily` の `xconvert` に足すことになるため〉）。手動実行では `gsc` を飛ばす（commit を外しても robots.txt に差分があれば #304 にコメントするため）。`redirects`・`closed`・`closed-issue` は dry-run
 - `run-weekly` の `youtube`（fetch-youtube → regenerate-page）: `logs` の後に `!cancelled()` で動く（最後に regenerate-page を all で呼び重いため。毎日取り込んだ「ログ」は、ここで週1回ページに出る）。fetch-youtube に書かない道筋が無いので、手動実行（`scheduled` なし）では飛ばす。確かめは 2026-10-26 の予約の起動（CHAT-1021-WKP-03）
 - 週次の本の GitHub の `schedule`（保険）は 2026-11-01 に外した（CHAT-1101-WKP-05）。月次の2本（fetch-gsc・fetch-redirect-counts）の `schedule` は 2026-12-01 の run-monthly の成功まで保険として残り、残るあいだは fetch-redirect-counts の #568 へのコメント・fetch-gsc の robots.txt の差分の #304 へのコメントが2回になりうる
@@ -151,6 +151,7 @@ GitHub Actions (`.github/workflows/regenerate-page.yml`) が、`scripts/generate
 | `run-daily` の `unregistered` | `check-saikyo-unregistered` | contents: read・issues: write | `SHEETS_READER_SA_KEY` |
 | `run-daily` の `xfetch` | `fetch-x-posts` | contents: read | `LIVE_SHEETS_SA_KEY`・`SHEETS_READER_SA_KEY`・`X_BEARER_TOKEN` |
 | `run-daily` の `xconvert` | `convert-x-posts` | contents: read | `LIVE_SHEETS_SA_KEY`・`SHEETS_READER_SA_KEY`・`ANTHROPIC_API_KEY`・`GOOGLE_PLACES_API_KEY` |
+| `run-daily` の `xconvert-issue` | なし（`upsert-issue` で常設 issue「ログ: 毎日確かめる投稿」を書く） | contents: read・issues: write | なし |
 | `run-daily` の `sokuho` | `research-candidates`（kind D） | contents: read | `LIVE_SHEETS_SA_KEY`・`SHEETS_READER_SA_KEY`（D は Claude API を使わないので `ANTHROPIC_API_KEY` は渡さない） |
 | `run-weekly` の `youtube` | `fetch-youtube`（→ `regenerate-page`） | contents: write・issues: write | `YOUTUBE_API_KEY`・`SHEETS_READER_SA_KEY` |
 | `run-monthly` の `gsc` | `fetch-gsc` | contents: write・issues: write | `GSC_SERVICE_ACCOUNT_JSON` |
@@ -202,6 +203,7 @@ PR は SHA と版のコメントを書き換える。Dependabot security updates
 - `fetch-gsc.yml`（`scripts/fetch_gsc.py`、#269）: checkout と push 先は実行ブランチ。手動実行の既定はコミットしない（取得するだけ）。
   schedule は28〜31日 21:00 UTC に起動し、JST で1日の回だけ本体が動く（毎月1日 06:00 JST。2026-09-21 に有効にした）。
   `--plan` を付けるとAPIを呼ばずに期間と出力先だけ出せる
+  手動実行の入力 task を inspect にすると、検索パフォーマンスの代わりに URL 検査（`scripts/inspect_gsc_urls.py`、#458）を行う（入力 `inspect_*`。予約の起動・`workflow_call` は常に export）
 - `check-assets.yml` は Cloudflare へのアクセスを要しない検査専用
 - **待機は上限15分。** ワークフロー・check-run・ビルド・デプロイなど外部の状態を、sleep を挟んで繰り返し確かめる「待機」は、始めてから15分で打ち切る（until ループなど上限の無い待機は使わない）。打ち切ったらその時点の状態をログに書き、確かめられなかったことを「未確認の項目」に回して先へ進む。テスト・生成・取得など、自分のコマンドが処理を進めている「実行」はこの上限の対象ではない（進み具合が出力に出るようにする）
 

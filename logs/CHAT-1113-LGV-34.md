@@ -54,29 +54,35 @@ CHAT-1113-LGV-33 で作業ブランチに入れた駅の取り方の直し（案
   - `git diff origin/cloudflare...HEAD -- scripts/ .github/`: scripts/convert_x_posts.py（`PROMPT` の stations の行と `簡略化:` のコメント）・scripts/tests/test_convert_x_posts.py（検査1本）の +6/-1 だけ。.github は差なし
   - `python3 -m unittest discover -s scripts/tests`: OK
   - 未マージの work/ ブランチで、convert_x_posts.py・test_convert_x_posts.py・docs/notes/log-stations.md を変えているものは無い
+- 手順2: push 直前に再 fetch し `git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめて `git push origin work/1113-lgv-station:cloudflare`（e614708bf..9e3706da1）
+  - 9e3706da1 の check-run: Workers Builds: mj・mj-ask・mj-scheduler いずれも success。本番ビルド失敗の検知（check_run）3回は skipped（失敗が無いため）。push で走るほかのワークフローは無し
+  - check-run の成功は Workers Builds のビルドの成否で、本番の見え方は確かめていない。今回の変更は変換のスクリプト（公開対象外の scripts/）だけで、ページの生成物は変わらない
+  - マージの後に最初に動く毎朝の変換: 2026-11-14 04:00 JST（Worker の起動の表で run-daily.yml → convert-x-posts.yml、mode all）。この回で【2】に無い新しい投稿から直したプロンプトで変換される
+- 手順3: 「種類:」のラベルは「種類: 常設」（常設の通知 issue 用）の1つしか無い。同じような未着手の機能の課題（#665 ジャンルを付ける・#664 など）には種類のラベルが付いていない → #681 から「種類: 常設」だけ外した（残り: 状況: 保留・分野: 整理・保守・対象: resource_logs）
+- LGV-32・33 の状態を「完了」に直した（続きの印は残した）。決定を docs/decisions/operations.md に足した
 
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1113-lgv-station
 - ログ: https://github.com/retroeater/mj/blob/work/1113-lgv-station/docs/logs/CHAT-1113-LGV-34.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1113-lgv-station
 - 確認用URL: なし
-- マージ: 未
-- issue: #681
+- マージ: 済（9e3706da1。この後のログ・決定の追いの push も cloudflare へ）
+- issue: #681（「種類: 常設」を外した）、#679
 - 判断が必要なこと: なし
-- 未確認の項目: なし
+- 未確認の項目: 直したプロンプトでの本番の変換（最初は 2026-11-14 04:00 JST の毎朝の変換）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 9e3706da）: https://github.com/retroeater/mj-logs/tree/main/guide/9e3706da
+ガイド文書（この版を写した時点の最新、mj 613f050c）: https://github.com/retroeater/mj-logs/tree/main/guide/613f050c
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9e3706da/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9e3706da/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9e3706da/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9e3706da/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9e3706da/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9e3706da/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/6411ba6d.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/613f050c/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/613f050c/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/613f050c/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/613f050c/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/613f050c/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/613f050c/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/613f050c.md
