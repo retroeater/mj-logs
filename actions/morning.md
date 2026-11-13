@@ -1,6 +1,6 @@
 # 朝の報告用の異常（retroeater/mj）
 
-- 書き出した時刻: 2026-11-13 20:29 JST（見た範囲: 2026-11-12 18:29 JST から）
+- 書き出した時刻: 2026-11-13 20:41 JST（見た範囲: 2026-11-12 18:41 JST から）
 - 書き出した実行の契機: workflow_dispatch（main）
 - 異常だけを書く。全体は actions/status.md。判定は mj の scripts/morning_report.py（各ワークフローの直近 100 回まで）
 
@@ -32,6 +32,9 @@
 - 2026-11-13 15:33 update-sns-book.yml failure（workflow_dispatch・cloudflare）ジョブ「update」 https://github.com/retroeater/mj/actions/runs/43379515995
 - 2026-11-13 17:30 research-candidates.yml failure（workflow_dispatch・work/1113-rsc）ジョブ「research」 https://github.com/retroeater/mj/actions/runs/43393805625
 - 2026-11-13 20:06 fetch-gsc.yml in_progress（workflow_dispatch・cloudflare） https://github.com/retroeater/mj/actions/runs/43414332570
+- 2026-11-13 20:40 check-assets.yml in_progress（push・work/1113-skp-retro） https://github.com/retroeater/mj/actions/runs/43418952874
+- 2026-11-13 20:40 check-build-failure.yml in_progress（check_run・cloudflare） https://github.com/retroeater/mj/actions/runs/43418998618
+- 2026-11-13 20:41 update-sns-book.yml in_progress（workflow_dispatch・cloudflare） https://github.com/retroeater/mj/actions/runs/43419008007
 
 ## 2. 予約実行の未実行（予定から3時間以内は「遅れの可能性」。3時間を超えて始まった実行は「遅れて実行」）
 
@@ -47,4 +50,4 @@
 
 ## 5. 未報告のログ（`## 報告` の節が無い）
 
-なし
+- CHAT-1113-SKP-36.md（着手 2026-11-13） https://github.com/retroeater/mj-logs/blob/main/logs/CHAT-1113-SKP-36.md

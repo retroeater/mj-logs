@@ -95,7 +95,7 @@ Chat-Ref: CHAT-1113-SKP-35
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1113-SKP-36
 - ブランチ: work/1113-skp-retro
 - ログ: https://github.com/retroeater/mj/blob/work/1113-skp-retro/docs/logs/CHAT-1113-SKP-35.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1113-skp-retro
