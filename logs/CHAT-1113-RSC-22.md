@@ -92,7 +92,7 @@ CHAT-1113-RSC-21（中断）の再開。目的は RSC-18〜21 の指示文のと
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1113-RSC-23
 - ブランチ: work/1113-rsc（cloudflare にマージ済み。ドキュメントのみ）
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1113-RSC-22.md
 - 比較URL: なし（マージ済み）
@@ -108,12 +108,12 @@ CHAT-1113-RSC-21（中断）の再開。目的は RSC-18〜21 の指示文のと
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 33eaba88）: https://github.com/retroeater/mj-logs/tree/main/guide/33eaba88
+ガイド文書（この版を写した時点の最新、mj 06a55663）: https://github.com/retroeater/mj-logs/tree/main/guide/06a55663
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/33eaba88/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/33eaba88/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/33eaba88/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/33eaba88/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/33eaba88/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/33eaba88/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/06a55663/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/06a55663/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/06a55663/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/06a55663/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/06a55663/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/06a55663/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b3a20d7c.md

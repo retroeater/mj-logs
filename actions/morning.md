@@ -1,6 +1,6 @@
 # 朝の報告用の異常（retroeater/mj）
 
-- 書き出した時刻: 2026-11-13 17:28 JST（見た範囲: 2026-11-12 15:28 JST から）
+- 書き出した時刻: 2026-11-13 17:31 JST（見た範囲: 2026-11-12 15:31 JST から）
 - 書き出した実行の契機: workflow_dispatch（main）
 - 異常だけを書く。全体は actions/status.md。判定は mj の scripts/morning_report.py（各ワークフローの直近 100 回まで）
 
@@ -35,7 +35,7 @@
 - 2026-11-13 16:02 oneoff-news-read.yml failure（workflow_dispatch・work/1113-nws）ジョブ「read」 https://github.com/retroeater/mj/actions/runs/43382823289
 - 2026-11-13 16:41 oneoff-news-read.yml cancelled（workflow_dispatch・work/1113-nws）ジョブ「read」 https://github.com/retroeater/mj/actions/runs/43387550650
 - 2026-11-13 17:24 oneoff-news-read.yml in_progress（workflow_dispatch・cloudflare） https://github.com/retroeater/mj/actions/runs/43392968392
-- 2026-11-13 17:27 regenerate-saikyo.yml in_progress（workflow_dispatch・cloudflare） https://github.com/retroeater/mj/actions/runs/43393350666
+- 2026-11-13 17:30 research-candidates.yml in_progress（workflow_dispatch・work/1113-rsc） https://github.com/retroeater/mj/actions/runs/43393805625
 
 ## 2. 予約実行の未実行（予定から3時間以内は「遅れの可能性」。3時間を超えて始まった実行は「遅れて実行」）
 
