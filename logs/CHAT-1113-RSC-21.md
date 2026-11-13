@@ -53,28 +53,79 @@ CHAT-1113-RSC-20（中断）の再開。目的は RSC-18〜20 の指示文のと
 
 ## 経過
 
+- 着手前の確認:
+  - 同じ Chat-Ref のコミット・ログは無い。`RSC` は続き（21）
+  - 作業ブランチ: origin/work/1113-rsc は origin/cloudflare の祖先（マージ済み）。`git merge --ff-only origin/cloudflare` で進めた（f85aab70f）
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 欠けなし
+- 0.: 「指示」欄の末尾は指示文の最後の行と一致。CHAT-1113-RSC-20 の `## 報告` の状態を「中断 / 続き: CHAT-1113-RSC-21」にした
+- RSC-18 の手順3: docs/decisions の記録は RSC-18〜20 で済み。docs/notes の1文は「書けた後」の決まりなので、まだ書いていない
+
+### 1. #630
+
+- 状態は Open。最後のコメントは、このセッションの RSC-20 の着手中（終わった指示のもの）
+- 着手中をコメントした（issuecomment-6846598244）
+
+### 2. dry-run（cloudflare、run 43383636129）
+
+- 候補タブ: 428行・見出し 一致
+- 「別名」で直した選手: 1名（河合保国 → 河井保国）。「河井保国」の重複の警告は消えた
+- 年度ごとの数の 2013 は、照合済み 6・未照合 0・当たらない 20。RSC-16 では 5・1・20 で、2013 全日本が照合済みになった。この卓は RSC-16 の旧公式の行（未照合）があるので「書く行」には入らない（見込みのとおり）
+- 「書く行」は8件で、8件とも照合済み。見込み（名前の書き方が違う5卓と、キーの変わった3卓）の外の卓は無い:
+
+| 対象キー | 候補 | 確度 | 見込みの中の何か |
+|---|---|---|---|
+| 2018-06-30 男子プレミアトーナメント 天鳳ニューパワー ベスト16 | 1位 朝倉康心・2位 山田独歩・3位 ゆうせー・4位 木原浩一 | 照合済み | 名前の書き方（独歩） |
+| 2016-05-21 著名人代表決定戦 決勝 | 1位 堀江貴文・2位 加賀まりこ・3位 たかし・4位 本郷奏多 | 照合済み | 名前の書き方（トレンディエンジェルたかし） |
+| 2015-06-13 女流プロ代表決定戦菊の陣 決勝 | 1位 和泉由希子・2位 松岡千晶・3位 愛内よしえ・4位 波奈美里 | 照合済み | 名前の書き方（井上美里） |
+| 2014-05-17 著名人代表決定戦 風神編 決勝 | 1位 萩原聖人・2位 加藤哲郎・3位 ビッグダディ・4位 勝間和代 | 照合済み | 名前の書き方（林下清志〈ビッグダディ〉）と、キーの変更 |
+| 2014-08-09 著名人代表決定戦 雷神編 決勝 | 1位 藤田晋・2位 片山まさゆき・3位 じゃい・4位 金子昇 | 照合済み | キーの変更 |
+| 2014-09-21 全日本プロ代表決定戦（女流） 決勝 | 1位 波奈美里・2位 美波智子・3位 菅原千瑛・4位 稲毛千佳子 | 照合済み | 名前の書き方（井上美里） |
+| 2013-08-17 著名人代表決定戦 雷神編 決勝 | 1位 金子昇・2位 先崎学・3位 片山まさゆき・4位 上田浩二郎 | 照合済み | キーの変更 |
+| 2013-05-18 著名人代表決定戦 風神編 決勝 | 1位 じゃい・2位 木谷高明・3位 加藤鷹・4位 植田佳奈 | 照合済み | キーの変更 |
+
+- 名前の警告が1行出た（実行のログ）:
+
+```
+警告: 「別名」の行を使いません(変換前が「プロ」か「連盟プロ以外」にあります): 石渡正譲 → 石渡正志
+```
+
+  - RSC-20 の dry-run（run 43378528812）には無く、その後に「別名」か「プロ」「連盟プロ以外」に入った変更と見込む（ほかの作業。誰のものかはここから分からない）
+  - 8件の卓の選手に「石渡」は無い。RSC-14 の B の dry-run の 2011〜2018年度の卓の表にも無い。8件の行には関わらない
+  - それでも、止まる条件（名前の警告が出る）に当たる。書く前に止まった。本実行はしていない（候補タブに書いていない）。#630 の要約のコメントも書いていない
+- 差分は、このログ・RSC-20 のログの状態の行・`docs/decisions/automation.md` だけ
+
+### マージ
+
+- ドキュメントのみ。`git push origin work/1113-rsc:cloudflare` で入れた。push 直前に再 fetch して `merge-base --is-ancestor` を確かめ、範囲のコミットの件名・本文に閉じるキーワードの直後の `#番号` が無いことも確かめた。この行を含むコミットが範囲の終わり
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1113-rsc
-- ログ: https://github.com/retroeater/mj/blob/work/1113-rsc/docs/logs/CHAT-1113-RSC-21.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1113-rsc
+- 状態: 中断
+- ブランチ: work/1113-rsc（cloudflare にマージ済み。ドキュメントのみ）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1113-RSC-21.md
+- 比較URL: なし（マージ済み）
 - 確認用URL: なし
-- マージ: 未
-- issue: #630
-- 判断が必要なこと: 作業中
-- 未確認の項目: 作業中
+- マージ: 済み（ドキュメントのみ。範囲は「マージ」の行）
+- issue: #630（着手中のコメント。Open のまま）
+- 判断が必要なこと:
+  1. 名前の警告「石渡正譲 → 石渡正志」の扱い。「別名」の変換前「石渡正譲」が「プロ」か「連盟プロ以外」にもあるので、その別名の行が使われていない。書く8件には関わらない
+     - 案A（推奨）: この警告は今回の書き込みに関わらないとして、8件を書く。次の指示で「名前の警告は書く卓の選手に関わるものだけで止まる」とする
+     - 案B: 先に「別名」か名前の辞書を直してから、dry-run をやり直す
+  2. 書けた後の平野さんの手作業（今はまだ）:
+     - 「別名」から2行（トレンディエンジェルたかし・林下清志（ビッグダディ））を消す
+     - 候補タブで、RSC-16 が古いキーで書いた3行を「却下」にする: `2014-08-09 著名人代表決定戦雷神編 決勝`・`2013-08-17 著名人代表決定戦雷神編 決勝`・`2013-05-18 著名人代表決定戦風神編 決勝`（2014-05-17 風神編は RSC-16 で当たらず、書いていないので行は無い）
+- 未確認の項目: 「石渡正譲 → 石渡正志」の行と、「石渡正譲」の登録は、誰が・どの作業で入れたか
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj f85aab70）: https://github.com/retroeater/mj-logs/tree/main/guide/f85aab70
+ガイド文書（この版を写した時点の最新、mj c39047e0）: https://github.com/retroeater/mj-logs/tree/main/guide/c39047e0
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f85aab70/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f85aab70/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f85aab70/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f85aab70/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f85aab70/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f85aab70/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c39047e0/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c39047e0/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c39047e0/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c39047e0/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c39047e0/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c39047e0/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b3a20d7c.md
