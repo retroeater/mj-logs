@@ -58,6 +58,26 @@ URL 検査を月1回の定期取得にするため、1回の対象を 1日の上
 
 ## 経過
 
+### 0. 着手前の確認
+
+- 指示欄の末尾は指示文の最後の行と一致。同じ Chat-Ref のコミット0件。SEO 系列の続きで識別子の重複確認は対象外。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は全部ある
+- #458 は open。着手中コメントを付けた
+- 0章ゲート（実装を含む）: 未マージの work/ ブランチで `scripts/inspect_gsc_urls.py`・`scripts/tests/test_inspect_gsc_urls.py`・`.github/workflows/fetch-gsc.yml`・`.github/workflows/run-monthly.yml`・`docs/gsc/README.md` を変えるものは無し（`git branch -r --no-merged origin/cloudflare` の各ブランチと `git diff --stat`）。`work/1112-seo19`・`seo21` はリモートに残るがマージ済み。CLAUDE.md 23,972バイト・handover.md 24,511バイトで警告域（26KB）の外
+- `docs/notes/github-actions.md`「ワークフローを変更したとき」を読んだ（マージ前に作業ブランチで手動実行）
+- 作業ブランチ: `git checkout -b work/1113-seo24 origin/cloudflare`（f485375049）
+
+### 1. 実装
+
+- スクリプト `--monthly`: `sitemap_lastmods()`（子サイトマップの lastmod）・`result_files()`（`<取得の開始日>.csv`、`-urls.csv` を除く。`latest_csv()` もこれを使う）・`previous_results()`（全ファイルから inspected_at の最も新しい行）・`monthly_rank()`・`monthly_order()`・`monthly_summary()` を足した。上限と、同じ出力先で取った URL を飛ばすのは既存の `pending()` のまま。`--monthly` と `--url` は同時に使えない（argparse のエラー）。`--monthly --resume` はいちばん新しいファイルの続きになる（翌日の続きに使える）
+- 登録済みの判定は **`verdict` == PASS**。全件の CSV で PASS 890件と「送信して登録されました」890件が一致し、`coverageState` は languageCode（ja）で文言が変わるため、言語によらない verdict にした
+- lastmod の比べ: lastmod（YYYY-MM-DD）> 前回の inspected_at の日付（UTC）。同じ日は更新とみなさない（`簡略化:` のコメントを残した）
+- ワークフロー: task に `inspect-monthly`、入力 `inspect_plan` を足した。`workflow_call` に `task`（既定 export、type string）。TASK の式を `inputs.task || 'export'` にした（schedule は inputs が空で export、run-monthly からの呼び出しは task を渡さないので既定の export で、今と同じ）。URL 検査の手順は、空の入力（workflow_call では inspect_* が無い）を渡さずスクリプトの既定を使う形にした。export の手順（取得・robots.txt の通知）の条件は変えていない
+- テスト: `MonthlyTest` 5本（lastmod の読み・前回の結果の選び〈-urls を読まない・古いファイルに足した新しい行を採る〉・順位の判定〈同じ日の lastmod〉・並び〈順位・サイトマップの並び・登録済みは古い順・外れた URL を入れない・上限と取った URL を飛ばす〉・内訳の行）。新しいテストは旧コードに無い関数を使うので、旧コードでは通らない
+- `python3 -m unittest discover -s scripts/tests` → Ran 2157 tests, OK
+- コンテナで `python3 scripts/inspect_gsc_urls.py --monthly --plan`（API は呼ばない）: 対象 2,406件、今回 1,900件。1. 新しい 0/0・2. 未登録 1,516/1,516・3. 更新 369/369・4. 登録済み 521件のうち 15件
+- docs/gsc/README.md に月次の選び方を足した。docs/decisions/seo-bing.md に決定（exam の事実を添えた）
+- 作業ブランチで手動実行（task=inspect-monthly・inspect_plan=true・commit=false）→ 実行 43423093725（12:11:37Z）
+
 ## 報告
 
 - 状態: 作業中
