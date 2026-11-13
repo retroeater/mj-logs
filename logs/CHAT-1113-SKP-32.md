@@ -52,15 +52,80 @@ SKP-31 の全ページの再生成（8d06eb325）で、「最強戦」シート�
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 着手前の確認
+
+- 0: 「指示」欄の末尾は指示文の最後の行と一致。CHAT-1113-SKP-31 のログの `## 報告` の状態を「判断待ち / 続き: CHAT-1113-SKP-32」にした（同じコミット）
+- 同じ Chat-Ref のコミット: 無し。issue: なし
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 4つとも有る
+- 作業ブランチ: work/1113-skp-abema-rekey はローカル・リモートとも無かったので origin/cloudflare（33eaba885）から作った
+
+### 手順1 下ごしらえ
+
+- 全ワークフローの実行中・待機中（REST の `actions/runs?status=in_progress・queued・waiting・requested`、絞らず）: 07:48Z に別のセッションの「連盟ニュースの読み取り(一度きり)」（work/1113-nws）が実行中だったので、終わるまで待った（10 秒ごとに見て 07:59:38Z に 0 件。待ちは約 11 分）
+- 本番の 12 ページ（`.html?v=skp32a`、UA mj-internal、07:48Z）: すべて HTTP 200 で、「▶ 再生」なし・「司会・実況・解説」の節なし（SKP-31 の「後退」のまま）
+
+### 手順2 反映
+
+regenerate-saikyo.yml（ref cloudflare、abema update、regenerate true）: run 43389752968、07:59:46Z〜08:01:45Z、success（abema job 131766590824・regenerate / regenerate job 131766803223）。起動の直前（07:59:42Z）に全ワークフローの実行中 0 を確かめた。
+
+| 項目 | SKP-31 の dry_run（run 43385475849） | 今回の update | 差 |
+|---|---|---|---|
+| 【2】の行 | 721（卓 654・なし 67） | 721（卓 654・なし 67） | 0 |
+| 回が当たった卓 | 621 / 654 | 621 / 654 | 0 |
+| 年度ごと | 2013 20/27・2014 29/29（ほかも同じ） | 同じ（2011 14/23 … 2026 36/42） | 0 |
+| なしの理由 | 当たる卓なし 62・卓でない回 3・1回戦 1・2回戦 1 | 同じ | 0 |
+| 司会・実況・解説 | 602・568・571 | 602・568・571 | 0 |
+
+- 「【2】最強戦 を書きました。【3】手動補正: 入力あり(書いていません)」。注釈: 新しい回: 無し（既にある回 p36 200、p37〜p42 404）
+- regenerate: 動画URLのある卓 627・司会・実況・解説のある卓 620（SKP-28 の check と同じ。卓に当たらない【3】の行は 2 のまま〈ザ・リベンジの分と推定〉）。警告 4 件（アマ最強位決定戦 A〜D卓のライブ枠、既知）。年度・対局・卓のページ 891件。コミット 91b32f81b を cloudflare に push
+- 止まる条件（数が dry_run と違う）に当たらない
+
+再生成のコミット 91b32f81b（39 ファイル、すべて変更）の分類:
+
+| 分類 | ファイル | 件数 | 中身 |
+|---|---|---:|---|
+| 12ページと関連のカードの戻り | 2013・2014 の著名人代表決定戦の卓のページ 12 件 | 12 | 「▶ 再生」・見出しの画像・og:image・司会・実況・解説の節・ページ内の 2013・2014 の回のサムネイルの数が、0db0751a6 の生成物と同じに戻った（下の表） |
+| 12ページと関連のカードの戻り | ほかの卓のページ 26 件 | 26 | 差分の行はすべて「作品の画像（series/68-38）→ 2013・2014 の回のサムネイル（68-38_s13_p*・s14_p*）」の置き換えだけ（機械で照合、型に合わない行 0） |
+| シート側のほかの変化 | saikyo/players/index.html | 1 | 選手のデータ（`saikyo_players_data`）はキーごとに比べて差 0。`saikyo_aliases` から「トレンディエンジェルたかし → たかし」「林下清志（ビッグダディ） → ビッグダディ」の 2 件が消えた（「別名」シートの側の直し。SKP-29 で増えた 2 件で、ほかのセッションの #682 の回答〈832532458 など〉と見られる） |
+| 説明できない | なし | 0 | — |
+
+- カードのサムネイル: コミット全体で「作品の画像」が 110 か所消え、2013・2014 の回のサムネイルが 110 か所増えた。8d06eb325 で消えた 2013・2014 の回のサムネイル 110 か所・増えた作品の画像 110 か所と同じ数で、すべて戻った（SKP-31 のログの「98 か所」はサブエージェントの数え方〈一部の行だけ〉で、全体は 110）
+- sitemap-saikyo.xml は変わっていない（変わったページの lastmod は 8d06eb325 で既に 2026-11-13）
+
+### 手順3 本番の確かめ
+
+本番（`.html?v=skp32c`、UA mj-internal、Workers Builds の success〈08:02:45Z〉の後）。1 回目（`?v=skp32b`）はビルド中で 4 ページが古い版だったので、ビルドの終わりを待って読み直した。
+
+| ページ | HTTP | 本番と 91b32f81b | 「▶ 再生」 | 見出しの画像・og:image | 司会・実況・解説 | 0db0751a6 と |
+|---|---|---|---|---|---|---|
+| 2013/20130518-s1-a.html | 200 | バイト一致 | 68-38_s13_p5 | p5 | あり | 同じ |
+| 2013/20130518-s1-b.html | 200 | バイト一致 | 68-38_s13_p6 | p6 | あり | 同じ |
+| 2013/20130518-s2.html | 200 | バイト一致 | 68-38_s13_p7 | p7 | あり | 同じ |
+| 2013/20130817-s1-a.html | 200 | バイト一致 | 68-38_s13_p15 | p15 | あり | 同じ |
+| 2013/20130817-s1-b.html | 200 | バイト一致 | 68-38_s13_p16 | p16 | あり | 同じ |
+| 2013/20130817-s2.html | 200 | バイト一致 | 68-38_s13_p17 | p17 | あり | 同じ |
+| 2014/20140517-s1-a.html | 200 | バイト一致 | 68-38_s14_p7 | p7 | あり | 同じ |
+| 2014/20140517-s1-b.html | 200 | バイト一致 | 68-38_s14_p8 | p8 | あり | 同じ |
+| 2014/20140517-s2.html | 200 | バイト一致 | 68-38_s14_p9 | p9 | あり | 同じ |
+| 2014/20140809-s1-a.html | 200 | バイト一致 | 68-38_s14_p16 | p16 | あり | 同じ |
+| 2014/20140809-s1-b.html | 200 | バイト一致 | 68-38_s14_p17 | p17 | あり | 同じ |
+| 2014/20140809-s2.html | 200 | バイト一致 | 68-38_s14_p18 | p18 | あり | 同じ |
+
+- 「0db0751a6 と同じ」: 「▶ 再生」の URL・見出しの画像・og:image・司会・実況・解説の節の有無・ページ内の 2013・2014 の回のサムネイルの数を比べた（対局名の空白の違いは比べていない）
+- 12 回の見出しのサムネイル（1280×720）はすべて HTTP 200
+- 戻らない卓: なし。確かめたのは本番の HTML と画像の応答まで
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 33eaba88）: https://github.com/retroeater/mj-logs/tree/main/guide/33eaba88
+ガイド文書（この版を写した時点の最新、mj 743a3947）: https://github.com/retroeater/mj-logs/tree/main/guide/743a3947
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/33eaba88/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/33eaba88/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/33eaba88/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/33eaba88/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/33eaba88/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/33eaba88/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/743a3947/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/743a3947/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/743a3947/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/743a3947/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/743a3947/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/743a3947/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b3a20d7c.md

@@ -129,6 +129,35 @@ CHAT-1113-NWS-01（判断待ち）の続き。読めなかった28本を含む56
 | 1回目の 1〜5 の直し | 正しい（レビューの確かめ） |
 | 6. 読まないファイルの名前を全部、ジョブのログと実行サマリに出すようになった（件数も2回出る） | 見送り（2回目の後の直しはマージしない、docs/notes/self-review.md「収束」）。読む・送る・費用には関わらない（出すのはファイル名だけで、中身・ID・記事の文章は出ない）ので、0c5c511 をマージの候補にした。`## 報告` の「判断が必要なこと」に書く |
 
+### plan（作業ブランチの 0c5c511、run 43388103287。b86def3 の run 43387550650 は 0c5c511 の plan と重なるので途中で取り消した）
+
+- poppler: ランナーには `pdftoppm`・`pdfimages` が無く、ワークフローが `poppler-utils` を入れた（そのステップ 9秒）
+- 開いた zip: `drive-download-20261113T062532Z-1-001.zip` の1つだけ。読まない（ダウンロードしない）ファイル: 2件（スライドの PDF と X のアーカイブの zip）
+- 号: 56本すべて読めた（574ページ、切り出し 2,296枚。切り出しはどれも横 1,354px・縦 1,914〜1,918px、JPEG の合計 735,625KB）
+- 入力トークン（count_tokens、号ごとの1ページ目×ページ数）: 9,129,470。見込み（Batch、出力 4,000/ページ）$41.22 / 最大（出力 16,000/ページ）$110.10 / 通常の API なら見込み $82.44
+
+| 号 | ページ数 | 描いた画像の寸法(ページ数) | 拡大の倍率(ページ数) |
+|---|---:|---|---|
+| 200101_001・200102_002 | 各8 | 1239×1754 | 2.05倍 |
+| 200104_003〜200207_015・200210_017〜200305_023（20本） | 各8 | 1193×1689 | 2.13倍 |
+| 200208_016 | 8 | 1205×1706(3)・1203×1703(2)・1199×1697(1)・1200×1699(1)・1204×1704(1) | 2.11倍(3)・2.12倍(5) |
+| 200306_024・200307_025 | 各8 | 1240×1755 | 2.05倍 |
+| 200308_026 | 8 | 1240×1755(6)・1239×1754(2) | 2.05倍 |
+| 200310_027・200311_028 | 各12 | 1240×1755 | 2.05倍 |
+| 200312_029・200401_030・200402_031・200403_032・200406_034・200407_035・200408_036 | 各12 | 1239×1754 | 2.05倍 |
+| 200405_033 | 14 | 1239×1754 | 2.05倍 |
+| 200410_037・200411_038（3枚に分かれた号）・200412_039〜200508_046・200512_049〜200609_057（200608_056 を含む） | 各12 | 1591×2252 | 1.60倍 |
+| 200511_048 | 16 | 1591×2252 | 1.60倍 |
+
+（号ごとの全件は run 43388103287 のジョブのログにある。上の表は同じ値の号をまとめた）
+- 描いた縦が元の画像より長い（1591×2142 の画像 → 1591×2252）のは、ページの枠が画像より縦に長いため（余白が付く）
+
+### マージ（743a394）
+
+- `origin/cloudflare` を再び取り込んだ（衝突なし）。`git merge-base --is-ancestor origin/cloudflare HEAD` が真、試験 OK。`git push origin work/1113-nws:cloudflare` → `91b32f8..743a394`
+- 差分（origin/cloudflare...HEAD）: ワークフロー・スクリプト・試験・docs/notes/github-actions.md の1行・docs/decisions/automation.md・ログだけ（7ファイル）。ページ・生成物・ほかのワークフローは変えていない
+- マージした版のコードは 0c5c511（レビュー2回）。2回目のレビューの指摘6（読まないファイルの名前をログに出す）は直していない
+
 ## 報告
 
 - 状態: 対応中
@@ -145,12 +174,12 @@ CHAT-1113-NWS-01（判断待ち）の続き。読めなかった28本を含む56
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 33eaba88）: https://github.com/retroeater/mj-logs/tree/main/guide/33eaba88
+ガイド文書（この版を写した時点の最新、mj 743a3947）: https://github.com/retroeater/mj-logs/tree/main/guide/743a3947
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/33eaba88/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/33eaba88/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/33eaba88/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/33eaba88/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/33eaba88/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/33eaba88/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/743a3947/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/743a3947/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/743a3947/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/743a3947/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/743a3947/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/743a3947/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b3a20d7c.md
