@@ -52,6 +52,40 @@ CHAT-1113-RSC-15 の判断待ち1への回答を入れ、最強戦の過去の�
 
 ## 経過
 
+- 着手前の確認: 同じ Chat-Ref のコミット・ログなし。`RSC` は続き（16）。作業ブランチ: origin/work/1113-rsc は origin/cloudflare の祖先（マージ済み）なので `git merge --ff-only origin/cloudflare` で進めた（e2a89a973）
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 欠けなし
+- 0.: 「指示」欄の末尾は指示文の最後の行と一致。CHAT-1113-RSC-15 の `## 報告` の状態を「判断待ち / 続き: CHAT-1113-RSC-16」にした
+
+### 1. 着手前の確かめ
+
+- #630: Open。他のセッションの着手中のコメントなし（最後の2件はこのセッションの RSC-15）。着手中をコメントした（issuecomment-6842550325）
+- 未マージの `work/` ブランチ: `scripts/research_candidates.py` を変えるものは無い
+
+### 2. 実装（63a994b4c・自己レビューの修正）
+
+- (a) `OFFICIAL_PAGES` に 2013〜2018年度の6ページを足した（2016年度は `/schedule2016/`）。計9ページ
+- (b) `OFFICIAL_RESULTS` を見出しの並び（「対局結果」「全体予選」）にした。ページに両方あれば「対局結果」から読むので、2019〜2021年度の読み方は変わらない
+- (c) 対局の区切りの日付 `OFFICIAL_DATE` に「4月13日（土）」の形を足した
+- (d) 当て方（`official_match`）は変えていない
+- (e) 試験: 2013・2015・2018年度の行の写しを固定の資料にした（`SCHEDULE_HTML_2013` など）。次を確かめる:
+  - 見出し・卓の字・順位の読み取り
+  - 3人だけ重なる別の対局は当たらない（2014 新鋭のベスト8 A卓と 2013 新鋭の決勝）
+  - 見出しが両方あるときは「対局結果」から読む
+  - 9ページを読み、5秒ずつ待つ
+  - 新しい試験のうち2本は、修正前のコード（origin/cloudflare の版）で落ちることを確かめた。全体は 2140件 OK
+- docs: `docs/notes/research-candidates.md` の「B の旧公式の結果一覧」の節を直した。決定は `docs/decisions/automation.md` に記録した
+- ワークフローは変えていない。`research-candidates.yml` の冒頭のコメントと、入力 `source` の説明には「3ページ」「2019〜2021年度」と古いまま書かれている（止まる条件に従って変えていない。「判断が必要なこと」）
+
+### 自己レビュー（docs/notes/self-review.md）
+
+| 回 | 対象 | 指摘 | 対応 |
+|---|---|---|---|
+| 1 | 63a994b4c | 中: 2014年度のページで3行が「、」区切り（「1位：藤田晋、2位：…」）。名前が行末まで続いて読み飛ばされる | 名前の文字クラスに「、」を足し、試験を足した。2014年度の行が 24 → 27。RSC-15 で残したページの写しで当てた数は変わらない（照合済み 54・未照合 2） |
+| 1 | 63a994b4c | 低（指摘ではない）: 2019〜2021年度の本文に「n月n日」で始まる行があると、見出し（引用文）の区切りが変わる。写しが無いので確かめていない | dry-run の表で確かめる |
+| 1 | 63a994b4c | 低: 括弧付きの名前（林下清志（ビッグダディ））は当たらない | そのまま（取りこぼしで、誤りにはならない） |
+
+- 実データの確かめ: RSC-15 で残したページの写しに新しいコードを通し、250卓を当てた。照合済み 54・未照合 2・当たらない 156（2013〜2018年度の卓。シートの結果は使っていない）
+
 ## 報告
 
 - 状態: 作業中
@@ -68,12 +102,12 @@ CHAT-1113-RSC-15 の判断待ち1への回答を入れ、最強戦の過去の�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj e2a89a97）: https://github.com/retroeater/mj-logs/tree/main/guide/e2a89a97
+ガイド文書（この版を写した時点の最新、mj acf5d6ff）: https://github.com/retroeater/mj-logs/tree/main/guide/acf5d6ff
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2a89a97/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2a89a97/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2a89a97/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2a89a97/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2a89a97/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2a89a97/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/acf5d6ff/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/acf5d6ff/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/acf5d6ff/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/acf5d6ff/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/acf5d6ff/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/acf5d6ff/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a5fcf1af.md
