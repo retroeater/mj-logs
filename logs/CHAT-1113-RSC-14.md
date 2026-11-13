@@ -87,6 +87,49 @@
 - 作業ブランチでの dry-run: C（Opus・max_uses 4・min_year 0・skip_found）は対象 230 件、うち 54 件を飛ばして 176 件。B（Sonnet・2011〜2018年度・max_uses 4）は 252 件、候補タブに同じモデルの行がある2件を飛ばして 250 件
 - origin/cloudflare（0cd516841、Search Console の csv 1件）を取り込んだ。衝突なし
 
+### マージ
+
+- `git push origin work/1113-rsc:cloudflare` の範囲は `0cd516841..42ea960cc`（push 直前に再 fetch して `merge-base --is-ancestor` を確かめた。範囲のコミットの件名・本文に閉じるキーワードの直後の `#番号` なし）
+
+### B（最強戦の卓の順位、#630）: 2018年度以前の10卓を Sonnet と Opus で
+
+- 選び方: 2018年度以前の 252 卓のうち、旧公式・候補タブに行が無い卓から、年度（2012〜2018）と対局の種類（ファイナル・女流・著名人・全日本・男子予選・プレミア・鉄人、決勝とベスト8・16・32）を散らした。2011年度は RSC-04 で3卓が見つからなかったので外した
+- 実行（cloudflare、max_uses 4・max_cost 5）: Sonnet run 43337437564（10卓）。Opus run 43337927213（5卓で $5 の上限の見込みに届いて止まった。終了コード 1、途中の6卓目は書いていない）と run 43338296498（残り5卓）
+
+| モデル | 対象キー | 候補 | 確度 | 出典 | 引用文 | 費用 | 備考 |
+|---|---|---|---|---|---|---|---|
+| Sonnet | 2018-12-09 ファイナルトーナメント ベスト16 A卓 |  | 見つからない |  |  | $0.4939 | A卓で順位が分かるのは1位の片山まさゆきだけでした(キンマweb 44180の「A卓1位 片山まさゆき」)。前原雄大、鈴… |
+| Sonnet | 2018-03-10 女流プロ代表決定戦 女流王者の極 決勝 | 1位 仲田加南・2位 西嶋ゆかり・3位 山脇千文美・4位 朝倉ゆかり | 未照合 | https://mahjong-saikyosen.jimdoweb.com/schedule/2018/ | サイバーエージェント杯 女流プロ代表決定戦 女流王者の極 · 1位:仲田加南 2位:西嶋ゆかり 3位:山脇千文美 4位:… | $0.2575 | 検索結果の抜粋(コードでは本文を確かめられない。出典を開いて確かめる): 麻雀最強戦公式の2018年スケジュールページ(… |
+| Sonnet | 2017-10-21 著名人代表決定戦 豪運編 決勝 | 1位 加賀まりこ・2位 福本伸行・3位 蛭子能収・4位 たかし | 未照合 | https://mahjong-saikyosen.jimdoweb.com/schedule/2017/ | 10/21 · 著名人代表決定戦 豪運編 · 1位:加賀まりこ 2位:福本伸行 3位:蛭子能収 4位:たかし | $0.1086 | 検索結果の抜粋(コードでは本文を確かめられない。出典を開いて確かめる): web_fetch で開いた本文は途中で切れて… |
+| Sonnet | 2017-09-24 全日本プロ代表決定戦 決勝 | 1位 浅井裕介・2位 魚谷侑未・3位 三盃志・4位 石原真人 | 未照合 | https://mahjong-saikyosen.jimdoweb.com/schedule/2017/ | 9/24 · 全日本プロ代表決定戦 · 1位:浅井裕介 2位:魚谷侑未 3位:三盃志 4位:石原真人 | $0.1069 | 検索結果の抜粋(コードでは本文を確かめられない。出典を開いて確かめる): 公式サイトの2017年スケジュールページの検索… |
+| Sonnet | 2016-07-24 男子プロ代表決定戦・因縁の対決 ベスト8 A卓 |  | 見つからない |  |  | $0.4743 | キンマweb(archives/10215)を開いたが、A卓は「A卓から阿部と瀬戸熊が勝ち上がった」とあるだけで、4人の… |
+| Sonnet | 2016-05-12 プレミアトーナメント代表決定戦・豪傑大激突 ベスト32 B卓 |  | 見つからない |  |  | $0.2492 | B卓(小島・森山・鈴木・加藤)の4人の順位を書いた記事は見つからなかった。最強戦公式サイトの「1位:藤崎智 2位:森山茂… |
+| Sonnet | 2015-08-09 男子プロ代表決定戦雷神編 決勝 | 1位 瀬戸熊直樹・2位 鈴木優・3位 多井隆晴・4位 水巻渉 | 未照合 | https://mahjong-saikyosen.jimdoweb.com/schedule/2015/ | 8/9 · 男子プロ代表決定戦・雷神編 · 1位：瀬戸熊直樹 2位：鈴木優 3位：多井隆晴 4位：水巻渉 瀬戸熊直樹がフ… | $0.0529 | 検索結果の抜粋(コードでは本文を確かめられない。出典を開いて確かめる): 麻雀最強戦2015スケジュールページの予選結果… |
+| Sonnet | 2014-06-07 鉄人プロ代表決定戦 決勝 | 1位 瀬戸熊直樹・2位 荒正義・3位 小島武夫・4位 新津潔 | 未照合 | https://mahjong-saikyosen.jimdoweb.com/schedule/2014/ | 6月7日 · 鉄人プロ代表決定戦 · 1位:瀬戸熊直樹 2位:荒正義 3位:小島武夫 4位:新津潔 瀬戸熊直樹がファイナ… | $0.0988 | 検索結果の抜粋(コードでは本文を確かめられない。出典を開いて確かめる): 公式の2014年スケジュールページ(検索結果の… |
+| Sonnet | 2013-04-13 女流プロ代表決定戦 ベスト8 A卓 |  | 見つからない |  |  | $0.1638 | ベスト8 A卓の4人(魚谷・二階堂・冨本・花本)の順位を書いた記事は見つからなかった。公式スケジュールページにあるのは決… |
+| Sonnet | 2012-12-08 ファイナルトーナメント ベスト16 C卓 |  | 見つからない |  |  | $0.1543 | 3回検索したが、2012年ファイナルのベスト16 C卓の4人(鈴木たろう・前原雄大・パクジュンシク・マギー審司)の順位が… |
+| Opus | 2018-12-09 ファイナルトーナメント ベスト16 A卓 |  | 見つからない |  |  | $1.2487 | キンマwebの速報記事(44180)と観戦記(44559)は、A卓から片山まさゆきが勝ち上がった(A卓1位)ことしか書い… |
+| Opus | 2018-03-10 女流プロ代表決定戦 女流王者の極 決勝 |  | 見つからない |  |  | $0.3806 | キンマwebとABEMA TIMESの記事には仲田加南の優勝(1位)と、オーラスにトップ目の西嶋ゆかりから直撃したことし… |
+| Opus | 2017-10-21 著名人代表決定戦 豪運編 決勝 | 1位 加賀まりこ・2位 福本伸行・3位 蛭子能収・4位 たかし | 未照合 | https://mahjong-saikyosen.jimdoweb.com/schedule/2017/ | 10/21 · 著名人代表決定戦 豪運編 · 1位:加賀まりこ 2位:福本伸行 3位:蛭子能収 4位:たかし | $0.1964 | 検索結果の抜粋(コードでは本文を確かめられない。出典を開いて確かめる): 麻雀最強戦公式の2017年スケジュールページの… |
+| Opus | 2017-09-24 全日本プロ代表決定戦 決勝 | 1位 浅井裕介・2位 魚谷侑未・3位 三盃志・4位 石原真人 | 未照合 | https://mahjong-saikyosen.jimdoweb.com/schedule/2017/ | 9/24 · 全日本プロ代表決定戦 · 1位:浅井裕介 2位:魚谷侑未 3位:三盃志 4位:石原真人 | $0.1959 | 検索結果の抜粋(コードでは本文を確かめられない。出典を開いて確かめる): 麻雀最強戦公式サイトの2017スケジュールペー… |
+| Opus | 2016-07-24 男子プロ代表決定戦・因縁の対決 ベスト8 A卓 |  | 見つからない |  |  | $0.8691 | キンマweb(archives/10215)の大会記事は「A卓から阿部と瀬戸熊」が勝ち上がったことと決勝卓の点数しか書い… |
+| Opus | 2016-05-12 プレミアトーナメント代表決定戦・豪傑大激突 ベスト32 B卓 |  | 見つからない |  |  | $0.8777 | 公式サイトの2016年スケジュールには、B卓の4人の名前と決勝の順位(1位藤崎智、2位森山茂和、3位小島武夫、4位滝沢和… |
+| Opus | 2015-08-09 男子プロ代表決定戦雷神編 決勝 | 1位 瀬戸熊直樹・2位 鈴木優・3位 多井隆晴・4位 水巻渉 | 未照合 | https://mahjong-saikyosen.jimdoweb.com/schedule/2015/ | 8/9 · 男子プロ代表決定戦・雷神編 · 1位：瀬戸熊直樹 2位：鈴木優 3位：多井隆晴 4位：水巻渉 瀬戸熊直樹がフ… | $0.1927 | 検索結果の抜粋(コードでは本文を確かめられない。出典を開いて確かめる): 麻雀最強戦公式サイトの2015年スケジュール・… |
+| Opus | 2014-06-07 鉄人プロ代表決定戦 決勝 | 1位 瀬戸熊直樹・2位 荒正義・3位 小島武夫・4位 新津潔 | 未照合 | https://mahjong-saikyosen.jimdoweb.com/schedule/2014/ | 1位：瀬戸熊直樹 2位：荒正義 3位：小島武夫 4位：新津潔 瀬戸熊直樹がファイナル進出 | $0.0915 | 検索結果の抜粋(コードでは本文を確かめられない。出典を開いて確かめる): 麻雀最強戦2014スケジュールの予選結果欄で、… |
+| Opus | 2013-04-13 女流プロ代表決定戦 ベスト8 A卓 |  | 見つからない |  |  | $0.6985 | 公式サイトの2013年度出場者ページでA卓の4人(二階堂亜樹・魚谷侑未・冨本智美・花本まな)の組み合わせは確認できたが、… |
+| Opus | 2012-12-08 ファイナルトーナメント ベスト16 C卓 |  | 見つからない |  |  | $0.4074 | 麻雀最強戦2012ファイナルの公式歴代最強位ページなどは見つかったが、ベスト16 C卓(鈴木たろう・前原雄大・パクジュン… |
+
+（引用文・備考はスクリプトの出力のとおり途中で切れている。全文は候補タブ）
+
+| モデル | 実額 | 要求 | 入力 | 出力 | 検索 | 取得 | 1卓あたり | 未照合 | 見つからない |
+|---|---|---|---|---|---|---|---|---|---|
+| Sonnet 5.5 | $2.1602 | 10 | 931,855 | 7,649 | 22 | 11 | $0.216 | 5 | 5 |
+| Opus 5.5 | $5.1586 | 10 | 1,191,920 | 7,547 | 24 | 15 | $0.516 | 4 | 6 |
+
+- 見えたこと: 未照合はどちらも、旧公式サイトの年度ごとのスケジュールページ（`/schedule/2014/`〜`/schedule/2018/`）の検索結果の抜粋が出典。代表決定戦の決勝の4人の順位がそこに載っている。Sonnet は 2018 女流王者の極の決勝も見つけ、Opus は見つけられなかった。ベスト8・16・32 の卓は、どちらも1位（勝ち上がり）しか書いた記事が無く見つからない
+- 旧公式（`source=official`）は 2019〜2021年度の3ページだけを読む。2014〜2018年度のスケジュールページも同じ形なら、API を使わずに決勝卓を当てられる見込み（確かめていない。「判断が必要なこと」）
+- B の費用: $7.3188
+
 ## 報告
 
 - 状態: 作業中
@@ -103,12 +146,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 42ea960c）: https://github.com/retroeater/mj-logs/tree/main/guide/42ea960c
+ガイド文書（この版を写した時点の最新、mj 9edd967e）: https://github.com/retroeater/mj-logs/tree/main/guide/9edd967e
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/42ea960c/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/42ea960c/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/42ea960c/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/42ea960c/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/42ea960c/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/42ea960c/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9edd967e/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9edd967e/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9edd967e/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9edd967e/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9edd967e/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9edd967e/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/613f050c.md
