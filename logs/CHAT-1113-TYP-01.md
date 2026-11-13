@@ -93,6 +93,29 @@
 ### 検証
 
 - `python3 -m unittest discover -s scripts/tests`: 2149件 OK（test_oneoff_text_audit 12件を含む）
+- check-assets（work/1113-typ への push、cbe4b4e）: success
+
+### 自己レビュー 1回目（新しい文脈のサブエージェント、cbe4b4e の差分）
+
+| 指摘 | 扱い |
+|---|---|
+| `--max-cost` に NaN を渡すと上限の判定を素通りする（中） | 直した（`0 < x <= 100` で拒む、`within_budget`。テストあり） |
+| submit を2回実行すると上限を超えうる。失敗分だけを送り直す手段が無い（中） | 直した（RUN_SINCE 以降の Batch があれば全件の submit を止める。`--only` で失敗分だけ送る） |
+| 途中で切れた結果（max_tokens）を指摘0件として数える。errored 等で終了コード 0。2回目の tool_use を落とす（中） | 直した（stop_reason が tool_use・end_turn 以外は失敗、failed.txt と出力、終了コード 3。tool_use は全部つなぐ。テストあり） |
+| テンプレートの判定（節の50%）では live・saikyo の重複がまとまらない（中） | 直した（サイト全体で20ページ以上・8文字以上の行。送る文字が約 2割減った） |
+| 「別名」の訂正の組まで候補から外している（中） | 直した（登録名変更の組だけを外す `renamed_pairs`。テストあり） |
+| visually-hidden の文字（「（新しいタブで開く）」など）を送っている（低〜中） | 直した（aria-hidden と同じく外す） |
+| 表のセルの中の br・a で行が切れる（低） | 直した（セルの中では空白。img の alt もセルの中では同じ行） |
+| svg の中の title から空の `[title]` 行が出る（低） | 直した |
+| `.assetsignore` を手で写している（低） | 直した（`check_asset_limits.published_files` を使う） |
+| count_tokens の 429 で落ちる（低） | 直した（30秒待って5回まで） |
+| 実額の単価を入力の model から取る（低） | 直した（`msg.model`） |
+| 「異体字を揃える」の文言が実装と合わない（低） | 直した（文言を「空白・中黒・長音・NFKC」に） |
+| `簡略化:` の印が足りない（低） | 直した（見積もり・1ページの上限超え・テンプレートの閾値） |
+| `wait_minutes` に上限が無い（低） | 直した（0〜110） |
+| server-side fallbacks を入れていない（情報） | 意図どおり（Batch では fallbacks を送れない。refusal は失敗として数えて出る） |
+
+直した後の手元の見積もり（鍵なし）: 要求 236・入力 約207万トークン・見込み $13.58・最大 $60.78（Opus 5.5 の Batch）。テスト 2151件 OK
 
 ## 報告
 
@@ -101,12 +124,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj a5fcf1af）: https://github.com/retroeater/mj-logs/tree/main/guide/a5fcf1af
+ガイド文書（この版を写した時点の最新、mj e2a89a97）: https://github.com/retroeater/mj-logs/tree/main/guide/e2a89a97
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a5fcf1af/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a5fcf1af/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a5fcf1af/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a5fcf1af/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a5fcf1af/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a5fcf1af/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2a89a97/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2a89a97/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2a89a97/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2a89a97/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2a89a97/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2a89a97/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a5fcf1af.md
