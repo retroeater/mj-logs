@@ -79,7 +79,7 @@ CHAT-1113-RSC-21（中断）の再開。目的は RSC-18〜21 の指示文のと
 | 2013-05-18 著名人代表決定戦 風神編 決勝 | 1位 じゃい・2位 木谷高明・3位 加藤鷹・4位 植田佳奈 | 照合済み |  |
 
 - 8件とも照合済みで、備考は空
-- #630 に要約をコメントした（issuecomment は下の「報告」の issue の行）
+- #630 に要約をコメントした: https://github.com/retroeater/mj/issues/630#issuecomment-6846903436
 
 ### 3. docs
 
@@ -88,7 +88,7 @@ CHAT-1113-RSC-21（中断）の再開。目的は RSC-18〜21 の指示文のと
 
 ### マージ
 
-- ドキュメントのみ。`git push origin work/1113-rsc:cloudflare` で入れた。push 直前に再 fetch して `merge-base --is-ancestor` を確かめ、範囲のコミットの件名・本文に閉じるキーワードの直後の `#番号` が無いことも確かめた。この行を含むコミットが範囲の終わり
+- ドキュメントのみ。cloudflare が先に進んでいたので取り込んだ（衝突なし、ほかのセッションのログ・decisions）。`git push origin work/1113-rsc:cloudflare` で入れた。push 直前に再 fetch して `merge-base --is-ancestor` を確かめ、範囲のコミットの件名・本文に閉じるキーワードの直後の `#番号` が無いことも確かめた。この行を含むコミットが範囲の終わり
 
 ## 報告
 
@@ -108,12 +108,12 @@ CHAT-1113-RSC-21（中断）の再開。目的は RSC-18〜21 の指示文のと
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj b80bd355）: https://github.com/retroeater/mj-logs/tree/main/guide/b80bd355
+ガイド文書（この版を写した時点の最新、mj 33eaba88）: https://github.com/retroeater/mj-logs/tree/main/guide/33eaba88
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b80bd355/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b80bd355/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b80bd355/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b80bd355/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b80bd355/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b80bd355/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/33eaba88/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/33eaba88/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/33eaba88/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/33eaba88/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/33eaba88/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/33eaba88/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b3a20d7c.md
