@@ -76,6 +76,21 @@ CHAT-1113-TYP-01 の判断待ち1への回答（案A）を入れ、文字の点�
 
 直した後: テスト OK（`python3 -m unittest discover -s scripts/tests`）。手元の見積もり（鍵なし）: 2,408ページ・要求 245・入力 約280万トークン・Opus 5.5 の Batch で見込み $15.40・最大 $64.40
 
+2回目（087c513 の差分だけ）:
+
+| 指摘 | 扱い |
+|---|---|
+| `test_only_guards` の「digest が違えば 1」の assert は、照合を外しても鍵が無いことで 1 が返り通ってしまう（中） | 直した（363a20d。report_plan を mock にし、違えば呼ばれない・同じなら呼ばれるを対で確かめる）。照合の if を一時的に外すと `FAILED (failures=1)` になることを確かめ、元に戻した |
+| `load_same_person` を本物のまま呼ぶ（低） | 直した（363a20d。mock） |
+
+3回目（363a20d の差分だけ）: 指摘なし（照合を外すと `plan.assert_not_called()` で落ちることをレビュー側でも確かめ、`git diff` が空に戻ったことを確認）。テスト 2154件 OK。
+直しは2回（087c513・363a20d）で、指摘が無くなった。
+
+### マージ（手順1の最後）
+
+- `git fetch origin cloudflare` で 91441c1 に進んでいたため、`git merge --no-edit origin/cloudflare` で取り込み（衝突なし。RSC-16 の分）。テスト OK
+- 差分の範囲（`git diff --stat origin/cloudflare...HEAD`）: `.github/workflows/oneoff-text-audit.yml`・`scripts/oneoff_text_audit.py`・`scripts/tests/test_oneoff_text_audit.py`・`docs/notes/github-actions.md`（1行）・`docs/decisions/site-review.md`・`docs/logs/CHAT-1113-TYP-01.md`・`docs/logs/CHAT-1113-TYP-02.md` だけ。ページ・生成物・ほかのワークフローは変えていない
+
 ## 報告
 
 - 状態: 作業中
@@ -83,12 +98,12 @@ CHAT-1113-TYP-01 の判断待ち1への回答（案A）を入れ、文字の点�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj acf5d6ff）: https://github.com/retroeater/mj-logs/tree/main/guide/acf5d6ff
+ガイド文書（この版を写した時点の最新、mj 1a157a37）: https://github.com/retroeater/mj-logs/tree/main/guide/1a157a37
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/acf5d6ff/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/acf5d6ff/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/acf5d6ff/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/acf5d6ff/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/acf5d6ff/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/acf5d6ff/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/1a157a37/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/1a157a37/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/1a157a37/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/1a157a37/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/1a157a37/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/1a157a37/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a5fcf1af.md
