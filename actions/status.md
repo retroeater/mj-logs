@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-11-13 17:39 JST
+- 書き出した時刻: 2026-11-13 17:42 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -202,7 +202,7 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-11-13 17:24 | workflow_dispatch | cloudflare | in_progress | #6（43392968392） |  |
+| 2026-11-13 17:24 | workflow_dispatch | cloudflare | success | #6（43392968392） | 16分36秒 |
 | 2026-11-13 17:03 | workflow_dispatch | cloudflare | success | #5（43390206093） | 7分10秒 |
 | 2026-11-13 16:46 | workflow_dispatch | work/1113-nws | success | #4（43388103287） | 13分26秒 |
 | 2026-11-13 16:41 | workflow_dispatch | work/1113-nws | cancelled | #3（43387550650） | 5分24秒 |
@@ -218,11 +218,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-13 17:41 | workflow_dispatch | work/1113-skp-zennihon-live | success | #823（43395174318） | 0分51秒 |
 | 2026-11-13 17:31 | workflow_dispatch | work/1113-typ | success | #822（43393840486） | 1分59秒 |
 | 2026-11-13 13:22 | push | cloudflare | success | #821（43365112563） | 1分17秒 |
 | 2026-11-13 13:19 | workflow_dispatch | work/1113-typ | success | #820（43364782962） | 1分03秒 |
 | 2026-11-13 13:17 | workflow_dispatch | work/1113-typ | failure | #819（43364600528） | 0分46秒 |
-| 2026-11-13 13:03 | workflow_dispatch | work/1113-skp-abema-regen | success | #818（43362980752） | 0分39秒 |
 
 - #819 failure: ジョブ「regenerate」 ステップ「生成物の差を実行サマリに出す」
 
