@@ -98,19 +98,47 @@ CHAT-1113-TYP-04 の判断待ちへの回答を入れ、#682 の残りを片付�
 - 止まる条件「まとめ D の直しが、続けて配信した動画のページの外の中身を変える」に当たるので、マージしない。作業ブランチでは revert して（直しは e38fd0a に残す）、docs だけをマージする
 - 引けない卓（この卓だけの動画に対局者が無い卓）の件数は、生成物の中身を比べないと数えられず、未計測
 
+### まとめ D の直し（e38fd0a）の自己レビュー（新しい文脈のサブエージェント）
+
+マージしないので直していない。続きの指示で直すときの材料として残す。
+
+| 指摘 | 扱い |
+|---|---|
+| 人数が8人・16人から4人に減ると `many`（`MANY_PLAYERS` 以上）が偽になり、169ページの対局者の節の小さい写真の格子（`is-many`）が通常の写真カードになり、回戦の動画カードの対局者名の行が消える（中。4人の卓と同じ形だが、指示の「見た目は変えない」と食い違って見える） | 判断が必要なことに移した |
+| この卓だけの動画に対局者が一部しか無いと（例: 3人）、続けて配信した動画にしか名前の無いこの卓の人が、このページ・その人の「他の対局」・pro/・質問欄のデータから落ちる。試験も無い（中） | 見送り（続きの指示で、この卓だけの動画の対局者が4人に満たないときは今のままにする直しと試験を足す案） |
+| 判定がページごとなので、同じライブを持つ A卓に自分の動画があり B卓に無いと、B卓は8人のまま（A卓の4人を含む）で、A卓の4人の pro/・「他の対局」に B卓が出続ける（低） | 判断が必要なことに書いた（残る誤りの範囲） |
+| 検索の語（`search_text`）は今までどおり全部の動画の名前（8人・16人）を入れる。対局者の表示と食い違う（低） | 見送り（動画に映っている人なので、今のままでも誤りではない。揃えるなら続きの指示で） |
+| 試験のクラスの前の空行が3行（低） | 見送り（マージしない差分のため） |
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
+- ブランチ: work/1113-typ
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1113-TYP-05.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1113-typ
+- 確認用URL: なし（まとめ A は本番で確かめた。まとめ D は未マージ）
+- マージ: 済（docs のみ。`git push origin work/1113-typ:cloudflare`、8231b3b..37583fd。まとめ D の直し e38fd0a はその revert と一緒に入り、差し引きでコードは変わらない）
+- issue: #682（回答とまとめ A の確かめをコメント。Open のまま）
+- 判断が必要なこと:
+  - まとめ D の直し（e38fd0a、未マージ）をどうするか。直すと、続けて配信した動画のあるページ 169 のほかに、ほかの /live の個別ページ 534（「他の対局」の一覧と件数）・pro/ 103（放送対局の行）・期などのページ 22（対局の行の対局者）の中身も変わる（その卓で打っていない人が、それらからも外れるため）。また 169ページでは、対局者が4人になるので、対局者の節が小さい写真の格子から通常の写真カードになり、回戦の動画カードの対局者名の行が消える（4人の卓のページと同じ形）
+    - 案1（推奨）: ほかのページの変化と見た目の変化を、正しい対局者に揃えた結果として受け入れる。続きの指示で、レビューの指摘（この卓だけの動画の対局者が4人に満たないときは今のままにする、その試験）を足してマージし、再生成の後に本番で8人・16人の例と、pro/・「他の対局」の例を確かめる。メリット: 誤った対局者が全ページから消える。デメリット: 変わるファイルが多く（約830）、同じライブを持つ卓のうち自分の動画が無い卓（B卓など）は8人のまま残る
+    - 案2: 卓のページの対局者の表示だけを直し、「他の対局」・pro/・期のページ・検索は今のままにする。メリット: 変わるのは169ページだけ。デメリット: ページの対局者と、ほかのページからの結び付きが食い違う（その人の「他の対局」に、その人が出ていない卓が出る）
+    - 案3: 直さない（今のまま）。メリット: 変えない。デメリット: 8人・16人の対局者が残る
+  - #682 を閉じてよいか: まとめ D のほかに、平野さんの判断が要る指摘は残っていない（まとめ A・C、No.28・102 は回答済み・直し済み）。まとめ D を別の issue に移せば閉じられる
+- 未確認の項目:
+  - まとめ D で、この卓だけの動画に対局者が無く今のまま残る卓の件数（未計測）
+  - まとめ A のページのブラウザでの見え方（本番の HTML は確かめた）
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 06a55663）: https://github.com/retroeater/mj-logs/tree/main/guide/06a55663
+ガイド文書（この版を写した時点の最新、mj 420c5389）: https://github.com/retroeater/mj-logs/tree/main/guide/420c5389
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/06a55663/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/06a55663/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/06a55663/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/06a55663/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/06a55663/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/06a55663/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/420c5389/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/420c5389/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/420c5389/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/420c5389/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/420c5389/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/420c5389/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b3a20d7c.md
