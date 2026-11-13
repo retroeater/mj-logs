@@ -52,6 +52,52 @@ CHAT-1113-TYP-04 の判断待ちへの回答を入れ、#682 の残りを片付�
 
 ## 経過
 
+### 着手前の確認（2026-11-13）
+
+- 0章: ログの「指示」欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）の欠けなし
+- 同じ Chat-Ref のコミット: 0件。作業ブランチ: origin/work/1113-typ・ローカルとも origin/cloudflare の祖先 → `git merge --ff-only origin/cloudflare`（06a5566）
+- TYP-04 のログの状態を「判断待ち / 続き: CHAT-1113-TYP-05」にした
+- #682: Open、ほかのセッションの着手中なし。着手中をコメントした（https://github.com/retroeater/mj/issues/682#issuecomment-6847958153 ）
+
+### まとめ A（手順2）
+
+- `regenerate-saikyo.yml` を cloudflare で手動実行（abema: update、regenerate 真、run 43393350666、success。ジョブ abema・regenerate とも success）。再生成のコミット 8231b3b（185ファイル、2025年のファイナルの卓・対局・年度のページの対局名と、他の対局のカードなど）
+- 本番（UA `mj-internal check (ryoei.pro)` で HTML を取得）:
+
+| ページ | 題の対局名 | 「▶ 再生」・ABEMA の回 | 司会・実況・解説 |
+|---|---|---|---|
+| https://ryoei.pro/saikyo/2025/20251213-s1-a.html | ファイナルトーナメント 1st Stage | あり | あり |
+| https://ryoei.pro/saikyo/2025/20251213-s1-b.html | ファイナルトーナメント 1st Stage | あり | あり |
+| https://ryoei.pro/saikyo/2025/20251213-s1-c.html | ファイナルトーナメント 1st Stage | あり | あり |
+| https://ryoei.pro/saikyo/2025/20251213-s1-d.html | ファイナルトーナメント 1st Stage | あり | あり |
+| https://ryoei.pro/saikyo/2025/20251214-2-s1-a.html | ファイナルトーナメント 2nd Stage | あり | なし |
+| https://ryoei.pro/saikyo/2025/20251214-2-s1-b.html | ファイナルトーナメント 2nd Stage | あり | なし |
+| https://ryoei.pro/saikyo/2025/20251214-s1.html | ファイナルトーナメント（決勝） | あり | なし |
+
+- ベスト8・決勝の司会・実況・解説が無いのは、1a157a3・33eaba8・06a5566 のどの版でも同じ（今回の直しで欠けたものではない。ABEMA ブックにその卓の司会・実況・解説が無い）。本番の HTML の確かめで、ブラウザでの見え方は見ていない
+
+### 回答の記録（手順3）
+
+- #682: https://github.com/retroeater/mj/issues/682#issuecomment-6848033926 （回答の表とまとめ A の確かめ）
+- docs/decisions/site-review.md に記録
+
+### まとめ D（手順4）
+
+- 各卓の4人を引けるデータ: シートに卓ごとの対局者の列は無いが、多くの卓のページには、続けて配信したライブとは別に、その卓だけの回戦の動画（対局者は4人）がある（例: live/masters/32/b8-a.html の「1回戦 佐々木寿人、竹内元太、矢島亨、浅井裕介」）。これをデータとして使う
+- 直し（e38fd0a）: `Page.people("players")` で、ページに続けて配信した動画（`shared_units` が2つ以上）があり、この卓だけの動画（`shared_units` が1つ以下）に対局者があれば、この卓だけの動画の対局者だけを数える。無ければ今のまま。実況・解説は変えない。試験 `SharedVideoPlayersTest` 4件（修正前のコードでは1件 FAIL）
+- `regenerate-page.yml` を作業ブランチで dry_run・compare_ref 8231b3b（cloudflare）、対象 live_pages pro_pages ask_data で実行（run 43393840486、success）。新旧のコードで中身の違うファイル 828件:
+
+| 種類 | 件数 | 例 |
+|---|---:|---|
+| 続けて配信した動画のあるページ（直す対象） | 169 | live/gpmax/14/9d-q-a.html |
+| ほかの /live の個別ページ（「他の対局」の一覧と件数） | 534 | live/champions-league/29/f.html |
+| pro/（連盟プロの個別ページの放送対局の行） | 103 | pro/ai.fujita.37/index.html |
+| /live の期・タイトル戦・トップのページ（対局の行の対局者） | 22 | live/gpmax/14.html |
+
+- 理由: `Page.people("players")` は、そのページの対局者の節だけでなく、ほかのページの「他の対局」（`pages_by_player`）、期のページの行の対局者、pro/ の役（`generate_pro_pages.page_roles`）、検索・質問欄のデータにも使われる。続けて配信したライブにしか出ていない人（その卓で打っていない人）が、それらからも外れる
+- 止まる条件「まとめ D の直しが、続けて配信した動画のページの外の中身を変える」に当たるので、マージしない。作業ブランチでは revert して（直しは e38fd0a に残す）、docs だけをマージする
+- 引けない卓（この卓だけの動画に対局者が無い卓）の件数は、生成物の中身を比べないと数えられず、未計測
+
 ## 報告
 
 - 状態: 作業中
