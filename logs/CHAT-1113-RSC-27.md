@@ -50,28 +50,96 @@ CHAT-1113-RSC-26 は、「最強戦」のブックの共有が外れていた（
 
 ## 経過
 
+- 着手前の確認:
+  - 同じ Chat-Ref のコミット・ログは無い。`RSC` は続き（27）
+  - 作業ブランチ: work/1113-rsc は未マージで、ローカルとリモートが同じ。そのまま続けて使った
+  - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順・作業ブランチ・作業ブランチの片付け・取り込みの衝突）: 欠けなし
+- 0.: 「指示」欄の末尾は指示文の最後の行と一致。CHAT-1113-RSC-26 の `## 報告` の状態を「判断待ち / 続き: CHAT-1113-RSC-27」にした
+- #630:
+  - Open。最後のコメントはこのセッションの RSC-26 の中断のもので、他のセッションの着手中のコメントは無い
+  - 着手中を、コードに触る前にコメントした（issuecomment-6852182420）
+- 取り込み: `merge-base --is-ancestor origin/cloudflare HEAD` が偽だったので、origin/cloudflare を merge で取り込んだ。衝突は無かった
+  - cloudflare 側の変更は、ほかのセッションのログ・生成物などで、戻すファイルには触れていない（`git log c3ef367b3..origin/cloudflare -- 戻すファイル` が空）
+  - 未マージの `work/` ブランチにも、戻すファイルを変えるものは無い
+  - 試験は全体で OK
+
+### 1. 作業ブランチでの dry-run（run 43421343315）
+
+- 書く側が「最強戦」のブックを編集できるか: はい（共有し直しを確かめた）
+- 採用 45行・書くセル 180・同じ値 0・値があって違う 0・引けない卓 0
+- 全件の表（225行）は RSC-26 の dry-run（run 43419175939）と1行も違わない（突き合わせた）
+- 書く先は、候補タブの「状態」の列と「最強戦」の F列（順位）の空のセルだけ（スクリプトは `update_cells` でこの2列だけを書く）
+
+### 2. マージ・書き込み・再生成・公開のページ
+
+- マージ: `git push origin work/1113-rsc:cloudflare` の範囲は `f2629453c..a24c8b2bd`
+  - push 直前に再 fetch して `merge-base --is-ancestor` を確かめた
+  - 範囲のコミットの件名・本文に、閉じるキーワードの直後の `#番号` は無い
+- cloudflare での dry-run（run 43421446349）: 同じ数で、全件の表も同じ
+- 本実行（run 43421552268）: 候補タブの状態 45セル・「最強戦」の順位 180セルを書いた
+  - 読み直し: 順位の違うセル 0・状態の違う行 0（ずれの一覧: なし）
+- 念のための dry-run（run 43421661951）: 採用にする行 0（状態が入っている行 45）・書くセル 0
+  - 状態が入った行は拾わないので、ここでは 180セルを数え直していない（照らしたのは本実行の読み直し）
+- 再生成: regenerate-saikyo.yml を cloudflare で手動実行した（abema=dry_run・regenerate=true、run 43421784265、success）→ コミット c4b84bc74（saikyo/ の 92ファイル）
+- 公開のページ: 本番の HTML を UA `mj-internal check (ryoei.pro)` で読んだ。反映は、Workers Builds の後およそ1分で見えた
+
+| ページ | 出場順（順位の順） | 帯 |
+|---|---|---|
+| https://ryoei.pro/saikyo/2021/20210314-s2.html（2021-03-14 男子プロ因縁の血闘 決勝） | 井出洋介・朝倉康心・堀慎吾・新井啓文 | 1位 優勝・2〜4位 敗退 |
+| https://ryoei.pro/saikyo/2020/20201212-s1-a.html（2020-12-12 ファイナル 1st Stage ベスト16 A卓） | 本田朋広・堀江貴文・岡田紗佳・黒沢咲 | 1位 通過・2位 通過・3〜4位 敗退 |
+| https://ryoei.pro/saikyo/2021/20210904-s2.html（2021-09-04 男子プロ最強新世代 決勝） | 岡崎涼太・尻無濱航・増田隆一・齋藤敬輔 | 1位 優勝・2〜4位 敗退 |
+
+- ブラウザでの見え方は確かめていない（本番の HTML を確かめた）
+
+### 3. 片付け
+
+- 作業ブランチを origin/cloudflare に進めた（`--ff-only`）
+- RSC-26 の2つのコミット（407e3f9a0・f61c8598c）を `git revert` で戻した（コミット 3e828fda3）
+- 外したもの:
+  - `scripts/oneoff_saikyo_adopt.py` とその試験
+  - `source=adopt`
+  - `research_candidates.py` からの呼び出し
+  - `WRITABLE` の「最強戦」
+  - `NAME_RESOLVERS` の3つ
+- 戻した6ファイルは、RSC-26 の前（c3ef367b3）とバイト単位で同じ
+  - 78bcfe28c^ と比べると、`check_unused_names.py` の1行だけ違う。これは NWS-03 の片付け（74fc85888）が消した `oneoff_news_read.load_sheet` の行で、ほかのコミットの変更
+- scripts/・.github/ に残った参照は 0。試験は全体で OK
+- 順位の空いた人がいる卓: 336卓（RSC-24）→ 291卓（B の dry-run、run 43422143870 の「対象の一覧」）。45卓減った
+- #630:
+  - 結果をコメントした（issuecomment-6852360918）
+  - 本文の「今の件数（2026-11-13）」の節を 291卓に直した（RSC-24・RSC-27 の両方の数を書いた）
+- 決定を `docs/decisions/automation.md` に記録した
+
+### マージ（片付け）
+
+- `git push origin work/1113-rsc:cloudflare` で入れた
+  - push 直前に再 fetch して `merge-base --is-ancestor` を確かめた
+  - 範囲のコミットの件名・本文に、閉じるキーワードの直後の `#番号` が無いことも確かめた
+  - この行を含むコミットが範囲の終わり
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1113-rsc
-- ログ: https://github.com/retroeater/mj/blob/work/1113-rsc/docs/logs/CHAT-1113-RSC-27.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1113-rsc
-- 確認用URL: なし
-- マージ: 未
-- issue: #630
-- 判断が必要なこと: 作業中
-- 未確認の項目: 作業中
+- 状態: 判断待ち
+- ブランチ: work/1113-rsc（cloudflare にマージ済み。書き込みの手段 `f2629453c..a24c8b2bd`、片付けは「マージ（片付け）」の行）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1113-RSC-27.md
+- 比較URL: なし（マージ済み）
+- 確認用URL: https://ryoei.pro/saikyo/2021/20210904-s2.html（ほかは「公開のページ」の表）
+- マージ: 済み（書き込みの手段・片付けの両方）
+- issue: #630（結果をコメント、本文の「今の件数」を 291 に直した。Open のまま）
+- 判断が必要なこと:
+  1. 平野さんの手作業: 「最強戦」のブックの live-channel-writer の共有を外す（一度きりの手段は外したので、もう要らない）
+- 未確認の項目: ブラウザでの見え方（本番の HTML までを確かめた）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj a24c8b2b）: https://github.com/retroeater/mj-logs/tree/main/guide/a24c8b2b
+ガイド文書（この版を写した時点の最新、mj a1752ff3）: https://github.com/retroeater/mj-logs/tree/main/guide/a1752ff3
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a24c8b2b/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a24c8b2b/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a24c8b2b/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a24c8b2b/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a24c8b2b/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a24c8b2b/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1752ff3/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1752ff3/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1752ff3/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1752ff3/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1752ff3/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a1752ff3/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/de3fa135.md
