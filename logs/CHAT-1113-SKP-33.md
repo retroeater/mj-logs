@@ -78,6 +78,36 @@ regenerate-page.yml（ref work/1113-skp-zennihon-live、saikyo_pages、check tru
 
 - 全日本プロ選手権の 2 卓が【3】で当たった（+2 は見込みどおり）。卓に当たらない【3】の行は前と同じ 2（ザ・リベンジの分と推定）
 
+### 手順2 反映
+
+regenerate-saikyo.yml（ref cloudflare、abema update、regenerate true）: run 43395360226、08:42:45Z〜08:44:53Z、success（abema job 131784850163・regenerate / regenerate job 131785179515）。起動の直前（08:42:41Z）に全ワークフローの実行中 0 を確かめた。
+
+- abema: 【2】721 行（卓 654・なし 67）、回が当たった卓 621 / 654（2026 は 36/42）、司会・実況・解説 602・568・571（SKP-32 の update と同じ）。「【3】手動補正: 入力あり(書いていません)」。注釈: 新しい回: 無し
+- regenerate: 動画URLのある卓 629・司会・実況・解説のある卓 622（手順1の check と同じ）、警告 6 件（手順1と同じ）、年度・対局・卓のページ 891件。コミット dd597e4f6 を cloudflare に push
+- Workers Builds: mj の check-run は dd597e4f6 で success（08:45:25Z）
+
+再生成のコミット dd597e4f6（2 ファイル、すべて変更）:
+
+| 分類 | ファイル | 中身 |
+|---|---|---|
+| 全日本プロ選手権のライブ枠 | saikyo/2026/20261115-s1-a.html・-s1-b.html | 各 +5 行: 「▶ 再生」（https://abema.tv/channels/mahjong/slots/AQzUaBiDc4WzXR、2 卓とも同じ枠）と「司会・実況・解説」の節（【3】の行に司会・実況・解説も入っていたと見られる）。見出しの画像・og:image は作品の画像のまま（ライブ枠は回の URL でないため） |
+| シート側のほかの変化 | なし | — |
+| 説明できない | なし | — |
+
+- sitemap-saikyo.xml は変わっていない（2 ページの lastmod は既に 2026-11-13）
+
+### 手順3 本番の確かめ
+
+本番（`.html?v=skp33a`、UA mj-internal、Workers Builds の success の後）:
+
+| ページ | HTTP | 本番と dd597e4f6 | 「▶ 再生」 | 見出しの画像 | 司会・実況・解説 |
+|---|---|---|---|---|---|
+| saikyo/2026/20261115-s1-a.html（全日本プロ選手権 ベスト8 A卓） | 200 | バイト一致 | https://abema.tv/channels/mahjong/slots/AQzUaBiDc4WzXR | 作品の画像 | あり（司会・実況・解説の 4 人） |
+| saikyo/2026/20261115-s1-b.html（B卓） | 200 | バイト一致 | 同じ枠 | 作品の画像 | あり（4 人） |
+
+- 出ない卓: なし。確かめたのは本番の HTML まで。ブラウザでの見え方は確かめていない
+- 卓ごとの動画が出たら、【3】のこの 2 行を消す運用（docs/notes/abema-book.md「タブ」）
+
 <!-- guide-links -->
 ---
 
