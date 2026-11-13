@@ -147,7 +147,7 @@ CHAT-1113-LGV-32 の判断待ちの2点に平野さんが答えた。それを�
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1113-LGV-34
 - ブランチ: work/1113-lgv-station
 - ログ: https://github.com/retroeater/mj/blob/work/1113-lgv-station/docs/logs/CHAT-1113-LGV-33.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1113-lgv-station
