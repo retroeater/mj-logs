@@ -224,7 +224,7 @@ CHAT-1113-RSC-14 の判断待ちへの回答を記録する。最強戦の過去
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1113-RSC-16
 - ブランチ: work/1113-rsc
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1113-RSC-15.md
 - 比較URL: なし（ドキュメントのみなのでマージ済み）
@@ -249,12 +249,12 @@ CHAT-1113-RSC-14 の判断待ちへの回答を記録する。最強戦の過去
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj a5fcf1af）: https://github.com/retroeater/mj-logs/tree/main/guide/a5fcf1af
+ガイド文書（この版を写した時点の最新、mj e2a89a97）: https://github.com/retroeater/mj-logs/tree/main/guide/e2a89a97
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a5fcf1af/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a5fcf1af/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a5fcf1af/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a5fcf1af/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a5fcf1af/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a5fcf1af/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2a89a97/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2a89a97/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2a89a97/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2a89a97/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2a89a97/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2a89a97/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a5fcf1af.md
