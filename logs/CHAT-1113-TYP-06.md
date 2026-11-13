@@ -55,6 +55,40 @@ CHAT-1113-TYP-05 の判断待ちへの回答を入れ、まとめ D の直し（
 
 ## 経過
 
+### 着手前の確認（2026-11-13）
+
+- 0章: ログの「指示」欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）の欠けなし
+- 同じ Chat-Ref のコミット: 0件。作業ブランチ: origin/work/1113-typ・ローカルとも origin/cloudflare の祖先 → `git merge --ff-only origin/cloudflare`（94b7c1f）
+- TYP-05 のログの状態を「判断待ち / 続き: CHAT-1113-TYP-06」にした
+- #682: Open、ほかのセッションの着手中なし（直近は TYP-05 の着手中と結果）。着手中をコメントした（https://github.com/retroeater/mj/issues/682#issuecomment-6848843517 ）
+- 未マージの work/ ブランチ: `origin/work/1101-prp-pub`（2026-11-04 が最後）が `generate_live_pages.py`（`build_player_card`・`build_individual` の引数・`page_outputs` の slugs など）と `generate_pro_pages.py`（冒頭の説明・import・定数）を変えているが、`Page.people`・`page_roles` は変えていない（止まる条件に当たらない）
+
+### 当て直しと直し
+
+- `git cherry-pick e38fd0a`: 衝突なし（6deb035）
+- 4人に満たないときは今のまま: 定数 `TABLE_PLAYERS = 4` を足し、この卓だけの動画（`shared_units` が1つ以下）の対局者の現在名が4人以上のときだけ、その動画に絞る。試験 `test_own_videos_with_three_players_keep_all_players`（3人のとき今のまま）・`test_own_videos_with_four_players_over_several_videos`（2本の動画で合わせて4人のとき4人だけ）。e38fd0a の版では3人の試験が FAIL
+- 自己レビュー1回目（新しい文脈のサブエージェント）:
+
+| 指摘 | 扱い |
+|---|---|
+| `search_text()` が `page.people(attr)` の現在名を検索の語に入れるので、絞ると、続けて配信した動画にしか出ない人のうち登録名変更・訂正で書かれた名前と現在名が違う人の現在名が、検索の語から消える（前提の「検索の語は今のまま」と食い違う）（低） | 直した（8cbaa75。`Page.people` に `own_table`〈既定 真〉を足し、`search_text` では偽で呼ぶ。試験 `test_search_text_keeps_every_player`、直す前の版で FAIL） |
+| `any(len(v.shared_units) > 1 …)` の条件は結果に影響しない（低） | 意図どおり（続けて配信した動画があるときだけ絞る、という意図を読めるように残す） |
+
+- 2回目（8cbaa75 の差分だけ）: 指摘なし（`own_table` の既定のまま呼ぶ所〈build_page_row・build_individual・pages_by_player・pro の page_roles・ask の players〉は、ページに出す対局者・役の集計で、絞るのが意図どおり、と確かめた）
+- `python3 -m unittest discover -s scripts/tests`: OK
+
+### 差分の見込み（dry_run、compare_ref de3fa13〈cloudflare〉、対象 live_pages pro_pages ask_data、run 43399740635）
+
+| 種類 | TYP-05 | TYP-06 |
+|---|---:|---:|
+| 続けて配信した動画のあるページ（直す対象） | 169 | 169 |
+| ほかの /live の個別ページ（「他の対局」） | 534 | 534 |
+| pro/（連盟プロの個別ページ） | 103 | 103 |
+| /live の期・タイトル戦・トップのページ | 22 | 22 |
+| 計 | 828 | 828 |
+
+- ファイルの集合も TYP-05 と同じ（片方にだけあるファイル 0）。4種類のほかは無く、どの種類も TYP-05 を超えない（止まる条件に当たらない）。workers/ask のデータは変わらなかった
+
 ## 報告
 
 - 状態: 作業中
@@ -62,12 +96,12 @@ CHAT-1113-TYP-05 の判断待ちへの回答を入れ、まとめ D の直し（
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 9a30fc2d）: https://github.com/retroeater/mj-logs/tree/main/guide/9a30fc2d
+ガイド文書（この版を写した時点の最新、mj b6f0dd1d）: https://github.com/retroeater/mj-logs/tree/main/guide/b6f0dd1d
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a30fc2d/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a30fc2d/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a30fc2d/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a30fc2d/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a30fc2d/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a30fc2d/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b6f0dd1d/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b6f0dd1d/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b6f0dd1d/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b6f0dd1d/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b6f0dd1d/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b6f0dd1d/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/de3fa135.md
