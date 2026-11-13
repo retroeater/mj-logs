@@ -57,6 +57,40 @@ SKP-27 で、アマ最強位決定戦（2026-11-22、ベスト16 A〜D卓）に�
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 着手前の確認
+
+- 0: 「指示」欄の末尾は指示文の最後の行と一致。CHAT-1113-SKP-27 のログの `## 報告` の状態を「判断待ち / 続き: CHAT-1113-SKP-28」にした（同じコミット）
+- 同じ Chat-Ref のコミット: 無し。issue: なし
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 4つとも有る（今回は行ごとに改行されていた）
+- 作業ブランチ: work/1113-skp-abema-regen（リモートとローカルが fb8971f22 で一致）。`git merge-base --is-ancestor origin/cloudflare HEAD` が偽だったので `git merge origin/cloudflare` で取り込んだ（衝突なし、a28a048b9）
+- 未マージの work/ ブランチ: 前回までと同じく origin/work/1101-prp-pub だけが saikyo/・scripts/lib/・generate_saikyo_pages.py に触れ、`load_videos()`・lib/abema_book.py・update_abema_book.py には触れていない（止まらない）
+
+### 手順1 check
+
+実行中の確認（REST、04:03Z）: regenerate-saikyo.yml・regenerate-page.yml・run-daily.yml・check-saikyo-unregistered.yml とも実行中は無し（run-daily.yml は 03:12Z に別のセッションの work/1113-lgv-daily で実行済み）。
+
+regenerate-page.yml（ref work/1113-skp-abema-regen、saikyo_pages、check true）: run 43362980752、job 131680611838、04:03:31Z〜04:04:07Z、success。
+
+- 注釈: 「check: 止まるページなし」（と runner の移行の notice）
+- 結果: `saikyo_pages: 通る(--check、警告 4件)`。止まる理由 0
+- 警告 4件（全文）:
+  - 動画URLが ABEMA の回の URL ではありません(リンクだけ出し、サムネイルは出しません): 2026 全国アマチュア最強位決定戦 ベスト16 A卓 https://abema.tv/channels/mahjong/slots/BzEMRNhDP69qXd
+  - 同じ: ベスト16 B卓（同じ URL）
+  - 同じ: ベスト16 C卓（同じ URL）
+  - 同じ: ベスト16 D卓（同じ URL）
+- この警告は、ライブ枠（回の URL でない）が卓に当たったときに出る既知のもの（docs/notes/abema-book.md「タブ」の【3】の説明。生成は「▶ 再生」のリンクだけ出し、サムネイルは作品の画像のまま）。アマ最強位決定戦の 4 卓が【3】で当たったことを示す
+- 「プロ」「連盟プロ以外」のどちらにもいない選手(写真なし): 19名（SKP-27 と同じ数）
+
+| 項目 | SKP-27 の update 後の生成（02:17Z） | 今回の check（04:04Z） | 差 |
+|---|---|---|---|
+| 動画URLのある卓 | 625 | 627 | +2 |
+| 司会・実況・解説のある卓 | 615（SKP-27 の check） | 620 | +5 |
+| 年度・対局・卓のページ | 891 | 891 | 0 |
+
+- 【2】の当たった卓は 621（SKP-27 の update）のまま。627 − 621 = 6 が【2】と違う鍵の【3】の行の数。うちアマ最強位決定戦の 4 卓が当たったので、卓に当たらない【3】の行は 2 と見られる（ザ・リベンジの分と推定。想定どおり）
+
 <!-- guide-links -->
 ---
 
