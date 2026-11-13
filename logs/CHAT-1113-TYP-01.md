@@ -137,7 +137,7 @@ cloudflare での plan の実行（手順2の後半）・Batch の送信（手�
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1113-TYP-02
 - ブランチ: work/1113-typ
 - ログ: https://github.com/retroeater/mj/blob/work/1113-typ/docs/logs/CHAT-1113-TYP-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1113-typ

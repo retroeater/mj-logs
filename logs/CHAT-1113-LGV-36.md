@@ -91,7 +91,7 @@ LGV 系列の 2026-11-10〜13 の指示（CHAT-1110-LGV-20〜CHAT-1113-LGV-35）
 
 ## 報告
 
-- 状態: 完了
+- 状態: 完了 / 続き: CHAT-1113-LGV-37
 - ブランチ: work/1113-lgv-retro
 - ログ: https://github.com/retroeater/mj/blob/work/1113-lgv-retro/docs/logs/CHAT-1113-LGV-36.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1113-lgv-retro
