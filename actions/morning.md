@@ -1,6 +1,6 @@
 # 朝の報告用の異常（retroeater/mj）
 
-- 書き出した時刻: 2026-11-13 20:14 JST（見た範囲: 2026-11-12 18:14 JST から）
+- 書き出した時刻: 2026-11-13 20:17 JST（見た範囲: 2026-11-12 18:17 JST から）
 - 書き出した実行の契機: workflow_dispatch（main）
 - 異常だけを書く。全体は actions/status.md。判定は mj の scripts/morning_report.py（各ワークフローの直近 100 回まで）
 
@@ -35,9 +35,7 @@
 - 2026-11-13 16:41 oneoff-news-read.yml cancelled（workflow_dispatch・work/1113-nws）ジョブ「read」 https://github.com/retroeater/mj/actions/runs/43387550650
 - 2026-11-13 17:30 research-candidates.yml failure（workflow_dispatch・work/1113-rsc）ジョブ「research」 https://github.com/retroeater/mj/actions/runs/43393805625
 - 2026-11-13 20:06 fetch-gsc.yml in_progress（workflow_dispatch・cloudflare） https://github.com/retroeater/mj/actions/runs/43414332570
-- 2026-11-13 20:13 oneoff-news-read.yml in_progress（workflow_dispatch・cloudflare） https://github.com/retroeater/mj/actions/runs/43415289251
-- 2026-11-13 20:13 check-build-failure.yml in_progress（check_run・cloudflare） https://github.com/retroeater/mj/actions/runs/43415348122
-- 2026-11-13 20:13 check-build-failure.yml queued（check_run・cloudflare） https://github.com/retroeater/mj/actions/runs/43415358610
+- 2026-11-13 20:16 regenerate-page.yml in_progress（workflow_dispatch・work/1113-typ） https://github.com/retroeater/mj/actions/runs/43415764775
 
 ## 2. 予約実行の未実行（予定から3時間以内は「遅れの可能性」。3時間を超えて始まった実行は「遅れて実行」）
 
@@ -46,7 +44,8 @@
 ## 3. 所要時間の異常（cloudflare の実行だけ。基準は同じ種類〈cloudflare・予約の実行か手動か〉の直近20回。その中央値の3倍以上かつ中央値＋5分以上、または10分以上。skipped は除く）
 
 - 2026-11-13 00:44 fetch-gsc.yml failure（workflow_dispatch・cloudflare）所要 37分15秒（直近20回の中央値 0分21秒） https://github.com/retroeater/mj/actions/runs/43251047782
-- 2026-11-13 17:24 oneoff-news-read.yml success（workflow_dispatch・cloudflare）所要 16分36秒（直近20回の中央値 4分20秒） https://github.com/retroeater/mj/actions/runs/43392968392
+- 2026-11-13 17:03 oneoff-news-read.yml success（workflow_dispatch・cloudflare）所要 7分10秒（直近20回の中央値 1分30秒） https://github.com/retroeater/mj/actions/runs/43390206093
+- 2026-11-13 17:24 oneoff-news-read.yml success（workflow_dispatch・cloudflare）所要 16分36秒（直近20回の中央値 1分30秒） https://github.com/retroeater/mj/actions/runs/43392968392
 
 ## 4. 初回成功（cloudflare の実行だけ。それ以前の cloudflare の実行に success が無いもの）
 
