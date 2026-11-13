@@ -89,9 +89,142 @@ CHAT-1113-TYP-05 の判断待ちへの回答を入れ、まとめ D の直し（
 
 - ファイルの集合も TYP-05 と同じ（片方にだけあるファイル 0）。4種類のほかは無く、どの種類も TYP-05 を超えない（止まる条件に当たらない）。workers/ask のデータは変わらなかった
 
+### 再生成（dry_run 偽、run 43400101850、success）
+
+- 再生成のコミット b9266d7（`chore: regenerate live/ _redirects data/live_pages.json data/live_thumbs.json sitemap-live.xml workers/ask/data.json pro/ via GitHub Actions`、829ファイル。dry_run の 828 に sitemap-live.xml の lastmod）を作業ブランチに取り込み（113f481）
+- 「Workers Builds: mj」: 113f481 で completed・success（check-runs の API で確かめた）
+
+### 続けて配信した動画のある卓のページ（再生成の後の生成物から数えた）
+
+「を続けて配信」の動画を含む /live の個別ページは 181（直す対象として変わった 169 と、もともと4人だった・変わらなかったページ）。説明文の対局者の人数で数えた:
+
+| 対局者の人数 | ページ数 |
+|---:|---:|
+| 4 | 93 |
+| 8 | 88 |
+| 16 | 0 |
+
+- 4人に満たないため今のままにした卓のページ（この卓だけの動画はあるが、その対局者が4人に満たない）: **0件**（今のデータでは当たる卓が無かった。試験で振る舞いは固定した）
+- 同じライブを持つが自分の動画が無いため、8人・16人のまま残る卓のページ: **88件**（全部8人。16人のまま残るページは無い）。ページのパスと人数の全件:
+
+| ページ | 人数 |
+|---|---:|
+| live/jwrc-r/4/b16-a.html | 8 |
+| live/jwrc-r/4/b16-b.html | 8 |
+| live/jwrc-r/4/b16-c.html | 8 |
+| live/jwrc-r/4/b16-d.html | 8 |
+| live/jwrc-r/4/b8-a.html | 8 |
+| live/jwrc-r/4/b8-b.html | 8 |
+| live/jwrc-r/5/b16-a.html | 8 |
+| live/jwrc-r/5/b16-b.html | 8 |
+| live/jwrc-r/5/b16-c.html | 8 |
+| live/jwrc-r/5/b16-d.html | 8 |
+| live/jwrc-r/5/b8-a.html | 8 |
+| live/jwrc-r/5/b8-b.html | 8 |
+| live/jwrc-r/6/b16-a.html | 8 |
+| live/jwrc-r/6/b16-b.html | 8 |
+| live/jwrc-r/6/b16-c.html | 8 |
+| live/jwrc-r/6/b16-d.html | 8 |
+| live/jwrc-r/6/b8-a.html | 8 |
+| live/jwrc-r/6/b8-b.html | 8 |
+| live/jwrc-r/7/b16-a.html | 8 |
+| live/jwrc-r/7/b16-b.html | 8 |
+| live/jwrc-r/7/b16-c.html | 8 |
+| live/jwrc-r/7/b16-d.html | 8 |
+| live/jwrc-r/7/b8-a.html | 8 |
+| live/jwrc-r/7/b8-b.html | 8 |
+| live/jwrc/11/b16-a.html | 8 |
+| live/jwrc/11/b16-b.html | 8 |
+| live/jwrc/11/b16-c.html | 8 |
+| live/jwrc/11/b16-d.html | 8 |
+| live/jwrc/14/b16-a.html | 8 |
+| live/jwrc/14/b16-b.html | 8 |
+| live/jwrc/14/b16-c.html | 8 |
+| live/jwrc/14/b16-d.html | 8 |
+| live/jwrc/16/b16-a.html | 8 |
+| live/jwrc/16/b16-b.html | 8 |
+| live/jwrc/16/b16-c.html | 8 |
+| live/jwrc/16/b16-d.html | 8 |
+| live/jwrc/16/b8-a.html | 8 |
+| live/jwrc/16/b8-b.html | 8 |
+| live/jwrc/17/b16-a.html | 8 |
+| live/jwrc/17/b16-b.html | 8 |
+| live/jwrc/17/b16-c.html | 8 |
+| live/jwrc/17/b16-d.html | 8 |
+| live/jwrc/17/b8-a.html | 8 |
+| live/jwrc/17/b8-b.html | 8 |
+| live/jwrc/18/b16-a.html | 8 |
+| live/jwrc/18/b16-b.html | 8 |
+| live/jwrc/18/b16-c.html | 8 |
+| live/jwrc/18/b16-d.html | 8 |
+| live/jwrc/18/b8-a.html | 8 |
+| live/jwrc/18/b8-b.html | 8 |
+| live/ranwa/5/b16-a.html | 8 |
+| live/ranwa/5/b16-b.html | 8 |
+| live/ranwa/5/b16-c.html | 8 |
+| live/ranwa/5/b16-d.html | 8 |
+| live/ranwa/5/b8-a.html | 8 |
+| live/ranwa/5/b8-b.html | 8 |
+| live/wakajishi/10/b16-a.html | 8 |
+| live/wakajishi/10/b16-b.html | 8 |
+| live/wakajishi/10/b16-c.html | 8 |
+| live/wakajishi/10/b16-d.html | 8 |
+| live/wakajishi/10/b8-a.html | 8 |
+| live/wakajishi/10/b8-b.html | 8 |
+| live/wakajishi/11/b16-a.html | 8 |
+| live/wakajishi/11/b16-b.html | 8 |
+| live/wakajishi/11/b16-c.html | 8 |
+| live/wakajishi/11/b16-d.html | 8 |
+| live/wakajishi/11/b8-a.html | 8 |
+| live/wakajishi/11/b8-b.html | 8 |
+| live/wakajishi/5/b16-a.html | 8 |
+| live/wakajishi/5/b16-b.html | 8 |
+| live/wakajishi/5/b16-c.html | 8 |
+| live/wakajishi/5/b16-d.html | 8 |
+| live/wakajishi/6/b16-a.html | 8 |
+| live/wakajishi/6/b16-c.html | 8 |
+| live/wakajishi/6/b16-d.html | 8 |
+| live/wakajishi/7/b16-a.html | 8 |
+| live/wakajishi/7/b16-b.html | 8 |
+| live/wakajishi/7/b16-c.html | 8 |
+| live/wakajishi/7/b16-d.html | 8 |
+| live/wakajishi/8/b16-c.html | 8 |
+| live/wakajishi/8/b16-d.html | 8 |
+| live/wakajishi/8/b8-a.html | 8 |
+| live/wakajishi/8/b8-b.html | 8 |
+| live/wakajishi/9/b16-a.html | 8 |
+| live/wakajishi/9/b16-b.html | 8 |
+| live/wakajishi/9/b16-c.html | 8 |
+| live/wakajishi/9/b8-a.html | 8 |
+| live/wakajishi/9/b8-b.html | 8 |
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
+- ブランチ: work/1113-typ
+- ログ: https://github.com/retroeater/mj/blob/work/1113-typ/docs/logs/CHAT-1113-TYP-06.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1113-typ
+- 確認用URL: プレビューあり（URL は最終報告）。見た目の印: live/gpmax/14/9d-q-a.html の「対局者」の節が4人（ともたけ雅晴・古川孝次・前原雄大・藤原隆弘）の通常の写真カード
+- マージ: 未（指示のとおり、プレビューを見た後の別の指示でマージする）
+- issue: #682（着手中のコメント。Open のまま）
+- 判断が必要なこと:
+  - プレビューで見るページ（サイト内のパス。変わる前 → 変わった後の対局者）:
+    - 続けて配信した動画のある卓のページ・8人の例:
+      - live/gpmax/14/9d-q-a.html: ともたけ雅晴、古川孝次、前原雄大、藤原隆弘、森山茂和、灘麻太郎、荒正義、伊藤優孝 → ともたけ雅晴、古川孝次、前原雄大、藤原隆弘
+      - live/gpmax/14/9d-q-b.html: 森山茂和、灘麻太郎、荒正義、伊藤優孝、ともたけ雅晴、古川孝次、前原雄大、藤原隆弘 → 森山茂和、灘麻太郎、荒正義、伊藤優孝
+    - 同・16人の例:
+      - live/jwrc-r/2/b16-a.html: 仲田加南、古橋崇志、勝又健志、魚谷侑未、HIRO柴田、鈴木勝也、高橋慧、角谷陽介、奈良圭純、吉田直、大鹿糠文也、川原舞子、奥津勇輝、西川淳、太田優介、渡邉浩史郎 → 仲田加南、古橋崇志、勝又健志、魚谷侑未
+      - live/jwrc-r/2/b16-c.html: 奈良圭純、吉田直、大鹿糠文也、川原舞子、仲田加南、古橋崇志、勝又健志、魚谷侑未、HIRO柴田、鈴木勝也、高橋慧、角谷陽介、奥津勇輝、西川淳、太田優介、渡邉浩史郎 → 奈良圭純、吉田直、大鹿糠文也、川原舞子
+    - 4人に満たないため今のままにした卓のページ: 無し（0件）
+    - 8人のまま残る卓のページ（自分の動画が無い）: live/jwrc-r/4/b16-a.html: 勝又健志、長谷川夏音、福光聖雄、ケネス徳田、魚谷侑未、仲田加南、阿部謙一、瀧澤光太郎 → 変わらない（全88件はログの「経過」の表）
+    - 「他の対局」が変わる /live の個別ページ: live/champions-league/29/f.html（「山田浩之の他の対局（34件）」→（31件）、「野方祐介の他の対局（11件）」→（10件）、「福島佑一の他の対局（29件）」→（27件）など）
+    - pro/ の個別ページ: pro/ai.fujita.37/index.html（放送対局の行から「第9期桜蕾戦 ベスト8 A卓」が外れ、次の行「第8期桜蕾戦 ベスト16 B卓」が繰り上がる）
+    - 期のページ: live/gpmax/14.html（九段予選 A卓・B卓の行の対局者が8人 → それぞれの4人）
+  - 8人のまま残る 88ページ（同じライブを持つが自分の動画が無い卓）を、#682 を閉じるときに別の issue に起票するか
+  - プレビューで問題が無ければ、マージの指示（再生成のコミットごと cloudflare へ入れる。マージの時点で cloudflare が進んでいれば取り込み、/live・pro/ の生成物の衝突は取り込んだ後の生成で解く）
+- 未確認の項目:
+  - プレビューでの見え方（セッションでは HTML とビルドの成否だけを確かめた）
+- エラー: なし
 
 <!-- guide-links -->
 ---
