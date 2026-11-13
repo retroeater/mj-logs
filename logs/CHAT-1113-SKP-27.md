@@ -171,7 +171,7 @@ regenerate-saikyo.yml（ref cloudflare、abema update、regenerate true）: run 
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1113-SKP-28
 - ブランチ: work/1113-skp-abema-regen
 - ログ: https://github.com/retroeater/mj/blob/work/1113-skp-abema-regen/docs/logs/CHAT-1113-SKP-27.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1113-skp-abema-regen
@@ -190,12 +190,12 @@ regenerate-saikyo.yml（ref cloudflare、abema update、regenerate true）: run 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj a5fcf1af）: https://github.com/retroeater/mj-logs/tree/main/guide/a5fcf1af
+ガイド文書（この版を写した時点の最新、mj 8da336f0）: https://github.com/retroeater/mj-logs/tree/main/guide/8da336f0
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a5fcf1af/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a5fcf1af/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a5fcf1af/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a5fcf1af/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a5fcf1af/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a5fcf1af/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/8da336f0/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/8da336f0/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/8da336f0/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8da336f0/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8da336f0/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8da336f0/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a5fcf1af.md
