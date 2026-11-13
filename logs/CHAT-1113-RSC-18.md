@@ -57,28 +57,70 @@ CHAT-1113-RSC-17 の判断待ち 1・2 への回答を入れ、名前の書き�
 
 ## 経過
 
+- 着手前の確認:
+  - 同じ Chat-Ref のコミット・ログは無い。`RSC` は続き（18）
+  - RSC-17 は別のセッションが行い、cloudflare にマージ済み。状態は判断待ち
+  - 作業ブランチ: origin/work/1113-rsc は origin/cloudflare の祖先（マージ済み）。`git merge --ff-only origin/cloudflare` で進めた（46a658d54）
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 欠けなし
+- 0.: 「指示」欄の末尾は指示文の最後の行と一致。CHAT-1113-RSC-17 の `## 報告` の状態を「判断待ち / 続き: CHAT-1113-RSC-18」にした
+
+### 1. #630
+
+- 状態は Open
+- 最後のコメントは、別のセッションの着手中のコメント（CHAT-1113-RSC-17、2026-11-13T03:55:55Z）だった。ただし RSC-17 はマージ済み・判断待ちで終わっており、この指示はその判断待ちへの回答。動いている作業ではないと判断して進めた
+- 着手中をコメントした（issuecomment-6843714354）。この判断もコメントに書いた
+
+### 2. dry-run（cloudflare、run 43364265658）
+
+- 候補タブ: 428行・見出し 一致
+- 「書く行」は4件で、5件ではなかった。4件とも照合済み:
+
+| 対象キー | 候補 | 確度 |
+|---|---|---|
+| 2018-06-30 男子プレミアトーナメント 天鳳ニューパワー ベスト16 | 1位 朝倉康心・2位 山田独歩・3位 ゆうせー・4位 木原浩一 | 照合済み |
+| 2015-06-13 女流プロ代表決定戦菊の陣 決勝 | 1位 和泉由希子・2位 松岡千晶・3位 愛内よしえ・4位 波奈美里 | 照合済み |
+| 2014-05-17 著名人代表決定戦風神編 決勝 | 1位 萩原聖人・2位 加藤哲郎・3位 ビッグダディ・4位 勝間和代 | 照合済み |
+| 2014-09-21 全日本プロ代表決定戦（女流） 決勝 | 1位 波奈美里・2位 美波智子・3位 菅原千瑛・4位 稲毛千佳子 | 照合済み |
+
+- 欠けた1件は 2016-05-21 著名人代表決定戦 決勝。ログの該当の行:
+
+```
+警告: 「別名」の行を使いません(区分が想定外です「」): トレンディエンジェルたかし → たかし
+```
+
+- 理由: 「別名」の「トレンディエンジェルたかし → たかし」の行は、区分が空で読まれている（「訂正」になっていない）。もう1行の「林下清志（ビッグダディ） → ビッグダディ」は使われ、風神編の卓が当たった
+- 止まる条件（違えば、ログの該当の行と理由を書いて止まる）に当たるので、本実行はしていない（候補タブに書いていない）。手順3の docs/notes の1文も、書けた後の決まりなので書いていない。決定は `docs/decisions/automation.md` に記録した（完了時の規則）
+- 差分は、このログ・RSC-17 のログの状態の行・`docs/decisions/automation.md` だけ
+
+### マージ
+
+- ドキュメントのみ。`git push origin work/1113-rsc:cloudflare` で入れた。push 直前に再 fetch して `merge-base --is-ancestor` を確かめ、範囲のコミットの件名・本文に閉じるキーワードの直後の `#番号` が無いことも確かめた。この行を含むコミットが範囲の終わり
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1113-rsc
-- ログ: https://github.com/retroeater/mj/blob/work/1113-rsc/docs/logs/CHAT-1113-RSC-18.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1113-rsc
+- 状態: 中断
+- ブランチ: work/1113-rsc（cloudflare にマージ済み。ドキュメントのみ）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1113-RSC-18.md
+- 比較URL: なし（マージ済み）
 - 確認用URL: なし
-- マージ: 未
-- issue: #630
-- 判断が必要なこと: 作業中
-- 未確認の項目: 作業中
+- マージ: 済み（ドキュメントのみ。範囲は「マージ」の行）
+- issue: #630（着手中のコメント。Open のまま。要約のコメントは書いていない）
+- 判断が必要なこと:
+  1. 平野さんの手作業: 「別名」タブの「トレンディエンジェルたかし → たかし」の行の区分を「訂正」にしてほしい。今は空で読まれ、行が使われていない。直した後、この指示の手順2から（dry-run で5件 → 本実行）やり直す。書く行は5件になる見込み（今の4件と著名人代表決定戦 決勝）
+  2. 「別名」の2行を消すのは、書けた後（上のやり直しの後）。今は消さない
+  3. RSC-17 のコメント「#630 の他のセッションの着手中」の扱い: 終わった指示のものとして進めた。よければ、このままでよい
+- 未確認の項目: 「たかし」が「プロ」か「連盟プロ以外」にあるか（区分を直した後の dry-run で、名前の警告が出ないかを見る）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 46a658d5）: https://github.com/retroeater/mj-logs/tree/main/guide/46a658d5
+ガイド文書（この版を写した時点の最新、mj 589c080b）: https://github.com/retroeater/mj-logs/tree/main/guide/589c080b
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/46a658d5/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/46a658d5/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/46a658d5/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/46a658d5/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/46a658d5/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/46a658d5/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/589c080b/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/589c080b/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/589c080b/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/589c080b/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/589c080b/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/589c080b/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a5fcf1af.md
