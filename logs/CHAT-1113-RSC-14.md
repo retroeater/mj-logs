@@ -61,6 +61,32 @@
 
 ## 経過
 
+- 着手前の確認: 同じ Chat-Ref のコミット・ログなし。`RSC` は続き（14）。0章ゲート: 未マージの `work/` ブランチに `scripts/research_candidates.py`・`.github/workflows/research-candidates.yml`・その試験・`docs/notes/research-candidates.md` を変えるものは無い
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 欠けなし
+- #408・#630: どちらも Open、他のセッションの着手中のコメントなし。着手中をコメントした（#408 issuecomment-6839895972、#630 issuecomment-6839896711）
+- Opus 5.5 の価格: https://platform.claude.com/docs/en/about-claude/pricing で 2026-11-13 に確かめた。入力 $4・出力 $20（100万トークンあたり）、キャッシュの読み出し 0.05倍、長いプロンプトの別料金なし。thinking は止められない（既定の effort は medium）
+
+### 実装（1f05f9d4b・9a81c293e・下のレビュー2回目の修正）
+
+- モデルに `claude-opus-5-5` を足した（価格・キャッシュの率）。出力の上限 `MAX_TOKENS` を 6,000 → 16,000（Opus の thinking で答えの前に使い切らないため）
+- 入力 `max_uses`（1〜10、検索・取得とも。既定 2）・`min_year`（C だけ。既定 2010、0 で全年）
+- 指示に無い追加: 入力 `skip_found`（どれかのモデルが照合済み・未照合の候補を出した対象を飛ばす）。C を Opus で回すと、Haiku で見つかった期を調べ直してしまうため。飛ばした対象は1件ずつ行に出す
+- 費用の見込み: 1要求目の入力の見込みを `max_uses` に合わせて伸ばす（下のレビュー2回目で比例 → 2乗に直した。4回で 48万トークン、Opus で1要求 $2.28・Sonnet で $1.16）
+- 試験: `RetryWithMoreTest`。全体 2137件 OK
+
+### セルフレビュー（docs/notes/self-review.md）
+
+| 回 | 対象 | 指摘 | 対応 |
+|---|---|---|---|
+| 1 | 1f05f9d4b | 中: 入力の見込みが `max_uses` を上げても12万のまま | `est_input_tokens` で伸ばした（9a81c293e） |
+| 1 | 1f05f9d4b | 中: Opus の thinking で出力 6,000 を使い切りうる | 16,000 に上げた |
+| 1 | 1f05f9d4b | 低: 文書が古い・`--skip-found` が黙って飛ばす | 直した |
+| 1 | 1f05f9d4b | 低: D・official で `--max-uses`・`--skip-found` を無視／main の試験なし／未照合も飛ばす | そのまま（未照合を飛ばすのは「判断が必要なこと」） |
+| 2 | 9a81c293e | 中: 入力は結果の件数のほぼ2乗で増えるのに比例で見込んでいる（max_uses 10 で1要求 $5 を超えうる） | 2乗に直した |
+
+- 作業ブランチでの dry-run: C（Opus・max_uses 4・min_year 0・skip_found）は対象 230 件、うち 54 件を飛ばして 176 件。B（Sonnet・2011〜2018年度・max_uses 4）は 252 件、候補タブに同じモデルの行がある2件を飛ばして 250 件
+- origin/cloudflare（0cd516841、Search Console の csv 1件）を取り込んだ。衝突なし
+
 ## 報告
 
 - 状態: 作業中
@@ -77,12 +103,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 613f050c）: https://github.com/retroeater/mj-logs/tree/main/guide/613f050c
+ガイド文書（この版を写した時点の最新、mj 42ea960c）: https://github.com/retroeater/mj-logs/tree/main/guide/42ea960c
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/613f050c/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/613f050c/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/613f050c/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/613f050c/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/613f050c/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/613f050c/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/42ea960c/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/42ea960c/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/42ea960c/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/42ea960c/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/42ea960c/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/42ea960c/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/613f050c.md
