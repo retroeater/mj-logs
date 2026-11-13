@@ -86,15 +86,37 @@ Chat-Ref: CHAT-1113-SKP-35
 - 書き直した後、CRD-01 の節（(g)・(a-7) は続ける、(h) を広げる、(i) は外す、(j)・(k) を足す）と食い違う記述は無い。止まる条件に当たらない
 - マージ（1回目）: push の直前に再 fetch して `git merge-base --is-ancestor origin/cloudflare HEAD` が真。origin/cloudflare との差は docs/ だけ（docs/decisions/operations.md・saikyo.md、docs/logs/CHAT-1113-SKP-34.md・SKP-35.md、docs/notes/abema-book.md・saikyo-page-design.md。SKP-34 のガイド文の追記 f919f07d9 を含む）。push の出力: `c021605cb..29294f560  work/1113-skp-retro -> cloudflare`
 
+### 手順2 SNS の確かめ（止まる条件に当たった）
+
+- 起動前の基準（origin/cloudflare 29294f560 の生成物）: saikyo/ の `abema.tv/video/episode` 1242 か所・`abema.tv/channels` 6 か所。佐藤凌の前の画像 URL（`…/iXq9VVIm_…`）を含むファイル 13（jpml_pros.html、live/jwrc-r/3/b16-d・b8-a・b8-b.html、pro/index.html・pro/ryo.sato.37/index.html・pro/search.json、saikyo/2026/20261115-s1-a.html・20261115.html、saikyo/ask-players.json・saikyo/players/index.html・saikyo/vs/index.html、top/birthdays.json）、前の X の ID を含むファイル 6（jpml_pros.html、live/jwrc-r/3/ の 3 件、pro/ryo.sato.37/index.html、saikyo/players/index.html）。ID の値はログに写さない
+- 全ワークフローの実行中・待機中（REST、絞らず）: 11:10:56Z にほかのセッションの「公開対象の検査」（work/1113-rsc）と「Search Console のエクスポート」（run 43414332570、cloudflare、11:06:18Z 起動）が実行中だった。10 秒ごとに見て待ったが、11:27:12Z の時点で「Search Console のエクスポート」がまだ実行中（job fetch、ステップ「URL 検査」）。待ち始めから 15 分を超えた
+- → 手順1の止まる条件「実行中のものがあれば終わるまで待つ。15分を超えたら止まる」に当たるので、update-sns-book.yml（dry_run・update とも）は起動していない。手順3・4も行っていない
+- 待つための見張り（このセッションのバックグラウンドのコマンド）は時間の上限で止まった
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1113-skp-retro
+- ログ: https://github.com/retroeater/mj/blob/work/1113-skp-retro/docs/logs/CHAT-1113-SKP-35.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1113-skp-retro
+- 確認用URL: なし
+- マージ: 一部済（手順1の docs〈SKP-34 のガイド文・ログ・決定、SKP-35 の振り返りの記録〉を 29294f560 で cloudflare へ入れた。範囲 c021605cb..29294f560。手順2で止まった後のログはマージしていない）
+- issue: なし
+- 判断が必要なこと:
+  - 佐藤凌の X の ID の反映（手順2〜4）が未着手。ほかのセッションの「Search Console のエクスポート」（run 43414332570、11:06Z 起動、ステップ「URL 検査」）が 15 分を超えて実行中だったため、update-sns-book.yml を起動せずに止めた。その実行が終わった後に、この指示の手順2から続けるか（翌朝 11-14 04:00 JST の毎朝の SNS ブックの更新でも、ID が変わった行は取り直される）
+- 未確認の項目:
+  - 佐藤凌の SNS ブック【2】の X の ID が変わっているか（dry_run を起動していないため）
+- エラー: なし（失敗した実行は無い。待ちの上限で止めた）
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 65044527）: https://github.com/retroeater/mj-logs/tree/main/guide/65044527
+ガイド文書（この版を写した時点の最新、mj c3ef367b）: https://github.com/retroeater/mj-logs/tree/main/guide/c3ef367b
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/65044527/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/65044527/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/65044527/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/65044527/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/65044527/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/65044527/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c3ef367b/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c3ef367b/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c3ef367b/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c3ef367b/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c3ef367b/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c3ef367b/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/de3fa135.md
