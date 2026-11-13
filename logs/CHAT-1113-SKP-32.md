@@ -88,7 +88,7 @@ regenerate-saikyo.yml（ref cloudflare、abema update、regenerate true）: run 
 |---|---|---:|---|
 | 12ページと関連のカードの戻り | 2013・2014 の著名人代表決定戦の卓のページ 12 件 | 12 | 「▶ 再生」・見出しの画像・og:image・司会・実況・解説の節・ページ内の 2013・2014 の回のサムネイルの数が、0db0751a6 の生成物と同じに戻った（下の表） |
 | 12ページと関連のカードの戻り | ほかの卓のページ 26 件 | 26 | 差分の行はすべて「作品の画像（series/68-38）→ 2013・2014 の回のサムネイル（68-38_s13_p*・s14_p*）」の置き換えだけ（機械で照合、型に合わない行 0） |
-| シート側のほかの変化 | saikyo/players/index.html | 1 | 選手のデータ（`saikyo_players_data`）はキーごとに比べて差 0。`saikyo_aliases` から「トレンディエンジェルたかし → たかし」「林下清志（ビッグダディ） → ビッグダディ」の 2 件が消えた（「別名」シートの側の直し。SKP-29 で増えた 2 件で、ほかのセッションの #682 の回答〈832532458 など〉と見られる） |
+| シート側のほかの変化 | saikyo/players/index.html | 1 | 選手のデータ（`saikyo_players_data`）はキーごとに比べて差 0。`saikyo_aliases` から「トレンディエンジェルたかし → たかし」「林下清志（ビッグダディ） → ビッグダディ」の 2 件が消えた（「別名」シートの側の直し。SKP-29 で増えた 2 件。docs/decisions/automation.md の「別名」の 2 行の決定〈候補タブに書けた後に平野さんが消す〉と合う） |
 | 説明できない | なし | 0 | — |
 
 - カードのサムネイル: コミット全体で「作品の画像」が 110 か所消え、2013・2014 の回のサムネイルが 110 か所増えた。8d06eb325 で消えた 2013・2014 の回のサムネイル 110 か所・増えた作品の画像 110 か所と同じ数で、すべて戻った（SKP-31 のログの「98 か所」はサブエージェントの数え方〈一部の行だけ〉で、全体は 110）
@@ -117,15 +117,42 @@ regenerate-saikyo.yml（ref cloudflare、abema update、regenerate true）: run 
 - 12 回の見出しのサムネイル（1280×720）はすべて HTTP 200
 - 戻らない卓: なし。確かめたのは本番の HTML と画像の応答まで
 
+### 自己レビュー（docs/notes/self-review.md）
+
+再生成のコミット 91b32f81b を、文脈を持たない general-purpose のサブエージェントに読ませた（背景と観点を渡し、自分の結論は渡していない）。1回で指摘なし。
+
+| 指摘 | 扱い |
+|---|---|
+| なし（12 ページの「▶ 再生」・見出しの画像・og:image・og:image:alt・司会・実況・解説の節が 0db0751a6 と一致。saikyo/ 全体の作品の画像の数は 0db0751a6 526 件／352 ファイル → 8d06eb325 636／371 → 91b32f81b 526／352 で、ファイルごとにも 0db0751a6 と一致。38 ファイルは 0db0751a6 の版の対局名に空白を入れたものと行ごとに差 0。players の差は「別名」2 件の削除だけで、docs/decisions/automation.md の決定と合う。39 ファイルのタグの対応の崩れ 0） | — |
+
+### マージ
+
+止まる条件に当たっていないので、冒頭の「マージ:」の行のとおり、ログ（SKP-31 の状態の追記・SKP-32）と docs/decisions/saikyo.md を cloudflare へ入れる（範囲は下に追記）。
+
+作業ブランチに origin/cloudflare を merge で取り込み（衝突なし）、push の直前に再 fetch して `git merge-base --is-ancestor origin/cloudflare HEAD` が真。差は docs/decisions/saikyo.md と docs/logs/CHAT-1113-SKP-31.md・SKP-32.md だけ。push の出力: `743a39477..e08ff3ef8  work/1113-skp-abema-rekey -> cloudflare`。この追記はマージの結果を書く docs/logs のみの追いの push。
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1113-skp-abema-rekey
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1113-SKP-32.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1113-skp-abema-rekey
+- 確認用URL: なし
+- マージ: 済（e08ff3ef8。範囲 743a39477..e08ff3ef8、ログ・決定のみ。ページの再生成は regenerate-saikyo.yml が 91b32f81b で cloudflare へ入れた）
+- issue: なし
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 743a3947）: https://github.com/retroeater/mj-logs/tree/main/guide/743a3947
+ガイド文書（この版を写した時点の最新、mj 06a55663）: https://github.com/retroeater/mj-logs/tree/main/guide/06a55663
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/743a3947/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/743a3947/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/743a3947/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/743a3947/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/743a3947/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/743a3947/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/06a55663/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/06a55663/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/06a55663/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/06a55663/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/06a55663/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/06a55663/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b3a20d7c.md
