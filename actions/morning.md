@@ -1,6 +1,6 @@
 # 朝の報告用の異常（retroeater/mj）
 
-- 書き出した時刻: 2026-11-13 21:15 JST（見た範囲: 2026-11-12 19:15 JST から）
+- 書き出した時刻: 2026-11-13 21:18 JST（見た範囲: 2026-11-12 19:18 JST から）
 - 書き出した実行の契機: workflow_dispatch（main）
 - 異常だけを書く。全体は actions/status.md。判定は mj の scripts/morning_report.py（各ワークフローの直近 100 回まで）
 
@@ -33,10 +33,9 @@
 - 2026-11-13 17:30 research-candidates.yml failure（workflow_dispatch・work/1113-rsc）ジョブ「research」 https://github.com/retroeater/mj/actions/runs/43393805625
 - 2026-11-13 20:41 research-candidates.yml failure（workflow_dispatch・work/1113-rsc）ジョブ「research」 https://github.com/retroeater/mj/actions/runs/43419074229
 - 2026-11-13 20:42 research-candidates.yml failure（workflow_dispatch・work/1113-rsc）ジョブ「research」 https://github.com/retroeater/mj/actions/runs/43419175939
-- 2026-11-13 21:14 check-assets.yml in_progress（push・work/1113-nws-adopt） https://github.com/retroeater/mj/actions/runs/43423478260
-- 2026-11-13 21:14 regenerate-page.yml in_progress（push・cloudflare） https://github.com/retroeater/mj/actions/runs/43423502439
-- 2026-11-13 21:14 research-candidates.yml in_progress（workflow_dispatch・cloudflare） https://github.com/retroeater/mj/actions/runs/43423501654
-- 2026-11-13 21:14 fetch-gsc.yml in_progress（workflow_dispatch・work/1113-seo24） https://github.com/retroeater/mj/actions/runs/43423505192
+- 2026-11-13 21:17 research-candidates.yml failure（workflow_dispatch・cloudflare）ジョブ「research」 https://github.com/retroeater/mj/actions/runs/43423864654
+- 2026-11-13 21:17 regenerate-page.yml in_progress（workflow_dispatch・cloudflare） https://github.com/retroeater/mj/actions/runs/43423869339
+- 2026-11-13 21:17 check-assets.yml in_progress（push・work/1113-rsc） https://github.com/retroeater/mj/actions/runs/43423935185
 
 ## 2. 予約実行の未実行（予定から3時間以内は「遅れの可能性」。3時間を超えて始まった実行は「遅れて実行」）
 

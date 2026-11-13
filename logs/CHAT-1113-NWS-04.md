@@ -218,6 +218,44 @@ CHAT-1113-NWS-03（判断待ち）の続き。候補タブ（R_候補）の連�
 | 675 | 第6期麻雀マスターズ 伊藤優孝 | 却下 | 旧制度の鳳凰戦・マスターズの前身の大会の歴代優勝者で、今の期とは別 |
 | 679 | 第7期麻雀マスターズ 高木賢治 | 却下 | 旧制度の鳳凰戦・マスターズの前身の大会の歴代優勝者で、今の期とは別 |
 
+### 自己レビュー 1回目（origin/cloudflare...a83f58b）
+
+| 指摘 | 扱い |
+|---|---|
+| 1. 途中で失敗すると何を書いたかが残らない（出力を最後にまとめて出す）（書くセル） | 直した（d248bbb）: 計画を書く前に出し、書くごとに1行出す |
+| 2. 読んでから読み直すまでに候補タブへほかの書き込み（毎朝の sokuho など）が入ると、読み直しが失敗と判定する／平野さんの行の並べ替えで別の行に書きうる | 意図どおり（実行の時間帯で扱う）: 毎朝の run-daily（04:00 JST 前後）を避けて夜に実行する。ほかのセルの変化は読み直しで必ず見つかる |
+| 3. run() の書く経路の試験が無い | 直した（d248bbb）: dry-run・止める・編集できない・ほかのセルの変化の試験を足した |
+| 4. 備考が空なら「。」から始まる | 直した（d248bbb） |
+| 5. `TITLE_SPREADSHEET_ID` が live.SPREADSHEET_ID と同じ値を重ねて持つ・check_writable のエラー文に載らない | 見送り（RSC の SAIKYO と同じ形。一度きりで外す。表示だけ） |
+
+### 自己レビュー 2回目（a83f58b..d248bbb）
+
+- 指摘なし（1・3・4 の直しは正しい。試験 2174件 OK）
+
+### origin/cloudflare の取り込み（衝突を解いた）
+
+- RSC-27 が一度きりの adopt（`source=adopt`・`WRITABLE` の「最強戦」・`SAIKYO_*` の定数）を外した変更と、こちらが隣に足した行が、`scripts/lib/sheets_write.py` と `.github/workflows/research-candidates.yml` で衝突した。両方の変更（RSC の削除と、こちらの追加）を残して解いた。解いた後の該当箇所:
+
+```
+TITLE_SPREADSHEET_ID = "<ID>"  # lib/live.py の SPREADSHEET_ID と同じ(「タイトル」のブック)
+TITLE_SHEET_NAME = "タイトル"
+…
+    + [(candidates_book.SPREADSHEET_ID, candidates_book.TAB)]
+    # 一度きり(CHAT-1113-NWS-04): 「タイトル」の日付の列の17期だけを scripts/oneoff_nws_adopt.py が書く。使い終えたら外す
+    + [(TITLE_SPREADSHEET_ID, TITLE_SHEET_NAME)]
+)
+```
+
+```
+        options:
+          - api
+          - official
+          - nws-adopt
+```
+
+（入力 `source` の説明の文からも RSC の adopt を外し、nws-adopt だけを残した。ログには ID を書かないので `<ID>` にした）
+- スクリプトのコメントが外されたファイル（scripts/oneoff_saikyo_adopt.py）を指していたので、文だけ直した
+
 ## 報告
 
 - 状態: 対応中

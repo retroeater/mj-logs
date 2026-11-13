@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-11-13 21:15 JST
+- 書き出した時刻: 2026-11-13 21:18 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -25,11 +25,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-11-13 21:14 | push | work/1113-nws-adopt | in_progress | #1209（43423478260） |  |
+| 2026-11-13 21:17 | push | work/1113-rsc | in_progress | #1211（43423935185） |  |
+| 2026-11-13 21:14 | push | work/1113-seo24 | success | #1210（43423504991） | 0分25秒 |
+| 2026-11-13 21:14 | push | work/1113-nws-adopt | success | #1209（43423478260） | 0分24秒 |
 | 2026-11-13 21:12 | push | work/1113-nws-adopt | success | #1208（43423181982） | 0分29秒 |
 | 2026-11-13 21:11 | push | work/1113-seo24 | success | #1207（43423086953） | 0分28秒 |
-| 2026-11-13 21:07 | push | work/1113-nws-adopt | success | #1206（43422572623） | 0分24秒 |
-| 2026-11-13 21:06 | push | work/1113-rsc | success | #1205（43422385004） | 0分26秒 |
 
 ## check-build-failure.yml
 
@@ -38,11 +38,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-13 21:15 | check_run | cloudflare | skipped | #1622（43423629614） | 0分01秒 |
+| 2026-11-13 21:15 | check_run | cloudflare | skipped | #1621（43423622552） | 0分01秒 |
+| 2026-11-13 21:15 | check_run | cloudflare | skipped | #1620（43423622162） | 0分01秒 |
+| 2026-11-13 21:15 | check_run | cloudflare | skipped | #1619（43423615858） | 0分01秒 |
 | 2026-11-13 21:12 | check_run | cloudflare | skipped | #1618（43423277656） | 0分09秒 |
-| 2026-11-13 21:12 | check_run | cloudflare | skipped | #1617（43423195564） | 0分01秒 |
-| 2026-11-13 21:08 | check_run | cloudflare | skipped | #1616（43422650313） | 0分09秒 |
-| 2026-11-13 21:07 | check_run | cloudflare | skipped | #1615（43422502215） | 0分01秒 |
-| 2026-11-13 21:07 | check_run | cloudflare | skipped | #1614（43422482501） | 0分01秒 |
 
 ## check-image-links.yml
 
@@ -143,7 +143,7 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-11-13 21:14 | workflow_dispatch | work/1113-seo24 | in_progress | #21（43423505192） |  |
+| 2026-11-13 21:14 | workflow_dispatch | work/1113-seo24 | success | #21（43423505192） | 0分41秒 |
 | 2026-11-13 21:11 | workflow_dispatch | work/1113-seo24 | success | #20（43423093725） | 0分42秒 |
 | 2026-11-13 20:06 | workflow_dispatch | cloudflare | success | #19（43414332570） | 43分43秒 |
 | 2026-11-13 09:24 | workflow_dispatch | cloudflare | failure | #18（43336769308） | 1分57秒 |
@@ -201,11 +201,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-11-13 21:14 | push | cloudflare | in_progress | #833（43423502439） |  |
+| 2026-11-13 21:17 | workflow_dispatch | cloudflare | in_progress | #834（43423869339） |  |
+| 2026-11-13 21:14 | push | cloudflare | success | #833（43423502439） | 2分58秒 |
 | 2026-11-13 21:06 | push | cloudflare | success | #832（43422390040） | 2分47秒 |
 | 2026-11-13 20:59 | push | cloudflare | success | #831（43421436614） | 3分03秒 |
 | 2026-11-13 20:19 | push | cloudflare | success | #830（43416138241） | 1分02秒 |
-| 2026-11-13 20:16 | workflow_dispatch | work/1113-typ | success | #829（43415764775） | 1分32秒 |
 
 ## regenerate-saikyo.yml
 
@@ -240,11 +240,13 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-11-13 21:14 | workflow_dispatch | cloudflare | in_progress | #75（43423501654） |  |
+| 2026-11-13 21:17 | workflow_dispatch | cloudflare | failure | #77（43423864654） | 0分30秒 |
+| 2026-11-13 21:15 | workflow_dispatch | cloudflare | success | #76（43423681900） | 0分32秒 |
+| 2026-11-13 21:14 | workflow_dispatch | cloudflare | success | #75（43423501654） | 0分23秒 |
 | 2026-11-13 21:07 | workflow_dispatch | work/1113-nws-adopt | success | #74（43422573212） | 0分24秒 |
 | 2026-11-13 21:04 | workflow_dispatch | cloudflare | success | #73（43422143870） | 0分45秒 |
-| 2026-11-13 21:01 | workflow_dispatch | cloudflare | success | #72（43421661951） | 0分36秒 |
-| 2026-11-13 21:00 | workflow_dispatch | cloudflare | success | #71（43421552268） | 0分31秒 |
+
+- #77 failure: ジョブ「research」 ステップ「実行」
 
 ## run-daily.yml
 
