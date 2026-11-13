@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-11-13 12:12 JST
+- 書き出した時刻: 2026-11-13 12:14 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -25,11 +25,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-13 12:13 | push | work/1113-typ | success | #1146（43357525861） | 0分27秒 |
+| 2026-11-13 12:12 | push | work/1113-lgv-daily | success | #1145（43357427306） | 0分30秒 |
+| 2026-11-13 12:12 | push | work/1113-typ | success | #1144（43357371675） | 0分27秒 |
 | 2026-11-13 12:10 | push | work/1113-typ | success | #1143（43357159925） | 0分30秒 |
 | 2026-11-13 12:08 | push | work/1113-rsc | success | #1142（43356967056） | 0分26秒 |
-| 2026-11-13 12:07 | push | work/1113-typ | success | #1141（43356864408） | 0分23秒 |
-| 2026-11-13 12:04 | push | work/1113-rsc | success | #1140（43356423878） | 0分27秒 |
-| 2026-11-13 11:31 | push | work/1113-typ | success | #1139（43352771783） | 0分28秒 |
 
 ## check-build-failure.yml
 
@@ -38,11 +38,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-13 12:13 | check_run | cloudflare | skipped | #1515（43357534775） | 0分01秒 |
+| 2026-11-13 12:12 | check_run | cloudflare | skipped | #1514（43357441699） | 0分01秒 |
 | 2026-11-13 12:11 | check_run | cloudflare | skipped | #1513（43357263323） | 0分01秒 |
 | 2026-11-13 12:09 | check_run | cloudflare | skipped | #1512（43357079312） | 0分01秒 |
 | 2026-11-13 12:09 | check_run | cloudflare | skipped | #1511（43357074526） | 0分07秒 |
-| 2026-11-13 12:08 | check_run | cloudflare | skipped | #1510（43356959834） | 0分01秒 |
-| 2026-11-13 12:04 | check_run | cloudflare | skipped | #1509（43356499134） | 0分00秒 |
 
 ## check-image-links.yml
 
@@ -195,6 +195,15 @@
 
 - #6 failure: ジョブ「regenerate / regenerate」 ステップ「飛ばしたページを報告」
 
+## oneoff-text-audit.yml
+
+- 名前: 文字の点検(一度きり)
+- state: active
+
+| 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
+| --- | --- | --- | --- | --- | --- |
+| 2026-11-13 12:13 | workflow_dispatch | cloudflare | in_progress | #1（43357550221） |  |
+
 ## regenerate-page.yml
 
 - 名前: ページの再生成
@@ -258,11 +267,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-13 12:12 | workflow_dispatch | work/1113-lgv-daily | in_progress | #44（43357431853） |  |
 | 2026-11-13 04:00 | workflow_dispatch | cloudflare | success | #43（43285672503） | 15分51秒 |
 | 2026-11-12 04:00 | workflow_dispatch | cloudflare | success | #42（43083099995） | 16分51秒 |
 | 2026-11-11 04:00 | workflow_dispatch | cloudflare | success | #41（42880887888） | 18分43秒 |
 | 2026-11-10 09:54 | workflow_dispatch | work/1110-acf | success | #40（42731915921） | 11分52秒 |
-| 2026-11-10 04:00 | workflow_dispatch | cloudflare | success | #39（42679168828） | 12分15秒 |
 
 ## run-monthly.yml
 
@@ -271,11 +280,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-13 12:12 | workflow_dispatch | work/1113-lgv-daily | success | #10（43357435157） | 0分58秒 |
 | 2026-11-10 10:12 | workflow_dispatch | work/1110-lgv-tidy | success | #9（42734087152） | 0分54秒 |
 | 2026-11-07 12:10 | workflow_dispatch | work/1107-lgv-repost | success | #8（42332753458） | 0分54秒 |
 | 2026-11-07 08:37 | workflow_dispatch | work/1107-lgv-notify | success | #7（42313135911） | 1分23秒 |
 | 2026-11-04 12:23 | workflow_dispatch | work/1104-lgn-closed | success | #6（41766859486） | 1分04秒 |
-| 2026-11-01 08:53 | workflow_dispatch | work/1101-wkp | success | #5（41254397984） | 1分29秒 |
 
 ## run-weekly.yml
 

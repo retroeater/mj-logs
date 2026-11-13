@@ -54,6 +54,28 @@ CHAT-1113-TYP-01 の判断待ち1への回答（案A）を入れ、文字の点�
 
 ## 経過
 
+### 着手前の確認（2026-11-13）
+
+- 0章: ログの「指示」欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）の欠けなし
+- 同じ Chat-Ref のコミット: `git log --all --grep="CHAT-1113-TYP-02"` で 0件
+- 作業ブランチ: ローカルの work/1113-typ は origin/work/1113-typ と一致（b4c5038）。`git merge-base --is-ancestor origin/cloudflare HEAD` が偽 → `git merge --no-edit origin/cloudflare`（衝突なし、dd4183f。取り込んだのは LGV-36・RSC-15 のログと saikyo/・log/ の再生成）
+- CLAUDE.md: `git log HEAD..origin/cloudflare -- CLAUDE.md` は 0件
+- 未マージの work/ ブランチで「ワークフローの一覧」の表の `oneoff-text-audit.yml`・`research-candidates.yml` の行を変えているものは無し
+- TYP-01 のログの状態を「判断待ち / 続き: CHAT-1113-TYP-02」にした
+
+### 59b0dfd のレビュー（手順1）
+
+1回目（新しい文脈のサブエージェント、59b0dfd の差分だけ）:
+
+| 指摘 | 扱い |
+|---|---|
+| テンプレートに残る行 417行のうち 413行が「他の対局」欄の項目と見出し（日付・本数・件数を含むページ固有のデータ）で、ページの行の約20%が抜ける。観点3の手がかりが消え、データの誤りが place「テンプレート」で報告される（高） | 直した（087c513。数字を含む行はテンプレートにしない。残るのは決まった文言の数行。テストあり） |
+| `--expect-commit` はログの push で HEAD が進むと一致せず、送り直しが事実上できない（中） | 直した（087c513。全要求の custom_id と本文の sha256〈先頭16桁〉を plan・submit で出し、`--only` のときは `--expect-digest` と照合する） |
+| git が失敗すると照合を素通りする（低） | 直した（087c513。git を使わなくなった） |
+| `--only` の新しい分岐の片方しか検査していない（低） | 直した（087c513。build_all を mock にして、既定の `--max-cost` で止まることと digest の不一致で止まることを検査） |
+
+直した後: テスト OK（`python3 -m unittest discover -s scripts/tests`）。手元の見積もり（鍵なし）: 2,408ページ・要求 245・入力 約280万トークン・Opus 5.5 の Batch で見込み $15.40・最大 $64.40
+
 ## 報告
 
 - 状態: 作業中
@@ -61,12 +83,12 @@ CHAT-1113-TYP-01 の判断待ち1への回答（案A）を入れ、文字の点�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj e2a89a97）: https://github.com/retroeater/mj-logs/tree/main/guide/e2a89a97
+ガイド文書（この版を写した時点の最新、mj acf5d6ff）: https://github.com/retroeater/mj-logs/tree/main/guide/acf5d6ff
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2a89a97/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2a89a97/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2a89a97/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2a89a97/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2a89a97/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e2a89a97/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/acf5d6ff/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/acf5d6ff/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/acf5d6ff/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/acf5d6ff/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/acf5d6ff/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/acf5d6ff/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a5fcf1af.md
