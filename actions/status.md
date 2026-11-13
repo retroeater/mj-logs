@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-11-13 21:49 JST
+- 書き出した時刻: 2026-11-13 21:56 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -25,11 +25,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-13 21:55 | push | work/1113-gdr | in_progress | #1218（43429204454） |  |
+| 2026-11-13 21:54 | push | work/1113-nws-league | success | #1217（43429134154） | 0分23秒 |
 | 2026-11-13 21:45 | push | work/1113-rsc | success | #1216（43427884154） | 0分29秒 |
 | 2026-11-13 21:44 | push | work/1113-rsc | success | #1215（43427677577） | 0分31秒 |
 | 2026-11-13 21:41 | push | work/1113-seo24 | success | #1214（43427380645） | 0分29秒 |
-| 2026-11-13 21:40 | push | work/1113-seo24 | success | #1213（43427130972） | 0分23秒 |
-| 2026-11-13 21:22 | push | work/1113-nws-adopt | success | #1212（43424661761） | 0分32秒 |
 
 ## check-build-failure.yml
 
@@ -190,6 +190,19 @@
 | 2026-10-19 07:35 | schedule | cloudflare | success | #2（39172875765） | 5分44秒 |
 
 - #6 failure: ジョブ「regenerate / regenerate」 ステップ「飛ばしたページを報告」
+
+## oneoff-news-read.yml
+
+- 名前: 連盟ニュースの読み取り(一度きり)
+- state: active
+
+| 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
+| --- | --- | --- | --- | --- | --- |
+| 2026-11-13 21:54 | workflow_dispatch | work/1113-nws-league | in_progress | #11（43429134232） |  |
+| 2026-11-13 20:13 | workflow_dispatch | cloudflare | success | #10（43415289251） | 0分48秒 |
+| 2026-11-13 20:09 | workflow_dispatch | work/1113-nws-collect | success | #9（43414845520） | 0分54秒 |
+| 2026-11-13 18:28 | workflow_dispatch | work/1113-nws-collect | success | #8（43401669805） | 0分41秒 |
+| 2026-11-13 18:26 | workflow_dispatch | cloudflare | success | #7（43401362343） | 0分48秒 |
 
 ## regenerate-page.yml
 

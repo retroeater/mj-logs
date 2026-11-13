@@ -1,7 +1,7 @@
 # CHAT-1113-NWS-05
 
 - 着手日時: 2026-11-13
-- 対象issue: （起票する）
+- 対象issue: #685
 - ブランチ: work/1113-nws-league
 - 着手時HEAD: 0778da8
 
@@ -80,6 +80,27 @@ CHAT-1113-NWS-03 の「判断が必要なこと」2（リーグ戦の全成績�
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
 ## 経過
+
+### 1. 着手
+
+- 0.: 「指示」欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 欠けなし
+- Chat-Ref の重複: 0件。ブランチ: リモートに無いので `origin/cloudflare`（0778da8）から作った。NWS-04 のログの状態に ` / 続き: CHAT-1113-NWS-05` を足した
+- issue: 同じ論点（連盟ニュースの鳳凰戦リーグ・「鳳凰」シートの照合）の issue は open・closed とも無かったので #685 を起票した（ラベル「分野: データ」「対象: houou_results」。#541 にならった）。着手中のコメント https://github.com/retroeater/mj/issues/685#issuecomment-6853386500
+
+### 「タイトル」のブックの共有（指示文の前提と食い違った）
+
+- 実物: 「タイトル」のタブのあるブックは `lib/live.py` の `SPREADSHEET_ID`（ryoei.pro の正本のブック）。毎朝の /live の取り込みが書くのは3層のブック（`lib/live_layer3.py` の `SPREADSHEET_ID`）で、別のブック。`lib/sheets_write.py` の `WRITABLE` に「タイトル」のブックは入っていない（NWS-04 で一時的に足し、外した）。docs/notes/live-channel-write.md は「正本・/live 用スプレッドシートは共有せず、書ける先を…限る」と定めている
+- 指示文の前提「『タイトル』のブックは /live のブックと同じで、毎朝の /live の取り込みが live-channel-writer で書き込む見込み」は実物と食い違う（NWS-04 のログの `TITLE_SPREADSHEET_ID` の注記「lib/live.py の SPREADSHEET_ID と同じ」の lib/live.py は /live の書き込み先ではない）。指示どおり docs/decisions への追記はせず、`## 報告` の「判断が必要なこと」に書く
+
+### 作り替え（59f1419）
+
+- e863b34 から `scripts/oneoff_news_read.py`・`scripts/tests/test_oneoff_news_read.py`・`.github/workflows/oneoff-news-read.yml` と docs/notes/github-actions.md の表の行を戻し、鳳凰戦のリーグの成績表の読み取りに作り替えた。タイトル戦の結果・対局日の読み取り、候補タブへの C・E の書き込み、Google の書き込みの認証のステップは外した。PDF の取り出し（pdftoppm）・切り出し・Batch の送信と回収・費用の判定・dump は使い回した
+- ページの選び分け: 全ページを長辺 1,568px に縮めた画像で Claude Haiku 5.5 に「鳳凰戦のリーグの成績表があるか」を聞く（迷えば有りにする。答えの無いページも選ぶ）。plan で全ページを選び分け、選んだページを `--pages` に渡す形で出す。submit は `--pages` が必須（選び直さない）
+- 読み取り: 選んだページを3列×3行（重ね 12%）に切り分けて拡大（横 1,354px に揃える、2.5倍まで、長辺 2,576px・3.75MP の内）。答えはツール `report_tables`（表ごとに リーグ〈A1〜E3・その他〉・期・前後・節・最終か・行〈順位・名前・ポイントの文字〉）
+- 期・前後の決め方: 表に「第N期」が書かれていればそれ。無ければ号の年度（4月〜翌3月）から、その年度の期（第N期のリーグ＝(1983+N)年度。第17期の決定戦が 2001年春）と前の年度の期を候補にし、前後が無ければ前・後（A1・A2 は通期）も候補にして、表の名前がシートのそのリーグの行に最も多く当たるもの（3人以上かつ半分以上）を選ぶ。決められない表は照らさない（「シートに無い」と数える）
+- 比べ方: 名前は「別名」で現在名に直し（`houou_race.load_name_book()`、生成と同じ）、NFKC・空白を除いて引く。第N節終了時の累計はシートの第1〜N節の和（どれかが空なら「補完」）、最終成績は合計と順位。差 0.05 までは同じ。ポイントの「△」「▲」はマイナス、「・」は小数点
+- `scripts/check_unused_names.py` の `NAME_RESOLVERS` に `oneoff_news_read.load_sheet.current` を足した
+- 試験: `python3 -m unittest discover -s scripts/tests` → OK（この試験は 31件。pdftoppm で描く・9枚の切り出し・ポイントの読み替え・ページの指定の形・期と前後の決め方・累計の比べ方・最終成績・シートに無い・読めない・関門の割合）
 
 ## 報告
 
