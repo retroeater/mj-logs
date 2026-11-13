@@ -186,6 +186,8 @@ update-sns-book.yml（ref cloudflare、mode update、dry_run false）: run 43371
 
 ログと docs/decisions/saikyo.md だけを、完了報告のうえ cloudflare へ入れる（範囲は下に追記）。
 
+作業ブランチに origin/cloudflare を merge で取り込み（衝突なし）、push の直前に再 fetch して `git merge-base --is-ancestor origin/cloudflare HEAD` が真。差は docs/decisions/saikyo.md と docs/logs/CHAT-1113-SKP-29.md だけ。push の出力: `0db0751a6..826ea7480  work/1113-skp-sns-book -> cloudflare`。この追記はマージの結果を書く docs/logs のみの追いの push。
+
 ## 報告
 
 - 状態: 完了
@@ -193,7 +195,7 @@ update-sns-book.yml（ref cloudflare、mode update、dry_run false）: run 43371
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1113-SKP-29.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1113-skp-sns-book
 - 確認用URL: なし
-- マージ: 済（ログ・決定のみ。範囲は `## 経過`「マージ」。ページの再生成は update-sns-book.yml の regenerate が 0db0751a6 で cloudflare へ入れた）
+- マージ: 済（826ea7480。範囲 0db0751a6..826ea7480、ログ・決定のみ。ページの再生成は update-sns-book.yml の regenerate が 0db0751a6 で cloudflare へ入れた）
 - issue: なし
 - 判断が必要なこと: なし
 - 未確認の項目: なし
@@ -202,12 +204,12 @@ update-sns-book.yml（ref cloudflare、mode update、dry_run false）: run 43371
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 39e55941）: https://github.com/retroeater/mj-logs/tree/main/guide/39e55941
+ガイド文書（この版を写した時点の最新、mj b8c8da32）: https://github.com/retroeater/mj-logs/tree/main/guide/b8c8da32
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/39e55941/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/39e55941/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/39e55941/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/39e55941/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/39e55941/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/39e55941/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b8c8da32/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b8c8da32/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b8c8da32/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b8c8da32/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b8c8da32/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b8c8da32/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a5fcf1af.md
