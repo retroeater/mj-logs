@@ -62,6 +62,27 @@
 
 ## 経過
 
+### 着手前の確認
+
+- 0.: 「指示」欄の末尾は指示文の最後の行（「不明な点があれば…この行が指示文の最後の行です。」）と一致
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 欠けなし
+- Chat-Ref の重複: `git log --all -E --grep 'CHAT-[0-9]{4}-NWS-'`・`docs/logs/CHAT-*-NWS-*.md` の履歴とも 0件
+- issue: #408 は open。着手中のコメントを書いた（https://github.com/retroeater/mj/issues/408#issuecomment-6846161609 ）。同じ論点の open issue はほかに無い（#408 のコメントの流れで、RSC-14〜17 の Web の調べものが区切られている）
+- 0章ゲート: 未マージの work/ 8本のうち、触るファイル（`scripts/research_candidates.py`・`scripts/lib/ryoei_book.py`・`docs/notes/github-actions.md`・`docs/notes/research-candidates.md`・`docs/decisions/`）を変えるのは `work/1101-prp-pub`・`work/1103-ryo5`（github-actions.md の別の行と decisions）・`work/1113-skp-amateur`（decisions/saikyo.md）。同じ行は無い。CLAUDE.md 23,972B・handover.md 24,511B（警告域 26KB の下）
+- ブランチ: リモートに `work/1113-nws` が無いので `origin/cloudflare`（b3a20d7）から作った
+
+### 2. 一度きりのスクリプト・ワークフロー（39ba6e6）
+
+- `scripts/oneoff_news_read.py`・`.github/workflows/oneoff-news-read.yml`・`scripts/tests/test_oneoff_news_read.py`
+- PDF: 1ページ1枚の JPEG を PDF から取り出す（Pillow は PDF を開けないので、ページの木〈/Root → /Pages → /Kids、圧縮されたオブジェクトのストリームも読む〉を辿って画像の JPEG をそのまま取る。新しい依存は足さない）
+- 切り出し: 1ページを 2列×2行・12%重ね、1.6倍に拡大（Opus 5.5 の画像の上限 長辺 2576px・3.75MP に収める）、灰色の JPEG。1ページを1要求で送る（4枚に位置のラベル「右上・左上・右下・左下」、右の列が先）
+- 答え: クライアント側のツール `report_page`（strict）。records は 種類（結果・対局日・予定）・大会（「タイトル」の表示する大会の名前か「その他」から選ばせる）・紙面の大会名・期・段階・日付・紙面の日付・決勝の最終日か・順位・名前・点数・位置・確度・注記。記事の文章は出させない
+- 照らし合わせ: C（決勝の最終日）は「対局日」を「予定」より先に使う。E（順位）は名前を「別名」で直し、NFKC・空白を除いて照らす。分け方は 照合済み・食い違い・補完・シートに無い
+- 候補タブ: 種別 C・E（E はこの指示で足した）、モデル「連盟ニュース」、出典の列は `YYYYMM_NNN.pdf p.N`。同じ（種別, 対象キー, モデル）の行があれば飛ばす。docs/notes/research-candidates.md に E の行と「連盟ニュースの行」の節を足した
+- 範囲の外の1行: `scripts/check_unused_names.py` の `NAME_RESOLVERS` に `oneoff_news_read.load_sheet` を足した。`generate_title_pages.build_aliases` を呼ぶ関数を足すと `scripts/tests/test_name_resolvers.py` が表への登録を求めるため（足さないと全体の試験が2件落ちる）。外すときに一緒に外す
+- 試験: `python3 -m unittest discover -s scripts/tests` → 2159件 OK（新しい試験 14件: Pillow で作った PDF・圧縮されたオブジェクトのストリームの PDF からの取り出し、回転、切り出しの重なりと上限、照らし合わせの分け方、候補タブの行の形）
+- 新しいワークフローは既定ブランチに無いので作業ブランチでは起動できない（docs/notes/github-actions.md「ワークフローを変更したとき」）。既定の mode plan は書き込みも Batch の送信もしないので、自己レビューの後にマージして cloudflare で plan を実行する
+
 ## 報告
 
 - 状態: 対応中
