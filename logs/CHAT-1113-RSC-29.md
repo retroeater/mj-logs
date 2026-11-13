@@ -85,28 +85,74 @@ RSC 系列のこのチャット（2026-11-04〜11-13。CHAT-1104-RSC-11 の完�
 
 ## 経過
 
+- 着手前の確認:
+  - 同じ Chat-Ref のコミット・ログは無い。`RSC` は続き（29）
+  - 作業ブランチ: origin/work/1113-rsc は origin/cloudflare の祖先（マージ済み）なので、`git merge --ff-only origin/cloudflare` で進めた（45b675776）
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順・作業ブランチ・作業ブランチの片付け・取り込みの衝突）: 欠けなし
+- 0.: 「指示」欄の末尾は指示文の最後の行と一致
+- ガイド文に規則を足す指示ではない（「知見 → 選んだ層 → 理由」の表はある）
+
+### 1. 最新の約束と記号（約束 (s)）
+
+- `docs/decisions/operations.md` の最後の節（2026-11-13 CHAT-1113-SKP-37）まで読んだ
+- 使われている約束の記号は (a-7)・(g)・(h)（CHAT-1113-CRD-01 で広げた形）・(j)・(k)・(n)・(o)・(p)（SKP-37 で直した形）・(q)・(r)・(s)。(i) は CRD-01 で外した
+- 指示の「前回の約束」の記号・中身は、最新の節と食い違わない（(n)〜(s) に (q)・(r) を含む）
+- 新しい記号 (t)・(u) は使われていない
+
+### 2. 事実の確かめ
+
+| 指示の記述 | 確かめた出どころ | 結果 |
+|---|---|---|
+| #666 は e69005702 の本文で 2026-11-04 に自動で閉じた | REST（closed_at 2026-11-04T03:53:33Z）、`git show e69005702`（2026-11-04 03:53:28 UTC） | 合う |
+| #556 は 2026-11-09 に閉じていた | REST（closed_at 2026-11-09T07:39:42Z） | 合う |
+| #630 は Open、#676 は Open | REST | 合う |
+| saikyo/2026/ の6卓は順位つき | 生成物 `saikyo/2026/20261101-s1-a.html` 〜 `20261108-s2.html` の6ファイルの「n位 通過／敗退／優勝」 | 合う |
+| 336 → 291 | CHAT-1113-RSC-27 のログ | 合う |
+| 11/5 は 0本・シートは読まない | run 41892691939（2026-11-05 04:00 JST）のログ（「0本」「シートは読まない」） | 合う。CHAT-1109-RSC-12 のログでは「確かめていない」とされていたので、ここで確かめた |
+| 11/9 は義兄弟合戦の3卓を照合済みで書いた | CHAT-1109-RSC-12 のログ（run 42512794532） | 合う |
+| #556 の hook（cloudflare 285adc1b5） | `git log`: 285adc1b5 は GRD-01 のログのコミットで、GRD-01 のマージの範囲 `b912fa9a4..285adc1b5` の終わり。hook の本体 3d4b3f951 と直し 2fbe4d4c4・070a7ba8e はこの範囲に入っている | 合う（「cloudflare に 285adc1b5 までのマージで入った」の意味に書いた） |
+| ブックの名前・カレンダー・予約・チャットの読み取りの接続 | チャット側の事実（ここからは確かめられない） | 指示の記述のまま |
+
+### 3. 記録
+
+- `docs/decisions/operations.md` の末尾に「## 2026-11-13（CHAT-1113-RSC-29）」の節を足した。形は直近の CHAT-1113-TYP-08・CHAT-1113-SKP-37 の節にそろえた
+- 指示の案から足した点（中身は変えていない）:
+  - 出どころの run の番号（41892691939・42512794532）
+  - #630 が Open であること
+  - ブックの名前「R_タイトル戦_成績」（CHAT-1113-RSC-28 の前提で、コードの ID が同じことを確かめた）
+  - (s) で確かめた記号の一覧
+  - 285adc1b5 を「までのマージ」と書いた
+- 差分は、このログと `docs/decisions/operations.md` だけ
+
+### マージ
+
+- ドキュメントのみ。`git push origin work/1113-rsc:cloudflare` で入れた
+  - push 直前に再 fetch して `merge-base --is-ancestor` を確かめた
+  - 範囲のコミットの件名・本文に、閉じるキーワードの直後の `#番号` が無いことも確かめた
+  - この行を含むコミットが範囲の終わり
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1113-rsc
-- ログ: https://github.com/retroeater/mj/blob/work/1113-rsc/docs/logs/CHAT-1113-RSC-29.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1113-rsc
+- 状態: 完了
+- ブランチ: work/1113-rsc（cloudflare にマージ済み。ドキュメントのみ）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1113-RSC-29.md
+- 比較URL: なし（マージ済み）
 - 確認用URL: なし
-- マージ: 未
-- issue: なし
-- 判断が必要なこと: 作業中
-- 未確認の項目: 作業中
+- マージ: 済み（ドキュメントのみ。範囲は「マージ」の行）
+- issue: なし（記録のみ。#630・#666・#676・#556 の状態は REST で読んだだけ）
+- 判断が必要なこと: なし
+- 未確認の項目: チャット側の事実（ブックの名前を確かめなかったこと・カレンダーと予約の名前・読み取りの接続を伝えなかったこと）は、ここからは確かめられない。指示の記述のまま記録した
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 3786233a）: https://github.com/retroeater/mj-logs/tree/main/guide/3786233a
+ガイド文書（この版を写した時点の最新、mj 0778da86）: https://github.com/retroeater/mj-logs/tree/main/guide/0778da86
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/3786233a/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/3786233a/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/3786233a/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/3786233a/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/3786233a/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/3786233a/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/0778da86/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/0778da86/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/0778da86/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/0778da86/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/0778da86/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/0778da86/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/de3fa135.md

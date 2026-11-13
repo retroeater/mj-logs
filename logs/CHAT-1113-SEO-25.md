@@ -91,28 +91,36 @@ CHAT-1113-SEO-24 の月次の選び方は、今のデータでは登録済みの
 - 実行 43427385815（f9d823ed10、レビューの直しの後の最終のコード、同じ入力）: 成功。「URL 検査」は 12:42:32Z の1秒内で終了（API を呼ばない）、「コミットしてpush」は skipped。出力の内訳はコンテナと同じ（今回 1,900件。2. 1,516/1,516・3. 375/84・4. 515/300、順位4の枠 最低 300 / 今回 300）
 - SEO-24 のログの `## 報告` の状態を「判断待ち / 続き: CHAT-1113-SEO-25」にした
 
+
+### 4. マージ
+
+- push 直前に再 fetch し `git merge-base --is-ancestor origin/cloudflare HEAD` が真、cloudflare との差分が `.github/workflows/fetch-gsc.yml`・`docs/decisions/seo-bing.md`・`docs/gsc/README.md`・`docs/logs/CHAT-1113-SEO-24.md`・`docs/logs/CHAT-1113-SEO-25.md`・`docs/notes/github-actions.md`・`scripts/inspect_gsc_urls.py`・`scripts/tests/test_inspect_gsc_urls.py` だけ（止まる条件の範囲内）、テスト OK を確かめた
+- `git push origin work/1113-seo24:cloudflare` → 45b6757765..3786233ad3（SEO-24 の変更を含む）
+- マージ後: 3786233ad3 の check-run を受けた「本番ビルド失敗の検知」（check-build-failure.yml）は3回とも skipped（失敗の検知が動かなかった）。push で起動するワークフロー（ページの再生成・サイトマップ）は今回の変更のパスでは起動しない。本番の見え方は確かめていない（ページは変えていない）
+- #458 に、枠の追加・マージ・最初の月次の取得の予定（12/1）をコメントした
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1113-seo24
-- ログ: https://github.com/retroeater/mj/blob/work/1113-seo24/docs/logs/CHAT-1113-SEO-25.md
+- 状態: 完了
+- ブランチ: work/1113-seo24（SEO-24 から続けて使った）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1113-SEO-25.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1113-seo24
 - 確認用URL: なし
-- マージ: 未
-- issue: #458
-- 判断が必要なこと: なし
+- マージ: 済（3786233ad3、`git push origin work/1113-seo24:cloudflare`）
+- issue: #458（コメントのみ）
+- 判断が必要なこと: なし（12/1 に貼る指示〈手動の月次の取得〉と WFL 系列への伝言〈run-monthly.yml への組み込み〉は、チャット側が用意する）
 - 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 3786233a）: https://github.com/retroeater/mj-logs/tree/main/guide/3786233a
+ガイド文書（この版を写した時点の最新、mj 0778da86）: https://github.com/retroeater/mj-logs/tree/main/guide/0778da86
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/3786233a/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/3786233a/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/3786233a/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/3786233a/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/3786233a/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/3786233a/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/0778da86/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/0778da86/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/0778da86/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/0778da86/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/0778da86/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/0778da86/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/de3fa135.md
