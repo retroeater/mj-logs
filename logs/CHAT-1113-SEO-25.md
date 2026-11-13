@@ -68,6 +68,29 @@ CHAT-1113-SEO-24 の月次の選び方は、今のデータでは登録済みの
 - docs/gsc/README.md の月次の説明に枠を足した。docs/notes/github-actions.md の fetch-gsc の項を実物に合わせた（手動の task に inspect・inspect-monthly、schedule は export、workflow_call は task の既定が export で run-monthly の gsc は渡さない、知らない値は止まる）。docs/decisions/seo-bing.md に決定を足した（SEO-24 の後ろ）
 - コンテナで `python3 scripts/inspect_gsc_urls.py --monthly --plan`: 今回 1,900件。1. 0/0・2. 1,516/1,516・3. 375/84・4. 515/300。順位4の枠: 最低 300 / 今回 300。サイトマップ別 pages 54・wayhome 45・saikyo 606・title 274・live 871・mtsuku 50（順位3の候補は、取り込んだ title/ の再生成で SEO-24 の 369 から 375 に増えた）
 
+### 2. 差分のレビュー（サブエージェント、2回）
+
+1回目（501a718017..25421f26b8 の4ファイル）:
+
+| 指摘 | 扱い |
+|---|---|
+| `--monthly-revisit` が負のとき `monthly_pick()` が上限を超えて取る（例 limit=6・revisit=-2 で16件）（要修正） | 直した（`limit` と同じく0に寄せる。テストを足した） |
+| github-actions.md の「inspect・inspect-monthly 以外の値は止まる」が export も止まるように読める（任意） | 直した（「export・inspect・inspect-monthly 以外」） |
+| 途中で止まると削られるのは順位4の枠のほう（参考） | 意図どおり（上限 1,900 は1日の 2,000 の内で、通常は起きない） |
+
+2回目（25421f26b8..f9d823ed10 の2コミット）: 要修正なし。レビュー側で修正前の `monthly_pick()` が `pick(10,10,6,-2)` で16件を返すことを再現し、新しいテストの1本目が修正前に落ちることを確かめた。テスト 2,164件 OK。任意2件:
+
+| 指摘 | 扱い |
+|---|---|
+| 負の枠のテストの2本目（`pick(2,10,6,-6)`）は修正前でも同じ結果で、直しを見分けない（任意） | 見送り（1本目が見分ける。2回目の後にコードを直すとレビューを受けていない変更になり、マージできなくなるため） |
+| `--plan` の表示の「最低 N件」が負の値のまま出る（任意。手で負の値を渡したときだけ） | 見送り（同じ理由。ワークフローは値を渡さず既定の 300 を使う） |
+
+### 3. 作業ブランチでの手動実行
+
+- 実行 43427134960（8d3216018b、task=inspect-monthly・inspect_plan=true・commit=false）: 成功
+- 実行 43427385815（f9d823ed10、レビューの直しの後の最終のコード、同じ入力）: 成功。「URL 検査」は 12:42:32Z の1秒内で終了（API を呼ばない）、「コミットしてpush」は skipped。出力の内訳はコンテナと同じ（今回 1,900件。2. 1,516/1,516・3. 375/84・4. 515/300、順位4の枠 最低 300 / 今回 300）
+- SEO-24 のログの `## 報告` の状態を「判断待ち / 続き: CHAT-1113-SEO-25」にした
+
 ## 報告
 
 - 状態: 作業中
@@ -84,12 +107,12 @@ CHAT-1113-SEO-24 の月次の選び方は、今のデータでは登録済みの
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 45b67577）: https://github.com/retroeater/mj-logs/tree/main/guide/45b67577
+ガイド文書（この版を写した時点の最新、mj 3786233a）: https://github.com/retroeater/mj-logs/tree/main/guide/3786233a
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/45b67577/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/45b67577/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/45b67577/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/45b67577/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/45b67577/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/45b67577/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/3786233a/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/3786233a/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/3786233a/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/3786233a/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/3786233a/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/3786233a/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/de3fa135.md
