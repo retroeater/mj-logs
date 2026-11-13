@@ -63,6 +63,37 @@
 
 ## 経過
 
+### 着手前の確認（2026-11-13）
+
+- 0章: ログの「指示」欄の末尾は指示文の最後の行（「不明な点があれば、…この行が指示文の最後の行です。」）と一致
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 欠けなし
+- 同じ Chat-Ref のコミット・TYP の重複: `git log --all -E --grep 'CHAT-[0-9]{4}-TYP-'` と `docs/logs/CHAT-*-TYP-*.md` の追加履歴とも 0件（`git fetch --unshallow` の後）
+- 作業ブランチ: `work/1113-typ` はローカル・リモートとも無し → `git checkout -b work/1113-typ origin/cloudflare`（be8d366）
+- 同じ論点の issue（手順1）: `search/issues` で「誤字」「表記ゆれ」「表記揺れ」「校正」「typo」「点検」「脱字」「食い違い」を open・closed とも検索。サイト全体の文字の点検を主題にする issue は無し
+  （近いもの: #415 選手名の絞り込みの正規化〈検索欄の話〉、#244 大会名マスタの一本化〈データ構造の話〉。いずれも別の主題）
+- 未マージの work/ ブランチと「ワークフローの一覧」の表: `origin/work/1101-prp-pub`（`check-image-links.yml` の行）・`origin/work/1103-ryo5`（`fetch-x-posts.yml` の行）が表を変えているが、どちらも別の行。今回は `research-candidates.yml` の行の後に1行足すだけで重ならない
+- 料金（出典: https://platform.claude.com/docs/en/about-claude/pricing.md 、2026-11-13 に取得）: Batch は Opus 5.5 入力 $2・出力 $10、Sonnet 5.5 入力 $1・出力 $5（100万トークンあたり）。キャッシュの読み取りは入力の 0.05 倍、5分のキャッシュ書き込みは 1.25 倍
+
+### 作ったもの
+
+- `scripts/oneoff_text_audit.py`（一度きり）: mode plan（既定。count_tokens だけ）/ submit / collect
+  - 対象: 公開しないディレクトリ（.assetsignore と同じ）・noindex・meta refresh のページを除く HTML。手元の cloudflare で 2,399ページ（pro/ 1,099・books/ 191・study/ 41 などは noindex で外れる）
+  - 取り出す文字: 本文・見出し・title・meta description・img の alt。script・style・aria-hidden の中（頭文字のアバター「畑」など）は外す（外さないと「畑畑正憲」となり誤字の誤検知になることを試作で確かめた）
+  - 組: 対になるページを同じ要求に入れる（title/<大会>、live/<大会>/<期>、saikyo/<年度>、houou/ など）。1要求 6万文字を超える組はページの境で分け、組のトップを各要求に入れる
+  - テンプレートの文字: 節のページの半分以上かつ20ページ以上に出る行は、ページから外して1つの要求にまとめる
+  - 表記ゆれ: 全ページの文字のノードから2〜16文字の文字列を集め、「空白・中黒・長音・NFKC を揃えると同じ」「1文字違い（数字・卓や回を表す文字の違いは除く）」の組を作って1要求で渡す。「別名」で同じ現在名になる組は外す（シートが読めるとき）
+  - 出力は strict のツール `report_findings`（tool_choice auto。Opus 5.5 は any/tool が 400 のため）。effort medium、max_tokens 24,000
+- `.github/workflows/oneoff-text-audit.yml`（手動だけ、既定 plan）、`scripts/tests/test_oneoff_text_audit.py`（12件）、`docs/notes/github-actions.md` の一覧の表に1行
+- 名前の解決は `houou_race.current_name` を使う（`.resolve()` を直接呼ぶと `test_name_resolvers` の表に足す必要が出て、範囲外の `check_unused_names.py` を変えることになるため）
+
+### 手元の見積もり（鍵なし、1文字＝1トークンで見積もり）
+
+`python3 scripts/oneoff_text_audit.py`: 2,399ページ・取り出した文字 2,409,606・要求 245・入力 約297万トークン。Opus 5.5 の Batch で見込み $15.74（出力 4,000/要求）・最大 $45.14（出力 16,000/要求のとき。24,000 に上げた後の最大は約 $65）。正確な値は cloudflare の plan の実行で取る
+
+### 検証
+
+- `python3 -m unittest discover -s scripts/tests`: 2149件 OK（test_oneoff_text_audit 12件を含む）
+
 ## 報告
 
 - 状態: 作業中
