@@ -52,15 +52,71 @@ CHAT-1113-SKP-26 は「最強戦」シートに義兄弟合戦の決勝の卓・
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 着手前の確認
+
+- 0: 「指示」欄の末尾は指示文の最後の行と一致。CHAT-1113-SKP-26 のログの `## 報告` の状態を「判断待ち / 続き: CHAT-1113-SKP-27」にした（同じコミット）
+- 同じ Chat-Ref のコミット: 無し。issue: なし
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 4つとも有る。SKP-26 と同じく、冒頭から「取り込みの衝突」までが改行なしの1行につながって貼られていた（内容は読めた）
+- 作業ブランチ: work/1113-skp-abema-regen（リモートとローカルが 474170e3c で一致）。`git merge-base --is-ancestor origin/cloudflare HEAD` が偽だったので `git merge origin/cloudflare` で取り込んだ（衝突なし）
+- 未マージの work/ ブランチ: SKP-26 と同じく origin/work/1101-prp-pub だけが saikyo/・scripts/lib/・generate_saikyo_pages.py に触れ、`load_videos()`・lib/abema_book.py・update_abema_book.py には触れていない（止まらない）
+
+### 手順1 シートの読み直しと check
+
+実行中の確認（REST、02:08Z）: regenerate-saikyo.yml・regenerate-page.yml・run-daily.yml とも実行中は無し。
+
+regenerate-page.yml（ref work/1113-skp-abema-regen、saikyo_pages、check true）: run 43350053441、job 131638660436、02:08:56Z〜02:09:39Z、success。
+
+- 注釈: 「check: 止まるページなし」（と runner の移行の notice）
+- 結果: `saikyo_pages: 通る(--check)`。止まる理由 0、「警告:」・`::warning::` の行 0
+- 「プロ」「連盟プロ以外」のどちらにもいない選手(写真なし): 19名（前回の check〈SKP-26〉には出ていなかった行。アマ最強位決定戦の出場者と見られる。生成の扱いは docs のとおり X ID・写真とも空で代替アバター。止まる理由・警告ではない。名前はログに写さない）
+
+ページの読みの差（読むだけの生成の出力どうしを比べた。ページの名前は実行サマリにしか出ず、REST で読めないため手順3の生成物で確かめる）:
+
+| 項目 | SKP-26 の check（11-13 00:24Z） | 今回の check（02:09Z） | 差 |
+|---|---|---|---|
+| 「最強戦」シートの行 | 2588 件 | 2616 件 | +28 |
+| 年度・対局・卓のページ | 882 件 | 891 件 | +9 |
+| 説明文（対局） | 219 件 | 221 件 | +2 |
+| 説明文（卓） | 647 件 | 654 件 | +7 |
+| 対戦成績の対局済みの卓 | 645 | 648 | +3 |
+| 動画URLのある卓 | 622 | 622 | 0（【2】は未更新） |
+| 注目の対戦カード | 1回分（2026-11-08 3組）〈11-06 時点〉 | 0回分 | 義兄弟合戦の決勝が対局済みになったためと見られる |
+
+- 卓 +7・対局 +2。義兄弟合戦は対局のページ（20261108.html）が既にあるので、増えた卓のうち 1 が義兄弟合戦の決勝、残る卓 6・対局 2 がアマ最強位決定戦と見られる（「表示」を Y にしたのはこの2つだけという申告と合う。対局 2 の内訳は手順3の生成物で確かめる）。義兄弟合戦の決勝の卓とアマ最強位決定戦は読めていると判断した（止まる条件に当たらない）
+- 対局者の人数・空の卓の有無は、生成の出力に卓ごとの行が無いので手順3の生成物で確かめる。空の卓についての警告の行は無い
+
+あわせて regenerate-page.yml を dry_run true（書かない、作業ブランチ）で回した: run 43350202977、job 131639155052、02:10:09Z〜02:10:51Z、success。出力は check と同じ数（891 件）。変わったファイルの一覧は実行サマリにだけ出て REST で読めなかった。
+
+並走: 02:12:35Z に別のセッションが regenerate-page.yml（cloudflare、log_pages）を起動した（02:12:38Z〜02:13:50Z）。このセッションの実行（〜02:10:51Z）とは重なっていない。
+
+### 手順2 確かめの実行
+
+regenerate-saikyo.yml（ref cloudflare、abema dry_run、regenerate false）: run 43350803749、02:15:06Z〜02:15:39Z、success（abema success・regenerate skipped）。
+
+| 項目 | SKP-26 の dry_run（job 131594184468） | 今回の dry_run（job 131641133619） | 差 |
+|---|---|---|---|
+| 「最強戦」シートの行 | 2588 件（SKP-26 の check） | 2616 件 | +28 |
+| 【2】の行 | 715（卓 647・なし 68） | 721（卓 654・なし 67） | 卓 +7・なし −1 |
+| 回が当たった卓 | 620 / 647 | 621 / 654 | +1 |
+| 2026 年度 | 35 / 35 | 36 / 42 | 当たった +1・卓 +7 |
+| なしの理由 | 当たる卓なし 63・卓でない回 3・1回戦 1・2回戦 1 | 当たる卓なし 62・卓でない回 3・1回戦 1・2回戦 1 | 当たる卓なし −1 |
+| 司会・実況・解説 | 601・567・570 | 602・568・571 | 各 +1 |
+| 注釈 | 新しい回: 無し（既にある回 68-38_s26_p36 200、p37〜p42 404） | 同じ | — |
+
+- SKP-26 で「なし」だった 1 回が卓に当たり、「なし」が 1 減った。増えた卓 7 のうち回が当たったのは 1 で、義兄弟合戦の決勝の卓と見られる（残る 6 はアマ最強位決定戦の卓で、【1】に回が無い）。回のIDは【1】の最大が p36 で、出力に卓ごとの回は出ないため、手順3の生成物で確かめる
+- 止まる条件（決勝卓の回が当たらない・なしが 1 減らない）に当たらないので、手順3へ進む
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj be8d366d）: https://github.com/retroeater/mj-logs/tree/main/guide/be8d366d
+ガイド文書（この版を写した時点の最新、mj a5fcf1af）: https://github.com/retroeater/mj-logs/tree/main/guide/a5fcf1af
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/be8d366d/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/be8d366d/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/be8d366d/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/be8d366d/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/be8d366d/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/be8d366d/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/613f050c.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a5fcf1af/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a5fcf1af/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a5fcf1af/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a5fcf1af/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a5fcf1af/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a5fcf1af/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a5fcf1af.md
