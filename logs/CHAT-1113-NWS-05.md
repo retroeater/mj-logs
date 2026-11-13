@@ -383,6 +383,18 @@ CHAT-1113-NWS-03 の「判断が必要なこと」2（リーグ戦の全成績�
 | 5 | 重なりで二重に書き出された行を二重に数える（前からある） | 低 | 直した（名前とポイントの文字が同じ行は1つにする） |
 | 6 | 0 が負と決まると「-0」と出る | 低 | 直した（0 は符号を問わない） |
 
+レビュー2回目（bcd91e2）: 1回目の直しはどれも意図どおり。新しい指摘は中1・低4で、送信・費用の判定・読む範囲には関わらない。docs/notes/self-review.md「収束」に従い直さずに進む（見送り）
+
+| # | 指摘 | 重大度 | 対応 |
+|---|---|---|---|
+| 1 | 並びが崩れた表では、絶対値が違う行だけが関門の分母に入り、割合が下に偏る | 中 | 見送り（割合を下げる側で、関門を甘くしない。表の決め方の欄に「並びで符号が決まらない」が出る） |
+| 2 | 0 の行があると「並びで符号が決まらない」の印が付かない | 低 | 見送り（表示だけ） |
+| 3 | 並びと合わない △ の行が正と決まることがある | 低 | 見送り（シートが負なら食い違いになる側で、照合済みは増えない） |
+| 4 | 二重の行をまとめるキーの漏れ（表記の揺れ）、「読んだ表」の行数がまとめる前 | 低 | 見送り |
+| 5 | 既存の試験の入力（A1_ROWS の順位）を書き換えた | 低 | 見送り（並びを整えただけ。崩れた表は新しい試験で見る） |
+
+- 試験: `python3 -m unittest discover -s scripts/tests` → OK
+
 ## 報告
 
 - 状態: 対応中
@@ -407,4 +419,4 @@ CHAT-1113-NWS-03 の「判断が必要なこと」2（リーグ戦の全成績�
 - docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e8adaade/docs/notes/chat-side-operations.md
 - docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e8adaade/docs/notes/cloudflare.md
 - docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e8adaade/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/1da5408e.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/6aa6642b.md
