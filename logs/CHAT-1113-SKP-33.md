@@ -51,15 +51,42 @@ Chat-Ref: CHAT-1113-SKP-33
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 着手前の確認
+
+- 0: 「指示」欄の末尾は指示文の最後の行と一致
+- 同じ Chat-Ref のコミット: 無し。issue: なし
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 4つとも有る
+- 作業ブランチ: work/1113-skp-zennihon-live はローカル・リモートとも無かったので origin/cloudflare（8231b3b97）から作った
+
+### 手順1 下ごしらえ
+
+- 着手時の origin/cloudflare の先頭は 8231b3b97「chore: regenerate saikyo/ via GitHub Actions」（regenerate-saikyo.yml run 43393350666、08:27:22Z 起動、workflow_dispatch・cloudflare。このセッションの実行ではなく、ほかのセッションか平野さんの手動実行。185 ファイル）。その版でも saikyo/2026/20261115-s1-a.html・-s1-b.html に「▶ 再生」は無く、見出しは作品の画像だった
+- 全ワークフローの実行中・待機中（REST、絞らず）: 08:31Z にほかのセッションの 5 件（連盟ニュースの読み取り・候補の調べもの・ページの再生成〈work/1113-typ〉・公開対象の検査 2 件）が実行中だったので、終わるまで待った（08:41:13Z に 0 件。待ちは約 10 分）
+
+regenerate-page.yml（ref work/1113-skp-zennihon-live、saikyo_pages、check true）: run 43395174318、job 131784247668、08:41:24Z〜08:42:10Z、success。
+
+- 注釈: 「check: 止まるページなし」。結果: `saikyo_pages: 通る(--check、警告 6件)`。止まる理由 0。Sheets API の上限の待ち 0 回
+- 警告 6 件（すべて「動画URLが ABEMA の回の URL ではありません(リンクだけ出し、サムネイルは出しません)」）: 全国アマチュア最強位決定戦 ベスト16 A〜D卓（前からの 4 件）と、**全日本プロ選手権 ベスト8 A卓・B卓**（https://abema.tv/channels/mahjong/slots/AQzUaBiDc4WzXR、2 卓とも同じ枠）。ライブ枠が卓に当たったときに出る既知の警告
+
+| 項目 | SKP-32 の再生成（91b32f81b） | 今回の check | 差 |
+|---|---|---|---|
+| 動画URLのある卓 | 627 | 629 | +2 |
+| 司会・実況・解説のある卓 | 620 | 622 | +2 |
+| 年度・対局・卓のページ | 891 | 891 | 0 |
+
+- 全日本プロ選手権の 2 卓が【3】で当たった（+2 は見込みどおり）。卓に当たらない【3】の行は前と同じ 2（ザ・リベンジの分と推定）
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 06a55663）: https://github.com/retroeater/mj-logs/tree/main/guide/06a55663
+ガイド文書（この版を写した時点の最新、mj 420c5389）: https://github.com/retroeater/mj-logs/tree/main/guide/420c5389
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/06a55663/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/06a55663/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/06a55663/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/06a55663/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/06a55663/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/06a55663/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/420c5389/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/420c5389/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/420c5389/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/420c5389/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/420c5389/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/420c5389/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b3a20d7c.md
