@@ -1,6 +1,6 @@
 # 朝の報告用の異常（retroeater/mj）
 
-- 書き出した時刻: 2026-11-13 20:47 JST（見た範囲: 2026-11-12 18:47 JST から）
+- 書き出した時刻: 2026-11-13 20:51 JST（見た範囲: 2026-11-12 18:51 JST から）
 - 書き出した実行の契機: workflow_dispatch（main）
 - 異常だけを書く。全体は actions/status.md。判定は mj の scripts/morning_report.py（各ワークフローの直近 100 回まで）
 
@@ -31,7 +31,6 @@
 - 2026-11-13 13:17 regenerate-page.yml failure（workflow_dispatch・work/1113-typ）ジョブ「regenerate」 https://github.com/retroeater/mj/actions/runs/43364600528
 - 2026-11-13 15:33 update-sns-book.yml failure（workflow_dispatch・cloudflare）ジョブ「update」 https://github.com/retroeater/mj/actions/runs/43379515995
 - 2026-11-13 17:30 research-candidates.yml failure（workflow_dispatch・work/1113-rsc）ジョブ「research」 https://github.com/retroeater/mj/actions/runs/43393805625
-- 2026-11-13 20:06 fetch-gsc.yml in_progress（workflow_dispatch・cloudflare） https://github.com/retroeater/mj/actions/runs/43414332570
 - 2026-11-13 20:41 research-candidates.yml failure（workflow_dispatch・work/1113-rsc）ジョブ「research」 https://github.com/retroeater/mj/actions/runs/43419074229
 - 2026-11-13 20:42 research-candidates.yml failure（workflow_dispatch・work/1113-rsc）ジョブ「research」 https://github.com/retroeater/mj/actions/runs/43419175939
 
@@ -41,7 +40,8 @@
 
 ## 3. 所要時間の異常（cloudflare の実行だけ。基準は同じ種類〈cloudflare・予約の実行か手動か〉の直近20回。その中央値の3倍以上かつ中央値＋5分以上、または10分以上。skipped は除く）
 
-- 2026-11-13 00:44 fetch-gsc.yml failure（workflow_dispatch・cloudflare）所要 37分15秒（直近20回の中央値 0分21秒） https://github.com/retroeater/mj/actions/runs/43251047782
+- 2026-11-13 00:44 fetch-gsc.yml failure（workflow_dispatch・cloudflare）所要 37分15秒（直近20回の中央値 1分09秒） https://github.com/retroeater/mj/actions/runs/43251047782
+- 2026-11-13 20:06 fetch-gsc.yml success（workflow_dispatch・cloudflare）所要 43分43秒（直近20回の中央値 1分09秒） https://github.com/retroeater/mj/actions/runs/43414332570
 
 ## 4. 初回成功（cloudflare の実行だけ。それ以前の cloudflare の実行に success が無いもの）
 
@@ -49,4 +49,4 @@
 
 ## 5. 未報告のログ（`## 報告` の節が無い）
 
-- CHAT-1113-SKP-36.md（着手 2026-11-13） https://github.com/retroeater/mj-logs/blob/main/logs/CHAT-1113-SKP-36.md
+なし
