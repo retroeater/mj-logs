@@ -29,9 +29,11 @@
 
 生成:
 
+- 作り直す時機: 毎朝 04:00 JST の運行（`run-daily.yml`）で、変換（`xconvert`）の後にジョブ `logpage` が `log_pages` を作り直し、差分があれば cloudflare にコミットする（2026-11-14 から。2026-11-13 の決定、CHAT-1113-LGV-37。【3】の直しは次の朝の運行の後に出る）。ほかに、毎週月曜の `all`（`run-weekly.yml` → `fetch-youtube.yml`）、SNS ブックの更新でページの値が変わった日の `all`（`update-sns-book.yml`）、生成スクリプト・`scripts/lib/**` の cloudflare への push、手動実行（`regenerate-page.yml`。チャット側が直接動かしてよいのは cloudflare の `log_pages` だけ、docs/notes/chat-routines.md「log/ の再生成を直接動かすとき」）
 - `scripts/generate_log_pages.py`（`regenerate.py` の `OUTPUT_OVERRIDES` に `"log_pages": "log/"`）。行は `lib/log_rows.py` の `merged_rows()`（旧 `generate_resource_logs.py` から移した。【2】自動変換後を【3】手動補正の空でないセルで上書きし、判定が「飲食店」で表示が Y の行。日付の新しい順、同じ日は投稿 ID の大きい順）から、再投稿・載せない投稿・本文の語・店名が空の投稿を外す（`drop_posts()`）。生成のログの「3層から N件のうち M件」で、N − 外した件数 = log/ の投稿の数
   - 再投稿: 谷岡育夫の投稿で、【1】元データの本文に「過去メシ」がある投稿（生成が【1】の本文を読んで判定する。本文は出力しない。ほかの人の本文に「過去メシ」があれば外さず、警告に投稿IDを出す）
 - 店の駅の座標・駅の候補・都道府県は、店の「駅」（【3】で直した駅を含む）を駅の一覧（`data/stations_n02.json`、国土数値情報、`lib/stations.py`）で引いて決める（`station_info()`）。【2】の「駅の候補」の列は使わない（【3】で駅を直した行でも、表示の駅と合うように）
+  - 駅が駅の一覧に無い投稿（【3】に手で入れた「池袋西口」「西麻布」など。海外の【…】付きの駅と駅が空の投稿は除く）は、毎月の常設 issue「ログ: 確かめる投稿」（`run-monthly.yml` の closed、`convert_x_posts.py` の `unlisted_station_posts()`・`check_issue()`）の節「駅が駅の一覧に無い投稿」に出る（1件以上のときだけ。2026-11-13、CHAT-1113-LGV-37）。【3】の「駅」を一覧の名前にすると次の月の一覧から消える
 - テスト（`scripts/tests/test_log_pages.py`・`test_log_rows.py`）: merged_rows と同じ行（【2】【3】の重ね方は `test_log_rows.py`）、再投稿・店名が空の投稿の外し方、カテゴリが2つ・カードに件数が無い・出典がトップにだけある、店のまとめ方・カテゴリ（店名非公開を除く）・駅の点と駅の候補と都道府県（【3】で直した駅・同じ名前の駅・一覧に無い駅）・「ジャンル」の列が無い【2】・出典の表記・検索用のデータの形・距離の式
 
 ## 画面ごとの仕様
