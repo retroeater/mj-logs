@@ -54,6 +54,20 @@ CHAT-1113-SEO-24 の月次の選び方は、今のデータでは登録済みの
 
 ## 経過
 
+### 0. 着手前の確認
+
+- 指示欄の末尾は指示文の最後の行と一致。同じ Chat-Ref のコミット0件。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は全部ある
+- work/1113-seo24 はローカル・リモートとも 501a718017 で一致。`git merge-base --is-ancestor origin/cloudflare HEAD` は偽だったので `git merge origin/cloudflare` で取り込んだ（衝突なし。取り込んだのは title/ の再生成・sitemap-title.xml・ほかのログなど）
+- #458 は open。着手中コメントを付けた
+
+### 1. 実装
+
+- `scripts/inspect_gsc_urls.py`: 定数 `DEFAULT_REVISIT = 300`、引数 `--monthly-revisit`、`monthly_pick()` を足した。順位1〜3を「上限 − 枠」件まで、順位4を残りまで取り、片方が足りなければ余りをもう片方に回す。上限が枠以下のときは順位1〜3を先にする（小さい上限の試しで順位4ばかりにならないように）。出力先に取った URL は飛ばす（`--monthly` なしは今までどおり `pending()`）。`--plan` の内訳に「順位4の枠: 最低 N件 / 今回 M件」を足した
+- ワークフローの入力には枠の件数を足していない（既定の 300 を使う、と README に書いた）。fetch-gsc.yml は変えていない
+- テスト: `MonthlyPickTest` 5本（ふつうの分け方・順位4が枠に満たない・順位1〜3が足りない・上限が枠以下・取った URL を飛ばす／上限0と負）。内訳の行のテストを枠の行に合わせて直した。`python3 -m unittest discover -s scripts/tests` → OK
+- docs/gsc/README.md の月次の説明に枠を足した。docs/notes/github-actions.md の fetch-gsc の項を実物に合わせた（手動の task に inspect・inspect-monthly、schedule は export、workflow_call は task の既定が export で run-monthly の gsc は渡さない、知らない値は止まる）。docs/decisions/seo-bing.md に決定を足した（SEO-24 の後ろ）
+- コンテナで `python3 scripts/inspect_gsc_urls.py --monthly --plan`: 今回 1,900件。1. 0/0・2. 1,516/1,516・3. 375/84・4. 515/300。順位4の枠: 最低 300 / 今回 300。サイトマップ別 pages 54・wayhome 45・saikyo 606・title 274・live 871・mtsuku 50（順位3の候補は、取り込んだ title/ の再生成で SEO-24 の 369 から 375 に増えた）
+
 ## 報告
 
 - 状態: 作業中

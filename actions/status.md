@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-11-13 21:27 JST
+- 書き出した時刻: 2026-11-13 21:43 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -25,11 +25,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-13 21:41 | push | work/1113-seo24 | success | #1214（43427380645） | 0分29秒 |
+| 2026-11-13 21:40 | push | work/1113-seo24 | success | #1213（43427130972） | 0分23秒 |
 | 2026-11-13 21:22 | push | work/1113-nws-adopt | success | #1212（43424661761） | 0分32秒 |
 | 2026-11-13 21:17 | push | work/1113-rsc | success | #1211（43423935185） | 0分25秒 |
 | 2026-11-13 21:14 | push | work/1113-seo24 | success | #1210（43423504991） | 0分25秒 |
-| 2026-11-13 21:14 | push | work/1113-nws-adopt | success | #1209（43423478260） | 0分24秒 |
-| 2026-11-13 21:12 | push | work/1113-nws-adopt | success | #1208（43423181982） | 0分29秒 |
 
 ## check-build-failure.yml
 
@@ -38,11 +38,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-13 21:42 | check_run | cloudflare | skipped | #1627（43427516770） | 0分01秒 |
+| 2026-11-13 21:40 | check_run | cloudflare | skipped | #1626（43427225727） | 0分01秒 |
 | 2026-11-13 21:24 | check_run | cloudflare | skipped | #1625（43424868484） | 0分01秒 |
 | 2026-11-13 21:23 | check_run | cloudflare | skipped | #1624（43424765949） | 0分01秒 |
 | 2026-11-13 21:18 | check_run | cloudflare | skipped | #1623（43424025362） | 0分00秒 |
-| 2026-11-13 21:15 | check_run | cloudflare | skipped | #1622（43423629614） | 0分01秒 |
-| 2026-11-13 21:15 | check_run | cloudflare | skipped | #1621（43423622552） | 0分01秒 |
 
 ## check-image-links.yml
 
@@ -143,14 +143,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-13 21:42 | workflow_dispatch | work/1113-seo24 | success | #23（43427385815） | 0分35秒 |
+| 2026-11-13 21:40 | workflow_dispatch | work/1113-seo24 | success | #22（43427134960） | 0分43秒 |
 | 2026-11-13 21:14 | workflow_dispatch | work/1113-seo24 | success | #21（43423505192） | 0分41秒 |
 | 2026-11-13 21:11 | workflow_dispatch | work/1113-seo24 | success | #20（43423093725） | 0分42秒 |
 | 2026-11-13 20:06 | workflow_dispatch | cloudflare | success | #19（43414332570） | 43分43秒 |
-| 2026-11-13 09:24 | workflow_dispatch | cloudflare | failure | #18（43336769308） | 1分57秒 |
-| 2026-11-13 00:44 | workflow_dispatch | cloudflare | failure | #17（43251047782） | 37分15秒 |
-
-- #18 failure: ジョブ「fetch」 ステップ「URL 検査」
-- #17 failure: ジョブ「fetch」 ステップ「URL 検査」
 
 ## fetch-redirect-counts.yml
 
