@@ -122,15 +122,67 @@ update-sns-book.yml（ref cloudflare、mode update、dry_run false）: run 43384
 - 河井保国: 「最強戦」シートでは「河合保国」と書かれた出場が 2013-09-16 の対局にあり、今回「河合保国 → 河井保国」の別名で引けるようになった。saikyo/2013/20130916.html・-s1-a.html・-s2.html の表示名が「河合保国」→「河井保国」に変わった（HTTP 200、8d06eb325 とバイト一致。カードの写真は前から代替）。saikyo/ で「河井保国」「河合保国」を含むのはこの 3 ページと players・vs・ask-players.json だけ
 - 確かめたのは本番の HTML と画像の応答まで。ブラウザでの見え方は確かめていない
 
+### 再生成のコミットの分類（8d06eb325、122 ファイル: 変更 120・改名 1・削除 1）
+
+文脈を持たない general-purpose のサブエージェントに全ファイルを分けさせ（自己レビューを兼ねる。JSON はキーごと、HTML はタグ単位で比べた）、代表を自分でも確かめた。前の全ページの再生成（0db0751a6、SKP-29）の後に、ほかのセッションの指示（CHAT-1113-TYP-03 の #682 の仕分け、CHAT-1113-RSC-20・RSC-21）で平野さんが直したシートの分がまとめて入っている。生成コードの変更（`0db0751a6..8d06eb325 -- scripts/` の 2 件、oneoff_news_read.py・check_unused_names.py）は生成に使われない。
+
+| 分類 | ファイル | 件数 | 中身 |
+|---|---|---:|---|
+| 4名の X | saikyo/2026/20261115-s1-a.html・-s1-b.html・20261115.html | 3 | 4名のアバターが X の写真に |
+| 4名の X ＋ 河井保国の直し | saikyo/ask-players.json | 1 | 4名の写真と「河合保国」→「河井保国」 |
+| 河井保国の直し | saikyo/2013/20130916.html・-s1-a.html・-s2.html、workers/ask/data.json・data-jwrc・data-ouka・data-wrcr.json | 7 | 表示名が「河合保国」→「河井保国」、aliases に「河合保国 → 河井保国」（「最強戦」シートの表記は「河合保国」。重複の1行を消し、別名で引けるようにしたと見られる。RSC-21 のログ） |
+| シート側のほかの変化（「最強戦」シートの対局名） | saikyo 2011〜2020 の HTML 44 件（2013・2014 の著名人代表決定戦の卓・対局・年度のページと、ほかの卓の「他の対局」のカード） | 44 | 「著名人代表決定戦雷神編・風神編」→「著名人代表決定戦 雷神編・風神編」（空白。#682 No.4・5）。**下の「後退」を含む** |
+| シート側のほかの変化（混在） | saikyo/players/index.html・saikyo/vs/index.html・workers/ask/data-saikyo.json | 3 | 上の空白・河井保国・下の結果の直し |
+| シート側のほかの変化（ABEMA ブック【3】の役） | saikyo/2022/20221210-s1-a〜-s1-d.html | 4 | 実況 → 解説（#682 No.66・67） |
+| シート側のほかの変化（「最強戦」シートの結果） | saikyo/2023/20230408-s1-b.html・20230408.html、saikyo/2025/20251108-s1-a.html・20251108.html | 4 | 通過・敗退の直し（#682 No.11・12・14） |
+| シート側のほかの変化（放送対局の【3】） | live/ の 40 件（改名 masters/26/sf → sf-b、削除 masters/27/sf を含む）、pro/ の 5 件、data/live_pages.json、_redirects（2 行: masters/26/sf・27/sf → sf-b の 301）、sitemap-live.xml | 48 | #682 No.46・No.36 と、同じ形の第27期の直し（第27期は #682 の一覧に無く、記録は見つからない） |
+| シート側のほかの変化（「タイトル」） | title/houou/18・38、title/shinjinou/30、title/oui/29、title/search.json・years.json、jpml_pros.html、sitemap-title.xml | 8 | #682 No.25・27・68・100 |
+| シート側のほかの変化（良栄の成績） | rh_results_detail.html | 1 | 日付の直し（#682 No.64・65） |
+| sitemap | sitemap-saikyo.xml | 1 | 54 件の lastmod（上の saikyo の各群と対応） |
+| 説明できない | なし | 0 | — |
+
+- HTML の構造（変更・改名後の 108 件）の崩れ 0。sitemap の loc・lastmod と変更・改名・削除ファイルの食い違い 0。_redirects の 2 行は「# live: generated」の区間で、転送先はどちらもある
+
+#### 後退（このコミットで本番に出た。この指示の作業ではなく、ほかのシートの直しから来た）
+
+2013・2014 年の著名人代表決定戦の卓のページ 12 件（saikyo/2013/20130518-s1-a・-s1-b・-s2、20130817-s1-a・-s1-b・-s2、saikyo/2014/20140517-s1-a・-s1-b・-s2、20140809-s1-a・-s1-b・-s2）で、ABEMA の回への「▶ 再生」・見出しのリンク・「司会・実況・解説」の節が消え、見出しの画像・og:image が作品の画像に戻った（他の対局のカードのサムネイルも 98 か所が作品の画像に）。自分でも 20130518-s1-a.html（前は 68-38_s13_p5）と 20140809-s2.html（前は 68-38_s14_p18）で、前後の版を比べて確かめた。
+
+- 原因: 生成は ABEMA ブック【2】【3】を卓の鍵（年度・対局日・対局名・ステージ・卓）で引く（`video_key()`）。「最強戦」シートの対局名に空白が入ったが、【2】は今朝 04:00 と今日の update（04:04Z・02:16Z）で作った古い対局名のままなので、鍵が外れた
+- 戻る見込み: regenerate-saikyo.yml を ref cloudflare・abema dry_run・再生成なしで読むだけ回した（run 43385475849、07:23:58Z〜07:24:33Z、success）。新しい対局名で【2】を作り直すと、回が当たった卓 621 / 654（2013 20/27・2014 29/29 とも今朝と同じ）、司会・実況・解説 602・568・571 で、今の【2】と同じ数が当たる。次に【2】を書く update（明朝 11-14 04:00 JST の毎朝の運行の regenerate-saikyo、または手動の update）と続く再生成で戻る見込み（【3】に古い対局名の行があれば、その行だけは外れたまま）
+- この dry_run は、ほかのセッションの「候補の調べもの」（07:22:51Z〜07:24:16Z）と時間が重なった。Sheets API の上限の待ちは 0 回（起動前の確かめで実行中を見落とした）
+
+（参考）サブエージェントは、#682 の No.64・65・68・100 と第27期の【3】の直しについて、平野さんが値を決めたことがどのログ・決定にも書かれていないとも指摘した。ほかの指示の範囲なので、ここでは記録だけ。
+
+### マージ
+
+止まる条件には当たっていないので、冒頭の「マージ:」の行のとおり、ログ（SKP-30・SKP-31）と docs/decisions/saikyo.md を cloudflare へ入れる（範囲は下に追記）。後退の扱いは判断待ちとして報告する（ドキュメントのみのマージで、本番のページは変えない）。
+
+作業ブランチに origin/cloudflare（8d06eb325）を merge で取り込み（衝突なし）、push の直前に再 fetch して `git merge-base --is-ancestor origin/cloudflare HEAD` が真。差は docs/decisions/saikyo.md と docs/logs/CHAT-1113-SKP-30.md・SKP-31.md だけ。push の出力: `8d06eb325..e7d27dc3f  work/1113-skp-amateur -> cloudflare`。この追記はマージの結果を書く docs/logs のみの追いの push。
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1113-skp-amateur
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1113-SKP-31.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1113-skp-amateur
+- 確認用URL: なし
+- マージ: 済（e7d27dc3f。範囲 8d06eb325..e7d27dc3f、ログ・決定のみ。ページの再生成は update-sns-book.yml の regenerate が 8d06eb325 で cloudflare へ入れた）
+- issue: なし
+- 判断が必要なこと:
+  - 8d06eb325（全ページの再生成）で、2013・2014 年の著名人代表決定戦の卓のページ 12 件から ABEMA の「▶ 再生」・司会・実況・解説が消えた（「最強戦」シートの対局名に空白を入れた直し〈#682 No.4・5〉で、ABEMA ブック【2】の古い対局名と鍵が外れた。この指示の作業ではない）。読むだけの dry_run では、【2】を作り直せば今と同じ 621 卓が当たる。明朝 11-14 04:00 JST の毎朝の運行で戻るのを待つか、今 regenerate-saikyo.yml を abema update・再生成ありで手動実行して戻すか
+- 未確認の項目:
+  - 上の 12 ページが【2】の作り直しで戻ること（dry_run の数からの見込み。【3】に古い対局名の行があれば、その分は戻らない）
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj c39047e0）: https://github.com/retroeater/mj-logs/tree/main/guide/c39047e0
+ガイド文書（この版を写した時点の最新、mj b80bd355）: https://github.com/retroeater/mj-logs/tree/main/guide/b80bd355
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c39047e0/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c39047e0/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c39047e0/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c39047e0/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c39047e0/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c39047e0/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b80bd355/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b80bd355/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b80bd355/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b80bd355/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b80bd355/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b80bd355/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b3a20d7c.md
