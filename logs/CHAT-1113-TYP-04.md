@@ -85,7 +85,7 @@ CHAT-1113-TYP-03 の判断待ちへの平野さんの回答（ここまでの分
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1113-TYP-04.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1113-typ
 - 確認用URL: なし
-- マージ: 済（docs のみ。SHA は最終報告）
+- マージ: 済（docs のみ。`git push origin work/1113-typ:cloudflare`、33eaba8..8325324）
 - issue: #682（回答の表・まとめ A の一覧をコメント。Open のまま）
 - 判断が必要なこと:
   - まとめ A の平野さんの手作業: 「最強戦」の行222〜245 の対局を #682 の一覧の「直した後の対局」に直し、ABEMA ブック【3】を対局日 2025-12-13・2025-12-14 で絞って、同じ鍵（対局「ファイナル 1st Stage」「ファイナル 2nd Stage」）の行があれば同じ値に直す。【3】はこの指示では読めなかった（読むには一度きりのワークフローが要り、docs のみの範囲を超えるため）。平野さんが【3】を見られないときは、続きの指示で一度きりの引き当てを足して読む
