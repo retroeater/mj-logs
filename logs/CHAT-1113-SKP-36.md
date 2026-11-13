@@ -105,7 +105,7 @@ update-sns-book.yml（ref cloudflare、mode update、dry_run false）: run 43419
 | 佐藤凌の X | jpml_pros.html | 佐藤凌の X のリンクが前の ID → 新しい ID |
 | 佐藤凌の X ＋ シート側のほかの変化 | saikyo/players/index.html | 選手のデータは佐藤凌の X の ID の 1 か所だけ。`saikyo_aliases` に「朝武雅晴 → ともたけ雅晴」が 1 件増えた |
 | シート側のほかの変化（「別名」シート） | houou/players/index.html、workers/ask/data.json・data-jwrc.json・data-ouka.json・data-saikyo.json | 「朝武雅晴 → ともたけ雅晴」の別名が 1 件増えただけ（キーごとに 1 か所） |
-| シート側のほかの変化（別名 ＋ 生成コードの追いつき） | workers/ask/data-wrcr.json | 別名の 1 件と、放送対局（live）の 14 項目の出場者が 8 人 → 4 人（卓の出場者だけ）。ほかのセッションの生成コードの直し（6deb03532「list only the table's own players on shared-stream live pages」08:31Z・759666c8e・8cbaa7598）で live/ は 09:19Z（b9266d713）に作り直されていたが、質問欄のデータ（前回 09:09Z の 94b7c1f45）がここで追いついた |
+| シート側のほかの変化（別名 ＋ 生成コードの追いつき） | workers/ask/data-wrcr.json | 別名の 1 件と、放送対局（live）の 14 項目の出場者が 8 人・16 人 → 4 人（卓の出場者だけ）。ほかのセッションの生成コードの直し（6deb03532「list only the table's own players on shared-stream live pages」08:31Z・759666c8e・8cbaa7598）で live/ は 09:19Z（b9266d713）に作り直されていたが、質問欄のデータ（前回 09:09Z の 94b7c1f45）がここで追いついた |
 | 説明できない | なし | — |
 
 - 佐藤凌の X の ID を含むほかのページ（live/jwrc-r/3/b16-d.html・b8-a.html、pro/ryo.sato.37/index.html）は、11:20Z の別の再生成（c6ab5ee2a）で既に新しい ID になっていた（X の ID は SNS ブック【2】から直接読むため、平野さんが【2】を直した後の再生成で入った）。live/jwrc-r/3/b8-b.html は 09:19Z の再生成から佐藤凌が出なくなっている（上の生成コードの直しで卓の出場者だけになったため）
@@ -130,13 +130,20 @@ update-sns-book.yml（ref cloudflare、mode update、dry_run false）: run 43419
 - 画像（`_400x400`・`_200x200`）はどちらも HTTP 200。画像は変わっていないので「前の画像 URL が残っていない」は当たらない（同じ URL が正しい）
 - 確かめたのは本番の HTML と画像の応答まで
 
-### 自己レビュー
+### 自己レビュー（docs/notes/self-review.md）
 
-再生成のコミット be4d297cb の差は 8 ファイル・各 1〜2 行で、上のとおり全件をキーごと・行ごとに自分で照合した。docs/notes/self-review.md の対象（生成物を変えた指示）にあたるが、ワークフローが作った生成物の差を全件照合で説明できたため、サブエージェントのレビューは行っていない（この判断を記録する）。
+再生成のコミット be4d297cb を、文脈を持たない general-purpose のサブエージェントに読ませた（目的と観点を渡し、自分の分類は渡していない）。1回で指摘なし。
+
+| 指摘 | 扱い |
+|---|---|
+| なし（前の ID は be4d297cb の木に 0 件〈親では jpml_pros.html・saikyo/players/index.html の 2 ファイル〉。8 ファイルは「佐藤凌の X」2・「別名 朝武雅晴 → ともたけ雅晴」・「生成コードの変更〈6deb03532・759666c8e、`generate_live_pages.py` の `people("players")`〉による data-wrcr.json の /live の出場者」で全部説明がつく。saikyo/ の ABEMA のリンクは前後とも計 1248。HTML 3 ファイルのタグの対応・埋め込みの JSON・JSON 5 ファイルとも読める） | — |
+| （補足）data-wrcr.json の /live の出場者は、8 人だけでなく 16 人から 4 人になった項目もある（例 live[7]） | 上の分類表の「8 人 → 4 人」を「8 人・16 人 → 4 人」に直した |
 
 ### マージ
 
 止まる条件に当たっていないので、冒頭の「マージ:」の行のとおり、ログ（SKP-35 の止まった後の分・SKP-36）と決定を cloudflare へ入れる（範囲は下に追記）。
+
+作業ブランチに origin/cloudflare を merge で取り込み（衝突なし）、push の直前に再 fetch して `git merge-base --is-ancestor origin/cloudflare HEAD` が真。差は docs/decisions/operations.md と docs/logs/CHAT-1113-SKP-35.md・SKP-36.md だけ。push の出力: `dccf6acb3..5eee1796b  work/1113-skp-retro -> cloudflare`。この追記はマージの結果を書く docs/logs のみの追いの push。
 
 ## 報告
 
@@ -145,7 +152,7 @@ update-sns-book.yml（ref cloudflare、mode update、dry_run false）: run 43419
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1113-SKP-36.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1113-skp-retro
 - 確認用URL: なし
-- マージ: 済（ログ・決定のみ。範囲は `## 経過`「マージ」。ページの再生成は update-sns-book.yml の regenerate が be4d297cb で cloudflare へ入れた）
+- マージ: 済（5eee1796b。範囲 dccf6acb3..5eee1796b、ログ・決定のみ。ページの再生成は update-sns-book.yml の regenerate が be4d297cb で cloudflare へ入れた）
 - issue: なし
 - 判断が必要なこと: なし
 - 未確認の項目: なし
@@ -154,12 +161,12 @@ update-sns-book.yml（ref cloudflare、mode update、dry_run false）: run 43419
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj c3ef367b）: https://github.com/retroeater/mj-logs/tree/main/guide/c3ef367b
+ガイド文書（この版を写した時点の最新、mj 894e1278）: https://github.com/retroeater/mj-logs/tree/main/guide/894e1278
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c3ef367b/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c3ef367b/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c3ef367b/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c3ef367b/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c3ef367b/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c3ef367b/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/894e1278/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/894e1278/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/894e1278/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/894e1278/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/894e1278/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/894e1278/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/de3fa135.md

@@ -59,29 +59,52 @@ CHAT-1113-SEO-22 で上限に当たって取れなかった残り（live 325・m
 - `fetch-gsc.yml` を ref cloudflare・`task=inspect`・`inspect_resume=true`・`commit=true` で起動 → 実行 43414332570（11:06:18Z 起動、「URL 検査」は 11:07:02Z 開始）
 - サイトマップが SEO-22 の時点から変わっていた（cloudflare c021605cb9）: saikyo 892→901（2026 年度の対局 9件が増えた）、live 947→946。インデックス配下は計 2,406件。今回の対象は CSV に無い 410件（live 326・mtsuku 62・exam 13・saikyo 9）の見込み。CSV にあってサイトマップから外れた URL が2件（`live/masters/26/sf.html`・`live/masters/27/sf.html`）
 - 11:17Z の時点で「URL 検査」は続いている（429 で止まっていない）
+- 結果: **成功。410件**（「URL 検査」11:07:02Z〜11:49:32Z、約42.5分。ジョブ全体は 11:50:00Z 終了）。ログの出力は「サイトマップの URL: 2406件 / 対象: 2406件 / 今回: 410件(上限 1900)」「再試行: 0回 / 飛ばした URL: 0件」。エラー0件
+- 「コミットしてpush」: 1回目は rejected（fetch first）、`pull --rebase` の後に成功（be4d297cb..dccf6acb3、cloudflare）
+- 待った時間: 起動（11:06:18Z）から結果を確かめた 11:54Z ごろまで約48分。指示の「合計45分」を約3分超えた（対象が見込みより10件多く、終わりの見込みが 11:50Z だったため、3分だけ追加で待った）
+- CSV（`docs/gsc/inspect/2026-11-12.csv`）: ヘッダを除き **2,408行**（重複 URL なし）。今のサイトマップ 2,406件は全部そろった。残りの2行はサイトマップから外れた `live/masters/26/sf.html`・`27/sf.html`
+- 上限の数え方: 今回の回は直近24時間の件数が最大 722件（CSV で数えた）、UTC の 11/13 の件数も 411件、太平洋時間の 11/13 も 410件で、どの区切り方でも内側。区切り方の見分けには使えない（見分けは SEO-22 の 00:24Z の 429 が根拠のまま）。README に「1日目の回の24時間後にあたる 11:07Z の起動で 410件が通った」事実を足した
+
+### 2. まとめの md と issue
+
+- `docs/gsc/inspect/2026-11-12-summary.md` を全件（今のサイトマップ 2,406件）の数に直した。集計は SEO-22 と同じ使い捨てのスクリプト（スクラッチパッド）に「今のサイトマップの URL だけを数える」を足して回した
+- 全件の数: 登録済み 890/2,406（37%）。サイトマップ別の登録済み: pages 53/54・wayhome 34/45・saikyo 592/901・exam 13/13・title 111/385・mtsuku 12/62・live 75/946。googleCanonical と userCanonical の食い違い0件。lastCrawlTime 無し 1,512件
+- 新しく分かったこと:
+  - **exam は子サイトマップを個別に送信していないが、13件すべて登録済み**。SEO-22 の「差として見える (2) 子サイトマップの個別送信」と合わない。mtsuku は公開時期（exam と4日違い）・本文の量・被リンクがほぼ同じで 12/62。md の「登録率の高い種類と低い種類の違い」に足した
+  - live の大会・期は静的な被リンクが多い（中央値 40・16）が、登録は 3/22・10/154。公開から日が浅いことと合う
+  - mtsuku・exam は `sitemap` の列に子サイトマップが出る URL がある（49件）。title・live は `sitemap.xml` だけ
+- 直し方の案の節は、案A の効き目の件数（title 274・live 871・mtsuku 50、exam は0）と案C の「残り 400件を取った後」を直しただけで、案の中身は変えていない
+- SEO-22 のログの `## 報告` の状態を「判断待ち / 続き: CHAT-1113-SEO-23」にした
+- #458 に全件の要点をコメントした
+
+### 3. マージ
+
+- 着手後に cloudflare が進んだ（URL 検査の結果 dccf6acb34 ほか）ので2回取り込んだ。衝突なし
+- push 直前に再 fetch し `git merge-base --is-ancestor origin/cloudflare HEAD` が真、cloudflare との差分が docs/decisions/seo-bing.md・docs/gsc/README.md・docs/gsc/inspect/2026-11-12-summary.md・docs/logs/CHAT-1113-SEO-22.md・docs/logs/CHAT-1113-SEO-23.md だけであることを確かめた
+- `git push origin work/1113-seo23:cloudflare` → 79d758fac2..e6be26a816
 
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1113-seo23
-- ログ: https://github.com/retroeater/mj/blob/work/1113-seo23/docs/logs/CHAT-1113-SEO-23.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1113-SEO-23.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1113-seo23
 - 確認用URL: なし
-- マージ: 未
-- issue: #458
-- 判断が必要なこと: なし
+- マージ: 済（e6be26a816、`git push origin work/1113-seo23:cloudflare`。docs/logs・docs/decisions・docs/gsc のみ）
+- issue: #458（コメントのみ）
+- 判断が必要なこと: なし（直し方の案と月1回の定期取得は CHAT-1113-SEO-22 の判断待ちのまま。exam が個別送信なしで13件すべて登録済みという、案A の見立てと合わない事実をまとめの md に足した）
 - 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 74fc8588）: https://github.com/retroeater/mj-logs/tree/main/guide/74fc8588
+ガイド文書（この版を写した時点の最新、mj 894e1278）: https://github.com/retroeater/mj-logs/tree/main/guide/894e1278
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/74fc8588/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/74fc8588/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/74fc8588/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/74fc8588/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/74fc8588/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/74fc8588/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/894e1278/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/894e1278/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/894e1278/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/894e1278/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/894e1278/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/894e1278/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/de3fa135.md
