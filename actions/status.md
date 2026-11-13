@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-11-13 18:28 JST
+- 書き出した時刻: 2026-11-13 18:31 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -25,11 +25,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-13 18:28 | push | work/1113-nws-collect | success | #1188（43401618464） | 0分24秒 |
 | 2026-11-13 18:25 | push | work/1113-rsc | success | #1187（43401180310） | 0分28秒 |
 | 2026-11-13 18:15 | push | work/1113-typ | success | #1186（43399739523） | 0分32秒 |
 | 2026-11-13 18:12 | push | work/1113-typ | success | #1185（43399379327） | 0分24秒 |
 | 2026-11-13 18:11 | push | work/1113-typ | success | #1184（43399233443） | 0分25秒 |
-| 2026-11-13 18:06 | push | work/1113-rsc | success | #1183（43398500017） | 0分26秒 |
 
 ## check-build-failure.yml
 
@@ -38,11 +38,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-13 18:29 | check_run | cloudflare | skipped | #1580（43401720025） | 0分01秒 |
 | 2026-11-13 18:25 | check_run | cloudflare | skipped | #1579（43401261882） | 0分08秒 |
 | 2026-11-13 18:25 | check_run | cloudflare | skipped | #1578（43401252561） | 0分02秒 |
 | 2026-11-13 18:20 | check_run | cloudflare | skipped | #1577（43400542607） | 0分11秒 |
 | 2026-11-13 18:15 | check_run | cloudflare | skipped | #1576（43399828669） | 0分09秒 |
-| 2026-11-13 18:13 | check_run | cloudflare | skipped | #1575（43399478567） | 0分01秒 |
 
 ## check-image-links.yml
 
@@ -202,13 +202,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-13 18:28 | workflow_dispatch | work/1113-nws-collect | success | #8（43401669805） | 0分41秒 |
 | 2026-11-13 18:26 | workflow_dispatch | cloudflare | success | #7（43401362343） | 0分48秒 |
 | 2026-11-13 17:24 | workflow_dispatch | cloudflare | success | #6（43392968392） | 16分36秒 |
 | 2026-11-13 17:03 | workflow_dispatch | cloudflare | success | #5（43390206093） | 7分10秒 |
 | 2026-11-13 16:46 | workflow_dispatch | work/1113-nws | success | #4（43388103287） | 13分26秒 |
-| 2026-11-13 16:41 | workflow_dispatch | work/1113-nws | cancelled | #3（43387550650） | 5分24秒 |
-
-- #3 cancelled: ジョブ「read」 ステップ「実行」
 
 ## regenerate-page.yml
 
@@ -217,7 +215,7 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-11-13 18:25 | push | cloudflare | in_progress | #828（43401185256） |  |
+| 2026-11-13 18:25 | push | cloudflare | success | #828（43401185256） | 2分58秒 |
 | 2026-11-13 18:17 | workflow_dispatch | work/1113-typ | success | #827（43400101850） | 1分39秒 |
 | 2026-11-13 18:15 | workflow_dispatch | work/1113-typ | success | #826（43399740635） | 2分05秒 |
 | 2026-11-13 18:12 | workflow_dispatch | work/1113-typ | success | #825（43399388453） | 1分29秒 |
