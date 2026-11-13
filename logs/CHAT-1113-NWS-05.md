@@ -303,6 +303,74 @@ CHAT-1113-NWS-03 の「判断が必要なこと」2（リーグ戦の全成績�
 - 取り込み: `origin/cloudflare`（0ce63eb、GDR-01・02 の docs のみ）を衝突なく取り込んだ。未マージの work/ ブランチで同じファイルを変えるのは `work/1101-prp-pub`・`work/1103-ryo5`（docs/notes/github-actions.md の別の行〈`check-image-links.yml`・`fetch-x-posts.yml`〉）だけで、同じ行ではない
 - 差分の範囲: 一度きりのスクリプト・ワークフロー・試験、`check_unused_names.py` の `NAME_RESOLVERS` 1行、docs/notes/github-actions.md の表の1行、ログ。範囲内。取り込み後の試験: 2,203件 OK
 
+### マージ（1回目）
+
+- 2026-11-13 22:2x JST、`git push origin work/1113-nws-league:cloudflare`（push 直前に fetch して `merge-base --is-ancestor` が真）。`cloudflare` = e8adaad
+
+### 2. 試しの3号・1回目（e8adaad、run 43433646984、2026-11-13 22:26〜22:36 JST）
+
+- 号: 200305_023（2001〜2003年の Flate。第19期の最終成績）・200605_053（2004年12月以降の JPEG。第22期の最終成績）・200608_056（1ページが3枚に分かれた号。第23期 前期第3節終了時。シートに節のポイントがある期）。ページは plan で選んだもの（16ページ）。dump は16ページすべて（144枚）
+- 「鳳凰」シート: 16,011行（plan と同じ。読み直しで変わっていない）
+
+1ページごと（通常の API）
+
+| ページ | 入力 | 出力 | 表 |
+|---|---:|---:|---:|
+| 200305_023 p.2 | 21,171 | 50 | 0 |
+| 200305_023 p.3 | 21,171 | 50 | 0 |
+| 200305_023 p.4 | 21,171 | 6,518 | 5 |
+| 200305_023 p.5 | 21,171 | 4,934 | 3 |
+| 200305_023 p.7 | 21,171 | 395 | 0 |
+| 200605_053 p.8 | 32,295 | 4,659 | 3 |
+| 200605_053 p.9 | 32,295 | 8,507 | 4 |
+| 200605_053 p.10 | 32,295 | 5,572 | 2 |
+| 200605_053 p.12 | 32,295 | 197 | 0 |
+| 200608_056 p.2 | 32,295 | 247 | 0 |
+| 200608_056 p.3 | 32,295 | 327 | 0 |
+| 200608_056 p.8 | 32,295 | 2,716 | 3 |
+| 200608_056 p.9 | 32,295 | 11,439 | 5 |
+| 200608_056 p.10 | 32,295 | 6,695 | 2 |
+| 200608_056 p.11 | 32,295 | 137 | 0 |
+| 200608_056 p.12 | 32,295 | 294 | 0 |
+
+- 出力の平均 3,296/ページ（最大 11,439）。実額 $2.8991（通常の API）。使った額の累計 $25.67 ＋ $0.2544 ＋ $2.8991 = $28.82
+- 読んだ表 27（鳳凰戦のリーグ 25・その他 2）
+
+照らし合わせ（分け方 × リーグ、ポイント）
+
+| リーグ | 照合済み | 食い違い | 補完 | シートに無い | 節不明 | 読めない |
+|---|---:|---:|---:|---:|---:|---:|
+| A1 | 12 | 13 | 0 | 5 | 0 | 6 |
+| A2 | 17 | 17 | 0 | 7 | 0 | 7 |
+| B1 | 25 | 9 | 0 | 1 | 0 | 6 |
+| B2 | 10 | 10 | 4 | 15 | 0 | 16 |
+| C1 | 20 | 11 | 0 | 33 | 0 | 16 |
+| C2 | 13 | 18 | 0 | 61 | 0 | 8 |
+| C3 | 9 | 0 | 0 | 33 | 0 | 0 |
+| D1 | 28 | 29 | 0 | 37 | 0 | 0 |
+| D2 | 26 | 24 | 0 | 5 | 0 | 0 |
+| その他 | 0 | 0 | 0 | 69 | 0 | 0 |
+
+| 号 | 照合済み | 食い違い | 補完 | シートに無い | 割合 |
+|---|---:|---:|---:|---:|---:|
+| 200305_023 | 20 | 10 | 0 | 59 | 66.7% |
+| 200605_053 | 97 | 84 | 0 | 31 | 53.6% |
+| 200608_056 | 43 | 37 | 4 | 176 | 53.8% |
+| 計 | 160 | 131 | 4 | 266 | 55.0% |
+
+- 条件（85% 以上）を満たさない。最終成績の順位は照合済み 211（食い違い 0）
+- 食い違い 131件は**すべて「シートが負、ニュースが同じ絶対値の正」**（例: 第22期 A1 最終 7位 シート −46.7・ニュース 46.7、200605_053 p.8）。表ごとの件数: 200305_023 p.4 の A1 3・A2 4・B2 3、200605_053 p.8 の A1 6・A2 7・B1 6、p.9 の B2 7・C1 11・C2 18、p.10 の D1 29、200608_056 p.8 の A1 4・A2 6・B1 3、p.10 の D2 24。ポイントの数字そのものの食い違いは0件（全件の一覧は直した後の試しで書く）
+- 切り出しで確かめた（200605_053 p.8・200608_056 p.9）: **紙面の成績表はマイナスの記号を付けず、負の最初の行にだけ「△」を付ける**（例: 第22期 A1 最終 6位 △3・5、7位 46・7 → −3.5・−46.7。第23期 B1 前期第3節 10位 △18・8、11位 27・0）。スクリプトは △ の付いた行だけを負にし、その下の行を正のまま比べていた → 「読み違い」ではなく比べ方の誤り（紙面どおりの食い違いは0件）
+- 「読めない」59件: 名前の横の ◎（昇級）・●（降級）がポイントの文字に入り、数に直せなかった（例: ◎150・2）
+- 「シートに無い」266件の多くは期・リーグを決められなかった表（200305_023 p.5 の B2・C1・C2、200608_056 p.9 の C1・C2・C3・D1、「その他」2表）。紙面は見出し（【CⅠ】(前期第3節終了時) など）と行が段をまたいで続き、見出しと行の対応を取り違えた表がある（名前は当たるがリーグが合わない。例: 200608_056 p.9 の D1 は 13/36 人）
+
+### 試し直し1回目の直し
+
+- 比べ方: 表の行を順位の順に並べ、△（・▲・−）の付いた最初の行から下を負にする。記号が無ければ「上は減り続け、下は増え続ける」分け目をすべて試し、どの分け目でも同じ符号になる行だけ符号を決める。決まらない行（0 付近の1行など）は絶対値で照らし、ニュースの値を「±3.5」と書く
+- ◎・●・○ などの印はポイントの文字から外す（符号に数えない）
+- 表のリーグで名前が当たらないときは、ほかのリーグでも同じ基準（3人以上かつ半分以上、同点は決めない）で引き、当たればそのリーグで照らす（決め方の欄に「名前でリーグ（C1→D1）」と書く）。「その他」の表も同じ
+- プロンプト: points は数字と記号を紙面のまま書き、符号を足さない・外さない。見出しと行の対応は順位の並びで確かめ、1つの表に別のリーグの行を混ぜない
+
 ## 報告
 
 - 状態: 対応中
@@ -319,12 +387,12 @@ CHAT-1113-NWS-03 の「判断が必要なこと」2（リーグ戦の全成績�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 97603d46）: https://github.com/retroeater/mj-logs/tree/main/guide/97603d46
+ガイド文書（この版を写した時点の最新、mj e8adaade）: https://github.com/retroeater/mj-logs/tree/main/guide/e8adaade
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/97603d46/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/97603d46/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/97603d46/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/97603d46/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/97603d46/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/97603d46/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/0778da86.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e8adaade/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e8adaade/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e8adaade/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e8adaade/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e8adaade/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e8adaade/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/1da5408e.md
