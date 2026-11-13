@@ -51,6 +51,33 @@ CHAT-1113-TYP-02 の判断待ちへの回答（案1）を入れ、#682 の指摘
 
 ## 経過
 
+### 着手前の確認（2026-11-13）
+
+- 0章: ログの「指示」欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）の欠けなし
+- 同じ Chat-Ref のコミット: 0件。作業ブランチ: origin/work/1113-typ は origin/cloudflare の祖先（マージ済み）。ローカルの work/1113-typ も祖先なので、`git checkout work/1113-typ` のうえ `git merge --ff-only origin/cloudflare`（46a658d）
+- TYP-02 のログの状態を「判断待ち / 続き: CHAT-1113-TYP-03」にした
+- #682: Open、コメント 0件（ほかのセッションの着手中なし）。着手中をコメントした（https://github.com/retroeater/mj/issues/682#issuecomment-6843640623 ）
+- 直す予定のコード（`generate_live_pages.build_individual`）を変えている未マージの work/ ブランチは無し
+
+### 仕分けの調べ方
+
+- ページの文字は手元の HTML（cloudflare の生成物）から読んだ
+- /live の動画の日付は YouTube の公開日（ライブは配信開始日）で、シートの値ではない（`generate_live_pages.Video.sort_date`）。日付の並びの指摘は、動画の題名（YouTube の oEmbed で引いた）と回戦・卓の割り当てを比べて仕分けた
+- シートの行番号は、一度きりのワークフロー `oneoff-sheet-lookup.yml`（`scripts/oneoff_sheet_lookup.py`、読むだけ）で引く。新しいワークフローは既定ブランチに無いと起動できないので、cloudflare に入れて実行し、使い終えたら同じ指示で外す
+
+### コードの直し（No.29）と自己レビュー
+
+- `generate_live_pages.build_individual`: 対局者が空のページで、説明文の「対局者: 。」と見出しだけの「対局者」の節を出さない（試験 `EmptyPlayersTest`。修正前のコードでは `test_no_players` が FAIL）
+- `regenerate-page.yml` を作業ブランチで dry_run・compare_ref（cloudflare 589c080）で実行（run 43364782962、success）: コードの違いで中身が変わるのは `live/wrc/4/f.html`（10行）の1件だけ。最初の実行（compare_ref に `cloudflare` と書いた run 43364600528）は「fatal: invalid reference: cloudflare」で失敗した（ワークフローの中では SHA で渡す）
+- 自己レビュー1回目（新しい文脈のサブエージェント）: 止めるほどの指摘なし。低2件
+
+| 指摘 | 扱い |
+|---|---|
+| `EmptyPlayersTest` が `unittest.main()` の後ろにあり、直接実行で回らない（低） | 直した（e797709） |
+| 良栄の引き当てで「表示」を出していない（サイトに出ていない行を見分けられない）（低） | 直した（e797709。ログ・issue には表示=Y の行だけを写す） |
+
+- 2回目（e797709 の差分だけ）: 指摘なし
+
 ## 報告
 
 - 状態: 作業中
@@ -58,12 +85,12 @@ CHAT-1113-TYP-02 の判断待ちへの回答（案1）を入れ、#682 の指摘
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 46a658d5）: https://github.com/retroeater/mj-logs/tree/main/guide/46a658d5
+ガイド文書（この版を写した時点の最新、mj d1a3ab3c）: https://github.com/retroeater/mj-logs/tree/main/guide/d1a3ab3c
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/46a658d5/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/46a658d5/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/46a658d5/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/46a658d5/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/46a658d5/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/46a658d5/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d1a3ab3c/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d1a3ab3c/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d1a3ab3c/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d1a3ab3c/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d1a3ab3c/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d1a3ab3c/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a5fcf1af.md
