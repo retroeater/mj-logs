@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-11-14 09:25 JST
+- 書き出した時刻: 2026-11-14 09:30 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -191,19 +191,6 @@
 
 - #6 failure: ジョブ「regenerate / regenerate」 ステップ「飛ばしたページを報告」
 
-## oneoff-news-read.yml
-
-- 名前: 連盟ニュースの読み取り(一度きり)
-- state: active
-
-| 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
-| --- | --- | --- | --- | --- | --- |
-| 2026-11-14 09:17 | workflow_dispatch | cloudflare | success | #20（43533219099） | 0分57秒 |
-| 2026-11-14 09:14 | workflow_dispatch | work/1114-nws-collect | success | #19（43532800428） | 0分48秒 |
-| 2026-11-14 09:06 | workflow_dispatch | work/1114-nws-collect | success | #18（43531894653） | 5分07秒 |
-| 2026-11-14 09:02 | workflow_dispatch | work/1114-nws-collect | success | #17（43531483223） | 0分45秒 |
-| 2026-11-14 08:48 | workflow_dispatch | cloudflare | success | #16（43529797554） | 0分58秒 |
-
 ## regenerate-page.yml
 
 - 名前: ページの再生成
@@ -211,11 +198,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-14 09:30 | push | cloudflare | in_progress | #838（43534587233） |  |
 | 2026-11-14 09:17 | push | cloudflare | success | #837（43533210278） | 4分06秒 |
 | 2026-11-13 21:23 | push | cloudflare | success | #836（43424755608） | 2分51秒 |
 | 2026-11-13 21:18 | workflow_dispatch | cloudflare | success | #835（43424110700） | 0分55秒 |
 | 2026-11-13 21:17 | workflow_dispatch | cloudflare | success | #834（43423869339） | 1分07秒 |
-| 2026-11-13 21:14 | push | cloudflare | success | #833（43423502439） | 2分58秒 |
 
 ## regenerate-saikyo.yml
 
