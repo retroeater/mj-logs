@@ -59,14 +59,58 @@ Chat-Ref: CHAT-1114-SEO-30
 
 ## 経過
 
+### 0. 着手前の確認
+
+- 「指示」欄の末尾は指示文の最後の行と一致。同じ Chat-Ref のコミット0件。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は全部ある
+- ガイド文に規則を足す指示で、「知見 → 選んだ層 → 理由」の表がある（SEO-29 で止まった理由が解消）
+- 作業ブランチ: ローカル・リモートとも無かったので `git checkout -b work/1114-seo30 origin/cloudflare`（5236216911）
+- 未マージの work/ ブランチで docs/notes/chat-routines.md を変えているものは無い（`git branch -r --no-merged origin/cloudflare` の各ブランチと `git diff --quiet origin/cloudflare...<branch> -- docs/notes/chat-routines.md`）
+
+### 1. 同じ論点の issue
+
+`gh api -X GET search/issues -f q="repo:retroeater/mj is:issue <語>"` で「send_later」「予約 チャット」「リマインド」「貼る時機」「カレンダー 予約」を検索した。チャットの予約で待ちを再開する論点の issue は open・closed とも無かった。近いもの: #504（open、予約実行を Cloudflare の Worker から時刻どおりに起動する。ワークフローの予約実行で論点が別）、#649（closed、ryoei.net の移管の後の確認。send_later を確認に使った事例）
+
+### 2. chat-routines.md「期日とカレンダー」の直し（28,271 → 28,449 バイト）
+
+直す前（2項目）:
+
+> - **チャット側が自分で確かめられる後での確認（mj-logs・REST・本番の WebFetch・カレンダー）を、同じチャットで数分〜翌日に行うときは、そのチャットに届く予約（send_later）を入れる。**
+>   返答に予約の時刻を書き、届いたら確かめて、結果に合わせて次の指示文まで用意する（平野さんが「確かめて」と送る手間をなくすため。ワークフローの定期実行〈docs/notes/glossary.md〉とは別物）
+>
+> - **予約に向かないものは今までどおりカレンダーで扱う**: 平野さんの手作業、数日より先の確認、ほかの系列のチャットが担当する確認（届くのは予約したチャットだけで、文脈が途切れる）、Chrome でしか見られない確認
+
+直した後:
+
+> - **時機を待つものは、すべてそのチャットに届く予約（send_later）を入れる**（指示文の「貼る時機」・後での確認・後で伺う問い。数分後でも数週間後でも同じ。例: 12/1 10:00 以降に貼る CHAT-1201-SEO-26 を 11/14 に予約した）。
+>   返答に予約の時刻を書く。届いたら mj-logs・REST などで状態を確かめてから、平野さんに何を貼る・何を見るかを伝え、結果に合わせて次の指示文まで用意する（平野さんに時機を覚えておいてもらわないため。ワークフローの定期実行〈docs/notes/glossary.md〉とは別物）
+>
+> - **予約に加えてカレンダーでも扱うもの**: 平野さんの手作業、Chrome でしか見られない確認、ほかの系列のチャットが担当する確認（届くのは予約したチャットだけで、文脈が途切れる。担当の系列のチャットに予約を入れるか、カレンダーに書く）
+
+- 「翌日以降の確認は、カレンダーにも予定を作り、説明に予約の日時を書く」と「要らなくなった予約は取り消す」はそのまま
+- 決定と矛盾する記述は無かった（範囲を広げただけ）
+
+### 3. ほかの文書の grep
+
+`grep -n -E '数分〜翌日|数日より先|予約に向かない'` と `grep -n -E 'send_later|予約（|確認の予約'` を CLAUDE.md・docs/handover.md・docs/instruction-template.md・docs/notes/chat-side-operations.md に: 同じ趣旨の記述は無し。chat-side-operations.md 73行目の表の行「期日・カレンダー・確認の予約 | `docs/notes/chat-routines.md`「期日とカレンダー」」は参照だけで、そのままでよい
+
+### 4. その他
+
+- docs/decisions/operations.md に「## 2026-11-14（CHAT-1114-SEO-30）」の節を足した
+- SEO-29 のログの状態を「判断待ち / 続き: CHAT-1114-SEO-30」にした
+
+
+### 5. マージ
+
+- push 直前に再 fetch し `git merge-base --is-ancestor origin/cloudflare HEAD` が真、cloudflare との差分が docs/notes/chat-routines.md・docs/decisions/operations.md・docs/logs/（SEO-29・SEO-30）だけであることを確かめ、`git push origin work/1114-seo30:cloudflare` → 5236216911..52e1231a9b
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1114-seo30
-- ログ: https://github.com/retroeater/mj/blob/work/1114-seo30/docs/logs/CHAT-1114-SEO-30.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1114-SEO-30.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1114-seo30
 - 確認用URL: なし
-- マージ: 未
+- マージ: 済（52e1231a9b、`git push origin work/1114-seo30:cloudflare`）
 - issue: なし
 - 判断が必要なこと: なし
 - 未確認の項目: なし
@@ -75,12 +119,12 @@ Chat-Ref: CHAT-1114-SEO-30
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj fadaee0e）: https://github.com/retroeater/mj-logs/tree/main/guide/fadaee0e
+ガイド文書（この版を写した時点の最新、mj e026d556）: https://github.com/retroeater/mj-logs/tree/main/guide/e026d556
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/fadaee0e/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/fadaee0e/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/fadaee0e/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/fadaee0e/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/fadaee0e/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/fadaee0e/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e026d556/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e026d556/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e026d556/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e026d556/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e026d556/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e026d556/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/6aa6642b.md

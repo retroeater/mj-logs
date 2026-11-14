@@ -48,10 +48,9 @@
 - 外部ドメインへの依存を増やさない（CSP〈`_headers`〉の許可を足すことになるため）
 - 本番へまとめて要求を送るとき（一括取得・HEAD の確かめ・Playwright での巡回）は UA に `mj-internal` を含める（#568 の集計で人として数えないため）
 - `.assetsignore` に開発用ファイルを列挙。公開対象を増やさない。新しいディレクトリ・ファイルは公開してよいか確認し、公開しないものは追加する（#133）
-- ビルド・lint の自動化コマンドはなし。HTML/JSの変更はブラウザで直接確認する
 - 外部の状態を待つ待機は上限15分（超えたら状態を書き「未確認の項目」に回して進む。自分のコマンドの実行は対象外）。共有の定数・関数を変えるときは参照を洗い出し、
   マージ前に全ページを再生成して差分を確かめる（docs/notes/github-actions.md「ワークフローを手動実行するとき」、docs/notes/static-generation.md「生成スクリプトの構成」）
-- テストは`scripts/tests/`（unittest、標準ライブラリのみ）。実行は`python3 -m unittest discover -s scripts/tests`。毎朝の run-daily の`check-meibo.yml`も実行する。
+- ビルド・lint の自動化コマンドはなし（HTML/JS はブラウザで確かめる）。テストは`scripts/tests/`（unittest、標準ライブラリのみ）。実行は`python3 -m unittest discover -s scripts/tests`。毎朝の run-daily の`check-meibo.yml`も実行する。
   `workers/<名前>/`のコード・テスト・生成物（`data.json`など）を変えたときは`node --test 'workers/<名前>/test/*.test.mjs'`も回す（CI では回っていない）
 
 ### 禁止事項（理由は参照先）
@@ -78,15 +77,14 @@
 - **マージは`git push origin <作業ブランチ>:cloudflare`で行い、push直前に再fetchして`git merge-base --is-ancestor origin/cloudflare HEAD`を確かめる**（docs/notes/branch-operations.md「マージするとき」）
 - **`.github/workflows/`を追加・変更する作業では、着手時にdocs/notes/github-actions.md「ワークフローを変更したとき」を読み、マージ前に作業ブランチで手動実行して確かめる。実行できなければ報告して判断を仰ぐ**
 - 長期間マージされないブランチは、定期的に`cloudflare`を取り込んで乖離を小さく保つ
-- **`origin/cloudflare`の取り込みで衝突したら、docs/notes/branch-operations.md「生成物を含む作業ブランチを取り込む・マージするとき」に従う**（生成されたページだけなら取り込んだ後のスクリプトで生成し直して解く。
-  `docs/decisions/*.md`・`docs/logs/` の末尾への追記どうしは両方を残して解く。それ以外が衝突したら止まる。指示文が解き方を書いている衝突はそのとおりに解き、該当箇所をログに引用する）
+- **`origin/cloudflare`の取り込みで衝突したら、docs/notes/branch-operations.md「生成物を含む作業ブランチを取り込む・マージするとき」に従う**（生成ページ・`docs/decisions`/`docs/logs` の末尾の追記どうし・指示文が解き方を書いた衝突のほかは止まる）
 - リモートのブランチは削除しない（消す push は mj-git-guard が止める。マージ済みの `work/*` は `cleanup-branches.yml` が消す。docs/notes/branch-operations.md「ブランチを削除するとき」）
 - **このブランチ運用ルールに反した作業（自他を問わない）は#176にコメントで記録する**（記録対象と書式は#176の「スコープ変更」節）
 
 ## Chat-Ref
 
 チャット（claude.ai）で作った指示文に付く識別子（`CHAT-MMDD-XXX-nn`: 発行日・チャットセッション識別子・連番）。新しい識別子は英大文字3文字。
-既存の識別子（2文字、`A`・`DOC`・`K7`・`W2` など）は有効なままで、重ねない（#474）。チャット側の規則はdocs/notes/chat-side-operations.md。
+既存の2文字の識別子も有効で、重ねない（#474）。チャット側の規則はdocs/notes/chat-side-operations.md。
 
 受け取る側（Claude Code）:
 
@@ -110,7 +108,7 @@
 ## 作業ログ
 
 指示1件ごとの経過と報告を残す（全セッション共通）。書き方・最終報告の形は`docs/logs/_template.md`、寿命はdocs/notes/branch-operations.md「作業ログの寿命」。
-`docs/logs/`は公開されないが、push したログとガイド文書は public の`retroeater/mj-logs`に写る（push の約1〜2分後、mj-logs の`sync-from-mj.yml`。仕組みは docs/notes/scheduler-worker.md、#440・#298）。
+`docs/logs/`は公開されないが、push したログとガイド文書は public の`retroeater/mj-logs`に写る（仕組みは docs/notes/scheduler-worker.md、#440・#298）。
 **ログに人の個人情報（氏名と結びついた属性など）・鍵やトークンの値・非公開の URL（Claude Code のセッション URL は可）を書かない。**
 プレビューの URL（Workers Builds の別名 URL など）も非公開として扱い、ターミナルへの最終報告にだけ書く。
 
@@ -120,12 +118,11 @@
   以降は節目ごとに追記してpushし、完了時に仕上げてpushする（セッションが失われても記録が残るように）
 - 構成は ヘッダ・`## 指示`〈貼られた指示文をそのまま〉・`## 経過`〈詳細はすべてここ〉・`## 報告`（`_template.md`をコピー）。
   **`## 報告`はログの末尾に置き、作業の最後に更新してpushする。** チャット側はこの節だけを読むため、**10項目を省かず、該当が無ければ「なし」と書く**。
-  各項目（予約実行の初回の日時を含む）・状態の書き方（「完了」の条件・` / 続き: CHAT-…`）は`_template.md`とdocs/notes/branch-operations.md「作業ログの寿命」
+  項目・状態の書き方は`_template.md`とdocs/notes/branch-operations.md「作業ログの寿命」
 - **ログの節を書き換えるときは、`## 指示`欄より後ろの見出しを相手にし（`## 報告`はファイルの最後の一致）、push 前に`## 指示`欄が変わっていないことを確かめる**（理由は`_template.md`）
 - ログは作業ブランチにだけpushし、成果物と別のコミットにする。`cloudflare`へは指示の最後のマージ1回で成果物と一緒に入れる（マージの結果を書く docs/logs のみの追いのpushは可）
 - 後の指示で使うスクリプト・中間データの置き場所は docs/notes/cloud-sessions.md「作業ファイルの置き場所」（scratchpad とコンテナは消える）
-- **ターミナルへ返す最終報告は`_template.md`「ターミナルへ返す最終報告」の形**（最後の行は`Chat-Ref: CHAT-MMDD-XXX-nn`、直前は「ログ（公開）」の行。詳細はログの`## 報告`）。
-  **質問して止まるとき・pushに失敗したときだけ、内容をターミナルに書く**（ログに届かないため）
+- **ターミナルへ返す最終報告は`_template.md`「ターミナルへ返す最終報告」の形**（**質問して止まるとき・pushに失敗したときだけ、内容をターミナルに書く**）
 - **指示の完了時（完了・判断待ち・中断の最後の push）に、その指示の「決定」節と作業中の平野さんの回答（grill を含む）を
   `docs/decisions/<分野>.md` に足す**（ログと同じコミットでよい。書き方は`docs/decisions/README.md`）
 
@@ -165,8 +162,7 @@
   複数の変更が混ざっていたらissueごとに分けてコミットする（#157）
 - コミットメッセージ: 件名は50字目安（72字上限）・命令形・末尾ピリオドなし、空行を挟んで本文に「何を・なぜ」。
   既存の`chore:`等の接頭辞形式を維持し、トレーラは「Chat-Ref」節のとおり入れる
-- コミットメッセージの閉じるキーワード＋`#番号`は、Bash の git なら mj-git-guard が止める（docs/notes/skills.md「git の hook（mj-git-guard）」、#556）。
-  hook が見ない経路（GitHub MCP のコミット・PR の本文）でも書かない。issue を閉じるのは `gh issue close`
+- 閉じるキーワード＋`#番号`は、hook が見ない経路（GitHub MCP のコミット・PR の本文）でも書かない（Bash の git は mj-git-guard が止める。docs/notes/skills.md「git の hook（mj-git-guard）」、#556）。issue を閉じるのは `gh issue close`
 - **文章（ログ・issue本文・コメント・コミットメッセージ）をシェル経由で書かない**（`$`・バッククォートが展開される）。ファイルは Write / Edit、
   コミットメッセージは `git commit -F - <<'EOF'`（引用符付き）。渡し方の細目は docs/notes/branch-operations.md「文章をコマンドに渡すとき」
 
@@ -179,8 +175,7 @@
 - **テスト・hook・ワークフローで確かめるようにした規則は、同じコミットでガイド文から消し、参照だけ残す**（二重に持つと片方が古くなる、#492）
 - handover.md / CLAUDE.md をissueやコメントから参照するときは、行番号ではなく節・項目の見出しで書く
 - 「最終更新」は日付＋直近の変更3行以内。外した行は archive へ移さず消してよい
-- 上限はファイルごとに **CLAUDE.md・handover.md・docs/notes/chat-side-operations.md 各28KB（警告域26KB）・docs/instruction-template.md 16KB（警告域14KB）**
-  （`check-assets.yml`、1KB=1024バイト。**作業ブランチの上で測る**）。
+- CLAUDE.md・handover.md・docs/notes/chat-side-operations.md・docs/instruction-template.md の上限と警告域は `check-assets.yml` が検査する（値の正はそこ。**作業ブランチの上で測る**）。
   警告域に近づいたら、足す前に `docs/notes/` へ移す。**警告が出たら、上限を上げずに4文書とも整理する**（同じ趣旨の記述をまとめ、
   事例は `docs/notes/handover-archive-2026.md` へ、場面限定の手順は `docs/notes/` へ。退避先には上限を置かない、#421）。
   上限は下げる方向にだけ動かし、上げるのは平野さんの判断。最終目標は CLAUDE.md 20KB・handover.md 24KB 前後（#292・#301 が進んだ時点で見直す、#492）
