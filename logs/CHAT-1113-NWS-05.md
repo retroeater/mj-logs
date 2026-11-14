@@ -521,7 +521,7 @@ CHAT-1113-NWS-03 の「判断が必要なこと」2（リーグ戦の全成績�
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1114-NWS-06
 - ブランチ: work/1113-nws-league
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1113-NWS-05.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1113-nws-league
