@@ -1680,6 +1680,12 @@ CHAT-1113-NWS-05（判断待ち。全号の Batch は送信済み）の続き。
 - 第17期 後期の B1〜C3 の「7」は 200102_002 の見出しの使い回しで、実際の節は別（1月号の記事では B1〜C2 は2節を消化）
 
 
+
+### マージ（2回目）とマージ後の自動処理
+
+- 2026-11-14 09:30 JST `git push origin work/1114-nws-collect:cloudflare`（直前に fetch して `merge-base --is-ancestor` が真）。`cloudflare` = fadaee0
+- 指示文の前提「マージで動く自動処理は無い見込み」と違い、ac47727 と fadaee0 の push で「ページの再生成」（regenerate-page.yml）が動いた（`scripts/lib/sheets_write.py` を変えたため）。run 43533210278（ac47727）・43534587233（fadaee0）とも success で、生成物のコミットは出ていない（ページは変わっていない）
+
 ## 報告
 
 - 状態: 判断待ち
@@ -1687,7 +1693,7 @@ CHAT-1113-NWS-05（判断待ち。全号の Batch は送信済み）の続き。
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1114-NWS-06.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1114-nws-collect
 - 確認用URL: なし（ページ・生成物は変えていない）
-- マージ: 済（ac47727。後片付けとログ・決定は最後の push で入れる）
+- マージ: 済（ac47727・fadaee0。マージ後の「ページの再生成」は2回とも success で、ページの変化なし）
 - issue: #685（着手中・要約をコメント。閉じていない）
 - 判断が必要なこと:
   - 1. 候補タブの種別 F の採用の進め方: 書いたのは4行だけ（第23期 前期 第4節の途中経過の食い違い。200609_057 p.8 の B1 板川和俊・山井弘・今里邦彦、p.10 の D2 千葉未帆）。B1 の3件は切り出しで紙面どおりと確かめた（紙面の第4節の表は第3節の値のまま。後日対局などが入っていないと見られる）。最終成績の補完・食い違いは0件
