@@ -1588,15 +1588,129 @@ CHAT-1113-NWS-05（判断待ち。全号の Batch は送信済み）の続き。
 
 - 計 952行
 
+### 3. 後片付け
+
+- 外したもの（0ba5fe0）: `scripts/oneoff_news_read.py`・`scripts/tests/test_oneoff_news_read.py`・`.github/workflows/oneoff-news-read.yml`・`scripts/check_unused_names.py` の `NAME_RESOLVERS` の1行・`scripts/lib/sheets_write.py` の `WRITABLE` の「鳳凰_連盟ニュース」（ed3af37 の `WRITABLE` と同じに戻った）・docs/notes/github-actions.md の表の行。docs/notes/research-candidates.md に種別 F・新しいタブ・外したことと戻し方（ac47727 から取り出す）を書いた。`oneoff_news_read`・`oneoff-news-read`・`鳳凰_連盟ニュース` を docs を含めて検索し、残りは research-candidates.md の説明（外した・タブの説明）と docs/logs・docs/decisions の記録だけ
+- 試験: `python3 -m unittest discover -s scripts/tests` → OK（`test_workflows_table` を含む）
+- 外したことの差分のレビュー（新しい文脈のサブエージェント、1回）: 高・中なし。低2件（手元の `__pycache__` が残る〈.gitignore で無視、実害なし〉・戻し方の説明で WRITABLE の行の直前のコメント行に触れていない〈中身は正確〉）は直さない
+- 決定: docs/decisions/automation.md に「2026-11-14（CHAT-1114-NWS-06）」を足した
+- 環境の許可するホスト: NWS の系列で足した `productionresultssa9.blob.core.windows.net`・`results-receiver.actions.githubusercontent.com`・`productionresultssa2.blob.core.windows.net` を外した（2026-11-14、承認の画面で平野さんが承認）。ほかのホストは変えていない
+- 使った額: この指示で Batch $15.6191 ＋ 切り出しの確かめの読み直し $0.9631 ＝ $16.58。NWS の系列の累計 $31.63 ＋ $16.58 ＝ **$48.21**（上限 $80 の内）
+
+### 新しいタブの第17〜22期の節の揃い具合（「読んだ表」から。期・リーグを決めた途中経過の表）
+
+| 期 | 前後 | リーグ | 紙面にある節 | 1〜最大の節で欠ける節 | 最終成績の表 |
+|---:|---|---|---|---|---|
+| 17 | 後 | B1 | 2,7 | 1,3,4,5,6 | あり |
+| 17 | 後 | B2 | 2,7 | 1,3,4,5,6 | あり |
+| 17 | 後 | C1 | 2,7 | 1,3,4,5,6 | あり |
+| 17 | 後 | C2 | 2,7 | 1,3,4,5,6 | あり |
+| 17 | 後 | C3 | 1,7 | 2,3,4,5,6 | なし |
+| 17 | - | A1 | 7 | 1,2,3,4,5,6 | あり |
+| 17 | - | A2 | 7 | 1,2,3,4,5,6 | あり |
+| 18 | 前 | B1 | 1,2,3,4 | なし | あり |
+| 18 | 前 | B2 | 1,2,3,4 | なし | あり |
+| 18 | 前 | C1 | 1,2,3,4 | なし | あり |
+| 18 | 前 | C2 | 1,2,4 | 3 | あり |
+| 18 | 前 | C3 | 1,4 | 2,3 | あり |
+| 18 | 後 | B1 | 6,7,8,9 | 1,2,3,4,5 | あり |
+| 18 | 後 | B2 | 6,7,8,9 | 1,2,3,4,5 | あり |
+| 18 | 後 | C1 | 6,7,8,9 | 1,2,3,4,5 | あり |
+| 18 | 後 | C2 | 6,7,8,9 | 1,2,3,4,5 | あり |
+| 18 | 後 | C3 | 9 | 1,2,3,4,5,6,7,8 | なし |
+| 18 | - | A1 | 1,2,3,4,5,6,7,8,9 | なし | あり |
+| 18 | - | A2 | 1,2,3,4,5,6,7,8,9 | なし | あり |
+| 19 | 前 | B1 | 1,2,3,4 | なし | あり |
+| 19 | 前 | B2 | 1,2,3,4 | なし | あり |
+| 19 | 前 | C1 | 1,2,3,4 | なし | あり |
+| 19 | 前 | C2 | 1,2,3,4 | なし | あり |
+| 19 | 前 | C3 | 2 | 1 | あり |
+| 19 | 後 | B1 | 7,8,9 | 1,2,3,4,5,6 | あり |
+| 19 | 後 | B2 | 7,8,9 | 1,2,3,4,5,6 | あり |
+| 19 | 後 | C1 | 1,7,9 | 2,3,4,5,6,8 | あり |
+| 19 | 後 | C2 | 1,7,9 | 2,3,4,5,6,8 | あり |
+| 19 | 後 | C3 | 1,7 | 2,3,4,5,6 | あり |
+| 19 | - | A1 | 1,2,3,4,5,6,7,8,9 | なし | あり |
+| 19 | - | A2 | 1,2,3,4,5,6,7,8,9 | なし | あり |
+| 20 | 前 | B1 | 1,2,3,4 | なし | あり |
+| 20 | 前 | B2 | 1,2,3,4 | なし | あり |
+| 20 | 前 | C1 | 1,2,3,4 | なし | あり |
+| 20 | 前 | C2 | 1,2,3,4 | なし | あり |
+| 20 | 前 | C3 | 4 | 1,2,3 | あり |
+| 20 | 後 | B1 | 3,4,7 | 1,2,5,6 | あり |
+| 20 | 後 | B2 | 2,3,4,7 | 1,5,6 | あり |
+| 20 | 後 | C1 | 3,4 | 1,2 | あり |
+| 20 | 後 | C2 | 3 | 1,2 | あり |
+| 20 | 後 | C3 | 1,3,4 | 2 | あり |
+| 20 | - | A1 | 1,2,3,4,5,6,7,8,9 | なし | あり |
+| 20 | - | A2 | 1,2,3,4,5,6,7,8,9 | なし | あり |
+| 21 | 前 | B1 | 1,2,3,4 | なし | あり |
+| 21 | 前 | B2 | 2,3,4 | 1 | なし |
+| 21 | 前 | C1 | 1,2,4 | 3 | あり |
+| 21 | 前 | C2 | 1,2,3 | なし | あり |
+| 21 | 前 | C3 | 2,3,4 | 1 | あり |
+| 21 | 前 | D1 | 1,2,4 | 3 | なし |
+| 21 | 後 | B1 | 1,2,3,4 | なし | あり |
+| 21 | 後 | B2 | 1,2,3,4 | なし | あり |
+| 21 | 後 | C1 | 3,4 | 1,2 | あり |
+| 21 | 後 | C2 | 1,2,3,4 | なし | あり |
+| 21 | 後 | C3 | 1,2,3,4 | なし | あり |
+| 21 | 後 | D1 | 1,2 | なし | あり |
+| 21 | - | A1 | 1,2,3,4,5,6,7,8,9 | なし | あり |
+| 21 | - | A2 | 1,2,3,4,5,6,7,8,9 | なし | あり |
+| 22 | 前 | B1 | 1,2,3 | なし | あり |
+| 22 | 前 | B2 | 1,3 | 2 | あり |
+| 22 | 前 | C1 | 2 | 1 | あり |
+| 22 | 前 | C2 | 1,2,3 | なし | あり |
+| 22 | 前 | C3 | 1,2,3 | なし | あり |
+| 22 | 前 | D1 | 2,3 | 1 | あり |
+| 22 | 後 | B1 | 1,2,3,4 | なし | あり |
+| 22 | 後 | B2 | 1,3,4 | 2 | あり |
+| 22 | 後 | C1 | 2,3,4 | 1 | あり |
+| 22 | 後 | C2 | 1,2,3,4 | なし | あり |
+| 22 | 後 | C3 | 1,2,3,4 | なし | あり |
+| 22 | 後 | D1 | 1,3,4 | 2 | あり |
+| 22 | - | A1 | 1,2,3,5,6,7,8,9 | 4 | あり |
+| 22 | - | A2 | 1,2,3,5,6,7,8,9 | 4 | あり |
+
+- 71 組
+
+- 1〜最大の節に欠けが無く最終成績の表もある組: 32 / 71
+- 第18・19期の後期の B1〜C3 は紙面の節が「6〜9」で、前期からの通し番号と見られる（「鳳凰」の後期の行は第1節から数える）。節ごとの値に直すときは番号の読み替えが要る
+- 第17期 後期の B1〜C3 の「7」は 200102_002 の見出しの使い回しで、実際の節は別（1月号の記事では B1〜C2 は2節を消化）
+
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1114-nws-collect
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1114-NWS-06.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1114-nws-collect
+- 確認用URL: なし（ページ・生成物は変えていない）
+- マージ: 済（ac47727。後片付けとログ・決定は最後の push で入れる）
+- issue: #685（着手中・要約をコメント。閉じていない）
+- 判断が必要なこと:
+  - 1. 候補タブの種別 F の採用の進め方: 書いたのは4行だけ（第23期 前期 第4節の途中経過の食い違い。200609_057 p.8 の B1 板川和俊・山井弘・今里邦彦、p.10 の D2 千葉未帆）。B1 の3件は切り出しで紙面どおりと確かめた（紙面の第4節の表は第3節の値のまま。後日対局などが入っていないと見られる）。最終成績の補完・食い違いは0件
+    - 案A（推奨）: 4行とも「却下」（シートが正しく、紙面の表が節の途中の値）。メリット: 手間がほぼ無い。デメリット: シートの第4節の値を別の資料で確かめてはいない
+    - 案B: チャット側が 200609_057 p.10 の D2（千葉未帆）だけ紙面を見てから決める（確かめていない1件）。メリット: 4件とも根拠がそろう。デメリット: 紙面を開く手間（1ページ）
+  - 2. 新しいタブ「鳳凰_連盟ニュース」（5,898行）の第17〜22期の節ごとの値の使い道: `## 経過`「新しいタブの第17〜22期の節の揃い具合」の表のとおり、1〜最大の節に欠けが無く最終成績もそろう組は 71組中32組（A1・A2 は第18〜21期で第1〜9節がそろう。B・C は前期の第1〜4節がそろう期が多い）。紙面の値は「第N節終了時の累計」なので、節ごとの値は隣り合う節の差で出す（前の節が欠けると出せない）。第18・19期の後期は節の番号が通し（6〜9）で読み替えが要り、第17期の 200102_002 は見出しの使い回しで節が違う。照らせた行が0の42号の行は、シートとの照らし合わせの裏付けが無い（照らせた14号は 98.2% 以上）
+    - 案A（推奨）: 「鳳凰」の節の列は埋めない。新しいタブは資料として残し、順位変動のページを広げるのも見送る。メリット: 手間が無く、読み違い・節の読み替えの誤りをシートに入れない。デメリット: 第17〜22期の途中経過が使われないまま
+    - 案B: A1・A2 の第18〜21期（第1〜9節がそろう）だけ、差を取って節ごとの値を出し、最終成績の合計と合うか（第9節の後の残りの節を除く）を確かめてから「鳳凰」に入れる指示を作る。メリット: 裏付けを取りながら一部を埋められる。デメリット: 第10節以降の値が紙面に無く、合計との照合が組み立てにくい。手間が中くらい
+    - 案C: 順位変動のページ（節ごとの順位の推移）を第17〜22期にも広げ、新しいタブの累計をそのまま使う。メリット: 差を取らずに使える。デメリット: 欠ける節が多い期・リーグは線が途切れる。ページの変更（生成・公開の issue）が要る
+  - 3. 「タイトル」のブックの共有: 前提のとおり、live-channel-writer の編集者の共有を外したかの平野さんの報告待ち（この指示では扱っていない）
+  - 4. 自己レビュー2回目の中の指摘1（候補の備考「ほかの号ではシートと同じ」が同じ号の照合済みも数える）を直さずに書いた。今回書いた4行は同じキーの行がほかに無く、備考にこの文言は出ていない（`## 経過`「セルフレビュー」）。「関わるなら止まる」に当たらないと判断したが、判断の当否を確かめてほしい（スクリプトは外したので、直す必要は無い）
+- 未確認の項目: なし
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj ac47727b）: https://github.com/retroeater/mj-logs/tree/main/guide/ac47727b
+ガイド文書（この版を写した時点の最新、mj fadaee0e）: https://github.com/retroeater/mj-logs/tree/main/guide/fadaee0e
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ac47727b/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ac47727b/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ac47727b/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ac47727b/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ac47727b/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/ac47727b/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/fadaee0e/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/fadaee0e/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/fadaee0e/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/fadaee0e/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/fadaee0e/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/fadaee0e/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/6aa6642b.md
