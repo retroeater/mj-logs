@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-11-15 15:40 JST
+- 書き出した時刻: 2026-11-15 15:42 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -198,11 +198,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-15 15:42 | workflow_dispatch | work/1105-lvp-auto | in_progress | #847（43686664715） |  |
 | 2026-11-15 15:30 | workflow_dispatch | work/1105-lvp-auto | success | #846（43685733383） | 0分45秒 |
 | 2026-11-15 14:52 | workflow_dispatch | work/1105-lvp-auto | success | #845（43682952858） | 0分50秒 |
 | 2026-11-15 14:03 | workflow_dispatch | work/1115-acf | success | #844（43679369585） | 0分47秒 |
 | 2026-11-15 13:37 | push | cloudflare | success | #843（43677574278） | 4分11秒 |
-| 2026-11-15 12:32 | push | cloudflare | success | #842（43672823280） | 3分04秒 |
 
 ## regenerate-saikyo.yml
 
@@ -349,7 +349,7 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-11-15 15:38 | workflow_dispatch | work/1105-lvp-auto | in_progress | #121（43686379781） |  |
+| 2026-11-15 15:38 | workflow_dispatch | work/1105-lvp-auto | success | #121（43686379781） | 3分17秒 |
 | 2026-11-15 13:41 | workflow_dispatch | cloudflare | success | #120（43677884053） | 5分48秒 |
 | 2026-11-15 13:37 | workflow_dispatch | cloudflare | success | #119（43677595850） | 3分52秒 |
 | 2026-11-15 13:33 | workflow_dispatch | work/1115-acf | success | #118（43677299724） | 2分41秒 |
