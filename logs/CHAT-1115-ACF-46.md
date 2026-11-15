@@ -55,6 +55,64 @@
 - 雛形の行: Chat-Ref・マージ・貼る時機・共通手順の4行とも有り（欠けなし）
 - CHAT-1115-ACF-45 のログの状態に「/ 続き: CHAT-1115-ACF-46」を足した
 
+### 手順1: 前提の確かめ
+
+- 判定の表は実物どおり2か所: `KW` の `("麻雀グランプリMAX", r"グランプリ")`（22行目、`war_of()` でタイトル戦を決める）と、`WAR_STRIP` の `"麻雀グランプリMAX": r"麻雀グランプリMAX|グランプリMAX|グランプリ"`（49行目、`analyze()` で題から大会名を取り除き、残りから期・ステージ・卓を読む）。どちらも呼び出し元は `live_candidate.build_row()` だけ
+- 層1（手元の data/live_channel_raw.jsonl、14,347本）の題で「グランプリ」を含む動画は 1,034本:
+
+| 区分 | 本数 | 今の判定 |
+|---|---|---|
+| 「麻雀グランプリMAX」を含む | 1,030 | 麻雀グランプリMAX |
+| 「WRCアマチュアグランプリ」（EMmzww4xGgQ・YXKOgcIYwBY） | 2 | WRCリーグ（KW で WRC が先に当たる。切り抜き扱いで候補外） |
+| 「コスモビューティーグランプリ2026」（hZLGBjOKYkU・lpq1cOxW0mo） | 2 | 麻雀グランプリMAX（誤り） |
+
+- 「麻雀グランプリ」を含んで MAX を含まない題は0本。MAX を含まずに麻雀グランプリMAX と読まれるのは上の2本だけで、前提と一致
+- 絞り方: KW は `麻雀グランプリ|グランプリMAX`（指示文の案。今の1,030本はすべて当たり、将来 MAX の無い「麻雀グランプリ」の題も拾う）。WAR_STRIP は裸の `グランプリ` を `麻雀グランプリ` に替えた（KW に当たる題は必ず「麻雀グランプリ」か「グランプリMAX」を含むので、取り除く語もそれに合わせる。裸の `グランプリ` のままだと MAX の無い題で「麻雀」が残り、ステージが読めない）
+- **手順3の見込み**（直す前後で `build_rows()` の全列を比べた結果。行数 14,347 は同じ、候補 4,371 → 4,369）:
+
+| 動画ID | 題 | 変更前 | 変更後 |
+|---|---|---|---|
+| hZLGBjOKYkU | コスモビューティーグランプリ2026 ベスト16【無料放送】 | 候補 Y・麻雀グランプリMAX・動画の単位 ステージ・対局者4名・対局日 2026-11-14・確認 Y | 候補でない（それらの列は空） |
+| lpq1cOxW0mo | コスモビューティーグランプリ2026 準決勝・決勝【無料放送】 | 候補 Y・麻雀グランプリMAX・動画の単位 ステージ・対局者4名・確認 Y | 候補でない（それらの列は空） |
+
+- 未マージの work/ ブランチで scripts/lib/live_extract.py・scripts/tests/test_live_extract.py を変えているものは無い（`git branch -r --no-merged origin/cloudflare` の各 work/ と `git diff --quiet origin/cloudflare...<branch>`）
+- 今この2本が出ている所: /live のページには無い。公開カレンダー由来の今後の予定（pro/plans.json、workers/ask/data-schedule.json、出場者の pro/ のページ）に lpq1cOxW0mo が件名「麻雀グランプリMAX」で出ている
+
+### 手順2: 直し
+
+- 2a74935fd: KW・WAR_STRIP を上のとおり絞り、テスト（コスモビューティーが None になる・WRCアマチュアグランプリは WRCリーグのまま・麻雀グランプリMAX の題は今まで通り）を足した。直す前のコードで新しいテストが落ちることを確かめてから直した
+- 3ff63d96d: レビューの指摘で、WAR_STRIP の変更だけを検査するテスト（`第15期麻雀グランプリ~ベスト16A卓~` でステージ ベスト16 が読める。直す前はステージが空）を足した
+- docs/notes の `グランプリ` の当たり（live-page-design.md の表・例）は大会の掲載範囲・URL の記号・検索の例で、判定の規則の記述ではないので直していない
+- docs/decisions/live.md に決定を足した（c686325b7）
+- テスト一式: `python3 -m unittest discover -s scripts/tests` 2173件 OK（3ff63d96d の後も OK）
+
+### 手順3: 作業ブランチでの手動実行（書かない道筋）
+
+- 1回目 [43677131896](https://github.com/retroeater/mj/actions/runs/43677131896)（全入力 false）: ジョブ update が failure。原因は今回の変更による意図した減少で、書かない道筋でも減少の安全装置が止める作り（「書き込みを止めました(意図した減少なら --allow-shrink): 候補が減る: 4371 → 4370」「候補でなくなる動画: 2本 ['hZLGBjOKYkU', 'lpq1cOxW0mo']」）。減少は決定で承認済みなので、apply を外したまま allow_shrink だけ付けて再実行した
+- 2回目 [43677299724](https://github.com/retroeater/mj/actions/runs/43677299724)（apply false・allow_shrink true、head c686325b7）: success（update・yotei / sync success、regenerate は apply なしで skipped）
+
+| 見込みと実行の比べ | 手順1の見込み | 手動実行 |
+|---|---|---|
+| 【2】の行数 | 14,347（変わらない） | 14,347 → 14,348（+1 は今日の新着 `sYvUNrOnLvY`。ACF-45 と同じ） |
+| 候補 | -2 | 4,371 → 4,370（+1 新着、-2） |
+| 候補でなくなる動画 | hZLGBjOKYkU・lpq1cOxW0mo | `['hZLGBjOKYkU', 'lpq1cOxW0mo']` |
+
+- そのほか: 未登録の名前 0名（前日との差分は ACF-45 の直しによる「消えた 2名」。タブがまだ ACF-45 の前に書いたもののため）。【3】は 4,374行で、この2本の行は【3】に残る（下の報告）
+
+### 自己レビュー（新しい文脈のサブエージェント、2回）
+
+1回目（2a74935fd まで）: 重大な指摘なし。全列比較で変わるのは2本だけ、呼び出し元は build_row だけ、と同じ結果。
+
+| 指摘 | 扱い |
+|---|---|
+| WAR_STRIP の変更を検査するテストが無い（足した analyze の例は直す前でも通る） | 直した（3ff63d96d） |
+| KW の `麻雀グランプリ` は今の層1では使われていない（`グランプリMAX` だけでもよい） | 意図どおり（指示文の案。将来の MAX の無い題を拾う） |
+| テストの analyze の例が実物の題と同じ形ではない | 意図どおり（NFKC 後は同じ形） |
+| 【3】に2本の行が残り、掲載が空欄なら「未確認」に、Y なら警告になる | 報告の「判断が必要なこと」に挙げた |
+| 公開カレンダー・pro/ の予定からは消えず、件名が「麻雀グランプリMAX」から題に基づく件名に直る | 経過に記録（枠は層1のライブから作るため。カレンダーの同期は毎朝の実行で行う） |
+
+2回目（3ff63d96d のテストだけ）: 指摘なし（WAR_STRIP だけを戻すと足した行で落ちることを確かめた）。
+
 ## 報告
 
 - 状態: 作業中
@@ -71,12 +129,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 3a7e9816）: https://github.com/retroeater/mj-logs/tree/main/guide/3a7e9816
+ガイド文書（この版を写した時点の最新、mj 5b4c5676）: https://github.com/retroeater/mj-logs/tree/main/guide/5b4c5676
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/3a7e9816/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/3a7e9816/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/3a7e9816/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/3a7e9816/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/3a7e9816/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/3a7e9816/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b4c5676/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b4c5676/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b4c5676/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b4c5676/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b4c5676/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b4c5676/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/3a7e9816.md
