@@ -212,7 +212,7 @@ Chat-Ref: CHAT-1115-RSC-31
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1115-RSC-32
 - ブランチ: work/1115-rsc-autowrite（未マージ。コードは 189ddd30a・bb64178bc）
 - ログ: https://github.com/retroeater/mj/blob/work/1115-rsc-autowrite/docs/logs/CHAT-1115-RSC-31.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1115-rsc-autowrite
