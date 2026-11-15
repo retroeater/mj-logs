@@ -87,28 +87,65 @@
 - テスト一式: `python3 -m unittest discover -s scripts/tests` 2172件 OK
 - 直した後のコードで層1から【2】を作り直し、直す前（origin/cloudflare の正規表現）と全列を比べた: 行数 14,347・候補 4,371 は同じ、変わるのは上の見込みの2行の対局者だけ
 
+### 手順3: 確かめ
+
+- テスト一式: `python3 -m unittest discover -s scripts/tests` → 2172件 OK（workers/ は触っていないので node のテストは対象外）
+- 作業ブランチでの update-live-channel の手動実行（書かない道筋。apply・verify など全入力 false、calendar_max_delete 30）: [43672485094](https://github.com/retroeater/mj/actions/runs/43672485094) は success（ジョブ update、head dbc5785e29）
+  - 層1: 14,347 → 14,348本（今日の新着1本 `sYvUNrOnLvY`）
+  - 層2: 今のタブ 14,347行・候補 4,371行 → 新しい表 14,348行・候補 4,372行。候補でなくなる動画 0本
+  - 未登録の名前: 0名。前日との差分「新しく出た 0名・消えた 2名」。知らせの案（apply なしのため #475 には書いていない）:
+    `未登録の名前（読み違いを含む）: 2名 → 0名` / `消えた名前…: 2名` / `ベスト16A卓:黒沢咲(1行)、ベスト8A卓:香野蘭(1行)`。案内文は新しい文面で出た
+  - 層3: 追記する行 1行（`sYvUNrOnLvY`、今日の新着）
+  - 使われていない登録: 「連盟プロ以外」0行・「別名」0行（前回の「中川元輝」が消えた。今回の変更とは別の、シートの変化）
+
+| 見込みと実行の比べ | 手順1の見込み | 手動実行 |
+|---|---|---|
+| 【2】の行数 | 14,347（変わらない） | 14,348（+1 は新着の `sYvUNrOnLvY`） |
+| 候補の行数 | 4,371（変わらない） | 4,372（+1 は同じ新着。候補でなくなる動画 0本） |
+| 対局者が変わる行 | hZLGBjOKYkU・lpq1cOxW0mo の2行 | 未登録の名前から消えたのはこの2行の2名だけ、新しく出た名前 0名 |
+
+- +1 の新着は規則の変更と無関係（直す前後とも同じ層1の行で作るので、増えた分は直す前のコードでも出る）。新着の対局者は未登録の名前に出ていない（0名）。手順1の見込みの範囲に収まると判断した
+
+### 自己レビュー（新しい文脈のサブエージェント、1回）
+
+渡したもの: 目的・決定、`git diff origin/cloudflare...HEAD -- scripts docs/notes`、CLAUDE.md「コード規約」。結果: 重大な指摘なし（層1の全14,347本で新旧の `extract_players_and_staff` を卓 空・A・B・C で比べ、差は4本で、すべて前置きが外れる方向。うち登龍門の2本は候補でないので【2】は変わらない）。
+
+| 指摘 | 扱い |
+|---|---|
+| 段階名を ベストN・予選・準決勝 に限ったので「決勝A卓:」「準々決勝A卓:」などが将来出るとまた残る（live_extract.py 112行） | 意図どおり（実例に無い語は足さない。`簡略化:` のコメントに上限と次の一手を残した） |
+| 【予選A卓】の墨付き括弧の見出し（78行、例 -4HCCPo-xhE）は今も先頭の名前に残る | 意図どおり（範囲外。当たる動画はすべて候補でなく、未登録の名前に出ていない。今は直さない） |
+| 「別名」に「ベスト16A卓:黒沢咲」のような訂正の行が過去に足されていれば使われなくなる | 意図どおり（実行で「使われていない登録」の「別名」は0行。害は無い） |
+
+### マージ
+
+- push 直前に再 fetch し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真（0）を確かめた
+- `git push origin work/1115-acf:cloudflare` → `1607687f8..b565cbb21  work/1115-acf -> cloudflare`
+- #475 に原因と直し・消える見込みの2件をコメントした（https://github.com/retroeater/mj/issues/475#issuecomment-6888603352 ）。#475 は閉じていない
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1115-acf
-- ログ: https://github.com/retroeater/mj/blob/work/1115-acf/docs/logs/CHAT-1115-ACF-45.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1115-ACF-45.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1115-acf
-- 確認用URL: なし
-- マージ: 未
-- issue: #475
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 確認用URL: なし（スクリプトとテストと docs の変更。ページの見た目は変わらない。【2】の対局者は次の朝の取り込みで直る）
+- マージ: 済（b565cbb21。範囲 1607687f8..b565cbb21）
+- issue: #475（着手中と結果をコメント。閉じていない）
+- 判断が必要なこと:
+  - 「コスモビューティーグランプリ2026」の2本（`hZLGBjOKYkU`・`lpq1cOxW0mo`）が、タイトル戦「麻雀グランプリMAX」と読まれている。`war_of()` の表（live_extract.py 22行目）が「グランプリ」の語だけで麻雀グランプリMAX とみなすため（2本とも確認=Y、理由「期が読めない、ステージがSTAGE_SLUGSの語彙に無い」）。題に MAX を含まずに麻雀グランプリMAX と読まれる動画は層1でこの2本だけ。直し方の案: (a) 規則: 除外の語（`アマチュアグランプリ` と同じ表、61行目）に「コスモビューティーグランプリ」を足し、候補から外す。影響は【2】の2行（候補 4,372 → 4,370 になるので、取り込みに `allow_shrink` が要る）。(b) 【3】: 2行の掲載を N にする（または正しいタイトル戦を書く）。影響は【3】の2行で、規則は変わらない。1回きりの大会なら (b)、毎年続くなら (a) が向く
+- 未確認の項目:
+  - マージ後の初回の run-daily（2026-11-16 04:00 JST）で、#475 に「消えた名前: 2名（ベスト16A卓:黒沢咲・ベスト8A卓:香野蘭）」のコメントが付くこと
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 1607687f）: https://github.com/retroeater/mj-logs/tree/main/guide/1607687f
+ガイド文書（この版を写した時点の最新、mj 005ba79d）: https://github.com/retroeater/mj-logs/tree/main/guide/005ba79d
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/1607687f/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/1607687f/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/1607687f/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/1607687f/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/1607687f/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/1607687f/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/005ba79d/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/005ba79d/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/005ba79d/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/005ba79d/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/005ba79d/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/005ba79d/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/1607687f.md
