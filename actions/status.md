@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-11-15 13:41 JST
+- 書き出した時刻: 2026-11-15 13:44 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -351,11 +351,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-15 13:41 | workflow_dispatch | cloudflare | in_progress | #120（43677884053） |  |
 | 2026-11-15 13:37 | workflow_dispatch | cloudflare | success | #119（43677595850） | 3分52秒 |
 | 2026-11-15 13:33 | workflow_dispatch | work/1115-acf | success | #118（43677299724） | 2分41秒 |
 | 2026-11-15 13:31 | workflow_dispatch | work/1115-acf | failure | #117（43677131896） | 1分52秒 |
 | 2026-11-15 12:28 | workflow_dispatch | work/1115-acf | success | #116（43672485094） | 3分20秒 |
-| 2026-11-09 11:53 | workflow_dispatch | work/1109-pyv | success | #115（42553406955） | 4分12秒 |
 
 - #117 failure: ジョブ「update」 ステップ「層2 「【2】自動変換後」を作り直す」
 
