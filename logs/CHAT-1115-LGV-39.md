@@ -98,6 +98,8 @@ CHAT-1115-LGV-38 の試しの結果を受けて、毎朝の変換と確かめを
   ```
   取り込んだ後もテスト OK
 
+- マージ: 再 fetch 後に cloudflare がもう1回進んでいた（DMR-01 のログだけ）ので取り込み、`git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめて `git push origin work/1115-lgv-samestore2:cloudflare`（86add4f61..d22bc04bb）。check-run: Workers Builds: mj success・本番ビルド失敗の検知 skipped。`scripts/generate_log_pages.py` が変わったので push の検知で regenerate-page.yml（run 43661093104）が動いて success、log/ を作り直して cloudflare にコミットした（a7723afff「chore: regenerate log/ via GitHub Actions」、log/index.html +3 -3・log/search.json +1 -1・sitemap-pages.xml +1 -1。Workers Builds: mj success）。compare で同じデータでは差分が無いことを確かめてあるので、この差は CHAT-1115-LGV-38 で【3】に書いた3件の反映と見込む（中身は見ていない）。よって LGV-38 の3件は 2026-11-16 の朝を待たずに本番の log/ に出ているはずで、2026-11-16 04:00 JST の logpage は、新しい投稿が無ければ「変更なし」になりうる（チャット側の 05:10 の確かめの前提が変わる）
+
 ## 報告
 
 - 状態: 完了
@@ -105,10 +107,10 @@ CHAT-1115-LGV-38 の試しの結果を受けて、毎朝の変換と確かめを
 - ログ: https://github.com/retroeater/mj/blob/work/1115-lgv-samestore2/docs/logs/CHAT-1115-LGV-39.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1115-lgv-samestore2
 - 確認用URL: なし
-- マージ: 済（結果は追いの push で書く）
+- マージ: 済（86add4f61..d22bc04bb。push の検知の再生成で a7723afff が続いた）
 - issue: #679（コメントしていない。次の毎朝の運行で本文が書き直される）
 - 判断が必要なこと: (1) 指示の前提の関数名が実物と違った: 毎朝の一覧は `no_shop_posts()` ではなく `daily_check_posts()`、生成の `dropped_word()` は無く判定は `drop_posts()` の中にあった。目的どおり実物を直した（判定は `body_drop()` に出して生成と共有）。(2) 同じデータに当てた数は LGV-38 の変形の案とほぼ同じ（補える 45行・【3】の駅と同じ 43〈LGV-38 は 42〉・違う 1、【2】の駅がある行で違う 8行は同じ投稿）。今の表で補える店は 357店。最初に効くのは 2026-11-16 04:00 JST の毎朝の運行（新しい投稿が無ければ何も変わらない）
-- 未確認の項目: 予約の運行での補いの実地（2026-11-16 04:00 JST から。補った投稿は変換の出力の要約に出る）
+- 未確認の項目: 予約の運行での補いの実地（2026-11-16 04:00 JST から。補った投稿は変換の出力の要約に出る）。a7723afff の中身（LGV-38 の3件の反映と見込む）と本番の見え方は見ていない。LGV-38 の3件が push の検知の再生成で先に出たので、2026-11-16 の logpage の予約実行でのコミットの確かめは、新しい投稿が無いと「変更なし」で確かめにならない
 - エラー: なし
 
 <!-- guide-links -->
