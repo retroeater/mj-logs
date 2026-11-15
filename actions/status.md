@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-11-15 13:32 JST
+- 書き出した時刻: 2026-11-15 13:35 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -25,11 +25,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-15 13:34 | push | work/1115-acf | in_progress | #1248（43677350039） |  |
 | 2026-11-15 13:31 | push | work/1115-acf | success | #1247（43677128903） | 0分32秒 |
 | 2026-11-15 13:29 | push | work/1115-acf | success | #1246（43677019810） | 0分28秒 |
 | 2026-11-15 12:27 | push | work/1115-acf | success | #1245（43672437899） | 0分31秒 |
 | 2026-11-15 12:02 | push | work/1115-dmr | success | #1244（43670522389） | 0分30秒 |
-| 2026-11-15 10:18 | push | work/1115-rsc-autowrite | success | #1243（43662486028） | 0分24秒 |
 
 ## check-build-failure.yml
 
@@ -351,11 +351,13 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-11-15 13:31 | workflow_dispatch | work/1115-acf | in_progress | #117（43677131896） |  |
+| 2026-11-15 13:33 | workflow_dispatch | work/1115-acf | in_progress | #118（43677299724） |  |
+| 2026-11-15 13:31 | workflow_dispatch | work/1115-acf | failure | #117（43677131896） | 1分52秒 |
 | 2026-11-15 12:28 | workflow_dispatch | work/1115-acf | success | #116（43672485094） | 3分20秒 |
 | 2026-11-09 11:53 | workflow_dispatch | work/1109-pyv | success | #115（42553406955） | 4分12秒 |
 | 2026-11-02 08:41 | workflow_dispatch | work/1102-nod | success | #114（41363308644） | 3分40秒 |
-| 2026-11-01 11:07 | workflow_dispatch | cloudflare | success | #113（41263845212） | 9分17秒 |
+
+- #117 failure: ジョブ「update」 ステップ「層2 「【2】自動変換後」を作り直す」
 
 ## update-sns-book.yml
 
