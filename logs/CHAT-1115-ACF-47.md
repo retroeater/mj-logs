@@ -52,28 +52,60 @@
 - 雛形の行: Chat-Ref・マージ・貼る時機・共通手順の4行とも有り（欠けなし）
 - CHAT-1115-ACF-46 のログの状態に「/ 続き: CHAT-1115-ACF-47」を足した
 
+### 手順1: 【3】の2行の掲載
+
+- このコンテナには Sheets の資格情報が無く、【3】のセルの値を出す既存のワークフローも無い（check-sheets-reader.yml はタブ名・行数だけを出す。値を出すワークフローを足すのは CLAUDE.md の「新しい依存（ワークフロー）は足さない」に当たる）。そこで /live の生成と同じ経路（`generate_live_pages.load_videos()` → `live_layer3.fetch_matches()`）の出力の件数で確かめた
+- 生成の出力（regenerate-page の live_pages）:
+
+| 実行 | 時点 | 【3】の行数 | 未確認（掲載が空欄） | 表示 Y で公開 | 公開しなかった行 |
+|---|---|---|---|---|---|
+| run-daily 43629699250 | 11/15 04:00 JST | 4,374 | 697 | — | 0件 |
+| update-live-channel 43677884053（ACF-46 の本実行。sYvUNrOnLvY を空欄で1行追記） | 11/15 14:0x JST | 4,375 | 698 | 2,989 | 0件 |
+| regenerate-page 43679369585（dry_run、work/1115-acf） | 平野さんの変更の後 | 4,375 | 696 | 2,989 | 0件 |
+
+- 読めること: 行数が変わらず（2行は消えていない）、空欄の行が2つ減り、表示 Y の公開数も「表示の値が想定外」「公開しなかった行」も増えていない。空欄でも Y でもない値は N だけなので、空欄だった2行が N になった。その2行が hZLGBjOKYkU・lpq1cOxW0mo であることは、この経路の出力（件数）からは確かめられない。平野さんの申告値（2行とも N）と矛盾しない。2行が ACF-46 の前に【3】にあったことは、ACF-46 の層3の追記の確かめ（候補だった2本が「層3に無い候補」に出なかった）で分かっている
+- 【2】の確認・理由の列: 2行とも空（ACF-46 で候補から外れたため。手元の層1で `build_rows()` を回した値）
+
+### 手順2: 起票の前の重複確認 → 止まった
+
+- `gh api search/issues` で「コスモビューティー」を探すと、#658「/live の取り込みで「コスモビューティーグランプリ」が「麻雀グランプリMAX」と読まれる」（open、ラベル「分野: 自動化」「対象: live」、CHAT-1103-TOP-03 で起票、コメント0件）が当たった
+- #658 はこの大会の /live での扱いを論点にしている（本文の直し方の候補に「別の大会にする」と「層2・3 に入った2行の扱い」、影響する画面に live/）。止まる条件「同じ論点（この大会の /live への掲載）の open issue がすでにある」に当たると判断し、起票しなかった
+- #658 の本文は 11/3 時点で「掲載対象外」（平野さんの確認）とあり、今回の決定「いずれ /live に掲載する予定」と食い違う。また #658 の原因（裸の「グランプリ」の規則）は ACF-46（2a74935fd）で直っているが、ACF-45・ACF-46 では #658 に気づかず、#658 には何も書いていない
+- #658 には触れていない（コメント・ラベル・状態とも変えていない）
+
+### 手順3: ACF-46 の「判断が必要なこと」2件
+
+- 【3】の2行の扱い: 平野さんが掲載を N にした（決定。上の件数と矛盾しない）ので片付いた
+- 公開カレンダー・pro/ の予定の2件: そのまま残す（【4】に足さない、決定）ので片付いた
+
+### マージ
+
+- 変更はログ（ACF-46・47）と docs/decisions/live.md だけ。push 直前に再 fetch して祖先を確かめ、`git push origin work/1115-acf:cloudflare` → `66157ce2a..c6ad83fbb  work/1115-acf -> cloudflare`
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1115-acf
-- ログ: https://github.com/retroeater/mj/blob/work/1115-acf/docs/logs/CHAT-1115-ACF-47.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1115-ACF-47.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1115-acf
 - 確認用URL: なし
-- マージ: 未
-- issue: なし
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- マージ: 済（ログ・docs/decisions のみ。c6ad83fbb、範囲 66157ce2a..c6ad83fbb）
+- issue: #658（既存。起票しなかった。触れていない）
+- 判断が必要なこと:
+  - 起票の代わりに #658 をどうするか。案: (a) #658 を「/live: コスモビューティーグランプリを新しいタイトル戦として載せる」に題・本文を改め、読み違いは ACF-46 の 2a74935fd で直ったことをコメントする。(b) #658 は読み違いの直しで閉じ、掲載の issue を新しく起票する。#658 の本文の「掲載対象外」（11/3）は今回の決定と食い違うので、どちらでも書き直しが要る
+- 未確認の項目:
+  - 【3】の2行（hZLGBjOKYkU・lpq1cOxW0mo）の掲載が N であること。生成の出力では「空欄の行が2つ減り、Y は増えていない」ことまで確かめた。どの行かはここからは確かめられない（平野さんの申告値で N）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 5b4c5676）: https://github.com/retroeater/mj-logs/tree/main/guide/5b4c5676
+ガイド文書（この版を写した時点の最新、mj ded4a6a8）: https://github.com/retroeater/mj-logs/tree/main/guide/ded4a6a8
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b4c5676/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b4c5676/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b4c5676/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b4c5676/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b4c5676/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/5b4c5676/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ded4a6a8/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ded4a6a8/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ded4a6a8/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ded4a6a8/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ded4a6a8/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/ded4a6a8/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/3a7e9816.md
