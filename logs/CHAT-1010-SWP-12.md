@@ -164,4 +164,4 @@ SWP-11 と同じ方法・環境・列（「名前」）。`jpml_pros.html` を `
 - docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a0ab7ce/docs/notes/chat-side-operations.md
 - docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a0ab7ce/docs/notes/cloudflare.md
 - docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a0ab7ce/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/9a0ab7ce.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/5d2883fb.md
