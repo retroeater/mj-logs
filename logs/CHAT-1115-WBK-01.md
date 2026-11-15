@@ -75,19 +75,30 @@
 - 0. 指示欄の末尾は「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」で、指示文の最後の行と一致。
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は欠けなし。
 - 作業ブランチ: リモート・ローカルとも `work/1115-wbk` なし → `git checkout -b work/1115-wbk origin/cloudflare`。
+- issue の state: #408・#684 とも open。他セッションの着手中コメントなし（#408 の最後の着手中は NWS 系列で、完了の報告済み）。着手中のコメントを書いた（#408 issuecomment-6889134193、#684 issuecomment-6889134502）。
+- 1. 準備: docs/decisions/automation.md「2026-11-13（CHAT-1113-NWS-04）」の追記（CHAT-1115-NWS-07）の「今の状態」を、外した（2026-11-15 12:24 JST、スクリーンショットでチャット側が確認）に直した（9e6eddf）。この指示の決定も同じファイルの末尾に足した。
+  - 未マージの work/ ブランチで docs/decisions/automation.md を変えているもの: `work/1115-rsc-autowrite`（末尾の追記、906行目以降）・`work/1115-rsc-close`（末尾の追記、918行目以降）。直した行（NWS-04 の節の中）とは別の箇所なので止まらない。なお `work/1115-rsc-autowrite` は今の origin/cloudflare とすでに衝突している（この指示の変更の前から。`git merge-tree origin/cloudflare origin/work/1115-rsc-autowrite` で確認）。
+- web.archive.org への到達: `curl -A 'mj-internal …' https://web.archive.org/cdx/search/cdx?url=ma-jan.or.jp&limit=1` → `CONNECT tunnel failed, response 403`（プロキシの拒否。Internet Archive への要求は 0 回）。
+  - get_environment: 環境「Claude-iPhone」（personal、limited）。allowed_hosts に web.archive.org は無い。一覧に `www.gstatic.com` が2回入っている。
+  - update_environment で `add_allowed_hosts: ["web.archive.org"]` を求めたが、「the environments service rejected this change, so nothing was changed」で拒否された（承認の画面は出ていない）。原因は返っていない。一覧の重複が検証に引っかかった可能性はあるが、確かめていない。指示の「同じ need で再提案しない」の作法に従い、やり直していない。
+  - 既存のホストが届くことの確認（環境は変わっていない）: www.ma-jan.or.jp 200、ryoei.pro 200。
+  - 止まる条件「web.archive.org に届かない（許可するホストに足しても届かない…）」に当たったため、手順2〜5（索引・本文・見積もり・docs/notes・issue の要約コメント）は行わずに止まる。Internet Archive への要求は索引 0 回・本文 0 ページ。
 
 ## 報告
 
-- 状態: 作業中
+- 状態: 中断（エラー）
 - ブランチ: work/1115-wbk
 - ログ: https://github.com/retroeater/mj/blob/work/1115-wbk/docs/logs/CHAT-1115-WBK-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1115-wbk
 - 確認用URL: なし
-- マージ: 未
-- issue: #408, #684
-- 判断が必要なこと: なし
-- 未確認の項目: なし
-- エラー: なし
+- マージ: 未（止まる条件に当たったため。差分は docs/decisions/automation.md とこのログだけ）
+- issue: #408, #684（着手中のコメントのみ。閉じていない）
+- 判断が必要なこと:
+  - web.archive.org を環境「Claude-iPhone」の許可するホスト（Allowed domains）に足すかどうか。Claude Code からの追加は環境のサービスに拒否された（承認の画面の前）。平野さんが環境の設定（セッションのタイトルの環境メニュー → Edit → Network access の Allowed domains）で web.archive.org を足すと進められる。足すときは、一覧に2回ある www.gstatic.com の重複も1つにすると拒否の原因の切り分けになる（推測。確かめていない）。足した後に既存のホストが残っているかを確かめる（gstatic のときに一覧が置き換わった例がある）
+  - 足した後に、同じ調査を新しい Chat-Ref で貼り直すかどうか（この Chat-Ref はコミットがあるので再利用しない。docs/notes/branch-operations.md「作業を再開するとき」）
+  - docs/decisions/automation.md の共有の状態の修正と決定の追記（docs のみ）を、この中断のまま cloudflare へ入れるかどうか（マージの行は「ドキュメントのみなので入れてよい」だが、調査が止まったので入れていない）
+- 未確認の項目: 環境のサービスが web.archive.org の追加を拒否した理由
+- エラー: update_environment（add_allowed_hosts: web.archive.org）が「the environments service rejected this change」で拒否された。web.archive.org はプロキシで 403（CONNECT tunnel failed）
 
 <!-- guide-links -->
 ---
