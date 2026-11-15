@@ -56,6 +56,29 @@ CHAT-1115-LGV-38 の試しの結果を受けて、毎朝の変換と確かめを
 
 ## 経過
 
+- 手順0: 「指示」欄の末尾は指示文の最後の行と一致。同じ Chat-Ref のコミットなし。work/1115-lgv-samestore2 はリモート・ローカルとも無く、origin/cloudflare（8b94f7eec）から作った。LGV-38 の状態に ` / 続き: CHAT-1115-LGV-39` を足した
+- 冒頭の雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は欠けていない
+- 手順1:
+  - 未マージの work/ ブランチで convert_x_posts.py・generate_log_pages.py・convert-x-posts.yml を変えているものは無い
+  - LGV-38 の試しのコード: 94ecb7c8a・b9849b5d8（戻したのは 47c9ee12f）。変形の案は `lgv38_fill(..., min_refs=2)`。参照は【2】に【3】を重ねて「表示」Y・駅が一覧にある・place_id のある行（判定は見ていなかった）
+  - 毎朝の一覧を作る所: `daily_check_posts()`（`daily_issue_out()` から、#679 の本文は `daily_issue()`）。指示の前提にある `no_shop_posts()` は毎月の「ログ: 確かめる投稿」の店名が空の節の関数で、毎朝の一覧ではない。生成の `dropped_word()` という関数は無く、本文の語の判定は `generate_log_pages.py` の `drop_posts()` の中（`body_word()` と `WORD_ALLOWED_POSTS`・`HIDDEN_SHOPS` の除外）にあった。指示の目的（#679 にどうせ載らない投稿を出さない）は変わらないので、実物の `daily_check_posts()` を直した
+  - 毎朝の一覧に過去メシ・`HIDDEN_POSTS` の投稿が出るか: 直す前は `daily_check_posts()` が本文も `HIDDEN_POSTS` も見ないので、【2】で写真・空欄の理由があり【3】の「表示」が空なら出うる。今回まとめて除いた（下の手動実行の時点では、除いた投稿は0件）
+- 手順2（4f25fa664）:
+  - 生成: `drop_posts()` の中の「投稿 ID と本文で外す判定」（HIDDEN_POSTS・過去メシ・本文の語）を `body_drop(post_id, row, body)` に出し、`drop_posts()` はそれを使う形にした（二重に持たない）。返す種類（"hidden"・"repost"・"word"）で分け、本文の語が REPOST_MARK と同じ文字列でも取り違えない
+  - 毎朝の一覧: `daily_check_posts(out_values, layer3_values, bodies)` が `body_drop()` で外れる投稿を除く。`daily_issue_out()` が【1】の本文を渡し、除いた数を出力に出す。#679 の本文の説明に「本文の語（催事・再掲）などで log/ に載らない投稿は出さない（語で外した投稿は毎月の「ログ: 確かめる投稿」に出る）」を足した
+  - 補い: `same_store_stations()` が【2】と【3】から {place_id: (駅, 駅の候補)} を作る。行は log/ と同じ `merged_rows()`（判定が飲食店・「表示」Y。LGV-38 の試しは判定を見ていなかった）、駅は `generate_log_pages.station_info()` で一覧にあるもの、(都道府県, 一覧の名前) が1つに決まり2件以上（`SAME_STORE_MIN`）の店だけ。入れる駅は `station_cells()` と同じ形（東京都の外は【県】＋一覧の名前、駅の候補はその駅から 800m 内）。`build_row()` は本文から駅が決まらず、place_id が表にあれば補う（理由は付けない）。補った投稿は変換の出力に件数と全件（投稿 ID・店名・駅）を出す。【2】に注記の列は無く、列は足していない。`run_all()` は【3】を1回読んで、補いと毎朝の一覧の両方に使う
+  - テスト: 同じ駅が2件以上 → 補う（【千葉】浦安・駅の候補も）、1件だけ・割れる・place_id なし・一覧に無い駅・「表示」N・【3】で「表示」N・判定が飲食店以外 → 数えない、【3】で入れた駅も数える、本文の駅が決まれば補わない、本文の駅が一覧に無いときも補う、表に無い店は今までどおり空欄の理由で「表示」N、補った行は理由が付かず「表示」Y。毎朝の一覧: 催事の語の投稿・HIDDEN_POSTS は出ない、WORD_ALLOWED_POSTS の投稿は出る、本文を渡さなければ今までどおり。`python3 -m unittest discover -s scripts/tests`: OK（2169件）。新しい関数のテストなので、直す前のコードでは通らない
+  - ワークフロー: 一度きりの mode のほかは変えていない（mode を消した後の `git diff origin/cloudflare -- .github/` は空）。ワークフローの検査は要らない
+- 同じデータに当てた数（一度きりの mode `lgv39`、e17c57339、戻したのは 15c8efbf3。run 43660270827 success。各行を除いて、その行の place_id の店で `same_store_stations()` を当てた）:
+  - (i) 【2】で駅が空: 補える 45行（LGV-38 の変形の案 45行）、【3】の駅と同じ 43・違う 1（LGV-38 は 42・1）
+  - (ii) 【2】で駅がある: 同じ 609・違う 8（LGV-38 は 611・8）。違う 8行は LGV-38 と同じ投稿（アナログ八重洲・光来 3行は【3】で直した駅と同じ、やまぐち・目黒のさんま 菜の花・1796375640851292486・Tombo は隣の駅）
+  - 差（同じ 43 と 42、同じ 609 と 611）は、LGV-38 の後に【3】に書いた3行と、判定が飲食店の行だけにしたことの違いの範囲。止まる条件（大きく違う）には当たらない
+  - 今の表で補える店: 357店
+- 手順3（作業ブランチの ref・dry_run）:
+  - convert-x-posts.yml の all（run 43660273452 success）: 【2】に無い投稿 0件・Claude の呼び出し 0回。「同じ店の投稿から駅を補える店（ほかの投稿 2件以上が同じ駅）: 357店」「毎日確かめる投稿: 0件（本文の語・過去メシ・HIDDEN_POSTS で log/ に載らない 0件は除いた）」。今の #679 は LGV-38 の書き込みの後で0件の見込みと合う
+  - regenerate-page.yml の log_pages・dry_run・compare_ref origin/cloudflare（run 43660419420 success）: 「compare: 差分なし」（`drop_posts()` を `body_drop()` で書き直しても、同じデータで log/ は cloudflare のコードと同じ）。「3層から 2541件のうち 2352件・1691店」。1回目（run 43660275730）は compare_ref を `cloudflare` と書いて「invalid reference」で失敗した（入力の誤り）
+- docs（8407e7aff）: docs/notes/log-stations.md「決め方」に同じ店の過去の投稿から補う項、docs/notes/log-page.md「新しい投稿の写真と空欄」に駅の補いと、毎朝の一覧から本文の語などで外れる投稿を除くことを足した
+
 ## 報告
 
 - 状態: 作業中
@@ -80,4 +103,4 @@ CHAT-1115-LGV-38 の試しの結果を受けて、毎朝の変換と確かめを
 - docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8b94f7ee/docs/notes/chat-side-operations.md
 - docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8b94f7ee/docs/notes/cloudflare.md
 - docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8b94f7ee/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/8d9cccb6.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/8b94f7ee.md
