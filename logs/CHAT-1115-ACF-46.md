@@ -113,17 +113,29 @@
 
 2回目（3ff63d96d のテストだけ）: 指摘なし（WAR_STRIP だけを戻すと足した行で落ちることを確かめた）。
 
+### マージと本番への取り込み
+
+- push 直前に再 fetch し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめた。`git push origin work/1115-acf:cloudflare` → `3a7e98167..5b4c56760  work/1115-acf -> cloudflare`
+- `allow_shrink` は減る行を動画IDで絞れず、付ければ減少をすべて通す（write_live_channel_candidate.py の `shrink_errors`）。止まる条件の「確定前に止められない手順」に当たるため、本実行の直前に cloudflare で書かない道筋（apply false・allow_shrink true）を回して、減るのが2本だけかを確かめてから本実行した
+  - 確かめ [43677595850](https://github.com/retroeater/mj/actions/runs/43677595850)（head 5b4c56760）: success。「候補でなくなる動画: 2本 ['hZLGBjOKYkU', 'lpq1cOxW0mo']」「候補が減る: 4371 → 4370」
+  - 本実行 [43677884053](https://github.com/retroeater/mj/actions/runs/43677884053)（apply true・allow_shrink true、ほかは false）: success（update・regenerate / regenerate・yotei / sync すべて success）。ログの値は確かめと同じ（候補でなくなる動画は2本だけ、【3】に `sYvUNrOnLvY` を1行追記）
+  - cloudflare に 3b03574db（層1）と 7d8e1817c（再生成。live/・title/・r/・pro/・workers/ask/data-schedule.json など11ファイル）が乗った。pro/plans.json・workers/ask/data-schedule.json の lpq1cOxW0mo の件名は「麻雀グランプリMAX」から「コスモビューティーグランプリ2026 準決勝・決勝」に変わった
+  - この本実行が #475 に未登録の名前の知らせ（2名 → 0名。CHAT-1115-ACF-45 の直しの結果）を自動で書いた。指示の「#475 には触れない」は手でコメントしないことと読み、自動の知らせはそのままにした
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1115-acf
-- ログ: https://github.com/retroeater/mj/blob/work/1115-acf/docs/logs/CHAT-1115-ACF-46.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1115-ACF-46.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1115-acf
-- 確認用URL: なし
-- マージ: 未
+- 確認用URL: なし（スクリプトとテストの変更。/live のページは変わらない。pro/ の今後の予定の件名が変わった）
+- マージ: 済（5b4c56760。範囲 3a7e98167..5b4c56760）。本番の取り込み 43677884053 も success
 - issue: なし
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 判断が必要なこと:
+  - hZLGBjOKYkU・lpq1cOxW0mo の行が【3】に残っている（【3】4,374行・【2】の候補 4,370行）。【2】から外れたので、/live の生成ではタイトル戦などが空の行になる。掲載が空欄なら公開されず「未確認」の件数に残り続け、掲載が Y なら警告になる。「この大会は /live に載せない」に合わせるなら、平野さんが【3】でこの2行の掲載を N にするか行を消す（ここからは掲載の値を確かめられない）
+  - 公開カレンダーと pro/ の今後の予定には、この2本が「コスモビューティーグランプリ2026 …」の件名で残る（予定の枠は層1のライブ全体から作るため。件名の誤りは直った）。カレンダーからも外すなら【4】カレンダー非掲載に足す
+- 未確認の項目:
+  - 2026-11-16 04:00 JST の run-daily で、公開カレンダーの2件（lpq1cOxW0mo は放送済みになる）の件名が直ること（今回の手動実行は calendar_apply なし）
 - エラー: なし
 
 <!-- guide-links -->
