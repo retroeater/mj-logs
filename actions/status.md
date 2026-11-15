@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-11-15 09:52 JST
+- 書き出した時刻: 2026-11-15 09:54 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -25,11 +25,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-15 09:53 | push | work/1115-lgv-samestore2 | success | #1234（43660453084） | 0分27秒 |
 | 2026-11-15 09:51 | push | work/1115-lgv-samestore2 | success | #1233（43660265355） | 0分31秒 |
 | 2026-11-15 09:08 | push | work/1115-lgv-samestore | success | #1232（43656703591） | 0分29秒 |
 | 2026-11-15 09:04 | push | work/1115-lgv-samestore | success | #1231（43656388836） | 0分25秒 |
 | 2026-11-15 09:02 | push | work/1115-lgv-samestore | success | #1230（43656204719） | 0分28秒 |
-| 2026-11-14 09:22 | push | work/1114-nws-collect | success | #1229（43533755145） | 0分26秒 |
 
 ## check-build-failure.yml
 
@@ -38,11 +38,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-15 09:52 | check_run | cloudflare | skipped | #1659（43660335877） | 0分01秒 |
 | 2026-11-15 09:09 | check_run | cloudflare | skipped | #1658（43656789563） | 0分01秒 |
 | 2026-11-15 09:09 | check_run | cloudflare | skipped | #1657（43656756654） | 0分01秒 |
 | 2026-11-15 09:05 | check_run | cloudflare | skipped | #1656（43656458286） | 0分01秒 |
 | 2026-11-15 09:03 | check_run | cloudflare | skipped | #1655（43656256752） | 0分01秒 |
-| 2026-11-14 09:30 | check_run | cloudflare | skipped | #1654（43534705759） | 0分01秒 |
 
 ## check-image-links.yml
 
@@ -129,8 +129,8 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-11-15 09:51 | workflow_dispatch | work/1115-lgv-samestore2 | pending | #112（43660273452） |  |
-| 2026-11-15 09:51 | workflow_dispatch | work/1115-lgv-samestore2 | in_progress | #111（43660270827） |  |
+| 2026-11-15 09:51 | workflow_dispatch | work/1115-lgv-samestore2 | success | #112（43660273452） | 1分13秒 |
+| 2026-11-15 09:51 | workflow_dispatch | work/1115-lgv-samestore2 | success | #111（43660270827） | 0分43秒 |
 | 2026-11-15 09:06 | workflow_dispatch | work/1115-lgv-samestore | success | #110（43656544660） | 0分41秒 |
 | 2026-11-15 09:05 | workflow_dispatch | work/1115-lgv-samestore | success | #109（43656474133） | 0分33秒 |
 | 2026-11-15 09:04 | workflow_dispatch | work/1115-lgv-samestore | success | #108（43656388608） | 0分38秒 |
@@ -198,11 +198,13 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-11-15 09:51 | workflow_dispatch | work/1115-lgv-samestore2 | in_progress | #839（43660275730） |  |
+| 2026-11-15 09:53 | workflow_dispatch | work/1115-lgv-samestore2 | success | #840（43660419420） | 0分44秒 |
+| 2026-11-15 09:51 | workflow_dispatch | work/1115-lgv-samestore2 | failure | #839（43660275730） | 0分43秒 |
 | 2026-11-14 09:30 | push | cloudflare | success | #838（43534587233） | 3分07秒 |
 | 2026-11-14 09:17 | push | cloudflare | success | #837（43533210278） | 4分06秒 |
 | 2026-11-13 21:23 | push | cloudflare | success | #836（43424755608） | 2分51秒 |
-| 2026-11-13 21:18 | workflow_dispatch | cloudflare | success | #835（43424110700） | 0分55秒 |
+
+- #839 failure: ジョブ「regenerate」 ステップ「生成物の差を実行サマリに出す」
 
 ## regenerate-saikyo.yml
 
