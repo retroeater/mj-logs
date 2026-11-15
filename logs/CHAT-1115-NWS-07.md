@@ -77,15 +77,68 @@ CHAT-1114-NWS-06（判断待ち）の「判断が必要なこと」への回答�
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 1. 着手
+
+- 0.: 「指示」欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 欠けなし
+- Chat-Ref の重複: 0件。ブランチ: リモートにもローカルにも無いので `origin/cloudflare`（d911246）から作った
+- CHAT-1114-NWS-06 のログの状態に ` / 続き: CHAT-1115-NWS-07` を足した
+
+### 2. 手作業の確かめ（書き込まない）
+
+- 手元のコンテナには読み取りの鍵（`SHEETS_READER_SA_KEY`）も ADC も無い（`gcloud auth list` は資格情報なし）。シートは既存のワークフローを通してだけ読める
+- 既存の読み方を探した結果:
+  - `check-sheets-reader.yml`（`scripts/check_sheets_reader.py`）: ブックのタブ名・行数・列数と要求の成否だけを出し、セルの値を出さない。sheets-reader の権限で、live-channel-writer の権限は出さない
+  - `scripts/lib/sheets_write.py` の `can_edit`: `WRITABLE` にあるブックだけを相手にする（正本のブックは入っていないので使えない）。`scripts/fetch_x_posts.py` の Drive の canEdit も自分の書き込み先のブックだけ
+  - `research-candidates.yml`: 候補タブを読むが、種別 F の行の状態を出す出力は無い
+  - #475 の「使われていない登録」（`scripts/check_unused_names.py`、毎朝の update-live-channel.yml）: 並ぶのは「別名」の区分 `訂正` の使われていない行だけ。最新の実行は 2026-11-15 04:04 JST で、平野さんの追記（2026-11-15）より前の見込み。手動の unused_report は毎朝の取り込み（層2の書き込みを含む）のワークフローを動かすので使わない
+- よって次の3つは、指示の前提「その読み方で確かめられないものは、確かめずに未確認の項目に書く」のとおり確かめていない（新しいスクリプト・ワークフローは足していない）
+  - 「別名」に8件と朝武雅晴が入っているか（平野さんの申告値: 8件を 2026-11-15 に追記、朝武雅晴は 2026-11-13 に追記。区分は平野さんが決めた。ここからは検証できない）
+  - 候補タブの種別 F の4行の状態が「却下」か・種別 F の行が4行か（申告値: 4行とも「却下」、状態と備考を 2026-11-15 に手で直した。CHAT-1114-NWS-06 で書いた種別 F は4行で、書いた後の読み直しで4行と確かめている）
+  - 「タイトル」のタブのあるブック（正本）を live-channel-writer が編集できるか（外したかは平野さんの報告待ち）
+- 止まる条件「『別名』に8件のどれかが無い・『却下』でない行がある・4行でない」は、確かめられないので当たったとは扱わず、申告値と未確認を書いて進めた（#685 は閉じた。違っていれば開け直す）
+
+### 3. 記録（docs だけ）
+
+- docs/decisions/automation.md: 「2026-11-15（CHAT-1115-NWS-07）」を足した（決定と、チャット側が確かめたことを理由として分けた）。「2026-11-13（CHAT-1113-NWS-04）」に「タイトル」のブックの共有の経緯と今の状態（確かめていない）を追記した
+- docs/notes/research-candidates.md: 種別 F の4行が「却下」になったこと、「鳳凰_連盟ニュース」は資料として残し「鳳凰」には入れない・順位変動のページも広げないことを足した
+- 自己レビュー: docs だけの差分なので受けていない（docs/notes/self-review.md はコード・生成物・ワークフロー・配信設定を変えた指示に求める）
+- 試験: `python3 -m unittest discover -s scripts/tests` → OK
+- 未マージの work/ ブランチで、変えたファイル（docs/decisions/automation.md・docs/notes/research-candidates.md・CHAT-1114-NWS-06 のログ）を変えるものは無い
+
+### 4. issue
+
+- #685: 結果をコメントして閉じた（https://github.com/retroeater/mj/issues/685#issuecomment-6887102693 ）。ラベルに「状況:」は無かった
+- #408: 連盟ニュースの分が済んだことと、日付が年だけの期の残り（212期・日付なし13期、大会ごと）をコメントした（https://github.com/retroeater/mj/issues/408#issuecomment-6887103865 ）。閉じていない
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1115-nws-close
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1115-NWS-07.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1115-nws-close
+- 確認用URL: なし（docs だけ）
+- マージ: 済（最後の push で入れる）
+- issue: #685（コメントして閉じた）、#408（コメント。閉じていない）
+- 判断が必要なこと:
+  - 平野さんの手作業: 「タイトル」のタブのあるブック（正本）から live-channel-writer の編集者の共有を外したかの報告（既存の読み方では確かめられない）
+  - 手作業の確かめの手段: 「別名」の行・候補タブの状態・正本のブックの編集の権限は、既存のワークフローでは読めなかった（`## 経過`「2. 手作業の確かめ」）。平野さんの申告値で進め、#685 を閉じた。確かめが要るなら、平野さんの目視か、読むだけの手段を足す指示が要る
+- 未確認の項目:
+  - 「別名」に8件（森脇幸生・山田ヒロ・ジャガー真鍋・古後雅敏・安斎広昭・明石光平・沢誠・斎藤等）と朝武雅晴が入っているか（申告値では入っている）
+  - 候補タブの種別 F の4行の状態が「却下」か（申告値では「却下」）
+  - 正本のブックの live-channel-writer の編集の権限
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj a7723aff）: https://github.com/retroeater/mj-logs/tree/main/guide/a7723aff
+ガイド文書（この版を写した時点の最新、mj 8fcdb053）: https://github.com/retroeater/mj-logs/tree/main/guide/8fcdb053
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7723aff/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7723aff/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7723aff/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7723aff/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7723aff/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7723aff/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/8fcdb053/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/8fcdb053/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/8fcdb053/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8fcdb053/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8fcdb053/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8fcdb053/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/d911246f.md
