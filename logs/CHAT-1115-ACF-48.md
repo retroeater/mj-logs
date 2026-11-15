@@ -53,28 +53,41 @@
 - 雛形の行: Chat-Ref・マージ・貼る時機・共通手順の4行とも有り（欠けなし）
 - CHAT-1115-ACF-47 のログの状態に「/ 続き: CHAT-1115-ACF-48」を足した
 
+### 手順
+
+- 止まる条件の確かめ: #658 は open で、コメント0件（他セッションの着手中コメントは無い）。同じ論点の open issue を `gh api search/issues` で探した。「コスモビューティー」で当たるのは #658 だけ、「グランプリ live」の open は #399（第13期麻雀グランプリMAX の予備予選）・#362・#403・#654 で、別の論点
+- 手順2: #687「/live: コスモビューティーグランプリを新しいタイトル戦として載せる」を起票した（https://github.com/retroeater/mj/issues/687 ）
+  - ラベルは「分野: データ」「対象: live」。docs/handover.md「タスク管理」のラベルは 状況・分野・対象 の3系統で、種類のラベルは「種類: 常設」しか無いため、種類は付けていない。期日は無い
+  - 本文には経緯（11/3 は掲載対象外、11/15 に掲載予定へ変更）、今の状態、載せるときに変える箇所8項目、未決3点を書いた。変える箇所は実物から書き出した: KW、WAR_STRIP、期の読み方、STAGE_ORDER と STAGE_SLUGS、「タイトル戦」シートの slug、live-page-design.md「2-1」の表、【3】の掲載、テスト
+- 手順1: #658 に直った内容をコメントした（https://github.com/retroeater/mj/issues/658#issuecomment-6889917625 ）。中身は ACF-46 の直し・コミット・本番の取り込み、【3】とカレンダーの扱い、続きは #687。そのうえで completed で閉じた。#658 に「状況:」ラベルは付いていなかった。本文は変えていない
+- 手順3: docs/decisions/live.md に決定を足した
+
+### マージ
+
+- 変更はログ（ACF-47・48）と docs/decisions/live.md だけ。push 直前に再 fetch して祖先を確かめ、`git push origin work/1115-acf:cloudflare` → `ded4a6a85..3a61b8ae8  work/1115-acf -> cloudflare`
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1115-acf
-- ログ: https://github.com/retroeater/mj/blob/work/1115-acf/docs/logs/CHAT-1115-ACF-48.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1115-ACF-48.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1115-acf
 - 確認用URL: なし
-- マージ: 未
-- issue: #658
-- 判断が必要なこと: なし
+- マージ: 済（ログ・docs/decisions のみ。3a61b8ae8、範囲 ded4a6a85..3a61b8ae8）
+- issue: #658（コメントして閉じた）・#687（起票）
+- 判断が必要なこと: なし（#687 の未決に移した）
 - 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj ded4a6a8）: https://github.com/retroeater/mj-logs/tree/main/guide/ded4a6a8
+ガイド文書（この版を写した時点の最新、mj 73d370b5）: https://github.com/retroeater/mj-logs/tree/main/guide/73d370b5
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ded4a6a8/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ded4a6a8/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ded4a6a8/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ded4a6a8/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ded4a6a8/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/ded4a6a8/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/73d370b5/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/73d370b5/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/73d370b5/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/73d370b5/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/73d370b5/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/73d370b5/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/3a7e9816.md
