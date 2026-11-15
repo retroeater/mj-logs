@@ -204,7 +204,7 @@ PR は SHA と版のコメントを書き換える。Dependabot security updates
 - `fetch-gsc.yml`（`scripts/fetch_gsc.py`、#269）: checkout と push 先は実行ブランチ。手動実行の既定はコミットしない（取得するだけ）。
   schedule は28〜31日 21:00 UTC に起動し、JST で1日の回だけ本体が動く（毎月1日 06:00 JST。2026-09-21 に有効にした）。
   `--plan` を付けるとAPIを呼ばずに期間と出力先だけ出せる
-  手動実行の入力 task を inspect にすると、検索パフォーマンスの代わりに URL 検査（`scripts/inspect_gsc_urls.py`、#458）を行う（入力 `inspect_*`。予約の起動・`workflow_call` は常に export）
+  手動実行の入力 task を inspect・inspect-monthly にすると、検索パフォーマンスの代わりに URL 検査（`scripts/inspect_gsc_urls.py`、#458。inspect-monthly は月次の選び方 `--monthly`、入力 `inspect_*`、`inspect_plan` で API を呼ばずに内訳だけ）を行う。schedule は export。`workflow_call` は入力 task（既定 export。run-monthly の `gsc` は渡さないので export）のとおりで、export・inspect・inspect-monthly 以外の値は「URL 検査」で止まる
 - `check-assets.yml` は Cloudflare へのアクセスを要しない検査専用
 - **待機は上限15分。** ワークフロー・check-run・ビルド・デプロイなど外部の状態を、sleep を挟んで繰り返し確かめる「待機」は、始めてから15分で打ち切る（until ループなど上限の無い待機は使わない）。打ち切ったらその時点の状態をログに書き、確かめられなかったことを「未確認の項目」に回して先へ進む。テスト・生成・取得など、自分のコマンドが処理を進めている「実行」はこの上限の対象ではない（進み具合が出力に出るようにする）
 

@@ -62,28 +62,63 @@
 
 ## 経過
 
+- 手順0: 「指示」欄の末尾は指示文の最後の行と一致。同じ Chat-Ref のコミットなし。work/1115-lgv-samestore はリモート・ローカルとも無く、origin/cloudflare（6891686c9）から作った。LGV-37 の状態に ` / 続き: CHAT-1115-LGV-38` を足した
+- 冒頭の雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は欠けていない
+- 手順1: 未マージの work/ ブランチで convert_x_posts.py・convert-x-posts.yml を変えているものは無い
+- 手順2: 一度きりの mode `lgv38` を足した（94ecb7c8a、変形の案の数えを b9849b5d8 で足した）。Claude・Places は呼ばず、シートは読むだけ（【3】は --apply のときだけ）
+  - dry_run（run 43656205178）: 書くセル 0・足す行 3・違う値があって書かない 0（【3】1260行）
+  - 3層に書くジョブ: Actions の未完了の run 0件を確かめて `--apply`（run 43656474133 success）: 「【3】に 3行を足した」
+
+    ```
+    足した行: 2121461087283646776 表示=N
+    足した行: 2121471478982197446 表示=N
+    足した行: 2121484410608554048 駅=新宿・表示=Y
+    ```
+  - もう一度 dry_run（run 43656544660）: 書くセル 0・足す行 0・違う値 0（【3】1263行 = 1260 + 3）
+  - log/ の生成と同じ処理（同じ run。shown_pairs → 閉業 → HIDDEN_SHOPS → build_posts → group_shops）: 決定どおりでない 0件・載る投稿 2,352件
+    - 2121461087283646776・2121471478982197446: 載らない
+    - 2121484410608554048（ニーナナ喫茶）: 店 ChIJz1llp4qNGGARnXnIx1I8YAk に入り、店の投稿は4件（チャット側が見た3件＋この投稿）。投稿の駅 新宿・座標あり
+  - #679 にコメントした（issuecomment-6886349243。保存された本文にバッククォートの混入なし）。log/ は作り直していない（次の毎朝の運行の logpage で出る見込み）
+- 大つけ麺博の2件（指示の前提と実物が違った）: 2件とも【1】の本文に「大つけ麺博」がある（NFKC・小文字で「大つけ麺博」「つけ麺博」とも当たり、`body_word()` は「大つけ麺博」）。投稿日は 2026-11-14。同じ日に語が当たる投稿は、この2件のほかに2121442344033796473・2121411583389896709 の2件で、計4件。よって2件は log/ では本文の語で**もともと外れる**（【3】の「表示」N が無くても載らない）。#679 に出たのは、毎朝の確かめ（`daily_check_posts()`。【2】の要確認の理由〈空欄・写真〉と【3】の「表示」だけを見る）が本文の語で外す投稿を除かないため。「表示」N は平野さんの決定どおり書いた（害は無い）。直しはしていない
+- 手順2の試し（同じ店の過去の投稿から駅を補う案。参照は【2】に【3】を重ねて「表示」Y・駅が一覧にある・place_id のある行。補う行自身は参照から除く）:
+  - 参照: 2,506行・1,726店。駅が割れている店 19店
+  - (i) 【2】で駅が空の 582行: place_id なし 319・同じ店の参照なし 159・割れて補わない 8・補える 96。補える 96行のうち【3】に平野さんの駅があるもの 83行で、同じ 82・違う 1（1697965835145638222 たかはし: 補う 新宿・【3】新宿西口。隣の駅）。【3】に駅が無いもの 13行
+    - 【3】に駅が無い 13行: 2110211083630006623 笄軒 → 広尾、2095711196154372101 焼肉うしふじ → 西新宿五丁目（参照の値は「西新宿五丁目駅（清水橋）」）、2083028583153574135 江戸ッ子 → 神田、2078467508777181354 コメダ → 巣鴨（表示 N）、2078465395867165127 コメダ珈琲店 → 巣鴨（表示 N）、2062737169400398292 九寨溝 → 銀座、2040994594037629337 かおたん → 赤坂、2035919969062719709 山ね家 → 赤坂、2023241071464010167 アンリ・シャルパンティエ → 銀座、2020698858033185152 合楽園 → 春日、2018887335505703420 ルー・ド・メール → 神田、2013086762638434602 穂のか → 小川町、2121484410608554048 ニーナナ喫茶 → 新宿（この時点では表示 N。決定の 新宿 と同じ）
+    - 割れて補わない 8行: 魚雷 4行（後楽園・春日）、たかはし 3行（新宿・新宿西口／西武新宿）、一体感（東銀座・築地）
+  - (ii) 【2】で駅がある 2,307行（place_id あり）を駅が空だったとして: 補える 1,053行のうち【2】の駅と同じ 1,022・違う 31（参照なし 1,235・割れ 19）。違う 31行のうち 30行（出力の上限）:
+    - 重ねた後（【3】で直した駅）と補う駅が同じ（【2】の駅が誤りで、補いが正しい）: アナログ八重洲（新宿 → 銀座一丁目）・光来 3行（沼袋・新宿 → 新宿西口）・Ramen翡翠（祐天寺 → 赤坂）・ボングー（神保町 → 新宿）・サンボ（秋葉原 → 末広町）・1621407110465748992（御茶ノ水 → 湯島）の8行
+    - 隣り合う駅（どちらも店の最寄りとして通る）: 新宿/新宿西口 5行（タカマル鮮魚店・シルエット・はな火屋・天下一品 新宿西口・1489816630032887808 ほか）、九段下/神保町（弐番亭 2行）、浜町/水天宮前（オクシタニアル 2行）、新宿三丁目/新宿御苑前（更科 2行）、西早稲田/早稲田（やまぐち）、池袋/東池袋（ジョーズシャンハイ）、恵比寿/目黒（目黒のさんま 菜の花）、高円寺/東高円寺（2行）、井の頭公園/吉祥寺（Tombo）、後楽園/春日（1796375640851292486）
+    - **離れた駅（誤り）**: ニュー加賀屋 2行（本郷三丁目 ↔ 板橋）、おかげ庵 2行（新宿 ↔ 駒沢大学）、椿屋珈琲（日比谷 → 新宿）。どれも別の支店の投稿が同じ place_id を持っている（チェーンの支店の取り違え。椿屋珈琲は CHAT-1110-LGV-20 で別の店に分けた投稿）。新しい投稿の place_id が別の支店に付くと、補いで黙って誤った駅になる（今は駅が空で #679 に出て平野さんが見る）
+  - 変形の案（同じ店のほかの投稿が**2件以上**で、どれも同じ駅のときだけ補う。run 43656388608）: (i) 補える 45行、【3】の駅と同じ 42・違う 1（上のたかはし）。(ii) 【2】の駅と同じ 611・違う 8。違う 8行は、重ねた後と同じ 4行（アナログ八重洲・光来 3行）と隣り合う駅 4行（やまぐち 西早稲田/早稲田・目黒のさんま 菜の花 恵比寿/目黒・1796375640851292486 後楽園/春日・Tombo 井の頭公園/吉祥寺）で、離れた駅の誤りは無い
+  - 「歌舞伎町」など地名から決める形は入れていない（指示の前提のとおり。この試しの中で見立てと違うものは見ていない）
+- 判断（手順4）: 指示の案（同じ店の投稿が1件でもあれば補う）は、離れた駅の誤りが 3店・5行あり（支店の取り違え）、条件（誤りが無いか、理由の付くものだけ）を満たさないと判断した。補う処理は入れていない。変形の案（2件以上が同じ駅）は条件を満たす見込みだが、指示の案と違うので入れず、判断を仰ぐ
+  - 入れる場合に決めること: 補ったことを残す列。今の作りでは「要確認の理由」に何か入ると「要確認」が Y・「表示」が N になる（`build_row()`）ため、「理由の列に補ったことが分かる語を残す」と「補った行は載る」は、今の列のままでは両立しない（「店名の出どころ」のような駅の出どころの列が無い）
+- 手順3: 一度きりの mode を戻した（47c9ee12f）。`git diff origin/cloudflare -- scripts/ .github/` は空
+- レビュー: 残るコードの差が無い（一度きりの mode は足して消した）ため、サブエージェントのレビューはしていない
+- 決定を docs/decisions/operations.md に足した
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1115-lgv-samestore
 - ログ: https://github.com/retroeater/mj/blob/work/1115-lgv-samestore/docs/logs/CHAT-1115-LGV-38.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1115-lgv-samestore
 - 確認用URL: なし
-- マージ: 未
-- issue: #679
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- マージ: 済（ドキュメントのみ。6891686c9..7879831d0）
+- issue: #679（結果をコメント）
+- 判断が必要なこと: (1) 同じ店の過去の投稿から駅を補う案の試し: 指示の案（1件でもあれば補う）は、【2】で駅が空の行で補える 96行のうち【3】の駅と同じ 82・違う 1（隣の駅）だが、【2】の駅がある行で試すと 31行が違い、うち 5行（ニュー加賀屋・おかげ庵・椿屋珈琲。支店の取り違えで同じ place_id）は離れた駅の誤り。条件を満たさないので入れていない。変形の案（ほかの投稿2件以上が同じ駅のときだけ）は違う 8行がすべて【3】で直した駅と同じか隣の駅で、補える行は 96 → 45 に減る。変形の案を入れるか（入れるなら、補ったことを残す列をどうするか: 今は「要確認の理由」に入れると載らなくなる）。(2) 大つけ麺博の2件は本文に「大つけ麺博」があり、log/ ではもともと本文の語で外れる（指示の前提の「本文に語が無い見込み」と違った）。#679 に出たのは毎朝の確かめが本文の語を見ないため。毎朝の確かめから本文の語で外れる投稿を除くか
+- 未確認の項目: 本番の log/ への反映（2026-11-16 04:00 JST の毎朝の運行の logpage。チャット側が 05:10 JST に確かめる予定）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj e026d556）: https://github.com/retroeater/mj-logs/tree/main/guide/e026d556
+ガイド文書（この版を写した時点の最新、mj 8d9cccb6）: https://github.com/retroeater/mj-logs/tree/main/guide/8d9cccb6
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e026d556/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e026d556/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e026d556/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e026d556/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e026d556/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e026d556/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/8d9cccb6/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/8d9cccb6/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/8d9cccb6/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8d9cccb6/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8d9cccb6/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8d9cccb6/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/6891686c.md
