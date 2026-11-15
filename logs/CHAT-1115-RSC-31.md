@@ -66,6 +66,133 @@ Chat-Ref: CHAT-1115-RSC-31
 
 ## 経過
 
+- 着手前の確認:
+  - 同じ Chat-Ref のコミット・ログは無い。`RSC` は続き（31）
+  - 作業ブランチ: origin に work/1115-rsc-autowrite が無かったので、origin/cloudflare から作った（d911246f6）
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順・作業ブランチ・作業ブランチの片付け・取り込みの衝突）: 欠けなし
+- 0.: 「指示」欄の末尾は指示文の最後の行と一致
+
+### 1. 調べ
+
+- 同じ論点の issue を検索した（クローズ済みも含む。語: 「最強戦 自動」「最強戦 書き込み」「転記」「速報」「事後の確認」「常設」）。速報から「最強戦」へ自動で書く issue は無い
+  - 近いもの: #666（閉じた。転記案 D）・#676（形の違う対局）・#537（閉じた。saikyo/ の毎朝の再生成）・#630（順位の空いた卓）
+- #676: Open で、コメントは無い（他のセッションの着手中は無い）。着手中をコメントした（issuecomment-6887059295）
+- 未マージの `work/` ブランチ: `scripts/research_candidates.py`・`research-candidates.yml`・`run-daily.yml` を変えるものは無い
+- run-daily の順: ジョブ `saikyo`（`regenerate-saikyo.yml`）は `needs: sns` で、`sokuho`（research-candidates の kind D）とは並行で、順は決まっていなかった。`saikyo` を `needs: [sns, sokuho]` にした（`if: !cancelled()` はそのままで、sokuho が失敗しても動く）
+- `LIVE_SHEETS_SA_KEY`: `research-candidates.yml` はすでにこの鍵で ADC の認証をしている（候補タブを書くため）。そのまま使える
+- 「正本」の確かめ: R_タイトル戦_成績（`generate_saikyo_pages.SPREADSHEET_ID`・`lib/houou_tab.SPREADSHEET_ID`）は、docs/notes/wrcr-top.md で「正本の『WRCR』シート（『R_タイトル戦_成績』）」と書かれている。CLAUDE.md の「選手データ・成績データはすべてGoogleスプレッドシートが正本」にも当たる。つまり docs/notes/live-channel-write.md 8行目の「正本・/live 用スプレッドシートは共有せず、書ける先をこの2つのブックに限る」（2026-10-10・10-12 の決定）の「正本」に当たる。指示のとおり止まらず、「判断が必要なこと」に回した
+- 常設 issue の形: #426（道場部ゲストの取り込み）・#506（予約実行の起動）・#572（ABEMA の新しい回の知らせ）。ラベルは「分野: 自動化」「種類: 常設」（saikyo のものは「対象: saikyo」も）。本文は「何が・いつ知らせるか」「知らせを見てすること」「仕組みと決定」の形
+- 「最強戦」の列と行（下の dry-run で読んだ。2744行）:
+  - 見出し: 対局日・年度・対局・ステージ・卓・順位・結果・名前・表示・備考（この順）
+  - シートは新しい対局が上: 11-08 義兄弟合戦は決勝 74〜77行・A卓 78〜81行・B卓 82〜85行、11-01 超技巧合戦は決勝 86〜89行・A卓 90〜93行・B卓 94〜97行
+  - 決勝の行の「卓」は「-」、決勝の1位の「結果」は「通過」（優勝は「ステージが決勝かつ結果が通過」から生成で導く。docs/notes/saikyo-page-design.md）
+
+### 2. 実装（作業ブランチだけ、コミット 189ddd30a）
+
+- `scripts/research_candidates.py` の D に、照合済みの速報を「最強戦」に書く手順を足した
+  - 入力 `--saikyo none|plan_all|write`。既定は none で、今までと同じく書かず、予定も出さない。plan_all は読んだ速報（候補タブに行があるものも）の書く予定を出す。write は新しい速報を `--apply` のときだけ書く
+  - 照合の確かめを `sokuho_checks()` に分けた。候補タブの行と書く予定で同じ確度を使う
+  - 読むのは sheets-reader（表示の値と式の両方）、書くのは live-channel-writer
+  - 予選は、4行の空いた「順位」「結果」のセルだけを書く。値があって同じなら書かない。違う・式・行が4行でない・名前が当たらないときは、その卓を書かない
+  - 決勝は、予選の行を型に4行を作る（表示・年度・対局と、予選の行でそろう列を写す。対局日は速報の日で、予選の行と同じでなければ書かない）。今の決勝の行があれば、列ごとに比べる
+  - 書く直前に書く側でも読み、行の数が違えば止める。書いた後に読み直し、違えば止める
+  - 書いた卓は、候補タブの行の「状態」を「採用」、「備考」を「自動で「最強戦」に書いた（日時）」にする
+  - 書いた朝だけ、#686 へのコメントのファイルを作る
+- `lib/sheets_write.py`: `WRITABLE` に R_タイトル戦_成績の「最強戦」を足した（ほかのタブは要求の前に止まる）。`append_rows` に `user_entered`（決勝の行の日付・数を入力と同じに解釈させる）を足した
+- `research-candidates.yml`: 入力 `saikyo`（choice、既定 none）を足した。job の `issues: write` と、D で dry_run でないときに、ファイルがあれば `gh issue comment 686` するステップを足した
+- `run-daily.yml`: `saikyo` を sokuho の後にした。sokuho に `issues: write` を足した。`saikyo` の入力は渡していない（none のまま。有効にするのはマージの後の別の指示）
+- `check_unused_names.py` の `NAME_RESOLVERS` に3つの関数を「外す」で足した
+- 試験: `SaikyoWriteTest`・`SaikyoStepTest`（予選の空きだけ・同じ・違う・式・行の不足・名前・決勝の型・対局日の違い・行の数の違いで止まる・none と dry-run と plan_all では書かない）。全体 OK
+- 常設 issue: #686「最強戦: 速報から自動で書いた卓の確かめ」を起票した（ラベル「分野: 自動化」「対象: saikyo」「種類: 常設」）。本文に「まだ動いていない」と仕組み・戻し方・止め方を書いた
+- docs/notes（research-candidates.md・live-channel-write.md）は、下の止まりのため直していない
+
+### 3. 書かない試し（作業ブランチ、run 43662127022、`saikyo=plan_all`・`lookback_hours=340`・`dry_run`）
+
+- 速報 6本（11-01 超技巧合戦・11-08 義兄弟合戦の A卓・B卓・決勝）を読んだ
+- 候補タブ 684行は読んだだけ。書く行 0件で、どちらのシートにも書いていない（dry-run。`--apply` を渡していない）
+
+#### 「最強戦」への書く予定
+
+##### 2026-11-01 超技巧合戦 A卓: 書かない（同じ）
+
+- 速報: https://kinmaweb.jp/archives/288622
+- 速報の順位: 1位 鈴木たろう 通過・2位 小川光 通過・3位 小林剛 敗退・4位 内川幸太郎 敗退
+- 今の行: 90・91・92・93行
+
+##### 2026-11-01 超技巧合戦 B卓: 書かない（同じ）
+
+- 速報: https://kinmaweb.jp/archives/288623
+- 速報の順位: 1位 鈴木優 通過・2位 魚谷侑未 通過・3位 石井一馬 敗退・4位 阿久津翔太 敗退
+- 今の行: 94・95・96・97行
+
+##### 2026-11-01 超技巧合戦 決勝: 書かない（決勝の今の行が速報と違う(小川光)）
+
+- 速報: https://kinmaweb.jp/archives/288624
+- 速報の順位: 1位 小川光 優勝・2位 鈴木優 敗退・3位 魚谷侑未 敗退・4位 鈴木たろう 敗退
+- 今の行: 86・87・88・89行
+
+| 列 | 足す行1 | 足す行2 | 足す行3 | 足す行4 | 今の86行 | 今の87行 | 今の88行 | 今の89行 |
+|---|---|---|---|---|---|---|---|---|
+| 対局日 | 2026-11-01 | 2026-11-01 | 2026-11-01 | 2026-11-01 | 2026-11-01 | 2026-11-01 | 2026-11-01 | 2026-11-01 |
+| 年度 | 2026 | 2026 | 2026 | 2026 | 2026 | 2026 | 2026 | 2026 |
+| 対局 | 超技巧合戦 | 超技巧合戦 | 超技巧合戦 | 超技巧合戦 | 超技巧合戦 | 超技巧合戦 | 超技巧合戦 | 超技巧合戦 |
+| ステージ | 決勝 | 決勝 | 決勝 | 決勝 | 決勝 | 決勝 | 決勝 | 決勝 |
+| 卓 |  |  |  |  | - | - | - | - |
+| 順位 | 1 | 2 | 3 | 4 | 1 | 2 | 3 | 4 |
+| 結果 | 優勝 | 敗退 | 敗退 | 敗退 | 通過 | 敗退 | 敗退 | 敗退 |
+| 名前 | 小川光 | 鈴木優 | 魚谷侑未 | 鈴木たろう | 小川光 | 鈴木優 | 魚谷侑未 | 鈴木たろう |
+| 表示 | Y | Y | Y | Y | Y | Y | Y | Y |
+| 備考 |  |  |  |  |  |  |  |  |
+- 今の行との違い: 小川光の「卓」(足す ・今 -)・小川光の「結果」(足す 優勝・今 通過)・鈴木優の「卓」(足す ・今 -)・魚谷侑未の「卓」(足す ・今 -)・鈴木たろうの「卓」(足す ・今 -)
+
+##### 2026-11-08 義兄弟合戦 A卓: 書かない（同じ）
+
+- 速報: https://kinmaweb.jp/archives/290041
+- 速報の順位: 1位 滝沢和典 通過・2位 岡崎涼太 通過・3位 木原翼 敗退・4位 本田朋広 敗退
+- 今の行: 78・79・80・81行
+
+##### 2026-11-08 義兄弟合戦 B卓: 書かない（同じ）
+
+- 速報: https://kinmaweb.jp/archives/290042
+- 速報の順位: 1位 多喜田翔吾 通過・2位 尻無濱航 通過・3位 園田賢 敗退・4位 仲林圭 敗退
+- 今の行: 82・83・84・85行
+
+##### 2026-11-08 義兄弟合戦 決勝: 書かない（決勝の今の行が速報と違う(岡崎涼太)）
+
+- 速報: https://kinmaweb.jp/archives/290043
+- 速報の順位: 1位 岡崎涼太 優勝・2位 尻無濱航 敗退・3位 多喜田翔吾 敗退・4位 滝沢和典 敗退
+- 今の行: 74・75・76・77行
+
+| 列 | 足す行1 | 足す行2 | 足す行3 | 足す行4 | 今の74行 | 今の75行 | 今の76行 | 今の77行 |
+|---|---|---|---|---|---|---|---|---|
+| 対局日 | 2026-11-08 | 2026-11-08 | 2026-11-08 | 2026-11-08 | 2026-11-08 | 2026-11-08 | 2026-11-08 | 2026-11-08 |
+| 年度 | 2026 | 2026 | 2026 | 2026 | 2026 | 2026 | 2026 | 2026 |
+| 対局 | 義兄弟合戦 | 義兄弟合戦 | 義兄弟合戦 | 義兄弟合戦 | 義兄弟合戦 | 義兄弟合戦 | 義兄弟合戦 | 義兄弟合戦 |
+| ステージ | 決勝 | 決勝 | 決勝 | 決勝 | 決勝 | 決勝 | 決勝 | 決勝 |
+| 卓 |  |  |  |  | - | - | - | - |
+| 順位 | 1 | 2 | 3 | 4 | 1 | 2 | 3 | 4 |
+| 結果 | 優勝 | 敗退 | 敗退 | 敗退 | 通過 | 敗退 | 敗退 | 敗退 |
+| 名前 | 岡崎涼太 | 尻無濱航 | 多喜田翔吾 | 滝沢和典 | 岡崎涼太 | 尻無濱航 | 多喜田翔吾 | 滝沢和典 |
+| 表示 | Y | Y | Y | Y | Y | Y | Y | Y |
+| 備考 |  |  |  |  |  |  |  |  |
+- 今の行との違い: 岡崎涼太の「卓」(足す ・今 -)・岡崎涼太の「結果」(足す 優勝・今 通過)・尻無濱航の「卓」(足す ・今 -)・多喜田翔吾の「卓」(足す ・今 -)・滝沢和典の「卓」(足す ・今 -)
+
+- 「最強戦」: 2744行（読んだときの数）
+- 「最強戦」には書かない（--saikyo plan_all・dry-run・書く予定 0件）
+
+#### 結果（止まる条件に当たった）
+
+- 予選の4卓は、どれも「書かない（同じ）」（平野さんの手の値と、速報の順位・結果が同じ）
+- 決勝の4行は、今の行と2列違った。止まる条件（「決勝の4行が既存の行と1列でも違う」）に当たる:
+
+| 列 | 足す行（今のコード） | 今の行（平野さんの手） | 直し方の案 |
+|---|---|---|---|
+| 卓 | 空 | 「-」 | 決勝は「-」を書く（`gsp.NO_TABLE_VALUES` の「-」） |
+| 結果（1位） | 「優勝」 | 「通過」 | 決勝の1位は「通過」と書く（シートの書き方。優勝はページの生成で「決勝の通過」から導く）。候補タブの値の「優勝」は今のまま |
+
+- ほかに、足す場所が違う: 今のコードは行をシートの末尾に足すが、シートは新しい対局が上で、決勝の行は予選の行の上にある（74〜77行の上に新しい対局が来る形）。ページの並びに効くかは確かめていない（`build_matches()` は対局を行の順で集める）
+- 止まったので、docs/notes の直し・#676 へのリンクのコメント（中断の旨は書く）・マージの判断の材料のうち決勝の列の表は、ここまで
+
 ## 報告
 
 - 状態: 作業中
@@ -82,12 +209,12 @@ Chat-Ref: CHAT-1115-RSC-31
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj a7723aff）: https://github.com/retroeater/mj-logs/tree/main/guide/a7723aff
+ガイド文書（この版を写した時点の最新、mj 8fcdb053）: https://github.com/retroeater/mj-logs/tree/main/guide/8fcdb053
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7723aff/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7723aff/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7723aff/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7723aff/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7723aff/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7723aff/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/1bb9d125.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/8fcdb053/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/8fcdb053/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/8fcdb053/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8fcdb053/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8fcdb053/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8fcdb053/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/d911246f.md
