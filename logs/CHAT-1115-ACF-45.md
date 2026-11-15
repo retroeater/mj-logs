@@ -124,7 +124,7 @@
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1115-ACF-46
 - ブランチ: work/1115-acf
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1115-ACF-45.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1115-acf
@@ -140,12 +140,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 005ba79d）: https://github.com/retroeater/mj-logs/tree/main/guide/005ba79d
+ガイド文書（この版を写した時点の最新、mj 3a7e9816）: https://github.com/retroeater/mj-logs/tree/main/guide/3a7e9816
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/005ba79d/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/005ba79d/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/005ba79d/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/005ba79d/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/005ba79d/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/005ba79d/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/1607687f.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/3a7e9816/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/3a7e9816/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/3a7e9816/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/3a7e9816/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/3a7e9816/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/3a7e9816/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/3a7e9816.md
