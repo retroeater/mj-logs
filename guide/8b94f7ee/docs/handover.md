@@ -6,11 +6,11 @@
 **この文書は現状・ルール・次にやることだけを書く。** 実装記録は `docs/notes/`、issue単位の経緯は GitHub Issues、過去の履歴は
 `docs/notes/handover-archive-2026.md`。容量の上限と退避方法は CLAUDE.md「CLAUDE.md / handover.md の更新ルール」。
 
-最終更新: 2026-11-01
+最終更新: 2026-11-13
 
-- **「現行サイトに作り込みすぎない」の #13・#219・#82 を、pro/ を現行サイトで作った決定に合わせた**
-- **毎日・週次のフォールバック実行（GitHub の `schedule`）を外したので、2章の週次の再生成の記述を今の起動に合わせた**
-- **Codespace の旧記録（branch-operations.md・session-network.md）を handover-archive へ移し、6章の注記を直した**
+- **5章の閉じた issue（#5・#367・#378）の記述を直した**
+- **2章のサブディレクトリの列挙・canonical・再生成の契機の細目を参照にした**
+- **5章の #490 の備考を本文への参照にした**
 
 ---
 
@@ -55,15 +55,14 @@ GitHub Pages からの移行の相談に始まり、Cloudflare への移行の�
 `wrangler.jsonc` の `assets.directory` がリポジトリ全体（`./`）を指すため、
 公開したくないファイルは `.assetsignore` に列挙している（追加時のルールは CLAUDE.md「方針」、#133）。
 
-`_redirects` の先頭行の規則は CLAUDE.md「禁止事項」、`html_handling` は `docs/notes/cloudflare.md`「配信設定: html_handling・_redirects・canonical・_headers」。canonical はクエリがページの主題（選手など）を選ぶページには付けず、表示の絞り込み・切り替えだけなら自分自身を付ける（#560。付け外しの一覧は `docs/notes/cloudflare.md`「配信設定」）。
+`_redirects` の先頭行の規則は CLAUDE.md「禁止事項」、`html_handling` は `docs/notes/cloudflare.md`「配信設定: html_handling・_redirects・canonical・_headers」。canonical の基準は同節（#560）。
 `_headers` はセキュリティヘッダ（CSP を含む）とキャッシュ制御（#92）。設定値と経緯は `docs/notes/cloudflare.md`「配信設定: html_handling・_redirects・canonical・_headers」
 
 **本番反映**は CLAUDE.md「構成」（ゲートは #170）。設定値・確認範囲は `docs/notes/cloudflare.md`「本番反映（デプロイ）の仕組み」、セッションからの到達は `docs/notes/cloud-sessions.md`「ネットワーク」（#328）。
 
 ### ページ構成
 
-系統は `index.html`（テンプレート由来）・ビルド時生成（型A/A'/D と、`wayhome/`・`saikyo/`・`title/`・`live/`・`books/`・`houou/`・`ouka/`・`jwrc/` などのサブディレクトリ）・
-静的なページ の3つ。**件数の正は `python3 scripts/regenerate.py --list`。**
+系統は `index.html`（テンプレート由来）・ビルド時生成（型A/A'/D とサブディレクトリ）・静的なページ の3つ。**件数の正は `python3 scripts/regenerate.py --list`。**
 ページの一覧（ページ数・生成スクリプト・公開状態）は `docs/notes/static-generation.md`「ページの一覧」。
 **`books/`は2026-09-22開発凍結（自動生成・自動取得を停止、本番はそのまま残す）。`docs/notes/books-freeze.md`。**
 
@@ -77,7 +76,7 @@ GitHub Pages からの移行の相談に始まり、Cloudflare への移行の�
 
 **スプレッドシートを直しただけでは、ビルド時生成のページには反映されない。** 即時に反映したいときは
 `regenerate-page.yml` を`workflow_dispatch`で手動実行する（`target_page`にページ名、または`all`）。
-週次（#103）は毎週月曜03:00 JST の `run-weekly.yml` が `fetch-youtube.yml` の最後に`all`を呼ぶ（GitHub 側の予約実行は無い。`docs/notes/github-actions.md`）。最強戦（saikyo/）は毎朝、SNS ブックの更新の後にも再生成する（`regenerate-saikyo.yml`、#537）。セッション内でも `python3 scripts/regenerate.py <ページ名>` で生成できる。
+週次の `all`（#103）・最強戦の毎朝の再生成（#537）の契機は `docs/notes/github-actions.md`「ワークフローの一覧」。セッション内でも `python3 scripts/regenerate.py <ページ名>` で生成できる。
 
 ### 自動化
 
@@ -165,14 +164,14 @@ GitHub Issues（Open）に全件あるが、着手可能な主なものは以下
 
 | # | 内容 | 備考 |
 |---|---|---|
-| #486 | Bing の Recommendations | 残りは #486 の本文。title の長さ（短いページの共通の末尾）は #5 |
+| #486 | Bing の Recommendations | 残りは #486 の本文（title の長さは #5 で済んだ） |
 | #550 | アクセス解析の導入の検討（利用者の画面幅・Cloudflare Pro の要否） | `docs/notes/design.md` の最小の画面幅（360px、2026-10-18）を見直す材料。外部ドメインへの依存（4章）に注意 |
 | #390 | 道場部ゲストの書き込み済みの月の自動更新（本番で未稼働。サービスアカウントの削除の権限も未確認） | 随時: 差し替えで #426 に「自動で更新しました」か「自動では更新していません」が出たら、カレンダーの当日以降が画像と合っているかを確かめる |
 | #186 | アクセシビリティの実機での通し確認 | 静的レビュー（#178〜#185）の残り。チェックリストは `docs/notes/a11y-manual-check.md`。**Lighthouse のスコアを到達点として扱わない**（根拠は #186） |
 | #408 | タイトル戦の対局日を確定させる | `YYYY-XX-XX` の大半は決勝ライブが無く【2】【3】から直せない（外の資料が要る）。書式は `docs/notes/title-pages.md`「日付列の書式」 |
-| #490 | /live 層2の残りの規則と掲載範囲 | 残りは U1〜U4（ライブの無い組の対局日・紅龍戦のステージの並び・件数の少ない列・「プレイヤー解説：」）・候補の判別・公開版の掲載・複数卓・達人戦／昇龍戦／鳳匠戦の扱い（済んだものと件数は #490 の本文） |
+| #490 | /live 層2の残りの規則と掲載範囲 | 残り（U1〜U4・複数卓・達人戦／昇龍戦／鳳匠戦など）と件数は #490 の本文 |
 | #475 | /live の未登録の名前 | 常設（増減の日だけコメント。`docs/notes/live-channel-write.md`「7. 毎日の取り込み」）。実在の人は「連盟プロ以外」、誤記は「別名」に `訂正` で平野さんが登録し、読み違いは層2の規則で直す（#490） |
-| — | 現行サイトで小さく作れるもの | 次は #388・#389（上の「待ち」）。#378 は新サイト（#296）送り。未決: #365・#367 のデータを誰がいつ入力するか。決定は `docs/decisions/features.md` |
+| — | 現行サイトで小さく作れるもの | 次は #388・#389（上の「待ち」）。#378（log/ で実装）・#367 は済。#365 の入力の分担は `docs/decisions/operations.md`。決定は `docs/decisions/features.md` |
 
 ---
 
