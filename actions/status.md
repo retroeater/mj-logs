@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-11-15 13:39 JST
+- 書き出した時刻: 2026-11-15 13:41 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -198,7 +198,7 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-11-15 13:37 | push | cloudflare | in_progress | #843（43677574278） |  |
+| 2026-11-15 13:37 | push | cloudflare | success | #843（43677574278） | 4分11秒 |
 | 2026-11-15 12:32 | push | cloudflare | success | #842（43672823280） | 3分04秒 |
 | 2026-11-15 10:01 | push | cloudflare | success | #841（43661093104） | 0分53秒 |
 | 2026-11-15 09:53 | workflow_dispatch | work/1115-lgv-samestore2 | success | #840（43660419420） | 0分44秒 |
@@ -351,7 +351,7 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-11-15 13:37 | workflow_dispatch | cloudflare | in_progress | #119（43677595850） |  |
+| 2026-11-15 13:37 | workflow_dispatch | cloudflare | success | #119（43677595850） | 3分52秒 |
 | 2026-11-15 13:33 | workflow_dispatch | work/1115-acf | success | #118（43677299724） | 2分41秒 |
 | 2026-11-15 13:31 | workflow_dispatch | work/1115-acf | failure | #117（43677131896） | 1分52秒 |
 | 2026-11-15 12:28 | workflow_dispatch | work/1115-acf | success | #116（43672485094） | 3分20秒 |
