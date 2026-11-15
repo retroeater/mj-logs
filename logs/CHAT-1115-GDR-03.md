@@ -88,7 +88,7 @@ docs/notes/chat-side-operations.md: 比較元 8b94f7eec の 22041 bytes → 2204
   2回目のレビューは、直しが docs のみ（self-review.md の対象外）なので行わない
 - 最終の HEAD（f4e3606e2、ログとテストの件数の直しを含む）でもう一度手動実行した（run 43660796546）: completed success、注釈は notice だけ。出力の4文書の行と純増の行は上の run と同じ値
 - マージ: `git diff --stat origin/cloudflare...HEAD` は check-assets.yml・docs/decisions/operations.md・docs/logs/CHAT-1115-GDR-03.md・docs/notes/github-actions.md だけ。push 直前に再 fetch して `git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめ、`git push origin work/1115-gdr:cloudflare` でマージした。push の出力の範囲: `8b94f7eec2..f4e3606e25  work/1115-gdr -> cloudflare`
-  - f4e3606e2 の check-run: 「check」completed success。「Workers Builds: mj」は付いていない（変わったのが `.github/` と `docs/` だけで、ビルドの watch の対象外と見られる。配信するファイルは変えていない）
+  - f4e3606e2 の check-run: 「check」completed success。「Workers Builds: mj」は最初の取得では付いておらず、後から付いて completed success（最初に「付いていない」と書いたのは早すぎた読み。配信するファイルは変えていないので本番の表示は変わらない。ブラウザでの見え方は確かめていない）
 - #492: 本文の「上限の見直し」を済み（新しい値と 2026-11-15）にし、`assets-check.yml` の2か所を `check-assets.yml` に直し、`Chat-Ref: CHAT-1115-GDR-03` を足した。マージした旨と前後の値をコメントした（状態・ラベルは変えていない）
 
 ## 報告
@@ -107,12 +107,12 @@ docs/notes/chat-side-operations.md: 比較元 8b94f7eec の 22041 bytes → 2204
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 1bb9d125）: https://github.com/retroeater/mj-logs/tree/main/guide/1bb9d125
+ガイド文書（この版を写した時点の最新、mj a7723aff）: https://github.com/retroeater/mj-logs/tree/main/guide/a7723aff
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/1bb9d125/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/1bb9d125/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/1bb9d125/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/1bb9d125/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/1bb9d125/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/1bb9d125/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7723aff/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7723aff/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7723aff/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7723aff/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7723aff/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7723aff/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/1bb9d125.md

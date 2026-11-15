@@ -79,28 +79,47 @@ CHAT-1115-LGV-38 の試しの結果を受けて、毎朝の変換と確かめを
   - regenerate-page.yml の log_pages・dry_run・compare_ref origin/cloudflare（run 43660419420 success）: 「compare: 差分なし」（`drop_posts()` を `body_drop()` で書き直しても、同じデータで log/ は cloudflare のコードと同じ）。「3層から 2541件のうち 2352件・1691店」。1回目（run 43660275730）は compare_ref を `cloudflare` と書いて「invalid reference」で失敗した（入力の誤り）
 - docs（8407e7aff）: docs/notes/log-stations.md「決め方」に同じ店の過去の投稿から補う項、docs/notes/log-page.md「新しい投稿の写真と空欄」に駅の補いと、毎朝の一覧から本文の語などで外れる投稿を除くことを足した
 
+- レビュー（新しい文脈のサブエージェント、1回目。対象 `git diff origin/cloudflare...HEAD -- scripts docs/notes .github`、観点は docs/notes/self-review.md）: 直すべき不具合なし。`drop_posts()` の書き直しは、cloudflare の版と同じ入力を 3,000 回ランダムに与えて戻り値がすべて一致（レビュー側の検査）。駅の候補の書式・【県】・Places を飛ばしたとき・`--mode stations` で計算し直しても補った駅が残ることも問題なし。指摘と対応:
+  - (中) run_all の配線（【3】を1回読む・same_store・filled を渡す・出力の行）を通すテストが無い → MainTest に apply のテストを足した（`test_all_fills_station_from_same_shop`。run_all で same_store を渡さないと失敗することを確かめた）
+  - (低) 毎朝の一覧は【2】の行（名前・place_id）で `body_drop()` を判定し、【3】で place_id・名前を直した行は log/ とずれうる → `簡略化:` のコメントを残した（「表示」を入れた行は先に除くので稀）
+  - (低) #679 の本文の「本文の語（催事・再掲）などで」の「など」が広い → 「本文の語（催事・再掲）・過去メシ・載せない投稿（HIDDEN_POSTS）で」に直した
+  - (低) 補うと「本文の駅が一覧に無い（本文: …）」の理由が消え、後で駅の一覧に本文の駅が足されても引き直されない・【3】の読み込みが all の実行ごとになった・同じ実行で足した行は表に入らない → 決定（要確認にしない）どおり・影響が小さいとして見送り
+  - 対応のコミット: d58e5ad6b。テストを足し、文言とコメントを直しただけのため2回目のレビューはしていない。テスト OK（2170件）。直した後の convert-x-posts.yml の all・dry_run（run 43660882417 success）も同じ結果（補える店 357店・毎日確かめる投稿 0件）
+- 決定を docs/decisions/operations.md に足した
+
+- マージの前に cloudflare が進んでいたので merge で取り込んだ（3d7a22048。入ったのは CHAT-1115-GDR-03・DMR-01 の変更で、scripts/ は重ならない）。docs/decisions/operations.md の末尾の節どうしが衝突したので、両方を残して並べた（CLAUDE.md「ブランチ運用」の末尾の追記どうしの解き方）。解いた後の該当箇所:
+
+  ```
+  ## 2026-11-15（CHAT-1115-GDR-03）
+  （cloudflare 側の節、そのまま）
+
+  ## 2026-11-15（CHAT-1115-LGV-39）
+  （この指示の節、そのまま）
+  ```
+  取り込んだ後もテスト OK
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1115-lgv-samestore2
 - ログ: https://github.com/retroeater/mj/blob/work/1115-lgv-samestore2/docs/logs/CHAT-1115-LGV-39.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1115-lgv-samestore2
 - 確認用URL: なし
-- マージ: 未
-- issue: #679
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- マージ: 済（結果は追いの push で書く）
+- issue: #679（コメントしていない。次の毎朝の運行で本文が書き直される）
+- 判断が必要なこと: (1) 指示の前提の関数名が実物と違った: 毎朝の一覧は `no_shop_posts()` ではなく `daily_check_posts()`、生成の `dropped_word()` は無く判定は `drop_posts()` の中にあった。目的どおり実物を直した（判定は `body_drop()` に出して生成と共有）。(2) 同じデータに当てた数は LGV-38 の変形の案とほぼ同じ（補える 45行・【3】の駅と同じ 43〈LGV-38 は 42〉・違う 1、【2】の駅がある行で違う 8行は同じ投稿）。今の表で補える店は 357店。最初に効くのは 2026-11-16 04:00 JST の毎朝の運行（新しい投稿が無ければ何も変わらない）
+- 未確認の項目: 予約の運行での補いの実地（2026-11-16 04:00 JST から。補った投稿は変換の出力の要約に出る）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 8b94f7ee）: https://github.com/retroeater/mj-logs/tree/main/guide/8b94f7ee
+ガイド文書（この版を写した時点の最新、mj a7723aff）: https://github.com/retroeater/mj-logs/tree/main/guide/a7723aff
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/8b94f7ee/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/8b94f7ee/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/8b94f7ee/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8b94f7ee/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8b94f7ee/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8b94f7ee/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/8b94f7ee.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7723aff/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7723aff/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7723aff/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7723aff/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7723aff/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a7723aff/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/1bb9d125.md
