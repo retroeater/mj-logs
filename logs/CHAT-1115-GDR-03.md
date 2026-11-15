@@ -53,6 +53,40 @@
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+- 0章: 「指示」欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は欠けなし（指示文は改行が詰まった形で貼られたが、行の中身はそろっている）
+- 着手前の確認: `CHAT-1115-GDR-03` のコミット・ログは0件（`GDR` はこのセッションの3本目で、識別子の重複の確認は最初の指示〈GDR-01〉で済み）。#492 は open
+- 作業ブランチ: work/1115-gdr はローカル・リモートとも無く、`git checkout -b work/1115-gdr origin/cloudflare`（8b94f7eec）で作った
+- 手順1:
+  - `gh api search/issues`（「上限」「警告域」）と #492・#292・#301・#421: #292・#301 は open で進行中のコメントなし、#421・#297・#336 は closed。食い違う決定・進行中の作業は無い。#492 の最新の着手中は 2026-11-13 の GDR-01（同日にマージ済み）。#492 に着手中のコメントを書いた
+  - docs/notes/github-actions.md「ワークフローを変更したとき」を読んだ（手動実行で確かめる。`workflow_dispatch` は 42行目にある）
+  - yml の今の値は前提どおり（147〜150行の `26624 28672`×3・`14336 16384`、163行の `FLOOR=24576`）
+  - 未マージの work/ ブランチで check-assets.yml を変えているのは `origin/work/1101-prp-pub` だけで、89行目の allowed のコメント（「未公開。」を消す）。今回の 147〜150・163行とは別の箇所なので止まらない
+- 手順2: 5つの値を `25600 27648`×3・`12288 14336`・`FLOOR=23552` にした（ec91e3692）。値に触れるコメント「FLOOR(警告域より 2KB 下)」は 25600−2048=23552 で合うので変えていない
+  - `git grep -n -w -E '26624|28672|16384|24576'`（*.md・*.py・*.yml、除外は指示のとおり）は0件。`(26|28|14|16|24)\s?KB` は CLAUDE.md の最終目標「handover.md 24KB 前後」（目標値で上限ではない）と ask-worker.md の別の意味だけ
+  - 桁区切りの形（`24,576` など）を見落としていた。サブエージェントのレビューで、docs/notes/github-actions.md「ワークフローの一覧」の check-assets.yml の行に「24,576 バイト超」が残っていると分かり、値を書かずに「FLOOR〈警告域より 2KB 下、値は yml〉」にした。同じ行の「CLAUDE.md・handover.md のサイズ」も4文書の名前に直した（77cd8dd95。yml と同じコミットにはできなかった）。`git grep -E '26,624|28,672|16,384|24,576|14,336'` の残りは0件
+  - `python3 -m unittest discover -s scripts/tests`: 2164件 OK
+- 手順3（手動実行、run 43660522043、ref work/1115-gdr、head ec91e3692）: completed success。注釈は ubuntu-latest の移行の notice だけで、warning・error は無い。ログの出力:
+
+```
+CLAUDE.md: 23299 bytes (警告域 25600 / 上限 27648)
+docs/handover.md: 23619 bytes (警告域 25600 / 上限 27648)
+docs/notes/chat-side-operations.md: 22041 bytes (警告域 25600 / 上限 27648)
+docs/instruction-template.md: 10075 bytes (警告域 12288 / 上限 14336)
+docs/notes/chat-side-operations.md: 比較元 8b94f7eec の 22041 bytes → 22041 bytes(警告は 23552 bytes 超で純増のとき)
+```
+
+- サブエージェントのレビュー（general-purpose、差分・目的・決定・コード規約を渡した、1回）:
+
+| 指摘 | 扱い |
+|---|---|
+| github-actions.md 28行目に旧値「24,576 バイト超」が残る（値を2か所に持つ） | 直した（77cd8dd95、値を書かずに yml の FLOOR を指す形） |
+| 同じ行の「CLAUDE.md・handover.md のサイズ」が実際の4文書と違う（今回より前から） | 直した（77cd8dd95） |
+| 5つの値・コメント・ほかのステップ・ほかのワークフロー・テスト・security.md の観点 | 指摘なし |
+
+  2回目のレビューは、直しが docs のみ（self-review.md の対象外）なので行わない
+
 <!-- guide-links -->
 ---
 
