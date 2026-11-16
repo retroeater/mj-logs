@@ -1048,6 +1048,10 @@ SEO 系列（CHAT-1112-SEO-17〜CHAT-1113-SEO-25、#458・#680）の振り返り
 - 説明の文書を範囲に入れない: fetch-gsc.yml の入力を変える指示（SEO-24）で、差分に入れてよいファイルに docs/notes/github-actions.md を入れなかった。説明が実物と合わなくなることをレビューが見つけたが範囲の外で直せず、SEO-25 に回った
 - 「異論がなければ」から承認を読む: SEO-25 で、マージの可否を単独で聞かず、「異論がなければ推奨どおり」の一覧に入れた項目（「マージと一緒に直す」）から承認を読み取った
 
+## docs/instruction-template.md の「スプレッドシートを読み書きする実行」の行の事例（2026-11-16 の申送り、CHAT-1116-ACF-49）
+
+約束 (p)（CHAT-1113-SKP-34 の節で立て、SKP-37 で文言を直した）は、約束のままでは ACF 系列（CHAT-1110-ACF-44〜CHAT-1115-ACF-46）で続けて抜けた。ACF-44 の run-daily・run-weekly の手動実行、ACF-45・46 の update-live-channel の手動実行とマージ後の本番の取り込みは、どれもシートを読み書きするのに、指示に「ほかの実行が無いことを見てから起動」が無かった（並走は起きず、害は出ていない）。そのため約束から instruction-template.md の行の文面に移した（docs/decisions/operations.md の CHAT-1116-ACF-49 の節）
+
 ## docs/notes/cloudflare.md・chrome-reading.md から（2026-10-13、#304）
 
 規則は `docs/notes/cloudflare.md`「ビルド成否と本番の確認範囲（check-runs）」「Chrome からダッシュボードの API を読む」と `docs/notes/chrome-reading.md`「使い方」、#304 の本文の冒頭（担当）が正。

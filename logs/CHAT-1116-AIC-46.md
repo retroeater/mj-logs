@@ -56,15 +56,47 @@ CHAT-1116-AIC-45 で作った週次の書き出しの再試行と再実行の道
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 着手前の確認（0章）
+
+- ログの「指示」欄の末尾は指示文の最後の行と一致
+- 同じ Chat-Ref のコミット・ログ: なし。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 欠けなし
+- 作業ブランチ: ローカルの work/1116-aic は origin/work/1116-aic と一致（dd0b5926b）。`git merge-base --is-ancestor origin/cloudflare HEAD` は真で、取り込み不要
+- CHAT-1116-AIC-45 のログの `## 報告` の状態に ` / 続き: CHAT-1116-AIC-46` を足し、「判断が必要なこと」に回答の行を足した（c4418050f）。Secret の有無は指示文の前提（平野さんのスクリーンショット、申告値）で閉じた
+
+### 手順1: 到達の確かめ
+
+2026-11-16 01:04 UTC（10:04 JST）、`POST https://ryoei.pro/api/ask/weekly`（Authorization なし、UA `mj-internal ask-weekly-probe`）→ **HTTP 404、本文「Not Found」**（Worker の「ほかの /api/* は 404」。AIC-45 のときの WAF の遮断のページ〈403〉ではない）。WAF の例外が効いている
+
+### 手順2: 直す
+
+- 見送った3件（2f0b8effa）:
+  - 401 などのテスト: 有効な鍵と Google の偽物を渡し、週次が動けば Google が呼ばれる形にして `google.calls.length === 0` を確かめる（D1 の行数の検査も残す）。`weeklyRequest` の Bearer の照合を外した版で回すと、このテストが落ちる（status 200）ことを確かめた（weekly.mjs は元に戻した）
+  - テストの名前「行の追加は 5xx・ネットワークの失敗でやり直さない(…)。429 はやり直す」
+  - ワークフローの 403 のエラー文を候補の書き方に
+- docs/notes/cloudflare.md の WAF の式を足した後の式（申告値）に直し、足した日・理由を書いた（2f0b8effa）
+- docs/decisions/houou.md に決定を足した（c4418050f）
+- テスト: `node --test 'workers/ask/test/*.test.mjs'` 215件すべて通過、`python3 -m unittest discover -s scripts/tests` OK
+- 直した部分のレビュー（新しい文脈のサブエージェント、1回）: 要修正なし、提案3件。止まる条件（レビューの後にさらに直す）に当たらないよう、直さずに扱いを決めた:
+
+| 指摘 | 扱い |
+|---|---|
+| ask-worker.md「本番の POST の 403（解決、2026-10-11）」の「`/api/ask` 以外への POST は今も遮断される」が古い | 見送り（#654 にコメントで移した。docs のみ） |
+| ワークフローの 403 のエラー文「…の /api/ask/weekly の例外」は「例外が無い」の方が正確 | 見送り（#654 に移した） |
+| cloudflare.md の「足した後は Worker の応答（404）」は Secret 未設定の 404 と補うべき | 意図どおり（この 404 は未マージで本番に `/api/ask/weekly` の分岐が無いための「ほかの /api/* は 404」。Secret の有無とは関係ない） |
+
+- マージ前の確かめ: 再 fetch 後 `git merge-base --is-ancestor origin/cloudflare HEAD` 真。`git diff origin/cloudflare...HEAD -- workers/ask/src/ask.mjs` は空、`index.mjs` は `/api/ask/weekly` の分岐と import・コメントだけ。未マージの work/ ブランチで weekly.mjs・index.mjs を変えているもの: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 56d8d22f）: https://github.com/retroeater/mj-logs/tree/main/guide/56d8d22f
+ガイド文書（この版を写した時点の最新、mj 39f873cd）: https://github.com/retroeater/mj-logs/tree/main/guide/39f873cd
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/56d8d22f/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/56d8d22f/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/56d8d22f/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/56d8d22f/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/56d8d22f/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/56d8d22f/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/39f873cd/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/39f873cd/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/39f873cd/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/39f873cd/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/39f873cd/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/39f873cd/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/56d8d22f.md
