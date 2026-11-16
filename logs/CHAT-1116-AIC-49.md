@@ -124,7 +124,7 @@ player の答えで、名前・期の数・どの期を挙げるかが揺れ続�
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1117-AIC-50
 - ブランチ: work/1116-aic
 - ログ: https://github.com/retroeater/mj/blob/work/1116-aic/docs/logs/CHAT-1116-AIC-49.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1116-aic
@@ -134,6 +134,7 @@ player の答えで、名前・期の数・どの期を挙げるかが揺れ続�
 - 判断が必要なこと:
   - **2回目のレビューの後に直した 2e1b3cd8a（seasons が 0 の選手で出場の数を書かない、コメント・テストの直し）をマージしてよいか。** マージするなら、続きの指示で 2e1b3cd8a の差分だけのレビューを1回受けてからマージし、本番の5問（「hiro」「中田」「内田みこ」「白鳥翔の第40期の成績は？」「藤崎」）を確かめる形を想定している
   - 本番の確かめは 2026-11-16 の10問を使い切っている。続きの指示は 2026-11-17 以降に貼ると、マージと同じ日に本番を確かめられる
+  - 回答（2026-11-16、平野さん。CHAT-1117-AIC-50 の決定）: 2e1b3cd8a は差分だけのレビューを1回受けてマージする（外さない）
 - 未確認の項目:
   - 本番の5問（「hiro」「中田」「内田みこ」「白鳥翔の第40期の成績は？」「藤崎」）は送っていない（未マージ・この日の10問を使い切り）
   - マージした後の 2026-11-23 の書き出し（確認は 6:00 JST）で、player の答えがフルネームで始まるか、データに無い期が出ていないか、Claude の文が落ちた件数（Workers Logs の `playerTextDropped`）
@@ -142,12 +143,12 @@ player の答えで、名前・期の数・どの期を挙げるかが揺れ続�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 6a0d9b86）: https://github.com/retroeater/mj-logs/tree/main/guide/6a0d9b86
+ガイド文書（この版を写した時点の最新、mj c77a96f2）: https://github.com/retroeater/mj-logs/tree/main/guide/c77a96f2
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6a0d9b86/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6a0d9b86/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6a0d9b86/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6a0d9b86/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6a0d9b86/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6a0d9b86/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/2cedda30.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c77a96f2/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c77a96f2/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c77a96f2/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c77a96f2/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c77a96f2/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c77a96f2/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/2e4dd08c.md
