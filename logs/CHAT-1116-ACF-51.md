@@ -156,7 +156,7 @@ CHAT-1008-DIC-21 CHAT-1014-RDR-03 CHAT-1015-SKR-01 CHAT-1017-WFL-25 CHAT-1017-WF
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1116-ACF-52
 - ブランチ: work/1116-acf
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1116-ACF-51.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1116-acf
