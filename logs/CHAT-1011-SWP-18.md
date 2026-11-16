@@ -117,4 +117,4 @@
 - docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/56d8d22f/docs/notes/chat-side-operations.md
 - docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/56d8d22f/docs/notes/cloudflare.md
 - docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/56d8d22f/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/725114be.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/56d8d22f.md
