@@ -46,6 +46,27 @@
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 着手前の確認（2026-11-16 01:3x UTC）
+
+- Chat-Ref の重複・`WHN` の重複: なし（全ブランチのコミットと docs/logs の履歴）
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 欠けなし。0. 指示欄の末尾は指示文の最後の行と一致
+- 作業ブランチ: origin/work/1116-whn は無かったため origin/cloudflare（8ae7af4）から作成
+- #545: Open。最新の知らせは 2026-11-15T18:05Z の github-actions のコメント（新しい回 1件 `sAx65O6q8x4`「《第５期帝王戦  阿久津翔太 編》」2026-11-11、貼る1行 `sAx65O6q8x4	阿久津翔太	第5期小島武夫杯帝王戦`）。指示文と一致。着手コメントを付けた
+- 前提の実物: `data/youtube_meta.json` に `sAx65O6q8x4` 無し・`wayhome/sAx65O6q8x4.html` 無し・`img/ogp/wayhome/` は `index-20261031.jpg` の1枚・`title/search.json` に「第5期小島武夫杯帝王戦」あり。いずれも指示文どおり
+- スプレッドシートの読み書き: fetch-youtube.yml と regenerate-page.yml が使う鍵は `SHEETS_READER_SA_KEY`（`scripts/lib/sheets.py` の scope は spreadsheets.readonly）で、書き込み（`scripts/lib/sheets_write.py`）は使わない。起動前に in_progress・queued の実行は 0 件
+
+### 手順1: regenerate-page.yml の check（run 43787724013、work/1116-whn、`target_page: video_wayhome wayhome_episodes`・`check: true`）
+
+success。止まる理由 0 件。警告 3 件（全部）:
+
+- video_wayhome: youtube_meta.json に無い動画を外して生成します: sAx65O6q8x4(第5期小島武夫杯帝王戦 阿久津翔太)
+- wayhome_episodes: 同上
+- wayhome_episodes: jpml_prosに該当する選手がいないため、Xの写真を出しません: タマシュ・エルドス
+
+帰り道タブの行は読めている（上の警告がこの回の名前・タイトルで出ている。見込みどおり）。検査は 44 回。
+
 <!-- guide-links -->
 ---
 
