@@ -57,6 +57,20 @@
 
 ## 経過
 
+- Chat-Ref の確認: `CHAT-1116-LVP-23` のコミットは0件。`LVP` は同じセッションの続き。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている。着手は 2026-11-16 11:47 JST
+- 0. 「指示」欄の末尾は指示文の最後の行と一致。work/1116-lvp-post はリモート・ローカルとも無いので origin/cloudflare から作った
+- #362・#495・#475 に他セッションの着手中のコメントは無い（#362 の着手中は同じセッションの LVP-19〜22 のもの、#475 の最後の着手中は CHAT-1115-ACF-45 で完了済み）。#362 に着手中のコメントを書いた
+- 未マージの work/ ブランチ: `work/1101-prp-pub` が `scripts/generate_pro_pages.py`・`scripts/generate_live_pages.py` を変えているが、今回直した `page_cards()`（258行）の箇所は変えていない（止まらない）。`live_extract.py`・live-page-design.md を変えているブランチは無い
+- **前提と食い違う点**:
+  - **#495**: 止める割合・意図して減らしたときの通し方・手動実行の入力が本文・コメントで決まっていない（本文は「例: 20%以上の減少」まで。コメントは0件）。止まる条件のとおり実装せず、案（A: 【2】の候補との突き合わせで50行を超えて欠けたら止める〈推し〉／B: 前回の行数から20%以上減ったら止める）を #495 にコメントした
+  - **#475**: 「ベスト16A卓:黒沢咲」の抜き出しの直しは、CHAT-1115-ACF-45 が `scripts/lib/live_extract.py` の `TABLE_LABEL_RE` で済ませ、cloudflare に入っている（b565cbb21、2026-11-15）。次の取り込みで「未登録の名前 2名 → 0名」（黒沢咲・香野蘭とも登録済みの名前として読まれる）。bot の文面の案内先も同じ指示で直してあるが、行き先は #490 ではなく「`scripts/lib/live_extract.py`。docs/notes/live-channel-write.md「7. 毎日の取り込み」」。前提（未実装）と実物が食い違うため、#475 には手を入れていない（今回の直しで抜き出しが変わる行は0件）
+  - **docs/notes/live-page-design.md の共有ボタンの記述**: CHAT-1104-LVP-16（30612b576）で「置かない」に直してあった。同じ 2-1 付近〜2-8 に残っていた古い記述（トップの並び・ヒーロー）を直した
+  - **LV-04 の差4**: issue ではなく、#362 本文の「公開の後に回したもの」の1行（と docs/decisions/live.md の 2026-11-04 の行）。決定の記録の行は変えず、#362 に閉じた旨をコメントした。#362 本文は手順1の「本文は変えない」に従い変えていない
+- 文書（32d2332cf）: docs/notes/live-page-design.md の「2-2」「2-8」のトップの並びを「更新」の日付（ページ内の動画の最新の日付）の順に、「2-5」のヒーローを「個別ページにだけ」（2-10 のとおり）にし、期のページの日付の範囲を「説明文（meta description）」にした
+- docstring（884575e3a）: `scripts/generate_pro_pages.py` の `page_cards()` を「ページの日付〈最も早い動画の日付〉の新しい順、page_date_order()。live/ のトップの「更新」の順とは違う」にした（出力は変わらない）
+- #396・#397: 題名と本文を「かな・所属団体」だけに直した（目的の行、現状の X の件数を外し、冒頭に「範囲の更新（2026-11-04、平野さんの決定）」の1行を足した。#396 の後続の行も「かな・所属」に）
+- テスト 2,200件 OK。全ページの再生成（dry_run、compare_ref origin/cloudflare、run 43794570376）: **差分なし**
+
 ## 報告
 
 - 状態: 作業中
@@ -64,12 +78,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 8b20a20f）: https://github.com/retroeater/mj-logs/tree/main/guide/8b20a20f
+ガイド文書（この版を写した時点の最新、mj 2c3d8114）: https://github.com/retroeater/mj-logs/tree/main/guide/2c3d8114
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/8b20a20f/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/8b20a20f/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/8b20a20f/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8b20a20f/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8b20a20f/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8b20a20f/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c3d8114/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c3d8114/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c3d8114/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c3d8114/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c3d8114/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c3d8114/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/2cedda30.md
