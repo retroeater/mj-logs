@@ -57,6 +57,63 @@ CHAT-1116-LVP-20 で止まった /live の掲載の自動を、平野さんの�
 - Chat-Ref の確認: `CHAT-1116-LVP-22` のコミットは0件。`LVP` は同じセッションの続き
 - 0. 「指示」欄の末尾は指示文の最後の行と一致。CHAT-1116-LVP-21 は cloudflare にマージ済み（2d66bbdac は origin/cloudflare の祖先）。作業ブランチ work/1105-lvp-auto はリモートにある
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている。着手は 2026-11-16 11:06 JST
+- #362 に他セッションの着手中のコメントが無いことを確かめ、着手中のコメントを書いた
+- 未マージの work/ ブランチ（work/1105-lvp-auto を除く）で、`live_layer3.py`・`live_candidate.py`・`live_extract.py`・`write_live_channel_candidate.py`・`update-live-channel.yml` を変えているものは無い
+- origin/cloudflare の取り込み（f878b12e6）: 衝突2件。`docs/decisions/live.md` は両方の追記を残し、`scripts/tests/test_title_tab_headers.py` は cloudflare 側（LVP-21 で入った ec29b3b71 の同じ変更）の形にした
+- 実装（f22d3d8a4）:
+  - 【2】の規則（`scripts/lib/live_extract.py` の `analyze()`）: 卓の記号の無いステージの後ろが「決勝」「決勝戦」だけの題名（「ベスト16・決勝」など）は、まとめ単位を「<ステージ>、決勝」にする。テスト `ThroughFinalTest`
+  - 「自動掲載」の列が欠けた・見出しが重複したときの扱いは、チャット側の案に直した: 【3】への追記は続け、保留の知らせだけを作らず、最後に失敗で終える（`append_live_layer3_candidates.py` の `prepare_notice()`。テスト `PrepareNoticeTest`）。【2】の書き込みの自動の値（`write_live_channel_candidate.py`）は列を読まないので影響なし。ページの生成（`fetch_matches()`）は今までどおり止まる（公開中のページはそのまま残る）
+  - テスト 2,200件 OK
+- 試し（一時の出力と、【2】の書き込み前に新しい規則の値をその場で作る一時の変更 b25e9253d で読み・生成し、8af881428 で戻した。戻した後の差分は f22d3d8a4 と0。run 43790466736・43790587238）:
+  - 【2】14,350行・【3】4,375行（読み直しても同じ）
+  - **規則の直しで【2】のまとめ単位が変わる行（8行）**:
+
+| 動画ID | 大会・期 | 【2】のまとめ単位（今 → 直した後） | 【3】のまとめ単位 | ページへの影響 |
+|---|---|---|---|---|
+| `2B_BeAPH_zc` | 帝王戦 第2期 | ベスト16 → ベスト16、決勝 | （空） | 自動の値 N なので載らない |
+| `us_j3ZINmm0` | 帝王戦 第2期 | ベスト16 → ベスト16、決勝 | （空） | `2/b16.html` と `2/f.html` に載る |
+| `JnlEecy4uRg` | 帝王戦 | ベスト16 → ベスト16、決勝 | 決勝 | 【3】が正なので変わらない |
+| `bVeavoP15PU` | 帝王戦 第3期 | ベスト16 → ベスト16、決勝 | 決勝 | 【3】が正なので変わらない |
+| `ydBC-iDWLeM` | 帝王戦 第3期 | ベスト16 → ベスト16、決勝 | （空） | `3/b16.html` と `3/f.html` に載る |
+| `7k7PHE0Z76I` | 帝王戦 第5期 | ベスト16 → ベスト16、決勝 | （空） | `5/b16.html` と `5/f.html` に載る |
+| `JoA22F2uBsc` | 昇龍戦 第1期 | ベスト8 → ベスト8、決勝 | ベスト8、決勝 | 【3】が正なので変わらない |
+| `vVtqfXG8QPA` | 昇龍戦 第1期 | ベスト8 → ベスト8、決勝 | （掲載 N） | 載らない |
+
+  - 帝王戦のほかに当たるのは昇龍戦の2行だけで、昇龍戦のページは変わらない（止まる条件に当たらない）
+  - **(a) 不一致の率 0.43%（2.5% 以下）**: 【3】に掲載がある3,718行で 一致 3,490・不一致 16・保留 212。不一致は LVP-20 と同じ16行（【3】が N で自動が「公開の動画」Y 12、【3】が Y で自動が「同じ対局のメンバー限定版がある」N 3、【3】が N で自動が「メンバー限定版」Y 1）
+  - **(b) 今【3】が空欄の行（657行）**: 女流プロ麻雀日本シリーズ 382・麻雀日本シリーズ 261・紅龍戦 4 は値が付かない。小島武夫杯帝王戦の10行は Y 9・N 1・保留 0（値と理由は LVP-20 の表と同じ。変わったのは `us_j3ZINmm0`・`ydBC-iDWLeM`・`7k7PHE0Z76I`・`2B_BeAPH_zc` の【2】のまとめ単位が「ベスト16、決勝」になったことだけ）:
+
+| 【3】の行 | 動画ID | 自動の値 | 理由 | 【2】の期・まとめ単位 |
+|---|---|---|---|---|
+| 3537 | `2B_BeAPH_zc` | N | 同じ対局のメンバー限定版がある | 第2期・ベスト16、決勝 |
+| 3583 | `6TNr2GMJdGc` | Y | 公開の動画 | 第2期・ベスト16C |
+| 3587 | `6ktHLq7em90` | Y | 公開の動画 | 第2期・決勝 |
+| 3601 | `7k7PHE0Z76I` | Y | 題名に【無料放送】 | 第5期・ベスト16、決勝 |
+| 3656 | `Cgz5eAxHGcE` | Y | 公開の動画 | 第2期・ベスト16A |
+| 3763 | `N2necgCzzZ8` | Y | 公開の動画 | 第2期・ベスト16B |
+| 3861 | `WDlzLZ5eioM` | Y | 公開の動画 | 第2期・決勝 |
+| 4144 | `us_j3ZINmm0` | Y | メンバー限定版 | 第2期・ベスト16、決勝 |
+| 4179 | `xHjeDIUxIhw` | Y | 公開の動画 | 第2期・ベスト16D |
+| 4195 | `ydBC-iDWLeM` | Y | メンバー限定版 | 第3期・ベスト16、決勝 |
+
+  - **(c) 増えるページは帝王戦の11（減るページは無い）**。LVP-20 の10に、`7k7PHE0Z76I` が決勝にも載るため `5/f.html` が加わった:
+    - https://ryoei.pro/live/teiou/2.html ・ `2/b16-a.html`・`2/b16-b.html`・`2/b16-c.html`・`2/b16-d.html`・`2/b16.html`・`2/f.html`
+    - https://ryoei.pro/live/teiou/3/b16.html
+    - https://ryoei.pro/live/teiou/5.html ・ `5/b16.html`・`5/f.html`
+    - 中身が変わる既存のページ: `teiou/index.html`・`3.html`・`3/f.html`（`ydBC-iDWLeM` が加わる）・`4.html`・`4/f.html`、`sitemap-live.xml`、`data/live_pages.json`
+    - ほかの大会のページ（gpmax・pro-queen・ourai・ranwa など）と `pro/` の24ページは、選手の「他の対局（N件）」の件数とカードが帝王戦の対局の分だけ変わる（新旧の比べで中身が違う317件のうち、ページの増減は上の11件だけ）
+    - 生成の警告は増えない（「未確認」が657件から647件に減る。ほかは今と同じ「別名」の3件）
+  - **(d) 保留の知らせ**: 空欄の行の保留は0件なので、知らせは作られない
+- 自己レビュー（新しい文脈のサブエージェント、1回。対象 f22d3d8a4、観点: 規則がほかの題名に当たらないか・後段のまとめ単位の分解・追記が続くことと終了コード・修正前のコードでテストが落ちるか・不要な複雑さ）: 要修正なし。任意4件:
+
+| 指摘 | 扱い |
+|---|---|
+| 【3】に同じ動画IDの行を分けて持つ場合、空欄の行が「ベスト16、決勝」になると `load_videos()` の重複検査で生成が止まるおそれ | 試しの run 43790587238 で、新しい規則の値を【2】の全行に当てて全ページを生成し、止まらなかった（今のシートには当たる行が無い） |
+| 「予選・決勝」「ベスト16・決勝~1回戦」「決勝戦初日」など仮の題名にも当たる／「決勝①」は当たらない | 今の【2】で当たるのは上の8行だけ（どれも意図どおり）。仮の題名のための分岐は足さない |
+| `PrepareNoticeTest` は `main()` の順序（追記してから失敗で終える）を見ていない | `main()` を読んで順序と終了コード1を確かめた（レビューの証跡）。テストは足さない |
+| テストのクラスの前の空行の数 | 体裁のみ。直さない |
+
+  証跡: 修正前のコード（f22d3d8a4^ の2ファイル）では新しいテスト5件が failures 3・errors 2 で落ち、今の版では通る。`analyze()` に題名20通りを入れて確かめた
 
 ## 報告
 
@@ -74,12 +131,12 @@ CHAT-1116-LVP-20 で止まった /live の掲載の自動を、平野さんの�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 2cedda30）: https://github.com/retroeater/mj-logs/tree/main/guide/2cedda30
+ガイド文書（この版を写した時点の最新、mj 8b20a20f）: https://github.com/retroeater/mj-logs/tree/main/guide/8b20a20f
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/2cedda30/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/2cedda30/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/2cedda30/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/2cedda30/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/2cedda30/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/2cedda30/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/8b20a20f/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/8b20a20f/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/8b20a20f/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8b20a20f/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8b20a20f/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8b20a20f/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/2cedda30.md
