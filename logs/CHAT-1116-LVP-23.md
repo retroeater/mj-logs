@@ -70,20 +70,42 @@
 - docstring（884575e3a）: `scripts/generate_pro_pages.py` の `page_cards()` を「ページの日付〈最も早い動画の日付〉の新しい順、page_date_order()。live/ のトップの「更新」の順とは違う」にした（出力は変わらない）
 - #396・#397: 題名と本文を「かな・所属団体」だけに直した（目的の行、現状の X の件数を外し、冒頭に「範囲の更新（2026-11-04、平野さんの決定）」の1行を足した。#396 の後続の行も「かな・所属」に）
 - テスト 2,200件 OK。全ページの再生成（dry_run、compare_ref origin/cloudflare、run 43794570376）: **差分なし**
+- 自己レビュー（新しい文脈のサブエージェント、1回。対象: live-page-design.md と generate_pro_pages.py の差分、観点: 書き換えた文が今のコード・生成物と合うか、消した記述に残すべきものが無いか）:
+
+| 指摘 | 重大度 | 扱い |
+|---|---|---|
+| `live_cards()` の docstring「live/ のトップの並び(新しい順)」が、直した `page_cards()` と食い違う | 要修正 | 直した（d8b3a5bfb） |
+| 2-5 の期のカードの「更新」の例が古い形（「2023-12-05 更新」）、「最新の公開日」はライブなら配信日 | 任意 | 直した（3d2ca32b8） |
+| 2-6 の「この日付を…並び…のすべてに使う」がトップの並び（更新の順）と食い違う | 任意 | 直した（3d2ca32b8）。2-5 の LP-11 の判断の列挙（期のヒーローの範囲など）は判断の記録として残した（2-10 の注記が上書きする） |
+| 「並びは 2026-11-04 の決定」の出典の書き方 | 任意 | 直さない（並びはその日の LVP-16 で入ったコミット 1bedc53a8 で、日付は合う） |
+
+  証跡: build_top の並びと live/index.html の「更新」772件が降順であること、トップ・大会・期にヒーローが無く個別に1件あること、page_cards が page_date_order であることをレビューが確かめた。直しは docstring と文書だけで、生成物は変わらない（再生成の比べの後の変更は docstring のみ）。テスト OK
 
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
+- ブランチ: work/1116-lvp-post
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1116-LVP-23.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1116-lvp-post
+- 確認用URL: なし（生成物の変更なし。文書と docstring のみ）
+- マージ: 済（MERGE_SHA）
+- issue: #362・#495・#475・#396・#397
+- 判断が必要なこと:
+  - #495 の止める境（決まっていなかったので実装していない）: 案A（推し。/live の生成で、【3】に無い【2】の候補が50行〈約1%〉を超えたら止める。保存するファイルも通す入力も要らない）か、案B（【3】の行数が前回の生成から20%以上減ったら止める。前回の行数を data/ に残し、手動実行の入力で通す）。#495 のコメントに詳細
+  - #475 の「黒沢咲」: 抜き出しの直しは CHAT-1115-ACF-45（b565cbb21）で済んでおり、黒沢咲は登録済みの名前として読まれている（未登録の名前は 0名。「連盟プロ以外」に足す必要は無い）。bot の文面の案内先は同じ指示で「#446 の項目8」から「`scripts/lib/live_extract.py`。docs/notes/live-channel-write.md「7. 毎日の取り込み」」に直されている。決定の「#490 に直す」に合わせて書き換えるか（今回は前提と食い違うため変えていない）
+  - #362 本文の「公開の後に回したもの」の行（LV-04 の差4・#396・#397・#475）: 本文は変えていない（コメントで閉じた旨を書いた）。本文の行を消す・済にするか
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 2c3d8114）: https://github.com/retroeater/mj-logs/tree/main/guide/2c3d8114
+ガイド文書（この版を写した時点の最新、mj 67eac94e）: https://github.com/retroeater/mj-logs/tree/main/guide/67eac94e
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c3d8114/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c3d8114/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c3d8114/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c3d8114/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c3d8114/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c3d8114/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/67eac94e/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/67eac94e/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/67eac94e/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/67eac94e/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/67eac94e/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/67eac94e/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/2cedda30.md

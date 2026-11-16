@@ -266,6 +266,8 @@ WBK-05 の31期と合わせて 72期。「分からない」89期のうち残り
 - 4. 記録: docs/notes/research-candidates.md「Wayback Machine の連盟公式サイト」に、新しく分かった読み方を足した（年間の予定の版で日付が変わること・行の名前に「決勝」が無い行・1999〜2006年の速報の目次・大会のページの日程・MHT）。
 - マージ: 止まる条件に当たらず（本文 19/25、索引 1/5、429・503 なし、差分は docs だけで CRLF の変化なし）、指示の「マージ:」の行のとおり cloudflare へ入れる。
 
+- 改行: 779277fbd で足した「期ごとのまとめ」の表の行は CRLF だった（Python の標準出力を Windows でファイルに書いたため。それまで使っていた grep で CR の行を数える確かめは CR を数えていなかった）。次のコミット（報告）で LF に直した。push 前に、変えた6ファイルの CR のバイト数を Python で数え、HEAD・origin/cloudflare とも 0 であることを確かめた。
+- マージの前の再fetch で origin/cloudflare が進んでいたので `git merge origin/cloudflare` で取り込んだ（衝突なし）。
 ## 報告
 
 - 状態: 判断待ち
@@ -298,12 +300,12 @@ WBK-05 の31期と合わせて 72期。「分からない」89期のうち残り
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 2c3d8114）: https://github.com/retroeater/mj-logs/tree/main/guide/2c3d8114
+ガイド文書（この版を写した時点の最新、mj 67eac94e）: https://github.com/retroeater/mj-logs/tree/main/guide/67eac94e
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c3d8114/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c3d8114/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c3d8114/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c3d8114/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c3d8114/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c3d8114/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/67eac94e/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/67eac94e/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/67eac94e/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/67eac94e/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/67eac94e/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/67eac94e/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/2cedda30.md
