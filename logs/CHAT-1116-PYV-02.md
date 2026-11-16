@@ -45,15 +45,23 @@ CHAT-1109-PYV-01（Python 3.12 → 3.14、91057b6b6）の「未確認の項目�
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+- 0: 「指示」欄の末尾が指示文の最後の行（「不明な点があれば…この行が指示文の最後の行です。」）と一致することを確かめた
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は4つとも有る
+- 同じ Chat-Ref のコミットは無し（`git fetch --unshallow` 後の `git log --all --grep`）。`work/1116-pyv` はローカル・リモートとも無く、`origin/cloudflare`（73d370b）から作った
+- 手順1: #539 は open。コメントは CHAT-1109-PYV-01 の着手中と結果の2件で、他セッションの着手中は無し。着手中のコメントを書いた
+- 手順2: ジョブの一覧（`actions_list` の `list_workflow_jobs`）では、run-daily #39 の17ジョブと run-weekly #13 の4ジョブ（report は skipped）がすべて success。ログの `logs_url` を curl で取るのは、プロキシが blob.core.windows.net への接続を拒否（connect_rejected）。`get_job_logs` の `return_content` で読む
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 725114be）: https://github.com/retroeater/mj-logs/tree/main/guide/725114be
+ガイド文書（この版を写した時点の最新、mj 3b433a24）: https://github.com/retroeater/mj-logs/tree/main/guide/3b433a24
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/725114be/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/725114be/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/725114be/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/725114be/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/725114be/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/725114be/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/3b433a24/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/3b433a24/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/3b433a24/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/3b433a24/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/3b433a24/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/3b433a24/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/725114be.md

@@ -99,7 +99,7 @@ CHAT-1115-WBK-01（中断。許可するホストを足せず、調査に入る�
 
 ## 報告
 
-- 状態: 中断（エラー）
+- 状態: 中断（エラー） / 続き: CHAT-1115-WBK-03
 - ブランチ: work/1115-wbk
 - ログ: https://github.com/retroeater/mj/blob/work/1115-wbk/docs/logs/CHAT-1115-WBK-02.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1115-wbk
@@ -120,12 +120,12 @@ CHAT-1115-WBK-01（中断。許可するホストを足せず、調査に入る�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj ded4a6a8）: https://github.com/retroeater/mj-logs/tree/main/guide/ded4a6a8
+ガイド文書（この版を写した時点の最新、mj 3b433a24）: https://github.com/retroeater/mj-logs/tree/main/guide/3b433a24
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ded4a6a8/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ded4a6a8/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ded4a6a8/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ded4a6a8/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ded4a6a8/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/ded4a6a8/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/3a7e9816.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/3b433a24/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/3b433a24/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/3b433a24/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/3b433a24/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/3b433a24/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/3b433a24/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/725114be.md

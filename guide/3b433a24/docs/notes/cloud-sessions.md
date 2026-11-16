@@ -109,6 +109,9 @@ Chat-Ref の確認・`git branch --merged` が誤る。**これらの判定の�
 
 - `ekidata.jp`・`nlftp.mlit.go.jp`（2026-10-29。「ログ」の駅の一覧のオープンデータを比べて取るため、#367・#639。2つとも 200 で読めた。
   駅データ.jp はダウンロードに会員登録が要るので使わず、国土数値情報〈`nlftp.mlit.go.jp`〉の鉄道・行政区域を `scripts/build_station_list.py` が取る。docs/notes/log-stations.md）
+- `web.archive.org`（2026-11-15。連盟公式サイトの昔のページを Wayback Machine で調べるため、#408・#684。Claude Code の update_environment は環境のサービスに拒否され、平野さんが設定の画面で足した。
+  足した直後はプロキシの CONNECT は通る〈200〉が、TLS の途中で10秒後に切られて読めなかった〈`recentRelayFailures` は `ws_closed_mid_exchange`〉。
+  2026-11-16 00:08 UTC のやり直しも3回とも同じで、2〜10秒で切られた。原因〈出口側か Internet Archive 側か〉は分かっていない）
 
 未追加: `openapi.rakuten.co.jp`（books は凍結中）。再生成は `jpml_titles` で確かめた（MD-15。旧表は #441 で廃止し、今は `regenerate.py` の対象に無い）。鍵の要るスクリプトはクラウドでは動かない（次節）。
 

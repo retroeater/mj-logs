@@ -83,29 +83,60 @@ CHAT-1115-WBK-02（中断。web.archive.org との接続が3回とも10秒で切
 - 0. 指示欄の末尾は「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」で、指示文の最後の行と一致。
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は欠けなし。
 - 作業ブランチ: ローカル・リモートの `work/1115-wbk` は一致（bcf92ddfe）。origin/cloudflare は祖先でないので、ログの push の後に `git merge origin/cloudflare` で取り込む。
+- 取り込み: `git merge origin/cloudflare` で docs/decisions/automation.md が衝突（末尾の追記どうし。HEAD 側が WBK-01 の節、cloudflare 側が「## 2026-11-16（CHAT-1116-RSC-34）」の節）。両方を残し、日付の順に WBK-01（11-15）の節の後に RSC-34 の節を置いた（6919d81）。解いた後の該当箇所（各行の先頭だけ）:
+
+  ```
+  ## 2026-11-15（CHAT-1115-WBK-01）
+  …
+  - 追記（2026-11-15、CHAT-1115-WBK-02）: 環境「Claude-iPhone」の許可するホストに、…
+
+  ## 2026-11-16（CHAT-1116-RSC-34）
+  ```
+- 未マージの work/ ブランチで変えるファイルに触れているもの: `work/1115-rsc-autowrite` が docs/decisions/automation.md の 906行目付近（RSC-16 の節の追記）。WBK の節とは別の箇所なので止まらない。docs/notes/cloud-sessions.md に触れる未マージのブランチは無い。
+- 1. 準備
+  - WBK-02 のログの `## 報告` の状態を「中断（エラー） / 続き: CHAT-1115-WBK-03」にした。
+  - get_environment（2026-11-16 00:07 UTC）: 環境「Claude-iPhone」、limited、allowed_hosts は23個で WBK-02 のときと同じ並び・同じ中身（web.archive.org あり、減っていない）。
+  - web.archive.org の到達（1組・3回、間は5秒以上。どれも CDX `https://web.archive.org/cdx/search/cdx?url=ma-jan.or.jp&limit=5&output=json`、UA は `mj-internal (research)`）:
+
+    | 時刻（UTC） | curl | プロキシの記録（recentRelayFailures） |
+    |---|---|---|
+    | 2026-11-16 00:08:01 | CONNECT 200 の後 `(35) Recv failure: Connection reset by peer` | ws_closed_mid_exchange、tunnel closed (code 1006) after 2s; 517 B sent, 39 B received |
+    | 2026-11-16 00:08:17 | 同じ（10.2秒） | 同じ形、after 10s |
+    | 2026-11-16 00:08:35 | 同じ（7.3秒） | 同じ形、after 7s |
+
+  - 3回とも届かなかった。止まる条件「web.archive.org に届かない」に当たったので、別の経路は試さず、手順2〜5（索引・本文・見積もり・読み方の notes）は行わない。Internet Archive への要求はこの指示で3回（応答の本文は 0）、WBK 全体で6回（WBK-02 の3回を含む）。
+  - docs/decisions/automation.md の WBK-01 の節に、案 Y の決定と WBK-02・03 の結果を追記した。docs/notes/cloud-sessions.md「ネットワーク」の web.archive.org の行に、やり直しの結果を足した（08971b5）。
+- #408・#684 に、2回とも届かなかった事実だけのコメントを書いた（#408 issuecomment-6903688555、#684 issuecomment-6903689191）。閉じていない。
+- 自己レビュー（サブエージェント）: docs だけの変更なので対象外（CLAUDE.md「判断・作業の原則」はコード・生成物・ワークフロー・配信設定を変えた指示）。
+- マージ: 指示の「マージ:」の行（届かずに止まったときも docs の記録だけは入れてよい）のとおり、このログを含むコミットを cloudflare へ入れる。
 
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1115-wbk
-- ログ: https://github.com/retroeater/mj/blob/work/1115-wbk/docs/logs/CHAT-1115-WBK-03.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1115-WBK-03.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1115-wbk
 - 確認用URL: なし
-- マージ: 未
-- issue: #408, #684
-- 判断が必要なこと: なし
-- 未確認の項目: なし
-- エラー: なし
+- マージ: 済（このログを含む work/1115-wbk の先頭を cloudflare へ push。docs のみ: docs/decisions/automation.md・docs/notes/cloud-sessions.md・WBK-01〜03 のログ）
+- issue: #408, #684（届かなかった事実のコメントのみ。閉じていない）
+- 判断が必要なこと:
+  - WBK（Wayback を Claude Code に読ませる調べ）を閉じるかどうか。クラウドからは 2026-11-15・11-16 の2回とも、TLS の途中で接続が切られて届かなかった。指示のとおり、やり直しはこれで終わり
+    - (X) 閉じる: #408・#684 は外の資料待ちのまま。Wayback の索引は、要るときに平野さんがブラウザで見る
+    - (Z) 平野さんの PC をセッションにつなぎ（Remote Control）、そこから同じ調査をする: 届く見込みはあるが、PC がつながっている間だけ動き、指示文の前提（クラウドで実行する）を変えることになる
+    - 推奨は (X)。(Z) は、平野さんのブラウザで Wayback に ma-jan.or.jp のタイトル戦の結果のページが残っていると確かめてからにする
+  - 許可するホスト web.archive.org を残すか外すか（推奨: (X) なら外す。(Z) でもクラウドからは使わないので外してよい）
+- 未確認の項目: web.archive.org との接続が切られる原因（出口側か Internet Archive 側か）
+- エラー: web.archive.org:443 への接続が、プロキシの CONNECT 200 の後、TLS の途中で2〜10秒で切られる（curl (35) Connection reset by peer、relay は ws_closed_mid_exchange）。2026-11-16 00:08 UTC に3回試して3回とも同じ
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 725114be）: https://github.com/retroeater/mj-logs/tree/main/guide/725114be
+ガイド文書（この版を写した時点の最新、mj 3b433a24）: https://github.com/retroeater/mj-logs/tree/main/guide/3b433a24
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/725114be/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/725114be/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/725114be/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/725114be/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/725114be/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/725114be/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/3b433a24/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/3b433a24/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/3b433a24/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/3b433a24/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/3b433a24/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/3b433a24/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/725114be.md
