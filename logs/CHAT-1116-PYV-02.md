@@ -3,7 +3,7 @@
 - 着手日時: 2026-11-16
 - 対象issue: #539
 - ブランチ: work/1116-pyv
-- 着手時HEAD: 73d370b
+- 着手時HEAD: 725114be0
 
 ## 指示
 
@@ -49,19 +49,66 @@ CHAT-1109-PYV-01（Python 3.12 → 3.14、91057b6b6）の「未確認の項目�
 
 - 0: 「指示」欄の末尾が指示文の最後の行（「不明な点があれば…この行が指示文の最後の行です。」）と一致することを確かめた
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は4つとも有る
-- 同じ Chat-Ref のコミットは無し（`git fetch --unshallow` 後の `git log --all --grep`）。`work/1116-pyv` はローカル・リモートとも無く、`origin/cloudflare`（73d370b）から作った
+- 同じ Chat-Ref のコミットは無し（`git fetch --unshallow` 後の `git log --all --grep`）。`work/1116-pyv` はローカル・リモートとも無く、`origin/cloudflare`（725114be0）から作った
 - 手順1: #539 は open。コメントは CHAT-1109-PYV-01 の着手中と結果の2件で、他セッションの着手中は無し。着手中のコメントを書いた
 - 手順2: ジョブの一覧（`actions_list` の `list_workflow_jobs`）では、run-daily #39 の17ジョブと run-weekly #13 の4ジョブ（report は skipped）がすべて success。ログの `logs_url` を curl で取るのは、プロキシが blob.core.windows.net への接続を拒否（connect_rejected）。`get_job_logs` の `return_content` で読む
+- 手順2（結果）: `get_job_logs`（`return_content`、tail_lines 3000〜20000）で19ジョブと失敗2ジョブのログを最初の行から最後の行まで読めた（読み取りはサブエージェント。保存されたログの一部で `Successfully set up CPython (3.14.10)` と OGP の行を照合した）
+
+| run | ジョブ | step | 版 | 結論 |
+| --- | --- | --- | --- | --- |
+| run-daily #39（42679168828） | meibo / meibo | Pythonをセットアップ | 3.14.10 | success |
+| 同 | meibo / ampai | 同 | 3.14.10 | success |
+| 同 | sokuho / research | 同 | 3.14.10 | success |
+| 同 | unregistered / check | 同 | 3.14.10 | success |
+| 同 | branches / delete | 同 | 3.14.10 | success |
+| 同 | live / update | 同 | 3.14.10 | success |
+| 同 | dojo / sync | 同 | 3.14.10 | success |
+| 同 | birthday / sync | 同 | 3.14.10 | success |
+| 同 | xfetch / fetch | 同 | 3.14.10 | success |
+| 同 | xconvert / convert | 同 | 3.14.10 | success |
+| 同 | live / regenerate / regenerate | 同 | 3.14.10 | success |
+| 同 | live / yotei / sync | 同 | 3.14.10 | success |
+| 同 | sns / update | 同 | 3.14.10 | success |
+| 同 | sns / regenerate / regenerate | 同 | 3.14.10 | success |
+| 同 | saikyo / abema | 同 | 3.14.10 | success |
+| 同 | saikyo / regenerate / regenerate | 同 | 3.14.10 | success |
+| 同 | logs | （setup-python なし） | — | success |
+| run-weekly #13（43744256415） | logs / cleanup | Pythonをセットアップ | 3.14.10 | success |
+| 同 | youtube / fetch | 同 | 3.14.10 | success |
+| 同 | youtube / regenerate / regenerate | 同 | 3.14.10 | success |
+| 同 | youtube / regenerate / regenerate | 帰り道の一覧のOGP画像を作る | 3.14.10 | success（ログで確認） |
+| 同 | youtube / report | — | — | skipped |
+
+  - 出力は全ジョブで `Resolved .github/.python-version as 3.14` と `Successfully set up CPython (3.14.10)`
+  - OGP の step: `pip install --quiet --require-hashes -r scripts/requirements-ogp.txt` → `python3 scripts/build_wayhome_ogp.py` が `img/ogp/wayhome/index-20261031.jpg: 174,623バイト` を出力。step に `##[error]`・Traceback なし。`--quiet` のため wheel の名前はログに無い（`requirements-ogp.txt` のハッシュは cp314・cp313 の2つで、ランナーは 3.14.10）
+  - 作業ブランチの失敗 regenerate-page（work/1115-lgv-samestore2、run 43660275730）: 「生成物の差を実行サマリに出す」の `git worktree add --detach /tmp/base cloudflare` が `fatal: invalid reference: cloudflare`。比べる先のブランチ名がローカルに無いためで、Python の版と関係ない（setup-python は 3.14.10、再生成の step は success）
+  - 作業ブランチの失敗 update-live-channel（work/1115-acf、run 43677131896）: 「層2 「【2】自動変換後」を作り直す」で `書き込みを止めました(意図した減少なら --allow-shrink): 候補(放送対局候補=Y)が減る: 4371 → 4370` の exit 1。データの減少止めで、Python の版と関係ない（同じジョブのテストは 3.14.10 で 2173件 OK）
+- 手順3: #539 に結果の表と「12/1 の run-monthly はカレンダー【R#564】12/1 の確認予定で見る」をコメントし、completed で閉じた（https://github.com/retroeater/mj/issues/539#issuecomment-6903702131 ）。「状況:」ラベルは付いていなかった
+- 決定を docs/decisions/automation.md に足した
+- 自己レビュー: docs のみの変更（ログ・決定の記録）のため、CLAUDE.md の「コード・生成物・ワークフロー・配信設定を変えた指示」に当たらず、サブエージェントのレビューは行っていない
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1116-pyv
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1116-PYV-02.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1116-pyv
+- 確認用URL: なし
+- マージ: 済（cloudflare へ fast-forward。このログを含むコミットがそのまま入る）
+- issue: #539（クローズ）
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 3b433a24）: https://github.com/retroeater/mj-logs/tree/main/guide/3b433a24
+ガイド文書（この版を写した時点の最新、mj 8a46b4cc）: https://github.com/retroeater/mj-logs/tree/main/guide/8a46b4cc
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/3b433a24/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/3b433a24/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/3b433a24/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/3b433a24/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/3b433a24/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/3b433a24/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/8a46b4cc/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/8a46b4cc/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/8a46b4cc/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8a46b4cc/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8a46b4cc/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8a46b4cc/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/725114be.md
