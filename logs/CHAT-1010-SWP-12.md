@@ -156,12 +156,12 @@ SWP-11 と同じ方法・環境・列（「名前」）。`jpml_pros.html` を `
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 9d0da9ef）: https://github.com/retroeater/mj-logs/tree/main/guide/9d0da9ef
+ガイド文書（この版を写した時点の最新、mj 203e4538）: https://github.com/retroeater/mj-logs/tree/main/guide/203e4538
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9d0da9ef/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9d0da9ef/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9d0da9ef/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9d0da9ef/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9d0da9ef/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9d0da9ef/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/203e4538/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/203e4538/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/203e4538/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/203e4538/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/203e4538/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/203e4538/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/2cedda30.md

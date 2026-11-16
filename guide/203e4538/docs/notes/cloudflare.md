@@ -135,7 +135,7 @@ Speed → Recommendations（Site Recommendations）の一覧と、それぞれ�
 | HTTP/3 | **有効化(2026-09-11)** | モバイル回線で効く。リスクなし |
 | HTTP/2 to Origin | 有効 | オリジンが存在しないため実質無効。害もないので触らない |
 | Enhanced HTTP/2 Prioritization | 有効 | 同上 |
-| 0-RTT Connection Resumption | **有効化(2026-09-11)** | GET・HEAD・OPTIONS にしか適用されず、POST には使われない（公式の 0-RTT Connection Resumption のページ、2026-10-11 に確認）。状態を変えるのは `/api/ask`（POST、#542）だけなので、リプレイの実害がない。GET の `/api/ask/status` は読むだけ |
+| 0-RTT Connection Resumption | **有効化(2026-09-11)** | GET・HEAD・OPTIONS にしか適用されず、POST には使われない（公式の 0-RTT Connection Resumption のページ、2026-10-11 に確認）。状態を変えるのは `/api/ask` と `/api/ask/weekly`（どちらも POST、#542・#654）だけなので、リプレイの実害がない。GET の `/api/ask/status` は読むだけ |
 | Always use HTTPS | **有効化(2026-09-11)** | 下記参照 |
 | TLS 1.3 | 有効 | 既定 |
 | Early Hints | **無効（2026-09-29 に Off に戻した）** | 応答に `Link:` が無く、103 も出ていなかった（2026-09-28 の実測）。下記参照（#129） |
@@ -357,12 +357,13 @@ ryoei.pro の WAF のカスタムルール（Security rules）。GET・HEAD 以�
 | 項目 | 値 |
 |---|---|
 | Rule name | `Block non-GET/HEAD methods` |
-| 式（2026-10-11 23:30 JST 以降） | `(not http.request.method in {"GET" "HEAD"}) and (not starts_with(http.request.uri.path, "/cdn-cgi/")) and not (http.request.uri.path eq "/api/ask")` |
+| 式（2026-11-16 以降） | `(not http.request.method in {"GET" "HEAD"}) and (not starts_with(http.request.uri.path, "/cdn-cgi/")) and not (http.request.uri.path eq "/api/ask") and not (http.request.uri.path eq "/api/ask/weekly")` |
 | アクション | Block（遮断のページ「Attention Required! \| Cloudflare」、HTTP 403） |
 
 - `/cdn-cgi/` を外すのは Web Analytics のビーコン（POST、#110）のため
 - 末尾の `and not (http.request.uri.path eq "/api/ask")` は、データ・コンシェルジュ（#542）の質問の POST を通すために 2026-10-11 に平野さんが足した。足す前は Worker `mj-ask` に届く前に 403 になっていた（CHAT-1011-AIC-03 で発見。Security Events では直近24時間で POST 123件を遮断していた）。経緯は `docs/notes/ask-worker.md`
 - POST を受けるパスを増やすときは、この式に例外を足す必要がある（足さないと Worker に届かない）
+- 末尾の `and not (http.request.uri.path eq "/api/ask/weekly")` は、質問欄の週次の書き出しの再実行の入口（#654、`docs/notes/ask-worker.md`「週次の cron」）の POST を通すために 2026-11-16 に平野さんが足した（申告値）。足す前は 403（「Attention Required! \| Cloudflare」）で Worker に届かず、足した後は Worker の応答（404）になった（どちらも 2026-11-16 に実測）
 
 ### 公開期間の露出評価（#299、2026-09-14）
 
@@ -779,7 +780,7 @@ Workers & Pages → `mj` → Settings → Builds:
 - **docs だけの push ではプレビューを作らない**（非本番の watch paths も `docs/**` を除外。判定は push 全体のファイル、上の「`docs/**` のみのコミットには…」）。作り直したいときは docs 以外を含む push（cloudflare の取り込みなど）にする
 - 別名の URL は前の版を返すことがある（2026-10-12、CHAT-1012-DSN-03: HTML と CSS が前の版で返り、クエリを付けると新しい版が返った。キャッシュと見られる）。版を確かめるときは、版ごとの URL を使うか、別名にクエリ（`?v=<SHA>`）を付けてログの「確認用URL」の印（`docs/logs/_template.md`）を見る
 - この URL は非公開として扱い、作業ログには書かず、ターミナルへの最終報告にだけ書く（CLAUDE.md「作業ログ」節、ログの書き方は `docs/logs/_template.md`）
-- Code が撮った画像は URL と別で、作業ブランチの `docs/logs/<Chat-Ref>/` に置いてよい（mj-logs には写らないので、チャット側は REST で読む。docs/notes/chat-side-operations.md から移した）
+- Code が撮った画像は URL と別で、作業ブランチの `docs/logs/<Chat-Ref>/` に置いてよい（ログの `.md` と一緒に `cleanup-logs.yml` が消す、#585。mj-logs には写らないので、チャット側は REST で読む。docs/notes/chat-side-operations.md から移した）
 - **本番のビルドが走るかは、push の先頭のコミットでは決まらない**（2026-10-17、cloudflare への push 32件の check-run で確かめた。CHAT-1017-PAD-08）。
   先頭が docs/ だけでも、同じ push のほかのコミットが docs 外を変えていれば本番のビルドが走った（538ab6575・d8a640236・c859c26c8）。
   docs 外を含む push で本番のビルドが付かなかったのは、どれも本番のビルドが始まる前に、次の docs 外を含む push が cloudflare に来ていたとき（上の「古い本番のビルドは飛ばされ」）。
