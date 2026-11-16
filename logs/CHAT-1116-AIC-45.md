@@ -128,7 +128,7 @@ docs/decisions/houou.md に「2026-11-16（CHAT-1116-AIC-45）」の節（指示
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1116-AIC-46
 - ブランチ: work/1116-aic
 - ログ: https://github.com/retroeater/mj/blob/work/1116-aic/docs/logs/CHAT-1116-AIC-45.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1116-aic
@@ -141,6 +141,7 @@ docs/decisions/houou.md に「2026-11-16（CHAT-1116-AIC-45）」の節（指示
   - **Secret `ASK_WEEKLY_TOKEN` の有無（GitHub Actions）を確かめられなかった**: プロキシが Secret の一覧の API を 403 で拒んだ。指示文の「貼る時機」を前提に進めた。ワークフローは空なら失敗するので、初回の起動で分かる
   - **既存のテストの期待値を直した**（cross.test.mjs の決勝だけの人数 9→8。11/13 の名前の訂正による。修正前から落ちていた）。このままでよいか
   - 2回目の自己レビューの提案3件（テストの名前・不要な検査・エラー文）は見送った。続きの指示で直すか
+  - 回答（2026-11-16、平野さん。CHAT-1116-AIC-46 の決定）: WAF の式の末尾に `and not (http.request.uri.path eq "/api/ask/weekly")` を足す（平野さんのダッシュボード作業）／再試行の範囲はこのままでよい／cross.test.mjs の 9→8 はこのままでよい／見送った提案3件は AIC-46 で直す／Secret `ASK_WEEKLY_TOKEN` は GitHub Actions・Worker の両方にある（平野さんのスクリーンショット、申告値）
 - 未確認の項目:
   - 11/09〜11/15 の行はブックに入っていない（再実行していない）。D1 の行は90日（2027-02 まで）残るので、再実行で入れられる
   - 次の月曜（2026-11-23 03:00 JST）の cron の回で、`週次:` の `sheet` が null でないこと（マージしていないので、この回は今のコード〈再試行なし〉で動く。11/09〜11/15 の行もこの回に入る見込み）
