@@ -67,6 +67,65 @@ success。止まる理由 0 件。警告 3 件（全部）:
 
 帰り道タブの行は読めている（上の警告がこの回の名前・タイトルで出ている。見込みどおり）。検査は 44 回。
 
+### 手順2: fetch-youtube.yml（run 43787848850、cloudflare、入力なし）
+
+- 起動前の確認: in_progress・queued の実行 0 件
+- fetch ジョブ: success。`missing_video_ids: []`、`video_count_fetched` 44→45。`sAx65O6q8x4` の publishedAt 2026-11-11T14:17:31Z・duration PT32M44S が入った
+- 呼ばれた regenerate（`all`、wayhome 真）: **failure**。失敗したのは最後の「飛ばしたページを報告」で、**`jpml_pros`・`title_pages` を飛ばした**（止まる条件に当たった）
+  - 理由（両ページ同じ）: `generate_title_pages.GenerationError: 「タイトル戦」の見出しが期待値と違います: ['大会名', 'slug', '表示順', '自動掲載', '区分', '状態'](期待値: ['大会名', 'slug', '表示順', '区分', '状態'])`
+  - シート「タイトル戦」に「自動掲載」列が入っているが、origin/cloudflare のコードは知らない。「自動掲載」を読むコードは未マージの origin/work/1105-lvp-auto（`scripts/generate_title_pages.py`・`scripts/lib/live_layer3.py`）にだけある。シートが先に変わり、コードが未マージのため（推定。列を足した経緯はこのセッションでは確かめていない）
+  - jpml_pros が title_pages と同じ理由で止まるのは、jpml_pros が generate_title_pages を使うため（ログの例外の型から）
+  - 一時的な接続の失敗ではないため再実行はしていない
+- 帰り道の手順（OGP 画像・再生成・帰り道の知らせ）は success。report ジョブは skipped
+
+コミット（cloudflare に直接）:
+
+- データ: 571195e「chore: fetch YouTube channel and wayhome data via GitHub Actions」— `data/youtube_meta.json`（+38 −2、`sAx65O6q8x4` の追加と件数）
+- ページ: b2698d07e「chore: regenerate … via GitHub Actions」— 8 ファイル（+93 −17）
+
+変わったファイル（b2698d07e）:
+
+| 種類 | ファイル | 中身 |
+|---|---|---|
+| 帰り道の一覧 | `wayhome/index.html` | 最新話が `sAx65O6q8x4`（阿久津翔太・第5期小島武夫杯帝王戦・2026年11月11日）に。全44回→45回、総再生時間 約18時間16分→18時間49分、description・og:description の本数 44→45、og:image が `index-20261111.jpg`、カードと ItemList に1件追加 |
+| 各話 | `wayhome/sAx65O6q8x4.html`（新規、62行） | |
+| 各話（前の最新話） | `wayhome/O0D8Dz7Kqpo.html`（+2 −1） | 「最新話」の印を外し、次の回のリンク（`sAx65O6q8x4.html`）を足した。前後のエピソードの変化のみ |
+| OGP 画像 | `img/ogp/wayhome/index-20261111.jpg` 追加・`index-20261031.jpg` 削除 | 同じ公開日の回は1本なので `-N` なし |
+| title/ の期のページ | なし | **title_pages を飛ばしたため、第5期帝王戦の期のページの節「帰り道」には出ていない** |
+| サイトマップ | `sitemap-wayhome.xml` | `sAx65O6q8x4.html` の追加、`index.html`・`O0D8Dz7Kqpo.html` の lastmod 2026-11-04→2026-11-16 |
+| ほか | `top/index.html` | 新着の番組に `sAx65O6q8x4` が入り、`OkKAh8yP8Uk` が隠れ、`OoK3O2BCm8M` が押し出された（帰り道の取り込みによるもの） |
+| ほか | `workers/ask/data-saikyo.json`（1行） | シートの変化による差分（中身は1行の JSON で、帰り道とは無関係） |
+
+見込みに無い帰り道の差分: なし（帰り道の差分は上の一覧・この回・前の最新話・OGP・サイトマップだけ）。
+
+#545 の新しいコメント（2026-11-16T01:46Z、github-actions）:
+
+> 帰り道の取り込み（2026-11-16 の再生成）
+>
+> 知らせることはありません（前回の知らせから変わったため、今の状態を記録します）。
+>
+> `<!-- wayhome-state: {"missing_json": [], "new": [], "unavailable": []} -->`
+
+### 手順3: 本番の確かめ
+
+止まる条件（`title_pages` を飛ばした）に当たったため行っていない。帰り道のページ（一覧・各話・OGP）は cloudflare に入っているので、Workers Builds の後に本番に出る見込み（未確認）。
+
+## 報告
+
+- 状態: 判断待ち（止まる条件「呼ばれた regenerate-page.yml が title_pages を飛ばした」に当たって止まった）
+- ブランチ: work/1116-whn
+- ログ: https://github.com/retroeater/mj/blob/work/1116-whn/docs/logs/CHAT-1116-WHN-01.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1116-whn
+- 確認用URL: なし
+- マージ: 未（止まる条件に当たったため、ログもマージしていない）
+- issue: #545（着手・中断のコメント）
+- 判断が必要なこと:
+  - シート「タイトル戦」に「自動掲載」列があり、origin/cloudflare の `generate_title_pages.py` が見出しの違いで止まる。`title_pages` と `jpml_pros` が今回の再生成で飛ばされ、以後の再生成（毎日の取り込み・週次）でも同じく飛ばされる見込み。「自動掲載」を読むコードは未マージの work/1105-lvp-auto にある。そのブランチをマージするか、シートの列を外すかの判断
+  - その解消後に title_pages を再生成し（例: `regenerate-page.yml` の `target_page: title_pages jpml_pros`）、第5期帝王戦の期のページの節「帰り道」にこの回が出ることと、手順3の本番の確かめを続きの指示で行うか
+- 未確認の項目:
+  - 手順3の本番の確かめ（`/wayhome/sAx65O6q8x4.html`・`/wayhome/`・`/img/ogp/wayhome/index-20261111.jpg`・第5期帝王戦の期のページ）は未実施
+- エラー: fetch-youtube.yml run 43787848850 の regenerate ジョブが failure（「飛ばしたページを報告」: jpml_pros・title_pages。理由は `## 経過` の手順2）
+
 <!-- guide-links -->
 ---
 
