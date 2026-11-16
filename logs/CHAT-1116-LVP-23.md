@@ -80,6 +80,7 @@
 | 「並びは 2026-11-04 の決定」の出典の書き方 | 任意 | 直さない（並びはその日の LVP-16 で入ったコミット 1bedc53a8 で、日付は合う） |
 
   証跡: build_top の並びと live/index.html の「更新」772件が降順であること、トップ・大会・期にヒーローが無く個別に1件あること、page_cards が page_date_order であることをレビューが確かめた。直しは docstring と文書だけで、生成物は変わらない（再生成の比べの後の変更は docstring のみ）。テスト OK
+- マージ: origin/cloudflare を取り込み（衝突なし。入ったのは cleanup_logs・workers/ask などで /live に関わらない。テスト OK）、祖先を確かめて `git push origin HEAD:cloudflare`（76361d5f0..67eac94ee）。Workers Builds の check-run（67eac94ee）は mj・mj-ask とも success（生成物の変更は無いので、本番の HTML は確かめていない）
 
 ## 報告
 
@@ -88,7 +89,7 @@
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1116-LVP-23.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1116-lvp-post
 - 確認用URL: なし（生成物の変更なし。文書と docstring のみ）
-- マージ: 済（MERGE_SHA）
+- マージ: 済（67eac94ee）
 - issue: #362・#495・#475・#396・#397
 - 判断が必要なこと:
   - #495 の止める境（決まっていなかったので実装していない）: 案A（推し。/live の生成で、【3】に無い【2】の候補が50行〈約1%〉を超えたら止める。保存するファイルも通す入力も要らない）か、案B（【3】の行数が前回の生成から20%以上減ったら止める。前回の行数を data/ に残し、手動実行の入力で通す）。#495 のコメントに詳細
