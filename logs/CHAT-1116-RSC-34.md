@@ -57,28 +57,81 @@ Chat-Ref: CHAT-1116-RSC-34
 
 ## 経過
 
+- 着手前の確認:
+  - 同じ Chat-Ref のコミット・ログは無い。`RSC` は続き（34）
+  - 作業ブランチ: origin に work/1116-rsc が無かったので、origin/cloudflare から作った（6272db913）
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順・作業ブランチ・作業ブランチの片付け・取り込みの衝突）: 欠けなし
+- 0.: 「指示」欄の末尾は指示文の最後の行と一致
+
+### 1. 決定の記録と #676
+
+- 前提の実行サマリを、run 43749926131 のジョブ `sokuho / research`（job 132921427474）のログで確かめた。前提のとおり:
+  - 「新しいテキスト速報（公開から 30時間以内）: 3本」「候補タブ: 684行・見出し 一致」「書く行: 3件」「候補タブに 3行を書いた」
+  - ベスト8 A卓: 未照合。備考は「4人がシートと違う(シートの名前で速報に無い: 山本亜衣…)」。速報の席の名前は「山本愛衣」
+  - ベスト8 B卓: 照合済み
+  - 決勝: 未照合。備考は「試合結果の点数の合計(102000)が合わない」。試合結果は「高口：50600 佐藤：7700 山本：▲13400 近藤：57100」
+- `docs/decisions/automation.md` を読んだ（末尾は 2026-11-15 の RSC-31〜33 の節）。同じ趣旨の記述は無いので、末尾に「## 2026-11-16（CHAT-1116-RSC-34）」を足した
+- #676: 他のセッションの着手中のコメントは無い（最後はこのセッションの RSC-33 の1行）。決定と3卓の照合の結果を1つのコメントで書いた（issuecomment-6903531434）。本文・状態・ラベルは変えていない
+
+### 2. 再生成
+
+- docs/notes/github-actions.md「ワークフローを手動実行するとき」を読んだ。`regenerate-page.yml` の checkout と push 先は実行ブランチ（cloudflare で実行した）
+- 起動の前に、実行中・待ちの実行が無いことを確かめた（スプレッドシートを読み書きする実行との重なりを避けるため。約束 (p)）
+- `regenerate-page.yml` を cloudflare で `target_page=saikyo_pages` で手動実行した（run 43777560938、success）。cloudflare に再生成のコミット f46162167（`chore: regenerate saikyo/ via GitHub Actions`、26ファイル）が入った
+- 2026-11-15 の対局のページ: `saikyo/2026/20261115.html`（対局）・`20261115-s1-a.html`・`20261115-s1-b.html`・`20261115-s2.html`（卓）。`-s2` は新しく作られた
+
+### 3. 卓のページの順位・結果と、候補タブの3行
+
+生成物の卓のページ（f46162167）の4人の帯（順位・結果）と、候補タブの3行（速報の順位、run 43749926131 のログ）を並べる:
+
+| 卓 | 順位 | ページ（シートから生成） | 候補タブ（速報） | 違い |
+|---|---|---|---|---|
+| ベスト8 A卓 | 1 | 山本亜衣 通過 | 山本愛衣 通過 | 名前の字（亜衣・愛衣）。順位・結果は同じ |
+| ベスト8 A卓 | 2 | 佐藤凌 通過 | 佐藤凌 通過 | なし |
+| ベスト8 A卓 | 3 | 宮本一輝 敗退 | 宮本一輝 敗退 | なし |
+| ベスト8 A卓 | 4 | 河野貴大 敗退 | 河野貴大 敗退 | なし |
+| ベスト8 B卓 | 1 | 高口和之 通過 | 高口和之 通過 | なし |
+| ベスト8 B卓 | 2 | 近藤千雄 通過 | 近藤千雄 通過 | なし |
+| ベスト8 B卓 | 3 | はじめ 敗退 | はじめ 敗退 | なし |
+| ベスト8 B卓 | 4 | 地野彰信 敗退 | 地野彰信 敗退 | なし |
+| 決勝 | 1 | 近藤千雄 優勝 | （候補の値なし。未照合） | 速報の点数の順（近藤 57,100・高口 50,600・佐藤 7,700・山本 ▲13,400）とは同じ並び |
+| 決勝 | 2 | 高口和之 敗退 | （同上） | 同上 |
+| 決勝 | 3 | 佐藤凌 敗退 | （同上） | 同上 |
+| 決勝 | 4 | 山本亜衣 敗退 | （同上） | 同上 |
+
+- ページの「優勝」は、生成が「決勝の通過」から導いたもの（シートの1位の結果は「通過」と書く。docs/decisions/automation.md の RSC-31〜33 の節）。シートのセルの値はここからは読んでいない（ページの帯を写した）
+- 決勝の候補の行は、点数の合計が合わないので順位を書いていない（候補の列は空）
+
+### マージ
+
+- ドキュメントのみ（このログ・`docs/decisions/automation.md`）。saikyo/ の生成物は `regenerate-page.yml` が cloudflare にコミットした（f46162167）
+- `git push origin work/1116-rsc:cloudflare` で入れた
+  - push 直前に再 fetch して `merge-base --is-ancestor` を確かめた。偽なら origin/cloudflare を取り込む
+  - 範囲のコミットの件名・本文に、閉じるキーワードの直後の `#番号` が無いことも確かめた
+  - この行を含むコミットが範囲の終わり
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1116-rsc
-- ログ: https://github.com/retroeater/mj/blob/work/1116-rsc/docs/logs/CHAT-1116-RSC-34.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1116-rsc
-- 確認用URL: なし
-- マージ: 未
-- issue: #676
-- 判断が必要なこと: 作業中
-- 未確認の項目: 作業中
+- 状態: 完了
+- ブランチ: work/1116-rsc（cloudflare にマージ済み。ドキュメントのみ）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1116-RSC-34.md
+- 比較URL: なし（マージ済み）
+- 確認用URL: https://ryoei.pro/saikyo/2026/20261115.html
+- マージ: 済み（ドキュメントのみ。範囲は「マージ」の行。saikyo/ の再生成は f46162167）
+- issue: #676（決定と3卓の照合の結果をコメント。Open のまま）
+- 判断が必要なこと: なし
+- 未確認の項目: 本番の配信（Workers Builds）とブラウザでの見え方。ログに書いたのは生成物（cloudflare のコミット）の中身まで
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 9a0ab7ce）: https://github.com/retroeater/mj-logs/tree/main/guide/9a0ab7ce
+ガイド文書（この版を写した時点の最新、mj 725114be）: https://github.com/retroeater/mj-logs/tree/main/guide/725114be
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a0ab7ce/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a0ab7ce/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a0ab7ce/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a0ab7ce/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a0ab7ce/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a0ab7ce/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/725114be/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/725114be/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/725114be/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/725114be/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/725114be/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/725114be/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/5d2883fb.md

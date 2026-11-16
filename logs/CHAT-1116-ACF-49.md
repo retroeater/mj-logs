@@ -101,15 +101,66 @@ ACF 系列のこのチャット（CHAT-1110-ACF-44〜CHAT-1115-ACF-48 と、11/1
 - 手順0: 指示欄の末尾は指示文の最後の行と一致
 - 雛形の行: Chat-Ref・マージ・貼る時機・共通手順の4行とも有り（欠けなし）
 
+### 手順1: 最新の約束と事実の確かめ
+
+- mj の origin/cloudflare（6272db9137）で docs/decisions/operations.md の最後の節まで読んだ。最後の節は CHAT-1115-CDM-01。約束の記号として使われているのは (a-7)・(g)・(h)・(j)・(k)・(n)〜(u)（CHAT-1113-RSC-29 の節の (s) の確かめと、その後の (t)・(u)）。(v)・(w)・(x) は使われていないので、そのまま使った
+- 「記録する中身」の事実を出どころで確かめた（食い違いは無かった）:
+
+| 事実 | 確かめた出どころ | 結果 |
+|---|---|---|
+| ACF-46 の報告「issue: なし」、1回目の手動実行 43677131896 が failure | CHAT-1115-ACF-46 のログ、REST の run の conclusion | 一致（failure） |
+| ACF-45 の止まる条件は卓の見出しに限っていた | CHAT-1115-ACF-45 のログの指示欄 | 一致 |
+| ACF-44 のマージ 449e771dfe..f086da253e、手順1は「URL が 69469d9489 で消えた」まで | CHAT-1110-ACF-44 のログ（履歴 6467b73ba 以降） | 一致 |
+| `pAfu5snD_80x80` は fb37c83627（2026-10-01）から 69469d9489（2026-11-08T19:11:38Z = 11/9 04:11 JST）まで | `git log -S'pAfu5snD_80x80' -- jpml_pros.html` | 一致 |
+| #352 は 11/11 04:13 JST に閉じた | REST の closed_at 2026-11-10T19:13:54Z | 一致 |
+| #475 の「消えた名前: 2名」は 11/15 13:45 JST | REST の #475 のコメント（github-actions、2026-11-15T04:45:25Z） | 一致 |
+| issue の状態 #352 closed・#475 open・#658 closed・#687 open・#298 open | REST（2026-11-16） | 一致 |
+| #298 に月 約250〜260分のコメント | REST の #298 のコメント（CHAT-1110-ACF-44） | 有り |
+| instruction-template.md は 10,075 バイト | `wc -c`（作業ブランチ、変更前） | 一致 |
+| #662 は Sheets API の 429 の issue | REST（closed「Sheets API の1分あたりの読み取り上限（429）で、並走する再生成がページを飛ばす」） | 一致 |
+
+- ここから確かめられない事実（チャット側の申告のまま書いた）: ACF-48 を出した時刻 14:37・予約 14:53、11/16 のカレンダーの件名、Gmail のフィルタ、ACF-44 の費用の見込みの単価
+- 同じ趣旨の行の有無: instruction-template.md・chat-routines.md・chat-side-operations.md を「読み書きする実行」「ほかの実行」「429」で探した。chat-side-operations.md 126行目の「並行する指示の中で、ほかの実行中の指示の進み具合に触れない」は別の趣旨（進み具合への言及）で、同じ趣旨の行は無い
+- 未マージの work/ ブランチ: work/1105-lvp-auto が docs/decisions/live.md の末尾に節を足している（CHAT-1105-LVP-18）。今回の注記は ACF-46・47 の節の行（283〜291行目付近）で、別の箇所なので止まらない。instruction-template.md・operations.md を変えている未マージの work/ ブランチは無い
+
+### 手順2: instruction-template.md の行
+
+- 「報告の項目」「数を報告させるとき」の箇条の後、「完了条件の Chat-Ref の行」の前に1行足した。文言は CHAT-1113-SKP-37 の節の (p) の直した文言（「スプレッドシートを読み書きする実行（ほかのセッションの分を含む）が無いことを見てから起動する。読み書きするかどうかは Code がワークフローとスクリプトで確かめる」）をそのまま使い、理由の一句（並走すると Sheets API の上限〈429〉で失敗する、#662）を足した
+- サイズ: 10,075 → 10,649 バイト（+574）。警告域 12,288 との差 1,639 バイト
+- 事例は docs/notes/handover-archive-2026.md に「docs/instruction-template.md の「スプレッドシートを読み書きする実行」の行の事例（2026-11-16 の申送り、CHAT-1116-ACF-49）」の節で足した
+
+### 手順3: 記録と注記
+
+- docs/decisions/operations.md の末尾に「2026-11-16（CHAT-1116-ACF-49）」の節を足した（形は CHAT-1113-RSC-29 の節。知見 → 選んだ層 → 理由はこの指示の表を指した）
+- docs/decisions/live.md の ACF-46 の節の「この大会の動画は /live に載せない」の行末に「（注記: 実際の返事は案 (c) の選択だけ。掲載の可否は CHAT-1115-ACF-47・48 の節。CHAT-1116-ACF-49）」を、ACF-47 の節の「掲載を N にした」の後に「（平野さんの申告値。行ごとには確かめていない。CHAT-1116-ACF-49）」を足した。行は消していない
+- コミット fb1caaf80
+
+### 手順4: #352
+
+- 「未解明」の内容をコメントした（https://github.com/retroeater/mj/issues/352#issuecomment-6903548005 ）。調べる作業はしていない。状態（closed）・ラベルは変えていない
+
+### 手順5: check-assets
+
+- 作業ブランチへの push（fb1caaf80）で check-assets.yml が走った（[43777658111](https://github.com/retroeater/mj/actions/runs/43777658111)）: success、警告なし。CLAUDE.md 23,299・docs/handover.md 23,619・docs/notes/chat-side-operations.md 22,041（警告域 25,600／上限 27,648）、docs/instruction-template.md 10,649（警告域 12,288／上限 14,336）
+
+### マージの扱い
+
+- docs/notes/chat-side-operations.md「平野さんの判断とマージの許可」には、ドキュメントのみの変更（ガイド文の追記を含む）を判断待ちにする記述は無い（判断待ちを求めるのは、プレビューを見て決める変更と、可否を単独で聞いていない承認）。CLAUDE.md「ブランチ運用」の「ドキュメントのみの変更は完了報告のうえマージしてよい」に当たると読み、マージした。ガイド文に規則を足す指示に要る「知見 → 選んだ層 → 理由」の表は指示文にある
+
+### マージ
+
+- push 直前の fetch で origin/cloudflare が進んでいた（CHAT-1116-RSC-34 の docs・saikyo/ の再生成）ので `git merge origin/cloudflare` で取り込んだ（衝突なし）。取り込んだ後の cloudflare との差分は今回の5ファイル（live.md・operations.md・instruction-template.md・handover-archive-2026.md・このログ）だけ
+- 再 fetch して祖先を確かめ、`git push origin work/1116-acf:cloudflare` → `9a56a2da4..48a3548a5  work/1116-acf -> cloudflare`
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1116-acf
-- ログ: https://github.com/retroeater/mj/blob/work/1116-acf/docs/logs/CHAT-1116-ACF-49.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1116-ACF-49.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1116-acf
 - 確認用URL: なし
-- マージ: 未
-- issue: #352
+- マージ: 済（docs のみ。48a3548a5、範囲 9a56a2da4..48a3548a5）
+- issue: #352（コメント。状態・ラベルは変えていない）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
@@ -117,12 +168,12 @@ ACF 系列のこのチャット（CHAT-1110-ACF-44〜CHAT-1115-ACF-48 と、11/1
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 9a0ab7ce）: https://github.com/retroeater/mj-logs/tree/main/guide/9a0ab7ce
+ガイド文書（この版を写した時点の最新、mj 725114be）: https://github.com/retroeater/mj-logs/tree/main/guide/725114be
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a0ab7ce/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a0ab7ce/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a0ab7ce/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a0ab7ce/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a0ab7ce/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9a0ab7ce/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/725114be/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/725114be/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/725114be/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/725114be/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/725114be/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/725114be/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/5d2883fb.md
