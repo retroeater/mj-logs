@@ -461,28 +461,50 @@ CHAT-1116-WBK-06（判断待ち）の続き。WBK-04〜06 で Wayback Machine �
 - 当て: 47行。確度: 補完 101
 - 候補タブ: 687行（ジョブの出力）。同じ(種別 C, 対象キー, Wayback)の行: 0
 
+- マージ（書き込みの手段）: 再fetch で origin/cloudflare が LVP-24 の5コミット分進んでいたので `git merge --no-edit origin/cloudflare` で取り込んだ（衝突なし。変えたのは docs/decisions/live.md・LVP のログ・scripts/generate_live_pages.py・scripts/lib/live_layer3.py・試験で、この指示のファイルと重ならない。取り込んだ後の試験 OK）。`git merge-base --is-ancestor origin/cloudflare HEAD` を確かめ、`git push origin work/1116-wbk:cloudflare`（a40a3e042..6a0d9b86c）。
+- 書き込み（cloudflare、run 43798075726、2026-11-16 03:25 UTC、success）: 同時に動いていたのは work/1116-wbk の「公開対象の検査」だけで、シートを読み書きしない。入力は kind=C・source=wbk-write・dry_run=false。
+  - 書く前の計画は dry-run と同じ（当て 47行、確度 補完 101、候補タブ 687行、同じ（種別 C, 対象キー, Wayback）の行 0）。
+  - 「書いた: 候補タブに 101行」。読み直し: 書く前 687行 → 書いた後 788行（687＋101）。行の数が違う 0、前からある行が変わった 0（モデルが Wayback でない行を含む、前からある 687行すべてを照らした）、書いた行が違う 0。
+  - 足した行の数（大会ごと・出典の種類ごと）は上の「dry-run: 大会・出典の種類ごとの行の数」と同じ（本文 11・開催概要など 18・年間の予定 72、計 101）。
+- 3. 片付けと記録
+  - 一度きりの手段（スクリプト・試験・research-candidates.yml の source=wbk-write）を外した。research-candidates.yml は 1d3b51f17（着手時）と同じ中身に戻った（`git diff` が空）。`WRITABLE` は足していないので外すものは無い。外した後の試験: 2210件 OK（取り込んだ LVP-24 の試験を含む）。
+  - docs/notes/research-candidates.md: 種別の表の C の行と、「Wayback Machine の連盟公式サイト」に Wayback の行（モデル・出典URL・引用文・確度・備考の書き方・外した手段と戻し方〈6a0d9b8〉）を足した。冒頭の「候補の作り方はまだ決めていない」と「届く場所」の行は、今の状態に置き換えた（矛盾ではなく、古くなった記述の置き換え）。
+  - docs/decisions/automation.md の WBK-01 の節に、この指示の決定と結果を追記した（今の内容と矛盾なし）。
+  - #408 にコメントした: https://github.com/retroeater/mj/issues/408#issuecomment-6906439222 。数の出どころは WBK-06 のログの「期ごとのまとめ」と、このログの「dry-run」の各表・書き込みの読み直し。残った期は 111（取れなかった 110〈ありそう 3・分からない 17・無さそう 90〉と初日だけの1期）。
+  - #684 にコメントした: https://github.com/retroeater/mj/issues/684#issuecomment-6906440410 。「1位だけの19期のうち第8期麻雀マスターズのほかは Wayback には無い」こと。はじめ「2位以下」の備考の行の数を 25 と書き、「dry-run: 書く行」で数え直すと 17 だったので、コメントを直した（直したことをコメントに書いた）。
+  - どちらも閉じていない。ラベルは変えていない。
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1116-wbk
-- ログ: https://github.com/retroeater/mj/blob/work/1116-wbk/docs/logs/CHAT-1116-WBK-07.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1116-WBK-07.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1116-wbk
-- 確認用URL: なし
-- マージ: 未
-- issue: #408, #684
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 確認用URL: なし（シートの書き込みとスクリプトの追加・削除だけで、ページは変えていない）
+- マージ: 済（書き込みの手段 6a0d9b86c。手段の削除と docs はこのログを含む work/1116-wbk の先頭）
+- issue: #408, #684（どちらも結果をコメントした。閉じていない）
+- 判断が必要なこと:
+  - 候補タブの Wayback の 101行の採否の進め方（「タイトル」に書くのは平野さん）:
+    - (a) 出典の確かなものから。本文による 11行（十段戦 第25期は最終日が予定）→ 開催概要など（予定）18行 → 年間の予定（予定）25行 → 年間の予定・当て 47行の順に見る。メリット: 確かなものから「タイトル」が埋まる。後ろの組ほど、前の組で分かった食い違いの形（延期など）を当てて見られる。デメリット: 当ての 47行が最後に残り、2012〜2019年の大半は後回しになる
+    - (b) ほかのモデルの候補と一致する 48行から（Wayback と Web 検索の2つの出典で同じ日付）。食い違う 19行は Web 検索の日付も見て決める。照らす相手の無い 34行は (a) の順で見る。メリット: 1件ごとの確かめが軽い。デメリット: Web 検索の候補の多くは「未照合」で、2つが同じ誤り（同じ予定の表を見た）のこともある
+    - (c) 大会ごとに期の並びで見る（例: 鳳凰戦 第29〜37期をまとめて）。メリット: 当ての1年のずれを並びで見つけやすい。デメリット: 出典の確かさが混ざる
+    - 推奨は (b) の後に (a)。一致する 48行は採っても誤りが入りにくい。食い違いの 19行は Wayback が予定の日付の行が多く、Web 検索の日付（多くは決勝の数週間後）が観戦記の掲載日のことがある。ここは平野さんの目で決める
+  - 第6期プロクイーン（初日 2008-10-18 だけが取れ、最終日が取れていない）を候補タブに書かなかった（指示の前提「候補は決勝の最終日」に合わないため）。(a) このまま書かない（推奨。二日目の日付が取れたら足す）(b) 初日を候補に、備考に「初日。最終日ではない」と書いて足す
+  - 自己レビュー2回目の軽微な指摘3つは直していない（2回目の後に直すとマージできないため。書いた行に関わらない。スクリプトは外したので、もう影響しない。`## 経過` の表）
+- 未確認の項目:
+  - 予定（開催概要・大会のページの日程・年間の予定）による 90行の日付が、実際の決勝の日と同じか（WBK-06 から引き続き）
+  - プロクイーン 第6期の二日目の日付
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 6a0d9b86）: https://github.com/retroeater/mj-logs/tree/main/guide/6a0d9b86
+ガイド文書（この版を写した時点の最新、mj b4ec245c）: https://github.com/retroeater/mj-logs/tree/main/guide/b4ec245c
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6a0d9b86/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6a0d9b86/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6a0d9b86/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6a0d9b86/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6a0d9b86/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6a0d9b86/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b4ec245c/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b4ec245c/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b4ec245c/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b4ec245c/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b4ec245c/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b4ec245c/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/2cedda30.md

@@ -101,12 +101,12 @@ origin/cloudflare...1742ca706 の `generate_pro_pages.py`・`test_pro_pages.py`�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 6a0d9b86）: https://github.com/retroeater/mj-logs/tree/main/guide/6a0d9b86
+ガイド文書（この版を写した時点の最新、mj b4ec245c）: https://github.com/retroeater/mj-logs/tree/main/guide/b4ec245c
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6a0d9b86/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6a0d9b86/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6a0d9b86/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6a0d9b86/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6a0d9b86/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6a0d9b86/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/b4ec245c/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/b4ec245c/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/b4ec245c/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/b4ec245c/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/b4ec245c/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/b4ec245c/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/2cedda30.md
