@@ -112,7 +112,8 @@ Chat-Ref の確認・`git branch --merged` が誤る。**これらの判定の�
 - `web.archive.org`（2026-11-15。連盟公式サイトの昔のページを Wayback Machine で調べるため、#408・#684。Claude Code の update_environment は環境のサービスに拒否され、平野さんが設定の画面で足した。
   足した直後はプロキシの CONNECT は通る〈200〉が、TLS の途中で10秒後に切られて読めなかった〈`recentRelayFailures` は `ws_closed_mid_exchange`〉。
   2026-11-16 00:08 UTC のやり直しも3回とも同じで、2〜10秒で切られた。原因〈出口側か Internet Archive 側か〉は分かっていない。
-  同じ日に平野さんの PC から送った CDX API の要求は 200 で返った〈4.3秒〉。読み方は docs/notes/research-candidates.md「Wayback Machine の連盟公式サイト」）
+  同じ日に平野さんの PC から送った CDX API の要求は 200 で返った〈4.3秒〉。読み方は docs/notes/research-candidates.md「Wayback Machine の連盟公式サイト」。
+  2026-11-16 に許可するホストから外した〈平野さん。同じ日に get_environment で、環境「Claude-iPhone」の許可するホストに無いことを確かめた〉）
 
 未追加: `openapi.rakuten.co.jp`（books は凍結中）。再生成は `jpml_titles` で確かめた（MD-15。旧表は #441 で廃止し、今は `regenerate.py` の対象に無い）。鍵の要るスクリプトはクラウドでは動かない（次節）。
 
