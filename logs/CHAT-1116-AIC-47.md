@@ -101,15 +101,38 @@
 - ただし、`ask()` の大会別の分岐（`contest` 省略・大会の id）を外すと、Worker のテスト 215件のうち **79件** が落ちる（大会別の要求で1つの大会の流れ〈`settle()`・`write()`〉・指示・記録の型を確かめている。ask.test 24・cross 14・count 10・week3 7 ほか）。大会別の要求を「その大会を context にした横断」として扱う形でも 36件が落ちる（記録の型 `ouka:player` → `all:ouka:player`、ほかの大会に記録のある名前で答えが横断の形になる、テストの偽の Claude の呼び出しの並びが合わず 503 など）
 - どちらも一時的に書き換えて測り、元に戻した。テストの書き換えはこの指示の直し（1・2）より大きく、答えの同等を確かめ直す作業になるので、この指示では行わず「判断が必要なこと」に回した（指示文の前提はテストへの影響を書いていない）
 
+### テスト
+
+- `node --test 'workers/ask/test/*.test.mjs'`: 222件すべて通過（eadc69902）。`python3 -m unittest discover -s scripts/tests`: OK
+- 足したテスト（`workers/ask/test/subject.test.mjs`、7件）:「名字・略称で1人に決まった player の答えは、プログラムが付けたフルネームの主語で始まる(「hiro」「中田」)」・主語を重ねない/置き換える/player 以外と空には付けない・player でない2回目に主語の一文を足さない・今週の言い回しを内部の言葉として見つけ作り直す（正しい答え・期で絞った回数の答えには当たらない）・「内田みこ: 2回目の欄がすべて空でも1回まとめ直し…」・1大会の2回目の空の作り直し・横断でまとめる経路の主語の一文と置き換え
+- 修正前の動きの確かめ: 主語の付与・空の作り直し・語の追加を無効にした版で subject.test.mjs を回すと6件中5件が落ちた（残る1件は「player でない2回目に一文を足さない」で、無効にしても通るのが正しい）
+- 既存のテストの期待値の更新（答えが変わってよい (a) の範囲）: player の答えの頭に「<名前>さんは」が付いたもの（all 1・context 1・retry 2・count 9・week3 2 の assert）
+
+### 自己レビュー（新しい文脈のサブエージェント、2回）
+
+| 指摘 | 扱い |
+|---|---|
+| 1回目: Claude が問いに書かれた名前で書き始めると「中田花奈さんは中田さんは」と重なる | 直した（eadc69902。settle() の pending で `written` を付け、`withSubject()` が置き換える。2回目の Claude には渡らない） |
+| 1回目: 「通算ではありません」は期で絞った回数の正しい答え（FILTERED_LINE）にも当たりうる | 直した（得点のある文だけに絞るパターンへ、eadc69902） |
+| 1回目: 空白だけの答え・前の空白で主語が崩れる | 直した（player の答えを trim してから判定、eadc69902） |
+| 1回目: SUBJECT_LINE の例が鳳凰戦の形だけ | 最強戦の例を足した（eadc69902） |
+| 1回目: テストの不足（まとめる経路・重なり・負の例） | 足した（eadc69902） |
+| 1回目: 横断の2回目の説明（ask-worker.md の流れ）に空の欄の作り直しが無い | 直した（eadc69902） |
+| 1回目: 空になった理由そのものは調べていない（作り直しは緩和策） | 意図どおり（Workers Logs に届かず、Claude の出力の理由はコードから分からない。上の「2 の原因」に推定として書いた。11/23 の書き出しで見る） |
+| 2回目（提案）: `written` との比較が正規化しない（「hiro」の問いで Claude が「HIROさんは」と書くと重なる。変更前と同じ種類で悪化ではない） | 見送り（2回目の後の直しはマージを止めるため。#654 に移した） |
+| 2回目（提案）: `/得点[^。]*通算ではありません/` は期で絞った得点の合計の正しい答えにも当たりうる（作り直し1回、答えは消えない）。逆の並びは拾わない | 見送り（同上。#654 に移した） |
+
+- マージ前の確かめ: `git diff origin/cloudflare...HEAD -- workers/ask/src` は ask.mjs だけ（`withSubject`・`SUBJECT_LINE`・`redo`・`write`・`crossSystem`・`writeMany`・`settle` の pending・内部の言葉の一覧）。答えが変わるのは player の2回目の答えの冒頭、内部の言葉に当たる答え、2回目が空の答えだけ
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 2cedda30）: https://github.com/retroeater/mj-logs/tree/main/guide/2cedda30
+ガイド文書（この版を写した時点の最新、mj 9d0da9ef）: https://github.com/retroeater/mj-logs/tree/main/guide/9d0da9ef
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/2cedda30/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/2cedda30/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/2cedda30/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/2cedda30/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/2cedda30/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/2cedda30/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9d0da9ef/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9d0da9ef/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9d0da9ef/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9d0da9ef/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9d0da9ef/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9d0da9ef/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/2cedda30.md

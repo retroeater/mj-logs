@@ -123,6 +123,14 @@ Chat-Ref: CHAT-1116-ACF-53
 | フォルダが symlink だと `shutil.rmtree` が例外になる（極低） | 意図どおり（コミットの前でジョブが止まり、消しすぎる方向ではない） |
 | フォルダの新しさは見ず、`.md` の最終コミットだけで消える（極低、記録） | 意図どおり（決定のとおり） |
 
+
+### マージと issue
+
+- push 直前の fetch で origin/cloudflare が進んでいた（CHAT-1116-LVP-21 の title/ の直しと再生成）ので `git merge origin/cloudflare` で取り込んだ（衝突なし）。取り込んだ後もテスト一式 OK、残るフォルダは CHAT-0919-HG-01 だけ。cloudflare との差分はこの指示のファイルとフォルダの削除だけ
+- `git push origin work/1116-acf:cloudflare` → `2cedda30d..bc85ac00d`
+- #585: 結果をコメントして閉じた（https://github.com/retroeater/mj/issues/585#issuecomment-6905331641 。「状況:」のラベルは付いていなかった）
+- #422: HG-01 のフォルダは自動では消えないことをコメントした（https://github.com/retroeater/mj/issues/422#issuecomment-6905332487 ）
+- #357: 消した件数をコメントした（https://github.com/retroeater/mj/issues/357#issuecomment-6905333252 ）
 ## 報告
 
 - 状態: 完了
@@ -130,7 +138,7 @@ Chat-Ref: CHAT-1116-ACF-53
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1116-ACF-53.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1116-acf
 - 確認用URL: なし
-- マージ: 済（範囲は経過の「マージ」）
+- マージ: 済（2cedda30d..bc85ac00d）
 - issue: #585（閉じた）・#422・#357（コメント）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
@@ -139,12 +147,12 @@ Chat-Ref: CHAT-1116-ACF-53
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 2cedda30）: https://github.com/retroeater/mj-logs/tree/main/guide/2cedda30
+ガイド文書（この版を写した時点の最新、mj 9d0da9ef）: https://github.com/retroeater/mj-logs/tree/main/guide/9d0da9ef
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/2cedda30/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/2cedda30/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/2cedda30/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/2cedda30/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/2cedda30/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/2cedda30/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9d0da9ef/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9d0da9ef/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9d0da9ef/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9d0da9ef/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9d0da9ef/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9d0da9ef/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/2cedda30.md
