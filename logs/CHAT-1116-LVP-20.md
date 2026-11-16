@@ -62,28 +62,85 @@ CHAT-1115-LVP-19 で作った /live の掲載の自動を、平野さんの答�
 - 0. 「指示」欄の末尾は指示文の最後の行と一致。作業ブランチ work/1105-lvp-auto はリモートにある。origin/cloudflare は HEAD の祖先でない（取り込む）
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている。着手は 2026-11-16 10:20 JST（毎朝の取り込みの直後ではない）
 
+- 0. CHAT-1115-LVP-19 のログの `## 報告` の状態の末尾に `/ 続き: CHAT-1116-LVP-20` を足した
+- #362 に他セッションの着手中のコメントが無いことを確かめ（コメント59件。最後は 2026-11-16 の論点の移し替えで、着手中ではない）、着手中のコメントを書いた
+- origin/cloudflare の取り込み（15b1cc7b1）: 衝突なし。【2】【3】に関わるファイルは入っていない。テストは OK
+- 実装（ab3bd3384）: `AUTO_TITLES` を消し、`fetch_auto_titles()` が「タイトル戦」シートの見出し「大会名」「自動掲載」を名前で読み、Y の大会を返す。`fetch_matches()` と保留の知らせ（`append_live_layer3_candidates.py`）がこれを使う。`merge_records()` の既定は「自動にしない」（空の集合）。列が無い・見出しが重複しているときは `fetch_records()` の検査で止まる（自動が黙って効かなくならないように）。規則の直し: メンバー限定版も【無料放送】も無い公開版の生放送は、N ではなく保留（理由「メンバー限定版も【無料放送】も無い公開版の生放送」）。テスト: `FetchAutoTitlesTest`（Y の大会だけ・列が無いときは本物の `header_indexes()` の文面で止まる）、`MergeAutoTest.test_no_auto_without_titles`、規則のテストの直し、回帰の抜き出しの値を新しい規則で作り直した（2行が N → 保留）。文書（27ee33cda）: live-channel-write.md の `AUTO_TITLES` の記述を列の読み取りに直した
+- 試し（一時の出力と、列が無いあいだ自動の値をその場で作る一時の変更 b1865590e で読み・生成し、8fd1a8a4a で戻した。run 43785982567・43786095201）:
+  - 「タイトル戦」シートの見出しは `大会名・slug・表示順・自動掲載・区分・状態`（「自動掲載」は D 列）。Y の大会は20（LVP-19 の18大会＋小島武夫杯帝王戦・JPMLリーグ）で決定と一致。【2】14,350行・【3】4,375行（2回読んで同じ）
+  - **(a) 一致率が 93.87% に下がった（止まる条件 97.5% に当たる）**: 【3】に掲載がある3,718行で 一致 3,490・不一致 16（0.43%）・保留 212（5.70%）。不一致は LVP-19 と同じ16行。下がったのは決定の規則の直しによるもので、2020〜2022年のメンバー限定版の無い公開版の生放送149行（【3】は N。平野さんが冒頭を Y にした行）が、N から保留に移った。自動にする20大会だけでは 3,656行で 一致 94.64%・不一致 16・保留 180。理由の内訳: 保留「メンバー限定版も【無料放送】も無い公開版の生放送」149、「まとめ単位を記号にできない」36、「まとめ単位（ステージの記号）が無い」20、「【2】の候補に無い」4、「再アップロード」2、「期が読めない」1、不一致「公開の動画（正解 N）」12、「同じ対局のメンバー限定版がある（正解 Y）」3、「メンバー限定版（正解 N）」1。この149行は【3】に値があるので知らせには出ない
+  - **(b) 今【3】が空欄の行（657行）**: 女流プロ麻雀日本シリーズ 382・麻雀日本シリーズ 261・紅龍戦 4 は対象外（値は付かない。止まる条件に当たらない）。小島武夫杯帝王戦の10行は Y 9・N 1・保留 0。JPMLリーグは【2】【3】に行が無い（値が付く行・ページ・警告とも無い）。帝王戦の10行:
+
+| 【3】の行 | 動画ID | 題名 | 自動の値 | 理由 | 【2】の期・まとめ単位 |
+|---|---|---|---|---|---|
+| 3537 | `2B_BeAPH_zc` | 第２期小島武夫杯帝王戦~ベスト16・決勝~ | N | 同じ対局のメンバー限定版がある（冒頭のみ無料の公開版） | 第2期・ベスト16 |
+| 3583 | `6TNr2GMJdGc` | 【麻雀】第２期小島武夫杯帝王戦ベスト16C卓 | Y | 公開の動画 | 第2期・ベスト16C |
+| 3587 | `6ktHLq7em90` | 【麻雀】第２期小島武夫杯帝王戦決勝１回戦 | Y | 公開の動画 | 第2期・決勝 |
+| 3601 | `7k7PHE0Z76I` | 第５期小島武夫杯帝王戦~ベスト16・決勝~【無料放送】 | Y | 題名に【無料放送】（全編無料の公開版） | 第5期・ベスト16 |
+| 3656 | `Cgz5eAxHGcE` | 【麻雀】第２期小島武夫杯帝王戦ベスト16A卓 | Y | 公開の動画 | 第2期・ベスト16A |
+| 3763 | `N2necgCzzZ8` | 【麻雀】第２期小島武夫杯帝王戦ベスト16B卓 | Y | 公開の動画 | 第2期・ベスト16B |
+| 3861 | `WDlzLZ5eioM` | 【麻雀】第２期小島武夫杯帝王戦決勝２回戦 | Y | 公開の動画 | 第2期・決勝 |
+| 4144 | `us_j3ZINmm0` | 【メンバー限定】第２期小島武夫杯帝王戦~ベスト16・決勝~ | Y | メンバー限定版 | 第2期・ベスト16 |
+| 4179 | `xHjeDIUxIhw` | 【麻雀】第２期小島武夫杯帝王戦ベスト16D卓 | Y | 公開の動画 | 第2期・ベスト16D |
+| 4195 | `ydBC-iDWLeM` | 【メンバー限定】第３期小島武夫杯帝王戦~ベスト16・決勝~ | Y | メンバー限定版 | 第3期・ベスト16 |
+
+  - **(c) ページが10増える（止まる条件に当たる）**。減るページは無い。生成の警告は増えない（「未確認」が657件から647件に減るだけ。ほかは別名の3件で今と同じ）。増えるページ:
+
+| URL | 中身（自動の値の行） |
+|---|---|
+| https://ryoei.pro/live/teiou/2.html | 第2期の期のページ（今は無い期） |
+| https://ryoei.pro/live/teiou/2/b16-a.html | `Cgz5eAxHGcE`（ベスト16A卓の動画） |
+| https://ryoei.pro/live/teiou/2/b16-b.html | `N2necgCzzZ8` |
+| https://ryoei.pro/live/teiou/2/b16-c.html | `6TNr2GMJdGc` |
+| https://ryoei.pro/live/teiou/2/b16-d.html | `xHjeDIUxIhw` |
+| https://ryoei.pro/live/teiou/2/b16.html | `us_j3ZINmm0`（メンバー限定の「ベスト16・決勝」の生配信。【2】のまとめ単位がベスト16だけ） |
+| https://ryoei.pro/live/teiou/2/f.html | `6ktHLq7em90`・`WDlzLZ5eioM`（決勝の回戦の動画） |
+| https://ryoei.pro/live/teiou/3/b16.html | `ydBC-iDWLeM`（メンバー限定の「ベスト16・決勝」。同じ期の公開版 `bVeavoP15PU` は【3】でまとめ単位を「決勝」に直して `live/teiou/3/f.html` に載っている） |
+| https://ryoei.pro/live/teiou/5.html | 第5期の期のページ（今は無い期） |
+| https://ryoei.pro/live/teiou/5/b16.html | `7k7PHE0Z76I`（【無料放送】の「ベスト16・決勝」。【2】のまとめ単位がベスト16だけ） |
+
+    ほかに既存のページの差分が約300（帝王戦に出た人の個別ページの「他の対局」・pro/ の放送対局の欄・ask のデータ・sitemap-live.xml・`_redirects`・data/live_pages.json など、増えた10ページへのつながり）
+  - (d) 保留の知らせ: 自動にする大会の空欄の行で保留は0行なので、知らせは出ない（文面は LVP-19 で確かめた形のまま）
+- **試しで見つけた本番の不具合（急ぎ）**: 同じ比べで、作業ブランチ側と cloudflare 側の両方で `title_pages` と `jpml_pros` の生成が止まった（「「タイトル戦」の見出しが期待値と違います: ['大会名', 'slug', '表示順', '自動掲載', '区分', '状態'](期待値: ['大会名', 'slug', '表示順', '区分', '状態'])」）。title/ の生成が「タイトル戦」タブの見出しを完全一致で調べていたため、平野さんが足した「自動掲載」の列で止まる。2026-11-16 04:00 JST の毎朝の再生成は成功している（列はその後に足された）ので、次の再生成（push での再生成か 2026-11-17 04:00 JST の毎朝）から title/・jpml_pros が飛ばされ、失敗の通知が出る見込み（ページは前のまま残る）
+  - 直し（ec29b3b71）: 「タイトル戦」タブを「タイトル」タブと同じく見出しの名前で読む（`NAMED_HEADER_TABS` に足し、`load_taikai()` はほかの列を読み捨てる）。テスト `TaikaiTabHeadersTest` を足した（直す前のコードでは止まることを確かめた）。作業ブランチで `title_pages jpml_pros` を dry_run で動かし（run 43786809674）、止まらずに生成できた（「「タイトル戦」の見出し: [...](使わない列: ['自動掲載'])」）
+  - この直しは上のマージと同じく cloudflare には入れていない（止まる条件に当たったため）
+- テスト: `python3 -m unittest discover -s scripts/tests` は全件 OK
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち（止まる条件の (a) 一致率と (c) ページの増加に当たった。マージしていない）
 - ブランチ: work/1105-lvp-auto
 - ログ: https://github.com/retroeater/mj/blob/work/1105-lvp-auto/docs/logs/CHAT-1116-LVP-20.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1105-lvp-auto
 - 確認用URL: なし
-- マージ: 未
-- issue: #362
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- マージ: 未（止まる条件に当たったため）
+- issue: #362（着手中のコメント）
+- 判断が必要なこと:
+  - **急ぎ: 本番の title/ と jpml_pros の生成が、次の再生成から止まる**。「タイトル戦」シートに足した「自動掲載」の列で、title/ の生成の見出しの検査（完全一致）に当たる（cloudflare のコードでも止まることを試しで確かめた）。直しは作業ブランチにある（ec29b3b71。「タイトル戦」タブを見出しの名前で読む。テストと dry_run で確かめた）。次の毎朝（2026-11-17 04:00 JST）の前に、(1) この直しだけを先に cloudflare へ入れる（下の掲載の自動とは別にマージする）、または (2) 「タイトル戦」シートの「自動掲載」の列をいったん消す、のどちらかが要る
+  - **(a) 一致率 93.87%**（止まる条件 97.5% を下回る）。不一致は16行（0.43%）で LVP-19 と同じ。下がったのは決定どおりの規則の直しで、2020〜2022年のメンバー限定版の無い公開版の生放送149行（【3】は N）が N から保留に移ったため。これらは【3】に値があるので知らせには出ない。止まる条件の「一致率」を「不一致の率」で見てよいかの判断
+  - **(c) ページが10増える**（減るページは無い）。すべて小島武夫杯帝王戦（【3】の空欄の10行に自動の値 Y 9・N 1 が付くため）:
+    - 第2期: `live/teiou/2.html` と `2/b16-a.html`・`2/b16-b.html`・`2/b16-c.html`・`2/b16-d.html`・`2/b16.html`・`2/f.html`
+    - 第3期: `live/teiou/3/b16.html`
+    - 第5期: `live/teiou/5.html` と `5/b16.html`
+    - 表（行・動画ID・値・理由）とページの中身は `## 経過`
+  - **帝王戦のまとめ単位（#590 の未決）**: 「ベスト16・決勝」の1日通しの生配信（第2期のメンバー限定・公開版、第3期のメンバー限定、第5期の【無料放送】）は、【2】のまとめ単位が「ベスト16」だけになる。そのため `2/b16.html`・`3/b16.html`・`5/b16.html` に入る。第3期の公開版 `bVeavoP15PU` は【3】でまとめ単位を「決勝」に直して `3/f.html` に載っているので、同じ期のメンバー限定版だけ別のページになる。帝王戦の行は【3】でまとめ単位を直すか、【2】の規則（`lib/live_extract.py`）を直すか、帝王戦の「自動掲載」をいったん空にするかの判断
+  - 決定とのずれ: なし（JPMLリーグは【2】【3】に行が無く、何も起きない）
+  - マージの前に要るもの: 上の2つの判断と、title/ の直しを先に入れるかの判断。ページの増減が無くなる形（帝王戦の扱いを決める）になれば、このブランチをマージし、cloudflare で `update-live-channel.yml` を apply なしで動かす
+- 未確認の項目:
+  - 保留が実際に出たときの常設 issue「/live の掲載の保留」の作成・コメント・閉じる動き（保留はまだ0件）
+  - コメントの通知メールが届くか（平野さんの GitHub の通知の設定による。ブラウザでしか確かめられない）
+  - title/ の直しを入れた後の title/ の生成物の差分（今回は dry_run で止まらないことだけを確かめた。cloudflare 側も止まっているので比べられなかった）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 298a2545）: https://github.com/retroeater/mj-logs/tree/main/guide/298a2545
+ガイド文書（この版を写した時点の最新、mj 8ae7af4d）: https://github.com/retroeater/mj-logs/tree/main/guide/8ae7af4d
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/298a2545/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/298a2545/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/298a2545/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/298a2545/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/298a2545/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/298a2545/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/8ae7af4d/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/8ae7af4d/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/8ae7af4d/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8ae7af4d/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8ae7af4d/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8ae7af4d/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/c5c45c17.md
