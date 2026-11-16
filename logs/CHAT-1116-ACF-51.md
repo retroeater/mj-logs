@@ -144,6 +144,12 @@ CHAT-1008-DIC-21 CHAT-1014-RDR-03 CHAT-1015-SKR-01 CHAT-1017-WFL-25 CHAT-1017-WF
 - `--dry-run --json`（8c56c40b9）: deleted は CHAT-1109-WKP-16 だけで、削除の前と同じ（自動の削除の対象に増えたログは無い）。notify は7件（CHAT-1016-SKR-06・CHAT-1016-SKR-08・CHAT-1029-LGN-04・CHAT-1104-LVP-14・CHAT-1104-LVP-16・CHAT-1106-AIC-39・CHAT-1109-MUB-01）
 - 増えたログが無いので、止まる条件「増えたログを open の issue が SHA を固定せずに指す」には当たらない
 
+### マージ
+
+- push 直前の fetch で origin/cloudflare が進んでいた（AIC-45・46 など）ので `git merge origin/cloudflare` で取り込んだ（衝突なし）。取り込んだ後も消したログは戻っておらず、cloudflare との差分は docs/logs と docs/decisions/operations.md・docs/notes/branch-operations.md・docs/notes/github-actions.md だけ。`--dry-run` の結果は変わらず（deleted は CHAT-1109-WKP-16 だけ、notify 7件）、テスト一式 OK
+- `git push origin work/1116-acf:cloudflare` → `c5c45c17b..28087f142`
+- #357 に結果をコメントした（https://github.com/retroeater/mj/issues/357#issuecomment-6904563725 ）
+
 ### 解決したエラー
 
 - ログを書き直す1回目（841173d9d）で、シェルのヒアドキュメントを引用符なしで渡し、本文のバッククォートの中身がシェルで実行された。実行されたのは読むだけのコマンド（cleanup_logs.py の引数不足のエラー、git blame の使い方のエラー、gh の検索の 422、ファイル名をコマンドとして実行しようとしたエラー）で、ファイル・リポジトリ・issue への書き込みは無かった。ログの本文が崩れたので、Write で書いたスクリプトから書き直した（CLAUDE.md「文章をシェル経由で書かない」に反した）
@@ -155,7 +161,7 @@ CHAT-1008-DIC-21 CHAT-1014-RDR-03 CHAT-1015-SKR-01 CHAT-1017-WFL-25 CHAT-1017-WF
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1116-ACF-51.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1116-acf
 - 確認用URL: なし
-- マージ: 済（docs のみ。範囲は経過の「マージ」）
+- マージ: 済（docs のみ。c5c45c17b..28087f142）
 - issue: #357（着手中・結果のコメント）・#656・#298・#564・#362（論点を移すコメント）
 - 判断が必要なこと:
   - 残したログ5件の論点（どこにも移っていない。移す先か直す指示を決める）: CHAT-1016-SKR-06（static-generation.md「ページの一覧」の冒頭の段落の最強戦のページの「未公開」の記述）、CHAT-1029-LGN-04（git の履歴に残る Google の値を消さずに置いてよいか）、CHAT-1103-TOP-02（ラベル「対象: pro」の色と説明）、CHAT-1104-LVP-14（page.py の docstring に jpml_test の廃止が無い）、CHAT-1104-LVP-16（generate_pro_pages.py の docstring の並び）。CHAT-1016-SKR-08 は SKR-06 が自動で消えないための続き先として残した
@@ -166,12 +172,12 @@ CHAT-1008-DIC-21 CHAT-1014-RDR-03 CHAT-1015-SKR-01 CHAT-1017-WFL-25 CHAT-1017-WF
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 39f873cd）: https://github.com/retroeater/mj-logs/tree/main/guide/39f873cd
+ガイド文書（この版を写した時点の最新、mj 298a2545）: https://github.com/retroeater/mj-logs/tree/main/guide/298a2545
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/39f873cd/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/39f873cd/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/39f873cd/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/39f873cd/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/39f873cd/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/39f873cd/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/298a2545/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/298a2545/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/298a2545/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/298a2545/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/298a2545/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/298a2545/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/c5c45c17.md
