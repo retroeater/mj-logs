@@ -181,7 +181,7 @@ WBK-04 の「分からない」89期のうち当たる期（期の記載が無�
 - マージの前の再fetch で origin/cloudflare が進んでいた（他の指示の docs と title/ の再生成）ので `git merge origin/cloudflare` で取り込んだ（衝突なし。変えたファイルに触れるコミットは無かった）。`git merge-base --is-ancestor origin/cloudflare HEAD` を確かめて `git push origin work/1116-wbk:cloudflare` で入れた。
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1116-WBK-06
 - ブランチ: work/1116-wbk
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1116-WBK-05.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1116-wbk
@@ -203,12 +203,12 @@ WBK-04 の「分からない」89期のうち当たる期（期の記載が無�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 9d0da9ef）: https://github.com/retroeater/mj-logs/tree/main/guide/9d0da9ef
+ガイド文書（この版を写した時点の最新、mj 8b20a20f）: https://github.com/retroeater/mj-logs/tree/main/guide/8b20a20f
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9d0da9ef/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9d0da9ef/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9d0da9ef/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9d0da9ef/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9d0da9ef/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9d0da9ef/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/8b20a20f/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/8b20a20f/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/8b20a20f/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8b20a20f/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8b20a20f/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8b20a20f/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/2cedda30.md
