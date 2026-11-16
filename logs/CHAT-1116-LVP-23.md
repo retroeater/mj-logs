@@ -84,7 +84,7 @@
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1116-LVP-24
 - ブランチ: work/1116-lvp-post
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1116-LVP-23.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1116-lvp-post
