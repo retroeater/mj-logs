@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-11-16 10:42 JST
+- 書き出した時刻: 2026-11-16 10:44 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -193,11 +193,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-16 10:42 | workflow_dispatch | cloudflare | in_progress | #7（43787848850） |  |
 | 2026-11-04 02:20 | workflow_dispatch | cloudflare | failure | #6（41683310617） | 23分52秒 |
 | 2026-10-27 20:49 | workflow_dispatch | cloudflare | success | #5（40499085851） | 9分40秒 |
 | 2026-10-26 07:47 | schedule | cloudflare | success | #4（40241832250） | 10分06秒 |
 | 2026-10-21 12:39 | workflow_dispatch | cloudflare | success | #3（39539783113） | 9分28秒 |
-| 2026-10-19 07:35 | schedule | cloudflare | success | #2（39172875765） | 5分44秒 |
 
 - #6 failure: ジョブ「regenerate / regenerate」 ステップ「飛ばしたページを報告」
 
@@ -208,7 +208,7 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-11-16 10:41 | workflow_dispatch | work/1116-whn | in_progress | #852（43787724013） |  |
+| 2026-11-16 10:41 | workflow_dispatch | work/1116-whn | success | #852（43787724013） | 0分40秒 |
 | 2026-11-16 10:31 | workflow_dispatch | work/1105-lvp-auto | success | #851（43786809674） | 1分02秒 |
 | 2026-11-16 10:24 | workflow_dispatch | work/1105-lvp-auto | success | #850（43786095201） | 4分53秒 |
 | 2026-11-16 10:23 | workflow_dispatch | work/1105-lvp-auto | success | #849（43785982567） | 0分53秒 |
