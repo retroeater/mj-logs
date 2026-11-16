@@ -124,15 +124,57 @@
 
 - マージ前の確かめ: `git diff origin/cloudflare...HEAD -- workers/ask/src` は ask.mjs だけ（`withSubject`・`SUBJECT_LINE`・`redo`・`write`・`crossSystem`・`writeMany`・`settle` の pending・内部の言葉の一覧）。答えが変わるのは player の2回目の答えの冒頭、内部の言葉に当たる答え、2回目が空の答えだけ
 
+### マージ
+
+- 取り込み: origin/cloudflare が進んでいた（ほかのセッションの docs・生成物）ので `git merge --no-edit origin/cloudflare`（衝突なし、workers の変更なし）。取り込み後もテスト 222件・scripts/tests とも通過
+- `git push origin work/1116-aic:cloudflare`: 9d0da9ef0..203e4538b（push 直前に再 fetch して `git merge-base --is-ancestor origin/cloudflare HEAD` 真）
+- check-runs（203e4538b）: 「Workers Builds: mj-ask」completed / success（本番）、「Workers Builds: mj」completed / success（本番）。2026-11-16 02:10:59 UTC
+
+### 手順3: 本番の確かめ（`Origin: https://ryoei.pro`、`contest: "all"`・context なし、UA `mj-internal aic-47-check`）
+
+この日の本番の問いは、着手時の「内田みこ」1問（手順1の再現）、ここの5問、「中田」の聞き直し1問の計7問（10問の内）。
+
+| 問い | 答え（要点） | データとの突き合わせ | 主語 | 内部の言葉 |
+|---|---|---|---|---|
+| hiro | 鳳凰戦「HIRO柴田さんは第18期から第42期まで28期出場しています。第39期の鳳凰位です。」／WRC「第2期の予選に出場し、43位で敗退」／最強戦「7回出場」 | 一致（seasons 28・最初の期 18・最後 42、WRC 第2期 43位 敗退、最強戦 出場数 7回） | フルネーム | なし |
+| 中田 | 鳳凰戦「中田花奈さんは第18期から第43期まで…」／女流桜花・最強戦「中田花奈さんはx」 | **不一致**（鳳凰戦の記録は第38期前期〜第43期前期の10行。「…」「x」は答えになっていない） | フルネーム | なし |
+| 中田（聞き直し） | 鳳凰戦「中田花奈さんは第18期から第43期まで…」／女流桜花「中田花奈さんの名前で女流桜花の検索結果は2件です。第19期は C2 8位残留…」／最強戦「5回出場し、対局数は8回…」 | **鳳凰戦は不一致**（同じ）。女流桜花の期・順位と最強戦の数は一致 | フルネーム | 女流桜花に「検索結果」 |
+| 内田みこ | 鳳凰戦「第34期後期から第43期前期まで7期…第36期後期に2位で昇級し、第42期後期に降級」／女流桜花「第13期から第20期まで7期…第17期に3位で昇級し、第20期に6位で昇級」／WRC「第6期の予選…69位で敗退」／最強戦「4回出場…2022年度の女流プロ令和の乱で優勝」 | 一致 | フルネーム | なし |
+| 鮎川 | 鳳凰戦「鮎川卓さんは第21期から第42期まで42期出場…第42期でA2リーグで5位となり残留」／WRC「3回出場…第2期の予選では3位で通過」 | 一致（seasons 42） | フルネーム | なし |
+| 白鳥翔の第40期の成績は？ | 鳳凰戦「白鳥翔さんは第40期はA2リーグで、順位は1位、結果は昇級です。得点は278.8点です。」／WRC・最強戦は「第40期の記録はありません」の類（WRC の冒頭は「第40期はまだありません。記録のある期で答えます」） | 鳳凰戦は一致。WRC・最強戦の文は期の外の問いへの答えで、事実の誤りは無いが要領を得ない（今回の変更で通る道ではなく、前からの形） | フルネーム | なし |
+
+- 見立て: 2回目の指示に足した `SUBJECT_LINE` の例「第18期から第42期まで28期出場しています。」（HIRO柴田の実データ）の数を、Claude が中田花奈の答えに写した。「…」「x」も例・置き場所の写しに見える。前の「中田」の答え（11/12）は出場 10期でデータと合っていた
+- **マージの条件「本番の問いの答えがデータと一致する」を満たさない。** 直すには `SUBJECT_LINE` の例から数を外すなどのコードの変更が要り、2回目のレビューの後の直しになる（止まる条件）。指示文は本番の確かめで合わないときの戻し方を書いていないので、**戻さず、追加の push もせずに止まる**
+- #654 に結果と止まった旨をコメントした
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1116-aic
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1116-AIC-47.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1116-aic
+- 確認用URL: なし（Worker mj-ask はプレビューを持たない。本番で確かめた）
+- マージ: 済（203e4538b）。ただしマージ後の本番の確かめで条件を満たさなかった（下）
+- issue: #654
+- 判断が必要なこと:
+  - **本番の「中田」の答えがデータと合わない（今の本番で起きている）**: 鳳凰戦が「中田花奈さんは第18期から第43期まで…」（データは第38期〜）、女流桜花・最強戦が「中田花奈さんはx」になった（2回中2回、鳳凰戦は同じ）。今回の 2回目の指示の一文 `SUBJECT_LINE` の例の数（HIRO柴田の「第18期から第42期まで28期」）を写したと見られる。直すか戻すかを決めてほしい。案: (1) `SUBJECT_LINE` の例から数・期を外す（例を「〜に出場しています。」の形にする、または例を無くす）直しを、レビューを受けて入れる (2) 203e4538b の `workers/ask/src/ask.mjs` の変更を戻す（主語・空の作り直し・語の追加をまとめて戻す）。止まる条件のため、どちらもこの指示ではしていない
+  - **大会別の要求を外す件（決定 3）を行わなかった**: 画面は大会別の要求をもう送っていない（`assets/nav.js:263` の `'all'` だけ）が、Worker のテストの 79件（ask 24・cross 14・count 10・week3 7 ほか）が大会別の要求で1つの大会の流れ・指示・記録の型を確かめている。外すなら、それらのテストを横断＋context に書き直す指示が要る（大会別の要求を context の横断として扱う形でも 36件が落ちる）
+  - 2回目の自己レビューの提案2件（`withSubject()` の書かれた名前の比較の正規化、`/得点[^。]*通算ではありません/` の当たり方）は見送った（#654 に移した）
+- 未確認の項目:
+  - 2026-11-23 の書き出し（確認は 6:00 JST）で、名字・略称の player の答えがフルネームで始まるか、内部の言葉が残っていないか、数が例から写っていないか
+  - 2026-11-23 03:00 JST の cron の回で、`週次:` の `sheet` が null でないこと（AIC-46 から）
+  - 11/09 の「内田みこ」の2回目が空だったことは推定（Workers Logs に届かない）
+- エラー: マージ後の本番の確かめで「中田」の答えがデータと合わなかった（上）
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 9d0da9ef）: https://github.com/retroeater/mj-logs/tree/main/guide/9d0da9ef
+ガイド文書（この版を写した時点の最新、mj 203e4538）: https://github.com/retroeater/mj-logs/tree/main/guide/203e4538
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9d0da9ef/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9d0da9ef/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9d0da9ef/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9d0da9ef/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9d0da9ef/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9d0da9ef/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/203e4538/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/203e4538/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/203e4538/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/203e4538/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/203e4538/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/203e4538/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/2cedda30.md
