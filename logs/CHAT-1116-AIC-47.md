@@ -65,15 +65,51 @@
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 着手前の確認（0章）
+
+- ログの「指示」欄の末尾は指示文の最後の行と一致。39f873cd5 は origin/cloudflare の祖先
+- 同じ Chat-Ref のコミット・ログ: なし。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 欠けなし
+- 作業ブランチ: origin/work/1116-aic はマージ済み（cloudflare の祖先）。ローカルの work/1116-aic も cloudflare の祖先だったので `git merge --ff-only origin/cloudflare`（docs/notes/cloud-sessions.md「作業ブランチの用意」のローカルにあり祖先の場合）。着手時 HEAD b2698d07e
+- #654: open。着手コメントを残した
+
+### 実物の確認（手順1）
+
+- 関数（`workers/ask/src/` の着手時の行）: `nameLead()` query.mjs:136（部分一致の読み方の冒頭の文「「hiro」をHIRO柴田として答えます」。答えの本文の主語ではない）、`answerSystem()` ask.mjs:123、`ANSWER_LINES` ask.mjs:164、`answerInput()` ask.mjs:435、`write()` ask.mjs:543、`crossSystem()` ask.mjs:899、`writeMany()` ask.mjs:905、`INTERNAL_PHRASES` ask.mjs:512、`resolveName()` query.mjs:110
+- **1 の原因**: 2回目に渡す結果（`answerInput()`）は items・count・seasons などだけで、選手名（`result.name`）を渡していない。名字・略称の問いでは Claude はフルネームを知らず、問いの文字で主語を書いた（「検索語「hiro」の選手は」）
+- 未マージの work/ ブランチで `workers/ask/src/` を変えているもの: なし
+
+### 2「内田みこ」の原因
+
+- データ: 鳳凰戦 7行（D3〜、people あり）・女流桜花 7行・WRC リーグ 1行・最強戦 9行。WRC-R は無し。記録はある（止まる条件に当たらない）。質問の時点（2026-11-08 16:18 UTC）のデータにも4大会とも `players`・`people` にあった
+- 質問の時点に本番で動いていたコードは fc2a6b735（2026-11-06。AIC-40 の作り直しより前）。この版の `crossAsk()` で、型 `all:houou:player`・答え「【鳳凰戦】答えられません。」になる道は、鳳凰戦の1回目が player で済み、**2回目（4大会をまとめた `writeMany()`）の欄が空**のときだけ（空の欄の大会は落とし、全部落ちると先頭の鳳凰戦を `answer || UNANSWERABLE` で出す）。1回目が失敗した大会は型が空になり、Claude の呼び出しの失敗は 503 になるので、この行にはならない。引数の記録（4大会とも name）も1回目が済んだことと合う
+- 作り物の再現（`workers/ask/test/subject.test.mjs`「内田みこ: …」）: 1回目を4大会とも player（内田みこ）、2回目を4欄とも空にすると、今のコードでも作り直しが無ければ「【鳳凰戦】答えられません。」と型 `all:houou:player` になる（直す前の版で同じテストが落ちることを確かめた）
+- 本番の今（2026-11-16 10:1x JST、1問）: 「内田みこ」は4大会の答えを返した（Claude の空の答えは毎回は起きない）。Workers Logs はセッションから見られないので、11/09 の2回目が空だった直接の証跡は無い（推定）
+- 直し: 2回目の答えが空のときも、言語の混ざり・内部の言葉と同じく1回だけ作り直す（`redo()`。横断のまとめた2回目は空の欄の大会だけ、1大会の2回目〈`write()`〉も同じ）。呼び出しの数は今の作り直しと同じ枠（横断は `CROSS_RETRY_EXTRA` の1回、大会別は3回まで）
+
+### 1 の直し方（選んだ形と理由）
+
+- プログラムが付ける形を選んだ: `withSubject()` が player の答え（2回目に文にさせるもの）の頭に「<result.name>さんは」を付け、2回目の指示に `SUBJECT_LINE`（主語を書かずに述語から書く。「検索語」「検索された選手」と呼ばない）を player のときだけ足す。Claude が名前で書き始めたとき（指示に従わなかったとき）は重ねない
+- 理由: Claude には名前を渡していないので「冒頭を確かめて付け直す」だけでは主語の置き換え（「検索語「hiro」の選手は」を外す）が文の解析になる。主語を書かせない形なら、プログラムは頭に付けるだけで済む。主語の残りの言い回しは内部の言葉の作り直しで拾う
+- 範囲: player の答えのうち2回目に文にさせるもの（大会別の欄・context・横断の各大会）。プログラムが書く迎えた期の答え（`seatAnswer()`）・決勝だけの答え（元から「<名前>さんの」で始まる）・候補・案内は変えない
+- 内部の言葉の一覧に「検索語」「検索された」「通算ではありません」を足した
+
+### 3（大会別の要求を外す）は行わなかった
+
+- 画面: origin/cloudflare の HTML・JS で `/api/ask` を送るのは `assets/top_ask.js`（204行目、`contest: root.dataset.contest`）だけで、その値は `assets/nav.js:263` の `'all'` だけ。大会別の要求を送るファイルは無い（前提の条件は満たす）
+- ただし、`ask()` の大会別の分岐（`contest` 省略・大会の id）を外すと、Worker のテスト 215件のうち **79件** が落ちる（大会別の要求で1つの大会の流れ〈`settle()`・`write()`〉・指示・記録の型を確かめている。ask.test 24・cross 14・count 10・week3 7 ほか）。大会別の要求を「その大会を context にした横断」として扱う形でも 36件が落ちる（記録の型 `ouka:player` → `all:ouka:player`、ほかの大会に記録のある名前で答えが横断の形になる、テストの偽の Claude の呼び出しの並びが合わず 503 など）
+- どちらも一時的に書き換えて測り、元に戻した。テストの書き換えはこの指示の直し（1・2）より大きく、答えの同等を確かめ直す作業になるので、この指示では行わず「判断が必要なこと」に回した（指示文の前提はテストへの影響を書いていない）
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 8ae7af4d）: https://github.com/retroeater/mj-logs/tree/main/guide/8ae7af4d
+ガイド文書（この版を写した時点の最新、mj 2cedda30）: https://github.com/retroeater/mj-logs/tree/main/guide/2cedda30
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/8ae7af4d/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/8ae7af4d/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/8ae7af4d/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8ae7af4d/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8ae7af4d/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8ae7af4d/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/8ae7af4d.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/2cedda30/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/2cedda30/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/2cedda30/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/2cedda30/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/2cedda30/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/2cedda30/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/2cedda30.md

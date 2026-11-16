@@ -72,16 +72,66 @@ Chat-Ref: CHAT-1116-ACF-53
 - 作業ブランチ: work/1116-acf はローカル・リモートとも origin/cloudflare の祖先なので `git merge --ff-only origin/cloudflare` で b2698d07e1 へ進めた
 - 雛形の行: Chat-Ref・マージ・貼る時機・共通手順の4行とも有り（欠けなし）
 - 手順1: CHAT-1116-ACF-52 のログの状態に「/ 続き: CHAT-1116-ACF-53」を足した
+- #585 に着手中のコメントを書いた（https://github.com/retroeater/mj/issues/585#issuecomment-6905204245 ）
+
+### 前提の確かめ
+
+- `docs/logs/` のフォルダは77件（b2698d07e1）。77件とも同じ名前の `.md` は無い。消す対象は CHAT-0919-HG-01 を除く76件で前提と一致
+- 76件のファイル数 958、容量 110,699 KiB（`du -sk --apparent-size`。HG-01 を含む77件の `du -sc` は 117,020 KiB）
+- フォルダのファイルを指す文書: `git grep -n "docs/logs/CHAT-[0-9A-Z-]*/"`（docs/logs を除く）の当たりは docs/notes/ryoei-world.md 47行と scripts/tests/test_chat_ids.py 34行。test_chat_ids.py は `chat_ids.id_in_path()` に渡すパスの文字列で、ファイルは読まない（前提と一致）
+- scripts/・workers/・.github/・ページの生成で docs/logs のフォルダのファイルを読むものは無い（`git grep -n docs/logs -- scripts workers .github '*.html' '*.js'`。当たりは cleanup_logs・chat_ids・sync_logs 系のパスの規則と、`.md` の permalink だけ）
+- 未マージの work/ ブランチ: origin/work/1103-ryo5 が `docs/logs/CHAT-1103-RYO-05/` に10ファイルを足しているが、このフォルダは cloudflare に無い（消す対象と重ならない）。ほかに docs/logs のフォルダを変えるブランチは無い
+- open の issue: 76件の名前で `"docs/logs/<名>/"` を検索し、当たった #362・#219・#641・#656 の本文と全コメントを読んだ。当たりはどれもログの `.md`（SHA 固定か、すでに消えたログ）とログの名前で、フォルダのファイルを指す箇所は無かった（書き換えは無し）
+- ラベル: REST で「対象: pro」は C5DEF5・「連盟プロの一覧と選手の個別ページ pro/」、「対象: title」は C5DEF5・「タイトル戦のページ群 title/」（前提と一致）
+
+### 手順2: 一度きりの片付け（fe8661adb）
+
+- docs/notes/ryoei-world.md の `docs/logs/CHAT-1103-RYO-06/compare-before-after.png` を、b2698d07e14f643c407dac5fd6c9e4cc2d46e6b5（消す前の origin/cloudflare の先頭）の permalink のリンクにした（その SHA にファイルがあることを `git cat-file -e` で確かめた）
+- CHAT-0919-HG-01 を除く76件のフォルダと、CHAT-1103-TOP-02 の `.md` を `git rm` で消した（959ファイル）。残るフォルダは CHAT-0919-HG-01 だけ
+
+### 手順3: cleanup_logs.py（7bec556c5）
+
+- 先にテストを足し、直す前のコードで落ちることを確かめた（3件: 関数が無いので ERROR 2・メッセージが違うので FAIL 1）
+- 直したこと:
+  - `attachment_folder(file, log_dir)`: ログと同じ名前のフォルダがあれば (名前, ファイル数)
+  - `remove_logs(deleted, log_dir)`: ログの `.md` と、項目に `folder` があればそのフォルダを `shutil.rmtree` で消す（`main()` の削除をこの関数にした）
+  - `main()`: 消すと決めたログの項目に `folder`・`folder_files` を足す（JSON にも出る）。dry-run・実行の出力の行に「フォルダ: <名>/（ファイル N件）」
+  - `commit_message()`: 消したログの後に「- docs/logs/<名>/（ファイル N件）」の行
+  - `issue_comment()`: 「削除したのは N件（あわせてフォルダ M件・ファイル K件）。」
+  - 消すかどうかの判定は変えていない。`.md` の無いフォルダには触らない
+- テスト（scripts/tests/test_cleanup_logs.py）: フォルダの有無とファイル数（サブフォルダの中も数える）、消すログのフォルダだけが消え、フォルダの無いログは `.md` だけ、消さないログのフォルダと `.md` の無いフォルダは残ること、コミットのメッセージと #357 のコメントの文面
+- テスト一式: `python3 -m unittest discover -s scripts/tests` OK（2176件）
+- ワークフロー: `cleanup-logs.yml` は `commit-push` に `paths: docs/logs` を渡し、アクションは `git add -A -- docs/logs` なので、フォルダの削除もそのままコミットに入る（レビューのサブエージェントが使い捨てのクローンで、フォルダ付きのログを消して D で staged になることを確かめた）。ワークフローは変えていない
+- #357 の通知: `issue_comment()` は今までどおり、一覧にするログ（判断待ちなど）がある週だけコメントを作る。一覧にするものが無い週は、フォルダを消してもコメントは出ない（消したログの件数も同じ扱い）。消したフォルダはコミットのメッセージには必ず載る（決定の「記録は git の履歴で足りる」）
+
+### 手順4: docs（9a90c2b63）
+
+- docs/notes/branch-operations.md「作業ログの寿命」: ログを名指しするときの permalink の行に「ログと同じ名前のフォルダのファイルも同じ（ログと一緒に消える）」を足した。「自動で削除される条件」の後の箇条に「ログを消すときは、同じ名前のフォルダも一緒に消す（#585）。同じ名前の `.md` が無いフォルダには触らない」を足した
+- docs/notes/cloudflare.md: 「Code が撮った画像は…`docs/logs/<Chat-Ref>/` に置いてよい」に「ログの `.md` と一緒に `cleanup-logs.yml` が消す、#585」を足した
+- docs/decisions/operations.md に決定を足した
+
+### 手順5: dry-run とレビュー
+
+- `--dry-run --json` を直す前（1f23a2ae8 の cleanup_logs.py）と後で比べた: 消える対象は CHAT-1109-WKP-16.md だけで同じ、通知の対象は CHAT-1106-AIC-39.md・CHAT-1109-MUB-01.md で同じ。CHAT-1109-WKP-16 にフォルダは無い
+- 自己レビュー（新しい文脈のサブエージェント、1回。渡したもの: 目的・決定、`git diff 1f23a2ae8 9a90c2b63 -- scripts docs/notes docs/decisions .github`、CLAUDE.md「コード規約」）: マージを止める指摘なし
+
+| 指摘 | 扱い |
+|---|---|
+| テストは部品だけを見ていて、`main()` で `folder` を付ける配線を消しても落ちない（低） | 意図どおり（配線はレビューの実地確認で動いた。切り出すと変更行が増える） |
+| 一覧にするログが無い週は、消したフォルダが #357 に載らない（意見・低） | 意図どおり（消したログの件数と同じ扱い。コミットのメッセージには必ず載る。経過の手順3に書いた） |
+| `cleanup-logs.yml` のコメント「commit_message(件名と消したログの一覧)」が少し古い（低） | 見送り（この指示ではワークフローを変えない。動きに影響しない） |
+| フォルダが symlink だと `shutil.rmtree` が例外になる（極低） | 意図どおり（コミットの前でジョブが止まり、消しすぎる方向ではない） |
+| フォルダの新しさは見ず、`.md` の最終コミットだけで消える（極低、記録） | 意図どおり（決定のとおり） |
 
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1116-acf
-- ログ: https://github.com/retroeater/mj/blob/work/1116-acf/docs/logs/CHAT-1116-ACF-53.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1116-ACF-53.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1116-acf
 - 確認用URL: なし
-- マージ: 未
-- issue: #585
+- マージ: 済（範囲は経過の「マージ」）
+- issue: #585（閉じた）・#422・#357（コメント）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
@@ -89,12 +139,12 @@ Chat-Ref: CHAT-1116-ACF-53
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 8ae7af4d）: https://github.com/retroeater/mj-logs/tree/main/guide/8ae7af4d
+ガイド文書（この版を写した時点の最新、mj 2cedda30）: https://github.com/retroeater/mj-logs/tree/main/guide/2cedda30
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/8ae7af4d/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/8ae7af4d/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/8ae7af4d/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8ae7af4d/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8ae7af4d/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8ae7af4d/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/8ae7af4d.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/2cedda30/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/2cedda30/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/2cedda30/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/2cedda30/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/2cedda30/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/2cedda30/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/2cedda30.md
