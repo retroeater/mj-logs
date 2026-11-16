@@ -117,7 +117,7 @@ CHAT-1115-LVP-19 で作った /live の掲載の自動を、平野さんの答�
   証跡: 呼び出し元はすべて引数が合う（`pending_rows` は append とテストの2か所）。読み取りは generate_live_pages・generate_title_pages ではキャッシュで増えず、sync_live_calendar と追記の段で1回ずつ増えるだけ。「タイトル戦」タブを位置で読むのは `load_taikai()`（直した）・slug の集計・research_candidates.py（`load_taikai()` を使う）だけ。`check_bad_chars()` と `renamed_rows()` は余分な列があっても動く。直す前のコードに新しいテストを当てると落ちる（test_live_layer3 は49件中5件、test_title_tab_headers は6件中1件）
 ## 報告
 
-- 状態: 判断待ち（止まる条件の (a) 一致率と (c) ページの増加に当たった。マージしていない）
+- 状態: 判断待ち（止まる条件の (a) 一致率と (c) ページの増加に当たった。マージしていない） / 続き: CHAT-1116-LVP-21・CHAT-1116-LVP-22
 - ブランチ: work/1105-lvp-auto
 - ログ: https://github.com/retroeater/mj/blob/work/1105-lvp-auto/docs/logs/CHAT-1116-LVP-20.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1105-lvp-auto
@@ -153,4 +153,4 @@ CHAT-1115-LVP-19 で作った /live の掲載の自動を、平野さんの答�
 - docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8ae7af4d/docs/notes/chat-side-operations.md
 - docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8ae7af4d/docs/notes/cloudflare.md
 - docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8ae7af4d/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/c5c45c17.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/8ae7af4d.md
