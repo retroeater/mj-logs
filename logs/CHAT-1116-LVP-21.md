@@ -60,28 +60,37 @@
   - `sitemap-title.xml`: 上のページの lastmod が当日になる
   - `jpml_pros.html`: 1人の「帰り道」の回数が 1回 → 2回（同じ新しい回）
 - 列を足した後に失敗した `regenerate-page.yml` の run は無い（2026-11-16 0時 UTC 以降の run はすべて success。cloudflare での title/・jpml_pros の再生成は、列を足した後にまだ動いていない）
+- レビュー: 入れたコードは ec29b3b71 の cherry-pick そのもので、CHAT-1116-LVP-20 で新しい文脈のサブエージェントがレビュー済み（「タイトル戦」タブを位置で読むほかの箇所〈slug の集計・research_candidates.py〉、`check_bad_chars()`・`renamed_rows()` は余分な列があっても動く、直す前のコードでテストが落ちる、と確かめた）。今回は差分が同じなので新しいレビューはしていない
+- 手順3: push 直前に再 fetch し、`git merge-base --is-ancestor origin/cloudflare HEAD` が真であることを確かめて `git push origin HEAD:cloudflare`。範囲は `b2698d07e..2d66bbdac`（2026-11-16 JST 午前）。入ったのは、直し（992764160）・title/ と jpml_pros の再生成（c2e482748）・このログ
+- check-run（2d66bbdac）: Workers Builds: mj は success、sync は success
+- push で動いた再生成（run 43789265731、success）: 「「タイトル戦」の見出し: [...](使わない列: ['自動掲載'])」と出て止まらなかった
+- 手動実行（run 43789417773、cloudflare、`title_pages jpml_pros`、本実行）: success。「変更なし」（作業ブランチの再生成の出力が入っているため）。title/・jpml_pros の生成は、次の毎朝（2026-11-17 04:00 JST）も止まらない見込み
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1116-lvp-fix
 - ログ: https://github.com/retroeater/mj/blob/work/1116-lvp-fix/docs/logs/CHAT-1116-LVP-21.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1116-lvp-fix
-- 確認用URL: なし
-- マージ: 未
-- issue: #362
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 比較URL: https://github.com/retroeater/mj/compare/b2698d07e...2d66bbdac
+- 確認用URL: なし（見た目の変更ではない）
+- マージ: 済（cloudflare `b2698d07e..2d66bbdac`。title/・jpml_pros の生成の直しだけ。/live の掲載の自動は入れていない）
+- issue: #362（この指示では着手中のコメントを書いていない。直しは LVP-20 の続きで、急ぎのため）
+- 判断が必要なこと:
+  - cloudflare に入れた再生成で変わったのは、列と別のデータの変化だけ: `title/teiou/5.html` に帰り道の新しい回（`sAx65O6q8x4`、11-16 に帰り道の再生成で入った回）、`sitemap-title.xml` の lastmod、`jpml_pros.html` の1人の帰り道の回数（1回 → 2回）
+  - work/1105-lvp-auto（掲載の自動）は、この直しを cherry-pick 元として持ったまま。後でマージするときは同じ変更なので衝突しない見込み
+- 未確認の項目:
+  - 次の毎朝（2026-11-17 04:00 JST）の run-daily の title/・jpml_pros の生成（手動実行では止まらないことを確かめた）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 8ae7af4d）: https://github.com/retroeater/mj-logs/tree/main/guide/8ae7af4d
+ガイド文書（この版を写した時点の最新、mj 2cedda30）: https://github.com/retroeater/mj-logs/tree/main/guide/2cedda30
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/8ae7af4d/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/8ae7af4d/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/8ae7af4d/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8ae7af4d/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8ae7af4d/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8ae7af4d/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/2cedda30/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/2cedda30/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/2cedda30/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/2cedda30/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/2cedda30/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/2cedda30/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/8ae7af4d.md
