@@ -96,15 +96,58 @@ player の答えで、名前・期の数・どの期を挙げるかが揺れ続�
 - 確かめを無効にした版（`playerTextProblems` の結果を空にする）では、落とす検査の3件が落ちた。修正前の版（origin/cloudflare）では import の段階で落ちる
 - 既存のテストの期待値の更新（答えが変わってよい player の答えの範囲）: all 1・context 1・count（期待値6・指示の検査3件）・redo 3件（player は空でもプログラムの文で答えるので、空の作り直しの検査は champions で行う形に替えた）・retry 3・week3 3。プログラムの文の値は、上の `playerLead()` の出力をデータの行と突き合わせて確かめた（佐々木寿人 25期・第42期 A1 3位 決定戦、HIRO柴田 28期・第42期 A1 1位 決定戦、二階堂亜樹 女流桜花 17期・第20期 A 8位 残留、和久津晶 17期・第20期 B 7位 残留、中川基輝 WRC 4期・第10期 2位 通過、内田みこ 4大会）
 
+### 自己レビュー（新しい文脈のサブエージェント、2回）
+
+| 指摘 | 扱い |
+|---|---|
+| 1回目（要修正）: ask-worker.md の seasons の行が「出場の期数を書かせる」のまま | 直した（c202aff2c） |
+| 1回目（要修正）: count.test.mjs のコメントが古い | 直した（c202aff2c） |
+| 1回目: 得点・順位の無い行（吉村隼人の第37期後期）を直近に挙げる | 直した（得点か順位のある行を先にする、c202aff2c） |
+| 1回目: 最強戦の指示の「出場数…totals の値をそのまま書く」が残り、出場数を重ねて書きうる | 直した（最強戦の「N回出場」「出場数」で落とす、c202aff2c） |
+| 1回目: 「N期前期生」を出場の数と見る | 直した（c202aff2c） |
+| 1回目: player の指示から「count は答えに書かない」が消えた | 直した（`PLAYER_FOLLOW_LINE` に「count と行の数は書かない」、c202aff2c） |
+| 1回目: AIC-47 の既存の行に `簡略化:` を足した（コード規約） | 直した（c202aff2c で外し、新しい確かめの所に置いた。2回目の指摘で `INTERNAL_PATTERNS` の上限は元の所に戻した、2e1b3cd8a） |
+| 1回目: テストの不足（player でない指示が今までどおり）・`filtered: true` に依るように読める・文書の書き漏れ（最強戦の行） | 直した（c202aff2c） |
+| 1回目: 名前の括弧（「山口哲也（17期）」はそのまま「山口哲也（17期）さんは」）。漢数字の期・「度」の無い年・「さん」を付けない主語は拾わない | 見送り（名前はデータのまま。拾わない形は `簡略化:` に上限として書いた） |
+| **2回目（要修正）: seasons が 0 の選手（順位だけで得点の無い行の人。佐藤孔明・南久明・立枝直樹・若松亨次）で「0期出場しています。直近の第27期後期は…」と矛盾する** | **直した（2e1b3cd8a。数を書かず「<名>さんの鳳凰戦の成績です。」）。2回目のレビューの後の直しなので、マージせず判断待ち（止まる条件）** |
+| 2回目: `counted()` の上のコメントが「出場の数に入らない行」と読める | 直した（2e1b3cd8a） |
+| 2回目: 移した `簡略化:` から「期で絞った得点の正しい答えにも当たる」が消えた | 直した（`INTERNAL_PATTERNS` の上に戻した、2e1b3cd8a） |
+| 2回目: 吉村隼人のテストが空の文でも通る | 直した（完全一致に、2e1b3cd8a） |
+| 2回目: `SAIKYO_TIMES` は「ファイナルにN回出場」も落とす | `簡略化:` の「落とす側」の例に足した（2e1b3cd8a） |
+
+- 2e1b3cd8a の後: `node --test 'workers/ask/test/*.test.mjs'` 225件すべて通過
+
+### 止まった理由
+
+- 2回目の自己レビューの要修正（「0期出場」）を直したので、止まる条件「2回目のレビューの後に直した（マージせず判断待ち）」に当たる。cloudflare へはマージしていない（本番は AIC-48 の後のまま）
+- 本番の確かめ（手順3の5問）は、2026-11-16 の10問を AIC-47・48 で使い切っているので、マージしていたとしてもこの日には送れなかった
+
+## 報告
+
+- 状態: 判断待ち
+- ブランチ: work/1116-aic
+- ログ: https://github.com/retroeater/mj/blob/work/1116-aic/docs/logs/CHAT-1116-AIC-49.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1116-aic
+- 確認用URL: なし（Worker mj-ask はプレビューを持たない）
+- マージ: 未（止まる条件に当たった）
+- issue: #654
+- 判断が必要なこと:
+  - **2回目のレビューの後に直した 2e1b3cd8a（seasons が 0 の選手で出場の数を書かない、コメント・テストの直し）をマージしてよいか。** マージするなら、続きの指示で 2e1b3cd8a の差分だけのレビューを1回受けてからマージし、本番の5問（「hiro」「中田」「内田みこ」「白鳥翔の第40期の成績は？」「藤崎」）を確かめる形を想定している
+  - 本番の確かめは 2026-11-16 の10問を使い切っている。続きの指示は 2026-11-17 以降に貼ると、マージと同じ日に本番を確かめられる
+- 未確認の項目:
+  - 本番の5問（「hiro」「中田」「内田みこ」「白鳥翔の第40期の成績は？」「藤崎」）は送っていない（未マージ・この日の10問を使い切り）
+  - マージした後の 2026-11-23 の書き出し（確認は 6:00 JST）で、player の答えがフルネームで始まるか、データに無い期が出ていないか、Claude の文が落ちた件数（Workers Logs の `playerTextDropped`）
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 77eedc1a）: https://github.com/retroeater/mj-logs/tree/main/guide/77eedc1a
+ガイド文書（この版を写した時点の最新、mj 6a0d9b86）: https://github.com/retroeater/mj-logs/tree/main/guide/6a0d9b86
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/77eedc1a/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/77eedc1a/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/77eedc1a/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/77eedc1a/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/77eedc1a/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/77eedc1a/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/6a0d9b86/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/6a0d9b86/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/6a0d9b86/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/6a0d9b86/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/6a0d9b86/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/6a0d9b86/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/2cedda30.md
