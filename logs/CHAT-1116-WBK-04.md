@@ -75,16 +75,24 @@ WBK-03 から引き継ぐ決まり（変えない）
   - clone: 1回目は --system の `core.autocrlf=true` が効いて作業ツリーが CRLF になったので、そのクローンを消し、`git clone -c core.autocrlf=false` で取り直した（--local に `core.autocrlf=false`）。--local の user.name / user.email は WBK-03 のログのコミットと同じ `Claude <noreply@anthropic.com>`。--global・--system は変えていない。
   - 作業ブランチ: リモートに `work/1116-wbk` は無かったので、origin/cloudflare（56d8d22fb）から作った。作成時に upstream が origin/cloudflare になったので外し、`git push -u origin work/1116-wbk` でログを先に push した（c1c943db0）。PC から github.com への push はできた。
   - #408・#684: GitHub のコネクタ（MCP）はこのセッションに無い。retroeater/mj は非公開のため、認証なしの API では 404 で読めない。gh は入れず、git の資格情報を使って API を呼ぶこともしていない。着手中のコメントは書いていない。open であること・他セッションの着手中のコメントが無いことを平野さんに確かめてもらうため、ここで止めて質問した。
+- 平野さんの回答（2026-11-16）: #408・#684 は両方 open、他セッションの着手中のコメントは無い（平野さんがブラウザで確認）。着手中のコメントはコネクタが無いので書いていない。
+- 2. 届くかの確認（1回目で届いた。索引の30回のうち1回目）:
+
+  | 時刻（UTC） | 要求 | 応答 | 要した時間 |
+  |---|---|---|---|
+  | 2026-11-16 01:14:27 | `https://web.archive.org/cdx/search/cdx?url=ma-jan.or.jp&limit=5&output=json`（UA `mj-internal (research)`、タイムアウト30秒、Python urllib） | 200 application/json、713 B（5件。最古は 1998-02-14 の `http://www.ma-jan.or.jp:80/`） | 4.3秒 |
+
+  PC（家庭の回線）からは届いた。クラウドの環境（WBK-02・03）では TLS の途中で切られていた。
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 56d8d22f）: https://github.com/retroeater/mj-logs/tree/main/guide/56d8d22f
+ガイド文書（この版を写した時点の最新、mj 298a2545）: https://github.com/retroeater/mj-logs/tree/main/guide/298a2545
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/56d8d22f/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/56d8d22f/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/56d8d22f/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/56d8d22f/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/56d8d22f/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/56d8d22f/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/56d8d22f.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/298a2545/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/298a2545/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/298a2545/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/298a2545/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/298a2545/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/298a2545/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/c5c45c17.md

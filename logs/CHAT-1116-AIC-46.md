@@ -96,7 +96,7 @@ CHAT-1116-AIC-45 で作った週次の書き出しの再試行と再実行の道
 
 ### 手順3: 再実行
 
-- 起動前: mj の Actions に in_progress・queued の実行なし（API の `actions/runs?status=…` で確認）。書き出し先のブック「ryoei.pro_AIボット」を読み書きするのは Worker mj-ask だけ（スクリプト・ワークフローからは読み書きしない。`ASK_SHEET_ID` を参照するのは `workers/ask/` だけ）
+- 起動前: mj の Actions に in_progress・queued の実行なし（API の `actions/runs?status=…` で確認）。書き出し先のブック「ryoei.pro_AIボット」に書くのは Worker mj-ask だけ。ほかに ID を持つのは `scripts/check_sheets_reader.py`（`check-sheets-reader.yml`、手動だけ・読むだけ）で、実行中ではなかった（ID の grep で確かめた）
 - 1回目（run 43784440230、2026-11-16 01:08:08 UTC 起動）: HTTP 200、`{"cutoff":"2026-08-18T10:08:12+09:00","until":"2026-11-16T00:00:00+09:00","sheet":{"appended":52,"sheetDeleted":0},"d1Deleted":0}`
 - 2回目（run 43784485591、01:08:35 UTC 起動）: HTTP 200、`{"cutoff":"2026-08-18T10:08:39+09:00","until":"2026-11-16T00:00:00+09:00","sheet":{"appended":0,"sheetDeleted":0},"d1Deleted":0}`
 - マージの条件の4つ目（1回目 appended ≥1・until が 2026-11-16T00:00:00+09:00、2回目 appended 0）を満たした
@@ -118,12 +118,12 @@ CHAT-1116-AIC-45 で作った週次の書き出しの再試行と再実行の道
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 39f873cd）: https://github.com/retroeater/mj-logs/tree/main/guide/39f873cd
+ガイド文書（この版を写した時点の最新、mj 298a2545）: https://github.com/retroeater/mj-logs/tree/main/guide/298a2545
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/39f873cd/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/39f873cd/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/39f873cd/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/39f873cd/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/39f873cd/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/39f873cd/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/298a2545/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/298a2545/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/298a2545/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/298a2545/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/298a2545/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/298a2545/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/c5c45c17.md
