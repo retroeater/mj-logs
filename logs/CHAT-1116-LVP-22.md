@@ -114,18 +114,32 @@ CHAT-1116-LVP-20 で止まった /live の掲載の自動を、平野さんの�
 | テストのクラスの前の空行の数 | 体裁のみ。直さない |
 
   証跡: 修正前のコード（f22d3d8a4^ の2ファイル）では新しいテスト5件が failures 3・errors 2 で落ち、今の版では通る。`analyze()` に題名20通りを入れて確かめた
+- マージ: 直前の fetch で origin/cloudflare が進んでいた（AIC-47・WBK-05 など。/live に関わるファイルは無い）ため取り込み（8b20a20fd、衝突なし。テスト 2,200件 OK）、`git merge-base --is-ancestor origin/cloudflare HEAD` を確かめて `git push origin HEAD:cloudflare`（7d5306112..8b20a20fd）
+- マージ後の check-runs（8b20a20fd）: Workers Builds（mj・mj-ask・mj-scheduler）success、push の再生成（regenerate-page、run 43791583614）success。cloudflare に新しい再生成のコミットは無い（下の理由）
+- cloudflare で `update-live-channel.yml` を apply なしで手動実行（run 43791595112、success）。知らせの段の dry-run の出力:
+  - 層3: `層3: 4375行 / 層2の候補: 4370行 → 層3に無い候補(追記する行): 0行`、`保留(掲載を自動で決められない行): 0行`、`--dry-run のため書き込みません`
+  - 常設 issue の段: `[dry-run] 「/live の掲載の保留」(無い) は閉じるものが無い`（保留0件なので本文もコメントも作られない）
+  - 同じ run のテストの段に出る `保留の知らせを作れません(追記は続けます): 見出しが欠けています` は `PrepareNoticeTest` の出力で、本番の読み取りではない
+- 本番の確認（UA に mj-internal、2026-11-16 11:3x JST）: 帝王戦の増えるはずの11ページは今はまだ無い（`2.html`・`2/*`・`5.html`・`5/*` は 404、`3/b16.html` は今の `_redirects` の 301 で `3/f.html` へ）。`3/f.html` は 200 で、`ydBC-iDWLeM` はまだ載っていない
+  - 理由: 自動の値は【2】の「掲載（自動）」の列から読む。この列と直した規則のまとめ単位は、apply ありの毎朝の取り込み（2026-11-17 04:00 JST）が【2】を書き直したときに初めて入る。それまでの再生成は今と同じ（push の再生成も「未確認 657件」のまま）
+  - 試しでは、`3/b16.html` ができると `_redirects` の `/live/teiou/3/b16.html  /live/teiou/3/f.html  301` の行が生成で外れることも確かめた（新旧の比べの `_redirects (1 行)`）
+- #590 に、帝王戦が自動の範囲に入ったことと増えるページをコメントした
 
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1105-lvp-auto
-- ログ: https://github.com/retroeater/mj/blob/work/1105-lvp-auto/docs/logs/CHAT-1116-LVP-22.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1116-LVP-22.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1105-lvp-auto
-- 確認用URL: なし
-- マージ: 未
+- 確認用URL: なし（本番の帝王戦のページは 2026-11-17 04:00 JST の取り込みの後に出る見込み。マージの時点では 404）
+- マージ: 済（8b20a20fd）
 - issue: #362・#590
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 判断が必要なこと:
+  - 2026-11-17 04:00 JST の毎朝の取り込み（apply あり）の後に、本番の帝王戦の11ページ（`live/teiou/2.html`・`2/b16-a〜d.html`・`2/b16.html`・`2/f.html`・`3/b16.html`・`5.html`・`5/b16.html`・`5/f.html`）と `3/f.html` の `ydBC-iDWLeM` を確かめる指示を出すか（このセッションでは待てない）
+- 未確認の項目:
+  - 本番の帝王戦の11ページの HTML（マージの時点では【2】に自動の値がまだ無く、ページは作られていない。初回は 2026-11-17 04:00 JST の取り込みの後の再生成）
+  - 保留が実際に出たときの常設 issue「/live の掲載の保留」の作成・コメント・閉じる動き（今は保留0件で、dry-run の「閉じるものが無い」だけを確かめた）
+  - コメントの通知メールが届くか（平野さんの GitHub の通知の設定。ここからは確かめられない）
 - エラー: なし
 
 <!-- guide-links -->
