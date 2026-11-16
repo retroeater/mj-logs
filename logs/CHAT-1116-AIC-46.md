@@ -88,6 +88,33 @@ CHAT-1116-AIC-45 で作った週次の書き出しの再試行と再実行の道
 
 - マージ前の確かめ: 再 fetch 後 `git merge-base --is-ancestor origin/cloudflare HEAD` 真。`git diff origin/cloudflare...HEAD -- workers/ask/src/ask.mjs` は空、`index.mjs` は `/api/ask/weekly` の分岐と import・コメントだけ。未マージの work/ ブランチで weekly.mjs・index.mjs を変えているもの: なし
 
+### マージ
+
+- `git push origin work/1116-aic:cloudflare`: 56d8d22fb..39f873cd5（fast-forward。push 直前に再 fetch して `git merge-base --is-ancestor origin/cloudflare HEAD` 真）
+- check-runs（39f873cd5）: 「Workers Builds: mj-ask」completed / success（summary にプレビューの URL なし＝本番）、「Workers Builds: mj」completed / success（本番）。2026-11-16 01:07:55 UTC に確認
+- 本番の到達: `POST /api/ask/weekly`（Authorization なし）→ 401、`GET` → 405。新しい入口が本番に出て、Worker に Secret がある（404 でない）ことの裏付け
+
+### 手順3: 再実行
+
+- 起動前: mj の Actions に in_progress・queued の実行なし（API の `actions/runs?status=…` で確認）。書き出し先のブック「ryoei.pro_AIボット」を読み書きするのは Worker mj-ask だけ（スクリプト・ワークフローからは読み書きしない。`ASK_SHEET_ID` を参照するのは `workers/ask/` だけ）
+- 1回目（run 43784440230、2026-11-16 01:08:08 UTC 起動）: HTTP 200、`{"cutoff":"2026-08-18T10:08:12+09:00","until":"2026-11-16T00:00:00+09:00","sheet":{"appended":52,"sheetDeleted":0},"d1Deleted":0}`
+- 2回目（run 43784485591、01:08:35 UTC 起動）: HTTP 200、`{"cutoff":"2026-08-18T10:08:39+09:00","until":"2026-11-16T00:00:00+09:00","sheet":{"appended":0,"sheetDeleted":0},"d1Deleted":0}`
+- マージの条件の4つ目（1回目 appended ≥1・until が 2026-11-16T00:00:00+09:00、2回目 appended 0）を満たした
+- #654 に結果（件数と時刻だけ）と、見送った提案2件をコメントした
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1116-aic
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1116-AIC-46.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1116-aic
+- 確認用URL: なし（Worker mj-ask はプレビューを持たない。本番で到達と再実行を確かめた）
+- マージ: 済（39f873cd5）
+- issue: #654
+- 判断が必要なこと: なし（見送った提案2件は #654 に移した）
+- 未確認の項目: 次の月曜（2026-11-23 03:00 JST）の cron の回で、Workers Logs の `週次:` の `sheet` が null でないこと
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
@@ -99,4 +126,4 @@ CHAT-1116-AIC-45 で作った週次の書き出しの再試行と再実行の道
 - docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/39f873cd/docs/notes/chat-side-operations.md
 - docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/39f873cd/docs/notes/cloudflare.md
 - docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/39f873cd/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/56d8d22f.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/c5c45c17.md
