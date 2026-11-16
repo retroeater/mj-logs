@@ -108,7 +108,7 @@ SHA は 56d8d22fb109bfc9c482e4ec00b366ed9af81e06。書き換える前に、各�
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1116-ACF-53
 - ブランチ: work/1116-acf
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1116-ACF-52.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1116-acf
@@ -131,4 +131,4 @@ SHA は 56d8d22fb109bfc9c482e4ec00b366ed9af81e06。書き換える前に、各�
 - docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8ae7af4d/docs/notes/chat-side-operations.md
 - docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8ae7af4d/docs/notes/cloudflare.md
 - docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8ae7af4d/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/c5c45c17.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/8ae7af4d.md

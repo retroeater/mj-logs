@@ -52,6 +52,14 @@
 - 作業ブランチ: work/1116-lvp-fix はローカルにもリモートにも無いので、`git checkout -b work/1116-lvp-fix origin/cloudflare` で作った
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている。着手は 2026-11-16 10:53 JST
 
+- 0. CHAT-1116-LVP-20 のログ（work/1105-lvp-auto）の `## 報告` の状態の末尾に `/ 続き: CHAT-1116-LVP-21・CHAT-1116-LVP-22` を足した（8bb38d23d）
+- 手順1: ec29b3b71 を cherry-pick した（992764160）。衝突なし。変わるのは `scripts/generate_title_pages.py`（「タイトル戦」タブを見出しの名前で読む・`load_taikai()` が余分な列を読み捨てる）と `scripts/tests/test_title_tab_headers.py`（`TaikaiTabHeadersTest`）だけで、ほかのコミットに依らない。コミットの本文のトレーラは元のまま（Chat-Ref: CHAT-1116-LVP-20）。work/1105-lvp-auto の後の見た目の直し（テストのクラス間の空行）は入れていない。`python3 -m unittest discover -s scripts/tests` は全件 OK
+- 未マージの work/ ブランチ（work/1105-lvp-auto を除く）で `generate_title_pages.py` を変えているのは work/1101-prp-pub だけで、変えている関数（`member_link`・`member_holder`・`period_body`・`pages` と import）は今回の箇所（`NAMED_HEADER_TABS`・`load_taikai()`）と別。test_title_tab_headers.py を変えているブランチは無い
+- 手順2: 作業ブランチで `title_pages jpml_pros` を再生成した（run 43789023009、success、c2e482748）。「「タイトル戦」の見出し: ['大会名', 'slug', '表示順', '自動掲載', '区分', '状態'](使わない列: ['自動掲載'])」と出て、止まらずに生成できた。cloudflare の今の生成物との差分は3ファイルで、どれも列とは別のデータの変化による:
+  - `title/teiou/5.html`: 「帰り道」の節に `sAx65O6q8x4` の回が1件増える。2026-11-16 10:46 JST に cloudflare へ入った帰り道の再生成（b2698d07e。work/1116-whn の `video_wayhome wayhome_episodes` の run 43787724013）で足された回で、title/ はその後に作り直していなかった
+  - `sitemap-title.xml`: 上のページの lastmod が当日になる
+  - `jpml_pros.html`: 1人の「帰り道」の回数が 1回 → 2回（同じ新しい回）
+- 列を足した後に失敗した `regenerate-page.yml` の run は無い（2026-11-16 0時 UTC 以降の run はすべて success。cloudflare での title/・jpml_pros の再生成は、列を足した後にまだ動いていない）
 ## 報告
 
 - 状態: 作業中
