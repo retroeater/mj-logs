@@ -87,6 +87,30 @@ API を使わず、最強戦の旧公式サイト（mahjong-saikyosen.jimdoweb.c
 - 記事の名前は「別名」で直さない（旧名で書かれた記事は未照合に倒れる。`scripts/check_unused_names.py` の表に載せる処理を足さないため、2026-11-04 の決定）
 - 費用は 0（Claude API を使わない）。候補タブの「費用」は 0、「モデル」は「速報」
 
+## Wayback Machine の連盟公式サイト（#408・#684）
+
+連盟公式サイト（ma-jan.or.jp）の昔のページを Wayback Machine で読むときの読み方（CHAT-1116-WBK-04 で調べた。候補の作り方はまだ決めていない）。
+
+- 届く場所: 平野さんの PC からは届く（2026-11-16）。クラウドの環境からは TLS の途中で切られて届かない（docs/notes/cloud-sessions.md「ネットワーク」）
+- 索引（CDX API）: `https://web.archive.org/cdx/search/cdx?url=ma-jan.or.jp&matchType=domain&collapse=timestamp:4&fl=urlkey,timestamp,original,mimetype&filter=statuscode:200&limit=300000`。
+  1回（約2分、20MB、13.6万行）でドメイン全体の「URL ごと・年ごとの最初の保存」が返る（4.5万 URL。`www.` は urlkey で外れて `jp,or,ma-jan)/…` にまとまる）。
+  `showNumPages=true` は 93（ページに分けて読むと要求が増えるので使わない）。中身が変わった保存だけを見るなら `collapse=digest`、パスを正規表現で絞るなら `filter=original:<正規表現>`（`to=2007` で年を絞ると速い）
+- 本文: `https://web.archive.org/web/<timestamp>id_/<original>` で元の HTML がそのまま返る（Wayback の枠が付かない）。**同じ URL でも年が違うと中身が同じことが多い**（1999〜2006年の `/oui.htm`・`/masters.htm`・`/titlehouou.htm` は更新されていない年がある）。読む前に `collapse=digest` の一覧で中身が変わった保存を選ぶ
+- 文字コード: 1999〜2006年の `*.htm` は Shift_JIS（`x-sjis`。cp932 で読む）、2006〜2012年の `/title_fight/*.php` は EUC-JP、2012年〜の `/title-fight/` は UTF-8
+- URL の形（年代ごと）:
+  - 1996〜1998年: `master.ma-jan.or.jp`・`www.ma-jan.or.jp/<分類>/*.html`。タイトル戦の結果は無い
+  - 1999〜2006年: ルート直下の `*.htm`。その年の決勝のページ（`/titlehouou.htm`〈鳳凰位戦〉・`/oui.htm`・`/masters.htm`、`/<期>houou.htm`・`/<期>oui_*.htm`・`/<期>masters.htm`・`/ju-dansen<期>-*.htm`・`/proqueen<期>_final.htm`・`/sinjin_oh-<期>.htm` など）。リーグの途中経過は `/a-l.htm`（〜2003）・`/a-league.html`（2004〜2006）
+  - 2006〜2012年: `/title_fight/*.php`。決勝は `oui_<期>_fin.php`・`10dansen<期>-fin<nn>.php`・`masters<期>-fin.php`・`queen_<期2桁>_fin<nn>.php`・`sinjin_oh-<期>fin.php`・`houousen_<期>_fin.php`・`gpmax<年>_fin.php` など。大会の一覧 `/title_fight/<大会>.php` には期・年・優勝者の表がある
+  - 2012年〜: `/title-fight/<大会>/(final|result|report)-<大会>/<番号>.html`（番号は記事の ID で、期は本文を見ないと分からない）。大会のページ `/title-fight/<大会>.html` に「歴代優勝者」の表（鳳凰戦は年度・1〜4位、十段戦は1〜5位、王位戦・マスターズは優勝者だけ）
+- 載り方: 1999〜2012年の決勝のページには月日と順位がある（読んだ4ページ。表で全員の順位・点が載る形〈1999年の鳳凰位戦・マスターズ〉、本文の「最終成績」の行の形〈2007年の王位戦〉、文章の中に順位が散る形〈1998年の王位戦〉）。2012年〜の決勝観戦記は投稿日だけで、決勝の月日が本文に無いことがある。写真は画像（`/title_fight/imgs/` など）
+- 決勝の日付（CHAT-1116-WBK-05 で33期を読んだ）:
+  - 2006〜2012年の決勝観戦記（`*_fin.php`・`*-fin01.php`）の多くは、本文に決勝の月日が無い。月日は同じ期の開催概要 `/title_fight/<大会><期>-info.php`（王位戦 `ouisen<期>-info.php`、十段戦 `10dansen<期>-info.php`、マスターズ `masters-<期>info.php`、プロクイーン `queen_<期2桁>_info.php`、新人王戦 `sinjin_oh-<期>-info.php`）の日程表にある。これは決勝の前に出た予定
+  - 書き方: 「１１月２６日（日）」「８月２３日(土)」（年なし、全角数字）、「平成21年8月30日（日）」（和暦）、マスターズは「４月」の見出しの下に「２９(祝)」。年は期の年で決め、曜日が暦と合うかを確かめる。曜日の無い書き方（「７月26日、27日」「4月29日」）もある
+  - 2日以上の決勝は、開催概要に日が並ぶ（十段戦・プロクイーンは2日）。観戦記は `fin01`・`fin02`… と日ごとのページに分かれるが、日付は1ページ目の冒頭にあるときだけ
+  - 鳳凰戦の第21期の `houousen_21_fin.php`・`/21final.html` は A1リーグの成績表で、鳳凰位決定戦ではない
+  - 2012年〜の `/title-fight/schedule.html`（年間行事予定）は、月の見出しの下に「7日（土）」と催しの名前が並び、決勝の予定日が載る（期の記載が無い年がある）。年は書かれていないので、保存の年と前後の年のうち曜日が合う年を当てる
+- 作法: UA に `mj-internal` を含め、要求の間は5秒以上あける。429・503 が返ったらやり直さずに止める
+
 ## 候補タブ
 
 見出し: 種別／対象キー／対象／候補／確度／出典URL／引用文／調べた日時／モデル／費用／状態／備考。空のタブには最初の実行で見出しを書く。見出しが違えば止まる。

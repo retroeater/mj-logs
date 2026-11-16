@@ -53,15 +53,46 @@ AIC-47 のマージ後、本番の「中田」の答えがデータと合わな�
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 着手前の確認（0章）
+
+- ログの「指示」欄の末尾は指示文の最後の行と一致。203e4538b は origin/cloudflare の祖先
+- 同じ Chat-Ref のコミット・ログ: なし。雛形の行: 欠けなし
+- 作業ブランチ: origin/work/1116-aic はマージ済み。ローカルも cloudflare の祖先なので `git merge --ff-only origin/cloudflare`（着手時 HEAD f533d3bfd）
+- CHAT-1116-AIC-47 のログの `## 報告` の状態に ` / 続き: CHAT-1116-AIC-48` を足し、「判断が必要なこと」に回答の行を足した
+
+### 実物の確認（手順1）
+
+- 203e4538b はマージのコミットで、AIC-47 の ask.mjs の変更は `git diff b2698d07e 203e4538b -- workers/ask/` で見た（007cbbd9f・eadc69902）。AIC-47 の報告と同じ:
+  - 主語: `SUBJECT_LINE`・`withSubject()`（203e4538b の ask.mjs 486〜504行）、`write()` の system の分岐と `withSubject` の呼び出し、`settle()` の pending の `written`、`crossSystem(cs, player)` の引数と `writeMany()` からの呼び出し、`writeMany()` の `withSubject`
+  - 主語でない: `redo()`（空・言語の混ざり・内部の言葉で1回作り直す）と `write()`・`writeMany()` での使い、`INTERNAL_PHRASES` の「検索語」「検索された」、`INTERNAL_PATTERNS` の `/得点[^。]*通算ではありません/`
+  - 「主語のための作り直し」に当たる独立の処理は無い（空の作り直しは主語に依らない）
+- 未マージの work/ ブランチで `workers/ask/src` を変えているもの: なし
+
+### 戻したもの（手順2、792957f2e）
+
+- ask.mjs: 主語の部分だけを戻した。`git diff b2698d07e HEAD -- workers/ask/src/ask.mjs` に残るのは内部の言葉の追加と `redo()` だけ
+- テスト: all・context・count・retry・week3 は b2698d07e の内容に戻した（差分なし）。subject.test.mjs は redo.test.mjs に改名し、主語の検査（4件）を外して、内部の言葉と空の作り直しの3件を主語の無い期待値で残した
+- 文書: docs/notes/ask-worker.md の 5大会の表の主語の行と「プログラムが文を作っている箇所」の主語の行を消し、「答えの事実を誰が書くか」の player の行に、AIC-47 で入れて AIC-48 で戻した旨と作り直しの予定を書いた。docs/decisions/houou.md に決定を足した
+- テスト: `node --test 'workers/ask/test/*.test.mjs'` 218件すべて通過、`python3 -m unittest discover -s scripts/tests` OK。空の作り直しを無効にすると redo.test.mjs の空の2件が落ちる
+
+### 自己レビュー（新しい文脈のサブエージェント、1回）
+
+| 指摘 | 扱い |
+|---|---|
+| 要修正なし。主語の部分は残らず戻り、残した部分は主語に依らない。戻したテストは b2698d07e と同じ | － |
+| 提案: redo.test.mjs の期待値（「【鳳凰戦】7期出場しています。」）は主語が付かないことも確かめているので、主語を作り直すときは直す | 意図どおり（作り直しの指示で直す。#654 に書く） |
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 8b20a20f）: https://github.com/retroeater/mj-logs/tree/main/guide/8b20a20f
+ガイド文書（この版を写した時点の最新、mj 2c3d8114）: https://github.com/retroeater/mj-logs/tree/main/guide/2c3d8114
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/8b20a20f/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/8b20a20f/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/8b20a20f/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/8b20a20f/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/8b20a20f/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/8b20a20f/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c3d8114/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c3d8114/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c3d8114/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c3d8114/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c3d8114/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/2c3d8114/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/2cedda30.md
