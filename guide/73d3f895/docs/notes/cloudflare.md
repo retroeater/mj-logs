@@ -135,7 +135,7 @@ Speed → Recommendations（Site Recommendations）の一覧と、それぞれ�
 | HTTP/3 | **有効化(2026-09-11)** | モバイル回線で効く。リスクなし |
 | HTTP/2 to Origin | 有効 | オリジンが存在しないため実質無効。害もないので触らない |
 | Enhanced HTTP/2 Prioritization | 有効 | 同上 |
-| 0-RTT Connection Resumption | **有効化(2026-09-11)** | GET・HEAD・OPTIONS にしか適用されず、POST には使われない（公式の 0-RTT Connection Resumption のページ、2026-10-11 に確認）。状態を変えるのは `/api/ask`（POST、#542）だけなので、リプレイの実害がない。GET の `/api/ask/status` は読むだけ |
+| 0-RTT Connection Resumption | **有効化(2026-09-11)** | GET・HEAD・OPTIONS にしか適用されず、POST には使われない（公式の 0-RTT Connection Resumption のページ、2026-10-11 に確認）。状態を変えるのは `/api/ask` と `/api/ask/weekly`（どちらも POST、#542・#654）だけなので、リプレイの実害がない。GET の `/api/ask/status` は読むだけ |
 | Always use HTTPS | **有効化(2026-09-11)** | 下記参照 |
 | TLS 1.3 | 有効 | 既定 |
 | Early Hints | **無効（2026-09-29 に Off に戻した）** | 応答に `Link:` が無く、103 も出ていなかった（2026-09-28 の実測）。下記参照（#129） |
@@ -357,12 +357,13 @@ ryoei.pro の WAF のカスタムルール（Security rules）。GET・HEAD 以�
 | 項目 | 値 |
 |---|---|
 | Rule name | `Block non-GET/HEAD methods` |
-| 式（2026-10-11 23:30 JST 以降） | `(not http.request.method in {"GET" "HEAD"}) and (not starts_with(http.request.uri.path, "/cdn-cgi/")) and not (http.request.uri.path eq "/api/ask")` |
+| 式（2026-11-16 以降） | `(not http.request.method in {"GET" "HEAD"}) and (not starts_with(http.request.uri.path, "/cdn-cgi/")) and not (http.request.uri.path eq "/api/ask") and not (http.request.uri.path eq "/api/ask/weekly")` |
 | アクション | Block（遮断のページ「Attention Required! \| Cloudflare」、HTTP 403） |
 
 - `/cdn-cgi/` を外すのは Web Analytics のビーコン（POST、#110）のため
 - 末尾の `and not (http.request.uri.path eq "/api/ask")` は、データ・コンシェルジュ（#542）の質問の POST を通すために 2026-10-11 に平野さんが足した。足す前は Worker `mj-ask` に届く前に 403 になっていた（CHAT-1011-AIC-03 で発見。Security Events では直近24時間で POST 123件を遮断していた）。経緯は `docs/notes/ask-worker.md`
 - POST を受けるパスを増やすときは、この式に例外を足す必要がある（足さないと Worker に届かない）
+- 末尾の `and not (http.request.uri.path eq "/api/ask/weekly")` は、質問欄の週次の書き出しの再実行の入口（#654、`docs/notes/ask-worker.md`「週次の cron」）の POST を通すために 2026-11-16 に平野さんが足した（申告値）。足す前は 403（「Attention Required! \| Cloudflare」）で Worker に届かず、足した後は Worker の応答（404）になった（どちらも 2026-11-16 に実測）
 
 ### 公開期間の露出評価（#299、2026-09-14）
 

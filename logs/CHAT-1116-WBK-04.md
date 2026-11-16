@@ -410,17 +410,19 @@ WBK-03 から引き継ぐ決まり（変えない）
   > 数はログの `## 経過`「見積もり（212期、全件）」の表から。閉じない。
   > Chat-Ref: CHAT-1116-WBK-04
 
+- 平野さんの回答（2026-11-16）: cloudflare へのマージは「マージして」。
+- マージ: 再fetch で origin/cloudflare が進んでいた（他の指示の docs のコミット）ので `git merge origin/cloudflare` で取り込んだ（衝突なし。このログ・docs/notes/research-candidates.md・docs/notes/cloud-sessions.md に触れるコミットは無かった）。`git merge-base --is-ancestor origin/cloudflare HEAD` を確かめ、このログを含む work/1116-wbk の先頭を `git push origin work/1116-wbk:cloudflare` で入れた。
+
 ## 報告
 
 - 状態: 判断待ち
 - ブランチ: work/1116-wbk
-- ログ: https://github.com/retroeater/mj/blob/work/1116-wbk/docs/logs/CHAT-1116-WBK-04.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1116-WBK-04.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1116-wbk
 - 確認用URL: なし
-- マージ: 未（本文の上限15ページに達し、止まる条件に当たったため。平野さんの判断待ち。差分は docs のみ: このログ・docs/notes/research-candidates.md・docs/notes/cloud-sessions.md）
+- マージ: 済（平野さんの承認〈2026-11-16〉のうえ、このログを含む work/1116-wbk の先頭を cloudflare へ push。docs のみ: このログ・docs/notes/research-candidates.md・docs/notes/cloud-sessions.md）
 - issue: #408, #684（着手中・結果のコメントはどちらも書いていない。コネクタが無いため）
 - 判断が必要なこと:
-  - cloudflare へのマージ: 本文の上限に、予定していた最後のページで達した。調べは手順どおり終わっていて、差分は docs だけ。マージしてよいか
   - #408・#684 のコメントを誰が書くか: 案は `## 経過` の「4. issue のコメント」。(a) 平野さんがブラウザで貼る (b) コネクタのあるセッション（クラウド）に書かせる
   - クラウドの環境「Claude-iPhone」の許可するホスト web.archive.org を残すか外すか（事実だけ）: クラウドからは 2026-11-15・16 の2回とも TLS の途中で切られた。PC からは 2026-11-16 に、索引4回・本文15回のすべてが 200 で返った（429・503 なし）。Wayback を読む作業を続けるなら、PC から行えば足りる
   - #408・#684 を次にどう進めるか:
@@ -437,12 +439,12 @@ WBK-03 から引き継ぐ決まり（変えない）
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 298a2545）: https://github.com/retroeater/mj-logs/tree/main/guide/298a2545
+ガイド文書（この版を写した時点の最新、mj 73d3f895）: https://github.com/retroeater/mj-logs/tree/main/guide/73d3f895
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/298a2545/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/298a2545/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/298a2545/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/298a2545/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/298a2545/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/298a2545/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/73d3f895/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/73d3f895/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/73d3f895/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/73d3f895/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/73d3f895/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/73d3f895/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/c5c45c17.md

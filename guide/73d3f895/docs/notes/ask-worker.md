@@ -19,7 +19,7 @@ pro/ のトップの欄も pro/ の作業で外した。ページの中の欄の
 | `workers/ask/test/query.test.mjs` | `node --test 'workers/ask/test/*.test.mjs'`（Claude は呼ばない） |
 | `scripts/tests/test_ask_data.py` | 生成のうちシートを読まない部分（`build()`・`finals_data()`）のテスト |
 | `workers/ask/wrangler.jsonc` | Worker `mj-ask` の設定（ルート `ryoei.pro/api/*`、D1 `mj-ask`、vars） |
-| `workers/ask/src/index.mjs` | 入口。POST `/api/ask`・GET `/api/ask/status`、ほかの `/api/*` は 404 |
+| `workers/ask/src/index.mjs` | 入口。POST `/api/ask`・GET `/api/ask/status`・POST `/api/ask/weekly`（週次の再実行、下の「週次の cron」）、ほかの `/api/*` は 404 |
 | `workers/ask/src/ask.mjs` | 受付の本体（入力の検査・回数・Claude の2回の呼び出し・記録） |
 | `workers/ask/schema.sql` | D1 の表（B2 で D1 の Console に貼る） |
 | `workers/ask/src/weekly.mjs` | 週次の cron（ブックへの書き出し・90日の削除、下の「週次の cron」） |
@@ -229,7 +229,7 @@ GET `/api/ask/status`: `{"status": "open", "remaining": n, "max": 200}` か `{"s
 
 vars（`wrangler.jsonc`。Wrangler のデプロイで上書きされるので、変えるときはこのファイルを直す）: `ALLOWED_ORIGIN`、`DAILY_LIMIT`（200。2026-10-16、試行中は 50）、`IP_DAILY_LIMIT`（10）。
 `ASK_SHEET_ID`（週次の書き出し先のブックの ID。空なら書き出しを飛ばす）。
-Secret（ダッシュボードで登録。デプロイでは消えない）: `ANTHROPIC_API_KEY`・`IP_HASH_SALT`・`GOOGLE_SA_KEY`（C3 で登録）。
+Secret（ダッシュボードで登録。デプロイでは消えない）: `ANTHROPIC_API_KEY`・`IP_HASH_SALT`・`GOOGLE_SA_KEY`（C3 で登録）・`ASK_WEEKLY_TOKEN`（週次の再実行の入口の合言葉。GitHub Actions にも同じ値、2026-11-16）。
 
 ## 横断（`contest: "all"`、2026-11-03、#654）
 
@@ -496,6 +496,16 @@ SELECT day, length(ip_hash) AS hash_length, n FROM ip_counts;
 2. **ブックの90日を過ぎた行の削除**: 2行目から日時の古い順に並んでいる前提で、先頭から続く90日より前の行を消す（`batchUpdate` の `deleteDimension`）。ブックの行を手で並べ替えると、古い行が残ることがある
 3. **D1 の90日を過ぎた行の削除**: `DELETE FROM questions WHERE asked_at < <90日前>`。鍵が無いときや Google の呼び出しが失敗したときも行う
 4. 鍵かブックの ID が無ければ、Workers Logs に「週次: 鍵(GOOGLE_SA_KEY)かブックの ID(ASK_SHEET_ID)が無いため、ブックへの書き出しを飛ばす」と書き、1・2 を飛ばして正常に終わる。最後に `週次: {cutoff, until, sheet, d1Deleted}` の1行を書く
+
+**Google の一時的な失敗のやり直し**（2026-11-16 の回が「ブックの情報: HTTP 500」で書き出せなかったため、#654）: Google の呼び出しが 429・5xx・ネットワークの失敗なら、2秒・5秒あけて2回までやり直す（`RETRY_DELAYS_MS`。各回で `週次: <呼び出し>: HTTP 500。2000ms 後にやり直す` を書く）。
+ただし行の追加・行の削除は 429 だけやり直す（5xx やネットワークの失敗は Google 側で済んでいることがあり、やり直すと行が重なる・余分に消える。取り直しは下の再実行で行う）。
+それでも失敗したら今までと同じ `週次: ブックへの書き出しに失敗: <呼び出し>: HTTP <番号>` を書き、`sheet: null` で終わる（D1 の90日の削除は行う）。
+
+**再実行**: ブックに前の週の行が無い（`週次:` の `sheet` が null）ときは、Actions の「AIボットの週次書き出し」（`.github/workflows/ask-weekly.yml`）を **Run workflow** する（手作業の SQL は使わない、2026-11-16 の決定）。
+ワークフローは `POST https://ryoei.pro/api/ask/weekly` を Secret `ASK_WEEKLY_TOKEN` の Bearer で1回呼び、cron と同じ `weekly` を動かして、応答の要約（`cutoff`・`until`・`sheet`〈`appended`・`sheetDeleted`〉・`d1Deleted`）を実行サマリーに出す。HTTP 200 以外か `sheet` が null なら failure。
+同じ回を何度動かしても、ブックの最後の行の日時より後の行だけを足すので重ならない（2回目の `appended` は 0）。ただし cron の回（月曜 3:00 JST 前後）と同時に動かすと、両方が同じ最後の日時を読んで行が重なるので、重ねない。
+**WAF**: `POST /api/ask/weekly` が Worker に届くには、WAF のカスタムルールに例外が要る（`docs/notes/cloudflare.md`「カスタムルール「Block non-GET/HEAD methods」」）。
+合言葉 `ASK_WEEKLY_TOKEN` は長い乱数（32バイト以上）にする（この入口は回数の制限〈Rate limiting rule は `/api/ask` だけ〉を受けない）。入口は Worker に Secret が無ければ 404、POST 以外は 405、Bearer が合わなければ 401（時間の一定な比較）で、来訪者の質問の受付（回数の制限・Origin）とは別。応答に質問文・答えは入らない。検査は `weekly.test.mjs`。
 
 Google の認証: サービスアカウントの JSON の鍵の `client_email`・`private_key` で JWT を RS256（WebCrypto）で署名し、`https://oauth2.googleapis.com/token` でアクセストークンに替える（スコープ `https://www.googleapis.com/auth/spreadsheets`。読み書きできるのは共有されたブックだけ）。
 Worker から出るのは `oauth2.googleapis.com`・`sheets.googleapis.com` だけで、ブラウザの外部ドメインは増えない。
