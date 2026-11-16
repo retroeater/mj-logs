@@ -82,6 +82,26 @@ CHAT-1116-WBK-06（判断待ち）の続き。WBK-04〜06 で Wayback Machine �
 - 0章: 「指示」欄の末尾は指示文の最後の行（「不明な点があれば、…この行が指示文の最後の行です。」）と一致。
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）はすべてある。
 
+- 1. 準備と確かめ（書かない）
+  - CHAT-1116-WBK-06 のログの状態に ` / 続き: CHAT-1116-WBK-07` を足した。#408・#684 に着手中のコメントを書いた（https://github.com/retroeater/mj/issues/408#issuecomment-6906280221 、https://github.com/retroeater/mj/issues/684#issuecomment-6906280753 ）。#408 に他セッションの着手中コメントは無い（最後は WBK-03 の結果のコメント）。2つとも open。
+  - get_environment: 環境「Claude-iPhone」の許可するホスト（22件）に `web.archive.org` は無い（平野さんの申告のとおり）。docs/notes/cloud-sessions.md「ネットワーク」の web.archive.org の行に、確かめたことを足した。
+  - 未マージの work/ ブランチ（`git branch -r --no-merged origin/cloudflare`）で変えるファイルに触れるもの: `work/1115-rsc-autowrite`（research-candidates.yml の入力 `saikyo` の追加・D の引数・後ろの段の追加、docs/decisions/automation.md の末尾の RSC-31 の節、sheets_write.py・research_candidates.py）。この指示で変えるのは research-candidates.yml の入力 `source` の行と実行の段の `python3 scripts/research_candidates.py` の直前で、同じ行・節ではないので止めなかった。`work/1101-prp-pub`・`work/1103-ryo5` は docs/notes/github-actions.md に触れるが、この指示では変えない。
+  - 元の表: WBK-06 のログの 148〜249行目（「期ごとのまとめ」の表の本体）が 102行、各行9列（大会・期・年・日付・出典の種類・元の URL・保存日・2位以下の順位・点・由来・備考）で、前提どおり。CR は無い。スクリプトの `SOURCE_TABLE` にそのまま写し、`diff` で同じことを確かめた。
+  - 大会名の対応（WBK の表 → 「タイトル」の期の題）: 9大会とも同じ名前で、期の題は「第N期<大会>」（鳳凰戦・十段戦・王位戦・麻雀マスターズ・麻雀グランプリMAX・女流桜花・プロクイーン・WRCリーグ・新人王戦）。生成済みの `title/<slug>/<期>.html` の `<title>`（第21期鳳凰戦・第20期十段戦・第24期王位戦・第8期麻雀マスターズ・第3期麻雀グランプリMAX・第7期女流桜花・第4期プロクイーン・第1期WRCリーグ・第21期新人王戦）で確かめた。「タイトル」の期との突き合わせは dry-run でシートを読んで行う。
+  - 「タイトル」の日付が決勝の初日か最終日か: 生成済みの期ページ（`title/*/*.html`。「決勝結果」の日付が「タイトル」の日付で、「決勝ライブ」に各日の日付がある）のうち、決勝ライブが2日以上で初日と最終日の日付が違う 26期を機械で数えた。26期すべてで「タイトル」の日付は最終日（初日 0）。見た期: 麻雀グランプリMAX 第13〜16期、鳳凰戦 第39〜42期、十段戦 第39〜43期、女流桜花 第17〜20期、プロクイーン 第20〜24期、昇龍戦 第2期、達人戦 第1〜3期。例: 第40期鳳凰戦は「タイトル」2024-02-03、決勝ライブ 2024-01-10・01-27・01-31・02-03。#408 の本文も「決勝が複数日にわたる期は最終日」。止まる条件に当たらない。
+  - 決めたこと（指示の案から変えたところ）:
+    - プロクイーン 第6期（元の表で「2008-10-18（初日だけ）」）は書かない。候補の列は決勝の最終日で、最終日が取れていないため（初日を最終日として書くと、採ったときに違う日がシートに入る）。書くのは 101行。「判断が必要なこと」に書く。
+    - 備考は「出典: 〈出典の種類〉」から始め、本文でない行（開催概要・大会のページの日程・年間の予定）は先頭に「予定。」を付ける。版で日付が違う4期は「版で日付が違う（前の版: 〈日付〉、〈保存日〉 の保存）」（「予定。」は先頭にあるので重ねない）。出典URL は後の版を先に、前の版を後に並べる。
+    - 出典URL の保存日は `YYYYMMDD`（Wayback は時刻を省いた形で一番近い保存に飛ぶ）。保存日が2つ以上で URL が1つの行は、保存日ごとの URL を `; ` で並べる。
+    - 引用文は WBK-06 のログ「期の別のページ」に書いてある日付の書き方だけ（第21期鳳凰戦・第4期／第5期プロクイーン・第21期／第22期新人王戦の5行）。ほかは空。
+    - 2位以下は「2位以下あり（WBK-0n のログ）」、順位だけのものは「2位以下の順位あり（点なし、WBK-0n のログ）」。n は由来の列の最初の WBK。
+    - 確度は連盟ニュースの行と同じ分け方: シートが年だけなら「補完」、年月まで（YYYY-MM-XX）で月が違えば「食い違い」。
+    - 調べた日時は書いた時刻（JST）。読んだのは WBK-04〜06。費用は `0.0000`。
+  - 当ての確かめ（手元、元の表だけで）: 101行すべてが「4〜12月の決勝はその年の期、1〜3月は前の年の期」に合い（当て 47行・期の記載がある 54行とも）、大会ごとに期が進むと日付も進む。シートの期・年との突き合わせは dry-run で行う。
+- 2. 一度きりの書き込みの手段
+  - `scripts/oneoff_wbk_write.py`・`scripts/tests/test_oneoff_wbk_write.py`（20件）・research-candidates.yml の入力 `source=wbk-write` を足した（0ef56fca3）。`WRITABLE` は候補タブがすでに入っていて足していない。NWS-04 と同じ形（ワークフローの実行の段で `source` を見てスクリプトを直に呼ぶ）。
+  - `python3 -m unittest discover -s scripts/tests`: 2225件 OK（15.7秒）。
+
 ## 報告
 
 - 状態: 作業中
@@ -98,12 +118,12 @@ CHAT-1116-WBK-06（判断待ち）の続き。WBK-04〜06 で Wayback Machine �
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 67eac94e）: https://github.com/retroeater/mj-logs/tree/main/guide/67eac94e
+ガイド文書（この版を写した時点の最新、mj 77eedc1a）: https://github.com/retroeater/mj-logs/tree/main/guide/77eedc1a
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/67eac94e/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/67eac94e/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/67eac94e/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/67eac94e/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/67eac94e/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/67eac94e/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/77eedc1a/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/77eedc1a/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/77eedc1a/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/77eedc1a/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/77eedc1a/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/77eedc1a/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/2cedda30.md

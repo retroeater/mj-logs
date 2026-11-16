@@ -67,7 +67,7 @@ GitHub Actions (`.github/workflows/regenerate-page.yml`) が、`scripts/generate
 
 ## run-daily.yml
 
-毎朝の本を1本にまとめたワークフロー（#564 の段③。設計は CHAT-1015-WFL-14 のログ）。2026-10-15 に Worker の起動の表（`workers/scheduler/schedule.json`）を5行から run-daily の1行に切り替えた（初回は 2026-10-16 04:00 JST）。
+毎朝の本を1本にまとめたワークフロー（#564 の段③。設計は [CHAT-1015-WFL-14 のログ](https://github.com/retroeater/mj/blob/56d8d22fb109bfc9c482e4ec00b366ed9af81e06/docs/logs/CHAT-1015-WFL-14.md)）。2026-10-15 に Worker の起動の表（`workers/scheduler/schedule.json`）を5行から run-daily の1行に切り替えた（初回は 2026-10-16 04:00 JST）。
 
 - 並び: `live`（update-live-channel）→ `sns`（update-sns-book）→ `saikyo`（regenerate-saikyo）と `images`（check-image-links）を `needs` で並べ、`sns` から後は前が失敗しても `!cancelled()` で動く。`images` は SNS ブックの更新とその再生成の後のページ・値を見るため `sns` の後に置く（2026-11-05〜11-10 は run-weekly にあり、更新の前の値を検知して #352 を誤って開いた）。`saikyo` と `images` は書き込みを共有しない（`images` は読んで issue を書くだけ）ので並行（2026-11-05 までは `images` → `saikyo` の直列）。`dojo`（sync-dojo-calendar）・`branches`（cleanup-branches）と、2026-11-03 から run-weekly から移した `meibo`・`birthday`・`unregistered`・`xfetch` → `xconvert`（下の「run-weekly.yml・run-monthly.yml」）と、2026-11-05 から `sokuho`（research-candidates の kind D、#666。新しいテキスト速報が無い朝はシートを読まずに終わる、#662）は並行。`xconvert` の後に `logpage`（regenerate-page の `log_pages`。`xconvert` が失敗しても `!cancelled()` で動き、【3】の直しを出す。読むのは3層のブックの4つのタブで、Sheets API の呼び出しは数回）。入れ子は最大3段（run-daily → update-live-channel・update-sns-book・regenerate-saikyo → regenerate-page）
 - 権限は `permissions: {}` と job ごと（呼ばれる側は呼ぶ側の job を超えられない）、Secret は job ごとに呼ぶ本（入れ子の下を含む）が使うものだけを明示して渡す（下の「権限と Secret の渡し方」）。`concurrency` の組は `run-daily`（呼ばれる側の組とは名前が違い、詰まらないことを 2026-10-15 の手動実行で確かめた）
