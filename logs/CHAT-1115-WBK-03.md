@@ -109,6 +109,7 @@ CHAT-1115-WBK-02（中断。web.archive.org との接続が3回とも10秒で切
 - #408・#684 に、2回とも届かなかった事実だけのコメントを書いた（#408 issuecomment-6903688555、#684 issuecomment-6903689191）。閉じていない。
 - 自己レビュー（サブエージェント）: docs だけの変更なので対象外（CLAUDE.md「判断・作業の原則」はコード・生成物・ワークフロー・配信設定を変えた指示）。
 - マージ: 指示の「マージ:」の行（届かずに止まったときも docs の記録だけは入れてよい）のとおり、このログを含むコミットを cloudflare へ入れる。
+- 判断待ちへの回答（2026-11-16、平野さん）: (Z)。list_computer_folders は folders・cannot_be_used とも空で、このセッションからつなげる PC のフォルダは無かった。PC での調査は、Remote Control の用意の後に新しい Chat-Ref の指示で行う（この Chat-Ref はコミットがあるので使わない）
 
 ## 報告
 
@@ -131,12 +132,12 @@ CHAT-1115-WBK-02（中断。web.archive.org との接続が3回とも10秒で切
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 3b433a24）: https://github.com/retroeater/mj-logs/tree/main/guide/3b433a24
+ガイド文書（この版を写した時点の最新、mj 56d8d22f）: https://github.com/retroeater/mj-logs/tree/main/guide/56d8d22f
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/3b433a24/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/3b433a24/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/3b433a24/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/3b433a24/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/3b433a24/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/3b433a24/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/56d8d22f/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/56d8d22f/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/56d8d22f/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/56d8d22f/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/56d8d22f/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/56d8d22f/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/725114be.md
