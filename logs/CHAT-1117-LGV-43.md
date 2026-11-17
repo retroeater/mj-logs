@@ -225,7 +225,7 @@
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1117-LGV-44
 - ブランチ: work/1117-lgv-thread
 - ログ: https://github.com/retroeater/mj/blob/work/1117-lgv-thread/docs/logs/CHAT-1117-LGV-43.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1117-lgv-thread
