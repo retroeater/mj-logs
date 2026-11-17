@@ -103,7 +103,7 @@ Chat-Ref: CHAT-1117-LGV-42
 
 ## 報告
 
-- 状態: 完了
+- 状態: 完了 / 続き: CHAT-1117-LGV-41
 - ブランチ: work/1117-lgv-unknown
 - ログ: https://github.com/retroeater/mj/blob/work/1117-lgv-unknown/docs/logs/CHAT-1117-LGV-42.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1117-lgv-unknown
