@@ -29,7 +29,7 @@ WRC-R リーグの成績とランキングを、WRC リーグの `jwrc/`（`docs
 
 大会のトップの欄は 2026-11-04 に外した。共通ナビの欄はこのページから開くと `context` に `wrcr` を添えて横断で問う（docs/notes/design.md「共通ナビ（新しい形）」）。下は廃止した大会別の欄と Worker の記述。
 
-- Worker `mj-ask` と1日の上限を3大会と共有する。wrcr/ の質問欄は問いに `contest: "wrcr"` を添え、Worker は `data-wrcr.json` と `ask.mjs` の `WRCR_PLAN_SYSTEM`（部門は `JWRC_DIVISIONS`）で答える。記録の型は「wrcr:league」の形
+- Worker `mj-ask` と1日の上限を3大会と共有する。wrcr/ の質問欄は問いに `contest: "wrcr"` を添え、Worker は `data-wrcr.json` と `ask.mjs` の `WRCR_PLAN_SYSTEM`（部門は `JWRC_DIVISIONS`）で答える。記録の型は「wrcr:league」の形（2026-11-17 から質問欄は横断だけで、Worker は大会別の要求をその大会を context とした横断として答え、記録の型は `all:<大会>:<型>`。docs/notes/ask-worker.md「横断」）
 - 決勝は title/search.json の「WRC-Rリーグ」（`/title/jwrc-r/`）、放送対局は /live の「WRC-Rリーグ」（`/live/jwrc-r/`）。WRC リーグ（R の付かない方）と世界麻雀は答えない（`none`）
 - テストは `workers/ask/test/wrcr.test.mjs`（jwrc/ のデータに WRC-R が混ざらないことも見る）
 

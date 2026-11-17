@@ -134,7 +134,7 @@ Claude に渡す指示の文（`workers/ask/src/ask.mjs`）と、対象にした
 
 | 当たった文 | 場所 | 扱い |
 |---|---|---|
-| 同率の書き方の例「4回が最多で、3人が並んでいます（大和さん・覚野陽生さん・角谷陽介さん）」「2位は10回で、3人が並んでいます（客野直さん・山脇千文美さん・末続ヒロトシさん）」 | `answerSystem()` の tie の行（全大会・横断の2回目に共通） | 実データの数・名前の例。src は変えず、行ごと対象外（`TIE_LINE`）。直すかは週次の確認で決める（「判断が必要なこと」） |
+| 同率の書き方の例「4回が最多で、3人が並んでいます（大和さん・覚野陽生さん・角谷陽介さん）」「2位は10回で、3人が並んでいます（客野直さん・山脇千文美さん・末続ヒロトシさん）」 | `answerSystem()` の tie の行（全大会・横断の2回目に共通） | 実データの数・名前の例。src は変えず、2つの引用だけを対象外（`TIE_EXAMPLES`。レビュー1回目の後に行ごと除外から改めた）。同じ行の「1人だけ」「1位なら」は規則の数として `RULE_NUMBERS`。直すかは週次の確認で決める（「判断が必要なこと」） |
 | 「上位2段」 | `answerSystem()` の byTimes の行 | 規則の数。対象外（`RULE_NUMBERS`） |
 | 「リーグ名(A1・Aリーグなど)」 | `answerSystem()` の日本語の行 | リーグ名。対象外 |
 | 「3文程度まで」 | `answerSystem()` の最後の行 | 規則の数。対象外 |
@@ -154,31 +154,59 @@ Claude に渡す指示の文（`workers/ask/src/ask.mjs`）と、対象にした
 - docs/notes/self-review.md「収束」に1行
 - docs/notes/chat-routines.md「期日とカレンダー」に2行（【済】の前の突き合わせ、朝一の確認は 6:00 JST）
 - docs/notes/ask-worker.md「運用の学び」の末尾（「答えの事実を誰が書くか」の表の後）に「### 2026-11-17（AIC-45〜52 の振り返り、#654）」
-- docs/decisions/operations.md に「## 2026-11-17（CHAT-1117-AIC-53）」。houou.md には足さない
-- コミット: 9994727bd（テスト）、4744a1766（docs/notes）
+- docs/decisions/operations.md に「## 2026-11-17（CHAT-1117-
+### 自己レビュー（docs/notes/self-review.md）
+
+新しい文脈のサブエージェント（general-purpose）に `git diff origin/cloudflare...HEAD -- workers docs/notes docs/decisions`、指示の目的、CLAUDE.md「コード規約」を渡した。
+
+1回目（複製の src に例を足す変異で確かめた: AIC-47 の形・SEASONS_LINE・横断の行の例は fail、tie の行に足した例と漢数字は pass）:
+
+| 指摘 | 扱い |
+|---|---|
+| 要修正: tie の行を行ごと除外していて、その行に後から足した例が素通りする（`prompt-examples.test.mjs` の `TIE_LINE`） | 直した（88e0fbb04。2つの引用だけを除き、「1人だけ」「1位なら」を `RULE_NUMBERS` へ。tie の行に「(例: 中田さんは第18期から28期出場)」を一時的に足すと fail、戻して 226 件通過） |
+| 提案: `EXAMPLE` は漢数字・「さん」の無い名前を拾わない。`簡略化:` の1行が無い | 直した（88e0fbb04、`簡略化:` のコメント） |
+| 提案: 要求の組み立てに `cross-body.mjs` の `rawRequest()` を使える | 見送り（player.test.mjs も手で組み立てており、既存の形と揃っている。書き方の提案なので収束の規則どおり直さない。#654 にコメントで残す） |
+| 文書とコード（`weekly.mjs` の `retryable()`）の突き合わせ・網羅（plan・`write()`・`writeMany()` の3か所）・コミット 261e00317・a5b852192 の実在 | 問題なし |
+
+2回目（`git diff 4744a1766 HEAD -- workers`）: 要修正・提案なし。変異3つ（tie の行の末尾・途中に例、tie の引用の数を変える）はすべて fail。2回目の後に直しは無い。
+
+### cloudflare の取り込み
+
+マージ前の再 fetch で origin/cloudflare が進んでいた（LGV-44 のログ・decisions、log/ の再生成）。`git merge origin/cloudflare` で docs/decisions/operations.md が衝突。末尾への追記どうし（cloudflare 側「## 2026-11-17（CHAT-1117-LGV-44）」、こちら「## 2026-11-17（CHAT-1117-AIC-53）」）なので両方を残し、LGV-44 の節の後に AIC-53 の節を置いた（dc65b8aae）。解いた後の該当箇所:
+
+```
+- LGV-43 の試しで止まった3件の値: 2122104025969815647（さわやか）の駅は 浜松、…（【3】には書かなかった）
+
+## 2026-11-17（CHAT-1117-AIC-53）
+
+- 朝一の確認の予定は 6:00 JST にそろえる（2026-11-16、平野さん。…）
+```
+
+同じマージコミットで、AIC-53 の節の tie の記述を「その2つの引用だけを…対象から外した」に直した（レビュー1回目の直しに合わせる）。取り込み後も `node --test 'workers/ask/test/*.test.mjs'` 226 件通過、`python3 -m unittest discover -s scripts/tests` OK。
 
 ## 報告
 
-- 状態:
-- ブランチ:
-- ログ:
-- 比較URL:
-- 確認用URL:
-- マージ:
-- issue:
+- 状態: 判断待ち
+- ブランチ: work/1117-aic
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1117-AIC-53.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1117-aic
+- 確認用URL: なし（文書とテストだけ。`workers/ask/src/` は変えていない）
+- マージ: 済（122f9e4a8。`git push origin work/1117-aic:cloudflare`、直前に再 fetch して `git merge-base --is-ancestor origin/cloudflare HEAD` が真）
+- issue: #654（open。着手と結果のコメント: https://github.com/retroeater/mj/issues/654#issuecomment-6949212553 ）
 - 判断が必要なこと:
-- 未確認の項目:
-- エラー:
+  - Claude に渡す2回目の指示の共通の一文（`workers/ask/src/ask.mjs` の `answerSystem()` の tie の行）に、実データの数・名前の例「4回が最多で、3人が並んでいます（大和さん・覚野陽生さん・角谷陽介さん）」「2位は10回で、3人が並んでいます（客野直さん・山脇千文美さん・末続ヒロトシさん）」が残る。指示どおり src は変えず、この2つの引用だけを新しい検査（`workers/ask/test/prompt-examples.test.mjs`）の対象から外した。直すか（例を「N回」「〇〇さん」の形にする・プログラムが文を作る形に移す）は週次の確認で決める
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj d4ee1bea）: https://github.com/retroeater/mj-logs/tree/main/guide/d4ee1bea
+ガイド文書（この版を写した時点の最新、mj 1fdad7a6）: https://github.com/retroeater/mj-logs/tree/main/guide/1fdad7a6
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d4ee1bea/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d4ee1bea/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d4ee1bea/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d4ee1bea/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d4ee1bea/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d4ee1bea/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/1fdad7a6/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/1fdad7a6/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/1fdad7a6/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/1fdad7a6/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/1fdad7a6/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/1fdad7a6/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/2e4dd08c.md
