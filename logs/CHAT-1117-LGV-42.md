@@ -97,6 +97,10 @@ Chat-Ref: CHAT-1117-LGV-42
 - 決定を docs/decisions/operations.md に足した
 
 
+- マージ: 再 fetch 後 `git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめて `git push origin work/1117-lgv-unknown:cloudflare`（aeaf0fb52..c63f68d88）。c63f68d88 の check-run: Workers Builds: mj・mj-ask・mj-scheduler success、check（公開対象の検査）success、本番ビルド失敗の検知 skipped。push の検知の再生成（run 44006935602）success で、log/ を作り直して cloudflare にコミットした（e478dc22f、log/index.html +6 -2・sitemap-pages.xml +1 -1。log/search.json は変わらない）。e478dc22f には Workers Builds の check-run が付かなかった（直後に別のセッションが cloudflare へマージし〈0e6f12df6〉、そちらが含めてビルドされたと見込む）
+- 本番の確かめ（`https://ryoei.pro/log/?v=0e6f12df6`、UA に mj-internal、HTML）: 見出しは「新着」「初出」「投稿回数の多い店」の順。先頭5件は上の作業ブランチの表と同じ（新着: ニーナナ喫茶 新宿 2026年11月14日 → 喫茶10 → 三品食堂 → 福与志 → フレッシュネスバーガー、初出: 喫茶10 早稲田 2026年11月12日 → 三品食堂 → 福与志 → カフェ フェリオ → ごはんや一芯）。ブラウザでの見え方は見ていない
+- 最初に効く毎朝の運行: 2026-11-18 04:00 JST（毎朝の一覧は新しい判定が不明だけ、log/ は毎朝の logpage で新着・初出を作り直す）
+
 ## 報告
 
 - 状態: 完了
@@ -104,7 +108,7 @@ Chat-Ref: CHAT-1117-LGV-42
 - ログ: https://github.com/retroeater/mj/blob/work/1117-lgv-unknown/docs/logs/CHAT-1117-LGV-42.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1117-lgv-unknown
 - 確認用URL: なし
-- マージ: 済（結果は追いの push で書く）
+- マージ: 済（aeaf0fb52..c63f68d88。push の検知の再生成 e478dc22f。本番の HTML で新着・初出・投稿回数の多い店を確かめた）
 - issue: #679（古い 79件をコメント）
 - 判断が必要なこと: なし（CHAT-1117-LGV-40 の報告の「79件すべてが 2026-10-17 の全件の変換」は誤りで、75件が 10/17、4件が 10/28〜11/04 だった。数 79件と扱いは変わらない）
 - 未確認の項目: 告知動画の撮影スクリプトは直していない（撮り直すときに見出しの確かめと字幕を3行に直す。docs/notes/log-page.md「告知動画」に注記）
@@ -113,12 +117,12 @@ Chat-Ref: CHAT-1117-LGV-42
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj c63f68d8）: https://github.com/retroeater/mj-logs/tree/main/guide/c63f68d8
+ガイド文書（この版を写した時点の最新、mj a5b85219）: https://github.com/retroeater/mj-logs/tree/main/guide/a5b85219
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c63f68d8/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c63f68d8/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c63f68d8/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c63f68d8/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c63f68d8/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c63f68d8/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a5b85219/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a5b85219/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a5b85219/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a5b85219/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a5b85219/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a5b85219/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/2e4dd08c.md
