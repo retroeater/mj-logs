@@ -133,15 +133,36 @@ Chat-Ref: CHAT-1117-AIC-52
 - `node --test 'workers/ask/test/*.test.mjs'` 225件すべて通過、`python3 -m unittest discover -s scripts/tests` OK
 - 文書: docs/notes/ask-worker.md の冒頭の注・「横断」・記録・予定の行を直し、docs/decisions/houou.md に決定を足した
 
+### 自己レビュー（新しい文脈のサブエージェント、2回）
+
+| 指摘 | 扱い |
+|---|---|
+| 1回目（要修正）: ask-worker.md の流れの7「型の引数（型が無い・引数が無いときは空）」は外した `argsText()` の挙動 | 直した（4d1090126。大会の id ごとの JSON、横断の記録へ参照） |
+| 1回目: context.test の `both()` は、同じ `crossAsk` を通る2つを比べるので入口の対応の確かめになった | 注に書いた（4d1090126）。1つの大会の流れの中身は各大会のテストと、外す前の src でも通ることが担う |
+| 1回目: context.test の contests の比較が `answered` のときだけ | 無条件にした（4d1090126） |
+| 1回目: count.test の `unnamed()` は文頭の名前の前提 | 前提を注に書いた（4d1090126） |
+| 1回目: crossBody が `contest: null` を鳳凰戦にする・`'all'` を直書き | `undefined` だけ鳳凰戦、文字列でない値はそのまま送る。`CROSS` を import（4d1090126） |
+| 1回目: ouka.test の知らない大会の検査が context の検査に変わった | 古い形の要求で送る形に戻した（4d1090126） |
+| 1回目: ask.test のテスト名2件が実物と合わない | 直した（4d1090126） |
+| 1回目: ask-worker.md の37行（`contest` の無い問いの答え方）・271行と ask.mjs の contextAsk の上の注が、消えた流れを指す | 直した（4d1090126。ask.mjs の1011行の「大会別の欄と同じ扱い」は、変えていない既存の行なので残した） |
+| 1回目: 古い形の `new Request` の重複 | `rawRequest()` にまとめた（4d1090126） |
+| 1回目: 差分の外の ouka-top.md・jwrc-top.md・wrcr-top.md に「`contest: "X"` を添える」「記録の型は ouka:league」が残る | 注を足した（docs のみ、070b504d5） |
+| 1回目: `scripts/generate_ask_data_ouka.py`・`generate_ask_data_jwrc.py` の docstring も同じ前提 | 見送り（コードのコメント。「判断が必要なこと」に書かず #654 に移した。説明の文で、動きは変わらない） |
+| 2回目（提案）: ouka-top.md などの注の「2026-11-17 から質問欄は横断だけで」は、質問欄が横断だけになったのは 2026-11-04 | 見送り（2回目のレビューの後の直しは止まる条件。#654 に移した） |
+| 2回目（提案）: ouka-top.md の「鳳凰戦の問い（`contest` 無し）の答え方は変えない」にも注が及ぶとよい | 見送り（同上） |
+| 2回目（提案）: `rawRequest()` の Origin の既定値は使われていない | 見送り（同上） |
+
+- マージ前: `git merge --no-edit origin/cloudflare`（衝突なし、workers の変更なし）。テスト 225件・scripts/tests とも通過。未マージの work/ ブランチで `workers/ask` を変えているもの: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj c63f68d8）: https://github.com/retroeater/mj-logs/tree/main/guide/c63f68d8
+ガイド文書（この版を写した時点の最新、mj a5b85219）: https://github.com/retroeater/mj-logs/tree/main/guide/a5b85219
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c63f68d8/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c63f68d8/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c63f68d8/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c63f68d8/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c63f68d8/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c63f68d8/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a5b85219/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a5b85219/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a5b85219/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a5b85219/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a5b85219/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a5b85219/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/2e4dd08c.md
