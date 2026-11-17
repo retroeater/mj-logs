@@ -41,7 +41,7 @@ WRC リーグの成績とランキング（旧 `wrc_results.html`・`wrc_ranking
 
 大会のトップの欄は 2026-11-04 に外した。共通ナビの欄はこのページから開くと `context` に `jwrc` を添えて横断で問う（docs/notes/design.md「共通ナビ（新しい形）」）。下は廃止した大会別の欄と Worker の記述。
 
-- Worker `mj-ask` と1日の上限を鳳凰戦・女流桜花と共有する。jwrc/ の質問欄は問いに `contest: "jwrc"` を添え、Worker は `data-jwrc.json` と `ask.mjs` の `JWRC_PLAN_SYSTEM`（リーグは「予選」だけ、部門は `JWRC_DIVISIONS`）で答える。記録の型は「jwrc:league」の形
+- Worker `mj-ask` と1日の上限を鳳凰戦・女流桜花と共有する。jwrc/ の質問欄は問いに `contest: "jwrc"` を添え、Worker は `data-jwrc.json` と `ask.mjs` の `JWRC_PLAN_SYSTEM`（リーグは「予選」だけ、部門は `JWRC_DIVISIONS`）で答える。記録の型は「jwrc:league」の形（2026-11-17 から質問欄は横断だけで、Worker は大会別の要求をその大会を context とした横断として答え、記録の型は `all:<大会>:<型>`。docs/notes/ask-worker.md「横断」）
 - 決勝は title/search.json の「WRCリーグ」、放送対局は /live の「WRCリーグ」。時点は「WRCリーグ 第19期終了時点」（`query.mjs` の `leagueName()` は名前が「リーグ」で終わるとき「リーグ」を重ねない）
 
 ## 告知動画
