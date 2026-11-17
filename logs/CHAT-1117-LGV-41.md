@@ -79,7 +79,7 @@ Chat-Ref: CHAT-1117-LGV-41
 
 ## 報告
 
-- 状態: 中断
+- 状態: 中断 / 続き: CHAT-1117-LGV-43
 - ブランチ: work/1117-lgv-thread
 - ログ: https://github.com/retroeater/mj/blob/work/1117-lgv-thread/docs/logs/CHAT-1117-LGV-41.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1117-lgv-thread
