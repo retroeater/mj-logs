@@ -48,15 +48,67 @@ AIC-50 で 2e1b3cd8a の差分のレビューを受け、要修正は無く、�
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 着手前の確認（0章）
+
+- ログの「指示」欄の末尾は指示文の最後の行と一致
+- 同じ Chat-Ref のコミット・ログ: なし。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 欠けなし
+- 作業ブランチ: ローカルの work/1116-aic は origin/work/1116-aic と一致（4c0bec7f3）
+- CHAT-1117-AIC-50 のログの `## 報告` の状態に ` / 続き: CHAT-1117-AIC-51` を足し、「判断が必要なこと」に回答の行を足した。docs/decisions/houou.md に決定を足した（31f573523）
+
+### 手順1
+
+- 未マージの work/ ブランチで `workers/ask/src` を変えているもの: なし
+- 提案2件を #654 にコメントで移した
+- この指示ではコード・テストを変えていない
+
+### 手順2: マージ
+
+- 取り込み: `git merge --no-edit origin/cloudflare`（衝突なし。workers で入ったのは生成データ `workers/ask/data-schedule.json` の1行だけ）
+- テスト: `node --test 'workers/ask/test/*.test.mjs'` 225件すべて通過、`python3 -m unittest discover -s scripts/tests` OK
+- `git push origin work/1116-aic:cloudflare`: 2e4dd08c7..261e00317（push 直前に再 fetch して祖先を確かめた）
+- check-runs（261e00317）: 「Workers Builds: mj-ask」completed / success（本番）。2026-11-17 01:21 UTC
+
+### 手順3: 本番の確かめ（`Origin: https://ryoei.pro`、`contest: "all"`・context なし、UA `mj-internal aic-51-check`）
+
+この日の本番の問いは5問（10問の内）。
+
+| 問い | 答え（要点） | データとの突き合わせ |
+|---|---|---|
+| hiro | 鳳凰戦「HIRO柴田さんは鳳凰戦に28期出場しています。直近の第42期はA1リーグで1位、結果は決定戦です。第39期の鳳凰位です。」／WRC「1期…第2期は予選で43位、結果は敗退」／最強戦「7回出場…2026年度は最強夫婦合戦の決勝で2位、結果は敗退」 | 一致（seasons 28・最後の行 第42期 A1 1位 決定戦〈前期・後期なし〉、WRC 1行、最強戦 totals 7回・先頭の行） |
+| 中田 | 鳳凰戦「10期…第43期前期はE1リーグで20位、結果は残留」／女流桜花「2期…第20期はC2リーグで11位、結果は残留」／最強戦「5回…2026年度は風合戦のベスト8 B卓で4位、結果は敗退です。最強位とファイナルトーナメントに出た回数は、いずれも0回です。」 | 一致（Claude の続ける文の「いずれも0回」も totals どおり） |
+| 内田みこ | 鳳凰戦「7期…第43期前期はD3リーグで16位、結果は残留」／女流桜花「7期…第20期はC1リーグで6位、結果は昇級」／WRC「1期…第6期は予選で69位、結果は敗退」／最強戦「4回…2024年度は女流新スター決戦のベスト8 B卓で3位、結果は敗退です。通算では最強位は0回、ファイナルは1回です。」 | 一致 |
+| 白鳥翔の第40期の成績は？ | 鳳凰戦「白鳥翔さんの第40期はA2リーグで1位、結果は昇級です。」／WRC（冒頭「第40期はまだありません。記録のある期で答えます」）「2期…第6期は予選で22位、結果は通過」／最強戦「12回…2026年度は団体対抗スペシャル合戦のベスト8 A卓で3位、結果は敗退」 | 一致（WRC は第4期・第6期の2行、最強戦 totals 12回・先頭の行） |
+| 藤崎 | 鳳凰戦「藤崎智さんは鳳凰戦に26期出場しています。直近の第42期はA1リーグで7位、結果は残留です。第23期と第26期に昇級し、A1では第29期、第30期、第36期に決定戦へ進んでいます。第30期・第36期の鳳凰位です。」／最強戦「「藤崎」に当たる選手は2人います: 藤崎智、藤崎和彦。…」 | 一致（seasons 26、昇級は第21期後期・第23期前期・第26期で、挙げた2つはどちらも正しい。決定戦は第29・30・36期） |
+
+- 5問ともフルネームで始まる（候補の答えを除く）。データに無い期、指示の文の数・期（「第18期から第42期まで28期」など）、内部の言葉は出ない
+- Claude の続ける文が付いたのは「中田」「内田みこ」の最強戦と「藤崎」の鳳凰戦。ほかの欄はプログラムの文だけで、Claude の文が空だったか落ちたか（Workers Logs の `playerTextDropped`）はセッションから見られない
+- マージの条件の2つ目を満たしたので、revert はしない
+- #654 に結果をコメントした
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1116-aic
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1117-AIC-51.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1116-aic
+- 確認用URL: なし（Worker mj-ask はプレビューを持たない。本番で確かめた）
+- マージ: 済（261e00317）
+- issue: #654
+- 判断が必要なこと: なし（テストの書き方の提案2件は #654 に移した）
+- 未確認の項目: 2026-11-23 の書き出し（確認は 6:00 JST）で、player の答えがフルネームで始まるか、データに無い期が出ていないか、Workers Logs の `playerTextDropped` の件数
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj c77a96f2）: https://github.com/retroeater/mj-logs/tree/main/guide/c77a96f2
+ガイド文書（この版を写した時点の最新、mj 261e0031）: https://github.com/retroeater/mj-logs/tree/main/guide/261e0031
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c77a96f2/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c77a96f2/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c77a96f2/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c77a96f2/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c77a96f2/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c77a96f2/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/261e0031/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/261e0031/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/261e0031/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/261e0031/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/261e0031/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/261e0031/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/2e4dd08c.md
