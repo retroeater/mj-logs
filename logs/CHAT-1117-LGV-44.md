@@ -306,28 +306,37 @@ CHAT-1117-LGV-43 の試しを平野さんが見て、本番に入れると決め
   - 形に合わない投稿でも写真の判定を呼び、理由が重なる → 実害なしとして見送り
   - 2回目のレビューはしていない（直しが小さいため）。テスト OK
 
+- マージ: 再 fetch 後 `git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめて `git push origin work/1117-lgv-thread:cloudflare`（9627d69ff..3e21c404d）
+- 進め方5（cloudflare の ref の本実行）:
+  - fetch-x-posts.yml（run 44088230251 success。入力は毎朝と同じ形: handles it_uesama,retroeater・since_latest・dry_run 外し）: retroeater は「スレッドの行が無い」ので 2026-01-01 から、式 `conversation_id:1521284280130818048 from:retroeater -is:retweet`。X の呼び出し 4回・読んだ投稿 118件（retroeater 112・it_uesama 6）・写真など 165件（見込み $1.415）。「【1】元データ」に 115行を足した（retroeater 112・it_uesama の新しい 3。it_uesama のすでにあった 3件は足さない）
+  - convert-x-posts.yml の all（run 44088336238 success）: 【2】に無い 115件（うちスレッドの投稿 112件はテンプレートで読む）。Claude の呼び出し 117回（変換 Sonnet 3回と写真の判定 Haiku）・$0.0205、Places 82回。「【2】自動変換後」に 115行を足した。同じ店の投稿から駅を補った投稿 0件。毎日確かめる投稿 5件（本文の語・過去メシ・HIDDEN_POSTS で除いた 3件）
+  - regenerate-page.yml の log_pages（run 44090075432 success）: 「3層から 2651件のうち 2462件・1726店」（前は 2352件・1691店）。cloudflare に d2af73e07 をコミット、Workers Builds: mj success
+- 進め方6（本番の確かめ。`https://ryoei.pro/log/search.json?v=d2af73e07`、UA に mj-internal）: 店 1,726・投稿 2,462。平野良栄の 2026年の投稿は 108件（1月 12・4月 23・6月 24・7月 12・8月 6・11月 31。112件のうち海外の4件〈7月〉は駅が空で表示 N のため載らない）。決定の3件: 2122104025969815647 は さわやか・駅 浜松（静岡県）、2122090256870838443 は くおん・メニュー TOKYO CLASSIC、2122087422657982541 は 店名 毎味毎客・メニュー 重慶マーラータン（3件とも place_id あり）。【3】に書く要は無かった。ブラウザでの見え方は見ていない
+- 毎朝の一覧（#679）: 今の作りでは、#679 を書くのは run-daily の xconvert-issue だけで、convert-x-posts.yml を単独で動かしても書かない。run-daily の手動実行は最強戦のページを作り直して cloudflare にコミットしうるので動かしていない。次の毎朝の運行（2026-11-18 04:00 JST）で書き直される。変換の出力では 5件で、うち4件は海外の駅の平野さんの投稿（駅が空）。残りの1件はこの出力からは分からない（本文は issue にだけ出る）
+- 費用（X は見込み。写真などの分は 2026-11-22 からの単価で数えた上限）: X は 4回の実行で約 $4.2（進め方2の1回目〈止まった回、最大1ページ〉約 $1.12・2回目 $1.12・洗い替えの読み直し $0.56・本実行 $1.415。読み取りだけなら 454件で約 $2.27）、Claude 約 $0.03（写真の判定 112回 $0.0122・本実行 $0.0205）、Places 162回（無料の枠の内）。合わせて上限 $6 の内
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1117-lgv-thread
 - ログ: https://github.com/retroeater/mj/blob/work/1117-lgv-thread/docs/logs/CHAT-1117-LGV-44.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1117-lgv-thread
 - 確認用URL: なし
-- マージ: 未
-- issue: #679
-- 判断が必要なこと: なし
-- 未確認の項目: なし
-- エラー: なし
+- マージ: 済（9627d69ff..3e21c404d。本実行の後の log/ の再生成 d2af73e07）
+- issue: #679（この指示では書いていない。2026-11-18 04:00 JST の毎朝の運行で書き直される）
+- 判断が必要なこと: なし（載った件数: 平野良栄の 2026年 108件〈112件のうち海外の4件は駅が空で N〉。毎日確かめる投稿は変換の出力で 5件〈海外の平野さんの投稿 4・ほか 1〉。海外の4件は【3】で駅〈【国・都市】の形〉か「表示」を決めると載る・消える。費用は約 $4.3 以下〈X の見込みの上限で数えた〉）
+- 未確認の項目: #679 の書き直しと5件目の中身（次の毎朝の運行）。ブラウザでの log/ の見え方
+- エラー: なし（進め方2の1回目は一度きりの処理の費用の確かめの誤りで止まった。直して2回目で通した）
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj a5b85219）: https://github.com/retroeater/mj-logs/tree/main/guide/a5b85219
+ガイド文書（この版を写した時点の最新、mj d4ee1bea）: https://github.com/retroeater/mj-logs/tree/main/guide/d4ee1bea
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a5b85219/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a5b85219/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a5b85219/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a5b85219/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a5b85219/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a5b85219/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d4ee1bea/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d4ee1bea/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d4ee1bea/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d4ee1bea/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d4ee1bea/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d4ee1bea/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/2e4dd08c.md
