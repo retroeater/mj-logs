@@ -154,6 +154,37 @@ Chat-Ref: CHAT-1117-AIC-52
 
 - マージ前: `git merge --no-edit origin/cloudflare`（衝突なし、workers の変更なし）。テスト 225件・scripts/tests とも通過。未マージの work/ ブランチで `workers/ask` を変えているもの: なし
 
+### マージ
+
+- `git push origin work/1117-aic:cloudflare`: e478dc22f..a5b852192（push 直前に再 fetch して祖先を確かめた）
+- check-runs（a5b852192）: 「Workers Builds: mj-ask」completed / success（本番）。2026-11-17 03:04 UTC
+
+### 手順3: 本番の確かめ（`Origin: https://ryoei.pro`、UA `mj-internal aic-52-check`）
+
+この日の本番の問いは AIC-51 の5問とここの4問で9問（10問の内）。
+
+| 要求 | 答え（要点） | 判定 |
+|---|---|---|
+| 横断・context なし「hiro」 | 鳳凰戦「HIRO柴田さんは鳳凰戦に28期出場しています。直近の第42期はA1リーグで1位、結果は決定戦です。第31期には降級も経験しています。第39期の鳳凰位です。」／WRC・最強戦は AIC-51 と同じ | データと一致（第31期 A1 11位 降級） |
+| 横断・context なし「白鳥翔の第40期の成績は？」 | AIC-51 と同じ（鳳凰戦 第40期 A2 1位 昇級、WRC・最強戦は記録のある期で） | データと一致 |
+| 横断・context 鳳凰戦「今期の首位は？」 | `unanswerable`「答えられません。」、contests `["houou"]` | データと食い違う答えではない。この要求の道（`contest: "all"`・context 鳳凰戦 → `crossAsk()` → `contextAsk()`）は今回の差分で変わっていない（`ask()` の入口の分岐だけを変えた）ので、今回の変更によるものではない。マージの条件の3つ目（データと一致）には当たらないと判断し、revert しない |
+| 大会別 `contest: "houou"`「藤崎」 | 「「藤崎」を藤崎智として答えます」／「藤崎智さんは鳳凰戦に26期出場しています。直近の第42期はA1リーグで7位、結果は残留です。第29期はA1で1位となり、得点は215.6でした。第30期と第36期も3位で決定戦に進んでいます。第23期前期はB1で1位となって昇級し、第26期はA2で2位から昇級しています。第30期・第36期の鳳凰位です。」、contests `["houou"]` | 鳳凰戦を context とした横断として答えた（大会名の見出しなし・contests 付き。前は `contest: "houou"` は 400）。データと一致（第29期 A1 1位 決定戦 215.6、第30・36期 3位 決定戦、第23期前期 B1 1位 昇級、第26期 A2 2位 昇級） |
+
+- #654 に結果と見送った提案をコメントした
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1117-aic
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1117-AIC-52.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1117-aic
+- 確認用URL: なし（Worker mj-ask はプレビューを持たない。本番で確かめた）
+- マージ: 済（a5b852192）
+- issue: #654
+- 判断が必要なこと: なし（本番の「今期の首位は？」が答えられなかった件と、見送った提案3件は #654 に移した）
+- 未確認の項目: 2026-11-23 の書き出し（確認は 6:00 JST）で、`all:` で始まらない型の行が0であること
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
