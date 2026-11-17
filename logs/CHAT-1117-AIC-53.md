@@ -101,6 +101,62 @@ Chat-Ref: CHAT-1117-AIC-53
 
 ## 経過
 
+### 着手前の確認
+
+- 指示欄の末尾は指示文の最後の行（「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」）と一致
+- 同じ Chat-Ref のコミット: `git log --all --grep='CHAT-1117-AIC-53'` は0件（ログ先行 push の前）。AIC は系列の続きなので XXX の重複確認は対象外
+- 作業ブランチ: origin/work/1117-aic はあり、`git merge-base --is-ancestor origin/work/1117-aic origin/cloudflare` が真（マージ済み）。ローカルに無いので `git checkout -b work/1117-aic origin/cloudflare`（3e21c40）
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 欠けなし
+- #654: open（GitHub MCP の issue_read、2026-11-17）。最近のコメントに他セッションの着手中なし（最後は AIC-52 の完了）。着手コメント: https://github.com/retroeater/mj/issues/654#issuecomment-6949004122
+- 0章ゲート: 未マージの work/ ブランチ7本（1009-swp-526・1011-swp-hnd・1011-swp-nav・1015-skd-notes・1101-prp-pub・1103-ryo5・1115-rsc-autowrite）は、self-review.md・chat-routines.md・ask-worker.md・decisions/operations.md・workers/ask/test/ のどれも変えていない（`git diff --name-only origin/cloudflare...<branch>`）。CLAUDE.md 23,299・handover.md 23,619 バイト（警告域 25,600 未満）
+
+### 手順1: 実物の確かめ
+
+- docs/decisions/operations.md の最後の節は「2026-11-17（CHAT-1117-LGV-43）」。約束の記号は CHAT-1116-ACF-49 の (v)(w)(x) が最新で、(y)(z)(aa) は未使用 → そのまま使う。ACF-49 より新しい節（ACF-51〜54・LGV-40〜43）に約束は無い
+- 大きさ（追記前 → 追記後、バイト）: self-review.md 3,523 → 3,835、chat-routines.md 28,449 → 28,897、ask-worker.md 106,460 → 107,851、decisions/operations.md 299,420 → 305,797。4つとも check-assets.yml の上限・警告域の対象外（対象は CLAUDE.md・handover.md・chat-side-operations.md・instruction-template.md）なので、archive への移しは不要
+- AIC-49 の検査: `workers/ask/test/player.test.mjs`「player の2回目の指示の一文に、数・期・名前の例が無い」。`PLAYER_FOLLOW_LINE` に `/[0-9０-９]/` と `/第|さん|「|例/` が無いことを見る
+- 週次の cron の記述（ask-worker.md「週次の cron」）と `workers/ask/src/weekly.mjs` の `retryable()`: 追記・行の削除（once）は 429 だけ、ほかの Google の呼び出し（トークン・ブックの情報など）は 429・5xx・ネットワーク。指示文の「読み取りは…」は、記述に合わせて「ほかの Google の呼び出し（トークン・読み取りなど）」と書いた
+
+### 手順2: 検査を広げる
+
+Claude に渡す指示の文（`workers/ask/src/ask.mjs`）と、対象にしたか:
+
+| 指示 | どこで作るか | 対象 | 理由 |
+|---|---|---|---|
+| 1回目（plan） | `PLAN_SYSTEMS`＋`PLAN_LINES`（`holderLine()` など）＋`SCHEDULE_PLAN_LINE` | 対象外 | 答えの文を書かせず問いを JSON の引数に直すだけ。読み方の例（「23期生」なら23、「松澤」「堀」）と、データの時点の期・年度（`holderLine()`・`saikyoLines()` の最新の決勝の期）を意図して入れている。写しても引数でデータを引くので、例の数が答えの文に出ない |
+| 2回目（大会ごと） | `answerSystem()`＋`ANSWER_LINES[id]`（`write()`） | 対象 | |
+| 2回目（player） | `answerSystem()`＋`playerLines()`（`PLAYER_FOLLOW_LINE`） | 対象（`PLAYER_FOLLOW_LINE` 単独は player.test.mjs が従来どおり見る） | |
+| 横断の2回目（2大会以上） | `crossSystem()`（`writeMany()`） | 対象 | |
+
+検査の形: `answerSystem()`・`ANSWER_LINES`・`crossSystem()` は export されていないので src を変えず、Anthropic を作り物にした `ask()` で Worker が送る2回目の system をそのまま集める（5大会×champions・player の context 付きの問いと、「鳳凰戦と最強戦の歴代の優勝者は？」の横断）。集めた範囲（5大会の champions の行・player の一文・横断の一文）があることも確かめる。行ごとに、算用数字と「さん」（人の名前）が無いことを見る。player.test.mjs の `第|「|例` は、2回目の指示が「第N期」「「現〜」」の形で置き場所を書くため使わない（当てると規則の行がすべて当たる）。
+
+今の指示の文で当たった箇所（2026-11-17）:
+
+| 当たった文 | 場所 | 扱い |
+|---|---|---|
+| 同率の書き方の例「4回が最多で、3人が並んでいます（大和さん・覚野陽生さん・角谷陽介さん）」「2位は10回で、3人が並んでいます（客野直さん・山脇千文美さん・末続ヒロトシさん）」 | `answerSystem()` の tie の行（全大会・横断の2回目に共通） | 実データの数・名前の例。src は変えず、行ごと対象外（`TIE_LINE`）。直すかは週次の確認で決める（「判断が必要なこと」） |
+| 「上位2段」 | `answerSystem()` の byTimes の行 | 規則の数。対象外（`RULE_NUMBERS`） |
+| 「リーグ名(A1・Aリーグなど)」 | `answerSystem()` の日本語の行 | リーグ名。対象外 |
+| 「3文程度まで」 | `answerSystem()` の最後の行 | 規則の数。対象外 |
+| 「鳳凰位決定戦は期ごとに1回」 | `ANSWER_LINES.houou` の champions の行 | 規則の数。対象外 |
+| 「1st・2nd Stage」「対局数10回以上」 | `SAIKYO_TOTALS_LINE` | 段の名前・規定の数。対象外 |
+
+検証:
+
+- `node --test workers/ask/test/prompt-examples.test.mjs` → pass 1・fail 0
+- 修正前でも通らないか（#310）: `ANSWER_LINES.ouka` の先頭に AIC-47 の例の行（「主語を書かずに述語から書き始める(例:「第18期から第42期まで28期出場しています。」)」）を一時的に入れると fail（found にその行が出る）。src は退避した写しに戻し、`git diff --stat workers/ask/src` は空
+- `node --test 'workers/ask/test/*.test.mjs'` → tests 226・pass 226・fail 0（AIC-52 の 225 件＋1）
+- `python3 -m unittest discover -s scripts/tests` → OK
+- `python3 scripts/check_asset_limits.py` → すべて OK
+
+### 手順3: 文書
+
+- docs/notes/self-review.md「収束」に1行
+- docs/notes/chat-routines.md「期日とカレンダー」に2行（【済】の前の突き合わせ、朝一の確認は 6:00 JST）
+- docs/notes/ask-worker.md「運用の学び」の末尾（「答えの事実を誰が書くか」の表の後）に「### 2026-11-17（AIC-45〜52 の振り返り、#654）」
+- docs/decisions/operations.md に「## 2026-11-17（CHAT-1117-AIC-53）」。houou.md には足さない
+- コミット: 9994727bd（テスト）、4744a1766（docs/notes）
+
 ## 報告
 
 - 状態:
@@ -117,12 +173,12 @@ Chat-Ref: CHAT-1117-AIC-53
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 3e21c404）: https://github.com/retroeater/mj-logs/tree/main/guide/3e21c404
+ガイド文書（この版を写した時点の最新、mj d4ee1bea）: https://github.com/retroeater/mj-logs/tree/main/guide/d4ee1bea
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/3e21c404/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/3e21c404/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/3e21c404/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/3e21c404/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/3e21c404/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/3e21c404/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d4ee1bea/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d4ee1bea/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d4ee1bea/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d4ee1bea/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d4ee1bea/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d4ee1bea/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/2e4dd08c.md
