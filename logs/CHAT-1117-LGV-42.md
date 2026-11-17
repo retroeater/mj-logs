@@ -60,28 +60,65 @@ Chat-Ref: CHAT-1117-LGV-42
 
 ## 経過
 
+- 手順0: 「指示」欄の末尾は指示文の最後の行と一致。同じ Chat-Ref のコミットなし。LGV-40 の状態は「判断待ち」、work/1117-lgv-unknown はリモートにある（583844c78）。LGV-40 の状態に ` / 続き: CHAT-1117-LGV-42` を足した
+- 冒頭の雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は欠けていない
+- 手順1: origin/cloudflare を merge で取り込んだ（衝突なし。入ったのは AIC 系列の workers/ask・docs）。未マージの work/ ブランチで convert_x_posts.py・generate_log_pages.py・assets/log.js を変えているものは無い
+- 前提のコードの確かめ: `CATEGORIES` は「新着」（`recent_shops()`、最初の投稿の日付 `first` の新しい順・カードの日付も `first`）と「投稿回数の多い店」の2行で、前提のとおり。`assets/log.js`・CSS は `log_cat_N` の id や行の数・順を使っていない（grep。CATEGORIES の位置を読むのは generate_log_pages.py とテストだけ）。`search_data()` は first を読まない
+- 手順2:
+  - 2d0988bc7: 定数 `UNKNOWN_SINCE = "2026-11-13"` を足し、`daily_check_posts()` は判定が不明の理由を、【2】の「変換日時」がこの日以後の行にだけ当てる（前の行は理由から外し、ほかの理由〈写真・空欄〉があればそれだけで出す）
+  - 26661de5f: `group_shops()` に最も新しい投稿の日付 `last` を足し、`latest_shops()`（出せる店を `last` の新しい順、同じ日付は店の並び）を「新着」に、`recent_shops()`（今までの並び）を「初出」にした。行の順は 新着・初出・投稿回数の多い店。件数・カードの形は今のまま
+  - テスト: 判定が不明は線の日以後の行だけ出る（線の日の行は出る、前の行は出ない、前の行でも写真の理由は出る）、新着は最も新しい投稿の順と日付（同じ日付は店の並び）、初出は最初の投稿の順と日付、行の順と見出し（log_cat_0〜2）。`python3 -m unittest discover -s scripts/tests`: OK、`node --test scripts/tests/js/log.test.js`: pass 23・fail 0。直す前のコードでは線引きのテスト・新着のテストが落ちる
+  - docs（8e70cb414）: docs/notes/log-page.md のカテゴリの行・データの持ち方・仮置きの一覧・新しい投稿の写真と空欄を直した
+- 手順3（作業ブランチの ref・dry_run）:
+  - convert-x-posts.yml の all（run 44006384967 success）: 「毎日確かめる投稿（写真・空欄・判定が不明で…）: 0件」（古い 79件は出ない）
+  - regenerate-page.yml の log_pages・dry_run・compare_ref origin/cloudflare（run 44006388571 success）: 「compare: 差分あり 1 件」で `log/index.html`（8 行）だけ。`log/search.json` は同じデータで cloudflare と同じ（見込みどおり）。1回目に compare_ref を `cloudflare` と書いて失敗した LGV-39 の誤りは繰り返していない
+  - 「新着」「初出」の先頭5件（一度きりの mode `lgv42`、91e2293aa・戻したのは 877f4a0c9。run 44006591059。log/ の生成と同じ `fetch_shops()`）:
+
+    | 行 | 店名 | 駅 | 日付 |
+    | --- | --- | --- | --- |
+    | 新着 | ニーナナ喫茶 | 新宿 | 2026年11月14日 |
+    | 新着 | 喫茶10 | 早稲田 | 2026年11月12日 |
+    | 新着 | 三品食堂 | 早稲田 | 2026年11月12日 |
+    | 新着 | 福与志 | 秋葉原 | 2026年11月10日 |
+    | 新着 | フレッシュネスバーガー | 下北沢 | 2026年11月7日 |
+    | 初出 | 喫茶10 | 早稲田 | 2026年11月12日 |
+    | 初出 | 三品食堂 | 早稲田 | 2026年11月12日 |
+    | 初出 | 福与志 | 秋葉原 | 2026年11月10日 |
+    | 初出 | カフェ フェリオ | 代官山 | 2026年11月3日 |
+    | 初出 | ごはんや一芯 | 代官山 | 2026年11月3日 |
+
+    （ニーナナ喫茶は前からある新宿の店に 11/14 の投稿が入ったので、新着の先頭・初出には出ない。フレッシュネスバーガーも同じ）
+- 古い判定が不明の全件（同じ run。毎朝の一覧と同じ条件〈【2】の表示が Y でない・【3】の表示が空・body_drop で外れない〉で、線より前の行）: 79件。内訳は変換日時 2026-10-17 12:02 が 75件、2026-10-28・11-02（2件）・11-04 が計4件。**CHAT-1117-LGV-40 の報告の「79件すべてが 2026-10-17 の全件の変換」は誤り**（LGV-40 は例の 30件だけを見て書いた。数 79件は同じ）
+- 手順4: #679 に 79件の全件を1つのコメントにした（issuecomment-6936659563。投稿 ID・日付・投稿者・店名〈空なら（店名なし）〉・X の投稿のリンク。本文は書いていない。保存された本文にバッククォートの混入なし、行は79）。冒頭の文は指示の例をもとに、変換の内訳（75件は 10/17、4件は 10/28〜11/04）に合わせて書いた
+- レビュー（新しい文脈のサブエージェント、1回目。対象 `git diff origin/cloudflare...HEAD -- scripts docs/notes .github`、観点は docs/notes/self-review.md）: 正しさの誤りなし。線引き（変換日時は RAW で書いて UNFORMATTED で読む文字列で、[:10] の比較で正しい。空の変換日時は古い側）、`latest_shops()` の並べ替えのキー（`(last, -index)` を reverse で、同じ日付は店の並び）、CATEGORIES・log_cat_N・first を使う所（生成とテストだけ）、search.json は変わらない、を確かめた。指摘と対応:
+  - (中〜低) 告知動画の撮影スクリプト `scripts/promo_video/log/capture.mjs` が見出しを「新着」「投稿回数の多い店」の2つと確かめて止まる（`compose.py` の字幕も2行の前提）。ワークフローからは呼ばれず、動画は投稿済み → 撮り直すときに直すよう docs/notes/log-page.md「告知動画」に注記した（スクリプトは変えていない）
+  - (低) `latest_shops()` の並べ替えは店の並びと一致するので実質は何もしない・テストの検出力は限られる → 意図を明示するために残した
+  - 2回目のレビューはしていない（注記だけのため）
+- 決定を docs/decisions/operations.md に足した
+
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1117-lgv-unknown
 - ログ: https://github.com/retroeater/mj/blob/work/1117-lgv-unknown/docs/logs/CHAT-1117-LGV-42.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1117-lgv-unknown
 - 確認用URL: なし
-- マージ: 未
-- issue: #679
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- マージ: 済（結果は追いの push で書く）
+- issue: #679（古い 79件をコメント）
+- 判断が必要なこと: なし（CHAT-1117-LGV-40 の報告の「79件すべてが 2026-10-17 の全件の変換」は誤りで、75件が 10/17、4件が 10/28〜11/04 だった。数 79件と扱いは変わらない）
+- 未確認の項目: 告知動画の撮影スクリプトは直していない（撮り直すときに見出しの確かめと字幕を3行に直す。docs/notes/log-page.md「告知動画」に注記）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 261e0031）: https://github.com/retroeater/mj-logs/tree/main/guide/261e0031
+ガイド文書（この版を写した時点の最新、mj c63f68d8）: https://github.com/retroeater/mj-logs/tree/main/guide/c63f68d8
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/261e0031/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/261e0031/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/261e0031/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/261e0031/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/261e0031/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/261e0031/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c63f68d8/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c63f68d8/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c63f68d8/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c63f68d8/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c63f68d8/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c63f68d8/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/2e4dd08c.md

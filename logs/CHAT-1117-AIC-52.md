@@ -65,15 +65,83 @@ Chat-Ref: CHAT-1117-AIC-52
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 着手前の確認（0章）
+
+- ログの「指示」欄の末尾は指示文の最後の行と一致。261e00317 は origin/cloudflare の祖先
+- 同じ Chat-Ref のコミット・ログ: なし。雛形の行: 欠けなし
+- 作業ブランチ: origin/work/1117-aic もローカルも無かったので `git checkout -b work/1117-aic origin/cloudflare`（着手時 HEAD aeaf0fb52）
+- #654: open。着手コメントを残した
+
+### 実物の確認（手順1）
+
+- 大会別の要求の入口・分岐（着手時の `workers/ask/src/ask.mjs`）: `ask()`（886行）の `body.contest` の分岐（902〜909行。省略は鳳凰戦、`deps.contests` の id は大会別、`all` は横断）と、大会別だけの流れ（938〜950行。`settle()` → `finish()` → `record(…, recordType(c, …))`）。`recordType()`（849行）と、`record()` の既定の引数 `argsText()` は大会別だけが使う。`settle()`・`finish()`・`write()`・`writeMany()` などは横断の各大会でも使うので残す
+- 大会別の要求を使うテスト: AIC-47 で測ったとおり、外すと 79件が落ちる。「その大会を context とした横断」として扱う形にすると 36件が落ちる（ファイルごと: ask 8・count 9・cross 5・context 3・ouka 2・week3 2・wrcr 2・all 1・jwrc 1・saikyo 1・schedule 1、ほか）。前提と食い違いは無い
+- 画面: `assets/` で `/api/ask` を送るのは `assets/top_ask.js` だけで、`contest` は `assets/nav.js` の `'all'` だけ（AIC-47 で確かめたまま）。画面は変えない
+- 未マージの work/ ブランチで `workers/ask/` を変えているもの: なし
+
+### 外し方（手順2）
+
+- `contest` が `all` でない要求は **その大会を context とした横断として答える**（指示文の案のとおり）。400 で断る形は採らなかった（古い JS・キャッシュの残ったページから届いても答えを返すため）。`contest` の省略は鳳凰戦、大会の id は5大会のどれか（`contestData()`。`"houou"` も受けるようになった。前は 400）。知らない大会・`__proto__` などは今までどおり 400 で数えない
+- 外したもの: `ask()` の大会別の流れ（`settle()` → `finish()` → 記録・応答）、`recordType()`、`argsText()` と `record()` の `request` の引数（すべての呼び手が引数の JSON を渡すようになり使われない）。記録の型はすべて `all:` で始まる
+- 横断の要求の答えは変わらない（`crossAsk()`・`contextAsk()` は変えていない）
+
+### テストの書き直し
+
+- 要求の本文: 新しい `workers/ask/test/cross-body.mjs` の `crossBody()` で、`contest` が `all` でない本文を `{ contest: "all", context: <大会の id、省略は houou> }` にして送る（all・ask・context・count・cross・jwrc・ouka・saikyo・schedule・values・week3・wrcr の `post()`）
+- 1つの大会の流れ（1回目・2回目の指示と入力、決勝だけの答え、ほかの大会への案内）を確かめるテストは、問いの文に記録のある選手名（3文字以上）を書かない形にした（名前を書くと横断が記録のある大会を並べ、context の大会の流れにならないため。名前は1回目の引数で渡す）。count.test.mjs は `post()` で問いの文頭の名前を「この選手」に置き換え、cross・week3 は該当の問いの文を直した
+- 大会別の要求そのもの（古い JS の形）は、`crossBody()` を通さない要求で確かめる（下の表の互換の行）
+
+外す前と後の対応表（外す前に落ちた36件と、互換の検査）:
+
+| ファイル・テスト（外す前の名前） | 外す前に確かめていた中身 | 書き直した後の確かめ |
+|---|---|---|
+| ask: 記録には日時・質問文・結果・型・答えの本文・型の引数が残り、IP は残らない | 記録の項目・型・引数、IP を残さない | 同じ（型 `all:houou:champions`・引数 `{"houou":{"entry":23}}`。項目・IP の検査は同じ） |
+| ask: 答えられなかったときの記録 | none・データに無い期・Claude の失敗の記録（答え・引数・「失敗: 」） | 同じ（型・引数を `all:houou:…`・`{"houou":…}` の形に） |
+| ask: 型に当たらない質問は「答えられません」 | 2回目を呼ばない・記録・数える | 同じ（型 `all:houou:`） |
+| ask: どの大会にも記録の無い名前 | 見つからないと分かる文・記録 | 同じ（型 `all:houou:player`） |
+| ask: 名字だけ「本田」「瀬戸」「堀」「松澤」で候補（4件） | 候補の文・2回目を呼ばない・記録 | 同じ（型 `all:houou:player`） |
+| context: 5大会の context で大会名も選手名も無い問いは大会別の欄と同じ応答 | 大会別と横断＋context の応答・Claude への入力・記録が同じ | 大会別の要求（古い形）と横断＋context の応答・Claude への入力・記録が全項目で同じ、context の大会だけ・大会名の見出しなし・Claude は2回まで・1回目は context の大会だけ・型 `all:<大会>:` |
+| context: context の大会の名前だけがある問いも大会別の欄と同じ | 同上（女流桜花） | 同上 |
+| context: context が無いときは5大会。大会別の要求は contests を付けない | 5大会の横断、大会別の応答の形 | 5大会の横断は同じ。大会別の要求（contest の省略）は鳳凰戦を context とした横断で contests `['houou']`・型 `all:houou:champions` |
+| count: 大会別の欄の「佐々木寿人の成績は？」の seasons と指示（5大会） | 2回目に seasons が渡る・player の指示の一文 | 同じ（問いの文の名前を外し、context の大会の2回目を見る） |
+| count: 「分からない」と書かない一文（5大会の欄と横断） | 5大会の2回目の指示と横断の指示 | 同じ（同上） |
+| count: 最強戦の totals の一文、鳳凰戦は「成績の行」を渡さない | 最強戦・鳳凰戦・ほか3大会の2回目の指示 | 同じ（同上） |
+| count: titleTerms をプログラムが付け2回目に渡さない（4大会） | 2回目の入力・指示 | 同じ（同上） |
+| count: others の一文（5大会の欄と横断に1回） | 指示の一文の回数 | 同じ（同上） |
+| count: points として渡る（4大会）・最強戦は変えない | 2回目の入力・指示 | 同じ（同上） |
+| count: titleSentence を渡さず、座っている期の行と注記も渡さない | 2回目の入力 | 同じ（同上） |
+| count: 迎えた期だけの問いはプログラムの文 | 答え・2回目を呼ばない・記録 | 同じ（型 `all:houou:player`） |
+| count: タイトルの文を最後に付ける | 答えの文（大会別・横断） | 同じ（大会別の要求の分は問いの文の名前を外す） |
+| count: 内部の言葉の確かめ（大会別の欄も横断も作り直す） | 語の一覧・作り直しの回数・答え | 同じ |
+| cross: 女流桜花の「菅原」の候補 | 候補の文・記録 | 同じ（型 `all:ouka:player`） |
+| cross: WRC リーグの「佐々木寿人」は決勝の記録で答え、記録のある大会を添える | 決勝だけの答えの文・出典・1回だけ・記録 | 同じ（問いの文を「寿人」に、型 `all:jwrc:player`） |
+| cross: 決勝にだけ記録がある選手（5大会の全員と森山茂和・「寿人」） | 決勝の期・順位の文・出典・記録・人数 | 同じ（問いの文に名前を書かない） |
+| cross: 最強戦にだけ記録のある萩原聖人を鳳凰戦の欄で聞くと案内 | 案内の文・出典・記録（guided） | 同じ（問いの文を「萩原の成績は？」に） |
+| cross: 連盟の外の TAKUYA を鳳凰戦の欄で聞くと出典は最強戦の個人成績 | 案内の文・出典 | 同じ（問いの文に名前を書かない） |
+| jwrc・ouka・wrcr・saikyo: 問いの contest がその大会なら、その大会の指示・データで答え、記録の型に大会を付ける（4件） | 1回目・2回目の指示・データ・記録の型 | 同じ（context をその大会に、型 `all:<大会>:<型>`） |
+| ouka: 知らない大会は受けない。contest が無ければ鳳凰戦 | 400・数えない・鳳凰戦の指示・記録 | 同じ（型 `all:houou:`） |
+| wrcr: 「現タイトルホルダーは？」の1回目の指示と champions | 指示・答えの材料・記録 | 同じ（型 `all:wrcr:champions`） |
+| week3: データに無い期の選手の成績（女流桜花の「22期の和久津晶成績」） | 冒頭の文・渡す items・記録 | 同じ（問いの文を「22期の和久津成績」に、型・引数を `all:ouka:player`・`{"ouka":…}`） |
+| week3: ハングル・英語の league で1回だけ作り直す | 作り直しの回数・答え | 同じ（問いの文を「和久津の成績」「HIROの成績」に） |
+| schedule: 大会別の要求には予定の型を足さない | 大会別の要求の1回目の指示 | **中身を置き換えた**: 大会別の要求も横断＋context と同じ1回目（予定の型を足す）になる。大会別の要求で予定を足さない扱いは、外したことで無くなった（答えが変わってよい問い） |
+| all: 横断の要求の検査（context は5大会の id だけ。大会別の要求は今のまま） | context の検査（400）、大会別の要求の応答 | context の検査は同じ。大会別の要求（`contest: "ouka"`・`"houou"`）は context とした横断で contests・型 `all:` になり、知らない大会（`__proto__`）は 400 で Claude を呼ばない |
+
+- 書き直したテストを外す前のコード（origin/cloudflare の src）で回すと、互換の検査の5件（all の横断の要求の検査、context の3件、schedule の1件）が落ち、ほかは通る（横断＋context の要求の中身は外す前と同じことの確かめ。count の2件と画面の1件は写しをリポジトリの外に置いたための失敗）
+- AIC-50 の提案2件: `player.test.mjs` のコメントを「得点も順位も無い行は直近に挙げない」に、seasons 0 の検査を全員（今は鳳凰戦の4人）を回す形にした
+- `node --test 'workers/ask/test/*.test.mjs'` 225件すべて通過、`python3 -m unittest discover -s scripts/tests` OK
+- 文書: docs/notes/ask-worker.md の冒頭の注・「横断」・記録・予定の行を直し、docs/decisions/houou.md に決定を足した
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 261e0031）: https://github.com/retroeater/mj-logs/tree/main/guide/261e0031
+ガイド文書（この版を写した時点の最新、mj c63f68d8）: https://github.com/retroeater/mj-logs/tree/main/guide/c63f68d8
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/261e0031/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/261e0031/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/261e0031/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/261e0031/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/261e0031/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/261e0031/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c63f68d8/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c63f68d8/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c63f68d8/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c63f68d8/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c63f68d8/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c63f68d8/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/2e4dd08c.md

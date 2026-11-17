@@ -111,7 +111,7 @@
 
 ## 報告
 
-- 状態: 判断待ち / 続き: CHAT-1117-LGV-42
+- 状態: 完了 / 続き: CHAT-1117-LGV-42
 - ブランチ: work/1117-lgv-unknown
 - ログ: https://github.com/retroeater/mj/blob/work/1117-lgv-unknown/docs/logs/CHAT-1117-LGV-40.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1117-lgv-unknown
@@ -125,12 +125,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 261e0031）: https://github.com/retroeater/mj-logs/tree/main/guide/261e0031
+ガイド文書（この版を写した時点の最新、mj c63f68d8）: https://github.com/retroeater/mj-logs/tree/main/guide/c63f68d8
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/261e0031/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/261e0031/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/261e0031/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/261e0031/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/261e0031/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/261e0031/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c63f68d8/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c63f68d8/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c63f68d8/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c63f68d8/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c63f68d8/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c63f68d8/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/2e4dd08c.md

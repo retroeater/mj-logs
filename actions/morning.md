@@ -1,12 +1,13 @@
 # 朝の報告用の異常（retroeater/mj）
 
-- 書き出した時刻: 2026-11-17 11:59 JST（見た範囲: 2026-11-16 09:59 JST から）
+- 書き出した時刻: 2026-11-17 12:02 JST（見た範囲: 2026-11-16 10:02 JST から）
 - 書き出した実行の契機: workflow_dispatch（main）
 - 異常だけを書く。全体は actions/status.md。判定は mj の scripts/morning_report.py（各ワークフローの直近 100 回まで）
 
 ## 1. 失敗など（結論が success・skipped 以外。実行中を含む）
 
 - 2026-11-16 10:42 fetch-youtube.yml failure（workflow_dispatch・cloudflare）ジョブ「regenerate / regenerate」：生成に失敗したページを飛ばしました: jpml_pros, title_pages（理由はジョブのサマリ、#533） https://github.com/retroeater/mj/actions/runs/43787848850
+- 2026-11-17 12:01 check-assets.yml queued（push・work/1117-aic） https://github.com/retroeater/mj/actions/runs/44007205940
 
 ## 2. 予約実行の未実行（予定から3時間以内は「遅れの可能性」。3時間を超えて始まった実行は「遅れて実行」）
 
