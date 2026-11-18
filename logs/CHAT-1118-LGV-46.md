@@ -73,28 +73,38 @@
   - (低) latest_ids と latest_dates の数える行の条件がずれる → 害が無い（since_id が付くだけで期間は広がらない）ので見送り
 
 
+- レビュー（2回目。対象は直した作り〈36b6adb6c・4bfdbf4eb〉）: 動きを壊す指摘なし。29日の境目・30日の窓に収まること・latest_ids の呼び出し元・手動の期間指定は問題なし。指摘と対応（256c396ad・b24a236e8）:
+  - (中) 時刻帯の無い投稿日時（例「2026-11-17T03:39:05」）で `recent_enough` が TypeError を投げ、取り込みが止まる → 読めないものとして期間で読むようにした（テストを足した）
+  - (低) preflight の `now` 引数を使っていない → 消した
+  - (低) 無関係なアサーション（DEFAULT_HANDLES）が別のテストに移っていた → 元のテストに戻した
+  - (低) `簡略化:` のコメントが上限のときだけを書いている → 「上限・途中の停止」に広げた
+  - (低) docs・説明に、since_id のときも「最も新しい投稿日から」と読める書き方がある → log-page.md と冒頭の説明の例を直した
+  - (低) `fetch-x-posts.yml` のコメントと `since_latest` の入力の説明が since_id を書いていない → 見送り（未マージの work/1103-ryo5 が同じ yml の入力を変えているため。動作には関わらない）
+  - 往復は2回まで（CLAUDE.md）のため、3回目のレビューはしていない。テスト OK
+- 決定を docs/decisions/operations.md に足した
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1118-lgv-sinceid
 - ログ: https://github.com/retroeater/mj/blob/work/1118-lgv-sinceid/docs/logs/CHAT-1118-LGV-46.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1118-lgv-sinceid
 - 確認用URL: なし
-- マージ: 未
+- マージ: 済（ad411c77b..3fcc0b71a。Workers Builds: mj success）
 - issue: なし
-- 判断が必要なこと: なし
-- 未確認の項目: なし
-- エラー: なし
+- 判断が必要なこと: なし（指示の前提の「since_id と start_time を同時に渡せるか」は、渡せなかった〈HTTP 400〉。since_id のときは start_time を付けず、最後の投稿が 29日より前なら今までどおり期間で読む形にした。費用の見込みは 1日 約 $0.04・月 約 $1.1〈読み直しの 1日 約 $0.34 が無くなる〉。最初に効くのは 2026-11-19 04:00 JST の毎朝の運行）
+- 未確認の項目: 毎朝の運行での since_id の実地（2026-11-19 04:00 JST。作業ブランチの本実行では result_count 0 で、エラーは無かった）。`fetch-x-posts.yml` の説明の文の直し（見送り）
+- エラー: なし（1回目の本実行が HTTP 400 で止まった。X を1件も読まず、【1】にも書いていない）
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 1fefbdb7）: https://github.com/retroeater/mj-logs/tree/main/guide/1fefbdb7
+ガイド文書（この版を写した時点の最新、mj fee2fb4b）: https://github.com/retroeater/mj-logs/tree/main/guide/fee2fb4b
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/1fefbdb7/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/1fefbdb7/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/1fefbdb7/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/1fefbdb7/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/1fefbdb7/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/1fefbdb7/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/fee2fb4b/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/fee2fb4b/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/fee2fb4b/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/fee2fb4b/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/fee2fb4b/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/fee2fb4b/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/f1fdf86e.md
