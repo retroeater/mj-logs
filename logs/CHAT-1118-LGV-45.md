@@ -81,17 +81,21 @@
 - 手順3: 一度きりの mode を戻した。`git diff origin/cloudflare -- scripts/ .github/` は空
 
 
+- マージ: 再 fetch 後 `git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめて `git push origin work/1118-lgv-overseas:cloudflare`（f1fdf86ed..1fefbdb7a。ログと決定だけ。scripts/・.github/ の差は無い）
+- 手順4: regenerate-page.yml を cloudflare の ref・target_page log_pages で実行（run 44207927522 success）。cloudflare に e96d28a1a「chore: regenerate log/ via GitHub Actions」をコミット、Workers Builds: mj success
+- 本番の確かめ（`https://ryoei.pro/log/search.json?v=e96d28a1a`、UA に mj-internal）: 店 1,729・投稿 2,466。2072500507550347527 は Archibald Microbrasserie・駅 Dorval (Montreal)、2072498164968604089 は E.A.K. Ramen・駅 50 St (New York)、2072496955981500602・2072495776102760882 は Pyramid Cafe・駅 MGM Grand (Las Vegas)（4件とも place_id あり）。2122506486849118292 は載っていない。ブラウザでの見え方は見ていない
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1118-lgv-overseas
 - ログ: https://github.com/retroeater/mj/blob/work/1118-lgv-overseas/docs/logs/CHAT-1118-LGV-45.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1118-lgv-overseas
 - 確認用URL: なし
-- マージ: 未
-- issue: #679
+- マージ: 済（ドキュメントのみ。f1fdf86ed..1fefbdb7a。log/ の作り直し e96d28a1a）
+- issue: #679（コメントしていない。次の毎朝の運行で0件になり閉じる見込み〈生成と同じ処理の確かめで毎朝の一覧は0件〉）
 - 判断が必要なこと: なし
-- 未確認の項目: なし
+- 未確認の項目: #679 が閉じること（2026-11-19 04:00 JST の毎朝の運行）。ブラウザでの log/ の見え方
 - エラー: なし
 
 <!-- guide-links -->
