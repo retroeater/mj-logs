@@ -57,6 +57,30 @@
 
 ## 経過
 
+- 手順0: 「指示」欄の末尾は指示文の最後の行と一致。同じ Chat-Ref のコミットなし。work/1118-lgv-overseas はリモート・ローカルとも無く、origin/cloudflare（f1fdf86ed）から作った。LGV-44 の状態に ` / 続き: CHAT-1118-LGV-45` を足した
+- 冒頭の雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は欠けていない
+- 手順1: 未マージの work/ ブランチで convert_x_posts.py・convert-x-posts.yml を変えているものは無い
+- 海外の駅の書き方: 手元の駅の一覧と生成の関数（`display_station` → `station_info` → `shown_station`）で `【Montreal】Dorval`・`【New York】50 St`・`【Las Vegas】MGM Grand` を通すと、「Dorval (Montreal)」「50 St (New York)」「MGM Grand (Las Vegas)」になる（駅の一覧には当たらず、座標は無い）。前提の形のまま書いた
+- 手順2: 一度きりの mode `lgv45`（5811d700c、戻したのは c2ebfa201）。作業ブランチの ref で convert-x-posts.yml を手動実行。Claude・Places・X は呼んでいない
+  - dry_run（run 44207587541）: 【3】に行が無く、5行を足す・違う値 0（【3】1264行）。5件とも【2】にある
+  - 3層に書くジョブ: Actions の未完了の run 0件を確かめて `--apply`（run 44207674138 success）: 「【3】に 5行を足した」
+
+    ```
+    足した行: 2122506486849118292 表示=N
+    足した行: 2072500507550347527 駅=【Montreal】Dorval・表示=Y
+    足した行: 2072498164968604089 駅=【New York】50 St・表示=Y
+    足した行: 2072496955981500602 駅=【Las Vegas】MGM Grand・表示=Y
+    足した行: 2072495776102760882 駅=【Las Vegas】MGM Grand・表示=Y
+    ```
+  - もう一度 dry_run（run 44207755436）: 書く・足す 0（【3】1269行 = 1264 + 5）。log/ の生成と同じ処理（shown_pairs → 閉業 → HIDDEN_SHOPS → build_posts）で、決定どおりでない 0件・載る投稿 2,466件:
+    - 2072500507550347527: Archibald Microbrasserie・駅 Dorval (Montreal)・place_id 有
+    - 2072498164968604089: E.A.K. Ramen・駅 50 St (New York)・place_id 有
+    - 2072496955981500602・2072495776102760882: Pyramid Cafe・駅 MGM Grand (Las Vegas)・place_id 有
+    - 2122506486849118292（谷岡育夫）: 載らない
+    - 毎朝の一覧（本文で外す投稿を除いた形）: 0件
+- 手順3: 一度きりの mode を戻した。`git diff origin/cloudflare -- scripts/ .github/` は空
+
+
 ## 報告
 
 - 状態: 作業中
@@ -73,12 +97,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 1fdad7a6）: https://github.com/retroeater/mj-logs/tree/main/guide/1fdad7a6
+ガイド文書（この版を写した時点の最新、mj 1fefbdb7）: https://github.com/retroeater/mj-logs/tree/main/guide/1fefbdb7
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/1fdad7a6/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/1fdad7a6/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/1fdad7a6/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/1fdad7a6/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/1fdad7a6/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/1fdad7a6/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/1fefbdb7/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/1fefbdb7/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/1fefbdb7/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/1fefbdb7/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/1fefbdb7/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/1fefbdb7/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/f1fdf86e.md

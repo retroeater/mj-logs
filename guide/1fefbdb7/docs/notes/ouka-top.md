@@ -38,7 +38,7 @@
 
 - Worker `mj-ask` を鳳凰戦と共有し、1日の上限（全体 200・IP ごと 10）も共有する（2026-10-17）
 - ouka/ の質問欄は問いに `contest: "ouka"` を添え、Worker は `data-ouka.json` と女流桜花の指示（`ask.mjs` の `OUKA_PLAN_SYSTEM`）で答える。鳳凰戦の問い（`contest` 無し）の答え方は変えない
-- 記録の型は「ouka:league」の形（答えられなかった問いは「ouka:」。仮置き）
+- 記録の型は「ouka:league」の形（答えられなかった問いは「ouka:」。仮置き）（2026-11-17 から質問欄は横断だけで、Worker は大会別の要求をその大会を context とした横断として答え、記録の型は `all:<大会>:<型>`。docs/notes/ask-worker.md「横断」）
 
 ## 確かめ方
 
