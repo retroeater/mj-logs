@@ -1,12 +1,13 @@
 # 朝の報告用の異常（retroeater/mj）
 
-- 書き出した時刻: 2026-11-18 10:53 JST（見た範囲: 2026-11-17 08:53 JST から）
+- 書き出した時刻: 2026-11-18 10:55 JST（見た範囲: 2026-11-17 08:55 JST から）
 - 書き出した実行の契機: workflow_dispatch（main）
 - 異常だけを書く。全体は actions/status.md。判定は mj の scripts/morning_report.py（各ワークフローの直近 100 回まで）
 
 ## 1. 失敗など（結論が success・skipped 以外。実行中を含む）
 
 - 2026-11-17 21:47 convert-x-posts.yml failure（workflow_dispatch・work/1117-lgv-thread）ジョブ「convert」 https://github.com/retroeater/mj/actions/runs/44086393162
+- 2026-11-18 10:54 fetch-x-posts.yml failure（workflow_dispatch・work/1118-lgv-sinceid）ジョブ「fetch」 https://github.com/retroeater/mj/actions/runs/44219372084
 
 ## 2. 予約実行の未実行（予定から3時間以内は「遅れの可能性」。3時間を超えて始まった実行は「遅れて実行」）
 
