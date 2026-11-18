@@ -87,7 +87,7 @@
 
 ## 報告
 
-- 状態: 完了
+- 状態: 完了 / 続き: CHAT-1118-LGV-46
 - ブランチ: work/1118-lgv-overseas
 - ログ: https://github.com/retroeater/mj/blob/work/1118-lgv-overseas/docs/logs/CHAT-1118-LGV-45.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1118-lgv-overseas
