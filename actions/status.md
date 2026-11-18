@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-11-18 10:58 JST
+- 書き出した時刻: 2026-11-18 11:00 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -35,11 +35,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-18 10:58 | push | work/1118-lgv-sinceid | success | #1350（44219758114） | 0分28秒 |
 | 2026-11-18 10:54 | push | work/1118-lgv-sinceid | success | #1349（44219364519） | 0分29秒 |
 | 2026-11-18 09:30 | push | work/1118-lgv-overseas | success | #1348（44208300932） | 0分32秒 |
 | 2026-11-18 09:27 | push | work/1118-lgv-overseas | success | #1347（44207913374） | 0分27秒 |
 | 2026-11-18 09:24 | push | work/1118-lgv-overseas | success | #1346（44207587295） | 0分29秒 |
-| 2026-11-17 22:19 | push | work/1117-aic | success | #1345（44091558829） | 0分25秒 |
 
 ## check-build-failure.yml
 
@@ -48,11 +48,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-18 10:58 | check_run | cloudflare | skipped | #1832（44219851572） | 0分01秒 |
 | 2026-11-18 10:55 | check_run | cloudflare | skipped | #1831（44219456481） | 0分01秒 |
 | 2026-11-18 09:30 | check_run | cloudflare | skipped | #1830（44208441378） | 0分01秒 |
 | 2026-11-18 09:30 | check_run | cloudflare | skipped | #1829（44208434249） | 0分01秒 |
 | 2026-11-18 09:28 | check_run | cloudflare | skipped | #1828（44208059063） | 0分10秒 |
-| 2026-11-18 09:28 | check_run | cloudflare | skipped | #1827（44208050467） | 0分08秒 |
 
 ## check-image-links.yml
 
@@ -180,11 +180,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-18 10:58 | workflow_dispatch | work/1118-lgv-sinceid | success | #38（44219763724） | 0分26秒 |
 | 2026-11-18 10:54 | workflow_dispatch | work/1118-lgv-sinceid | failure | #37（44219372084） | 0分28秒 |
 | 2026-11-17 21:59 | workflow_dispatch | cloudflare | success | #36（44088230251） | 0分26秒 |
 | 2026-11-17 16:43 | workflow_dispatch | work/1117-lgv-thread | success | #35（44040883715） | 0分23秒 |
 | 2026-11-17 16:42 | workflow_dispatch | work/1117-lgv-thread | success | #34（44040735989） | 0分25秒 |
-| 2026-11-10 10:48 | workflow_dispatch | work/1110-xpu | success | #33（42738397386） | 0分33秒 |
 
 - #37 failure: ジョブ「fetch」 ステップ「実行」
 
