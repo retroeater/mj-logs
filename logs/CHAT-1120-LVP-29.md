@@ -64,7 +64,7 @@ CHAT-1119-LVP-28 の判断待ちの3点を、平野さんの答えのとおり�
 
 ## 報告
 
-- 状態: 完了
+- 状態: 完了 / 続き: CHAT-1120-LVP-30
 - ブランチ: work/1119-lvp
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1120-LVP-29.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1119-lvp
@@ -78,12 +78,12 @@ CHAT-1119-LVP-28 の判断待ちの3点を、平野さんの答えのとおり�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj fc6dd8fd）: https://github.com/retroeater/mj-logs/tree/main/guide/fc6dd8fd
+ガイド文書（この版を写した時点の最新、mj 307056fb）: https://github.com/retroeater/mj-logs/tree/main/guide/307056fb
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/fc6dd8fd/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/fc6dd8fd/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/fc6dd8fd/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/fc6dd8fd/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/fc6dd8fd/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/fc6dd8fd/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/307056fb/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/307056fb/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/307056fb/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/307056fb/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/307056fb/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/307056fb/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/13ebaa17.md
