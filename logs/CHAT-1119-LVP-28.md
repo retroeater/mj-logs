@@ -79,7 +79,7 @@ Chat-Ref: CHAT-1119-LVP-28
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1120-LVP-29
 - ブランチ: work/1119-lvp
 - ログ: https://github.com/retroeater/mj/blob/work/1119-lvp/docs/logs/CHAT-1119-LVP-28.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1119-lvp
