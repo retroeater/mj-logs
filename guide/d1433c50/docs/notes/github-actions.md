@@ -79,6 +79,7 @@ GitHub Actions (`.github/workflows/regenerate-page.yml`) が、`scripts/generate
 - morning.md の「3. 所要時間の異常」は cloudflare の実行だけを見る。中央値の基準（比・絶対値とも）は、判定する実行と同じ種類（cloudflare で、予約の実行〈題の先頭が `[scheduled]` か `event` が `schedule`〉かどうかがそろったもの）の直近20回だけから取る（手動の試しや作業ブランチの実行で予約の実行の基準が下がらないように、#563）。比の判定は「直近20回の中央値の3倍以上」と「中央値＋5分（`SLOW_MARGIN`）以上」の両方を満たすときだけ出す（中央値1分前後の本の3〜5分を出さない、#563）
 - 失敗の行のジョブのうち、失敗したステップが regenerate-page の「飛ばしたページを報告」のものは、そのジョブのログ（`GET /repos/{repo}/actions/jobs/{job_id}/logs`、Actions の Read）から `##[error]生成に失敗したページを飛ばしました:` で始まる行（注釈の1行目。`echo` の行は拾わない）を引いて「：」の後に添える（ほかのジョブでは API を呼ばない。引けなければ添えない、#563）。check-run の annotations は Checks の権限が要り、mj-logs の `sync-from-mj.yml` の `MJ_READ_TOKEN`（fine-grained、Checks を選べない）では引けないため使わない
 - morning.md の「2. 予約実行の未実行」は、その日の run-daily の定期実行（題が `[scheduled]`）で呼ぶジョブ（`live` など。呼ぶ関係は run-daily.yml の `uses:` から読む）が success のワークフローの cron の予定を数えない（今 cron が残るのは月次の2本だけ）。ワークフローが作られる前（API の `created_at`）の予定も見ない（CHAT-1017-WFL-27）
+- morning.md の「6. Actions の使用量（mj）」は、前日（JST）が 240分以上か、前日の月の累計が含まれる 3,000分の 50%・75% を超えたときに、前日の分と月の累計（割合）を書く（どちらにも当たらなければ「なし」。月の初日の朝は前月の累計。月の前日までの日がそろわないうち・前日が締まらないうちは「集計中」）。閾値・含まれる分は `scripts/actions_usage.py` の定数。数え方は下の「Actions の使用量（実測、#298）」のチャット側の見積もりと同じ（その日〈JST〉に作られた全ブランチ・全イベントの実行のジョブを `filter=all` で引き、skipped と所要0以下を除いてジョブごとに1分へ切り上げる）。日ごとの分は mj-logs の `actions/usage.json` に貯め、締めた日は数え直さず、今日は数えない。締めていない日は古い順（2026-11-01 から）に埋め、1回の起動の呼び出しは 250回まで（途中の日は実行ごとの分を `pending` に貯めて続きから引く。動いている実行がある日は締めない。API の残りが 1,000回未満なら数えない）。請求の月の区切りは UTC なので、JST の月で数える累計は月の初日の 0〜9時の分（2026-11-01 は 131分）を早めに数える（知らせが早めに出る側のずれなので、そのままにする）。使用量の失敗は 6節に「出せなかった」と書き、1〜5節・status.md・運行表は止めない（#298）
 
 **戻し方**（切り替えをやめて本ごとの起動に戻す）: 次の4つを戻して cloudflare に入れる（Workers Builds の `mj-scheduler` がデプロイする）。update-live-channel の保険の予約実行とゲート（2026-11-01 に外した）も戻すなら、外したコミットを `git log -- .github/workflows/update-live-channel.yml` で探して戻す。
 
@@ -93,7 +94,7 @@ GitHub Actions (`.github/workflows/regenerate-page.yml`) が、`scripts/generate
 
 - `run-weekly`: `logs`（cleanup-logs）の後に `youtube`。cleanup-logs は毎日にすると #357 に同じ一覧の通知が毎日付くので週次に残した（CHAT-1102-WKP-09）。手動実行は cleanup-logs に dry-run を渡す
 - 2026-11-03 から run-daily に移した5本: `meibo`（check-meibo）・`birthday`（sync-birthday-calendar）・`unregistered`（check-saikyo-unregistered、run-daily には regenerate-saikyo の `saikyo` があるので名前を変えた）・`xfetch`・`xconvert`。どれも変わらない日には書かない（check-meibo・check-saikyo-unregistered は問題が続くあいだ issue の本文を毎日書き換えるが、コメント・通知ではない。CHAT-1102-WKP-09 の表）。run-daily の `logs`（mj-logs の同期）はこれらの後に動く
-- `run-daily` の `xfetch`（fetch-x-posts）→ `xconvert`（convert-x-posts の all）: 「ログ」の取り込み（#367、2026-11-02 は run-weekly、2026-11-03 から run-daily）。ほかの本と並行に動き、`xconvert` は `xfetch` が失敗しても `!cancelled()` で動く（【1】にある分を変換する）。対象は `fetch_x_posts.py` の既定の2人（it_uesama・retroeater。石立岳大は対象外）、期間は【1】の人ごとの最も新しい投稿日から今まで（`--since-latest`。同じ投稿 ID は足さない）。新しい行の表示は、判定が飲食店で要確認でなければ Y（2026-11-12 から、飲食店の行は1枚目の写真を Claude Haiku で判定し、料理・飲み物が主でない・判定できない・5項目のどれかが空なら要確認〈表示 N〉。`xconvert-issue` が常設 issue「ログ: 毎日確かめる投稿」を書く〈`upsert-issue`、1件以上で本文を書き換え・0件で閉じる。手動実行は書かない〉。docs/notes/log-page.md「新しい投稿の写真と空欄」、CHAT-1111-LGV-30）。手動実行（`scheduled` なし）は両方とも dry-run（X・Claude・Places を呼ばず、シートに書かない。書くかどうかは各本の `resolve-mode` が実行サマリに出す）。費用の見込みは週に X 20〜30件（約 $0.15。毎日にしたので、最も新しい投稿日の投稿の読み直しで月に約 $0.65 増える見込み、CHAT-1102-WKP-09）・Claude 約 $0.08・Places 20〜30回（Text Search の place_id だけ、2026-10-29 から）
+- `run-daily` の `xfetch`（fetch-x-posts）→ `xconvert`（convert-x-posts の all）: 「ログ」の取り込み（#367、2026-11-02 は run-weekly、2026-11-03 から run-daily）。ほかの本と並行に動き、`xconvert` は `xfetch` が失敗しても `!cancelled()` で動く（【1】にある分を変換する）。対象は `fetch_x_posts.py` の既定の2人（it_uesama・retroeater。石立岳大は対象外）、期間は【1】の人ごとの最も新しい投稿日から今まで（`--since-latest`。同じ投稿 ID は足さない。2026-11-18 から、【1】の人ごとの投稿 ID の最大を since_id にして、最後に取り込んだ投稿より後だけを読む〈同じ日の投稿を毎朝読み直さない。X は since_id と start_time を併せられず、start_time が無いと直近 30日だけなので、最後の投稿が 29日より前なら今までどおり期間で読む〉、CHAT-1118-LGV-46）。新しい行の表示は、判定が飲食店で要確認でなければ Y（2026-11-12 から、飲食店の行は1枚目の写真を Claude Haiku で判定し、料理・飲み物が主でない・判定できない・5項目のどれかが空なら要確認〈表示 N〉。`xconvert-issue` が常設 issue「ログ: 毎日確かめる投稿」を書く〈`upsert-issue`、1件以上で本文を書き換え・0件で閉じる。手動実行は書かない〉。docs/notes/log-page.md「新しい投稿の写真と空欄」、CHAT-1111-LGV-30）。手動実行（`scheduled` なし）は両方とも dry-run（X・Claude・Places を呼ばず、シートに書かない。書くかどうかは各本の `resolve-mode` が実行サマリに出す）。費用の見込みは週に X 20〜30件（約 $0.15。毎日にしたときは最も新しい投稿日の投稿を毎朝読み直していたが〈月に約 $0.65 の見込み、CHAT-1102-WKP-09〉、2026-11-18 から since_id で読み直しは無い〈最後の投稿が 29日より前のときだけ、その日を読み直す〉）・Claude 約 $0.08・Places 20〜30回（Text Search の place_id だけ、2026-10-29 から）
 - `run-monthly`: `gsc`（fetch-gsc）→ `redirects`（fetch-redirect-counts）と、並行に `closed`（convert-x-posts の closed、#664。Secret は `LIVE_SHEETS_SA_KEY`・`SHEETS_READER_SA_KEY`・`GOOGLE_PLACES_API_KEY` だけを渡す）→ `closed-issue`（`closed` の出力 `issue_body`・`issue_close` が空でなければ、`upsert-issue` の型S で常設 issue「ログ: 確かめる投稿」を書く。節は本文の語で外した投稿・店名が空の投稿と、1件以上のときだけ駅が駅の一覧に無い投稿〈CHAT-1113-LGV-37〉。1件以上なら開いて本文を書き換え、0件なら開いていればコメントして閉じる。CHAT-1107-LGV-10。`issues: write` を持つのはこの job だけで、`convert-x-posts.yml` に持たせない〈入れ子では呼ぶ側の job も同じ権限が要り、`run-daily` の `xconvert` に足すことになるため〉）。手動実行では `gsc` を飛ばす（commit を外しても robots.txt に差分があれば #304 にコメントするため）。`redirects`・`closed`・`closed-issue` は dry-run
 - `run-weekly` の `youtube`（fetch-youtube → regenerate-page）: `logs` の後に `!cancelled()` で動く（最後に regenerate-page を all で呼び重いため。毎日取り込んだ「ログ」は、ここで週1回ページに出る）。fetch-youtube に書かない道筋が無いので、手動実行（`scheduled` なし）では飛ばす。確かめは 2026-10-26 の予約の起動（CHAT-1021-WKP-03）
 - 週次の本の GitHub の `schedule`（保険）は 2026-11-01 に外した（CHAT-1101-WKP-05）。月次の2本（fetch-gsc・fetch-redirect-counts）の `schedule` は 2026-12-01 の run-monthly の成功まで保険として残り、残るあいだは fetch-redirect-counts の #568 へのコメント・fetch-gsc の robots.txt の差分の #304 へのコメントが2回になりうる
@@ -222,14 +223,40 @@ PR は SHA と版のコメントを書き換える。Dependabot security updates
   その場合は副作用の無い状態（dry-run 既定、schedule も dry-run で走る等）でマージし、`cloudflare`で手動実行して確認してから有効化する（CHAT-0918-HT-06/08）
 - ワークフローを足す・消す・名前を変えるときは、上の「ワークフローの一覧」の表の行も同じコミットで直す（`scripts/tests/test_workflows_table.py`）
 
-## Actions の使用量（2026-10 の実測、#298）
+## Actions の使用量（実測、#298）
 
-規則ではなく実測。数字は平野さんが取った Billing の usage report の CSV（10/1〜10/20。申告値で、セッションからは検証できない）。
+規則ではなく実測。
+
+### 2026-10
+
+数字は平野さんが取った Billing の usage report の CSV（10/1〜10/20。申告値で、セッションからは検証できない）。
 
 - mj（private）: 3,203 分。10/19 に含まれる 3,000 分を超え、請求は 10/19 $0.978・10/20 $0.222（計 $1.20）
 - mj-logs（public）: 約 6,800 分。CSV の discount_amount が gross と同じ（割引 100%）で請求 $0。含まれる 3,000 分にも数えられていない（mj が 3,000 分を超えた日に請求が始まった）
 - mj の分は、API でジョブごとに1分へ切り上げて足した見積もり（3,198 分）と CSV の差が 5 分。mj の分は API の集計で足り、CSV が要るのは public のリポジトリの割引を確かめるときだけ
 - Billing の画面のグラフ（Metered usage）は割引前の金額で、mj-logs の分を含む（10/20 までで約 $59）。画面の Group by にリポジトリは無く（None・SKUs だけ）、リポジトリ別の内訳は CSV（「Get usage report」）の repository の列で見る
+
+### 2026-11（11/1〜18、2026-11-19 に確認）
+
+- mj の分（**チャット側の見積もり**。API で実行 2,683件・ジョブ 3,071件を取り、ジョブごとに1分へ切り上げ。日付は JST）: 合計 4,718分（実際に動いた時間 3,655分）。累計が 3,000分を超えたのは 11/7
+  - 訂正（2026-11-19）: 11/1 は初め 273分・合計 4,649分と書いたが、JST の1日（実行 174件）で数え直すと 386分だった（`actions_usage.py` の数え方とチャット側の数え直しが一致。273分の出どころは確かめられない。日ごとの和も合計と合っていなかった）。合計と、累計が 3,000分を超えた日（11/8 → 11/7）を直した。実行・ジョブの件数と実際に動いた時間は数え直していない（`actions_usage.py` の数え方では 11/1〜18 の実行は 2,559件）
+  - 日ごと: 11/1 386・11/2 332・11/3 204・11/4 1,769・11/5 237・11/6 66・11/7 95・11/8 25・11/9 117・11/10 104・11/11 60・11/12 242・11/13 543・11/14 87・11/15 119・11/16 181・11/17 98・11/18 53。240分を超えた日は5日
+  - ワークフロー別の上位: regenerate-page.yml 1,891・check-assets.yml 867・run-daily.yml 799・fetch-gsc.yml 262・research-candidates.yml 168・oneoff-news-read.yml 122・convert-x-posts.yml 108
+  - 11/4: 作業ブランチでの regenerate-page.yml の手動実行 102ジョブ・1,012分（最長 61分）、check-assets.yml（作業ブランチの push）215ジョブ・307分、cloudflare の push の regenerate-page.yml 21ジョブ・167分。Sheets API の 429 で再生成が長引いた日（#662）と見る（チャット側の見立て）
+  - fetch-gsc.yml は 11/12〜13 だけ（11/12 に1ジョブ 174.5分、11/13 に 34.3分・43.6分など。計 262分）
+  - 大きい日（11/12・13）を除いた 11/6〜18 は1日 約91分。cloudflare の run-daily.yml は 11/14〜19 で1日 35〜44分（10/18 の集計では1日 約21分）
+- Billing の Billed amount（**平野さんの PDF。申告値**）: 11/7 から出て、11/18 までの合計 $10.12（最大は 11/13 の $3.10、11/12 の $1.80）。リポジトリ別の CSV は取っていない
+- mj だけの集計で 3,000分を超えた日（11/7 JST）と請求の始まり（11/7 UTC）がほぼ合うので、mj-logs は今月も含まれる分に数えられていないと見る（**推論**）
+- 見込み（チャット側）: 大きい日が無ければ 11月の請求は約 $17。ふだんの日だけで月 約2,700分になり、大きい日が月に数日ある実態では、毎月 $5〜15 の超過が続くと見るほうが現実的
+- 知らせ（公式「Budgets and alerts」、2026-11-19 にチャット側が確認）: 含まれる分の知らせは 90%・100%、予算の知らせは 75%・90%・100%。割合を変えられるとは書かれていない。予算はリポジトリ単位にもできる。11月の 90% のメールは 11/5 に届いた（申告値）。1日で大きく使う日には間に合わない
+- run-daily.yml の所要の内訳（**チャット側の見積もり**。cloudflare の `[scheduled]` の実行 35回を API で集計、ジョブごとに1分へ切り上げ。日付は JST）。ジョブをまとめる案の見直しは 11月の確定値と並べて行う（チャット側の予定）
+
+| 項目 | 値 |
+|---|---|
+| 1日の分数の推移 | 10/16〜20 は 21〜30分（平均 約24分）、10/22〜31 は 24〜37分、11/3 から 32〜52分、11/12〜19 は 35〜44分（平均 約39分） |
+| 増えた分（約+15分）の内訳 | 新しく入ったジョブで 約+11分（11/3 に run-weekly から移した meibo の2ジョブ・birthday・unregistered・xfetch・xconvert で 約7分。logs〈10/24〜〉・sokuho〈11/5〜〉・xconvert-issue〈11/13〜〉・logpage〈11/14〜〉）。再生成のジョブ（live・sns・saikyo の regenerate）が各 約1分から約2分になって 約+3分。そのほか 約+1分 |
+| 切り上げの分 | 11/12〜19 の1日あたり、実際の所要 29.0分に対し課金の見積もり 38.6分。22ジョブのうち13ジョブは実際には1分未満（logs は約6秒、xconvert-issue は約18秒） |
+
 
 ## チャット側
 

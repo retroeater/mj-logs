@@ -135,14 +135,18 @@ CFX 系列のチャット（2026-11-19〜20。CHAT-1119-CFX-01・02）の振り�
 - 状態・ラベルは変えていない
 - 足した行を書いたコメント（`Chat-Ref: CHAT-1120-CFX-03` 付き）: https://github.com/retroeater/mj/issues/304#issuecomment-7014394097
 
+### マージ
+
+- push 直前の再 fetch で cloudflare が進んでいた（CHAT-1120-LVP-29 の3コミット。触るファイルは重ならない）。`git merge origin/cloudflare` で衝突なく取り込み（a2cb9a0e8）、`merge-base --is-ancestor` を確かめて `git push origin work/1120-cfx:cloudflare`（cfb6ceddc..a2cb9a0e8）
+
 ## 報告
 
 - 状態: 完了
 - ブランチ: work/1120-cfx
-- ログ: https://github.com/retroeater/mj/blob/work/1120-cfx/docs/logs/CHAT-1120-CFX-03.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1120-CFX-03.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1120-cfx
 - 確認用URL: なし
-- マージ: 未（このあと行う）
+- マージ: 済（a2cb9a0e8。docs のみ）
 - issue: #304（本文 (13) に1行、コメント2件）
 - 判断が必要なこと: なし
 - 未確認の項目: Log Explorer の料金の正（出典3つが食い違う）。上限に達したときの実際の動き（試す手段が無い）
@@ -151,12 +155,12 @@ CFX 系列のチャット（2026-11-19〜20。CHAT-1119-CFX-01・02）の振り�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj cfb6cedd）: https://github.com/retroeater/mj-logs/tree/main/guide/cfb6cedd
+ガイド文書（この版を写した時点の最新、mj d1433c50）: https://github.com/retroeater/mj-logs/tree/main/guide/d1433c50
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/cfb6cedd/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/cfb6cedd/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/cfb6cedd/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/cfb6cedd/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/cfb6cedd/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/cfb6cedd/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d1433c50/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d1433c50/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d1433c50/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d1433c50/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d1433c50/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d1433c50/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/13ebaa17.md
