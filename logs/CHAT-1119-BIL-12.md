@@ -75,6 +75,43 @@ Chat-Ref: CHAT-1119-BIL-12
 - 0. 指示欄の末尾は指示文の最後の行（「不明な点があれば…この行が指示文の最後の行です。」）と一致
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）の欠け: なし
 
+### 手順1（着手の確認）
+
+- #298 のコメント 50件を読んだ。最後の着手中は CHAT-1119-BIL-11（マージ済み）。他セッションの着手中は無し。着手中のコメントを書いた（issuecomment-6999496274）
+- 未マージの work/ ブランチ: 手順1のスクリプト・テストを変えたものは無し。docs/notes/github-actions.md を変えているのは `work/1101-prp-pub`（一覧の表の `check-image-links.yml` の行）と `work/1103-ryo5`（一覧の表の `fetch-x-posts.yml` の行）だけで、どちらも「run-daily.yml」「Actions の使用量（実測、#298）」の節ではない（同じファイルの別の箇所。止まらない）
+- 前提の確かめ（mj-logs の `sync-from-mj.yml` を raw で読んだ）: 「写す・書き出す・push」の step が mj のクローンの中で `python3 scripts/actions_status.py --repo retroeater/mj --dest "$GITHUB_WORKSPACE"` を呼ぶ。env の `GITHUB_TOKEN` は `secrets.MJ_READ_TOKEN`、コメントに「mj の Contents・Actions が Read-only」。`actions_status.py` の `main()` の最後で `morning_report.write()` を呼ぶ。前提と一致。step は `set -euo pipefail` なので、使用量の例外は `actions_status.py` の中で捕まえる。push が拒否されたら `git reset --hard origin/main` でやり直す（そのときは usage.json の更新も捨てられ、次の回で同じ日を続きから引く）
+- セッションから `api.github.com` の mj の Actions の API に届く（`GET /repos/retroeater/mj/actions/runs?per_page=1` が 200）。mj-logs の Actions の API はこのセッションの許可の外（sync の頻度は mj-logs のクローンのコミットで見た: 11/18 JST に変更のあった回が 18回）
+
+### 手順2（実装）: 選んだ形と理由
+
+- 新しいモジュール `scripts/actions_usage.py`（数えて貯める）と、`morning_report.py` の `usage_lines()`（6節の文）。`actions_status.py` は status.md の後・morning.md の前に `actions_usage.update()` を呼び、例外は捕まえて 6節に「使用量を出せなかった（例外の型）」と書く（1〜5節・status.md・index.html は止めない）。数える処理は morning_report の判定と別の関心で約150行になるため、actions_dashboard.py と同じく別のモジュールにした
+- 置き場所は指示の案のとおり mj-logs の `actions/usage.json`（`days`: 日 → `{minutes, runs}`、`pending`: 途中の日の実行ごとの分）。sync の `git add -A` でそのままコミットされる。中身が変わったときだけ書く
+- 1回の起動の上限は API の呼び出し 250回（`CALL_BUDGET`）。日の上限にしなかったのは、11/4 のように1日で 650件を超える実行があり、1日単位では1回の起動の呼び出しが読めないため。途中の日は実行ごとの分を `pending` に貯め、次の起動はまだ引いていない実行のジョブだけを引く（実行の一覧は日ごとに1回だけ）
+- 締めた日（`days` にある日）は数え直さない。締めていない日が無ければ API を1回も呼ばない（`/rate_limit` も呼ばない）
+- 締めていない日があるときは、先に `/rate_limit`（レートに数えられない）を見て、残りが 1,000回未満なら数えない（sync は1日20回前後、MJ_READ_TOKEN の1時間 5,000回を埋め戻しで食い尽くさないため）
+- 実行の一覧は `created=<開始>..<終わり>`（UTC、JST の日の 00:00:00〜23:59:59）。`total_count` が 1,000 を超えたら範囲を半分に割って取り直す
+- 動いているジョブがある実行は分を貯めず、次の起動で引き直す（その日は締めない）。2日より前の日は終わった分だけで締める（`STALE_DAYS`、待ちのまま残る実行で後の日が止まらないように）。締めた後の再実行は数えない（`簡略化:` のコメント）
+- 6節: 前日が 240分以上か、そろった月の累計が 1,500分・2,250分を超えたら、前日の分と月の累計（割合と超えた閾値）。前日が締まっていない・月がそろっていないときも2行（「集計中」）。どれにも当たらなければ「なし」。月の初日の朝は前日の月＝前月の累計。閾値・含まれる分・初めの日は `actions_usage.py` の定数
+- テスト `scripts/tests/test_actions_usage.py`（24件）: 切り上げ・skipped と時刻なしと所要0の除外・失敗と取り消しは数える・JST の日の境目（10/31 23:59 JST の実行を 11/1 に入れない、今日を数えない）・締めた日を数え直さない（2回目の起動の呼び出し 0）・翌日は新しい日だけ・上限で途中まで→続きから（同じ実行・一覧を引き直さない）・動いている実行は締めない／2日より前は締める・1,000件超の分割・ジョブのページング・API の失敗でそれまでの分を書いて例外・レートの残りが少ないと数えない・6節の閾値の境界（239/240、1,500/1,501、2,251）・集計中・前日が無い・月の初日・失敗の表示・失敗でも1〜5節が書かれる（`morning_report.write`）
+- `python3 -m unittest discover -s scripts/tests`: Ran 2249 tests, OK
+
+### 通しの実行（止まる条件の (1)〜(3)）
+
+mj-logs のクローン（main の先頭）を3つ複製し、変更前（origin/cloudflare の scripts・.github・workers を git archive で取り出したもの）と変更後を続けて動かした（`--repo retroeater/mj --event workflow_dispatch --ref main`）。
+
+- (1) 変更後: 例外なしで終わった。出力 `actions/usage.json: API 250回、締めた日 1日、途中 2026-11-02`（埋め戻しの初回の、使用量のための呼び出しは 250回）
+- (2) morning.md の差分（変更前→変更後）: 「書き出した時刻」の行（13:20→13:21）と、6節の追加だけ。1〜5節は同じ。そのときの6節:
+
+```
+## 6. Actions の使用量（mj。ジョブごとに1分へ切り上げた見積もり、日付は JST。前日が240分以上か、月の累計が含まれる3,000分の50%・75%を超えたとき）
+
+- 前日（11/18）: 集計中
+- 11月の累計（11/1〜11/18）: 集計中（1/18日）
+```
+
+- (3) `actions_status.get` を差し替え、`/rate_limit`・`created=`・`filter=all` の呼び出しを HTTP 503 にして動かした: `::warning::actions/usage.json を更新できなかった: HTTP Error 503: test` の後に `write: actions/morning.md`・`actions/index.html: 変更なし`。morning.md は変更前と時刻の行のほかは同じで、6節は「- 使用量を出せなかった（HTTPError）」
+- 変更前と後の status.md・index.html はどちらも「変更なし」（クローンの版と同じ）
+
 ## 報告
 
 - 状態: 対応中
