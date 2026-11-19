@@ -74,17 +74,17 @@ Chat-Ref: CHAT-1119-CFX-01
 
 ### 前提の確かめ（2026-11-19）
 
-**`mj-builds-read` と `CF_BUILDS_TOKEN`:** `check-build-failure.yml` の実行（2026-10-13〜11-19）のうち skipped でないものは 9件。うち `check_run` の 8件が判定のステップで `CF_BUILDS_TOKEN` を渡し、Cloudflare のビルドの API を呼んで答えを得ていた（ログの行「Cloudflare のビルド: トリガー: …、ブランチ: …」・notice「本番のトリガーのビルドではない(トリガー: Deploy non-production branches、…)」）。
+**`mj-builds-read` と `CF_BUILDS_TOKEN`:** `check-build-failure.yml` の実行（2026-10-13〜11-19）のうち skipped でないものは 9件（ほか 991件は skipped）。各ジョブのログを読み、Cloudflare のビルドの API を呼んで答えを得ていたのは 5件（ログの行「Cloudflare のビルド: トリガー: …、ブランチ: …」か notice「本番のトリガーのビルドではない(トリガー: …、ブランチ: …)」がある）。
 
-| 実行 ID | 作成（UTC） | 結果 | API の答え |
+| 実行 ID | 作成（UTC） | 結果 | API |
 |---|---|---|---|
-| 41657643690 | 2026-11-03 14:50 | success | プレビュー（work/1103-aic）と確かめて知らせず |
-| 41663755493・41669679662 | 11-03 15:25・16:00 | success | （同じ型の success。ログは1件だけ読んだ） |
-| 41671687021 | 11-03 16:11 | failure | `mj-ask`、ブランチ cloudflare（本番の失敗として知らせた） |
-| 41671694707 | 11-03 16:11 | success | |
-| 41676151633 | 11-03 16:37 | failure | `mj-ask`、ブランチ cloudflare |
-| 41676147031 | 11-03 16:37 | success | |
-| 42553376117 | 11-09 02:53 | success（workflow_dispatch） | 「Workers Builds の失敗ではない」で、API は呼ばない（`judge()` が失敗でない check-run では問い合わせない） |
+| 41657643690 | 2026-11-03 14:50 | success | 呼んだ。プレビュー（ブランチ work/1103-aic）と確かめて知らせず |
+| 41663755493・41669679662 | 11-03 15:25・16:00 | success | 呼ばない（「cloudflare に入っていないコミット(プレビュー)」で先に終わる） |
+| 41671687021 | 11-03 16:11 | failure | 呼んだ。`mj-ask`、ブランチ cloudflare（本番の失敗として知らせた） |
+| 41671694707 | 11-03 16:11 | success | 呼んだ。プレビュー（work/1104-pil） |
+| 41676151633 | 11-03 16:37 | failure | 呼んだ。`mj-ask`、ブランチ cloudflare |
+| 41676147031 | 11-03 16:37 | success | 呼んだ。プレビュー（work/1104-pil） |
+| 42553376117 | 11-09 02:53 | success（workflow_dispatch） | 呼ばない（「Workers Builds の失敗ではない」。`judge()` は失敗でない check-run では問い合わせない） |
 
 - API を呼んだ最後の実行は 2026-11-03 16:37 UTC（11-04 01:37 JST）。11-19 から約15日前で、平野さんの画面の「最終使用 約15日前」（申告値）と合う。#634 のクローズは 2026-10-27 で、作成「約22日前」（10/28 ごろ）とも合う
 - 2026-10-13〜11-02 に API を呼んだ実行は無い（skipped でない実行が無い）。トークン名とSecretの対応そのものは GitHub からは見えない（Secret の値・元のトークン名は読めない）ので、「痕跡が合う」までで、対応は申告値の画面と時期の一致による推定
@@ -103,15 +103,40 @@ Chat-Ref: CHAT-1119-CFX-01
 
 #601 は台帳の置き場所（docs/notes が mj-logs の `guide/` に写り公開されること）を未決の論点にしている。今回 docs/notes/cloudflare.md に足すのはトークン名・権限・Secret 名で、同じ節に既に `mj build token`・`CF_ANALYTICS_TOKEN`・`CF_BUILDS_TOKEN` の名前と権限が書かれており、指示文もそこへ書くよう指定しているので、そのまま書く。#601 の台帳（コメント）への `mj-builds-read` の追加はこの指示の範囲外（コメントは書いていない）
 
+### 記録（2026-11-19、9b3f58e77）
+
+追記先と決定の矛盾は無かった。処理:
+
+- `docs/decisions/cloudflare.md`: 末尾に「## 2026-11-19（CHAT-1119-CFX-01）」を足した（決定3点と「作業中の回答: なし」）
+- `docs/notes/cloudflare.md`「APIトークンの棚卸し」: 「現役は User API Token 1本」の記述は古くなったので置き換え、今ある3本の表（`mj build token`・`mj-builds-read`・`CF_ANALYTICS_TOKEN` の元の Account API Token）と「`mj-builds-read` は消さない」・対応の根拠を書いた。`mj build token` の注意（触らない・接続し直したら古いものを消す）はそのまま残した。見出しに「2026-11-19 に更新」を足した
+- 同「検討して見送った技術(2026-09-11)」の後に小節「Billing の Available の製品（2026-11-19）」を足した。Images & Stream・Zaraz は既存の行を指す。Zero Trust Free は「見送り」（きっかけがあれば入れる）、それ以外は対象外・却下
+- 同「ビルド時間の見積もり」の後に小節「Workers の Spend limits（2026-11-19）」を足した（設定〈申告値〉・仕組み〈公式〉・止まるもの／止まらないものの表・再開の手順）。Budget Alert の行と「DNS・メール・通知の設定」の通知の行から参照を足した
+- `python3 -m unittest discover -s scripts/tests`: 2225 件 OK
+- docs のみの変更のため、サブエージェントのレビューは対象外（CLAUDE.md「判断・作業の原則」はコード・生成物・ワークフロー・配信設定の変更が対象）
+- 経過の補足: `docs/decisions/cloudflare.md` の追記は引用符付きのヒアドキュメント（`cat >> … <<'EOF'`）で書いた。CLAUDE.md の「ファイルは Write / Edit」に反する（展開は起きず中身は意図どおり）
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1119-cfx
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1119-CFX-01.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1119-cfx
+- 確認用URL: なし
+- マージ: 済（ab67feebd を fast-forward で cloudflare へ。docs のみ）
+- issue: なし（#601〈認証情報の台帳〉に `mj-builds-read` を足すかはチャット側の扱い。コメントは書いていない）
+- 判断が必要なこと: なし
+- 未確認の項目: `mj-builds-read` と `CF_BUILDS_TOKEN` の対応は、最終使用の時期（11/3 の API の呼び出し）が合うことによる推定（Secret の元のトークン名は GitHub から読めない）。`CF_ANALYTICS_TOKEN` の元の Account API Token の名前は未確認（#601 の 2026-10-18 の台帳の申告値で Account API token）。Spend limits の設定は申告値
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj c2fd0dd9）: https://github.com/retroeater/mj-logs/tree/main/guide/c2fd0dd9
+ガイド文書（この版を写した時点の最新、mj f13217ad）: https://github.com/retroeater/mj-logs/tree/main/guide/f13217ad
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/c2fd0dd9/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/c2fd0dd9/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/c2fd0dd9/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/c2fd0dd9/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/c2fd0dd9/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/c2fd0dd9/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f13217ad/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f13217ad/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f13217ad/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f13217ad/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f13217ad/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f13217ad/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/c2fd0dd9.md

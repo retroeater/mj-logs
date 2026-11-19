@@ -207,3 +207,10 @@
 
 - #650 の本文の末尾の署名（GitHub MCP での更新で消えた）は、消えたままでよい（足さない）
 - 作業中の回答: なし
+
+## 2026-11-19（CHAT-1119-CFX-01）
+
+- User API Token `mj-builds-read`（権限 Account.Workers Builds Configuration）は削除しない。`check-build-failure.yml` の Secret `CF_BUILDS_TOKEN` の元のトークンとみられ、消すと本番かプレビューかを確かめられず、プレビューの失敗でも通知が来る（#634 の前の誤報に戻る）
+- Billing → Subscriptions → Available の7製品（Workers for Platforms・Calls・Images & Stream・Zero Trust Free・Tunnels for Platforms・Zaraz・Log Explorer）は、今はどれも有効にしない（理由は docs/notes/cloudflare.md「Billing の Available の製品（2026-11-19）」）
+- Workers の Spend limits（Billing → Spend limits、Beta）で Block usage を有効にし、上限は $20 にする。Alert thresholds は足さない（通知は既存の Budget alert〈$5〉に任せる）。Durable Objects の行は触らない（使っていない）。平野さんが 2026-11-19 に保存済み（申告値）
+- 作業中の回答: なし
