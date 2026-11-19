@@ -149,7 +149,7 @@ Chat-Ref の確認・`git branch --merged` が誤る。**これらの判定の�
   ガイド文書に書かない情報はログと同じ。写す一覧は `python3 scripts/sync_guides.py --dest <任意> copy --after HEAD --list`
 - **Actions の実行結果も書き出す。** 写しの実行のたびに、`scripts/actions_status.py` が
   各ワークフローの直近5回の実行を mj-logs の `actions/status.md` に上書きする（#498）。
-  同じ実行で、直近26時間の異常（失敗など・予約実行の未実行・所要時間の異常・初回成功・未報告のログ）だけを朝の報告用に `actions/morning.md` へ書く
+  同じ実行で、直近26時間の異常（失敗など・予約実行の未実行・所要時間の異常・初回成功・未報告のログ・Actions の使用量）と、国家サイバー統括室の投稿（毎朝の運行のジョブ `xcyber` のログから、#689）を朝の報告用に `actions/morning.md` へ書く
   （`scripts/morning_report.py`。予約は各ワークフローの `on.schedule` と mj のクローンの `workers/scheduler/schedule.json` から作る）。
   セッションでも `GITHUB_REPOSITORY=retroeater/mj python3 scripts/actions_status.py --dest <任意>` で同じ表を手元に作れる（環境変数のトークンを使う）
 - ログの `## 報告` などの書き換え方（最後の一致を相手にする）と、「ログ（公開）」の行を書く前の写しの確かめは CLAUDE.md「作業ログ」節
