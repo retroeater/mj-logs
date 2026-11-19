@@ -46,6 +46,55 @@ CHAT-1119-CFX-01 の報告で残った「#601（認証情報の台帳）に `mj-
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 着手前の確認（2026-11-19）
+
+- 0.: ログの「指示」欄の末尾は指示文の最後の行と一致
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 欠けなし
+- 同じ Chat-Ref のコミット: 0件。識別子 `CFX` は同じセッションの続き（CFX-01 の次）で、最初の指示ではない
+- 作業ブランチ: `origin/work/1119-cfx` は `origin/cloudflare` の祖先（マージ済み）、ローカルの `work/1119-cfx` も祖先。docs/notes/cloud-sessions.md「作業ブランチの用意」のとおり `git checkout work/1119-cfx`（既に上にいた）・`git merge --ff-only origin/cloudflare`（Already up to date、f13217ad9）
+- #601: open。着手中のコメントは無い
+
+### 台帳の場所と形
+
+- 台帳は #601 のコメント。最初の表は 2026-10-18 のコメント（CHAT-1018-SEC-07）、追加は 2026-10-21 のコメント（CHAT-1021-PRV-04）、外すのは 2026-10-21 のコメント（CHAT-1021-SEC-19）と同じ形（表の列: 種類 | 名前・置き場所 | 対象・権限の範囲 | 期限）
+- `mj-builds-read`・`CF_BUILDS_TOKEN` は台帳に無かった（コメントの全文を検索）
+- ほかの Cloudflare のトークンの漏れ: 無い。`mj build token` は 2026-10-18 の表の「Cloudflare User API Token: Workers Builds が作ったもの1本」（名前は書かれていない）、`CF_ANALYTICS_TOKEN` の元は「Cloudflare Account API token: Analytics Read だけのもの1本」で載っている。コメントの中で、前者が `mj build token` であることを補った
+
+### 書いたコメント
+
+https://github.com/retroeater/mj/issues/601#issuecomment-6998983967
+
+> 台帳への追加（2026-11-19、平野さんの申告値。値は書かない）。
+>
+> | 種類 | 名前・置き場所 | 対象・権限の範囲 | 期限 |
+> |---|---|---|---|
+> | Cloudflare User API Token | `mj-builds-read`（平野さんのアカウントに紐づく。GitHub の Secret `CF_BUILDS_TOKEN` の元とみられる。`check-build-failure.yml` が使う、#634）。作成は 2026-10 下旬（2026-11-19 時点のダッシュボードの「22d ago」） | Account.Workers Builds Configuration（読み取り） | 未確認（台帳に書く期限は次の棚卸しで画面から写す） |
+>
+> - 扱い: 削除しない（2026-11-19 の平野さんの決定、`docs/decisions/cloudflare.md` の 2026-11-19 の節）。消すと `check-build-failure.yml` が本番かプレビューかを確かめられず、プレビューの失敗でも通知が来る（#634 の前に戻る）
+> - `CF_BUILDS_TOKEN` との対応は推定: Secret の元のトークン名は GitHub から読めない。画面の「最終使用 約15日前」（申告値）と、`check-build-failure.yml` が Cloudflare のビルドの API を最後に呼んだ実行（2026-11-03 16:37 UTC）が合うことによる
+> - 2026-10-18 の表の「Cloudflare User API Token: Workers Builds が作ったもの1本」は `mj build token`（Workers Builds の本番反映・プレビュー）。User API Token はこれで2本になった
+> - 説明の正は `docs/notes/cloudflare.md`「APIトークンの棚卸し」
+>
+> Chat-Ref: CHAT-1119-CFX-02
+
+- 期限は指示文にも docs にも無いので「未確認」とし、「次の棚卸しで画面から写す」と書いた（Code の案。決定ではない）
+- issue の本文・状態・ラベルは変えていない
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1119-cfx
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1119-CFX-02.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1119-cfx
+- 確認用URL: なし
+- マージ: 済（ログのみ。push 後に cloudflare へ fast-forward）
+- issue: #601（コメント https://github.com/retroeater/mj/issues/601#issuecomment-6998983967 ）
+- 判断が必要なこと: なし
+- 未確認の項目: `mj-builds-read` の期限（画面の申告値が無い）
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
