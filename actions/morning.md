@@ -1,6 +1,6 @@
 # 朝の報告用の異常（retroeater/mj）
 
-- 書き出した時刻: 2026-11-20 04:19 JST（見た範囲: 2026-11-19 02:19 JST から）
+- 書き出した時刻: 2026-11-20 07:34 JST（見た範囲: 2026-11-19 05:34 JST から）
 - 書き出した実行の契機: workflow_dispatch（main）
 - 異常だけを書く。全体は actions/status.md。判定は mj の scripts/morning_report.py（各ワークフローの直近 100 回まで）
 
@@ -31,10 +31,6 @@
 
 ## 7. 国家サイバー統括室の投稿（@cyber_forecast、直近36時間。取得は run-daily.yml のジョブ xcyber。「なし」は投稿なし、「取得できず」は取れなかった日）
 
-- 2026-11-18 18:20 JST（引用） https://x.com/cyber_forecast/status/2122983266139664385
-  > 2026年11月18日、JPCERT/CCがCyberNewsFlash「OpenJDKにおけるリモートコード実行につながる脆弱性（CVE-2026-114938）について」を公開しています。影響を受ける環境の利用者において速やかな対策実施の検討を呼びかけているところ、ご確認ください。
-  >  https://t.co/H7L4XVubH2
-  - リンク: https://x.com/jpcert/status/2122913612381692364
 - 2026-11-19 01:04 JST https://x.com/cyber_forecast/status/2123084867252748401
   > 2026年11月19日0時過ぎ（日本時間）Webサーバーnginxにおいて、リモートから未認証で任意のコード実行等が可能となる脆弱性が公表されました。対象環境の運用管理者は速やかなアップデートの適用等をお願いします。
   > https://t.co/aXqkq4ZUyr
