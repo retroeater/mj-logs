@@ -1,7 +1,7 @@
 # CHAT-1119-THI-01
 
 - 着手日時: 2026-11-19
-- 対象issue: 未起票（手順1で起票）
+- 対象issue: #689
 - ブランチ: work/1119-thi
 - 着手時HEAD: 13ebaa1
 
@@ -63,6 +63,10 @@ Chat-Ref: CHAT-1119-THI-01
 - 識別子 THI の重複なし（全ブランチのコミット・docs/logs の履歴）。同じ Chat-Ref のコミットなし。work/1119-thi はリモートに無く、origin/cloudflare（13ebaa1）から作った
 - 0章: 指示欄の末尾は指示文の最後の行（「この行が指示文の最後の行です。」）と一致
 - 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）の欠けなし
+- 手順1: issue の検索（is:issue、語: 脆弱性・脅威・cyber_forecast・国家サイバー統括室・Threat・サイバー・NISC）。当たりは #598・#619・#660・#91・#99・#89・#130・#682 で、いずれもサイトのセキュリティ点検・依存の更新・文字の点検で、同じ目的ではない
+- 未マージの work/ ブランチ: 同じ目的のものなし。触る予定のファイルの重なりは work/1115-rsc-autowrite（run-daily.yml のジョブ saikyo の needs・sokuho の権限・冒頭のコメント）、work/1101-prp-pub と work/1103-ryo5（github-actions.md の表の別の行）。別のジョブ・別の行なので止まらない
+- issue #689 を起票し、着手中のコメントを残した
+- 同期（mj-logs の sync-from-mj.yml）は Secret MJ_READ_TOKEN（mj の Contents・Actions が Read-only）で mj を cloudflare でクローンし、`actions_status.py` を動かす。ジョブのログは既に `get_log`（`fetch_skip_notes`）で読んでいる。artifact は mj のワークフローで使っておらず（upload-artifact が新しい依存になる）、(a) のうちジョブのログを読む形にする
 
 ## 報告
 
@@ -72,7 +76,7 @@ Chat-Ref: CHAT-1119-THI-01
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1119-thi
 - 確認用URL: なし
 - マージ: 未（平野さんの判断待ち）
-- issue: なし
+- issue: #689
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
