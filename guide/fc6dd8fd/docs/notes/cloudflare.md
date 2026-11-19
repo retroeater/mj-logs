@@ -185,7 +185,7 @@ apex と www の Worker レコード）。**MX は未設定。**
 | SPF | `v=spf1 -all`（#116）。SPF・DKIM・DMARC の3行は Cloudflare がメールを送らないドメインに勧める値と一致（2026-11-02 に公式の学習センターで確認。Null MX〈RFC 7505〉は公式の文書に無く足さない） |
 | DMARC | `v=DMARC1; p=reject; sp=reject; adkim=s; aspf=s;`（#116） |
 | DKIM | `*._domainkey` に空ポリシー（#116） |
-| 通知 | Universal SSL Alert（#118）・HTTP DDoS Attack Alert（2026-11-02 追加）・Budget alert 2件（Billing Budget Alert〈2026-10-21、$5〉と Default budget alert〈auto-created〉）。Method はすべて Email。宛先は別事業者のドメイン（Universal SSL Alert。ほかは画面に無い）。2026-11-02 の一覧は申告値で、セッションからは検証できない |
+| 通知 | Universal SSL Alert（#118）・HTTP DDoS Attack Alert（2026-11-02 追加）・Budget alert 2件（Billing Budget Alert〈2026-10-21、$5〉と Default budget alert〈auto-created〉）。Method はすべて Email。宛先は別事業者のドメイン（Universal SSL Alert。ほかは画面に無い）。2026-11-02 の一覧は申告値で、セッションからは検証できない。Workers の Spend limits（2026-11-19、上限到達のメール）は「Workers の Spend limits」 |
 
 **通知の種類（Notifications）に Registrar 用は今も無い**（2026-11-02 に公式の一覧で確認）。Billing の2種類も「支出がしきい値を超えたら通知」で、
 支払い失敗は検知しない。ただし公式の更新のページによれば、Registrar 自体が次のメールを送る:
@@ -506,6 +506,20 @@ Workers静的アセットにはオリジンサーバーが存在しないため�
 - OWASP推奨対策: 静的サイトで該当するヘッダ系は `_headers` に導入済み（X-Frame-Options / X-Content-Type-Options / Referrer-Policy / Permissions-Policy / HSTS）。残るのはCSPのみで、それが #9
 - 入力値の検証とサニタイズ: `<form>` は27ページに0個。入力経路はURLパラメータのみで、移行済みページは生成時に esc() を通し、絞り込みは textContent 比較のためXSSの経路がない。innerHTML は index.js に1箇所（アイコン切替の定数）だけ
 
+### Billing の Available の製品（2026-11-19）
+
+Billing → Subscriptions → Available に並ぶ7製品は、今はどれも有効にしない（2026-11-19 の平野さんの決定、`docs/decisions/cloudflare.md`）。
+
+| 製品 | 判断 | 理由 |
+|---|---|---|
+| Workers for Platforms | 対象外 | 他人がデプロイするコードを動かす基盤。自分のコードしか動かさない |
+| Calls | 対象外 | リアルタイムの音声・映像を使わない |
+| Images & Stream | 却下 | 上の表の「Image Transformations / Cloudflare Images」と同じ理由 |
+| Zero Trust Free | 見送り | Access でプレビューの `*.workers.dev` をログイン必須にできるが、クラウドセッションの curl とチャット側の WebFetch がプレビューを開けなくなり、今の確認の手順（`docs/notes/chat-side-operations.md`「確認用 URL」・`docs/notes/cloud-sessions.md`）が止まる。入れるきっかけは SDP の管理画面や非公開のページを作るとき（上の表の「JWTのHttpOnly Cookie」の行と同じ考え） |
+| Tunnels for Platforms | 対象外 | つなぐオリジンが無い |
+| Zaraz | 却下 | 上の表の「Zaraz」（第三者のスクリプトが無い） |
+| Log Explorer | 却下 | HTTP のリクエストのログを SQL で調べられるが、取り込み量で課金され、攻撃のトラフィックも数える。上限なく課金されるより止まる方を取った Observability の決定（2026-11-02、下の「ビルド時間の見積もり」）と同じ考えで、今の Analytics の GraphQL で足りている。料金の出典は食い違い、どれが今の正かは未確認: 公式の料金のページ https://developers.cloudflare.com/log-explorer/pricing/ は「有料の追加機能。無料版・試用は無い」（Last updated Oct 15, 2026）、Billing の Available の画面は「Free then $1/GB」（2026-11-19、平野さんの申告値）、紹介ページ https://www.cloudflare.com/ja-jp/lp/pg-log-explorer/ は「1GB あたり 1 ドル、最初の 10GB は無料」（2026-11-19〜20 にチャット側が読んだ） |
+
 ---
 
 ## 現行の設定と手順（docs/handover.md・CLAUDE.md から移管、#336）
@@ -654,11 +668,19 @@ Workers & Pages → `mj` → Settings → Builds:
 
 月次の (9) では Security Insights（Security → Insights。TLS・HSTS・MFA・WAF・SPF/DMARC などの不備を一覧にする）も見る（2026-11-02 の決定。#304 への追記は MCK 系列が行う。出典 https://developers.cloudflare.com/security/security-insights/ ）
 
-### APIトークンの棚卸し（2026-09-12）
+### APIトークンの棚卸し（2026-09-12、2026-11-19 に更新）
 
-現役は平野さんのアカウント（`<平野さんのメールアドレス>`）に紐づく **User API Token 1本**（`mj build token`。Workers Builds が自動発行するため Account Token は選べない）。**このユーザーのアカウントが使えなくなると本番反映が止まる。****権限は手で絞らず触らないこと**（次のビルドが壊れうる）。リポジトリを接続し直すと同名トークンが増えるので、古いものは削除する。4本→1本に整理した経緯は `docs/notes/handover-archive-2026.md`
+今あるトークン（2026-11-19、平野さんの画面の申告値。セッションからは検証できない）:
 
-2026-10-06 も1本（申告値。期限なし）。`mj-scheduler` は同じ `mj build token` を使い、接続でトークンは増えなかった。
+| トークン | 種類 | 権限 | 用途・置き場所 |
+|---|---|---|---|
+| `mj build token` | User API Token | Workers Builds が自動発行したもの | Workers Builds の本番反映・プレビュー（`mj`・`mj-ask`・`mj-scheduler`）。GitHub の Secret には置かない |
+| `mj-builds-read` | User API Token（2026-10 末に作成） | Account.Workers Builds Configuration（読み取り。下の「ビルド成否と本番の確認範囲」の Workers CI Read と同じ系統） | GitHub の Secret `CF_BUILDS_TOKEN` の元とみられる（`check-build-failure.yml`、#634） |
+| （名前は未確認） | Account API Token | Account Analytics Read | GitHub の Secret `CF_ANALYTICS_TOKEN`（`fetch-redirect-counts.yml`）。User API Tokens の一覧に無く、#601 の 2026-10-18 の台帳（申告値）で Account API token とされている |
+
+- **`mj build token`**: 平野さんのアカウント（`<平野さんのメールアドレス>`）に紐づく（Workers Builds が自動発行するため Account Token は選べない）。**このユーザーのアカウントが使えなくなると本番反映が止まる。****権限は手で絞らず触らないこと**（次のビルドが壊れうる）。リポジトリを接続し直すと同名トークンが増えるので、古いものは削除する。4本→1本に整理した経緯は `docs/notes/handover-archive-2026.md`。2026-10-06 も1本（申告値。期限なし）。`mj-scheduler` は同じ `mj build token` を使い、接続でトークンは増えなかった
+- **`mj-builds-read` は消さない**（2026-11-19 の平野さんの決定、`docs/decisions/cloudflare.md`）。消すと `check-build-failure.yml` が本番かプレビューかを確かめられず「確かめられないときは知らせる」側になり、プレビューの失敗でも通知が来る（#634 の前の誤報に戻る）
+- `mj-builds-read` を `CF_BUILDS_TOKEN` とみる根拠（Secret の元のトークン名は GitHub から読めないため推定）: 画面の「最終使用 約15日前」（申告値）と、`check-build-failure.yml` が Cloudflare のビルドの API を最後に呼んだ実行（2026-11-03 16:37 UTC。10/13〜11/19 で API を呼んだのは 11/3 の5回だけ。失敗の check-run のときだけ呼ぶ）が合う。作成「約22日前」も #634 のクローズ（2026-10-27）の頃
 
 ### ビルド成否と本番の確認範囲（check-runs）
 
@@ -816,7 +838,7 @@ Workers & Pages → `mj` → Settings → Builds:
   理由: ログは月 5 万件ほどで、1件 1KB と置いても月 50MB 程度（推定）。Free の1日 0.5GB に収まり、保存7日も今と同じ。有料のままだとボットやエラーのループでログが急に増えたとき止まらずに課金される（Budget Alert は通知だけで請求は止めない）。Free なら取り込みが止まるだけで Worker の動作は変わらない
 - **解約はまだ。** 2026-11-02 の Subscriptions の画面（Manage Account → Billing → Subscriptions。申告値で、ここからは検証できない）に Observability の行が無かった（Workers Paid・ryoei.net の Free Plan・ryoei.pro の Pro Plan の3行）。
   2026-11-25 の予定（#298）で行があれば平野さんが解約する。無ければ 2026-12-02 の予定（#298）でもう一度見る
-- Budget Alert（$5）を付けた（2026-10-21、平野さんの手作業。申告値）
+- Budget Alert（$5）を付けた（2026-10-21、平野さんの手作業。申告値）。請求を止める Spend limits は下の「Workers の Spend limits」
 - 2026-10-21 の実測（**申告値。平野さんのスクリーンショットで、セッションからは検証できない**）:
   - 切り替え前の Usage: Workers build minutes 2,312 / 3,000（10/9〜21）
   - Analytics の Build minutes: 直近30日で 2.74k。1日のビルド時間は 10/14 ごろまで数十分、10/15〜19 は1日 約250〜450分
@@ -828,6 +850,41 @@ Workers & Pages → `mj` → Settings → Builds:
 - **見直しの目安: 月6,000分に迫ったら、ビルドを減らす案（`mj-ask`・`mj-scheduler` のプレビューのビルドを止める、watch paths を直す）を検討する**（2026-10-21 の決定、`docs/decisions/cloudflare.md`）
 - 上限を超えたときの動きは公式のページに書かれていない
 - `Cloning` の段階の失敗はビルド時間の上限とは関係ない（事例と見分け方は上の「ビルドが Cloning で失敗したとき」）
+
+#### Workers の Spend limits（2026-11-19）
+
+**設定（2026-11-19 に平野さんが保存。申告値で、セッションからは検証できない）:** Billing → Spend limits（Beta）の Workers の行で Block usage を有効、
+Spending limit $20（画面は「$0.00 / $20.00」、History に「Spending limit set to $20.00.」）。Alert thresholds は足さない（通知は Budget alert〈$5〉に任せる）。
+Durable Objects の行は触らない（使っていない）。上限到達のメールは平野さんの別のアドレスに届く。決定は `docs/decisions/cloudflare.md`
+
+**仕組み**（公式 https://developers.cloudflare.com/workers/platform/spend-management/ 。2026-11-19 にチャット側が読んだ）:
+
+- 数えるのは全 Worker のリクエストと CPU 時間の、含まれる分を超えた料金だけ（月額の $5 は入らない）
+- 上限に達すると Workers の新しい呼び出し（HTTP リクエスト・Cron Triggers・Worker 同士の呼び出しなど）が拒否され、訪問者には error 1103。Worker を動かさずに配信される静的アセットは見られるまま
+- 止まるまで時間差があり、請求が $20 で止まる保証は無い
+- 再開: 上限を上げるか Block usage を切ると数分で再開する。何もしなければ次の請求期間の始めに自動で解ける（2026-11 の期間は Nov 9 – Dec 8）
+
+**ryoei.pro で上限に達したとき**（wrangler の設定から。2026-11-19 に Code が確かめた）:
+
+| 対象 | 動き | 根拠 |
+|---|---|---|
+| `mj`（サイトのページ） | 見られるまま | `wrangler.jsonc` に `main`・`run_worker_first` が無く、静的アセットだけ（Worker のコードが動かない） |
+| `mj-ask`（`/api/ask`・`/api/ask/status`・`/api/ask/weekly` と週次の cron） | 止まる | `workers/ask/wrangler.jsonc` のルート `ryoei.pro/api/*` と cron `0 18 * * 1` |
+| `mj-scheduler`（予約実行の起動、毎分の cron） | 止まる | `workers/scheduler/wrangler.jsonc` の cron `* * * * *`。下の「`mj-scheduler` が止まると」 |
+
+Worker はこの3つだけ（`workers/` は ask・scheduler）。Worker を足すとき（例: `jpml_pros.html` の 301 の Worker、#641）は止まる側に入る。
+
+**`mj-scheduler` が止まると**（2026-11-20 に `workers/scheduler/schedule.json` とワークフローの `schedule` で確かめた。Worker の動きは `docs/notes/scheduler-worker.md`「動き」）:
+
+- 予約実行の起動が全部止まり、サイトの毎日の更新が止まる。起動の表の行は3つ（run-daily 04:00・run-weekly 月曜 03:00・run-monthly 毎月1日 02:00、JST）で、
+  run-daily が呼ぶ13本（update-live-channel〈/live の取り込み〉・regenerate-page・regenerate-saikyo・fetch-x-posts・convert-x-posts・sync-dojo-calendar・sync-birthday-calendar・check-meibo・cleanup-branches など）、
+  run-weekly の2本（cleanup-logs・fetch-youtube）、run-monthly の3本（fetch-gsc・fetch-redirect-counts・convert-x-posts）が動かない
+- 埋め合わせ（予定から 5〜40 分後の確かめ）・朝の確かめ（#506 への通知）・mj-logs の同期の起動（`dispatchSync()`）も止まる。#506 には何も書かれない
+- GitHub 側に保険の `schedule` が残るのは、月次の fetch-gsc・fetch-redirect-counts（2026-12-01 の run-monthly の成功まで残す、`docs/notes/scheduler-worker.md`「保険の予約実行のゲート」）と、mj-logs の `sync-from-mj.yml`（1日1回 18:41 UTC。GitHub の予約実行なので遅れる）。毎日・週次の本は保険が無い
+- `cloudflare` への push での再生成（`regenerate-page.yml` の push の契機）と Workers Builds はこの Worker を通らない
+- Worker の外から気づく所: mj-logs の `actions/morning.md` の2節「予約実行の未実行」（`scripts/morning_report.py` が `schedule.json` の行と実行の一覧を突き合わせる。書き直すのは mj-logs の `sync-from-mj.yml` で、Worker が止まると上の1日1回の予約実行だけになり、気づくのが翌日になることがある）
+
+**再開の手順:** Billing → Spend limits で Workers の上限を上げるか Block usage を切る（数分で再開）。止まっていた間の予定は、予定から60分を過ぎた行は埋め合わせされない（`docs/notes/scheduler-worker.md`「動き」）ので、run-daily などを手動実行で動かす。何もしなければ次の請求期間の始めに自動で解けるが、それまで予約実行は止まったまま
 
 ### check-run が queued のまま・見当たらない場合（2026-09-13）
 

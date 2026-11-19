@@ -1,13 +1,12 @@
 # 朝の報告用の異常（retroeater/mj）
 
-- 書き出した時刻: 2026-11-20 01:04 JST（見た範囲: 2026-11-18 23:04 JST から）
+- 書き出した時刻: 2026-11-20 01:07 JST（見た範囲: 2026-11-18 23:07 JST から）
 - 書き出した実行の契機: workflow_dispatch（main）
 - 異常だけを書く。全体は actions/status.md。判定は mj の scripts/morning_report.py（各ワークフローの直近 100 回まで）
 
 ## 1. 失敗など（結論が success・skipped 以外。実行中を含む）
 
-- 2026-11-20 01:03 check-assets.yml in_progress（push・work/1119-lvp） https://github.com/retroeater/mj/actions/runs/44561756854
-- 2026-11-20 01:03 check-assets.yml in_progress（push・work/1119-thi） https://github.com/retroeater/mj/actions/runs/44561777595
+なし
 
 ## 2. 予約実行の未実行（予定から3時間以内は「遅れの可能性」。3時間を超えて始まった実行は「遅れて実行」）
 
@@ -29,3 +28,7 @@
 
 - 前日（11/19）: 133分
 - 11月の累計（11/1〜11/19）: 4,851分（含まれる 3,000分の 161%。75% を超えた）
+
+## 7. 国家サイバー統括室の投稿（@cyber_forecast、直近36時間。取得は run-daily.yml のジョブ xcyber。「なし」は投稿なし、「取得できず」は取れなかった日）
+
+- 取得できず（今日・昨日の run-daily.yml の定期実行に、終わった取得のジョブが無い）

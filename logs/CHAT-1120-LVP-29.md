@@ -48,20 +48,42 @@ CHAT-1119-LVP-28 の判断待ちの3点を、平野さんの答えのとおり�
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
 ## 経過
+- Chat-Ref の確認: `CHAT-1120-LVP-29` のコミットは0件。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている。着手は 2026-11-20 00:44 JST
+- 0. 「指示」欄の末尾は指示文の最後の行と一致。CHAT-1119-LVP-28 のログの状態の末尾に `/ 続き: CHAT-1120-LVP-29` を足した。work/1119-lvp はリモートにあり、origin/cloudflare（13ebaa174）は HEAD の祖先だった
+- #475 に他セッションの着手中は無い（最後は同じセッションの LVP-28 の着手中と中断）。着手中のコメントを書いた。未マージの work/ ブランチで `scripts/lib/names.py` を変えているものは無い
+- **予選10行の掲載**（一時の出力 da1a33bb2 で【3】を読んだ。run 44558340190。cfb6ceddc で戻した）: 動画ID で照合し、10行とも掲載 Y（`1SzitLyEpuE`・`4SI__Kh96Bk`・`AvV1u4iNR3c`・`IJrTiJl9dhQ`・`IlkKBhUnZZ8`・`dzUAsO2ChYE`・`hzhLkEgMKCw`・`sT_AVXIGTo4`・`sdlmIOFIgj0`・`wkcn_OqkBFM`。行番号も 4377〜4379・4381・4383・4387・4389・4392〜4394 で指示文と同じ）。同じ run の `--check live_pages` は「止まるページなし」で、未登録の名前の警告は出ない（Gemma Sakamoto は WRPM で引ける）
+- 全ページの再生成（dry_run、compare_ref origin/cloudflare、run 44558585845）: 中身の違うもの 87件。ページの増減は無い（`live/wrc/4/q.html` は両方で作られ、作業ブランチ側だけ予選3回戦〈`1SzitLyEpuE`、Gemma Sakamoto が出る動画〉が入る。50行の差）
+  - ほかの86件は、q.html に出る人（予選の対局者・実況・解説の44名）の「他の対局」の q.html のカード・件数の差（cloudflare の今の版でそれぞれの人が出ているページであることを確かめた）と、一覧（`live/wrc/4.html`・`live/wrc/index.html`・`live/index.html`・`data/live_pages.json`）、`pro/kazunori.takizawa.16/`（滝沢和典は予選3回戦で q.html に初めて載る）
+  - 止まる条件（第4回の予選のページとそれに伴う一覧・件数・pro/ のほか）に当たらない。テスト 2,256件 OK
+- マージ: 祖先を確かめて `git push origin HEAD:cloudflare`（13ebaa174..cfb6ceddc）
+- 再生成: push の再生成（run 44560586684）が先に動き、d1433c501 をコミットした（260ファイル。`live/wrc/4/q.html` が新しく足され、消えたページは無い。ほかは q.html・平野さんが【3】に入れた値に伴う「他の対局」・一覧・`sitemap-live.xml`・`top/` などの更新。前回の再生成〈2026-11-19 02:12 UTC〉の後のシートの入力の分を含む）。指示の手動実行（`target_page: live_pages pro_pages title_pages jpml_pros`、run 44560590385）も success（後から動いたので変わるものは無かった）
+- Workers Builds の check-run（d1433c501）: mj・mj-ask とも success
+- 本番の確認（UA に mj-internal）: `https://ryoei.pro/live/wrc/4/q.html` が 200。本番の HTML に予選3回戦 `1SzitLyEpuE` と「Gemma Sakamoto」がある（ブラウザでの見え方は確かめていない）
+- #475 に、WRPM が入り q.html に Gemma Sakamoto が出たこと、未登録の名前からは次の毎朝の取り込みで消える見込みであることをコメントした
+- 自己レビュー: コードの変更（0e9bfd2f7）は LVP-28 でレビュー済み（要修正なし）。この指示で足したコードは無い（一時の出力は戻した）
 
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
+- ブランチ: work/1119-lvp
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1120-LVP-29.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1119-lvp
+- 確認用URL: なし（本番の `live/wrc/4/q.html` で確かめた）
+- マージ: 済（cfb6ceddc）
+- issue: #475
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 13ebaa17）: https://github.com/retroeater/mj-logs/tree/main/guide/13ebaa17
+ガイド文書（この版を写した時点の最新、mj fc6dd8fd）: https://github.com/retroeater/mj-logs/tree/main/guide/fc6dd8fd
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/13ebaa17/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/13ebaa17/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/13ebaa17/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/13ebaa17/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/13ebaa17/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/13ebaa17/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/fc6dd8fd/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/fc6dd8fd/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/fc6dd8fd/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/fc6dd8fd/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/fc6dd8fd/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/fc6dd8fd/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/13ebaa17.md
