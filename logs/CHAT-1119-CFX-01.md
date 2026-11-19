@@ -59,6 +59,50 @@ Chat-Ref: CHAT-1119-CFX-01
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 着手前の確認（2026-11-19）
+
+- 0.: ログの「指示」欄の末尾は指示文の最後の行（「不明な点があれば、…この行が指示文の最後の行です。」）と一致
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 欠けなし
+- 同じ Chat-Ref・識別子 `CFX` の重複: `git fetch --unshallow` の後、`git log --all -E --grep 'CHAT-[0-9]{4}-CFX-'` と `docs/logs/CHAT-*-CFX-*.md` の追加の履歴ともに0件
+- 作業ブランチ: `work/1119-cfx` はローカル・リモートとも無く、`git checkout -b work/1119-cfx origin/cloudflare` で作った
+- 指示文が対象にする issue: なし（#634 は経緯の参照）
+- 同じ論点の open issue: 検索（Spend limit・spend・mj-builds-read・APIトークン・CF_BUILDS_TOKEN・トークン 削除）で、Spend limits の issue は無し（#298 は GitHub Actions の使用量で別の論点）。
+  API トークンでは #601（認証情報の一覧と棚卸し、open）があるが、論点は台帳の置き場所・項目・間隔で、`mj-builds-read` の削除ではない。着手中のコメントも無い。止まらない（下の「#601 との関係」）
+- 未マージの work/ ブランチ: `docs/decisions/cloudflare.md`・`docs/notes/cloudflare.md` を変えているのは `origin/work/1101-prp-pub`（最終 2026-11-04）だけで、変えている箇所は「配信設定」の canonical の行と「本番反映（デプロイ）の仕組み」の Worker `mj-pros-redirect` の行。今回の追記先の節（APIトークンの棚卸し・見送った技術・ビルド時間の見積もり・通知の行）とは別の箇所なので止まらない
+
+### 前提の確かめ（2026-11-19）
+
+**`mj-builds-read` と `CF_BUILDS_TOKEN`:** `check-build-failure.yml` の実行（2026-10-13〜11-19）のうち skipped でないものは 9件。うち `check_run` の 8件が判定のステップで `CF_BUILDS_TOKEN` を渡し、Cloudflare のビルドの API を呼んで答えを得ていた（ログの行「Cloudflare のビルド: トリガー: …、ブランチ: …」・notice「本番のトリガーのビルドではない(トリガー: Deploy non-production branches、…)」）。
+
+| 実行 ID | 作成（UTC） | 結果 | API の答え |
+|---|---|---|---|
+| 41657643690 | 2026-11-03 14:50 | success | プレビュー（work/1103-aic）と確かめて知らせず |
+| 41663755493・41669679662 | 11-03 15:25・16:00 | success | （同じ型の success。ログは1件だけ読んだ） |
+| 41671687021 | 11-03 16:11 | failure | `mj-ask`、ブランチ cloudflare（本番の失敗として知らせた） |
+| 41671694707 | 11-03 16:11 | success | |
+| 41676151633 | 11-03 16:37 | failure | `mj-ask`、ブランチ cloudflare |
+| 41676147031 | 11-03 16:37 | success | |
+| 42553376117 | 11-09 02:53 | success（workflow_dispatch） | 「Workers Builds の失敗ではない」で、API は呼ばない（`judge()` が失敗でない check-run では問い合わせない） |
+
+- API を呼んだ最後の実行は 2026-11-03 16:37 UTC（11-04 01:37 JST）。11-19 から約15日前で、平野さんの画面の「最終使用 約15日前」（申告値）と合う。#634 のクローズは 2026-10-27 で、作成「約22日前」（10/28 ごろ）とも合う
+- 2026-10-13〜11-02 に API を呼んだ実行は無い（skipped でない実行が無い）。トークン名とSecretの対応そのものは GitHub からは見えない（Secret の値・元のトークン名は読めない）ので、「痕跡が合う」までで、対応は申告値の画面と時期の一致による推定
+- 実行ログに Cloudflare のアカウント ID が出る。docs・ログには書かない
+
+**`CF_ANALYTICS_TOKEN` の元のトークン:** #601 の 2026-10-18 のコメント（平野さんの申告値の台帳）に「Cloudflare Account API token: Analytics Read だけのもの1本（GitHub の Secret `CF_ANALYTICS_TOKEN`）」とある。User API Tokens の一覧に無いことと合う。セッションからは Cloudflare の画面を見られないので、申告値として書く
+
+**上限に達したときに止まるもの（wrangler の設定）:**
+
+- `wrangler.jsonc`（`mj`）: `main` が無く `assets` だけ（`run_worker_first` も無い）。Worker のコードは動かない静的アセットだけの Worker（Cron Triggers を持てないとの既存の記録とも合う）→ ページは見られるまま
+- `workers/ask/wrangler.jsonc`（`mj-ask`）: ルート `ryoei.pro/api/*`（`/api/ask`・`/api/ask/status`・`/api/ask/weekly`）と cron `0 18 * * 1`（月曜 03:00 JST の週次）→ 止まる
+- `workers/scheduler/wrangler.jsonc`（`mj-scheduler`）: cron `* * * * *`、ルート無し → 止まる。予約実行の起動と、Worker の中の朝の確かめ（#506 への通知）も止まるので、#506 の通知では気づけない（docs/notes/scheduler-worker.md。保険の `schedule` は月次の2本だけ残っている）
+- ほかに Worker を通るパスは無い（`workers/` は ask・scheduler の2つ）。未マージの `work/1101-prp-pub` が足す `mj-pros-redirect`（ルート `ryoei.pro/jpml_pros.html*`）が入れば、それも止まる側になる
+
+### #601 との関係
+
+#601 は台帳の置き場所（docs/notes が mj-logs の `guide/` に写り公開されること）を未決の論点にしている。今回 docs/notes/cloudflare.md に足すのはトークン名・権限・Secret 名で、同じ節に既に `mj build token`・`CF_ANALYTICS_TOKEN`・`CF_BUILDS_TOKEN` の名前と権限が書かれており、指示文もそこへ書くよう指定しているので、そのまま書く。#601 の台帳（コメント）への `mj-builds-read` の追加はこの指示の範囲外（コメントは書いていない）
+
 <!-- guide-links -->
 ---
 
