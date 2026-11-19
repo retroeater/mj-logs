@@ -1,12 +1,12 @@
 # 朝の報告用の異常（retroeater/mj）
 
-- 書き出した時刻: 2026-11-20 01:07 JST（見た範囲: 2026-11-18 23:07 JST から）
+- 書き出した時刻: 2026-11-20 04:02 JST（見た範囲: 2026-11-19 02:02 JST から）
 - 書き出した実行の契機: workflow_dispatch（main）
 - 異常だけを書く。全体は actions/status.md。判定は mj の scripts/morning_report.py（各ワークフローの直近 100 回まで）
 
 ## 1. 失敗など（結論が success・skipped 以外。実行中を含む）
 
-なし
+- 2026-11-20 04:00 run-daily.yml in_progress（workflow_dispatch・cloudflare） https://github.com/retroeater/mj/actions/runs/44593756302
 
 ## 2. 予約実行の未実行（予定から3時間以内は「遅れの可能性」。3時間を超えて始まった実行は「遅れて実行」）
 
@@ -31,4 +31,30 @@
 
 ## 7. 国家サイバー統括室の投稿（@cyber_forecast、直近36時間。取得は run-daily.yml のジョブ xcyber。「なし」は投稿なし、「取得できず」は取れなかった日）
 
-- 取得できず（今日・昨日の run-daily.yml の定期実行に、終わった取得のジョブが無い）
+- 2026-11-18 18:20 JST（引用） https://x.com/cyber_forecast/status/2122983266139664385
+  > 2026年11月18日、JPCERT/CCがCyberNewsFlash「OpenJDKにおけるリモートコード実行につながる脆弱性（CVE-2026-114938）について」を公開しています。影響を受ける環境の利用者において速やかな対策実施の検討を呼びかけているところ、ご確認ください。
+  >  https://t.co/H7L4XVubH2
+  - リンク: https://x.com/jpcert/status/2122913612381692364
+- 2026-11-19 01:04 JST https://x.com/cyber_forecast/status/2123084867252748401
+  > 2026年11月19日0時過ぎ（日本時間）Webサーバーnginxにおいて、リモートから未認証で任意のコード実行等が可能となる脆弱性が公表されました。対象環境の運用管理者は速やかなアップデートの適用等をお願いします。
+  > https://t.co/aXqkq4ZUyr
+  - リンク: https://www.wiz.io/blog/nginx-http2-rce-vulnerabilities
+- 2026-11-19 11:16 JST（リポスト） https://x.com/cyber_forecast/status/2123238953453343009
+  > RT @IPAjp: 📢「ものづくりワールド福岡：第3回製造業サイバーセキュリティ展」に出展！
+  > 📅 12/2(水)～12/4(金)
+  > 📍  マリンメッセ福岡
+  > サイバーセキュリティに関する様々な悩み事や相談を受け付ける「相談カウンター」をはじめ、IPAの資料や施策などをご案内します…
+- 2026-11-19 16:55 JST https://x.com/cyber_forecast/status/2123324158239248762
+  > 【更新情報】
+  > 米国時間2026年11月18日、GoogleからChromeOS のセキュリティアップデート情報が公開されました（バージョン名:16868.24.0)。
+  > 更新が配信されましたら忘れずにアップデートしてください。
+  > https://t.co/SS47lBN2s9
+  - リンク: https://chromereleases.googleblog.com/2026/11/stable-channel-update-for-chromeos_01891834105.html
+- 2026-11-19 18:37 JST https://x.com/cyber_forecast/status/2123349983919480885
+  > 【事業者向け】19日23:00～23:30（日本時間）にPHPがセキュリティリリースを予定しております。前回とは異なり、本脆弱性の影響を受けるのは一部の環境に限定されるとのことです。以下リンクを確認のうえ、必要に応じて、修正パッチを適用できるよう準備をお願いいたします。
+  > https://t.co/7684u4XeSS
+  - リンク: https://www.php.net/archive/2026.php#2026-11-18-1
+- 2026-11-20 00:24 JST https://x.com/cyber_forecast/status/2123437173550800967
+  > 【事業者向け】2026年11月19日23時過ぎ（日本時間）、PHPにおいて、深刻度「重大」を含む複数の脆弱性情報及び修正パッチが公開されました。対象環境の管理者は、影響の有無を確認の上、アップデートの適用など必要な対策をお願いします。
+  > https://t.co/Bkuf5GV1NI
+  - リンク: https://www.php.net/archive/2026.php#2026-11-19-5
