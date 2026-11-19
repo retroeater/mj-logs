@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-11-19 18:14 JST
+- 書き出した時刻: 2026-11-19 18:20 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -35,11 +35,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-19 18:18 | push | work/1119-lvp | success | #1358（44495240805） | 0分42秒 |
 | 2026-11-19 18:10 | push | work/1119-thi | success | #1357（44494027122） | 0分30秒 |
 | 2026-11-19 18:09 | push | work/1119-thi | success | #1356（44493845841） | 0分29秒 |
 | 2026-11-19 17:12 | push | work/1119-bil | success | #1355（44485710544） | 0分30秒 |
 | 2026-11-19 13:27 | push | work/1119-bil | success | #1354（44458470914） | 0分30秒 |
-| 2026-11-19 13:25 | push | work/1119-bil | success | #1353（44458177038） | 0分29秒 |
 
 ## check-build-failure.yml
 
@@ -48,11 +48,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-19 18:19 | check_run | cloudflare | skipped | #1843（44495333859） | 0分10秒 |
 | 2026-11-19 18:11 | check_run | cloudflare | skipped | #1842（44494130308） | 0分06秒 |
 | 2026-11-19 18:10 | check_run | cloudflare | skipped | #1841（44493971152） | 0分08秒 |
 | 2026-11-19 17:34 | check_run | cloudflare | skipped | #1840（44488790873） | 0分01秒 |
 | 2026-11-19 17:13 | check_run | cloudflare | skipped | #1839（44485807455） | 0分01秒 |
-| 2026-11-19 13:28 | check_run | cloudflare | skipped | #1838（44458546629） | 0分01秒 |
 
 ## check-image-links.yml
 
@@ -211,11 +211,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-19 18:18 | workflow_dispatch | work/1119-lvp | in_progress | #872（44495240989） |  |
 | 2026-11-19 11:10 | workflow_dispatch | cloudflare | success | #871（44442333478） | 1分49秒 |
 | 2026-11-18 09:27 | workflow_dispatch | cloudflare | success | #870（44207927522） | 1分11秒 |
 | 2026-11-17 22:10 | workflow_dispatch | cloudflare | success | #869（44090075432） | 1分07秒 |
 | 2026-11-17 11:59 | push | cloudflare | success | #868（44006935602） | 1分10秒 |
-| 2026-11-17 11:54 | workflow_dispatch | work/1117-lgv-unknown | success | #867（44006388571） | 0分44秒 |
 
 ## regenerate-saikyo.yml
 
