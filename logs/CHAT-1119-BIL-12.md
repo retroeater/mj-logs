@@ -185,7 +185,7 @@ mj-logs のクローン（main の先頭）を3つ複製し、変更前（origin
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1119-BIL-13
 - ブランチ: work/1119-bil
 - ログ: https://github.com/retroeater/mj/blob/work/1119-bil/docs/logs/CHAT-1119-BIL-12.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1119-bil
