@@ -1,6 +1,6 @@
 # 朝の報告用の異常（retroeater/mj）
 
-- 書き出した時刻: 2026-11-20 09:56 JST（見た範囲: 2026-11-19 07:56 JST から）
+- 書き出した時刻: 2026-11-20 13:36 JST（見た範囲: 2026-11-19 11:36 JST から）
 - 書き出した実行の契機: workflow_dispatch（main）
 - 異常だけを書く。全体は actions/status.md。判定は mj の scripts/morning_report.py（各ワークフローの直近 100 回まで）
 
@@ -31,10 +31,6 @@
 
 ## 7. 国家サイバー統括室の投稿（@cyber_forecast、直近36時間。取得は run-daily.yml のジョブ xcyber。「なし」は投稿なし、「取得できず」は取れなかった日）
 
-- 2026-11-19 01:04 JST https://x.com/cyber_forecast/status/2123084867252748401
-  > 2026年11月19日0時過ぎ（日本時間）Webサーバーnginxにおいて、リモートから未認証で任意のコード実行等が可能となる脆弱性が公表されました。対象環境の運用管理者は速やかなアップデートの適用等をお願いします。
-  > https://t.co/aXqkq4ZUyr
-  - リンク: https://www.wiz.io/blog/nginx-http2-rce-vulnerabilities
 - 2026-11-19 11:16 JST（リポスト） https://x.com/cyber_forecast/status/2123238953453343009
   > RT @IPAjp: 📢「ものづくりワールド福岡：第3回製造業サイバーセキュリティ展」に出展！
   > 📅 12/2(水)～12/4(金)
