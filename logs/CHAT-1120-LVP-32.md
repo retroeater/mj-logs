@@ -65,20 +65,247 @@ LVP-30 の判断待ちへの答え（2026-11-20、平野さん。番号は LVP-3
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
 ## 経過
+- Chat-Ref の確認: `CHAT-1120-LVP-32` のコミットは0件。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている。着手は 2026-11-20 09:28 JST
+- 0. 「指示」欄の末尾は指示文の最後の行と一致。CHAT-1120-LVP-31 のログの状態を「中断 / 続き: CHAT-1120-LVP-32」に、CHAT-1120-LVP-30 のログの状態の末尾に `/ 続き: CHAT-1120-LVP-32` を足した。work/1120-lvp-live はリモートにあり、origin/cloudflare は HEAD の祖先
+- #400・#490・#398 に他セッションの着手中は無い（どれも同じセッションの LVP-27・LVP-30 のもの）。3件に着手中のコメントを書いた
+- 未マージの work/ ブランチ: `work/1101-prp-pub` が `generate_live_pages.py` を変えているが、今回の成果物は `generate_live_pages.py` を変えていない（一時の出力・試しは戻した）。`live_extract.py`・`live_layer3.py` を変えているブランチは無い
+- 読み込み: 一時の出力（3847fd3ae、run 44646188591、532b57d2e で戻した）。【2】14,400行・【3】4,407行。止まるページなし
+
+### LVP-30 の判断待ちへの答え（紅龍戦の並び）
+
+- 【3】の10セルは答えのとおり（行3060・3061 1、行3062・3315 1.5、行3069 1、行3078・3079・3230 1.5、行3227 2、行3226 5）
+- **並びは見込みどおりではない**（`--check live_pages` の期のページの並び）:
+  - 第2期: 予選Aブロック1・予選Aブロック2・予選B・C・D（すべて 1）→ 予選Aブロック決勝戦（1.5）→ 決勝（5）
+  - 第3期: 予選Aブロック・予選B・C（1）→ 予選Aブロック決勝戦（1.5）→ 予選D（2）→ 決勝（5）
+  - 原因: 予選B〜D のメンバー限定の行（第2期 3312〜3314、第3期 3228・3229）が 1 のままで、ページの並び（ページ内の動画の最小）が予選Aブロックと同じ 1 になる。第3期の予選D は行3227 を 2 にしたので 2
+  - 直す値（コードは直さない）: 行3312 `Z3uiwxXurYE`・3313 `U0yKrT2voYA`・3314 `1WWMxyZ8YcI`・3228 `SZgewZ5mNRg`・3229 `WV4z0ebRNiY` の「ステージの並び」を 1 → 2。入れると両期とも「予選Aブロック（1）→ 予選Aブロック決勝戦（1.5）→ 予選B〜D（2）→ 決勝（5）」（見込み。試しでは `live/kouryu/2.html`・`3.html` の中身が変わることまでを確かめた）
+
+### 実装（7b8259405・4d2bef9ee）
+
+- 本則（決定1・5）: `lib/live_layer3.py` の `auto_show()` に `full_public_values()` を足した。同じ放送（大会・期・配信日〈日本時間〉・【】を除いた題名が同じ）のメンバー限定版（層1の「限定」Y）と公開版の生放送が1本ずつで、メンバー限定版の自動の値が Y の組について、公開版が全量版（長さがメンバー限定版の **90%（`FULL_PUBLIC_RATIO`）以上**、または題名に【無料放送】）なら、公開版を Y「全量の公開版（同じ放送のメンバー限定版より優先）」、メンバー限定版を N「同じ放送の全量の公開版がある」にする。冒頭だけの公開版の組・範囲外のステージ・保留は今のまま。1本ずつでない組は判定しない
+- 世界麻雀TOKYO2025（決定2）: `lib/live_extract.py` で、個人戦の日単位の生放送（「世界麻雀TOKYO2025~個人戦初日~」など）も第4回として拾い、まとめ単位を題名の日から決める（`WRC4_LIVE_UNITS`: 初日・2日目 → 予選、ベスト32・16 → 「ベスト32、ベスト16」、ベスト8・決勝 → 「ベスト8、決勝」）。国別対抗チーム戦・レセプション・表彰式・プロ代表決定戦は拾わない
+- 達人戦のリーグ（決定4）: 節をステージ「GREAT LEAGUE第N節」にした（記号 `gl1`〜`gl8`〈`lib/live.py`〉、並びは 0.N でプレーオフの前）。日本シリーズの「第N節」と同じ名前にすると、日本シリーズの【2】の掲載（自動）の値が変わる（「まとめ単位を記号にできない」の保留から Y・N へ）ので、名前を分けた。ページの題は「第1期達人戦 GREAT LEAGUE第1節」の形
+- テスト: 全量版の組（90%・89.8%・【無料放送】）、別の卓の組を題名で分ける、2本ずつの組は判定しない、範囲外（予選）の組は変えない、達人戦の節、日本シリーズの節は変わらない、第4回の日単位の生放送4本（メンバー限定か）、チーム戦・レセプションを拾わない。直す前のコードで7件落ちる。テスト 2,294件 OK
+- 【2】の値の比べ（【1】の全14,400本で、直す前後の `build_rows()`＋`auto_show()`）: 変わるのは **達人戦 65・リーチ麻雀世界選手権 8・十段戦 6・小島武夫杯帝王戦 2** の行だけ（指示の範囲の大会）
+  - 達人戦 65: リーグの節の行（ステージ・まとめ単位・掲載（自動））
+  - リーチ麻雀世界選手権 8: 第4回の日単位の生放送4本（候補になる）と、ベスト32・8 の回戦の動画4本の対局日（同じ組の生放送の配信日で埋まる）
+  - 十段戦 6・帝王戦 2: 下の全量版の組の掲載（自動）
+- 文書: docs/notes/live-page-design.md「2-1」の表に達人戦と世界選手権 第3回・第4回の行を足し、生放送の本則・リーグ戦の段階的な追加に置き換え、判断 LV-07 の行（第3回は当面載せない）を置き換えた（dffb569d1）
+
+### 1 の判定で当たる組（掲載範囲のすべての大会、【2】の候補の生放送）
+
+- メンバー限定版と公開版が1本ずつの組は531組。**全量版（90%以上）は5組**、80〜90% は1組、【無料放送】の公開版の組は0組:
+
+| 割合 | 大会・期 | 配信日 | 題名 | メンバー限定版（自動） | 公開版（自動） |
+|---|---|---|---|---|---|
+| 100% | 十段戦 第43期 | 2026-09-12 | 十段位決定戦~初日~ | `xDw5CYnCJ4I` Y→N | `L1I3Wx2mvf0` N→Y |
+| 100% | 十段戦 第43期 | 2026-09-19 | 十段位決定戦~二日目~ | `wZfDqW3dMh4` Y→N | `dxmDlj61m1c` N→Y |
+| 100% | 十段戦 第43期 | 2026-09-26 | 十段位決定戦~最終日~ | `eOXTZ93geGI` Y→N | `5RHZTOEAVIE` N→Y |
+| 100% | 小島武夫杯帝王戦 第3期 | 2024-06-23 | ~ベスト16・決勝~ | `ydBC-iDWLeM` Y→N | `bVeavoP15PU` N→Y |
+| 100% | 達人戦 第2期 | 2024-05-12 | GREAT LEAGUE~第２節 | `b37qfyvhtJQ` N（自動）| `N_fGlbMNVfc` Y |
+| 88%（変えない） | プロクイーン 第22期 | 2024-09-20 | ~ベスト８Ｂ卓~ | `PLnNeAnWooo` Y | `uPk7rI-ffII` N |
+
+- **見分けがつかない組（判定しない。止まる条件の1つ目で、残りは進めた）**:
+  - 達人戦 第2期 GREAT LEAGUE 第4節（2024-07-20）: メンバー限定版が2本（`Eesfy-Sx5R4` 2時間23分・`Wnvb1SGHGj8` 1時間48分）と公開版 `zPyHK0TA2s0`（1時間55分）
+  - 鳳匠戦 第1期 ベスト8B卓（2026-10-22）: メンバー限定版が2本（`-oAfJvStOIo` 24分・`urnHaqf-6mw` 5時間10分）と公開版 `0kARNlbHNKU`（1時間36分）。`-oAfJvStOIo` は【3】で N（2026-11-15 の決定）
+  - 達人戦 第2期 GREAT LEAGUE 第3節: 題名が【メンバー限定】の `hpA_mCZh1Gs`（3時間53分）の層1の「限定」が N のため、組にならない（2本とも公開版の扱いで自動は保留）
+- 鳳凰戦・女流桜花のリーグの節の組は候補に無い（範囲外）
+
+### 平野さんが【3】に入れる値（57セル）
+
+- 十段戦 第43期: メンバー限定版3本を N、初日の公開版を Y（二日目・最終日の公開版はもう Y）
+- 帝王戦 第3期: メンバー限定版 `ydBC-iDWLeM`（行4195、掲載は空欄）は次の毎朝の取り込みで自動が N になる。そのままだと `live/teiou/3/b16.html` の動画が無くなるので、公開版 `bVeavoP15PU`（行3921）のまとめ単位を「ベスト16、決勝」にする（【3】で「決勝」にしてあった）
+- 世界選手権 第3回の日単位の生放送4本: 掲載 Y と、ステージ・まとめ単位（初日・二日目は予選。**三日目・最終日は題名・概要欄に段階が無いので、第4回の形からの推定**〈「ベスト32、ベスト16」「ベスト8、決勝」〉。要確認）
+- 行4217 `9sP_ePg3xgg`（第4回 個人戦ベスト8・決勝）: まとめ単位「ベスト8、決勝」・ステージ「ベスト8」
+- 達人戦のリーグの節: 33行を Y（メンバー限定版 32 のうち第2期 第2節の `b37qfyvhtJQ` を除く31、第2期 第2節の全量の公開版 `N_fGlbMNVfc`、第2期 第3節の `hpA_mCZh1Gs`〈題名は【メンバー限定】で層1は N〉、第2期 第4節のメンバー限定版2本）。公開版（冒頭）は N のまま
+- 紅龍戦の並び: 上の5セル
+
+| 区分 | 【3】の行 | 動画ID | 列 | 入れる値 | 今の値 | 注 |
+|---|---|---|---|---|---|---|
+| #398 | 3228 | `SZgewZ5mNRg` | ステージの並び | 2 | 1 |  |
+| #398 | 3229 | `WV4z0ebRNiY` | ステージの並び | 2 | 1 |  |
+| #398 | 3312 | `Z3uiwxXurYE` | ステージの並び | 2 | 1 |  |
+| #398 | 3313 | `U0yKrT2voYA` | ステージの並び | 2 | 1 |  |
+| #398 | 3314 | `1WWMxyZ8YcI` | ステージの並び | 2 | 1 |  |
+| 本則 | 432 | `L1I3Wx2mvf0` | 掲載 | Y | N |  |
+| 本則 | 3118 | `xDw5CYnCJ4I` | 掲載 | N | Y |  |
+| 本則 | 3921 | `bVeavoP15PU` | まとめ単位 | ベスト16、決勝 | 決勝 | 公開版をベスト16 のページにも載せる（メンバー限定版 行4195 が自動で N になるため） |
+| 本則 | 3955 | `eOXTZ93geGI` | 掲載 | N | Y |  |
+| 本則 | 4166 | `wZfDqW3dMh4` | 掲載 | N | Y |  |
+| #400 | 3113 | `rKxXNNWfjKQ` | まとめ単位 | 予選 | （空） |  |
+| #400 | 3113 | `rKxXNNWfjKQ` | ステージ | 予選 | （空） |  |
+| #400 | 3113 | `rKxXNNWfjKQ` | 掲載 | Y | N |  |
+| #400 | 3114 | `7KejrKiXdyo` | まとめ単位 | 予選 | （空） |  |
+| #400 | 3114 | `7KejrKiXdyo` | ステージ | 予選 | （空） |  |
+| #400 | 3114 | `7KejrKiXdyo` | 掲載 | Y | N |  |
+| #400 | 3115 | `QQ57WMJPycA` | まとめ単位 | ベスト32、ベスト16 | （空） | 要確認（題名・概要欄に段階が無い。第4回の形からの推定） |
+| #400 | 3115 | `QQ57WMJPycA` | ステージ | ベスト32 | （空） | 要確認（題名・概要欄に段階が無い。第4回の形からの推定） |
+| #400 | 3115 | `QQ57WMJPycA` | 掲載 | Y | N |  |
+| #400 | 3116 | `OFM1244ugIA` | まとめ単位 | ベスト8、決勝 | （空） | 要確認（同上） |
+| #400 | 3116 | `OFM1244ugIA` | ステージ | ベスト8 | （空） | 要確認（同上） |
+| #400 | 3116 | `OFM1244ugIA` | 掲載 | Y | N |  |
+| #400 | 4217 | `9sP_ePg3xgg` | まとめ単位 | ベスト8、決勝 | 決勝 |  |
+| #400 | 4217 | `9sP_ePg3xgg` | ステージ | ベスト8 | 決勝 |  |
+| #490 | 4221 | `0iZchpVqTOE` | 掲載 | Y | N |  |
+| #490 | 4224 | `1fsD9cST6NY` | 掲載 | Y | N |  |
+| #490 | 4229 | `518gsUei0FU` | 掲載 | Y | N |  |
+| #490 | 4231 | `7uojJe9MuSI` | 掲載 | Y | N |  |
+| #490 | 4234 | `8ycZ8Hz9tIY` | 掲載 | Y | N |  |
+| #490 | 4235 | `9iGcnHzhrf4` | 掲載 | Y | N |  |
+| #490 | 4237 | `9vKJmkKQEsM` | 掲載 | Y | N |  |
+| #490 | 4239 | `CkEF3YFhJIM` | 掲載 | Y | N |  |
+| #490 | 4241 | `E6fHC-wwfpI` | 掲載 | Y | N |  |
+| #490 | 4243 | `Eesfy-Sx5R4` | 掲載 | Y | N | 同じ節のメンバー限定版が2本（判定しない組）。公開版 1時間55分は冒頭とみて、2本とも Y |
+| #490 | 4245 | `GT4M4py3io8` | 掲載 | Y | N |  |
+| #490 | 4246 | `IeSMT6s2gKE` | 掲載 | Y | N |  |
+| #490 | 4249 | `KVnrbh2aDhk` | 掲載 | Y | N |  |
+| #490 | 4250 | `LWz7aM6WZ1U` | 掲載 | Y | N |  |
+| #490 | 4254 | `N_fGlbMNVfc` | 掲載 | Y | N |  |
+| #490 | 4255 | `NtlYoRnmh2I` | 掲載 | Y | N |  |
+| #490 | 4256 | `OtH9sNlcAaI` | 掲載 | Y | N |  |
+| #490 | 4258 | `R55pQndNPuA` | 掲載 | Y | N |  |
+| #490 | 4262 | `We66H7aiMR8` | 掲載 | Y | N |  |
+| #490 | 4263 | `Wnvb1SGHGj8` | 掲載 | Y | N | 同じ節のメンバー限定版が2本（判定しない組）。公開版 1時間55分は冒頭とみて、2本とも Y |
+| #490 | 4265 | `XfmDOcZdNrc` | 掲載 | Y | N |  |
+| #490 | 4271 | `beO5k_odmv4` | 掲載 | Y | N |  |
+| #490 | 4273 | `d82w54CpVZ0` | 掲載 | Y | N |  |
+| #490 | 4274 | `dIjPEXHzAfU` | 掲載 | Y | N |  |
+| #490 | 4279 | `g6l4YHPdF4U` | 掲載 | Y | N |  |
+| #490 | 4280 | `gWl89ppAZcU` | 掲載 | Y | N |  |
+| #490 | 4282 | `hpA_mCZh1Gs` | 掲載 | Y | N | 題名は【メンバー限定】だが層1の「限定」は N（自動は保留）。4時間弱の全編なので Y |
+| #490 | 4286 | `nGJpc8RSiro` | 掲載 | Y | N |  |
+| #490 | 4295 | `uN1FOeUTeqU` | 掲載 | Y | N |  |
+| #490 | 4297 | `vWRf2TegpsQ` | 掲載 | Y | N |  |
+| #490 | 4298 | `w8sPp1pNd7Q` | 掲載 | Y | N |  |
+| #490 | 4300 | `wR_O_K5ZSC0` | 掲載 | Y | N |  |
+| #490 | 4346 | `ZSloRgqP9xQ` | 掲載 | Y | N |  |
+
+列ごとの TSV（「入力用」シートで動画ID から引き当てて値だけ貼る。【3】の末尾に行を足さない）:
+
+「掲載」の列（41行。動画ID と値のタブ区切り）:
+
+```
+L1I3Wx2mvf0	Y
+xDw5CYnCJ4I	N
+eOXTZ93geGI	N
+wZfDqW3dMh4	N
+rKxXNNWfjKQ	Y
+7KejrKiXdyo	Y
+QQ57WMJPycA	Y
+OFM1244ugIA	Y
+0iZchpVqTOE	Y
+1fsD9cST6NY	Y
+518gsUei0FU	Y
+7uojJe9MuSI	Y
+8ycZ8Hz9tIY	Y
+9iGcnHzhrf4	Y
+9vKJmkKQEsM	Y
+CkEF3YFhJIM	Y
+E6fHC-wwfpI	Y
+Eesfy-Sx5R4	Y
+GT4M4py3io8	Y
+IeSMT6s2gKE	Y
+KVnrbh2aDhk	Y
+LWz7aM6WZ1U	Y
+N_fGlbMNVfc	Y
+NtlYoRnmh2I	Y
+OtH9sNlcAaI	Y
+R55pQndNPuA	Y
+We66H7aiMR8	Y
+Wnvb1SGHGj8	Y
+XfmDOcZdNrc	Y
+beO5k_odmv4	Y
+d82w54CpVZ0	Y
+dIjPEXHzAfU	Y
+g6l4YHPdF4U	Y
+gWl89ppAZcU	Y
+hpA_mCZh1Gs	Y
+nGJpc8RSiro	Y
+uN1FOeUTeqU	Y
+vWRf2TegpsQ	Y
+w8sPp1pNd7Q	Y
+wR_O_K5ZSC0	Y
+ZSloRgqP9xQ	Y
+```
+
+「ステージ」の列（5行。動画ID と値のタブ区切り）:
+
+```
+rKxXNNWfjKQ	予選
+7KejrKiXdyo	予選
+QQ57WMJPycA	ベスト32
+OFM1244ugIA	ベスト8
+9sP_ePg3xgg	ベスト8
+```
+
+「まとめ単位」の列（6行。動画ID と値のタブ区切り）:
+
+```
+bVeavoP15PU	ベスト16、決勝
+rKxXNNWfjKQ	予選
+7KejrKiXdyo	予選
+QQ57WMJPycA	ベスト32、ベスト16
+OFM1244ugIA	ベスト8、決勝
+9sP_ePg3xgg	ベスト8、決勝
+```
+
+「ステージの並び」の列（5行。動画ID と値のタブ区切り）:
+
+```
+SZgewZ5mNRg	2
+WV4z0ebRNiY	2
+Z3uiwxXurYE	2
+U0yKrT2voYA	2
+1WWMxyZ8YcI	2
+```
+
+### 試し（上の値を入れ、【2】を新しい規則で作り直し、毎朝の追記の後を仮定した生成）
+
+- 一時の変更 07d39860a（【1】から新しい規則で【2】を作り、【3】に上の57セルを当て、【3】に無い候補〈第4回の生放送3本: `RMe1ILRVVu8` 初日・`bcdp71dnCfk` 2日目・`xxiMif1kWYs` ベスト32・16〉を足す。初日・2日目は自動が N〈予選〉なので、平野さんが Y を入れたと仮定）で生成し、97f7125c3 で戻した。run 44647143359（compare_ref origin/cloudflare）
+- **増えるページ 33（すべて達人戦。減るページは無い）**: https://ryoei.pro/live/tatsujin/4.html と、`live/tatsujin/{1,2,3,4}/gl1.html`〜`gl8.html` の32ページ（各期の GREAT LEAGUE 第1〜8節）
+- 中身が変わる既存のページ（新旧の比べで中身の違うもの 500件のうち、増えた33件のほか）: 十段戦 第43期の決定戦・帝王戦 第3期・世界選手権 第3回・第4回・達人戦の期のページ、紅龍戦 第2期・第3期の並び、ほかは新しく載る動画の人の「他の対局」の件数・カード（出ている人を全ページで確かめた）・`pro/`・一覧・サイトマップ
+- 今の【2】【3】での全ページの再生成（試しを戻した後、run 44648192879）: **差分なし**（規則の変更は【2】の書き込みで初めて効く）
+- 自己レビュー（新しい文脈のサブエージェント、1回。対象 7b8259405、観点: full_public_values の正しさ、日単位の鍵との関係、第4回の判別と早い return、達人戦の節がほかに当たらないか、テスト）: 要修正なし。任意4件:
+
+| 指摘 | 扱い |
+|---|---|
+| `LEAGUE_ROUNDS` の注記「9節以上は保留」は誤り（知らせなしに N）。10以上にすると並び 0.10 が 0.1 と同じ | 注記を直した（4d2bef9ee） |
+| 組の鍵に題名が入ることを見るテストが無い | 別の卓の組のテストを足した（4d2bef9ee） |
+| 第4回の日単位の生放送の早い return の「メンバー限定か」を見ていない | テストに足した（4d2bef9ee） |
+| 早い return は枝番を空にする（初日と2日目が同じ形） | 直さない（予選は自動で N。【3】で Y にしてもページは同じ「予選」） |
+
+  証跡: 実データで前後の比べ（変わる大会と行数・全量版の5組・88% の1組）をレビューが再現した。第4回の題名をすべて当て、拾うのは個人戦の生放送4本と回戦の動画だけ。達人戦の節133本はすべて GREAT LEAGUE 第1〜8節
 
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
+- ブランチ: work/1120-lvp-live
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1120-LVP-32.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1120-lvp-live
+- 確認用URL: なし（今の【2】【3】では生成物の変更なし）
+- マージ: 済（MERGE_SHA）
+- issue: #400・#490・#398
+- 判断が必要なこと:
+  1. 紅龍戦の並びは見込みどおりでない。【3】の「ステージの並び」を 1 → 2 にする5セル: 行3312 `Z3uiwxXurYE`・3313 `U0yKrT2voYA`・3314 `1WWMxyZ8YcI`・3228 `SZgewZ5mNRg`・3229 `WV4z0ebRNiY`（予選B〜D のメンバー限定の行）
+  2. 【3】に入れる値（57セル。`## 経過`「平野さんが【3】に入れる値」の表と列ごとの TSV: 掲載 41・ステージ 5・まとめ単位 6・ステージの並び 5）。**帝王戦の行3921 `bVeavoP15PU` のまとめ単位「ベスト16、決勝」は、2026-11-21 04:00 JST の取り込みより前に入れる**（入れないと、その取り込みで `ydBC-iDWLeM` の自動が N になり `live/teiou/3/b16.html` の動画が無くなる）
+  3. 世界選手権 第3回の日単位の生放送の三日目（行3115）・最終日（行3116）のまとめ単位: 題名・概要欄に段階が無い。表は第4回の形からの推定（「ベスト32、ベスト16」「ベスト8、決勝」）。合っているか
+  4. 第4回の個人戦初日 `RMe1ILRVVu8`・2日目 `bcdp71dnCfk` の生放送: 次の毎朝の取り込みで【3】の末尾に追記され、自動は N（予選は範囲外の規則。2026-11-20 の「自動の規則は直さない」のとおり）。決定2 のとおり載せるには、追記された後に掲載へ Y を入れる
+  5. 入れた後に増えるページ（試しで33、減るページは無い）: `live/tatsujin/4.html` と `live/tatsujin/{1,2,3,4}/gl1〜gl8.html`（達人戦の GREAT LEAGUE 第1〜8節）
+  6. 全量版の判定の閾値は長さの90%（または題名に【無料放送】）。当たる組は5組（十段戦 第43期 初日・二日目・最終日、帝王戦 第3期、達人戦 第2期 第2節）。80〜90% の組は1組（第22期プロクイーン ベスト8B卓 2024-09-20、88%。今のまま〈メンバー限定版 Y・公開版 N〉）。判定しない組（1本ずつでない）: 達人戦 第2期 第4節（メンバー限定版2本）、鳳匠戦 第1期 ベスト8B卓。達人戦 第2期 第3節は題名が【メンバー限定】の動画の層1の「限定」が N で組にならない（表で Y にした）
+  7. 達人戦のリーグの節のステージ名を「GREAT LEAGUE第N節」（記号 `gl1`〜`gl8`）にした（日本シリーズの「第N節」と分けるため）。この名前でよいか
+- 未確認の項目:
+  - 2026-11-21 04:00 JST の毎朝の取り込みで、【2】に第4回の生放送4本と達人戦の節のステージが入り、【3】に第4回の生放送3行が追記されること（このセッションからは待てない）
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj ba4c0877）: https://github.com/retroeater/mj-logs/tree/main/guide/ba4c0877
+ガイド文書（この版を写した時点の最新、mj e6a30ce2）: https://github.com/retroeater/mj-logs/tree/main/guide/e6a30ce2
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ba4c0877/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ba4c0877/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ba4c0877/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ba4c0877/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ba4c0877/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/ba4c0877/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e6a30ce2/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e6a30ce2/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e6a30ce2/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e6a30ce2/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e6a30ce2/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e6a30ce2/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/13ebaa17.md
