@@ -67,7 +67,7 @@
 
 ## 報告
 
-- 状態: 中断
+- 状態: 中断 / 続き: CHAT-1120-LVP-32
 - ブランチ: work/1120-lvp-live
 - ログ: https://github.com/retroeater/mj/blob/work/1120-lvp-live/docs/logs/CHAT-1120-LVP-31.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1120-lvp-live
