@@ -248,6 +248,143 @@ CHAT-1116-WBK-07（判断待ち）の続き。候補タブ（R_候補）のモ�
   - 本実行（run 44676684344、04:47 UTC、success）。同時に動いていたシートを読み書きする実行は無かった。「書いた: 「タイトル」の日付 434セル」。読み直し: 「タイトル」の書いたセルの違い 0・「タイトル」のほかのセルの変化 0・候補タブの変化 0（「タイトル」3119行・候補タブ 788行。前後で行の数は同じ）。
   - 念のための dry-run（run 44676789372、04:48 UTC、success）: 書くセル 0。101期とも今の日付が書く値と同じ（例: 第21期鳳凰戦 2005-03-17、第1期WRCリーグ 2017-02-12）。年が変わる期 0（書き終えた期として扱われた）。
 
+- 3. 再生成
+  - 対象は「タイトル」の日付を読むページと、title/ の検索のデータ（`title/search.json`）を読むページ: `title_pages houou_pages jpml_pros pro_pages ask_data ask_data_schedule`（`python3 scripts/regenerate.py --list` にあるページ名。`generate_*` で `generate_title_pages`・`title/search.json` を参照するものを grep で拾った）。
+  - `regenerate-page.yml` の check（run 44676877471、04:48 UTC、success）: 6ページとも「通る」。止まる理由なし（「check: 止まるページなし」）。警告 14件は「別名」の使わない行（安斎広昭・古後雅敏・斎藤等）と /live の【3】の件数で、この書き込みとは関係しない。
+  - 再生成（run 44677088415、04:50 UTC、success）→ 15c06ac39。書き込み直前のシートで作り直した 1bcebebc4 との差は 108ファイル（+283 −283）で、すべて101期の日付で説明できる:
+    - title/ の期のページ 101（鳳凰戦 10・十段戦 14・王位戦 14・麻雀マスターズ 14・麻雀グランプリMAX 8・女流桜花 8・プロクイーン 13・WRCリーグ 7・新人王戦 13）。どのファイルも、変わった行は日付・年の文字だけ（変わった行を年・日付を伏せて比べると全部同じ）。年が変わらない76期は見出しの日付の1行（「2013年」→「2013年9月23日」）、年が変わる25期は見出し・description・og:description・リードの4行
+    - `title/search.json`: 期の年が変わったのは25期で、WBK-07 の「シートの年と候補の年が違う行」の25期と同じ・どれも1年後ろ。ほかの期・大会（`t`）・人（`p`）は同じ
+    - `title/years.json`: 年の入口で1年後ろに移った期が25（上と同じ25期）。ほかの移動なし（2012年の行の重みの数が 8.95→7 に変わったのは、その年の期が減ったため）
+    - `sitemap-title.xml`: 101期の lastmod が 2026-11-20 に
+    - `workers/ask/data.json`: 鳳凰戦の決勝（`finals`）の10期（第21・29〜37期）の年が1年後ろに。順位・名前は同じ
+    - `pro/` 3ページ（ダンプ大橋・沢崎誠・瀬戸熊直樹）: タイトル戦の並びで、第5期と第6期の WRCリーグ、第30期十段戦の行の位置が入れ替わった（日付が入って同じ年の中の並びが決まったため）。中身の文は同じ
+    - houou/・jpml_pros.html・`workers/ask/data-schedule.json` は変わらなかった
+    - シートのほかの変化による差: なし（書く直前の 1bcebebc4 との比べのため）
+  - 本番（ryoei.pro、UA に mj-internal。2026-11-20 04:55 UTC ごろ）の期のページの見出しの日付:
+    - https://ryoei.pro/title/houou/30.html 2014年2月15日（年が変わる期）
+    - https://ryoei.pro/title/judan/30.html 2013年9月23日
+    - https://ryoei.pro/title/oui/32.html 2006年11月26日
+    - https://ryoei.pro/title/jwrc/1.html 2017年2月12日（年が変わる期・改称前の名前の行）
+    （本番の HTML を読んだだけで、ブラウザでの見え方は確かめていない）
+
+#### 日付が年だけの期の残り（再生成後の title/ の期のページの見出しで数えた。NWS-04 と同じ数え方。書く前は 212期で、NWS-04 の表と同じ数だった）
+
+| 大会 | 期 | 年だけ | 日付なし |
+|---|---:|---:|---:|
+| 女流桜花 | 20 | 6 | 0 |
+| プロクイーン | 24 | 2 | 0 |
+| 新人王戦 | 39 | 15 | 0 |
+| 麻雀日本シリーズ | 11 | 0 | 7 |
+| 王位戦 | 50 | 26 | 0 |
+| リーチ麻雀世界選手権 | 4 | 2 | 0 |
+| 麻雀マスターズ | 34 | 11 | 0 |
+| 麻雀グランプリMAX | 16 | 2 | 0 |
+| 女流プロ麻雀日本シリーズ | 11 | 0 | 6 |
+| 鳳凰戦 | 42 | 27 | 0 |
+| 十段戦 | 43 | 20 | 0 |
+| ほかの9大会 | 70 | 0 | 0 |
+| 計 | 364 | 111 | 13 |
+
+（日本シリーズの「日付なし」は期の題が西暦の期で、見出しに日付を出さない形。WRCリーグは 7期すべてが埋まり「ほかの9大会」に入った）
+
+- 4. 2位以下の一覧（「タイトル」は読むだけ。シート・候補タブには書かない）
+  - 元: WBK-05 のログ「決勝の日付（33期、全件）」の「2位以下の順位・点」の列（名前の書いてある15期）と、WBK-06 のログ「期の別のページ」の鳳凰戦 第21期。WBK-04 の本文の表と WBK-06「期ごとのまとめ」に名前の書いてある期は、このほかに無かった
+  - 「タイトル」の側は、再生成後の title/ の期のページ（15c06ac39）の決勝の順位と名前（「タイトル」を「別名」で現在名に直したもの）。ページの名前は `workers/ask/data.json` の `aliases`（生成に使う「別名」の写し）で現在名に直してから比べた
+  - 順位の語が無く点の順で並ぶ表（「書き方」に「点の順」）は、点の順を順位とした。姓だけのものは、同じ順位の名前が姓で始まれば「一致（姓だけ）」
+  - 点は WBK のログの書き方のまま（▲はマイナス）
+
+#### 2位以下の順位・点と「タイトル」の突き合わせ（16期・69行、全件）
+
+| 大会 | 期 | 順位 | 名前（ページの書き方） | 点 | 「タイトル」の期 | 同じ順位の名前（「別名」で直した後） | 突き合わせ | 書き方 | 出典（ログ・元の URL・保存日） |
+|---|---:|---:|---|---:|---|---|---|---|---|
+| 十段戦 | 20 | 1 | 河野高志 | 64.7 | 第20期十段戦 | 河野高志 | 一致 | 総合計の表 | WBK-05 /ju-dansen20-final-sokuho.htm 2006-09-06 |
+| 十段戦 | 20 | 2 | 板川和俊 | 62.4 | 第20期十段戦 | 板川和俊 | 一致 | 総合計の表 | WBK-05 /ju-dansen20-final-sokuho.htm 2006-09-06 |
+| 十段戦 | 20 | 3 | 吉田幸雄 | ▲2.6 | 第20期十段戦 | 吉田幸雄 | 一致 | 総合計の表 | WBK-05 /ju-dansen20-final-sokuho.htm 2006-09-06 |
+| 十段戦 | 20 | 4 | 小島武夫 | ▲44.9 | 第20期十段戦 | 小島武夫 | 一致 | 総合計の表 | WBK-05 /ju-dansen20-final-sokuho.htm 2006-09-06 |
+| 王位戦 | 32 | 1 | 滝沢和典 | — | 第32期王位戦 | 滝沢和典 | 一致 | 写真の説明 | WBK-05 /title_fight/oui-32-fin.php 2012-01-02 |
+| 王位戦 | 32 | 2 | 嶋村俊幸 | — | 第32期王位戦 | 嶋村俊幸 | 一致 | 写真の説明 | WBK-05 /title_fight/oui-32-fin.php 2012-01-02 |
+| 王位戦 | 32 | 3 | 松崎良文 | — | 第32期王位戦 | 松崎良文 | 一致 | 写真の説明 | WBK-05 /title_fight/oui-32-fin.php 2012-01-02 |
+| 王位戦 | 32 | 4 | 荒正義 | — | 第32期王位戦 | 荒正義 | 一致 | 写真の説明 | WBK-05 /title_fight/oui-32-fin.php 2012-01-02 |
+| 王位戦 | 32 | 5 | 増田隆一 | — | 第32期王位戦 | 増田隆一 | 一致 | 写真の説明 | WBK-05 /title_fight/oui-32-fin.php 2012-01-02 |
+| 王位戦 | 35 | 1 | 坂本健二 | +72.5 | 第35期王位戦 | 坂本健二 | 一致 | 最終成績（点の順。5位は姓だけ） | WBK-05 /title_fight/oui_35_fin.php 2012-01-02 |
+| 王位戦 | 35 | 2 | 羽山真生 | +31.6 | 第35期王位戦 | 羽山真生 | 一致 | 最終成績（点の順。5位は姓だけ） | WBK-05 /title_fight/oui_35_fin.php 2012-01-02 |
+| 王位戦 | 35 | 3 | 仲田加南 | ▲7.4 | 第35期王位戦 | 仲田加南 | 一致 | 最終成績（点の順。5位は姓だけ） | WBK-05 /title_fight/oui_35_fin.php 2012-01-02 |
+| 王位戦 | 35 | 4 | 鈴木秀幸 | ▲28.1 | 第35期王位戦 | 鈴木秀幸 | 一致 | 最終成績（点の順。5位は姓だけ） | WBK-05 /title_fight/oui_35_fin.php 2012-01-02 |
+| 王位戦 | 35 | 5 | 中村 | ▲69.6 | 第35期王位戦 | 中村瞬 | 一致（姓だけ） | 最終成績（点の順。5位は姓だけ） | WBK-05 /title_fight/oui_35_fin.php 2012-01-02 |
+| 王位戦 | 36 | 1 | 井出一寛 | — | 第36期王位戦 | 井出一寛 | 一致 | 写真の説明 | WBK-05 /title_fight/oui_36_fin.php 2012-01-06 |
+| 王位戦 | 36 | 2 | 牧野卓人 | — | 第36期王位戦 | 牧野卓人 | 一致 | 写真の説明 | WBK-05 /title_fight/oui_36_fin.php 2012-01-06 |
+| 王位戦 | 36 | 3 | 荒正義 | — | 第36期王位戦 | 荒正義 | 一致 | 写真の説明 | WBK-05 /title_fight/oui_36_fin.php 2012-01-06 |
+| 王位戦 | 36 | 4 | 坂本健二 | — | 第36期王位戦 | 坂本健二 | 一致 | 写真の説明 | WBK-05 /title_fight/oui_36_fin.php 2012-01-06 |
+| 王位戦 | 36 | 5 | 勝又健志 | — | 第36期王位戦 | 勝又健志 | 一致 | 写真の説明 | WBK-05 /title_fight/oui_36_fin.php 2012-01-06 |
+| 麻雀マスターズ | 16 | 1 | 沢崎 | 136.6 | 第16期麻雀マスターズ | 沢崎誠 | 一致（姓だけ） | 最終スコア（点の順、姓だけ） | WBK-05 /title_fight/masters16-fin.php 2012-01-23 |
+| 麻雀マスターズ | 16 | 2 | 玉井 | 32.0 | 第16期麻雀マスターズ | 玉井清 | 一致（姓だけ） | 最終スコア（点の順、姓だけ） | WBK-05 /title_fight/masters16-fin.php 2012-01-23 |
+| 麻雀マスターズ | 16 | 3 | 竹内 | ▲62.8 | 第16期麻雀マスターズ | 竹内孝之 | 一致（姓だけ） | 最終スコア（点の順、姓だけ） | WBK-05 /title_fight/masters16-fin.php 2012-01-23 |
+| 麻雀マスターズ | 16 | 4 | 荒井 | ▲105.8 | 第16期麻雀マスターズ | 荒井節子 | 一致（姓だけ） | 最終スコア（点の順、姓だけ） | WBK-05 /title_fight/masters16-fin.php 2012-01-23 |
+| 麻雀マスターズ | 18 | 1 | 牧野卓人 | +159.6 | 第18期麻雀マスターズ | 牧野卓人 | 一致 | 最終成績 | WBK-05 /title_fight/masters18-fin.php 2012-05-18 |
+| 麻雀マスターズ | 18 | 2 | 朝倉ゆかり | ▲21.4 | 第18期麻雀マスターズ | 朝倉ゆかり | 一致 | 最終成績 | WBK-05 /title_fight/masters18-fin.php 2012-05-18 |
+| 麻雀マスターズ | 18 | 3 | ガース・ネルソン | ▲38.2 | 第18期麻雀マスターズ | ガース | 表記の違い（「別名」で ガース） | 最終成績 | WBK-05 /title_fight/masters18-fin.php 2012-05-18 |
+| 麻雀マスターズ | 18 | 4 | 今里之彦 | ▲100.0 | 第18期麻雀マスターズ | 今里邦彦 | 表記の違い（「別名」で 今里邦彦） | 最終成績 | WBK-05 /title_fight/masters18-fin.php 2012-05-18 |
+| 麻雀マスターズ | 19 | 1 | 樋口新 | — | 第19期麻雀マスターズ | 樋口新 | 一致 | 写真の説明 | WBK-05 /title_fight/masters19-fin.php 2012-05-11 |
+| 麻雀マスターズ | 19 | 2 | 沢崎誠 | — | 第19期麻雀マスターズ | 沢崎誠 | 一致 | 写真の説明 | WBK-05 /title_fight/masters19-fin.php 2012-05-11 |
+| 麻雀マスターズ | 19 | 3 | 荒正義 | — | 第19期麻雀マスターズ | 荒正義 | 一致 | 写真の説明 | WBK-05 /title_fight/masters19-fin.php 2012-05-11 |
+| 麻雀マスターズ | 19 | 4 | 瀬戸熊直樹 | — | 第19期麻雀マスターズ | 瀬戸熊直樹 | 一致 | 写真の説明 | WBK-05 /title_fight/masters19-fin.php 2012-05-11 |
+| 麻雀グランプリMAX | 1 | 1 | 小島 | +58.1 | 第1期麻雀グランプリMAX | 小島武夫 | 一致（姓だけ） | 最終成績（点の順、姓だけ） | WBK-05 /title_fight/gpmax2010_fin.php 2012-02-21 |
+| 麻雀グランプリMAX | 1 | 2 | 板川 | +17.0 | 第1期麻雀グランプリMAX | 板川和俊 | 一致（姓だけ） | 最終成績（点の順、姓だけ） | WBK-05 /title_fight/gpmax2010_fin.php 2012-02-21 |
+| 麻雀グランプリMAX | 1 | 3 | 樋口 | ▲42.3 | 第1期麻雀グランプリMAX | 樋口新 | 一致（姓だけ） | 最終成績（点の順、姓だけ） | WBK-05 /title_fight/gpmax2010_fin.php 2012-02-21 |
+| 麻雀グランプリMAX | 1 | 4 | 猿川 | ▲44.8 | 第1期麻雀グランプリMAX | 猿川真寿 | 一致（姓だけ） | 最終成績（点の順、姓だけ） | WBK-05 /title_fight/gpmax2010_fin.php 2012-02-21 |
+| プロクイーン | 5 | 1 | 涼崎いづみ | — | 第5期プロクイーン | 涼崎いづみ | 一致 | 写真の説明 | WBK-05 /title_fight/queen_05_fin01.php 2012-05-11 |
+| プロクイーン | 5 | 2 | 崎見百合 | — | 第5期プロクイーン | 崎見百合 | 一致 | 写真の説明 | WBK-05 /title_fight/queen_05_fin01.php 2012-05-11 |
+| プロクイーン | 5 | 3 | 内田美乃里 | — | 第5期プロクイーン | 内田美乃里 | 一致 | 写真の説明 | WBK-05 /title_fight/queen_05_fin01.php 2012-05-11 |
+| プロクイーン | 5 | 4 | 奥村知美 | — | 第5期プロクイーン | 奥村知美 | 一致 | 写真の説明 | WBK-05 /title_fight/queen_05_fin01.php 2012-05-11 |
+| プロクイーン | 5 | 5 | 仲田加南 | — | 第5期プロクイーン | 仲田加南 | 一致 | 写真の説明 | WBK-05 /title_fight/queen_05_fin01.php 2012-05-11 |
+| プロクイーン | 6 | 1 | 黒沢咲 | — | 第6期プロクイーン | 黒沢咲 | 一致 | 写真の説明 | WBK-05 /title_fight/queen_06_fin01.php 2012-01-06 |
+| プロクイーン | 6 | 2 | 涼崎いづみ | — | 第6期プロクイーン | 涼崎いづみ | 一致 | 写真の説明 | WBK-05 /title_fight/queen_06_fin01.php 2012-01-06 |
+| プロクイーン | 6 | 3 | 千葉未帆 | — | 第6期プロクイーン | 千葉未帆 | 一致 | 写真の説明 | WBK-05 /title_fight/queen_06_fin01.php 2012-01-06 |
+| プロクイーン | 6 | 4 | 岩井茜 | — | 第6期プロクイーン | 岩井茜 | 一致 | 写真の説明 | WBK-05 /title_fight/queen_06_fin01.php 2012-01-06 |
+| プロクイーン | 6 | 5 | 石井阿依 | — | 第6期プロクイーン | 石井阿依 | 一致 | 写真の説明 | WBK-05 /title_fight/queen_06_fin01.php 2012-01-06 |
+| 新人王戦 | 21 | 1 | 仲田 | +45.5 | 第21期新人王戦 | 仲田加南 | 一致（姓だけ） | 最終成績（点の順、姓だけ） | WBK-05 /title_fight/sinjin_oh-21fin.php 2012-05-10 |
+| 新人王戦 | 21 | 2 | 上村 | +7.2 | 第21期新人王戦 | 上村慎太郎 | 一致（姓だけ） | 最終成績（点の順、姓だけ） | WBK-05 /title_fight/sinjin_oh-21fin.php 2012-05-10 |
+| 新人王戦 | 21 | 3 | 石橋 | +2.1 | 第21期新人王戦 | 石橋薫 | 一致（姓だけ） | 最終成績（点の順、姓だけ） | WBK-05 /title_fight/sinjin_oh-21fin.php 2012-05-10 |
+| 新人王戦 | 21 | 4 | 寺戸 | ▲54.8 | 第21期新人王戦 | 寺戸孝志 | 一致（姓だけ） | 最終成績（点の順、姓だけ） | WBK-05 /title_fight/sinjin_oh-21fin.php 2012-05-10 |
+| 新人王戦 | 22 | 1 | 平尾昌邦 | — | 第22期新人王戦 | 平尾昌邦 | 一致 | 写真の説明 | WBK-05 /title_fight/sinjin_oh-22fin.php 2012-05-10 |
+| 新人王戦 | 22 | 2 | 赤司美奈子 | — | 第22期新人王戦 | 赤司美奈子 | 一致 | 写真の説明 | WBK-05 /title_fight/sinjin_oh-22fin.php 2012-05-10 |
+| 新人王戦 | 22 | 3 | 青木胤道 | — | 第22期新人王戦 | 青木胤道 | 一致 | 写真の説明 | WBK-05 /title_fight/sinjin_oh-22fin.php 2012-05-10 |
+| 新人王戦 | 22 | 4 | 儀間翔 | — | 第22期新人王戦 | 儀間翔 | 一致 | 写真の説明 | WBK-05 /title_fight/sinjin_oh-22fin.php 2012-05-10 |
+| 新人王戦 | 23 | 1 | 福光聖雄 | +51.3 | 第23期新人王戦 | 福光聖雄 | 一致 | 最終成績（名前は写真の説明） | WBK-05 /title_fight/sinjin_oh-23fin.php 2012-05-10 |
+| 新人王戦 | 23 | 2 | 越川清一 | +21.7 | 第23期新人王戦 | 越川清一 | 一致 | 最終成績（名前は写真の説明） | WBK-05 /title_fight/sinjin_oh-23fin.php 2012-05-10 |
+| 新人王戦 | 23 | 3 | 鈴木秀幸 | ▲23.9 | 第23期新人王戦 | 鈴木秀幸 | 一致 | 最終成績（名前は写真の説明） | WBK-05 /title_fight/sinjin_oh-23fin.php 2012-05-10 |
+| 新人王戦 | 23 | 4 | 多田邦洋 | ▲50.1 | 第23期新人王戦 | 多田邦洋 | 一致 | 最終成績（名前は写真の説明） | WBK-05 /title_fight/sinjin_oh-23fin.php 2012-05-10 |
+| 新人王戦 | 24 | 1 | 蛯原朗 | +20.8 | 第24期新人王戦 | 蛯原朗 | 一致 | トータル成績（点の順。写真の説明は高沢・河井とも第4位） | WBK-05 /title_fight/sinjin_oh-24fin.php 2012-05-10 |
+| 新人王戦 | 24 | 2 | 横井玲巳 | +3.3 | 第24期新人王戦 | 横井玲巳 | 一致 | トータル成績（点の順。写真の説明は高沢・河井とも第4位） | WBK-05 /title_fight/sinjin_oh-24fin.php 2012-05-10 |
+| 新人王戦 | 24 | 3 | 高沢雅 | ▲9.8 | 第24期新人王戦 | 高沢雅 | 一致 | トータル成績（点の順。写真の説明は高沢・河井とも第4位） | WBK-05 /title_fight/sinjin_oh-24fin.php 2012-05-10 |
+| 新人王戦 | 24 | 4 | 河井保国 | ▲15.3 | 第24期新人王戦 | 河井保国 | 一致 | トータル成績（点の順。写真の説明は高沢・河井とも第4位） | WBK-05 /title_fight/sinjin_oh-24fin.php 2012-05-10 |
+| 新人王戦 | 25 | 1 | 大庭三四郎 | — | 第25期新人王戦 | 大庭三四郎 | 一致 | 写真の説明（点は途中経過だけ） | WBK-05 /title_fight/sinjin_oh-25fin.php 2012-01-24 |
+| 新人王戦 | 25 | 2 | 嶋村泰之 | — | 第25期新人王戦 | 嶋村泰之 | 一致 | 写真の説明（点は途中経過だけ） | WBK-05 /title_fight/sinjin_oh-25fin.php 2012-01-24 |
+| 新人王戦 | 25 | 3 | 朝比奈諒 | — | 第25期新人王戦 | 朝比奈涼 | 食い違い | 写真の説明（点は途中経過だけ） | WBK-05 /title_fight/sinjin_oh-25fin.php 2012-01-24 |
+| 新人王戦 | 25 | 4 | 尾澤大河 | — | 第25期新人王戦 | 尾澤大河 | 一致 | 写真の説明（点は途中経過だけ） | WBK-05 /title_fight/sinjin_oh-25fin.php 2012-01-24 |
+| 鳳凰戦 | 21 | 1 | 阿部孝則 | 84.5 | 第21期鳳凰戦 | 阿部孝則 | 一致 | 合計の表（順位点込み、点の順。名前は速報の目次） | WBK-06 /21houou-3.htm 2006-05-04・/21houou.htm 2006-01-03 |
+| 鳳凰戦 | 21 | 2 | 前原雄大 | 37.2 | 第21期鳳凰戦 | 前原雄大 | 一致 | 合計の表（順位点込み、点の順。名前は速報の目次） | WBK-06 /21houou-3.htm 2006-05-04・/21houou.htm 2006-01-03 |
+| 鳳凰戦 | 21 | 3 | 沢崎誠 | ▲28.0 | 第21期鳳凰戦 | 沢崎誠 | 一致 | 合計の表（順位点込み、点の順。名前は速報の目次） | WBK-06 /21houou-3.htm 2006-05-04・/21houou.htm 2006-01-03 |
+| 鳳凰戦 | 21 | 4 | 朝武雅晴 | ▲93.7 | 第21期鳳凰戦 | ともたけ雅晴 | 表記の違い（「別名」で ともたけ雅晴） | 合計の表（順位点込み、点の順。名前は速報の目次） | WBK-06 /21houou-3.htm 2006-05-04・/21houou.htm 2006-01-03 |
+
+分けごとの数: 一致 52・一致（姓だけ） 13・表記の違い（「別名」で ガース） 1・表記の違い（「別名」で 今里邦彦） 1・食い違い 1・表記の違い（「別名」で ともたけ雅晴） 1（計 69）
+
+- 分けごとの数（上の表から）: 一致 52、一致（姓だけ） 13、表記の違い（「別名」で直すと一致） 3（ガース・ネルソン→ガース、今里之彦→今里邦彦、朝武雅晴→ともたけ雅晴）、食い違い 1（第25期新人王戦 3位: ページ「朝比奈諒」・「タイトル」「朝比奈涼」。「別名」に無い）、シートに無い 0。
+  - 1位も含めて数えた（優勝者は「タイトル」に必ずある）。1位を除くと 53行（一致 39・姓だけ 10・表記の違い 3・食い違い 1）
+  - 補足: 第24期新人王戦は、トータル成績の点の順は 3位 高沢雅・4位 河井保国で「タイトル」と同じだが、写真の説明は2人とも「第４位」と書く（WBK-05）
+  - #684 の「1位だけの期」（王位戦 第1〜8・19・25期、麻雀マスターズ 第1〜9期）に当たる行は、この表に無い
+- PC で読み直しが要る期（ログに名前と点が無い。WBK-04 の本文の表と WBK-05・06 の表から）:
+  - 鳳凰戦 第15期（`/titlehouou.htm` 2004-02-18、1〜4位の全員と点）
+  - 王位戦 第24期（`/oui.htm` 2000-06-11、文章の中に順位が散る）
+  - 王位戦 第33期（`/title_fight/oui_33_fin.php` 2008-01-16、5人の点と順位）
+  - 麻雀マスターズ 第8期（`/masters.htm` 2001-02-14、1〜4位と点。#684 の1位だけの期）
+  - 鳳凰戦 第1〜34期の歴代の1〜4位（`/title-fight/houousen.html` 2019-01-01、点なし）と十段戦 第1〜34期の1〜5位（`/title-fight/10dansen.html` 2019-01-27、点なし）。大会のページの歴代の表で、期ごとの名前はログに無い
+
+- 5. 片付け
+  - 外した（487a47713）: `scripts/oneoff_wbk_adopt.py`・`scripts/tests/test_oneoff_wbk_adopt.py`・research-candidates.yml の `source=wbk-adopt`（選択肢・説明の文・呼び出しの分岐）・`lib/sheets_write.py` の `TITLE_*` と `WRITABLE` の1件。2つのファイルは着手時の cloudflare（d28d0cbb2）と同じ内容に戻った（`git diff d28d0cbb2 -- .github scripts` が空）。`oneoff_wbk_adopt`・`wbk-adopt`・`TITLE_SPREADSHEET_ID`・`TITLE_SHEET_NAME` で *.py・*.yml・*.md を検索し、docs/logs のほかに参照が残っていないことを確かめた。外した後の試験 OK
+  - docs/notes/research-candidates.md「Wayback Machine の連盟公式サイト」の候補タブの Wayback の行の節に、採用して「タイトル」に書いたことと、書いた手段・外したこと・戻し方（ff419a4）を1行足した
+  - docs/decisions/automation.md の WBK-01 の節に、この指示の決定・結果・外したこと（487a477）と戻し方（ff419a4）を追記した（今の内容と矛盾なし）
+
 ## 報告
 
 - 状態: 作業中
@@ -264,12 +401,12 @@ CHAT-1116-WBK-07（判断待ち）の続き。候補タブ（R_候補）のモ�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj e6a30ce2）: https://github.com/retroeater/mj-logs/tree/main/guide/e6a30ce2
+ガイド文書（この版を写した時点の最新、mj 2b5f2e0f）: https://github.com/retroeater/mj-logs/tree/main/guide/2b5f2e0f
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/e6a30ce2/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/e6a30ce2/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/e6a30ce2/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/e6a30ce2/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/e6a30ce2/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/e6a30ce2/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/2b5f2e0f/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/2b5f2e0f/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/2b5f2e0f/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/2b5f2e0f/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/2b5f2e0f/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/2b5f2e0f/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/d28d0cbb.md
