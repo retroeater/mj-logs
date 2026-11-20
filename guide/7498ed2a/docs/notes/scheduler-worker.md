@@ -57,6 +57,8 @@ run-name: ${{ inputs.scheduled && '[scheduled] <ワークフローの name>' || 
 **2026-11-01 に外した（#564 の段④、CHAT-1101-WKP-05）。** update-live-channel の保険の予約実行（`schedule`、06:43 JST）と一緒に、当日の予約の起動が成功済みなら保険の実行を止めるゲート（ジョブ `update` のステップ「実行するかどうかを決める」の API の照会と、そのための `actions: read`）を消した。
 毎日・週次の本の保険の `schedule` も同時に外したので、Worker からの起動が抜けた日は、埋め合わせ（上の「動き」の 1.「起動」）と朝の確かめ（同じく 3.）の #506 の通知で気づいて手で動かす。月次の2本（fetch-gsc・fetch-redirect-counts）の `schedule` は 2026-12-01 の run-monthly の成功まで残す。
 
+Worker ごと止まったとき（Workers の Spend limits の上限に達したときなど）は、起動・埋め合わせ・朝の確かめのどれも動かず #506 にも書かれない。止まる範囲と再開の手順は `docs/notes/cloudflare.md`「Workers の Spend limits」。
+
 ## 起動の表の直し方
 
 `workers/scheduler/schedule.json` の `rows` に1行1オブジェクトで書く。

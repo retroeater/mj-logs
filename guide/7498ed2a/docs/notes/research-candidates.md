@@ -94,14 +94,17 @@ API を使わず、最強戦の旧公式サイト（mahjong-saikyosen.jimdoweb.c
 - 届く場所: 平野さんの PC からは届く（2026-11-16）。クラウドの環境からは TLS の途中で切られて届かず、許可するホストから外した（docs/notes/cloud-sessions.md「ネットワーク」）
 - 索引（CDX API）: `https://web.archive.org/cdx/search/cdx?url=ma-jan.or.jp&matchType=domain&collapse=timestamp:4&fl=urlkey,timestamp,original,mimetype&filter=statuscode:200&limit=300000`。
   1回（約2分、20MB、13.6万行）でドメイン全体の「URL ごと・年ごとの最初の保存」が返る（4.5万 URL。`www.` は urlkey で外れて `jp,or,ma-jan)/…` にまとまる）。
-  `showNumPages=true` は 93（ページに分けて読むと要求が増えるので使わない）。中身が変わった保存だけを見るなら `collapse=digest`、パスを正規表現で絞るなら `filter=original:<正規表現>`（`to=2007` で年を絞ると速い）
-- 本文: `https://web.archive.org/web/<timestamp>id_/<original>` で元の HTML がそのまま返る（Wayback の枠が付かない）。**同じ URL でも年が違うと中身が同じことが多い**（1999〜2006年の `/oui.htm`・`/masters.htm`・`/titlehouou.htm` は更新されていない年がある）。読む前に `collapse=digest` の一覧で中身が変わった保存を選ぶ
+  `showNumPages=true` は 93（ページに分けて読むと要求が増えるので使わない）。中身が変わった保存だけを見るなら `collapse=digest`、パスを正規表現で絞るなら `filter=original:<正規表現>`（`to=2007` で年を絞ると速い）。
+  ただし `collapse` 無しで `url=ma-jan.or.jp/&matchType=prefix&from=2000&to=2008` に `filter=original:`・`filter=timestamp:` を重ねた問い合わせは 504（60秒で時間切れ）だった（CHAT-1120-WBK-09）
+- 本文: `https://web.archive.org/web/<timestamp>id_/<original>` で元の HTML がそのまま返る（Wayback の枠が付かない）。
+  timestamp を保存日の8桁（`YYYYMMDD`）にすると、302 でその日の14桁の保存（`id_` つき）へ転送されるので、索引なしで保存日から読める（要求は1ページ2回。CHAT-1120-WBK-09）。**同じ URL でも年が違うと中身が同じことが多い**（1999〜2006年の `/oui.htm`・`/masters.htm`・`/titlehouou.htm` は更新されていない年がある）。読む前に `collapse=digest` の一覧で中身が変わった保存を選ぶ
 - 文字コード: 1999〜2006年の `*.htm` は Shift_JIS（`x-sjis`。cp932 で読む）、2006〜2012年の `/title_fight/*.php` は EUC-JP、2012年〜の `/title-fight/` は UTF-8
 - URL の形（年代ごと）:
   - 1996〜1998年: `master.ma-jan.or.jp`・`www.ma-jan.or.jp/<分類>/*.html`。タイトル戦の結果は無い
   - 1999〜2006年: ルート直下の `*.htm`。その年の決勝のページ（`/titlehouou.htm`〈鳳凰位戦〉・`/oui.htm`・`/masters.htm`、`/<期>houou.htm`・`/<期>oui_*.htm`・`/<期>masters.htm`・`/ju-dansen<期>-*.htm`・`/proqueen<期>_final.htm`・`/sinjin_oh-<期>.htm` など）。リーグの途中経過は `/a-l.htm`（〜2003）・`/a-league.html`（2004〜2006）
   - 2006〜2012年: `/title_fight/*.php`。決勝は `oui_<期>_fin.php`・`10dansen<期>-fin<nn>.php`・`masters<期>-fin.php`・`queen_<期2桁>_fin<nn>.php`・`sinjin_oh-<期>fin.php`・`houousen_<期>_fin.php`・`gpmax<年>_fin.php` など。大会の一覧 `/title_fight/<大会>.php` には期・年・優勝者の表がある
-  - 2012年〜: `/title-fight/<大会>/(final|result|report)-<大会>/<番号>.html`（番号は記事の ID で、期は本文を見ないと分からない）。大会のページ `/title-fight/<大会>.html` に「歴代優勝者」の表（鳳凰戦は年度・1〜4位、十段戦は1〜5位、王位戦・マスターズは優勝者だけ）
+  - 2012年〜: `/title-fight/<大会>/(final|result|report)-<大会>/<番号>.html`（番号は記事の ID で、期は本文を見ないと分からない）。大会のページ `/title-fight/<大会>.html` に「歴代優勝者」の表（鳳凰戦は年度・1〜4位、十段戦は1〜5位、王位戦・マスターズは優勝者だけ）。
+    名前は姓と名の間に半角空白。鳳凰戦の年度は決勝の前の年（決勝は翌年の2〜3月）。十段戦は4人の決勝の期の5位が「---」（第24期）か空（第30期）（CHAT-1120-WBK-09）
 - 載り方: 1999〜2012年の決勝のページには月日と順位がある（読んだ4ページ。表で全員の順位・点が載る形〈1999年の鳳凰位戦・マスターズ〉、本文の「最終成績」の行の形〈2007年の王位戦〉、文章の中に順位が散る形〈1998年の王位戦〉）。2012年〜の決勝観戦記は投稿日だけで、決勝の月日が本文に無いことがある。写真は画像（`/title_fight/imgs/` など）
 - 決勝の日付（CHAT-1116-WBK-05 で33期を読んだ）:
   - 2006〜2012年の決勝観戦記（`*_fin.php`・`*-fin01.php`）の多くは、本文に決勝の月日が無い。月日は同じ期の開催概要 `/title_fight/<大会><期>-info.php`（王位戦 `ouisen<期>-info.php`、十段戦 `10dansen<期>-info.php`、マスターズ `masters-<期>info.php`、プロクイーン `queen_<期2桁>_info.php`、新人王戦 `sinjin_oh-<期>-info.php`）の日程表にある。これは決勝の前に出た予定
@@ -119,6 +122,7 @@ API を使わず、最強戦の旧公式サイト（mahjong-saikyosen.jimdoweb.c
   - 「確度」は連盟ニュースの行と同じ「タイトル」との照らし合わせの分け方（書いた時は 101行とも「補完」）
   - 「備考」: 出典の種類（本文でないもの・予定による日を含むものは先頭に「予定。」）、「期は当て」（期の記載が無く、決勝の時期と年から当てた期。1〜3月の決勝は前の年の期）、「版で日付が違う（前の版: …）」、2日以上なら「決勝の日: …」、「2位以下あり（WBK-0n のログ）」、「シートの年（YYYY）と違う」（翌年の1〜3月の決勝）、ほかのモデルの C の候補との一致・食い違い
   - 書いた手段（`scripts/oneoff_wbk_write.py`・試験・research-candidates.yml の入力 `source=wbk-write`）は書いた後に外した。戻すときは 6a0d9b8 から取り出す（`WRITABLE` は候補タブがもとから入っていて変えていない）
+  - 101行とも平野さんが「採用」にし（2026-11-20）、一度きりの `scripts/oneoff_wbk_adopt.py`（research-candidates.yml の入力 `source=wbk-adopt`、`sheets_write.WRITABLE` に「タイトル」を一時に足した）で「タイトル」のその期の全行の日付の列に書いた（CHAT-1120-WBK-08、434セル）。書いた後に外した。戻すときは ff419a4 から取り出す
 
 ## 候補タブ
 

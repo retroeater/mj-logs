@@ -214,3 +214,8 @@
 - Billing → Subscriptions → Available の7製品（Workers for Platforms・Calls・Images & Stream・Zero Trust Free・Tunnels for Platforms・Zaraz・Log Explorer）は、今はどれも有効にしない（理由は docs/notes/cloudflare.md「Billing の Available の製品（2026-11-19）」）
 - Workers の Spend limits（Billing → Spend limits、Beta）で Block usage を有効にし、上限は $20 にする。Alert thresholds は足さない（通知は既存の Budget alert〈$5〉に任せる）。Durable Objects の行は触らない（使っていない）。平野さんが 2026-11-19 に保存済み（申告値）
 - 作業中の回答: なし
+
+## 2026-11-20（CHAT-1120-CFX-03）
+
+- Workers の Spend limits の Block usage（$20）は有効のまま続ける。上限に達すると `mj-scheduler` が止まり、GitHub の予約実行の起動（`workers/scheduler/schedule.json` の全行。毎朝の run-daily・/live の取り込みなど）が止まってサイトの毎日の更新が止まることを聞いたうえでの判断（2026-11-19 の問いでは、チャット側が「`mj-scheduler` の同期が止まる」とだけ書いていた）。止まる範囲と再開の手順は docs/notes/cloudflare.md「Workers の Spend limits」
+- 作業中の回答: なし
