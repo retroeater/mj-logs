@@ -388,7 +388,7 @@ CHAT-1116-WBK-07（判断待ち）の続き。候補タブ（R_候補）のモ�
 - 2b5f2e0fd の push で動いた「ページの再生成」（run 44677576061、success）→ 632b7efd1: 差は `workers/ask/data-jwrc.json`・`workers/ask/data-ouka.json` の2ファイル（各1行）で、質問欄の WRCリーグ 第1・3・5・7期と女流桜花 第7〜9期の年が1年後ろに（年が変わる25期のうちの7期。この2つのページ〈`ask_data_jwrc`・`ask_data_ouka`〉は手動の再生成の対象に入れていなかった）。title/ の差は無い。どれも101期の日付で説明できる
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1120-WBK-09
 - ブランチ: work/1120-wbk
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1120-WBK-08.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1120-wbk

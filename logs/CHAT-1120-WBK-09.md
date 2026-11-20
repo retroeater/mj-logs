@@ -76,6 +76,24 @@ CHAT-1120-WBK-08（判断待ち）の続き。WBK-08 の「2位以下の一覧�
 
 ## 経過
 
+- 着手前の確認: `CHAT-1120-WBK-09` のコミットなし（`git log --all --grep`）。識別子 WBK は WBK-01〜08 の続き。0章ゲートは読むだけの指示のため対象外。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は欠けなし。
+- 0. 指示欄の末尾は「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」で、指示文の最後の行と一致。
+- 1. 準備（PC〈R-HP〉のローカルのセッション）
+  - `git fetch` 後、`git status` はきれい（作業前は work/1116-wbk）、`core.autocrlf`（--local）は false
+  - 作業ブランチ: ローカルに work/1120-wbk は無く、origin/work/1120-wbk は origin/cloudflare の祖先（マージ済み）だったので、`git checkout -b work/1120-wbk origin/cloudflare`（de4edb2ff）で作った。ログを先に push した（c379a882a）
+  - 未マージの work/ ブランチ（`git branch -r --no-merged origin/cloudflare` の7本）のうち、変えるファイルに触れるのは origin/work/1115-rsc-autowrite の docs/decisions/automation.md だけで、場所は 908行目の後（RSC-16 の節）。WBK-01 の節（今回の追記は 959行目の後）とは別の箇所
+  - CHAT-1120-WBK-08 のログの `## 報告` の状態の末尾に ` / 続き: CHAT-1120-WBK-09` を足した
+  - docs/decisions/automation.md の WBK-01 の節（CHAT-1115-WBK-01 の見出しの下、WBK-08 の行の後）に、決定3つを追記した。今の内容との矛盾なし（NWS-07 の追記「正本への live-channel-writer の共有は一時のもので、外すのが正しい」と同じ向き）
+- 前提の確認（6ページの URL・保存日）: WBK-04 のログの本文の表（#1・2・4・5・13・15）と WBK-08 のログ「PC で読み直しが要る期」の URL・保存日は、指示文の前提と一致。ただし WBK-04 のログには保存日（日付）だけがあり、14桁の timestamp はどのログ・notes にも無い（`\d{14}` で docs/logs の WBK-04〜08 と docs/notes/research-candidates.md を検索して0件）。前提の「timestamp が WBK-04 のログで分からないときだけ」に当たるので、索引で引くことにした
+- 2. 読む
+  - 索引1（4ページ分を1回で引く）: `https://web.archive.org/cdx/search/cdx?url=ma-jan.or.jp/&matchType=prefix&from=2000&to=2008`＋`filter=original:`（4つのパス）＋`filter=timestamp:`（4つの保存日）。Python urllib、UA `mj-internal (research)`、タイムアウト300秒
+
+  | 時刻（UTC） | 種類 | 応答 | 時間 | 大きさ | 中身 |
+  |---|---|---|---|---|---|
+  | 2026-11-20 07:49:57 | 索引1 | 504 | 60.5秒 | — | 本文なし（ゲートウェイのタイムアウト） |
+
+  - 504 は前提の「429・503」には無いが、止まる条件の「429・503 など、相手から止められた応答」に当たるかどうかが読み取れない。索引の残りは1回で、1回では残りの5〜6ページの timestamp を引けない形（1回で引くには同じ重さの問い合わせになる）。ここで止めて、平野さんに進め方を質問した
+
 ## 報告
 
 - 状態:
