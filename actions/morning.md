@@ -1,7 +1,7 @@
 # 朝の報告用の異常（retroeater/mj）
 
-- 書き出した時刻: 2026-11-21 04:20 JST（見た範囲: 2026-11-20 02:20 JST から）
-- 書き出した実行の契機: workflow_dispatch（main）
+- 書き出した時刻: 2026-11-21 09:14 JST（見た範囲: 2026-11-20 07:14 JST から）
+- 書き出した実行の契機: schedule（main）
 - 異常だけを書く。全体は actions/status.md。判定は mj の scripts/morning_report.py（各ワークフローの直近 100 回まで）
 
 ## 1. 失敗など（結論が success・skipped 以外。実行中を含む）
@@ -31,16 +31,6 @@
 
 ## 7. 国家サイバー統括室の投稿（@cyber_forecast、直近36時間。取得は run-daily.yml のジョブ xcyber。「なし」は投稿なし、「取得できず」は取れなかった日）
 
-- 2026-11-19 16:55 JST https://x.com/cyber_forecast/status/2123324158239248762
-  > 【更新情報】
-  > 米国時間2026年11月18日、GoogleからChromeOS のセキュリティアップデート情報が公開されました（バージョン名:16868.24.0)。
-  > 更新が配信されましたら忘れずにアップデートしてください。
-  > https://t.co/SS47lBN2s9
-  - リンク: https://chromereleases.googleblog.com/2026/11/stable-channel-update-for-chromeos_01891834105.html
-- 2026-11-19 18:37 JST https://x.com/cyber_forecast/status/2123349983919480885
-  > 【事業者向け】19日23:00～23:30（日本時間）にPHPがセキュリティリリースを予定しております。前回とは異なり、本脆弱性の影響を受けるのは一部の環境に限定されるとのことです。以下リンクを確認のうえ、必要に応じて、修正パッチを適用できるよう準備をお願いいたします。
-  > https://t.co/7684u4XeSS
-  - リンク: https://www.php.net/archive/2026.php#2026-11-18-1
 - 2026-11-20 00:24 JST https://x.com/cyber_forecast/status/2123437173550800967
   > 【事業者向け】2026年11月19日23時過ぎ（日本時間）、PHPにおいて、深刻度「重大」を含む複数の脆弱性情報及び修正パッチが公開されました。対象環境の管理者は、影響の有無を確認の上、アップデートの適用など必要な対策をお願いします。
   > https://t.co/Bkuf5GV1NI
