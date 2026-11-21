@@ -1,12 +1,12 @@
 # 朝の報告用の異常（retroeater/mj）
 
-- 書き出した時刻: 2026-11-21 09:14 JST（見た範囲: 2026-11-20 07:14 JST から）
-- 書き出した実行の契機: schedule（main）
+- 書き出した時刻: 2026-11-22 04:02 JST（見た範囲: 2026-11-21 02:02 JST から）
+- 書き出した実行の契機: workflow_dispatch（main）
 - 異常だけを書く。全体は actions/status.md。判定は mj の scripts/morning_report.py（各ワークフローの直近 100 回まで）
 
 ## 1. 失敗など（結論が success・skipped 以外。実行中を含む）
 
-- 2026-11-20 13:38 research-candidates.yml failure（workflow_dispatch・work/1120-wbk）ジョブ「research」 https://github.com/retroeater/mj/actions/runs/44675799765
+- 2026-11-22 04:00 run-daily.yml in_progress（workflow_dispatch・cloudflare） https://github.com/retroeater/mj/actions/runs/44938567180
 
 ## 2. 予約実行の未実行（予定から3時間以内は「遅れの可能性」。3時間を超えて始まった実行は「遅れて実行」）
 
@@ -26,18 +26,9 @@
 
 ## 6. Actions の使用量（mj。ジョブごとに1分へ切り上げた見積もり、日付は JST。前日が240分以上か、月の累計が含まれる3,000分の50%・75%を超えたとき）
 
-- 前日（11/20）: 164分
-- 11月の累計（11/1〜11/20）: 5,015分（含まれる 3,000分の 167%。75% を超えた）
+- 前日（11/21）: 42分
+- 11月の累計（11/1〜11/21）: 5,057分（含まれる 3,000分の 168%。75% を超えた）
 
 ## 7. 国家サイバー統括室の投稿（@cyber_forecast、直近36時間。取得は run-daily.yml のジョブ xcyber。「なし」は投稿なし、「取得できず」は取れなかった日）
 
-- 2026-11-20 00:24 JST https://x.com/cyber_forecast/status/2123437173550800967
-  > 【事業者向け】2026年11月19日23時過ぎ（日本時間）、PHPにおいて、深刻度「重大」を含む複数の脆弱性情報及び修正パッチが公開されました。対象環境の管理者は、影響の有無を確認の上、アップデートの適用など必要な対策をお願いします。
-  > https://t.co/Bkuf5GV1NI
-  - リンク: https://www.php.net/archive/2026.php#2026-11-19-5
-- 2026-11-20 11:27 JST https://x.com/cyber_forecast/status/2123604121299423625
-  > 【更新情報】
-  > 米国時間2026年11月19日、Microsoft Edgeの更新プログラムが公開されました。
-  > 本件更新（158.0.4370.33）にはセキュリティ修正が含まれています。更新が配信されましたら忘れずにアップデートしてください。
-  > https://t.co/rnSFlgax8X
-  - リンク: https://learn.microsoft.com/en-us/deployedge/microsoft-edge-relnotes-security
+なし
