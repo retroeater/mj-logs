@@ -2546,3 +2546,28 @@ BIL 系列（2026-11-19 の Actions・Workers Builds の使用量の確認、#29
 - 含まれる分の 90% の通知メールは 2026-11-05 に届いていた（申告）。もっと早く気づけるよう、知らせの閾値を下げるか足す。手段は未定（候補は #298 のコメント。次の BIL のチャットで決める）
 - 11月の実測は規則にせず docs/notes/github-actions.md「Actions の使用量（実測、#298）」の「2026-11」に書く
 - 作業中の回答: なし
+
+## 2026-11-20（CHAT-1120-CFX-03）
+
+CFX 系列（2026-11-19〜20 の Cloudflare の API トークン・Available の製品・Spend limits、CHAT-1119-CFX-01・02）の振り返り・レビューの申送り:
+
+- 平野さんが「振り返り」「振り返りのレビューをお願いします」「申送り」と言い、Fable 5.2 のレビューを入れた（下の振り返りの中身と層はチャット側の案。平野さんが個別に承認したものではない）
+  - うまくいかなかったこと
+    - Block usage の A/B を聞いたとき、上限で止まるものを「`mj-scheduler` の同期と `/api/ask`」と書き、予約実行の起動が全部止まること（サイトの毎日の更新が止まる）を書かなかった。docs/notes/scheduler-worker.md を読まずに選択肢を出した。2026-11-20 に平野さんへ伝え直し、有効のままと決まった（docs/decisions/cloudflare.md の 2026-11-20 の節）
+    - Log Explorer の料金で、食い違う2つの出典（公式の料金のページと紹介ページ）を並べたまま平野さんの画面（Free then $1/GB）と照らさず、「無料版・試用なし」を docs に書かせた（CHAT-1120-CFX-03 で出典の食い違いを書いた形に直した）
+    - CFX-02 は #601 の状態・台帳の形を読まずに書いた（止まる条件で害は出ていない。mj に読み取りでつなげば REST で読めた）
+    - 最初の回答で頼んだ確認（`CF_ANALYTICS_TOKEN` の元のトークンが Account API Tokens にあるか）を追わず、返答の最後の残りの一覧にも出さなかった。同じ回答で Spend limits の画面も頼み、問いが2つになった
+    - 「$20」「Alert thresholds は足さない」はチャット側の案で、選択肢 A と手順に混ぜたまま CFX-01 の「決定」に書いた（$20 は平野さんが入力して保存した。Alert thresholds は手順に従っただけ）
+    - Spend limits の画面を開いてもらうよう頼んだのは、公式の文書を読む前だった
+    - CFX-02 の前にガイドの版が変わったが docs/instruction-template.md を読み直さなかった（中身は同じで害は無い）
+  - 事実として残る点
+    - `mj-builds-read` と `CF_BUILDS_TOKEN` の対応は推定のまま。確かめるなら、`check-build-failure.yml` を手動（dry_run）で動かして Cloudflare のビルドの API を呼ばせ、ダッシュボードの `mj-builds-read` の Last used が変わるかを見る（していない。削除しないので急がない）
+    - `CF_ANALYTICS_TOKEN` の元の Account API Token の名前、`mj-builds-read` の期限、上限到達のメールの宛先が Budget alert と同じかは未確認
+    - Spend limits の設定の確かめは画面（History の行）まで。上限に達したときの動きは試していない（試す手段が無い）
+    - Worker の外から予約実行の未起動に気づく所は、mj-logs の `actions/morning.md` の2節（`scripts/morning_report.py`）。Worker が止まると書き直しは mj-logs の `sync-from-mj.yml` の1日1回の予約実行だけになる（docs/notes/cloudflare.md「Workers の Spend limits」）
+  - 前回の約束: (aa) は守れなかった（Spend limits の画面）。(w) は一部守れなかった（上の $20・Alert thresholds）。BIL の (c)（既存の Budget alert を見てから通知の追加を見送った）・(d)（保存を確かめてから記録の指示を出した）は守れた。BIL の (f) は一部守れなかった（上の Account API Tokens の確認）。(v)・(x)・(y)・(z)・(p) の後の行は当たる場面が無い
+  - ガイド文に足したもの: なし（CHAT-1120-CFX-03 の指示の「知見 → 選んだ層 → 理由」の表のとおり。#304 の (13) に Spend limits を見る行を足した）
+  - 約束（次の振り返りで確かめる）。今までの約束は置き換えず、次を足す
+    - (ab) 止める・切る設定の選択肢を出す前に、止まる対象の docs/notes の文書を読み、その先で止まるもの（起動される側）まで選択肢に書いたか
+    - (ac) 料金・上限の出典が食い違うとき、平野さんの画面の表示と照らし、食い違いを書いたか
+- 作業中の回答: なし

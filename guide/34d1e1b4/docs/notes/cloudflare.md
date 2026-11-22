@@ -518,7 +518,7 @@ Billing → Subscriptions → Available に並ぶ7製品は、今はどれも有
 | Zero Trust Free | 見送り | Access でプレビューの `*.workers.dev` をログイン必須にできるが、クラウドセッションの curl とチャット側の WebFetch がプレビューを開けなくなり、今の確認の手順（`docs/notes/chat-side-operations.md`「確認用 URL」・`docs/notes/cloud-sessions.md`）が止まる。入れるきっかけは SDP の管理画面や非公開のページを作るとき（上の表の「JWTのHttpOnly Cookie」の行と同じ考え） |
 | Tunnels for Platforms | 対象外 | つなぐオリジンが無い |
 | Zaraz | 却下 | 上の表の「Zaraz」（第三者のスクリプトが無い） |
-| Log Explorer | 却下 | HTTP のリクエストのログを SQL で調べられるが、有料の追加機能（無料版・試用なし）で、攻撃のトラフィックも課金に数える。上限なく課金されるより止まる方を取った Observability の決定（2026-11-02、下の「ビルド時間の見積もり」）と合わず、今の Analytics の GraphQL で足りている。出典 https://developers.cloudflare.com/log-explorer/pricing/ （2026-11-19 にチャット側が読んだ） |
+| Log Explorer | 却下 | HTTP のリクエストのログを SQL で調べられるが、取り込み量で課金され、攻撃のトラフィックも数える。上限なく課金されるより止まる方を取った Observability の決定（2026-11-02、下の「ビルド時間の見積もり」）と同じ考えで、今の Analytics の GraphQL で足りている。料金の出典は食い違い、どれが今の正かは未確認: 公式の料金のページ https://developers.cloudflare.com/log-explorer/pricing/ は「有料の追加機能。無料版・試用は無い」（Last updated Oct 15, 2026）、Billing の Available の画面は「Free then $1/GB」（2026-11-19、平野さんの申告値）、紹介ページ https://www.cloudflare.com/ja-jp/lp/pg-log-explorer/ は「1GB あたり 1 ドル、最初の 10GB は無料」（2026-11-19〜20 にチャット側が読んだ） |
 
 ---
 
@@ -676,11 +676,12 @@ Workers & Pages → `mj` → Settings → Builds:
 |---|---|---|---|
 | `mj build token` | User API Token | Workers Builds が自動発行したもの | Workers Builds の本番反映・プレビュー（`mj`・`mj-ask`・`mj-scheduler`）。GitHub の Secret には置かない |
 | `mj-builds-read` | User API Token（2026-10 末に作成） | Account.Workers Builds Configuration（読み取り。下の「ビルド成否と本番の確認範囲」の Workers CI Read と同じ系統） | GitHub の Secret `CF_BUILDS_TOKEN` の元とみられる（`check-build-failure.yml`、#634） |
-| （名前は未確認） | Account API Token | Account Analytics Read | GitHub の Secret `CF_ANALYTICS_TOKEN`（`fetch-redirect-counts.yml`）。User API Tokens の一覧に無く、#601 の 2026-10-18 の台帳（申告値）で Account API token とされている |
+| `mj Actions 転送件数の集計（読み取り専用）` | Account API Token（2026-10 に作成。2026-11-20 の画面で「Created 1mo ago」） | 画面の一覧の表示は「Analytics Read」（アカウントかゾーンかは一覧からは分からない） | GitHub の Secret `CF_ANALYTICS_TOKEN`（`fetch-redirect-counts.yml`。単体と `run-monthly.yml` のジョブ `redirects`）の元とみられる。名前・権限は 2026-11-20 の Account API tokens の画面（平野さんの申告値。Account API Token はこの1本だけ） |
 
 - **`mj build token`**: 平野さんのアカウント（`<平野さんのメールアドレス>`）に紐づく（Workers Builds が自動発行するため Account Token は選べない）。**このユーザーのアカウントが使えなくなると本番反映が止まる。****権限は手で絞らず触らないこと**（次のビルドが壊れうる）。リポジトリを接続し直すと同名トークンが増えるので、古いものは削除する。4本→1本に整理した経緯は `docs/notes/handover-archive-2026.md`。2026-10-06 も1本（申告値。期限なし）。`mj-scheduler` は同じ `mj build token` を使い、接続でトークンは増えなかった
 - **`mj-builds-read` は消さない**（2026-11-19 の平野さんの決定、`docs/decisions/cloudflare.md`）。消すと `check-build-failure.yml` が本番かプレビューかを確かめられず「確かめられないときは知らせる」側になり、プレビューの失敗でも通知が来る（#634 の前の誤報に戻る）
 - `mj-builds-read` を `CF_BUILDS_TOKEN` とみる根拠（Secret の元のトークン名は GitHub から読めないため推定）: 画面の「最終使用 約15日前」（申告値）と、`check-build-failure.yml` が Cloudflare のビルドの API を最後に呼んだ実行（2026-11-03 16:37 UTC。10/13〜11/19 で API を呼んだのは 11/3 の5回だけ。失敗の check-run のときだけ呼ぶ）が合う。作成「約22日前」も #634 のクローズ（2026-10-27）の頃
+- `mj Actions 転送件数の集計（読み取り専用）` を `CF_ANALYTICS_TOKEN` とみる根拠（同じく推定）: Account API Token がこの1本だけで、名前・権限が `fetch-redirect-counts.yml` の用途と合う。画面の「Last used 6d ago」（2026-11-20 08:27 JST、申告値）と、`CF_ANALYTICS_TOKEN` で Cloudflare を問い合わせた最後の実行（2026-11-13 03:13 UTC の `run-monthly.yml` のジョブ `redirects / fetch`。作業ブランチの試験。11/14 以降の実行は無い）が合う。その実行の `/user/tokens/verify` は 401 で、Account API Token なら通らないこと（`scripts/fetch_redirect_counts.py` のコメント）とも合う
 
 ### ビルド成否と本番の確認範囲（check-runs）
 
@@ -870,9 +871,21 @@ Durable Objects の行は触らない（使っていない）。上限到達の�
 |---|---|---|
 | `mj`（サイトのページ） | 見られるまま | `wrangler.jsonc` に `main`・`run_worker_first` が無く、静的アセットだけ（Worker のコードが動かない） |
 | `mj-ask`（`/api/ask`・`/api/ask/status`・`/api/ask/weekly` と週次の cron） | 止まる | `workers/ask/wrangler.jsonc` のルート `ryoei.pro/api/*` と cron `0 18 * * 1` |
-| `mj-scheduler`（予約実行の起動、毎分の cron） | 止まる | `workers/scheduler/wrangler.jsonc` の cron `* * * * *`。Worker の中の朝の確かめ（#506 への通知）も止まるので、#506 では気づけない。気づくのは上限到達のメール |
+| `mj-scheduler`（予約実行の起動、毎分の cron） | 止まる | `workers/scheduler/wrangler.jsonc` の cron `* * * * *`。下の「`mj-scheduler` が止まると」 |
 
 Worker はこの3つだけ（`workers/` は ask・scheduler）。Worker を足すとき（例: `jpml_pros.html` の 301 の Worker、#641）は止まる側に入る。
+
+**`mj-scheduler` が止まると**（2026-11-20 に `workers/scheduler/schedule.json` とワークフローの `schedule` で確かめた。Worker の動きは `docs/notes/scheduler-worker.md`「動き」）:
+
+- 予約実行の起動が全部止まり、サイトの毎日の更新が止まる。起動の表の行は3つ（run-daily 04:00・run-weekly 月曜 03:00・run-monthly 毎月1日 02:00、JST）で、
+  run-daily が呼ぶ13本（update-live-channel〈/live の取り込み〉・regenerate-page・regenerate-saikyo・fetch-x-posts・convert-x-posts・sync-dojo-calendar・sync-birthday-calendar・check-meibo・cleanup-branches など）、
+  run-weekly の2本（cleanup-logs・fetch-youtube）、run-monthly の3本（fetch-gsc・fetch-redirect-counts・convert-x-posts）が動かない
+- 埋め合わせ（予定から 5〜40 分後の確かめ）・朝の確かめ（#506 への通知）・mj-logs の同期の起動（`dispatchSync()`）も止まる。#506 には何も書かれない
+- GitHub 側に保険の `schedule` が残るのは、月次の fetch-gsc・fetch-redirect-counts（2026-12-01 の run-monthly の成功まで残す、`docs/notes/scheduler-worker.md`「保険の予約実行のゲート」）と、mj-logs の `sync-from-mj.yml`（1日1回 18:41 UTC。GitHub の予約実行なので遅れる）。毎日・週次の本は保険が無い
+- `cloudflare` への push での再生成（`regenerate-page.yml` の push の契機）と Workers Builds はこの Worker を通らない
+- Worker の外から気づく所: mj-logs の `actions/morning.md` の2節「予約実行の未実行」（`scripts/morning_report.py` が `schedule.json` の行と実行の一覧を突き合わせる。書き直すのは mj-logs の `sync-from-mj.yml` で、Worker が止まると上の1日1回の予約実行だけになり、気づくのが翌日になることがある）
+
+**再開の手順:** Billing → Spend limits で Workers の上限を上げるか Block usage を切る（数分で再開）。止まっていた間の予定は、予定から60分を過ぎた行は埋め合わせされない（`docs/notes/scheduler-worker.md`「動き」）ので、run-daily などを手動実行で動かす。何もしなければ次の請求期間の始めに自動で解けるが、それまで予約実行は止まったまま
 
 ### check-run が queued のまま・見当たらない場合（2026-09-13）
 

@@ -61,28 +61,49 @@ CHAT-1120-WBK-09（判断待ち）の続きで、Wayback Machine の調査（系
 - 雛形の行（Chat-Ref・マージ・貼る時機・セッション・共通手順）はすべてある。
 - 指示文の日付: Chat-Ref は 1123、決定は「2026-11-23」と書かれているが、このセッションの日付は 2026-11-22。チャット側の日付の書き方として扱い、決定の日付は指示文のまま写す。
 
+- 1. 確かめ（書かない）
+  - CHAT-1120-WBK-09 のログの状態に ` / 続き: CHAT-1123-WBK-10` を足した。
+  - 未マージの work/ ブランチで docs/decisions/automation.md に触れるのは `work/1115-rsc-autowrite`（末尾の RSC-31 の節。2026-11-15 の決定でマージしない）だけで、WBK-01 の節とは別の箇所なので止めなかった。
+  - 「タイトル」の読み方: このコンテナには鍵が無く（docs/notes/cloud-sessions.md「鍵」）、シートは生成のワークフローの手動実行で読む。読むだけの入力で2回起動した（どちらも cloudflare 8f508ee04、2026-11-22 16:25 UTC。同時に動いていたシートを読み書きする実行は無かった）:
+    - `regenerate-page.yml` の check（run 45043786658、success）: 対象 `title_pages houou_pages jpml_pros pro_pages ask_data ask_data_schedule` の6ページとも「通る」、止まるページなし。警告 13件は「別名」の使わない行（安斎広昭・古後雅敏・斎藤等）と /live の【3】の未確認の件数で、WBK-08 の check と同じ種類（手で足した行とは関係しない）
+    - `regenerate-page.yml` の dry_run（run 45043789476、success、対象 `title_pages`）: 生成の読み取り（`generate_title_pages.fetch_tab()`）の出力は「「タイトル」: 3123行」。WBK-08 の書き込みの時（2026-11-20）は 3119行だったので、4行増えた（指示文の「2〜5位」の4行と同じ数）。「決勝メンバー行数の合計 1492 / 表示する大会の表示=Y の行数 1492」で、表示=Y の行はページの決勝の行と同じ数（増えた4行は表示=Y に数えられていない）。「警告: 0件」。変わったファイルの一覧は実行サマリにだけ出て、ログには出ない（REST でサマリは読めない）
+  - title/ の生成物: 15c06ac39（WBK-08 の書き込み後の再生成）から今の cloudflare（8f508ee04、毎日の再生成 2026-11-21 19:06 UTC を含む）まで、title/ のファイルの差は 0。第8期麻雀マスターズの期のページ（`title/masters/8.html`）は「1999年4月29日」「来賀友志 優勝」だけ（2位以下は出ない）。手で足した行が表示 N でページに出ないことと合う
+  - 止まったところ: 手で足した4行の中身（順位・名前・点・表示・備考）は、今あるワークフローでは読めない。`generate_title_pages.load_periods()` は表示=Y の行だけを期にまとめ（表示 N の行は検査もしない）、生成・検査・dry-run・候補の調べもの（種別 C の dry-run は日付が年だけの期だけを出し、第8期は WBK-08 で 1999-04-29 になった）のどの出力にも、表示 N の行の名前・順位は出ない。読むには、読むだけの一度きりの入力（スクリプト・ワークフローの入力）を足す必要があり、この指示の範囲（docs のみ）を超える（止まる条件「差分が docs を超える」）ので、足さずに止めた
+  - 確かめられたこと・確かめられなかったことのまとめ:
+    - 確かめた: 4行増えた（3119 → 3123）・増えた行は表示=Y に数えられていない・title/ ほかの生成物に差が無い（`check` も止まらない）
+    - 確かめていない: 増えた4行が第8期麻雀マスターズの行であること、表示が N であること（「表示=Y に数えられていない」は、表示が Y 以外か、表示する大会でない大会の行であることまでしか言えない）、名前・順位・点が WBK-09 の表（河野高志 +43.3・多井隆晴 -5.3・小林剛 -47.4・荒正義〈足切り〉）と合うこと、荒正義の順位
+- 2. 記録: docs/decisions/automation.md の WBK-01 の節に、決定3つと、ここまでの確かめの結果を追記した（系列 WBK は締めていないと書いた）。
+- #408・#684 へのコメントは書いていない。決定 (3) が「(1) の結果とあわせて1回でコメントする」で、(1) の確かめが済んでいないため（#408 の分だけ先に書くと、#684 と時期がずれ、決定の「1回で」に合わない）。
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1123-wbk
-- ログ: https://github.com/retroeater/mj/blob/work/1123-wbk/docs/logs/CHAT-1123-WBK-10.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1123-WBK-10.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1123-wbk
-- 確認用URL: なし
-- マージ: 未
-- issue: #408, #684
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- 確認用URL: なし（docs のみ）
+- マージ: 済（docs のみ: このログ・CHAT-1120-WBK-09 のログ・docs/decisions/automation.md）
+- issue: #408・#684（コメントは書いていない。下の判断の後に1回で書く）
+- 判断が必要なこと:
+  - 手で足した第8期麻雀マスターズの4行の中身（順位・名前・点・表示）の確かめ方。今のワークフローは表示 N の行を出さないため、この指示（docs のみ）では読めなかった。行の数が4行増えたこと・表示=Y に数えられていないこと・ページに差が無いことは確かめた（`## 経過`「1. 確かめ」）:
+    - (a) 一度きりの読むだけの入力を足し（例: research-candidates.yml の入力から、「タイトル」の第8期麻雀マスターズの行を表示 Y・N のすべて出す小さなスクリプトを直に呼ぶ。NWS-04・WBK-08 と同じ形で、書き込みの許可は足さない）、生成と同じ読み取り（`generate_title_pages.fetch_tab()`）で読んでから外す。メリット: 指示どおり「生成と同じ経路」で、名前の空白・表示の値まで確かめられる。デメリット: コードの追加と削除のマージ（2回）が要り、指示文のマージの範囲を広げる承認が要る
+    - (b) 平野さんが「タイトル」の第8期麻雀マスターズの行（表示 Y・N）を画面の写しかテキストでチャットに貼り、チャット側（または次の指示）が WBK-09 の表と照らす。メリット: コードを変えない。すぐ済む。デメリット: 生成の読み取りの経路を通らない（全角・半角の空白や表示の値の書き違いは写しで見落としうる）
+    - (c) 確かめを省き、平野さんの申告（追記した・表示 N）として記録して締める。メリット: 手間が無い。デメリット: 名前・点の書き違いが残っても気づけない（表示 N なので今はページに出ないが、後で表示 Y にしたときに出る）
+    - 推奨は (a)。読むだけで書き込みの許可は要らず、WBK-08 と同じ出し入れで1往復で済む。足した行を後で表示 Y にするときの確かめにもなる
+  - (a)・(b) のどれでも、確かめが済んだら同じ指示で #408（WBK-09 の 325行の結果）・#684（第8期の1〜4位と点・足切りの荒正義・表示 N で足したこと・残りの期の数）に1回でコメントし、系列 WBK を締める
+- 未確認の項目:
+  - 増えた4行が第8期麻雀マスターズの行で、表示が N であること・名前と点が WBK-09 の表と合うこと（上の判断の後に確かめる）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 7498ed2a）: https://github.com/retroeater/mj-logs/tree/main/guide/7498ed2a
+ガイド文書（この版を写した時点の最新、mj 34d1e1b4）: https://github.com/retroeater/mj-logs/tree/main/guide/34d1e1b4
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/7498ed2a/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/7498ed2a/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/7498ed2a/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/7498ed2a/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/7498ed2a/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/7498ed2a/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/34d1e1b4/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/34d1e1b4/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/34d1e1b4/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/34d1e1b4/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/34d1e1b4/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/34d1e1b4/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/8f508ee0.md
