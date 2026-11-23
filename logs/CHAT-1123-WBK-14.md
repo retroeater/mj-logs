@@ -90,15 +90,19 @@ CHAT-1123-WBK-13（判断待ち。足した警告が今のシートで174件当�
 - 3. 記録: docs/notes/title-pages.md「生成を止める条件と警告」の WBK-13 の記述を、絞った後の形と「見ないもの」（表示が空・表示しない大会・タイトルが期と合わない行・表示 Y どうしの重なり）に置き換えた。docs/decisions/automation.md の WBK-01 の節に、決定と結果（174件 → 0件）を追記した
 - 未マージの work/ ブランチ: WBK-13 のとおり（`work/1101-prp-pub` は `generate_title_pages.py` の `pages()` など別の関数、`work/1115-rsc-autowrite` は automation.md の別の節）。止まる条件に当たらない
 
+- マージ: 再fetch で cloudflare が LVP-35 の3コミット分進んでいた（docs/decisions/live.md と LVP のログだけ）。`git merge --no-edit origin/cloudflare` で取り込み（衝突なし）、試験 OK の後に `git merge-base --is-ancestor origin/cloudflare HEAD` を確かめ、`git push origin work/1123-wbk:cloudflare`（756f17898..cc2725e42）。WBK-13 の検査・試験・docs・WBK-03／WBK-12 のログの続きも、このマージで入った
+- マージ後:
+  - push で動いた「ページの再生成」（run 45130606103、success）は、コミットする差が無かった（cloudflare は cc2725e42 のまま）。生成物は変わっていない
+  - 手動の check（run 45131124471、cloudflare cc2725e42、2026-11-23 07:26 UTC、success）: title_pages 通る（警告なし）、警告 13件（houou_pages 6・jpml_pros 3・ask_data 4。マージ前と同じ）、止まるページなし
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1123-wbk
-- ログ: https://github.com/retroeater/mj/blob/work/1123-wbk/docs/logs/CHAT-1123-WBK-14.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1123-WBK-14.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1123-wbk
-- 確認用URL: なし
-- マージ: 未
-- issue: #684
+- 確認用URL: なし（生成物は変わっていない）
+- マージ: 済（cc2725e42。WBK-13 の分〈検査・試験・docs・WBK-03／WBK-12 のログの続き〉と、この指示の直し・docs）
+- issue: #684（着手中のコメントを書いた。閉じていない）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
