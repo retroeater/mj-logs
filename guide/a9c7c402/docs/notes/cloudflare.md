@@ -676,11 +676,12 @@ Workers & Pages → `mj` → Settings → Builds:
 |---|---|---|---|
 | `mj build token` | User API Token | Workers Builds が自動発行したもの | Workers Builds の本番反映・プレビュー（`mj`・`mj-ask`・`mj-scheduler`）。GitHub の Secret には置かない |
 | `mj-builds-read` | User API Token（2026-10 末に作成） | Account.Workers Builds Configuration（読み取り。下の「ビルド成否と本番の確認範囲」の Workers CI Read と同じ系統） | GitHub の Secret `CF_BUILDS_TOKEN` の元とみられる（`check-build-failure.yml`、#634） |
-| （名前は未確認） | Account API Token | Account Analytics Read | GitHub の Secret `CF_ANALYTICS_TOKEN`（`fetch-redirect-counts.yml`）。User API Tokens の一覧に無く、#601 の 2026-10-18 の台帳（申告値）で Account API token とされている |
+| `mj Actions 転送件数の集計（読み取り専用）` | Account API Token（2026-10 に作成。2026-11-20 の画面で「Created 1mo ago」） | 画面の一覧の表示は「Analytics Read」（アカウントかゾーンかは一覧からは分からない） | GitHub の Secret `CF_ANALYTICS_TOKEN`（`fetch-redirect-counts.yml`。単体と `run-monthly.yml` のジョブ `redirects`）の元とみられる。名前・権限は 2026-11-20 の Account API tokens の画面（平野さんの申告値。Account API Token はこの1本だけ） |
 
 - **`mj build token`**: 平野さんのアカウント（`<平野さんのメールアドレス>`）に紐づく（Workers Builds が自動発行するため Account Token は選べない）。**このユーザーのアカウントが使えなくなると本番反映が止まる。****権限は手で絞らず触らないこと**（次のビルドが壊れうる）。リポジトリを接続し直すと同名トークンが増えるので、古いものは削除する。4本→1本に整理した経緯は `docs/notes/handover-archive-2026.md`。2026-10-06 も1本（申告値。期限なし）。`mj-scheduler` は同じ `mj build token` を使い、接続でトークンは増えなかった
 - **`mj-builds-read` は消さない**（2026-11-19 の平野さんの決定、`docs/decisions/cloudflare.md`）。消すと `check-build-failure.yml` が本番かプレビューかを確かめられず「確かめられないときは知らせる」側になり、プレビューの失敗でも通知が来る（#634 の前の誤報に戻る）
 - `mj-builds-read` を `CF_BUILDS_TOKEN` とみる根拠（Secret の元のトークン名は GitHub から読めないため推定）: 画面の「最終使用 約15日前」（申告値）と、`check-build-failure.yml` が Cloudflare のビルドの API を最後に呼んだ実行（2026-11-03 16:37 UTC。10/13〜11/19 で API を呼んだのは 11/3 の5回だけ。失敗の check-run のときだけ呼ぶ）が合う。作成「約22日前」も #634 のクローズ（2026-10-27）の頃
+- `mj Actions 転送件数の集計（読み取り専用）` を `CF_ANALYTICS_TOKEN` とみる根拠（同じく推定）: Account API Token がこの1本だけで、名前・権限が `fetch-redirect-counts.yml` の用途と合う。画面の「Last used 6d ago」（2026-11-20 08:27 JST、申告値）と、`CF_ANALYTICS_TOKEN` で Cloudflare を問い合わせた最後の実行（2026-11-13 03:13 UTC の `run-monthly.yml` のジョブ `redirects / fetch`。作業ブランチの試験。11/14 以降の実行は無い）が合う。その実行の `/user/tokens/verify` は 401 で、Account API Token なら通らないこと（`scripts/fetch_redirect_counts.py` のコメント）とも合う
 
 ### ビルド成否と本番の確認範囲（check-runs）
 

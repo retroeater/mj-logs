@@ -54,15 +54,25 @@ CHAT-1123-WBK-10（判断待ち）の続きで、Wayback Machine の調査（系
 - 0章: 「指示」欄の末尾は指示文の最後の行と一致。
 - 雛形の行（Chat-Ref・マージ・貼る時機・セッション・共通手順）はすべてある。
 
+- 1. 記録
+  - CHAT-1123-WBK-10 のログの状態に ` / 続き: CHAT-1123-WBK-11` を足した。
+  - 未マージの work/ ブランチで docs/decisions/automation.md に触れるのは `work/1115-rsc-autowrite`（末尾の RSC-31 の節）だけで、WBK-01 の節とは別の箇所なので止めなかった。
+  - docs/decisions/automation.md の WBK-01 の節に、決定（確かめ方は (b)・順位を 2〜5 に直した・荒正義は5位）と、チャット側の確かめの結果（2805〜2809行目）、系列 WBK を締めたことを追記した。WBK-10 の結果の行の「系列 WBK はまだ締めていない」は、その時点の記録として残し、この行で締めたと書いた（矛盾ではなく続き）。
+  - 「タイトル」は読んでいない（この指示はチャット側の写しでの確かめの記録だけ）。
+- 2. コメント
+  - #408: https://github.com/retroeater/mj/issues/408#issuecomment-7091507146 （WBK-09 の 325行の分け: 一致 314・表記の違い 4・食い違い 1・シートに無い 4・両方に5位なし 2。食い違い1行は「タイトル」が正しいと平野さんが確かめた。系列 WBK を締めた。日付が年だけの期の残り 111〈大会ごと〉）
+  - #684: https://github.com/retroeater/mj/issues/684#issuecomment-7091507477 （第8期麻雀マスターズの1〜5位と点、荒正義を5位としたこと、表示 N で足したこととその理由、残り18期）
+  - 数の出どころ: WBK-09 のログ「6ページの順位・名前・点と「タイトル」の突き合わせ」の表と分けごとの数・「麻雀マスターズ 第8期の1〜4位と点」の表、WBK-08 のログ「日付が年だけの期の残り」の表、WBK-04 のログ「見積もり（212期、全件）」。どちらも閉じていない。
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
 - ブランチ: work/1123-wbk
-- ログ: https://github.com/retroeater/mj/blob/work/1123-wbk/docs/logs/CHAT-1123-WBK-11.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1123-WBK-11.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1123-wbk
-- 確認用URL: なし
-- マージ: 未
-- issue: #408, #684
+- 確認用URL: なし（docs のみ）
+- マージ: 済（docs のみ: このログ・CHAT-1123-WBK-10 のログ・docs/decisions/automation.md）
+- issue: #408・#684（結果をコメントした。閉じていない） https://github.com/retroeater/mj/issues/408#issuecomment-7091507146 https://github.com/retroeater/mj/issues/684#issuecomment-7091507477
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
@@ -70,12 +80,12 @@ CHAT-1123-WBK-10（判断待ち）の続きで、Wayback Machine の調査（系
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 432f5250）: https://github.com/retroeater/mj-logs/tree/main/guide/432f5250
+ガイド文書（この版を写した時点の最新、mj a9c7c402）: https://github.com/retroeater/mj-logs/tree/main/guide/a9c7c402
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/432f5250/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/432f5250/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/432f5250/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/432f5250/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/432f5250/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/432f5250/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/a9c7c402/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/a9c7c402/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/a9c7c402/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/a9c7c402/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/a9c7c402/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/a9c7c402/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/6a823cbf.md
