@@ -57,20 +57,66 @@ LVP-32 の判断待ちの片付け（チャット側の記録。平野さんの�
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
 ## 経過
+- Chat-Ref の確認: `CHAT-1123-LVP-33` のコミットは0件。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）は揃っている。着手は 2026-11-23 12:13 JST
+- 0. 「指示」欄の末尾は指示文の最後の行と一致。CHAT-1120-LVP-32 のログの状態の末尾に `/ 続き: CHAT-1123-LVP-33` を足した。work/1123-lvp はリモート・ローカルとも無いので origin/cloudflare から作った
+- #400・#398 に他セッションの着手中は無い（どれも同じセッションのもの）。両方に着手中のコメントを書いた
+- 未マージの work/ ブランチ: `work/1101-prp-pub` が `generate_live_pages.py` を変えているが、`Page.stage_order` は変えていない。`live_extract.py` を変えているブランチは無い
+
+### 実装（c2a91645d）
+
+- `scripts/generate_live_pages.py` の `Page.stage_order`: ページの動画のうち、まとめ単位が1つの動画（この段階だけの動画）があればその「ステージの並び」の最小で決め、無ければ今までどおり全部の動画の最小（2つ以上のまとめ単位にまたがる動画で並びを決めない）
+- `scripts/lib/live_extract.py` の `STAGE_ORDER` のリーチ麻雀世界選手権を 予選 1・ベスト32 2・ベスト16 3・ベスト8 4・決勝 5 にした（決定2）
+- テスト: `StageOrderTest`（またがる動画がこの段階だけの動画より小さくても並びを引き下げない、またがる動画だけのページは今までどおり）、`test_stage_order`（世界選手権の並び）。直す前のコードで2件落ちる。テスト 2,297件 OK
+
+### すべての期のページの段階の並び（158期）
+
+一時の出力（7033ddb74、run 45104978176。54f70ff9a で戻した）で、直す前（全部の動画の最小、今の【2】）・直した後（今の【2】。マージの直後の状態）・直した後（【1】から新しい規則で作り直した【2】。次の毎朝の取り込みの後の状態）を比べた:
+
+| 期 | 直す前 | 直した後（今の【2】） | 直した後（【2】を作り直した後） |
+|---|---|---|---|
+| リーチ麻雀世界選手権 第3回 | b32,q,b16,b8,f | 変わらない | **q,b32,b16,b8,f**（決定2 のとおり） |
+| リーチ麻雀世界選手権 第4回 | q,b32,b16,b8,f | 変わらない | 変わらない |
+| **麻雀グランプリMAX 第13期** | pq-a-f,pq-b-f,pq-a-1,pq-b-1,pq-a-2,pq-b-2,q1-a…,b16-a…,f | **pq-a-1,pq-a-2,pq-a-f,pq-b-1,pq-b-2,pq-b-f,q1-a…,b16-a…,f** | 同じ（左） |
+| 紅龍戦 第2期 | q-a-1,q-a-2,q-a-f,q-b,q-c,q-d,f | 変わらない | 変わらない |
+| 紅龍戦 第3期 | q-a,q-a-f,q-b,q-c,q-d,f | 変わらない | 変わらない |
+
+- ほかの153期は変わらない
+- **麻雀グランプリMAX 第13期が変わる（止まる条件の1つ目）**: 予備予選の6単位にまたがるメンバー限定の通しの生放送（行3439 `GYEJoRc9-rM`、#399 で6単位にした）が、予備予選Aブロック決勝戦・Bブロック決勝戦のページの並びを予備予選のブロックの①卓と同じ値に引き下げていた（今の本番は「Aブロック決勝戦 → Bブロック決勝戦 → A①…」）。直すと「A①卓 → A②卓 → A決勝戦 → B①卓 → B②卓 → B決勝戦」になる（時系列どおりに見える）が、指示の範囲（世界選手権 第3回・第4回）の外なので、マージせずに止めた
+- **世界選手権 第4回は今の生成ですでに「予選 → ベスト32 → ベスト16 → ベスト8 → 決勝」**（指示文の前提の「予選 → ベスト16 → ベスト32 → …」と違う。今の【2】・【3】での生成の値で、本番の HTML は見ていない）
+- 世界選手権 第3回は、今の【2】のままでは直らない（予選の行は【3】で 1、ベスト32 の行は【2】で 1 のまま）。次の毎朝の取り込みで【2】が新しい `STAGE_ORDER` で書き直されると直る
+- 紅龍戦の【3】の小数の値: 直した後は、2つの段階にまたがる行（行3315・3230 の 1.5）の値は並びに効かなくなる（その段階だけの動画があるため）。予選Aブロック決勝戦の行（3062・3078・3079 の 1.5）は今も並びを決めているので要る（整数にするなら、予選Aブロック 1・予選Aブロック決勝戦 2・予選B〜D 3 のように予選B〜D の行も変える）
+
+### 全ページの再生成（今の【2】【3】、dry_run、compare_ref origin/cloudflare、run 45105113230）
+
+- 中身の違うもの 19件、ページの増減は無い: `live/gpmax/13.html`（20行、並び）、`live/wrc/4.html`（8行）、`live/gpmax/13/q1-c.html`・`live/judan/40/b16-d.html`・`live/jwrc-r/2/b8-b.html`・`live/jwrc-r/3/b16-b.html`・`live/jwrc/14/b16-a.html`・`b16-b.html`・`live/masters/26/sf-a.html`・`live/ranwa/2/b16-a.html`・`b8-a.html`・`f.html`・`live/ranwa/3/b16-a.html`・`b8-a.html`・`f.html`（各4〜8行）、`pro/` 3ページ、`sitemap-live.xml`（24行）
+- 個別ページ・pro/・サイトマップの差は、並びの値（`Page.key`）が変わったページ（第13期の予備予選、第4回の決勝など）と同じ日のページの並び（「他の対局」のカード・サイトマップの順）の差と見ている（差の中身は dry_run の要約に出ないので、確かめていない）
+- 自己レビュー: しない（マージしないため。マージに進むときに行う）
 
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
+- ブランチ: work/1123-lvp
+- ログ: https://github.com/retroeater/mj/blob/work/1123-lvp/docs/logs/CHAT-1123-LVP-33.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1123-lvp
+- 確認用URL: なし
+- マージ: 未（止まる条件に当たったため）
+- issue: #400・#398
+- 判断が必要なこと:
+  1. 直すと、世界選手権のほかに麻雀グランプリMAX 第13期の期のページの並びが変わる（止まる条件）。今: 予備予選Aブロック決勝戦 → Bブロック決勝戦 → Aブロック①卓 → B①卓 → A②卓 → B②卓 → 一次予選…。直した後: A①卓 → A②卓 → A決勝戦 → B①卓 → B②卓 → B決勝戦 → 一次予選…（予備予選の6単位にまたがる通しの生放送 `GYEJoRc9-rM` が引き下げていたのが無くなる）。この変化を受け入れてマージしてよいか
+  2. 個別ページ・pro/・サイトマップの小さな差（並びの値が変わったページと同じ日のページの並び）も、1 と同じく受け入れてよいか
+  3. 紅龍戦の【3】の 1.5 のうち、行3315・3230 は直した後は並びに効かない（消してもよい）。行3062・3078・3079 は今も要る（消すかどうかは平野さん）
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 34d1e1b4）: https://github.com/retroeater/mj-logs/tree/main/guide/34d1e1b4
+ガイド文書（この版を写した時点の最新、mj 011bbdfd）: https://github.com/retroeater/mj-logs/tree/main/guide/011bbdfd
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/34d1e1b4/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/34d1e1b4/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/34d1e1b4/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/34d1e1b4/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/34d1e1b4/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/34d1e1b4/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/011bbdfd/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/011bbdfd/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/011bbdfd/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/011bbdfd/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/011bbdfd/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/011bbdfd/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/6a823cbf.md
