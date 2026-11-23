@@ -57,28 +57,75 @@ CHAT-1123-RSC-35（判断待ち）への回答。Claude API のキー `mj-dojo-g
 
 ## 経過
 
+- 着手前の確認:
+  - 同じ Chat-Ref のコミット・ログは無い。`RSC` は続き（36）
+  - 作業ブランチ: origin に work/1123-rsc-key が無かったので、origin/cloudflare から作った（a3916043c）
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順・作業ブランチ・作業ブランチの片付け・取り込みの衝突）: 欠けなし
+- 0.: 「指示」欄の末尾は指示文の最後の行と一致。CHAT-1123-RSC-35 の `## 報告` の状態を「判断待ち / 続き: CHAT-1123-RSC-36」にした
+- 未マージの `work/` ブランチ: `research-candidates.yml` を変えるのは work/1115-rsc-autowrite（CHAT-1115-RSC-31、マージしないと決めたもの）だけ。変えているのは入力 `saikyo` と issue へのコメントのステップで、Secret の箇所ではない。止まる条件に当たらない
+
+### 1・2. 差し替えと試し
+
+- `research-candidates.yml` で Secret を参照するのは2か所だった: `on.workflow_call.secrets` の宣言と、ステップ「実行」の env
+  - 宣言を `ANTHROPIC_API_KEY_ONEOFF`（`required: false`）にした
+  - env は `ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY_ONEOFF }}` にした。スクリプトが読む環境変数の名前は今のまま
+  - コミット 85c57e0b0
+- 呼び出し元: `run-daily.yml` のジョブ `sokuho` だけで、渡すのは `LIVE_SHEETS_SA_KEY`・`SHEETS_READER_SA_KEY` の2つ（`ANTHROPIC_API_KEY` は渡していなかった）。`run-daily.yml`・`sync-dojo-calendar.yml`・`convert-x-posts.yml` は変えていない（毎朝の運行は変わらない）
+- 試し（作業ブランチ、run 45112383777、success）:
+  - 入力: kind A・`limit` 1・Haiku 5.5・`max_cost` 0.05・`max_uses` 1・`dry_run` false
+  - `max_uses` 1 にしたのは、1要求の見込みを $0.021 にして `max_cost` の内に収めるため（既定の 2 では見込み $0.12 で、呼ぶ前に止まる）
+  - 結果: 要求 1回、実額 $0.0148（入力 43,619・出力 817、検索 1回・取得 1回）。認証の失敗・鍵の空は無く、新しい Secret で API を呼べた（手順1の Secret の有無の確かめも兼ねる）
+  - 書き込まない入力は無い（kind A〜C は `dry_run` を外すと1件ごとに候補タブに書く）ので、1行を書いた: 種別 A・対象「世界のウエニー」（一般、2026年度）・確度「見つからない」・モデル claude-haiku-5-5・費用 $0.0148
+- 自己レビュー（新しい文脈のサブエージェント、1回）: 指摘なし
+  - 呼び出し元が宣言していない Secret を渡す経路は無い
+  - 旧 Secret の参照は残っていない
+  - docs とワークフローは一致している
+
+### 3. 記録
+
+- `docs/decisions/automation.md` の末尾に「## 2026-11-23（CHAT-1123-RSC-36）」を足した
+- `docs/notes/research-candidates.md` の139行（キーの記述）を、`ANTHROPIC_API_KEY_ONEOFF`（ワークスペース `ryoei-pro-oneoff`・キー `mj-oneoff`・月の上限 $30）に直した
+- `docs/notes/github-actions.md`:
+  - 一覧の research-candidates の行の Secret を直した
+  - 「権限と Secret の渡し方」に「Claude API のキーの Secret」の項を足した（今後の一度きりのワークフローは `ANTHROPIC_API_KEY_ONEOFF`、git の履歴から戻すときも替える）
+  - sokuho の行を直した
+- `docs/notes/dojo-guest-calendar.md`: キーを共有している記述は無い（Secret の表と登録の手順だけ）。直していない
+
+### コミット
+
+- 差し替え: `chore: use the one-off workspace key for research candidates`
+- docs: `docs: note the one-off workspace key for research and one-off jobs`
+
+### マージ
+
+- `git push origin work/1123-rsc-key:cloudflare` で入れた
+  - push 直前に再 fetch して `merge-base --is-ancestor` を確かめた
+  - 範囲のコミットの件名・本文に、閉じるキーワードの直後の `#番号` が無いことも確かめた
+  - 差分は `research-candidates.yml`・このログ・RSC-35 のログの状態の行・docs だけ
+  - この行を含むコミットが範囲の終わり
+
 ## 報告
 
-- 状態: 作業中
-- ブランチ: work/1123-rsc-key
-- ログ: https://github.com/retroeater/mj/blob/work/1123-rsc-key/docs/logs/CHAT-1123-RSC-36.md
-- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1123-rsc-key
+- 状態: 完了
+- ブランチ: work/1123-rsc-key（cloudflare にマージ済み）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1123-RSC-36.md
+- 比較URL: なし（マージ済み）
 - 確認用URL: なし
-- マージ: 未
+- マージ: 済み（範囲は「マージ」の行）
 - issue: なし
-- 判断が必要なこと: 作業中
-- 未確認の項目: 作業中
+- 判断が必要なこと: なし（Default のワークスペースに上限を付けるかは、指示のとおり扱っていない）
+- 未確認の項目: なし（試しの1回で、新しい Secret で API を呼べたことを確かめた。試しで候補タブに1行〈種別 A・世界のウエニー・見つからない〉を書いた）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 820ada9d）: https://github.com/retroeater/mj-logs/tree/main/guide/820ada9d
+ガイド文書（この版を写した時点の最新、mj 4c166413）: https://github.com/retroeater/mj-logs/tree/main/guide/4c166413
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/820ada9d/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/820ada9d/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/820ada9d/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/820ada9d/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/820ada9d/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/820ada9d/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/4c166413/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/4c166413/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/4c166413/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/4c166413/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/4c166413/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/4c166413/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a3916043.md
