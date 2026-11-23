@@ -267,7 +267,7 @@ Chat-Ref: CHAT-1123-RSC-35
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1123-RSC-36
 - ブランチ: work/1123-rsc（cloudflare にマージ済み。ドキュメントのみ）
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1123-RSC-35.md
 - 比較URL: なし（マージ済み）
@@ -293,12 +293,12 @@ Chat-Ref: CHAT-1123-RSC-35
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 432f5250）: https://github.com/retroeater/mj-logs/tree/main/guide/432f5250
+ガイド文書（この版を写した時点の最新、mj 820ada9d）: https://github.com/retroeater/mj-logs/tree/main/guide/820ada9d
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/432f5250/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/432f5250/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/432f5250/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/432f5250/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/432f5250/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/432f5250/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/6a823cbf.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/820ada9d/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/820ada9d/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/820ada9d/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/820ada9d/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/820ada9d/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/820ada9d/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a3916043.md
