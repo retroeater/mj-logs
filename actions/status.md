@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-11-23 16:15 JST
+- 書き出した時刻: 2026-11-23 16:18 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -35,11 +35,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-23 16:17 | push | work/1123-wbk | in_progress | #1406（45130015405） |  |
 | 2026-11-23 16:14 | push | work/1123-lvp-rest | success | #1405（45129627025） | 0分26秒 |
 | 2026-11-23 16:13 | push | work/1123-lvp-rest | success | #1404（45129486824） | 0分31秒 |
 | 2026-11-23 15:57 | push | work/1123-wbk | success | #1403（45127659731） | 0分32秒 |
 | 2026-11-23 15:55 | push | work/1123-wbk | success | #1402（45127478552） | 0分34秒 |
-| 2026-11-23 14:11 | push | work/1123-wbk | success | #1401（45116185045） | 0分29秒 |
 
 ## check-build-failure.yml
 
@@ -218,11 +218,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-23 16:17 | workflow_dispatch | work/1123-wbk | in_progress | #901（45130043110） |  |
 | 2026-11-23 16:13 | workflow_dispatch | work/1123-lvp-rest | success | #900（45129486815） | 0分50秒 |
 | 2026-11-23 15:56 | workflow_dispatch | cloudflare | success | #899（45127514552） | 2分16秒 |
 | 2026-11-23 15:56 | workflow_dispatch | work/1123-wbk | success | #898（45127510674） | 3分16秒 |
 | 2026-11-23 13:30 | workflow_dispatch | cloudflare | success | #897（45112299546） | 1分06秒 |
-| 2026-11-23 13:26 | push | cloudflare | success | #896（45111825523） | 4分26秒 |
 
 ## regenerate-saikyo.yml
 
