@@ -99,28 +99,56 @@ WBK 系列のチャット（2026-11-16〜23。CHAT-1116-WBK-04〜CHAT-1123-WBK-1
 - 0章: 「指示」欄の末尾は指示文の最後の行と一致。
 - 雛形の行（Chat-Ref・マージ・貼る時機・セッション・共通手順）はすべてある。ガイド文に足す指示で、「知見 → 選んだ層 → 理由」の表がある。
 
+- 1. 同じ論点の issue: `gh api search/issues`（`repo:retroeater/mj is:issue`）で「表示 N」「表示=N」「ローカルのセッション」「バックグラウンド」「副産物」「非表示 行 検査」「掲載保留」を検索した（open・closed とも）。当たった issue はどれも別の主題（ログの投稿・/live の掲載範囲・ブランチ運用・codespace など）で、同じ論点の issue は無かった。#408・#684 に着手中のコメントを書いた（https://github.com/retroeater/mj/issues/408#issuecomment-7092138117 、https://github.com/retroeater/mj/issues/684#issuecomment-7092138418 ）。
+- 2. issue のコメントとログの表
+  - #408・#684 の状態: どちらも open（2026-11-23、REST の issue_read で確かめた。ラベル「分野: データ」）。
+  - WBK-07（#408・#684）・WBK-08（#408・#684）・WBK-11（#408・#684）のコメントは、ログを `docs/logs/<ファイル名>` のパスと節の名前で書いていて、SHA を固定した permalink ではない（リンクも無い）。前提の「消えると困る表」を permalink（cloudflare ab69c2f76 の全桁の SHA、`?plain=1#L<行>` で節の行まで）で指すコメントを1つずつ足した:
+    - #408: https://github.com/retroeater/mj/issues/408#issuecomment-7092147295 （WBK-06「期ごとのまとめ」L142、WBK-07「dry-run: 書く行(101行)」L340・「dry-run: シートの年と候補の年が違う行」L234、WBK-08「dry-run: 101期の今の日付・書く値・書くセル（全件）」L107・「日付が年だけの期の残り」L270）
+    - #684: https://github.com/retroeater/mj/issues/684#issuecomment-7092147624 （WBK-08「2位以下の順位・点と「タイトル」の突き合わせ」L296、WBK-09「6ページの順位・名前・点と「タイトル」の突き合わせ」L123・「麻雀マスターズ 第8期の1〜4位と点」L466）
+    - 行番号は ab69c2f76 の各ログで `grep -n` した見出しの行。ログはまだ消えていない（この時点で docs/logs に WBK-01〜11 がある）
+  - #684 の残りの数: #684 の本文の数え方は「生成済みのページ（本文では `title/search.json`）で、順位のある名前が1位だけの期。名前の無い行〈-〉は数えない」。今の cloudflare（ab69c2f76）の title/ の期のページ 364 の決勝の順位と名前で数え直した: 19期（王位戦 10: 第1〜8・19・25期、麻雀マスターズ 9: 第1〜9期）。WBK-11 のコメントの「残り18期」と違う（第8期は2〜5位を表示 N で足したので、ページでは1位だけのまま）。#684 に正しい数と理由を書いた（上の permalink のコメントの後半に、同じコメントで書いた）
+- 3. 記録の確かめ: docs/decisions/automation.md の WBK-01 の節に、WBK-09 の途中の回答（日付指定で読み、本文の要求の上限を8回から12回に上げる。WBK-09 のログの `## 経過` の96行目「平野さんの回答（2026-11-20、このセッションの質問への回答）」）は無かった。「作業中の回答（2026-11-20、CHAT-1120-WBK-09。…CHAT-1123-WBK-12 で補った）」として WBK-09 の行の後に足した。
+- 4. 文書への追記
+  - docs/instruction-template.md 21行目（「数を報告させるときは、名前の一覧も書かせる…」）を広げた（行は足していない）。11012 → 11195 バイト（`check-assets.yml` の警告域 12288・上限 14336。警告域まで 1093 バイト）
+  - docs/notes/cloud-sessions.md「ネットワーク」の web.archive.org の行（PC から Wayback を読んだことが書いてある）の後に、PC のローカルのセッションはバックグラウンドの実行を残さない、の1行を足した（容量の検査なし）
+  - docs/notes/title-pages.md「生成を止める条件と警告」の「（行の検査は非表示の大会の行にも行う）」の後に、表示が Y でない行の扱いを足した（容量の検査なし）。コードで確かめたこと: `load_periods()` は行ごとの最初に `if shown != SHOWN: continue`（scripts/generate_title_pages.py 429行目）で、大会名・期・タイトルの食い違いの検査より前に飛ばす。ほかに「タイトル」の行を読むのは `fetch_tab()` の見出しの検査と、表示 Y の行を数える所（1229・1267・1317行目、どれも `values[7] == SHOWN`）と、`scripts/check_unused_names.py` の `page_names()`（114行目。表示を見ずに名前を「使われている」に数える）だけ
+  - 表示 N の行の検査: 今の検査・テストは表示 N の行を見ていない（`scripts/tests/test_title_check.py` も表示=Y の行の検査だけ）。今のシートの表示 N の行に何件当たるかは数えられなかった（コンテナに鍵が無く、今あるワークフローの出力に表示 N の行の中身が出ないため。CHAT-1123-WBK-10 のログと同じ理由）。案は `## 報告` の「判断が必要なこと」
+- 5. 振り返りの記録: docs/decisions/operations.md の末尾に「2026-11-23（CHAT-1123-WBK-12）」の節を足した（今までの振り返りの節の形。約束の記号は (ac) の続きの (ad)〜(ag)）。
+  - `scripts/cleanup_logs.py` の `judge_all()` を、今の docs/logs の WBK のログ12本で（7日の待ちは外して）動かした: WBK-11 は完了で削除、WBK-10 は「続き先 WBK-11 が完了」、WBK-04〜09 は「続き先が削除済み」で、WBK-04〜11 は消える。WBK-01・02 は「中断 / 続き」、WBK-03 は「判断待ち」（続き無し）で pending のまま消えない。WBK-03 の判断待ち（WBK を閉じるか・(Z) PC から調べるか）は WBK-04 が (Z) で引き継いだが、WBK-03 の状態に「/ 続き: CHAT-1116-WBK-04」が書かれていない。前提が「ログの状態は直さない」なので直さず、判断待ちに書いた
+- 未マージの work/ ブランチで、変えたファイルに触れるもの: `work/1101-prp-pub`（docs/notes/title-pages.md の39・106行目付近。この指示は136行目の後）、`work/1115-rsc-autowrite`（docs/decisions/automation.md の末尾の RSC-31 の節。この指示は WBK-01 の節）。どちらも別の箇所なので止めなかった
+- 差分は docs だけ（docs/decisions/automation.md・docs/decisions/operations.md・docs/instruction-template.md・docs/notes/cloud-sessions.md・docs/notes/title-pages.md・このログ）。CR は無い
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
 - ブランチ: work/1123-wbk
-- ログ: https://github.com/retroeater/mj/blob/work/1123-wbk/docs/logs/CHAT-1123-WBK-12.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1123-WBK-12.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1123-wbk
-- 確認用URL: なし
-- マージ: 未
-- issue: #408, #684
-- 判断が必要なこと: なし
+- 確認用URL: なし（docs のみ）
+- マージ: 済（docs のみ）
+- issue: #408・#684（着手中・permalink のコメントを書いた。#684 には残りの数の訂正〈18 → 19期〉も書いた。どちらも open のまま） https://github.com/retroeater/mj/issues/408#issuecomment-7092147295 https://github.com/retroeater/mj/issues/684#issuecomment-7092147624
+- 判断が必要なこと:
+  - 「タイトル」の表示 N の行の検査を足すか（コードの変更なので、この指示では足していない）:
+    - (a) `generate_title_pages` の検査に、表示 N の行も含めた「警告」（生成は止めない）を足す。見るもの: 同じタイトル（期）で順位が重なる（表示 Y・N を合わせて）、表示 N の行の名前・順位が空、日付が「日付列の書式」に合わない、表示の値が Y・N 以外。試験を `scripts/tests/test_title_check.py` に足す。メリット: 手で足した行の書き違い（今回の、順位がすべて「1」で 1位が重なる形）を毎回の生成・`check` の警告で拾える。デメリット: コードと試験の変更が1本要る。既存の表示 N の行に何件当たるかは、足してから初めて分かる（このコンテナでは数えられない）。当たりが多いと警告が埋もれる
+    - (b) 表示 N の行を、`check` のときだけ一覧で出す（検査はしない）。メリット: 中身を生成の経路で読めるようになる（WBK-10 で止まった確かめが要らなくなる）。デメリット: 判定はしないので、人が見ないと気づかない
+    - (c) 足さない（表示 N の行は画面の写しで確かめる。docs/notes/title-pages.md に書いた形）。メリット: 手間が無い。デメリット: 同じ書き違いを次も人が写しで見つけることになる
+    - 推奨は (a)。止めずに警告にするので、既存の行に当たっても生成は進み、警告の件数で当たりの多さが分かる。足すときは、最初の `check` の警告の件数をログに書かせる
+  - WBK-01〜03 のログが自動で消えない: WBK-03 の状態が「判断待ち」のままで、WBK-04 への「/ 続き:」が無い（WBK-04 は WBK-03 の判断待ち〈(Z) PC から調べる〉の続き）。WBK-01・02 は WBK-03 に続いているので、WBK-03 が消えないと3本とも残る:
+    - (a) 次の docs のみの指示で、WBK-03 の状態の末尾に「 / 続き: CHAT-1116-WBK-04」を足す。メリット: 規則（続きの指示を受けたら前のログに続きを書く）どおりの形になり、WBK-04〜11 と一緒に自動で消える。デメリット: 1行のための指示が1本要る（ほかの docs の指示に混ぜてもよい）
+    - (b) 残す。メリット: 手間が無い。デメリット: 毎週の片付けの通知（pending）に3本が出続ける
+    - 推奨は (a)
 - 未確認の項目: なし
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj ab69c2f7）: https://github.com/retroeater/mj-logs/tree/main/guide/ab69c2f7
+ガイド文書（この版を写した時点の最新、mj cb88680f）: https://github.com/retroeater/mj-logs/tree/main/guide/cb88680f
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ab69c2f7/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ab69c2f7/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ab69c2f7/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ab69c2f7/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ab69c2f7/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/ab69c2f7/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/cb88680f/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/cb88680f/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/cb88680f/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/cb88680f/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/cb88680f/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/cb88680f/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a3916043.md
