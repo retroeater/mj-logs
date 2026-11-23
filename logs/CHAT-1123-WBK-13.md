@@ -120,7 +120,7 @@ CHAT-1123-WBK-12（判断待ち）の続き。平野さんが「タイトル」�
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1123-WBK-14
 - ブランチ: work/1123-wbk
 - ログ: https://github.com/retroeater/mj/blob/work/1123-wbk/docs/logs/CHAT-1123-WBK-13.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1123-wbk
@@ -140,12 +140,12 @@ CHAT-1123-WBK-12（判断待ち）の続き。平野さんが「タイトル」�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj cb88680f）: https://github.com/retroeater/mj-logs/tree/main/guide/cb88680f
+ガイド文書（この版を写した時点の最新、mj 756f1789）: https://github.com/retroeater/mj-logs/tree/main/guide/756f1789
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/cb88680f/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/cb88680f/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/cb88680f/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/cb88680f/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/cb88680f/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/cb88680f/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/756f1789/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/756f1789/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/756f1789/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/756f1789/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/756f1789/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/756f1789/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a3916043.md
