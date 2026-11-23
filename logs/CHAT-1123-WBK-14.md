@@ -70,6 +70,26 @@ CHAT-1123-WBK-13（判断待ち。足した警告が今のシートで174件当�
 - 着手時の確かめ: `CHAT-1123-WBK-14` のコミットは全ブランチに無い。ローカルの work/1123-wbk は origin/work/1123-wbk と同じ（1f922a834、WBK-13 の未マージの作業）。`git merge-base --is-ancestor origin/cloudflare HEAD` は真（cloudflare は cb88680f5 のまま）なので取り込みは要らない。
 - 0章: 「指示」欄の末尾は指示文の最後の行と一致。雛形の行（Chat-Ref・マージ・貼る時機・セッション・共通手順）はすべてある。
 
+- 1. 準備: CHAT-1123-WBK-13 のログの状態に ` / 続き: CHAT-1123-WBK-14` を足した。#684 に着手中のコメントを書いた（https://github.com/retroeater/mj/issues/684#issuecomment-7094160131 ）。
+- 2. 直しと確かめ
+  - `check_unshown_rows(rows, taikai, warnings)` に直した（11519293c）: ①表示が空の行は見ない（Y・N 以外で空でない値だけを警告）②表示 N の行の検査と順位の重なりは、`taikai[name].is_shown`（区分=連盟・状態=継続）で `expected_title(name, ki, kind) == title`（`load_periods()` が表示 Y の行に求めるのと同じ形）の行だけ ③重なりの鍵は（大会名, 期, 順位）。表示 Y どうしの重なりは今までどおり見ない。`prepare()` からは `load_periods()` と同じ `taikai`（`load_taikai()` の、新名が鍵の辞書）を渡す
+  - 試験: `UnshownRowsTest` を直した（表示が空は当たらない・「y」は当たる、表示しない大会・期の無いタイトル・大会マスタに無い大会の行は当たらない、同じ大会の別の期は重ならない。順位がすべて「1」の4行の形は当たる試験のまま）。`python3 -m unittest discover -s scripts/tests` OK、`python3 scripts/tests/test_title_check.py` 19件 OK
+  - 自己レビュー（1回。直す指摘が無かったので2回目は無し）:
+
+| 指摘 | 扱い |
+|---|---|
+| 大会名の引き方・(大会名, 期) の鍵・落ちる経路 | 問題なし（`renamed_rows()` 後の新名で `load_taikai()` と `load_periods()` と同じ引き方） |
+| 低: `test_different_periods_do_not_overlap` は直す前のコード（タイトルの鍵）でも通る。鍵の違いが出るのは、同じ（大会名, 期）で期の表記〈期・回・年〉が違う行だけ | 意図どおり（その形は今のシートで当たらない。目的の「期をまたいで重ならない」ことの試験として残す） |
+| 情報: 重なりの警告の見出しは先頭の行のタイトル | 意図どおり（上と同じ場合だけ行により違いうる） |
+
+  - 作業ブランチの check（run 45130043110、2026-11-23 07:17 UTC、19c0c6d5a）。同時に動いていたシートを読み書きする実行は無かった（公開対象の検査だけ）。対象は `title_pages houou_pages jpml_pros pro_pages ask_data ask_data_schedule`
+    - 足した警告: **0件**（絞る前の WBK-13 は 174件）。全件の表は無し
+    - 警告: 13件（houou_pages 6・jpml_pros 3・ask_data 4）。cloudflare の check（WBK-13 の run 45127514552）と件数・文面とも同じ。止まるページ: なし（同じ）
+    - 第8期麻雀マスターズの4行は当たらない（0件のため）
+    - 生成物の差: check は作業ツリーを戻す。ページの中身を作る関数は変えていない（警告を足しただけ）
+- 3. 記録: docs/notes/title-pages.md「生成を止める条件と警告」の WBK-13 の記述を、絞った後の形と「見ないもの」（表示が空・表示しない大会・タイトルが期と合わない行・表示 Y どうしの重なり）に置き換えた。docs/decisions/automation.md の WBK-01 の節に、決定と結果（174件 → 0件）を追記した
+- 未マージの work/ ブランチ: WBK-13 のとおり（`work/1101-prp-pub` は `generate_title_pages.py` の `pages()` など別の関数、`work/1115-rsc-autowrite` は automation.md の別の節）。止まる条件に当たらない
+
 ## 報告
 
 - 状態: 作業中
@@ -86,12 +106,12 @@ CHAT-1123-WBK-13（判断待ち。足した警告が今のシートで174件当�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 756f1789）: https://github.com/retroeater/mj-logs/tree/main/guide/756f1789
+ガイド文書（この版を写した時点の最新、mj cc2725e4）: https://github.com/retroeater/mj-logs/tree/main/guide/cc2725e4
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/756f1789/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/756f1789/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/756f1789/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/756f1789/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/756f1789/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/756f1789/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/cc2725e4/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/cc2725e4/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/cc2725e4/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/cc2725e4/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/cc2725e4/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/cc2725e4/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a3916043.md
