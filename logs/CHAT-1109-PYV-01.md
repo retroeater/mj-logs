@@ -153,15 +153,14 @@ Chat-Ref: CHAT-1109-PYV-01
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 完了
 - ブランチ: work/1109-pyv（mj）。mj-logs は main へ直接
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1109-PYV-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1109-pyv
 - 確認用URL: なし（ワークフローと依存の固定だけで、ページの見た目は変えていない）
 - マージ: 済（mj は 91057b6b6、範囲 23d2762ed..91057b6b6。mj-logs の main は 14a7aa1）
 - issue: #539（コメント済み、open のまま）
-- 判断が必要なこと:
-  - 下の「未確認の項目」の定期実行が success で 3.14.x になったら #539 を閉じてよいか
+- 判断が必要なこと: なし（#539 は閉じた。CHAT-1123-ACF-55 で状態を直した）
 - 未確認の項目:
   - 毎朝の運行（run-daily）の初回: 2026-11-10 04:00 JST（update-live-channel・update-sns-book・regenerate-saikyo・sync-dojo-calendar・cleanup-branches ほか。書き込みと push の道筋を含む）
   - 週次の運行（run-weekly）の初回: 2026-11-16 03:00 JST（fetch-youtube → regenerate-page の「帰り道の一覧のOGP画像を作る」で Pillow の cp314 のハッシュの `--require-hashes` の install。その step は continue-on-error）
@@ -172,12 +171,12 @@ Chat-Ref: CHAT-1109-PYV-01
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 91057b6b）: https://github.com/retroeater/mj-logs/tree/main/guide/91057b6b
+ガイド文書（この版を写した時点の最新、mj 34d1e1b4）: https://github.com/retroeater/mj-logs/tree/main/guide/34d1e1b4
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/91057b6b/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/91057b6b/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/91057b6b/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/91057b6b/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/91057b6b/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/91057b6b/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/b912fa9a.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/34d1e1b4/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/34d1e1b4/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/34d1e1b4/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/34d1e1b4/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/34d1e1b4/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/34d1e1b4/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/6a823cbf.md

@@ -389,17 +389,14 @@
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 完了
 - ブランチ: work/1109-mub
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1109-MUB-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1109-mub
 - 確認用URL: なし
 - マージ: 済（645fbf1a6）
 - issue: #538（コメント 6729356922〈着手中〉・6729617365〈結果〉）
-- 判断が必要なこと:
-  - #538 を閉じてよいか（26.04 の回が抽出の中に57件あり、success でない2件〈X の投稿の変換 42335988748・42336059097、work/1107-lgv-l3〉は作業ブランチのスクリプトの不具合・検査による停止と見られ移行と関係しなさそう。抽出で読んだので、残りの run 1,169件は読んでいない。慎重にするなら 11/20 ごろに未確認の月次・週次などを見てから閉じる案）
-  - #666 の確かめ（義兄弟合戦の速報が候補タブに書かれたか）: run 42512794532 の sokuho / research は候補タブに3行を書いた（11/8 義兄弟合戦のベスト8 A卓・B卓・決勝、すべて「照合済み」。「見つからない」「未照合」は無し）
-  - 指示文の手順2の「全件」から、平野さんの回答で抽出に変えた（ログの「平野さんの回答」）
+- 判断が必要なこと: なし（#538 は閉じた。#666 の確かめと手順2の抽出への変更は経過に記録済み。CHAT-1123-ACF-55 で状態を直した）
 - 未確認の項目:
   - 残りの run 1,169件のジョブのランナーの版（抽出していない）
   - mj-logs の sync-from-mj.yml は期間内 3,717件のうち12件だけ読んだ
@@ -408,12 +405,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj daf94d67）: https://github.com/retroeater/mj-logs/tree/main/guide/daf94d67
+ガイド文書（この版を写した時点の最新、mj 34d1e1b4）: https://github.com/retroeater/mj-logs/tree/main/guide/34d1e1b4
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/daf94d67/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/daf94d67/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/daf94d67/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/daf94d67/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/daf94d67/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/daf94d67/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/c34f62d3.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/34d1e1b4/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/34d1e1b4/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/34d1e1b4/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/34d1e1b4/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/34d1e1b4/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/34d1e1b4/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/6a823cbf.md
