@@ -120,7 +120,7 @@ WBK 系列のチャット（2026-11-16〜23。CHAT-1116-WBK-04〜CHAT-1123-WBK-1
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1123-WBK-13
 - ブランチ: work/1123-wbk
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1123-WBK-12.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1123-wbk
