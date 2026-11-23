@@ -96,28 +96,56 @@ AIC-53 で、2回目の指示の共通の一文（`answerSystem()` の tie の�
 
 マージ前の再 fetch で origin/cloudflare が進んでいた（データの再生成 a3916043c〈`workers/ask/data*.json` を含む〉、LVP-34 のログ）。`git merge origin/cloudflare` は衝突なし。取り込み後もテスト 226 件通過、unittest OK。同点の4問のデータの答え（下の表）は取り込み後のデータで出し直して変わっていない。
 
+### マージ
+
+- `git push origin work/1123-aic:cloudflare`: 4c166413b..27f238e3f（push 直前に再 fetch して `git merge-base --is-ancestor origin/cloudflare HEAD` が真。直前の再 fetch で RSC-36 の分が進んでいたので、もう一度取り込んだ〈衝突なし、workers の変更なし、テスト 226 件・unittest OK〉）
+- check-runs（27f238e3f）: 「Workers Builds: mj-ask」completed / success（2026-11-23 04:36:12 UTC）
+
+### 手順3: 本番の確かめ（`Origin: https://ryoei.pro`、UA `mj-internal aic-54-check`、横断＋context、4問）
+
+同点（tie）が付く問いを、`workers/ask/data*.json` を `runQuery()`（ranking・部門ごと・rank 1 と 2）で引いて選んだ。1位の同点と2位の同点、人数の多い・少ない、4大会に散らした。
+
+| 時刻（UTC） | 問い（context） | 選んだ理由 | データの答え | 本番の答え | 判定 |
+|---|---|---|---|---|---|
+| 04:36:49 | 通過回数がいちばん多いのは？（wrcr） | 1位の同点で人数が多い（9人）。前の例「4回…大和さん」の元のデータ | 1位 4回・9人（大和・小川尚哉・小林正和・岡田啓佑・早川健太・木本大介・藤本哲也・高橋大輔・黒田良） | 「通過回数がいちばん多いのは4回で、9人が並んでいます（大和さん・…・黒田良さん）。」9人全員 | 一致 |
+| 04:36:51 | 通過回数が2番目に多いのは？（jwrc） | 2位の同点。前の例「2位は10回…」の元のデータ | 2位 10回・3人（客野直・山脇千文美・末続ヒロトシ） | 「通過回数が2番目に多いのは10回で、3人が並んでいます（客野直さん・山脇千文美さん・末続ヒロトシさん）。」 | 一致 |
+| 04:36:55 | 連続昇級の最多は？（houou） | 鳳凰戦の1位の同点（2人） | 1位 5回・2人（斎藤桂史・清水智之）。3位 4回・7人（中村慎吾・増田真人・島崎涼・川村直寛・末永尚暉・立田祥平・高沢雅） | 「連続昇級の最多は5回で、2人が並んでいます（斎藤桂史さん・清水智之さん）。次いで4回が7人です（中村慎吾さん・…・高沢雅さん）。」 | 一致（続けた文もデータどおり） |
+| 04:36:59 | 出場数がいちばん多いのは？（saikyo） | 年度の大会の1位の同点（5人） | 1位 16回・5人（二階堂亜樹・佐々木寿人・瀬戸熊直樹・藤崎智・鈴木たろう） | 「出場数が最多なのは16回で、5人が並んでいます（二階堂亜樹さん・…・鈴木たろうさん）。」 | 一致 |
+
+4問とも HTTP 200。置き場所の文字（N・M・K・〇〇）は答えに出ていない。revert は不要。本番の確かめはこの4問だけ（残りの6問は同じ日のほかの指示へ）。
+
+### 記録
+
+- #654 にコメント: https://github.com/retroeater/mj/issues/654#issuecomment-7091732422 （本番の表、閉じた持ち越しの7項目の全件、新しい持ち越しの1行、見送った提案3件。本文・状態・ラベルは変えていない）
+- docs/notes/ask-worker.md「運用の学び」に「### 2026-11-23（CHAT-1123-AIC-54）」（節の中の見出しなので `###`。指示文の「## 」は decisions の書式に合わせた）
+- docs/decisions/operations.md に「## 2026-11-23（CHAT-1123-AIC-54）」
+- CHAT-1117-AIC-53 のログの状態の末尾に「/ 続き: CHAT-1123-AIC-54」
+
 ## 報告
 
-- 状態:
-- ブランチ:
-- ログ:
-- 比較URL:
-- 確認用URL:
-- マージ:
-- issue:
+- 状態: 判断待ち
+- ブランチ: work/1123-aic
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1123-AIC-54.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1123-aic
+- 確認用URL: なし（Worker はプレビューを持たない。本番の4問は `## 経過` の表）
+- マージ: 済（27f238e3f。記録の docs・ログは追いの push）
+- issue: #654（open。着手 https://github.com/retroeater/mj/issues/654#issuecomment-7091635777 、結果 https://github.com/retroeater/mj/issues/654#issuecomment-7091732422 ）
 - 判断が必要なこと:
+  - CHAT-1109-AIC-44 のログの状態が「判断待ち」のまま（理由は持ち越しの一覧が残るため）。一覧はこの指示で閉じたので、状態を「完了」に直せば AIC-39〜44 の6件が自動で消える（#654 の CHAT-1123-ACF-55 の知らせ）。この指示に AIC-44 のログを直す手順は無いので、手を入れていない
 - 未確認の項目:
-- エラー:
+  - 新しい持ち越しの一覧（週次の書き出しで実際に聞かれたら直す候補。2週続けて聞かれなければ一覧から外し、#654 にコメントで残す）:
+    - context の大会と違う大会の期を聞かれたとき（例: WRC-R の context で「40期後期のリーグ」。2026-11-16 に1回、WRC-R として答えた）
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 4c166413）: https://github.com/retroeater/mj-logs/tree/main/guide/4c166413
+ガイド文書（この版を写した時点の最新、mj ab69c2f7）: https://github.com/retroeater/mj-logs/tree/main/guide/ab69c2f7
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/4c166413/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/4c166413/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/4c166413/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/4c166413/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/4c166413/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/4c166413/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/ab69c2f7/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/ab69c2f7/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/ab69c2f7/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/ab69c2f7/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/ab69c2f7/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/ab69c2f7/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/a3916043.md
