@@ -114,6 +114,7 @@ Chat-Ref の確認・`git branch --merged` が誤る。**これらの判定の�
   2026-11-16 00:08 UTC のやり直しも3回とも同じで、2〜10秒で切られた。原因〈出口側か Internet Archive 側か〉は分かっていない。
   同じ日に平野さんの PC から送った CDX API の要求は 200 で返った〈4.3秒〉。読み方は docs/notes/research-candidates.md「Wayback Machine の連盟公式サイト」。
   2026-11-16 に許可するホストから外した〈平野さん。同じ日に get_environment で、環境「Claude-iPhone」の許可するホストに無いことを確かめた〉）
+- 平野さんの PC のローカルのセッション（Wayback を読むときなど）は、終わるときにバックグラウンドの実行を残さない（残るとアプリの更新で確認が出る）
 
 未追加: `openapi.rakuten.co.jp`（books は凍結中）。再生成は `jpml_titles` で確かめた（MD-15。旧表は #441 で廃止し、今は `regenerate.py` の対象に無い）。鍵の要るスクリプトはクラウドでは動かない（次節）。
 
