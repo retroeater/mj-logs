@@ -83,28 +83,53 @@
   - 決勝 2行（4G2HocWBcic・M5h0gbcCvt0）: 空→3、同上
   - （理由に「掲載（自動）N: …」が付く7行は、その部分は残る）
 
+### 【2】を作り直したと仮定した live_pages の生成（run 45360460981、一時のコミット 4cc1296c2 → 153bcb36a で戻した）
+- 一時のコミットで、読んだ【2】の「ステージの並び」が空の行に今の `STAGE_ORDER` の値を入れて（全大会が対象）生成し、`compare_ref: origin/cloudflare`（d005b2a）の生成と比べた
+- 値を入れた行は鳳匠戦の15行だけ（ほかの大会で入る行は0）
+- 中身の違うファイル2件（増える・減るページは0）:
+  - live/housho/1.html（12行）→ https://ryoei.pro/live/housho/1.html
+  - sitemap-live.xml（22行）: 生成順（ページのキー順）に並ぶため、housho/1/ の7件の `<url>` の並びが変わるだけ。今の sitemap-live.xml の7件を新しい順に並べ替えた手元の版との `diff | grep -c '^[<>]'` も22行で一致（URL・lastmod の増減なし）
+- live/housho/1.html のステージの並び: 今「決勝 → ベスト16 A〜D → ベスト8 A・B」→ 変更後「ベスト16 A〜D → ベスト8 A・B → 決勝」（キーの「ステージの並び」が 1・2・3 になるため）。今の sitemap の並び（f・b16-a・b8-a・b16-b・b8-b・b16-c・b16-d）は、並びの値が全部空でキーが卓だけで決まっていたことの裏付け
+- 個別ページ（live/housho/1/*.html）・live/housho/index.html・ほかの大会のページは変わらない → 止まる条件に当たらない
+- 手違い: 1回目の一時のコミットを戻すとき、作業ツリーに変更がある状態で `git revert` が止まり、続けた `git commit --amend` が一時のコミットの件名を書き換えた（push 前）。`git reset --soft b8c4e24c5` で push 済みのコミットに戻し、ファイルを origin/cloudflare の版に戻すコミット（6f2edf092）で戻した。リモートの履歴は書き換えていない
+
+### 差分の自己レビュー（新しい文脈のサブエージェント、1回）
+| 指摘 | 扱い |
+|---|---|
+| 直す指摘なし（目的・既存の形・STAGE_ORDER の参照元〈live_extract.py の265・331行〉・テスト 2,314件 OK を確かめた。層1の「鳳匠」34行を `analyze()` に通し、段階はベスト16・ベスト8・決勝だけで全行に並びが入る） | — |
+| 補足: 本番が直るのは【2】が書き直されて再生成された後 | 意図どおり（報告に書く） |
+| 補足: STAGE_ORDER の上のコメント（2026-09-30 の値から作った）は後から決定で足した行に当てはまらない | 意図どおり（行末のコメントで出どころを書く既存の形。直さない） |
+
+### 手順3: マージと本番
+- push 直前に再 fetch し `git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめ、`git push origin work/1124-hso:cloudflare`（d005b2a1b..18e483faa、fast-forward）
+- check-run「Workers Builds: mj」（18e483faa、external_id 69cd3fd6…）: completed / success（2026-11-24T08:59:05Z）
+- 本番の HTML（2026-11-24 09:00 UTC ごろ取得）の live/housho/1.html の並びはまだ「f → b16-a〜d → b8-a・b」（想定どおり。ページは【2】のシートの値から作るため、コードのマージだけでは変わらない）。ブラウザでの見え方は確かめていない
+- 本番への反映: 翌朝の毎朝の運行（run-daily.yml、04:00 JST）の取り込み（update-live-channel.yml）が【2】を新しい規則で書き直し、続けて live_pages を再生成したときに変わる見込み（2026-11-25 の朝）。今日のうちに出す手段は、平野さんが update-live-channel.yml を cloudflare で apply を付けて手動実行すること（【1】〜【3】・予定表への書き込みと再生成を含む毎朝と同じ処理）。regenerate-page.yml だけの手動実行では【2】が変わらないので直らない。取り込みの手動実行はしていない
+- docs/notes/live-channel-write.md: 「7. 毎日の取り込み」に `STAGE_ORDER` の一般の記述（表に無い段階は確認=Y）があり、大会の一覧は持たないため変えていない
+- docs/decisions/live.md に「2026-11-24（CHAT-1124-HSO-01）」を足した
+
 ## 報告
 
-- 状態:
-- ブランチ:
-- ログ:
-- 比較URL:
-- 確認用URL:
-- マージ:
-- issue:
-- 判断が必要なこと:
-- 未確認の項目:
-- エラー:
+- 状態: 完了
+- ブランチ: work/1124-hso
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1124-HSO-01.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1124-hso
+- 確認用URL: プレビューは使っていない（ページは【2】の値から作るため、プレビューでは並びが変わらない。生成の比べは run 45360460981 で行った）
+- マージ: 済（18e483faa、fast-forward）
+- issue: なし
+- 判断が必要なこと: なし
+- 未確認の項目: 本番の live/housho/1.html が「ベスト16 → ベスト8 → 決勝」になること（2026-11-25 04:00 JST の毎朝の取り込みと再生成の後。今日のうちに出すなら平野さんが update-live-channel.yml を apply で手動実行）
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj d005b2a1）: https://github.com/retroeater/mj-logs/tree/main/guide/d005b2a1
+ガイド文書（この版を写した時点の最新、mj 786c1633）: https://github.com/retroeater/mj-logs/tree/main/guide/786c1633
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d005b2a1/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d005b2a1/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d005b2a1/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d005b2a1/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d005b2a1/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d005b2a1/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/786c1633/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/786c1633/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/786c1633/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/786c1633/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/786c1633/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/786c1633/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/d005b2a1.md

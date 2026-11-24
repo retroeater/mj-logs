@@ -1,12 +1,12 @@
 # 朝の報告用の異常（retroeater/mj）
 
-- 書き出した時刻: 2026-11-24 17:59 JST（見た範囲: 2026-11-23 15:59 JST から）
+- 書き出した時刻: 2026-11-24 18:02 JST（見た範囲: 2026-11-23 16:02 JST から）
 - 書き出した実行の契機: workflow_dispatch（main）
 - 異常だけを書く。全体は actions/status.md。判定は mj の scripts/morning_report.py（各ワークフローの直近 100 回まで）
 
 ## 1. 失敗など（結論が success・skipped 以外。実行中を含む）
 
-- 2026-11-24 17:58 regenerate-page.yml in_progress（push・cloudflare） https://github.com/retroeater/mj/actions/runs/45360788510
+- 2026-11-24 17:58 regenerate-page.yml failure（push・cloudflare）ジョブ「regenerate」：生成に失敗したページを飛ばしました: mtsuku, mtsuku_episodes, wayhome_episodes（理由はジョブのサマリ、#533） https://github.com/retroeater/mj/actions/runs/45360788510
 
 ## 2. 予約実行の未実行（予定から3時間以内は「遅れの可能性」。3時間を超えて始まった実行は「遅れて実行」）
 
