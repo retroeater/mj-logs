@@ -69,6 +69,28 @@ CHAT-1110-XPU-01（X の投稿の取り込みの費用の上限に expansions �
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+- 0章: 指示欄の末尾は指示文の最後の行「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」と一致
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 欠けなし
+- 着手前の確認: `git log --all --grep "CHAT-1124-XPU-02"` は0件（XPU は CHAT-1110-XPU-01 に続く同じ系列の2本目）。指示文が対象にする issue は無い。work/1124-xpu はローカル・リモートとも無く、origin/cloudflare（4c136c44e）から作った
+- 前提の確かめ（4c136c44e の `scripts/fetch_x_posts.py`）: 56行 `MAX_MEDIA_PER_POST = 4  # 1投稿に付けられる写真の最大の数(X の上限)`・57行 `WORST_COST_PER_POST`・58行 XPU-01 の `簡略化:`・`fetch_search()` の 206行で縮める計算: 一致（行番号のずれなし）
+- `docs/decisions/operations.md` の直近の振り返りは CHAT-1123-WBK-15 の節（ファイルの最後）で、約束の最後の記号は (ah)。新しい約束は (ai)・(aj) にした
+- 未マージのブランチ: `git branch -r --no-merged origin/cloudflare` の各ブランチで `git diff origin/cloudflare...<branch> -- scripts/fetch_x_posts.py` は全て空
+- 直し（889244fd9）: `git diff origin/cloudflare...HEAD -- scripts` の変わった行:
+
+```
+-MAX_MEDIA_PER_POST = 4  # 1投稿に付けられる写真の最大の数(X の上限)
++MAX_MEDIA_PER_POST = 4  # 1投稿の写真などの数の見込み(X の上限とは確かめていない)
++# 簡略化: 1投稿の写真などを4件までと見込む(2026-11-23 に1投稿で6件が返り課金された)。超える投稿が多いと SEARCH_MAX_COST を超えうる。まとめて取り直す前に見直す
+```
+
+  - コメントだけであることの確かめ: cloudflare と作業ブランチの `fetch_x_posts.py` の `ast.dump(ast.parse(...))` を比べて同じ（`AST same`）
+  - `docs/notes/github-actions.md` の `fetch-x-posts.yml` の行の「〈投稿＋写真4件 $0.025〉」に「4件は見込みで、2026-11-23 に1投稿で6件が返ったように超えることがある」を足した
+- テスト: `python3 -m unittest discover -s scripts/tests` → `Ran 2313 tests` `OK`
+- `docs/decisions/operations.md` に節を足した（7d74058a9）。「事実として残る点」に前提の数字（ジョブのログ・Console）を写した
+- X API は呼んでいない
+
 <!-- guide-links -->
 ---
 
