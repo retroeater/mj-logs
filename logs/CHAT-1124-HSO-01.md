@@ -53,6 +53,36 @@
 
 ## 経過
 
+### 着手前の確認
+- 同じ Chat-Ref のコミット・`HSO` の重複（コミット・docs/logs の履歴）: 無し。work/1124-hso はローカル・リモートとも無く、origin/cloudflare（d005b2a）から作った
+- 0章: 指示欄の末尾が指示文の最後の行（「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」）と一致
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 欠け無し
+- 対象 issue: 指示文に無し（着手中コメントは不要）
+- 0章ゲート: 未マージの work/ ブランチで `scripts/lib/live_extract.py`・`docs/decisions/live.md`・`docs/notes/live-channel-write.md` を変えるものは無い。`scripts/tests/` は work/1101-prp-pub・work/1103-ryo5・work/1115-rsc-autowrite が別のテストファイルを変えている（test_live_extract.py は無し）
+- CLAUDE.md 23,299 B・handover.md 23,619 B（この指示では触らない）
+- 実行中・待ちのワークフロー: 無し（08:54 UTC に確かめてから起動）。起動したのは regenerate-page.yml の dry_run だけ（シートは読むだけ）
+
+### 手順1: 原因
+- 期のページの並び: `scripts/generate_live_pages.py` の `build_pages()`（405行〜）が `Page.key`（194行、`(title_order, 期の並び, stage_order, table_key(卓))`）で並べ、`build_period()`（924行〜）がその順でステージごとに最初に出た順にまとめる。`Page.stage_order`（187行）は【2】【3】を合わせた「ステージの並び」を `live.number_key()`（scripts/lib/live.py 133行）で数にする。空は数でないので `(1, 0.0, "")` になり、全ステージが同じ値になる
+- そのため卓で決まり、卓の無い決勝（`table_key("")` = `(0, 0, "")`）が先頭、続いてベスト16・ベスト8（どちらも A 卓から。同じ値のときは並べ替え前の順で、ベスト16 が先に出る）→「決勝 → ベスト16 → ベスト8」
+- 【2】の値は `scripts/lib/live_extract.py` の `analyze()`（330行）が `STAGE_ORDER.get(war, {}).get(stage, "")` で入れる。`STAGE_ORDER`（93行〜）に鳳匠戦が無い
+- 【2】【3】の鳳匠戦の全行（run 45360223046、一時のコミット b8c4e24c5 で行を出した → 6f2edf092 で戻した）:
+  - 【3】15行（4304・4305・4307・4309・4318・4319・4322・4323・4340・4341・4345・4347・4350・4396・4397行目）: 補正の列（タイトル戦・期・ステージ・ステージの並び・卓・まとめ単位）はすべて空。掲載は Y 7行・N 6行・空 2行（決勝の 4G2HocWBcic・M5h0gbcCvt0。自動の値を使う）→ 「ステージの並び」の手の補正は無い
+  - 【2】15行: ステージの並びはすべて空、確認=Y、理由は全行「ステージの並びの表に無い段階」（うち7行は「掲載（自動）N: 同じ対局のメンバー限定版がある（冒頭のみ無料の公開版）」も）。ステージはベスト16（A〜D 各2本）・ベスト8（A 2本・B 3本）・決勝（2本）で、ほかの段階は無い
+- 原因はチャット側の推測（STAGE_ORDER に鳳匠戦が無く、【2】の並びが空）と一致 → 手順2へ
+
+### 手順2: 実装（3b657c6c6）
+- `STAGE_ORDER` に `"鳳匠戦": {"ベスト16": "1", "ベスト8": "2", "決勝": "3"}` を足した
+- テスト `StageOrderTest.test_housho_best16_best8_final`（実際の題 3本: ベスト16A卓・ベスト８A卓・第１期…決勝戦）。変更前のコード（鳳匠戦を表から除いた状態）で 3件とも落ちることを確かめた
+- `python3 -m unittest discover -s scripts/tests`: 2,314件 OK
+
+### 【2】の値の比べ（リポジトリの層1 = 【1】の全件、変更前後のコード、名前の辞書なし）
+- 14,414行のうち値が変わるのは鳳匠戦の15行だけ。掲載（自動）は変わらない
+  - ベスト16 8行（dFOIYiIeQy4・lRfK1G89L-M・YkDnyZIYa3c・hEcZKGw62pA・Zw-a4z12f1k・mUManqtka4c・FOC5NloMEoI・P4r2rzuAKSk）: ステージの並び 空→1、確認 Y→空、理由「ステージの並びの表に無い段階」→空
+  - ベスト8 5行（-oAfJvStOIo・0kARNlbHNKU・WqTGuY4SW-Y・vvnxp53q8Fw・urnHaqf-6mw）: 空→2、同上
+  - 決勝 2行（4G2HocWBcic・M5h0gbcCvt0）: 空→3、同上
+  - （理由に「掲載（自動）N: …」が付く7行は、その部分は残る）
+
 ## 報告
 
 - 状態:
