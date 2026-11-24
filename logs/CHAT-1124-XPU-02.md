@@ -90,6 +90,37 @@ CHAT-1110-XPU-01（X の投稿の取り込みの費用の上限に expansions �
 - テスト: `python3 -m unittest discover -s scripts/tests` → `Ran 2313 tests` `OK`
 - `docs/decisions/operations.md` に節を足した（7d74058a9）。「事実として残る点」に前提の数字（ジョブのログ・Console）を写した
 - X API は呼んでいない
+- サブエージェントのレビュー1回目（`git diff origin/cloudflare...HEAD -- scripts docs/notes docs/decisions`）: 要修正1・任意4。テスト 2313本 OK を再現
+
+| 指摘 | 扱い |
+|---|---|
+| `preflight()` のコメント「次のページを…縮めるので SEARCH_MAX_COST を超えない」が新しい `簡略化:` と食い違う（要修正） | 直した（a0c06b53d。コメントだけ） |
+| dry-run の出力の「1投稿 最大 $0.025〈写真など 4件〉」の「最大」も4件が上限でないことと合わない（任意） | 見送り（出力の文言でコメントでなく、マージの条件の外。決定の案 A「まとめて取り直すときに見込みを直す」で合わせて直す範囲） |
+| `簡略化:` の「超える投稿が多いと」は件数が少なければ安全と読める（任意） | 直した（a0c06b53d。「上限の近くのページに超える投稿があると、超えた写真など1件 $0.005 ずつ(1ページ分まで)」） |
+| 「2026-11-23」が UTC と書かれていない（任意） | 直した（a0c06b53d。コードと notes に UTC を足した）。decisions の節は前提の文面のまま |
+| decisions の「前回の約束」が (ac)・(aa)・(ag) の後の行に触れていない（任意） | 意図どおり（振り返りの中身はチャット側の案で、指示文の文面のまま写した） |
+
+- サブエージェントのレビュー2回目（a0c06b53d だけ）: 要修正なし。AST は a0c06b53d^・origin/cloudflare と同じ、テスト 2313本 OK。「(1ページ分まで)」は `main()` が残りの費用を次の人に渡し負なら `LimitReached` で止まるので実行全体で正しい、との確かめ。任意2つ
+
+| 指摘 | 扱い |
+|---|---|
+| どのページも残りの費用を使い切る大きさなので、超えうるのは「上限の近くのページ」に限らない（最初のページのこともある）（任意） | 見送り（2回目の後の直しはレビューを受けないため。誤りではない。案 A で見込みを直すときに合わせて直す） |
+| 「1件 $0.005 ずつ」より実際の超過は小さいことがある。「$0.005 × 超えた件数まで」が正確（任意） | 見送り（同上） |
+
+- 変わるファイル（`git diff --stat origin/cloudflare...HEAD`）: `scripts/fetch_x_posts.py`（コメント3行）・`docs/notes/github-actions.md`・`docs/decisions/operations.md`・`docs/logs/CHAT-1124-XPU-02.md` だけ
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1124-xpu
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1124-XPU-02.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1124-xpu
+- 確認用URL: なし（コメントと docs だけで、ページ・動きは変わらない）
+- マージ: 済（cloudflare へ fast-forward。SHA は追いの push で記録）
+- issue: なし
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
