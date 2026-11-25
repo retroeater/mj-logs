@@ -63,9 +63,30 @@ CHAT-1125-LVP-43 の判断待ちへの平野さんの答えのとおり、AIコ�
 ### AIコンシェルジュの本番への反映（docs/notes/ask-worker.md）
 - `mj-ask` は Workers Builds が `workers/ask/**` の変更の push でビルドする。`data-schedule.json` は毎朝の取り込みの再生成でも作り直される。平野さんの手作業は要らない
 
+### セルフレビュー（新しい文脈のサブエージェント、bd6a4586a）
+| 指摘 | 対応 |
+|---|---|
+| モジュールの docstring に冒頭版を外すことが無い（load_desired の docstring にはある） | 直さない（関数の docstring で足りる） |
+| コミットに data-schedule.json の再生成が無い | マージの後に cloudflare で作り直した（下） |
+- 往復1回。証跡: 戻り値の形は呼び出し元（load・run_check・live_events）と合う、SystemExit の扱いは同じ、sync_live_calendar.py・build_desired に差分なし、Python 2,326件・node 226件 OK、新しいテストは変更前のコードで落ちる
+
+### マージと本番への反映
+- 053564335 を cloudflare へ push（直前に fetch して祖先を確かめた）
+- regenerate-page（target ask_data_schedule、run 45551849063）: success、723e86466 をコミット（`workers/ask/data-schedule.json` だけ）。大会の予定 72件（2026-12-01 の A2 第10節B卓は全量版 2FloCtvJgb8 の1件）、選手の予定 121件
+- Workers Builds: mj-ask の check-run は 723e86466 で success（`workers/ask/**` の変更でビルドされる。手作業なし）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
+- ブランチ: work/1125-lvp-ask
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1125-LVP-44.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1125-lvp-ask
+- 確認用URL: なし（AIコンシェルジュのデータの変更。mj-ask のビルドの成功と data-schedule.json の中身で確かめた）
+- マージ: 済（053564335）
+- issue: #362
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
