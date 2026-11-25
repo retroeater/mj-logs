@@ -54,6 +54,37 @@ live/ のトップの「放送予定」に、同じ対局の予定が2つ並ぶ�
 
 ## 経過
 
+- 着手前の確認: 同じ Chat-Ref のコミット無し（LVP-42 は欠番）・0章（指示欄の末尾が指示文の最後の行と一致）・#362 は open で、着手中コメントはこのセッションのものだけ。雛形の行の欠け無し。LVP-41 の状態を「中断 / 続き: CHAT-1125-LVP-43」にした
+- 着手中コメント: #362 だけ（決定5）
+- 未マージの work/ ブランチの重なり: work/1101-prp-pub が scripts/generate_live_pages.py・scripts/generate_pro_pages.py を変えているが、load_schedule・load_live_plans・live_plans とは別の関数。sync_live_calendar.py・lib/live_calendar.py を変えるブランチは無い
+
+### 重なりの原因と見分け方
+- 本番の「放送予定」の 2026-12-01 16:00「第43期鳳凰戦 A2リーグ第10節B卓」の2件は `2FloCtvJgb8`（題名「【メンバー限定】第43期鳳凰戦~A２リーグ第10節Ｂ卓~」）と `w1chChkyJGI`（題名に印なし）。どちらも配信前で、層1の「限定」が両方 N
+- 公開カレンダーの予定は `yotei.full_frames(split=True)` が同じ日・同じ題名（印を外したもの）の枠を組にし、限定 Y の版があれば全量版・ほかを無料版にする。限定が両方 N だと全量版が無い組になり、2本とも別の予定になる
+- 層1の全件で、同じ日・同じ題名の枠の予定が2件以上の組は16組（今日以降は上の1組だけ）
+  - 限定 N・【メンバー限定】と、限定 N・印なし: 8組（2024-06-03〜07 の7組と 2026-12-01）→ 印なしを冒頭版として外す
+  - 限定 Y・【メンバー限定】×2: 5組／限定 Y・印なしと限定 Y・【メンバー限定】: 1組 → どちらも全量版の扱い（同じ種類の版が2本、#450 の決定）。外さない
+  - 限定 N・印なし×2: 1組（World Riichi e-Championship 2022、51秒と6時間50分）／限定 N・【無料放送】×2: 1組 → 見分けない（外さない）。見分けられない組は16組中2組
+- 見分け方: 組の中に、メンバー限定版（層1の限定 Y か題名に【メンバー限定】）と、どちらでもない版の両方があれば、後者を冒頭版とする。【無料放送】の版は外さない（2026-11-20 の本則）
+
+### 実装（990ffc85a）
+- `scripts/lib/live_calendar.py` に `opening_keys(desired, latest)` を足した（外す枠の予定の key を返すだけ。`build_desired()` とカレンダーの同期〈sync_live_calendar.py〉は変えていない。削除行0）
+- live/: `generate_live_pages.load_schedule()`、pro/: `generate_pro_pages.load_live_plans()` が、`load_desired()` の結果から `opening_keys()` の予定を除いてから使う
+- テスト4件（opening_keys の2件、live/・pro/ の読み込みで外れること）。変更前のコードではすべて落ちる。2,325件 OK
+
+### 生成物の差分（全ページの dry run、run 45540049763、compare_ref origin/cloudflare）
+- 差分あり9件: `live/index.html`（2行）、pro/ の6ページ（各1行。dump.ohashi.18・maiko.erikawa.32・masaaki.ishikawa.17・shota.akutsu.34・tetsuya.ito.22・yuichi.fukushima.29。2026-12-01 の A2 第10節B卓の対局者・実況・解説の6人で、同じ予定の2行が1行になる）、`pro/plans.json`（2行）、`workers/ask/data-schedule.json`（2行）
+- `workers/ask/data-schedule.json` は、「選手の予定」（plans）が pro/plans.json をそのまま写す（generate_ask_data_schedule.py）ので、pro/ の「今後の予定」に伴って変わった。大会の予定（events）は load_desired() をそのまま使い、冒頭版を外していない（下の「判断が必要なこと」）
+- 公開カレンダーの同期に渡る予定は変わらない（build_desired・sync_live_calendar.py に差分なし）
+
+### セルフレビュー（新しい文脈のサブエージェント、990ffc85a）
+| 指摘 | 対応 |
+|---|---|
+| メンバー限定版だけが「【4】カレンダー非掲載」で外れた組では、冒頭版が残る | 直さない（今のデータに該当なし。非掲載にした版の扱いは平野さんの入力に従う） |
+| pro/ は残る全量版の対局者で決まる。対局者が冒頭版の【3】の行にだけあると消える | 直さない（今の12/1 の組は6人とも両方に載る） |
+| data-schedule.json の大会の予定（events）には冒頭版が残る | 判断が必要なことに書いた |
+- 往復1回。証跡: 層1の全件で外れるのは8件、すべて限定 N・印なしで同じ組の【メンバー限定】版より短い（または配信前）。限定 Y の枠・印のある枠は外れない。テスト 2,325件 OK、新しいテストは変更前のコードで落ちる
+
 ## 報告
 
 - 状態: 作業中
@@ -61,12 +92,12 @@ live/ のトップの「放送予定」に、同じ対局の予定が2つ並ぶ�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj eccfcf04）: https://github.com/retroeater/mj-logs/tree/main/guide/eccfcf04
+ガイド文書（この版を写した時点の最新、mj 7d4fd35e）: https://github.com/retroeater/mj-logs/tree/main/guide/7d4fd35e
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/eccfcf04/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/eccfcf04/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/eccfcf04/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/eccfcf04/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/eccfcf04/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/eccfcf04/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/7d4fd35e/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/7d4fd35e/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/7d4fd35e/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/7d4fd35e/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/7d4fd35e/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/7d4fd35e/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/2a1c8749.md
