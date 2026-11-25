@@ -93,7 +93,7 @@ live/ のトップの「放送予定」に、同じ対局の予定が2つ並ぶ�
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1125-LVP-44
 - ブランチ: work/1125-lvp-sched
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1125-LVP-43.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1125-lvp-sched
