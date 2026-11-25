@@ -64,7 +64,7 @@ live/ のトップ（`live/index.html`）を、log/ のトップのように見�
 
 ## 報告
 
-- 状態: 中断
+- 状態: 中断 / 続き: CHAT-1125-LVP-39
 - ブランチ: work/1125-lvp-top
 - ログ: https://github.com/retroeater/mj/blob/work/1125-lvp-top/docs/logs/CHAT-1125-LVP-38.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1125-lvp-top
