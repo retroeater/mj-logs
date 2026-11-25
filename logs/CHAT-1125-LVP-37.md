@@ -48,6 +48,60 @@ CHAT-1123-LVP-36 の後にチャット側が本番とシートで見つけた2�
 
 ## 経過
 
+- 着手前の確認: 同じ Chat-Ref のコミット無し・0章（指示欄の末尾が指示文の最後の行と一致）・#403/#688 は open で、着手中コメントはこのセッションのもの（LVP-35・36）だけ。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）の欠け無し。LVP-36 のログの状態に「/ 続き: CHAT-1125-LVP-37」を足した
+- 着手中コメント: #403・#688
+- 未マージの work/ ブランチの重なり: work/1101-prp-pub が scripts/generate_live_pages.py を変えている。この指示は generate_live_pages.py を変えない（一時コミットは戻した）ので止まる条件に当たらない
+- 読み込み: 一時コミット 26afa5df2 で regenerate-page（check、run 45520330327、2026-11-25）から【3】4,419行（【2】の値と合わせて）と「タイトル」シート3,126行を出し、戻した。読み込みの失敗なし
+
+### 1. 対局日（決勝が1日の8大会）
+- チャット側と同じ数え方（ステージに「決勝」「決定戦」を含む・掲載 Y・種別「動画」）で 233行、対局日が空 47行（チャット側は 231行・45行。2行の差は 11-24 から 11-25 の間の【3】の違いと見るが、確かめていない）
+- 空の47行の内訳:
+
+| 理由 | 行 | 大会・期 |
+|---|---|---|
+| ステージが「準決勝」（「決勝」を含む語に当たっただけ。決定2 の対象外） | 40 | 王位戦 第42・44・45期（22行、行457〜478）、麻雀マスターズ 第26〜28期（18行、行570〜592） |
+| ステージが「予選Aブロック決勝戦」（予選の段階。決定2 の対象外） | 3 | 紅龍戦 第2期 行3062、第3期 行3078・3079 |
+| 「タイトル」の決勝日が `YYYY-MM-DD` でない（`2014-XX-XX`・`2017-XX-XX`） | 4 | リーチ麻雀世界選手権 第1回 行3091・3092、第2回 行3093・3094 |
+
+- 規則の判定から漏れた行は0行。ステージが「決勝」の行で対局日が空なのは世界選手権 第1・2回の4行だけ。【3】の対局日が「タイトル」の決勝日と違う値で上書きされている行も0行
+- チャット側の例のうち、王位戦 第45期 `EuJraTL8m4E`・`n3pEeKU5je4` は準決勝、紅龍戦 第2期 `a-_3BPgVmJg` は予選Aブロック決勝戦、世界選手権 第2回 `ZMG8JubQgek`・`HUGUDFB5pR8` は「タイトル」の日付が `2017-XX-XX`
+- 【2】の規則は直していない
+
+### 2. 麻雀日本シリーズ 2023 の「第3節」
+- 原因は動画の題名の誤り。2023-07-16 の配信は、公開版 `6LJecimPcYI` の題名が「麻雀日本シリーズ2023第３節」、メンバー限定版 `gMDOwdKFSLw`（【3】行3989）の題名が「【メンバー限定】麻雀日本シリーズ2023第２節」。概要欄は両方とも 9〜12回戦の同じ対局（第3節）
+- そのため規則はメンバー限定版を第2節に入れ（2023 の第2節のページにメンバー限定版が2本ある）、公開版は「同じ日にメンバー限定版がある冒頭のみの公開版」として N になった。第3節には掲載 Y の動画が無い
+- 1本だけの例外なので【2】の規則は直さず、【3】で直す値を「判断が必要なこと」に書いた
+
+### 3. ほかの年・女流の欠け（全件）
+- 【3】で掲載 Y の動画のまとめ単位を、大会・年ごとに並べた。欠けがあるのは次の4つ
+  - 麻雀日本シリーズ 2023: 第3節（上の2.）
+  - 麻雀日本シリーズ 2022: プレーオフ第1節。題名「麻雀日本シリーズ2022第７節別日&プレーオフ第１節」（`YF-Tnz1ZE_0`〈メンバー限定、行3881〉・`AIg_dlRxAGA`〈公開、行3623〉）が「&」のために読めず、まとめ単位が空だった（規則の漏れ。下で直した）
+  - 麻雀日本シリーズ 2021: 第5節・第6節・プレーオフ第1・2節・決勝の5本（行3785・3838・3978・3917・4018）。公開版の生放送だけ（1.4〜2.1時間）でメンバー限定版が無いので、自動の掲載が保留（2026-11-16 の決定）。【3】の掲載も空
+  - 女流プロ麻雀日本シリーズ 2022: 第1〜7節・プレーオフ第1・2節の9本（行3560・3584・4185・4032・3517・4035・3613・3972・3544）。上と同じく公開版だけで保留
+- ほかの年（麻雀 2015〜2019・2024〜2026、女流 2016〜2021・2023〜2026）に欠けは無い。麻雀 2020 の動画は無い
+- 気づいたこと: 麻雀日本シリーズ 2022 第5節のメンバー限定版 `2UQGDePTDl0`（【3】行3540、長さ15秒）が掲載 Y で第5節のページに出ている。同じ節の本編 `lsTHxRqV6G8`（8時間30分）とは別。配信の失敗の残りと見られる
+
+### 規則の直し（ad9492780）
+- `scripts/lib/live_extract.py` の `analyze()`: 日本シリーズの題名の「&」で区切った各部分を節として読み、ステージは最初の節、まとめ単位は両方（「第7節、プレーオフ第1節」）にする。読めない部分があればステージを空にする（今までどおり確認=Y）
+- テスト `test_nihon_series_two_rounds_in_one_live` を足した（変更前のコードでは「&」の題名のステージが空になり落ちる）。2,315件 OK
+
+### 【2】と生成物の差分
+- ローカル（【1】14,427本、変更前後のコード）: 値が変わるのは `AIg_dlRxAGA`・`YF-Tnz1ZE_0` の2行だけ（ステージ 空→第7節、ステージの並び 空→8、動画の単位 ステージ→日、枝番 空→別日、まとめ単位 空→「第7節、プレーオフ第1節」、確認 Y→空、理由、掲載（自動）保留→ YF-Tnz1ZE_0 は Y・AIg_dlRxAGA は N）
+- 試しの生成（一時コミット 98a068e33 でワークフローの中で【2】を作り直す。run 45520767505。戻し済み）: シートの【2】と値の違う行は同じ2行だけ。compare は差分あり 225件
+  - 増えるページ: `live/nihon-series/2022/po1.html` の1つ。減るページなし
+  - 中身が変わるページ: 麻雀日本シリーズ 2022 の期のページ・各節のページ、ほかの大会・年のページの「〇〇の他の対局」の欄（224件）、一覧（data/live_pages.json・data/live_thumbs.json・live/index.html・live/nihon-series/index.html・sitemap-live.xml）
+  - 日本シリーズ 2022 以外の変わるページは、すべて `YF-Tnz1ZE_0` に出た人（対局者8人・実況・解説の10名）の「他の対局」の欄があるページだった（全件を照合し、説明のつかないページ0件） → 止まる条件に当たらない
+- 今の【2】【3】での再生成（戻した後の dd5283c03、run 45521000416）: compare 差分なし。規則の効き目は、マージの後の毎朝の取り込み（04:00 JST）で【2】が作り直されてから出る
+
+### セルフレビュー（新しい文脈のサブエージェント、ad9492780）
+| 指摘 | 対応 |
+|---|---|
+| 「&」の前が空（「&第7節」）だと予選と読む | 直した（9d9d0bd7a。読めない扱い） |
+| 同じ節が重なる（「第7節&第7節」）と、まとめ単位が重なり生成が止まる | 直した（9d9d0bd7a。読めない扱い） |
+| po1 のページは2節にまたがる動画だけなので、並びの値が s7 と同じ 8。並びは s7 → po1 の順で正しく出る。カードの見出しは「第7節 別日」 | 直さない（並びは正しい。見出しは題名どおり） |
+- 往復1回。証跡: 変更前後のコードで【1】14,427本の build_rows・auto_show を比べ、変わるのは2本だけ。テスト 2,315件 OK、新しいテストは変更前のコードで落ちる。2022 の表示 Y の動画で build_pages を回し、YF-Tnz1ZE_0 が s7・po1 の両方に載り、警告0件
+- 9d9d0bd7a の後もローカルの比べで変わるのは同じ2本、テスト 2,315件 OK
+
 ## 報告
 
 - 状態: 作業中
@@ -55,12 +109,12 @@ CHAT-1123-LVP-36 の後にチャット側が本番とシートで見つけた2�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 786c1633）: https://github.com/retroeater/mj-logs/tree/main/guide/786c1633
+ガイド文書（この版を写した時点の最新、mj 9d369a39）: https://github.com/retroeater/mj-logs/tree/main/guide/9d369a39
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/786c1633/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/786c1633/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/786c1633/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/786c1633/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/786c1633/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/786c1633/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9d369a39/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9d369a39/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9d369a39/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9d369a39/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9d369a39/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9d369a39/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/2a1c8749.md
