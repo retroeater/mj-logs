@@ -85,9 +85,25 @@ live/ のトップの「放送予定」に、同じ対局の予定が2つ並ぶ�
 | data-schedule.json の大会の予定（events）には冒頭版が残る | 判断が必要なことに書いた |
 - 往復1回。証跡: 層1の全件で外れるのは8件、すべて限定 N・印なしで同じ組の【メンバー限定】版より短い（または配信前）。限定 Y の枠・印のある枠は外れない。テスト 2,325件 OK、新しいテストは変更前のコードで落ちる
 
+### マージ
+- 7d4fd35ec を cloudflare へ push（直前に fetch して祖先を確かめた）
+- regenerate-page（target_page「live_pages pro_pages」、run 45540804072）: success、5ac0839ba をコミット。コミットの件名には全ページの対象が並ぶ（指定の渡り方は未確認）が、変わったのは dry run と同じ9ファイルだけ（live/index.html・pro/ の6ページ・pro/plans.json・workers/ask/data-schedule.json）
+- Workers Builds: mj の check-run は 5ac0839ba で success
+- 本番の HTML（UA に mj-internal）: /live/ の「第43期鳳凰戦 A2リーグ第10節B卓」は1件
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
+- ブランチ: work/1125-lvp-sched
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1125-LVP-43.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1125-lvp-sched
+- 確認用URL: なし（本番の HTML で確かめた。この版の印: /live/ の「放送予定」の 2026年12月1日 16:00「第43期鳳凰戦 A2リーグ第10節B卓」が1枚）
+- マージ: 済（7d4fd35ec）
+- issue: #362
+- 判断が必要なこと:
+  - AI コンシェルジュの予定のデータ（workers/ask/data-schedule.json）の「大会の予定」（events）には、冒頭版の枠が2件目として残る（今は 2026-12-01 の A2 第10節B卓の1件）。「選手の予定」（plans）は pro/ と同じになった。events も live/・pro/ と同じく冒頭版を外すなら、generate_ask_data_schedule.py の load_desired() の後に opening_keys() を通す（1行ほど）
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
