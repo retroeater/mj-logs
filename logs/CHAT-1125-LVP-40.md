@@ -48,6 +48,38 @@ CHAT-1125-LVP-39 のプレビューを見た平野さんの選択どおりに li
 
 ## 経過
 
+- 着手前の確認: 同じ Chat-Ref のコミット無し・0章（指示欄の末尾が指示文の最後の行と一致）・#362 は open で、着手中コメントはこのセッションのものだけ。雛形の行の欠け無し。LVP-39 の状態の末尾に「/ 続き: CHAT-1125-LVP-40」を足した
+- 着手中コメント: #362
+
+### LVP-39 の「選んだ後の手順」
+- 一時コミット df7e4c61d（プレビューを書く）と、作業ブランチの生成のコミット 030e53b5b（live/top-a.html・top-b.html・top-c.html を含む）を戻した（37265944f）。生成物は cloudflare と同じに戻った
+
+### トップを決定1 の形に（f59946017）
+- `build_top` は段「放送予定」「ライブ」「動画」「決勝」と、検索したときだけ出る「すべての放送対局」の行（全件を hidden で埋め込む）だけを作る
+- 消した部品: 段「大会から探す」の生成（`title_tiles`）、A・B・C の切り替え（`with_titles`・`with_list`）、定数 `TOP_RECENT_LIMIT`（検索していないときの12件）と行の `data-recent`、`assets/live.js` の `data-recent` の扱い（検索していないときは行を出さない、に単純にした）。大会のカード専用のスタイルは無かった（段のカードは log/ の部品で、放送予定などが使う）
+- テスト: A・B・C の出し分けと大会の並びのテストを、4段だけ・行はすべて hidden・題名のシートに大会がある、を見るテストに置き換えた。2,321件 OK
+- docs/notes/live-page-design.md のトップの記述（表の行・「2-8」・面の形）を置き換えた（f86aa3391）
+
+### 取り込みと生成物の差分
+- origin/cloudflare は取り込み済み（`git merge-base --is-ancestor origin/cloudflare HEAD` が真。衝突なし）
+- 全ページの dry run（target all、run 45532297469、compare_ref origin/cloudflare）: 差分あり1件 `live/index.html` だけ → 止まる条件に当たらない
+
+### Playwright（プレビュー、作業ブランチで live_pages を生成した 9d9169046。確かめた後に戻した f13c01d1b）
+- 390×844・1280×900、ライト・ダーク: 段は 放送予定12・ライブ12・動画12・決勝12、「大会から探す」なし、行は 964件を埋め込み検索していないときは0件、ページの横のはみ出しなし（scrollWidth = 幅）。題名のシートに大会のリンク23（「すべての放送対局」＋22大会）。PC の幅では本文は 400px の列（ほかの白地のページと同じ）で、段は列の中で横に送る
+- 390px で「十段戦」を検索: 段が隠れ「964件中 90件を表示」。消すと段が戻り行は0件。`?q=白鳥翔` で開くと段が隠れて176件
+- スクリーンショットはこのセッションの一時領域だけに置いた
+- 作業ブランチの生成のコミットは、平野さんの今日の【3】の直し（`live/nihon-series/2023/s3.html` が増えるなど）も含むので戻し、cloudflare での生成に任せた
+
+### セルフレビュー（新しい文脈のサブエージェント、origin/cloudflare..f13c01d1b の scripts・assets・style.css）
+| 指摘 | 対応 |
+|---|---|
+| TopRowsTest の docstring に「大会から探す」が残る | 直した |
+| `if __name__` の前の空行・ファイル末の空行 | 直した |
+| 放送予定の件数のテストがページ全体の「予定」を数える | 段の範囲に絞った |
+| THUMB_FALLBACK と直書きの2通り | 直さない（ほかの3か所を変えると変更が広がる。コメントで断ってある） |
+- 往復1回。証跡: 消した部品（TOP_RECENT_LIMIT・data-recent）の grep 0件、live.js の検索・件数・?q=・Esc の動きが残ること、テスト 2,321件 OK・`node --check` OK、新しいテストが origin/cloudflare のコードで落ちること（FAIL 1・ERROR 7）
+- 判断材料として出たこと: live/ の生成が公開カレンダーの材料（予定表のスプレッドシートなど）に依存する（pro/ と同じ扱い）。`?q=` 付きで開くと JS が動くまで段が一瞬見える（以前は12行が一瞬見えていた）
+
 ## 報告
 
 - 状態: 作業中
@@ -55,12 +87,12 @@ CHAT-1125-LVP-39 のプレビューを見た平野さんの選択どおりに li
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 9d369a39）: https://github.com/retroeater/mj-logs/tree/main/guide/9d369a39
+ガイド文書（この版を写した時点の最新、mj eccfcf04）: https://github.com/retroeater/mj-logs/tree/main/guide/eccfcf04
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9d369a39/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9d369a39/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9d369a39/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9d369a39/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9d369a39/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9d369a39/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/eccfcf04/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/eccfcf04/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/eccfcf04/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/eccfcf04/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/eccfcf04/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/eccfcf04/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/2a1c8749.md
