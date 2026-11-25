@@ -80,9 +80,23 @@ CHAT-1125-LVP-39 のプレビューを見た平野さんの選択どおりに li
 - 往復1回。証跡: 消した部品（TOP_RECENT_LIMIT・data-recent）の grep 0件、live.js の検索・件数・?q=・Esc の動きが残ること、テスト 2,321件 OK・`node --check` OK、新しいテストが origin/cloudflare のコードで落ちること（FAIL 1・ERROR 7）
 - 判断材料として出たこと: live/ の生成が公開カレンダーの材料（予定表のスプレッドシートなど）に依存する（pro/ と同じ扱い）。`?q=` 付きで開くと JS が動くまで段が一瞬見える（以前は12行が一瞬見えていた）
 
+### マージ
+- eccfcf04f を cloudflare へ push（直前に fetch して祖先を確かめた）
+- regenerate-page（live_pages、run 45533663542）: success、507cbab9e をコミット（live/ ほか218ファイル。live/index.html の作り替えと、平野さんの今日の【3】の直しなどの毎日の再生成の分。pro/ も一緒に作り直された）。Workers Builds: mj の check-run は 507cbab9e で success
+- 本番の HTML（UA に mj-internal）: /live/ に見出し「放送予定」「ライブ」「動画」「決勝」があり、data-recent は無い。/live/top-a.html は 404。ブラウザでの見え方は作業ブランチのプレビューでだけ確かめた
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
+- ブランチ: work/1125-lvp-top
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1125-LVP-40.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1125-lvp-top
+- 確認用URL: プレビューあり（URL は最終報告）。確認したページ: live/（390px・1280px、ライト・ダーク）。この版の印: トップの検索欄の下に「放送予定」「ライブ」「動画」「決勝」の4段があり、「大会から探す」は無い
+- マージ: 済（eccfcf04f）
+- issue: #362
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
