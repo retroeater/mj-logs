@@ -1,12 +1,15 @@
 # 朝の報告用の異常（retroeater/mj）
 
-- 書き出した時刻: 2026-11-25 09:50 JST（見た範囲: 2026-11-24 07:50 JST から）
+- 書き出した時刻: 2026-11-25 09:53 JST（見た範囲: 2026-11-24 07:53 JST から）
 - 書き出した実行の契機: workflow_dispatch（main）
 - 異常だけを書く。全体は actions/status.md。判定は mj の scripts/morning_report.py（各ワークフローの直近 100 回まで）
 
 ## 1. 失敗など（結論が success・skipped 以外。実行中を含む）
 
 - 2026-11-24 17:58 regenerate-page.yml failure（push・cloudflare）ジョブ「regenerate」：生成に失敗したページを飛ばしました: mtsuku, mtsuku_episodes, wayhome_episodes（理由はジョブのサマリ、#533） https://github.com/retroeater/mj/actions/runs/45360788510
+- 2026-11-25 09:51 regenerate-page.yml pending（workflow_dispatch・cloudflare） https://github.com/retroeater/mj/actions/runs/45521354132
+- 2026-11-25 09:51 regenerate-page.yml in_progress（push・cloudflare） https://github.com/retroeater/mj/actions/runs/45521354597
+- 2026-11-25 09:52 check-build-failure.yml in_progress（check_run・cloudflare） https://github.com/retroeater/mj/actions/runs/45521476934
 
 ## 2. 予約実行の未実行（予定から3時間以内は「遅れの可能性」。3時間を超えて始まった実行は「遅れて実行」）
 
@@ -18,7 +21,7 @@
 
 ## 4. 初回成功（cloudflare の実行だけ。それ以前の cloudflare の実行に success が無いもの）
 
-- 2026-11-25 09:45 check-build-failure.yml success（check_run・cloudflare）それ以前の cloudflare の実行 96 件に success なし https://github.com/retroeater/mj/actions/runs/45520510216
+- 2026-11-25 09:45 check-build-failure.yml success（check_run・cloudflare）それ以前の cloudflare の実行 94 件に success なし https://github.com/retroeater/mj/actions/runs/45520510216
 
 ## 5. 未報告のログ（`## 報告` の節が無い）
 
