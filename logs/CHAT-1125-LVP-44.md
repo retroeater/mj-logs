@@ -49,6 +49,20 @@ CHAT-1125-LVP-43 の判断待ちへの平野さんの答えのとおり、AIコ�
 
 ## 経過
 
+- 着手前の確認: 同じ Chat-Ref のコミット無し・0章（指示欄の末尾が指示文の最後の行と一致）・#362 は open で、着手中コメントはこのセッションのものだけ。雛形の行の欠け無し。LVP-43 の状態の末尾に「/ 続き: CHAT-1125-LVP-44」を足した
+- 着手中コメント: #362
+- 未マージの work/ ブランチで scripts/generate_ask_data_schedule.py・workers/ask/ を変えるものは無い
+
+### 実装（bd6a4586a）
+- `generate_ask_data_schedule.load_desired()` が、`sync_live_calendar.load_desired()` の結果から LVP-43 の `lib.live_calendar.opening_keys()` の予定を除いて返す（判定は live/・pro/ と共有）。`build_desired()`・`sync_live_calendar.py` は変えていない（公開カレンダーの同期に渡る予定は変わらない）
+- テスト `LoadDesiredTest`（冒頭版の枠が外れる）。変更前のコードでは2件とも残り落ちる。Python 2,326件 OK、`node --test 'workers/ask/test/*.test.mjs'` 226件 OK
+
+### data-schedule.json の差分（dry run、target ask_data_schedule、run 45551639651、compare_ref origin/cloudflare）
+- 差分あり1件 `workers/ask/data-schedule.json`（1行のJSONの置き換え）。同じ run で新旧のコードを同じデータに当てた比べで、大会の予定 73件 → 72件（外れるのは 2026-12-01 16:00「第43期鳳凰戦 A2リーグ第10節B卓」の冒頭版 `w1chChkyJGI` の1件。全量版 `2FloCtvJgb8` は残る）、選手の予定は121件のまま → 止まる条件に当たらない
+
+### AIコンシェルジュの本番への反映（docs/notes/ask-worker.md）
+- `mj-ask` は Workers Builds が `workers/ask/**` の変更の push でビルドする。`data-schedule.json` は毎朝の取り込みの再生成でも作り直される。平野さんの手作業は要らない
+
 ## 報告
 
 - 状態: 作業中
@@ -56,12 +70,12 @@ CHAT-1125-LVP-43 の判断待ちへの平野さんの答えのとおり、AIコ�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 7d4fd35e）: https://github.com/retroeater/mj-logs/tree/main/guide/7d4fd35e
+ガイド文書（この版を写した時点の最新、mj 723e8646）: https://github.com/retroeater/mj-logs/tree/main/guide/723e8646
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/7d4fd35e/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/7d4fd35e/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/7d4fd35e/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/7d4fd35e/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/7d4fd35e/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/7d4fd35e/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/723e8646/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/723e8646/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/723e8646/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/723e8646/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/723e8646/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/723e8646/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/2a1c8749.md
