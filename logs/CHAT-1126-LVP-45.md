@@ -78,9 +78,24 @@ live/ はアーカイブを探すページで、「放送予定」は YouTube �
 | 段の id が live_row_1〜3 から live_row_0〜2 にずれる | 直さない（参照する CSS・JS・テストは無い） |
 - 往復1回。証跡: 消した名前の参照は全体で0件（scripts/actions_dashboard.py の同名の別関数だけ）、run_check は fb8380051^ と同じ形、page_tile の HTML は変更前と4通りで完全に一致、テスト 2,323件 OK
 
+### マージ
+- cde561342 を cloudflare へ push（直前に fetch して祖先を確かめた）
+- regenerate-page（live_pages、run 45772599336）: success、136c21d29 をコミット（変わったのは live/index.html だけ）。Workers Builds: mj の check-run は 136c21d29 で success
+- 本番の HTML（UA に mj-internal）: /live/ の段の見出しは「ライブ」「動画」「決勝」の3つ
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
+- ブランチ: work/1126-lvp
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1126-LVP-45.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1126-lvp
+- 確認用URL: プレビューあり（URL は最終報告）。確認したページ: live/（390px・1280px、ライト・ダーク）。この版の印: トップの段は「ライブ」「動画」「決勝」の3つで「放送予定」が無い
+- マージ: 済（cde561342）
+- issue: #362
+- 判断が必要なこと:
+  - scripts/generate_pro_pages.py の load_live_plans のコメント「冒頭版は載せない(live/ の「放送予定」と同じ、2026-11-25 の決定)」は、live/ の「放送予定」が無くなったので古い。指示で pro/ を変えないことにしたので直していない。直すなら「AIコンシェルジュの大会の予定と同じ」などにする（コメントだけ）
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
