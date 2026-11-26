@@ -85,7 +85,7 @@ live/ はアーカイブを探すページで、「放送予定」は YouTube �
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1126-LVP-46
 - ブランチ: work/1126-lvp
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1126-LVP-45.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1126-lvp
