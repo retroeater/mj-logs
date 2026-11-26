@@ -46,9 +46,40 @@ CHAT-1126-LVP-45 の判断待ちのとおり、live/ の「放送予定」を外
 
 ## 経過
 
+- 着手前の確認: 同じ Chat-Ref のコミット無し・0章（指示欄の末尾が指示文の最後の行と一致）・#362 は open で、着手中コメントはこのセッションのものだけ。雛形の行の欠け無し。LVP-45 の状態の末尾に「 / 続き: CHAT-1126-LVP-46」を足した
+- 着手中コメント: #362
+
+### 洗い出し（`git grep 放送予定`、docs/decisions・docs/logs・生成物・data を除く）
+- live/ の「放送予定」を今あるものとして書いていた記述は5か所。ほかに `opening_keys` の使い手を「live/・pro/」と書いた docstring が1か所
+- 直したもの（b1276d8af、コメント・docstring だけ）:
+  - scripts/generate_pro_pages.py（load_live_plans のコメント）: 「live/ の「放送予定」と同じ」→「AIコンシェルジュの「大会の予定」と同じ」
+  - scripts/lib/live_calendar.py（opening_keys の docstring）: 使い手を「pro/ の「今後の予定」と AIコンシェルジュの「大会の予定」」に
+  - scripts/generate_ask_data_schedule.py（load_desired の docstring）: 「live/・pro/ と同じ」→「pro/ と同じ」
+  - scripts/tests/test_live_calendar.py・test_pro_pages.py の docstring
+  - assets/live.js のコメント: 段の例「放送予定・ライブなど」→「ライブ・動画・決勝」（配信するファイルだがコメントだけ）
+- 直さなかったもの: scripts/generate_live_pages.py・test_live_pages.py・docs/notes/live-page-design.md の記述は「放送予定」を置かないことを書いたもので、今の状態と合う
+- docs/notes には古い記述は無かった（live-page-design.md は LVP-45 で置き換え済み）
+
+### 確かめたこと
+- 差分はコメント・docstring の6行だけ（git diff で確かめた）。生成物を作る処理は変わらないので、生成物の差分は出ない
+- テスト: Python 2,323件 OK、`node --check assets/live.js` OK
+- セルフレビューのサブエージェントは使っていない（変更がコメント・docstring だけで、動きに関わる行が無いことを差分で確かめたため）
+
+### マージ
+- aa1dbdc58 を cloudflare へ push（直前に fetch して祖先を確かめた）。Workers Builds: mj の check-run は aa1dbdc58 で success
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
+- ブランチ: work/1126-lvp-cmt
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1126-LVP-46.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1126-lvp-cmt
+- 確認用URL: なし（コメント・docs のみ）
+- マージ: 済（aa1dbdc58）
+- issue: #362
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
