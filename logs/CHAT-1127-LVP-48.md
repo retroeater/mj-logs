@@ -51,7 +51,21 @@ Chat-Ref: CHAT-1127-LVP-48
 
 ## 経過
 
-- 2026-11-27 22:50 JST に貼られた。「貼る時機」（2026-11-28 04:00 JST の取り込みの後、直後の30分は避ける）より前なので、ログだけを先に push し、2026-11-28 04:45 JST に再開する（このセッションの予約で戻る）
+- 2026-11-27 22:50 JST に貼られ、「貼る時機」（11/28 04:00 JST の取り込みの後）より前と読んで、ログだけを push し 11/28 04:45 JST の再開を予約した
+- 平野さんから「取り込みは 2026-11-27 22:36 JST に手動で実行済み（update-live-channel、run 46008629578、apply=true）。再生成も本番反映も終わっている。予約を取り消していますぐ再開」との連絡。run 46008629578 は success（13:36 UTC 開始、cloudflare）、その再生成のコミットは e69c8e6c4。予約（04:45 JST）は取り消した。平野さんの「明日 07:20 の確認の予定」はチャット側の予定で、このセッションからは消していない（消すかは平野さんが決める）
+- 着手前の確認: 同じ Chat-Ref のコミット無し・0章（指示欄の末尾が指示文の最後の行と一致）・#401 は open で、他セッションの着手中コメント無し（最後の着手中はこのセッションの LVP-35・36）。雛形の行の欠け無し。LVP-47 の状態の末尾に「 / 続き: CHAT-1127-LVP-48」を足した。未マージの work/ ブランチで build_video・lib/live.py の GAME_PLAYER_COUNTS を変えるものは無い（work/1101-prp-pub は generate_live_pages.py の別の関数）
+- 着手中コメント: #401
+
+### 1. プロクイーン第11〜14期の回戦のカード
+- e69c8e6c4（平野さんの【3】の値が入った再生成）で、live/pro-queen/11・12・13/f.html の対局者の並び（各回戦の4人の登場順）が変わった。第14期は並びが変わらなかった
+- 回戦のカードは5人では公開されない形にした後の dry run（下）で、公開しなかった行が0件 → プロクイーン第11〜14期の回戦の行はすべて4人
+- 【3】の全行（掲載を問わない、一時コミット d9facf411 の check、run 46013463227、戻し済み）で、動画の単位が「回戦」で対局者が4人でない行は1行だけ: 行3103 `F4P_rk_yy2I`（第3回世界リーチ麻雀選手権 初日 Hanchan1、掲載 N、対局者1人）。**5人以上の行は0行**
+
+### 2. 判定を4人に（c009a0265 ほか）
+- `lib/live.py` の `GAME_PLAYER_COUNTS = (4, 5)` を `GAME_PLAYERS = 4` にし、`generate_live_pages.build_video` の判定を「4人でなければ公開しない」にした。テスト `GamePlayersTest`（4人は公開・5人は公開しない）。2,327件 OK
+- docs/notes/live-page-design.md「3-1」の「対局者の判定は4〜5名のまま」の記述を置き換えた
+- 全ページの dry run（target all、run 46012749911、compare_ref origin/cloudflare）: **差分なし**、公開しなかった【3】の行 0件 → 止まる条件に当たらない
+- セルフレビューのサブエージェントは使っていない（定数1つと比較1行の変更で、全ページの差分なしと、5人の行が公開されないことをテストで確かめたため）
 
 ## 報告
 
@@ -60,12 +74,12 @@ Chat-Ref: CHAT-1127-LVP-48
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj f268dbf5）: https://github.com/retroeater/mj-logs/tree/main/guide/f268dbf5
+ガイド文書（この版を写した時点の最新、mj 75620aa7）: https://github.com/retroeater/mj-logs/tree/main/guide/75620aa7
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f268dbf5/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f268dbf5/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f268dbf5/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f268dbf5/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f268dbf5/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f268dbf5/docs/decisions/README.md
-- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/f92ac9d9.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/75620aa7/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/75620aa7/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/75620aa7/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/75620aa7/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/75620aa7/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/75620aa7/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/e69c8e6c.md
