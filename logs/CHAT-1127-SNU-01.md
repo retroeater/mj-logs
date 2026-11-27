@@ -146,7 +146,7 @@ X API を呼んだ行（全件）:
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1127-SNU-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1127-snu
 - 確認用URL: なし（docs のみ。再生成は cloudflare 上のワークフローのコミット ffa224f で入り、本番で確かめた）
-- マージ: 済（下の追記の SHA）
+- マージ: 済（497a3ae。fast-forward で cloudflare へ）
 - issue: なし
 - 判断が必要なこと: なし
 - 未確認の項目: ブラウザでの見え方（本番の HTML と画像の HTTP 200 までは確かめた）
@@ -155,12 +155,12 @@ X API を呼んだ行（全件）:
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj cde56134）: https://github.com/retroeater/mj-logs/tree/main/guide/cde56134
+ガイド文書（この版を写した時点の最新、mj 890e95ee）: https://github.com/retroeater/mj-logs/tree/main/guide/890e95ee
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/cde56134/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/cde56134/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/cde56134/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/cde56134/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/cde56134/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/cde56134/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/890e95ee/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/890e95ee/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/890e95ee/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/890e95ee/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/890e95ee/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/890e95ee/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/888add4c.md
