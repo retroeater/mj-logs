@@ -1,12 +1,12 @@
 # 朝の報告用の異常（retroeater/mj）
 
-- 書き出した時刻: 2026-11-27 04:19 JST（見た範囲: 2026-11-26 02:19 JST から）
+- 書き出した時刻: 2026-11-27 09:27 JST（見た範囲: 2026-11-26 07:27 JST から）
 - 書き出した実行の契機: workflow_dispatch（main）
 - 異常だけを書く。全体は actions/status.md。判定は mj の scripts/morning_report.py（各ワークフローの直近 100 回まで）
 
 ## 1. 失敗など（結論が success・skipped 以外。実行中を含む）
 
-なし
+- 2026-11-27 09:25 regenerate-page.yml in_progress（workflow_dispatch・work/1127-snu） https://github.com/retroeater/mj/actions/runs/45916661904
 
 ## 2. 予約実行の未実行（予定から3時間以内は「遅れの可能性」。3時間を超えて始まった実行は「遅れて実行」）
 
@@ -22,7 +22,7 @@
 
 ## 5. 未報告のログ（`## 報告` の節が無い）
 
-なし
+- CHAT-1127-SNU-01.md（着手 2026-11-27） https://github.com/retroeater/mj-logs/blob/main/logs/CHAT-1127-SNU-01.md
 
 ## 6. Actions の使用量（mj。ジョブごとに1分へ切り上げた見積もり、日付は JST。前日が240分以上か、月の累計が含まれる3,000分の50%・75%を超えたとき）
 
