@@ -100,15 +100,21 @@ CHAT-1127-BKS-01 の「判断が必要なこと」3点に答え、BKS-01 の作�
 | new-page-checklist.md の実例の表・sitemap-pages.xml のコメント、削除した別名の行にあった「books/ への切り替えの予定は new-page-checklist.md」への参照 | 意図どおり（指示文が変えないと定めた。#692 にコメント） |
 | 元から古かった「27本」の修正が成果物のコミットに入った（食い違いは別コミットの規則） | 意図どおり（決定で範囲に加えられ、本数の変化の一部は今回の削除による） |
 
+### 手順3
+
+- マージ: 再fetch後 `git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめ、`git push origin work/1127-bks:cloudflare`（7d089dbdf..2b7af4fe8）
+- 本番: `curl -A "mj-internal check" "https://ryoei.pro/navbar.js?v=bks02-<試行>-<乱数>"` を30秒ごとに取得し、3回目で「書籍」0件・`resource_books` 0件・`resource_calendar` 1件。`https://ryoei.pro/resource_books.html` は `301 https://booklog.jp/users/retroeater` のまま。ブラウザでの見え方は確かめていない
+- コメント: #692（マージの SHA と、自己レビューの直さなかった提案）・#568
+
 ## 報告
 
-- 状態: 対応中
+- 状態: 完了
 - ブランチ: work/1127-bks
-- ログ: https://github.com/retroeater/mj/blob/work/1127-bks/docs/logs/CHAT-1127-BKS-02.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1127-BKS-02.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1127-bks
-- 確認用URL: なし
-- マージ: 未
-- issue: #568
+- 確認用URL: プレビューは使っていない（決定によりプレビューの確認なしでマージ）。本番の navbar.js を確認
+- マージ: 済（2b7af4fe8）
+- issue: #692（起票）, #568, #429（状態の確認のみ）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
 - エラー: なし
