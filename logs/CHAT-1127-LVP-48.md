@@ -73,7 +73,7 @@ Chat-Ref: CHAT-1127-LVP-48
 
 ## 報告
 
-- 状態: 完了
+- 状態: 完了 / 続き: CHAT-1127-LVP-50
 - ブランチ: work/1127-lvp-pq
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1127-LVP-48.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1127-lvp-pq
@@ -87,12 +87,12 @@ Chat-Ref: CHAT-1127-LVP-48
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 75620aa7）: https://github.com/retroeater/mj-logs/tree/main/guide/75620aa7
+ガイド文書（この版を写した時点の最新、mj 2b7af4fe）: https://github.com/retroeater/mj-logs/tree/main/guide/2b7af4fe
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/75620aa7/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/75620aa7/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/75620aa7/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/75620aa7/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/75620aa7/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/75620aa7/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/2b7af4fe/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/2b7af4fe/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/2b7af4fe/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/2b7af4fe/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/2b7af4fe/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/2b7af4fe/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/e69c8e6c.md
