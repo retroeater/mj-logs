@@ -56,16 +56,76 @@ Chat-Ref: CHAT-1127-BKS-01
 
 ## 経過
 
+### 着手前の確認
+
+- 識別子 `BKS`: 全ブランチのコミット・`docs/logs/` の履歴に無し。同じ Chat-Ref のコミットも無し
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 欠け無し
+- 0. 指示欄の末尾は指示文の最後の行（「不明な点があれば、…この行が指示文の最後の行です。」）と一致
+- 作業ブランチ: ローカル・リモートとも `work/1127-bks` が無かったため `git checkout -b work/1127-bks origin/cloudflare`（e69c8e6）
+
+### 手順1
+
+#### issue の状態
+
+| issue | state | 指示文の前提 |
+|---|---|---|
+| #97 | **closed（not_planned、2026-11-01 に平野さんがクローズ）** | 「保留」・着手中コメントの対象。食い違う |
+| #568 | open（常設） | 一致 |
+
+#97 が閉じているため、指示文の issue の state の確認（docs/notes/branch-operations.md「指示文の issue の state」）に当たる。着手中コメントは書いていない。
+
+#### 未マージの work/ ブランチ（navbar.js・docs/notes/redirects.md・books-freeze.md・decisions/cloudflare.md）
+
+| ブランチ | 変更 |
+|---|---|
+| origin/work/1101-prp-pub | `navbar.js`: 「連盟プロ」の href（`/jpml_pros.html` → `/pro/`）と `/pro/` 判定のコメント。「リソース」の項目は変えていない。`docs/notes/redirects.md`: 冒頭の箇条に1項目追加、**「棚卸しの対象」の表の末尾（`/saikyo/2026.html` の後）に `/jpml_pros.html`（Worker）の行を追加** |
+| ほか（1009-swp-526・1011-swp-hnd・1011-swp-nav・1015-skd-notes・1103-ryo5・1115-rsc-autowrite・1127-lvp-pq） | 該当ファイルの変更なし |
+
+1101-prp-pub が「棚卸しの対象」の表を変えている。止まる条件「未マージの work/ ブランチが … docs/notes/redirects.md の『別名』『棚卸しの対象』の表を変えている」に当たる（移す行を表の末尾に足すと、同じ箇所で衝突もする）。
+
+#### `resource_books` と `booklog` の検索（`git grep`、本ログを除く）
+
+| ファイル | 行 | 中身 |
+|---|---|---|
+| `_redirects` | 142 | `/resource_books.html  https://booklog.jp/users/retroeater  301`（転送そのもの） |
+| `navbar.js` | 48 | 「リソース」の `<a class="dropdown-item" href="/resource_books.html" target="_blank">書籍…</a>` |
+| `sitemap-pages.xml` | 11 | 冒頭コメントの除外一覧 `tanilog.html / resource_calendar.html / resource_books.html`（_redirects で転送しており実体がない）。リンクではない |
+| `style.css` | 3380 | コメント `/* ---- 書籍(resource_books.html・books/、#97) ----`。リンクではない |
+| `scripts/generate_books_pages.py` | 9–10 | docstring「『リソース > 書籍』は当面 booklog へ転送したまま。公開(booklog からの切替)は別の issue で扱う。」。リンクではない（`scripts/` は非公開） |
+| `docs/decisions/cloudflare.md` | 64 | RDR-03 の決定（別名として対象外のまま） |
+| `docs/decisions/seo-bing.md` | 51 | 外部への 301 の resource_books.html は #11 に1行つなぐだけ |
+| `docs/gsc/2026-10-03/pages-unindexed.md` | 61 | クロール済み未登録 resource_books.html（301 → booklog） |
+| `docs/new-page-checklist.md` | 101・110 | 実例の表（booklog への 301 のまま／転送する予定） |
+| `docs/notes/books-freeze.md` | 12・27 | 「これまでどおり booklog（`/resource_books.html`）」「引き続き booklog へ301」 |
+| `docs/notes/redirects.md` | 75・80 | 「別名」の注記と表の行 |
+| `docs/notes/static-generation.md` | 436 | 「navbar.jsの27本のページhref … 実ページ25本＋`_redirects`で転送する`resource_calendar`・`resource_books`の2本」 |
+
+navbar.js・docs・テスト以外のヒットは `_redirects`（転送そのもの）と、sitemap-pages.xml・style.css・generate_books_pages.py のコメントだけで、サイトのリンクではない。この条件には当たらないと判断した。
+
+#### 前提の照合
+
+- 「書籍」は `navbar.js` 48行目の `document.write` の中の1か所、href は `/resource_books.html`。`mjNavBand(document.querySelector('nav.navbar'), …)`（123行目）は描画済みの nav を読む。前提と一致
+- 「リソース」の項目（今）: カレンダー・書籍・ログ・辞書・牌効率
+- docs/notes/redirects.md の「別名」の表の形（転送元・転送先・仕組み・入れた日・issue・最後の棚卸し）は「棚卸しの対象」と同じ6列。前提と一致
+- 前提に無い食い違い: docs/notes/static-generation.md「navbar.js と検索欄」の「27本のページhref（実ページ25本＋転送2本）」は、書籍を消すと26本（転送1本）になる。このファイルは差分の許容範囲（止まる条件の3つ目）の外
+
+### 止まった
+
+上の2点（#97 が closed・1101-prp-pub が「棚卸しの対象」の表を変えている）で止まった。`navbar.js`・docs/notes/redirects.md・books-freeze.md は変えていない。テストは実装前のため実行していない。決定は docs/decisions/cloudflare.md に記録した。
+
 ## 報告
 
-- 状態: 対応中
+- 状態: 判断待ち
 - ブランチ: work/1127-bks
 - ログ: https://github.com/retroeater/mj/blob/work/1127-bks/docs/logs/CHAT-1127-BKS-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1127-bks
 - 確認用URL: なし
-- マージ: 未
-- issue: #97, #568
-- 判断が必要なこと: なし
+- マージ: 未（止まる条件に当たったため）
+- issue: #97, #568（どちらもコメント・変更なし）
+- 判断が必要なこと:
+  - #97 は 2026-11-01 に closed（not_planned）。指示文は「保留」として着手中コメントを書く前提。#97 を再開するか、別の issue（新規起票など）で扱うか
+  - 未マージの origin/work/1101-prp-pub（pro/ の公開、PRP-20 の判断待ち）が docs/notes/redirects.md の「棚卸しの対象」の表の末尾に `/jpml_pros.html` の行を足している。先にどちらを入れるか（書籍の行を表のどこに置くか）。navbar.js の変更箇所は「連盟プロ」の href で、「リソース」とは別の箇所
+  - docs/notes/static-generation.md「navbar.js と検索欄」の「27本（実ページ25本＋転送2本）」を26本（転送1本）に直す必要がある。指示文の差分の許容範囲の外なので、範囲に加えるか
 - 未確認の項目: なし
 - エラー: なし
 
