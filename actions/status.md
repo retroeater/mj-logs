@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-11-28 00:00 JST
+- 書き出した時刻: 2026-11-28 00:04 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -35,12 +35,13 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-28 00:02 | push | work/1127-lvp-ret | in_progress | #1458（46021348654） |  |
+| 2026-11-28 00:00 | push | work/1127-lvp-ret | failure | #1457（46021021725） | 0分38秒 |
 | 2026-11-27 23:58 | push | work/1127-lvp-ret | success | #1456（46020709306） | 0分48秒 |
 | 2026-11-27 23:58 | workflow_dispatch | work/1127-lvp-ret | success | #1455（46020707848） | 0分52秒 |
 | 2026-11-27 23:57 | push | work/1127-lvp-ret | failure | #1454（46020529876） | 0分41秒 |
-| 2026-11-27 23:44 | push | work/1127-bks | success | #1453（46018679941） | 0分26秒 |
-| 2026-11-27 23:11 | push | work/1127-lvp-pq | success | #1452（46013630818） | 0分27秒 |
 
+- #1457 failure: ジョブ「check」 ステップ「Python のテスト」
 - #1454 failure: ジョブ「check」 ステップ「Python のテスト」
 
 ## check-build-failure.yml
@@ -50,11 +51,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-28 00:01 | check_run | cloudflare | skipped | #1963（46021224173） | 0分10秒 |
 | 2026-11-27 23:58 | check_run | cloudflare | skipped | #1962（46020654672） | 0分01秒 |
 | 2026-11-27 23:47 | check_run | cloudflare | skipped | #1961（46019136231） | 0分01秒 |
 | 2026-11-27 23:45 | check_run | cloudflare | skipped | #1960（46018793609） | 0分01秒 |
 | 2026-11-27 23:13 | check_run | cloudflare | skipped | #1959（46013988093） | 0分01秒 |
-| 2026-11-27 23:11 | check_run | cloudflare | skipped | #1958（46013723655） | 0分01秒 |
 
 ## check-image-links.yml
 
@@ -220,11 +221,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-28 00:00 | workflow_dispatch | work/1127-lvp-ret | success | #944（46021020416） | 0分54秒 |
 | 2026-11-27 23:47 | push | cloudflare | success | #943（46019010938） | 0分37秒 |
 | 2026-11-27 23:12 | push | cloudflare | success | #942（46013743101） | 3分19秒 |
 | 2026-11-27 23:10 | workflow_dispatch | work/1127-lvp-pq | success | #941（46013463227） | 0分48秒 |
 | 2026-11-27 23:05 | workflow_dispatch | work/1127-lvp-pq | success | #940（46012749911） | 4分16秒 |
-| 2026-11-27 14:37 | workflow_dispatch | cloudflare | success | #939（45946924683） | 2分57秒 |
 
 ## regenerate-saikyo.yml
 
