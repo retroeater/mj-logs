@@ -45,19 +45,37 @@
 
 ## 経過
 
+- 着手前の確認: 同じ Chat-Ref のコミット無し・0章（指示欄の末尾が指示文の最後の行と一致）。雛形の行の欠け無し。対象の issue は無い
+- 落ちているテスト: origin/cloudflare で `python3 -m unittest discover -s scripts/tests` は 2,325件中 1件だけ失敗（`test_handover_notes_table.NotesTableTest.test_every_note_is_listed`、表に無いのは `search-for-agents.md` だけ）。ほかに落ちているテストは無い
+- 同じ直しが進んでいないか: 未マージの work/ ブランチで docs/handover.md を変えているのは work/1101-prp-pub（CHAT-1104-PRP-20、search-for-agents.md の行は無い）だけ。SEO-40 のログ（mj-logs の CHAT-1127-SEO-40、状態は完了）にも表を直す予定は書かれていない → 止まる条件に当たらない
+- SEO-40 のログ: Chat-Ref は CHAT-1127-SEO-40（search-for-agents.md を作ったコミットは 7bffaaf0b）
+- 直し: docs/handover.md 6章「関連文書」の表の `docs/notes/cloudflare.md` の行の後に1行を足した（開く場面は search-for-agents.md の冒頭「見直すきっかけ」から）
+- 確かめたこと: テスト 2,325件 OK。docs/handover.md は 23,826 バイトで、check-assets.yml の警告域（25,600）・上限（27,648）に当たらない
+
+- マージ: e9f0552a0 を cloudflare へ push（直前に fetch して祖先を確かめた）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
+- ブランチ: work/1127-lvp-notes
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1127-LVP-49.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1127-lvp-notes
+- 確認用URL: なし（docs のみ）
+- マージ: 済（e9f0552a0）
+- issue: なし
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 858fa337）: https://github.com/retroeater/mj-logs/tree/main/guide/858fa337
+ガイド文書（この版を写した時点の最新、mj f268dbf5）: https://github.com/retroeater/mj-logs/tree/main/guide/f268dbf5
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/858fa337/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/858fa337/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/858fa337/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/858fa337/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/858fa337/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/858fa337/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f268dbf5/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f268dbf5/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f268dbf5/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f268dbf5/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f268dbf5/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f268dbf5/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/f92ac9d9.md
