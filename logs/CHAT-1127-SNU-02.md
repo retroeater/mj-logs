@@ -69,6 +69,113 @@ Chat-Ref: CHAT-1127-SNU-02
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 着手前の確認
+
+- 同じ Chat-Ref（CHAT-1127-SNU-02）のコミット: なし。識別子 SNU の重複確認は最初の指示（SNU-01）で済み
+- 雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 欠けなし。0. 「指示」欄の末尾が指示文の最後の行と一致することを確かめた
+- ガイド文に規則を足す指示の「知見 → 選んだ層 → 理由」の表: あり
+- 作業ブランチ: ローカル・リモートの work/1127-snu とも origin/cloudflare の祖先（マージ済み）。ローカルにあるので docs/notes/cloud-sessions.md「作業ブランチの用意」のとおり `git merge --ff-only origin/cloudflare` で f92ac9d へ進めた
+- 未マージの work/ ブランチ（1009-swp-526・1011-swp-hnd・1011-swp-nav・1015-skd-notes・1101-prp-pub・1103-ryo5・1115-rsc-autowrite・1126-lvp・1126-lvp-cmt ほか）で、直す7ファイルを変えているもの: なし
+
+### 手順1: 同じ論点の issue
+
+- 検索語「最終報告」「ログ（公開）」「ターミナル 報告」「作業ブランチ 識別子」「雛形 ブランチ名」（`is:issue`、open・closed とも）
+- 近いのは #419（作業ブランチを Chat-Ref の番号ごとに切るか）だけ。(b)（報告の Chat-Ref の行の置き場所）は 2026-09-20 に決着済みで、残る (a) はブランチを番号ごとに切るかの論点。最終報告の形・雛形の例とは別の論点と判断して進めた。着手中のコメントもない
+
+### 手順2: 最終報告の今の形に触れる所（git grep、除外は docs/decisions の過去の行・docs/logs のログ・handover-archive-2026.md）
+
+| ファイル:行 | 中身 | 扱い |
+|---|---|---|
+| docs/logs/_template.md:31-32 | `Chat-Ref:` を書くのは…最終報告の最後の行の3か所 | 2か所に直した |
+| docs/logs/_template.md:34-60 | 「ターミナルへ返す最終報告」の規則・例・「2行目の URL は…」・「ログ（公開）」の SHA・確認用の行の位置 | 節ごと置き換えた |
+| docs/instruction-template.md:6 | 「作業ブランチ」の行の文面（2つ）の前置き | ブランチ名の例を足した |
+| docs/instruction-template.md:23 | 完了条件の Chat-Ref の行は最終報告の最後の行を指す | 2行の形を指す文に置き換えた |
+| docs/instruction-template.md:32 | 共通手順の括弧の「最終報告の Chat-Ref の行の直前に…」 | 「最終報告は状態と公開ログの URL の2行」に |
+| docs/instruction-template.md:60 | 完了条件の最後の行 | 2行の形に |
+| docs/notes/chat-side-operations.md:24 | 平野さんが送るのは「最終報告の最後の2行」 | 「最終報告2行目の公開ログの URL」に |
+| docs/notes/chat-side-operations.md:33-34 | ブランチ名は最終報告の「ブランチ:」の行から取る | `## 報告` の「ブランチ:」に。写し漏れのときの mj のログの場所をここに1か所書いた |
+| docs/notes/chat-side-operations.md:35 | 貼られた `## 報告` には Chat-Ref の行が無い… | 中身は今も正しい。純増させないため短くした |
+| docs/notes/chat-routines.md:131 | 読める最新の「ログ（公開）」の行を頼む | 「最終報告の2行目（公開ログの URL）」に |
+| docs/notes/cloud-sessions.md:156 | 「ログ（公開）」の行を書く前の写しの確かめは CLAUDE.md「作業ログ」節 | 呼び方を直し、参照先を `docs/logs/_template.md` に（実際の記述がある所） |
+| docs/notes/chrome-reading.md:40 | ブランチ名で mj を開くときは「最終報告2行目の URL」 | 2行目が mj-logs の URL になるので、`## 報告` の「ログ:」の URL に |
+| docs/decisions/operations.md:521 | 2026-10-14（CHAT-1014-WFL-06）の「最終報告の最後の2行」 | 「→ 「最終報告の最後の2行」は置き換え」を付けた（同じ行の残りの決定は生きている） |
+| CLAUDE.md:110・113・125、docs/notes/cloudflare.md:805、docs/notes/cloud-sessions.md:135 | 最終報告の形は _template.md、プレビュー URL は最終報告にだけ | 今も正しい。変えない |
+| CLAUDE.md:47、docs/handover.md:203、docs/notes/self-review.md:3・13、docs/notes/chat-routines.md:120 | 「最終報告の前に」レビュー、最終報告に「失敗通知が…」 | 行の形に触れない。変えない |
+| resource_dictionary.js:6、docs/notes/live-page-design.md:370 | 「最後の行に」（別の意味） | 対象外 |
+
+- 最終報告の行を機械的に読む仕組み: なし。`scripts/chat_ids.py` はコミットの `Chat-Ref:` トレーラ、`scripts/cleanup_logs.py`・`scripts/morning_report.py` はログ本体（`## 報告`・mj-logs の URL）を読む。`.claude/`・`.github/`・`workers/` に該当なし。ターミナルの出力はリポジトリに残らない
+- claude.ai のアカウントの skill（指示文の型・朝の報告）はこのリポジトリの外で、ここからは確かめていない
+
+### 手順3: 直した内容
+
+- 前提の案から変えた点:
+  - 確認用の行は「3行目」に置いた（前の形は「ブランチ:」の行の次で、その行が無くなるため）
+  - 写し漏れのときの mj のログの場所は、chat-side-operations.md の「ブランチ名は…」の項に合わせて書いた（純増させないため1行に詰めた）。同じ項の「ブランチ名とログの URL を返させる」は「確かめさせる」に詰めた
+  - chat-side-operations.md の「（どのログの報告かの指定）」は URL のファイル名で分かるので削った
+  - ブランチ名の例は、雛形の2つの文面の中ではなく、2つに共通の前置きに置いた（文面はそのまま写す決まりで、中に置くと毎回の指示文に例が写るため）
+  - `?v=<SHA>` の説明（前は例の下の段落）は SHA の項に寄せた
+- サイズ: chat-side-operations.md 22,041 → 22,013 バイト（−28）。instruction-template.md 11,195 → 11,386 バイト（警告域 12,288 未満）。CLAUDE.md・handover.md は変えていない
+- `python3 -m unittest discover -s scripts/tests`: 2323 件 OK
+- 成果物のコミット: fe34515
+
+直した後の docs/logs/_template.md「ターミナルへ返す最終報告」:
+
+~~~~
+## ターミナルへ返す最終報告
+
+CLAUDE.md「作業ログ」「Chat-Ref」から移した規則:
+
+- 最終報告は2行: 1行目に状態（`## 報告` の「状態」と同じ語）、2行目に公開ログ（mj-logs）の URL だけ（ラベルは付けない）。
+  mj のログの URL・「ブランチ:」・「Chat-Ref:」の行は書かない（どの指示の報告かは URL のファイル名で分かる）。平野さんがチャットへ送るのはこの2行目
+- **例外として、作業途中で平野さんに質問して止まるとき／pushに失敗したときは、ログに届かないためターミナルに内容を書く**
+- 判断が必要なこと・エラーを含め、詳細はログの`## 報告`に書く。**URL の直後に文字を続けない**（続く文字まで URL とみなされる）
+- **公開ログの URL の末尾には`?v=<最後に push したログを含む mj のコミットの短い SHA>`を付け**（`git log -1 --format=%h`。mj-logs は `?v=` を無視して同じ内容を返すが、URL が版ごとに変わるので、チャット側が前に読んだ古い版を受け取らない）、
+  **mj-logs の raw の URL（`https://raw.githubusercontent.com/retroeater/mj-logs/main/logs/<Chat-Ref>.md`）で今回の版が返ることを確かめてから書く。**
+  15分待っても写らなければ、2行目を URL の代わりに「写し待ち: <Chat-Ref>（理由）」にする（どの指示の報告かを残すため）
+- 複数の指示に答えるときは、公開ログの URL を1行ずつ並べる
+- プレビューで確認する作業では、3行目に `確認用: <プレビューの URL>` を足す（ログには書かない）
+- この形より前に貼られた指示文の完了条件にある前の形（「ログ（公開）:」と「Chat-Ref:」の行）で終えてもよい（2026-12-11 以降、前の形を完了条件に持つ未完了の指示が無くなったらこの項を消す）
+
+```
+完了
+https://github.com/retroeater/mj-logs/blob/main/logs/CHAT-MMDD-XXX-nn.md?v=<SHA>
+```
+~~~~
+
+直した後の雛形の「作業ブランチ」の行2つ（docs/instruction-template.md 6〜8行目）:
+
+~~~~
+- 「作業ブランチ」の行の文面（式の向きが2つで逆なので、そのまま写す。`<識別子>` は Chat-Ref から取る: `CHAT-1127-SNU-01` なら `work/1127-snu`〈`MMDD` と `XXX` の小文字。`work/SNU` にしない〉）:
+  - クラウドセッションで新しく作る: 「作業ブランチ: クラウドセッションで実行する。work/<識別子> を使う。リモートに無ければ origin/cloudflare から作る。リモートにあってマージ済み（`git merge-base --is-ancestor origin/work/<識別子> origin/cloudflare` が真）なら origin/cloudflare から作る（`checkout -B` は使わない。ローカルにあるときを含め手順は docs/notes/cloud-sessions.md「作業ブランチの用意」）。マージ済みでなければ止まる」
+  - クラウドセッションで未マージの作業を続ける: 「作業ブランチ: クラウドセッションで実行する。未マージの work/<識別子> を続けて使う（〜のため）。`git merge-base --is-ancestor origin/cloudflare HEAD` が偽なら merge で取り込んでよい（rebase しない）。リモートに無ければ止まる（ローカルにあるときを含め手順は docs/notes/cloud-sessions.md「作業ブランチの用意」）」。`git checkout -b work/<識別子> origin/work/<識別子>` は書かない（同じセッションを続けるとローカルに同名のブランチがあり `-b` が失敗する）
+~~~~
+
+直した後の雛形の「完了条件」:
+
+~~~~
+## 完了条件
+- ログの「## 報告」を CLAUDE.md「作業ログ」節のとおりに書いて push する
+- マージは冒頭の「マージ:」の行のとおり（ドキュメントのみの変更は、行が無くても完了報告のうえマージしてよい）
+- ターミナルへの最終報告は docs/logs/_template.md「ターミナルへ返す最終報告」の形（1行目に状態、2行目に https://github.com/retroeater/mj-logs/blob/main/logs/CHAT-MMDD-XXX-nn.md?v=<SHA> だけ）で書く
+
+不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
+~~~~
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1127-snu
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1127-SNU-02.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1127-snu
+- 確認用URL: なし
+- マージ: 済（下の追記の SHA）
+- issue: なし
+- 判断が必要なこと: なし
+- 未確認の項目: claude.ai のアカウントの skill（指示文の型・朝の報告）が前の最終報告の形を前提にしているか（リポジトリの外で、ここからは確かめられない）
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
