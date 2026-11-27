@@ -115,7 +115,7 @@ navbar.js・docs・テスト以外のヒットは `_redirects`（転送そのも
 
 ## 報告
 
-- 状態: 判断待ち
+- 状態: 判断待ち / 続き: CHAT-1127-BKS-02
 - ブランチ: work/1127-bks
 - ログ: https://github.com/retroeater/mj/blob/work/1127-bks/docs/logs/CHAT-1127-BKS-01.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1127-bks
@@ -132,12 +132,12 @@ navbar.js・docs・テスト以外のヒットは `_redirects`（転送そのも
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj f268dbf5）: https://github.com/retroeater/mj-logs/tree/main/guide/f268dbf5
+ガイド文書（この版を写した時点の最新、mj 75620aa7）: https://github.com/retroeater/mj-logs/tree/main/guide/75620aa7
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f268dbf5/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f268dbf5/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f268dbf5/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f268dbf5/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f268dbf5/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f268dbf5/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/75620aa7/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/75620aa7/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/75620aa7/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/75620aa7/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/75620aa7/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/75620aa7/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/e69c8e6c.md
