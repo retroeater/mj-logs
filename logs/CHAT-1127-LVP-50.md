@@ -101,19 +101,42 @@ LVP 系列（CHAT-1120-LVP-30〜CHAT-1127-LVP-49）の振り返り（チャッ�
 - 「タイトル」シートの世界選手権の決勝日（一時コミット 0e3b77f00 の check、run 46021020416、戻し済み）: 第1回（行1416〜1419）は 2014-07-29、第2回（行1066〜1069）は 2017-08-24。決定3（2014-07-20・2017-10-08）と違う（平野さんがまだ入れていない）
 - テスト: 2,327件 OK
 
+### セルフレビュー（新しい文脈のサブエージェント、check-assets.yml・雛形の差分）
+| 指摘 | 対応 |
+|---|---|
+| 雛形の「貼る時機」の例が「CHAT-MMDD-XXX-nn の完了の後」のままで、新しい規則（結果で書く）と食い違う | 直した（「マージの後」「完了または判断待ちの後」。11,719 バイト）。その push の check-assets（run 46021732279）は success |
+| paths の `docs/notes/chat-side-operations.md` は `docs/notes/**` に含まれ不要 | 直さない（サイズを見る対象として明示した行として残す） |
+| `docs/notes/**` で起動することは実測していない（handover.md の行で起動した） | 直さない（GitHub の paths は後に書いたパターンが勝つので効く。次に docs/notes/ だけの push があれば分かる） |
+| composite の setup-python（packages・test）を使える | 直さない（test を真にするとほかの検査より前に落ちる。テストを最後に置くため直書きにした） |
+| CLAUDE.md「判断・作業の原則」のテストの行が、check-assets で回るようになったことに触れず、「標準ライブラリのみ」も google-auth・requests を使う実態と元から食い違う | 指示の範囲外（CLAUDE.md は変えていない）。判断が必要なことに書いた |
+- 往復1回。証跡: YAML の構文、依存（google-auth・requests のほかに要らない）、Secret・ネットワークに頼るテストが無いこと（ネットワークを切った新しい venv で 2,327件 OK）、test_workflows_table が通ること
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
+- ブランチ: work/1127-lvp-ret
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1127-LVP-50.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1127-lvp-ret
+- 確認用URL: なし（ワークフローと docs の変更。check-assets の実行で確かめた）
+- マージ: 済（559c0b280）
+- issue: #362・#688（LVP-47・48 の結果のコメント）
+- 判断が必要なこと:
+  - 「タイトル」シートの世界選手権の決勝日がまだ古い値: 第1回（行1416〜1419）2014-07-29、第2回（行1066〜1069）2017-08-24。決定3 の 2014-07-20・2017-10-08 を入れると、次の取り込みで【2】の対局日（決勝の回戦の行）にも写る
+  - CLAUDE.md「判断・作業の原則」のテストの行（「標準ライブラリのみ」「毎朝の run-daily の check-meibo.yml も実行する」）は、テストが google-auth・requests を使う実態と、check-assets で回るようになったことに触れていない。直すかは平野さんの判断（指示の範囲外なので変えていない）
+- 未確認の項目:
+  - check-assets の足した手順が増やす Actions の分の見込み: 1回あたり約17秒（依存のインストール約4秒・テスト約13秒、run 46020529876）。check-assets の1回が1分未満から1分前後になる程度（Actions の分は1回ごとに切り上げ）。docs/notes/ だけの push でも走るようになるので回数も増える
+  - `docs/notes/**` だけの変更で check-assets が起動することは実測していない
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 2b7af4fe）: https://github.com/retroeater/mj-logs/tree/main/guide/2b7af4fe
+ガイド文書（この版を写した時点の最新、mj 241f98c7）: https://github.com/retroeater/mj-logs/tree/main/guide/241f98c7
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/2b7af4fe/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/2b7af4fe/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/2b7af4fe/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/2b7af4fe/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/2b7af4fe/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/2b7af4fe/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/241f98c7/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/241f98c7/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/241f98c7/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/241f98c7/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/241f98c7/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/241f98c7/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/9f9a15fb.md
