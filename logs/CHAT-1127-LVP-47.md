@@ -51,6 +51,115 @@
 
 ## 経過
 
+- 着手前の確認: 同じ Chat-Ref のコミット無し・0章（指示欄の末尾が指示文の最後の行と一致）・#362・#688 は open で、着手中コメントはこのセッションのものだけ。雛形の行の欠け無し
+- 着手中コメント: #362・#688
+- 未マージの work/ ブランチの重なり: work/1101-prp-pub が scripts/generate_live_pages.py を変えているが、redirects_content とは別の関数。live_extract.py・live_layer3.py を変えるブランチは無い
+- 読み込み: 一時コミット 0ecf69031 の dry run（run 45945587966）で【3】のチャンピオンズリーグと女流 2022 の行と、女流 2022 のページを出した（戻し済み）。【2】【3】・「タイトル戦」シートの読み込みの失敗なし（【3】のフィルタの影響は見えなかった。Sheets API で読める）
+
+### 1. チャンピオンズリーグ
+- 【3】のチャンピオンズリーグの10行（行3081〜3090、第29期・第30期の決勝の回戦）は、すでにすべて掲載 N（【3】の値。自動ではない）。値で外れるので、コードで大会を外す処理は足していない。「タイトル戦」シートの「自動掲載」N は平野さんの作業（決定1。【3】がすべて N なので、今の生成には効かない）
+- 消えるページ: `live/champions-league/` の index・29.html・29/f.html・30.html・30/f.html の5つ
+- 転送: 今の仕組みは同じ階層に同じ動画を含むページへ 301 し、無ければ 404（設計メモ「3-4」の「除外にした動画だけのページは 404」）。大会ごと消えると5つとも 404 になるので、**大会のページがすべて消えたときだけトップ `/live/` へ 301** するようにした（35c0cd5d0・4b61906a9。大会のほかのページが残るときは今までどおり 404）。テスト2件
+- title/ のチャンピオンズリーグのページから live/ へのリンクは無い（title/ に champions-league の live/ への参照なし）。切れるリンクは無い
+
+### 2. 女流プロ麻雀日本シリーズ 2022 の回戦の動画
+- 【3】で Y の回戦の動画38本（予選1〜28回戦・プレーオフ1〜6回戦・決勝1〜4回戦）と、メンバー限定版の決勝の生放送1本。節の生放送9本と公開版の決勝は N（決定2）
+- 試しの生成での置き場所（全件）: 予選1〜28回戦の28本 → 予選のページ `q`（年ごとの通し回戦、#688 の案C）、プレーオフ1〜6回戦の6本 → `po`、決勝1〜4回戦の4本と決勝の生放送 → `f`。2022 の期のページの並びは q → po → f。【2】の値（題名「女流プロ麻雀日本シリーズ2022 N回戦」は節の番号を持たないので「予選」）で決まり、規則の漏れは無い（【2】の規則は変えていない）
+- 節と回戦の対応（節の生放送の概要欄の回戦の行）: 第1節 1〜5回戦、第2節 6〜8、第3節 9〜12、第4節 13〜17、第5節 18〜20、第6節 21〜24、第7節 25〜28、プレーオフ第1節 1〜3回戦、プレーオフ第2節 4〜6回戦。節ごとの回戦の数が違う（5・3・4・5・3・4・4）ので、回戦の番号から規則では振り分けられない
+- 今の置き場所は #688 の案C（予選は年ごとの通し回戦を1ページ）のとおり。節のページに分けるなら【3】の値で入れる（下の表、34行。判断が必要なことに書いた）
+
+#### 節に分けるときに【3】に入れる値（34行。ステージ・まとめ単位・ステージの並び）
+| 行 | 動画ID | 題名 | 今のページ | ステージ・まとめ単位（入れる値） | ステージの並び |
+|---|---|---|---|---|---|
+| 3731 | K6gQgKq2jtE | 女流プロ麻雀日本シリーズ2022 １回戦 | q | 第1節 | 2 |
+| 3774 | NvxYLIi5dxE | 女流プロ麻雀日本シリーズ2022 ２回戦 | q | 第1節 | 2 |
+| 3947 | duTPkKthNbw | 女流プロ麻雀日本シリーズ2022 ３回戦 | q | 第1節 | 2 |
+| 4067 | nWXtVNWDYFU | 女流プロ麻雀日本シリーズ2022 ４回戦 | q | 第1節 | 2 |
+| 3702 | Gz0S5jNUJCo | 女流プロ麻雀日本シリーズ2022 ５回戦 | q | 第1節 | 2 |
+| 3982 | g4cpO6yHErQ | 女流プロ麻雀日本シリーズ2022 ６回戦 | q | 第2節 | 3 |
+| 3914 | aeIIUjGdTBQ | 女流プロ麻雀日本シリーズ2022 ７回戦 | q | 第2節 | 3 |
+| 3850 | VJJ13GoPTrU | 女流プロ麻雀日本シリーズ2022 ８回戦 | q | 第2節 | 3 |
+| 4113 | s1ZgDfR9Lew | 女流プロ麻雀日本シリーズ2022 ９回戦 | q | 第3節 | 4 |
+| 3700 | GoUWTqwDvis | 女流プロ麻雀日本シリーズ2022 10回戦 | q | 第3節 | 4 |
+| 4201 | ysC0xZgYq48 | 女流プロ麻雀日本シリーズ2022 11回戦 | q | 第3節 | 4 |
+| 4090 | pYK7_RrKOT0 | 女流プロ麻雀日本シリーズ2022 12回戦 | q | 第3節 | 4 |
+| 3786 | OlvF7vBkWdg | 女流プロ麻雀日本シリーズ2022 13回戦 | q | 第4節 | 5 |
+| 3992 | gWKKJy8UrJI | 女流プロ麻雀日本シリーズ2022 14回戦 | q | 第4節 | 5 |
+| 3739 | KWiVa25KX7s | 女流プロ麻雀日本シリーズ2022 15回戦 | q | 第4節 | 5 |
+| 4200 | yrleu3fkKpQ | 女流プロ麻雀日本シリーズ2022 16回戦 | q | 第4節 | 5 |
+| 3610 | 8GQXsnYYss8 | 女流プロ麻雀日本シリーズ2022 17回戦 | q | 第4節 | 5 |
+| 3723 | J7YRL49AptY | 女流プロ麻雀日本シリーズ2022 18回戦 | q | 第5節 | 6 |
+| 4100 | qbsB5ft30Qc | 女流プロ麻雀日本シリーズ2022 19回戦 | q | 第5節 | 6 |
+| 3580 | 6DoWbmo8_dc | 女流プロ麻雀日本シリーズ2022 20回戦 | q | 第5節 | 6 |
+| 3664 | DSCLcS-wECo | 女流プロ麻雀日本シリーズ2022 21回戦 | q | 第6節 | 7 |
+| 3604 | 7rZG90hF5uA | 女流プロ麻雀日本シリーズ2022 22回戦 | q | 第6節 | 7 |
+| 4122 | sp6eU-a-R9g | 女流プロ麻雀日本シリーズ2022 23回戦 | q | 第6節 | 7 |
+| 3904 | _boos-ppsDs | 女流プロ麻雀日本シリーズ2022 24回戦 | q | 第6節 | 7 |
+| 3970 | fNFxUB9zJzA | 女流プロ麻雀日本シリーズ2022 25回戦 | q | 第7節 | 8 |
+| 3672 | E4gx_XdoDsU | 女流プロ麻雀日本シリーズ2022 26回戦 | q | 第7節 | 8 |
+| 4044 | ldBSfVCoFx4 | 女流プロ麻雀日本シリーズ2022 27回戦 | q | 第7節 | 8 |
+| 4002 | hUuWZdjuP6U | 女流プロ麻雀日本シリーズ2022 28回戦 | q | 第7節 | 8 |
+| 4050 | lyZ2AnLcksc | 女流プロ麻雀日本シリーズ2022 プレーオフ１回戦 | po | プレーオフ第1節 | 11 |
+| 4021 | jLIv3Egyszo | 女流プロ麻雀日本シリーズ2022 プレーオフ２回戦 | po | プレーオフ第1節 | 11 |
+| 3849 | VFEHSj2AixA | 女流プロ麻雀日本シリーズ2022 プレーオフ３回戦 | po | プレーオフ第1節 | 11 |
+| 3750 | Lb7-2z80shs | 女流プロ麻雀日本シリーズ2022 プレーオフ４回戦 | po | プレーオフ第2節 | 12 |
+| 3901 | _Xaj9ROebdA | 女流プロ麻雀日本シリーズ2022 プレーオフ５回戦 | po | プレーオフ第2節 | 12 |
+| 3685 | FWhJXnWRvjg | 女流プロ麻雀日本シリーズ2022 プレーオフ６回戦 | po | プレーオフ第2節 | 12 |
+
+TSV（入力用シートの引き当ての形）:
+
+```tsv
+行	動画ID	ステージ	まとめ単位	ステージの並び
+3731	K6gQgKq2jtE	第1節	第1節	2
+3774	NvxYLIi5dxE	第1節	第1節	2
+3947	duTPkKthNbw	第1節	第1節	2
+4067	nWXtVNWDYFU	第1節	第1節	2
+3702	Gz0S5jNUJCo	第1節	第1節	2
+3982	g4cpO6yHErQ	第2節	第2節	3
+3914	aeIIUjGdTBQ	第2節	第2節	3
+3850	VJJ13GoPTrU	第2節	第2節	3
+4113	s1ZgDfR9Lew	第3節	第3節	4
+3700	GoUWTqwDvis	第3節	第3節	4
+4201	ysC0xZgYq48	第3節	第3節	4
+4090	pYK7_RrKOT0	第3節	第3節	4
+3786	OlvF7vBkWdg	第4節	第4節	5
+3992	gWKKJy8UrJI	第4節	第4節	5
+3739	KWiVa25KX7s	第4節	第4節	5
+4200	yrleu3fkKpQ	第4節	第4節	5
+3610	8GQXsnYYss8	第4節	第4節	5
+3723	J7YRL49AptY	第5節	第5節	6
+4100	qbsB5ft30Qc	第5節	第5節	6
+3580	6DoWbmo8_dc	第5節	第5節	6
+3664	DSCLcS-wECo	第6節	第6節	7
+3604	7rZG90hF5uA	第6節	第6節	7
+4122	sp6eU-a-R9g	第6節	第6節	7
+3904	_boos-ppsDs	第6節	第6節	7
+3970	fNFxUB9zJzA	第7節	第7節	8
+3672	E4gx_XdoDsU	第7節	第7節	8
+4044	ldBSfVCoFx4	第7節	第7節	8
+4002	hUuWZdjuP6U	第7節	第7節	8
+4050	lyZ2AnLcksc	プレーオフ第1節	プレーオフ第1節	11
+4021	jLIv3Egyszo	プレーオフ第1節	プレーオフ第1節	11
+3849	VFEHSj2AixA	プレーオフ第1節	プレーオフ第1節	11
+3750	Lb7-2z80shs	プレーオフ第2節	プレーオフ第2節	12
+3901	_Xaj9ROebdA	プレーオフ第2節	プレーオフ第2節	12
+3685	FWhJXnWRvjg	プレーオフ第2節	プレーオフ第2節	12
+```
+
+### 生成物の差分
+- 全ページの dry run（target all、run 45945851844、d1b4cb1e1 のコード。4b61906a9 はその後の docstring・守りの1行だけ、compare_ref origin/cloudflare）: 差分あり6件。`live/champions-league/` の5ページが消え（片方にだけある）、`_redirects` に5行（5つとも `/live/` へ 301）。女流 2022 のページは今の cloudflare と同じ（平野さんの値は毎朝の再生成で反映済み） → 止まる条件に当たらない
+- テスト: 2,325件 OK
+
+### セルフレビュー（新しい文脈のサブエージェント、redirects_content の変更）
+| 指摘 | 対応 |
+|---|---|
+| docstring の文が2つつながって壊れている | 直した（4b61906a9） |
+| url がトップ自身のとき自己ループの行になりうる（今の経路では起きない） | `url != TOP_URL` を足した（4b61906a9） |
+| テストのクラスの前後の空行 | 直した（4b61906a9） |
+| 大会が消えた後で戻ると、ほかの行の付け替え先が /live/ のまま残る | 直さない（廃止した大会で戻らない。「当面消さない」の範囲） |
+| jwrc と jwrc-r の前方一致のテストが無い | 直さない（末尾の / で分かれることを実データで確かめた） |
+- 往復1回。証跡: data/live_pages.json の実データからチャンピオンズリーグの5ページを消すと、増える行はその5行だけ（変更前のコードでは5つとも 404）。jwrc・jwrc-r を消す試しでも、それぞれの大会の行だけが /live/ へ。テスト 2,325件 OK、新しいテストのうちトップへの転送は変更前のコードで落ちる
+
 ## 報告
 
 - 状態: 作業中
@@ -58,12 +167,12 @@
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj f92ac9d9）: https://github.com/retroeater/mj-logs/tree/main/guide/f92ac9d9
+ガイド文書（この版を写した時点の最新、mj 9019681b）: https://github.com/retroeater/mj-logs/tree/main/guide/9019681b
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f92ac9d9/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f92ac9d9/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f92ac9d9/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f92ac9d9/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f92ac9d9/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f92ac9d9/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9019681b/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9019681b/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9019681b/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9019681b/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9019681b/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9019681b/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/f92ac9d9.md
