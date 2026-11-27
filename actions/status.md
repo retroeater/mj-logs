@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-11-27 23:57 JST
+- 書き出した時刻: 2026-11-28 00:00 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -35,11 +35,13 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-11-27 23:57 | push | work/1127-lvp-ret | in_progress | #1454（46020529876） |  |
+| 2026-11-27 23:58 | push | work/1127-lvp-ret | success | #1456（46020709306） | 0分48秒 |
+| 2026-11-27 23:58 | workflow_dispatch | work/1127-lvp-ret | success | #1455（46020707848） | 0分52秒 |
+| 2026-11-27 23:57 | push | work/1127-lvp-ret | failure | #1454（46020529876） | 0分41秒 |
 | 2026-11-27 23:44 | push | work/1127-bks | success | #1453（46018679941） | 0分26秒 |
 | 2026-11-27 23:11 | push | work/1127-lvp-pq | success | #1452（46013630818） | 0分27秒 |
-| 2026-11-27 23:10 | push | work/1127-lvp-pq | success | #1451（46013465195） | 0分26秒 |
-| 2026-11-27 23:05 | push | work/1127-lvp-pq | success | #1450（46012751680） | 0分32秒 |
+
+- #1454 failure: ジョブ「check」 ステップ「Python のテスト」
 
 ## check-build-failure.yml
 
@@ -48,11 +50,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-27 23:58 | check_run | cloudflare | skipped | #1962（46020654672） | 0分01秒 |
 | 2026-11-27 23:47 | check_run | cloudflare | skipped | #1961（46019136231） | 0分01秒 |
 | 2026-11-27 23:45 | check_run | cloudflare | skipped | #1960（46018793609） | 0分01秒 |
 | 2026-11-27 23:13 | check_run | cloudflare | skipped | #1959（46013988093） | 0分01秒 |
 | 2026-11-27 23:11 | check_run | cloudflare | skipped | #1958（46013723655） | 0分01秒 |
-| 2026-11-27 23:10 | check_run | cloudflare | skipped | #1957（46013557816） | 0分01秒 |
 
 ## check-image-links.yml
 
