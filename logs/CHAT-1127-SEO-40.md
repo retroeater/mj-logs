@@ -98,6 +98,11 @@ CHAT-1127-SEO-39 の判断待ち（Search for Agents を有効にするか）へ
 - コメント: https://github.com/retroeater/mj/issues/304#issuecomment-7210908930
 - SEO-39 のログの `## 報告` の状態を「判断待ち / 続き: CHAT-1127-SEO-40」にした
 
+### マージ
+
+- 1回目の push 前の確かめで `origin/cloudflare` が進んでいた（686810079..3129eb09b、CHAT-1127-LVP-47 のログのみ）。`git merge --no-edit origin/cloudflare` で取り込み（衝突なし）、`git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめて `git push origin work/1127-seo:cloudflare`（3129eb09b..7854b60d6）
+- docs のみ（docs/notes・docs/decisions・docs/logs）。コード・生成物・ワークフロー・配信設定を変えていないので、自己レビューのサブエージェントは使っていない
+
 ## 報告
 
 - 状態: 完了
@@ -105,7 +110,7 @@ CHAT-1127-SEO-39 の判断待ち（Search for Agents を有効にするか）へ
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1127-SEO-40.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1127-seo
 - 確認用URL: なし
-- マージ: 済（SHA は経過の「マージ」）
+- マージ: 済（7854b60d6）
 - issue: #304（本文 (9) に1行、コメント2件）
 - 判断が必要なこと: なし
 - 未確認の項目: なし
