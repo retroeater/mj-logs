@@ -55,6 +55,51 @@ CHAT-1127-BKS-01 の「判断が必要なこと」3点に答え、BKS-01 の作�
 
 ## 経過
 
+### 着手前の確認
+
+- 同じ Chat-Ref（CHAT-1127-BKS-02）のコミット: 無し。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 欠け無し
+- 0. 指示欄の末尾は指示文の最後の行と一致
+- 作業ブランチ: origin/work/1127-bks（2b6488bc0）を続けて使用。`git merge-base --is-ancestor origin/cloudflare HEAD` が偽だったため `git merge --no-edit origin/cloudflare` で取り込んだ（衝突なし）
+
+### 手順1
+
+- CHAT-1127-BKS-01 の状態を「判断待ち / 続き: CHAT-1127-BKS-02」にした
+- issue の検索（`gh api search/issues`、`is:issue` でクローズ済みを含む。語は「書籍」「booklog」「リニューアル」）。#97・#429 のほかに書籍に触れるもの:
+
+| issue | state | 主題 | 同じ主題か |
+|---|---|---|---|
+| #646 | open | 連盟プロの個別ページ pro/<slug>/ に書籍の面を出すか | 違う（選手ページの面） |
+| #436 | closed | 選手個人ページに書籍セクションを設ける（#219 に統合） | 違う |
+| #600 | closed | 「辞書」「書籍」シートを新しいスプレッドシートへ移す | 違う |
+| #389 | open | ポートフォリオ「校正」: 校正した書籍の一覧 | 違う |
+
+- 同じ主題が無いため起票した: **#692「書籍のリニューアル」**（ラベル: 分野: UI/UX・対象: resource_books。#97・#429 にそろえた）。着手中コメントを書いた
+- #429: **open**、ラベル「状況: 保留」。変えていない
+- 前提との小さな食い違い（止まる程度ではないと判断）: 「入れた日 2026-09-07 が今の表で最も古い」とあるが、`/tanilog.html` も 2026-09-07 で同じ。先頭に置く判断には影響しない
+
+### 手順2
+
+- `navbar.js` の「リソース」: 消す前 = カレンダー・書籍・ログ・辞書・牌効率 → 消した後 = カレンダー・ログ・辞書・牌効率（並びは同じ）。`git diff navbar.js` は「書籍」の1行の削除だけ
+- docs/notes/redirects.md: `/resource_books.html` の行を「別名」から「棚卸しの対象」の表の先頭へ移した（issue 列「GitHub Pages からの移行。2026-11-27 にメニューから外し「別名」から移した・#692・#568」、最後の棚卸し「未（初回 2027-01 上旬）」）。「別名」の前書きは `/resource_calendar.html` だけにした
+- docs/notes/books-freeze.md: 12行目・27行目に、2026-11-27 の決定で置き換わった旨を括弧で添えた（元の文は残した）
+- docs/notes/static-generation.md: 「27本（実ページ25本＋転送2本）」は今回の変更の前から古かった（origin/cloudflare の navbar.js の `href="/…"` は19本: `git show origin/cloudflare:navbar.js | grep -o 'href="/[^"]*"' | wc -l` → 19）。実物に合わせて「18本（実ページ17本＋`resource_calendar`の1本）」にした（変更後 `grep -o 'href="/[^"]*"' navbar.js | wc -l` → 18。各 href のファイルの有無を確かめ、実体が無いのは `/resource_calendar.html` だけ）
+- docs/decisions/cloudflare.md: BKS-01 の記録の後に BKS-02 の節を足した
+- 再生成・キャッシュ用クエリ: 全ページが `navbar.js` をクエリなしで読み（`grep -rhoE 'navbar\.js[^"]*' --include=*.html` → 3961件すべて `navbar.js`）、`_headers` に navbar.js の長いキャッシュは無い。どちらも不要
+- テスト: `python3 -m unittest discover -s scripts/tests` → `Ran 2327 tests … OK`
+- 未マージの work/ ブランチ（`git merge-tree --write-tree --name-only HEAD <branch>`）: 1101-prp-pub は navbar.js（「連盟プロ」の href）・redirects.md（冒頭の箇条と表の末尾）・static-generation.md（サイトマップの段落・build_ogp_image の行）を変えるが、どれも別の箇所で自動マージできる。ほかのブランチの衝突（1009-swp-526・1011-swp-hnd・1011-swp-nav・1101-prp-pub・1103-ryo5・1115-rsc-autowrite）は origin/cloudflare との間でも起きる既存のもので、今回のファイルを含まない
+
+### 自己レビュー（新しい文脈のサブエージェント、1回目）
+
+要修正なし。指摘と扱い:
+
+| 指摘 | 扱い |
+|---|---|
+| navbar.js は1行の削除だけ、リソースの残りは元の順。テスト2327件成功、本数18本は実物と一致、再生成・クエリ更新は不要 | 問題なし |
+| redirects.md の issue 列の「#568」は一覧全体の常設 issue なので添える意味が薄い | 見送り（指示文の前提の案どおり。#692 にコメント） |
+| books-freeze.md 12行目の添え書きは booklog の部分だけで、「独立した書籍ページは構築しない」が置き換わるかは読み取れない | 意図どおり（決定の範囲は booklog を使わないことまで。リニューアルの中身は未決） |
+| new-page-checklist.md の実例の表・sitemap-pages.xml のコメント、削除した別名の行にあった「books/ への切り替えの予定は new-page-checklist.md」への参照 | 意図どおり（指示文が変えないと定めた。#692 にコメント） |
+| 元から古かった「27本」の修正が成果物のコミットに入った（食い違いは別コミットの規則） | 意図どおり（決定で範囲に加えられ、本数の変化の一部は今回の削除による） |
+
 ## 報告
 
 - 状態: 対応中
@@ -71,12 +116,12 @@ CHAT-1127-BKS-01 の「判断が必要なこと」3点に答え、BKS-01 の作�
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 75620aa7）: https://github.com/retroeater/mj-logs/tree/main/guide/75620aa7
+ガイド文書（この版を写した時点の最新、mj 2b7af4fe）: https://github.com/retroeater/mj-logs/tree/main/guide/2b7af4fe
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/75620aa7/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/75620aa7/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/75620aa7/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/75620aa7/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/75620aa7/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/75620aa7/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/2b7af4fe/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/2b7af4fe/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/2b7af4fe/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/2b7af4fe/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/2b7af4fe/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/2b7af4fe/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/e69c8e6c.md

@@ -25,6 +25,7 @@ ryoei.pro のすべての転送の一覧と、四半期ごとの棚卸しの手�
 
 | 転送元 | 転送先 | 仕組み | 入れた日 | issue | 最後の棚卸し |
 |---|---|---|---|---|---|
+| `/resource_books.html` | `https://booklog.jp/users/retroeater` | `_redirects` 301 | 2026-09-07 | GitHub Pages からの移行。2026-11-27 にメニューから外し「別名」から移した・#692・#568 | 未（初回 2027-01 上旬） |
 | `/saikyo_results.html` | `/saikyo/` | `_redirects` 301 | 2026-09-21 | #350・#434（#568 に統合） | 未（初回 2027-01 上旬） |
 | `/jpml_titles.html` | `/title/` | `_redirects` 301 | 2026-09-30 | #441・#485 | 未（初回 2027-01 上旬） |
 | `/video_wayhome.html` | `/wayhome/` | `_redirects` 301 | 2026-10-13 | #559 | 未（初回 2027-01 上旬） |
@@ -72,12 +73,11 @@ ryoei.pro のすべての転送の一覧と、四半期ごとの棚卸しの手�
 ## 別名（流入に関係なく残す）
 
 サイトのリンク（navbar など）が今も使っている転送。リンクを差し替えるまでは棚卸しの対象にしない。
-`/resource_calendar.html`・`/resource_books.html` をここに置くのはチャット側の案で、平野さんの決定ではない。
+`/resource_calendar.html` をここに置くのはチャット側の案で、平野さんの決定ではない。
 
 | 転送元 | 転送先 | 仕組み | 入れた日 | issue | 最後の棚卸し |
 |---|---|---|---|---|---|
 | `/resource_calendar.html` | `https://calendar.google.com/calendar/embed?…` | `_redirects` 301 | 2026-09-07 | GitHub Pages からの移行。`navbar.js` の href | 対象外 |
-| `/resource_books.html` | `https://booklog.jp/users/retroeater` | `_redirects` 301 | 2026-09-07 | GitHub Pages からの移行。`navbar.js` の href。books/ への切り替えの予定は docs/new-page-checklist.md | 対象外 |
 
 ## JS の移動（エッジで数えられない）
 

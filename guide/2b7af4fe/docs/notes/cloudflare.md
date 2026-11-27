@@ -307,6 +307,11 @@ PowerShell 5.1 の既定が UTF-16LE のため、日本語部分が文字化け�
 4. 結果を #304 のその月の「YYYY-MM 実施」のコメントに書く
 5. **Training が `Disallow` のままなのに 403 が出ている場合は、原因が別にある。** issue を起票して追う
 
+#### Search for Agents（2026-11-27、見送り）
+
+AI Search の索引と `/.well-known/search` を作り、全ページの `<head>` に案内のメタタグを足す機能。**有効にしていない**（2026-11-27、平野さんの決定。`docs/decisions/aio.md`）。
+見直すきっかけは #304 の (9) の AI Crawl Control の行で見る。料金・Spend limits との関係・クロール・やめ方・費用の式などの調べた事実は `docs/notes/search-for-agents.md`
+
 #### Rate limiting rules（2026-09-29 に導入、#124）
 
 平野さんが 2026-09-29 にダッシュボード（Security rules → Create rule → Rate limiting rules）で入れた。値は平野さんの申告で、セッションからは検証できない。
