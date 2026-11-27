@@ -248,28 +248,46 @@ ryoei.pro に当てはめた所見:
 - クローラーが `cf.client.bot` に入り、Rate limiting rules にかからないか
 - `/.well-known/search` が AI Crawl Control のどの区分で数えられるか、Workers の呼び出しとして数えられるか
 
+### マージ
+
+- docs のみ（ログと docs/decisions/aio.md）。push 直前に `git merge-base --is-ancestor origin/cloudflare HEAD` が真を確かめ、`git push origin work/1127-seo:cloudflare`（890e95ee1..f6802dfec、fast-forward）
+- 自己レビューのサブエージェントは使っていない（コード・生成物・ワークフロー・配信設定を変えていないため）
+
 ## 報告
 
-- 状態: 対応中
+- 状態: 判断待ち
 - ブランチ: work/1127-seo
-- ログ: https://github.com/retroeater/mj/blob/work/1127-seo/docs/logs/CHAT-1127-SEO-39.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1127-SEO-39.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1127-seo
 - 確認用URL: なし
-- マージ: 未
-- issue: なし
-- 判断が必要なこと: なし
-- 未確認の項目: なし
+- マージ: 済（f6802dfec）
+- issue: なし（同じ論点の issue・決定は無く、起票もしていない。関係しうる #130・#161・#227・#230・#304・#555 は経過の表）
+- 判断が必要なこと:
+  - **Search for Agents を ryoei.pro で有効にするか。** 材料の要点: 2,630 URL のうち 2,616 は本文が HTML に入っていてクロールに向く。課金は 2026-12-01 から。費用は「毎日の同期で数え直すか」（未確認）しだいで月 $0〜約 $151（式は経過の手順3 (b)）。AI Search の料金は Workers の Spend limits（$20・Block usage）の外と読め、上限が無い（明記は無い）。切ったときの扱いは公式に書かれていない
+  - 案1「有効にする」: 得 = AI のエージェントがサイトの中を検索できる入口ができる（全ページの `<head>` に案内のメタタグ）。損 = 費用の上限が無く、乙の場合は月 $55〜$129 ＋クエリ。全ページの HTML が変わる。切り方が公式に無い。Rate limiting rules（#124）がクロールを欠かせるおそれ。`/.well-known/search` を読みに来るエージェントがどれだけあるか分からない（ryoei.pro での需要の材料が無い）
+  - 案2「条件つきで有効にする」: 条件 = (i) 公式に切り方（インスタンス・メタタグ・課金）が書かれる、(ii) 毎日の同期の数え方が分かる、または AI Search に使用量の上限の設定ができる、(iii) 有効にする前に Path filtering で `live/` の各話（1,165、本文の約6割）を外すかを決める。得 = 案1 の得を、費用の桁が分かってから取れる。損 = 時期が遅れる。条件 (i)(ii) が満たされたかを誰かが見る手間
+  - 案3「見送る」: 得 = 費用・HTML の変化・設定の手間が無い。AI の検索・回答は今の設定（Search・Agent は Allow）と llms.txt で引き続き届く。損 = エージェント向けの入口が無いまま
+  - **推奨: 案3（見送る）。理由: ryoei.pro で使われる見込みの材料が無いのに、費用の上限が無く、切り方も公式に無い。** 見直すきっかけ = AI Crawl Control で Agent の区分の要求が目に見えて増えたとき、または公式に切り方・使用量の上限が載ったとき（#304 の月次の (9) で AI Crawl Control を見るついでに確かめる案。#304 に足すかも判断）
+  - 案1・2 を選ぶときの平野さんの手順（画面の名前は how-to で確かめたもの）: (1) Cloudflare ダッシュボード https://dash.cloudflare.com/ で ryoei.pro のゾーンを選び **Overview** → **Quick Actions** → **Search for Agents** をオン → 料金の案内（pricing notice）を読んで確定。(2) 作られた AI Search のインスタンス `search-for-agents-<ZONE_ID>` の **Settings** で Path filtering・Sync interval を見る（Rendering mode が見えたら値を控える）。(3) クローラーが Rate limiting rules にかかるなら、how-to の例のとおり Security rules → Create rule → Custom rules に Bot Detection ID `122933950` を Skip する規則を First に置く（Pro の Custom rules の枠と、Skip が Rate limiting rules を飛ばせるかは未確認）
+  - 有効にした後に動きで確かめること: `curl -sS -A 'mj-internal …' 'https://ryoei.pro/.well-known/search?q=鳳凰戦'` が 404 でなく Markdown を返す（今は 404）／トップの HTML に `<meta name="agent:endpoint"` が出る（今は無い）／翌日以降、インスタンスの索引のページ数が 2,616 前後になる／Billing で AI Search の取り込みトークンが毎日増えるか（乙かの判定）
+  - やめる手順（公式に無いので推定。未確認）: Quick Actions の Search for Agents をオフ → トップの HTML から `agent:` のメタタグが消えたことを `curl` で確かめる → AI Search の画面でインスタンスが残っていれば消す → 翌月の請求で AI Search の行が止まったかを見る
+  - 外すきっかけ: Budget alert（$5）が AI Search で鳴った、Billing で AI Search の額が月 $5 を超えた、Search Console のクロールの統計情報に異常が出た（#304 (8)(10)）、要求の数が月 1,000 未満のまま3か月続いた（需要が無い）
+- 未確認の項目:
+  - 毎日の同期で取り込みのトークンが数え直されるか・Rendering mode の既定・切ったときの扱い・クローラーが `cf.client.bot` に入るか・`/.well-known/search` の数えられ方（いずれも有効にしないと確かめられない。経過の最後の節）
+  - AI Search の料金が Workers の Spend limits の外か（読める書き方だが明記は無い）
+  - 費用の式の本文の字数は live 10・title 8 ページの平均からの外挿。トークンの係数（1字 1〜1.5、Markdown 1.5倍）とベクトルの次元は置いた値
+  - 手順の直接のリンクは https://dash.cloudflare.com/ の入口だけ（ゾーンの Overview を直接開く URL の形は公式のページで確かめていない）
 - エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 890e95ee）: https://github.com/retroeater/mj-logs/tree/main/guide/890e95ee
+ガイド文書（この版を写した時点の最新、mj f92ac9d9）: https://github.com/retroeater/mj-logs/tree/main/guide/f92ac9d9
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/890e95ee/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/890e95ee/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/890e95ee/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/890e95ee/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/890e95ee/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/890e95ee/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f92ac9d9/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f92ac9d9/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f92ac9d9/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f92ac9d9/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f92ac9d9/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f92ac9d9/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/890e95ee.md
