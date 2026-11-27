@@ -160,19 +160,36 @@ TSV（入力用シートの引き当ての形）:
 | jwrc と jwrc-r の前方一致のテストが無い | 直さない（末尾の / で分かれることを実データで確かめた） |
 - 往復1回。証跡: data/live_pages.json の実データからチャンピオンズリーグの5ページを消すと、増える行はその5行だけ（変更前のコードでは5つとも 404）。jwrc・jwrc-r を消す試しでも、それぞれの大会の行だけが /live/ へ。テスト 2,325件 OK、新しいテストのうちトップへの転送は変更前のコードで落ちる
 
+### マージ
+- 1回目: 55dc331c7 を cloudflare へ push しようとしたが、別のセッションのコミット（SNU-02 のログなど）で cloudflare が進んでいて `git merge-base --is-ancestor origin/cloudflare HEAD` が偽になり、push を飛ばしていた（コマンドが失敗を表示しなかった）。それに気づかず、cloudflare で regenerate-page（live_pages、run 45946547065）を回し、7dbda606a が入った。私のコードの入らない生成だったので、チャンピオンズリーグの5ページが消えて転送の行が作られず、本番でしばらく 404 になった（そのほかの差分は、前回の生成の後の【3】の直しを反映した毎日の再生成の分）
+- 直し: origin/cloudflare を取り込み、`data/live_pages.json` から消えて生成では作れなくなったチャンピオンズリーグの5行（`/live/` への 301）を `_redirects` の生成部分に足した（生成が書くはずだった行と同じ。生成は既にある行を残す）。f5e885968 を cloudflare へ push（今度は祖先を確かめて push の結果を表示した）
+- regenerate-page（live_pages、run 45946924683）: success、686810079（pro/ の11ページ。チャンピオンズリーグへのリンクと件数が消えた）。`_redirects` の5行は残った。Workers Builds: mj の check-run は 686810079 で success
+- 本番（UA に mj-internal）: `/live/champions-league/`・`29.html`・`29/f.html`・`30.html`・`30/f.html` はすべて `https://ryoei.pro/live/` への 301
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
+- ブランチ: work/1127-lvp
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1127-LVP-47.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1127-lvp
+- 確認用URL: なし（本番の HTML と転送で確かめた。この版の印: /live/champions-league/ が /live/ へ 301）
+- マージ: 済（f5e885968。コードは 35c0cd5d0・4b61906a9）
+- issue: #362・#688
+- 判断が必要なこと:
+  - チャンピオンズリーグのページの転送の行き先: 5つとも live/ のトップ `/live/`（大会のページがすべて消えたときはトップへ、をコードにした）。【3】の10行はすでに掲載 N で、平野さんの値の入力は要らない（「タイトル戦」シートの「自動掲載」N は決定1 のとおり平野さんの作業。【3】が N なので急がない）
+  - 女流プロ麻雀日本シリーズ 2022 の回戦の動画は、今は予選1〜28回戦が予選のページ（q）、プレーオフ1〜6回戦が po、決勝が f に入る（#688 の案C「予選は年ごとの通し回戦を1ページ」のとおり）。節のページ（第1〜7節・プレーオフ第1・2節）に分けたいときは、`## 経過` の「節に分けるときに【3】に入れる値」の表（34行、ステージ・まとめ単位・ステージの並び）を【3】に入れる。節ごとの回戦の数が違うので規則では分けられない
+- 未確認の項目: なし
+- エラー: なし（push を飛ばしたまま再生成した件は直した。`## 経過`「マージ」）
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 9019681b）: https://github.com/retroeater/mj-logs/tree/main/guide/9019681b
+ガイド文書（この版を写した時点の最新、mj f5e88596）: https://github.com/retroeater/mj-logs/tree/main/guide/f5e88596
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/9019681b/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/9019681b/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/9019681b/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/9019681b/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/9019681b/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/9019681b/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/f5e88596/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/f5e88596/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/f5e88596/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/f5e88596/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/f5e88596/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/f5e88596/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/f92ac9d9.md
