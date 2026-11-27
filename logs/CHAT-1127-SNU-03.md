@@ -1,0 +1,84 @@
+# CHAT-1127-SNU-03
+
+- 着手日時: 2026-11-27
+- 対象issue: なし
+- ブランチ: work/1127-snu
+- 着手時HEAD: 23c15d4
+
+## 指示
+
+【Claude作成】Claude Code 向け指示：SNU 系列（CHAT-1127-SNU-01・02）の振り返りを docs/decisions/operations.md に記録する
+Chat-Ref: CHAT-1127-SNU-03
+マージ: ドキュメントのみの変更なので完了報告のうえ cloudflare へ入れてよい（CLAUDE.md「ブランチ運用」）
+貼る時機: いつでも
+共通手順: CLAUDE.md「Chat-Ref」「ブランチ運用」「作業ログ」節のとおり（識別子確認 → origin/cloudflare を起点に work/<識別子>〈手順は docs/notes/cloud-sessions.md〉 → ログ先行push → 最終報告は状態と公開ログの URL の2行）。平野さんは、この指示のための作業ブランチ work/1127-snu の作成と push を許可している（セッションに割り当てられた claude/… のブランチは使わない）。
+作業ブランチ: クラウドセッションで実行する。work/1127-snu を使う。リモートに無ければ origin/cloudflare から作る。リモートにあってマージ済み（`git merge-base --is-ancestor origin/work/1127-snu origin/cloudflare` が真）なら origin/cloudflare から作る（`checkout -B` は使わない。ローカルにあるときを含め手順は docs/notes/cloud-sessions.md「作業ブランチの用意」）。マージ済みでなければ止まる
+作業ブランチの片付け: 作業ブランチは削除しない。マージ済みなら cleanup-branches.yml が消す（docs/notes/cloud-sessions.md「ブランチの削除」）
+
+0. 着手前に、このログの「指示」欄の末尾が、この指示文の末尾（最後の行）と一致しているか確認し、一致しなければ作業せず報告する。
+
+目的
+SNU 系列（CHAT-1127-SNU-01・02）の振り返りと、次の振り返りで確かめる約束を docs/decisions/operations.md に残す。変更は docs/decisions と docs/logs のみ。ガイド文（CLAUDE.md・handover.md・docs/notes/）には何も足さない。
+
+決定（2026-11-27、平野さん）
+
+* この振り返りを docs/decisions/operations.md に記録する指示を作る。足す約束は下の2つ
+* 2026-12-11 の確かめ（docs/logs/_template.md の「前の形で終えてもよい」の項を消せるか）をカレンダー「ryoei.pro」に登録する（チャット側が 2026-11-27 に登録済み。2026-12-11 06:00 JST、SNU のチャットへの予約も同じ時刻）
+
+前提（チャット側。平野さんの決定ではない）
+
+* 振り返りはチャット側（Fable 5.2）が行った。報告を書いたのが Fable 5.2 自身なので、別の目でのレビューにはなっていない。下の中身はチャット側の案で、平野さんが個別に承認したものではない
+* 書き場所と形は、docs/decisions/operations.md の 2026-11-24（CHAT-1124-XPU-02）の節の振り返りにそろえる案（見出しは `## 2026-11-27（CHAT-1127-SNU-03）`）
+* 約束の記号は、直近の振り返りの最後の記号の次から振る（チャット側が見た最後は (aj)。要確認）
+* 記録する中身:
+   * うまくいかなかったこと
+      * SNU-01 の指示文で、マージを含む指示で必ず読む CLAUDE.md「ブランチ運用」を読まず、作業ブランチを `work/SNU` と書いた。Code が規則どおり `work/1127-snu` に直し、往復は増えていない。原因（雛形の `work/<識別子>` に例が無い）は SNU-02 で直した
+      * SNU-01 で、スキル（指示文の型）を最初に呼ばず、ガイドを読み始めてから呼んだ
+      * SNU-01 の手順3に「本番に新しい SNS のリンクが出ていること」と書いたが、卓の個別ページは選手ごとの X のリンクを出さない（SNU-01 のログの記述）。確かめていない前提だった。Code は写真と players/ のデータで確かめて進み、往復は増えていない
+      * SNU-02 は全セッションに効く規則の変更（最終報告の形）を含むのに、マージの可否を単独で聞かず、「docs のみなので入れる形にします」と案に添えただけで指示文を作った
+      * プロジェクトの指示（claude.ai 側）の貼り替えを頼むとき、置き換える1文だけを渡し、古い文が残って1往復増えた
+      * SNU-02 で決めた期日（2026-12-11）を、決めた返信の中でカレンダーに登録しなかった（振り返りの後に登録した）
+      * スクリーンショットのボタンの表示から「保存も済んでいます」と推測を断定で書いた（保存後の欄は読み直していない）
+   * 事実として残る点
+      * SNU-01: SNS ブックの【2】に X の ID が新しく入った最強戦出場者7人の写真が本番に入った。全ページの再生成は update-sns-book.yml のジョブ regenerate による1回だけ（決定は docs/decisions/saikyo.md の 2026-11-27 の節）
+      * SNU-02: 最終報告を2行にし、雛形にブランチ名の例を足した（決定はこのファイルの 2026-11-27〈CHAT-1127-SNU-02〉の節）。平野さんはプロジェクトの指示（claude.ai 側）を「最終報告の公開ログの URL（1行）を送る」に貼り替えた（2026-11-27、スクリーンショットで確認）
+      * チャットに同期されているスキル（指示文の型・朝の報告）に、前の最終報告の形に触れる記述は無かった（チャット側が 2026-11-27 に SKILL.md を検索して確かめた。SNU-02 のログの「未確認の項目」への答え）
+      * issue は作っていない。最強戦のページのブラウザでの見え方は、平野さんにリンクを渡したが結果を聞いていない
+   * 前回の約束: (ai)・(aj) は当たる場面が無い。(ah) より前の約束はチャット側が中身を読んでおらず、確かめていない
+   * ガイド文に足したもの: なし（約束としてここに書くだけ。ブランチ名の約束は、雛形に例が入ったので足さない）
+   * 約束（次の振り返りで確かめる）。今までの約束は置き換えず、次を足す
+      * 平野さんに設定欄などの貼り替えを頼むとき、置き換え後の全文を渡したか
+      * 規則の変更を含む指示では、docs のみの変更でも、マージの可否を単独で聞いたか
+
+手順
+
+1. docs/decisions/operations.md の直近の振り返りの節（2026-11-24〈CHAT-1124-XPU-02〉）を読み、形と約束の最後の記号を確かめる。同じ内容の振り返りが既に書かれていれば止まる
+2. 上の「決定」と「前提」の中身を、`## 2026-11-27（CHAT-1127-SNU-03）` の節として足す（決定と、チャット側の案である振り返りを書き分ける）。足した節をログにそのまま引用する
+
+止まる条件
+
+* 同じ内容の振り返りが既にある、他セッションの着手中コメントがある
+* 追記先と矛盾していて、どちらが正か平野さんかチャット側の判断が要る（同じ趣旨の記述があるだけなら止めず、既存の記述を置き換え・拡張してよい。処理を報告に書く）
+* 未マージの work/ ブランチが docs/decisions/operations.md の同じ節を変えている、または取り込みで衝突する（末尾の追記どうしの衝突は、両方を残して解いてよい。解いた後の該当箇所をログに引用する）
+* cloudflare への push が権限判定で拒否された（別の手段を試さずに止まる）
+
+完了条件
+
+* ログの「## 報告」を CLAUDE.md「作業ログ」節のとおりに書いて push する
+* マージは冒頭の「マージ:」の行のとおり
+* ターミナルへの最終報告は docs/logs/_template.md「ターミナルへ返す最終報告」の形（1行目に状態、2行目に https://github.com/retroeater/mj-logs/blob/main/logs/CHAT-1127-SNU-03.md?v=<SHA> だけ）で書く
+
+不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
+
+<!-- guide-links -->
+---
+
+ガイド文書（この版を写した時点の最新、mj 7854b60d）: https://github.com/retroeater/mj-logs/tree/main/guide/7854b60d
+
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/7854b60d/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/7854b60d/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/7854b60d/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/7854b60d/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/7854b60d/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/7854b60d/docs/decisions/README.md
+- 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/f92ac9d9.md
