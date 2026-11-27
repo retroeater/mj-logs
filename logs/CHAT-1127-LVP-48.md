@@ -67,9 +67,22 @@ Chat-Ref: CHAT-1127-LVP-48
 - 全ページの dry run（target all、run 46012749911、compare_ref origin/cloudflare）: **差分なし**、公開しなかった【3】の行 0件 → 止まる条件に当たらない
 - セルフレビューのサブエージェントは使っていない（定数1つと比較1行の変更で、全ページの差分なしと、5人の行が公開されないことをテストで確かめたため）
 
+### マージと #401
+- 75620aa78 を cloudflare へ push（直前に fetch して祖先を確かめた）。Workers Builds: mj の check-run は 75620aa78 で success。生成物は変わらない（dry run で差分なし）ので、手動の再生成は回していない
+- #401 に結果をコメントして閉じた（completed）。「状況:」ラベルは付いていなかった
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
+- ブランチ: work/1127-lvp-pq
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1127-LVP-48.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1127-lvp-pq
+- 確認用URL: なし（生成物の差分なし）
+- マージ: 済（75620aa78）
+- issue: #401（クローズ）・#688
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
