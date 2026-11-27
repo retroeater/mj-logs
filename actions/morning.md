@@ -1,6 +1,6 @@
 # 朝の報告用の異常（retroeater/mj）
 
-- 書き出した時刻: 2026-11-27 22:43 JST（見た範囲: 2026-11-26 20:43 JST から）
+- 書き出した時刻: 2026-11-27 23:05 JST（見た範囲: 2026-11-26 21:05 JST から）
 - 書き出した実行の契機: workflow_dispatch（main）
 - 異常だけを書く。全体は actions/status.md。判定は mj の scripts/morning_report.py（各ワークフローの直近 100 回まで）
 
@@ -31,14 +31,4 @@
 
 ## 7. 国家サイバー統括室の投稿（@cyber_forecast、直近36時間。取得は run-daily.yml のジョブ xcyber。「なし」は投稿なし、「取得できず」は取れなかった日）
 
-- 2026-11-26 10:59 JST https://x.com/cyber_forecast/status/2125771271975870892
-  > 【更新情報】
-  > 米国時間2026年11月25日、Microsoft Edgeの更新プログラムが公開されました。
-  > 本件更新（158.0.4370.45）にはセキュリティ修正が含まれています。更新が配信されましたら忘れずにアップデートしてください。
-  > https://t.co/rnSFlgax8X
-  - リンク: https://learn.microsoft.com/en-us/deployedge/microsoft-edge-relnotes-security
-- 2026-11-26 10:59 JST https://x.com/cyber_forecast/status/2125771320059437178
-  > 【注意喚起】
-  > 2026年11月25日、不正アプリのインストールへ誘導するフィッシングメールの報告を受けているとして、フィッシング対策協議会が注意喚起をしています。ご確認ください。
-  > https://t.co/dWbmUsqImA
-  - リンク: https://www.antiphishing.jp/news/alert/daiichilife_20261125.html
+なし
