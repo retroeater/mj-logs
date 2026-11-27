@@ -57,6 +57,101 @@ Chat-Ref: CHAT-1127-SNU-01
 
 不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。
 
+## 経過
+
+### 着手前の確認
+
+- 同じ Chat-Ref のコミット・`SNU` の重複（コミット・`docs/logs/`）: なし。対象の issue: なし。雛形の行（Chat-Ref・マージ・貼る時機・共通手順）: 欠けなし
+- 0. 「指示」欄の末尾が指示文の最後の行（「不明な点があれば、着手前に質問してください。この行が指示文の最後の行です。」）と一致することを確かめた
+- 作業ブランチ: 指示文は `work/SNU` だが、CLAUDE.md「ブランチ運用」の命名（Chat-Ref から `work/<MMDD>-<xxx>`）に従い `work/1127-snu` にした（ルールの側を優先）。ローカル・リモートとも無し → `origin/cloudflare`（888add4）から作成
+- 起動前に実行中・待ちの run が無いことを確かめた（手順1・手順2の直前とも）。当日の毎朝の運行（run 45880319725）は 2026-11-26T19:00Z〜19:18Z（04:00〜04:18 JST）に成功で終わっていた。下の update で X の ID が新しく入った行が 7 件あったので、平野さんの【2】の更新はこの毎朝の更新より後と見られる（更新の時刻そのものはここからは検証できない）
+- スプレッドシートを読み書きするか: `regenerate-page.yml` の check は `regenerate.py --check`（シートを読むだけ・作業ツリーを戻す）、`update-sns-book.yml` の update は SNS ブックの【1】【2】【3】を書く（`scripts/update_sns_book.py`）
+
+### 手順1: regenerate-page.yml（work/1127-snu・check・all）
+
+- run 45916661904: 成功。「check: 止まるページなし」「検査: 通りました(作業ツリーは戻しました)」
+- 出た警告は既知のもの（別名の行の不使用 3 件×各ページ、最強戦の ABEMA の URL 4 件、2026 年度の最強位 0 件、帰り道のタマシュ・エルドス）。止まる理由ではない
+
+### 手順2: update-sns-book.yml（cloudflare・update・dry_run 偽）
+
+- run 45916954434: 成功（ジョブ update 140238385179・ジョブ regenerate 140238738388 とも成功）
+- 【2】ID: 1896 行（一覧に無い 6）。X API の呼び出し 7 件（上限 30）。認証の失敗・クレジット切れ・レート制限・トークンなしは無し。「上限で未取得」の行なし。別の X ID と同じ画像の行: なし
+- X状態: シートから写した 961、未入力 802、解決 110、既定のアイコン 13、アカウントなし(確認済み) 10。note状態: 未入力 1691、確認済み(取得しない) 204、未取得(取得しない) 1。YouTube状態: 未入力 1814、解決 82
+- 「ページが使う値(ID・画像URL)が変わった人: 7」→ ジョブ regenerate が `regenerate-page.yml` を `all` で起動した。呼び出しは再利用ワークフローなので別の run ID は無く、同じ run 45916954434 の中のジョブ 140238738388（00:30:07Z〜00:33:17Z）。cloudflare に ffa224f を push
+
+X API を呼んだ行（全件）:
+
+| 名前 | X ID | 前の URL | 今の URL | 状態 |
+|---|---|---|---|---|
+| てまち | temachi1208 | (なし) | https://pbs.twimg.com/profile_images/1065994295880994818/d0g3c_qG_400x400.jpg | 解決 |
+| ハナムラ | hanamuramajan | (なし) | https://pbs.twimg.com/profile_images/2125729123557605376/CYithGeM_400x400.jpg | 解決 |
+| Sakaway | dtmnt74 | (なし) | https://pbs.twimg.com/profile_images/1269463231614996480/7oKazkbO_400x400.jpg | 解決 |
+| 世界のウエニー | ueniueniueni | (なし) | https://pbs.twimg.com/profile_images/1698669298703839232/WjCvWCjT_400x400.jpg | 解決 |
+| 山越貴広 | yamakoshitenhou | (なし) | https://pbs.twimg.com/profile_images/1278547528829374464/YYUjKqzB_400x400.jpg | 解決 |
+| 柏井雄 | kashi89ers | (なし) | https://pbs.twimg.com/profile_images/2124684556867710976/Fn_yxdKU_400x400.jpg | 解決 |
+| 鈴木直樹 | nomad_suzuki | (なし) | https://pbs.twimg.com/profile_images/2039260489252012032/6iw8DNQT_400x400.jpg | 解決 |
+
+- 前提の確かめ: 直したのは【2】の X の ID（7 人とも前の値が無く、新しく入った ID で X API を呼んだ）。YouTube の ID の変更は差分に無く、YouTube の画像が出ない行は今回は無い
+
+### 手順3
+
+- ジョブ regenerate が動いたので、手動の `regenerate-page.yml`（all）は実行しなかった（全ページの再生成は ffa224f の1回だけ）
+
+### 再生成の差分（ffa224f、10 ファイル +20 −20）
+
+属性単位で前後を比べた（scratchpad の比較スクリプト）。種類は次だけで、すべて上の 7 人の SNS の値で説明できる。想定外の行は無し。
+
+- saikyo/2026/20261122-s1-a・s1-b・s1-d・s2.html: 7 人の写真が `../../img/avatar.svg` から X の画像（`_400x400` と srcset の `_200x200`）に
+- saikyo/2026/20261122.html・saikyo/2026/index.html: 卓の一覧のアイコンがイニシャル（`is-initial` の span）から X の画像の img に
+- saikyo/ask-players.json: 7 人の写真（`_200x200`）が空から入った
+- saikyo/players/index.html: 7 人の写真の URL・X の ID・写真ありの印（0→1）
+- saikyo/vs/index.html: 7 人の写真の URL・写真ありの印（0→1）
+- sitemap-saikyo.xml: 変わったページの lastmod が 2026-11-27 に（`update_sitemap_lastmod.py` の導出）
+
+### Workers Builds と本番
+
+- ffa224f の check-run「Workers Builds: mj」: success（2026-11-27T00:33:51Z）
+- 本番（UA に mj-internal、`?v=snu1127x`）で確かめた:
+
+| ページ | HTTP | 新しい写真の URL が出ている人 |
+|---|---|---|
+| saikyo/2026/20261122-s1-a.html | 200 | 世界のウエニー・Sakaway・鈴木直樹 |
+| saikyo/2026/20261122-s1-b.html | 200 | ハナムラ・山越貴広 |
+| saikyo/2026/20261122-s1-d.html | 200 | てまち・柏井雄 |
+| saikyo/2026/20261122-s2.html | 200 | ハナムラ・世界のウエニー・てまち |
+| saikyo/2026/20261122.html | 200 | 7 人とも |
+| saikyo/players/ | 200 | 7 人とも X の ID が入っている |
+
+| 名前 | `_400x400` | `_200x200` |
+|---|---|---|
+| 世界のウエニー | 200 | 200 |
+| Sakaway | 200 | 200 |
+| 鈴木直樹 | 200 | 200 |
+| ハナムラ | 200 | 200 |
+| 山越貴広 | 200 | 200 |
+| てまち | 200 | 200 |
+| 柏井雄 | 200 | 200 |
+
+- 卓のページに代替アバターが残るのは、X の ID が【2】に無い選手（例: 焼肉定食。）。今回の更新の対象外
+- 卓の個別ページは選手ごとの X のリンクを出さない作り（X の ID が出るのは players/ のデータ）。ブラウザでの見え方はここからは確かめていない
+
+### その他
+
+- 着手時の `git fetch` で `origin/cloudflare` が forced update と出た（d005b2a...888add4）。コンテナのローカルの追跡ブランチが古かったためと見られ、作業には影響しない
+
+## 報告
+
+- 状態: 完了
+- ブランチ: work/1127-snu（指示文の work/SNU でなく、CLAUDE.md「ブランチ運用」の命名に従った）
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1127-SNU-01.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1127-snu
+- 確認用URL: なし（docs のみ。再生成は cloudflare 上のワークフローのコミット ffa224f で入り、本番で確かめた）
+- マージ: 済（下の追記の SHA）
+- issue: なし
+- 判断が必要なこと: なし
+- 未確認の項目: ブラウザでの見え方（本番の HTML と画像の HTTP 200 までは確かめた）
+- エラー: なし
+
 <!-- guide-links -->
 ---
 
