@@ -53,6 +53,24 @@ CHAT-1127-LVP-50 の申送りで残った2つを片付ける。(1) CLAUDE.md「�
 
 ## 経過
 
+- 着手前の確認: 同じ Chat-Ref のコミット無し・0章（指示欄の末尾が指示文の最後の行と一致）。雛形の行の欠け無し。同じ論点（CLAUDE.md のテストの行・check-assets の paths）の open issue は無い（「check-assets」「標準ライブラリのみ」などで検索。当たったのは #292・#565・#492 などの別の主題）。対象の issue は無いので着手中のコメントは書いていない
+
+### 1. 実態（cloudflare の実物、2026-11-28）
+| 項目 | 実物 |
+|---|---|
+| `scripts/tests` の全件を直接回すワークフロー | check-assets.yml・update-live-channel.yml・fetch-gsc.yml・sync-dojo-calendar.yml（どれも前に `pip install ... google-auth requests`。sync-dojo-calendar は anthropic も） |
+| 共通部品 `setup-python` の `test: 'true'` 経由で回すワークフロー | check-meibo.yml（packages: google-auth requests）・fetch-redirect-counts.yml・sync-birthday-calendar.yml。check-meibo.yml に `unittest` の文字は無いが、`.github/actions/setup-python/action.yml` の `test` が `python3 -m unittest discover -s scripts/tests` を回す（前提の「要確認」の答え） |
+| regenerate-page.yml | `test_title_redirects.py` だけ（全件ではない） |
+| テストが import するもの | テストのファイルで `requests` を import するのは test_inspect_gsc_urls.py（無ければその検査を飛ばす）と test_net_retry.py の2つ。`google` を import するテストは無い。scripts の側は google・requests を関数の中で import する（一番上での import は無い） |
+| 依存の実測 | 標準ライブラリだけの venv: 2,327件中 エラー4件（test_net_retry の GoogleApiTest）・skip 8件。requests だけを入れた venv: 2,327件 OK（skip なし）。google-auth は要らない |
+| check-assets.yml の push の paths | `'**'`・`'!docs/**'`・`docs/handover.md`・`docs/notes/chat-side-operations.md`・`docs/instruction-template.md`・`docs/notes/**`（前提のとおり。`docs/notes/**` は 8d408dc2e で足した） |
+
+- 前提との食い違い: 「テストが google-auth・requests を使う」は、実際は requests だけ。直し方の案は変えない（CLAUDE.md は依存の requests を書き、CI の一覧は docs/notes/github-actions.md への参照にする）
+- 未マージの work/ ブランチで CLAUDE.md・docs/notes/github-actions.md を変えるもの: work/1101-prp-pub（表の check-image-links.yml の行）・work/1103-ryo5（表の fetch-x-posts.yml の行）が docs/notes/github-actions.md の「ワークフローの一覧」の表を変えている。今回の「共通の部品」の節とは別の箇所。CLAUDE.md を変えるブランチは無い
+
+### 2. docs/notes/ だけの push で check-assets が起動するか
+- docs/notes/github-actions.md「共通の部品（`.github/actions/`）」の `setup-python` の行の後に1行（全件のテストを回すワークフローと依存）を足し、作業ログと一緒の1コミットにして単独で push する（結果は下に追記）
+
 ## 報告
 
 - 状態: 作業中
