@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-11-28 12:02 JST
+- 書き出した時刻: 2026-11-28 12:04 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -35,11 +35,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-28 12:03 | push | work/1128-lvp-close | success | #1465（46100971103） | 0分55秒 |
+| 2026-11-28 12:01 | push | work/1128-lvp-close | success | #1464（46100884337） | 0分51秒 |
 | 2026-11-28 11:31 | push | work/1128-cfx | success | #1463（46098465309） | 0分57秒 |
 | 2026-11-28 11:29 | push | work/1128-cfx | success | #1462（46098349052） | 0分59秒 |
 | 2026-11-28 10:32 | push | work/1128-lvp | success | #1461（46093647242） | 0分50秒 |
-| 2026-11-28 10:30 | push | work/1128-lvp | success | #1460（46093466952） | 0分52秒 |
-| 2026-11-28 00:05 | push | work/1127-lvp-ret | success | #1459（46021732279） | 0分53秒 |
 
 ## check-build-failure.yml
 
@@ -48,11 +48,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-28 12:03 | check_run | cloudflare | skipped | #1971（46101026538） | 0分00秒 |
+| 2026-11-28 12:02 | check_run | cloudflare | skipped | #1970（46100935346） | 0分01秒 |
 | 2026-11-28 11:31 | check_run | cloudflare | skipped | #1969（46098531859） | 0分01秒 |
 | 2026-11-28 11:31 | check_run | cloudflare | skipped | #1968（46098521471） | 0分01秒 |
 | 2026-11-28 10:34 | check_run | cloudflare | skipped | #1967（46093819845） | 0分00秒 |
-| 2026-11-28 10:34 | check_run | cloudflare | skipped | #1966（46093776478） | 0分02秒 |
-| 2026-11-28 00:07 | check_run | cloudflare | skipped | #1965（46022114320） | 0分01秒 |
 
 ## check-image-links.yml
 
@@ -218,7 +218,7 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-11-28 12:01 | workflow_dispatch | work/1128-lvp-close | in_progress | #945（46100883367） |  |
+| 2026-11-28 12:01 | workflow_dispatch | work/1128-lvp-close | success | #945（46100883367） | 0分53秒 |
 | 2026-11-28 00:00 | workflow_dispatch | work/1127-lvp-ret | success | #944（46021020416） | 0分54秒 |
 | 2026-11-27 23:47 | push | cloudflare | success | #943（46019010938） | 0分37秒 |
 | 2026-11-27 23:12 | push | cloudflare | success | #942（46013743101） | 3分19秒 |
