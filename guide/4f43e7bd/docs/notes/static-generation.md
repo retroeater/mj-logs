@@ -433,7 +433,7 @@ title/ では「タイトル戦」タブの大会の改名が「タイトル」�
 
 ### navbar.js と検索欄
 
-- **navbar.jsの27本のページhrefはルート相対パス（先頭`/`）にしてある（#162）。** 実ページ25本＋`_redirects`で転送する`resource_calendar`・`resource_books`の2本。 `wayhome/`配下などサブディレクトリのページからも同じnavbar.jsがそのまま使えるようにするため。`#`・`#searchBoxes`（検索欄開閉用）は対象外
+- **navbar.jsの18本のページhrefはルート相対パス（先頭`/`）にしてある（#162）。** 実ページ17本＋`_redirects`で転送する`resource_calendar`の1本。 `wayhome/`配下などサブディレクトリのページからも同じnavbar.jsがそのまま使えるようにするため。`#`・`#searchBoxes`（検索欄開閉用）は対象外
 - **検索欄（`#searchBoxes`）を持たないページは `<body>` に `data-search="off"`
   を出す（#163）。** navbar.js はこの属性を見て、虫眼鏡アイコン（検索欄を
   開閉するリンク）をそもそも描画しない。属性が無いページは「検索欄あり」として
