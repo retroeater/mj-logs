@@ -128,10 +128,10 @@ git の 2026-09-17 以降のコミット（生成物の再生成〈`chore: regen
 
 - 状態: 判断待ち / 続き: CHAT-1128-LVP-54
 - ブランチ: work/1128-lvp-rev
-- ログ: https://github.com/retroeater/mj/blob/work/1128-lvp-rev/docs/logs/CHAT-1128-LVP-53.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1128-LVP-53.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1128-lvp-rev
 - 確認用URL: なし（調査だけ）
-- マージ: 未（止まる条件に当たり手順2の前で止めた。ログは作業ブランチにある。マージの指示は「ドキュメントのみ」なので、続きの指示で一緒に入れる）
+- マージ: 済（c82644499。CHAT-1128-LVP-54 と一緒に入れた）
 - issue: #362（着手中のコメントだけ）
 - 判断が必要なこと:
   - レビューの範囲: 起点（live/ の最初のコミット 2026-09-17）以降の live/ 以外の変更は、決定の節だけで 1,315（運用を除いても約830）、生成物でないコミットだけで 584 件あり、止まる条件「80件を超える」に当たった。`## 経過` の「範囲の案」から選ぶ（Code のおすすめは案1: 履歴でなく、今の文書と今のページ〈saikyo/・log/・title/・houou/ と共通の規則〉で突き合わせる）
