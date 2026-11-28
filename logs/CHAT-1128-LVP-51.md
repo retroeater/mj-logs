@@ -87,7 +87,7 @@ CHAT-1127-LVP-50 の申送りで残った2つを片付ける。(1) CLAUDE.md「�
 - ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1128-LVP-51.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1128-lvp
 - 確認用URL: なし（docs のみ）
-- マージ: 済（このログのコミットを含む先頭を cloudflare へ push）
+- マージ: 済（d90660933）
 - issue: なし
 - 判断が必要なこと: なし
 - 未確認の項目: なし
