@@ -67,9 +67,29 @@ Chat-Ref: CHAT-1128-LVP-55
 
 ## 経過
 
+- 着手前の確認: 同じ Chat-Ref のコミット無し・0章（指示欄の末尾が指示文の最後の行と一致）。雛形の行の欠け無し。#362・#589 は open。#362 の最後の着手中はこのセッションの LVP-54（判断待ちのコメント済み）、#589 にコメントは無い。LVP-54 の状態の末尾に「 / 続き: CHAT-1128-LVP-55」を足した
+- 未マージの work/ ブランチの重なり（`git branch -r --no-merged origin/cloudflare`）: work/1101-prp-pub（CHAT-1104-PRP-20、pro/ の公開、最後のコミット 2026-11-04、判断待ちのまま）が、対象のファイルのうち assets/saikyo.js・llms.txt・scripts/generate_live_pages.py・style.css を変えている
+  - **llms.txt のサイトマップの行（「## Optional」の `- [サイトマップ](https://ryoei.pro/sitemap.xml): …` の行）**: work/1101-prp-pub（dd9137778「link public player cards and photos to pro/ pages」）が、この行の末尾に「、放送対局のトップ・大会・期・対局のページ（sitemap-live.xml）、連盟プロのトップ・個別ページ（sitemap-pro.xml）」を足している。決定 A（4-2）の「サイトマップの行に sitemap-live.xml を足す」と**同じ箇所の同じ趣旨の変更**で、取り込むと衝突する
+  - ほかの重なり（同じ箇所ではない）: assets/saikyo.js は選手の一覧の配列（slug を足す、:655-665・:884-）で、D で触るシートの開閉（saikyo.js:162-193）とは別。scripts/generate_live_pages.py は person_label・hero_og_image・build_player_card・extra_head・build_individual・page_outputs で、F・H・I・J で触る箇所（build_page_row・build_top・build_search・個別ページの「他の対局」の見出しと「すべて見る」）とは、build_individual の中で H と近い。style.css は pro/ の節のコメント1行で別。llms.txt はほかに冒頭の説明文の1行（「1,100名超」→「約1,100名」）
+- **止まる条件「未マージの work/ ブランチが … llms.txt … の同じ箇所を変えている、または取り込みで衝突する」に当たったので、直しには入っていない**（コード・生成物・docs・issue は変えていない。#362・#589 への着手中のコメントも書いていない）
+
 ## 報告
 
-- 状態: 作業中
+- 状態: 判断待ち
+- ブランチ: work/1128-lvp-fix
+- ログ: https://github.com/retroeater/mj/blob/work/1128-lvp-fix/docs/logs/CHAT-1128-LVP-55.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1128-lvp-fix
+- 確認用URL: なし（直しに入る前に止まった）
+- マージ: 未（指示どおり判断待ちで止まる。ログだけが作業ブランチにある）
+- issue: なし（#362・#589 にはまだ何も書いていない）
+- 判断が必要なこと:
+  - 未マージの work/1101-prp-pub（pro/ の公開、CHAT-1104-PRP-20、2026-11-04 から判断待ち）が、llms.txt のサイトマップの行に「sitemap-live.xml」（と sitemap-pro.xml）を足している。決定 A（4-2）と同じ行の同じ趣旨で、両方入れると取り込みで衝突する。どれにするかを決めて、新しい Chat-Ref で貼り直す:
+    - 案1: この指示では A のうちサイトマップの行（4-2 の前半）だけを入れず、本数（4-1）と live の行の URL の形（4-2 の後半）だけを直す。サイトマップの行は work/1101-prp-pub（pro/ の公開）のマージで入る（pro/ の公開がいつになるかに依る）
+    - 案2: この指示でサイトマップの行に sitemap-live.xml を足し、work/1101-prp-pub を後でマージするときに衝突を解く（その行は「両方の追記を残す」形で解ける見込み）
+    - 案3: 先に work/1101-prp-pub の扱い（pro/ の公開）を決める
+  - work/1101-prp-pub は scripts/generate_live_pages.py の build_individual（H で触る個別ページ）も変えている（写真カードの行き先を pro/ へ）。同じ行ではないが近いので、どの案でも、取り込みのときに build_individual の衝突が起きうる
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
