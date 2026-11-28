@@ -1,6 +1,6 @@
 # 朝の報告用の異常（retroeater/mj）
 
-- 書き出した時刻: 2026-11-28 11:30 JST（見た範囲: 2026-11-27 09:30 JST から）
+- 書き出した時刻: 2026-11-28 11:33 JST（見た範囲: 2026-11-27 09:33 JST から）
 - 書き出した実行の契機: workflow_dispatch（main）
 - 異常だけを書く。全体は actions/status.md。判定は mj の scripts/morning_report.py（各ワークフローの直近 100 回まで）
 
@@ -9,7 +9,7 @@
 - 2026-11-27 15:32 update-live-channel.yml failure（workflow_dispatch・cloudflare）ジョブ「update」 https://github.com/retroeater/mj/actions/runs/45952480725
 - 2026-11-27 23:57 check-assets.yml failure（push・work/1127-lvp-ret）ジョブ「check」 https://github.com/retroeater/mj/actions/runs/46020529876
 - 2026-11-28 00:00 check-assets.yml failure（push・work/1127-lvp-ret）ジョブ「check」 https://github.com/retroeater/mj/actions/runs/46021021725
-- 2026-11-28 11:29 check-assets.yml in_progress（push・work/1128-cfx） https://github.com/retroeater/mj/actions/runs/46098349052
+- 2026-11-28 11:32 regenerate-saikyo.yml in_progress（workflow_dispatch・cloudflare） https://github.com/retroeater/mj/actions/runs/46098597449
 
 ## 2. 予約実行の未実行（予定から3時間以内は「遅れの可能性」。3時間を超えて始まった実行は「遅れて実行」）
 
@@ -25,7 +25,7 @@
 
 ## 5. 未報告のログ（`## 報告` の節が無い）
 
-- CHAT-1128-CFX-05.md（着手 2026-11-28） https://github.com/retroeater/mj-logs/blob/main/logs/CHAT-1128-CFX-05.md
+なし
 
 ## 6. Actions の使用量（mj。ジョブごとに1分へ切り上げた見積もり、日付は JST。前日が240分以上か、月の累計が含まれる3,000分の50%・75%を超えたとき）
 

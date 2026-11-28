@@ -1,6 +1,6 @@
 # Actions の実行結果（retroeater/mj）
 
-- 書き出した時刻: 2026-11-28 11:30 JST
+- 書き出した時刻: 2026-11-28 11:33 JST
 - 書き出した実行の契機: workflow_dispatch（main）
 - 各ワークフローの直近 5 回。開始時刻は run_started_at（JST）。結論が空のものは status（実行中など）
 - コミットの題とジョブのログの中身は書かない。書き出しは mj-logs の sync-from-mj.yml（#498・#298）
@@ -35,11 +35,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
-| 2026-11-28 11:29 | push | work/1128-cfx | in_progress | #1462（46098349052） |  |
+| 2026-11-28 11:31 | push | work/1128-cfx | success | #1463（46098465309） | 0分57秒 |
+| 2026-11-28 11:29 | push | work/1128-cfx | success | #1462（46098349052） | 0分59秒 |
 | 2026-11-28 10:32 | push | work/1128-lvp | success | #1461（46093647242） | 0分50秒 |
 | 2026-11-28 10:30 | push | work/1128-lvp | success | #1460（46093466952） | 0分52秒 |
 | 2026-11-28 00:05 | push | work/1127-lvp-ret | success | #1459（46021732279） | 0分53秒 |
-| 2026-11-28 00:02 | push | work/1127-lvp-ret | success | #1458（46021348654） | 0分53秒 |
 
 ## check-build-failure.yml
 
@@ -48,11 +48,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-28 11:31 | check_run | cloudflare | skipped | #1969（46098531859） | 0分01秒 |
+| 2026-11-28 11:31 | check_run | cloudflare | skipped | #1968（46098521471） | 0分01秒 |
 | 2026-11-28 10:34 | check_run | cloudflare | skipped | #1967（46093819845） | 0分00秒 |
 | 2026-11-28 10:34 | check_run | cloudflare | skipped | #1966（46093776478） | 0分02秒 |
 | 2026-11-28 00:07 | check_run | cloudflare | skipped | #1965（46022114320） | 0分01秒 |
-| 2026-11-28 00:03 | check_run | cloudflare | skipped | #1964（46021444335） | 0分01秒 |
-| 2026-11-28 00:01 | check_run | cloudflare | skipped | #1963（46021224173） | 0分10秒 |
 
 ## check-image-links.yml
 
@@ -231,11 +231,11 @@
 
 | 開始（JST） | 契機 | ブランチ | 結論 | run 番号（ID） | 所要時間 |
 | --- | --- | --- | --- | --- | --- |
+| 2026-11-28 11:32 | workflow_dispatch | cloudflare | in_progress | #39（46098597449） |  |
 | 2026-11-28 10:09 | workflow_dispatch | cloudflare | success | #38（46091666567） | 1分50秒 |
 | 2026-11-24 17:17 | workflow_dispatch | cloudflare | success | #37（45354782590） | 1分55秒 |
 | 2026-11-13 21:02 | workflow_dispatch | cloudflare | success | #36（43421784265） | 1分36秒 |
 | 2026-11-13 18:10 | workflow_dispatch | cloudflare | success | #35（43399067868） | 1分48秒 |
-| 2026-11-13 17:42 | workflow_dispatch | cloudflare | success | #34（43395360226） | 2分08秒 |
 
 ## regenerate-sitemap.yml
 
