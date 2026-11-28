@@ -69,21 +69,39 @@ CHAT-1127-LVP-50 の申送りで残った2つを片付ける。(1) CLAUDE.md「�
 - 未マージの work/ ブランチで CLAUDE.md・docs/notes/github-actions.md を変えるもの: work/1101-prp-pub（表の check-image-links.yml の行）・work/1103-ryo5（表の fetch-x-posts.yml の行）が docs/notes/github-actions.md の「ワークフローの一覧」の表を変えている。今回の「共通の部品」の節とは別の箇所。CLAUDE.md を変えるブランチは無い
 
 ### 2. docs/notes/ だけの push で check-assets が起動するか
-- docs/notes/github-actions.md「共通の部品（`.github/actions/`）」の `setup-python` の行の後に1行（全件のテストを回すワークフローと依存）を足し、作業ログと一緒の1コミットにして単独で push する（結果は下に追記）
+- docs/notes/github-actions.md「共通の部品（`.github/actions/`）」の `setup-python` の行の後に1行（全件のテストを回すワークフローと依存）を足し、作業ログと一緒の1コミット de491b5df にして単独で push した。push の before..after（583034d40..de491b5df）で変わったファイルは `docs/logs/CHAT-1128-LVP-51.md` と `docs/notes/github-actions.md` の2つだけ
+- **check-assets は push で起動した**: run 46093466952（event push、head de491b5df）、success。8d408dc2e で足した `docs/notes/**` が効いている
+
+### 3. CLAUDE.md のテストの行（「判断・作業の原則」）
+- 前: 「テストは`scripts/tests/`（unittest、標準ライブラリのみ）。実行は`python3 -m unittest discover -s scripts/tests`。毎朝の run-daily の`check-meibo.yml`も実行する。」
+- 後: 「テストは`scripts/tests/`（標準ライブラリと requests）を`python3 -m unittest discover -s scripts/tests`で回す（CI は docs/notes/github-actions.md「共通の部品」）。」
+- CLAUDE.md は 23,299 → 23,298 バイト（純増なし。check-assets の警告域 25,600 に当たらない）。CI で回すワークフローの一覧は docs/notes/github-actions.md に置き、CLAUDE.md は参照だけにした（#492）
+- push（CLAUDE.md を直した 214542717）の check-assets: run 46093647242（push）success。テスト 2,327件 OK
+- 変更したのは CLAUDE.md のテストの行・docs/notes/github-actions.md の1行・作業ログだけ
+- セルフレビューのサブエージェントは使っていない（docs だけの変更で、実態は表のとおり実物で確かめたため）
 
 ## 報告
 
-- 状態: 作業中
+- 状態: 完了
+- ブランチ: work/1128-lvp
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1128-LVP-51.md
+- 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1128-lvp
+- 確認用URL: なし（docs のみ）
+- マージ: 済（このログのコミットを含む先頭を cloudflare へ push）
+- issue: なし
+- 判断が必要なこと: なし
+- 未確認の項目: なし
+- エラー: なし
 
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj 241f98c7）: https://github.com/retroeater/mj-logs/tree/main/guide/241f98c7
+ガイド文書（この版を写した時点の最新、mj d9066093）: https://github.com/retroeater/mj-logs/tree/main/guide/d9066093
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/241f98c7/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/241f98c7/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/241f98c7/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/241f98c7/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/241f98c7/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/241f98c7/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d9066093/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d9066093/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d9066093/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d9066093/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d9066093/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d9066093/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/9f9a15fb.md

@@ -31,3 +31,14 @@ grill の決定（未実装。実装は次の指示）:
 - ここまでの検討・決定と、再開するときの手順を #230 に書き留める
 - このチャットでは、ほかの Actions のエラーのフォローアップを先にする
 - 作業中の回答: なし
+
+## 2026-11-27（CHAT-1127-SEO-39）
+
+- Cloudflare の Search for Agents を有効にするかを決める前に、読むだけの調査を SEO 系列で行う（この指示では何も有効にしない）
+- 作業中の回答: なし
+
+## 2026-11-27（CHAT-1127-SEO-40）
+
+- Cloudflare の Search for Agents は見送る（CHAT-1127-SEO-39 の案3。有効にしない）。調べた事実は `docs/notes/search-for-agents.md`
+- 見直すきっかけを #304 の (9)（AI Crawl Control を見る項目）に足す: AI Crawl Control で Agent の区分の要求が目に見えて増えていないか／Cloudflare の公式に、AI Search の使用量の上限と、Search for Agents のやめ方（インスタンス・メタタグ・課金の扱い）が載ったか
+- 作業中の回答: なし

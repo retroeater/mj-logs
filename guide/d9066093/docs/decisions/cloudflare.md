@@ -219,3 +219,18 @@
 
 - Workers の Spend limits の Block usage（$20）は有効のまま続ける。上限に達すると `mj-scheduler` が止まり、GitHub の予約実行の起動（`workers/scheduler/schedule.json` の全行。毎朝の run-daily・/live の取り込みなど）が止まってサイトの毎日の更新が止まることを聞いたうえでの判断（2026-11-19 の問いでは、チャット側が「`mj-scheduler` の同期が止まる」とだけ書いていた）。止まる範囲と再開の手順は docs/notes/cloudflare.md「Workers の Spend limits」
 - 作業中の回答: なし
+
+## 2026-11-27（CHAT-1127-BKS-01）
+
+- 「書籍」のリニューアルに着手する。booklog は今後使用しない
+- メニューから、リソース「書籍」の外部リンク（booklog）を廃止する
+- `/resource_books.html` → booklog の 301 は今は消さず、「別名」から「棚卸しの対象」へ移し、四半期の棚卸しの削除の基準（直近90日で流入0）で消す。2026-10-14（CHAT-1014-RDR-03）の「別名として棚卸しの対象外のままにする」を `/resource_books.html` についてだけ置き換える（`/resource_calendar.html` は変えない）
+- マージは、指示文の止まる条件に当たらなければプレビューの確認なしで行ってよい
+- 作業中の回答: なし
+- 実装は止まる条件に当たって未着手。続きの CHAT-1127-BKS-02 で行った
+
+## 2026-11-27（CHAT-1127-BKS-02）
+
+- 「書籍」のリニューアルは新しい issue（#692）を起票して扱う（#97 は再オープンしない）。メニューの変更はその issue の最初の作業とする
+- docs/notes/static-generation.md（「navbar.js と検索欄」の navbar.js の href の本数の記述）を、マージしてよい差分の範囲に加える。止まる条件を満たせばプレビューの確認なしでマージしてよい
+- 作業中の回答: なし
