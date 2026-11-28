@@ -9,7 +9,7 @@
 
 - 「書籍」タブの掲載対象を、連盟プロ（「プロ」タブ）が含まれる書籍だけに絞った（シート側で実施済み。190行→95行）。
   「著者」列を「著者・監修」に改名し、楽天で著者が複数名だった29冊を反映した
-- **独立した「書籍」ページは構築しない。** 他団体を含むプロの書籍はこれまでどおり booklog（`/resource_books.html`）とする。
+- **独立した「書籍」ページは構築しない。** 他団体を含むプロの書籍はこれまでどおり booklog（`/resource_books.html`）とする。（2026-11-27 の決定で置き換わった: 書籍のリニューアルに着手し、booklog は今後使わない。#692）
   連盟プロの書籍は、選手個人ページにセクションを設けて紹介する予定。#219「選手個別ページを作り、横断情報を集約する」の
   要件10として統合した（元は#436で起票。#219に統合し、#436はnot plannedでクローズ。2026-09-22）
 - 書籍ページの構築はいったん中断し、ここまでの作業と調査結果を本書に束ねて開発を凍結する
@@ -24,7 +24,7 @@
 
 - `books/index.html`・`books/<ISBN13>.html` 190枚は本番に残る。全ページ `<meta name="robots" content="noindex">`。
   `navbar.js`・`llms.txt`・`sitemap.xml` からは辿れない（`sitemap-books.xml` は作成済みだが参照されない）
-- `/resource_books.html` は引き続き booklog（`https://booklog.jp/users/retroeater`）へ301
+- `/resource_books.html` は引き続き booklog（`https://booklog.jp/users/retroeater`）へ301（2026-11-27 にメニューから外し、docs/notes/redirects.md の「棚卸しの対象」へ移した。#692）
 - `data/rakuten_books.json`（書影・楽天ブックスのURL、ISBN13キー）はそのまま残す。**消さない**（選手個人ページでの流用に備える）
 - 生成・同期・取得のスクリプト（`scripts/generate_books_pages.py`・`scripts/sync_books_calendar.py`・
   `scripts/fetch_rakuten_books.py`）は**消さずに残す**

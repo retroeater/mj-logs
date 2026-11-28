@@ -307,6 +307,11 @@ PowerShell 5.1 の既定が UTF-16LE のため、日本語部分が文字化け�
 4. 結果を #304 のその月の「YYYY-MM 実施」のコメントに書く
 5. **Training が `Disallow` のままなのに 403 が出ている場合は、原因が別にある。** issue を起票して追う
 
+#### Search for Agents（2026-11-27、見送り）
+
+AI Search の索引と `/.well-known/search` を作り、全ページの `<head>` に案内のメタタグを足す機能。**有効にしていない**（2026-11-27、平野さんの決定。`docs/decisions/aio.md`）。
+見直すきっかけは #304 の (9) の AI Crawl Control の行で見る。料金・Spend limits との関係・クロール・やめ方・費用の式などの調べた事実は `docs/notes/search-for-agents.md`
+
 #### Rate limiting rules（2026-09-29 に導入、#124）
 
 平野さんが 2026-09-29 にダッシュボード（Security rules → Create rule → Rate limiting rules）で入れた。値は平野さんの申告で、セッションからは検証できない。
@@ -508,14 +513,14 @@ Workers静的アセットにはオリジンサーバーが存在しないため�
 
 ### Billing の Available の製品（2026-11-19）
 
-Billing → Subscriptions → Available に並ぶ7製品は、今はどれも有効にしない（2026-11-19 の平野さんの決定、`docs/decisions/cloudflare.md`）。
+Billing → Subscriptions → Available に並んでいた7製品は、Zero Trust Free のほかは有効にしない（2026-11-19 の平野さんの決定、`docs/decisions/cloudflare.md`）。Zero Trust Free は 2026-11-28 の決定で置き換え、ryoei.net のために有効にした（下の表の行）。
 
 | 製品 | 判断 | 理由 |
 |---|---|---|
 | Workers for Platforms | 対象外 | 他人がデプロイするコードを動かす基盤。自分のコードしか動かさない |
 | Calls | 対象外 | リアルタイムの音声・映像を使わない |
 | Images & Stream | 却下 | 上の表の「Image Transformations / Cloudflare Images」と同じ理由 |
-| Zero Trust Free | 見送り | Access でプレビューの `*.workers.dev` をログイン必須にできるが、クラウドセッションの curl とチャット側の WebFetch がプレビューを開けなくなり、今の確認の手順（`docs/notes/chat-side-operations.md`「確認用 URL」・`docs/notes/cloud-sessions.md`）が止まる。入れるきっかけは SDP の管理画面や非公開のページを作るとき（上の表の「JWTのHttpOnly Cookie」の行と同じ考え） |
+| Zero Trust Free | 有効（ryoei.net のため。ryoei.pro には使わない） | 平野さんが ryoei.net のために有効にした（2026-11-28 の決定）。Billing → Subscriptions に「Teams Free Base」（Renews on Dec 9, 2026）が載り、Available の一覧から消えた（2026-11-28 の画面。申告値。2026-11-02 の画面には無く、2026-11-19 は Available にあった。有効にした日は分からない）。契約はアカウント単位だが、ryoei.pro と mj のプレビュー（`*.workers.dev`）には Access のアプリケーションを掛けない: 掛けるとクラウドセッションの curl とチャット側の WebFetch がプレビューを開けなくなり、今の確認の手順（`docs/notes/chat-side-operations.md`「確認用 URL」・`docs/notes/cloud-sessions.md`）が止まる（プレビューを Access で守らない 2026-09-29 の決定、#363 とも同じ）。ryoei.pro に掛けるかは SDP の管理画面や非公開のページを作るときに改めて決める（上の表の「JWTのHttpOnly Cookie」の行と同じ考え）。掛かっていないかは #304 の (9) で見る（Cloudflare ダッシュボードの Zero Trust > Access controls > Applications。公式の文書、2026-11-28 に Code が読んだ）。ryoei.net での使い方・設定はこのリポジトリに書かず、claude.ai のプロジェクト「セルフレスネス合同会社の経営」の文書「ドメイン・Cloudflare設定台帳」が正（上の「アカウント・連絡先」） |
 | Tunnels for Platforms | 対象外 | つなぐオリジンが無い |
 | Zaraz | 却下 | 上の表の「Zaraz」（第三者のスクリプトが無い） |
 | Log Explorer | 却下 | HTTP のリクエストのログを SQL で調べられるが、取り込み量で課金され、攻撃のトラフィックも数える。上限なく課金されるより止まる方を取った Observability の決定（2026-11-02、下の「ビルド時間の見積もり」）と同じ考えで、今の Analytics の GraphQL で足りている。料金の出典は食い違い、どれが今の正かは未確認: 公式の料金のページ https://developers.cloudflare.com/log-explorer/pricing/ は「有料の追加機能。無料版・試用は無い」（Last updated Oct 15, 2026）、Billing の Available の画面は「Free then $1/GB」（2026-11-19、平野さんの申告値）、紹介ページ https://www.cloudflare.com/ja-jp/lp/pg-log-explorer/ は「1GB あたり 1 ドル、最初の 10GB は無料」（2026-11-19〜20 にチャット側が読んだ） |

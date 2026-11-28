@@ -100,14 +100,18 @@ https://developers.cloudflare.com/cloudflare-one/applications/configure-apps/sel
 - 状態・ラベルは変えていない
 - 足した行を書いたコメント（`Chat-Ref: CHAT-1128-CFX-05` 付き）: https://github.com/retroeater/mj/issues/304#issuecomment-7232408178
 
+### マージ
+
+- push 直前の再 fetch で cloudflare が進んでいた（4541c47f3 の `chore: regenerate …`。触るファイルは重ならない）。`git merge origin/cloudflare` で衝突なく取り込み（0f3c6e36c）、`merge-base --is-ancestor` を確かめて `git push origin work/1128-cfx:cloudflare`（4541c47f3..0f3c6e36c）
+
 ## 報告
 
 - 状態: 完了
 - ブランチ: work/1128-cfx
-- ログ: https://github.com/retroeater/mj/blob/work/1128-cfx/docs/logs/CHAT-1128-CFX-05.md
+- ログ: https://github.com/retroeater/mj/blob/cloudflare/docs/logs/CHAT-1128-CFX-05.md
 - 比較URL: https://github.com/retroeater/mj/compare/cloudflare...work/1128-cfx
 - 確認用URL: なし
-- マージ: 未（このあと行う）
+- マージ: 済（0f3c6e36c。docs のみ）
 - issue: #304（本文 (9) に1行、コメント2件）
 - 判断が必要なこと: なし
 - 未確認の項目: Zero Trust を有効にした日（画面からは分からない）。Access のアプリケーションが今 ryoei.pro・`*.workers.dev` を対象にしていないか（次の #304 の (9) で見る）
@@ -116,12 +120,12 @@ https://developers.cloudflare.com/cloudflare-one/applications/configure-apps/sel
 <!-- guide-links -->
 ---
 
-ガイド文書（この版を写した時点の最新、mj d9066093）: https://github.com/retroeater/mj-logs/tree/main/guide/d9066093
+ガイド文書（この版を写した時点の最新、mj d1f79d91）: https://github.com/retroeater/mj-logs/tree/main/guide/d1f79d91
 
-- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d9066093/CLAUDE.md
-- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d9066093/docs/handover.md
-- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d9066093/docs/instruction-template.md
-- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d9066093/docs/notes/chat-side-operations.md
-- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d9066093/docs/notes/cloudflare.md
-- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d9066093/docs/decisions/README.md
+- CLAUDE.md: https://github.com/retroeater/mj-logs/blob/main/guide/d1f79d91/CLAUDE.md
+- docs/handover.md: https://github.com/retroeater/mj-logs/blob/main/guide/d1f79d91/docs/handover.md
+- docs/instruction-template.md: https://github.com/retroeater/mj-logs/blob/main/guide/d1f79d91/docs/instruction-template.md
+- docs/notes/chat-side-operations.md: https://github.com/retroeater/mj-logs/blob/main/guide/d1f79d91/docs/notes/chat-side-operations.md
+- docs/notes/cloudflare.md: https://github.com/retroeater/mj-logs/blob/main/guide/d1f79d91/docs/notes/cloudflare.md
+- docs/decisions/README.md: https://github.com/retroeater/mj-logs/blob/main/guide/d1f79d91/docs/decisions/README.md
 - 使用済みの Chat-Ref 識別子: https://github.com/retroeater/mj-logs/blob/main/chat-ids/f18a318e.md
